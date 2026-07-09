@@ -18,7 +18,7 @@ version: 1.0.0
    - 合盘：两套出生参数
 4. **确认 TimeSet**：信息齐全后，先调 `tianwen.time` 获取完整 TimeSet（公历+真太阳时+农历），展示给用户确认。
 5. **排盘**：用户确认后，排盘方法传入 `tianwen.time` 返回的 `solar` 真太阳时。依赖接口必须串行，不可并行。
-6. **用神**：排盘后调用 `bazi.yongshen`（传入 `bazi.chart` 返回的 `data.core_chart`），获取扶抑、调候、格局三派用神分析。
+6. **用神**：排盘后调用 `bazi.yongshen`（传入 `bazi.chart` 返回的 `data`），获取扶抑、调候、格局三派用神分析。
 7. **输出**：按对应报告模板组织输出。LLM 综合三派用神结果，给出最终用神判断。
 
 ## 参数收集
@@ -39,7 +39,7 @@ version: 1.0.0
 
 ## 八字
 
-Method：`bazi.chart`（排盘）、`bazi.yongshen`（用神）、`bazi.bond`（合盘）、`bazi.liunian`、`bazi.liuyue`、`bazi.liuri`、`bazi.liushi`、`bazi.xiaoyun`、`bazi.xiaoxian`。
+Method：`bazi.chart`（排盘）、`bazi.yongshen`（用神）、`bazi.hehui`（合会冲刑）、`bazi.chart_extra`（补充信息）、`bazi.bond`（合盘）、`bazi.liunian`、`bazi.liuyue`、`bazi.liuri`、`bazi.liushi`、`bazi.xiaoyun`、`bazi.xiaoxian`。
 
 **用神**：`bazi.yongshen` 返回三派用神（扶抑/调候/格局），LLM 需综合判断最终用神。
 
