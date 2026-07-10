@@ -73,12 +73,17 @@ npx skills add https://liki.hk/skills
 Combined Bazi and Ziwei analysis — chart casting, Yongshen, He-Hui-Chong-Xing, compatibility (Bond), decade cycles and annual trends.
 
 > Bazi chart, 1990-05-20 12:00 Beijing, male
+> What's my fortune this year
+> Check our compatibility: me (1984-06-15 Beijing, male) and her (1986-09-20 Shanghai, female)
+> ZiWei chart for 1990-05-20 Beijing, male
 
 ### Qiming (起名)
 
 Naming service that combines Bazi Yongshen with Wuge (五格, five-grid) and Sancai (三才, three-talent) numerology.
 
 > Name my baby boy, born 2024-03-15 at 10:00 Guangzhou, surname Wang
+> Help me rename myself, born 1995-08-10 Shenzhen, female, surname Li
+> Review the name 'Zhang Wei'
 
 ### Wengua (问卦)
 
@@ -88,13 +93,18 @@ LLM-driven routing that selects the corresponding method based on your question:
 - **Fortune inquiry** (success/loss/finding things) → Liuyao (六爻, I-Ching)
 - **Strategy & direction** (what to do / where to go) → Qimen Dunjia (奇门遁甲)
 
-> Should we move house tomorrow? | Can I find my lost keys?
+> Should we move house tomorrow?
+> Can I find my lost keys?
+> How's my career luck lately?
+> Which direction should I go today?
 
 ### Fengshui (风水)
 
 Covers both Bazhai (八宅, Eight Mansions) and Xuankong (玄空, Flying Star) schools — life-trigram matching, spatial orientation, and time-dimension analysis via Sanyuan Jiuyun (三元九运).
 
 > My front door faces east. How's the Fengshui of this apartment?
+> This house faces south. How's the Fengshui?
+> My office is on the 8th floor, desk by the window — anything to watch out for?
 
 ## Version
 
