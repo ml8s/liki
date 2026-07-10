@@ -1,5 +1,6 @@
 # Changelog
 
+- 1.8.0: bazi SKILL 覆盖 bazi.hehui 和 bazi.chart_extra；README 同步升级，标注 35+ API，新增引擎仓库和 llms.txt 链接
 - 1.7.1: report-naming.md 精简为纯模板，边界处理移至起名流程；异常处理合并
 - 1.7.0: 定位为 AI 起名顾问；新增 qiming.wuge（五格笔画对）；pick 去 surname 参数；build 加 pairs 约束；JSON 字段全拼统一（wu_ge→wuge, san_cai→sancai 等）
 - 1.6.0: 起名 API 重构：sancai/chars/compose/evaluate → pick/build/check，三才从生成约束降为评估维度，双路径合并为单流程
