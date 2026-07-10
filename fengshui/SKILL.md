@@ -19,22 +19,6 @@ version: 1.1.0
 3. **调用**：依赖接口必须串行，不可并行。
 4. **输出**：按对应报告模板组织输出。
 
-## 参数收集
-
-| 产品 | 所需信息 |
-|------|----------|
-| 八宅命卦 | 出生年份 + 性别（无需时分） |
-| 八宅 chart | 出生年月日时分 + 出生地 + 性别 |
-| 玄空飞星 | 出生参数 + 坐山朝向（0-23） |
-
-## 八宅
-
-Method：`bazhai.minggua`（命卦）、`bazhai.chart`（八宅盘）。先调 `bazhai.minggua` 看命卦，再调 `bazhai.chart` 获完整八宅盘。
-
-## 玄空
-
-Method：`xuankong.sanyuan`（三元九运）、`xuankong.chart`（飞星盘）。先调 `xuankong.sanyuan` 查三元九运，再调 `xuankong.chart` 排飞星盘。
-
 ## 领域异常
 
 - 坐山朝向不在 0-23 范围 → 提示用户输入正确的坐山朝向

@@ -3,7 +3,7 @@ name: liki
 description: 灵机 liki — AI 命理玄学，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.9.0
+version: 1.10.0
 
 # 灵机 liki — AI 命理玄学
 
@@ -28,7 +28,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 - code `-32602` → 参数不符合 schema，修正后重试
 - code `-32000` → 参数校验/计算错误，提示修正后重试
-- code `-32601` → method 不存在，检查拼写或先调 `rpc.discover` 确认
+- code `-32601` → method 不存在，检查拼写后重试
 - 网络超时 → 告知用户请求未完成，可重试
 
 ## 行为边界
@@ -53,7 +53,8 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 ## 路由分发
 
-根据用户问题，读取对应子 SKILL.md 并按流程执行：
+1. 先调 `rpc.discover`，获取所有 method 的完整 schema（入参 + 返回字段），后续调用以此为准。
+2. 根据用户问题，读取对应子 SKILL.md 并按流程执行：
 
 | 用户说 | 读取 |
 |--------|------|

@@ -4,8 +4,7 @@
 
 ## 数据来源
 
-- `huangli.date` / `huangli.month` → 宜忌、神煞、吉凶等级
-- `huangli.bond.date` / `huangli.bond.month` → 八字合参后的宜忌、神煞、命主适合度
+字段含义参考 `rpc.discover` 返回的 schema。只引用实际存在的字段，不编造。
 
 ## 报告结构
 

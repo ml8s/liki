@@ -96,7 +96,7 @@ LLM 智能路由，根据问题自动选择最合适的方法：
 
 ## 版本
 
-当前稳定版 **1.9.0**。详见 [CHANGELOG.md](./CHANGELOG.md)。
+当前稳定版 **1.10.0**。详见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ## 相关链接
 
