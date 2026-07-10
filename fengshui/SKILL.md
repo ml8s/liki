@@ -3,7 +3,7 @@ name: liki-fengshui
 description: 灵机风水 — AI 风水分析，八宅命卦、玄空飞星。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.1.0
+version: 1.2.0
 
 # 灵机风水
 
@@ -13,9 +13,9 @@ version: 1.1.0
 
 1. **收集参数**：
    - 八宅命卦：出生年份 + 性别
-   - 八宅 chart：出生年月日时分 + 出生地 + 性别
+   - 八宅排盘：出生年月日时分 + 出生地 + 性别
    - 玄空飞星：出生参数 + 坐山朝向（0-23）
-2. **确认 TimeSet**：信息齐全后，调 `tianwen.time` 获取完整 TimeSet，展示给用户确认。
+2. **确认 TimeSet**：信息齐全后，获取完整 TimeSet，展示给用户确认。
 3. **调用**：依赖接口必须串行，不可并行。
 4. **输出**：按对应报告模板组织输出。
 
@@ -26,5 +26,5 @@ version: 1.1.0
 
 ## 报告
 
-八宅 chart → 读取 `report-bazhai.md`，按其模板格式输出。
-玄空 chart → 读取 `report-xuankong.md`，按其模板格式输出。
+八宅 → 读取 `report-bazhai.md`，按其模板格式输出。
+玄空 → 读取 `report-xuankong.md`，按其模板格式输出。
