@@ -212,7 +212,7 @@ LLM 解读 → 结构化报告
 
 ## 版本
 
-当前稳定版 **1.8.1**。详见 [CHANGELOG.md](./CHANGELOG.md)。
+当前稳定版 **1.8.2**。详见 [CHANGELOG.md](./CHANGELOG.md)。
 
 - 每个 skill 独立版本管理，启动时自动检查更新
 - 遵循语义化版本，兼容性变化在 minor 版本体现
