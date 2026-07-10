@@ -1,5 +1,6 @@
 # Changelog
 
+- 1.9.0: 重构为全家桶模式：新增根 SKILL.md（公共段+路由分发）；八字紫微合并为 mingli/；naming→qiming/；ask→wengua/；fengshui 清理公共段。不再支持单包安装
 - 1.8.2: bazi SKILL 合会冲刑+补充信息纳入推演流程；report-chart 补充数据来源
 - 1.8.1: SKILL 评审改进：统一参数表头、ask去重路由、bazi开场补全、fengshui领域异常、naming Method表；标语改为"人人都是命理师"
 - 1.8.0: bazi SKILL 覆盖 bazi.hehui 和 bazi.chart_extra；README 同步升级，标注 35+ API，新增引擎仓库和 llms.txt 链接
