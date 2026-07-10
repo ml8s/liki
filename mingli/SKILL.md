@@ -17,10 +17,10 @@ version: 1.0.0
 2. **确认 TimeSet**：信息齐全后，先调 `tianwen.time` 获取完整 TimeSet（公历+真太阳时+农历），展示给用户确认。
 3. **排八字**：传入 `tianwen.time` 返回的 `solar` 真太阳时，调 `bazi.chart` 排盘（四柱、十神、大运）。依赖接口必须串行，不可并行。
 4. **用神**：调 `bazi.yongshen`（传入 `bazi.chart` 返回的 `data`），获取扶抑、调候、格局三派用神分析。
-5. **合会冲刑**：调 `bazi.hehui`（传入 `bazi.chart` 返回的 `data`），获取天干五合、地支六合、三合三会、六冲六害六刑分析。
+5. **合会冲刑**：调 `bazi.hehui`（传入 `bazi.chart` 返回的 `data`），获取合会冲刑数据。
 6. **紫微排盘**（可选，用户问紫微或综合命理时）：调 `ziwei.chart`，传入 `tianwen.time` 返回的 `solar` 真太阳时。
 7. **大限流年**（按需）：调 `ziwei.daxian`、`bazi.liunian` 等，传入对应 chart 的 `data`。
-8. **输出**：按对应报告模板组织输出。LLM 综合三派用神、合会冲刑结果，给出完整命理判断。
+8. **输出**：按对应报告模板组织输出。
 
 ## 参数收集
 

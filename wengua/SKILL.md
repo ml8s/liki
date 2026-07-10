@@ -20,7 +20,13 @@ version: 1.0.0
 3. **当前时间**：六爻、奇门需要当下时间时，先调 `time.now` 获取服务端当前时间（UTC/CST），避免 AI 推测时间出错。
 4. **确认 TimeSet**（需要出生参数时）：调 `tianwen.time` 获取完整 TimeSet，展示给用户确认。
 5. **调用**：依赖接口必须串行，不可并行。
-6. **输出**：按对应方法的输出说明组织报告。
+6. **输出**：读取对应报告模板，按模板结构输出。
+
+## 输出规则
+
+- **结论先行**：报告第一句直接给出明确吉凶/成败/方向判断，如"卦象显示此事可行"、"奇门盘局显示不宜行动"。不得以"可能/或许/有几种可能"开头。
+- **依据支撑**：结论之后附卦象/盘局关键信息作为依据，引用 API 返回的实际数据。
+- **不要模棱两可**：占卜断卦的意义是给出明确判断，而非列举各种可能性让用户自行决定。有分歧时取最明显的信号，并在依据中说明为何取此舍彼。
 
 ## 参数收集
 
@@ -37,13 +43,13 @@ version: 1.0.0
 
 Method：`qimen.pan`。kind 默认 `"shi"`（时家），可选 `"ri"`/`"yue"`/`"nian"`。
 
-**输出**：基于天盘九星、人盘八门、神盘八神、地盘九宫格局解读，重点看值符值使、八门吉凶、奇仪组合。
+输出类型：读取 `report-qimen.md`，按模板输出。
 
 ### 六爻
 
 Method：`liuyao.qigua`（起卦）+ `liuyao.chart`（装卦）。先调 `liuyao.qigua` 获取六爻值和动爻，再调 `liuyao.chart` 传入 `yaos` 和 `yong_shen`。
 
-**输出**：基于六亲、六兽、用神生克关系，解读所占之事吉凶成败。
+输出类型：读取 `report-liuyao.md`，按模板输出。
 
 ### 黄历择日
 
@@ -51,7 +57,7 @@ Method：`huangli.date`、`huangli.month` — event 为用户事项（嫁娶/开
 
 八字合参择日需先排八字（`bazi.chart`），再调 `huangli.bond.date` 或 `huangli.bond.month`。
 
-**输出**：列出宜忌、神煞，标注吉日。八字合参时结合命主喜忌筛选。
+输出类型：读取 `report-huangli.md`，按模板输出。
 
 ### 八字排盘（黄历合参用）
 
@@ -59,4 +65,6 @@ Method：`huangli.date`、`huangli.month` — event 为用户事项（嫁娶/开
 
 ## 报告
 
-各 method 按对应输出说明组织报告，无独立报告模板。
+- qimen.pan → 读取 `report-qimen.md`，按模板输出
+- liuyao.chart → 读取 `report-liuyao.md`，按模板输出
+- huangli.date / huangli.bond → 读取 `report-huangli.md`，按模板输出
