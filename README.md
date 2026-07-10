@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="灵机 Liki" src="https://img.shields.io/badge/灵机-Liki-oklch(0.58_0.18_266)?style=for-the-badge&logo=openai&logoColor=white&labelColor=oklch(0.25_0.05_266)">
+  <img alt="灵机 Liki" src="https://img.shields.io/badge/灵机-Liki-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-官网-oklch(0.58_0.18_266)?style=flat&logo=safari&logoColor=white&labelColor=oklch(0.25_0.05_266)"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-oklch(0.45_0.08_200)?style=flat"></a>
+  <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-官网-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat"></a>
 </p>
 
 ---
