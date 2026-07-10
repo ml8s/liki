@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>中国传统命理 Skills &mdash; npx skills add ml8s/liki</strong>
+  <strong>命理玄学 Skill &mdash; npx skills add ml8s/liki</strong>
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
 
 ## 简介
 
-**灵机（Liki）** 是一套中国传统命理 Skills，`npx skills add` 安装，装完即用。后端提供 **35+ 命理 API**（JSON-RPC 2.0），每个 skill 是一个独立的 AI Agent，内置完整会话流程，先调 API 精准计算，再由 LLM 人性化解读。
+**灵机（Liki）** 是一套命理玄学 Skill，`npx skills add` 安装，装完即用。后端提供 **35+ 命理 API**（JSON-RPC 2.0），每个 skill 是一个独立的 AI Agent，内置完整会话流程，先调 API 精准计算，再由 LLM 人性化解读。
 
 五个 skill 覆盖了命理咨询的主要场景：
 
