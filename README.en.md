@@ -82,7 +82,7 @@ Naming service that combines Bazi Yongshen with Wuge (五格, five-grid) and San
 
 ### Wengua (问卦)
 
-LLM-driven routing that selects the best method based on your question:
+LLM-driven routing that selects the corresponding method based on your question:
 
 - **Auspicious date** (when is good) → Huangli (黄历, Chinese almanac)
 - **Fortune inquiry** (success/loss/finding things) → Liuyao (六爻, I-Ching)
