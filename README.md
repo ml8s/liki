@@ -220,7 +220,6 @@ LLM 解读 → 结构化报告
 ## 相关链接
 
 - 官网：[liki.hk](https://liki.hk)
-- 命理引擎（JSON-RPC）：[ml8s/liki-engine](https://github.com/ml8s/liki-engine)
 - AI Agent 入口：[llms.txt](https://liki.hk/llms.txt)
 - GitHub：[ml8s/liki](https://github.com/ml8s/liki)
 
