@@ -12,6 +12,7 @@
 
 <p align="center">
   <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-官网-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
+  <a href="./README.en.md"><img src="https://img.shields.io/badge/English-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat"></a>
 </p>
 
