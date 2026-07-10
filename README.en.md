@@ -42,7 +42,7 @@
 - **Astronomical backend** — True Solar Time, daylight saving time correction, lat/lon timezone conversion
 - **Auto-update** — version check on startup
 - **Privacy** — birth info sent to API for stateless computation only; not persisted on the server
-- **Zero setup** — one install command, callable immediately
+- **Ready to use** — one install command, callable immediately
 
 ## Quick Start
 
@@ -52,7 +52,7 @@ npx skills add ml8s/liki
 
 Then talk to your AI assistant:
 
-> Read my Bazi chart. Born May 20, 1990, 12:00, Beijing, male.
+> Read my Bazi chart. Born May 20, 1990, 12:00 noon, Beijing, male.
 
 The agent collects parameters, calls `tianwen.time` for True Solar Time correction, casts the chart, determines Yongshen, and outputs a structured report.
 
@@ -78,7 +78,7 @@ Combined Bazi and Ziwei analysis — chart casting, Yongshen, He-Hui-Chong-Xing,
 
 Naming service that combines Bazi Yongshen with Wuge (五格, five-grid) and Sancai (三才, three-talent) numerology.
 
-> Name my baby boy, born 2024-03-15 10:00 Guangzhou, surname Wang
+> Name my baby boy, born 2024-03-15 at 10:00 Guangzhou, surname Wang
 
 ### Wengua (问卦)
 
@@ -107,7 +107,7 @@ Current stable version: **1.10.0**. See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Disclaimer
 
-Liki provides Chinese metaphysics analysis from a traditional cultural perspective for research and reference only. Its conclusions **do not constitute** medical diagnosis, legal advice, financial forecasts, or life-changing decisions. Please maintain a rational and proactive outlook.
+Liki provides Chinese metaphysics analysis from a traditional cultural perspective for research and reference only. Its conclusions **do not constitute** medical diagnosis, legal advice, financial forecasts, or major life decisions. Please maintain a rational and proactive outlook.
 
 ---
 
