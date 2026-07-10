@@ -1,0 +1,7 @@
+# Reasonix agent config
+.reasonix/
+reasonix.toml
+
+# OS
+.DS_Store
+Thumbs.db
