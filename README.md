@@ -47,7 +47,7 @@
 ## 快速开始
 
 ```bash
-npx skills add ml8s/liki     # 安装全家桶
+npx skills add ml8s/liki     # 安装整套
 ```
 
 然后在 AI 助手中直接对话：
@@ -82,7 +82,7 @@ npx skills add https://liki.hk/skills
 
 ### 问卦
 
-LLM 智能路由，根据问题自动选择最合适的方法：
+LLM 自动判断，根据问题选择最合适的方法：
 - **择日**（哪天好）→ 黄历
 - **问吉凶**（成败/得失/寻物）→ 六爻
 - **问策略**（该不该做/往哪走）→ 奇门遁甲
