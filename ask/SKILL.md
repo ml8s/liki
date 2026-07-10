@@ -3,7 +3,7 @@ name: liki-ask
 description: 灵机问事 — AI 占卜择日，奇门遁甲、六爻断卦、黄历择日，按需路由。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.0.0
+version: 1.0.1
 
 # 灵机 Liki — AI 占卜择日
 

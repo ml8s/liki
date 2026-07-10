@@ -3,7 +3,7 @@ name: liki-bazi
 description: 灵机八字 — AI 八字命理分析，排盘、合会冲刑、合盘、大运、流年流月流日。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.1.0
+version: 1.1.1
 
 # 灵机 Liki — AI 八字命理分析
 

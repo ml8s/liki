@@ -3,7 +3,7 @@ name: liki-fengshui
 description: 灵机风水 — AI 风水分析，八宅命卦、玄空飞星。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.0.0
+version: 1.0.1
 
 # 灵机 Liki — AI 风水分析
 

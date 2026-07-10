@@ -3,7 +3,7 @@ name: liki-naming
 description: 灵机起名 — AI 起名顾问，结合八字用神与五格三才，提供全维度起名服务。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.0.0
+version: 1.0.1
 
 # 灵机 Liki — AI 起名顾问
 
