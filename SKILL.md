@@ -14,7 +14,7 @@ version: 1.11.0
 检查最新版本号，与本地安装版本对比：
 - 版本一致 → 跳过
 - 版本不一致 → 告知用户新版本变化，执行以下任一命令更新：
-  `npx skills add https://liki.hk/skills`
+  `npx skills add https://liki.hk/`
   `npx skills add ml8s/liki`
 - 无法连接时跳过版本检查，不影响使用
 

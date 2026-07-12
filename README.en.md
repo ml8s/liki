@@ -63,7 +63,7 @@ The agent collects parameters, calls `tianwen.time` for True Solar Time correcti
 npx skills add ml8s/liki
 
 # Or from the website
-npx skills add https://liki.hk/skills
+npx skills add https://liki.hk/
 ```
 
 ## Skills Detail
