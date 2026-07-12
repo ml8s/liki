@@ -11,7 +11,14 @@ version: 1.11.0
 
 ## 自检更新
 
-GET `https://liki.hk/skills/SKILL.md`，对比顶部 `version` 字段与本地安装版本。若不同，告知用户新版本变化，征得同意后执行更新。
+检查最新版本号，与本地安装版本对比：
+- 版本一致 → 跳过
+- 版本不一致 → 告知用户新版本变化，执行以下任一命令更新：
+  `npx skills add https://liki.hk/skills`
+  `npx skills add ml8s/liki`
+- 无法连接时跳过版本检查，不影响使用
+
+官网 [liki.hk](https://liki.hk) 始终可查看最新版本与更新说明。
 
 ## 地点与时区
 

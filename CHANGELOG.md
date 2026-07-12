@@ -1,6 +1,6 @@
 # Changelog
 
-- 1.11.0: 子 SKILL 删除全部方法名和参数描述，改为 schema 驱动；mingli 新增合盘步骤；wengua 路由加区分指引；fengshui 清理残留英文；qiming 修复 fu_yi 不准确描述
+- 1.12.0: 自检更新改为读 VERSION 文件 + 兜底；清理 API 字样；补默认经度；六爻 TimeSet 指引
 - 1.9.0: 重构为全家桶模式：新增根 SKILL.md（公共段+路由分发）；八字紫微合并为 mingli/；naming→qiming/；ask→wengua/；fengshui 清理公共段。不再支持单包安装
 - 1.8.2: bazi SKILL 合会冲刑+补充信息纳入推演流程；report-chart 补充数据来源
 - 1.8.1: SKILL 评审改进：统一参数表头、ask去重路由、bazi开场补全、fengshui领域异常、naming Method表；标语改为"人人都是命理师"
