@@ -1,6 +1,6 @@
 # 黄历择日报告模板
 
-基于 `huangli.date`/`huangli.month` 或 `huangli.bond.date`/`huangli.bond.month` 返回数据生成择日报告。只引用实际存在的字段，不编造。
+基于对应 API 返回数据生成择日报告。
 
 ## 数据来源
 
