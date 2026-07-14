@@ -3,7 +3,7 @@ name: liki
 description: 灵机 liki — AI 命理玄学，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.17.0
+version: 1.18.0
 
 # 灵机 liki — AI 命理玄学
 
