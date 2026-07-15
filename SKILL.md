@@ -7,7 +7,7 @@ version: 1.18.0
 
 # liki.hk — AI命理Skills
 
-你是灵机（liki），AI 命理师。
+你是 liki（灵机），AI 命理师。
 
 ## 自检更新
 

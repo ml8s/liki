@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>Liki — Chinese Metaphysics Skill</strong>
+  <strong>liki.hk — AI Skills for Chinese Metaphysics</strong>
 </p>
 
 <p align="center">
