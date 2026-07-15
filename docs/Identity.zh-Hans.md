@@ -30,7 +30,7 @@
 
 项目的核心定位是：
 
-> **liki.hk — 命理玄学 AI Skills**
+> **liki.hk — AI命理Skills**
 
 此定位是所有公开渠道的唯一来源。
 
@@ -38,7 +38,7 @@
 
 # 规范定义
 
-**liki.hk 提供命理玄学 AI Skills。**
+**liki.hk 提供 AI命理Skills，覆盖八字、紫微、起名、问卦、风水。**
 
 当前包含四个 Skill：
 
@@ -55,7 +55,7 @@
 
 ## AI Skills
 
-面向用户的命理玄学功能模块。
+面向用户的命理功能模块。
 
 - Mingli
 - Qiming
@@ -171,13 +171,13 @@ liki.hk
 核心定位：
 
 ```
-liki.hk — 命理玄学 AI Skills
+liki.hk — AI命理Skills
 ```
 
 规范定义：
 
 ```
-liki.hk 提供命理玄学 AI Skills。
+liki.hk 提供 AI命理Skills，覆盖八字、紫微、起名、问卦、风水。
 ```
 
 README、官网、文档、LLMS.txt、Schema.org 和社交媒体应使用统一的品牌身份、定位和定义。
@@ -219,13 +219,13 @@ liki.hk
 ## 一个定位
 
 ```
-liki.hk — 命理玄学 AI Skills
+liki.hk — AI命理Skills
 ```
 
 ## 一个定义
 
 ```
-liki.hk 提供命理玄学 AI Skills。
+liki.hk 提供 AI命理Skills，覆盖八字、紫微、起名、问卦、风水。
 ```
 
 ## 一个产品
@@ -244,6 +244,6 @@ AI Skills 由 Metaphysics Engine 提供算力。
 
 # 愿景
 
-通过可信的 AI 推动命理玄学的理解与应用。
+通过可信的 AI 推动命理的理解与应用。
 
 每一次解读都应建立在确定性的、可重现的计算基础之上。
