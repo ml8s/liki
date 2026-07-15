@@ -1,9 +1,9 @@
 <p align="center">
-  <img alt="liki.hk" src="https://img.shields.io/badge/liki.hk-AI%20Skills-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="Liki" src="https://img.shields.io/badge/Liki-灵机-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>liki.hk — AI Skills for Chinese Metaphysics</strong>
+  <strong>liki — AI Chinese Metaphysics Skill Suite</strong>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## Introduction
 
-**liki.hk** is an AI Skills platform for Chinese Metaphysics — install it in one command with `npx skills add ml8s/liki`. It covers:
+**liki** is a collection of Chinese metaphysics Skills — install it in one command with `npx skills add ml8s/liki`. It includes four sub-skills:
 
 - **[Mingli (命理)](./mingli/)** — Bazi & Ziwei: chart casting, Yongshen analysis, Combination & Clash, decade/annual fortune
 - **[Qiming (起名)](./qiming/)** — Naming based on Bazi Yongshen + Wuge-Sancai numerology
@@ -108,7 +108,7 @@ Covers both Bazhai (八宅, Eight Mansions) and Xuankong (玄空, Flying Star) s
 
 ## Version
 
-Current stable version: **1.18.0**. See [CHANGELOG.md](./CHANGELOG.md).
+Current stable version: **1.17.0**. See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Links
 
@@ -117,7 +117,7 @@ Current stable version: **1.18.0**. See [CHANGELOG.md](./CHANGELOG.md).
 
 ## Disclaimer
 
-Liki provides Chinese metaphysics analysis from a traditional cultural perspective for research and reference only. Its conclusions **do not constitute** medical diagnosis, legal advice, financial forecasts, or major life decisions. Please maintain a rational and proactive outlook.
+liki.hk provides Chinese metaphysics analysis from a traditional cultural perspective for research and reference only. Its conclusions **do not constitute** medical diagnosis, legal advice, financial forecasts, or major life decisions. Please maintain a rational and proactive outlook.
 
 ---
 
