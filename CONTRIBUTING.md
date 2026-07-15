@@ -12,13 +12,12 @@
 
 1. Fork 本仓库
 2. 创建一个功能分支：`git checkout -b feat/my-change`
-3. 修改 SKILL.md 后更新对应 `version` 字段（小 bug 修 patch，流程变更升 minor）
-4. 更新 `CHANGELOG.md`
+3. 修改 SKILL.md 后更新根 `SKILL.md` 的 `version` 字段（小 bug 修 patch，流程变更升 minor）
+4. 同步更新 `VERSION` 文件和 `CHANGELOG.md`
 5. 提交 PR，描述清楚改了什么、为什么
 
 ## 代码规范
 
 - SKILL.md 使用中文，术语保持原文
-- API method 名首字母小写
-- 参数收集表头统一为 `产品 | 所需信息`
-- 功能方法表头统一为 `功能 | Method`
+- 方法名首字母小写
+- 每次升版本必须同步更新：`SKILL.md` + `VERSION` + `README.md` + `CHANGELOG.md`
