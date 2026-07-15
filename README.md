@@ -20,7 +20,7 @@
 
 ## 简介
 
-**灵机（liki）** 是命理玄学 Skill，`npx skills add ml8s/liki` 一条命令装完即用。涵盖四大领域：
+**灵机（liki）** 是命理玄学 Skill，`npx skills add ml8s/liki` 一条命令装完即用。涵盖：
 
 - **[命理](./mingli/)** — 八字紫微综合，排盘、用神、合会冲刑、大运流年
 - **[起名](./qiming/)** — 八字用神 + 五格三才，全维度起名
