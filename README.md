@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="灵机 Liki" src="https://img.shields.io/badge/灵机-Liki-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="liki.hk" src="https://img.shields.io/badge/liki.hk-AI命理Skills-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
@@ -116,7 +116,7 @@ LLM 自动判断，根据问题选择对应方法：
 
 ## 免责声明
 
-灵机（Liki）提供的命理分析基于中国传统文化视角，仅供研究与参考。命理结论**不构成**医疗诊断、法律建议、金融投资预测或人生重大决策的依据。请理性看待，保持自主积极的人生态度。
+liki.hk 提供的命理分析基于中国传统文化视角，仅供研究与参考。命理结论**不构成**医疗诊断、法律建议、金融投资预测或人生重大决策的依据。请理性看待，保持自主积极的人生态度。
 
 ---
 
