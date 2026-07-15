@@ -20,7 +20,7 @@
 
 ## Introduction
 
-**Liki** is a Chinese metaphysics Skill — install it in one command with `npx skills add ml8s/liki`. It covers:
+**liki.hk** is an AI Skills platform for Chinese Metaphysics — install it in one command with `npx skills add ml8s/liki`. It covers:
 
 - **[Mingli (命理)](./mingli/)** — Bazi & Ziwei: chart casting, Yongshen analysis, Combination & Clash, decade/annual fortune
 - **[Qiming (起名)](./qiming/)** — Naming based on Bazi Yongshen + Wuge-Sancai numerology
