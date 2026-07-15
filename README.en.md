@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>liki — AI Chinese Metaphysics Skill Suite</strong>
+  <strong>Liki — Chinese Metaphysics Skill Suite</strong>
 </p>
 
 <p align="center">
