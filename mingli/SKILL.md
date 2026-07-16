@@ -3,7 +3,7 @@ name: liki-mingli
 description: liki.hk命理 — AI 八字紫微命理分析，排盘、合会冲刑、紫微斗数、合盘、大运流年。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.6.0
+version: 1.7.0
 
 # liki.hk命理
 
