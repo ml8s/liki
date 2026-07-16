@@ -1,0 +1,9 @@
+# Reasonix agent config
+.reasonix/
+reasonix.toml
+
+liki.tar.gz
+
+# OS
+.DS_Store
+Thumbs.db
