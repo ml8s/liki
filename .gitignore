@@ -1,4 +1,5 @@
 # Reasonix agent config
+.git-old/
 .reasonix/
 reasonix.toml
 
