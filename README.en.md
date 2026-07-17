@@ -94,7 +94,7 @@ Covers both Bazhai (八宅, Eight Mansions) and Xuankong (玄空, Flying Star) s
 
 ## Version
 
-Current stable version: **1.21.0**. See [CHANGELOG.md](./CHANGELOG.md).
+Current stable version: **1.22.0**. See [CHANGELOG.md](./CHANGELOG.md).
 
 ## References
 
@@ -108,7 +108,7 @@ This project's design references the following open-source projects:
 - [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — Three-layer computation architecture
 - [hhszzzz/taibu](https://github.com/hhszzzz/taibu) — Agent-friendly design
 - [SylarLong/iztro](https://github.com/SylarLong/iztro) — Ziwei Doushu charting engine
-- [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — Confidence system, three-chart cross-translation mechanism
+- [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — Confidence system, personality profile inference
 - [DestinyLinker/MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) — Metaphysics benchmark reference
 
 ## Links

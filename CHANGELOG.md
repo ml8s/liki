@@ -1,4 +1,5 @@
 # Changelog
+- 1.22.0: 同名陷阱检测规则、人格画像段（报告综合建议前置）、READEME 参考节扩充（iztro/high-confidence/taibu/MingLi-Bench）、PLAN.md、庚金子月调候错写修正、geju 八格表去固定格局名、壬水巳月去比肩用神
 - 1.21.0: 经典摘要参考文件（mingli/references/tiaohou.md/geju.md/wangshuai.md）；report-chart 格局判定独立成节+综合建议分领域；历史事件校准步骤
 - 1.20.0: README 品牌规范修正 — 灵机→liki.hk, 去合集/sub-skill
 - 1.19.0: 紫微论断/八宅论断/玄空流年 + 流程补判断步骤
