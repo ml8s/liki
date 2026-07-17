@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>liki.hk — AI命理Skills</strong>
+  <strong>liki.hk — AI 命理 Skills</strong>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## 简介
 
-**liki.hk** 是 AI命理Skills，`npx skills add ml8s/liki` 一条命令装完即用。覆盖四大领域：
+**liki.hk** 是 AI 命理 Skills，`npx skills add ml8s/liki` 一条命令装完即用。覆盖四大领域：
 
 - **[命理](./mingli/)** — 八字紫微综合，排盘、用神、合会冲刑、大运流年
 - **[起名](./qiming/)** — 八字用神 + 五格三才，全维度起名
@@ -38,39 +38,25 @@
 
 ## 特性
 
-- **Agent 工作流** — 参数收集 → API 排盘 → LLM 解读 → 结构化报告
-- **天文历算后端** — 集成真太阳时、夏令时校正、经纬度时区换算
-- **自动更新** — 启动时检查版本
+- **精准 API 排盘** — 集成天文历算后端，真太阳时/夏令时/经纬度时区校正
+- **全领域覆盖** — 八字紫微起名问卦风水，一套 Skills 覆盖
+- **智能路由** — 一句话自动分发到对应领域，无需指定 skill
 - **隐私安全** — 出生信息发送至 API 实时运算，服务端不持久存储
-- **即装即用** — 一条命令安装，安装后可直接调用
 
 ## 快速开始
 
 ```bash
 npx skills add ml8s/liki     # 安装整套
+npx skills add https://liki.hk/   # 或从官网
 ```
 
 然后在 AI 助手中直接对话：
-
-> 帮我排个八字，1990年5月20日中午12点，北京出生，男
-
-Agent 收集参数后，调用 `tianwen.time` 校正真太阳时，再排盘、取用神，输出结构化命理报告。
-
-## 安装
-
-```bash
-# 从 GitHub 安装
-npx skills add ml8s/liki
-
-# 或从官网安装
-npx skills add https://liki.hk/
-```
 
 ## Skills 详情
 
 ### 命理
 
-八字紫微综合命理分析，覆盖排盘、用神、合会冲刑、合盘、大运流年。
+八字紫微综合命理分析，覆盖排盘、用神、格局判定、合会冲刑、合盘、大运流年、综合建议与历史事件校准。
 
 > 算八字，1990-05-20 12:00 北京出生，男
 > 看我今年的流年运势
@@ -113,12 +99,16 @@ LLM 自动判断，根据问题选择对应方法：
 
 本项目的设计参考了以下开源项目：
 
-- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — 四维交叉验证框架（旺衰/格局/调候/病药），用神方法论参考其交叉验证思路
-- [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) — 经典摘要参考文件的设计、历史事件校准机制
-- [dzcmemory-web/bazi-ziwei-skill](https://github.com/dzcmemory-web/bazi-ziwei-skill) — 八字+紫微综合印证的分析框架
-- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — 多流派圆桌互审与结论强度标注的设计理念
-- [shizhilya/yuan](https://github.com/shizhilya/yuan) — 结论先行、不展示中间过程的设计理念
-- [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — 三层计算架构的思路
+- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — 四维交叉验证框架
+- [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) — 九本经典结构化摘要、历史事件校准
+- [dzcmemory-web/bazi-ziwei-skill](https://github.com/dzcmemory-web/bazi-ziwei-skill) — 八字+紫微综合印证模式
+- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — 多流派互审与结论强度标注
+- [shizhilya/yuan](https://github.com/shizhilya/yuan) — 结论先行输出设计
+- [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — 三层计算架构
+- [hhszzzz/taibu](https://github.com/hhszzzz/taibu) — Agent 友好设计
+- [SylarLong/iztro](https://github.com/SylarLong/iztro) — 紫微斗数排盘引擎
+- [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — 置信度体系、三盘互译机制
+- [DestinyLinker/MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) — 命理评测参照
 
 ## 相关链接
 
