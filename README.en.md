@@ -122,4 +122,3 @@ liki.hk provides Chinese metaphysics analysis from a traditional cultural perspe
 
 ---
 
-Questions or suggestions? [Open an Issue](https://github.com/ml8s/liki/issues)
