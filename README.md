@@ -113,10 +113,10 @@ LLM 自动判断，根据问题选择对应方法：
 
 本项目的设计参考了以下开源项目：
 
-- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — 四维交叉验证方法论（旺衰/格局/调候/病药），被引入用神方法论
+- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — 四维交叉验证框架（旺衰/格局/调候/病药），用神方法论参考其交叉验证思路
 - [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) — 经典摘要参考文件的设计、历史事件校准机制
 - [dzcmemory-web/bazi-ziwei-skill](https://github.com/dzcmemory-web/bazi-ziwei-skill) — 八字+紫微综合印证的分析框架
-- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — 可证伪断语的输出规范
+- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — 多流派圆桌互审与结论强度标注的设计理念
 - [shizhilya/yuan](https://github.com/shizhilya/yuan) — 结论先行、不展示中间过程的设计理念
 - [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — 三层计算架构的思路
 

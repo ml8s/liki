@@ -110,6 +110,17 @@ Covers both Bazhai (八宅, Eight Mansions) and Xuankong (玄空, Flying Star) s
 
 Current stable version: **1.21.0**. See [CHANGELOG.md](./CHANGELOG.md).
 
+## References
+
+This project's design references the following open-source projects:
+
+- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — Four-dimensional cross-validation framework (Wangshuai/Geju/Tiaohou/Bingyao)
+- [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) — Classical text reference files, historical event calibration
+- [dzcmemory-web/bazi-ziwei-skill](https://github.com/dzcmemory-web/bazi-ziwei-skill) — Bazi+Ziwei cross-validation analysis framework
+- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — Multi-school roundtable review and conclusion strength labeling
+- [shizhilya/yuan](https://github.com/shizhilya/yuan) — Conclusion-first, no intermediate process exposition
+- [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — Three-layer computation architecture
+
 ## Links
 
 - Website: [liki.hk](https://liki.hk)
