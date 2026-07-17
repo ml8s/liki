@@ -93,7 +93,7 @@ LLM 自动判断，根据问题选择对应方法：
 
 ## 版本
 
-当前稳定版 **1.22.0**。详见 [CHANGELOG.md](./CHANGELOG.md)。
+当前稳定版 **1.23.0**。详见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ## 参考
 
