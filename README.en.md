@@ -1,9 +1,9 @@
 <p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/Liki-灵机-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="liki.hk" src="https://img.shields.io/badge/liki.hk-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>liki — AI Chinese Metaphysics Skill Suite</strong>
+  <strong>liki.hk — AI Skills for Chinese Metaphysics</strong>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## Introduction
 
-**liki** is a collection of Chinese metaphysics Skills — install it in one command with `npx skills add ml8s/liki`. It includes four sub-skills:
+**liki.hk** provides AI Skills for Chinese Metaphysics — install in one command with `npx skills add ml8s/liki`. It covers four areas:
 
 - **[Mingli (命理)](./mingli/)** — Bazi & Ziwei: chart casting, Yongshen analysis, Combination & Clash, decade/annual fortune
 - **[Qiming (起名)](./qiming/)** — Naming based on Bazi Yongshen + Wuge-Sancai numerology

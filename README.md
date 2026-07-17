@@ -1,9 +1,9 @@
 <p align="center">
-  <img alt="灵机 Liki" src="https://img.shields.io/badge/灵机-Liki-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="liki.hk" src="https://img.shields.io/badge/liki.hk-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>灵机 Liki — 命理玄学 Skill</strong>
+  <strong>liki.hk — AI命理Skills</strong>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## 简介
 
-**灵机（liki）** 是命理玄学 Skill 合集，`npx skills add ml8s/liki` 一条命令装完即用。包含四个子 skill：
+**liki.hk** 是 AI命理Skills，`npx skills add ml8s/liki` 一条命令装完即用。覆盖四大领域：
 
 - **[命理](./mingli/)** — 八字紫微综合，排盘、用神、合会冲刑、大运流年
 - **[起名](./qiming/)** — 八字用神 + 五格三才，全维度起名
@@ -116,7 +116,7 @@ LLM 自动判断，根据问题选择对应方法：
 
 ## 免责声明
 
-灵机（Liki）提供的命理分析基于中国传统文化视角，仅供研究与参考。命理结论**不构成**医疗诊断、法律建议、金融投资预测或人生重大决策的依据。请理性看待，保持自主积极的人生态度。
+liki.hk 提供的命理分析基于中国传统文化视角，仅供研究与参考。命理结论**不构成**医疗诊断、法律建议、金融投资预测或人生重大决策的依据。请理性看待，保持自主积极的人生态度。
 
 ---
 
