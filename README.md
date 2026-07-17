@@ -93,7 +93,7 @@ LLM 自动判断，根据问题选择对应方法：
 
 ## 版本
 
-当前稳定版 **1.21.0**。详见 [CHANGELOG.md](./CHANGELOG.md)。
+当前稳定版 **1.22.0**。详见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ## 参考
 
@@ -107,7 +107,7 @@ LLM 自动判断，根据问题选择对应方法：
 - [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — 三层计算架构
 - [hhszzzz/taibu](https://github.com/hhszzzz/taibu) — Agent 友好设计
 - [SylarLong/iztro](https://github.com/SylarLong/iztro) — 紫微斗数排盘引擎
-- [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — 置信度体系、三盘互译机制
+- [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — 置信度体系、人格画像推断
 - [DestinyLinker/MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) — 命理评测参照
 
 ## 相关链接
