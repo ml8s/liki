@@ -38,39 +38,25 @@
 
 ## Features
 
-- **Agent workflow** — parameter collection → API charting → LLM interpretation → structured report
-- **Astronomical backend** — True Solar Time, daylight saving time correction, lat/lon timezone conversion
-- **Auto-update** — version check on startup
-- **Privacy** — birth info sent to API for stateless computation only; not persisted on the server
-- **Ready to use** — one install command, callable immediately
+- **Precise API charting** — astronomical backend with True Solar Time, DST, lat/lon conversion
+- **Full coverage** — Bazi, Ziwei, naming, divination, Fengshui in one suite
+- **Smart routing** — one sentence auto-routes to the right domain, no skill selection needed
+- **Privacy** — birth info sent to API for stateless computation only; not persisted
 
 ## Quick Start
 
 ```bash
 npx skills add ml8s/liki
+npx skills add https://liki.hk/   # or from the website
 ```
 
 Then talk to your AI assistant:
-
-> Read my Bazi chart. Born May 20, 1990, 12:00 noon, Beijing, male.
-
-The agent collects parameters, calls `tianwen.time` for True Solar Time correction, casts the chart, determines Yongshen, and outputs a structured report.
-
-## Installation
-
-```bash
-# From GitHub
-npx skills add ml8s/liki
-
-# Or from the website
-npx skills add https://liki.hk/
-```
 
 ## Skills Detail
 
 ### Mingli (命理)
 
-Combined Bazi and Ziwei analysis — chart casting, Yongshen, He-Hui-Chong-Xing, compatibility (Bond), decade cycles and annual trends.
+Combined Bazi and Ziwei analysis — chart casting, Yongshen, Geju determination, Combination & Clash, compatibility (Bond), decade cycles, annual trends, comprehensive advice, and historical event calibration.
 
 > Bazi chart, 1990-05-20 12:00 Beijing, male
 > What's my fortune this year
@@ -114,12 +100,16 @@ Current stable version: **1.21.0**. See [CHANGELOG.md](./CHANGELOG.md).
 
 This project's design references the following open-source projects:
 
-- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — Four-dimensional cross-validation framework (Wangshuai/Geju/Tiaohou/Bingyao)
-- [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) — Classical text reference files, historical event calibration
-- [dzcmemory-web/bazi-ziwei-skill](https://github.com/dzcmemory-web/bazi-ziwei-skill) — Bazi+Ziwei cross-validation analysis framework
-- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — Multi-school roundtable review and conclusion strength labeling
-- [shizhilya/yuan](https://github.com/shizhilya/yuan) — Conclusion-first, no intermediate process exposition
+- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — Four-dimensional cross-validation framework
+- [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) — Nine classical texts structured summary, historical event calibration
+- [dzcmemory-web/bazi-ziwei-skill](https://github.com/dzcmemory-web/bazi-ziwei-skill) — Bazi+Ziwei cross-validation mode
+- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — Multi-school review and conclusion strength labeling
+- [shizhilya/yuan](https://github.com/shizhilya/yuan) — Conclusion-first output design
 - [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — Three-layer computation architecture
+- [hhszzzz/taibu](https://github.com/hhszzzz/taibu) — Agent-friendly design
+- [SylarLong/iztro](https://github.com/SylarLong/iztro) — Ziwei Doushu charting engine
+- [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — Confidence system, three-chart cross-translation mechanism
+- [DestinyLinker/MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) — Metaphysics benchmark reference
 
 ## Links
 
