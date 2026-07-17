@@ -3,6 +3,9 @@
 .reasonix/
 reasonix.toml
 
+# Local IDE config
+.claude/
+
 liki.tar.gz
 
 # OS
