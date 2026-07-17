@@ -121,4 +121,3 @@ liki.hk 提供的命理分析基于中国传统文化视角，仅供研究与参
 
 ---
 
-有问题或建议？[提 Issue](https://github.com/ml8s/liki/issues)
