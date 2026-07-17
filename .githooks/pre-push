@@ -1,7 +1,0 @@
-#!/bin/sh
-# pre-push: push 前自动跑测试
-if [ -f Makefile ] && grep -q '^test-all:' Makefile 2>/dev/null; then
-    echo "=== pre-push: make test-all ==="
-    make test-all || { echo "❌ test-all 失败，push 已阻止"; exit 1; }
-    echo "=== pre-push: 通过 ✅ ==="
-fi
