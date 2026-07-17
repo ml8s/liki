@@ -94,7 +94,6 @@ Covers both Bazhai (八宅, Eight Mansions) and Xuankong (玄空, Flying Star) s
 
 ## Version
 
-Current stable version: **1.23.0**. See [CHANGELOG.md](./CHANGELOG.md).
 
 ## References
 
