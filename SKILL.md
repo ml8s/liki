@@ -3,7 +3,7 @@ name: liki
 description: liki.hk — AI命理Skills，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.20.0
+version: 1.21.0
 
 # liki.hk — AI命理Skills
 
