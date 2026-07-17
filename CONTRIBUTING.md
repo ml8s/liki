@@ -18,6 +18,5 @@
 
 ## 代码规范
 
-- SKILL.md 使用中文，术语保持原文
-- 方法名首字母小写
+- SKILL.md 以中文为主，术语保持原文；不写方法名和参数（由引擎 schema 驱动）
 - 每次升版本必须同步更新：`SKILL.md` + `VERSION` + `README.md` + `CHANGELOG.md`
