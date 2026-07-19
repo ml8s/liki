@@ -22,10 +22,11 @@
 
 **liki.hk** provides AI Skills for Chinese Metaphysics — install in one command with `npx skills add ml8s/liki`. It covers four areas:
 
-- **[Mingli (命理)](./mingli/)** — Bazi & Ziwei: chart casting, Yongshen analysis, Combination & Clash, decade/annual fortune
-- **[Qiming (起名)](./qiming/)** — Naming based on Bazi Yongshen + Wuge-Sancai numerology
+- **[Mingli (命理)](./bazi/)** — Bazi & Ziwei: chart casting, Yongshen analysis, Combination & Clash, decade/annual fortune
+- **[Naming (起名)](./naming/)** — Naming based on Bazi Yongshen + Wuge-Sancai numerology
 - **[Wengua (问卦)](./wengua/)** — Intelligent routing: Qimen Dunjia / Liuyao / Huangli almanac
-- **[Fengshui (风水)](./fengshui/)** — Bazhai life-trigram + Xuankong Flying Star analysis
+- **[Bazhai (八宅)](./bazhai/)** — Bazhai house matching (life-trigram)
+- **[Xuankong (玄空)](./xuankong/)** — Xuankong Flying Star analysis
 
 ## What You Can Do
 
