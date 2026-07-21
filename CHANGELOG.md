@@ -1,4 +1,5 @@
 # Changelog
+- 1.26.0: 记忆管理+报告渲染移入 LOCAL.md（按环境决定是否读取 lifebook 检查清单、bazi 输出规则加三派分歧说明、naming 用神引用路径修正、环境判定去客户端枚举改能力判断
 - 1.25.0: 领域目录重构（bazi/ziwei/liuyao/qimen/huangli/bazhai/xuankong/naming）+ reports/lifebook 报告 + knowledge/
 - 1.24.2: 记忆管理加环境约束 — 网页端跳过存档
 - 1.24.1: 记忆管理加环境约束 — 网页端跳过存档
