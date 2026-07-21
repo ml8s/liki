@@ -62,20 +62,6 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 - 用现代汉语解释术语
 - 不输出 JSON 或代码块
 
-## 记忆管理
-
-**约束：本节仅适用于具备文件写入能力的 AI 客户端。LLM 根据当前运行环境的工具能力自行判断——有文件系统写入权限则执行存档，无则跳过本节直接进入分析流程。不得询问用户是否在本地环境。**
-
-启动时检测当前目录是否有 `liki-memory.json`。有则问"用上次的命盘存档？(y/n)"，Yes 跳过收集→排盘→用神步骤直接进入分析。
-
-八字排盘+用神完成后，问"保存命盘以便后续使用？(y/n)"。Yes → 写入 `liki-memory.json`。
-
-文件格式：`{"birth":"1984-02-15 08:00 | 上海 | 男","chart":{...},"yongshen":{...}}`
-存储 `bazi.chart`、`bazi.yongshen`、`ziwei.chart`、`bazi.hehui`、`bazhai.chart`、`bazhai.minggua`、`bazhai.judgment`、`xuankong.chart` 的 data 全量。不存随时间变化的结果（流年/流月/六爻/奇门/黄历）。
-
-首次保存时提醒："出生信息将保存在当前目录的 `liki-memory.json` 中。请勿分享或在公开仓库提交。"
-帮他人排盘时不主动提议存档。
-
 ## 路由分发
 
 1. 先调 `rpc.discover`，获取所有 method 的完整 schema（入参 + 返回字段），后续调用以此为准。
@@ -92,7 +78,9 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 风水、八宅、房屋朝向、住宅布局 | `bazhai/SKILL.md` |
 | 玄空、流年飞星、旺山旺向 | `xuankong/SKILL.md` |
 | 生命之书、综合命理报告 | `reports/lifebook/SKILL.md` |
-| 不确定 | 向用户确认意图后选择 |
+| 不确定 | 向用户确认意图后选择
+
+> 当前环境具备文件写入能力时，读取 `LOCAL.md` 执行补充流程。不具备则跳过。
 
 3. 按子 SKILL.md 定义的工作流执行：调用顺序不可跳过、不可并行。
 
