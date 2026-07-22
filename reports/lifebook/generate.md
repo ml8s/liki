@@ -2,10 +2,12 @@
 ## 工作流程
 1. 调用 tianwen_time 获取真太阳时（城市未知时默认北京 116.4E 39.9N）
 2. 调用 bazi_chart 排八字（时间精度未知默认 12:00）
-3. 调用 bazi_yongshen 取用神
-4. 调用 bazi_hehui 分析合会冲刑
-5. 调用 ziwei_chart 排紫微斗数
-6. 调用 ziwei_judgment 获取论断
+3. 按 bazi 的用神方法论定格局（参考 `bazi/knowledge/geju.md` → 定格→顺逆取用）
+4. 调用 bazi_yongshen 取用神
+5. 分析十神关键组合（杀印相生、伤官配印、财官相生等）
+6. 调用 bazi_hehui 分析合会冲刑
+7. 调用 ziwei_chart 排紫微斗数
+8. 调用 ziwei_judgment 获取论断
 ## 输出格式
 按以下 JSON schema 输出完整报告，不要遗漏任何字段，不要添加其他文字：
 ```json
@@ -23,8 +25,8 @@
 }
 ```
 ## 规则
-- data: 直接引用引擎返回的具体数值（天干/地支/五行/星曜名称等）
-- analysis: 2-4 句专业解读，末尾关联当前大运的当下感
+- data: 直接引用引擎返回的具体数值（格局名称、天干/地支/五行/星曜名称等）
+- analysis: 2-4 句专业解读，人格节须含格局类型说明，事业节结合十神关键组合，末尾关联当前大运
 - advice: 1-2 句可操作建议
 - fortune.phases 逐十年大运展开
 - milestones: 挑出最重要的三件事提醒用户关注
