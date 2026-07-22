@@ -5,13 +5,22 @@
 修改后的报告必须是一个完整的 JSON 对象，与原始格式相同：
 ```json
 {
-  "title": "灵机合盘分析",
-  "sections": [
-    {"title": "基础信息", "analysis": "..."},
-    {"title": "八字合盘", "analysis": "...", "rating": "上等/中等/下等"},
-    {"title": "紫微合盘", "analysis": "...", "rating": "上等/中等/下等"},
-    {"title": "综合论断", "analysis": "...", "rating": "上等/中等/下等"}
-  ]
+  "summary": {
+    "fatal": {"title":"","year_chong":"","ri_gong_chong":"","pei_ou_kong":"","gan_ke":"","conclusion":""},
+    "matching": {"title":"","rigan":"","fugi_gong":"","wuxing_complement":"","shishen_flow":"","cross_verify":""},
+    "sustainability": {"title":"","dayun_sync":"","ziwei_verify":"","key_years":""},
+    "rating": {"title":"","level":"","advantages":[],"risks":[],"advice":""}
+  },
+  "person_a": {
+    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"","rating":""},
+    "bazi": {"命盘总览":"","五行与十神":"","用神喜忌":"","格局判定":"","夫妻宫":"","大运走势":"","综合建议":""},
+    "ziwei": {"命盘总览":"","身宫定位":"","十二宫解读":"","夫妻宫":"","四化分布":"","特殊格局":"","大限":""}
+  },
+  "person_b": {
+    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"","rating":""},
+    "bazi": {"命盘总览":"","五行与十神":"","用神喜忌":"","格局判定":"","夫妻宫":"","大运走势":"","综合建议":""},
+    "ziwei": {"命盘总览":"","身宫定位":"","十二宫解读":"","夫妻宫":"","四化分布":"","特殊格局":"","大限":""}
+  }
 }
 ```
 
