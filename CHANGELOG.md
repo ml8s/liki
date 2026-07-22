@@ -1,7 +1,8 @@
 # Changelog
-- 1.25.0: identity 规范统一——灵机起名/命书/合盘
-- 1.26.0: 记忆管理+报告渲染移入 LOCAL.md（按环境决定是否读取 lifebook 检查清单、bazi 输出规则加三派分歧说明、naming 用神引用路径修正、环境判定去客户端枚举改能力判断
-- 1.25.0: 领域目录重构（bazi/ziwei/liuyao/qimen/huangli/bazhai/xuankong/naming）+ reports/lifebook 报告 + knowledge/
+- 1.27.0: 紫微 knowledge 重构（cankao.md+流程嵌入SKILL.md+合盘流程）；hepan 报告三段式重构（致命排除/匹配/可持续+双方全盘）；目录统一（lifebook→mingshu, bond→hepan）；ziwei cankao.md 扩写
+- 1.26.0: 记忆管理+报告渲染移入 LOCAL.md；bazi 输出规则加三派分歧说明；naming 用神引用路径修正；环境判定去客户端枚举改能力判断
+- 1.25.0: identity 规范统一——灵机起名/命书/合盘；领域目录重构+ reports/ + knowledge/
+- 1.24.2: 记忆管理加环境约束 — 网页端跳过存档
 - 1.24.2: 记忆管理加环境约束 — 网页端跳过存档
 - 1.24.1: 记忆管理加环境约束 — 网页端跳过存档
 - 1.24.0: 记忆缓存 liki-memory.json + 交互全 yes/no 序号 + 多语言输出 + 品牌规范修正 + AGENTS.md/LESSONS.md 落 workspace 根目录；外国人起名流程（英文姓自动路由→推荐中国常用姓→选字加英文关联维度→英文输出）

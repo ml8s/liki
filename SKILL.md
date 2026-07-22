@@ -3,7 +3,7 @@ name: liki
 description: liki.hk — 命理Skills，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.26.0
+version: 1.27.0
 
 # liki.hk — 命理Skills
 
@@ -69,15 +69,17 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 | 用户说 | 读取 |
 |--------|------|
-| 算八字、看命盘、流年运势、合盘、大运 | `bazi/SKILL.md` |
-| 紫微排盘、紫微斗数、十二宫 | `ziwei/SKILL.md` |
+| 算八字、看命盘、流年运势、大运 | `bazi/SKILL.md` |
+| 合盘、两人关系、感情匹配、合婚 | `bazi/SKILL.md` |
+| 紫微排盘、紫微斗数、十二宫、紫微命盘 | `ziwei/SKILL.md` |
+| 紫微合盘、两人紫微盘匹配 | `ziwei/SKILL.md` |
 | 起名、改名、取名字、公司命名 | `naming/SKILL.md` |
 | 六爻、占卜、问吉凶、成败、得失、寻物 | `liuyao/SKILL.md` |
 | 奇门遁甲、时机决策、方向选择 | `qimen/SKILL.md` |
 | 择日、黄历、婚嫁搬家开业吉日 | `huangli/SKILL.md` |
 | 风水、八宅、房屋朝向、住宅布局 | `bazhai/SKILL.md` |
 | 玄空、流年飞星、旺山旺向 | `xuankong/SKILL.md` |
-| 灵机命书、综合命理报告 | `reports/lifebook/SKILL.md` |
+| 灵机命书、综合命理报告 | `reports/mingshu/SKILL.md` |
 | 不确定 | 向用户确认意图后选择
 
 > 当前环境具备文件写入能力时，读取 `LOCAL.md` 执行补充流程。不具备则跳过。
