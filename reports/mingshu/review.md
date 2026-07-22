@@ -28,6 +28,9 @@
 - [ ] health 标注了"不做医学诊断"
 - [ ] fortune.phases 覆盖了全部大运
 - [ ] fortune.liunian 覆盖了未来 10 个流年
+- [ ] summary.fortune 的 phases/daxian/liunian 字段完整
+- [ ] bazi.sections 和 ziwei.sections 包含全部 7+/8+ 节
+- [ ] ziwei 大限和流年是否分开
 - [ ] personality.analysis 覆盖了 4 个以上维度
 - [ ] career.analysis 覆盖了 4 个以上维度
 
