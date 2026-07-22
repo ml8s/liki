@@ -27,6 +27,9 @@
 - [ ] 各节之间无矛盾（用神与大运方向、大运与流年协同性）
 - [ ] health 标注了"不做医学诊断"
 - [ ] fortune.phases 覆盖了全部大运
+- [ ] fortune.liunian 覆盖了未来 10 个流年
+- [ ] personality.analysis 覆盖了 4 个以上维度
+- [ ] career.analysis 覆盖了 4 个以上维度
 
 ## 输出格式
 只输出一个 JSON 对象，不要其他文字：
