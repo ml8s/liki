@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>liki.hk — AI 命理 Skills</strong>
+  <strong>liki.hk — 命理Skills</strong>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## 简介
 
-**liki.hk** 是 AI 命理 Skills，`npx skills add ml8s/liki` 一条命令装完即用。覆盖四大领域：
+**liki.hk** 是命理Skills，`npx skills add ml8s/liki` 一条命令装完即用。覆盖四大领域：
 
 - **[命理](./bazi/)** — 八字紫微综合，排盘、用神、合会冲刑、大运流年
 - **[起名](./naming/)** — 八字用神 + 五格三才，全维度起名
