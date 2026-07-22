@@ -6,12 +6,13 @@
 ```json
 {
   "sections": {
-    "personality": { "title": "性格画像", "data": "...", "analysis": "...", "advice": "..." },
-    "career": { "title": "事业财运", "data": "...", "analysis": "...", "advice": "..." },
+    "personality": { "title": "性格画像", "pattern": "...", "data": "...", "analysis": "...", "advice": "..." },
+    "career": { "title": "事业财运", "pattern_based": "...", "combo": "...", "data": "...", "analysis": "...", "fortune_window": "...", "advice": "..." },
     "love": { "title": "情感婚姻", "data": "...", "analysis": "...", "advice": "..." },
     "health": { "title": "健康提示", "data": "...", "analysis": "...", "advice": "..." },
-    "fortune": { "title": "十年大运", "data": "...", "analysis": "...", "advice": "...",
-      "phases": [{"age": "", "pillar": "", "analysis": "", "advice": ""}]
+    "fortune": { "title": "十年大运与流年", "data": "...", "analysis": "...", "advice": "...",
+      "phases": [{"age": "", "pillar": "", "focus": "", "analysis": "", "advice": ""}],
+      "liunian": [{"year": "", "pillar": "", "focus": "", "analysis": "", "advice": ""}]
     },
     "milestones": { "title": "关键提醒", "data": "...", "analysis": "...", "advice": "..." }
   }
