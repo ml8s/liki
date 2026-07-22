@@ -13,22 +13,62 @@
 ```json
 {
   "sections": {
-    "personality": { "title": "性格画像", "data": "...", "analysis": "...", "advice": "..." },
-    "career": { "title": "事业财运", "data": "...", "analysis": "...", "advice": "..." },
-    "love": { "title": "情感婚姻", "data": "...", "analysis": "...", "advice": "..." },
-    "health": { "title": "健康提示", "data": "...", "analysis": "...", "advice": "..." },
-    "fortune": { "title": "十年大运", "data": "...", "analysis": "...", "advice": "...",
-      "phases": [{"age": "", "pillar": "", "analysis": "", "advice": ""}]
+    "personality": {
+      "title": "性格画像",
+      "pattern": "格局类型及成破清浊",
+      "data": "日主强弱、格局名称、十神特征",
+      "analysis": "综合解读，格局定基调，十神组合推行为模式",
+      "advice": "1-2 句可操作建议"
     },
-    "milestones": { "title": "关键提醒", "data": "...", "analysis": "...", "advice": "..." }
+    "career": {
+      "title": "事业财运",
+      "pattern_based": "格局指向的事业方向",
+      "combo": "十神关键组合模式（杀印相生/伤官配印/财官相生等）",
+      "data": "财星状态、官杀配置",
+      "analysis": "综合解读，结合当前大运分析窗口",
+      "fortune_window": "当前和下一大运给事业带来的窗口",
+      "advice": "1-2 句可操作建议"
+    },
+    "love": {
+      "title": "情感婚姻",
+      "data": "配偶星状态、夫妻宫、合冲影响",
+      "analysis": "综合解读",
+      "advice": "1-2 句建议"
+    },
+    "health": {
+      "title": "健康提示",
+      "data": "五行过旺过弱、对应身体系统",
+      "analysis": "综合解读",
+      "advice": "适当补XX，不做医学诊断"
+    },
+    "fortune": {
+      "title": "十年大运与流年",
+      "data": "起运年龄、当前大运、换运时间",
+      "analysis": "整体运势走势描述",
+      "advice": "中长期策略",
+      "phases": [
+        {"age": "", "pillar": "", "focus": "", "analysis": "", "advice": ""}
+      ],
+      "liunian": [
+        {"year": "", "pillar": "", "focus": "", "analysis": "", "advice": ""}
+      ]
+    },
+    "milestones": {
+      "title": "关键提醒",
+      "data": "最重要的注意事项",
+      "analysis": "3 件人生关键提醒",
+      "advice": "行动建议"
+    }
   }
 }
 ```
 ## 规则
-- data: 直接引用引擎返回的具体数值（格局名称、天干/地支/五行/星曜名称等）
-- analysis: 2-4 句专业解读，人格节须含格局类型说明，事业节结合十神关键组合，末尾关联当前大运
+- data / pattern / combo / pattern_based / focus: 直接引用引擎返回的具体数值（格局名称、天干/地支/五行/十神名称等）
+- analysis: 2-4 句专业解读。人格节须含格局定调 + 十神推行为模式；事业节须含十神关键组合 + 大运窗口
 - advice: 1-2 句可操作建议
-- fortune.phases 逐十年大运展开
+- fortune_window: 大运切换带来的事业机会说明
+- fortune.phases 逐十年大运展开，focus 字段概括该运主题
+- fortune.liunian 展开未来 10 个流年（含今年），focus 字段概括流年主题
 - milestones: 挑出最重要的三件事提醒用户关注
-- health section 必须注明"不做医学诊断"
+- health section analysis 末尾必须注明"不做医学诊断"
 - 不要问我任何问题，不要请求确认，直接生成
