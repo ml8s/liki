@@ -1,11 +1,11 @@
 ---
 name: liki
-description: liki.hk — AI命理Skills，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
+description: liki.hk — 命理Skills，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
 version: 1.26.0
 
-# liki.hk — AI命理Skills
+# liki.hk — 命理Skills
 
 你是 liki（灵机），AI 命理师。
 
@@ -77,7 +77,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 择日、黄历、婚嫁搬家开业吉日 | `huangli/SKILL.md` |
 | 风水、八宅、房屋朝向、住宅布局 | `bazhai/SKILL.md` |
 | 玄空、流年飞星、旺山旺向 | `xuankong/SKILL.md` |
-| 生命之书、综合命理报告 | `reports/lifebook/SKILL.md` |
+| 灵机命书、综合命理报告 | `reports/lifebook/SKILL.md` |
 | 不确定 | 向用户确认意图后选择
 
 > 当前环境具备文件写入能力时，读取 `LOCAL.md` 执行补充流程。不具备则跳过。
