@@ -16,27 +16,38 @@
 
 {
   "title": "八紫合盘分析",
-  "sections": [
-    {
-      "title": "基础信息",
-      "analysis": "简要介绍双方的基本命理特征"
-    },
-    {
+  "persons": [
+    { "name": "甲方姓名", "label": "甲方 乾造" },
+    { "name": "乙方姓名", "label": "乙方 坤造" }
+  ],
+  "sections": {
+    "bazi": {
       "title": "八字合盘",
       "analysis": "日主关系分析、天干地支合会冲刑、五行互补评分",
-      "rating": "上等/中等/下等"
+      "rating": "上等/中等/下等",
+      "advice": "针对性的相处建议"
     },
-    {
+    "ziwei": {
       "title": "紫微合盘",
-      "analysis": "十二宫互动分析、四化交集",
-      "rating": "上等/中等/下等"
+      "analysis": "十二宫互动分析、四化交集、双方命盘互动",
+      "rating": "上等/中等/下等",
+      "advice": "针对性的相处建议"
     },
-    {
+    "zonghe": {
       "title": "综合论断",
       "analysis": "缘分评级、优势与注意事项、建议",
-      "rating": "上等/中等/下等"
+      "rating": "上等/中等/下等",
+      "advice": "针对性的相处建议"
+    },
+    "liunian": {
+      "title": "流年建议",
+      "analysis": "未来几年重要时间节点、需注意的事项",
+      "advice": "针对性的建议"
     }
-  ]
+  }
 }
 
-注意：sections 数组至少包含上面 4 个章节，可以自行增减。每个 section 必须有 title 和 analysis。如有评级，加 rating 字段。请以专业、客观的口吻输出，不作过度渲染或算命式断言。
+注意：sections 对象至少包含上面 4 个 key（bazi/ziwei/zonghe/liunian），可以自行增减。
+每个 section 必须有 title 和 analysis，可选 rating/advice/phases。
+persons 必须保留，name 填双方姓名，label 标注性别如"甲方 乾造"/"乙方 坤造"。
+请以专业、客观的口吻输出，不作过度渲染或算命式断言。
