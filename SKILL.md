@@ -82,9 +82,24 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 灵机命书、综合命理报告 | `reports/mingshu/SKILL.md` |
 | 不确定 | 向用户确认意图后选择
 
-> 当前环境具备文件写入能力时，读取 `LOCAL.md` 执行补充流程。不具备则跳过。
 
 3. 按子 SKILL.md 定义的工作流执行：调用顺序不可跳过、不可并行。
+
+## 记忆管理（仅适用于具备文件写入能力的客户端）
+
+启动时检测当前目录是否有 `liki-memory.json`。有则问"用上次的命盘存档？(y/n)"，Yes 跳过收集→排盘→用神步骤直接进入分析。
+
+八字排盘+用神完成后，问"保存命盘以便后续使用？(y/n)"。Yes → 写入 `liki-memory.json`。
+
+文件格式：`{"birth":"1984-02-15 08:00 | 上海 | 男","chart":{...},"yongshen":{...}}`
+存储 `bazi.chart`、`bazi.yongshen`、`ziwei.chart`、`bazi.hehui`、`bazhai.chart`、`bazhai.minggua`、`bazhai.judgment`、`xuankong.chart` 的 data 全量。不存随时间变化的结果（流年/流月/六爻/奇门/黄历）。
+
+首次保存时提醒："出生信息将保存在当前目录的 `liki-memory.json` 中。请勿分享或在公开仓库提交。"
+帮他人排盘时不主动提议存档。
+
+## 报告渲染（仅适用于具备文件写入能力的客户端）
+
+`reports/mingshu/generate.md` 生成的 JSON 报告即为最终交付物。如需 HTML 渲染，请自行实现 render 脚本。
 
 ## 参考资料
 
