@@ -1,4 +1,5 @@
 # Changelog
+- 1.28.0: 适配引擎 bazi.chart→chart+fullchart 拆步；新建hehui（合冲刑害应事）+gongwei（宫位论）+dayun应期推断；format-chart各节扩维至4-5；去提示词硬编码方法名
 - 1.27.0: 紫微 knowledge 重构（cankao.md+流程嵌入SKILL.md+合盘流程）；hepan 报告三段式重构（致命排除/匹配/可持续+双方全盘）；目录统一（lifebook→mingshu, bond→hepan）；ziwei cankao.md 扩写
 - 1.26.0: 记忆管理+报告渲染移入 LOCAL.md；bazi 输出规则加三派分歧说明；naming 用神引用路径修正；环境判定去客户端枚举改能力判断
 - 1.25.0: identity 规范统一——灵机起名/命书/合盘；领域目录重构+ reports/ + knowledge/
