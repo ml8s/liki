@@ -20,17 +20,4 @@
 
 ## 报告渲染
 
-`reports/mingshu/mingshu.json` 生成后，用 Node.js 渲染为 HTML：
-
-```js
-const fs = require('fs');
-global.window = {};
-eval(fs.readFileSync('reports/mingshu/render.js', 'utf8'));
-const data = JSON.parse(fs.readFileSync('reports/mingshu/mingshu.json','utf8'));
-const html = '<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><link rel="stylesheet" href="https://liki.hk/css/report.css"></head><body>' +
-  window.renderLifeBook(data) +
-  '</body></html>';
-fs.writeFileSync('reports/mingshu/output.html', html);
-```
-
-或直接拖 `mingshu.json` + `render.js` 到浏览器打开。
+`reports/mingshu/generate.md` 生成的 JSON 报告即为最终交付物。如需 HTML 渲染，请自行实现 render 脚本。
