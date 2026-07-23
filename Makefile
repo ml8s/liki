@@ -22,3 +22,6 @@ version-major: ## Bump MAJOR (1.26.0 → 2.0.0)
 	MAJOR=$${V%%.*}; \
 	echo "$$((MAJOR + 1)).0.0" > $(VERSION_FILE); \
 	echo "✅ $$V → $$(cat $(VERSION_FILE))"
+
+build-archive: ## 打包 skill → dist/liki.tar.gz + index.json
+	scripts/build-archive.sh

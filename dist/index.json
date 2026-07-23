@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "liki",
+      "type": "archive",
+      "url": "/skills/liki.tar.gz",
+      "digest": "sha256:0af3595301863ccc7fa74ada5a816cdc038f03124f2694d57d230d8d6bd11615",
+      "description": "liki.hk — 命理Skills，八字、紫微、起名、问卦、风水"
+    }
+  ]
+}
