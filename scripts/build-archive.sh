@@ -28,7 +28,6 @@ tar czf "$ARCHIVE" \
     --exclude CHANGELOG.md \
     --exclude CONTRIBUTING.md \
     --exclude LICENSE \
-    --exclude VERSION \
     --exclude AGENTS.md \
     --exclude Makefile \
     .
@@ -44,7 +43,7 @@ cat > "$INDEX" <<EOF
       "type": "archive",
       "url": "/skills/liki.tar.gz",
       "digest": "$DIGEST",
-      "description": "liki.hk — 命理Skills，八字、紫微、起名、问卦、风水"
+      "description": "liki — 命理 AI Agent Skills，八字/紫微/起名/六爻/奇门/黄历/风水"
     }
   ]
 }
