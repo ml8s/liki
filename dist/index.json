@@ -5,7 +5,7 @@
       "name": "liki",
       "type": "archive",
       "url": "/skills/liki.tar.gz",
-      "digest": "sha256:e650e78514c90f2b7cc10cbabeaa0a12694c6db26afcc14c02324c123f68eb48",
+      "digest": "sha256:84db0fedf8dc7220fe1c0a56749b652e2455785cdb005281b7524f4f73e7afa3",
       "description": "liki — 命理 AI Agent Skills，八字/紫微/起名/六爻/奇门/黄历/风水"
     }
   ]
