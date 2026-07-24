@@ -1,4 +1,5 @@
 # Changelog
+- 1.30.0: dayun 应期推断通用化（六亲/财运/事业/健康四类场景）；LOCAL.md 合并回 SKILL.md；build 脚本修复；README 工业级定位
 - 1.29.0: 用神聚合规则重构（六种输出组合全覆盖，输出为空时跳过）；bazi 输出规则同步
 - 1.28.0: 适配引擎 bazi.chart→chart+fullchart 拆步；新建hehui（合冲刑害应事）+gongwei（宫位论）+dayun应期推断；format-chart各节扩维至4-5；去提示词硬编码方法名
 - 1.27.0: 紫微 knowledge 重构（cankao.md+流程嵌入SKILL.md+合盘流程）；hepan 报告三段式重构（致命排除/匹配/可持续+双方全盘）；目录统一（lifebook→mingshu, bond→hepan）；ziwei cankao.md 扩写
