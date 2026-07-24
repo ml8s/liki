@@ -86,6 +86,7 @@
 }
 ```
 ## 规则
+- 所有字段的值用纯文本，禁止使用 HTML 标签（`<tr>`、`<td>`、`<p>` 等）
 - summary 各节 bazi/ziwei/cross 三个字段分别引用八字和紫微引擎数据。cross 字段必须给出明确的综合结论（一致/有差异/交叉结论）
 - window: 大运切换带来的事业机会说明
 - summary.fortune.phases 逐十年大运展开，每运按 bazi/format-chart.md 维度要求
