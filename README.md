@@ -1,9 +1,9 @@
 <p align="center">
-  <img alt="liki" src="https://img.shields.io/badge/liki-工业级命理%20AI%20Agent%20Skills-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="liki" src="https://img.shields.io/badge/liki-工业级命理Skill-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>liki — 工业级命理 AI Agent Skills</strong>
+  <strong>liki — 工业级命理Skill</strong>
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 
 ---
 
-**liki** 是工业级命理 AI Agent Skills。`npx skills add ml8s/liki` 装完即用，在 AI 助手中完成八字、紫微、起名、六爻、奇门、择日、风水等全面命理分析。
+**liki** 是工业级命理 Skill。`npx skills add ml8s/liki` 装完即用，在 AI 助手中完成八字、紫微、起名、六爻、奇门、择日、风水等全面命理分析。
 
 覆盖 **8 个独立领域**，内置 **9 份方法论文档**，八字紫微**双体系交叉验证**，报告流程经 **generate → review → revise** 三阶段审查。
 
