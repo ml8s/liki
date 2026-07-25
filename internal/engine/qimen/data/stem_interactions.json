@@ -1,0 +1,522 @@
+[
+  {
+    "earth": "乙",
+    "heaven": "癸",
+    "name": "乙+癸",
+    "pattern": "花开遇雨",
+    "meaning": "遁迹修道，隐遁为宜",
+    "auspicious": false
+  },
+  {
+    "earth": "庚",
+    "heaven": "戊",
+    "name": "庚+戊",
+    "pattern": "天乙伏宫",
+    "meaning": "百事不可谋为，大凶",
+    "auspicious": false
+  },
+  {
+    "earth": "庚",
+    "heaven": "丁",
+    "name": "庚+丁",
+    "pattern": "亭亭之格",
+    "meaning": "因私匿起官司，门吉有救",
+    "auspicious": false
+  },
+  {
+    "earth": "辛",
+    "heaven": "辛",
+    "name": "辛+辛",
+    "pattern": "伏吟天庭",
+    "meaning": "公废私就，讼狱自刑",
+    "auspicious": false
+  },
+  {
+    "earth": "壬",
+    "heaven": "戊",
+    "name": "壬+戊",
+    "pattern": "小蛇化龙",
+    "meaning": "男人发达，事业亨通",
+    "auspicious": true
+  },
+  {
+    "earth": "乙",
+    "heaven": "丙",
+    "name": "乙+丙",
+    "pattern": "奇仪顺遂",
+    "meaning": "吉星临门，谋事可就",
+    "auspicious": true
+  },
+  {
+    "earth": "乙",
+    "heaven": "丁",
+    "name": "乙+丁",
+    "pattern": "奇仪相佐",
+    "meaning": "文书喜事，求婚可成",
+    "auspicious": true
+  },
+  {
+    "earth": "乙",
+    "heaven": "己",
+    "name": "乙+己",
+    "pattern": "日奇入雾",
+    "meaning": "遁迹藏形，暗昧不明",
+    "auspicious": false
+  },
+  {
+    "earth": "庚",
+    "heaven": "庚",
+    "name": "庚+庚",
+    "pattern": "战格",
+    "meaning": "官灾横祸，兄弟争财",
+    "auspicious": false
+  },
+  {
+    "earth": "辛",
+    "heaven": "乙",
+    "name": "辛+乙",
+    "pattern": "白虎猖狂",
+    "meaning": "家败人亡，远行多殃",
+    "auspicious": false
+  },
+  {
+    "earth": "癸",
+    "heaven": "庚",
+    "name": "癸+庚",
+    "pattern": "太白入网",
+    "meaning": "以暴争讼，自罹罪责",
+    "auspicious": false
+  },
+  {
+    "earth": "丙",
+    "heaven": "辛",
+    "name": "丙+辛",
+    "pattern": "日月相会",
+    "meaning": "谋事成就，病人不凶",
+    "auspicious": true
+  },
+  {
+    "earth": "丁",
+    "heaven": "壬",
+    "name": "丁+壬",
+    "pattern": "五神互合",
+    "meaning": "贵人恩诏，讼狱公平",
+    "auspicious": true
+  },
+  {
+    "earth": "戊",
+    "heaven": "庚",
+    "name": "戊+庚",
+    "pattern": "值符飞宫",
+    "meaning": "吉事不吉，凶事更凶",
+    "auspicious": false
+  },
+  {
+    "earth": "丁",
+    "heaven": "戊",
+    "name": "丁+戊",
+    "pattern": "青龙转光",
+    "meaning": "官人升迁，常人威昌",
+    "auspicious": true
+  },
+  {
+    "earth": "庚",
+    "heaven": "丙",
+    "name": "庚+丙",
+    "pattern": "太白入荧",
+    "meaning": "为客进利，为主破财",
+    "auspicious": false
+  },
+  {
+    "earth": "壬",
+    "heaven": "丁",
+    "name": "壬+丁",
+    "pattern": "干合蛇刑",
+    "meaning": "文书牵连，贵人顺遂",
+    "auspicious": false
+  },
+  {
+    "earth": "癸",
+    "heaven": "乙",
+    "name": "癸+乙",
+    "pattern": "华盖逢星",
+    "meaning": "贵人禄位，常人平安",
+    "auspicious": true
+  },
+  {
+    "earth": "丙",
+    "heaven": "庚",
+    "name": "丙+庚",
+    "pattern": "荧入太白",
+    "meaning": "门户破财，盗贼必来",
+    "auspicious": false
+  },
+  {
+    "earth": "丙",
+    "heaven": "壬",
+    "name": "丙+壬",
+    "pattern": "火入天罗",
+    "meaning": "为客不利，是非颇多",
+    "auspicious": false
+  },
+  {
+    "earth": "丁",
+    "heaven": "丙",
+    "name": "丁+丙",
+    "pattern": "星随月转",
+    "meaning": "贵人升进，常人康乐",
+    "auspicious": true
+  },
+  {
+    "earth": "丁",
+    "heaven": "庚",
+    "name": "丁+庚",
+    "pattern": "行人必归",
+    "meaning": "音信通达，行人必至",
+    "auspicious": true
+  },
+  {
+    "earth": "壬",
+    "heaven": "癸",
+    "name": "壬+癸",
+    "pattern": "幼女奸淫",
+    "meaning": "家有丑声，门吉不凶",
+    "auspicious": false
+  },
+  {
+    "earth": "戊",
+    "heaven": "丙",
+    "name": "戊+丙",
+    "pattern": "青龙返首",
+    "meaning": "大吉大利，百事顺遂",
+    "auspicious": true
+  },
+  {
+    "earth": "乙",
+    "heaven": "戊",
+    "name": "乙+戊",
+    "pattern": "阴害阳门",
+    "meaning": "利阴不利阳，门凶迫制",
+    "auspicious": false
+  },
+  {
+    "earth": "丁",
+    "heaven": "丁",
+    "name": "丁+丁",
+    "pattern": "星奇入太阴",
+    "meaning": "文书即至，喜事遂心",
+    "auspicious": true
+  },
+  {
+    "earth": "辛",
+    "heaven": "丙",
+    "name": "辛+丙",
+    "pattern": "干合悖师",
+    "meaning": "因财致讼，门吉则安",
+    "auspicious": false
+  },
+  {
+    "earth": "戊",
+    "heaven": "丁",
+    "name": "戊+丁",
+    "pattern": "青龙耀明",
+    "meaning": "谒贵求名，多见喜事",
+    "auspicious": true
+  },
+  {
+    "earth": "戊",
+    "heaven": "乙",
+    "name": "戊+乙",
+    "pattern": "青龙和会",
+    "meaning": "门吉事吉，门凶事凶",
+    "auspicious": false
+  },
+  {
+    "earth": "乙",
+    "heaven": "乙",
+    "name": "乙+乙",
+    "pattern": "日奇伏吟",
+    "meaning": "不宜谒贵求名，安分守己",
+    "auspicious": false
+  },
+  {
+    "earth": "丙",
+    "heaven": "己",
+    "name": "丙+己",
+    "pattern": "火悖入刑",
+    "meaning": "囚人刑杖，文书不行",
+    "auspicious": false
+  },
+  {
+    "earth": "庚",
+    "heaven": "癸",
+    "name": "庚+癸",
+    "pattern": "大格",
+    "meaning": "行人不至，官事不止",
+    "auspicious": false
+  },
+  {
+    "earth": "丙",
+    "heaven": "戊",
+    "name": "丙+戊",
+    "pattern": "飞鸟跌穴",
+    "meaning": "百事洞彻，谋为最吉",
+    "auspicious": true
+  },
+  {
+    "earth": "己",
+    "heaven": "壬",
+    "name": "己+壬",
+    "pattern": "地网高张",
+    "meaning": "狡童佚女，奸情杀伤",
+    "auspicious": false
+  },
+  {
+    "earth": "己",
+    "heaven": "癸",
+    "name": "己+癸",
+    "pattern": "地刑玄武",
+    "meaning": "男女疾病垂危，词讼有狱",
+    "auspicious": false
+  },
+  {
+    "earth": "壬",
+    "heaven": "丙",
+    "name": "壬+丙",
+    "pattern": "水蛇入火",
+    "meaning": "官灾刑禁，络绎不绝",
+    "auspicious": false
+  },
+  {
+    "earth": "戊",
+    "heaven": "壬",
+    "name": "戊+壬",
+    "pattern": "青龙入牢",
+    "meaning": "公私皆碍，动用不吉",
+    "auspicious": false
+  },
+  {
+    "earth": "乙",
+    "heaven": "辛",
+    "name": "乙+辛",
+    "pattern": "青龙逃走",
+    "meaning": "奴仆拐带，测婚离散",
+    "auspicious": false
+  },
+  {
+    "earth": "丙",
+    "heaven": "癸",
+    "name": "丙+癸",
+    "pattern": "月奇地网",
+    "meaning": "阴人害事，暗昧不明",
+    "auspicious": false
+  },
+  {
+    "earth": "丁",
+    "heaven": "己",
+    "name": "丁+己",
+    "pattern": "火入勾陈",
+    "meaning": "奸私仇冤，事因女人",
+    "auspicious": false
+  },
+  {
+    "earth": "丁",
+    "heaven": "辛",
+    "name": "丁+辛",
+    "pattern": "罪人释囚",
+    "meaning": "官人失位，罪人得赦",
+    "auspicious": false
+  },
+  {
+    "earth": "乙",
+    "heaven": "壬",
+    "name": "乙+壬",
+    "pattern": "日奇入地",
+    "meaning": "尊卑悖乱，官讼是非",
+    "auspicious": false
+  },
+  {
+    "earth": "己",
+    "heaven": "丙",
+    "name": "己+丙",
+    "pattern": "火悖地户",
+    "meaning": "阳人冤冤，阴人必辱",
+    "auspicious": false
+  },
+  {
+    "earth": "己",
+    "heaven": "己",
+    "name": "己+己",
+    "pattern": "地户逢鬼",
+    "meaning": "病者必死，百事不遂",
+    "auspicious": false
+  },
+  {
+    "earth": "癸",
+    "heaven": "丁",
+    "name": "癸+丁",
+    "pattern": "寅蛇夭矫",
+    "meaning": "文书官司，火焚莫逃",
+    "auspicious": false
+  },
+  {
+    "earth": "癸",
+    "heaven": "辛",
+    "name": "癸+辛",
+    "pattern": "网盖天牢",
+    "meaning": "占病占讼，死罪莫逃",
+    "auspicious": false
+  },
+  {
+    "earth": "戊",
+    "heaven": "己",
+    "name": "戊+己",
+    "pattern": "贵人入狱",
+    "meaning": "公私皆不利，谋为多阻",
+    "auspicious": false
+  },
+  {
+    "earth": "戊",
+    "heaven": "辛",
+    "name": "戊+辛",
+    "pattern": "青龙折足",
+    "meaning": "招灾失财，需防破败",
+    "auspicious": false
+  },
+  {
+    "earth": "辛",
+    "heaven": "丁",
+    "name": "辛+丁",
+    "pattern": "狱神得奇",
+    "meaning": "经商获倍利，囚人逢赦",
+    "auspicious": true
+  },
+  {
+    "earth": "辛",
+    "heaven": "庚",
+    "name": "辛+庚",
+    "pattern": "白虎出力",
+    "meaning": "刀刃相交，主客皆伤",
+    "auspicious": false
+  },
+  {
+    "earth": "癸",
+    "heaven": "丙",
+    "name": "癸+丙",
+    "pattern": "华盖悖师",
+    "meaning": "贱者遇贵，贵者遇贱",
+    "auspicious": false
+  },
+  {
+    "earth": "癸",
+    "heaven": "戊",
+    "name": "癸+戊",
+    "pattern": "天乙会合",
+    "meaning": "吉门宜求财，婚姻喜美",
+    "auspicious": true
+  },
+  {
+    "earth": "戊",
+    "heaven": "癸",
+    "name": "戊+癸",
+    "pattern": "青龙华盖",
+    "meaning": "门吉招福，门凶多乖",
+    "auspicious": false
+  },
+  {
+    "earth": "戊",
+    "heaven": "戊",
+    "name": "戊+戊",
+    "pattern": "伏吟",
+    "meaning": "凡事闭塞，静守为吉",
+    "auspicious": false
+  },
+  {
+    "earth": "乙",
+    "heaven": "庚",
+    "name": "乙+庚",
+    "pattern": "日奇被刑",
+    "meaning": "争讼财产，夫妻不和",
+    "auspicious": false
+  },
+  {
+    "earth": "丁",
+    "heaven": "癸",
+    "name": "丁+癸",
+    "pattern": "朱雀投江",
+    "meaning": "词讼不利，音信沈溺",
+    "auspicious": false
+  },
+  {
+    "earth": "己",
+    "heaven": "戊",
+    "name": "己+戊",
+    "pattern": "犬遇青龙",
+    "meaning": "门吉谋遂，门凶枉费",
+    "auspicious": false
+  },
+  {
+    "earth": "庚",
+    "heaven": "壬",
+    "name": "庚+壬",
+    "pattern": "移荡格",
+    "meaning": "道路移动，音信阻隔",
+    "auspicious": false
+  },
+  {
+    "earth": "丙",
+    "heaven": "丁",
+    "name": "丙+丁",
+    "pattern": "星奇朱雀",
+    "meaning": "贵人文书，常人安乐",
+    "auspicious": true
+  },
+  {
+    "earth": "丙",
+    "heaven": "丙",
+    "name": "丙+丙",
+    "pattern": "月奇悖师",
+    "meaning": "文书逼迫，急迫之象",
+    "auspicious": false
+  },
+  {
+    "earth": "辛",
+    "heaven": "戊",
+    "name": "辛+戊",
+    "pattern": "困龙被伤",
+    "meaning": "官司破财，屈抑安分",
+    "auspicious": false
+  },
+  {
+    "earth": "壬",
+    "heaven": "壬",
+    "name": "壬+壬",
+    "pattern": "天狱自刑",
+    "meaning": "求谋无成，祸患自招",
+    "auspicious": false
+  },
+  {
+    "earth": "丙",
+    "heaven": "乙",
+    "name": "丙+乙",
+    "pattern": "日月并行",
+    "meaning": "公私皆吉，合作可成",
+    "auspicious": true
+  },
+  {
+    "earth": "丁",
+    "heaven": "乙",
+    "name": "丁+乙",
+    "pattern": "人遁吉格",
+    "meaning": "加官进禄，常人婚喜",
+    "auspicious": true
+  },
+  {
+    "earth": "癸",
+    "heaven": "癸",
+    "name": "癸+癸",
+    "pattern": "天网四张",
+    "meaning": "行人失伴，病讼皆伤",
+    "auspicious": false
+  }
+]

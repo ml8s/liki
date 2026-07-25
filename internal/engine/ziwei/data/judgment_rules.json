@@ -1,0 +1,14 @@
+[
+  {"rule":1,"rating":"上","conds":{"top_score":2,"si_hua_count":{"min":1}},"source":"上等格局+化禄/科入命"},
+  {"rule":2,"rating":"上","conds":{"top_score":2,"si_hua_count":{"max":0},"brightness":["庙","旺"]},"source":"上等格局+命宫旺"},
+  {"rule":3,"rating":"上","conds":{"top_count":{"min":2},"sha_star":["无"]},"source":"多上等格局+无煞"},
+  {"rule":4,"rating":"中","conds":{"top_score":2},"source":"上等格局+平条件"},
+  {"rule":5,"rating":"中","conds":{"top_score":1,"si_hua_count":{"min":1}},"source":"中等格局+四化"},
+  {"rule":6,"rating":"中","conds":{"top_score":1},"source":"中等格局"},
+  {"rule":7,"rating":"中","conds":{"top_score":0,"si_hua_count":{"min":2}},"source":"无格局+多四化"},
+  {"rule":8,"rating":"下","conds":{"low_score":1,"sha_star":["多"]},"source":"凶格+多煞"},
+  {"rule":9,"rating":"下","conds":{"low_score":1},"source":"有凶格"},
+  {"rule":10,"rating":"上","conds":{"ming_gong":"紫微"},"source":"紫微坐命基础"},
+  {"rule":11,"rating":"下","conds":{"top_score":0,"si_hua_count":{"max":0}},"source":"无格局无四化"},
+  {"rule":12,"rating":"中","conds":{},"source":"fallback"}
+]

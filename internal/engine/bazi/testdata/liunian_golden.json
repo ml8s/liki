@@ -1,0 +1,127 @@
+{
+  "year": 2026,
+  "year_stem": "丙",
+  "year_branch": "午",
+  "year_name": "丙午",
+  "wuxing": "火",
+  "nayin": "天河水",
+  "shi_shen": "正印",
+  "generates": 1,
+  "restrains": 0,
+  "natal_interactions": [
+    {
+      "pillar_label": "丙午",
+      "gan_rels": [
+        {
+          "stem_a": "丙",
+          "stem_b": "甲",
+          "type": "相生",
+          "relation": "甲生丙"
+        },
+        {
+          "stem_a": "丙",
+          "stem_b": "丙",
+          "type": "相同",
+          "relation": "丙丙同气"
+        },
+        {
+          "stem_a": "丙",
+          "stem_b": "己",
+          "type": "相生",
+          "relation": "丙生己"
+        },
+        {
+          "stem_a": "丙",
+          "stem_b": "戊",
+          "type": "相生",
+          "relation": "丙生戊"
+        }
+      ],
+      "zhi_rels": [
+        {
+          "branch_a": "午",
+          "branch_b": "子",
+          "type": "六冲",
+          "detail": "午子相冲"
+        },
+        {
+          "branch_a": "午",
+          "branch_b": "寅",
+          "type": "三合",
+          "detail": "午寅三合火局"
+        },
+        {
+          "branch_a": "午",
+          "branch_b": "卯",
+          "type": "破",
+          "detail": "午卯相破"
+        },
+        {
+          "branch_a": "午",
+          "branch_b": "辰",
+          "type": "相刑",
+          "detail": "午辰自刑"
+        }
+      ]
+    }
+  ],
+  "dayun_interactions": [
+    {
+      "pillar_label": "偏印运(丁卯)",
+      "gan_rels": [
+        {
+          "stem_a": "丁",
+          "stem_b": "甲",
+          "type": "相生",
+          "relation": "甲生丁"
+        },
+        {
+          "stem_a": "丁",
+          "stem_b": "丙",
+          "type": "相同",
+          "relation": "丁丙同气"
+        },
+        {
+          "stem_a": "丁",
+          "stem_b": "己",
+          "type": "相生",
+          "relation": "丁生己"
+        },
+        {
+          "stem_a": "丁",
+          "stem_b": "戊",
+          "type": "相生",
+          "relation": "丁生戊"
+        }
+      ],
+      "zhi_rels": [
+        {
+          "branch_a": "卯",
+          "branch_b": "子",
+          "type": "相刑",
+          "detail": "卯子无礼之刑"
+        },
+        {
+          "branch_a": "卯",
+          "branch_b": "寅",
+          "type": "三会",
+          "detail": "卯寅三会木方"
+        },
+        {
+          "branch_a": "卯",
+          "branch_b": "卯",
+          "type": "相同",
+          "detail": "卯卯同气"
+        },
+        {
+          "branch_a": "卯",
+          "branch_b": "辰",
+          "type": "六害",
+          "detail": "卯辰相害"
+        }
+      ]
+    }
+  ],
+  "shensha": null,
+  "fuyin_fanyin": null
+}

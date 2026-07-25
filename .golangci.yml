@@ -1,0 +1,29 @@
+run:
+  timeout: 3m
+  tests: true
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
+    - gosimple
+    - nilerr
+    - unconvert
+    - wastedassign
+    - makezero
+    - copyloopvar
+
+linters-settings:
+  errcheck:
+    check-blank: true
+  staticcheck:
+    checks: ["all"]
+
+issues:
+  exclude-dirs:
+    - vendor
+  max-issues-per-linter: 0
+  max-same-issues: 0

@@ -1,0 +1,22 @@
+[
+  {"rule":1,"root":"month_main","season":["旺","相","休","囚","死"],"strength":"身强",
+   "source":"滴天髓·通根：月令得地，根深蒂固，不问季节皆强"},
+  {"rule":2,"root":"month_mid","season":["旺","相"],"strength":"身强",
+   "source":"滴天髓·通根：日主得令有根则强"},
+  {"rule":3,"root":"month_mid","season":["休","囚"],"strength":"中和","upgrade":"身强","need_yinbi":2,
+   "source":"滴天髓·通根：有根但浅，印比帮身则强"},
+  {"rule":4,"root":"month_mid","season":["死"],"strength":"身弱","upgrade":"中和","need_yinbi":2,
+   "source":"滴天髓·通根：根浅失令，印比≥2可中和"},
+  {"rule":5,"root":"branch_main","season":["旺","相"],"strength":"身强",
+   "source":"滴天髓·通根：根深不怕，日主得令他支本气根一样强"},
+  {"rule":6,"root":"branch_main","season":["休","囚","死"],"strength":"中和","upgrade":"身强","need_yinbi":2,
+   "source":"滴天髓·通根：根深不失为强，但失令不过旺。印比≥2则强"},
+  {"rule":7,"root":"branch_mid","season":["旺","相"],"strength":"中和","upgrade":"身强","need_yinbi":2,
+   "source":"滴天髓·通根：根浅得令不为强，印比帮身则强"},
+  {"rule":8,"root":"branch_mid","season":["休","囚","死"],"strength":"身弱","upgrade":"中和","need_yinbi":2,
+   "source":"滴天髓·通根：根浅失令，印比≥2可中和"},
+  {"rule":9,"root":"none","season":["旺"],"strength":"中和","upgrade":"身强","need_yinbi":2,
+   "source":"滴天髓·通根：无根得令不为强，印比帮身则强"},
+  {"rule":10,"root":"none","season":["相","休","囚","死"],"strength":"身弱","upgrade":"中和","need_yinbi":2,
+   "source":"滴天髓·通根：无根失令，印比≥2可中和"}
+]

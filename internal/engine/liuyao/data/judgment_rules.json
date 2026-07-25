@@ -1,0 +1,123 @@
+[
+  {
+    "rule": 1,
+    "rating": "凶",
+    "conds": {
+      "yue_po": true
+    },
+    "source": "月破百无一用"
+  },
+  {
+    "rule": 2,
+    "rating": "凶",
+    "conds": {
+      "exists": false
+    },
+    "source": "用神不上卦"
+  },
+  {
+    "rule": 3,
+    "rating": "凶",
+    "conds": {
+      "dong_ke": true,
+      "month": [
+        "休",
+        "囚",
+        "死"
+      ]
+    },
+    "source": "忌神发动+月休囚"
+  },
+  {
+    "rule": 4,
+    "rating": "凶",
+    "conds": {
+      "dong_ke": true,
+      "day_power": [
+        "衰"
+      ]
+    },
+    "source": "忌神发动+日衰"
+  },
+  {
+    "rule": 5,
+    "rating": "凶",
+    "conds": {
+      "month": [
+        "囚",
+        "死"
+      ],
+      "day_power": [
+        "衰"
+      ],
+      "chi_shi": false
+    },
+    "source": "休囚日衰非持世"
+  },
+  {
+    "rule": 6,
+    "rating": "吉",
+    "conds": {
+      "chi_shi": true,
+      "month": [
+        "旺",
+        "相"
+      ]
+    },
+    "source": "持世旺相"
+  },
+  {
+    "rule": 7,
+    "rating": "吉",
+    "conds": {
+      "month": [
+        "旺",
+        "相"
+      ],
+      "dong_sheng": true
+    },
+    "source": "旺相原神动"
+  },
+  {
+    "rule": 8,
+    "rating": "吉",
+    "conds": {
+      "month": [
+        "旺"
+      ],
+      "chi_shi": false,
+      "dong_ke": false
+    },
+    "source": "旺相无克"
+  },
+  {
+    "rule": 9,
+    "rating": "平",
+    "conds": {
+      "month": [
+        "休"
+      ]
+    },
+    "source": "休"
+  },
+  {
+    "rule": 10,
+    "rating": "平",
+    "conds": {
+      "month": [
+        "囚",
+        "死"
+      ],
+      "day_power": [
+        "旺"
+      ]
+    },
+    "source": "囚死日旺"
+  },
+  {
+    "rule": 11,
+    "rating": "平",
+    "conds": {},
+    "source": "fallback"
+  }
+]

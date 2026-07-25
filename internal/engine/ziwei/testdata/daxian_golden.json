@@ -1,0 +1,74 @@
+[
+  {
+    "start_age": 6,
+    "end_age": 15,
+    "palace": 0,
+    "name": "命宫"
+  },
+  {
+    "start_age": 16,
+    "end_age": 25,
+    "palace": 1,
+    "name": "兄弟"
+  },
+  {
+    "start_age": 26,
+    "end_age": 35,
+    "palace": 2,
+    "name": "夫妻"
+  },
+  {
+    "start_age": 36,
+    "end_age": 45,
+    "palace": 3,
+    "name": "子女"
+  },
+  {
+    "start_age": 46,
+    "end_age": 55,
+    "palace": 4,
+    "name": "财帛"
+  },
+  {
+    "start_age": 56,
+    "end_age": 65,
+    "palace": 5,
+    "name": "疾厄"
+  },
+  {
+    "start_age": 66,
+    "end_age": 75,
+    "palace": 6,
+    "name": "迁移"
+  },
+  {
+    "start_age": 76,
+    "end_age": 85,
+    "palace": 7,
+    "name": "交友"
+  },
+  {
+    "start_age": 86,
+    "end_age": 95,
+    "palace": 8,
+    "name": "官禄"
+  },
+  {
+    "start_age": 96,
+    "end_age": 105,
+    "palace": 9,
+    "name": "田宅"
+  },
+  {
+    "start_age": 106,
+    "end_age": 115,
+    "palace": 10,
+    "name": "福德"
+  },
+  {
+    "start_age": 116,
+    "end_age": 125,
+    "palace": 11,
+    "name": "父母"
+  }
+]

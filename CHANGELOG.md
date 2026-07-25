@@ -1,0 +1,14 @@
+# Changelog
+- 1.10.0: 起名域: wuge 三才过滤 + pick pairs过滤 + CharLite扩充；调候: 25条数据修正 + 空secondary支持
+- 1.9.2: 静卦 bian_lines gan/zhi 空串容错 + Gan/Zhi UnmarshalJSON 允许空值 + liuyao.judgment description 明确 chart 格式
+- 1.9.1: OpenRPC schema 改进 — qiming.build/bazi.hehui/bazi.yongshen description 优化；schemaSolarTime/schemaGender/qimen.select 加 examples
+- 1.9.0: handler 全覆盖测试 — judgment/annual 5 方法 + 剩余 9 方法 + assertError 防止方法名写错
+- 1.8.0: liuyao.judgment/ziwei.judgment/bazhai.judgment/xuankong.annual + 六爻卦辞爻辞
+- 1.7.0: ziwei.judgment 紫微综合论断
+- 1.6.0: liuyao.judgment 六爻断卦 用神旺衰+评级
+- 1.5.0: qimen.judgment/qimen.select — 奇门断事/择吉；bazi.xiaoyun/xiaoxian 小运小限补完
+- 1.4.0: 天干阴阳索引回归经典；dayun 重新计算 direction bug fix
+- 1.3.0: qi_men + liu_yao + xuan_kong 三元九运重构
+- 1.2.0: DaYunZhu→DaYunStep 架构重构 + current_step_index 自动计算
+- 1.1.1: qiming.build schema 字段名修正 + bazi.liunian/ziwei.daxian description 规范化
+- 1.1.0: 引擎初始发布

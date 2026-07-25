@@ -1,0 +1,191 @@
+{
+  "name": "乾为天",
+  "ben_gua": 0,
+  "palace": "乾",
+  "palace_wuxing": "金",
+  "lines": [
+    {
+      "position": 1,
+      "type": 7,
+      "gan": "甲",
+      "zhi": "子",
+      "wuxing": "水",
+      "liu_qin": "子孙",
+      "shi_ying": "",
+      "liu_shou": 3
+    },
+    {
+      "position": 2,
+      "type": 7,
+      "gan": "甲",
+      "zhi": "寅",
+      "wuxing": "木",
+      "liu_qin": "妻财",
+      "shi_ying": "",
+      "liu_shou": 4
+    },
+    {
+      "position": 3,
+      "type": 7,
+      "gan": "甲",
+      "zhi": "辰",
+      "wuxing": "土",
+      "liu_qin": "父母",
+      "shi_ying": "应",
+      "liu_shou": 5
+    },
+    {
+      "position": 4,
+      "type": 7,
+      "gan": "甲",
+      "zhi": "午",
+      "wuxing": "火",
+      "liu_qin": "官鬼",
+      "shi_ying": "",
+      "liu_shou": 0
+    },
+    {
+      "position": 5,
+      "type": 7,
+      "gan": "甲",
+      "zhi": "申",
+      "wuxing": "金",
+      "liu_qin": "兄弟",
+      "shi_ying": "",
+      "liu_shou": 1
+    },
+    {
+      "position": 6,
+      "type": 7,
+      "gan": "甲",
+      "zhi": "戌",
+      "wuxing": "土",
+      "liu_qin": "父母",
+      "shi_ying": "世",
+      "liu_shou": 2
+    }
+  ],
+  "bian_lines": [
+    {
+      "position": 0,
+      "type": 0,
+      "gan": "",
+      "zhi": "",
+      "wuxing": "未知",
+      "liu_qin": "父母",
+      "shi_ying": "",
+      "liu_shou": 0
+    },
+    {
+      "position": 0,
+      "type": 0,
+      "gan": "",
+      "zhi": "",
+      "wuxing": "未知",
+      "liu_qin": "父母",
+      "shi_ying": "",
+      "liu_shou": 0
+    },
+    {
+      "position": 0,
+      "type": 0,
+      "gan": "",
+      "zhi": "",
+      "wuxing": "未知",
+      "liu_qin": "父母",
+      "shi_ying": "",
+      "liu_shou": 0
+    },
+    {
+      "position": 0,
+      "type": 0,
+      "gan": "",
+      "zhi": "",
+      "wuxing": "未知",
+      "liu_qin": "父母",
+      "shi_ying": "",
+      "liu_shou": 0
+    },
+    {
+      "position": 0,
+      "type": 0,
+      "gan": "",
+      "zhi": "",
+      "wuxing": "未知",
+      "liu_qin": "父母",
+      "shi_ying": "",
+      "liu_shou": 0
+    },
+    {
+      "position": 0,
+      "type": 0,
+      "gan": "",
+      "zhi": "",
+      "wuxing": "未知",
+      "liu_qin": "父母",
+      "shi_ying": "",
+      "liu_shou": 0
+    }
+  ],
+  "day_gan": "己",
+  "day_zhi": "卯",
+  "month_zhi": "寅",
+  "month_gan": "丙",
+  "dong_yao": null,
+  "yong_shen": {
+    "type": 2,
+    "position": 4
+  },
+  "gua_ci": {
+    "name": "乾",
+    "gua_ci": "元亨利贞",
+    "yao_ci": [
+      "潜龙勿用",
+      "见龙在田，利见大人",
+      "君子终日乾乾，夕惕若厉，无咎",
+      "或跃在渊，无咎",
+      "飞龙在天，利见大人",
+      "亢龙有悔"
+    ]
+  },
+  "wang_shuai": [
+    "休",
+    "旺",
+    "死",
+    "相",
+    "囚",
+    "死"
+  ],
+  "day_relations": [
+    {
+      "relation": "平",
+      "strength": "平"
+    },
+    {
+      "relation": "扶",
+      "strength": "旺"
+    },
+    {
+      "relation": "克",
+      "strength": "衰"
+    },
+    {
+      "relation": "生",
+      "strength": "旺"
+    },
+    {
+      "relation": "平",
+      "strength": "平"
+    },
+    {
+      "relation": "合",
+      "strength": "旺"
+    }
+  ],
+  "ying_qi": {
+    "yong_shen": "官鬼",
+    "dong_yao_pos": 0,
+    "ying_time": "",
+    "assessment": "官鬼在四爻，月建相，日建生(旺)，静爻待冲。冲子之时为应"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "date": "2026-06-28",
+  "day_pillar": {
+    "gan": "癸",
+    "zhi": "酉",
+    "na_yin": "剑锋金"
+  },
+  "nayin": "剑锋金",
+  "wuxing": "金",
+  "jian_chu": "平",
+  "suitable": false,
+  "marks": null,
+  "warnings": null,
+  "huangdao": {
+    "index": 1,
+    "name": "明堂",
+    "path": "黄道",
+    "sequence": 1
+  },
+  "xi_shen": "东南",
+  "cai_shen": "正南",
+  "fu_shen": "正西",
+  "stem_taboo": "癸不词讼理弱敌强",
+  "branch_taboo": "酉不会客醉坐颠狂",
+  "mansion": {
+    "index": 19,
+    "name": "觜火猴",
+    "animal": "猴",
+    "wuxing": "火",
+    "group": "西方白虎",
+    "group_idx": 6
+  },
+  "jie_qi": "夏至",
+  "jie_qi_days": 6,
+  "ren_yuan": "丙",
+  "shi_chen": [
+    {
+      "zhi": "子",
+      "time": "23:00-01:00",
+      "huangdao": "金匮",
+      "jian_chu": "平",
+      "suitable": true
+    },
+    {
+      "zhi": "丑",
+      "time": "01:00-03:00",
+      "huangdao": "天德",
+      "jian_chu": "定",
+      "suitable": true
+    },
+    {
+      "zhi": "寅",
+      "time": "03:00-05:00",
+      "huangdao": "白虎",
+      "jian_chu": "执",
+      "suitable": false
+    },
+    {
+      "zhi": "卯",
+      "time": "05:00-07:00",
+      "huangdao": "玉堂",
+      "jian_chu": "破",
+      "suitable": true
+    },
+    {
+      "zhi": "辰",
+      "time": "07:00-09:00",
+      "huangdao": "天牢",
+      "jian_chu": "危",
+      "suitable": false
+    },
+    {
+      "zhi": "巳",
+      "time": "09:00-11:00",
+      "huangdao": "玄武",
+      "jian_chu": "成",
+      "suitable": false
+    },
+    {
+      "zhi": "午",
+      "time": "11:00-13:00",
+      "huangdao": "司命",
+      "jian_chu": "收",
+      "suitable": true
+    },
+    {
+      "zhi": "未",
+      "time": "13:00-15:00",
+      "huangdao": "勾陈",
+      "jian_chu": "开",
+      "suitable": false
+    },
+    {
+      "zhi": "申",
+      "time": "15:00-17:00",
+      "huangdao": "青龙",
+      "jian_chu": "闭",
+      "suitable": true
+    },
+    {
+      "zhi": "酉",
+      "time": "17:00-19:00",
+      "huangdao": "明堂",
+      "jian_chu": "建",
+      "suitable": true
+    },
+    {
+      "zhi": "戌",
+      "time": "19:00-21:00",
+      "huangdao": "天刑",
+      "jian_chu": "除",
+      "suitable": false
+    },
+    {
+      "zhi": "亥",
+      "time": "21:00-23:00",
+      "huangdao": "朱雀",
+      "jian_chu": "满",
+      "suitable": false
+    }
+  ],
+  "gan_relation": "比肩",
+  "zhi_relation": "三合半",
+  "tai_sui_relation": "无"
+}

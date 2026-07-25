@@ -1,0 +1,361 @@
+{
+  "pan": {
+    "jushu": 6,
+    "yin_dun": true,
+    "ri_gan": "癸",
+    "ri_zhi": "酉",
+    "duty_star": 1,
+    "duty_door": 1,
+    "palaces": [
+      {
+        "earth_stem": "癸",
+        "heaven_stem": "己",
+        "star": 5,
+        "door": 2,
+        "spirit": 5,
+        "hidden_stem": "己"
+      },
+      {
+        "earth_stem": "壬",
+        "heaven_stem": "戊",
+        "star": 6,
+        "door": 3,
+        "spirit": 4,
+        "hidden_stem": "庚"
+      },
+      {
+        "earth_stem": "辛",
+        "heaven_stem": "乙",
+        "star": 7,
+        "door": 4,
+        "spirit": 3,
+        "hidden_stem": "辛"
+      },
+      {
+        "earth_stem": "庚",
+        "heaven_stem": "丙",
+        "star": 8,
+        "door": 5,
+        "spirit": 2,
+        "hidden_stem": "壬"
+      },
+      {
+        "earth_stem": "己",
+        "heaven_stem": "丁",
+        "star": 9,
+        "door": 0,
+        "spirit": 0
+      },
+      {
+        "earth_stem": "戊",
+        "heaven_stem": "癸",
+        "star": 1,
+        "door": 6,
+        "spirit": 1,
+        "hidden_stem": "乙"
+      },
+      {
+        "earth_stem": "乙",
+        "heaven_stem": "壬",
+        "star": 2,
+        "door": 7,
+        "spirit": 8,
+        "hidden_stem": "丙"
+      },
+      {
+        "earth_stem": "丙",
+        "heaven_stem": "辛",
+        "star": 3,
+        "door": 8,
+        "spirit": 7,
+        "hidden_stem": "丁"
+      },
+      {
+        "earth_stem": "丁",
+        "heaven_stem": "庚",
+        "star": 4,
+        "door": 1,
+        "spirit": 6,
+        "hidden_stem": "戊"
+      }
+    ],
+    "ma_xing": 2,
+    "drive_gan": "戊",
+    "drive_zhi": "午",
+    "kong_wang": [
+      1,
+      8
+    ],
+    "wu_bu_yu_shi": false
+  },
+  "stem_interactions": [
+    {
+      "earth_stem": "癸",
+      "heaven_stem": "己",
+      "name": "癸+己",
+      "meaning": "上克下，主胜于客",
+      "auspicious": false
+    },
+    {
+      "earth_stem": "壬",
+      "heaven_stem": "戊",
+      "name": "壬+戊",
+      "meaning": "小蛇化龙：男人发达，事业亨通",
+      "auspicious": true
+    },
+    {
+      "earth_stem": "辛",
+      "heaven_stem": "乙",
+      "name": "辛+乙",
+      "meaning": "白虎猖狂：家败人亡，远行多殃",
+      "auspicious": false
+    },
+    {
+      "earth_stem": "庚",
+      "heaven_stem": "丙",
+      "name": "庚+丙",
+      "meaning": "太白入荧：为客进利，为主破财",
+      "auspicious": false
+    },
+    {
+      "earth_stem": "己",
+      "heaven_stem": "丁",
+      "name": "己+丁",
+      "meaning": "上生下，谋事可成",
+      "auspicious": true
+    },
+    {
+      "earth_stem": "戊",
+      "heaven_stem": "癸",
+      "name": "戊+癸",
+      "meaning": "青龙华盖：门吉招福，门凶多乖",
+      "auspicious": false
+    },
+    {
+      "earth_stem": "乙",
+      "heaven_stem": "壬",
+      "name": "乙+壬",
+      "meaning": "日奇入地：尊卑悖乱，官讼是非",
+      "auspicious": false
+    },
+    {
+      "earth_stem": "丙",
+      "heaven_stem": "辛",
+      "name": "丙+辛",
+      "meaning": "日月相会：谋事成就，病人不凶",
+      "auspicious": true
+    },
+    {
+      "earth_stem": "丁",
+      "heaven_stem": "庚",
+      "name": "丁+庚",
+      "meaning": "行人必归：音信通达，行人必至",
+      "auspicious": true
+    }
+  ],
+  "door_interactions": [
+    {
+      "door": 2,
+      "palace": 1,
+      "name": "生门加坎",
+      "meaning": "利水生之财，或酒食之利"
+    },
+    {
+      "door": 3,
+      "palace": 2,
+      "name": "伤加坤",
+      "meaning": "凶门当位，行事多阻"
+    },
+    {
+      "door": 4,
+      "palace": 3,
+      "name": "杜加震",
+      "meaning": "中平之门，需择时而行"
+    },
+    {
+      "door": 5,
+      "palace": 4,
+      "name": "景加巽",
+      "meaning": "中平之门，需择时而行"
+    },
+    {
+      "door": 0,
+      "palace": 0,
+      "name": "",
+      "meaning": ""
+    },
+    {
+      "door": 6,
+      "palace": 6,
+      "name": "死门加乾",
+      "meaning": "尊长有灾，出行不利"
+    },
+    {
+      "door": 7,
+      "palace": 7,
+      "name": "惊门入兑",
+      "meaning": "口舌之灾，宜捕盗赌博"
+    },
+    {
+      "door": 8,
+      "palace": 8,
+      "name": "开门加艮",
+      "meaning": "山门之利，求财可得"
+    },
+    {
+      "door": 1,
+      "palace": 9,
+      "name": "休门加离",
+      "meaning": "和合得财，文书酒食"
+    }
+  ],
+  "star_interactions": [
+    {
+      "star": "天禽",
+      "palace": "坎",
+      "name": "天禽加坎",
+      "meaning": "土性中和临坎宫",
+      "auspicious": true
+    },
+    {
+      "star": "天心",
+      "palace": "坤",
+      "name": "天心加坤",
+      "meaning": "金性肃杀临坤宫",
+      "auspicious": true
+    },
+    {
+      "star": "天柱",
+      "palace": "震",
+      "name": "金星入木宫",
+      "meaning": "金能克木，征战得利",
+      "auspicious": false
+    },
+    {
+      "star": "天任",
+      "palace": "巽",
+      "name": "天任加巽",
+      "meaning": "土性厚重临巽宫",
+      "auspicious": true
+    },
+    {
+      "star": "天英",
+      "palace": "中",
+      "name": "天英加中",
+      "meaning": "火性光明临中宫",
+      "auspicious": false
+    },
+    {
+      "star": "天蓬",
+      "palace": "乾",
+      "name": "水星入金宫",
+      "meaning": "金生水旺，谋事可成",
+      "auspicious": true
+    },
+    {
+      "star": "天芮",
+      "palace": "兑",
+      "name": "天芮加兑",
+      "meaning": "土性之精临兑宫",
+      "auspicious": false
+    },
+    {
+      "star": "天冲",
+      "palace": "艮",
+      "name": "天冲加艮",
+      "meaning": "木性之精临艮宫",
+      "auspicious": false
+    },
+    {
+      "star": "天辅",
+      "palace": "离",
+      "name": "木星入火宫",
+      "meaning": "木火通明，学业有成",
+      "auspicious": true
+    }
+  ],
+  "wang_shuai": [
+    {
+      "star": 5,
+      "palace": 1,
+      "state": "囚"
+    },
+    {
+      "star": 6,
+      "palace": 2,
+      "state": "相"
+    },
+    {
+      "star": 7,
+      "palace": 3,
+      "state": "囚"
+    },
+    {
+      "star": 8,
+      "palace": 4,
+      "state": "废"
+    },
+    {
+      "star": 9,
+      "palace": 5,
+      "state": "休"
+    },
+    {
+      "star": 1,
+      "palace": 6,
+      "state": "相"
+    },
+    {
+      "star": 2,
+      "palace": 7,
+      "state": "休"
+    },
+    {
+      "star": 3,
+      "palace": 8,
+      "state": "囚"
+    },
+    {
+      "star": 4,
+      "palace": 9,
+      "state": "休"
+    }
+  ],
+  "men_po": [
+    1,
+    2,
+    9
+  ],
+  "men_zhi": null,
+  "patterns": [
+    {
+      "name": "玉女守门",
+      "description": "值使门宫有丁，百事大吉",
+      "auspicious": true,
+      "palaces": [
+        9
+      ]
+    },
+    {
+      "name": "天遁",
+      "description": "丙+生门+丁，远行出兵大吉",
+      "auspicious": true
+    },
+    {
+      "name": "地遁",
+      "description": "乙+开门+己，安营立寨大吉",
+      "auspicious": true
+    },
+    {
+      "name": "人遁",
+      "description": "丁+休门+太阴，和谈联姻得吉",
+      "auspicious": true
+    }
+  ],
+  "ying_qi": {
+    "ma_xing_dir": "马星在未，冲则动，应期在丑、寅（年月日时）",
+    "kong_wang_fill": "空亡在子 丑 寅，填实或冲空之时应事",
+    "duty_move": "值符天蓬加休，以时干戊为应",
+    "summary": "马星在未，冲则动，应期在丑、寅（年月日时）；空亡在子 丑 寅，填实或冲空之时应事"
+  }
+}

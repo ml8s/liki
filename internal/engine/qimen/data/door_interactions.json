@@ -1,0 +1,42 @@
+[
+  {"door":"休","palace":"坎","name":"休门入坎","meaning":"安居之象，王相钓鱼，和合百事"},
+  {"door":"休","palace":"离","name":"休门加离","meaning":"和合得财，文书酒食"},
+  {"door":"休","palace":"坤","name":"休门加坤","meaning":"求财得利，土木之工"},
+  {"door":"休","palace":"乾","name":"休门加乾","meaning":"出门远行，谒贵得利"},
+  {"door":"休","palace":"艮","name":"休门加艮","meaning":"求财有财，出行有喜"},
+
+  {"door":"生","palace":"艮","name":"生门入艮","meaning":"万事如意，田宅进益"},
+  {"door":"生","palace":"坤","name":"生门加坤","meaning":"田宅之利，内财之喜"},
+  {"door":"生","palace":"坎","name":"生门加坎","meaning":"利水生之财，或酒食之利"},
+  {"door":"生","palace":"离","name":"生门加离","meaning":"文书之喜，或火食之喜"},
+  {"door":"生","palace":"乾","name":"生门加乾","meaning":"公门之利，谒贵之行"},
+
+  {"door":"伤","palace":"震","name":"伤门入震","meaning":"伤灾之象，宜捕猎追捕"},
+  {"door":"伤","palace":"坎","name":"伤门加坎","meaning":"道路之伤，水厄之灾"},
+  {"door":"伤","palace":"离","name":"伤门加离","meaning":"火伤之灾，文书受损"},
+
+  {"door":"杜","palace":"巽","name":"杜门入巽","meaning":"藏身之方，修造之宜"},
+  {"door":"杜","palace":"坤","name":"杜门加坤","meaning":"土木之阻，田宅有损"},
+  {"door":"杜","palace":"乾","name":"杜门加乾","meaning":"公门不利，出行有阻"},
+
+  {"door":"景","palace":"离","name":"景门入离","meaning":"文书之喜，身荣贵显"},
+  {"door":"景","palace":"乾","name":"景门加乾","meaning":"谒贵文书有成"},
+  {"door":"景","palace":"坎","name":"景门加坎","meaning":"文书水火之灾"},
+
+  {"door":"死","palace":"坤","name":"死门入坤","meaning":"死亡之象，宜行刑吊丧"},
+  {"door":"死","palace":"乾","name":"死门加乾","meaning":"尊长有灾，出行不利"},
+  {"door":"死","palace":"离","name":"死门加离","meaning":"炎上之灾，文书不利"},
+
+  {"door":"惊","palace":"兑","name":"惊门入兑","meaning":"口舌之灾，宜捕盗赌博"},
+  {"door":"惊","palace":"乾","name":"惊门加乾","meaning":"尊长不安，口舌失财"},
+  {"door":"惊","palace":"震","name":"惊门加震","meaning":"争斗之象，出行惊恐"},
+
+  {"door":"开","palace":"乾","name":"开门入乾","meaning":"万事亨通，贵人相助"},
+  {"door":"开","palace":"坎","name":"开门加坎","meaning":"水路之吉，通行无碍"},
+  {"door":"开","palace":"坤","name":"开门加坤","meaning":"地脉之吉，田宅之利"},
+  {"door":"开","palace":"离","name":"开门加离","meaning":"光明之象，文书有成"},
+  {"door":"开","palace":"震","name":"开门加震","meaning":"长男之利，发科之吉"},
+  {"door":"开","palace":"巽","name":"开门加巽","meaning":"长女之利，入仕之吉"},
+  {"door":"开","palace":"艮","name":"开门加艮","meaning":"山门之利，求财可得"},
+  {"door":"开","palace":"兑","name":"开门加兑","meaning":"说合之利，口舌得财"}
+]

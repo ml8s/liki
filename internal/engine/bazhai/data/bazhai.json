@@ -1,0 +1,14 @@
+{
+  "eight_mansion_patterns": {
+    "坎": {"sheng_qi":4,"tian_yi":3,"yan_nian":9,"fu_wei":1,"huo_hai":7,"wu_gui":8,"liu_sha":6,"jue_ming":2},
+    "坤": {"sheng_qi":8,"tian_yi":7,"yan_nian":6,"fu_wei":2,"huo_hai":3,"wu_gui":4,"liu_sha":9,"jue_ming":1},
+    "震": {"sheng_qi":9,"tian_yi":1,"yan_nian":4,"fu_wei":3,"huo_hai":2,"wu_gui":6,"liu_sha":8,"jue_ming":7},
+    "巽": {"sheng_qi":1,"tian_yi":9,"yan_nian":3,"fu_wei":4,"huo_hai":2,"wu_gui":6,"liu_sha":7,"jue_ming":8},
+    "乾": {"sheng_qi":7,"tian_yi":8,"yan_nian":2,"fu_wei":6,"huo_hai":3,"wu_gui":1,"liu_sha":4,"jue_ming":9},
+    "兑": {"sheng_qi":6,"tian_yi":2,"yan_nian":8,"fu_wei":7,"huo_hai":1,"wu_gui":9,"liu_sha":4,"jue_ming":3},
+    "艮": {"sheng_qi":2,"tian_yi":6,"yan_nian":7,"fu_wei":8,"huo_hai":9,"wu_gui":1,"liu_sha":3,"jue_ming":4},
+    "离": {"sheng_qi":3,"tian_yi":4,"yan_nian":1,"fu_wei":9,"huo_hai":8,"wu_gui":7,"liu_sha":2,"jue_ming":6}
+  },
+  "west_group": [2,6,7,8],
+  "palace_dirs": {"":"","1":"北","2":"西南","3":"东","4":"东南","5":"中","6":"西北","7":"西","8":"东北","9":"南"}
+}

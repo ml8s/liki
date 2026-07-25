@@ -1,0 +1,102 @@
+{
+  "bazhai.chart": {
+    "gender": "male",
+    "solar_time": "2000-06-15T12:00:00+08:00"
+  },
+  "bazhai.minggua": {
+    "birth_year": 1984,
+    "gender": "male"
+  },
+  "bazi.chart": {
+    "gender": "male",
+    "solar_time": "2000-06-15T12:00:00+08:00"
+  },
+  "bazi.xiaoxian": {
+    "gender": "male"
+  },
+  "city": {
+    "city": "Beijing"
+  },
+  "huangli.bond.date": {
+    "date": "2026-06-26",
+    "event_type": "嫁娶",
+    "solar_time": "2000-06-15T12:00:00+08:00"
+  },
+  "huangli.bond.month": {
+    "event_type": "嫁娶",
+    "month": "2026-06",
+    "solar_time": "2000-06-15T12:00:00+08:00"
+  },
+  "huangli.date": {
+    "date": "2026-06-26",
+    "event": "嫁娶"
+  },
+  "huangli.month": {
+    "event": "嫁娶",
+    "month": "2026-06"
+  },
+  "liuyao.chart": {
+    "solar_time": "2000-06-15T12:00:00+08:00",
+    "yaos": [
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+    ]
+  },
+  "liuyao.qigua": {
+    "yaos": [
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+    ]
+  },
+  "qimen.chart": {
+    "solar_time": "2000-06-15T12:00:00+08:00"
+  },
+  "qimen.select": {
+    "count": 3,
+    "end_date": "2026-07-22",
+    "event": "travel",
+    "start_date": "2026-07-20"
+  },
+  "qiming.char": {
+    "char": "明"
+  },
+  "qiming.check": {
+    "names": [
+      "明哲"
+    ],
+    "surname": "王",
+    "yongshen": "金"
+  },
+  "qiming.wuge": {
+    "count": 2,
+    "surname": "李"
+  },
+  "tianwen.time": {
+    "longitude": 116.4,
+    "time": "2000-06-15T12:00:00+08:00"
+  },
+  "time.now": {},
+  "xuankong.annual": {
+    "year": 2026
+  },
+  "xuankong.chart": {
+    "face_mountain": 12,
+    "sit_mountain": 0,
+    "solar_time": "2000-06-15T12:00:00+08:00"
+  },
+  "xuankong.sanyuan": {
+    "year": 2026
+  },
+  "ziwei.chart": {
+    "gender": "male",
+    "solar_time": "2000-06-15T12:00:00+08:00"
+  }
+}

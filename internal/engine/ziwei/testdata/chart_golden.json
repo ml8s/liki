@@ -1,0 +1,296 @@
+{
+  "palaces": [
+    {
+      "index": 0,
+      "name": "命宫",
+      "gan": "甲",
+      "zhi": "戌",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 9,
+          "name": "巨门",
+          "is_major": true,
+          "brightness": "陷"
+        },
+        {
+          "star": 18,
+          "name": "右弼",
+          "is_major": false
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "name": "兄弟",
+      "gan": "癸",
+      "zhi": "酉",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 10,
+          "name": "天相",
+          "is_major": true,
+          "brightness": "利"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "name": "夫妻",
+      "gan": "壬",
+      "zhi": "申",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 4,
+          "name": "天同",
+          "is_major": true,
+          "brightness": "利"
+        },
+        {
+          "star": 11,
+          "name": "天梁",
+          "is_major": true,
+          "brightness": "利"
+        },
+        {
+          "star": 20,
+          "name": "文曲",
+          "is_major": false
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "name": "子女",
+      "gan": "辛",
+      "zhi": "未",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 3,
+          "name": "武曲",
+          "is_major": true,
+          "si_hua": "科",
+          "brightness": "庙"
+        },
+        {
+          "star": 12,
+          "name": "七杀",
+          "is_major": true,
+          "brightness": "陷"
+        },
+        {
+          "star": 16,
+          "name": "天钺",
+          "is_major": false
+        },
+        {
+          "star": 26,
+          "name": "地空",
+          "is_major": false
+        },
+        {
+          "star": 24,
+          "name": "火星",
+          "is_major": false
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "name": "财帛",
+      "gan": "庚",
+      "zhi": "午",
+      "is_body_palace": true,
+      "stars": [
+        {
+          "star": 2,
+          "name": "太阳",
+          "is_major": true,
+          "si_hua": "忌",
+          "brightness": "庙"
+        },
+        {
+          "star": 19,
+          "name": "文昌",
+          "is_major": false
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "name": "疾厄",
+      "gan": "己",
+      "zhi": "巳",
+      "is_body_palace": false,
+      "stars": null
+    },
+    {
+      "index": 6,
+      "name": "迁移",
+      "gan": "戊",
+      "zhi": "辰",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 1,
+          "name": "天机",
+          "is_major": true,
+          "brightness": "利"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "name": "交友",
+      "gan": "丁",
+      "zhi": "卯",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 0,
+          "name": "紫微",
+          "is_major": true,
+          "brightness": "旺"
+        },
+        {
+          "star": 13,
+          "name": "破军",
+          "is_major": true,
+          "si_hua": "权",
+          "brightness": "平"
+        },
+        {
+          "star": 21,
+          "name": "擎羊",
+          "is_major": false
+        },
+        {
+          "star": 17,
+          "name": "左辅",
+          "is_major": false
+        },
+        {
+          "star": 27,
+          "name": "地劫",
+          "is_major": false
+        },
+        {
+          "star": 25,
+          "name": "铃星",
+          "is_major": false
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "name": "官禄",
+      "gan": "丙",
+      "zhi": "寅",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 14,
+          "name": "禄存",
+          "is_major": false
+        },
+        {
+          "star": 23,
+          "name": "天马",
+          "is_major": false
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "name": "田宅",
+      "gan": "乙",
+      "zhi": "丑",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 6,
+          "name": "天府",
+          "is_major": true,
+          "brightness": "庙"
+        },
+        {
+          "star": 15,
+          "name": "天魁",
+          "is_major": false
+        },
+        {
+          "star": 22,
+          "name": "陀罗",
+          "is_major": false
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "name": "福德",
+      "gan": "甲",
+      "zhi": "子",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 7,
+          "name": "太阴",
+          "is_major": true,
+          "brightness": "庙"
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "name": "父母",
+      "gan": "癸",
+      "zhi": "亥",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 5,
+          "name": "廉贞",
+          "is_major": true,
+          "si_hua": "禄",
+          "brightness": "平"
+        },
+        {
+          "star": 8,
+          "name": "贪狼",
+          "is_major": true,
+          "brightness": "利"
+        }
+      ]
+    }
+  ],
+  "ming_gong": 0,
+  "shen_gong": 4,
+  "ju_shu": 6,
+  "ju_shu_name": "火六局",
+  "ziwei_pos": 7,
+  "si_hua": {
+    "13": "权",
+    "2": "忌",
+    "3": "科",
+    "5": "禄"
+  },
+  "year_gan": "甲",
+  "hour_zhi": "辰",
+  "birth_year": 1984,
+  "gender": "male",
+  "patterns": [
+    {
+      "name": "日丽中天",
+      "description": "太阳居午，光明磊落",
+      "score": 2
+    },
+    {
+      "name": "禄马交驰",
+      "description": "禄存天马会聚命宫三方",
+      "score": 1
+    }
+  ]
+}

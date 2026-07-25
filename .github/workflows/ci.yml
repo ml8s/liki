@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          install-mode: goinstall
+
+  test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+      - name: go vet
+        run: go vet ./...
+      - name: go test (short)
+        run: go test -race -count=1 -short ./...
+
+  integration:
+    name: Integration + Smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+      - name: integration tests
+        run: go test -tags integration -count=1 -timeout 60s ./internal/agent/ ./internal/http/ ./internal/engine/bazi/
+      - name: build engine
+        run: go build -o /tmp/liki-engine ./cmd/liki/
+      - name: start engine
+        run: |
+          /tmp/liki-engine -addr :8082 &
+          echo "pid=$!"
+          for i in $(seq 1 15); do
+            if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
+              echo "engine ready"
+              break
+            fi
+            sleep 1
+          done
+      - name: RPC smoke test
+        run: |
+          bash -n scripts/test-rpc.sh
+          scripts/test-rpc.sh http://localhost:8082

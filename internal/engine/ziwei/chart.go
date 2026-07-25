@@ -1,0 +1,75 @@
+package ziwei
+
+
+import (
+	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tianwen"
+)
+// computeChart builds the core ziwei chart (palaces + stars, no brightness/patterns).
+func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
+	lunarMonth, lunarDay := lt.Month, lt.Day
+	hourZhi := bz.Shi.Zhi
+	yearGan := bz.Nian.Gan
+	yearZhi := bz.Nian.Zhi
+
+	mingZhi, shenZhi := computeMingShen(lunarMonth, hourZhi)
+	palaceZhis := arrangePalaceZhis(mingZhi)
+	shenGong := findShenGongIndex(palaceZhis, shenZhi)
+
+	mingGan, palaceGans := arrangePalaceGans(yearGan, mingZhi)
+	ju := determineJuShu(mingGan, mingZhi)
+	ziweiPos := findZiwei(ju, lunarDay)
+
+	mainByPalace := placeMainStars(ziweiPos)
+	minorByPalace := placeMinorStars(ganzhi.Zhu{Gan: yearGan, Zhi: yearZhi}, lunarMonth, hourZhi, mingZhi)
+
+	var palaces [12]palace
+	for i := 0; i < 12; i++ {
+		var starInfos []starInfo
+		for _, s := range mainByPalace[palaceIndex(i)] {
+			starInfos = append(starInfos, starInfo{Star: s, Name: starName(s), IsMajor: true})
+		}
+		for _, s := range minorByPalace[palaceIndex(i)] {
+			starInfos = append(starInfos, starInfo{Star: s, Name: starName(s), IsMajor: false})
+		}
+		palaces[i] = palace{
+			Index:        palaceIndex(i),
+			Name:         PalaceNames[i],
+			Gan:          palaceGans[i],
+			Zhi:          palaceZhis[i],
+			IsBodyPalace: palaceIndex(i) == shenGong,
+			Stars:        starInfos,
+		}
+	}
+
+	return Chart{
+		Palaces:   palaces,
+		MingGong:  0,
+		ShenGong:  shenGong,
+		JuShu:     ju,
+		JuShuName: juShuName(ju),
+		ZiweiPos:  ziweiPos,
+		YearGan:   yearGan,
+		HourZhi:   hourZhi,
+	}
+}
+
+// buildChartDetail enriches a core chart with siHua, brightness, and patterns.
+func buildChartDetail(chart Chart) Chart {
+	siHua := computeSiHua(chart.YearGan)
+	for i := range chart.Palaces {
+		for j, s := range chart.Palaces[i].Stars {
+			if s.IsMajor {
+				chart.Palaces[i].Stars[j].Brightness = miaoWang(s.Star, chart.Palaces[i].Zhi).String()
+				if h, ok := siHua[s.Star]; ok {
+					chart.Palaces[i].Stars[j].SiHua = string(h)
+				}
+			}
+		}
+	}
+	chart.SiHua = siHua
+	chart.Patterns = findPatterns(chart.Palaces)
+	return chart
+}
+
+

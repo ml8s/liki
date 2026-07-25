@@ -1,0 +1,83 @@
+package tianwen
+
+import (
+
+	"liki-engine/internal/engine/ganzhi"
+)
+
+// RiZhu computes the day pillar for a given date using the Julian Day method.
+// 1900-01-01 = 甲戌 (0-based index=10).
+func RiZhu(gt GregorianTime) ganzhi.Zhu {
+	t := gt.Time()
+	year, month, day := t.Date()
+	jd := julianDay(year, int(month), day)
+	baseJD := julianDay(1900, 1, 1)
+	diff := jd - baseJD
+	gzIndex := (10 + diff) % 60
+	if gzIndex < 0 {
+		gzIndex += 60
+	}
+	return ganzhi.Zhu{Gan: ganzhi.Gan(gzIndex%10 + 1), Zhi: ganzhi.Zhi(gzIndex%12 + 1)}
+}
+
+// NianZhu computes the year pillar for a given date, accounting for 立春 boundary.
+// If the date is before 立春, the year stem/branch is based on (year-1).
+func NianZhu(gt GregorianTime) ganzhi.Zhu {
+	t := gt.Time()
+	year, month, day := t.Date()
+	lcM, lcD := liChunDay(year)
+	if int(month) < lcM || (int(month) == lcM && day < lcD) {
+		year--
+	}
+	s := (year - 3) % 10
+	if s <= 0 {
+		s += 10
+	}
+	b := (year - 3) % 12
+	if b <= 0 {
+		b += 12
+	}
+	return ganzhi.Zhu{Gan: ganzhi.Gan(s), Zhi: ganzhi.Zhi(b)}
+}
+
+// YueZhu computes the month pillar from the given time, deriving the year stem via NianZhu internally.
+func YueZhu(gt GregorianTime) ganzhi.Zhu {
+	t := gt.Time().UTC()
+	jz := JianYue(GregorianTime(t))
+	zhi := jz
+	monthNum := (int(jz)+9)%12 + 1 // 1=寅月..12=丑月
+	yp := NianZhu(GregorianTime(t))
+	gan := ganzhi.Gan(((int(yp.Gan)*2 + monthNum) % 10))
+	if gan == 0 {
+		gan = 10
+	}
+	return ganzhi.Zhu{Gan: gan, Zhi: zhi}
+}
+
+// ShiZhu computes the hour pillar from solar time.
+func ShiZhu(st SolarTime) ganzhi.Zhu {
+	solarMinutes := st.Minutes()
+	daySt := st
+	if solarMinutes >= 1380 {
+		daySt = SolarTime(st.Time().AddDate(0, 0, 1))
+	}
+	zhi := hourZhiFromSolarTime(solarMinutes)
+	dp := RiZhu(GregorianTime(daySt.Time()))
+	gan := ganzhi.Gan(((int(dp.Gan)*2 + int(zhi) - 2) % 10))
+	if gan == 0 {
+		gan = 10
+	}
+	return ganzhi.Zhu{Gan: gan, Zhi: zhi}
+}
+
+func ComputeBazi(st SolarTime) ganzhi.Bazi {
+	t := st.Time()
+	if st.Minutes() >= 1380 {
+		t = t.AddDate(0, 0, 1)
+	}
+	yp := NianZhu(GregorianTime(t))
+	mp := YueZhu(GregorianTime(t.UTC()))
+	dp := RiZhu(GregorianTime(t))
+	hp := ShiZhu(st)
+	return ganzhi.Bazi{Nian: yp, Yue: mp, Ri: dp, Shi: hp}
+}

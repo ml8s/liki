@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.example
+.claude
+.github
+data/
+!data/prompts/
+
+docs/
+scripts/
+Makefile
+CLAUDE.md
+*.test
+liki

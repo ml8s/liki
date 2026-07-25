@@ -1,0 +1,40 @@
+[
+  {"star":"天蓬","palace":"坎","name":"水星入水宫","meaning":"安居之象，宜修造安葬","auspicious":true},
+  {"star":"天蓬","palace":"离","name":"水星入火宫","meaning":"水火相激，多事之秋","auspicious":false},
+  {"star":"天蓬","palace":"坤","name":"水星入土宫","meaning":"土能克水，事宜缓行","auspicious":false},
+  {"star":"天蓬","palace":"乾","name":"水星入金宫","meaning":"金生水旺，谋事可成","auspicious":true},
+  {"star":"天蓬","palace":"震","name":"水星入木宫","meaning":"木得水生，文书之喜","auspicious":true},
+
+  {"star":"天芮","palace":"坤","name":"土星入土宫","meaning":"比和之象，宜修造种植","auspicious":true},
+  {"star":"天芮","palace":"坎","name":"土星入水宫","meaning":"土能克水，事宜稳重","auspicious":false},
+  {"star":"天芮","palace":"离","name":"土星入火宫","meaning":"火能生土，求财得利","auspicious":true},
+  {"star":"天芮","palace":"乾","name":"土星入金宫","meaning":"土能生金，借力可成","auspicious":true},
+
+  {"star":"天冲","palace":"震","name":"木星入木宫","meaning":"比和之象，宜出师征战","auspicious":true},
+  {"star":"天冲","palace":"坤","name":"木星入土宫","meaning":"木能克土，宜田宅之事","auspicious":false},
+  {"star":"天冲","palace":"离","name":"木星入火宫","meaning":"木能生火，文书有成","auspicious":true},
+
+  {"star":"天辅","palace":"巽","name":"木星入木宫","meaning":"比和之象，宜修造入宅","auspicious":true},
+  {"star":"天辅","palace":"震","name":"木星入木宫","meaning":"兄弟同心，合作得利","auspicious":true},
+  {"star":"天辅","palace":"离","name":"木星入火宫","meaning":"木火通明，学业有成","auspicious":true},
+
+  {"star":"天禽","palace":"中","name":"土星入中宫","meaning":"居中得位，万事亨通","auspicious":true},
+  {"star":"天禽","palace":"坤","name":"土星入土宫","meaning":"比和之象，百事皆宜","auspicious":true},
+  {"star":"天禽","palace":"乾","name":"土星入金宫","meaning":"土生金旺，利谒贵求财","auspicious":true},
+
+  {"star":"天心","palace":"乾","name":"金星入金宫","meaning":"比和之象，宜疗病行军","auspicious":true},
+  {"star":"天心","palace":"震","name":"金星入木宫","meaning":"金能克木，宜征战讨伐","auspicious":false},
+  {"star":"天心","palace":"巽","name":"金星入木宫","meaning":"金克木象，事宜谨慎","auspicious":false},
+
+  {"star":"天柱","palace":"兑","name":"金星入金宫","meaning":"比和之象，宜守不宜攻","auspicious":false},
+  {"star":"天柱","palace":"震","name":"金星入木宫","meaning":"金能克木，征战得利","auspicious":false},
+  {"star":"天柱","palace":"巽","name":"金星入木宫","meaning":"金克木象，宜隐蔽行事","auspicious":false},
+
+  {"star":"天任","palace":"艮","name":"土星入土宫","meaning":"比和之象，宜安葬修造","auspicious":true},
+  {"star":"天任","palace":"乾","name":"土星入金宫","meaning":"土生金旺，求财得利","auspicious":true},
+  {"star":"天任","palace":"坎","name":"土星入水宫","meaning":"土能克水，事宜稳重","auspicious":false},
+
+  {"star":"天英","palace":"离","name":"火星入火宫","meaning":"比和之象，宜文书宴乐","auspicious":true},
+  {"star":"天英","palace":"乾","name":"火星入金宫","meaning":"火能克金，出行有碍","auspicious":false},
+  {"star":"天英","palace":"坤","name":"火星入土宫","meaning":"火能生土，宜求财","auspicious":true}
+]

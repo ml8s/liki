@@ -1,0 +1,3757 @@
+{
+  "month": "2026-06",
+  "stem": "癸",
+  "branch": "巳",
+  "days": [
+    {
+      "date": "2026-06-01",
+      "day_pillar": {
+        "gan": "丙",
+        "zhi": "午",
+        "na_yin": "天河水"
+      },
+      "nayin": "天河水",
+      "wuxing": "火",
+      "jian_chu": "除",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 0,
+        "name": "青龙",
+        "path": "黄道",
+        "sequence": 0
+      },
+      "xi_shen": "西南",
+      "cai_shen": "正西",
+      "fu_shen": "西北",
+      "stem_taboo": "丙不修灶必见灾殃",
+      "branch_taboo": "午不苫盖屋主更张",
+      "mansion": {
+        "index": 24,
+        "name": "星日马",
+        "animal": "马",
+        "wuxing": "日",
+        "group": "南方朱雀",
+        "group_idx": 4
+      },
+      "jie_qi": "小满",
+      "jie_qi_days": 11,
+      "ren_yuan": "庚",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "白虎",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "玉堂",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "天牢",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玄武",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "司命",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "勾陈",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "青龙",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "明堂",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "天刑",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "朱雀",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "金匮",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "天德",
+          "jian_chu": "建",
+          "suitable": true
+        }
+      ],
+      "gan_relation": "正财",
+      "zhi_relation": "无",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-02",
+      "day_pillar": {
+        "gan": "丁",
+        "zhi": "未",
+        "na_yin": "天河水"
+      },
+      "nayin": "天河水",
+      "wuxing": "土",
+      "jian_chu": "满",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 1,
+        "name": "明堂",
+        "path": "黄道",
+        "sequence": 1
+      },
+      "xi_shen": "正南",
+      "cai_shen": "正西",
+      "fu_shen": "正东",
+      "stem_taboo": "丁不剃头头必生疮",
+      "branch_taboo": "未不服药毒气入肠",
+      "mansion": {
+        "index": 25,
+        "name": "张月鹿",
+        "animal": "鹿",
+        "wuxing": "月",
+        "group": "南方朱雀",
+        "group_idx": 5
+      },
+      "jie_qi": "小满",
+      "jie_qi_days": 12,
+      "ren_yuan": "庚",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "白虎",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "玉堂",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "天牢",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玄武",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "司命",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "勾陈",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "青龙",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "明堂",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "天刑",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "朱雀",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "金匮",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "天德",
+          "jian_chu": "除",
+          "suitable": true
+        }
+      ],
+      "gan_relation": "偏财",
+      "zhi_relation": "无",
+      "tai_sui_relation": "六合"
+    },
+    {
+      "date": "2026-06-03",
+      "day_pillar": {
+        "gan": "戊",
+        "zhi": "申",
+        "na_yin": "大驿土"
+      },
+      "nayin": "大驿土",
+      "wuxing": "金",
+      "jian_chu": "平",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 2,
+        "name": "天刑",
+        "path": "黑道",
+        "sequence": 2
+      },
+      "xi_shen": "东南",
+      "cai_shen": "正北",
+      "fu_shen": "正南",
+      "stem_taboo": "戊不受田田主不祥",
+      "branch_taboo": "申不安床鬼祟入房",
+      "mansion": {
+        "index": 26,
+        "name": "翼火蛇",
+        "animal": "蛇",
+        "wuxing": "火",
+        "group": "南方朱雀",
+        "group_idx": 6
+      },
+      "jie_qi": "小满",
+      "jie_qi_days": 13,
+      "ren_yuan": "庚",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "白虎",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "玉堂",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "天牢",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玄武",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "司命",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "勾陈",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "青龙",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "明堂",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "天刑",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "朱雀",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "金匮",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "天德",
+          "jian_chu": "满",
+          "suitable": true
+        }
+      ],
+      "gan_relation": "正官",
+      "zhi_relation": "三会半",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-04",
+      "day_pillar": {
+        "gan": "己",
+        "zhi": "酉",
+        "na_yin": "大驿土"
+      },
+      "nayin": "大驿土",
+      "wuxing": "金",
+      "jian_chu": "定",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 3,
+        "name": "朱雀",
+        "path": "黑道",
+        "sequence": 3
+      },
+      "xi_shen": "东北",
+      "cai_shen": "正北",
+      "fu_shen": "正南",
+      "stem_taboo": "己不破券二比并亡",
+      "branch_taboo": "酉不会客醉坐颠狂",
+      "mansion": {
+        "index": 27,
+        "name": "轸水蚓",
+        "animal": "蚓",
+        "wuxing": "水",
+        "group": "南方朱雀",
+        "group_idx": 7
+      },
+      "jie_qi": "小满",
+      "jie_qi_days": 14,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "白虎",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "玉堂",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "天牢",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玄武",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "司命",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "勾陈",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "青龙",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "明堂",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "天刑",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "朱雀",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "金匮",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "天德",
+          "jian_chu": "平",
+          "suitable": true
+        }
+      ],
+      "gan_relation": "七杀",
+      "zhi_relation": "三合半",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-05",
+      "day_pillar": {
+        "gan": "庚",
+        "zhi": "戌",
+        "na_yin": "钗钏金"
+      },
+      "nayin": "钗钏金",
+      "wuxing": "土",
+      "jian_chu": "执",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 4,
+        "name": "金匮",
+        "path": "黄道",
+        "sequence": 4
+      },
+      "xi_shen": "西北",
+      "cai_shen": "正东",
+      "fu_shen": "西南",
+      "stem_taboo": "庚不经络织机虚张",
+      "branch_taboo": "戌不吃犬作怪上床",
+      "mansion": {
+        "index": 0,
+        "name": "角木蛟",
+        "animal": "蛟",
+        "wuxing": "木",
+        "group": "东方青龙",
+        "group_idx": 1
+      },
+      "jie_qi": "小满",
+      "jie_qi_days": 15,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "白虎",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "玉堂",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "天牢",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玄武",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "司命",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "勾陈",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "青龙",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "明堂",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "天刑",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "朱雀",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "金匮",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "天德",
+          "jian_chu": "定",
+          "suitable": true
+        }
+      ],
+      "gan_relation": "正印",
+      "zhi_relation": "三会半",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-06",
+      "day_pillar": {
+        "gan": "辛",
+        "zhi": "亥",
+        "na_yin": "钗钏金"
+      },
+      "nayin": "钗钏金",
+      "wuxing": "水",
+      "jian_chu": "执",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 3,
+        "name": "朱雀",
+        "path": "黑道",
+        "sequence": 3
+      },
+      "xi_shen": "西南",
+      "cai_shen": "正东",
+      "fu_shen": "西南",
+      "stem_taboo": "辛不合酱主人不尝",
+      "branch_taboo": "亥不嫁娶不利新郎",
+      "mansion": {
+        "index": 1,
+        "name": "亢金龙",
+        "animal": "龙",
+        "wuxing": "金",
+        "group": "东方青龙",
+        "group_idx": 2
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 0,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "定",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "偏印",
+      "zhi_relation": "无",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-07",
+      "day_pillar": {
+        "gan": "壬",
+        "zhi": "子",
+        "na_yin": "桑柘木"
+      },
+      "nayin": "桑柘木",
+      "wuxing": "水",
+      "jian_chu": "破",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 4,
+        "name": "金匮",
+        "path": "黄道",
+        "sequence": 4
+      },
+      "xi_shen": "正南",
+      "cai_shen": "正南",
+      "fu_shen": "西北",
+      "stem_taboo": "壬不汲水更难提防",
+      "branch_taboo": "子不问卜自惹祸殃",
+      "mansion": {
+        "index": 2,
+        "name": "氐土貉",
+        "animal": "貉",
+        "wuxing": "土",
+        "group": "东方青龙",
+        "group_idx": 3
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 1,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "执",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "劫财",
+      "zhi_relation": "无",
+      "tai_sui_relation": "六冲"
+    },
+    {
+      "date": "2026-06-08",
+      "day_pillar": {
+        "gan": "癸",
+        "zhi": "丑",
+        "na_yin": "桑柘木"
+      },
+      "nayin": "桑柘木",
+      "wuxing": "土",
+      "jian_chu": "危",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 5,
+        "name": "天德",
+        "path": "黄道",
+        "sequence": 5
+      },
+      "xi_shen": "东南",
+      "cai_shen": "正南",
+      "fu_shen": "正西",
+      "stem_taboo": "癸不词讼理弱敌强",
+      "branch_taboo": "丑不冠带主不还乡",
+      "mansion": {
+        "index": 3,
+        "name": "房日兔",
+        "animal": "兔",
+        "wuxing": "日",
+        "group": "东方青龙",
+        "group_idx": 4
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 2,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "破",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "比肩",
+      "zhi_relation": "三合半",
+      "tai_sui_relation": "六害"
+    },
+    {
+      "date": "2026-06-09",
+      "day_pillar": {
+        "gan": "甲",
+        "zhi": "寅",
+        "na_yin": "大溪水"
+      },
+      "nayin": "大溪水",
+      "wuxing": "木",
+      "jian_chu": "成",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 6,
+        "name": "白虎",
+        "path": "黑道",
+        "sequence": 6
+      },
+      "xi_shen": "东北",
+      "cai_shen": "东北",
+      "fu_shen": "东南",
+      "stem_taboo": "甲不开仓财物耗散",
+      "branch_taboo": "寅不祭祀神鬼不尝",
+      "mansion": {
+        "index": 4,
+        "name": "心月狐",
+        "animal": "狐",
+        "wuxing": "月",
+        "group": "东方青龙",
+        "group_idx": 5
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 3,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "危",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "伤官",
+      "zhi_relation": "无",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-10",
+      "day_pillar": {
+        "gan": "乙",
+        "zhi": "卯",
+        "na_yin": "大溪水"
+      },
+      "nayin": "大溪水",
+      "wuxing": "木",
+      "jian_chu": "收",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 7,
+        "name": "玉堂",
+        "path": "黄道",
+        "sequence": 7
+      },
+      "xi_shen": "西北",
+      "cai_shen": "东北",
+      "fu_shen": "东南",
+      "stem_taboo": "乙不栽植千株不长",
+      "branch_taboo": "卯不穿井水泉不香",
+      "mansion": {
+        "index": 5,
+        "name": "尾火虎",
+        "animal": "虎",
+        "wuxing": "火",
+        "group": "东方青龙",
+        "group_idx": 6
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 4,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "成",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "食神",
+      "zhi_relation": "六冲",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-11",
+      "day_pillar": {
+        "gan": "丙",
+        "zhi": "辰",
+        "na_yin": "沙中土"
+      },
+      "nayin": "沙中土",
+      "wuxing": "土",
+      "jian_chu": "开",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 8,
+        "name": "天牢",
+        "path": "黑道",
+        "sequence": 8
+      },
+      "xi_shen": "西南",
+      "cai_shen": "正西",
+      "fu_shen": "西北",
+      "stem_taboo": "丙不修灶必见灾殃",
+      "branch_taboo": "辰不哭泣必主重丧",
+      "mansion": {
+        "index": 6,
+        "name": "箕水豹",
+        "animal": "豹",
+        "wuxing": "水",
+        "group": "东方青龙",
+        "group_idx": 7
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 5,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "收",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "正财",
+      "zhi_relation": "六合",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-12",
+      "day_pillar": {
+        "gan": "丁",
+        "zhi": "巳",
+        "na_yin": "沙中土"
+      },
+      "nayin": "沙中土",
+      "wuxing": "火",
+      "jian_chu": "闭",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 9,
+        "name": "玄武",
+        "path": "黑道",
+        "sequence": 9
+      },
+      "xi_shen": "正南",
+      "cai_shen": "正西",
+      "fu_shen": "正东",
+      "stem_taboo": "丁不剃头头必生疮",
+      "branch_taboo": "巳不远行财物伏藏",
+      "mansion": {
+        "index": 7,
+        "name": "斗木獬",
+        "animal": "獬",
+        "wuxing": "木",
+        "group": "北方玄武",
+        "group_idx": 1
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 6,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "开",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "偏财",
+      "zhi_relation": "三合半",
+      "tai_sui_relation": "三会半"
+    },
+    {
+      "date": "2026-06-13",
+      "day_pillar": {
+        "gan": "戊",
+        "zhi": "午",
+        "na_yin": "天上火"
+      },
+      "nayin": "天上火",
+      "wuxing": "火",
+      "jian_chu": "建",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 10,
+        "name": "司命",
+        "path": "黄道",
+        "sequence": 10
+      },
+      "xi_shen": "东南",
+      "cai_shen": "正北",
+      "fu_shen": "正南",
+      "stem_taboo": "戊不受田田主不祥",
+      "branch_taboo": "午不苫盖屋主更张",
+      "mansion": {
+        "index": 8,
+        "name": "牛金牛",
+        "animal": "牛",
+        "wuxing": "金",
+        "group": "北方玄武",
+        "group_idx": 2
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 7,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "闭",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "正官",
+      "zhi_relation": "无",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-14",
+      "day_pillar": {
+        "gan": "己",
+        "zhi": "未",
+        "na_yin": "天上火"
+      },
+      "nayin": "天上火",
+      "wuxing": "土",
+      "jian_chu": "除",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 11,
+        "name": "勾陈",
+        "path": "黑道",
+        "sequence": 11
+      },
+      "xi_shen": "东北",
+      "cai_shen": "正北",
+      "fu_shen": "正南",
+      "stem_taboo": "己不破券二比并亡",
+      "branch_taboo": "未不服药毒气入肠",
+      "mansion": {
+        "index": 9,
+        "name": "女土蝠",
+        "animal": "蝠",
+        "wuxing": "土",
+        "group": "北方玄武",
+        "group_idx": 3
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 8,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "建",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "七杀",
+      "zhi_relation": "无",
+      "tai_sui_relation": "六合"
+    },
+    {
+      "date": "2026-06-15",
+      "day_pillar": {
+        "gan": "庚",
+        "zhi": "申",
+        "na_yin": "石榴木"
+      },
+      "nayin": "石榴木",
+      "wuxing": "金",
+      "jian_chu": "满",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 0,
+        "name": "青龙",
+        "path": "黄道",
+        "sequence": 0
+      },
+      "xi_shen": "西北",
+      "cai_shen": "正东",
+      "fu_shen": "西南",
+      "stem_taboo": "庚不经络织机虚张",
+      "branch_taboo": "申不安床鬼祟入房",
+      "mansion": {
+        "index": 10,
+        "name": "虚日鼠",
+        "animal": "鼠",
+        "wuxing": "日",
+        "group": "北方玄武",
+        "group_idx": 4
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 9,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "除",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "正印",
+      "zhi_relation": "三会半",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-16",
+      "day_pillar": {
+        "gan": "辛",
+        "zhi": "酉",
+        "na_yin": "石榴木"
+      },
+      "nayin": "石榴木",
+      "wuxing": "金",
+      "jian_chu": "平",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 1,
+        "name": "明堂",
+        "path": "黄道",
+        "sequence": 1
+      },
+      "xi_shen": "西南",
+      "cai_shen": "正东",
+      "fu_shen": "西南",
+      "stem_taboo": "辛不合酱主人不尝",
+      "branch_taboo": "酉不会客醉坐颠狂",
+      "mansion": {
+        "index": 11,
+        "name": "危月燕",
+        "animal": "燕",
+        "wuxing": "月",
+        "group": "北方玄武",
+        "group_idx": 5
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 10,
+      "ren_yuan": "己",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "满",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "偏印",
+      "zhi_relation": "三合半",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-17",
+      "day_pillar": {
+        "gan": "壬",
+        "zhi": "戌",
+        "na_yin": "大海水"
+      },
+      "nayin": "大海水",
+      "wuxing": "土",
+      "jian_chu": "定",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 2,
+        "name": "天刑",
+        "path": "黑道",
+        "sequence": 2
+      },
+      "xi_shen": "正南",
+      "cai_shen": "正南",
+      "fu_shen": "西北",
+      "stem_taboo": "壬不汲水更难提防",
+      "branch_taboo": "戌不吃犬作怪上床",
+      "mansion": {
+        "index": 12,
+        "name": "室火猪",
+        "animal": "猪",
+        "wuxing": "火",
+        "group": "北方玄武",
+        "group_idx": 6
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 11,
+      "ren_yuan": "己",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "平",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "劫财",
+      "zhi_relation": "三会半",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-18",
+      "day_pillar": {
+        "gan": "癸",
+        "zhi": "亥",
+        "na_yin": "大海水"
+      },
+      "nayin": "大海水",
+      "wuxing": "水",
+      "jian_chu": "执",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 3,
+        "name": "朱雀",
+        "path": "黑道",
+        "sequence": 3
+      },
+      "xi_shen": "东南",
+      "cai_shen": "正南",
+      "fu_shen": "正西",
+      "stem_taboo": "癸不词讼理弱敌强",
+      "branch_taboo": "亥不嫁娶不利新郎",
+      "mansion": {
+        "index": 13,
+        "name": "壁水貐",
+        "animal": "貐",
+        "wuxing": "水",
+        "group": "北方玄武",
+        "group_idx": 7
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 12,
+      "ren_yuan": "己",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "定",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "比肩",
+      "zhi_relation": "无",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-19",
+      "day_pillar": {
+        "gan": "甲",
+        "zhi": "子",
+        "na_yin": "海中金"
+      },
+      "nayin": "海中金",
+      "wuxing": "水",
+      "jian_chu": "破",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 4,
+        "name": "金匮",
+        "path": "黄道",
+        "sequence": 4
+      },
+      "xi_shen": "东北",
+      "cai_shen": "东北",
+      "fu_shen": "东南",
+      "stem_taboo": "甲不开仓财物耗散",
+      "branch_taboo": "子不问卜自惹祸殃",
+      "mansion": {
+        "index": 10,
+        "name": "虚日鼠",
+        "animal": "鼠",
+        "wuxing": "日",
+        "group": "北方玄武",
+        "group_idx": 4
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 13,
+      "ren_yuan": "己",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "执",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "伤官",
+      "zhi_relation": "无",
+      "tai_sui_relation": "六冲"
+    },
+    {
+      "date": "2026-06-20",
+      "day_pillar": {
+        "gan": "乙",
+        "zhi": "丑",
+        "na_yin": "海中金"
+      },
+      "nayin": "海中金",
+      "wuxing": "土",
+      "jian_chu": "危",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 5,
+        "name": "天德",
+        "path": "黄道",
+        "sequence": 5
+      },
+      "xi_shen": "西北",
+      "cai_shen": "东北",
+      "fu_shen": "东南",
+      "stem_taboo": "乙不栽植千株不长",
+      "branch_taboo": "丑不冠带主不还乡",
+      "mansion": {
+        "index": 11,
+        "name": "危月燕",
+        "animal": "燕",
+        "wuxing": "月",
+        "group": "北方玄武",
+        "group_idx": 5
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 14,
+      "ren_yuan": "己",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "破",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "食神",
+      "zhi_relation": "三合半",
+      "tai_sui_relation": "六害"
+    },
+    {
+      "date": "2026-06-21",
+      "day_pillar": {
+        "gan": "丙",
+        "zhi": "寅",
+        "na_yin": "炉中火"
+      },
+      "nayin": "炉中火",
+      "wuxing": "木",
+      "jian_chu": "成",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 6,
+        "name": "白虎",
+        "path": "黑道",
+        "sequence": 6
+      },
+      "xi_shen": "西南",
+      "cai_shen": "正西",
+      "fu_shen": "西北",
+      "stem_taboo": "丙不修灶必见灾殃",
+      "branch_taboo": "寅不祭祀神鬼不尝",
+      "mansion": {
+        "index": 12,
+        "name": "室火猪",
+        "animal": "猪",
+        "wuxing": "火",
+        "group": "北方玄武",
+        "group_idx": 6
+      },
+      "jie_qi": "芒种",
+      "jie_qi_days": 15,
+      "ren_yuan": "己",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "危",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "正财",
+      "zhi_relation": "无",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-22",
+      "day_pillar": {
+        "gan": "丁",
+        "zhi": "卯",
+        "na_yin": "炉中火"
+      },
+      "nayin": "炉中火",
+      "wuxing": "木",
+      "jian_chu": "收",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 7,
+        "name": "玉堂",
+        "path": "黄道",
+        "sequence": 7
+      },
+      "xi_shen": "正南",
+      "cai_shen": "正西",
+      "fu_shen": "正东",
+      "stem_taboo": "丁不剃头头必生疮",
+      "branch_taboo": "卯不穿井水泉不香",
+      "mansion": {
+        "index": 13,
+        "name": "壁水貐",
+        "animal": "貐",
+        "wuxing": "水",
+        "group": "北方玄武",
+        "group_idx": 7
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 0,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "成",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "偏财",
+      "zhi_relation": "六冲",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-23",
+      "day_pillar": {
+        "gan": "戊",
+        "zhi": "辰",
+        "na_yin": "大林木"
+      },
+      "nayin": "大林木",
+      "wuxing": "土",
+      "jian_chu": "开",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 8,
+        "name": "天牢",
+        "path": "黑道",
+        "sequence": 8
+      },
+      "xi_shen": "东南",
+      "cai_shen": "正北",
+      "fu_shen": "正南",
+      "stem_taboo": "戊不受田田主不祥",
+      "branch_taboo": "辰不哭泣必主重丧",
+      "mansion": {
+        "index": 14,
+        "name": "奎木狼",
+        "animal": "狼",
+        "wuxing": "木",
+        "group": "西方白虎",
+        "group_idx": 1
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 1,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "收",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "正官",
+      "zhi_relation": "六合",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-24",
+      "day_pillar": {
+        "gan": "己",
+        "zhi": "巳",
+        "na_yin": "大林木"
+      },
+      "nayin": "大林木",
+      "wuxing": "火",
+      "jian_chu": "闭",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 9,
+        "name": "玄武",
+        "path": "黑道",
+        "sequence": 9
+      },
+      "xi_shen": "东北",
+      "cai_shen": "正北",
+      "fu_shen": "正南",
+      "stem_taboo": "己不破券二比并亡",
+      "branch_taboo": "巳不远行财物伏藏",
+      "mansion": {
+        "index": 15,
+        "name": "娄金狗",
+        "animal": "狗",
+        "wuxing": "金",
+        "group": "西方白虎",
+        "group_idx": 2
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 2,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "开",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "七杀",
+      "zhi_relation": "三合半",
+      "tai_sui_relation": "三会半"
+    },
+    {
+      "date": "2026-06-25",
+      "day_pillar": {
+        "gan": "庚",
+        "zhi": "午",
+        "na_yin": "路旁土"
+      },
+      "nayin": "路旁土",
+      "wuxing": "火",
+      "jian_chu": "建",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 10,
+        "name": "司命",
+        "path": "黄道",
+        "sequence": 10
+      },
+      "xi_shen": "西北",
+      "cai_shen": "正东",
+      "fu_shen": "西南",
+      "stem_taboo": "庚不经络织机虚张",
+      "branch_taboo": "午不苫盖屋主更张",
+      "mansion": {
+        "index": 16,
+        "name": "胃土雉",
+        "animal": "雉",
+        "wuxing": "土",
+        "group": "西方白虎",
+        "group_idx": 3
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 3,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "闭",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "正印",
+      "zhi_relation": "无",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-26",
+      "day_pillar": {
+        "gan": "辛",
+        "zhi": "未",
+        "na_yin": "路旁土"
+      },
+      "nayin": "路旁土",
+      "wuxing": "土",
+      "jian_chu": "除",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 11,
+        "name": "勾陈",
+        "path": "黑道",
+        "sequence": 11
+      },
+      "xi_shen": "西南",
+      "cai_shen": "正东",
+      "fu_shen": "西南",
+      "stem_taboo": "辛不合酱主人不尝",
+      "branch_taboo": "未不服药毒气入肠",
+      "mansion": {
+        "index": 17,
+        "name": "昴日鸡",
+        "animal": "鸡",
+        "wuxing": "日",
+        "group": "西方白虎",
+        "group_idx": 4
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 4,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "建",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "偏印",
+      "zhi_relation": "无",
+      "tai_sui_relation": "六合"
+    },
+    {
+      "date": "2026-06-27",
+      "day_pillar": {
+        "gan": "壬",
+        "zhi": "申",
+        "na_yin": "剑锋金"
+      },
+      "nayin": "剑锋金",
+      "wuxing": "金",
+      "jian_chu": "满",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 0,
+        "name": "青龙",
+        "path": "黄道",
+        "sequence": 0
+      },
+      "xi_shen": "正南",
+      "cai_shen": "正南",
+      "fu_shen": "西北",
+      "stem_taboo": "壬不汲水更难提防",
+      "branch_taboo": "申不安床鬼祟入房",
+      "mansion": {
+        "index": 18,
+        "name": "毕月乌",
+        "animal": "乌",
+        "wuxing": "月",
+        "group": "西方白虎",
+        "group_idx": 5
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 5,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "定",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "除",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "劫财",
+      "zhi_relation": "三会半",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-28",
+      "day_pillar": {
+        "gan": "癸",
+        "zhi": "酉",
+        "na_yin": "剑锋金"
+      },
+      "nayin": "剑锋金",
+      "wuxing": "金",
+      "jian_chu": "平",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 1,
+        "name": "明堂",
+        "path": "黄道",
+        "sequence": 1
+      },
+      "xi_shen": "东南",
+      "cai_shen": "正南",
+      "fu_shen": "正西",
+      "stem_taboo": "癸不词讼理弱敌强",
+      "branch_taboo": "酉不会客醉坐颠狂",
+      "mansion": {
+        "index": 19,
+        "name": "觜火猴",
+        "animal": "猴",
+        "wuxing": "火",
+        "group": "西方白虎",
+        "group_idx": 6
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 6,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "平",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "执",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "收",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "除",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "满",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "比肩",
+      "zhi_relation": "三合半",
+      "tai_sui_relation": "无"
+    },
+    {
+      "date": "2026-06-29",
+      "day_pillar": {
+        "gan": "甲",
+        "zhi": "戌",
+        "na_yin": "山头火"
+      },
+      "nayin": "山头火",
+      "wuxing": "土",
+      "jian_chu": "定",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 2,
+        "name": "天刑",
+        "path": "黑道",
+        "sequence": 2
+      },
+      "xi_shen": "东北",
+      "cai_shen": "东北",
+      "fu_shen": "东南",
+      "stem_taboo": "甲不开仓财物耗散",
+      "branch_taboo": "戌不吃犬作怪上床",
+      "mansion": {
+        "index": 20,
+        "name": "参水猿",
+        "animal": "猿",
+        "wuxing": "水",
+        "group": "西方白虎",
+        "group_idx": 7
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 7,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "定",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "破",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "危",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "成",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "开",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "闭",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "建",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "满",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "平",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "伤官",
+      "zhi_relation": "三会半",
+      "tai_sui_relation": "三合半"
+    },
+    {
+      "date": "2026-06-30",
+      "day_pillar": {
+        "gan": "乙",
+        "zhi": "亥",
+        "na_yin": "山头火"
+      },
+      "nayin": "山头火",
+      "wuxing": "水",
+      "jian_chu": "执",
+      "suitable": true,
+      "marks": null,
+      "warnings": null,
+      "huangdao": {
+        "index": 3,
+        "name": "朱雀",
+        "path": "黑道",
+        "sequence": 3
+      },
+      "xi_shen": "西北",
+      "cai_shen": "东北",
+      "fu_shen": "东南",
+      "stem_taboo": "乙不栽植千株不长",
+      "branch_taboo": "亥不嫁娶不利新郎",
+      "mansion": {
+        "index": 21,
+        "name": "井木犴",
+        "animal": "犴",
+        "wuxing": "木",
+        "group": "南方朱雀",
+        "group_idx": 1
+      },
+      "jie_qi": "夏至",
+      "jie_qi_days": 8,
+      "ren_yuan": "丙",
+      "shi_chen": [
+        {
+          "zhi": "子",
+          "time": "23:00-01:00",
+          "huangdao": "金匮",
+          "jian_chu": "执",
+          "suitable": true
+        },
+        {
+          "zhi": "丑",
+          "time": "01:00-03:00",
+          "huangdao": "天德",
+          "jian_chu": "破",
+          "suitable": true
+        },
+        {
+          "zhi": "寅",
+          "time": "03:00-05:00",
+          "huangdao": "白虎",
+          "jian_chu": "危",
+          "suitable": false
+        },
+        {
+          "zhi": "卯",
+          "time": "05:00-07:00",
+          "huangdao": "玉堂",
+          "jian_chu": "成",
+          "suitable": true
+        },
+        {
+          "zhi": "辰",
+          "time": "07:00-09:00",
+          "huangdao": "天牢",
+          "jian_chu": "收",
+          "suitable": false
+        },
+        {
+          "zhi": "巳",
+          "time": "09:00-11:00",
+          "huangdao": "玄武",
+          "jian_chu": "开",
+          "suitable": false
+        },
+        {
+          "zhi": "午",
+          "time": "11:00-13:00",
+          "huangdao": "司命",
+          "jian_chu": "闭",
+          "suitable": true
+        },
+        {
+          "zhi": "未",
+          "time": "13:00-15:00",
+          "huangdao": "勾陈",
+          "jian_chu": "建",
+          "suitable": false
+        },
+        {
+          "zhi": "申",
+          "time": "15:00-17:00",
+          "huangdao": "青龙",
+          "jian_chu": "除",
+          "suitable": true
+        },
+        {
+          "zhi": "酉",
+          "time": "17:00-19:00",
+          "huangdao": "明堂",
+          "jian_chu": "满",
+          "suitable": true
+        },
+        {
+          "zhi": "戌",
+          "time": "19:00-21:00",
+          "huangdao": "天刑",
+          "jian_chu": "平",
+          "suitable": false
+        },
+        {
+          "zhi": "亥",
+          "time": "21:00-23:00",
+          "huangdao": "朱雀",
+          "jian_chu": "定",
+          "suitable": false
+        }
+      ],
+      "gan_relation": "食神",
+      "zhi_relation": "无",
+      "tai_sui_relation": "无"
+    }
+  ]
+}

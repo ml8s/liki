@@ -1,0 +1,166 @@
+{
+  "ming_gua": {
+    "gua": {
+      "index": 8,
+      "name": "艮",
+      "wuxing": "土",
+      "yin_yang": "阳"
+    },
+    "gua_number": 8,
+    "group": "西四命"
+  },
+  "ba_zhai_dirs": {
+    "sheng_qi": [
+      "西南"
+    ],
+    "tian_yi": [
+      "西北"
+    ],
+    "yan_nian": [
+      "西"
+    ],
+    "fu_wei": [
+      "东北"
+    ],
+    "huo_hai": [
+      "南"
+    ],
+    "wu_gui": [
+      "北"
+    ],
+    "liu_sha": [
+      "东"
+    ],
+    "jue_ming": [
+      "东南"
+    ]
+  },
+  "year_stars": {
+    "year": 1984,
+    "center_star": {
+      "number": 7,
+      "color": "赤",
+      "name": "七赤破军",
+      "wuxing": "金",
+      "auspicious": false
+    },
+    "palaces": [
+      {
+        "palace_num": 1,
+        "star": {
+          "number": 3,
+          "color": "碧",
+          "name": "三碧禄存",
+          "wuxing": "木",
+          "auspicious": false
+        }
+      },
+      {
+        "palace_num": 2,
+        "star": {
+          "number": 4,
+          "color": "绿",
+          "name": "四绿文曲",
+          "wuxing": "木",
+          "auspicious": true
+        }
+      },
+      {
+        "palace_num": 3,
+        "star": {
+          "number": 5,
+          "color": "黄",
+          "name": "五黄廉贞",
+          "wuxing": "土",
+          "auspicious": false
+        }
+      },
+      {
+        "palace_num": 4,
+        "star": {
+          "number": 6,
+          "color": "白",
+          "name": "六白武曲",
+          "wuxing": "金",
+          "auspicious": true
+        }
+      },
+      {
+        "palace_num": 5,
+        "star": {
+          "number": 7,
+          "color": "赤",
+          "name": "七赤破军",
+          "wuxing": "金",
+          "auspicious": false
+        }
+      },
+      {
+        "palace_num": 6,
+        "star": {
+          "number": 8,
+          "color": "白",
+          "name": "八白左辅",
+          "wuxing": "土",
+          "auspicious": true
+        }
+      },
+      {
+        "palace_num": 7,
+        "star": {
+          "number": 9,
+          "color": "紫",
+          "name": "九紫右弼",
+          "wuxing": "火",
+          "auspicious": true
+        }
+      },
+      {
+        "palace_num": 8,
+        "star": {
+          "number": 1,
+          "color": "白",
+          "name": "一白贪狼",
+          "wuxing": "水",
+          "auspicious": true
+        }
+      },
+      {
+        "palace_num": 9,
+        "star": {
+          "number": 2,
+          "color": "黑",
+          "name": "二黑巨门",
+          "wuxing": "土",
+          "auspicious": false
+        }
+      }
+    ]
+  },
+  "pillar_bagua": [
+    {
+      "index": 6,
+      "name": "乾",
+      "wuxing": "金",
+      "yin_yang": "阳"
+    },
+    {
+      "index": 8,
+      "name": "艮",
+      "wuxing": "土",
+      "yin_yang": "阳"
+    },
+    {
+      "index": 9,
+      "name": "离",
+      "wuxing": "火",
+      "yin_yang": "阴"
+    },
+    {
+      "index": 1,
+      "name": "坎",
+      "wuxing": "水",
+      "yin_yang": "阳"
+    }
+  ]
+}

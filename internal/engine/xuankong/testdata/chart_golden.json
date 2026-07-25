@@ -1,0 +1,308 @@
+{
+  "yun": {
+    "year": 2026,
+    "yuan": "下元",
+    "yun_number": 9,
+    "yun_name": "九运",
+    "start_year": 2024,
+    "end_year": 2043
+  },
+  "sit_mountain": 1,
+  "face_mountain": 1,
+  "palaces": [
+    {
+      "palace_num": 1,
+      "period_star": {
+        "number": 5,
+        "color": "黄",
+        "name": "五黄廉贞",
+        "wuxing": "土",
+        "auspicious": false
+      },
+      "mountain_star": {
+        "number": 5,
+        "color": "黄",
+        "name": "五黄廉贞",
+        "wuxing": "土",
+        "auspicious": false
+      },
+      "facing_star": {
+        "number": 5,
+        "color": "黄",
+        "name": "五黄廉贞",
+        "wuxing": "土",
+        "auspicious": false
+      }
+    },
+    {
+      "palace_num": 2,
+      "period_star": {
+        "number": 6,
+        "color": "白",
+        "name": "六白武曲",
+        "wuxing": "金",
+        "auspicious": true
+      },
+      "mountain_star": {
+        "number": 4,
+        "color": "绿",
+        "name": "四绿文曲",
+        "wuxing": "木",
+        "auspicious": true
+      },
+      "facing_star": {
+        "number": 4,
+        "color": "绿",
+        "name": "四绿文曲",
+        "wuxing": "木",
+        "auspicious": true
+      }
+    },
+    {
+      "palace_num": 3,
+      "period_star": {
+        "number": 7,
+        "color": "赤",
+        "name": "七赤破军",
+        "wuxing": "金",
+        "auspicious": false
+      },
+      "mountain_star": {
+        "number": 3,
+        "color": "碧",
+        "name": "三碧禄存",
+        "wuxing": "木",
+        "auspicious": false
+      },
+      "facing_star": {
+        "number": 3,
+        "color": "碧",
+        "name": "三碧禄存",
+        "wuxing": "木",
+        "auspicious": false
+      }
+    },
+    {
+      "palace_num": 4,
+      "period_star": {
+        "number": 8,
+        "color": "白",
+        "name": "八白左辅",
+        "wuxing": "土",
+        "auspicious": true
+      },
+      "mountain_star": {
+        "number": 2,
+        "color": "黑",
+        "name": "二黑巨门",
+        "wuxing": "土",
+        "auspicious": false
+      },
+      "facing_star": {
+        "number": 2,
+        "color": "黑",
+        "name": "二黑巨门",
+        "wuxing": "土",
+        "auspicious": false
+      }
+    },
+    {
+      "palace_num": 5,
+      "period_star": {
+        "number": 9,
+        "color": "紫",
+        "name": "九紫右弼",
+        "wuxing": "火",
+        "auspicious": true
+      },
+      "mountain_star": {
+        "number": 1,
+        "color": "白",
+        "name": "一白贪狼",
+        "wuxing": "水",
+        "auspicious": true
+      },
+      "facing_star": {
+        "number": 1,
+        "color": "白",
+        "name": "一白贪狼",
+        "wuxing": "水",
+        "auspicious": true
+      }
+    },
+    {
+      "palace_num": 6,
+      "period_star": {
+        "number": 1,
+        "color": "白",
+        "name": "一白贪狼",
+        "wuxing": "水",
+        "auspicious": true
+      },
+      "mountain_star": {
+        "number": 9,
+        "color": "紫",
+        "name": "九紫右弼",
+        "wuxing": "火",
+        "auspicious": true
+      },
+      "facing_star": {
+        "number": 9,
+        "color": "紫",
+        "name": "九紫右弼",
+        "wuxing": "火",
+        "auspicious": true
+      }
+    },
+    {
+      "palace_num": 7,
+      "period_star": {
+        "number": 2,
+        "color": "黑",
+        "name": "二黑巨门",
+        "wuxing": "土",
+        "auspicious": false
+      },
+      "mountain_star": {
+        "number": 8,
+        "color": "白",
+        "name": "八白左辅",
+        "wuxing": "土",
+        "auspicious": true
+      },
+      "facing_star": {
+        "number": 8,
+        "color": "白",
+        "name": "八白左辅",
+        "wuxing": "土",
+        "auspicious": true
+      }
+    },
+    {
+      "palace_num": 8,
+      "period_star": {
+        "number": 3,
+        "color": "碧",
+        "name": "三碧禄存",
+        "wuxing": "木",
+        "auspicious": false
+      },
+      "mountain_star": {
+        "number": 7,
+        "color": "赤",
+        "name": "七赤破军",
+        "wuxing": "金",
+        "auspicious": false
+      },
+      "facing_star": {
+        "number": 7,
+        "color": "赤",
+        "name": "七赤破军",
+        "wuxing": "金",
+        "auspicious": false
+      }
+    },
+    {
+      "palace_num": 9,
+      "period_star": {
+        "number": 4,
+        "color": "绿",
+        "name": "四绿文曲",
+        "wuxing": "木",
+        "auspicious": true
+      },
+      "mountain_star": {
+        "number": 6,
+        "color": "白",
+        "name": "六白武曲",
+        "wuxing": "金",
+        "auspicious": true
+      },
+      "facing_star": {
+        "number": 6,
+        "color": "白",
+        "name": "六白武曲",
+        "wuxing": "金",
+        "auspicious": true
+      }
+    }
+  ],
+  "wang_shan": false,
+  "wang_xiang": false,
+  "shan_xing": true,
+  "xia_shui": true,
+  "fan_yin": false,
+  "fu_yin": false,
+  "xing_jia_hui": [
+    {
+      "shan_num": 5,
+      "xiang_num": 5,
+      "name": "五黄同宫",
+      "meaning": "大凶之象，损丁破财",
+      "auspicious": false
+    },
+    {
+      "shan_num": 4,
+      "xiang_num": 4,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": true
+    },
+    {
+      "shan_num": 3,
+      "xiang_num": 3,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": false
+    },
+    {
+      "shan_num": 2,
+      "xiang_num": 2,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": false
+    },
+    {
+      "shan_num": 1,
+      "xiang_num": 1,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": true
+    },
+    {
+      "shan_num": 9,
+      "xiang_num": 9,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": true
+    },
+    {
+      "shan_num": 8,
+      "xiang_num": 8,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": true
+    },
+    {
+      "shan_num": 7,
+      "xiang_num": 7,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": false
+    },
+    {
+      "shan_num": 6,
+      "xiang_num": 6,
+      "name": "双星到向",
+      "meaning": "山向配合，需参合判断",
+      "auspicious": true
+    }
+  ],
+  "shou_shan_chu_sha": {
+    "zheng_shen": 9,
+    "ling_shen": 1,
+    "shou_shan": false,
+    "chu_sha": false,
+    "assessment": "收山出煞俱失，宜择时改向"
+  }
+}
