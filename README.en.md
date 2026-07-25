@@ -1,9 +1,9 @@
 <p align="center">
-  <img alt="liki.hk" src="https://img.shields.io/badge/liki.hk-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="Liki" src="https://img.shields.io/badge/liki.hk-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>liki.hk — AI Skills for Chinese Metaphysics</strong>
+  <strong>Liki — Chinese Astrology Skill</strong>
 </p>
 
 <p align="center">
@@ -11,6 +11,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/ml8s/liki"><img src="https://img.shields.io/badge/GitHub-ml8s/liki-4a9e6b?style=flat&logo=github&logoColor=white&labelColor=30305c"></a>
   <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-website-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
   <a href="./README.md"><img src="https://img.shields.io/badge/中文-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat"></a>
@@ -20,13 +21,26 @@
 
 ## Introduction
 
-**liki.hk** provides AI Skills for Chinese Metaphysics — install in one command with `npx skills add ml8s/liki`. It covers four areas:
+**Liki** is an industrial-grade Chinese Astrology Skill. Install with `npx skills add ml8s/liki` and use it directly in your AI assistant for BaZi, ZiWei, naming, Liuyao, Qimen, date selection, Feng Shui, and more.
 
-- **[Mingli (命理)](./bazi/)** — Bazi & Ziwei: chart casting, Yongshen analysis, Combination & Clash, decade/annual fortune
-- **[Naming (起名)](./naming/)** — Naming based on Bazi Yongshen + Wuge-Sancai numerology
-- **[Wengua (问卦)](./wengua/)** — Intelligent routing: Qimen Dunjia / Liuyao / Huangli almanac
-- **[Bazhai (八宅)](./bazhai/)** — Bazhai house matching (life-trigram)
-- **[Xuankong (玄空)](./xuankong/)** — Xuankong Flying Star analysis
+Covers **8 independent domains**, with **9 methodology documents**, **dual-system cross-validation** (BaZi + ZiWei), and a **generate → review → revise** three-stage report pipeline.
+
+✨ **Get a Chinese name** — Non-Chinese speakers can get an authentic Chinese name rooted in traditional naming principles. The AI matches phonetic sounds to Chinese surnames, then recommends given names based on your birth profile — considering Five Elements balance, auspicious meanings, and classical reference.
+
+---
+
+## Domains
+
+| Domain | Description |
+|--------|-------------|
+| **BaZi** | Chart casting, Yongshen, Geju, Combination & Clash, compatibility, DaYun/LiuNian |
+| **ZiWei** | Twelve palaces, SiHua, Sanfang Sizheng, special patterns, DaXian/LiuNian |
+| **Naming** | BaZi Yongshen + Wuge-Sancai. Foreigners can get an authentic Chinese name from their English name — phonetically matched surname plus Five Element-balanced given name |
+| **Liuyao** | Hexagram casting → charting → judgment |
+| **Qimen** | Chart casting, judgment, date selection |
+| **Huangli** | Daily almanac inquiry |
+| **Bazhai** | Mingua + Men/Zhu/Zao analysis |
+| **Xuankong** | Flying Star chart, Sanyuan Jiuyun, annual flying star |
 
 ## What You Can Do
 
@@ -34,15 +48,42 @@
 |-------------|-----|
 | Read a Bazi or Ziwei chart, check decade/annual fortune | **Mingli** |
 | Name a baby or company | **Qiming** |
-| Pick an auspicious date, ask about fortune, find a lost item | **Wengua** |
+| Pick an auspicious date, ask about fortune, find a lost item | **Divination** |
 | Evaluate home or office Fengshui | **Fengshui** |
+| Get a meaningful Chinese name from your English name | **Naming** |
 
 ## Features
 
-- **Precise API charting** — astronomical backend with True Solar Time, DST, lat/lon conversion
-- **Full coverage** — Bazi, Ziwei, naming, divination, Fengshui in one suite
-- **Smart routing** — one sentence auto-routes to the right domain, no skill selection needed
-- **Privacy** — birth info sent to API for stateless computation only; not persisted
+- **Hour calibration** — When birth time is uncertain, use past life events to verify the hour. Mandatory after chart casting for adults
+- **Yongshen aggregation** — Three schools (Geju/Tiaohou/Fuyi) aggregated by priority: Geju sets the framework, Tiaohou adjusts, Fuyi fine-tunes; skipped when output is empty
+- **Astronomical backend** — True Solar Time / DST / lat-lon timezone correction; chart calculation does not rely on LLM inference
+- **Dual-system cross-validation** — BaZi and ZiWei charted independently, conclusions cross-referenced for greater confidence
+- **9 methodology documents** — yongshen/geju/tiaohou/wangshuai/hehui/gongwei/dayun/shishen/hepan
+- **Three-stage report pipeline** — generate → review → revise, quality-controlled
+- **Semantic versioning** — VERSION file + CHANGELOG + self-check update mechanism
+- **English→Chinese naming** — Non-Chinese users can get a meaningful Chinese name based on their English name's phonetics
+
+## Architecture
+
+```
+liki (this repo)      → Skill (workflow definitions + methodology docs)
+liki-engine           → Astronomical API ([open-source calculation engine](https://github.com/ml8s/liki-engine))
+liki.hk               → Online demo built on engine + skill
+```
+
+## Project Structure
+
+```
+bazi/       → BaZi: SKILL + report format + knowledge/methodology docs
+ziwei/      → ZiWei: SKILL + report format + knowledge/methodology docs
+naming/     → Naming: SKILL + report format
+liuyao/     → Liuyao: SKILL + report format
+qimen/      → Qimen: SKILL + report format
+huangli/    → Huangli: SKILL + report format
+bazhai/     → Bazhai: SKILL + report format
+xuankong/   → Xuankong: SKILL + report format
+reports/    → Comprehensive reports (LifeBook + Hepan, generate → review → revise)
+```
 
 ## Quick Start
 
@@ -71,8 +112,9 @@ Naming service that combines Bazi Yongshen with Wuge (五格, five-grid) and San
 > Name my baby boy, born 2024-03-15 at 10:00 Guangzhou, surname Wang
 > Help me rename myself, born 1995-08-10 Shenzhen, female, surname Li
 > Review the name 'Zhang Wei'
+> I'm an American. Give me a Chinese name. My full name is Emily Johnson.
 
-### Wengua (问卦)
+### Wengua / Divination (问卦)
 
 LLM-driven routing that selects the corresponding method based on your question:
 
@@ -93,8 +135,7 @@ Covers both Bazhai (八宅, Eight Mansions) and Xuankong (玄空, Flying Star) s
 > This house faces south. How's the Fengshui?
 > My office is on the 8th floor, desk by the window — anything to watch out for?
 
-## Version
-
+---
 
 ## References
 
@@ -118,7 +159,7 @@ This project's design references the following open-source projects:
 
 ## Disclaimer
 
-liki.hk provides Chinese metaphysics analysis from a traditional cultural perspective for research and reference only. Its conclusions **do not constitute** medical diagnosis, legal advice, financial forecasts, or major life decisions. Please maintain a rational and proactive outlook.
+Liki provides Chinese Astrology analysis from a traditional cultural perspective for research and reference only. Its conclusions **do not constitute** medical diagnosis, legal advice, financial forecasts, or major life decisions. Please maintain a rational and proactive outlook.
 
 ---
 

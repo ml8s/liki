@@ -43,7 +43,7 @@ cat > "$INDEX" <<EOF
       "type": "archive",
       "url": "/skills/liki.tar.gz",
       "digest": "$DIGEST",
-      "description": "liki — 命理 AI Agent Skills，八字/紫微/起名/六爻/奇门/黄历/风水"
+      "description": "Liki — 命理 Skill，八字/紫微/起名/六爻/奇门/黄历/风水"
     }
   ]
 }

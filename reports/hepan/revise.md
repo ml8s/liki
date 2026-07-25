@@ -12,12 +12,12 @@
     "rating": {"title":"","level":"","advantages":[],"risks":[],"advice":""}
   },
   "person_a": {
-    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"","rating":""},
+    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"",},
     "bazi": {"命盘总览":"","五行与十神":"","用神喜忌":"","格局判定":"","夫妻宫":"","大运走势":"","综合建议":""},
     "ziwei": {"命盘总览":"","身宫定位":"","十二宫解读":"","夫妻宫":"","四化分布":"","特殊格局":"","大限":""}
   },
   "person_b": {
-    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"","rating":""},
+    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"",},
     "bazi": {"命盘总览":"","五行与十神":"","用神喜忌":"","格局判定":"","夫妻宫":"","大运走势":"","综合建议":""},
     "ziwei": {"命盘总览":"","身宫定位":"","十二宫解读":"","夫妻宫":"","四化分布":"","特殊格局":"","大限":""}
   }
