@@ -47,7 +47,7 @@
     }
   },
   "person_a": {
-    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"","rating":""},
+    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"",},
     "bazi": {
       "命盘总览":"3 维度展开",
       "五行与十神":"五行分布+十神+关键组合",
@@ -68,7 +68,7 @@
     }
   },
   "person_b": {
-    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"","rating":""},
+    "info": {"name":"","label":"","shengnian":"","sizhu":"","rizhu":"","yongshen":"","xiyong":"","mingong":"","shengong":"",},
     "bazi": {
       "命盘总览":"3 维度展开",
       "五行与十神":"五行分布+十神+关键组合",
