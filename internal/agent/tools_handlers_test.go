@@ -11,6 +11,7 @@ import (
 
 	"liki-engine/internal/agent/city"
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/qiming"
 )
 
 const btOK = `"2000-06-15T12:00:00+08:00"`
@@ -877,6 +878,109 @@ func TestHandler_NamingWuge_Single(t *testing.T) {
 		s2, _ := p["s2"].(float64)
 		if s2 != 0 {
 			t.Errorf("single-name pair should have s2=0: %+v", p)
+		}
+	}
+}
+
+func TestHandler_NamingWuge_SancaiFiltered(t *testing.T) {
+	r := NewRPCRegistry()
+	params := json.RawMessage(`{"surname":"姚","count":2}`)
+	result, err := r.Execute(context.Background(), "qiming.wuge", params)
+	if err != nil {
+		t.Fatalf("qiming.wuge: %v", err)
+	}
+
+	var env struct {
+		Data struct {
+			SurnameStroke float64          `json:"surname_stroke"`
+			Pairs         []map[string]any `json:"pairs"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data.Pairs) == 0 {
+		t.Fatal("wuge should return pairs")
+	}
+	stroke := int(env.Data.SurnameStroke)
+	for _, p := range env.Data.Pairs {
+		s1 := int(p["s1"].(float64))
+		s2 := int(p["s2"].(float64))
+		if !qiming.SancaiHarmonious(stroke, s1, s2) {
+			t.Errorf("pair (s1=%d, s2=%d) not sancai-harmonious for stroke=%d", s1, s2, stroke)
+		}
+	}
+}
+
+func TestHandler_NamingPick_CharInfo(t *testing.T) {
+	r := NewRPCRegistry()
+	params := json.RawMessage(`{"wuxing":"金"}`)
+	result, err := r.Execute(context.Background(), "qiming.pick", params)
+	if err != nil {
+		t.Fatalf("qiming.pick: %v", err)
+	}
+
+	var env struct {
+		Data struct {
+			Chars map[string][]map[string]any `json:"chars"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data.Chars) == 0 {
+		t.Fatal("pick should return chars")
+	}
+
+	checked := 0
+	for _, charList := range env.Data.Chars {
+		for _, c := range charList {
+			checked++
+			if _, ok := c["wuxing"]; !ok {
+				t.Errorf("char %v missing wuxing", c["char"])
+			}
+			if _, ok := c["stroke"]; !ok {
+				t.Errorf("char %v missing stroke", c["char"])
+			}
+			if _, ok := c["radical"]; !ok {
+				t.Errorf("char %v missing radical", c["char"])
+			}
+			if _, ok := c["pinyin"]; !ok {
+				t.Errorf("char %v missing pinyin", c["char"])
+			}
+			if _, ok := c["tone"]; !ok {
+				t.Errorf("char %v missing tone", c["char"])
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no chars checked")
+	}
+}
+
+func TestHandler_NamingPick_WithPairsFilter(t *testing.T) {
+	r := NewRPCRegistry()
+	// 姚=9, pairs限定s1范围: s1=3和s1=13
+	params := json.RawMessage(`{"wuxing":"木","pairs":[{"s1":3,"s2":5},{"s1":13,"s2":7}]}`)
+	result, err := r.Execute(context.Background(), "qiming.pick", params)
+	if err != nil {
+		t.Fatalf("qiming.pick with pairs: %v", err)
+	}
+
+	var env struct {
+		Data struct {
+			Chars map[string][]any `json:"chars"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+
+	// Only strokes in pairs (both s1 and s2) should be present: 3, 5, 7, 13
+	valid := map[string]bool{"3": true, "5": true, "7": true, "13": true}
+	for stroke := range env.Data.Chars {
+		if !valid[stroke] {
+			t.Errorf("unexpected stroke %s returned (should only be 3,5,7,13)", stroke)
 		}
 	}
 }
