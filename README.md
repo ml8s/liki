@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/Liki-命理师的__Skill-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="Liki" src="https://img.shields.io/badge/Liki-命理师的_Skill-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">

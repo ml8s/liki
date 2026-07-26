@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/liki.hk-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="Liki" src="https://img.shields.io/badge/Liki-Professional_Skill_for_Chinese_Metaphysics-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
