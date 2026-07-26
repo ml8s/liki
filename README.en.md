@@ -85,7 +85,7 @@ xuankong/   → Xuankong: SKILL + report format
 reports/    → Comprehensive reports (LifeBook + Hepan, generate → review → revise)
 ```
 
-## Quick Start
+## Install
 
 ```bash
 npx skills add ml8s/liki
