@@ -21,11 +21,11 @@
 
 ## Introduction
 
-**Liki** is a Professional Skill for Chinese Metaphysics — BaZi, ZiWei, naming, Liuyao, Qimen, date selection, Feng Shui, and more. Install with `npx skills add ml8s/liki` and use it directly in your AI assistant.
+**Liki** is a Professional Skill for Chinese Metaphysics. It combines deterministic calculation engines (BaZi, ZiWei, calendrical systems, true solar time, etc.) with AI reasoning to deliver structured, verifiable, and reproducible analysis.
 
-Backed by a deterministic API engine with dual-system cross-validation. Every chart, Yongshen, and DaYun is computed — never guessed by AI.
+Liki is not a chatbot or entertainment tool. It is a professional computation layer built for real practitioner workflows.
 
-Covers **8 independent domains**, with **9 methodology documents**, and a **generate → review → revise** three-stage report pipeline.
+Covers **8 independent domains**, with **9 methodology documents**, **dual-system cross-validation** (BaZi + ZiWei), and a **generate → review → revise** three-stage report pipeline.
 
 ✨ **Get a Chinese name** — Non-Chinese speakers can get an authentic Chinese name rooted in traditional naming principles. The AI matches phonetic sounds to Chinese surnames, then recommends given names based on your birth profile — considering Five Elements balance, auspicious meanings, and classical reference.
 
