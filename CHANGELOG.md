@@ -1,4 +1,5 @@
 # Changelog
+- 1.11.0: README 全面更新 — liki-skills→liki, 品牌 Liki 灵机
 - 1.10.0: 起名域: wuge 三才过滤 + pick pairs过滤 + CharLite扩充；调候: 25条数据修正 + 空secondary支持
 - 1.9.2: 静卦 bian_lines gan/zhi 空串容错 + Gan/Zhi UnmarshalJSON 允许空值 + liuyao.judgment description 明确 chart 格式
 - 1.9.1: OpenRPC schema 改进 — qiming.build/bazi.hehui/bazi.yongshen description 优化；schemaSolarTime/schemaGender/qimen.select 加 examples
