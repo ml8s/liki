@@ -1,18 +1,16 @@
-# liki-engine — 灵机命理引擎
+# liki-engine — Liki 灵机 命理计算引擎
 
 [![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green)](./LICENSE)
-[![API](https://img.shields.io/badge/API-2.0.0-blue)](https://github.com/ml8s/liki-engine)
 [![CI](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml)
 
-liki-engine 是[灵机命理服务](https://github.com/ml8s/liki-skills)的底层计算引擎，提供 44 个 JSON-RPC 命理 API：八字、紫微斗数、奇门遁甲、六爻、起名、黄历、风水等。
+liki-engine 是 [Liki 灵机](https://github.com/ml8s/liki) 的底层计算引擎，提供 43 个 JSON-RPC 命理 API：八字、紫微斗数、奇门遁甲、六爻、起名、黄历、风水等。
 
-灵机命理服务由以下部分组成：
-- **[liki.hk](https://liki.hk)**：在线服务入口
+Liki 灵机 由以下部分组成：
+- **[liki](https://github.com/ml8s/liki)**：Skill 仓库（流程定义 + 方法论文档）
 - **liki-engine**（本仓库）：核心计算引擎，提供精确的命理数值计算
-- **[liki-skills](https://github.com/ml8s/liki-skills)**：面向 AI agent 的技能库，包含服务流程、调用方法、领域知识
 
-> 对 AI agent：请访问 [liki-skills](https://github.com/ml8s/liki-skills) 获取技能定义和工作流指引。在线服务入口：[liki.hk](https://liki.hk)。
+> 对 AI agent：请访问 [liki](https://github.com/ml8s/liki) 获取技能定义和工作流指引。在线服务入口：[liki.hk](https://liki.hk)。
 
 ## 快速开始
 
@@ -37,7 +35,7 @@ curl -s http://localhost:8080/jsonrpc \
 
 | 领域 | 方法数 | 方法 |
 |------|--------|------|
-| 八字 | 11 | chart fullchart yongshen hehui chart_extra bond liunian liuyue liuri liushi xiaoyun xiaoxian |
+| 八字 | 12 | chart fullchart yongshen hehui chart_extra bond liunian liuyue liuri liushi xiaoyun xiaoxian |
 | 紫微斗数 | 7 | chart daxian liunian liuyue liuri judgment bond |
 | 起名 | 5 | char pick build wuge check |
 | 黄历 | 4 | date month bond.date bond.month |
