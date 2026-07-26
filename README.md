@@ -87,10 +87,6 @@ reports/    → 综合报告（命书 + 合盘，generate → review → revise�
 - **三阶段报告流程** — generate → review → revise，质量可控
 - **语义版本管理** — 语义版本号 + CHANGELOG + VERSION 自检更新
 
-## 版本
-
-当前稳定版 **1.32.0**。详见 [CHANGELOG.md](./CHANGELOG.md)。
-
 ## 参考
 
 设计参考了以下开源项目：
