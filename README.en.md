@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>Liki — Chinese Astrology Skill</strong>
+  <strong>Liki — Professional Skill for Chinese Metaphysics</strong>
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
 
 ## Introduction
 
-**Liki** is an industrial-grade Chinese Astrology Skill. Install with `npx skills add ml8s/liki` and use it directly in your AI assistant for BaZi, ZiWei, naming, Liuyao, Qimen, date selection, Feng Shui, and more.
+**Liki** is a Professional Skill for Chinese Metaphysics — built to professional standards, trusted by practitioners, accessible to everyone. Install with `npx skills add ml8s/liki` and use it directly in your AI assistant for BaZi, ZiWei, naming, Liuyao, Qimen, date selection, Feng Shui, and more.
 
 Covers **8 independent domains**, with **9 methodology documents**, **dual-system cross-validation** (BaZi + ZiWei), and a **generate → review → revise** three-stage report pipeline.
 
