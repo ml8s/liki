@@ -21,9 +21,7 @@
 
 ## Introduction
 
-**Liki** is a Professional Skill for Chinese Metaphysics. It combines deterministic calculation engines (BaZi, ZiWei, calendrical systems, true solar time, etc.) with AI reasoning to deliver structured, verifiable, and reproducible analysis.
-
-Liki is not a chatbot or entertainment tool. It is a professional computation layer built for real practitioner workflows.
+**Liki** is a Professional Skill for Chinese Metaphysics — a deterministic computation engine, a built-in methodology library, AI-assisted interpretation, and a customizable toolchain. Built for practitioners, accessible to learners. Install with `npx skills add ml8s/liki` and use it directly in your AI assistant for BaZi, ZiWei, naming, Liuyao, Qimen, date selection, Feng Shui, and more.
 
 Covers **8 independent domains**, with **9 methodology documents**, **dual-system cross-validation** (BaZi + ZiWei), and a **generate → review → revise** three-stage report pipeline.
 
