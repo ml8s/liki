@@ -1,4 +1,5 @@
 # Changelog
+- 1.33.0: 品牌定位命理师的 Skill + README 简介重写 + 各域调用方法标注
 - 1.32.0: 各域 SKILL.md 加调用方法标注 + 修复 qimen/huangli 错误方法名
 - 1.31.0: 时辰校准（kaoshi）流程——成人排盘后强制考时、三层验证、宝宝跳过；合盘流程加入各自考时；命盘/合盘步骤编号顺延；kaoshi 合并入根 SKILL.md（删除独立文件）
 - 1.30.0: dayun 应期推断通用化（六亲/财运/事业/健康四类场景）；LOCAL.md 合并回 SKILL.md；build 脚本修复；README 工业级定位
