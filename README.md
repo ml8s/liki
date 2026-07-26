@@ -10,7 +10,7 @@ Liki 灵机 由以下部分组成：
 - **[liki](https://github.com/ml8s/liki)**：Skill 仓库（流程定义 + 方法论文档）
 - **liki-engine**（本仓库）：核心计算引擎，提供精确的命理数值计算
 
-> 对 AI agent：请访问 [liki](https://github.com/ml8s/liki) 获取技能定义和工作流指引。在线服务入口：[liki.hk](https://liki.hk)。
+> 对 AI agent：请访问 [liki](https://github.com/ml8s/liki) 获取技能定义和工作流指引。官网：[liki.hk](https://liki.hk)。
 
 ## 快速开始
 
