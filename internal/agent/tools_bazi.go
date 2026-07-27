@@ -60,9 +60,12 @@ func baziYongShenHandler(ctx context.Context, raw json.RawMessage) (json.RawMess
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_yongshen: %w", err)
 	}
-	c, err := parseChart(p.Chart, "compute_yongshen")
-	if err != nil {
-		return nil, err
+	var c bazi.Chart
+	if err := json.Unmarshal(p.Chart, &c); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if c.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result := bazi.ComputeYongShen(c)
 	return wrapResult("yongshen", result)
@@ -75,9 +78,12 @@ func baziHeHuiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_hehui: %w", err)
 	}
-	c, err := parseChart(p.Chart, "compute_hehui")
-	if err != nil {
-		return nil, err
+	var c bazi.Chart
+	if err := json.Unmarshal(p.Chart, &c); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if c.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result := bazi.ComputeHeHui(c)
 	return wrapResult("hehui", result)
@@ -90,24 +96,15 @@ func baziChartExtraHandler(ctx context.Context, raw json.RawMessage) (json.RawMe
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_chart_extra: %w", err)
 	}
-	c, err := parseChart(p.Chart, "compute_chart_extra")
-	if err != nil {
-		return nil, err
+	var c bazi.Chart
+	if err := json.Unmarshal(p.Chart, &c); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if c.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result := bazi.ComputeChartExtra(c)
 	return wrapResult("chart_extra", result)
-}
-
-func parseChart(raw json.RawMessage, method string) (bazi.Chart, error) {
-	// raw 必须是 chart JSON，格式: {"nian":{...},"yue":{...},"ri":{...},"shi":{...}}
-	var chart bazi.Chart
-	if err := json.Unmarshal(raw, &chart); err != nil {
-		return chart, fmt.Errorf("%s: parse chart: %w", method, err)
-	}
-	if chart.Ri.Gan == 0 {
-		return chart, fmt.Errorf("%s: chart has empty day stem", method)
-	}
-	return chart, nil
 }
 
 func baziBondHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
@@ -122,13 +119,19 @@ func baziBondHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage,
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_bond: %w", err)
 	}
-	coreA, err := parseChart(p.A.Chart, "compute_bond")
-	if err != nil {
-		return nil, err
+	var coreA bazi.Chart
+	if err := json.Unmarshal(p.A.Chart, &coreA); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
 	}
-	coreB, err := parseChart(p.B.Chart, "compute_bond")
-	if err != nil {
-		return nil, err
+	if coreA.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
+	}
+	var coreB bazi.Chart
+	if err := json.Unmarshal(p.B.Chart, &coreB); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if coreB.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result := bazi.ComputeBond(coreA, coreB)
 	return wrapResult("bond", result)
@@ -145,9 +148,12 @@ func baziLiunianHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if p.Year <= 0 {
 		return nil, fmt.Errorf("compute_liunian: year must be positive, got %d", p.Year)
 	}
-	core, err := parseChart(p.Chart, "compute_liunian")
-	if err != nil {
-		return nil, err
+	var core bazi.Chart
+	if err := json.Unmarshal(p.Chart, &core); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if core.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result, err := bazi.ComputeLiuNian(core, p.Year)
 	if err != nil {
@@ -165,9 +171,12 @@ func baziLiuyueHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_liuyue: %w", err)
 	}
-	core, err := parseChart(p.Chart, "compute_liuyue")
-	if err != nil {
-		return nil, err
+	var core bazi.Chart
+	if err := json.Unmarshal(p.Chart, &core); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if core.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result, err := bazi.ComputeLiuYue(core, p.Year, p.Month)
 	if err != nil {
@@ -186,9 +195,12 @@ func baziLiuriHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_liuri: %w", err)
 	}
-	core, err := parseChart(p.Chart, "compute_liuri")
-	if err != nil {
-		return nil, err
+	var core bazi.Chart
+	if err := json.Unmarshal(p.Chart, &core); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if core.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result, err := bazi.ComputeLiuRi(core, p.Year, p.Month, p.Day)
 	if err != nil {
@@ -211,9 +223,12 @@ func baziLiushiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	if p.Hour < 0 || p.Hour > 23 {
 		return nil, fmt.Errorf("compute_liushi: hour must be 0-23, got %d", p.Hour)
 	}
-	core, err := parseChart(p.Chart, "compute_liushi")
-	if err != nil {
-		return nil, err
+	var core bazi.Chart
+	if err := json.Unmarshal(p.Chart, &core); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if core.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result, err := bazi.ComputeLiuShi(core, p.Year, p.Month, p.Day, p.Hour)
 	if err != nil {
@@ -230,9 +245,12 @@ func baziXiaoYunHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_xiaoyun: %w", err)
 	}
-	core, err := parseChart(p.Chart, "compute_xiaoyun")
-	if err != nil {
-		return nil, err
+	var core bazi.Chart
+	if err := json.Unmarshal(p.Chart, &core); err != nil {
+		return nil, fmt.Errorf("parse chart: %w", err)
+	}
+	if core.Ri.Gan == 0 {
+		return nil, fmt.Errorf("chart has empty day stem")
 	}
 	result := bazi.ComputeXiaoYun(core, p.Count)
 	return wrapResult("xiaoyun", result)
