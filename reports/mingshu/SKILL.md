@@ -3,7 +3,6 @@ name: liki-mingshu
 description: Liki 灵机 命书 — AI 综合命理报告。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.1.0
 
 # Liki 灵机 命书
 

@@ -3,7 +3,6 @@ name: liki-huangli
 description: Liki 灵机 黄历 — AI 择日。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.0.0
 
 # Liki 灵机 黄历
 
