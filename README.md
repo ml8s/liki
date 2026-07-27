@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green)](./LICENSE)
 [![CI](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml)
 
-liki-engine 是 [Liki 灵机](https://github.com/ml8s/liki) 的底层计算引擎，提供 43 个 JSON-RPC 命理 API：八字、紫微斗数、奇门遁甲、六爻、起名、黄历、风水等。
+liki-engine 是 [Liki 灵机](https://github.com/ml8s/liki-skills) 的底层计算引擎，提供 44 个 JSON-RPC 命理 API：八字、紫微斗数、奇门遁甲、六爻、起名、黄历、风水等。
 
 Liki 灵机 由以下部分组成：
 - **[liki](https://github.com/ml8s/liki)**：Skill 仓库（流程定义 + 方法论文档）

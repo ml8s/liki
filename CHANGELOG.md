@@ -1,4 +1,7 @@
 # Changelog
+- 2.2.0: 流年/流日/流月/紫微无匹配时返回 [] 而非 nil
+- 2.1.0: liu_qin/wang_shuai 统一输出字符串(JSON enum→中文名), UnmarshalJSON 仅接受字符串
+- 2.0.0: [Breaking] bazi.chart 返回最小命盘(四柱+纳音+大运+性别), 新增 bazi.fullchart(chart) 扩展全量十神/藏干/神煞/长生/空亡
 - 1.11.0: README 全面更新 — liki-skills→liki, 品牌 Liki 灵机
 - 1.10.0: 起名域: wuge 三才过滤 + pick pairs过滤 + CharLite扩充；调候: 25条数据修正 + 空secondary支持
 - 1.9.2: 静卦 bian_lines gan/zhi 空串容错 + Gan/Zhi UnmarshalJSON 允许空值 + liuyao.judgment description 明确 chart 格式
