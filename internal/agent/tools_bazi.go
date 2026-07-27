@@ -54,7 +54,13 @@ func baziChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 }
 
 func baziYongShenHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	c, err := parseChart(raw, "compute_yongshen")
+	var p struct {
+		Chart json.RawMessage `json:"chart"`
+	}
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return nil, fmt.Errorf("compute_yongshen: %w", err)
+	}
+	c, err := parseChart(p.Chart, "compute_yongshen")
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +69,13 @@ func baziYongShenHandler(ctx context.Context, raw json.RawMessage) (json.RawMess
 }
 
 func baziHeHuiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	c, err := parseChart(raw, "compute_hehui")
+	var p struct {
+		Chart json.RawMessage `json:"chart"`
+	}
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return nil, fmt.Errorf("compute_hehui: %w", err)
+	}
+	c, err := parseChart(p.Chart, "compute_hehui")
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +84,13 @@ func baziHeHuiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 }
 
 func baziChartExtraHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	c, err := parseChart(raw, "compute_chart_extra")
+	var p struct {
+		Chart json.RawMessage `json:"chart"`
+	}
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return nil, fmt.Errorf("compute_chart_extra: %w", err)
+	}
+	c, err := parseChart(p.Chart, "compute_chart_extra")
 	if err != nil {
 		return nil, err
 	}
@@ -81,22 +99,15 @@ func baziChartExtraHandler(ctx context.Context, raw json.RawMessage) (json.RawMe
 }
 
 func parseChart(raw json.RawMessage, method string) (bazi.Chart, error) {
-	// Try direct format: chart JSON at top level, e.g. {"nian":{...},"yue":{...}}
+	// raw 必须是 chart JSON，格式: {"nian":{...},"yue":{...},"ri":{...},"shi":{...}}
 	var chart bazi.Chart
-	if json.Unmarshal(raw, &chart) == nil {
-		// Validate: at minimum Gan should be non-zero
-		if chart.Ri.Gan != 0 {
-			return chart, nil
-		}
+	if err := json.Unmarshal(raw, &chart); err != nil {
+		return chart, fmt.Errorf("%s: parse chart: %w", method, err)
 	}
-	// Fall back to wrapped format: {"chart":{"nian":{...}}}
-	var p struct {
-		Chart bazi.Chart `json:"chart"`
+	if chart.Ri.Gan == 0 {
+		return chart, fmt.Errorf("%s: chart has empty day stem", method)
 	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return p.Chart, fmt.Errorf("%s: parse chart: %w", method, err)
-	}
-	return p.Chart, nil
+	return chart, nil
 }
 
 func baziBondHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
