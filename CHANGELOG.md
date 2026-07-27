@@ -1,4 +1,5 @@
 # Changelog
+- 1.36.0: 自检更新改为强制步骤，版本不一致时阻止后续流程
 - 1.35.0: feedback-agent + SKILL.md 反馈规则优化
 - 1.34.0: SKILL.md 加反馈段 + README 修正
 - 1.33.0: 品牌定位命理师的 Skill + README 简介重写 + 各域调用方法标注
