@@ -72,9 +72,16 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 用户说 | 读取 |
 |--------|------|
 | 算八字、看命盘、流年运势、大运 | `bazi/SKILL.md` |
-| 合盘、两人关系、感情匹配、合婚 | `bazi/SKILL.md` |
+| 综合命盘报告（无明确问题时） | `app/lifebook.md` |
+| 合盘、两人关系、感情匹配、合婚 | `app/hepan.md` |
 | 紫微排盘、紫微斗数、十二宫、紫微命盘 | `ziwei/SKILL.md` |
 | 紫微合盘、两人紫微盘匹配 | `ziwei/SKILL.md` |
+| 婚姻分析、感情走势、何时结婚、离婚 | `app/marriage.md` |
+| 健康诊断、疾病倾向、体质分析 | `app/health.md` |
+| 学业分析、学历判断、考试运势 | `app/study.md` |
+| 事业发展、职业方向、创业打工 | `app/career.md` |
+| 财运分析、财源类型、破财风险 | `app/wealth.md` |
+| 性格分析、外貌体型、个性特点 | `app/personality.md` |
 | 起名、改名、取名字、公司命名 | `naming/SKILL.md` |
 | 六爻、占卜、问吉凶、成败、得失、寻物 | `liuyao/SKILL.md` |
 | 奇门遁甲、时机决策、方向选择 | `qimen/SKILL.md` |

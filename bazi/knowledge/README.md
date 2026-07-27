@@ -60,20 +60,23 @@ bazi/SKILL.md (主流程 — 三阶段关卡制)
 │   ├── yongshen.md      → 用神聚合+合化判断
 │   └── hehui.md         → 合会冲刑
 │
-├─ Phase 2: 专题分析 (Gate 2)   ← 按用户问题领域触发
-│   ├── shishen.md       → 十神组合 + 女命婚姻 + 学历判断
-│   ├── dayun.md         → 大运流年
-│   ├── gongwei.md       → 宫位论
-│   ├── liuqin.md        → 六亲应期
-│   ├── wuxing-jiankang.md → 五行健康
-│   ├── caiyun.md        → 财运判断
-│   ├── xueye.md         → 学历判断
-│   └── shiye.md         → 事业判断
+├─ 快速扫描 (Gate 2)
+│   → 陈列命盘事实，指向 app/ 深入
 │
 └─ Phase 3: 输出复核 (Gate 3)
 
    输出模板（非知识文件）：format-chart.md → 命盘报告模板
-   合盘流程专用：hepan.md → 合盘评估
+
+────────────────────────────────────
+  用户价值层 (app/)
+│  ├── app/lifebook.md    → 命盘报告（综合）
+│  ├── app/marriage.md    → 婚姻分析
+│  ├── app/health.md      → 健康诊断
+│  ├── app/study.md       → 学业判断
+│  ├── app/career.md      → 事业分析
+│  ├── app/wealth.md      → 财运分析
+│  ├── app/personality.md → 性格描写
+│  └── app/hepan.md       → 合盘分析（跨域预留）
 ```
 
 ## 关卡纪律
