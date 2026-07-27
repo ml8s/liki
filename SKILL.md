@@ -82,6 +82,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 风水、八宅、房屋朝向、住宅布局 | `bazhai/SKILL.md` |
 | 玄空、流年飞星、旺山旺向 | `xuankong/SKILL.md` |
 | 灵机命书、综合命理报告 | `reports/mingshu/SKILL.md` |
+| XX年发生何事、何时结婚/离婚/升职/破财/生病/出事 | `inquiry_router.md` |
 | 不确定 | 向用户确认意图后选择
 
 
