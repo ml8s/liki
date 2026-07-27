@@ -47,5 +47,8 @@ func computeFuYinFanYin(flow ganzhi.Zhu, bz ganzhi.Bazi) []FuYinFanYin {
 		}
 	}
 
+	if entries == nil {
+		return []FuYinFanYin{}
+	}
 	return entries
 }

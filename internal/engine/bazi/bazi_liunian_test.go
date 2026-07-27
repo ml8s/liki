@@ -69,8 +69,8 @@ func TestLiuNian_DaYunInteraction_NegativeIndex(t *testing.T) {
 		t.Fatalf("ComputeLiuNian(2023): %v", err)
 	}
 
-	if ln.DaYunInteractions != nil {
-		t.Error("DaYunInteractions should be nil when current_step_index = -1")
+	if len(ln.DaYunInteractions) != 0 {
+		t.Error("DaYunInteractions should be empty when current_step_index = -1")
 	}
 }
 

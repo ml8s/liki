@@ -75,6 +75,8 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 			GanRels:     dyStemRels,
 			ZhiRels:     dyBranchRels,
 		}}
+	} else {
+		r.DaYunInteractions = []zhuInteraction{}
 	}
 
 	r.ShenSha = computeDynamicShenSha(yearBranch, bz.Nian.Zhi, riYuan)

@@ -93,6 +93,9 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 		}
 	}
 
+	if shensha == nil {
+		shensha = []shenShaEntry{}
+	}
 	return &LiuRi{
 		Date:        fmt.Sprintf("%04d-%02d-%02d", year, month, day),
 		DayGan:      dp.Gan,

@@ -431,6 +431,9 @@ func computeDynamicShenSha(b ganzhi.Zhi, yearBranch ganzhi.Zhi, riYuan ganzhi.Ga
 		result = append(result, shenShaEntry{Name: "天喜", Category: catJi, Description: "流运天喜，喜庆之事"})
 	}
 
+	if result == nil {
+		return []shenShaEntry{}
+	}
 	return result
 }
 
