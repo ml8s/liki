@@ -1,4 +1,5 @@
 # Changelog
+- 1.35.0: feedback-agent + SKILL.md 反馈规则优化
 - 1.34.0: SKILL.md 加反馈段 + README 修正
 - 1.33.0: 品牌定位命理师的 Skill + README 简介重写 + 各域调用方法标注
 - 1.32.0: 各域 SKILL.md 加调用方法标注 + 修复 qimen/huangli 错误方法名
