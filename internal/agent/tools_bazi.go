@@ -81,6 +81,15 @@ func baziChartExtraHandler(ctx context.Context, raw json.RawMessage) (json.RawMe
 }
 
 func parseChart(raw json.RawMessage, method string) (bazi.Chart, error) {
+	// Try direct format: chart JSON at top level, e.g. {"nian":{...},"yue":{...}}
+	var chart bazi.Chart
+	if json.Unmarshal(raw, &chart) == nil {
+		// Validate: at minimum Gan should be non-zero
+		if chart.Ri.Gan != 0 {
+			return chart, nil
+		}
+	}
+	// Fall back to wrapped format: {"chart":{"nian":{...}}}
 	var p struct {
 		Chart bazi.Chart `json:"chart"`
 	}
