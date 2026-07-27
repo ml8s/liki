@@ -3,7 +3,6 @@ name: liki-liuyao
 description: Liki 灵机 六爻 — AI 六爻占卜分析。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.7.0
 
 # Liki 灵机 六爻
 

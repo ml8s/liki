@@ -3,7 +3,6 @@ name: liki-bazi
 description: Liki 灵机 八字 — AI 八字命理分析，排盘、用神、合会冲刑、合盘、大运流年。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.8.0
 
 # Liki 灵机 八字
 

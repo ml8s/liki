@@ -1,6 +1,5 @@
 ---
 name: liki-hepan
-version: 1.0.0
 description: 灵机合盘 — 八字+紫微综合感情合盘分析。输入双方出生信息，输出详细合盘报告。
 ---
 

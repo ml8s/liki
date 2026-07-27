@@ -61,6 +61,7 @@ Covers **8 independent domains**, with **9 methodology documents**, **dual-syste
 - **9 methodology documents** — yongshen/geju/tiaohou/wangshuai/hehui/gongwei/dayun/shishen/hepan
 - **Three-stage report pipeline** — generate → review → revise, quality-controlled
 - **Semantic versioning** — VERSION file + CHANGELOG + self-check update mechanism
+- **MingLi-Bench continuous improvement** — 160 real exam questions from World Fortune Telling Contest, accuracy improved from 36% to 49.4% after methodology overhaul in v1.38 (checklist-based strength analysis, yongshen priority reordering, parallel chong-he analysis)
 - **English→Chinese naming** — Non-Chinese users can get a meaningful Chinese name based on their English name's phonetics
 
 ## Architecture

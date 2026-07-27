@@ -1,4 +1,5 @@
 # Changelog
+- 1.38.0: MingLi-Bench 测试从 36%→49.4%（方法论改进：三得法清单化、用神优先级重排为扶抑→格局→调候、冲合并行分析、全流程门禁清单）；新增 inquiry_router.md 问事路由（9类事件）
 - 1.37.0: bazi/SKILL.md 流程清单化——步骤6/8/10/11/12嵌入强制检查清单
 - 1.35.0: feedback-agent + SKILL.md 反馈规则优化
 - 1.34.0: SKILL.md 加反馈段 + README 修正

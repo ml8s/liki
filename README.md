@@ -86,6 +86,7 @@ reports/    → 综合报告（命书 + 合盘，generate → review → revise�
 - **9 份方法论文档** — yongshen/geju/tiaohou/wangshuai/hehui/gongwei/dayun/shishen/hepan
 - **三阶段报告流程** — generate → review → revise，质量可控
 - **语义版本管理** — 语义版本号 + CHANGELOG + VERSION 自检更新
+- **MingLi-Bench 持续演进** — 全球算命师大赛 160 道真题实测，v1.37→v1.38 方法论改进后正确率从 36% 提升至 49.4%（三得法清单化、用神优先级重排、冲合并行分析），目标 60%
 
 ## 参考
 
