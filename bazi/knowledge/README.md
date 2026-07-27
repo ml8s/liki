@@ -71,8 +71,8 @@ bazi/SKILL.md (主流程 — 三阶段关卡制)
 │   └── shiye.md         → 事业判断
 │
 └─ Phase 3: 输出复核 (Gate 3)
-     └── format-chart.md  → 命盘报告模板
 
+   输出模板（非知识文件）：format-chart.md → 命盘报告模板
    合盘流程专用：hepan.md → 合盘评估
 ```
 
