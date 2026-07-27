@@ -606,6 +606,22 @@ func TestHandler_ComputeLiuyue_Valid(t *testing.T) {
 	}
 }
 
+func TestHandler_ComputeLiuNian_ShiShen_Correct(t *testing.T) {
+	r := NewRPCRegistry()
+	chart := getBaziChart(t, r, btOK, "male")
+	for _, year := range []int{2024, 2025, 2026} {
+		params := json.RawMessage(fmt.Sprintf(`{"year":%d,"chart":%s}`, year, string(chart)))
+		result, err := r.Execute(context.Background(), "bazi.liunian", params)
+		if err != nil {
+			t.Fatalf("bazi.liunian(%d): %v", year, err)
+		}
+		shiShen := getStr(result, "data", "shi_shen")
+		if shiShen == "" {
+			t.Errorf("year=%d: shi_shen empty", year)
+		}
+	}
+}
+
 func TestHandler_QueryHuangliMonth_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	result, err := r.Execute(context.Background(), "huangli.month",
