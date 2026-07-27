@@ -3,7 +3,6 @@ name: liki
 description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.36.0
 
 # Liki 灵机 — 命理师的 Skill
 
