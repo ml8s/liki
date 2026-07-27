@@ -3,7 +3,7 @@ name: liki
 description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问卦、风水。命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
-version: 1.35.0
+version: 1.36.0
 
 # Liki 灵机 — 命理师的 Skill
 
@@ -13,11 +13,13 @@ version: 1.35.0
 
 开始服务前，必须先进行版本检查：
 
-1. 读取 `https://liki.hk/skills/VERSION`，比较版本号：
+1. 读取本地安装目录下的 `VERSION` 文件，记为本地版本
+2. 读取 `https://liki.hk/skills/VERSION`，记为远程版本
+3. 比较：
    - 一致 → 继续
-   - 不一致 → 告知用户版本号变化，提示执行 `npx skills update liki` 或 `npx skills add ml8s/liki -y`，用户确认后再继续
+   - 不一致 → 告知用户版本更新内容，提示执行 `npx skills update liki` 或 `npx skills add ml8s/liki -y`，用户确认后再继续
    - 无法连接 → 告知用户无法检查更新，询问是否继续
-2. 版本检查未完成前，不得执行后续任何 RPC 调用或读取子 SKILL.md。
+4. 版本检查未完成前，不得执行后续任何 RPC 调用或读取子 SKILL.md。
 
 ## 错误处理
 
