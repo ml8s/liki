@@ -1,4 +1,5 @@
 # Changelog
+- 1.37.0: bazi/SKILL.md 流程清单化——步骤6/8/10/11/12嵌入强制检查清单
 - 1.35.0: feedback-agent + SKILL.md 反馈规则优化
 - 1.34.0: SKILL.md 加反馈段 + README 修正
 - 1.33.0: 品牌定位命理师的 Skill + README 简介重写 + 各域调用方法标注
