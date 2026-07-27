@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/ml8s/liki"><img src="https://img.shields.io/badge/GitHub-ml8s/liki-4a9e6b?style=flat&logo=github&logoColor=white&labelColor=30305c"></a>
-  <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-在线演示-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
+  <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-官方网站-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
   <a href="./README.en.md"><img src="https://img.shields.io/badge/English-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat"></a>
 </p>
@@ -60,7 +60,7 @@ AI 助手会完成八字+紫微全流程分析，输出综合论断 + 八字报�
 ```
 Liki（本仓库）     → Skill（流程定义 + 方法论文档）
 liki-engine        → 天文历算 API（[开源计算引擎](https://github.com/ml8s/liki-engine)）
-liki.hk            → 基于 engine + skill 构建的在线演示
+[liki.hk](https://liki.hk)        → 官方网站，基于 engine + skill 构建
 ```
 
 ## 项目结构

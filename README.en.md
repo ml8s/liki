@@ -68,7 +68,7 @@ Covers **8 independent domains**, with **9 methodology documents**, **dual-syste
 ```
 liki (this repo)      → Skill (workflow definitions + methodology docs)
 liki-engine           → Astronomical API ([open-source calculation engine](https://github.com/ml8s/liki-engine))
-liki.hk               → Online demo built on engine + skill
+[liki.hk](https://liki.hk)               → Official website built on engine + skill
 ```
 
 ## Project Structure
