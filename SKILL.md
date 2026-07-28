@@ -83,7 +83,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 用户说 | 读取 |
 |--------|------|
 | 算八字、看命盘、流年运势、大运 | `bazi/SKILL.md` |
-| 综合命盘报告（无明确问题时） | `app/lifebook.md` |
+| 综合命盘报告（无明确问题时） | `app/fatechart.md` |
 | 合盘、两人关系、感情匹配、合婚 | `app/compatibility.md` |
 | 紫微排盘、紫微斗数、十二宫、紫微命盘 | `ziwei/SKILL.md` |
 | 紫微合盘、两人紫微盘匹配 | `ziwei/SKILL.md` |
