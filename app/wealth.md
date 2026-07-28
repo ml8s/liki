@@ -33,7 +33,7 @@ description: 财运分析 — 财源类型、收入层次、风险提示
   → 调用 caiyun.md「大运定起伏」+「比劫夺财检查」
   输出：□ 当前大运____ 夺财风险____
 
-📖 搜索 bazi/knowledge/caiyun.md → 读取决策表
+📖 搜索 bazi/SKILL.md → 获取排盘数据
 
 ## 📖 输出模板
 

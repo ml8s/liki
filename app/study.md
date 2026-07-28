@@ -33,8 +33,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
   → 调用 xueye.md「学历等级决策表」
   输出：□ 学历档____ 依据____
 
-📖 搜索 bazi/knowledge/xueye.md → 读取决策表
-📖 搜索 bazi/knowledge/shishen.md → 读取十神组合
+📖 搜索 bazi/SKILL.md → 获取排盘数据
 
 ## 📖 输出模板
 

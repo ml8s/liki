@@ -32,11 +32,7 @@ description: 八字排盘与基础分析模块（组件）。排盘、旺衰、�
 6. **参考文件**：分析前 📖 读取 `knowledge/` 下的参考文件，逐项搜索对应章节：
    （领域文件在对应 app 按需加载：wuxing-jiankang.md → app/health，caiyun.md → app/wealth，dayun.md → 各app）
 
-📖 读取 knowledge/wangshuai.md → 搜索「清单」并填写填空项
-📖 读取 knowledge/geju.md → 搜索「清单」并填写填空项
-📖 读取 knowledge/tiaohou.md → 搜索「清单」并填写填空项
-📖 读取 knowledge/yongshen.md → 搜索「清单」并填写填空项
-📖 读取 knowledge/hehui.md → 搜索「清单」并填写填空项
+📖 读取 knowledge/ 下5张决策表 → 逐一搜索「清单」并填写 □ 填空项
 7. **定格局**：按 geju.md 定格，明确格局类型和成破。
 8. **取用神**（**调用方法：** 三派用神分析，基于扶抑+调候+格局计算用神/喜神/忌神）。按 yongshen.md 执行——扶抑定基础，格局定方向，调候做修正。
    - **特别注意调候权重**：冬夏极端月份调候优先于扶抑和格局
