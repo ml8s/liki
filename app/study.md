@@ -7,8 +7,8 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 ## 依赖的领域知识
 
-- bazi: knowledge/xueye.md「学历等级决策表」
-- bazi: knowledge/shishen.md「十神组合」
+- bazi: xueye.md「学历等级决策表」
+- bazi: shishen.md「十神组合」
 
 ## 用户问法 → 领域信号（翻译表）
 

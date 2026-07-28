@@ -7,7 +7,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 ## 依赖的领域知识
 
-- bazi: bazi/knowledge/yongshen.md「用神方法论」
+- bazi: bazi/yongshen.md「用神方法论」
 - 姓名学: 自包含（三才五格/笔画五行/字义出处/选字规则）
 
 ## 知识索引
@@ -28,7 +28,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 ## 📖 流程卡
 
 第1步：排八字取用神
-  调用 bazi/knowledge/yongshen.md → 判断用神、喜神、忌神
+  调用 bazi/yongshen.md → 判断用神、喜神、忌神
   输出：□ 用神____ 喜神____ 忌神____
 
 第2步：确定命名参数

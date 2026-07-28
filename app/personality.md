@@ -7,8 +7,8 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 
 ## 依赖的领域知识
 
-- bazi: knowledge/wangshuai.md「身弱五行属性降级表」
-- bazi: knowledge/shishen.md「十神组合场景化」
+- bazi: wangshuai.md「身弱五行属性降级表」
+- bazi: shishen.md「十神组合场景化」
 
 ## 用户问法 → 领域信号（翻译表）
 

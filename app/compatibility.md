@@ -7,9 +7,9 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 ## 依赖的领域知识（预留跨域）
 
-- bazi: knowledge/compatibility.md「合盘评估」
-- bazi: knowledge/gongwei.md「宫位论」
-- bazi: knowledge/shishen.md「十神组合」
+- bazi: compatibility.md「合盘评估」
+- bazi: gongwei.md「宫位论」
+- bazi: shishen.md「十神组合」
 - ziwei:（预留，紫微验证）
 
 ## 用户问法 → 领域信号（翻译表）
@@ -36,7 +36,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 第4步：综合评级
   输出：□ 良配/可配/慎配/不利 ____
 
-📖 搜索 bazi/knowledge/compatibility.md → 读取合盘评估
+📖 搜索 bazi/compatibility.md → 读取合盘评估
 
 ## 📖 输出模板
 

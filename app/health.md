@@ -7,9 +7,9 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 ## 依赖的领域知识
 
-- bazi: knowledge/wuxing-jiankang.md「五行所属」
-- bazi: knowledge/hehui.md「冲宫位表」+「冲吉凶表」
-- bazi: knowledge/dayun.md「应期决策表」
+- bazi: wuxing-jiankang.md「五行所属」
+- bazi: hehui.md「冲宫位表」+「冲吉凶表」
+- bazi: dayun.md「应期决策表」
 
 ## 用户问法 → 领域信号（翻译表）
 
