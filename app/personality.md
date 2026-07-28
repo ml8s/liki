@@ -31,8 +31,7 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 第3步：综合
   输出：□ 正向特征____ 负向特征____ 最终结论____
 
-📖 搜索 bazi/knowledge/wangshuai.md → 读取降级表
-📖 搜索 bazi/knowledge/shishen.md → 读取十神组合
+📖 搜索 bazi/SKILL.md → 获取排盘数据
 
 ## 📖 输出模板
 

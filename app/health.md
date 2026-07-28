@@ -34,9 +34,7 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
   → 调用 hehui.md「冲吉凶表」
   输出：□ 事件性质____ 结果走向____ 严重程度____
 
-📖 搜索 bazi/knowledge/wuxing-jiankang.md → 读取五行脏腑表
-📖 搜索 bazi/knowledge/hehui.md → 读取冲决策表
-📖 搜索 bazi/knowledge/dayun.md → 读取应期表
+📖 搜索 bazi/SKILL.md → 获取排盘数据
 
 ## 📖 输出模板
 

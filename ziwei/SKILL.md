@@ -29,14 +29,7 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 5. 解读：调 knowledge/ 各决策表 → 命宫→身宫→十二宫→四化→三方→格局→综合
 6. 产出：结构化数据 → `app/fatechart.md` 输出
 
-📖 搜索 knowledge/zhuxing.md → 读取主星表
-📖 搜索 knowledge/fuxing.md → 读取辅星表
-📖 搜索 knowledge/miaowang.md → 读取庙旺表
-📖 搜索 knowledge/shengong.md → 读取身宫表
-📖 搜索 knowledge/gong12.md → 读取十二宫表
-📖 搜索 knowledge/sihua.md → 读取四化表
-📖 搜索 knowledge/geju.md → 读取格局表
-📖 搜索 knowledge/gexing.md → 读取性格表
+📖 读取 knowledge/下8张决策表 → 逐一搜索「清单」填写 □ 填空
 
 ### 合盘分析
 

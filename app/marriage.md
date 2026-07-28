@@ -40,10 +40,7 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
   → 整合前三步输出
   输出：□ 婚姻质量____ 建议窗口年____
 
-📖 搜索 bazi/knowledge/shishen.md → 读取官杀混杂章节
-📖 搜索 bazi/knowledge/gongwei.md → 读取日柱章节
-📖 搜索 bazi/knowledge/dayun.md → 读取应期决策表
-📖 搜索 bazi/knowledge/liuqin.md → 读取配偶章节
+📖 搜索 bazi/SKILL.md → 获取排盘数据
 
 ## 📖 输出模板
 

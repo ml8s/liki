@@ -34,8 +34,7 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
   → 调用 shiye.md「大运影响」+ dayun.md「应期表」
   输出：□ 当前大运____ 窗口年____
 
-📖 搜索 bazi/knowledge/shiye.md → 读取决策表
-📖 搜索 bazi/knowledge/dayun.md → 读取应期表
+📖 搜索 bazi/SKILL.md → 获取排盘数据
 
 ## 📖 输出模板
 
