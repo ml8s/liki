@@ -20,6 +20,51 @@ description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问
    - 无法连接 → 告知用户无法检查更新，询问是否继续
 4. 版本检查未完成前，不得执行后续任何 RPC 调用或读取子 SKILL.md。
 
+## RPC 调用说明
+
+所有命理数据通过 JSON-RPC 2.0 获取，**禁止自行推算或凭训练知识编造**。
+
+### 端点
+
+```
+POST https://liki.hk/jsonrpc
+Content-Type: application/json
+```
+
+### 通用请求格式
+
+```json
+{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}
+```
+
+### 第一步：rpc.discover
+
+启动后第一个调用必须是 `rpc.discover`，获取全部可用方法的参数定义和返回结构：
+
+```bash
+curl -s https://liki.hk/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"rpc.discover","id":1}'
+```
+
+从 `result.methods` 数组读取每个 method 的：
+- `name` — 方法名
+- `params.properties` — 参数定义（字段名、类型、说明）
+- `params.required` — 必填参数列表
+- `result.properties` — 返回字段结构
+
+后续所有 RPC 调用均以此处返回的 schema 为准。rpc.discover 本身无须参数，可在读取子 SKILL.md 之前调用。
+
+### 通用调用方式（rpc.discover 之外的后续方法）
+
+```bash
+curl -s https://liki.hk/jsonrpc \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}'
+```
+
+参数按 rpc.discover 返回的 schema 填写。
+
 ## 错误处理
 
 JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1}` 时：
@@ -81,7 +126,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 ## 路由分发
 
-1. 先调 `rpc.discover`，获取所有 method 的完整 schema（入参 + 返回字段），后续调用以此为准。
+1. 先调 `rpc.discover`（详见 [RPC 调用说明](#rpc-调用说明)），获取所有 method 的完整 schema。后续调用以 schema 为准。
 2. 根据用户问题，读取对应子 SKILL.md。**未读取子 SKILL.md 之前，不得调用任何 RPC 方法**（rpc.discover 除外）。
 
 | 用户说 | 读取 |
@@ -105,39 +150,6 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 
 3. 按子 SKILL.md 定义的工作流执行：调用顺序不可跳过、不可并行。
-
-## 考时校准（生成报告前可执行）
-
-时辰确认方法，适用于八字/紫微/风水中出生时间不确定的场景。
-
-**适用：** 成人用户排盘后建议考时确认。宝宝/青少年跳过。
-**方法：** 问用户 3-5 件大事年份，逐盘比对。结构事实（婚姻/子女数）做硬排除，事件吻合度做评分，平局时看问题方向是否匹配盘特征。
-
-### 第一层：人生结构（硬排除）
-
-先看用户人生已成的结构性事实能否在候选盘中被识别：
-
-| 结构事实 | 八字对照 | 紫微对照 |
-|---------|---------|---------|
-| 几段婚姻 | 正财/偏财数 | 夫妻宫星曜分布 |
-| 子女数、男女 | 七杀=子 正官=女 | 子女宫星曜 |
-| 是否离异 | 日支冲刑 | 夫妻宫煞星四化 |
-
-结构项不对应的候选盘直接排除。
-
-### 第二层：事件吻合度（主评分）
-
-用户提供 3-5 件大事 + 年份，逐盘比对。每件吻合 +1，不吻合 -1，最高分者占优。
-
-### 第三层：问题方向（平局分水岭）
-
-仅当两张候选盘得分持平时启用。用户关心领域是否与命盘特征匹配。
-
-### 边界
-
-- 事件年份需准确到 ±1 年，超出不可靠
-- 至少 3 件事件，1-2 件不可靠
-- 候选盘超过 5 张时精度下降
 
 ## 记忆管理（仅适用于具备文件写入能力的客户端）
 
