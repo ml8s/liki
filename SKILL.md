@@ -100,7 +100,11 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 风水、八宅、房屋朝向、住宅布局 | `app/fengshui.md` |
 | 玄空、流年飞星、旺山旺向 | `app/fengshui.md` |
 | 灵机命书、综合命理报告 | `reports/mingshu/SKILL.md` |
-| XX年发生何事、何时结婚/离婚/升职/破财/生病/出事 | `inquiry_router.md` |
+| XX年发生何事、具体年份事件查询 | `app/fatechart.md`（快速扫描→定向到对应app） |
+| 何时结婚/离婚 | `app/marriage.md` |
+| 何时升职/工作变动 | `app/career.md` |
+| 何时破财/得财 | `app/wealth.md` |
+| 何时生病/健康事件 | `app/health.md` |
 | 不确定 | 向用户确认意图后选择
 
 
