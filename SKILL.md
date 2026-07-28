@@ -163,10 +163,6 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 首次保存时提醒："出生信息将保存在当前目录的 `liki-memory.json` 中。请勿分享或在公开仓库提交。"
 帮他人排盘时不主动提议存档。
 
-## 报告渲染（仅适用于具备文件写入能力的客户端）
-
-`reports/mingshu/generate.md` 生成的 JSON 报告即为最终交付物。如需 HTML 渲染，请自行实现 render 脚本。
-
 ## 参考资料
 
 ### 地点与时区
