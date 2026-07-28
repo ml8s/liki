@@ -93,7 +93,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 事业发展、职业方向、创业打工 | `app/career.md` |
 | 财运分析、财源类型、破财风险 | `app/wealth.md` |
 | 性格分析、外貌体型、个性特点 | `app/personality.md` |
-| 起名、改名、取名字、公司命名 | `naming/SKILL.md` |
+| 起名、改名、取名字、公司命名 | `app/naming.md` |
 | 六爻、占卜、问吉凶、成败、得失、寻物 | `liuyao/SKILL.md` |
 | 奇门遁甲、时机决策、方向选择 | `qimen/SKILL.md` |
 | 择日、黄历、婚嫁搬家开业吉日 | `huangli/SKILL.md` |

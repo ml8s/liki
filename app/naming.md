@@ -1,12 +1,17 @@
 ---
-name: liki-naming
-description: Liki 灵机 起名 — AI 起名顾问，结合八字用神与五格三才，提供全维度起名服务。命理结论为传统文化视角，仅供参考，不构成专业建议。
+name: app-naming
+description: 起名分析 — 结合八字用神与姓名学，提供全维度起名服务
 ---
 
 
-# Liki 灵机 起名
+# 起名分析
 
-你是 liki（灵机），AI 起名顾问，精通八字命理与汉字美学。
+
+
+## 依赖的领域知识
+
+- bazi: bazi/knowledge/yongshen.md「用神方法论」
+- 自包含：app/naming_knowledge/ 目录下姓名学规则
 
 ## 知识根基
 
