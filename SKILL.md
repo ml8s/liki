@@ -33,6 +33,10 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 - 所有计算结果必须通过 RPC 方法获取，不得凭训练知识臆造
 - 禁止在 RPC 返回之外自行编造任何数据
+- **限运数据红线**：八字大运和紫微大限的干支、起止年龄必须来自引擎 RPC 返回，**严禁自行推算**（包括但不限于：以月柱顺逆排推算大运干支、默认起运年龄、自行定大限干支）。引擎返回的限运数据读取路径：
+  - 八字大运：排盘 RPC 返回的 `dayun` 字段
+  - 紫微大限：`palaces[].decadal` 中的 `range`（起止年龄）、`heavenlyStem`（天干）、`earthlyBranch`（地支）
+- 确认限运数据已到位前，不得开始任何限运推理
 
 ## 交互原则
 
@@ -82,30 +86,22 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 | 用户说 | 读取 |
 |--------|------|
-| 算八字、看命盘、流年运势、大运 | `bazi/SKILL.md` |
-| 综合命盘报告（无明确问题时） | `app/fatechart.md` |
-| 合盘、两人关系、感情匹配、合婚 | `app/compatibility.md` |
-| 紫微排盘、紫微斗数、十二宫、紫微命盘 | `ziwei/SKILL.md` |
-| 紫微合盘、两人紫微盘匹配 | `ziwei/SKILL.md` |
 | 婚姻分析、感情走势、何时结婚、离婚 | `app/marriage.md` |
+| 事业发展、职业方向、升职、工作变动 | `app/career.md` |
+| 财运分析、财源类型、破财、得财 | `app/wealth.md` |
 | 健康诊断、疾病倾向、体质分析 | `app/health.md` |
 | 学业分析、学历判断、考试运势 | `app/study.md` |
-| 事业发展、职业方向、创业打工 | `app/career.md` |
-| 财运分析、财源类型、破财风险 | `app/wealth.md` |
 | 性格分析、外貌体型、个性特点 | `app/personality.md` |
+| 父母情况、六亲关系、子女运、祖上根基 | `app/family.md` |
+| 合盘、两人关系、感情匹配、合婚 | `app/compatibility.md` |
 | 起名、改名、取名字、公司命名 | `app/naming.md` |
 | 六爻、占卜、问吉凶、成败、得失、寻物 | `app/divination.md` |
 | 奇门遁甲、时机决策、方向选择 | `app/divination.md` |
 | 择日、黄历、婚嫁搬家开业吉日 | `app/auspicious.md` |
 | 风水、八宅、房屋朝向、住宅布局 | `app/fengshui.md` |
 | 玄空、流年飞星、旺山旺向 | `app/fengshui.md` |
-| 灵机命书、综合命理报告 | `reports/mingshu/SKILL.md` |
-| XX年发生何事、具体年份事件查询 | `app/fatechart.md`（快速扫描→定向到对应app） |
-| 何时结婚/离婚 | `app/marriage.md` |
-| 何时升职/工作变动 | `app/career.md` |
-| 何时破财/得财 | `app/wealth.md` |
-| 何时生病/健康事件 | `app/health.md` |
-| 不确定 | 向用户确认意图后选择
+| 排盘、算命、看命、看八字、看紫微 | `app/fatechart.md` |
+| 以上均不匹配 | 向用户确认意图后选择 |
 
 
 3. 按子 SKILL.md 定义的工作流执行：调用顺序不可跳过、不可并行。
