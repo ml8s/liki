@@ -9,17 +9,17 @@ description: 六爻占卜模块（组件）。起卦、装卦、用神、月建�
 
 | 文件 | 功能 |
 |------|------|
-| knowledge/yongshen.md | 用神取用 |
-| knowledge/yuejian.md | 月建日建 |
-| knowledge/yingqi.md | 应期判断 |
+| yongshen.md | 用神取用 |
+| yuejian.md | 月建日建 |
+| yingqi.md | 应期判断 |
 
 ## 技术流程
 
 1. **路由判断**：用户问吉凶时使用六爻。
 2. **收集参数**：问题 + 出生信息（可选）。
 3. **调用引擎**：起卦 → 装卦 → 断卦。
-4. **解读**：调 knowledge/ 匹配用神、月建、应期。
+4. **解读**：调  匹配用神、月建、应期。
 
-📖 搜索 knowledge/yongshen.md → 读取用神表
-📖 搜索 knowledge/yuejian.md → 读取月建表
-📖 搜索 knowledge/yingqi.md → 读取应期表
+📖 搜索 yongshen.md → 读取用神表
+📖 搜索 yuejian.md → 读取月建表
+📖 搜索 yingqi.md → 读取应期表

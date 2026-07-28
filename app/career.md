@@ -7,9 +7,9 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 
 ## 依赖的领域知识
 
-- bazi: knowledge/shiye.md「决策表」
-- bazi: knowledge/gongwei.md「宫位论」
-- bazi: knowledge/dayun.md「应期决策表」
+- bazi: shiye.md「决策表」
+- bazi: gongwei.md「宫位论」
+- bazi: dayun.md「应期决策表」
 
 ## 用户问法 → 领域信号（翻译表）
 

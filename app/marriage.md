@@ -7,10 +7,10 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 ## 依赖的领域知识
 
-- bazi: knowledge/shishen.md「女命婚姻——官杀混杂判断」
-- bazi: knowledge/gongwei.md「宫位论」
-- bazi: knowledge/dayun.md「应期决策表」
-- bazi: knowledge/liuqin.md「六亲——配偶」
+- bazi: shishen.md「女命婚姻——官杀混杂判断」
+- bazi: gongwei.md「宫位论」
+- bazi: dayun.md「应期决策表」
+- bazi: liuqin.md「六亲——配偶」
 
 ## 用户问法 → 领域信号（翻译表）
 

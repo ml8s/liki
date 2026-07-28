@@ -7,8 +7,8 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 ## 依赖的领域知识
 
-- bazi: knowledge/caiyun.md「决策表」
-- bazi: knowledge/shishen.md「十神」
+- bazi: caiyun.md「决策表」
+- bazi: shishen.md「十神」
 
 ## 用户问法 → 领域信号（翻译表）
 
