@@ -94,11 +94,11 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 财运分析、财源类型、破财风险 | `app/wealth.md` |
 | 性格分析、外貌体型、个性特点 | `app/personality.md` |
 | 起名、改名、取名字、公司命名 | `app/naming.md` |
-| 六爻、占卜、问吉凶、成败、得失、寻物 | `liuyao/SKILL.md` |
-| 奇门遁甲、时机决策、方向选择 | `qimen/SKILL.md` |
-| 择日、黄历、婚嫁搬家开业吉日 | `huangli/SKILL.md` |
-| 风水、八宅、房屋朝向、住宅布局 | `bazhai/SKILL.md` |
-| 玄空、流年飞星、旺山旺向 | `xuankong/SKILL.md` |
+| 六爻、占卜、问吉凶、成败、得失、寻物 | `app/divination.md` |
+| 奇门遁甲、时机决策、方向选择 | `app/divination.md` |
+| 择日、黄历、婚嫁搬家开业吉日 | `app/datepicker.md` |
+| 风水、八宅、房屋朝向、住宅布局 | `app/fengshui.md` |
+| 玄空、流年飞星、旺山旺向 | `app/fengshui.md` |
 | 灵机命书、综合命理报告 | `reports/mingshu/SKILL.md` |
 | XX年发生何事、何时结婚/离婚/升职/破财/生病/出事 | `inquiry_router.md` |
 | 不确定 | 向用户确认意图后选择
