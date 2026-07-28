@@ -19,7 +19,7 @@
     "personality": {
       "title": "性格画像",
       "bazi": "八字格局+十神行为模式+合冲影响（按 reports/mingshu/format-chart.md 命盘+十神+格局维度展开）",
-      "ziwei": "紫微命宫主星+身宫+福德（按 ziwei/format.md 命盘总览+身宫维度展开）",
+      "ziwei": "紫微命宫主星+身宫+福德（按 reports/mingshu/format-ziwei.md 命盘总览+身宫维度展开）",
       "cross": "两系一致/有差异/交叉结论",
       "advice": "1-2 句"
     },
