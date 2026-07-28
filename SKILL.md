@@ -84,7 +84,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 |--------|------|
 | 算八字、看命盘、流年运势、大运 | `bazi/SKILL.md` |
 | 综合命盘报告（无明确问题时） | `app/lifebook.md` |
-| 合盘、两人关系、感情匹配、合婚 | `app/hepan.md` |
+| 合盘、两人关系、感情匹配、合婚 | `app/compatibility.md` |
 | 紫微排盘、紫微斗数、十二宫、紫微命盘 | `ziwei/SKILL.md` |
 | 紫微合盘、两人紫微盘匹配 | `ziwei/SKILL.md` |
 | 婚姻分析、感情走势、何时结婚、离婚 | `app/marriage.md` |
@@ -96,7 +96,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 起名、改名、取名字、公司命名 | `app/naming.md` |
 | 六爻、占卜、问吉凶、成败、得失、寻物 | `app/divination.md` |
 | 奇门遁甲、时机决策、方向选择 | `app/divination.md` |
-| 择日、黄历、婚嫁搬家开业吉日 | `app/datepicker.md` |
+| 择日、黄历、婚嫁搬家开业吉日 | `app/auspicious.md` |
 | 风水、八宅、房屋朝向、住宅布局 | `app/fengshui.md` |
 | 玄空、流年飞星、旺山旺向 | `app/fengshui.md` |
 | 灵机命书、综合命理报告 | `reports/mingshu/SKILL.md` |
