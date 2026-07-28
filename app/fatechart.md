@@ -1,6 +1,6 @@
 ---
-name: app-lifebook
-description: 命盘报告 — 全盘综合解读，用户无明确问题时走此入口
+name: app-fatechart
+description: 命盘分析 — 全盘综合解读，用户无明确问题时走此入口
 ---
 
 # 命盘报告
