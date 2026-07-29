@@ -30,6 +30,7 @@ tar czf "$ARCHIVE" \
     --exclude LICENSE \
     --exclude AGENTS.md \
     --exclude Makefile \
+    --exclude webapp \
     .
 
 DIGEST="sha256:$(sha256sum "$ARCHIVE" | awk '{print $1}')"
