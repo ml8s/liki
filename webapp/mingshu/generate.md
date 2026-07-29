@@ -18,8 +18,8 @@
   "summary": {
     "personality": {
       "title": "性格画像",
-      "bazi": "八字格局+十神行为模式+合冲影响（按 reports/mingshu/format-chart.md 命盘+十神+格局维度展开）",
-      "ziwei": "紫微命宫主星+身宫+福德（按 reports/mingshu/format-ziwei.md 命盘总览+身宫维度展开）",
+      "bazi": "八字格局+十神行为模式+合冲影响（按 webapp/mingshu/format-chart.md 命盘+十神+格局维度展开）",
+      "ziwei": "紫微命宫主星+身宫+福德（按 webapp/mingshu/format-ziwei.md 命盘总览+身宫维度展开）",
       "cross": "两系一致/有差异/交叉结论",
       "advice": "1-2 句"
     },
@@ -89,9 +89,9 @@
 - 所有字段的值用纯文本，禁止使用 HTML 标签（`<tr>`、`<td>`、`<p>` 等）
 - summary 各节 bazi/ziwei/cross 三个字段分别引用八字和紫微引擎数据。cross 字段必须给出明确的综合结论（一致/有差异/交叉结论）
 - window: 大运切换带来的事业机会说明
-- summary.fortune.phases 逐十年大运展开，每运按 reports/mingshu/format-chart.md 维度要求
+- summary.fortune.phases 逐十年大运展开，每运按 webapp/mingshu/format-chart.md 维度要求
 - summary.fortune.daxian 逐大限展开，每限标注与八字大运的同步关系
 - summary.fortune.liunian 展开未来 10 个流年（含今年），每年分别从八字和紫微分析，cross 给出综合结论
 - milestones: 挑出最重要的三件事，每件须说明为什么现在重要
 - health.advice 末尾必须注明"不做医学诊断"
-- bazi.sections 和 ziwei.sections 各节内容分别按 reports/mingshu/format-chart.md 和 reports/mingshu/format-ziwei.md 的维度要求生成。ziwei 各节至少 2 个维度，大限和流年分开
+- bazi.sections 和 ziwei.sections 各节内容分别按 webapp/mingshu/format-chart.md 和 webapp/mingshu/format-ziwei.md 的维度要求生成。ziwei 各节至少 2 个维度，大限和流年分开

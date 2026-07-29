@@ -83,7 +83,7 @@ qimen/      → Qimen: SKILL + report format
 huangli/    → Huangli: SKILL + report format
 bazhai/     → Bazhai: SKILL + report format
 xuankong/   → Xuankong: SKILL + report format
-reports/    → Comprehensive reports (LifeBook + Hepan, generate → review → revise)
+webapp/    → Web application pipeline (LifeBook + Hepan, generate → review → revise)
 ```
 
 ## Install
