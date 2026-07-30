@@ -4,10 +4,10 @@ package ziwei
 func ComputeFullChart(chart Chart, riGan, riZhi int) Chart {
 	mingZhi := chart.Palaces[chart.MingGong].Zhi
 	nianZhi := chart.NianZhi
-	shiZhi := chart.HourZhi
+	shiZhi := chart.ShiZhi
 	lunarMonth := chart.LunarMonth
 	lunarDay := chart.LunarDay
-	nianGan := chart.YearGan // use existing field name
+	nianGan := chart.NianGan
 	gender := chart.Gender
 
 	// 1. XiaoXian
@@ -38,7 +38,7 @@ func ComputeFullChart(chart Chart, riGan, riZhi int) Chart {
 				stars = append(stars, name)
 			}
 		}
-		chart.Palaces[palaceIdx].AdjStars = stars
+		chart.Palaces[palaceIdx].ZaYao = stars
 	}
 
 	// 5. JiangQian / SuiQian

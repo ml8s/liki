@@ -130,7 +130,7 @@ type palace struct {
 	BoShi        string      `json:"bo_shi,omitempty"`
 	JiangQian    string      `json:"jiang_qian,omitempty"`
 	SuiQian      string      `json:"sui_qian,omitempty"`
-	AdjStars     []string    `json:"adj_stars,omitempty"`
+	ZaYao       []string    `json:"za_yao,omitempty"`
 }
 
 // starInfo is one star entry in a palace.
@@ -161,15 +161,15 @@ type Chart struct {
 	JuShuName   string       `json:"ju_shu_name"`
 	ZiweiPos    palaceIndex  `json:"ziwei_pos"`
 	SiHua       siHuaResult  `json:"si_hua"`
-	YearGan     Gan                 `json:"year_gan"`
+	NianGan     Gan                 `json:"nian_gan"`
 	NianZhi     Zhi                 `json:"nian_zhi,omitempty"`
-	HourZhi     Zhi                 `json:"hour_zhi"`
+	ShiZhi      Zhi                 `json:"shi_zhi"`
 	BirthYear   int                 `json:"birth_year"`
 	LunarMonth  int                 `json:"lunar_month,omitempty"`
 	LunarDay    int                 `json:"lunar_day,omitempty"`
 	Gender      ganzhi.Gender       `json:"gender"`
-	SoulStar    string              `json:"soul_star,omitempty"`
-	BodyStar    string              `json:"body_star,omitempty"`
+	MingZhu     string              `json:"ming_zhu,omitempty"`
+	ShenZhu     string              `json:"shen_zhu,omitempty"`
 	Patterns    []pattern           `json:"patterns,omitempty"`
 }
 
@@ -178,10 +178,10 @@ type siHuaResult map[starIndex]siHuaType
 
 // DaXianStep records one 10-year da-xian segment.
 type DaXianStep struct {
-	StartAge int         `json:"start_age"`
-	EndAge   int         `json:"end_age"`
-	Palace   palaceIndex `json:"palace"`
-	Name     string      `json:"name"`
+	QiSui int         `json:"qi_sui"`
+	ZhiSui int        `json:"zhi_sui"`
+	Palace palaceIndex `json:"palace"`
+	Name   string      `json:"name"`
 }
 
 // LiuNian is the annual fate analysis.
@@ -191,6 +191,6 @@ type LiuNian struct {
 	Zhi          Zhi                      `json:"zhi"`            // 流年地支
 	SiHua        siHuaResult              `json:"si_hua"`
 	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_palace"`
-	MinorStars   map[starIndex]int         `json:"minor_stars"`
+	FuXing       map[starIndex]int         `json:"fu_xing"`
 }
 

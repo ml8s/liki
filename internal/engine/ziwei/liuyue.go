@@ -26,7 +26,6 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 	monthGan := Gan(((int(yinGan(liuYearGan)) - 1 + lunarMonth - 1) % 10 + 10) % 10 + 1)
 	monthZhi := Zhi((lunarMonth + 1) % 12 + 1) // 正月寅起
 
-
 	return LiuYue{
 		MingGong:     0,
 		MingGongName: "命宫",
@@ -34,19 +33,6 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 		SiHua:        liuYueSiHua(lunarMonth, liuYearGan),
 		Stars:        liuYueStars(monthGan, monthZhi),
 	}
-}
-
-func liuYueMingGong(flowYear int, chart Chart, targetMonth int) palaceIndex {
-	_, flowZhi := yearStemBranch(flowYear)
-	// iztro: yearlyIndex - birthMonth + hourEBI + targetMonth
-	// where EBI is EARTHLY_BRANCHES index (子=0,丑=1,...,亥=11)
-	yearlyIdx := (int(flowZhi) - 3 + 12) % 12   // = fixEarthlyBranchIndex(年支)
-	hourIdx := int(chart.HourZhi) - 1            // = EARTHLY_BRANCHES.indexOf(出生时辰)
-	birthM := int(chart.LunarMonth)
-	iztroIdx := (yearlyIdx + hourIdx + targetMonth - birthM + 12) % 12
-	// iztroIdx is iztro display index (寅=0). Convert to Liki palace.
-	zhiM1 := (iztroIdx + 2) % 12
-	return zhiToPalace(zhiM1, chart.Palaces[0].Zhi)
 }
 
 func liuYueSiHua(lunarMonth int, liuYearGan Gan) siHuaResult {
@@ -114,10 +100,6 @@ func liuRiStars(gan Gan, zhi Zhi) map[string]int {
 
 func liuRiSiHua(dayGan Gan) siHuaResult {
 	return computeSiHua(dayGan)
-}
-
-func liuRiMingGong(lunarDay int, liuYueMing palaceIndex) palaceIndex {
-	return (liuYueMing + palaceIndex(lunarDay-1)) % 12
 }
 
 // ── 流时 ──
@@ -197,7 +179,6 @@ func liuChangQuByGan(gan Gan) (changZM1, quZM1 int) {
 	idx := int(gan) - 1
 	return (table[idx][0] + 2) % 12, (table[idx][1] + 2) % 12
 }
-
 
 func riZhi(liuYear, lunarMonth, lunarDay int) Zhi {
 	gt := tianwen.LunarToGregorian(tianwen.LunarTime{Year: liuYear, Month: lunarMonth, Day: lunarDay})

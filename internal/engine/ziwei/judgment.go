@@ -16,8 +16,8 @@ type SiHuaItem struct {
 
 type SanFangInfo struct {
 	Name    string   `json:"name"`
-	Main    []string `json:"main"`
-	Assist  []string `json:"assist"`
+	ZhuXing []string `json:"zhu_xing"`
+	FuXing  []string `json:"fu_xing"`
 	SiHua   string   `json:"si_hua"`
 }
 
@@ -48,7 +48,7 @@ type judgmentConds struct {
 	LowScore    *int        `json:"low_score,omitempty"`
 	SiHuaCount  *countRange `json:"si_hua_count,omitempty"`
 	Brightness  []string    `json:"brightness,omitempty"`
-	ShaStar     []string    `json:"sha_star,omitempty"`
+	ShaXing     []string    `json:"sha_xing,omitempty"`
 	MingGong    string      `json:"ming_gong,omitempty"`
 }
 
@@ -166,9 +166,9 @@ func buildSanFangInfo(c Chart, sfPalaces [4]palaceIndex) []SanFangInfo {
 		}
 		for _, s := range p.Stars {
 			if s.IsMajor {
-				info.Main = append(info.Main, s.Name)
+				info.ZhuXing = append(info.ZhuXing, s.Name)
 			} else {
-				info.Assist = append(info.Assist, s.Name)
+				info.FuXing = append(info.FuXing, s.Name)
 			}
 		}
 		result = append(result, info)
@@ -201,9 +201,9 @@ func matchJudgment(c judgmentConds, topScore, topCount, lowScore, siHuaCount int
 		for _, b := range c.Brightness { if b == mingBright { ok = true; break } }
 		if !ok { return false }
 	}
-	if len(c.ShaStar) > 0 {
+	if len(c.ShaXing) > 0 {
 		ok := false
-		for _, s := range c.ShaStar { if s == shaStr { ok = true; break } }
+		for _, s := range c.ShaXing { if s == shaStr { ok = true; break } }
 		if !ok { return false }
 	}
 	if c.MingGong != "" && mingStarName != c.MingGong { return false }

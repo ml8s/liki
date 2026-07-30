@@ -10,6 +10,15 @@ import (
 	"liki-engine/internal/engine/ziwei"
 )
 
+// parseChart unmarshals and validates a chart from raw JSON.
+func parseChart(raw json.RawMessage) (ziwei.Chart, error) {
+	var chart ziwei.Chart
+	if err := json.Unmarshal(raw, &chart); err != nil {
+		return chart, fmt.Errorf("parse chart: %w", err)
+	}
+	return chart, nil
+}
+
 func ziweiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
 		Lunar  json.RawMessage `json:"lunar"`
@@ -36,9 +45,9 @@ func ziweiDaxianHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_ziwei_daxian: %w", err)
 	}
-	var chart ziwei.Chart
-	if err := json.Unmarshal(p.Chart, &chart); err != nil {
-		return nil, fmt.Errorf("compute_ziwei_daxian: parse chart: %w", err)
+	chart, err := parseChart(p.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("compute_ziwei_daxian: %w", err)
 	}
 	result := ziwei.ComputeDaXian(chart)
 	return wrapResult("ziwei_daxian", result)
@@ -46,7 +55,7 @@ func ziweiDaxianHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 
 func ziweiLiunianHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		LiuYear int             `json:"liu_year"`
+		LiuNian int             `json:"liu_nian"`
 		Chart   json.RawMessage `json:"chart"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
@@ -56,13 +65,13 @@ func ziweiLiunianHandler(ctx context.Context, raw json.RawMessage) (json.RawMess
 	if err := json.Unmarshal(p.Chart, &chart); err != nil {
 		return nil, fmt.Errorf("compute_ziwei_liunian: parse chart: %w", err)
 	}
-	result := ziwei.ComputeLiuNian(chart, p.LiuYear)
+	result := ziwei.ComputeLiuNian(chart, p.LiuNian)
 	return wrapResult("ziwei_liunian", result)
 }
 
 func ziweiLiuyueHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		LiuYear    int             `json:"liu_year"`
+		LiuNian    int             `json:"liu_nian"`
 		LunarMonth int             `json:"lunar_month"`
 		Chart      json.RawMessage `json:"chart"`
 	}
@@ -73,13 +82,13 @@ func ziweiLiuyueHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if err := json.Unmarshal(p.Chart, &chart); err != nil {
 		return nil, fmt.Errorf("compute_ziwei_liuyue: parse chart: %w", err)
 	}
-	result := ziwei.ComputeLiuYue(chart, p.LiuYear, p.LunarMonth)
+	result := ziwei.ComputeLiuYue(chart, p.LiuNian, p.LunarMonth)
 	return wrapResult("ziwei_liuyue", result)
 }
 
 func ziweiLiuriHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		LiuYear    int             `json:"liu_year"`
+		LiuNian    int             `json:"liu_nian"`
 		LunarMonth int             `json:"lunar_month"`
 		LunarDay   int             `json:"lunar_day"`
 		Chart      json.RawMessage `json:"chart"`
@@ -91,7 +100,7 @@ func ziweiLiuriHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	if err := json.Unmarshal(p.Chart, &chart); err != nil {
 		return nil, fmt.Errorf("compute_ziwei_liuri: parse chart: %w", err)
 	}
-	result := ziwei.ComputeLiuRi(chart, p.LiuYear, p.LunarMonth, p.LunarDay)
+	result := ziwei.ComputeLiuRi(chart, p.LiuNian, p.LunarMonth, p.LunarDay)
 	return wrapResult("ziwei_liuri", result)
 }
 
@@ -103,8 +112,9 @@ func ziweiJudgmentHandler(ctx context.Context, raw json.RawMessage) (json.RawMes
 		return nil, fmt.Errorf("ziwei.judgment: %w", err)
 	}
 	var chart ziwei.Chart
-	if err := json.Unmarshal(p.Chart, &chart); err != nil {
-		return nil, fmt.Errorf("ziwei.judgment: parse chart: %w", err)
+	chart, err := parseChart(p.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.judgment: %w", err)
 	}
 	result := ziwei.ComputeJudgment(chart)
 	return wrapResult("ziwei_judgment", result)
@@ -138,60 +148,62 @@ func ziweiBondHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 var ziweiMethods = []RPCMethod{
 	{
 		Name: "ziwei.chart", Description: "紫微斗数排盘。返回十二宫星曜分布、亮度、四化。",
-		Params: mustSchema(`{"type":"object","properties":{"lunar":{"type":"object","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"shichen":{"type":"string"}},"required":["year","month","day","shichen"]},"gender":` + schemaGender + `},"required":["lunar","gender"]}`), Handler: ziweiChartHandler,
-		Result: envelopeSchema(`{"type":"object","properties":{"palaces":{"type":"array"},"ming_gong":{"type":"integer"},"si_hua":{"type":"object"},"shen_gong":{"type":"integer"},"ju_shu":{"type":"integer"}},"required":["palaces","ming_gong","si_hua"]}`),
+		Params: mustSchema(`{"type":"object","properties":{"lunar":{"type":"object","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"shichen":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"时辰（子丑寅卯辰巳午未申酉戌亥）"}},"required":["year","month","day","shichen"]},"gender":` + schemaGender + `},"required":["lunar","gender"]}`), Handler: ziweiChartHandler,
+		Result: envelopeSchema(`{"type":"object","properties":{"palaces":{"type":"array","description":"12宫信息"},"ming_gong":{"type":"integer"},"si_hua":{"type":"object","description":"四化: {星id: 化名}"},"shen_gong":{"type":"integer"},"ju_shu":{"type":"integer"},"ju_shu_name":{"type":"string"},"ming_zhu":{"type":"string","description":"命主"},"shen_zhu":{"type":"string","description":"身主"},"nian_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"年干"},"nian_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"年支"},"shi_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"时支"},"birth_year":{"type":"integer"},"ziwei_pos":{"type":"integer"},"gender":{"type":"string"}},"required":["palaces"]}`),
 	},
 	{
 		Name: "ziwei.daxian", Description: "紫微斗数大限。返回十年大限各宫吉凶。chart 为 ziwei.chart 返回的完整 chart 对象。",
 		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["chart"]}`),
 		Handler: ziweiDaxianHandler,
-		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"start_age":{"type":"integer"},"end_age":{"type":"integer"},"palace":{"type":"integer"},"name":{"type":"string"}},"required":["start_age","end_age","palace","name"]}}`),
+		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"qi_sui":{"type":"integer"},"zhi_sui":{"type":"integer"},"palace":{"type":"integer"},"name":{"type":"string"}},"required":["qi_sui","zhi_sui","palace","name"]}}`),
 	},
 	{
 		Name: "ziwei.liunian", Description: "紫微流年。返回流年命盘及各宫变化。",
-		Params: mustSchema(`{"type":"object","properties":{"liu_year":{"type":"integer","description":"流年年份"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_year","chart"]}`),
+		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer","description":"流年年份"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_nian","chart"]}`),
 		Handler: ziweiLiunianHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"integer"},"ming_gong_name":{"type":"string"},"si_hua":{"type":"object"}},"required":["ming_gong","si_hua"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"integer"},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流年地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"si_hua_palace":{"type":"object"},"fu_xing":{"type":"object","description":"流年辅星"}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 	{
 		Name: "ziwei.liuyue", Description: "紫微流月。返回流月命盘及各宫变化。",
-		Params: mustSchema(`{"type":"object","properties":{"liu_year":{"type":"integer","description":"流年年份"},"lunar_month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_year","lunar_month","chart"]}`),
+		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer","description":"流年年份"},"lunar_month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_nian","lunar_month","chart"]}`),
 		Handler: ziweiLiuyueHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"integer"},"ming_gong_name":{"type":"string"},"si_hua":{"type":"object"}},"required":["ming_gong","si_hua"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"integer"},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流月地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"stars":{"type":"object","description":"月星: {星名: zhiMinus1}"}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 	{
 		Name: "ziwei.liuri", Description: "紫微流日。返回流日命盘及各宫变化。",
-		Params: mustSchema(`{"type":"object","properties":{"liu_year":{"type":"integer","description":"流年年份"},"lunar_month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"lunar_day":{"type":"integer","minimum":1,"maximum":30,"description":"农历日期"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_year","lunar_month","lunar_day","chart"]}`),
+		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer","description":"流年年份"},"lunar_month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"lunar_day":{"type":"integer","minimum":1,"maximum":30,"description":"农历日期"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_nian","lunar_month","lunar_day","chart"]}`),
 		Handler: ziweiLiuriHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"integer"},"ming_gong_name":{"type":"string"},"si_hua":{"type":"object"}},"required":["ming_gong","si_hua"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"integer"},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流日地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"stars":{"type":"object","description":"日星: {星名: zhiMinus1}"}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 	{
 		Name: "ziwei.judgment", Description: "紫微综合盘论断。返回格局、四化、三方四正、综合评级。",
 		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["chart"]}`),
 		Handler: ziweiJudgmentHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"patterns":{"type":"array"},"si_hua":{"type":"array","description":"四化列表:[{star_id,star_name,type(禄/权/科/忌)}]"},"san_fang":{"type":"array"},"rating":{"type":"string"},"summary":{"type":"string"}},"required":["patterns","rating","summary"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"patterns":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"description":{"type":"string"},"score":{"type":"integer"}}}},"si_hua":{"type":"array","description":"四化列表:[{star_id,star_name,type(禄/权/科/忌)}]"},"san_fang":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"zhu_xing":{"type":"array"},"fu_xing":{"type":"array"},"si_hua":{"type":"string"}}}},"rating":{"type":"string"},"summary":{"type":"string"}},"required":["patterns","rating","summary"]}`),
 	},
 	{
 		Name: "ziwei.bond", Description: "紫微合盘。返回双方命盘交互分析。",
 		Params: mustSchema(`{"type":"object","properties":{"a":{"type":"object","description":"甲方紫微盘（ziwei.chart 返回的完整对象）"},"b":{"type":"object","description":"乙方紫微盘（ziwei.chart 返回的完整对象）"}},"required":["a","b"]}`),
 		Handler: ziweiBondHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"a_into_b":{"type":"integer"},"b_into_a":{"type":"integer"},"star_cross":{"type":"array"}},"required":["a_into_b","b_into_a","star_cross"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong_hu_ru":{"type":"object"},"fu_qi_gong":{"type":"object"},"zi_nv_gong":{"type":"object"},"ji_xing":{"type":"array"},"sha_xing":{"type":"array"},"lu_ma":{"type":"array"},"kong_wang":{"type":"array"},"si_hua":{"type":"array"},"wu_xing_sheng_ke":{"type":"string"},"summary":{"type":"string"}},"required":["ming_gong_hu_ru","wu_xing_sheng_ke"]}`),
 	},
 	{
 		Name: "ziwei.fullchart", Description: "紫微全盘。扩展杂曜、长生、博士、小限、将前、岁前。",
 		Handler: ziweiFullChartHandler,
 		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object"}},"required":["chart"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"palaces":{"type":"array","description":"12宫含杂曜/长生/博士/小限/将前/岁前"},"ming_gong":{"type":"integer"},"si_hua":{"type":"object"},"shen_gong":{"type":"integer"},"ju_shu":{"type":"integer"},"ju_shu_name":{"type":"string"},"ming_zhu":{"type":"string"},"shen_zhu":{"type":"string"},"nian_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"年干"},"nian_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"年支"},"shi_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"时支"},"birth_year":{"type":"integer"}},"required":["palaces"]}`),
 	},
 	{
 		Name: "ziwei.liushi", Description: "紫微流时。返回流时命宫及四化。",
 		Handler: ziweiLiuShiHandler,
-		Params: mustSchema(`{"type":"object","properties":{"liu_year":{"type":"integer"},"lunar_month":{"type":"integer"},"lunar_day":{"type":"integer"},"shi_zhi":{"type":"integer"},"chart":{"type":"object"}},"required":["liu_year","lunar_month","lunar_day","shi_zhi","chart"]}`),
+		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer"},"lunar_month":{"type":"integer"},"lunar_day":{"type":"integer"},"shi_zhi":{"type":"integer"},"chart":{"type":"object"}},"required":["liu_nian","lunar_month","lunar_day","shi_zhi","chart"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"integer"},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流时地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"stars":{"type":"object","description":"时星: {星名: zhiMinus1}"}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 }
 
 func ziweiLiuShiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		LiuYear    int             `json:"liu_year"`
+		LiuNian    int             `json:"liu_nian"`
 		LunarMonth int             `json:"lunar_month"`
 		LunarDay   int             `json:"lunar_day"`
 		ShiZhi     int             `json:"shi_zhi"`
@@ -200,10 +212,10 @@ func ziweiLiuShiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("ziwei.liushi: %w", err)
 	}
-	var chart ziwei.Chart
-	if err := json.Unmarshal(p.Chart, &chart); err != nil {
+	chart, err := parseChart(p.Chart)
+	if err != nil {
 		return nil, fmt.Errorf("ziwei.liushi: %w", err)
 	}
-	result := ziwei.ComputeLiuShi(chart, p.LiuYear, p.LunarMonth, p.LunarDay, ganzhi.Zhi(p.ShiZhi))
+	result := ziwei.ComputeLiuShi(chart, p.LiuNian, p.LunarMonth, p.LunarDay, ganzhi.Zhi(p.ShiZhi))
 	return wrapResult("ziwei_liushi", result)
 }

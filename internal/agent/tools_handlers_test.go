@@ -16,6 +16,8 @@ import (
 
 const btOK = `"2000-06-15T12:00:00+08:00"`
 const btOK2 = `"2000-09-20T08:30:00+08:00"`
+const lunarOK = `{"year":2000,"month":6,"day":15,"shichen":"午"}`
+const lunarOK2 = `{"year":2000,"month":8,"day":23,"shichen":"辰"}`
 
 // ── helpers ──
 
@@ -166,7 +168,7 @@ func TestHandler_BadGender(t *testing.T) {
 	}{
 		{"bazi.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"other"}`, btOK)},
 		{"bazi.xiaoxian", `{"gender":"bad"}`},
-		{"ziwei.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"bad"}`, btOK)},
+		{"ziwei.chart", fmt.Sprintf(`{"lunar":%s,"gender":"bad"}`, lunarOK)},
 		{"bazhai.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"bad"}`, btOK)},
 		{"bazhai.minggua", `{"gender":"x","birth_year":1984}`},
 	}
@@ -335,7 +337,7 @@ func TestHandler_ComputeXiaoXian_Valid(t *testing.T) {
 
 func TestHandler_ComputeZiwei_Valid(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK))
+	params := json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK))
 	result, err := r.Execute(context.Background(), "ziwei.chart", params)
 	if err != nil {
 		t.Fatalf("ziwei.chart: %v", err)
@@ -664,8 +666,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 44 {
-		t.Errorf("method count = %d, want 44 (43 + rpc.discover)", len(methods))
+	if len(methods) != 46 {
+		t.Errorf("method count = %d, want 46 (45 + rpc.discover)", len(methods))
 	}
 }
 
@@ -1293,7 +1295,7 @@ func TestHandler_ZiweiDaXian(t *testing.T) {
 	r := NewRPCRegistry()
 	// Get chart first
 	chartResult, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("ziwei.chart: %v", err)
 	}
@@ -1316,7 +1318,7 @@ func TestHandler_ZiweiDaXian(t *testing.T) {
 func TestHandler_ZiweiLiunian(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("ziwei.chart: %v", err)
 	}
@@ -1326,7 +1328,7 @@ func TestHandler_ZiweiLiunian(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"liu_year":2026,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liunian", params)
 	if err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
@@ -1339,7 +1341,7 @@ func TestHandler_ZiweiLiunian(t *testing.T) {
 func TestHandler_ZiweiLiuyue(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("ziwei.chart: %v", err)
 	}
@@ -1349,7 +1351,7 @@ func TestHandler_ZiweiLiuyue(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"liu_year":2026,"lunar_month":5,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"lunar_month":5,"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liuyue", params)
 	if err != nil {
 		t.Fatalf("ziwei.liuyue: %v", err)
@@ -1362,12 +1364,12 @@ func TestHandler_ZiweiLiuyue(t *testing.T) {
 func TestHandler_ZiweiBond(t *testing.T) {
 	r := NewRPCRegistry()
 	chartA, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("ziwei.chart A: %v", err)
 	}
 	chartB, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"female"}`, btOK2)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"female"}`, lunarOK2)))
 	if err != nil {
 		t.Fatalf("ziwei.chart B: %v", err)
 	}
@@ -1389,7 +1391,7 @@ func TestHandler_ZiweiBond(t *testing.T) {
 func TestHandler_ZiweiLiuri_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("ziwei.chart: %v", err)
 	}
@@ -1399,7 +1401,7 @@ func TestHandler_ZiweiLiuri_Valid(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"liu_year":2026,"lunar_month":5,"lunar_day":10,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"lunar_month":5,"lunar_day":10,"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liuri", params)
 	if err != nil {
 		t.Fatalf("ziwei.liuri: %v", err)
@@ -1431,7 +1433,7 @@ func (m *mockNominatimTransport) RoundTrip(_ *http.Request) (*http.Response, err
 func TestHandler_ZiweiJudgment_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("ziwei.chart: %v", err)
 	}
@@ -1653,14 +1655,14 @@ func TestHandler_BaziXiaoxian_Valid(t *testing.T) {
 func TestHandler_ZiweiLiuyue_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
 	var env struct{ Data json.RawMessage `json:"data"` }
 if err := json.Unmarshal(chartResult, &env); err != nil { t.Fatal(err) }
 	_, err = r.Execute(context.Background(), "ziwei.liuyue",
-		json.RawMessage(fmt.Sprintf(`{"liu_year":2026,"lunar_month":5,"chart":%s}`, env.Data)))
+		json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"lunar_month":5,"chart":%s}`, env.Data)))
 	if err != nil {
 		t.Fatalf("ziwei.liuyue: %v", err)
 	}
@@ -1669,12 +1671,12 @@ if err := json.Unmarshal(chartResult, &env); err != nil { t.Fatal(err) }
 func TestHandler_ZiweiBond_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	c1, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
 	c2, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"female"}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"female"}`, lunarOK)))
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}

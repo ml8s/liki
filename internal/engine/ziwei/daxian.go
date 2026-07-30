@@ -2,19 +2,19 @@ package ziwei
 
 import "liki-engine/internal/engine/ganzhi"
 
-func daXianStartAge(ju juShu) int {
+func daXianQiSui(ju juShu) int {
 	return int(ju)
 }
 
 func ComputeDaXian(chart Chart) []DaXianStep {
-	forward := isDaXianForward(chart.Gender, chart.YearGan)
-	startAge := daXianStartAge(chart.JuShu)
+	forward := isDaXianForward(chart.Gender, chart.NianGan)
+	qiSui := daXianQiSui(chart.JuShu)
 	steps := make([]DaXianStep, 0, 12)
 	pos := palaceIndex(0)
 	for i := 0; i < 12; i++ {
 		steps = append(steps, DaXianStep{
-			StartAge: startAge + i*10,
-			EndAge:   startAge + i*10 + 9,
+			QiSui: qiSui + i*10,
+			ZhiSui:   qiSui + i*10 + 9,
 			Palace:   pos,
 			Name:     PalaceNames[pos],
 		})

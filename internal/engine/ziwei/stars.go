@@ -102,8 +102,6 @@ func wenQuPos(hourZhi Zhi) int      { return (int(hourZhi) + 3) % 12 }
 func diKongPos(hourZhi Zhi) int     { return (12 - int(hourZhi) + 12) % 12 }
 func diJiePos(hourZhi Zhi) int      { return (int(hourZhi) + 10) % 12 }
 
-func huoXingPos(yearZhi, hourZhi Zhi) int { return huoXingIndex(yearZhi, hourZhi) }
-func lingXingPos(yearZhi, hourZhi Zhi) int { return lingXingIndex(yearZhi, hourZhi) }
 
 func huoXingIndex(yearZhi, hourZhi Zhi) int {
 	ti := (int(hourZhi) - 1 + 12) % 12

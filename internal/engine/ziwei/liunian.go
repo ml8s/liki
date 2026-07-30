@@ -11,8 +11,8 @@ func yearStemBranch(year int) (Gan, Zhi) {
 
 // liuNianMingGong returns flow year命宫 index.
 // 古典规则：流年地支直指——哪个宫的地支等于流年地支，即为流年命宫。
-func liuNianMingGong(liuYear int, chart Chart) palaceIndex {
-	_, liuZhi := yearStemBranch(liuYear)
+func liuNianMingGong(liuNian int, chart Chart) palaceIndex {
+	_, liuZhi := yearStemBranch(liuNian)
 	for i, p := range chart.Palaces {
 		if p.Zhi == liuZhi {
 			return palaceIndex(i)
@@ -22,8 +22,8 @@ func liuNianMingGong(liuYear int, chart Chart) palaceIndex {
 }
 
 // liuNianSiHua computes the annual four transformations.
-func liuNianSiHua(liuYear int) siHuaResult {
-	liuGan, _ := yearStemBranch(liuYear)
+func liuNianSiHua(liuNian int) siHuaResult {
+	liuGan, _ := yearStemBranch(liuNian)
 	return computeSiHua(liuGan)
 }
 
@@ -39,8 +39,8 @@ func liuNianMinors(yearZhu ganzhi.Zhu, hourZhi Zhi) map[starIndex]int {
 }
 
 // ComputeLiuNian assembles the full annual analysis.
-func ComputeLiuNian(chart Chart, liuYear int) LiuNian {
-	siHua := liuNianSiHua(liuYear)
+func ComputeLiuNian(chart Chart, liuNian int) LiuNian {
+	siHua := liuNianSiHua(liuNian)
 	siHuaPalace := make(map[starIndex]palaceIndex)
 	for _, p := range chart.Palaces {
 		for _, s := range p.Stars {
@@ -49,14 +49,14 @@ func ComputeLiuNian(chart Chart, liuYear int) LiuNian {
 			}
 		}
 	}
-	liuYearGan, liuYearZhi := yearStemBranch(liuYear)
-	minorStars := liuNianMinors(ganzhi.Zhu{Gan: liuYearGan, Zhi: liuYearZhi}, chart.HourZhi)
+	liuYearGan, liuYearZhi := yearStemBranch(liuNian)
+	minorStars := liuNianMinors(ganzhi.Zhu{Gan: liuYearGan, Zhi: liuYearZhi}, chart.ShiZhi)
 	return LiuNian{
 		MingGong:     0,
 		MingGongName: "命宫",
 		Zhi:          liuYearZhi,
 		SiHua:        siHua,
 		SiHuaPalace:  siHuaPalace,
-		MinorStars:   minorStars,
+		FuXing:   minorStars,
 	}
 }

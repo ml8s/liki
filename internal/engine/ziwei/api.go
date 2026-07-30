@@ -25,7 +25,7 @@ func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
 	chart.LunarDay = lt.Day
 	chart.NianZhi = nianZhi
 	chart = buildChartDetail(chart)
-	chart.SoulStar = soulStar(chart.Palaces[0].Zhi)
-	chart.BodyStar = bodyStar(nianZhi)
+	chart.MingZhu = soulStar(chart.Palaces[0].Zhi)
+	chart.ShenZhu = bodyStar(nianZhi)
 	return chart
 }

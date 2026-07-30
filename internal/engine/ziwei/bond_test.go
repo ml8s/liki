@@ -73,14 +73,14 @@ func TestBond(t *testing.T) {
 			if bd.PalaceCross.AIntoB == "" || bd.PalaceCross.BIntoA == "" {
 				t.Error("palace_cross为空")
 			}
-			if bd.ElementFit == "" {
+			if bd.WuXingShengKe == "" {
 				t.Error("element_fit为空")
 			}
-			if bd.SpouseRef == nil {
-				t.Error("spouse_ref为nil")
+			if bd.FuQiGong == nil {
+				t.Error("fu_qi_gong为nil")
 			}
-			if bd.ChildRef == nil {
-				t.Error("child_ref为nil")
+			if bd.ZiNvGong == nil {
+				t.Error("zi_nv_gong为nil")
 			}
 			if tc.desc[:3] == "自合" {
 				if bd.PalaceCross.AIntoB != ca.Palaces[0].Name {
@@ -89,8 +89,8 @@ func TestBond(t *testing.T) {
 				if bd.PalaceCross.BIntoA != ca.Palaces[0].Name {
 					t.Errorf("自合B入A: %s", bd.PalaceCross.BIntoA)
 				}
-				if !strSliceEq(bd.SpouseRef.AMajor, bd.SpouseRef.BMajor) {
-					t.Errorf("自合夫妻星不同: %v vs %v", bd.SpouseRef.AMajor, bd.SpouseRef.BMajor)
+				if !strSliceEq(bd.FuQiGong.AZhuXing, bd.FuQiGong.BZhuXing) {
+					t.Errorf("自合夫妻星不同: %v vs %v", bd.FuQiGong.AZhuXing, bd.FuQiGong.BZhuXing)
 				}
 			}
 			pass++

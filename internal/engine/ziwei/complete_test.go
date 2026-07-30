@@ -77,8 +77,8 @@ func TestComplete(t *testing.T) {
 			if fc.JuShuName != tc.Ju { t.Error("局:", fc.JuShuName, "want", tc.Ju) }
 
 			// 命主身主
-			if fc.SoulStar != tc.YSoul { t.Error("命主:", fc.SoulStar, "want", tc.YSoul) }
-			if fc.BodyStar != tc.YSbody { t.Error("身主:", fc.BodyStar, "want", tc.YSbody) }
+			if fc.MingZhu != tc.YSoul { t.Error("命主:", fc.MingZhu, "want", tc.YSoul) }
+			if fc.ShenZhu != tc.YSbody { t.Error("身主:", fc.ShenZhu, "want", tc.YSbody) }
 
 			// 四化
 			for sidStr, stype := range tc.SiHua {
@@ -95,8 +95,8 @@ func TestComplete(t *testing.T) {
 				for _, s := range dxResult {
 					if s.Name == dx.Palace {
 						found = true
-						if s.StartAge != dx.Start || s.EndAge != dx.End {
-							t.Errorf("大限%s: got %d-%d want %d-%d", dx.Palace, s.StartAge, s.EndAge, dx.Start, dx.End)
+						if s.QiSui != dx.Start || s.ZhiSui != dx.End {
+							t.Errorf("大限%s: got %d-%d want %d-%d", dx.Palace, s.QiSui, s.ZhiSui, dx.Start, dx.End)
 						}
 						break
 					}
@@ -183,7 +183,7 @@ func TestComplete(t *testing.T) {
 				ga := got.Ages; if len(ga) > 3 { ga = ga[:3] }
 				if !intEq(ga, ref.Ages) { t.Errorf("[%s]小限: got%v want%v", nm, ga, ref.Ages); fail++ } else { pass++ }
 				// 杂曜
-				if !setEq(got.AdjStars, ref.Adj) { t.Errorf("[%s]杂曜: got%v want%v", nm, got.AdjStars, ref.Adj); fail++ } else { pass++ }
+				if !setEq(got.ZaYao, ref.Adj) { t.Errorf("[%s]杂曜: got%v want%v", nm, got.ZaYao, ref.Adj); fail++ } else { pass++ }
 			}
 		})
 	}

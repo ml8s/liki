@@ -214,7 +214,7 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 	expected := []string{
 		"rpc.discover",
 		"bazi.fullchart", "bazi.chart", "bazi.yongshen", "bazi.hehui", "bazi.chart_extra", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun", "bazi.xiaoxian",
-		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.judgment", "ziwei.bond",
+		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.judgment", "ziwei.bond",
 		"qimen.chart","qimen.judgment","qimen.select",
 		"qiming.char", "qiming.pick", "qiming.build", "qiming.check", "qiming.wuge",
 		"bazhai.judgment", "bazhai.chart", "bazhai.minggua",
@@ -337,7 +337,7 @@ func TestRPC_DataDriven(t *testing.T) {
 
 // ── Inter-dependent method tests ─────────────────────────────
 
-var ziweiBirth = `{"solar_time":"2000-06-15T12:00:00+08:00","gender":"male"}`
+var ziweiBirth = `{"lunar":{"year":2000,"month":6,"day":15,"shichen":"午"},"gender":"male"}`
 
 func getZiweiChart(t *testing.T, reg *agent.RPCRegistry) map[string]any {
 	t.Helper()
@@ -399,7 +399,7 @@ func TestRPC_Dispatch_ZiweiDaXian(t *testing.T) {
 			t.Fatal("empty daxian steps")
 		}
 		first := steps[0].(map[string]any)
-		assertNonNil(t, first, "start_age", "end_age", "name")
+		assertNonNil(t, first, "qi_sui", "zhi_sui", "name")
 		validateSchema(t, "ziwei.daxian", resp.Result)
 	})
 }
@@ -408,7 +408,7 @@ func TestRPC_Dispatch_ZiweiLiuNian(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	chart := getZiweiChart(t, reg)
 
-	params := map[string]any{"liu_year": 2026, "chart": chart}
+	params := map[string]any{"liu_nian": 2026, "chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"ziwei.liunian","params":%s,"id":1}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_liunian")
@@ -422,7 +422,7 @@ func TestRPC_Dispatch_ZiweiLiuYue(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	chart := getZiweiChart(t, reg)
 
-	params := map[string]any{"liu_year": 2026, "lunar_month": 1, "chart": chart}
+	params := map[string]any{"liu_nian": 2026, "lunar_month": 1, "chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"ziwei.liuyue","params":%s,"id":1}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_liuyue")
@@ -436,7 +436,7 @@ func TestRPC_Dispatch_ZiweiLiuRi(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	chart := getZiweiChart(t, reg)
 
-	params := map[string]any{"liu_year": 2026, "lunar_month": 1, "lunar_day": 1, "chart": chart}
+	params := map[string]any{"liu_nian": 2026, "lunar_month": 1, "lunar_day": 1, "chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"ziwei.liuri","params":%s,"id":1}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_liuri")
@@ -451,7 +451,7 @@ func TestRPC_Dispatch_ZiweiBond(t *testing.T) {
 
 	chartA := getZiweiChart(t, reg)
 	// second person: 1986-08-20, female
-	chartBBody := `{"jsonrpc":"2.0","method":"ziwei.chart","params":{"solar_time":"2000-09-20T08:30:00+08:00","gender":"female"},"id":99}`
+	chartBBody := `{"jsonrpc":"2.0","method":"ziwei.chart","params":{"lunar":{"year":2000,"month":8,"day":23,"shichen":"辰"},"gender":"female"},"id":99}`
 	var chartB map[string]any
 	postRPC(t, reg, chartBBody, func(resp rpcResponse) {
 		chartB = resp.Result.(map[string]any)["data"].(map[string]any)
@@ -462,7 +462,7 @@ func TestRPC_Dispatch_ZiweiBond(t *testing.T) {
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_bond")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		assertNonNil(t, data, "a_into_b", "b_into_a", "star_cross")
+		assertNonNil(t, data, "ming_gong_hu_ru", "ji_xing", "sha_xing")
 		validateSchema(t, "ziwei.bond", resp.Result)
 	})
 }

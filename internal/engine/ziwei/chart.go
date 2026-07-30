@@ -50,9 +50,9 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 		JuShu:      ju,
 		JuShuName:  juShuName(ju),
 		ZiweiPos:   ziweiPos,
-		YearGan:    yearGan,
+		NianGan:    yearGan,
 		NianZhi:    yearZhi,
-		HourZhi:    hourZhi,
+		ShiZhi:    hourZhi,
 		LunarMonth: lunarMonth,
 		LunarDay:   lunarDay,
 	}
@@ -60,7 +60,7 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 
 // buildChartDetail enriches a core chart with siHua, brightness, and patterns.
 func buildChartDetail(chart Chart) Chart {
-	siHua := computeSiHua(chart.YearGan)
+	siHua := computeSiHua(chart.NianGan)
 	for i := range chart.Palaces {
 		for j, s := range chart.Palaces[i].Stars {
 			if s.IsMajor {
@@ -74,7 +74,7 @@ func buildChartDetail(chart Chart) Chart {
 	chart.SiHua = siHua
 	chart.Patterns = findPatterns(chart.Palaces)
 	// 来因宫
-	ygIdx := yuanGongPalace(chart.Palaces, chart.YearGan)
+	ygIdx := yuanGongPalace(chart.Palaces, chart.NianGan)
 	chart.Palaces[ygIdx].IsYuanGong = true
 	return chart
 }

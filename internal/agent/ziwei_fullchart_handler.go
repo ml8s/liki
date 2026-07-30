@@ -17,9 +17,9 @@ func ziweiFullChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMe
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
 	}
-	var chart ziwei.Chart
-	if err := json.Unmarshal(p.Chart, &chart); err != nil {
-		return nil, fmt.Errorf("ziwei.fullchart: parse chart: %w", err)
+	chart, err := parseChart(p.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
 	}
 	result := ziwei.ComputeFullChart(chart, p.RiGan, p.RiZhi)
 	return wrapResult("ziwei_fullchart", result)

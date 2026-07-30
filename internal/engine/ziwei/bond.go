@@ -3,31 +3,31 @@ package ziwei
 import "fmt"
 
 type Bond struct {
-	AIName string `json:"a_name"`
-	BName  string `json:"b_name"`
+	AGongName string `json:"a_gong_name"`
+	BGongName string `json:"b_gong_name"`
 
 	PalaceCross struct {
 		AIntoB string `json:"a_into_b"`
 		BIntoA string `json:"b_into_a"`
-	} `json:"palace_cross"`
+	} `json:"ming_gong_hu_ru"`
 
-	SpouseRef  *PairRef      `json:"spouse_ref,omitempty"`
-	ChildRef   *PairRef      `json:"child_ref,omitempty"`
-	BeneficIn  []StarCross   `json:"benefic_in,omitempty"`
-	MaleficIn  []StarCross   `json:"malefic_in,omitempty"`
+	FuQiGong  *PairRef      `json:"fu_qi_gong,omitempty"`
+	ZiNvGong   *PairRef      `json:"zi_nv_gong,omitempty"`
+	JiXing  []StarCross   `json:"ji_xing,omitempty"`
+	ShaXing  []StarCross   `json:"sha_xing,omitempty"`
 	LuMaIn     []StarCross   `json:"lu_ma_in,omitempty"`
-	VoidIn     []StarCross   `json:"void_in,omitempty"`
+	KongWang     []StarCross   `json:"kong_wang,omitempty"`
 	SiHuaIn    []SiHuaCross  `json:"sihua_in,omitempty"`
-	ElementFit string        `json:"element_fit"`
+	WuXingShengKe string        `json:"wu_xing_sheng_ke"`
 	Summary    string        `json:"summary"`
 }
 
 type PairRef struct {
-	AName   string   `json:"a_name"`
-	BName   string   `json:"b_name"`
-	AMajor  []string `json:"a_major"`
-	BMajor  []string `json:"b_major"`
-	Verdict string   `json:"verdict"`
+	AGongName string   `json:"a_gong_name"`
+	BGongName string   `json:"b_gong_name"`
+	AZhuXing  []string `json:"a_zhu_xing"`
+	BZhuXing  []string `json:"b_zhu_xing"`
+	PanJue    string   `json:"pan_jue"`
 }
 
 type StarCross struct {
@@ -44,28 +44,28 @@ type SiHuaCross struct {
 }
 
 func ComputeBond(a, b Chart) Bond {
-	ai, bi := palaceCross(a, b)
+	ai, bi := mingGongHuRu(a, b)
 	pc := struct {
 		AIntoB string `json:"a_into_b"`
 		BIntoA string `json:"b_into_a"`
 	}{ai, bi}
 	return Bond{
-		AIName: fmt.Sprintf("%d", a.BirthYear),
-		BName:  fmt.Sprintf("%d", b.BirthYear),
+		AGongName: fmt.Sprintf("%d", a.BirthYear),
+		BGongName:  fmt.Sprintf("%d", b.BirthYear),
 		PalaceCross: pc,
-		SpouseRef: pairRef(a, b, 2, "夫妻"),
-		ChildRef:  pairRef(a, b, 3, "子女"),
-		BeneficIn: starCross(a, b, beneficStars),
-		MaleficIn: starCross(a, b, maleficStars),
-		LuMaIn:    luMaCross(a, b),
-		VoidIn:    voidCross(a, b),
-		SiHuaIn:   sihuaCross(a, b),
-		ElementFit: elementFit(a, b),
+		FuQiGong: gongWeiDuiZhao(a, b, 2, "夫妻"),
+		ZiNvGong:  gongWeiDuiZhao(a, b, 3, "子女"),
+		JiXing: xingYaoHuRu(a, b, beneficStars),
+		ShaXing: xingYaoHuRu(a, b, maleficStars),
+		LuMaIn:    luMaHuRu(a, b),
+		KongWang:    kongWangHuRu(a, b),
+		SiHuaIn:   siHuaHuYin(a, b),
+		WuXingShengKe: wuXingShengKe(a, b),
 		Summary:   "合盘分析供参考",
 	}
 }
 
-func palaceCross(a, b Chart) (string, string) {
+func mingGongHuRu(a, b Chart) (string, string) {
 	return palaceByZhi(b.Palaces, a.Palaces[0].Zhi),
 		palaceByZhi(a.Palaces, b.Palaces[0].Zhi)
 }
@@ -75,12 +75,12 @@ func palaceByZhi(p [12]palace, z Zhi) string {
 	return ""
 }
 
-func pairRef(a, b Chart, idx int, label string) *PairRef {
+func gongWeiDuiZhao(a, b Chart, idx int, label string) *PairRef {
 	return &PairRef{
-		AName: a.Palaces[idx].Name, BName: b.Palaces[idx].Name,
-		AMajor: majorList(a.Palaces[idx].Stars),
-		BMajor: majorList(b.Palaces[idx].Stars),
-		Verdict: pairVerdict(label, a.Palaces[idx], b.Palaces[idx]),
+		AGongName: a.Palaces[idx].Name, BGongName: b.Palaces[idx].Name,
+		AZhuXing: majorList(a.Palaces[idx].Stars),
+		BZhuXing: majorList(b.Palaces[idx].Stars),
+		PanJue: pairVerdict(label, a.Palaces[idx], b.Palaces[idx]),
 	}
 }
 
@@ -121,7 +121,7 @@ var maleficStars = map[starIndex]string{
 	HuoXing: "火星", LingXing: "铃星",
 }
 
-func starCross(a, b Chart, stars map[starIndex]string) []StarCross {
+func xingYaoHuRu(a, b Chart, stars map[starIndex]string) []StarCross {
 	var r []StarCross
 	for si, name := range stars {
 		ai := findStarPalace(a.Palaces, si)
@@ -132,7 +132,7 @@ func starCross(a, b Chart, stars map[starIndex]string) []StarCross {
 	return r
 }
 
-func luMaCross(a, b Chart) []StarCross {
+func luMaHuRu(a, b Chart) []StarCross {
 	var r []StarCross
 	for _, si := range []starIndex{LuCun, TianMa} {
 		ni := starNames[si]
@@ -144,12 +144,12 @@ func luMaCross(a, b Chart) []StarCross {
 	return r
 }
 
-func voidCross(a, b Chart) []StarCross {
+func kongWangHuRu(a, b Chart) []StarCross {
 	var r []StarCross
 	for _, nm := range []string{"截路", "空亡"} {
 		ai := -1
 		for i := range a.Palaces {
-			for _, s := range a.Palaces[i].AdjStars {
+			for _, s := range a.Palaces[i].ZaYao {
 				if s == nm { ai = i; break }
 			}
 			if ai >= 0 { break }
@@ -170,7 +170,7 @@ func findStarPalace(p [12]palace, si starIndex) int {
 	return -1
 }
 
-func sihuaCross(a, b Chart) []SiHuaCross {
+func siHuaHuYin(a, b Chart) []SiHuaCross {
 	var r []SiHuaCross
 	for si, ht := range a.SiHua {
 		ai := findStarPalace(a.Palaces, si)
@@ -191,7 +191,7 @@ func sihuaCross(a, b Chart) []SiHuaCross {
 	return r
 }
 
-func elementFit(a, b Chart) string {
+func wuXingShengKe(a, b Chart) string {
 	jm := map[string]string{"水二局": "水", "木三局": "木", "金四局": "金", "土五局": "土", "火六局": "火"}
 	ae := jm[a.JuShuName]
 	be := jm[b.JuShuName]
