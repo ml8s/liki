@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green)](./LICENSE)
 [![CI](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml)
 
-liki-engine 是 [Liki 灵机](https://github.com/ml8s/liki-skills) 的底层计算引擎，提供 44 个 JSON-RPC 命理 API：八字、紫微斗数、奇门遁甲、六爻、起名、黄历、风水等。
+liki-engine 是 [Liki 灵机](https://github.com/ml8s/liki-skills) 的底层计算引擎，提供 46 个 JSON-RPC 命理 API：八字、紫微斗数、奇门遁甲、六爻、起名、黄历、风水等。
 
 Liki 灵机 由以下部分组成：
 - **[liki](https://github.com/ml8s/liki)**：Skill 仓库（流程定义 + 方法论文档）
@@ -36,7 +36,7 @@ curl -s http://localhost:8080/jsonrpc \
 | 领域 | 方法数 | 方法 |
 |------|--------|------|
 | 八字 | 12 | chart fullchart yongshen hehui chart_extra bond liunian liuyue liuri liushi xiaoyun xiaoxian |
-| 紫微斗数 | 7 | chart daxian liunian liuyue liuri judgment bond |
+| 紫微斗数 | 9 | chart daxian fullchart liunian liuyue liuri liushi judgment bond |
 | 起名 | 5 | char pick build wuge check |
 | 黄历 | 4 | date month bond.date bond.month |
 | 八宅风水 | 3 | minggua chart judgment |
@@ -82,17 +82,19 @@ curl -s http://localhost:8080/jsonrpc \
 | `bazi.xiaoyun` | 小运 |
 | `bazi.xiaoxian` | 小限 |
 
-### 紫微斗数（7）
+### 紫微斗数（9）
 
 | 方法 | 功能 |
 |------|------|
 | `ziwei.chart` | 排盘：十二宫星曜分布、亮度、四化 |
 | `ziwei.daxian` | 大限：十年大限各宫吉凶 |
-| `ziwei.liunian` | 流年命盘及各宫变化 |
-| `ziwei.liuyue` | 流月命盘及各宫变化 |
-| `ziwei.liuri` | 流日命盘及各宫变化 |
-| `ziwei.judgment` | 综合盘论断：格局+四化+三方四正+综合评级(上/中/下) |
-| `ziwei.bond` | 合盘 |
+| `ziwei.fullchart` | 全盘：长生、博士、小限、将前、岁前、杂曜 |
+| `ziwei.liunian` | 流年：命宫+四化+辅星 |
+| `ziwei.liuyue` | 流月：命宫+四化+月星 |
+| `ziwei.liuri` | 流日：命宫+四化+日星 |
+| `ziwei.liushi` | 流时：命宫+四化+时星 |
+| `ziwei.judgment` | 论断：格局+四化+三方四正+评级 |
+| `ziwei.bond` | 合盘：命宫互入+夫妻宫+吉煞星+四化+五行生克 |
 
 ### 起名（5）
 
