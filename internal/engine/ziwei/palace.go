@@ -28,16 +28,35 @@ func findShenGongIndex(palaceZhis [12]Zhi, shenZhi Zhi) palaceIndex {
 
 // --- 十二宫天干 (0.2) ---
 
+func arrangePalaceGans(yearGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan, gans [12]Gan) {
+	// 正月干（五虎遁）+ soulIndex（iztro算法）
+	var zhengYueGan Gan
+	switch yearGan {
+	case 1, 6: zhengYueGan = 3  // 甲己丙
+	case 2, 7: zhengYueGan = 5  // 乙庚戊
+	case 3, 8: zhengYueGan = 7  // 丙辛庚
+	case 4, 9: zhengYueGan = 9  // 丁壬壬
+	case 5, 10: zhengYueGan = 1 // 戊癸甲
+	}
+	// iztro: mingGan = 正月干 + soulIndex(寅0系)
+	mingGan = Gan(((int(zhengYueGan) - 1 + soulIzTroIdx) % 10 + 10) % 10 + 1)
+	// iztro公式：gans[i] = fixIndex(HEAVENLY_STEMS.indexOf(mingGan) - soulIzTroIdx + i)
+	// 其中soulIzTroIdx是命宫在display坐标中的索引(寅=0)
+	for i := 0; i < 12; i++ {
+		// display坐标中第i宫的地支 = (寅+i)
+		// 对应天干 = mingGan - soulIzTroIdx + i
+		gan := Gan(((int(mingGan) - 1 - soulIzTroIdx + i) % 10 + 10) % 10 + 1)
+		// i是display坐标索引，需要映射到Liki palace order
+		// display i → zhiMinus1 → Liki palace
+		palaceZhiM1 := (i + 2) % 12
+		likiIdx := zhiToPalace(palaceZhiM1, mingZhi)
+		gans[likiIdx] = gan
+	}
+	return
+}
+
+// yinGan still needed by liuyue.go
 func yinGan(yearGan Gan) Gan {
 	g := ((int(yearGan)-1)%5)*2 + 3
 	return Gan(((g-1)%10+10)%10 + 1)
-}
-
-func arrangePalaceGans(yearGan Gan, mingZhi Zhi) (mingGan Gan, gans [12]Gan) {
-	yg := yinGan(yearGan)
-	mingGan = Gan(((int(yg)+int(mingZhi)-3-1)%10+10)%10 + 1)
-	for i := 0; i < 12; i++ {
-		gans[i] = Gan(((int(mingGan)-1-i)%10+10)%10 + 1)
-	}
-	return
 }

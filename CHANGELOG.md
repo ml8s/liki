@@ -1,4 +1,33 @@
 # Changelog
+- 1.12.0: 紫微斗数域系统化重构与正确性修复
+  - [命盘] 主星紫微定位算法：从简化查表法改为 iztro 经典"六五四三二"算法，消除 off-by-one 偏移
+  - [命盘] 天府系偏移方向修正（iztro 坐标系→Liki 逆时针同步反转）
+  - [命盘] 五虎遁布天干方向修正（从逆时针减序改为 iztro display 坐标写入），各宫天干与经典一致
+  - [命盘] 来因宫修复：`IsYuanGong` 字段从未赋值 → `buildChartDetail` 中调用 `yuanGongPalace`，排除子丑
+  - [命盘] 亮度表从 5 级扩展至 7 级（庙旺得利平陷不）并替换为 iztro `STARS_INFO` 源数据
+  - [大限] 起始年龄公式修正：`daXianStartAge(ju)=int(ju)`（取消 ju≥5 时多余的 -2）
+  - [大限] 方向符号修正：Liki 宫序为逆时针，`pos+1` 对应经典逆行，`pos-1` 对应经典顺行
+  - [小限] 映射源从循环变量 `i` 改为 iztro display 坐标 `(ageIdx±i)%12`，经 `zhiToPalace` 映射到 Liki 宫位
+  - [辅星] 左辅/右弼/火星/铃星/天魁/天钺 等 8 颗辅星从公式推导改为预计算查表（`star_positions.json`）
+  - [辅星] 火星/铃星公式直接使用 iztro `fixEarthlyBranchIndex` 坐标
+  - [长生] 方向与经典对齐
+  - [博士] 重写为从禄存起，方向=年支阴阳与性别一致→顺行
+  - [流命宫] 流年/月/日/时命宫返回固定命名"命宫"+`zhi`（原返回本命盘宫名，属于领域错误；下游需适配）
+  - [流运星] 新增流月星（月禄/月羊/月陀/月魁/月钺/月马/月鸾/月喜/月昌/月曲 10 颗）
+  - [流运星] 新增流日星（日禄/日羊/日陀/日魁/日钺/日马/日鸾/日喜/日昌/日曲 10 颗）
+  - [流运星] 新增流时星（时禄/时羊/时陀/时魁/时钺/时马/时鸾/时喜/时昌/时曲 10 颗）
+  - [流运四化] 文昌文曲左辅右弼四化补齐
+  - [五鼠遁] `shiGanCalc` 边界条件修复：仅己庚辛需减 1，壬癸原值正确
+  - [杂曜] 全部 35 颗年/月/时系杂曜从公式替换为 iztro 源数据表（`nianStars/yueStars/shiStars/ganStars`）
+  - [将前/岁前] 从 Liki 逆序改为 iztro display 坐标+`zhiToPalace` 映射
+  - [合盘] `ziwei.bond` 从简易星曜映射重写为经典合婚：命宫互入/夫妻宫对照/子女宫对照/吉煞星互入/禄马标注/四化双化检测/五行生克；28 例配对测试
+  - [天马表] 修复：`data.TianMa` 为空导致 `tianMaPos` 全返回 0，从 iztro 反查公式硬编码
+  - [四化] `computeSiHua` 去除错误的 `s<14` 过滤，保留文昌文曲左辅右弼四化
+  - [API] 流年/月/日/时 结构体新增 `zhi` 字段
+  - [测试] 静态命盘 10800 断言（100 例×108 字段），golden 全部来自 iztro 独立子进程，无状态污染
+  - [测试] 流月/日/时星 3000 断言（100 例×30 星），与 iztro horoscope 对比
+  - [测试] 合盘 28 例配对测试
+  - [测试] 端到端 RPC 回归 14400 断言（100 例×18 域），全量覆盖 chart/fullchart/daxian/liunian/liuyue/liuri/liushi/judgment/bond
 - 2.2.0: 流年/流日/流月/紫微无匹配时返回 [] 而非 nil
 - 2.1.0: liu_qin/wang_shuai 统一输出字符串(JSON enum→中文名), UnmarshalJSON 仅接受字符串
 - 2.0.0: [Breaking] bazi.chart 返回最小命盘(四柱+纳音+大运+性别), 新增 bazi.fullchart(chart) 扩展全量十神/藏干/神煞/长生/空亡

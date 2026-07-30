@@ -15,6 +15,39 @@ var tablesJSON []byte
 var miaoWangJSON []byte
 
 var (
+	earthlyIdxTable = [12]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+	nianStars = map[string][12]int{
+		"华盖": {4,1,10,7,4,1,10,7,4,1,10,7},
+		"咸池": {9,6,3,0,9,6,3,0,9,6,3,0},
+		"孤辰": {2,2,5,5,5,8,8,8,11,11,11,2},
+		"寡宿": {10,10,1,1,1,4,4,4,7,7,7,10},
+		"破碎": {5,1,9,5,1,9,5,1,9,5,1,9},
+		"蜚廉": {8,9,10,5,6,7,2,3,4,11,0,1},
+		"龙池": {4,5,6,7,8,9,10,11,0,1,2,3},
+		"凤阁": {10,9,8,7,6,5,4,3,2,1,0,11},
+		"天哭": {6,5,4,3,2,1,0,11,10,9,8,7},
+		"天虚": {6,7,8,9,10,11,0,1,2,3,4,5},
+		"天空": {1,2,3,4,5,6,7,8,9,10,11,0},
+	}
+	yueStars = map[string][12]int{
+		"天姚": {1,2,3,4,5,6,7,8,9,10,11,0},
+		"天刑": {9,10,11,0,1,2,3,4,5,6,7,8},
+		"阴煞": {2,0,10,8,6,4,2,0,10,8,6,4},
+		"解神": {8,8,10,10,0,0,2,2,4,4,6,6},
+		"天月": {10,5,4,2,7,3,11,7,2,6,10,2},
+		"天巫": {5,8,2,11,5,8,2,11,5,8,2,11},
+	}
+	shiStars = map[string][12]int{
+		"台辅": {6,7,8,9,10,11,0,1,2,3,4,5},
+		"封诰": {2,3,4,5,6,7,8,9,10,11,0,1},
+	}
+	ganStars = map[string][10]int{
+		"天厨": {5,6,0,5,6,8,2,6,9,11},
+		"天官": {7,4,5,2,3,9,11,9,10,6},
+		"天福": {9,8,0,11,3,2,6,5,6,5},
+		"截路": {8,6,4,2,0,8,6,4,2,0},
+		"空亡": {9,7,5,3,1,9,7,5,3,1},
+	}
 	siHuaTable    map[Gan][4]starIndex
 	ziweiStartPos map[juShu]int
 	luCunTable    [10]int
@@ -99,13 +132,18 @@ func loadTables() error {
 		}
 	}
 
-	// tianMaTable
-	for zhiName, pos := range data.TianMa {
-		zhi, err := ganzhi.ParseZhi(zhiName)
-		if err != nil {
-			return err
+	// tianMaTable — iztro formula if JSON empty
+	if data.TianMa == nil || len(data.TianMa) == 0 {
+		// 寅午戌→申, 申子辰→寅, 巳酉丑→亥, 亥卯未→巳 (zhiMinus1)
+		tianMaTable = [12]int{2, 11, 8, 5, 2, 11, 8, 5, 2, 11, 8, 5}
+	} else {
+		for zhiName, pos := range data.TianMa {
+			zhi, err := ganzhi.ParseZhi(zhiName)
+			if err != nil {
+				return err
+			}
+			tianMaTable[int(zhi)-1] = pos
 		}
-		tianMaTable[int(zhi)-1] = pos
 	}
 
 	return nil

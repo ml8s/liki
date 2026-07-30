@@ -1,0 +1,563 @@
+{
+  "palaces": [
+    {
+      "index": 0,
+      "name": "命宫",
+      "gan": "甲",
+      "zhi": "戌",
+      "is_body_palace": false,
+      "is_yuan_gong": true,
+      "stars": [
+        {
+          "star": 8,
+          "name": "贪狼",
+          "is_major": true,
+          "brightness": "旺"
+        },
+        {
+          "star": 18,
+          "name": "右弼",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "寡宿",
+        "凤阁",
+        "天才",
+        "天哭",
+        "天月",
+        "台辅",
+        "年解"
+      ],
+      "ages": [
+        1,
+        13,
+        25,
+        37,
+        49,
+        61,
+        73,
+        85,
+        97,
+        109
+      ],
+      "chang_sheng": "墓",
+      "bo_shi": "奏书",
+      "jiang_qian": "将星",
+      "sui_qian": "吊客"
+    },
+    {
+      "index": 1,
+      "name": "兄弟",
+      "gan": "癸",
+      "zhi": "酉",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 7,
+          "name": "太阴",
+          "is_major": true,
+          "brightness": "庙"
+        }
+      ],
+      "adj_stars": [
+        "天喜",
+        "咸池",
+        "天刑",
+        "八座",
+        "天福",
+        "空亡"
+      ],
+      "ages": [
+        12,
+        24,
+        36,
+        48,
+        60,
+        72,
+        84,
+        96,
+        108,
+        120
+      ],
+      "chang_sheng": "死",
+      "bo_shi": "飞廉",
+      "jiang_qian": "攀鞍",
+      "sui_qian": "天德"
+    },
+    {
+      "index": 2,
+      "name": "夫妻",
+      "gan": "壬",
+      "zhi": "申",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 0,
+          "name": "紫微",
+          "is_major": true,
+          "brightness": "旺"
+        },
+        {
+          "star": 6,
+          "name": "天府",
+          "is_major": true,
+          "brightness": "利"
+        },
+        {
+          "star": 20,
+          "name": "文曲",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "蜚廉",
+        "解神",
+        "天贵",
+        "截路"
+      ],
+      "ages": [
+        11,
+        23,
+        35,
+        47,
+        59,
+        71,
+        83,
+        95,
+        107,
+        119
+      ],
+      "chang_sheng": "病",
+      "bo_shi": "喜神",
+      "jiang_qian": "岁驿",
+      "sui_qian": "白虎"
+    },
+    {
+      "index": 3,
+      "name": "子女",
+      "gan": "辛",
+      "zhi": "未",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 1,
+          "name": "天机",
+          "is_major": true,
+          "brightness": "平"
+        },
+        {
+          "star": 16,
+          "name": "天钺",
+          "is_major": false
+        },
+        {
+          "star": 26,
+          "name": "地空",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "天官"
+      ],
+      "ages": [
+        10,
+        22,
+        34,
+        46,
+        58,
+        70,
+        82,
+        94,
+        106,
+        118
+      ],
+      "chang_sheng": "衰",
+      "bo_shi": "病符",
+      "jiang_qian": "息神",
+      "sui_qian": "龙德"
+    },
+    {
+      "index": 4,
+      "name": "财帛",
+      "gan": "庚",
+      "zhi": "午",
+      "is_body_palace": true,
+      "stars": [
+        {
+          "star": 13,
+          "name": "破军",
+          "is_major": true,
+          "si_hua": "权",
+          "brightness": "旺"
+        },
+        {
+          "star": 19,
+          "name": "文昌",
+          "is_major": false
+        },
+        {
+          "star": 24,
+          "name": "火星",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "天寿",
+        "天虚",
+        "封诰",
+        "恩光"
+      ],
+      "ages": [
+        9,
+        21,
+        33,
+        45,
+        57,
+        69,
+        81,
+        93,
+        105,
+        117
+      ],
+      "chang_sheng": "帝旺",
+      "bo_shi": "大耗",
+      "jiang_qian": "华盖",
+      "sui_qian": "大耗"
+    },
+    {
+      "index": 5,
+      "name": "疾厄",
+      "gan": "己",
+      "zhi": "巳",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 2,
+          "name": "太阳",
+          "is_major": true,
+          "si_hua": "忌",
+          "brightness": "旺"
+        }
+      ],
+      "adj_stars": [
+        "破碎",
+        "天使",
+        "天巫",
+        "三台",
+        "天厨"
+      ],
+      "ages": [
+        8,
+        20,
+        32,
+        44,
+        56,
+        68,
+        80,
+        92,
+        104,
+        116
+      ],
+      "chang_sheng": "临官",
+      "bo_shi": "伏兵",
+      "jiang_qian": "劫煞",
+      "sui_qian": "小耗"
+    },
+    {
+      "index": 6,
+      "name": "迁移",
+      "gan": "戊",
+      "zhi": "辰",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 3,
+          "name": "武曲",
+          "is_major": true,
+          "si_hua": "科",
+          "brightness": "庙"
+        },
+        {
+          "star": 17,
+          "name": "左辅",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "华盖",
+        "龙池"
+      ],
+      "ages": [
+        7,
+        19,
+        31,
+        43,
+        55,
+        67,
+        79,
+        91,
+        103,
+        115
+      ],
+      "chang_sheng": "冠带",
+      "bo_shi": "官府",
+      "jiang_qian": "灾煞",
+      "sui_qian": "官符"
+    },
+    {
+      "index": 7,
+      "name": "交友",
+      "gan": "丁",
+      "zhi": "卯",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 4,
+          "name": "天同",
+          "is_major": true,
+          "brightness": "庙"
+        },
+        {
+          "star": 21,
+          "name": "擎羊",
+          "is_major": false
+        },
+        {
+          "star": 27,
+          "name": "地劫",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "红鸾",
+        "天伤"
+      ],
+      "ages": [
+        6,
+        18,
+        30,
+        42,
+        54,
+        66,
+        78,
+        90,
+        102,
+        114
+      ],
+      "chang_sheng": "沐浴",
+      "bo_shi": "博士",
+      "jiang_qian": "天煞",
+      "sui_qian": "贯索"
+    },
+    {
+      "index": 8,
+      "name": "官禄",
+      "gan": "丙",
+      "zhi": "寅",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 12,
+          "name": "七杀",
+          "is_major": true,
+          "brightness": "庙"
+        },
+        {
+          "star": 14,
+          "name": "禄存",
+          "is_major": false
+        },
+        {
+          "star": 23,
+          "name": "天马",
+          "is_major": false
+        },
+        {
+          "star": 25,
+          "name": "铃星",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "孤辰",
+        "阴煞"
+      ],
+      "ages": [
+        5,
+        17,
+        29,
+        41,
+        53,
+        65,
+        77,
+        89,
+        101,
+        113
+      ],
+      "chang_sheng": "长生",
+      "bo_shi": "力士",
+      "jiang_qian": "指背",
+      "sui_qian": "丧门"
+    },
+    {
+      "index": 9,
+      "name": "田宅",
+      "gan": "乙",
+      "zhi": "丑",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 11,
+          "name": "天梁",
+          "is_major": true,
+          "brightness": "庙"
+        },
+        {
+          "star": 15,
+          "name": "天魁",
+          "is_major": false
+        },
+        {
+          "star": 22,
+          "name": "陀罗",
+          "is_major": false
+        }
+      ],
+      "adj_stars": [
+        "天空",
+        "天姚"
+      ],
+      "ages": [
+        4,
+        16,
+        28,
+        40,
+        52,
+        64,
+        76,
+        88,
+        100,
+        112
+      ],
+      "chang_sheng": "养",
+      "bo_shi": "青龙",
+      "jiang_qian": "咸池",
+      "sui_qian": "晦气"
+    },
+    {
+      "index": 10,
+      "name": "福德",
+      "gan": "甲",
+      "zhi": "子",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 5,
+          "name": "廉贞",
+          "is_major": true,
+          "si_hua": "禄",
+          "brightness": "利"
+        },
+        {
+          "star": 10,
+          "name": "天相",
+          "is_major": true,
+          "brightness": "旺"
+        }
+      ],
+      "adj_stars": [
+        "旬空"
+      ],
+      "ages": [
+        3,
+        15,
+        27,
+        39,
+        51,
+        63,
+        75,
+        87,
+        99,
+        111
+      ],
+      "chang_sheng": "胎",
+      "bo_shi": "小耗",
+      "jiang_qian": "月煞",
+      "sui_qian": "岁建"
+    },
+    {
+      "index": 11,
+      "name": "父母",
+      "gan": "癸",
+      "zhi": "亥",
+      "is_body_palace": false,
+      "stars": [
+        {
+          "star": 9,
+          "name": "巨门",
+          "is_major": true,
+          "brightness": "利"
+        }
+      ],
+      "ages": [
+        2,
+        14,
+        26,
+        38,
+        50,
+        62,
+        74,
+        86,
+        98,
+        110
+      ],
+      "chang_sheng": "绝",
+      "bo_shi": "将军",
+      "jiang_qian": "亡神",
+      "sui_qian": "病符"
+    }
+  ],
+  "ming_gong": 0,
+  "shen_gong": 4,
+  "ju_shu": 6,
+  "ju_shu_name": "火六局",
+  "ziwei_pos": 2,
+  "si_hua": {
+    "13": "权",
+    "2": "忌",
+    "3": "科",
+    "5": "禄"
+  },
+  "nian_gan": "甲",
+  "nian_zhi": "子",
+  "shi_zhi": "辰",
+  "birth_year": 1984,
+  "lunar_month": 1,
+  "lunar_day": 14,
+  "gender": "male",
+  "patterns": [
+    {
+      "name": "杀破狼",
+      "description": "七杀破军贪狼会聚命宫三方",
+      "score": 2
+    },
+    {
+      "name": "辅弼拱主",
+      "description": "左辅右弼在命宫三方",
+      "score": 2
+    },
+    {
+      "name": "禄马交驰",
+      "description": "禄存天马会聚命宫三方",
+      "score": 1
+    },
+    {
+      "name": "财荫夹印",
+      "description": "财帛宫有化禄拱照",
+      "score": 1
+    }
+  ],
+  "soul_star": "禄存",
+  "body_star": "火星"
+}

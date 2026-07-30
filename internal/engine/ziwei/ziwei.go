@@ -20,7 +20,7 @@ type palaceIndex int
 // palace names in order 0..11 (逆时针 from 命宫).
 var PalaceNames = [12]string{
 	"命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄",
-	"迁移", "交友", "官禄", "田宅", "福德", "父母",
+	"迁移", "仆役", "官禄", "田宅", "福德", "父母",
 }
 
 // starIndex enumerates all stars (main + minor).
@@ -122,8 +122,15 @@ type palace struct {
 	Gan          Gan         `json:"gan"`
 	Zhi          Zhi         `json:"zhi"`
 	IsBodyPalace bool        `json:"is_body_palace"`
+	IsYuanGong   bool        `json:"is_yuan_gong,omitempty"`
 	Stars        []starInfo  `json:"stars"`
 	ZiweiStar    *starIndex  `json:"ziwei_star,omitempty"`
+	Ages         []int       `json:"ages,omitempty"`
+	ChangSheng   string      `json:"chang_sheng,omitempty"`
+	BoShi        string      `json:"bo_shi,omitempty"`
+	JiangQian    string      `json:"jiang_qian,omitempty"`
+	SuiQian      string      `json:"sui_qian,omitempty"`
+	AdjStars     []string    `json:"adj_stars,omitempty"`
 }
 
 // starInfo is one star entry in a palace.
@@ -154,11 +161,16 @@ type Chart struct {
 	JuShuName   string       `json:"ju_shu_name"`
 	ZiweiPos    palaceIndex  `json:"ziwei_pos"`
 	SiHua       siHuaResult  `json:"si_hua"`
-	YearGan     Gan          `json:"year_gan"`
-	HourZhi     Zhi          `json:"hour_zhi"`
-	BirthYear   int          `json:"birth_year"`
+	YearGan     Gan                 `json:"year_gan"`
+	NianZhi     Zhi                 `json:"nian_zhi,omitempty"`
+	HourZhi     Zhi                 `json:"hour_zhi"`
+	BirthYear   int                 `json:"birth_year"`
+	LunarMonth  int                 `json:"lunar_month,omitempty"`
+	LunarDay    int                 `json:"lunar_day,omitempty"`
 	Gender      ganzhi.Gender       `json:"gender"`
-	Patterns    []pattern    `json:"patterns,omitempty"`
+	SoulStar    string              `json:"soul_star,omitempty"`
+	BodyStar    string              `json:"body_star,omitempty"`
+	Patterns    []pattern           `json:"patterns,omitempty"`
 }
 
 // siHuaResult maps star → transformation.
@@ -175,9 +187,10 @@ type DaXianStep struct {
 // LiuNian is the annual fate analysis.
 type LiuNian struct {
 	MingGong     palaceIndex              `json:"ming_gong"`
-	MingGongName string                   `json:"ming_gong_name"`
+	MingGongName string                   `json:"ming_gong_name"` // always "命宫"
+	Zhi          Zhi                      `json:"zhi"`            // 流年地支
 	SiHua        siHuaResult              `json:"si_hua"`
-	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_palace"` // where each s化 star falls
-	MinorStars   map[starIndex]int         `json:"minor_stars"` // zhi-1 values; convert via zhiToPalace
+	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_palace"`
+	MinorStars   map[starIndex]int         `json:"minor_stars"`
 }
 

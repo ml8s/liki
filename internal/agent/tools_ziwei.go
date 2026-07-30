@@ -6,13 +6,14 @@ import (
 	"fmt"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tianwen"
 	"liki-engine/internal/engine/ziwei"
 )
 
 func ziweiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		SolarTime string         `json:"solar_time"`
-		Gender    ganzhi.Gender `json:"gender"`
+		Lunar  json.RawMessage `json:"lunar"`
+		Gender ganzhi.Gender  `json:"gender"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_ziwei: %w", err)
@@ -20,11 +21,11 @@ func ziweiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	if err := validateGender(p.Gender); err != nil {
 		return nil, fmt.Errorf("compute_ziwei: %w", err)
 	}
-	st, err := parseSolarTime(p.SolarTime)
-	if err != nil {
-		return nil, fmt.Errorf("compute_ziwei: %w", err)
+	var lt tianwen.LunarTime
+	if err := json.Unmarshal(p.Lunar, &lt); err != nil {
+		return nil, fmt.Errorf("compute_ziwei: parse lunar: %w", err)
 	}
-	result := ziwei.ComputeChart(st, p.Gender)
+	result := ziwei.ComputeChart(lt, p.Gender)
 	return wrapResult("ziwei", result)
 }
 
@@ -137,7 +138,7 @@ func ziweiBondHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 var ziweiMethods = []RPCMethod{
 	{
 		Name: "ziwei.chart", Description: "紫微斗数排盘。返回十二宫星曜分布、亮度、四化。",
-		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"gender":` + schemaGender + `},"required":["solar_time","gender"]}`), Handler: ziweiChartHandler,
+		Params: mustSchema(`{"type":"object","properties":{"lunar":{"type":"object","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"shichen":{"type":"string"}},"required":["year","month","day","shichen"]},"gender":` + schemaGender + `},"required":["lunar","gender"]}`), Handler: ziweiChartHandler,
 		Result: envelopeSchema(`{"type":"object","properties":{"palaces":{"type":"array"},"ming_gong":{"type":"integer"},"si_hua":{"type":"object"},"shen_gong":{"type":"integer"},"ju_shu":{"type":"integer"}},"required":["palaces","ming_gong","si_hua"]}`),
 	},
 	{
@@ -176,4 +177,33 @@ var ziweiMethods = []RPCMethod{
 		Handler: ziweiBondHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"a_into_b":{"type":"integer"},"b_into_a":{"type":"integer"},"star_cross":{"type":"array"}},"required":["a_into_b","b_into_a","star_cross"]}`),
 	},
+	{
+		Name: "ziwei.fullchart", Description: "紫微全盘。扩展杂曜、长生、博士、小限、将前、岁前。",
+		Handler: ziweiFullChartHandler,
+		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object"}},"required":["chart"]}`),
+	},
+	{
+		Name: "ziwei.liushi", Description: "紫微流时。返回流时命宫及四化。",
+		Handler: ziweiLiuShiHandler,
+		Params: mustSchema(`{"type":"object","properties":{"liu_year":{"type":"integer"},"lunar_month":{"type":"integer"},"lunar_day":{"type":"integer"},"shi_zhi":{"type":"integer"},"chart":{"type":"object"}},"required":["liu_year","lunar_month","lunar_day","shi_zhi","chart"]}`),
+	},
+}
+
+func ziweiLiuShiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+	var p struct {
+		LiuYear    int             `json:"liu_year"`
+		LunarMonth int             `json:"lunar_month"`
+		LunarDay   int             `json:"lunar_day"`
+		ShiZhi     int             `json:"shi_zhi"`
+		Chart      json.RawMessage `json:"chart"`
+	}
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return nil, fmt.Errorf("ziwei.liushi: %w", err)
+	}
+	var chart ziwei.Chart
+	if err := json.Unmarshal(p.Chart, &chart); err != nil {
+		return nil, fmt.Errorf("ziwei.liushi: %w", err)
+	}
+	result := ziwei.ComputeLiuShi(chart, p.LiuYear, p.LunarMonth, p.LunarDay, ganzhi.Zhi(p.ShiZhi))
+	return wrapResult("ziwei_liushi", result)
 }

@@ -1,0 +1,192 @@
+{
+  "patterns": [
+    {
+      "name": "杀破狼",
+      "description": "七杀破军贪狼会聚命宫三方",
+      "score": 2
+    },
+    {
+      "name": "辅弼拱主",
+      "description": "左辅右弼在命宫三方",
+      "score": 2
+    },
+    {
+      "name": "禄马交驰",
+      "description": "禄存天马会聚命宫三方",
+      "score": 1
+    },
+    {
+      "name": "财荫夹印",
+      "description": "财帛宫有化禄拱照",
+      "score": 1
+    }
+  ],
+  "si_hua": [
+    {
+      "star_id": 2,
+      "star_name": "太阳",
+      "type": "忌"
+    },
+    {
+      "star_id": 3,
+      "star_name": "武曲",
+      "type": "科"
+    },
+    {
+      "star_id": 5,
+      "star_name": "廉贞",
+      "type": "禄"
+    },
+    {
+      "star_id": 13,
+      "star_name": "破军",
+      "type": "权"
+    }
+  ],
+  "san_fang": [
+    {
+      "name": "命宫",
+      "main": [
+        "贪狼"
+      ],
+      "assist": [
+        "右弼"
+      ],
+      "si_hua": ""
+    },
+    {
+      "name": "财帛",
+      "main": [
+        "破军"
+      ],
+      "assist": [
+        "文昌",
+        "火星"
+      ],
+      "si_hua": "权"
+    },
+    {
+      "name": "官禄",
+      "main": [
+        "七杀"
+      ],
+      "assist": [
+        "禄存",
+        "天马",
+        "铃星"
+      ],
+      "si_hua": ""
+    },
+    {
+      "name": "迁移",
+      "main": [
+        "武曲"
+      ],
+      "assist": [
+        "左辅"
+      ],
+      "si_hua": "科"
+    }
+  ],
+  "rating": "上",
+  "rule": 1,
+  "summary": "命盘格局上等，福泽深厚",
+  "fei_hua": [
+    {
+      "source": "命宫",
+      "hua_lu": "福德",
+      "hua_quan": "财帛",
+      "hua_ke": "迁移",
+      "hua_ji": "疾厄",
+      "is_zi_hua": false
+    },
+    {
+      "source": "兄弟",
+      "hua_lu": "财帛",
+      "hua_quan": "父母",
+      "hua_ke": "兄弟",
+      "hua_ji": "命宫",
+      "is_zi_hua": true
+    },
+    {
+      "source": "夫妻",
+      "hua_lu": "田宅",
+      "hua_quan": "夫妻",
+      "hua_ke": "迁移",
+      "hua_ji": "迁移",
+      "is_zi_hua": true
+    },
+    {
+      "source": "子女",
+      "hua_lu": "父母",
+      "hua_quan": "疾厄",
+      "hua_ke": "夫妻",
+      "hua_ji": "财帛",
+      "is_zi_hua": false
+    },
+    {
+      "source": "财帛",
+      "hua_lu": "疾厄",
+      "hua_quan": "迁移",
+      "hua_ke": "兄弟",
+      "hua_ji": "交友",
+      "is_zi_hua": false
+    },
+    {
+      "source": "疾厄",
+      "hua_lu": "迁移",
+      "hua_quan": "命宫",
+      "hua_ke": "田宅",
+      "hua_ji": "夫妻",
+      "is_zi_hua": false
+    },
+    {
+      "source": "迁移",
+      "hua_lu": "命宫",
+      "hua_quan": "兄弟",
+      "hua_ke": "命宫",
+      "hua_ji": "子女",
+      "is_zi_hua": false
+    },
+    {
+      "source": "交友",
+      "hua_lu": "兄弟",
+      "hua_quan": "交友",
+      "hua_ke": "子女",
+      "hua_ji": "父母",
+      "is_zi_hua": true
+    },
+    {
+      "source": "官禄",
+      "hua_lu": "交友",
+      "hua_quan": "子女",
+      "hua_ke": "财帛",
+      "hua_ji": "福德",
+      "is_zi_hua": false
+    },
+    {
+      "source": "田宅",
+      "hua_lu": "子女",
+      "hua_quan": "田宅",
+      "hua_ke": "夫妻",
+      "hua_ji": "兄弟",
+      "is_zi_hua": true
+    },
+    {
+      "source": "福德",
+      "hua_lu": "福德",
+      "hua_quan": "财帛",
+      "hua_ke": "迁移",
+      "hua_ji": "疾厄",
+      "is_zi_hua": true
+    },
+    {
+      "source": "父母",
+      "hua_lu": "财帛",
+      "hua_quan": "父母",
+      "hua_ke": "兄弟",
+      "hua_ji": "命宫",
+      "is_zi_hua": true
+    }
+  ]
+}
