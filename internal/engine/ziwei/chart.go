@@ -50,17 +50,19 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 	}
 
 	return Chart{
-		Palaces:    palaces,
-		MingGong:   0,
-		ShenGong:   shenGong,
-		JuShu:      ju,
-		JuShuName:  juShuName(ju),
-		ZiweiPos:   ziweiPos,
-		NianGan:    yearGan,
-		NianZhi:    yearZhi,
-		ShiZhi:    hourZhi,
-		LunarMonth: lunarMonth,
-		LunarDay:   lunarDay,
+		Palaces:        palaces,
+		MingGong:       0,
+		ShenGong:       shenGong,
+		JuShu:          ju,
+		JuShuName:      juShuName(ju),
+		ZiweiPos:       ziweiPos,
+		NianGan:        yearGan,
+		NianZhi:        yearZhi,
+		ShiZhi:         hourZhi,
+		LunarMonth:     lunarMonth,
+		LunarDay:       lunarDay,
+		BirthLunarMonth: lt.Month,
+		BirthIsLeap:    lt.Leap,
 	}
 }
 

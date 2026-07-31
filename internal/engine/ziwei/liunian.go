@@ -73,7 +73,8 @@ func ComputeLiuNian(chart Chart, liuNian int) LiuNian {
 	// 年解（流年附加星，iztro 年支定位）
 	njDisp := zhiMinus1ToDisplay(nianJiePos(liuYearZhi))
 	starByDisplay[njDisp] = append(starByDisplay[njDisp], "年解")
-	flowPalaces := buildFlowPalaces(chart, liuYearZhi, starByDisplay)
+	yearlyIndex := zhiMinus1ToDisplay(zhiToZhiMinus1(liuYearZhi))
+	flowPalaces := buildFlowPalaces(yearlyIndex, starByDisplay)
 
 	return LiuNian{
 		MingGong:     flowMing,

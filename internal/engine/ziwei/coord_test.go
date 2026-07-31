@@ -2,9 +2,6 @@ package ziwei
 
 import (
 	"testing"
-
-	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 func TestZhiConversions(t *testing.T) {
@@ -43,13 +40,9 @@ func TestPalaceZhiRoundTrip(t *testing.T) {
 }
 
 func TestBuildFlowPalaces(t *testing.T) {
-	// 2026 午年：yearlyIndex = display(午) = 4
-	// names[i] = PALACES[(i-4)%12]，[4] = 命宫
-	c := ComputeChart(tianwen.LunarTime{Year: 2000, Month: 7, Day: 17, Shichen: 3}, ganzhi.Female)
-	flowMing := Zhi(7) // 午
-	// display 坐标：午=4 → 流羊；巳=3 → 流禄
+	// flowIndex=4（午年 yearlyIndex）：names[i] = PALACES[(i-4)%12]，[4] = 命宫
 	starByDisplay := map[int][]string{4: {"流羊"}, 3: {"流禄"}}
-	flow := buildFlowPalaces(c, flowMing, starByDisplay)
+	flow := buildFlowPalaces(4, starByDisplay)
 	// display 序：地支 寅卯辰...；宫名 PALACES 旋转
 	if flow[0].Zhi.String() != "寅" { t.Errorf("[0]支: got %s want 寅", flow[0].Zhi.String()) }
 	if flow[1].Zhi.String() != "卯" { t.Errorf("[1]支: got %s want 卯", flow[1].Zhi.String()) }

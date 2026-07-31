@@ -57,19 +57,18 @@ type flowPalace struct {
 // Flow charts (流年/月/日/时盘) use this order rotated by the flow index.
 var iztroPALACES = [12]string{"命宫", "父母", "福德", "田宅", "官禄", "仆役", "迁移", "疾厄", "财帛", "子女", "夫妻", "兄弟"}
 
-// buildFlowPalaces builds a 12-palace flow chart matching iztro's yearly
-// coordinate system:
-//   - palace i is display position i (寅=0 卯=1 ... 丑=11), fixed earth branch
-//   - palace name = iztro PALACES rotated by the flow index:
-//     names[i] = PALACES[(i - yearlyIndex) % 12], yearlyIndex = 流年支 display
+// buildFlowPalaces builds a 12-palace flow chart matching iztro's coordinate
+// system. The truth source is the display index (寅=0 ... 丑=11):
+//   - palace i is display position i, with fixed earth branch
+//   - palace name = iztro PALACES rotated by flowIndex:
+//     names[i] = PALACES[(i - flowIndex) % 12]
 //   - flow stars located by display index (starByDisplay)
-// The 命盘 is only used to resolve the flow 命宫 name anchor consistency.
-func buildFlowPalaces(chart Chart, flowMingZhi Zhi, starByDisplay map[int][]string) [12]flowPalace {
+// flowIndex is the iztro flow index (yearlyIndex / monthlyIndex / dailyIndex / hourlyIndex).
+func buildFlowPalaces(flowIndex int, starByDisplay map[int][]string) [12]flowPalace {
 	var out [12]flowPalace
-	yearlyIndex := zhiMinus1ToDisplay(zhiToZhiMinus1(flowMingZhi))
 	for i := 0; i < 12; i++ {
 		zm1 := displayToZhiMinus1(i)
-		palIdx := ((i - yearlyIndex) % 12 + 12) % 12
+		palIdx := ((i - flowIndex) % 12 + 12) % 12
 		out[i] = flowPalace{
 			Zhi:    zhiMinus1ToZhi(zm1),
 			Name:   iztroPALACES[palIdx],
@@ -77,6 +76,5 @@ func buildFlowPalaces(chart Chart, flowMingZhi Zhi, starByDisplay map[int][]stri
 			IsMing: iztroPALACES[palIdx] == "命宫",
 		}
 	}
-	_ = chart
 	return out
 }

@@ -26,6 +26,9 @@ type testCaseRef struct {
 	Yzhi     string                 `json:"yZhi"`
 	Ysihua   map[string]string      `json:"ySihua"`
 	YFlow    []flowPalaceRef        `json:"yFlowPalaces,omitempty"`
+	MFlow    []flowPalaceRef        `json:"mFlowPalaces,omitempty"`
+	DFlow    []flowPalaceRef        `json:"dFlowPalaces,omitempty"`
+	HFlow    []flowPalaceRef        `json:"hFlowPalaces,omitempty"`
 	Mzhi     string                 `json:"mZhi"`
 	Msihua   map[string]string      `json:"mSihua"`
 	Mstars   map[string]int         `json:"mStars"`
@@ -117,16 +120,14 @@ func TestComplete(t *testing.T) {
 
 			// 流年盘（命主特定）
 			ln := ComputeLiuNian(fc, 2026)
-			if len(tc.YFlow) == 12 {
-				for fi, fp := range ln.Palaces {
-					ref := tc.YFlow[fi]
-					if fp.Zhi.String() != ref.Zhi { t.Errorf("流年盘[%d]支: got %s want %s", fi, fp.Zhi.String(), ref.Zhi); fail++; continue }
-					if fp.Name != ref.Name { t.Errorf("流年盘[%d]名: got %s want %s", fi, fp.Name, ref.Name); fail++; continue }
-					if !setEq(fp.Stars, ref.Stars) { t.Errorf("流年盘[%d]%s流耀: got %v want %v", fi, ref.Name, fp.Stars, ref.Stars); fail++; continue }
-					if fp.IsMing != ref.IsMing { t.Errorf("流年盘[%d]IsMing: got %v want %v", fi, fp.IsMing, ref.IsMing); fail++; continue }
-					pass++
-				}
-			}
+			assertFlowPalaces(t, "流年", ln.Palaces, tc.YFlow, &pass, &fail)
+			// 流月/日/时盘（变量复用后续流月/日/时断言）
+			ly2 := ComputeLiuYue(fc, 2026, 6)
+			assertFlowPalaces(t, "流月", ly2.Palaces, tc.MFlow, &pass, &fail)
+			lr2 := ComputeLiuRi(fc, 2026, 6, 4)
+			assertFlowPalaces(t, "流日", lr2.Palaces, tc.DFlow, &pass, &fail)
+			ls2 := ComputeLiuShi(fc, 2026, 6, 4, ganzhi.Zhi(1))
+			assertFlowPalaces(t, "流时", ls2.Palaces, tc.HFlow, &pass, &fail)
 			// 流年四化+zhi
 			lnZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ln.Zhi]
 			if lnZhi != tc.Yzhi && tc.Yzhi != "" { t.Errorf("流年zhi: got %s want %s", lnZhi, tc.Yzhi) }
@@ -209,6 +210,20 @@ func TestComplete(t *testing.T) {
 	}
 	if pass+fail > 0 {
 		fmt.Printf("断言汇总: %d pass / %d fail / %d total\n", pass, fail, pass+fail)
+	}
+}
+
+func assertFlowPalaces(t *testing.T, label string, got [12]flowPalace, ref []flowPalaceRef, pass, fail *int) {
+	if len(ref) != 12 {
+		return
+	}
+	for fi, fp := range got {
+		r := ref[fi]
+		if fp.Zhi.String() != r.Zhi { t.Errorf("%s盘[%d]支: got %s want %s", label, fi, fp.Zhi.String(), r.Zhi); *fail++; continue }
+		if fp.Name != r.Name { t.Errorf("%s盘[%d]名: got %s want %s", label, fi, fp.Name, r.Name); *fail++; continue }
+		if !setEq(fp.Stars, r.Stars) { t.Errorf("%s盘[%d]%s流耀: got %v want %v", label, fi, r.Name, fp.Stars, r.Stars); *fail++; continue }
+		if fp.IsMing != r.IsMing { t.Errorf("%s盘[%d]IsMing: got %v want %v", label, fi, fp.IsMing, r.IsMing); *fail++; continue }
+		*pass++
 	}
 }
 
