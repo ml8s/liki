@@ -1,4 +1,16 @@
 # Changelog
+- 2.0.0: 全引擎命理值序列化重构（schema 层全字符串+枚举）+ 起名域重构 + 黄历域收敛
+  - [序列化] 紫微星名/地支/四化键 从数字改为字符串（`star` 输出星名、`si_hua` 键为星名、`fu_xing` 值地支名），JSON round-trip 配套 Unmarshal
+  - [序列化] 六爻/奇门/八宅命理值 string+enum 化（本卦/门/星/神煞/卦象），schema 与实现对齐
+  - [序列化] 奇门八神按阴阳遁输出名称（阳遁勾陈/朱雀，阴遁白虎/玄武），零值字段省略
+  - [起名] qiming 流程重构：`wuge` 并入 `pick`（删独立 `qiming.wuge`），`build` 简化收 combos 只出双名
+  - [起名] 三才过滤从"纯相生公式"改为查 125 组合表（与 check 同标准），>81 笔画按 `((n-1)%81)+1` 回绕对齐五格
+  - [起名] schema 补全：pick/build/check 描述衔接流程；check 的 sancai 修正为 configuration/fortune/description
+  - [黄历] 4 方法收敛为 1 个 `huangli.days`（date/month/bond.date/bond.month 合并），Day/Month 去掉 Suitable/Marks/Warnings
+  - [schema] qimen.chart palaces items 补全（九星/八门/八神枚举）
+  - [清理] 删除 ComposeNames/assertComposeResult/strokeToWuxing 死代码；修复 liuyao.qigua dong_yao null
+  - [破坏性] JSON 输出格式变更（数字→字符串），调用方需按新 schema 适配
+# Changelog
 - 1.12.0: 紫微斗数域系统化重构与正确性修复
   - [命盘] 主星紫微定位算法：从简化查表法改为 iztro 经典"六五四三二"算法，消除 off-by-one 偏移
   - [命盘] 天府系偏移方向修正（iztro 坐标系→Liki 逆时针同步反转）
