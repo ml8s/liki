@@ -1,4 +1,10 @@
 # Changelog
+- 2.0.1: 修复 rpc.discover 按域过滤丢失 schema
+  - [RPC] rpc.discover 带 methods 参数过滤时，结果只剩方法名、丢失 params/description（弱类型重解 doc 导致）
+  - [RPC] 新增 RPCRegistry.DiscoverMethods(patterns)，下沉到 agent 层复用 openRPCMeth 强类型过滤（与 OpenRPCDocument 同模式）
+  - [RPC] 过滤结果保留完整 schema；具体方法过滤只返回自身；空 pattern 返回全量
+  - [测试] 新增 TestDiscoverMethods_Filter 固化验证
+- 2.0.0: 全引擎命理值序列化重构（schema 层全字符串+枚举）+ 起名域重构 + 黄历域收敛
 - 2.0.0: 全引擎命理值序列化重构（schema 层全字符串+枚举）+ 起名域重构 + 黄历域收敛
   - [序列化] 紫微星名/地支/四化键 从数字改为字符串（`star` 输出星名、`si_hua` 键为星名、`fu_xing` 值地支名），JSON round-trip 配套 Unmarshal
   - [序列化] 六爻/奇门/八宅命理值 string+enum 化（本卦/门/星/神煞/卦象），schema 与实现对齐
