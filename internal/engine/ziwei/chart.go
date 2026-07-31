@@ -8,6 +8,10 @@ import (
 // computeChart builds the core ziwei chart (palaces + stars, no brightness/patterns).
 func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 	lunarMonth, lunarDay := lt.Month, lt.Day
+	// 闰月处理（与 iztro fixLeap 一致）：闰月后半月（日>15）按下月算，前半月按本月算
+	if lt.Leap && lunarDay > 15 {
+		lunarMonth++
+	}
 	hourZhi := bz.Shi.Zhi
 	yearGan := bz.Nian.Gan
 	yearZhi := bz.Nian.Zhi
