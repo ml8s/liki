@@ -70,6 +70,22 @@ const (
 
 var liuShouNames = [6]string{"青龙", "朱雀", "勾陈", "螣蛇", "白虎", "玄武"}
 
+func (l LiuShou) MarshalJSON() ([]byte, error) { return json.Marshal(l.String()) }
+
+func (l *LiuShou) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return fmt.Errorf("LiuShou must be a string, got %s", string(data))
+	}
+	for i, n := range liuShouNames {
+		if n == name {
+			*l = LiuShou(i)
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown liushou: %q", name)
+}
+
 func (l LiuShou) String() string {
 	if l >= 0 && l <= 5 {
 		return liuShouNames[l]

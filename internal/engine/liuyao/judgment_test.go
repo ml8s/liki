@@ -166,7 +166,7 @@ func makeJudgmentChart(ysType YongShen, yongPos int, monthZhi, dayZhi ganzhi.Zhi
 
 	return Chart{
 		Lines:    lines,
-		YongShen: YongShenResult{Type: ysType, Position: yongPos},
+		YongShen: YongShenResult{Name: ysType.String(), Position: yongPos},
 		DayGan:   ganzhi.GanJia,
 		DayZhi:   dayZhi,
 		MonthZhi: monthZhi,

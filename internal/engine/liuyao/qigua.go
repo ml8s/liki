@@ -161,7 +161,7 @@ func computeLiuQin(lineElem, palaceElem ganzhi.Wuxing) LiuQin {
 
 // YongShenResult holds the 用神 analysis result.
 type YongShenResult struct {
-	Type     YongShen `json:"type"`
+	Name     string   `json:"name"` // 用神六亲名
 	Position int      `json:"position"` // line position 1-6, 0 if not found
 	FuShen   *FuShen  `json:"fu_shen,omitempty"`
 }
@@ -177,7 +177,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 
 	// 用神.
 	pos, _ := chart.findYongShen(yongShen)
-	chart.YongShen = YongShenResult{Type: yongShen, Position: pos}
+	chart.YongShen = YongShenResult{Name: yongShen.String(), Position: pos}
 	if pos == 0 {
 		chart.YongShen.FuShen = chart.findFuShen(yongShen)
 	}

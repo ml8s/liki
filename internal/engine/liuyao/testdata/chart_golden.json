@@ -12,7 +12,7 @@
       "wuxing": "水",
       "liu_qin": "子孙",
       "shi_ying": "",
-      "liu_shou": 3
+      "liu_shou": "螣蛇"
     },
     {
       "position": 2,
@@ -22,7 +22,7 @@
       "wuxing": "木",
       "liu_qin": "妻财",
       "shi_ying": "",
-      "liu_shou": 4
+      "liu_shou": "白虎"
     },
     {
       "position": 3,
@@ -32,7 +32,7 @@
       "wuxing": "土",
       "liu_qin": "父母",
       "shi_ying": "应",
-      "liu_shou": 5
+      "liu_shou": "玄武"
     },
     {
       "position": 4,
@@ -42,7 +42,7 @@
       "wuxing": "火",
       "liu_qin": "官鬼",
       "shi_ying": "",
-      "liu_shou": 0
+      "liu_shou": "青龙"
     },
     {
       "position": 5,
@@ -52,7 +52,7 @@
       "wuxing": "金",
       "liu_qin": "兄弟",
       "shi_ying": "",
-      "liu_shou": 1
+      "liu_shou": "朱雀"
     },
     {
       "position": 6,
@@ -62,7 +62,7 @@
       "wuxing": "土",
       "liu_qin": "父母",
       "shi_ying": "世",
-      "liu_shou": 2
+      "liu_shou": "勾陈"
     }
   ],
   "bian_lines": [
@@ -74,7 +74,7 @@
       "wuxing": "未知",
       "liu_qin": "父母",
       "shi_ying": "",
-      "liu_shou": 0
+      "liu_shou": "青龙"
     },
     {
       "position": 0,
@@ -84,7 +84,7 @@
       "wuxing": "未知",
       "liu_qin": "父母",
       "shi_ying": "",
-      "liu_shou": 0
+      "liu_shou": "青龙"
     },
     {
       "position": 0,
@@ -94,7 +94,7 @@
       "wuxing": "未知",
       "liu_qin": "父母",
       "shi_ying": "",
-      "liu_shou": 0
+      "liu_shou": "青龙"
     },
     {
       "position": 0,
@@ -104,7 +104,7 @@
       "wuxing": "未知",
       "liu_qin": "父母",
       "shi_ying": "",
-      "liu_shou": 0
+      "liu_shou": "青龙"
     },
     {
       "position": 0,
@@ -114,7 +114,7 @@
       "wuxing": "未知",
       "liu_qin": "父母",
       "shi_ying": "",
-      "liu_shou": 0
+      "liu_shou": "青龙"
     },
     {
       "position": 0,
@@ -124,7 +124,7 @@
       "wuxing": "未知",
       "liu_qin": "父母",
       "shi_ying": "",
-      "liu_shou": 0
+      "liu_shou": "青龙"
     }
   ],
   "day_gan": "己",
@@ -133,7 +133,7 @@
   "month_gan": "丙",
   "dong_yao": null,
   "yong_shen": {
-    "type": 2,
+    "name": "官鬼",
     "position": 4
   },
   "gua_ci": {

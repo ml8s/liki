@@ -569,8 +569,8 @@ func TestComputeChart_RandomShake(t *testing.T) {
 			t.Errorf("line %d: empty day relation", i+1)
 		}
 	}
-	if chart.YongShen.Type != YongQiCai {
-		t.Errorf("YongShen.Type = %s, want 妻财", chart.YongShen.Type.String())
+	if chart.YongShen.Name != "妻财" {
+		t.Errorf("YongShen.Name = %s, want 妻财", chart.YongShen.Name)
 	}
 	if chart.YingQi.Assessment == "" {
 		t.Error("YingQi.Assessment is empty")
@@ -819,8 +819,8 @@ func TestComputeChart_YongShenAnalysis(t *testing.T) {
 	if chart.YongShen.FuShen != nil {
 		t.Error("FuShen should be nil when yong_shen is on a main line")
 	}
-	if chart.YongShen.Type != YongGuanGui {
-		t.Errorf("yong_shen type = %s, want 官鬼", chart.YongShen.Type.String())
+	if chart.YongShen.Name != "官鬼" {
+		t.Errorf("yong_shen name = %s, want 官鬼", chart.YongShen.Name)
 	}
 }
 

@@ -9,10 +9,10 @@ import (
 
 // JudgmentResult holds the structured judgment for a 奇门 chart.
 type JudgmentResult struct {
-	SubjectPalace    int      `json:"subject_palace"`
-	EventPalace      int      `json:"event_palace"`
-	DutyStarPalace   int      `json:"duty_star_palace"`
-	DutyDoorPalace   int      `json:"duty_door_palace"`
+	SubjectPalace    PalaceIndex `json:"subject_palace"`
+	EventPalace      PalaceIndex `json:"event_palace"`
+	DutyStarPalace   PalaceIndex `json:"duty_star_palace"`
+	DutyDoorPalace   PalaceIndex `json:"duty_door_palace"`
 	Rating           string   `json:"rating"`
 	ShengKe          string   `json:"sheng_ke"`
 	Patterns         []string `json:"patterns"`
@@ -115,10 +115,10 @@ func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
 	advice := generateAdvice(event, rating, riGanPalace, subjectP, eventP)
 
 	return JudgmentResult{
-		SubjectPalace:    int(subjectP),
-		EventPalace:      int(eventP),
-		DutyStarPalace:   int(dutyStarP),
-		DutyDoorPalace:   int(dutyDoorP),
+		SubjectPalace:    subjectP,
+		EventPalace:      eventP,
+		DutyStarPalace:   dutyStarP,
+		DutyDoorPalace:   dutyDoorP,
 		Rating:           rating,
 		ShengKe:          shengKe,
 		Patterns:         patterns,
