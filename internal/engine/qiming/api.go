@@ -11,7 +11,6 @@
 //
 //	SurnameStroke(surname) → (int, error)
 //	GetChars(wuxing) → (map[int][]CharLite, error)
-//	ComposeNames(surname, chars1, chars2, pairs) → []string
 //	EvaluateNames(surname, names, yong, xi, ji) → ([]Evaluation, error)
 package qiming
 

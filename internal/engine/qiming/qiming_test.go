@@ -288,35 +288,7 @@ func TestInferElementFromRadical_UnknownRadical(t *testing.T) {
 // ComposeNames
 // =============================================================================
 
-func TestComposeNames_EmptyChars(t *testing.T) {
-	names := ComposeNames("王", nil, nil, nil)
-	if len(names) != 0 {
-		t.Errorf("ComposeNames with nil chars should return empty, got %d names", len(names))
-	}
-}
 
-func TestComposeNames_SingleName(t *testing.T) {
-	// chars1 has data, chars2 is empty → single-name path.
-	chars1 := map[int][]CharLite{
-		8: {{Char: "明", Tone: 2}},
-	}
-	names := ComposeNames("王", chars1, nil, nil)
-	if len(names) == 0 {
-		t.Fatal("single-name ComposeNames should produce names")
-	}
-	for _, n := range names {
-		rs := []rune(n)
-		if len(rs) != 2 {
-			t.Errorf("single-name %q should be 2 chars (姓+名), got %d", n, len(rs))
-		}
-		if string(rs[0]) != "王" {
-			t.Errorf("name %q should start with 王", n)
-		}
-		if string(rs[1]) != "明" {
-			t.Errorf("name %q should end with 明", n)
-		}
-	}
-}
 
 // =============================================================================
 // elementYAMLToChinese — 默认路径
@@ -459,46 +431,8 @@ func TestEvaluateNames_WithWuxing(t *testing.T) {
 // ComposeNames — 实际字符数据
 // =============================================================================
 
-func TestComposeNames_WithRealData(t *testing.T) {
-	yongRaw, err := GetChars("火")
-	if err != nil {
-		t.Fatal(err)
-	}
-	xiRaw, err := GetChars("木")
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	names := ComposeNames("王", yongRaw, xiRaw, nil)
-	if len(names) == 0 {
-		t.Skip("no names composed")
-	}
-	assertComposeResult(t, names, "王", 3)
-}
 
-func TestComposeNames_YongPlusYong(t *testing.T) {
-	yongRaw, err := GetChars("火")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	names := ComposeNames("王", yongRaw, yongRaw, nil)
-	assertComposeResult(t, names, "王", 3)
-}
-
-func TestComposeNames_YongPlusXi(t *testing.T) {
-	yongRaw, err := GetChars("火")
-	if err != nil {
-		t.Fatal(err)
-	}
-	xiRaw, err := GetChars("木")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	names := ComposeNames("王", yongRaw, xiRaw, nil)
-	assertComposeResult(t, names, "王", 3)
-}
 
 func assertComposeResult(t *testing.T, names []string, surname string, wantRunes int) {
 	t.Helper()
@@ -520,94 +454,13 @@ func assertComposeResult(t *testing.T, names []string, surname string, wantRunes
 // ComposeNames — xiChars 含字符时 yong+xi 路径
 // =============================================================================
 
-func TestComposeNames_XiPlusYongPath(t *testing.T) {
-	// Ensure xi+yong path is exercised by making xi chars available.
-	yongElem := wuxingFromChinese("火")
-	yongRaw := getCharsByElement(yongElem)
-	// xi chars differ from yong so we can distinguish paths.
-	xiElem := wuxingFromChinese("木")
-	xiRaw := getCharsByElement(xiElem)
-
-	names := ComposeNames("王", yongRaw, xiRaw, nil)
-	assertComposeResult(t, names, "王", 3)
-}
 
 // =============================================================================
 // ComposeNames — pairs 约束
 // =============================================================================
 
-func TestComposeNames_WithPairs(t *testing.T) {
-	chars1 := map[int][]CharLite{
-		8:  {{Char: "林", Tone: 2}},
-		12: {{Char: "棋", Tone: 2}},
-	}
-	chars2 := map[int][]CharLite{
-		15: {{Char: "槿", Tone: 3}},
-		16: {{Char: "澄", Tone: 2}},
-	}
-	pairs := []StrokePair{{S1: 8, S2: 15}, {S1: 12, S2: 16}}
 
-	names := ComposeNames("姚", chars1, chars2, pairs)
 
-	// 8×15 + 12×16 only, not 8×16 or 12×15
-	for _, n := range names {
-		if n == "姚林澄" || n == "姚棋槿" {
-			t.Errorf("unwanted cross-pair name: %s", n)
-		}
-	}
-
-	// 每对内部应产生结果
-	foundLinJin := false
-	foundQiCheng := false
-	for _, n := range names {
-		if n == "姚林槿" {
-			foundLinJin = true
-		}
-		if n == "姚棋澄" {
-			foundQiCheng = true
-		}
-	}
-	if !foundLinJin {
-		t.Error("expected 姚林槿 from pair (8,15)")
-	}
-	if !foundQiCheng {
-		t.Error("expected 姚棋澄 from pair (12,16)")
-	}
-}
-
-func TestComposeNames_WithoutPairs(t *testing.T) {
-	chars1 := map[int][]CharLite{
-		8:  {{Char: "林", Tone: 2}},
-		12: {{Char: "棋", Tone: 2}},
-	}
-	chars2 := map[int][]CharLite{
-		15: {{Char: "槿", Tone: 3}},
-		16: {{Char: "澄", Tone: 2}},
-	}
-
-	// nil pairs → 全笛卡尔积
-	names := ComposeNames("姚", chars1, chars2, nil)
-
-	if len(names) != 4 {
-		t.Errorf("without pairs should produce 4 names, got %d", len(names))
-	}
-}
-
-func TestComposeNames_WithPairs_SingleName(t *testing.T) {
-	chars1 := map[int][]CharLite{
-		8: {{Char: "明", Tone: 2}},
-	}
-	pairs := []StrokePair{{S1: 8, S2: 0}}
-
-	names := ComposeNames("王", chars1, nil, pairs)
-
-	if len(names) != 1 {
-		t.Fatalf("expected 1 name, got %d", len(names))
-	}
-	if names[0] != "王明" {
-		t.Errorf("name = %q, want 王明", names[0])
-	}
-}
 
 // =============================================================================
 // BUG-9 regression: radical element corrections

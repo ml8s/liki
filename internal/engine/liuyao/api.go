@@ -28,7 +28,7 @@ import (
 // QiguaResult is the bare output of a coin-toss hexagram draw.
 type QiguaResult struct {
 	Yaos    [6]int `json:"yaos"`     // 初爻到上爻，6/7/8/9
-	DongYao []int  `json:"dong_yao"` // 动爻位置 1-6
+	DongYao []int  `json:"dong_yao,omitempty"` // 动爻位置 1-6（无动爻时省略）
 }
 
 // Qigua simulates three coins tossed six times.
