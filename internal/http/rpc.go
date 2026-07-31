@@ -75,51 +75,11 @@ func HandleRPC(reg *agent.RPCRegistry) http.HandlerFunc {
 			var fp struct{ Methods string `json:"methods,omitempty"` }
 			json.Unmarshal(req.Params, &fp)
 
-			// 从全量 doc 取出方法名列表
-			doc := reg.OpenRPCDocument()
-			var all struct {
-				Methods []struct {
-					Name string `json:"name"`
-				} `json:"methods"`
+			var patterns []string
+			if fp.Methods != "" {
+				patterns = strings.Split(fp.Methods, ",")
 			}
-			json.Unmarshal(doc, &all)
-			allNames := make([]string, len(all.Methods))
-			for i, m := range all.Methods { allNames[i] = m.Name }
-
-			if fp.Methods == "" {
-				writeRPC(w, rpcResponse{Result: doc, ID: req.ID})
-				return
-			}
-
-			// 不递归，一次 HasPrefix 匹配自身或下级
-			patterns := strings.Split(fp.Methods, ",")
-			wanted := make(map[string]bool)
-			for _, p := range patterns {
-				p = strings.TrimSpace(p)
-				p = strings.TrimSuffix(p, ".")
-				prefix := p + "."
-				for _, n := range allNames {
-					if n == p || strings.HasPrefix(n, prefix) {
-						wanted[n] = true
-					}
-				}
-			}
-
-			// 过滤 doc.methods
-			var filtered []json.RawMessage
-			for _, raw := range all.Methods {
-				if wanted[raw.Name] {
-					// 保留原始格式
-					b, _ := json.Marshal(raw)
-					filtered = append(filtered, json.RawMessage(b))
-				}
-			}
-			result := struct {
-				OpenRPC string              `json:"openrpc"`
-				Methods []json.RawMessage   `json:"methods"`
-			}{OpenRPC: "1.4.1", Methods: filtered}
-			b, _ := json.Marshal(result)
-			writeRPC(w, rpcResponse{Result: json.RawMessage(b), ID: req.ID})
+			writeRPC(w, rpcResponse{Result: reg.DiscoverMethods(patterns), ID: req.ID})
 			return
 		}
 

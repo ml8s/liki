@@ -1,6 +1,9 @@
 package agent
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strings"
+)
 
 // ── OpenRPC document generation ──────────────────────────────
 
@@ -62,4 +65,53 @@ func (r *RPCRegistry) OpenRPCDocument() json.RawMessage {
 		r.openrpcDoc = json.RawMessage(b)
 	})
 	return r.openrpcDoc
+}
+
+// DiscoverMethods returns a filtered OpenRPC document containing only the
+// methods matching the given domain/name patterns (e.g. "bazi", "bazi.chart").
+// A pattern matches the method itself and all methods under its dot-prefix.
+// Empty patterns return the full document.
+func (r *RPCRegistry) DiscoverMethods(patterns []string) json.RawMessage {
+	full := r.OpenRPCDocument()
+	var doc openRPCDoc
+	if err := json.Unmarshal(full, &doc); err != nil {
+		return full
+	}
+
+	if len(patterns) == 0 {
+		return full
+	}
+
+	wanted := make(map[string]bool)
+	for _, p := range patterns {
+		p = strings.TrimSpace(p)
+		p = strings.TrimSuffix(p, ".")
+		if p == "" {
+			continue
+		}
+		prefix := p + "."
+		for _, m := range doc.Methods {
+			if m.Name == p || strings.HasPrefix(m.Name, prefix) {
+				wanted[m.Name] = true
+			}
+		}
+	}
+
+	filtered := make([]openRPCMeth, 0, len(wanted))
+	for _, m := range doc.Methods {
+		if wanted[m.Name] {
+			filtered = append(filtered, m)
+		}
+	}
+
+	out := openRPCDoc{
+		OpenRPC: doc.OpenRPC,
+		Info:    doc.Info,
+		Methods: filtered,
+	}
+	b, err := json.Marshal(out)
+	if err != nil {
+		return full
+	}
+	return json.RawMessage(b)
 }
