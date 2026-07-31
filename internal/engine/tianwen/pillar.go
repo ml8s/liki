@@ -21,12 +21,14 @@ func RiZhu(gt GregorianTime) ganzhi.Zhu {
 }
 
 // NianZhu computes the year pillar for a given date, accounting for 立春 boundary.
-// If the date is before 立春, the year stem/branch is based on (year-1).
+// If the date is before 立春 (exact solar-term time), the year stem/branch is
+// based on (year-1). Uses the precise 立春 moment, not just the calendar day,
+// so births on 立春 day before the exact moment are still the previous year.
 func NianZhu(gt GregorianTime) ganzhi.Zhu {
 	t := gt.Time()
-	year, month, day := t.Date()
-	lcM, lcD := liChunDay(year)
-	if int(month) < lcM || (int(month) == lcM && day < lcD) {
+	year, _, _ := t.Date()
+	lc := SolarTermTime(year, 315) // 立春精确时刻（UTC）
+	if t.Before(lc) {
 		year--
 	}
 	s := (year - 3) % 10

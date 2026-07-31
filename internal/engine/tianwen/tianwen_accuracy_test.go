@@ -71,6 +71,31 @@ func TestNianZhu_LiChunBoundary(t *testing.T) {
 	}
 }
 
+// TestNianZhu_LiChunExactTime 验证立春换年按精确时刻（非日期）：
+// 立春当天立春时刻之前出生仍算上一年（2026 立春 ≈ 02-04 07:42 +08:00）。
+func TestNianZhu_LiChunExactTime(t *testing.T) {
+	cases := []struct {
+		name string
+		time string // +08:00
+		want string
+	}{
+		{"立春前1小时", "2026-02-04T06:42:00+08:00", "乙巳"},
+		{"立春后1小时", "2026-02-04T08:42:00+08:00", "丙午"},
+		{"立春当天午前", "2026-02-04T05:00:00+08:00", "乙巳"},
+		{"立春次日", "2026-02-05T12:00:00+08:00", "丙午"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tm, _ := time.Parse(time.RFC3339, tc.time)
+			z := NianZhu(GregorianTime(tm))
+			got := z.Gan.String() + z.Zhi.String()
+			if got != tc.want {
+				t.Errorf("got %s, want %s", got, tc.want)
+			}
+		})
+	}
+}
+
 // ── 月柱 ──
 
 func TestYueZhu_Basic(t *testing.T) {
