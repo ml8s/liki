@@ -1,6 +1,7 @@
 package ziwei
 
 import (
+	"strings"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -165,10 +166,10 @@ func TestComplete(t *testing.T) {
 
 				// 主星
 				gotM := starsToNames(got.Stars, true)
-				if !strEq(gotM, ref.Major) { t.Errorf("[%s]主星: got%v want%v", nm, gotM, ref.Major); fail++ } else { pass++ }
+				if !setEq(gotM, ref.Major) { t.Errorf("[%s]主星: got%v want%v", nm, gotM, ref.Major); fail++ } else { pass++ }
 				// 辅星
 				gotN := starsToNames(got.Stars, false)
-				if !strEq(gotN, ref.Minor) { t.Errorf("[%s]辅星: got%v want%v", nm, gotN, ref.Minor); fail++ } else { pass++ }
+				if !setEq(gotN, ref.Minor) { t.Errorf("[%s]辅星: got%v want%v", nm, gotN, ref.Minor); fail++ } else { pass++ }
 				// 长生
 				if got.ChangSheng != ref.Cs { t.Errorf("[%s]长生: got%s want%s", nm, got.ChangSheng, ref.Cs); fail++ } else { pass++ }
 				// 亮度
@@ -234,10 +235,17 @@ func atoi(s string) int {
 
 func parseLT(tc testCaseRef) tianwen.LunarTime {
 	var y, m, d int
-	fmt.Sscanf(tc.Lunar, "%d-%d-%d", &y, &m, &d)
+	leap := false
+	s := tc.Lunar
+	// 闰月标记: "Y-M-D闰"
+	if strings.HasSuffix(s, "闰") {
+		leap = true
+		s = strings.TrimSuffix(s, "闰")
+	}
+	fmt.Sscanf(s, "%d-%d-%d", &y, &m, &d)
 	sz := tc.Ti + 1; day := d
 	if tc.Ti == 12 { sz = 1; day++ }
-	return tianwen.LunarTime{Year: y, Month: m, Day: day, Shichen: ganzhi.Zhi(sz)}
+	return tianwen.LunarTime{Year: y, Month: m, Day: day, Leap: leap, Shichen: ganzhi.Zhi(sz)}
 }
 
 // TestFlowYear validates流年 flow year horoscope components.
