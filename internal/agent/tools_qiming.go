@@ -10,51 +10,37 @@ import (
 
 func qimingPickHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		Wuxing string        `json:"wuxing"`
-		Pairs  []qiming.StrokePair  `json:"pairs,omitempty"`
+		Surname string `json:"surname"`
+		Wuxing1 string `json:"wuxing1"`
+		Wuxing2 string `json:"wuxing2"`
+		Count   int    `json:"count"`
+		Wuge    bool   `json:"wuge"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("qiming.pick: %w", err)
 	}
-
-	chars, err := qiming.GetChars(p.Wuxing)
+	if p.Count != 1 && p.Count != 2 {
+		p.Count = 2
+	}
+	if !p.Wuge {
+		// wuge 默认 true；false 时显式跳过五格
+	}
+	combos, err := qiming.PickChars(p.Surname, p.Wuxing1, p.Wuxing2, p.Count, p.Wuge)
 	if err != nil {
 		return nil, fmt.Errorf("qiming.pick: %w", err)
 	}
-
-	// If pairs are provided, filter chars to only include strokes matching the pairs
-	if len(p.Pairs) > 0 {
-		validStrokes := make(map[int]bool)
-		for _, pair := range p.Pairs {
-			validStrokes[pair.S1] = true
-			validStrokes[pair.S2] = true
-		}
-		filtered := make(map[int][]qiming.CharLite)
-		for stroke, charList := range chars {
-			if validStrokes[stroke] {
-				filtered[stroke] = charList
-			}
-		}
-		chars = filtered
-	}
-
-	return wrapResult("naming_pick", map[string]any{
-		"chars": chars,
-	})
+	return wrapResult("naming_pick", map[string]any{"combos": combos})
 }
 
 func qimingBuildHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		Surname string                    `json:"surname"`
-		Chars1  map[int][]qiming.CharLite `json:"chars1"`
-		Chars2  map[int][]qiming.CharLite `json:"chars2"`
-		Pairs   []qiming.StrokePair       `json:"pairs"`
+		Combos []qiming.Combo `json:"combos"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("qiming.build: %w", err)
 	}
 
-	names := qiming.ComposeNames(p.Surname, p.Chars1, p.Chars2, p.Pairs)
+	names := qiming.BuildNames(p.Combos)
 	return wrapResult("naming_build", map[string]any{"names": names})
 }
 
@@ -74,30 +60,6 @@ func qimingCharHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 		return nil, fmt.Errorf("qiming.char: character %q not found in database", p.Char)
 	}
 	return wrapResult("qiming_char", result)
-}
-func qimingWugeHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Surname string `json:"surname"`
-		Count   int    `json:"count"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("qiming.wuge: %w", err)
-	}
-	if p.Count != 1 && p.Count != 2 {
-		p.Count = 2
-	}
-
-	stroke, err := qiming.SurnameStroke(p.Surname)
-	if err != nil {
-		return nil, fmt.Errorf("qiming.wuge: %w", err)
-	}
-
-	pairs := qiming.ListViableStrokes(stroke, p.Count)
-	pairs = qiming.FilterSancai(stroke, pairs)
-	return wrapResult("naming_wuge", map[string]any{
-		"surname_stroke": stroke,
-		"pairs":          pairs,
-	})
 }
 
 func qimingCheckHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
@@ -121,22 +83,16 @@ func qimingCheckHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 
 var qimingMethods = []RPCMethod{
 	{
-		Name: "qiming.pick", Description: "按五行取可用起名字。返回按笔画分组的字库（供 qiming.build 组名）。可选传 pairs 按笔画过滤（pairs 来自 qiming.wuge）。用+喜需调两次（分别取用神/喜神五行）。输出对象直接作为 qiming.build 的 chars1/chars2 传入。",
-		Params: mustSchema(`{"type":"object","properties":{"wuxing":{"type":"string","enum":["木","火","土","金","水"],"description":"单个五行"},"pairs":{"type":"array","items":{"type":"object","properties":{"s1":{"type":"integer"},"s2":{"type":"integer"}},"required":["s1","s2"]},"description":"可选笔画过滤：只返回这些笔画的字。pairs 从 qiming.wuge 返回。不传则返回该五行全部字"}},"required":["wuxing"]}`),
+		Name: "qiming.pick", Description: "起名取字（合并五格计算）。wuge=true 时算吉笔画并按其取字（surname 必填）；wuge=false 时按笔画取字（surname 不需要）。count 恒生效：1=单名（每组合仅 first 第1字池）/2=双名（每组合 first 第1字池 + second 第2字池）。wuxing2 默认同 wuxing1（用+喜时传不同五行）。输出 combos 数组，每组合 {id, first, second}，first/second 为纯字数组。LLM 筛选后传给 qiming.build。",
+		Params: mustSchema(`{"type":"object","properties":{"surname":{"type":"string","minLength":1,"maxLength":2,"description":"姓氏（wuge=true 算五格需要）"},"wuxing1":{"type":"string","enum":["木","火","土","金","水"],"description":"第1字五行"},"wuxing2":{"type":"string","enum":["木","火","土","金","水"],"description":"第2字五行（双名用+喜；默认同 wuxing1）"},"count":{"type":"integer","enum":[1,2],"description":"1=单名/2=双名，默认2"},"wuge":{"type":"boolean","description":"true=考虑三才五格按吉笔画取字（默认）/false=不考虑按笔画取字"}},"required":["wuxing1"]}`),
 		Handler: qimingPickHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"chars":{"type":"object","description":"字库，按笔画分组"}},"required":["chars"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"combos":{"type":"array","description":"取字组合","items":{"type":"object","properties":{"id":{"type":"integer","description":"组合key"},"first":{"type":"array","items":{"type":"string"},"description":"第1字池（纯字）"},"second":{"type":"array","items":{"type":"string"},"description":"第2字池（双名）"}},"required":["id","first"]}}},"required":["combos"]}`),
 	},
 	{
-		Name: "qiming.build", Description: "起名组名。chars1/chars2 传入 qiming.pick 返回的字库对象（可先语义过滤），pairs 传入 qiming.wuge 返回的笔画对（可选，不传则 chars1×chars2 全组合）。双名必须传 chars2，单名不传。返回候选名列表，LLM 需再语义过滤后用 qiming.check 评估。",
-		Params: mustSchema(`{"type":"object","properties":{"surname":{"type":"string","minLength":1,"maxLength":2,"description":"姓氏","examples":["李"]},"chars1":{"type":"object","description":"qiming.pick 返回的按笔画分组的字库对象。格式：{ stroke_number: [{char: '某', tone: 1}, ...] }。不要传数组或扁平列表。","examples":[{"8":[{"char":"林","tone":2}],"10":[{"char":"桂","tone":4}],"14":[{"char":"熊","tone":2}]}]},"chars2":{"type":"object","description":"字2字库，单名不传。格式与 chars1 相同（从 pick 返回的 chars）。","examples":[{"12":[{"char":"舜","tone":4}],"16":[{"char":"澄","tone":2}],"20":[{"char":"曦","tone":1}]}]},"pairs":{"type":"array","items":{"type":"object","properties":{"s1":{"type":"integer"},"s2":{"type":"integer"}},"required":["s1","s2"]},"description":"可选笔画约束对，从 wuge 透传。不传则全量笛卡尔积","examples":[[{"s1":1,"s2":5},{"s1":1,"s2":7},{"s1":1,"s2":10}]]}},"required":["surname","chars1"]}`),
+		Name: "qiming.build", Description: "起名组名（仅双名）。combos 传入 qiming.pick 输出、经 LLM 筛选后的组合（每组 first/second 是挑好的字）。对每组 first×second 笛卡尔积组合出 given name（不含姓）。单名不走 build（LLM 直接从 pick 选字）。返回 given name 数组，LLM 再筛后传 qiming.check。",
+		Params: mustSchema(`{"type":"object","properties":{"combos":{"type":"array","description":"pick 输出的组合（LLM 筛选后）","items":{"type":"object","properties":{"id":{"type":"integer"},"first":{"type":"array","items":{"type":"string"},"description":"第1字挑好的字"},"second":{"type":"array","items":{"type":"string"},"description":"第2字挑好的字（双名）"}},"required":["id","first"]}}},"required":["combos"]}`),
 		Handler: qimingBuildHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"names":{"type":"array","items":{"type":"string"},"description":"候选名列表"}},"required":["names"]}`),
-	},
-	{
-		Name: "qiming.wuge", Description: "查五格可行笔画对。surname 传姓氏（勿传笔画数），count 传字数（1=单名/2=双名）。返回人/地/外/总四格全吉的笔画组合 pairs，供 qiming.pick 按笔画取字、qiming.build 组名。",
-		Params: mustSchema(`{"type":"object","properties":{"surname":{"type":"string","minLength":1,"maxLength":2,"description":"姓氏"},"count":{"type":"integer","enum":[1,2],"description":"字数：1=单名，2=双名，默认2"}},"required":["surname"]}`),
-		Handler: qimingWugeHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"surname_stroke":{"type":"integer","description":"姓氏康熙笔画"},"pairs":{"type":"array","items":{"type":"object","properties":{"s1":{"type":"integer"},"s2":{"type":"integer"}},"required":["s1","s2"]},"description":"可行笔画对"}},"required":["surname_stroke","pairs"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"names":{"type":"array","items":{"type":"string"},"description":"given name 数组（不含姓）"}},"required":["names"]}`),
 	},
 	{
 		Name: "qiming.check", Description: "起名评估。names 传候选名（仅名字部分，不含姓），surname 传姓氏，yongshen 传用神五行。返回五格三才五行音韵全量判定，LLM 综合挑最终推荐名。",

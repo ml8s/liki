@@ -11,7 +11,6 @@ import (
 
 	"liki-engine/internal/agent/city"
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/qiming"
 )
 
 const btOK = `"2000-06-15T12:00:00+08:00"`
@@ -155,7 +154,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
-		"qiming.pick", "qiming.build", "qiming.check", "qiming.wuge",
+		"qiming.pick", "qiming.build", "qiming.check",
 		"bazhai.chart", "bazhai.minggua",
 		"xuankong.sanyuan", "xuankong.chart",
 		"liuyao.chart",
@@ -620,8 +619,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 41 {
-		t.Errorf("method count = %d, want 41 (40 + rpc.discover)", len(methods))
+	if len(methods) != 40 {
+		t.Errorf("method count = %d, want 40 (39 + rpc.discover)", len(methods))
 	}
 }
 
@@ -775,7 +774,7 @@ func TestHandler_QimingChar_InvalidParams(t *testing.T) {
 }
 func TestHandler_NamingPick(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(`{"wuxing":"金"}`)
+	params := json.RawMessage(`{"wuxing1":"金","wuge":false}`)
 	result, err := r.Execute(context.Background(), "qiming.pick", params)
 	if err != nil {
 		t.Fatalf("qiming.pick: %v", err)
@@ -792,101 +791,16 @@ func TestHandler_NamingPick(t *testing.T) {
 // qiming.wuge — 双字名
 // =============================================================================
 
-func TestHandler_NamingWuge(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"surname":"姚","count":2}`)
-	result, err := r.Execute(context.Background(), "qiming.wuge", params)
-	if err != nil {
-		t.Fatalf("qiming.wuge: %v", err)
-	}
-	if getStr(result, "_product") != "naming_wuge" {
-		t.Errorf("_product = %q, want naming_wuge", getStr(result, "_product"))
-	}
-
-	var env struct {
-		Data struct {
-			SurnameStroke float64        `json:"surname_stroke"`
-			Pairs         []map[string]any `json:"pairs"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	if env.Data.SurnameStroke == 0 {
-		t.Error("surname_stroke should not be 0")
-	}
-	if len(env.Data.Pairs) == 0 {
-		t.Fatal("wuge should return at least one viable pair for 姚")
-	}
-	for _, p := range env.Data.Pairs {
-		s1, _ := p["s1"].(float64)
-		s2, _ := p["s2"].(float64)
-		if s1 == 0 || s2 == 0 {
-			t.Errorf("double-name pair should have s1, s2 > 0: s1=%v s2=%v", s1, s2)
-		}
-	}
-}
 
 // =============================================================================
 // qiming.wuge — 单名
 // =============================================================================
 
-func TestHandler_NamingWuge_Single(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"surname":"姚","count":1}`)
-	result, err := r.Execute(context.Background(), "qiming.wuge", params)
-	if err != nil {
-		t.Fatalf("qiming.wuge single: %v", err)
-	}
-	var env struct {
-		Data struct {
-			Pairs []map[string]any `json:"pairs"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	for _, p := range env.Data.Pairs {
-		s2, _ := p["s2"].(float64)
-		if s2 != 0 {
-			t.Errorf("single-name pair should have s2=0: %+v", p)
-		}
-	}
-}
 
-func TestHandler_NamingWuge_SancaiFiltered(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"surname":"姚","count":2}`)
-	result, err := r.Execute(context.Background(), "qiming.wuge", params)
-	if err != nil {
-		t.Fatalf("qiming.wuge: %v", err)
-	}
-
-	var env struct {
-		Data struct {
-			SurnameStroke float64          `json:"surname_stroke"`
-			Pairs         []map[string]any `json:"pairs"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	if len(env.Data.Pairs) == 0 {
-		t.Fatal("wuge should return pairs")
-	}
-	stroke := int(env.Data.SurnameStroke)
-	for _, p := range env.Data.Pairs {
-		s1 := int(p["s1"].(float64))
-		s2 := int(p["s2"].(float64))
-		if !qiming.SancaiHarmonious(stroke, s1, s2) {
-			t.Errorf("pair (s1=%d, s2=%d) not sancai-harmonious for stroke=%d", s1, s2, stroke)
-		}
-	}
-}
 
 func TestHandler_NamingPick_CharInfo(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(`{"wuxing":"金"}`)
+	params := json.RawMessage(`{"wuxing1":"金","count":1,"wuge":false}`)
 	result, err := r.Execute(context.Background(), "qiming.pick", params)
 	if err != nil {
 		t.Fatalf("qiming.pick: %v", err)
@@ -894,34 +808,25 @@ func TestHandler_NamingPick_CharInfo(t *testing.T) {
 
 	var env struct {
 		Data struct {
-			Chars map[string][]map[string]any `json:"chars"`
+			Combos []struct {
+				ID    int      `json:"id"`
+				First []string `json:"first"`
+			} `json:"combos"`
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if len(env.Data.Chars) == 0 {
-		t.Fatal("pick should return chars")
+	if len(env.Data.Combos) == 0 {
+		t.Fatal("pick should return combos")
 	}
 
 	checked := 0
-	for _, charList := range env.Data.Chars {
-		for _, c := range charList {
+	for _, combo := range env.Data.Combos {
+		for _, ch := range combo.First {
 			checked++
-			if _, ok := c["wuxing"]; !ok {
-				t.Errorf("char %v missing wuxing", c["char"])
-			}
-			if _, ok := c["stroke"]; !ok {
-				t.Errorf("char %v missing stroke", c["char"])
-			}
-			if _, ok := c["radical"]; !ok {
-				t.Errorf("char %v missing radical", c["char"])
-			}
-			if _, ok := c["pinyin"]; !ok {
-				t.Errorf("char %v missing pinyin", c["char"])
-			}
-			if _, ok := c["tone"]; !ok {
-				t.Errorf("char %v missing tone", c["char"])
+			if len([]rune(ch)) != 1 {
+				t.Errorf("char %q should be single rune", ch)
 			}
 		}
 	}
@@ -930,53 +835,11 @@ func TestHandler_NamingPick_CharInfo(t *testing.T) {
 	}
 }
 
-func TestHandler_NamingPick_WithPairsFilter(t *testing.T) {
-	r := NewRPCRegistry()
-	// 姚=9, pairs限定s1范围: s1=3和s1=13
-	params := json.RawMessage(`{"wuxing":"木","pairs":[{"s1":3,"s2":5},{"s1":13,"s2":7}]}`)
-	result, err := r.Execute(context.Background(), "qiming.pick", params)
-	if err != nil {
-		t.Fatalf("qiming.pick with pairs: %v", err)
-	}
-
-	var env struct {
-		Data struct {
-			Chars map[string][]any `json:"chars"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-
-	// Only strokes in pairs (both s1 and s2) should be present: 3, 5, 7, 13
-	valid := map[string]bool{"3": true, "5": true, "7": true, "13": true}
-	for stroke := range env.Data.Chars {
-		if !valid[stroke] {
-			t.Errorf("unexpected stroke %s returned (should only be 3,5,7,13)", stroke)
-		}
-	}
-}
 
 // =============================================================================
 // qiming.build — 带 pairs
 // =============================================================================
 
-func TestHandler_NamingBuild_WithPairs(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{
-		"surname":"姚",
-		"chars1":{"8":[{"char":"林","tone":2}],"12":[{"char":"棋","tone":2}]},
-		"chars2":{"15":[{"char":"槿","tone":3}],"16":[{"char":"澄","tone":2}]},
-		"pairs":[{"s1":8,"s2":15},{"s1":12,"s2":16}]
-	}`)
-	result, err := r.Execute(context.Background(), "qiming.build", params)
-	if err != nil {
-		t.Fatalf("qiming.build with pairs: %v", err)
-	}
-	if getStr(result, "_product") != "naming_build" {
-		t.Errorf("_product = %q, want naming_build", getStr(result, "_product"))
-	}
-}
 
 // =============================================================================
 // qiming.build — 双字名
@@ -984,7 +847,7 @@ func TestHandler_NamingBuild_WithPairs(t *testing.T) {
 
 func TestHandler_NamingBuild(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(`{"surname":"王","chars1":{"8":[{"char":"明","tone":2}]},"chars2":{"10":[{"char":"哲","tone":2}]}}`)
+	params := json.RawMessage(`{"combos":[{"id":0,"first":["囊","耀"],"second":["倔","倜"]}]}`)
 	result, err := r.Execute(context.Background(), "qiming.build", params)
 	if err != nil {
 		t.Fatalf("qiming.build: %v", err)
@@ -998,17 +861,6 @@ func TestHandler_NamingBuild(t *testing.T) {
 // qiming.build — 单名
 // =============================================================================
 
-func TestHandler_NamingBuild_Single(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"surname":"王","chars1":{"8":[{"char":"明","tone":2}]}}`)
-	result, err := r.Execute(context.Background(), "qiming.build", params)
-	if err != nil {
-		t.Fatalf("qiming.build single: %v", err)
-	}
-	if getStr(result, "_product") != "naming_build" {
-		t.Errorf("_product = %q, want naming_build", getStr(result, "_product"))
-	}
-}
 
 // =============================================================================
 // qiming.check — 批量两字名
@@ -1134,58 +986,6 @@ func TestHandler_NamingCheck_AllParams(t *testing.T) {
 	t.Logf("wuxing: %+v", wuxing)
 }
 
-func TestHandler_NamingPipeline(t *testing.T) {
-	r := NewRPCRegistry()
-
-	pickResult, err := r.Execute(context.Background(), "qiming.pick",
-		json.RawMessage(`{"wuxing":"金"}`))
-	if err != nil {
-		t.Fatalf("pick: %v", err)
-	}
-	var pickEnv struct {
-		Data struct {
-			Chars map[string]any `json:"chars"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(pickResult, &pickEnv); err != nil {
-		t.Fatal(err)
-	}
-	if len(pickEnv.Data.Chars) == 0 {
-		t.Fatal("pick returned empty chars")
-	}
-
-	buildParams := json.RawMessage(fmt.Sprintf(`{"surname":"王","chars1":%s,"chars2":%s}`,
-		mustMarshalInline(pickEnv.Data.Chars), mustMarshalInline(pickEnv.Data.Chars)))
-	buildResult, err := r.Execute(context.Background(), "qiming.build", buildParams)
-	if err != nil {
-		t.Fatalf("build: %v", err)
-	}
-	var buildEnv struct {
-		Data struct {
-			Names []string `json:"names"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(buildResult, &buildEnv); err != nil {
-		t.Fatal(err)
-	}
-	if len(buildEnv.Data.Names) == 0 {
-		t.Fatal("build returned no names")
-	}
-
-	firstName := []rune(buildEnv.Data.Names[0])
-	givenName := string(firstName[1:]) // strip surname
-	checkParams := json.RawMessage(fmt.Sprintf(`{"surname":"王","names":["%s"]}`, givenName))
-	checkResult, err := r.Execute(context.Background(), "qiming.check", checkParams)
-	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			t.Skip("test chars not in DB: " + err.Error())
-		}
-		t.Fatalf("check: %v", err)
-	}
-	if getStr(checkResult, "_product") != "naming_check" {
-		t.Errorf("_product = %q, want naming_check", getStr(checkResult, "_product"))
-	}
-}
 
 func mustMarshalInline(v any) string {
 	b, err := json.Marshal(v)

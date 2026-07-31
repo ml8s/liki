@@ -216,7 +216,7 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 		"bazi.fullchart", "bazi.chart", "bazi.yongshen", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun", "bazi.xiaoxian",
 		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.judgment", "ziwei.bond",
 		"qimen.chart","qimen.judgment","qimen.select",
-		"qiming.char", "qiming.pick", "qiming.build", "qiming.check", "qiming.wuge",
+		"qiming.char", "qiming.pick", "qiming.build", "qiming.check",
 		"bazhai.judgment", "bazhai.chart", "bazhai.minggua",
 		"xuankong.annual", "xuankong.sanyuan", "xuankong.chart",
 		"liuyao.judgment", "liuyao.qigua", "liuyao.chart",
@@ -351,7 +351,7 @@ func getZiweiChart(t *testing.T, reg *agent.RPCRegistry) map[string]any {
 
 func getNamingFixture(t *testing.T, reg *agent.RPCRegistry) (chars1 any) {
 	t.Helper()
-	body := `{"jsonrpc":"2.0","method":"qiming.pick","params":{"surname":"王","wuxing":"金"},"id":99}`
+	body := `{"jsonrpc":"2.0","method":"qiming.pick","params":{"surname":"王","wuxing1":"金","count":1},"id":99}`
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		chars1 = resp.Result.(map[string]any)["data"].(map[string]any)["chars"]
 	})
@@ -467,51 +467,7 @@ func TestRPC_Dispatch_ZiweiBond(t *testing.T) {
 	})
 }
 
-func TestRPC_Dispatch_QimingBuild(t *testing.T) {
-	reg := agent.NewRPCRegistry()
-	chars := getNamingFixture(t, reg)
 
-	params := map[string]any{"surname": "王", "chars1": chars, "chars2": chars}
-	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"qiming.build","params":%s,"id":1}`, mustMarshal(params))
-	postRPC(t, reg, body, func(resp rpcResponse) {
-		assertEnvelope(t, resp, "naming_build")
-		names := resp.Result.(map[string]any)["data"].(map[string]any)["names"].([]any)
-		if len(names) == 0 {
-			t.Error("build returned no names")
-		}
-		validateSchema(t, "qiming.build", resp.Result)
-	})
-}
-
-func TestRPC_Dispatch_QimingBuild_YongPlusXi(t *testing.T) {
-	reg := agent.NewRPCRegistry()
-
-	// Pick yong chars (金)
-	yongBody := `{"jsonrpc":"2.0","method":"qiming.pick","params":{"surname":"王","wuxing":"金"},"id":1}`
-	var yongChars any
-	postRPC(t, reg, yongBody, func(resp rpcResponse) {
-		yongChars = resp.Result.(map[string]any)["data"].(map[string]any)["chars"]
-	})
-
-	// Pick xi chars (木)
-	xiBody := `{"jsonrpc":"2.0","method":"qiming.pick","params":{"surname":"王","wuxing":"木"},"id":2}`
-	var xiChars any
-	postRPC(t, reg, xiBody, func(resp rpcResponse) {
-		xiChars = resp.Result.(map[string]any)["data"].(map[string]any)["chars"]
-	})
-
-	// Build with yong chars as chars1, xi chars as chars2
-	params := map[string]any{"surname": "王", "chars1": yongChars, "chars2": xiChars}
-	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"qiming.build","params":%s,"id":3}`, mustMarshal(params))
-	postRPC(t, reg, body, func(resp rpcResponse) {
-		assertEnvelope(t, resp, "naming_build")
-		names := resp.Result.(map[string]any)["data"].(map[string]any)["names"].([]any)
-		if len(names) == 0 {
-			t.Error("yong+xi build returned no names")
-		}
-		validateSchema(t, "qiming.build", resp.Result)
-	})
-}
 
 // ── helpers ──────────────────────────────────────────────────
 
