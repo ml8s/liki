@@ -121,9 +121,9 @@ func liuyaoJudgmentHandler(ctx context.Context, raw json.RawMessage) (json.RawMe
 func bazhaiJudgmentHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
 		Chart     json.RawMessage `json:"chart"`
-		DoorGua   int             `json:"door_gua"`
-		MasterGua int             `json:"master_gua"`
-		StoveGua  int             `json:"stove_gua"`
+		DoorGua   string          `json:"door_gua"`
+		MasterGua string          `json:"master_gua"`
+		StoveGua  string          `json:"stove_gua"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("bazhai.judgment: %w", err)
@@ -351,7 +351,7 @@ var otherMethods = []RPCMethod{	{
 	},
 	{
 		Name: "bazhai.judgment", Description: "八宅门主灶论断。分析门/主/灶与命卦配合吉凶。",
-		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object"},"door_gua":{"type":"integer"},"master_gua":{"type":"integer"},"stove_gua":{"type":"integer"}},"required":["chart","door_gua","master_gua","stove_gua"]}`),
+		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object"},"door_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"门卦"},"master_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"主卧卦"},"stove_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"灶卦"}},"required":["chart","door_gua","master_gua","stove_gua"]}`),
 		Handler: bazhaiJudgmentHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"group":{"type":"string"},"ming_gua_str":{"type":"string"},"door":{"type":"object","description":"门卦信息: gua_number,gua_name,wuxing,group(东四/西四),match(吉/凶)"},"master":{"type":"object","description":"主(卧室)八卦信息, 同door结构"},"stove":{"type":"object","description":"灶(厨房)卦信息, 同door结构"},"rating":{"type":"string"},"summary":{"type":"string"}},"required":["group","rating","summary"]}`),
 	},
@@ -364,7 +364,7 @@ var otherMethods = []RPCMethod{	{
 		Name: "bazhai.minggua", Description: "命卦查询。返回东四命/西四命 + 命卦 + 四吉四凶方。",
 		Params: mustSchema(`{"type":"object","properties":{"gender":` + schemaGender + `,"birth_year":{"type":"integer","description":"出生年份"}},"required":["gender","birth_year"]}`),
 		Handler: bazhaiMingguaHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"gua":{"type":"object","properties":{"index":{"type":"integer"},"name":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"yin_yang":{"type":"string","enum":["阳","阴"]}},"required":["index","name","wuxing","yin_yang"]},"gua_number":{"type":"integer"},"group":{"type":"string"}},"required":["gua","gua_number","group"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"gua":{"type":"object","properties":{"index":{"type":"integer","description":"洛书数1-9"},"name":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"卦名"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"yin_yang":{"type":"string","enum":["阳","阴"]}},"required":["index","name","wuxing","yin_yang"]},"group":{"type":"string"}},"required":["gua","group"]}`),
 	},
 	{
 		Name: "xuankong.annual", Description: "玄空流年飞星。返回每年入中星、各宫飞星分布、吉凶评级。",

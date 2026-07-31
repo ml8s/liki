@@ -46,7 +46,6 @@ func zhuNaJia(p ganzhi.Zhu) gua { return ganNaJia(p.Gan) }
 // MingGua is the 命卦 result.
 type MingGua struct {
 	Gua       gua    `json:"gua"`
-	GuaNumber int    `json:"gua_number"`
 	Group     string `json:"group"`
 }
 
@@ -66,7 +65,7 @@ func ComputeMingGua(gender ganzhi.Gender, birthYear int) MingGua {
 	if westGroup[n] {
 		group = "西四命"
 	}
-	return MingGua{Gua: g, GuaNumber: n, Group: group}
+	return MingGua{Gua: g, Group: group}
 }
 
 // Chart is the complete八宅合参 result.
@@ -82,7 +81,7 @@ func computeChart(bz ganzhi.Bazi, gender ganzhi.Gender, year int) Chart {
 	mg := ComputeMingGua(gender, year)
 	return Chart{
 		MingGua:    mg,
-		BaZhaiDirs: baZhaiDirectionsForGua(mg.GuaNumber),
+		BaZhaiDirs: baZhaiDirectionsForGua(mg.Gua.Index),
 		YearStars:  computeYearStars(year),
 		ZhuBagua: [4]gua{
 			zhuNaJia(bz.Nian),

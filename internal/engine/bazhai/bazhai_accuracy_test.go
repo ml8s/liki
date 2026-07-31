@@ -34,13 +34,13 @@ func TestComputeMingGua_WestGroupMembership(t *testing.T) {
 func TestComputeMingGua_ZhongGongRule(t *testing.T) {
 	// n=5: 男寄坤(2) 女寄艮(8)
 	mgMale := ComputeMingGua(ganzhi.Male, 1990) // n=5
-	if mgMale.GuaNumber != 2 || mgMale.Gua.Name != "坤" {
-		t.Errorf("男寄坤: got %d(%s), want 2(坤)", mgMale.GuaNumber, mgMale.Gua.Name)
+	if mgMale.Gua.Index != 2 || mgMale.Gua.Name != "坤" {
+		t.Errorf("男寄坤: got %d(%s), want 2(坤)", mgMale.Gua.Index, mgMale.Gua.Name)
 	}
 
 	mgFemale := ComputeMingGua(ganzhi.Female, 1982) // n=5
-	if mgFemale.GuaNumber != 8 || mgFemale.Gua.Name != "艮" {
-		t.Errorf("女寄艮: got %d(%s), want 8(艮)", mgFemale.GuaNumber, mgFemale.Gua.Name)
+	if mgFemale.Gua.Index != 8 || mgFemale.Gua.Name != "艮" {
+		t.Errorf("女寄艮: got %d(%s), want 8(艮)", mgFemale.Gua.Index, mgFemale.Gua.Name)
 	}
 }
 
@@ -146,8 +146,8 @@ func TestComputeMingGua(t *testing.T) {
 			if mg.Gua.Name != tt.wantName {
 				t.Errorf("Name = %s, want %s", mg.Gua.Name, tt.wantName)
 			}
-			if mg.GuaNumber != tt.wantNum {
-				t.Errorf("GuaNumber = %d, want %d", mg.GuaNumber, tt.wantNum)
+			if mg.Gua.Index != tt.wantNum {
+				t.Errorf("Gua.Index = %d, want %d", mg.Gua.Index, tt.wantNum)
 			}
 			if mg.Group != tt.wantGroup {
 				t.Errorf("Group = %s, want %s", mg.Group, tt.wantGroup)
@@ -222,9 +222,9 @@ func TestComputeMingGua_LowYearBoundary(t *testing.T) {
 	}
 	for _, tt := range tests {
 		mg := ComputeMingGua(tt.gender, tt.birthYear)
-		if mg.GuaNumber != tt.wantNum {
+		if mg.Gua.Index != tt.wantNum {
 			t.Errorf("%s %d: num=%d(%s), want %d(%s)",
-				tt.gender, tt.birthYear, mg.GuaNumber, mg.Gua.Name, tt.wantNum, tt.wantName)
+				tt.gender, tt.birthYear, mg.Gua.Index, mg.Gua.Name, tt.wantNum, tt.wantName)
 		}
 	}
 }
@@ -244,9 +244,9 @@ func TestComputeMingGua_FemaleHighYear(t *testing.T) {
 	}
 	for _, tt := range tests {
 		mg := ComputeMingGua(ganzhi.Female, tt.birthYear)
-		if mg.GuaNumber != tt.wantNum {
+		if mg.Gua.Index != tt.wantNum {
 			t.Errorf("female %d: num=%d(%s), want %d(%s)",
-				tt.birthYear, mg.GuaNumber, mg.Gua.Name, tt.wantNum, tt.wantName)
+				tt.birthYear, mg.Gua.Index, mg.Gua.Name, tt.wantNum, tt.wantName)
 		}
 	}
 }
@@ -257,8 +257,8 @@ func TestComputeMingGua_FemaleZhongGong(t *testing.T) {
 	tests := []int{1901, 1910, 1919, 1928, 1937, 1946, 1955, 1964, 1973, 1982, 1991}
 	for _, year := range tests {
 		mg := ComputeMingGua(ganzhi.Female, year)
-		if mg.GuaNumber != 8 || mg.Gua.Name != "艮" {
-			t.Errorf("female %d: got %d(%s), want 8(艮) — 中宫寄艮", year, mg.GuaNumber, mg.Gua.Name)
+		if mg.Gua.Index != 8 || mg.Gua.Name != "艮" {
+			t.Errorf("female %d: got %d(%s), want 8(艮) — 中宫寄艮", year, mg.Gua.Index, mg.Gua.Name)
 		}
 	}
 }
@@ -268,8 +268,8 @@ func TestComputeMingGua_MaleZhongGong(t *testing.T) {
 	tests := []int{1900, 1909, 1918, 1927, 1936, 1945, 1954, 1963, 1972, 1981, 1990, 1999, 2000, 2009}
 	for _, year := range tests {
 		mg := ComputeMingGua(ganzhi.Male, year)
-		if mg.GuaNumber != 2 || mg.Gua.Name != "坤" {
-			t.Errorf("male %d: got %d(%s), want 2(坤) — 中宫寄坤", year, mg.GuaNumber, mg.Gua.Name)
+		if mg.Gua.Index != 2 || mg.Gua.Name != "坤" {
+			t.Errorf("male %d: got %d(%s), want 2(坤) — 中宫寄坤", year, mg.Gua.Index, mg.Gua.Name)
 		}
 	}
 }

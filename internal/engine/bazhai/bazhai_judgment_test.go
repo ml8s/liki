@@ -5,10 +5,10 @@ import "testing"
 func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 	tests := []struct {
 		name      string
-		mingGua   int // 命卦
-		doorGua   int
-		masterGua int
-		stoveGua  int
+		mingGua string // 命卦
+		doorGua string
+		masterGua string
+		stoveGua string
 		wantGroup string // 东四宅/西四宅
 		wantDong  string // door match
 		wantZhu   string // master match
@@ -17,21 +17,21 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 		{
 			name: "东四命+东四门主灶→吉",
 			// 巽命(4, 东四), 坎门(1, 东四), 震主(3, 东四), 离灶(9, 东四)
-			mingGua: 4, doorGua: 1, masterGua: 3, stoveGua: 9,
+			mingGua: "巽", doorGua: "坎", masterGua: "震", stoveGua: "离",
 			wantGroup: "东四宅",
 			wantDong: "吉", wantZhu: "吉", wantZao: "吉",
 		},
 		{
 			name: "西四命+西四门主灶→吉",
 			// 乾命(6, 西四), 坤门(2, 西四), 兑主(7, 西四), 艮灶(8, 西四)
-			mingGua: 6, doorGua: 2, masterGua: 7, stoveGua: 8,
+			mingGua: "乾", doorGua: "坤", masterGua: "兑", stoveGua: "艮",
 			wantGroup: "西四宅",
 			wantDong: "吉", wantZhu: "吉", wantZao: "吉",
 		},
 		{
 			name: "西四命+东四门→凶",
 			// 乾命(6, 西四), 离门(9, 东四) → 不匹配
-			mingGua: 6, doorGua: 9, masterGua: 6, stoveGua: 6,
+			mingGua: "乾", doorGua: "离", masterGua: "乾", stoveGua: "乾",
 			wantGroup: "西四宅",
 			wantDong: "凶", wantZhu: "吉", wantZao: "吉",
 		},
@@ -39,7 +39,7 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			chart := Chart{
-				MingGua: MingGua{GuaNumber: tt.mingGua},
+				MingGua: MingGua{Gua: gua{Index: guaNameToNum(tt.mingGua), Name: tt.mingGua}},
 			}
 			result := ComputeJudgment(chart, tt.doorGua, tt.masterGua, tt.stoveGua)
 			if result.Group != tt.wantGroup {
@@ -67,9 +67,9 @@ func TestBazhaiJudgment_WuXingShengKe(t *testing.T) {
 	// 木(震3,巽4)→生→火(离9), 木(震3)→克→土(坤2)
 	tests := []struct {
 		name       string
-		doorGua    int
-		masterGua  int
-		stoveGua   int
+		doorGua string
+		masterGua string
+		stoveGua string
 		wantRating string // 吉=门生主匹配, 凶=主克灶
 	}{
 		{
@@ -79,7 +79,7 @@ func TestBazhaiJudgment_WuXingShengKe(t *testing.T) {
 			// Let's test: 门=坎(水), 主=震(木), 水→木: 门生主✅
 			// 坎命(1, 东四), 坎门(1, 水), 震主(3, 木), 离灶(9, 火)
 			// 门生主: 水生木✅, 主与灶: 木生火(主生灶也吉)
-			doorGua: 1, masterGua: 3, stoveGua: 9,
+			doorGua: "坎", masterGua: "震", stoveGua: "离",
 			wantRating: "吉",
 		},
 		{
@@ -89,7 +89,7 @@ func TestBazhaiJudgment_WuXingShengKe(t *testing.T) {
 			// 门生主: 火生木✅→加分
 			// 主克灶: 木克土✅→减分
 			// net: +1 match + 1 sheng - 1 ke = 1 → 平
-			doorGua: 9, masterGua: 3, stoveGua: 2,
+			doorGua: "离", masterGua: "震", stoveGua: "坤",
 			wantRating: "平",
 		},
 		{
@@ -100,7 +100,7 @@ func TestBazhaiJudgment_WuXingShengKe(t *testing.T) {
 			// net: -1 + 1 + 1 = +1 → 平
 			// 再加主克灶: 金克木?灶=艮土, 金克木(不对), 土生金→吉
 			// 木克土?不对, 主=兑金, 灶=艮土, 土生金(主被灶生→吉)
-			doorGua: 9, masterGua: 7, stoveGua: 8,
+			doorGua: "离", masterGua: "兑", stoveGua: "艮",
 			wantRating: "平",
 		},
 	}
@@ -108,7 +108,7 @@ func TestBazhaiJudgment_WuXingShengKe(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			chart := Chart{
-				MingGua: MingGua{GuaNumber: 1}, // 坎命东四宅
+				MingGua: MingGua{Gua: gua{Index: 1, Name: "坎"}}, // 坎命东四宅
 			}
 			result := ComputeJudgment(chart, tt.doorGua, tt.masterGua, tt.stoveGua)
 			if result.Rating != tt.wantRating {

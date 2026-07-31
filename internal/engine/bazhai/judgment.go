@@ -13,7 +13,6 @@ type JudgmentResult struct {
 }
 
 type doorStoveInfo struct {
-	GuaNumber int    `json:"gua_number"`
 	GuaName   string `json:"gua_name"`
 	Wuxing    string `json:"wuxing"`
 	Group     string `json:"group"` // 东四/西四
@@ -21,19 +20,29 @@ type doorStoveInfo struct {
 }
 
 var guaNames = [10]string{"", "坎", "坤", "震", "巽", "中", "乾", "兑", "艮", "离"}
+
+// guaNameToNum maps 卦名 to 洛书数 (1-9).
+func guaNameToNum(name string) int {
+	for i, n := range guaNames {
+		if n == name {
+			return i
+		}
+	}
+	return 0
+}
 var guaWuxing = [10]string{"", "水", "土", "木", "木", "土", "金", "金", "土", "火"}
 var dongSiGua = map[int]bool{1: true, 3: true, 4: true, 9: true}  // 坎震巽离
 var xiSiGua  = map[int]bool{2: true, 6: true, 7: true, 8: true}  // 坤乾兑艮
 
 // ComputeJudgment analyzes 门主灶 in八宅风水.
-func ComputeJudgment(chart Chart, doorGua, masterGua, stoveGua int) JudgmentResult {
-	mg := chart.MingGua.GuaNumber
+func ComputeJudgment(chart Chart, doorGua, masterGua, stoveGua string) JudgmentResult {
+	mg := guaNameToNum(chart.MingGua.Gua.Name)
 	mgGroup := "东四宅"
 	if xiSiGua[mg] { mgGroup = "西四宅" }
 
-	door := evalPosition(doorGua, mg)
-	master := evalPosition(masterGua, mg)
-	stove := evalPosition(stoveGua, mg)
+	door := evalPosition(guaNameToNum(doorGua), mg)
+	master := evalPosition(guaNameToNum(masterGua), mg)
+	stove := evalPosition(guaNameToNum(stoveGua), mg)
 
 	// 综合评定
 	score := 0
@@ -42,11 +51,11 @@ func ComputeJudgment(chart Chart, doorGua, masterGua, stoveGua int) JudgmentResu
 	if stove.Match == "吉" { score++ }
 
 	// 门生主
-	if guaWuxing[doorGua] == guaWuxing[masterGua] || wuxingSheng(guaWuxing[doorGua], guaWuxing[masterGua]) {
+	if guaWuxing[guaNameToNum(doorGua)] == guaWuxing[guaNameToNum(masterGua)] || wuxingSheng(guaWuxing[guaNameToNum(doorGua)], guaWuxing[guaNameToNum(masterGua)]) {
 		score++
 	}
 	// 主克灶为凶
-	if wuxingKe(guaWuxing[masterGua], guaWuxing[stoveGua]) {
+	if wuxingKe(guaWuxing[guaNameToNum(masterGua)], guaWuxing[guaNameToNum(stoveGua)]) {
 		score--
 	}
 
@@ -78,7 +87,6 @@ func evalPosition(guaNum, mingGua int) doorStoveInfo {
 	match := "凶"
 	if isMatch { match = "吉" }
 	return doorStoveInfo{
-		GuaNumber: guaNum,
 		GuaName:   guaNames[guaNum],
 		Wuxing:    guaWuxing[guaNum],
 		Group:     group,

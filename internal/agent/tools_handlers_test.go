@@ -1457,7 +1457,7 @@ func TestHandler_BazhaiJudgment_Valid(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"chart":%s,"door_gua":1,"master_gua":2,"stove_gua":3}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"chart":%s,"door_gua":"坎","master_gua":"坤","stove_gua":"震"}`, env.Data))
 	_, err = r.Execute(context.Background(), "bazhai.judgment", params)
 	if err != nil {
 		t.Fatalf("bazhai.judgment: %v", err)
