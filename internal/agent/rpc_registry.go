@@ -50,8 +50,16 @@ type RPCRegistry struct {
 	methods map[string]*RPCMethod
 	names   []string // registration order preserved for deterministic output
 
+	version     string
 	openrpcOnce sync.Once
 	openrpcDoc  json.RawMessage
+}
+
+// SetVersion sets the engine version reported in the OpenRPC document.
+// Called once at startup from the main package (BuildTime / VERSION file).
+func (r *RPCRegistry) SetVersion(v string) {
+	r.version = v
+	r.openrpcOnce = sync.Once{} // reset cache so the doc is rebuilt with the new version
 }
 
 // NewRPCRegistry creates a registry with all 33 external compute methods.

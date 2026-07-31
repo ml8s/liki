@@ -52,7 +52,7 @@ func (r *RPCRegistry) OpenRPCDocument() json.RawMessage {
 			OpenRPC: "1.4.1",
 			Info: openRPCInfo{
 				Title:       "liki.hk JSON-RPC API",
-				Version:     "2.2.0",
+				Version:     r.version,
 				Description: "liki.hk Metaphysics Engine — 38 命理 API，让 AI agent 直接调用",
 			},
 			Methods: methods,

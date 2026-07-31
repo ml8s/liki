@@ -33,6 +33,7 @@ func main() {
 
 	// Setup JSON-RPC registry
 	rpcReg := agent.NewRPCRegistry()
+	rpcReg.SetVersion(BuildTime)
 
 	// Setup HTTP with rate limiter
 	rateLimiter := apphttp.NewRateLimiter()
