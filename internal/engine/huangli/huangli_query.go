@@ -22,9 +22,6 @@ type Day struct {
 	NaYin    string `json:"nayin"`
 	Wuxing   string `json:"wuxing"`
 	JianChu    string            `json:"jian_chu"`
-	Suitable   bool              `json:"suitable"`
-	Marks      []string          `json:"marks"`
-	Warnings   []string          `json:"warnings"`
 	HuangDao   huangDaoStar      `json:"huangdao"`
 	XiShen      string          `json:"xi_shen"`
 	CaiShen     string          `json:"cai_shen"`
@@ -54,7 +51,7 @@ func renYuanName(ry renYuanSiLing) string {
 }
 
 // QueryDate returns huangli info for a single date.
-func QueryDate(dateStr string, eventType string) (Day, error) {
+func QueryDate(dateStr string) (Day, error) {
 	t, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
 		return Day{}, fmt.Errorf("huangli: parse date %s: %w", dateStr, err)
@@ -84,15 +81,12 @@ func QueryDate(dateStr string, eventType string) (Day, error) {
 	}
 
 	entry.ShiChen = computeShiChen(dpi.Zhi, monthBranch, entry.JianChu)
-	if eventType != "" {
-		entry.Suitable, entry.Marks, entry.Warnings = jianChuSuitable(entry.JianChu, eventType)
-	}
 
 	return entry, nil
 }
 
 // QueryMonth returns huangli entries for every day in the given month.
-func QueryMonth(yearMonth string, eventType string) (Month, error) {
+func QueryMonth(yearMonth string) (Month, error) {
 	t, err := time.Parse("2006-01", yearMonth)
 	if err != nil {
 		return Month{}, fmt.Errorf("huangli: parse year-month %s: %w", yearMonth, err)
@@ -104,7 +98,7 @@ func QueryMonth(yearMonth string, eventType string) (Month, error) {
 	var days []Day
 	for d := 1; d <= daysInMonth; d++ {
 		dateStr := fmt.Sprintf("%04d-%02d-%02d", year, month, d)
-		entry, err := QueryDate(dateStr, eventType)
+		entry, err := QueryDate(dateStr)
 		if err != nil {
 			return Month{}, err
 		}

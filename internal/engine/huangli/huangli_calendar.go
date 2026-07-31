@@ -69,33 +69,7 @@ func lookupJianChu(t time.Time) string {
 	return jianChuCfg.Sequence[offset]
 }
 
-// jianChuSuitable checks if the jianchu god is suitable for the event type.
-func jianChuSuitable(jianChu, eventType string) (suitable bool, marks []string, warnings []string) {
-	rule, ok := jianChuCfg.EventRules[eventType]
-	if !ok {
-		return true, nil, nil
-	}
 
-	for _, s := range rule.Suitable {
-		if jianChu == s {
-			suitable = true
-			marks = append(marks, jianChu+"日宜"+rule.Label)
-			break
-		}
-	}
-	for _, f := range rule.Forbidden {
-		if jianChu == f {
-			suitable = false
-			if f == "破" {
-				warnings = append(warnings, "破日，万事不宜")
-			} else {
-				warnings = append(warnings, jianChu+"日忌"+rule.Label)
-			}
-			break
-		}
-	}
-	return suitable, marks, warnings
-}
 // evaluateZhi checks the branch relationship and returns marks/warnings.
 func evaluateZhi(dayZhi, refZhi ganzhi.Zhi, label string) (relation string, marks []string, warnings []string) {
 	switch {

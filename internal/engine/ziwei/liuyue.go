@@ -18,7 +18,7 @@ type LiuYue struct {
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]int `json:"stars,omitempty"`
+	Stars        map[string]Zhi `json:"stars,omitempty"`
 }
 
 func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
@@ -41,19 +41,20 @@ func liuYueSiHua(lunarMonth int, liuYearGan Gan) siHuaResult {
 	return computeSiHua(monthGan)
 }
 
-func liuYueStars(gan Gan, zhi Zhi) map[string]int {
+func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
-	m := map[string]int{
-		"月禄": luCunPos(gan),
-		"月羊": qingYangPos(gan),
-		"月陀": tuoLuoPos(gan),
-		"月魁": tianKuiPos(gan),
-		"月钺": tianYuePos(gan),
-		"月马": tianMaPos(zhi),
-		"月鸾": hongLuanPos(zhi),
-		"月喜": (hongLuanPos(zhi) + 6) % 12,
-		"月昌": chg,
-		"月曲": qu,
+	toZhi := func(zhiMinus1 int) Zhi { return Zhi(zhiMinus1 + 1) }
+	m := map[string]Zhi{
+		"月禄": toZhi(luCunPos(gan)),
+		"月羊": toZhi(qingYangPos(gan)),
+		"月陀": toZhi(tuoLuoPos(gan)),
+		"月魁": toZhi(tianKuiPos(gan)),
+		"月钺": toZhi(tianYuePos(gan)),
+		"月马": toZhi(tianMaPos(zhi)),
+		"月鸾": toZhi(hongLuanPos(zhi)),
+		"月喜": toZhi((hongLuanPos(zhi) + 6) % 12),
+		"月昌": toZhi(chg),
+		"月曲": toZhi(qu),
 	}
 	return m
 }
@@ -65,7 +66,7 @@ type LiuRi struct {
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]int `json:"stars,omitempty"`
+	Stars        map[string]Zhi `json:"stars,omitempty"`
 }
 
 func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
@@ -81,19 +82,20 @@ func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
 	}
 }
 
-func liuRiStars(gan Gan, zhi Zhi) map[string]int {
+func liuRiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
-	m := map[string]int{
-		"日禄": luCunPos(gan),
-		"日羊": qingYangPos(gan),
-		"日陀": tuoLuoPos(gan),
-		"日魁": tianKuiPos(gan),
-		"日钺": tianYuePos(gan),
-		"日马": tianMaPos(zhi),
-		"日鸾": hongLuanPos(zhi),
-		"日喜": (hongLuanPos(zhi) + 6) % 12,
-		"日昌": chg,
-		"日曲": qu,
+	toZhi := func(zhiMinus1 int) Zhi { return Zhi(zhiMinus1 + 1) }
+	m := map[string]Zhi{
+		"日禄": toZhi(luCunPos(gan)),
+		"日羊": toZhi(qingYangPos(gan)),
+		"日陀": toZhi(tuoLuoPos(gan)),
+		"日魁": toZhi(tianKuiPos(gan)),
+		"日钺": toZhi(tianYuePos(gan)),
+		"日马": toZhi(tianMaPos(zhi)),
+		"日鸾": toZhi(hongLuanPos(zhi)),
+		"日喜": toZhi((hongLuanPos(zhi) + 6) % 12),
+		"日昌": toZhi(chg),
+		"日曲": toZhi(qu),
 	}
 	return m
 }
@@ -109,7 +111,7 @@ type LiuShi struct {
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]int `json:"stars,omitempty"`
+	Stars        map[string]Zhi `json:"stars,omitempty"`
 }
 
 func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) LiuShi {
@@ -125,19 +127,20 @@ func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) L
 	}
 }
 
-func liuShiStars(gan Gan, zhi Zhi) map[string]int {
+func liuShiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
-	m := map[string]int{
-		"时禄": luCunPos(gan),
-		"时羊": qingYangPos(gan),
-		"时陀": tuoLuoPos(gan),
-		"时魁": tianKuiPos(gan),
-		"时钺": tianYuePos(gan),
-		"时马": tianMaPos(zhi),
-		"时鸾": hongLuanPos(zhi),
-		"时喜": (hongLuanPos(zhi) + 6) % 12,
-		"时昌": chg,
-		"时曲": qu,
+	toZhi := func(zhiMinus1 int) Zhi { return Zhi(zhiMinus1 + 1) }
+	m := map[string]Zhi{
+		"时禄": toZhi(luCunPos(gan)),
+		"时羊": toZhi(qingYangPos(gan)),
+		"时陀": toZhi(tuoLuoPos(gan)),
+		"时魁": toZhi(tianKuiPos(gan)),
+		"时钺": toZhi(tianYuePos(gan)),
+		"时马": toZhi(tianMaPos(zhi)),
+		"时鸾": toZhi(hongLuanPos(zhi)),
+		"时喜": toZhi((hongLuanPos(zhi) + 6) % 12),
+		"时昌": toZhi(chg),
+		"时曲": toZhi(qu),
 	}
 	return m
 }

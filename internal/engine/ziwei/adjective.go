@@ -77,17 +77,7 @@ var liushiJiaZi = [10][12]int{
 	{-1, 50, -1, 40, -1, 30, -1, 20, -1, 10, -1, 60},
 }
 
-func xunKongZhiMinus1(riGan, riZhi, soulIdx int, isMale bool, nianZhi Zhi) int {
-	// Standard六十甲子 index for the日柱
-	idx := liushiJiaZi[riGan-1][riZhi-1]
-	if idx < 1 { return 0 }
-	xunHao := (idx - 1) / 10
-	xunKongZhi := (10 - 2*xunHao + 12) % 12
-	if isMale {
-		xunKongZhi = (11 - 2*xunHao + 12) % 12
-	}
-	return displayToZhiMinus1((xunKongZhi + soulIdx) % 12)
-}
+
 
 // xunKongNianXi computes 旬空 using year-stem-branch formula (iztro年系).
 func xunKongNianXi(nianZhi Zhi, nianGan Gan) int {

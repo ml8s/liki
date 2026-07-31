@@ -22,7 +22,7 @@ type BondMonth struct {
 
 func computeBondDay(bz ganzhi.Bazi, eventType string, dateStr string) (BondDay, error) {
 	riYuan, dayBranch := bz.Ri.Gan, bz.Ri.Zhi
-	dayEntry, err := QueryDate(dateStr, eventType)
+	dayEntry, err := QueryDate(dateStr)
 	if err != nil { return BondDay{}, err }
 	dayStem := dayEntry.RiZhu.Gan
 	dayZhi := dayEntry.RiZhu.Zhi
@@ -35,7 +35,7 @@ func computeBondDay(bz ganzhi.Bazi, eventType string, dateStr string) (BondDay, 
 
 func computeBondMonth(bz ganzhi.Bazi, eventType string, yearMonth string) (BondMonth, error) {
 	riYuan, dayBranch := bz.Ri.Gan, bz.Ri.Zhi
-	m, err := QueryMonth(yearMonth, eventType)
+	m, err := QueryMonth(yearMonth)
 	if err != nil { return BondMonth{}, err }
 	t, _ := time.Parse("2006-01", yearMonth) //nolint:errcheck
 	taiSui := taiSui(t.Year())

@@ -141,9 +141,6 @@ func FuzzParseShiShen(f *testing.F) {
 
 func FuzzShiShenUnmarshalJSON(f *testing.F) {
 	f.Add([]byte(`"比肩"`))
-	f.Add([]byte(`1`))
-	f.Add([]byte(`11`))
-	f.Add([]byte(`-1`))
 	f.Add([]byte(`"invalid"`))
 	f.Add([]byte(`null`))
 

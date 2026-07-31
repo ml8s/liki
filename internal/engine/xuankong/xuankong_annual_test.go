@@ -5,16 +5,16 @@ import "testing"
 func TestComputeAnnual_RuZhong(t *testing.T) {
 	tests := []struct {
 		year     int
-		wantRZ   int  // expected 入中星
+		wantRZ   Star9Index  // expected 入中星
 	}{
-		{year: 1984, wantRZ: 6}, // 1984: 84+84/4=84+21=105, 105%9=6? 
+		{year: 1984, wantRZ: Star9Index(6)}, // 1984: 84+84/4=84+21=105, 105%9=6? 
 		// Actually let me check: 1984: 84/4=21. 84+21=105. 105%9=6. But 6%9=6, not 0. So 入中=6.
 		// Alternative formula: 入中 = (year_suffix + year_suffix/4) % 9
 		// 1984: 84 + 21 = 105. 105 % 9 = 6. 入中=6.
-		{year: 2024, wantRZ: 3}, // 24+6=30, 30%9=3
-		{year: 2025, wantRZ: 4}, // 25+6=31, 31%9=4
-		{year: 2026, wantRZ: 5}, // 26+6=32, 32%9=5
-		{year: 2000, wantRZ: 9}, // 0+0=0 → 9? Actually 0+0=0, 0%9=0 → wantRZ should be 9
+		{year: 2024, wantRZ: Star9Index(3)}, // 24+6=30, 30%9=3
+		{year: 2025, wantRZ: Star9Index(4)}, // 25+6=31, 31%9=4
+		{year: 2026, wantRZ: Star9Index(5)}, // 26+6=32, 32%9=5
+		{year: 2000, wantRZ: Star9Index(9)}, // 0+0=0 → 9? Actually 0+0=0, 0%9=0 → wantRZ should be 9
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {

@@ -125,7 +125,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			for sName, zhiM1 := range tc.Mstars {
-				if v, ok := ly.Stars[sName]; !ok || v != zhiM1 {
+				if v, ok := ly.Stars[sName]; !ok || int(v)-1 != zhiM1 {
 					t.Errorf("流月星%s: got %d want %d", sName, v, zhiM1)
 				}
 			}
@@ -139,7 +139,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			for sName, zhiM1 := range tc.Dstars {
-				if v, ok := lr.Stars[sName]; !ok || v != zhiM1 {
+				if v, ok := lr.Stars[sName]; !ok || int(v)-1 != zhiM1 {
 					t.Errorf("流日星%s: got %d want %d", sName, v, zhiM1)
 				}
 			}
@@ -153,7 +153,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			for sName, zhiM1 := range tc.Hstars {
-				if v, ok := ls.Stars[sName]; !ok || v != zhiM1 {
+				if v, ok := ls.Stars[sName]; !ok || int(v)-1 != zhiM1 {
 					t.Errorf("流时星%s: got %d want %d", sName, v, zhiM1)
 				}
 			}

@@ -4,87 +4,86 @@
     "yin_dun": true,
     "ri_gan": "癸",
     "ri_zhi": "酉",
-    "duty_star": 1,
-    "duty_door": 1,
+    "duty_star": "天蓬",
+    "duty_door": "休门",
     "palaces": [
       {
         "earth_stem": "癸",
         "heaven_stem": "己",
-        "star": 5,
-        "door": 2,
+        "star": "天禽",
+        "door": "生门",
         "spirit": 5,
         "hidden_stem": "己"
       },
       {
         "earth_stem": "壬",
         "heaven_stem": "戊",
-        "star": 6,
-        "door": 3,
+        "star": "天心",
+        "door": "伤门",
         "spirit": 4,
         "hidden_stem": "庚"
       },
       {
         "earth_stem": "辛",
         "heaven_stem": "乙",
-        "star": 7,
-        "door": 4,
+        "star": "天柱",
+        "door": "杜门",
         "spirit": 3,
         "hidden_stem": "辛"
       },
       {
         "earth_stem": "庚",
         "heaven_stem": "丙",
-        "star": 8,
-        "door": 5,
+        "star": "天任",
+        "door": "景门",
         "spirit": 2,
         "hidden_stem": "壬"
       },
       {
         "earth_stem": "己",
         "heaven_stem": "丁",
-        "star": 9,
-        "door": 0,
+        "star": "天英",
         "spirit": 0
       },
       {
         "earth_stem": "戊",
         "heaven_stem": "癸",
-        "star": 1,
-        "door": 6,
+        "star": "天蓬",
+        "door": "死门",
         "spirit": 1,
         "hidden_stem": "乙"
       },
       {
         "earth_stem": "乙",
         "heaven_stem": "壬",
-        "star": 2,
-        "door": 7,
+        "star": "天芮",
+        "door": "惊门",
         "spirit": 8,
         "hidden_stem": "丙"
       },
       {
         "earth_stem": "丙",
         "heaven_stem": "辛",
-        "star": 3,
-        "door": 8,
+        "star": "天冲",
+        "door": "开门",
         "spirit": 7,
         "hidden_stem": "丁"
       },
       {
         "earth_stem": "丁",
         "heaven_stem": "庚",
-        "star": 4,
-        "door": 1,
+        "star": "天辅",
+        "door": "休门",
         "spirit": 6,
         "hidden_stem": "戊"
       }
     ],
-    "ma_xing": 2,
+    "ma_xing": "坤",
     "drive_gan": "戊",
     "drive_zhi": "午",
     "kong_wang": [
-      1,
-      8
+      "坎",
+      "艮"
     ],
     "wu_bu_yu_shi": false
   },
@@ -155,56 +154,54 @@
   ],
   "door_interactions": [
     {
-      "door": 2,
-      "palace": 1,
+      "door": "生门",
+      "palace": "坎",
       "name": "生门加坎",
       "meaning": "利水生之财，或酒食之利"
     },
     {
-      "door": 3,
-      "palace": 2,
+      "door": "伤门",
+      "palace": "坤",
       "name": "伤加坤",
       "meaning": "凶门当位，行事多阻"
     },
     {
-      "door": 4,
-      "palace": 3,
+      "door": "杜门",
+      "palace": "震",
       "name": "杜加震",
       "meaning": "中平之门，需择时而行"
     },
     {
-      "door": 5,
-      "palace": 4,
+      "door": "景门",
+      "palace": "巽",
       "name": "景加巽",
       "meaning": "中平之门，需择时而行"
     },
     {
-      "door": 0,
-      "palace": 0,
       "name": "",
       "meaning": ""
     },
     {
-      "door": 6,
-      "palace": 6,
+      "door": "死门",
+      "palace": "乾",
       "name": "死门加乾",
       "meaning": "尊长有灾，出行不利"
     },
     {
-      "door": 7,
-      "palace": 7,
+      "door": "惊门",
+      "palace": "兑",
       "name": "惊门入兑",
       "meaning": "口舌之灾，宜捕盗赌博"
     },
     {
-      "door": 8,
-      "palace": 8,
+      "door": "开门",
+      "palace": "艮",
       "name": "开门加艮",
       "meaning": "山门之利，求财可得"
     },
     {
-      "door": 1,
-      "palace": 9,
+      "door": "休门",
+      "palace": "离",
       "name": "休门加离",
       "meaning": "和合得财，文书酒食"
     }
@@ -276,55 +273,55 @@
   ],
   "wang_shuai": [
     {
-      "star": 5,
-      "palace": 1,
+      "star": "天禽",
+      "palace": "坎",
       "state": "囚"
     },
     {
-      "star": 6,
-      "palace": 2,
+      "star": "天心",
+      "palace": "坤",
       "state": "相"
     },
     {
-      "star": 7,
-      "palace": 3,
+      "star": "天柱",
+      "palace": "震",
       "state": "囚"
     },
     {
-      "star": 8,
-      "palace": 4,
+      "star": "天任",
+      "palace": "巽",
       "state": "废"
     },
     {
-      "star": 9,
-      "palace": 5,
+      "star": "天英",
+      "palace": "中",
       "state": "休"
     },
     {
-      "star": 1,
-      "palace": 6,
+      "star": "天蓬",
+      "palace": "乾",
       "state": "相"
     },
     {
-      "star": 2,
-      "palace": 7,
+      "star": "天芮",
+      "palace": "兑",
       "state": "休"
     },
     {
-      "star": 3,
-      "palace": 8,
+      "star": "天冲",
+      "palace": "艮",
       "state": "囚"
     },
     {
-      "star": 4,
-      "palace": 9,
+      "star": "天辅",
+      "palace": "离",
       "state": "休"
     }
   ],
   "men_po": [
-    1,
-    2,
-    9
+    "坎",
+    "坤",
+    "离"
   ],
   "men_zhi": null,
   "patterns": [
@@ -333,7 +330,7 @@
       "description": "值使门宫有丁，百事大吉",
       "auspicious": true,
       "palaces": [
-        9
+        "离"
       ]
     },
     {

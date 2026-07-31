@@ -94,6 +94,22 @@ type FullChart struct {
 	Shi    fullZhuInfo   `json:"shi"`
 	DaYun  *DaYun        `json:"da_yun"`
 	Gender ganzhi.Gender `json:"gender"`
+
+	// 补充信息（原 bazi.chart_extra）
+	SanYuan    SanYuan           `json:"san_yuan"`
+	GongJia    []GongJia         `json:"gong_jia"`
+	NayinRel   []NayinRelEntry   `json:"nayin_rel"`
+	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
+	SanQiName  string            `json:"san_qi_name"`
+
+	// 合会冲刑（原 bazi.hehui）
+	GanHe    []GanHePair   `json:"gan_he"`
+	ZhiLiuHe []ZhiPairRel  `json:"zhi_liu_he"`
+	SanHe    []TripleGroup `json:"san_he"`
+	SanHui   []TripleGroup `json:"san_hui"`
+	LiuChong []ZhiPairRel  `json:"liu_chong"`
+	LiuHai   []ZhiPairRel  `json:"liu_hai"`
+	LiuXing  []ZhiPairRel  `json:"liu_xing"`
 }
 
 func (c FullChart) ToBazi() ganzhi.Bazi {

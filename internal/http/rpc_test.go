@@ -213,14 +213,14 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 
 	expected := []string{
 		"rpc.discover",
-		"bazi.fullchart", "bazi.chart", "bazi.yongshen", "bazi.hehui", "bazi.chart_extra", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun", "bazi.xiaoxian",
+		"bazi.fullchart", "bazi.chart", "bazi.yongshen", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun", "bazi.xiaoxian",
 		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.judgment", "ziwei.bond",
 		"qimen.chart","qimen.judgment","qimen.select",
 		"qiming.char", "qiming.pick", "qiming.build", "qiming.check", "qiming.wuge",
 		"bazhai.judgment", "bazhai.chart", "bazhai.minggua",
 		"xuankong.annual", "xuankong.sanyuan", "xuankong.chart",
 		"liuyao.judgment", "liuyao.qigua", "liuyao.chart",
-		"huangli.date", "huangli.month", "huangli.bond.date", "huangli.bond.month",
+		"huangli.days",
 		"city", "time.now", "tianwen.time",
 	}
 	for _, name := range expected {

@@ -1,6 +1,11 @@
 package qimen
 
-import "liki-engine/internal/engine/ganzhi"
+import (
+	"encoding/json"
+	"fmt"
+
+	"liki-engine/internal/engine/ganzhi"
+)
 
 // PalaceIndex is a 洛书九宫 index. 1-9 map to:
 //
@@ -32,6 +37,24 @@ func (p PalaceIndex) String() string {
 	return "?"
 }
 
+func (p PalaceIndex) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.String())
+}
+
+func (p *PalaceIndex) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("palace must be a string, got %s", string(data))
+	}
+	for i, name := range palaceNames {
+		if i > 0 && name == s {
+			*p = PalaceIndex(i)
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown palace: %q", s)
+}
+
 // StarIndex represents one of the 九星 (nine stars).
 type StarIndex int
 
@@ -56,6 +79,24 @@ func (s StarIndex) String() string {
 	return "?"
 }
 
+func (s StarIndex) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+func (s *StarIndex) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return fmt.Errorf("star must be a string (e.g. \"天蓬\"), got %s", string(data))
+	}
+	for i, n := range starNames {
+		if i > 0 && n == name {
+			*s = StarIndex(i)
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown star: %q", name)
+}
+
 // DoorIndex represents one of the 八门 (eight doors).
 type DoorIndex int
 
@@ -77,6 +118,29 @@ func (d DoorIndex) String() string {
 		return doorNames[d]
 	}
 	return "?"
+}
+
+func (d DoorIndex) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.String() + "门")
+}
+
+func (d *DoorIndex) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return fmt.Errorf("door must be a string (e.g. \"休门\"), got %s", string(data))
+	}
+	// strip trailing "门" (3 bytes) if present
+	base := name
+	if len(name) >= 3 && name[len(name)-3:] == "门" {
+		base = name[:len(name)-3]
+	}
+	for i, n := range doorNames {
+		if i > 0 && n == base {
+			*d = DoorIndex(i)
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown door: %q", name)
 }
 
 // SpiritIndex represents one of the 八神 (eight spirits).
@@ -115,8 +179,8 @@ func (s SpiritIndex) YinName() string {
 type Palace struct {
 	EarthStem  ganzhi.Gan  `json:"earth_stem"`
 	HeavenStem ganzhi.Gan  `json:"heaven_stem"`
-	Star       StarIndex   `json:"star"`
-	Door       DoorIndex   `json:"door"`
+	Star       StarIndex   `json:"star,omitempty"`
+	Door       DoorIndex   `json:"door,omitempty"`
 	Spirit     SpiritIndex `json:"spirit"`
 	HiddenStem ganzhi.Gan  `json:"hidden_stem,omitempty"`
 }
@@ -161,8 +225,8 @@ type StemInteraction struct {
 
 // DoorInteraction represents an 八门克应 for a door in a specific palace.
 type DoorInteraction struct {
-	Door      DoorIndex `json:"door"`
-	Palace    PalaceIndex `json:"palace"`
+	Door      DoorIndex   `json:"door,omitempty"`
+	Palace    PalaceIndex `json:"palace,omitempty"`
 	Name      string    `json:"name"`
 	Meaning   string    `json:"meaning"`
 }

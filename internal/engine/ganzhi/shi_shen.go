@@ -39,23 +39,15 @@ func (tg ShiShen) MarshalJSON() ([]byte, error) {
 
 func (tg *ShiShen) UnmarshalJSON(data []byte) error {
 	var name string
-	if err := json.Unmarshal(data, &name); err == nil {
-		parsed, err := ParseShiShen(name)
-		if err != nil {
-			return fmt.Errorf("unknown shishen: %q", name)
-		}
-		*tg = parsed
-		return nil
+	if err := json.Unmarshal(data, &name); err != nil {
+		return fmt.Errorf("shishen must be a string, got %s", string(data))
 	}
-	var i int
-	if err := json.Unmarshal(data, &i); err == nil {
-		if i < 0 || i > int(ShiShenZhengYin) {
-			return fmt.Errorf("shishen value %d out of range [0,9]", i)
-		}
-		*tg = ShiShen(i)
-		return nil
+	parsed, err := ParseShiShen(name)
+	if err != nil {
+		return fmt.Errorf("unknown shishen: %q", name)
 	}
-	return fmt.Errorf("cannot unmarshal %q as ShiShen", string(data))
+	*tg = parsed
+	return nil
 }
 
 // ParseShiShen converts a Chinese ten-god name to a ShiShen value.

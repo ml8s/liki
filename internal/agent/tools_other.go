@@ -271,80 +271,30 @@ func liuyaoChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 
 // ── huangli ──
 
-func huangliDateHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+func huangliDaysHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		Date  string `json:"date"`
-		Event string `json:"event"`
+		StartDate string `json:"start_date"`
+		Count     int    `json:"count"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("huangli.date: %w", err)
+		return nil, fmt.Errorf("huangli.days: %w", err)
 	}
-	if p.Event == "" {
-		return nil, fmt.Errorf("huangli.date: event is required")
-	}
-	result, err := huangli.QueryDate(p.Date, p.Event)
+	start, err := time.Parse("2006-01-02", p.StartDate)
 	if err != nil {
-		return nil, fmt.Errorf("huangli.date: %w", err)
+		return nil, fmt.Errorf("huangli.days: parse date: %w", err)
 	}
-	return wrapResult("huangli_date", result)
-}
-
-func huangliMonthHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Month string `json:"month"`
-		Event string `json:"event"`
+	if p.Count < 1 { p.Count = 3 }
+	if p.Count > 30 { p.Count = 30 }
+	days := make([]huangli.Day, 0, p.Count)
+	for i := 0; i < p.Count; i++ {
+		dateStr := start.AddDate(0, 0, i).Format("2006-01-02")
+		entry, err := huangli.QueryDate(dateStr)
+		if err != nil {
+			return nil, fmt.Errorf("huangli.days: %w", err)
+		}
+		days = append(days, entry)
 	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("huangli.month: %w", err)
-	}
-	if p.Event == "" {
-		return nil, fmt.Errorf("huangli.month: event is required")
-	}
-	result, err := huangli.QueryMonth(p.Month, p.Event)
-	if err != nil {
-		return nil, fmt.Errorf("huangli.month: %w", err)
-	}
-	return wrapResult("huangli_month", result)
-}
-
-func huangliBondDateHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		SolarTime string `json:"solar_time"`
-		EventType string `json:"event_type"`
-		Date      string `json:"date"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("huangli.bond.date: %w", err)
-	}
-	st, err := parseSolarTime(p.SolarTime)
-	if err != nil {
-		return nil, fmt.Errorf("huangli.bond.date: %w", err)
-	}
-	result, err := huangli.ComputeBondDay(st, p.EventType, p.Date)
-	if err != nil {
-		return nil, fmt.Errorf("huangli.bond.date: %w", err)
-	}
-	return wrapResult("huangli_bond_date", result)
-}
-
-func huangliBondMonthHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		SolarTime string `json:"solar_time"`
-		EventType string `json:"event_type"`
-		Month     string `json:"month"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("huangli.bond.month: %w", err)
-	}
-	st, err := parseSolarTime(p.SolarTime)
-	if err != nil {
-		return nil, fmt.Errorf("huangli.bond.month: %w", err)
-	}
-	result, err := huangli.ComputeBondMonth(st, p.EventType, p.Month)
-	if err != nil {
-		return nil, fmt.Errorf("huangli.bond.month: %w", err)
-	}
-	return wrapResult("huangli_bond_month", result)
+	return wrapResult("huangli_days", days)
 }
 
 // ── time / infra ──
@@ -379,7 +329,7 @@ var otherMethods = []RPCMethod{	{
 		Name: "qimen.chart", Description: "奇门排盘。返回天盘、人盘、神盘、九星八门格局。kind 默认 shi（时家奇门），可选 ri/yue/nian。",
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"kind":{"type":"string","enum":["shi","ri","yue","nian"],"description":"奇门类型，默认 shi"}},"required":["solar_time"]}`),
 		Handler: qimenChartHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"pan":{"type":"object","description":"奇门排盘结果","properties":{"jushu":{"type":"integer","description":"局数"},"yin_dun":{"type":"boolean","description":"阴遁/阳遁"},"ri_gan":{"type":"string","description":"日干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ri_zhi":{"type":"string","description":"日支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"drive_gan":{"type":"string","description":"时干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"drive_zhi":{"type":"string","description":"时支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"duty_star":{"type":"integer","description":"值符星序号"},"duty_door":{"type":"integer","description":"值使门序号"},"palaces":{"type":"array","description":"九宫排盘结果"},"ma_xing":{"type":"integer","description":"马星宫位"},"kong_wang":{"type":"array","items":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"description":"空亡地支"}},"required":["jushu","yin_dun","ri_gan","ri_zhi"]},"patterns":{"type":"array"}},"required":["pan","patterns"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"pan":{"type":"object","description":"奇门排盘结果","properties":{"jushu":{"type":"integer","description":"局数"},"yin_dun":{"type":"boolean","description":"阴遁/阳遁"},"ri_gan":{"type":"string","description":"日干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ri_zhi":{"type":"string","description":"日支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"drive_gan":{"type":"string","description":"时干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"drive_zhi":{"type":"string","description":"时支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"duty_star":{"type":"string","enum":["天蓬","天芮","天冲","天辅","天禽","天心","天柱","天任","天英"],"description":"值符星"},"duty_door":{"type":"string","enum":["休门","生门","伤门","杜门","景门","死门","惊门","开门"],"description":"值使门"},"palaces":{"type":"array","description":"九宫排盘结果"},"ma_xing":{"type":"string","enum":["坎","坤","震","巽","中","乾","兑","艮","离"],"description":"马星宫位"},"kong_wang":{"type":"array","items":{"type":"string","enum":["坎","坤","震","巽","中","乾","兑","艮","离"]},"description":"空亡宫位"}},"required":["jushu","yin_dun","ri_gan","ri_zhi"]},"patterns":{"type":"array"}},"required":["pan","patterns"]}`),
 	},
 	{
 		Name: "qimen.judgment", Description: "奇门断事。基于排盘结果和事件类型进行综合分析判断。",
@@ -420,7 +370,7 @@ var otherMethods = []RPCMethod{	{
 		Name: "xuankong.annual", Description: "玄空流年飞星。返回每年入中星、各宫飞星分布、吉凶评级。",
 		Params: mustSchema(`{"type":"object","properties":{"year":{"type":"integer","description":"年份"}},"required":["year"]}`),
 		Handler: xuankongAnnualHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"year":{"type":"integer"},"ru_zhong":{"type":"integer"},"stars":{"type":"array"}},"required":["year","ru_zhong","stars"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"year":{"type":"integer"},"ru_zhong":{"type":"string","enum":["贪狼","巨门","禄存","文曲","廉贞","武曲","破军","左辅","右弼"]},"stars":{"type":"array"}},"required":["year","ru_zhong","stars"]}`),
 	},
 	{
 		Name: "xuankong.sanyuan", Description: "三元九运查询。返回当前三元九运的时间表。",
@@ -444,50 +394,13 @@ var otherMethods = []RPCMethod{	{
 		Name: "liuyao.chart", Description: "六爻装卦。传入起卦结果和问事时辰，装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。lines.liu_qin: 0=父母 1=兄弟 2=官鬼 3=妻财 4=子孙；lines.liu_shou: 0=青龙 1=朱雀 2=勾陈 3=螣蛇 4=白虎 5=玄武；wang_shuai: 0=旺 1=相 2=休 3=囚 4=死",
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"yong_shen":{"type":"string","description":"用神六亲（如 妻财/官鬼/父母/兄弟/子孙/世爻），可选，默认世爻"},"yaos":{"type":"array","items":{"type":"integer"},"minItems":6,"maxItems":6,"description":"六爻值（6-9），必填，先调 liuyao.qigua 获取"}},"required":["solar_time","yaos"]}`),
 		Handler: liuyaoChartHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"ben_gua":{"type":"integer"},"lines":{"type":"array"},"yong_shen":{"type":"object","description":"用神状态","properties":{"name":{"type":"string","description":"用神六亲"},"position":{"type":"integer","description":"爻位1-6"},"month":{"type":"string","description":"月令旺衰","enum":["旺","相","休","囚","死"],"examples":["旺"]},"day":{"type":"string","description":"日建关系:生/扶/克/冲/合/平"},"day_power":{"type":"string","description":"日建力","enum":["旺","平","衰"],"examples":["旺"]},"is_dong":{"type":"boolean","description":"是否为动爻"},"is_yue_po":{"type":"boolean","description":"月破"},"is_chi_shi":{"type":"boolean","description":"持世"},"dong_sheng":{"type":"boolean","description":"动爻生用神"},"dong_ke":{"type":"boolean","description":"动爻克用神"}}},"wang_shuai":{"type":"array"},"month_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"month_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ying_qi":{"type":"object","description":"应期判断结果","properties":{"yong_shen":{"type":"string","description":"用神"},"dong_yao_pos":{"type":"integer","description":"动爻位置"},"ying_time":{"type":"string","description":"应期描述"},"assessment":{"type":"string","description":"综合判断"}},"required":["yong_shen","assessment"]}},"required":["name","ben_gua","lines","yong_shen"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"ben_gua":{"type":"string","enum":["乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人","临","损","节","中孚","归妹","睽","兑","履","泰","大畜","需","小畜","大壮","大有","夬","乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人"]},"lines":{"type":"array"},"yong_shen":{"type":"object","description":"用神状态","properties":{"name":{"type":"string","description":"用神六亲"},"position":{"type":"integer","description":"爻位1-6"},"month":{"type":"string","description":"月令旺衰","enum":["旺","相","休","囚","死"],"examples":["旺"]},"day":{"type":"string","description":"日建关系:生/扶/克/冲/合/平"},"day_power":{"type":"string","description":"日建力","enum":["旺","平","衰"],"examples":["旺"]},"is_dong":{"type":"boolean","description":"是否为动爻"},"is_yue_po":{"type":"boolean","description":"月破"},"is_chi_shi":{"type":"boolean","description":"持世"},"dong_sheng":{"type":"boolean","description":"动爻生用神"},"dong_ke":{"type":"boolean","description":"动爻克用神"}}},"wang_shuai":{"type":"array"},"month_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"month_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ying_qi":{"type":"object","description":"应期判断结果","properties":{"yong_shen":{"type":"string","description":"用神"},"dong_yao_pos":{"type":"integer","description":"动爻位置"},"ying_time":{"type":"string","description":"应期描述"},"assessment":{"type":"string","description":"综合判断"}},"required":["yong_shen","assessment"]}},"required":["name","ben_gua","lines","yong_shen"]}`),
 	},
 	{
-		Name: "huangli.date", Description: "按日查宜忌。查询指定日期的黄历宜忌。",
-		Params: mustSchema(`{"type":"object","properties":{"date":{"type":"string","description":"日期 YYYY-MM-DD"},"event":{"type":"string","description":"事项（如 嫁娶/开业/搬家）"}},"required":["date","event"]}`),
-		Handler: huangliDateHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"date":{"type":"string"},"day_pillar":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"nayin":{"type":"string"}},"required":["gan","zhi"]},"nayin":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"jian_chu":{"type":"string","enum":["建","除","满","平","定","执","破","危","成","收","开","闭"]},"suitable":{"type":"boolean"},"marks":{"type":["array","null"],"items":{"type":"string"}},"warnings":{"type":["array","null"],"items":{"type":"string"}},"huangdao":{"type":"object","properties":{"name":{"type":"string"},"path":{"type":"string"}},"required":["name","path"]},"xi_shen":{"type":"string"},"cai_shen":{"type":"string"},"fu_shen":{"type":"string"},"stem_taboo":{"type":"string"},"branch_taboo":{"type":"string"},"mansion":{"type":"object","properties":{"name":{"type":"string"},"index":{"type":"integer"}},"required":["name","index"]}},"required":["date","day_pillar","suitable"]}`),
-	},
-	{
-		Name: "huangli.month", Description: "按月查宜忌。返回当月每日宜忌汇总。",
-		Params: mustSchema(`{"type":"object","properties":{"month":{"type":"string","description":"月份 YYYY-MM"},"event":{"type":"string","description":"事项"}},"required":["month","event"]}`),
-		Handler: huangliMonthHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"month":{"type":"string"},"days":{"type":"array","items":{"type":"object","properties":{"date":{"type":"string"},"day_pillar":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"nayin":{"type":"string"}},"required":["gan","zhi"]},"nayin":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"jian_chu":{"type":"string","enum":["建","除","满","平","定","执","破","危","成","收","开","闭"]},"suitable":{"type":"boolean"},"marks":{"type":["array","null"],"items":{"type":"string"}},"warnings":{"type":["array","null"],"items":{"type":"string"}},"huangdao":{"type":"object","properties":{"name":{"type":"string"},"path":{"type":"string"}},"required":["name","path"]},"xi_shen":{"type":"string"},"cai_shen":{"type":"string"},"fu_shen":{"type":"string"},"stem_taboo":{"type":"string"},"branch_taboo":{"type":"string"},"mansion":{"type":"object","properties":{"name":{"type":"string"},"index":{"type":"integer"}},"required":["name","index"]}},"required":["date","day_pillar","suitable"]}}},"required":["month","days"]}`),
-	},
-	{
-		Name: "huangli.bond.date", Description: "八字合参择日。基于命主八字筛选单日宜忌。",
-		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"event_type":{"type":"string","description":"事项"},"date":{"type":"string","description":"日期 YYYY-MM-DD"}},"required":["solar_time","event_type","date"]}`),
-		Handler: huangliBondDateHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"date":{"type":"string"},"gan_relation":{"type":"string"},"zhi_relation":{"type":"string"}},"required":["date","gan_relation","zhi_relation"]}`),
-	},
-	{
-		Name: "huangli.bond.month", Description: "八字合参择月。基于命主八字筛选当月吉日。",
-		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"event_type":{"type":"string","description":"事项"},"month":{"type":"string","description":"月份 YYYY-MM"}},"required":["solar_time","event_type","month"]}`),
-		Handler: huangliBondMonthHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"month":{"type":"string"},"days":{"type":"array","items":{"type":"object","properties":{
-"date":{"type":"string"},
-"day_pillar":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},
-"nayin":{"type":"string"},
-"wuxing":{"type":"string","enum":["金","木","水","火","土"]},
-"jian_chu":{"type":"string","enum":["建","除","满","平","定","执","破","危","成","收","开","闭"]},
-"suitable":{"type":"boolean"},
-"marks":{"type":["array","null"],"items":{"type":"string"}},
-"warnings":{"type":["array","null"],"items":{"type":"string"}},
-"huangdao":{"type":"object","properties":{"index":{"type":"integer"},"name":{"type":"string"},"path":{"type":"string"},"sequence":{"type":"integer"}},"required":["name","path"]},
-"xi_shen":{"type":"string"},
-"cai_shen":{"type":"string"},
-"fu_shen":{"type":"string"},
-"stem_taboo":{"type":"string"},
-"branch_taboo":{"type":"string"},
-"mansion":{"type":"object","properties":{"index":{"type":"integer"},"name":{"type":"string"},"animal":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"group":{"type":"string"}},"required":["name","index"]},
-"jie_qi":{"type":"string"},
-"jie_qi_days":{"type":"integer"},
-"ren_yuan":{"type":"string"}
-},"required":["date","day_pillar","suitable"]}}},"required":["month","days"]}`),
+		Name: "huangli.days", Description: "黄历查日。返回连续N天的黄历信息（建除、黄道、二十八宿、时辰吉凶等）。",
+		Params: mustSchema(`{"type":"object","properties":{"start_date":{"type":"string","description":"起始日期 YYYY-MM-DD"},"count":{"type":"integer","description":"查几天，默认3，最多30"}},"required":["start_date"]}`),
+		Handler: huangliDaysHandler,
+		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"date":{"type":"string"},"day_pillar":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"nayin":{"type":"string"}},"required":["gan","zhi"]},"nayin":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"jian_chu":{"type":"string","enum":["建","除","满","平","定","执","破","危","成","收","开","闭"]},"huangdao":{"type":"object","properties":{"name":{"type":"string"},"path":{"type":"string"}},"required":["name","path"]},"xi_shen":{"type":"string"},"cai_shen":{"type":"string"},"fu_shen":{"type":"string"},"stem_taboo":{"type":"string"},"branch_taboo":{"type":"string"},"mansion":{"type":"object","properties":{"name":{"type":"string"},"index":{"type":"integer"},"animal":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土","日","月"]},"group":{"type":"string"}},"required":["name","index"]}},"required":["date","day_pillar"]}}`),
 	},
 	{
 		Name: "time.now", Description: "获取服务端当前时间。返回 UTC、本地、北京时间，用于 AI agent 获取准确时间避免幻觉。",

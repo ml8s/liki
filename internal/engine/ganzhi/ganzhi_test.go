@@ -1597,8 +1597,6 @@ func TestGan_UnmarshalJSON(t *testing.T) {
 		{"甲-字符串", `"甲"`, GanJia},
 		{"丙-字符串", `"丙"`, GanBing},
 		{"癸-字符串", `"癸"`, GanGui},
-		{"甲-数字", `1`, Gan(1)},
-		{"癸-数字", `10`, Gan(10)},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -1622,8 +1620,6 @@ func TestZhi_UnmarshalJSON(t *testing.T) {
 		{"子-字符串", `"子"`, ZhiZi},
 		{"午-字符串", `"午"`, ZhiWu},
 		{"亥-字符串", `"亥"`, ZhiHai},
-		{"子-数字", `1`, Zhi(1)},
-		{"亥-数字", `12`, Zhi(12)},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -1856,4 +1852,109 @@ func TestWangShuaiOf(t *testing.T) {
 			t.Errorf("WangShuaiOf(木, 13) = %d, want -1", got)
 		}
 	})
+}
+
+func TestGan_UnmarshalJSON_StringOnly(t *testing.T) {
+	tests := []struct {
+		input string
+		want  Gan
+		err   bool
+	}{
+		{`"甲"`, 1, false},
+		{`"乙"`, 2, false},
+		{`"癸"`, 10, false},
+		{`1`, 0, true},
+		{`0`, 0, true},
+		{`"甲子"`, 0, true},
+		{`""`, 0, false},
+	}
+	for _, tt := range tests {
+		var g Gan
+		err := g.UnmarshalJSON([]byte(tt.input))
+		if tt.err && err == nil {
+			t.Errorf("UnmarshalJSON(%s) = nil, want error", tt.input)
+		} else if !tt.err && err != nil {
+			t.Errorf("UnmarshalJSON(%s) = %v, want %d", tt.input, err, tt.want)
+		} else if !tt.err && g != tt.want {
+			t.Errorf("UnmarshalJSON(%s) = %d, want %d", tt.input, g, tt.want)
+		}
+	}
+}
+
+func TestZhi_UnmarshalJSON_StringOnly(t *testing.T) {
+	tests := []struct {
+		input string
+		want  Zhi
+		err   bool
+	}{
+		{`"子"`, 1, false},
+		{`"丑"`, 2, false},
+		{`"亥"`, 12, false},
+		{`1`, 0, true},
+		{`0`, 0, true},
+		{`"子丑"`, 0, true},
+		{`""`, 0, false},
+	}
+	for _, tt := range tests {
+		var z Zhi
+		err := z.UnmarshalJSON([]byte(tt.input))
+		if tt.err && err == nil {
+			t.Errorf("UnmarshalJSON(%s) = nil, want error", tt.input)
+		} else if !tt.err && err != nil {
+			t.Errorf("UnmarshalJSON(%s) = %v, want %d", tt.input, err, tt.want)
+		} else if !tt.err && z != tt.want {
+			t.Errorf("UnmarshalJSON(%s) = %d, want %d", tt.input, z, tt.want)
+		}
+	}
+}
+
+func TestWuxing_UnmarshalJSON_StringOnly(t *testing.T) {
+	tests := []struct {
+		input string
+		want  Wuxing
+		err   bool
+	}{
+		{`"木"`, WxMu, false},
+		{`"火"`, WxHuo, false},
+		{`"土"`, WxTu, false},
+		{`"金"`, WxJin, false},
+		{`"水"`, WxShui, false},
+		{`1`, 0, true},
+		{`"木火"`, 0, true},
+	}
+	for _, tt := range tests {
+		var w Wuxing
+		err := w.UnmarshalJSON([]byte(tt.input))
+		if tt.err && err == nil {
+			t.Errorf("UnmarshalJSON(%s) = nil, want error", tt.input)
+		} else if !tt.err && err != nil {
+			t.Errorf("UnmarshalJSON(%s) = %v, want %d", tt.input, err, tt.want)
+		} else if !tt.err && w != tt.want {
+			t.Errorf("UnmarshalJSON(%s) = %d, want %d", tt.input, w, tt.want)
+		}
+	}
+}
+
+func TestShiShen_UnmarshalJSON_StringOnly(t *testing.T) {
+	tests := []struct {
+		input string
+		want  ShiShen
+		err   bool
+	}{
+		{`"比肩"`, ShiShenBiJian, false},
+		{`"劫财"`, ShiShenJieCai, false},
+		{`1`, 0, true},
+		{`"invalid"`, 0, true},
+	}
+	for _, tt := range tests {
+		var s ShiShen
+		err := s.UnmarshalJSON([]byte(tt.input))
+		if tt.err && err == nil {
+			t.Errorf("UnmarshalJSON(%s) = nil, want error", tt.input)
+		} else if !tt.err && err != nil {
+			t.Errorf("UnmarshalJSON(%s) = %v, want %d", tt.input, err, tt.want)
+		} else if !tt.err && s != tt.want {
+			t.Errorf("UnmarshalJSON(%s) = %d, want %d", tt.input, s, tt.want)
+		}
+	}
 }

@@ -90,7 +90,7 @@ func TestComputeBondMonth_Basic(t *testing.T) {
 // =============================================================================
 
 func TestQueryMonth_Basic(t *testing.T) {
-	m, err := QueryMonth("2024-06", "")
+	m, err := QueryMonth("2024-06")
 	if err != nil {
 		t.Fatalf("QueryMonth: %v", err)
 	}
@@ -114,7 +114,7 @@ func TestQueryMonth_Basic(t *testing.T) {
 }
 
 func TestQueryMonth_InvalidInput(t *testing.T) {
-	_, err := QueryMonth("not-a-month", "")
+	_, err := QueryMonth("not-a-month")
 	if err == nil {
 		t.Fatal("expected error for invalid month")
 	}
@@ -136,58 +136,13 @@ func TestTaiSui_Cycle(t *testing.T) {
 }
 
 // =============================================================================
-// jianChuSuitable — 建除宜忌四大分支
-// =============================================================================
 
-func TestJianChuSuitable_UnknownEvent(t *testing.T) {
-	// Unknown event type → defaults to suitable=true.
-	suitable, marks, warnings := jianChuSuitable("破", "nonexistent")
-	if !suitable {
-		t.Error("unknown event type should default to suitable=true")
-	}
-	if len(marks) != 0 || len(warnings) != 0 {
-		t.Error("unknown event type should have no marks/warnings")
-	}
-}
 
-func TestJianChuSuitable_SuitableMatch(t *testing.T) {
-	// "成" is suitable for "wedding" (嫁娶).
-	suitable, marks, warnings := jianChuSuitable("成", "wedding")
-	if !suitable {
-		t.Error("成日 should be suitable for wedding")
-	}
-	if len(marks) == 0 {
-		t.Error("should have marks for suitable match")
-	}
-	if len(warnings) != 0 {
-		t.Error("should have no warnings for suitable match")
-	}
-}
 
-func TestJianChuSuitable_ForbiddenMatch(t *testing.T) {
-	// "建" is forbidden for "wedding" (嫁娶).
-	suitable, marks, warnings := jianChuSuitable("建", "wedding")
-	if suitable {
-		t.Error("建日 should NOT be suitable for wedding")
-	}
-	if len(marks) != 0 {
-		t.Error("should have no marks for forbidden match")
-	}
-	if len(warnings) == 0 {
-		t.Error("should have warnings for forbidden match")
-	}
-}
 
-func TestJianChuSuitable_PoDay(t *testing.T) {
-	// "破" is forbidden for everything, special message "破日，万事不宜".
-	suitable, _, warnings := jianChuSuitable("破", "wedding")
-	if suitable {
-		t.Error("破日 should never be suitable")
-	}
-	if len(warnings) == 0 || warnings[0] != "破日，万事不宜" {
-		t.Errorf("warnings = %v, want [破日，万事不宜]", warnings)
-	}
-}
+
+
+
 
 // =============================================================================
 // renYuanName — 人元司令名称
@@ -224,7 +179,7 @@ func TestQueryDate_WithOtherEvents(t *testing.T) {
 	events := []string{"wedding", "travel", "open", "medical", "funeral"}
 	for _, ev := range events {
 		t.Run("event="+ev, func(t *testing.T) {
-			got, err := QueryDate("2024-06-15", ev)
+			got, err := QueryDate("2024-06-15")
 			if err != nil {
 				t.Fatalf("QueryDate: %v", err)
 			}
@@ -592,7 +547,7 @@ func TestQueryDate_Golden_JianChu(t *testing.T) {
 	// 2024-06-15: 午月(月支=午), 庚戌日(日支=戌)
 	// 午月起午日为建 → 午=建,未=除,申=满,酉=平,戌=定
 	// 戌日 → 定日
-	got, err := QueryDate("2024-06-15", "")
+	got, err := QueryDate("2024-06-15")
 	if err != nil {
 		t.Fatalf("QueryDate: %v", err)
 	}
@@ -603,7 +558,7 @@ func TestQueryDate_Golden_JianChu(t *testing.T) {
 	// 2024-02-10: 寅月(月支=寅), 甲辰日(日支=辰)
 	// 寅月起寅日为建 → 寅=建,卯=除,辰=满
 	// 辰日 → 满日
-	got2, err := QueryDate("2024-02-10", "")
+	got2, err := QueryDate("2024-02-10")
 	if err != nil {
 		t.Fatalf("QueryDate: %v", err)
 	}
@@ -616,7 +571,7 @@ func TestQueryDate_Golden_MarksWarnings(t *testing.T) {
 	// Verify that event type filtering produces marks/warnings.
 	for _, ev := range []string{"wedding", "travel", "open"} {
 		t.Run(ev, func(t *testing.T) {
-			got, err := QueryDate("2024-06-15", ev)
+			got, err := QueryDate("2024-06-15")
 			if err != nil {
 				t.Fatalf("QueryDate: %v", err)
 			}

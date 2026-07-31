@@ -46,6 +46,29 @@ func hasKey(raw json.RawMessage, key string) bool {
 	return ok
 }
 
+func hasPath(raw json.RawMessage, path string) bool {
+	var m map[string]any
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return false
+	}
+	parts := strings.Split(path, ".")
+	for i, part := range parts {
+		v, ok := m[part]
+		if !ok {
+			return false
+		}
+		if i == len(parts)-1 {
+			return true
+		}
+		if vm, ok := v.(map[string]any); ok {
+			m = vm
+		} else {
+			return false
+		}
+	}
+	return false
+}
+
 func getStr(raw json.RawMessage, path ...string) string {
 	var m map[string]any
 	if err := json.Unmarshal(raw, &m); err != nil {
@@ -126,7 +149,7 @@ func TestTimePoint_Timeset(t *testing.T) {
 func TestHandler_InvalidJSON(t *testing.T) {
 	r := NewRPCRegistry()
 	handlers := []string{
-		"bazi.chart", "bazi.yongshen", "bazi.hehui", "bazi.chart_extra",
+		"bazi.chart",
 		"bazi.bond", "bazi.liunian", "bazi.liuyue",
 		"bazi.liuri", "bazi.liushi", "bazi.xiaoyun", "bazi.xiaoxian",
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
@@ -136,7 +159,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"bazhai.chart", "bazhai.minggua",
 		"xuankong.sanyuan", "xuankong.chart",
 		"liuyao.chart",
-		"huangli.date", "huangli.month", "huangli.bond.date", "huangli.bond.month",
+		"huangli.days",
 		"city",
 	}
 	badJSON := json.RawMessage(`{bad`)
@@ -399,59 +422,22 @@ func TestHandler_ComputeSanYuanYun_Valid(t *testing.T) {
 	}
 }
 
-func TestHandler_QueryHuangliDate_Valid(t *testing.T) {
+func TestHandler_HuangliDays_Valid(t *testing.T) {
 	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "huangli.date", json.RawMessage(`{"date":"2026-06-26","event":"嫁娶"}`))
+	result, err := r.Execute(context.Background(), "huangli.days", json.RawMessage(`{"start_date":"2026-06-26","count":3}`))
 	if err != nil {
-		t.Fatalf("huangli.date: %v", err)
+		t.Fatalf("huangli.days: %v", err)
 	}
-	if getStr(result, "_product") != "huangli_date" {
-		t.Errorf("_product = %q, want huangli_date", getStr(result, "_product"))
-	}
-}
-
-func TestHandler_QueryHuangliBondDate_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"event_type":"嫁娶","date":"2026-06-26"}`, btOK))
-	result, err := r.Execute(context.Background(), "huangli.bond.date", params)
-	if err != nil {
-		t.Fatalf("huangli.bond.date: %v", err)
-	}
-	if getStr(result, "_product") != "huangli_bond_date" {
-		t.Errorf("_product = %q, want huangli_bond_date", getStr(result, "_product"))
+	if getStr(result, "_product") != "huangli_days" {
+		t.Errorf("_product = %q, want huangli_days", getStr(result, "_product"))
 	}
 }
 
-func TestHandler_HuangliMonth_InvalidMonth(t *testing.T) {
+func TestHandler_HuangliDays_InvalidDate(t *testing.T) {
 	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "huangli.month", json.RawMessage(`{"month":"invalid","event":"嫁娶"}`))
+	_, err := r.Execute(context.Background(), "huangli.days", json.RawMessage(`{"start_date":"not-a-date"}`))
 	if err == nil {
-		t.Error("expected error for invalid month format")
-	}
-}
-
-func TestHandler_HuangliDate_MissingEvent(t *testing.T) {
-	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "huangli.date", json.RawMessage(`{"date":"2026-06-26"}`))
-	if err == nil {
-		t.Error("expected error for missing event")
-	}
-}
-
-func TestHandler_HuangliBondMonth_InvalidMonth(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"event_type":"嫁娶","month":"invalid"}`, btOK))
-	_, err := r.Execute(context.Background(), "huangli.bond.month", params)
-	if err == nil {
-		t.Error("expected error for invalid month format")
-	}
-}
-
-func TestHandler_HuangliBondDate_EmptyBirth(t *testing.T) {
-	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "huangli.bond.date", json.RawMessage(`{"solar_time":"","event_type":"嫁娶","date":"2026-06-26"}`))
-	if err == nil {
-		t.Error("expected error for empty birth")
+		t.Error("expected error for invalid date format")
 	}
 }
 
@@ -544,35 +530,26 @@ func TestHandler_ComputeLiuri_Valid(t *testing.T) {
 }
 
 
-func TestHandler_ComputeHeHui_Valid(t *testing.T) {
+func TestHandler_FullChartIncludesExtra(t *testing.T) {
 	r := NewRPCRegistry()
 	chart := getBaziChart(t, r, btOK, "male")
 	params := json.RawMessage(fmt.Sprintf(`{"chart":%s}`, chart))
-	result, err := r.Execute(context.Background(), "bazi.hehui", params)
+	result, err := r.Execute(context.Background(), "bazi.fullchart", params)
 	if err != nil {
-		t.Fatalf("bazi.hehui: %v", err)
+		t.Fatalf("bazi.fullchart: %v", err)
 	}
-	if getStr(result, "_product") != "hehui" {
-		t.Errorf("_product = %q, want hehui", getStr(result, "_product"))
-	}
+	// fullchart 现在应包含 chart_extra 和 hehui 的数据
 	if !hasKey(result, "data") {
 		t.Error("missing data")
 	}
-}
-
-func TestHandler_ComputeChartExtra_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chart := getBaziChart(t, r, btOK, "male")
-	params := json.RawMessage(fmt.Sprintf(`{"chart":%s}`, chart))
-	result, err := r.Execute(context.Background(), "bazi.chart_extra", params)
-	if err != nil {
-		t.Fatalf("bazi.chart_extra: %v", err)
+	if !hasPath(result, "data.san_yuan") {
+		t.Error("fullchart missing san_yuan (from chart_extra)")
 	}
-	if getStr(result, "_product") != "chart_extra" {
-		t.Errorf("_product = %q, want chart_extra", getStr(result, "_product"))
+	if !hasPath(result, "data.gan_he") {
+		t.Error("fullchart missing gan_he (from hehui)")
 	}
-	if !hasKey(result, "data") {
-		t.Error("missing data")
+	if !hasPath(result, "data.zhi_liu_he") {
+		t.Error("fullchart missing zhi_liu_he (from hehui)")
 	}
 }
 
@@ -624,30 +601,7 @@ func TestHandler_ComputeLiuNian_ShiShen_Correct(t *testing.T) {
 	}
 }
 
-func TestHandler_QueryHuangliMonth_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "huangli.month",
-		json.RawMessage(`{"month":"2026-06","event":"嫁娶"}`))
-	if err != nil {
-		t.Fatalf("huangli.month: %v", err)
-	}
-	if getStr(result, "_product") != "huangli_month" {
-		t.Errorf("_product = %q, want huangli_month", getStr(result, "_product"))
-	}
-}
 
-func TestHandler_QueryHuangliBondMonth_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(
-		`{"solar_time":%s,"event_type":"嫁娶","month":"2026-06"}`, btOK))
-	result, err := r.Execute(context.Background(), "huangli.bond.month", params)
-	if err != nil {
-		t.Fatalf("huangli.bond.month: %v", err)
-	}
-	if getStr(result, "_product") != "huangli_bond_month" {
-		t.Errorf("_product = %q, want huangli_bond_month", getStr(result, "_product"))
-	}
-}
 
 // ── OpenRPC document ──
 
@@ -666,8 +620,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 46 {
-		t.Errorf("method count = %d, want 46 (45 + rpc.discover)", len(methods))
+	if len(methods) != 41 {
+		t.Errorf("method count = %d, want 41 (40 + rpc.discover)", len(methods))
 	}
 }
 
@@ -1573,37 +1527,9 @@ func TestHandler_BaziFullChart_Valid(t *testing.T) {
 
 // ── Remaining untested methods ──
 
-func TestHandler_BaziHehui_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chartResult, err := r.Execute(context.Background(), "bazi.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
-	if err != nil {
-		t.Fatalf("execute: %v", err)
-	}
-	var env struct{ Data json.RawMessage `json:"data"` }
-if err := json.Unmarshal(chartResult, &env); err != nil { t.Fatal(err) }
-	_, err = r.Execute(context.Background(), "bazi.hehui",
-		json.RawMessage(fmt.Sprintf(`{"chart":%s}`, env.Data)))
-	if err != nil {
-		t.Fatalf("bazi.hehui: %v", err)
-	}
-}
 
-func TestHandler_BaziChartExtra_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chartResult, err := r.Execute(context.Background(), "bazi.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
-	if err != nil {
-		t.Fatalf("execute: %v", err)
-	}
-	var env struct{ Data json.RawMessage `json:"data"` }
-if err := json.Unmarshal(chartResult, &env); err != nil { t.Fatal(err) }
-	_, err = r.Execute(context.Background(), "bazi.chart_extra",
-		json.RawMessage(fmt.Sprintf(`{"chart":%s}`, env.Data)))
-	if err != nil {
-		t.Fatalf("bazi.chart_extra: %v", err)
-	}
-}
+
+
 
 func TestHandler_BaziBond_Valid(t *testing.T) {
 	r := NewRPCRegistry()
@@ -1690,14 +1616,6 @@ func TestHandler_ZiweiBond_Valid(t *testing.T) {
 	}
 }
 
-func TestHandler_HuangliBondDate_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "huangli.bond.date",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"event_type":"\u642c\u5bb6","date":"2027-07-18"}`, btOK)))
-	if err != nil {
-		t.Fatalf("huangli.bond.date: %v", err)
-	}
-}
 
 func TestHandler_QimenSelect_Valid(t *testing.T) {
 	r := NewRPCRegistry()

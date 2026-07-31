@@ -71,41 +71,7 @@ func baziYongShenHandler(ctx context.Context, raw json.RawMessage) (json.RawMess
 	return wrapResult("yongshen", result)
 }
 
-func baziHeHuiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Chart json.RawMessage `json:"chart"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("compute_hehui: %w", err)
-	}
-	var c bazi.Chart
-	if err := json.Unmarshal(p.Chart, &c); err != nil {
-		return nil, fmt.Errorf("parse chart: %w", err)
-	}
-	if c.Ri.Gan == 0 {
-		return nil, fmt.Errorf("chart has empty day stem")
-	}
-	result := bazi.ComputeHeHui(c)
-	return wrapResult("hehui", result)
-}
 
-func baziChartExtraHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Chart json.RawMessage `json:"chart"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("compute_chart_extra: %w", err)
-	}
-	var c bazi.Chart
-	if err := json.Unmarshal(p.Chart, &c); err != nil {
-		return nil, fmt.Errorf("parse chart: %w", err)
-	}
-	if c.Ri.Gan == 0 {
-		return nil, fmt.Errorf("chart has empty day stem")
-	}
-	result := bazi.ComputeChartExtra(c)
-	return wrapResult("chart_extra", result)
-}
 
 func baziBondHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
@@ -281,13 +247,13 @@ func parseSolarTime(s string) (tianwen.SolarTime, error) {
 
 var baziMethods = []RPCMethod{
 	{
-		Name: "bazi.fullchart", Description: "扩展命盘。传入 bazi.chart 返回的最小命盘，补全十神/藏干/神煞/长生/空亡/自合/魁罡等完整信息。",
+		Name: "bazi.fullchart", Description: "完整命盘。传入 bazi.chart 返回的最小命盘，补全十神/藏干/神煞/长生/空亡/自合/魁罡/三元/拱夹/纳音生克/长生十二宫/三奇贵人/合会冲刑。",
 		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"bazi.chart 返回的最小命盘"}},"required":["chart"]}`),
 		Handler: baziFullChartHandler,
-		Result: envelopeSchema(`{"type":"object","properties":{"nian":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"yue":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"ri":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"shi":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"da_yun":{"type":"object"},"gender":{"type":"string"}},"required":["nian","yue","ri","shi","da_yun","gender"]}`),
+		Result: envelopeSchema(`{"type":"object","properties":{"nian":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"yue":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"ri":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"shi":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"da_yun":{"type":"object"},"gender":{"type":"string"},"san_yuan":{"type":"object","description":"三元: 胎元/命宫/身宫"},"gong_jia":{"type":"array","description":"拱夹"},"nayin_rel":{"type":"array","description":"纳音生克"},"chang_sheng":{"type":"array","description":"长生十二宫"},"san_qi_name":{"type":"string","description":"三奇贵人"},"gan_he":{"type":"array","description":"天干五合"},"zhi_liu_he":{"type":"array","description":"地支六合"},"san_he":{"type":"array","description":"三合局"},"san_hui":{"type":"array","description":"三会方"},"liu_chong":{"type":"array","description":"六冲"},"liu_hai":{"type":"array","description":"六害"},"liu_xing":{"type":"array","description":"相刑"}},"required":["nian","yue","ri","shi","da_yun","gender"]}`),
 	},
 	{
-		Name: "bazi.chart", Description: "排八字命盘。返回最小命盘（四柱+纳音+大运+性别）。如需十神/藏干/神煞/长生/空亡等完整信息，请将结果传入 bazi.fullchart。用神、合会冲刑、补充信息需另行调用 bazi.yongshen / bazi.hehui / bazi.chart_extra。",
+		Name: "bazi.chart", Description: "排八字命盘。返回最小命盘（四柱+纳音+大运+性别）。如需十神/藏干/神煞/长生/空亡等完整信息，请将结果传入 bazi.fullchart。用神需另行调用 bazi.yongshen。",
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"gender":` + schemaGender + `},"required":["solar_time","gender"]}`), Handler: baziChartHandler,
 		Result: envelopeSchema(`{"type":"object","properties":{"nian":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"yue":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"ri":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"shi":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"da_yun":{"type":"object","description":"大运。steps 每步含 gan/zhi/age_start/age_end/name/element/shi_shen（十年一运）。current_step_index 为当前所处大运索引（-1 表示未起运或已过完所有大运）"},"gender":{"type":"string"}},"required":["nian","yue","ri","shi","da_yun","gender"]}`),
 	},
@@ -296,18 +262,6 @@ var baziMethods = []RPCMethod{
 		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"八字命盘（由 bazi.chart 返回的 data）"}},"required":["chart"]}`),
 		Handler: baziYongShenHandler,
 		Result: envelopeSchema(`{"type":"object","properties":{"fu_yi":{"type":"object","properties":{"wuxing_count":{"type":"object"},"wang_shuai":{"type":"object"},"yong":{"type":"string"},"xi":{"type":"string"},"ji":{"type":"string"},"qiangruo":{"type":"string","enum":["身强","身弱","中和"]}},"required":["wuxing_count","wang_shuai","yong","xi","ji","qiangruo"]},"tiao_hou":{"type":"object","properties":{"yong":{"type":"string"},"xi":{"type":"string"},"ji":{"type":"string"},"season":{"type":"string"},"detail":{"type":"string"}},"required":["yong","xi","ji","season"]},"ge_ju":{"type":"object","properties":{"yong":{"type":"string"},"xi":{"type":"string"},"ji":{"type":"string"},"ge_ju":{"type":"string"},"yong_fa":{"type":"string"}},"required":["yong","xi","ji","ge_ju","yong_fa"]}},"required":["fu_yi","tiao_hou","ge_ju"]}`),
-	},
-	{
-		Name: "bazi.hehui", Description: "八字合会冲刑分析。返回天干五合、地支六合、三合局、三会方、六冲、六害、相刑。",
-		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"八字命盘（由 bazi.chart 返回的 data）"}},"required":["chart"]}`),
-		Handler: baziHeHuiHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"gan_he":{"type":"array","description":"天干五合"},"zhi_liu_he":{"type":"array","description":"地支六合"},"san_he":{"type":"array","description":"完整三合局。注意：只返回完整三合（三支齐全），半合/拱合需 LLM 自行判断"},"san_hui":{"type":"array","description":"三会方"},"liu_chong":{"type":"array","description":"六冲"},"liu_hai":{"type":"array","description":"六害"},"liu_xing":{"type":"array","description":"相刑"}},"required":["gan_he","zhi_liu_he","san_he","san_hui","liu_chong","liu_hai","liu_xing"]}`),
-	},
-	{
-		Name: "bazi.chart_extra", Description: "八字补充信息。返回三元（胎元/命宫/身宫）、拱夹、纳音生克、长生十二宫、三奇贵人。按需调用。",
-		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"八字命盘（由 bazi.chart 返回的 data）"}},"required":["chart"]}`),
-		Handler: baziChartExtraHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"san_yuan":{"type":"object","description":"三元: 胎元/命宫/身宫，各含gan,zhi"},"gong_jia":{"type":"array"},"nayin_rel":{"type":"array"},"chang_sheng":{"type":"array"},"san_qi_name":{"type":"string"}},"required":["san_yuan","gong_jia","nayin_rel","chang_sheng","san_qi_name"]}`),
 	},
 	{
 		Name: "bazi.bond", Description: "八字合盘。返回双方日主、天干关系（合/生/克）、地支关系（六合/三合/六冲）、纳音配合、五行互补。",

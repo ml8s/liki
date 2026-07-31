@@ -25,7 +25,22 @@ func ComputeChart(st tianwen.SolarTime, gender ganzhi.Gender) Chart {
 // ComputeFullChart expands a lean Chart to FullChart with all fields (十神/藏干/神煞/长生/空亡/自合/魁罡).
 func ComputeFullChart(c Chart) FullChart {
 	bz := c.ToBazi()
-	return computeFullFromCore(c, bz)
+	fc := computeFullFromCore(c, bz)
+	extra := ComputeChartExtra(c)
+	fc.SanYuan = extra.SanYuan
+	fc.GongJia = extra.GongJia
+	fc.NayinRel = extra.NayinRel
+	fc.ChangSheng = extra.ChangSheng
+	fc.SanQiName = extra.SanQiName
+	hehui := ComputeHeHui(c)
+	fc.GanHe = hehui.GanHe
+	fc.ZhiLiuHe = hehui.ZhiLiuHe
+	fc.SanHe = hehui.SanHe
+	fc.SanHui = hehui.SanHui
+	fc.LiuChong = hehui.LiuChong
+	fc.LiuHai = hehui.LiuHai
+	fc.LiuXing = hehui.LiuXing
+	return fc
 }
 
 // ComputeLiuNian computes the year pillar and its interactions with the bazi chart.

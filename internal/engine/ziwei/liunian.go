@@ -9,17 +9,7 @@ func yearStemBranch(year int) (Gan, Zhi) {
 	return g, z
 }
 
-// liuNianMingGong returns flow year命宫 index.
-// 古典规则：流年地支直指——哪个宫的地支等于流年地支，即为流年命宫。
-func liuNianMingGong(liuNian int, chart Chart) palaceIndex {
-	_, liuZhi := yearStemBranch(liuNian)
-	for i, p := range chart.Palaces {
-		if p.Zhi == liuZhi {
-			return palaceIndex(i)
-		}
-	}
-	return 0
-}
+
 
 // liuNianSiHua computes the annual four transformations.
 func liuNianSiHua(liuNian int) siHuaResult {
@@ -29,12 +19,14 @@ func liuNianSiHua(liuNian int) siHuaResult {
 
 // liuNianMinors computes the annual minor stars (zhi-1 values).
 // Caller must convert to palaceIndex via zhiToPalace using the flow year 命宫.
-func liuNianMinors(yearZhu ganzhi.Zhu, hourZhi Zhi) map[starIndex]int {
-	return map[starIndex]int{
-		QingYang: qingYangPos(yearZhu.Gan),
-		TuoLuo:   tuoLuoPos(yearZhu.Gan),
-		HuoXing:  huoXingIndex(yearZhu.Zhi, hourZhi),
-		LingXing: lingXingIndex(yearZhu.Zhi, hourZhi),
+func liuNianMinors(yearZhu ganzhi.Zhu, hourZhi Zhi) map[starIndex]Zhi {
+	// zhiMinus1(0-11) → Zhi(1-12)，输出地支名
+	toZhi := func(zhiMinus1 int) Zhi { return Zhi(zhiMinus1 + 1) }
+	return map[starIndex]Zhi{
+		QingYang: toZhi(qingYangPos(yearZhu.Gan)),
+		TuoLuo:   toZhi(tuoLuoPos(yearZhu.Gan)),
+		HuoXing:  toZhi(huoXingIndex(yearZhu.Zhi, hourZhi)),
+		LingXing: toZhi(lingXingIndex(yearZhu.Zhi, hourZhi)),
 	}
 }
 

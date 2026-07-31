@@ -1,6 +1,11 @@
 package ziwei
 
-import "liki-engine/internal/engine/ganzhi"
+import (
+	"encoding/json"
+	"fmt"
+
+	"liki-engine/internal/engine/ganzhi"
+)
 
 // Type aliases from ganzhi.
 type (
@@ -21,6 +26,25 @@ type palaceIndex int
 var PalaceNames = [12]string{
 	"命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄",
 	"迁移", "仆役", "官禄", "田宅", "福德", "父母",
+}
+
+func (p palaceIndex) MarshalJSON() ([]byte, error) {
+	s := PalaceNames[p]
+	return json.Marshal(s)
+}
+
+func (p *palaceIndex) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("palaceIndex must be a string (e.g. \"命宫\"), got %s", string(data))
+	}
+	for i, name := range PalaceNames {
+		if name == s {
+			*p = palaceIndex(i)
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown palace name: %q", s)
 }
 
 // starIndex enumerates all stars (main + minor).
@@ -76,6 +100,46 @@ var starNames = map[starIndex]string{
 // starName returns the Chinese name of a star.
 func starName(s starIndex) string { return starNames[s] }
 
+func (s starIndex) MarshalJSON() ([]byte, error) {
+	name, ok := starNames[s]
+	if !ok {
+		return json.Marshal("")
+	}
+	return json.Marshal(name)
+}
+
+func (s *starIndex) UnmarshalJSON(data []byte) error {
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return fmt.Errorf("starIndex must be a string, got %s", string(data))
+	}
+	return s.fromName(name)
+}
+
+// MarshalText 使 starIndex 作为 map key 时序列化为星名（Go json 的 map key 只认 TextMarshaler）。
+func (s starIndex) MarshalText() ([]byte, error) {
+	name, ok := starNames[s]
+	if !ok {
+		return []byte(""), nil
+	}
+	return []byte(name), nil
+}
+
+// UnmarshalText 使 starIndex 作为 map key 时可从星名反序列化。
+func (s *starIndex) UnmarshalText(b []byte) error {
+	return s.fromName(string(b))
+}
+
+func (s *starIndex) fromName(name string) error {
+	for k, n := range starNames {
+		if n == name {
+			*s = k
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown star: %q", name)
+}
+
 // juShu is the five-element bureau number (2/3/4/5/6).
 type juShu int
 
@@ -102,6 +166,32 @@ func juShuFromWuxing(w Wuxing) juShu {
 		return JuFire
 	}
 	return 0
+}
+
+func (j juShu) MarshalJSON() ([]byte, error) {
+	s, ok := juShuNames[j]
+	if !ok {
+		return json.Marshal("")
+	}
+	return json.Marshal(s)
+}
+
+func (j *juShu) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("juShu must be a string (e.g. \"水二局\"), got %s", string(data))
+	}
+	if s == "" {
+		*j = 0
+		return nil
+	}
+	for k, name := range juShuNames {
+		if name == s {
+			*j = k
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown ju: %q", s)
 }
 
 var juShuNames = map[juShu]string{
@@ -191,6 +281,6 @@ type LiuNian struct {
 	Zhi          Zhi                      `json:"zhi"`            // 流年地支
 	SiHua        siHuaResult              `json:"si_hua"`
 	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_palace"`
-	FuXing       map[starIndex]int         `json:"fu_xing"`
+	FuXing       map[starIndex]Zhi         `json:"fu_xing"`
 }
 

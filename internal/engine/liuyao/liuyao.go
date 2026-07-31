@@ -92,6 +92,27 @@ type Line struct {
 // guaIndex identifies one of the 64 hexagrams.
 type guaIndex int // 0-63, upper trigram 0-7, lower trigram 0-7
 
+func (g guaIndex) MarshalJSON() ([]byte, error) {
+	if int(g) < 0 || int(g) >= 64 {
+		return json.Marshal("")
+	}
+	return json.Marshal(zhouyiTable[g].Name)
+}
+
+func (g *guaIndex) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("guaIndex must be a string, got %s", string(data))
+	}
+	for i, gc := range zhouyiTable {
+		if gc.Name == s {
+			*g = guaIndex(i)
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown gua: %q", s)
+}
+
 // guaMeta holds static data for a hexagram.
 type guaMeta struct {
 	Name      string `json:"name"`       // 卦名
