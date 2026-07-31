@@ -84,6 +84,8 @@ const (
 	LingXing
 	DiKong
 	DiJie
+	HongLuan
+	TianXi
 )
 
 var starNames = map[starIndex]string{
@@ -95,6 +97,7 @@ var starNames = map[starIndex]string{
 	ZuoFu: "左辅", YouBi: "右弼", WenChang: "文昌", WenQu: "文曲",
 	QingYang: "擎羊", TuoLuo: "陀罗", TianMa: "天马",
 	HuoXing: "火星", LingXing: "铃星", DiKong: "地空", DiJie: "地劫",
+	HongLuan: "红鸾", TianXi: "天喜",
 }
 
 // starName returns the Chinese name of a star.
@@ -277,10 +280,11 @@ type DaXianStep struct {
 // LiuNian is the annual fate analysis.
 type LiuNian struct {
 	MingGong     palaceIndex              `json:"ming_gong"`
-	MingGongName string                   `json:"ming_gong_name"` // always "命宫"
+	MingGongName string                   `json:"ming_gong_name"` // 流年命宫名
 	Zhi          Zhi                      `json:"zhi"`            // 流年地支
 	SiHua        siHuaResult              `json:"si_hua"`
 	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_palace"`
 	FuXing       map[starIndex]Zhi         `json:"fu_xing"`
+	Palaces      [12]flowPalace           `json:"palaces"`       // 流年盘（地支坐标 12 宫）
 }
 

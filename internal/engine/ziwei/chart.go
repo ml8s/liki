@@ -31,10 +31,12 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 	var palaces [12]palace
 	for i := 0; i < 12; i++ {
 		var starInfos []starInfo
-		for _, s := range mainByPalace[palaceIndex(i)] {
+		// mainByPalace/minorByPalace 为 zhiMinus1 坐标，经本宫支反查
+		zm1 := zhiToZhiMinus1(palaceZhis[i])
+		for _, s := range mainByPalace[zm1] {
 			starInfos = append(starInfos, starInfo{Star: s, Name: starName(s), IsMajor: true})
 		}
-		for _, s := range minorByPalace[palaceIndex(i)] {
+		for _, s := range minorByPalace[zm1] {
 			starInfos = append(starInfos, starInfo{Star: s, Name: starName(s), IsMajor: false})
 		}
 		palaces[i] = palace{

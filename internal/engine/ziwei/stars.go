@@ -48,15 +48,18 @@ var tianfuOffsets = []struct {
 	{TianXiang, 4}, {TianLiang, 5}, {QiSha, 6}, {PoJun, 10},
 }
 
-func placeMainStars(iztroZW, iztroTF int, mingZhi Zhi) map[palaceIndex][]starIndex {
-	m := make(map[palaceIndex][]starIndex)
+func placeMainStars(iztroZW, iztroTF int, _ Zhi) map[int][]starIndex {
+	// 返回 zhiMinus1 坐标（0=子..11=亥）：iztro display(寅=0) → zhiMinus1 固定映射
+	m := make(map[int][]starIndex)
 	for _, e := range ziweiOffsets {
 		izIdx := (iztroZW - e.offset + 12) % 12
-		m[iztroIdxToPalace(izIdx, mingZhi)] = append(m[iztroIdxToPalace(izIdx, mingZhi)], e.star)
+		zm1 := displayToZhiMinus1(izIdx)
+		m[zm1] = append(m[zm1], e.star)
 	}
 	for _, e := range tianfuOffsets {
 		izIdx := (iztroTF + e.offset) % 12
-		m[iztroIdxToPalace(izIdx, mingZhi)] = append(m[iztroIdxToPalace(izIdx, mingZhi)], e.star)
+		zm1 := displayToZhiMinus1(izIdx)
+		m[zm1] = append(m[zm1], e.star)
 	}
 	return m
 }
@@ -137,25 +140,26 @@ func zhiToPalace(zhiMinus1 int, mingZhi Zhi) palaceIndex {
 }
 
 // placeMinorStars collects all 14 minor star placements.
-func placeMinorStars(yearZhu ganzhi.Zhu, lunarMonth int, hourZhi, mingZhi Zhi) map[palaceIndex][]starIndex {
-	m := make(map[palaceIndex][]starIndex)
-	add := func(pos palaceIndex, s starIndex) {
-		m[pos] = append(m[pos], s)
+// 返回 zhiMinus1 坐标（0=子..11=亥）。
+func placeMinorStars(yearZhu ganzhi.Zhu, lunarMonth int, hourZhi, _ Zhi) map[int][]starIndex {
+	m := make(map[int][]starIndex)
+	add := func(zm1 int, s starIndex) {
+		m[zm1] = append(m[zm1], s)
 	}
 	tk := tianKuiPos(yearZhu.Gan)
-	add(zhiToPalace(luCunPos(yearZhu.Gan), mingZhi), LuCun)
-	add(zhiToPalace(tk, mingZhi), TianKui)
-	add(zhiToPalace(tianYuePos(yearZhu.Gan), mingZhi), TianYue)
-	add(zhiToPalace(qingYangPos(yearZhu.Gan), mingZhi), QingYang)
-	add(zhiToPalace(tuoLuoPos(yearZhu.Gan), mingZhi), TuoLuo)
-	add(zhiToPalace(tianMaPos(yearZhu.Zhi), mingZhi), TianMa)
-	add(zhiToPalace(zuoFuPos(lunarMonth), mingZhi), ZuoFu)
-	add(zhiToPalace(youBiPos(lunarMonth), mingZhi), YouBi)
-	add(zhiToPalace(wenChangPos(hourZhi), mingZhi), WenChang)
-	add(zhiToPalace(wenQuPos(hourZhi), mingZhi), WenQu)
-	add(zhiToPalace(diKongPos(hourZhi), mingZhi), DiKong)
-	add(zhiToPalace(diJiePos(hourZhi), mingZhi), DiJie)
-	add(zhiToPalace(huoXingIndex(yearZhu.Zhi, hourZhi), mingZhi), HuoXing)
-	add(zhiToPalace(lingXingIndex(yearZhu.Zhi, hourZhi), mingZhi), LingXing)
+	add(luCunPos(yearZhu.Gan), LuCun)
+	add(tk, TianKui)
+	add(tianYuePos(yearZhu.Gan), TianYue)
+	add(qingYangPos(yearZhu.Gan), QingYang)
+	add(tuoLuoPos(yearZhu.Gan), TuoLuo)
+	add(tianMaPos(yearZhu.Zhi), TianMa)
+	add(zuoFuPos(lunarMonth), ZuoFu)
+	add(youBiPos(lunarMonth), YouBi)
+	add(wenChangPos(hourZhi), WenChang)
+	add(wenQuPos(hourZhi), WenQu)
+	add(diKongPos(hourZhi), DiKong)
+	add(diJiePos(hourZhi), DiJie)
+	add(huoXingIndex(yearZhu.Zhi, hourZhi), HuoXing)
+	add(lingXingIndex(yearZhu.Zhi, hourZhi), LingXing)
 	return m
 }

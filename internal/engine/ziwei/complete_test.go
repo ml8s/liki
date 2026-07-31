@@ -25,6 +25,7 @@ type testCaseRef struct {
 	Palaces  map[string]palaceRef   `json:"palaces"`
 	Yzhi     string                 `json:"yZhi"`
 	Ysihua   map[string]string      `json:"ySihua"`
+	YFlow    []flowPalaceRef        `json:"yFlowPalaces,omitempty"`
 	Mzhi     string                 `json:"mZhi"`
 	Msihua   map[string]string      `json:"mSihua"`
 	Mstars   map[string]int         `json:"mStars"`
@@ -35,6 +36,13 @@ type testCaseRef struct {
 	Hsihua   map[string]string      `json:"hSihua"`
 	Hstars   map[string]int         `json:"hStars"`
 }
+type flowPalaceRef struct {
+	Zhi    string   `json:"zhi"`
+	Name   string   `json:"name"`
+	Stars  []string `json:"stars"`
+	IsMing bool     `json:"is_ming"`
+}
+
 type daxianRef struct {
 	Palace string `json:"palace"`
 	Start  int    `json:"start"`
@@ -107,8 +115,19 @@ func TestComplete(t *testing.T) {
 				}
 			}
 
-			// 流年四化+zhi
+			// 流年盘（命主特定）
 			ln := ComputeLiuNian(fc, 2026)
+			if len(tc.YFlow) == 12 {
+				for fi, fp := range ln.Palaces {
+					ref := tc.YFlow[fi]
+					if fp.Zhi.String() != ref.Zhi { t.Errorf("流年盘[%d]支: got %s want %s", fi, fp.Zhi.String(), ref.Zhi); fail++; continue }
+					if fp.Name != ref.Name { t.Errorf("流年盘[%d]名: got %s want %s", fi, fp.Name, ref.Name); fail++; continue }
+					if !setEq(fp.Stars, ref.Stars) { t.Errorf("流年盘[%d]%s流耀: got %v want %v", fi, ref.Name, fp.Stars, ref.Stars); fail++; continue }
+					if fp.IsMing != ref.IsMing { t.Errorf("流年盘[%d]IsMing: got %v want %v", fi, fp.IsMing, ref.IsMing); fail++; continue }
+					pass++
+				}
+			}
+			// 流年四化+zhi
 			lnZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ln.Zhi]
 			if lnZhi != tc.Yzhi && tc.Yzhi != "" { t.Errorf("流年zhi: got %s want %s", lnZhi, tc.Yzhi) }
 			for sidStr, stype := range tc.Ysihua {
