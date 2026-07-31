@@ -1,9 +1,5 @@
 package qiming
 
-import (
-	"liki-engine/internal/engine/ganzhi"
-)
-
 // SanCai holds the three-talent (三才) analysis.
 type SanCai struct {
 	Configuration string `json:"configuration"`
@@ -20,23 +16,9 @@ func computeSanCai(tianElem, renElem, diElem string) SanCai {
 	return SanCai{Configuration: key, Fortune: fortuneNeutral, Description: "三才配置中等，无大吉亦无大凶。"}
 }
 
-// strokeToWuxing maps the last digit of a wuge number to its wuxing element.
-func strokeToWuxing(n int) ganzhi.Wuxing {
-	switch n % 10 {
-	case 1, 2:
-		return ganzhi.WxMu
-	case 3, 4:
-		return ganzhi.WxHuo
-	case 5, 6:
-		return ganzhi.WxTu
-	case 7, 8:
-		return ganzhi.WxJin
-	default:
-		return ganzhi.WxShui
-	}
-}
-
-// SancaiHarmonious returns true if the three cai elements are mutually generating.
+// SancaiHarmonious returns true if the three-cai configuration is auspicious
+// (大吉/吉), per the 125-combination table (same standard as qiming.check).
+// 五行取自 strokeResult（>81 先按 ((n-1)%81)+1 回绕），与五格评估同一来源。
 func SancaiHarmonious(surnameStroke, s1, s2 int) bool {
 	tian := surnameStroke + 1
 	ren := surnameStroke + s1
@@ -44,8 +26,11 @@ func SancaiHarmonious(surnameStroke, s1, s2 int) bool {
 	if s2 == 0 {
 		di = s1 + 1
 	}
-	return ganzhi.Sheng(strokeToWuxing(tian), strokeToWuxing(ren)) &&
-		ganzhi.Sheng(strokeToWuxing(ren), strokeToWuxing(di))
+	key := strokeResult(tian).Element + strokeResult(ren).Element + strokeResult(di).Element
+	if v, ok := sanCaiCfg[key]; ok {
+		return v.Fortune == fortuneAuspicious || v.Fortune == fortuneGood
+	}
+	return false
 }
 
 // FilterSancai filters stroke pairs to only those with harmonious sancai.

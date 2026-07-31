@@ -2,23 +2,6 @@ package qiming
 
 import "testing"
 
-func TestStrokeToWuxing(t *testing.T) {
-	tests := []struct {
-		n    int
-		want string
-	}{
-		{1, "木"}, {2, "木"}, {3, "火"}, {4, "火"},
-		{5, "土"}, {6, "土"}, {7, "金"}, {8, "金"},
-		{9, "水"}, {10, "水"}, {11, "木"}, {81, "木"},
-	}
-	for _, tt := range tests {
-		got := strokeToWuxing(tt.n).String()
-		if got != tt.want {
-			t.Errorf("strokeToWuxing(%d) = %q, want %q", tt.n, got, tt.want)
-		}
-	}
-}
-
 func TestSancaiHarmonious_AllGenerating(t *testing.T) {
 	// 姓=2 (this is NOT 笔画, but the surname stroke value used in computation)
 	// s1=3, s2=5
@@ -30,29 +13,41 @@ func TestSancaiHarmonious_AllGenerating(t *testing.T) {
 }
 
 func TestSancaiHarmonious_Overcoming(t *testing.T) {
-	// 姓=7, s1=3, s2=5
-	// 天格=8→金, 人格=10→水, 地格=8→金
-	// 金→水(生) ✅, 水→金 ❌ (水→木, not 金)
-	if SancaiHarmonious(7, 3, 5) {
-		t.Error("expected false: 水→金 is not generating")
+	// 姓=7, s1=3, s2=5 → 天格=8金, 人格=10水, 地格=8金 → 金水金
+	// 查表 金水金 = da_ji → 应通过
+	if !SancaiHarmonious(7, 3, 5) {
+		t.Error("expected true: 金水金 is da_ji in table")
 	}
 }
 
 func TestSancaiHarmonious_SingleName(t *testing.T) {
-	// 姓=2, s1=3, s2=0 (单名)
-	// 天格=3→火, 人格=5→土, 地格=3+1=4→火
-	// 火→土(生) ✅, 土→火 ❌ (土→金)
-	if SancaiHarmonious(2, 3, 0) {
-		t.Error("expected false: 土→火 not generating")
+	// 姓=2, s1=3, s2=0 → 天格=3火, 人格=5土, 地格=4火 → 火土火
+	// 查表 火土火 = da_ji → 应通过
+	if !SancaiHarmonious(2, 3, 0) {
+		t.Error("expected true: 火土火 is da_ji in table")
 	}
 }
 
 func TestSancaiHarmonious_SingleHarmonious(t *testing.T) {
-	// 姓=2, s1=5, s2=0
-	// 天格=3→火, 人格=7→金, 地格=5+1=6→土
-	// 火→金 ❌
-	if SancaiHarmonious(2, 5, 0) {
-		t.Error("expected false: 火→金 not generating")
+	// 姓=2, s1=5, s2=0 → 天格=3火, 人格=7金, 地格=6土 → 火金土
+	// 查表 火金土 = da_ji → 应通过
+	if !SancaiHarmonious(2, 5, 0) {
+		t.Error("expected true: 火金土 is da_ji in table")
+	}
+}
+
+func TestSancaiHarmonious_TableLookup(t *testing.T) {
+	// 查表语义：木木木（比和）在大吉表中应通过
+	// 姓=0, s1=1, s2=1 → 天格=1木, 人格=1木, 地格=2木 → 木木木
+	// 125表中 木木木 = da_ji → 应通过
+	if !SancaiHarmonious(0, 1, 1) {
+		t.Error("expected true: 木木木 is da_ji in table")
+	}
+	// 木土水 = xiong → 应拒绝
+	// 天格=1木, 人格=3火?? 需要构造 木土水
+	// 天格=1木 → 姓=0；人格=6土 → s1=6；地格=10水 → s2=4
+	if SancaiHarmonious(0, 6, 4) {
+		t.Error("expected false: 木土水 is xiong in table")
 	}
 }
 

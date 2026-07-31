@@ -434,21 +434,7 @@ func TestEvaluateNames_WithWuxing(t *testing.T) {
 
 
 
-func assertComposeResult(t *testing.T, names []string, surname string, wantRunes int) {
-	t.Helper()
-	if len(names) == 0 {
-		t.Error("ComposeNames should produce names")
-	}
-	for _, n := range names {
-		rs := []rune(n)
-		if len(rs) != wantRunes {
-			t.Errorf("name %q should be %d chars, got %d", n, wantRunes, len(rs))
-		}
-		if string(rs[0]) != surname {
-			t.Errorf("name %q should start with %s", n, surname)
-		}
-	}
-}
+
 
 // =============================================================================
 // ComposeNames — xiChars 含字符时 yong+xi 路径

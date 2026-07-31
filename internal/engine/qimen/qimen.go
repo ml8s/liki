@@ -175,6 +175,26 @@ func (s SpiritIndex) YinName() string {
 	return "?"
 }
 
+// UnmarshalJSON accepts either a spirit name (值符/螣蛇/…) or an integer.
+func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
+	var n int
+	if err := json.Unmarshal(data, &n); err == nil {
+		*s = SpiritIndex(n)
+		return nil
+	}
+	var name string
+	if err := json.Unmarshal(data, &name); err != nil {
+		return fmt.Errorf("spirit must be a string or int, got %s", string(data))
+	}
+	for i := 1; i <= 8; i++ {
+		if SpiritIndex(i).YangName() == name || SpiritIndex(i).YinName() == name {
+			*s = SpiritIndex(i)
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown spirit: %q", name)
+}
+
 // Palace holds all layers of information for one 宫。
 type Palace struct {
 	EarthStem  ganzhi.Gan  `json:"earth_stem"`
@@ -199,6 +219,58 @@ type pan struct {
 	DriveZhi  ganzhi.Zhi      `json:"drive_zhi"`
 	KongWang [2]PalaceIndex `json:"kong_wang"`
 	WuBuYuShi bool           `json:"wu_bu_yu_shi"`
+}
+
+// MarshalJSON outputs spirit names per 阴/阳遁, keeping the rest as-is.
+func (p pan) MarshalJSON() ([]byte, error) {
+	type palias Palace
+	type panAlias struct {
+		Jushu    int      `json:"jushu"`
+		YinDun   bool     `json:"yin_dun"`
+		RiGan    any      `json:"ri_gan"`
+		RiZhi    any      `json:"ri_zhi"`
+		DutyStar any      `json:"duty_star"`
+		DutyDoor any      `json:"duty_door"`
+		Palaces  []palias `json:"palaces"`
+		MaXing   any      `json:"ma_xing"`
+		DriveGan any      `json:"drive_gan"`
+		DriveZhi any      `json:"drive_zhi"`
+		KongWang any      `json:"kong_wang"`
+		WuBuYuShi bool   `json:"wu_bu_yu_shi"`
+	}
+	// 用 map 保留默认序列化，只覆盖 palaces 里的 spirit 为名称
+	m := map[string]any{
+		"jushu": p.Jushu, "yin_dun": p.YinDun,
+		"ri_gan": p.RiGan, "ri_zhi": p.RiZhi,
+		"duty_star": p.DutyStar, "duty_door": p.DutyDoor,
+		"ma_xing": p.MaXing, "drive_gan": p.DriveGan, "drive_zhi": p.DriveZhi,
+		"kong_wang": p.KongWang, "wu_bu_yu_shi": p.WuBuYuShi,
+	}
+	palaces := make([]map[string]any, 9)
+	for i, pl := range p.Palaces {
+		pm := map[string]any{
+			"earth_stem": pl.EarthStem, "heaven_stem": pl.HeavenStem,
+		}
+		if pl.Star != 0 {
+			pm["star"] = pl.Star
+		}
+		if pl.Door != 0 {
+			pm["door"] = pl.Door
+		}
+		if pl.Spirit != 0 {
+			if p.YinDun {
+				pm["spirit"] = pl.Spirit.YinName()
+			} else {
+				pm["spirit"] = pl.Spirit.YangName()
+			}
+		}
+		if pl.HiddenStem != 0 {
+			pm["hidden_stem"] = pl.HiddenStem
+		}
+		palaces[i] = pm
+	}
+	m["palaces"] = palaces
+	return json.Marshal(m)
 }
 
 // duty holds the value符 star and value使 door.

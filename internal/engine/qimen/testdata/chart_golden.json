@@ -1,91 +1,90 @@
 {
   "pan": {
-    "jushu": 6,
-    "yin_dun": true,
-    "ri_gan": "癸",
-    "ri_zhi": "酉",
-    "duty_star": "天蓬",
-    "duty_door": "休门",
-    "palaces": [
-      {
-        "earth_stem": "癸",
-        "heaven_stem": "己",
-        "star": "天禽",
-        "door": "生门",
-        "spirit": 5,
-        "hidden_stem": "己"
-      },
-      {
-        "earth_stem": "壬",
-        "heaven_stem": "戊",
-        "star": "天心",
-        "door": "伤门",
-        "spirit": 4,
-        "hidden_stem": "庚"
-      },
-      {
-        "earth_stem": "辛",
-        "heaven_stem": "乙",
-        "star": "天柱",
-        "door": "杜门",
-        "spirit": 3,
-        "hidden_stem": "辛"
-      },
-      {
-        "earth_stem": "庚",
-        "heaven_stem": "丙",
-        "star": "天任",
-        "door": "景门",
-        "spirit": 2,
-        "hidden_stem": "壬"
-      },
-      {
-        "earth_stem": "己",
-        "heaven_stem": "丁",
-        "star": "天英",
-        "spirit": 0
-      },
-      {
-        "earth_stem": "戊",
-        "heaven_stem": "癸",
-        "star": "天蓬",
-        "door": "死门",
-        "spirit": 1,
-        "hidden_stem": "乙"
-      },
-      {
-        "earth_stem": "乙",
-        "heaven_stem": "壬",
-        "star": "天芮",
-        "door": "惊门",
-        "spirit": 8,
-        "hidden_stem": "丙"
-      },
-      {
-        "earth_stem": "丙",
-        "heaven_stem": "辛",
-        "star": "天冲",
-        "door": "开门",
-        "spirit": 7,
-        "hidden_stem": "丁"
-      },
-      {
-        "earth_stem": "丁",
-        "heaven_stem": "庚",
-        "star": "天辅",
-        "door": "休门",
-        "spirit": 6,
-        "hidden_stem": "戊"
-      }
-    ],
-    "ma_xing": "坤",
     "drive_gan": "戊",
     "drive_zhi": "午",
+    "duty_door": "休门",
+    "duty_star": "天蓬",
+    "jushu": 6,
     "kong_wang": [
       "坎",
       "艮"
     ],
-    "wu_bu_yu_shi": false
+    "ma_xing": "坤",
+    "palaces": [
+      {
+        "door": "生门",
+        "earth_stem": "癸",
+        "heaven_stem": "己",
+        "hidden_stem": "己",
+        "spirit": "白虎",
+        "star": "天禽"
+      },
+      {
+        "door": "伤门",
+        "earth_stem": "壬",
+        "heaven_stem": "戊",
+        "hidden_stem": "庚",
+        "spirit": "六合",
+        "star": "天心"
+      },
+      {
+        "door": "杜门",
+        "earth_stem": "辛",
+        "heaven_stem": "乙",
+        "hidden_stem": "辛",
+        "spirit": "太阴",
+        "star": "天柱"
+      },
+      {
+        "door": "景门",
+        "earth_stem": "庚",
+        "heaven_stem": "丙",
+        "hidden_stem": "壬",
+        "spirit": "螣蛇",
+        "star": "天任"
+      },
+      {
+        "earth_stem": "己",
+        "heaven_stem": "丁",
+        "star": "天英"
+      },
+      {
+        "door": "死门",
+        "earth_stem": "戊",
+        "heaven_stem": "癸",
+        "hidden_stem": "乙",
+        "spirit": "值符",
+        "star": "天蓬"
+      },
+      {
+        "door": "惊门",
+        "earth_stem": "乙",
+        "heaven_stem": "壬",
+        "hidden_stem": "丙",
+        "spirit": "九天",
+        "star": "天芮"
+      },
+      {
+        "door": "开门",
+        "earth_stem": "丙",
+        "heaven_stem": "辛",
+        "hidden_stem": "丁",
+        "spirit": "九地",
+        "star": "天冲"
+      },
+      {
+        "door": "休门",
+        "earth_stem": "丁",
+        "heaven_stem": "庚",
+        "hidden_stem": "戊",
+        "spirit": "玄武",
+        "star": "天辅"
+      }
+    ],
+    "ri_gan": "癸",
+    "ri_zhi": "酉",
+    "wu_bu_yu_shi": false,
+    "yin_dun": true
   },
   "stem_interactions": [
     {
