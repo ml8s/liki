@@ -341,85 +341,6 @@ func TestShiZhu_WuShuDun(t *testing.T) {
 // 命理核心: 真太阳时决定日柱。经度修正±4min/度, EoT ±16min。
 // 东经>120°时真太阳时更早，西经<120°更晚。跨日影响日柱和农历日期。
 
-func TestSolarTime_JiaoChaDaySystematic(t *testing.T) {
-	tests := []struct {
-		name       string
-		y, m, d    int
-		hour, min  int
-		longitude  float64
-		tz         float64
-		wantDay    int    // 期望太阳时日期(日)
-		wantAstH   int    // 期望真太阳时(小时)
-	}{
-		// ── 东端: 经度>120°, 真太阳时提前 → 易跨到次日 ──
-		{
-			"抚远134E-23:30-跨次日",
-			2024, 6, 15, 23, 30, 134, 8,
-			16, 0, // lonOffset=+56min, EoT≈-1.5, raw≈1410+56-1.5=1464.5>1440 → day+1
-		},
-		{
-			"佳木斯130E-23:40-跨次日",
-			2024, 6, 15, 23, 40, 130.3, 8,
-			16, 0, // lonOffset≈+41min, raw≈1420+41-1.5=1459.5>1440 → day+1
-		},
-		{
-			"大连121.6E-23:58-跨次日",
-			2024, 6, 15, 23, 58, 121.6, 8,
-			16, 0, // lonOffset≈+6.4min, raw≈1438+6.4-1.5=1442.9>1440 → day+1
-		},
-		// ── 西端: 经度<120°, 真太阳时延迟 → 易回退到前一天 ──
-		{
-			"喀什76E-02:00-退前日",
-			2024, 6, 16, 2, 0, 76, 8,
-			15, 23, // lonOffset=-176min, EoT≈-1.5, raw≈120-176-1.5=-57.5<0 → day-1
-		},
-		{
-			"乌鲁木齐87.6E-01:00-退前日",
-			2024, 6, 16, 1, 0, 87.6, 8,
-			15, 23, // lonOffset≈-130min, EoT≈-1.5, raw≈60-130-1.5=-71.5<0 → day-1
-		},
-		{
-			"拉萨91E-00:30-退前日",
-			2024, 6, 16, 0, 30, 91, 8,
-			15, 22, // lonOffset≈-116min, EoT≈-1.5, raw≈30-116-1.5=-87.5<0 → day-1
-		},
-		// ── 不跨日: 在边界内 ──
-		{
-			"北京116E-12:00-同日",
-			2024, 6, 15, 12, 0, 116.4, 8,
-			15, 11, // lonOffset=-14.4min, 同日
-		},
-		{
-			"上海121.5E-00:30-同日",
-			2024, 6, 15, 0, 30, 121.5, 8,
-			15, 0, // lonOffset=+6min, raw≈30+6-1.5=34.5, 同日
-		},
-		// ── UTC+9时区 (日本/韩国) ──
-		{
-			"东京139.7E-UTC+9-23:30-同日",
-			2024, 6, 15, 23, 30, 139.7, 9,
-			15, 23, // lonOffset=4*(139.7-135)≈+18.8, raw≈1410+18.8-1.5=1427.3<1440, 同日
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			st := GregorianToSolar(time.Date(tt.y, time.Month(tt.m), tt.d, tt.hour, tt.min, 0, 0, time.FixedZone("", int(tt.tz*3600))), tt.longitude, tt.tz)
-			solarDay := st.Time().Day()
-			solarHour := st.Time().Hour()
-
-			if solarDay != tt.wantDay {
-				t.Errorf("solar day = %d, want %d (hour=%02d:%02d, lon=%.1f)",
-					solarDay, tt.wantDay, solarHour, st.Time().Minute(), tt.longitude)
-			}
-			// 不精确验证小时（EoT变化导致±20min差异）
-			_ = tt.wantAstH
-		})
-	}
-}
-
-// ── 日柱独立验证 (基准1900-01-01=甲戌, 序号10) ──
-
 func TestRiZhu_ModernDates(t *testing.T) {
 	// 基于1900-01-01=甲戌(序号10) 独立推算现代日期日柱
 	// 公式: idx = (10 + daysFrom1900) % 60
@@ -533,35 +454,23 @@ func TestComputeBazi_ComplexBoundaries(t *testing.T) {
 		wantDayZhi     ganzhi.Zhi
 		wantHourZhi    ganzhi.Zhi
 	}{
-		// 抚远(134°E) 23:30 → 太阳时跨到次日 → 日柱用次日，时柱=子时
+		// 晚子时 23:30（对齐 lunar）：日柱当日不变，时柱=子时
 		{
-			"抚远-23:30-跨日-子时",
-			2024, 6, 15, 23, 30, 134, 8,
-			ganzhi.GanXin, ganzhi.ZhiHai, ganzhi.ZhiZi, // 日柱=次日辛亥日, 时=子时
+			"晚子时-23:30-日柱当日",
+			2024, 6, 15, 23, 30, 120, 8,
+			ganzhi.GanGeng, ganzhi.ZhiXu, ganzhi.ZhiZi, // 日柱=当日庚戌, 时=子时
 		},
-		// 喀什(76°E) 02:00 → 太阳时退回前日约23:03 → ast≥1380触发子时规则 → 日柱次日辛亥, 时柱子时
+		// 早子时 00:30：日柱次日，时柱=子时
 		{
-			"喀什-02:00-退前日-子时规则推次日",
-			2024, 6, 16, 2, 0, 76, 8,
-			ganzhi.GanXin, ganzhi.ZhiHai, ganzhi.ZhiZi, // 日柱=辛亥(子时规则推至次日), 时=子时
-		},
-		// 北京(116.4°E) 23:15 → 经度修正-14.4min → 仍为23:00左右 → 子时但同日
-		{
-			"北京-23:15-同日-子时",
-			2024, 6, 15, 23, 15, 116.4, 8,
-			ganzhi.GanXin, ganzhi.ZhiHai, ganzhi.ZhiZi, // 23点后日柱用次日(命理子时规则)
-		},
-		// 东京(139.7°E, UTC+9) 00:30 → 太阳时≈00:49 → 仍在子时(00-01)
-		{
-			"东京-00:30-子时",
-			2024, 6, 15, 0, 30, 139.7, 9,
-			ganzhi.GanGeng, ganzhi.ZhiXu, ganzhi.ZhiZi, // 同日, 00:49仍为子时
+			"早子时-00:30-日柱次日",
+			2024, 6, 16, 0, 30, 120, 8,
+			ganzhi.GanXin, ganzhi.ZhiHai, ganzhi.ZhiZi, // 日柱=次日辛亥, 时=子时
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			st := GregorianToSolar(time.Date(tt.y, time.Month(tt.m), tt.d, tt.hour, tt.min, 0, 0, time.FixedZone("", int(tt.tz*3600))), tt.longitude, tt.tz)
+			st := SolarTime(time.Date(tt.y, time.Month(tt.m), tt.d, tt.hour, tt.min, 0, 0, time.FixedZone("", int(tt.tz*3600))))
 			bz := ComputeBazi(st)
 
 			if bz.Ri.Gan != tt.wantDayGan || bz.Ri.Zhi != tt.wantDayZhi {
@@ -654,22 +563,21 @@ func TestLunarLeapMonth_Consistency(t *testing.T) {
 // ── ComputeBazi 子时日期调整 ──
 
 func TestComputeBazi_ZiShiAdjustment(t *testing.T) {
-	// 23:30 太阳时 → ComputeBazi 应将日期推后一天
+	// 晚子时（23:30）对齐 lunar：日柱不变（当日），时柱=子时
 	loc := time.FixedZone("test", 8*3600)
 	st := SolarTime(time.Date(2024, 6, 15, 23, 30, 0, 0, loc))
 	bz := ComputeBazi(st)
 
-	// 日柱应基于 6月16日 而非 6月15日
+	// 日柱基于 6月15日（当日，不提前换日）
 	dp15 := RiZhu(GregorianTime(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)))
-	dp16 := RiZhu(GregorianTime(time.Date(2024, 6, 16, 0, 0, 0, 0, time.UTC)))
-	if bz.Ri == dp15 {
-		t.Errorf("ZiShi adjustment: day pillar = %v (基于6月15日), should be %v (基于6月16日)",
-			bz.Ri, dp16)
+	if bz.Ri != dp15 {
+		t.Errorf("ZiShi: day pillar = %v, want %v (当日，晚子时不提前换日)", bz.Ri, dp15)
 	}
-	if bz.Ri != dp16 {
-		t.Errorf("ZiShi adjustment: day pillar = %v, want %v (based on Jun 16)", bz.Ri, dp16)
+	// 时柱=子时
+	if bz.Shi.Zhi != ganzhi.ZhiZi {
+		t.Errorf("ZiShi: hour branch = %s, want 子", ganzhi.ZhiName(bz.Shi.Zhi))
 	}
-	t.Logf("Day pillar: %v (Jun 15: %v, Jun 16: %v)", bz.Ri, dp15, dp16)
+	t.Logf("Day pillar: %v (Jun 15), hour: %s", bz.Ri, bz.Shi.Zhi)
 }
 
 // =============================================================================

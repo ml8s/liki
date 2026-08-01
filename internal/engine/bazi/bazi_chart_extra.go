@@ -28,8 +28,6 @@ type ChangShengStage struct {
 
 func ComputeChartExtra(c Chart) ChartExtra {
 	bz := c.ToBazi()
-	birthMonth := (int(bz.Yue.Zhi) + 9) % 12 + 1
-	birthHour := int(bz.Shi.Zhi)
 
 	stages := [12]ChangShengStage{}
 	branches := ganzhi.ChangShengTable[c.Ri.Gan]
@@ -61,7 +59,7 @@ func ComputeChartExtra(c Chart) ChartExtra {
 	}
 
 	return ChartExtra{
-		SanYuan:    computeSanYuan(bz.Yue, bz.Nian.Gan, birthMonth, birthHour),
+		SanYuan:    computeSanYuan(bz.Yue, bz.Nian.Gan, bz.Shi.Zhi),
 		GongJia:    computeGongJia(bz),
 		NayinRel:   nayinRels,
 		ChangSheng: stages,

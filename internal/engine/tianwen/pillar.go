@@ -59,12 +59,13 @@ func YueZhu(gt GregorianTime) ganzhi.Zhu {
 // ShiZhu computes the hour pillar from solar time.
 func ShiZhu(st SolarTime) ganzhi.Zhu {
 	solarMinutes := st.Minutes()
-	daySt := st
-	if solarMinutes >= 1380 {
-		daySt = SolarTime(st.Time().AddDate(0, 0, 1))
-	}
 	zhi := hourZhiFromSolarTime(solarMinutes)
-	dp := RiZhu(GregorianTime(daySt.Time()))
+	// 晚子时（23:00 后）：日柱不变，但时柱按次日日干起（lunar 约定）
+	dayT := st.Time()
+	if solarMinutes >= 1380 {
+		dayT = dayT.AddDate(0, 0, 1)
+	}
+	dp := RiZhu(GregorianTime(dayT))
 	gan := ganzhi.Gan(((int(dp.Gan)*2 + int(zhi) - 2) % 10))
 	if gan == 0 {
 		gan = 10
@@ -74,9 +75,6 @@ func ShiZhu(st SolarTime) ganzhi.Zhu {
 
 func ComputeBazi(st SolarTime) ganzhi.Bazi {
 	t := st.Time()
-	if st.Minutes() >= 1380 {
-		t = t.AddDate(0, 0, 1)
-	}
 	yp := NianZhu(GregorianTime(t))
 	mp := YueZhu(GregorianTime(t.UTC()))
 	dp := RiZhu(GregorianTime(t))

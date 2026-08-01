@@ -380,10 +380,9 @@ func TestPillarConsistency_DayToHour(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			st := tianwen.GregorianToSolar(
+			st := tianwen.SolarTime(
 				time.Date(tt.year, time.Month(tt.month), tt.day, 0, 0, 0, 0,
-					time.FixedZone("CST", 8*3600)),
-				120, 8)
+					time.FixedZone("CST", 8*3600)))
 			chart := ComputeChart(st, ganzhi.Male)
 
 			// Verify day stem matches expected.
