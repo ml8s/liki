@@ -16,7 +16,7 @@ import (
 type baziGoldenCase struct {
 	Name   string  `json:"name"`
 	Solar  string  `json:"solar"`
-	TZ     int     `json:"tz"`
+	TZ     float64 `json:"tz"`
 	Lon    float64 `json:"lon"`
 	Gender string  `json:"gender"`
 	Pillars struct {

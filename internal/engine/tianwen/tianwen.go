@@ -59,15 +59,17 @@ func angleInRange(lon, cur, next float64) bool {
 }
 
 func SolarTermTime(year int, targetLon float64) time.Time {
-	ti := 0
-	for i, lon := range solarTermLongitudes {
-		if math.Abs(lon-targetLon) < 0.01 {
-			ti = i
-			break
-		}
+	// 初始猜测：按黄经基准（太阳 1月1日黄经≈280°，每天 0.9856°）。
+	// 归一化到当年：先算 1月1日黄经，再推 targetLon 对应日。
+	jan1Lon := solarLongitude(time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC))
+	diff0 := targetLon - jan1Lon
+	if diff0 > 180 {
+		diff0 -= 360
+	} else if diff0 < -180 {
+		diff0 += 360
 	}
-	t := time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC).AddDate(0, 0, 35+ti*15)
-	for iter := 0; iter < 20; iter++ {
+	t := time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC).AddDate(0, 0, int(diff0/0.9856))
+	for iter := 0; iter < 30; iter++ {
 		lon := solarLongitude(t)
 		diff := targetLon - lon
 		if diff > 180 { diff -= 360 } else if diff < -180 { diff += 360 }
@@ -122,11 +124,14 @@ func SolarTermIndex(year, month, day int) int {
 // AllSolarTerms returns all 24 solar term times for the given year, ordered
 // from冬至(0) through大雪(23).
 func AllSolarTerms(year int) [24]time.Time {
+	// 24 节气顺序：从 year-1 冬至 到 year 大雪。
+	// 冬至(270°)在 year-1 12月，小寒(285°)在 year 1月，其余在 year 年内。
 	var terms [24]time.Time
-	terms[0] = SolarTermTime(year-1, JieQiLongitudes[21])
-	terms[1] = SolarTermTime(year-1, JieQiLongitudes[22])
-	terms[2] = SolarTermTime(year, JieQiLongitudes[23])
-	for i := 3; i < 12; i++ { terms[i] = SolarTermTime(year, JieQiLongitudes[i-3]) }
-	for i := 12; i < 24; i++ { terms[i] = SolarTermTime(year, JieQiLongitudes[i-3]) }
+	terms[0] = SolarTermTime(year-1, JieQiLongitudes[21]) // 冬至 year-1
+	terms[1] = SolarTermTime(year, JieQiLongitudes[22])   // 小寒 year
+	terms[2] = SolarTermTime(year, JieQiLongitudes[23])   // 大寒 year
+	for i := 3; i < 24; i++ {
+		terms[i] = SolarTermTime(year, JieQiLongitudes[i-3])
+	}
 	return terms
 }
