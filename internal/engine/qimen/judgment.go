@@ -10,9 +10,9 @@ import (
 // JudgmentResult holds the structured judgment for a 奇门 chart.
 type JudgmentResult struct {
 	SubjectPalace    PalaceIndex `json:"subject_palace"`
-	EventPalace      PalaceIndex `json:"event_palace"`
-	DutyStarPalace   PalaceIndex `json:"duty_star_palace"`
-	DutyDoorPalace   PalaceIndex `json:"duty_door_palace"`
+	EventPalace      PalaceIndex `json:"ying_qi_gong"`
+	DutyStarPalace   PalaceIndex `json:"zhi_fu_xing_gong"`
+	DutyDoorPalace   PalaceIndex `json:"zhi_shi_men_gong"`
 	Rating           string   `json:"rating"`
 	ShengKe          string   `json:"sheng_ke"`
 	Patterns         []string `json:"patterns"`

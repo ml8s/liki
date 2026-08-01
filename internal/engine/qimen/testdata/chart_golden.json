@@ -88,64 +88,64 @@
   },
   "stem_interactions": [
     {
-      "earth_stem": "癸",
-      "heaven_stem": "己",
+      "di_pan_gan": "癸",
+      "tian_pan_gan": "己",
       "name": "癸+己",
       "meaning": "上克下，主胜于客",
       "auspicious": false
     },
     {
-      "earth_stem": "壬",
-      "heaven_stem": "戊",
+      "di_pan_gan": "壬",
+      "tian_pan_gan": "戊",
       "name": "壬+戊",
       "meaning": "小蛇化龙：男人发达，事业亨通",
       "auspicious": true
     },
     {
-      "earth_stem": "辛",
-      "heaven_stem": "乙",
+      "di_pan_gan": "辛",
+      "tian_pan_gan": "乙",
       "name": "辛+乙",
       "meaning": "白虎猖狂：家败人亡，远行多殃",
       "auspicious": false
     },
     {
-      "earth_stem": "庚",
-      "heaven_stem": "丙",
+      "di_pan_gan": "庚",
+      "tian_pan_gan": "丙",
       "name": "庚+丙",
       "meaning": "太白入荧：为客进利，为主破财",
       "auspicious": false
     },
     {
-      "earth_stem": "己",
-      "heaven_stem": "丁",
+      "di_pan_gan": "己",
+      "tian_pan_gan": "丁",
       "name": "己+丁",
       "meaning": "上生下，谋事可成",
       "auspicious": true
     },
     {
-      "earth_stem": "戊",
-      "heaven_stem": "癸",
+      "di_pan_gan": "戊",
+      "tian_pan_gan": "癸",
       "name": "戊+癸",
       "meaning": "青龙华盖：门吉招福，门凶多乖",
       "auspicious": false
     },
     {
-      "earth_stem": "乙",
-      "heaven_stem": "壬",
+      "di_pan_gan": "乙",
+      "tian_pan_gan": "壬",
       "name": "乙+壬",
       "meaning": "日奇入地：尊卑悖乱，官讼是非",
       "auspicious": false
     },
     {
-      "earth_stem": "丙",
-      "heaven_stem": "辛",
+      "di_pan_gan": "丙",
+      "tian_pan_gan": "辛",
       "name": "丙+辛",
       "meaning": "日月相会：谋事成就，病人不凶",
       "auspicious": true
     },
     {
-      "earth_stem": "丁",
-      "heaven_stem": "庚",
+      "di_pan_gan": "丁",
+      "tian_pan_gan": "庚",
       "name": "丁+庚",
       "meaning": "行人必归：音信通达，行人必至",
       "auspicious": true
@@ -208,63 +208,63 @@
   "star_interactions": [
     {
       "star": "天禽",
-      "palace": "坎",
+      "gong": "坎",
       "name": "天禽加坎",
       "meaning": "土性中和临坎宫",
       "auspicious": true
     },
     {
       "star": "天心",
-      "palace": "坤",
+      "gong": "坤",
       "name": "天心加坤",
       "meaning": "金性肃杀临坤宫",
       "auspicious": true
     },
     {
       "star": "天柱",
-      "palace": "震",
+      "gong": "震",
       "name": "金星入木宫",
       "meaning": "金能克木，征战得利",
       "auspicious": false
     },
     {
       "star": "天任",
-      "palace": "巽",
+      "gong": "巽",
       "name": "天任加巽",
       "meaning": "土性厚重临巽宫",
       "auspicious": true
     },
     {
       "star": "天英",
-      "palace": "中",
+      "gong": "中",
       "name": "天英加中",
       "meaning": "火性光明临中宫",
       "auspicious": false
     },
     {
       "star": "天蓬",
-      "palace": "乾",
+      "gong": "乾",
       "name": "水星入金宫",
       "meaning": "金生水旺，谋事可成",
       "auspicious": true
     },
     {
       "star": "天芮",
-      "palace": "兑",
+      "gong": "兑",
       "name": "天芮加兑",
       "meaning": "土性之精临兑宫",
       "auspicious": false
     },
     {
       "star": "天冲",
-      "palace": "艮",
+      "gong": "艮",
       "name": "天冲加艮",
       "meaning": "木性之精临艮宫",
       "auspicious": false
     },
     {
       "star": "天辅",
-      "palace": "离",
+      "gong": "离",
       "name": "木星入火宫",
       "meaning": "木火通明，学业有成",
       "auspicious": true
@@ -273,47 +273,47 @@
   "wang_shuai": [
     {
       "star": "天禽",
-      "palace": "坎",
+      "gong": "坎",
       "state": "囚"
     },
     {
       "star": "天心",
-      "palace": "坤",
+      "gong": "坤",
       "state": "相"
     },
     {
       "star": "天柱",
-      "palace": "震",
+      "gong": "震",
       "state": "囚"
     },
     {
       "star": "天任",
-      "palace": "巽",
+      "gong": "巽",
       "state": "废"
     },
     {
       "star": "天英",
-      "palace": "中",
+      "gong": "中",
       "state": "休"
     },
     {
       "star": "天蓬",
-      "palace": "乾",
+      "gong": "乾",
       "state": "相"
     },
     {
       "star": "天芮",
-      "palace": "兑",
+      "gong": "兑",
       "state": "休"
     },
     {
       "star": "天冲",
-      "palace": "艮",
+      "gong": "艮",
       "state": "囚"
     },
     {
       "star": "天辅",
-      "palace": "离",
+      "gong": "离",
       "state": "休"
     }
   ],

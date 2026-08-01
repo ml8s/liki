@@ -5,7 +5,7 @@ import "liki-engine/internal/engine/ganzhi"
 // StarInteraction holds star-palace interaction data.
 type StarInteraction struct {
 	Star       string `json:"star"`
-	Palace     string `json:"palace"`
+	Palace     string `json:"gong"`
 	Name       string `json:"name"`
 	Meaning    string `json:"meaning"`
 	Auspicious bool   `json:"auspicious"`
@@ -76,7 +76,7 @@ func isAuspiciousStar(s StarIndex) bool {
 // WangShuai represents 旺衰 state of a star in a palace.
 type WangShuai struct {
 	Star   StarIndex   `json:"star"`
-	Palace PalaceIndex `json:"palace"`
+	Palace PalaceIndex `json:"gong"`
 	State  string      `json:"state"` // 旺/相/休/囚/废
 }
 

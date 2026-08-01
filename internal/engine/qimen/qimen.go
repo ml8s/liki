@@ -197,8 +197,8 @@ func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
 
 // Palace holds all layers of information for one 宫。
 type Palace struct {
-	EarthStem  ganzhi.Gan  `json:"earth_stem"`
-	HeavenStem ganzhi.Gan  `json:"heaven_stem"`
+	EarthStem  ganzhi.Gan  `json:"di_pan_gan"`
+	HeavenStem ganzhi.Gan  `json:"tian_pan_gan"`
 	Star       StarIndex   `json:"star,omitempty"`
 	Door       DoorIndex   `json:"door,omitempty"`
 	Spirit     SpiritIndex `json:"spirit"`
@@ -211,9 +211,9 @@ type pan struct {
 	YinDun   bool           `json:"yin_dun"`
 	RiGan    ganzhi.Gan     `json:"ri_gan"`
 	RiZhi    ganzhi.Zhi     `json:"ri_zhi"`
-	DutyStar StarIndex      `json:"duty_star"`
-	DutyDoor DoorIndex      `json:"duty_door"`
-	Palaces  [9]Palace      `json:"palaces"`
+	DutyStar StarIndex      `json:"zhi_fu_xing"`
+	DutyDoor DoorIndex      `json:"zhi_shi_men"`
+	Palaces  [9]Palace      `json:"gong_wei"`
 	MaXing   PalaceIndex    `json:"ma_xing"`
 	DriveGan  ganzhi.Gan      `json:"drive_gan"`
 	DriveZhi  ganzhi.Zhi      `json:"drive_zhi"`
@@ -229,9 +229,9 @@ func (p pan) MarshalJSON() ([]byte, error) {
 		YinDun   bool     `json:"yin_dun"`
 		RiGan    any      `json:"ri_gan"`
 		RiZhi    any      `json:"ri_zhi"`
-		DutyStar any      `json:"duty_star"`
-		DutyDoor any      `json:"duty_door"`
-		Palaces  []palias `json:"palaces"`
+		DutyStar any      `json:"zhi_fu_xing"`
+		DutyDoor any      `json:"zhi_shi_men"`
+		Palaces  []palias `json:"gong_wei"`
 		MaXing   any      `json:"ma_xing"`
 		DriveGan any      `json:"drive_gan"`
 		DriveZhi any      `json:"drive_zhi"`
@@ -288,8 +288,8 @@ type juShu struct {
 
 // StemInteraction represents a 十干克应 between earth and heaven stems.
 type StemInteraction struct {
-	EarthStem  ganzhi.Gan `json:"earth_stem"`
-	HeavenStem ganzhi.Gan `json:"heaven_stem"`
+	EarthStem  ganzhi.Gan `json:"di_pan_gan"`
+	HeavenStem ganzhi.Gan `json:"tian_pan_gan"`
 	Name       string     `json:"name"`
 	Meaning    string     `json:"meaning"`
 	Auspicious bool       `json:"auspicious"`
