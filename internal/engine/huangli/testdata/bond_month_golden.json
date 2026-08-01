@@ -5,7 +5,7 @@
   "days": [
     {
       "date": "2026-06-01",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "丙",
         "zhi": "午",
         "na_yin": "天河水"
@@ -22,8 +22,8 @@
       "xi_shen": "西南",
       "cai_shen": "正西",
       "fu_shen": "西北",
-      "stem_taboo": "丙不修灶必见灾殃",
-      "branch_taboo": "午不苫盖屋主更张",
+      "gan_ji": "丙不修灶必见灾殃",
+      "zhi_ji": "午不苫盖屋主更张",
       "mansion": {
         "index": 24,
         "name": "星日马",
@@ -127,7 +127,7 @@
     },
     {
       "date": "2026-06-02",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "丁",
         "zhi": "未",
         "na_yin": "天河水"
@@ -144,8 +144,8 @@
       "xi_shen": "正南",
       "cai_shen": "正西",
       "fu_shen": "正东",
-      "stem_taboo": "丁不剃头头必生疮",
-      "branch_taboo": "未不服药毒气入肠",
+      "gan_ji": "丁不剃头头必生疮",
+      "zhi_ji": "未不服药毒气入肠",
       "mansion": {
         "index": 25,
         "name": "张月鹿",
@@ -249,7 +249,7 @@
     },
     {
       "date": "2026-06-03",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "戊",
         "zhi": "申",
         "na_yin": "大驿土"
@@ -266,8 +266,8 @@
       "xi_shen": "东南",
       "cai_shen": "正北",
       "fu_shen": "正南",
-      "stem_taboo": "戊不受田田主不祥",
-      "branch_taboo": "申不安床鬼祟入房",
+      "gan_ji": "戊不受田田主不祥",
+      "zhi_ji": "申不安床鬼祟入房",
       "mansion": {
         "index": 26,
         "name": "翼火蛇",
@@ -371,7 +371,7 @@
     },
     {
       "date": "2026-06-04",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "己",
         "zhi": "酉",
         "na_yin": "大驿土"
@@ -388,8 +388,8 @@
       "xi_shen": "东北",
       "cai_shen": "正北",
       "fu_shen": "正南",
-      "stem_taboo": "己不破券二比并亡",
-      "branch_taboo": "酉不会客醉坐颠狂",
+      "gan_ji": "己不破券二比并亡",
+      "zhi_ji": "酉不会客醉坐颠狂",
       "mansion": {
         "index": 27,
         "name": "轸水蚓",
@@ -493,7 +493,7 @@
     },
     {
       "date": "2026-06-05",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "庚",
         "zhi": "戌",
         "na_yin": "钗钏金"
@@ -510,8 +510,8 @@
       "xi_shen": "西北",
       "cai_shen": "正东",
       "fu_shen": "西南",
-      "stem_taboo": "庚不经络织机虚张",
-      "branch_taboo": "戌不吃犬作怪上床",
+      "gan_ji": "庚不经络织机虚张",
+      "zhi_ji": "戌不吃犬作怪上床",
       "mansion": {
         "index": 0,
         "name": "角木蛟",
@@ -615,7 +615,7 @@
     },
     {
       "date": "2026-06-06",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "辛",
         "zhi": "亥",
         "na_yin": "钗钏金"
@@ -632,8 +632,8 @@
       "xi_shen": "西南",
       "cai_shen": "正东",
       "fu_shen": "西南",
-      "stem_taboo": "辛不合酱主人不尝",
-      "branch_taboo": "亥不嫁娶不利新郎",
+      "gan_ji": "辛不合酱主人不尝",
+      "zhi_ji": "亥不嫁娶不利新郎",
       "mansion": {
         "index": 1,
         "name": "亢金龙",
@@ -737,7 +737,7 @@
     },
     {
       "date": "2026-06-07",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "壬",
         "zhi": "子",
         "na_yin": "桑柘木"
@@ -754,8 +754,8 @@
       "xi_shen": "正南",
       "cai_shen": "正南",
       "fu_shen": "西北",
-      "stem_taboo": "壬不汲水更难提防",
-      "branch_taboo": "子不问卜自惹祸殃",
+      "gan_ji": "壬不汲水更难提防",
+      "zhi_ji": "子不问卜自惹祸殃",
       "mansion": {
         "index": 2,
         "name": "氐土貉",
@@ -859,7 +859,7 @@
     },
     {
       "date": "2026-06-08",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "癸",
         "zhi": "丑",
         "na_yin": "桑柘木"
@@ -876,8 +876,8 @@
       "xi_shen": "东南",
       "cai_shen": "正南",
       "fu_shen": "正西",
-      "stem_taboo": "癸不词讼理弱敌强",
-      "branch_taboo": "丑不冠带主不还乡",
+      "gan_ji": "癸不词讼理弱敌强",
+      "zhi_ji": "丑不冠带主不还乡",
       "mansion": {
         "index": 3,
         "name": "房日兔",
@@ -981,7 +981,7 @@
     },
     {
       "date": "2026-06-09",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "甲",
         "zhi": "寅",
         "na_yin": "大溪水"
@@ -998,8 +998,8 @@
       "xi_shen": "东北",
       "cai_shen": "东北",
       "fu_shen": "东南",
-      "stem_taboo": "甲不开仓财物耗散",
-      "branch_taboo": "寅不祭祀神鬼不尝",
+      "gan_ji": "甲不开仓财物耗散",
+      "zhi_ji": "寅不祭祀神鬼不尝",
       "mansion": {
         "index": 4,
         "name": "心月狐",
@@ -1103,7 +1103,7 @@
     },
     {
       "date": "2026-06-10",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "乙",
         "zhi": "卯",
         "na_yin": "大溪水"
@@ -1120,8 +1120,8 @@
       "xi_shen": "西北",
       "cai_shen": "东北",
       "fu_shen": "东南",
-      "stem_taboo": "乙不栽植千株不长",
-      "branch_taboo": "卯不穿井水泉不香",
+      "gan_ji": "乙不栽植千株不长",
+      "zhi_ji": "卯不穿井水泉不香",
       "mansion": {
         "index": 5,
         "name": "尾火虎",
@@ -1225,7 +1225,7 @@
     },
     {
       "date": "2026-06-11",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "丙",
         "zhi": "辰",
         "na_yin": "沙中土"
@@ -1242,8 +1242,8 @@
       "xi_shen": "西南",
       "cai_shen": "正西",
       "fu_shen": "西北",
-      "stem_taboo": "丙不修灶必见灾殃",
-      "branch_taboo": "辰不哭泣必主重丧",
+      "gan_ji": "丙不修灶必见灾殃",
+      "zhi_ji": "辰不哭泣必主重丧",
       "mansion": {
         "index": 6,
         "name": "箕水豹",
@@ -1347,7 +1347,7 @@
     },
     {
       "date": "2026-06-12",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "丁",
         "zhi": "巳",
         "na_yin": "沙中土"
@@ -1364,8 +1364,8 @@
       "xi_shen": "正南",
       "cai_shen": "正西",
       "fu_shen": "正东",
-      "stem_taboo": "丁不剃头头必生疮",
-      "branch_taboo": "巳不远行财物伏藏",
+      "gan_ji": "丁不剃头头必生疮",
+      "zhi_ji": "巳不远行财物伏藏",
       "mansion": {
         "index": 7,
         "name": "斗木獬",
@@ -1469,7 +1469,7 @@
     },
     {
       "date": "2026-06-13",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "戊",
         "zhi": "午",
         "na_yin": "天上火"
@@ -1486,8 +1486,8 @@
       "xi_shen": "东南",
       "cai_shen": "正北",
       "fu_shen": "正南",
-      "stem_taboo": "戊不受田田主不祥",
-      "branch_taboo": "午不苫盖屋主更张",
+      "gan_ji": "戊不受田田主不祥",
+      "zhi_ji": "午不苫盖屋主更张",
       "mansion": {
         "index": 8,
         "name": "牛金牛",
@@ -1591,7 +1591,7 @@
     },
     {
       "date": "2026-06-14",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "己",
         "zhi": "未",
         "na_yin": "天上火"
@@ -1608,8 +1608,8 @@
       "xi_shen": "东北",
       "cai_shen": "正北",
       "fu_shen": "正南",
-      "stem_taboo": "己不破券二比并亡",
-      "branch_taboo": "未不服药毒气入肠",
+      "gan_ji": "己不破券二比并亡",
+      "zhi_ji": "未不服药毒气入肠",
       "mansion": {
         "index": 9,
         "name": "女土蝠",
@@ -1713,7 +1713,7 @@
     },
     {
       "date": "2026-06-15",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "庚",
         "zhi": "申",
         "na_yin": "石榴木"
@@ -1730,8 +1730,8 @@
       "xi_shen": "西北",
       "cai_shen": "正东",
       "fu_shen": "西南",
-      "stem_taboo": "庚不经络织机虚张",
-      "branch_taboo": "申不安床鬼祟入房",
+      "gan_ji": "庚不经络织机虚张",
+      "zhi_ji": "申不安床鬼祟入房",
       "mansion": {
         "index": 10,
         "name": "虚日鼠",
@@ -1835,7 +1835,7 @@
     },
     {
       "date": "2026-06-16",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "辛",
         "zhi": "酉",
         "na_yin": "石榴木"
@@ -1852,8 +1852,8 @@
       "xi_shen": "西南",
       "cai_shen": "正东",
       "fu_shen": "西南",
-      "stem_taboo": "辛不合酱主人不尝",
-      "branch_taboo": "酉不会客醉坐颠狂",
+      "gan_ji": "辛不合酱主人不尝",
+      "zhi_ji": "酉不会客醉坐颠狂",
       "mansion": {
         "index": 11,
         "name": "危月燕",
@@ -1957,7 +1957,7 @@
     },
     {
       "date": "2026-06-17",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "壬",
         "zhi": "戌",
         "na_yin": "大海水"
@@ -1974,8 +1974,8 @@
       "xi_shen": "正南",
       "cai_shen": "正南",
       "fu_shen": "西北",
-      "stem_taboo": "壬不汲水更难提防",
-      "branch_taboo": "戌不吃犬作怪上床",
+      "gan_ji": "壬不汲水更难提防",
+      "zhi_ji": "戌不吃犬作怪上床",
       "mansion": {
         "index": 12,
         "name": "室火猪",
@@ -2079,7 +2079,7 @@
     },
     {
       "date": "2026-06-18",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "癸",
         "zhi": "亥",
         "na_yin": "大海水"
@@ -2096,8 +2096,8 @@
       "xi_shen": "东南",
       "cai_shen": "正南",
       "fu_shen": "正西",
-      "stem_taboo": "癸不词讼理弱敌强",
-      "branch_taboo": "亥不嫁娶不利新郎",
+      "gan_ji": "癸不词讼理弱敌强",
+      "zhi_ji": "亥不嫁娶不利新郎",
       "mansion": {
         "index": 13,
         "name": "壁水貐",
@@ -2201,7 +2201,7 @@
     },
     {
       "date": "2026-06-19",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "甲",
         "zhi": "子",
         "na_yin": "海中金"
@@ -2218,8 +2218,8 @@
       "xi_shen": "东北",
       "cai_shen": "东北",
       "fu_shen": "东南",
-      "stem_taboo": "甲不开仓财物耗散",
-      "branch_taboo": "子不问卜自惹祸殃",
+      "gan_ji": "甲不开仓财物耗散",
+      "zhi_ji": "子不问卜自惹祸殃",
       "mansion": {
         "index": 10,
         "name": "虚日鼠",
@@ -2323,7 +2323,7 @@
     },
     {
       "date": "2026-06-20",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "乙",
         "zhi": "丑",
         "na_yin": "海中金"
@@ -2340,8 +2340,8 @@
       "xi_shen": "西北",
       "cai_shen": "东北",
       "fu_shen": "东南",
-      "stem_taboo": "乙不栽植千株不长",
-      "branch_taboo": "丑不冠带主不还乡",
+      "gan_ji": "乙不栽植千株不长",
+      "zhi_ji": "丑不冠带主不还乡",
       "mansion": {
         "index": 11,
         "name": "危月燕",
@@ -2445,7 +2445,7 @@
     },
     {
       "date": "2026-06-21",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "丙",
         "zhi": "寅",
         "na_yin": "炉中火"
@@ -2462,8 +2462,8 @@
       "xi_shen": "西南",
       "cai_shen": "正西",
       "fu_shen": "西北",
-      "stem_taboo": "丙不修灶必见灾殃",
-      "branch_taboo": "寅不祭祀神鬼不尝",
+      "gan_ji": "丙不修灶必见灾殃",
+      "zhi_ji": "寅不祭祀神鬼不尝",
       "mansion": {
         "index": 12,
         "name": "室火猪",
@@ -2567,7 +2567,7 @@
     },
     {
       "date": "2026-06-22",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "丁",
         "zhi": "卯",
         "na_yin": "炉中火"
@@ -2584,8 +2584,8 @@
       "xi_shen": "正南",
       "cai_shen": "正西",
       "fu_shen": "正东",
-      "stem_taboo": "丁不剃头头必生疮",
-      "branch_taboo": "卯不穿井水泉不香",
+      "gan_ji": "丁不剃头头必生疮",
+      "zhi_ji": "卯不穿井水泉不香",
       "mansion": {
         "index": 13,
         "name": "壁水貐",
@@ -2689,7 +2689,7 @@
     },
     {
       "date": "2026-06-23",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "戊",
         "zhi": "辰",
         "na_yin": "大林木"
@@ -2706,8 +2706,8 @@
       "xi_shen": "东南",
       "cai_shen": "正北",
       "fu_shen": "正南",
-      "stem_taboo": "戊不受田田主不祥",
-      "branch_taboo": "辰不哭泣必主重丧",
+      "gan_ji": "戊不受田田主不祥",
+      "zhi_ji": "辰不哭泣必主重丧",
       "mansion": {
         "index": 14,
         "name": "奎木狼",
@@ -2811,7 +2811,7 @@
     },
     {
       "date": "2026-06-24",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "己",
         "zhi": "巳",
         "na_yin": "大林木"
@@ -2828,8 +2828,8 @@
       "xi_shen": "东北",
       "cai_shen": "正北",
       "fu_shen": "正南",
-      "stem_taboo": "己不破券二比并亡",
-      "branch_taboo": "巳不远行财物伏藏",
+      "gan_ji": "己不破券二比并亡",
+      "zhi_ji": "巳不远行财物伏藏",
       "mansion": {
         "index": 15,
         "name": "娄金狗",
@@ -2933,7 +2933,7 @@
     },
     {
       "date": "2026-06-25",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "庚",
         "zhi": "午",
         "na_yin": "路旁土"
@@ -2950,8 +2950,8 @@
       "xi_shen": "西北",
       "cai_shen": "正东",
       "fu_shen": "西南",
-      "stem_taboo": "庚不经络织机虚张",
-      "branch_taboo": "午不苫盖屋主更张",
+      "gan_ji": "庚不经络织机虚张",
+      "zhi_ji": "午不苫盖屋主更张",
       "mansion": {
         "index": 16,
         "name": "胃土雉",
@@ -3055,7 +3055,7 @@
     },
     {
       "date": "2026-06-26",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "辛",
         "zhi": "未",
         "na_yin": "路旁土"
@@ -3072,8 +3072,8 @@
       "xi_shen": "西南",
       "cai_shen": "正东",
       "fu_shen": "西南",
-      "stem_taboo": "辛不合酱主人不尝",
-      "branch_taboo": "未不服药毒气入肠",
+      "gan_ji": "辛不合酱主人不尝",
+      "zhi_ji": "未不服药毒气入肠",
       "mansion": {
         "index": 17,
         "name": "昴日鸡",
@@ -3177,7 +3177,7 @@
     },
     {
       "date": "2026-06-27",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "壬",
         "zhi": "申",
         "na_yin": "剑锋金"
@@ -3194,8 +3194,8 @@
       "xi_shen": "正南",
       "cai_shen": "正南",
       "fu_shen": "西北",
-      "stem_taboo": "壬不汲水更难提防",
-      "branch_taboo": "申不安床鬼祟入房",
+      "gan_ji": "壬不汲水更难提防",
+      "zhi_ji": "申不安床鬼祟入房",
       "mansion": {
         "index": 18,
         "name": "毕月乌",
@@ -3299,7 +3299,7 @@
     },
     {
       "date": "2026-06-28",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "癸",
         "zhi": "酉",
         "na_yin": "剑锋金"
@@ -3316,8 +3316,8 @@
       "xi_shen": "东南",
       "cai_shen": "正南",
       "fu_shen": "正西",
-      "stem_taboo": "癸不词讼理弱敌强",
-      "branch_taboo": "酉不会客醉坐颠狂",
+      "gan_ji": "癸不词讼理弱敌强",
+      "zhi_ji": "酉不会客醉坐颠狂",
       "mansion": {
         "index": 19,
         "name": "觜火猴",
@@ -3421,7 +3421,7 @@
     },
     {
       "date": "2026-06-29",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "甲",
         "zhi": "戌",
         "na_yin": "山头火"
@@ -3438,8 +3438,8 @@
       "xi_shen": "东北",
       "cai_shen": "东北",
       "fu_shen": "东南",
-      "stem_taboo": "甲不开仓财物耗散",
-      "branch_taboo": "戌不吃犬作怪上床",
+      "gan_ji": "甲不开仓财物耗散",
+      "zhi_ji": "戌不吃犬作怪上床",
       "mansion": {
         "index": 20,
         "name": "参水猿",
@@ -3543,7 +3543,7 @@
     },
     {
       "date": "2026-06-30",
-      "day_pillar": {
+      "ri_zhu": {
         "gan": "乙",
         "zhi": "亥",
         "na_yin": "山头火"
@@ -3560,8 +3560,8 @@
       "xi_shen": "西北",
       "cai_shen": "东北",
       "fu_shen": "东南",
-      "stem_taboo": "乙不栽植千株不长",
-      "branch_taboo": "亥不嫁娶不利新郎",
+      "gan_ji": "乙不栽植千株不长",
+      "zhi_ji": "亥不嫁娶不利新郎",
       "mansion": {
         "index": 21,
         "name": "井木犴",

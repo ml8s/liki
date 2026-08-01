@@ -76,7 +76,7 @@ func computeJieQiDepth(year, month, day int) jieQiDepth {
 
 // renYuanSiLing describes which hidden stem governs during each portion of a month.
 type renYuanSiLing struct {
-	MonthBranch ganzhi.Zhi                  `json:"month_branch"`
+	MonthBranch ganzhi.Zhi                  `json:"yue_zhi"`
 	Phases      []ganzhi.RenYuanSiLingFenYe `json:"phases"`
 	Current     *ganzhi.RenYuanSiLingFenYe  `json:"current"` // current governing stem, if date provided
 }

@@ -18,7 +18,7 @@ type ShiChenFortune struct {
 
 type Day struct {
 	Date       string            `json:"date"`
-	RiZhu  riZhuInfo     `json:"day_pillar"`
+	RiZhu  riZhuInfo     `json:"ri_zhu"`
 	NaYin    string `json:"nayin"`
 	Wuxing   string `json:"wuxing"`
 	JianChu    string            `json:"jian_chu"`
@@ -26,8 +26,8 @@ type Day struct {
 	XiShen      string          `json:"xi_shen"`
 	CaiShen     string          `json:"cai_shen"`
 	FuShen      string          `json:"fu_shen"`
-	StemTaboo   string          `json:"stem_taboo"`
-	BranchTaboo string          `json:"branch_taboo"`
+	StemTaboo   string          `json:"gan_ji"`
+	BranchTaboo string          `json:"zhi_ji"`
 	Mansion    dayMansion        `json:"mansion"`
 	JieQi      string            `json:"jie_qi"`
 	JieQiDays  int               `json:"jie_qi_days"`

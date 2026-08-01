@@ -11,7 +11,7 @@ const (
 type ge struct {
 	Stroke      int    `json:"stroke"`
 	Element     string `json:"wuxing"`
-	Fortune     string `json:"fortune"`
+	Fortune     string `json:"ji_xiong"`
 	Description string `json:"description"`
 }
 

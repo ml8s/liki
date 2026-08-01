@@ -3,7 +3,7 @@ package qiming
 // SanCai holds the three-talent (三才) analysis.
 type SanCai struct {
 	Configuration string `json:"configuration"`
-	Fortune       string `json:"fortune"`
+	Fortune       string `json:"ji_xiong"`
 	Description   string `json:"description"`
 }
 

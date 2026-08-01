@@ -1,6 +1,6 @@
 {
   "date": "2026-06-28",
-  "day_pillar": {
+  "ri_zhu": {
     "gan": "癸",
     "zhi": "酉",
     "na_yin": "剑锋金"
@@ -17,8 +17,8 @@
   "xi_shen": "东南",
   "cai_shen": "正南",
   "fu_shen": "正西",
-  "stem_taboo": "癸不词讼理弱敌强",
-  "branch_taboo": "酉不会客醉坐颠狂",
+  "gan_ji": "癸不词讼理弱敌强",
+  "zhi_ji": "酉不会客醉坐颠狂",
   "mansion": {
     "index": 19,
     "name": "觜火猴",
