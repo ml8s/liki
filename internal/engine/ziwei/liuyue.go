@@ -20,8 +20,8 @@ type LiuYue struct {
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]Zhi `json:"stars,omitempty"`
-	Palaces      [12]flowPalace `json:"palaces,omitempty"`
+	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
+	Palaces      [12]flowPalace `json:"gong_wei,omitempty"`
 }
 
 // ComputeLiuYue computes the flow month chart.
@@ -85,8 +85,8 @@ type LiuRi struct {
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]Zhi `json:"stars,omitempty"`
-	Palaces      [12]flowPalace `json:"palaces,omitempty"`
+	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
+	Palaces      [12]flowPalace `json:"gong_wei,omitempty"`
 }
 
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
@@ -143,8 +143,8 @@ type LiuShi struct {
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]Zhi `json:"stars,omitempty"`
-	Palaces      [12]flowPalace `json:"palaces,omitempty"`
+	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
+	Palaces      [12]flowPalace `json:"gong_wei,omitempty"`
 }
 
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.

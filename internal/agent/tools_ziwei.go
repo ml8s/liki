@@ -167,13 +167,13 @@ var ziweiMethods = []RPCMethod{
 		Name: "ziwei.liuyue", Description: "紫微流月。返回流月命盘及各宫变化。",
 		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer","description":"流年年份"},"lunar_month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_nian","lunar_month","chart"]}`),
 		Handler: ziweiLiuyueHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流月地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"xing_yao":{"type":"object","description":"月星: {星名: zhiIdx}"}},"required":["ming_gong","zhi","si_hua"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流月地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"xing_yao":{"type":"object","description":"月星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流月十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 	{
 		Name: "ziwei.liuri", Description: "紫微流日。返回流日命盘及各宫变化。",
 		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer","description":"流年年份"},"lunar_month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"lunar_day":{"type":"integer","minimum":1,"maximum":30,"description":"农历日期"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["liu_nian","lunar_month","lunar_day","chart"]}`),
 		Handler: ziweiLiuriHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流日地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"xing_yao":{"type":"object","description":"日星: {星名: zhiIdx}"}},"required":["ming_gong","zhi","si_hua"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流日地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"xing_yao":{"type":"object","description":"日星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流日十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 	{
 		Name: "ziwei.judgment", Description: "紫微综合盘论断。返回格局、四化、三方四正、综合评级。",
@@ -197,7 +197,7 @@ var ziweiMethods = []RPCMethod{
 		Name: "ziwei.liushi", Description: "紫微流时。返回流时命宫及四化。",
 		Handler: ziweiLiuShiHandler,
 		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer"},"lunar_month":{"type":"integer"},"lunar_day":{"type":"integer"},"shi_zhi":{"type":"integer"},"chart":{"type":"object"}},"required":["liu_nian","lunar_month","lunar_day","shi_zhi","chart"]}`),
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流时地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"xing_yao":{"type":"object","description":"时星: {星名: zhiIdx}"}},"required":["ming_gong","zhi","si_hua"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流时地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object"},"xing_yao":{"type":"object","description":"时星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流时十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 }
 
