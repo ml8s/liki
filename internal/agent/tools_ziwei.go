@@ -185,7 +185,7 @@ var ziweiMethods = []RPCMethod{
 		Name: "ziwei.bond", Description: "紫微合盘。返回双方命盘交互分析。",
 		Params: mustSchema(`{"type":"object","properties":{"a":{"type":"object","description":"甲方紫微盘（ziwei.chart 返回的完整对象）"},"b":{"type":"object","description":"乙方紫微盘（ziwei.chart 返回的完整对象）"}},"required":["a","b"]}`),
 		Handler: ziweiBondHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong_hu_ru":{"type":"object"},"ming_gong_hu_ru":{"type":"object"},"fu_qi_gong":{"type":"object"},"zi_nv_gong":{"type":"object"},"ji_xing":{"type":"array"},"sha_xing":{"type":"array"},"lu_ma":{"type":"array"},"kong_wang":{"type":"array"},"si_hua":{"type":"array"},"wu_xing_sheng_ke":{"type":"string"},"summary":{"type":"string"}},"required":["ming_gong_hu_ru","wu_xing_sheng_ke"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"jia_gong_name":{"type":"string","description":"甲宫名"},"yi_gong_name":{"type":"string","description":"乙宫名"},"ming_gong_hu_ru":{"type":"object"},"ming_gong_hu_ru":{"type":"object"},"fu_qi_gong":{"type":"object"},"zi_nv_gong":{"type":"object"},"ji_xing":{"type":"array"},"sha_xing":{"type":"array"},"lu_ma_ru":{"type":"array","description":"禄马入"},"kong_wang":{"type":"array"},"si_hua_ru":{"type":"array","description":"四化入"},"wu_xing_sheng_ke":{"type":"string"},"summary":{"type":"string"}},"required":["ming_gong_hu_ru","wu_xing_sheng_ke"]}`),
 	},
 	{
 		Name: "ziwei.fullchart", Description: "紫微全盘。扩展杂曜、长生、博士、小限、将前、岁前。",

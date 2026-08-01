@@ -7,17 +7,17 @@ type Bond struct {
 	BGongName string `json:"yi_gong_name"`
 
 	PalaceCross struct {
-		AIntoB string `json:"a_into_b"`
-		BIntoA string `json:"b_into_a"`
+		AIntoB string `json:"jia_ru_yi"`
+		BIntoA string `json:"yi_ru_jia"`
 	} `json:"ming_gong_hu_ru"`
 
 	FuQiGong  *PairRef      `json:"fu_qi_gong,omitempty"`
 	ZiNvGong   *PairRef      `json:"zi_nv_gong,omitempty"`
 	JiXing  []StarCross   `json:"ji_xing,omitempty"`
 	ShaXing  []StarCross   `json:"sha_xing,omitempty"`
-	LuMaIn     []StarCross   `json:"lu_ma_in,omitempty"`
+	LuMaIn     []StarCross   `json:"lu_ma_ru,omitempty"`
 	KongWang     []StarCross   `json:"kong_wang,omitempty"`
-	SiHuaIn    []SiHuaCross  `json:"sihua_in,omitempty"`
+	SiHuaIn    []SiHuaCross  `json:"si_hua_ru,omitempty"`
 	WuXingShengKe string        `json:"wu_xing_sheng_ke"`
 	Summary    string        `json:"summary"`
 }
@@ -46,8 +46,8 @@ type SiHuaCross struct {
 func ComputeBond(a, b Chart) Bond {
 	ai, bi := mingGongHuRu(a, b)
 	pc := struct {
-		AIntoB string `json:"a_into_b"`
-		BIntoA string `json:"b_into_a"`
+		AIntoB string `json:"jia_ru_yi"`
+		BIntoA string `json:"yi_ru_jia"`
 	}{ai, bi}
 	return Bond{
 		AGongName: fmt.Sprintf("%d", a.BirthYear),
