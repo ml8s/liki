@@ -49,15 +49,15 @@ func TestFlowStarsAgainstIz(t *testing.T) {
 		shiGan := shiGanCalc(dayGan, hourZhi)
 
 		// 计算Liki expected star positions
-		likiStars := starZhiM1Map2(monthGan, monthZhi, dayGan, dayZhi, shiGan, hourZhi)
+		likiStars := starZhiIdxMap(monthGan, monthZhi, dayGan, dayZhi, shiGan, hourZhi)
 
 		// 对比iztro golden
-		for sName, iztroZhiM1 := range tc.FlowStars {
+		for sName, goldenZhiIdx := range tc.FlowStars {
 			total++
-			likiZhiM1, ok := likiStars[sName]
+			engineZhiIdx, ok := likiStars[sName]
 			if !ok { t.Errorf("%s %s: missing in Liki", tc.Lunar, sName); continue }
-			if likiZhiM1 != iztroZhiM1 {
-				fails = append(fails, failT{tc.Lunar, sName, likiZhiM1, iztroZhiM1})
+			if engineZhiIdx != goldenZhiIdx {
+				fails = append(fails, failT{tc.Lunar, sName, engineZhiIdx, goldenZhiIdx})
 			} else { pass++ }
 		}
 	}
@@ -73,7 +73,7 @@ func TestFlowStarsAgainstIz(t *testing.T) {
 	if len(fails) > 0 { fmt.Printf("失败: %d\n", len(fails)) }
 }
 
-func starZhiM1Map2(mg Gan, mz Zhi, dg Gan, dz Zhi, sg Gan, sz Zhi) map[string]int {
+func starZhiIdxMap(mg Gan, mz Zhi, dg Gan, dz Zhi, sg Gan, sz Zhi) map[string]int {
 	r := make(map[string]int)
 	mchg, mqu := liuChangQuByGan(mg)
 	dchg, dqu := liuChangQuByGan(dg)

@@ -38,8 +38,8 @@ func zhiIdxToAnXingIdx(zhiIdx int) int {
 type flowPalace struct {
 	Zhi    Zhi      `json:"zhi"`     // 地支
 	Name   string   `json:"name"`    // 宫名（命盘标签）
-	Stars  []string `json:"stars"`   // 流耀星名（无则为空）
-	IsMing bool     `json:"is_ming"` // 是否流盘命宫
+	Stars  []string `json:"xing_yao"`   // 流耀星名（无则为空）
+	IsMing bool     `json:"is_liu_ming"` // 是否流盘命宫
 }
 
 // buildFlowPalaces builds a 12-palace flow chart in 安星序 (寅=0 ... 丑=11).

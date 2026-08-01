@@ -211,9 +211,9 @@ type palace struct {
 	Name         string      `json:"name"`
 	Gan          Gan         `json:"gan"`
 	Zhi          Zhi         `json:"zhi"`
-	IsBodyPalace bool        `json:"is_body_palace"`
+	IsBodyPalace bool        `json:"is_shen_gong"`
 	IsYuanGong   bool        `json:"is_yuan_gong,omitempty"`
-	Stars        []starInfo  `json:"stars"`
+	Stars        []starInfo  `json:"xing_yao"`
 	ZiweiStar    *starIndex  `json:"ziwei_star,omitempty"`
 	Ages         []int       `json:"ages,omitempty"`
 	ChangSheng   string      `json:"chang_sheng,omitempty"`
@@ -225,11 +225,11 @@ type palace struct {
 
 // starInfo is one star entry in a palace.
 type starInfo struct {
-	Star    starIndex `json:"star"`
+	Star    starIndex `json:"xing"`
 	Name    string    `json:"name"`
-	IsMajor bool      `json:"is_major"`
+	IsMajor bool      `json:"is_zhu_xing"`
 	SiHua   string    `json:"si_hua,omitempty"`     // "禄"/"权"/"科"/"忌" or empty
-	Brightness string  `json:"brightness,omitempty"` // "庙"/"旺"/"利"/"平"/"陷"
+	Brightness string  `json:"liang_du,omitempty"` // "庙"/"旺"/"利"/"平"/"陷"
 }
 
 // siHuaType is one of the four transformations.
@@ -244,7 +244,7 @@ const (
 
 // Chart holds the complete ziwei chart.
 type Chart struct {
-	Palaces     [12]palace   `json:"palaces"`
+	Palaces     [12]palace   `json:"gong_wei"`
 	MingGong    palaceIndex  `json:"ming_gong"`
 	ShenGong    palaceIndex  `json:"shen_gong"`
 	JuShu       juShu        `json:"ju_shu"`
@@ -272,7 +272,7 @@ type siHuaResult map[starIndex]siHuaType
 type DaXianStep struct {
 	QiSui int         `json:"qi_sui"`
 	ZhiSui int        `json:"zhi_sui"`
-	Palace palaceIndex `json:"palace"`
+	Palace palaceIndex `json:"gong"`
 	Name   string      `json:"name"`
 }
 
@@ -284,6 +284,6 @@ type LiuNian struct {
 	SiHua        siHuaResult              `json:"si_hua"`
 	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_palace"`
 	FuXing       map[starIndex]Zhi         `json:"fu_xing"`
-	Palaces      [12]flowPalace           `json:"palaces"`       // 流年盘（地支坐标 12 宫）
+	Palaces      [12]flowPalace           `json:"gong_wei"`       // 流年盘（地支坐标 12 宫）
 }
 

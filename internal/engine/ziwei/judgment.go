@@ -9,8 +9,8 @@ import (
 // ── Judgment types ──
 
 type SiHuaItem struct {
-	StarID   int    `json:"star_id"`
-	StarName string `json:"star_name"`
+	StarID   int    `json:"xing_id"`
+	StarName string `json:"xing_name"`
 	Type     string `json:"type"`
 }
 
@@ -47,7 +47,7 @@ type judgmentConds struct {
 	TopCount    *countRange `json:"top_count,omitempty"`
 	LowScore    *int        `json:"low_score,omitempty"`
 	SiHuaCount  *countRange `json:"si_hua_count,omitempty"`
-	Brightness  []string    `json:"brightness,omitempty"`
+	Brightness  []string    `json:"liang_du,omitempty"`
 	ShaXing     []string    `json:"sha_xing,omitempty"`
 	MingGong    string      `json:"ming_gong,omitempty"`
 }

@@ -3,8 +3,8 @@ package ziwei
 import "fmt"
 
 type Bond struct {
-	AGongName string `json:"a_gong_name"`
-	BGongName string `json:"b_gong_name"`
+	AGongName string `json:"jia_gong_name"`
+	BGongName string `json:"yi_gong_name"`
 
 	PalaceCross struct {
 		AIntoB string `json:"a_into_b"`
@@ -23,8 +23,8 @@ type Bond struct {
 }
 
 type PairRef struct {
-	AGongName string   `json:"a_gong_name"`
-	BGongName string   `json:"b_gong_name"`
+	AGongName string   `json:"jia_gong_name"`
+	BGongName string   `json:"yi_gong_name"`
 	AZhuXing  []string `json:"a_zhu_xing"`
 	BZhuXing  []string `json:"b_zhu_xing"`
 	PanJue    string   `json:"pan_jue"`
