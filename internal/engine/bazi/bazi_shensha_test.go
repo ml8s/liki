@@ -12,7 +12,8 @@ import (
 // 基于标准神煞口诀独立验证，不依赖代码实现。
 
 func makeChart(year, month, day, hour, minute int, lon, tz float64, gender ganzhi.Gender) Chart {
-	st := tianwen.GregorianToSolar(time.Date(year, time.Month(month), day, hour, minute, 0, 0, time.FixedZone("", int(tz*3600))), lon, tz)
+	// 公历直接排盘（对齐生产链路，不做真太阳时经度校正）
+	st := tianwen.SolarTime(time.Date(year, time.Month(month), day, hour, minute, 0, 0, time.FixedZone("", int(tz*3600))))
 	return ComputeChart(st, gender)
 }
 

@@ -7,6 +7,9 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
+// cstLocation 八字排盘基准时区（北京时间）。
+var cstLocation = time.FixedZone("CST", 8*3600)
+
 // DaYun direction constants.
 const (
 	DirShunPai = "顺排"
@@ -166,7 +169,7 @@ func daYunShiShenLabel(riYuan, other ganzhi.Gan) string {
 // hourZhiIndex 时辰地支索引（子=0..亥=11，23 点=11）。
 func hourZhiIndex(t time.Time) int {
 	// 八字时辰按北京时间（+8）判定
-	local := t.In(time.FixedZone("CST", 8*3600))
+	local := t.In(cstLocation)
 	h := local.Hour()
 	if h == 23 {
 		return 11
@@ -177,7 +180,7 @@ func hourZhiIndex(t time.Time) int {
 // calendarDays 纯日期差（忽略时刻，lunar Solar.subtract 语义）。
 func calendarDays(a, b time.Time) int {
 	// 统一按北京时间取日期（八字排盘基准）
-	cst := time.FixedZone("CST", 8*3600)
+	cst := cstLocation
 	ay, am, ad := a.In(cst).Date()
 	by, bm, bd := b.In(cst).Date()
 	ta := time.Date(ay, am, ad, 0, 0, 0, 0, cst)
