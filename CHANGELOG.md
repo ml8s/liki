@@ -1,5 +1,19 @@
 # Changelog
-- 2.1.0: 紫微流盘完整增强 + 坐标真相源改造
+- 2.2.0: 全域命理值 JSON 字段拼音化（破坏性 API）
+  - [bazi] 合盘字段：a_zhu/a_stem/a_branch/a_na_yin → jia_zhu/jia_gan/jia_zhi/jia_na_yin（甲方），b_* → yi_*（乙方）
+  - [bazi] a_to_b/b_to_a → jia_dui_yi/yi_dui_jia（甲对乙十神）；stem/branch 关系 → gan_guan_xi/zhi_guan_xi
+  - [bazi] branch_rels → zhi_rels；age_start → qi_sui（起岁，与紫微统一）
+  - [xuankong] period_star/mountain_star/facing_star → yun_xing/shan_xing/xiang_xing；star/stars/star_name → xing/xing_yao/xing_name；palace(s) → gong(wei)
+  - [bazhai] center_star → zhong_gong_xing；year_stars → liu_nian_xing；palace_num → gong_num
+  - [qimen] duty_star/duty_door → zhi_fu_xing/zhi_shi_men；heaven_stem/earth_stem → tian_pan_gan/di_pan_gan；event_palace → ying_qi_gong
+  - [liuyao] month_gan/month_zhi → yue_jian_gan/yue_jian_zhi（月建）；day_gan/day_zhi → ri_chen_gan/ri_chen_zhi（日辰）；day_power/day_relations → ri_chen_power/ri_chen_relations
+  - [qiming] fortune → ji_xiong（三才/五格吉凶）
+  - [huangli] day_pillar → ri_zhu；stem_taboo/branch_taboo → gan_ji/zhi_ji；month_branch → yue_zhi
+  - [ziwei]（承接 2.1 的 star→xing/palace→gong/ysoul→ming_zhu 等）
+  - 保留：match/relation 等通用技术词（wuxing_match/gan_relation）、内部数据表 key、非命理字段（gender/name）
+  - 同步：agent schema（bazi/xuankong/qimen/liuyao/qiming/huangli）+ golden 重生成 + skill 提示词
+  - 验证：14/14 测试包全绿，全引擎+skill 层零英文命理残留
+- 2.1.0: 紫微流盘完整增强 + 坐标真相源改造 紫微流盘完整增强 + 坐标真相源改造
   - [紫微] 流年/流月/流日/流时盘完整输出（12 宫 + 流耀落宫），与 iztro 完全对齐
     - 流年盘：10 颗流耀（流魁钺/流昌曲/流禄/流羊陀/流马/流鸾喜）+ 年解 + 流年命宫
     - 流月/日/时盘：iztro monthlyIndex/dailyIndex/hourlyIndex 公式（命主相关盘起点 + 目标日期干支）
