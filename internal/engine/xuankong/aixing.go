@@ -6,10 +6,10 @@ import (
 
 // xuanKongStar holds the three stars (运星, 山星, 向星) for one palace.
 type xuanKongStar struct {
-	PalaceNum    int                  `json:"palace_num"`
-	PeriodStar   fengshui.FlyingStar  `json:"period_star"`
-	MountainStar fengshui.FlyingStar  `json:"mountain_star"`
-	FacingStar   fengshui.FlyingStar  `json:"facing_star"`
+	PalaceNum    int                  `json:"gong_num"`
+	PeriodStar   fengshui.FlyingStar  `json:"yun_xing"`
+	MountainStar fengshui.FlyingStar  `json:"shan_xing"`
+	FacingStar   fengshui.FlyingStar  `json:"xiang_xing"`
 }
 
 // Chart is the complete 玄空飞星排盘 for a given坐向 and 运.
@@ -17,7 +17,7 @@ type Chart struct {
 	Yun           SanYuanYun     `json:"yun"`
 	SitMountain   int            `json:"sit_mountain"`  // 0-23,坐山 index
 	FaceMountain  int            `json:"face_mountain"` // 0-23,朝向 index
-	Palaces       [9]xuanKongStar `json:"palaces"`
+	Palaces       [9]xuanKongStar `json:"gong_wei"`
 	WangShan      bool           `json:"wang_shan"`
 	WangXiang     bool           `json:"wang_xiang"`
 	ShanXing      bool           `json:"shan_xing"`

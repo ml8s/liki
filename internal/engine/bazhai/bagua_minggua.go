@@ -72,7 +72,7 @@ func ComputeMingGua(gender ganzhi.Gender, birthYear int) MingGua {
 type Chart struct {
 	MingGua     MingGua          `json:"ming_gua"`
 	BaZhaiDirs  baZhaiDirections `json:"ba_zhai_dirs"`
-	YearStars   yearStarResult   `json:"year_stars"`
+	YearStars   yearStarResult   `json:"liu_nian_xing"`
 	ZhuBagua [4]gua           `json:"pillar_bagua"`
 }
 

@@ -6,13 +6,13 @@ import "liki-engine/internal/engine/fengshui"
 
 type yearStarResult struct {
 	Year       int                `json:"year"`
-	CenterStar fengshui.FlyingStar `json:"center_star"`
-	Palaces    [9]palaceStar      `json:"palaces"`
+	CenterStar fengshui.FlyingStar `json:"zhong_gong_xing"`
+	Palaces    [9]palaceStar      `json:"gong_wei"`
 }
 
 type palaceStar struct {
-	PalaceNum int                `json:"palace_num"`
-	Star      fengshui.FlyingStar `json:"star"`
+	PalaceNum int                `json:"gong_num"`
+	Star      fengshui.FlyingStar `json:"xing"`
 }
 
 // computeYearStars computes the annual purple-white flying star distribution.

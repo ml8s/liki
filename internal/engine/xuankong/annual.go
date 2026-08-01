@@ -65,9 +65,9 @@ func computeNianRuZhong(year int) Star9Index {
 var palaceIndexFromFeiXu = [9]int{99, 6, 7, 8, 9, 1, 2, 3, 4} // 中(0)→无, 乾(1)→6, 兑(2)→7, 艮(3)→8, 离(4)→9, 坎(5)→1, 坤(6)→2, 震(7)→3, 巽(8)→4
 
 type AnnualStar struct {
-	Palace     int    `json:"palace"`     // 洛书宫位 1-9
-	Star       int    `json:"star"`       // 飞星号 1-9
-	StarName   string `json:"star_name"`
+	Palace     int    `json:"gong"`     // 洛书宫位 1-9
+	Star       int    `json:"xing"`       // 飞星号 1-9
+	StarName   string `json:"xing_name"`
 	Rating     string `json:"rating"` // 吉/凶/平
 	RiZhong    bool           `json:"ru_zhong"`   // 是否入中
 }
@@ -75,7 +75,7 @@ type AnnualStar struct {
 type AnnualBoard struct {
 	Year       int            `json:"year"`
 	RuZhong    Star9Index     `json:"ru_zhong"`   // 入中星
-	Stars      []AnnualStar   `json:"stars"`
+	Stars      []AnnualStar   `json:"xing_yao"`
 }
 
 // 九星名称

@@ -34,19 +34,19 @@
       "东南"
     ]
   },
-  "year_stars": {
+  "liu_nian_xing": {
     "year": 1984,
-    "center_star": {
+    "zhong_gong_xing": {
       "number": 7,
       "color": "赤",
       "name": "七赤破军",
       "wuxing": "金",
       "auspicious": false
     },
-    "palaces": [
+    "gong_wei": [
       {
-        "palace_num": 1,
-        "star": {
+        "gong_num": 1,
+        "xing": {
           "number": 3,
           "color": "碧",
           "name": "三碧禄存",
@@ -55,8 +55,8 @@
         }
       },
       {
-        "palace_num": 2,
-        "star": {
+        "gong_num": 2,
+        "xing": {
           "number": 4,
           "color": "绿",
           "name": "四绿文曲",
@@ -65,8 +65,8 @@
         }
       },
       {
-        "palace_num": 3,
-        "star": {
+        "gong_num": 3,
+        "xing": {
           "number": 5,
           "color": "黄",
           "name": "五黄廉贞",
@@ -75,8 +75,8 @@
         }
       },
       {
-        "palace_num": 4,
-        "star": {
+        "gong_num": 4,
+        "xing": {
           "number": 6,
           "color": "白",
           "name": "六白武曲",
@@ -85,8 +85,8 @@
         }
       },
       {
-        "palace_num": 5,
-        "star": {
+        "gong_num": 5,
+        "xing": {
           "number": 7,
           "color": "赤",
           "name": "七赤破军",
@@ -95,8 +95,8 @@
         }
       },
       {
-        "palace_num": 6,
-        "star": {
+        "gong_num": 6,
+        "xing": {
           "number": 8,
           "color": "白",
           "name": "八白左辅",
@@ -105,8 +105,8 @@
         }
       },
       {
-        "palace_num": 7,
-        "star": {
+        "gong_num": 7,
+        "xing": {
           "number": 9,
           "color": "紫",
           "name": "九紫右弼",
@@ -115,8 +115,8 @@
         }
       },
       {
-        "palace_num": 8,
-        "star": {
+        "gong_num": 8,
+        "xing": {
           "number": 1,
           "color": "白",
           "name": "一白贪狼",
@@ -125,8 +125,8 @@
         }
       },
       {
-        "palace_num": 9,
-        "star": {
+        "gong_num": 9,
+        "xing": {
           "number": 2,
           "color": "黑",
           "name": "二黑巨门",

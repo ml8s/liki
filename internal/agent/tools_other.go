@@ -370,7 +370,7 @@ var otherMethods = []RPCMethod{	{
 		Name: "xuankong.annual", Description: "玄空流年飞星。返回每年入中星、各宫飞星分布、吉凶评级。",
 		Params: mustSchema(`{"type":"object","properties":{"year":{"type":"integer","description":"年份"}},"required":["year"]}`),
 		Handler: xuankongAnnualHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"year":{"type":"integer"},"ru_zhong":{"type":"string","enum":["贪狼","巨门","禄存","文曲","廉贞","武曲","破军","左辅","右弼"]},"stars":{"type":"array"}},"required":["year","ru_zhong","stars"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"year":{"type":"integer"},"ru_zhong":{"type":"string","enum":["贪狼","巨门","禄存","文曲","廉贞","武曲","破军","左辅","右弼"]},"xing_yao":{"type":"array"}},"required":["year","ru_zhong","xing_yao"]}`),
 	},
 	{
 		Name: "xuankong.sanyuan", Description: "三元九运查询。返回当前三元九运的时间表。",
@@ -382,7 +382,7 @@ var otherMethods = []RPCMethod{	{
 		Name: "xuankong.chart", Description: "玄空飞星。返回山向飞星盘。sit_mountain/face_mountain 为坐向（0-23）。",
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"sit_mountain":{"type":"integer","minimum":0,"maximum":23,"description":"山向"},"face_mountain":{"type":"integer","minimum":0,"maximum":23,"description":"朝向"}},"required":["solar_time","sit_mountain","face_mountain"]}`),
 		Handler: xuankongChartHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"yun":{"type":"object","description":"三元九运","properties":{"year":{"type":"integer","description":"当前年份"},"yuan":{"type":"string","description":"上元/中元/下元"},"yun_number":{"type":"integer","description":"运数1-9"},"yun_name":{"type":"string","description":"运名:一运/九运"},"start_year":{"type":"integer","description":"本运起始年"}},"required":["year","yuan","yun_number"]},"palaces":{"type":"array"},"wang_shan":{"type":"boolean"}},"required":["yun","palaces","wang_shan"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"yun":{"type":"object","description":"三元九运","properties":{"year":{"type":"integer","description":"当前年份"},"yuan":{"type":"string","description":"上元/中元/下元"},"yun_number":{"type":"integer","description":"运数1-9"},"yun_name":{"type":"string","description":"运名:一运/九运"},"start_year":{"type":"integer","description":"本运起始年"}},"required":["year","yuan","yun_number"]},"gong_wei":{"type":"array"},"wang_shan":{"type":"boolean"}},"required":["yun","gong_wei","wang_shan"]}`),
 	},
 	{
 		Name: "liuyao.qigua", Description: "六爻起卦。摇卦（三枚铜钱起六次），返回原始爻值和动爻位置。",
