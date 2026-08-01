@@ -60,9 +60,16 @@ func computeDaYunSteps(st tianwen.SolarTime, month ganzhi.Zhu, nianGan ganzhi.Ga
 		}
 		dir = DirShunPai
 	} else {
+		// 逆排：目标节 = 出生时间之前最近的节（可能在前一年）
 		targetJie = tianwen.SolarTermTime(birthYear, tianwen.JieQiLongitudes[jieIdx])
 		if targetJie.After(birthTime) {
+			// 当前年的节在出生后 → 取前一年的同名节
+			// 但若出生在年初（如立春前），前一节可能在上一年年末
 			targetJie = tianwen.SolarTermTime(birthYear-1, tianwen.JieQiLongitudes[jieIdx])
+			if targetJie.After(birthTime) {
+				// 仍在其后（极端）：向前找更早的节
+				targetJie = tianwen.SolarTermTime(birthYear-1, tianwen.JieQiLongitudes[(jieIdx+22)%24])
+			}
 		}
 		dir = DirNiPai
 	}
@@ -75,8 +82,8 @@ func computeDaYunSteps(st tianwen.SolarTime, month ganzhi.Zhu, nianGan ganzhi.Ga
 
 	// Generate 8 steps from month pillar.
 	monthIdx := ganzhi.SixtyCycleIndex(month.Gan, month.Zhi)
-	steps := make([]ganzhi.Zhu, 0, 8)
-	for i := 1; i <= 8; i++ {
+	steps := make([]ganzhi.Zhu, 0, 9)
+	for i := 1; i <= 9; i++ {
 		var idx int
 		if forward {
 			idx = (monthIdx + i) % 60

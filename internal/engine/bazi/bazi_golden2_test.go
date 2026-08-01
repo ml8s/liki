@@ -46,9 +46,30 @@ func TestBaziGolden2_EdgeLayers(t *testing.T) {
 			if mg != gc.SanYuan.MingGong {
 				t.Errorf("命宫 = %s, want %s", mg, gc.SanYuan.MingGong)
 			}
+			// 大运方向
+			if (c.DaYun.Direction == "顺排") != gc.DaYun.Forward {
+				t.Errorf("大运方向顺排 = %v, want %v", c.DaYun.Direction == "顺排", gc.DaYun.Forward)
+			}
+			// 大运首步
 			dy := c.DaYun.Steps[0].Gan.String() + c.DaYun.Steps[0].Zhi.String()
 			if dy != gc.DaYun.Steps[0] {
 				t.Errorf("大运首步 = %s, want %s", dy, gc.DaYun.Steps[0])
+			}
+			// 起运岁数（±1）
+			if c.DaYun.StartAge != gc.DaYun.StartYearAfter && c.DaYun.StartAge != gc.DaYun.StartYearAfter+1 {
+				t.Errorf("起运岁数 = %d, want %d(±1)", c.DaYun.StartAge, gc.DaYun.StartYearAfter)
+			}
+			// 大运全步骤
+			if len(c.DaYun.Steps) != len(gc.DaYun.Steps) {
+				t.Errorf("大运步数 = %d, want %d", len(c.DaYun.Steps), len(gc.DaYun.Steps))
+			} else {
+				for si := range gc.DaYun.Steps {
+					gs := c.DaYun.Steps[si].Gan.String() + c.DaYun.Steps[si].Zhi.String()
+					if gs != gc.DaYun.Steps[si] {
+						t.Errorf("大运[%d] = %s, want %s", si, gs, gc.DaYun.Steps[si])
+						break
+					}
+				}
 			}
 		})
 	}

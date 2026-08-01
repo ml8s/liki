@@ -47,7 +47,9 @@ func julianDayHMS(year, month, day, hour, min, sec int) float64 {
 }
 
 func solarLongitude(t time.Time) float64 {
-	jd := julianDayHMS(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+	// 儒略日基于 UTC——先用 UTC 字段（避免本地时区偏移）
+	u := t.UTC()
+	jd := julianDayHMS(u.Year(), int(u.Month()), u.Day(), u.Hour(), u.Minute(), u.Second())
 	return solarLongitudeShouXing(jd - 2451545.0)
 }
 
