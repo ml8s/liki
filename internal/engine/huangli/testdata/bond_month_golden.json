@@ -2472,9 +2472,9 @@
         "group": "北方玄武",
         "group_idx": 6
       },
-      "jie_qi": "芒种",
-      "jie_qi_days": 15,
-      "ren_yuan": "己",
+      "jie_qi": "夏至",
+      "jie_qi_days": 0,
+      "ren_yuan": "丙",
       "shi_chen": [
         {
           "zhi": "子",
@@ -2595,7 +2595,7 @@
         "group_idx": 7
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 0,
+      "jie_qi_days": 1,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -2717,7 +2717,7 @@
         "group_idx": 1
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 1,
+      "jie_qi_days": 2,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -2839,7 +2839,7 @@
         "group_idx": 2
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 2,
+      "jie_qi_days": 3,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -2961,7 +2961,7 @@
         "group_idx": 3
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 3,
+      "jie_qi_days": 4,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -3083,7 +3083,7 @@
         "group_idx": 4
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 4,
+      "jie_qi_days": 5,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -3205,7 +3205,7 @@
         "group_idx": 5
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 5,
+      "jie_qi_days": 6,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -3327,7 +3327,7 @@
         "group_idx": 6
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 6,
+      "jie_qi_days": 7,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -3449,7 +3449,7 @@
         "group_idx": 7
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 7,
+      "jie_qi_days": 8,
       "ren_yuan": "丙",
       "shi_chen": [
         {
@@ -3571,7 +3571,7 @@
         "group_idx": 1
       },
       "jie_qi": "夏至",
-      "jie_qi_days": 8,
+      "jie_qi_days": 9,
       "ren_yuan": "丙",
       "shi_chen": [
         {

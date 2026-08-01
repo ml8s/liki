@@ -10,8 +10,8 @@ import (
 func RiZhu(gt GregorianTime) ganzhi.Zhu {
 	t := gt.Time()
 	year, month, day := t.Date()
-	jd := julianDay(year, int(month), day)
-	baseJD := julianDay(1900, 1, 1)
+	jd := int(julianDay(year, int(month), day))
+	baseJD := int(julianDay(1900, 1, 1))
 	diff := jd - baseJD
 	gzIndex := (10 + diff) % 60
 	if gzIndex < 0 {

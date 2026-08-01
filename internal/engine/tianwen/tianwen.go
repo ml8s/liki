@@ -28,27 +28,29 @@ func JianYue(gt GregorianTime) ganzhi.Zhi {
 	return ganzhi.ZhiYin
 }
 
-func julianDay(year, month, day int) int {
-	if month <= 2 { year--; month += 12 }
-	A := year/100
-	return int(365.25*float64(year+4716)) + int(30.6001*float64(month+1)) + day + (2-A+A/4) - 1524
+// julianDay returns the Julian Day Number with fractional day (时刻精度).
+func julianDay(year, month, day int) float64 {
+	return julianDayHMS(year, month, day, 0, 0, 0)
+}
+
+// julianDayHMS returns the Julian Day with hour/minute/second precision.
+func julianDayHMS(year, month, day, hour, min, sec int) float64 {
+	if month <= 2 {
+		year--
+		month += 12
+	}
+	A := year / 100
+	jd := float64(int(365.25*float64(year+4716)) + int(30.6001*float64(month+1)) + day + (2-A+A/4) - 1524)
+	// 加时刻（UTC 当天的时分秒转小数天，减 0.5 对齐儒略日中午起算）
+	jd += (float64(hour)-12)/24.0 + float64(min)/1440.0 + float64(sec)/86400.0
+	return jd
 }
 
 func solarLongitude(t time.Time) float64 {
-	jd := float64(julianDay(t.Year(), int(t.Month()), t.Day()))
-	T := (jd-2451545.0)/36525.0; T2 := T*T
-	L0 := 280.46646 + 36000.76983*T + 0.0003032*T2
-	M := 357.52911 + 35999.05029*T - 0.0001537*T2
-	Mrad := M * math.Pi / 180.0
-	C := (1.914602-0.004817*T-0.000014*T2)*math.Sin(Mrad) + (0.019993-0.000101*T)*math.Sin(2*Mrad) + 0.000289*math.Sin(3*Mrad)
-	lon := L0 + C
-	lon = math.Mod(lon, 360)
-	if lon < 0 { lon += 360 }
-	return lon
+	jd := julianDayHMS(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+	return solarLongitudeShouXing(jd - 2451545.0)
 }
 
-// angleInRange checks whether lon is within [cur, next), handling
-// wraparound past 360° when cur > next.
 func angleInRange(lon, cur, next float64) bool {
 	if cur <= next {
 		return lon >= cur && lon < next
@@ -74,6 +76,11 @@ func SolarTermTime(year int, targetLon float64) time.Time {
 		if step > 15 { step = 15 } else if step < -15 { step = -15 }
 		t = t.Add(time.Duration(step*24*3600) * time.Second)
 	}
+	// ΔT 修正：solarLongitude 算的是力学时，转世界时（对齐 lunar qiHigh）
+	jd := julianDayHMS(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+	tt := (jd - 2451545.0) / 36525.0
+	dt := dtT(tt)
+	t = t.Add(-time.Duration(dt*86400.0) * time.Second)
 
 	// For non-节 targets (ti=0), the initial guess at Feb 5 can cause
 	// backward convergence into the previous year (e.g. 处暑 150°, 秋分 180°).

@@ -56,7 +56,7 @@ func loadBaziGolden(t *testing.T) []baziGoldenCase {
 func TestBaziGolden_AllLayers(t *testing.T) {
 	for _, gc := range loadBaziGolden(t) {
 		t.Run(gc.Name, func(t *testing.T) {
-			tt, err := time.Parse("2006-01-02T15:04:05", gc.Solar)
+			tt, err := time.ParseInLocation("2006-01-02T15:04:05", gc.Solar, time.FixedZone("CST", 8*3600))
 			if err != nil {
 				t.Fatalf("parse solar %q: %v", gc.Solar, err)
 			}
