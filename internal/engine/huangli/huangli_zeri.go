@@ -108,7 +108,7 @@ func huangDaoForDay(monthBranch, dayBranch ganzhi.Zhi) huangDaoStar {
 
 
 // ShiChenFortune computes the hour-by-hour fortune for a given day.
-func computeShiChen(dayZhi, monthZhi ganzhi.Zhi, dayJianChu string) []ShiChenFortune {
+func computeShiChen(riZhi, yueZhi ganzhi.Zhi, dayJianChu string) []ShiChenFortune {
 	zhiNames := [12]string{"子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}
 	timeRanges := [12]string{
 		"23:00-01:00", "01:00-03:00", "03:00-05:00", "05:00-07:00",
@@ -125,10 +125,10 @@ func computeShiChen(dayZhi, monthZhi ganzhi.Zhi, dayJianChu string) []ShiChenFor
 	}
 	jianchuSeq := [12]string{"建", "除", "满", "平", "定", "执", "破", "危", "成", "收", "开", "闭"}
 
-	// 1. Find QingLong start hour for this dayZhi
+	// 1. Find QingLong start hour for this riZhi
 	// Use package-level qingLongStart map
 	qlConfig := qingLongStart
-	qlStartZhi, ok := qlConfig[monthZhi]
+	qlStartZhi, ok := qlConfig[yueZhi]
 	if !ok {
 		return nil
 	}

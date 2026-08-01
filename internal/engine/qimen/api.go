@@ -2,15 +2,15 @@
 //
 // Types
 //
-//	Chart, Palace
-//	PalaceIndex, StarIndex, DoorIndex, SpiritIndex
-//	StemInteraction, DoorInteraction, StarInteraction
+//	Chart, Gong
+//	GongIndex, StarIndex, DoorIndex, SpiritIndex
+//	GanInteraction, MenInteraction, XingInteraction
 //	WangShuai, Pattern, YingQi
 //	ChartKind, EventKind
 //
 // Constants
 //
-//	PalaceKan .. PalaceLi  (九宫)
+//	GongKan .. GongLi  (九宫)
 //	StarTianPeng .. StarTianYing  (九星)
 //	DoorXiu .. DoorKai  (八门)
 //	SpiritZhiFu .. SpiritJiuTian  (八神)

@@ -117,17 +117,17 @@ func computeGuaPan(yaos [6]YaoType, riZhu ganzhi.Zhu) Chart {
 		PalaceWuxing: palaceWuxing[meta.PalaceIdx],
 		Lines:        lines,
 		BianLines:    bianLines,
-		DayGan:       riZhu.Gan,
-		DayZhi:       riZhu.Zhi,
+		RiGan:       riZhu.Gan,
+		RiZhi:       riZhu.Zhi,
 		DongYao:      dy,
 	}
 }
 
-func zhuangGua(gua guaIndex, dayGan ganzhi.Gan, isBian bool, palaceElem ganzhi.Wuxing) [6]Line {
+func zhuangGua(gua guaIndex, riGan ganzhi.Gan, isBian bool, palaceElem ganzhi.Wuxing) [6]Line {
 	meta := guaTable[gua]
 	naZhi := naZhiTable[meta.PalaceIdx]
 	naGan := naGanTable[meta.PalaceIdx]
-	shouOrder := dayGanShouOrder(dayGan)
+	shouOrder := dayGanShouOrder(riGan)
 	var lines [6]Line
 	for i := 0; i < 6; i++ {
 		z := naZhi[i]
@@ -172,8 +172,8 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	chart := computeGuaPan(yts, bz.Ri)
 
 	// Month building from bazi.
-	chart.MonthZhi = bz.Yue.Zhi
-	chart.MonthGan = bz.Yue.Gan
+	chart.YueZhi = bz.Yue.Zhi
+	chart.YueGan = bz.Yue.Gan
 
 	// 用神.
 	pos, _ := chart.findYongShen(yongShen)
@@ -184,8 +184,8 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 
 	// 旺衰 + 日建关系.
 	for i := 0; i < 6; i++ {
-		chart.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(chart.Lines[i].Zhi), chart.MonthZhi)
-		chart.DayRelations[i] = dayInteraction(chart.Lines[i].Zhi, chart.DayZhi)
+		chart.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(chart.Lines[i].Zhi), chart.YueZhi)
+		chart.DayRelations[i] = dayInteraction(chart.Lines[i].Zhi, chart.RiZhi)
 	}
 
 	// 应期.

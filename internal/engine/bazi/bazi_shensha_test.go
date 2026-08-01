@@ -40,58 +40,58 @@ func collectShenShaNames(p fullZhuInfo) map[string]bool {
 func TestShenSha_TianYi(t *testing.T) {
 	tests := []struct {
 		name        string
-		dayGan      ganzhi.Gan
-		yearGan     ganzhi.Gan
+		riGan      ganzhi.Gan
+		nianGan     ganzhi.Gan
 		pillarBranches [4]ganzhi.Zhi
 		wantZhus []int // 0-indexed pillars that should have 天乙
 	}{
 		{
 			name:        "甲日主-日支见丑未",
-			dayGan:      ganzhi.GanJia,   // 甲
-			yearGan:     ganzhi.GanJia,   // 甲（年干同）
+			riGan:      ganzhi.GanJia,   // 甲
+			nianGan:     ganzhi.GanJia,   // 甲（年干同）
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiChou, ganzhi.ZhiYin, ganzhi.ZhiChen, ganzhi.ZhiShen}, // 丑在年柱
 			wantZhus: []int{0}, // 年柱见丑
 		},
 		{
 			name:        "甲日主-年干乙-双天乙",
-			dayGan:      ganzhi.GanJia,
-			yearGan:     ganzhi.GanYi,    // 年干乙 → 天乙子申
+			riGan:      ganzhi.GanJia,
+			nianGan:     ganzhi.GanYi,    // 年干乙 → 天乙子申
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiWu, ganzhi.ZhiWei, ganzhi.ZhiChen, ganzhi.ZhiShen}, // 未在月柱(日主天乙), 申在时柱(年干天乙)
 			wantZhus: []int{1, 3}, // 月柱未+时柱申
 		},
 		{
 			name:        "丙日主-见亥酉",
-			dayGan:      ganzhi.GanBing,  // 丙
-			yearGan:     ganzhi.GanBing,  // 丙
+			riGan:      ganzhi.GanBing,  // 丙
+			nianGan:     ganzhi.GanBing,  // 丙
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiHai, ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiYin}, // 亥在年柱
 			wantZhus: []int{0}, // 年柱亥
 		},
 		{
 			name:        "庚日主-见丑(天乙)",
-			dayGan:      ganzhi.GanGeng,  // 庚 → 甲戊庚同 → 丑未
-			yearGan:     ganzhi.GanGeng,
+			riGan:      ganzhi.GanGeng,  // 庚 → 甲戊庚同 → 丑未
+			nianGan:     ganzhi.GanGeng,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiYin, ganzhi.ZhiMao}, // 丑在月柱
 			wantZhus: []int{1},
 		},
 		{
 			name:        "辛日主-见午寅",
-			dayGan:      ganzhi.GanXin,   // 辛 → 六辛逢虎马(寅午)
-			yearGan:     ganzhi.GanXin,
+			riGan:      ganzhi.GanXin,   // 辛 → 六辛逢虎马(寅午)
+			nianGan:     ganzhi.GanXin,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiWu, ganzhi.ZhiMao}, // 午在日柱
 			wantZhus: []int{2},
 		},
 		{
 			name:        "壬日主-见卯巳",
-			dayGan:      ganzhi.GanRen,   // 壬 → 壬癸兔蛇藏(卯巳)
-			yearGan:     ganzhi.GanRen,
+			riGan:      ganzhi.GanRen,   // 壬 → 壬癸兔蛇藏(卯巳)
+			nianGan:     ganzhi.GanRen,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiChen, ganzhi.ZhiSi}, // 巳在时柱
 			wantZhus: []int{3},
 		},
 		// 没有天乙的情况
 		{
 			name:        "甲日主-无丑未",
-			dayGan:      ganzhi.GanJia,
-			yearGan:     ganzhi.GanJia,
+			riGan:      ganzhi.GanJia,
+			nianGan:     ganzhi.GanJia,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiYin, ganzhi.ZhiChen, ganzhi.ZhiWu},
 			wantZhus: nil,
 		},
@@ -100,9 +100,9 @@ func TestShenSha_TianYi(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: tt.yearGan, Zhi: tt.pillarBranches[0]},
+				Nian: ganzhi.Zhu{Gan: tt.nianGan, Zhi: tt.pillarBranches[0]},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.pillarBranches[1]},
-				Ri:   ganzhi.Zhu{Gan: tt.dayGan, Zhi: tt.pillarBranches[2]},
+				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: tt.pillarBranches[2]},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: tt.pillarBranches[3]},
 			}
 			ss := computeShenSha(bz)
@@ -141,7 +141,7 @@ func TestShenSha_TianYi(t *testing.T) {
 func TestShenSha_WenChang(t *testing.T) {
 	tests := []struct {
 		name    string
-		dayGan  ganzhi.Gan
+		riGan  ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -166,7 +166,7 @@ func TestShenSha_WenChang(t *testing.T) {
 			bz := ganzhi.Bazi{
 				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.zhi}, // 测试支在月柱
-				Ri:   ganzhi.Zhu{Gan: tt.dayGan, Zhi: ganzhi.ZhiChen},
+				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
 			ss := computeShenSha(bz)
@@ -195,8 +195,8 @@ func TestShenSha_TaoHua(t *testing.T) {
 	// 命理：桃花以年支和日支为参考
 	tests := []struct {
 		name     string
-		yearZhi  ganzhi.Zhi
-		dayZhi   ganzhi.Zhi
+		nianZhi  ganzhi.Zhi
+		riZhi   ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		wantHit  bool
 	}{
@@ -217,9 +217,9 @@ func TestShenSha_TaoHua(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.yearZhi},
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.nianZhi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.checkZhi},
-				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.dayZhi},
+				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
 			ss := computeShenSha(bz)
@@ -242,8 +242,8 @@ func TestShenSha_YiMa(t *testing.T) {
 	// 口诀：申子辰马在寅，寅午戌马在申，巳酉丑马在亥，亥卯未马在巳
 	tests := []struct {
 		name    string
-		yearZhi ganzhi.Zhi
-		dayZhi  ganzhi.Zhi
+		nianZhi ganzhi.Zhi
+		riZhi  ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		wantHit bool
 	}{
@@ -257,9 +257,9 @@ func TestShenSha_YiMa(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.yearZhi},
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.nianZhi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.checkZhi},
-				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.dayZhi},
+				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
 			ss := computeShenSha(bz)
@@ -283,8 +283,8 @@ func TestShenSha_HuaGai(t *testing.T) {
 	// 命理：华盖以年支和日支为参考
 	tests := []struct {
 		name     string
-		yearZhi  ganzhi.Zhi
-		dayZhi   ganzhi.Zhi
+		nianZhi  ganzhi.Zhi
+		riZhi   ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		wantHit  bool
 	}{
@@ -299,9 +299,9 @@ func TestShenSha_HuaGai(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.yearZhi},
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.nianZhi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.checkZhi},
-				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.dayZhi},
+				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
 			ss := computeShenSha(bz)
@@ -326,7 +326,7 @@ func TestShenSha_HuaGai(t *testing.T) {
 func TestShenSha_YangRen(t *testing.T) {
 	tests := []struct {
 		name    string
-		dayGan  ganzhi.Gan
+		riGan  ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -349,7 +349,7 @@ func TestShenSha_YangRen(t *testing.T) {
 			bz := ganzhi.Bazi{
 				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.zhi},
-				Ri:   ganzhi.Zhu{Gan: tt.dayGan, Zhi: ganzhi.ZhiChen},
+				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
 			ss := computeShenSha(bz)
@@ -374,7 +374,7 @@ func TestShenSha_JieSha(t *testing.T) {
 	// 劫煞：申子辰在巳，寅午戌在亥，巳酉丑在寅，亥卯未在申
 	tests := []struct {
 		name    string
-		yearZhi ganzhi.Zhi
+		nianZhi ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		wantHit bool
 	}{
@@ -388,7 +388,7 @@ func TestShenSha_JieSha(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.yearZhi},
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.nianZhi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.checkZhi},
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
@@ -413,7 +413,7 @@ func TestShenSha_ZaiSha(t *testing.T) {
 	// 灾煞：申子辰在午，寅午戌在子，巳酉丑在卯，亥卯未在酉
 	tests := []struct {
 		name    string
-		yearZhi ganzhi.Zhi
+		nianZhi ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		wantHit bool
 	}{
@@ -426,7 +426,7 @@ func TestShenSha_ZaiSha(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.yearZhi},
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.nianZhi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.checkZhi},
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
@@ -453,7 +453,7 @@ func TestShenSha_ZaiSha(t *testing.T) {
 func TestShenSha_YueDe(t *testing.T) {
 	tests := []struct {
 		name       string
-		monthZhi   ganzhi.Zhi
+		yueZhi   ganzhi.Zhi
 		checkGan   ganzhi.Gan // 月干
 		wantHit    bool
 	}{
@@ -471,7 +471,7 @@ func TestShenSha_YueDe(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
 				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
-				Yue:  ganzhi.Zhu{Gan: tt.checkGan, Zhi: tt.monthZhi},
+				Yue:  ganzhi.Zhu{Gan: tt.checkGan, Zhi: tt.yueZhi},
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
@@ -495,8 +495,8 @@ func TestShenSha_KongWang(t *testing.T) {
 	// 甲午旬(30-39): 空辰巳, 甲辰旬(40-49): 空寅卯, 甲寅旬(50-59): 空子丑
 	tests := []struct {
 		name     string
-		dayGan   ganzhi.Gan
-		dayZhi   ganzhi.Zhi
+		riGan   ganzhi.Gan
+		riZhi   ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		inXun    int // 旬 0=甲子..5=甲寅
 		wantVoid bool
@@ -524,11 +524,11 @@ func TestShenSha_KongWang(t *testing.T) {
 			bz := ganzhi.Bazi{
 				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.checkZhi}, // 测试支在年柱
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
-				Ri:   ganzhi.Zhu{Gan: tt.dayGan, Zhi: tt.dayZhi},
+				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
 			// 验证旬
-			idx := ganzhi.SixtyCycleIndex(tt.dayGan, tt.dayZhi)
+			idx := ganzhi.SixtyCycleIndex(tt.riGan, tt.riZhi)
 			xun := idx / 10
 			if xun != tt.inXun {
 				t.Fatalf("test data: six cycle index=%d, xun=%d, expected %d", idx, xun, tt.inXun)
@@ -604,7 +604,7 @@ func TestShenSha_TianLuoDiWang(t *testing.T) {
 func TestShenSha_LuShen(t *testing.T) {
 	tests := []struct {
 		name    string
-		dayGan  ganzhi.Gan
+		riGan  ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -626,7 +626,7 @@ func TestShenSha_LuShen(t *testing.T) {
 			bz := ganzhi.Bazi{
 				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.zhi},
-				Ri:   ganzhi.Zhu{Gan: tt.dayGan, Zhi: ganzhi.ZhiChen},
+				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
 			ss := computeShenSha(bz)
@@ -654,7 +654,7 @@ func TestShenSha_HongLuanTianXi(t *testing.T) {
 	//        午→卯, 未→寅, 申→丑, 酉→子, 戌→亥, 亥→戌
 	tests := []struct {
 		name       string
-		yearZhi    ganzhi.Zhi
+		nianZhi    ganzhi.Zhi
 		checkZhi   ganzhi.Zhi
 		wantHongLuan bool
 		wantTianXi   bool
@@ -671,7 +671,7 @@ func TestShenSha_HongLuanTianXi(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.yearZhi},
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.nianZhi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.checkZhi},
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
@@ -708,7 +708,7 @@ func TestShenSha_XueTang(t *testing.T) {
 	// 壬长生在申，癸长生在卯
 	tests := []struct {
 		name    string
-		dayGan  ganzhi.Gan
+		riGan  ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -725,7 +725,7 @@ func TestShenSha_XueTang(t *testing.T) {
 			bz := ganzhi.Bazi{
 				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.zhi},
-				Ri:   ganzhi.Zhu{Gan: tt.dayGan, Zhi: ganzhi.ZhiChen},
+				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
 			ss := computeShenSha(bz)

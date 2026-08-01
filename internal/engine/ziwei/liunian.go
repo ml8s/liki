@@ -41,8 +41,8 @@ func liuNianMinors(yearZhu ganzhi.Zhu, _ Zhi) map[starIndex]Zhi {
 // ComputeLiuNian assembles the full annual analysis.
 func ComputeLiuNian(chart Chart, liuNian int) LiuNian {
 	siHua := liuNianSiHua(liuNian)
-	siHuaPalace := make(map[starIndex]palaceIndex)
-	for _, p := range chart.Palaces {
+	siHuaPalace := make(map[starIndex]gongIndex)
+	for _, p := range chart.GongWei {
 		for _, s := range p.Stars {
 			if _, ok := siHua[s.Star]; ok {
 				siHuaPalace[s.Star] = p.Index
@@ -53,7 +53,7 @@ func ComputeLiuNian(chart Chart, liuNian int) LiuNian {
 	minorStars := liuNianMinors(ganzhi.Zhu{Gan: liuYearGan, Zhi: liuYearZhi}, chart.ShiZhi)
 
 	// 流年命宫 = 流年支所在本命宫（地支坐标）
-	mingZhi := chart.Palaces[chart.MingGong].Zhi
+	mingZhi := chart.GongWei[chart.MingGong].Zhi
 	flowMingZhiIdx := zhiToZhiIdx(liuYearZhi)
 	flowMing := zhiIdxToPalaceIndex(zhiToZhiIdx(mingZhi), flowMingZhiIdx)
 
@@ -78,11 +78,11 @@ func ComputeLiuNian(chart Chart, liuNian int) LiuNian {
 
 	return LiuNian{
 		MingGong:     flowMing,
-		MingGongName: chart.Palaces[flowMing].Name,
+		MingGongName: chart.GongWei[flowMing].Name,
 		Zhi:          liuYearZhi,
 		SiHua:        siHua,
 		SiHuaPalace:  siHuaPalace,
 		FuXing:       minorStars,
-		Palaces:      flowPalaces,
+		GongWei:      flowPalaces,
 	}
 }

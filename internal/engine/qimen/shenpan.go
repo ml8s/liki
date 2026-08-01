@@ -7,12 +7,12 @@ var spiritOrder = [8]SpiritIndex{
 }
 
 // placeShenPan arranges the spirit plate: 8 spirits on the 9 palaces.
-// 值符神 fits to the same palace as 天盘值符星.
+// 值符神 fits to the same gong as 天盘值符星.
 // 阳遁: clockwise; 阴遁: counter-clockwise.
-func placeShenPan(yinDun bool, tianStarPos PalaceIndex) [9]SpiritIndex {
+func placeShenPan(yinDun bool, tianStarPos GongIndex) [9]SpiritIndex {
 	var spirits [9]SpiritIndex
 
-	// 值符星 palace → same position for 值符神.
+	// 值符星 gong → same position for 值符神.
 	start := int(tianStarPos) - 1
 
 	for i, si := 0, 0; si < 8; i++ {

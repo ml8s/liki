@@ -25,11 +25,11 @@ func computeBondDay(bz ganzhi.Bazi, eventType string, dateStr string) (BondDay, 
 	dayEntry, err := QueryDate(dateStr)
 	if err != nil { return BondDay{}, err }
 	dayStem := dayEntry.RiZhu.Gan
-	dayZhi := dayEntry.RiZhu.Zhi
+	riZhi := dayEntry.RiZhu.Zhi
 	t, _ := time.Parse("2006-01-02", dateStr) //nolint:errcheck
 	taiSui := taiSui(t.Year())
-	relZhi, _, _ := evaluateZhi(dayZhi, dayBranch, "日柱")
-	relTS, _, _ := evaluateZhi(dayZhi, taiSui, "太岁")
+	relZhi, _, _ := evaluateZhi(riZhi, dayBranch, "日柱")
+	relTS, _, _ := evaluateZhi(riZhi, taiSui, "太岁")
 	return BondDay{Day: dayEntry, GanRelation: ganzhi.ShiShenFromGan(riYuan, dayStem).String(), ZhiRelation: relZhi, TaiSuiRelation: relTS}, nil
 }
 

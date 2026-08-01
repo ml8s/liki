@@ -110,9 +110,9 @@ func analyzeYongShen(c Chart, ysType YongShen) YongShenState {
 		line = c.Lines[pos-1]
 	}
 
-	ws := ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(line.Zhi), c.MonthZhi)
-	di := dayInteraction(line.Zhi, c.DayZhi)
-	yuePo := ganzhi.IsLiuChong(line.Zhi, c.MonthZhi)
+	ws := ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(line.Zhi), c.YueZhi)
+	di := dayInteraction(line.Zhi, c.RiZhi)
+	yuePo := ganzhi.IsLiuChong(line.Zhi, c.YueZhi)
 	shiPos := c.findShiYao()
 
 	// 动爻方向

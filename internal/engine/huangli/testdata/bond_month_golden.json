@@ -27,7 +27,7 @@
       "mansion": {
         "index": 24,
         "name": "星日马",
-        "animal": "马",
+        "dong_wu": "马",
         "wuxing": "日",
         "group": "南方朱雀",
         "group_idx": 4
@@ -149,7 +149,7 @@
       "mansion": {
         "index": 25,
         "name": "张月鹿",
-        "animal": "鹿",
+        "dong_wu": "鹿",
         "wuxing": "月",
         "group": "南方朱雀",
         "group_idx": 5
@@ -271,7 +271,7 @@
       "mansion": {
         "index": 26,
         "name": "翼火蛇",
-        "animal": "蛇",
+        "dong_wu": "蛇",
         "wuxing": "火",
         "group": "南方朱雀",
         "group_idx": 6
@@ -393,7 +393,7 @@
       "mansion": {
         "index": 27,
         "name": "轸水蚓",
-        "animal": "蚓",
+        "dong_wu": "蚓",
         "wuxing": "水",
         "group": "南方朱雀",
         "group_idx": 7
@@ -515,7 +515,7 @@
       "mansion": {
         "index": 0,
         "name": "角木蛟",
-        "animal": "蛟",
+        "dong_wu": "蛟",
         "wuxing": "木",
         "group": "东方青龙",
         "group_idx": 1
@@ -637,7 +637,7 @@
       "mansion": {
         "index": 1,
         "name": "亢金龙",
-        "animal": "龙",
+        "dong_wu": "龙",
         "wuxing": "金",
         "group": "东方青龙",
         "group_idx": 2
@@ -759,7 +759,7 @@
       "mansion": {
         "index": 2,
         "name": "氐土貉",
-        "animal": "貉",
+        "dong_wu": "貉",
         "wuxing": "土",
         "group": "东方青龙",
         "group_idx": 3
@@ -881,7 +881,7 @@
       "mansion": {
         "index": 3,
         "name": "房日兔",
-        "animal": "兔",
+        "dong_wu": "兔",
         "wuxing": "日",
         "group": "东方青龙",
         "group_idx": 4
@@ -1003,7 +1003,7 @@
       "mansion": {
         "index": 4,
         "name": "心月狐",
-        "animal": "狐",
+        "dong_wu": "狐",
         "wuxing": "月",
         "group": "东方青龙",
         "group_idx": 5
@@ -1125,7 +1125,7 @@
       "mansion": {
         "index": 5,
         "name": "尾火虎",
-        "animal": "虎",
+        "dong_wu": "虎",
         "wuxing": "火",
         "group": "东方青龙",
         "group_idx": 6
@@ -1247,7 +1247,7 @@
       "mansion": {
         "index": 6,
         "name": "箕水豹",
-        "animal": "豹",
+        "dong_wu": "豹",
         "wuxing": "水",
         "group": "东方青龙",
         "group_idx": 7
@@ -1369,7 +1369,7 @@
       "mansion": {
         "index": 7,
         "name": "斗木獬",
-        "animal": "獬",
+        "dong_wu": "獬",
         "wuxing": "木",
         "group": "北方玄武",
         "group_idx": 1
@@ -1491,7 +1491,7 @@
       "mansion": {
         "index": 8,
         "name": "牛金牛",
-        "animal": "牛",
+        "dong_wu": "牛",
         "wuxing": "金",
         "group": "北方玄武",
         "group_idx": 2
@@ -1613,7 +1613,7 @@
       "mansion": {
         "index": 9,
         "name": "女土蝠",
-        "animal": "蝠",
+        "dong_wu": "蝠",
         "wuxing": "土",
         "group": "北方玄武",
         "group_idx": 3
@@ -1735,7 +1735,7 @@
       "mansion": {
         "index": 10,
         "name": "虚日鼠",
-        "animal": "鼠",
+        "dong_wu": "鼠",
         "wuxing": "日",
         "group": "北方玄武",
         "group_idx": 4
@@ -1857,7 +1857,7 @@
       "mansion": {
         "index": 11,
         "name": "危月燕",
-        "animal": "燕",
+        "dong_wu": "燕",
         "wuxing": "月",
         "group": "北方玄武",
         "group_idx": 5
@@ -1979,7 +1979,7 @@
       "mansion": {
         "index": 12,
         "name": "室火猪",
-        "animal": "猪",
+        "dong_wu": "猪",
         "wuxing": "火",
         "group": "北方玄武",
         "group_idx": 6
@@ -2101,7 +2101,7 @@
       "mansion": {
         "index": 13,
         "name": "壁水貐",
-        "animal": "貐",
+        "dong_wu": "貐",
         "wuxing": "水",
         "group": "北方玄武",
         "group_idx": 7
@@ -2223,7 +2223,7 @@
       "mansion": {
         "index": 10,
         "name": "虚日鼠",
-        "animal": "鼠",
+        "dong_wu": "鼠",
         "wuxing": "日",
         "group": "北方玄武",
         "group_idx": 4
@@ -2345,7 +2345,7 @@
       "mansion": {
         "index": 11,
         "name": "危月燕",
-        "animal": "燕",
+        "dong_wu": "燕",
         "wuxing": "月",
         "group": "北方玄武",
         "group_idx": 5
@@ -2467,7 +2467,7 @@
       "mansion": {
         "index": 12,
         "name": "室火猪",
-        "animal": "猪",
+        "dong_wu": "猪",
         "wuxing": "火",
         "group": "北方玄武",
         "group_idx": 6
@@ -2589,7 +2589,7 @@
       "mansion": {
         "index": 13,
         "name": "壁水貐",
-        "animal": "貐",
+        "dong_wu": "貐",
         "wuxing": "水",
         "group": "北方玄武",
         "group_idx": 7
@@ -2711,7 +2711,7 @@
       "mansion": {
         "index": 14,
         "name": "奎木狼",
-        "animal": "狼",
+        "dong_wu": "狼",
         "wuxing": "木",
         "group": "西方白虎",
         "group_idx": 1
@@ -2833,7 +2833,7 @@
       "mansion": {
         "index": 15,
         "name": "娄金狗",
-        "animal": "狗",
+        "dong_wu": "狗",
         "wuxing": "金",
         "group": "西方白虎",
         "group_idx": 2
@@ -2955,7 +2955,7 @@
       "mansion": {
         "index": 16,
         "name": "胃土雉",
-        "animal": "雉",
+        "dong_wu": "雉",
         "wuxing": "土",
         "group": "西方白虎",
         "group_idx": 3
@@ -3077,7 +3077,7 @@
       "mansion": {
         "index": 17,
         "name": "昴日鸡",
-        "animal": "鸡",
+        "dong_wu": "鸡",
         "wuxing": "日",
         "group": "西方白虎",
         "group_idx": 4
@@ -3199,7 +3199,7 @@
       "mansion": {
         "index": 18,
         "name": "毕月乌",
-        "animal": "乌",
+        "dong_wu": "乌",
         "wuxing": "月",
         "group": "西方白虎",
         "group_idx": 5
@@ -3321,7 +3321,7 @@
       "mansion": {
         "index": 19,
         "name": "觜火猴",
-        "animal": "猴",
+        "dong_wu": "猴",
         "wuxing": "火",
         "group": "西方白虎",
         "group_idx": 6
@@ -3443,7 +3443,7 @@
       "mansion": {
         "index": 20,
         "name": "参水猿",
-        "animal": "猿",
+        "dong_wu": "猿",
         "wuxing": "水",
         "group": "西方白虎",
         "group_idx": 7
@@ -3565,7 +3565,7 @@
       "mansion": {
         "index": 21,
         "name": "井木犴",
-        "animal": "犴",
+        "dong_wu": "犴",
         "wuxing": "木",
         "group": "南方朱雀",
         "group_idx": 1

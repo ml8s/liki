@@ -38,9 +38,9 @@ func TestComputeLiuYue_WuHuDun(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if ly.MonthGan != ganzhi.GanGeng || ly.MonthZhi != ganzhi.ZhiWu {
+	if ly.YueGan != ganzhi.GanGeng || ly.YueZhi != ganzhi.ZhiWu {
 		t.Errorf("Month pillar = %s%s, want 庚午",
-			ganzhi.GanName(ly.MonthGan), ganzhi.ZhiName(ly.MonthZhi))
+			ganzhi.GanName(ly.YueGan), ganzhi.ZhiName(ly.YueZhi))
 	}
 	if ly.ShiShen == "" {
 		t.Error("ShiShen is empty")
@@ -65,9 +65,9 @@ func TestComputeLiuYue_EthYear(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if ly.MonthGan != ganzhi.GanRen || ly.MonthZhi != ganzhi.ZhiWu {
+	if ly.YueGan != ganzhi.GanRen || ly.YueZhi != ganzhi.ZhiWu {
 		t.Errorf("Month pillar = %s%s, want 壬午",
-			ganzhi.GanName(ly.MonthGan), ganzhi.ZhiName(ly.MonthZhi))
+			ganzhi.GanName(ly.YueGan), ganzhi.ZhiName(ly.YueZhi))
 	}
 }
 
@@ -108,7 +108,7 @@ func TestComputeLiuRi_DayPillar(t *testing.T) {
 		if err != nil {
 			t.Fatalf("day %s: %v", day.Format("2006-01-02"), err)
 		}
-		idx := ganzhi.SixtyCycleIndex(lr.DayGan, lr.DayZhi)
+		idx := ganzhi.SixtyCycleIndex(lr.RiGan, lr.RiZhi)
 		if idx < 0 || idx >= 60 {
 			t.Errorf("day %s: index = %d, want [0,59]", day.Format("2006-01-02"), idx)
 		}
@@ -130,11 +130,11 @@ func TestComputeLiuRi_HasRequiredFields(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if lr.DayGan < 1 || lr.DayGan > 10 {
-		t.Errorf("DayGan = %d", lr.DayGan)
+	if lr.RiGan < 1 || lr.RiGan > 10 {
+		t.Errorf("RiGan = %d", lr.RiGan)
 	}
-	if lr.DayZhi < 1 || lr.DayZhi > 12 {
-		t.Errorf("DayZhi = %d", lr.DayZhi)
+	if lr.RiZhi < 1 || lr.RiZhi > 12 {
+		t.Errorf("RiZhi = %d", lr.RiZhi)
 	}
 	if lr.DayName == "" {
 		t.Error("DayName is empty")
@@ -184,10 +184,10 @@ func TestComputeLiuShi_WuShuDun(t *testing.T) {
 		if err != nil {
 			t.Fatalf("hour %d: %v", tt.hour, err)
 		}
-		if ls.HourGan != tt.wantGan || ls.HourZhi != tt.wantZhi {
+		if ls.ShiGan != tt.wantGan || ls.ShiZhi != tt.wantZhi {
 			t.Errorf("hour %d: pillar = %s%s, want %s%s",
 				tt.hour,
-				ganzhi.GanName(ls.HourGan), ganzhi.ZhiName(ls.HourZhi),
+				ganzhi.GanName(ls.ShiGan), ganzhi.ZhiName(ls.ShiZhi),
 				ganzhi.GanName(tt.wantGan), ganzhi.ZhiName(tt.wantZhi))
 		}
 	}
@@ -207,11 +207,11 @@ func TestComputeLiuShi_HasRequiredFields(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if ls.HourGan < 1 || ls.HourGan > 10 {
-		t.Errorf("HourGan = %d", ls.HourGan)
+	if ls.ShiGan < 1 || ls.ShiGan > 10 {
+		t.Errorf("ShiGan = %d", ls.ShiGan)
 	}
-	if ls.HourZhi < 1 || ls.HourZhi > 12 {
-		t.Errorf("HourZhi = %d", ls.HourZhi)
+	if ls.ShiZhi < 1 || ls.ShiZhi > 12 {
+		t.Errorf("ShiZhi = %d", ls.ShiZhi)
 	}
 	if ls.HourName == "" {
 		t.Error("HourName is empty")

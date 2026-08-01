@@ -67,7 +67,7 @@ func ComputeLiuRi(c Chart, year, month, day int) (*LiuRi, error) {
 	}
 	var lnZhu *ganzhi.Zhu
 	if ln != nil {
-		lnZhu = &ganzhi.Zhu{Gan: ln.YearGan, Zhi: ln.YearZhi}
+		lnZhu = &ganzhi.Zhu{Gan: ln.NianGan, Zhi: ln.NianZhi}
 	}
 	return computeLiuRi(c.ToBazi(), year, month, day, dzZhu, lnZhu)
 }

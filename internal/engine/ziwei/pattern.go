@@ -6,7 +6,7 @@ type pattern struct {
 	Score       int    `json:"score"` // 0=下 1=中 2=上
 }
 
-func findPatterns(palaces [12]palace) []pattern {
+func findPatterns(palaces [12]gong) []pattern {
 	var p patterns
 	ming := palaces[0]
 	sf := sanFang(0)
@@ -104,8 +104,8 @@ func (p *patterns) add(name, desc string, score int) {
 
 // ------ helpers ------
 
-func starAt(pa palace, star starIndex) bool { return starWith(pa, star) }
-func starAtZhi(palaces [12]palace, star starIndex, zhi Zhi) bool {
+func starAt(pa gong, star starIndex) bool { return starWith(pa, star) }
+func starAtZhi(palaces [12]gong, star starIndex, zhi Zhi) bool {
 	for _, p := range palaces {
 		if p.Zhi == zhi && starWith(p, star) {
 			return true
@@ -113,7 +113,7 @@ func starAtZhi(palaces [12]palace, star starIndex, zhi Zhi) bool {
 	}
 	return false
 }
-func starWith(pa palace, star starIndex) bool {
+func starWith(pa gong, star starIndex) bool {
 	for _, s := range pa.Stars {
 		if s.Star == star {
 			return true
@@ -133,10 +133,10 @@ func qingYangMiao(z Zhi) bool {
 	return false
 }
 
-func sunMoonBright(palaces [12]palace) bool {
+func sunMoonBright(palaces [12]gong) bool {
 	sunBright := false
 	moonBright := false
-	brightPalaces := []palaceIndex{0, 6, 8, 10} // 命迁移官禄福德
+	brightPalaces := []gongIndex{0, 6, 8, 10} // 命迁移官禄福德
 	for _, bp := range brightPalaces {
 		for _, s := range palaces[bp].Stars {
 			if s.Star == TaiYang && miaoWang(TaiYang, palaces[bp].Zhi) <= Wang {
@@ -150,7 +150,7 @@ func sunMoonBright(palaces [12]palace) bool {
 	return sunBright && moonBright
 }
 
-func sunMoonDark(palaces [12]palace) bool {
+func sunMoonDark(palaces [12]gong) bool {
 	sunDark := false
 	moonDark := false
 	for _, p := range palaces {
@@ -166,11 +166,11 @@ func sunMoonDark(palaces [12]palace) bool {
 	return sunDark && moonDark
 }
 
-func sanFang(ming palaceIndex) [4]palaceIndex {
-	return [4]palaceIndex{ming, (ming + 4) % 12, (ming + 8) % 12, (ming + 6) % 12}
+func sanFang(ming gongIndex) [4]gongIndex {
+	return [4]gongIndex{ming, (ming + 4) % 12, (ming + 8) % 12, (ming + 6) % 12}
 }
 
-func anyInSF(bz [12]palace, sf [4]palaceIndex, star starIndex) bool {
+func anyInSF(bz [12]gong, sf [4]gongIndex, star starIndex) bool {
 	for _, pi := range sf {
 		if starAt(bz[pi], star) {
 			return true
@@ -179,11 +179,11 @@ func anyInSF(bz [12]palace, sf [4]palaceIndex, star starIndex) bool {
 	return false
 }
 
-func starInSF(bz [12]palace, sf [4]palaceIndex, star starIndex) bool {
+func starInSF(bz [12]gong, sf [4]gongIndex, star starIndex) bool {
 	return anyInSF(bz, sf, star)
 }
 
-func sfCount(bz [12]palace, sf [4]palaceIndex, stars ...starIndex) int {
+func sfCount(bz [12]gong, sf [4]gongIndex, stars ...starIndex) int {
 	count := 0
 	for _, pi := range sf {
 		for _, s := range stars {
@@ -195,7 +195,7 @@ func sfCount(bz [12]palace, sf [4]palaceIndex, stars ...starIndex) int {
 	return count
 }
 
-func sfSiHuaCount(bz [12]palace, sf [4]palaceIndex, h siHuaType) int {
+func sfSiHuaCount(bz [12]gong, sf [4]gongIndex, h siHuaType) int {
 	count := 0
 	for _, pi := range sf {
 		for _, s := range bz[pi].Stars {

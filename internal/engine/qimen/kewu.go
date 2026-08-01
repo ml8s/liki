@@ -10,14 +10,14 @@ type stemEntry struct {
 	Auspicious  bool
 }
 
-// computeStemInteractions returns the 十干克应 for each palace.
-func computeStemInteractions(pan pan) [9]StemInteraction {
-	var result [9]StemInteraction
+// computeGanInteractions returns the 十干克应 for each gong.
+func computeGanInteractions(pan pan) [9]GanInteraction {
+	var result [9]GanInteraction
 	for i := 0; i < 9; i++ {
-		p := pan.Palaces[i]
+		p := pan.GongWei[i]
 		key := [2]ganzhi.Gan{p.EarthStem, p.HeavenStem}
-		if entry, ok := stemInteractionTable[key]; ok {
-			result[i] = StemInteraction{
+		if entry, ok := ganInteractionTable[key]; ok {
+			result[i] = GanInteraction{
 				EarthStem:  p.EarthStem,
 				HeavenStem: p.HeavenStem,
 				Name:       entry.Name,
@@ -25,14 +25,14 @@ func computeStemInteractions(pan pan) [9]StemInteraction {
 				Auspicious: entry.Auspicious,
 			}
 		} else {
-			result[i] = genericStemInteraction(p.EarthStem, p.HeavenStem)
+			result[i] = genericGanInteraction(p.EarthStem, p.HeavenStem)
 		}
 	}
 	return result
 }
 
-// genericStemInteraction generates a five-element-based description for unnamed combinations.
-func genericStemInteraction(earth, heaven ganzhi.Gan) StemInteraction {
+// genericGanInteraction generates a five-element-based description for unnamed combinations.
+func genericGanInteraction(earth, heaven ganzhi.Gan) GanInteraction {
 	eWuxing := ganzhi.GanWuxing(earth)
 	hWuxing := ganzhi.GanWuxing(heaven)
 	name := ganzhi.GanName(earth) + "+" + ganzhi.GanName(heaven)
@@ -56,7 +56,7 @@ func genericStemInteraction(earth, heaven ganzhi.Gan) StemInteraction {
 		auspicious = true
 	}
 
-	return StemInteraction{
+	return GanInteraction{
 		EarthStem:  earth,
 		HeavenStem: heaven,
 		Name:       name,

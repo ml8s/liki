@@ -12,23 +12,23 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 	if lt.Leap && lunarDay > 15 {
 		lunarMonth++
 	}
-	hourZhi := bz.Shi.Zhi
-	yearGan := bz.Nian.Gan
-	yearZhi := bz.Nian.Zhi
+	shiZhi := bz.Shi.Zhi
+	nianGan := bz.Nian.Gan
+	nianZhi := bz.Nian.Zhi
 
-	mingZhi, shenZhi := computeMingShen(lunarMonth, hourZhi)
+	mingZhi, shenZhi := computeMingShen(lunarMonth, shiZhi)
 	palaceZhis := arrangePalaceZhis(mingZhi)
 	shenGong := findShenGongIndex(palaceZhis, shenZhi)
 
-	mingGan, palaceGans := arrangePalaceGans(yearGan, mingZhi, (lunarMonth-int(hourZhi)+12)%12)
+	mingGan, palaceGans := arrangePalaceGans(nianGan, mingZhi, (lunarMonth-int(shiZhi)+12)%12)
 	ju := determineJuShu(mingGan, mingZhi)
 	ziweiAnXingIdx := findZiwei(ju, lunarDay)
 	tianfuAnXingIdx := (12 - ziweiAnXingIdx) % 12
 	ziweiPos := anXingIdxToPalace(ziweiAnXingIdx, mingZhi)
 	mainByPalace := placeMainStars(ziweiAnXingIdx, tianfuAnXingIdx, mingZhi)
-	minorByPalace := placeMinorStars(ganzhi.Zhu{Gan: yearGan, Zhi: yearZhi}, lunarMonth, hourZhi, mingZhi)
+	minorByPalace := placeMinorStars(ganzhi.Zhu{Gan: nianGan, Zhi: nianZhi}, lunarMonth, shiZhi, mingZhi)
 
-	var palaces [12]palace
+	var palaces [12]gong
 	for i := 0; i < 12; i++ {
 		starInfos := make([]starInfo, 0)
 		// mainByPalace/minorByPalace 为 zhiIdx 坐标，经本宫支反查
@@ -39,26 +39,26 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 		for _, s := range minorByPalace[zm1] {
 			starInfos = append(starInfos, starInfo{Star: s, Name: starName(s), IsMajor: false})
 		}
-		palaces[i] = palace{
-			Index:        palaceIndex(i),
-			Name:         palaceLabels[i],
+		palaces[i] = gong{
+			Index:        gongIndex(i),
+			Name:         gongLabels[i],
 			Gan:          palaceGans[i],
 			Zhi:          palaceZhis[i],
-			IsBodyPalace: palaceIndex(i) == shenGong,
+			IsBodyPalace: gongIndex(i) == shenGong,
 			Stars:        starInfos,
 		}
 	}
 
 	return Chart{
-		Palaces:        palaces,
+		GongWei:        palaces,
 		MingGong:       0,
 		ShenGong:       shenGong,
 		JuShu:          ju,
 		JuShuName:      juShuName(ju),
 		ZiweiPos:       ziweiPos,
-		NianGan:        yearGan,
-		NianZhi:        yearZhi,
-		ShiZhi:         hourZhi,
+		NianGan:        nianGan,
+		NianZhi:        nianZhi,
+		ShiZhi:         shiZhi,
 		LunarMonth:     lunarMonth,
 		LunarDay:       lunarDay,
 		BirthLunarMonth: lt.Month,
@@ -69,21 +69,21 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 // buildChartDetail enriches a core chart with siHua, brightness, and patterns.
 func buildChartDetail(chart Chart) Chart {
 	siHua := computeSiHua(chart.NianGan)
-	for i := range chart.Palaces {
-		for j, s := range chart.Palaces[i].Stars {
+	for i := range chart.GongWei {
+		for j, s := range chart.GongWei[i].Stars {
 			if s.IsMajor {
-				chart.Palaces[i].Stars[j].Brightness = miaoWang(s.Star, chart.Palaces[i].Zhi).String()
+				chart.GongWei[i].Stars[j].Brightness = miaoWang(s.Star, chart.GongWei[i].Zhi).String()
 				if h, ok := siHua[s.Star]; ok {
-					chart.Palaces[i].Stars[j].SiHua = string(h)
+					chart.GongWei[i].Stars[j].SiHua = string(h)
 				}
 			}
 		}
 	}
 	chart.SiHua = siHua
-	chart.Patterns = findPatterns(chart.Palaces)
+	chart.Patterns = findPatterns(chart.GongWei)
 	// 来因宫
-	ygIdx := yuanGongPalace(chart.Palaces, chart.NianGan)
-	chart.Palaces[ygIdx].IsYuanGong = true
+	ygIdx := yuanGongPalace(chart.GongWei, chart.NianGan)
+	chart.GongWei[ygIdx].IsYuanGong = true
 	return chart
 }
 

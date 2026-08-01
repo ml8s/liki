@@ -94,11 +94,11 @@ func TestQueryDate_KnownDates(t *testing.T) {
 				t.Fatalf("QueryDate: %v", err)
 			}
 			if ganzhi.GanName(got.RiZhu.Gan) != tt.wantDayGan {
-				t.Errorf("DayGan = %s, want %s",
+				t.Errorf("RiGan = %s, want %s",
 					ganzhi.GanName(got.RiZhu.Gan), tt.wantDayGan)
 			}
 			if ganzhi.ZhiName(got.RiZhu.Zhi) != tt.wantDayZhi {
-				t.Errorf("DayZhi = %s, want %s",
+				t.Errorf("RiZhi = %s, want %s",
 					ganzhi.ZhiName(got.RiZhu.Zhi), tt.wantDayZhi)
 			}
 			if got.Mansion.Name != tt.wantMansion {

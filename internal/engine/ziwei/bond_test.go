@@ -70,7 +70,7 @@ func TestBond(t *testing.T) {
 			cb := chartFrom(t, tc.b, tc.bt, tc.bg)
 			bd := ComputeBond(ca, cb)
 
-			if bd.PalaceCross.AIntoB == "" || bd.PalaceCross.BIntoA == "" {
+			if bd.GongCross.AIntoB == "" || bd.GongCross.BIntoA == "" {
 				t.Error("palace_cross为空")
 			}
 			if bd.WuXingShengKe == "" {
@@ -83,11 +83,11 @@ func TestBond(t *testing.T) {
 				t.Error("zi_nv_gong为nil")
 			}
 			if tc.desc[:3] == "自合" {
-				if bd.PalaceCross.AIntoB != ca.Palaces[0].Name {
-					t.Errorf("自合A入B: %s", bd.PalaceCross.AIntoB)
+				if bd.GongCross.AIntoB != ca.GongWei[0].Name {
+					t.Errorf("自合A入B: %s", bd.GongCross.AIntoB)
 				}
-				if bd.PalaceCross.BIntoA != ca.Palaces[0].Name {
-					t.Errorf("自合B入A: %s", bd.PalaceCross.BIntoA)
+				if bd.GongCross.BIntoA != ca.GongWei[0].Name {
+					t.Errorf("自合B入A: %s", bd.GongCross.BIntoA)
 				}
 				if !strSliceEq(bd.FuQiGong.AZhuXing, bd.FuQiGong.BZhuXing) {
 					t.Errorf("自合夫妻星不同: %v vs %v", bd.FuQiGong.AZhuXing, bd.FuQiGong.BZhuXing)

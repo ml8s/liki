@@ -7,12 +7,12 @@ import (
 // Chart bundles a complete奇门盘 with all analysis layers.
 type Chart struct {
 	Pan              pan               `json:"pan"`
-	StemInteractions [9]StemInteraction `json:"gan_interaction"`
-	DoorInteractions [9]DoorInteraction `json:"men_interaction"`
-	StarInteractions [9]StarInteraction `json:"xing_interaction"`
+	GanInteractions [9]GanInteraction `json:"gan_interaction"`
+	MenInteractions [9]MenInteraction `json:"men_interaction"`
+	XingInteractions [9]XingInteraction `json:"xing_interaction"`
 	WangShuai        [9]WangShuai       `json:"wang_shuai"`
-	MenPo            []PalaceIndex      `json:"men_po"`
-	MenZhi           []PalaceIndex      `json:"men_zhi"`
+	MenPo            []GongIndex      `json:"men_po"`
+	MenZhi           []GongIndex      `json:"men_zhi"`
 	Patterns         []Pattern          `json:"patterns"`
 	YingQi           YingQi             `json:"ying_qi"`
 }
@@ -38,9 +38,9 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 	p.RiZhi = bz.Ri.Zhi
 	return Chart{
 		Pan:              p,
-		StemInteractions: computeStemInteractions(p),
-		DoorInteractions: computeDoorInteractions(p),
-		StarInteractions: computeStarInteractions(p),
+		GanInteractions: computeGanInteractions(p),
+		MenInteractions: computeMenInteractions(p),
+		XingInteractions: computeXingInteractions(p),
 		WangShuai:        computeWangShuai(p),
 		MenPo:            findMenPo(p),
 		MenZhi:           findMenZhi(p),

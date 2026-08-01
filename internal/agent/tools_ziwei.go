@@ -196,7 +196,7 @@ var ziweiMethods = []RPCMethod{
 	{
 		Name: "ziwei.liushi", Description: "紫微流时。返回流时命宫及四化。",
 		Handler: ziweiLiuShiHandler,
-		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer"},"lunar_month":{"type":"integer"},"lunar_day":{"type":"integer"},"shi_zhi":{"type":"integer"},"chart":{"type":"object"}},"required":["liu_nian","lunar_month","lunar_day","shi_zhi","chart"]}`),
+		Params: mustSchema(`{"type":"object","properties":{"liu_nian":{"type":"integer"},"lunar_month":{"type":"integer"},"lunar_day":{"type":"integer"},"shi_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"时支"},"chart":{"type":"object"}},"required":["liu_nian","lunar_month","lunar_day","shi_zhi","chart"]}`),
 		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流时地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object","additionalProperties":{"type":"string","enum":["禄","权","科","忌"]},"description":"四化：{星名: 禄/权/科/忌}"},"xing_yao":{"type":"object","description":"时星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流时十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 }
@@ -206,7 +206,7 @@ func ziweiLiuShiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 		LiuNian    int             `json:"liu_nian"`
 		LunarMonth int             `json:"lunar_month"`
 		LunarDay   int             `json:"lunar_day"`
-		ShiZhi     int             `json:"shi_zhi"`
+		ShiZhi     string          `json:"shi_zhi"`
 		Chart      json.RawMessage `json:"chart"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
@@ -216,6 +216,10 @@ func ziweiLiuShiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.liushi: %w", err)
 	}
-	result := ziwei.ComputeLiuShi(chart, p.LiuNian, p.LunarMonth, p.LunarDay, ganzhi.Zhi(p.ShiZhi))
+	shiZhi, err := ganzhi.ParseZhi(p.ShiZhi)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.liushi: 时辰应为地支(子丑寅卯...): %w", err)
+	}
+	result := ziwei.ComputeLiuShi(chart, p.LiuNian, p.LunarMonth, p.LunarDay, shiZhi)
 	return wrapResult("ziwei_liushi", result)
 }

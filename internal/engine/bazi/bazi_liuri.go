@@ -12,8 +12,8 @@ import (
 // and its interactions with the bazi chart, dayun, and liunian pillars.
 type LiuRi struct {
 	Date        string         `json:"date"`
-	DayGan      ganzhi.Gan            `json:"ri_gan"`
-	DayZhi      ganzhi.Zhi            `json:"ri_zhi"`
+	RiGan      ganzhi.Gan            `json:"ri_gan"`
+	RiZhi      ganzhi.Zhi            `json:"ri_zhi"`
 	DayName     string         `json:"day_name"`
 	DayNaYin    string         `json:"day_nayin"`
 	ShiShen      string         `json:"shi_shen"`
@@ -98,8 +98,8 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 	}
 	return &LiuRi{
 		Date:        fmt.Sprintf("%04d-%02d-%02d", year, month, day),
-		DayGan:      dp.Gan,
-		DayZhi:      dp.Zhi,
+		RiGan:      dp.Gan,
+		RiZhi:      dp.Zhi,
 		DayName:     dayName,
 		DayNaYin:    naYin,
 		ShiShen:      tgName.String(),

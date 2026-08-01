@@ -22,12 +22,12 @@ func TestLiuYao_Judgment_MonthPo_BigJi(t *testing.T) {
 
 	c := Chart{
 		Lines:    lines,
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   ganzhi.ZhiChen,
-		MonthZhi: ganzhi.ZhiChou, // 丑月→冲未
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   ganzhi.ZhiChen,
+		YueZhi: ganzhi.ZhiChou, // 丑月→冲未
 	}
 	for i := range c.Lines {
-		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.MonthZhi)
+		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.YueZhi)
 	}
 
 	result := ComputeJudgment(c, "general")
@@ -51,12 +51,12 @@ func TestLiuYao_Judgment_ChiShiWangXiang_Ji(t *testing.T) {
 
 	c := Chart{
 		Lines:    lines,
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   ganzhi.ZhiChen,
-		MonthZhi: ganzhi.ZhiWu, // 午月→午火旺
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   ganzhi.ZhiChen,
+		YueZhi: ganzhi.ZhiWu, // 午月→午火旺
 	}
 	for i := range c.Lines {
-		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.MonthZhi)
+		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.YueZhi)
 	}
 
 	result := ComputeJudgment(c, "career")
@@ -77,13 +77,13 @@ func TestLiuYao_Judgment_ShangGuaBuShang_Ji(t *testing.T) {
 
 	c := Chart{
 		Lines:    lines,
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   ganzhi.ZhiWu,
-		MonthZhi: ganzhi.ZhiYou,
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   ganzhi.ZhiWu,
+		YueZhi: ganzhi.ZhiYou,
 		BenGua:   30, // 离卦
 	}
 	for i := range c.Lines {
-		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.MonthZhi)
+		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.YueZhi)
 	}
 
 	result := ComputeJudgment(c, "career")
@@ -105,12 +105,12 @@ func TestLiuYao_Judgment_Xiu_FallbackPing(t *testing.T) {
 
 	c := Chart{
 		Lines:    lines,
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   ganzhi.ZhiWu,
-		MonthZhi: ganzhi.ZhiYin, // 寅月→巳火休
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   ganzhi.ZhiWu,
+		YueZhi: ganzhi.ZhiYin, // 寅月→巳火休
 	}
 	for i := range c.Lines {
-		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.MonthZhi)
+		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.YueZhi)
 	}
 
 	result := ComputeJudgment(c, "career")

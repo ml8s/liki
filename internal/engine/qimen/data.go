@@ -8,53 +8,53 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-//go:embed data/stem_interactions.json
-var stemInteractionsJSON []byte
+//go:embed data/gan_interaction.json
+var ganInteractionJSON []byte
 
 //go:embed data/jushu.json
 var jushuJSON []byte
 
-//go:embed data/door_interactions.json
-var doorInteractionsJSON []byte
+//go:embed data/men_interaction.json
+var menInteractionJSON []byte
 
-//go:embed data/star_interactions.json
-var starInteractionsJSON []byte
+//go:embed data/xing_interaction.json
+var xingInteractionJSON []byte
 
 var (
-	stemInteractionTable map[[2]ganzhi.Gan]stemEntry
+	ganInteractionTable map[[2]ganzhi.Gan]stemEntry
 	solarTermBureau      [24][4]int
-	doorPalaceTable      map[[2]int]doorEntry
-	starPalaceTable      map[[2]int]StarInteraction
+	menGongTable      map[[2]int]doorEntry
+	xingGongTable      map[[2]int]XingInteraction
 )
 
 func init() {
-	if err := loadStemInteractions(); err != nil {
-		log.Fatalf("qimen: load stem_interactions: %v", err)
+	if err := loadGanInteractions(); err != nil {
+		log.Fatalf("qimen: load gan_interaction: %v", err)
 	}
 	if err := loadJushu(); err != nil {
 		log.Fatalf("qimen: load jushu: %v", err)
 	}
-	if err := loadDoorInteractions(); err != nil {
-		log.Fatalf("qimen: load door_interactions: %v", err)
+	if err := loadMenInteractions(); err != nil {
+		log.Fatalf("qimen: load men_interaction: %v", err)
 	}
-	if err := loadStarInteractions(); err != nil {
-		log.Fatalf("qimen: load star_interactions: %v", err)
+	if err := loadXingInteractions(); err != nil {
+		log.Fatalf("qimen: load xing_interaction: %v", err)
 	}
 }
 
-func loadStemInteractions() error {
+func loadGanInteractions() error {
 	var entries []struct {
-		Earth      string `json:"earth"`
-		Heaven     string `json:"heaven"`
+		Earth      string `json:"di_pan_gan"`
+		Heaven     string `json:"tian_pan_gan"`
 		Name       string `json:"name"`
 		Pattern    string `json:"pattern"`
 		Meaning    string `json:"meaning"`
 		Auspicious bool   `json:"auspicious"`
 	}
-	if err := json.Unmarshal(stemInteractionsJSON, &entries); err != nil {
+	if err := json.Unmarshal(ganInteractionJSON, &entries); err != nil {
 		return err
 	}
-	stemInteractionTable = make(map[[2]ganzhi.Gan]stemEntry, len(entries))
+	ganInteractionTable = make(map[[2]ganzhi.Gan]stemEntry, len(entries))
 	for _, e := range entries {
 		earth, err := ganzhi.ParseGan(e.Earth)
 		if err != nil {
@@ -64,7 +64,7 @@ func loadStemInteractions() error {
 		if err != nil {
 			return err
 		}
-		stemInteractionTable[[2]ganzhi.Gan{earth, heaven}] = stemEntry{
+		ganInteractionTable[[2]ganzhi.Gan{earth, heaven}] = stemEntry{
 			Name:        e.Name,
 			PatternName: e.Pattern,
 			Meaning:     e.Meaning,
@@ -94,29 +94,29 @@ func loadJushu() error {
 	return nil
 }
 
-func loadDoorInteractions() error {
+func loadMenInteractions() error {
 	var entries []struct {
 		Door    string `json:"door"`
-		Palace  string `json:"gong"`
+		Gong  string `json:"gong"`
 		Name    string `json:"name"`
 		Meaning string `json:"meaning"`
 	}
-	if err := json.Unmarshal(doorInteractionsJSON, &entries); err != nil {
+	if err := json.Unmarshal(menInteractionJSON, &entries); err != nil {
 		return err
 	}
-	doorPalaceTable = make(map[[2]int]doorEntry, len(entries))
+	menGongTable = make(map[[2]int]doorEntry, len(entries))
 	for _, e := range entries {
 		d, err := ParseDoorIndex(e.Door)
 		if err != nil {
 			return err
 		}
-		p, err := ParsePalaceIndex(e.Palace)
+		p, err := ParsePalaceIndex(e.Gong)
 		if err != nil {
 			return err
 		}
-		doorPalaceTable[[2]int{int(d), int(p) - 1}] = doorEntry{
+		menGongTable[[2]int{int(d), int(p) - 1}] = doorEntry{
 			DoorName:   e.Door,
-			PalaceName: e.Palace,
+			GongName: e.Gong,
 			Name:       e.Name,
 			Meaning:    e.Meaning,
 		}
@@ -124,30 +124,30 @@ func loadDoorInteractions() error {
 	return nil
 }
 
-func loadStarInteractions() error {
+func loadXingInteractions() error {
 	var entries []struct {
 		Star       string `json:"xing"`
-		Palace     string `json:"gong"`
+		Gong     string `json:"gong"`
 		Name       string `json:"name"`
 		Meaning    string `json:"meaning"`
 		Auspicious bool   `json:"auspicious"`
 	}
-	if err := json.Unmarshal(starInteractionsJSON, &entries); err != nil {
+	if err := json.Unmarshal(xingInteractionJSON, &entries); err != nil {
 		return err
 	}
-	starPalaceTable = make(map[[2]int]StarInteraction, len(entries))
+	xingGongTable = make(map[[2]int]XingInteraction, len(entries))
 	for _, e := range entries {
 		s, err := ParseStarIndex(e.Star)
 		if err != nil {
 			return err
 		}
-		p, err := ParsePalaceIndex(e.Palace)
+		p, err := ParsePalaceIndex(e.Gong)
 		if err != nil {
 			return err
 		}
-		starPalaceTable[[2]int{int(s), int(p) - 1}] = StarInteraction{
+		xingGongTable[[2]int{int(s), int(p) - 1}] = XingInteraction{
 			Star:       e.Star,
-			Palace:     e.Palace,
+			Gong:     e.Gong,
 			Name:       e.Name,
 			Meaning:    e.Meaning,
 			Auspicious: e.Auspicious,

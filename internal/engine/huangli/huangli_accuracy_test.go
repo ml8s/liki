@@ -11,7 +11,7 @@ import (
 func TestEvaluateZhi_AllRelations(t *testing.T) {
 	tests := []struct {
 		name       string
-		dayZhi     ganzhi.Zhi
+		riZhi     ganzhi.Zhi
 		refZhi     ganzhi.Zhi
 		wantRel    string
 		wantMarks  bool
@@ -28,7 +28,7 @@ func TestEvaluateZhi_AllRelations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rel, marks, warns := evaluateZhi(tt.dayZhi, tt.refZhi, "日柱")
+			rel, marks, warns := evaluateZhi(tt.riZhi, tt.refZhi, "日柱")
 			if rel != tt.wantRel {
 				t.Errorf("rel = %q, want %q", rel, tt.wantRel)
 			}
@@ -213,7 +213,7 @@ func TestJianChuOffset(t *testing.T) {
 	tests := []struct {
 		name        string
 		monthBranch ganzhi.Zhi
-		dayZhi      ganzhi.Zhi
+		riZhi      ganzhi.Zhi
 		wantOffset  int
 		wantGod      string
 	}{
@@ -230,7 +230,7 @@ func TestJianChuOffset(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			jianIdx := int(tt.monthBranch) - 1
-			dayIdx := int(tt.dayZhi) - 1
+			dayIdx := int(tt.riZhi) - 1
 			offset := (dayIdx - jianIdx + 12) % 12
 
 			if offset != tt.wantOffset {
@@ -250,7 +250,7 @@ func TestJianChuOffset(t *testing.T) {
 func TestHuangDaoForDay(t *testing.T) {
 	tests := []struct {
 		monthBranch ganzhi.Zhi
-		dayZhi      ganzhi.Zhi
+		riZhi      ganzhi.Zhi
 		wantName    string
 		wantPath    string
 	}{
@@ -270,9 +270,9 @@ func TestHuangDaoForDay(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		name := ganzhi.ZhiName(tt.monthBranch) + "月" + ganzhi.ZhiName(tt.dayZhi) + "日"
+		name := ganzhi.ZhiName(tt.monthBranch) + "月" + ganzhi.ZhiName(tt.riZhi) + "日"
 		t.Run(name, func(t *testing.T) {
-			got := huangDaoForDay(tt.monthBranch, tt.dayZhi)
+			got := huangDaoForDay(tt.monthBranch, tt.riZhi)
 			if got.Name != tt.wantName {
 				t.Errorf("Name = %s, want %s", got.Name, tt.wantName)
 			}

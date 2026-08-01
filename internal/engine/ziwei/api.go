@@ -24,7 +24,7 @@ func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
 	// LunarMonth/LunarDay 已在 computeChart 内设置（含闰月调整），不覆盖
 	chart.NianZhi = nianZhi
 	chart = buildChartDetail(chart)
-	chart.MingZhu = soulStar(chart.Palaces[0].Zhi)
+	chart.MingZhu = soulStar(chart.GongWei[0].Zhi)
 	chart.ShenZhu = bodyStar(nianZhi)
 	return chart
 }

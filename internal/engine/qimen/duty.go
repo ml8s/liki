@@ -5,7 +5,7 @@ import "liki-engine/internal/engine/ganzhi"
 // 六甲旬首 → 六仪
 var liuJiaLiuYi = [6]ganzhi.Gan{ganzhi.GanWu, ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin, ganzhi.GanRen, ganzhi.GanGui}
 
-// palaceStar maps palace index (0-based) to its resident star.
+// palaceStar maps gong index (0-based) to its resident star.
 var palaceStar = [9]StarIndex{
 	StarTianPeng,  // 坎1
 	StarTianRui,   // 坤2
@@ -18,7 +18,7 @@ var palaceStar = [9]StarIndex{
 	StarTianYing,  // 离9
 }
 
-// palaceDoor maps palace index (0-based) to its resident door.
+// palaceDoor maps gong index (0-based) to its resident door.
 var palaceDoor = [9]DoorIndex{
 	DoorXiu,     // 坎1=休
 	DoorSi,      // 坤2=死

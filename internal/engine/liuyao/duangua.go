@@ -8,21 +8,21 @@ type DayRelation struct {
 	Strength string `json:"strength"` // 旺/平/衰
 }
 
-func dayInteraction(lineZhi ganzhi.Zhi, dayZhi ganzhi.Zhi) DayRelation {
+func dayInteraction(lineZhi ganzhi.Zhi, riZhi ganzhi.Zhi) DayRelation {
 	le := ganzhi.ZhiWuxing(lineZhi)
-	de := ganzhi.ZhiWuxing(dayZhi)
+	de := ganzhi.ZhiWuxing(riZhi)
 
 	rel := DayRelation{}
 
 	// 冲
-	if ganzhi.IsLiuChong(lineZhi, dayZhi) {
+	if ganzhi.IsLiuChong(lineZhi, riZhi) {
 		rel.Relation = "冲"
 		rel.Strength = "衰"
 		return rel
 	}
 
 	// 合
-	if ganzhi.IsZhiHe(lineZhi, dayZhi) {
+	if ganzhi.IsZhiHe(lineZhi, riZhi) {
 		rel.Relation = "合"
 		rel.Strength = "旺"
 		return rel
@@ -95,10 +95,10 @@ func computeYingQi(p *Chart, typ YongShen) YingQi {
 	}
 
 	// Month旺衰.
-	ws := ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(yao.Zhi), p.MonthZhi)
+	ws := ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(yao.Zhi), p.YueZhi)
 
 	// Day interaction.
-	di := dayInteraction(yao.Zhi, p.DayZhi)
+	di := dayInteraction(yao.Zhi, p.RiZhi)
 
 	yq.Assessment = typ.String() + "在" + ordinal(yongPos) + "爻" +
 		"，月建" + ws.String() + "，日建" + di.Relation + "(" + di.Strength + ")"

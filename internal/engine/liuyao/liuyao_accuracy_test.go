@@ -15,7 +15,7 @@ func TestWangShuaiOf(t *testing.T) {
 	tests := []struct {
 		name     string
 		lineZhi  ganzhi.Zhi
-		monthZhi ganzhi.Zhi
+		yueZhi ganzhi.Zhi
 		want     ganzhi.WangShuai
 	}{
 		// 月建寅(木)
@@ -49,10 +49,10 @@ func TestWangShuaiOf(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(tt.lineZhi), tt.monthZhi)
+			got := ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(tt.lineZhi), tt.yueZhi)
 			if got != tt.want {
 				t.Errorf("WangShuaiOf(%s,%s) = %s, want %s",
-					ganzhi.ZhiName(tt.lineZhi), ganzhi.ZhiName(tt.monthZhi),
+					ganzhi.ZhiName(tt.lineZhi), ganzhi.ZhiName(tt.yueZhi),
 					got.String(), tt.want.String())
 			}
 		})
@@ -529,9 +529,9 @@ func TestComputeYingQi_NotFound_WithFuShen(t *testing.T) {
 			{Position: 5, LiuQin: QinFumu, Zhi: ganzhi.ZhiShen},
 			{Position: 6, LiuQin: QinFumu, Zhi: ganzhi.ZhiXu},
 		},
-		MonthZhi: ganzhi.ZhiYin,
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   ganzhi.ZhiZi,
+		YueZhi: ganzhi.ZhiYin,
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   ganzhi.ZhiZi,
 	}
 	yq := computeYingQi(p, YongQiCai)
 	if yq.YongShen != "妻财" {
@@ -691,7 +691,7 @@ func TestComputeChart_ChangingLines(t *testing.T) {
 // TestDayGanShouOrder verifies六兽 order starts from correct 青龙 position.
 func TestDayGanShouOrder(t *testing.T) {
 	tests := []struct {
-		dayGan ganzhi.Gan
+		riGan ganzhi.Gan
 		want0  LiuShou // expected first六兽
 	}{
 		{ganzhi.GanJia, ShouQingLong},
@@ -707,11 +707,11 @@ func TestDayGanShouOrder(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(ganzhi.GanName(tt.dayGan), func(t *testing.T) {
-			order := dayGanShouOrder(tt.dayGan)
+		t.Run(ganzhi.GanName(tt.riGan), func(t *testing.T) {
+			order := dayGanShouOrder(tt.riGan)
 			if order[0] != tt.want0 {
 				t.Errorf("dayGanShouOrder(%s)[0] = %s, want %s",
-					ganzhi.GanName(tt.dayGan), order[0].String(), tt.want0.String())
+					ganzhi.GanName(tt.riGan), order[0].String(), tt.want0.String())
 			}
 		})
 	}

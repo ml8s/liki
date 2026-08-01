@@ -40,7 +40,7 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 		name   string
 		ysType YongShen
 		yongPos int
-		monthZhi, dayZhi ganzhi.Zhi
+		yueZhi, riZhi ganzhi.Zhi
 		yaoType int
 		yongZhi ganzhi.Zhi
 		wantRating string
@@ -50,7 +50,7 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 		{
 			name: "用神旺相日建生→吉",
 			ysType: YongQiCai, yongPos: 3,
-			monthZhi: ganzhi.ZhiWu, dayZhi: ganzhi.ZhiSi,
+			yueZhi: ganzhi.ZhiWu, riZhi: ganzhi.ZhiSi,
 			yaoType: 7, yongZhi: ganzhi.ZhiWu,
 			wantRating: "吉", wantRule: 6,
 			desc: "午月午火→妻财午火旺, line3持世→ rule6 持世旺相→吉",
@@ -58,7 +58,7 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 		{
 			name: "死+日冲→凶(rule5)",
 			ysType: YongQiCai, yongPos: 5,
-			monthZhi: ganzhi.ZhiShen, dayZhi: ganzhi.ZhiZi,
+			yueZhi: ganzhi.ZhiShen, riZhi: ganzhi.ZhiZi,
 			yaoType: 6, yongZhi: ganzhi.ZhiWu,
 			wantRating: "凶", wantRule: 5,
 			desc: "申月→妻财午火死, 子日午冲→日衰, line5非世→ rule5 囚死+日衰+非持世→凶",
@@ -66,7 +66,7 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 		{
 			name: "月破→凶(rule1)",
 			ysType: YongGuanGui, yongPos: 4,
-			monthZhi: ganzhi.ZhiZi, dayZhi: ganzhi.ZhiChen,
+			yueZhi: ganzhi.ZhiZi, riZhi: ganzhi.ZhiChen,
 			yaoType: 6, yongZhi: ganzhi.ZhiWu,
 			wantRating: "凶", wantRule: 1,
 			desc: "子月午冲→月破, 不论其他→ rule1",
@@ -74,7 +74,7 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 		{
 			name: "持世+旺相→吉(rule6)",
 			ysType: YongFumu, yongPos: 3,
-			monthZhi: ganzhi.ZhiMao, dayZhi: ganzhi.ZhiChen,
+			yueZhi: ganzhi.ZhiMao, riZhi: ganzhi.ZhiChen,
 			yaoType: 6, yongZhi: ganzhi.ZhiMao,
 			wantRating: "吉", wantRule: 6,
 			desc: "卯月卯木→父母旺, line3持世→ rule6",
@@ -82,7 +82,7 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 		{
 			name: "月建休→平(rule9)",
 			ysType: YongQiCai, yongPos: 2,
-			monthZhi: ganzhi.ZhiSi, dayZhi: ganzhi.ZhiChen,
+			yueZhi: ganzhi.ZhiSi, riZhi: ganzhi.ZhiChen,
 			yaoType: 6, yongZhi: ganzhi.ZhiYin,
 			wantRating: "平", wantRule: 9,
 			desc: "巳月巳火→妻财寅木休, line2非世→ rule9 休→平",
@@ -90,7 +90,7 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 		{
 			name: "旺相→吉(rule6世持)",
 			ysType: YongZiSun, yongPos: 5,
-			monthZhi: ganzhi.ZhiChen, dayZhi: ganzhi.ZhiYou,
+			yueZhi: ganzhi.ZhiChen, riZhi: ganzhi.ZhiYou,
 			yaoType: 6, yongZhi: ganzhi.ZhiChen,
 			wantRating: "吉", wantRule: 6,
 			desc: "辰月辰土旺, line3世爻→ rule6 持世旺相→吉",
@@ -99,9 +99,9 @@ func TestLiuYao_Judgment_Rating(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := makeJudgmentChart(tt.ysType, tt.yongPos, tt.monthZhi, tt.dayZhi, tt.yaoType, tt.yongZhi)
+			c := makeJudgmentChart(tt.ysType, tt.yongPos, tt.yueZhi, tt.riZhi, tt.yaoType, tt.yongZhi)
 			for i := range c.Lines {
-				c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.MonthZhi)
+				c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.YueZhi)
 			}
 			result := ComputeJudgment(c, eventForYS(tt.ysType))
 			if result.Rating != tt.wantRating || result.Rule != tt.wantRule {
@@ -145,7 +145,7 @@ func testChart(event string) Chart {
 }
 
 // makeJudgmentChart builds a Chart with specific配置.
-func makeJudgmentChart(ysType YongShen, yongPos int, monthZhi, dayZhi ganzhi.Zhi, yaoType int, yongZhi ganzhi.Zhi) Chart {
+func makeJudgmentChart(ysType YongShen, yongPos int, yueZhi, riZhi ganzhi.Zhi, yaoType int, yongZhi ganzhi.Zhi) Chart {
 	lines := [6]Line{}
 	for i := 0; i < 6; i++ {
 		z := yongZhi
@@ -167,10 +167,10 @@ func makeJudgmentChart(ysType YongShen, yongPos int, monthZhi, dayZhi ganzhi.Zhi
 	return Chart{
 		Lines:    lines,
 		YongShen: YongShenResult{Name: ysType.String(), Position: yongPos},
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   dayZhi,
-		MonthZhi: monthZhi,
-		MonthGan: ganzhi.GanJia,
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   riZhi,
+		YueZhi: yueZhi,
+		YueGan: ganzhi.GanJia,
 		Palace:   "离",
 		PalaceWuxing: ganzhi.WxHuo,
 	}
@@ -223,13 +223,13 @@ func TestLiuYao_Judgment_JingGua(t *testing.T) {
 	c := Chart{
 		Lines:     lines,
 		BianLines: bianLines,
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   ganzhi.ZhiWu,
-		MonthZhi: ganzhi.ZhiYou,
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   ganzhi.ZhiWu,
+		YueZhi: ganzhi.ZhiYou,
 		DongYao:  []int{},
 	}
 	for i := range c.Lines {
-		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.MonthZhi)
+		c.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(c.Lines[i].Zhi), c.YueZhi)
 	}
 
 	result := ComputeJudgment(c, "general")
@@ -258,15 +258,15 @@ func TestLiuYao_Judgment_JingGuaJSON(t *testing.T) {
 	chart := Chart{
 		Lines:     lines,
 		BianLines: bianLines,
-		DayGan:   ganzhi.GanJia,
-		DayZhi:   ganzhi.ZhiZi,
-		MonthZhi: ganzhi.ZhiYou,
+		RiGan:   ganzhi.GanJia,
+		RiZhi:   ganzhi.ZhiZi,
+		YueZhi: ganzhi.ZhiYou,
 		BenGua:   21,
 		DongYao:  []int{},
 	}
 	// 初始化 WangShuai
 	for i := range chart.Lines {
-		chart.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(chart.Lines[i].Zhi), chart.MonthZhi)
+		chart.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(chart.Lines[i].Zhi), chart.YueZhi)
 	}
 
 	// 不应崩溃

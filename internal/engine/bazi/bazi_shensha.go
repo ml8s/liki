@@ -85,9 +85,9 @@ func computeShenSha(bz ganzhi.Bazi) [4][]shenShaEntry {
 	return out
 }
 
-func addTianYi(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, yearGan ganzhi.Gan) {
+func addTianYi(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Gan) {
 	appendShenShaByStemLookup(out, bz, riYuan, tianYiLookup, "天乙贵人", catJi, "主贵人相助，逢凶化吉")
-	appendShenShaByStemLookup(out, bz, yearGan, tianYiLookup, "天乙贵人", catJi, "主贵人相助，逢凶化吉")
+	appendShenShaByStemLookup(out, bz, nianGan, tianYiLookup, "天乙贵人", catJi, "主贵人相助，逢凶化吉")
 }
 
 var wenChangLookup map[ganzhi.Gan][]ganzhi.Zhi
@@ -305,9 +305,9 @@ func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi.Zhi) {
 	}
 }
 
-func addYuanChen(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi.Zhi, yearGan ganzhi.Gan) {
+func addYuanChen(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi.Zhi, nianGan ganzhi.Gan) {
 	zhus := bz.Slice()
-	ycBranch := yuanChenBranch(yearBranch, yearGan)
+	ycBranch := yuanChenBranch(yearBranch, nianGan)
 	for pi, p := range zhus {
 		if p.Zhi == ycBranch {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{
@@ -437,13 +437,13 @@ func computeDynamicShenSha(b ganzhi.Zhi, yearBranch ganzhi.Zhi, riYuan ganzhi.Ga
 	return result
 }
 
-func yuanChenBranch(yearBranch ganzhi.Zhi, yearGan ganzhi.Gan) ganzhi.Zhi {
+func yuanChenBranch(yearBranch ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
 	for _, p := range ganzhi.ChongPairs {
 		if p.A == yearBranch {
-			return yuanChenOffset(p.B, yearGan)
+			return yuanChenOffset(p.B, nianGan)
 		}
 		if p.B == yearBranch {
-			return yuanChenOffset(p.A, yearGan)
+			return yuanChenOffset(p.A, nianGan)
 		}
 	}
 	return 0
@@ -451,8 +451,8 @@ func yuanChenBranch(yearBranch ganzhi.Zhi, yearGan ganzhi.Gan) ganzhi.Zhi {
 
 // yuanChenOffset applies the yin/yang offset to the clash branch.
 // 阳年: +1, 阴年: -1.
-func yuanChenOffset(clashBranch ganzhi.Zhi, yearGan ganzhi.Gan) ganzhi.Zhi {
-	isYang := int(yearGan)%2 == 1
+func yuanChenOffset(clashBranch ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
+	isYang := int(nianGan)%2 == 1
 	if isYang {
 		return clashBranch%12 + 1
 	}

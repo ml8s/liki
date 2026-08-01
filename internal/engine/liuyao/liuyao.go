@@ -144,11 +144,11 @@ type Chart struct {
 	Palace        string         `json:"gong"`
 	PalaceWuxing  ganzhi.Wuxing  `json:"gong_wuxing"`
 	Lines         [6]Line        `json:"lines"`
-	BianLines     [6]Line        `json:"bian_lines,omitempty"`
-	DayGan        ganzhi.Gan     `json:"ri_chen_gan"`
-	DayZhi        ganzhi.Zhi     `json:"ri_chen_zhi"`
-	MonthZhi      ganzhi.Zhi     `json:"yue_jian_zhi"`
-	MonthGan      ganzhi.Gan     `json:"yue_jian_gan"`
+	BianLines     [6]Line        `json:"bian_yao,omitempty"`
+	RiGan        ganzhi.Gan     `json:"ri_chen_gan"`
+	RiZhi        ganzhi.Zhi     `json:"ri_chen_zhi"`
+	YueZhi      ganzhi.Zhi     `json:"yue_jian_zhi"`
+	YueGan      ganzhi.Gan     `json:"yue_jian_gan"`
 	DongYao   []int          `json:"dong_yao"` // 动爻位置 1-6
 	// Analysis layers set by ComputeChart.
 	YongShen     YongShenResult `json:"yong_shen"`

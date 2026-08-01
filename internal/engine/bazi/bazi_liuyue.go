@@ -12,8 +12,8 @@ import (
 type LiuYue struct {
 	Year      int            `json:"year"`
 	Month     int            `json:"month"`
-	MonthGan  ganzhi.Gan            `json:"yue_gan"`
-	MonthZhi  ganzhi.Zhi            `json:"yue_zhi"`
+	YueGan  ganzhi.Gan            `json:"yue_gan"`
+	YueZhi  ganzhi.Zhi            `json:"yue_zhi"`
 	MonthName string         `json:"month_name"`
 	Element   string         `json:"wuxing"`
 	ShiShen    string         `json:"shi_shen"`
@@ -54,8 +54,8 @@ func computeLiuYue(bz ganzhi.Bazi, year, month int) (*LiuYue, error) {
 	return &LiuYue{
 		Year:      year,
 		Month:     month,
-		MonthGan:  mp.Gan,
-		MonthZhi:  mp.Zhi,
+		YueGan:  mp.Gan,
+		YueZhi:  mp.Zhi,
 		MonthName: ganzhi.ZhiName(mp.Zhi) + "月",
 		Element:   monthElemStr,
 		ShiShen:    tgName.String(),

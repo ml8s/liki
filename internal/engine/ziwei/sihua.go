@@ -1,7 +1,7 @@
 package ziwei
 
-func computeSiHua(yearGan Gan) siHuaResult {
-	stars, ok := siHuaTable[yearGan]
+func computeSiHua(nianGan Gan) siHuaResult {
+	stars, ok := siHuaTable[nianGan]
 	if !ok {
 		return nil
 	}

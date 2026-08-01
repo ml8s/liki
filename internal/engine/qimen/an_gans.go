@@ -36,23 +36,23 @@ func placeAnGan(driveZhu ganzhi.Zhu, dutyDoorPalace int) [9]ganzhi.Gan {
 	return angans
 }
 
-// findMaXing returns the 马星 palace for a given branch.
-func findMaXing(driveZhi ganzhi.Zhi) PalaceIndex {
+// findMaXing returns the 马星 gong for a given branch.
+func findMaXing(driveZhi ganzhi.Zhi) GongIndex {
 	switch int(driveZhi) {
 	case 1, 5, 9: // 子, 辰, 申 → 马在寅
-		return PalaceGen
+		return GongGen
 	case 3, 7, 11: // 寅, 午, 戌 → 马在申
-		return PalaceKun
+		return GongKun
 	case 6, 10, 2: // 巳, 酉, 丑 → 马在亥
-		return PalaceQian
+		return GongQian
 	case 12, 4, 8: // 亥, 卯, 未 → 马在巳
-		return PalaceXun
+		return GongXun
 	}
-	return PalaceKan
+	return GongKan
 }
 
 // findKongWang returns the two 空亡 palaces.
-func findKongWang(driveZhu ganzhi.Zhu) [2]PalaceIndex {
+func findKongWang(driveZhu ganzhi.Zhu) [2]GongIndex {
 	idx := ganzhi.SixtyCycleIndex(driveZhu.Gan, driveZhu.Zhi) // 0-59
 	xunIdx := idx / 10                                       // 0-5
 	kongWangZhi := [6][2]ganzhi.Zhi{
@@ -65,5 +65,5 @@ func findKongWang(driveZhu ganzhi.Zhu) [2]PalaceIndex {
 	}
 	z1 := kongWangZhi[xunIdx][0]
 	z2 := kongWangZhi[xunIdx][1]
-	return [2]PalaceIndex{zhiPalace(z1), zhiPalace(z2)}
+	return [2]GongIndex{zhiPalace(z1), zhiPalace(z2)}
 }

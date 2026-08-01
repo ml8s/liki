@@ -6,7 +6,7 @@ import "liki-engine/internal/engine/ganzhi"
 type dayMansion struct {
 	Index    int    `json:"index"`
 	Name     string `json:"name"`
-	Animal   string `json:"animal"`
+	DongWu   string `json:"dong_wu"`
 	Element  string `json:"wuxing"`
 	Group    string `json:"group"`
 	GroupIdx int    `json:"group_idx"`

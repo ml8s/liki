@@ -2,8 +2,8 @@ package ziwei
 
 // --- 命宫/身宫 (0.1) ---
 
-func computeMingShen(lunarMonth int, hourZhi Zhi) (mingZhi, shenZhi Zhi) {
-	h := int(hourZhi)
+func computeMingShen(lunarMonth int, shiZhi Zhi) (mingZhi, shenZhi Zhi) {
+	h := int(shiZhi)
 	mingZhi = Zhi(((lunarMonth-h+2)%12+12)%12 + 1)
 	shenZhi = Zhi(((lunarMonth+h)%12+12)%12 + 1)
 	return
@@ -17,10 +17,10 @@ func arrangePalaceZhis(mingZhi Zhi) [12]Zhi {
 	return zhis
 }
 
-func findShenGongIndex(palaceZhis [12]Zhi, shenZhi Zhi) palaceIndex {
+func findShenGongIndex(palaceZhis [12]Zhi, shenZhi Zhi) gongIndex {
 	for i, z := range palaceZhis {
 		if z == shenZhi {
-			return palaceIndex(i)
+			return gongIndex(i)
 		}
 	}
 	return 0
@@ -28,10 +28,10 @@ func findShenGongIndex(palaceZhis [12]Zhi, shenZhi Zhi) palaceIndex {
 
 // --- 十二宫天干 (0.2) ---
 
-func arrangePalaceGans(yearGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan, gans [12]Gan) {
+func arrangePalaceGans(nianGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan, gans [12]Gan) {
 	// 正月干（五虎遁）+ soulIndex（iztro算法）
 	var zhengYueGan Gan
-	switch yearGan {
+	switch nianGan {
 	case 1, 6: zhengYueGan = 3  // 甲己丙
 	case 2, 7: zhengYueGan = 5  // 乙庚戊
 	case 3, 8: zhengYueGan = 7  // 丙辛庚
@@ -46,8 +46,8 @@ func arrangePalaceGans(yearGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan,
 		// display坐标中第i宫的地支 = (寅+i)
 		// 对应天干 = mingGan - soulIzTroIdx + i
 		gan := Gan(((int(mingGan) - 1 - soulIzTroIdx + i) % 10 + 10) % 10 + 1)
-		// i是display坐标索引，需要映射到Liki palace order
-		// display i → zhiIdx → Liki palace
+		// i是display坐标索引，需要映射到Liki gong order
+		// display i → zhiIdx → Liki gong
 		palaceZhiM1 := (i + 2) % 12
 		likiIdx := zhiIdxToPalaceIndex(zhiToZhiIdx(mingZhi), palaceZhiM1)
 		gans[likiIdx] = gan
@@ -56,7 +56,7 @@ func arrangePalaceGans(yearGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan,
 }
 
 // yinGan still needed by liuyue.go
-func yinGan(yearGan Gan) Gan {
-	g := ((int(yearGan)-1)%5)*2 + 3
+func yinGan(nianGan Gan) Gan {
+	g := ((int(nianGan)-1)%5)*2 + 3
 	return Gan(((g-1)%10+10)%10 + 1)
 }

@@ -19,7 +19,7 @@ func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 			break
 		}
 	}
-	shenSpirits := placeShenPan(ju.YinDun, PalaceIndex(dutyStarPalace+1))
+	shenSpirits := placeShenPan(ju.YinDun, GongIndex(dutyStarPalace+1))
 
 	var dutyDoorPalace int
 	for i, d := range renDoors {
@@ -45,7 +45,7 @@ func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 		WuBuYuShi: isWuBuYuShi(riGan, driveZhu.Gan),
 	}
 	for i := 0; i < 9; i++ {
-		pan.Palaces[i] = Palace{
+		pan.GongWei[i] = Gong{
 			EarthStem:  dipan[i],
 			HeavenStem: tianStems[i],
 			Star:       tianStars[i],

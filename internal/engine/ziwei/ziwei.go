@@ -19,29 +19,29 @@ const (
 	Female = ganzhi.Female
 )
 
-// palaceIndex identifies one of 12 palaces (0=命宫 … 11=父母).
-type palaceIndex int
+// gongIndex identifies one of 12 palaces (0=命宫 … 11=父母).
+type gongIndex int
 
-func (p palaceIndex) MarshalJSON() ([]byte, error) {
-	// 宫名 = palaceLabels（palaceIndex 定义的固定标签），不依赖命盘
+func (p gongIndex) MarshalJSON() ([]byte, error) {
+	// 宫名 = gongLabels（gongIndex 定义的固定标签），不依赖命盘
 	if int(p) < 0 || int(p) >= 12 {
 		return json.Marshal("")
 	}
-	return json.Marshal(palaceLabels[p])
+	return json.Marshal(gongLabels[p])
 }
 
-func (p *palaceIndex) UnmarshalJSON(data []byte) error {
+func (p *gongIndex) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
-		return fmt.Errorf("palaceIndex must be a string (e.g. \"命宫\"), got %s", string(data))
+		return fmt.Errorf("gongIndex must be a string (e.g. \"命宫\"), got %s", string(data))
 	}
-	for i, name := range palaceLabels {
+	for i, name := range gongLabels {
 		if name == s {
-			*p = palaceIndex(i)
+			*p = gongIndex(i)
 			return nil
 		}
 	}
-	return fmt.Errorf("unknown palace name: %q", s)
+	return fmt.Errorf("unknown gong name: %q", s)
 }
 
 // starIndex enumerates all stars (main + minor).
@@ -205,9 +205,9 @@ var juShuNames = map[juShu]string{
 // juShuName returns the Chinese name of a bureau.
 func juShuName(j juShu) string { return juShuNames[j] }
 
-// palace holds all computed data for one palace.
-type palace struct {
-	Index        palaceIndex `json:"index"`
+// gong holds all computed data for one gong.
+type gong struct {
+	Index        gongIndex `json:"index"`
 	Name         string      `json:"name"`
 	Gan          Gan         `json:"gan"`
 	Zhi          Zhi         `json:"zhi"`
@@ -223,7 +223,7 @@ type palace struct {
 	ZaYao       []string    `json:"za_yao,omitempty"`
 }
 
-// starInfo is one star entry in a palace.
+// starInfo is one star entry in a gong.
 type starInfo struct {
 	Star    starIndex `json:"xing"`
 	Name    string    `json:"name"`
@@ -244,12 +244,12 @@ const (
 
 // Chart holds the complete ziwei chart.
 type Chart struct {
-	Palaces     [12]palace   `json:"gong_wei"`
-	MingGong    palaceIndex  `json:"ming_gong"`
-	ShenGong    palaceIndex  `json:"shen_gong"`
+	GongWei     [12]gong   `json:"gong_wei"`
+	MingGong    gongIndex  `json:"ming_gong"`
+	ShenGong    gongIndex  `json:"shen_gong"`
 	JuShu       juShu        `json:"ju_shu"`
 	JuShuName   string       `json:"ju_shu_name"`
-	ZiweiPos    palaceIndex  `json:"ziwei_pos"`
+	ZiweiPos    gongIndex  `json:"ziwei_pos"`
 	SiHua       siHuaResult  `json:"si_hua"`
 	NianGan     Gan                 `json:"nian_gan"`
 	NianZhi     Zhi                 `json:"nian_zhi,omitempty"`
@@ -272,18 +272,18 @@ type siHuaResult map[starIndex]siHuaType
 type DaXianStep struct {
 	QiSui int         `json:"qi_sui"`
 	ZhiSui int        `json:"zhi_sui"`
-	Palace palaceIndex `json:"gong"`
+	Gong gongIndex `json:"gong"`
 	Name   string      `json:"name"`
 }
 
 // LiuNian is the annual fate analysis.
 type LiuNian struct {
-	MingGong     palaceIndex              `json:"ming_gong"`
+	MingGong     gongIndex              `json:"ming_gong"`
 	MingGongName string                   `json:"ming_gong_name"` // 流年命宫名
 	Zhi          Zhi                      `json:"zhi"`            // 流年地支
 	SiHua        siHuaResult              `json:"si_hua"`
-	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_gong"`
+	SiHuaPalace  map[starIndex]gongIndex `json:"si_hua_gong"`
 	FuXing       map[starIndex]Zhi         `json:"fu_xing"`
-	Palaces      [12]flowPalace           `json:"gong_wei"`       // 流年盘（地支坐标 12 宫）
+	GongWei      [12]flowPalace           `json:"gong_wei"`       // 流年盘（地支坐标 12 宫）
 }
 

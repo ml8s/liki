@@ -49,8 +49,8 @@ type nayinCross struct {
 	} `json:"yong_shen"`
 }
 type shenshaMutual struct {
-	AInB bool `json:"a_in_b"`
-	BInA bool `json:"b_in_a"`
+	AInB bool `json:"jia_ru_yi"`
+	BInA bool `json:"yi_ru_jia"`
 }
 type shenshaCross struct {
 	TianYi   shenshaMutual `json:"tian_yi"`

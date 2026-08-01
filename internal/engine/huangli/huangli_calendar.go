@@ -71,19 +71,19 @@ func lookupJianChu(t time.Time) string {
 
 
 // evaluateZhi checks the branch relationship and returns marks/warnings.
-func evaluateZhi(dayZhi, refZhi ganzhi.Zhi, label string) (relation string, marks []string, warnings []string) {
+func evaluateZhi(riZhi, refZhi ganzhi.Zhi, label string) (relation string, marks []string, warnings []string) {
 	switch {
-	case ganzhi.IsZhiHe(dayZhi, refZhi):
+	case ganzhi.IsZhiHe(riZhi, refZhi):
 		return "六合", []string{label + "六合日"}, nil
-	case ganzhi.IsTripleHe(dayZhi, refZhi):
+	case ganzhi.IsTripleHe(riZhi, refZhi):
 		return "三合半", []string{label + "三合"}, nil
-	case ganzhi.IsTripleHui(dayZhi, refZhi):
+	case ganzhi.IsTripleHui(riZhi, refZhi):
 		return "三会半", []string{label + "三会"}, nil
-	case ganzhi.IsLiuChong(dayZhi, refZhi):
+	case ganzhi.IsLiuChong(riZhi, refZhi):
 		return "六冲", nil, []string{"冲" + label}
-	case ganzhi.IsXing(dayZhi, refZhi):
+	case ganzhi.IsXing(riZhi, refZhi):
 		return "相刑", nil, []string{"刑" + label}
-	case ganzhi.IsHai(dayZhi, refZhi):
+	case ganzhi.IsHai(riZhi, refZhi):
 		return "六害", nil, []string{"害" + label}
 	}
 	return "无", nil, nil

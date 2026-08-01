@@ -2,38 +2,38 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// StarInteraction holds star-palace interaction data.
-type StarInteraction struct {
+// XingInteraction holds star-gong interaction data.
+type XingInteraction struct {
 	Star       string `json:"xing"`
-	Palace     string `json:"gong"`
+	Gong     string `json:"gong"`
 	Name       string `json:"name"`
 	Meaning    string `json:"meaning"`
 	Auspicious bool   `json:"auspicious"`
 }
 
-// computeStarInteractions returns star-palace 克应 for each palace.
-func computeStarInteractions(pan pan) [9]StarInteraction {
-	var result [9]StarInteraction
+// computeXingInteractions returns star-gong 克应 for each gong.
+func computeXingInteractions(pan pan) [9]XingInteraction {
+	var result [9]XingInteraction
 	for i := 0; i < 9; i++ {
-		p := pan.Palaces[i]
+		p := pan.GongWei[i]
 		if p.Star == 0 {
 			continue
 		}
 		key := [2]int{int(p.Star), i}
-		if entry, ok := starPalaceTable[key]; ok {
+		if entry, ok := xingGongTable[key]; ok {
 			result[i] = entry
 		} else {
 			// Generic five-element-based description.
-			result[i] = genericStarInteraction(p.Star, PalaceIndex(i+1))
+			result[i] = genericXingInteraction(p.Star, GongIndex(i+1))
 		}
 	}
 	return result
 }
 
-func genericStarInteraction(star StarIndex, pal PalaceIndex) StarInteraction {
-	return StarInteraction{
+func genericXingInteraction(star StarIndex, pal GongIndex) XingInteraction {
+	return XingInteraction{
 		Star:       star.String(),
-		Palace:     pal.String(),
+		Gong:     pal.String(),
 		Name:       star.String() + "加" + pal.String(),
 		Meaning:    starNature(star) + "临" + pal.String() + "宫",
 		Auspicious: isAuspiciousStar(star),
@@ -73,25 +73,25 @@ func isAuspiciousStar(s StarIndex) bool {
 	}
 }
 
-// WangShuai represents 旺衰 state of a star in a palace.
+// WangShuai represents 旺衰 state of a star in a gong.
 type WangShuai struct {
 	Star   StarIndex   `json:"xing"`
-	Palace PalaceIndex `json:"gong"`
+	Gong GongIndex `json:"gong"`
 	State  string      `json:"state"` // 旺/相/休/囚/废
 }
 
 // computeWangShuai computes the 旺衰 state for each star in the pan.
 func computeWangShuai(pan pan) [9]WangShuai {
 	var result [9]WangShuai
-	for i, p := range pan.Palaces {
+	for i, p := range pan.GongWei {
 		if p.Star == 0 {
 			continue
 		}
 		sw := starWuxing(p.Star)
-		pw := palaceWuxing(PalaceIndex(i + 1))
+		pw := palaceWuxing(GongIndex(i + 1))
 		result[i] = WangShuai{
 			Star:   p.Star,
-			Palace: PalaceIndex(i + 1),
+			Gong: GongIndex(i + 1),
 			State:  wuxingState(sw, pw),
 		}
 	}
@@ -115,18 +115,18 @@ func starWuxing(s StarIndex) ganzhi.Wuxing {
 	return 0
 }
 
-// wuxingState returns 旺/相/休/囚/废 for star(at starElem) in palace(at palElem).
+// wuxingState returns 旺/相/休/囚/废 for star(at starElem) in gong(at palElem).
 func wuxingState(starElem, palElem ganzhi.Wuxing) string {
 	if starElem == palElem {
 		return "旺"
 	}
-	if ganzhi.Sheng(palElem, starElem) { // palace generates star → 相
+	if ganzhi.Sheng(palElem, starElem) { // gong generates star → 相
 		return "相"
 	}
-	if ganzhi.Sheng(starElem, palElem) { // star generates palace → 休
+	if ganzhi.Sheng(starElem, palElem) { // star generates gong → 休
 		return "休"
 	}
-	if ganzhi.Ke(starElem, palElem) { // star overcomes palace → 囚
+	if ganzhi.Ke(starElem, palElem) { // star overcomes gong → 囚
 		return "囚"
 	}
 	return "废"

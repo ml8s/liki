@@ -22,7 +22,7 @@
   "mansion": {
     "index": 19,
     "name": "觜火猴",
-    "animal": "猴",
+    "dong_wu": "猴",
     "wuxing": "火",
     "group": "西方白虎",
     "group_idx": 6

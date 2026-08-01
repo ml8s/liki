@@ -2,36 +2,36 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// doorEntry holds named door-palace data (door/palace set at runtime).
+// doorEntry holds named door-gong data (door/gong set at runtime).
 type doorEntry struct {
 	DoorName    string
-	PalaceName  string
+	GongName  string
 	Name        string
 	Meaning     string
 }
 
-// computeDoorInteractions returns door interactions for each palace.
-func computeDoorInteractions(pan pan) [9]DoorInteraction {
-	var result [9]DoorInteraction
+// computeMenInteractions returns door interactions for each gong.
+func computeMenInteractions(pan pan) [9]MenInteraction {
+	var result [9]MenInteraction
 	for i := 0; i < 9; i++ {
-		p := pan.Palaces[i]
+		p := pan.GongWei[i]
 		if p.Door == 0 {
 			continue
 		}
 		key := [2]int{int(p.Door), i}
-		if entry, ok := doorPalaceTable[key]; ok {
-			result[i] = DoorInteraction{
+		if entry, ok := menGongTable[key]; ok {
+			result[i] = MenInteraction{
 				Door:    p.Door,
-				Palace:  PalaceIndex(i + 1),
+				Gong:  GongIndex(i + 1),
 				Name:    entry.Name,
 				Meaning: entry.Meaning,
 			}
 		} else {
-			// Generic: door name + palace name
-			result[i] = DoorInteraction{
+			// Generic: door name + gong name
+			result[i] = MenInteraction{
 				Door:    p.Door,
-				Palace:  PalaceIndex(i + 1),
-				Name:    p.Door.String() + "加" + PalaceIndex(i+1).String(),
+				Gong:  GongIndex(i + 1),
+				Name:    p.Door.String() + "加" + GongIndex(i+1).String(),
 				Meaning: doorAuspicious(p.Door),
 			}
 		}
@@ -52,17 +52,17 @@ func doorAuspicious(d DoorIndex) string {
 	return ""
 }
 
-// menPo checks if a door is 门迫 (door overcomes palace) at the given palace.
-func menPo(door DoorIndex, palace PalaceIndex) bool {
+// menPo checks if a door is 门迫 (door overcomes gong) at the given gong.
+func menPo(door DoorIndex, gong GongIndex) bool {
 	de := doorWuxing(door)
-	pe := palaceWuxing(palace)
+	pe := palaceWuxing(gong)
 	return de != 0 && pe != 0 && ganzhi.Ke(de, pe)
 }
 
-// menZhi checks if a door is 门制 (palace overcomes door) at the given palace.
-func menZhi(door DoorIndex, palace PalaceIndex) bool {
+// menZhi checks if a door is 门制 (gong overcomes door) at the given gong.
+func menZhi(door DoorIndex, gong GongIndex) bool {
 	de := doorWuxing(door)
-	pe := palaceWuxing(palace)
+	pe := palaceWuxing(gong)
 	return de != 0 && pe != 0 && ganzhi.Ke(pe, de)
 }
 
@@ -84,22 +84,22 @@ func doorWuxing(d DoorIndex) ganzhi.Wuxing {
 }
 
 // findMenPo returns palaces where the door is 门迫.
-func findMenPo(pan pan) []PalaceIndex {
-	var result []PalaceIndex
-	for i, p := range pan.Palaces {
-		if p.Door != 0 && menPo(p.Door, PalaceIndex(i+1)) {
-			result = append(result, PalaceIndex(i+1))
+func findMenPo(pan pan) []GongIndex {
+	var result []GongIndex
+	for i, p := range pan.GongWei {
+		if p.Door != 0 && menPo(p.Door, GongIndex(i+1)) {
+			result = append(result, GongIndex(i+1))
 		}
 	}
 	return result
 }
 
 // findMenZhi returns palaces where the door is 门制.
-func findMenZhi(pan pan) []PalaceIndex {
-	var result []PalaceIndex
-	for i, p := range pan.Palaces {
-		if p.Door != 0 && menZhi(p.Door, PalaceIndex(i+1)) {
-			result = append(result, PalaceIndex(i+1))
+func findMenZhi(pan pan) []GongIndex {
+	var result []GongIndex
+	for i, p := range pan.GongWei {
+		if p.Door != 0 && menZhi(p.Door, GongIndex(i+1)) {
+			result = append(result, GongIndex(i+1))
 		}
 	}
 	return result

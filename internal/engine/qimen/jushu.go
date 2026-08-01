@@ -6,11 +6,11 @@ import (
 )
 
 // determineJuShu computes the bureau number and yin/yang dun for a given date.
-func determineJuShu(year, month, day int, dayGan ganzhi.Gan, dayZhi ganzhi.Zhi) juShu {
+func determineJuShu(year, month, day int, riGan ganzhi.Gan, riZhi ganzhi.Zhi) juShu {
 	idx := tianwen.SolarTermIndex(year, month, day)
 	entry := solarTermBureau[idx]
 
-	yuan := determineYuan(ganzhi.Zhu{Gan: dayGan, Zhi: dayZhi})
+	yuan := determineYuan(ganzhi.Zhu{Gan: riGan, Zhi: riZhi})
 
 	var ju int
 	var yuanName string

@@ -7,13 +7,13 @@ import (
 
 func TestPalaceIndex_MarshalJSON(t *testing.T) {
 	tests := []struct {
-		input PalaceIndex
+		input GongIndex
 		want  string
 	}{
-		{PalaceKan, `"坎"`},
-		{PalaceKun, `"坤"`},
-		{PalaceLi, `"离"`},
-		{PalaceQian, `"乾"`},
+		{GongKan, `"坎"`},
+		{GongKun, `"坤"`},
+		{GongLi, `"离"`},
+		{GongQian, `"乾"`},
 		{0, `"?"`},
 	}
 	for _, tt := range tests {
@@ -31,20 +31,20 @@ func TestPalaceIndex_MarshalJSON(t *testing.T) {
 func TestPalaceIndex_UnmarshalJSON_StringOnly(t *testing.T) {
 	tests := []struct {
 		input string
-		want  PalaceIndex
+		want  GongIndex
 		err   bool
 	}{
-		{`"坎"`, PalaceKan, false},
-		{`"离"`, PalaceLi, false},
-		{`"中"`, PalaceZhong, false},
-		{`"乾"`, PalaceQian, false},
+		{`"坎"`, GongKan, false},
+		{`"离"`, GongLi, false},
+		{`"中"`, GongZhong, false},
+		{`"乾"`, GongQian, false},
 		{`1`, 0, true},
 		{`0`, 0, true},
 		{`"invalid"`, 0, true},
 		{`""`, 0, true},
 	}
 	for _, tt := range tests {
-		var p PalaceIndex
+		var p GongIndex
 		err := json.Unmarshal([]byte(tt.input), &p)
 		if tt.err {
 			if err == nil {

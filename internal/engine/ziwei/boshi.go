@@ -11,7 +11,7 @@ var boShiCycle = []string{
 func computeBoShi(ju juShu, mingZhi Zhi, nianGan Gan, gender ganzhi.Gender, nianZhi Zhi) [12]string {
 	// 禄存在zhiIdx
 	luCunZhiM1 := luCunTable[int(nianGan)-1]
-	// zhiIdx → palace index via zhi matching
+	// zhiIdx → gong index via zhi matching
 	palaceZhis := arrangePalaceZhis(mingZhi)
 	luPalace := -1
 	for i, z := range palaceZhis {

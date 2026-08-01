@@ -26,12 +26,12 @@ func TestZhiConversions(t *testing.T) {
 }
 
 func TestPalaceZhiRoundTrip(t *testing.T) {
-	// palaceIndex ↔ zhiIdx 往返（锚定命宫支午 = zhiIdx 6）
+	// gongIndex ↔ zhiIdx 往返（锚定命宫支午 = zhiIdx 6）
 	mingZM1 := 6 // 午
-	for pi := palaceIndex(0); pi < 12; pi++ {
+	for pi := gongIndex(0); pi < 12; pi++ {
 		zm1 := palaceIndexToZhiIdx(mingZM1, pi)
 		if zhiIdxToPalaceIndex(mingZM1, zm1) != pi {
-			t.Errorf("roundtrip palace %d: got %d", pi, zhiIdxToPalaceIndex(mingZM1, zm1))
+			t.Errorf("roundtrip gong %d: got %d", pi, zhiIdxToPalaceIndex(mingZM1, zm1))
 		}
 	}
 	// 锚点：命宫(0)=午 → zhiIdx 6；兄弟(1)=巳 → 5

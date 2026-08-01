@@ -36,20 +36,20 @@ func TestFlowStarsAgainstIz(t *testing.T) {
 		if tc.FlowLM == 0 { continue }
 
 		// 流月天干地支
-		liuYearGan := yearGan(flowYear)
+		liuYearGan := nianGan(flowYear)
 		monthGan := Gan(((int(yinGan(liuYearGan)) - 1 + tc.FlowLM - 1) % 10 + 10) % 10 + 1)
-		monthZhi := Zhi((tc.FlowLM + 1) % 12 + 1) // 正月寅起，不依赖命宫
+		yueZhi := Zhi((tc.FlowLM + 1) % 12 + 1) // 正月寅起，不依赖命宫
 
 		// 流日天干地支
-		dayGan := riGan(flowYear, tc.FlowLM, tc.FlowLD)
-		dayZhi := riZhi(flowYear, tc.FlowLM, tc.FlowLD)
+		riGan := riGan(flowYear, tc.FlowLM, tc.FlowLD)
+		riZhi := riZhi(flowYear, tc.FlowLM, tc.FlowLD)
 
 		// 流时天干地支(iztro默认用流日时辰=子时)
-		hourZhi := ganzhi.Zhi(1) // 子时
-		shiGan := shiGanCalc(dayGan, hourZhi)
+		shiZhi := ganzhi.Zhi(1) // 子时
+		shiGan := shiGanCalc(riGan, shiZhi)
 
 		// 计算Liki expected star positions
-		likiStars := starZhiIdxMap(monthGan, monthZhi, dayGan, dayZhi, shiGan, hourZhi)
+		likiStars := starZhiIdxMap(monthGan, yueZhi, riGan, riZhi, shiGan, shiZhi)
 
 		// 对比iztro golden
 		for sName, goldenZhiIdx := range tc.FlowStars {

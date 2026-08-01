@@ -7,52 +7,52 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// PalaceIndex is a 洛书九宫 index. 1-9 map to:
+// GongIndex is a 洛书九宫 index. 1-9 map to:
 //
 //	生-4 立-9 杜-2
 //		伤-3 中-5 景-7
 //			休-8 开-1 惊-6
 //
 // 1=坎, 2=坤, 3=震, 4=巽, 5=中, 6=乾, 7=兑, 8=艮, 9=离.
-type PalaceIndex int
+type GongIndex int
 
 const (
-	PalaceKan PalaceIndex = 1 + iota
-	PalaceKun
-	PalaceZhen
-	PalaceXun
-	PalaceZhong
-	PalaceQian
-	PalaceDui
-	PalaceGen
-	PalaceLi
+	GongKan GongIndex = 1 + iota
+	GongKun
+	GongZhen
+	GongXun
+	GongZhong
+	GongQian
+	GongDui
+	GongGen
+	GongLi
 )
 
-var palaceNames = [10]string{"", "坎", "坤", "震", "巽", "中", "乾", "兑", "艮", "离"}
+var gongNames = [10]string{"", "坎", "坤", "震", "巽", "中", "乾", "兑", "艮", "离"}
 
-func (p PalaceIndex) String() string {
+func (p GongIndex) String() string {
 	if p >= 1 && p <= 9 {
-		return palaceNames[p]
+		return gongNames[p]
 	}
 	return "?"
 }
 
-func (p PalaceIndex) MarshalJSON() ([]byte, error) {
+func (p GongIndex) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.String())
 }
 
-func (p *PalaceIndex) UnmarshalJSON(data []byte) error {
+func (p *GongIndex) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
-		return fmt.Errorf("palace must be a string, got %s", string(data))
+		return fmt.Errorf("gong must be a string, got %s", string(data))
 	}
-	for i, name := range palaceNames {
+	for i, name := range gongNames {
 		if i > 0 && name == s {
-			*p = PalaceIndex(i)
+			*p = GongIndex(i)
 			return nil
 		}
 	}
-	return fmt.Errorf("unknown palace: %q", s)
+	return fmt.Errorf("unknown gong: %q", s)
 }
 
 // StarIndex represents one of the 九星 (nine stars).
@@ -195,8 +195,8 @@ func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("unknown spirit: %q", name)
 }
 
-// Palace holds all layers of information for one 宫。
-type Palace struct {
+// Gong holds all layers of information for one 宫。
+type Gong struct {
 	EarthStem  ganzhi.Gan  `json:"di_pan_gan"`
 	HeavenStem ganzhi.Gan  `json:"tian_pan_gan"`
 	Star       StarIndex   `json:"xing,omitempty"`
@@ -213,11 +213,11 @@ type pan struct {
 	RiZhi    ganzhi.Zhi     `json:"ri_zhi"`
 	DutyStar StarIndex      `json:"zhi_fu_xing"`
 	DutyDoor DoorIndex      `json:"zhi_shi_men"`
-	Palaces  [9]Palace      `json:"gong_wei"`
-	MaXing   PalaceIndex    `json:"ma_xing"`
+	GongWei  [9]Gong        `json:"gong_wei"`
+	MaXing   GongIndex    `json:"ma_xing"`
 	DriveGan  ganzhi.Gan      `json:"shi_gan"`
 	DriveZhi  ganzhi.Zhi      `json:"shi_zhi"`
-	KongWang [2]PalaceIndex `json:"kong_wang"`
+	KongWang [2]GongIndex `json:"kong_wang"`
 	WuBuYuShi bool           `json:"wu_bu_yu_shi"`
 }
 
@@ -232,7 +232,7 @@ func (p pan) MarshalJSON() ([]byte, error) {
 		"kong_wang": p.KongWang, "wu_bu_yu_shi": p.WuBuYuShi,
 	}
 	palaces := make([]map[string]any, 9)
-	for i, pl := range p.Palaces {
+	for i, pl := range p.GongWei {
 		pm := map[string]any{
 			"di_pan_gan": pl.EarthStem, "tian_pan_gan": pl.HeavenStem,
 		}
@@ -271,8 +271,8 @@ type juShu struct {
 	Yuan   string // 上元/中元/下元
 }
 
-// StemInteraction represents a 十干克应 between earth and heaven stems.
-type StemInteraction struct {
+// GanInteraction represents a 十干克应 between earth and heaven stems.
+type GanInteraction struct {
 	EarthStem  ganzhi.Gan `json:"di_pan_gan"`
 	HeavenStem ganzhi.Gan `json:"tian_pan_gan"`
 	Name       string     `json:"name"`
@@ -280,10 +280,10 @@ type StemInteraction struct {
 	Auspicious bool       `json:"auspicious"`
 }
 
-// DoorInteraction represents an 八门克应 for a door in a specific palace.
-type DoorInteraction struct {
+// MenInteraction represents an 八门克应 for a door in a specific gong.
+type MenInteraction struct {
 	Door      DoorIndex   `json:"door,omitempty"`
-	Palace    PalaceIndex `json:"gong,omitempty"`
+	Gong    GongIndex `json:"gong,omitempty"`
 	Name      string    `json:"name"`
 	Meaning   string    `json:"meaning"`
 }
@@ -293,6 +293,6 @@ type Pattern struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	Auspicious  bool        `json:"auspicious"`
-	Palaces     []PalaceIndex `json:"gong_wei,omitempty"`
+	GongWei     []GongIndex `json:"gong_wei,omitempty"`
 }
 

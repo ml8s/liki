@@ -87,14 +87,14 @@ func scoreChart(c Chart, event EventKind) int {
 	}
 
 	// 2. Count auspicious stem interactions.
-	for _, si := range c.StemInteractions {
+	for _, si := range c.GanInteractions {
 		if si.Auspicious {
 			score += 2
 		}
 	}
 
 	// 3. Count auspicious star interactions.
-	for _, si := range c.StarInteractions {
+	for _, si := range c.XingInteractions {
 		if si.Auspicious {
 			score += 2
 		}
@@ -111,11 +111,11 @@ func scoreChart(c Chart, event EventKind) int {
 
 	// 6. Check 空亡.
 	for _, k := range c.Pan.KongWang {
-		for _, p := range c.Pan.Palaces {
+		for _, p := range c.Pan.GongWei {
 			if p.Star == c.Pan.DutyStar {
 				// 值符宫若空亡, 减分
-				for i, pp := range c.Pan.Palaces {
-					if pp.Star == c.Pan.DutyStar && PalaceIndex(i+1) == k {
+				for i, pp := range c.Pan.GongWei {
+					if pp.Star == c.Pan.DutyStar && GongIndex(i+1) == k {
 						score -= 2
 					}
 				}

@@ -2,14 +2,14 @@ package qimen
 
 import "fmt"
 
-// ParsePalaceIndex converts a Chinese palace name to a PalaceIndex value.
-func ParsePalaceIndex(s string) (PalaceIndex, error) {
+// ParsePalaceIndex converts a Chinese gong name to a GongIndex value.
+func ParsePalaceIndex(s string) (GongIndex, error) {
 	for i := 1; i <= 9; i++ {
-		if palaceNames[i] == s {
-			return PalaceIndex(i), nil
+		if gongNames[i] == s {
+			return GongIndex(i), nil
 		}
 	}
-	return 0, fmt.Errorf("unknown palace: %q", s)
+	return 0, fmt.Errorf("unknown gong: %q", s)
 }
 
 // ParseStarIndex converts a Chinese star name to a StarIndex value.

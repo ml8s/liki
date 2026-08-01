@@ -3,7 +3,7 @@ package ziwei
 import "liki-engine/internal/engine/ganzhi"
 
 // allPalaceXiaoXian computes XiaoXian ages for all 12 palaces.
-// mingZhi needed for iztro→Liki palace conversion.
+// mingZhi needed for iztro→Liki gong conversion.
 func allPalaceXiaoXian(nianZhi Zhi, gender ganzhi.Gender, count int, mingZhi Zhi) [12][]int {
 	return anXingXiaoXian(nianZhi, gender, count, mingZhi)
 }

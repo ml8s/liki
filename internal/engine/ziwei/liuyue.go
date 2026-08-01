@@ -6,7 +6,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-func yearGan(year int) Gan { return Gan(((year-4)%10+10)%10 + 1) }
+func nianGan(year int) Gan { return Gan(((year-4)%10+10)%10 + 1) }
 
 func hongLuanPos(zhi Zhi) int {
 	// 红鸾：卯(年支1)起子(0)，顺数至生年支
@@ -16,26 +16,26 @@ func hongLuanPos(zhi Zhi) int {
 // ── 流月 ──
 
 type LiuYue struct {
-	MingGong     palaceIndex    `json:"ming_gong"`
+	MingGong     gongIndex    `json:"ming_gong"`
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
 	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
-	Palaces      [12]flowPalace `json:"gong_wei,omitempty"`
+	GongWei      [12]flowPalace `json:"gong_wei,omitempty"`
 }
 
 // ComputeLiuYue computes the flow month chart.
 // 流月干支 = 目标日期月干支（五虎遁，与命主无关）——真相源
-// 盘起点 = monthlyIndex（iztro 公式，命主相关）——只决定 palaceLabels 旋转
+// 盘起点 = monthlyIndex（iztro 公式，命主相关）——只决定 gongLabels 旋转
 // liuYear/lunarMonth are GREGORIAN year/month (target date).
 func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 	// 目标农历月（公历 → 农历）
 	tgt := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), 1, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
 	liuYearGan, _ := yearStemBranch(liuYear)
 	// 流月干支 = 目标月干支（五虎遁：年干 + 农历月）——真相源，与命主无关
-	monthZhi := zhiIdxToZhi((tgt.Month + 1) % 12) // 正月寅起：农历1月→zhiIdx 2(寅)
-	monthGan := yueGanByWuHuDun(liuYearGan, monthZhi)
-	stars := liuYueStars(monthGan, monthZhi)
+	yueZhi := zhiIdxToZhi((tgt.Month + 1) % 12) // 正月寅起：农历1月→zhiIdx 2(寅)
+	monthGan := yueGanByWuHuDun(liuYearGan, yueZhi)
+	stars := liuYueStars(monthGan, yueZhi)
 
 	// 盘起点 = monthlyIndex（iztro 公式，命主相关）
 	mi := computeMonthlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month})
@@ -47,10 +47,10 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 	return LiuYue{
 		MingGong:     0,
 		MingGongName: "命宫",
-		Zhi:          monthZhi,
+		Zhi:          yueZhi,
 		SiHua:        computeSiHua(monthGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(mi, starByAnXingIdx),
+		GongWei:      buildFlowPalaces(mi, starByAnXingIdx),
 	}
 }
 
@@ -76,12 +76,12 @@ func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {
 // ── 流日 ──
 
 type LiuRi struct {
-	MingGong     palaceIndex    `json:"ming_gong"`
+	MingGong     gongIndex    `json:"ming_gong"`
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
 	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
-	Palaces      [12]flowPalace `json:"gong_wei,omitempty"`
+	GongWei      [12]flowPalace `json:"gong_wei,omitempty"`
 }
 
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
@@ -92,8 +92,8 @@ func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
 	di := computeDailyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month, LunarDay: tgt.Day})
 	// 流日干支 = 目标公历日干支
 	zhu := tianwen.RiZhu(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
-	dayGan, dayZhi := Gan(zhu.Gan), Zhi(zhu.Zhi)
-	stars := liuRiStars(dayGan, dayZhi)
+	riGan, riZhi := Gan(zhu.Gan), Zhi(zhu.Zhi)
+	stars := liuRiStars(riGan, riZhi)
 	starByAnXingIdx := make(map[int][]string)
 	for k, z := range stars {
 		anXingIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(z))
@@ -102,10 +102,10 @@ func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
 	return LiuRi{
 		MingGong:     0,
 		MingGongName: "命宫",
-		Zhi:          dayZhi,
-		SiHua:        computeSiHua(dayGan),
+		Zhi:          riZhi,
+		SiHua:        computeSiHua(riGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(di, starByAnXingIdx),
+		GongWei:      buildFlowPalaces(di, starByAnXingIdx),
 	}
 }
 
@@ -131,12 +131,12 @@ func liuRiStars(gan Gan, zhi Zhi) map[string]Zhi {
 // ── 流时 ──
 
 type LiuShi struct {
-	MingGong     palaceIndex    `json:"ming_gong"`
+	MingGong     gongIndex    `json:"ming_gong"`
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
 	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
-	Palaces      [12]flowPalace `json:"gong_wei,omitempty"`
+	GongWei      [12]flowPalace `json:"gong_wei,omitempty"`
 }
 
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.
@@ -144,11 +144,11 @@ type LiuShi struct {
 func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) LiuShi {
 	tgt := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
 	// 盘起点 = hourlyIndex
-	hi := computeHourlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month, LunarDay: tgt.Day, HourZhi: shiZhi})
+	hi := computeHourlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month, LunarDay: tgt.Day, ShiZhi: shiZhi})
 	// 流时干支：日干 + 五鼠遁
 	zhu := tianwen.RiZhu(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
-	dayGan := Gan(zhu.Gan)
-	shiGan := shiGanCalc(dayGan, shiZhi)
+	riGan := Gan(zhu.Gan)
+	shiGan := shiGanCalc(riGan, shiZhi)
 	stars := liuShiStars(shiGan, shiZhi)
 	starByAnXingIdx := make(map[int][]string)
 	for k, z := range stars {
@@ -161,7 +161,7 @@ func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) L
 		Zhi:          shiZhi,
 		SiHua:        computeSiHua(shiGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(hi, starByAnXingIdx),
+		GongWei:      buildFlowPalaces(hi, starByAnXingIdx),
 	}
 }
 
@@ -226,10 +226,10 @@ func riZhi(liuYear, lunarMonth, lunarDay int) Zhi {
 	return dp.Zhi
 }
 // yueGanByWuHuDun computes the month stem via 五虎遁 (year stem + month branch).
-func yueGanByWuHuDun(yearGan Gan, monthZhi Zhi) Gan {
+func yueGanByWuHuDun(nianGan Gan, yueZhi Zhi) Gan {
 	// 寅月干: 甲己→丙, 乙庚→戊, 丙辛→庚, 丁壬→壬, 戊癸→甲
 	base := [10]Gan{3, 5, 7, 9, 1, 3, 5, 7, 9, 1} // 寅月干（甲=1..癸=10）
-	offset := int(monthZhi) - 3 // 寅=0 偏移
+	offset := int(yueZhi) - 3 // 寅=0 偏移
 	if offset < 0 { offset += 12 }
-	return Gan(((int(base[yearGan-1]) - 1 + offset) % 10) + 1)
+	return Gan(((int(base[nianGan-1]) - 1 + offset) % 10) + 1)
 }

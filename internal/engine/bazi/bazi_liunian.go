@@ -11,8 +11,8 @@ import (
 // LiuNian holds the annual (流年) analysis output.
 type LiuNian struct {
 	Year              int                 `json:"year"`
-	YearGan           ganzhi.Gan                 `json:"nian_gan"`
-	YearZhi           ganzhi.Zhi                 `json:"nian_zhi"`
+	NianGan           ganzhi.Gan                 `json:"nian_gan"`
+	NianZhi           ganzhi.Zhi                 `json:"nian_zhi"`
 	YearName          string              `json:"nian_name"`
 	Element           string              `json:"wuxing"`
 	NaYin             string              `json:"na_yin"`
@@ -47,8 +47,8 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 
 	r := &LiuNian{
 		Year:      year,
-		YearGan:   yearStem,
-		YearZhi:   yearBranch,
+		NianGan:   yearStem,
+		NianZhi:   yearBranch,
 		YearName:  ganzhi.GanName(yearStem) + ganzhi.ZhiName(yearBranch),
 		Element:   yearElem.String(),
 		NaYin:     naYin,

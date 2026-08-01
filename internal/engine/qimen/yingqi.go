@@ -10,7 +10,7 @@ import (
 type YingQi struct {
 	MaXing   string `json:"ma_xing_dir"`   // 马星应期方向
 	KongWang string `json:"kong_wang_fill"` // 空亡填实时机
-	DutyMove string `json:"duty_move"`      // 值符值使推动
+	DutyMove string `json:"zhi_fu_shi_dong"`      // 值符值使推动
 	Summary  string `json:"summary"`        // 综合应期判断
 }
 

@@ -2,85 +2,85 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// zhiPalace returns the palace index (1-9) where a branch sits.
-func zhiPalace(z ganzhi.Zhi) PalaceIndex {
+// zhiPalace returns the gong index (1-9) where a branch sits.
+func zhiPalace(z ganzhi.Zhi) GongIndex {
 	switch int(z) {
 	case 1: // 子 → 坎
-		return PalaceKan
+		return GongKan
 	case 2, 3: // 丑, 寅 → 艮
-		return PalaceGen
+		return GongGen
 	case 4: // 卯 → 震
-		return PalaceZhen
+		return GongZhen
 	case 5, 6: // 辰, 巳 → 巽
-		return PalaceXun
+		return GongXun
 	case 7: // 午 → 离
-		return PalaceLi
+		return GongLi
 	case 8, 9: // 未, 申 → 坤
-		return PalaceKun
+		return GongKun
 	case 10: // 酉 → 兑
-		return PalaceDui
+		return GongDui
 	case 11, 12: // 戌, 亥 → 乾
-		return PalaceQian
+		return GongQian
 	}
-	return PalaceKan
+	return GongKan
 }
 
-// palaceBranches returns all branches belonging to a palace.
-func palaceBranches(p PalaceIndex) []ganzhi.Zhi {
+// palaceBranches returns all branches belonging to a gong.
+func palaceBranches(p GongIndex) []ganzhi.Zhi {
 	switch p {
-	case PalaceKun:
+	case GongKun:
 		return []ganzhi.Zhi{ganzhi.ZhiWei, ganzhi.ZhiShen}
-	case PalaceXun:
+	case GongXun:
 		return []ganzhi.Zhi{ganzhi.ZhiChen, ganzhi.ZhiSi}
-	case PalaceQian:
+	case GongQian:
 		return []ganzhi.Zhi{ganzhi.ZhiXu, ganzhi.ZhiHai}
-	case PalaceGen:
+	case GongGen:
 		return []ganzhi.Zhi{ganzhi.ZhiChou, ganzhi.ZhiYin}
 	}
 	return []ganzhi.Zhi{palaceZhi(p)}
 }
 
-// palaceZhi returns the principal branch of a palace.
-func palaceZhi(p PalaceIndex) ganzhi.Zhi {
+// palaceZhi returns the principal branch of a gong.
+func palaceZhi(p GongIndex) ganzhi.Zhi {
 	switch p {
-	case PalaceKan:
+	case GongKan:
 		return ganzhi.ZhiZi // 子
-	case PalaceKun:
+	case GongKun:
 		return ganzhi.ZhiWei // 未
-	case PalaceZhen:
+	case GongZhen:
 		return ganzhi.ZhiMao // 卯
-	case PalaceXun:
+	case GongXun:
 		return ganzhi.ZhiSi // 巳
-	case PalaceQian:
+	case GongQian:
 		return ganzhi.ZhiXu // 戌
-	case PalaceDui:
+	case GongDui:
 		return ganzhi.ZhiYou // 酉
-	case PalaceGen:
+	case GongGen:
 		return ganzhi.ZhiYin // 寅
-	case PalaceLi:
+	case GongLi:
 		return ganzhi.ZhiWu // 午
 	}
 	return ganzhi.ZhiZi
 }
 
-// palaceWuxing returns the five-element of a palace.
-func palaceWuxing(p PalaceIndex) ganzhi.Wuxing {
+// palaceWuxing returns the five-element of a gong.
+func palaceWuxing(p GongIndex) ganzhi.Wuxing {
 	switch p {
-	case PalaceKan:
+	case GongKan:
 		return ganzhi.WxShui
-	case PalaceKun, PalaceZhong, PalaceGen:
+	case GongKun, GongZhong, GongGen:
 		return ganzhi.WxTu
-	case PalaceZhen, PalaceXun:
+	case GongZhen, GongXun:
 		return ganzhi.WxMu
-	case PalaceQian, PalaceDui:
+	case GongQian, GongDui:
 		return ganzhi.WxJin
-	case PalaceLi:
+	case GongLi:
 		return ganzhi.WxHuo
 	}
 	return ganzhi.WxTu
 }
 
-// starHomePalace returns the home palace index (0-based internal) for a star.
+// starHomePalace returns the home gong index (0-based internal) for a star.
 func starHomePalace(s StarIndex) int {
 	switch s {
 	case StarTianPeng:

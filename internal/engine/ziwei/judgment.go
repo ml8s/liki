@@ -72,7 +72,7 @@ var shaStars = []starIndex{HuoXing, LingXing, QingYang, TuoLuo}
 // ── ComputeJudgment ──
 
 func ComputeJudgment(c Chart) JudgmentResult {
-	patterns := findPatterns(c.Palaces)
+	patterns := findPatterns(c.GongWei)
 
 	topScore := 0
 	lowScore := 0
@@ -102,7 +102,7 @@ func ComputeJudgment(c Chart) JudgmentResult {
 
 	// 煞星
 	shaCount := 0
-	for _, p := range c.Palaces {
+	for _, p := range c.GongWei {
 		for _, s := range p.Stars {
 			for _, ss := range shaStars {
 				if s.Star == ss {
@@ -116,14 +116,14 @@ func ComputeJudgment(c Chart) JudgmentResult {
 
 	// 命宫主星
 	mingStarName := ""
-	if len(c.Palaces[0].Stars) > 0 {
-		mingStarName = starNames[c.Palaces[0].Stars[0].Star]
+	if len(c.GongWei[0].Stars) > 0 {
+		mingStarName = starNames[c.GongWei[0].Stars[0].Star]
 	}
 
 	// 命宫亮度
 	mingBright := ""
-	if len(c.Palaces[0].Stars) > 0 {
-		b := miaoWang(c.Palaces[0].Stars[0].Star, c.Palaces[0].Zhi)
+	if len(c.GongWei[0].Stars) > 0 {
+		b := miaoWang(c.GongWei[0].Stars[0].Star, c.GongWei[0].Zhi)
 		switch {
 		case b <= Miao: mingBright = "庙"
 		case b <= Wang: mingBright = "旺"
@@ -146,11 +146,11 @@ func ComputeJudgment(c Chart) JudgmentResult {
 	}
 }
 
-func buildSanFangInfo(c Chart, sfPalaces [4]palaceIndex) []SanFangInfo {
+func buildSanFangInfo(c Chart, sfPalaces [4]gongIndex) []SanFangInfo {
 	var result []SanFangInfo
 	for _, pi := range sfPalaces {
-		p := c.Palaces[pi]
-		info := SanFangInfo{Name: palaceLabels[pi]}
+		p := c.GongWei[pi]
+		info := SanFangInfo{Name: gongLabels[pi]}
 		for _, s := range p.Stars {
 			if s.SiHua != "" {
 				info.SiHua = s.SiHua

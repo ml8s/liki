@@ -47,7 +47,7 @@ type flowPalaceRef struct {
 }
 
 type daxianRef struct {
-	Palace string `json:"palace"`
+	Gong string `json:"gong"`
 	Start  int    `json:"start"`
 	End    int    `json:"end"`
 }
@@ -105,29 +105,29 @@ func TestComplete(t *testing.T) {
 			for _, dx := range tc.DaXian {
 				var found bool
 				for _, s := range dxResult {
-					if s.Name == dx.Palace {
+					if s.Name == dx.Gong {
 						found = true
 						if s.QiSui != dx.Start || s.ZhiSui != dx.End {
-							t.Errorf("大限%s: got %d-%d want %d-%d", dx.Palace, s.QiSui, s.ZhiSui, dx.Start, dx.End)
+							t.Errorf("大限%s: got %d-%d want %d-%d", dx.Gong, s.QiSui, s.ZhiSui, dx.Start, dx.End)
 						}
 						break
 					}
 				}
-				if !found && dx.Palace != "" {
-					t.Errorf("大限%s: not found", dx.Palace)
+				if !found && dx.Gong != "" {
+					t.Errorf("大限%s: not found", dx.Gong)
 				}
 			}
 
 			// 流年盘（命主特定）
 			ln := ComputeLiuNian(fc, 2026)
-			assertFlowPalaces(t, "流年", ln.Palaces, tc.YFlow, &pass, &fail)
+			assertFlowPalaces(t, "流年", ln.GongWei, tc.YFlow, &pass, &fail)
 			// 流月/日/时盘（变量复用后续流月/日/时断言）
 			ly2 := ComputeLiuYue(fc, 2026, 6)
-			assertFlowPalaces(t, "流月", ly2.Palaces, tc.MFlow, &pass, &fail)
+			assertFlowPalaces(t, "流月", ly2.GongWei, tc.MFlow, &pass, &fail)
 			lr2 := ComputeLiuRi(fc, 2026, 6, 4)
-			assertFlowPalaces(t, "流日", lr2.Palaces, tc.DFlow, &pass, &fail)
+			assertFlowPalaces(t, "流日", lr2.GongWei, tc.DFlow, &pass, &fail)
 			ls2 := ComputeLiuShi(fc, 2026, 6, 4, ganzhi.Zhi(1))
-			assertFlowPalaces(t, "流时", ls2.Palaces, tc.HFlow, &pass, &fail)
+			assertFlowPalaces(t, "流时", ls2.GongWei, tc.HFlow, &pass, &fail)
 			// 流年四化+zhi
 			lnZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ln.Zhi]
 			if lnZhi != tc.Yzhi && tc.Yzhi != "" { t.Errorf("流年zhi: got %s want %s", lnZhi, tc.Yzhi) }
@@ -180,9 +180,9 @@ func TestComplete(t *testing.T) {
 			}
 
 			// 每宫
-			for _, nm := range palaceLabels {
+			for _, nm := range gongLabels {
 				ref, ok := tc.Palaces[nm]; if !ok { continue }
-				got := findPalace(fc.Palaces, nm); if got == nil { t.Errorf("%s: not found", nm); continue }
+				got := findPalace(fc.GongWei, nm); if got == nil { t.Errorf("%s: not found", nm); continue }
 
 				// 主星
 				gotM := starsToNames(got.Stars, true)
@@ -227,7 +227,7 @@ func assertFlowPalaces(t *testing.T, label string, got [12]flowPalace, ref []flo
 	}
 }
 
-func findPalace(p [12]palace, name string) *palace {
+func findPalace(p [12]gong, name string) *gong {
 	for i := range p { if p[i].Name == name { return &p[i] } }
 	return nil
 }

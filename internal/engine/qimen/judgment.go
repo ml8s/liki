@@ -9,10 +9,10 @@ import (
 
 // JudgmentResult holds the structured judgment for a 奇门 chart.
 type JudgmentResult struct {
-	SubjectPalace    PalaceIndex `json:"subject_palace"`
-	EventPalace      PalaceIndex `json:"ying_qi_gong"`
-	DutyStarPalace   PalaceIndex `json:"zhi_fu_xing_gong"`
-	DutyDoorPalace   PalaceIndex `json:"zhi_shi_men_gong"`
+	SubjectPalace    GongIndex `json:"subject_palace"`
+	EventPalace      GongIndex `json:"ying_qi_gong"`
+	DutyStarPalace   GongIndex `json:"zhi_fu_xing_gong"`
+	DutyDoorPalace   GongIndex `json:"zhi_shi_men_gong"`
 	Rating           string   `json:"rating"`
 	ShengKe          string   `json:"sheng_ke"`
 	Patterns         []string `json:"patterns"`
@@ -56,11 +56,11 @@ func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
 	riGan := c.Pan.RiGan
 	riGanPalace := findGanPalace(c, riGan)
 
-	// Subject: 日干 palace (or event-specific stem)
+	// Subject: 日干 gong (or event-specific stem)
 	subjectG := subjectGan(c.Pan, event)
 	subjectP := findGanPalace(c, subjectG)
 
-	// Event: 时干 palace (or event-specific 用神)
+	// Event: 时干 gong (or event-specific 用神)
 	eventG := c.Pan.DriveGan
 	eventP := findGanPalace(c, eventG)
 
@@ -68,7 +68,7 @@ func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
 	dutyStarP := findStarPalace(c, c.Pan.DutyStar)
 	dutyDoorP := findDoorPalace(c, c.Pan.DutyDoor)
 
-	// 门宫生克分析 (door vs palace)
+	// 门宫生克分析 (door vs gong)
 	shengKe := analyzeShengKe(c, subjectP, eventP, dutyStarP, dutyDoorP)
 
 	// Count auspicious indicators
@@ -82,12 +82,12 @@ func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
 	}
 
 	// Check interactions
-	for _, si := range c.StemInteractions {
+	for _, si := range c.GanInteractions {
 		if si.Auspicious {
 			auspiciousCount++
 		}
 	}
-	for _, si := range c.StarInteractions {
+	for _, si := range c.XingInteractions {
 		if si.Auspicious {
 			auspiciousCount++
 		}
@@ -128,38 +128,38 @@ func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
 	}
 }
 
-// findGanPalace finds which palace a heavenly stem resides in (earth plate).
-func findGanPalace(c Chart, g ganzhi.Gan) PalaceIndex {
-	for i, p := range c.Pan.Palaces {
+// findGanPalace finds which gong a heavenly stem resides in (earth plate).
+func findGanPalace(c Chart, g ganzhi.Gan) GongIndex {
+	for i, p := range c.Pan.GongWei {
 		if p.EarthStem == g || p.HeavenStem == g {
-			return PalaceIndex(i + 1)
+			return GongIndex(i + 1)
 		}
 	}
 	return 0
 }
 
-// findStarPalace finds which palace a star resides in.
-func findStarPalace(c Chart, s StarIndex) PalaceIndex {
-	for i, p := range c.Pan.Palaces {
+// findStarPalace finds which gong a star resides in.
+func findStarPalace(c Chart, s StarIndex) GongIndex {
+	for i, p := range c.Pan.GongWei {
 		if p.Star == s {
-			return PalaceIndex(i + 1)
+			return GongIndex(i + 1)
 		}
 	}
 	return 0
 }
 
-// findDoorPalace finds which palace a door resides in.
-func findDoorPalace(c Chart, d DoorIndex) PalaceIndex {
-	for i, p := range c.Pan.Palaces {
+// findDoorPalace finds which gong a door resides in.
+func findDoorPalace(c Chart, d DoorIndex) GongIndex {
+	for i, p := range c.Pan.GongWei {
 		if p.Door == d {
-			return PalaceIndex(i + 1)
+			return GongIndex(i + 1)
 		}
 	}
 	return 0
 }
 
 // analyzeShengKe analyzes the sheng/ke relationships between key palaces.
-func analyzeShengKe(c Chart, subjectP, eventP, dutyStarP, dutyDoorP PalaceIndex) string {
+func analyzeShengKe(c Chart, subjectP, eventP, dutyStarP, dutyDoorP GongIndex) string {
 	var parts []string
 
 	// 日干落宫生克关系
@@ -216,7 +216,7 @@ func rateJudgment(auspiciousCount int, kongWang, maXing bool, menPoZhiCount int,
 }
 
 // generateAdvice produces a Chinese advice string.
-func generateAdvice(event EventKind, rating string, riGanPalace, subjectP, eventP PalaceIndex) string {
+func generateAdvice(event EventKind, rating string, riGanPalace, subjectP, eventP GongIndex) string {
 	switch rating {
 	case "大吉":
 		return "诸事顺利，吉星高照，宜果断行动"
