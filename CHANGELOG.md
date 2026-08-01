@@ -1,5 +1,15 @@
 # Changelog
-- 2.2.0: 全域命理值 JSON 字段拼音化（破坏性 API）
+- 2.3.0: 八字域对齐 lunar-typescript（VSOP87 节气 + 起运精确化 + 测试扩充）
+  - [tianwen] 节气时刻用寿星历 VSOP87D（移植 lunar ShouXingUtil）：eLon/章动/光行差/ΔT，精度从 ±15min → 秒级
+    - 夏至 2026 与 lunar 差 2 秒；修复 solarLongitude 时区敏感（本地小时当 UTC）
+  - [bazi] 起运精确化：DaYun 新增 start_year_after/start_month_after/start_day_after（对齐 lunar Yun 算法）
+    - dayDiff(纯日期差)+hourDiff(时辰差) 公式；修复逆排目标节跨年（原 122 岁）、时区错乱
+  - [bazi] 大运 8→9 步（对齐 lunar 90 年）
+  - [bazi] ComputeHeHui 空切片输出 null → []（detect 函数初始化空切片）
+  - [schema] bazi.chart/fullchart 的 da_yun 补字段描述（LLM 可见起运精确值）
+  - [test] 95 例 golden（lunar 生成，12 维度）+ 13/13 Compute* 引擎测试 + 10/10 API Dispatch 测试
+    - 修复：ComputeXiaoYun 零测试、TestLiuNian_ShenSha 空断言、起运 ±1 容差、makeChart 过时经度校正
+- 2.2.0: 全域命理值 JSON 字段拼音化（破坏性 API） 全域命理值 JSON 字段拼音化（破坏性 API）
   - [bazi] 合盘字段：a_zhu/a_stem/a_branch/a_na_yin → jia_zhu/jia_gan/jia_zhi/jia_na_yin（甲方），b_* → yi_*（乙方）
   - [bazi] a_to_b/b_to_a → jia_dui_yi/yi_dui_jia（甲对乙十神）；stem/branch 关系 → gan_guan_xi/zhi_guan_xi
   - [bazi] branch_rels → zhi_rels；age_start → qi_sui（起岁，与紫微统一）
