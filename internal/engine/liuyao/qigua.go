@@ -60,7 +60,7 @@ var binaryToGuaTable = [64]guaIndex{
 }
 
 func dongYao(yaos [6]YaoType) []int {
-	var dy []int
+	dy := make([]int, 0)
 	for i := 0; i < 6; i++ {
 		if yaos[i].IsChanging() { dy = append(dy, i+1) }
 	}
