@@ -132,7 +132,7 @@ func (g *guaIndex) UnmarshalJSON(data []byte) error {
 // guaMeta holds static data for a hexagram.
 type guaMeta struct {
 	Name      string `json:"name"`       // 卦名
-	PalaceIdx int    `json:"palace_idx"` // 0-7, which palace
+	PalaceIdx int    `json:"gong_idx"` // 0-7, which palace
 	ShiPos    int    `json:"shi_pos"`    // 1-6,世爻 position
 }
 
@@ -142,7 +142,7 @@ type Chart struct {
 	BenGua        guaIndex       `json:"ben_gua"`
 	BianGua       guaIndex       `json:"bian_gua,omitempty"` // 0 if no change
 	Palace        string         `json:"gong"`
-	PalaceWuxing  ganzhi.Wuxing  `json:"palace_wuxing"`
+	PalaceWuxing  ganzhi.Wuxing  `json:"gong_wuxing"`
 	Lines         [6]Line        `json:"lines"`
 	BianLines     [6]Line        `json:"bian_lines,omitempty"`
 	DayGan        ganzhi.Gan     `json:"ri_chen_gan"`

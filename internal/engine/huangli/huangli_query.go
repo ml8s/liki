@@ -39,8 +39,8 @@ type Day struct {
 // Month holds monthly huangli data.
 type Month struct {
 	Month  string `json:"month"`
-	Stem   string `json:"stem"`
-	Branch string `json:"branch"`
+	Stem   string `json:"gan"`
+	Branch string `json:"zhi"`
 	Days   []Day  `json:"days"`
 }
 

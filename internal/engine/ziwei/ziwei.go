@@ -282,7 +282,7 @@ type LiuNian struct {
 	MingGongName string                   `json:"ming_gong_name"` // 流年命宫名
 	Zhi          Zhi                      `json:"zhi"`            // 流年地支
 	SiHua        siHuaResult              `json:"si_hua"`
-	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_palace"`
+	SiHuaPalace  map[starIndex]palaceIndex `json:"si_hua_gong"`
 	FuXing       map[starIndex]Zhi         `json:"fu_xing"`
 	Palaces      [12]flowPalace           `json:"gong_wei"`       // 流年盘（地支坐标 12 宫）
 }

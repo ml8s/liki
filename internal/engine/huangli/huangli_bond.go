@@ -15,8 +15,8 @@ type BondDay struct {
 
 type BondMonth struct {
 	Month  string    `json:"month"`
-	Stem   string    `json:"stem"`
-	Branch string    `json:"branch"`
+	Stem   string    `json:"gan"`
+	Branch string    `json:"zhi"`
 	Days   []BondDay `json:"days"`
 }
 
