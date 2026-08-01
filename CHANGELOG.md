@@ -1,4 +1,20 @@
 # Changelog
+- 2.1.0: 紫微流盘完整增强 + 坐标真相源改造
+  - [紫微] 流年/流月/流日/流时盘完整输出（12 宫 + 流耀落宫），与 iztro 完全对齐
+    - 流年盘：10 颗流耀（流魁钺/流昌曲/流禄/流羊陀/流马/流鸾喜）+ 年解 + 流年命宫
+    - 流月/日/时盘：iztro monthlyIndex/dailyIndex/hourlyIndex 公式（命主相关盘起点 + 目标日期干支）
+  - [紫微] 坐标真相源改造：palaceLabels 为唯一宫名根，删除 PalaceNames/iztroPALACES 衍生数组；顺逆=遍历方向不存数组
+  - [紫微] 坐标命名领域化：zhiMinus1→zhiIdx（地支索引）、display/iztroIdx→anXingIdx（安星索引、定寅首）；统一转换函数消除重复
+  - [紫微] 立春换年按精确时刻（非日期），闰月排盘与 iztro fixLeap 对齐（前后半月），补天德/月德 2 颗杂曜
+  - [紫微] 修正五鼠遁（10 天干验证）；Chart 补 BirthLunarMonth/BirthIsLeap
+  - [RPC] OpenRPC doc version 启动时注入 BuildTime（不再硬编码）
+  - [测试] golden 扩充 105→150 例（闰月全位置/大月三十/晚子时/立春/极端年份），断言 18000→23400 全过
+- 2.0.1: 修复 rpc.discover 按域过滤丢失 schema
+  - [RPC] rpc.discover 带 methods 参数过滤时，结果只剩方法名、丢失 params/description（弱类型重解 doc 导致）
+  - [RPC] 新增 RPCRegistry.DiscoverMethods(patterns)，下沉到 agent 层复用 openRPCMeth 强类型过滤（与 OpenRPCDocument 同模式）
+  - [RPC] 过滤结果保留完整 schema；具体方法过滤只返回自身；空 pattern 返回全量
+  - [测试] 新增 TestDiscoverMethods_Filter 固化验证
+- 2.0.0: 全引擎命理值序列化重构（schema 层全字符串+枚举）+ 起名域重构 + 黄历域收敛
 - 2.0.1: 修复 rpc.discover 按域过滤丢失 schema
   - [RPC] rpc.discover 带 methods 参数过滤时，结果只剩方法名、丢失 params/description（弱类型重解 doc 导致）
   - [RPC] 新增 RPCRegistry.DiscoverMethods(patterns)，下沉到 agent 层复用 openRPCMeth 强类型过滤（与 OpenRPCDocument 同模式）
