@@ -151,3 +151,43 @@ func (m *mockSearchTransport) RoundTrip(_ *http.Request) (*http.Response, error)
 		Header:     http.Header{"Content-Type": []string{"application/json"}},
 	}, nil
 }
+
+type mockDoer struct{ resp *http.Response }
+
+func (m *mockDoer) Do(req *http.Request) (*http.Response, error) { return m.resp, nil }
+
+func mockResp(body string) *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(strings.NewReader(body)),
+		Header:     http.Header{"Content-Type": {"application/json"}},
+	}
+}
+
+// TestSearchCity_Schema verifies city 返回结构（name/longitude/latitude/country）
+// 与 Result schema 声明一致（schema: tools_other.go city）
+func TestSearchCity_Schema(t *testing.T) {
+	old := HttpClient()
+	defer SetHTTPClient(old)
+	SetHTTPClient(&mockDoer{resp: mockResp(`[{"name":"北京","lon":"116.4074","lat":"39.9042","address":{"country":"中国"}}]`)})
+
+	out, err := SearchCity(context.Background(), []byte(`{"city":"北京"}`))
+	if err != nil {
+		t.Fatalf("SearchCity: %v", err)
+	}
+	var r struct {
+		Name      string  `json:"name"`
+		Longitude float64 `json:"longitude"`
+		Latitude  float64 `json:"latitude"`
+		Country   string  `json:"country"`
+	}
+	if err := json.Unmarshal(out, &r); err != nil {
+		t.Fatalf("unmarshal: %v (输出: %s)", err, out)
+	}
+	if r.Name != "北京" {
+		t.Errorf("name = %s, want 北京", r.Name)
+	}
+	if r.Country != "中国" {
+		t.Errorf("country = %s, want 中国", r.Country)
+	}
+}
