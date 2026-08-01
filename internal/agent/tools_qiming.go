@@ -104,6 +104,6 @@ var qimingMethods = []RPCMethod{
 		Name: "qiming.char", Description: "查字。查询单个汉字的五行、笔画、部首、拼音等信息。",
 		Params: mustSchema(`{"type":"object","properties":{"char":{"type":"string","minLength":1,"maxLength":1,"description":"要查询的单个汉字"}},"required":["char"]}`),
 		Handler: qimingCharHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"char":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"stroke":{"type":"integer"},"radical":{"type":"string"},"pinyin":{"type":"string"},"tone":{"type":"integer"}},"required":["char","wuxing","stroke","pinyin"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"char":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"stroke":{"type":"integer"},"radical":{"type":"string"},"pinyin":{"type":"string"},"tone":{"type":"integer"},"traditional":{"type":"string","description":"繁体字"}},"required":["char","wuxing","stroke","pinyin"]}`),
 	},
 }

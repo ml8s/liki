@@ -54,10 +54,14 @@ func buildFlowPalaces(mingZhiIdx, liuPanIdx int, starByAnXingIdx map[int][]strin
 		//   流盘序 names[i] = PALACES[(i - liuPanIdx) % 12]
 		palIdx := ((i - liuPanIdx) % 12 + 12) % 12
 		name := palaceLabels[(12-palIdx)%12]
+		stars := starByAnXingIdx[i]
+		if stars == nil {
+			stars = []string{}
+		}
 		out[i] = flowPalace{
 			Zhi:    zhiIdxToZhi(zhiIdx),
 			Name:   name,
-			Stars:  starByAnXingIdx[i],
+			Stars:  stars,
 			IsMing: name == "命宫",
 		}
 	}

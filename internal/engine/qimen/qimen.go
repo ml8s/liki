@@ -199,9 +199,9 @@ func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
 type Palace struct {
 	EarthStem  ganzhi.Gan  `json:"di_pan_gan"`
 	HeavenStem ganzhi.Gan  `json:"tian_pan_gan"`
-	Star       StarIndex   `json:"star,omitempty"`
-	Door       DoorIndex   `json:"door,omitempty"`
-	Spirit     SpiritIndex `json:"spirit"`
+	Star       StarIndex   `json:"xing,omitempty"`
+	Door       DoorIndex   `json:"men,omitempty"`
+	Spirit     SpiritIndex `json:"shen"`
 	HiddenStem ganzhi.Gan  `json:"hidden_stem,omitempty"`
 }
 
@@ -242,26 +242,26 @@ func (p pan) MarshalJSON() ([]byte, error) {
 	m := map[string]any{
 		"jushu": p.Jushu, "yin_dun": p.YinDun,
 		"ri_gan": p.RiGan, "ri_zhi": p.RiZhi,
-		"duty_star": p.DutyStar, "duty_door": p.DutyDoor,
+		"zhi_fu_xing": p.DutyStar, "zhi_shi_men": p.DutyDoor,
 		"ma_xing": p.MaXing, "drive_gan": p.DriveGan, "drive_zhi": p.DriveZhi,
 		"kong_wang": p.KongWang, "wu_bu_yu_shi": p.WuBuYuShi,
 	}
 	palaces := make([]map[string]any, 9)
 	for i, pl := range p.Palaces {
 		pm := map[string]any{
-			"earth_stem": pl.EarthStem, "heaven_stem": pl.HeavenStem,
+			"di_pan_gan": pl.EarthStem, "tian_pan_gan": pl.HeavenStem,
 		}
 		if pl.Star != 0 {
-			pm["star"] = pl.Star
+			pm["xing"] = pl.Star
 		}
 		if pl.Door != 0 {
-			pm["door"] = pl.Door
+			pm["men"] = pl.Door
 		}
 		if pl.Spirit != 0 {
 			if p.YinDun {
-				pm["spirit"] = pl.Spirit.YinName()
+				pm["shen"] = pl.Spirit.YinName()
 			} else {
-				pm["spirit"] = pl.Spirit.YangName()
+				pm["shen"] = pl.Spirit.YangName()
 			}
 		}
 		if pl.HiddenStem != 0 {
@@ -269,7 +269,7 @@ func (p pan) MarshalJSON() ([]byte, error) {
 		}
 		palaces[i] = pm
 	}
-	m["palaces"] = palaces
+	m["gong_wei"] = palaces
 	return json.Marshal(m)
 }
 
