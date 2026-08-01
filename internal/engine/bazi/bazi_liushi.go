@@ -16,7 +16,7 @@ type LiuShi struct {
 	HourName string        `json:"hour_name"`
 	ShiShen   string        `json:"shi_shen"`
 	GanRels  []GanRelation `json:"gan_rels"`
-	ZhiRels  []ZhiRelation `json:"branch_rels"`
+	ZhiRels  []ZhiRelation `json:"zhi_rels"`
 }
 
 // hourBranchIndex maps date hour to traditional "时辰" branch index (0-11, 0=子).

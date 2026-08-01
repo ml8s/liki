@@ -18,7 +18,7 @@ type LiuRi struct {
 	DayNaYin    string         `json:"day_nayin"`
 	ShiShen      string         `json:"shi_shen"`
 	GanRels     []GanRelation  `json:"gan_rels"`
-	ZhiRels     []ZhiRelation  `json:"branch_rels"`
+	ZhiRels     []ZhiRelation  `json:"zhi_rels"`
 	DaYunRels   []ZhiRelation  `json:"dayun_rels"`
 	LiuNianRels []ZhiRelation  `json:"liunian_rels"`
 	ShenSha     []shenShaEntry `json:"shensha"`

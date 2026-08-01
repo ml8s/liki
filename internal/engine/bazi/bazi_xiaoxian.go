@@ -5,7 +5,7 @@ import "liki-engine/internal/engine/ganzhi"
 // XiaoXian is one year in the 小限 (minor limit) cycle.
 type XiaoXian struct {
 	Age  int        `json:"age"`
-	Zhi ganzhi.Zhi `json:"branch"`
+	Zhi ganzhi.Zhi `json:"zhi"`
 }
 
 // ComputeXiaoXian computes the 小限 branch for each year of age up to maxAge.

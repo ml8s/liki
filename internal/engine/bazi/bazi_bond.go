@@ -8,26 +8,26 @@ func xunIndex(riZhu ganzhi.Zhu) int {
 }
 
 type zhuPairEntry struct {
-	AZhu     string      `json:"a_zhu"`
-	BZhu     string      `json:"b_zhu"`
-	AStem    string      `json:"a_stem"`
-	BStem    string      `json:"b_stem"`
-	ABranch  string      `json:"a_branch"`
-	BBranch  string      `json:"b_branch"`
-	Stem     GanRelation `json:"stem"`
-	Branch   ZhiRelation `json:"branch"`
+	AZhu     string      `json:"jia_zhu"`
+	BZhu     string      `json:"yi_zhu"`
+	AStem    string      `json:"jia_gan"`
+	BStem    string      `json:"yi_gan"`
+	ABranch  string      `json:"jia_zhi"`
+	BBranch  string      `json:"yi_zhi"`
+	Stem     GanRelation `json:"gan_guan_xi"`
+	Branch   ZhiRelation `json:"zhi_guan_xi"`
 }
 type zhuCross struct {
 	Pairs []zhuPairEntry `json:"pairs"`
 }
 type shiShenCross struct {
-	AToB map[string]string `json:"a_to_b"`
-	BToA map[string]string `json:"b_to_a"`
+	AToB map[string]string `json:"jia_dui_yi"`
+	BToA map[string]string `json:"yi_dui_jia"`
 }
 type nayinPairEntry struct {
-	AZhu     string `json:"a_zhu"`
-	BZhu     string `json:"b_zhu"`
-	ANaYin   string `json:"a_na_yin"`
+	AZhu     string `json:"jia_zhu"`
+	BZhu     string `json:"yi_zhu"`
+	ANaYin   string `json:"jia_na_yin"`
 	BNaYin   string `json:"b_na_yin"`
 	Relation string `json:"relation"`
 }
@@ -72,7 +72,7 @@ type daYunCross struct {
 	ACurrent  daYunCrossEntry `json:"a_current"`
 	BCurrent  daYunCrossEntry `json:"b_current"`
 	StemRel   GanRelation     `json:"stem_rel"`
-	BranchRel ZhiRelation     `json:"branch_rel"`
+	BranchRel ZhiRelation     `json:"zhi_guan_xi"`
 }
 // XunGong describes whether two charts share the same xun (旬) or palace (宫).
 type XunGong struct {

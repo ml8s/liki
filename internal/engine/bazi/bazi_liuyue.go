@@ -20,7 +20,7 @@ type LiuYue struct {
 	Generates int            `json:"generates"`
 	Restrains int            `json:"restrains"`
 	GanRels   []GanRelation  `json:"gan_rels"`
-	ZhiRels   []ZhiRelation  `json:"branch_rels"`
+	ZhiRels   []ZhiRelation  `json:"zhi_rels"`
 	ShenSha   []shenShaEntry `json:"shensha"`
 }
 

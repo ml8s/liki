@@ -11,7 +11,7 @@ type GongJia struct {
 	ZhuA int    `json:"pillar_a"` // index 0-3 of first pillar
 	ZhuB int    `json:"pillar_b"` // index 0-3 of second pillar
 	Type    string `json:"type"`     // "拱"
-	Zhi ganzhi.Zhi    `json:"branch"`   // the hidden branch between them
+	Zhi ganzhi.Zhi    `json:"zhi"`   // the hidden branch between them
 }
 
 // computeGongJia detects 拱 (gap=2) between branches of bazi pillars.

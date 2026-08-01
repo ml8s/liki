@@ -17,7 +17,7 @@ const (
 type DaYunStep struct {
 	Gan      ganzhi.Gan  `json:"gan"`
 	Zhi      ganzhi.Zhi  `json:"zhi"`
-	AgeStart int         `json:"age_start"`
+	AgeStart int         `json:"qi_sui"`
 	AgeEnd   int         `json:"age_end"`
 	Name     string      `json:"name"`
 	Element  string      `json:"element"`
