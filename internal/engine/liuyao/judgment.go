@@ -21,7 +21,7 @@ type YongShenState struct {
 	Name  string `json:"name"`
 	Month string `json:"month"`
 	Day   string `json:"day"`
-	DayPo string `json:"day_power"`
+	DayPo string `json:"ri_chen_power"`
 	// computed flags
 	IsChiShi  bool `json:"is_chi_shi,omitempty"`
 	IsYuePo   bool `json:"is_yue_po,omitempty"`

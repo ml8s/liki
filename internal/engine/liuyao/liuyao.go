@@ -141,20 +141,20 @@ type Chart struct {
 	Name          string         `json:"name"`
 	BenGua        guaIndex       `json:"ben_gua"`
 	BianGua       guaIndex       `json:"bian_gua,omitempty"` // 0 if no change
-	Palace        string         `json:"palace"`
+	Palace        string         `json:"gong"`
 	PalaceWuxing  ganzhi.Wuxing  `json:"palace_wuxing"`
 	Lines         [6]Line        `json:"lines"`
 	BianLines     [6]Line        `json:"bian_lines,omitempty"`
-	DayGan        ganzhi.Gan     `json:"day_gan"`
-	DayZhi        ganzhi.Zhi     `json:"day_zhi"`
-	MonthZhi      ganzhi.Zhi     `json:"month_zhi"`
-	MonthGan      ganzhi.Gan     `json:"month_gan"`
+	DayGan        ganzhi.Gan     `json:"ri_chen_gan"`
+	DayZhi        ganzhi.Zhi     `json:"ri_chen_zhi"`
+	MonthZhi      ganzhi.Zhi     `json:"yue_jian_zhi"`
+	MonthGan      ganzhi.Gan     `json:"yue_jian_gan"`
 	DongYao   []int          `json:"dong_yao"` // 动爻位置 1-6
 	// Analysis layers set by ComputeChart.
 	YongShen     YongShenResult `json:"yong_shen"`
 	GuaCi	GuaCi	`json:"gua_ci,omitempty"`
 	WangShuai    [6]ganzhi.WangShuai   `json:"wang_shuai"`
-	DayRelations [6]DayRelation `json:"day_relations"`
+	DayRelations [6]DayRelation `json:"ri_chen_relations"`
 	YingQi    YingQi         `json:"ying_qi"`
 }
 
