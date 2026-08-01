@@ -33,16 +33,16 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 	tgt := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), 1, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
 	liuYearGan, _ := yearStemBranch(liuYear)
 	// 流月干支 = 目标月干支（五虎遁：年干 + 农历月）——真相源，与命主无关
-	monthZhi := zhiMinus1ToZhi((tgt.Month + 1) % 12) // 正月寅起：农历1月→zhiMinus1 2(寅)
+	monthZhi := zhiIdxToZhi((tgt.Month + 1) % 12) // 正月寅起：农历1月→zhiIdx 2(寅)
 	monthGan := yueGanByWuHuDun(liuYearGan, monthZhi)
 	stars := liuYueStars(monthGan, monthZhi)
 
 	// 盘起点 = monthlyIndex（iztro 公式，命主相关）
 	mi := computeMonthlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month})
-	starByDisplay := make(map[int][]string)
+	starByAnXingIdx := make(map[int][]string)
 	for k, z := range stars {
-		disp := zhiMinus1ToDisplay(zhiToZhiMinus1(z))
-		starByDisplay[disp] = append(starByDisplay[disp], k)
+		anXingIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(z))
+		starByAnXingIdx[anXingIdx] = append(starByAnXingIdx[anXingIdx], k)
 	}
 	return LiuYue{
 		MingGong:     0,
@@ -50,7 +50,7 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 		Zhi:          monthZhi,
 		SiHua:        computeSiHua(monthGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(zhiToZhiMinus1(chart.Palaces[chart.MingGong].Zhi), mi, starByDisplay),
+		Palaces:      buildFlowPalaces(zhiToZhiIdx(chart.Palaces[chart.MingGong].Zhi), mi, starByAnXingIdx),
 	}
 }
 
@@ -62,7 +62,7 @@ func liuYueSiHua(lunarMonth int, liuYearGan Gan) siHuaResult {
 
 func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
-	toZhi := func(zhiMinus1 int) Zhi { return Zhi(zhiMinus1 + 1) }
+	toZhi := func(zhiIdx int) Zhi { return Zhi(zhiIdx + 1) }
 	m := map[string]Zhi{
 		"月禄": toZhi(luCunPos(gan)),
 		"月羊": toZhi(qingYangPos(gan)),
@@ -99,10 +99,10 @@ func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
 	zhu := tianwen.RiZhu(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
 	dayGan, dayZhi := Gan(zhu.Gan), Zhi(zhu.Zhi)
 	stars := liuRiStars(dayGan, dayZhi)
-	starByDisplay := make(map[int][]string)
+	starByAnXingIdx := make(map[int][]string)
 	for k, z := range stars {
-		disp := zhiMinus1ToDisplay(zhiToZhiMinus1(z))
-		starByDisplay[disp] = append(starByDisplay[disp], k)
+		anXingIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(z))
+		starByAnXingIdx[anXingIdx] = append(starByAnXingIdx[anXingIdx], k)
 	}
 	return LiuRi{
 		MingGong:     0,
@@ -110,13 +110,13 @@ func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
 		Zhi:          dayZhi,
 		SiHua:        computeSiHua(dayGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(zhiToZhiMinus1(chart.Palaces[chart.MingGong].Zhi), di, starByDisplay),
+		Palaces:      buildFlowPalaces(zhiToZhiIdx(chart.Palaces[chart.MingGong].Zhi), di, starByAnXingIdx),
 	}
 }
 
 func liuRiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
-	toZhi := func(zhiMinus1 int) Zhi { return Zhi(zhiMinus1 + 1) }
+	toZhi := func(zhiIdx int) Zhi { return Zhi(zhiIdx + 1) }
 	m := map[string]Zhi{
 		"日禄": toZhi(luCunPos(gan)),
 		"日羊": toZhi(qingYangPos(gan)),
@@ -158,10 +158,10 @@ func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) L
 	dayGan := Gan(zhu.Gan)
 	shiGan := shiGanCalc(dayGan, shiZhi)
 	stars := liuShiStars(shiGan, shiZhi)
-	starByDisplay := make(map[int][]string)
+	starByAnXingIdx := make(map[int][]string)
 	for k, z := range stars {
-		disp := zhiMinus1ToDisplay(zhiToZhiMinus1(z))
-		starByDisplay[disp] = append(starByDisplay[disp], k)
+		anXingIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(z))
+		starByAnXingIdx[anXingIdx] = append(starByAnXingIdx[anXingIdx], k)
 	}
 	return LiuShi{
 		MingGong:     0,
@@ -169,13 +169,13 @@ func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) L
 		Zhi:          shiZhi,
 		SiHua:        computeSiHua(shiGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(zhiToZhiMinus1(chart.Palaces[chart.MingGong].Zhi), hi, starByDisplay),
+		Palaces:      buildFlowPalaces(zhiToZhiIdx(chart.Palaces[chart.MingGong].Zhi), hi, starByAnXingIdx),
 	}
 }
 
 func liuShiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
-	toZhi := func(zhiMinus1 int) Zhi { return Zhi(zhiMinus1 + 1) }
+	toZhi := func(zhiIdx int) Zhi { return Zhi(zhiIdx + 1) }
 	m := map[string]Zhi{
 		"时禄": toZhi(luCunPos(gan)),
 		"时羊": toZhi(qingYangPos(gan)),
@@ -217,8 +217,8 @@ func riGan(liuYear, lunarMonth, lunarDay int) Gan {
 	return dp.Gan
 }
 
-// 流昌流曲：天干定位（iztro算法）, 返回zhiMinus1
-func liuChangQuByGan(gan Gan) (changZM1, quZM1 int) {
+// 流昌流曲：天干定位（iztro算法）, 返回zhiIdx
+func liuChangQuByGan(gan Gan) (changZhiIdx, quZhiIdx int) {
 	table := [10][2]int{
 		{3, 7}, {4, 6}, {6, 4}, {7, 3}, {6, 4},
 		{7, 3}, {9, 1}, {10, 0}, {0, 10}, {1, 9},

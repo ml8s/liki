@@ -14,21 +14,21 @@ func findZiwei(ju juShu, lunarDay int) int {
 	lunarDay4 += added
 	quotient := lunarDay4 / int(ju)
 	quotient %= 12
-	iztroIdx := quotient - 1 // 寅=1-1=0
+	anXingIdx := quotient - 1 // 寅=1-1=0
 	if added%2 == 1 {
-		iztroIdx = (iztroIdx - added + 12) % 12 // odd→reverse
+		anXingIdx = (anXingIdx - added + 12) % 12 // odd→reverse
 	} else {
-		iztroIdx = (iztroIdx + added) % 12 // even→forward
+		anXingIdx = (anXingIdx + added) % 12 // even→forward
 	}
-	return iztroIdx
+	return anXingIdx
 }
 
-// iztroIdxToPalace converts iztro 寅=0 index to Liki palace index.
-func iztroIdxToPalace(iztroIdx int, mingZhi Zhi) palaceIndex {
-	iztroIdx = iztroIdx % 12
-	if iztroIdx < 0 { iztroIdx += 12 }
-	zhiMinus1 := (iztroIdx + 2) % 12 // 0=寅→zhi-1=2
-	return zhiToPalace(zhiMinus1, mingZhi)
+// anXingIdxToPalace converts iztro 寅=0 index to Liki palace index.
+func anXingIdxToPalace(anXingIdx int, mingZhi Zhi) palaceIndex {
+	anXingIdx = anXingIdx % 12
+	if anXingIdx < 0 { anXingIdx += 12 }
+	zhiIdx := (anXingIdx + 2) % 12 // 0=寅→zhi-1=2
+	return zhiIdxToPalaceIndex(zhiToZhiIdx(mingZhi), zhiIdx)
 }
 
 // --- 主星安星 (0.5) ---
@@ -48,17 +48,17 @@ var tianfuOffsets = []struct {
 	{TianXiang, 4}, {TianLiang, 5}, {QiSha, 6}, {PoJun, 10},
 }
 
-func placeMainStars(iztroZW, iztroTF int, _ Zhi) map[int][]starIndex {
-	// 返回 zhiMinus1 坐标（0=子..11=亥）：iztro display(寅=0) → zhiMinus1 固定映射
+func placeMainStars(ziweiAnXingIdx, tianfuAnXingIdx int, _ Zhi) map[int][]starIndex {
+	// 返回 zhiIdx 坐标（0=子..11=亥）：安星序(寅=0)(寅=0 安星序) → zhiIdx 固定映射
 	m := make(map[int][]starIndex)
 	for _, e := range ziweiOffsets {
-		izIdx := (iztroZW - e.offset + 12) % 12
-		zm1 := displayToZhiMinus1(izIdx)
+		anXingIdx := (ziweiAnXingIdx - e.offset + 12) % 12
+		zm1 := anXingIdxToZhiIdx(anXingIdx)
 		m[zm1] = append(m[zm1], e.star)
 	}
 	for _, e := range tianfuOffsets {
-		izIdx := (iztroTF + e.offset) % 12
-		zm1 := displayToZhiMinus1(izIdx)
+		anXingIdx := (tianfuAnXingIdx + e.offset) % 12
+		zm1 := anXingIdxToZhiIdx(anXingIdx)
 		m[zm1] = append(m[zm1], e.star)
 	}
 	return m
@@ -67,7 +67,7 @@ func placeMainStars(iztroZW, iztroTF int, _ Zhi) map[int][]starIndex {
 // --- 辅星安星 (0.6) — 每颗一个函数 + 装配 ---
 
 // The following functions return zhi-1 values (0=子..11=亥), NOT palace indices.
-// Callers must convert via zhiToPalace when placing into a chart.
+// Callers must convert via zhiIdxToPalaceIndex when placing into a chart.
 
 func luCunPos(yearGan Gan) int {
 	if yg := int(yearGan); yg >= 1 && yg <= 10 {
@@ -130,17 +130,14 @@ func lingXingIndex(yearZhi, hourZhi Zhi) int {
 	return (base + ti + 2) % 12
 }
 
-// zhiToPalace converts an absolute branch position (zhi-1: 0=子..11=亥) to
+// zhiIdxToPalaceIndex converts an absolute branch position (zhi-1: 0=子..11=亥) to
 // the palace index whose branch matches, given the 命宫 branch.
 func inGroup(zhi, a, b, c Zhi) bool { return zhi == a || zhi == b || zhi == c }
 
-func zhiToPalace(zhiMinus1 int, mingZhi Zhi) palaceIndex {
-	targetZhi := zhiMinus1 + 1
-	return palaceIndex((int(mingZhi) - targetZhi + 12) % 12)
-}
+
 
 // placeMinorStars collects all 14 minor star placements.
-// 返回 zhiMinus1 坐标（0=子..11=亥）。
+// 返回 zhiIdx 坐标（0=子..11=亥）。
 func placeMinorStars(yearZhu ganzhi.Zhu, lunarMonth int, hourZhi, _ Zhi) map[int][]starIndex {
 	m := make(map[int][]starIndex)
 	add := func(zm1 int, s starIndex) {

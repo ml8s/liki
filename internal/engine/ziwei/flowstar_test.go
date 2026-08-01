@@ -17,7 +17,7 @@ type flowGold struct {
 	Gender    string         `json:"gender"`
 	FlowStars map[string]int `json:"flowStars"`
 	FlowLM    int            `json:"flowLM"`
-	FlowLD    int            `json:"flowLD"` // starName → zhiMinus1
+	FlowLD    int            `json:"flowLD"` // starName → zhiIdx
 }
 
 func TestFlowStarsAgainstIz(t *testing.T) {

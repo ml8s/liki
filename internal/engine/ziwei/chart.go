@@ -22,17 +22,17 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 
 	mingGan, palaceGans := arrangePalaceGans(yearGan, mingZhi, (lunarMonth-int(hourZhi)+12)%12)
 	ju := determineJuShu(mingGan, mingZhi)
-	iztroZW := findZiwei(ju, lunarDay)
-	iztroTF := (12 - iztroZW) % 12
-	ziweiPos := iztroIdxToPalace(iztroZW, mingZhi)
-	mainByPalace := placeMainStars(iztroZW, iztroTF, mingZhi)
+	ziweiAnXingIdx := findZiwei(ju, lunarDay)
+	tianfuAnXingIdx := (12 - ziweiAnXingIdx) % 12
+	ziweiPos := anXingIdxToPalace(ziweiAnXingIdx, mingZhi)
+	mainByPalace := placeMainStars(ziweiAnXingIdx, tianfuAnXingIdx, mingZhi)
 	minorByPalace := placeMinorStars(ganzhi.Zhu{Gan: yearGan, Zhi: yearZhi}, lunarMonth, hourZhi, mingZhi)
 
 	var palaces [12]palace
 	for i := 0; i < 12; i++ {
 		var starInfos []starInfo
-		// mainByPalace/minorByPalace 为 zhiMinus1 坐标，经本宫支反查
-		zm1 := zhiToZhiMinus1(palaceZhis[i])
+		// mainByPalace/minorByPalace 为 zhiIdx 坐标，经本宫支反查
+		zm1 := zhiToZhiIdx(palaceZhis[i])
 		for _, s := range mainByPalace[zm1] {
 			starInfos = append(starInfos, starInfo{Star: s, Name: starName(s), IsMajor: true})
 		}

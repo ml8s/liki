@@ -5,44 +5,44 @@ import (
 )
 
 func TestZhiConversions(t *testing.T) {
-	// Zhi ↔ zhiMinus1 往返
+	// Zhi ↔ zhiIdx 往返
 	for z := Zhi(1); z <= 12; z++ {
-		zm1 := zhiToZhiMinus1(z)
-		if zhiMinus1ToZhi(zm1) != z {
-			t.Errorf("zhiMinus1ToZhi(zhiToZhiMinus1(%d)) = %d, want %d", z, zhiMinus1ToZhi(zm1), z)
+		zm1 := zhiToZhiIdx(z)
+		if zhiIdxToZhi(zm1) != z {
+			t.Errorf("zhiIdxToZhi(zhiToZhiIdx(%d)) = %d, want %d", z, zhiIdxToZhi(zm1), z)
 		}
 	}
-	// display ↔ zhiMinus1 往返
+	// display ↔ zhiIdx 往返
 	for d := 0; d < 12; d++ {
-		zm1 := displayToZhiMinus1(d)
-		if zhiMinus1ToDisplay(zm1) != d {
-			t.Errorf("zhiMinus1ToDisplay(displayToZhiMinus1(%d)) = %d, want %d", d, zhiMinus1ToDisplay(zm1), d)
+		zm1 := anXingIdxToZhiIdx(d)
+		if zhiIdxToAnXingIdx(zm1) != d {
+			t.Errorf("zhiIdxToAnXingIdx(anXingIdxToZhiIdx(%d)) = %d, want %d", d, zhiIdxToAnXingIdx(zm1), d)
 		}
 	}
-	// 关键锚点：display 0=寅 → zhiMinus1 2=寅；display 4=午 → zhiMinus1 6=午
-	if displayToZhiMinus1(0) != 2 { t.Errorf("display0(寅)→zhiMinus1, got %d want 2", displayToZhiMinus1(0)) }
-	if displayToZhiMinus1(4) != 6 { t.Errorf("display4(午)→zhiMinus1, got %d want 6", displayToZhiMinus1(4)) }
-	if zhiMinus1ToDisplay(6) != 4 { t.Errorf("zhiMinus1 6(午)→display, got %d want 4", zhiMinus1ToDisplay(6)) }
+	// 关键锚点：display 0=寅 → zhiIdx 2=寅；display 4=午 → zhiIdx 6=午
+	if anXingIdxToZhiIdx(0) != 2 { t.Errorf("display0(寅)→zhiIdx, got %d want 2", anXingIdxToZhiIdx(0)) }
+	if anXingIdxToZhiIdx(4) != 6 { t.Errorf("display4(午)→zhiIdx, got %d want 6", anXingIdxToZhiIdx(4)) }
+	if zhiIdxToAnXingIdx(6) != 4 { t.Errorf("zhiIdx 6(午)→display, got %d want 4", zhiIdxToAnXingIdx(6)) }
 }
 
 func TestPalaceZhiRoundTrip(t *testing.T) {
-	// palaceIndex ↔ zhiMinus1 往返（锚定命宫支午）
-	mingZhi := Zhi(7) // 午
+	// palaceIndex ↔ zhiIdx 往返（锚定命宫支午 = zhiIdx 6）
+	mingZM1 := 6 // 午
 	for pi := palaceIndex(0); pi < 12; pi++ {
-		zm1 := palaceToZhiMinus1(pi, mingZhi)
-		if zhiMinus1ToPalace(zm1, mingZhi) != pi {
-			t.Errorf("roundtrip palace %d: got %d", pi, zhiMinus1ToPalace(zm1, mingZhi))
+		zm1 := palaceIndexToZhiIdx(mingZM1, pi)
+		if zhiIdxToPalaceIndex(mingZM1, zm1) != pi {
+			t.Errorf("roundtrip palace %d: got %d", pi, zhiIdxToPalaceIndex(mingZM1, zm1))
 		}
 	}
-	// 锚点：命宫(0)=午 → zhiMinus1 6；兄弟(1)=巳 → 5
-	if palaceToZhiMinus1(0, mingZhi) != 6 { t.Errorf("palace0(命宫)=午, got zm1 %d want 6", palaceToZhiMinus1(0, mingZhi)) }
-	if palaceToZhiMinus1(1, mingZhi) != 5 { t.Errorf("palace1(兄弟)=巳, got zm1 %d want 5", palaceToZhiMinus1(1, mingZhi)) }
+	// 锚点：命宫(0)=午 → zhiIdx 6；兄弟(1)=巳 → 5
+	if palaceIndexToZhiIdx(mingZM1, 0) != 6 { t.Errorf("palace0(命宫)=午, got zm1 %d want 6", palaceIndexToZhiIdx(mingZM1, 0)) }
+	if palaceIndexToZhiIdx(mingZM1, 1) != 5 { t.Errorf("palace1(兄弟)=巳, got zm1 %d want 5", palaceIndexToZhiIdx(mingZM1, 1)) }
 }
 
 func TestBuildFlowPalaces(t *testing.T) {
 	// flowIndex=4（午年 yearlyIndex）：names[i] = PALACES[(i-4)%12]，[4] = 命宫
 	starByDisplay := map[int][]string{4: {"流羊"}, 3: {"流禄"}}
-	flow := buildFlowPalaces(6, 4, starByDisplay) // 命宫午(zhiMinus1 6), flowIndex 4
+	flow := buildFlowPalaces(6, 4, starByDisplay) // 命宫午(zhiIdx 6), flowIndex 4
 	// display 序：地支 寅卯辰...；宫名 PALACES 旋转
 	if flow[0].Zhi.String() != "寅" { t.Errorf("[0]支: got %s want 寅", flow[0].Zhi.String()) }
 	if flow[1].Zhi.String() != "卯" { t.Errorf("[1]支: got %s want 卯", flow[1].Zhi.String()) }

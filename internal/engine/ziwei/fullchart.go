@@ -33,8 +33,8 @@ func ComputeFullChart(chart Chart, riGan, riZhi int) Chart {
 	for palaceIdx := 0; palaceIdx < 12; palaceIdx++ {
 		palaceZhi := chart.Palaces[palaceIdx].Zhi
 		var stars []string
-		for name, zhiMinus1 := range adjMap {
-			if zhiMinus1 == int(palaceZhi)-1 {
+		for name, zhiIdx := range adjMap {
+			if zhiIdx == int(palaceZhi)-1 {
 				stars = append(stars, name)
 			}
 		}

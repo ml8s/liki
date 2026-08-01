@@ -6,7 +6,7 @@ type adjStarResult map[string]int
 
 func computeAdjectiveStars(nianZhi, shiZhi Zhi, mingZhi Zhi, lunarMonth, lunarDay int, nianGan Gan, gender ganzhi.Gender, riGan, riZhi, soulIzTroIdx, shenGongIdx int) adjStarResult {
 	r := make(adjStarResult)
-	add := func(name string, zhiMinus1 int) { r[name] = zhiMinus1 }
+	add := func(name string, zhiIdx int) { r[name] = zhiIdx }
 
 	// A 年支系
 	hl := (4 - int(nianZhi) + 12) % 12
@@ -49,15 +49,15 @@ func computeAdjectiveStars(nianZhi, shiZhi Zhi, mingZhi Zhi, lunarMonth, lunarDa
 	add("旬空", xunKongNianXi(nianZhi, nianGan))
 	add("年解", nianJiePos(nianZhi))
 
-	add("天才", displayToZhiMinus1((soulIdx+earthlyIdxTable[nianZhi-1])%12))
-	add("天寿", displayToZhiMinus1((bodyIdx+earthlyIdxTable[nianZhi-1])%12))
-	add("天伤", displayToZhiMinus1((5+soulIdx)%12))
-	add("天使", displayToZhiMinus1((7+soulIdx)%12))
+	add("天才", anXingIdxToZhiIdx((soulIdx+earthlyIdxTable[nianZhi-1])%12))
+	add("天寿", anXingIdxToZhiIdx((bodyIdx+earthlyIdxTable[nianZhi-1])%12))
+	add("天伤", anXingIdxToZhiIdx((5+soulIdx)%12))
+	add("天使", anXingIdxToZhiIdx((7+soulIdx)%12))
 
 	return r
 }
 
-func displayToZhiMinus1(displayIdx int) int { return (2 + displayIdx) % 12 }
+// anXingIdxToZhiIdx 定义见 coord.go（统一坐标转换）
 
 func nianJiePos(nianZhi Zhi) int {
 	e := earthlyIdxTable[nianZhi-1]
@@ -87,5 +87,5 @@ func xunKongNianXi(nianZhi Zhi, nianGan Gan) int {
 	if (int(nianZhi)-1)%2 != xk%2 { // 年支阴阳 vs 索引阴阳
 		xk = (xk + 1) % 12
 	}
-	return (2 + xk) % 12 // displayToZhiMinus1
+	return (2 + xk) % 12 // anXingIdxToZhiIdx
 }

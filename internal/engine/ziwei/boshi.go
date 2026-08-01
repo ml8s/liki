@@ -9,9 +9,9 @@ var boShiCycle = []string{
 
 // computeBoShi 博士十二神。iztro算法：从禄存起，年支阴阳=性别→顺行，≠→逆行。
 func computeBoShi(ju juShu, mingZhi Zhi, nianGan Gan, gender ganzhi.Gender, nianZhi Zhi) [12]string {
-	// 禄存在zhiMinus1
+	// 禄存在zhiIdx
 	luCunZhiM1 := luCunTable[int(nianGan)-1]
-	// zhiMinus1 → palace index via zhi matching
+	// zhiIdx → palace index via zhi matching
 	palaceZhis := arrangePalaceZhis(mingZhi)
 	luPalace := -1
 	for i, z := range palaceZhis {

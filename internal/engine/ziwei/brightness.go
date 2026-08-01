@@ -32,10 +32,10 @@ func miaoWang(star starIndex, zhi Zhi) brightness {
 	if star < 0 || int(star) >= 14 {
 		return Ping
 	}
-	// Convert Liki Zhi (子=1) to iztro display index (寅=0)
-	iztroIdx := (zhi + 9) % 12
-	if int(iztroIdx) < 0 || int(iztroIdx) >= 12 {
+	// Convert Liki Zhi (子=1) to iztro 安星索引 (寅=0 安星序)
+	anXingIdx := (zhi + 9) % 12
+	if int(anXingIdx) < 0 || int(anXingIdx) >= 12 {
 		return Ping
 	}
-	return miaoWangTable[star][iztroIdx]
+	return miaoWangTable[star][anXingIdx]
 }

@@ -41,15 +41,15 @@ func arrangePalaceGans(yearGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan,
 	// iztro: mingGan = 正月干 + soulIndex(寅0系)
 	mingGan = Gan(((int(zhengYueGan) - 1 + soulIzTroIdx) % 10 + 10) % 10 + 1)
 	// iztro公式：gans[i] = fixIndex(HEAVENLY_STEMS.indexOf(mingGan) - soulIzTroIdx + i)
-	// 其中soulIzTroIdx是命宫在display坐标中的索引(寅=0)
+	// 其中soulIzTroIdx是命宫在display坐标中的索引(寅=0 安星序)
 	for i := 0; i < 12; i++ {
 		// display坐标中第i宫的地支 = (寅+i)
 		// 对应天干 = mingGan - soulIzTroIdx + i
 		gan := Gan(((int(mingGan) - 1 - soulIzTroIdx + i) % 10 + 10) % 10 + 1)
 		// i是display坐标索引，需要映射到Liki palace order
-		// display i → zhiMinus1 → Liki palace
+		// display i → zhiIdx → Liki palace
 		palaceZhiM1 := (i + 2) % 12
-		likiIdx := zhiToPalace(palaceZhiM1, mingZhi)
+		likiIdx := zhiIdxToPalaceIndex(zhiToZhiIdx(mingZhi), palaceZhiM1)
 		gans[likiIdx] = gan
 	}
 	return

@@ -24,16 +24,16 @@ var palaceLabels = [12]string{
 	"迁移", "仆役", "官禄", "田宅", "福德", "父母",
 }
 
-// zhiZM1ToPalaceIndex returns the palace index (0=命宫) whose earth branch
-// is zhiMinus1 (0=子), anchored at the 命宫 branch. Direction: 逆时针.
-func zhiZM1ToPalaceIndex(mingZM1, zhiZM1 int) palaceIndex {
-	return palaceIndex(((mingZM1 - zhiZM1) % 12 + 12) % 12)
+// zhiIdxToPalaceIndex returns the palace index (0=命宫) whose earth branch
+// is zhiIdx (0=子), anchored at the 命宫 branch. Direction: 逆时针.
+func zhiIdxToPalaceIndex(mingZhiIdx, zhiIdx int) palaceIndex {
+	return palaceIndex(((mingZhiIdx - zhiIdx) % 12 + 12) % 12)
 }
 
-// palaceIndexToZhiZM1 returns the earth branch (zhiMinus1) of a palace index,
-// anchored at the 命宫 branch. Direction: 逆时针.
-func palaceIndexToZhiZM1(mingZM1 int, pi palaceIndex) int {
-	return ((mingZM1 - int(pi)) % 12 + 12) % 12
+// palaceIndexToZhiIdx returns the earth branch index (zhiIdx, 0=子) of a palace
+// index, anchored at the 命宫 branch. Direction: 逆时针.
+func palaceIndexToZhiIdx(mingZhiIdx int, pi palaceIndex) int {
+	return ((mingZhiIdx - int(pi)) % 12 + 12) % 12
 }
 
 
