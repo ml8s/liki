@@ -45,8 +45,8 @@ type flowPalace struct {
 // buildFlowPalaces builds a 12-palace flow chart in 安星序 (寅=0 ... 丑=11).
 // 真相源：宫名 = 地支 → palaceIndex → 标签，顺逆由公式表达，不存宫名顺序数组。
 // liuPanIdx 是流盘索引（流年/月/日/时），用于确定流盘命宫（IsMing 标记）。
-// mingZhiIdx 是本命命宫支（地支索引），用于宫名推导。
-func buildFlowPalaces(mingZhiIdx, liuPanIdx int, starByAnXingIdx map[int][]string) [12]flowPalace {
+// liuPanIdx 是流盘起点（安星索引），用于宫名推导。
+func buildFlowPalaces(liuPanIdx int, starByAnXingIdx map[int][]string) [12]flowPalace {
 	var out [12]flowPalace
 	for i := 0; i < 12; i++ {
 		zhiIdx := anXingIdxToZhiIdx(i)
@@ -65,6 +65,5 @@ func buildFlowPalaces(mingZhiIdx, liuPanIdx int, starByAnXingIdx map[int][]strin
 			IsMing: name == "命宫",
 		}
 	}
-	_ = mingZhiIdx
 	return out
 }

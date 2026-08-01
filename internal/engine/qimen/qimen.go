@@ -223,21 +223,6 @@ type pan struct {
 
 // MarshalJSON outputs spirit names per 阴/阳遁, keeping the rest as-is.
 func (p pan) MarshalJSON() ([]byte, error) {
-	type palias Palace
-	type panAlias struct {
-		Jushu    int      `json:"jushu"`
-		YinDun   bool     `json:"yin_dun"`
-		RiGan    any      `json:"ri_gan"`
-		RiZhi    any      `json:"ri_zhi"`
-		DutyStar any      `json:"zhi_fu_xing"`
-		DutyDoor any      `json:"zhi_shi_men"`
-		Palaces  []palias `json:"gong_wei"`
-		MaXing   any      `json:"ma_xing"`
-		DriveGan any      `json:"drive_gan"`
-		DriveZhi any      `json:"drive_zhi"`
-		KongWang any      `json:"kong_wang"`
-		WuBuYuShi bool   `json:"wu_bu_yu_shi"`
-	}
 	// 用 map 保留默认序列化，只覆盖 palaces 里的 spirit 为名称
 	m := map[string]any{
 		"jushu": p.Jushu, "yin_dun": p.YinDun,

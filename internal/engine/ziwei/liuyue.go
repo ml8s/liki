@@ -50,7 +50,7 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 		Zhi:          monthZhi,
 		SiHua:        computeSiHua(monthGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(zhiToZhiIdx(chart.Palaces[chart.MingGong].Zhi), mi, starByAnXingIdx),
+		Palaces:      buildFlowPalaces(mi, starByAnXingIdx),
 	}
 }
 
@@ -110,7 +110,7 @@ func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
 		Zhi:          dayZhi,
 		SiHua:        computeSiHua(dayGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(zhiToZhiIdx(chart.Palaces[chart.MingGong].Zhi), di, starByAnXingIdx),
+		Palaces:      buildFlowPalaces(di, starByAnXingIdx),
 	}
 }
 
@@ -169,7 +169,7 @@ func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) L
 		Zhi:          shiZhi,
 		SiHua:        computeSiHua(shiGan),
 		Stars:        stars,
-		Palaces:      buildFlowPalaces(zhiToZhiIdx(chart.Palaces[chart.MingGong].Zhi), hi, starByAnXingIdx),
+		Palaces:      buildFlowPalaces(hi, starByAnXingIdx),
 	}
 }
 
