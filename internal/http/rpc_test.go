@@ -562,3 +562,59 @@ func (m *mockSearchTransport) RoundTrip(_ *http.Request) (*http.Response, error)
 		Header:     http.Header{"Content-Type": []string{"application/json"}},
 	}, nil
 }
+
+func TestRPC_Dispatch_BaziChart(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	body := `{"jsonrpc":"2.0","method":"bazi.chart","params":{"solar_time":"1984-02-15T08:00:00+08:00","gender":"male"},"id":99}`
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "chart")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		// 四柱
+		for _, k := range []string{"nian", "yue", "ri", "shi"} {
+			assertNonNil(t, data, k)
+		}
+		// 大运新字段（起运精确年/月/日）
+		dy := data["da_yun"].(map[string]any)
+		for _, k := range []string{"start_age", "start_year_after", "start_month_after", "start_day_after", "direction", "steps", "current_step_index"} {
+			assertNonNil(t, dy, k)
+		}
+		// 精确起运值（1984-02-15 男 = lunar 6年5月20日）
+		if dy["start_year_after"].(float64) != 6 || dy["start_month_after"].(float64) != 5 || dy["start_day_after"].(float64) != 20 {
+			t.Errorf("起运精确值 = %v年%v月%v日, want 6年5月20日",
+				dy["start_year_after"], dy["start_month_after"], dy["start_day_after"])
+		}
+		validateSchema(t, "bazi.chart", resp.Result)
+	})
+}
+
+func TestRPC_Dispatch_BaziFullChart(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	// 先 chart 再 fullchart
+	var chart map[string]any
+	postRPC(t, reg, `{"jsonrpc":"2.0","method":"bazi.chart","params":{"solar_time":"1984-02-15T08:00:00+08:00","gender":"male"},"id":1}`, func(resp rpcResponse) {
+		chart = resp.Result.(map[string]any)["data"].(map[string]any)
+	})
+	params := map[string]any{"chart": chart}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.fullchart","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "bazi_fullchart")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		// 三元 + 合冲 + 大运
+		// 结构性字段必有值
+		for _, k := range []string{"san_yuan", "gong_jia", "nayin_rel", "chang_sheng", "san_qi_name"} {
+			assertNonNil(t, data, k)
+		}
+		// 合冲刑字段可能为空（如命例无三合/六冲）——检查 key 存在即可
+		for _, k := range []string{"gan_he", "zhi_liu_he", "san_he", "san_hui", "liu_chong", "liu_hai", "liu_xing"} {
+			if _, ok := data[k]; !ok {
+				t.Errorf("missing key %q", k)
+			}
+		}
+		// 四柱含藏干/十神/神煞
+		ri := data["ri"].(map[string]any)
+		for _, k := range []string{"gan", "zhi", "na_yin", "cang_gan", "shi_shens", "chang_sheng", "shen_sha"} {
+			assertNonNil(t, ri, k)
+		}
+		validateSchema(t, "bazi.fullchart", resp.Result)
+	})
+}

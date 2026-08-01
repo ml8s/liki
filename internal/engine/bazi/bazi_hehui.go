@@ -64,7 +64,7 @@ const (
 )
 
 func detectGanHe(bz ganzhi.Bazi) []GanHePair {
-	var pairs []GanHePair
+	pairs := make([]GanHePair, 0)
 	zhus := bz.Slice()
 	adjacent := [][2]int{{zhuNian, zhuYue}, {zhuYue, zhuRi}, {zhuRi, zhuShi}}
 	for _, adj := range adjacent {
@@ -96,7 +96,7 @@ func ganHeResult(a, b ganzhi.Gan) ganzhi.Wuxing {
 // also computes the 六合 element produced by the pair.
 func detectZhiPairs(bz ganzhi.Bazi, check func(ganzhi.Zhi, ganzhi.Zhi) bool, withElem bool) []ZhiPairRel {
 	zhus := bz.Slice()
-	var rels []ZhiPairRel
+	rels := make([]ZhiPairRel, 0)
 	for i := 0; i < 3; i++ {
 		for j := i + 1; j < 4; j++ {
 			za, zb := zhus[i].Zhi, zhus[j].Zhi
@@ -120,7 +120,7 @@ func detectZhiPairs(bz ganzhi.Bazi, check func(ganzhi.Zhi, ganzhi.Zhi) bool, wit
 
 func detectTriple(bz ganzhi.Bazi, list []ganzhi.SanHeHui, typ, suffix string) []TripleGroup {
 	bs := branchSet(bz)
-	var results []TripleGroup
+	results := make([]TripleGroup, 0)
 	for _, tr := range list {
 		if countBranches(bs, tr.Branches...) == len(tr.Branches) {
 			results = append(results, TripleGroup{
