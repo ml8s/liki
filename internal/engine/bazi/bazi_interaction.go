@@ -8,16 +8,16 @@ import (
 
 // GanRelation describes a single stem-to-stem relationship.
 type GanRelation struct {
-	GanA     ganzhi.Gan    `json:"stem_a"`
-	GanB     ganzhi.Gan    `json:"stem_b"`
+	GanA     ganzhi.Gan    `json:"gan_a"`
+	GanB     ganzhi.Gan    `json:"gan_b"`
 	Type     string `json:"type"`
 	Relation string `json:"relation"`
 }
 
 // ZhiRelation describes a single branch-to-branch relationship.
 type ZhiRelation struct {
-	ZhiA   ganzhi.Zhi    `json:"branch_a"`
-	ZhiB   ganzhi.Zhi    `json:"branch_b"`
+	ZhiA   ganzhi.Zhi    `json:"zhi_a"`
+	ZhiB   ganzhi.Zhi    `json:"zhi_b"`
 	Type   string `json:"type"`
 	Detail string `json:"detail"`
 }

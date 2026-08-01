@@ -12,8 +12,8 @@ import (
 type LiuYue struct {
 	Year      int            `json:"year"`
 	Month     int            `json:"month"`
-	MonthGan  ganzhi.Gan            `json:"month_stem"`
-	MonthZhi  ganzhi.Zhi            `json:"month_branch"`
+	MonthGan  ganzhi.Gan            `json:"yue_gan"`
+	MonthZhi  ganzhi.Zhi            `json:"yue_zhi"`
 	MonthName string         `json:"month_name"`
 	Element   string         `json:"wuxing"`
 	ShiShen    string         `json:"shi_shen"`

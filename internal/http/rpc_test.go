@@ -667,7 +667,7 @@ func TestRPC_Dispatch_BaziLiuNian(t *testing.T) {
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "liunian")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		for _, k := range []string{"year", "year_stem", "year_branch", "shi_shen"} {
+		for _, k := range []string{"year", "nian_gan", "nian_zhi", "shi_shen"} {
 			assertNonNil(t, data, k)
 		}
 		validateSchema(t, "bazi.liunian", resp.Result)
@@ -682,7 +682,7 @@ func TestRPC_Dispatch_BaziLiuYue(t *testing.T) {
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "liuyue")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		for _, k := range []string{"year", "month", "month_stem", "month_branch", "month_name", "wuxing", "shi_shen"} {
+		for _, k := range []string{"year", "month", "yue_gan", "yue_zhi", "month_name", "wuxing", "shi_shen"} {
 			assertNonNil(t, data, k)
 		}
 		validateSchema(t, "bazi.liuyue", resp.Result)
@@ -697,7 +697,7 @@ func TestRPC_Dispatch_BaziLiuRi(t *testing.T) {
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "liuri")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		for _, k := range []string{"date", "day_stem", "day_branch", "day_name", "day_nayin", "shi_shen"} {
+		for _, k := range []string{"date", "ri_gan", "ri_zhi", "day_name", "day_nayin", "shi_shen"} {
 			assertNonNil(t, data, k)
 		}
 		validateSchema(t, "bazi.liuri", resp.Result)
@@ -712,7 +712,7 @@ func TestRPC_Dispatch_BaziLiuShi(t *testing.T) {
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "liushi")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		for _, k := range []string{"time", "hour_stem", "hour_branch", "hour_name", "shi_shen", "gan_rels", "zhi_rels"} {
+		for _, k := range []string{"time", "shi_gan", "shi_zhi", "hour_name", "shi_shen", "gan_rels", "zhi_rels"} {
 			assertNonNil(t, data, k)
 		}
 		validateSchema(t, "bazi.liushi", resp.Result)

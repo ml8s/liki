@@ -71,7 +71,7 @@ type daYunCrossEntry struct {
 type daYunCross struct {
 	ACurrent  daYunCrossEntry `json:"a_current"`
 	BCurrent  daYunCrossEntry `json:"b_current"`
-	StemRel   GanRelation     `json:"stem_rel"`
+	StemRel   GanRelation     `json:"gan_guan_xi"`
 	BranchRel ZhiRelation     `json:"zhi_guan_xi"`
 }
 // XunGong describes whether two charts share the same xun (旬) or palace (宫).

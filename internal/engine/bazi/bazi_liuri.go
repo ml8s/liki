@@ -12,8 +12,8 @@ import (
 // and its interactions with the bazi chart, dayun, and liunian pillars.
 type LiuRi struct {
 	Date        string         `json:"date"`
-	DayGan      ganzhi.Gan            `json:"day_stem"`
-	DayZhi      ganzhi.Zhi            `json:"day_branch"`
+	DayGan      ganzhi.Gan            `json:"ri_gan"`
+	DayZhi      ganzhi.Zhi            `json:"ri_zhi"`
 	DayName     string         `json:"day_name"`
 	DayNaYin    string         `json:"day_nayin"`
 	ShiShen      string         `json:"shi_shen"`

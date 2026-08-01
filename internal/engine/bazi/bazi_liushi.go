@@ -11,8 +11,8 @@ import (
 // pillar and its interactions with the bazi chart.
 type LiuShi struct {
 	Time     string        `json:"time"`
-	HourGan  ganzhi.Gan           `json:"hour_stem"`
-	HourZhi  ganzhi.Zhi           `json:"hour_branch"`
+	HourGan  ganzhi.Gan           `json:"shi_gan"`
+	HourZhi  ganzhi.Zhi           `json:"shi_zhi"`
 	HourName string        `json:"hour_name"`
 	ShiShen   string        `json:"shi_shen"`
 	GanRels  []GanRelation `json:"gan_rels"`
