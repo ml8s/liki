@@ -19,7 +19,7 @@ type ShiChenFortune struct {
 type Day struct {
 	Date       string            `json:"date"`
 	RiZhu  riZhuInfo     `json:"ri_zhu"`
-	NaYin    string `json:"nayin"`
+	NaYin    string `json:"na_yin"`
 	Wuxing   string `json:"wuxing"`
 	JianChu    string            `json:"jian_chu"`
 	HuangDao   huangDaoStar      `json:"huangdao"`

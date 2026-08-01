@@ -21,9 +21,9 @@ type DaYunStep struct {
 	Gan      ganzhi.Gan  `json:"gan"`
 	Zhi      ganzhi.Zhi  `json:"zhi"`
 	AgeStart int         `json:"qi_sui"`
-	AgeEnd   int         `json:"age_end"`
+	AgeEnd   int         `json:"zhi_sui"`
 	Name     string      `json:"name"`
-	Element  string      `json:"element"`
+	Element  string      `json:"wuxing"`
 	ShiShen   string      `json:"shi_shen"`
 }
 

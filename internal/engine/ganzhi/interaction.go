@@ -69,6 +69,11 @@ func IsTripleHui(a, b Zhi) bool {
 	return false
 }
 
+// ChongZhi returns the branch that forms a 六冲 pair with z (子↔午, 丑↔未, ...).
+func ChongZhi(z Zhi) Zhi {
+	return Zhi((int(z)+5)%12 + 1)
+}
+
 // IsLiuChong returns true if the two branches form a 六冲 pair.
 func IsLiuChong(a, b Zhi) bool {
 	for _, p := range ChongPairs {

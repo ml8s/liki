@@ -30,7 +30,7 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 
 	var palaces [12]palace
 	for i := 0; i < 12; i++ {
-		var starInfos []starInfo
+		starInfos := make([]starInfo, 0)
 		// mainByPalace/minorByPalace 为 zhiIdx 坐标，经本宫支反查
 		zm1 := zhiToZhiIdx(palaceZhis[i])
 		for _, s := range mainByPalace[zm1] {

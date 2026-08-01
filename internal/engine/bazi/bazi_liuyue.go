@@ -17,8 +17,8 @@ type LiuYue struct {
 	MonthName string         `json:"month_name"`
 	Element   string         `json:"wuxing"`
 	ShiShen    string         `json:"shi_shen"`
-	Generates int            `json:"generates"`
-	Restrains int            `json:"restrains"`
+	Generates int            `json:"sheng"`
+	Restrains int            `json:"ke"`
 	GanRels   []GanRelation  `json:"gan_rels"`
 	ZhiRels   []ZhiRelation  `json:"zhi_rels"`
 	ShenSha   []shenShaEntry `json:"shensha"`

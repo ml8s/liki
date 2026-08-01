@@ -32,14 +32,14 @@ type ZhiPairRel struct {
 	ZhiB    string `json:"zhi_b"`
 	PillarA int    `json:"pillar_a"`
 	PillarB int    `json:"pillar_b"`
-	Element string `json:"element,omitempty"`
+	Element string `json:"wuxing,omitempty"`
 }
 
 // TripleGroup describes a complete 三合局 or 三会方.
 type TripleGroup struct {
 	Type    string `json:"type"`
 	Name    string `json:"name"`
-	Element string `json:"element"`
+	Element string `json:"wuxing"`
 }
 
 // ComputeHeHui computes the full 合会冲刑 analysis from a Chart.

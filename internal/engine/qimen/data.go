@@ -97,7 +97,7 @@ func loadJushu() error {
 func loadDoorInteractions() error {
 	var entries []struct {
 		Door    string `json:"door"`
-		Palace  string `json:"palace"`
+		Palace  string `json:"gong"`
 		Name    string `json:"name"`
 		Meaning string `json:"meaning"`
 	}
@@ -126,8 +126,8 @@ func loadDoorInteractions() error {
 
 func loadStarInteractions() error {
 	var entries []struct {
-		Star       string `json:"star"`
-		Palace     string `json:"palace"`
+		Star       string `json:"xing"`
+		Palace     string `json:"gong"`
 		Name       string `json:"name"`
 		Meaning    string `json:"meaning"`
 		Auspicious bool   `json:"auspicious"`

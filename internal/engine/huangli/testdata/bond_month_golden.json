@@ -10,7 +10,7 @@
         "zhi": "午",
         "na_yin": "天河水"
       },
-      "nayin": "天河水",
+      "na_yin": "天河水",
       "wuxing": "火",
       "jian_chu": "除",
       "huangdao": {
@@ -132,7 +132,7 @@
         "zhi": "未",
         "na_yin": "天河水"
       },
-      "nayin": "天河水",
+      "na_yin": "天河水",
       "wuxing": "土",
       "jian_chu": "满",
       "huangdao": {
@@ -254,7 +254,7 @@
         "zhi": "申",
         "na_yin": "大驿土"
       },
-      "nayin": "大驿土",
+      "na_yin": "大驿土",
       "wuxing": "金",
       "jian_chu": "平",
       "huangdao": {
@@ -376,7 +376,7 @@
         "zhi": "酉",
         "na_yin": "大驿土"
       },
-      "nayin": "大驿土",
+      "na_yin": "大驿土",
       "wuxing": "金",
       "jian_chu": "定",
       "huangdao": {
@@ -498,7 +498,7 @@
         "zhi": "戌",
         "na_yin": "钗钏金"
       },
-      "nayin": "钗钏金",
+      "na_yin": "钗钏金",
       "wuxing": "土",
       "jian_chu": "执",
       "huangdao": {
@@ -620,7 +620,7 @@
         "zhi": "亥",
         "na_yin": "钗钏金"
       },
-      "nayin": "钗钏金",
+      "na_yin": "钗钏金",
       "wuxing": "水",
       "jian_chu": "执",
       "huangdao": {
@@ -742,7 +742,7 @@
         "zhi": "子",
         "na_yin": "桑柘木"
       },
-      "nayin": "桑柘木",
+      "na_yin": "桑柘木",
       "wuxing": "水",
       "jian_chu": "破",
       "huangdao": {
@@ -864,7 +864,7 @@
         "zhi": "丑",
         "na_yin": "桑柘木"
       },
-      "nayin": "桑柘木",
+      "na_yin": "桑柘木",
       "wuxing": "土",
       "jian_chu": "危",
       "huangdao": {
@@ -986,7 +986,7 @@
         "zhi": "寅",
         "na_yin": "大溪水"
       },
-      "nayin": "大溪水",
+      "na_yin": "大溪水",
       "wuxing": "木",
       "jian_chu": "成",
       "huangdao": {
@@ -1108,7 +1108,7 @@
         "zhi": "卯",
         "na_yin": "大溪水"
       },
-      "nayin": "大溪水",
+      "na_yin": "大溪水",
       "wuxing": "木",
       "jian_chu": "收",
       "huangdao": {
@@ -1230,7 +1230,7 @@
         "zhi": "辰",
         "na_yin": "沙中土"
       },
-      "nayin": "沙中土",
+      "na_yin": "沙中土",
       "wuxing": "土",
       "jian_chu": "开",
       "huangdao": {
@@ -1352,7 +1352,7 @@
         "zhi": "巳",
         "na_yin": "沙中土"
       },
-      "nayin": "沙中土",
+      "na_yin": "沙中土",
       "wuxing": "火",
       "jian_chu": "闭",
       "huangdao": {
@@ -1474,7 +1474,7 @@
         "zhi": "午",
         "na_yin": "天上火"
       },
-      "nayin": "天上火",
+      "na_yin": "天上火",
       "wuxing": "火",
       "jian_chu": "建",
       "huangdao": {
@@ -1596,7 +1596,7 @@
         "zhi": "未",
         "na_yin": "天上火"
       },
-      "nayin": "天上火",
+      "na_yin": "天上火",
       "wuxing": "土",
       "jian_chu": "除",
       "huangdao": {
@@ -1718,7 +1718,7 @@
         "zhi": "申",
         "na_yin": "石榴木"
       },
-      "nayin": "石榴木",
+      "na_yin": "石榴木",
       "wuxing": "金",
       "jian_chu": "满",
       "huangdao": {
@@ -1840,7 +1840,7 @@
         "zhi": "酉",
         "na_yin": "石榴木"
       },
-      "nayin": "石榴木",
+      "na_yin": "石榴木",
       "wuxing": "金",
       "jian_chu": "平",
       "huangdao": {
@@ -1962,7 +1962,7 @@
         "zhi": "戌",
         "na_yin": "大海水"
       },
-      "nayin": "大海水",
+      "na_yin": "大海水",
       "wuxing": "土",
       "jian_chu": "定",
       "huangdao": {
@@ -2084,7 +2084,7 @@
         "zhi": "亥",
         "na_yin": "大海水"
       },
-      "nayin": "大海水",
+      "na_yin": "大海水",
       "wuxing": "水",
       "jian_chu": "执",
       "huangdao": {
@@ -2206,7 +2206,7 @@
         "zhi": "子",
         "na_yin": "海中金"
       },
-      "nayin": "海中金",
+      "na_yin": "海中金",
       "wuxing": "水",
       "jian_chu": "破",
       "huangdao": {
@@ -2328,7 +2328,7 @@
         "zhi": "丑",
         "na_yin": "海中金"
       },
-      "nayin": "海中金",
+      "na_yin": "海中金",
       "wuxing": "土",
       "jian_chu": "危",
       "huangdao": {
@@ -2450,7 +2450,7 @@
         "zhi": "寅",
         "na_yin": "炉中火"
       },
-      "nayin": "炉中火",
+      "na_yin": "炉中火",
       "wuxing": "木",
       "jian_chu": "成",
       "huangdao": {
@@ -2572,7 +2572,7 @@
         "zhi": "卯",
         "na_yin": "炉中火"
       },
-      "nayin": "炉中火",
+      "na_yin": "炉中火",
       "wuxing": "木",
       "jian_chu": "收",
       "huangdao": {
@@ -2694,7 +2694,7 @@
         "zhi": "辰",
         "na_yin": "大林木"
       },
-      "nayin": "大林木",
+      "na_yin": "大林木",
       "wuxing": "土",
       "jian_chu": "开",
       "huangdao": {
@@ -2816,7 +2816,7 @@
         "zhi": "巳",
         "na_yin": "大林木"
       },
-      "nayin": "大林木",
+      "na_yin": "大林木",
       "wuxing": "火",
       "jian_chu": "闭",
       "huangdao": {
@@ -2938,7 +2938,7 @@
         "zhi": "午",
         "na_yin": "路旁土"
       },
-      "nayin": "路旁土",
+      "na_yin": "路旁土",
       "wuxing": "火",
       "jian_chu": "建",
       "huangdao": {
@@ -3060,7 +3060,7 @@
         "zhi": "未",
         "na_yin": "路旁土"
       },
-      "nayin": "路旁土",
+      "na_yin": "路旁土",
       "wuxing": "土",
       "jian_chu": "除",
       "huangdao": {
@@ -3182,7 +3182,7 @@
         "zhi": "申",
         "na_yin": "剑锋金"
       },
-      "nayin": "剑锋金",
+      "na_yin": "剑锋金",
       "wuxing": "金",
       "jian_chu": "满",
       "huangdao": {
@@ -3304,7 +3304,7 @@
         "zhi": "酉",
         "na_yin": "剑锋金"
       },
-      "nayin": "剑锋金",
+      "na_yin": "剑锋金",
       "wuxing": "金",
       "jian_chu": "平",
       "huangdao": {
@@ -3426,7 +3426,7 @@
         "zhi": "戌",
         "na_yin": "山头火"
       },
-      "nayin": "山头火",
+      "na_yin": "山头火",
       "wuxing": "土",
       "jian_chu": "定",
       "huangdao": {
@@ -3548,7 +3548,7 @@
         "zhi": "亥",
         "na_yin": "山头火"
       },
-      "nayin": "山头火",
+      "na_yin": "山头火",
       "wuxing": "水",
       "jian_chu": "执",
       "huangdao": {

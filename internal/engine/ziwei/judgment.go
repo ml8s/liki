@@ -65,14 +65,6 @@ func init() {
 	}
 }
 
-// ── 三方四正宫名 ──
-
-var palaceNames = [12]string{
-	"命宫", "兄弟", "夫妻", "子女",
-	"财帛", "疾厄", "迁移", "交友",
-	"官禄", "田宅", "福德", "父母",
-}
-
 // ── 煞星 ──
 
 var shaStars = []starIndex{HuoXing, LingXing, QingYang, TuoLuo}
@@ -95,7 +87,7 @@ func ComputeJudgment(c Chart) JudgmentResult {
 	// 四化列表: 星名+类型
 	var siHuaItems []SiHuaItem
 	for si, ht := range c.SiHua {
-		if ht == HuaLu || ht == HuaQuan || ht == HuaKe {
+		if ht == HuaLu || ht == HuaQuan || ht == HuaKe || ht == HuaJi {
 			siHuaItems = append(siHuaItems, SiHuaItem{
 				StarID:   int(si),
 				StarName: starNames[si],
@@ -158,7 +150,7 @@ func buildSanFangInfo(c Chart, sfPalaces [4]palaceIndex) []SanFangInfo {
 	var result []SanFangInfo
 	for _, pi := range sfPalaces {
 		p := c.Palaces[pi]
-		info := SanFangInfo{Name: palaceNames[pi]}
+		info := SanFangInfo{Name: palaceLabels[pi]}
 		for _, s := range p.Stars {
 			if s.SiHua != "" {
 				info.SiHua = s.SiHua

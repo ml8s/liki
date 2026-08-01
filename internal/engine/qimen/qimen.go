@@ -202,7 +202,7 @@ type Palace struct {
 	Star       StarIndex   `json:"xing,omitempty"`
 	Door       DoorIndex   `json:"men,omitempty"`
 	Spirit     SpiritIndex `json:"shen"`
-	HiddenStem ganzhi.Gan  `json:"hidden_stem,omitempty"`
+	HiddenStem ganzhi.Gan  `json:"an_gan,omitempty"`
 }
 
 // pan is the complete 奇门遁甲排盘。
@@ -215,8 +215,8 @@ type pan struct {
 	DutyDoor DoorIndex      `json:"zhi_shi_men"`
 	Palaces  [9]Palace      `json:"gong_wei"`
 	MaXing   PalaceIndex    `json:"ma_xing"`
-	DriveGan  ganzhi.Gan      `json:"drive_gan"`
-	DriveZhi  ganzhi.Zhi      `json:"drive_zhi"`
+	DriveGan  ganzhi.Gan      `json:"shi_gan"`
+	DriveZhi  ganzhi.Zhi      `json:"shi_zhi"`
 	KongWang [2]PalaceIndex `json:"kong_wang"`
 	WuBuYuShi bool           `json:"wu_bu_yu_shi"`
 }
@@ -228,7 +228,7 @@ func (p pan) MarshalJSON() ([]byte, error) {
 		"jushu": p.Jushu, "yin_dun": p.YinDun,
 		"ri_gan": p.RiGan, "ri_zhi": p.RiZhi,
 		"zhi_fu_xing": p.DutyStar, "zhi_shi_men": p.DutyDoor,
-		"ma_xing": p.MaXing, "drive_gan": p.DriveGan, "drive_zhi": p.DriveZhi,
+		"ma_xing": p.MaXing, "shi_gan": p.DriveGan, "shi_zhi": p.DriveZhi,
 		"kong_wang": p.KongWang, "wu_bu_yu_shi": p.WuBuYuShi,
 	}
 	palaces := make([]map[string]any, 9)
@@ -250,7 +250,7 @@ func (p pan) MarshalJSON() ([]byte, error) {
 			}
 		}
 		if pl.HiddenStem != 0 {
-			pm["hidden_stem"] = pl.HiddenStem
+			pm["an_gan"] = pl.HiddenStem
 		}
 		palaces[i] = pm
 	}
@@ -283,7 +283,7 @@ type StemInteraction struct {
 // DoorInteraction represents an 八门克应 for a door in a specific palace.
 type DoorInteraction struct {
 	Door      DoorIndex   `json:"door,omitempty"`
-	Palace    PalaceIndex `json:"palace,omitempty"`
+	Palace    PalaceIndex `json:"gong,omitempty"`
 	Name      string    `json:"name"`
 	Meaning   string    `json:"meaning"`
 }
@@ -293,6 +293,6 @@ type Pattern struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	Auspicious  bool        `json:"auspicious"`
-	Palaces     []PalaceIndex `json:"palaces,omitempty"`
+	Palaces     []PalaceIndex `json:"gong_wei,omitempty"`
 }
 

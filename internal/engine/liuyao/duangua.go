@@ -118,6 +118,6 @@ func ordinal(n int) string {
 }
 
 func chongZhi(z ganzhi.Zhi) ganzhi.Zhi {
-	return ganzhi.Zhi((int(z)+5)%12 + 1)
+	return ganzhi.ChongZhi(z)
 }
 

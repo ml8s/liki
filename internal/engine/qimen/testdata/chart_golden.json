@@ -1,35 +1,33 @@
 {
   "pan": {
-    "drive_gan": "戊",
-    "drive_zhi": "午",
     "gong_wei": [
       {
+        "an_gan": "己",
         "di_pan_gan": "癸",
-        "hidden_stem": "己",
         "men": "生门",
         "shen": "白虎",
         "tian_pan_gan": "己",
         "xing": "天禽"
       },
       {
+        "an_gan": "庚",
         "di_pan_gan": "壬",
-        "hidden_stem": "庚",
         "men": "伤门",
         "shen": "六合",
         "tian_pan_gan": "戊",
         "xing": "天心"
       },
       {
+        "an_gan": "辛",
         "di_pan_gan": "辛",
-        "hidden_stem": "辛",
         "men": "杜门",
         "shen": "太阴",
         "tian_pan_gan": "乙",
         "xing": "天柱"
       },
       {
+        "an_gan": "壬",
         "di_pan_gan": "庚",
-        "hidden_stem": "壬",
         "men": "景门",
         "shen": "螣蛇",
         "tian_pan_gan": "丙",
@@ -41,32 +39,32 @@
         "xing": "天英"
       },
       {
+        "an_gan": "乙",
         "di_pan_gan": "戊",
-        "hidden_stem": "乙",
         "men": "死门",
         "shen": "值符",
         "tian_pan_gan": "癸",
         "xing": "天蓬"
       },
       {
+        "an_gan": "丙",
         "di_pan_gan": "乙",
-        "hidden_stem": "丙",
         "men": "惊门",
         "shen": "九天",
         "tian_pan_gan": "壬",
         "xing": "天芮"
       },
       {
+        "an_gan": "丁",
         "di_pan_gan": "丙",
-        "hidden_stem": "丁",
         "men": "开门",
         "shen": "九地",
         "tian_pan_gan": "辛",
         "xing": "天冲"
       },
       {
+        "an_gan": "戊",
         "di_pan_gan": "丁",
-        "hidden_stem": "戊",
         "men": "休门",
         "shen": "玄武",
         "tian_pan_gan": "庚",
@@ -81,12 +79,14 @@
     "ma_xing": "坤",
     "ri_gan": "癸",
     "ri_zhi": "酉",
+    "shi_gan": "戊",
+    "shi_zhi": "午",
     "wu_bu_yu_shi": false,
     "yin_dun": true,
     "zhi_fu_xing": "天蓬",
     "zhi_shi_men": "休门"
   },
-  "stem_interactions": [
+  "gan_interaction": [
     {
       "di_pan_gan": "癸",
       "tian_pan_gan": "己",
@@ -151,28 +151,28 @@
       "auspicious": true
     }
   ],
-  "door_interactions": [
+  "men_interaction": [
     {
       "door": "生门",
-      "palace": "坎",
+      "gong": "坎",
       "name": "生门加坎",
       "meaning": "利水生之财，或酒食之利"
     },
     {
       "door": "伤门",
-      "palace": "坤",
+      "gong": "坤",
       "name": "伤加坤",
       "meaning": "凶门当位，行事多阻"
     },
     {
       "door": "杜门",
-      "palace": "震",
+      "gong": "震",
       "name": "杜加震",
       "meaning": "中平之门，需择时而行"
     },
     {
       "door": "景门",
-      "palace": "巽",
+      "gong": "巽",
       "name": "景加巽",
       "meaning": "中平之门，需择时而行"
     },
@@ -182,88 +182,88 @@
     },
     {
       "door": "死门",
-      "palace": "乾",
+      "gong": "乾",
       "name": "死门加乾",
       "meaning": "尊长有灾，出行不利"
     },
     {
       "door": "惊门",
-      "palace": "兑",
+      "gong": "兑",
       "name": "惊门入兑",
       "meaning": "口舌之灾，宜捕盗赌博"
     },
     {
       "door": "开门",
-      "palace": "艮",
+      "gong": "艮",
       "name": "开门加艮",
       "meaning": "山门之利，求财可得"
     },
     {
       "door": "休门",
-      "palace": "离",
+      "gong": "离",
       "name": "休门加离",
       "meaning": "和合得财，文书酒食"
     }
   ],
-  "star_interactions": [
+  "xing_interaction": [
     {
-      "star": "天禽",
+      "xing": "天禽",
       "gong": "坎",
       "name": "天禽加坎",
       "meaning": "土性中和临坎宫",
       "auspicious": true
     },
     {
-      "star": "天心",
+      "xing": "天心",
       "gong": "坤",
       "name": "天心加坤",
       "meaning": "金性肃杀临坤宫",
       "auspicious": true
     },
     {
-      "star": "天柱",
+      "xing": "天柱",
       "gong": "震",
       "name": "金星入木宫",
       "meaning": "金能克木，征战得利",
       "auspicious": false
     },
     {
-      "star": "天任",
+      "xing": "天任",
       "gong": "巽",
       "name": "天任加巽",
       "meaning": "土性厚重临巽宫",
       "auspicious": true
     },
     {
-      "star": "天英",
+      "xing": "天英",
       "gong": "中",
       "name": "天英加中",
       "meaning": "火性光明临中宫",
       "auspicious": false
     },
     {
-      "star": "天蓬",
+      "xing": "天蓬",
       "gong": "乾",
       "name": "水星入金宫",
       "meaning": "金生水旺，谋事可成",
       "auspicious": true
     },
     {
-      "star": "天芮",
+      "xing": "天芮",
       "gong": "兑",
       "name": "天芮加兑",
       "meaning": "土性之精临兑宫",
       "auspicious": false
     },
     {
-      "star": "天冲",
+      "xing": "天冲",
       "gong": "艮",
       "name": "天冲加艮",
       "meaning": "木性之精临艮宫",
       "auspicious": false
     },
     {
-      "star": "天辅",
+      "xing": "天辅",
       "gong": "离",
       "name": "木星入火宫",
       "meaning": "木火通明，学业有成",
@@ -272,47 +272,47 @@
   ],
   "wang_shuai": [
     {
-      "star": "天禽",
+      "xing": "天禽",
       "gong": "坎",
       "state": "囚"
     },
     {
-      "star": "天心",
+      "xing": "天心",
       "gong": "坤",
       "state": "相"
     },
     {
-      "star": "天柱",
+      "xing": "天柱",
       "gong": "震",
       "state": "囚"
     },
     {
-      "star": "天任",
+      "xing": "天任",
       "gong": "巽",
       "state": "废"
     },
     {
-      "star": "天英",
+      "xing": "天英",
       "gong": "中",
       "state": "休"
     },
     {
-      "star": "天蓬",
+      "xing": "天蓬",
       "gong": "乾",
       "state": "相"
     },
     {
-      "star": "天芮",
+      "xing": "天芮",
       "gong": "兑",
       "state": "休"
     },
     {
-      "star": "天冲",
+      "xing": "天冲",
       "gong": "艮",
       "state": "囚"
     },
     {
-      "star": "天辅",
+      "xing": "天辅",
       "gong": "离",
       "state": "休"
     }
@@ -328,7 +328,7 @@
       "name": "玉女守门",
       "description": "值使门宫有丁，百事大吉",
       "auspicious": true,
-      "palaces": [
+      "gong_wei": [
         "离"
       ]
     },

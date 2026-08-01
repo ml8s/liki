@@ -28,12 +28,17 @@ import (
 // QiguaResult is the bare output of a coin-toss hexagram draw.
 type QiguaResult struct {
 	Yaos    [6]int `json:"yaos"`     // 初爻到上爻，6/7/8/9
-	DongYao []int  `json:"dong_yao,omitempty"` // 动爻位置 1-6（无动爻时省略）
+	DongYao []int  `json:"dong_yao"` // 动爻位置 1-6（无动爻时为空数组）
 }
 
 // Qigua simulates three coins tossed six times.
 func Qigua() QiguaResult {
-	yaos := shakeCoins(rand.New(rand.NewSource(time.Now().UnixNano())))
+	return QiguaWithSeed(time.Now().UnixNano())
+}
+
+// QiguaWithSeed simulates three coins with a fixed seed (deterministic, for tests).
+func QiguaWithSeed(seed int64) QiguaResult {
+	yaos := shakeCoins(rand.New(rand.NewSource(seed)))
 	return QiguaResult{
 		Yaos:    yaosToInts(yaos),
 		DongYao: dongYao(yaos),

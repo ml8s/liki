@@ -47,5 +47,5 @@ func computeYingQi(pan pan) YingQi {
 
 // chongBranch returns the opposing branch (冲).
 func chongBranch(z ganzhi.Zhi) ganzhi.Zhi {
-	return ganzhi.Zhi((int(z)+5)%12 + 1)
+	return ganzhi.ChongZhi(z)
 }

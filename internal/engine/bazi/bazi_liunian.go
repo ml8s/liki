@@ -13,12 +13,12 @@ type LiuNian struct {
 	Year              int                 `json:"year"`
 	YearGan           ganzhi.Gan                 `json:"nian_gan"`
 	YearZhi           ganzhi.Zhi                 `json:"nian_zhi"`
-	YearName          string              `json:"year_name"`
+	YearName          string              `json:"nian_name"`
 	Element           string              `json:"wuxing"`
-	NaYin             string              `json:"nayin"`
+	NaYin             string              `json:"na_yin"`
 	ShiShen            string              `json:"shi_shen"`
-	Generates         int                 `json:"generates"`
-	Restrains         int                 `json:"restrains"`
+	Generates         int                 `json:"sheng"`
+	Restrains         int                 `json:"ke"`
 	NatalInteractions []zhuInteraction `json:"natal_interactions"`
 	DaYunInteractions []zhuInteraction `json:"dayun_interactions"`
 	ShenSha           []shenShaEntry      `json:"shensha"`

@@ -7,8 +7,8 @@
     "start_year": 2024,
     "end_year": 2043
   },
-  "sit_mountain": 1,
-  "face_mountain": 1,
+  "zuo_shan": 1,
+  "xiang_shan": 1,
   "gong_wei": [
     {
       "gong_num": 1,

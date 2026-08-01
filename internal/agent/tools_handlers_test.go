@@ -239,8 +239,8 @@ func TestHandler_RangeValidation(t *testing.T) {
 		params string
 	}{
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"kind":"invalid"}`, btOK)},
-		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"sit_mountain":-1,"face_mountain":0}`, btOK)},
-		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"sit_mountain":0,"face_mountain":24}`, btOK)},
+		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":-1,"xiang_shan":0}`, btOK)},
+		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":0,"xiang_shan":24}`, btOK)},
 		{"xuankong.sanyuan", `{"year":0}`},
 	}
 	for _, tt := range tests {
@@ -397,7 +397,7 @@ func TestHandler_ComputeBazhaiChart_Valid(t *testing.T) {
 
 func TestHandler_ComputeXuankongChart_Valid(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"sit_mountain":0,"face_mountain":12}`, btOK))
+	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"zuo_shan":0,"xiang_shan":12}`, btOK))
 	result, err := r.Execute(context.Background(), "xuankong.chart", params)
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
@@ -1267,7 +1267,7 @@ func TestHandler_BazhaiJudgment_Valid(t *testing.T) {
 func TestHandler_XuankongAnnual_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "xuankong.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"sit_mountain":20,"face_mountain":8}`, btOK)))
+		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"zuo_shan":20,"xiang_shan":8}`, btOK)))
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
 	}

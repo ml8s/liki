@@ -54,7 +54,7 @@ func TestSchemaGoConsistency(t *testing.T) {
 		"bazhai.chart": mk(map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"}),
 		"xuankong.annual": mk(map[string]any{"year": 2026}),
 		"xuankong.sanyuan": mk(map[string]any{"year": 2026}),
-		"xuankong.chart": mk(map[string]any{"solar_time": "2026-07-31T10:00:00+08:00", "sit_mountain": 2, "face_mountain": 8}),
+		"xuankong.chart": mk(map[string]any{"solar_time": "2026-07-31T10:00:00+08:00", "zuo_shan": 2, "xiang_shan": 8}),
 		"huangli.days": mk(map[string]any{"start_date": "2026-08-01", "count": 2}),
 		"tianwen.time": mk(map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "latitude": 39.9}),
 		"time.now": mk(map[string]any{}),

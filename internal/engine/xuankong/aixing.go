@@ -15,8 +15,8 @@ type xuanKongStar struct {
 // Chart is the complete 玄空飞星排盘 for a given坐向 and 运.
 type Chart struct {
 	Yun           SanYuanYun     `json:"yun"`
-	SitMountain   int            `json:"sit_mountain"`  // 0-23,坐山 index
-	FaceMountain  int            `json:"face_mountain"` // 0-23,朝向 index
+	SitMountain   int            `json:"zuo_shan"`  // 0-23,坐山 index
+	FaceMountain  int            `json:"xiang_shan"` // 0-23,朝向 index
 	Palaces       [9]xuanKongStar `json:"gong_wei"`
 	WangShan      bool           `json:"wang_shan"`
 	WangXiang     bool           `json:"wang_xiang"`

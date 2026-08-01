@@ -28,7 +28,7 @@ type nayinPairEntry struct {
 	AZhu     string `json:"jia_zhu"`
 	BZhu     string `json:"yi_zhu"`
 	ANaYin   string `json:"jia_na_yin"`
-	BNaYin   string `json:"b_na_yin"`
+	BNaYin   string `json:"yi_na_yin"`
 	Relation string `json:"relation"`
 }
 type yongShenEntry struct {
@@ -42,7 +42,7 @@ type nayinCross struct {
 	Elements struct {
 		A map[string]int `json:"a"`
 		B map[string]int `json:"b"`
-	} `json:"elements"`
+	} `json:"wuxings"`
 	YongShen struct {
 		A yongShenEntry `json:"a"`
 		B yongShenEntry `json:"b"`

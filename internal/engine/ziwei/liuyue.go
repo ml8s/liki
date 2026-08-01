@@ -26,7 +26,7 @@ type LiuYue struct {
 
 // ComputeLiuYue computes the flow month chart.
 // 流月干支 = 目标日期月干支（五虎遁，与命主无关）——真相源
-// 盘起点 = monthlyIndex（iztro 公式，命主相关）——只决定 palaceNames 旋转
+// 盘起点 = monthlyIndex（iztro 公式，命主相关）——只决定 palaceLabels 旋转
 // liuYear/lunarMonth are GREGORIAN year/month (target date).
 func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 	// 目标农历月（公历 → 农历）
@@ -54,11 +54,6 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 	}
 }
 
-func liuYueSiHua(lunarMonth int, liuYearGan Gan) siHuaResult {
-	yg := yinGan(liuYearGan)
-	monthGan := Gan(((int(yg)-1+lunarMonth-1)%10+10)%10 + 1)
-	return computeSiHua(monthGan)
-}
 
 func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
@@ -132,9 +127,6 @@ func liuRiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	return m
 }
 
-func liuRiSiHua(dayGan Gan) siHuaResult {
-	return computeSiHua(dayGan)
-}
 
 // ── 流时 ──
 
@@ -191,9 +183,6 @@ func liuShiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	return m
 }
 
-func liuShiSiHua(shiGan Gan) siHuaResult {
-	return computeSiHua(shiGan)
-}
 
 func shiGanCalc(riGan Gan, shiZhi Zhi) Gan {
 	// 五鼠遁：甲己→甲子, 乙庚→丙子, 丙辛→戊子, 丁壬→庚子, 戊癸→壬子

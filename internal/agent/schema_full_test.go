@@ -17,7 +17,7 @@ func TestAllMethodsSchema(t *testing.T) {
 	json.Unmarshal(zout, &zr)
 	json.Unmarshal(bout, &br)
 	z, b := zr.Data, br.Data
-	qout, _ := reg.Execute(context.Background(), "liuyao.qigua", []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","question":"t"}`))
+	qout, _ := reg.Execute(context.Background(), "liuyao.qigua", []byte(`{"seed":12345}`))
 	var qr struct{ Data map[string]any `json:"data"` }
 	json.Unmarshal(qout, &qr)
 	yaos, _ := json.Marshal(qr.Data["yaos"])
@@ -59,7 +59,7 @@ func TestAllMethodsSchema(t *testing.T) {
 		"bazhai.judgment": mk(map[string]any{"chart": b, "door_gua": "乾", "master_gua": "乾", "stove_gua": "乾"}),
 		"xuankong.annual": mk(map[string]any{"year": 2026}),
 		"xuankong.sanyuan": mk(map[string]any{"year": 2026}),
-		"xuankong.chart": mk(map[string]any{"solar_time": "2026-07-31T10:00:00+08:00", "sit_mountain": 2, "face_mountain": 8}),
+		"xuankong.chart": mk(map[string]any{"solar_time": "2026-07-31T10:00:00+08:00", "zuo_shan": 2, "xiang_shan": 8}),
 		"huangli.days": mk(map[string]any{"start_date": "2026-08-01", "count": 2}),
 		"tianwen.time": mk(map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "latitude": 39.9}),
 		"time.now": mk(map[string]any{}),

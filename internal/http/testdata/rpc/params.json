@@ -46,7 +46,9 @@
       7
     ]
   },
-  "liuyao.qigua": {},
+  "liuyao.qigua": {
+    "seed": 12345
+  },
   "qimen.chart": {
     "solar_time": "2000-06-15T12:00:00+08:00"
   },
@@ -79,9 +81,9 @@
     "year": 2026
   },
   "xuankong.chart": {
-    "face_mountain": 12,
-    "sit_mountain": 0,
-    "solar_time": "2000-06-15T12:00:00+08:00"
+    "solar_time": "2000-06-15T12:00:00+08:00",
+    "zuo_shan": 0,
+    "xiang_shan": 12
   },
   "xuankong.sanyuan": {
     "year": 2026
