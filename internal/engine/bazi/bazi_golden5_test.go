@@ -72,6 +72,15 @@ func TestBaziGolden5_AllLayers(t *testing.T) {
 				if c.DaYun.StartDayAfter != gc.DaYun.StartDayAfter {
 					t.Errorf("起运日 = %d, want %d", c.DaYun.StartDayAfter, gc.DaYun.StartDayAfter)
 				}
+			} else {
+				// 海外用例：起运日受节气时刻分钟差（VSOP87 精确 vs lunar 近似）跨时辰边界影响，
+				// 但年/月不应偏离超过 1（防完全无感回归）。
+				if absInt(c.DaYun.StartYearAfter-gc.DaYun.StartYearAfter) > 1 ||
+					absInt(c.DaYun.StartMonthAfter-gc.DaYun.StartMonthAfter) > 1 {
+					t.Errorf("海外起运年月偏离过大: got %d年%d月 want %d年%d月",
+						c.DaYun.StartYearAfter, c.DaYun.StartMonthAfter,
+						gc.DaYun.StartYearAfter, gc.DaYun.StartMonthAfter)
+				}
 			}
 			// 大运首步 + 全步骤
 			if len(c.DaYun.Steps) != len(gc.DaYun.Steps) {
@@ -87,4 +96,11 @@ func TestBaziGolden5_AllLayers(t *testing.T) {
 			}
 		})
 	}
+}
+
+func absInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }

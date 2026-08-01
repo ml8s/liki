@@ -80,19 +80,18 @@ func computeDaYunSteps(st tianwen.SolarTime, month ganzhi.Zhu, nianGan ganzhi.Ga
 		dir = DirNiPai
 	}
 
-	// 起运精确换算（对齐 lunar Yun）：3 天 = 1 年，1 天 = 4 个月。
-	// lunar: hourDiff=时辰差(23点=11)，dayDiff=整天差；month=dayDiff*4+floor(hourDiff*10/30)；day=hourDiff*10-monthDiff*30
 	// 起运精确换算（对齐 lunar Yun sect=1）：
-	// dayDiff=整天差（顺排=出生→下一节；逆排=上一节→出生），
-	// hourDiff=节时辰-出生时辰（负则+12且dayDiff--）。
+	// dayDiff = 整天差（顺排=出生→下一节；逆排=上一节→出生，lunar Solar.subtract 纯日期差语义），
+	// hourDiff = 节时辰 - 出生时辰（负则 +12 且 dayDiff--），
 	// month = dayDiff*4 + floor(hourDiff*10/30)；day = hourDiff*10 - monthDiff*30；year = month/12。
+	// 注：起运年/月/日按上述 lunar 公式（3 天 = 1 年，1 天 = 4 个月）；
+	// startAge（虚岁）用真实时刻差 qe.Sub(qs)（含时分），与 dayDiff 的纯日期差语义不同。
 	var qs, qe time.Time
 	if forward {
 		qs, qe = birthTime, targetJie
 	} else {
 		qs, qe = targetJie, birthTime
 	}
-	// 纯日期差（lunar Solar.subtract 语义，忽略时刻）
 	dayDiff := calendarDays(qs, qe)
 	hourDiff := hourZhiIndex(qe) - hourZhiIndex(qs)
 	if hourDiff < 0 {
