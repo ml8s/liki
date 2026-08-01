@@ -41,7 +41,7 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 		}
 		palaces[i] = palace{
 			Index:        palaceIndex(i),
-			Name:         PalaceNames[i],
+			Name:         palaceLabels[i],
 			Gan:          palaceGans[i],
 			Zhi:          palaceZhis[i],
 			IsBodyPalace: palaceIndex(i) == shenGong,

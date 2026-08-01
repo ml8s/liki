@@ -42,7 +42,7 @@ func TestPalaceZhiRoundTrip(t *testing.T) {
 func TestBuildFlowPalaces(t *testing.T) {
 	// flowIndex=4（午年 yearlyIndex）：names[i] = PALACES[(i-4)%12]，[4] = 命宫
 	starByDisplay := map[int][]string{4: {"流羊"}, 3: {"流禄"}}
-	flow := buildFlowPalaces(4, starByDisplay)
+	flow := buildFlowPalaces(6, 4, starByDisplay) // 命宫午(zhiMinus1 6), flowIndex 4
 	// display 序：地支 寅卯辰...；宫名 PALACES 旋转
 	if flow[0].Zhi.String() != "寅" { t.Errorf("[0]支: got %s want 寅", flow[0].Zhi.String()) }
 	if flow[1].Zhi.String() != "卯" { t.Errorf("[1]支: got %s want 卯", flow[1].Zhi.String()) }

@@ -16,7 +16,7 @@ func ComputeDaXian(chart Chart) []DaXianStep {
 			QiSui: qiSui + i*10,
 			ZhiSui:   qiSui + i*10 + 9,
 			Palace:   pos,
-			Name:     PalaceNames[pos],
+			Name:     palaceLabels[pos],
 		})
 		if forward {
 			pos = (pos + 11) % 12 // 经典顺行→逆Liki序往后走

@@ -53,28 +53,29 @@ type flowPalace struct {
 	IsMing bool     `json:"is_ming"` // 是否流盘命宫
 }
 
-// iztroPALACES is iztro's fixed palace-name order (PALACES array).
-// Flow charts (流年/月/日/时盘) use this order rotated by the flow index.
-var iztroPALACES = [12]string{"命宫", "父母", "福德", "田宅", "官禄", "仆役", "迁移", "疾厄", "财帛", "子女", "夫妻", "兄弟"}
-
-// buildFlowPalaces builds a 12-palace flow chart matching iztro's coordinate
-// system. The truth source is the display index (寅=0 ... 丑=11):
-//   - palace i is display position i, with fixed earth branch
-//   - palace name = iztro PALACES rotated by flowIndex:
-//     names[i] = PALACES[(i - flowIndex) % 12]
-//   - flow stars located by display index (starByDisplay)
-// flowIndex is the iztro flow index (yearlyIndex / monthlyIndex / dailyIndex / hourlyIndex).
-func buildFlowPalaces(flowIndex int, starByDisplay map[int][]string) [12]flowPalace {
+// buildFlowPalaces builds a 12-palace flow chart in display order
+// (0=寅 1=卯 ... 11=丑, iztro 流盘坐标).
+// 真相源：宫名 = 地支 → palaceIndex → 标签（palaceNameAtZhi），
+// 顺逆由「地支 ↔ palaceIndex」公式表达，不存宫名顺序数组。
+// flowIndex is the iztro flow index (yearly/monthly/daily/hourlyIndex)，
+// 用于确定流盘命宫（IsMing 标记）。
+// mingZM1 是本命命宫支（zhiMinus1），用于宫名推导。
+func buildFlowPalaces(mingZM1, flowIndex int, starByDisplay map[int][]string) [12]flowPalace {
 	var out [12]flowPalace
 	for i := 0; i < 12; i++ {
 		zm1 := displayToZhiMinus1(i)
+		// 流盘宫名 = PALACES 顺时针序 = palaceLabels（根）的反向索引：
+		//   PALACES[k] = palaceLabels[(12-k)%12]（k=0→命宫, 1→父母...）
+		// 流盘序 names[i] = PALACES[(i - flowIndex) % 12]
 		palIdx := ((i - flowIndex) % 12 + 12) % 12
+		name := palaceLabels[(12-palIdx)%12]
 		out[i] = flowPalace{
 			Zhi:    zhiMinus1ToZhi(zm1),
-			Name:   iztroPALACES[palIdx],
+			Name:   name,
 			Stars:  starByDisplay[i],
-			IsMing: iztroPALACES[palIdx] == "命宫",
+			IsMing: name == "命宫",
 		}
 	}
+	_ = mingZM1
 	return out
 }

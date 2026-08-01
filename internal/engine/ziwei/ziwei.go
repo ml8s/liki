@@ -22,15 +22,12 @@ const (
 // palaceIndex identifies one of 12 palaces (0=命宫 … 11=父母).
 type palaceIndex int
 
-// palace names in order 0..11 (逆时针 from 命宫).
-var PalaceNames = [12]string{
-	"命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄",
-	"迁移", "仆役", "官禄", "田宅", "福德", "父母",
-}
-
 func (p palaceIndex) MarshalJSON() ([]byte, error) {
-	s := PalaceNames[p]
-	return json.Marshal(s)
+	// 宫名 = palaceLabels（palaceIndex 定义的固定标签），不依赖命盘
+	if int(p) < 0 || int(p) >= 12 {
+		return json.Marshal("")
+	}
+	return json.Marshal(palaceLabels[p])
 }
 
 func (p *palaceIndex) UnmarshalJSON(data []byte) error {
@@ -38,7 +35,7 @@ func (p *palaceIndex) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return fmt.Errorf("palaceIndex must be a string (e.g. \"命宫\"), got %s", string(data))
 	}
-	for i, name := range PalaceNames {
+	for i, name := range palaceLabels {
 		if name == s {
 			*p = palaceIndex(i)
 			return nil

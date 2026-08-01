@@ -180,7 +180,7 @@ func TestComplete(t *testing.T) {
 			}
 
 			// 每宫
-			for _, nm := range PalaceNames {
+			for _, nm := range palaceLabels {
 				ref, ok := tc.Palaces[nm]; if !ok { continue }
 				got := findPalace(fc.Palaces, nm); if got == nil { t.Errorf("%s: not found", nm); continue }
 
