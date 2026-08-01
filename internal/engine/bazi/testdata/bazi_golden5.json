@@ -1,0 +1,422 @@
+[
+  {
+    "name": "ny-2000-local-evening",
+    "solar": "2020-06-15T20:00:00",
+    "tz": -4,
+    "lon": -74,
+    "gender": "female",
+    "pillars": {
+      "nian": "庚子",
+      "yue": "壬午",
+      "ri": "己丑",
+      "shi": "甲戌"
+    },
+    "da_yun": {
+      "start_year_after": 3,
+      "start_month_after": 5,
+      "start_day_after": 10,
+      "forward": false,
+      "steps": [
+        "辛巳",
+        "庚辰",
+        "己卯",
+        "戊寅",
+        "丁丑",
+        "丙子",
+        "乙亥",
+        "甲戌",
+        "癸酉"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "癸酉",
+      "ming_gong": "己丑",
+      "shen_gong": "辛巳"
+    }
+  },
+  {
+    "name": "ny-2000-next-morning",
+    "solar": "2020-06-16T08:00:00",
+    "tz": -4,
+    "lon": -74,
+    "gender": "female",
+    "pillars": {
+      "nian": "庚子",
+      "yue": "壬午",
+      "ri": "庚寅",
+      "shi": "庚辰"
+    },
+    "da_yun": {
+      "start_year_after": 3,
+      "start_month_after": 7,
+      "start_day_after": 10,
+      "forward": false,
+      "steps": [
+        "辛巳",
+        "庚辰",
+        "己卯",
+        "戊寅",
+        "丁丑",
+        "丙子",
+        "乙亥",
+        "甲戌",
+        "癸酉"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "癸酉",
+      "ming_gong": "癸未",
+      "shen_gong": "丁亥"
+    }
+  },
+  {
+    "name": "la-1995-afternoon",
+    "solar": "1995-03-15T14:30:00",
+    "tz": -8,
+    "lon": -118,
+    "gender": "male",
+    "pillars": {
+      "nian": "乙亥",
+      "yue": "己卯",
+      "ri": "乙巳",
+      "shi": "癸未"
+    },
+    "da_yun": {
+      "start_year_after": 3,
+      "start_month_after": 0,
+      "start_day_after": 20,
+      "forward": false,
+      "steps": [
+        "戊寅",
+        "丁丑",
+        "丙子",
+        "乙亥",
+        "甲戌",
+        "癸酉",
+        "壬申",
+        "辛未",
+        "庚午"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "庚午",
+      "ming_gong": "癸未",
+      "shen_gong": "丁亥"
+    }
+  },
+  {
+    "name": "samoa-2020-morning",
+    "solar": "2020-06-15T10:00:00",
+    "tz": -11,
+    "lon": -171,
+    "gender": "female",
+    "pillars": {
+      "nian": "庚子",
+      "yue": "壬午",
+      "ri": "己丑",
+      "shi": "己巳"
+    },
+    "da_yun": {
+      "start_year_after": 3,
+      "start_month_after": 3,
+      "start_day_after": 20,
+      "forward": false,
+      "steps": [
+        "辛巳",
+        "庚辰",
+        "己卯",
+        "戊寅",
+        "丁丑",
+        "丙子",
+        "乙亥",
+        "甲戌",
+        "癸酉"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "癸酉",
+      "ming_gong": "壬午",
+      "shen_gong": "戊子"
+    }
+  },
+  {
+    "name": "nz-2020-morning",
+    "solar": "2020-06-16T09:00:00",
+    "tz": 13,
+    "lon": 175,
+    "gender": "male",
+    "pillars": {
+      "nian": "庚子",
+      "yue": "壬午",
+      "ri": "庚寅",
+      "shi": "辛巳"
+    },
+    "da_yun": {
+      "start_year_after": 6,
+      "start_month_after": 10,
+      "start_day_after": 0,
+      "forward": true,
+      "steps": [
+        "癸未",
+        "甲申",
+        "乙酉",
+        "丙戌",
+        "丁亥",
+        "戊子",
+        "己丑",
+        "庚寅",
+        "辛卯"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "癸酉",
+      "ming_gong": "壬午",
+      "shen_gong": "戊子"
+    }
+  },
+  {
+    "name": "nepal-2020-afternoon",
+    "solar": "2020-06-15T15:30:00",
+    "tz": 5.75,
+    "lon": 85,
+    "gender": "male",
+    "pillars": {
+      "nian": "庚子",
+      "yue": "壬午",
+      "ri": "己丑",
+      "shi": "壬申"
+    },
+    "da_yun": {
+      "start_year_after": 7,
+      "start_month_after": 1,
+      "start_day_after": 0,
+      "forward": true,
+      "steps": [
+        "癸未",
+        "甲申",
+        "乙酉",
+        "丙戌",
+        "丁亥",
+        "戊子",
+        "己丑",
+        "庚寅",
+        "辛卯"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "癸酉",
+      "ming_gong": "己卯",
+      "shen_gong": "己卯"
+    }
+  },
+  {
+    "name": "qiyun-1982",
+    "solar": "1982-10-13T06:45:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "pillars": {
+      "nian": "壬戌",
+      "yue": "庚戌",
+      "ri": "己巳",
+      "shi": "丁卯"
+    },
+    "da_yun": {
+      "start_year_after": 8,
+      "start_month_after": 7,
+      "start_day_after": 10,
+      "forward": true,
+      "steps": [
+        "辛亥",
+        "壬子",
+        "癸丑",
+        "甲寅",
+        "乙卯",
+        "丙辰",
+        "丁巳",
+        "戊午",
+        "己未"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "辛丑",
+      "ming_gong": "甲辰",
+      "shen_gong": "壬寅"
+    }
+  },
+  {
+    "name": "qiyun-1984",
+    "solar": "1984-02-15T08:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "pillars": {
+      "nian": "甲子",
+      "yue": "丙寅",
+      "ri": "己卯",
+      "shi": "戊辰"
+    },
+    "da_yun": {
+      "start_year_after": 6,
+      "start_month_after": 5,
+      "start_day_after": 20,
+      "forward": true,
+      "steps": [
+        "丁卯",
+        "戊辰",
+        "己巳",
+        "庚午",
+        "辛未",
+        "壬申",
+        "癸酉",
+        "甲戌",
+        "乙亥"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "丁巳",
+      "ming_gong": "乙亥",
+      "shen_gong": "辛未"
+    }
+  },
+  {
+    "name": "qiyun-2000",
+    "solar": "2000-01-01T00:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "pillars": {
+      "nian": "己卯",
+      "yue": "丙子",
+      "ri": "戊午",
+      "shi": "壬子"
+    },
+    "da_yun": {
+      "start_year_after": 8,
+      "start_month_after": 0,
+      "start_day_after": 10,
+      "forward": false,
+      "steps": [
+        "乙亥",
+        "甲戌",
+        "癸酉",
+        "壬申",
+        "辛未",
+        "庚午",
+        "己巳",
+        "戊辰",
+        "丁卯"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "丁卯",
+      "ming_gong": "己巳",
+      "shen_gong": "丁丑"
+    }
+  },
+  {
+    "name": "qiyun-lichun-day",
+    "solar": "2026-02-04T06:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "pillars": {
+      "nian": "丙午",
+      "yue": "庚寅",
+      "ri": "己酉",
+      "shi": "丁卯"
+    },
+    "da_yun": {
+      "start_year_after": 9,
+      "start_month_after": 10,
+      "start_day_after": 20,
+      "forward": true,
+      "steps": [
+        "辛卯",
+        "壬辰",
+        "癸巳",
+        "甲午",
+        "乙未",
+        "丙申",
+        "丁酉",
+        "戊戌",
+        "己亥"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "辛巳",
+      "ming_gong": "庚子",
+      "shen_gong": "甲午"
+    }
+  },
+  {
+    "name": "qiyun-1990",
+    "solar": "1990-05-20T15:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "female",
+    "pillars": {
+      "nian": "庚午",
+      "yue": "辛巳",
+      "ri": "乙酉",
+      "shi": "甲申"
+    },
+    "da_yun": {
+      "start_year_after": 4,
+      "start_month_after": 10,
+      "start_day_after": 10,
+      "forward": false,
+      "steps": [
+        "庚辰",
+        "己卯",
+        "戊寅",
+        "丁丑",
+        "丙子",
+        "乙亥",
+        "甲戌",
+        "癸酉",
+        "壬申"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "壬申",
+      "ming_gong": "庚辰",
+      "shen_gong": "戊寅"
+    }
+  },
+  {
+    "name": "qiyun-1991",
+    "solar": "1991-08-08T09:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "pillars": {
+      "nian": "辛未",
+      "yue": "丙申",
+      "ri": "庚戌",
+      "shi": "辛巳"
+    },
+    "da_yun": {
+      "start_year_after": 0,
+      "start_month_after": 0,
+      "start_day_after": 10,
+      "forward": false,
+      "steps": [
+        "乙未",
+        "甲午",
+        "癸巳",
+        "壬辰",
+        "辛卯",
+        "庚寅",
+        "己丑",
+        "戊子",
+        "丁亥"
+      ]
+    },
+    "san_yuan": {
+      "tai_yuan": "丁亥",
+      "ming_gong": "壬辰",
+      "shen_gong": "庚寅"
+    }
+  }
+]

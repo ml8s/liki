@@ -26,9 +26,11 @@ type baziGoldenCase struct {
 		Shi  string `json:"shi"`
 	} `json:"pillars"`
 	DaYun struct {
-		StartYearAfter int      `json:"start_year_after"`
-		Forward        bool     `json:"forward"`
-		Steps          []string `json:"steps"`
+		StartYearAfter  int      `json:"start_year_after"`
+		StartMonthAfter int      `json:"start_month_after"`
+		StartDayAfter   int      `json:"start_day_after"`
+		Forward         bool     `json:"forward"`
+		Steps           []string `json:"steps"`
 	} `json:"da_yun"`
 	SanYuan struct {
 		TaiYuan  string `json:"tai_yuan"`
