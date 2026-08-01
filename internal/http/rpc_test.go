@@ -618,3 +618,120 @@ func TestRPC_Dispatch_BaziFullChart(t *testing.T) {
 		validateSchema(t, "bazi.fullchart", resp.Result)
 	})
 }
+
+func getBaziChart(t *testing.T, reg *agent.RPCRegistry) map[string]any {
+	t.Helper()
+	var chart map[string]any
+	postRPC(t, reg, `{"jsonrpc":"2.0","method":"bazi.chart","params":{"solar_time":"1984-02-15T08:00:00+08:00","gender":"male"},"id":1}`, func(resp rpcResponse) {
+		chart = resp.Result.(map[string]any)["data"].(map[string]any)
+	})
+	return chart
+}
+
+func TestRPC_Dispatch_BaziYongShen(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	chart := getBaziChart(t, reg)
+	params := map[string]any{"chart": chart}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.yongshen","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "yongshen")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		// 三派用神
+		for _, k := range []string{"fu_yi", "tiao_hou", "ge_ju"} {
+			assertNonNil(t, data, k)
+		}
+		validateSchema(t, "bazi.yongshen", resp.Result)
+	})
+}
+
+func TestRPC_Dispatch_BaziBond(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	chart := getBaziChart(t, reg)
+	params := map[string]any{"a": map[string]any{"chart": chart}, "b": map[string]any{"chart": chart}}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.bond","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "bond")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		for _, k := range []string{"zhu_cross", "shi_shen_cross", "structure"} {
+			assertNonNil(t, data, k)
+		}
+		validateSchema(t, "bazi.bond", resp.Result)
+	})
+}
+
+func TestRPC_Dispatch_BaziLiuNian(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	chart := getBaziChart(t, reg)
+	params := map[string]any{"chart": chart, "year": 2026}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.liunian","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "liunian")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		for _, k := range []string{"year", "year_stem", "year_branch", "shi_shen"} {
+			assertNonNil(t, data, k)
+		}
+		validateSchema(t, "bazi.liunian", resp.Result)
+	})
+}
+
+func TestRPC_Dispatch_BaziLiuYue(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	chart := getBaziChart(t, reg)
+	params := map[string]any{"chart": chart, "year": 2026, "month": 6}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.liuyue","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "liuyue")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		for _, k := range []string{"year", "month", "month_stem", "month_branch", "month_name", "wuxing", "shi_shen"} {
+			assertNonNil(t, data, k)
+		}
+		validateSchema(t, "bazi.liuyue", resp.Result)
+	})
+}
+
+func TestRPC_Dispatch_BaziLiuRi(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	chart := getBaziChart(t, reg)
+	params := map[string]any{"chart": chart, "year": 2026, "month": 6, "day": 4}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.liuri","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "liuri")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		for _, k := range []string{"date", "day_stem", "day_branch", "day_name", "day_nayin", "shi_shen"} {
+			assertNonNil(t, data, k)
+		}
+		validateSchema(t, "bazi.liuri", resp.Result)
+	})
+}
+
+func TestRPC_Dispatch_BaziLiuShi(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	chart := getBaziChart(t, reg)
+	params := map[string]any{"chart": chart, "year": 2026, "month": 6, "day": 4, "hour": 12}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.liushi","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "liushi")
+		data := resp.Result.(map[string]any)["data"].(map[string]any)
+		for _, k := range []string{"time", "hour_stem", "hour_branch", "hour_name", "shi_shen", "gan_rels", "zhi_rels"} {
+			assertNonNil(t, data, k)
+		}
+		validateSchema(t, "bazi.liushi", resp.Result)
+	})
+}
+
+func TestRPC_Dispatch_BaziXiaoYun(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	chart := getBaziChart(t, reg)
+	params := map[string]any{"chart": chart, "max_age": 12}
+	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.xiaoyun","params":%s,"id":2}`, mustMarshal(params))
+	postRPC(t, reg, body, func(resp rpcResponse) {
+		assertEnvelope(t, resp, "xiaoyun")
+		data := resp.Result.(map[string]any)["data"].([]any)
+		if len(data) == 0 {
+			t.Fatal("empty xiaoyun")
+		}
+		first := data[0].(map[string]any)
+		assertNonNil(t, first, "age", "gan", "zhi", "name", "shi_shen")
+		validateSchema(t, "bazi.xiaoyun", resp.Result)
+	})
+}

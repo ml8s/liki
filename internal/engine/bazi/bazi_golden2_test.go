@@ -55,9 +55,9 @@ func TestBaziGolden2_EdgeLayers(t *testing.T) {
 			if dy != gc.DaYun.Steps[0] {
 				t.Errorf("大运首步 = %s, want %s", dy, gc.DaYun.Steps[0])
 			}
-			// 起运岁数（±1）
-			if c.DaYun.StartAge != gc.DaYun.StartYearAfter && c.DaYun.StartAge != gc.DaYun.StartYearAfter+1 {
-				t.Errorf("起运岁数 = %d, want %d(±1)", c.DaYun.StartAge, gc.DaYun.StartYearAfter)
+			// 起运年（精确对齐 lunar，无 ±1）
+			if c.DaYun.StartYearAfter != gc.DaYun.StartYearAfter {
+				t.Errorf("起运年 = %d, want %d", c.DaYun.StartYearAfter, gc.DaYun.StartYearAfter)
 			}
 			// 大运全步骤
 			if len(c.DaYun.Steps) != len(gc.DaYun.Steps) {

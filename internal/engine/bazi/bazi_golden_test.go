@@ -91,9 +91,9 @@ func TestBaziGolden_AllLayers(t *testing.T) {
 			if gotStep != gc.DaYun.Steps[0] {
 				t.Errorf("大运首步 = %s, want %s", gotStep, gc.DaYun.Steps[0])
 			}
-			// 起运岁数（lunar start_year_after；我们 StartAge 语义相同或 +1）
-			if c.DaYun.StartAge != gc.DaYun.StartYearAfter && c.DaYun.StartAge != gc.DaYun.StartYearAfter+1 {
-				t.Errorf("起运岁数 = %d, want %d(±1)", c.DaYun.StartAge, gc.DaYun.StartYearAfter)
+			// 起运年（精确对齐 lunar，无 ±1）
+			if c.DaYun.StartYearAfter != gc.DaYun.StartYearAfter {
+				t.Errorf("起运年 = %d, want %d", c.DaYun.StartYearAfter, gc.DaYun.StartYearAfter)
 			}
 			// 大运全步骤
 			if len(c.DaYun.Steps) != len(gc.DaYun.Steps) {

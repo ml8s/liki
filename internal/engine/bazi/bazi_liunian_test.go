@@ -87,12 +87,28 @@ func TestLiuNian_ShenSha(t *testing.T) {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
 
-	// shensha may be nil or non-nil depending on the year vs bazi match.
-	// The important thing is the field is computed, not left as nil.
-	// We just check it's not panicking and is a valid value.
+	// 2026 丙午年对 1984 甲子命：无羊刃/劫煞匹配 → 应为空数组（非 nil）
 	if ln.ShenSha == nil {
-		// nil is acceptable for years with no shensha matches
-		t.Log("ShenSha is nil (no matches for this year)")
+		t.Error("ShenSha is nil, want empty slice")
+	}
+	if len(ln.ShenSha) != 0 {
+		t.Errorf("2026 ShenSha = %v, want empty", ln.ShenSha)
+	}
+
+	// 2025 乙巳年：命主日支子见巳 → 羊刃；年支子见巳 → 劫煞（具体断言）
+	ln2025, err := ComputeLiuNian(chart, 2025)
+	if err != nil {
+		t.Fatalf("ComputeLiuNian(2025): %v", err)
+	}
+	names := map[string]bool{}
+	for _, s := range ln2025.ShenSha {
+		names[s.Name] = true
+	}
+	if !names["羊刃"] {
+		t.Errorf("2025 缺羊刃, got %v", ln2025.ShenSha)
+	}
+	if !names["劫煞"] {
+		t.Errorf("2025 缺劫煞, got %v", ln2025.ShenSha)
 	}
 }
 
