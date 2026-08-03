@@ -27,7 +27,10 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 
 ## 📖 流程：命盘分析（Phase 2 → Phase 3）
 
-**前提**：bazi Phase 1 已完成，结构化数据已就绪。
+**前提（排盘前置）**：
+  → 调用 bazi.chart(solar_time, gender) 排八字 → bazi.fullchart(chart) 取全量
+  → 调用 ziwei.chart(lunar, gender) 排紫微 → ziwei.fullchart(chart) 取全量
+  结构化数据就绪后，进入 Phase 2。
 
 ### Phase 2：快速扫描（Gate 2）
 

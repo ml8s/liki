@@ -24,6 +24,13 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 ## 📖 流程卡
 
+第0步：排盘（前置，双方）
+  → 调用 bazi.chart(solar_time_a, gender_a) 排甲方八字
+  → 调用 bazi.chart(solar_time_b, gender_b) 排乙方八字
+  → 双方各调 bazi.fullchart(chart) 取全量
+  → （紫微验证用）双方各调 ziwei.chart + ziwei.fullchart
+  校验：双方四柱齐全，缺一方则补问
+
 第1步：致命问题排除
   → 调用 domains/bazi/hepan.md「综合评级」
   输出：□ 年冲？____ 日支冲？____ 配偶星空亡？____ 日干纯克？____

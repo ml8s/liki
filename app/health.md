@@ -24,6 +24,13 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 ## 📖 流程卡
 
+第0步：排盘（前置）
+  → 调用 bazi.chart(solar_time, gender) 排八字 → 四柱/大运
+  → 调用 bazi.fullchart(chart) 取全量（十神/藏干/神煞/空亡）
+  → 调用 ziwei.chart(lunar, gender) 排紫微 → 十二宫
+  → 调用 ziwei.fullchart(chart) 取全量（杂曜/长生/小限）
+  校验：四柱齐全、十二宫齐全，缺失则补问出生时间
+
 第1步：原局薄弱脏腑
   → 调用 domains/bazi/wuxing-jiankang.md「五行脏腑」
   输出：□ 过旺五行____ 过弱五行____ 易病脏腑____
