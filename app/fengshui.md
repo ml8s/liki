@@ -1,5 +1,5 @@
 ---
-name: fengshui-app
+name: app-fengshui
 description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 ---
 

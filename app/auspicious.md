@@ -1,5 +1,5 @@
 ---
-name: ask-auspicious
+name: app-auspicious
 description: 择日分析 — 黄历择吉，婚嫁搬家开业吉日
 ---
 
