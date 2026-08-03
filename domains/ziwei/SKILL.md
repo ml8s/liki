@@ -9,18 +9,18 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 
 | 文件 | 功能 | 输入 | 输出 |
 |------|------|------|------|
-| zhuxing.md | 主星性格 | 命宫主星 | 性格基调 |
-| fuxing.md | 辅星作用 | 辅星名称 | 吉凶作用 |
-| miaowang.md | 庙旺表 | 主星+宫位 | 星力强度 |
-| shengong.md | 身宫方向 | 身宫宫位 | 着力方向 |
-| gong12.md | 十二宫要点 | 宫位+星曜 | 解读要点 |
-| sihua.md | 四化规则 | 四化星+宫位 | 含义影响 |
+| domains/ziwei/zhuxing.md | 主星性格 | 命宫主星 | 性格基调 |
+| domains/ziwei/fuxing.md | 辅星作用 | 辅星名称 | 吉凶作用 |
+| domains/ziwei/miaowang.md | 庙旺表 | 主星+宫位 | 星力强度 |
+| domains/ziwei/shengong.md | 身宫方向 | 身宫宫位 | 着力方向 |
+| domains/ziwei/gong12.md | 十二宫要点 | 宫位+星曜 | 解读要点 |
+| domains/ziwei/sihua.md | 四化规则 | 四化星+宫位 | 含义影响 |
 | geju.md | 特殊格局 | 星曜组合 | 格局名称+评分 |
-| gexing.md | 性格双盘 | 命宫主星+日主 | 性格描述 |
+| domains/ziwei/gexing.md | 性格双盘 | 命宫主星+日主 | 性格描述 |
 | yingqi.md | 紫微应期 | 领域+宫位 | 吉凶信号 |
-| liunian.md | 流年分析 | 流年命宫+四化+星 | 应年重点领域+吉凶信号 |
-| laiyin.md | 来因宫解读 | 命盘天干 | 人生课题方向 |
-| xiangmao.md | 断长相 | 命宫主星+辅星 | 外表特征描述 |
+| domains/ziwei/liunian.md | 流年分析 | 流年命宫+四化+星 | 应年重点领域+吉凶信号 |
+| domains/ziwei/laiyin.md | 来因宫解读 | 命盘天干 | 人生课题方向 |
+| domains/ziwei/xiangmao.md | 断长相 | 命宫主星+辅星 | 外表特征描述 |
 | calibration.md | 紫微考时 | 人生事实 | 时辰校准 |
 
 ## 技术流程
@@ -48,7 +48,7 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 3. 解读：命宫对位→夫妻宫呼应→四化交集
 4. 产出：结构化数据 → `app/compatibility.md` 输出
 
-📖 搜索 gong12.md → 读取夫妻宫要点
+📖 搜索 domains/ziwei/gong12.md → 读取夫妻宫要点
 
 ## 体系边界
 
