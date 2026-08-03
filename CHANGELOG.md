@@ -1,4 +1,25 @@
 # Changelog
+- 2.2.0: 领域/应用双层架构完善 + 按需 discover + 单 skill 归整
+  **架构**：
+  - 7 个领域域收进 `domains/` 父目录（app 应用层 / domains 领域层 / webapp 前端流水线 三层清晰）
+  - 新建 `domains/qiming/` 起名域（SKILL/wuge 三才五格/ziku 字库选字），起名知识从 app 抽出
+  - 全部 md 引用统一完整路径 `domains/<域>/<文件>.md`，消除同名文件裸名歧义
+  - 领域文档统一标记：📖 决策表（30）/ 📋 方法论（9）/ 📋 必查清单（1）
+  - app 卡 frontmatter 统一：name 前缀 app- + 依赖域声明
+
+  **依赖域按需 discover**：
+  - 13 张 app 卡声明「依赖域」，SKILL.md 引导按场景 discover（基础域 tianwen,time always + 场景域按卡加载）
+  - 实测省上下文：命理 42%、占卜 74%、风水 86%（vs 全量 60.6KB）
+
+  **功能**：
+  - app/compatibility 补紫微合盘验证（ziwei.bond，第4步交叉验证）
+  - 单 skill 归整：回退四子聚合库，liki 恢复单一完整 skill（app/domains/webapp）
+
+  **修复**：
+  - build-archive 输出 dist/ 子目录（tar 自包含报错）
+  - build-archive 排除 webapp（前端提示词不进 LLM 包，web/skills 源同步仍含）
+  - bazi/liuyao SKILL 索引统一完整路径
+  - shiye/xueye 标题对齐决策表标记
 - 2.1.0: 紫微领域新增流年分析+来因宫+断长相+紫微考时；app/study 深化紫微交叉验证
   **新增**：
   - `domains/ziwei/liunian.md`：流年命宫落12宫解读、流年四化解读、流年星表
