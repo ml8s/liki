@@ -1,4 +1,5 @@
 # Changelog
+- 2.2.1: 切换场景规则强化——已加载域禁止重复 discover（跨场景上下文复用）
 - 2.2.0: 领域/应用双层架构完善 + 按需 discover + 单 skill 归整
   **架构**：
   - 7 个领域域收进 `domains/` 父目录（app 应用层 / domains 领域层 / webapp 前端流水线 三层清晰）
