@@ -1,18 +1,18 @@
 # Changelog
 - 2.1.0: 紫微领域新增流年分析+来因宫+断长相+紫微考时；app/study 深化紫微交叉验证
   **新增**：
-  - `ziwei/liunian.md`：流年命宫落12宫解读、流年四化解读、流年星表
-  - `ziwei/laiyin.md`：来因宫判断规则+12宫解读表
-  - `ziwei/xiangmao.md`：14主星+辅星断长相特征
-  - `ziwei/calibration.md`：紫微考时校准（防呆+硬排除+评分）
+  - `domains/ziwei/liunian.md`：流年命宫落12宫解读、流年四化解读、流年星表
+  - `domains/ziwei/laiyin.md`：来因宫判断规则+12宫解读表
+  - `domains/ziwei/xiangmao.md`：14主星+辅星断长相特征
+  - `domains/ziwei/calibration.md`：紫微考时校准（防呆+硬排除+评分）
   **修改**：
-  - `bazi/SKILL.md`：考时流程加入紫微交叉验证步骤
-  - `ziwei/SKILL.md`：知识索引加入4条新记录
+  - `domains/bazi/SKILL.md`：考时流程加入紫微交叉验证步骤
+  - `domains/ziwei/SKILL.md`：知识索引加入4条新记录
   - `app/study.md`：第4步加入流年文昌文曲+流年命宫落宫判断
   **修复**：
   - 根 SKILL.md 新增「RPC 调用说明」章节，明确 endpoint（`POST https://liki.hk/jsonrpc`）和 `rpc.discover` 的调用方式，agent 不再因不知道往哪 POST 而卡住
-  - 考时校准从根 SKILL.md 移至 `bazi/calibration.md`，按领域层规范改写为决策表+防呆清单+三层流程；根 SKILL.md 不再承载领域子流程
-  - `bazi/dayun.md` 硬编码步骤编号「第 3-5 步」改为语义标签「排八字→取全量数据」，消除步骤变动时的引用断裂风险
+  - 考时校准从根 SKILL.md 移至 `domains/bazi/calibration.md`，按领域层规范改写为决策表+防呆清单+三层流程；根 SKILL.md 不再承载领域子流程
+  - `domains/bazi/dayun.md` 硬编码步骤编号「第 3-5 步」改为语义标签「排八字→取全量数据」，消除步骤变动时的引用断裂风险
   - 路由分发第1条精简为引用 RPC 调用说明章节，避免重复信息
 - 2.0.0: 重大架构重构——域与应用分离
   **核心变化**：
@@ -39,11 +39,11 @@
   - 无残留旧文件引用
   - 版本：1.x → 2.0.0（架构级变动，不再向下兼容）
 - 1.38.0: MingLi-Bench 测试从 36%→49.4%（方法论改进：三得法清单化、用神优先级重排为扶抑→格局→调候、冲合并行分析、全流程门禁清单）；新增 inquiry_router.md 问事路由（9类事件）
-- 1.37.0: bazi/SKILL.md 流程清单化——步骤6/8/10/11/12嵌入强制检查清单
+- 1.37.0: domains/bazi/SKILL.md 流程清单化——步骤6/8/10/11/12嵌入强制检查清单
 - 1.35.0: feedback-agent + SKILL.md 反馈规则优化
 - 1.34.0: SKILL.md 加反馈段 + README 修正
 - 1.33.0: 品牌定位命理师的 Skill + README 简介重写 + 各域调用方法标注
-- 1.32.0: 各域 SKILL.md 加调用方法标注 + 修复 qimen/huangli 错误方法名
+- 1.32.0: 各域 SKILL.md 加调用方法标注 + 修复 domains/qimen/huangli 错误方法名
 - 1.31.0: 时辰校准（kaoshi）流程——成人排盘后强制考时、三层验证、宝宝跳过；合盘流程加入各自考时；命盘/合盘步骤编号顺延；kaoshi 合并入根 SKILL.md（删除独立文件）
 - 1.30.0: dayun 应期推断通用化（六亲/财运/事业/健康四类场景）；LOCAL.md 合并回 SKILL.md；build 脚本修复；README 工业级定位
 - 1.29.0: 用神聚合规则重构（六种输出组合全覆盖，输出为空时跳过）；bazi 输出规则同步

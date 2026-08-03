@@ -8,8 +8,8 @@ description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
 
 ## 依赖的领域知识
 
-- 六爻: liuyao/SKILL.md「六爻占卜」
-- 奇门: qimen/SKILL.md「奇门遁甲」
+- 六爻: domains/liuyao/SKILL.md「六爻占卜」
+- 奇门: domains/qimen/SKILL.md「奇门遁甲」
 
 ## 用户问法 → 领域信号
 
@@ -28,8 +28,8 @@ description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
 第2步：按对应领域分析
   输出：□ 结论____
 
-📖 搜索 liuyao/SKILL.md → 读取六爻方法
-📖 搜索 qimen/SKILL.md → 读取奇门方法
+📖 搜索 domains/liuyao/SKILL.md → 读取六爻方法
+📖 搜索 domains/qimen/SKILL.md → 读取奇门方法
 
 
 ### 方法足迹

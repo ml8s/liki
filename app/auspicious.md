@@ -8,7 +8,7 @@ description: 择日分析 — 黄历择吉，婚嫁搬家开业吉日
 
 ## 依赖的领域知识
 
-- 黄历: huangli/SKILL.md「择日」
+- 黄历: domains/huangli/SKILL.md「择日」
 
 ## 用户问法 → 领域信号
 
@@ -21,11 +21,11 @@ description: 择日分析 — 黄历择吉，婚嫁搬家开业吉日
 ## 📖 流程卡
 
 第1步：确定用户要做什么事（婚嫁/搬家/开业…）
-第2步：调用 huangli/SKILL.md → 技术流程获取候选
+第2步：调用 domains/huangli/SKILL.md → 技术流程获取候选
 第3步：按格式输出推荐
   输出：□ 推荐日期____ 宜/忌____ 等级____
 
-📖 搜索 huangli/SKILL.md → 读取择日方法
+📖 搜索 domains/huangli/SKILL.md → 读取择日方法
 
 ## 边界条件
 

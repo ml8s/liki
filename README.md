@@ -68,13 +68,13 @@ liki-engine        → 天文历算 API（[开源计算引擎](https://github.co
 ```
 ├── SKILL.md    ← 路由 + 共性规则
 ├── app/        ← 用户应用（12个：婚姻/健康/事业/财运/学业/性格/风水/择日/占卜/合盘/起名/命盘）
-├── bazi/       ← 八字（16个决策表）
-├── ziwei/      ← 紫微（9个决策表）
-├── liuyao/     ← 六爻
-├── qimen/      ← 奇门
-├── huangli/    ← 黄历
-├── bazhai/     ← 八宅
-├── xuankong/   ← 玄空
+├── domains/bazi/       ← 八字（16个决策表）
+├── domains/ziwei/      ← 紫微（9个决策表）
+├── domains/liuyao/     ← 六爻
+├── domains/qimen/      ← 奇门
+├── domains/huangli/    ← 黄历
+├── domains/bazhai/     ← 八宅
+├── domains/xuankong/   ← 玄空
 └── webapp/    ← Web 集成流水线
 ```
 

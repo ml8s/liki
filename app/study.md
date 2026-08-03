@@ -37,13 +37,13 @@ description: 学业判断 — 学历层次、学习能力、考试运
   输出：□ 学历档____ 依据____
 
 第4步：紫微验证
-  → 调用 ziwei/yingqi.md「学业」表
-  → 调用 ziwei/liunian.md → 检查流年文昌/文曲是否被化科引动
-  → 调用 ziwei/liunian.md → 流年命宫是否落父母宫/命宫/福德宫（考试有利宫位）
+  → 调用 domains/ziwei/yingqi.md「学业」表
+  → 调用 domains/ziwei/liunian.md → 检查流年文昌/文曲是否被化科引动
+  → 调用 domains/ziwei/liunian.md → 流年命宫是否落父母宫/命宫/福德宫（考试有利宫位）
   输出：□ 文昌文曲____ 化科____ 流年命宫____ 与八字（一致/相反）____
 
 
-📖 搜索 bazi/SKILL.md → 获取排盘数据
+📖 搜索 domains/bazi/SKILL.md → 获取排盘数据
 #### 紫微→八字翻译
 
 | 紫微信号 | 翻译结论 |

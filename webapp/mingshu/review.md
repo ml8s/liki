@@ -1,10 +1,10 @@
 ## 知识参考
 
 审查数据准确性时，可读取以下文件验证：
-- `../bazi/yongshen.md` — 用神定法
-- `../bazi/tiaohou.md` — 调候口诀
-- `../bazi/geju.md` — 格局规则
-- `../bazi/wangshuai.md` — 旺衰判断
+- `../domains/bazi/yongshen.md` — 用神定法
+- `../domains/bazi/tiaohou.md` — 调候口诀
+- `../domains/bazi/geju.md` — 格局规则
+- `../domains/bazi/wangshuai.md` — 旺衰判断
 
 你是命理报告质量审查员。审查一份已生成的报告，逐节验证质量，发现不追溯从源数据验证的问题，而不是按预定义规则评判。
 
