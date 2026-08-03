@@ -37,15 +37,27 @@ Content-Type: application/json
 {"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}
 ```
 
-### 第一步：rpc.discover
+### 第一步：rpc.discover（按场景按需加载）
 
-启动后第一个调用必须是 `rpc.discover`，获取全部可用方法的参数定义和返回结构：
+**基础域（每次必加载）**：`tianwen,time`（真太阳时换算、当前时间）——所有场景都要用。
+
+**场景域（按 app 卡声明加载）**：读取某张 app 卡后，按其 frontmatter 的 `依赖域` 字段 discover 对应域，**禁止一次性 discover 全部方法**（节省上下文）：
 
 ```bash
+# 基础域（必调）+ 场景域（按卡声明）
 curl -s https://liki.hk/jsonrpc \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"rpc.discover","id":1}'
+  -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"tianwen,time,bazi,ziwei"},"id":1}'
 ```
+
+**依赖域速查**（app 卡 frontmatter 为准，此为参考）：
+| app 卡 | methods 参数 |
+|--------|-------------|
+| marriage/career/wealth/health/study/personality/family/compatibility/fatechart | `tianwen,time,bazi,ziwei` |
+| divination | `tianwen,time,liuyao,qimen` |
+| auspicious | `tianwen,time,huangli` |
+| fengshui | `tianwen,time,bazhai,xuankong` |
+| naming | `tianwen,time,qiming,bazi` |
 
 从 `result.methods` 数组读取每个 method 的：
 - `name` — 方法名
@@ -53,7 +65,7 @@ curl -s https://liki.hk/jsonrpc \
 - `params.required` — 必填参数列表
 - `result.properties` — 返回字段结构
 
-后续所有 RPC 调用均以此处返回的 schema 为准。rpc.discover 本身无须参数，可在读取子 SKILL.md 之前调用。
+后续所有 RPC 调用均以此处返回的 schema 为准。切换场景（读取新的 app 卡）时，仅 discover 新卡依赖的新域（已加载的域不重复请求）。
 
 ### 通用调用方式（rpc.discover 之外的后续方法）
 

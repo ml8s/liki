@@ -1,6 +1,7 @@
 ---
 name: app-naming
 description: 起名分析 — 结合八字用神与姓名学，提供全维度起名服务
+依赖域: qiming,bazi
 ---
 
 # 起名分析

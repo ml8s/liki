@@ -1,6 +1,7 @@
 ---
 name: app-health
 description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
+依赖域: bazi,ziwei
 ---
 
 # 健康分析

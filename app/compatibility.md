@@ -1,6 +1,7 @@
 ---
 name: app-hepan
 description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
+依赖域: bazi,ziwei
 ---
 
 # 合盘分析

@@ -1,6 +1,7 @@
 ---
 name: app-marriage
 description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
+依赖域: bazi,ziwei
 ---
 
 # 婚姻分析

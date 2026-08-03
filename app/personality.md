@@ -1,6 +1,7 @@
 ---
 name: app-personality
 description: 性格描写 — 五行基础性格、十神修正、身强/身弱正反
+依赖域: bazi,ziwei
 ---
 
 # 性格分析

@@ -1,6 +1,7 @@
 ---
 name: app-wealth
 description: 财运分析 — 财源类型、收入层次、风险提示
+依赖域: bazi,ziwei
 ---
 
 # 财运分析

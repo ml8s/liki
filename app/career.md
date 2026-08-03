@@ -1,6 +1,7 @@
 ---
 name: app-career
 description: 事业分析 — 职业方向、事业起伏、成就层次
+依赖域: bazi,ziwei
 ---
 
 # 事业分析
