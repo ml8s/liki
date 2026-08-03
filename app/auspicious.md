@@ -1,6 +1,7 @@
 ---
 name: app-auspicious
 description: 择日分析 — 黄历择吉，婚嫁搬家开业吉日
+依赖域: huangli
 ---
 
 # 择日分析

@@ -1,6 +1,7 @@
 ---
 name: app-family
 description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、祖上根基
+依赖域: bazi,ziwei
 ---
 
 # 家庭六亲分析

@@ -1,6 +1,7 @@
 ---
 name: app-study
 description: 学业判断 — 学历层次、学习能力、考试运
+依赖域: bazi,ziwei
 ---
 
 # 学业分析
