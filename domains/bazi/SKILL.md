@@ -13,9 +13,9 @@ description: 八字排盘与基础分析模块（组件）。排盘、旺衰、�
 | 文件 | 功能 | 经典依据 |
 |------|------|---------|
 | domains/bazi/wangshuai.md | 旺衰判断（身旺/弱/中和） | 《滴天髓》 |
-| geju.md | 格局判定（月令透干→格局） | 《子平真诠》 |
+| domains/bazi/geju.md | 格局判定（月令透干→格局） | 《子平真诠》 |
 | domains/bazi/tiaohou.md | 调候用神查表（穷通宝鉴） | 《穷通宝鉴》 |
-| yongshen.md | 用神聚合（三派+合化） | 《滴天髓》 |
+| domains/bazi/yongshen.md | 用神聚合（三派+合化） | 《滴天髓》 |
 | domains/bazi/hehui.md | 合会冲刑（冲决策表+合化） | 《三命通会》 |
 | domains/bazi/dayun.md | 大运流年（应期优先级排序） | 《滴天髓》 |
 | domains/bazi/shishen.md | 十神组合+官杀混杂+学历 | 《渊海子平》 |
@@ -39,8 +39,8 @@ description: 八字排盘与基础分析模块（组件）。排盘、旺衰、�
 5. **取全量数据**（**调用方法：** 扩展命盘，补全十神+藏干+神煞+长生+空亡等），用于后续用神、格局、十神分析。
 6. **参考文件**：📖 读取  下5张决策表 → 逐一搜索「清单」填写 □ 填空
    （领域文件在对应 app 按需加载：domains/bazi/wuxing-jiankang.md → app/health，domains/bazi/caiyun.md → app/wealth，domains/bazi/dayun.md → 各app）
-7. **定格局**：按 geju.md 定格，明确格局类型和成破。
-8. **取用神**（**调用方法：** 三派用神分析，基于扶抑+调候+格局计算用神/喜神/忌神）。按 yongshen.md 执行——扶抑定基础，格局定方向，调候做修正。
+7. **定格局**：按 domains/bazi/geju.md 定格，明确格局类型和成破。
+8. **取用神**（**调用方法：** 三派用神分析，基于扶抑+调候+格局计算用神/喜神/忌神）。按 domains/bazi/yongshen.md 执行——扶抑定基础，格局定方向，调候做修正。
    - **特别注意调候权重**：冬夏极端月份调候优先于扶抑和格局
    - **特别注意合化判断**：合化≠好事，须做正反分析（合去用神=凶，合化忌神=凶）
 9. **合会冲刑**：分析合会冲刑数据，按 domains/bazi/hehui.md 规则执行。
