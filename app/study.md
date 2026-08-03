@@ -8,32 +8,32 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 ## 依赖的领域知识
 
-- bazi: xueye.md「学历等级决策表」
-- bazi: shishen.md「十神组合」
+- bazi: domains/bazi/xueye.md「学历等级决策表」
+- bazi: domains/bazi/shishen.md「十神组合」
 
-- ziwei: yingqi.md「学业紫微应期」
+- ziwei: domains/ziwei/yingqi.md「学业紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 能读到什么学历 | 印星三关状态 | xueye.md「印星三关」|
-| 学习能力如何 | 印星+食伤组合 | shishen.md「十神」+ xueye.md |
-| 考试运如何 | 大运流年对印星生扶/克制 | xueye.md「大运辅助」|
-| 适合学什么方向 | 食伤配印/官印相生/财坏印 | shishen.md「十神组合」|
+| 能读到什么学历 | 印星三关状态 | domains/bazi/xueye.md「印星三关」|
+| 学习能力如何 | 印星+食伤组合 | domains/bazi/shishen.md「十神」+ domains/bazi/xueye.md |
+| 考试运如何 | 大运流年对印星生扶/克制 | domains/bazi/xueye.md「大运辅助」|
+| 适合学什么方向 | 食伤配印/官印相生/财坏印 | domains/bazi/shishen.md「十神组合」|
 
 ## 📖 流程卡
 
 第1步：印星有效性三关验证
-  → 调用 xueye.md「印星三关」
+  → 调用 domains/bazi/xueye.md「印星三关」
   输出：□ 三关通过____关 印星状态____
 
 第2步：大运辅助判断
   → 换运年检测：当前年龄____ 是否在换运年±1年内？____ 若是→该年事件强度+1级
-  → 调用 xueye.md「大运辅助」表
+  → 调用 domains/bazi/xueye.md「大运辅助」表
   输出：□ 当前大运____ 对印星____
 
 第3步：学历等级定档
-  → 调用 xueye.md「学历等级决策表」
+  → 调用 domains/bazi/xueye.md「学历等级决策表」
   输出：□ 学历档____ 依据____
 
 第4步：紫微验证

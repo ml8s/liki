@@ -8,24 +8,24 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 ## 依赖的领域知识
 
-- bazi: wuxing-jiankang.md「五行所属」
-- bazi: hehui.md「冲宫位表」+「冲吉凶表」
-- bazi: dayun.md「应期决策表」
+- bazi: domains/bazi/wuxing-jiankang.md「五行所属」
+- bazi: domains/bazi/hehui.md「冲宫位表」+「冲吉凶表」
+- bazi: domains/bazi/dayun.md「应期决策表」
 
-- ziwei: yingqi.md「健康紫微应期」
+- ziwei: domains/ziwei/yingqi.md「健康紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 身体哪里容易出问题 | 五行过旺/过弱对应的脏腑 | wuxing-jiankang.md |
-| 什么时候会生病 | 忌神攻身 + 冲刑入宫之年 | hehui.md + dayun.md |
-| 病情严重吗 | 冲去用神/忌神 + 有无解救 | hehui.md「冲吉凶表」|
-| 需要注意什么 | 原局薄弱五行 + 大运流年触发 | wuxing-jiankang.md + dayun.md |
+| 身体哪里容易出问题 | 五行过旺/过弱对应的脏腑 | domains/bazi/wuxing-jiankang.md |
+| 什么时候会生病 | 忌神攻身 + 冲刑入宫之年 | domains/bazi/hehui.md + domains/bazi/dayun.md |
+| 病情严重吗 | 冲去用神/忌神 + 有无解救 | domains/bazi/hehui.md「冲吉凶表」|
+| 需要注意什么 | 原局薄弱五行 + 大运流年触发 | domains/bazi/wuxing-jiankang.md + domains/bazi/dayun.md |
 
 ## 📖 流程卡
 
 第1步：原局薄弱脏腑
-  → 调用 wuxing-jiankang.md「五行脏腑」
+  → 调用 domains/bazi/wuxing-jiankang.md「五行脏腑」
   输出：□ 过旺五行____ 过弱五行____ 易病脏腑____
   → 过旺阈值检查：
     □ 该五行是否构成三合局/三会方？（是/否）
@@ -36,11 +36,11 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 第2步：大运流年触发
   → 换运年检测：当前年龄____ 是否在换运年±1年内？____ 若是→该年事件强度+1级
-  → 调用 hehui.md「冲宫位表」+ dayun.md「应期表」
+  → 调用 domains/bazi/hehui.md「冲宫位表」+ domains/bazi/dayun.md「应期表」
   输出：□ 冲入宫位____ 触发年份____ 引动类型____
 
 第3步：定性结论
-  → 调用 hehui.md「冲吉凶表」
+  → 调用 domains/bazi/hehui.md「冲吉凶表」
   输出：□ 事件性质____ 结果走向____ 严重程度____
 
 第4步：紫微验证

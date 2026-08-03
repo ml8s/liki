@@ -9,8 +9,8 @@ description: 八宅风水模块（组件）。命卦、东四西四、门主灶�
 
 | 文件 | 功能 | 说明 |
 |------|------|------|
-| minggua.md | 命卦+东西四命 | 确定吉利方位 |
-| youxing.md | 游年九星+门主灶 | 吉凶应事+空间判断 |
+| domains/bazhai/minggua.md | 命卦+东西四命 | 确定吉利方位 |
+| domains/bazhai/youxing.md | 游年九星+门主灶 | 吉凶应事+空间判断 |
 
 ## 技术流程
 
@@ -19,8 +19,8 @@ description: 八宅风水模块（组件）。命卦、东四西四、门主灶�
 3. **调用引擎**：bazhai.minggua 命卦查询 → bazhai.chart/judgment 门主灶论断。
 4. **解读**：调 minggua/youxing 两张决策表匹配引擎结果 → 输出。
 
-📖 搜索 minggua.md → 读取命卦表
-📖 搜索 youxing.md → 读取九星表
+📖 搜索 domains/bazhai/minggua.md → 读取命卦表
+📖 搜索 domains/bazhai/youxing.md → 读取九星表
 
 ## 边界规则
 

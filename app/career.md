@@ -8,33 +8,33 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 
 ## 依赖的领域知识
 
-- bazi: shiye.md「决策表」
-- bazi: gongwei.md「宫位论」
-- bazi: dayun.md「应期决策表」
+- bazi: domains/bazi/shiye.md「决策表」
+- bazi: domains/bazi/gongwei.md「宫位论」
+- bazi: domains/bazi/dayun.md「应期决策表」
 
-- ziwei: yingqi.md「事业紫微应期」
+- ziwei: domains/ziwei/yingqi.md「事业紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 适合做什么行业 | 十神组合（官印/食伤/财） | shiye.md「职业类型」|
-| 事业什么时候好 | 官杀/财运引动之年 | shiye.md + dayun.md |
-| 适合创业还是打工 | 食伤生财 vs 官印相生 | shiye.md「十神方向」|
-| 能到什么层次 | 官财透干定层次 | shiye.md「透干表」|
+| 适合做什么行业 | 十神组合（官印/食伤/财） | domains/bazi/shiye.md「职业类型」|
+| 事业什么时候好 | 官杀/财运引动之年 | domains/bazi/shiye.md + domains/bazi/dayun.md |
+| 适合创业还是打工 | 食伤生财 vs 官印相生 | domains/bazi/shiye.md「十神方向」|
+| 能到什么层次 | 官财透干定层次 | domains/bazi/shiye.md「透干表」|
 
 ## 📖 流程卡
 
 第1步：官财透干定层次
-  → 调用 shiye.md「官财透干定层次」
+  → 调用 domains/bazi/shiye.md「官财透干定层次」
   输出：□ 透干组合____ 事业档____
 
 第2步：十神组合定方向
-  → 调用 shiye.md「十神组合定方向」
+  → 调用 domains/bazi/shiye.md「十神组合定方向」
   输出：□ 组合____ 职业方向____
 
 第3步：大运起伏
   → 换运年检测：当前年龄____ 是否在换运年±1年内？____ 若是→该年事件强度+1级
-  → 调用 shiye.md「大运影响」+ dayun.md「应期表」
+  → 调用 domains/bazi/shiye.md「大运影响」+ domains/bazi/dayun.md「应期表」
   输出：□ 当前大运____ 窗口年____
 
 第4步：紫微验证

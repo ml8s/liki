@@ -8,23 +8,23 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 ## 依赖的领域知识（预留跨域）
 
-- bazi: hepan.md「合盘评估」
-- bazi: gongwei.md「宫位论」
-- bazi: shishen.md「十神组合」
+- bazi: domains/bazi/hepan.md「合盘评估」
+- bazi: domains/bazi/gongwei.md「宫位论」
+- bazi: domains/bazi/shishen.md「十神组合」
 - ziwei:（预留，紫微验证）
 
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 两人合不合适 | 日干关系+夫妻宫互动+五行互补 | hepan.md |
-| 能不能结婚 | 致命问题排除（年冲/日支冲/空亡）| hepan.md |
-| 关系能持续多久 | 大运同步度 | hepan.md + domains/bazi/dayun.md |
+| 两人合不合适 | 日干关系+夫妻宫互动+五行互补 | domains/bazi/hepan.md |
+| 能不能结婚 | 致命问题排除（年冲/日支冲/空亡）| domains/bazi/hepan.md |
+| 关系能持续多久 | 大运同步度 | domains/bazi/hepan.md + domains/bazi/dayun.md |
 
 ## 📖 流程卡
 
 第1步：致命问题排除
-  → 调用 hepan.md「综合评级」
+  → 调用 domains/bazi/hepan.md「综合评级」
   输出：□ 年冲？____ 日支冲？____ 配偶星空亡？____ 日干纯克？____
 
 第2步：匹配评估

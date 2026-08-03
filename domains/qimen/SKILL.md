@@ -9,8 +9,8 @@ description: 奇门遁甲模块（组件）。八门、九星、八神、用神�
 
 | 文件 | 功能 |
 |------|------|
-| bamen.md | 八门吉凶 |
-| jiuxing.md | 九星吉凶 |
+| domains/qimen/bamen.md | 八门吉凶 |
+| domains/qimen/jiuxing.md | 九星吉凶 |
 
 ## 技术流程
 
@@ -19,5 +19,5 @@ description: 奇门遁甲模块（组件）。八门、九星、八神、用神�
 3. **调用引擎**：qimen.chart 排盘，qimen.judgment 断事。
 4. **解读**：调 bamen/jiuxing 匹配八门九星。
 
-📖 搜索 bamen.md → 读取八门表
-📖 搜索 jiuxing.md → 读取九星表
+📖 搜索 domains/qimen/bamen.md → 读取八门表
+📖 搜索 domains/qimen/jiuxing.md → 读取九星表

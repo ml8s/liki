@@ -8,7 +8,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 ## 依赖的领域知识
 
-- bazi: yongshen.md「用神方法论」
+- bazi: domains/bazi/yongshen.md「用神方法论」
 - 姓名学: 自包含（三才五格/笔画五行/字义出处/选字规则）
 
 ## 知识索引
@@ -34,7 +34,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 第2步：定用神/喜神
   调用 bazi.yongshen（用上一步 chart）→ 返回三派用神（扶抑/调候/格局，各含 yong/xi/ji）
-  按 domains/bazi/yongshen.md 定夺——用神按决策表定（扶抑定基础/格局定方向/调候做修正），**喜神/忌神取用神所在派的 xi/ji**（同派配套，详见 yongshen.md「喜神/忌神定夺」）
+  按 domains/bazi/yongshen.md 定夺——用神按决策表定（扶抑定基础/格局定方向/调候做修正），**喜神/忌神取用神所在派的 xi/ji**（同派配套，详见 domains/bazi/yongshen.md「喜神/忌神定夺」）
   **特别注意调候**：冬夏极端月份调候优先于扶抑和格局
   输出：□ 用神____ 喜神____ 忌神____
 
@@ -147,7 +147,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 📋 方法足迹
 - 排盘: {bazi.chart} → 用神: {bazi.yongshen}
 - 取字: {qiming.pick（wuge=true/false）} → 组名: {qiming.build} → 评估: {qiming.check}
-- 读取知识: {naming.md 流程卡第X步 + yongshen.md 决策表条目}
+- 读取知识: {naming.md 流程卡第X步 + domains/bazi/yongshen.md 决策表条目}
 - 检查项: {填写的 Gate/清单项}
 - 推理链: 用神五行→五格笔画→候选字→过滤→组名→校验，每步引用 RPC 字段
 ```

@@ -9,9 +9,9 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 ## 依赖的领域知识
 
 - bazi: SKILL.md 排盘流程
-- bazi: dayun.md/hehui.md/shishen.md/gongwei.md/liuqin.md/wangshuai.md/geju.md/yongshen.md 全部决策表
+- bazi: domains/bazi/dayun.md/domains/bazi/hehui.md/domains/bazi/shishen.md/domains/bazi/gongwei.md/domains/bazi/liuqin.md/domains/bazi/wangshuai.md/domains/bazi/geju.md/domains/bazi/yongshen.md 全部决策表
 - ziwei: SKILL.md 排盘流程
-- ziwei: yingqi.md 紫微应期
+- ziwei: domains/ziwei/yingqi.md 紫微应期
 - app: 各 app 的深入分析入口（汇总用）
 
 ## 设计原则
@@ -69,7 +69,7 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 □ 婚姻类：官杀混杂取清分析了吗？ （____）
 □ 学业类：印星有效性检查做了吗？ （____）
 □ 性格类：身弱五行降级考虑了吗？ （____）
-□ 健康类：五行对应脏腑引用了 wuxing-jiankang.md 吗？ （____）
+□ 健康类：五行对应脏腑引用了 domains/bazi/wuxing-jiankang.md 吗？ （____）
 □ 财运类：比劫夺财检查做了吗？ （____）
 
 ## 双盘验证（八字+紫微交叉）
