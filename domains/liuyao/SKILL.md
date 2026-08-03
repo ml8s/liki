@@ -9,9 +9,9 @@ description: 六爻占卜模块（组件）。起卦、装卦、用神、月建�
 
 | 文件 | 功能 |
 |------|------|
-| yongshen.md | 用神取用 |
+| domains/liuyao/yongshen.md | 用神取用 |
 | domains/liuyao/yuejian.md | 月建日建 |
-| yingqi.md | 应期判断 |
+| domains/liuyao/yingqi.md | 应期判断 |
 
 ## 技术流程
 
@@ -20,6 +20,6 @@ description: 六爻占卜模块（组件）。起卦、装卦、用神、月建�
 3. **调用引擎**：liuyao.qigua 起卦 → liuyao.chart 装卦 → liuyao.judgment 断卦。
 4. **解读**：调 yongshen/yuejian/yingqi 匹配用神、月建、应期。
 
-📖 搜索 yongshen.md → 读取用神表
+📖 搜索 domains/liuyao/yongshen.md → 读取用神表
 📖 搜索 domains/liuyao/yuejian.md → 读取月建表
-📖 搜索 yingqi.md → 读取应期表
+📖 搜索 domains/liuyao/yingqi.md → 读取应期表
