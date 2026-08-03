@@ -65,7 +65,9 @@ curl -s https://liki.hk/jsonrpc \
 - `params.required` — 必填参数列表
 - `result.properties` — 返回字段结构
 
-后续所有 RPC 调用均以此处返回的 schema 为准。切换场景（读取新的 app 卡）时，仅 discover 新卡依赖的新域（已加载的域不重复请求）。
+后续所有 RPC 调用均以此处返回的 schema 为准。
+
+**切换场景规则（强制）**：读取新的 app 卡时，**只 discover 该卡新引入的域**（该卡 `依赖域` 中尚未加载的部分）。**上下文已加载过的域禁止重复 discover**——直接复用已有 schema，不再发请求。如上下文已有 `bazi` 的 schema，切到命名卡时仅 discover `qiming`，不得重新请求 `bazi`。
 
 ### 通用调用方式（rpc.discover 之外的后续方法）
 
