@@ -8,8 +8,8 @@ description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 
 ## 依赖的领域知识
 
-- 八宅: bazhai/SKILL.md「八宅风水」
-- 玄空: xuankong/SKILL.md「玄空风水」
+- 八宅: domains/bazhai/SKILL.md「八宅风水」
+- 玄空: domains/xuankong/SKILL.md「玄空风水」
 
 ## 用户问法 → 领域信号
 
@@ -30,8 +30,8 @@ description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 
 → 综合结论
 
-📖 搜索 bazhai/SKILL.md → 读取八宅方法
-📖 搜索 xuankong/SKILL.md → 读取玄空方法
+📖 搜索 domains/bazhai/SKILL.md → 读取八宅方法
+📖 搜索 domains/xuankong/SKILL.md → 读取玄空方法
 
 ## 边界条件
 

@@ -75,14 +75,14 @@ liki-engine           → Astronomical API ([open-source calculation engine](htt
 ## Project Structure
 
 ```
-bazi/       → BaZi: SKILL + report format + knowledge/methodology docs
-ziwei/      → ZiWei: SKILL + report format + knowledge/methodology docs
+domains/bazi/       → BaZi: SKILL + report format + knowledge/methodology docs
+domains/ziwei/      → ZiWei: SKILL + report format + knowledge/methodology docs
 naming/     → Naming: SKILL + report format
-liuyao/     → Liuyao: SKILL + report format
-qimen/      → Qimen: SKILL + report format
-huangli/    → Huangli: SKILL + report format
-bazhai/     → Bazhai: SKILL + report format
-xuankong/   → Xuankong: SKILL + report format
+domains/liuyao/     → Liuyao: SKILL + report format
+domains/qimen/      → Qimen: SKILL + report format
+domains/huangli/    → Huangli: SKILL + report format
+domains/bazhai/     → Bazhai: SKILL + report format
+domains/xuankong/   → Xuankong: SKILL + report format
 webapp/    → Web application pipeline (LifeBook + Hepan, generate → review → revise)
 ```
 
