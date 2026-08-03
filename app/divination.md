@@ -1,5 +1,5 @@
 ---
-name: ask-divination
+name: app-divination
 description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
 ---
 
