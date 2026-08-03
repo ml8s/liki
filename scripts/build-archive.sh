@@ -4,7 +4,7 @@ set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-DIST_DIR="$PROJECT_DIR"
+DIST_DIR="$PROJECT_DIR/dist"
 
 ARCHIVE="$DIST_DIR/liki.tar.gz"
 INDEX="$DIST_DIR/index.json"
