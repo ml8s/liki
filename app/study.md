@@ -23,6 +23,13 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 ## 📖 流程卡
 
+第0步：排盘（前置）
+  → 调用 bazi.chart(solar_time, gender) 排八字 → 四柱/大运
+  → 调用 bazi.fullchart(chart) 取全量（十神/藏干/神煞/空亡）
+  → 调用 ziwei.chart(lunar, gender) 排紫微 → 十二宫
+  → 调用 ziwei.fullchart(chart) 取全量（杂曜/长生/小限）
+  校验：四柱齐全、十二宫齐全，缺失则补问出生时间
+
 第1步：印星有效性三关验证
   → 调用 domains/bazi/xueye.md「印星三关」
   输出：□ 三关通过____关 印星状态____

@@ -23,6 +23,13 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 ## 📖 流程卡
 
+第0步：排盘（前置）
+  → 调用 bazi.chart(solar_time, gender) 排八字 → 四柱/大运
+  → 调用 bazi.fullchart(chart) 取全量（十神/藏干/神煞/空亡）
+  → 调用 ziwei.chart(lunar, gender) 排紫微 → 十二宫
+  → 调用 ziwei.fullchart(chart) 取全量（杂曜/长生/小限）
+  校验：四柱齐全、十二宫齐全，缺失则补问出生时间
+
 第1步：财星定有无
   → 调用 domains/bazi/caiyun.md「财星定有无」
   输出：□ 财星类型____ 透/藏____
