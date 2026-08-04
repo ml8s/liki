@@ -24,6 +24,7 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 ## 📖 流程卡
 
 第0步：排盘（前置）
+  → 时辰来源：按根 SKILL.md「真太阳时校正」两路规则——用户给具体时刻→校正；题干/用户已给「X时」→直接用该时辰（solar_time 传该时辰对应时刻）
   → 调用 bazi.chart(solar_time, gender) 排八字 → 四柱/大运
   → 调用 bazi.fullchart(chart) 取全量（十神/藏干/神煞/空亡）
   → 调用 ziwei.chart(lunar, gender) 排紫微 → 十二宫
