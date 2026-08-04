@@ -35,6 +35,9 @@ tar czf "$ARCHIVE" \
 
 DIGEST="sha256:$(sha256sum "$ARCHIVE" | awk '{print $1}')"
 
+# 从 SKILL.md frontmatter 读取 description（单一事实源，避免硬编码漂移）
+DESC="$(sed -n 's/^description: //p' "$SCRIPT_DIR/../SKILL.md" | head -1)"
+
 cat > "$INDEX" <<EOF
 {
   "\$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
@@ -44,7 +47,7 @@ cat > "$INDEX" <<EOF
       "type": "archive",
       "url": "/skills/liki.tar.gz",
       "digest": "$DIGEST",
-      "description": "Liki — 命理 Skill，八字/紫微/起名/六爻/奇门/黄历/风水"
+      "description": "$DESC"
     }
   ]
 }
