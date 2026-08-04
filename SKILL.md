@@ -13,7 +13,7 @@ description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问
 开始服务前，必须先进行版本检查：
 
 1. 读取本地安装目录下的 `VERSION` 文件，记为本地版本
-2. 读取 `https://liki.hk/skills/VERSION`，记为远程版本
+2. 读取 `https://liki.hk/skills/liki/VERSION`，记为远程版本
 3. 比较：
    - 一致 → 继续
    - 不一致 → 告知用户版本更新内容，提示执行 `npx skills update liki` 或 `npx skills add ml8s/liki -y`，用户确认后再继续

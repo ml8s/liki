@@ -15,6 +15,7 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 | 文件 | 用途 | 依据 |
 |------|------|------|
 | domains/ziwei/fangfa/calibration.md | 紫微考时 | 人生事实 | 时辰校准 |
+| domains/ziwei/fangfa/gexing.md | 性格合断 | 八字主+紫微辅 | 综合性格 |
 
 ### 📖 断语（符号→现实）
 
