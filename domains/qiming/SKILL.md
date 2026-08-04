@@ -22,10 +22,10 @@
 
 ## 领域知识
 
-### 三才五格（详见 `domains/qiming/wuge.md`）
+### 三才五格（详见 `domains/qiming/duanyu/wuge.md`）
 
 五格 = 天格/人格/地格/外格/总格，由姓与名的笔画数计算。三才 = 天/人/地三格五行。数理有吉凶之分，按笔画查表。
 
-### 字库（详见 `domains/qiming/ziku.md`）
+### 字库（详见 `domains/qiming/duanyu/ziku.md`）
 
 字库按五行归属、笔画数、部首分类。取字时按用神五行 + 五格笔画要求筛选。

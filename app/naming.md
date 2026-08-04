@@ -8,7 +8,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 ## 依赖的领域知识
 
-- bazi: domains/bazi/yongshen.md「用神方法论」
+- bazi: domains/bazi/fangfa/yongshen.md「用神方法论」
 - qiming: domains/qiming/SKILL.md「起名领域」（五格/字库/选字）
 
 ## 用户问法 → 领域信号
@@ -27,7 +27,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 第2步：定用神/喜神
   调用 bazi.yongshen（用上一步 chart）→ 返回三派用神（扶抑/调候/格局，各含 yong/xi/ji）
-  按 domains/bazi/yongshen.md 定夺——用神按决策表定（扶抑定基础/格局定方向/调候做修正），**喜神/忌神取用神所在派的 xi/ji**（同派配套，详见 domains/bazi/yongshen.md「喜神/忌神定夺」）
+  按 domains/bazi/fangfa/yongshen.md 定夺——用神按决策表定（扶抑定基础/格局定方向/调候做修正），**喜神/忌神取用神所在派的 xi/ji**（同派配套，详见 domains/bazi/fangfa/yongshen.md「喜神/忌神定夺」）
   **特别注意调候**：冬夏极端月份调候优先于扶抑和格局
   输出：□ 用神____ 喜神____ 忌神____
 
@@ -48,7 +48,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
     wuge: true=按吉笔画取字（默认，surname 必填）/ false=按笔画取字（surname 不需要）
     wuxing2: 第2字五行；用+用=同 wuxing1，用+喜=喜神（双向需互换 wuxing1/wuxing2 调两次）
   返回 combos 数组，每组合 {id, first, second?}（first/second 纯字数组）
-  LLM 过滤每组字（机械删→语义删，按「domains/qiming/ziku.md 字库过滤细则」）→ 保留好字
+  LLM 过滤每组字（机械删→语义删，按「domains/qiming/duanyu/ziku.md 字库过滤细则」）→ 保留好字
   **只允许在同一 combo 的 first/second 内选字**——跨组组合笔画对会错，五格不保（check 也救不回）
   **字池太差的组直接跳过**：某组 first/second 全是生僻字或无一可用 → 整组丢弃，不硬选
   **候选不足时逐级回退**：放宽语义过滤→放宽机械过滤→用+用→用+喜→调整用神策略
@@ -110,7 +110,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 📋 方法足迹
 - 排盘: {bazi.chart} → 用神: {bazi.yongshen}
 - 取字: {qiming.pick（wuge=true/false）} → 组名: {qiming.build} → 评估: {qiming.check}
-- 读取知识: {naming.md 流程卡第X步 + domains/bazi/yongshen.md 决策表条目}
+- 读取知识: {naming.md 流程卡第X步 + domains/bazi/fangfa/yongshen.md 决策表条目}
 - 检查项: {填写的 Gate/清单项}
 - 推理链: 用神五行→五格笔画→候选字→过滤→组名→校验，每步引用 RPC 字段
 ```

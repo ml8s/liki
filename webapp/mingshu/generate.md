@@ -3,7 +3,7 @@
 1. 调用 `time.now` 获取当前时间（用于确定当前大运位置、换运时间和流年起算）
 2. 调用 `tianwen_time` 获取真太阳时（出生城市未知时默认北京 116.4E 39.9N）
 3. 调用 `bazi_chart` 排八字（时间精度未知默认 12:00）
-4. 按 bazi 的用神方法论定格局（参考 `domains/bazi/geju.md` → 定格→顺逆取用）
+4. 按 bazi 的用神方法论定格局（参考 `domains/bazi/fangfa/geju.md` → 定格→顺逆取用）
 5. 调用 `bazi_yongshen` 取用神
 6. 分析十神关键组合（杀印相生、伤官配印、财官相生等）
 7. 调用 `bazi_hehui` 分析合会冲刑
