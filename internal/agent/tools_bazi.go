@@ -30,6 +30,7 @@ func baziChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 	var p struct {
 		SolarTime string         `json:"solar_time"`
 		Gender    ganzhi.Gender `json:"gender"`
+		Longitude *float64       `json:"longitude,omitempty"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("compute_chart: %w", err)
@@ -40,6 +41,11 @@ func baziChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 	st, err := parseSolarTime(p.SolarTime)
 	if err != nil {
 		return nil, fmt.Errorf("compute_chart: %w", err)
+	}
+	// 真太阳时校正：有 longitude 时，先用经度校正时刻再排盘（所有命例都应校正）
+	if p.Longitude != nil {
+		ts := tianwen.ComputeTimeset(tianwen.GregorianTime(st.Time()), *p.Longitude)
+		st = ts.Solar
 	}
 	result := bazi.ComputeChart(st, p.Gender)
 	// Compute current step index from server time.
@@ -254,7 +260,7 @@ var baziMethods = []RPCMethod{
 	},
 	{
 		Name: "bazi.chart", Description: "排八字命盘。返回最小命盘（四柱+纳音+大运+性别）。如需十神/藏干/神煞/长生/空亡等完整信息，请将结果传入 bazi.fullchart。用神需另行调用 bazi.yongshen。",
-		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"gender":` + schemaGender + `},"required":["solar_time","gender"]}`), Handler: baziChartHandler,
+		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"gender":` + schemaGender + `,"longitude":{"type":"number","description":"出生地经度（度），用于真太阳时校正。缺省用东八区 120。所有命例都应传实际经度，海外/西部命例必传否则时辰错"}},"required":["solar_time","gender"]}`), Handler: baziChartHandler,
 		Result: envelopeSchema(`{"type":"object","properties":{"nian":{"type":"object","description":"年柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"yue":{"type":"object","description":"月柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"ri":{"type":"object","description":"日柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"shi":{"type":"object","description":"时柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"da_yun":{"type":"object","description":"大运。start_year_after/start_month_after/start_day_after 为出生后起运精确时间（3天=1年）；direction 顺排/逆排；steps 每步含 gan/zhi/qi_sui/zhi_sui/name/wuxing/shi_shen（十年一运）；current_step_index 为当前所处大运索引（-1 表示未起运或已过完所有大运）"},"gender":{"type":"string"}},"required":["nian","yue","ri","shi","da_yun","gender"]}`),
 	},
 	{
