@@ -43,7 +43,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
   → 调用 domains/bazi/duanyu/xueye.md「学历等级决策表」
   输出：□ 学历档____ 依据____
 
-第4步：紫微验证
+第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】
   → 调用 domains/ziwei/duanyu/yingqi.md「学业」表
   → 调用 domains/ziwei/duanyu/liunian.md → 检查流年文昌/文曲是否被化科引动
   → 调用 domains/ziwei/duanyu/liunian.md → 流年命宫是否落父母宫/命宫/福德宫（考试有利宫位）
