@@ -9,9 +9,9 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 ## 依赖的领域知识
 
 - bazi: SKILL.md 排盘流程
-- bazi: domains/bazi/fangfa/dayun.md/domains/bazi/duanyu/hehui.md/domains/bazi/duanyu/shishen.md/domains/bazi/fangfa/gongwei.md/domains/bazi/fangfa/liuqin.md/domains/bazi/fangfa/wangshuai.md/domains/bazi/fangfa/geju.md/domains/bazi/fangfa/yongshen.md 全部决策表
+- bazi: `domains/bazi/fangfa/dayun.md`、`domains/bazi/duanyu/hehui.md`、`domains/bazi/duanyu/shishen.md`、`domains/bazi/fangfa/gongwei.md`、`domains/bazi/fangfa/liuqin.md`、`domains/bazi/fangfa/wangshuai.md`、`domains/bazi/fangfa/geju.md`、`domains/bazi/fangfa/yongshen.md`（方法+断语全部）
 - ziwei: SKILL.md 排盘流程
-- ziwei: domains/ziwei/duanyu/yingqi.md 紫微应期
+- ziwei: `domains/ziwei/duanyu/yingqi.md` 紫微应期
 - app: 各 app 的深入分析入口（汇总用）
 
 ## 设计原则
