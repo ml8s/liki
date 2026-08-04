@@ -44,7 +44,7 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
   → 调用 domains/bazi/duanyu/shiye.md「大运影响」+ domains/bazi/fangfa/dayun.md「应期表」
   输出：□ 当前大运____ 窗口年____
 
-第4步：紫微验证
+第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】
   → 调用 domains/ziwei/duanyu/yingqi.md「事业」表
   输出：□ 官禄宫星曜____ 化权/化禄____ 与八字（一致/相反）____
 
