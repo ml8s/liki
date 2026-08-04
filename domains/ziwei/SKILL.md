@@ -7,14 +7,14 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 
 ## 知识索引
 
-| geju.md | 特殊格局 | 星曜组合 | 格局名称+评分 |
-| yingqi.md | 紫微应期 | 领域+宫位 | 吉凶信号 |
+| domains/ziwei/duanyu/geju.md | 特殊格局 | 星曜组合 | 格局名称+评分 |
+| domains/ziwei/duanyu/yingqi.md | 紫微应期 | 领域+宫位 | 吉凶信号 |
 
 ### 📋 方法（分析流程）
 
 | 文件 | 用途 | 依据 |
 |------|------|------|
-| calibration.md | 紫微考时 | 人生事实 | 时辰校准 |
+| domains/ziwei/fangfa/calibration.md | 紫微考时 | 人生事实 | 时辰校准 |
 
 ### 📖 断语（符号→现实）
 
