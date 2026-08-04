@@ -8,21 +8,21 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 ## 依赖的领域知识
 
-- bazi: domains/bazi/shishen.md「女命婚姻——官杀混杂判断」
-- bazi: domains/bazi/gongwei.md「宫位论」
-- bazi: domains/bazi/dayun.md「应期决策表」
-- bazi: domains/bazi/liuqin.md「六亲——配偶」
+- bazi: domains/bazi/duanyu/shishen.md「女命婚姻——官杀混杂判断」
+- bazi: domains/bazi/fangfa/gongwei.md「宫位论」
+- bazi: domains/bazi/fangfa/dayun.md「应期决策表」
+- bazi: domains/bazi/fangfa/liuqin.md「六亲——配偶」
 
-- ziwei: domains/ziwei/yingqi.md「婚姻紫微应期」
+- ziwei: domains/ziwei/duanyu/yingqi.md「婚姻紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 什么时候结婚 | 官星/财星状态 + 大运窗口 + 流年引动 | domains/bazi/shishen.md + domains/bazi/dayun.md |
-| 婚姻是否顺利 | 夫妻宫冲刑 + 官杀混杂取清 | domains/bazi/shishen.md + domains/bazi/gongwei.md |
-| 对方是什么样的人 | 配偶星状态（正财/正官） + 十神组合 | domains/bazi/liuqin.md + domains/bazi/shishen.md |
-| 会不会离婚 | 夫妻宫冲破 + 官星被合/被克 | domains/bazi/shishen.md + domains/bazi/gongwei.md |
-| 什么时候遇到对象 | 大运流年引动配偶星 | domains/bazi/dayun.md + domains/bazi/shishen.md |
+| 什么时候结婚 | 官星/财星状态 + 大运窗口 + 流年引动 | domains/bazi/duanyu/shishen.md + domains/bazi/fangfa/dayun.md |
+| 婚姻是否顺利 | 夫妻宫冲刑 + 官杀混杂取清 | domains/bazi/duanyu/shishen.md + domains/bazi/fangfa/gongwei.md |
+| 对方是什么样的人 | 配偶星状态（正财/正官） + 十神组合 | domains/bazi/fangfa/liuqin.md + domains/bazi/duanyu/shishen.md |
+| 会不会离婚 | 夫妻宫冲破 + 官星被合/被克 | domains/bazi/duanyu/shishen.md + domains/bazi/fangfa/gongwei.md |
+| 什么时候遇到对象 | 大运流年引动配偶星 | domains/bazi/fangfa/dayun.md + domains/bazi/duanyu/shishen.md |
 
 ## 📖 流程卡
 
@@ -34,11 +34,11 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
   校验：四柱齐全、十二宫齐全，缺失则补问出生时间
 
 第1步：确定性别，定位配偶星（男看财星、女看官杀）
-  → 调用 domains/bazi/shishen.md「女命婚姻——官杀混杂判断」填表
+  → 调用 domains/bazi/duanyu/shishen.md「女命婚姻——官杀混杂判断」填表
   输出：□ 配偶星____ 官杀几位____ 有取清？____
 
 第2步：夫妻宫（日支）检查
-  → 调用 domains/bazi/gongwei.md「日柱」
+  → 调用 domains/bazi/fangfa/gongwei.md「日柱」
   输出：□ 日支冲刑____ 日支被合？____
   □ 合化类型（绊/化/动）____ 合化出什么五行____
   □ 合化结果：化出{五行} → 是{用神/忌神}
@@ -47,12 +47,12 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 第3步：大运流年婚姻窗口
   → 换运年检测：当前年龄____ 是否在换运年±1年内？____ 若是→该年事件强度+1级，优先于此运其他流年判断
-  → 调用 domains/bazi/dayun.md「应期决策表」筛选候选年份
+  → 调用 domains/bazi/fangfa/dayun.md「应期决策表」筛选候选年份
   → **婚变流年（经典正断）**：女命正官（夫星）受克之年 = 婚变窗口——官坐绝地/被伤官冲克/被比劫争合之年优先。男命看正财（妻星）受克同理
   输出：□ 窗口年份____ 引动类型____
 
 第4步：紫微验证
-  → 调用 domains/ziwei/yingqi.md「婚姻」表
+  → 调用 domains/ziwei/duanyu/yingqi.md「婚姻」表
   输出：□ 夫妻宫星曜____ 四化____ 桃花星____ 与八字（一致/相反）____
 
 第5步：综合结论

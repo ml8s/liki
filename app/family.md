@@ -8,24 +8,24 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 
 ## 依赖的领域知识
 
-- bazi: domains/bazi/liuqin.md「六亲判断」
-- bazi: domains/bazi/gongwei.md「宫位论」
-- bazi: domains/bazi/dayun.md「应期决策表」
-- bazi: domains/bazi/hehui.md「冲宫位表」
+- bazi: domains/bazi/fangfa/liuqin.md「六亲判断」
+- bazi: domains/bazi/fangfa/gongwei.md「宫位论」
+- bazi: domains/bazi/fangfa/dayun.md「应期决策表」
+- bazi: domains/bazi/duanyu/hehui.md「冲宫位表」
 
-- ziwei: domains/ziwei/yingqi.md「家庭紫微应期」
+- ziwei: domains/ziwei/duanyu/yingqi.md「家庭紫微应期」
 
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 父母情况如何 | 偏财（父）+ 正印（母）状态 | domains/bazi/liuqin.md + domains/bazi/gongwei.md「年柱」|
-| 父母谁身体不好 | 偏财/正印谁先被大运流年克破 | domains/bazi/liuqin.md + domains/bazi/dayun.md「应期」|
-| 父母哪年有事 | 目标星被冲/合/入墓 | domains/bazi/dayun.md「应期决策表」|
-| 和父母关系怎样 | 年柱冲刑 + 偏财正印位置 | domains/bazi/gongwei.md「年柱」+ domains/bazi/liuqin.md |
-| 兄弟姐妹如何 | 月柱比劫状态 | domains/bazi/gongwei.md「月柱」|
-| 子女运如何 | 时柱食伤/官杀状态 | domains/bazi/liuqin.md「子女」+ domains/bazi/gongwei.md「时柱」|
-| 祖上根基 | 年柱空亡/冲刑 | domains/bazi/gongwei.md「年柱」|
+| 父母情况如何 | 偏财（父）+ 正印（母）状态 | domains/bazi/fangfa/liuqin.md + domains/bazi/fangfa/gongwei.md「年柱」|
+| 父母谁身体不好 | 偏财/正印谁先被大运流年克破 | domains/bazi/fangfa/liuqin.md + domains/bazi/fangfa/dayun.md「应期」|
+| 父母哪年有事 | 目标星被冲/合/入墓 | domains/bazi/fangfa/dayun.md「应期决策表」|
+| 和父母关系怎样 | 年柱冲刑 + 偏财正印位置 | domains/bazi/fangfa/gongwei.md「年柱」+ domains/bazi/fangfa/liuqin.md |
+| 兄弟姐妹如何 | 月柱比劫状态 | domains/bazi/fangfa/gongwei.md「月柱」|
+| 子女运如何 | 时柱食伤/官杀状态 | domains/bazi/fangfa/liuqin.md「子女」+ domains/bazi/fangfa/gongwei.md「时柱」|
+| 祖上根基 | 年柱空亡/冲刑 | domains/bazi/fangfa/gongwei.md「年柱」|
 
 ## 📖 流程卡
 
@@ -37,22 +37,22 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
   校验：四柱齐全、十二宫齐全，缺失则补问出生时间
 
 第1步：确定目标六亲类型
-  → 调用 domains/bazi/liuqin.md「判断分支」— 确认目标星
+  → 调用 domains/bazi/fangfa/liuqin.md「判断分支」— 确认目标星
   输出：□ 六亲类型（父/母/子女/兄弟）____ 目标星____
 
 第2步：目标星状态检查
-  → 调用 domains/bazi/liuqin.md 对应的判断分支 + domains/bazi/gongwei.md「宫位论」
+  → 调用 domains/bazi/fangfa/liuqin.md 对应的判断分支 + domains/bazi/fangfa/gongwei.md「宫位论」
   输出：□ 目标星（透/藏/不现）____ 有根否____ 被冲/合/克？____
   输出：□ 目标宫位（年/月/日/时柱）____ 宫位冲刑？____
 
 第3步：大运流年应期
   → 换运年检测：当前年龄____ 是否在换运年±1年内？____ 若是→该年事件强度+1级
-  → 调用 domains/bazi/dayun.md「应期决策表」+「各领域目标表」
+  → 调用 domains/bazi/fangfa/dayun.md「应期决策表」+「各领域目标表」
   输出：□ 大运引动类型（冲/合/克/生扶/值）____ 候选年份____
   输出：□ 应期强度（三重/双重/单重引动）____ 最终应年____
 
 第4步：紫微验证
-  → 调用 domains/ziwei/yingqi.md「父母」/「子女」表
+  → 调用 domains/ziwei/duanyu/yingqi.md「父母」/「子女」表
   输出：□ 父母宫/子女宫星曜____ 四化____ 与八字（一致/相反）____
 
 

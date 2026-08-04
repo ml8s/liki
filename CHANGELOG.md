@@ -27,18 +27,18 @@
   - shiye/xueye 标题对齐决策表标记
 - 2.1.0: 紫微领域新增流年分析+来因宫+断长相+紫微考时；app/study 深化紫微交叉验证
   **新增**：
-  - `domains/ziwei/liunian.md`：流年命宫落12宫解读、流年四化解读、流年星表
-  - `domains/ziwei/laiyin.md`：来因宫判断规则+12宫解读表
-  - `domains/ziwei/xiangmao.md`：14主星+辅星断长相特征
-  - `domains/ziwei/calibration.md`：紫微考时校准（防呆+硬排除+评分）
+  - `domains/ziwei/duanyu/liunian.md`：流年命宫落12宫解读、流年四化解读、流年星表
+  - `domains/ziwei/duanyu/laiyin.md`：来因宫判断规则+12宫解读表
+  - `domains/ziwei/duanyu/xiangmao.md`：14主星+辅星断长相特征
+  - `domains/ziwei/fangfa/calibration.md`：紫微考时校准（防呆+硬排除+评分）
   **修改**：
   - `domains/bazi/SKILL.md`：考时流程加入紫微交叉验证步骤
   - `domains/ziwei/SKILL.md`：知识索引加入4条新记录
   - `app/study.md`：第4步加入流年文昌文曲+流年命宫落宫判断
   **修复**：
   - 根 SKILL.md 新增「RPC 调用说明」章节，明确 endpoint（`POST https://liki.hk/jsonrpc`）和 `rpc.discover` 的调用方式，agent 不再因不知道往哪 POST 而卡住
-  - 考时校准从根 SKILL.md 移至 `domains/bazi/calibration.md`，按领域层规范改写为决策表+防呆清单+三层流程；根 SKILL.md 不再承载领域子流程
-  - `domains/bazi/dayun.md` 硬编码步骤编号「第 3-5 步」改为语义标签「排八字→取全量数据」，消除步骤变动时的引用断裂风险
+  - 考时校准从根 SKILL.md 移至 `domains/bazi/fangfa/calibration.md`，按领域层规范改写为决策表+防呆清单+三层流程；根 SKILL.md 不再承载领域子流程
+  - `domains/bazi/fangfa/dayun.md` 硬编码步骤编号「第 3-5 步」改为语义标签「排八字→取全量数据」，消除步骤变动时的引用断裂风险
   - 路由分发第1条精简为引用 RPC 调用说明章节，避免重复信息
 - 2.0.0: 重大架构重构——域与应用分离
   **核心变化**：

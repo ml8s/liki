@@ -8,18 +8,18 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 
 ## 依赖的领域知识
 
-- bazi: domains/bazi/wangshuai.md「身弱五行属性降级表」
-- bazi: domains/bazi/shishen.md「十神组合场景化」
+- bazi: domains/bazi/fangfa/wangshuai.md「身弱五行属性降级表」
+- bazi: domains/bazi/duanyu/shishen.md「十神组合场景化」
 
-- ziwei: domains/ziwei/yingqi.md「性格紫微应期」
+- ziwei: domains/ziwei/duanyu/yingqi.md「性格紫微应期」
 
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 我性格怎么样 | 日主五行 + 十神组合 + 旺衰 | domains/bazi/wangshuai.md + domains/bazi/shishen.md |
-| 我和别人合得来吗 | 日主+十神组合的社交属性 | domains/bazi/shishen.md「食伤/官杀」|
-| 我适合做什么 | 十神组合的事业指向 | domains/bazi/shishen.md「十神组合」|
+| 我性格怎么样 | 日主五行 + 十神组合 + 旺衰 | domains/bazi/fangfa/wangshuai.md + domains/bazi/duanyu/shishen.md |
+| 我和别人合得来吗 | 日主+十神组合的社交属性 | domains/bazi/duanyu/shishen.md「食伤/官杀」|
+| 我适合做什么 | 十神组合的事业指向 | domains/bazi/duanyu/shishen.md「十神组合」|
 
 ## 📖 流程卡
 
@@ -31,18 +31,18 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
   校验：四柱齐全、十二宫齐全，缺失则补问出生时间
 
 第1步：日主五行定基础
-  → 调用 domains/bazi/wangshuai.md「身弱五行属性降级表」
+  → 调用 domains/bazi/fangfa/wangshuai.md「身弱五行属性降级表」
   输出：□ 日主____ 身强/弱____ 基础特征____
 
 第2步：十神组合修正
-  → 调用 domains/bazi/shishen.md「十神组合场景化」
+  → 调用 domains/bazi/duanyu/shishen.md「十神组合场景化」
   输出：□ 组合类型____ 修正方向____
 
 第3步：综合
   输出：□ 正向特征____ 负向特征____ 最终结论____
 
 第4步：紫微验证
-  → 调用 domains/ziwei/yingqi.md「性格」表
+  → 调用 domains/ziwei/duanyu/yingqi.md「性格」表
   输出：□ 命宫主星____ 身宫特点____ 与八字（一致/相反）____
 
 

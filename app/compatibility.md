@@ -8,18 +8,18 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 ## 依赖的领域知识（预留跨域）
 
-- bazi: domains/bazi/hepan.md「合盘评估」
-- bazi: domains/bazi/gongwei.md「宫位论」
-- bazi: domains/bazi/shishen.md「十神组合」
+- bazi: domains/bazi/fangfa/hepan.md「合盘评估」
+- bazi: domains/bazi/fangfa/gongwei.md「宫位论」
+- bazi: domains/bazi/duanyu/shishen.md「十神组合」
 - ziwei: domains/ziwei/SKILL.md「紫微合盘」（ziwei.bond）
 
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 两人合不合适 | 日干关系+夫妻宫互动+五行互补 | domains/bazi/hepan.md |
-| 能不能结婚 | 致命问题排除（年冲/日支冲/空亡）| domains/bazi/hepan.md |
-| 关系能持续多久 | 大运同步度 | domains/bazi/hepan.md + domains/bazi/dayun.md |
+| 两人合不合适 | 日干关系+夫妻宫互动+五行互补 | domains/bazi/fangfa/hepan.md |
+| 能不能结婚 | 致命问题排除（年冲/日支冲/空亡）| domains/bazi/fangfa/hepan.md |
+| 关系能持续多久 | 大运同步度 | domains/bazi/fangfa/hepan.md + domains/bazi/fangfa/dayun.md |
 | 合盘紫微验证 | 夫妻宫/命宫互入 | ziwei.bond |
 
 ## 📖 流程卡
@@ -32,14 +32,14 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
   校验：双方四柱齐全，缺一方则补问
 
 第1步：致命问题排除
-  → 调用 domains/bazi/hepan.md「综合评级」
+  → 调用 domains/bazi/fangfa/hepan.md「综合评级」
   输出：□ 年冲？____ 日支冲？____ 配偶星空亡？____ 日干纯克？____
 
 第2步：匹配评估
   输出：□ 日干关系____ 夫妻宫互动____ 五行互补度____ 十神传递____
 
 第3步：可持续性
-  → 调用 domains/bazi/dayun.md（对比双方大运同步度）
+  → 调用 domains/bazi/fangfa/dayun.md（对比双方大运同步度）
   输出：□ 大运同步度____
 
 第4步：紫微验证（交叉验证）
@@ -50,7 +50,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 第5步：综合评级
   输出：□ 良配/可配/慎配/不利 ____
 
-📖 搜索 domains/bazi/hepan.md → 读取合盘评估
+📖 搜索 domains/bazi/fangfa/hepan.md → 读取合盘评估
 
 ## 📖 输出模板
 

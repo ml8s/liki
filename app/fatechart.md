@@ -9,9 +9,9 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 ## 依赖的领域知识
 
 - bazi: SKILL.md 排盘流程
-- bazi: domains/bazi/dayun.md/domains/bazi/hehui.md/domains/bazi/shishen.md/domains/bazi/gongwei.md/domains/bazi/liuqin.md/domains/bazi/wangshuai.md/domains/bazi/geju.md/domains/bazi/yongshen.md 全部决策表
+- bazi: domains/bazi/fangfa/dayun.md/domains/bazi/duanyu/hehui.md/domains/bazi/duanyu/shishen.md/domains/bazi/fangfa/gongwei.md/domains/bazi/fangfa/liuqin.md/domains/bazi/fangfa/wangshuai.md/domains/bazi/fangfa/geju.md/domains/bazi/fangfa/yongshen.md 全部决策表
 - ziwei: SKILL.md 排盘流程
-- ziwei: domains/ziwei/yingqi.md 紫微应期
+- ziwei: domains/ziwei/duanyu/yingqi.md 紫微应期
 - app: 各 app 的深入分析入口（汇总用）
 
 ## 设计原则
@@ -72,7 +72,7 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 □ 婚姻类：官杀混杂取清分析了吗？ （____）
 □ 学业类：印星有效性检查做了吗？ （____）
 □ 性格类：身弱五行降级考虑了吗？ （____）
-□ 健康类：五行对应脏腑引用了 domains/bazi/wuxing-jiankang.md 吗？ （____）
+□ 健康类：五行对应脏腑引用了 domains/bazi/duanyu/wuxing-jiankang.md 吗？ （____）
 □ 财运类：比劫夺财检查做了吗？ （____）
 
 ## 双盘验证（八字+紫微交叉）
@@ -101,20 +101,20 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 - 四柱排列表（含藏干）
 - 日主五行、身强身弱
 - 格局名称 + 一句话总评
-- 四柱宫位对应人生领域（年祖上父母/月兄弟环境/日自我配偶/时子女晚年），参考 `domains/bazi/gongwei.md`
+- 四柱宫位对应人生领域（年祖上父母/月兄弟环境/日自我配偶/时子女晚年），参考 `domains/bazi/fangfa/gongwei.md`
 
 ### 二、五行与十神分析（不少于 3 个维度）
 
 - 五行分布计数与强弱对比
 - 十神配置，日主与月令关系
-- 十神关键组合（杀印相生/伤官配印/财官相生等），如有则重点展开，并说明该组合在人生中的应事方向（参考 `domains/bazi/shishen.md`）
+- 十神关键组合（杀印相生/伤官配印/财官相生等），如有则重点展开，并说明该组合在人生中的应事方向（参考 `domains/bazi/duanyu/shishen.md`）
 
 ### 三、用神喜忌（不少于 4 个维度）
 
 - 扶抑/调候/格局三派各自的用神/喜神/忌神
 - 综合三派结果，说明取舍理由（分歧时说明权重，一致时一笔带过）
 - 最终用神、喜神、忌神
-- 用神状态：有根无根、有力无力、处境如何（参考 `domains/bazi/yongshen.md`）
+- 用神状态：有根无根、有力无力、处境如何（参考 `domains/bazi/fangfa/yongshen.md`）
 
 ### 四、格局判定（不少于 4 个维度）
 
@@ -127,15 +127,15 @@ description: 命盘分析 — 全盘综合解读，用户无明确问题时走�
 
 - 起运年龄，各运干支
 - 每运与命局的生克制化关系（如大运地支冲合原局哪个柱）
-- 前五年天干主导 / 后五年地支主导，分开分析（参考 `domains/bazi/dayun.md`）
+- 前五年天干主导 / 后五年地支主导，分开分析（参考 `domains/bazi/fangfa/dayun.md`）
 - 当前大运 **粗体** 标注，换运年前后各一年单独说明
-- 大运对流年应期的引导（换运年、用神到位年、忌神发力年），参考 `domains/bazi/dayun.md`
+- 大运对流年应期的引导（换运年、用神到位年、忌神发力年），参考 `domains/bazi/fangfa/dayun.md`
 
 ### 六、当前流年（不少于 4 个维度）
 
 - 当年干支与命局关系（生合冲克刑）
 - 当年大运与流年的互动（大运为十年基调，流年为当年应事）
-- 流年应于何事应于何人（宫位应期），参考 `domains/bazi/dayun.md`
+- 流年应于何事应于何人（宫位应期），参考 `domains/bazi/fangfa/dayun.md`
 - 重点关注事项
 
 ### 七、综合建议
