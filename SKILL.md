@@ -32,7 +32,7 @@ description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问
 
 1. 先调用 `tianwen.time({"time": <RFC3339>, "longitude": <出生地经度>})` → 返回校正后的 `solar`（真太阳时）和 `lunar`（含校正后 `shichen` 时辰）
 2. 八字排盘：`bazi.chart` 的 `solar_time` 传**校正后的真太阳时**（或直接传 `longitude` 让引擎校正）
-3. 紫微排盘：`ziwei.chart` 的 `lunar.shichen` 用**校正后的时辰**
+3. 紫微排盘：`ziwei.chart` **默认收农历**（lunar），输入 = `tianwen.time` 返回的**校正后 lunar**（含校正后 `shichen`）——`ziwei.chart({"lunar":{"year":...,"month":...,"day":...,"shichen":<校正后时辰>},"gender":...})`
 4. 经度未知时：城市名 → 查 `city` 方法获取经纬度；仍未知 → 国内默认 116.4（北京）、海外需补城市
 
 **路 B：用户/题干已明确「时辰」**（如「酉时」「亥时」「巳时」，题目/用户直接标注）→ **直接用该时辰排盘，不校正**：
@@ -49,7 +49,10 @@ description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问
   | 辰 | 07:00 | 戌 | 19:00 |
   | 巳 | 09:00 | 亥 | 21:00 |
   - 例：题干「巳时」→ `solar_time = "1956-03-11T10:00:00+08:00"`（巳时中间 9:00 或题干时刻）
-- 紫微排盘：`ziwei.chart` 的 `lunar.shichen` 用**题干时辰**
+- **紫微排盘**：`ziwei.chart` **默认收农历**（lunar），输入 =「题干日期转农历年月日」+「题干时辰」：
+  1. 用 `tianwen.time`（只取农历，**忽略其校正时辰**）或题干的农历 → 得农历年/月/日
+  2. `lunar.shichen` 用**题干时辰**（如「亥」），不用校正后时辰
+  3. 例：题干「1986年4月24日亥时」→ `ziwei.chart({"lunar":{"year":1986,"month":3,"day":16,"shichen":"亥"},"gender":"male"})`
 
 **判定规则**：题干/用户**明确写了「X时」字样**（子丑寅卯辰巳午未申酉戌亥时）→ 路 B；只给「时:分」具体时刻 → 路 A。两者不可混用。
 
