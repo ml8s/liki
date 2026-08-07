@@ -8,10 +8,10 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 ## 依赖的领域知识（预留跨域）
 
-- bazi: domains/bazi/fangfa/hepan.md「合盘评估」
-- bazi: domains/bazi/fangfa/gongwei.md「宫位论」
-- bazi: domains/bazi/duanyu/shishen.md「十神组合」
-- ziwei: domains/ziwei/SKILL.md「紫微合盘」（ziwei.bond）
+[必读] - bazi: domains/bazi/fangfa/hepan.md「合盘评估」
+[必读] - bazi: domains/bazi/fangfa/gongwei.md「宫位论」
+[必读] - bazi: domains/bazi/duanyu/shishen.md「十神组合」
+[必读] - ziwei: domains/ziwei/SKILL.md「紫微合盘」（ziwei.bond）
 
 ## 用户问法 → 领域信号（翻译表）
 
@@ -24,12 +24,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 ## 📖 流程卡
 
-第0步：排盘（前置，双方）
-  → 调用 bazi.chart(solar_time_a, gender_a) 排甲方八字
-  → 调用 bazi.chart(solar_time_b, gender_b) 排乙方八字
-  → 双方各调 bazi.fullchart(chart) 取全量
-  → （紫微验证用）双方各调 ziwei.chart + ziwei.fullchart
-  校验：双方四柱齐全，缺一方则补问
+⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照，双方各排），此处不重复
 
 第1步：致命问题排除
   → 调用 domains/bazi/fangfa/hepan.md「综合评级」
@@ -75,3 +70,5 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 |---------|---------|
 | 只提供了一方的八字 | 提示需要双方出生信息才能合盘 |
 | 问合盘但只说"帮我看看我俩" | 提示提供双方出生信息 |
+
+- **信号冲突 → 查 SKILL.md 执行主干（Phase 6 紫微交叉裁决）**：本卡与紫微/八字互斥时，回主干按「一票否决类/一般冲突」裁决，禁止本卡内自决。

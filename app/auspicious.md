@@ -6,9 +6,11 @@ description: 择日分析 — 黄历择吉，婚嫁搬家开业吉日
 
 # 择日分析
 
+
+> **流程类型**：Phase 8（黄历择日子流程）——不套八字主干全流程（SKILL.md 执行主干 Phase 0 路由 + Phase 8）；信号冲突回主干裁决。
 ## 依赖的领域知识
 
-- 黄历: domains/huangli/SKILL.md「择日」
+[必读] - 黄历: domains/huangli/SKILL.md「择日」
 
 ## 用户问法 → 领域信号
 

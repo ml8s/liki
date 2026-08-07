@@ -17,7 +17,7 @@ description: 黄历择日模块（组件）。宜忌查询、吉日选择。
 1. **收集参数**：日期范围、事件类型、命主信息（可选）。
 2. **调用引擎**：huangli.days 查连续 N 天黄历宜忌。
 3. **筛选推荐**：调 domains/huangli/duanyu/jiri.md → 按优先级选出 1-3 日。
-4. **输出** → `app/auspicious.md` 按模板输出。
+4. **输出**：结构化数据，由执行主干分发到 app/auspicious 按模板输出。
 
 📖 搜索 domains/huangli/duanyu/yiji.md → 读取宜忌规则
 📖 搜索 domains/huangli/duanyu/jiri.md → 读取吉日选择规则

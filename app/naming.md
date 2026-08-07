@@ -6,10 +6,12 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 # 起名分析
 
+
+> **流程类型**：Phase 1-4（八字用神流程）——不套八字主干全流程（SKILL.md 执行主干 Phase 0 路由 + Phase 8）；信号冲突回主干裁决。
 ## 依赖的领域知识
 
-- bazi: domains/bazi/fangfa/yongshen.md「用神方法论」
-- qiming: domains/qiming/SKILL.md「起名领域」（五格/字库/选字）
+[必读] - bazi: domains/bazi/fangfa/yongshen.md「用神方法论」
+[必读] - qiming: domains/qiming/SKILL.md「起名领域」（五格/字库/选字）
 
 ## 用户问法 → 领域信号
 
@@ -21,11 +23,9 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 ## 📖 流程卡
 
-第1步：排盘（前置）
-  调用 bazi.chart(solar_time, gender) → 返回四柱/十神/旺衰
-  校验四柱齐全（年/月/日/时干支持），缺失则补问出生时间
+⟳ 执行主干 Phase 1-2（时辰判定 + 八字排盘快照；naming 无紫微交叉，不调 ziwei）
 
-第2步：定用神/喜神
+第1步：定用神/喜神
   调用 bazi.yongshen（用上一步 chart）→ 返回三派用神（扶抑/调候/格局，各含 yong/xi/ji）
   按 domains/bazi/fangfa/yongshen.md 定夺——用神按决策表定（扶抑定基础/格局定方向/调候做修正），**喜神/忌神取用神所在派的 xi/ji**（同派配套，详见 domains/bazi/fangfa/yongshen.md「喜神/忌神定夺」）
   **特别注意调候**：冬夏极端月份调候优先于扶抑和格局

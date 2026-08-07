@@ -8,11 +8,11 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 
 ## 依赖的领域知识
 
-- bazi: domains/bazi/duanyu/shiye.md「决策表」
-- bazi: domains/bazi/fangfa/gongwei.md「宫位论」
-- bazi: domains/bazi/fangfa/dayun.md「应期决策表」
+[必读] - bazi: domains/bazi/duanyu/shiye.md「决策表」
+[必读] - bazi: domains/bazi/fangfa/gongwei.md「宫位论」
+[必读] - bazi: domains/bazi/fangfa/dayun.md「应期决策表」
 
-- ziwei: domains/ziwei/duanyu/yingqi.md「事业紫微应期」
+[必读] - ziwei: domains/ziwei/duanyu/yingqi.md「事业紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
@@ -24,13 +24,7 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 
 ## 📖 流程卡
 
-第0步：排盘（前置）
-  → 时辰来源：按根 SKILL.md「真太阳时校正」两路规则——用户给具体时刻→校正；题干/用户已给「X时」→直接用该时辰（solar_time 传该时辰对应时刻）
-  → 调用 bazi.chart(solar_time, gender) 排八字 → 四柱/大运
-  → 调用 bazi.fullchart(chart) 取全量（十神/藏干/神煞/空亡）
-  → 调用 ziwei.chart(lunar, gender) 排紫微 → 十二宫
-  → 调用 ziwei.fullchart(chart) 取全量（杂曜/长生/小限）
-  校验：四柱齐全、十二宫齐全，缺失则补问出生时间
+⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照），此处不重复
 
 第1步：官财透干定层次
   → 调用 domains/bazi/duanyu/shiye.md「官财透干定层次」
@@ -41,7 +35,6 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
   输出：□ 组合____ 职业方向____
 
 第3步：大运起伏
-  → 换运年检测：当前年龄____ 是否在换运年±1年内？____ 若是→该年事件强度+1级
   → 调用 domains/bazi/duanyu/shiye.md「大运影响」+ domains/bazi/fangfa/dayun.md「应期表」
   输出：□ 当前大运____ 窗口年____
 
@@ -78,3 +71,5 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 |---------|---------|
 | 官杀财星均不透 | 查地支藏干，或食伤/印星定方向 |
 | 用户问换工作 | 结合大运流年引动判断 |
+
+- **信号冲突 → 查 SKILL.md 执行主干（Phase 6 紫微交叉裁决）**：本卡与紫微/八字互斥时，回主干按「一票否决类/一般冲突」裁决，禁止本卡内自决。

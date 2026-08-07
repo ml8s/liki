@@ -6,10 +6,12 @@ description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
 
 # 占卜分析
 
+
+> **流程类型**：Phase 8（六爻/奇门子流程）——不套八字主干全流程（SKILL.md 执行主干 Phase 0 路由 + Phase 8）；信号冲突回主干裁决。
 ## 依赖的领域知识
 
-- 六爻: domains/liuyao/SKILL.md「六爻占卜」
-- 奇门: domains/qimen/SKILL.md「奇门遁甲」
+[必读] - 六爻: domains/liuyao/SKILL.md「六爻占卜」
+[必读] - 奇门: domains/qimen/SKILL.md「奇门遁甲」
 
 ## 用户问法 → 领域信号
 

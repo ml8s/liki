@@ -6,10 +6,12 @@ description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 
 # 风水分析
 
+
+> **流程类型**：Phase 8（八宅/玄空子流程）——不套八字主干全流程（SKILL.md 执行主干 Phase 0 路由 + Phase 8）；信号冲突回主干裁决。
 ## 依赖的领域知识
 
-- 八宅: domains/bazhai/SKILL.md「八宅风水」
-- 玄空: domains/xuankong/SKILL.md「玄空风水」
+[必读] - 八宅: domains/bazhai/SKILL.md「八宅风水」
+[必读] - 玄空: domains/xuankong/SKILL.md「玄空风水」
 
 ## 用户问法 → 领域信号
 
