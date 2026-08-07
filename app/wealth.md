@@ -8,10 +8,10 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 ## 依赖的领域知识
 
-- bazi: domains/bazi/duanyu/caiyun.md「决策表」
-- bazi: domains/bazi/duanyu/shishen.md「十神」
+[必读] - bazi: domains/bazi/duanyu/caiyun.md「决策表」
+[必读] - bazi: domains/bazi/duanyu/shishen.md「十神」
 
-- ziwei: domains/ziwei/duanyu/yingqi.md「财运紫微应期」
+[必读] - ziwei: domains/ziwei/duanyu/yingqi.md「财运紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
@@ -23,13 +23,7 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 ## 📖 流程卡
 
-第0步：排盘（前置）
-  → 时辰来源：按根 SKILL.md「真太阳时校正」两路规则——用户给具体时刻→校正；题干/用户已给「X时」→直接用该时辰（solar_time 传该时辰对应时刻）
-  → 调用 bazi.chart(solar_time, gender) 排八字 → 四柱/大运
-  → 调用 bazi.fullchart(chart) 取全量（十神/藏干/神煞/空亡）
-  → 调用 ziwei.chart(lunar, gender) 排紫微 → 十二宫
-  → 调用 ziwei.fullchart(chart) 取全量（杂曜/长生/小限）
-  校验：四柱齐全、十二宫齐全，缺失则补问出生时间
+⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照），此处不重复
 
 第1步：财星定有无
   → 调用 domains/bazi/duanyu/caiyun.md「财星定有无」
@@ -45,7 +39,6 @@ description: 财运分析 — 财源类型、收入层次、风险提示
     身强+财旺 → 正常得财判断
 
 第3步：大运+比劫检查
-  → 换运年检测：当前年龄____ 是否在换运年±1年内？____ 若是→该年事件强度+1级
   → 调用 domains/bazi/duanyu/caiyun.md「大运定起伏」+「比劫夺财检查」
   输出：□ 当前大运____ 夺财风险____
 
@@ -55,10 +48,6 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 
 📖 搜索 domains/bazi/SKILL.md → 获取排盘数据
-#### 紫微→八字翻译
-
-| 紫微信号 | 翻译结论 |
-|---------|---------|
 ## 📖 输出模板
 
 ### 长格式
@@ -83,3 +72,5 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 |---------|---------|
 | 原局无财星 | 查食伤（食伤生财为隐性财源）|
 | 财多身弱 | 标注为"财多身弱反为贫"，需大运帮身方可担财 |
+
+- **信号冲突 → 查 SKILL.md 执行主干（Phase 6 紫微交叉裁决）**：本卡与紫微/八字互斥时，回主干按「一票否决类/一般冲突」裁决，禁止本卡内自决。

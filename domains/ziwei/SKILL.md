@@ -25,7 +25,6 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 | domains/ziwei/duanyu/fuxing.md | 辅星作用 | 辅星名称 | 吉凶作用 |
 | domains/ziwei/duanyu/gong12.md | 十二宫要点 | 宫位+星曜 | 解读要点 |
 | domains/ziwei/duanyu/sihua.md | 四化规则 | 四化星+宫位 | 含义影响 |
-| domains/ziwei/duanyu/gexing.md | 性格双盘 | 命宫主星+日主 | 性格描述 |
 | domains/ziwei/duanyu/liunian.md | 流年分析 | 流年命宫+四化+星 | 应年重点领域+吉凶信号 |
 | domains/ziwei/duanyu/laiyin.md | 来因宫解读 | 命盘天干 | 人生课题方向 |
 | domains/ziwei/duanyu/xiangmao.md | 断长相 | 命宫主星+辅星 | 外表特征描述 |
@@ -44,7 +43,7 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
      - `ages` — 流年年龄明细
    - **严禁自行以五行局起算年龄或以命宫干支顺逆推算大限**，必须使用引擎返回数据
 5. 解读：调 `domains/ziwei/duanyu/` 各断语表 → 命宫→身宫→十二宫→四化→三方→格局→综合
-6. 产出：结构化数据 → `app/fatechart.md` 输出
+6. 产出：结构化数据，由执行主干（SKILL.md Phase 0 路由）分发到对应 app 输出
 
 📖 读取 `domains/ziwei/duanyu/` 下 9 张断语表 → 逐一搜索「清单」填写 □ 填空
 
@@ -53,7 +52,7 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 1. 排双方紫微盘
 2. 合盘（调用 `ziwei.bond`）
 3. 解读：命宫对位→夫妻宫呼应→四化交集
-4. 产出：结构化数据 → `app/compatibility.md` 输出
+4. 产出：结构化数据（双方），由执行主干分发到 app/compatibility 输出
 
 📖 搜索 domains/ziwei/duanyu/gong12.md → 读取夫妻宫要点
 
