@@ -52,7 +52,7 @@ def _load_table(name):
     return rows
 
 
-def _load_yaml(name):
+def _load_json(name):
     """因子层/字典加载（json——标准库，容器无 PyYAML 兼容）。name 如 "factors.json"/"constants"。"""
     import json as _json
     fname = name if name.endswith('.json') else name + '.json'
@@ -65,7 +65,7 @@ def load_constants() -> dict:
     """复合因子层的字典配置（evaluator 求值 factors.yaml 的参数表——目标星/事件宫位/五行等）。"""
     global _CONST
     if _CONST is None:
-        _CONST = _load_yaml("constants.json")
+        _CONST = _load_json("constants.json")
     return _CONST
 
 
@@ -335,15 +335,13 @@ def _op(op: str, args, fac, gender, rpc) -> int:
             return "刑"
         return "静"
     if op == "日支类型":
-        # 日支四桃花/四驿马/四墓库——配偶特征
+        # 日支四桃花/四驿马/四墓库——配偶特征（查 constants 日支神煞表）
         chart = rpc.get("chart", {}) or {}
         ri_zhi = (chart.get("ri") or {}).get("zhi", "")
-        if ri_zhi in ("子", "午", "卯", "酉"):
-            return "桃花"
-        if ri_zhi in ("寅", "申", "巳", "亥"):
-            return "驿马"
-        if ri_zhi in ("辰", "戌", "丑", "未"):
-            return "墓库"
+        const = load_constants()
+        for cat, zhis in const["日支神煞"].items():
+            if ri_zhi in zhis:
+                return cat
         return ""
     if op == "财库现":
         # 日干所克=财星五行 → 墓库支（金库丑/木库未/水库辰/火库戌/土库辰）→ 在命局四柱支中
@@ -351,7 +349,7 @@ def _op(op: str, args, fac, gender, rpc) -> int:
         day_gan = fac.get("ri_gan", "")
         day_wx = const["天干五行"].get(day_gan, "")
         cai_wx = const["五行生克"].get(day_wx, {}).get("克", "")
-        ku = {"金": "丑", "木": "未", "水": "辰", "火": "戌", "土": "辰"}.get(cai_wx, "")
+        ku = const["墓库"].get(cai_wx, "")
         if not ku:
             return 0
         chart = rpc.get("chart", {}) or {}
@@ -365,7 +363,7 @@ def _op(op: str, args, fac, gender, rpc) -> int:
         day_gan = fac.get("ri_gan", "")
         day_wx = const["天干五行"].get(day_gan, "")
         cai_wx = const["五行生克"].get(day_wx, {}).get("克", "")
-        ku = {"金": "丑", "木": "未", "水": "辰", "火": "戌", "土": "辰"}.get(cai_wx, "")
+        ku = const["墓库"].get(cai_wx, "")
         if not ku:
             return 0
         chart = rpc.get("chart", {}) or {}
@@ -476,15 +474,15 @@ def _zw_gong_op(fac, rpc, args):
             continue
         stars = [st.get("xing", "") for st in g.get("xing_yao", [])]
         if star == "煞星":
-            sha = {"擎羊", "陀罗", "火星", "铃星", "地空", "地劫"}
+            sha = set(load_constants()["紫微煞星"])
             return 1 if sha & set(stars) else 0
         if star == "无主星":
-            main_stars = {"紫微", "天机", "太阳", "武曲", "天同", "廉贞", "天府", "太阴", "贪狼", "巨门", "天相", "天梁", "七杀", "破军"}
+            main_stars = set(load_constants()["紫微主星"])
             return 1 if not (main_stars & set(stars)) else 0
         if cond == "落陷":
             return 1 if any(st.get("xing") == star and st.get("liang_du") in ("陷", "平") for st in g.get("xing_yao", [])) else 0
         if cond == "唯一主星":
-            main_stars = {"紫微", "天机", "太阳", "武曲", "天同", "廉贞", "天府", "太阴", "贪狼", "巨门", "天相", "天梁", "七杀", "破军"}
+            main_stars = set(load_constants()["紫微主星"])
             present = [s for s in stars if s in main_stars]
             return 1 if present == [star] else 0
         return 1 if star in stars else 0

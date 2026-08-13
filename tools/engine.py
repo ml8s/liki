@@ -13,25 +13,15 @@ from __future__ import annotations
 from typing import Optional
 
 def _val_match(cond, actual):
-    """单约束匹配：支持 0/1、枚举、>=N、<=N、any_of 列表。"""
-    if isinstance(cond, list):
-        return any(_val_match(c, actual) for c in cond)
-    if isinstance(cond, str) and cond.startswith(">="):
-        return actual >= int(cond[2:])
-    if isinstance(cond, str) and cond.startswith("<="):
-        return actual <= int(cond[2:])
+    """单约束匹配：条件值（0/1、字符串枚举）与因子实际值相等即命中。"""
     return actual == cond
 def match(table: dict, df: dict, exclusive: bool = False) -> list[dict]:
-    """查表：返回命中条目（按优先级+约束命中数降序）。table = yaml 加载的 {领域: [条目]} 或 [条目]。
-    exclusive=True 时只返回最高优先级的一条（婚姻状态等单一事实域用——命理上状态互斥，不可多面）。"""
+    """查表：返回命中条目（按断语表顺序——命理师按确定性排序，程序不排序）。table = csv 加载的条目列表。
+    exclusive=True 时返回表序最前命中（单一事实域——命理上状态互斥，不可多面）。"""
     entries = table if isinstance(table, list) else list(table.values())[0]
     hits = []
     for e in entries:
-        cons = dict(e.get("约束", {}) or {})   # copy，避免 pop 污染原始条目
-        any_groups = cons.pop("any_of", None)
-        if any_groups is not None:
-            if not any(all(_val_match(cond.get(k), df.get(k)) for k in cond) for cond in any_groups):
-                continue
+        cons = dict(e.get("约束", {}) or {})
         if not all(_val_match(v, df.get(k)) for k, v in cons.items()):
             continue
         hits.append(e)
