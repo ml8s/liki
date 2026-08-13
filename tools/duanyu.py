@@ -663,6 +663,8 @@ ALL_DUANYU_RULES = ("xueye", "marriage", "shiye", "chushen", "caiyun", "jiankang
 
 def evaluate_from_rpc(data: dict, liunian_years: Optional[list] = None, gender: Optional[str] = None,
                        domain_filter: Optional[list] = None) -> dict:
+    global _FACTOR_ERRORS
+    _FACTOR_ERRORS = 0   # 每次入口清零（多次调用不累加）
     """生成器唯一入口（纯——rpc 排盘数据 → 断语；不依赖 RPC 客户端）。
 
     data: 排盘结果（full_panchang 输出——rpc_data；由调用方排盘后传入）。
@@ -1168,7 +1170,8 @@ def three_checks(st: ShishenState, wang_shuai: dict, gan_ke_list: list[dict]) ->
     """
     de_ling = st.de_ling if st.de_ling else (st.wuxing in wang_shuai and wang_shuai[st.wuxing] in DE_LING_STATES)
     # 有根已在聚合时算好；若未算则查 has_root
-    return ThreeChecks(de_ling=de_ling, not_ke=True, has_root=st.has_root)
+    not_ke = True  # 该十神是否不被克（比劫/食伤不被官杀克等——简化：恒不被克，真实克另算）
+    return ThreeChecks(de_ling=de_ling, not_ke=not_ke, has_root=st.has_root)
 
 
 def palace_flags(full: dict, pillar: str = "ri") -> PalaceFlags:
