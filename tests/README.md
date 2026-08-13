@@ -18,8 +18,8 @@ Liki 的独立评测体系：160 道命理师大赛真题按命盘分组为 **32
 
 ```bash
 cd skills/liki
-skill-up validate evals/eval-grouped-qwen.yaml   # 校验 32 个 case
-bash evals/run-qwen.sh --parallelism 16          # 一键评测 + 判分
+skill-up validate tests/eval-grouped-qwen.yaml   # 校验 32 个 case
+bash tests/run-qwen.sh --parallelism 16          # 一键评测 + 判分
 ```
 
 ## 隔离原理（防作弊）

@@ -85,8 +85,8 @@ Liki 在 [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench)（160 道
 
 ```bash
 cd skills/liki
-skill-up validate evals/eval-grouped-qwen.yaml    # 校验 32 个 case
-bash evals/run-qwen.sh --parallelism 16          # 移答案→评测→恢复→自动判分
+skill-up validate tests/eval-grouped-qwen.yaml    # 校验 32 个 case
+bash tests/run-qwen.sh --parallelism 16          # 移答案→评测→恢复→自动判分
 ```
 
 > 我们不宣称"准确率 100%"——任何不可复现的数字都不写进文档。评测体系本身（160 题、隔离、自动判分）就是专业度的证据。
@@ -113,7 +113,7 @@ liki-engine        → 天文历算 API（开源计算引擎）
 │   ├── bazhai/     ← 八宅（断语 1）
 │   ├── xuankong/   ← 玄空（断语 2）
 │   └── qiming/     ← 起名（断语 2）
-├── evals/      ← 评测体系（160 题分组 case、答案分离、判分脚本）
+├── tests/      ← 评测体系（160 题分组 case、答案分离、判分脚本）
 └── webapp/     ← Web 集成流水线
 ```
 

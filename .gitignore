@@ -15,3 +15,9 @@ dist/
 
 # 评测报告（产物，不入库）
 results/eval/
+
+# 评测产物（agent 输出——可再生）
+liki-workspace/
+# Python 缓存
+__pycache__/
+*.pyc

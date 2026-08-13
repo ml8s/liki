@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""MingLi-Bench 命盘分组判分：按「题N 答案：X」逐题对比 evals/answers.json。
+"""MingLi-Bench 命盘分组判分：按「题N 答案：X」逐题对比 tests/answers.json。
 
 用法（在 skills/liki 目录下）：
-    python3 evals/grade-grouped.py <iteration_dir> [groups.json] [answers.json]
+    python3 tests/grade-grouped.py <iteration_dir> [groups.json] [answers.json]
 
 说明：
   - groups.json: case_id -> [ftb_ids 有序列表]（每组 4-6 题）

@@ -1,0 +1,68 @@
+# skill-up 评测入口 —— MingLi-Bench 命盘分组版（32 命盘 × 4-6 题 = 160 题）· qwen_code 标准模式
+# 用法：
+#   bash tests/run-qwen.sh   （自动：移走答案→跑评测→恢复答案→判分）
+schema_version: v1alpha1
+
+skills:
+  - source: local_path
+    path: .
+    exclude:            # 只复制 skill 本体（~1MB），跳过 .git 历史(10MB)与发布包
+      - ".git/**"
+      - "dist/**"
+      - ".run-eval.*.yaml"
+      - ".setup/**"
+
+environment:
+  type: docker
+  image: liki-qwen:1
+  workspace_mount: /workspace
+  env:
+    # key 由 run-qwen.sh 运行前 sed 注入（占位符防 key 入库；skill-up 不展开 ${VAR}）
+    OPENAI_API_KEY: ${OPENAI_API_KEY}
+    OPENAI_BASE_URL: https://api.deepseek.com/v1
+
+engine:
+  name: qwen_code
+  model:
+    name: deepseek-v4-flash
+
+cases:
+  files:
+    - tests/cases-grouped/pan01.yaml
+    - tests/cases-grouped/pan02.yaml
+    - tests/cases-grouped/pan03.yaml
+    - tests/cases-grouped/pan04.yaml
+    - tests/cases-grouped/pan05.yaml
+    - tests/cases-grouped/pan06.yaml
+    - tests/cases-grouped/pan07.yaml
+    - tests/cases-grouped/pan08.yaml
+    - tests/cases-grouped/pan09.yaml
+    - tests/cases-grouped/pan10.yaml
+    - tests/cases-grouped/pan11.yaml
+    - tests/cases-grouped/pan12.yaml
+    - tests/cases-grouped/pan13.yaml
+    - tests/cases-grouped/pan14.yaml
+    - tests/cases-grouped/pan15.yaml
+    - tests/cases-grouped/pan16.yaml
+    - tests/cases-grouped/pan17.yaml
+    - tests/cases-grouped/pan18.yaml
+    - tests/cases-grouped/pan19.yaml
+    - tests/cases-grouped/pan20.yaml
+    - tests/cases-grouped/pan21.yaml
+    - tests/cases-grouped/pan22.yaml
+    - tests/cases-grouped/pan23.yaml
+    - tests/cases-grouped/pan24.yaml
+    - tests/cases-grouped/pan25.yaml
+    - tests/cases-grouped/pan26.yaml
+    - tests/cases-grouped/pan27.yaml
+    - tests/cases-grouped/pan28.yaml
+    - tests/cases-grouped/pan29.yaml
+    - tests/cases-grouped/pan30.yaml
+    - tests/cases-grouped/pan31.yaml
+    - tests/cases-grouped/pan32.yaml
+  defaults:
+    timeout_seconds: 2400
+    max_turns: 20
+
+report:
+  formats: [json, markdown]

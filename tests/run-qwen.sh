@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Liki 评测运行脚本（qwen_code 标准模式）
 # 隔离原理：运行前把答案文件移出 skill 目录（agent 容器挂载不到）→ 评测 → 恢复 → 自动判分
-# 用法：bash evals/run-qwen.sh [--parallelism N]
+# 用法：bash tests/run-qwen.sh [--parallelism N]
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -18,7 +18,7 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
 fi
 
 # 答案文件（运行期间必须不在 skill 目录内）
-ANSWER_FILES=(evals/answers.json evals/groups.json evals/cats.json)
+ANSWER_FILES=(tests/answers.json tests/groups.json tests/cats.json)
 STASH_DIR="$(mktemp -d /tmp/liki-answers.XXXXXX)"
 
 restore_answers() {
@@ -37,8 +37,13 @@ for f in "${ANSWER_FILES[@]}"; do
 done
 echo "答案已移出 skill 目录（隔离生效）: ${ANSWER_FILES[*]}"
 
-# 2. 评测
-skill-up run evals/eval-grouped-qwen.yaml --parallelism "$PARALLELISM" --no-delete
+# 2. 评测（标准 skill-up run；key 经 sed 注入 yaml 的 environment.env——宿主 export 通道对
+#    qwen_code 引擎不生效，environment.env 是容器级 env，qwen 必然读到；占位符防 key 入库）
+RUN_YAML="$(mktemp .run-eval.XXXXXX.yaml)"
+sed "s|\${OPENAI_API_KEY}|$OPENAI_API_KEY|g" tests/eval-grouped-qwen.yaml > "$RUN_YAML"
+echo "key 已渲染进临时配置: $RUN_YAML"
+trap 'rm -f "$RUN_YAML"; restore_answers' EXIT
+skill-up run "$RUN_YAML" --parallelism "$PARALLELISM" --no-delete
 
 # 3. 恢复答案（trap 兜底，这里显式再调一次）
 restore_answers
@@ -47,7 +52,7 @@ restore_answers
 LATEST_ITER="$(ls -dt ../liki-workspace/iteration-* 2>/dev/null | head -1)"
 if [ -n "$LATEST_ITER" ]; then
   echo "=== 判分: $LATEST_ITER ==="
-  python3 evals/grade-grouped.py "$(realpath "$LATEST_ITER")"
+  python3 tests/grade-grouped.py "$(realpath "$LATEST_ITER")"
 else
   echo "未找到评测输出目录（../liki-workspace/iteration-*），跳过判分"
 fi

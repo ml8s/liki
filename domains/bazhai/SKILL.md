@@ -11,12 +11,13 @@ description: 八宅风水模块（组件）。命卦、东四西四、门主灶�
 |------|------|------|
 | `bazhai.minggua` RPC | 命卦+东西四命 | 确定吉利方位 |
 | domains/bazhai/duanyu/youxing.md | 游年九星+门主灶 | 吉凶应事+空间判断 |
+| `bazhai.judgment` RPC | 门主灶配合（door/master/stove 各含卦/五行/东西四/与命卦 match） | 参数化：需用户报门/主/灶方位 |
 
 ## 技术流程
 
 1. **收集参数**：出生年份+性别（定命卦），或完整出生信息（排盘）。
 2. **确认 TimeSet**。
-3. **调用引擎**：bazhai.minggua 命卦查询 → bazhai.chart/judgment 门主灶论断。
+3. **调用引擎**：bazhai.minggua 命卦 → bazhai.chart 排盘（四吉四凶方）→ 用户报门主灶方位后调 bazhai.judgment 得门主灶配合（各宫 match 吉/凶）：bazhai.minggua 命卦查询 → bazhai.chart 门主灶排盘。
 4. **解读**：调 `bazhai.minggua` 引擎命卦结果 + `domains/bazhai/duanyu/youxing.md` 断语 → 输出。
 
 📖 搜索 `bazhai.minggua` RPC → 读取命卦表
