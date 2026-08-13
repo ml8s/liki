@@ -55,7 +55,7 @@ def main() -> int:
     errors = []
     warnings = []
     seen_ids = {}
-    files = glob.glob(os.path.join(DY, "*.csv"))
+    files = glob.glob(os.path.join(DY, "**", "*.csv"), recursive=True)
     for f in sorted(files):
         if os.path.basename(f) in ("factors.csv", "factors_liunian.csv"):
             continue

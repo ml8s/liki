@@ -11,34 +11,7 @@
 """
 from __future__ import annotations
 from typing import Optional
-def zw_da_xian(zw: dict, year: int) -> dict:
-    """紫微大限：起岁=五行局数、阳男阴女顺行（数组逆时针=-1）、每宫十年、宫干起四化。
-    方向与起岁已按 liki-engine ziwei.daxian 校准（0020 火六局6岁起、顺行命→父母→福德）。"""
-    gw = zw.get("gong_wei") or []
-    if not gw:
-        return {}
-    order = [pg["name"] for pg in gw]
-    yang = (zw.get("nian_gan") or "甲") in "甲丙戊庚壬"
-    is_female = zw.get("gender") == "female"
-    forward = (is_female == (not yang))  # 阳男阴女顺
-    direction = -1 if forward else 1      # 顺行=数组逆时针（-1）
-    _JU_CN = {"二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10, "12": 12, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10}
-    ju = zw.get("ju_shu") or zw.get("ju_shu_name") or ""
-    qi_sui = 0
-    for ch in str(ju):
-        if ch in _JU_CN:
-            qi_sui = _JU_CN[ch]; break
-    age = year - int(zw.get("birth_year") or year)
-    idx = ((age - qi_sui) // 10) * direction % 12
-    gong = order[idx]
-    gan = gw[idx]["gan"]
-    sh = _ZW_SIHUA.get(gan, ["","","",""])
-    lu_gong = ji_gong = None
-    for pg in gw:
-        stars = [st.get("xing","") for st in pg.get("xing_yao",[])]
-        if sh[0] and sh[0] in stars: lu_gong = pg["name"]
-        if sh[3] and sh[3] in stars: ji_gong = pg["name"]
-    return {"大限宫位": gong, "大限宫干": gan, "大限四化": sh, "禄落": lu_gong, "忌落": ji_gong, "大限年龄": age, "大限起岁": qi_sui}
+
 def _val_match(cond, actual):
     """单约束匹配：支持 0/1、枚举、>=N、<=N、any_of 列表。"""
     if isinstance(cond, list):
