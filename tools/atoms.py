@@ -394,6 +394,8 @@ def _zw_gong_op(factors, chart, args):
             return 1 if not (main_stars & set(stars)) else 0
         if cond == "落陷":
             return 1 if any(st.get("xing") == star and st.get("liang_du") in ("陷", "平") for st in g.get("xing_yao", [])) else 0
+        if cond == "庙旺":
+            return 1 if any(st.get("xing") == star and st.get("liang_du") in ("庙", "旺", "得") for st in g.get("xing_yao", [])) else 0
         if cond == "唯一主星":
             main_stars = set(load_constants()["紫微主星"])
             present = [s for s in stars if s in main_stars]
