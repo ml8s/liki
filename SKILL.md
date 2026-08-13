@@ -272,7 +272,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 **规则引擎唯一入口（tools/duanyu.py——chart 排盘数据 → 断语）**：
 ```python
 import sys
-sys.path.insert(0, "tools"); sys.path.insert(0, "tests")   # tests/ 含排盘工具（client/birth）
+sys.path.insert(0, "tools");    # tests/ 含排盘工具（client/birth）
 from client import full_panchang
 from birth import parse_birth
 from duanyu import evaluate_from_chart

@@ -17,9 +17,7 @@ import os
 import re
 import sys
 
-_LOCAL = os.path.dirname(os.path.abspath(__file__))
-if _LOCAL not in sys.path:
-    sys.path.insert(0, _LOCAL)
+
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _TOOLS = os.path.join(_ROOT, "tools")
 if _TOOLS not in sys.path:
@@ -29,7 +27,7 @@ from birth import parse_birth
 from client import full_panchang
 from duanyu import evaluate_from_chart
 
-BASE = _LOCAL
+BASE = os.path.dirname(os.path.abspath(__file__))
 GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
 
 
