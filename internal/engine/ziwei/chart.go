@@ -102,8 +102,11 @@ func buildChartDetail(chart Chart) Chart {
 	siHua := computeSiHua(chart.NianGan)
 	for i := range chart.GongWei {
 		for j, s := range chart.GongWei[i].Stars {
-			if s.IsMajor {
+			if s.IsMajor || s.Star == WenChang || s.Star == WenQu {
+				// 主星 + 文昌/文曲（辅星但有亮度表 iztro minor_star_brightness）赋亮度
 				chart.GongWei[i].Stars[j].Brightness = miaoWang(s.Star, chart.GongWei[i].Zhi).String()
+			}
+			if s.IsMajor {
 				if h, ok := siHua[s.Star]; ok {
 					chart.GongWei[i].Stars[j].SiHua = string(h)
 				}
