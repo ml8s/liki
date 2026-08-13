@@ -21,3 +21,9 @@ liki-workspace/
 # Python 缓存
 __pycache__/
 *.pyc
+
+# 评测临时配置（run-qwen.sh 生成的临时 yaml）
+.run-eval.*.yaml
+
+# 数据检查产物（可重新生成）
+tests/RESULTS.md

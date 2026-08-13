@@ -26,5 +26,5 @@ version-major: ## Bump MAJOR (1.26.0 → 2.0.0)
 build-archive: ## 打包 skill → dist/liki.tar.gz + index.json
 	scripts/build-archive.sh
 
-smoke-test: ## API + 文件完整性测试
-	@tests/smoke.sh
+check: ## 改表后验证（schema 校验 + 数据检查）
+	@bash tests/check.sh
