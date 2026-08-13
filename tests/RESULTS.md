@@ -17,11 +17,11 @@
 - shensha：155 题有断语
 - zhiye：155 题有断语
 - shiye：150 题有断语
-- zinv：146 题有断语
+- zinv：150 题有断语
 - waimao：144 题有断语
 - dayun：140 题有断语
 - zuhe：110 题有断语
-- xueye：99 题有断语
+- xueye：105 题有断语
 - qianyi：90 题有断语
 - tiaohou：81 题有断语
 
