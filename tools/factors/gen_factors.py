@@ -26,6 +26,11 @@ def narrow_to_wide():
     narrow = list(csv.DictReader(open(NARROW, encoding="utf-8")))
     old = list(csv.DictReader(open(WIDE, encoding="utf-8")))
     all_cols = [c for c in old[0].keys() if c not in ("因子", "术数", "原语直通")]
+    # 收集窄表出现但宽表没有的新原子列（如新增的"宫含[财帛宫,紫微,任意]"）——否则新因子判据丢失
+    for r in narrow:
+        atom = r["原子"]
+        if atom and atom not in ("结论", "依据") and not atom.startswith("直通:") and atom not in all_cols:
+            all_cols.append(atom)
     groups = OrderedDict()   # (因子, 组) -> {列: 值}
     zhitong = OrderedDict()  # 因子 -> 直通算子
     shushi_map = OrderedDict()
