@@ -1,6 +1,7 @@
 # 多阶段构建：镜像内编译最新源码（消除预编译 bin/liki-engine 的中间步骤）
 FROM golang:1.26-alpine AS build
 WORKDIR /src
+ENV GOPROXY=https://goproxy.cn,direct
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
