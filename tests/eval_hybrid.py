@@ -25,30 +25,20 @@ for _p in (_TOOLS, _LOCAL):
         sys.path.insert(0, _p)
 
 from birth import parse_birth
-from client import full_panchang
-from aggregate import build_factors
-from duanyu import evaluate_factors, load_table, ALL_DUANYU_RULES
-from engine import match
+from paipan import full_paipan
+from duanyu import make_factors, query, ALL_DUANYU_RULES
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
 
 
-def query_all(chart: dict, gender: str) -> dict:
-    """断语查询（数据检查用）——排盘(调用方) → 因子生成 → 断语查询（同 SKILL 编排）。"""
-    fac = build_factors(chart)
-    bz = evaluate_factors(fac, gender, chart, shushi="bazi")
-    zw = evaluate_factors(fac, gender, chart, shushi="ziwei")
+def query_all(pan: dict) -> dict:
+    """断语查询（数据检查用）——排盘(full_paipan) → 因子生成(make_factors) → 断语查询(query)。"""
+    bz = make_factors(pan, "bazi")
+    zw = make_factors(pan, "ziwei")
     domains = {}
     for rule in ALL_DUANYU_RULES:
-        be = load_table(f"bazi_{rule}.csv")
-        be = be.get("条目", be) if isinstance(be, dict) else be
-        ze = load_table(f"ziwei_{rule}.csv")
-        ze = ze.get("条目", ze) if isinstance(ze, dict) else ze
-        entry = {"八字": match(be, bz)}
-        if ze:
-            entry["紫微"] = match(ze, zw)
-        domains[rule] = entry
+        domains[rule] = query(rule, bz, zw)
     return {"domains": domains}
 
 
@@ -69,8 +59,8 @@ def main():
             continue
         if case_id not in cache:
             solar, gender, lon, corr = parse_birth(birth)
-            chart = full_panchang(solar, gender, lon, correct=corr)
-            cache[case_id] = query_all(chart, gender)
+            pan = full_paipan(solar, gender, lon, correct=corr)
+            cache[case_id] = query_all(pan)
         r = cache[case_id]
         for qid in qids:
             total += 1
