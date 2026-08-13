@@ -8,7 +8,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 ## 依赖的领域知识
 
-[必读] - bazi: domains/bazi/fangfa/xueye.md「学历等级决策表」
+[必读] - bazi: tools/bazi/xueye.csv（xue_201-209 档位）
 [必读] - bazi: domains/bazi/fangfa/shishen.md「十神组合」
 
 [必读] - ziwei: domains/ziwei/fangfa/yingqi.md「学业紫微应期」
@@ -18,7 +18,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
 |---------|-------------|-------------|
 | 能读到什么学历 | 印星状态（查 tools/bazi/xueye.csv） | domains/bazi/fangfa/xueye.md「印星状态（查 tools/bazi/xueye.csv）」|
 | 学习能力如何 | 印星+食伤组合 | domains/bazi/fangfa/shishen.md「十神」+ domains/bazi/fangfa/xueye.md |
-| 考试运如何 | 大运流年对印星生扶/克制 | domains/bazi/fangfa/xueye.md「大运辅助」|
+| 考试运如何 | 大运流年对印星生扶/克制 | tools/bazi/xueye.csv|
 | 适合学什么方向 | 食伤配印/官印相生/财坏印 | domains/bazi/fangfa/shishen.md「十神组合」|
 
 ## 📖 流程卡
@@ -30,11 +30,11 @@ description: 学业判断 — 学历层次、学习能力、考试运
   输出：□ 三关通过____关 印星状态____
 
 第2步：大运辅助判断
-  → 调用 domains/bazi/fangfa/xueye.md「大运辅助」表
+  → 调用 tools/bazi/xueye.csv表
   输出：□ 当前大运____ 对印星____
 
 第3步：学历等级定档
-  → 调用 domains/bazi/fangfa/xueye.md「学历等级决策表」
+  → 调用 tools/bazi/xueye.csv（xue_201-209 档位）
   输出：□ 学历档____ 依据____
 
 第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】

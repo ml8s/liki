@@ -20,18 +20,18 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 | 适合做什么行业 | 十神组合（官印/食伤/财） | domains/bazi/fangfa/shiye.md「职业类型」|
 | 事业什么时候好 | 官杀/财运引动之年 | domains/bazi/fangfa/shiye.md + domains/bazi/fangfa/dayun.md |
 | 适合创业还是打工 | 食伤生财 vs 官印相生 | domains/bazi/fangfa/shiye.md「十神方向」|
-| 能到什么层次 | 官财透干定层次 | domains/bazi/fangfa/shiye.md「透干表」|
+| 能到什么层次 | 官财透干定层次 | tools/bazi/shiye.csv（档位）|
 
 ## 📖 流程卡
 
 ⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照），此处不重复
 
 第1步：官财透干定层次
-  → 调用 domains/bazi/fangfa/shiye.md「官财透干定层次」
+  → 调用 tools/bazi/shiye.csv（shi_101-109 档位）
   输出：□ 透干组合____ 事业档____
 
 第2步：十神组合定方向
-  → 调用 domains/bazi/fangfa/shiye.md「十神组合定方向」
+  → 调用 tools/bazi/zhiye.csv（职业方向）
   输出：□ 组合____ 职业方向____
 
 第3步：大运起伏

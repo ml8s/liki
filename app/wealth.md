@@ -16,21 +16,21 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 财运好不好 | 财星有无 + 身强胜财 | domains/bazi/fangfa/caiyun.md「财星定有无」+「身强定胜负」 |
-| 适合做什么赚钱 | 正财/偏财类型 | domains/bazi/fangfa/caiyun.md「正财 vs 偏财」|
-| 什么时候有钱 | 大运是财运/食伤运/比劫运 | domains/bazi/fangfa/caiyun.md「大运定起伏」|
-| 会不会破财 | 比劫夺财位置 | domains/bazi/fangfa/caiyun.md「比劫夺财检查」|
+| 财运好不好 | 财星有无 + 身强胜财 | tools/bazi/caiyun.csv（cai_101-109） |
+| 适合做什么赚钱 | 正财/偏财类型 | tools/bazi/caiyun.csv|
+| 什么时候有钱 | 大运是财运/食伤运/比劫运 | tools/bazi/caiyun.csv|
+| 会不会破财 | 比劫夺财位置 | tools/bazi/caiyun.csv|
 
 ## 📖 流程卡
 
 ⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照），此处不重复
 
 第1步：财星定有无
-  → 调用 domains/bazi/fangfa/caiyun.md「财星定有无」
+  → 调用 tools/bazi/caiyun.csv（cai_101-109）
   输出：□ 财星类型____ 透/藏____
 
 第2步：身强定胜负
-  → 调用 domains/bazi/fangfa/caiyun.md「身强定胜负」
+  → 调用 tools/bazi/caiyun.csv
   输出：□ 胜财能力____（能担/不能担/中和）
   → 财多身弱互斥锁：
     □ 身{强/弱/中和} + 财{旺/平/弱}
@@ -39,7 +39,7 @@ description: 财运分析 — 财源类型、收入层次、风险提示
     身强+财旺 → 正常得财判断
 
 第3步：大运+比劫检查
-  → 调用 domains/bazi/fangfa/caiyun.md「大运定起伏」+「比劫夺财检查」
+  → 调用 tools/bazi/caiyun.csv+tools/bazi/caiyun.csv
   输出：□ 当前大运____ 夺财风险____
 
 第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】
