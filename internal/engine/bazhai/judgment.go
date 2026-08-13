@@ -8,8 +8,6 @@ type JudgmentResult struct {
 	Door       doorStoveInfo `json:"door"`
 	Master     doorStoveInfo `json:"master"`
 	Stove      doorStoveInfo `json:"stove"`
-	Rating     string `json:"rating"`     // 吉/平/凶
-	Summary    string `json:"summary"`
 }
 
 type doorStoveInfo struct {
@@ -44,39 +42,12 @@ func ComputeJudgment(chart Chart, doorGua, masterGua, stoveGua string) JudgmentR
 	master := evalPosition(guaNameToNum(masterGua), mg)
 	stove := evalPosition(guaNameToNum(stoveGua), mg)
 
-	// 综合评定
-	score := 0
-	if door.Match == "吉" { score++ }
-	if master.Match == "吉" { score++ }
-	if stove.Match == "吉" { score++ }
-
-	// 门生主
-	if guaWuxing[guaNameToNum(doorGua)] == guaWuxing[guaNameToNum(masterGua)] || wuxingSheng(guaWuxing[guaNameToNum(doorGua)], guaWuxing[guaNameToNum(masterGua)]) {
-		score++
-	}
-	// 主克灶为凶
-	if wuxingKe(guaWuxing[guaNameToNum(masterGua)], guaWuxing[guaNameToNum(stoveGua)]) {
-		score--
-	}
-
-	rating := "凶"
-	summary := "门主灶配合不佳，宜择吉调整"
-	if score >= 3 {
-		rating = "吉"
-		summary = "门主灶配合吉利，家宅兴旺"
-	} else if score >= 1 {
-		rating = "平"
-		summary = "门主灶配合平平，可进一步优化"
-	}
-
 	return JudgmentResult{
 		Group:      mgGroup,
 		MingGuaStr: guaNames[mg],
 		Door:       door,
 		Master:     master,
 		Stove:      stove,
-		Rating:     rating,
-		Summary:    summary,
 	}
 }
 
@@ -94,26 +65,3 @@ func evalPosition(guaNum, mingGua int) doorStoveInfo {
 	}
 }
 
-func wuxingSheng(a, b string) bool {
-	// 生: 木→火→土→金→水→木
-	switch a {
-	case "木": return b == "火"
-	case "火": return b == "土"
-	case "土": return b == "金"
-	case "金": return b == "水"
-	case "水": return b == "木"
-	}
-	return false
-}
-
-func wuxingKe(a, b string) bool {
-	// 克: 木→土→水→火→金→木
-	switch a {
-	case "木": return b == "土"
-	case "土": return b == "水"
-	case "水": return b == "火"
-	case "火": return b == "金"
-	case "金": return b == "木"
-	}
-	return false
-}

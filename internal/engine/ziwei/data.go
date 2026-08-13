@@ -135,7 +135,7 @@ func loadTables() error {
 	}
 
 	// tianMaTable — iztro formula if JSON empty
-	if data.TianMa == nil || len(data.TianMa) == 0 {
+	if len(data.TianMa) == 0 {
 		// 寅午戌→申, 申子辰→寅, 巳酉丑→亥, 亥卯未→巳 (zhiIdx)
 		tianMaTable = [12]int{2, 11, 8, 5, 2, 11, 8, 5, 2, 11, 8, 5}
 	} else {

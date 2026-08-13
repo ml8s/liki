@@ -66,6 +66,37 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 	}
 }
 
+// SanFangInfo describes one palace in the 三方四正 (命宫/财帛/官禄/迁移 三合).
+type SanFangInfo struct {
+	Name    string   `json:"name"`
+	ZhuXing []string `json:"zhu_xing"`
+	FuXing  []string `json:"fu_xing"`
+	SiHua   string   `json:"si_hua"`
+}
+
+// buildSanFangInfo collects the major/minor stars and 四化 of the 三方四正 palaces.
+func buildSanFangInfo(c Chart, sfPalaces [4]gongIndex) []SanFangInfo {
+	var result []SanFangInfo
+	for _, pi := range sfPalaces {
+		p := c.GongWei[pi]
+		info := SanFangInfo{Name: gongLabels[pi], ZhuXing: make([]string, 0), FuXing: make([]string, 0)}
+		for _, s := range p.Stars {
+			if s.SiHua != "" {
+				info.SiHua = s.SiHua
+			}
+		}
+		for _, s := range p.Stars {
+			if s.IsMajor {
+				info.ZhuXing = append(info.ZhuXing, s.Name)
+			} else {
+				info.FuXing = append(info.FuXing, s.Name)
+			}
+		}
+		result = append(result, info)
+	}
+	return result
+}
+
 // buildChartDetail enriches a core chart with siHua, brightness, and patterns.
 func buildChartDetail(chart Chart) Chart {
 	siHua := computeSiHua(chart.NianGan)
@@ -81,6 +112,7 @@ func buildChartDetail(chart Chart) Chart {
 	}
 	chart.SiHua = siHua
 	chart.Patterns = findPatterns(chart.GongWei)
+	chart.SanFang = buildSanFangInfo(chart, sanFang(0))
 	// 来因宫
 	ygIdx := yuanGongPalace(chart.GongWei, chart.NianGan)
 	chart.GongWei[ygIdx].IsYuanGong = true

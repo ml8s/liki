@@ -528,7 +528,6 @@ func TestHandler_ComputeLiuri_Valid(t *testing.T) {
 	}
 }
 
-
 func TestHandler_FullChartIncludesExtra(t *testing.T) {
 	r := NewRPCRegistry()
 	chart := getBaziChart(t, r, btOK, "male")
@@ -600,8 +599,6 @@ func TestHandler_ComputeLiuNian_ShiShen_Correct(t *testing.T) {
 	}
 }
 
-
-
 // ── OpenRPC document ──
 
 func TestOpenRPCDocument(t *testing.T) {
@@ -619,8 +616,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 40 {
-		t.Errorf("method count = %d, want 40 (39 + rpc.discover)", len(methods))
+	if len(methods) != 37 {
+		t.Errorf("method count = %d, want 37 (36 + rpc.discover)", len(methods))
 	}
 }
 
@@ -738,7 +735,6 @@ func TestHandler_City_Valid(t *testing.T) {
 // qiming.pick
 // =============================================================================
 
-
 func TestHandler_QimingChar_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	result, err := r.Execute(context.Background(), "qiming.char", json.RawMessage(`{"char":"林"}`))
@@ -791,12 +787,9 @@ func TestHandler_NamingPick(t *testing.T) {
 // qiming.wuge — 双字名
 // =============================================================================
 
-
 // =============================================================================
 // qiming.wuge — 单名
 // =============================================================================
-
-
 
 func TestHandler_NamingPick_CharInfo(t *testing.T) {
 	r := NewRPCRegistry()
@@ -835,11 +828,9 @@ func TestHandler_NamingPick_CharInfo(t *testing.T) {
 	}
 }
 
-
 // =============================================================================
 // qiming.build — 带 pairs
 // =============================================================================
-
 
 // =============================================================================
 // qiming.build — 双字名
@@ -860,7 +851,6 @@ func TestHandler_NamingBuild(t *testing.T) {
 // =============================================================================
 // qiming.build — 单名
 // =============================================================================
-
 
 // =============================================================================
 // qiming.check — 批量两字名
@@ -984,15 +974,6 @@ func TestHandler_NamingCheck_AllParams(t *testing.T) {
 	}
 	// xi and ji may be omitempty — only check they're set when they appear
 	t.Logf("wuxing: %+v", wuxing)
-}
-
-
-func mustMarshalInline(v any) string {
-	b, err := json.Marshal(v)
-	if err != nil {
-		panic(err)
-	}
-	return string(b)
 }
 
 // =============================================================================
@@ -1181,88 +1162,11 @@ func (m *mockNominatimTransport) RoundTrip(_ *http.Request) (*http.Response, err
 	}, nil
 }
 
-
 // ── Judgment / Annual handler tests ──
 
-func TestHandler_ZiweiJudgment_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chartResult, err := r.Execute(context.Background(), "ziwei.chart",
-		json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK)))
-	if err != nil {
-		t.Fatalf("ziwei.chart: %v", err)
-	}
-	var env struct {
-		Data json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(chartResult, &env); err != nil {
-		t.Fatal(err)
-	}
-	_, err = r.Execute(context.Background(), "ziwei.judgment",
-		json.RawMessage(fmt.Sprintf(`{"chart":%s}`, env.Data)))
-	if err != nil {
-		t.Fatalf("ziwei.judgment: %v", err)
-	}
-}
 
-func TestHandler_QimenJudgment_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chartResult, err := r.Execute(context.Background(), "qimen.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"kind":"shi"}`, btOK)))
-	if err != nil {
-		t.Fatalf("qimen.chart: %v", err)
-	}
-	var env struct {
-		Data json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(chartResult, &env); err != nil {
-		t.Fatal(err)
-	}
-	params := json.RawMessage(fmt.Sprintf(`{"chart":%s,"event":"general"}`, env.Data))
-	_, err = r.Execute(context.Background(), "qimen.judgment", params)
-	if err != nil {
-		t.Fatalf("qimen.judgment: %v", err)
-	}
-}
 
-func TestHandler_LiuyaoJudgment_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	saat := fmt.Sprintf(`{"solar_time":%s,"yaos":[8,9,8,6,7,9],"yong_shen":"妻财"}`, btOK)
-	chartResult, err := r.Execute(context.Background(), "liuyao.chart", json.RawMessage(saat))
-	if err != nil {
-		t.Fatalf("liuyao.chart: %v", err)
-	}
-	var env struct {
-		Data json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(chartResult, &env); err != nil {
-		t.Fatal(err)
-	}
-	_, err = r.Execute(context.Background(), "liuyao.judgment",
-		json.RawMessage(fmt.Sprintf(`{"chart":%s}`, env.Data)))
-	if err != nil {
-		t.Fatalf("liuyao.judgment: %v", err)
-	}
-}
 
-func TestHandler_BazhaiJudgment_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chartResult, err := r.Execute(context.Background(), "bazhai.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK)))
-	if err != nil {
-		t.Fatalf("bazhai.chart: %v", err)
-	}
-	var env struct {
-		Data json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(chartResult, &env); err != nil {
-		t.Fatal(err)
-	}
-	params := json.RawMessage(fmt.Sprintf(`{"chart":%s,"door_gua":"坎","master_gua":"坤","stove_gua":"震"}`, env.Data))
-	_, err = r.Execute(context.Background(), "bazhai.judgment", params)
-	if err != nil {
-		t.Fatalf("bazhai.judgment: %v", err)
-	}
-}
 
 func TestHandler_XuankongAnnual_Valid(t *testing.T) {
 	r := NewRPCRegistry()
@@ -1283,7 +1187,6 @@ func TestHandler_XuankongAnnual_Valid(t *testing.T) {
 		t.Fatalf("xuankong.annual: %v", err)
 	}
 }
-
 
 func TestHandler_BaziFullChart_Valid(t *testing.T) {
 	r := NewRPCRegistry()
@@ -1326,10 +1229,6 @@ func TestHandler_BaziFullChart_Valid(t *testing.T) {
 }
 
 // ── Remaining untested methods ──
-
-
-
-
 
 func TestHandler_BaziBond_Valid(t *testing.T) {
 	r := NewRPCRegistry()
@@ -1416,12 +1315,3 @@ func TestHandler_ZiweiBond_Valid(t *testing.T) {
 	}
 }
 
-
-func TestHandler_QimenSelect_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "qimen.select",
-		json.RawMessage(`{"start_date":"2027-07-01","end_date":"2027-07-31","count":3}`))
-	if err != nil {
-		t.Fatalf("qimen.select: %v", err)
-	}
-}

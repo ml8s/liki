@@ -16,21 +16,13 @@ func TestSchemaGoConsistency(t *testing.T) {
 	zout, _ := reg.Execute(context.Background(), "ziwei.chart", zc)
 	bout, _ := reg.Execute(context.Background(), "bazi.chart", bc)
 	var zr, br struct{ Data map[string]any `json:"data"` }
-	json.Unmarshal(zout, &zr)
-	json.Unmarshal(bout, &br)
+	_ = json.Unmarshal(zout, &zr)
+	_ = json.Unmarshal(bout, &br)
 	z, b := zr.Data, br.Data
 	qout, _ := reg.Execute(context.Background(), "liuyao.qigua", []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","question":"t"}`))
 	var qr struct{ Data map[string]any `json:"data"` }
-	json.Unmarshal(qout, &qr)
+	_ = json.Unmarshal(qout, &qr)
 	yaos, _ := json.Marshal(qr.Data["yaos"])
-	lout, _ := reg.Execute(context.Background(), "liuyao.chart", []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","yaos":`+string(yaos)+`}`))
-	var lr struct{ Data map[string]any `json:"data"` }
-	json.Unmarshal(lout, &lr)
-	l := lr.Data
-	qmout, _ := reg.Execute(context.Background(), "qimen.chart", []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`))
-	var qmr struct{ Data map[string]any `json:"data"` }
-	json.Unmarshal(qmout, &qmr)
-	qm := qmr.Data
 	mk := func(m map[string]any) json.RawMessage { b2, _ := json.Marshal(m); return b2 }
 	calls := map[string]json.RawMessage{
 		"bazi.chart": bc, "bazi.fullchart": mk(map[string]any{"chart": b}),
@@ -45,11 +37,8 @@ func TestSchemaGoConsistency(t *testing.T) {
 		"ziwei.chart": zc, "ziwei.fullchart": mk(map[string]any{"chart": z}),
 		"ziwei.daxian": mk(map[string]any{"chart": z}),
 		"ziwei.liunian": mk(map[string]any{"chart": z, "liu_nian": 2026}),
-		"ziwei.judgment": mk(map[string]any{"chart": z, "event": "career"}),
 		"liuyao.chart": []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","yaos":` + string(yaos) + `}`),
-		"liuyao.judgment": mk(map[string]any{"chart": l, "event": "career"}),
 		"qimen.chart": []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`),
-		"qimen.judgment": mk(map[string]any{"chart": qm, "event": "career"}),
 		"bazhai.minggua": mk(map[string]any{"gender": "male", "birth_year": 1984}),
 		"bazhai.chart": mk(map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"}),
 		"xuankong.annual": mk(map[string]any{"year": 2026}),
@@ -68,7 +57,7 @@ func TestSchemaGoConsistency(t *testing.T) {
 			Result json.RawMessage `json:"result"`
 		} `json:"methods"`
 	}
-	json.Unmarshal(doc, &d)
+	_ = json.Unmarshal(doc, &d)
 	schemas := map[string]map[string]any{}
 	for _, mm := range d.Methods {
 		var r struct {
@@ -90,7 +79,7 @@ func TestSchemaGoConsistency(t *testing.T) {
 			continue
 		}
 		var res struct{ Data map[string]any `json:"data"` }
-		json.Unmarshal(out, &res)
+		_ = json.Unmarshal(out, &res)
 		if res.Data == nil {
 			continue
 		}

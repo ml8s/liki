@@ -106,13 +106,6 @@ func SolarTermTime(year int, targetLon float64) time.Time {
 	return t
 }
 
-func solarTermDate(year int, targetLon float64) (month, day int) {
-	t := SolarTermTime(year, targetLon)
-	return int(t.Month()), t.Day()
-}
-
-func liChunDay(year int) (month, day int) { return solarTermDate(year, 315) }
-
 func SolarTermIndex(year, month, day int) int {
 	lon := solarLongitude(time.Date(year, time.Month(month), day, 12, 0, 0, 0, time.UTC))
 	for i := 0; i < 24; i++ {

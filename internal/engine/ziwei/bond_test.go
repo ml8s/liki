@@ -102,7 +102,7 @@ func TestBond(t *testing.T) {
 func chartFrom(t *testing.T, lunar string, ti int, gender string) Chart {
 	t.Helper()
 	var y, m, d int
-	fmt.Sscanf(lunar, "%d-%d-%d", &y, &m, &d)
+	_, _ = fmt.Sscanf(lunar, "%d-%d-%d", &y, &m, &d)
 	sz := ti + 1
 	if ti == 12 { sz = 1; d++ }
 	g := ganzhi.Female

@@ -21,6 +21,7 @@ func computeChartCore(bz ganzhi.Bazi, st tianwen.SolarTime, gender ganzhi.Gender
 		Gender: gender,
 	}
 	cr.DaYun = computeDaYun(st, bz.Yue, bz.Nian.Gan, bz.Ri.Gan, gender)
+	cr.BirthYear = st.Time().Year()
 	return cr
 }
 
@@ -51,6 +52,7 @@ func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
 	}
 
 	return FullChart{
+		BirthYear: c.BirthYear,
 		Nian:   makeFull(0),
 		Yue:    makeFull(1),
 		Ri:     makeFull(2),

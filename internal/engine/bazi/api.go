@@ -45,7 +45,7 @@ func ComputeFullChart(c Chart) FullChart {
 
 // ComputeLiuNian computes the year pillar and its interactions with the bazi chart.
 func ComputeLiuNian(chart Chart, year int) (*LiuNian, error) {
-	cd := currentDaYunStep(chart.DaYun)
+	cd := dayunStepForYear(chart.DaYun, chart.BirthYear, year)
 	return computeLiuNian(chart.ToBazi(), year, cd)
 }
 
@@ -56,7 +56,7 @@ func ComputeLiuYue(c Chart, year, month int) (*LiuYue, error) {
 
 // ComputeLiuRi computes the day pillar and its interactions with the bazi chart.
 func ComputeLiuRi(c Chart, year, month, day int) (*LiuRi, error) {
-	ds := currentDaYunStep(c.DaYun)
+	ds := dayunStepForYear(c.DaYun, c.BirthYear, year)
 	var dzZhu *ganzhi.Zhu
 	if ds != nil {
 		dzZhu = &ganzhi.Zhu{Gan: ds.Gan, Zhi: ds.Zhi}
@@ -77,12 +77,25 @@ func ComputeLiuShi(c Chart, year, month, day, hour int) (*LiuShi, error) {
 	return computeLiuShi(c.ToBazi(), year, month, day, hour)
 }
 
-// currentDaYunStep returns the current DaYun step matching current_step_index, or nil if not applicable.
-func currentDaYunStep(dy *DaYun) *DaYunStep {
-	if dy == nil || dy.CurrentStepIndex < 0 || dy.CurrentStepIndex >= len(dy.Steps) {
+// dayunStepForYear returns the DaYun step governing the given year, based on
+// 虚岁 = year - birthYear + 1 matching the step's qi_sui/zhi_sui (虚岁) interval.
+// Returns nil when: dy is nil / empty, birthYear unknown (0 — legacy chart
+// without birth_year), year earlier than birth year, not yet in 大运, or past
+// all steps.
+//
+// Note: differs from ComputeCurrentStepIndex (实岁, used to fill
+// current_step_index); liunian/liuri 需要的是"查询年份行何运"，故按虚岁区间匹配。
+func dayunStepForYear(dy *DaYun, birthYear, year int) *DaYunStep {
+	if dy == nil || len(dy.Steps) == 0 || birthYear <= 0 || year < birthYear {
 		return nil
 	}
-	return &dy.Steps[dy.CurrentStepIndex]
+	age := year - birthYear + 1 // 虚岁
+	for i := range dy.Steps {
+		if age >= dy.Steps[i].AgeStart && age <= dy.Steps[i].AgeEnd {
+			return &dy.Steps[i]
+		}
+	}
+	return nil
 }
 
 // ComputeCurrentStepIndex determines the current DaYun step index based on age.

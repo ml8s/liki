@@ -94,7 +94,7 @@ func TestComplete(t *testing.T) {
 
 			// 四化
 			for sidStr, stype := range tc.SiHua {
-				var sid int; fmt.Sscanf(sidStr, "%d", &sid)
+				var sid int; _, _ = fmt.Sscanf(sidStr, "%d", &sid)
 				got, ok := fc.SiHua[starIndex(sid)]
 				if !ok { t.Errorf("四化%d应%s但无", sid, stype); continue }
 				if string(got) != stype { t.Errorf("四化%d: got %s want %s", sid, string(got), stype) }
@@ -246,11 +246,7 @@ func starsToNames(stars []starInfo, major bool) []string {
 func sortS(s []string) {
 	for i := 0; i < len(s)-1; i++ { for j := i+1; j < len(s); j++ { if s[i] > s[j] { s[i], s[j] = s[j], s[i] } } }
 }
-func strEq(a, b []string) bool {
-	if len(a) != len(b) { return false }
-	for i := range a { if a[i] != b[i] { return false } }
-	return true
-}
+
 func setEq(a, b []string) bool {
 	if len(a) != len(b) { return false }
 	m := make(map[string]bool, len(a))
@@ -264,7 +260,7 @@ func intEq(a, b []int) bool {
 	return true
 }
 func atoi(s string) int {
-	var n int; fmt.Sscanf(s, "%d", &n); return n
+	var n int; _, _ = fmt.Sscanf(s, "%d", &n); return n
 }
 
 func parseLT(tc testCaseRef) tianwen.LunarTime {
@@ -276,7 +272,7 @@ func parseLT(tc testCaseRef) tianwen.LunarTime {
 		leap = true
 		s = strings.TrimSuffix(s, "闰")
 	}
-	fmt.Sscanf(s, "%d-%d-%d", &y, &m, &d)
+	_, _ = fmt.Sscanf(s, "%d-%d-%d", &y, &m, &d)
 	sz := tc.Ti + 1; day := d
 	if tc.Ti == 12 { sz = 1; day++ }
 	return tianwen.LunarTime{Year: y, Month: m, Day: day, Leap: leap, Shichen: ganzhi.Zhi(sz)}

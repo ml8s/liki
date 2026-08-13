@@ -83,6 +83,9 @@ type Chart struct {
 	Shi    zhuInfo       `json:"shi"`
 	DaYun  *DaYun        `json:"da_yun"`
 	Gender ganzhi.Gender `json:"gender"`
+
+	// 出生公历年份（bazi.chart 起附）。供 bazi.liunian/liuri 按查询年份定位当年大运。
+	BirthYear int `json:"birth_year"`
 }
 
 // FullChart is the expanded bazi chart with all fields (十神/藏干/神煞/长生/空亡...).
@@ -94,6 +97,9 @@ type FullChart struct {
 	Shi    fullZhuInfo   `json:"shi"`
 	DaYun  *DaYun        `json:"da_yun"`
 	Gender ganzhi.Gender `json:"gender"`
+
+	// 出生公历年份（透传自 lean Chart，供 liunian/liuri 按年定位大运）。
+	BirthYear int `json:"birth_year"`
 
 	// 补充信息（原 bazi.chart_extra）
 	SanYuan    SanYuan           `json:"san_yuan"`

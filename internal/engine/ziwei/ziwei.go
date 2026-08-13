@@ -263,6 +263,7 @@ type Chart struct {
 	MingZhu     string              `json:"ming_zhu,omitempty"`
 	ShenZhu     string              `json:"shen_zhu,omitempty"`
 	Patterns    []pattern           `json:"patterns,omitempty"`
+	SanFang     []SanFangInfo       `json:"san_fang,omitempty"` // 三方四正（命/财帛/官禄/迁移）
 }
 
 // siHuaResult maps star → transformation.

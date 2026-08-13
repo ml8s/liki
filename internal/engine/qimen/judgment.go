@@ -8,17 +8,14 @@ import (
 )
 
 // JudgmentResult holds the structured judgment for a 奇门 chart.
+// 仅含参数化断事要素（主题宫/生克/格局/空亡马星）；值符宫/值使宫/日干宫已并入 qimen.chart（排盘固有）。
 type JudgmentResult struct {
 	SubjectPalace    GongIndex `json:"subject_palace"`
 	EventPalace      GongIndex `json:"ying_qi_gong"`
-	DutyStarPalace   GongIndex `json:"zhi_fu_xing_gong"`
-	DutyDoorPalace   GongIndex `json:"zhi_shi_men_gong"`
-	Rating           string   `json:"rating"`
 	ShengKe          string   `json:"sheng_ke"`
 	Patterns         []string `json:"patterns"`
 	KongWangAffected bool     `json:"kong_wang_affected"`
 	MaXingAffected   bool     `json:"ma_xing_affected"`
-	Advice           string   `json:"advice"`
 }
 
 // eventYongShen maps event types to their quintessential palaces/stars/doors.
@@ -53,9 +50,6 @@ func subjectGan(c pan, event EventKind) ganzhi.Gan {
 
 // ComputeJudgment analyzes a 奇门 chart for a given event.
 func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
-	riGan := c.Pan.RiGan
-	riGanPalace := findGanPalace(c, riGan)
-
 	// Subject: 日干 gong (or event-specific stem)
 	subjectG := subjectGan(c.Pan, event)
 	subjectP := findGanPalace(c, subjectG)
@@ -64,36 +58,13 @@ func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
 	eventG := c.Pan.DriveGan
 	eventP := findGanPalace(c, eventG)
 
-	// Duty star/door palaces
-	dutyStarP := findStarPalace(c, c.Pan.DutyStar)
-	dutyDoorP := findDoorPalace(c, c.Pan.DutyDoor)
+	// 门宫生克分析（值符宫/值使宫从 chart 排盘固有字段读取）
+	shengKe := analyzeShengKe(c, subjectP, eventP, c.DutyStarPalace, c.DutyDoorPalace)
 
-	// 门宫生克分析 (door vs gong)
-	shengKe := analyzeShengKe(c, subjectP, eventP, dutyStarP, dutyDoorP)
-
-	// Count auspicious indicators
-	auspiciousCount := 0
-	var patterns []string
+	patterns := make([]string, 0)
 	for _, p := range c.Patterns {
-		if p.Auspicious {
-			auspiciousCount++
-		}
 		patterns = append(patterns, p.Name)
 	}
-
-	// Check interactions
-	for _, si := range c.GanInteractions {
-		if si.Auspicious {
-			auspiciousCount++
-		}
-	}
-	for _, si := range c.XingInteractions {
-		if si.Auspicious {
-			auspiciousCount++
-		}
-	}
-	auspiciousCount -= len(c.MenPo) // 门迫减分
-	auspiciousCount -= len(c.MenZhi) // 门制减分
 
 	// Check 空亡
 	kongWangAffected := false
@@ -107,24 +78,13 @@ func ComputeJudgment(c Chart, event EventKind) JudgmentResult {
 	// Check 马星
 	maXingAffected := c.Pan.MaXing == subjectP || c.Pan.MaXing == eventP
 
-	// Rating
-	// 五不遇时直接降为凶
-	isWuBu := c.Pan.WuBuYuShi
-	rating := rateJudgment(auspiciousCount, kongWangAffected, maXingAffected, len(c.MenPo)+len(c.MenZhi), isWuBu)
-
-	advice := generateAdvice(event, rating, riGanPalace, subjectP, eventP)
-
 	return JudgmentResult{
 		SubjectPalace:    subjectP,
 		EventPalace:      eventP,
-		DutyStarPalace:   dutyStarP,
-		DutyDoorPalace:   dutyDoorP,
-		Rating:           rating,
 		ShengKe:          shengKe,
 		Patterns:         patterns,
 		KongWangAffected: kongWangAffected,
 		MaXingAffected:   maXingAffected,
-		Advice:           advice,
 	}
 }
 
@@ -138,25 +98,6 @@ func findGanPalace(c Chart, g ganzhi.Gan) GongIndex {
 	return 0
 }
 
-// findStarPalace finds which gong a star resides in.
-func findStarPalace(c Chart, s StarIndex) GongIndex {
-	for i, p := range c.Pan.GongWei {
-		if p.Star == s {
-			return GongIndex(i + 1)
-		}
-	}
-	return 0
-}
-
-// findDoorPalace finds which gong a door resides in.
-func findDoorPalace(c Chart, d DoorIndex) GongIndex {
-	for i, p := range c.Pan.GongWei {
-		if p.Door == d {
-			return GongIndex(i + 1)
-		}
-	}
-	return 0
-}
 
 // analyzeShengKe analyzes the sheng/ke relationships between key palaces.
 func analyzeShengKe(c Chart, subjectP, eventP, dutyStarP, dutyDoorP GongIndex) string {
@@ -185,48 +126,3 @@ func analyzeShengKe(c Chart, subjectP, eventP, dutyStarP, dutyDoorP GongIndex) s
 	return strings.Join(parts, "；")
 }
 
-// rateJudgment produces a rating based on indicators.
-func rateJudgment(auspiciousCount int, kongWang, maXing bool, menPoZhiCount int, wuBuYuShi bool) string {
-	score := auspiciousCount
-	if kongWang {
-		score -= 2
-	}
-	if maXing {
-		score += 1
-	}
-	score -= menPoZhiCount
-
-	if wuBuYuShi {
-		// 五不遇时: "号为日月损光明" — 无论其他条件多好, 至少降两级
-		score -= 3
-	}
-
-	switch {
-	case score >= 5:
-		return "大吉"
-	case score >= 3:
-		return "吉"
-	case score >= 0:
-		return "平"
-	case score >= -2:
-		return "凶"
-	default:
-		return "大凶"
-	}
-}
-
-// generateAdvice produces a Chinese advice string.
-func generateAdvice(event EventKind, rating string, riGanPalace, subjectP, eventP GongIndex) string {
-	switch rating {
-	case "大吉":
-		return "诸事顺利，吉星高照，宜果断行动"
-	case "吉":
-		return "较为顺利，虽有小的阻碍但总体有利"
-	case "平":
-		return "平平无奇，宜守不宜攻，等待时机"
-	case "凶":
-		return "多有阻碍，宜谨慎行事，避免冒进"
-	default:
-		return "凶险之象，不宜轻举妄动"
-	}
-}

@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 type flowGold struct {
@@ -126,10 +125,3 @@ func starZhiIdxMap(mg Gan, mz Zhi, dg Gan, dz Zhi, sg Gan, sz Zhi) map[string]in
 	return r
 }
 
-func parseFG(tc flowGold) tianwen.LunarTime {
-	var y, m, d int
-	fmt.Sscanf(tc.Lunar, "%d-%d-%d", &y, &m, &d)
-	sz := tc.Ti + 1; day := d
-	if tc.Ti == 12 { sz = 1; day++ }
-	return tianwen.LunarTime{Year: y, Month: m, Day: day, Shichen: ganzhi.Zhi(sz)}
-}

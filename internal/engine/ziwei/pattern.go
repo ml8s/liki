@@ -3,7 +3,6 @@ package ziwei
 type pattern struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Score       int    `json:"score"` // 0=下 1=中 2=上
 }
 
 func findPatterns(palaces [12]gong) []pattern {
@@ -98,8 +97,8 @@ func findPatterns(palaces [12]gong) []pattern {
 
 type patterns struct{ list []pattern }
 
-func (p *patterns) add(name, desc string, score int) {
-	p.list = append(p.list, pattern{name, desc, score})
+func (p *patterns) add(name, desc string, _ int) {
+	p.list = append(p.list, pattern{name, desc})
 }
 
 // ------ helpers ------

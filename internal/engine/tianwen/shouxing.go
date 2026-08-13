@@ -77,22 +77,7 @@ func saLon(t float64, n int) float64 {
 	return eLon(t, n) + nutationLon2(t) + gxcSunLon(t) + math.Pi
 }
 
-// ev 反解用的导数近似。
-func ev(t float64) float64 {
-	f := 628.307585 * t
-	return 628.332 + 21*math.Sin(1.527+f) + 0.44*math.Sin(1.48+f*2) + 0.129*math.Sin(5.82+f)*t + 55e-5*math.Sin(4.21+f)*t*t
-}
-
 // saLonT 反解：给定目标视黄经 w（弧度），Newton 迭代求儒略千年 t。
-func saLonT(w float64) float64 {
-	v := 628.3319653318
-	t := (w - 1.75347 - math.Pi) / v
-	v = ev(t)
-	t += (w - saLon(t, 10)) / v
-	v = ev(t)
-	t += (w - saLon(t, -1)) / v
-	return t
-}
 
 // dtExt ΔT 外推（秒），y 为年份，jsd 为长期加速度。
 func dtExt(y, jsd float64) float64 {
@@ -154,14 +139,4 @@ func solarLongitudeShouXing(jdOffset float64) float64 {
 
 // jieQiTimeShouXing 用寿星历反解（对齐 lunar qiAccurate2）求节气时刻。
 // 返回儒略日偏移（JD-2451545）。targetLon 为黄经（度）。
-func jieQiTimeShouXing(year int, targetLon float64) float64 {
-	// 初始猜测：目标黄经对应的大致儒略日（365.2422 天/年）
-	jdGuess := 2451545.0 + 365.2422*float64(year-2000) + (targetLon-280.0)/0.9856*1.0
-	// 用 saLonT 反解：w 为黄经（弧度），返回儒略百年
-	w := targetLon * math.Pi / 180.0
-	t := saLonT(w)
-	// t 是儒略百年（相对 J2000）→ 儒略日 = t*36525 + J2000 - dtT + 1/3
-	jd := t*36525.0 + 2451545.0 - dtT(t) + 1.0/3.0
-	_ = jdGuess
-	return jd - 2451545.0
-}
+

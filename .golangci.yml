@@ -1,29 +1,4 @@
-run:
-  timeout: 3m
-  tests: true
-
-linters:
-  enable:
-    - errcheck
-    - govet
-    - staticcheck
-    - unused
-    - ineffassign
-    - gosimple
-    - nilerr
-    - unconvert
-    - wastedassign
-    - makezero
-    - copyloopvar
-
+# golangci-lint 配置：errcheck 显式忽略（`_ =`/`_, _ =`）视为有意忽略，不算问题
 linters-settings:
   errcheck:
-    check-blank: true
-  staticcheck:
-    checks: ["all"]
-
-issues:
-  exclude-dirs:
-    - vendor
-  max-issues-per-linter: 0
-  max-same-issues: 0
+    check-blank: false

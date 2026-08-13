@@ -22,9 +22,6 @@ func qimingPickHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	if p.Count != 1 && p.Count != 2 {
 		p.Count = 2
 	}
-	if !p.Wuge {
-		// wuge 默认 true；false 时显式跳过五格
-	}
 	combos, err := qiming.PickChars(p.Surname, p.Wuxing1, p.Wuxing2, p.Count, p.Wuge)
 	if err != nil {
 		return nil, fmt.Errorf("qiming.pick: %w", err)

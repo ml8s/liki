@@ -73,7 +73,7 @@ func HandleRPC(reg *agent.RPCRegistry) http.HandlerFunc {
 		// rpc.discover handled at HTTP layer, not in the registry
 		if req.Method == "rpc.discover" {
 			var fp struct{ Methods string `json:"methods,omitempty"` }
-			json.Unmarshal(req.Params, &fp)
+			_ = json.Unmarshal(req.Params, &fp) // 解析失败按无 methods 过滤处理（rpc.discover 降级）
 
 			var patterns []string
 			if fp.Methods != "" {

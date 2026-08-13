@@ -66,56 +66,12 @@ func qimenJudgmentHandler(ctx context.Context, raw json.RawMessage) (json.RawMes
 	return wrapResult("qimen_judgment", result)
 }
 
-func qimenSelectHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Event     string `json:"event"`
-		StartDate string `json:"start_date"`
-		EndDate   string `json:"end_date"`
-		Count     int    `json:"count"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("qimen.select: %w", err)
-	}
-	if p.Event == "" {
-		p.Event = "general"
-	}
-	event, err := qimen.ParseEventKind(p.Event)
-	if err != nil {
-		return nil, fmt.Errorf("qimen.select: %w", err)
-	}
-	if p.Count <= 0 {
-		p.Count = 3
-	}
-
-	start, err := time.Parse("2006-01-02", p.StartDate)
-	if err != nil {
-		return nil, fmt.Errorf("qimen.select: invalid start_date: %w", err)
-	}
-	end, err := time.Parse("2006-01-02", p.EndDate)
-	if err != nil {
-		return nil, fmt.Errorf("qimen.select: invalid end_date: %w", err)
-	}
-
-	slots := qimen.ComputeTimeSelection(start, end, event, p.Count, 116.4, 8)
-	return wrapResult("qimen_select", slots)
-}
 
 
-func liuyaoJudgmentHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Chart json.RawMessage `json:"chart"`
-		Event string          `json:"event"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("liuyao.judgment: %w", err)
-	}
-	var chart liuyao.Chart
-	if err := json.Unmarshal(p.Chart, &chart); err != nil {
-		return nil, fmt.Errorf("liuyao.judgment: invalid chart: %w", err)
-	}
-	result := liuyao.ComputeJudgment(chart, p.Event)
-	return wrapResult("liuyao_judgment", result)
-}
+// ── bazhai ──
+
+// ── bazhai ──
+
 // ── bazhai ──
 
 func bazhaiJudgmentHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
@@ -135,6 +91,7 @@ func bazhaiJudgmentHandler(ctx context.Context, raw json.RawMessage) (json.RawMe
 	result := bazhai.ComputeJudgment(chart, p.DoorGua, p.MasterGua, p.StoveGua)
 	return wrapResult("bazhai_judgment", result)
 }
+
 
 func bazhaiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
@@ -336,36 +293,24 @@ var otherMethods = []RPCMethod{	{
 		Name: "qimen.chart", Description: "奇门排盘。返回天盘、人盘、神盘、九星八门格局。kind 默认 shi（时家奇门），可选 ri/yue/nian。",
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"kind":{"type":"string","enum":["shi","ri","yue","nian"],"description":"奇门类型，默认 shi"}},"required":["solar_time"]}`),
 		Handler: qimenChartHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"pan":{"type":"object","description":"奇门排盘结果","properties":{"jushu":{"type":"integer","description":"局数"},"yin_dun":{"type":"boolean","description":"阴遁/阳遁"},"ri_gan":{"type":"string","description":"日干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ri_zhi":{"type":"string","description":"日支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"shi_gan":{"type":"string","description":"时干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"shi_zhi":{"type":"string","description":"时支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"zhi_fu_xing":{"type":"string","enum":["天蓬","天芮","天冲","天辅","天禽","天心","天柱","天任","天英"],"description":"值符星"},"zhi_shi_men":{"type":"string","enum":["休门","生门","伤门","杜门","景门","死门","惊门","开门"],"description":"值使门"},"gong_wei":{"type":"array","description":"九宫排盘结果","items":{"type":"object","properties":{"di_pan_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"地盘干"},"tian_pan_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"天盘干"},"xing":{"type":"string","enum":["天蓬","天芮","天冲","天辅","天禽","天心","天柱","天任","天英"],"description":"九星"},"men":{"type":"string","enum":["休门","生门","伤门","杜门","景门","死门","惊门","开门"],"description":"八门"},"shen":{"type":"string","enum":["值符","螣蛇","太阴","六合","勾陈","朱雀","九地","九天","白虎","玄武"],"description":"八神（阳遁：勾陈/朱雀；阴遁：白虎/玄武）"},"an_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"暗干"}},"required":["di_pan_gan","tian_pan_gan"]}},"ma_xing":{"type":"string","enum":["坎","坤","震","巽","中","乾","兑","艮","离"],"description":"马星宫位"},"kong_wang":{"type":"array","items":{"type":"string","enum":["坎","坤","震","巽","中","乾","兑","艮","离"]},"description":"空亡宫位"}},"required":["jushu","yin_dun","ri_gan","ri_zhi"]},"patterns":{"type":"array"},"gan_interaction":{"type":"array","description":"天干关系"},"men_interaction":{"type":"array","description":"八门关系"},"xing_interaction":{"type":"array","description":"九星关系"},"wang_shuai":{"type":"array","description":"旺衰"},"men_po":{"type":"array","description":"门迫"},"men_zhi":{"type":"array","description":"门制"},"ying_qi":{"type":"object","description":"应期判断"}},"required":["pan","patterns"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"pan":{"type":"object","description":"奇门排盘结果","properties":{"jushu":{"type":"integer","description":"局数"},"yin_dun":{"type":"boolean","description":"阴遁/阳遁"},"ri_gan":{"type":"string","description":"日干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ri_zhi":{"type":"string","description":"日支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"shi_gan":{"type":"string","description":"时干","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"shi_zhi":{"type":"string","description":"时支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"zhi_fu_xing":{"type":"string","enum":["天蓬","天芮","天冲","天辅","天禽","天心","天柱","天任","天英"],"description":"值符星"},"zhi_shi_men":{"type":"string","enum":["休门","生门","伤门","杜门","景门","死门","惊门","开门"],"description":"值使门"},"gong_wei":{"type":"array","description":"九宫排盘结果","items":{"type":"object","properties":{"di_pan_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"地盘干"},"tian_pan_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"天盘干"},"xing":{"type":"string","enum":["天蓬","天芮","天冲","天辅","天禽","天心","天柱","天任","天英"],"description":"九星"},"men":{"type":"string","enum":["休门","生门","伤门","杜门","景门","死门","惊门","开门"],"description":"八门"},"shen":{"type":"string","enum":["值符","螣蛇","太阴","六合","勾陈","朱雀","九地","九天","白虎","玄武"],"description":"八神（阳遁：勾陈/朱雀；阴遁：白虎/玄武）"},"an_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"],"description":"暗干"}},"required":["di_pan_gan","tian_pan_gan"]}},"ma_xing":{"type":"string","enum":["坎","坤","震","巽","中","乾","兑","艮","离"],"description":"马星宫位"},"kong_wang":{"type":"array","items":{"type":"string","enum":["坎","坤","震","巽","中","乾","兑","艮","离"]},"description":"空亡宫位"}},"required":["jushu","yin_dun","ri_gan","ri_zhi"]},"patterns":{"type":"array"},"gan_interaction":{"type":"array","description":"天干关系"},"men_interaction":{"type":"array","description":"八门关系"},"xing_interaction":{"type":"array","description":"九星关系"},"wang_shuai":{"type":"array","description":"旺衰"},"men_po":{"type":"array","description":"门迫"},"men_zhi":{"type":"array","description":"门制"},"ying_qi":{"type":"object","description":"应期判断"},"ri_gan_gong":{"type":"string","description":"日干落宫（排盘固有）"},"zhi_fu_xing_gong":{"type":"string","description":"值符星落宫（排盘固有）"},"zhi_shi_men_gong":{"type":"string","description":"值使门落宫（排盘固有）"}},"required":["pan","patterns"]}`),
 	},
 	{
 		Name: "qimen.judgment", Description: "奇门断事。基于排盘结果和事件类型进行综合分析判断。",
 		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"qimen.chart 返回的完整 chart 对象"},"event":{"type":"string","enum":["general","career","wealth","relationship","study","travel","health","legal"],"description":"事件类型，默认 general"}},"required":["chart"]}`),
 		Handler: qimenJudgmentHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"subject_palace":{"type":"string","description":"主题宫（断事所落之宫）","enum":["坎","坤","震","巳","中","乾","兆","艮","离"]},"ying_qi_gong":{"type":"string","description":"应期宫","enum":["坎","坤","震","巳","中","乾","兆","艮","离"]},"zhi_fu_xing_gong":{"type":"string","description":"值符宫","enum":["坎","坤","震","巳","中","乾","兆","艮","离"]},"zhi_shi_men_gong":{"type":"string","description":"值使宫","enum":["坎","坤","震","巳","中","乾","兆","艮","离"]},"rating":{"type":"string","description":"评价"},"advice":{"type":"string","description":"建议"},"sheng_ke":{"type":"string","description":"生克分析"},"patterns":{"type":"array","description":"格局"},"kong_wang_affected":{"type":"boolean","description":"空亡影响"},"ma_xing_affected":{"type":"boolean","description":"马星影响"}},"required":["subject_palace","ying_qi_gong","rating","advice"]}`),
-	},
-	{
-		Name: "qimen.select", Description: "奇门择吉。在指定日期范围内查找最佳时辰。",
-		Params: mustSchema(`{"type":"object","properties":{"event":{"type":"string","enum":["general","career","wealth","relationship","study","travel","health","legal"],"description":"事件类型，默认 general","examples":["travel"]},"start_date":{"type":"string","description":"开始日期 YYYY-MM-DD","examples":["2026-07-20"]},"end_date":{"type":"string","description":"结束日期 YYYY-MM-DD","examples":["2026-07-22"]},"count":{"type":"integer","description":"推荐数量，默认 3","examples":[5]}},"required":["start_date","end_date"]}`),
-		Handler: qimenSelectHandler,
-		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"date":{"type":"string"},"time":{"type":"string"},"shi_chen":{"type":"string"},"rating":{"type":"string"},"advice":{"type":"string"}},"required":["date","time","shi_chen","rating","advice"]}}`),
-	},
-	{
-		Name: "liuyao.judgment", Description: "六爻断卦。对装卦结果进行综合分析判断，返回用神状态、评级和断语。",
-		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"liuyao.chart 返回的完整 chart 对象（非旧版 chart_data 格式）。必传。"},"event":{"type":"string","enum":["general","career","wealth","relationship","study","health","legal","travel"],"description":"事件类型，默认general"}},"required":["chart"]}`),
-		Handler: liuyaoJudgmentHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"yong_shen":{"type":"object","properties":{"name":{"type":"string","description":"用神六亲"},"month":{"type":"string","description":"月令旺衰"},"day":{"type":"string","description":"日建关系"},"ri_chen_power":{"type":"string","description":"日建力"},"is_chi_shi":{"type":"boolean","description":"持世"},"is_yue_po":{"type":"boolean","description":"月破"},"dong_sheng":{"type":"boolean","description":"动筫生用神"},"dong_ke":{"type":"boolean","description":"动筫克用神"},"dong_self":{"type":"boolean","description":"动筫即用神"}},"required":["name","month","day"]},"rating":{"type":"string"},"advice":{"type":"string"},"rule":{"type":"integer","description":"断卦规则版本"}},"required":["yong_shen","rating","advice"]}`),
-	},
-	{
-		Name: "bazhai.judgment", Description: "八宅门主灶论断。分析门/主/灶与命卦配合吉凶。",
-		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object"},"door_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"门卦"},"master_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"主卧卦"},"stove_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"灶卦"}},"required":["chart","door_gua","master_gua","stove_gua"]}`),
-		Handler: bazhaiJudgmentHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"group":{"type":"string"},"ming_gua_str":{"type":"string"},"door":{"type":"object","description":"门卦信息: gua_number,gua_name,wuxing,group(东四/西四),match(吉/凶)"},"master":{"type":"object","description":"主(卧室)八卦信息, 同door结构"},"stove":{"type":"object","description":"灶(厨房)卦信息, 同door结构"},"rating":{"type":"string"},"summary":{"type":"string"}},"required":["group","rating","summary"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"subject_palace":{"type":"string","description":"主题宫（断事所落之宫）","enum":["坎","坤","震","巳","中","乾","兆","艮","离"]},"ying_qi_gong":{"type":"string","description":"应期宫","enum":["坎","坤","震","巳","中","乾","兆","艮","离"]},"sheng_ke":{"type":"string","description":"生克分析"},"patterns":{"type":"array","description":"格局"},"kong_wang_affected":{"type":"boolean","description":"空亡影响"},"ma_xing_affected":{"type":"boolean","description":"马星影响"}},"required":["subject_palace","ying_qi_gong"]}`),
 	},
 	{
 		Name: "bazhai.chart", Description: "八宅风水。综合命卦与飞星分析。",
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":{"type":"string","format":"date-time","description":"ISO 8601 时间"},"gender":{"type":"string","enum":["male","female"]}},"required":["solar_time","gender"]}`), Handler: bazhaiChartHandler,
 		Result: envelopeSchema(`{"type":"object","properties":{"ming_gua":{"type":"object"},"ba_zhai_dirs":{"type":"object"},"pillar_bagua":{"type":"array"},"liu_nian_xing":{"type":"object","description":"流年飞星"}},"required":["ming_gua","ba_zhai_dirs","pillar_bagua"]}`),
+	},
+	{
+		Name: "bazhai.judgment", Description: "八宅门主灶论断。分析门/主/灶与命卦配合吉凶。",
+		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object"},"door_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"门卦"},"master_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"主卧卦"},"stove_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"灶卦"}},"required":["chart","door_gua","master_gua","stove_gua"]}`),
+		Handler: bazhaiJudgmentHandler,
+		Result:  envelopeSchema(`{"type":"object","properties":{"group":{"type":"string"},"ming_gua_str":{"type":"string"},"door":{"type":"object","description":"门卦信息: gua_number,gua_name,wuxing,group(东四/西四),match(吉/凶)"},"master":{"type":"object","description":"主(卧室)八卦信息, 同door结构"},"stove":{"type":"object","description":"灶(厨房)卦信息, 同door结构"}},"required":["group","ming_gua_str","door","master","stove"]}`),
 	},
 	{
 		Name: "bazhai.minggua", Description: "命卦查询。返回东四命/西四命 + 命卦 + 四吉四凶方。",

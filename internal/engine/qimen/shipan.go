@@ -15,6 +15,9 @@ type Chart struct {
 	MenZhi           []GongIndex      `json:"men_zhi"`
 	Patterns         []Pattern          `json:"patterns"`
 	YingQi           YingQi             `json:"ying_qi"`
+	RiGanPalace      GongIndex          `json:"ri_gan_gong"`       // 日干落宫（排盘固有）
+	DutyStarPalace   GongIndex          `json:"zhi_fu_xing_gong"`  // 值符星落宫（排盘固有）
+	DutyDoorPalace   GongIndex          `json:"zhi_shi_men_gong"`  // 值使门落宫（排盘固有）
 }
 
 // computeChart computes a complete奇门盘 with all analyses.
@@ -46,5 +49,39 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 		MenZhi:           findMenZhi(p),
 		Patterns:         findPatterns(p),
 		YingQi:           computeYingQi(p),
+		RiGanPalace:      findGanPalaceIdx(p, bz.Ri.Gan),
+		DutyStarPalace:   findStarPalaceIdx(p, p.DutyStar),
+		DutyDoorPalace:   findDoorPalaceIdx(p, p.DutyDoor),
 	}
+}
+
+
+// findGanPalaceIdx finds which gong a heavenly stem resides in (earth plate).
+func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
+	for i, pg := range p.GongWei {
+		if pg.EarthStem == g || pg.HeavenStem == g {
+			return GongIndex(i + 1)
+		}
+	}
+	return 0
+}
+
+// findStarPalaceIdx finds which gong a star resides in.
+func findStarPalaceIdx(p pan, s StarIndex) GongIndex {
+	for i, pg := range p.GongWei {
+		if pg.Star == s {
+			return GongIndex(i + 1)
+		}
+	}
+	return 0
+}
+
+// findDoorPalaceIdx finds which gong a door resides in.
+func findDoorPalaceIdx(p pan, d DoorIndex) GongIndex {
+	for i, pg := range p.GongWei {
+		if pg.Door == d {
+			return GongIndex(i + 1)
+		}
+	}
+	return 0
 }

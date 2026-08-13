@@ -14,14 +14,14 @@ func TestDiscoverMethods_Filter(t *testing.T) {
 
 	doc := reg.DiscoverMethods([]string{"bazi"})
 	var out openRPCDoc
-	json.Unmarshal(doc, &out)
+	_ = json.Unmarshal(doc, &out)
 	names := map[string]bool{}
 	for _, m := range out.Methods {
 		names[m.Name] = true
 		if len(m.Name) < 6 || m.Name[:5] != "bazi." {
 			t.Errorf("bazi 过滤混入: %s", m.Name)
 		}
-		if m.Params == nil || len(m.Params) == 0 {
+		if len(m.Params) == 0 {
 			t.Errorf("%s missing params", m.Name)
 		}
 		if m.Description == "" {
@@ -36,16 +36,16 @@ func TestDiscoverMethods_Filter(t *testing.T) {
 	}
 
 	doc2 := reg.DiscoverMethods([]string{"xuankong.chart"})
-	json.Unmarshal(doc2, &out)
+	_ = json.Unmarshal(doc2, &out)
 	if len(out.Methods) != 1 || out.Methods[0].Name != "xuankong.chart" {
 		t.Fatalf("xuankong.chart 过滤: got %v", out.Methods)
 	}
-	if out.Methods[0].Params == nil || len(out.Methods[0].Params) == 0 {
+	if len(out.Methods[0].Params) == 0 {
 		t.Errorf("xuankong.chart missing params")
 	}
 
 	doc3 := reg.DiscoverMethods(nil)
-	json.Unmarshal(doc3, &out)
+	_ = json.Unmarshal(doc3, &out)
 	if len(out.Methods) <= 2 {
 		t.Fatalf("空过滤: got %d", len(out.Methods))
 	}
