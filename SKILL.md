@@ -255,6 +255,11 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | **因子生成（流年）** | `make_liunian_factors(本命盘, 流年盘, target, year)` | 双盘流年因子 {八字, 紫微}（一次返回） |
 | **断语查询** | `query(域, 快照)` | 该域双盘断语（内部 load_table+match） |
 
+**断语域分两层（本命 vs 流年——查询快照决定用哪层，agent 不用选）**：
+- **本命域**（19 域，查 `make_factors` 快照）：marriage/liuqin/caiyun/yingqi… 列=本命因子名
+- **流年域**（yearly_*，查 `make_liunian_factors` 快照）：`yearly_marriage`（婚姻流年）/`yearly_liuqin`（六亲流年）/`yearly_caiyun`（财运流年）/`yearly_shiye`（事业流年）/`yearly_jiankang`（健康流年）/`yearly_xueye`（学业流年）/`yearly_zinv`（子女流年）——列=流年因子名，**流年专用**（本命快照查 yearly_* 不命中、流年快照查本命域不命中，天然隔离不误伤）
+- **应期题流程**：年份选项题 → `query("yearly_<主域>", 流年快照)` 拿域语义流年断语（成婚候选/父灾候选/破财候选）+ `query("yingqi", 流年快照)` 拿通用应期交叉——**禁止只查 yingqi**（事件级粒度不够）
+
 （排盘内部调 RPC 到 liki.hk——agent 只传 4 参数 + 判定 correct；排盘之外的 RPC 仍按 RPC 调用说明手调）
 
 **判题第一动作——题目主域识别（agent 读题路由——断语保留全 19 域，agent 自己选域）**：
@@ -289,13 +294,15 @@ snap = make_factors(pan)          # 双盘因子快照 {八字, 紫微}（数据
 for rule in ALL_DUANYU_RULES:
     print(rule, query(rule, snap))      # {八字: [...], 紫微: [...]}
 
-# ④ 应期候选（应期题）：候选年逐个排流年 → 流年因子 → 应期断语——命中即候选
+# ④ 应期候选（应期题）：候选年逐个排流年 → 流年因子 → **流年域断语**（yearly_*）+ 应期断语（yingqi）交叉——命中即候选
+#    目标星按主域选：婚姻→配偶星 六亲→父星/母星/子女星 财运→财星 事业→官杀 健康→日主 学业→母星（印星） 子女→子女星
 for y in [选项年份列表]:
     ln = liunian(pan, y)                        # 八字+紫微流年单年合并
     fl = make_liunian_factors(pan, ln, target="配偶星", year=y)
-    yq = query("yingqi", fl)                    # 应期断语（双盘流年快照）
-    hits = [h for h in yq["八字"] + yq.get("紫微", []) if h.get("事件") in ("婚动", "婚变", "凶事")]
-    print(y, "应期候选:", [h["结论"] for h in hits])
+    yr = query("yearly_marriage", fl)           # 流年域断语（列=流年因子名；本命快照查询不命中，流年专用）
+    yq = query("yingqi", fl)                    # 应期断语交叉（通用事件级：婚动/凶事/健康）
+    hits = [h for h in yr["八字"] + yr.get("紫微", []) + yq["八字"] + yq.get("紫微", [])]
+    print(y, "候选:", [h["结论"] for h in hits])
 ```
 **★主域优先**（综合断事看多域——但以题目对应域为主——其他域只作佐证，不跨域否决主域）：先识别题目问什么（婚姻/事业/学历/出身/健康/性格/财运/六亲/应期/综合）——主域断语优先定案；其他域断语仅作辅助佐证（如婚姻题以 marriage 为主——xingge/jiankang 只佐证不否决婚姻断语——0056 性格题以 xingge 判主面）。
 **5 工具**：排盘（full_paipan 本命 + liunian 流年）+ 因子生成（make_factors 本命 + make_liunian_factors 流年）+ 断语查询（query）——顺流程内嵌（build_factors 进 full_paipan、load_table+match 进 query），agent 只在分叉点（本命/流年、查哪个域）做决策——八字/紫微在快照内部真分开，调用层不暴露。

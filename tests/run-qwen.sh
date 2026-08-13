@@ -25,6 +25,7 @@ fi
 ANSWER_FILES=(tests/answers.json tests/groups.json tests/cats.json)
 STASH_DIR="/tmp/liki-answers"
 
+# 判分前答案自愈：答案缺失（/tmp 被清/stash 丢失）→ 从 git 恢复，防丢答案
 restore_answers() {
   for f in "${ANSWER_FILES[@]}"; do
     if [ -f "$STASH_DIR/$(basename "$f")" ]; then
@@ -32,6 +33,9 @@ restore_answers() {
     fi
   done
   rmdir "$STASH_DIR" 2>/dev/null || true
+  for f in "${ANSWER_FILES[@]}"; do
+    [ -f "$f" ] || git checkout -- "$f" 2>/dev/null || true
+  done
 }
 trap restore_answers EXIT
 
@@ -41,7 +45,8 @@ if [ -d "$STASH_DIR" ] && [ -f "$STASH_DIR/answers.json" ]; then
   restore_answers
 fi
 
-# 1. 移走答案（确保容器 agent 物理读不到）
+# 1. 移走答案（确保容器 agent 物理读不到）——stash 目录先建（防 /tmp 残留被清后 mv 失败）
+mkdir -p "$STASH_DIR"
 for f in "${ANSWER_FILES[@]}"; do
   [ -f "$f" ] && mv "$f" "$STASH_DIR/"
 done

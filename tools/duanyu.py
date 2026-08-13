@@ -155,7 +155,10 @@ def evaluate_factors(factors: dict, gender: str, chart: dict, shushi: Optional[s
 
 ALL_DUANYU_RULES = ("xueye", "marriage", "shiye", "chushen", "caiyun", "jiankang", "xingge",
                     "liuqin", "waimao", "shensha", "geju", "zuhe", "ziwei", "tiaohou",
-                    "dayun", "tianzhai", "qianyi", "zinv", "zhiye")
+                    "dayun", "tianzhai", "qianyi", "zinv", "zhiye",
+                    # 流年断语域（yearly_*——列=流年因子名，流年快照查询专用；本命快照查询不命中）
+                    "yearly_marriage", "yearly_liuqin", "yearly_caiyun",
+                    "yearly_shiye", "yearly_jiankang", "yearly_xueye", "yearly_zinv")
 
 def load_liunian_rows():
     """流年因子表（factors_liunian.csv 真值表——同 factors.csv）。"""

@@ -1,0 +1,114 @@
+=== MingLi-Bench 命盘分组评测结果 ===
+总题数: 160 | PASS 99 | FAIL 61 | ERROR 0
+正确率: 99/160 = 61.9%
+
+=== 分组正确率 ===
+  pan01: 5/5
+  pan02: 4/5
+  pan03: 3/5
+  pan04: 4/5
+  pan05: 4/5
+  pan06: 4/5
+  pan07: 2/5
+  pan08: 3/5
+  pan09: 4/5
+  pan10: 5/5
+  pan11: 5/5
+  pan12: 4/5
+  pan13: 2/5
+  pan14: 2/5
+  pan15: 3/5
+  pan16: 2/5
+  pan17: 3/5
+  pan18: 4/5
+  pan19: 2/6
+  pan20: 2/4
+  pan21: 1/5
+  pan22: 2/5
+  pan23: 1/5
+  pan24: 4/5
+  pan25: 4/5
+  pan26: 4/5
+  pan27: 1/5
+  pan28: 4/5
+  pan29: 4/5
+  pan30: 2/5
+  pan31: 2/5
+  pan32: 3/5
+
+=== 分类正确率 ===
+  事业: PASS 18 FAIL 7 ERR 0 = 72%
+  健康: PASS 11 FAIL 6 ERR 0 = 65%
+  外貌: PASS 3 FAIL 0 ERR 0 = 100%
+  婚姻: PASS 26 FAIL 18 ERR 0 = 59%
+  子女: PASS 4 FAIL 2 ERR 0 = 67%
+  学业: PASS 7 FAIL 4 ERR 0 = 64%
+  官非: PASS 0 FAIL 1 ERR 0 = 0%
+  家庭: PASS 16 FAIL 6 ERR 0 = 73%
+  性格: PASS 6 FAIL 8 ERR 0 = 43%
+  灾劫: PASS 0 FAIL 2 ERR 0 = 0%
+  财运: PASS 8 FAIL 5 ERR 0 = 62%
+  运势: PASS 0 FAIL 2 ERR 0 = 0%
+
+=== 错题 ===
+  ftb_0006 [题1] [学业] pred=C truth=B
+  ftb_0014 [题4] [事业] pred=D truth=C
+  ftb_0015 [题5] [性格] pred=C truth=B
+  ftb_0018 [题3] [婚姻] pred=D truth=B
+  ftb_0024 [题4] [家庭] pred=D truth=C
+  ftb_0026 [题1] [婚姻] pred=D truth=A
+  ftb_0031 [题1] [性格] pred=B truth=D
+  ftb_0032 [题2] [家庭] pred=B truth=C
+  ftb_0035 [题5] [婚姻] pred=C truth=B
+  ftb_0038 [题3] [健康] pred=A truth=B
+  ftb_0040 [题5] [财运] pred=C truth=B
+  ftb_0041 [题1] [性格] pred=C truth=B
+  ftb_0056 [题1] [性格] pred=D truth=C
+  ftb_0062 [题2] [事业] pred=A truth=C
+  ftb_0063 [题3] [婚姻] pred=D truth=C
+  ftb_0064 [题4] [子女] pred=D truth=B
+  ftb_0066 [题1] [事业] pred=D truth=C
+  ftb_0067 [题2] [财运] pred=B truth=A
+  ftb_0068 [题3] [事业] pred=A truth=C
+  ftb_0073 [题3] [婚姻] pred=B truth=C
+  ftb_0075 [题5] [事业] pred=C truth=A
+  ftb_0077 [题2] [婚姻] pred=A truth=C
+  ftb_0079 [题4] [性格] pred=C truth=B
+  ftb_0080 [题5] [财运] pred=C truth=D
+  ftb_0081 [题1] [家庭] pred=C truth=B
+  ftb_0083 [题3] [婚姻] pred=A truth=D
+  ftb_0089 [题4] [家庭] pred=D truth=C
+  ftb_0091 [题1] [运势] pred=D truth=B
+  ftb_0093 [题3] [官非] pred=A truth=B
+  ftb_0094 [题4] [灾劫] pred=C truth=A
+  ftb_0095 [题5] [财运] pred=A truth=C
+  ftb_0097 [题1] [婚姻] pred=B truth=A
+  ftb_0099 [题3] [婚姻] pred=C truth=D
+  ftb_0101 [题1] [婚姻] pred=C truth=B
+  ftb_0102 [题2] [婚姻] pred=B truth=A
+  ftb_0103 [题3] [事业] pred=B truth=C
+  ftb_0105 [题5] [健康] pred=D truth=B
+  ftb_0106 [题1] [婚姻] pred=D truth=B
+  ftb_0107 [题2] [婚姻] pred=C truth=A
+  ftb_0110 [题5] [婚姻] pred=C truth=B
+  ftb_0111 [题1] [学业] pred=B truth=C
+  ftb_0112 [题2] [婚姻] pred=B truth=D
+  ftb_0113 [题3] [健康] pred=A truth=D
+  ftb_0114 [题4] [子女] pred=C truth=D
+  ftb_0116 [题1] [健康] pred=D truth=B
+  ftb_0124 [题4] [婚姻] pred=B truth=A
+  ftb_0128 [题3] [财运] pred=C truth=D
+  ftb_0132 [题2] [性格] pred=D truth=B
+  ftb_0133 [题3] [学业] pred=A truth=D
+  ftb_0134 [题4] [婚姻] pred=A truth=C
+  ftb_0135 [题5] [家庭] pred=D truth=A
+  ftb_0137 [题2] [灾劫] pred=B truth=D
+  ftb_0143 [题3] [婚姻] pred=A truth=D
+  ftb_0146 [题1] [性格] pred=C truth=A
+  ftb_0147 [题2] [性格] pred=C truth=B
+  ftb_0150 [题5] [健康] pred=A truth=C
+  ftb_0151 [题1] [家庭] pred=B truth=A
+  ftb_0152 [题2] [学业] pred=B truth=C
+  ftb_0154 [题4] [事业] pred=A truth=D
+  ftb_0158 [题3] [运势] pred=C truth=D
+  ftb_0159 [题4] [健康] pred=B truth=C
