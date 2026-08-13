@@ -248,8 +248,8 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 | 工具 | 作用 | 何时用 |
 |---|---|---|
 | **RPC 工具**（`tianwen.time`/`bazi.chart`/`bazi.yongshen`/`ziwei.chart`/`bazi.liunian`/`ziwei.liunian`...） | 排盘/用神/紫微/流年——直接 URL（见 RPC 调用说明） | Phase 1-2 排盘、应期排流年 |
-| **因子生成**：`build_factors(chart)` + `evaluate_factors(fac, gender, chart, shushi)` | 排盘数据 → 194 因子快照（八字/紫微分算） | 确定性/应期/综合题 |
-| **因子生成（流年）**：`evaluate_liunian_factors(fac, gender, chart, liunian_data, target, ...)` | 流年因子（某年引动） | 应期题逐选项年 |
+| **因子生成**：`build_factors(chart)` + `evaluate_factors(fac, gender, chart, shushi)` | 排盘数据 → 190 本命因子快照（八字/紫微分算） | 确定性/应期/综合题 |
+| **因子生成（流年）**：`evaluate_liunian_factors(fac, gender, chart, liunian_data, target, ...)` | 28 流年因子（某年引动） | 应期题逐选项年 |
 | **断语查询**：`load_table("bazi_婚姻.csv")` + `match(entries, snapshot)` | 因子快照 → 断语（真值表匹配） | 各域查断语 |
 
 **判题第一动作——题目主域识别（agent 读题路由——断语保留全 19 域，agent 自己选域）**：
@@ -279,7 +279,7 @@ from engine import match
 chart = { ... }          # bazi.chart + bazi.yongshen + ziwei.chart 的结果
 gender = "male"          # 命主性别
 
-# ② 因子生成（工具 1）：排盘数据 → 双盘因子快照（194 因子，真分开）
+# ② 因子生成（工具 1）：排盘数据 → 双盘本命因子快照（190 因子，真分开）
 fac = build_factors(chart)
 bz = evaluate_factors(fac, gender, chart, shushi="bazi")     # 八字因子快照
 zw = evaluate_factors(fac, gender, chart, shushi="ziwei")    # 紫微因子快照
@@ -302,7 +302,7 @@ for y in [选项年份列表]:
 **★主域优先**（综合断事看多域——但以题目对应域为主——其他域只作佐证，不跨域否决主域）：先识别题目问什么（婚姻/事业/学历/出身/健康/性格/财运/六亲/应期/综合）——主域断语优先定案；其他域断语仅作辅助佐证（如婚姻题以 marriage 为主——xingge/jiankang 只佐证不否决婚姻断语——0056 性格题以 xingge 判主面）。
 **排盘走 RPC（URL），因子生成 + 断语查询是两个本地工具**（agent 三步编排：排盘 → 因子 → 断语；无"一键生成器"）。
 **多命中一致性（agent 综合——程序不硬选）**：一局多断语多面共存（命理表达各不相同）——agent 按命理次序综合（参考 Phase 7），同象互证（如"婚可成"+紫微"天机独坐姻缘淡薄"冲突时按紫微夫妻宫专断信号权衡）——不得程序硬选/归一标签。
-**双盘参看（真分开——各自判→对照，非合并）**：八字因子快照（bazi）与紫微因子快照（ziwei）分别计算——八字表纯八字断语、紫微表纯紫微断语（无跨术数条件行——check_schema 交叉校验防回潮）——输出为双盘命理断语（各自表达）——综合评定 agent 做（像命理师八字紫微合参，各自判完再对照；紫微夫妻宫专断信号——贪狼化忌/天机独坐——见紫微断语表 hun_301/302）。
+**双盘参看（真分开——各自判→对照，非合并）**：八字因子快照（bazi）与紫微因子快照（ziwei）分别计算——八字表纯八字断语、紫微表纯紫微断语（无跨术数条件行）——输出为双盘命理断语（各自表达）——综合评定 agent 做（像命理师八字紫微合参，各自判完再对照；紫微夫妻宫专断信号——贪狼化忌/天机独坐——见紫微断语表 hun_301/302）。
 
 规则引擎输出：学历 / 婚姻状态 / 子女 / 事业 / 出身 的断语结论（附命理依据与断语 id）。
 
