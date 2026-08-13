@@ -77,7 +77,8 @@ def main() -> int:
                         cs = factor_shushi.get(ck)
                         if cs and cs != expect:
                             warnings.append(f"[{dom}] 跨术数条件列 '{ck}'（{cs}）——{expect} 表应纯{expect}因子")
-                rows.append({"id": r.get("id", ""), "约束": cons})
+                rows.append({"id": r.get("id", ""), "约束": cons, "结论": r.get("结论", ""),
+                    "依据": r.get("依据", ""), "经典原文": r.get("经典原文", "")})
         used_keys = set()
         for item in rows:
             eid = item.get("id")
@@ -91,6 +92,23 @@ def main() -> int:
         for k in used_keys:
             if k not in factor_names and k not in BUILTIN_KEYS and k not in LIUNIAN_KEYS:
                 errors.append(f"[{dom}] 约束键 '{k}' 不在因子全集（factors.yaml 无此因子）")
+        # 强化①：结论=评测状态标签（3.6.0 去异化——结论须命理表达——防标签回潮）
+        _LABELS = {"已婚", "未婚", "独身", "离异", "夫早亡", "已婚波折", "博士", "硕士", "大学",
+                   "专科", "中学", "小学", "主妇", "老板", "老板+管理层", "管理层/高管", "稳定职业",
+                   "打工有积蓄", "普通打工", "富贵", "小康", "普通", "贫穷", "婚姻复杂"}
+        for item in rows:
+            if item["结论"].strip() in _LABELS:
+                warnings.append(f"[{dom}/{item['id']}] 结论为评测状态标签（{item['结论']}）——应为命理表达（标签在测试层映射）")
+        # 强化②：必填列（结论/依据/经典原文非空）
+        for item in rows:
+            for col in ("结论", "依据", "经典原文"):
+                if not (item.get(col) or "").strip():
+                    warnings.append(f"[{dom}/{item['id']}] 必填列 '{col}' 为空")
+        # 强化③：经典原文覆盖率
+        _total = len(rows)
+        _filled = sum(1 for it in rows if (it.get("经典原文") or "").strip())
+        if _total and _filled < _total:
+            warnings.append(f"[{dom}] 经典原文覆盖 {_filled}/{_total}（应为全量——缺 {_total - _filled} 条）")
 
     print(f"因子全集: {len(factor_names)} 个")
     print(f"错误: {len(errors)} 个")

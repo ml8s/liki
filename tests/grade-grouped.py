@@ -26,14 +26,21 @@ def main():
     for case_id, qids in sorted(groups.items()):
         d = os.path.join(it_dir, case_id)
         rsp_path = os.path.join(d, 'with_skill', 'outputs', 'response.md')
-        if not os.path.exists(rsp_path):
+        rsp = None
+        if os.path.exists(rsp_path):
+            rsp = open(rsp_path, encoding='utf-8').read()
+        else:
+            # 回退：stdout.txt（response.md 未生成——进程中断——agent stdout 有"题N 答案：X"）
+            stdout = os.path.join(d, 'with_skill', 'outputs', 'agent', 'run', 'stdout.txt')
+            if os.path.exists(stdout):
+                rsp = open(stdout, encoding='utf-8', errors='ignore').read()
+        if rsp is None:
             for qid in qids:
                 res['ERROR'] += 1; bycat[cats.get(qid, '?')]['ERROR'] += 1
             group_res.append((case_id, 'ERROR', 0, len(qids))); continue
-        rsp = open(rsp_path, encoding='utf-8').read()
         # ① 优先按题号提取
         by_no = {}
-        for m in re.finditer(r'题\s*([1-6])[：:]\s*答案[：:]\s*([A-D])', rsp):
+        for m in re.finditer(r'题\s*([1-6])[\s：:]*答案[：:]\s*([A-D])', rsp):
             by_no[int(m.group(1))] = m.group(2)
         # ② 兜底：取尾部答案块（qwen 常见"答案：B 答案：B..."或"答案：B B B A B"）
         if not by_no:
