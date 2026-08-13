@@ -164,6 +164,10 @@ def _op(op: str, args, factors, gender, chart) -> int:
             for zhu in ("nian", "yue", "ri", "shi"):
                 for it in (full.get(zhu) or {}).get("shen_sha", []) or []:
                     names.append(it.get("name") or it.get("xing"))
+        elif field == "patterns":
+            # 含(patterns, 府相朝垣) —— 紫微特殊格局（ziwei.patterns）
+            zw = chart.get("ziwei", {}) or {}
+            names = [p.get("name") for p in (zw.get("patterns", []) or []) if p.get("name")]
         else:
             items = _path_get(factors, chart, field) or []
             names = [it.get("name") or it.get("xing") for it in items] if isinstance(items, list) else []
@@ -181,6 +185,15 @@ def _op(op: str, args, factors, gender, chart) -> int:
         tens = _resolve_tens(args[1:], factors, gender)
         total = sum((_shishen(factors, t) or {}).get("count", 0) for t in tens)
         return 1 if total >= n else 0
+    if op == "日主长生月支":
+        # 日主长生月支[临官/帝旺/墓/绝]——日主十二长生态落在月支（chang_sheng 列表）
+        state = args[0]
+        cs = chart.get("full", {}).get("chang_sheng", []) or []
+        yue_zhi = (chart.get("chart", {}) or {}).get("yue", {}).get("zhi", "")
+        for it in cs:
+            if it.get("name") == state and it.get("index") == yue_zhi:
+                return 1
+        return 0
     if op == "六合存在":
         # 直接用引擎 fullchart.zhi_liu_he（已算六合 + 化气五行）——不重复计算
         full = chart.get("full", {}) or {}
