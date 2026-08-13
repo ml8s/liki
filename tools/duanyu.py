@@ -126,7 +126,7 @@ def _load_factor_rows():
     return rows, cols
 
 
-def _atomic(col: str, fac, gender, rpc):
+def _atomic(col: str, fac, gender, rpc, ctx: dict = None):
     """原子执行：列名 "op[arg1,arg2]" → 原语（_op 本命 / _liu_op 流年）。
     字符串值算子：列名参数=期望值——比较返回 1/0。"""
     import re as _re
@@ -139,7 +139,7 @@ def _atomic(col: str, fac, gender, rpc):
     try:
         v = _op(op, args, fac, gender, rpc)
     except ValueError:
-        v = _liu_op(op, args, fac, gender, rpc)
+        v = _liu_op(op, args, fac, gender, rpc, ctx)
     if isinstance(v, str):
         return 1 if args and str(args[0]) == v else 0
     return v
@@ -307,8 +307,7 @@ def evaluate_liunian_factors(fac: dict, gender: str, rpc: dict, liunian_data: di
     与 evaluate_factors 同构——流年因子定义在表，engine 纯机械。
     liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化（可选）。
     """
-    global _LIU_CTX
-    _LIU_CTX = {
+    ctx = {
         "liunian": liunian_data or {},
         "zw_liunian": zw_liunian_data or {},
         "target": target,
@@ -330,7 +329,7 @@ def evaluate_liunian_factors(fac: dict, gender: str, rpc: dict, liunian_data: di
             for col, expect in r["conds"].items():
                 if "[" in col:
                     if col not in facts:
-                        facts[col] = _atomic(col, fac, gender, rpc)
+                        facts[col] = _atomic(col, fac, gender, rpc, ctx)
                     val = facts[col]
                 else:
                     val = snapshot.get(col, 0)   # 引用本命（因子引用）

@@ -467,9 +467,9 @@ def _palace_bad(fac, rpc):
             if ri_zhi in (rel.get("a"), rel.get("b"), rel.get("zhi1"), rel.get("zhi2")):
                 return 1
     return 0
-def _liu_op(op: str, args, fac, gender, rpc) -> int:
-    """流年算子（读 _LIU_CTX 上下文）。"""
-    ctx = _LIU_CTX
+def _liu_op(op: str, args, fac, gender, rpc, ctx: dict = None) -> int:
+    """流年算子（纯函数——显式 ctx 上下文参数，无全局状态）。"""
+    ctx = ctx or {}
     ln = ctx.get("liunian", {})
     target = ctx.get("target", "配偶星")
     year = ctx.get("year", 0)
@@ -566,24 +566,24 @@ def _liu_op(op: str, args, fac, gender, rpc) -> int:
     # ── 机械原子（查 constants 表/比较——组合定义在表）──
     if op == "干支相等":
         # 干支相等[来源A,来源B]——来源：大运/流年/日柱
-        ga, gb = _src_gz(args[0]), _src_gz(args[1])
+        ga, gb = _src_gz(args[0], ctx), _src_gz(args[1], ctx)
         return 1 if (ga and ga == gb) else 0
     if op == "干克":
         # 干克[干A来源,干B来源]——来源：流年干/日干
-        g1, g2 = _src_gan(args[0]), _src_gan(args[1])
+        g1, g2 = _src_gan(args[0], ctx), _src_gan(args[1], ctx)
         if not g1 or not g2:
             return 0
         ke = const["五行生克"].get(const["天干五行"].get(g1, ""), {}).get("克")
         return 1 if (ke and ke == const["天干五行"].get(g2, "")) else 0
     if op == "支冲":
         # 支冲[支A来源,支B来源]——来源：流年支/日支
-        z1, z2 = _src_zhi(args[0]), _src_zhi(args[1])
+        z1, z2 = _src_zhi(args[0], ctx), _src_zhi(args[1], ctx)
         return 1 if (z1 and z2 and const["六冲"].get(z1) == z2) else 0
     if op == "三刑":
         # 三刑[支来源...]——命局四柱支（含流年）凑齐三刑组
         zhis = set()
         for a in args:
-            zv = _src_zhi(a)
+            zv = _src_zhi(a, ctx)
             if zv:
                 zhis.add(zv)
         chart = rpc.get("chart", {}) or {}
@@ -597,8 +597,8 @@ def _liu_op(op: str, args, fac, gender, rpc) -> int:
         return 0
     if op == "旬空":
         # 旬空[日柱干支,流年支]——日柱所在旬的空亡支是否含流年支
-        gz = _src_gz(args[0])
-        nz2 = _src_zhi(args[1])
+        gz = _src_gz(args[0], ctx)
+        nz2 = _src_zhi(args[1], ctx)
         if not gz or len(gz) < 2 or not nz2:
             return 0
         day_g, day_z = gz[0], gz[1]
@@ -612,11 +612,11 @@ def _liu_op(op: str, args, fac, gender, rpc) -> int:
         return 1 if (xun in const["旬空"] and nz2 in const["旬空"][xun]) else 0
     if op == "流年支受克":
         # 流年支受克：流年支五行被本命旺相五行（木旺/火旺/土旺/金旺/水旺）所克——本命亢+流年受克→健康凶年
-        ln = _LIU_CTX.get("liunian", {})
+        ln = ctx.get("liunian", {})
         nz = ln.get("nian_zhi", "")
         if not nz:
             return 0
-        snap = _LIU_CTX.get("snapshot", {})
+        snap = ctx.get("snapshot", {})
         const = load_constants()
         zhi_wx = const["地支五行"].get(nz, "")
         if not zhi_wx:
@@ -627,49 +627,49 @@ def _liu_op(op: str, args, fac, gender, rpc) -> int:
         return 0
     if op == "年柱干伏吟":
         # 年柱干伏吟：流年天干 == 年柱天干（父母宫/祖上宫伏吟——主家变/父母变动）
-        ln = _LIU_CTX.get("liunian", {})
-        chart = _LIU_CTX.get("rpc", {}).get("chart", {}) or {}
+        ln = ctx.get("liunian", {})
+        chart = ctx.get("rpc", {}).get("chart", {}) or {}
         return 1 if (ln.get("nian_gan") and ln.get("nian_gan") == (chart.get("nian") or {}).get("gan", "")) else 0
     if op == "天干合":
         # 天干合[干A来源,干B来源]——查五合表
-        g1, g2 = _src_gan(args[0]), _src_gan(args[1])
+        g1, g2 = _src_gan(args[0], ctx), _src_gan(args[1], ctx)
         return 1 if (g1 and g2 and const["天干五合"].get(g1) == g2) else 0
     return 0
-def _current_dayun_gz() -> str:
+def _current_dayun_gz(ctx: dict) -> str:
     """当前大运干支（机械——查大运步骤+虚岁）。"""
-    fac2 = _LIU_CTX.get("fac", {})
-    year = _LIU_CTX.get("year", 0)
+    fac2 = ctx.get("fac", {})
+    year = ctx.get("year", 0)
     birth_y = int(fac2.get("_birth_year") or 0) or 0
     age = (year - birth_y + 1) if birth_y else 0
     for s in fac2.get("dayun_steps", []):
         if s["qi_sui"] <= age < s["zhi_sui"]:
             return s.get("name", "")
     return ""
-def _src_gz(src: str) -> str:
+def _src_gz(src: str, ctx: dict) -> str:
     """干支来源解析：大运/流年/日柱 → 干支。"""
-    ln = _LIU_CTX.get("liunian", {})
-    chart = _LIU_CTX.get("rpc", {}).get("chart", {}) or {}
+    ln = ctx.get("liunian", {})
+    chart = ctx.get("rpc", {}).get("chart", {}) or {}
     if src == "流年":
         return ln.get("nian_gan", "") + ln.get("nian_zhi", "")
     if src == "大运":
-        return _current_dayun_gz()
+        return _current_dayun_gz(ctx)
     if src == "日柱":
         return (chart.get("ri") or {}).get("gan", "") + (chart.get("ri") or {}).get("zhi", "")
     return ""
-def _src_gan(src: str) -> str:
+def _src_gan(src: str, ctx: dict) -> str:
     """干来源：流年干/日干。"""
-    ln = _LIU_CTX.get("liunian", {})
-    fac2 = _LIU_CTX.get("fac", {})
+    ln = ctx.get("liunian", {})
+    fac2 = ctx.get("fac", {})
     if src == "流年干":
         return ln.get("nian_gan", "")
     if src == "日干":
         return fac2.get("ri_gan", "")
     return ""
-def _src_zhi(src: str) -> str:
+def _src_zhi(src: str, ctx: dict) -> str:
     """支来源：流年支/日支/时支。"""
-    ln = _LIU_CTX.get("liunian", {})
-    chart = _LIU_CTX.get("rpc", {}).get("chart", {}) or {}
-    fac2 = _LIU_CTX.get("fac", {})
+    ln = ctx.get("liunian", {})
+    chart = ctx.get("rpc", {}).get("chart", {}) or {}
+    fac2 = ctx.get("fac", {})
     if src == "流年支":
         return ln.get("nian_zhi", "")
     if src == "日支":
