@@ -244,7 +244,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 ### Phase 5.5 规则引擎锚点（确定性结论必须执行）
 
-**skill 工具 = Python 函数**（mingli 推理机——函数即工具；skill 指令教调用，不 MCP）：
+**skill 工具 = Python 函数**（tools 推理机——函数即工具；skill 指令教调用，不 MCP）：
 | 工具（函数） | 作用 | 何时用 |
 |---|---|---|
 | `evaluate_from_chart(rpc_data, liunian_years)` | 唯一入口：排盘数据 → 全断语域 + 应期候选 | 确定性题/应期题/综合题（主入口） |
