@@ -70,9 +70,11 @@ Content-Type: application/json
 {"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}
 ```
 
-### 第一步：chart.discover（按场景按需加载）
+### 第一步：rpc.discover（按场景按需加载）
 
-**基础域（每次必加载）**：`tianwen,time`（真太阳时换算、当前时间）——所有场景都要用。
+**discover 按完整方法名**（如 `tianwen.time`、`bazi.chart`），逗号分隔多个；`methods` 留空 = 返回全部方法（37 个）。
+
+**基础域（每次必加载）**：`tianwen.time`（真太阳时换算、当前时间）——所有场景都要用。
 
 **场景域（按 app 卡声明加载）**：读取某张 app 卡后，按其 frontmatter 的 `依赖域` 字段 discover 对应域，**禁止一次性 discover 全部方法**（节省上下文）：
 
@@ -80,7 +82,7 @@ Content-Type: application/json
 # 基础域（必调）+ 场景域（按卡声明）
 curl -s https://liki.hk/jsonrpc \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"chart.discover","params":{"methods":"tianwen,time,bazi,ziwei"},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"tianwen.time,bazi.chart,ziwei.liunian"},"id":1}'
 ```
 
 **依赖域速查**：以各 app 卡 frontmatter 的 `依赖域` 字段为唯一来源（此处不重复列表，避免双源漂移）。
@@ -93,11 +95,11 @@ curl -s https://liki.hk/jsonrpc \
 
 后续所有 RPC 调用均以此处返回的 schema 为准。
 
-**schema 本地缓存（推荐）**：`chart.discover` 返回体较大（30K+ 字符），建议将结果缓存到本地 `.liki_schema.json`：discover 时先读缓存，若缓存中的 `result.info.version` 与远程一致（或本次会话已加载过）则直接复用，不再重复请求；仅在方法更新或缓存缺失时重新 discover。
+**schema 本地缓存（推荐）**：`rpc.discover` 返回体较大（30K+ 字符），建议将结果缓存到本地 `.liki_schema.json`：discover 时先读缓存，若缓存中的 `result.info.version` 与远程一致（或本次会话已加载过）则直接复用，不再重复请求；仅在方法更新或缓存缺失时重新 discover。
 
 **切换场景规则（强制）**：读取新的 app 卡时，**只 discover 该卡新引入的域**（该卡 `依赖域` 中尚未加载的部分）。**上下文已加载过的域禁止重复 discover**——直接复用已有 schema，不再发请求。如上下文已有 `bazi` 的 schema，切到命名卡时仅 discover `qiming`，不得重新请求 `bazi`。
 
-### 通用调用方式（chart.discover 之外的后续方法）
+### 通用调用方式（rpc.discover 之外的后续方法）
 
 ```bash
 curl -s https://liki.hk/jsonrpc \
@@ -105,7 +107,7 @@ curl -s https://liki.hk/jsonrpc \
   -d '{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}'
 ```
 
-参数按 chart.discover 返回的 schema 填写。
+参数按 rpc.discover 返回的 schema 填写。
 
 ## 错误处理
 
@@ -392,8 +394,8 @@ for y in [选项年份列表]:
 
 ## 路由分发
 
-1. 先调 `chart.discover`（详见 [RPC 调用说明](#rpc-调用说明)），获取所有 method 的完整 schema。后续调用以 schema 为准。
-2. 按「执行主干 Phase 0」路由表读取对应 app 卡。**未读取对应卡之前，不得调用任何 RPC 方法**（chart.discover 除外）。
+1. 先调 `rpc.discover`（详见 [RPC 调用说明](#rpc-调用说明)），获取所有 method 的完整 schema。后续调用以 schema 为准。
+2. 按「执行主干 Phase 0」路由表读取对应 app 卡。**未读取对应卡之前，不得调用任何 RPC 方法**（rpc.discover 除外）。
 3. 流程一律按「执行主干」Phase 1-8 执行（调用顺序不可跳过、不可并行）；app 卡只定义领域内查表，不定义执行顺序。
 
 ## 记忆管理（仅适用于具备文件写入能力的客户端）
