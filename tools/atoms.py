@@ -521,12 +521,13 @@ def _liu_op(op: str, args, factors, gender, chart, ctx: dict = None) -> int:
                 if age in (s["qi_sui"], s["qi_sui"] + 1) and birth_y and year >= birth_y:
                     return 1
         return 0
-    if op == "流年宫忌":
-        gong = args[0]
+    if op == "流年宫化":
+        # 流年宫化[宫, 化]——化 ∈ 禄/权/科/忌；判断流年四化中"该宫"被"该化"
+        gong, hua = args[0], args[1]
         sg = ctx.get("zw_liunian", {}).get("si_hua_gong", {}) or {}
         sh = ctx.get("zw_liunian", {}).get("si_hua", {}) or {}
         for star, gname in sg.items():
-            if gname == gong and sh.get(star) == "忌":
+            if gname == gong and sh.get(star) == hua:
                 return 1
         return 0
     if op == "引用本命":
