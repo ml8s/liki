@@ -13,7 +13,6 @@ from __future__ import annotations
 import glob
 import os
 import sys
-import yaml
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DY = os.path.join(_ROOT, "tools")        # 推理机 + 全部断语表 + 中间数据（csv 只有工具读——谁用归谁）

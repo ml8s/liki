@@ -33,8 +33,6 @@ _DIZHI_WUXING = _CONST["地支五行"]
 _TARGET_STARS = _CONST["目标星"]
 _TARGET_PALACES = _CONST["事件宫位"]
 _TEN_CLASSES = _CONST["类"]
-_WANG = set(_CONST["旺衰"]["旺"])
-_RUO = set(_CONST["旺衰"]["弱"])
 def _shishen(factors, ten: str) -> Optional[dict]:
     """取某十神的状态（factors.py ShishenState）。"""
     return (factors.get("shishen") or {}).get(ten)

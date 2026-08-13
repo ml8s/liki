@@ -358,4 +358,4 @@ def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_da
 
 
 from aggregate import build_factors
-from atoms import load_constants, _op, _liu_op, _shishen, _resolve_tens, _target_stars, _palace_bad, _dayun_window, _zw_gong_op
+from atoms import _op, _liu_op
