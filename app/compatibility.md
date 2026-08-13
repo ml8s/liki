@@ -10,7 +10,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 [必读] - bazi: domains/bazi/fangfa/hepan.md「合盘评估」
 [必读] - bazi: domains/bazi/fangfa/gongwei.md「宫位论」
-[必读] - bazi: domains/bazi/duanyu/shishen.md「十神组合」
+[必读] - bazi: domains/bazi/fangfa/shishen.md「十神组合」
 [必读] - ziwei: domains/ziwei/SKILL.md「紫微合盘」（ziwei.bond）
 
 ## 用户问法 → 领域信号（翻译表）

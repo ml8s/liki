@@ -8,26 +8,26 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 ## 依赖的领域知识
 
-[必读] - bazi: domains/bazi/duanyu/wuxing-jiankang.md「五行所属」
-[必读] - bazi: domains/bazi/duanyu/hehui.md「冲宫位表」+「冲吉凶表」
+[必读] - bazi: domains/bazi/fangfa/wuxing-jiankang.md「五行所属」
+[必读] - bazi: domains/bazi/fangfa/hehui.md「冲宫位表」+「冲吉凶表」
 [必读] - bazi: domains/bazi/fangfa/dayun.md「应期决策表」
 
-[必读] - ziwei: domains/ziwei/duanyu/yingqi.md「健康紫微应期」
+[必读] - ziwei: domains/ziwei/fangfa/yingqi.md「健康紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 身体哪里容易出问题 | 五行过旺/过弱对应的脏腑 | domains/bazi/duanyu/wuxing-jiankang.md |
-| 什么时候会生病 | 忌神攻身 + 冲刑入宫之年 | domains/bazi/duanyu/hehui.md + domains/bazi/fangfa/dayun.md |
-| 病情严重吗 | 冲去用神/忌神 + 有无解救 | domains/bazi/duanyu/hehui.md「冲吉凶表」|
-| 需要注意什么 | 原局薄弱五行 + 大运流年触发 | domains/bazi/duanyu/wuxing-jiankang.md + domains/bazi/fangfa/dayun.md |
+| 身体哪里容易出问题 | 五行过旺/过弱对应的脏腑 | domains/bazi/fangfa/wuxing-jiankang.md |
+| 什么时候会生病 | 忌神攻身 + 冲刑入宫之年 | domains/bazi/fangfa/hehui.md + domains/bazi/fangfa/dayun.md |
+| 病情严重吗 | 冲去用神/忌神 + 有无解救 | domains/bazi/fangfa/hehui.md「冲吉凶表」|
+| 需要注意什么 | 原局薄弱五行 + 大运流年触发 | domains/bazi/fangfa/wuxing-jiankang.md + domains/bazi/fangfa/dayun.md |
 
 ## 📖 流程卡
 
 ⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照），此处不重复
 
 第1步：原局薄弱脏腑
-  → 调用 domains/bazi/duanyu/wuxing-jiankang.md「五行脏腑」
+  → 调用 domains/bazi/fangfa/wuxing-jiankang.md「五行脏腑」
   输出：□ 过旺五行____ 过弱五行____ 易病脏腑____
   → 过旺阈值检查：
     □ 该五行是否构成三合局/三会方？（是/否）
@@ -37,11 +37,11 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
   □ 忌神攻身检查：大运/流年有无忌神直接攻入日主？
 
 第2步：大运流年触发
-  → 调用 domains/bazi/duanyu/hehui.md「冲宫位表」+ domains/bazi/fangfa/dayun.md「应期表」
+  → 调用 domains/bazi/fangfa/hehui.md「冲宫位表」+ domains/bazi/fangfa/dayun.md「应期表」
   输出：□ 冲入宫位____ 触发年份____ 引动类型____
 
 第3步：定性结论
-  → 调用 domains/bazi/duanyu/hehui.md「冲吉凶表」
+  → 调用 domains/bazi/fangfa/hehui.md「冲吉凶表」
   输出：□ 事件性质____ 结果走向____ 严重程度____
 
 第3.5步：极端事件三重门槛【强制——断「死亡/判监/重大伤残/离异」级结论前必查，禁止单信号定性】
@@ -53,7 +53,7 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
   → 任一极端事件须先给出"较轻替代解释"（病灾 vs 死亡、退学 vs 官非、矛盾年 vs 离异年）并对比选项后再定案，禁止直接升格
 
 第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】
-  → 调用 domains/ziwei/duanyu/yingqi.md「健康」表
+  → 调用 domains/ziwei/fangfa/yingqi.md「健康」表
   输出：□ 疾厄宫星曜____ 四化____ 与八字（一致/相反）____
 
 

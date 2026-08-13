@@ -11,9 +11,9 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 - [必读] bazi: SKILL.md 排盘流程
 - bazi（方法+断语，按需读取）：
   - [必读] `domains/bazi/fangfa/dayun.md`、`domains/bazi/fangfa/wangshuai.md`、`domains/bazi/fangfa/geju.md`、`domains/bazi/fangfa/yongshen.md`
-  - [必读] `domains/bazi/duanyu/hehui.md`、`domains/bazi/duanyu/shishen.md`、`domains/bazi/fangfa/gongwei.md`、`domains/bazi/fangfa/liuqin.md`（用户问及对应领域时读取）
+  - [必读] `domains/bazi/fangfa/hehui.md`、`domains/bazi/fangfa/shishen.md`、`domains/bazi/fangfa/gongwei.md`、`domains/bazi/fangfa/liuqin.md`（用户问及对应领域时读取）
 - [必读] ziwei: SKILL.md 排盘流程
-- [必读] ziwei: `domains/ziwei/duanyu/yingqi.md` 紫微应期
+- [必读] ziwei: `domains/ziwei/fangfa/yingqi.md` 紫微应期
 - [按需] app: 各 app 的深入分析入口（汇总用，用户后续深入某领域时读取）
 
 ## 设计原则
@@ -38,7 +38,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 #### 快速扫描项
 
 □ 婚姻：配偶星（____） 夫妻宫（____）（冲/合/刑/害/无） → 深入: `app/marriage.md`
-□ 学业：印星三关通过（____）关 学历倾向（____） → 深入: `app/study.md`
+□ 学业：印星状态（查 tools/bazi/xueye.csv） 学历倾向（____） → 深入: `app/study.md`
 □ 健康：五行（____旺/____弱） 对应脏腑（____） → 深入: `app/health.md`
 □ 事业：官财透干（____） 十神组合（____） → 深入: `app/career.md`
 □ 财运：财星（____） 身胜财（____） → 深入: `app/wealth.md`
@@ -71,7 +71,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 □ 婚姻类：官杀混杂取清分析了吗？ （____）
 □ 学业类：印星有效性检查做了吗？ （____）
 □ 性格类：身弱五行降级考虑了吗？ （____）
-□ 健康类：五行对应脏腑引用了 domains/bazi/duanyu/wuxing-jiankang.md 吗？ （____）
+□ 健康类：五行对应脏腑引用了 domains/bazi/fangfa/wuxing-jiankang.md 吗？ （____）
 □ 财运类：比劫夺财检查做了吗？ （____）
 
 ## 双盘验证（八字+紫微交叉）
@@ -112,7 +112,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 
 - 五行分布计数与强弱对比
 - 十神配置，日主与月令关系
-- 十神关键组合（杀印相生/伤官配印/财官相生等），如有则重点展开，并说明该组合在人生中的应事方向（参考 `domains/bazi/duanyu/shishen.md`）
+- 十神关键组合（杀印相生/伤官配印/财官相生等），如有则重点展开，并说明该组合在人生中的应事方向（参考 `domains/bazi/fangfa/shishen.md`）
 
 #### 三、用神喜忌（不少于 4 个维度）
 

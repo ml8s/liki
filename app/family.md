@@ -11,9 +11,9 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 [必读] - bazi: domains/bazi/fangfa/liuqin.md「六亲判断」
 [必读] - bazi: domains/bazi/fangfa/gongwei.md「宫位论」
 [必读] - bazi: domains/bazi/fangfa/dayun.md「应期决策表」
-[必读] - bazi: domains/bazi/duanyu/hehui.md「冲宫位表」
+[必读] - bazi: domains/bazi/fangfa/hehui.md「冲宫位表」
 
-[必读] - ziwei: domains/ziwei/duanyu/yingqi.md「家庭紫微应期」
+[必读] - ziwei: domains/ziwei/fangfa/yingqi.md「家庭紫微应期」
 
 ## 用户问法 → 领域信号（翻译表）
 
@@ -46,7 +46,7 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
   输出：□ 应期强度（三重/双重/单重引动）____ 最终应年____
 
 第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】
-  → 调用 domains/ziwei/duanyu/yingqi.md「父母」/「子女」表
+  → 调用 domains/ziwei/fangfa/yingqi.md「父母」/「子女」表
   输出：□ 父母宫/子女宫星曜____ 四化____ 与八字（一致/相反）____
 
 

@@ -27,12 +27,12 @@ description: 八字排盘与基础分析模块（组件）。排盘、旺衰、�
 
 | 文件 | 用途 | 依据 |
 |------|------|------|
-| domains/bazi/duanyu/hehui.md | 合会冲刑（冲决策表+合化） | 《三命通会》 |
-| domains/bazi/duanyu/shishen.md | 十神组合+官杀混杂+学历 | 《渊海子平》 |
-| domains/bazi/duanyu/wuxing-jiankang.md | 五行健康对应 | 《黄帝内经》 |
-| domains/bazi/duanyu/caiyun.md | 财运判断 | 《滴天髓》 |
-| domains/bazi/duanyu/xueye.md | 学历判断 | 《渊海子平》 |
-| domains/bazi/duanyu/shiye.md | 事业判断 | 《子平真诠》 |
+| domains/bazi/fangfa/hehui.md | 合会冲刑（冲决策表+合化） | 《三命通会》 |
+| domains/bazi/fangfa/shishen.md | 十神组合+官杀混杂+学历 | 《渊海子平》 |
+| domains/bazi/fangfa/wuxing-jiankang.md | 五行健康对应 | 《黄帝内经》 |
+| domains/bazi/fangfa/caiyun.md | 财运判断 | 《滴天髓》 |
+| domains/bazi/fangfa/xueye.md | 学历判断 | 《渊海子平》 |
+| domains/bazi/fangfa/shiye.md | 事业判断 | 《子平真诠》 |
 
 ## 技术流程
 
@@ -44,13 +44,13 @@ description: 八字排盘与基础分析模块（组件）。排盘、旺衰、�
    - 八字硬排除后仍有 ≥ 2 盘 → 📖搜索 `domains/ziwei/fangfa/calibration.md` → 紫微交叉验证
    - 确认时辰后继续。宝宝/青少年跳过此步。
 5. **取全量数据**（**调用方法：** 扩展命盘，补全十神+藏干+神煞+长生+空亡等），用于后续用神、格局、十神分析。
-6. **参考文件**：📖 读取 `domains/bazi/duanyu/` 下 6 张断语表 → 逐一搜索「清单」填写 □ 填空
-   （领域文件在对应 app 按需加载：domains/bazi/duanyu/wuxing-jiankang.md → app/health，domains/bazi/duanyu/caiyun.md → app/wealth，domains/bazi/fangfa/dayun.md → 各app）
+6. **参考文件**：📖 读取 `domains/bazi/fangfa/` 下 6 张断语表 → 逐一搜索「清单」填写 □ 填空
+   （领域文件在对应 app 按需加载：domains/bazi/fangfa/wuxing-jiankang.md → app/health，domains/bazi/fangfa/caiyun.md → app/wealth，domains/bazi/fangfa/dayun.md → 各app）
 7. **定格局**：按 domains/bazi/fangfa/geju.md 定格，明确格局类型和成破。
 8. **取用神**（**调用方法：** 三派用神分析，基于扶抑+调候+格局计算用神/喜神/忌神）。按 domains/bazi/fangfa/yongshen.md 执行——扶抑定基础，格局定方向，调候做修正。
    - **特别注意调候权重**：冬夏极端月份调候优先于扶抑和格局
    - **特别注意合化判断**：合化≠好事，须做正反分析（合去用神=凶，合化忌神=凶）
-9. **合会冲刑**：分析合会冲刑数据，按 domains/bazi/duanyu/hehui.md 规则执行。
+9. **合会冲刑**：分析合会冲刑数据，按 domains/bazi/fangfa/hehui.md 规则执行。
    - **冲的判断**：冲本身即凶。先定性事件性质（突发/断裂），再判断结果走向（向好/向坏）
    - **合的判断**：区分合绊/合化/合动。合化须判断化出用神还是忌神
 

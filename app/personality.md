@@ -9,17 +9,17 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 ## 依赖的领域知识
 
 [必读] - bazi: domains/bazi/fangfa/wangshuai.md「身弱五行属性降级表」
-[必读] - bazi: domains/bazi/duanyu/shishen.md「十神组合场景化」
+[必读] - bazi: domains/bazi/fangfa/shishen.md「十神组合场景化」
 
-[必读] - ziwei: domains/ziwei/duanyu/yingqi.md「性格紫微应期」
+[必读] - ziwei: domains/ziwei/fangfa/yingqi.md「性格紫微应期」
 
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 我性格怎么样 | 日主五行 + 十神组合 + 旺衰 | domains/bazi/fangfa/wangshuai.md + domains/bazi/duanyu/shishen.md |
-| 我和别人合得来吗 | 日主+十神组合的社交属性 | domains/bazi/duanyu/shishen.md「食伤/官杀」|
-| 我适合做什么 | 十神组合的事业指向 | domains/bazi/duanyu/shishen.md「十神组合」|
+| 我性格怎么样 | 日主五行 + 十神组合 + 旺衰 | domains/bazi/fangfa/wangshuai.md + domains/bazi/fangfa/shishen.md |
+| 我和别人合得来吗 | 日主+十神组合的社交属性 | domains/bazi/fangfa/shishen.md「食伤/官杀」|
+| 我适合做什么 | 十神组合的事业指向 | domains/bazi/fangfa/shishen.md「十神组合」|
 
 ## 📖 流程卡
 
@@ -30,14 +30,14 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
   输出：□ 日主____ 身强/弱____ 基础特征____
 
 第2步：十神组合修正
-  → 调用 domains/bazi/duanyu/shishen.md「十神组合场景化」
+  → 调用 domains/bazi/fangfa/shishen.md「十神组合场景化」
   输出：□ 组合类型____ 修正方向____
 
 第3步：综合
   输出：□ 正向特征____ 负向特征____ 最终结论____
 
 第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】
-  → 调用 domains/ziwei/duanyu/yingqi.md「性格」表
+  → 调用 domains/ziwei/fangfa/yingqi.md「性格」表
   输出：□ 命宫主星____ 身宫特点____ 与八字（一致/相反）____
 
 

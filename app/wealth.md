@@ -8,29 +8,29 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 ## 依赖的领域知识
 
-[必读] - bazi: domains/bazi/duanyu/caiyun.md「决策表」
-[必读] - bazi: domains/bazi/duanyu/shishen.md「十神」
+[必读] - bazi: domains/bazi/fangfa/caiyun.md「决策表」
+[必读] - bazi: domains/bazi/fangfa/shishen.md「十神」
 
-[必读] - ziwei: domains/ziwei/duanyu/yingqi.md「财运紫微应期」
+[必读] - ziwei: domains/ziwei/fangfa/yingqi.md「财运紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 财运好不好 | 财星有无 + 身强胜财 | domains/bazi/duanyu/caiyun.md「财星定有无」+「身强定胜负」 |
-| 适合做什么赚钱 | 正财/偏财类型 | domains/bazi/duanyu/caiyun.md「正财 vs 偏财」|
-| 什么时候有钱 | 大运是财运/食伤运/比劫运 | domains/bazi/duanyu/caiyun.md「大运定起伏」|
-| 会不会破财 | 比劫夺财位置 | domains/bazi/duanyu/caiyun.md「比劫夺财检查」|
+| 财运好不好 | 财星有无 + 身强胜财 | domains/bazi/fangfa/caiyun.md「财星定有无」+「身强定胜负」 |
+| 适合做什么赚钱 | 正财/偏财类型 | domains/bazi/fangfa/caiyun.md「正财 vs 偏财」|
+| 什么时候有钱 | 大运是财运/食伤运/比劫运 | domains/bazi/fangfa/caiyun.md「大运定起伏」|
+| 会不会破财 | 比劫夺财位置 | domains/bazi/fangfa/caiyun.md「比劫夺财检查」|
 
 ## 📖 流程卡
 
 ⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照），此处不重复
 
 第1步：财星定有无
-  → 调用 domains/bazi/duanyu/caiyun.md「财星定有无」
+  → 调用 domains/bazi/fangfa/caiyun.md「财星定有无」
   输出：□ 财星类型____ 透/藏____
 
 第2步：身强定胜负
-  → 调用 domains/bazi/duanyu/caiyun.md「身强定胜负」
+  → 调用 domains/bazi/fangfa/caiyun.md「身强定胜负」
   输出：□ 胜财能力____（能担/不能担/中和）
   → 财多身弱互斥锁：
     □ 身{强/弱/中和} + 财{旺/平/弱}
@@ -39,11 +39,11 @@ description: 财运分析 — 财源类型、收入层次、风险提示
     身强+财旺 → 正常得财判断
 
 第3步：大运+比劫检查
-  → 调用 domains/bazi/duanyu/caiyun.md「大运定起伏」+「比劫夺财检查」
+  → 调用 domains/bazi/fangfa/caiyun.md「大运定起伏」+「比劫夺财检查」
   输出：□ 当前大运____ 夺财风险____
 
 第4步：紫微验证【强制——断「具体细节」时必做，禁止只凭八字粗断】
-  → 调用 domains/ziwei/duanyu/yingqi.md「财运」表
+  → 调用 domains/ziwei/fangfa/yingqi.md「财运」表
   输出：□ 财帛宫星曜____ 化禄/忌____ 与八字（一致/相反）____
 
 

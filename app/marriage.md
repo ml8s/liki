@@ -8,28 +8,28 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 ## 依赖的领域知识
 
-[必读] - bazi: domains/bazi/duanyu/shishen.md「女命婚姻——官杀混杂判断」
+[必读] - bazi: domains/bazi/fangfa/shishen.md「女命婚姻——官杀混杂判断」
 [必读] - bazi: domains/bazi/fangfa/gongwei.md「宫位论」
 [必读] - bazi: domains/bazi/fangfa/dayun.md「应期决策表」
 [必读] - bazi: domains/bazi/fangfa/liuqin.md「六亲——配偶」
 
-[必读] - ziwei: domains/ziwei/duanyu/yingqi.md「婚姻紫微应期」
+[必读] - ziwei: domains/ziwei/fangfa/yingqi.md「婚姻紫微应期」
 ## 用户问法 → 领域信号（翻译表）
 
 | 用户问题 | 对应领域信号 | 调用的决策表 |
 |---------|-------------|-------------|
-| 什么时候结婚 | 官星/财星状态 + 大运窗口 + 流年引动 | domains/bazi/duanyu/shishen.md + domains/bazi/fangfa/dayun.md |
-| 婚姻是否顺利 | 夫妻宫冲刑 + 官杀混杂取清 | domains/bazi/duanyu/shishen.md + domains/bazi/fangfa/gongwei.md |
-| 对方是什么样的人 | 配偶星状态（正财/正官） + 十神组合 | domains/bazi/fangfa/liuqin.md + domains/bazi/duanyu/shishen.md |
-| 会不会离婚 | 夫妻宫冲破 + 官星被合/被克 | domains/bazi/duanyu/shishen.md + domains/bazi/fangfa/gongwei.md |
-| 什么时候遇到对象 | 大运流年引动配偶星 | domains/bazi/fangfa/dayun.md + domains/bazi/duanyu/shishen.md |
+| 什么时候结婚 | 官星/财星状态 + 大运窗口 + 流年引动 | domains/bazi/fangfa/shishen.md + domains/bazi/fangfa/dayun.md |
+| 婚姻是否顺利 | 夫妻宫冲刑 + 官杀混杂取清 | domains/bazi/fangfa/shishen.md + domains/bazi/fangfa/gongwei.md |
+| 对方是什么样的人 | 配偶星状态（正财/正官） + 十神组合 | domains/bazi/fangfa/liuqin.md + domains/bazi/fangfa/shishen.md |
+| 会不会离婚 | 夫妻宫冲破 + 官星被合/被克 | domains/bazi/fangfa/shishen.md + domains/bazi/fangfa/gongwei.md |
+| 什么时候遇到对象 | 大运流年引动配偶星 | domains/bazi/fangfa/dayun.md + domains/bazi/fangfa/shishen.md |
 
 ## 📖 流程卡
 
 ⟳ 执行主干 Phase 1-2（时辰判定 + 排盘快照），此处不重复
 
 第1步：确定性别，定位配偶星（男看财星、女看官杀）
-  → 调用 domains/bazi/duanyu/shishen.md「女命婚姻——官杀混杂判断」填表
+  → 调用 domains/bazi/fangfa/shishen.md「女命婚姻——官杀混杂判断」填表
   输出：□ 配偶星____ 官杀几位____ 有取清？____
 
 第2步：夫妻宫（日支）检查
@@ -78,7 +78,7 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
   输出：□ 窗口年份____ 引动类型____
 
 第4步：紫微验证【强制——断「具体细节」（何年结婚/离婚/配偶情况）时必做，禁止只凭八字粗断】
-  → 调用 domains/ziwei/duanyu/yingqi.md「婚姻」表
+  → 调用 domains/ziwei/fangfa/yingqi.md「婚姻」表
   输出：□ 夫妻宫星曜____ 四化____ 桃花星____ 与八字（一致/相反）____
   → 断「哪年结婚」：调 ziwei.liunian(chart, liu_nian) 看候选年份的**流年夫妻宫四化**（化禄/化权=吉应年，化忌=凶应）→ 与八字大运窗口取交集
 

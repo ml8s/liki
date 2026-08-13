@@ -1,3 +1,14 @@
+## 3.7.1（未发布）——duanyu md 三分类收敛（断语 csv 化·方法归 fangfa）
+
+- 15 个 duanyu md 按三类收敛：静态断语复述删（csv 已同义覆盖）、真命理方法迁 fangfa（按域平铺）、拟合残留删
+- bazi 6 混合：档位表/类型表删 → fangfa 保留判断链/护栏（caiyun/hehui/shishen/shiye/wuxing-jiankang/xueye）
+- ziwei 9：6 纯方法整体迁（fuxing/geju/gong12/laiyin/sihua/xiangmao）+ 3 混合（liunian/yingqi 整体迁、zhuxing 删性格基调列+骨架行）
+- duanyu 目录留 README 索引（断语=tools/*.csv 单一来源，方法=fangfa）
+- 去重：caiyun 应期→dayun、hehui 合化→yongshen、zhuxing 空宫→gong12
+- 失效引用清理：印星三关（calibration/study/mingshu/SUPPORT/SKILL）+ duanyu→fangfa 路径（app/domains SKILL）
+- C 类残留：hehui ≥4次删、比劫重重改比劫旺
+- 遗留：app 卡档位表名引用（「官财透干定层次」等→csv）待后续清理
+
 # Changelog
 
 ## 3.7.0（未发布）——79 错题根因修复（阶段 A+B+C——全改表/改文档，零代码）
