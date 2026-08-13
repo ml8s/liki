@@ -25,7 +25,7 @@ def load_liunian_names() -> set:
     """流年因子名——从 factors_liunian.csv（真值表单一权威——json 已删）。"""
     import csv as _csv
     try:
-        return {r["因子"] for r in _csv.DictReader(open(os.path.join(DY, "factors_liunian.csv"), encoding="utf-8"))}
+        return {r["因子"] for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors_liunian.csv"), encoding="utf-8"))}
     except Exception:
         return set()
 
@@ -37,7 +37,7 @@ def load_factor_shushi() -> dict:
     """因子名 → 术数（bazi/ziwei）——交叉校验：bazi 表只用八字因子、ziwei 表只用紫微因子。"""
     import csv as _csv
     mapping = {}
-    for r in _csv.DictReader(open(os.path.join(DY, "factors.csv"), encoding="utf-8")):
+    for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors.csv"), encoding="utf-8")):
         mapping[r["因子"]] = (r.get("术数") or "bazi").strip()
     return mapping
 
@@ -45,7 +45,7 @@ def load_factor_shushi() -> dict:
 def load_factors_names() -> set:
     """因子名清单——从 factors.csv（真值表单一权威——json 已删）。"""
     import csv as _csv
-    return {r["因子"] for r in _csv.DictReader(open(os.path.join(DY, "factors.csv"), encoding="utf-8"))}
+    return {r["因子"] for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors.csv"), encoding="utf-8"))}
 
 
 def main() -> int:

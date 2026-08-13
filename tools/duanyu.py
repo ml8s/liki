@@ -109,7 +109,7 @@ def load_factor_rows():
     if _FACTOR_ROWS is not None:
         return _FACTOR_ROWS, _FACTOR_COLS
     import csv as _csv
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "factors.csv")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "factors", "factors.csv")
     rows, cols = [], []
     with open(path, encoding="utf-8") as fh:
         rd = _csv.DictReader(fh)
@@ -282,7 +282,7 @@ def _infer_gender(data: dict) -> str:
 def load_liunian_rows():
     """流年因子表（factors_liunian.csv 真值表——同 factors.csv）。"""
     import csv as _csv
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "factors_liunian.csv")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "factors", "factors_liunian.csv")
     rows = []
     with open(path, encoding="utf-8") as fh:
         rd = _csv.DictReader(fh)
