@@ -14,8 +14,6 @@ _FACTORS = None
 _FACTOR_ERRORS = 0
 _FACTOR_DEBUG = __import__("os").environ.get("FACTOR_DEBUG") == "1"
 
-
-
 def load_table(name):
     """断语域表（csv——真值表：列=因子取值，行=断语）。csv 标准库——容器无 PyYAML 兼容。
     断语表 csv 在 tools/bazi/ + tools/ziwei/（csv 只有工具读——谁用归谁；domains 留 md 人读知识）。"""
@@ -49,59 +47,18 @@ def load_table(name):
                          '依据': r.get('依据', ''), '经典原文': r.get('经典原文', '')})
     return rows
 
-
-
-
-
-
 # ══════════════ 原子符号（单一来源：constants.json——代码不硬编码命理数据）══════════════
-
 
 # ══════════════ 基础算子实现（机械，无领域知识——知识在常量表）══════════════
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ══════════════ 算子执行 ══════════════
 
-
-
-
-
-
-
 # ══════════════ 特殊算子实现（机械，依赖 chart 原始数据）══════════════
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # ══════════════ 主求值入口 ══════════════
 
 _FACTOR_ROWS = None
 _FACTOR_COLS = None
-
 
 def load_factor_rows():
     """因子表（factors.csv 真值表）：列=原子事实实例，行=因子（多行=或）。含术数标记（bazi/ziwei——因子快照分）。"""
@@ -125,7 +82,6 @@ def load_factor_rows():
     _FACTOR_ROWS, _FACTOR_COLS = rows, cols
     return rows, cols
 
-
 def _atomic(col: str, factors, gender, chart, ctx: dict = None):
     """原子执行：列名 "op[arg1,arg2]" → 原语（_op 本命 / _liu_op 流年）。
     字符串值算子：列名参数=期望值——比较返回 1/0。"""
@@ -143,7 +99,6 @@ def _atomic(col: str, factors, gender, chart, ctx: dict = None):
     if isinstance(v, str):
         return 1 if args and str(args[0]) == v else 0
     return v
-
 
 def evaluate_factors(factors: dict, gender: str, chart: dict, shushi: Optional[str] = None) -> dict:
     """因子快照（真值表）：factors.csv 行条件匹配 → 因子值；直通因子=原语计算值。
@@ -198,86 +153,9 @@ def evaluate_factors(factors: dict, gender: str, chart: dict, shushi: Optional[s
     snapshot["gender"] = gender
     return snapshot
 
-
 ALL_DUANYU_RULES = ("xueye", "marriage", "shiye", "chushen", "caiyun", "jiankang", "xingge",
                     "liuqin", "waimao", "shensha", "geju", "zuhe", "ziwei", "tiaohou",
                     "dayun", "tianzhai", "qianyi", "zinv", "zhiye")
-
-
-def evaluate_from_chart(data: dict, liunian_years: Optional[list] = None, gender: Optional[str] = None,
-                       domain_filter: Optional[list] = None) -> dict:
-    global _FACTOR_ERRORS
-    _FACTOR_ERRORS = 0   # 每次入口清零（多次调用不累加）
-    """生成器唯一入口（纯——chart 排盘数据 → 断语；不依赖 RPC 客户端）。
-
-    data: 排盘结果（full_panchang 输出——rpc_data；由调用方排盘后传入）。
-    gender: 可省略（data 内含）。
-
-    返回：
-    - gender: 性别
-    - snapshot: 复合因子快照（如需自定义查表）
-    - domains: {断语域: [命中断语条目]}——全部断语域
-    - liunian: {选项年份: {候选断语}}——应期题（婚动/婚变/凶事——命中即候选）
-    """
-    from engine import match
-    from client import bazi_liunian  # 应期流年排盘（client 为排盘工具，tools/ 下）
-    if gender is None:
-        # 从排盘数据取性别（full_panchang 返回含 gender 或 chart 推断）
-        gender = data.get("gender") or _infer_gender(data)
-    factors = build_factors(data)
-    # 真分开：八字因子快照 + 紫微因子快照（各自独立——各表只查本术数快照）
-    bz_snapshot = evaluate_factors(factors, gender, data, shushi="bazi")
-    zw_snapshot = evaluate_factors(factors, gender, data, shushi="ziwei")
-    domains = {}
-    rules = ALL_DUANYU_RULES if not domain_filter else [d for d in ALL_DUANYU_RULES if d in domain_filter]
-    for rule in rules:
-        bz = load_table(f"bazi_{rule}.csv")
-        bz_entries = bz.get("条目", []) if isinstance(bz, dict) else bz
-        zw = load_table(f"ziwei_{rule}.csv")
-        zw_entries = zw.get("条目", []) if isinstance(zw, dict) else zw
-        entry = {"八字": match(bz_entries, bz_snapshot)}
-        if zw_entries:
-            entry["紫微"] = match(zw_entries, zw_snapshot)
-        domains[rule] = entry
-    out = {"gender": gender, "snapshot": bz_snapshot, "snapshot_ziwei": zw_snapshot, "domains": domains,
-           "因子错误数": _FACTOR_ERRORS}
-    if liunian_years:
-        chart = data.get("chart", {})
-        yt = load_table("bazi_yingqi.csv")
-        yt_entries = yt.get("条目", []) if isinstance(yt, dict) else yt
-        out["liunian"] = {}
-        zwyt = load_table("ziwei_yingqi.csv")
-        zwyt_entries = zwyt.get("条目", []) if isinstance(zwyt, dict) else zwyt
-        for y in liunian_years:
-            ln = bazi_liunian(chart, y)
-            fl = evaluate_liunian_factors(factors, gender, data, ln, target="配偶星", year=y)
-            hits = [h for h in match(yt_entries, fl) if h.get("事件") in ("婚动", "婚变", "凶事")]
-            entry = {"断语": [h["结论"] for h in hits]} if hits else {}
-            # 紫微流年四化事件（agent 辅助参考——不程序候选）
-            if zwyt_entries:
-                zh = [h for h in match(zwyt_entries, fl) if h.get("事件")]
-                if zh:
-                    entry["紫微流年"] = [h["结论"] for h in zh]
-            if entry:
-                out["liunian"][y] = entry
-    return out
-
-
-
-def _infer_gender(data: dict) -> str:
-    """从排盘数据推断性别（full_panchang 的 chart 里或外层）。"""
-    for key in ("gender", "sex", "xingbie"):
-        v = data.get(key)
-        if v:
-            return v
-    chart = data.get("chart", {}) or {}
-    for key in ("gender", "sex"):
-        v = chart.get(key)
-        if v:
-            return v
-    return "male"
-
-
 
 def load_liunian_rows():
     """流年因子表（factors_liunian.csv 真值表——同 factors.csv）。"""
@@ -295,7 +173,6 @@ def load_liunian_rows():
                     conds[c] = int(v)
             rows.append({"因子": r["因子"], "conds": conds})
     return rows
-
 
 def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_data: dict,
                              target: str = "配偶星", marriage_bad: int = 0,
@@ -344,18 +221,6 @@ def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_da
     for r in rows:
         snapshot.setdefault(r["因子"], 0)
     return snapshot
-
-
-
-
-
-
-
-
-
-
-
-
 
 from aggregate import build_factors
 from atoms import _op, _liu_op

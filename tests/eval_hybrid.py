@@ -2,11 +2,10 @@
 """【规则表数据检查】（非判题——评测唯一走 skill-up agent）
 
 角色（2026 去异化后定稿）：
-- 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（evaluate_from_chart——
-  排盘/因子/断语全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
+- 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（排盘(client) → 因子生成(evaluate_factors) → 断语查询(match)——全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
   验证规则表改动不崩、断语覆盖正常。
 - 【不判题】——判题（题目→skill→答案→对比）唯一走 skill-up agent 评测
-  （tests/run-qwen.sh：agent 读 SKILL.md → evaluate_from_chart → 综合判题 → grade-grouped 判分）。
+  （tests/run-qwen.sh：agent 读 SKILL.md → 排盘(RPC)+因子生成+断语查询 → 综合判题 → grade-grouped 判分）。
 - 无 _STATUS_MAP/族逻辑/紫微铁断（评测标签/判题逻辑已全部移出 skill 与工具脚本）。
 
 用法：python3 tests/eval_hybrid.py
@@ -20,15 +19,37 @@ import sys
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _TOOLS = os.path.join(_ROOT, "tools")
-if _TOOLS not in sys.path:
-    sys.path.insert(0, _TOOLS)
+_LOCAL = os.path.dirname(os.path.abspath(__file__))   # tests/（client/birth 排盘工具在此）
+for _p in (_TOOLS, _LOCAL):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 from birth import parse_birth
 from client import full_panchang
-from duanyu import evaluate_from_chart
+from aggregate import build_factors
+from duanyu import evaluate_factors, load_table, ALL_DUANYU_RULES
+from engine import match
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
+
+
+def query_all(chart: dict, gender: str) -> dict:
+    """断语查询（数据检查用）——排盘(调用方) → 因子生成 → 断语查询（同 SKILL 编排）。"""
+    fac = build_factors(chart)
+    bz = evaluate_factors(fac, gender, chart, shushi="bazi")
+    zw = evaluate_factors(fac, gender, chart, shushi="ziwei")
+    domains = {}
+    for rule in ALL_DUANYU_RULES:
+        be = load_table(f"bazi_{rule}.csv")
+        be = be.get("条目", be) if isinstance(be, dict) else be
+        ze = load_table(f"ziwei_{rule}.csv")
+        ze = ze.get("条目", ze) if isinstance(ze, dict) else ze
+        entry = {"八字": match(be, bz)}
+        if ze:
+            entry["紫微"] = match(ze, zw)
+        domains[rule] = entry
+    return {"domains": domains}
 
 
 def load_case_birth(case_id: str) -> str:
@@ -49,7 +70,7 @@ def main():
         if case_id not in cache:
             solar, gender, lon, corr = parse_birth(birth)
             chart = full_panchang(solar, gender, lon, correct=corr)
-            cache[case_id] = evaluate_from_chart(chart)
+            cache[case_id] = query_all(chart, gender)
         r = cache[case_id]
         for qid in qids:
             total += 1

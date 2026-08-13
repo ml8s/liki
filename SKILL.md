@@ -244,15 +244,13 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 ### Phase 5.5 规则引擎锚点（确定性结论必须执行）
 
-**skill 工具 = Python 函数**（tools 推理机——函数即工具；skill 指令教调用，不 MCP）：
-| 工具（函数） | 作用 | 何时用 |
+**skill 工具 = RPC 工具（排盘，直接 URL）+ 两个本地工具（因子生成、断语查询）**（tools 推理机——函数即工具；skill 指令教调用，不 MCP）：
+| 工具 | 作用 | 何时用 |
 |---|---|---|
-| `evaluate_from_chart(rpc_data, liunian_years)` | 唯一入口：排盘数据 → 全断语域 + 应期候选 | 确定性题/应期题/综合题（主入口） |
-| `evaluate_factors(factors, gender, chart, shushi)` | 因子快照（194 因子） | 需查具体因子值（如配偶星透干） |
-| `evaluate_liunian_factors(...)` | 流年因子（某年引动） | 应期题逐选项年排查 |
-| `match(entries, snapshot)` | 真值表匹配（因子→断语） | 自定义查表 |
-| `build_factors(data)` | 因子构建（chart 数据→因子） | 手动因子构建 |
-| tools/client（`full_panchang`/`bazi_liunian`） | 排盘工具（RPC 到 liki-engine） | 排盘（Phase 1-2 后） |
+| **RPC 工具**（`tianwen.time`/`bazi.chart`/`bazi.yongshen`/`ziwei.chart`/`bazi.liunian`/`ziwei.liunian`...） | 排盘/用神/紫微/流年——直接 URL（见 RPC 调用说明） | Phase 1-2 排盘、应期排流年 |
+| **因子生成**：`build_factors(chart)` + `evaluate_factors(fac, gender, chart, shushi)` | 排盘数据 → 194 因子快照（八字/紫微分算） | 确定性/应期/综合题 |
+| **因子生成（流年）**：`evaluate_liunian_factors(fac, gender, chart, liunian_data, target, ...)` | 流年因子（某年引动） | 应期题逐选项年 |
+| **断语查询**：`load_table("bazi_婚姻.csv")` + `match(entries, snapshot)` | 因子快照 → 断语（真值表匹配） | 各域查断语 |
 
 **判题第一动作——题目主域识别（agent 读题路由——断语保留全 19 域，agent 自己选域）**：
 1. **先读题目问题与选项**，判断题目主域（婚姻/事业/学历/出身/健康/性格/财运/六亲/应期/综合）——问题问什么、选项在比什么
@@ -261,7 +259,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 4. **主域内多断语多面**（性格题 xingge 多条正反）——按综合裁决准则（A6 主断语/多证）判最突出主面
 5. **综合题**（此命如何/哪年发生何事）——题目语义定主域（"性格特征"→xingge；"发生何事"→yingqi+对应主题），多域综合但不跨域否决
 
-**确定性题（学历/婚姻状态/子女/事业档/出身）必须先运行规则引擎并采纳输出**（直接调用 tools 规则引擎——见下方模板）。**应期题（含年份选项）用模板的应期候选段**（对每个选项年份调 `evaluate_from_chart(liunian_years=[...])` 一站式取应期候选（命中即候选））——候选内对照题目选项裁决（考时准则：首次优先/冲主变动，见 Phase 7）；不用候选则按 Phase 7 考时准则自行裁决。
+**确定性题（学历/婚姻状态/子女/事业档/出身）必须先运行规则引擎并采纳输出**（排盘 RPC → 因子生成 → 断语查询——见下方模板）。**应期题（含年份选项）用模板的应期候选段**（对每个选项年份：RPC 排流年 → 流年因子 → 应期断语，命中即候选）——候选内对照题目选项裁决（考时准则：首次优先/冲主变动，见 Phase 7）；不用候选则按 Phase 7 考时准则自行裁决。
 
 **综合题（六亲/外貌/性格/家庭关系等描述题）走断语库证据模式**：查 `tools/bazi/liuqin.csv`（六亲）/`waimao.csv`（外貌）/`xingge.csv`（性格）等证据条目，命中多条 = 多面观察，agent 按命理次序综合后与选项比对选最符者（禁止硬断唯一定案——这些域特征区分度不足，硬断会误判）。
 
@@ -269,28 +267,40 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 **健康/官非/运势/大运吉凶题**（固定年份断事件/大运段吉凶）：无规则断语表，agent 按用神喜忌 + 大运流年吉凶综合——先取引擎 `bazi.yongshen` 用神（扶抑/调候/格局），断流年/大运干支为喜为忌：喜用神干支临流年 → 吉事（顺遂/进财/升迁）；忌神干支临流年 → 凶事（健康/破财/官非）；健康事件再结合五行失衡（克泄用神之五行过旺）。
 
-**规则引擎唯一入口（tools/duanyu.py——chart 排盘数据 → 断语）**：
+**规则引擎编排（排盘 RPC → 因子生成 → 断语查询——三步，agent 自己串）**：
 ```python
 import sys
-sys.path.insert(0, "tools");    # 排盘工具 client/birth 在 tools/ 下
-from client import full_panchang
-from birth import parse_birth
-from duanyu import evaluate_from_chart
+sys.path.insert(0, "tools")
+from aggregate import build_factors
+from duanyu import evaluate_factors, evaluate_liunian_factors, load_table, ALL_DUANYU_RULES
+from engine import match
 
-# 排盘（RPC 到 liki-engine——按 Phase 1-2 校正后）
-solar, gender, lon, corr = parse_birth("出生信息原文")
-rpc_data = full_panchang(solar, gender, lon, correct=corr)
-r = evaluate_from_chart(rpc_data, liunian_years=[选项年份列表])   # ← 全 19 域断语 + 应期题选项年份
-# ★主域优先（综合断事看多域——但以题目对应域为主——其他域只作佐证，不跨域否决主域）：
-#   先识别题目问什么（婚姻/事业/学历/出身/健康/性格/财运/六亲/应期/综合）——**主域断语优先定案**；
-#   其他域断语仅作辅助佐证（如婚姻题以 marriage 为主——xingge/jiankang 只佐证不否决婚姻断语——0056 性格题以 xingge 判主面）
-# r["domains"]：全 19 域断语——每域 {八字: [...], 紫微: [...]}（双盘分别出断语——紫微断语在 ziwei 知识层表）
-#   ——确定性域（学历/婚姻/事业/出身）：程序只输出双盘断语（命理表达）——综合评定 agent 做（像命理师八字紫微合参）
-# r["liunian"]：应期候选 {年份: {断语, 紫微流年?}}——命中即候选（agent 按考时准则裁决；紫微流年为辅助参考）
-print(r["domains"]["marriage"])   # 例：查看婚姻断语
-print(r["liunian"])               # 例：应期候选
+# ① 排盘（RPC 工具——直接 URL，见 RPC 调用说明；本命 + 用神 + 紫微）
+chart = { ... }          # bazi.chart + bazi.yongshen + ziwei.chart 的结果
+gender = "male"          # 命主性别
+
+# ② 因子生成（工具 1）：排盘数据 → 双盘因子快照（194 因子，真分开）
+fac = build_factors(chart)
+bz = evaluate_factors(fac, gender, chart, shushi="bazi")     # 八字因子快照
+zw = evaluate_factors(fac, gender, chart, shushi="ziwei")    # 紫微因子快照
+
+# ③ 断语查询（工具 2）：因子快照 → 断语（全 19 域，主域优先）
+for rule in ALL_DUANYU_RULES:                                # 19 断语域
+    bz_e = load_table(f"bazi_{rule}.csv"); bz_e = bz_e.get("条目", bz_e) if isinstance(bz_e, dict) else bz_e
+    zw_e = load_table(f"ziwei_{rule}.csv"); zw_e = zw_e.get("条目", zw_e) if isinstance(zw_e, dict) else zw_e
+    print(rule, "八字断语:", match(bz_e, bz))
+    print(rule, "紫微断语:", match(zw_e, zw))
+
+# ④ 应期候选（应期题）：RPC 排流年 + 流年因子 + 应期断语——命中即候选
+for y in [选项年份列表]:
+    ln = { ... }          # RPC bazi.liunian(chart, y) 的结果
+    fl = evaluate_liunian_factors(fac, gender, chart, ln, target="配偶星", year=y)
+    yt = load_table("bazi_yingqi.csv"); yt = yt.get("条目", yt) if isinstance(yt, dict) else yt
+    hits = [h for h in match(yt, fl) if h.get("事件") in ("婚动", "婚变", "凶事")]
+    print(y, "应期候选:", [h["结论"] for h in hits])
 ```
-**排盘/因子/匹配全部由生成器内部完成**（agent 只传 chart 排盘数据——唯一 API；client/birth 为排盘工具）。
+**★主域优先**（综合断事看多域——但以题目对应域为主——其他域只作佐证，不跨域否决主域）：先识别题目问什么（婚姻/事业/学历/出身/健康/性格/财运/六亲/应期/综合）——主域断语优先定案；其他域断语仅作辅助佐证（如婚姻题以 marriage 为主——xingge/jiankang 只佐证不否决婚姻断语——0056 性格题以 xingge 判主面）。
+**排盘走 RPC（URL），因子生成 + 断语查询是两个本地工具**（agent 三步编排：排盘 → 因子 → 断语；无"一键生成器"）。
 **多命中一致性（agent 综合——程序不硬选）**：一局多断语多面共存（命理表达各不相同）——agent 按命理次序综合（参考 Phase 7），同象互证（如"婚可成"+紫微"天机独坐姻缘淡薄"冲突时按紫微夫妻宫专断信号权衡）——不得程序硬选/归一标签。
 **双盘参看（真分开——各自判→对照，非合并）**：八字因子快照（bazi）与紫微因子快照（ziwei）分别计算——八字表纯八字断语、紫微表纯紫微断语（无跨术数条件行——check_schema 交叉校验防回潮）——输出为双盘命理断语（各自表达）——综合评定 agent 做（像命理师八字紫微合参，各自判完再对照；紫微夫妻宫专断信号——贪狼化忌/天机独坐——见紫微断语表 hun_301/302）。
 
