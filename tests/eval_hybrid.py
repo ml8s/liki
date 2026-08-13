@@ -34,11 +34,10 @@ GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
 
 def query_all(pan: dict) -> dict:
     """断语查询（数据检查用）——排盘(full_paipan) → 因子生成(make_factors) → 断语查询(query)。"""
-    bz = make_factors(pan, "bazi")
-    zw = make_factors(pan, "ziwei")
+    snap = make_factors(pan)
     domains = {}
     for rule in ALL_DUANYU_RULES:
-        domains[rule] = query(rule, bz, zw)
+        domains[rule] = query(rule, snap)
     return {"domains": domains}
 
 

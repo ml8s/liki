@@ -249,8 +249,8 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 |---|---|---|
 | **排盘（本命）** | `full_paipan(时间, 性别, 地点, correct)` | 一次排全八字+紫微，返回本命盘（内嵌 fac） |
 | **排盘（流年）** | `liunian(本命盘, 年份)` | 八字+紫微流年单年合并（应期按候选年逐调） |
-| **因子生成（本命）** | `make_factors(本命盘, shushi)` | 190 本命因子（shushi="bazi"/"ziwei" 分算） |
-| **因子生成（流年）** | `make_liunian_factors(本命盘, 流年盘, target, year)` | 28 流年因子 |
+| **因子生成（本命）** | `make_factors(本命盘)` | 双盘因子快照 {八字, 紫微}（一次返回） |
+| **因子生成（流年）** | `make_liunian_factors(本命盘, 流年盘, target, year)` | 双盘流年因子 {八字, 紫微}（一次返回） |
 | **断语查询** | `query(域, 快照)` | 该域双盘断语（内部 load_table+match） |
 
 （排盘内部调 RPC 到 liki.hk——agent 只传 4 参数 + 判定 correct；排盘之外的 RPC 仍按 RPC 调用说明手调）
@@ -281,23 +281,22 @@ from duanyu import make_factors, make_liunian_factors, query, ALL_DUANYU_RULES
 pan = full_paipan("1981-08-26T23:00:00+08:00", "male", 130.7, correct=True)
 
 # ② 因子生成（本命——双盘真分开）
-bz = make_factors(pan, "bazi")     # 八字因子快照
-zw = make_factors(pan, "ziwei")    # 紫微因子快照
+snap = make_factors(pan)          # 双盘因子快照 {八字, 紫微}（数据层真分开、调用层一次）
 
 # ③ 断语查询（全 19 域，主域优先）
 for rule in ALL_DUANYU_RULES:
-    print(rule, query(rule, bz, zw))    # {八字: [...], 紫微: [...]}
+    print(rule, query(rule, snap))      # {八字: [...], 紫微: [...]}
 
 # ④ 应期候选（应期题）：候选年逐个排流年 → 流年因子 → 应期断语——命中即候选
 for y in [选项年份列表]:
     ln = liunian(pan, y)                        # 八字+紫微流年单年合并
     fl = make_liunian_factors(pan, ln, target="配偶星", year=y)
-    yq = query("yingqi", fl)                    # 应期断语（单流年快照）
+    yq = query("yingqi", fl)                    # 应期断语（双盘流年快照）
     hits = [h for h in yq["八字"] + yq.get("紫微", []) if h.get("事件") in ("婚动", "婚变", "凶事")]
     print(y, "应期候选:", [h["结论"] for h in hits])
 ```
 **★主域优先**（综合断事看多域——但以题目对应域为主——其他域只作佐证，不跨域否决主域）：先识别题目问什么（婚姻/事业/学历/出身/健康/性格/财运/六亲/应期/综合）——主域断语优先定案；其他域断语仅作辅助佐证（如婚姻题以 marriage 为主——xingge/jiankang 只佐证不否决婚姻断语——0056 性格题以 xingge 判主面）。
-**5 工具**：排盘（full_paipan 本命 + liunian 流年）+ 因子生成（make_factors 本命 + make_liunian_factors 流年）+ 断语查询（query）——顺流程内嵌（build_factors 进 full_paipan、load_table+match 进 query），agent 只在分叉点（本命/流年、八字/紫微、查哪个域）做决策。
+**5 工具**：排盘（full_paipan 本命 + liunian 流年）+ 因子生成（make_factors 本命 + make_liunian_factors 流年）+ 断语查询（query）——顺流程内嵌（build_factors 进 full_paipan、load_table+match 进 query），agent 只在分叉点（本命/流年、查哪个域）做决策——八字/紫微在快照内部真分开，调用层不暴露。
 **多命中一致性（agent 综合——程序不硬选）**：一局多断语多面共存（命理表达各不相同）——agent 按命理次序综合（参考 Phase 7），同象互证（如"婚可成"+紫微"天机独坐姻缘淡薄"冲突时按紫微夫妻宫专断信号权衡）——不得程序硬选/归一标签。
 **双盘参看（真分开——各自判→对照，非合并）**：八字因子快照（bazi）与紫微因子快照（ziwei）分别计算——八字表纯八字断语、紫微表纯紫微断语（无跨术数条件行）——输出为双盘命理断语（各自表达）——综合评定 agent 做（像命理师八字紫微合参，各自判完再对照；紫微夫妻宫专断信号——贪狼化忌/天机独坐——见紫微断语表 hun_301/302）。
 

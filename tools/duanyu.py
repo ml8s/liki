@@ -164,21 +164,21 @@ def load_liunian_rows():
     rows = []
     with open(path, encoding="utf-8") as fh:
         rd = _csv.DictReader(fh)
-        cols = [c for c in rd.fieldnames if c not in ("因子", "原语直通", "结论")]
+        cols = [c for c in rd.fieldnames if c not in ("因子", "原语直通", "结论", "术数")]
         for r in rd:
             conds = {}
             for c in cols:
                 v = (r.get(c) or "").strip()
                 if v:
                     conds[c] = int(v)
-            rows.append({"因子": r["因子"], "conds": conds})
+            rows.append({"因子": r["因子"], "术数": r.get("术数", "bazi"), "conds": conds})
     return rows
 
 def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_data: dict,
                              target: str = "配偶星", marriage_bad: int = 0,
                              shi_ke_guan_arg: int = 0,
                              zw_liunian_data: Optional[dict] = None,
-                             year: int = 0) -> dict:
+                             year: int = 0, shushi: Optional[str] = None) -> dict:
     """流年复合因子（表驱动）：读 factors_liunian.csv 逐行求值 → 流年因子快照。
 
     与 evaluate_factors 同构——流年因子定义在表，engine 纯机械。
@@ -195,6 +195,8 @@ def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_da
         "factors": factors,
     }
     rows = load_liunian_rows()
+    if shushi:
+        rows = [r for r in rows if r["术数"] == shushi]
     facts = {}
     snapshot = {}
     for _pass in range(6):
@@ -228,46 +230,50 @@ from atoms import _op, _liu_op
 
 # ══════════════ agent 入口（5 工具中的因子生成 2 + 断语查询 1）══════════════
 
-def make_factors(pan: dict, shushi: str) -> dict:
-    """因子生成（本命）：full_paipan 返回的本命盘 → 因子快照。
+def make_factors(pan: dict) -> dict:
+    """因子生成（本命）：本命盘 → 双盘因子快照 {八字: {...}, 紫微: {...}}。
 
-    shushi="bazi"→八字因子（190）；"ziwei"→紫微因子。双盘真分开，分别调两次。
+    数据层真分开（八字 190 / 紫微 5 因子各算）、调用层一次返回双盘。
     fac 已在 full_paipan 内嵌（pan["fac"]），此处不再单独 build。
     """
-    return evaluate_factors(pan["fac"], pan["gender"], pan, shushi=shushi)
+    return {
+        "八字": evaluate_factors(pan["fac"], pan["gender"], pan, shushi="bazi"),
+        "紫微": evaluate_factors(pan["fac"], pan["gender"], pan, shushi="ziwei"),
+    }
 
 
 def make_liunian_factors(pan: dict, liunian_pan: dict, target: str = "配偶星", year: int = 0) -> dict:
-    """因子生成（流年）：本命盘 + 流年盘 → 28 流年因子快照（应期用）。
+    """因子生成（流年）：本命盘 + 流年盘 → 双盘流年因子快照 {八字: {...}, 紫微: {...}}。
 
+    数据层真分开（八字 23 / 紫微 5 流年因子各算）、调用层一次返回双盘。
     liunian_pan = liunian(pan, 年份) 的返回 {bazi, ziwei}。
     本命婚凶/食伤克官 从本命因子快照取（引用本命），紫微流年四化取自 liunian_pan["ziwei"]。
     """
     bz = evaluate_factors(pan["fac"], pan["gender"], pan, shushi="bazi")
-    return evaluate_liunian_factors(
-        pan["fac"], pan["gender"], pan, liunian_pan["bazi"],
-        target=target,
-        marriage_bad=bz.get("本命婚凶", 0),
-        shi_ke_guan_arg=bz.get("食伤克官", 0),
-        zw_liunian_data=liunian_pan["ziwei"],
-        year=year,
+    base = dict(
+        factors=pan["fac"], gender=pan["gender"], chart=pan, liunian_data=liunian_pan["bazi"],
+        target=target, marriage_bad=bz.get("本命婚凶", 0), shi_ke_guan_arg=bz.get("食伤克官", 0),
+        zw_liunian_data=liunian_pan["ziwei"], year=year,
     )
+    return {
+        "八字": evaluate_liunian_factors(**base, shushi="bazi"),
+        "紫微": evaluate_liunian_factors(**base, shushi="ziwei"),
+    }
 
 
-def query(rule: str, bz_snapshot: dict, zw_snapshot: Optional[dict] = None) -> dict:
-    """断语查询：域 + 因子快照 → 该域断语（{八字: [...], 紫微: [...]}）。
+def query(rule: str, snapshots: dict) -> dict:
+    """断语查询：域 + 双盘因子快照 {八字, 紫微} → 该域断语 {八字: [...], 紫微: [...]}。
 
     rule ∈ ALL_DUANYU_RULES（19 域，如 "marriage"/"xueye"/"yingqi"）。
-    本命断语：query(域, 八字快照, 紫微快照)——双盘；
-    应期断语：query("yingqi", 流年快照)——单快照（bazi/ziwei 两张 yingqi 表都匹配同一流年快照）。
-    内部 load_table + match 内嵌（agent 只传域 + 快照，不碰表加载）。
+    snapshots = make_factors(pan) 或 make_liunian_factors(pan, ln) 的返回（双盘因子快照）。
+    数据层真分开（各查各表）、调用层一次查双盘——内部 load_table + match 内嵌。
     """
     from engine import match
     bz_e = load_table(f"bazi_{rule}.csv")
     bz_e = bz_e.get("条目", bz_e) if isinstance(bz_e, dict) else bz_e
     zw_e = load_table(f"ziwei_{rule}.csv")
     zw_e = zw_e.get("条目", zw_e) if isinstance(zw_e, dict) else zw_e
-    out = {"八字": match(bz_e, bz_snapshot)}
+    out = {"八字": match(bz_e, snapshots["八字"])}
     if zw_e:
-        out["紫微"] = match(zw_e, zw_snapshot if zw_snapshot is not None else bz_snapshot)
+        out["紫微"] = match(zw_e, snapshots["紫微"])
     return out
