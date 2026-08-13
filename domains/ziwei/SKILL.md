@@ -7,7 +7,7 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 
 ## 知识索引
 
-| domains/ziwei/fangfa/geju.md | 特殊格局 | 星曜组合 | 格局名称+评分 |
+| domains/ziwei/fangfa/geju.md | 特殊格局 | 星曜组合 | 格局名称+识别 |
 | domains/ziwei/fangfa/yingqi.md | 紫微应期 | 领域+宫位 | 吉凶信号 |
 
 ### 📋 方法（分析流程）
