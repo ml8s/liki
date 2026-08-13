@@ -1,7 +1,7 @@
 """断语库 schema 校验（数据库约束：断语引用的因子必须存在）。
 
 校验内容：
-1. 断语表约束键（含 any_of 内）必须 ∈ 因子全集（factors.yaml 因子名 + 引擎直读字段）
+1. 断语表约束键（含 any_of 内）必须 ∈ 因子全集（factors.csv 因子名 + 引擎直读字段）
 2. 断语约束键必须 ∈ 该表"引用因子"声明（若表有声明）——防声明与实际脱节
 3. 引用因子声明中的因子名必须存在
 4. 各断语表条目 id 唯一
@@ -19,9 +19,9 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DY = os.path.join(_ROOT, "tools")        # 推理机 + 全部断语表 + 中间数据（csv 只有工具读——谁用归谁）
 TABLE_DIRS = (DY,)
 
-# 引擎直读/系统键（非 factors.yaml 复合因子，但断语可用）
+# 引擎直读/系统键（非 factors.csv 复合因子，但断语可用）
 BUILTIN_KEYS = {"gender", "any_of", "事件", "强度", "优先级", "id", "结论", "依据"}
-# 应期层因子（factors_liunian.yaml 定义——yingqi 域用，不在 factors.yaml）
+# 应期层因子（factors_liunian.csv 定义——yingqi 域用，不在 factors.csv）
 def load_liunian_names() -> set:
     """流年因子名——从 factors_liunian.csv（真值表单一权威——json 已删）。"""
     import csv as _csv
@@ -91,7 +91,7 @@ def main() -> int:
         # 约束键必须存在
         for k in used_keys:
             if k not in factor_names and k not in BUILTIN_KEYS and k not in LIUNIAN_KEYS:
-                errors.append(f"[{dom}] 约束键 '{k}' 不在因子全集（factors.yaml 无此因子）")
+                errors.append(f"[{dom}] 约束键 '{k}' 不在因子全集（factors.csv 无此因子）")
         # 强化①：结论=评测状态标签（3.6.0 去异化——结论须命理表达——防标签回潮）
         _LABELS = {"已婚", "未婚", "独身", "离异", "夫早亡", "已婚波折", "博士", "硕士", "大学",
                    "专科", "中学", "小学", "主妇", "老板", "老板+管理层", "管理层/高管", "稳定职业",

@@ -1,13 +1,15 @@
-"""断语库查表器：派生因子计算 + 条目匹配。
+"""断语表查表器（纯函数——真值表匹配）。
+
 用法：
-    from duanyu.engine import derive_factors, match
-    factors = build_factors(data)                # 原始因子
-    snapshot = derive_factors(factors, gender)          # 派生因子（命理语言）
-    hits = match(table, snapshot)                   # 命中条目（多行=多面性，按约束数排序）
+    from engine import match
+    from duanyu import evaluate_factors
+    snapshot = evaluate_factors(factors, gender, chart)   # 因子快照
+    hits = match(table, snapshot)                         # 命中条目（按表序）
+
 匹配语义：
-- 行内 AND：所有约束命中 → 行成立
-- 约束值支持：0/1、字符串枚举、">=N"、"<=N"、any_of（列表内任一）
-- 行间：多行成立 = 多面性（不冲突），返回全部并按"约束命中数"降序（具体度优先）
+- 行内 AND：所有约束列的期望值 == 因子快照值 → 行成立
+- 约束值：0/1、字符串枚举（相等比较——无 >=N/any_of/优先级）
+- 行间：多行成立 = 多面性，返回全部（断语表按确定性排序，程序不排序）
 """
 from __future__ import annotations
 from typing import Optional

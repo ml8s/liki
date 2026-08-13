@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Optional
 from dataclasses import dataclass, field, asdict
 
-__all__ = ["build_factors", "ShishenState", "ThreeChecks", "PalaceFlags", "WuxingProfile"]
+__all__ = ["build_factors", "ShishenState", "PalaceFlags", "WuxingProfile"]
 
 
 
@@ -24,21 +24,6 @@ class ShishenState:
     has_root: bool               # 有根（该五行在地支藏干出现，不限本十神）
     de_ling: bool                # 得令（该五行在月令旺相）
     count: int = 0               # 出现次数（透干+藏干各计）
-
-    def present(self) -> bool:
-        return self.tou_gan or self.cang_zhi
-
-
-@dataclass
-class ThreeChecks:
-    """十神三关：得令 / 不被克 / 有根。"""
-    de_ling: bool
-    not_ke: bool
-    has_root: bool
-
-    def passed(self) -> int:
-        return sum([self.de_ling, self.not_ke, self.has_root])
-
 
 @dataclass
 class PalaceFlags:
@@ -59,16 +44,6 @@ class WuxingProfile:
     wang_shuai: dict                # wang_shuai
     qiangruo: str                   # 身强弱
     yongshen: dict                  # 三派用神 {fu_yi/tiao_hou/ge_ju: {yong,xi,ji}}
-
-    def over_strong(self, threshold: int = 4) -> list:
-        """过旺五行（出现 ≥ threshold 次 或 旺）。"""
-        strong = [wx for wx, n in self.count.items() if n >= threshold]
-        strong += [wx for wx, st in self.wang_shuai.items() if st == "旺" and wx not in strong]
-        return strong
-
-    def over_weak(self) -> list:
-        """过弱五行（死/囚，且出现 ≤ 1 次）。"""
-        return [wx for wx, st in self.wang_shuai.items() if st in ("死", "囚") and self.count.get(wx, 0) <= 1]
 
 
 # ---------------------------------------------------------------------------
@@ -135,18 +110,6 @@ def _wuxing_of_gan(gan: str) -> str:
     table = {"甲": "木", "乙": "木", "丙": "火", "丁": "火", "戊": "土",
              "己": "土", "庚": "金", "辛": "金", "壬": "水", "癸": "水"}
     return table.get(gan, "")
-
-
-def three_checks(st: ShishenState, wang_shuai: dict, gan_ke_list: list[dict]) -> ThreeChecks:
-    """十神三关：得令（月令旺相）/ 不被克（无天干克它）/ 有根。
-
-    不被克：gan_ke_list 为 fullchart.gan_he 中克该十神天干五行者——
-    此处简化为「该十神透干且未被天干合绊/克」；完全版见 rules。
-    """
-    de_ling = st.de_ling if st.de_ling else (st.wuxing in wang_shuai and wang_shuai[st.wuxing] in DE_LING_STATES)
-    # 有根已在聚合时算好；若未算则查 has_root
-    not_ke = True  # 该十神是否不被克（比劫/食伤不被官杀克等——简化：恒不被克，真实克另算）
-    return ThreeChecks(de_ling=de_ling, not_ke=not_ke, has_root=st.has_root)
 
 
 def palace_flags(full: dict, pillar: str = "ri") -> PalaceFlags:

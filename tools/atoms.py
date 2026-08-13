@@ -20,7 +20,7 @@ def load_json(name):
     with open(path, encoding="utf-8") as fh:
         return _json.load(fh)
 def load_constants() -> dict:
-    """复合因子层的字典配置（evaluator 求值 factors.yaml 的参数表——目标星/事件宫位/五行等）。"""
+    """复合因子层的字典配置（evaluator 求值 factors.csv 的参数表——目标星/事件宫位/五行等）。"""
     global _CONST
     if _CONST is None:
         _CONST = load_json("constants.json")
@@ -96,9 +96,6 @@ def _op(op: str, args, factors, gender, chart) -> int:
     if op == "藏":
         tens = _resolve_tens(args, factors, gender)
         return 1 if any((_shishen(factors, t) or {}).get("cang_zhi") for t in tens) else 0
-    if op == "得地":
-        tens = _resolve_tens(args, factors, gender)
-        return 1 if any((_shishen(factors, t) or {}).get("has_root") for t in tens) else 0
     if op == "得令":
         tens = _resolve_tens(args, factors, gender)
         return 1 if any((_shishen(factors, t) or {}).get("de_ling") for t in tens) else 0
@@ -191,12 +188,6 @@ def _op(op: str, args, factors, gender, chart) -> int:
         full = chart.get("full", {}) or {}
         rels = full.get("zhi_liu_he", []) or []
         return 1 if rels else 0
-    if op == "合化五行":
-        # 本命六合的化气五行（引擎 zhi_liu_he.wuxing）——合化吉凶用
-        full = chart.get("full", {}) or {}
-        rels = full.get("zhi_liu_he", []) or []
-        wxs = [r.get("wuxing", "") for r in rels if r.get("wuxing")]
-        return wxs[0] if wxs else ""
     if op == "官杀取清":
         # 官杀混杂取清（《子平真诠》）：克我（官杀）所在柱被六合/六冲 → 合杀留官/冲去多余 → 取清
         const = load_constants()
@@ -319,22 +310,6 @@ def _op(op: str, args, factors, gender, chart) -> int:
             return 0
         ke_wx = [k for k, v in load_constants()["五行生克"].items() if v.get("克") == wx]
         return 1 if ke_wx and _is_wang(factors, ke_wx[0]) else 0
-    if op == "事实计数":
-        # 印星三关数：得令/不被财克/有根（0-3）——《渊海子平》印绶三关
-        yin = (_shishen(factors, "正印") or _shishen(factors, "偏印"))
-        if not yin or not (yin.get("tou_gan") or yin.get("cang_zhi")):
-            return 0
-        n = 0
-        if yin.get("de_ling"):
-            n += 1
-        if yin.get("has_root"):
-            n += 1
-        cai = _shishen(factors, "正财") or _shishen(factors, "偏财")
-        ke = bool(cai and cai.get("tou_gan") and yin.get("wuxing")
-                  and load_constants()["五行生克"].get(cai.get("wuxing", ""), {}).get("克") == yin.get("wuxing"))
-        if not ke:
-            n += 1
-        return n
     if op == "格神透":
         return _ge_shen_tou(factors, chart)
     if op == "格神根":

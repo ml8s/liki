@@ -96,13 +96,3 @@ def full_panchang(gregorian: str, gender: str, longitude: Optional[float] = None
         "ziwei": zw,         # 十二宫/四化/格局
         "gender": gender,
     }
-
-
-def ziwei_daxian(ziwei_chart: dict) -> dict:
-    """紫微大限（十年大限各宫，起岁=五行局数）。chart 为 ziwei.chart 完整对象。"""
-    return call("ziwei.daxian", {"chart": ziwei_chart})
-
-
-def ziwei_liunian(ziwei_chart: dict, year: int) -> dict:
-    """紫微流年（流年四化落宫 + 流年十二宫星曜）。"""
-    return call("ziwei.liunian", {"chart": ziwei_chart, "liu_nian": year})["data"]

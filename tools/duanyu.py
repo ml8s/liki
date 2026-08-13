@@ -1,6 +1,6 @@
 """表驱动复合因子求值器（第一层 factor_gen 的核心）。
 
-读 factors.yaml（复合因子定义表）+ 内置原子知识（算子字典）→ 对基础因子求值 → 因子快照。
+读 factors.csv（复合因子定义表）+ 内置原子知识（算子字典）→ 对基础因子求值 → 因子快照。
 engine 只做机械求值：执行算子 + 查常量表——所有命理知识（五行生克/十神定义/旺衰判断/组合规则）在表。
 
 输入：factors（build_factors 输出的基础因子）+ rpc_data（引擎原始返回：shen_sha/ziwei/da_yun/合会冲）
@@ -302,7 +302,7 @@ def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_da
                              shi_ke_guan_arg: int = 0,
                              zw_liunian_data: Optional[dict] = None,
                              year: int = 0) -> dict:
-    """流年复合因子（表驱动）：读 factors_liunian.yaml 逐行求值 → 流年因子快照。
+    """流年复合因子（表驱动）：读 factors_liunian.csv 逐行求值 → 流年因子快照。
 
     与 evaluate_factors 同构——流年因子定义在表，engine 纯机械。
     liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化（可选）。
