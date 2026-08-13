@@ -2,11 +2,11 @@
 """【规则表数据检查】（非判题——评测唯一走 skill-up agent）
 
 角色（2026 去异化后定稿）：
-- 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（evaluate_from_rpc——
+- 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（evaluate_from_chart——
   排盘/因子/断语全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
   验证规则表改动不崩、断语覆盖正常。
 - 【不判题】——判题（题目→skill→答案→对比）唯一走 skill-up agent 评测
-  （tests/run-qwen.sh：agent 读 SKILL.md → evaluate_from_rpc → 综合判题 → grade-grouped 判分）。
+  （tests/run-qwen.sh：agent 读 SKILL.md → evaluate_from_chart → 综合判题 → grade-grouped 判分）。
 - 无 _STATUS_MAP/族逻辑/紫微铁断（评测标签/判题逻辑已全部移出 skill 与工具脚本）。
 
 用法：python3 tests/eval_hybrid.py
@@ -27,7 +27,7 @@ if _TOOLS not in sys.path:
 
 from birth import parse_birth
 from client import full_panchang
-from duanyu import evaluate_from_rpc
+from duanyu import evaluate_from_chart
 
 BASE = _LOCAL
 GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
@@ -50,8 +50,8 @@ def main():
             continue
         if case_id not in cache:
             solar, gender, lon, corr = parse_birth(birth)
-            rpc = full_panchang(solar, gender, lon, correct=corr)
-            cache[case_id] = evaluate_from_rpc(rpc)
+            chart = full_panchang(solar, gender, lon, correct=corr)
+            cache[case_id] = evaluate_from_chart(chart)
         r = cache[case_id]
         for qid in qids:
             total += 1

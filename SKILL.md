@@ -70,7 +70,7 @@ Content-Type: application/json
 {"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}
 ```
 
-### 第一步：rpc.discover（按场景按需加载）
+### 第一步：chart.discover（按场景按需加载）
 
 **基础域（每次必加载）**：`tianwen,time`（真太阳时换算、当前时间）——所有场景都要用。
 
@@ -80,7 +80,7 @@ Content-Type: application/json
 # 基础域（必调）+ 场景域（按卡声明）
 curl -s https://liki.hk/jsonrpc \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"tianwen,time,bazi,ziwei"},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"chart.discover","params":{"methods":"tianwen,time,bazi,ziwei"},"id":1}'
 ```
 
 **依赖域速查**：以各 app 卡 frontmatter 的 `依赖域` 字段为唯一来源（此处不重复列表，避免双源漂移）。
@@ -93,11 +93,11 @@ curl -s https://liki.hk/jsonrpc \
 
 后续所有 RPC 调用均以此处返回的 schema 为准。
 
-**schema 本地缓存（推荐）**：`rpc.discover` 返回体较大（30K+ 字符），建议将结果缓存到本地 `.liki_schema.json`：discover 时先读缓存，若缓存中的 `result.info.version` 与远程一致（或本次会话已加载过）则直接复用，不再重复请求；仅在方法更新或缓存缺失时重新 discover。
+**schema 本地缓存（推荐）**：`chart.discover` 返回体较大（30K+ 字符），建议将结果缓存到本地 `.liki_schema.json`：discover 时先读缓存，若缓存中的 `result.info.version` 与远程一致（或本次会话已加载过）则直接复用，不再重复请求；仅在方法更新或缓存缺失时重新 discover。
 
 **切换场景规则（强制）**：读取新的 app 卡时，**只 discover 该卡新引入的域**（该卡 `依赖域` 中尚未加载的部分）。**上下文已加载过的域禁止重复 discover**——直接复用已有 schema，不再发请求。如上下文已有 `bazi` 的 schema，切到命名卡时仅 discover `qiming`，不得重新请求 `bazi`。
 
-### 通用调用方式（rpc.discover 之外的后续方法）
+### 通用调用方式（chart.discover 之外的后续方法）
 
 ```bash
 curl -s https://liki.hk/jsonrpc \
@@ -105,7 +105,7 @@ curl -s https://liki.hk/jsonrpc \
   -d '{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}'
 ```
 
-参数按 rpc.discover 返回的 schema 填写。
+参数按 chart.discover 返回的 schema 填写。
 
 ## 错误处理
 
@@ -247,11 +247,11 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 **skill 工具 = Python 函数**（mingli 推理机——函数即工具；skill 指令教调用，不 MCP）：
 | 工具（函数） | 作用 | 何时用 |
 |---|---|---|
-| `evaluate_from_rpc(rpc_data, liunian_years)` | 唯一入口：排盘数据 → 全断语域 + 应期候选 | 确定性题/应期题/综合题（主入口） |
-| `evaluate_factors(fac, gender, rpc)` | 因子快照（193 因子） | 需查具体因子值（如配偶星透干） |
+| `evaluate_from_chart(rpc_data, liunian_years)` | 唯一入口：排盘数据 → 全断语域 + 应期候选 | 确定性题/应期题/综合题（主入口） |
+| `evaluate_factors(factors, gender, chart)` | 因子快照（193 因子） | 需查具体因子值（如配偶星透干） |
 | `evaluate_liunian_factors(...)` | 流年因子（某年引动） | 应期题逐选项年排查 |
 | `match(entries, snapshot)` | 真值表匹配（因子→断语） | 自定义查表 |
-| `build_factors(data)` | 因子构建（rpc 数据→因子） | 手动因子构建 |
+| `build_factors(data)` | 因子构建（chart 数据→因子） | 手动因子构建 |
 | tests/client（`full_panchang`/`bazi_liunian`） | 排盘工具（RPC 到 liki-engine） | 排盘（Phase 1-2 后） |
 
 **判题第一动作——题目主域识别（agent 读题路由——断语保留全 19 域，agent 自己选域）**：
@@ -269,18 +269,18 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 **健康/官非/运势/大运吉凶题**（固定年份断事件/大运段吉凶）：无硬断语表，agent 按用神喜忌 + 大运流年吉凶综合——先取引擎 `bazi.yongshen` 用神（扶抑/调候/格局），断流年/大运干支为喜为忌：喜用神干支临流年 → 吉事（顺遂/进财/升迁）；忌神干支临流年 → 凶事（健康/破财/官非）；健康事件再结合五行失衡（克泄用神之五行过旺）。
 
-**规则引擎唯一入口（tools/duanyu.py——rpc 排盘数据 → 断语）**：
+**规则引擎唯一入口（tools/duanyu.py——chart 排盘数据 → 断语）**：
 ```python
 import sys
 sys.path.insert(0, "tools"); sys.path.insert(0, "tests")   # tests/ 含排盘工具（client/birth）
 from client import full_panchang
 from birth import parse_birth
-from duanyu import evaluate_from_rpc
+from duanyu import evaluate_from_chart
 
 # 排盘（RPC 到 liki-engine——按 Phase 1-2 校正后）
 solar, gender, lon, corr = parse_birth("出生信息原文")
 rpc_data = full_panchang(solar, gender, lon, correct=corr)
-r = evaluate_from_rpc(rpc_data, liunian_years=[选项年份列表])   # ← 全 19 域断语 + 应期题选项年份
+r = evaluate_from_chart(rpc_data, liunian_years=[选项年份列表])   # ← 全 19 域断语 + 应期题选项年份
 # ★主域优先（综合断事看多域——但以题目对应域为主——其他域只作佐证，不跨域否决主域）：
 #   先识别题目问什么（婚姻/事业/学历/出身/健康/性格/财运/六亲/应期/综合）——**主域断语优先定案**；
 #   其他域断语仅作辅助佐证（如婚姻题以 marriage 为主——xingge/jiankang 只佐证不否决婚姻断语——0056 性格题以 xingge 判主面）
@@ -290,7 +290,7 @@ r = evaluate_from_rpc(rpc_data, liunian_years=[选项年份列表])   # ← 全 
 print(r["domains"]["marriage"])   # 例：查看婚姻断语
 print(r["liunian"])               # 例：应期候选
 ```
-**排盘/因子/匹配全部由生成器内部完成**（agent 只传 rpc 排盘数据——唯一 API；client/birth 为排盘工具）。
+**排盘/因子/匹配全部由生成器内部完成**（agent 只传 chart 排盘数据——唯一 API；client/birth 为排盘工具）。
 **多命中一致性（agent 综合——程序不硬选）**：一局多断语多面共存（命理表达各不相同）——agent 按命理次序综合（参考 Phase 7），同象互证（如"婚可成"+紫微"天机独坐姻缘淡薄"冲突时按紫微夫妻宫专断信号权衡）——不得程序硬选/归一标签。
 **双盘参看（真分开——各自判→对照，非合并）**：八字因子快照（bazi）与紫微因子快照（ziwei）分别计算——八字表纯八字断语、紫微表纯紫微断语（无跨术数条件行——check_schema 交叉校验防回潮）——输出为双盘命理断语（各自表达）——综合评定 agent 做（像命理师八字紫微合参，各自判完再对照；紫微夫妻宫专断信号——贪狼化忌/天机独坐——见紫微断语表 hun_301/302）。
 
@@ -386,8 +386,8 @@ print(r["liunian"])               # 例：应期候选
 
 ## 路由分发
 
-1. 先调 `rpc.discover`（详见 [RPC 调用说明](#rpc-调用说明)），获取所有 method 的完整 schema。后续调用以 schema 为准。
-2. 按「执行主干 Phase 0」路由表读取对应 app 卡。**未读取对应卡之前，不得调用任何 RPC 方法**（rpc.discover 除外）。
+1. 先调 `chart.discover`（详见 [RPC 调用说明](#chart-调用说明)），获取所有 method 的完整 schema。后续调用以 schema 为准。
+2. 按「执行主干 Phase 0」路由表读取对应 app 卡。**未读取对应卡之前，不得调用任何 RPC 方法**（chart.discover 除外）。
 3. 流程一律按「执行主干」Phase 1-8 执行（调用顺序不可跳过、不可并行）；app 卡只定义领域内查表，不定义执行顺序。
 
 ## 记忆管理（仅适用于具备文件写入能力的客户端）

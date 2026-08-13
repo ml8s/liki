@@ -1,9 +1,9 @@
 """断语库查表器：派生因子计算 + 条目匹配。
 用法：
     from duanyu.engine import derive_factors, match
-    fac = build_factors(data)                # 原始因子
-    df = derive_factors(fac, gender)          # 派生因子（命理语言）
-    hits = match(table, df)                   # 命中条目（多行=多面性，按约束数排序）
+    factors = build_factors(data)                # 原始因子
+    snapshot = derive_factors(factors, gender)          # 派生因子（命理语言）
+    hits = match(table, snapshot)                   # 命中条目（多行=多面性，按约束数排序）
 匹配语义：
 - 行内 AND：所有约束命中 → 行成立
 - 约束值支持：0/1、字符串枚举、">=N"、"<=N"、any_of（列表内任一）
@@ -15,14 +15,14 @@ from typing import Optional
 def _val_match(cond, actual):
     """单约束匹配：条件值（0/1、字符串枚举）与因子实际值相等即命中。"""
     return actual == cond
-def match(table: dict, df: dict, exclusive: bool = False) -> list[dict]:
+def match(table: dict, snapshot: dict, exclusive: bool = False) -> list[dict]:
     """查表：返回命中条目（按断语表顺序——命理师按确定性排序，程序不排序）。table = csv 加载的条目列表。
     exclusive=True 时返回表序最前命中（单一事实域——命理上状态互斥，不可多面）。"""
     entries = table if isinstance(table, list) else list(table.values())[0]
     hits = []
     for e in entries:
         cons = dict(e.get("约束", {}) or {})
-        if not all(_val_match(v, df.get(k)) for k, v in cons.items()):
+        if not all(_val_match(v, snapshot.get(k)) for k, v in cons.items()):
             continue
         hits.append(e)
     # 权重 = 断语表设计（条目顺序 + 约束内容）——程序不做权重定义/排序

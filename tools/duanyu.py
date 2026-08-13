@@ -3,20 +3,20 @@
 读 factors.yaml（复合因子定义表）+ 内置原子知识（算子字典）→ 对基础因子求值 → 因子快照。
 engine 只做机械求值：执行算子 + 查常量表——所有命理知识（五行生克/十神定义/旺衰判断/组合规则）在表。
 
-输入：fac（build_factors 输出的基础因子）+ rpc_data（引擎原始返回：shen_sha/ziwei/da_yun/合会冲）
+输入：factors（build_factors 输出的基础因子）+ rpc_data（引擎原始返回：shen_sha/ziwei/da_yun/合会冲）
 输出：因子快照 dict（键=因子名，值=0/1 或事实值）
 """
 from __future__ import annotations
 import os
 from typing import Optional
 
-_FACT = None
+_FACTORS = None
 _FACTOR_ERRORS = 0
 _FACTOR_DEBUG = __import__("os").environ.get("FACTOR_DEBUG") == "1"
 
 
 
-def _load_table(name):
+def load_table(name):
     """断语域表（csv——真值表：列=因子取值，行=断语）。csv 标准库——容器无 PyYAML 兼容。
     断语表 csv 在 tools/bazi/ + tools/ziwei/（csv 只有工具读——谁用归谁；domains 留 md 人读知识）。"""
     import csv
@@ -81,7 +81,7 @@ def _load_table(name):
 
 
 
-# ══════════════ 特殊算子实现（机械，依赖 rpc 原始数据）══════════════
+# ══════════════ 特殊算子实现（机械，依赖 chart 原始数据）══════════════
 
 
 
@@ -103,7 +103,7 @@ _FACTOR_ROWS = None
 _FACTOR_COLS = None
 
 
-def _load_factor_rows():
+def load_factor_rows():
     """因子表（factors.csv 真值表）：列=原子事实实例，行=因子（多行=或）。含术数标记（bazi/ziwei——因子快照分）。"""
     global _FACTOR_ROWS, _FACTOR_COLS
     if _FACTOR_ROWS is not None:
@@ -126,7 +126,7 @@ def _load_factor_rows():
     return rows, cols
 
 
-def _atomic(col: str, fac, gender, rpc, ctx: dict = None):
+def _atomic(col: str, factors, gender, chart, ctx: dict = None):
     """原子执行：列名 "op[arg1,arg2]" → 原语（_op 本命 / _liu_op 流年）。
     字符串值算子：列名参数=期望值——比较返回 1/0。"""
     import re as _re
@@ -137,20 +137,20 @@ def _atomic(col: str, fac, gender, rpc, ctx: dict = None):
     else:
         op, args = col, []
     try:
-        v = _op(op, args, fac, gender, rpc)
+        v = _op(op, args, factors, gender, chart)
     except ValueError:
-        v = _liu_op(op, args, fac, gender, rpc, ctx)
+        v = _liu_op(op, args, factors, gender, chart, ctx)
     if isinstance(v, str):
         return 1 if args and str(args[0]) == v else 0
     return v
 
 
-def evaluate_factors(fac: dict, gender: str, rpc: dict, shushi: Optional[str] = None) -> dict:
+def evaluate_factors(factors: dict, gender: str, chart: dict, shushi: Optional[str] = None) -> dict:
     """因子快照（真值表）：factors.csv 行条件匹配 → 因子值；直通因子=原语计算值。
     shushi="bazi"/"ziwei"：只算本术数因子（八字/紫微真分开——各自快照）；None=全算。
     条件列：带 [] = 原子事实（原语执行）；不带 [] = 因子引用（读快照——多遍稳定）。"""
     global _FACTOR_ERRORS
-    rows, cols = _load_factor_rows()
+    rows, cols = load_factor_rows()
     if shushi:
         rows = [r for r in rows if r["术数"] == shushi]
     facts = {}
@@ -162,7 +162,7 @@ def evaluate_factors(fac: dict, gender: str, rpc: dict, shushi: Optional[str] = 
                 continue
             if r["直通"]:
                 try:
-                    snapshot[r["因子"]] = _atomic(r["直通"], fac, gender, rpc)
+                    snapshot[r["因子"]] = _atomic(r["直通"], factors, gender, chart)
                 except Exception as e:
                     _FACTOR_ERRORS += 1
                     if _FACTOR_DEBUG:
@@ -175,7 +175,7 @@ def evaluate_factors(fac: dict, gender: str, rpc: dict, shushi: Optional[str] = 
                 if "[" in col:
                     if col not in facts:
                         try:
-                            facts[col] = _atomic(col, fac, gender, rpc)
+                            facts[col] = _atomic(col, factors, gender, chart)
                         except Exception as e:
                             _FACTOR_ERRORS += 1
                             if _FACTOR_DEBUG:
@@ -204,11 +204,11 @@ ALL_DUANYU_RULES = ("xueye", "marriage", "shiye", "chushen", "caiyun", "jiankang
                     "dayun", "tianzhai", "qianyi", "zinv", "zhiye")
 
 
-def evaluate_from_rpc(data: dict, liunian_years: Optional[list] = None, gender: Optional[str] = None,
+def evaluate_from_chart(data: dict, liunian_years: Optional[list] = None, gender: Optional[str] = None,
                        domain_filter: Optional[list] = None) -> dict:
     global _FACTOR_ERRORS
     _FACTOR_ERRORS = 0   # 每次入口清零（多次调用不累加）
-    """生成器唯一入口（纯——rpc 排盘数据 → 断语；不依赖 RPC 客户端）。
+    """生成器唯一入口（纯——chart 排盘数据 → 断语；不依赖 RPC 客户端）。
 
     data: 排盘结果（full_panchang 输出——rpc_data；由调用方排盘后传入）。
     gender: 可省略（data 内含）。
@@ -224,16 +224,16 @@ def evaluate_from_rpc(data: dict, liunian_years: Optional[list] = None, gender: 
     if gender is None:
         # 从排盘数据取性别（full_panchang 返回含 gender 或 chart 推断）
         gender = data.get("gender") or _infer_gender(data)
-    fac = build_factors(data)
+    factors = build_factors(data)
     # 真分开：八字因子快照 + 紫微因子快照（各自独立——各表只查本术数快照）
-    bz_snapshot = evaluate_factors(fac, gender, data, shushi="bazi")
-    zw_snapshot = evaluate_factors(fac, gender, data, shushi="ziwei")
+    bz_snapshot = evaluate_factors(factors, gender, data, shushi="bazi")
+    zw_snapshot = evaluate_factors(factors, gender, data, shushi="ziwei")
     domains = {}
     rules = ALL_DUANYU_RULES if not domain_filter else [d for d in ALL_DUANYU_RULES if d in domain_filter]
     for rule in rules:
-        bz = _load_table(f"bazi_{rule}.csv")
+        bz = load_table(f"bazi_{rule}.csv")
         bz_entries = bz.get("条目", []) if isinstance(bz, dict) else bz
-        zw = _load_table(f"ziwei_{rule}.csv")
+        zw = load_table(f"ziwei_{rule}.csv")
         zw_entries = zw.get("条目", []) if isinstance(zw, dict) else zw
         entry = {"八字": match(bz_entries, bz_snapshot)}
         if zw_entries:
@@ -243,14 +243,14 @@ def evaluate_from_rpc(data: dict, liunian_years: Optional[list] = None, gender: 
            "因子错误数": _FACTOR_ERRORS}
     if liunian_years:
         chart = data.get("chart", {})
-        yt = _load_table("bazi_yingqi.csv")
+        yt = load_table("bazi_yingqi.csv")
         yt_entries = yt.get("条目", []) if isinstance(yt, dict) else yt
         out["liunian"] = {}
-        zwyt = _load_table("ziwei_yingqi.csv")
+        zwyt = load_table("ziwei_yingqi.csv")
         zwyt_entries = zwyt.get("条目", []) if isinstance(zwyt, dict) else zwyt
         for y in liunian_years:
             ln = bazi_liunian(chart, y)
-            fl = evaluate_liunian_factors(fac, gender, data, ln, target="配偶星", year=y)
+            fl = evaluate_liunian_factors(factors, gender, data, ln, target="配偶星", year=y)
             hits = [h for h in match(yt_entries, fl) if h.get("事件") in ("婚动", "婚变", "凶事")]
             entry = {"断语": [h["结论"] for h in hits]} if hits else {}
             # 紫微流年四化事件（agent 辅助参考——不程序候选）
@@ -279,7 +279,7 @@ def _infer_gender(data: dict) -> str:
 
 
 
-def _load_liunian_rows():
+def load_liunian_rows():
     """流年因子表（factors_liunian.csv 真值表——同 factors.csv）。"""
     import csv as _csv
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "factors_liunian.csv")
@@ -297,7 +297,7 @@ def _load_liunian_rows():
     return rows
 
 
-def evaluate_liunian_factors(fac: dict, gender: str, rpc: dict, liunian_data: dict,
+def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_data: dict,
                              target: str = "配偶星", marriage_bad: int = 0,
                              shi_ke_guan_arg: int = 0,
                              zw_liunian_data: Optional[dict] = None,
@@ -314,10 +314,10 @@ def evaluate_liunian_factors(fac: dict, gender: str, rpc: dict, liunian_data: di
         "marriage_bad": marriage_bad,
         "shi_ke_guan": shi_ke_guan_arg,
         "year": year,
-        "rpc": rpc,
-        "fac": fac,
+        "chart": chart,
+        "factors": factors,
     }
-    rows = _load_liunian_rows()
+    rows = load_liunian_rows()
     facts = {}
     snapshot = {}
     for _pass in range(6):
@@ -329,7 +329,7 @@ def evaluate_liunian_factors(fac: dict, gender: str, rpc: dict, liunian_data: di
             for col, expect in r["conds"].items():
                 if "[" in col:
                     if col not in facts:
-                        facts[col] = _atomic(col, fac, gender, rpc, ctx)
+                        facts[col] = _atomic(col, factors, gender, chart, ctx)
                     val = facts[col]
                 else:
                     val = snapshot.get(col, 0)   # 引用本命（因子引用）
@@ -358,4 +358,4 @@ def evaluate_liunian_factors(fac: dict, gender: str, rpc: dict, liunian_data: di
 
 
 from aggregate import build_factors
-from atoms import load_constants, _op, _liu_op, _ss, _resolve_tens, _target_stars, _palace_bad, _dayun_window, _zw_gong_op
+from atoms import load_constants, _op, _liu_op, _shishen, _resolve_tens, _target_stars, _palace_bad, _dayun_window, _zw_gong_op
