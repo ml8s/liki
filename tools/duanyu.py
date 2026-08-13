@@ -220,7 +220,7 @@ def evaluate_from_chart(data: dict, liunian_years: Optional[list] = None, gender
     - liunian: {选项年份: {候选断语}}——应期题（婚动/婚变/凶事——命中即候选）
     """
     from engine import match
-    from client import bazi_liunian  # 应期流年排盘（client 为排盘工具——tests/ 承载）
+    from client import bazi_liunian  # 应期流年排盘（client 为排盘工具，tools/ 下）
     if gender is None:
         # 从排盘数据取性别（full_panchang 返回含 gender 或 chart 推断）
         gender = data.get("gender") or _infer_gender(data)
