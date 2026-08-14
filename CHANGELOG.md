@@ -1,5 +1,7 @@
 # Changelog
 - 2.6.10: bazi.yongshen 合并进 bazi.chart（用神三派内联）+ 正确性测试补强
+  - 修复 tools/paipan.py 仍调 bazi.yongshen RPC 的残留（改读 chart.yong_shen）——否则八字本地断语工具链直接 Method not found
+  - bazi.fullchart 透传 yong_shen（完整命盘一致），schema 同步 + 透传断言测试
   - 新增 TestChart_YongShen_Inline：ComputeChart 输出 yong_shen 三派非空 + 与直接调用一致（4 例跨性别/年份）
   - 修复 TestTiaoHou_ReferenceEntries：补上缺失的 yong 值断言（原只查合法性、wantYong 数据未生效）；修正 7 条 spot-check 期望与 120 条穷通宝鉴原文参考表 primary 五行不一致（甲卯/甲申/乙申/丙子/庚寅/壬寅/壬子）
   - [bazi] chart 新增 yong_shen 字段（fu_yi 扶抑/tiao_hou 调候/ge_ju 格局三派，380B）；删 bazi.yongshen 方法（方法数 32→31，+discover=32）

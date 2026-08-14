@@ -40,6 +40,7 @@ func ComputeFullChart(c Chart) FullChart {
 	fc.LiuChong = hehui.LiuChong
 	fc.LiuHai = hehui.LiuHai
 	fc.LiuXing = hehui.LiuXing
+	fc.YongShen = c.YongShen // 透传用神三派（2.6.10 起 chart 内联）
 	return fc
 }
 

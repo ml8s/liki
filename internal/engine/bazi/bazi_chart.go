@@ -104,6 +104,9 @@ type FullChart struct {
 	// 出生公历年份（透传自 lean Chart，供 liunian/liuri 按年定位大运）。
 	BirthYear int `json:"birth_year"`
 
+	// 用神三派（透传自 lean Chart）。
+	YongShen YongShenResult `json:"yong_shen"`
+
 	// 补充信息（原 bazi.chart_extra）
 	SanYuan    SanYuan           `json:"san_yuan"`
 	GongJia    []GongJia         `json:"gong_jia"`
