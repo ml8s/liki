@@ -8,7 +8,11 @@
 - **报告模板统一**：四份报告统一「结论先行+依据链+方法足迹」
 - **共享年飞星**：紫白飞星收敛到引擎 fengshui 包（修 xuankong 甲子年入中星偏差），八宅/玄空共用
 
-# Changelog
+**3.9.0 后续补强（引擎 2.6.9-2.6.11 配套）**
+- `bazi.yongshen` 合并进 `bazi.chart`（yong_shen 三派内联）→ 删独立方法；`paipan.py`/webapp 流程改读 chart.yong_shen；`bazi.fullchart` 透传用神
+- 八字小限（bazi.xiaoxian）移除——小限为紫微体系概念，子平八字无正统依据
+- 评审改进：bazi/ziwei/huangli SKILL.md 补「路由/边界规则」节（8 域骨架统一）；工具链测试 10→19（藏/有根/旺/弱/缺算子 + evaluate_factors 因子快照）
+
 ## 3.8.1 —— 正式发布：断语撞修复 + 月令格神定主面 + 引擎流年神煞配套 + 窄表修复
 
 - **断语撞系统性修复（缺上下文因子）**：扫描 19 域撞——xingge 26/32 盘内外向冲突（新增「月令本气十神」因子 10 个 + xg_m01~m10 月令主面断语，主面唯一）、liuqin 19/32 父旺父损（liu_101 加财星受克排除）、chushen 13 盘（fam 加排除+删重复）、marriage/caiyun 加寡宿/大运比劫上下文、zuhe/dayun 删重复/拆身强弱——全部 0 撞
