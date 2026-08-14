@@ -41,7 +41,7 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 			chart := Chart{
 				MingGua: MingGua{Gua: gua{Index: guaNameToNum(tt.mingGua), Name: tt.mingGua}},
 			}
-			result := ComputeJudgment(chart, tt.doorGua, tt.masterGua, tt.stoveGua)
+			result := ComputeLayout(chart, tt.doorGua, tt.masterGua, tt.stoveGua)
 			if result.Group != tt.wantGroup {
 				t.Errorf("group=%q, want %q", result.Group, tt.wantGroup)
 			}

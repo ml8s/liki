@@ -3,10 +3,6 @@
   "gender": "male",
   "solar_time": "2000-06-15T12:00:00+08:00"
  },
- "bazhai.minggua": {
-  "birth_year": 1984,
-  "gender": "male"
- },
  "bazi.chart": {
   "gender": "male",
   "solar_time": "2000-06-15T12:00:00+08:00"
@@ -71,16 +67,10 @@
   "time": "2000-06-15T12:00:00+08:00"
  },
  "time.now": {},
- "xuankong.annual": {
-  "year": 2026
- },
  "xuankong.chart": {
   "solar_time": "2000-06-15T12:00:00+08:00",
   "zuo_shan": 0,
   "xiang_shan": 12
- },
- "xuankong.sanyuan": {
-  "year": 2026
  },
  "ziwei.chart": {
   "gender": "male",
@@ -91,13 +81,7 @@
    "shichen": "午"
   }
  },
- "qimen.judgment": {
-  "chart": {
-   "solar_time": "2000-06-15T12:00:00+08:00"
-  },
-  "event": "career"
- },
- "bazhai.judgment": {
+ "bazhai.layout": {
   "chart": {
    "gender": "male",
    "solar_time": "2000-06-15T12:00:00+08:00"
@@ -105,5 +89,8 @@
   "door_gua": "乾",
   "master_gua": "乾",
   "stove_gua": "乾"
+ },
+ "xuankong.liunian": {
+  "year": 2026
  }
 }

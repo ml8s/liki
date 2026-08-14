@@ -20,6 +20,10 @@ func TestGoldenComputeChart(t *testing.T) {
 	)
 	chart := ComputeChart(st, ganzhi.Male)
 
+	// 命理锚点断言（独立于 golden 文件——UPDATE_GOLDEN=1 时同样执行，
+	// 防止错误输出被锁进 golden 后测试自证）。
+	assertChartAnchors(t, chart)
+
 	got, err := json.MarshalIndent(chart, "", "  ")
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
@@ -42,5 +46,29 @@ func TestGoldenComputeChart(t *testing.T) {
 	}
 	if string(got) != string(want) {
 		t.Errorf("chart output differs from golden file.\nGot:\n%s\n\nWant:\n%s", got, want)
+	}
+}
+
+// assertChartAnchors 校验命理关键字段（1984-02-15 08:00 男）：
+// 男命 1984 → 艮卦/西四命；四吉方之首生气=西南；流年紫白 1984 七赤入中。
+func assertChartAnchors(t *testing.T, chart Chart) {
+	t.Helper()
+	if chart.MingGua.Gua.Name != "艮" {
+		t.Errorf("ming_gua = %s, want 艮", chart.MingGua.Gua.Name)
+	}
+	if chart.MingGua.Group != "西四命" {
+		t.Errorf("group = %s, want 西四命", chart.MingGua.Group)
+	}
+	if len(chart.BaZhaiDirs.ShengQi) == 0 || chart.BaZhaiDirs.ShengQi[0] != "西南" {
+		t.Errorf("sheng_qi = %v, want 西南 居首", chart.BaZhaiDirs.ShengQi)
+	}
+	if chart.YearStars.Year != 1984 {
+		t.Errorf("liu_nian_xing.year = %d, want 1984", chart.YearStars.Year)
+	}
+	if chart.YearStars.RuZhong != "七赤破军" {
+		t.Errorf("liu_nian_xing.ru_zhong = %s, want 七赤破军（下元甲子）", chart.YearStars.RuZhong)
+	}
+	if len(chart.ZhuBagua) != 4 {
+		t.Errorf("zhu_bagua len = %d, want 4", len(chart.ZhuBagua))
 	}
 }

@@ -188,6 +188,9 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 		chart.DayRelations[i] = dayInteraction(chart.Lines[i].Zhi, chart.RiZhi)
 	}
 
+	// 每爻确定性派生状态（月破/发动/动爻生克）.
+	computeLineDerived(&chart)
+
 	// 应期.
 	chart.YingQi = computeYingQi(&chart, yongShen)
 
@@ -196,4 +199,40 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 		chart.GuaCi = gc
 	}
 	return chart
+}
+
+// computeLineDerived fills per-line deterministic states: 月破（月建冲）、本爻发动、
+// 以及各动爻对本爻的生克方向。本卦与变卦爻都标记（用神可能在变卦）。
+func computeLineDerived(p *Chart) {
+	mark := func(lines *[6]Line) {
+		for i := range lines {
+			lines[i].YuePo = ganzhi.IsLiuChong(lines[i].Zhi, p.YueZhi)
+			lines[i].DongSelf = lines[i].Type.IsChanging()
+		}
+	}
+	mark(&p.Lines)
+	mark(&p.BianLines)
+
+	for _, dpos := range p.DongYao {
+		if dpos < 1 || dpos > 6 {
+			continue
+		}
+		dw := ganzhi.ZhiWuxing(p.Lines[dpos-1].Zhi)
+		apply := func(lines *[6]Line) {
+			for i := range lines {
+				if lines[i].Position == dpos {
+					continue
+				}
+				lw := ganzhi.ZhiWuxing(lines[i].Zhi)
+				if ganzhi.Sheng(dw, lw) {
+					lines[i].DongSheng = true
+				}
+				if ganzhi.Ke(dw, lw) {
+					lines[i].DongKe = true
+				}
+			}
+		}
+		apply(&p.Lines)
+		apply(&p.BianLines)
+	}
 }

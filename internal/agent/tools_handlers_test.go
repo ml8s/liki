@@ -155,9 +155,9 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
 		"qiming.pick", "qiming.build", "qiming.check",
-		"bazhai.chart", "bazhai.minggua",
-		"xuankong.sanyuan", "xuankong.chart",
-		"liuyao.chart",
+		"bazhai.chart", "bazhai.judgment",
+		"xuankong.chart", "xuankong.judgment",
+		"liuyao.chart", "liuyao.judgment",
 		"huangli.days",
 		"city",
 	}
@@ -192,7 +192,6 @@ func TestHandler_BadGender(t *testing.T) {
 		{"bazi.xiaoxian", `{"gender":"bad"}`},
 		{"ziwei.chart", fmt.Sprintf(`{"lunar":%s,"gender":"bad"}`, lunarOK)},
 		{"bazhai.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"bad"}`, btOK)},
-		{"bazhai.minggua", `{"gender":"x","birth_year":1984}`},
 	}
 	for _, tt := range handlers {
 		t.Run(tt.name, func(t *testing.T) {
@@ -241,7 +240,6 @@ func TestHandler_RangeValidation(t *testing.T) {
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"kind":"invalid"}`, btOK)},
 		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":-1,"xiang_shan":0}`, btOK)},
 		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":0,"xiang_shan":24}`, btOK)},
-		{"xuankong.sanyuan", `{"year":0}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -369,17 +367,6 @@ func TestHandler_ComputeZiwei_Valid(t *testing.T) {
 	}
 }
 
-func TestHandler_ComputeMingGua_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "bazhai.minggua", json.RawMessage(`{"gender":"male","birth_year":1984}`))
-	if err != nil {
-		t.Fatalf("bazhai.minggua: %v", err)
-	}
-	if getStr(result, "_product") != "minggua" {
-		t.Errorf("_product = %q, want minggua", getStr(result, "_product"))
-	}
-}
-
 func TestHandler_ComputeBazhaiChart_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK))
@@ -407,17 +394,6 @@ func TestHandler_ComputeXuankongChart_Valid(t *testing.T) {
 	}
 	if !hasKey(result, "data") {
 		t.Error("missing data")
-	}
-}
-
-func TestHandler_ComputeSanYuanYun_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "xuankong.sanyuan", json.RawMessage(`{"year":2026}`))
-	if err != nil {
-		t.Fatalf("xuankong.sanyuan: %v", err)
-	}
-	if getStr(result, "_product") != "sanyuan" {
-		t.Errorf("_product = %q, want sanyuan", getStr(result, "_product"))
 	}
 }
 
@@ -616,8 +592,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 37 {
-		t.Errorf("method count = %d, want 37 (36 + rpc.discover)", len(methods))
+	if len(methods) != 34 {
+		t.Errorf("method count = %d, want 34 (33 + rpc.discover)", len(methods))
 	}
 }
 
@@ -1168,7 +1144,7 @@ func (m *mockNominatimTransport) RoundTrip(_ *http.Request) (*http.Response, err
 
 
 
-func TestHandler_XuankongAnnual_Valid(t *testing.T) {
+func TestHandler_XuankongLiunian_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "xuankong.chart",
 		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"zuo_shan":20,"xiang_shan":8}`, btOK)))
@@ -1181,10 +1157,13 @@ func TestHandler_XuankongAnnual_Valid(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	_, err = r.Execute(context.Background(), "xuankong.annual",
+	result, err := r.Execute(context.Background(), "xuankong.liunian",
 		json.RawMessage(fmt.Sprintf(`{"chart":%s,"year":2026}`, env.Data)))
 	if err != nil {
-		t.Fatalf("xuankong.annual: %v", err)
+		t.Fatalf("xuankong.liunian: %v", err)
+	}
+	if getStr(result, "_product") != "xuankong_liunian" {
+		t.Errorf("_product = %q, want xuankong_liunian", getStr(result, "_product"))
 	}
 }
 

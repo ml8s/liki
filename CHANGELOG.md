@@ -1,4 +1,13 @@
 # Changelog
+- 2.6.0: 占卜风水四门方法收敛——确定性下沉引擎，断语归位前端（破坏性 API）
+  - [架构] 参照八字紫微分层：引擎只出确定性要素（排盘+派生），吉凶综合/断语由前端断语表+LLM 产出；删除全部 judgment 方法（不再输出 rating/advice 类综合评级）
+  - [qimen] chart 并入确定性派生：新增 shi_gan_gong（时干落宫）/ri_shi_sheng_ke（日干宫-时干宫生克）/kong_wang_affected/ma_xing_affected；删 qimen.judgment（event 用神映射移前端断语表）
+  - [liuyao] chart 每爻补全确定性状态：lines[] 新增 yue_po（月破）/dong_self（发动）/dong_sheng/dong_ke（动爻生克）；保留 yong_shen 可选参数（聚合伏神）；删 liuyao.judgment
+  - [bazhai] judgment → layout 改名（门主灶配合，东四西四同组判断，结构不变）
+  - [xuankong] 删 annual/sanyuan/judgment；新增 liunian（chart 可选 + year → 共享年飞星盘 + 宅盘叠加凶星落宫提示）；元运随 chart 返回（yun 字段）
+  - [fengshui] 新增共享年飞星 ComputeAnnualFlyingStars（口诀：上元甲子一白/中元四绿/下元七赤，逐年逆行），bazhai/xuankong 共用——修复原 xuankong (tail+tail/4)%9 近似公式对甲子年（1864/1924/1984）入中星偏差
+  - [bazhai] chart 的 liu_nian_xing schema 统一为 ru_zhong + gong_wei（含 xing_name/wuxing/rating/ru_zhong），与玄空共用
+  - [schema] 方法数 35→33（rpc.discover 34）；liuyao/qimen chart Result schema 扩充
 - 2.5.0: 流年神煞补全（E1 年支+日支双查 / E2 值年凶煞）+ 灾煞表修正 + schema enum + 测试全面补全
   - [bazi] 流年/流月/流日神煞：computeDynamicShenSha 由仅年支扩展为年支+日支双查（桃花/驿马/华盖/劫煞/灾煞——《三命通会》年日支皆可）；红鸾/天喜仅年支（年支体系）；去重合并；羊刃/天乙按日干
   - [bazi] 新增值年神煞（computeAnnualShenSha）：病符=太岁后1、丧门=后2、吊客=前2、大耗=对冲（《协纪辨方书》），命局四柱逢煞支即应；白虎表有版本争议不做

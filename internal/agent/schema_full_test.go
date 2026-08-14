@@ -21,6 +21,11 @@ func TestAllMethodsSchema(t *testing.T) {
 	var qr struct{ Data map[string]any `json:"data"` }
 	_ = json.Unmarshal(qout, &qr)
 	yaos, _ := json.Marshal(qr.Data["yaos"])
+	xchartOut, _ := reg.Execute(context.Background(), "xuankong.chart",
+		[]byte(`{"solar_time":"2026-07-31T10:00:00+08:00","zuo_shan":2,"xiang_shan":8}`))
+	var xr struct{ Data map[string]any `json:"data"` }
+	_ = json.Unmarshal(xchartOut, &xr)
+	x := xr.Data
 	mk := func(m map[string]any) json.RawMessage { b2, _ := json.Marshal(m); return b2 }
 	calls := map[string]json.RawMessage{
 		"bazi.chart": bc, "bazi.fullchart": mk(map[string]any{"chart": b}),
@@ -39,15 +44,13 @@ func TestAllMethodsSchema(t *testing.T) {
 		"ziwei.liuri": mk(map[string]any{"chart": z, "liu_nian": 2026, "lunar_month": 6, "lunar_day": 4}),
 		"ziwei.liushi": mk(map[string]any{"chart": z, "liu_nian": 2026, "lunar_month": 6, "lunar_day": 4, "shi_zhi": "午"}),
 		"ziwei.bond": mk(map[string]any{"a": z, "b": z}),
-		"liuyao.qigua": mk(map[string]any{"solar_time": "2026-07-31T10:00:00+08:00", "question": "t"}),
+		"liuyao.qigua": mk(map[string]any{"seed": 12345}),
 		"liuyao.chart": []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","yaos":` + string(yaos) + `}`),
 		"qimen.chart": []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`),
-		"qimen.select": mk(map[string]any{"start_date": "2026-07-31", "end_date": "2026-08-01", "event": "career"}),
-		"bazhai.minggua": mk(map[string]any{"gender": "male", "birth_year": 1984}),
 		"bazhai.chart": mk(map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"}),
-		"xuankong.annual": mk(map[string]any{"year": 2026}),
-		"xuankong.sanyuan": mk(map[string]any{"year": 2026}),
+		"bazhai.layout": mk(map[string]any{"chart": mk(map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"}), "door_gua": "乾", "master_gua": "乾", "stove_gua": "乾"}),
 		"xuankong.chart": mk(map[string]any{"solar_time": "2026-07-31T10:00:00+08:00", "zuo_shan": 2, "xiang_shan": 8}),
+		"xuankong.liunian": mk(map[string]any{"chart": x, "year": 2026}),
 		"huangli.days": mk(map[string]any{"start_date": "2026-08-01", "count": 2}),
 		"tianwen.time": mk(map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "latitude": 39.9}),
 		"time.now": mk(map[string]any{}),

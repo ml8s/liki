@@ -355,6 +355,10 @@
     "summary": "马星在未，冲则动，应期在丑、寅（年月日时）；空亡在子 丑 寅，填实或冲空之时应事"
   },
   "ri_gan_gong": "坎",
+  "shi_gan_gong": "坤",
+  "ri_shi_sheng_ke": "时干(2宫)克日干(1宫)",
+  "kong_wang_affected": true,
+  "ma_xing_affected": true,
   "zhi_fu_xing_gong": "乾",
   "zhi_shi_men_gong": "离"
 }

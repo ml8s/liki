@@ -2,7 +2,7 @@ package bazhai
 
 // ── 门主灶判断 ──
 
-type JudgmentResult struct {
+type LayoutResult struct {
 	Group      string `json:"group"`       // 东四宅/西四宅
 	MingGuaStr string `json:"ming_gua_str"`
 	Door       doorStoveInfo `json:"door"`
@@ -32,8 +32,8 @@ var guaWuxing = [10]string{"", "水", "土", "木", "木", "土", "金", "金", 
 var dongSiGua = map[int]bool{1: true, 3: true, 4: true, 9: true}  // 坎震巽离
 var xiSiGua  = map[int]bool{2: true, 6: true, 7: true, 8: true}  // 坤乾兑艮
 
-// ComputeJudgment analyzes 门主灶 in八宅风水.
-func ComputeJudgment(chart Chart, doorGua, masterGua, stoveGua string) JudgmentResult {
+// ComputeLayout analyzes 门主灶 in八宅风水.
+func ComputeLayout(chart Chart, doorGua, masterGua, stoveGua string) LayoutResult {
 	mg := guaNameToNum(chart.MingGua.Gua.Name)
 	mgGroup := "东四宅"
 	if xiSiGua[mg] { mgGroup = "西四宅" }
@@ -42,7 +42,7 @@ func ComputeJudgment(chart Chart, doorGua, masterGua, stoveGua string) JudgmentR
 	master := evalPosition(guaNameToNum(masterGua), mg)
 	stove := evalPosition(guaNameToNum(stoveGua), mg)
 
-	return JudgmentResult{
+	return LayoutResult{
 		Group:      mgGroup,
 		MingGuaStr: guaNames[mg],
 		Door:       door,

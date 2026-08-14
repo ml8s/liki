@@ -103,6 +103,11 @@ type Line struct {
 	LiuQin  LiuQin `json:"liu_qin"`
 	ShiYing  string `json:"shi_ying"` // "世"/"应"/"""
 	LiuShou LiuShou `json:"liu_shou"`
+	// Deterministic derived states (filled by computeChart):
+	YuePo     bool `json:"yue_po,omitempty"`     // 月破（月建冲该爻地支）
+	DongSelf  bool `json:"dong_self,omitempty"`  // 本爻发动（老阴/老阳）
+	DongSheng bool `json:"dong_sheng,omitempty"` // 有动爻生此爻
+	DongKe    bool `json:"dong_ke,omitempty"`    // 有动爻克此爻
 }
 
 // guaIndex identifies one of the 64 hexagrams.

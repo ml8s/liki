@@ -4,61 +4,19 @@ import "liki-engine/internal/engine/fengshui"
 
 // -- 紫白年飞星 (Annual Purple-White Flying Stars) -------------------------------
 
+// yearStarResult is the 流年紫白飞星 inside bazhai.chart.
+// schema 与玄空共用（fengshui.ComputeAnnualFlyingStars），字段与 xuankong 一致。
 type yearStarResult struct {
-	Year       int                `json:"year"`
-	CenterStar fengshui.FlyingStar `json:"zhong_gong_xing"`
-	Palaces    [9]palaceStar      `json:"gong_wei"`
+	Year    int                          `json:"year"`
+	RuZhong string                       `json:"ru_zhong"`
+	Palaces []fengshui.AnnualFlyingStar `json:"gong_wei"`
 }
 
-type palaceStar struct {
-	PalaceNum int                `json:"gong_num"`
-	Star      fengshui.FlyingStar `json:"xing"`
-}
-
-// computeYearStars computes the annual purple-white flying star distribution.
-//
-// Formula: 下元甲子(1984)七赤入中, each year the center star decreases by 1.
+// computeYearStars computes the annual purple-white flying star distribution
+// via the shared fengshui implementation (口诀：上元甲子一白/中元四绿/下元七赤，逐年逆行).
 func computeYearStars(year int) yearStarResult {
-	var jiaZiYear int
-	var jiaZiStar int
-	switch {
-	case year >= 1984:
-		jiaZiYear, jiaZiStar = 1984, 7
-	case year >= 1924:
-		jiaZiYear, jiaZiStar = 1924, 4
-	case year >= 1864:
-		jiaZiYear, jiaZiStar = 1864, 1
-	default:
-		cycle := (1864 - year) / 60
-		if (1864-year)%60 != 0 {
-			cycle++
-		}
-		jiaZiYear = 1864 - cycle*60
-		nBack := (1864 - jiaZiYear) / 60
-		phase := (3 - nBack%3) % 3
-		jiaZiStar = []int{1, 4, 7}[phase]
-	}
-
-	diff := year - jiaZiYear
-	centerNum := (jiaZiStar - diff%9 + 9) % 9
-	if centerNum == 0 {
-		centerNum = 9
-	}
-
-	centerStar := fengshui.StarByNumber(centerNum)
-
-	var palaces [9]palaceStar
-	palaces[4] = palaceStar{PalaceNum: 5, Star: centerStar}
-
-	for i, pn := range fengshui.LuoshuFlyOrder {
-		starNum := (centerNum + i + 1) % 9
-		if starNum == 0 {
-			starNum = 9
-		}
-		palaces[pn-1] = palaceStar{PalaceNum: pn, Star: fengshui.StarByNumber(starNum)}
-	}
-
-	return yearStarResult{Year: year, CenterStar: centerStar, Palaces: palaces}
+	board := fengshui.ComputeAnnualFlyingStars(year)
+	return yearStarResult{Year: board.Year, RuZhong: board.RuZhong, Palaces: board.GongWei}
 }
 
 // -- 八宅 四吉四凶 ------------------------------------------

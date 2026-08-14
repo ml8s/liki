@@ -3,6 +3,7 @@ package bazhai
 import (
 	"testing"
 
+	"liki-engine/internal/engine/fengshui"
 	"liki-engine/internal/engine/ganzhi"
 )
 
@@ -37,9 +38,10 @@ func TestComputeYearStars_CenterStarKnownYears(t *testing.T) {
 
 	for _, tt := range tests {
 		r := computeYearStars(tt.year)
-		if r.CenterStar.Number != tt.wantCenterNum {
-			t.Errorf("year %d: center star = %d(%s), want %d(%s)",
-				tt.year, r.CenterStar.Number, r.CenterStar.Name, tt.wantCenterNum, tt.wantColor)
+		wantName := fengshui.StarByNumber(tt.wantCenterNum).Name
+		if r.RuZhong != wantName {
+			t.Errorf("year %d: center star = %s, want %d(%s)",
+				tt.year, r.RuZhong, tt.wantCenterNum, tt.wantColor)
 		}
 		if r.Year != tt.year {
 			t.Errorf("year %d: result.Year = %d", tt.year, r.Year)
@@ -69,14 +71,14 @@ func TestComputeYearStars_FullDistribution_1984(t *testing.T) {
 
 	r := computeYearStars(1984)
 	for _, ps := range r.Palaces {
-		expectedNum, ok := want[ps.PalaceNum]
+		expectedNum, ok := want[ps.GongNum]
 		if !ok {
-			t.Errorf("unexpected palace num %d", ps.PalaceNum)
+			t.Errorf("unexpected palace num %d", ps.GongNum)
 			continue
 		}
-		if ps.Star.Number != expectedNum {
+		if ps.Xing != expectedNum {
 			t.Errorf("palace %d: star=%d(%s), want %d",
-				ps.PalaceNum, ps.Star.Number, ps.Star.Name, expectedNum)
+				ps.GongNum, ps.Xing, ps.XingName, expectedNum)
 		}
 	}
 }
@@ -90,9 +92,9 @@ func TestComputeYearStars_FullDistribution_2024(t *testing.T) {
 
 	r := computeYearStars(2024)
 	for _, ps := range r.Palaces {
-		if expectedNum := want[ps.PalaceNum]; ps.Star.Number != expectedNum {
+		if expectedNum := want[ps.GongNum]; ps.Xing != expectedNum {
 			t.Errorf("palace %d: star=%d(%s), want %d",
-				ps.PalaceNum, ps.Star.Number, ps.Star.Name, expectedNum)
+				ps.GongNum, ps.Xing, ps.XingName, expectedNum)
 		}
 	}
 }
@@ -105,13 +107,13 @@ func TestComputeYearStars_AllNinePalaces(t *testing.T) {
 	r := computeYearStars(1984)
 	seen := make(map[int]bool)
 	for _, ps := range r.Palaces {
-		if ps.PalaceNum < 1 || ps.PalaceNum > 9 {
-			t.Errorf("invalid palace num %d", ps.PalaceNum)
+		if ps.GongNum < 1 || ps.GongNum > 9 {
+			t.Errorf("invalid palace num %d", ps.GongNum)
 		}
-		if seen[ps.PalaceNum] {
-			t.Errorf("duplicate palace %d", ps.PalaceNum)
+		if seen[ps.GongNum] {
+			t.Errorf("duplicate palace %d", ps.GongNum)
 		}
-		seen[ps.PalaceNum] = true
+		seen[ps.GongNum] = true
 	}
 	for i := 1; i <= 9; i++ {
 		if !seen[i] {
@@ -128,14 +130,14 @@ func TestComputeYearStars_Pre1864(t *testing.T) {
 	// 1804年 = 1864 - 60 (一次上推), 逆行3→2→1→9→8→7→... = 7
 	// 1804 = 上元甲子前推60年 = 七赤入中
 	r := computeYearStars(1804)
-	if r.CenterStar.Number != 7 {
-		t.Errorf("year 1804: center star=%d, want 7", r.CenterStar.Number)
+	if r.RuZhong != "七赤破军" {
+		t.Errorf("year 1804: center star=%s, want 七赤", r.RuZhong)
 	}
 
 	// 1844年 (1864前20年): 逆推得三碧入中
 	r = computeYearStars(1844)
-	if r.CenterStar.Number != 3 {
-		t.Errorf("year 1844: center star=%d, want 3", r.CenterStar.Number)
+	if r.RuZhong != "三碧禄存" {
+		t.Errorf("year 1844: center star=%s, want 三碧", r.RuZhong)
 	}
 }
 

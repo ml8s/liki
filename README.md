@@ -37,7 +37,7 @@ curl -s http://localhost:8080/jsonrpc \
 
 所有响应同一格式：`{"jsonrpc":"2.0","result":{"_product":"<method>","data":{...}}}`。
 
-## API 总览（37 个）
+## API 总览（34 个）
 
 全部通过 `POST /jsonrpc`，标准 JSON-RPC 2.0，仅支持命名参数。每个方法详参可通过 `rpc.discover` 自省。
 
@@ -46,10 +46,10 @@ curl -s http://localhost:8080/jsonrpc \
 | 八字 | 10 | chart fullchart yongshen bond liunian liuyue liuri liushi xiaoyun xiaoxian |
 | 紫微斗数 | 8 | chart daxian fullchart liunian liuyue liuri liushi bond |
 | 起名 | 4 | char pick build check |
-| 八宅风水 | 3 | minggua chart judgment |
-| 玄空飞星 | 3 | annual chart sanyuan |
+| 八宅风水 | 2 | chart layout |
+| 玄空飞星 | 2 | chart liunian |
 | 六爻纳甲 | 2 | qigua chart |
-| 奇门遁甲 | 2 | chart judgment |
+| 奇门遁甲 | 1 | chart |
 | 黄历 | 1 | days |
 | 工具 | 4 | city time.now tianwen.time rpc.discover |
 
@@ -131,35 +131,32 @@ curl -s http://localhost:8080/jsonrpc \
 |------|------|
 | `huangli.days` | 每日宜忌/吉神凶煞 |
 
-### 八宅风水（3）
+### 八宅风水（2）
 
 | 方法 | 功能 |
 |------|------|
-| `bazhai.minggua` | 命卦计算 |
-| `bazhai.chart` | 八宅盘：门主灶 |
-| `bazhai.judgment` | 宅运论断 |
+| `bazhai.chart` | 八宅盘：命卦 + 四吉四凶方 + 流年紫白飞星 |
+| `bazhai.layout` | 门主灶配合：chart + 门/主/灶方位 → 各 match（东四西四同组=吉） |
 
-### 玄空飞星（3）
+### 玄空飞星（2）
 
 | 方法 | 功能 |
 |------|------|
-| `xuankong.annual` | 年飞星盘 |
-| `xuankong.chart` | 坐向盘：元运/山向星 |
-| `xuankong.sanyuan` | 三元九运 |
+| `xuankong.chart` | 坐向盘：元运/山向星/旺山旺向/收山出煞 |
+| `xuankong.liunian` | 流年飞星：chart（可选）+ year → 流年飞星盘 + 宅盘叠加凶星提示 |
 
 ### 六爻纳甲（2）
 
 | 方法 | 功能 |
 |------|------|
-| `liuyao.qigua` | 起卦（随机/时间） |
-| `liuyao.chart` | 装卦：六亲/六神/世应 |
+| `liuyao.qigua` | 起卦（随机，可不依赖时间） |
+| `liuyao.chart` | 装卦：六亲/六神/世应/每爻旺衰·月破·动爻生克 |
 
-### 奇门遁甲（2）
+### 奇门遁甲（1）
 
 | 方法 | 功能 |
 |------|------|
-| `qimen.chart` | 排盘：九宫/八门/九星/八神 |
-| `qimen.judgment` | 断事：用神/应期/吉凶 |
+| `qimen.chart` | 排盘：九宫/八门/九星/八神 + 日时干落宫/生克/空亡马星影响 |
 
 ### 工具（4）
 
@@ -179,7 +176,6 @@ curl -s http://localhost:8080/jsonrpc \
 | `ziwei.chart` | ~107µs | 5.4KB, 62 allocs |
 | `liuyao.chart` | ~10µs | 0.1KB, 2 allocs |
 | `qimen.chart` | ~26µs | 1.5KB, 36 allocs |
-| `qimen.judgment` | ~2µs | 0.2KB, 5 allocs |
 
 `go test -bench=. -benchmem` 测量。
 

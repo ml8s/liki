@@ -55,8 +55,8 @@ func TestComputeChart_Integration(t *testing.T) {
 	if chart.MingGua.Gua.Name == "" {
 		t.Error("MingGua.Name is empty")
 	}
-	if chart.YearStars.CenterStar.Number == 0 {
-		t.Error("YearStars.CenterStar.Number is zero")
+	if chart.YearStars.RuZhong == "" {
+		t.Error("YearStars.RuZhong is empty")
 	}
 	if len(chart.BaZhaiDirs.ShengQi) == 0 {
 		t.Error("BaZhaiDirs.ShengQi is empty")
@@ -80,8 +80,8 @@ func TestComputeChart_YearStarMatches(t *testing.T) {
 	chart := ComputeChart(st, ganzhi.Female)
 
 	// 2024: 三碧入中
-	if chart.YearStars.CenterStar.Number != 3 {
-		t.Errorf("2024 center star = %d, want 3", chart.YearStars.CenterStar.Number)
+	if chart.YearStars.RuZhong != "三碧禄存" {
+		t.Errorf("2024 center star = %s, want 三碧", chart.YearStars.RuZhong)
 	}
 	// Year stars should have 9 palaces
 	if len(chart.YearStars.Palaces) != 9 {
@@ -97,17 +97,16 @@ func TestComputeYearStars_StarIntegrity(t *testing.T) {
 	r := computeYearStars(1984)
 
 	for _, ps := range r.Palaces {
-		s := ps.Star
-		if s.Number < 1 || s.Number > 9 {
-			t.Errorf("palace %d: star number %d out of range", ps.PalaceNum, s.Number)
+		if ps.Xing < 1 || ps.Xing > 9 {
+			t.Errorf("palace %d: star number %d out of range", ps.GongNum, ps.Xing)
 		}
-		if s.Name == "" || s.Color == "" {
-			t.Errorf("palace %d: star name or color empty", ps.PalaceNum)
+		if ps.XingName == "" {
+			t.Errorf("palace %d: star name empty", ps.GongNum)
 		}
 		// Verify against authoritative StarByNumber
-		ref := fengshui.StarByNumber(s.Number)
-		if s.Name != ref.Name || s.Color != ref.Color || s.Element != ref.Element {
-			t.Errorf("palace %d star %d: mismatch with StarByNumber", ps.PalaceNum, s.Number)
+		ref := fengshui.StarByNumber(ps.Xing)
+		if ps.XingName != ref.Name || ps.Wuxing != ref.Element.String() {
+			t.Errorf("palace %d star %d: mismatch with StarByNumber", ps.GongNum, ps.Xing)
 		}
 	}
 }
