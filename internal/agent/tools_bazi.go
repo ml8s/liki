@@ -226,20 +226,6 @@ func baziXiaoYunHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	return wrapResult("xiaoyun", result)
 }
 
-func baziXiaoXianHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Gender ganzhi.Gender `json:"gender"`
-		Count  int           `json:"count"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("compute_xiaoxian: %w", err)
-	}
-	if err := validateGender(p.Gender); err != nil {
-		return nil, fmt.Errorf("compute_xiaoxian: %w", err)
-	}
-	result := bazi.ComputeXiaoXian(p.Gender, p.Count)
-	return wrapResult("xiaoxian", result)
-}
 
 func parseSolarTime(s string) (tianwen.SolarTime, error) {
 	t, err := time.Parse(time.RFC3339, s)
@@ -302,11 +288,5 @@ var baziMethods = []RPCMethod{
 		Params:  mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"},"count":{"type":"integer","description":"返回年数，默认 12"}},"required":["chart"]}`),
 		Handler: baziXiaoYunHandler,
 		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"age":{"type":"integer"},"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"name":{"type":"string"}},"required":["age","gan","zhi","name"]}}`),
-	},
-	{
-		Name: "bazi.xiaoxian", Description: "小限。返回小限列表。count 默认 12。",
-		Params:  mustSchema(`{"type":"object","properties":{"gender":` + schemaGender + `,"count":{"type":"integer","description":"返回年数，默认 12"}},"required":["gender"]}`),
-		Handler: baziXiaoXianHandler,
-		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"age":{"type":"integer"},"zhi":{"type":"string"}},"required":["age","zhi"]}}`),
 	},
 }

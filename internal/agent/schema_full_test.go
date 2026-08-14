@@ -35,7 +35,6 @@ func TestAllMethodsSchema(t *testing.T) {
 		"bazi.liuri": mk(map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4}),
 		"bazi.liushi": mk(map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4, "hour": 12}),
 		"bazi.xiaoyun": mk(map[string]any{"chart": b, "max_age": 12}),
-		"bazi.xiaoxian": mk(map[string]any{"gender": "male", "count": 12}),
 		"bazi.bond": mk(map[string]any{"a": map[string]any{"chart": b}, "b": map[string]any{"chart": b}}),
 		"ziwei.chart": zc, "ziwei.fullchart": mk(map[string]any{"chart": z}),
 		"ziwei.daxian": mk(map[string]any{"chart": z}),

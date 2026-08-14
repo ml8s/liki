@@ -150,7 +150,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 	handlers := []string{
 		"bazi.chart",
 		"bazi.bond", "bazi.liunian", "bazi.liuyue",
-		"bazi.liuri", "bazi.liushi", "bazi.xiaoyun", "bazi.xiaoxian",
+		"bazi.liuri", "bazi.liushi", "bazi.xiaoyun",
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
@@ -189,7 +189,6 @@ func TestHandler_BadGender(t *testing.T) {
 		params string
 	}{
 		{"bazi.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"other"}`, btOK)},
-		{"bazi.xiaoxian", `{"gender":"bad"}`},
 		{"ziwei.chart", fmt.Sprintf(`{"lunar":%s,"gender":"bad"}`, lunarOK)},
 		{"bazhai.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"bad"}`, btOK)},
 	}
@@ -206,7 +205,6 @@ func TestHandler_MissingRequiredFields(t *testing.T) {
 		name   string
 		params string
 	}{
-		{"bazi.xiaoxian", `{}`},
 		{"ziwei.daxian", `{}`},
 		{"qiming.pick", `{}`},
 		{"qiming.check", `{}`},
@@ -344,17 +342,6 @@ func TestHandler_ComputeLiunian_Valid(t *testing.T) {
 	}
 }
 
-func TestHandler_ComputeXiaoXian_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "bazi.xiaoxian", json.RawMessage(`{"gender":"male"}`))
-	if err != nil {
-		t.Fatalf("bazi.xiaoxian: %v", err)
-	}
-	if getStr(result, "_product") != "xiaoxian" {
-		t.Errorf("_product = %q, want xiaoxian", getStr(result, "_product"))
-	}
-}
-
 func TestHandler_ComputeZiwei_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	params := json.RawMessage(fmt.Sprintf(`{"lunar":%s,"gender":"male"}`, lunarOK))
@@ -427,7 +414,6 @@ func TestHandler_AllHandlersAcceptContext(t *testing.T) {
 		method string
 		params string
 	}{
-		{"bazi.xiaoxian", `{"gender":"male"}`},
 		{"time.now", `{}`},
 		{"liuyao.qigua", `{}`},
 	}
@@ -592,8 +578,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 34 {
-		t.Errorf("method count = %d, want 34 (33 + rpc.discover)", len(methods))
+	if len(methods) != 33 {
+		t.Errorf("method count = %d, want 33 (32 + rpc.discover)", len(methods))
 	}
 }
 
@@ -1244,15 +1230,6 @@ if err := json.Unmarshal(chartResult, &env); err != nil { t.Fatal(err) }
 		json.RawMessage(fmt.Sprintf(`{"chart":%s,"count":3}`, env.Data)))
 	if err != nil {
 		t.Fatalf("bazi.xiaoyun: %v", err)
-	}
-}
-
-func TestHandler_BaziXiaoxian_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "bazi.xiaoxian",
-		json.RawMessage(`{"gender":"male","count":3}`))
-	if err != nil {
-		t.Fatalf("bazi.xiaoxian: %v", err)
 	}
 }
 
