@@ -28,3 +28,9 @@ build-archive: ## 打包 skill → dist/liki.tar.gz + index.json
 
 check: ## 改表后验证（schema 校验 + 数据检查）
 	@bash tests/check.sh
+
+# ── 测试 ──
+test: ## 运行全部 python 测试（规则引擎：因子/断语/agent_cli 分派）
+	python3 -m pytest tests/ -q
+
+test-all: test ## 全量（当前 = test；后续加 lint/archive 校验）
