@@ -87,9 +87,13 @@ type Chart struct {
 	// 出生公历年份（bazi.chart 起附）。供 bazi.liunian/liuri 按查询年份定位当年大运。
 	BirthYear int `json:"birth_year"`
 
-	// 用神三派（扶抑/调候/格局），chart 内联确定性派生，前端 LLM 综合三派定用神。
-	YongShen YongShenResult `json:"yong_shen"`
+	// 子时换日规则说明（信息字段——引擎按 lunar 约定：晚子时(23:00-24:00)日柱不变、
+	// 时柱按次日日干起；供前端/用户核验换日口径，非计算输入）。
+	ZiShiRule string `json:"zi_shi_rule,omitempty"`
 }
+
+// Chart（纯排盘）不含用神——用神三派属完整命盘（bazi.fullchart 承载，
+// 见 FullChart.YongShen）。chart 参与的运算（排盘/大运/流年派生）均不依赖用神。
 
 // FullChart is the expanded bazi chart with all fields (十神/藏干/神煞/长生/空亡...).
 // Use bazi.fullchart to obtain it from a lean Chart.
@@ -109,10 +113,10 @@ type FullChart struct {
 
 	// 补充信息（原 bazi.chart_extra）
 	SanYuan    SanYuan           `json:"san_yuan"`
-	GongJia    []GongJia         `json:"gong_jia"`
+	GongJia    []GongJia         `json:"gong_jia,omitempty"`
 	NayinRel   []NayinRelEntry   `json:"nayin_rel"`
 	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
-	SanQiName  string            `json:"san_qi_name"`
+	SanQiName  string            `json:"san_qi_name,omitempty"`
 
 	// 合会冲刑（原 bazi.hehui）
 	GanHe    []GanHePair   `json:"gan_he"`

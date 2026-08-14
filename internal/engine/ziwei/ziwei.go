@@ -232,6 +232,13 @@ type starInfo struct {
 	Brightness string  `json:"liang_du,omitempty"` // "庙"/"旺"/"利"/"平"/"陷"
 }
 
+// kongGongInfo 描述一个无主星宫位及其借星（对宫主星）。
+type kongGongInfo struct {
+	GongName string   `json:"gong_name"`
+	JieXing  []string `json:"jie_xing"`
+	DuiGong  string   `json:"dui_gong"`
+}
+
 // siHuaType is one of the four transformations.
 type siHuaType string
 
@@ -251,6 +258,10 @@ type Chart struct {
 	JuShuName   string       `json:"ju_shu_name"`
 	ZiweiPos    gongIndex  `json:"ziwei_pos"`
 	SiHua       siHuaResult  `json:"si_hua"`
+
+	// 空宫借星（确定性派生）：无主星的宫位借对宫主星论（紫微标准处理）。
+	// 仅空宫出现（omitempty）；对宫亦空则 jie_xing 为空数组。
+	KongGong []kongGongInfo `json:"kong_gong,omitempty"`
 	NianGan     Gan                 `json:"nian_gan"`
 	NianZhi     Zhi                 `json:"nian_zhi,omitempty"`
 	ShiZhi      Zhi                 `json:"shi_zhi"`

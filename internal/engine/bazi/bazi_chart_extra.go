@@ -7,10 +7,10 @@ import (
 // ChartExtra holds supplementary chart data not needed for core analysis.
 type ChartExtra struct {
 	SanYuan    SanYuan          `json:"san_yuan"`
-	GongJia    []GongJia        `json:"gong_jia"`
+	GongJia    []GongJia        `json:"gong_jia,omitempty"`
 	NayinRel   []NayinRelEntry  `json:"nayin_rel"`
 	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
-	SanQiName  string           `json:"san_qi_name"`
+	SanQiName  string           `json:"san_qi_name,omitempty"`
 }
 
 // NayinRelEntry describes a nayin relation between two pillars.

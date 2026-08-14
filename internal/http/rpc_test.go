@@ -582,15 +582,22 @@ func TestRPC_Dispatch_BaziFullChart(t *testing.T) {
 	var chart map[string]any
 	postRPC(t, reg, `{"jsonrpc":"2.0","method":"bazi.chart","params":{"solar_time":"1984-02-15T08:00:00+08:00","gender":"male"},"id":1}`, func(resp rpcResponse) {
 		chart = resp.Result.(map[string]any)["data"].(map[string]any)
+		// E3 大运临界：current_step_index 有效时 next_step_in_years 存在（虚岁口径，值随当前日期）
+		if dy, ok := chart["da_yun"].(map[string]any); ok {
+			if idx, ok2 := dy["current_step_index"].(float64); ok2 && idx >= 0 {
+				if _, ok3 := dy["next_step_in_years"]; !ok3 {
+					t.Error("da_yun.next_step_in_years 缺失（current_step_index >= 0 时应存在）")
+				}
+			}
+		}
 	})
 	params := map[string]any{"chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.fullchart","params":%s,"id":2}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "bazi_fullchart")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		// 三元 + 合冲 + 大运
-		// 结构性字段必有值
-		for _, k := range []string{"san_yuan", "gong_jia", "nayin_rel", "chang_sheng", "san_qi_name"} {
+		// 三元/纳音/长生必有值；gong_jia/san_qi_name 为可选（omitempty——未命中缺席，E1 语义）
+		for _, k := range []string{"san_yuan", "nayin_rel", "chang_sheng"} {
 			assertNonNil(t, data, k)
 		}
 		// 合冲刑字段可能为空（如命例无三合/六冲）——检查 key 存在即可
@@ -613,6 +620,14 @@ func getBaziChart(t *testing.T, reg *agent.RPCRegistry) map[string]any {
 	var chart map[string]any
 	postRPC(t, reg, `{"jsonrpc":"2.0","method":"bazi.chart","params":{"solar_time":"1984-02-15T08:00:00+08:00","gender":"male"},"id":1}`, func(resp rpcResponse) {
 		chart = resp.Result.(map[string]any)["data"].(map[string]any)
+		// E3 大运临界：current_step_index 有效时 next_step_in_years 存在（虚岁口径，值随当前日期）
+		if dy, ok := chart["da_yun"].(map[string]any); ok {
+			if idx, ok2 := dy["current_step_index"].(float64); ok2 && idx >= 0 {
+				if _, ok3 := dy["next_step_in_years"]; !ok3 {
+					t.Error("da_yun.next_step_in_years 缺失（current_step_index >= 0 时应存在）")
+				}
+			}
+		}
 	})
 	return chart
 }

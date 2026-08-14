@@ -1,4 +1,12 @@
 # Changelog
+- 2.6.14: 外部评审修复（用神归 fullchart + 四化一致性 + 空字段/子时/大运临界/借星 + Nominatim 策略）
+  - [bazi] 用神三派移入完整命盘：chart 纯排盘（移除 yong_shen 内联，2.6.10 合并回滚），bazi.fullchart 承载；skill 引用同步
+  - [ziwei] 修复四化一致性（评审⑥）：宫位辅星（文昌/文曲/左辅/右弼）四化标注与汇总 chart.SiHua 对齐（原只标主星——真 bug）；新增 TestSiHua_Consistency_StarLevel
+  - [bazi] 空字段语义（评审⑦）：gong_jia/san_qi_name omitempty（未命中缺席）
+  - [bazi] 子时换日说明（评审⑨）：chart 新增 zi_shi_rule（晚子时日柱不变、时柱按次日日干——lunar 约定）
+  - [bazi] 大运临界（评审⑩）：da_yun 新增 next_step_in_years（虚岁口径，距下一大运剩余年数）
+  - [ziwei] 空宫借星（评审⑪）：新增 kong_gong（无主星宫位借对宫主星，确定性派生）
+  - [city] Nominatim 策略（评审③）：countrycodes=cn + limit=5 + 行政级别过滤
 - 2.6.12（续）：test-rpc.sh 冒烟脚本对齐现役 31 RPC
   - 清理 12 处已删方法引用（bazi.xiaoxian/yongshen/hehui/chart_extra、ziwei.judgment、qiming.wuge、bazhai.judgment/minggua、xuankong.sanyuan/annual、huangli.date/month/bond.*、qimen.judgment/select）
   - 修正参数漂移（ziwei.chart 改 lunar 参数、liu_year→liu_nian、qiming.pick wuxing→wuxing1/build combos、xuankong sit_mountain→zuo_shan）

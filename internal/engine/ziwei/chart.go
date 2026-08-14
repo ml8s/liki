@@ -1,10 +1,10 @@
 package ziwei
 
-
 import (
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
+
 // computeChart builds the core ziwei chart (palaces + stars, no brightness/patterns).
 func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 	lunarMonth, lunarDay := lt.Month, lt.Day
@@ -50,19 +50,19 @@ func computeChart(bz ganzhi.Bazi, lt tianwen.LunarTime) Chart {
 	}
 
 	return Chart{
-		GongWei:        palaces,
-		MingGong:       0,
-		ShenGong:       shenGong,
-		JuShu:          ju,
-		JuShuName:      juShuName(ju),
-		ZiweiPos:       ziweiPos,
-		NianGan:        nianGan,
-		NianZhi:        nianZhi,
-		ShiZhi:         shiZhi,
-		LunarMonth:     lunarMonth,
-		LunarDay:       lunarDay,
+		GongWei:         palaces,
+		MingGong:        0,
+		ShenGong:        shenGong,
+		JuShu:           ju,
+		JuShuName:       juShuName(ju),
+		ZiweiPos:        ziweiPos,
+		NianGan:         nianGan,
+		NianZhi:         nianZhi,
+		ShiZhi:          shiZhi,
+		LunarMonth:      lunarMonth,
+		LunarDay:        lunarDay,
 		BirthLunarMonth: lt.Month,
-		BirthIsLeap:    lt.Leap,
+		BirthIsLeap:     lt.Leap,
 	}
 }
 
@@ -114,6 +114,7 @@ func buildChartDetail(chart Chart) Chart {
 		}
 	}
 	chart.SiHua = siHua
+	chart.KongGong = computeKongGong(chart.GongWei)
 	chart.Patterns = findPatterns(chart.GongWei)
 	chart.SanFang = buildSanFangInfo(chart, sanFang(0))
 	// 来因宫
@@ -122,4 +123,33 @@ func buildChartDetail(chart Chart) Chart {
 	return chart
 }
 
+// computeKongGong 找出所有无主星宫位，借对宫主星（紫微空宫借星——确定性派生）。
+func computeKongGong(gongWei [12]gong) []kongGongInfo {
+	var out []kongGongInfo
+	for i := range gongWei {
+		if hasMajorStar(gongWei[i]) {
+			continue
+		}
+		dui := (i + 6) % 12
+		info := kongGongInfo{
+			GongName: gongLabels[gongIndex(i)],
+			DuiGong:  gongLabels[gongIndex(dui)],
+		}
+		for _, s := range gongWei[dui].Stars {
+			if s.IsMajor {
+				info.JieXing = append(info.JieXing, s.Name)
+			}
+		}
+		out = append(out, info)
+	}
+	return out
+}
 
+func hasMajorStar(g gong) bool {
+	for _, s := range g.Stars {
+		if s.IsMajor {
+			return true
+		}
+	}
+	return false
+}

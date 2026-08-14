@@ -50,13 +50,16 @@ func SearchCity(ctx context.Context, raw json.RawMessage) (json.RawMessage, erro
 }
 
 func searchNominatim(ctx context.Context, query string) (searchResult, error) {
-	u := "https://nominatim.openstreetmap.org/search?" + url.Values{
+	// 优先中国范围 + 多结果，避免县级地名（桦川等）被 limit=1 的首条非行政结果（POI/街道）抢占。
+	vals := url.Values{
 		"q":               {query},
 		"format":          {"json"},
-		"limit":           {"1"},
+		"limit":           {"5"},
 		"accept-language": {"zh"},
 		"addressdetails":  {"1"},
-	}.Encode()
+		"countrycodes":    {"cn"},
+	}
+	u := "https://nominatim.openstreetmap.org/search?" + vals.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
@@ -78,9 +81,15 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 		Lat     string `json:"lat"`
 		Lon     string `json:"lon"`
 		Name    string `json:"name"`
+		Type    string `json:"type"`
 		Address struct {
 			Country     string `json:"country"`
 			CountryCode string `json:"country_code"`
+			County      string `json:"county"`
+			City        string `json:"city"`
+			State       string `json:"state"`
+			Village     string `json:"village"`
+			Town        string `json:"town"`
 		} `json:"address"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
@@ -90,7 +99,15 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 		return searchResult{}, fmt.Errorf("search: no results for %s", query)
 	}
 
+	// 优先行政级别结果（county/city/state 地址或行政类型），排除 POI/街道抢占（外部评审 ③）。
 	r := results[0]
+	for _, cand := range results {
+		if cand.Address.County != "" || cand.Address.City != "" || cand.Address.State != "" ||
+			cand.Type == "administrative" || cand.Type == "county" || cand.Type == "city" {
+			r = cand
+			break
+		}
+	}
 	lon, err := parseFloat(r.Lon)
 	if err != nil {
 		return searchResult{}, fmt.Errorf("search: parse lon: %w", err)
