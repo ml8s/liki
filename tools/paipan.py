@@ -56,9 +56,9 @@ def _bazi_fullchart(chart: dict) -> dict:
     return call("bazi.fullchart", {"chart": chart})["data"]
 
 
-def _bazi_yongshen(chart: dict) -> dict:
-    # 2.6.10 起 bazi.chart 已内联 yong_shen（三派用神），不再有独立 bazi.yongshen 方法
-    return chart.get("yong_shen", {})
+def _bazi_yongshen(full: dict) -> dict:
+    # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
+    return full.get("yong_shen", {})
 
 
 def _ziwei_chart(lunar: dict, gender: str) -> dict:
@@ -100,7 +100,7 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         t = _solar_time(gregorian, 120.0)
         lunar = t["lunar"]
     full = _bazi_fullchart(chart)
-    ys = _bazi_yongshen(chart)
+    ys = _bazi_yongshen(full)
     zw = _ziwei_chart(lunar, gender)
     pan = {
         "solar": solar,

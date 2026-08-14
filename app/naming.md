@@ -26,7 +26,7 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 ⟳ 执行主干 Phase 1-2（时辰判定 + 八字排盘快照；naming 无紫微交叉，不调 ziwei）
 
 第1步：定用神/喜神
-  读上一步 bazi.chart 的 yong_shen → 三派用神（扶抑/调候/格局，各含 yong/xi/ji）
+  读 `bazi.fullchart` 的 yong_shen → 三派用神（扶抑/调候/格局，各含 yong/xi/ji）
   按 domains/bazi/fangfa/yongshen.md 定夺——用神按「用神取舍优先序」定（从格→顺势、冬夏→调候、格局清透→格局、普通→扶抑为纲；两派冲突按此序裁决），**喜神/忌神取用神所在派的 xi/ji**（同派配套，详见 domains/bazi/fangfa/yongshen.md「喜神/忌神定夺」）
   **特别注意调候**：冬夏极端月份调候优先于扶抑和格局
   输出：□ 用神____ 喜神____ 忌神____
