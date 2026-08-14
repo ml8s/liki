@@ -168,6 +168,12 @@ type YongShenResult struct {
 
 // computeChart computes a complete 六爻 chart from bazi, question type, and yaos (required).
 func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
+	// 防御：爻数非法（非 6-9）返回空盘，避免产出错卦。
+	for _, y := range yaos {
+		if y < 6 || y > 9 {
+			return Chart{}
+		}
+	}
 	yts := shakeCoinsFixed(yaos)
 	chart := computeGuaPan(yts, bz.Ri)
 

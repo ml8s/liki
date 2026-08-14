@@ -1,4 +1,7 @@
 # Changelog
+- 2.6.11: 引擎层输入防御 + ziwei 性能基线
+  - [liuyao] computeChart 防御非法爻数（非 6-9 返回空盘，不产出错卦）；新增 TestComputeChart_InvalidYaos_EmptyChart
+  - [ziwei] 补 BenchmarkComputeChart（~9µs），性能基线覆盖全部 8 域
 - 2.6.10: bazi.yongshen 合并进 bazi.chart（用神三派内联）+ 正确性测试补强
   - 修复 tools/paipan.py 仍调 bazi.yongshen RPC 的残留（改读 chart.yong_shen）——否则八字本地断语工具链直接 Method not found
   - bazi.fullchart 透传 yong_shen（完整命盘一致），schema 同步 + 透传断言测试
