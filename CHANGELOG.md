@@ -1,6 +1,7 @@
 # Changelog
-- 2.6.10: bazi.yongshen 合并进 bazi.chart（用神三派内联）+ 内联覆盖测试
+- 2.6.10: bazi.yongshen 合并进 bazi.chart（用神三派内联）+ 正确性测试补强
   - 新增 TestChart_YongShen_Inline：ComputeChart 输出 yong_shen 三派非空 + 与直接调用一致（4 例跨性别/年份）
+  - 修复 TestTiaoHou_ReferenceEntries：补上缺失的 yong 值断言（原只查合法性、wantYong 数据未生效）；修正 7 条 spot-check 期望与 120 条穷通宝鉴原文参考表 primary 五行不一致（甲卯/甲申/乙申/丙子/庚寅/壬寅/壬子）
   - [bazi] chart 新增 yong_shen 字段（fu_yi 扶抑/tiao_hou 调候/ge_ju 格局三派，380B）；删 bazi.yongshen 方法（方法数 32→31，+discover=32）
   - 用神为八字断命高频核心（断大运流年吉凶/命书/起名均需），确定性三派规则下沉引擎；前端 LLM 综合三派定用神的设计不变
   - schema/测试/README/params.json（engine+web）同步；SKILL 4 处引用改读 chart.yong_shen

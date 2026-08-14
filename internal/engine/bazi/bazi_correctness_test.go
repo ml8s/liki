@@ -133,20 +133,20 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 	}{
 		// 甲木调候
 		{ganzhi.GanJia, ganzhi.ZhiYin, "火"},  // 正月甲木: 丙癸
-		{ganzhi.GanJia, ganzhi.ZhiMao, "水"},  // 二月甲木: 癸庚丁
+		{ganzhi.GanJia, ganzhi.ZhiMao, "金"},  // 二月甲木: 癸庚丁
 		{ganzhi.GanJia, ganzhi.ZhiWu, "水"},   // 五月甲木: 癸丁庚
-		{ganzhi.GanJia, ganzhi.ZhiShen, "水"}, // 七月甲木: 丁壬庚
+		{ganzhi.GanJia, ganzhi.ZhiShen, "火"}, // 七月甲木: 丁壬庚
 		{ganzhi.GanJia, ganzhi.ZhiZi, "火"},   // 十一月甲木: 丁庚丙
 
 		// 乙木调候
 		{ganzhi.GanYi, ganzhi.ZhiYin, "火"},   // 正月乙木: 丙癸
 		{ganzhi.GanYi, ganzhi.ZhiWu, "水"},    // 五月乙木: 壬癸
-		{ganzhi.GanYi, ganzhi.ZhiShen, "水"},  // 七月乙木: 癸丙
+		{ganzhi.GanYi, ganzhi.ZhiShen, "火"},  // 七月乙木: 癸丙
 
 		// 丙火调候
 		{ganzhi.GanBing, ganzhi.ZhiYin, "水"}, // 正月丙火: 壬庚
 		{ganzhi.GanBing, ganzhi.ZhiWu, "水"},  // 五月丙火: 癸庚壬
-		{ganzhi.GanBing, ganzhi.ZhiZi, "水"},  // 十一月丙火: 甲戊庚
+		{ganzhi.GanBing, ganzhi.ZhiZi, "土"},  // 十一月丙火: 甲戊庚
 
 		// 丁火调候
 		{ganzhi.GanDing, ganzhi.ZhiYin, "木"},  // 正月丁火: 甲庚
@@ -154,14 +154,14 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 		{ganzhi.GanDing, ganzhi.ZhiYou, "木"},  // 八月丁火: 甲庚丙戊
 
 		// 庚金调候
-		{ganzhi.GanGeng, ganzhi.ZhiYin, "土"},  // 正月庚金: 戊甲丙丁
+		{ganzhi.GanGeng, ganzhi.ZhiYin, "火"},  // 正月庚金: 戊甲丙丁
 		{ganzhi.GanGeng, ganzhi.ZhiWu, "水"},   // 五月庚金: 壬癸
 		{ganzhi.GanGeng, ganzhi.ZhiShen, "火"}, // 七月庚金: 丁甲
 
 		// 壬水调候
-		{ganzhi.GanRen, ganzhi.ZhiYin, "土"},  // 正月壬水: 庚戊丙
+		{ganzhi.GanRen, ganzhi.ZhiYin, "金"},  // 正月壬水: 庚戊丙
 		{ganzhi.GanRen, ganzhi.ZhiWu, "金"},   // 五月壬水: 癸庚辛
-		{ganzhi.GanRen, ganzhi.ZhiZi, "火"},   // 十一月壬水: 戊丙
+		{ganzhi.GanRen, ganzhi.ZhiZi, "土"}, // 十一月壬水: 戊丙
 	}
 
 	for _, tt := range tests {
@@ -177,6 +177,12 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 			}
 			if result.Detail == "" {
 				t.Error("Detail is empty")
+			}
+			// 用神值断言（穷通宝鉴 primary 五行，与 120 条原文参考表一致）。
+			if result.Yong != tt.wantYong {
+				t.Errorf("Yong = %s, want %s（穷通宝鉴 %s日%s月 primary）",
+					result.Yong, tt.wantYong,
+					ganzhi.GanName(tt.riYuan), ganzhi.ZhiName(tt.monthBranch))
 			}
 
 			// Verify yong/xi/ji are valid 五行. Ji may be empty (no clear 忌神).
