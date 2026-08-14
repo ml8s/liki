@@ -1,4 +1,11 @@
 # Changelog
+- 2.5.0: 流年神煞补全（E1 年支+日支双查 / E2 值年凶煞）+ 灾煞表修正 + schema enum + 测试全面补全
+  - [bazi] 流年/流月/流日神煞：computeDynamicShenSha 由仅年支扩展为年支+日支双查（桃花/驿马/华盖/劫煞/灾煞——《三命通会》年日支皆可）；红鸾/天喜仅年支（年支体系）；去重合并；羊刃/天乙按日干
+  - [bazi] 新增值年神煞（computeAnnualShenSha）：病符=太岁后1、丧门=后2、吊客=前2、大耗=对冲（《协纪辨方书》），命局四柱逢煞支即应；白虎表有版本争议不做
+  - [bazi] 修复灾煞表命理错误：triad.zaisha 误填为将星中神，标准灾煞为 寅午戌→子/巳酉丑→卯/申子辰→午/亥卯未→酉（golden 测试抓出）
+  - [schema] bazi.liunian/liuyue/liuri 的 shensha 加 items.name enum（liunian 13 种含值年煞、liuyue/liuri 9 种动态），category enum 吉/凶/中性——给 agent 明确神煞清单
+  - [test] 流年 golden 数据驱动（7 条：男/女命例，手算锚点）+ 流年/流月/流日神煞单元测试 16 个（E1/E2 全分支）+ schema enum 保障测试
+  - [test] 修复 TestShenSha_RealChart 错误预期（跟随旧灾煞错表）；2026 流年断言更新（值年煞丧门+大耗）
 - 2.3.0: 八字域对齐 lunar-typescript（VSOP87 节气 + 起运精确化 + 测试扩充）
   - [tianwen] 节气时刻用寿星历 VSOP87D（移植 lunar ShouXingUtil）：eLon/章动/光行差/ΔT，精度从 ±15min → 秒级
     - 夏至 2026 与 lunar 差 2 秒；修复 solarLongitude 时区敏感（本地小时当 UTC）
