@@ -37,7 +37,7 @@ curl -s http://localhost:8080/jsonrpc \
 
 所有响应同一格式：`{"jsonrpc":"2.0","result":{"_product":"<method>","data":{...}}}`。
 
-## API 总览（34 个）
+## API 总览（32 个）
 
 全部通过 `POST /jsonrpc`，标准 JSON-RPC 2.0，仅支持命名参数。每个方法详参可通过 `rpc.discover` 自省。
 
