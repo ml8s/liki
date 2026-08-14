@@ -22,9 +22,13 @@ description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问
 
 ## RPC 调用说明
 
+> **边界**：主流程（Phase 1-7 命理/婚姻/财运等）排盘**一律用工具 `full_paipan`**（已封装本说明的 RPC 链），**不手调**；本说明仅用于：① Phase 8 子流程（六爻/奇门/黄历/风水）② 排盘之外的按需方法（如 `tianwen.time` 场景）③ 调试。手调时按下面端点/格式执行。
+
 所有命理数据通过 JSON-RPC 2.0 获取，**禁止自行推算或凭训练知识编造**。
 
 ### 真太阳时校正（强制，所有命例）
+
+> **工具对应**：主流程排盘用 `full_paipan(时间, 性别, 地点经度, correct)`——**路 A（给具体时刻）→ `correct=True` 并传出生地经度**；**路 B（题干已定时辰）→ `correct=False`**（引擎按题定时辰直接排，不再校正）。下文的 RPC 级细节用于理解规则/手调场景，主流程直接按 correct 传参即可。
 
 **排盘时辰判定——按输入类型分两路，互不矛盾**：
 
@@ -154,7 +158,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 - 所有分析用中文推理（确保术语准确），输出语言跟随用户。用户用英文时，命理术语首次出现保留中文并括注英文（如「用神·Yongshen」），之后直接用英文术语。用户用中文时照旧。
 - **防卡死兜底（强制）**：
-  1. 评测/无人值守场景，**最后一行必须输出「答案：X（或 无法判定）」**——无论流程中断于哪一步，禁止静默退出
+  1. 评测/无人值守场景，**最后必须输出答案行「题N 答案：X」（每行一题；中断于任何一步也须输出已定题的答案行，无法判定才输出「无法判定」）**——禁止静默退出
   2. 同一数据连续 5 轮工具调用无结果 → 跳过该数据，用其余信息继续推演，禁止中断
   3. 输出为空或未给出答案字母 → 视为失败，自动重试一次（重试仍失败才输出"无法判定"）
 
@@ -200,7 +204,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 ### Phase 2 排盘 + 因子快照（出口：写出因子快照，写不出=未排盘，禁止进入推理）
 
-调 RPC（compatibility 双人各排全）：`bazi.chart → bazi.fullchart → bazi.yongshen → ziwei.chart → ziwei.fullchart`
+**调用工具 `full_paipan(时间, 性别, 地点, correct)` 一次排全**（八字+紫微+用神+因子内嵌——见「skill 工具」表；compatibility 双人各调一次）。**不手调 RPC 链**（bazi.chart/fullchart 等已由 full_paipan 封装，RPC 细节仅 Phase 8 子流程手调——见 RPC 调用说明边界）。
 **因子快照必须写出（组装引擎已算好的字段，禁止自行推算/重算——见数据原则）**：
 - □ 四柱十神：fullchart `shi_shens`（含 stem/main_qi 来源）+ 藏干 + `is_void`（空亡）/`is_kui_gang`/`shen_sha`（含吉凶分类）
 - □ 身强弱：yongshen `fu_yi.qiangruo`（如"身弱"）——**禁止自己数五行定强弱**
@@ -417,8 +421,7 @@ for y in [选项年份列表]:
 
 八字排盘+用神完成后，问"保存命盘以便后续使用？(y/n)"。Yes → 写入 `liki-memory.json`。
 
-文件格式：`{"birth":"1984-02-15 08:00 | 上海 | 男","chart":{...},"yongshen":{...}}`
-存储 `bazi.chart`、`bazi.yongshen`、`ziwei.chart`、`bazi.hehui`、`bazhai.chart`、`bazhai.minggua`、`xuankong.chart` 的 data 全量。不存随时间变化的结果（流年/流月/六爻/奇门/黄历）。
+文件格式：`{"birth":"1984-02-15 08:00 | 上海 | 男","pan":{...}}`——**存 `full_paipan` 返回的 pan 全量**（含 chart/full/yongshen/ziwei/fac，恢复时直接 `liunian(pan, y)`/`make_factors(pan)` 复用，无需重新 RPC）。不存随时间变化的结果（流年/流月/六爻/奇门/黄历）。
 
 首次保存时提醒："出生信息将保存在当前目录的 `liki-memory.json` 中。请勿分享或在公开仓库提交。"
 帮他人排盘时不主动提议存档。

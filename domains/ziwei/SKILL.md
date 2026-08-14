@@ -35,7 +35,7 @@ description: 紫微斗数模块（组件）。排盘、星曜、宫位、四化�
 
 1. 收集参数 → TimeSet
 2. 排八字（仅四柱基础，不读八字方法论）
-3. 排紫微盘（调用 `ziwei.chart`）
+3. 排紫微盘（full_paipan 返回的 ziwei——不手调 ziwei.chart）
 4. 排大限（调用 `ziwei.daxian`）
    - 大限数据在 RPC 返回的 `palaces[].decadal` 中：
      - `range` — 起止年龄，如 `[4, 13]`

@@ -108,9 +108,9 @@ description: 起名分析 — 结合八字用神与姓名学，提供全维度�
 
 ```
 📋 方法足迹
-- 排盘: {bazi.chart} → 用神: {bazi.yongshen}
+- 排盘: {full_paipan（返回含用神/因子）} → 用神: {pan["yongshen"]}
 - 取字: {qiming.pick（wuge=true/false）} → 组名: {qiming.build} → 评估: {qiming.check}
 - 读取知识: {naming.md 流程卡第X步 + domains/bazi/fangfa/yongshen.md 用神取舍优先序条目}
 - 检查项: {填写的 Gate/清单项}
-- 推理链: 用神五行→五格笔画→候选字→过滤→组名→校验，每步引用 RPC 字段
+- 推理链: 用神五行→五格笔画→候选字→过滤→组名→校验，每步引用排盘/引擎字段
 ```

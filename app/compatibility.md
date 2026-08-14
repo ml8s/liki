@@ -38,7 +38,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
   输出：□ 大运同步度____
 
 第4步：紫微验证（交叉验证）
-  双方都排紫微盘（ziwei.chart）→ 调用 ziwei.bond(a, b)
+  双方各用 full_paipan 排全（含紫微）→ 调用 ziwei.bond(a, b)（a/b 取 full_paipan 返回的 ziwei）
   → 看夫妻宫互动、命宫互入、禄马/四化入、五行生克
   输出：□ 紫微夫妻宫____ 命宫互入____ 生克____
 
