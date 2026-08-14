@@ -56,7 +56,8 @@ def _bazi_fullchart(chart: dict) -> dict:
 
 
 def _bazi_yongshen(chart: dict) -> dict:
-    return call("bazi.yongshen", {"chart": chart})["data"]
+    # 2.6.10 起 bazi.chart 已内联 yong_shen（三派用神），不再有独立 bazi.yongshen 方法
+    return chart.get("yong_shen", {})
 
 
 def _ziwei_chart(lunar: dict, gender: str) -> dict:
