@@ -9,10 +9,11 @@ liki 命理 skill 的排盘层：
 """
 from __future__ import annotations
 import json
+import os
 import urllib.request
 from typing import Optional
 
-RPC_URL = "https://liki.hk/jsonrpc"
+RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 
 
