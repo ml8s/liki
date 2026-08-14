@@ -25,12 +25,12 @@ type chartSnapshot struct {
 	Gender ganzhi.Gender
 }
 
-func computeFullChart(g chartSnapshot) Chart {
+func computeFullChart(g chartSnapshot) FullChart {
 	st := tianwen.GregorianToSolar(
 		time.Date(g.Year, time.Month(g.Month), g.Day, g.Hour, g.Minute, 0, 0,
 			time.FixedZone("", int(g.TZ*3600))),
 		g.Lon, g.TZ)
-	return ComputeChart(st, g.Gender)
+	return ComputeFullChart(ComputeChart(st, g.Gender))
 }
 
 var goldenCharts = []chartSnapshot{
@@ -50,16 +50,20 @@ func TestGoldenChart_Pillars(t *testing.T) {
 
 			pillars := []struct {
 				name string
-				p    zhuInfo
+				gan  ganzhi.Gan
+				zhi  ganzhi.Zhi
 			}{
-				{"Nian", cr.Nian}, {"Yue", cr.Yue}, {"Ri", cr.Ri}, {"Shi", cr.Shi},
+				{"Nian", cr.Nian.Gan, cr.Nian.Zhi},
+				{"Yue", cr.Yue.Gan, cr.Yue.Zhi},
+				{"Ri", cr.Ri.Gan, cr.Ri.Zhi},
+				{"Shi", cr.Shi.Gan, cr.Shi.Zhi},
 			}
 			for _, p := range pillars {
-				if p.p.Gan < 1 || p.p.Gan > 10 {
-					t.Errorf("%s.Gan = %d, want [1,10]", p.name, p.p.Gan)
+				if p.gan < 1 || p.gan > 10 {
+					t.Errorf("%s.Gan = %d, want [1,10]", p.name, p.gan)
 				}
-				if p.p.Zhi < 1 || p.p.Zhi > 12 {
-					t.Errorf("%s.Zhi = %d, want [1,12]", p.name, p.p.Zhi)
+				if p.zhi < 1 || p.zhi > 12 {
+					t.Errorf("%s.Zhi = %d, want [1,12]", p.name, p.zhi)
 				}
 			}
 
@@ -209,7 +213,7 @@ func TestGoldenChart_ShiShens(t *testing.T) {
 		t.Run(g.Name, func(t *testing.T) {
 			cr := computeFullChart(g)
 
-			pillars := [4]zhuInfo{cr.Nian, cr.Yue, cr.Ri, cr.Shi}
+			pillars := [4]fullZhuInfo{cr.Nian, cr.Yue, cr.Ri, cr.Shi}
 			names := [4]string{"nian", "yue", "ri", "shi"}
 
 			validShiShens := map[string]bool{

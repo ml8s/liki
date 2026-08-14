@@ -1,4 +1,7 @@
 # Changelog
+- 2.6.12: 修复 integration 测试构建失败 + 清理玄空死代码
+  - [bazi] bazi_chart_test.go（integration tag）适配 Chart/FullChart 结构拆分：computeFullChart 辅助返回 FullChart（原 lean Chart 无 CangGanArray/ShenSha 字段）——CI integration job 此前一直构建失败
+  - [xuankong] 删除 tiXingXiangStar 死代码（2.6.3 删替星应用后遗留，lint unused）
 - 2.6.11: 引擎层输入防御 + ziwei 性能基线
   - [liuyao] computeChart 防御非法爻数（非 6-9 返回空盘，不产出错卦）；新增 TestComputeChart_InvalidYaos_EmptyChart
   - [ziwei] 补 BenchmarkComputeChart（~9µs），性能基线覆盖全部 8 域

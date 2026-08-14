@@ -185,11 +185,6 @@ func tiXingShanStar(sitIdx int) int {
 	return needTiXing[sitIdx%24]
 }
 
-// tiXingXiangStar returns the 替星 for a facing mountain (兼向替卦用，规则同上).
-func tiXingXiangStar(faceIdx int) int {
-	return needTiXing[faceIdx%24]
-}
-
 // needTiXing maps mountain index → 替星数（替卦十三山）；非十三山无替（0）。
 var needTiXing = [24]int{
 	0, // 子(0)
