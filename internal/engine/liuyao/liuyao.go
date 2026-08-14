@@ -108,6 +108,7 @@ type Line struct {
 	DongSelf  bool `json:"dong_self,omitempty"`  // 本爻发动（老阴/老阳）
 	DongSheng bool `json:"dong_sheng,omitempty"` // 有动爻生此爻
 	DongKe    bool `json:"dong_ke,omitempty"`    // 有动爻克此爻
+	XunKong   bool `json:"xun_kong,omitempty"`   // 该爻地支值日柱旬空
 }
 
 // guaIndex identifies one of the 64 hexagrams.
@@ -160,6 +161,7 @@ type Chart struct {
 	GuaCi	GuaCi	`json:"gua_ci,omitempty"`
 	WangShuai    [6]ganzhi.WangShuai   `json:"wang_shuai"`
 	DayRelations [6]DayRelation `json:"ri_chen_relations"`
+	XunKong      [2]ganzhi.Zhi  `json:"xun_kong"` // 日柱旬空地支（六爻断卦：用神旬空则事虚，出空填实方应）
 	YingQi    YingQi         `json:"ying_qi"`
 }
 

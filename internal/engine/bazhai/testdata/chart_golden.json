@@ -1,37 +1,37 @@
 {
   "ming_gua": {
     "gua": {
-      "index": 8,
-      "name": "艮",
-      "wuxing": "土",
-      "yin_yang": "阳"
+      "index": 7,
+      "name": "兑",
+      "wuxing": "金",
+      "yin_yang": "阴"
     },
     "group": "西四命"
   },
   "ba_zhai_dirs": {
     "sheng_qi": [
-      "西南"
-    ],
-    "tian_yi": [
       "西北"
     ],
-    "yan_nian": [
-      "西"
+    "tian_yi": [
+      "西南"
     ],
-    "fu_wei": [
+    "yan_nian": [
       "东北"
     ],
-    "huo_hai": [
-      "南"
+    "fu_wei": [
+      "西"
     ],
-    "wu_gui": [
+    "huo_hai": [
       "北"
     ],
+    "wu_gui": [
+      "南"
+    ],
     "liu_sha": [
-      "东"
+      "东南"
     ],
     "jue_ming": [
-      "东南"
+      "东"
     ]
   },
   "liu_nian_xing": {

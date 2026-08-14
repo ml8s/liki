@@ -149,6 +149,22 @@ func SixtyToZhu(idx int) Zhu {
 	return Zhu{Gan: g, Zhi: z}
 }
 
+// XunKong returns the two 旬空（空亡）branches for the 旬 that a day pillar belongs to.
+//
+// 口诀：甲子旬空戌亥、甲戌旬空申酉、甲申旬空午未、甲午旬空辰巳、甲辰旬空寅卯、甲寅旬空子丑。
+func XunKong(gan Gan, zhi Zhi) [2]Zhi {
+	xun := SixtyCycleIndex(gan, zhi) / 10
+	tbl := [6][2]Zhi{
+		{11, 12}, // 甲子旬: 戌亥
+		{9, 10},  // 甲戌旬: 申酉
+		{7, 8},   // 甲申旬: 午未
+		{5, 6},   // 甲午旬: 辰巳
+		{3, 4},   // 甲辰旬: 寅卯
+		{1, 2},   // 甲寅旬: 子丑
+	}
+	return tbl[xun]
+}
+
 // -- hours --
 
 // HourRanges maps each earthly branch to its two-hour range.

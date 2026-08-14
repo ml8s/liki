@@ -33,14 +33,46 @@ func TestComputeMingGua_WestGroupMembership(t *testing.T) {
 
 func TestComputeMingGua_ZhongGongRule(t *testing.T) {
 	// n=5: 男寄坤(2) 女寄艮(8)
-	mgMale := ComputeMingGua(ganzhi.Male, 1990) // n=5
+	mgMale := ComputeMingGua(ganzhi.Male, 1995) // (100-95)%9=5 → 坤
 	if mgMale.Gua.Index != 2 || mgMale.Gua.Name != "坤" {
 		t.Errorf("男寄坤: got %d(%s), want 2(坤)", mgMale.Gua.Index, mgMale.Gua.Name)
 	}
 
-	mgFemale := ComputeMingGua(ganzhi.Female, 1982) // n=5
+	mgFemale := ComputeMingGua(ganzhi.Female, 1990) // (90-4)%9=5 → 艮
 	if mgFemale.Gua.Index != 8 || mgFemale.Gua.Name != "艮" {
 		t.Errorf("女寄艮: got %d(%s), want 8(艮)", mgFemale.Gua.Index, mgFemale.Gua.Name)
+	}
+}
+
+// =============================================================================
+// 命卦 — 公式锚点（《八宅明镜》通行算法示例，2000 年分界）
+// =============================================================================
+
+func TestComputeMingGua_FormulaAnchors(t *testing.T) {
+	cases := []struct {
+		gender ganzhi.Gender
+		year   int
+		name   string
+		group  string
+	}{
+		{ganzhi.Male, 1966, "兑", "西四命"},   // (100-66)%9=7 兑
+		{ganzhi.Male, 1975, "兑", "西四命"},   // (100-75)%9=7 兑
+		{ganzhi.Male, 1977, "坤", "西四命"},   // (100-77)%9=5 → 寄坤
+		{ganzhi.Male, 1984, "兑", "西四命"},   // (100-84)%9=7 兑
+		{ganzhi.Male, 1990, "坎", "东四命"},   // (100-90)%9=1 坎
+		{ganzhi.Female, 1962, "巽", "东四命"}, // (62-4)%9=4 巽
+		{ganzhi.Female, 1984, "艮", "西四命"}, // (84-4)%9=8 艮
+		{ganzhi.Female, 1985, "离", "东四命"}, // (85-4)%9=0→9 离
+		{ganzhi.Male, 2000, "离", "东四命"},   // (99-0)%9=0→9 离（2000 后公式）
+		{ganzhi.Male, 2009, "离", "东四命"},   // (99-9)%9=0→9 离
+		{ganzhi.Female, 2000, "乾", "西四命"}, // (0+6)%9=6 乾
+		{ganzhi.Female, 2005, "坤", "西四命"}, // (5+6)%9=2 坤
+	}
+	for _, c := range cases {
+		mg := ComputeMingGua(c.gender, c.year)
+		if mg.Gua.Name != c.name || mg.Group != c.group {
+			t.Errorf("%d年%v: got %s(%s), want %s(%s)", c.year, c.gender, mg.Gua.Name, mg.Group, c.name, c.group)
+		}
 	}
 }
 
@@ -119,23 +151,22 @@ func TestComputeMingGua(t *testing.T) {
 		wantNum   int
 		wantGroup string
 	}{
-		// Male cases: n = (Y-4)%9, if n<=0 add 9, no further adjustment
-		{"男1984→艮(8)西四命", ganzhi.Male, 1984, "艮", 8, "西四命"},
-		{"男1990→中宫寄坤(2)西四命", ganzhi.Male, 1990, "坤", 2, "西四命"},
-		{"男1986→坎(1)东四命", ganzhi.Male, 1986, "坎", 1, "东四命"},
-		{"男1993→艮(8)西四命", ganzhi.Male, 1993, "艮", 8, "西四命"},
-		{"男1985→离(9)东四命", ganzhi.Male, 1985, "离", 9, "东四命"},
+		// 《八宅明镜》通行公式（2000 前）：男 (100-年后两位)%9；女 (年后两位-4)%9
+		{"男1984→兑(7)西四命", ganzhi.Male, 1984, "兑", 7, "西四命"},
+		{"男1990→坎(1)东四命", ganzhi.Male, 1990, "坎", 1, "东四命"},
+		{"男1986→中宫寄坤(2)西四命", ganzhi.Male, 1986, "坤", 2, "西四命"},
+		{"男1993→兑(7)西四命", ganzhi.Male, 1993, "兑", 7, "西四命"},
+		{"男1985→乾(6)西四命", ganzhi.Male, 1985, "乾", 6, "西四命"},
 		{"男1988→震(3)东四命", ganzhi.Male, 1988, "震", 3, "东四命"},
-		{"男1991→乾(6)西四命", ganzhi.Male, 1991, "乾", 6, "西四命"},
+		{"男1991→离(9)东四命", ganzhi.Male, 1991, "离", 9, "东四命"},
 		{"男1997→震(3)东四命", ganzhi.Male, 1997, "震", 3, "东四命"},
-		// Female cases: n = 11 - ((Y-4)%9), adjust >9
-		{"女1990→乾(6)西四命", ganzhi.Female, 1990, "乾", 6, "西四命"},
-		{"女1984→震(3)东四命", ganzhi.Female, 1984, "震", 3, "东四命"},
-		{"女1982→中宫寄艮(8)西四命", ganzhi.Female, 1982, "艮", 8, "西四命"},
+		{"女1990→中宫寄艮(8)西四命", ganzhi.Female, 1990, "艮", 8, "西四命"},
+		{"女1984→艮(8)西四命", ganzhi.Female, 1984, "艮", 8, "西四命"},
+		{"女1982→乾(6)西四命", ganzhi.Female, 1982, "乾", 6, "西四命"},
 		{"女1986→坎(1)东四命", ganzhi.Female, 1986, "坎", 1, "东四命"},
-		{"女1985→坤(2)西四命", ganzhi.Female, 1985, "坤", 2, "西四命"},
-		{"女1988→艮(8)西四命", ganzhi.Female, 1988, "艮", 8, "西四命"},
-		{"女1991→中宫寄艮(8)西四命", ganzhi.Female, 1991, "艮", 8, "西四命"},
+		{"女1985→离(9)东四命", ganzhi.Female, 1985, "离", 9, "东四命"},
+		{"女1988→震(3)东四命", ganzhi.Female, 1988, "震", 3, "东四命"},
+		{"女1991→乾(6)西四命", ganzhi.Female, 1991, "乾", 6, "西四命"},
 		{"女1995→坎(1)东四命", ganzhi.Female, 1995, "坎", 1, "东四命"},
 	}
 
@@ -197,27 +228,23 @@ func TestBaZhaiDirections(t *testing.T) {
 	}
 }
 func TestComputeMingGua_LowYearBoundary(t *testing.T) {
-	// birthYear%100 < 4 → Go's negative modulo kicks in
+	// 2000 前女公式 (y-4)%9 对 y<4 产生负模，需处理（1900-1903 女）.
 	tests := []struct {
 		gender    ganzhi.Gender
 		birthYear int
 		wantNum   int
 		wantName  string
 	}{
-		// 1900: (0-4)%9 = -4 → n=5 → 男寄坤(2)
-		{ganzhi.Male, 1900, 2, "坤"},
-		// 1901: (1-4)%9 = -3 → n=6 → 乾(6)
-		{ganzhi.Male, 1901, 6, "乾"},
-		// 1902: (2-4)%9 = -2 → n=7 → 兑(7)
-		{ganzhi.Male, 1902, 7, "兑"},
-		// 1903: (3-4)%9 = -1 → n=8 → 艮(8)
-		{ganzhi.Male, 1903, 8, "艮"},
-		// 1904: (4-4)%9 = 0 → n=9 → 离(9)
-		{ganzhi.Male, 1904, 9, "离"},
-		// 1904 female: male n=9, female 11-9=2 → 坤(2)
-		{ganzhi.Female, 1904, 2, "坤"},
-		// 1900 female: male n=5→2(寄坤), female 11-5=6 → 乾(6)
-		{ganzhi.Female, 1900, 6, "乾"},
+		// 2000 前男: (100-y)%9
+		{ganzhi.Male, 1900, 1, "坎"}, // (100-0)%9=1
+		{ganzhi.Male, 1901, 9, "离"}, // (100-1)%9=0→9
+		{ganzhi.Male, 1902, 8, "艮"}, // (100-2)%9=8
+		{ganzhi.Male, 1903, 7, "兑"}, // (100-3)%9=7
+		{ganzhi.Male, 1904, 6, "乾"}, // (100-4)%9=6
+		// 2000 前女: (y-4)%9（y<4 时负模 → +9）
+		{ganzhi.Female, 1900, 8, "艮"}, // (0-4)%9=-4 → 5 → 寄艮(8)
+		{ganzhi.Female, 1901, 6, "乾"}, // (1-4)%9=-3 → 6
+		{ganzhi.Female, 1904, 9, "离"}, // (4-4)%9=0 → 9
 	}
 	for _, tt := range tests {
 		mg := ComputeMingGua(tt.gender, tt.birthYear)
@@ -228,32 +255,10 @@ func TestComputeMingGua_LowYearBoundary(t *testing.T) {
 	}
 }
 
-func TestComputeMingGua_FemaleHighYear(t *testing.T) {
-	// Female n>9 adjustment: when male_n=1, female 11-1=10 → 1
-	// male_n=1 happens when (YY-4)%9=1 → YY%9=5
-	tests := []struct {
-		birthYear int
-		wantNum   int
-		wantName  string
-	}{
-		{1905, 1, "坎"}, // male: (5-4)%9=1, female: 11-1=10→1
-		{1914, 1, "坎"}, // (14-4)%9=1
-		{1923, 1, "坎"}, // (23-4)%9=10%9=1
-		{2005, 1, "坎"}, // 2005
-	}
-	for _, tt := range tests {
-		mg := ComputeMingGua(ganzhi.Female, tt.birthYear)
-		if mg.Gua.Index != tt.wantNum {
-			t.Errorf("female %d: num=%d(%s), want %d(%s)",
-				tt.birthYear, mg.Gua.Index, mg.Gua.Name, tt.wantNum, tt.wantName)
-		}
-	}
-}
-
 func TestComputeMingGua_FemaleZhongGong(t *testing.T) {
-	// Female 中宫寄艮(8): male_n=6 → female 11-6=5 → 寄艮(8)
-	// male_n=6 when (YY-4)%9=6 → YY%9=1
-	tests := []int{1901, 1910, 1919, 1928, 1937, 1946, 1955, 1964, 1973, 1982, 1991}
+	// 女寄艮(8)：2000 前 (y-4)%9=5 → y%9=0；2000 后 (y+6)%9=5 → y%9=8
+	tests := []int{1909, 1918, 1927, 1936, 1945, 1954, 1963, 1972, 1981, 1990, 1999,
+		2008, 2017, 2026, 2035, 2044, 2053, 2062, 2071, 2080, 2089, 2098}
 	for _, year := range tests {
 		mg := ComputeMingGua(ganzhi.Female, year)
 		if mg.Gua.Index != 8 || mg.Gua.Name != "艮" {
@@ -263,8 +268,9 @@ func TestComputeMingGua_FemaleZhongGong(t *testing.T) {
 }
 
 func TestComputeMingGua_MaleZhongGong(t *testing.T) {
-	// Male 中宫寄坤(2): (YY-4)%9=5 → YY%9=0 or 9
-	tests := []int{1900, 1909, 1918, 1927, 1936, 1945, 1954, 1963, 1972, 1981, 1990, 1999, 2000, 2009}
+	// 男寄坤(2)：2000 前 (100-y)%9=5 → y%9=5；2000 后 (99-y)%9=5 → y%9=4
+	tests := []int{1905, 1914, 1923, 1932, 1941, 1950, 1959, 1968, 1977, 1986, 1995,
+		2004, 2013, 2022, 2031, 2040, 2049, 2058, 2067, 2076, 2085, 2094}
 	for _, year := range tests {
 		mg := ComputeMingGua(ganzhi.Male, year)
 		if mg.Gua.Index != 2 || mg.Gua.Name != "坤" {
@@ -282,14 +288,14 @@ func TestBaZhaiDirectionsForGua_AllEight(t *testing.T) {
 		num  int
 		want [8]string // direction names
 	}{
-		{1, [8]string{"东南", "东", "南", "北", "西", "东北", "西北", "西南"}},  // 坎
-		{2, [8]string{"东北", "西", "西北", "西南", "东", "东南", "南", "北"}},   // 坤
-		{3, [8]string{"南", "北", "东南", "东", "西南", "西北", "东北", "西"}},   // 震
-		{4, [8]string{"北", "南", "东", "东南", "西南", "西北", "西", "东北"}},   // 巽
-		{6, [8]string{"西", "东北", "西南", "西北", "东", "北", "东南", "南"}},   // 乾
-		{7, [8]string{"西北", "西南", "东北", "西", "北", "南", "东南", "东"}},   // 兑
-		{8, [8]string{"西南", "西北", "西", "东北", "南", "北", "东", "东南"}},   // 艮
-		{9, [8]string{"东", "东南", "北", "南", "东北", "西", "西南", "西北"}},   // 离
+		{1, [8]string{"东南", "东", "南", "北", "西", "东北", "西北", "西南"}}, // 坎
+		{2, [8]string{"东北", "西", "西北", "西南", "东", "东南", "南", "北"}}, // 坤
+		{3, [8]string{"南", "北", "东南", "东", "西南", "西北", "东北", "西"}}, // 震
+		{4, [8]string{"北", "南", "东", "东南", "西南", "西北", "西", "东北"}}, // 巽
+		{6, [8]string{"西", "东北", "西南", "西北", "东", "北", "东南", "南"}}, // 乾
+		{7, [8]string{"西北", "西南", "东北", "西", "北", "南", "东南", "东"}}, // 兑
+		{8, [8]string{"西南", "西北", "西", "东北", "南", "北", "东", "东南"}}, // 艮
+		{9, [8]string{"东", "东南", "北", "南", "东北", "西", "西南", "西北"}}, // 离
 	}
 	for _, tt := range tests {
 		dirs := baZhaiDirectionsForGua(tt.num)

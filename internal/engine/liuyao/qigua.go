@@ -175,6 +175,9 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	chart.YueZhi = bz.Yue.Zhi
 	chart.YueGan = bz.Yue.Gan
 
+	// 日柱旬空（甲子旬空戌亥…）.
+	chart.XunKong = ganzhi.XunKong(bz.Ri.Gan, bz.Ri.Zhi)
+
 	// 用神.
 	pos, _ := chart.findYongShen(yongShen)
 	chart.YongShen = YongShenResult{Name: yongShen.String(), Position: pos}
@@ -208,6 +211,7 @@ func computeLineDerived(p *Chart) {
 		for i := range lines {
 			lines[i].YuePo = ganzhi.IsLiuChong(lines[i].Zhi, p.YueZhi)
 			lines[i].DongSelf = lines[i].Type.IsChanging()
+			lines[i].XunKong = lines[i].Zhi == p.XunKong[0] || lines[i].Zhi == p.XunKong[1]
 		}
 	}
 	mark(&p.Lines)

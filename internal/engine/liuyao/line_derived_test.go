@@ -87,3 +87,29 @@ func TestComputeLineDerived_JingGua(t *testing.T) {
 		t.Error("静卦中 line1 午火在子月仍应月破")
 	}
 }
+
+// 旬空：日柱己卯属甲戌旬（SixtyCycleIndex(己,卯)=15，旬1），空申酉。
+// 命理依据：《增删卜易》用神旬空则事虚、出空填实方应——爻地支值日旬空则标 xun_kong。
+func TestComputeLineDerived_XunKong(t *testing.T) {
+	if got := ganzhi.XunKong(ganzhi.GanJi, ganzhi.ZhiMao); got != [2]ganzhi.Zhi{9, 10} {
+		t.Fatalf("XunKong(己卯) = %v, want [申 酉]", got)
+	}
+	lines := [6]Line{
+		{Position: 1, Type: ShaoYang, Zhi: ganzhi.ZhiZi, Wuxing: ganzhi.WxShui},
+		{Position: 2, Type: ShaoYang, Zhi: ganzhi.ZhiYin, Wuxing: ganzhi.WxMu},
+		{Position: 3, Type: ShaoYang, Zhi: ganzhi.ZhiChen, Wuxing: ganzhi.WxTu},
+		{Position: 4, Type: ShaoYang, Zhi: ganzhi.ZhiWu, Wuxing: ganzhi.WxHuo},
+		{Position: 5, Type: ShaoYang, Zhi: ganzhi.ZhiShen, Wuxing: ganzhi.WxJin}, // 申 → 旬空
+		{Position: 6, Type: ShaoYang, Zhi: ganzhi.ZhiXu, Wuxing: ganzhi.WxTu},
+	}
+	chart := makeDerivedChart(lines, ganzhi.ZhiYin, nil)
+	chart.XunKong = [2]ganzhi.Zhi{9, 10} // 申酉
+	computeLineDerived(&chart)
+
+	for i := 0; i < 6; i++ {
+		want := i == 4 // 五爻申值旬空
+		if chart.Lines[i].XunKong != want {
+			t.Errorf("line%d XunKong = %v, want %v", i+1, chart.Lines[i].XunKong, want)
+		}
+	}
+}

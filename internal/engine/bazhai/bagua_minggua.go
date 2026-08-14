@@ -50,12 +50,30 @@ type MingGua struct {
 }
 
 // ComputeMingGua computes the 命卦 from gender and birth year.
+//
+// 公式（《八宅明镜》通行算法，2000 年为分界）：
+//
+//	2000 年前：男 (100-年后两位)%9；女 (年后两位-4)%9
+//	2000 年后：男 (99-年后两位)%9； 女 (年后两位+6)%9
+//	余数 0 → 9（离）；余数 5 → 男寄坤、女寄艮
 func ComputeMingGua(gender ganzhi.Gender, birthYear int) MingGua {
-	n := (birthYear%100 - 4) % 9
-	if n <= 0 { n += 9 }
-	if gender == ganzhi.Female {
-		n = 11 - n
-		if n > 9 { n = 1 + (n-1)%9 }
+	y := birthYear % 100
+	var n int
+	if birthYear < 2000 {
+		if gender == ganzhi.Male {
+			n = (100 - y) % 9
+		} else {
+			n = ((y-4)%9 + 9) % 9
+		}
+	} else {
+		if gender == ganzhi.Male {
+			n = (99 - y) % 9
+		} else {
+			n = (y + 6) % 9
+		}
+	}
+	if n == 0 {
+		n = 9
 	}
 	if n == 5 {
 		if gender == ganzhi.Male { n = 2 } else { n = 8 }

@@ -53,7 +53,8 @@
       "liu_qin": "兄弟",
       "shi_ying": "",
       "liu_shou": "朱雀",
-      "yue_po": true
+      "yue_po": true,
+      "xun_kong": true
     },
     {
       "position": 6,
@@ -182,6 +183,10 @@
       "relation": "合",
       "strength": "旺"
     }
+  ],
+  "xun_kong": [
+    "申",
+    "酉"
   ],
   "ying_qi": {
     "yong_shen": "官鬼",

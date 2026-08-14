@@ -153,7 +153,7 @@ func ParseWangShuai(s string) (WangShuai, error) {
 // WangShuaiOf returns the five-phase prosperity state for a given element
 // in a given solar month (branch 1-12).
 //
-// Rule: 当令者旺 / 我生者相 / 生我者休 / 克我者囚 / 我克者死
+// Rule: 当令者旺 / 令生者相 / 生令者休 / 克令者囚 / 令克者死
 func WangShuaiOf(elem Wuxing, monthBranch Zhi) WangShuai {
 	if monthBranch < 1 || monthBranch > 12 {
 		return -1
@@ -163,15 +163,15 @@ func WangShuaiOf(elem Wuxing, monthBranch Zhi) WangShuai {
 		return WSWang
 	}
 	if Sheng(mwx, elem) {
-		return WSXiang // 我生者相
+		return WSXiang // 月令生该五行 → 令生者相
 	}
 	if Sheng(elem, mwx) {
-		return WSXiu // 生我者休
+		return WSXiu // 该五行生月令 → 生令者休
 	}
 	if Ke(elem, mwx) {
-		return WSQiu // elem克月令 → 克我者囚
+		return WSQiu // 该五行克月令 → 克令者囚
 	}
-	return WSSi // 月令克elem → 我克者死
+	return WSSi // 月令克该五行 → 令克者死
 }
 
 // -- JSON --------------------------------------------------------------------

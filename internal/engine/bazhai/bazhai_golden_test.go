@@ -53,14 +53,16 @@ func TestGoldenComputeChart(t *testing.T) {
 // 男命 1984 → 艮卦/西四命；四吉方之首生气=西南；流年紫白 1984 七赤入中。
 func assertChartAnchors(t *testing.T, chart Chart) {
 	t.Helper()
-	if chart.MingGua.Gua.Name != "艮" {
-		t.Errorf("ming_gua = %s, want 艮", chart.MingGua.Gua.Name)
+	// 1984 男：命卦公式（《八宅明镜》2000 前）男 (100-84)%9=7 → 兑，西四命。
+	if chart.MingGua.Gua.Name != "兑" {
+		t.Errorf("ming_gua = %s, want 兑（(100-84)%%9=7）", chart.MingGua.Gua.Name)
 	}
 	if chart.MingGua.Group != "西四命" {
 		t.Errorf("group = %s, want 西四命", chart.MingGua.Group)
 	}
-	if len(chart.BaZhaiDirs.ShengQi) == 0 || chart.BaZhaiDirs.ShengQi[0] != "西南" {
-		t.Errorf("sheng_qi = %v, want 西南 居首", chart.BaZhaiDirs.ShengQi)
+	// 兑命（西四）：生气在西北。
+	if len(chart.BaZhaiDirs.ShengQi) == 0 || chart.BaZhaiDirs.ShengQi[0] != "西北" {
+		t.Errorf("sheng_qi = %v, want 西北 居首", chart.BaZhaiDirs.ShengQi)
 	}
 	if chart.YearStars.Year != 1984 {
 		t.Errorf("liu_nian_xing.year = %d, want 1984", chart.YearStars.Year)
