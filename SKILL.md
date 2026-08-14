@@ -250,15 +250,8 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 ### Phase 5.5 规则引擎锚点（确定性结论必须执行）
 
-**skill 工具 = 排盘 + 因子生成 + 断语查询（5 个函数——tools 推理机；skill 指令教调用，不 MCP）**：
-> 工具定义（OpenAI function calling 格式，单一来源）见 `tools/skill-tools.json`——外部 agent（本地或 web）以此文件 + 引擎 `rpc.discover` 获取全部工具调用方法。本地 agent 按下方编排示例 import 工具链；web agent（无 shell）由服务端经 `tools/agent_cli.py` 分派执行（`{fn, args}` stdin → `{ok, data}` stdout，参数化调用无任意代码执行）。
-| 工具 | 函数 | 作用 |
-|---|---|---|
-| **排盘（本命）** | `full_paipan(时间, 性别, 地点, correct)` | 一次排全八字+紫微，返回本命盘（内嵌 fac） |
-| **排盘（流年）** | `liunian(本命盘, 年份)` | 八字+紫微流年单年合并（应期按候选年逐调） |
-| **因子生成（本命）** | `make_factors(本命盘)` | 双盘因子快照 {八字, 紫微}（一次返回） |
-| **因子生成（流年）** | `make_liunian_factors(本命盘, 流年盘, target, year)` | 双盘流年因子 {八字, 紫微}（一次返回） |
-| **断语查询** | `query(域, 快照)` | 该域双盘断语（内部 load_table+match） |
+**skill 工具 = 排盘 + 因子生成 + 断语查询（5 个函数——tools 推理机）**：
+> 工具定义**唯一来源**是 `tools/skill-tools.json`（OpenAI function calling 格式，含 name/description/parameters/必填/默认值）——**一律读该文件获取工具方法与参数，不依赖本文件描述**。外部 agent（本地或 web）以此文件 + 引擎 `rpc.discover` 获取全部工具调用方法：本地 agent 按下方编排示例 import 工具链；web agent（无 shell）由服务端经 `tools/agent_cli.py` 分派执行（`{fn, args}` stdin → `{ok, data}` stdout，参数化调用无任意代码执行）。编排顺序：full_paipan（本命一次）→ make_factors → query（本命域）；应期题：liunian（逐候选年）→ make_liunian_factors → query（yearly_* + yingqi）。
 
 **断语域分两层（本命 vs 流年——查询快照决定用哪层，agent 不用选）**：
 - **本命域**（19 域，查 `make_factors` 快照）：marriage/liuqin/caiyun/yingqi… 列=本命因子名
