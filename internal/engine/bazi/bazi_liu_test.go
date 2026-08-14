@@ -226,3 +226,67 @@ func TestComputeLiuShi_HasRequiredFields(t *testing.T) {
 		t.Error("ZhiRels is empty: hour branch should interact with bazi")
 	}
 }
+
+// 流月神煞（E1 年支+日支双查——流月也走 computeDynamicShenSha）
+func TestComputeLiuYue_ShenSha(t *testing.T) {
+	// beijing-1984（甲子 丙寅 己卯 戊辰，男）2026 年 6 月（丙午月）：月支午
+	// 动态：年支子灾煞午=午✓、日干己羊刃午=午✓（2026 golden 验证过流年午）——流月午同样命中
+	cb := makeTestChart(
+		ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
+		ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
+		ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+		nil,
+	)
+	ly, err := ComputeLiuYue(cb, 2026, 6)
+	if err != nil {
+		t.Fatalf("ComputeLiuYue: %v", err)
+	}
+	names := map[string]bool{}
+	for _, s := range ly.ShenSha {
+		names[s.Name] = true
+	}
+	if !names["灾煞"] {
+		t.Errorf("流月午缺灾煞（年支子灾煞午）：got %v", ly.ShenSha)
+	}
+	// 己羊刃=巳非午（戊羊刃才在午）——流月午不应命中羊刃
+	if names["羊刃"] {
+		t.Errorf("流月午不应命中羊刃（己羊刃=巳）：got %v", ly.ShenSha)
+	}
+	// 流月不应含值年煞（病符/丧门/吊客/大耗——流年概念）
+	for _, annual := range []string{"病符", "丧门", "吊客", "大耗"} {
+		if names[annual] {
+			t.Errorf("流月不应含值年煞 %s：got %v", annual, ly.ShenSha)
+		}
+	}
+}
+
+// 流日神煞（E1 年支+日支双查）
+func TestComputeLiuRi_ShenSha(t *testing.T) {
+	// beijing-1984（甲子 丙寅 己卯 戊辰，男）2026 年 6 月 4 日：流日支需命中某神煞
+	cb := makeTestChart(
+		ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
+		ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
+		ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+		nil,
+	)
+	lr, err := ComputeLiuRi(cb, 2026, 6, 4)
+	if err != nil {
+		t.Fatalf("ComputeLiuRi: %v", err)
+	}
+	// 流日支=子（2026-06-04）：年支子桃花酉≠子、日支卯桃花子=子✓（日支双查生效）
+	names := map[string]bool{}
+	for _, s := range lr.ShenSha {
+		names[s.Name] = true
+	}
+	if !names["桃花"] {
+		t.Errorf("流日子缺桃花（日支卯桃花子）：got %v", lr.ShenSha)
+	}
+	// 流日不应含值年煞
+	for _, annual := range []string{"病符", "丧门", "吊客", "大耗"} {
+		if names[annual] {
+			t.Errorf("流日不应含值年煞 %s：got %v", annual, lr.ShenSha)
+		}
+	}
+}

@@ -58,5 +58,50 @@
       "天乙贵人",
       "大耗"
     ]
+  },
+  {
+    "name": "shanghai-1990-2022",
+    "solar": "1990-05-20T15:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "female",
+    "year": 2022,
+    "year_name": "壬寅",
+    "shi_shen": "正印",
+    "shensha": [
+      "劫煞",
+      "羊刃",
+      "大耗"
+    ]
+  },
+  {
+    "name": "shanghai-1990-2026",
+    "solar": "1990-05-20T15:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "female",
+    "year": 2026,
+    "year_name": "丙午",
+    "shi_shen": "伤官",
+    "shensha": [
+      "桃花",
+      "病符",
+      "吊客"
+    ]
+  },
+  {
+    "name": "shanghai-1990-2004",
+    "solar": "1990-05-20T15:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "female",
+    "year": 2004,
+    "year_name": "甲申",
+    "shi_shen": "劫财",
+    "shensha": [
+      "驿马",
+      "天乙贵人",
+      "丧门"
+    ]
   }
 ]
