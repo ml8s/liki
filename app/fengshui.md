@@ -67,7 +67,8 @@ description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 
 ```
 📋 方法足迹
-- 排盘: {xuankong.chart} / {bazhai.minggua}
-- 读取知识: {本文件流程卡第X步 + 决策表条目}
-- 推理链: 命卦→八宅/飞星→吉凶→化解，每步引用 RPC 字段
+- 排盘: {bazhai.chart}（命卦+四吉四凶方）/{xuankong.chart}（山向盘+元运）
+- 门主灶(按需): {bazhai.layout}；流年(按需): {xuankong.liunian}
+- 读取知识: {本文件流程卡第X步 + domains/*/duanyu/*.md 断语表}
+- 推理链: 命卦→八宅方位/飞星盘→门主灶/流年叠加→吉凶→化解，每步引用 RPC 字段
 ```

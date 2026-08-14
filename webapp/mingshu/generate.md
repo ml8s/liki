@@ -4,7 +4,7 @@
 2. 调用 `tianwen_time` 获取真太阳时（出生城市未知时默认北京 116.4E 39.9N）
 3. 调用 `bazi_chart` 排八字（时间精度未知默认 12:00）
 4. 按 bazi 的用神方法论定格局（参考 `domains/bazi/fangfa/geju.md` → 定格→顺逆取用）
-5. 调用 `bazi_yongshen` 取用神
+5. 读 `bazi_chart` 返回的 `yong_shen` 取用神（三派内联，LLM 综合）
 6. 分析十神关键组合（杀印相生、伤官配印、财官相生等）
 7. 调用 `bazi_hehui` 分析合会冲刑
 8. 调用 `ziwei_chart` 排紫微斗数

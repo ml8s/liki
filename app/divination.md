@@ -40,10 +40,10 @@ description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
 
 ```
 📋 方法足迹
-- 起卦: {liuyao.qigua} → 装卦: {liuyao.chart} → 断卦: skill 六爻断法（domains/liuyao/duanyu/：取用神→旺衰→动爻→吉凶→应期）
+- 起卦: {liuyao.qigua} → 装卦: {liuyao.chart} → 断卦: 前端查断语表（yongshen.md 选用神 → jixiong.md 判定链 → yingqi.md 应期）
 - 择日: {huangli.days}
-- 读取知识: {本文件流程卡第X步 + 决策表条目}
-- 推理链: 用神→旺衰→动爻→应期，每步引用 RPC 字段
+- 读取知识: {本文件流程卡第X步 + domains/*/duanyu/*.md 断语表}
+- 推理链: 用神→旺衰→动爻→吉凶→应期，每步引用 chart 字段
 ```
 
 ## 边界条件

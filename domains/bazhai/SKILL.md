@@ -1,29 +1,43 @@
 ---
 name: liki-bazhai
-description: 八宅风水模块（组件）。命卦、东四西四、门主灶分析。
+description: 八宅风水模块（组件）。命卦、东四西四、门主灶布局分析。确定性计算走引擎，断语由前端查表+LLM。
 ---
 
 # 八宅风水
 
+## 路由
+
+- **何时使用**：用户问家宅风水/房屋布局/门主灶配合（与玄空按问法分流：八宅主「人宅相配·门主灶」，玄空主「元运飞星·流年」）
+- 流年飞星/旺山旺向类问题走玄空，不走八宅
+
 ## 知识索引
+
+### 📋 方法（引擎确定性计算）
 
 | 文件 | 功能 | 说明 |
 |------|------|------|
-| `bazhai.minggua` RPC | 命卦+东西四命 | 确定吉利方位 |
-| domains/bazhai/duanyu/youxing.md | 游年九星+门主灶 | 吉凶应事+空间判断 |
-| `bazhai.judgment` RPC | 门主灶配合（door/master/stove 各含卦/五行/东西四/与命卦 match） | 参数化：需用户报门/主/灶方位 |
+| `bazhai.chart` RPC | 排盘：命卦 + 四吉四凶方 + 流年紫白飞星 | 输入出生信息，一次排全 |
+| `bazhai.layout` RPC | 门主灶配合：chart + 门/主/灶方位 → 各 match（东四西四同组=吉） | **触发条件**：用户报了门/主/灶方位才调 |
+
+### 📖 断语（符号→现实，LLM 查表翻译）
+
+| 文件 | 用途 | 依据 |
+|------|------|------|
+| domains/bazhai/duanyu/youxing.md | 游年九星吉凶表 + 门主灶配合表 | 《八宅明镜》《阳宅三要》 |
 
 ## 技术流程
 
 1. **收集参数**：出生年份+性别（定命卦），或完整出生信息（排盘）。
 2. **确认 TimeSet**。
-3. **调用引擎**：bazhai.minggua 命卦 → bazhai.chart 排盘（四吉四凶方）→ 用户报门主灶方位后调 bazhai.judgment 得门主灶配合（各宫 match 吉/凶）：bazhai.minggua 命卦查询 → bazhai.chart 门主灶排盘。
-4. **解读**：调 `bazhai.minggua` 引擎命卦结果 + `domains/bazhai/duanyu/youxing.md` 断语 → 输出。
+3. **排盘**：调 `bazhai.chart`（solar_time+gender）→ 得命卦/东四西四/四吉四凶方/流年紫白。
+4. **（按需）门主灶**：用户报了门/主/灶方位 → 调 `bazhai.layout`（chart + door_gua/master_gua/stove_gua）→ 得各 match；未报则跳过此步。
+5. **断语**：读 `domains/bazhai/duanyu/youxing.md`，把 chart/layout 的确定性结果翻译成断语（星/宫→吉凶→应事→布局建议），**不产出抽象评级档位**。
+6. **输出**：按报告模板（结论先行 + 依据链）输出。
 
-📖 搜索 `bazhai.minggua` RPC → 读取命卦表
 📖 搜索 domains/bazhai/duanyu/youxing.md → 读取九星表
 
 ## 边界规则
 
 - 只使用八宅自有体系，不以八字日主/用神解释风水
 - 命卦（八宅）和日主（八字）是两个独立体系，各自独立使用
+- **游年九星（生气/天医/延年/伏位/五鬼/六煞/祸害/绝命）与玄空飞星九星（一白~九紫）是两套独立命名体系，不混用**
