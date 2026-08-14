@@ -12,11 +12,11 @@ description: Liki 灵机 — 命理师的 Skill，八字、紫微、起名、问
 
 开始服务前，必须先进行版本检查：
 
-1. 读取本地安装目录下的 `VERSION` 文件，记为本地版本
-2. 读取 `https://liki.hk/skills/liki/VERSION`（**超时 10 秒**），记为远程版本
+1. 读取本地安装目录下的 `VERSION` + `content.sha256`（内容指纹），记为本地版本/指纹
+2. 读取 `https://liki.hk/skills/liki/VERSION` 与 `.../content.sha256`（**超时 10 秒**），记为远程版本/指纹
 3. 比较：
-   - 一致 → 继续
-   - 不一致 → 告知用户版本更新内容，提示执行 `npx skills update liki` 或 `npx skills add ml8s/liki -y`，用户确认后再继续
+   - **版本与指纹都一致** → 继续
+   - **任一不一致**（含"版本同、内容滞后"——内容指纹不同即检出）→ 告知用户版本更新内容，提示执行 `npx skills update liki` 或 `npx skills add ml8s/liki -y`，用户确认后再继续
    - 无法连接/超时 → 告知用户无法检查更新，**询问是否继续；默认继续**（以本地版本兜底）
 4. 版本检查未完成前，不得执行后续任何 RPC 调用或读取子 SKILL.md；**但若远程不可达且用户确认继续，则以本地版本为准继续，并在首条输出中标注"版本未校验（远程不可达）"**。
 
@@ -128,8 +128,8 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 - 所有计算结果必须通过 RPC 方法获取，不得凭训练知识臆造
 - 禁止在 RPC 返回之外自行编造任何数据
 - **限运数据红线**：八字大运和紫微大限的干支、起止年龄必须来自引擎 RPC 返回，**严禁自行推算**（包括但不限于：以月柱顺逆排推算大运干支、默认起运年龄、自行定大限干支）。引擎返回的限运数据读取路径：
-  - 八字大运：排盘 RPC 返回的 `dayun` 字段
-  - 紫微大限：`palaces[].decadal` 中的 `range`（起止年龄）、`heavenlyStem`（天干）、`earthlyBranch`（地支）
+  - 八字大运：排盘 RPC 返回的 `dayun` 字段（`steps[]` 含 `start_date/end_date` 公历日期段 + `start_year/end_year` 公历年；起运 `start_date`）
+  - 紫微大限：**独立方法 `ziwei.daxian`**（输入 `chart` = `ziwei.chart` 返回的完整盘）——返回每限 `start_year/end_year`（公历年）+ `qi_sui/zhi_sui`（虚岁）+ `gong`/`name`；**不存在 `palaces[].decadal` 字段**
 - 确认限运数据已到位前，不得开始任何限运推理
 
 ## 交互原则

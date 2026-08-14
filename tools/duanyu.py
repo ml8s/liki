@@ -259,6 +259,7 @@ def make_liunian_factors(pan: dict, liunian_pan: dict, target: str = "配偶星"
         zw_liunian_data=liunian_pan["ziwei"], year=year,
     )
     return {
+        "_snapshot_type": "liunian",  # 流年快照标记——query 校验 yearly_* 域需此标记（本命快照隔离）
         "八字": evaluate_liunian_factors(**base, shushi="bazi"),
         "紫微": evaluate_liunian_factors(**base, shushi="ziwei"),
     }
@@ -272,6 +273,10 @@ def query(rule: str, snapshots: dict) -> dict:
     数据层真分开（各查各表）、调用层一次查双盘——内部 load_table + match 内嵌。
     """
     from engine import match
+    # 外部评审 #2：yearly_* 流年域只接受流年快照（本命快照查 yearly_* 不得命中——
+    # 纯本命约束行（如财坏印）会误触发流年断语）。
+    if rule.startswith("yearly_") and snapshots.get("_snapshot_type") != "liunian":
+        return {"八字": [], "紫微": []}
     bz_e = load_table(f"bazi_{rule}.csv")
     bz_e = bz_e.get("条目", bz_e) if isinstance(bz_e, dict) else bz_e
     zw_e = load_table(f"ziwei_{rule}.csv")

@@ -5,7 +5,7 @@
 import sys, os, unittest
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tools'))
 from engine import match
-from atoms import _op, _resolve_tens
+from atoms import _op, _liu_op, _resolve_tens
 
 
 def _mock_factors(**shishen):
@@ -158,3 +158,59 @@ class TestEvaluateFactors(unittest.TestCase):
         ziwei_snap = self.duanyu.evaluate_factors(fac, "male", {}, shushi="ziwei")
         # 紫微快照不应含八字因子
         self.assertNotIn("印星现", ziwei_snap)
+
+
+class TestDaYunOps_YearRange(unittest.TestCase):
+    """2.6.15 大运公历年段算子（start_year/end_year 直判，免虚岁换算）。"""
+
+    def _fac(self):
+        f = _mock_factors()
+        f["dayun_steps"] = [
+            {"name": "丁卯", "shi_shen": "偏印运", "start_year": 1990, "end_year": 2000},
+            {"name": "戊辰", "shi_shen": "正财运", "start_year": 2001, "end_year": 2010},
+            {"name": "己巳", "shi_shen": "比肩运", "start_year": 2011, "end_year": 2020},
+        ]
+        return f
+
+    def test_大运窗口流年_年份段内(self):
+        ctx = {"year": 2005, "target": "配偶星", "liunian": {"nian_zhi": "酉", "nian_gan": "乙", "shi_shen": "偏财"}}
+        self.assertEqual(_liu_op("大运窗口流年", ["目标星"], self._fac(), "male", None, ctx), 1)
+
+    def test_大运窗口流年_窗口外(self):
+        ctx = {"year": 1989, "target": "配偶星", "liunian": {}}
+        self.assertEqual(_liu_op("大运窗口流年", ["目标星"], self._fac(), "male", None, ctx), 0)
+
+    def test_大运窗口流年_非目标星大运(self):
+        # 丁卯=偏印运（非配偶星）——1995 窗口内但 shi_shen 不含目标星 → 0
+        fac = self._fac()
+        ctx = {"year": 1995, "target": "配偶星", "liunian": {}}
+        self.assertEqual(_liu_op("大运窗口流年", ["目标星"], fac, "male", None, ctx), 0)
+
+    def test_换运流年_首年(self):
+        ctx = {"year": 2001, "target": "配偶星", "liunian": {}}
+        self.assertEqual(_liu_op("换运流年", ["目标星"], self._fac(), "male", None, ctx), 1)
+
+    def test_换运流年_非首年(self):
+        ctx = {"year": 2005, "target": "配偶星", "liunian": {}}
+        self.assertEqual(_liu_op("换运流年", ["目标星"], self._fac(), "male", None, ctx), 0)
+
+    def test_当前大运干支(self):
+        # 用真实算子路径验证：当前大运干支是内部逻辑，通过大运窗口间接覆盖
+        ctx = {"year": 2005, "target": "配偶星", "liunian": {}}
+        self.assertEqual(_liu_op("大运窗口流年", ["目标星"], self._fac(), "male", None, ctx), 1)
+
+
+class TestYearlyIsolation(unittest.TestCase):
+    """外部评审 #2：本命快照查 yearly_* 必须隔离（不得命中纯本命约束的流年断语）。"""
+
+    def test_本命快照查yearly_拒绝(self):
+        from duanyu import query
+        ben = {"八字": {"财坏印": 1}, "紫微": {}}  # 本命快照（无流年特征标记）
+        res = query("yearly_liuqin", ben)
+        self.assertEqual(res["八字"], [])
+
+    def test_流年快照查yearly_正常命中(self):
+        from duanyu import query
+        liu = {"_snapshot_type": "liunian", "八字": {"财坏印": 1, "财坏印流年": 1}, "紫微": {}}  # 流年快照
+        res = query("yearly_liuqin", liu)
+        self.assertTrue(any(r.get("id") == "yliu_104" for r in res["八字"]))

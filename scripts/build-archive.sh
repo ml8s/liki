@@ -38,6 +38,9 @@ tar czf "$ARCHIVE" \
 
 DIGEST="sha256:$(sha256sum "$ARCHIVE" | awk '{print $1}')"
 
+# 内容指纹（外部评审 #1：版本同内容滞后自检须能发现）——随 archive 分发 content.sha256
+python3 "$PROJECT_DIR/tools/hash.py" "$PROJECT_DIR" "$PROJECT_DIR/content.sha256"
+
 # 从 SKILL.md frontmatter 读取 description（单一事实源，避免硬编码漂移）
 DESC="$(sed -n 's/^description: //p' "$SCRIPT_DIR/../SKILL.md" | head -1)"
 

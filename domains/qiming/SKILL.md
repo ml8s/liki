@@ -8,7 +8,7 @@
 
 | 方法 | 用途 |
 |------|------|
-| `qiming.pick` | 按五行取字（wuge=true 时按五格吉笔画取）|
+| `qiming.pick` | 按五行取字（**必填 `surname` + `wuxing1`（第 1 字五行：木火土金水）**；`wuxing2` 默认同 wuxing1；`wuge` 按五格吉笔画）|
 | `qiming.build` | 排列组合生成候选名（双名）|
 | `qiming.check` | 五格三才五行音韵判定 |
 | `qiming.char` | 单字五行/笔画/部首/拼音 |
