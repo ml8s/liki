@@ -3,75 +3,75 @@
     "gong_wei": [
       {
         "an_gan": "己",
-        "di_pan_gan": "癸",
-        "men": "生门",
-        "shen": "白虎",
-        "tian_pan_gan": "己",
+        "di_pan_gan": "庚",
+        "men": "开门",
+        "shen": "太阴",
+        "tian_pan_gan": "丙",
         "xing": "天禽"
       },
       {
         "an_gan": "庚",
-        "di_pan_gan": "壬",
-        "men": "伤门",
-        "shen": "六合",
-        "tian_pan_gan": "戊",
+        "di_pan_gan": "己",
+        "men": "休门",
+        "shen": "螣蛇",
+        "tian_pan_gan": "丁",
         "xing": "天心"
       },
       {
         "an_gan": "辛",
-        "di_pan_gan": "辛",
-        "men": "杜门",
-        "shen": "太阴",
-        "tian_pan_gan": "乙",
+        "di_pan_gan": "戊",
+        "men": "生门",
+        "shen": "值符",
+        "tian_pan_gan": "癸",
         "xing": "天柱"
       },
       {
         "an_gan": "壬",
-        "di_pan_gan": "庚",
-        "men": "景门",
-        "shen": "螣蛇",
-        "tian_pan_gan": "丙",
+        "di_pan_gan": "乙",
+        "men": "伤门",
+        "shen": "九天",
+        "tian_pan_gan": "壬",
         "xing": "天任"
       },
       {
-        "di_pan_gan": "己",
-        "tian_pan_gan": "丁",
+        "di_pan_gan": "丙",
+        "tian_pan_gan": "辛",
         "xing": "天英"
       },
       {
         "an_gan": "乙",
-        "di_pan_gan": "戊",
-        "men": "死门",
-        "shen": "值符",
-        "tian_pan_gan": "癸",
+        "di_pan_gan": "丁",
+        "men": "杜门",
+        "shen": "九地",
+        "tian_pan_gan": "庚",
         "xing": "天蓬"
       },
       {
         "an_gan": "丙",
-        "di_pan_gan": "乙",
-        "men": "惊门",
-        "shen": "九天",
-        "tian_pan_gan": "壬",
+        "di_pan_gan": "癸",
+        "men": "景门",
+        "shen": "玄武",
+        "tian_pan_gan": "己",
         "xing": "天芮"
       },
       {
         "an_gan": "丁",
-        "di_pan_gan": "丙",
-        "men": "开门",
-        "shen": "九地",
-        "tian_pan_gan": "辛",
+        "di_pan_gan": "壬",
+        "men": "死门",
+        "shen": "白虎",
+        "tian_pan_gan": "戊",
         "xing": "天冲"
       },
       {
         "an_gan": "戊",
-        "di_pan_gan": "丁",
-        "men": "休门",
-        "shen": "玄武",
-        "tian_pan_gan": "庚",
+        "di_pan_gan": "辛",
+        "men": "惊门",
+        "shen": "六合",
+        "tian_pan_gan": "乙",
         "xing": "天辅"
       }
     ],
-    "jushu": 6,
+    "jushu": 3,
     "kong_wang": [
       "坎",
       "艮"
@@ -83,31 +83,10 @@
     "shi_zhi": "午",
     "wu_bu_yu_shi": false,
     "yin_dun": true,
-    "zhi_fu_xing": "天蓬",
-    "zhi_shi_men": "休门"
+    "zhi_fu_xing": "天柱",
+    "zhi_shi_men": "惊门"
   },
   "gan_interaction": [
-    {
-      "di_pan_gan": "癸",
-      "tian_pan_gan": "己",
-      "name": "癸+己",
-      "meaning": "上克下，主胜于客",
-      "auspicious": false
-    },
-    {
-      "di_pan_gan": "壬",
-      "tian_pan_gan": "戊",
-      "name": "壬+戊",
-      "meaning": "小蛇化龙：男人发达，事业亨通",
-      "auspicious": true
-    },
-    {
-      "di_pan_gan": "辛",
-      "tian_pan_gan": "乙",
-      "name": "辛+乙",
-      "meaning": "白虎猖狂：家败人亡，远行多殃",
-      "auspicious": false
-    },
     {
       "di_pan_gan": "庚",
       "tian_pan_gan": "丙",
@@ -149,60 +128,81 @@
       "name": "丁+庚",
       "meaning": "行人必归：音信通达，行人必至",
       "auspicious": true
+    },
+    {
+      "di_pan_gan": "癸",
+      "tian_pan_gan": "己",
+      "name": "癸+己",
+      "meaning": "上克下，主胜于客",
+      "auspicious": false
+    },
+    {
+      "di_pan_gan": "壬",
+      "tian_pan_gan": "戊",
+      "name": "壬+戊",
+      "meaning": "小蛇化龙：男人发达，事业亨通",
+      "auspicious": true
+    },
+    {
+      "di_pan_gan": "辛",
+      "tian_pan_gan": "乙",
+      "name": "辛+乙",
+      "meaning": "白虎猖狂：家败人亡，远行多殃",
+      "auspicious": false
     }
   ],
   "men_interaction": [
     {
-      "door": "生门",
+      "door": "开门",
       "gong": "坎",
-      "name": "生门加坎",
-      "meaning": "利水生之财，或酒食之利"
+      "name": "开门加坎",
+      "meaning": "水路之吉，通行无碍"
+    },
+    {
+      "door": "休门",
+      "gong": "坤",
+      "name": "休门加坤",
+      "meaning": "求财得利，土木之工"
+    },
+    {
+      "door": "生门",
+      "gong": "震",
+      "name": "生加震",
+      "meaning": "吉门得地，谋事可成"
     },
     {
       "door": "伤门",
-      "gong": "坤",
-      "name": "伤加坤",
-      "meaning": "凶门当位，行事多阻"
-    },
-    {
-      "door": "杜门",
-      "gong": "震",
-      "name": "杜加震",
-      "meaning": "中平之门，需择时而行"
-    },
-    {
-      "door": "景门",
       "gong": "巽",
-      "name": "景加巽",
-      "meaning": "中平之门，需择时而行"
+      "name": "伤加巽",
+      "meaning": "凶门当位，行事多阻"
     },
     {
       "name": "",
       "meaning": ""
     },
     {
-      "door": "死门",
+      "door": "杜门",
       "gong": "乾",
-      "name": "死门加乾",
-      "meaning": "尊长有灾，出行不利"
+      "name": "杜门加乾",
+      "meaning": "公门不利，出行有阻"
+    },
+    {
+      "door": "景门",
+      "gong": "兑",
+      "name": "景加兑",
+      "meaning": "中平之门，需择时而行"
+    },
+    {
+      "door": "死门",
+      "gong": "艮",
+      "name": "死加艮",
+      "meaning": "凶门当位，行事多阻"
     },
     {
       "door": "惊门",
-      "gong": "兑",
-      "name": "惊门入兑",
-      "meaning": "口舌之灾，宜捕盗赌博"
-    },
-    {
-      "door": "开门",
-      "gong": "艮",
-      "name": "开门加艮",
-      "meaning": "山门之利，求财可得"
-    },
-    {
-      "door": "休门",
       "gong": "离",
-      "name": "休门加离",
-      "meaning": "和合得财，文书酒食"
+      "name": "惊加离",
+      "meaning": "凶门当位，行事多阻"
     }
   ],
   "xing_interaction": [
@@ -318,15 +318,18 @@
     }
   ],
   "men_po": [
-    "坎",
+    "兑"
+  ],
+  "men_zhi": [
     "坤",
+    "震",
+    "乾",
     "离"
   ],
-  "men_zhi": null,
   "patterns": [
     {
-      "name": "玉女守门",
-      "description": "值使门宫有丁，百事大吉",
+      "name": "三奇得使",
+      "description": "吉门得奇，百事可成",
       "auspicious": true,
       "gong_wei": [
         "离"
@@ -346,19 +349,24 @@
       "name": "人遁",
       "description": "丁+休门+太阴，和谈联姻得吉",
       "auspicious": true
+    },
+    {
+      "name": "反吟",
+      "description": "值符反位，凡事反复，动则有成",
+      "auspicious": false
     }
   ],
   "ying_qi": {
     "ma_xing_dir": "马星在未，冲则动，应期在丑、寅（年月日时）",
     "kong_wang_fill": "空亡在子 丑 寅，填实或冲空之时应事",
-    "zhi_fu_shi_dong": "值符天蓬加休，以时干戊为应",
+    "zhi_fu_shi_dong": "值符天柱加惊，以时干戊为应",
     "summary": "马星在未，冲则动，应期在丑、寅（年月日时）；空亡在子 丑 寅，填实或冲空之时应事"
   },
-  "ri_gan_gong": "坎",
-  "shi_gan_gong": "坤",
-  "ri_shi_sheng_ke": "时干(2宫)克日干(1宫)",
-  "kong_wang_affected": true,
-  "ma_xing_affected": true,
-  "zhi_fu_xing_gong": "乾",
+  "ri_gan_gong": "震",
+  "shi_gan_gong": "震",
+  "ri_shi_sheng_ke": "日干(3宫)与时干(3宫)比和",
+  "kong_wang_affected": false,
+  "ma_xing_affected": false,
+  "zhi_fu_xing_gong": "震",
   "zhi_shi_men_gong": "离"
 }

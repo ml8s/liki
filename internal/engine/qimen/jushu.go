@@ -31,27 +31,12 @@ func determineJuShu(year, month, day int, riGan ganzhi.Gan, riZhi ganzhi.Zhi) ju
 }
 
 // determineYuan returns 0=上元, 1=中元, 2=下元 based on the day pillar's position in the 60-cycle.
+// determineYuan returns 0=上元, 1=中元, 2=下元 based on the day pillar's position in the 60-cycle.
+//
+// 三元符头规则（《奇门遁甲》拆补法）：日干支序数 mod 15，
+// 0-4（甲子/己卯/甲午/己酉 符头段）→ 上元，5-9（己巳/甲申/己亥/甲寅）→ 中元，
+// 10-14（甲戌/己丑/甲辰/己未）→ 下元。即 (idx%15)/5：0上 1中 2下。
 func determineYuan(dayZhu ganzhi.Zhu) int {
 	dayIdx := ganzhi.SixtyCycleIndex(dayZhu.Gan, dayZhu.Zhi)
-
-	for _, start := range []int{0, 15, 30, 45} {
-		if inCycleRange(dayIdx, start, 5) {
-			return 0
-		}
-	}
-	for _, start := range []int{10, 25, 40, 55} {
-		if inCycleRange(dayIdx, start, 5) {
-			return 1
-		}
-	}
-	return 2
-}
-
-func inCycleRange(idx, start, length int) bool {
-	for i := 0; i < length; i++ {
-		if (idx+60)%60 == (start+i)%60 {
-			return true
-		}
-	}
-	return false
+	return (dayIdx % 15) / 5
 }

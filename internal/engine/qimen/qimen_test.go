@@ -457,29 +457,13 @@ func TestFindKongWang_AllXun(t *testing.T) {
 // =============================================================================
 
 func TestDetermineYuan_AllPositions(t *testing.T) {
-	// 上元(0): [0,5) [15,20) [30,35) [45,50)
-	// 中元(1): [10,15) [25,30) [40,45) [55,60)
-	// 下元(2): 其余
+	// 三元符头（拆补法）：(idx%15)/5 → 0-4 上元、5-9 中元、10-14 下元（60 日循环 4 组）。
 	for dayIdx := 0; dayIdx < 60; dayIdx++ {
 		g := int(ganzhi.Gan(dayIdx%10 + 1))
 		z := int(ganzhi.Zhi(dayIdx%12 + 1))
 		got := determineYuan(ganzhi.Zhu{Gan: ganzhi.Gan(g), Zhi: ganzhi.Zhi(z)})
 
-		var want int
-		switch {
-		case dayIdx >= 0 && dayIdx < 5: want = 0
-		case dayIdx >= 5 && dayIdx < 10: want = 2
-		case dayIdx >= 10 && dayIdx < 15: want = 1
-		case dayIdx >= 15 && dayIdx < 20: want = 0
-		case dayIdx >= 20 && dayIdx < 25: want = 2
-		case dayIdx >= 25 && dayIdx < 30: want = 1
-		case dayIdx >= 30 && dayIdx < 35: want = 0
-		case dayIdx >= 35 && dayIdx < 40: want = 2
-		case dayIdx >= 40 && dayIdx < 45: want = 1
-		case dayIdx >= 45 && dayIdx < 50: want = 0
-		case dayIdx >= 50 && dayIdx < 55: want = 2
-		default: want = 1
-		}
+		want := (dayIdx % 15) / 5
 
 		if got != want {
 			t.Errorf("dayIdx=%d (%s%s): determineYuan=%d, want %d",

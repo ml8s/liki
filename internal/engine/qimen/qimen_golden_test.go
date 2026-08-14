@@ -51,23 +51,28 @@ func TestGoldenComputeChart(t *testing.T) {
 // 日干落坎、时干落坤；坤土克坎水；空亡（子丑寅）与马星（未）命中日/时干宫。
 func assertChartAnchors(t *testing.T, chart Chart) {
 	t.Helper()
-	if chart.RiGanPalace != GongKan {
-		t.Errorf("ri_gan_gong = %d, want 坎(1)", chart.RiGanPalace)
+	// 2026-06-28 午时：夏至中元（癸酉日）→ 阴遁3局。日干癸落震、时干戊落震（比和）；
+	// 时柱戊午（甲寅旬）空子丑（坎艮）；午→寅午戌马在申（坤）。
+	if chart.Pan.Jushu != 3 {
+		t.Errorf("jushu = %d, want 3（夏至中元 阴遁3局）", chart.Pan.Jushu)
 	}
-	if chart.ShiGanPalace != GongKun {
-		t.Errorf("shi_gan_gong = %d, want 坤(2)", chart.ShiGanPalace)
+	if !chart.Pan.YinDun {
+		t.Error("yin_dun = false, want true（夏至后阴遁）")
 	}
-	if chart.RiShiShengKe != "时干(2宫)克日干(1宫)" {
-		t.Errorf("ri_shi_sheng_ke = %q, want 时干(2宫)克日干(1宫)", chart.RiShiShengKe)
+	if chart.RiGanPalace != GongZhen {
+		t.Errorf("ri_gan_gong = %d, want 震(3)", chart.RiGanPalace)
 	}
-	if !chart.KongWangAffected {
-		t.Error("kong_wang_affected = false, want true")
+	if chart.ShiGanPalace != GongZhen {
+		t.Errorf("shi_gan_gong = %d, want 震(3)", chart.ShiGanPalace)
 	}
-	if !chart.MaXingAffected {
-		t.Error("ma_xing_affected = false, want true")
+	if chart.RiShiShengKe != "日干(3宫)与时干(3宫)比和" {
+		t.Errorf("ri_shi_sheng_ke = %q, want 日干(3宫)与时干(3宫)比和", chart.RiShiShengKe)
 	}
-	if chart.Pan.Jushu <= 0 {
-		t.Errorf("jushu = %d, want > 0", chart.Pan.Jushu)
+	if chart.KongWangAffected {
+		t.Error("kong_wang_affected = true, want false（日时干震不在空亡坎艮）")
+	}
+	if chart.MaXingAffected {
+		t.Error("ma_xing_affected = true, want false（马星坤不在日时干震）")
 	}
 	if len(chart.Patterns) == 0 {
 		t.Error("patterns empty")
