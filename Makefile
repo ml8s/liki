@@ -24,10 +24,10 @@ check: lint vet build test
 test:
 	go test ./internal/... -count=1
 
-update: ## 拉取最新引擎代码（部署/测试前必做）
+update: ## 拉取最新引擎代码（部署前手动同步用）
 	git pull --ff-only origin master
 
-test-all: update
+test-all: ## 全量测试（lint + vet + unit race + integration + RPC 冒烟）
 	scripts/ci-engine.sh
 
 clean:
