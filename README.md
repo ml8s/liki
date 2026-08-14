@@ -1,8 +1,20 @@
 # liki-engine — 开源命理计算引擎
 
-[![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-green)](./LICENSE)
-[![CI](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml)
+<p align="center">
+  <img alt="liki-engine" src="https://img.shields.io/badge/liki_engine-开源命理计算引擎-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+</p>
+
+<p align="center">
+  <strong>liki-engine — 开源命理计算引擎（v2.6.12）</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/ml8s/liki-engine"><img src="https://img.shields.io/badge/GitHub-ml8s/liki_engine-4a9e6b?style=flat&logo=github&logoColor=white&labelColor=30305c"></a>
+  <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-官方网站-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
+  <a href="https://github.com/ml8s/liki-engine/actions/workflows/ci.yml"><img src="https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://go.dev"><img src="https://img.shields.io/badge/Go-1.26-00ADD8?style=flat&logo=go&logoColor=white&labelColor=30305c"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
+</p>
 
 **liki-engine** 是一个独立的开源命理计算引擎：以 JSON-RPC 提供 **32 个 API**（31 个 RPC + `rpc.discover`），覆盖**八字、紫微斗数、六爻、奇门遁甲、起名、黄历、八宅、玄空** 8 个领域的天文历算与命理数值计算。**不依赖任何上层 Skill**——你可以直接把它集成到自己的 Web 应用、移动端、桌面工具或任意 AI 框架中。
 
