@@ -175,93 +175,69 @@ func TestFlyStars(t *testing.T) {
 //
 //	乾亥辰巽巳戌→6(武曲), 酉辛丑艮丙→7(破军), 寅午庚丁→9(右弼)
 func TestTiXingTable(t *testing.T) {
-	// Map mountain name → expected替星 (0 means no替/use original)
+	// 替卦十三山（中州派口诀）：甲申→1、壬卯乙→2、辰巽巳→6、丑艮丙→7、庚寅→9
 	wantMap := map[string]int{
-		"子": 1, "癸": 1, "甲": 1, "申": 1, // 贪狼1
-		"壬": 2, "卯": 2, "乙": 2, "未": 2, "坤": 2, // 巨门2
-		"乾": 6, "亥": 6, "辰": 6, "巽": 6, "巳": 6, "戌": 6, // 武曲6
-		"酉": 7, "辛": 7, "丑": 7, "艮": 7, "丙": 7, // 破军7
-		"寅": 9, "午": 9, "庚": 9, "丁": 9, // 右弼9
+		"甲": 1, "申": 1,
+		"壬": 2, "卯": 2, "乙": 2,
+		"辰": 6, "巽": 6, "巳": 6,
+		"丑": 7, "艮": 7, "丙": 7,
+		"庚": 9, "寅": 9,
 	}
-
 	for i, m := range fengshui.Mountains24Table {
 		want, ok := wantMap[m.Name]
-		if !ok {
-			continue // mountain not in替星口诀, skip
-		}
-		got := tiXingTable[i]
-		if got != want {
-			t.Errorf("tiXingTable[%d=%s] = %d, want %d (per替星口诀)", i, m.Name, got, want)
+		if ok {
+			if got := needTiXing[i]; got != want {
+				t.Errorf("needTiXing[%d=%s] = %d, want %d (替卦十三山)", i, m.Name, got, want)
+			}
+		} else {
+			if got := needTiXing[i]; got != 0 {
+				t.Errorf("needTiXing[%d=%s] = %d, want 0 (自身重复无须寻替)", i, m.Name, got)
+			}
 		}
 	}
 }
 
-// TestTiXingShanStar verifies替星 substitution logic for山星.
 func TestTiXingShanStar(t *testing.T) {
-	// 地元龙 → should substitute (return non-zero)
-	t.Run("地元龙_有替", func(t *testing.T) {
-		// 甲(5) is地元龙 → should use替星
-		got := tiXingShanStar(5)
-		if got == 0 {
-			t.Error("地元龙甲 should have替星")
+	// 替卦十三山：甲(5)→1、巽(9)→6（天元龙亦替）、艮(3)→7（天元龙亦替）
+	cases := []struct {
+		idx  int
+		want int
+		why  string
+	}{
+		{5, 1, "甲=地元龙应替贪狼1"},
+		{9, 6, "巽=天元龙亦应替武曲6（巽卦三山皆武曲）"},
+		{3, 7, "艮=天元龙亦应替破军7（艮丙山替破军）"},
+		{0, 0, "子=自身重复无须寻替"},
+		{15, 0, "坤=自身重复无须寻替"},
+	}
+	for _, c := range cases {
+		if got := tiXingShanStar(c.idx); got != c.want {
+			t.Errorf("tiXingShanStar(%d) = %d, want %d (%s)", c.idx, got, c.want, c.why)
 		}
-	})
-
-	// 天元龙 → should NOT substitute (return 0)
-	t.Run("天元龙_无替", func(t *testing.T) {
-		// 子(0) is天元龙 → should NOT use替星
-		got := tiXingShanStar(0)
-		if got != 0 {
-			t.Errorf("天元龙子 should return 0 (no替), got %d", got)
-		}
-	})
-
-	// 人元龙 → should substitute
-	t.Run("人元龙_有替", func(t *testing.T) {
-		// 癸(1) is人元龙 → should use替星
-		got := tiXingShanStar(1)
-		if got == 0 {
-			t.Error("人元龙癸 should have替星")
-		}
-	})
+	}
 }
 
-// TestSubstituteStarUsage verifies that替星 is actually used in chart computation.
 func TestSubstituteStarUsage(t *testing.T) {
-	// 甲山庚向 (both are地元龙, should trigger替星)
-	// 甲=idx5(地元龙), 庚=idx17(地元龙)
-	chart := computeChart(5, 17, 2024)
+	// 正向（下卦）不用替星：八运甲山庚向（地元龙），山星=震宫运星6 入中（非替星1），
+	// 向星=兑宫运星1 入中（非替星9）。《沈氏玄空学》：替星仅用于兼向（替卦）。
+	chart := computeChart(5, 17, 2010) // 甲山庚向（2010=八运）
 
-	// After替星 substitution, the山星 and向星 should differ from
-	// what they would be without替星 (i.e., the raw period star values).
-	// Basic sanity: chart should not be empty.
 	if chart.Yun.YunNumber == 0 {
 		t.Fatal("chart is empty")
 	}
-
-	// Verify坐向 are stored correctly.
-	if chart.SitMountain != 5 {
-		t.Errorf("SitMountain = %d, want 5", chart.SitMountain)
+	// 中宫入中星：山星=6（八运运盘震宫运星）、向星=1（运盘兑宫运星）。
+	if got := chart.Palaces[4].MountainStar.Number; got != 6 {
+		t.Errorf("甲山正向山星入中 = %d, want 6（下卦不用替）", got)
 	}
-	if chart.FaceMountain != 17 {
-		t.Errorf("FaceMountain = %d, want 17", chart.FaceMountain)
+	if got := chart.Palaces[4].FacingStar.Number; got != 1 {
+		t.Errorf("庚向正向向星入中 = %d, want 1（下卦不用替）", got)
 	}
-
-	// Verify all 9 palaces have valid stars.
-	for i, p := range chart.Palaces {
-		if p.PeriodStar.Number < 1 || p.PeriodStar.Number > 9 {
-			t.Errorf("palace %d: invalid period star %d", i, p.PeriodStar.Number)
-		}
-		if p.MountainStar.Number < 1 || p.MountainStar.Number > 9 {
-			t.Errorf("palace %d: invalid mountain star %d", i, p.MountainStar.Number)
-		}
-		if p.FacingStar.Number < 1 || p.FacingStar.Number > 9 {
-			t.Errorf("palace %d: invalid facing star %d", i, p.FacingStar.Number)
-		}
+	// 权威：八运甲山庚向=双星会坐（坐宫震山星8=当令 + 坐宫向星8=当令）。
+	if !chart.ShanXing {
+		t.Errorf("八运甲山庚向应双星会坐（shan_xing=true）")
 	}
 }
 
-// TestChartInvalidInput verifies bounding behavior for invalid mountain indices.
 func TestChartInvalidInput(t *testing.T) {
 	// Negative indices → empty chart
 	chart := computeChart(-1, 2, 2024)

@@ -44,10 +44,7 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 	sitPalace := mountainPalace(sitMountain)
 	sitPeriodStar := periodStars[sitPalace-1]
 	shanNum := sitPeriodStar.Number
-
-	if ti := tiXingShanStar(sitMountain); ti > 0 {
-		shanNum = ti
-	}
+	// 下卦（正向）不用替星：API 输入为山向 index（无兼向度数），按正向排盘。
 	shanForward := shanXiangForward(shanNum, sitMountain)
 	mountainStars := flyStars(shanNum, shanForward)
 
@@ -55,10 +52,7 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 	facePalace := mountainPalace(faceMountain)
 	facePeriodStar := periodStars[facePalace-1]
 	xiangNum := facePeriodStar.Number
-
-	if ti := tiXingXiangStar(faceMountain); ti > 0 {
-		xiangNum = ti
-	}
+	// 同上：正向不用替星。
 	xiangForward := shanXiangForward(xiangNum, faceMountain)
 	facingStars := flyStars(xiangNum, xiangForward)
 
@@ -187,52 +181,41 @@ func (p *Chart) evaluate() {
 	p.FanYin = false // 运盘恒顺飞，无反吟
 }
 
-// tiXingTable maps 24 mountain index → substitute star number (1-9).
-// Based on玄空替星口诀: 子癸甲申→1(贪狼), 壬卯乙未坤→2(巨门),
-// 乾亥辰巽巳戌→6(武曲), 酉辛丑艮丙→7(破军), 寅午庚丁→9(右弼).
-var tiXingTable = [24]int{
-	1, // 子(0) → 1 贪狼
-	1, // 癸(1) → 1 贪狼
-	7, // 丑(2) → 7 破军
-	7, // 艮(3) → 7 破军
-	9, // 寅(4) → 9 右弼
-	1, // 甲(5) → 1 贪狼
-	2, // 卯(6) → 2 巨门
-	2, // 乙(7) → 2 巨门
-	6, // 辰(8) → 6 武曲
-	6, // 巽(9) → 6 武曲
-	6, // 巳(10) → 6 武曲
-	7, // 丙(11) → 7 破军
-	9, // 午(12) → 9 右弼
-	9, // 丁(13) → 9 右弼
-	2, // 未(14) → 2 巨门
-	2, // 坤(15) → 2 巨门
-	1, // 申(16) → 1 贪狼
-	9, // 庚(17) → 9 右弼
-	7, // 酉(18) → 7 破军
-	7, // 辛(19) → 7 破军
-	6, // 戌(20) → 6 武曲
-	6, // 乾(21) → 6 武曲
-	6, // 亥(22) → 6 武曲
-	2, // 壬(23) → 2 巨门
-}
-
 func tiXingShanStar(sitIdx int) int {
-	num := tiXingTable[sitIdx%24]
-	sit := fengshui.Mountains24Table[sitIdx%24]
-	if sit.YuanLong != "天元龙" {
-		return num
-	}
-	return 0
+	return needTiXing[sitIdx%24]
 }
 
+// tiXingXiangStar returns the 替星 for a facing mountain (兼向替卦用，规则同上).
 func tiXingXiangStar(faceIdx int) int {
-	num := tiXingTable[faceIdx%24]
-	face := fengshui.Mountains24Table[faceIdx%24]
-	if face.YuanLong != "天元龙" {
-		return num
-	}
-	return 0
+	return needTiXing[faceIdx%24]
+}
+
+// needTiXing maps mountain index → 替星数（替卦十三山）；非十三山无替（0）。
+var needTiXing = [24]int{
+	0, // 子(0)
+	0, // 癸(1)
+	7, // 丑(2) → 破军7
+	7, // 艮(3) → 破军7（天元龙亦替）
+	9, // 寅(4) → 右弼9
+	1, // 甲(5) → 贪狼1
+	2, // 卯(6) → 巨门2
+	2, // 乙(7) → 巨门2
+	6, // 辰(8) → 武曲6
+	6, // 巽(9) → 武曲6（天元龙亦替）
+	6, // 巳(10) → 武曲6
+	7, // 丙(11) → 破军7
+	0, // 午(12)
+	0, // 丁(13)
+	0, // 未(14)
+	0, // 坤(15)
+	1, // 申(16) → 贪狼1
+	9, // 庚(17) → 右弼9
+	0, // 酉(18)
+	0, // 辛(19)
+	0, // 戌(20)
+	0, // 乾(21)
+	0, // 亥(22)
+	2, // 壬(23) → 巨门2
 }
 
 // -- 双星加会 (Double Star Combination) --------------------------------
