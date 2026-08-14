@@ -27,3 +27,4 @@ __pycache__/
 
 # 数据检查产物（可重新生成）
 tests/RESULTS.md
+tests/evals/*.log
