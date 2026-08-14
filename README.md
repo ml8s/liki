@@ -1,16 +1,24 @@
-# liki-engine — Liki 灵机 命理计算引擎
+# liki-engine — 开源命理计算引擎
 
 [![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green)](./LICENSE)
 [![CI](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml)
 
-liki-engine 是 [Liki 灵机](https://github.com/ml8s/liki-skills) 的底层计算引擎，提供 46 个 JSON-RPC 命理 API：八字、紫微斗数、奇门遁甲、六爻、起名、黄历、风水等。
+**liki-engine** 是一个独立的开源命理计算引擎：以 JSON-RPC 提供 **37 个 API**，覆盖**八字、紫微斗数、六爻、奇门遁甲、起名、黄历、八宅、玄空** 8 个领域的天文历算与命理数值计算。**不依赖任何上层 Skill**——你可以直接把它集成到自己的 Web 应用、移动端、桌面工具或任意 AI 框架中。
 
-Liki 灵机 由以下部分组成：
-- **[liki](https://github.com/ml8s/liki)**：Skill 仓库（流程定义 + 方法论文档）
-- **liki-engine**（本仓库）：核心计算引擎，提供精确的命理数值计算
+**它能帮你解决什么**：不用自己实现真太阳时校正、节气计算（VSOP87 秒级精度）、时区夏令时、农历闰月、紫微排盘等极易出错的底层算法——一个 `POST /jsonrpc` 就能拿到精确命盘数据。
 
-> 对 AI agent：请访问 [liki](https://github.com/ml8s/liki) 获取技能定义和工作流指引。官网：[liki.hk](https://liki.hk)。
+## 为什么可以用它
+
+**① 天文精度，非近似** — 节气时刻用寿星历 VSOP87D（移植 lunar ShouXingUtil）：章动/光行差/ΔT 全考虑，精度 ±15min → **秒级**（夏至 2026 与 lunar 差 2 秒）；真太阳时校正、夏令时、经纬度时区、闰月全部按天文算法。
+
+**② 数据驱动测试保障** — 每个核心算法都有 golden 数据锚定：
+- **115 个八字 golden 命例**：四柱/大运/节气边界/时辰边界/时区/起运精度
+- **紫微 150+100 条**：complete_test + flow_golden（命宫/四化/大限流年）
+- **流年 golden 7 条**（手算锚点，非自证）+ 流年/流月/流日神煞单元测试（年支+日支双查、值年神煞全分支）
+- 14 个测试包全绿，`make test` 可复现
+
+**③ 独立部署，零依赖** — 单二进制（Go 编译），或 Docker 多阶段构建；启动即用，无外部服务依赖。
 
 ## 快速开始
 
@@ -29,60 +37,73 @@ curl -s http://localhost:8080/jsonrpc \
 
 所有响应同一格式：`{"jsonrpc":"2.0","result":{"_product":"<method>","data":{...}}}`。
 
-## API 总览
+## API 总览（37 个）
 
 全部通过 `POST /jsonrpc`，标准 JSON-RPC 2.0，仅支持命名参数。每个方法详参可通过 `rpc.discover` 自省。
 
 | 领域 | 方法数 | 方法 |
 |------|--------|------|
-| 八字 | 12 | chart fullchart yongshen hehui chart_extra bond liunian liuyue liuri liushi xiaoyun xiaoxian |
-| 紫微斗数 | 9 | chart daxian fullchart liunian liuyue liuri liushi judgment bond |
-| 起名 | 5 | char pick build wuge check |
-| 黄历 | 4 | date month bond.date bond.month |
+| 八字 | 10 | chart fullchart yongshen bond liunian liuyue liuri liushi xiaoyun xiaoxian |
+| 紫微斗数 | 8 | chart daxian fullchart liunian liuyue liuri liushi bond |
+| 起名 | 4 | char pick build check |
 | 八宅风水 | 3 | minggua chart judgment |
-| 玄空飞星 | 3 | sanyuan annual chart |
-| 六爻纳甲 | 3 | qigua chart judgment |
-| 奇门遁甲 | 3 | chart judgment select |
-| 工具 | 3 | time.now tianwen.time city |
+| 玄空飞星 | 3 | annual chart sanyuan |
+| 六爻纳甲 | 2 | qigua chart |
+| 奇门遁甲 | 2 | chart judgment |
+| 黄历 | 1 | days |
+| 工具 | 4 | city time.now tianwen.time rpc.discover |
 
-### 自省
+### 自省（rpc.discover）
+
+`rpc.discover` 返回 OpenRPC 1.4.1 文档（含所有方法的 `params`/`result` schema），支持**子域按需加载**：
 
 ```bash
+# 全量（所有方法 schema）
 curl -s http://localhost:8080/jsonrpc \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{}}'
+
+# 子域加载（methods 逗号分隔；支持精确方法名 + 领域前缀）
+curl -s http://localhost:8080/jsonrpc \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{"methods":"tianwen.time,bazi.chart,ziwei.liunian"}}'
+
+curl -s http://localhost:8080/jsonrpc \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{"methods":"bazi,ziwei"}}'
 ```
 
-返回完整的 OpenRPC 1.4.1 文档，包含所有方法的 `params`/`result` schema。
+- **无 `methods`** → 返回全部方法 schema（体积较大 ~30KB）
+- **`methods` 逗号分隔** → 按需过滤，支持两种写法：
+  - 精确方法名：`bazi.chart`、`ziwei.liunian`
+  - **领域前缀（子域）**：`bazi` → 该域全部方法；`ziwei` → 紫微域全部
+- **用途**：AI agent / 客户端按场景只加载所需方法 schema，减少上下文与请求体积（如排盘场景只需 `tianwen.time,bazi,ziwei`）
 
 ## 端点
 
-| 路径 | 说明 |
+| 端点 | 说明 |
 |------|------|
-| `POST /jsonrpc` | JSON-RPC 2.0 端点 |
-| `GET /health` | 健康检查 |
-| `GET /version` | 构建版本 |
+| `POST /jsonrpc` | JSON-RPC 2.0 主入口（唯一） |
+| `GET /healthz` | 健康检查 |
 
 ## 领域方法详情
 
-### 八字（12）
+### 八字（10）
 
 | 方法 | 功能 |
 |------|------|
 | `bazi.chart` | 排盘：四柱+纳音+大运+性别（最小集）。如需完整十神/藏干/神煞/长生/空亡，传入 `bazi.fullchart` |
-| `bazi.fullchart` | 扩展命盘：传入 `bazi.chart` 的结果，补全十神、藏干、神煞、长生、空亡、自合、魁罡 |
+| `bazi.fullchart` | 扩展命盘：补全十神、藏干、神煞、长生、空亡、自合、魁罡 |
 | `bazi.yongshen` | 用神分析：扶抑（旺衰）、调候（穷通宝鉴）、格局（子平）三派综合 |
-| `bazi.hehui` | 合会冲刑：天干五合、地支六合/三合局/三会方、六冲、六害、相刑 |
-| `bazi.chart_extra` | 补充信息：三元（胎元/命宫/身宫）、拱夹、纳音生克、长生十二宫 |
 | `bazi.bond` | 双人合盘：日主、天干关系、地支关系、纳音、五行互补 |
-| `bazi.liunian` | 流年运势：干支/十神/神煞/伏吟反吟。流年神煞=动态 9 种（桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天乙贵人/羊刃，年支+日支双查）+ 值年 4 种（病符/丧门/吊客/大耗，命局四柱逢煞支即应，`shensha[].name` 在 schema enum 声明） |
+| `bazi.liunian` | 流年运势：干支/十神/神煞/伏吟反吟。流年神煞=动态 9 种（年支+日支双查）+ 值年 4 种（病符/丧门/吊客/大耗，`shensha[].name` 在 schema enum 声明） |
 | `bazi.liuyue` | 流月运势 |
 | `bazi.liuri` | 流日运势 |
 | `bazi.liushi` | 流时运势 |
 | `bazi.xiaoyun` | 小运 |
 | `bazi.xiaoxian` | 小限 |
 
-### 紫微斗数（9）
+### 紫微斗数（8）
 
 | 方法 | 功能 |
 |------|------|
@@ -93,67 +114,61 @@ curl -s http://localhost:8080/jsonrpc \
 | `ziwei.liuyue` | 流月：命宫+四化+月星 |
 | `ziwei.liuri` | 流日：命宫+四化+日星 |
 | `ziwei.liushi` | 流时：命宫+四化+时星 |
-| `ziwei.judgment` | 论断：格局+四化+三方四正+评级 |
 | `ziwei.bond` | 合盘：命宫互入+夫妻宫+吉煞星+四化+五行生克 |
 
-### 起名（5）
+### 起名（4）
 
 | 方法 | 功能 |
 |------|------|
-| `qiming.char` | 查字：查询单个汉字的五行、笔画、部首、拼音 |
-| `qiming.pick` | 按五行取字（分笔画组），用神/喜神需分两次调用 |
-| `qiming.build` | 组名：传入字库和笔画约束对，全量排列生成候选名 |
-| `qiming.wuge` | 查五格可行笔画对：返回人/地/外/总四格全吉的笔画组合 |
-| `qiming.check` | 批量评估名字：五格、三才、五行、音韵全量判定 |
+| `qiming.char` | 单字分析：五行/笔画/吉凶 |
+| `qiming.pick` | 选字：按姓氏/五行/笔画 |
+| `qiming.build` | 组名：候选字组合+三才五格 |
+| `qiming.check` | 校验：给定名字的三才五格吉凶 |
 
-### 黄历（4）
+### 黄历（1）
 
 | 方法 | 功能 |
 |------|------|
-| `huangli.date` | 按日查宜忌，含时辰吉凶 |
-| `huangli.month` | 按月查宜忌 |
-| `huangli.bond.date` | 八字合参择日 |
-| `huangli.bond.month` | 八字合参择月 |
+| `huangli.days` | 每日宜忌/吉神凶煞 |
 
 ### 八宅风水（3）
 
 | 方法 | 功能 |
 |------|------|
-| `bazhai.minggua` | 命卦查询：东四命/西四命、命卦、四吉四凶方 |
-| `bazhai.chart` | 综合命卦与飞星分析 |
-| `bazhai.judgment` | 门主灶论断：分析门/主/灶卦位与命卦配合吉凶 |
+| `bazhai.minggua` | 命卦计算 |
+| `bazhai.chart` | 八宅盘：门主灶 |
+| `bazhai.judgment` | 宅运论断 |
 
 ### 玄空飞星（3）
 
 | 方法 | 功能 |
 |------|------|
-| `xuankong.sanyuan` | 三元九运查询 |
-| `xuankong.annual` | 流年飞星：入中星、九宫飞布、吉凶评级 |
-| `xuankong.chart` | 山向飞星盘 |
+| `xuankong.annual` | 年飞星盘 |
+| `xuankong.chart` | 坐向盘：元运/山向星 |
+| `xuankong.sanyuan` | 三元九运 |
 
-### 六爻纳甲（3）
-
-| 方法 | 功能 |
-|------|------|
-| `liuyao.qigua` | 起卦：三枚铜钱随机摇六次 |
-| `liuyao.chart` | 装卦分析：纳甲、六亲、六兽、用神、旺衰、应期 |
-| `liuyao.judgment` | 断卦：传入 chart + 事件类型，返回用神状态和评级 |
-
-### 奇门遁甲（3）
+### 六爻纳甲（2）
 
 | 方法 | 功能 |
 |------|------|
-| `qimen.chart` | 排盘：天盘、人盘、神盘、九星八门格局。`kind` 默认 `shi`（时家），可选 `ri`/`yue`/`nian` |
-| `qimen.judgment` | 断事：分析用神状态、吉凶格局、门宫生克，输出评级和断语 |
-| `qimen.select` | 择吉选时：在日期范围内遍历时辰，按事件类型评分排序，返回最佳时段 |
+| `liuyao.qigua` | 起卦（随机/时间） |
+| `liuyao.chart` | 装卦：六亲/六神/世应 |
 
-### 工具（3）
+### 奇门遁甲（2）
 
 | 方法 | 功能 |
 |------|------|
-| `time.now` | 服务端当前时间（UTC、本地、北京时间） |
-| `tianwen.time` | 根据公历时间和经度计算真太阳时，返回公历、真太阳时、农历三套时间 |
-| `city` | 根据城市名查经纬度（基于 OpenStreetMap Nominatim） |
+| `qimen.chart` | 排盘：九宫/八门/九星/八神 |
+| `qimen.judgment` | 断事：用神/应期/吉凶 |
+
+### 工具（4）
+
+| 方法 | 功能 |
+|------|------|
+| `tianwen.time` | 真太阳时校正、农历转换 |
+| `city` | 城市经纬度查询 |
+| `time.now` | 当前时间 |
+| `rpc.discover` | OpenRPC 自省 |
 
 ## 性能
 
@@ -165,23 +180,56 @@ curl -s http://localhost:8080/jsonrpc \
 | `liuyao.chart` | ~10µs | 0.1KB, 2 allocs |
 | `qimen.chart` | ~26µs | 1.5KB, 36 allocs |
 | `qimen.judgment` | ~2µs | 0.2KB, 5 allocs |
-| `qimen.select`（1天） | ~494µs | 38KB, 729 allocs |
 
 `go test -bench=. -benchmem` 测量。
+
+## 测试与精度
+
+```bash
+make test        # 14 个测试包全绿
+go test ./... -count=1
+```
+
+- **115 个八字 golden 命例**：四柱/大运/节气边界/时辰边界/时区/起运精度（testdata/bazi_golden*.json）
+- **紫微 250 条**：complete_test（150）+ flow_golden（100）+ 文昌/文曲亮度（iztro 生成）
+- **流年 golden 7 条**：手算锚点（非引擎自证），覆盖年支/日支动态神煞 + 值年神煞全组合
+- **经典参考测试**：《滴天髓》《子平真诠》《穷通宝鉴》案例
+- **schema 一致性**：Go 输出字段 vs OpenRPC schema 全量比对 + 神煞 enum 保障
+
+## 部署
+
+```bash
+# Docker
+docker build -t liki-engine .
+docker run -p 8080:8080 liki-engine
+
+# 或直接跑二进制（构建产物零外部依赖）
+./liki -addr :8080
+```
+
+## 与 Liki Skill 的关系
+
+[liki](https://github.com/ml8s/liki) 是一个基于本引擎的上层 AI Skill（流程定义 + 方法论文档 + 评测体系）。**本引擎独立可用**——Skill 只是众多可能的上层应用之一；你也可以用它构建自己的应用。
 
 ## 项目结构
 
 ```
-├── cmd/liki/           # 主入口
-├── internal/
-│   ├── engine/         # 领域引擎（bazi/ziwei/qimen/liuyao/huangli/xuankong/bazhai/qiming/ganzhi/tianwen/fengshui）
-│   ├── agent/          # JSON-RPC 注册和路由
-│   └── http/           # HTTP 服务和中间件
-├── scripts/test-rpc.sh # 冒烟测试（94 个断言）
-├── .githooks/          # Git hooks
-└── .github/workflows/  # CI
+├── cmd/liki/       ← 入口（HTTP JSON-RPC 服务）
+├── internal/engine/ ← 各领域计算核心
+│   ├── bazi/       ← 八字（排盘/用神/格局/流年/神煞）
+│   ├── ziwei/      ← 紫微（排盘/大限/流年/合盘）
+│   ├── qiming/     ← 起名
+│   ├── huangli/    ← 黄历
+│   ├── liuyao/     ← 六爻
+│   ├── qimen/      ← 奇门
+│   ├── bazhai/     ← 八宅
+│   ├── xuankong/   ← 玄空
+│   ├── tianwen/    ← 天文（真太阳时/节气/农历）
+│   └── ganzhi/     ← 干支基础
+├── internal/agent/ ← RPC 注册 + schema（OpenRPC）
+└── internal/http/  ← HTTP 层
 ```
 
 ## License
 
-AGPL-3.0
+AGPL-3.0。命理结论为传统文化视角，仅供参考，不构成专业建议。
