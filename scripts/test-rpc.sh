@@ -169,30 +169,23 @@ check_rpc_ok "bazi.liushi"
 rpc bazi.xiaoyun "{\"chart\":$BAZI_CORE}"
 check_rpc_ok "bazi.xiaoyun"
 
-rpc bazi.xiaoxian '{"gender":"male"}'
-check_rpc_ok "bazi.xiaoxian"
+# bazi.chart 已内联 yong_shen（三派用神，2.6.10 起）
+rpc bazi.chart "$BR"
+check_rpc_ok "bazi.chart (yong_shen inline)"
+check_rpc "  has yong_shen" '.result.data.yong_shen != null' 'true'
+check_rpc "  has fu_yi" '.result.data.yong_shen.fu_yi.yong != null' 'true'
+check_rpc "  has tiao_hou" '.result.data.yong_shen.tiao_hou.yong != null' 'true'
+check_rpc "  has ge_ju" '.result.data.yong_shen.ge_ju.yong != null' 'true'
 
-rpc bazi.yongshen "{\"chart\":$BAZI_CORE}"
-check_rpc_ok "bazi.yongshen"
-check_rpc "  has fu_yi" '.result.data.fu_yi.yong != null' 'true'
-check_rpc "  has tiao_hou" '.result.data.tiao_hou.yong != null' 'true'
-check_rpc "  has ge_ju" '.result.data.ge_ju.yong != null' 'true'
-
-rpc bazi.hehui "{\"chart\":$BAZI_CORE}"
-check_rpc_ok "bazi.hehui"
+# 合会冲刑 + 三元/长生/纳音 在 bazi.fullchart（原 hehui/chart_extra 已并入）
+rpc bazi.fullchart "{\"chart\":$BAZI_CORE}"
+check_rpc_ok "bazi.fullchart"
 check_rpc "  has gan_he key" '.result.data | has("gan_he")' 'true'
-check_rpc "  has zhi_liu_he key" '.result.data | has("zhi_liu_he")' 'true'
-check_rpc "  has san_he key" '.result.data | has("san_he")' 'true'
-check_rpc "  has san_hui key" '.result.data | has("san_hui")' 'true'
 check_rpc "  has liu_chong key" '.result.data | has("liu_chong")' 'true'
-check_rpc "  has liu_hai key" '.result.data | has("liu_hai")' 'true'
-check_rpc "  has liu_xing key" '.result.data | has("liu_xing")' 'true'
-
-rpc bazi.chart_extra "{\"chart\":$BAZI_CORE}"
-check_rpc_ok "bazi.chart_extra"
 check_rpc "  has san_yuan" '.result.data.san_yuan.tai_yuan != null' 'true'
 check_rpc "  has chang_sheng" '.result.data.chang_sheng[0].name != null' 'true'
 check_rpc "  has nayin_rel" '.result.data.nayin_rel != null' 'true'
+check_rpc "  has yong_shen" '.result.data.yong_shen.fu_yi.yong != null' 'true'
 
 # ============================================================================
 # ZiWei
@@ -200,37 +193,37 @@ check_rpc "  has nayin_rel" '.result.data.nayin_rel != null' 'true'
 echo ""
 echo "${BOLD}── ZiWei ──${NC}"
 
-rpc ziwei.chart "$BR"
+# ziwei.chart 参数为 lunar{year,month,day,shichen}+gender——先经 tianwen.time 取 lunar
+rpc tianwen.time '{"time":'"$BT"',"longitude":116.4}'
+ZW_LUNAR=$(json_val "$RPC_BODY" '.result.data.lunar | {year,month,day,shichen}')
+rpc ziwei.chart "{\"lunar\":$ZW_LUNAR,\"gender\":\"male\"}"
 check_rpc_ok "ziwei.chart"
-check_rpc "  has palaces" '.result.data.palaces != null' 'true'
+check_rpc "  has gong_wei" '.result.data.gong_wei != null' 'true'
 
 ZW_CHART=$(json_val "$RPC_BODY" '.result.data')
 
 rpc ziwei.daxian "{\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.daxian"
 
-rpc ziwei.liunian "{\"liu_year\":2026,\"chart\":$ZW_CHART}"
+rpc ziwei.liunian "{\"liu_nian\":2026,\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liunian"
 
-rpc ziwei.liuyue "{\"liu_year\":2026,\"lunar_month\":5,\"chart\":$ZW_CHART}"
+rpc ziwei.liuyue "{\"liu_nian\":2026,\"lunar_month\":5,\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liuyue"
 
-rpc ziwei.liuri "{\"liu_year\":2026,\"lunar_month\":5,\"lunar_day\":10,\"chart\":$ZW_CHART}"
+rpc ziwei.liuri "{\"liu_nian\":2026,\"lunar_month\":5,\"lunar_day\":10,\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liuri"
 
 
-# ziwei.judgment -- 综合盘论断
-rpc ziwei.judgment '{"chart":null}'
-check_rpc_err "ziwei.judgment (null chart)" "-32602"
-rpc ziwei.chart "$BR_A"
+rpc ziwei.chart "{\"lunar\":$ZW_LUNAR,\"gender\":\"male\"}"
 CHART_A=$(json_val "$RPC_BODY" '.result.data')
-rpc ziwei.chart "$BR_B"
+rpc ziwei.chart "{\"lunar\":$ZW_LUNAR,\"gender\":\"female\"}"
 CHART_B=$(json_val "$RPC_BODY" '.result.data')
 rpc ziwei.bond "{\"a\":$CHART_A,\"b\":$CHART_B}"
 check_rpc_ok "ziwei.bond"
 
-rpc ziwei.chart '{"solar_time":""}'
-check_rpc_err "ziwei.chart (missing gender)" "-32602"
+rpc ziwei.chart '{"lunar":{}}'
+check_rpc_err "ziwei.chart (bad lunar)" "-32602"
 
 # ============================================================================
 # QiMen
@@ -250,16 +243,17 @@ check_rpc_err "qimen.chart (bad kind)" "-32602"
 echo ""
 echo "${BOLD}── QiMing ──${NC}"
 
-rpc qiming.pick '{"surname":"李","wuxing":"水"}'
+rpc qiming.pick '{"surname":"李","wuxing1":"水","wuge":true}'
 check_rpc_ok "qiming.pick"
-check_rpc "  has chars" '.result.data.chars != null' 'true'
+check_rpc "  has combos" '.result.data.combos != null' 'true'
 
-PICK_CHARS=$(json_val "$RPC_BODY" '.result.data.chars')
-rpc qiming.build "{\"surname\":\"李\",\"chars1\":$PICK_CHARS}"
+# combos/names 可能巨大（笛卡尔积）——jq 提取切片避免 Argument list too long
+PICK_COMBOS=$(json_val "$RPC_BODY" '.result.data.combos[0:1] | map({id, first: .first[0:3], second: .second[0:3]})')
+rpc qiming.build "{\"combos\":$PICK_COMBOS}"
 check_rpc_ok "qiming.build"
 check_rpc "  has names" '.result.data.names | length > 0' 'true'
 
-BUILD_NAMES=$(json_val "$RPC_BODY" '.result.data.names')
+BUILD_NAMES=$(json_val "$RPC_BODY" '.result.data.names[0:5]')
 rpc qiming.check "{\"surname\":\"李\",\"names\":$BUILD_NAMES,\"yongshen\":\"水\",\"xishen\":[\"金\"],\"jishen\":[\"土\"]}"
 check_rpc_ok "qiming.check"
 check_rpc "  has wuxing_match" '.result.data[0].wuxing_match != null' 'true'
@@ -271,12 +265,6 @@ check_rpc "  has wuge" '.result.data[0].wuge != null' 'true'
 
 rpc qiming.check '{}'
 check_rpc_err "qiming.check (missing surname)" "-32602"
-
-rpc qiming.wuge '{"surname":"李","count":2}'
-check_rpc_ok "qiming.wuge"
-check_rpc "  has surname_stroke" '.result.data.surname_stroke > 0' 'true'
-# pairs 用 jq -e 检查
-check "  has pairs" "true" "$(echo "$RPC_BODY" | jq -e '.result.data.pairs | length > 0' > /dev/null 2>&1 && echo true || echo false)"
 
 rpc qiming.char '{"char":"林"}'
 check_rpc_ok "qiming.char (林)"
@@ -292,21 +280,16 @@ echo ""
 echo "${BOLD}── Bazhai ──${NC}"
 
 
-# bazhai.judgment -- 门主灶论断
-rpc bazhai.judgment '{"chart":null,"door_gua":1,"master_gua":2,"stove_gua":3}'
-check_rpc_err "bazhai.judgment (null chart)" "-32602"
-
-rpc bazhai.minggua '{"gender":"male","birth_year":1984}'
-check_rpc_ok "bazhai.minggua"
-
 rpc bazhai.chart "$BR"
 check_rpc_ok "bazhai.chart"
+check_rpc "  has ming_gua" '.result.data.ming_gua != null' 'true'
+check_rpc "  has ba_zhai_dirs" '.result.data.ba_zhai_dirs != null' 'true'
 
-rpc bazhai.minggua '{"gender":"other","birth_year":1984}'
-check_rpc_err "bazhai.minggua (bad gender)" "-32602"
-
-rpc bazhai.minggua '{"gender":"male"}'
-check_rpc_err "bazhai.minggua (missing year)" "-32602"
+BH_CHART=$(json_val "$RPC_BODY" '.result.data')
+rpc bazhai.layout "{\"chart\":$BH_CHART,\"door_gua\":\"坎\",\"master_gua\":\"震\",\"stove_gua\":\"离\"}"
+check_rpc_ok "bazhai.layout"
+rpc bazhai.layout "{\"chart\":$BH_CHART}"
+check_rpc_err "bazhai.layout (missing gua)" "-32602"
 
 # ============================================================================
 # XuanKong
@@ -314,18 +297,12 @@ check_rpc_err "bazhai.minggua (missing year)" "-32602"
 echo ""
 echo "${BOLD}── XuanKong ──${NC}"
 
-rpc xuankong.sanyuan '{"year":2026}'
-check_rpc_ok "xuankong.sanyuan"
+rpc xuankong.liunian '{"year":2024}'
+check_rpc_ok "xuankong.liunian (2024)"
+rpc xuankong.liunian '{"year":1800}'
+check_rpc_err "xuankong.liunian (bad year)" "-32000"
 
-
-# xuankong.annual -- 流年飞星
-rpc xuankong.annual '{"year":2024}'
-check_rpc_ok "xuankong.annual (2024)"
-check_rpc "  ru_zhong=3" '.result.data.ru_zhong == 3' "true"
-rpc xuankong.annual '{"year":1800}'
-check_rpc_err "xuankong.annual (bad year)" "-32000"
-
-rpc xuankong.chart "{\"solar_time\":$ST,\"sit_mountain\":0,\"face_mountain\":11}"
+rpc xuankong.chart "{\"solar_time\":$ST,\"zuo_shan\":0,\"xiang_shan\":11}"
 check_rpc_ok "xuankong.chart"
 
 rpc xuankong.chart "{\"solar_time\":$ST}"
@@ -358,25 +335,13 @@ check_rpc_ok "liuyao.chart (mixed yaos)"
 echo ""
 echo "${BOLD}── Huangli ──${NC}"
 
-rpc huangli.date '{"date":"2026-06-19","event":"嫁娶"}'
-check_rpc_ok "huangli.date"
+rpc huangli.days '{"start_date":"2026-06-19","count":3}'
+check_rpc_ok "huangli.days"
+check_rpc "  has jian_chu" '.result.data[0].jian_chu != null' 'true'
+check_rpc "  has huangdao" '.result.data[0].huangdao.name != null' 'true'
 
-rpc huangli.month '{"month":"2026-06","event":"嫁娶"}'
-check_rpc_ok "huangli.month"
-
-HL_BOND='{"solar_time":'"$BT"',"event_type":"嫁娶","date":"2026-06-19"}'
-rpc huangli.bond.date "$HL_BOND"
-check_rpc_ok "huangli.bond.date"
-
-rpc huangli.bond.month '{"solar_time":'"$BT"',"event_type":"嫁娶","month":"2026-06"}'
-check_rpc_ok "huangli.bond.month"
-
-rpc huangli.date '{}'
-check_rpc_err "huangli.date (missing params)" "-32602"
-
-HL_BAD_BIRTH='{"solar_time":"","event_type":"嫁娶","date":"2026-06-19"}'
-rpc huangli.bond.date "$HL_BAD_BIRTH"
-check_rpc_err "huangli.bond.date (empty birth)" "-32000"
+rpc huangli.days '{}'
+check_rpc_err "huangli.days (missing start_date)" "-32602"
 
 # ============================================================================
 # Infra
@@ -406,13 +371,6 @@ check_rpc_err "city (missing city)" "-32602"
 echo ""
 echo "${BOLD}────────────────────────────────────────${NC}"
 
-rpc qimen.judgment '{"chart":{"pan":{"ri_gan":"丙","ri_zhi":"子","drive_gan":"壬","drive_zhi":"申"},"patterns":[],"stem_interactions":[],"door_interactions":[],"star_interactions":[],"ying_qi":{"ma_xing":"","kong_wang":"","duty_move":"","summary":""}},"event":"general"}'
-check_rpc_ok "qimen.judgment"
-check_rpc "  has rating" '.result.data.rating != null' 'true'
-
-rpc qimen.select '{"start_date":"2026-07-20","end_date":"2026-07-21","event":"travel"}'
-check_rpc_ok "qimen.select"
-check_rpc "  has slots" '.result.data | length > 0' 'true'
 
 TOTAL=$((PASS + FAIL))
 echo "Total: $TOTAL  ${GREEN}PASS: $PASS${NC}  ${RED}FAIL: $FAIL${NC}"

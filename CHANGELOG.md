@@ -1,4 +1,8 @@
 # Changelog
+- 2.6.12（续）：test-rpc.sh 冒烟脚本对齐现役 31 RPC
+  - 清理 12 处已删方法引用（bazi.xiaoxian/yongshen/hehui/chart_extra、ziwei.judgment、qiming.wuge、bazhai.judgment/minggua、xuankong.sanyuan/annual、huangli.date/month/bond.*、qimen.judgment/select）
+  - 修正参数漂移（ziwei.chart 改 lunar 参数、liu_year→liu_nian、qiming.pick wuxing→wuxing1/build combos、xuankong sit_mountain→zuo_shan）
+  - qiming 段 jq 切片防 Argument list too long（combos/names 笛卡尔积巨大）——冒烟 77/77 全绿
 - 2.6.12: 修复 integration 测试构建失败 + 清理玄空死代码
   - [bazi] bazi_chart_test.go（integration tag）适配 Chart/FullChart 结构拆分：computeFullChart 辅助返回 FullChart（原 lean Chart 无 CangGanArray/ShenSha 字段）——CI integration job 此前一直构建失败
   - [xuankong] 删除 tiXingXiangStar 死代码（2.6.3 删替星应用后遗留，lint unused）
