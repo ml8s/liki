@@ -282,10 +282,12 @@ type siHuaResult map[starIndex]siHuaType
 
 // DaXianStep records one 10-year da-xian segment.
 type DaXianStep struct {
-	QiSui int         `json:"qi_sui"`
-	ZhiSui int        `json:"zhi_sui"`
-	Gong gongIndex `json:"gong"`
-	Name   string      `json:"name"`
+	QiSui     int         `json:"qi_sui"`
+	ZhiSui    int         `json:"zhi_sui"`
+	StartYear int         `json:"start_year"` // 本限起始公历年（birthYear + QiSui − 1）
+	EndYear   int         `json:"end_year"`   // 本限结束公历年（StartYear + 9）
+	Gong      gongIndex   `json:"gong"`
+	Name      string      `json:"name"`
 }
 
 // LiuNian is the annual fate analysis.

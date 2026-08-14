@@ -18,18 +18,20 @@ const (
 
 // DaYunStep holds one 10-year fortune step in the big fortune cycle.
 type DaYunStep struct {
-	Gan      ganzhi.Gan  `json:"gan"`
-	Zhi      ganzhi.Zhi  `json:"zhi"`
-	AgeStart int         `json:"qi_sui"`
-	AgeEnd   int         `json:"zhi_sui"`
-	Name     string      `json:"name"`
-	Element  string      `json:"wuxing"`
+	Gan       ganzhi.Gan  `json:"gan"`
+	Zhi       ganzhi.Zhi  `json:"zhi"`
+	StartDate string      `json:"start_date"` // 本步起始公历日 YYYY-MM-DD
+	EndDate   string      `json:"end_date"`   // 本步末日 YYYY-MM-DD（= 下步起始日前一天）
+	StartYear int         `json:"start_year"` // 本步起始公历年（skill 大运窗口算子用，免虚岁换算）
+	EndYear   int         `json:"end_year"`   // 本步结束公历年
+	Name      string      `json:"name"`
+	Element   string      `json:"wuxing"`
 	ShiShen   string      `json:"shi_shen"`
 }
 
 // DaYun holds the big fortune (大运) cycle for a bazi chart.
 type DaYun struct {
-	StartAge         int           `json:"start_age"`          // 起运虚岁（四舍五入）
+	StartDate        string        `json:"start_date"`         // 起运公历日 YYYY-MM-DD（出生 + start_*_after 偏移）
 	StartYearAfter   int           `json:"start_year_after"`   // 出生后整年数（对齐 lunar）
 	StartMonthAfter  int           `json:"start_month_after"`  // 余月
 	StartDayAfter    int           `json:"start_day_after"`    // 余日
@@ -140,22 +142,27 @@ func computeDaYunSteps(st tianwen.SolarTime, month ganzhi.Zhu, nianGan ganzhi.Ga
 // computeDaYun computes the labeled big fortune (大运) steps.
 func computeDaYun(st tianwen.SolarTime, month ganzhi.Zhu, nianGan, riGan ganzhi.Gan, gender ganzhi.Gender) *DaYun {
 	bf := computeDaYunSteps(st, month, nianGan, gender)
+	// 起运公历日 = 出生日 + 出生后偏移（start_*_after，对齐 lunar Yun sect=1）。
+	startDate := st.Time().AddDate(bf.startY, bf.startM, bf.startD)
 	r := &DaYun{
-		StartAge:         bf.startAge,
+		StartDate:        startDate.Format("2006-01-02"),
 		StartYearAfter:   bf.startY,
 		StartMonthAfter:  bf.startM,
 		StartDayAfter:    bf.startD,
 		Direction: bf.direction,
 	}
 	for i, step := range bf.steps {
-		ageStart := bf.startAge + i*10
+		stepStart := startDate.AddDate(i*10, 0, 0)
+		stepEnd := stepStart.AddDate(10, 0, -1) // 每步 10 年 − 1 天
 		r.Steps = append(r.Steps, DaYunStep{
-			Gan:      step.Gan,
-			Zhi:      step.Zhi,
-			AgeStart: ageStart,
-			AgeEnd:   ageStart + 9,
-			Name:     ganzhi.GanName(step.Gan) + ganzhi.ZhiName(step.Zhi),
-			Element:  ganzhi.GanWuxing(step.Gan).String(),
+			Gan:       step.Gan,
+			Zhi:       step.Zhi,
+			StartDate: stepStart.Format("2006-01-02"),
+			EndDate:   stepEnd.Format("2006-01-02"),
+			StartYear: stepStart.Year(),
+			EndYear:   stepEnd.Year(),
+			Name:      ganzhi.GanName(step.Gan) + ganzhi.ZhiName(step.Zhi),
+			Element:   ganzhi.GanWuxing(step.Gan).String(),
 			ShiShen:   daYunShiShenLabel(riGan, step.Gan),
 		})
 	}

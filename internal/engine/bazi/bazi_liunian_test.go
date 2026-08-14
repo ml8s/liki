@@ -43,16 +43,16 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 		t.Errorf("2026 dayun ZhuLabel = %q, want 伤官运(庚午)（当年大运，非当前大运）", got)
 	}
 
-	// 1999: 虚岁 = 1999-1984+1 = 16 → step1 戊辰(16-25)
+	// 1999: 1984-02-15 起运 1990-08-04 → step0 丁卯(1990-2000) 覆盖 1999
 	ln99, err := ComputeLiuNian(chart, 1999)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(1999): %v", err)
 	}
 	if len(ln99.DaYunInteractions) < 1 {
-		t.Fatal("DaYunInteractions should have 1 entry for 1999 (戊辰运)")
+		t.Fatal("DaYunInteractions should have 1 entry for 1999 (丁卯运)")
 	}
-	if got := ln99.DaYunInteractions[0].ZhuLabel; got != "劫财运(戊辰)" {
-		t.Errorf("1999 dayun ZhuLabel = %q, want 劫财运(戊辰)", got)
+	if got := ln99.DaYunInteractions[0].ZhuLabel; got != "偏印运(丁卯)" {
+		t.Errorf("1999 dayun ZhuLabel = %q, want 偏印运(丁卯)（1990-2000 首步）", got)
 	}
 
 	// 1985: 虚岁 2，未起运 → 空
@@ -67,18 +67,18 @@ func TestLiuNian_DaYunInteraction(t *testing.T) {
 
 func TestDayunStepForYear(t *testing.T) {
 	dy := &DaYun{
-		StartAge:  6,
+		StartDate: "1990-01-01",
 		Direction: "顺排",
 		Steps: []DaYunStep{
-			{AgeStart: 6, AgeEnd: 15, Name: "丁卯", ShiShen: "偏印运"},
-			{AgeStart: 16, AgeEnd: 25, Name: "戊辰", ShiShen: "劫财运"},
-			{AgeStart: 26, AgeEnd: 35, Name: "己巳", ShiShen: "比肩运"},
-			{AgeStart: 36, AgeEnd: 45, Name: "庚午", ShiShen: "伤官运"},
-			{AgeStart: 46, AgeEnd: 55, Name: "辛未", ShiShen: "食神运"},
-			{AgeStart: 56, AgeEnd: 65, Name: "壬申", ShiShen: "正财运"},
-			{AgeStart: 66, AgeEnd: 75, Name: "癸酉", ShiShen: "偏财运"},
-			{AgeStart: 76, AgeEnd: 85, Name: "甲戌", ShiShen: "正官运"},
-			{AgeStart: 86, AgeEnd: 95, Name: "乙亥", ShiShen: "七杀运"},
+			{StartYear: 1990, EndYear: 1999, Name: "丁卯", ShiShen: "偏印运"},
+			{StartYear: 2000, EndYear: 2009, Name: "戊辰", ShiShen: "劫财运"},
+			{StartYear: 2010, EndYear: 2019, Name: "己巳", ShiShen: "比肩运"},
+			{StartYear: 2020, EndYear: 2029, Name: "庚午", ShiShen: "伤官运"},
+			{StartYear: 2030, EndYear: 2039, Name: "辛未", ShiShen: "食神运"},
+			{StartYear: 2040, EndYear: 2049, Name: "壬申", ShiShen: "正财运"},
+			{StartYear: 2050, EndYear: 2059, Name: "癸酉", ShiShen: "偏财运"},
+			{StartYear: 2060, EndYear: 2069, Name: "甲戌", ShiShen: "正官运"},
+			{StartYear: 2070, EndYear: 2079, Name: "乙亥", ShiShen: "七杀运"},
 		},
 	}
 	tests := []struct {
@@ -89,16 +89,14 @@ func TestDayunStepForYear(t *testing.T) {
 		wantIdx   int // -1 = nil
 		wantName  string
 	}{
-		{"中段_2026_庚午", dy, 1984, 2026, 3, "庚午"},   // 虚岁43
-		{"首步_1999_戊辰", dy, 1984, 1999, 1, "戊辰"},   // 虚岁16
-		{"次步_2019_庚午", dy, 1984, 2019, 3, "庚午"},   // 虚岁36（36-45边界内）
-		{"末步_2078_乙亥", dy, 1984, 2078, 8, "乙亥"},   // 虚岁95（86-95末步）
-		{"过完_2080", dy, 1984, 2080, -1, ""},            // 虚岁97
-		{"过完_2100", dy, 1984, 2100, -1, ""},            // 虚岁117
+		{"中段_2026_庚午", dy, 1984, 2026, 3, "庚午"},
+		{"首步_1995_丁卯", dy, 1984, 1995, 0, "丁卯"},
+		{"次步_2005_戊辰", dy, 1984, 2005, 1, "戊辰"},
+		{"末步_2078_乙亥", dy, 1984, 2078, 8, "乙亥"},
+		{"过完_2080", dy, 1984, 2080, -1, ""},
+		{"过完_2100", dy, 1984, 2100, -1, ""},
 		{"dy为nil", nil, 1984, 2026, -1, ""},
-		{"birthYear为0_旧chart", dy, 0, 2026, -1, ""},
-		{"年份早于出生年", dy, 1984, 1980, -1, ""},
-	}
+		{"年份早于出生年", dy, 1984, 1980, -1, ""},	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := dayunStepForYear(tt.dy, tt.birthYear, tt.year)

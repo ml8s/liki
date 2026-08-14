@@ -245,9 +245,9 @@ func TestDaYun_Direction(t *testing.T) {
 				t.Errorf("Direction = %q, want %q", chart.DaYun.Direction, tt.wantDir)
 			}
 
-			// Start age should be between 0 and 12.
-			if chart.DaYun.StartAge < 0 || chart.DaYun.StartAge > 12 {
-				t.Errorf("StartAge = %d, want [0,12]", chart.DaYun.StartAge)
+			// 起运日期非空。
+			if chart.DaYun.StartDate == "" {
+				t.Errorf("StartDate 为空（起运公历日）")
 			}
 
 			// Must have at least 8 zhu (80 years of fortune).
@@ -255,11 +255,15 @@ func TestDaYun_Direction(t *testing.T) {
 				t.Errorf("len(Zhu) = %d, want >= 8", len(chart.DaYun.Steps))
 			}
 
-			// Each zhu should be 10 years (age_end - age_start + 1 = 10).
+			// Each zhu should be ~10 years (start_date → end_date ≈ 10 年 − 1 天；年份差含首尾）。
 			for i, z := range chart.DaYun.Steps {
-				if z.AgeEnd-z.AgeStart+1 != 10 {
-					t.Errorf("zhu[%d] %s: age range %d-%d is not 10 years",
-						i, z.Name, z.AgeStart, z.AgeEnd)
+				if z.EndYear-z.StartYear < 9 || z.EndYear-z.StartYear > 11 {
+					t.Errorf("zhu[%d] %s: year range %d-%d 不是约 10 年",
+						i, z.Name, z.StartYear, z.EndYear)
+				}
+				if z.EndDate <= z.StartDate {
+					t.Errorf("zhu[%d] %s: end_date %s 应晚于 start_date %s",
+						i, z.Name, z.EndDate, z.StartDate)
 				}
 				if z.ShiShen == "" {
 					t.Errorf("zhu[%d] %s: ShiShen is empty", i, z.Name)

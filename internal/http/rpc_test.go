@@ -562,10 +562,19 @@ func TestRPC_Dispatch_BaziChart(t *testing.T) {
 		for _, k := range []string{"nian", "yue", "ri", "shi"} {
 			assertNonNil(t, data, k)
 		}
-		// 大运新字段（起运精确年/月/日）
+		// 大运字段（重构：start_date 起运公历日 + start_*_after 偏移 + steps 日期段）
 		dy := data["da_yun"].(map[string]any)
-		for _, k := range []string{"start_age", "start_year_after", "start_month_after", "start_day_after", "direction", "steps", "current_step_index"} {
+		for _, k := range []string{"start_date", "start_year_after", "start_month_after", "start_day_after", "direction", "steps", "current_step_index"} {
 			assertNonNil(t, dy, k)
+		}
+		// 步骤含公历日期段
+		if steps, ok := dy["steps"].([]any); ok && len(steps) > 0 {
+			step0 := steps[0].(map[string]any)
+			for _, k := range []string{"start_date", "end_date", "start_year", "end_year"} {
+				if _, ok := step0[k]; !ok {
+					t.Errorf("da_yun.steps[0] 缺 %q（日期段）", k)
+				}
+			}
 		}
 		// 精确起运值（1984-02-15 男 = lunar 6年5月20日）
 		if dy["start_year_after"].(float64) != 6 || dy["start_month_after"].(float64) != 5 || dy["start_day_after"].(float64) != 20 {

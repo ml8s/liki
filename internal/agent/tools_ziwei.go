@@ -139,7 +139,7 @@ var ziweiMethods = []RPCMethod{
 		Name: "ziwei.daxian", Description: "紫微斗数大限。返回十年大限各宫吉凶。chart 为 ziwei.chart 返回的完整 chart 对象。",
 		Params: mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["chart"]}`),
 		Handler: ziweiDaxianHandler,
-		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"qi_sui":{"type":"integer"},"zhi_sui":{"type":"integer"},"gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"name":{"type":"string"}},"required":["qi_sui","zhi_sui","gong","name"]}}`),
+		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"start_year":{"type":"integer","description":"本限起始公历年"},"end_year":{"type":"integer","description":"本限结束公历年"},"qi_sui":{"type":"integer"},"zhi_sui":{"type":"integer"},"gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"name":{"type":"string"}},"required":["qi_sui","zhi_sui","gong","name"]}}`),
 	},
 	{
 		Name: "ziwei.liunian", Description: "紫微流年。返回流年命盘及各宫变化。",

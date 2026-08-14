@@ -11,12 +11,16 @@ func ComputeDaXian(chart Chart) []DaXianStep {
 	qiSui := daXianQiSui(chart.JuShu)
 	steps := make([]DaXianStep, 0, 12)
 	pos := gongIndex(0)
+	// 大限起于出生年：虚岁 QiSui → 公历年 = birthYear + QiSui − 1（虚岁 1 岁 = 出生年）。
+	startY := chart.BirthYear + qiSui - 1
 	for i := 0; i < 12; i++ {
 		steps = append(steps, DaXianStep{
-			QiSui: qiSui + i*10,
-			ZhiSui:   qiSui + i*10 + 9,
-			Gong:   pos,
-			Name:     gongLabels[pos],
+			QiSui:     qiSui + i*10,
+			ZhiSui:    qiSui + i*10 + 9,
+			StartYear: startY + i*10,
+			EndYear:   startY + i*10 + 9,
+			Gong:      pos,
+			Name:      gongLabels[pos],
 		})
 		if forward {
 			pos = (pos + 11) % 12 // 经典顺行→逆Liki序往后走

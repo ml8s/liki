@@ -51,15 +51,11 @@ func baziChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 	// Compute current step index from server time.
 	if result.DaYun != nil {
 		now := time.Now()
-		birth := time.Time(st)
-		result.DaYun.CurrentStepIndex = bazi.ComputeCurrentStepIndex(
-			result.DaYun, birth.Year(), now.Year(), now.YearDay(), birth.YearDay(),
-		)
-		// 大运临界：当前步 zhi_sui（虚岁止岁）− 当前虚岁（与 steps 区间同口径）。
+		result.DaYun.CurrentStepIndex = bazi.ComputeCurrentStepIndex(result.DaYun, now.Year())
+		// 大运临界：距下一大运剩余年数 = 当前步 EndYear − 当前公历年（日期段直判，免虚岁换算）。
 		if idx := result.DaYun.CurrentStepIndex; idx >= 0 && idx < len(result.DaYun.Steps) {
-			age := now.Year() - birth.Year() + 1 // 虚岁
-			if end := result.DaYun.Steps[idx].AgeEnd; age <= end {
-				next := end - age
+			if end := result.DaYun.Steps[idx].EndYear; now.Year() <= end {
+				next := end - now.Year()
 				result.DaYun.NextStepInYears = &next
 			}
 		}
@@ -236,7 +232,7 @@ var baziMethods = []RPCMethod{
 	{
 		Name: "bazi.chart", Description: "排八字命盘。返回最小命盘（四柱+纳音+大运+性别）。如需十神/藏干/神煞/长生/空亡/用神三派等完整信息，请将结果传入 bazi.fullchart（用神属完整命盘）。",
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"gender":` + schemaGender + `,"longitude":{"type":"number","description":"出生地经度（度），用于真太阳时校正。缺省用东八区 120。所有命例都应传实际经度，海外/西部命例必传否则时辰错"}},"required":["solar_time","gender"]}`), Handler: baziChartHandler,
-		Result: envelopeSchema(`{"type":"object","properties":{"nian":{"type":"object","description":"年柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"yue":{"type":"object","description":"月柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"ri":{"type":"object","description":"日柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"shi":{"type":"object","description":"时柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"da_yun":{"type":"object","description":"大运。start_year_after/start_month_after/start_day_after 为出生后起运精确时间（3天=1年）；direction 顺排/逆排；steps 每步含 gan/zhi/qi_sui/zhi_sui/name/wuxing/shi_shen（十年一运）；current_step_index 为当前所处大运索引（-1 表示未起运或已过完所有大运）；next_step_in_years 距下一大运剩余年数（虚岁口径，未起运/已过完则缺席）"},"gender":{"type":"string"},"birth_year":{"type":"integer","description":"出生公历年份（供 bazi.liunian/liuri 定位当年大运）"},"zi_shi_rule":{"type":"string","description":"子时换日规则说明（晚子时日柱不变、时柱按次日日干起）"}},"required":["nian","yue","ri","shi","da_yun","gender"]}`),
+		Result: envelopeSchema(`{"type":"object","properties":{"nian":{"type":"object","description":"年柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"yue":{"type":"object","description":"月柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"ri":{"type":"object","description":"日柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"shi":{"type":"object","description":"时柱: gan/zhi/na_yin","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"na_yin":{"type":"string"}},"required":["gan","zhi","na_yin"]},"da_yun":{"type":"object","description":"大运。start_year_after/start_month_after/start_day_after 为出生后起运精确时间（3天=1年）；direction 顺排/逆排；steps 每步含 gan/zhi/qi_sui/zhi_sui/name/wuxing/shi_shen（十年一运）；current_step_index 为当前所处大运索引（-1 表示未起运或已过完所有大运）；next_step_in_years 距下一大运剩余年数（公历口径）；steps 每步含 start_date/end_date（公历日期段）与 start_year/end_year（公历年，免虚岁换算）"},"gender":{"type":"string"},"birth_year":{"type":"integer","description":"出生公历年份（供 bazi.liunian/liuri 定位当年大运）"},"zi_shi_rule":{"type":"string","description":"子时换日规则说明（晚子时日柱不变、时柱按次日日干起）"}},"required":["nian","yue","ri","shi","da_yun","gender"]}`),
 	},
 	{
 		Name: "bazi.bond", Description: "八字合盘。返回双方日主、天干关系（合/生/克）、地支关系（六合/三合/六冲）、纳音配合、五行互补。",

@@ -90,27 +90,23 @@ func dayunStepForYear(dy *DaYun, birthYear, year int) *DaYunStep {
 	if dy == nil || len(dy.Steps) == 0 || birthYear <= 0 || year < birthYear {
 		return nil
 	}
-	age := year - birthYear + 1 // 虚岁
 	for i := range dy.Steps {
-		if age >= dy.Steps[i].AgeStart && age <= dy.Steps[i].AgeEnd {
+		if year >= dy.Steps[i].StartYear && year <= dy.Steps[i].EndYear {
 			return &dy.Steps[i]
 		}
 	}
 	return nil
 }
 
-// ComputeCurrentStepIndex determines the current DaYun step index based on age.
+// ComputeCurrentStepIndex determines the current DaYun step index based on 公历年
+// （大运步骤已直接携带 start_year/end_year，免虚岁换算）。
 // Returns -1 if not yet in DaYun or past all DaYun steps.
-func ComputeCurrentStepIndex(dy *DaYun, birthYear, currentYear, currentYearDay, birthYearDay int) int {
+func ComputeCurrentStepIndex(dy *DaYun, currentYear int) int {
 	if dy == nil || len(dy.Steps) == 0 {
 		return -1
 	}
-	age := currentYear - birthYear
-	if currentYearDay < birthYearDay {
-		age--
-	}
 	for i, step := range dy.Steps {
-		if age >= step.AgeStart && age <= step.AgeEnd {
+		if currentYear >= step.StartYear && currentYear <= step.EndYear {
 			return i
 		}
 	}
