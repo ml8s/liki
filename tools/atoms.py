@@ -478,6 +478,19 @@ def _liu_op(op: str, args, factors, gender, chart, ctx: dict = None) -> int:
     nian_gan = ln.get("nian_gan", "")
     ss_year = ln.get("shi_shen", "")
 
+    if op == "流年长生":
+        # 日主在流年支的十二长生态（复用本命 chang_sheng 表：长生在寅/帝旺在午...——流年支落哪态）
+        state = args[0]
+        cs = chart.get("full", {}).get("chang_sheng", []) or []
+        nz = ln.get("nian_zhi", "")
+        for it in cs:
+            if it.get("name") == state and it.get("index") == nz:
+                return 1
+        return 0
+    if op == "流年神煞":
+        # 服务端流年神煞（bazi.liunian 返回 shensha[]：红鸾/天喜/劫煞/灾煞/驿马/桃花/羊刃/华盖/天乙贵人）
+        ss = ln.get("shensha", []) or []
+        return 1 if any((s.get("name") or "") == args[0] for s in ss) else 0
     if op == "流年透":
         return 1 if ss_year in star_keys else 0
     if op in ("流年值", "流年合", "流年冲"):
