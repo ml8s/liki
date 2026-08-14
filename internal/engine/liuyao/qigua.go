@@ -138,7 +138,7 @@ func zhuangGua(gua guaIndex, riGan ganzhi.Gan, isBian bool, palaceElem ganzhi.Wu
 			shi := meta.ShiPos - 1
 			if i == shi { shiYing = "世" } else if i == (shi+3)%6 { shiYing = "应" }
 		}
-		lines[i] = Line{Gan: naGan, Zhi: z, Wuxing: zwx, LiuQin: qin, ShiYing: shiYing, LiuShou: shouOrder[i]}
+		lines[i] = Line{Gan: naGan[i/3], Zhi: z, Wuxing: zwx, LiuQin: qin, ShiYing: shiYing, LiuShou: shouOrder[i]}
 	}
 	return lines
 }
