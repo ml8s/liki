@@ -18,12 +18,13 @@ type Chart struct {
 	SitMountain   int            `json:"zuo_shan"`  // 0-23,坐山 index
 	FaceMountain  int            `json:"xiang_shan"` // 0-23,朝向 index
 	Palaces       [9]xuanKongStar `json:"gong_wei"`
-	WangShan      bool           `json:"wang_shan"`
-	WangXiang     bool           `json:"wang_xiang"`
-	ShanXing      bool           `json:"shan_xing"`
-	XiaShui       bool           `json:"xia_shui"`
-	FanYin        bool           `json:"fan_yin"`
-	FuYin         bool           `json:"fu_yin"`
+	WangShan      bool           `json:"wang_shan"`      // 旺山：坐宫山星=当令
+	WangXiang     bool           `json:"wang_xiang"`     // 旺向：向宫向星=当令
+	ShanXing      bool           `json:"shan_xing"`      // 双星会坐：坐宫山向星皆=当令
+	XiangXing     bool           `json:"xiang_xing"`     // 双星会向：向宫山向星皆=当令
+	XiaShui       bool           `json:"xia_shui"`       // 上山下水：向宫山星=当令 且 坐宫向星=当令
+	FanYin        bool           `json:"fan_yin"`        // 运盘反吟（恒 false，运盘恒顺飞）
+	FuYin         bool           `json:"fu_yin"`         // 运盘伏吟（五运顺飞全盘重合）
 	XingJiaHui    [9]xingJiaHui  `json:"xing_jia_hui"`
 	ShouShanChuSha shouShanChuSha `json:"shou_shan_chu_sha"`
 }
@@ -32,9 +33,6 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 	if sitMountain < 0 || sitMountain > 23 || faceMountain < 0 || faceMountain > 23 {
 		return Chart{}
 	}
-
-	sit := fengshui.Mountains24Table[sitMountain]
-	face := fengshui.Mountains24Table[faceMountain]
 
 	yun := ComputeSanYuanYun(year)
 	yunNum := yun.YunNumber
@@ -50,7 +48,7 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 	if ti := tiXingShanStar(sitMountain); ti > 0 {
 		shanNum = ti
 	}
-	shanForward := sit.YinYang == "阳"
+	shanForward := shanXiangForward(shanNum, sitMountain)
 	mountainStars := flyStars(shanNum, shanForward)
 
 	// 3. Facing star.
@@ -61,7 +59,7 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 	if ti := tiXingXiangStar(faceMountain); ti > 0 {
 		xiangNum = ti
 	}
-	xiangForward := face.YinYang == "阳"
+	xiangForward := shanXiangForward(xiangNum, faceMountain)
 	facingStars := flyStars(xiangNum, xiangForward)
 
 	// 4. Assemble the pan.
@@ -89,6 +87,31 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 
 	return pan
 }
+
+// shanXiangForward determines whether a mountain/facing star board flies forward.
+//
+// 规则（《沈氏玄空学》《易学经世真诠》）：入中星 n 对应元旦盘（洛书）某宫，
+// 在该宫三山中取与坐山/向首同元龙（天/地/人）的一山，其阴阳定顺逆——阳顺阴逆。
+// 例：七运子山午向，山星 3 入中（3=震宫 甲卯乙，子=天元 → 卯=阴 → 逆飞）；
+// 向星 2 入中（2=坤宫 未坤申，午=天元 → 坤=阳 → 顺飞）→ 双星会坐。
+// 入中星为 5（五黄无卦）时，按坐山/向首自身三元龙阴阳（5 落其宫）。
+func shanXiangForward(centerNum int, mountainIdx int) bool {
+	if centerNum == 5 {
+		return fengshui.Mountains24Table[mountainIdx].YinYang == "阳"
+	}
+	trigram := luoshuPalaceName[centerNum]
+	target := fengshui.Mountains24Table[mountainIdx]
+	for i := 0; i < 24; i++ {
+		m := fengshui.Mountains24Table[i]
+		if m.Trigram == trigram && m.YuanLong == target.YuanLong {
+			return m.YinYang == "阳"
+		}
+	}
+	return false
+}
+
+// luoshuPalaceName maps a flying-star number to its 洛书（元旦盘）palace trigram.
+var luoshuPalaceName = [10]string{"", "坎", "坤", "震", "巽", "中", "乾", "兑", "艮", "离"}
 
 // flyStars distributes num stars following luoshu fly order.
 func flyStars(centerNum int, forward bool) [9]fengshui.FlyingStar {
@@ -133,31 +156,35 @@ func mountainPalace(idx int) int {
 	}
 }
 
+// evaluate computes the four 格局 (四大局) using the standard definitions
+// (《沈氏玄空学》, 当令=运星数):
+//
+//	旺山旺向   : 坐宫山星=当令 且 向宫向星=当令
+//	双星会坐   : 坐宫山星=当令 且 坐宫向星=当令（财星上山）
+//	双星会向   : 向宫山星=当令 且 向宫向星=当令（丁星下水）
+//	上山下水   : 向宫山星=当令（山星下水）且 坐宫向星=当令（向星上山）
+//
+// 伏吟（运盘）：五运运盘顺飞与地盘全盘重合（入中=宫序恒等）；运盘恒顺飞，
+// 故运盘无反吟（fan_yin 恒 false，反吟须看山向星盘与运盘对冲，此处不判定）。
 func (p *Chart) evaluate() {
 	sitPalace := mountainPalace(p.SitMountain)
 	facePalace := mountainPalace(p.FaceMountain)
 	yunNum := p.Yun.YunNumber
 
 	sitMStar := p.Palaces[sitPalace-1].MountainStar.Number
+	sitFStar := p.Palaces[sitPalace-1].FacingStar.Number
+	faceMStar := p.Palaces[facePalace-1].MountainStar.Number
 	faceFStar := p.Palaces[facePalace-1].FacingStar.Number
 
 	p.WangShan = sitMStar == yunNum
 	p.WangXiang = faceFStar == yunNum
+	p.ShanXing = sitMStar == yunNum && sitFStar == yunNum  // 双星会坐
+	p.XiangXing = faceMStar == yunNum && faceFStar == yunNum // 双星会向
+	p.XiaShui = faceMStar == yunNum && sitFStar == yunNum   // 上山下水
 
-	sitPStar := p.Palaces[sitPalace-1].PeriodStar.Number
-	facePStar := p.Palaces[facePalace-1].PeriodStar.Number
-	p.ShanXing = sitPStar != yunNum && sitMStar != yunNum
-	p.XiaShui = facePStar != yunNum && faceFStar != yunNum
-
-	opposite := 10 - sitPalace
-	p.FanYin = p.Palaces[opposite-1].PeriodStar.Number == yunNum
-
-	for i := 0; i < 9; i++ {
-		if p.Palaces[i].PeriodStar.Number == i+1 {
-			p.FuYin = true
-			break
-		}
-	}
+	// 运盘伏吟：运盘与地盘全盘重合（仅五运顺飞成立）。
+	p.FuYin = p.Yun.YunNumber == 5 && p.Palaces[4].PeriodStar.Number == 5
+	p.FanYin = false // 运盘恒顺飞，无反吟
 }
 
 // tiXingTable maps 24 mountain index → substitute star number (1-9).

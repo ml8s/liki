@@ -416,7 +416,7 @@ func TestComputeChart_ZiShanWuXiang_Yun8(t *testing.T) {
 
 	// 子(0)天元龙, 坐宫=坎(1), 运星=4(巽). 4入中逆飞(子阴).
 	// 4逆飞: 中4, 乾3(逆→乾位得3), 兑2, 艮1, 离9, 坎8, 坤7, 震6, 巽5
-	expectedShan := [9]int{8, 7, 6, 5, 4, 3, 2, 1, 9}
+	expectedShan := [9]int{9, 1, 2, 3, 4, 5, 6, 7, 8} // 山星4入中顺飞（巽=阳）：坎9坤1震2巽3中4乾5兑6艮7离8
 	for i, want := range expectedShan {
 		if chart.Palaces[i].MountainStar.Number != want {
 			t.Errorf("mountain star palace %d: got %d, want %d", i+1, chart.Palaces[i].MountainStar.Number, want)
@@ -433,19 +433,7 @@ func TestComputeChart_ZiShanWuXiang_Yun8(t *testing.T) {
 	}
 }
 
-func TestComputeChart_WangShanWangXiang_Evaluation(t *testing.T) {
-	// 八运 子山午向: 坐宫坎(1)山星=8, 向宫离(9)向星=8
-	// 山星8=运星8 → 旺山
-	// 向星8=运星8 → 旺向
-	chart := computeChart(0, 12, 2020)
-
-	if !chart.WangShan {
-		t.Error("子山午向八运: should be 旺山")
-	}
-	if !chart.WangXiang {
-		t.Error("子山午向八运: should be 旺向")
-	}
-}
+// 八运子山午向权威=双星会向（坐宫山星=9 非当令，非旺山旺向）——见 TestComputeChart_FourJu_Anchors。
 
 func TestComputeChart_FuYin_Detection(t *testing.T) {
 	// FuYin occurs when every palace's period star equals its palace number.
@@ -474,6 +462,55 @@ func TestXingJiaHui_TableCompleteness(t *testing.T) {
 	for _, key := range keys {
 		if _, ok := xingJiaHuiTable[key]; !ok {
 			t.Errorf("xingJiaHuiTable missing key %v", key)
+		}
+	}
+}
+
+// =============================================================================
+// 四大局判定（《沈氏玄空学》权威锚点）+ 山向星顺逆规则
+// =============================================================================
+
+// shanXiangForward — 入中星对应洛书宫的同元龙山阴阳定顺逆。
+func TestShanXiangForward(t *testing.T) {
+	cases := []struct {
+		center int
+		mount  int
+		want   bool // 顺飞
+		why    string
+	}{
+		{3, 0, false, "山星3入中=震宫(甲卯乙)，子=天元 → 卯=阴 → 逆飞"},
+		{2, 12, true, "向星2入中=坤宫(未坤申)，午=天元 → 坤=阳 → 顺飞"},
+		{4, 0, true, "山星4入中=巽宫(辰巽巳)，子=天元 → 巽=阳 → 顺飞"},
+		{3, 12, false, "向星3入中=震宫，午=天元 → 卯=阴 → 逆飞"},
+		{1, 23, true, "山星1入中=坎宫(壬子癸)，壬=地元 → 壬=阳 → 顺飞"},
+		{5, 0, false, "山星5入中无卦 → 按坐山自身（子=阴）→ 逆飞"},
+	}
+	for _, c := range cases {
+		if got := shanXiangForward(c.center, c.mount); got != c.want {
+			t.Errorf("shanXiangForward(%d, %d) = %v, want %v (%s)", c.center, c.mount, got, c.want, c.why)
+		}
+	}
+}
+
+// 四大局权威锚点（《沈氏玄空学》七运/八运下卦）：
+//
+//	七运子山午向=双星会坐；八运子山午向=双星会向；七运乾山巽向=上山下水；七运酉山卯向=旺山旺向。
+func TestComputeChart_FourJu_Anchors(t *testing.T) {
+	cases := []struct {
+		label              string
+		sit, face, yr      int
+		wS, wX, sZ, xX, ss bool
+	}{
+		{"七运子山午向=双星会坐", 0, 12, 1990, true, false, true, false, false},
+		{"八运子山午向=双星会向", 0, 12, 2020, false, true, false, true, false},
+		{"七运乾山巽向=上山下水", 21, 9, 1990, false, false, false, false, true},
+		{"七运酉山卯向=旺山旺向", 18, 6, 1990, true, true, false, false, false},
+	}
+	for _, c := range cases {
+		ch := computeChart(c.sit, c.face, c.yr)
+		if ch.WangShan != c.wS || ch.WangXiang != c.wX || ch.ShanXing != c.sZ || ch.XiangXing != c.xX || ch.XiaShui != c.ss {
+			t.Errorf("%s: got 旺山=%v 旺向=%v 双星会坐=%v 双星会向=%v 上山下水=%v; want %v %v %v %v %v",
+				c.label, ch.WangShan, ch.WangXiang, ch.ShanXing, ch.XiangXing, ch.XiaShui, c.wS, c.wX, c.sZ, c.xX, c.ss)
 		}
 	}
 }

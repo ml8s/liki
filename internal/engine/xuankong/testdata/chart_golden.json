@@ -229,8 +229,9 @@
   ],
   "wang_shan": false,
   "wang_xiang": false,
-  "shan_xing": true,
-  "xia_shui": true,
+  "shan_xing": false,
+  "xiang_xing": false,
+  "xia_shui": false,
   "fan_yin": false,
   "fu_yin": false,
   "xing_jia_hui": [
