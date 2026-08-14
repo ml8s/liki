@@ -8,11 +8,12 @@
 - **报告模板统一**：四份报告统一「结论先行+依据链+方法足迹」
 - **共享年飞星**：紫白飞星收敛到引擎 fengshui 包（修 xuankong 甲子年入中星偏差），八宅/玄空共用
 
-**3.9.0 后续补强（引擎 2.6.9-2.6.11 配套）**
+## 3.10.0 —— 规则引擎工具化：web agent 可执行 + 用神合并/小限移除/评审补强（引擎 2.6.9-2.6.11 配套）
+
+- **规则引擎工具化**（web agent 可执行）：新增 `tools/skill-tools.json`（5 工具 OpenAI function calling 格式，单一来源——本地/web agent 共用）+ `tools/agent_cli.py`（stdin {fn,args} → stdout {ok,data} 白名单分派，无任意代码执行）；`paipan.py` RPC_URL 环境化（LIKI_RPC_URL）；SKILL.md 引用 schema 文件、降级改"失败提示重试（保精度）"
 - `bazi.yongshen` 合并进 `bazi.chart`（yong_shen 三派内联）→ 删独立方法；`paipan.py`/webapp 流程改读 chart.yong_shen；`bazi.fullchart` 透传用神
 - 八字小限（bazi.xiaoxian）移除——小限为紫微体系概念，子平八字无正统依据
 - 评审改进：bazi/ziwei/huangli SKILL.md 补「路由/边界规则」节（8 域骨架统一）；工具链测试 10→19（藏/有根/旺/弱/缺算子 + evaluate_factors 因子快照）
-- **规则引擎工具化**（web agent 可执行）：新增 `tools/skill-tools.json`（5 工具 OpenAI function calling 格式，单一来源——本地/web agent 共用）+ `tools/agent_cli.py`（stdin {fn,args} → stdout {ok,data} 白名单分派，无任意代码执行）；`paipan.py` RPC_URL 环境化（LIKI_RPC_URL）；SKILL.md 引用 schema 文件、降级改"失败提示重试（保精度）"
 
 ## 3.8.1 —— 正式发布：断语撞修复 + 月令格神定主面 + 引擎流年神煞配套 + 窄表修复
 
