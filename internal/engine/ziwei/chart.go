@@ -106,10 +106,10 @@ func buildChartDetail(chart Chart) Chart {
 				// 主星 + 文昌/文曲（辅星但有亮度表 iztro minor_star_brightness）赋亮度
 				chart.GongWei[i].Stars[j].Brightness = miaoWang(s.Star, chart.GongWei[i].Zhi).String()
 			}
-			if s.IsMajor {
-				if h, ok := siHua[s.Star]; ok {
-					chart.GongWei[i].Stars[j].SiHua = string(h)
-				}
+			// 四化标注（主星 + 辅星文昌/文曲/左辅/右弼）：四化表含辅星——宫位标注须与
+			// 汇总 chart.SiHua 一致（否则出现汇总有文昌忌而福德宫文昌未标忌的矛盾）。
+			if h, ok := siHua[s.Star]; ok {
+				chart.GongWei[i].Stars[j].SiHua = string(h)
 			}
 		}
 	}
