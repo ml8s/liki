@@ -54,3 +54,15 @@ func ComputeSanYuanYun(year int) SanYuanYun {
 		EndYear:   endYear,
 	}
 }
+// positiveZeroShen 返回本运（正神, 零神）。
+// 权威（《沈氏玄空学》三元九运正零神）：正神=当令旺星、零神=合十失运星；
+// 中元五运五黄无卦，前十年寄坤（二为正神、八为零神）、后十年寄艮（八为正神、二为零神）。
+func (y SanYuanYun) positiveZeroShen() (int, int) {
+	if y.YunNumber == 5 {
+		if y.Year-y.StartYear < 10 {
+			return 2, 8 // 五运前十年寄坤
+		}
+		return 8, 2 // 五运后十年寄艮
+	}
+	return y.YunNumber, 10 - y.YunNumber
+}

@@ -248,6 +248,15 @@ func (p *Chart) computeXingJiaHui() [9]xingJiaHui {
 }
 
 // -- 收山出煞 (Mountain Containment & Sha Removal) --------------------
+//
+// 权威定义（《沈氏玄空学》/科普中国）：收山=生旺山星见山、生旺向星见水；
+// 出煞=衰死山星见水、衰死向星见山。完整判定需实际峦头砂水配合，
+// 纯排盘仅能给出理气部分：
+//   - 收山：坐宫山星=当令正神（正神正位装，山上旺星得山位）
+//   - 收水：向宫向星=当令正神（水里龙神不上山，向上旺星得水位）
+//   - 拨水入零堂：向宫向星=零神（合十衰星到向首，衰星被推向水处）
+// 零神=失运衰星之卦方；三元九运正零神为当令星与合十星，其中中元五运
+// 前十年寄坤（二为正神）、后十年寄艮（八为正神）。
 
 type shouShanChuSha struct {
 	ZhengShen  int    `json:"zheng_shen"`
@@ -258,9 +267,7 @@ type shouShanChuSha struct {
 }
 
 func (p *Chart) computeShouShanChuSha() shouShanChuSha {
-	yunNum := p.Yun.YunNumber
-	zhengShen := yunNum
-	lingShen := 10 - yunNum
+	zhengShen, lingShen := p.Yun.positiveZeroShen()
 
 	sitPalace := mountainPalace(p.SitMountain)
 	facePalace := mountainPalace(p.FaceMountain)
@@ -268,18 +275,19 @@ func (p *Chart) computeShouShanChuSha() shouShanChuSha {
 	sitMStar := p.Palaces[sitPalace-1].MountainStar.Number
 	faceFStar := p.Palaces[facePalace-1].FacingStar.Number
 
-	shouShanOK := sitMStar == zhengShen
-	chuShaOK := faceFStar == lingShen
+	shouShanOK := sitMStar == zhengShen // 收山：坐宫山星=当令正神
+	chuShaOK := faceFStar == lingShen   // 拨水入零堂：向宫向星=零神（理气部分的出煞）
 
 	var assessment string
-	if shouShanOK && chuShaOK {
-		assessment = "收山出煞俱得，丁财两旺"
-	} else if shouShanOK {
-		assessment = "收山得宜，旺丁；出煞未得，财弱"
-	} else if chuShaOK {
-		assessment = "出煞得宜，旺财；收山未得，丁弱"
-	} else {
-		assessment = "收山出煞俱失，宜择时改向"
+	switch {
+	case shouShanOK && chuShaOK:
+		assessment = "收山得宜、拨水入零堂，理气合局（完整收山出煞须验实际砂水）"
+	case shouShanOK:
+		assessment = "收山得宜（坐宫山星当令）；拨水入零堂未得，向首零神不见水"
+	case chuShaOK:
+		assessment = "拨水入零堂得宜（向宫向星零神）；收山未得，坐宫山星不当令"
+	default:
+		assessment = "收山、拨水入零堂俱未得，宜择时改向并验实际砂水"
 	}
 
 	return shouShanChuSha{
