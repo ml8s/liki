@@ -513,22 +513,6 @@ func TestHandler_FullChartIncludesExtra(t *testing.T) {
 	}
 }
 
-func TestHandler_ComputeYongShen_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chart := getBaziChart(t, r, btOK, "male")
-	params := json.RawMessage(fmt.Sprintf(`{"chart":%s}`, chart))
-	result, err := r.Execute(context.Background(), "bazi.yongshen", params)
-	if err != nil {
-		t.Fatalf("bazi.yongshen: %v", err)
-	}
-	if getStr(result, "_product") != "yongshen" {
-		t.Errorf("_product = %q, want yongshen", getStr(result, "_product"))
-	}
-	if !hasKey(result, "data") {
-		t.Error("missing data")
-	}
-}
-
 func TestHandler_ComputeLiuyue_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chart := getBaziChart(t, r, btOK, "male")
@@ -578,8 +562,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 33 {
-		t.Errorf("method count = %d, want 33 (32 + rpc.discover)", len(methods))
+	if len(methods) != 32 {
+		t.Errorf("method count = %d, want 32 (31 + rpc.discover)", len(methods))
 	}
 }
 

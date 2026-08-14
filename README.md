@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green)](./LICENSE)
 [![CI](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml)
 
-**liki-engine** 是一个独立的开源命理计算引擎：以 JSON-RPC 提供 **33 个 API**（32 个 RPC + `rpc.discover`），覆盖**八字、紫微斗数、六爻、奇门遁甲、起名、黄历、八宅、玄空** 8 个领域的天文历算与命理数值计算。**不依赖任何上层 Skill**——你可以直接把它集成到自己的 Web 应用、移动端、桌面工具或任意 AI 框架中。
+**liki-engine** 是一个独立的开源命理计算引擎：以 JSON-RPC 提供 **32 个 API**（31 个 RPC + `rpc.discover`），覆盖**八字、紫微斗数、六爻、奇门遁甲、起名、黄历、八宅、玄空** 8 个领域的天文历算与命理数值计算。**不依赖任何上层 Skill**——你可以直接把它集成到自己的 Web 应用、移动端、桌面工具或任意 AI 框架中。
 
 **它能帮你解决什么**：不用自己实现真太阳时校正、节气计算（VSOP87 秒级精度）、时区夏令时、农历闰月、紫微排盘等极易出错的底层算法——一个 `POST /jsonrpc` 就能拿到精确命盘数据。
 
@@ -43,7 +43,7 @@ curl -s http://localhost:8080/jsonrpc \
 
 | 领域 | 方法数 | 方法 |
 |------|--------|------|
-| 八字 | 9 | chart fullchart yongshen bond liunian liuyue liuri liushi xiaoyun |
+| 八字 | 8 | chart fullchart bond liunian liuyue liuri liushi xiaoyun |
 | 紫微斗数 | 8 | chart daxian fullchart liunian liuyue liuri liushi bond |
 | 起名 | 4 | char pick build check |
 | 八宅风水 | 2 | chart layout |
@@ -94,7 +94,7 @@ curl -s http://localhost:8080/jsonrpc \
 |------|------|
 | `bazi.chart` | 排盘：四柱+纳音+大运+性别（最小集）。如需完整十神/藏干/神煞/长生/空亡，传入 `bazi.fullchart` |
 | `bazi.fullchart` | 扩展命盘：补全十神、藏干、神煞、长生、空亡、自合、魁罡 |
-| `bazi.yongshen` | 用神分析：扶抑（旺衰）、调候（穷通宝鉴）、格局（子平）三派综合 |
+
 | `bazi.bond` | 双人合盘：日主、天干关系、地支关系、纳音、五行互补 |
 | `bazi.liunian` | 流年运势：干支/十神/神煞/伏吟反吟。流年神煞=动态 9 种（年支+日支双查）+ 值年 4 种（病符/丧门/吊客/大耗，`shensha[].name` 在 schema enum 声明） |
 | `bazi.liuyue` | 流月运势 |
@@ -172,7 +172,7 @@ curl -s http://localhost:8080/jsonrpc \
 | 操作 | 耗时 | 分配 |
 |------|------|------|
 | `bazi.chart` | ~43µs | 3.8KB, 52 allocs |
-| `bazi.yongshen`（三派） | ~5µs | 0.9KB, 13 allocs |
+| `bazi.chart`（含用神三派） | ~10µs | 1.7KB |
 | `ziwei.chart` | ~107µs | 5.4KB, 62 allocs |
 | `liuyao.chart` | ~10µs | 0.1KB, 2 allocs |
 | `qimen.chart` | ~26µs | 1.5KB, 36 allocs |

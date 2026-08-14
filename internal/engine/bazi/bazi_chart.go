@@ -86,6 +86,9 @@ type Chart struct {
 
 	// 出生公历年份（bazi.chart 起附）。供 bazi.liunian/liuri 按查询年份定位当年大运。
 	BirthYear int `json:"birth_year"`
+
+	// 用神三派（扶抑/调候/格局），chart 内联确定性派生，前端 LLM 综合三派定用神。
+	YongShen YongShenResult `json:"yong_shen"`
 }
 
 // FullChart is the expanded bazi chart with all fields (十神/藏干/神煞/长生/空亡...).

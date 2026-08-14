@@ -29,7 +29,6 @@ func TestAllMethodsSchema(t *testing.T) {
 	mk := func(m map[string]any) json.RawMessage { b2, _ := json.Marshal(m); return b2 }
 	calls := map[string]json.RawMessage{
 		"bazi.chart": bc, "bazi.fullchart": mk(map[string]any{"chart": b}),
-		"bazi.yongshen": mk(map[string]any{"chart": b}),
 		"bazi.liunian": mk(map[string]any{"chart": b, "year": 2026}),
 		"bazi.liuyue": mk(map[string]any{"chart": b, "year": 2026, "month": 6}),
 		"bazi.liuri": mk(map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4}),

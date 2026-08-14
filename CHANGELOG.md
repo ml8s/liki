@@ -1,4 +1,8 @@
 # Changelog
+- 2.6.10: bazi.yongshen 合并进 bazi.chart（用神三派内联）
+  - [bazi] chart 新增 yong_shen 字段（fu_yi 扶抑/tiao_hou 调候/ge_ju 格局三派，380B）；删 bazi.yongshen 方法（方法数 32→31，+discover=32）
+  - 用神为八字断命高频核心（断大运流年吉凶/命书/起名均需），确定性三派规则下沉引擎；前端 LLM 综合三派定用神的设计不变
+  - schema/测试/README/params.json（engine+web）同步；SKILL 4 处引用改读 chart.yong_shen
 - 2.6.9: 移除八字小限（bazi.xiaoxian）——概念与算法均非正统
   - [bazi] 小限是紫微/神煞体系概念（从命宫起、一岁一宫），子平八字正统不用小限（用大运+流年）；八字域原实现"男寅女申固定起法"亦非标准小限起法 → 删除方法/实现/测试
   - 紫微域已有正确小限（allPalaceXiaoXian 从命宫起，fullchart 含）不受影响

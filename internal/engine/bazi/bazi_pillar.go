@@ -22,6 +22,7 @@ func computeChartCore(bz ganzhi.Bazi, st tianwen.SolarTime, gender ganzhi.Gender
 	}
 	cr.DaYun = computeDaYun(st, bz.Yue, bz.Nian.Gan, bz.Ri.Gan, gender)
 	cr.BirthYear = st.Time().Year()
+	cr.YongShen = ComputeYongShen(cr)
 	return cr
 }
 

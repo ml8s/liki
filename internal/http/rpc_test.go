@@ -213,7 +213,7 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 
 	expected := []string{
 		"rpc.discover",
-		"bazi.fullchart", "bazi.chart", "bazi.yongshen", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun",
+		"bazi.fullchart", "bazi.chart", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun",
 		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.bond",
 		"qimen.chart",
 		"qiming.char", "qiming.pick", "qiming.build", "qiming.check",
@@ -617,21 +617,6 @@ func getBaziChart(t *testing.T, reg *agent.RPCRegistry) map[string]any {
 	return chart
 }
 
-func TestRPC_Dispatch_BaziYongShen(t *testing.T) {
-	reg := agent.NewRPCRegistry()
-	chart := getBaziChart(t, reg)
-	params := map[string]any{"chart": chart}
-	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"bazi.yongshen","params":%s,"id":2}`, mustMarshal(params))
-	postRPC(t, reg, body, func(resp rpcResponse) {
-		assertEnvelope(t, resp, "yongshen")
-		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		// 三派用神
-		for _, k := range []string{"fu_yi", "tiao_hou", "ge_ju"} {
-			assertNonNil(t, data, k)
-		}
-		validateSchema(t, "bazi.yongshen", resp.Result)
-	})
-}
 
 func TestRPC_Dispatch_BaziBond(t *testing.T) {
 	reg := agent.NewRPCRegistry()

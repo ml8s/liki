@@ -28,7 +28,7 @@ func TestDiscoverMethods_Filter(t *testing.T) {
 			t.Errorf("%s missing description", m.Name)
 		}
 	}
-	if !names["bazi.chart"] || !names["bazi.yongshen"] {
+	if !names["bazi.chart"] {
 		t.Errorf("bazi 域缺方法: %v", names)
 	}
 	if names["ziwei.chart"] || names["qimen.chart"] {
