@@ -7,6 +7,8 @@ import sys
 import unittest
 from unittest import mock
 
+import pytest
+
 sys.path.insert(0, __import__('os').path.join(
     __import__('os').path.dirname(__import__('os').path.abspath(__file__)), '..', 'tools'))
 
@@ -136,9 +138,11 @@ class TestSchemaConsistency(unittest.TestCase):
                     agent_cli._dispatch(n, {"rule": "marriage", "snapshots": {}})
 
 
+@pytest.mark.integration
 class TestIntegration_FullChain(unittest.TestCase):
     """全链路集成测试：full_paipan→liunian→make_liunian_factors→query。
-    依赖真实引擎（LIKI_RPC_URL），不可达时跳过——CI/无引擎环境不挂。"""
+    依赖真实引擎（LIKI_RPC_URL）。由服务已起的阶段执行（make test-all Docker 段/部署验收），
+    无服务阶段用 -m 'not integration' 排除（不显示 skipped）。"""
 
     def test_full_chain(self):
         import os

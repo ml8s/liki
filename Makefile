@@ -30,7 +30,10 @@ check: ## 改表后验证（schema 校验 + 数据检查）
 	@bash tests/check.sh
 
 # ── 测试 ──
-test: ## 运行全部 python 测试（规则引擎：因子/断语/agent_cli 分派）
-	python3 -m pytest tests/ -q
+test: ## 运行 python 单测（规则引擎：因子/断语/agent_cli 分派；integration 由服务已起阶段跑）
+	python3 -m pytest tests/ -q -m "not integration"
+
+test-integration: ## 全链路集成测试（需引擎服务：LIKI_RPC_URL 指向引擎 /jsonrpc）
+	python3 -m pytest tests/ -q -m integration
 
 test-all: test ## 全量（当前 = test；后续加 lint/archive 校验）

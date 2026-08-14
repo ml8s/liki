@@ -18,7 +18,7 @@ jobs:
       - name: Install pytest
         run: python3 -m pip install pytest
       - name: Run tests
-        run: python3 -m pytest tests/ -q
+        run: python3 -m pytest tests/ -q -m "not integration"
 
   archive:
     name: Build archive
