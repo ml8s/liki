@@ -155,9 +155,9 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
 		"qiming.pick", "qiming.build", "qiming.check",
-		"bazhai.chart", "bazhai.judgment",
-		"xuankong.chart", "xuankong.judgment",
-		"liuyao.chart", "liuyao.judgment",
+		"bazhai.chart", "bazhai.layout",
+		"xuankong.chart", "xuankong.liunian",
+		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",
 		"city",
 	}

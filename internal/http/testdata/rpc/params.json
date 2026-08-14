@@ -10,24 +10,6 @@
  "city": {
   "city": "Beijing"
  },
- "huangli.bond.date": {
-  "date": "2026-06-26",
-  "event_type": "嫁娶",
-  "solar_time": "2000-06-15T12:00:00+08:00"
- },
- "huangli.bond.month": {
-  "event_type": "嫁娶",
-  "month": "2026-06",
-  "solar_time": "2000-06-15T12:00:00+08:00"
- },
- "huangli.date": {
-  "date": "2026-06-26",
-  "event": "嫁娶"
- },
- "huangli.month": {
-  "event": "嫁娶",
-  "month": "2026-06"
- },
  "liuyao.chart": {
   "solar_time": "2000-06-15T12:00:00+08:00",
   "yaos": [
@@ -54,10 +36,6 @@
   ],
   "surname": "王",
   "yongshen": "金"
- },
- "qiming.wuge": {
-  "count": 2,
-  "surname": "李"
  },
  "tianwen.time": {
   "longitude": 116.4,
