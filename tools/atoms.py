@@ -325,6 +325,17 @@ def _op(op: str, args, factors, gender, chart) -> int:
         return _ge_shen_tou(factors, chart)
     if op == "格神根":
         return _ge_shen_gen(factors, chart)
+    if op == "月令本气":
+        # 月令本气十神（性格主面/格神）——full.yue.cang_gan.main 的十神（《子平真诠》月令为提纲，格神主性）
+        full = chart.get("full", {}) or {}
+        yue = full.get("yue", {}) or {}
+        main = (yue.get("cang_gan") or {}).get("main", "")
+        if not main:
+            return 0
+        for ss in yue.get("shi_shens", []):
+            if ss.get("gan") == main:
+                return 1 if ss.get("shi_shen") == args[0] else 0
+        return 0
     if op == "年柱官杀":
         return _nian_guan(factors, chart)
     if op == "日支冲刑害":
