@@ -169,13 +169,10 @@ check_rpc_ok "bazi.liushi"
 rpc bazi.xiaoyun "{\"chart\":$BAZI_CORE}"
 check_rpc_ok "bazi.xiaoyun"
 
-# bazi.chart 已内联 yong_shen（三派用神，2.6.10 起）
+# bazi.chart 纯排盘（2.6.14 起用神三派归 fullchart——chart 不含 yong_shen）
 rpc bazi.chart "$BR"
-check_rpc_ok "bazi.chart (yong_shen inline)"
-check_rpc "  has yong_shen" '.result.data.yong_shen != null' 'true'
-check_rpc "  has fu_yi" '.result.data.yong_shen.fu_yi.yong != null' 'true'
-check_rpc "  has tiao_hou" '.result.data.yong_shen.tiao_hou.yong != null' 'true'
-check_rpc "  has ge_ju" '.result.data.yong_shen.ge_ju.yong != null' 'true'
+check_rpc_ok "bazi.chart"
+check_rpc "  不含 yong_shen" '.result.data | has("yong_shen")' 'false'
 
 # 合会冲刑 + 三元/长生/纳音 在 bazi.fullchart（原 hehui/chart_extra 已并入）
 rpc bazi.fullchart "{\"chart\":$BAZI_CORE}"

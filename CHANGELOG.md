@@ -3,6 +3,7 @@
   - [bazi] DaYunStep 重构：qi_sui/zhi_sui → start_date/end_date（公历日期段）+ start_year/end_year（公历年）；顶层 start_age → start_date（起运公历日）；current_step_index/next_step_in_years 改公历年直判（免虚岁换算）
   - [ziwei] DaXianStep 加 start_year/end_year（大限公历年，保留 qi_sui/zhi_sui——大限虚岁粒度无日概念）
   - schema 同步（bazi.chart da_yun、ziwei.daxian）；golden/测试适配
+  - test-rpc.sh：yong_shen 断言改 fullchart（2.6.14 chart 纯排盘后旧断言 4 项失效——冒烟 73→74 全绿）
 - 2.6.14: 外部评审修复（用神归 fullchart + 四化一致性 + 空字段/子时/大运临界/借星 + Nominatim 策略）
   - [bazi] 用神三派移入完整命盘：chart 纯排盘（移除 yong_shen 内联，2.6.10 合并回滚），bazi.fullchart 承载；skill 引用同步
   - [ziwei] 修复四化一致性（评审⑥）：宫位辅星（文昌/文曲/左辅/右弼）四化标注与汇总 chart.SiHua 对齐（原只标主星——真 bug）；新增 TestSiHua_Consistency_StarLevel
