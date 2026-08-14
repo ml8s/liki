@@ -8,6 +8,12 @@
 - **报告模板统一**：四份报告统一「结论先行+依据链+方法足迹」
 - **共享年飞星**：紫白飞星收敛到引擎 fengshui 包（修 xuankong 甲子年入中星偏差），八宅/玄空共用
 
+## 3.10.2 —— 测试报告复核修复（大运公历年段 + time.now 前置 + 文档对齐）
+
+- [atoms] 大运窗口流年/换运流年/当前大运干支：虚岁换算 → 引擎公历年段直判（start_year/end_year，2.6.15 配套）
+- [aggregate] dayun_steps 组装改 start_date/end_date/start_year/end_year
+- [SKILL.md] Phase 0 强制前置 time.now（当前时间——应期/流年/换运基准）；大运/大限字段说明（公历日期段）；方法数 33→32
+
 ## 3.10.0 —— 规则引擎工具化：web agent 可执行 + 用神合并/小限移除/评审补强（引擎 2.6.9-2.6.11 配套）
 
 - **规则引擎工具化**（web agent 可执行）：新增 `tools/skill-tools.json`（5 工具 OpenAI function calling 格式，单一来源——本地/web agent 共用）+ `tools/agent_cli.py`（stdin {fn,args} → stdout {ok,data} 白名单分派，无任意代码执行）；`paipan.py` RPC_URL 环境化（LIKI_RPC_URL）；SKILL.md 引用 schema 文件、降级改"失败提示重试（保精度）"

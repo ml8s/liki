@@ -176,9 +176,10 @@ def build_factors(data: dict) -> dict:
         "yue_zhi": full.get("yue", {}).get("zhi", ""),
         "shi_zhi": full.get("shi", {}).get("zhi", ""),
         "_birth_year": int(data.get("solar", "")[:4]) if str(data.get("solar", ""))[:4].isdigit() else (data.get("lunar") or {}).get("year", 0) or 0,
-        # 大运每步：{name, qi_sui, zhi_sui, shi_shen}（shi_shen 如"正财运"/"七杀运"）
+        # 大运每步：{name, start_date, end_date, start_year, end_year, shi_shen}（引擎 2.6.15 公历日期段）
         "dayun_steps": [
-            {"name": s.get("name", ""), "qi_sui": s.get("qi_sui"), "zhi_sui": s.get("zhi_sui"),
+            {"name": s.get("name", ""), "start_date": s.get("start_date"), "end_date": s.get("end_date"),
+             "start_year": s.get("start_year"), "end_year": s.get("end_year"),
              "shi_shen": s.get("shi_shen", "")}
             for s in dy_steps
         ],

@@ -76,7 +76,7 @@ Content-Type: application/json
 
 ### 第一步：rpc.discover（按场景按需加载）
 
-**discover 按完整方法名**（如 `tianwen.time`、`bazi.chart`），逗号分隔多个；`methods` 留空 = 返回全部方法（33 个）。
+**discover 按完整方法名**（如 `tianwen.time`、`bazi.chart`），逗号分隔多个；`methods` 留空 = 返回全部方法（32 个）。
 
 **基础域（每次必加载）**：`tianwen.time`（真太阳时换算、当前时间）——所有场景都要用。
 
@@ -194,6 +194,14 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 
 **多领域分支**：一题含多领域（如"结婚后财运"）→ 主卡走 Phase 1-7 定案；次领域只做 Phase 5 该卡查表（不重走排盘/交叉），作为佐证。
 
+### Phase 0 当前时间（强制前置：先调 `time.now`）
+
+进入任何应期/流年/大运推理前，**必须先调 `time.now`**（无必填参数，返回 utc/local/cst）——确定"现在"：
+- **当前公历年**：大运/大限 `current_step_index`、`next_step_in_years`（距换运年数）的基准
+- **应期题语义**："今年/近年/哪一年"的起点；流年查询年份从当前年起算
+- **命主现在所处大运/大限**（引擎按服务器时间算 current_step_index，agent 用 time.now 对账）
+- 未获取当前时间，**禁止**进行应期/流年/换运类推理（时间基准缺失必错）。
+
 ### Phase 1 时辰判定（出口：写下 `时辰=XX（来源：校正/题干）`）
 
 按「真太阳时校正（强制）」两路规则执行（上文 RPC 调用说明，此处不复制）：
@@ -208,6 +216,7 @@ JSON-RPC 返回 `{"jsonrpc":"2.0","error":{"code":-32000,"message":"..."},"id":1
 **因子快照必须写出（组装引擎已算好的字段，禁止自行推算/重算——见数据原则）**：
 - □ 四柱十神：fullchart `shi_shens`（含 stem/main_qi 来源）+ 藏干 + `is_void`（空亡）/`is_kui_gang`/`shen_sha`（含吉凶分类）
 - □ 身强弱：yongshen `fu_yi.qiangruo`（如"身弱"）——**禁止自己数五行定强弱**
+- □ 大运/大限：chart `da_yun.steps[]`（**start_date/end_date 公历日期段 + start_year/end_year 公历年**，免虚岁换算）+ 起运 `start_date`；紫微 `ziwei.daxian`（**start_year/end_year** + qi_sui/zhi_sui）——**禁止按出生年自行换算年份**
 - □ 五行旺衰：`fu_yi.wang_shuai`（休/囚/死/相/旺）
 - □ 三派用神：`fu_yi`（扶抑）/`tiao_hou`（调候）/`ge_ju`（格局）各含 `yong/xi/ji`（取舍见 Phase 4）
 - □ 格局：`ge_ju.ge_ju` + `yong_fa`（顺用/逆用）

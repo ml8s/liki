@@ -546,18 +546,16 @@ def _liu_op(op: str, args, factors, gender, chart, ctx: dict = None) -> int:
             return 1 if ke == const["天干五行"].get(nian_gan, "") else 0
         return 0
     if op == "大运窗口流年":
-        birth_y = int(factors.get("_birth_year") or 0) or 0
-        age = (year - birth_y + 1) if birth_y else 0
+        # 引擎 2.6.15 起大运步骤带公历年段（start_year/end_year）——直接年份判断，免虚岁换算
         for s in factors.get("dayun_steps", []):
-            if any(k in s.get("shi_shen", "") for k in star_keys) and s["qi_sui"] <= age < s["zhi_sui"]:
+            if any(k in s.get("shi_shen", "") for k in star_keys) and s.get("start_year", 0) <= year <= s.get("end_year", 0):
                 return 1
         return 0
     if op == "换运流年":
-        birth_y = int(factors.get("_birth_year") or 0) or 0
-        age = (year - birth_y + 1) if birth_y else 0
+        # 换运首年 = 该步 start_year（引擎日期段直给）
         for s in factors.get("dayun_steps", []):
             if any(k in s.get("shi_shen", "") for k in star_keys):
-                if age in (s["qi_sui"], s["qi_sui"] + 1) and birth_y and year >= birth_y:
+                if year in (s.get("start_year", 0), s.get("start_year", 0) + 1):
                     return 1
         return 0
     if op == "流年宫化":
@@ -649,13 +647,11 @@ def _liu_op(op: str, args, factors, gender, chart, ctx: dict = None) -> int:
         return 1 if (g1 and g2 and const["天干五合"].get(g1) == g2) else 0
     return 0
 def _current_dayun_gz(ctx: dict) -> str:
-    """当前大运干支（机械——查大运步骤+虚岁）。"""
+    """当前大运干支（机械——查大运步骤公历年段）。"""
     fac2 = ctx.get("factors", {})
     year = ctx.get("year", 0)
-    birth_y = int(fac2.get("_birth_year") or 0) or 0
-    age = (year - birth_y + 1) if birth_y else 0
     for s in fac2.get("dayun_steps", []):
-        if s["qi_sui"] <= age < s["zhi_sui"]:
+        if s.get("start_year", 0) <= year <= s.get("end_year", 0):
             return s.get("name", "")
     return ""
 def _source_ganzhi(src: str, ctx: dict) -> str:
