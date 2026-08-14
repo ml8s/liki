@@ -393,48 +393,92 @@ func computeKongWang(bz ganzhi.Bazi) []int {
 }
 
 // computeDynamicShenSha computes shensha triggered by an external branch against the bazi chart.
-func computeDynamicShenSha(b ganzhi.Zhi, yearBranch ganzhi.Zhi, riYuan ganzhi.Gan) []shenShaEntry {
+func computeDynamicShenSha(b ganzhi.Zhi, yearBranch, riBranch ganzhi.Zhi, riYuan ganzhi.Gan) []shenShaEntry {
 	var result []shenShaEntry
-	bi := b
-	yb := yearBranch
-
-	if tb, ok := taohuaBranchMap[yb]; ok && tb == bi {
-		result = append(result, shenShaEntry{Name: "桃花", Category: catZhongXing, Description: "流运桃花，异性缘佳"})
+	seen := map[string]bool{}
+	add := func(name, cat, desc string) {
+		if !seen[name] {
+			seen[name] = true
+			result = append(result, shenShaEntry{Name: name, Category: cat, Description: desc})
+		}
 	}
-	if tb, ok := yimaBranchMap[yb]; ok && tb == bi {
-		result = append(result, shenShaEntry{Name: "驿马", Category: catZhongXing, Description: "流运驿马，动象奔波"})
+	// 三合局系神煞（桃花/驿马/华盖/劫煞/灾煞）——年支+日支双查（《三命通会》年支/日支桃花驿马）
+	for _, rb := range []ganzhi.Zhi{yearBranch, riBranch} {
+		if tb, ok := taohuaBranchMap[rb]; ok && tb == b {
+			add("桃花", catZhongXing, "流运桃花，异性缘佳")
+		}
+		if tb, ok := yimaBranchMap[rb]; ok && tb == b {
+			add("驿马", catZhongXing, "流运驿马，动象奔波")
+		}
+		if tb, ok := huagaiBranchMap[rb]; ok && tb == b {
+			add("华盖", catZhongXing, "流运华盖，宜静思")
+		}
+		if js, ok := jieshaBranch[rb]; ok && js == b {
+			add("劫煞", catXiong, "流运劫煞，防破财是非")
+		}
+		if zs, ok := zaishaBranch[rb]; ok && zs == b {
+			add("灾煞", catXiong, "流运灾煞，防意外灾祸")
+		}
 	}
-	if tb, ok := huagaiBranchMap[yb]; ok && tb == bi {
-		result = append(result, shenShaEntry{Name: "华盖", Category: catZhongXing, Description: "流运华盖，宜静思"})
+	// 红鸾/天喜——仅年支查（红鸾属年支体系，日支不取）
+	if hl, ok := hongluanLookup[yearBranch]; ok && hl == b {
+		add("红鸾", catJi, "流运红鸾，主婚喜添丁")
 	}
+	if tx, ok := tianxiLookup[yearBranch]; ok && tx == b {
+		add("天喜", catJi, "流运天喜，喜庆之事")
+	}
+	// 天乙贵人/羊刃——按日干
 	if targets, ok := tianYiLookup[riYuan]; ok {
 		for _, t := range targets {
-			if t == bi {
-				result = append(result, shenShaEntry{Name: "天乙贵人", Category: catJi, Description: "流运天乙贵人，有贵人相助"})
+			if t == b {
+				add("天乙贵人", catJi, "流运天乙贵人，有贵人相助")
 				break
 			}
 		}
 	}
-	if yr, ok := yangRenLookup[riYuan]; ok && yr == bi {
-		result = append(result, shenShaEntry{Name: "羊刃", Category: catXiong, Description: "流运羊刃，防冲动冲突"})
-	}
-	if js, ok := jieshaBranch[yb]; ok && js == bi {
-		result = append(result, shenShaEntry{Name: "劫煞", Category: catXiong, Description: "流运劫煞，防破财是非"})
-	}
-	if zs, ok := zaishaBranch[yb]; ok && zs == bi {
-		result = append(result, shenShaEntry{Name: "灾煞", Category: catXiong, Description: "流运灾煞，防意外灾祸"})
-	}
-	if hl, ok := hongluanLookup[yb]; ok && hl == bi {
-		result = append(result, shenShaEntry{Name: "红鸾", Category: catJi, Description: "流运红鸾，主婚喜添丁"})
-	}
-	if tx, ok := tianxiLookup[yb]; ok && tx == bi {
-		result = append(result, shenShaEntry{Name: "天喜", Category: catJi, Description: "流运天喜，喜庆之事"})
+	if yr, ok := yangRenLookup[riYuan]; ok && yr == b {
+		add("羊刃", catXiong, "流运羊刃，防冲动冲突")
 	}
 
 	if result == nil {
 		return []shenShaEntry{}
 	}
 	return result
+}
+
+// computeAnnualShenSha 值年神煞（《协纪辨方书》——按太岁/流年支查表，命局四柱逢煞支即应）。
+// 病符=太岁后1辰、丧门=后2辰、吊客=前2辰、大耗（岁破）=对冲。白虎查表有版本争议，不做。
+func computeAnnualShenSha(b ganzhi.Zhi, bz ganzhi.Bazi) []shenShaEntry {
+	annual := []struct {
+		name string
+		zhi  ganzhi.Zhi
+		desc string
+	}{
+		{"病符", zhiOffset(b, -1), "流运病符临命，主病灾"},
+		{"丧门", zhiOffset(b, -2), "流运丧门临命，主孝服/丧事"},
+		{"吊客", zhiOffset(b, +2), "流运吊客临命，主吊丧/孝服"},
+		{"大耗", zhiOffset(b, +6), "流运大耗临命，主破财大耗"},
+	}
+	var result []shenShaEntry
+	seen := map[string]bool{}
+	for _, a := range annual {
+		for _, p := range bz.Slice() {
+			if p.Zhi == a.zhi && !seen[a.name] {
+				seen[a.name] = true
+				result = append(result, shenShaEntry{Name: a.name, Category: catXiong, Description: a.desc})
+				break
+			}
+		}
+	}
+	if result == nil {
+		return []shenShaEntry{}
+	}
+	return result
+}
+
+// zhiOffset 地支循环偏移（z 后移 n 位，n 可为负）。
+func zhiOffset(z ganzhi.Zhi, n int) ganzhi.Zhi {
+	return ganzhi.Zhi((int(z)-1+n+120)%12 + 1)
 }
 
 func yuanChenBranch(yearBranch ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {

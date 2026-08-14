@@ -47,7 +47,7 @@ func computeLiuYue(bz ganzhi.Bazi, year, month int) (*LiuYue, error) {
 	// Month vs bazi: all 4 pillars, consistent with liunian.
 	stemRels, branchRels := analyzeZhuWithBazi(mp, bz)
 
-	shensha := computeDynamicShenSha(mp.Zhi, bazi[0].Zhi, riYuan)
+	shensha := computeDynamicShenSha(mp.Zhi, bazi[0].Zhi, bazi[2].Zhi, riYuan)
 
 	monthElemStr := monthElem.String()
 

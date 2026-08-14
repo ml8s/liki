@@ -79,7 +79,8 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 		r.DaYunInteractions = []zhuInteraction{}
 	}
 
-	r.ShenSha = computeDynamicShenSha(yearBranch, bz.Nian.Zhi, riYuan)
+	r.ShenSha = computeDynamicShenSha(yearBranch, bz.Nian.Zhi, bz.Ri.Zhi, riYuan)
+	r.ShenSha = append(r.ShenSha, computeAnnualShenSha(yearBranch, bz)...)
 	r.FuYinFanYin = computeFuYinFanYin(liuNianZhu, bz)
 
 	return r, nil

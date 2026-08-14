@@ -159,12 +159,19 @@ func TestLiuNian_ShenSha(t *testing.T) {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
 
-	// 2026 丙午年对 1984 甲子命：无羊刃/劫煞匹配 → 应为空数组（非 nil）
+	// 2026 丙午年对 1984 甲子命：值年煞——丧门（太岁午后2=辰，时支辰临命）、大耗（午对冲子，年/日支子临命）
 	if ln.ShenSha == nil {
 		t.Error("ShenSha is nil, want empty slice")
 	}
-	if len(ln.ShenSha) != 0 {
-		t.Errorf("2026 ShenSha = %v, want empty", ln.ShenSha)
+	names2026 := map[string]bool{}
+	for _, s := range ln.ShenSha {
+		names2026[s.Name] = true
+	}
+	if !names2026["丧门"] {
+		t.Errorf("2026 缺丧门（值年煞：太岁午→丧门辰，时支辰临命），got %v", ln.ShenSha)
+	}
+	if !names2026["大耗"] {
+		t.Errorf("2026 缺大耗（值年煞：太岁午→大耗子，命局有子），got %v", ln.ShenSha)
 	}
 
 	// 2025 乙巳年：命主日支子见巳 → 羊刃；年支子见巳 → 劫煞（具体断言）
