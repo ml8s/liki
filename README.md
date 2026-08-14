@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green)](./LICENSE)
 [![CI](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/ml8s/liki-engine/actions/workflows/ci.yml)
 
-**liki-engine** 是一个独立的开源命理计算引擎：以 JSON-RPC 提供 **37 个 API**，覆盖**八字、紫微斗数、六爻、奇门遁甲、起名、黄历、八宅、玄空** 8 个领域的天文历算与命理数值计算。**不依赖任何上层 Skill**——你可以直接把它集成到自己的 Web 应用、移动端、桌面工具或任意 AI 框架中。
+**liki-engine** 是一个独立的开源命理计算引擎：以 JSON-RPC 提供 **34 个 API**（33 个 RPC + `rpc.discover`），覆盖**八字、紫微斗数、六爻、奇门遁甲、起名、黄历、八宅、玄空** 8 个领域的天文历算与命理数值计算。**不依赖任何上层 Skill**——你可以直接把它集成到自己的 Web 应用、移动端、桌面工具或任意 AI 框架中。
 
 **它能帮你解决什么**：不用自己实现真太阳时校正、节气计算（VSOP87 秒级精度）、时区夏令时、农历闰月、紫微排盘等极易出错的底层算法——一个 `POST /jsonrpc` 就能拿到精确命盘数据。
 
