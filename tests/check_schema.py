@@ -70,12 +70,15 @@ def main() -> int:
                     if (v or "").strip():
                         cons[k] = v
                 # 交叉校验：八字表只用八字因子、紫微表只用紫微因子（防混合回潮——真分开）
-                expect = "bazi" if dom.startswith("bazi_") else ("ziwei" if dom.startswith("ziwei_") else None)
+                # 表文件在 bazi/ziwei 子目录（load_table 按目录定位），expect 按目录判定——
+                # 文件名无 bazi_/ziwei_ 前缀，不能用 dom（basename）判断（历史盲区：expect 恒 None）
+                _rel = os.path.relpath(f, DY).replace(os.sep, "/")
+                expect = "bazi" if _rel.startswith("bazi/") else ("ziwei" if _rel.startswith("ziwei/") else None)
                 if expect:
                     for ck in cons:
                         cs = factor_shushi.get(ck)
                         if cs and cs != expect:
-                            warnings.append(f"[{dom}] 跨术数条件列 '{ck}'（{cs}）——{expect} 表应纯{expect}因子")
+                            warnings.append(f"[{_rel}] 跨术数条件列 '{ck}'（{cs}）——{expect} 表应纯{expect}因子")
                 rows.append({"id": r.get("id", ""), "约束": cons, "结论": r.get("结论", ""),
                     "依据": r.get("依据", ""), "经典原文": r.get("经典原文", "")})
         used_keys = set()

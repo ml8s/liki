@@ -21,7 +21,7 @@
 
 **Liki** is a professional Skill for Chinese Metaphysics: **BaZi, ZiWei, naming, Liuyao, Qimen, date selection, and Feng Shui** — 8 domains in your AI assistant. It is not "let the AI free-style fortune-telling"; it turns traditional metaphysics into an engineered tool with **executable process, verifiable conclusions, and traceable judgments**.
 
-- **For users**: every conclusion has four guarantees — chart casting never relies on the model (astronomical engine), judgments never rely on improvisation (46 truth tables, 701 rules with classical references), process never skips steps (gate-based checklists), and conclusions can be re-verified against your real life events (calibration).
+- **For users**: every conclusion has four guarantees — chart casting never relies on the model (astronomical engine), judgments never rely on improvisation (46 truth tables, 589 rules with classical references), process never skips steps (gate-based checklists), and conclusions can be re-verified against your real life events (calibration).
 - **For developers**: all judgment rules are CSV truth tables (readable, editable, reviewable), the evaluation harness ships with the skill (160 questions, answer-isolated, auto-graded, reproducible), and engine + skill are cleanly separated ([liki-engine](https://github.com/ml8s/liki-engine) is open source).
 
 ## What You Can Do
@@ -43,7 +43,7 @@ Reliability is not a slogan — five hard mechanisms:
 
 **① Astronomical engine, no model charting** — BaZi/ZiWei charting is done by the open-source [liki-engine](https://github.com/ml8s/liki-engine): true solar time, DST, lat-lon timezone — all computed astronomically. The model only interprets; it is **forbidden to derive chart data itself**.
 
-**② Truth-table-driven judgments** — 46 judgment tables (BaZi 26 + ZiWei 20, **701 rules**), each with a **classical reference column** (from 《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》 etc.). Rules are rules — readable, editable, reviewable. Plus 7 yearly tables (annual event domains, including annual star spirits).
+**② Truth-table-driven judgments** — 46 judgment tables (BaZi 26 + ZiWei 20, **589 rules**), each with a **classical reference column** (from 《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》 etc.). Rules are rules — readable, editable, reviewable. Plus 7 yearly tables (annual event domains, including annual star spirits).
 
 **③ Gate-based execution, no skipped steps** — all question types follow a unified pipeline (Phase 0-8): routing → hour determination → chart snapshot → strength/yongshen → domain lookup → ZiWei cross-check → calibration. Each phase has a fill-in checklist (□ fill-in, not check-off); incomplete = invalid conclusion.
 
@@ -94,7 +94,7 @@ bash tests/run-qwen.sh --parallelism 16          # move answers → eval → res
 
 ```
 ┌─ Process layer   SKILL.md Phase 0-8 (gate-based) + app/ 13 cards (per-scenario routing)
-├─ Rule layer      tools/ 46 truth tables (701 rules + classical refs) + factor engine (497 factor definitions)
+├─ Rule layer      tools/ 46 truth tables (589 rules + classical refs) + factor engine (495 factor definitions)
 ├─ Tool layer      tools/ 5 functions (full_paipan / make_factors / query …)
 └─ Engine layer    liki-engine (open-source JSON-RPC astronomical computation)
 ```
@@ -110,7 +110,7 @@ Data pipeline: **engine charts (astronomical) → factor generation (truth table
 ├── tools/      ← Inference engine (charting / factors / rule lookup)
 │   ├── bazi/       ← BaZi rule tables, 26 (incl. yearly_* 7)
 │   ├── ziwei/      ← ZiWei rule tables, 20
-│   ├── factors/    ← Factor definitions (natal 497 + liunian factors)
+│   ├── factors/    ← Factor definitions (natal 495 + liunian factors)
 │   ├── paipan.py   ← Charting (full_paipan / liunian)
 │   └── duanyu.py   ← Rule lookup (query / match)
 ├── tests/      ← Evaluation harness (160 grouped cases, answer separation, grading scripts)

@@ -179,13 +179,14 @@ def load_liunian_rows():
 
 def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_data: dict,
                              target: str = "配偶星", marriage_bad: int = 0,
-                             shi_ke_guan_arg: int = 0,
+                             shi_ke_guan_arg: int = 0, shi_shang_zhong_arg: int = 0,
                              zw_liunian_data: Optional[dict] = None,
                              year: int = 0, shushi: Optional[str] = None) -> dict:
     """流年复合因子（表驱动）：读 factors_liunian.csv 逐行求值 → 流年因子快照。
 
     与 evaluate_factors 同构——流年因子定义在表，engine 纯机械。
     liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化（可选）。
+    shi_shang_zhong_arg: 本命"食伤旺"快照值——"引用本命[食伤重]"算子读取（yingqi 损胎/婚变断语）。
     """
     ctx = {
         "liunian": liunian_data or {},
@@ -193,6 +194,7 @@ def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_da
         "target": target,
         "marriage_bad": marriage_bad,
         "shi_ke_guan": shi_ke_guan_arg,
+        "shi_shang_zhong": shi_shang_zhong_arg,
         "year": year,
         "chart": chart,
         "factors": factors,
@@ -256,6 +258,7 @@ def make_liunian_factors(pan: dict, liunian_pan: dict, target: str = "配偶星"
     base = dict(
         factors=pan["fac"], gender=pan["gender"], chart=pan, liunian_data=liunian_pan["bazi"],
         target=target, marriage_bad=bz.get("本命婚凶", 0), shi_ke_guan_arg=bz.get("食伤克官", 0),
+        shi_shang_zhong_arg=bz.get("食伤旺", 0),
         zw_liunian_data=liunian_pan["ziwei"], year=year,
     )
     return {

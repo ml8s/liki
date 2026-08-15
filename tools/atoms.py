@@ -573,6 +573,9 @@ def _liu_op(op: str, args, factors, gender, chart, ctx: dict = None) -> int:
             return ctx.get("marriage_bad", 0)
         if key == "食伤克官":
             return ctx.get("shi_ke_guan", 0)
+        if key == "食伤重":
+            # 本命食伤重（= 本命快照"食伤旺"——流年因子"食伤重"引用；yingqi ying_h18/19 断语条件）
+            return ctx.get("shi_shang_zhong", 0)
         return 0
     # ── 机械原子（查 constants 表/比较——组合定义在表）──
     if op == "干支相等":
@@ -698,5 +701,8 @@ def _source_zhi(src: str, ctx: dict) -> str:
 def _target_stars(target: str, gender: str, const: dict) -> tuple:
     ts = const.get("目标星", {}).get(target, ())
     if isinstance(ts, dict):
-        return tuple(ts.get(gender, ()))
+        # constants.json 性别键为 male/female（英文）——兼容外部传入的中文 男/女（历史漏配：
+        # gender="女" 直接 ts.get("女") 取不到 → star_keys 恒空 → 流年透/流年克 算子恒 0）
+        g = {"男": "male", "女": "female"}.get(gender, gender)
+        return tuple(ts.get(g, ()))
     return tuple(ts) if isinstance(ts, (list, tuple)) else ()
