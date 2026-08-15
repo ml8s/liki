@@ -17,6 +17,17 @@ jobs:
           python-version: '3.12'
       - name: Install pytest
         run: python3 -m pip install pytest
+      - name: Check content.sha256 freshness
+        # 防止"提交内容与指纹脱节"（历史教训：HEAD 提交 d9057296 与 HEAD 树实际指纹 ad6b75ad 不符，
+        # 导致安装副本自检总报"内容滞后"）。改任何分发内容必须同步重新生成 content.sha256。
+        run: |
+          FP="$(python3 tools/hash.py .)"
+          if [ "$(cat content.sha256)" != "$FP" ]; then
+            echo "❌ content.sha256 过期：提交值 $(cat content.sha256) ≠ 当前树指纹 $FP"
+            echo "   请运行: python3 tools/hash.py . content.sha256 并随内容一起提交"
+            exit 1
+          fi
+          echo "✓ content.sha256 与树一致"
       - name: Run tests
         run: python3 -m pytest tests/ -q --ignore=tests/test_integration.py
 

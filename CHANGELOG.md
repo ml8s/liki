@@ -1,4 +1,13 @@
 # Changelog
+
+## 3.10.1 —— 三刑算子修复 + 打包/指纹一致性（自检不再误报"内容滞后"）
+
+- **[atoms] 三刑算子严重 bug 修复**：`for grp in const["三刑"]` 遍历 dict 得到的是 key（单字地支），`all(g in zhis for g in grp[0])` 退化为"zhis 含任一三刑组地支即命中"——改为 `for k, v in const["三刑"].items()`，k 与其同组其余地支**全部在场**才算凑齐（寅巳申/丑戌未/子卯/自刑需双字）；实测"三刑流年"因子不再年年恒命中（原 bug 影响 6 条断语、横跨 6 域：yliu_108/ys_106/ying_h09/h18/h19/h20）
+- **[hash] content.sha256 指纹范围对齐打包范围**：排除 tests/scripts/webapp/.github/.githooks/docs 及根级工程文件（README/CHANGELOG/LICENSE/Makefile/pytest.ini 等）；EXCLUDE_FILES 改**根级精确匹配**（`README.md` 只排除根文件，不误伤 app/README.md）；`VERSION` 保留在指纹内（随内容变更驱动指纹）
+- **[build] build-archive.sh 打包干净化**：补齐排除 .github/.pytest_cache/__pycache__；根级文件排除加 `./` 前缀精确匹配（修复 `--exclude README.md` 误伤 app/README.md）；`VERSION` 不再排除（自检必需，随包分发）；webapp/tests/scripts 保持不入包
+- **[sync] liki-web sync-skills.sh**：rsync 排除口径与打包一致（webapp/tests/工程文件/缓存）
+- **[ci] content.sha256 一致性校验**：push 时若提交指纹 ≠ 当前树指纹直接失败——根治"提交内容与指纹脱节"（历史教训：HEAD 提交 d9057296 与 HEAD 树实际指纹 ad6b75ad 不符，导致安装副本每次自检误报）
+
 ## 3.9.0 —— 占卜风水四门同构化：确定性下沉引擎，断语归位前端（引擎 2.6.0 配套）
 
 - **架构统一（参照八字紫微）**：四门（六爻/奇门/八宅/玄空）确定性计算全部下沉引擎（排盘+派生），judgment 方法全删，引擎不再输出 rating/advice 类综合评级——吉凶用符号固有属性（星/门/用神自身），断语由 LLM 按统一断语表翻译

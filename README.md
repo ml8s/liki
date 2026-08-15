@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>Liki — 命理师的 Skill（v3.10.0）</strong>
+  <strong>Liki — 命理师的 Skill（v3.10.1）</strong>
 </p>
 
 <p align="center">

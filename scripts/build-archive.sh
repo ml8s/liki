@@ -16,24 +16,27 @@ tar czf "$ARCHIVE" \
     --transform 's|^\./||' \
     -C "$PROJECT_DIR" \
     --exclude .git \
-    --exclude .gitignore \
+    --exclude .github \
     --exclude .githooks \
     --exclude .claude \
     --exclude .reasonix \
+    --exclude .pytest_cache \
+    --exclude __pycache__ \
     --exclude '*.tar.gz' \
     --exclude dist \
-    --exclude reasonix.toml \
-    --exclude README.md \
-    --exclude README.en.md \
-    --exclude CHANGELOG.md \
-    --exclude CONTRIBUTING.md \
-    --exclude LICENSE \
-    --exclude AGENTS.md \
-    --exclude Makefile \
     --exclude webapp \
     --exclude tests \
-    --exclude VERSION \
     --exclude scripts \
+    --exclude './.gitignore' \
+    --exclude './reasonix.toml' \
+    --exclude './README.md' \
+    --exclude './README.en.md' \
+    --exclude './CHANGELOG.md' \
+    --exclude './CONTRIBUTING.md' \
+    --exclude './LICENSE' \
+    --exclude './AGENTS.md' \
+    --exclude './Makefile' \
+    --exclude './pytest.ini' \
     .
 
 DIGEST="sha256:$(sha256sum "$ARCHIVE" | awk '{print $1}')"

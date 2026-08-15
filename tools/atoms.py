@@ -592,18 +592,25 @@ def _liu_op(op: str, args, factors, gender, chart, ctx: dict = None) -> int:
         return 1 if (z1 and z2 and const["六冲"].get(z1) == z2) else 0
     if op == "三刑":
         # 三刑[支来源...]——命局四柱支（含流年）凑齐三刑组
-        zhis = set()
+        zhis = []
         for a in args:
             zv = _source_zhi(a, ctx)
-            if zv:
-                zhis.add(zv)
+            # 日支/时支/年支即四柱对应位置，由下方四柱循环计入——跳过，避免同字重复计数
+            # （否则日支=午 会被计 2 次，令"午午"自刑在单午时误成立）
+            if zv and a not in ("日支", "时支", "年支"):
+                zhis.append(zv)
         chart = chart.get("chart", {}) or {}
         for zhu in ("nian", "yue", "ri", "shi"):
             z = (chart.get(zhu) or {}).get("zhi", "")
             if z:
-                zhis.add(z)
-        for grp in const["三刑"]:
-            if grp and all(g in zhis for g in grp[0]):
+                zhis.append(z)
+        # 计数：const["三刑"] 为 dict，key=组内一个地支，value=同组其余地支。
+        # 需 k 与其同组其余地支全部在场（自刑组 v=[k]，需同字出现 ≥2 次才算）。
+        cnt: dict = {}
+        for z in zhis:
+            cnt[z] = cnt.get(z, 0) + 1
+        for k, v in const["三刑"].items():
+            if cnt.get(k, 0) >= 1 and all(cnt.get(g, 0) >= (2 if g == k else 1) for g in v):
                 return 1
         return 0
     if op == "旬空":
