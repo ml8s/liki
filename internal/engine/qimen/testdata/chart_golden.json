@@ -90,64 +90,64 @@
     {
       "di_pan_gan": "庚",
       "tian_pan_gan": "丙",
-      "name": "庚+丙",
-      "meaning": "太白入荧：为客进利，为主破财",
+      "name": "丙+庚",
+      "meaning": "荧入太白：门户破财，盗贼必来",
       "auspicious": false
     },
     {
       "di_pan_gan": "己",
       "tian_pan_gan": "丁",
-      "name": "己+丁",
-      "meaning": "上生下，谋事可成",
-      "auspicious": true
+      "name": "丁+己",
+      "meaning": "火入勾陈：奸私仇冤，事因女人",
+      "auspicious": false
     },
     {
       "di_pan_gan": "戊",
       "tian_pan_gan": "癸",
-      "name": "戊+癸",
-      "meaning": "青龙华盖：门吉招福，门凶多乖",
-      "auspicious": false
+      "name": "癸+戊",
+      "meaning": "天乙会合：吉门宜求财，婚姻喜美",
+      "auspicious": true
     },
     {
       "di_pan_gan": "乙",
       "tian_pan_gan": "壬",
-      "name": "乙+壬",
-      "meaning": "日奇入地：尊卑悖乱，官讼是非",
-      "auspicious": false
+      "name": "壬+乙",
+      "meaning": "上生下，谋事可成",
+      "auspicious": true
     },
     {
       "di_pan_gan": "丙",
       "tian_pan_gan": "辛",
-      "name": "丙+辛",
-      "meaning": "日月相会：谋事成就，病人不凶",
-      "auspicious": true
+      "name": "辛+丙",
+      "meaning": "干合悖师：因财致讼，门吉则安",
+      "auspicious": false
     },
     {
       "di_pan_gan": "丁",
       "tian_pan_gan": "庚",
-      "name": "丁+庚",
-      "meaning": "行人必归：音信通达，行人必至",
-      "auspicious": true
+      "name": "庚+丁",
+      "meaning": "亭亭之格：因私匿起官司，门吉有救",
+      "auspicious": false
     },
     {
       "di_pan_gan": "癸",
       "tian_pan_gan": "己",
-      "name": "癸+己",
-      "meaning": "上克下，主胜于客",
+      "name": "己+癸",
+      "meaning": "地刑玄武：男女疾病垂危，词讼有狱",
       "auspicious": false
     },
     {
       "di_pan_gan": "壬",
       "tian_pan_gan": "戊",
-      "name": "壬+戊",
-      "meaning": "小蛇化龙：男人发达，事业亨通",
-      "auspicious": true
+      "name": "戊+壬",
+      "meaning": "青龙入牢：公私皆碍，动用不吉",
+      "auspicious": false
     },
     {
       "di_pan_gan": "辛",
       "tian_pan_gan": "乙",
-      "name": "辛+乙",
-      "meaning": "白虎猖狂：家败人亡，远行多殃",
+      "name": "乙+辛",
+      "meaning": "青龙逃走：奴仆拐带，测婚离散",
       "auspicious": false
     }
   ],

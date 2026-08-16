@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>liki-engine — 开源命理计算引擎（v2.6.12）</strong>
+  <strong>liki-engine — 开源命理计算引擎（v2.6.20）</strong>
 </p>
 
 <p align="center">

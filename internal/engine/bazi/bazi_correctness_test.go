@@ -133,35 +133,35 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 	}{
 		// 甲木调候
 		{ganzhi.GanJia, ganzhi.ZhiYin, "火"},  // 正月甲木: 丙癸
-		{ganzhi.GanJia, ganzhi.ZhiMao, "金"},  // 二月甲木: 癸庚丁
+		{ganzhi.GanJia, ganzhi.ZhiMao, "金"},  // 二月甲木: 庚丙丁
 		{ganzhi.GanJia, ganzhi.ZhiWu, "水"},   // 五月甲木: 癸丁庚
-		{ganzhi.GanJia, ganzhi.ZhiShen, "火"}, // 七月甲木: 丁壬庚
+		{ganzhi.GanJia, ganzhi.ZhiShen, "金"}, // 七月甲木: 先庚后丁（伤官制煞）
 		{ganzhi.GanJia, ganzhi.ZhiZi, "火"},   // 十一月甲木: 丁庚丙
 
 		// 乙木调候
-		{ganzhi.GanYi, ganzhi.ZhiYin, "火"},   // 正月乙木: 丙癸
-		{ganzhi.GanYi, ganzhi.ZhiWu, "水"},    // 五月乙木: 壬癸
-		{ganzhi.GanYi, ganzhi.ZhiShen, "火"},  // 七月乙木: 癸丙
+		{ganzhi.GanYi, ganzhi.ZhiYin, "火"},  // 正月乙木: 丙癸
+		{ganzhi.GanYi, ganzhi.ZhiWu, "水"},   // 五月乙木: 癸丙
+		{ganzhi.GanYi, ganzhi.ZhiShen, "火"}, // 七月乙木: 丙癸己
 
 		// 丙火调候
 		{ganzhi.GanBing, ganzhi.ZhiYin, "水"}, // 正月丙火: 壬庚
-		{ganzhi.GanBing, ganzhi.ZhiWu, "水"},  // 五月丙火: 癸庚壬
-		{ganzhi.GanBing, ganzhi.ZhiZi, "土"},  // 十一月丙火: 甲戊庚
+		{ganzhi.GanBing, ganzhi.ZhiWu, "水"},  // 五月丙火: 壬庚
+		{ganzhi.GanBing, ganzhi.ZhiZi, "水"},  // 十一月丙火: 先壬戊佐（用戊不可少甲）
 
 		// 丁火调候
-		{ganzhi.GanDing, ganzhi.ZhiYin, "木"},  // 正月丁火: 甲庚
-		{ganzhi.GanDing, ganzhi.ZhiWu, "水"},   // 五月丁火: 壬庚癸
-		{ganzhi.GanDing, ganzhi.ZhiYou, "木"},  // 八月丁火: 甲庚丙戊
+		{ganzhi.GanDing, ganzhi.ZhiYin, "木"}, // 正月丁火: 甲庚
+		{ganzhi.GanDing, ganzhi.ZhiWu, "水"},  // 五月丁火: 壬庚癸
+		{ganzhi.GanDing, ganzhi.ZhiYou, "木"}, // 八月丁火: 甲庚丙戊
 
 		// 庚金调候
-		{ganzhi.GanGeng, ganzhi.ZhiYin, "火"},  // 正月庚金: 戊甲丙丁
+		{ganzhi.GanGeng, ganzhi.ZhiYin, "火"},  // 正月庚金: 丁甲
 		{ganzhi.GanGeng, ganzhi.ZhiWu, "水"},   // 五月庚金: 壬癸
 		{ganzhi.GanGeng, ganzhi.ZhiShen, "火"}, // 七月庚金: 丁甲
 
 		// 壬水调候
-		{ganzhi.GanRen, ganzhi.ZhiYin, "金"},  // 正月壬水: 庚戊丙
-		{ganzhi.GanRen, ganzhi.ZhiWu, "金"},   // 五月壬水: 癸庚辛
-		{ganzhi.GanRen, ganzhi.ZhiZi, "土"}, // 十一月壬水: 戊丙
+		{ganzhi.GanRen, ganzhi.ZhiYin, "金"}, // 正月壬水: 庚丙
+		{ganzhi.GanRen, ganzhi.ZhiWu, "金"},  // 五月壬水: 庚辛
+		{ganzhi.GanRen, ganzhi.ZhiZi, "土"},  // 十一月壬水: 戊丙
 	}
 
 	for _, tt := range tests {
@@ -213,12 +213,12 @@ func TestDaYun_Direction(t *testing.T) {
 	// DaYun direction: 阳年男/阴年女 → 顺排; 阳年女/阴年男 → 逆排.
 	// 甲子年(阳), 丙寅年(阳), 乙丑年(阴), 丁卯年(阴).
 	tests := []struct {
-		name        string
-		year        int
-		month       int
-		day         int
-		gender      ganzhi.Gender
-		wantDir     string
+		name    string
+		year    int
+		month   int
+		day     int
+		gender  ganzhi.Gender
+		wantDir string
 	}{
 		{"阳年男→顺排 1984甲子", 1984, 2, 15, ganzhi.Male, DirShunPai},
 		{"阳年女→逆排 1984甲子", 1984, 2, 15, ganzhi.Female, DirNiPai},
@@ -283,10 +283,10 @@ func TestDaYun_Direction(t *testing.T) {
 func TestPillarConsistency_YearToMonth(t *testing.T) {
 	// Verify 年上起月法 (五虎遁): month stem follows year stem correctly.
 	tests := []struct {
-		name      string
-		year      int
-		month     int
-		day       int
+		name        string
+		year        int
+		month       int
+		day         int
 		wantNianGan ganzhi.Gan
 	}{
 		// 甲年(1984) → 正月丙寅
@@ -313,12 +313,12 @@ func TestPillarConsistency_YearToMonth(t *testing.T) {
 
 	// Expected first-month stem for each year stem (正月 = 寅月).
 	wuHuDun := map[ganzhi.Gan]ganzhi.Gan{
-		ganzhi.GanJia: ganzhi.GanBing,
-		ganzhi.GanYi:  ganzhi.GanWu,
+		ganzhi.GanJia:  ganzhi.GanBing,
+		ganzhi.GanYi:   ganzhi.GanWu,
 		ganzhi.GanBing: ganzhi.GanGeng,
 		ganzhi.GanDing: ganzhi.GanRen,
-		ganzhi.GanWu:  ganzhi.GanJia,
-		ganzhi.GanJi:  ganzhi.GanBing,
+		ganzhi.GanWu:   ganzhi.GanJia,
+		ganzhi.GanJi:   ganzhi.GanBing,
 		ganzhi.GanGeng: ganzhi.GanWu,
 		ganzhi.GanXin:  ganzhi.GanGeng,
 		ganzhi.GanRen:  ganzhi.GanRen,
@@ -360,28 +360,28 @@ func TestPillarConsistency_DayToHour(t *testing.T) {
 	// Verify 日上起时法 (五鼠遁): hour stem follows day stem correctly.
 	// Test for multiple days at 子时 (00:00).
 	tests := []struct {
-		name   string
-		year   int
-		month  int
-		day    int
+		name      string
+		year      int
+		month     int
+		day       int
 		wantRiGan ganzhi.Gan
 	}{
 		// These dates are chosen so riGan cycles through all 10 stems.
 		{"甲日→甲子时", 1984, 2, 15, ganzhi.GanJi},   // 己卯日, 子时=甲子
-		{"乙日→丙子时", 1984, 2, 16, ganzhi.GanGeng},  // 庚辰日, 子时=丙子
-		{"丙日→戊子时", 1984, 2, 17, ganzhi.GanXin},   // 辛巳日, 子时=戊子
-		{"丁日→庚子时", 1984, 2, 18, ganzhi.GanRen},   // 壬午日, 子时=庚子
-		{"戊日→壬子时", 1984, 2, 19, ganzhi.GanGui},   // 癸未日, 子时=壬子
+		{"乙日→丙子时", 1984, 2, 16, ganzhi.GanGeng}, // 庚辰日, 子时=丙子
+		{"丙日→戊子时", 1984, 2, 17, ganzhi.GanXin},  // 辛巳日, 子时=戊子
+		{"丁日→庚子时", 1984, 2, 18, ganzhi.GanRen},  // 壬午日, 子时=庚子
+		{"戊日→壬子时", 1984, 2, 19, ganzhi.GanGui},  // 癸未日, 子时=壬子
 	}
 
 	// 五鼠遁: day stem → zi-hour stem.
 	wuShuDun := map[ganzhi.Gan]ganzhi.Gan{
-		ganzhi.GanJia: ganzhi.GanJia,
-		ganzhi.GanYi:  ganzhi.GanBing,
+		ganzhi.GanJia:  ganzhi.GanJia,
+		ganzhi.GanYi:   ganzhi.GanBing,
 		ganzhi.GanBing: ganzhi.GanWu,
 		ganzhi.GanDing: ganzhi.GanGeng,
-		ganzhi.GanWu:  ganzhi.GanRen,
-		ganzhi.GanJi:  ganzhi.GanJia,
+		ganzhi.GanWu:   ganzhi.GanRen,
+		ganzhi.GanJi:   ganzhi.GanJia,
 		ganzhi.GanGeng: ganzhi.GanBing,
 		ganzhi.GanXin:  ganzhi.GanWu,
 		ganzhi.GanRen:  ganzhi.GanGeng,
@@ -424,8 +424,8 @@ func TestPillarConsistency_DayToHour(t *testing.T) {
 
 func TestShiShen_ReferenceCases(t *testing.T) {
 	tests := []struct {
-		riYuan     ganzhi.Gan
-		other      ganzhi.Gan
+		riYuan      ganzhi.Gan
+		other       ganzhi.Gan
 		wantShiShen string
 	}{
 		// 甲木日主 vs 十天干
@@ -484,9 +484,9 @@ func TestMonthBoundary_JieQi(t *testing.T) {
 	// Verify month pillar changes at 节气, not at calendar month boundaries.
 	// Test dates near 立春 (around Feb 3-4).
 	tests := []struct {
-		name        string
-		date        time.Time
-		wantYueZhi  ganzhi.Zhi
+		name       string
+		date       time.Time
+		wantYueZhi ganzhi.Zhi
 	}{
 		// 2024年立春: 2月4日 16:27 CST.
 		// Before 立春 → 丑月; After → 寅月.
@@ -531,8 +531,8 @@ func TestYearBoundary_LiChun(t *testing.T) {
 	// 2024年立春: 2月4日 16:27 CST.
 	// Before → 癸卯年; After → 甲辰年.
 	tests := []struct {
-		name       string
-		date       time.Time
+		name        string
+		date        time.Time
 		wantNianGan ganzhi.Gan
 		wantNianZhi ganzhi.Zhi
 	}{

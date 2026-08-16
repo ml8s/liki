@@ -29,9 +29,9 @@ func TestComputeFullTripleHeHui_SanHeWater(t *testing.T) {
 func TestComputeFullTripleHeHui_SanHeFire(t *testing.T) {
 	// 寅午戌 → 三合火局
 	bz := ganzhi.Bazi{
-		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin},  // 甲寅
-		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiWu},  // 丙午
-		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},    // 戊戌
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin},   // 甲寅
+		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiWu},   // 丙午
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},     // 戊戌
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}, // 庚申
 	}
 	got := combinedTriple(bz)
@@ -49,10 +49,10 @@ func TestComputeFullTripleHeHui_SanHeFire(t *testing.T) {
 func TestComputeFullTripleHeHui_SanHeWood(t *testing.T) {
 	// 亥卯未 → 三合木局
 	bz := ganzhi.Bazi{
-		Nian: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiHai}, // 乙亥
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiHai},   // 乙亥
 		Yue:  ganzhi.Zhu{Gan: ganzhi.GanDing, Zhi: ganzhi.ZhiMao}, // 丁卯
-		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiWei},  // 己未
-		Shi:  ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiYou}, // 辛酉
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiWei},   // 己未
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiYou},  // 辛酉
 	}
 	got := combinedTriple(bz)
 	if len(got) != 1 {
@@ -69,9 +69,9 @@ func TestComputeFullTripleHeHui_SanHeWood(t *testing.T) {
 func TestComputeFullTripleHeHui_SanHeMetal(t *testing.T) {
 	// 巳酉丑 → 三合金局
 	bz := ganzhi.Bazi{
-		Nian: ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiSi},  // 丙巳
-		Yue:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiYou},   // 己酉
-		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChou},  // 戊丑
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiSi},   // 丙巳
+		Yue:  ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiYou},    // 己酉
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChou},   // 戊丑
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}, // 庚申
 	}
 	got := combinedTriple(bz)
@@ -90,9 +90,9 @@ func TestComputeFullTripleHeHui_SanHuiWood(t *testing.T) {
 	// 寅卯辰 → 三会木方 (东方)
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin},  // 甲寅
-		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiMao},  // 丙卯
-		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},   // 戊辰
-		Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiWu},   // 庚午
+		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiMao}, // 丙卯
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},  // 戊辰
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiWu},  // 庚午
 	}
 	got := combinedTriple(bz)
 	if len(got) != 1 {
@@ -110,9 +110,9 @@ func TestComputeFullTripleHeHui_SanHuiWater(t *testing.T) {
 	// 亥子丑 → 三会水方 (北方)
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiHai},  // 乙亥
-		Yue:  ganzhi.Zhu{Gan: ganzhi.GanDing, Zhi: ganzhi.ZhiZi},  // 丁子
-		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou},  // 己丑
-		Shi:  ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiWei},  // 辛未
+		Yue:  ganzhi.Zhu{Gan: ganzhi.GanDing, Zhi: ganzhi.ZhiZi}, // 丁子
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiChou}, // 己丑
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiWei}, // 辛未
 	}
 	got := combinedTriple(bz)
 	if len(got) != 1 {
@@ -129,7 +129,7 @@ func TestComputeFullTripleHeHui_SanHuiWater(t *testing.T) {
 func TestComputeFullTripleHeHui_NoMatch(t *testing.T) {
 	// No He or Hui pattern present.
 	bz := ganzhi.Bazi{
-		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},   // 甲子
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},    // 甲子
 		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},  // 丙寅
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiWu},     // 戊午
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}, // 庚申
@@ -142,13 +142,12 @@ func TestComputeFullTripleHeHui_NoMatch(t *testing.T) {
 
 // --- ComputeHeHui tests ---
 
-
 func chartFrom(ng, nz, yg, yz, rg, rz, sg, sz string) Chart {
 	return Chart{
-		Nian:   zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(ng), Zhi: mustParseZhi(nz)}},
-		Yue:    zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(yg), Zhi: mustParseZhi(yz)}},
-		Ri:     zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(rg), Zhi: mustParseZhi(rz)}},
-		Shi:    zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(sg), Zhi: mustParseZhi(sz)}},
+		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(ng), Zhi: mustParseZhi(nz)}},
+		Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(yg), Zhi: mustParseZhi(yz)}},
+		Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(rg), Zhi: mustParseZhi(rz)}},
+		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: mustParseGan(sg), Zhi: mustParseZhi(sz)}},
 	}
 }
 
@@ -170,6 +169,7 @@ func combinedTriple(bz ganzhi.Bazi) []TripleGroup {
 
 //nolint:errcheck
 func mustParseGan(s string) ganzhi.Gan { g, _ := ganzhi.ParseGan(s); return g }
+
 //nolint:errcheck
 func mustParseZhi(s string) ganzhi.Zhi { z, _ := ganzhi.ParseZhi(s); return z }
 
@@ -278,5 +278,66 @@ func TestComputeFullTripleHeHui_DualPattern(t *testing.T) {
 	got := combinedTriple(bz)
 	if len(got) != 1 {
 		t.Fatalf("len = %d, want 1 (fire sanhe only, 巳午未 needs 未)", len(got))
+	}
+}
+
+// ── 地支相刑（数据驱动）──
+// 无礼刑：子卯；无恩刑：寅巳申；恃势刑：丑戌未；自刑：辰辰/午午/酉酉/亥亥（同支）。
+// 关键反例：自刑组（辰午酉亥）内不同支（午亥、辰酉）不构成刑。
+func TestZhiRelation_Xing_Authoritative(t *testing.T) {
+	// 正例：支对 → 期望刑类型（唯一关系或刑优先于六害）
+	pos := []struct {
+		a, b ganzhi.Zhi
+		want string
+	}{
+		{ganzhi.ZhiZi, ganzhi.ZhiMao, "无礼之刑"},
+		{ganzhi.ZhiYin, ganzhi.ZhiSi, "无恩之刑"}, // 寅巳：刑优先于六害
+		{ganzhi.ZhiChou, ganzhi.ZhiXu, "恃势之刑"},
+		{ganzhi.ZhiWei, ganzhi.ZhiXu, "恃势之刑"},
+		{ganzhi.ZhiChen, ganzhi.ZhiChen, "自刑"},
+		{ganzhi.ZhiWu, ganzhi.ZhiWu, "自刑"},
+		{ganzhi.ZhiYou, ganzhi.ZhiYou, "自刑"},
+		{ganzhi.ZhiHai, ganzhi.ZhiHai, "自刑"},
+	}
+	for _, tt := range pos {
+		r := analyzeZhiRelation(tt.a, tt.b)
+		if r.Type != relXing {
+			t.Errorf("%s%s: type = %s, want 相刑", ganzhi.ZhiName(tt.a), ganzhi.ZhiName(tt.b), r.Type)
+			continue
+		}
+		if r.Detail != ganzhi.ZhiName(tt.a)+ganzhi.ZhiName(tt.b)+tt.want {
+			t.Errorf("%s%s: detail = %q, want %q", ganzhi.ZhiName(tt.a), ganzhi.ZhiName(tt.b), r.Detail, ganzhi.ZhiName(tt.a)+ganzhi.ZhiName(tt.b)+tt.want)
+		}
+	}
+	// 多关系并存：六合/六冲优先于刑（巳申合水、寅申冲、丑未冲）
+	notXing := []struct {
+		a, b ganzhi.Zhi
+		want string
+	}{
+		{ganzhi.ZhiSi, ganzhi.ZhiShen, relLiuHe},     // 巳申合水
+		{ganzhi.ZhiYin, ganzhi.ZhiShen, relLiuChong}, // 寅申冲
+		{ganzhi.ZhiChou, ganzhi.ZhiWei, relLiuChong}, // 丑未冲
+	}
+	for _, tt := range notXing {
+		r := analyzeZhiRelation(tt.a, tt.b)
+		if r.Type != tt.want {
+			t.Errorf("%s%s: type = %s, want %s（合/冲优先于刑）", ganzhi.ZhiName(tt.a), ganzhi.ZhiName(tt.b), r.Type, tt.want)
+		}
+	}
+	// 反例：自刑组内不同支不构成刑（午亥、辰酉、午辰等）
+	neg := [][2]ganzhi.Zhi{
+		{ganzhi.ZhiWu, ganzhi.ZhiHai},   // 午亥（实为暗合）
+		{ganzhi.ZhiChen, ganzhi.ZhiYou}, // 辰酉
+		{ganzhi.ZhiWu, ganzhi.ZhiChen},  // 午辰
+		{ganzhi.ZhiYou, ganzhi.ZhiHai},  // 酉亥
+		{ganzhi.ZhiZi, ganzhi.ZhiWu},    // 子午（六冲）
+		{ganzhi.ZhiSi, ganzhi.ZhiHai},   // 巳亥（六冲）
+		{ganzhi.ZhiZi, ganzhi.ZhiYou},   // 子酉（相破）
+	}
+	for _, tt := range neg {
+		r := analyzeZhiRelation(tt[0], tt[1])
+		if r.Type == relXing {
+			t.Errorf("%s%s: 不应判为相刑（实际 %s）", ganzhi.ZhiName(tt[0]), ganzhi.ZhiName(tt[1]), r.Detail)
+		}
 	}
 }

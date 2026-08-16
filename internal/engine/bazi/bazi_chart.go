@@ -29,32 +29,33 @@ func (z zhuInfo) MarshalJSON() ([]byte, error) {
 
 type fullZhuInfo struct {
 	ganzhi.Zhu
-	NaYin      string             `json:"na_yin"`
-	CangGan    cangGanOut         `json:"cang_gan"`
-	ShiShens   []shiShenEntry     `json:"shi_shens"`
-	ChangSheng []changShengEntry  `json:"chang_sheng"`
-	ShenSha    []shenShaEntry     `json:"shen_sha"`
-	IsVoid     bool               `json:"is_void"`
-	IsSelfHe   bool               `json:"is_self_he"`
-	IsKuiGang  bool               `json:"is_kui_gang"`
-	SelfHeName string             `json:"self_he_name"`
+	NaYin      string            `json:"na_yin"`
+	CangGan    cangGanOut        `json:"cang_gan"`
+	ShiShens   []shiShenEntry    `json:"shi_shens"`
+	ChangSheng []changShengEntry `json:"chang_sheng"`
+	ShenSha    []shenShaEntry    `json:"shen_sha"`
+	IsVoid     bool              `json:"is_void"`
+	IsSelfHe   bool              `json:"is_self_he"`
+	IsKuiGang  bool              `json:"is_kui_gang"`
+	SelfHeName string            `json:"self_he_name"`
 }
 
 func (z fullZhuInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Gan        string             `json:"gan"`
-		Zhi        string             `json:"zhi"`
-		NaYin      string             `json:"na_yin"`
-		CangGan    cangGanOut         `json:"cang_gan"`
-		ShiShens   []shiShenEntry     `json:"shi_shens"`
-		ChangSheng []changShengEntry  `json:"chang_sheng"`
-		ShenSha    []shenShaEntry     `json:"shen_sha"`
-		IsVoid     bool               `json:"is_void"`
-		IsSelfHe   bool               `json:"is_self_he"`
-		IsKuiGang  bool               `json:"is_kui_gang"`
-		SelfHeName string             `json:"self_he_name"`
+		Gan        string            `json:"gan"`
+		Zhi        string            `json:"zhi"`
+		NaYin      string            `json:"na_yin"`
+		CangGan    cangGanOut        `json:"cang_gan"`
+		ShiShens   []shiShenEntry    `json:"shi_shens"`
+		ChangSheng []changShengEntry `json:"chang_sheng"`
+		ShenSha    []shenShaEntry    `json:"shen_sha"`
+		IsVoid     bool              `json:"is_void"`
+		IsSelfHe   bool              `json:"is_self_he"`
+		IsKuiGang  bool              `json:"is_kui_gang"`
+		SelfHeName string            `json:"self_he_name"`
 	}{Gan: ganzhi.GanName(z.Gan), Zhi: ganzhi.ZhiName(z.Zhi), NaYin: z.NaYin, CangGan: z.CangGan, ShiShens: z.ShiShens, ChangSheng: z.ChangSheng, ShenSha: z.ShenSha, IsVoid: z.IsVoid, IsSelfHe: z.IsSelfHe, IsKuiGang: z.IsKuiGang, SelfHeName: z.SelfHeName})
 }
+
 type shiShenEntry struct {
 	ShiShen ganzhi.ShiShen `json:"shi_shen"`
 	Name    string         `json:"name"`
@@ -65,6 +66,7 @@ type changShengEntry struct {
 	Stage string     `json:"stage"`
 	Gan   ganzhi.Gan `json:"gan"`
 }
+
 // Ten god source constants.
 const (
 	sourceGan    = "stem"
@@ -112,11 +114,11 @@ type FullChart struct {
 	YongShen YongShenResult `json:"yong_shen"`
 
 	// 补充信息（原 bazi.chart_extra）
-	SanYuan    SanYuan           `json:"san_yuan"`
-	GongJia    []GongJia         `json:"gong_jia,omitempty"`
-	NayinRel   []NayinRelEntry   `json:"nayin_rel"`
+	SanYuan    SanYuan             `json:"san_yuan"`
+	GongJia    []GongJia           `json:"gong_jia,omitempty"`
+	NayinRel   []NayinRelEntry     `json:"nayin_rel"`
 	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
-	SanQiName  string            `json:"san_qi_name,omitempty"`
+	SanQiName  string              `json:"san_qi_name,omitempty"`
 
 	// 合会冲刑（原 bazi.hehui）
 	GanHe    []GanHePair   `json:"gan_he"`
@@ -126,6 +128,9 @@ type FullChart struct {
 	LiuChong []ZhiPairRel  `json:"liu_chong"`
 	LiuHai   []ZhiPairRel  `json:"liu_hai"`
 	LiuXing  []ZhiPairRel  `json:"liu_xing"`
+
+	// 旬空（按日柱所居之旬），如 "午未"（甲申旬空午未）。空亡柱另见各柱 is_void。
+	XunKong string `json:"xun_kong"`
 }
 
 func (c FullChart) ToBazi() ganzhi.Bazi {

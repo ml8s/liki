@@ -1307,7 +1307,7 @@ func TestSixtyCycleIndex_Consecutive(t *testing.T) {
 
 func TestSheng_Known(t *testing.T) {
 	tests := []struct {
-		name string
+		name     string
 		from, to Wuxing
 	}{
 		{"木生火", WxMu, WxHuo},
@@ -1327,7 +1327,7 @@ func TestSheng_Known(t *testing.T) {
 
 func TestSheng_NonPairs(t *testing.T) {
 	tests := []struct {
-		name string
+		name     string
 		from, to Wuxing
 	}{
 		{"木土非生", WxMu, WxTu},
@@ -1349,7 +1349,7 @@ func TestSheng_NonPairs(t *testing.T) {
 
 func TestKe_Known(t *testing.T) {
 	tests := []struct {
-		name string
+		name     string
 		from, to Wuxing
 	}{
 		{"木克土", WxMu, WxTu},
@@ -1369,7 +1369,7 @@ func TestKe_Known(t *testing.T) {
 
 func TestKe_NonPairs(t *testing.T) {
 	tests := []struct {
-		name string
+		name     string
 		from, to Wuxing
 	}{
 		{"木火生非克", WxMu, WxHuo},
@@ -1955,6 +1955,108 @@ func TestShiShen_UnmarshalJSON_StringOnly(t *testing.T) {
 			t.Errorf("UnmarshalJSON(%s) = %v, want %d", tt.input, err, tt.want)
 		} else if !tt.err && s != tt.want {
 			t.Errorf("UnmarshalJSON(%s) = %d, want %d", tt.input, s, tt.want)
+		}
+	}
+}
+
+// ── 十神全量：10 日主 × 10 天干 = 100 组合（独立五行生克+阴阳规则推导）──
+func TestShiShenFromGan_All100(t *testing.T) {
+	gans := []Gan{GanJia, GanYi, GanBing, GanDing, GanWu, GanJi, GanGeng, GanXin, GanRen, GanGui}
+	// 独立推导：五行生克 + 阴阳
+	// 同五行：同阳=比肩 异=劫财；我生：同=食神 异=伤官；
+	// 生我：同=偏印 异=正印；我克：同=偏财 异=正财；克我：同=七杀 异=正官
+	expect := map[Gan]map[Gan]string{}
+	for _, dm := range gans {
+		expect[dm] = map[Gan]string{}
+		for _, o := range gans {
+			dmE, oE := GanWuxing(dm), GanWuxing(o)
+			dmY, oY := GanYinYang(dm), GanYinYang(o)
+			same := dmY == oY
+			var name string
+			switch {
+			case dmE == oE:
+				if same {
+					name = "比肩"
+				} else {
+					name = "劫财"
+				}
+			case Sheng(dmE, oE): // 我生
+				if same {
+					name = "食神"
+				} else {
+					name = "伤官"
+				}
+			case Sheng(oE, dmE): // 生我
+				if same {
+					name = "偏印"
+				} else {
+					name = "正印"
+				}
+			case Ke(dmE, oE): // 我克
+				if same {
+					name = "偏财"
+				} else {
+					name = "正财"
+				}
+			default: // 克我
+				if same {
+					name = "七杀"
+				} else {
+					name = "正官"
+				}
+			}
+			expect[dm][o] = name
+		}
+	}
+	for _, dm := range gans {
+		for _, o := range gans {
+			got := ShiShenName(ShiShenFromGan(dm, o))
+			if got != expect[dm][o] {
+				t.Errorf("%s日主见%s: got %s, want %s", GanName(dm), GanName(o), got, expect[dm][o])
+			}
+		}
+	}
+}
+
+// ── 纳音 60 甲子全量（权威表对照，按 60 甲子序列逐支验证）──
+func TestNayinLabel_All60Authoritative(t *testing.T) {
+	// 60 甲子序 → 纳音（30 对）
+	want := []string{
+		"海中金", "海中金", // 甲子 乙丑
+		"炉中火", "炉中火", // 丙寅 丁卯
+		"大林木", "大林木", // 戊辰 己巳
+		"路旁土", "路旁土", // 庚午 辛未
+		"剑锋金", "剑锋金", // 壬申 癸酉
+		"山头火", "山头火", // 甲戌 乙亥
+		"涧下水", "涧下水", // 丙子 丁丑
+		"城头土", "城头土", // 戊寅 己卯
+		"白蜡金", "白蜡金", // 庚辰 辛巳
+		"杨柳木", "杨柳木", // 壬午 癸未
+		"泉中水", "泉中水", // 甲申 乙酉
+		"屋上土", "屋上土", // 丙戌 丁亥
+		"霹雳火", "霹雳火", // 戊子 己丑
+		"松柏木", "松柏木", // 庚寅 辛卯
+		"长流水", "长流水", // 壬辰 癸巳
+		"沙中金", "沙中金", // 甲午 乙未
+		"山下火", "山下火", // 丙申 丁酉
+		"平地木", "平地木", // 戊戌 己亥
+		"壁上土", "壁上土", // 庚子 辛丑
+		"金箔金", "金箔金", // 壬寅 癸卯
+		"覆灯火", "覆灯火", // 甲辰 乙巳
+		"天河水", "天河水", // 丙午 丁未
+		"大驿土", "大驿土", // 戊申 己酉
+		"钗钏金", "钗钏金", // 庚戌 辛亥
+		"桑柘木", "桑柘木", // 壬子 癸丑
+		"大溪水", "大溪水", // 甲寅 乙卯
+		"沙中土", "沙中土", // 丙辰 丁巳
+		"天上火", "天上火", // 戊午 己未
+		"石榴木", "石榴木", // 庚申 辛酉
+		"大海水", "大海水", // 壬戌 癸亥
+	}
+	for idx, name := range want {
+		zhu := SixtyToZhu(idx)
+		if got := NayinLabel(zhu.Gan, zhu.Zhi); got != name {
+			t.Errorf("甲子序[%d] %s%s: got %s, want %s", idx, GanName(zhu.Gan), ZhiName(zhu.Zhi), got, name)
 		}
 	}
 }

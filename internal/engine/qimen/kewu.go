@@ -35,7 +35,8 @@ func computeGanInteractions(pan pan) [9]GanInteraction {
 func genericGanInteraction(earth, heaven ganzhi.Gan) GanInteraction {
 	eWuxing := ganzhi.GanWuxing(earth)
 	hWuxing := ganzhi.GanWuxing(heaven)
-	name := ganzhi.GanName(earth) + "+" + ganzhi.GanName(heaven)
+	// name 与 gan_interaction.json 一致：天盘干+地盘干（标准"X加Y"表述）。
+	name := ganzhi.GanName(heaven) + "+" + ganzhi.GanName(earth)
 
 	var meaning string
 	var auspicious bool

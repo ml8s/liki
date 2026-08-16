@@ -8,18 +8,18 @@ import (
 
 // GanRelation describes a single stem-to-stem relationship.
 type GanRelation struct {
-	GanA     ganzhi.Gan    `json:"gan_a"`
-	GanB     ganzhi.Gan    `json:"gan_b"`
-	Type     string `json:"type"`
-	Relation string `json:"relation"`
+	GanA     ganzhi.Gan `json:"gan_a"`
+	GanB     ganzhi.Gan `json:"gan_b"`
+	Type     string     `json:"type"`
+	Relation string     `json:"relation"`
 }
 
 // ZhiRelation describes a single branch-to-branch relationship.
 type ZhiRelation struct {
-	ZhiA   ganzhi.Zhi    `json:"zhi_a"`
-	ZhiB   ganzhi.Zhi    `json:"zhi_b"`
-	Type   string `json:"type"`
-	Detail string `json:"detail"`
+	ZhiA   ganzhi.Zhi `json:"zhi_a"`
+	ZhiB   ganzhi.Zhi `json:"zhi_b"`
+	Type   string     `json:"type"`
+	Detail string     `json:"detail"`
 }
 
 // Relation type constants for stem and branch interactions.
@@ -42,8 +42,8 @@ const (
 // zhuInteraction holds stem and branch relations for one pillar against the bazi chart.
 type zhuInteraction struct {
 	ZhuLabel string        `json:"pillar_label"`
-	GanRels     []GanRelation `json:"gan_rels"`
-	ZhiRels     []ZhiRelation `json:"zhi_rels"`
+	GanRels  []GanRelation `json:"gan_rels"`
+	ZhiRels  []ZhiRelation `json:"zhi_rels"`
 }
 
 // analyzeGanRelation checks the relationship between two stems.
@@ -91,6 +91,12 @@ func analyzeGanRelation(a, b ganzhi.Gan) GanRelation {
 func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	r := ZhiRelation{ZhiA: a, ZhiB: b}
 	if a == b {
+		// 同支：辰午酉亥 同支相见为自刑，其余为同气。
+		if ganzhi.IsXing(a, b) {
+			r.Type = relXing
+			r.Detail = fmt.Sprintf("%s%s自刑", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
+			return r
+		}
 		r.Type = relSame
 		r.Detail = fmt.Sprintf("%s%s同气", ganzhi.ZhiName(a), ganzhi.ZhiName(b))
 		return r
@@ -120,6 +126,22 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 		}
 	}
 
+	// 相刑：与 ganzhi.IsXing 同口径——自刑（辰午酉亥）仅同支相见为刑，
+	// 组内不同支（如午亥、辰酉）不构成刑。此前用 containsPair 会把午亥等误判为自刑。
+	// 优先级：六合/三合/六冲 > 相刑 > 六害（寅巳相刑显著于六害；寅申冲/丑未冲显著于刑）。
+	if ganzhi.IsXing(a, b) {
+		r.Type = relXing
+		xType := "刑"
+		for _, x := range ganzhi.XingGroups {
+			if containsPair(x.Branches, a, b) {
+				xType = xingTypeLabel(x.Type)
+				break
+			}
+		}
+		r.Detail = fmt.Sprintf("%s%s%s", ganzhi.ZhiName(a), ganzhi.ZhiName(b), xType)
+		return r
+	}
+
 	for _, p := range ganzhi.HaiPairs {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
 			r.Type = relLiuHai
@@ -132,14 +154,6 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 		if containsPair(th.Branches, a, b) {
 			r.Type = relSanHui
 			r.Detail = fmt.Sprintf("%s%s三会%s方", ganzhi.ZhiName(a), ganzhi.ZhiName(b), th.Element.String())
-			return r
-		}
-	}
-
-	for _, x := range ganzhi.XingGroups {
-		if containsPair(x.Branches, a, b) {
-			r.Type = relXing
-			r.Detail = fmt.Sprintf("%s%s%s", ganzhi.ZhiName(a), ganzhi.ZhiName(b), xingTypeLabel(x.Type))
 			return r
 		}
 	}
@@ -192,4 +206,3 @@ func analyzeZhuWithBazi(zhu ganzhi.Zhu, bz ganzhi.Bazi) ([]GanRelation, []ZhiRel
 	}
 	return stemRels, branchRels
 }
-

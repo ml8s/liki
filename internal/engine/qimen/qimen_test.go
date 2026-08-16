@@ -389,7 +389,7 @@ func TestFindMaXing_AllBranches(t *testing.T) {
 		zhi  ganzhi.Zhi
 		want GongIndex
 	}{
-		{ganzhi.ZhiZi, GongGen},   // 子→寅(艮) — 申子辰马在寅
+		{ganzhi.ZhiZi, GongGen},    // 子→寅(艮) — 申子辰马在寅
 		{ganzhi.ZhiChou, GongQian}, // 丑→亥(乾) — 巳酉丑马在亥
 		{ganzhi.ZhiYin, GongKun},   // 寅→申(坤) — 寅午戌马在申
 		{ganzhi.ZhiMao, GongXun},   // 卯→巳(巽) — 亥卯未马在巳
@@ -573,15 +573,15 @@ func TestComputePan_Yang1BingYin(t *testing.T) {
 		heaven ganzhi.Gan
 	}
 	want := [9]wantPalace{
-		{StarTianChong, DoorShang, ganzhi.GanGeng},     // 坎1
-		{StarTianFu, DoorDu, ganzhi.GanXin},            // 坤2
-		{StarTianQin, DoorJing, ganzhi.GanRen},         // 震3
-		{StarTianXin, DoorSi, ganzhi.GanGui},           // 巽4
-		{StarTianZhu, 0, ganzhi.GanDing},               // 中5
-		{StarTianRen, DoorJingMen, ganzhi.GanBing},      // 乾6
-		{StarTianYing, DoorKai, ganzhi.GanYi},           // 兑7
-		{StarTianPeng, DoorXiu, ganzhi.GanWu},           // 艮8
-		{StarTianRui, DoorSheng, ganzhi.GanJi},          // 离9
+		{StarTianChong, DoorShang, ganzhi.GanGeng}, // 坎1
+		{StarTianFu, DoorDu, ganzhi.GanXin},        // 坤2
+		{StarTianQin, DoorJing, ganzhi.GanRen},     // 震3
+		{StarTianXin, DoorSi, ganzhi.GanGui},       // 巽4
+		{StarTianZhu, 0, ganzhi.GanDing},           // 中5
+		{StarTianRen, DoorJingMen, ganzhi.GanBing}, // 乾6
+		{StarTianYing, DoorKai, ganzhi.GanYi},      // 兑7
+		{StarTianPeng, DoorXiu, ganzhi.GanWu},      // 艮8
+		{StarTianRui, DoorSheng, ganzhi.GanJi},     // 离9
 	}
 
 	for i, w := range want {
@@ -635,28 +635,29 @@ func TestComputePan_Yin9JiaWu(t *testing.T) {
 
 func TestComputeGanInteractions_KnownPairs(t *testing.T) {
 	p := pan{Jushu: 1, YinDun: false}
-	p.GongWei[0] = Gong{EarthStem: ganzhi.GanWu, HeavenStem: ganzhi.GanBing}   // 戊+丙=青龙返首(吉)
-	p.GongWei[1] = Gong{EarthStem: ganzhi.GanGeng, HeavenStem: ganzhi.GanBing}  // 庚+丙=太白入荧(凶)
-	p.GongWei[2] = Gong{EarthStem: ganzhi.GanBing, HeavenStem: ganzhi.GanWu}   // 丙+戊=飞鸟跌穴(吉)
-	p.GongWei[3] = Gong{EarthStem: ganzhi.GanXin, HeavenStem: ganzhi.GanYi}    // 辛+乙=白虎猖狂(凶)
-	p.GongWei[4] = Gong{EarthStem: ganzhi.GanRen, HeavenStem: ganzhi.GanWu}    // 壬+戊=小蛇化龙(吉)
+	// name/pattern 按标准"天盘+地盘"（X加Y）：青龙返首=戊加丙=天盘戊地盘丙=[地丙,天戊]
+	p.GongWei[0] = Gong{EarthStem: ganzhi.GanBing, HeavenStem: ganzhi.GanWu}   // 戊加丙=青龙返首(吉)
+	p.GongWei[1] = Gong{EarthStem: ganzhi.GanBing, HeavenStem: ganzhi.GanGeng} // 庚加丙=太白入荧(凶)
+	p.GongWei[2] = Gong{EarthStem: ganzhi.GanWu, HeavenStem: ganzhi.GanBing}   // 丙加戊=飞鸟跌穴(吉)
+	p.GongWei[3] = Gong{EarthStem: ganzhi.GanYi, HeavenStem: ganzhi.GanXin}    // 辛加乙=白虎猖狂(凶)
+	p.GongWei[4] = Gong{EarthStem: ganzhi.GanWu, HeavenStem: ganzhi.GanRen}    // 壬加戊=小蛇化龙(吉)
 
 	result := computeGanInteractions(p)
 
 	if !result[0].Auspicious {
-		t.Error("戊+丙 should be auspicious (青龙返首)")
+		t.Error("戊加丙 should be auspicious (青龙返首)")
 	}
 	if result[1].Auspicious {
-		t.Error("庚+丙 should be inauspicious (太白入荧)")
+		t.Error("庚加丙 should be inauspicious (太白入荧)")
 	}
 	if !result[2].Auspicious {
-		t.Error("丙+戊 should be auspicious (飞鸟跌穴)")
+		t.Error("丙加戊 should be auspicious (飞鸟跌穴)")
 	}
 	if result[3].Auspicious {
-		t.Error("辛+乙 should be inauspicious (白虎猖狂)")
+		t.Error("辛加乙 should be inauspicious (白虎猖狂)")
 	}
 	if !result[4].Auspicious {
-		t.Error("壬+戊 should be auspicious (小蛇化龙)")
+		t.Error("壬加戊 should be auspicious (小蛇化龙)")
 	}
 	if result[0].Name != "戊+丙" {
 		t.Errorf("name = %q, want 戊+丙", result[0].Name)
@@ -952,7 +953,7 @@ func TestFindMenPo(t *testing.T) {
 	p := pan{}
 	p.GongWei[0] = Gong{Door: DoorShang} // 震宫, 伤门(木) — 比和, 不迫
 	p.GongWei[8] = Gong{Door: DoorXiu}   // 离宫, 休门(水) — 水克火=迫
-	p.GongWei[1] = Gong{Door: DoorSi}     // 坤宫, 死门(土) — 比和
+	p.GongWei[1] = Gong{Door: DoorSi}    // 坤宫, 死门(土) — 比和
 	// 死门(土)在坎(水)=土克水=迫
 	p.GongWei[0] = Gong{Door: DoorSi, EarthStem: ganzhi.GanWu} // pos 0=坎
 
@@ -1153,7 +1154,7 @@ func TestFindPatterns(t *testing.T) {
 		DutyDoor: DoorXiu,
 		GongWei: [9]Gong{
 			{HeavenStem: ganzhi.GanBing, Door: DoorSheng, Spirit: SpiritZhiFu}, // 天遁条件: 丙
-			{HeavenStem: ganzhi.GanDing}, // 天遁也需要丁
+			{HeavenStem: ganzhi.GanDing},                                       // 天遁也需要丁
 			{}, {}, {}, {}, {}, {}, {},
 		},
 	}
@@ -1246,8 +1247,8 @@ func TestGenericGanInteraction_AllRelations(t *testing.T) {
 	// 己(土)+甲(木): 土 earth, 木 heaven
 	// 木克土: heaven overcomes earth → 上克下, auspicious=false
 	got := genericGanInteraction(ganzhi.GanJi, ganzhi.GanJia) // earth=己(土), heaven=甲(木)
-	if got.Name != "己+甲" {
-		t.Errorf("Name = %s, want 己+甲", got.Name)
+	if got.Name != "甲+己" {
+		t.Errorf("Name = %s, want 甲+己（天盘+地盘）", got.Name)
 	}
 	// 甲(木)+己(土): 木 earth, 土 heaven
 	// 木克土: earth overcomes heaven → 下克上, auspicious=true
@@ -1313,14 +1314,14 @@ func TestComputeWangShuai_Full(t *testing.T) {
 		palIx int // 0-based gong index
 		want  string
 	}{
-		{"天蓬入坎(同=旺)", StarTianPeng, 0, "旺"},      // 水入水
-		{"天辅入坎(水=相)", StarTianFu, 0, "相"},         // 木入水 (水生木=相→star gets相)
+		{"天蓬入坎(同=旺)", StarTianPeng, 0, "旺"}, // 水入水
+		{"天辅入坎(水=相)", StarTianFu, 0, "相"},   // 木入水 (水生木=相→star gets相)
 		// Wait: 天辅(木) in 坎(水): sw=mu(1), pw=水(5)
 		// starElem=1, palElem=5
 		// 1==5? No. 1==(5%5)+1=1? Yes → 相!
-		{"天蓬入震(水=生)", StarTianPeng, 2, "休"},      // 水入木 (水生木=休)
-		{"天芮入坎(土=囚)", StarTianRui, 0, "囚"},        // 土入水 (土克水=囚)
-		{"天英入坎(火=废)", StarTianYing, 0, "废"},        // 火入水 (水克火=废)
+		{"天蓬入震(水=生)", StarTianPeng, 2, "休"}, // 水入木 (水生木=休)
+		{"天芮入坎(土=囚)", StarTianRui, 0, "囚"},  // 土入水 (土克水=囚)
+		{"天英入坎(火=废)", StarTianYing, 0, "废"}, // 火入水 (水克火=废)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1412,4 +1413,59 @@ func TestStarHomePalace_Invalid(t *testing.T) {
 	if got := starHomePalace(10); got != 4 {
 		t.Errorf("starHomePalace(10) = %d, want 4 (default 中)", got)
 	}
+}
+
+// ── 十干克应权威锚点（《奇门遁甲秘笈大全》方向：name/pattern=天盘+地盘）──
+// 曾发现字段 di/tian 存反导致查询方向错误（65 条全反），修复后以此防回归。
+func TestGanInteraction_AuthoritativeAnchors(t *testing.T) {
+	// key = [Earth(地盘), Heaven(天盘)] → 期望格名（含关键子串）+ 吉凶
+	anchors := []struct {
+		earth, heaven ganzhi.Gan
+		want          string
+		auspicious    bool
+	}{
+		{ganzhi.GanBing, ganzhi.GanWu, "青龙返首", true},    // 戊加丙
+		{ganzhi.GanWu, ganzhi.GanBing, "飞鸟跌穴", true},    // 丙加戊
+		{ganzhi.GanGeng, ganzhi.GanWu, "值符飞宫", false},   // 戊加庚
+		{ganzhi.GanWu, ganzhi.GanGeng, "天乙伏宫", false},   // 庚加戊
+		{ganzhi.GanXin, ganzhi.GanYi, "青龙逃走", false},    // 乙加辛
+		{ganzhi.GanYi, ganzhi.GanXin, "白虎猖狂", false},    // 辛加乙
+		{ganzhi.GanGui, ganzhi.GanDing, "朱雀投江", false},  // 丁加癸
+		{ganzhi.GanDing, ganzhi.GanGui, "螣蛇夭矫", false},  // 癸加丁
+		{ganzhi.GanBing, ganzhi.GanGeng, "太白入荧", false}, // 庚加丙
+		{ganzhi.GanGeng, ganzhi.GanBing, "荧入太白", false}, // 丙加庚
+		{ganzhi.GanGui, ganzhi.GanGeng, "大格", false},    // 庚加癸（天盘庚地盘癸）
+		{ganzhi.GanGeng, ganzhi.GanGui, "太白入网", false},  // 癸加庚（天盘癸地盘庚）
+		{ganzhi.GanRen, ganzhi.GanGeng, "移荡格", false},   // 庚加壬（上格/小格）
+		{ganzhi.GanJi, ganzhi.GanGeng, "官符刑格", false},   // 庚加己（刑格）
+		{ganzhi.GanXin, ganzhi.GanGeng, "白虎干格", false},  // 庚加辛（干格）
+		{ganzhi.GanYi, ganzhi.GanGeng, "太白逢星", false},   // 庚加乙（合格）
+	}
+	for _, a := range anchors {
+		entry, ok := ganInteractionTable[[2]ganzhi.Gan{a.earth, a.heaven}]
+		if !ok {
+			t.Errorf("表内缺失: 地盘%s天盘%s", ganzhi.GanName(a.earth), ganzhi.GanName(a.heaven))
+			continue
+		}
+		if !containsStr(entry.PatternName, a.want) && !containsStr(entry.Name, a.want) {
+			t.Errorf("地盘%s天盘%s（%s加%s）: got %q, want 含%q",
+				ganzhi.GanName(a.earth), ganzhi.GanName(a.heaven),
+				ganzhi.GanName(a.heaven), ganzhi.GanName(a.earth),
+				entry.PatternName, a.want)
+		}
+		if entry.Auspicious != a.auspicious {
+			t.Errorf("地盘%s天盘%s: 吉=%v, want %v", ganzhi.GanName(a.earth), ganzhi.GanName(a.heaven), entry.Auspicious, a.auspicious)
+		}
+	}
+}
+
+func containsStr(s, sub string) bool {
+	return len(sub) > 0 && (len(s) >= len(sub)) && func() bool {
+		for i := 0; i+len(sub) <= len(s); i++ {
+			if s[i:i+len(sub)] == sub {
+				return true
+			}
+		}
+		return false
+	}()
 }

@@ -8,14 +8,14 @@ func xunIndex(riZhu ganzhi.Zhu) int {
 }
 
 type zhuPairEntry struct {
-	AZhu     string      `json:"jia_zhu"`
-	BZhu     string      `json:"yi_zhu"`
-	AStem    string      `json:"jia_gan"`
-	BStem    string      `json:"yi_gan"`
-	ABranch  string      `json:"jia_zhi"`
-	BBranch  string      `json:"yi_zhi"`
-	Stem     GanRelation `json:"gan_guan_xi"`
-	Branch   ZhiRelation `json:"zhi_guan_xi"`
+	AZhu    string      `json:"jia_zhu"`
+	BZhu    string      `json:"yi_zhu"`
+	AStem   string      `json:"jia_gan"`
+	BStem   string      `json:"yi_gan"`
+	ABranch string      `json:"jia_zhi"`
+	BBranch string      `json:"yi_zhi"`
+	Stem    GanRelation `json:"gan_guan_xi"`
+	Branch  ZhiRelation `json:"zhi_guan_xi"`
 }
 type zhuCross struct {
 	Pairs []zhuPairEntry `json:"pairs"`
@@ -32,13 +32,13 @@ type nayinPairEntry struct {
 	Relation string `json:"relation"`
 }
 type yongShenEntry struct {
-	Yong         string `json:"yong"`
-	Ji           string `json:"ji"`
-	YongInOther  int    `json:"yong_in_other"`
-	JiInOther    int    `json:"ji_in_other"`
+	Yong        string `json:"yong"`
+	Ji          string `json:"ji"`
+	YongInOther int    `json:"yong_in_other"`
+	JiInOther   int    `json:"ji_in_other"`
 }
 type nayinCross struct {
-	Pairs    []nayinPairEntry     `json:"pairs"`
+	Pairs    []nayinPairEntry `json:"pairs"`
 	Elements struct {
 		A map[string]int `json:"a"`
 		B map[string]int `json:"b"`
@@ -74,6 +74,7 @@ type daYunCross struct {
 	StemRel   GanRelation     `json:"gan_guan_xi"`
 	BranchRel ZhiRelation     `json:"zhi_guan_xi"`
 }
+
 // XunGong describes whether two charts share the same xun (旬) or palace (宫).
 type XunGong struct {
 	SameXun  bool `json:"same_xun"`
@@ -83,12 +84,13 @@ type structureCross struct {
 	DaYun   daYunCross `json:"da_yun"`
 	XunGong XunGong    `json:"xun_gong"`
 }
+
 // Bond holds the compatibility analysis between two bazi charts.
 type Bond struct {
-	ZhuCross     zhuCross      `json:"zhu_cross"`
-	ShiShenCross shiShenCross  `json:"shi_shen_cross"`
-	NayinCross   nayinCross    `json:"nayin_cross"`
-	ShenshaCross shenshaCross  `json:"shensha_cross"`
+	ZhuCross     zhuCross       `json:"zhu_cross"`
+	ShiShenCross shiShenCross   `json:"shi_shen_cross"`
+	NayinCross   nayinCross     `json:"nayin_cross"`
+	ShenshaCross shenshaCross   `json:"shensha_cross"`
 	Structure    structureCross `json:"structure"`
 }
 
@@ -154,10 +156,40 @@ func computeNayinCross(a, b Chart) nayinCross {
 		}
 	}
 	nc := nayinCross{Pairs: pairs}
+
+	// 纳音五行分布（四柱计数）
+	countElems := func(ny [4]string) map[string]int {
+		m := map[string]int{}
+		for _, s := range ny {
+			m[ganzhi.NayinWuxing(s).String()]++
+		}
+		return m
+	}
+	nc.Elements.A = countElems(aNy)
+	nc.Elements.B = countElems(bNy)
+
+	// 用神互见（扶抑派）：一方用神/忌神五行在对方四柱纳音五行中的出现次数。
+	// 用神为对方所旺、忌神为对方所旺，皆关系张力来源。
+	aFc, bFc := ComputeFullChart(a), ComputeFullChart(b)
+	nc.YongShen.A = yongShenCrossEntry(bFc, aFc)
+	nc.YongShen.B = yongShenCrossEntry(aFc, bFc)
 	return nc
 }
 
-
+// yongShenCrossEntry 统计 self 的扶抑用神/忌神五行在 other 纳音五行分布中的计数。
+func yongShenCrossEntry(other, self FullChart) yongShenEntry {
+	oCount := map[string]int{}
+	for _, s := range other.NaYinArray() {
+		oCount[ganzhi.NayinWuxing(s).String()]++
+	}
+	e := yongShenEntry{
+		Yong: self.YongShen.FuYi.Yong,
+		Ji:   self.YongShen.FuYi.Ji,
+	}
+	e.YongInOther = oCount[e.Yong]
+	e.JiInOther = oCount[e.Ji]
+	return e
+}
 
 func computeShenshaCross(a, b Chart) shenshaCross {
 	aBz, bBz := a.ToBazi(), b.ToBazi()

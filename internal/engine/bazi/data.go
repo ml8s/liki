@@ -34,7 +34,7 @@ func init() {
 
 func loadTiaohou() error {
 	var entries []struct {
-		RiYuan   string `json:"ri_yuan"`
+		RiYuan      string `json:"ri_yuan"`
 		MonthBranch string `json:"month_branch"`
 		Primary     string `json:"primary"`
 		Secondary   string `json:"secondary"`
@@ -72,7 +72,7 @@ func loadShensha() error {
 	var data struct {
 		Triad        map[string]map[string]string   `json:"triad"`
 		StemSingle   map[string]map[string]string   `json:"stem_single"`
-		StemMulti    map[string]map[string][]string  `json:"stem_multi"`
+		StemMulti    map[string]map[string][]string `json:"stem_multi"`
 		BranchSingle map[string]map[string]string   `json:"branch_single"`
 		MonthStems   struct {
 			TianDe map[string][]string `json:"tian_de"`
@@ -237,7 +237,32 @@ func loadShensha() error {
 		return dst, nil
 	}
 
-	tiandeStems, err = loadBranchToStems(data.MonthStems.TianDe)
+	// --- month branch → 天德目标（天干型或地支型，如正月见丁、二月见申） ---
+	loadBranchToTianDe := func(src map[string][]string) (map[ganzhi.Zhi][]tianDeTarget, error) {
+		dst := make(map[ganzhi.Zhi][]tianDeTarget, len(src))
+		for branchStr, targetStrs := range src {
+			branch, err := ganzhi.ParseZhi(branchStr)
+			if err != nil {
+				return nil, fmt.Errorf("branch %q: %w", branchStr, err)
+			}
+			var tgts []tianDeTarget
+			for _, ts := range targetStrs {
+				if gan, err := ganzhi.ParseGan(ts); err == nil {
+					tgts = append(tgts, tianDeTarget{Gan: gan})
+					continue
+				}
+				if zhi, err := ganzhi.ParseZhi(ts); err == nil {
+					tgts = append(tgts, tianDeTarget{IsZhi: true, Zhi: zhi})
+					continue
+				}
+				return nil, fmt.Errorf("tian_de target %q: neither gan nor zhi", ts)
+			}
+			dst[branch] = tgts
+		}
+		return dst, nil
+	}
+
+	tiandeTargets, err = loadBranchToTianDe(data.MonthStems.TianDe)
 	if err != nil {
 		return fmt.Errorf("tian_de: %w", err)
 	}

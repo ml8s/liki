@@ -123,14 +123,34 @@ func computeGuaPan(yaos [6]YaoType, riZhu ganzhi.Zhu) Chart {
 	}
 }
 
+// trigram 三爻编码（坤=0,震=1,坎=2,兑=3,艮=4,离=5,巽=6,乾=7，见 binaryToGuaTable）→
+// 八宫索引（palaceNames 序：乾兑离震巽坎艮坤）。经卦纳甲按此取干/支表。
+var trigramPalaceIdx = [8]int{7, 3, 5, 1, 6, 2, 4, 0} // 坤震坎兑艮离巽乾 → palaceIdx
+
+// guaTrigrams 反解本卦的上下经卦（二进制编码 upper*8+lower，upper=上卦、lower=下卦）。
+func guaTrigrams(gua guaIndex) (upper, lower int) {
+	for b, gIdx := range binaryToGuaTable {
+		if gIdx == gua {
+			return b / 8, b % 8
+		}
+	}
+	return 0, 0
+}
+
 func zhuangGua(gua guaIndex, riGan ganzhi.Gan, isBian bool, palaceElem ganzhi.Wuxing) [6]Line {
 	meta := guaTable[gua]
-	naZhi := naZhiTable[meta.PalaceIdx]
-	naGan := naGanTable[meta.PalaceIdx]
+	// 京房纳甲：按卦体上下经卦分别纳甲（乾内甲外壬、坤内乙外癸，艮丙震庚…），
+	// 而非按本宫——天山遁（上乾下艮）内卦三爻纳艮（丙辰丙午丙申），不纳乾（甲子甲寅甲辰）。
+	upperTri, lowerTri := guaTrigrams(gua)
+	lowerPi, upperPi := trigramPalaceIdx[lowerTri], trigramPalaceIdx[upperTri]
 	shouOrder := dayGanShouOrder(riGan)
 	var lines [6]Line
 	for i := 0; i < 6; i++ {
-		z := naZhi[i]
+		pi, gan := lowerPi, naGanTable[lowerPi][0] // 内卦三爻：下卦经卦内干
+		if i >= 3 {
+			pi, gan = upperPi, naGanTable[upperPi][1] // 外卦三爻：上卦经卦外干
+		}
+		z := naZhiTable[pi][i%3+3*(i/3)] // 经卦 6 支：内三爻取前 3，外三爻取后 3
 		zwx := ganzhi.ZhiWuxing(z)
 		qin := computeLiuQin(zwx, palaceElem)
 		shiYing := ""
@@ -138,7 +158,7 @@ func zhuangGua(gua guaIndex, riGan ganzhi.Gan, isBian bool, palaceElem ganzhi.Wu
 			shi := meta.ShiPos - 1
 			if i == shi { shiYing = "世" } else if i == (shi+3)%6 { shiYing = "应" }
 		}
-		lines[i] = Line{Gan: naGan[i/3], Zhi: z, Wuxing: zwx, LiuQin: qin, ShiYing: shiYing, LiuShou: shouOrder[i]}
+		lines[i] = Line{Gan: gan, Zhi: z, Wuxing: zwx, LiuQin: qin, ShiYing: shiYing, LiuShou: shouOrder[i]}
 	}
 	return lines
 }

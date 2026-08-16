@@ -38,8 +38,8 @@
   {
     "ri_yuan": "甲",
     "month_branch": "申",
-    "primary": "丁",
-    "secondary": "庚"
+    "primary": "庚",
+    "secondary": "丁"
   },
   {
     "ri_yuan": "甲",
@@ -123,7 +123,7 @@
     "ri_yuan": "乙",
     "month_branch": "戌",
     "primary": "癸",
-    "secondary": "甲"
+    "secondary": "辛"
   },
   {
     "ri_yuan": "乙",
@@ -189,31 +189,31 @@
     "ri_yuan": "丙",
     "month_branch": "酉",
     "primary": "壬",
-    "secondary": "庚"
+    "secondary": "癸"
   },
   {
     "ri_yuan": "丙",
     "month_branch": "戌",
-    "primary": "壬",
-    "secondary": "庚"
-  },
-  {
-    "ri_yuan": "丙",
-    "month_branch": "亥",
-    "primary": "壬",
-    "secondary": "甲"
-  },
-  {
-    "ri_yuan": "丙",
-    "month_branch": "子",
-    "primary": "戊",
-    "secondary": "甲"
-  },
-  {
-    "ri_yuan": "丙",
-    "month_branch": "丑",
     "primary": "甲",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "亥",
+    "primary": "甲",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "子",
+    "primary": "壬",
     "secondary": "戊"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "丑",
+    "primary": "壬",
+    "secondary": "甲"
   },
   {
     "ri_yuan": "丁",
@@ -662,7 +662,7 @@
   {
     "ri_yuan": "癸",
     "month_branch": "辰",
-    "primary": "庚",
+    "primary": "丙",
     "secondary": "辛"
   },
   {
@@ -692,8 +692,8 @@
   {
     "ri_yuan": "癸",
     "month_branch": "酉",
-    "primary": "丙",
-    "secondary": "辛"
+    "primary": "辛",
+    "secondary": "丙"
   },
   {
     "ri_yuan": "癸",
@@ -717,6 +717,6 @@
     "ri_yuan": "癸",
     "month_branch": "丑",
     "primary": "丙",
-    "secondary": "戊"
+    "secondary": "丁"
   }
 ]

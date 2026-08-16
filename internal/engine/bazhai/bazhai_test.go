@@ -183,10 +183,10 @@ func TestEightMansionPatterns_LiGua(t *testing.T) {
 
 func TestEightMansionPatterns_QianGua(t *testing.T) {
 	// 乾6: 生气=兑7, 天医=艮8, 延年=坤2, 伏位=乾6
-	//      祸害=震3, 五鬼=坎1, 六煞=巽4, 绝命=离9
+	//      祸害=巽4, 五鬼=震3, 六煞=坎1, 绝命=离9（大游年歌：乾六天五祸绝延生）
 	aus, inaus := eightMansionDirs(6)
 	wantAus := [4]int{7, 8, 2, 6}
-	wantInaus := [4]int{3, 1, 4, 9}
+	wantInaus := [4]int{4, 3, 1, 9}
 	for i, v := range wantAus {
 		if aus[i] != v {
 			t.Errorf("乾 auspicious[%d] = %d, want %d", i, aus[i], v)
@@ -330,3 +330,31 @@ func TestZhuNaJia(t *testing.T) {
 // 命卦 — 东/西四命完整分组
 // =============================================================================
 
+// ── 八宅游年九星对称性（数据驱动）──
+// 游年关系必须对称：A宅的生气=X ↔ X宅的生气=A（天医/延年/祸害/五鬼/六煞/绝命同理）。
+// 曾发现乾宅/巽宅 5 处不对称（六煞/五鬼/祸害），修复后以此防回归。
+func TestEightMansionSymmetry(t *testing.T) {
+	guaNameToNum := map[string]int{"坎": 1, "坤": 2, "震": 3, "巽": 4, "乾": 6, "兑": 7, "艮": 8, "离": 9}
+	numToName := map[int]string{1: "坎", 2: "坤", 3: "震", 4: "巽", 6: "乾", 7: "兑", 8: "艮", 9: "离"}
+	zhaiNames := []string{"坎", "坤", "震", "巽", "乾", "兑", "艮", "离"}
+	relOf := map[string]func(dirPattern) int{
+		"sheng_qi": func(p dirPattern) int { return p.shengQi },
+		"tian_yi":  func(p dirPattern) int { return p.tianYi },
+		"yan_nian": func(p dirPattern) int { return p.yanNian },
+		"huo_hai":  func(p dirPattern) int { return p.huoHai },
+		"wu_gui":   func(p dirPattern) int { return p.wuGui },
+		"liu_sha":  func(p dirPattern) int { return p.liuSha },
+		"jue_ming": func(p dirPattern) int { return p.jueMing },
+	}
+	for rel, get := range relOf {
+		for _, a := range zhaiNames {
+			b := numToName[get(eightMansionPatterns[guaNameToNum[a]])]
+			if b == a {
+				continue
+			}
+			if numToName[get(eightMansionPatterns[guaNameToNum[b]])] != a {
+				t.Errorf("%s宅%s=%s，但%s宅%s=%s（不对称）", a, rel, b, b, rel, numToName[get(eightMansionPatterns[guaNameToNum[b]])])
+			}
+		}
+	}
+}

@@ -54,13 +54,20 @@ func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
 
 	return FullChart{
 		BirthYear: c.BirthYear,
-		Nian:   makeFull(0),
-		Yue:    makeFull(1),
-		Ri:     makeFull(2),
-		Shi:    makeFull(3),
-		DaYun:  c.DaYun,
-		Gender: c.Gender,
+		Nian:      makeFull(0),
+		Yue:       makeFull(1),
+		Ri:        makeFull(2),
+		Shi:       makeFull(3),
+		DaYun:     c.DaYun,
+		Gender:    c.Gender,
+		XunKong:   xunKongLabel(bz),
 	}
+}
+
+// xunKongLabel 按日柱所居之旬输出旬空两字，如甲申旬 → "午未"。
+func xunKongLabel(bz ganzhi.Bazi) string {
+	v := ganzhi.XunKong(bz.Ri.Gan, bz.Ri.Zhi)
+	return ganzhi.ZhiName(v[0]) + ganzhi.ZhiName(v[1])
 }
 
 func computeCangGan(bz ganzhi.Bazi) [4]cangGanOut {
@@ -116,30 +123,30 @@ func computeShiShensTable(bz ganzhi.Bazi, hs [4]cangGanOut) [4][]shiShenEntry {
 		var entries []shiShenEntry
 		entries = append(entries, shiShenEntry{
 			ShiShen: ganzhi.ShiShenFromGan(dm, ps[i].Gan),
-			Name:   ganzhi.GanName(ps[i].Gan),
-			Source: sourceGan,
-			Gan:    ps[i].Gan,
+			Name:    ganzhi.GanName(ps[i].Gan),
+			Source:  sourceGan,
+			Gan:     ps[i].Gan,
 		})
 		entries = append(entries, shiShenEntry{
 			ShiShen: ganzhi.ShiShenFromGan(dm, hs[i].Main),
-			Name:   ganzhi.GanName(hs[i].Main),
-			Source: sourceMainQi,
-			Gan:    hs[i].Main,
+			Name:    ganzhi.GanName(hs[i].Main),
+			Source:  sourceMainQi,
+			Gan:     hs[i].Main,
 		})
 		if hs[i].Mid != nil {
 			entries = append(entries, shiShenEntry{
 				ShiShen: ganzhi.ShiShenFromGan(dm, *hs[i].Mid),
-				Name:   ganzhi.GanName(*hs[i].Mid),
-				Source: sourceMidQi,
-				Gan:    *hs[i].Mid,
+				Name:    ganzhi.GanName(*hs[i].Mid),
+				Source:  sourceMidQi,
+				Gan:     *hs[i].Mid,
 			})
 		}
 		if hs[i].Minor != nil {
 			entries = append(entries, shiShenEntry{
 				ShiShen: ganzhi.ShiShenFromGan(dm, *hs[i].Minor),
-				Name:   ganzhi.GanName(*hs[i].Minor),
-				Source: sourceMinQi,
-				Gan:    *hs[i].Minor,
+				Name:    ganzhi.GanName(*hs[i].Minor),
+				Source:  sourceMinQi,
+				Gan:     *hs[i].Minor,
 			})
 		}
 		table[i] = entries

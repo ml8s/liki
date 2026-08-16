@@ -1,8 +1,8 @@
 package bazi
 
 import (
-	"time"
 	"testing"
+	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
@@ -22,7 +22,6 @@ func makeFullChart(year, month, day, hour, minute int, lon, tz float64, gender g
 	return ComputeFullChart(c)
 }
 
-
 // collectShenShaNames returns all shensha names for a pillar.
 func collectShenShaNames(p fullZhuInfo) map[string]bool {
 	m := make(map[string]bool)
@@ -39,61 +38,61 @@ func collectShenShaNames(p fullZhuInfo) map[string]bool {
 
 func TestShenSha_TianYi(t *testing.T) {
 	tests := []struct {
-		name        string
-		riGan      ganzhi.Gan
-		nianGan     ganzhi.Gan
+		name           string
+		riGan          ganzhi.Gan
+		nianGan        ganzhi.Gan
 		pillarBranches [4]ganzhi.Zhi
-		wantZhus []int // 0-indexed pillars that should have 天乙
+		wantZhus       []int // 0-indexed pillars that should have 天乙
 	}{
 		{
-			name:        "甲日主-日支见丑未",
-			riGan:      ganzhi.GanJia,   // 甲
-			nianGan:     ganzhi.GanJia,   // 甲（年干同）
+			name:           "甲日主-日支见丑未",
+			riGan:          ganzhi.GanJia,                                                                // 甲
+			nianGan:        ganzhi.GanJia,                                                                // 甲（年干同）
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiChou, ganzhi.ZhiYin, ganzhi.ZhiChen, ganzhi.ZhiShen}, // 丑在年柱
-			wantZhus: []int{0}, // 年柱见丑
+			wantZhus:       []int{0},                                                                     // 年柱见丑
 		},
 		{
-			name:        "甲日主-年干乙-双天乙",
-			riGan:      ganzhi.GanJia,
-			nianGan:     ganzhi.GanYi,    // 年干乙 → 天乙子申
+			name:           "甲日主-年干乙-双天乙",
+			riGan:          ganzhi.GanJia,
+			nianGan:        ganzhi.GanYi,                                                               // 年干乙 → 天乙子申
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiWu, ganzhi.ZhiWei, ganzhi.ZhiChen, ganzhi.ZhiShen}, // 未在月柱(日主天乙), 申在时柱(年干天乙)
-			wantZhus: []int{1, 3}, // 月柱未+时柱申
+			wantZhus:       []int{1, 3},                                                                // 月柱未+时柱申
 		},
 		{
-			name:        "丙日主-见亥酉",
-			riGan:      ganzhi.GanBing,  // 丙
-			nianGan:     ganzhi.GanBing,  // 丙
+			name:           "丙日主-见亥酉",
+			riGan:          ganzhi.GanBing,                                                            // 丙
+			nianGan:        ganzhi.GanBing,                                                            // 丙
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiHai, ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiYin}, // 亥在年柱
-			wantZhus: []int{0}, // 年柱亥
+			wantZhus:       []int{0},                                                                  // 年柱亥
 		},
 		{
-			name:        "庚日主-见丑(天乙)",
-			riGan:      ganzhi.GanGeng,  // 庚 → 甲戊庚同 → 丑未
-			nianGan:     ganzhi.GanGeng,
+			name:           "庚日主-见丑(天乙)",
+			riGan:          ganzhi.GanGeng, // 庚 → 甲戊庚同 → 丑未
+			nianGan:        ganzhi.GanGeng,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiYin, ganzhi.ZhiMao}, // 丑在月柱
-			wantZhus: []int{1},
+			wantZhus:       []int{1},
 		},
 		{
-			name:        "辛日主-见午寅",
-			riGan:      ganzhi.GanXin,   // 辛 → 六辛逢虎马(寅午)
-			nianGan:     ganzhi.GanXin,
+			name:           "辛日主-见午寅",
+			riGan:          ganzhi.GanXin, // 辛 → 六辛逢虎马(寅午)
+			nianGan:        ganzhi.GanXin,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiWu, ganzhi.ZhiMao}, // 午在日柱
-			wantZhus: []int{2},
+			wantZhus:       []int{2},
 		},
 		{
-			name:        "壬日主-见卯巳",
-			riGan:      ganzhi.GanRen,   // 壬 → 壬癸兔蛇藏(卯巳)
-			nianGan:     ganzhi.GanRen,
+			name:           "壬日主-见卯巳",
+			riGan:          ganzhi.GanRen, // 壬 → 壬癸兔蛇藏(卯巳)
+			nianGan:        ganzhi.GanRen,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiChou, ganzhi.ZhiChen, ganzhi.ZhiSi}, // 巳在时柱
-			wantZhus: []int{3},
+			wantZhus:       []int{3},
 		},
 		// 没有天乙的情况
 		{
-			name:        "甲日主-无丑未",
-			riGan:      ganzhi.GanJia,
-			nianGan:     ganzhi.GanJia,
+			name:           "甲日主-无丑未",
+			riGan:          ganzhi.GanJia,
+			nianGan:        ganzhi.GanJia,
 			pillarBranches: [4]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiYin, ganzhi.ZhiChen, ganzhi.ZhiWu},
-			wantZhus: nil,
+			wantZhus:       nil,
 		},
 	}
 
@@ -141,7 +140,7 @@ func TestShenSha_TianYi(t *testing.T) {
 func TestShenSha_WenChang(t *testing.T) {
 	tests := []struct {
 		name    string
-		riGan  ganzhi.Gan
+		riGan   ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -196,7 +195,7 @@ func TestShenSha_TaoHua(t *testing.T) {
 	tests := []struct {
 		name     string
 		nianZhi  ganzhi.Zhi
-		riZhi   ganzhi.Zhi
+		riZhi    ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		wantHit  bool
 	}{
@@ -241,11 +240,11 @@ func TestShenSha_TaoHua(t *testing.T) {
 func TestShenSha_YiMa(t *testing.T) {
 	// 口诀：申子辰马在寅，寅午戌马在申，巳酉丑马在亥，亥卯未马在巳
 	tests := []struct {
-		name    string
-		nianZhi ganzhi.Zhi
-		riZhi  ganzhi.Zhi
+		name     string
+		nianZhi  ganzhi.Zhi
+		riZhi    ganzhi.Zhi
 		checkZhi ganzhi.Zhi
-		wantHit bool
+		wantHit  bool
 	}{
 		{"申年-寅为驿马", ganzhi.ZhiShen, ganzhi.ZhiZi, ganzhi.ZhiYin, true},
 		{"寅年-申为驿马", ganzhi.ZhiYin, ganzhi.ZhiWu, ganzhi.ZhiShen, true},
@@ -284,7 +283,7 @@ func TestShenSha_HuaGai(t *testing.T) {
 	tests := []struct {
 		name     string
 		nianZhi  ganzhi.Zhi
-		riZhi   ganzhi.Zhi
+		riZhi    ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		wantHit  bool
 	}{
@@ -326,7 +325,7 @@ func TestShenSha_HuaGai(t *testing.T) {
 func TestShenSha_YangRen(t *testing.T) {
 	tests := []struct {
 		name    string
-		riGan  ganzhi.Gan
+		riGan   ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -373,10 +372,10 @@ func TestShenSha_YangRen(t *testing.T) {
 func TestShenSha_JieSha(t *testing.T) {
 	// 劫煞：申子辰在巳，寅午戌在亥，巳酉丑在寅，亥卯未在申
 	tests := []struct {
-		name    string
-		nianZhi ganzhi.Zhi
+		name     string
+		nianZhi  ganzhi.Zhi
 		checkZhi ganzhi.Zhi
-		wantHit bool
+		wantHit  bool
 	}{
 		{"申子辰-劫煞在巳", ganzhi.ZhiShen, ganzhi.ZhiSi, true},
 		{"寅午戌-劫煞在亥", ganzhi.ZhiYin, ganzhi.ZhiHai, true},
@@ -412,10 +411,10 @@ func TestShenSha_JieSha(t *testing.T) {
 func TestShenSha_ZaiSha(t *testing.T) {
 	// 灾煞：申子辰在午，寅午戌在子，巳酉丑在卯，亥卯未在酉
 	tests := []struct {
-		name    string
-		nianZhi ganzhi.Zhi
+		name     string
+		nianZhi  ganzhi.Zhi
 		checkZhi ganzhi.Zhi
-		wantHit bool
+		wantHit  bool
 	}{
 		{"申子辰-灾煞在午", ganzhi.ZhiShen, ganzhi.ZhiWu, true},
 		{"寅午戌-灾煞在子", ganzhi.ZhiYin, ganzhi.ZhiZi, true},
@@ -452,10 +451,10 @@ func TestShenSha_ZaiSha(t *testing.T) {
 
 func TestShenSha_YueDe(t *testing.T) {
 	tests := []struct {
-		name       string
+		name     string
 		yueZhi   ganzhi.Zhi
-		checkGan   ganzhi.Gan // 月干
-		wantHit    bool
+		checkGan ganzhi.Gan // 月干
+		wantHit  bool
 	}{
 		{"寅月月德丙", ganzhi.ZhiYin, ganzhi.GanBing, true},
 		{"午月月德丙", ganzhi.ZhiWu, ganzhi.GanBing, true},
@@ -478,7 +477,10 @@ func TestShenSha_YueDe(t *testing.T) {
 			ss := computeShenSha(bz)
 			found := false
 			for _, s := range ss[1] {
-				if s.Name == "月德" { found = true; break }
+				if s.Name == "月德" {
+					found = true
+					break
+				}
 			}
 			if found != tt.wantHit {
 				t.Errorf("月德在月柱 found = %v, want %v", found, tt.wantHit)
@@ -495,8 +497,8 @@ func TestShenSha_KongWang(t *testing.T) {
 	// 甲午旬(30-39): 空辰巳, 甲辰旬(40-49): 空寅卯, 甲寅旬(50-59): 空子丑
 	tests := []struct {
 		name     string
-		riGan   ganzhi.Gan
-		riZhi   ganzhi.Zhi
+		riGan    ganzhi.Gan
+		riZhi    ganzhi.Zhi
 		checkZhi ganzhi.Zhi
 		inXun    int // 旬 0=甲子..5=甲寅
 		wantVoid bool
@@ -604,7 +606,7 @@ func TestShenSha_TianLuoDiWang(t *testing.T) {
 func TestShenSha_LuShen(t *testing.T) {
 	tests := []struct {
 		name    string
-		riGan  ganzhi.Gan
+		riGan   ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -653,9 +655,9 @@ func TestShenSha_HongLuanTianXi(t *testing.T) {
 	// 天喜：子→酉, 丑→申, 寅→未, 卯→午, 辰→巳, 巳→辰,
 	//        午→卯, 未→寅, 申→丑, 酉→子, 戌→亥, 亥→戌
 	tests := []struct {
-		name       string
-		nianZhi    ganzhi.Zhi
-		checkZhi   ganzhi.Zhi
+		name         string
+		nianZhi      ganzhi.Zhi
+		checkZhi     ganzhi.Zhi
 		wantHongLuan bool
 		wantTianXi   bool
 	}{
@@ -708,7 +710,7 @@ func TestShenSha_XueTang(t *testing.T) {
 	// 壬长生在申，癸长生在卯
 	tests := []struct {
 		name    string
-		riGan  ganzhi.Gan
+		riGan   ganzhi.Gan
 		zhi     ganzhi.Zhi
 		wantHit bool
 	}{
@@ -779,11 +781,13 @@ func TestShenSha_RealChart(t *testing.T) {
 	//   天乙: 日干己→子申,年支子✓
 	//   桃花: 日支卯→亥卯未桃花在子,年支子✓
 	//   将星: 年支子→申子辰将星在子(自坐)
-	//   灾煞: 年支子→申子辰灾煞在午（四柱无午）；日支卯→亥卯未灾煞在酉（四柱无酉）——本命四柱无灾煞（修正标准表后）
+	//   灾煞: 年支子→申子辰灾煞在午（四柱无午）；日支卯→亥卯未灾煞在酉（四柱无酉）——本命四柱无灾煞
 	//
 	// 月柱丙寅:
 	//   月德: 寅月月德在丙(3), 月干丙✓
 	//   驿马: 年支子→申子辰驿马在寅, 月支寅✓
+	//   月恩: 寅月月恩在丙(3), 月干丙✓（口诀：正丙二丁三庚四己五戊六辛七壬八癸九庚十乙十一甲十二辛）
+	//   孤辰: 年支子→亥子丑人见寅为孤, 月支寅✓（孤辰寡宿以年支三会局为准）
 	//
 	// 日柱己卯:
 	//   将星: 日支卯→亥卯未将星在卯(自坐)
@@ -793,17 +797,16 @@ func TestShenSha_RealChart(t *testing.T) {
 	//
 	// 时柱戊辰:
 	//   华盖: 年支子→申子辰华盖在辰, 时支辰✓
-	//   月恩: 寅月月恩在戊(5), 时干戊✓
 	//   地网: 辰为地网
-	//   血刃: 日干己→血刃在辰(5), 时支辰✓
+	//   血刃: 日干己→禄前一位=午未, 四柱无午未 → 不中（修正标准表后）
 	//
 	// 空亡: 日柱己卯序号15, 旬=1(甲戌旬), 空申酉 → 四支子寅卯辰无申酉 → 无空亡
 
 	expected := map[int][]string{
 		0: {"天乙贵人", "桃花", "将星"},
-		1: {"月德", "驿马"},
+		1: {"月德", "驿马", "月恩", "孤辰"},
 		2: {"将星", "红鸾", "勾神"},
-		3: {"华盖", "月恩", "地网", "血刃"},
+		3: {"华盖", "地网"},
 	}
 
 	pillarLabels := [4]string{"年柱", "月柱", "日柱", "时柱"}
@@ -853,5 +856,326 @@ func TestShenSha_RealChart(t *testing.T) {
 	}
 	if cr.Shi.IsVoid {
 		t.Error("时柱(辰)不应空亡")
+	}
+}
+
+// ── 金舆（禄前二位）权威锚点 ──
+// 口诀：甲龙乙蛇丙戊羊，丁己猴兮庚犬方，辛猪壬牛癸虎藏。
+func TestShenSha_JinYu_Authoritative(t *testing.T) {
+	want := map[ganzhi.Gan]ganzhi.Zhi{
+		ganzhi.GanJia:  ganzhi.ZhiChen, // 甲→辰
+		ganzhi.GanYi:   ganzhi.ZhiSi,   // 乙→巳
+		ganzhi.GanBing: ganzhi.ZhiWei,  // 丙→未
+		ganzhi.GanDing: ganzhi.ZhiShen, // 丁→申
+		ganzhi.GanWu:   ganzhi.ZhiWei,  // 戊→未
+		ganzhi.GanJi:   ganzhi.ZhiShen, // 己→申
+		ganzhi.GanGeng: ganzhi.ZhiXu,   // 庚→戌
+		ganzhi.GanXin:  ganzhi.ZhiHai,  // 辛→亥
+		ganzhi.GanRen:  ganzhi.ZhiChou, // 壬→丑
+		ganzhi.GanGui:  ganzhi.ZhiYin,  // 癸→寅
+	}
+	for gan, zhi := range want {
+		t.Run(ganzhi.GanName(gan), func(t *testing.T) {
+			bz := ganzhi.Bazi{
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: zhi},
+				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
+				Ri:   ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiZi},
+				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+			}
+			ss := computeShenSha(bz)
+			if !hasShenSha(ss[0], "金舆") {
+				t.Errorf("%s日主: 金舆应在 %s，年柱未见", ganzhi.GanName(gan), ganzhi.ZhiName(zhi))
+			}
+		})
+	}
+}
+
+// ── 天德贵人权威锚点（干支混合）──
+// 《星平会海》：正丁二坤（申）三壬四辛，五乾（亥）六甲，七癸八艮（寅），九丙十乙，子巽（巳）丑庚。
+func TestShenSha_TianDe_Authoritative(t *testing.T) {
+	// 月支 → 目标（空字符串表示"无目标"的月份不需要，天德每月都有目标）
+	// 用结构区分干支
+	tests := []struct {
+		month ganzhi.Zhi
+		isZhi bool
+		gan   ganzhi.Gan
+		zhi   ganzhi.Zhi
+	}{
+		{month: ganzhi.ZhiYin, gan: ganzhi.GanDing},              // 寅月见丁
+		{month: ganzhi.ZhiMao, isZhi: true, zhi: ganzhi.ZhiShen}, // 卯月见申（地支）
+		{month: ganzhi.ZhiChen, gan: ganzhi.GanRen},              // 辰月见壬
+		{month: ganzhi.ZhiSi, gan: ganzhi.GanXin},                // 巳月见辛
+		{month: ganzhi.ZhiWu, isZhi: true, zhi: ganzhi.ZhiHai},   // 午月见亥（地支）
+		{month: ganzhi.ZhiWei, gan: ganzhi.GanJia},               // 未月见甲
+		{month: ganzhi.ZhiShen, gan: ganzhi.GanGui},              // 申月见癸
+		{month: ganzhi.ZhiYou, isZhi: true, zhi: ganzhi.ZhiYin},  // 酉月见寅（地支）
+		{month: ganzhi.ZhiXu, gan: ganzhi.GanBing},               // 戌月见丙
+		{month: ganzhi.ZhiHai, gan: ganzhi.GanYi},                // 亥月见乙
+		{month: ganzhi.ZhiZi, isZhi: true, zhi: ganzhi.ZhiSi},    // 子月见巳（地支）
+		{month: ganzhi.ZhiChou, gan: ganzhi.GanGeng},             // 丑月见庚
+	}
+	for _, tt := range tests {
+		name := ganzhi.ZhiName(tt.month) + "月"
+		t.Run(name, func(t *testing.T) {
+			var riGan ganzhi.Gan
+			var nianZhi ganzhi.Zhi
+			if tt.isZhi {
+				nianZhi = tt.zhi
+				// 目标支放年支，检查命中
+			} else {
+				riGan = tt.gan
+			}
+			bz := ganzhi.Bazi{
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: nianZhi},
+				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.month},
+				Ri:   ganzhi.Zhu{Gan: riGan, Zhi: ganzhi.ZhiZi},
+				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+			}
+			ss := computeShenSha(bz)
+			found := false
+			for i := 0; i < 4; i++ {
+				if hasShenSha(ss[i], "天德") {
+					found = true
+				}
+			}
+			if !found {
+				t.Errorf("%s: 天德目标未命中", name)
+			}
+		})
+	}
+}
+
+// ── 月恩权威锚点 ──
+// 口诀：正丙二丁三庚四己五戊六辛七壬八癸九庚十乙十一甲十二辛。
+func TestShenSha_YueEn_Authoritative(t *testing.T) {
+	want := map[ganzhi.Zhi]ganzhi.Gan{
+		ganzhi.ZhiYin:  ganzhi.GanBing, // 寅月→丙
+		ganzhi.ZhiMao:  ganzhi.GanDing, // 卯月→丁
+		ganzhi.ZhiChen: ganzhi.GanGeng, // 辰月→庚
+		ganzhi.ZhiSi:   ganzhi.GanJi,   // 巳月→己
+		ganzhi.ZhiWu:   ganzhi.GanWu,   // 午月→戊
+		ganzhi.ZhiWei:  ganzhi.GanXin,  // 未月→辛
+		ganzhi.ZhiShen: ganzhi.GanRen,  // 申月→壬
+		ganzhi.ZhiYou:  ganzhi.GanGui,  // 酉月→癸
+		ganzhi.ZhiXu:   ganzhi.GanGeng, // 戌月→庚
+		ganzhi.ZhiHai:  ganzhi.GanYi,   // 亥月→乙
+		ganzhi.ZhiZi:   ganzhi.GanJia,  // 子月→甲
+		ganzhi.ZhiChou: ganzhi.GanXin,  // 丑月→辛
+	}
+	for month, gan := range want {
+		t.Run(ganzhi.ZhiName(month)+"月", func(t *testing.T) {
+			bz := ganzhi.Bazi{
+				Nian: ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiZi},
+				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: month},
+				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
+				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+			}
+			ss := computeShenSha(bz)
+			if !hasShenSha(ss[0], "月恩") {
+				t.Errorf("%s: 月恩应在 %s（年干），未见", ganzhi.ZhiName(month), ganzhi.GanName(gan))
+			}
+		})
+	}
+}
+
+// ── 血刃（禄前一位）权威锚点 ──
+// 口诀：甲卯乙辰丙午丁未戊午己未庚酉辛戌壬子癸丑。
+func TestShenSha_XueRen_Authoritative(t *testing.T) {
+	want := map[ganzhi.Gan]ganzhi.Zhi{
+		ganzhi.GanJia:  ganzhi.ZhiMao,  // 甲→卯
+		ganzhi.GanYi:   ganzhi.ZhiChen, // 乙→辰
+		ganzhi.GanBing: ganzhi.ZhiWu,   // 丙→午
+		ganzhi.GanDing: ganzhi.ZhiWei,  // 丁→未
+		ganzhi.GanWu:   ganzhi.ZhiWu,   // 戊→午
+		ganzhi.GanJi:   ganzhi.ZhiWei,  // 己→未
+		ganzhi.GanGeng: ganzhi.ZhiYou,  // 庚→酉
+		ganzhi.GanXin:  ganzhi.ZhiXu,   // 辛→戌
+		ganzhi.GanRen:  ganzhi.ZhiZi,   // 壬→子
+		ganzhi.GanGui:  ganzhi.ZhiChou, // 癸→丑
+	}
+	for gan, zhi := range want {
+		t.Run(ganzhi.GanName(gan), func(t *testing.T) {
+			bz := ganzhi.Bazi{
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: zhi},
+				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
+				Ri:   ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiZi},
+				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+			}
+			ss := computeShenSha(bz)
+			if !hasShenSha(ss[0], "血刃") {
+				t.Errorf("%s日主: 血刃应在 %s，年柱未见", ganzhi.GanName(gan), ganzhi.ZhiName(zhi))
+			}
+		})
+	}
+}
+
+// ── 天乙贵人年干=日干去重 ──
+func TestShenSha_TianYi_Dedup(t *testing.T) {
+	// 年干=日干=甲（天乙丑未），年支=丑：旧逻辑会标 2 次，现在应恰好 1 次
+	bz := ganzhi.Bazi{
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChou},
+		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+	}
+	ss := computeShenSha(bz)
+	var count int
+	for _, e := range ss[0] {
+		if e.Name == "天乙贵人" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Errorf("年柱天乙贵人计数 = %d, want 1（年干=日干不应重复）", count)
+	}
+}
+
+// ── 三合神煞（驿马）年支=日支去重 ──
+func TestShenSha_Triad_Dedup(t *testing.T) {
+	// 年支=日支=子（申子辰驿马在寅），月支=寅：旧逻辑标 2 次，现在应恰好 1 次
+	bz := ganzhi.Bazi{
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiZi},
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
+	}
+	ss := computeShenSha(bz)
+	var count int
+	for _, e := range ss[1] {
+		if e.Name == "驿马" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Errorf("月柱驿马计数 = %d, want 1（年支=日支不应重复）", count)
+	}
+}
+
+// ── 旬空（xun_kong）字段 ──
+func TestFullChart_XunKong(t *testing.T) {
+	// 1984-02-15 己卯日 → 甲戌旬 → 空申酉
+	cr := makeFullChart(1984, 2, 15, 8, 0, 120, 8, ganzhi.Male)
+	if cr.XunKong != "申酉" {
+		t.Errorf("xun_kong = %q, want 申酉（甲戌旬空申酉）", cr.XunKong)
+	}
+	// 1990-05-23 戊子日 → 甲申旬 → 空午未
+	cr2 := makeFullChart(1990, 5, 23, 16, 6, 120, 8, ganzhi.Male)
+	if cr2.XunKong != "午未" {
+		t.Errorf("xun_kong = %q, want 午未（甲申旬空午未）", cr2.XunKong)
+	}
+}
+
+func hasShenSha(pillar []shenShaEntry, name string) bool {
+	for _, e := range pillar {
+		if e.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+// ── 干支自合（12 组，现代命理共识）数据驱动 ──
+// 《三命通会》9 组 + 主流扩展 己亥、壬午、戊辰。
+func TestSelfHe_Authoritative(t *testing.T) {
+	want := map[string]string{
+		"甲午": "甲己合", "乙巳": "乙庚合", "丙戌": "丙辛合",
+		"丁亥": "丁壬合", "戊子": "戊癸合", "己亥": "己甲合",
+		"庚辰": "庚乙合", "辛巳": "辛丙合", "壬午": "壬丁合",
+		"壬戌": "壬丁合", "癸巳": "癸戊合", "戊辰": "戊癸合",
+	}
+	for pillar, name := range want {
+		t.Run(pillar, func(t *testing.T) {
+			gan, err := ganzhi.ParseGan(pillar[:3])
+			if err != nil {
+				t.Fatal(err)
+			}
+			zhi, err := ganzhi.ParseZhi(pillar[3:])
+			if err != nil {
+				t.Fatal(err)
+			}
+			p := ganzhi.Zhu{Gan: gan, Zhi: zhi}
+			if !isSelfHe(p) {
+				t.Errorf("%s 应为干支自合", pillar)
+			}
+			if n := selfHeName(p); n != name {
+				t.Errorf("%s selfHeName = %q, want %q", pillar, n, name)
+			}
+		})
+	}
+	// 反例：藏干虽可构成暗合但非主流自合组合（甲丑、戊丑、丙丑、甲未、乙申等）
+	neg := []string{"甲丑", "戊丑", "丙丑", "甲未", "乙申", "甲戌", "乙酉", "丙子", "丁丑", "庚午", "辛卯", "壬子", "癸丑", "甲子", "己丑", "庚寅", "癸酉", "辛丑", "乙丑", "丙寅"}
+	for _, pillar := range neg {
+		gan, _ := ganzhi.ParseGan(pillar[:3])
+		zhi, _ := ganzhi.ParseZhi(pillar[3:])
+		if isSelfHe(ganzhi.Zhu{Gan: gan, Zhi: zhi}) {
+			t.Errorf("%s 不应判为干支自合（非主流组合）", pillar)
+		}
+	}
+}
+
+// ── 三奇贵人（顺/逆次连续）数据驱动 ──
+func TestSanQi_Order(t *testing.T) {
+	tests := []struct {
+		name string
+		gans [4]ganzhi.Gan // 年-月-日-时
+		want string
+	}{
+		{"天上顺次年月日", [4]ganzhi.Gan{ganzhi.GanJia, ganzhi.GanWu, ganzhi.GanGeng, ganzhi.GanBing}, "天上"},
+		{"天上顺次月日时", [4]ganzhi.Gan{ganzhi.GanBing, ganzhi.GanJia, ganzhi.GanWu, ganzhi.GanGeng}, "天上"},
+		{"天上逆次", [4]ganzhi.Gan{ganzhi.GanGeng, ganzhi.GanWu, ganzhi.GanJia, ganzhi.GanBing}, "天上"},
+		{"地下顺次", [4]ganzhi.Gan{ganzhi.GanYi, ganzhi.GanBing, ganzhi.GanDing, ganzhi.GanJia}, "地下"},
+		{"人中顺次", [4]ganzhi.Gan{ganzhi.GanRen, ganzhi.GanGui, ganzhi.GanXin, ganzhi.GanJia}, "人中"},
+		{"集齐不连续（乱序）", [4]ganzhi.Gan{ganzhi.GanJia, ganzhi.GanGeng, ganzhi.GanWu, ganzhi.GanBing}, ""},
+		{"三干缺一", [4]ganzhi.Gan{ganzhi.GanJia, ganzhi.GanWu, ganzhi.GanYi, ganzhi.GanBing}, ""},
+		{"分隔不相邻", [4]ganzhi.Gan{ganzhi.GanJia, ganzhi.GanYi, ganzhi.GanWu, ganzhi.GanGeng}, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bz := ganzhi.Bazi{
+				Nian: ganzhi.Zhu{Gan: tt.gans[0], Zhi: ganzhi.ZhiZi},
+				Yue:  ganzhi.Zhu{Gan: tt.gans[1], Zhi: ganzhi.ZhiYin},
+				Ri:   ganzhi.Zhu{Gan: tt.gans[2], Zhi: ganzhi.ZhiChen},
+				Shi:  ganzhi.Zhu{Gan: tt.gans[3], Zhi: ganzhi.ZhiWu},
+			}
+			if got := sanQiType(bz); got != tt.want {
+				t.Errorf("sanQiType = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// ── 孤辰寡宿（年支三会局）全表数据驱动 ──
+// 亥子丑: 孤寅寡戌；寅卯辰: 孤巳寡丑；巳午未: 孤申寡辰；申酉戌: 孤亥寡未。
+func TestGuChenGuaSu_AllYearBranches(t *testing.T) {
+	want := map[ganzhi.Zhi]struct{ gu, gua ganzhi.Zhi }{
+		ganzhi.ZhiHai:  {gu: ganzhi.ZhiYin, gua: ganzhi.ZhiXu},
+		ganzhi.ZhiZi:   {gu: ganzhi.ZhiYin, gua: ganzhi.ZhiXu},
+		ganzhi.ZhiChou: {gu: ganzhi.ZhiYin, gua: ganzhi.ZhiXu},
+		ganzhi.ZhiYin:  {gu: ganzhi.ZhiSi, gua: ganzhi.ZhiChou},
+		ganzhi.ZhiMao:  {gu: ganzhi.ZhiSi, gua: ganzhi.ZhiChou},
+		ganzhi.ZhiChen: {gu: ganzhi.ZhiSi, gua: ganzhi.ZhiChou},
+		ganzhi.ZhiSi:   {gu: ganzhi.ZhiShen, gua: ganzhi.ZhiChen},
+		ganzhi.ZhiWu:   {gu: ganzhi.ZhiShen, gua: ganzhi.ZhiChen},
+		ganzhi.ZhiWei:  {gu: ganzhi.ZhiShen, gua: ganzhi.ZhiChen},
+		ganzhi.ZhiShen: {gu: ganzhi.ZhiHai, gua: ganzhi.ZhiWei},
+		ganzhi.ZhiYou:  {gu: ganzhi.ZhiHai, gua: ganzhi.ZhiWei},
+		ganzhi.ZhiXu:   {gu: ganzhi.ZhiHai, gua: ganzhi.ZhiWei},
+	}
+	for yearBranch, w := range want {
+		t.Run(ganzhi.ZhiName(yearBranch)+"年", func(t *testing.T) {
+			bz := ganzhi.Bazi{
+				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: yearBranch},
+				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: w.gu}, // 月支=孤辰位
+				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
+				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: w.gua}, // 时支=寡宿位
+			}
+			ss := computeShenSha(bz)
+			if !hasShenSha(ss[1], "孤辰") {
+				t.Errorf("%s年: 孤辰应在月支%s", ganzhi.ZhiName(yearBranch), ganzhi.ZhiName(w.gu))
+			}
+			if !hasShenSha(ss[3], "寡宿") {
+				t.Errorf("%s年: 寡宿应在时支%s", ganzhi.ZhiName(yearBranch), ganzhi.ZhiName(w.gua))
+			}
+		})
 	}
 }
