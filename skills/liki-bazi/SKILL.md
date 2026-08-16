@@ -11,10 +11,11 @@ description: Liki 灵机 — 命理师的 Skill，八字、紫微（八紫双盘
 
 开始服务前先做版本检查（远程超时 10 秒）：
 
-1. 读本地 `VERSION` + `content.sha256`，再读 `https://liki.hk/skills/liki-bazi/VERSION` 与 `.../content.sha256`
-2. 一致 → 继续；任一不一致 → 告知更新内容，提示 `npx skills add ml8s/liki/skills/liki-bazi -y`，用户确认后继续
-3. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
-4. 检查未完成前，不得调 RPC 或读子 SKILL.md
+1. **本地完整性自检（防假同步）**：运行 `python3 tools/hash.py`（计算本地实际内容指纹），与本地 `content.sha256` 比对——不一致说明安装副本「声明指纹≠实际内容」（假同步，代码可能是旧的），**禁止继续**，提示重装：`npx skills add ml8s/liki/skills/liki-bazi -y`
+2. 读本地 `VERSION` + `content.sha256`，再读 `https://liki.hk/skills/liki-bazi/VERSION` 与 `.../content.sha256`
+3. 与远程一致 → 继续；任一不一致 → 告知更新内容，提示 `npx skills add ml8s/liki/skills/liki-bazi -y`，用户确认后继续
+4. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
+5. 检查未完成前，不得调 RPC 或读子 SKILL.md
 
 ## RPC 调用说明
 
@@ -41,6 +42,22 @@ curl -s https://liki.hk/jsonrpc \
 - 合盘（compatibility 卡）：`bazi.bond` / `ziwei.bond`
 - 细化流：`bazi.liuyue` / `bazi.liuri` / `bazi.liushi` / `bazi.xiaoyun`、`ziwei.daxian` / `ziwei.liuyue` / `ziwei.liuri` / `ziwei.liushi` / `ziwei.fullchart`
 - 基础：`time.now`、`city`、`tianwen.time`（真太阳时换算，调试/手排用）
+
+**细化流参数速查**（bazi 系列=公历，ziwei 系列=农历，命名不同勿混用）：
+
+| 方法 | 参数（required 用粗体） |
+|------|------------------------|
+| `bazi.liuyue` | **year**（公历年）+ **month**（公历月）+ **chart** |
+| `bazi.liuri` | **year** + **month** + **day**（公历日）+ **chart** |
+| `bazi.liushi` | **year** + **month** + **day** + **hour**（0-23）+ **chart** |
+| `bazi.xiaoyun` | **chart** + count（默认 12） |
+| `ziwei.daxian` | **chart**（ziwei.chart 完整返回） |
+| `ziwei.liuyue` | **liu_nian**（流年）+ **lunar_month**（农历月）+ **chart** |
+| `ziwei.liuri` | **liu_nian** + **lunar_month** + **lunar_day**（农历日）+ **chart** |
+| `ziwei.liushi` | **liu_nian** + **lunar_month** + **lunar_day** + **shi_zhi**（时支，如"子"）+ **chart** |
+| `ziwei.fullchart` | **chart** |
+
+**bazi.chart 单柱字段警示**：`bazi.chart` 单柱（nian/yue/ri/shi）仅含 `gan`/`zhi`/`na_yin`；十神（`shi_shens`）、藏干（`cang_gan`）、神煞（`shen_sha`）、空亡（`is_void`）、魁罡（`is_kui_gang`）、长生（`chang_sheng`）**只在 `bazi.fullchart`**——需要这些字段必须先调 `full_paipan` 或 `bazi.fullchart`，从 `bazi.chart` 取会拿到空。
 
 ## 流程约定（强制）
 
@@ -106,7 +123,8 @@ JSON-RPC 返回 error 时：
 - **结论先行**：首句直接给判断，不得以"可能/或许/从八字来看"开头；先结论后依据
 - 语气沉稳专业；不输出 JSON/代码块
 - 分析用中文推理（术语准确）；输出语言跟随用户（英文时术语首次括注英文）
-- 不产出抽象评级档位（吉凶/分数），只给「符号→现实」翻译
+- 不自行创造量化评级档位（如 80 分/大吉大利/三星），只给「符号→现实」翻译；断语库/引擎既有吉凶表达（如"凶事年""吉应"）为规则确定性输出，**按原文采纳输出**，不另行升格或降格
+- **重断语软化（真实用户冲击）**：命中"父寿不永/祖业飘零/殡葬/克夫/重病死亡"等冲击性断语时，保留断语依据但**补充缓解/建议性表述**（如"此为传统命理视角的警示，需结合大运流年谨慎验证，可提前预防/留意"），不裸输出惊悚结论；对明显焦虑用户优先给建议方向
 - **防卡死兜底（强制）**：
   1. 每问必有结论：分析结束必须给出明确结论，禁止静默退出（确实无法判定才输出"无法判定"）
   2. 同一数据连续 5 轮无结果 → 跳过该数据继续，禁止中断

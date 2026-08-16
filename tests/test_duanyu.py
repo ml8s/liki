@@ -56,5 +56,69 @@ class TestYearlyIsolation(unittest.TestCase):
         self.assertTrue(any(r.get("id") == "yliu_104" for r in res["八字"]))
 
 
+class TestRiZhuWuXing(unittest.TestCase):
+    """日主五行直通因子（自查 2026-08：曾被条件列 0/1 比较破坏 → 五行性情/外貌断语永久丢失）。"""
+
+    def test_直读任意返回字符串(self):
+        # _atomic 收尾不得把「任意」取值模式的字符串布尔化（旧 bug："土" != 1 → 因子恒 0）
+        fac = mock_factors()
+        fac["ri_gan"] = "己"
+        self.assertEqual(duanyu._atomic("直读[ri_gan_wx,任意]", fac, "male", None), "土")
+        # 期望值模式不受影响（直读[ri_gan_wx,木] 对土日主 = 0）
+        self.assertEqual(duanyu._atomic("直读[ri_gan_wx,木]", fac, "male", None), 0)
+
+    def test_日主五行因子为五行字符串(self):
+        fac = mock_factors()
+        fac["ri_gan"] = "己"
+        snap = duanyu.evaluate_factors(fac, "male", {"chart": {}}, shushi="bazi")
+        self.assertEqual(snap.get("日主五行"), "土")
+
+
+class TestCaiXingShouKe(unittest.TestCase):
+    """财星受克因子（自查 2026-08：旧定义 克[比劫,财] 五行恒真 → 因子恒 1、
+    liu_101 父星旺断语永不命中 + lq_301 父寿不永 93% 误报）。"""
+
+    def test_比劫强财弱_受克(self):
+        fac = mock_factors(正财={"wuxing": "土"}, 比肩={"wuxing": "木", "de_ling": True, "count": 3})
+        fac["ri_gan"] = "甲"
+        fac["wuxing"] = {"wang_shuai": {"木": "旺", "土": "死"}}
+        snap = duanyu.evaluate_factors(fac, "male", {"chart": {}}, shushi="bazi")
+        self.assertEqual(snap.get("财星受克"), 1)
+
+    def test_财旺_不受克(self):
+        # 财星得令有根 → 不受克（旧定义恒 1 会误报）
+        fac = mock_factors(正财={"wuxing": "土", "de_ling": True, "has_root": True, "count": 3},
+                           比肩={"wuxing": "木", "count": 1})
+        fac["ri_gan"] = "甲"
+        fac["wuxing"] = {"wang_shuai": {"土": "旺", "木": "休"}}
+        snap = duanyu.evaluate_factors(fac, "male", {"chart": {}}, shushi="bazi")
+        self.assertEqual(snap.get("财星受克"), 0)
+
+
+class TestYueLingGe(unittest.TestCase):
+    """月令格因子（自查 2026-08：直读任意取值语义 + 条件列比较 + 枚举缺"格"后缀
+    三重问题 → 月令格断语全部永久丢失）。"""
+
+    def test_月令格因子为格局字符串(self):
+        fac = mock_factors()
+        fac["yongshen"] = {"ge_ju": {"ge_ju": "正财格"}}
+        snap = duanyu.evaluate_factors(fac, "male", {"chart": {}}, shushi="bazi")
+        self.assertEqual(snap.get("月令格"), "正财格")
+
+    def test_月令格断语命中(self):
+        # 正财格 + 身弱 → ge_302（正财格身弱分支）
+        fac = mock_factors(正财={"wuxing": "土", "de_ling": True, "count": 3})
+        fac["yongshen"] = {"ge_ju": {"ge_ju": "正财格"}}
+        fac["qiangruo"] = "身弱"
+        from duanyu import load_table
+        from engine import match
+        snap = duanyu.evaluate_factors(fac, "male", {"chart": {}}, shushi="bazi")
+        # 手动构造断语表查询依赖的最小快照（身弱/从杀格）
+        snap["身弱"] = 1
+        snap["从杀格"] = 0
+        hits = [e["id"] for e in match(load_table("bazi_geju.csv"), snap)]
+        self.assertIn("ge_302", hits)
+
+
 if __name__ == "__main__":
     unittest.main()

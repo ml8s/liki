@@ -18,7 +18,8 @@ import sys
 
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_TOOLS = os.path.join(_ROOT, "tools")
+# 4.1.0 重构：tools 移至 skills/liki-bazi/tools（原 _ROOT/tools 已不存在）
+_TOOLS = os.path.join(_ROOT, "skills", "liki-bazi", "tools")
 _LOCAL = os.path.dirname(os.path.abspath(__file__))   # tests/（client/birth 排盘工具在此）
 for _p in (_TOOLS, _LOCAL):
     if _p not in sys.path:

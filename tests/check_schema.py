@@ -33,6 +33,49 @@ def load_liunian_names() -> set:
 LIUNIAN_KEYS = load_liunian_names()
 
 
+def load_liunian_reachability() -> tuple:
+    """流年因子可达性（外部评审 #17/#18：跨术数死条件 / 域错配死列防回潮）。
+
+    返回 (bazi_reachable, ziwei_factors, all_liunian_cols)：
+    - bazi_reachable: 八字流年快照可达键（factors_liunian.csv 表头算子列 ∪ 术数=bazi 因子名）
+    - ziwei_factors: 紫微流年因子名（术数=ziwei）——八字流年表引用 = 跨术数死条件
+    - all_liunian_cols: factors_liunian.csv 全部表头列
+    """
+    import csv as _csv
+    import os as _os
+    path = _os.path.join(DY, "factors", "factors_liunian.csv")
+    bz, zw, cols = set(), set(), set()
+    try:
+        with open(path, encoding="utf-8") as fh:
+            rd = _csv.DictReader(fh)
+            cols = {c for c in rd.fieldnames if c not in ("因子", "术数", "原语直通", "结论")}
+            rows = list(rd)
+        for r in rows:
+            if (r.get("术数") or "bazi").strip() == "ziwei":
+                zw.add(r["因子"])
+            else:
+                bz.add(r["因子"])
+        bz |= cols  # 算子列名（流年宫化[X]/三刑[X]…）同为可达键——同名约定，因子行术数定归属
+    except Exception:
+        pass
+    return bz, zw, cols
+
+
+def load_ref_benming_keys() -> set:
+    """「引用本命[X]」算子支持的 X——从 atoms.py 实现提取（防 #18 变体：引用未知本命键恒 0）。"""
+    import os as _os
+    import re as _re
+    try:
+        src = open(_os.path.join(DY, "atoms.py"), encoding="utf-8").read()
+        seg = src.split('if op == "引用本命":', 1)[1].split("if op ==", 1)[0]
+        return set(_re.findall(r'key == "([^"]+)"', seg))
+    except Exception:
+        return set()
+
+
+_REF_BENMING_KEYS = load_ref_benming_keys()
+
+
 def load_factor_shushi() -> dict:
     """因子名 → 术数（bazi/ziwei）——交叉校验：bazi 表只用八字因子、ziwei 表只用紫微因子。"""
     import csv as _csv
@@ -51,9 +94,29 @@ def load_factors_names() -> set:
 def main() -> int:
     factor_names = load_factors_names()
     factor_shushi = load_factor_shushi()
+    bz_reach, zw_factors, all_liunian_cols = load_liunian_reachability()
+    import csv as _csv2
+    _LIUNIAN_ALL = list(_csv2.DictReader(open(os.path.join(DY, "factors", "factors_liunian.csv"), encoding="utf-8")))
+    # 因子 → 是否字符串直通（直读[..,任意]）——强化⑩ 校验断语字符串约束列值域
+    _STR_ZHITONG = {}
+    for _r in _csv2.DictReader(open(os.path.join(DY, "factors", "factors.csv"), encoding="utf-8")):
+        _zt = (_r.get("原语直通") or "").strip()
+        _STR_ZHITONG.setdefault(_r["因子"], set()).add(("任意" in _zt) if _zt else False)
     errors = []
     warnings = []
     seen_ids = {}
+    # 强化⑥（外部评审 #18 变体）：factors_liunian.csv「引用本命[X]」的 X 必须是算子实现支持的键
+    # （引用未知本命键 → 原子恒 0 → 死条件）
+    import csv as _csv
+    try:
+        for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors_liunian.csv"), encoding="utf-8")):
+            for c, v in r.items():
+                if c.startswith("引用本命[") and (v or "").strip():
+                    inner = c[len("引用本命["):-1]
+                    if inner not in _REF_BENMING_KEYS:
+                        errors.append(f"[factors_liunian] 引用本命[{inner}] 不在算子实现支持集（atoms.py: {sorted(_REF_BENMING_KEYS)}）——恒 0 死条件")
+    except FileNotFoundError:
+        pass
     files = glob.glob(os.path.join(DY, "**", "*.csv"), recursive=True)
     for f in sorted(files):
         if os.path.basename(f) in ("factors.csv", "factors_liunian.csv", "factors_narrow.csv"):
@@ -61,8 +124,11 @@ def main() -> int:
         import csv as _csv
         dom = os.path.basename(f)[:-4]
         rows = []
+        _hdr = None
         with open(f, encoding="utf-8") as fh:
-            for r in _csv.DictReader(fh):
+            _rd = _csv.DictReader(fh)
+            _hdr = [c for c in _rd.fieldnames if c not in ("id", "事件", "结论", "依据", "经典原文")]
+            for r in _rd:
                 cons = {}
                 for k, v in r.items():
                     if k in ("id", "事件", "结论", "依据", "经典原文"):
@@ -94,6 +160,53 @@ def main() -> int:
         for k in used_keys:
             if k not in factor_names and k not in BUILTIN_KEYS and k not in LIUNIAN_KEYS:
                 errors.append(f"[{dom}] 约束键 '{k}' 不在因子全集（factors.csv 无此因子）")
+        # 强化④（外部评审 #17/#18）：流年域表（yearly_*/yingqi）键可达性——
+        # 八字流年表引用紫微流年因子 = 跨术数死条件；引用本命因子（非引用本命[X]）= 流年快照不可达死列
+        if _rel.startswith("bazi/") and (dom.startswith("yearly_") or dom == "yingqi"):
+            for k in used_keys:
+                if k in zw_factors:
+                    errors.append(f"[{_rel}] 八字流年表引用紫微流年因子 '{k}'——跨术数死条件（八字流年快照恒无此键，永不命中）")
+                elif k not in bz_reach and k not in BUILTIN_KEYS and k in factor_names:
+                    errors.append(f"[{_rel}] 流年表引用本命因子 '{k}'（非「引用本命[X]」形式）——流年快照不可达，死列")
+        # 强化⑤（外部评审 #20）：死列检测——表头列无任何行引用（纯冗余，易滋生死条件）
+        _unused = [c for c in _hdr if c not in used_keys]
+        if _unused:
+            _s = ",".join(_unused[:8]) + ("…" if len(_unused) > 8 else "")
+            warnings.append(f"[{dom}] 表头未引用列（死列/冗余）{len(_unused)} 个: {_s}")
+        # 强化⑦（自查 2026-08：重复断语行——同约束多条近似结论 → agent 输出冗余/矛盾）
+        _seen_cons = {}
+        for item in rows:
+            _cons = tuple(sorted((k, v) for k, v in (item.get("约束") or {}).items()))
+            if _cons and _cons in _seen_cons:
+                warnings.append(f"[{dom}] 重复约束行: {_seen_cons[_cons]} 与 {item['id']} 约束完全相同（结论近似=冗余，应合并）")
+            else:
+                _seen_cons[_cons] = item['id']
+        # 强化⑧（自查 2026-08：约束值域——非枚举列出现 0/1 以外取值 = 静默永不匹配）
+        _ENUM_COLS = {"gender", "月令格", "日主五行", "日主甲", "日主乙", "日主丙", "日主丁", "日主戊",
+                      "日主己", "日主庚", "日主辛", "日主壬", "日主癸", "十神", "日主"}
+        for item in rows:
+            for _k, _v in (item.get("约束") or {}).items():
+                if _k in _ENUM_COLS:
+                    continue
+                if _v not in ("0", "1"):
+                    errors.append(f"[{dom}/{item['id']}] 约束列 {_k} 取值 {_v!r} 非 0/1（枚举列才可用字符串）")
+        # 强化⑩（自查 2026-08：断语字符串约束列 vs 因子值域——月令格=XX格 需因子为字符串直通，
+        # 否则因子返回 0/1 与字符串约束永不匹配 → 断语全灭）
+        for item in rows:
+            for _k, _v in (item.get("约束") or {}).items():
+                if _v in ("0", "1") or _k == "gender":
+                    continue
+                _defs = _STR_ZHITONG.get(_k)
+                if _defs is None:
+                    errors.append(f"[{dom}/{item['id']}] 字符串约束列 {_k}={_v!r} 不是因子名（或引擎直读键）")
+                elif not any(_d for _d in _defs):
+                    errors.append(f"[{dom}/{item['id']}] 列 {_k}={_v!r} 因子非字符串直通（值域错配→永不匹配）")
+        # 强化⑨（自查 2026-08：紫微流年表引用八字流年因子 = 跨术数死条件——与八字侧对称）
+        if _rel.startswith("ziwei/") and dom.startswith("yearly_"):
+            _bazi_liu_factors = {r["因子"] for r in _LIUNIAN_ALL if (r.get("术数") or "bazi").strip() == "bazi"}
+            for k in used_keys:
+                if k in _bazi_liu_factors:
+                    errors.append(f"[{_rel}] 紫微流年表引用八字流年因子 '{k}'——跨术数死条件（紫微流年快照恒无此键）")
         # 强化①：结论=评测状态标签（3.6.0 去异化——结论须命理表达——防标签回潮）
         _LABELS = {"已婚", "未婚", "独身", "离异", "夫早亡", "已婚波折", "博士", "硕士", "大学",
                    "专科", "中学", "小学", "主妇", "老板", "老板+管理层", "管理层/高管", "稳定职业",

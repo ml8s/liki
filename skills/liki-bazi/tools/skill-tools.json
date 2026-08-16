@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 5 个命理工具（排盘/因子生成/断语查询），OpenAI function calling 格式（tools 数组）。外部 agent（本地或 web）以此文件 + rpc.discover 获取全部工具调用方法。执行：服务端 python3（tools/*.py 纯标准库）；web agent 经 agent_cli.py 分派。",
-    "version": "3.9.0"
+    "version": "4.1.1"
   },
   "tools": [
     {
@@ -51,23 +51,278 @@
             },
             "lunar": {
               "type": "object",
-              "description": "农历"
+              "description": "农历",
+              "properties": {
+                "year": {
+                  "type": "integer"
+                },
+                "month": {
+                  "type": "integer"
+                },
+                "day": {
+                  "type": "integer"
+                },
+                "shichen": {
+                  "type": "string"
+                }
+              }
             },
             "chart": {
               "type": "object",
-              "description": "四柱排盘（含 birth_year / da_yun）"
+              "description": "四柱排盘（四柱+大运+性别+出生年）",
+              "properties": {
+                "nian": {
+                  "type": "object",
+                  "properties": {
+                    "gan": {
+                      "type": "string",
+                      "description": "天干"
+                    },
+                    "zhi": {
+                      "type": "string",
+                      "description": "地支"
+                    },
+                    "na_yin": {
+                      "type": "string",
+                      "description": "纳音"
+                    }
+                  }
+                },
+                "yue": {
+                  "type": "object",
+                  "properties": {
+                    "gan": {
+                      "type": "string",
+                      "description": "天干"
+                    },
+                    "zhi": {
+                      "type": "string",
+                      "description": "地支"
+                    },
+                    "na_yin": {
+                      "type": "string",
+                      "description": "纳音"
+                    }
+                  }
+                },
+                "ri": {
+                  "type": "object",
+                  "properties": {
+                    "gan": {
+                      "type": "string",
+                      "description": "天干"
+                    },
+                    "zhi": {
+                      "type": "string",
+                      "description": "地支"
+                    },
+                    "na_yin": {
+                      "type": "string",
+                      "description": "纳音"
+                    }
+                  }
+                },
+                "shi": {
+                  "type": "object",
+                  "properties": {
+                    "gan": {
+                      "type": "string",
+                      "description": "天干"
+                    },
+                    "zhi": {
+                      "type": "string",
+                      "description": "地支"
+                    },
+                    "na_yin": {
+                      "type": "string",
+                      "description": "纳音"
+                    }
+                  }
+                },
+                "da_yun": {
+                  "type": "object",
+                  "properties": {
+                    "start_date": {
+                      "type": "string",
+                      "description": "起运公历日"
+                    },
+                    "direction": {
+                      "type": "string",
+                      "description": "顺排/逆排"
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "gan": {
+                            "type": "string"
+                          },
+                          "zhi": {
+                            "type": "string"
+                          },
+                          "start_date": {
+                            "type": "string",
+                            "description": "本步起始公历日 YYYY-MM-DD"
+                          },
+                          "end_date": {
+                            "type": "string",
+                            "description": "本步末日 YYYY-MM-DD"
+                          },
+                          "start_year": {
+                            "type": "integer",
+                            "description": "本步起始公历年"
+                          },
+                          "end_year": {
+                            "type": "integer",
+                            "description": "本步结束公历年"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "wuxing": {
+                            "type": "string"
+                          },
+                          "shi_shen": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "description": "每步十年（含 start_date/end_date + start_year/end_year）"
+                    },
+                    "current_step_index": {
+                      "type": "integer",
+                      "description": "当前大运索引（-1=未起运/已过完）"
+                    },
+                    "next_step_in_years": {
+                      "type": "integer",
+                      "description": "距下一大运剩余年数"
+                    }
+                  }
+                },
+                "gender": {
+                  "type": "string"
+                },
+                "birth_year": {
+                  "type": "integer"
+                },
+                "zi_shi_rule": {
+                  "type": "string",
+                  "description": "子时换日规则说明"
+                }
+              }
             },
             "full": {
               "type": "object",
-              "description": "十神/藏干/神煞/合会冲刑/三元（shi_shens 含 stem/main_qi 来源 + is_void/is_kui_gang/shen_sha）"
+              "description": "完整命盘扩展（十神/藏干/神煞/空亡/魁罡/三元/合会冲刑）",
+              "properties": {
+                "nian": {
+                  "type": "object",
+                  "description": "含 shi_shens/cang_gan/shen_sha/is_void/is_kui_gang"
+                },
+                "yue": {
+                  "type": "object",
+                  "description": "含 shi_shens/cang_gan（月令本气 main）/shen_sha"
+                },
+                "ri": {
+                  "type": "object"
+                },
+                "shi": {
+                  "type": "object"
+                }
+              }
             },
             "yongshen": {
               "type": "object",
-              "description": "身强弱 fu_yi.qiangruo / 五行旺衰 fu_yi.wang_shuai / 三派用神（扶抑/调候/格局，各含 yong/xi/ji）"
+              "description": "用神三派",
+              "properties": {
+                "fu_yi": {
+                  "type": "object",
+                  "properties": {
+                    "qiangruo": {
+                      "type": "string",
+                      "enum": [
+                        "身强",
+                        "身弱",
+                        "中和"
+                      ]
+                    },
+                    "yong": {
+                      "type": "string"
+                    },
+                    "xi": {
+                      "type": "string"
+                    },
+                    "ji": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "tiao_hou": {
+                  "type": "object",
+                  "properties": {
+                    "yong": {
+                      "type": "string"
+                    },
+                    "xi": {
+                      "type": "string"
+                    },
+                    "ji": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "ge_ju": {
+                  "type": "object",
+                  "properties": {
+                    "ge_ju": {
+                      "type": "string"
+                    },
+                    "yong": {
+                      "type": "string"
+                    },
+                    "xi": {
+                      "type": "string"
+                    },
+                    "ji": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             },
             "ziwei": {
               "type": "object",
-              "description": "紫微十二宫 gong_wei + 四化 si_hua + 格局 patterns + 大限 daxian"
+              "description": "紫微十二宫",
+              "properties": {
+                "gong_wei": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "zhi": {
+                        "type": "string"
+                      },
+                      "xing_yao": {
+                        "type": "array"
+                      }
+                    }
+                  }
+                },
+                "si_hua": {
+                  "type": "object",
+                  "description": "{星名: 禄/权/科/忌}"
+                },
+                "ju_shu": {
+                  "type": "string"
+                },
+                "ming_gong": {
+                  "type": "string"
+                }
+              }
             },
             "gender": {
               "type": "string",
@@ -75,7 +330,7 @@
             },
             "fac": {
               "type": "object",
-              "description": "内嵌因子快照（build_factors 归并：十神/五行/用神/紫微宫位，供 make_factors 直接读）"
+              "description": "内嵌因子原始数据（十神/五行/用神/大运 steps——make_factors 用）"
             }
           }
         }
@@ -108,11 +363,47 @@
           "properties": {
             "bazi": {
               "type": "object",
-              "description": "八字流年盘"
+              "description": "八字流年盘",
+              "properties": {
+                "year": {
+                  "type": "integer"
+                },
+                "nian_gan": {
+                  "type": "string"
+                },
+                "nian_zhi": {
+                  "type": "string"
+                },
+                "shi_shen": {
+                  "type": "string",
+                  "description": "流年十神（相对日主）"
+                },
+                "shensha": {
+                  "type": "array",
+                  "description": "流年神煞（红鸾/桃花/天乙贵人/华盖/大耗/丧门…）"
+                },
+                "natal_interactions": {
+                  "type": "array",
+                  "description": "流年与命局干支关系（gan_rels/zhi_rels）"
+                }
+              }
             },
             "ziwei": {
               "type": "object",
-              "description": "紫微流年盘"
+              "description": "紫微流年盘",
+              "properties": {
+                "ming_gong": {
+                  "type": "string"
+                },
+                "si_hua": {
+                  "type": "object",
+                  "description": "{星名: 化}"
+                },
+                "si_hua_gong": {
+                  "type": "object",
+                  "description": "{星名: 落宫}"
+                }
+              }
             }
           }
         }

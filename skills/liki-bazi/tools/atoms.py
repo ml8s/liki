@@ -161,7 +161,9 @@ def _op(op: str, args, factors: dict, gender: str, chart: dict) -> "int | str":
             return 1 if str(val) == str(expect) else 0
         val = _path_get(factors, chart, path)
         if expect == "任意":
-            return 1 if val is not None and val != "" else 0
+            # 返回字符串原值（月令格=ge_ju.ge_ju 如"正财格"——断语表 `月令格: 正财格` 匹配）；
+            # 旧实现返回存在性 1 → 与字符串约束永不匹配 → 月令格断语全灭
+            return val if val else 0
         if expect.startswith("含"):
             target = expect[1:].strip()
             if "或" in target:
@@ -509,7 +511,7 @@ def _liu_op(op: str, args, factors: dict, gender: str, chart: dict, ctx: Optiona
     if op in ("流年值", "流年合", "流年冲"):
         palace_key = const.get("事件宫位", {}).get(target, "ri")
         ri_zhi = factors.get("palace_ri", {}).get("zhi", "")
-        chart = chart.get("chart", {}) or {}
+        chart = (chart or {}).get("chart", {}) or {}
         palace_zhi = {"yue": chart.get("yue", {}).get("zhi", ri_zhi),
                       "shi": chart.get("shi", {}).get("zhi", ri_zhi),
                       "nian": chart.get("nian", {}).get("zhi", ri_zhi)}.get(palace_key, ri_zhi)
@@ -640,9 +642,10 @@ def _liu_op(op: str, args, factors: dict, gender: str, chart: dict, ctx: Optiona
         _ZHI_ORDER = list(const["地支五行"].keys())
         if day_g not in _GAN_ORDER or day_z not in _ZHI_ORDER:
             return 0
-        diff = (_ZHI_ORDER.index(day_z) - _GAN_ORDER.index(day_g)) % 12
-        xun_gan = _GAN_ORDER[_GAN_ORDER.index(day_g) - diff]
-        xun = "甲" + xun_gan[1:]
+        # 旬首地支 = 日支索引 - 日干索引（模 12，旬首天干恒甲）：甲子→子、甲戌→戌、己亥→午（甲午旬）、丙子→戌（甲戌旬）
+        # 旧实现 xun="甲"+xun_gan[1:] 恒得"甲"，不在 constants 旬空表（key=甲子/甲戌…）→ 算子恒 0、空亡填实断语永不命中
+        xun_zhi_idx = (_ZHI_ORDER.index(day_z) - _GAN_ORDER.index(day_g)) % 12
+        xun = "甲" + _ZHI_ORDER[xun_zhi_idx]
         return 1 if (xun in const["旬空"] and nz2 in const["旬空"][xun]) else 0
     if op == "流年支受克":
         # 流年支受克：流年支五行被本命旺相五行（木旺/火旺/土旺/金旺/水旺）所克——本命亢+流年受克→健康凶年

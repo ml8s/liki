@@ -11,10 +11,11 @@ description: 风水 — 八宅命卦、玄空飞星。房屋布局、家宅吉�
 
 开始服务前先做版本检查（远程超时 10 秒）：
 
-1. 读本地 `VERSION` + `content.sha256`，再读 `https://liki.hk/skills/liki-fengshui/VERSION` 与 `.../content.sha256`
-2. 一致 → 继续；任一不一致 → 告知更新内容，提示 `npx skills add ml8s/liki/skills/liki-fengshui -y`，用户确认后继续
-3. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
-4. 检查未完成前，不得调 RPC 或读子 SKILL.md
+1. **本地完整性自检（防假同步）**：运行 `python3 tools/hash.py`（计算本地实际内容指纹），与本地 `content.sha256` 比对——不一致说明安装副本「声明指纹≠实际内容」（假同步，代码可能是旧的），**禁止继续**，提示重装：`npx skills add ml8s/liki/skills/liki-fengshui -y`
+2. 读本地 `VERSION` + `content.sha256`，再读 `https://liki.hk/skills/liki-fengshui/VERSION` 与 `.../content.sha256`
+3. 与远程一致 → 继续；任一不一致 → 告知更新内容，提示 `npx skills add ml8s/liki/skills/liki-fengshui -y`，用户确认后继续
+4. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
+5. 检查未完成前，不得调 RPC 或读子 SKILL.md
 
 ## RPC 调用说明
 

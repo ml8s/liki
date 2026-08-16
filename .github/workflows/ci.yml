@@ -35,6 +35,23 @@ jobs:
           done
       - name: Run tests
         run: python3 -m pytest tests/ -q --ignore=tests/test_integration.py
+      - name: Run check (schema + docs + version)
+        # 快路径自动验证：断语表质量/跨术数/死列（check_schema）+ 文档引用契约（check_docs）
+        # + skill-tools.json 版本与 VERSION 一致——改表/改文档后 CI 即拦
+        run: bash tests/check.sh
+
+  data-check:
+    name: Data check (160 题断语覆盖/零命中)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run full data check (eval_hybrid)
+        # 慢路径（32 命例全量排盘，数分钟级）：断语覆盖统计 + 零命中题检测——
+        # 防"断语表改动后断语丢失/死行"（外部评审 #18 模式）只在全量数据检查暴露
+        run: bash tests/check.sh --full
 
   archive:
     name: Build archive

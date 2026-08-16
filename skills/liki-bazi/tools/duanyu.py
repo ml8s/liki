@@ -108,6 +108,10 @@ def _atomic(col: str, factors, gender, chart, ctx: dict = None):
     else:
         raise ValueError(f"未知算子: {op}")
     if isinstance(v, str):
+        # 「任意」= 取值模式（直读[ri_gan_wx,任意] 返回五行字符串、宫含[..,任意] 等）——
+        # 返回字符串原值供断语约束匹配（如 `日主五行: 木`）；否则按期望值比较返回 0/1
+        if args and args[-1] == "任意":
+            return v
         return 1 if args and str(args[0]) == v else 0
     return v
 
@@ -198,7 +202,8 @@ def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_da
                              target: str = "配偶星", marriage_bad: int = 0,
                              shi_ke_guan_arg: int = 0, shi_shang_zhong_arg: int = 0,
                              zw_liunian_data: Optional[dict] = None,
-                             year: int = 0, shushi: Optional[str] = None) -> dict:
+                             year: int = 0, shushi: Optional[str] = None,
+                             snapshot: Optional[dict] = None) -> dict:
     """流年复合因子（表驱动）：读 factors_liunian.csv 逐行求值 → 流年因子快照。
 
     与 evaluate_factors 同构——流年因子定义在表，engine 纯机械。
@@ -215,6 +220,7 @@ def evaluate_liunian_factors(factors: dict, gender: str, chart: dict, liunian_da
         "year": year,
         "chart": chart,
         "factors": factors,
+        "snapshot": snapshot or {},  # 本命因子快照（流年支受克等算子读本命五行旺衰——曾缺此键恒 0）
     }
     rows = load_liunian_rows()
     if shushi:
@@ -282,6 +288,7 @@ def make_liunian_factors(pan: dict, liunian_pan: dict, target: str = "配偶星"
         target=target, marriage_bad=bz.get("本命婚凶", 0), shi_ke_guan_arg=bz.get("食伤克官", 0),
         shi_shang_zhong_arg=bz.get("食伤旺", 0),
         zw_liunian_data=liunian_pan["ziwei"], year=year,
+        snapshot=bz,
     )
     return {
         "_snapshot_type": "liunian",  # 流年快照标记——query 校验 yearly_* 域需此标记（本命快照隔离）
