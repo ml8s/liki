@@ -58,9 +58,6 @@ func collectFieldRefs(schema json.RawMessage, root string, out *fieldRefs) {
 		if props, ok := obj["properties"].(map[string]any); ok {
 			for name, sub := range props {
 				p := path + name
-				if path == "" || strings.Contains(path, "[]") || obj["type"] == "object" || obj["type"] == nil {
-					// 正常路径拼接（顶层/嵌套 object 直接追加）
-				}
 				out.leaves[name] = true
 				if subMap, ok := sub.(map[string]any); ok {
 					switch subMap["type"] {
