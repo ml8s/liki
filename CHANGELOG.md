@@ -1,5 +1,38 @@
 # Changelog
 
+## 4.1.0 —— 架构分层收敛（流程归 app / domains 平铺 / 版本工程化）
+
+- **[架构] 流程归 app**：根 SKILL.md 由 Phase 0-8 流程卡改为「流程约定」（全局骨架 + 强制填表规则 + 路由表）；每个领域的流程（排盘 → 查断语 → 输出，每步「输出：□」填表）移入对应 app 卡，根/app 不再重复流程
+- **[架构] domains 平铺**：删 8 个 domains/*/SKILL.md 入口与 fangfa/duanyu 分类层，41 个知识文件平铺为 domains/<域>/*.md；路径引用全量改写
+- **[架构] 单一数据来源**：参数以 rpc.discover 为准、返回字段以 skill-tools.json result_schema 为准、断语结论以 query（csv 真值表）为准；域文档只写 rpc/csv 没有的（业务映射、判断链、约束规则、体系隔离）
+- **[工具] skill-tools.json 加 result_schema**：5 工具补返回结构；清理死码/死参数/死导入；query 返回结构稳定（双盘恒有键）
+- **[版本] 工程级版本**：4 skill 统一 v4.0.0，不再子 skill 独立定版；Makefile version-patch/minor/major 同步更新 4 个 VERSION
+- **[文档] README 中英重构**：架构图改为「文档层 + 工具层 + 引擎」（工具层可选）、语气改实事求是、数字/命令/结构/免责声明中英对齐；快速开始补 4 skill 安装说明（一次装全部 + 单装）、功能特性按四 skill 分组介绍、设计原则精简去重
+- **[web] 工具按 agent 分离**：命名聊天（liki-naming）与报告（mingshu/hepan）拆为两个 agent——命名 agent 只挂 read_file + RPC，报告 agent 挂 read_file + 5 个命理 Python 工具 + RPC；PromptFile 默认值改为 liki-naming/SKILL.md；{locale} 占位符改为追加英文指令
+- **[webapp] 报告数据走 Python 工具**：mingshu/hepan 的 generate.md 从手调 5 个 RPC 改为 full_paipan → make_factors → query；路径引用补 liki-bazi/ 前缀（原缺前缀 + ../../ 相对路径会导致 read_file 失败）
+
+## 4.0.0 —— 拆分为 4 个独立 skill（liki-bazi / liki-divination / liki-fengshui / liki-naming）
+
+- **[结构] 4 拆**：单 skill 拆为 4 个独立 skill（`skills/` 下，`npx skills add ml8s/liki` 一次装全部，子路径可单装）：
+  - **liki-bazi**（命理）：八字+紫微「八紫」双盘同参（Phase 0-7 全流程 9 卡 + tools 引擎 + 160 题评测）
+  - **liki-divination**（问卦）：六爻/奇门/黄历择日（Phase 8 子流程）
+  - **liki-fengshui**（风水）：八宅/玄空
+  - **liki-naming**（起名）：八字用神 + 三才五格（用神方法论独立复制）
+- **[引擎] 服务端共享**：排盘 RPC（liki.hk/jsonrpc）各 skill 按需声明；skill 侧按域分数据（tools 引擎仅 liki-bazi 持有）
+- **[评测] 归属**：160 题挂 liki-bazi；拆分后定向回归 16/20=80%（门槛 ≥65%，超基线）
+- **[构建] build-archive.sh/CI**：4 skill 循环打包（dist/liki-<name>.tar.gz + index.json）+ content.sha256 各自校验
+- **[部署] liki-web/liki-bot 同步**：sync-skills.sh 4 skill 循环（webapp 仅挂 liki-bazi）；副本更新
+
+# Changelog
+
+## 3.10.3 —— 仓库结构重构：liki-skills 工程根 + skills/liki 内容（GitHub 安装不再混入工程文件）
+
+- **[结构] 仓库重组**：skill 内容（SKILL.md/app/domains/tools/VERSION/content.sha256）移入 `skills/liki/`（CLI 标准发现位置）；工程文件（tests/scripts/webapp/README/CHANGELOG/Makefile/.github 等）留在仓库根——`npx skills add ml8s/liki` 只安装 `skills/liki/`，**tests/scripts 等零混入**（已实测：只发现 1 个 skill、domains 子 SKILL.md 不误判、命令不变）
+- **[结构] 工程根命名 liki-skills**：git 仓库目录 `skills/liki` → `liki-skills`（一层，remote/GitHub 名不变，安装命令不变）
+- **[脚本] 路径适配**：build-archive.sh 打包/指纹/产物指向 `skills/liki/`（dist 随 skill 目录）；Makefile VERSION_FILE、CI content.sha256 校验、check_schema.py、tests 8 文件路径全部改为 `skills/liki/tools`
+- **[部署] liki-web sync-skills.sh/Makefile**：SRC_DIR 指向 `../liki-skills/skills/liki`；副本（liki-bot/.agents、liki-web/web/skills）清理工程文件、只保留安装形态内容
+- **[docs] README 项目结构**：补充仓库根 = 工程区 + skills/liki = 安装区说明
+
 ## 3.10.2 —— 死规则清理 + 算子修复（跨术数死行 / 流年透克恒 0 / 断语复活）
 
 - **[atoms] `_target_stars` gender 中英文漏配修复（重大）**：constants.json 性别键为 `male/female`，外部传入中文 `男/女` 直接 `ts.get("女")` 取不到 → star_keys 恒空 → **「流年透」/「流年克」算子恒 0** →「流年目标星透/流年克目标星」因子恒 0，依赖断语（ymar_101-104/108/109、ycai_101/103、yliu_101/103、yz_101/102、ying_h19 等）八字侧全部永不命中——已加中文→英文映射

@@ -15,7 +15,7 @@ import os
 import sys
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DY = os.path.join(_ROOT, "tools")        # 推理机 + 全部断语表 + 中间数据（csv 只有工具读——谁用归谁）
+DY = os.path.join(_ROOT, "skills", "liki-bazi", "tools")   # skill 内容在 skills/liki-bazi/（工程根=仓库根）
 TABLE_DIRS = (DY,)
 
 # 引擎直读/系统键（非 factors.csv 复合因子，但断语可用）

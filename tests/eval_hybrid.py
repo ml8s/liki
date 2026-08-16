@@ -42,7 +42,7 @@ def query_all(pan: dict) -> dict:
 
 
 def load_case_birth(case_id: str) -> str:
-    s = open(os.path.join(BASE, "cases-grouped", f"{case_id}.yaml"), encoding="utf-8").read()
+    s = open(os.path.join(BASE, "evals/cases", f"{case_id}.yaml"), encoding="utf-8").read()
     m = re.search(r"出生信息：([^\n]+)", s)
     return m.group(1) if m else ""
 

@@ -12,7 +12,7 @@ import unittest
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                'tools'))
+                                'skills', 'liki-bazi', 'tools'))
 
 
 @pytest.mark.integration
@@ -24,7 +24,7 @@ class TestIntegration_FullChain(unittest.TestCase):
         if not url:
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           "tools", "agent_cli.py")
+                           "skills", "liki-bazi", "tools", "agent_cli.py")
         env = dict(os.environ, LIKI_RPC_URL=url)
 
         def call(fn, args):

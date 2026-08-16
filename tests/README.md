@@ -17,7 +17,7 @@ Liki 的独立评测体系：160 道命理师大赛真题按命盘分组为 **32
 前置：`skill-up` 已安装、模型 key 已配置（qwen_code 走 OPENAI_API_KEY/OPENAI_BASE_URL，兼容 deepseek 等）。
 
 ```bash
-cd skills/liki
+cd skills/liki-bazi
 skill-up validate tests/eval-grouped-qwen.yaml   # 校验 32 个 case
 bash tests/run-qwen.sh --parallelism 16          # 一键评测 + 判分
 ```

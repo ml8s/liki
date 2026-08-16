@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """排盘正确性检查: 32 盘 agent 四柱 vs 本地重排四柱。"""
 import sys, os, re, json
-sys.path.insert(0, "tools")
+sys.path.insert(0, "skills/liki-bazi/tools")
 from paipan import full_paipan
 
 CACHE = "/tmp/pan_cache"
 os.makedirs(CACHE, exist_ok=True)
 
 def birth_info(gid):
-    yaml = open("tests/cases-grouped/%s.yaml" % gid, encoding="utf-8").read()
+    yaml = open("tests/evals/cases/%s.yaml" % gid, encoding="utf-8").read()
     m = re.search(r"出生信息[:：]\s*(.*?)(?:\n|$)", yaml)
     s = m.group(1)
     gen = "male" if ("男" in s or "乾" in s) else ("female" if ("女" in s or "坤" in s) else "?")
@@ -40,7 +40,7 @@ def gz(p):
 
 # 从 agent response.md 提取四柱
 def agent_gz(gid):
-    rsp = "../liki-workspace/iteration-3/%s/with_skill/outputs/response.md" % gid
+    rsp = "tests/liki-workspace/iteration-3/%s/with_skill/outputs/response.md" % gid
     txt = open(rsp, encoding="utf-8").read()
     # 常见格式: 甲寅 戊辰 己亥 丙寅 / 甲寅/戊辰/己亥/丙寅
     m = re.search(r"(年柱|四柱|八字)[：: ]*\s*([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])\s*[/,，\s]\s*([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])\s*[/,，\s]\s*([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])\s*[/,，\s]\s*([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])", txt)
@@ -51,11 +51,11 @@ def agent_gz(gid):
     return " ".join(m2.groups()) if m2 else None
 
 print("盘      本地四柱           agent四柱        一致?")
-for gid in sorted(os.listdir("../liki-workspace/iteration-3")):
+for gid in sorted(os.listdir("tests/liki-workspace/iteration-3")):
     if not gid.startswith("pan"): continue
     birth, gen, correct = birth_info(gid)
     if not birth or gen == "?":
-        print("%s  出生信息解析失败: %s" % (gid, open("tests/cases-grouped/%s.yaml" % gid, encoding="utf-8").read()[:60].replace("\n"," ")))
+        print("%s  出生信息解析失败: %s" % (gid, open("tests/evals/cases/%s.yaml" % gid, encoding="utf-8").read()[:60].replace("\n"," ")))
         continue
     cpath = os.path.join(CACHE, "%s_%s.json" % (gid, "A" if correct else "B"))
     try:

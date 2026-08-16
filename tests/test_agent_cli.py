@@ -10,7 +10,7 @@ from unittest import mock
 import pytest
 
 sys.path.insert(0, __import__('os').path.join(
-    __import__('os').path.dirname(__import__('os').path.abspath(__file__)), '..', 'tools'))
+    __import__('os').path.dirname(__import__('os').path.abspath(__file__)), '..', 'skills', 'liki-bazi', 'tools'))
 
 import agent_cli
 
@@ -110,7 +110,7 @@ class TestSchemaConsistency(unittest.TestCase):
     def test_schema工具名全部分派支持(self):
         import os
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         "tools", "skill-tools.json")
+                         "skills", "liki-bazi", "tools", "skill-tools.json")
         doc = json.load(open(p, encoding="utf-8"))
         names = [t["function"]["name"] for t in doc["tools"]]
         self.assertEqual(len(names), 5)

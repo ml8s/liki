@@ -3,7 +3,7 @@
 按列名写 CSV 保证列对齐。"""
 import csv, os
 
-BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "bazi")
+BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "skills", "liki", "tools", "bazi")
 
 COMMON_COLS = ["流年目标星透", "流年值宫", "流年合会", "流年冲", "流年克目标星",
                "换运首年", "大运窗口", "流年干忌神", "流年支忌神", "财坏印",

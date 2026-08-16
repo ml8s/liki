@@ -22,7 +22,7 @@ for ftb, q, cat, pred, truth in errors:
     gid, _ = inv.get(ftb, (None, None))
     if not gid:
         continue
-    rsp = os.path.join("..", "liki-workspace", "iteration-3", gid, "with_skill", "outputs", "response.md")
+    rsp = os.path.join("tests", "liki-workspace", "iteration-3", gid, "with_skill", "outputs", "response.md")
     if not os.path.exists(rsp):
         continue
     txt = open(rsp, encoding="utf-8").read()
@@ -42,7 +42,7 @@ for ftb, q, cat, pred, truth in errors:
 print("错题断语引用统计: 有引用=%d 无引用=%d 段落未提取=%d" % (has_ref, no_ref, no_seg))
 
 # pan03 题5 答案行序列（检查 agent 是否中途改答案）
-txt = open("../liki-workspace/iteration-3/pan03/with_skill/outputs/response.md", encoding="utf-8").read()
+txt = open("tests/liki-workspace/iteration-3/pan03/with_skill/outputs/response.md", encoding="utf-8").read()
 print("\n===pan03 全部「题5」行===")
 for i, l in enumerate(txt.splitlines()):
     if "题5" in l:

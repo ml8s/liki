@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json.schemastore.org/tools.json",
+  "info": {
+    "title": "liki Skill Tools — 命理工具",
+    "description": "liki skill 的 5 个命理工具（排盘/因子生成/断语查询），OpenAI function calling 格式（tools 数组）。外部 agent（本地或 web）以此文件 + rpc.discover 获取全部工具调用方法。执行：服务端 python3（tools/*.py 纯标准库）；web agent 经 agent_cli.py 分派。",
+    "version": "3.9.0"
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "full_paipan",
+        "description": "排盘（本命）：一次排全八字+紫微，返回本命盘（含内嵌因子 fac）。时间精度未知默认 12:00；correct=true 走真太阳时校正（需经度），false 按给定时辰直接排。 主流程编排（第 1 步）：full_paipan → make_factors → query（本命域）；应期场景 full_paipan 后逐候选年 liunian → make_liunian_factors → query（yearly_*/yingqi）",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "time": {
+              "type": "string",
+              "format": "date-time",
+              "description": "出生公历时间（RFC3339），未知时分默认 12:00"
+            },
+            "gender": {
+              "type": "string",
+              "enum": [
+                "male",
+                "female"
+              ],
+              "description": "性别"
+            },
+            "longitude": {
+              "type": "number",
+              "description": "出生地经度（度），correct=true 时用于真太阳时校正；缺省北京 116.4"
+            },
+            "correct": {
+              "type": "boolean",
+              "description": "true=按真太阳时校正（路 A：给具体时刻）；false=按给定时辰直接排（路 B）",
+              "default": true
+            }
+          },
+          "required": [
+            "time",
+            "gender"
+          ]
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "solar": {
+              "type": "string",
+              "description": "真太阳时（correct=true 时校正后）"
+            },
+            "lunar": {
+              "type": "object",
+              "description": "农历"
+            },
+            "chart": {
+              "type": "object",
+              "description": "四柱排盘（含 birth_year / da_yun）"
+            },
+            "full": {
+              "type": "object",
+              "description": "十神/藏干/神煞/合会冲刑/三元（shi_shens 含 stem/main_qi 来源 + is_void/is_kui_gang/shen_sha）"
+            },
+            "yongshen": {
+              "type": "object",
+              "description": "身强弱 fu_yi.qiangruo / 五行旺衰 fu_yi.wang_shuai / 三派用神（扶抑/调候/格局，各含 yong/xi/ji）"
+            },
+            "ziwei": {
+              "type": "object",
+              "description": "紫微十二宫 gong_wei + 四化 si_hua + 格局 patterns + 大限 daxian"
+            },
+            "gender": {
+              "type": "string",
+              "description": "性别"
+            },
+            "fac": {
+              "type": "object",
+              "description": "内嵌因子快照（build_factors 归并：十神/五行/用神/紫微宫位，供 make_factors 直接读）"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "liunian",
+        "description": "排盘（流年）：本命盘 + 年份 → 八字+紫微流年单年合并盘（应期按候选年逐调）。 编排（应期场景）：liunian(pan, 候选年) → make_liunian_factors → query(yearly_<主域> + yingqi)",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pan": {
+              "type": "object",
+              "description": "本命盘（full_paipan 返回）"
+            },
+            "year": {
+              "type": "integer",
+              "description": "目标年份"
+            }
+          },
+          "required": [
+            "pan",
+            "year"
+          ]
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "bazi": {
+              "type": "object",
+              "description": "八字流年盘"
+            },
+            "ziwei": {
+              "type": "object",
+              "description": "紫微流年盘"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "make_factors",
+        "description": "因子生成（本命）：本命盘 → 双盘因子快照 {八字, 紫微}（数据层真分开、一次返回）。 编排（第 2 步）：full_paipan → make_factors → query（本命域）",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pan": {
+              "type": "object",
+              "description": "本命盘（full_paipan 返回，含 fac）"
+            }
+          },
+          "required": [
+            "pan"
+          ]
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "八字": {
+              "type": "object",
+              "description": "八字因子快照"
+            },
+            "紫微": {
+              "type": "object",
+              "description": "紫微因子快照"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "make_liunian_factors",
+        "description": "因子生成（流年）：本命盘 + 流年盘 → 双盘流年因子快照 {八字, 紫微}。 编排（应期场景）：liunian → make_liunian_factors → query（流年域）",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pan": {
+              "type": "object",
+              "description": "本命盘（full_paipan 返回）"
+            },
+            "liunian_pan": {
+              "type": "object",
+              "description": "流年盘（liunian 返回）"
+            },
+            "target": {
+              "type": "string",
+              "description": "目标星/主题，默认 配偶星",
+              "default": "配偶星"
+            },
+            "year": {
+              "type": "integer",
+              "description": "目标年份",
+              "default": 0
+            }
+          },
+          "required": [
+            "pan",
+            "liunian_pan"
+          ]
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "_snapshot_type": {
+              "type": "string",
+              "description": "流年快照标记（query 校验 yearly_* 域用）"
+            },
+            "八字": {
+              "type": "object",
+              "description": "八字流年因子快照"
+            },
+            "紫微": {
+              "type": "object",
+              "description": "紫微流年因子快照"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "query",
+        "description": "断语查询：域 + 双盘因子快照 → 该域断语 {八字: [...], 紫微: [...]}（内部真值表匹配）。rule ∈ 本命 19 域 + 流年域 yearly_*。 编排（第 3 步）：query(<域>, 快照)——本命域查 make_factors 快照、流年域查 make_liunian_factors 快照（快照决定域层，不用选）",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "rule": {
+              "type": "string",
+              "enum": [
+                "xueye",
+                "marriage",
+                "shiye",
+                "chushen",
+                "caiyun",
+                "jiankang",
+                "xingge",
+                "liuqin",
+                "waimao",
+                "shensha",
+                "geju",
+                "zuhe",
+                "ziwei",
+                "tiaohou",
+                "dayun",
+                "tianzhai",
+                "qianyi",
+                "zinv",
+                "zhiye",
+                "yingqi",
+                "yearly_marriage",
+                "yearly_liuqin",
+                "yearly_caiyun",
+                "yearly_shiye",
+                "yearly_jiankang",
+                "yearly_xueye",
+                "yearly_zinv"
+              ],
+              "description": "断语域（本命 19 域 + 流年 yearly_*）"
+            },
+            "snapshots": {
+              "type": "object",
+              "description": "双盘因子快照（make_factors / make_liunian_factors 返回）"
+            }
+          },
+          "required": [
+            "rule",
+            "snapshots"
+          ]
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "八字": {
+              "type": "array",
+              "description": "该域八字断语命中列表"
+            },
+            "紫微": {
+              "type": "array",
+              "description": "该域紫微断语命中列表（紫微无表时为空列表）"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -9,7 +9,7 @@ CACHE = "/tmp/pan_cache"
 os.makedirs(CACHE, exist_ok=True)
 
 def birth_info(gid):
-    yaml = open("tests/cases-grouped/%s.yaml" % gid, encoding="utf-8").read()
+    yaml = open("tests/evals/cases/%s.yaml" % gid, encoding="utf-8").read()
     m = re.search(r"出生信息：(.*?)(?:\n|$)", yaml)
     s = m.group(1)
     gen = "male" if "男" in s else ("female" if "女" in s else "?")

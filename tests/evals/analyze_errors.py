@@ -2,10 +2,10 @@
 """错题分析：对 grade_iter3.txt 中每道错题，提取 agent 推理段落 + 断语引用，输出根因分类线索。"""
 import json, re, os, sys
 
-BASE = os.path.dirname(os.path.abspath(__file__))           # skills/liki/tests/evals
-SKILL = os.path.abspath(os.path.join(BASE, "..", ".."))     # skills/liki
+BASE = os.path.dirname(os.path.abspath(__file__))           # skills/liki-bazi/tests/evals
+SKILL = os.path.abspath(os.path.join(BASE, "..", ".."))     # skills/liki-bazi
 TESTS = os.path.join(SKILL, "tests")
-WS = os.path.join(SKILL, "..", "liki-workspace", "iteration-3")
+WS = os.path.join(SKILL, "tests", "liki-workspace", "iteration-3")
 GROUPS = json.load(open(os.path.join(TESTS, "groups.json")))
 INV = {}
 for gid, ftbs in GROUPS.items():

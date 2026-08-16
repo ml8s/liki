@@ -4,7 +4,7 @@
 无对应流年因子的域（性格/外貌/田宅/迁移等）不做——不断无依据之语。"""
 import csv, os
 
-BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "bazi")
+BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "skills", "liki", "tools", "bazi")
 
 # 全部八字流年因子（24）
 BZ_COLS = ["流年目标星透", "流年值宫", "流年合会", "流年冲", "流年克目标星",

@@ -3,7 +3,7 @@
 安全修改：表头追加 10 列，现有行补空，追加 10 行新因子。"""
 import csv, os
 
-path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "factors", "factors.csv")
+path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "skills", "liki", "tools", "factors", "factors.csv")
 NEW = ["正印", "偏印", "伤官", "食神", "正官", "七杀", "正财", "偏财", "比肩", "劫财"]
 
 with open(path, encoding="utf-8", newline="") as fh:

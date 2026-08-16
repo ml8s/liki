@@ -10,7 +10,7 @@ CACHE = "/tmp/pan_cache"
 os.makedirs(CACHE, exist_ok=True)
 
 def birth_of(gid):
-    yaml = open("tests/cases-grouped/%s.yaml" % gid, encoding="utf-8").read()
+    yaml = open("tests/evals/cases/%s.yaml" % gid, encoding="utf-8").read()
     m = re.search(r"出生信息[:：]\s*(.*?)(?:\n|$)", yaml)
     s = m.group(1)
     gen = "male" if ("男" in s or "乾" in s) else ("female" if ("女" in s or "坤" in s) else "?")
@@ -52,7 +52,7 @@ CONFLICTS = {
 }
 
 def main():
-    gids = sorted(os.listdir("tests/cases-grouped/")) if False else None
+    gids = sorted(os.listdir("tests/evals/cases/")) if False else None
     # 用评测盘
     g = json.load(open("tests/groups.json"))
     for dom, pairs in CONFLICTS.items():

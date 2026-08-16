@@ -1,27 +1,26 @@
-VERSION_FILE := VERSION
+# 版本以工程为单位（四 skill 同步定版，子 skill 不独立定版本号）
+VERSION_FILES := skills/liki-bazi/VERSION skills/liki-divination/VERSION skills/liki-fengshui/VERSION skills/liki-naming/VERSION
 
-version-patch: ## Bump PATCH (1.26.0 → 1.26.1)
-	@V=$$(cat $(VERSION_FILE)); \
-	MAJOR=$${V%%.*}; \
-	REST=$${V#*.}; \
-	MINOR=$${REST%.*}; \
-	PATCH=$${REST#*.}; \
-	echo "$$MAJOR.$$MINOR.$$((PATCH + 1))" > $(VERSION_FILE); \
-	echo "✅ $$V → $$(cat $(VERSION_FILE))"
+version-patch: ## Bump PATCH（工程级：四 skill 同步，如 4.0.0 → 4.0.1）
+	@for F in $(VERSION_FILES); do \
+		V=$$(cat $$F); MAJOR=$${V%%.*}; REST=$${V#*.}; MINOR=$${REST%.*}; PATCH=$${REST#*.}; \
+		echo "$$MAJOR.$$MINOR.$$((PATCH + 1))" > $$F; \
+	done; \
+	echo "✅ 四 skill 版本 → $$(cat skills/liki-bazi/VERSION)"
 
-version-minor: ## Bump MINOR (1.26.0 → 1.27.0)
-	@V=$$(cat $(VERSION_FILE)); \
-	MAJOR=$${V%%.*}; \
-	REST=$${V#*.}; \
-	MINOR=$${REST%.*}; \
-	echo "$$MAJOR.$$((MINOR + 1)).0" > $(VERSION_FILE); \
-	echo "✅ $$V → $$(cat $(VERSION_FILE))"
+version-minor: ## Bump MINOR（工程级：四 skill 同步，如 4.0.0 → 4.1.0）
+	@for F in $(VERSION_FILES); do \
+		V=$$(cat $$F); MAJOR=$${V%%.*}; REST=$${V#*.}; MINOR=$${REST%.*}; \
+		echo "$$MAJOR.$$((MINOR + 1)).0" > $$F; \
+	done; \
+	echo "✅ 四 skill 版本 → $$(cat skills/liki-bazi/VERSION)"
 
-version-major: ## Bump MAJOR (1.26.0 → 2.0.0)
-	@V=$$(cat $(VERSION_FILE)); \
-	MAJOR=$${V%%.*}; \
-	echo "$$((MAJOR + 1)).0.0" > $(VERSION_FILE); \
-	echo "✅ $$V → $$(cat $(VERSION_FILE))"
+version-major: ## Bump MAJOR（工程级：四 skill 同步，如 4.0.0 → 5.0.0）
+	@for F in $(VERSION_FILES); do \
+		V=$$(cat $$F); MAJOR=$${V%%.*}; \
+		echo "$$((MAJOR + 1)).0.0" > $$F; \
+	done; \
+	echo "✅ 四 skill 版本 → $$(cat skills/liki-bazi/VERSION)"
 
 build-archive: ## 打包 skill → dist/liki.tar.gz + index.json
 	scripts/build-archive.sh

@@ -1,0 +1,75 @@
+# skill-up 评测入口 —— MingLi-Bench 命盘分组版（32 命盘 × 4-6 题 = 160 题）· qwen_code 标准模式
+# 用法：bash tests/run-qwen.sh（自动：移走答案→跑评测→恢复答案→判分）
+#
+# 布局说明（工程区 = liki-skills/ 根）：
+#   - eval.yaml 在 tests/evals/（skill-up 的 Skill 目录 = eval 文件直接父目录 = tests/）
+#   - cases.files / skills.path 均相对 Skill 目录（tests/）解析：
+#       cases:     cases-grouped/pan01.yaml        → tests/cases-grouped/pan01.yaml
+#       skills:     ../../liki-skills/skills/liki-bazi   → liki-skills/skills/liki-bazi（安装源 = skill 本体）
+#   - 答案文件（tests/answers.json 等）不进 skill——run-qwen.sh 运行前 stash 隔离（容器 agent 读不到）
+#   - 产物输出由 run-qwen.sh 的 --output-dir 指到 tests/liki-workspace/（不入库不进包）
+schema_version: v1alpha1
+
+skills:
+  - source: local_path
+    path: ../../liki-skills/skills/liki-bazi
+    exclude:            # 只装 skill 本体（~1MB）：跳过 .git 历史与构建产物
+      - ".git/**"
+      - "dist/**"
+      - ".run-eval.*.yaml"
+      - ".setup/**"
+
+environment:
+  type: docker
+  image: liki-qwen:1
+  workspace_mount: /workspace
+  env:
+    # key 由 run-qwen.sh 运行前 sed 注入（占位符防 key 入库；skill-up 不展开 ${VAR}）
+    OPENAI_API_KEY: ${OPENAI_API_KEY}
+    OPENAI_BASE_URL: https://api.deepseek.com/v1
+
+engine:
+  name: qwen_code
+  model:
+    name: deepseek-v4-flash
+
+cases:
+  files:
+    - evals/cases/pan01.yaml
+    - evals/cases/pan02.yaml
+    - evals/cases/pan03.yaml
+    - evals/cases/pan04.yaml
+    - evals/cases/pan05.yaml
+    - evals/cases/pan06.yaml
+    - evals/cases/pan07.yaml
+    - evals/cases/pan08.yaml
+    - evals/cases/pan09.yaml
+    - evals/cases/pan10.yaml
+    - evals/cases/pan11.yaml
+    - evals/cases/pan12.yaml
+    - evals/cases/pan13.yaml
+    - evals/cases/pan14.yaml
+    - evals/cases/pan15.yaml
+    - evals/cases/pan16.yaml
+    - evals/cases/pan17.yaml
+    - evals/cases/pan18.yaml
+    - evals/cases/pan19.yaml
+    - evals/cases/pan20.yaml
+    - evals/cases/pan21.yaml
+    - evals/cases/pan22.yaml
+    - evals/cases/pan23.yaml
+    - evals/cases/pan24.yaml
+    - evals/cases/pan25.yaml
+    - evals/cases/pan26.yaml
+    - evals/cases/pan27.yaml
+    - evals/cases/pan28.yaml
+    - evals/cases/pan29.yaml
+    - evals/cases/pan30.yaml
+    - evals/cases/pan31.yaml
+    - evals/cases/pan32.yaml
+  defaults:
+    timeout_seconds: 2400
+    max_turns: 20
+
+report:
+  formats: [json, markdown]

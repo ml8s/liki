@@ -3,7 +3,7 @@
 命理依据：《子平真诠》月令为提纲、格神主性——月令本气十神是性格主面，十神旺衰断语为辅面。"""
 import csv, os
 
-path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "bazi", "xingge.csv")
+path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "skills", "liki", "tools", "bazi", "xingge.csv")
 
 MAIN = [
     ("xg_m01", "月令主面", "月令本气正印", "温和仁厚、守规矩、重名声（印主内敛）",

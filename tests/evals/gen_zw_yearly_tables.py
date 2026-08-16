@@ -4,7 +4,7 @@
 根因修复：13 个紫微流年因子引擎已算，但断语层缺紫微 yearly 表导致信号未输出。"""
 import csv, os
 
-BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "tools", "ziwei")
+BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "skills", "liki", "tools", "ziwei")
 
 ZW_COLS = ["流年财帛宫禄", "流年财帛宫忌", "流年夫妻宫禄", "流年夫妻宫忌",
            "流年官禄宫权", "流年官禄宫科", "流年官禄宫忌", "流年命宫科", "流年命宫忌",
