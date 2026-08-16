@@ -151,18 +151,67 @@ func TestRPC_MissingRequiredParams(t *testing.T) {
 	}
 }
 
-// ── Infrastructure ───────────────────────────────────────────
-
-func TestRPC_CORSHeader(t *testing.T) {
+// TestRPC_DiscoverMethodsFilter 验证 HTTP 层 rpc.discover 的 methods 过滤参数
+// （schema 已声明 methods——端到端契约：过滤后只含匹配方法）。
+func TestRPC_DiscoverMethodsFilter(t *testing.T) {
 	reg := agent.NewRPCRegistry()
-	body := `{"jsonrpc":"2.0","method":"rpc.discover","id":1}`
+	body := `{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi.chart, ziwei.bond"},"id":1}`
 	r := httptest.NewRequest("POST", "/jsonrpc", strings.NewReader(body))
 	w := httptest.NewRecorder()
-
 	HandleRPC(reg)(w, r)
+	var resp struct {
+		Result struct {
+			Methods []struct{ Name string `json:"name"` } `json:"methods"`
+		} `json:"result"`
+		Error *RPCError `json:"error"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatal(err)
+	}
+	if resp.Error != nil {
+		t.Fatalf("discover 报错: %+v", resp.Error)
+	}
+	names := map[string]bool{}
+	for _, m := range resp.Result.Methods {
+		names[m.Name] = true
+	}
+	if !names["bazi.chart"] || !names["ziwei.bond"] {
+		t.Errorf("过滤结果缺方法: %v", names)
+	}
+	if len(names) != 2 {
+		t.Errorf("过滤应只含 2 个方法（含空格 pattern 应被 trim），got %d: %v", len(names), names)
+	}
+}
 
-	if w.Header().Get("Access-Control-Allow-Origin") != "*" {
-		t.Error("missing CORS header")
+// ── Infrastructure ───────────────────────────────────────────
+
+func TestRPC_CORSManagedByMiddleware(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	body := `{"jsonrpc":"2.0","method":"rpc.discover","id":1}`
+
+	// 直接调 HandleRPC：不设 Allow-Origin（CORS 是 middleware 职责，不得覆盖为 *）
+	r := httptest.NewRequest("POST", "/jsonrpc", strings.NewReader(body))
+	w := httptest.NewRecorder()
+	HandleRPC(reg)(w, r)
+	if w.Header().Get("Access-Control-Allow-Origin") != "" {
+		t.Errorf("HandleRPC 不应直接设 Allow-Origin（应交给 CORSMiddleware），got %q", w.Header().Get("Access-Control-Allow-Origin"))
+	}
+
+	// 完整中间件栈：允许来源（liki.hk）得到回显 origin；不允许来源（evil.com）无 Allow-Origin
+	stack := CORSMiddleware(false, http.HandlerFunc(HandleRPC(reg)))
+	r2 := httptest.NewRequest("POST", "/jsonrpc", strings.NewReader(body))
+	r2.Header.Set("Origin", "https://liki.hk")
+	w2 := httptest.NewRecorder()
+	stack.ServeHTTP(w2, r2)
+	if w2.Header().Get("Access-Control-Allow-Origin") != "https://liki.hk" {
+		t.Errorf("允许来源应回显 origin，got %q", w2.Header().Get("Access-Control-Allow-Origin"))
+	}
+	r3 := httptest.NewRequest("POST", "/jsonrpc", strings.NewReader(body))
+	r3.Header.Set("Origin", "https://evil.com")
+	w3 := httptest.NewRecorder()
+	stack.ServeHTTP(w3, r3)
+	if w3.Header().Get("Access-Control-Allow-Origin") != "" {
+		t.Errorf("非白名单来源不应获得 Allow-Origin，got %q", w3.Header().Get("Access-Control-Allow-Origin"))
 	}
 }
 
@@ -189,8 +238,28 @@ func TestRPC_OptionsPreflight(t *testing.T) {
 	if w.Code != http.StatusNoContent {
 		t.Errorf("status = %d, want 204", w.Code)
 	}
-	if w.Header().Get("Access-Control-Allow-Origin") != "*" {
-		t.Error("missing CORS header on OPTIONS")
+	// Allow-Origin 由 CORSMiddleware 管理；HandleRPC 的 OPTIONS 兜底只设 Allow-Methods/Headers
+	if w.Header().Get("Access-Control-Allow-Origin") != "" {
+		t.Errorf("HandleRPC OPTIONS 不应设 Allow-Origin（middleware 职责），got %q", w.Header().Get("Access-Control-Allow-Origin"))
+	}
+	if w.Header().Get("Access-Control-Allow-Methods") == "" {
+		t.Error("OPTIONS 应设 Allow-Methods")
+	}
+}
+
+func TestRPC_BodyTooLarge(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	// 2MB body 超过 1MB 限制 → 明确错误消息（非 Parse error）
+	big := `{"jsonrpc":"2.0","method":"rpc.discover","id":1,"params":{"pad":"` + strings.Repeat("x", 2<<20) + `"}}`
+	r := httptest.NewRequest("POST", "/jsonrpc", strings.NewReader(big))
+	w := httptest.NewRecorder()
+	// 经 BodyLimit 中间件
+	stack := BodyLimit(http.HandlerFunc(HandleRPC(reg)))
+	stack.ServeHTTP(w, r)
+	var resp rpcResponse
+	_ = json.Unmarshal(w.Body.Bytes(), &resp)
+	if resp.Error == nil || resp.Error.Code != -32600 || !strings.Contains(resp.Error.Message, "too large") {
+		t.Errorf("超限 body 应返回明确错误，got %+v", resp.Error)
 	}
 }
 

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 )
 
@@ -33,9 +34,9 @@ func (r *RPCRegistry) OpenRPCDocument() json.RawMessage {
 
 		methods = append(methods, openRPCMeth{
 			Name:        "rpc.discover",
-			Description: "返回此 OpenRPC 1.4.1 document，包含所有可用 method 及参数定义。",
-			Params:      json.RawMessage(`{"type":"object","properties":{},"description":"无需参数"}`),
-			Result:      json.RawMessage(`{"type":"object","description":"OpenRPC 1.4.1 完整文档"}`),
+			Description: "返回此 OpenRPC 1.4.1 document（可按 methods 过滤）。",
+			Params:      json.RawMessage(`{"type":"object","properties":{"methods":{"type":"string","description":"逗号分隔的方法名/域前缀（如 bazi.chart,ziwei.bond 或 bazi）——只返回匹配方法；缺省返回全部"}},"description":"可选 methods 过滤"}`),
+			Result:      json.RawMessage(`{"type":"object","description":"OpenRPC 1.4.1 文档（info + methods[]，每个 method 含 name/description/params/result schema）"}`),
 		})
 
 		for _, name := range r.names {
@@ -53,7 +54,7 @@ func (r *RPCRegistry) OpenRPCDocument() json.RawMessage {
 			Info: openRPCInfo{
 				Title:       "liki.hk JSON-RPC API",
 				Version:     r.version,
-				Description: "liki.hk Metaphysics Engine — 38 命理 API，让 AI agent 直接调用",
+				Description: fmt.Sprintf("liki.hk Metaphysics Engine — %d 命理 API，让 AI agent 直接调用", len(r.names)),
 			},
 			Methods: methods,
 		}

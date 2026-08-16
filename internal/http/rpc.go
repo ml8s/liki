@@ -3,6 +3,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -29,8 +30,8 @@ type rpcResponse struct {
 
 func HandleRPC(reg *agent.RPCRegistry) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
+		// CORS 头由 CORSMiddleware 统一管理（允许来源白名单：liki.hk / dev localhost）——
+		// 此处不得覆盖为 "*"（曾无条件设 * 使白名单形同虚设，任意来源可跨域调用）
 		if r.Method == http.MethodOptions {
 			w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -45,6 +46,11 @@ func HandleRPC(reg *agent.RPCRegistry) http.HandlerFunc {
 
 		var req rpcRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			var mbe *http.MaxBytesError
+			if errors.As(err, &mbe) {
+				writeRPC(w, rpcResponse{Error: &agent.RPCError{Code: -32600, Message: "request body too large (max 1MB)"}, ID: nil})
+				return
+			}
 			writeRPC(w, rpcResponse{Error: &agent.RPCError{Code: -32700, Message: "Parse error"}, ID: nil})
 			return
 		}

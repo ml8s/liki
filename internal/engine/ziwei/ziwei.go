@@ -33,7 +33,7 @@ func (p gongIndex) MarshalJSON() ([]byte, error) {
 func (p *gongIndex) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
-		return fmt.Errorf("gongIndex must be a string (e.g. \"命宫\"), got %s", string(data))
+		return fmt.Errorf("宫名(gong_wei[].name) must be a string (e.g. \"命宫\"), got %s", string(data))
 	}
 	for i, name := range gongLabels {
 		if name == s {
@@ -111,7 +111,7 @@ func (s starIndex) MarshalJSON() ([]byte, error) {
 func (s *starIndex) UnmarshalJSON(data []byte) error {
 	var name string
 	if err := json.Unmarshal(data, &name); err != nil {
-		return fmt.Errorf("starIndex must be a string, got %s", string(data))
+		return fmt.Errorf("星名(xing_yao) must be a string, got %s", string(data))
 	}
 	return s.fromName(name)
 }
@@ -179,7 +179,7 @@ func (j juShu) MarshalJSON() ([]byte, error) {
 func (j *juShu) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
-		return fmt.Errorf("juShu must be a string (e.g. \"水二局\"), got %s", string(data))
+		return fmt.Errorf("ju_shu must be a string (e.g. \"水二局\"), got %s", string(data))
 	}
 	if s == "" {
 		*j = 0

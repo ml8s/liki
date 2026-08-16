@@ -38,7 +38,7 @@ type DaYun struct {
 	Direction        string        `json:"direction"`
 	Steps            []DaYunStep   `json:"steps"`
 	CurrentStepIndex int           `json:"current_step_index"`
-	// 距下一大运剩余年数（虚岁口径，与 steps 的 qi_sui/zhi_sui 一致）；
+	// 距下一大运剩余年数（公历口径，steps 已含 start_date/end_date 与 start_year/end_year）；
 	// 未起运/已过完所有大运 → null（omitempty 缺席）。
 	NextStepInYears *int `json:"next_step_in_years,omitempty"`
 }

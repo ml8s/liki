@@ -124,7 +124,7 @@ func (g guaIndex) MarshalJSON() ([]byte, error) {
 func (g *guaIndex) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
-		return fmt.Errorf("guaIndex must be a string, got %s", string(data))
+		return fmt.Errorf("卦名(ben_gua) must be a string, got %s", string(data))
 	}
 	for i, gc := range zhouyiTable {
 		if gc.Name == s {
