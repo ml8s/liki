@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>Liki — Professional Skill for Chinese Metaphysics（v4.1.0）</strong>
+  <strong>Liki — Professional Skill for Chinese Metaphysics</strong>
 </p>
 
 <p align="center">
