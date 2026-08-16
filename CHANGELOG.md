@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.2 —— liki-bazi 描述去品牌残留（对齐 4 skill 独立描述）
+
+- **[描述] liki-bazi 拆分后遗留**：frontmatter description 与 H1/首句原为拆分前整包品牌文案（「Liki 灵机 — 命理师的 Skill」），改为 bazi 专属描述（八字/紫微「八紫」双盘同参 + 场景列表），与其他 3 个 skill（divination/fengshui/naming）的独立描述风格对齐
+
 ## 4.1.1 —— 测试评审修复 + 系统自查（断语丢失/误报 bug、契约与部署防线）
 
 - **[数据] 死规则/死条件清理**：八字流年表跨术数死规则 16 处删除、紫微流年因子列清理；zv_103 改八字条件复活（去子女宫煞）；factors.csv「本命婚凶」贪狼化忌或行删除；yearly_jiankang 表头冗余列清理
