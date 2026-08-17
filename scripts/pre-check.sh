@@ -51,6 +51,16 @@ else
   step_ok "方法名同步（test-rpc.sh ↔ 注册表）"
 fi
 
+# 检查方法计数是否与测试文件同步
+METHOD_COUNT=$(echo "$REGISTERED" | wc -l)
+# 搜索测试文件中的期望计数
+TEST_COUNT=$(grep -oP 'expected \d+ methods|want \d+ \(|got \d+ methods' internal/agent/rpc_registry_test.go internal/http/rpc_test.go 2>/dev/null | grep -oP '\d+' | head -1)
+if [ -n "$TEST_COUNT" ] && [ "$METHOD_COUNT" != "$TEST_COUNT" ]; then
+  step_fail "方法计数不匹配: 注册表=$METHOD_COUNT, 测试期望=$TEST_COUNT"
+else
+  step_ok "方法计数同步（$METHOD_COUNT 个方法）"
+fi
+
 # ── 4. RPC 冒烟测试（可选，需引擎运行）─────────────────────
 if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
   echo "--- RPC 冒烟测试 ---"
