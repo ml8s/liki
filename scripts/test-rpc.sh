@@ -358,8 +358,8 @@ check_rpc "  has solar" '.result.data.solar != null' 'true'
 check_rpc "  has gregorian" '.result.data.gregorian != null' 'true'
 check_rpc "  has lunar" '.result.data.lunar != null' 'true'
 
-rpc city '{}'
-check_rpc_err "city (missing city)" "-32602"
+rpc city.coords '{}'
+check_rpc_err "city.coords (missing city)" "-32602"
 
 
 
