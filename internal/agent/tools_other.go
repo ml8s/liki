@@ -212,12 +212,12 @@ func huangliDaysHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 
 // ── time / infra ──
 
-func cityHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	result, err := city.SearchCity(ctx, raw)
+func cityCoordsHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+	result, err := city.SearchCoords(ctx, raw)
 	if err != nil {
 		return nil, err
 	}
-	return wrapResult("city", result)
+	return wrapResult("city_coords", result)
 }
 
 func timeNowHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
@@ -298,9 +298,9 @@ var otherMethods = []RPCMethod{	{
 		Result:  envelopeSchema(`{"type":"object","properties":{"solar":{"type":"string"},"gregorian":{"type":"string"},"lunar":{"type":"object","description":"农历信息: year/month/day/shichen","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"leap":{"type":"boolean"},"shichen":{"type":"string"}}}},"required":["solar","gregorian","lunar"]}`),
 	},
 	{
-		Name: "city", Description: "根据城市名查询经纬度。基于 Nominatim 服务。",
-		Params: mustSchema(`{"type":"object","properties":{"city":{"type":"string","description":"城市名称"}},"required":["city"]}`),
-		Handler: cityHandler,
+		Name: "city.coords", Description: "根据城市名查询经纬度。中国城市优先匹配，海外城市自动 fallback 全球范围。基于 Nominatim 服务。",
+		Params: mustSchema(`{"type":"object","properties":{"city":{"type":"string","description":"城市名称（中英文均可）"}},"required":["city"]}`),
+		Handler: cityCoordsHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"longitude":{"type":"number"},"latitude":{"type":"number"},"country":{"type":"string"}},"required":["name","longitude","latitude","country"]}`),
 	},
 }

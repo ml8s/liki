@@ -30,8 +30,8 @@ type searchResult struct {
 	Country   string  `json:"country"`
 }
 
-// SearchCity resolves a city name to coordinates using Nominatim.
-func SearchCity(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+// SearchCoords resolves a city name to coordinates using Nominatim.
+func SearchCoords(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var args struct {
 		City string `json:"city"`
 	}
@@ -50,18 +50,19 @@ func SearchCity(ctx context.Context, raw json.RawMessage) (json.RawMessage, erro
 }
 
 func searchNominatim(ctx context.Context, query string) (searchResult, error) {
-	// 优先中国范围 + 多结果，避免县级地名（桦川等）被 limit=1 的首条非行政结果（POI/街道）抢占。
+	// 两轮查询：先中国范围（避免县级地名被 POI 抢占），无结果时 fallback 全球范围。
 	vals := url.Values{
 		"q":               {query},
 		"format":          {"json"},
 		"limit":           {"5"},
 		"accept-language": {"zh"},
 		"addressdetails":  {"1"},
-		"countrycodes":    {"cn"},
 	}
-	u := "https://nominatim.openstreetmap.org/search?" + vals.Encode()
+	// 第一轮：中国范围
+	vals.Set("countrycodes", "cn")
+	uCN := "https://nominatim.openstreetmap.org/search?" + vals.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", uCN, nil)
 	if err != nil {
 		return searchResult{}, fmt.Errorf("search: new request: %w", err)
 	}
@@ -95,6 +96,29 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
 		return searchResult{}, fmt.Errorf("search: decode: %w", err)
 	}
+
+	// 第二轮：无结果时 fallback 全球范围
+	if len(results) == 0 {
+		vals.Del("countrycodes")
+		uGlobal := "https://nominatim.openstreetmap.org/search?" + vals.Encode()
+		req2, err := http.NewRequestWithContext(ctx, "GET", uGlobal, nil)
+		if err != nil {
+			return searchResult{}, fmt.Errorf("search: new request: %w", err)
+		}
+		req2.Header.Set("User-Agent", "Liki/1.0 (liki.app)")
+		resp2, err := httpClient.Do(req2)
+		if err != nil {
+			return searchResult{}, fmt.Errorf("search: get: %w", err)
+		}
+		defer resp2.Body.Close()
+		if resp2.StatusCode != http.StatusOK {
+			return searchResult{}, fmt.Errorf("search: status %d", resp2.StatusCode)
+		}
+		if err := json.NewDecoder(resp2.Body).Decode(&results); err != nil {
+			return searchResult{}, fmt.Errorf("search: decode: %w", err)
+		}
+	}
+
 	if len(results) == 0 {
 		return searchResult{}, fmt.Errorf("search: no results for %s", query)
 	}

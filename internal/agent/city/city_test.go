@@ -36,7 +36,7 @@ func TestParseFloat(t *testing.T) {
 	}
 }
 
-func TestSearchCity_Valid(t *testing.T) {
+func TestSearchCoords_Valid(t *testing.T) {
 	orig := httpClient
 	SetHTTPClient(&http.Client{
 		Transport: &mockSearchTransport{
@@ -46,9 +46,9 @@ func TestSearchCity_Valid(t *testing.T) {
 	defer func() { SetHTTPClient(orig) }()
 
 	args := json.RawMessage(`{"city":"Beijing"}`)
-	result, err := SearchCity(context.Background(), args)
+	result, err := SearchCoords(context.Background(), args)
 	if err != nil {
-		t.Fatalf("SearchCity: %v", err)
+		t.Fatalf("SearchCoords: %v", err)
 	}
 	var r searchResult
 	if err := json.Unmarshal(result, &r); err != nil {
@@ -68,9 +68,9 @@ func TestSearchCity_Valid(t *testing.T) {
 	}
 }
 
-func TestSearchCity_EmptyCityName(t *testing.T) {
+func TestSearchCoords_EmptyCityName(t *testing.T) {
 	args := json.RawMessage(`{"city":""}`)
-	_, err := SearchCity(context.Background(), args)
+	_, err := SearchCoords(context.Background(), args)
 	if err == nil {
 		t.Fatal("expected error for empty city")
 	}
@@ -79,15 +79,15 @@ func TestSearchCity_EmptyCityName(t *testing.T) {
 	}
 }
 
-func TestSearchCity_InvalidJSON(t *testing.T) {
+func TestSearchCoords_InvalidJSON(t *testing.T) {
 	args := json.RawMessage(`not-json`)
-	_, err := SearchCity(context.Background(), args)
+	_, err := SearchCoords(context.Background(), args)
 	if err == nil {
 		t.Fatal("expected error for invalid JSON")
 	}
 }
 
-func TestSearchCity_HTTPError(t *testing.T) {
+func TestSearchCoords_HTTPError(t *testing.T) {
 	orig := httpClient
 	SetHTTPClient(&http.Client{
 		Transport: &mockSearchTransport{
@@ -98,13 +98,13 @@ func TestSearchCity_HTTPError(t *testing.T) {
 	defer func() { SetHTTPClient(orig) }()
 
 	args := json.RawMessage(`{"city":"Nowhere"}`)
-	_, err := SearchCity(context.Background(), args)
+	_, err := SearchCoords(context.Background(), args)
 	if err == nil {
 		t.Fatal("expected error for search failure")
 	}
 }
 
-func TestSearchCity_EmptyResults(t *testing.T) {
+func TestSearchCoords_EmptyResults(t *testing.T) {
 	orig := httpClient
 	SetHTTPClient(&http.Client{
 		Transport: &mockSearchTransport{
@@ -114,13 +114,13 @@ func TestSearchCity_EmptyResults(t *testing.T) {
 	defer func() { SetHTTPClient(orig) }()
 
 	args := json.RawMessage(`{"city":"Xyzzy"}`)
-	_, err := SearchCity(context.Background(), args)
+	_, err := SearchCoords(context.Background(), args)
 	if err == nil {
 		t.Fatal("expected error for empty results")
 	}
 }
 
-func TestSearchCity_MalformedJSON(t *testing.T) {
+func TestSearchCoords_MalformedJSON(t *testing.T) {
 	orig := httpClient
 	SetHTTPClient(&http.Client{
 		Transport: &mockSearchTransport{
@@ -130,7 +130,7 @@ func TestSearchCity_MalformedJSON(t *testing.T) {
 	defer func() { SetHTTPClient(orig) }()
 
 	args := json.RawMessage(`{"city":"X"}`)
-	_, err := SearchCity(context.Background(), args)
+	_, err := SearchCoords(context.Background(), args)
 	if err == nil {
 		t.Fatal("expected error for malformed response")
 	}
@@ -164,16 +164,16 @@ func mockResp(body string) *http.Response {
 	}
 }
 
-// TestSearchCity_Schema verifies city 返回结构（name/longitude/latitude/country）
+// TestSearchCoords_Schema verifies city 返回结构（name/longitude/latitude/country）
 // 与 Result schema 声明一致（schema: tools_other.go city）
-func TestSearchCity_Schema(t *testing.T) {
+func TestSearchCoords_Schema(t *testing.T) {
 	old := HttpClient()
 	defer SetHTTPClient(old)
 	SetHTTPClient(&mockDoer{resp: mockResp(`[{"name":"北京","lon":"116.4074","lat":"39.9042","address":{"country":"中国"}}]`)})
 
-	out, err := SearchCity(context.Background(), []byte(`{"city":"北京"}`))
+	out, err := SearchCoords(context.Background(), []byte(`{"city":"北京"}`))
 	if err != nil {
-		t.Fatalf("SearchCity: %v", err)
+		t.Fatalf("SearchCoords: %v", err)
 	}
 	var r struct {
 		Name      string  `json:"name"`

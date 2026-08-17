@@ -28,7 +28,7 @@ func TestNewRPCRegistry_KeyMethods(t *testing.T) {
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",
-		"tianwen.time", "time.now", "city",
+		"tianwen.time", "time.now", "city.coords",
 	}
 	for _, name := range expected {
 		m, ok := reg.methods[name]

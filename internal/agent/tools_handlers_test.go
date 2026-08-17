@@ -159,7 +159,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",
-		"city",
+		"city.coords",
 	}
 	badJSON := json.RawMessage(`{bad`)
 	for _, name := range handlers {
@@ -665,12 +665,12 @@ func TestHandler_City_Valid(t *testing.T) {
 	defer city.SetHTTPClient(orig)
 
 	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "city", json.RawMessage(`{"city":"Beijing"}`))
+	result, err := r.Execute(context.Background(), "city.coords", json.RawMessage(`{"city":"Beijing"}`))
 	if err != nil {
-		t.Fatalf("city: %v", err)
+		t.Fatalf("city.coords: %v", err)
 	}
-	if getStr(result, "_product") != "city" {
-		t.Errorf("_product = %q, want city", getStr(result, "_product"))
+	if getStr(result, "_product") != "city_coords" {
+		t.Errorf("_product = %q, want city_coords", getStr(result, "_product"))
 	}
 	if !hasKey(result, "data") {
 		t.Error("missing data")

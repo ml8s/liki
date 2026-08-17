@@ -220,7 +220,7 @@ func TestSkillDocsMethodListSync(t *testing.T) {
 		t.Skip("liki-skills 不在工作区，跳过方法集同步测试")
 	}
 	whitelist := map[string]bool{}
-	// 只提取 METHOD_WHITELIST = {...} 块内的字符串（避免 _SKIP_DOTTED 混入），允许无点单名（city）
+	// 只提取 METHOD_WHITELIST = {...} 块内的字符串（避免 _SKIP_DOTTED 混入），允许无点单名
 	seg := string(raw)
 	if idx := strings.Index(seg, "METHOD_WHITELIST = {"); idx >= 0 {
 		seg = seg[idx:]
