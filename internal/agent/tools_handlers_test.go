@@ -562,8 +562,8 @@ func TestOpenRPCDocument(t *testing.T) {
 	if !ok {
 		t.Fatal("missing methods array")
 	}
-	if len(methods) != 32 {
-		t.Errorf("method count = %d, want 32 (31 + rpc.discover)", len(methods))
+	if len(methods) != 33 {
+		t.Errorf("method count = %d, want 33 (32 + rpc.discover)", len(methods))
 	}
 }
 
