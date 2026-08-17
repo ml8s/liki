@@ -65,6 +65,11 @@ curl -s https://liki.hk/jsonrpc \
 - 本命流程：`full_paipan → make_factors → query(本命域)`
 - 应期流程：`full_paipan → 逐候选年 liunian → make_liunian_factors → query(yearly_<主域> + yingqi)` → 候选取舍
 
+**排盘前考时分支（时辰不确定时）**：
+- 用户说"不知道时辰"或只给"上午/下午"等模糊信息 → 进入考时
+- 步骤：① 收集候选时辰（2-3 个）+ 人生大事（3-5 件含年份）→ ② 对每个候选时辰排盘（full_paipan）→ ③ 用 `domains/bazi/calibration.md` 排除不合理时辰 → ④ 用 `domains/ziwei/calibration.md` 交叉验证 → ⑤ 确定时辰（置信度高/中/低）
+- 无法确定 → 默认午时排盘并标注；宝宝/青少年 → 跳过考时，用默认时辰
+
 强制规则：
 1. 先调 `time.now`（应期/流年/大运的时间基准，缺失禁止推理）
 2. 按路由表读对应 app 卡（唯一事实源），卡内流程逐步执行，每步填「输出：□」表
