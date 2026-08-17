@@ -23,13 +23,13 @@ description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 1. 确定房屋坐向 → 八宅定东西四宅
    输出：□ 坐向____
 
-2. 八宅排盘 → `bazhai.chart(...)`（命卦+四吉四凶方）
+2. 八宅排盘 → `bazhai.chart`（命卦+四吉四凶方）
    输出：□ 宅卦____ 命卦____ 吉凶位____
 
 3. 断局（八宅）→ domains/bazhai/youxing.md（游星吉凶）
    输出：□ 游星吉凶____
 
-4. 玄空排盘 → `xuankong.chart(...)`（山向盘+元运）→ 按需 `xuankong.liunian`（流年飞星）
+4. 玄空排盘 → `xuankong.chart`（山向盘+元运）→ 按需 `xuankong.liunian`（流年飞星）
    输出：□ 当运飞星____ 旺山旺向____
 
 5. 断局（玄空）→ domains/xuankong/（feixing 飞星断语 + yuanyun 元运）

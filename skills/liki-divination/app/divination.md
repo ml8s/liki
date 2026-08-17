@@ -24,15 +24,15 @@ description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
    输出：□ 问题类型____ 调用领域____
 
 ### 六爻（吉凶/应期）
-2. 起卦 → `liuyao.qigua(...)`（不强制出生时间，心念/随机起卦；返回 yaos 六爻值：6 老阴 / 7 少阳 / 8 少阴 / 9 老阳，6/9 为动爻）
+2. 起卦 → `liuyao.qigua`（不强制出生时间，心念/随机起卦；返回 yaos 六爻值：6 老阴 / 7 少阳 / 8 少阴 / 9 老阳，6/9 为动爻）
    输出：□ 卦象已起____
-3. 装卦 → `liuyao.chart(...)`
+3. 装卦 → `liuyao.chart`
    输出：□ 用神____ 世应____ 动爻____ 旺衰____
 4. 断卦 → domains/liuyao/（yongshen 选用神 → jixiong 判定链 → yingqi 应期 → liushou → yuejian）
    输出：□ 吉凶____ 应期____
 
 ### 奇门（方向/时机）
-2. 排盘 → `qimen.chart(...)`
+2. 排盘 → `qimen.chart`
    输出：□ 用神落宫____
 3. 断局 → domains/qimen/（yongshen → bamen 八门 → jiuxing 九星 → bashen 八神）
    输出：□ 方向____ 时机____ 结论____

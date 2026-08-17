@@ -40,8 +40,7 @@ description: 起名分析 — 通用起名/改名，结合八字用神与姓名�
   输出：□ 第1字五行____ 第2字五行____
 
 第5步：取字
-  调用 qiming.pick(surname, 第1字五行, 第2字五行?, count, wuge)——参数按 rpc.discover；字库策略见第4步（用+用/用+喜双向）
-  返回 combos 数组，每组合 {id, first, second?}（first/second 纯字数组）
+  调用 qiming.pick——取字池（wuge 按第3步结论）；字库策略见第4步（用+用/用+喜双向）
   LLM 过滤每组字（机械删→语义删，按「domains/qiming/ziku.md 字库过滤细则」）→ 保留好字
   **只允许在同一 combo 的 first/second 内选字**——跨组组合笔画对会错，五格不保（check 也救不回）
   **字池太差的组直接跳过**：某组 first/second 全是生僻字或无一可用 → 整组丢弃，不硬选
@@ -50,15 +49,14 @@ description: 起名分析 — 通用起名/改名，结合八字用神与姓名�
 
 第6步：组名（仅双名）
   单名：LLM 直接从 combos 的 first 选 1 个字 → 即 given name，跳过 build
-  双名：调用 qiming.build({combos: 过滤后的 first/second})
-    → qiming.build first×second 笛卡尔积 → given name 数组（不含姓）
+  双名：调用 qiming.build
   LLM 过滤候选名（不吉/拗口/歧义删）
   **谐音审查**：读一遍，删除谐音不雅者（如"梦嘉"→"梦假"、"梓默"→"沉默"）
   **重字检查**：删除两字相同或与姓重复者
   输出：□ 候选名（given name）____
 
 第7步：评估
-  调用 qiming.check(surname, names=[given name 数组], wuge=?) → 音调评估
+  调用 qiming.check——音调评估
   第3步答「不考虑三才五格」时 wuge=false（跳过五格三才输出），否则默认 true
   LLM 按评估结果 + 语义，终选推荐
   输出：□ 推荐名____ 寓意____ 五行____

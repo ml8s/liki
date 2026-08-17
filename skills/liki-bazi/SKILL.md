@@ -43,20 +43,6 @@ curl -s https://liki.hk/jsonrpc \
 - 细化流：`bazi.liuyue` / `bazi.liuri` / `bazi.liushi` / `bazi.xiaoyun`、`ziwei.daxian` / `ziwei.liuyue` / `ziwei.liuri` / `ziwei.liushi` / `ziwei.fullchart`
 - 基础：`time.now`、`city.coords`、`tianwen.time`（真太阳时换算，调试/手排用）
 
-**细化流参数速查**（bazi 系列=公历，ziwei 系列=农历，命名不同勿混用）：
-
-| 方法 | 参数（required 用粗体） |
-|------|------------------------|
-| `bazi.liuyue` | **year**（公历年）+ **month**（公历月）+ **chart** |
-| `bazi.liuri` | **year** + **month** + **day**（公历日）+ **chart** |
-| `bazi.liushi` | **year** + **month** + **day** + **hour**（0-23）+ **chart** |
-| `bazi.xiaoyun` | **chart** + count（默认 12） |
-| `ziwei.daxian` | **chart**（ziwei.chart 完整返回） |
-| `ziwei.liuyue` | **liu_nian**（流年）+ **lunar_month**（农历月）+ **chart** |
-| `ziwei.liuri` | **liu_nian** + **lunar_month** + **lunar_day**（农历日）+ **chart** |
-| `ziwei.liushi` | **liu_nian** + **lunar_month** + **lunar_day** + **shi_zhi**（时支，如"子"）+ **chart** |
-| `ziwei.fullchart` | **chart** |
-
 **bazi.chart 单柱字段警示**：`bazi.chart` 单柱（nian/yue/ri/shi）仅含 `gan`/`zhi`/`na_yin`；十神（`shi_shens`）、藏干（`cang_gan`）、神煞（`shen_sha`）、空亡（`is_void`）、魁罡（`is_kui_gang`）、长生（`chang_sheng`）**只在 `bazi.fullchart`**——需要这些字段必须先调 `full_paipan` 或 `bazi.fullchart`，从 `bazi.chart` 取会拿到空。
 
 ## 流程约定（强制）
