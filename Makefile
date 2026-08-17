@@ -36,3 +36,9 @@ test-integration: ## 全链路集成测试（需引擎服务：LIKI_RPC_URL 指�
 	python3 -m pytest tests/test_integration.py -q
 
 test-all: test ## 全量（当前 = test；后续加 lint/archive 校验）
+
+pre-push: build-archive ## 推送前检查（重算指纹 + 校验）
+	@for s in liki-bazi liki-divination liki-fengshui liki-naming; do \
+		python3 tests/check_docs.py "skills/$s" || exit 1; \
+	done
+	@echo "✓ 推送前检查通过"

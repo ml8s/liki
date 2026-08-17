@@ -20,3 +20,26 @@
 
 - SKILL.md 以中文为主，术语保持原文；不写方法名和参数（由引擎 schema 驱动）
 - 每次升版本必须同步更新：`SKILL.md` + `VERSION` + `README.md` + `CHANGELOG.md`
+
+## 推送前检查清单
+
+**改方法名/函数名时**（全量搜索所有引用点）：
+```bash
+# 搜代码（含脚本）
+grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
+# 搜 skill 文档
+grep -rn "旧方法名" skills/*/app/*.md skills/*/SKILL.md
+```
+
+**改 skill 文档后**（重算指纹）：
+```bash
+make build-archive
+```
+
+**推送前本地 CI**：
+```bash
+# skill 校验
+for s in liki-bazi liki-divination liki-fengshui liki-naming; do
+  python3 tests/check_docs.py "skills/$s"
+done
+```
