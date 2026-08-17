@@ -1,6 +1,9 @@
 package qiming
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 // Character is a naming character from the ben-hua general standard Chinese table.
 type Character struct {
@@ -48,6 +51,27 @@ func lookupKangxiStroke(char string) int {
 		}
 	}
 	return 0
+}
+
+// SurnameStrokesOf 计算姓氏的康熙笔画信息（单姓/复姓）。
+// Total=全部笔画之和；Last=最后一字笔画；Compound=是否复姓。
+func SurnameStrokesOf(surname string) (SurnameStrokes, error) {
+	rs := []rune(surname)
+	if len(rs) == 0 {
+		return SurnameStrokes{}, fmt.Errorf("surname is empty")
+	}
+	ss := SurnameStrokes{Compound: len(rs) > 1}
+	for i, r := range rs {
+		ce, ok := charByRune[r]
+		if !ok {
+			return SurnameStrokes{}, fmt.Errorf("surname %q not found in Kangxi dictionary", surname)
+		}
+		ss.Total += ce.Stroke
+		if i == len(rs)-1 {
+			ss.Last = ce.Stroke
+		}
+	}
+	return ss, nil
 }
 
 // getCharsByElement returns all characters of the given element, grouped by stroke.

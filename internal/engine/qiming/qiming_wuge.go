@@ -32,12 +32,12 @@ type StrokePair struct {
 
 // ListViableStrokes returns stroke pairs (s1, s2) where 人/地/外/总 are all auspicious.
 // count=2 for double-name (s2 range 1..81), count=1 for single-name (s2=0).
-func ListViableStrokes(surnameStroke, count int) []StrokePair {
+func ListViableStrokes(s SurnameStrokes, count int) []StrokePair {
 	var pairs []StrokePair
 
 	if count == 1 {
 		for s1 := 1; s1 <= 81; s1++ {
-			wg := computeWuGeFromStrokes(surnameStroke, s1, 0)
+			wg := computeWuGeFromStrokes(s, s1, 0)
 			if allWuGeAuspicious(wg) {
 				pairs = append(pairs, StrokePair{S1: s1, S2: 0})
 			}
@@ -47,7 +47,7 @@ func ListViableStrokes(surnameStroke, count int) []StrokePair {
 
 	for s1 := 1; s1 <= 81; s1++ {
 		for s2 := 1; s2 <= 81; s2++ {
-			wg := computeWuGeFromStrokes(surnameStroke, s1, s2)
+			wg := computeWuGeFromStrokes(s, s1, s2)
 			if allWuGeAuspicious(wg) {
 				pairs = append(pairs, StrokePair{S1: s1, S2: s2})
 			}

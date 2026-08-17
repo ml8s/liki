@@ -57,13 +57,13 @@ func PickChars(surname, wuxing1, wuxing2 string, count int, wuge bool) ([]Combo,
 	}
 
 	// 考虑五格：算吉笔画对，按笔画取字
-	stroke, err := SurnameStroke(surname)
+	ss, err := SurnameStrokesOf(surname)
 	if err != nil {
 		return nil, fmt.Errorf("pick: %w", err)
 	}
-	pairs := ListViableStrokes(stroke, count)
+	pairs := ListViableStrokes(ss, count)
 	if count == 2 {
-		pairs = FilterSancai(stroke, pairs)
+		pairs = FilterSancai(ss, pairs)
 	}
 
 	combos := make([]Combo, 0, len(pairs))

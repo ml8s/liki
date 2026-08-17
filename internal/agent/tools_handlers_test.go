@@ -922,6 +922,115 @@ func TestHandler_NamingCheck_AllParams(t *testing.T) {
 	t.Logf("wuxing: %+v", wuxing)
 }
 
+func TestHandler_NamingCheck_CompoundSurname(t *testing.T) {
+	r := NewRPCRegistry()
+	params := json.RawMessage(`{
+		"surname":"欧阳",
+		"names":["佳桐"]
+	}`)
+	result, err := r.Execute(context.Background(), "qiming.check", params)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			t.Skip("test chars not in DB: " + err.Error())
+		}
+		t.Fatalf("qiming.check: %v", err)
+	}
+	if getStr(result, "_product") != "naming_check" {
+		t.Errorf("_product = %q, want naming_check", getStr(result, "_product"))
+	}
+	var env struct {
+		Data []map[string]any `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(env.Data))
+	}
+	name, _ := env.Data[0]["name"].(string)
+	if name != "欧阳佳桐" {
+		t.Errorf("name = %q, want 欧阳佳桐", name)
+	}
+	wuge, _ := env.Data[0]["wuge"].(map[string]any)
+	if wuge == nil {
+		t.Fatal("wuge should be present")
+	}
+	tiange, _ := wuge["tiange"].(map[string]any)
+	if tiange == nil {
+		t.Fatal("tiange should be present")
+	}
+	// 复姓天格 = 欧8 + 阳6 = 14（不加 1）
+	if stroke, _ := tiange["stroke"].(float64); stroke != 14 {
+		t.Errorf("复姓天格 stroke = %v, want 14", stroke)
+	}
+}
+
+func TestHandler_NamingCheck_NoWuge(t *testing.T) {
+	r := NewRPCRegistry()
+	params := json.RawMessage(`{
+		"surname":"王",
+		"names":["明辉"],
+		"wuge":false
+	}`)
+	result, err := r.Execute(context.Background(), "qiming.check", params)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			t.Skip("test chars not in DB: " + err.Error())
+		}
+		t.Fatalf("qiming.check: %v", err)
+	}
+	if getStr(result, "_product") != "naming_check" {
+		t.Errorf("_product = %q, want naming_check", getStr(result, "_product"))
+	}
+	var env struct {
+		Data []map[string]any `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(env.Data))
+	}
+	if _, has := env.Data[0]["wuge"]; has {
+		t.Error("wuge=false 时输出不应含 wuge 键")
+	}
+	if _, has := env.Data[0]["sancai"]; has {
+		t.Error("wuge=false 时输出不应含 sancai 键")
+	}
+	// 五行匹配仍应保留
+	if _, has := env.Data[0]["wuxing_match"]; !has {
+		t.Error("wuge=false 时 wuxing_match 应保留")
+	}
+}
+
+func TestHandler_NamingCheck_WugeDefaultTrue(t *testing.T) {
+	// 未传 wuge → 默认 true，照常输出五格三才
+	r := NewRPCRegistry()
+	params := json.RawMessage(`{
+		"surname":"王",
+		"names":["明辉"]
+	}`)
+	result, err := r.Execute(context.Background(), "qiming.check", params)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			t.Skip("test chars not in DB: " + err.Error())
+		}
+		t.Fatalf("qiming.check: %v", err)
+	}
+	var env struct {
+		Data []map[string]any `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(env.Data))
+	}
+	if _, has := env.Data[0]["wuge"]; !has {
+		t.Error("默认 wuge=true，输出应含 wuge 键")
+	}
+}
+
 // =============================================================================
 // tianwen.time
 // =============================================================================

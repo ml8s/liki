@@ -3,14 +3,14 @@ package qiming
 import "testing"
 
 func TestListViableStrokes_Double(t *testing.T) {
-	pairs := ListViableStrokes(9, 2) // 姚=9
+	pairs := ListViableStrokes(singleStrokes(9), 2) // 姚=9
 
 	if len(pairs) == 0 {
 		t.Fatal("expected at least one viable pair for 姚 double-name")
 	}
 
 	for _, p := range pairs {
-		wg := computeWuGeFromStrokes(9, p.S1, p.S2)
+		wg := computeWuGeFromStrokes(singleStrokes(9), p.S1, p.S2)
 		if !isAuspicious(wg.RenGe.Fortune) {
 			t.Errorf("s1=%d s2=%d 人格=%d fortune=%s, want auspicious", p.S1, p.S2, wg.RenGe.Stroke, wg.RenGe.Fortune)
 		}
@@ -43,7 +43,7 @@ func TestListViableStrokes_Double(t *testing.T) {
 }
 
 func TestListViableStrokes_Single(t *testing.T) {
-	pairs := ListViableStrokes(9, 1)
+	pairs := ListViableStrokes(singleStrokes(9), 1)
 
 	if len(pairs) == 0 {
 		t.Fatal("expected at least one viable pair for single name")
@@ -54,7 +54,7 @@ func TestListViableStrokes_Single(t *testing.T) {
 			t.Errorf("single-name pair should have s2=0: %+v", p)
 		}
 
-		wg := computeWuGeFromStrokes(9, p.S1, p.S2)
+		wg := computeWuGeFromStrokes(singleStrokes(9), p.S1, p.S2)
 		if !isAuspicious(wg.RenGe.Fortune) {
 			t.Errorf("s1=%d 人格=%d fortune=%s, want auspicious", p.S1, wg.RenGe.Stroke, wg.RenGe.Fortune)
 		}
@@ -68,12 +68,12 @@ func TestListViableStrokes_Single(t *testing.T) {
 }
 
 func TestListViableStrokes_MinSurname(t *testing.T) {
-	pairs := ListViableStrokes(1, 2)
+	pairs := ListViableStrokes(singleStrokes(1), 2)
 	if pairs == nil {
 		t.Error("should return empty slice, not nil")
 	}
 	for _, p := range pairs {
-		wg := computeWuGeFromStrokes(1, p.S1, p.S2)
+		wg := computeWuGeFromStrokes(singleStrokes(1), p.S1, p.S2)
 		if !allWuGeAuspicious(wg) {
 			t.Errorf("pair (s1=%d,s2=%d) not auspicious: %+v", p.S1, p.S2, wg)
 		}

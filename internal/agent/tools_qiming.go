@@ -66,12 +66,17 @@ func qimingCheckHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 		YongShen string   `json:"yongshen"`
 		XiShen   []string `json:"xishen"`
 		JiShen   []string `json:"jishen"`
+		Wuge     *bool    `json:"wuge"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("qiming.check: %w", err)
 	}
+	wuge := true
+	if p.Wuge != nil {
+		wuge = *p.Wuge
+	}
 
-	results, err := qiming.EvaluateNames(p.Surname, p.Names, p.YongShen, p.XiShen, p.JiShen)
+	results, err := qiming.EvaluateNames(p.Surname, p.Names, p.YongShen, p.XiShen, p.JiShen, wuge)
 	if err != nil {
 		return nil, fmt.Errorf("qiming.check: %w", err)
 	}
@@ -92,10 +97,10 @@ var qimingMethods = []RPCMethod{
 		Result:  envelopeSchema(`{"type":"object","properties":{"names":{"type":"array","items":{"type":"string"},"description":"given name 数组（不含姓）"}},"required":["names"]}`),
 	},
 	{
-		Name: "qiming.check", Description: "起名评估。names 传候选名（仅名字部分，不含姓），surname 传姓氏，yongshen 传用神五行。返回五格三才五行音韵全量判定，LLM 综合挑最终推荐名。",
-		Params: mustSchema(`{"type":"object","properties":{"surname":{"type":"string","minLength":1,"maxLength":2,"description":"姓氏"},"names":{"type":"array","items":{"type":"string"},"description":"候选名字列表（仅名字部分，不含姓）"},"yongshen":{"type":"string","enum":["木","火","土","金","水"],"description":"用神五行（可选）"},"xishen":{"type":"array","items":{"type":"string","enum":["木","火","土","金","水"]},"description":"喜神五行（可选）"},"jishen":{"type":"array","items":{"type":"string","enum":["木","火","土","金","水"]},"description":"忌神五行（可选）"}},"required":["surname","names"]}`),
+		Name: "qiming.check", Description: "起名评估。names 传候选名（仅名字部分，不含姓），surname 传姓氏，yongshen 传用神五行。wuge=true 时返回五格三才全量判定（默认），false 时跳过五格三才、仅返回五行匹配/音韵/字义。LLM 综合挑最终推荐名。",
+		Params: mustSchema(`{"type":"object","properties":{"surname":{"type":"string","minLength":1,"maxLength":2,"description":"姓氏"},"names":{"type":"array","items":{"type":"string"},"description":"候选名字列表（仅名字部分，不含姓）"},"yongshen":{"type":"string","enum":["木","火","土","金","水"],"description":"用神五行（可选）"},"xishen":{"type":"array","items":{"type":"string","enum":["木","火","土","金","水"]},"description":"喜神五行（可选）"},"jishen":{"type":"array","items":{"type":"string","enum":["木","火","土","金","水"]},"description":"忌神五行（可选）"},"wuge":{"type":"boolean","description":"true=返回五格三才（默认）/false=跳过五格三才"}},"required":["surname","names"]}`),
 		Handler: qimingCheckHandler,
-		Result: envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"surname":{"type":"string"},"given_name":{"type":"string"},"characters":{"type":"array"},"wuge":{"type":"object","description":"五格配置","properties":{"tiange":{"type":"object","description":"天格"},"renge":{"type":"object","description":"人格"},"dige":{"type":"object","description":"地格"},"waige":{"type":"object","description":"外格"},"zongge":{"type":"object","description":"总格"}}},"sancai":{"type":"object","description":"三才配置","properties":{"configuration":{"type":"string","description":"三才组合（如木火土）"},"ji_xiong":{"type":"string","description":"三才吉凶","enum":["大吉","吉","半吉","凶"]},"description":{"type":"string","description":"三才解释"}},"required":["configuration","ji_xiong"]},"phonetic":{"type":"object","properties":{"tones":{"type":"string"}},"required":["tones"]},"wuxing_match":{"type":"boolean"},"wuxing":{"type":"object","properties":{"yong":{"type":"boolean"},"xi":{"type":"boolean"},"ji":{"type":"boolean"}},"required":["yong"]}},"required":["name","surname","given_name","wuge","sancai","phonetic","wuxing_match"]}}`),
+		Result: envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"surname":{"type":"string"},"given_name":{"type":"string"},"characters":{"type":"array"},"wuge":{"type":"object","description":"五格配置（wuge=false 时不返回）","properties":{"tiange":{"type":"object","description":"天格"},"renge":{"type":"object","description":"人格"},"dige":{"type":"object","description":"地格"},"waige":{"type":"object","description":"外格"},"zongge":{"type":"object","description":"总格"}}},"sancai":{"type":"object","description":"三才配置（wuge=false 时不返回）","properties":{"configuration":{"type":"string","description":"三才组合（如木火土）"},"ji_xiong":{"type":"string","description":"三才吉凶","enum":["大吉","吉","半吉","凶"]},"description":{"type":"string","description":"三才解释"}},"required":["configuration","ji_xiong"]},"phonetic":{"type":"object","properties":{"tones":{"type":"string"}},"required":["tones"]},"wuxing_match":{"type":"boolean"},"wuxing":{"type":"object","properties":{"yong":{"type":"boolean"},"xi":{"type":"boolean"},"ji":{"type":"boolean"}},"required":["yong"]}},"required":["name","surname","given_name","phonetic","wuxing_match"]}}`),
 	},
 	{
 		Name: "qiming.char", Description: "查字。查询单个汉字的五行、笔画、部首、拼音等信息。",

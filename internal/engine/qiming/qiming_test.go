@@ -13,7 +13,7 @@ import (
 
 func TestComputeWuGeFromStrokes_LiMingHui(t *testing.T) {
 	// 李(7) + 明(8) + 辉(15)
-	wg := computeWuGeFromStrokes(7, 8, 15)
+	wg := computeWuGeFromStrokes(singleStrokes(7), 8, 15)
 
 	// 天格=8, 人格=15, 地格=23, 总格=30, 外格=30-15+1=16
 	if wg.TianGe.Stroke != 8 {
@@ -35,7 +35,7 @@ func TestComputeWuGeFromStrokes_LiMingHui(t *testing.T) {
 
 func TestComputeWuGeFromStrokes_EdgeCases(t *testing.T) {
 	// Large strokes: all >81 should wrap
-	wg := computeWuGeFromStrokes(50, 40, 30)
+	wg := computeWuGeFromStrokes(singleStrokes(50), 40, 30)
 	// 天格=51, 人格=90→9, 地格=70, 总格=120→39, 外格=39-9+1=31
 	if wg.RenGe.Stroke != 9 {
 		t.Errorf("人格(90) = %d, want 9 (wrap)", wg.RenGe.Stroke)
@@ -338,7 +338,7 @@ func TestStrokeResult_WrapAbove81(t *testing.T) {
 
 func TestEvaluateNames_BatchTwoCharNames(t *testing.T) {
 	// 佳桐、若薇 — given names only
-	results, err := EvaluateNames("沙", []string{"佳桐", "若薇"}, "", nil, nil)
+	results, err := EvaluateNames("沙", []string{"佳桐", "若薇"}, "", nil, nil, true)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			t.Skip("test chars not in DB: " + err.Error())
@@ -383,7 +383,7 @@ func TestEvaluateNames_BatchTwoCharNames(t *testing.T) {
 
 func TestEvaluateNames_SingleFullName(t *testing.T) {
 	// Single full name: 王明辉
-	results, err := EvaluateNames("王", []string{"明辉"}, "", nil, nil)
+	results, err := EvaluateNames("王", []string{"明辉"}, "", nil, nil, true)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			t.Skip("test chars not in DB: " + err.Error())
@@ -406,7 +406,7 @@ func TestEvaluateNames_SingleFullName(t *testing.T) {
 }
 
 func TestEvaluateNames_WithWuxing(t *testing.T) {
-	results, err := EvaluateNames("王", []string{"明辉"}, "火", []string{"木"}, nil)
+	results, err := EvaluateNames("王", []string{"明辉"}, "火", []string{"木"}, nil, true)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			t.Skip("test chars not in DB: " + err.Error())
@@ -537,7 +537,7 @@ func TestGetChars_NegativeCharFiltered(t *testing.T) {
 // =============================================================================
 func TestComputeWuGeFromStrokes(t *testing.T) {
 	// 王(4) + 1st名(9) + 2nd名(16) → standard example
-	wg := computeWuGeFromStrokes(4, 9, 16)
+	wg := computeWuGeFromStrokes(singleStrokes(4), 9, 16)
 
 	if wg.TianGe.Stroke != 5 {
 		t.Errorf("天格 stroke = %d, want 5", wg.TianGe.Stroke)
@@ -559,7 +559,7 @@ func TestComputeWuGeFromStrokes(t *testing.T) {
 
 // TestComputeWuGeFromStrokes_Minimum strokes verifies boundary case.
 func TestComputeWuGeFromStrokes_MinStrokes(t *testing.T) {
-	wg := computeWuGeFromStrokes(1, 1, 1)
+	wg := computeWuGeFromStrokes(singleStrokes(1), 1, 1)
 
 	// 天格=2, 人格=2, 地格=2, 总格=3, 外格=总格-人格+1=3-2+1=2
 	if wg.TianGe.Stroke != 2 {
@@ -684,7 +684,7 @@ func TestExampleNames_CharsInDatabase(t *testing.T) {
 			continue
 		}
 		// 五格必须可计算
-		ss := lookupKangxiStroke(surname)
+		ss := singleStrokes(lookupKangxiStroke(surname))
 		wg := computeWuGeFromStrokes(ss, ce1.Stroke, ce2.Stroke)
 		if wg.TianGe.Stroke == 0 || wg.RenGe.Stroke == 0 || wg.DiGe.Stroke == 0 {
 			t.Errorf("%s: wuge calculation failed: %+v", full, wg)

@@ -11,20 +11,21 @@
 //
 //	SurnameStroke(surname) → (int, error)
 //	GetChars(wuxing) → (map[int][]CharLite, error)
-//	EvaluateNames(surname, names, yong, xi, ji) → ([]Evaluation, error)
+//	EvaluateNames(surname, names, yong, xi, ji, wuge) → ([]Evaluation, error)
 package qiming
 
 import (
 	"fmt"
 )
 
-// SurnameStroke returns the Kangxi stroke count for a surname, or an error if not found.
+// SurnameStroke returns the total Kangxi stroke count for a surname
+// (单姓=该字笔画，复姓=各字笔画之和), or an error if any char not found.
 func SurnameStroke(surname string) (int, error) {
-	n := lookupKangxiStroke(surname)
-	if n == 0 {
-		return 0, fmt.Errorf("surname %q not found in Kangxi dictionary", surname)
+	ss, err := SurnameStrokesOf(surname)
+	if err != nil {
+		return 0, err
 	}
-	return n, nil
+	return ss.Total, nil
 }
 
 // GetChars returns naming characters of the given element, grouped by stroke.
@@ -50,9 +51,9 @@ func LookupChar(char string) *Character {
 	return &ce
 }
 
-// EvaluateNames evaluates a batch of given names with full wuxing analysis.
-func EvaluateNames(surname string, givenNames []string, yongShen string, xiShen, jiShen []string) ([]Evaluation, error) {
-	surnameStrokes, err := SurnameStroke(surname)
+// EvaluateNames evaluates a batch of given names. wuge=true 时计算并输出五格三才，false 时跳过。
+func EvaluateNames(surname string, givenNames []string, yongShen string, xiShen, jiShen []string, wuge bool) ([]Evaluation, error) {
+	surnameStrokes, err := SurnameStrokesOf(surname)
 	if err != nil {
 		return nil, fmt.Errorf("evaluate names: %w", err)
 	}
@@ -93,8 +94,6 @@ func EvaluateNames(surname string, givenNames []string, yongShen string, xiShen,
 		if len(charEntries) > 1 {
 			s2 = charEntries[1].Stroke
 		}
-		wg := computeWuGeFromStrokes(surnameStrokes, s1, s2)
-		sc := computeSanCai(wg.TianGe.Element, wg.RenGe.Element, wg.DiGe.Element)
 		phon := analyzePhonetic(charEntries)
 
 		wuxingMatch := false
@@ -112,10 +111,15 @@ func EvaluateNames(surname string, givenNames []string, yongShen string, xiShen,
 			Surname:     surname,
 			GivenName:   given,
 			Characters:  charEntries,
-			WuGe:        wg,
-			SanCai:      sc,
 			Phonetic:    phon,
 			WuxingMatch: wuxingMatch,
+		}
+
+		if wuge {
+			wg := computeWuGeFromStrokes(surnameStrokes, s1, s2)
+			sc := computeSanCai(wg.TianGe.Element, wg.RenGe.Element, wg.DiGe.Element)
+			ev.WuGe = &wg
+			ev.SanCai = &sc
 		}
 
 		if yongShen != "" {
