@@ -46,7 +46,7 @@ description: 问卦占卜 — 六爻起卦、奇门决策、黄历择日。六�
 | 法律/诉讼/纠纷 | app/liuyao-legal.md |
 | 家庭/亲属/代占 | app/liuyao-family.md |
 | 其他/综合 | app/liuyao-general.md |
-| 奇门/方向/时机 | app/qimen-chart.md |
+| 奇门/方向/时机 | app/divination.md（奇门分支） |
 | 择日/选日子 | app/auspicious.md |
 
 ## 自检更新（强制）
