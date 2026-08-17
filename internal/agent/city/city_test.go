@@ -191,3 +191,52 @@ func TestSearchCoords_Schema(t *testing.T) {
 		t.Errorf("country = %s, want 中国", r.Country)
 	}
 }
+
+// TestSearchCoords_GlobalSearch 海外城市能正确返回经纬度
+func TestSearchCoords_GlobalSearch(t *testing.T) {
+	old := HttpClient()
+	defer SetHTTPClient(old)
+	SetHTTPClient(&mockDoer{resp: mockResp(`[{"name":"New York","lon":"-74.006","lat":"40.7128","address":{"country":"United States","city":"New York"}}]`)})
+
+	out, err := SearchCoords(context.Background(), []byte(`{"city":"New York"}`))
+	if err != nil {
+		t.Fatalf("SearchCoords: %v", err)
+	}
+	var r searchResult
+	if err := json.Unmarshal(out, &r); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if r.Name != "New York" {
+		t.Errorf("name = %q, want New York", r.Name)
+	}
+	if r.Longitude != -74.006 {
+		t.Errorf("longitude = %f, want -74.006", r.Longitude)
+	}
+	if r.Latitude != 40.7128 {
+		t.Errorf("latitude = %f, want 40.7128", r.Latitude)
+	}
+}
+
+// TestSearchCoords_AdministrativePriority 行政级别优先（county/city/state 优先于 POI）
+func TestSearchCoords_AdministrativePriority(t *testing.T) {
+	old := HttpClient()
+	defer SetHTTPClient(old)
+	// 返回顺序：POI 在前，行政区域在后
+	SetHTTPClient(&mockDoer{resp: mockResp(`[
+		{"name":"Beijing Road","lon":"116.4","lat":"39.9","type":"poi","address":{"country":"China"}},
+		{"name":"Beijing","lon":"116.4074","lat":"39.9042","type":"city","address":{"country":"China","city":"Beijing"}}
+	]`)})
+
+	out, err := SearchCoords(context.Background(), []byte(`{"city":"Beijing"}`))
+	if err != nil {
+		t.Fatalf("SearchCoords: %v", err)
+	}
+	var r searchResult
+	if err := json.Unmarshal(out, &r); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	// 应该选择 city 类型，而非 poi
+	if r.Name != "Beijing" {
+		t.Errorf("name = %q, want Beijing (should prefer city over poi)", r.Name)
+	}
+}

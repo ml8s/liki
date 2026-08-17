@@ -290,7 +290,7 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",
-		"city", "time.now", "tianwen.time",
+		"city.coords", "time.now", "tianwen.time",
 	}
 	for _, name := range expected {
 		if !names[name] {
