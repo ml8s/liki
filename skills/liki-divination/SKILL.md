@@ -22,7 +22,7 @@ description: 问卦占卜 — 六爻起卦、奇门决策、黄历择日。六�
 输出：□ 月建旺衰____ 日建关系____ 月破/旬空____
 
 ### L3: 特殊格局
-调用 `liuyao.special`，查 `domains/liuyao/special.md` 判定特殊格局
+调用 `liuyao.patterns`，查 `domains/liuyao/patterns.md` 判定特殊格局
 输出：□ 特殊格局____ 影响____
 
 ### L4: 分类断卦
@@ -69,7 +69,7 @@ description: 问卦占卜 — 六爻起卦、奇门决策、黄历择日。六�
   curl -s https://liki.hk/jsonrpc -H "Content-Type: application/json" \
     -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"liuyao.qigua,liuyao.chart"},"id":1}'
   ```
-- **方法清单**：`liuyao.qigua`（起卦）/ `liuyao.chart`（装卦）/ `liuyao.special`（特殊格局）/ `qimen.chart`（排盘）/ `huangli.days`（择日）
+- **方法清单**：`liuyao.qigua`（起卦）/ `liuyao.chart`（装卦）/ `liuyao.patterns`（特殊格局）/ `qimen.chart`（排盘）/ `huangli.days`（择日）
 
 ## 流程约定（强制）
 

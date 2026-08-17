@@ -9,7 +9,7 @@ description: 六爻·感情 — 婚姻、恋爱、复合、分手
 ## 依赖的领域知识
 [必读] - domains/liuyao/yongshen.md「用神取用」
 [必读] - domains/liuyao/jixiong.md「吉凶判定」
-[必读] - domains/liuyao/special.md「特殊格局」
+[必读] - domains/liuyao/patterns.md「特殊格局」
 
 ## 用户问法 → 流程侧重
 | 用户问题 | 侧重步骤 |

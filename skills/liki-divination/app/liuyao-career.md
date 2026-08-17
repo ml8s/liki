@@ -9,7 +9,7 @@ description: 六爻·事业 — 职业方向、升迁、创业、求职
 ## 依赖的领域知识
 [必读] - domains/liuyao/yongshen.md「用神取用」
 [必读] - domains/liuyao/jixiong.md「吉凶判定」
-[必读] - domains/liuyao/special.md「特殊格局」
+[必读] - domains/liuyao/patterns.md「特殊格局」
 [必读] - domains/liuyao/yuejian.md「月建日建」
 
 ## 用户问法 → 流程侧重
