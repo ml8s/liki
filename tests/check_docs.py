@@ -38,7 +38,7 @@ METHOD_WHITELIST = {
     "xuankong.chart", "xuankong.liunian",
     "qiming.pick", "qiming.build", "qiming.check", "qiming.char",
     # 基础
-    "time.now", "city", "tianwen.time",
+    "time.now", "city.coords", "tianwen.time",
 }
 # 点分 token 允许的方法前缀（过滤自然语言/文件名的误报）
 _METHOD_PREFIXES = tuple(sorted({m.split(".")[0] for m in METHOD_WHITELIST}))

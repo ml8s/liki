@@ -35,13 +35,13 @@ curl -s https://liki.hk/jsonrpc \
 **排盘 correct 判定（full_paipan 参数）**：
 - 路 A（用户给具体时刻）→ `correct=True` + 出生地经度
 - 路 B（用户已明确「X时」）→ `correct=False`
-- 经度未知 → 先调 `city`；仍未知 → 默认 116.4（北京）
+- 经度未知 → 先调 `city.coords`；仍未知 → 默认 116.4（北京）
 
 **手调 RPC 方法清单**（端点 `POST https://liki.hk/jsonrpc`，格式 `{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`）：
 
 - 合盘（compatibility 卡）：`bazi.bond` / `ziwei.bond`
 - 细化流：`bazi.liuyue` / `bazi.liuri` / `bazi.liushi` / `bazi.xiaoyun`、`ziwei.daxian` / `ziwei.liuyue` / `ziwei.liuri` / `ziwei.liushi` / `ziwei.fullchart`
-- 基础：`time.now`、`city`、`tianwen.time`（真太阳时换算，调试/手排用）
+- 基础：`time.now`、`city.coords`、`tianwen.time`（真太阳时换算，调试/手排用）
 
 **细化流参数速查**（bazi 系列=公历，ziwei 系列=农历，命名不同勿混用）：
 
