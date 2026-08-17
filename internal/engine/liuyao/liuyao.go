@@ -109,6 +109,7 @@ type Line struct {
 	DongSheng bool `json:"dong_sheng,omitempty"` // 有动爻生此爻
 	DongKe    bool `json:"dong_ke,omitempty"`    // 有动爻克此爻
 	XunKong   bool `json:"xun_kong,omitempty"`   // 该爻地支值日柱旬空
+	MuKu      bool `json:"mu_ku,omitempty"`      // 入墓（地支为墓库）
 }
 
 // guaIndex identifies one of the 64 hexagrams.

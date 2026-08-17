@@ -182,6 +182,36 @@ func liuyaoChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	return wrapResult("liuyao", result)
 }
 
+func liuyaoSpecialHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+	var p struct {
+		SolarTime string `json:"solar_time"`
+		YongShen  string `json:"yong_shen"`
+		Yaos      [6]int `json:"yaos"`
+	}
+	if err := json.Unmarshal(raw, &p); err != nil {
+		return nil, fmt.Errorf("liuyao.special: %w", err)
+	}
+	for i, v := range p.Yaos {
+		if v < 6 || v > 9 {
+			return nil, fmt.Errorf("liuyao.special: yao[%d] = %d, must be 6-9", i, v)
+		}
+	}
+	st, err := parseSolarTime(p.SolarTime)
+	if err != nil {
+		return nil, fmt.Errorf("liuyao.special: %w", err)
+	}
+	if p.YongShen == "" {
+		p.YongShen = "世爻"
+	}
+	ys, err := liuyao.ParseYongShen(p.YongShen)
+	if err != nil {
+		return nil, fmt.Errorf("liuyao.special: %w", err)
+	}
+	chart := liuyao.ComputeChart(st, ys, p.Yaos)
+	patterns := liuyao.ComputeSpecialPatterns(&chart, ys)
+	return wrapResult("liuyao_special", patterns)
+}
+
 // ── huangli ──
 
 func huangliDaysHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
@@ -278,6 +308,12 @@ var otherMethods = []RPCMethod{	{
 		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"yong_shen":{"type":"string","description":"用神六亲（如 妻财/官鬼/父母/兄弟/子孙/世爻），可选，默认世爻"},"yaos":{"type":"array","items":{"type":"integer"},"minItems":6,"maxItems":6,"description":"六爻值（6-9），必填，先调 liuyao.qigua 获取"}},"required":["solar_time","yaos"]}`),
 		Handler: liuyaoChartHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"ben_gua":{"type":"string","enum":["乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人","临","损","节","中孚","归妹","睽","兑","履","泰","大畜","需","小畜","大壮","大有","夬","乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人"]},"lines":{"type":"array","description":"每爻：六亲/六神/世应 + 确定性状态（yue_po 月破/dong_self 发动/dong_sheng 动爻生/dong_ke 动爻克）","items":{"type":"object","properties":{"position":{"type":"integer"},"type":{"type":"integer"},"gan":{"type":"string"},"zhi":{"type":"string"},"wuxing":{"type":"string"},"liu_qin":{"type":"string","enum":["父母","兄弟","官鬼","妻财","子孙"]},"shi_ying":{"type":"string","description":"世/应"},"liu_shou":{"type":"string","enum":["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]},"yue_po":{"type":"boolean","description":"月破"},"dong_self":{"type":"boolean","description":"本爻发动"},"dong_sheng":{"type":"boolean","description":"有动爻生此爻"},"dong_ke":{"type":"boolean","description":"有动爻克此爻"},"xun_kong":{"type":"boolean","description":"该爻地支值日柱旬空"}},"required":["position","type","gan","zhi","wuxing","liu_qin","shi_ying","liu_shou"]}},"yong_shen":{"type":"object","description":"用神结果（yong_shen 参数指定，默认世爻）","properties":{"name":{"type":"string","description":"用神六亲"},"position":{"type":"integer","description":"爻位1-6（0=未找到）"},"fu_shen":{"type":"object","description":"飞伏（用神不现时）","properties":{"position":{"type":"integer","description":"爻位"},"liu_qin":{"type":"string","description":"伏神六亲"},"zhi":{"type":"string","description":"伏神地支"}},"required":["position","liu_qin","zhi"]}},"required":["name","position"]},"wang_shuai":{"type":"array"},"yue_jian_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"yue_jian_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ying_qi":{"type":"object","description":"应期判断结果","properties":{"yong_shen":{"type":"string","description":"用神"},"dong_yao_pos":{"type":"integer","description":"动爻位置"},"ying_time":{"type":"string","description":"应期描述"},"assessment":{"type":"string","description":"综合判断"}},"required":["yong_shen","assessment"]},"bian_gua":{"type":"string","description":"变卦名"},"bian_yao":{"type":"array","description":"变爻"},"dong_yao":{"type":"array","items":{"type":"integer"},"description":"动爻位置"},"gong":{"type":"string","description":"八宫"},"gua_ci":{"type":"object","description":"卦辞爻辞"},"gong_wuxing":{"type":"string","description":"宫五行"},"ri_chen_gan":{"type":"string","description":"日辰天干"},"ri_chen_zhi":{"type":"string","description":"日辰地支"},"ri_chen_relations":{"type":"array","description":"日辰与爻关系"},"xun_kong":{"type":"array","items":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"description":"日柱旬空地支（甲子旬空戌亥…）"}},"required":["name","ben_gua","lines","yong_shen"]}`),
+	},
+	{
+		Name: "liuyao.special", Description: "六爻特殊格局计算。传入卦象和用神，计算旬空、月破、飞伏、进退、六冲六合、反吟伏吟、随鬼入墓、独发独静、用神两现等特殊格局。",
+		Params: mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"yong_shen":{"type":"string","description":"用神六亲（如 妻财/官鬼/父母/兄弟/子孙/世爻），可选，默认世爻"},"yaos":{"type":"array","items":{"type":"integer"},"minItems":6,"maxItems":6,"description":"六爻值（6-9），必填，先调 liuyao.qigua 获取"}},"required":["solar_time","yaos"]}`),
+		Handler: liuyaoSpecialHandler,
+		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"type":{"type":"string","description":"格局类型（旬空/月破/飞伏/进退/冲合/反吟/随鬼入墓/独发/独静/两现）"},"sub_type":{"type":"string","description":"子类型（如假空/真空/假破/真破/进神/退神/六冲/六合/反吟/伏吟）"},"position":{"type":"integer","description":"相关爻位（0=全卦）"},"is_true":{"type":"boolean","description":"是否为真格局（如真破/真空）"},"assessment":{"type":"string","description":"断语描述"}},"required":["type","sub_type","assessment"]}}`),
 	},
 	{
 		Name: "huangli.days", Description: "黄历查日。返回连续N天的黄历信息（建除、黄道、二十八宿、时辰吉凶等）。",

@@ -238,6 +238,11 @@ func computeLineDerived(p *Chart) {
 			lines[i].YuePo = ganzhi.IsLiuChong(lines[i].Zhi, p.YueZhi)
 			lines[i].DongSelf = lines[i].Type.IsChanging()
 			lines[i].XunKong = lines[i].Zhi == p.XunKong[0] || lines[i].Zhi == p.XunKong[1]
+			// 入墓（辰戌丑未为墓库）
+			lines[i].MuKu = lines[i].Zhi == ganzhi.ZhiChen ||
+				lines[i].Zhi == ganzhi.ZhiXu ||
+				lines[i].Zhi == ganzhi.ZhiChou ||
+				lines[i].Zhi == ganzhi.ZhiWei
 		}
 	}
 	mark(&p.Lines)
