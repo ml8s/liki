@@ -298,7 +298,7 @@ var otherMethods = []RPCMethod{	{
 		Result:  envelopeSchema(`{"type":"object","properties":{"solar":{"type":"string"},"gregorian":{"type":"string"},"lunar":{"type":"object","description":"农历信息: year/month/day/shichen","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"leap":{"type":"boolean"},"shichen":{"type":"string"}}}},"required":["solar","gregorian","lunar"]}`),
 	},
 	{
-		Name: "city.coords", Description: "根据城市名查询经纬度。中国城市优先匹配，海外城市自动 fallback 全球范围。基于 Nominatim 服务。",
+		Name: "city.coords", Description: "根据城市名查询经纬度。支持中英文城市名，全球范围搜索。基于 Nominatim 服务。",
 		Params: mustSchema(`{"type":"object","properties":{"city":{"type":"string","description":"城市名称（中英文均可）"}},"required":["city"]}`),
 		Handler: cityCoordsHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"longitude":{"type":"number"},"latitude":{"type":"number"},"country":{"type":"string"}},"required":["name","longitude","latitude","country"]}`),
