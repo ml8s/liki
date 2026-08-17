@@ -1,4 +1,4 @@
-.PHONY: all build build-linux lint vet check test test-all clean run
+.PHONY: all build build-linux lint vet check test test-all pre-push clean run
 
 BINARY=liki
 VERSION=$(shell cat cmd/liki/VERSION 2>/dev/null || echo dev)
@@ -26,6 +26,9 @@ test:
 
 update: ## 拉取最新引擎代码（部署前手动同步用）
 	git pull --ff-only origin master
+
+pre-push: ## 推送前检查（lint + vet + unit + 方法名同步）
+	scripts/pre-check.sh
 
 test-all: ## 全量测试（lint + vet + unit race + integration + RPC 冒烟）
 	scripts/ci-engine.sh
