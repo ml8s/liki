@@ -31,6 +31,16 @@ grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
 grep -rn "旧方法名" skills/*/app/*.md skills/*/SKILL.md
 ```
 
+**添加新 RPC 方法时**（同步更新测试）：
+```bash
+# 检查方法计数
+grep -c "Name:" internal/agent/*_methods*.go internal/agent/*_other*.go  # 实际方法数
+grep "expected.*methods" internal/agent/rpc_registry_test.go             # 测试期望值
+grep "want.*methods" internal/http/rpc_test.go                          # 测试期望值
+# 添加到方法白名单
+grep -A 5 "METHOD_WHITELIST" tests/check_docs.py
+```
+
 **改 skill 文档后**（重算指纹）：
 ```bash
 make build-archive
