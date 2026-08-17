@@ -2,34 +2,34 @@ package liuyao
 
 import "liki-engine/internal/engine/ganzhi"
 
-// SpecialPatternType 特殊格局类型
-type SpecialPatternType string
+// PatternType 特殊格局类型
+type PatternType string
 
 const (
-	PatternXunKong   SpecialPatternType = "旬空"   // 旬空
-	PatternYuePo     SpecialPatternType = "月破"   // 月破
-	PatternFeiFu     SpecialPatternType = "飞伏"   // 飞伏
-	PatternJinTui    SpecialPatternType = "进退"   // 进退神
-	PatternChongHe   SpecialPatternType = "冲合"   // 六冲/六合
-	PatternFanYin    SpecialPatternType = "反吟"   // 反吟/伏吟
-	PatternSuiGuiRuMu SpecialPatternType = "随鬼入墓" // 随鬼入墓
-	PatternDuFa      SpecialPatternType = "独发"   // 独发
-	PatternDuJing    SpecialPatternType = "独静"   // 独静
-	PatternLiangXian SpecialPatternType = "两现"   // 用神两现
+	PatternXunKong   PatternType = "旬空"   // 旬空
+	PatternYuePo     PatternType = "月破"   // 月破
+	PatternFeiFu     PatternType = "飞伏"   // 飞伏
+	PatternJinTui    PatternType = "进退"   // 进退神
+	PatternChongHe   PatternType = "冲合"   // 六冲/六合
+	PatternFanYin    PatternType = "反吟"   // 反吟/伏吟
+	PatternSuiGuiRuMu PatternType = "随鬼入墓" // 随鬼入墓
+	PatternDuFa      PatternType = "独发"   // 独发
+	PatternDuJing    PatternType = "独静"   // 独静
+	PatternLiangXian PatternType = "两现"   // 用神两现
 )
 
-// SpecialPattern 特殊格局
-type SpecialPattern struct {
-	Type      SpecialPatternType `json:"type"`       // 格局类型
+// Pattern 特殊格局
+type Pattern struct {
+	Type      PatternType `json:"type"`       // 格局类型
 	SubType   string             `json:"sub_type"`   // 子类型（如真空/假空）
 	Position  int                `json:"position"`   // 相关爻位（0=全卦）
 	IsTrue    bool               `json:"is_true"`    // 是否为真格局（如真破/真空）
 	Assessment string            `json:"assessment"` // 断语描述
 }
 
-// ComputeSpecialPatterns 计算所有特殊格局
-func ComputeSpecialPatterns(p *Chart, yongShen YongShen) []SpecialPattern {
-	patterns := []SpecialPattern{}
+// ComputePatterns 计算所有特殊格局
+func ComputePatterns(p *Chart, yongShen YongShen) []Pattern {
+	patterns := []Pattern{}
 
 	// 旬空
 	patterns = append(patterns, computeXunKong(p, yongShen)...)
@@ -62,8 +62,8 @@ func ComputeSpecialPatterns(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeXunKong 计算旬空格局
-func computeXunKong(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeXunKong(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 用神爻位
 	yongPos, _ := p.findYongShen(yongShen)
@@ -110,7 +110,7 @@ func computeXunKong(p *Chart, yongShen YongShen) []SpecialPattern {
 		assessment = "休囚动爻旬空，动不为空，出空方应"
 	}
 
-	patterns = append(patterns, SpecialPattern{
+	patterns = append(patterns, Pattern{
 		Type:       PatternXunKong,
 		SubType:    "假空",
 		Position:   yongPos,
@@ -122,8 +122,8 @@ func computeXunKong(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeYuePo 计算月破格局
-func computeYuePo(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeYuePo(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 用神爻位
 	yongPos, _ := p.findYongShen(yongShen)
@@ -171,7 +171,7 @@ func computeYuePo(p *Chart, yongShen YongShen) []SpecialPattern {
 		assessment = "月破但有救应，先挫后成"
 	}
 
-	patterns = append(patterns, SpecialPattern{
+	patterns = append(patterns, Pattern{
 		Type:       PatternYuePo,
 		SubType:    "假破",
 		Position:   yongPos,
@@ -183,8 +183,8 @@ func computeYuePo(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeFeiFu 计算飞伏格局
-func computeFeiFu(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeFeiFu(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 用神爻位
 	yongPos, _ := p.findYongShen(yongShen)
@@ -229,7 +229,7 @@ func computeFeiFu(p *Chart, yongShen YongShen) []SpecialPattern {
 		assessment = "飞伏比和，伏神待出"
 	}
 
-	patterns = append(patterns, SpecialPattern{
+	patterns = append(patterns, Pattern{
 		Type:       PatternFeiFu,
 		SubType:    "伏藏",
 		Position:   fuShen.Position,
@@ -241,8 +241,8 @@ func computeFeiFu(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeJinTui 计算进退神
-func computeJinTui(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeJinTui(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 用神爻位
 	yongPos, _ := p.findYongShen(yongShen)
@@ -283,7 +283,7 @@ func computeJinTui(p *Chart, yongShen YongShen) []SpecialPattern {
 		if isTui {
 			subType = "退神"
 		}
-		patterns = append(patterns, SpecialPattern{
+		patterns = append(patterns, Pattern{
 			Type:       patternType,
 			SubType:    subType,
 			Position:   yongPos,
@@ -296,8 +296,8 @@ func computeJinTui(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeChongHe 计算六冲/六合
-func computeChongHe(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeChongHe(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 检查卦体六冲
 	isLiuChong := false
@@ -306,7 +306,7 @@ func computeChongHe(p *Chart, yongShen YongShen) []SpecialPattern {
 	// 本卦六冲检查
 	if p.BenGua.isLiuChong() {
 		isLiuChong = true
-		patterns = append(patterns, SpecialPattern{
+		patterns = append(patterns, Pattern{
 			Type:       PatternChongHe,
 			SubType:    "六冲",
 			Position:   0,
@@ -318,7 +318,7 @@ func computeChongHe(p *Chart, yongShen YongShen) []SpecialPattern {
 	// 本卦六合检查
 	if p.BenGua.isLiuHe() {
 		isLiuHe = true
-		patterns = append(patterns, SpecialPattern{
+		patterns = append(patterns, Pattern{
 			Type:       PatternChongHe,
 			SubType:    "六合",
 			Position:   0,
@@ -337,8 +337,8 @@ func computeChongHe(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeFanYin 计算反吟/伏吟
-func computeFanYin(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeFanYin(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 检查反吟（本卦与变卦地支相冲）
 	if len(p.BianLines) > 0 {
@@ -352,7 +352,7 @@ func computeFanYin(p *Chart, yongShen YongShen) []SpecialPattern {
 		}
 
 		if isFanYin {
-			patterns = append(patterns, SpecialPattern{
+			patterns = append(patterns, Pattern{
 				Type:       PatternFanYin,
 				SubType:    "反吟",
 				Position:   0,
@@ -374,7 +374,7 @@ func computeFanYin(p *Chart, yongShen YongShen) []SpecialPattern {
 		}
 
 		if isFuYin {
-			patterns = append(patterns, SpecialPattern{
+			patterns = append(patterns, Pattern{
 				Type:       PatternFanYin,
 				SubType:    "伏吟",
 				Position:   0,
@@ -388,8 +388,8 @@ func computeFanYin(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeSuiGuiRuMu 计算随鬼入墓
-func computeSuiGuiRuMu(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeSuiGuiRuMu(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 用神爻位
 	yongPos, _ := p.findYongShen(yongShen)
@@ -402,7 +402,7 @@ func computeSuiGuiRuMu(p *Chart, yongShen YongShen) []SpecialPattern {
 		// 检查是否随鬼（官鬼爻发动）
 		for _, pos := range p.DongYao {
 			if p.Lines[pos-1].LiuQin == QinGuanGui {
-				patterns = append(patterns, SpecialPattern{
+				patterns = append(patterns, Pattern{
 					Type:       PatternSuiGuiRuMu,
 					SubType:    "随鬼入墓",
 					Position:   yongPos,
@@ -418,14 +418,14 @@ func computeSuiGuiRuMu(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeDuFaDuJing 计算独发/独静
-func computeDuFaDuJing(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeDuFaDuJing(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	dongCount := len(p.DongYao)
 
 	// 独发：五静一动
 	if dongCount == 1 {
-		patterns = append(patterns, SpecialPattern{
+		patterns = append(patterns, Pattern{
 			Type:       PatternDuFa,
 			SubType:    "独发",
 			Position:   p.DongYao[0],
@@ -446,7 +446,7 @@ func computeDuFaDuJing(p *Chart, yongShen YongShen) []SpecialPattern {
 				}
 			}
 			if !isDong {
-				patterns = append(patterns, SpecialPattern{
+				patterns = append(patterns, Pattern{
 					Type:       PatternDuJing,
 					SubType:    "独静",
 					Position:   i,
@@ -462,8 +462,8 @@ func computeDuFaDuJing(p *Chart, yongShen YongShen) []SpecialPattern {
 }
 
 // computeLiangXian 计算用神两现
-func computeLiangXian(p *Chart, yongShen YongShen) []SpecialPattern {
-	var patterns []SpecialPattern
+func computeLiangXian(p *Chart, yongShen YongShen) []Pattern {
+	var patterns []Pattern
 
 	// 统计用神爻数
 	count := 0
@@ -474,7 +474,7 @@ func computeLiangXian(p *Chart, yongShen YongShen) []SpecialPattern {
 	}
 
 	if count >= 2 {
-		patterns = append(patterns, SpecialPattern{
+		patterns = append(patterns, Pattern{
 			Type:       PatternLiangXian,
 			SubType:    "用神两现",
 			Position:   0,
