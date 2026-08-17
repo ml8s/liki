@@ -220,6 +220,9 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	// 每爻确定性派生状态（月破/发动/动爻生克）.
 	computeLineDerived(&chart)
 
+	// 特殊格局计算.
+	chart.Patterns = ComputePatterns(&chart, yongShen)
+
 	// 应期.
 	chart.YingQi = computeYingQi(&chart, yongShen)
 
