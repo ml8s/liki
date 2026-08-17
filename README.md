@@ -173,6 +173,8 @@ skill ── 文档层 ── 根 SKILL.md      ← 规则（全局骨架 + 强�
 - [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — 多流派互审与结论强度标注理念
 - [DestinyLinker/MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) — 命理评测参照
 - [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — 置信度体系、人格画像推断
+- [xiaoshiyilangzhao1996-droid/yinyo-liuyao](https://github.com/xiaoshiyilangzhao1996-droid/yinyo-liuyao) — 六爻断卦引擎（120条规则+412卦例），特殊格局处理参考
+- [shubhaviatiningsih-byte/fortune-liuyao-skill](https://github.com/shubhaviatiningsih-byte/fortune-liuyao-skill) — 六爻 AI Skill（9类占断方法），分类占断参考
 
 ## 协议
 
