@@ -45,24 +45,26 @@ func TestChartDerived_Anchors(t *testing.T) {
 	}{
 		{
 			// 2026-06-28 午时：夏至中元（癸酉日 mod15=9 中元）→ 阴遁3局。
-			// 日干癸落震、时干戊落震（比和）；时柱戊午（甲寅旬）空子丑→坎艮；午→寅午戌马在申→坤。
+			// 日干癸天盘落震、时干戊天盘落艮（用神落宫以天盘为核心判断依据）；
+			// 时柱戊午（甲寅旬）空子丑→坎艮 → 时干艮8空亡；午→寅午戌马在申→坤。
 			name: "2026-06-28 午时 夏至中元 阴遁3局",
 			date: "2026-06-28", hour: 12,
 			ju: 3, yin: true,
-			riGanGong: "震", shiGanGong: "震",
-			riShiShengKe: "日干(3宫)与时干(3宫)比和",
-			kwAffected: false, maAffected: false,
+			riGanGong: "震", shiGanGong: "艮",
+			riShiShengKe: "日干(3宫)克时干(8宫)",
+			kwAffected: true, maAffected: false,
 			kongWang: []string{"坎", "艮"}, maXing: "坤",
 		},
 		{
 			// 2026-01-01 辰时：冬至下元（日柱 mod15 下元）→ 阳遁4局。
-			// 日干落震、时干落乾（乾金克震木）；时柱庚辰（甲戌旬）空申酉→坤兑；辰→申子辰马在寅→艮。
+			// 日干乙天盘落巽、时干庚天盘落兑（用神落宫以天盘为核心判断依据）；
+			// 时柱庚辰（甲戌旬）空申酉→坤兑 → 时干兑7空亡；辰→申子辰马在寅→艮。
 			name: "2026-01-01 辰时 冬至下元 阳遁4局",
 			date: "2026-01-01", hour: 8,
 			ju: 4, yin: false,
-			riGanGong: "震", shiGanGong: "乾",
-			riShiShengKe: "时干(6宫)克日干(3宫)",
-			kwAffected: false, maAffected: false,
+			riGanGong: "巽", shiGanGong: "兑",
+			riShiShengKe: "时干(7宫)克日干(4宫)",
+			kwAffected: true, maAffected: false,
 			kongWang: []string{"坤", "兑"}, maXing: "艮",
 		},
 	}

@@ -95,26 +95,6 @@ func TestComputeYongShen(t *testing.T) {
 	}
 }
 
-// TestRiGanJiaDun 日干为甲时按日支遁六仪
-func TestRiGanJiaDun(t *testing.T) {
-	// 2000-06-15 甲辰日 → 甲辰遁壬 → 壬落宫
-	st := tianwen.GregorianToSolar(
-		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
-		116.4, 8,
-	)
-	ch := ComputeChart(st, ShiQiMen)
-	if ch.Pan.RiGan != ganzhi.GanJia {
-		t.Fatalf("预期甲日，got %s", ch.Pan.RiGan)
-	}
-	if ch.RiGanPalace == 0 {
-		t.Fatal("甲辰日应遁壬落宫，而非 0")
-	}
-	want := findGanPalaceIdx(ch.Pan, ganzhi.GanRen)
-	if want > 0 && ch.RiGanPalace != want {
-		t.Errorf("甲辰遁壬落宫 = %d, want %d", ch.RiGanPalace, want)
-	}
-}
-
 // TestComputeYongShen_NianGan 年命干聚合（需 birth_year）
 func TestComputeYongShen_NianGan(t *testing.T) {
 	chart := chartForTest()
@@ -131,18 +111,17 @@ func TestComputeYongShen_NianGan(t *testing.T) {
 	}
 }
 
-// TestComputeYongShen_AJiaDun 甲年命遁六仪
+// TestComputeYongShen_AJiaDun 甲年命遁六仪（1984-02-15 阳遁8局伏吟盘：戊天盘=地盘在宫8艮）
 func TestComputeYongShen_AJiaDun(t *testing.T) {
 	chart := chartForTest()
 	sym, _ := ParseYongShen("开门")
-	// 1984 甲子年 → 甲遁戊 → 戊落宫
+	// 1984 甲子年 → 甲遁戊 → 戊落艮8（盘面独立锚定）
 	ys := ComputeYongShenWithBirth(chart, []YongShenSymbol{sym}, 1984)
 	if ys.NianGanPalace == nil {
 		t.Fatal("1984甲子年命干甲应遁戊有落宫")
 	}
-	want := findGanPalaceIdx(chart.Pan, ganzhi.GanWu)
-	if want > 0 && *ys.NianGanPalace != want {
-		t.Errorf("甲遁戊落宫 = %d, want %d", *ys.NianGanPalace, want)
+	if *ys.NianGanPalace != GongGen {
+		t.Errorf("1984甲子年命甲遁戊落宫 = %s(%d), want 艮(8)", *ys.NianGanPalace, *ys.NianGanPalace)
 	}
 }
 
@@ -162,5 +141,76 @@ func TestComputeYongShen_KongWangMaXing(t *testing.T) {
 	}
 	if ys.Symbols[0].Palace == chart.Pan.MaXing && !ys.Symbols[0].MaXing {
 		t.Errorf("落宫%d为马星宫，ma_xing应为true", ys.Symbols[0].Palace)
+	}
+}
+
+// TestYongShenSymbolAnchors 用神符号落宫数据驱动锚点（门/星/神/干四类）。
+// 期望值由盘面九宫数据独立确定（用神落宫以天盘为核心判断依据，甲遁看六仪遁宫），
+// 非用 findGanPalaceIdx 自证，避免实现错误被测试掩盖。
+//
+// 2000-06-15 午时（阳遁9局，非伏吟盘，能验证天盘/地盘取值）盘面：
+//   宫1坎=天任/死/九天/天盘乙   宫2坤=天英/惊/值符/天盘戊
+//   宫3震=天蓬/开/螣蛇/天盘己   宫4巽=天芮/休/太阴/天盘庚
+//   宫5中=天冲/天盘辛           宫6乾=天辅/生/六合/天盘壬
+//   宫7兑=天禽/伤/勾陈/天盘癸   宫8艮=天心/杜/朱雀/天盘丁
+//   宫9离=天柱/景/九地/天盘丙
+func TestYongShenSymbolAnchors(t *testing.T) {
+	st := tianwen.GregorianToSolar(
+		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	chart := ComputeChart(st, ShiQiMen)
+	cases := []struct {
+		symbol string
+		want   string // 期望落宫（乾/坤/…）
+	}{
+		// 门（2000-06-15）
+		{"生门", "乾"}, // 生门在宫6乾
+		{"开门", "震"}, // 开门在宫3震
+		{"休门", "巽"}, // 休门在宫4巽
+		{"死门", "坎"}, // 死门在宫1坎
+		// 星
+		{"天辅", "乾"}, // 天辅在宫6乾
+		{"天芮", "巽"}, // 天芮在宫4巽
+		{"天心", "艮"}, // 天心在宫8艮
+		// 神
+		{"六合", "乾"}, // 六合神在宫6乾
+		{"值符", "坤"}, // 值符在宫2坤
+		// 干（用神落宫看天盘，验证天盘优先）
+		{"戊", "坤"}, // 戊天盘在宫2坤（地盘在宫9离）
+		{"庚", "巽"}, // 庚天盘在宫4巽（地盘在宫2坤）
+		{"乙", "坎"}, // 乙天盘在宫1坎（地盘在宫8艮）
+	}
+	for _, c := range cases {
+		sym, err := ParseYongShen(c.symbol)
+		if err != nil {
+			t.Errorf("ParseYongShen(%q): %v", c.symbol, err)
+			continue
+		}
+		ys := ComputeYongShen(chart, []YongShenSymbol{sym})
+		if len(ys.Symbols) != 1 {
+			t.Errorf("%s: 应有 1 个符号结果", c.symbol)
+			continue
+		}
+		got := ys.Symbols[0].Palace.String()
+		if got != c.want {
+			t.Errorf("%s 落宫 = %s(%d), want %s（盘面独立锚定）", c.symbol, got, ys.Symbols[0].Palace, c.want)
+		}
+	}
+}
+
+// TestYongShenSymbolAnchor_JiaDun 用神干为甲时的锚点：甲辰日→甲辰遁壬（天盘壬在宫6乾）。
+func TestYongShenSymbolAnchor_JiaDun(t *testing.T) {
+	st := tianwen.GregorianToSolar(
+		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	ch := ComputeChart(st, ShiQiMen)
+	if ch.Pan.RiGan != ganzhi.GanJia {
+		t.Fatalf("预期甲日，got %s", ch.Pan.RiGan)
+	}
+	// 甲辰遁壬：壬天盘在宫6乾（地盘壬在宫4巽）。用神落宫以天盘为核心。
+	if ch.RiGanPalace != GongQian {
+		t.Errorf("甲辰日甲遁壬落宫 = %s(%d), want 乾(6)", ch.RiGanPalace, ch.RiGanPalace)
 	}
 }

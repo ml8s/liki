@@ -79,10 +79,18 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 }
 
 
-// findGanPalaceIdx finds which gong a heavenly stem resides in (earth plate).
+// findGanPalaceIdx 求干（求测人日干/时干/用神干）的落宫。
+// 奇门领域规则：用神落宫以天盘为核心判断依据（天盘主求测人/所问事之当下状态，
+// 地盘反映过去/潜藏）。故优先取天盘干所在宫；无天盘则取地盘干所在宫。
+// 甲遁：甲不露，遁于六仪（由 resolveJiaDunGan 先转成六仪）。
 func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
-	for i, pg := range p.GongWei {
-		if pg.EarthStem == g || pg.HeavenStem == g {
+	for i := range p.GongWei {
+		if p.GongWei[i].HeavenStem == g {
+			return GongIndex(i + 1)
+		}
+	}
+	for i := range p.GongWei {
+		if p.GongWei[i].EarthStem == g {
 			return GongIndex(i + 1)
 		}
 	}
