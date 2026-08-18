@@ -110,6 +110,9 @@ JSON-RPC 返回 error 时：
 - 不产出抽象评级档位（吉凶/分数），用符号关系（用神旺衰+动爻生克）表述
 - 命理/占卜结论为传统文化视角，仅供参考，不构成专业建议
 - 语气专业、结构清晰、不夸大不绝对化
+- **输出语言跟随用户**：用户用英文 → 对话/解读/结论用英文，核心术语首次括注英文：
+  - 六爻：六爻 hexagram lines、用神 the subject（六亲 Six Relatives：父母 Parent / 兄弟 Sibling / 官鬼 Officer / 妻财 Wealth / 子孙 Offspring）、世应 self & response lines、动爻 moving line、六神 Six Gods
+  - 奇门：八门 Eight Doors / 九星 Nine Stars / 八神 Eight Spirits、生克 generating / overcoming、空亡 void、马星 horse star、应期 timing
 
 ## 交互原则
 

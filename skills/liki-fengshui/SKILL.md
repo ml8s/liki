@@ -63,6 +63,8 @@ JSON-RPC 返回 error 时：
 - 不产出抽象评级档位（吉凶/分数），用符号关系（命卦/飞星吉凶）表述
 - 命理/风水结论为传统文化视角，仅供参考，不构成专业建议
 - 语气专业、结构清晰、不夸大不绝对化
+- **输出语言跟随用户**：用户用英文 → 对话/解读/结论用英文，核心术语首次括注英文：
+  - 命卦 Life Trigram、八宅 Eight Mansions、游年 Flying Stars / Annual Stars、元运 Period、五行 Five Elements（Wood 木 / Fire 火 / Earth 土 / Metal 金 / Water 水）、吉凶方位 auspicious / inauspicious directions、门/灶/床 door / kitchen / bed position
 
 ## 交互原则
 

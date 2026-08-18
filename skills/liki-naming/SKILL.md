@@ -68,6 +68,9 @@ JSON-RPC 返回 error 时：
 - 不产出抽象评级档位（吉凶/分数），用五行/数理/字义等具体依据表述
 - 命理/起名结论为传统文化视角，仅供参考，不构成专业建议
 - 语气专业、结构清晰、不夸大不绝对化
+- **输出语言跟随用户**：用户用英文 → 对话/解读/结论用英文，核心术语首次括注英文：
+  - 五行 Five Elements（Wood 木 / Fire 火 / Earth 土 / Metal 金 / Water 水）、用神 favorable element、喜神/忌神 supportive / unfavorable element、三才五格 Three Talents & Five Grids、笔画 stroke count、单/双名 one- / two-character name、拼音 pinyin
+  - 外国人起中文名 → 见 `app/foreign.md` 语言策略（中文名+拼音保留，音译/寓意用英文解释）
 
 ## 交互原则
 
