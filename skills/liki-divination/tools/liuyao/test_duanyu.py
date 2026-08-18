@@ -138,3 +138,45 @@ def test_evaluate_factors():
     assert factors['yongshen_wangshuai'] == '旺'
     assert factors['dong_sheng'] == True
     assert factors['pattern_旬空'] == '假空'
+
+
+def test_query_wealth_boji():
+    """测试查询博戏断语"""
+    factors = {
+        'yongshen_wangshuai': '旺',
+        'dong_sheng': True,
+    }
+    results = query('wealth', factors)
+    assert len(results) > 0
+    boji_results = [r for r in results if r.get('subcategory') == '']
+    assert len(boji_results) > 0
+
+
+def test_query_academic_keju():
+    """测试查询科举断语"""
+    factors = {
+        'yongshen_wangshuai': '旺',
+        'dong_sheng': True,
+    }
+    results = query('academic', factors)
+    assert len(results) > 0
+
+
+def test_query_health_shuangtai():
+    """测试查询疾病双时态断语"""
+    factors = {
+        'yongshen_wangshuai': '旺',
+        'dong_sheng': True,
+    }
+    results = query('health', factors)
+    assert len(results) > 0
+
+
+def test_query_general_nianyun():
+    """测试查询年运断语"""
+    factors = {
+        'yongshen_wangshuai': '旺',
+        'dong_sheng': True,
+    }
+    results = query('general', factors)
+    assert len(results) > 0
