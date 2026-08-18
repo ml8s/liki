@@ -19,11 +19,6 @@ func TestComputeChart_IncludesPatterns(t *testing.T) {
 	if chart.Patterns == nil {
 		t.Fatal("Patterns field should not be nil")
 	}
-
-	// 验证 Patterns 是数组类型
-	if len(chart.Patterns) < 0 {
-		t.Error("Patterns should be an array")
-	}
 }
 
 // TestComputeChart_PatternsStructure 验证特殊格局结构

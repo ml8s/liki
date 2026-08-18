@@ -40,7 +40,7 @@ fi
 # ── 3. 方法名变更检查 ────────────────────────────────────────
 echo "--- 方法名变更检查 ---"
 # 检查 RPC 注册表与 test-rpc.sh 是否同步
-REGISTERED=$(grep -oP 'Name:\s*"[^"]*"' internal/agent/*_methods*.go internal/agent/*_other*.go internal/agent/*_bazi*.go internal/agent/*_ziwei*.go internal/agent/*_qiming*.go 2>/dev/null | grep -oP '"[^"]*"' | tr -d '"' | sort -u)
+REGISTERED=$(grep -oP 'Name:\s*"[^"]*"' internal/agent/tools_*.go 2>/dev/null | grep -oP '"[^"]*"' | tr -d '"' | sort -u)
 TESTED=$(grep -oP 'rpc\s+[a-z]+\.[a-z]+' scripts/test-rpc.sh 2>/dev/null | awk '{print $2}' | sort -u)
 
 # 检查 test-rpc.sh 中是否有未注册的方法（排除 rpc.discover，它是框架内置的）

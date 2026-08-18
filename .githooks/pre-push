@@ -1,5 +1,10 @@
 #!/bin/sh
-# pre-push — 提醒: 确认后继续推送
-echo "==> pre-push: 即将推送，请确认继续..."
-# 不阻断推送，仅提醒
-exit 0
+# pre-push — 推送前执行检查（lint + vet + unit + 方法名），失败则阻断推送
+# 由 core.hooksPath=.githooks 生效；勿在 .git/hooks/ 重复配置钩子
+
+set -e
+
+echo "==> pre-push: 正在执行 make pre-push ..."
+cd "$(dirname "$0")/../.."
+make pre-push
+echo "==> pre-push: 检查通过，推送继续"
