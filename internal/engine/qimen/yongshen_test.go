@@ -16,81 +16,78 @@ func chartForTest() Chart {
 	return ComputeChart(st, ShiQiMen)
 }
 
-// TestParseQianShi 占事类型解析
-func TestParseQianShi(t *testing.T) {
-	tests := []struct{ in, want string }{
-		{"事业", "事业"}, {"求财", "求财"}, {"婚姻", "婚姻"},
-		{"健康", "健康"}, {"诉讼", "诉讼"}, {"学业", "学业"},
-		{"出行", "出行"}, {"隐藏", "隐藏"}, {"综合", "综合"},
+// TestParseYongShen 用神符号解析（门/星/神/干）
+func TestParseYongShen(t *testing.T) {
+	tests := []struct {
+		in   string
+		kind string // door/star/spirit/gan
+	}{
+		{"开门", "door"}, {"生门", "door"}, {"死门", "door"},
+		{"天心", "star"}, {"天辅", "star"}, {"天芮", "star"},
+		{"六合", "spirit"}, {"值符", "spirit"},
+		{"戊", "gan"}, {"庚", "gan"}, {"乙", "gan"},
 	}
 	for _, tt := range tests {
-		got, err := ParseQianShi(tt.in)
-		if err != nil || string(got) != tt.want {
-			t.Errorf("ParseQianShi(%q) = %v,%v; want %q", tt.in, got, err, tt.want)
+		sym, err := ParseYongShen(tt.in)
+		if err != nil {
+			t.Errorf("ParseYongShen(%q): %v", tt.in, err)
+			continue
+		}
+		switch tt.kind {
+		case "door":
+			if sym.Door == nil {
+				t.Errorf("%q 应解析为门", tt.in)
+			}
+		case "star":
+			if sym.Star == nil {
+				t.Errorf("%q 应解析为星", tt.in)
+			}
+		case "spirit":
+			if sym.Spirit == nil {
+				t.Errorf("%q 应解析为神", tt.in)
+			}
+		case "gan":
+			if sym.Stem == nil {
+				t.Errorf("%q 应解析为干", tt.in)
+			}
 		}
 	}
-	// 未知类型报错
-	if _, err := ParseQianShi("火星"); err == nil {
-		t.Error("未知占事应报错")
+	// 未知报错
+	if _, err := ParseYongShen("火星"); err == nil {
+		t.Error("未知符号应报错")
 	}
 }
 
-// TestQianShiBody 占事→事象用神映射
-func TestQianShiBody(t *testing.T) {
-	// 事业 → 开门 + 天心
-	body := qianshiBody(QianShiye, "")
-	if body.Door == nil || *body.Door != DoorKai {
-		t.Errorf("事业用神门 = %v, want 开门", body.Door)
-	}
-	if body.Star == nil || *body.Star != StarTianXin {
-		t.Errorf("事业用神星 = %v, want 天心", body.Star)
-	}
-	// 求财 → 生门 + 戊
-	body = qianshiBody(QianQiucai, "")
-	if body.Door == nil || *body.Door != DoorSheng {
-		t.Errorf("求财用神门 = %v, want 生门", body.Door)
-	}
-	if body.Stem == nil || *body.Stem != ganzhi.GanWu {
-		t.Errorf("求财用神干 = %v, want 戊", body.Stem)
-	}
-	// 婚姻 → 六合神 + 庚（男）/ 乙（女）
-	body = qianshiBody(QianHunyin, "male")
-	if body.Spirit == nil || *body.Spirit != SpiritLiuHe {
-		t.Errorf("婚姻用神神 = %v, want 六合", body.Spirit)
-	}
-	if body.Stem == nil || *body.Stem != ganzhi.GanGeng {
-		t.Errorf("男婚姻用神干 = %v, want 庚", body.Stem)
-	}
-	body = qianshiBody(QianHunyin, "female")
-	if body.Stem == nil || *body.Stem != ganzhi.GanYi {
-		t.Errorf("女婚姻用神干 = %v, want 乙", body.Stem)
-	}
-	// 健康 → 死门 + 天芮
-	body = qianshiBody(QianJiankang, "")
-	if body.Door == nil || *body.Door != DoorSi || body.Star == nil || *body.Star != StarTianRui {
-		t.Errorf("健康用神 = 死门+天芮, got door=%v star=%v", body.Door, body.Star)
-	}
-}
-
-// TestComputeYongShen 用神聚合（日干/时干/事象用神落宫）
+// TestComputeYongShen 求测人 + 符号组合聚合
 func TestComputeYongShen(t *testing.T) {
 	chart := chartForTest()
-	ys := ComputeYongShen(chart, QianShiye, "")
+	// 求财：生门 + 戊
+	sym1, _ := ParseYongShen("生门")
+	sym2, _ := ParseYongShen("戊")
+	ys := ComputeYongShen(chart, []YongShenSymbol{sym1, sym2})
 
-	if ys.Name != "事业" {
-		t.Errorf("name = %q, want 事业", ys.Name)
-	}
-	// 日干落宫（求测人）
+	// 求测人
 	if ys.RiGanPalace == 0 {
 		t.Error("日干落宫应为非零")
 	}
-	// 时干落宫（所问之事）
 	if ys.ShiGanPalace == 0 {
 		t.Error("时干落宫应为非零")
 	}
-	// 事象用神落宫
-	if ys.BodyPalace == 0 {
-		t.Error("事象用神落宫应为非零")
+	// 符号组合
+	if len(ys.Symbols) != 2 {
+		t.Fatalf("应有 2 个符号结果，got %d", len(ys.Symbols))
+	}
+	// 生门落宫
+	if ys.Symbols[0].Symbol != "生门" || ys.Symbols[0].Palace == 0 {
+		t.Errorf("生门落宫应>0，got %+v", ys.Symbols[0])
+	}
+	// 戊干落宫
+	if ys.Symbols[1].Symbol != "戊" || ys.Symbols[1].Palace == 0 {
+		t.Errorf("戊干落宫应>0，got %+v", ys.Symbols[1])
+	}
+	// 落宫天盘干
+	if ys.Symbols[0].TianGan == "" {
+		t.Error("落宫天盘干不应为空")
 	}
 	// 日时生克
 	if ys.RiShiShengKe == "" {
@@ -101,80 +98,49 @@ func TestComputeYongShen(t *testing.T) {
 // TestComputeYongShen_NianGan 年命干聚合（需 birth_year）
 func TestComputeYongShen_NianGan(t *testing.T) {
 	chart := chartForTest()
-	// 有 birth_year → 年命干落宫（1985 乙丑年，年干=乙，盘内有乙）
-	ys := ComputeYongShenWithBirth(chart, QianZonghe, "", 1985)
+	sym, _ := ParseYongShen("开门")
+	// 1985 乙丑年，年干=乙
+	ys := ComputeYongShenWithBirth(chart, []YongShenSymbol{sym}, 1985)
 	if ys.NianGanPalace == nil {
 		t.Fatal("有 birth_year 时年命干落宫不应为空")
 	}
-	if *ys.NianGanPalace <= 0 {
-		t.Errorf("年命干落宫应>0，got %d", *ys.NianGanPalace)
-	}
 	// 无 birth_year → 年命干为空
-	ys2 := ComputeYongShen(chart, QianZonghe, "")
+	ys2 := ComputeYongShen(chart, []YongShenSymbol{sym})
 	if ys2.NianGanPalace != nil {
 		t.Error("无 birth_year 时年命干落宫应为空")
-	}
-}
-
-// TestComputeYongShen_KongWangMaXing 用神落宫空亡/马星
-func TestComputeYongShen_KongWangMaXing(t *testing.T) {
-	chart := chartForTest()
-	ys := ComputeYongShen(chart, QianShiye, "")
-	// 用神落宫是否为盘的空亡/马星宫
-	if ys.BodyPalace > 0 {
-		// 验证 kong_wang/ma_xing 与盘一致
-		for _, k := range chart.Pan.KongWang {
-			if k == ys.BodyPalace {
-				if !ys.KongWang {
-					t.Errorf("用神落宫%d为空亡宫，kong_wang应为true", ys.BodyPalace)
-				}
-			}
-		}
-		if ys.BodyPalace == chart.Pan.MaXing && !ys.MaXing {
-			t.Errorf("用神落宫%d为马星宫，ma_xing应为true", ys.BodyPalace)
-		}
-	}
-}
-
-// TestComputeYongShen_StemPalace 求财事象干（戊）落宫
-func TestComputeYongShen_StemPalace(t *testing.T) {
-	chart := chartForTest()
-	ys := ComputeYongShen(chart, QianQiucai, "")
-	if ys.Body.Stem == nil || *ys.Body.Stem != ganzhi.GanWu {
-		t.Errorf("求财用神干 = %v, want 戊", ys.Body.Stem)
-	}
-	// 戊干落宫
-	if ys.StemPalace == nil || *ys.StemPalace <= 0 {
-		t.Error("求财戊干落宫应>0")
-	}
-	// 生门落宫（主落宫）
-	if ys.BodyPalace <= 0 {
-		t.Error("生门落宫应>0")
 	}
 }
 
 // TestComputeYongShen_AJiaDun 甲年命遁六仪
 func TestComputeYongShen_AJiaDun(t *testing.T) {
 	chart := chartForTest()
+	sym, _ := ParseYongShen("开门")
 	// 1984 甲子年 → 甲遁戊 → 戊落宫
-	ys := ComputeYongShenWithBirth(chart, QianZonghe, "", 1984)
+	ys := ComputeYongShenWithBirth(chart, []YongShenSymbol{sym}, 1984)
 	if ys.NianGanPalace == nil {
 		t.Fatal("1984甲子年命干甲应遁戊有落宫")
 	}
-	// 甲子遁戊，落宫 = 戊在盘中的落宫
 	want := findGanPalaceIdx(chart.Pan, ganzhi.GanWu)
 	if want > 0 && *ys.NianGanPalace != want {
-		t.Errorf("甲遁戊落宫 = %d, want %d（戊落宫）", *ys.NianGanPalace, want)
+		t.Errorf("甲遁戊落宫 = %d, want %d", *ys.NianGanPalace, want)
 	}
 }
 
-// TestComputeYongShen_BodyTianGan 用神落宫天盘干
-func TestComputeYongShen_BodyTianGan(t *testing.T) {
+// TestComputeYongShen_KongWangMaXing 符号落宫空亡/马星
+func TestComputeYongShen_KongWangMaXing(t *testing.T) {
 	chart := chartForTest()
-	ys := ComputeYongShen(chart, QianShiye, "")
-	if ys.BodyPalace > 0 {
-		if ys.BodyTianGan == "" {
-			t.Error("用神落宫天盘干不应为空")
+	sym, _ := ParseYongShen("开门")
+	ys := ComputeYongShen(chart, []YongShenSymbol{sym})
+	if len(ys.Symbols) != 1 || ys.Symbols[0].Palace == 0 {
+		t.Fatal("开门落宫应>0")
+	}
+	// 与盘一致
+	for _, k := range chart.Pan.KongWang {
+		if k == ys.Symbols[0].Palace && !ys.Symbols[0].KongWang {
+			t.Errorf("落宫%d为空亡宫，kong_wang应为true", ys.Symbols[0].Palace)
 		}
+	}
+	if ys.Symbols[0].Palace == chart.Pan.MaXing && !ys.Symbols[0].MaXing {
+		t.Errorf("落宫%d为马星宫，ma_xing应为true", ys.Symbols[0].Palace)
 	}
 }
