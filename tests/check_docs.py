@@ -38,7 +38,7 @@ METHOD_WHITELIST = {
     "xuankong.chart", "xuankong.liunian",
     "qiming.pick", "qiming.build", "qiming.check", "qiming.char",
     # divination
-    "liuyao.qigua", "liuyao.chart", "liuyao.patterns", "qimen.chart",
+    "liuyao.qigua", "liuyao.chart", "qimen.chart",
     # 基础
     "time.now", "city.coords", "tianwen.time",
 }
