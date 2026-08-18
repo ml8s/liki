@@ -36,18 +36,25 @@ def load_table(name: str) -> List[Dict[str, Any]]:
 def evaluate_factors(chart: Dict[str, Any], yong_shen: Dict[str, Any]) -> Dict[str, Any]:
     """计算因子组合（从引擎输出提取）"""
     factors: Dict[str, Any] = {}
-    # 基础因子
-    yong_pos = yong_shen.get('position', 0)
-    if yong_pos > 0:
-        lines = chart.get('lines', [])
-        wang_shuai = chart.get('wang_shuai', [])
-        if yong_pos <= len(lines) and yong_pos <= len(wang_shuai):
-            line = lines[yong_pos - 1]
-            factors['yongshen_wangshuai'] = wang_shuai[yong_pos - 1]
-            factors['yongshen_yuepo'] = line.get('yue_po', False)
-            factors['yongshen_xunkong'] = line.get('xun_kong', False)
-            factors['dong_sheng'] = line.get('dong_sheng', False)
-            factors['dong_ke'] = line.get('dong_ke', False)
+    # 用神聚合字段（引擎已聚合）；旧格式兼容：从 line 取
+    factors['yongshen_wangshuai'] = yong_shen.get('wang_shuai', '')
+    factors['yongshen_yuepo'] = yong_shen.get('yue_po', False)
+    factors['yongshen_xunkong'] = yong_shen.get('xun_kong', False)
+    factors['yongshen_muku'] = yong_shen.get('mu_ku', False)
+    if not factors['yongshen_wangshuai']:
+        yong_pos = yong_shen.get('position', 0)
+        if yong_pos > 0:
+            lines = chart.get('lines', [])
+            wang_shuai = chart.get('wang_shuai', [])
+            if yong_pos <= len(lines) and yong_pos <= len(wang_shuai):
+                line = lines[yong_pos - 1]
+                factors['yongshen_wangshuai'] = wang_shuai[yong_pos - 1]
+                factors['yongshen_yuepo'] = line.get('yue_po', False)
+                factors['yongshen_xunkong'] = line.get('xun_kong', False)
+                factors['yongshen_muku'] = line.get('mu_ku', False)
+    # 动爻关系（枚举集合，引擎已计算）
+    relations = chart.get('dong_yao_relations', [])
+    factors['dong_yao_relations'] = [r.get('relation', '') for r in relations if r.get('relation')]
     # 特殊格局因子
     patterns = chart.get('patterns', [])
     for p in patterns:

@@ -123,21 +123,39 @@ def test_format_output_empty():
 def test_evaluate_factors():
     """测试因子计算"""
     chart = {
-        'lines': [
-            {'yue_po': False, 'xun_kong': False, 'dong_sheng': True, 'dong_ke': False},
-            {'yue_po': False, 'xun_kong': False, 'dong_sheng': False, 'dong_ke': False},
-            {'yue_po': False, 'xun_kong': False, 'dong_sheng': False, 'dong_ke': True},
+        'dong_yao_relations': [
+            {'position': 1, 'relation': '生用'},
         ],
-        'wang_shuai': ['旺', '相', '休'],
         'patterns': [
             {'type': '旬空', 'sub_type': '假空'},
         ],
     }
+    yong_shen = {
+        'position': 1,
+        'wang_shuai': '旺',
+        'yue_po': False,
+        'xun_kong': False,
+        'mu_ku': False,
+    }
+    factors = evaluate_factors(chart, yong_shen)
+    assert factors['yongshen_wangshuai'] == '旺'
+    assert factors['dong_yao_relations'] == ['生用']
+    assert factors['pattern_旬空'] == '假空'
+
+
+def test_evaluate_factors_legacy():
+    """测试因子计算（旧格式兼容：用神无聚合字段时从 line 取）"""
+    chart = {
+        'lines': [
+            {'yue_po': False, 'xun_kong': False, 'mu_ku': False},
+        ],
+        'wang_shuai': ['旺'],
+        'dong_yao_relations': [],
+        'patterns': [],
+    }
     yong_shen = {'position': 1}
     factors = evaluate_factors(chart, yong_shen)
     assert factors['yongshen_wangshuai'] == '旺'
-    assert factors['dong_sheng'] == True
-    assert factors['pattern_旬空'] == '假空'
 
 
 def test_query_wealth_boji():
