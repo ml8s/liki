@@ -13,8 +13,13 @@ func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 	renDoors := placeRenPan(driveZhu.Zhi, duty.Door)
 
 	var dutyStarPalace int
+	// 值符星为天禽时按天芮处理（天禽寄坤2，与天芮同宫，天盘只列天芮）。
+	searchStar := duty.Star
+	if duty.Star == StarTianQin {
+		searchStar = StarTianRui
+	}
 	for i, s := range tianStars {
-		if s == duty.Star {
+		if s == searchStar {
 			dutyStarPalace = i
 			break
 		}

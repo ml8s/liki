@@ -271,6 +271,20 @@ func TestPlaceTianPan_Zhong5JiKun2(t *testing.T) {
 	}
 }
 
+// TestComputePan_ZhiFuShen_QinJiKun2 值符星为天禽（旬首在中5）时，
+// 值符神应落值符星寄宫坤2（天禽寄坤2随天芮），而非默认坎1。
+func TestComputePan_ZhiFuShen_QinJiKun2(t *testing.T) {
+	ju := juShu{Number: 1, YinDun: false}
+	p := computePan(ju, ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen}, 0)
+	if p.DutyStar != StarTianQin {
+		t.Fatalf("甲辰时值符星 = %s, want 天禽（旬首壬在中5）", p.DutyStar)
+	}
+	// 值符神应落坤2（值符星天禽寄坤2随天芮）。
+	if p.GongWei[1].Spirit != SpiritZhiFu {
+		t.Errorf("值符神应落坤2，got %s", p.GongWei[1].Spirit.YangName())
+	}
+}
+
 // =============================================================================
 // 人盘 (Human Plate) — 八门飞布
 // =============================================================================
