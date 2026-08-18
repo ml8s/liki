@@ -24,6 +24,7 @@ type Chart struct {
 	MaXingAffected   bool               `json:"ma_xing_affected"`   // 日干宫或时干宫是否马星（确定性派生）
 	DutyStarPalace   GongIndex          `json:"zhi_fu_xing_gong"`  // 值符星落宫（排盘固有）
 	DutyDoorPalace   GongIndex          `json:"zhi_shi_men_gong"`  // 值使门落宫（排盘固有）
+	YongShen         YongShenResult     `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
 }
 
 // computeChart computes a complete奇门盘 with all analyses.

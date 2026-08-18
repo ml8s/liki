@@ -368,5 +368,15 @@
   "kong_wang_affected": false,
   "ma_xing_affected": false,
   "zhi_fu_xing_gong": "震",
-  "zhi_shi_men_gong": "离"
+  "zhi_shi_men_gong": "离",
+  "yong_shen": {
+    "name": "",
+    "ri_gan_gong": "?",
+    "shi_gan_gong": "?",
+    "body": {},
+    "body_palace": "?",
+    "ri_shi_sheng_ke": "",
+    "kong_wang": false,
+    "ma_xing": false
+  }
 }

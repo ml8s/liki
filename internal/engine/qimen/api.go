@@ -55,3 +55,14 @@ func ComputeChart(st tianwen.SolarTime, kind ChartKind) Chart {
 	y, m, d := t.Date()
 	return computeChart(bz, kind, y, int(m), d)
 }
+
+// ComputeChartWithYongShen computes a奇门盘 and aggregates the用神
+// (求测人 + 事象用神) based on the占事类型.
+func ComputeChartWithYongShen(st tianwen.SolarTime, kind ChartKind, q QianShiType, gender string, birthYear int) Chart {
+	chart := ComputeChart(st, kind)
+	chart.YongShen = ComputeYongShen(chart, q, gender)
+	if birthYear > 0 {
+		chart.YongShen = ComputeYongShenWithBirth(chart, q, gender, birthYear)
+	}
+	return chart
+}
