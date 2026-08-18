@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.2.0 —— 六爻断语架构重构（引擎直出因子 + LLM 解读 6 因子）
+
+- **[架构] 六爻断语生成方式重构**：废弃「查找表（450 条 enum_general.csv）+ Python 断语查询（duanyu.py）」模式，改为「引擎直出确定性因子 → LLM 读 domains 解读规则 → 生成断语」
+- **[引擎] 因子领域化**：`yong_shen` 聚合（旺衰/月破/旬空/入墓/六神），`dong_yao_relations`（动爻关系 9 种枚举集合），`patterns`（格局并入装卦）
+- **[引擎] 动爻关系枚举化**：4 布尔（dong_sheng/dong_ke/yuan_shen/ji_shen）→ 9 种枚举（生用/克用/比和/冲用/生原神/克原神/生忌神/克忌神/无动爻）
+- **[引擎] 移除冗余 liuyao.patterns**：格局已并入 liuyao.chart，独立方法删除
+- **[skill] 删除**：Python 工具层（tools/liuyao/）、9 张 app/liuyao-*.md 场景卡、450 条断语表
+- **[skill] 重写 domains/liuyao/*.md** 为 LLM 解读规则（6 因子）：yongshen（用神取用）/ yuejian（旺衰+修饰定时效）/ jixiong（动爻关系定助力阻碍）/ patterns（格局定结构影响）/ liushou（六神定色彩情状）/ yingqi（应期）
+- **[skill] SKILL.md 流程**：改为「起卦装卦（引擎）→ LLM 读规则解读 6 因子 → 断语」，明确「只基于 6 因子解读，中间因子仅展示」
+- **[一致性] 命理逻辑在 domains 解读规则**（LLM 读取），不在断语表/代码判断；一致性由「引擎确定性因子 + LLM 按规则解读」保证
+
 ## 4.1.2 —— liki-bazi 描述去品牌残留（对齐 4 skill 独立描述）
 
 - **[描述] liki-bazi 拆分后遗留**：frontmatter description 与 H1/首句原为拆分前整包品牌文案（「Liki 灵机 — 命理师的 Skill」），改为 bazi 专属描述（八字/紫微「八紫」双盘同参 + 场景列表），与其他 3 个 skill（divination/fengshui/naming）的独立描述风格对齐
