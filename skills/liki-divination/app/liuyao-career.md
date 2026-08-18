@@ -28,12 +28,13 @@ description: 六爻·事业 — 职业方向、升迁、创业、求职
 - 应爻为单位/环境
 
 ### 2. 断语查询
-调用 Python 工具层查询 career.csv 断语表：
+调用 Python 工具层查询综合断语表 enum_general.csv：
 ```python
 from tools.liuyao.duanyu import query, evaluate_factors
 
 factors = evaluate_factors(chart, yong_shen)
-results = query('career', factors)
+# 查询综合断语（用神旺衰×主要动爻关系×格局）
+results = query('enum_general', factors)
 ```
 
 ### 3. 输出模板
