@@ -415,3 +415,55 @@ func TestYongShenNianGanAnchor(t *testing.T) {
 		t.Errorf("1985乙丑年命乙落宫 = %s(%d), want 兑(7)", *ys.NianGanPalace, *ys.NianGanPalace)
 	}
 }
+
+// TestYongShenSymbolAnchors_MultiPan 用神符号落宫跨盘数据驱动锚定。
+// 覆盖：阴遁盘（八门逆排）、值符天禽盘（旬首在中5）、天盘优先、门/星/神/干四类。
+// 期望值由各盘面九宫数据独立确定（用神落宫以天盘为核心）。
+func TestYongShenSymbolAnchors_MultiPan(t *testing.T) {
+	cases := []struct {
+		name     string
+		date     string
+		hour     int
+		symbols  map[string]string // 符号 → 期望落宫
+	}{
+		{
+			// 阴遁3局（八门逆排）：生门乾6、天辅坎1、天芮艮8、六合离9、值符震3、戊离9、庚兑7、乙坎1。
+			name: "2026-06-28 阴遁3局 用神落宫",
+			date: "2026-06-28", hour: 12,
+			symbols: map[string]string{
+				"生门": "乾", "天辅": "坎", "天芮": "艮", "六合": "离",
+				"值符": "震", "戊": "离", "庚": "兑", "乙": "坎",
+			},
+		},
+		{
+			// 值符天禽（旬首在中5寄坤2）：生门离9、天芮乾6、六合离9、值符乾6、戊艮8、庚离9、乙兑7。
+			name: "2026-01-01 阳遁4局 值符天禽 用神落宫",
+			date: "2026-01-01", hour: 8,
+			symbols: map[string]string{
+				"生门": "离", "天芮": "乾", "六合": "离", "值符": "乾",
+				"戊": "艮", "庚": "离", "乙": "兑",
+			},
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			chart := chartAtT(t, c.date, c.hour)
+			for symbol, want := range c.symbols {
+				sym, err := ParseYongShen(symbol)
+				if err != nil {
+					t.Errorf("ParseYongShen(%q): %v", symbol, err)
+					continue
+				}
+				ys := ComputeYongShen(chart, []YongShenSymbol{sym})
+				if len(ys.Symbols) != 1 {
+					t.Errorf("%s: 应有 1 个符号结果", symbol)
+					continue
+				}
+				got := ys.Symbols[0].Palace.String()
+				if got != want {
+					t.Errorf("%s 落宫 = %s(%d), want %s（盘面独立锚定）", symbol, got, ys.Symbols[0].Palace, want)
+				}
+			}
+		})
+	}
+}
