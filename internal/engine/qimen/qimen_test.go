@@ -371,11 +371,12 @@ func TestPlaceAnGan_Yang1YiChou(t *testing.T) {
 
 	angans := placeAnGan(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, dutyDoorPalace)
 
-	// 时干乙, eightStems[0]=乙, 从pos7开始顺排8干
+	// 暗干序列=戊己庚辛壬癸丁丙乙（含癸）。时干乙在序列末(8)，从pos7(艮8)顺排8干（跳过中5）：
+	// pos7=乙, pos8=戊, pos0=己, pos1=庚, pos2=辛, pos3=壬, pos5=癸, pos6=丁
 	expected := [9]ganzhi.Gan{
-		ganzhi.GanDing, ganzhi.GanWu, ganzhi.GanJi,
-		ganzhi.GanGeng, 0, ganzhi.GanXin,
-		ganzhi.GanRen, ganzhi.GanYi, ganzhi.GanBing,
+		ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin,
+		ganzhi.GanRen, 0, ganzhi.GanGui,
+		ganzhi.GanDing, ganzhi.GanYi, ganzhi.GanWu,
 	}
 
 	for i := 0; i < 9; i++ {
@@ -383,6 +384,32 @@ func TestPlaceAnGan_Yang1YiChou(t *testing.T) {
 			t.Errorf("gong %d(%s): anGan = %s(%d), want %s(%d)",
 				i, GongIndex(i+1), ganzhi.GanName(angans[i]), angans[i],
 				ganzhi.GanName(expected[i]), expected[i])
+		}
+	}
+}
+
+// TestPlaceAnGan_XunShouLocatable 六甲旬首均能在暗干序列中定位（含癸），
+// 防止甲寅旬（旬首癸）暗干起点错误。
+func TestPlaceAnGan_XunShouLocatable(t *testing.T) {
+	// 六甲旬首对应的六仪
+	xunShouStems := []ganzhi.Gan{
+		ganzhi.GanWu,  // 甲子→戊
+		ganzhi.GanJi,  // 甲戌→己
+		ganzhi.GanGeng, // 甲申→庚
+		ganzhi.GanXin, // 甲午→辛
+		ganzhi.GanRen, // 甲辰→壬
+		ganzhi.GanGui, // 甲寅→癸
+	}
+	for _, g := range xunShouStems {
+		found := false
+		for _, s := range eightStems {
+			if s == g {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("暗干序列缺少六仪 %s（旬首不能定位）", ganzhi.GanName(g))
 		}
 	}
 }
@@ -515,15 +542,15 @@ func TestComputePan_Yang1YiChou(t *testing.T) {
 		hidden        ganzhi.Gan
 	}
 	want := [9]wantPalace{
-		{ganzhi.GanWu, ganzhi.GanJi, StarTianRui, DoorShang, SpiritTengShe, ganzhi.GanDing},    // 坎1
-		{ganzhi.GanJi, ganzhi.GanGeng, StarTianChong, DoorDu, SpiritTaiYin, ganzhi.GanWu},      // 坤2
-		{ganzhi.GanGeng, ganzhi.GanXin, StarTianFu, DoorJing, SpiritLiuHe, ganzhi.GanJi},       // 震3
-		{ganzhi.GanXin, ganzhi.GanGui, StarTianXin, DoorSi, SpiritGouChen, ganzhi.GanGeng},     // 巽4（天禽寄坤2，此宫天心）
+		{ganzhi.GanWu, ganzhi.GanJi, StarTianRui, DoorShang, SpiritTengShe, ganzhi.GanJi},      // 坎1
+		{ganzhi.GanJi, ganzhi.GanGeng, StarTianChong, DoorDu, SpiritTaiYin, ganzhi.GanGeng},    // 坤2
+		{ganzhi.GanGeng, ganzhi.GanXin, StarTianFu, DoorJing, SpiritLiuHe, ganzhi.GanXin},      // 震3
+		{ganzhi.GanXin, ganzhi.GanGui, StarTianXin, DoorSi, SpiritGouChen, ganzhi.GanRen},      // 巽4（天禽寄坤2，此宫天心）
 		{ganzhi.GanRen, 0, 0, 0, 0, 0},                                                          // 中5（虚空）
-		{ganzhi.GanGui, ganzhi.GanDing, StarTianZhu, DoorJingMen, SpiritZhuQue, ganzhi.GanXin}, // 乾6
-		{ganzhi.GanDing, ganzhi.GanBing, StarTianRen, DoorKai, SpiritJiuDi, ganzhi.GanRen},     // 兑7
+		{ganzhi.GanGui, ganzhi.GanDing, StarTianZhu, DoorJingMen, SpiritZhuQue, ganzhi.GanGui}, // 乾6
+		{ganzhi.GanDing, ganzhi.GanBing, StarTianRen, DoorKai, SpiritJiuDi, ganzhi.GanDing},    // 兑7
 		{ganzhi.GanBing, ganzhi.GanYi, StarTianYing, DoorXiu, SpiritJiuTian, ganzhi.GanYi},     // 艮8
-		{ganzhi.GanYi, ganzhi.GanWu, StarTianPeng, DoorSheng, SpiritZhiFu, ganzhi.GanBing},     // 离9
+		{ganzhi.GanYi, ganzhi.GanWu, StarTianPeng, DoorSheng, SpiritZhiFu, ganzhi.GanWu},       // 离9
 	}
 
 	for i, w := range want {

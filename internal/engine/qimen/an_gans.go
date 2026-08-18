@@ -2,13 +2,15 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// eightStems is the 8 stems for hidden stem arrangement.
-var eightStems = [8]ganzhi.Gan{
-	ganzhi.GanYi, ganzhi.GanBing, ganzhi.GanDing, ganzhi.GanWu,
-	ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin, ganzhi.GanRen,
+// eightStems is the 暗干 sequence: 六仪 + 逆序三奇（戊己庚辛壬癸丁丙乙）。
+// 含六仪癸（甲寅旬旬首），确保各旬首均能定位。
+var eightStems = [9]ganzhi.Gan{
+	ganzhi.GanWu, ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin, ganzhi.GanRen,
+	ganzhi.GanGui, ganzhi.GanDing, ganzhi.GanBing, ganzhi.GanYi,
 }
 
 // placeAnGan arranges hidden stems (暗干) on the 9 palaces.
+// 时干（甲遁于旬首）加于值使门落宫起，顺排暗干；中5虚空不排。
 func placeAnGan(driveZhu ganzhi.Zhu, dutyDoorPalace int) [9]ganzhi.Gan {
 	var angans [9]ganzhi.Gan
 
@@ -30,7 +32,7 @@ func placeAnGan(driveZhu ganzhi.Zhu, dutyDoorPalace int) [9]ganzhi.Gan {
 		if pos == 4 {
 			continue
 		}
-		angans[pos] = eightStems[(startIdx+si)%8]
+		angans[pos] = eightStems[(startIdx+si)%9]
 		si++
 	}
 	return angans
