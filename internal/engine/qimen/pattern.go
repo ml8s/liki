@@ -48,8 +48,13 @@ func findPatterns(pan pan) []Pattern {
 	}
 
 	// 伏吟: duty star in its home gong.
-	dutyHome := starHomePalace(pan.DutyStar)
-	if pal := pan.GongWei[dutyHome]; pal.Star == pan.DutyStar {
+	// 值符星为天禽时按天芮处理（天禽寄坤2随天芮）。
+	searchStar := pan.DutyStar
+	if pan.DutyStar == StarTianQin {
+		searchStar = StarTianRui
+	}
+	dutyHome := starHomePalace(searchStar)
+	if pal := pan.GongWei[dutyHome]; pal.Star == searchStar {
 		patterns = append(patterns, Pattern{
 			Name: "伏吟", Description: "值符归位，凡事闭塞，静守为吉",
 			Auspicious: false,
@@ -59,7 +64,7 @@ func findPatterns(pan pan) []Pattern {
 	// 反吟: duty star in opposite gong.
 	var dutyPos int
 	for i, p := range pan.GongWei {
-		if p.Star == pan.DutyStar {
+		if p.Star == searchStar {
 			dutyPos = i
 			break
 		}

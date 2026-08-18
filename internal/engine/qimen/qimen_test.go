@@ -1284,6 +1284,30 @@ func TestFindPatterns_FuYin(t *testing.T) {
 	}
 }
 
+// TestFindPatterns_FuYin_Qin 值符星为天禽（中5寄坤2）时，伏吟判断按天芮（天禽寄坤2随天芮）。
+// 天芮在坤2本位→伏吟。
+func TestFindPatterns_FuYin_Qin(t *testing.T) {
+	p := pan{
+		DutyStar: StarTianQin, // 天禽寄坤2随天芮
+		GongWei: [9]Gong{
+			{},                            // 坎1(pos0)
+			{Star: StarTianRui},            // 坤2(pos1) 天芮本位=归位
+			{}, {}, {}, {}, {}, {}, {},
+		},
+	}
+	patterns := findPatterns(p)
+	found := false
+	for _, pt := range patterns {
+		if pt.Name == "伏吟" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected pattern '伏吟' not found（值符天禽按天芮判断本位坤2）")
+	}
+}
+
 // =============================================================================
 // computeYingQi / chongBranch
 // =============================================================================
