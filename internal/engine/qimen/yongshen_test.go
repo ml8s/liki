@@ -213,6 +213,12 @@ func TestYongShenSymbolAnchor_JiaDun(t *testing.T) {
 	if ch.RiGanPalace != GongDui {
 		t.Errorf("甲辰日甲遁壬落宫 = %s(%d), want 兑(7)", ch.RiGanPalace, ch.RiGanPalace)
 	}
+	// 用神符号"甲"（旬首/求测人）也按日支遁六仪：甲辰→壬→兑7。
+	sym, _ := ParseYongShen("甲")
+	ys := ComputeYongShen(ch, []YongShenSymbol{sym})
+	if len(ys.Symbols) != 1 || ys.Symbols[0].Palace != GongDui {
+		t.Errorf("用神符号甲落宫 = %s(%d), want 兑(7)（甲辰日甲遁壬）", ys.Symbols[0].Palace, ys.Symbols[0].Palace)
+	}
 }
 
 // TestJiaDunAllSix 六甲遁六仪全映射（领域规则：甲子遁戊/甲戌遁己/甲申遁庚/甲午遁辛/甲辰遁壬/甲寅遁癸）。
@@ -265,6 +271,41 @@ func TestParseYongShen_SpiritYinYang(t *testing.T) {
 		}
 		if yangSym.Spirit == nil || yinSym.Spirit == nil || *yangSym.Spirit != *yinSym.Spirit {
 			t.Errorf("%q(%v) 与 %q(%v) 应为同一八神", c.yang, yangSym.Spirit, c.yin, yinSym.Spirit)
+		}
+	}
+}
+
+// TestYongShenSymbolName_Raw 用神符号名保留用户原始输入（白虎/玄武等阴遁名原样展示）。
+// 阴遁盘 2026-06-28：盘面 shen=白虎(艮8)/玄武(兑7)，symbol 名应与用户输入一致。
+func TestYongShenSymbolName_Raw(t *testing.T) {
+	st := tianwen.GregorianToSolar(
+		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	chart := ComputeChart(st, ShiQiMen)
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"白虎", "白虎"}, // 保留阴遁名，不转阳遁"勾陈"
+		{"勾陈", "勾陈"},
+		{"玄武", "玄武"}, // 保留阴遁名，不转阳遁"朱雀"
+		{"朱雀", "朱雀"},
+		{"六合", "六合"},
+	}
+	for _, c := range cases {
+		sym, err := ParseYongShen(c.in)
+		if err != nil {
+			t.Errorf("ParseYongShen(%q): %v", c.in, err)
+			continue
+		}
+		ys := ComputeYongShen(chart, []YongShenSymbol{sym})
+		if len(ys.Symbols) != 1 {
+			t.Errorf("%s: 应有 1 个符号结果", c.in)
+			continue
+		}
+		if ys.Symbols[0].Symbol != c.want {
+			t.Errorf("传 %q 的 symbol 名 = %q, want %q（保留用户输入）", c.in, ys.Symbols[0].Symbol, c.want)
 		}
 	}
 }

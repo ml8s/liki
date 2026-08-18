@@ -15,23 +15,24 @@ type YongShenSymbol struct {
 	Star   *StarIndex   `json:"star,omitempty"`   // 事象星
 	Spirit *SpiritIndex `json:"spirit,omitempty"` // 事象神
 	Stem   *ganzhi.Gan  `json:"stem,omitempty"`   // 事象干
+	Raw    string       `json:"-"`                // 用户原始输入（门/星/神/干名），保留展示原样
 }
 
 // ParseYongShen 解析单个用神符号（门/星/神/干名）。
 func ParseYongShen(s string) (YongShenSymbol, error) {
 	if d, ok := parseDoor(s); ok {
-		return YongShenSymbol{Door: &d}, nil
+		return YongShenSymbol{Door: &d, Raw: s}, nil
 	}
 	if st, ok := parseStar(s); ok {
-		return YongShenSymbol{Star: &st}, nil
+		return YongShenSymbol{Star: &st, Raw: s}, nil
 	}
 	if sp, ok := parseSpirit(s); ok {
-		return YongShenSymbol{Spirit: &sp}, nil
+		return YongShenSymbol{Spirit: &sp, Raw: s}, nil
 	}
 	if g, ok := parseGan(s); ok {
-		return YongShenSymbol{Stem: &g}, nil
+		return YongShenSymbol{Stem: &g, Raw: s}, nil
 	}
-	return YongShenSymbol{}, fmt.Errorf("未知用神符号 %q，可选：门(休/生/伤/杜/景/死/惊/开)、星(天蓬/天芮/天冲/天辅/天禽/天心/天柱/天任/天英)、神(值符/螣蛇/太阴/六合/勾陈/朱雀/九地/九天)、干(甲/乙/丙/丁/戊/己/庚/辛/壬/癸)", s)
+	return YongShenSymbol{}, fmt.Errorf("未知用神符号 %q，可选：门(休门/生门/伤门/杜门/景门/死门/惊门/开门)、星(天蓬/天芮/天冲/天辅/天禽/天心/天柱/天任/天英)、神(值符/螣蛇/太阴/六合/勾陈/朱雀/九地/九天，阴遁白虎/玄武)、干(甲/乙/丙/丁/戊/己/庚/辛/壬/癸)", s)
 }
 
 func parseDoor(s string) (DoorIndex, bool) {
@@ -127,13 +128,16 @@ func resolveNianGan(chart Chart, birthYear int) *GongIndex {
 
 // symbolName 符号名称。
 func symbolName(s YongShenSymbol) string {
+	// 优先返回用户原始输入（保留"白虎/玄武"等阴遁名原样）。
+	if s.Raw != "" {
+		return s.Raw
+	}
 	switch {
 	case s.Door != nil:
 		return s.Door.String() + "门"
 	case s.Star != nil:
 		return s.Star.String()
 	case s.Spirit != nil:
-		// 六合等用阳遁名
 		return s.Spirit.YangName()
 	case s.Stem != nil:
 		return s.Stem.String()
@@ -165,7 +169,9 @@ func computeYongShen(chart Chart, syms []YongShenSymbol, birthYear int, hasBirth
 		case s.Spirit != nil:
 			sr.Palace = findSpiritPalaceIdx(chart.Pan, *s.Spirit)
 		case s.Stem != nil:
-			sr.Palace = findGanPalaceIdx(chart.Pan, *s.Stem)
+			// 用神干为甲时甲遁于六仪（按日支遁），与日干处理一致；否则直接找落宫。
+			gan := resolveJiaDunGan(*s.Stem, chart.Pan.RiZhi)
+			sr.Palace = findGanPalaceIdx(chart.Pan, gan)
 		}
 		if sr.Palace > 0 {
 			for _, k := range chart.Pan.KongWang {
