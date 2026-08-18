@@ -7,9 +7,11 @@
 - `yong_shen.name`：占事类型（事业/求财/婚姻/健康/诉讼/学业/出行/隐藏/综合）
 - `yong_shen.ri_gan_gong`：日干落宫（求测人"我"）
 - `yong_shen.shi_gan_gong`：时干落宫（所问之事）
-- `yong_shen.nian_gan_gong`：年命干落宫（本命根基，需 birth_year）
+- `yong_shen.nian_gan_gong`：年命干落宫（本命根基，需 birth_year；**甲年命遁六仪**：甲子遁戊/甲戌遁己/甲申遁庚/甲午遁辛/甲辰遁壬/甲寅遁癸）
 - `yong_shen.body`：事象用神（门/星/神/干，按占事取）
-- `yong_shen.body_palace`：事象用神落宫
+- `yong_shen.body_palace`：事象用神主落宫（门落宫为主，否则星/神）
+- `yong_shen.stem_palace`：事象干落宫（求财戊、婚姻庚/乙）
+- `yong_shen.body_tian_gan`：用神落宫天盘干（十干克应）
 - `yong_shen.ri_shi_sheng_ke`：日干宫-时干宫生克（我 vs 事）
 - `yong_shen.kong_wang`：用神落宫是否空亡
 - `yong_shen.ma_xing`：用神落宫是否马星
@@ -44,8 +46,9 @@
 
 ## 📖 解读原则（LLM）
 
-- **求测人**：日干落宫看"我"的当下状态；年命干落宫看本命根基
-- **事象**：事象用神落宫看所问之事的落宫状态（结合天盘干十干克应）
+- **求测人**：日干落宫看"我"的当下状态；年命干落宫看本命根基（甲年命看六仪遁宫）
+- **事象**：事象用神落宫看所问之事的落宫状态（结合 `body_tian_gan` 十干克应）
+- **事象干**：求财看戊干落宫，婚姻看庚/乙干落宫
 - **我 vs 事**：`ri_shi_sheng_ke` 定日干宫与时干宫的生克（求测人与事的成败关系）
 - **状态**：用神落宫空亡/马星影响事之虚实、快慢
 - **门/星/神吉凶**：读 `bamen.md`（八门）/ `jiuxing.md`（九星）/ `bashen.md`（八神）翻译表
