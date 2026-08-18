@@ -288,7 +288,7 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 		"qiming.char", "qiming.pick", "qiming.build", "qiming.check",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
-		"liuyao.qigua", "liuyao.chart", "liuyao.patterns",
+		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",
 		"city.coords", "time.now", "tianwen.time",
 	}
