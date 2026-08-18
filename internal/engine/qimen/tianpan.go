@@ -34,6 +34,10 @@ func placeTianPan(driveZhu ganzhi.Zhu, dutyStar StarIndex, dipan [9]ganzhi.Gan) 
 			break
 		}
 	}
+	// 中5寄坤2：时干（或旬首）落中5时，值符星寄于坤2（与地盘寄宫一致）。
+	if driveGanPalace == 4 {
+		driveGanPalace = 1 // 中5 → 坤2
+	}
 
 	// 天禽寄坤2: treat duty 天禽 as 天芮 so it flies like the 坤2 star.
 	duty8 := dutyStar

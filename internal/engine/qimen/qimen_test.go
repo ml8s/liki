@@ -250,6 +250,27 @@ func TestPlaceTianPan_JiaDun(t *testing.T) {
 	}
 }
 
+// TestPlaceTianPan_Zhong5JiKun2 中5寄坤2：时干（或旬首）落中5时，值符星应寄于坤2，
+// 而非从乾6起排。阳遁1局甲辰时：旬首壬在中5→值符天禽（寄坤2随天芮），值符落坤2。
+func TestPlaceTianPan_Zhong5JiKun2(t *testing.T) {
+	dipan := placeDiPan(1, false) // 阳遁1局：壬在中5
+	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen}, dipan)
+	if duty.Star != StarTianQin {
+		t.Fatalf("甲辰时值符星 = %s, want 天禽（旬首壬在中5）", duty.Star)
+	}
+	stars, _ := placeTianPan(ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen}, duty.Star, dipan)
+	// 值符天禽寄坤2随天芮，落坤2；8星从坤2顺排，跳过中5。
+	expected := [9]StarIndex{
+		StarTianPeng, StarTianRui, StarTianChong, StarTianFu, 0,
+		StarTianXin, StarTianZhu, StarTianRen, StarTianYing,
+	}
+	for i := 0; i < 9; i++ {
+		if stars[i] != expected[i] {
+			t.Errorf("gong %d(%s): got %s, want %s", i, GongIndex(i+1), stars[i], expected[i])
+		}
+	}
+}
+
 // =============================================================================
 // 人盘 (Human Plate) — 八门飞布
 // =============================================================================
