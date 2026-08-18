@@ -14,8 +14,13 @@
 
 ## 引擎输出字段说明（qimen.chart 传 yong_shen 符号数组时返回 yong_shen）
 
-- `yong_shen.ri_gan_gong`：日干落宫（求测人"我"）
-- `yong_shen.shi_gan_gong`：时干落宫（所问之事）
+**求测人定位（排盘固有，顶层字段，非 yong_shen 内）**：
+- `ri_gan_gong`：日干落宫（求测人"我"；日干为甲时按日支遁六仪）
+- `shi_gan_gong`：时干落宫（所问之事）
+- `ri_shi_sheng_ke`：日干宫-时干宫生克（我 vs 事）
+- `kong_wang_affected` / `ma_xing_affected`：日干/时干宫是否空亡、马星
+
+**用神域（yong_shen 对象）**：
 - `yong_shen.nian_gan_gong`：年命干落宫（本命根基，需 birth_year；**甲年命遁六仪**：甲子遁戊/甲戌遁己/甲申遁庚/甲午遁辛/甲辰遁壬/甲寅遁癸）
 - `yong_shen.symbols[]`：用神符号组合落宫状态，每项含：
   - `symbol`：符号名（开门/天辅/六合/戊）
@@ -23,7 +28,6 @@
   - `tian_gan`：落宫天盘干（十干克应）
   - `kong_wang`：落宫是否空亡
   - `ma_xing`：落宫是否马星
-- `yong_shen.ri_shi_sheng_ke`：日干宫-时干宫生克（我 vs 事）
 
 ## 📖 事象→用神符号映射（LLM 读此表定传什么符号）
 
