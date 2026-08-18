@@ -165,6 +165,7 @@ type Chart struct {
 	XunKong      [2]ganzhi.Zhi  `json:"xun_kong"` // 日柱旬空地支（六爻断卦：用神旬空则事虚，出空填实方应）
 	YingQi    YingQi         `json:"ying_qi"`
 	Patterns  []Pattern      `json:"patterns,omitempty"` // 特殊格局
+	DongYaoRelations []DongYaoRelation `json:"dong_yao_relations,omitempty"` // 动爻与用神的关系
 }
 
 // palaceNames.

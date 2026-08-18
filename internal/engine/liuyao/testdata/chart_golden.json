@@ -138,7 +138,8 @@
   "dong_yao": [],
   "yong_shen": {
     "name": "官鬼",
-    "position": 4
+    "position": 4,
+    "wang_shuai": "相"
   },
   "gua_ci": {
     "name": "乾",

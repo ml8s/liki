@@ -181,9 +181,13 @@ func computeLiuQin(lineElem, palaceElem ganzhi.Wuxing) LiuQin {
 
 // YongShenResult holds the 用神 analysis result.
 type YongShenResult struct {
-	Name     string   `json:"name"` // 用神六亲名
-	Position int      `json:"position"` // line position 1-6, 0 if not found
-	FuShen   *FuShen  `json:"fu_shen,omitempty"`
+	Name      string   `json:"name"`              // 用神六亲名
+	Position  int      `json:"position"`          // line position 1-6, 0 if not found
+	WangShuai string   `json:"wang_shuai"`        // 用神旺衰（旺/相/休/囚/死）聚合
+	YuePo     bool     `json:"yue_po,omitempty"`  // 用神月破
+	XunKong   bool     `json:"xun_kong,omitempty"`// 用神旬空
+	MuKu      bool     `json:"mu_ku,omitempty"`   // 用神入墓
+	FuShen    *FuShen  `json:"fu_shen,omitempty"`
 }
 
 // computeChart computes a complete 六爻 chart from bazi, question type, and yaos (required).
@@ -219,6 +223,17 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 
 	// 每爻确定性派生状态（月破/发动/动爻生克）.
 	computeLineDerived(&chart)
+
+	// 聚合用神状态（旺衰/月破/旬空/入墓）.
+	if pos > 0 {
+		chart.YongShen.WangShuai = chart.WangShuai[pos-1].String()
+		chart.YongShen.YuePo = chart.Lines[pos-1].YuePo
+		chart.YongShen.XunKong = chart.Lines[pos-1].XunKong
+		chart.YongShen.MuKu = chart.Lines[pos-1].MuKu
+	}
+
+	// 动爻关系（与用神的关系）.
+	chart.DongYaoRelations = computeDongYaoRelations(&chart, yongShen)
 
 	// 特殊格局计算.
 	chart.Patterns = ComputePatterns(&chart, yongShen)
