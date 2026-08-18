@@ -6,8 +6,8 @@
         "di_pan_gan": "庚",
         "men": "开门",
         "shen": "太阴",
-        "tian_pan_gan": "丙",
-        "xing": "天禽"
+        "tian_pan_gan": "乙",
+        "xing": "天辅"
       },
       {
         "an_gan": "庚",
@@ -35,40 +35,39 @@
       },
       {
         "di_pan_gan": "丙",
-        "tian_pan_gan": "辛",
-        "xing": "天英"
+        "tian_pan_gan": ""
       },
       {
         "an_gan": "乙",
         "di_pan_gan": "丁",
         "men": "杜门",
         "shen": "九地",
-        "tian_pan_gan": "庚",
-        "xing": "天蓬"
+        "tian_pan_gan": "辛",
+        "xing": "天英"
       },
       {
         "an_gan": "丙",
         "di_pan_gan": "癸",
         "men": "景门",
         "shen": "玄武",
-        "tian_pan_gan": "己",
-        "xing": "天芮"
+        "tian_pan_gan": "庚",
+        "xing": "天蓬"
       },
       {
         "an_gan": "丁",
         "di_pan_gan": "壬",
         "men": "死门",
         "shen": "白虎",
-        "tian_pan_gan": "戊",
-        "xing": "天冲"
+        "tian_pan_gan": "己",
+        "xing": "天芮"
       },
       {
         "an_gan": "戊",
         "di_pan_gan": "辛",
         "men": "惊门",
         "shen": "六合",
-        "tian_pan_gan": "乙",
-        "xing": "天辅"
+        "tian_pan_gan": "戊",
+        "xing": "天冲"
       }
     ],
     "jushu": 3,
@@ -89,9 +88,9 @@
   "gan_interaction": [
     {
       "di_pan_gan": "庚",
-      "tian_pan_gan": "丙",
-      "name": "丙+庚",
-      "meaning": "荧入太白：门户破财，盗贼必来",
+      "tian_pan_gan": "乙",
+      "name": "乙+庚",
+      "meaning": "日奇被刑：争讼财产，夫妻不和",
       "auspicious": false
     },
     {
@@ -117,37 +116,37 @@
     },
     {
       "di_pan_gan": "丙",
-      "tian_pan_gan": "辛",
-      "name": "辛+丙",
-      "meaning": "干合悖师：因财致讼，门吉则安",
-      "auspicious": false
+      "tian_pan_gan": "",
+      "name": "+丙",
+      "meaning": "下克上，客胜于主",
+      "auspicious": true
     },
     {
       "di_pan_gan": "丁",
-      "tian_pan_gan": "庚",
-      "name": "庚+丁",
-      "meaning": "亭亭之格：因私匿起官司，门吉有救",
-      "auspicious": false
+      "tian_pan_gan": "辛",
+      "name": "辛+丁",
+      "meaning": "狱神得奇：经商获倍利，囚人逢赦",
+      "auspicious": true
     },
     {
       "di_pan_gan": "癸",
-      "tian_pan_gan": "己",
-      "name": "己+癸",
-      "meaning": "地刑玄武：男女疾病垂危，词讼有狱",
+      "tian_pan_gan": "庚",
+      "name": "庚+癸",
+      "meaning": "大格：行人不至，官事不止",
       "auspicious": false
     },
     {
       "di_pan_gan": "壬",
-      "tian_pan_gan": "戊",
-      "name": "戊+壬",
-      "meaning": "青龙入牢：公私皆碍，动用不吉",
+      "tian_pan_gan": "己",
+      "name": "己+壬",
+      "meaning": "地网高张：狡童佚女，奸情杀伤",
       "auspicious": false
     },
     {
       "di_pan_gan": "辛",
-      "tian_pan_gan": "乙",
-      "name": "乙+辛",
-      "meaning": "青龙逃走：奴仆拐带，测婚离散",
+      "tian_pan_gan": "戊",
+      "name": "戊+辛",
+      "meaning": "青龙折足：招灾失财，需防破败",
       "auspicious": false
     }
   ],
@@ -207,10 +206,10 @@
   ],
   "xing_interaction": [
     {
-      "xing": "天禽",
+      "xing": "天辅",
       "gong": "坎",
-      "name": "天禽加坎",
-      "meaning": "土性中和临坎宫",
+      "name": "天辅加坎",
+      "meaning": "木性文明临坎宫",
       "auspicious": true
     },
     {
@@ -235,46 +234,46 @@
       "auspicious": true
     },
     {
+      "xing": "",
+      "gong": "",
+      "name": "",
+      "meaning": "",
+      "auspicious": false
+    },
+    {
       "xing": "天英",
-      "gong": "中",
-      "name": "天英加中",
-      "meaning": "火性光明临中宫",
+      "gong": "乾",
+      "name": "火星入金宫",
+      "meaning": "火能克金，出行有碍",
       "auspicious": false
     },
     {
       "xing": "天蓬",
-      "gong": "乾",
-      "name": "水星入金宫",
-      "meaning": "金生水旺，谋事可成",
-      "auspicious": true
+      "gong": "兑",
+      "name": "天蓬加兑",
+      "meaning": "水性之精临兑宫",
+      "auspicious": false
     },
     {
       "xing": "天芮",
-      "gong": "兑",
-      "name": "天芮加兑",
-      "meaning": "土性之精临兑宫",
+      "gong": "艮",
+      "name": "天芮加艮",
+      "meaning": "土性之精临艮宫",
       "auspicious": false
     },
     {
       "xing": "天冲",
-      "gong": "艮",
-      "name": "天冲加艮",
-      "meaning": "木性之精临艮宫",
-      "auspicious": false
-    },
-    {
-      "xing": "天辅",
       "gong": "离",
       "name": "木星入火宫",
-      "meaning": "木火通明，学业有成",
+      "meaning": "木能生火，文书有成",
       "auspicious": true
     }
   ],
   "wang_shuai": [
     {
-      "xing": "天禽",
+      "xing": "天辅",
       "gong": "坎",
-      "state": "囚"
+      "state": "相"
     },
     {
       "xing": "天心",
@@ -292,27 +291,27 @@
       "state": "废"
     },
     {
+      "xing": "?",
+      "gong": "?",
+      "state": ""
+    },
+    {
       "xing": "天英",
-      "gong": "中",
-      "state": "休"
+      "gong": "乾",
+      "state": "囚"
     },
     {
       "xing": "天蓬",
-      "gong": "乾",
+      "gong": "兑",
       "state": "相"
     },
     {
       "xing": "天芮",
-      "gong": "兑",
-      "state": "休"
+      "gong": "艮",
+      "state": "旺"
     },
     {
       "xing": "天冲",
-      "gong": "艮",
-      "state": "囚"
-    },
-    {
-      "xing": "天辅",
       "gong": "离",
       "state": "休"
     }
@@ -327,14 +326,6 @@
     "离"
   ],
   "patterns": [
-    {
-      "name": "三奇得使",
-      "description": "吉门得奇，百事可成",
-      "auspicious": true,
-      "gong_wei": [
-        "离"
-      ]
-    },
     {
       "name": "天遁",
       "description": "丙+生门+丁，远行出兵大吉",
@@ -363,9 +354,9 @@
     "summary": "马星在未，冲则动，应期在丑、寅（年月日时）；空亡在子 丑 寅，填实或冲空之时应事"
   },
   "ri_gan_gong": "震",
-  "shi_gan_gong": "艮",
-  "ri_shi_sheng_ke": "日干(3宫)克时干(8宫)",
-  "kong_wang_affected": true,
+  "shi_gan_gong": "离",
+  "ri_shi_sheng_ke": "日干(3宫)生时干(9宫)",
+  "kong_wang_affected": false,
   "ma_xing_affected": false,
   "zhi_fu_xing_gong": "震",
   "zhi_shi_men_gong": "离"

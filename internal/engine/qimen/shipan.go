@@ -120,7 +120,11 @@ func analyzeShengKe(subjectP, eventP GongIndex) string {
 }
 
 // findStarPalaceIdx finds which gong a star resides in.
+// 天禽寄坤2：天禽随天芮（与天芮同宫），故天禽落宫取天芮所在宫。
 func findStarPalaceIdx(p pan, s StarIndex) GongIndex {
+	if s == StarTianQin {
+		s = StarTianRui
+	}
 	for i, pg := range p.GongWei {
 		if pg.Star == s {
 			return GongIndex(i + 1)

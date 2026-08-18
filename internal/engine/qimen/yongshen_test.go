@@ -170,7 +170,7 @@ func TestYongShenSymbolAnchors(t *testing.T) {
 		{"休门", "巽"}, // 休门在宫4巽
 		{"死门", "坎"}, // 死门在宫1坎
 		// 星
-		{"天辅", "乾"}, // 天辅在宫6乾
+		{"天辅", "兑"}, // 天辅在宫7兑
 		{"天芮", "巽"}, // 天芮在宫4巽
 		{"天心", "艮"}, // 天心在宫8艮
 		// 神
@@ -209,9 +209,9 @@ func TestYongShenSymbolAnchor_JiaDun(t *testing.T) {
 	if ch.Pan.RiGan != ganzhi.GanJia {
 		t.Fatalf("预期甲日，got %s", ch.Pan.RiGan)
 	}
-	// 甲辰遁壬：壬天盘在宫6乾（地盘壬在宫4巽）。用神落宫以天盘为核心。
-	if ch.RiGanPalace != GongQian {
-		t.Errorf("甲辰日甲遁壬落宫 = %s(%d), want 乾(6)", ch.RiGanPalace, ch.RiGanPalace)
+	// 甲辰遁壬：壬天盘在宫7兑（地盘壬在宫4巽）。用神落宫以天盘为核心。
+	if ch.RiGanPalace != GongDui {
+		t.Errorf("甲辰日甲遁壬落宫 = %s(%d), want 兑(7)", ch.RiGanPalace, ch.RiGanPalace)
 	}
 }
 
@@ -285,11 +285,11 @@ func TestYongShenSymbolStateAnchors(t *testing.T) {
 		kongWang  bool
 		maXing    bool
 	}{
-		{"生门", "乾", "壬", true, false},  // 生门落乾6，天盘壬，乾空亡
+		{"生门", "乾", "辛", true, false},  // 生门落乾6，天盘辛，乾空亡
 		{"戊", "坤", "戊", false, true},    // 戊天盘落坤2，坤为马星
 		{"庚", "巽", "庚", false, false},   // 庚天盘落巽4
 		{"开门", "震", "己", false, false}, // 开门落震3，天盘己
-		{"六合", "乾", "壬", true, false},  // 六合神落乾6（同宫）
+		{"六合", "乾", "辛", true, false},  // 六合神落乾6（同宫）
 	}
 	for _, c := range cases {
 		sym, err := ParseYongShen(c.symbol)

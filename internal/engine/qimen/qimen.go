@@ -198,7 +198,7 @@ func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
 // Gong holds all layers of information for one 宫。
 type Gong struct {
 	EarthStem  ganzhi.Gan  `json:"di_pan_gan"`
-	HeavenStem ganzhi.Gan  `json:"tian_pan_gan"`
+	HeavenStem ganzhi.Gan  `json:"tian_pan_gan,omitempty"`
 	Star       StarIndex   `json:"xing,omitempty"`
 	Door       DoorIndex   `json:"men,omitempty"`
 	Spirit     SpiritIndex `json:"shen"`

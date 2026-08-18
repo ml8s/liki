@@ -141,28 +141,29 @@ func TestFindDuty_KnownCases(t *testing.T) {
 // =============================================================================
 
 func TestPlaceTianPan_Yang1YiChou(t *testing.T) {
-	// 阳遁1局 乙丑时: 时干乙在离9(pos8), 值符天蓬(starOrder[0])加临之
+	// 阳遁1局 乙丑时: 时干乙在离9(pos8), 值符天蓬(starOrder8[0])加临之
 	dipan := placeDiPan(1, false)
 	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, dipan)
 	stars, stems := placeTianPan(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, duty.Star, dipan)
 
-	// pos8: starOrder[0]=天蓬(stem=dipan[0]=戊)
-	// pos0: starOrder[1]=天芮(stem=dipan[1]=己)
-	// pos1: starOrder[2]=天冲(stem=dipan[2]=庚)
-	// pos2: starOrder[3]=天辅(stem=dipan[3]=辛)
-	// pos3: starOrder[4]=天禽(stem=dipan[4]=壬)
-	// pos4: starOrder[5]=天心(stem=dipan[5]=癸)
-	// pos5: starOrder[6]=天柱(stem=dipan[6]=丁)
-	// pos6: starOrder[7]=天任(stem=dipan[7]=丙)
-	// pos7: starOrder[8]=天英(stem=dipan[8]=乙)
+	// 8 星（不含天禽，天禽寄坤2）飞布，跳过中5：
+	// pos8: starOrder8[0]=天蓬(stem=dipan[0]=戊)
+	// pos0: starOrder8[1]=天芮(stem=dipan[1]=己)
+	// pos1: starOrder8[2]=天冲(stem=dipan[2]=庚)
+	// pos2: starOrder8[3]=天辅(stem=dipan[3]=辛)
+	// pos3: starOrder8[4]=天心(stem=dipan[5]=癸)
+	// pos4: 中5虚空
+	// pos5: starOrder8[5]=天柱(stem=dipan[6]=丁)
+	// pos6: starOrder8[6]=天任(stem=dipan[7]=丙)
+	// pos7: starOrder8[7]=天英(stem=dipan[8]=乙)
 	expectedStars := [9]StarIndex{
 		StarTianRui, StarTianChong, StarTianFu,
-		StarTianQin, StarTianXin, StarTianZhu,
+		StarTianXin, 0, StarTianZhu,
 		StarTianRen, StarTianYing, StarTianPeng,
 	}
 	expectedStems := [9]ganzhi.Gan{
 		ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin,
-		ganzhi.GanRen, ganzhi.GanGui, ganzhi.GanDing,
+		ganzhi.GanGui, 0, ganzhi.GanDing,
 		ganzhi.GanBing, ganzhi.GanYi, ganzhi.GanWu,
 	}
 
@@ -184,23 +185,24 @@ func TestPlaceTianPan_Yang1BingYin(t *testing.T) {
 	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin}, dipan)
 	stars, stems := placeTianPan(ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin}, duty.Star, dipan)
 
-	// pos7: starOrder[0]=天蓬(stem=dipan[0]=戊)
-	// pos8: starOrder[1]=天芮(stem=dipan[1]=己)
-	// pos0: starOrder[2]=天冲(stem=dipan[2]=庚)
-	// pos1: starOrder[3]=天辅(stem=dipan[3]=辛)
-	// pos2: starOrder[4]=天禽(stem=dipan[4]=壬)
-	// pos3: starOrder[5]=天心(stem=dipan[5]=癸)
-	// pos4: starOrder[6]=天柱(stem=dipan[6]=丁)
-	// pos5: starOrder[7]=天任(stem=dipan[7]=丙)
-	// pos6: starOrder[8]=天英(stem=dipan[8]=乙)
+	// 8 星（不含天禽，天禽寄坤2）飞布，跳过中5：
+	// pos7: starOrder8[0]=天蓬(stem=dipan[0]=戊)
+	// pos8: starOrder8[1]=天芮(stem=dipan[1]=己)
+	// pos0: starOrder8[2]=天冲(stem=dipan[2]=庚)
+	// pos1: starOrder8[3]=天辅(stem=dipan[3]=辛)
+	// pos2: starOrder8[4]=天心(stem=dipan[5]=癸)
+	// pos3: starOrder8[5]=天柱(stem=dipan[6]=丁)
+	// pos4: 中5虚空
+	// pos5: starOrder8[6]=天任(stem=dipan[7]=丙)
+	// pos6: starOrder8[7]=天英(stem=dipan[8]=乙)
 	expectedStars := [9]StarIndex{
-		StarTianChong, StarTianFu, StarTianQin,
-		StarTianXin, StarTianZhu, StarTianRen,
+		StarTianChong, StarTianFu, StarTianXin,
+		StarTianZhu, 0, StarTianRen,
 		StarTianYing, StarTianPeng, StarTianRui,
 	}
 	expectedStems := [9]ganzhi.Gan{
-		ganzhi.GanGeng, ganzhi.GanXin, ganzhi.GanRen,
-		ganzhi.GanGui, ganzhi.GanDing, ganzhi.GanBing,
+		ganzhi.GanGeng, ganzhi.GanXin, ganzhi.GanGui,
+		ganzhi.GanDing, 0, ganzhi.GanBing,
 		ganzhi.GanYi, ganzhi.GanWu, ganzhi.GanJi,
 	}
 
@@ -234,11 +236,16 @@ func TestPlaceTianPan_JiaDun(t *testing.T) {
 		t.Errorf("甲遁未处理: 值符 %s 应在巽4(pos3=旬首辛位置), 实际在坎1(pos0)",
 			duty.Star)
 	}
+	// 8 星（不含天禽，天禽寄坤2）顺时针飞布，跳过中5。
 	// dutyIdx for 天辅 = 3, drivePalace = 3 (旬首辛在巽4)
-	// star at position i = starOrder[(3 + i - 3) % 9] = starOrder[i]
-	for i, s := range stars {
-		if s != starOrder[i] {
-			t.Errorf("gong %d: got %s, want %s", i, s, starOrder[i])
+	// pos3=天辅, pos5=天心, pos6=天柱, pos7=天任, pos8=天英, pos0=天蓬, pos1=天芮, pos2=天冲；中5虚空无星
+	expected := [9]StarIndex{
+		StarTianPeng, StarTianRui, StarTianChong, StarTianFu, 0,
+		StarTianXin, StarTianZhu, StarTianRen, StarTianYing,
+	}
+	for i := 0; i < 9; i++ {
+		if stars[i] != expected[i] {
+			t.Errorf("gong %d(%s): got %s, want %s", i, GongIndex(i+1), stars[i], expected[i])
 		}
 	}
 }
@@ -511,8 +518,8 @@ func TestComputePan_Yang1YiChou(t *testing.T) {
 		{ganzhi.GanWu, ganzhi.GanJi, StarTianRui, DoorShang, SpiritTengShe, ganzhi.GanDing},    // 坎1
 		{ganzhi.GanJi, ganzhi.GanGeng, StarTianChong, DoorDu, SpiritTaiYin, ganzhi.GanWu},      // 坤2
 		{ganzhi.GanGeng, ganzhi.GanXin, StarTianFu, DoorJing, SpiritLiuHe, ganzhi.GanJi},       // 震3
-		{ganzhi.GanXin, ganzhi.GanRen, StarTianQin, DoorSi, SpiritGouChen, ganzhi.GanGeng},     // 巽4
-		{ganzhi.GanRen, ganzhi.GanGui, StarTianXin, 0, 0, 0},                                   // 中5
+		{ganzhi.GanXin, ganzhi.GanGui, StarTianXin, DoorSi, SpiritGouChen, ganzhi.GanGeng},     // 巽4（天禽寄坤2，此宫天心）
+		{ganzhi.GanRen, 0, 0, 0, 0, 0},                                                          // 中5（虚空）
 		{ganzhi.GanGui, ganzhi.GanDing, StarTianZhu, DoorJingMen, SpiritZhuQue, ganzhi.GanXin}, // 乾6
 		{ganzhi.GanDing, ganzhi.GanBing, StarTianRen, DoorKai, SpiritJiuDi, ganzhi.GanRen},     // 兑7
 		{ganzhi.GanBing, ganzhi.GanYi, StarTianYing, DoorXiu, SpiritJiuTian, ganzhi.GanYi},     // 艮8
@@ -575,9 +582,9 @@ func TestComputePan_Yang1BingYin(t *testing.T) {
 	want := [9]wantPalace{
 		{StarTianChong, DoorShang, ganzhi.GanGeng}, // 坎1
 		{StarTianFu, DoorDu, ganzhi.GanXin},        // 坤2
-		{StarTianQin, DoorJing, ganzhi.GanRen},     // 震3
-		{StarTianXin, DoorSi, ganzhi.GanGui},       // 巽4
-		{StarTianZhu, 0, ganzhi.GanDing},           // 中5
+		{StarTianXin, DoorJing, ganzhi.GanGui},     // 震3（天禽寄坤2，此宫天心）
+		{StarTianZhu, DoorSi, ganzhi.GanDing},      // 巽4
+		{0, 0, 0},                                  // 中5（虚空）
 		{StarTianRen, DoorJingMen, ganzhi.GanBing}, // 乾6
 		{StarTianYing, DoorKai, ganzhi.GanYi},      // 兑7
 		{StarTianPeng, DoorXiu, ganzhi.GanWu},      // 艮8
