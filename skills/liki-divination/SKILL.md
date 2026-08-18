@@ -72,7 +72,7 @@ LLM 综合 6 因子解读 + 应期，生成自然语言断语（只改措辞，�
   curl -s https://liki.hk/jsonrpc -H "Content-Type: application/json" \
     -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"liuyao.qigua,liuyao.chart"},"id":1}'
   ```
-- **方法清单**：`liuyao.qigua`（起卦）/ `liuyao.chart`（装卦）/ `qimen.chart`（排盘，传 qianshi 聚合用神）/ `huangli.days`（择日）
+- **方法清单**：`liuyao.qigua`（起卦）/ `liuyao.chart`（装卦）/ `qimen.chart`（排盘，传 `yong_shen` 用神符号数组聚合用神）/ `huangli.days`（择日）
 
 ## 流程约定（强制）
 
