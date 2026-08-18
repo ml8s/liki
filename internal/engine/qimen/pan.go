@@ -10,7 +10,7 @@ func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 	dipan := placeDiPan(ju.Number, ju.YinDun)
 	duty := findDuty(driveZhu, dipan)
 	tianStars, tianStems := placeTianPan(driveZhu, duty.Star, dipan)
-	renDoors := placeRenPan(driveZhu.Zhi, duty.Door)
+	renDoors := placeRenPan(driveZhu.Zhi, duty.Door, ju.YinDun)
 
 	var dutyStarPalace int
 	// 值符星为天禽时按天芮处理（天禽寄坤2，与天芮同宫，天盘只列天芮）。

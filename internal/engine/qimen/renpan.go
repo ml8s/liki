@@ -10,7 +10,8 @@ var doorOrder = [8]DoorIndex{
 
 // placeRenPan arranges the human plate: 8 doors on the 9 palaces.
 // 值使门 fits to the gong where 时支 (or drive branch) sits on the earth plate.
-func placeRenPan(driveZhi ganzhi.Zhi, dutyDoor DoorIndex) [9]DoorIndex {
+// 阳遁顺排、阴遁逆排（与八神阳顺阴逆一致）。
+func placeRenPan(driveZhi ganzhi.Zhi, dutyDoor DoorIndex, yinDun bool) [9]DoorIndex {
 	var doors [9]DoorIndex
 
 	driveZhiPalace := zhiPalace(driveZhi)
@@ -24,11 +25,17 @@ func placeRenPan(driveZhi ganzhi.Zhi, dutyDoor DoorIndex) [9]DoorIndex {
 		}
 	}
 
-	// Place doors clockwise from duty door starting at driveZhiPalace.
+	// Place doors from duty door starting at driveZhiPalace.
+	// 阳遁顺时针、阴遁逆时针。
 	doorIdx := dutyIdx
 	startPos := int(driveZhiPalace) - 1 // GongIndex is 1-based, convert to 0-based
 	for i := 0; i < 9; i++ {
-		pos := (startPos + i) % 9
+		var pos int
+		if yinDun {
+			pos = (startPos - i + 9) % 9
+		} else {
+			pos = (startPos + i) % 9
+		}
 		if pos == 4 {
 			continue // 中宫无门
 		}

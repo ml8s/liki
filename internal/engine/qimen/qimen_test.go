@@ -293,7 +293,7 @@ func TestPlaceRenPan_Yang1YiChou(t *testing.T) {
 	// 阳遁1局 乙丑时: 时支丑→艮8(pos7), 值使休门(doorOrder[0])加临
 	dipan := placeDiPan(1, false)
 	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, dipan)
-	doors := placeRenPan(ganzhi.ZhiChou, duty.Door)
+	doors := placeRenPan(ganzhi.ZhiChou, duty.Door, false)
 
 	// pos7: 休, pos8: 生, pos0: 伤, pos1: 杜, pos2: 景, pos3: 死, pos5: 惊, pos6: 开
 	expected := [9]DoorIndex{
@@ -314,7 +314,7 @@ func TestPlaceRenPan_Yang1JiaZi(t *testing.T) {
 	// 阳遁1局 甲子时: 时支子→坎1(pos0), 值使休门加临
 	dipan := placeDiPan(1, false)
 	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}, dipan)
-	doors := placeRenPan(ganzhi.ZhiZi, duty.Door)
+	doors := placeRenPan(ganzhi.ZhiZi, duty.Door, false)
 
 	// 八门从坎1开始顺时针: 休0,生1,伤2,杜3,空4,景5,死6,惊7,开8
 	expected := [9]DoorIndex{
@@ -326,6 +326,24 @@ func TestPlaceRenPan_Yang1JiaZi(t *testing.T) {
 	for i := 0; i < 9; i++ {
 		if doors[i] != expected[i] {
 			t.Errorf("gong %d(%s): door = %s(%d), want %s(%d)",
+				i, GongIndex(i+1), doors[i], doors[i], expected[i], expected[i])
+		}
+	}
+}
+
+// TestPlaceRenPan_YinNi 阴遁八门逆排：值使惊门落时支午宫（离9），阴遁逆时针铺开。
+func TestPlaceRenPan_YinNi(t *testing.T) {
+	// 阴遁：值使惊门，时支午→离9。
+	doors := placeRenPan(ganzhi.ZhiWu, DoorJingMen, true)
+	// 离9=惊，逆时针：艮8开、兑7休、乾6生、巽4伤、震3杜、坤2景、坎1死。
+	expected := [9]DoorIndex{
+		DoorSi, DoorJing, DoorDu,
+		DoorShang, 0, DoorSheng,
+		DoorXiu, DoorKai, DoorJingMen,
+	}
+	for i := 0; i < 9; i++ {
+		if doors[i] != expected[i] {
+			t.Errorf("gong %d(%s): door = %s(%d), want %s(%d)（阴遁逆排）",
 				i, GongIndex(i+1), doors[i], doors[i], expected[i], expected[i])
 		}
 	}
@@ -394,7 +412,7 @@ func TestPlaceAnGan_Yang1YiChou(t *testing.T) {
 	// 阳遁1局 乙丑时: 时干乙, 值使休门在艮8宫(pos7)
 	dipan := placeDiPan(1, false)
 	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, dipan)
-	doors := placeRenPan(ganzhi.ZhiChou, duty.Door)
+	doors := placeRenPan(ganzhi.ZhiChou, duty.Door, false)
 
 	dutyDoorPalace := 0
 	for i, d := range doors {

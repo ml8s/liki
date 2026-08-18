@@ -4,7 +4,7 @@
       {
         "an_gan": "己",
         "di_pan_gan": "庚",
-        "men": "开门",
+        "men": "死门",
         "shen": "太阴",
         "tian_pan_gan": "乙",
         "xing": "天辅"
@@ -12,7 +12,7 @@
       {
         "an_gan": "庚",
         "di_pan_gan": "己",
-        "men": "休门",
+        "men": "景门",
         "shen": "螣蛇",
         "tian_pan_gan": "丁",
         "xing": "天心"
@@ -20,7 +20,7 @@
       {
         "an_gan": "辛",
         "di_pan_gan": "戊",
-        "men": "生门",
+        "men": "杜门",
         "shen": "值符",
         "tian_pan_gan": "癸",
         "xing": "天柱"
@@ -40,7 +40,7 @@
       {
         "an_gan": "癸",
         "di_pan_gan": "丁",
-        "men": "杜门",
+        "men": "生门",
         "shen": "九地",
         "tian_pan_gan": "辛",
         "xing": "天英"
@@ -48,7 +48,7 @@
       {
         "an_gan": "丁",
         "di_pan_gan": "癸",
-        "men": "景门",
+        "men": "休门",
         "shen": "玄武",
         "tian_pan_gan": "庚",
         "xing": "天蓬"
@@ -56,7 +56,7 @@
       {
         "an_gan": "丙",
         "di_pan_gan": "壬",
-        "men": "死门",
+        "men": "开门",
         "shen": "白虎",
         "tian_pan_gan": "己",
         "xing": "天芮"
@@ -152,22 +152,22 @@
   ],
   "men_interaction": [
     {
-      "door": "开门",
+      "door": "死门",
       "gong": "坎",
-      "name": "开门加坎",
-      "meaning": "水路之吉，通行无碍"
+      "name": "死加坎",
+      "meaning": "凶门当位，行事多阻"
     },
     {
-      "door": "休门",
+      "door": "景门",
       "gong": "坤",
-      "name": "休门加坤",
-      "meaning": "求财得利，土木之工"
+      "name": "景加坤",
+      "meaning": "中平之门，需择时而行"
     },
     {
-      "door": "生门",
+      "door": "杜门",
       "gong": "震",
-      "name": "生加震",
-      "meaning": "吉门得地，谋事可成"
+      "name": "杜加震",
+      "meaning": "中平之门，需择时而行"
     },
     {
       "door": "伤门",
@@ -180,22 +180,22 @@
       "meaning": ""
     },
     {
-      "door": "杜门",
+      "door": "生门",
       "gong": "乾",
-      "name": "杜门加乾",
-      "meaning": "公门不利，出行有阻"
+      "name": "生门加乾",
+      "meaning": "公门之利，谒贵之行"
     },
     {
-      "door": "景门",
+      "door": "休门",
       "gong": "兑",
-      "name": "景加兑",
-      "meaning": "中平之门，需择时而行"
+      "name": "休加兑",
+      "meaning": "吉门得地，谋事可成"
     },
     {
-      "door": "死门",
+      "door": "开门",
       "gong": "艮",
-      "name": "死加艮",
-      "meaning": "凶门当位，行事多阻"
+      "name": "开门加艮",
+      "meaning": "山门之利，求财可得"
     },
     {
       "door": "惊门",
@@ -317,12 +317,9 @@
     }
   ],
   "men_po": [
-    "兑"
+    "坎"
   ],
   "men_zhi": [
-    "坤",
-    "震",
-    "乾",
     "离"
   ],
   "patterns": [
