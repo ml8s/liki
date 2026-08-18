@@ -24,22 +24,6 @@ func zhiPalace(z ganzhi.Zhi) GongIndex {
 	}
 	return GongKan
 }
-
-// palaceBranches returns all branches belonging to a gong.
-func palaceBranches(p GongIndex) []ganzhi.Zhi {
-	switch p {
-	case GongKun:
-		return []ganzhi.Zhi{ganzhi.ZhiWei, ganzhi.ZhiShen}
-	case GongXun:
-		return []ganzhi.Zhi{ganzhi.ZhiChen, ganzhi.ZhiSi}
-	case GongQian:
-		return []ganzhi.Zhi{ganzhi.ZhiXu, ganzhi.ZhiHai}
-	case GongGen:
-		return []ganzhi.Zhi{ganzhi.ZhiChou, ganzhi.ZhiYin}
-	}
-	return []ganzhi.Zhi{palaceZhi(p)}
-}
-
 // palaceZhi returns the principal branch of a gong.
 func palaceZhi(p GongIndex) ganzhi.Zhi {
 	switch p {

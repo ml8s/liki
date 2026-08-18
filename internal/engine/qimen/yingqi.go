@@ -19,19 +19,17 @@ func computeYingQi(pan pan) YingQi {
 	var yq YingQi
 
 	// 马星应期: 冲马星的地支年份/月份/时辰.
-	mataBranches := palaceBranches(pan.MaXing)
-	var chongStrs []string
-	for _, mz := range mataBranches {
-		chongStrs = append(chongStrs, ganzhi.ZhiName(chongBranch(mz)))
-	}
-	yq.MaXing = "马星在" + ganzhi.ZhiName(mataBranches[0]) + "，冲则动，应期在" + strings.Join(chongStrs, "、") + "（年月日时）"
+	// 用具体马星地支（而非马星宫的所有地支），避免丢失精度。
+	maZhi := maXingZhi(pan.DriveZhi)
+	chongStrs := []string{ganzhi.ZhiName(chongBranch(maZhi))}
+	yq.MaXing = "马星在" + ganzhi.ZhiName(maZhi) + "，冲则动，应期在" + strings.Join(chongStrs, "、") + "（年月日时）"
 
-	// 空亡填实: 空亡宫被填实时应事.
+	// 空亡填实: 空亡两支被填实时应事.
+	// 用具体空亡地支（而非空亡宫的所有地支），避免把同宫非空亡地支带入。
+	kwZhi := kongWangZhi(ganzhi.Zhu{Gan: pan.DriveGan, Zhi: pan.DriveZhi})
 	var kwBranches []string
-	for _, kw := range pan.KongWang {
-		for _, z := range palaceBranches(kw) {
-			kwBranches = append(kwBranches, ganzhi.ZhiName(z))
-		}
+	for _, z := range kwZhi {
+		kwBranches = append(kwBranches, ganzhi.ZhiName(z))
 	}
 	if len(kwBranches) > 0 {
 		yq.KongWang = "空亡在" + strings.Join(kwBranches, " ") + "，填实或冲空之时应事"

@@ -36,34 +36,42 @@ func placeAnGan(driveZhu ganzhi.Zhu, dutyDoorPalace int) [9]ganzhi.Gan {
 	return angans
 }
 
-// findMaXing returns the 马星 gong for a given branch.
-func findMaXing(driveZhi ganzhi.Zhi) GongIndex {
+// maXingZhi returns the 马星 branch for a given 时支（三合局马星口诀）。
+func maXingZhi(driveZhi ganzhi.Zhi) ganzhi.Zhi {
 	switch int(driveZhi) {
 	case 1, 5, 9: // 子, 辰, 申 → 马在寅
-		return GongGen
+		return ganzhi.ZhiYin
 	case 3, 7, 11: // 寅, 午, 戌 → 马在申
-		return GongKun
+		return ganzhi.ZhiShen
 	case 6, 10, 2: // 巳, 酉, 丑 → 马在亥
-		return GongQian
+		return ganzhi.ZhiHai
 	case 12, 4, 8: // 亥, 卯, 未 → 马在巳
-		return GongXun
+		return ganzhi.ZhiSi
 	}
-	return GongKan
+	return ganzhi.ZhiZi
 }
 
-// findKongWang returns the two 空亡 palaces.
-func findKongWang(driveZhu ganzhi.Zhu) [2]GongIndex {
+// findMaXing returns the 马星 gong for a given branch.
+func findMaXing(driveZhi ganzhi.Zhi) GongIndex {
+	return zhiPalace(maXingZhi(driveZhi))
+}
+
+// kongWangZhi returns the two 空亡 branches of the driving pillar's 旬.
+func kongWangZhi(driveZhu ganzhi.Zhu) [2]ganzhi.Zhi {
 	idx := ganzhi.SixtyCycleIndex(driveZhu.Gan, driveZhu.Zhi) // 0-59
 	xunIdx := idx / 10                                       // 0-5
-	kongWangZhi := [6][2]ganzhi.Zhi{
+	return [6][2]ganzhi.Zhi{
 		{11, 12}, // 甲子旬: 戌亥
 		{9, 10},  // 甲戌旬: 申酉
 		{7, 8},   // 甲申旬: 午未
 		{5, 6},   // 甲午旬: 辰巳
 		{3, 4},   // 甲辰旬: 寅卯
 		{1, 2},   // 甲寅旬: 子丑
-	}
-	z1 := kongWangZhi[xunIdx][0]
-	z2 := kongWangZhi[xunIdx][1]
-	return [2]GongIndex{zhiPalace(z1), zhiPalace(z2)}
+	}[xunIdx]
+}
+
+// findKongWang returns the two 空亡 palaces.
+func findKongWang(driveZhu ganzhi.Zhu) [2]GongIndex {
+	z := kongWangZhi(driveZhu)
+	return [2]GongIndex{zhiPalace(z[0]), zhiPalace(z[1])}
 }

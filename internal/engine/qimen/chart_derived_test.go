@@ -129,3 +129,55 @@ func equalStrings(a, b []string) bool {
 	}
 	return true
 }
+
+// TestYingQiAnchors 应期文案数据驱动锚定（马星/空亡用具体地支，与盘面一致）。
+// 期望值由三合局马星口诀 + 时柱旬空规则独立手算。
+func TestYingQiAnchors(t *testing.T) {
+	cases := []struct {
+		name          string
+		date          string
+		hour          int
+		maXingText    string // 马星文案（含具体地支）
+		kongWangText  string // 空亡文案（含具体两支）
+	}{
+		{
+			// 午→寅午戌马在申（应期冲申的寅）；戊午（甲寅旬）空子丑。
+			name: "2026-06-28 午时 马在申 空子丑",
+			date: "2026-06-28", hour: 12,
+			maXingText:   "马星在申，冲则动，应期在寅（年月日时）",
+			kongWangText: "空亡在子 丑，填实或冲空之时应事",
+		},
+		{
+			// 辰→申子辰马在寅（应期冲寅的申）；庚辰（甲戌旬）空申酉。
+			name: "2026-01-01 辰时 马在寅 空申酉",
+			date: "2026-01-01", hour: 8,
+			maXingText:   "马星在寅，冲则动，应期在申（年月日时）",
+			kongWangText: "空亡在申 酉，填实或冲空之时应事",
+		},
+		{
+			// 午→马在申；庚午（甲子旬）空戌亥。
+			name: "2000-06-15 午时 马在申 空戌亥",
+			date: "2000-06-15", hour: 12,
+			maXingText:   "马星在申，冲则动，应期在寅（年月日时）",
+			kongWangText: "空亡在戌 亥，填实或冲空之时应事",
+		},
+		{
+			// 辰→马在寅（应期冲寅的申）；时柱戊辰（甲子旬）空戌亥。
+			name: "1984-02-15 辰时 马在寅 空戌亥",
+			date: "1984-02-15", hour: 8,
+			maXingText:   "马星在寅，冲则动，应期在申（年月日时）",
+			kongWangText: "空亡在戌 亥，填实或冲空之时应事",
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			ch := chartAt(t, c.date, c.hour)
+			if ch.YingQi.MaXing != c.maXingText {
+				t.Errorf("ma_xing_dir = %q, want %q", ch.YingQi.MaXing, c.maXingText)
+			}
+			if ch.YingQi.KongWang != c.kongWangText {
+				t.Errorf("kong_wang_fill = %q, want %q", ch.YingQi.KongWang, c.kongWangText)
+			}
+		})
+	}
+}
