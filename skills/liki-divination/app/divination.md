@@ -8,7 +8,7 @@ description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
 
 ## 依赖的领域知识
 
-[必读] - 六爻: domains/liuyao/yongshen.md（用神）+ jixiong.md（吉凶）+ yingqi.md（应期）
+[必读] - 六爻: domains/liuyao/yongshen.md（用神）+ yuejian.md（旺衰/修饰）+ jixiong.md（动爻关系）+ patterns.md（格局）+ liushou.md（六神）+ yingqi.md（应期）
 [必读] - 奇门: domains/qimen/yongshen.md（用神）+ bamen.md（八门）+ jiuxing.md（九星）+ bashen.md（八神）
 
 ## 用户问法 → 流程分支
@@ -26,10 +26,15 @@ description: 占卜分析 — 六爻+奇门，问吉凶、决策、时机
 ### 六爻（吉凶/应期）
 2. 起卦 → `liuyao.qigua`（不强制出生时间，心念/随机起卦；返回 yaos 六爻值：6 老阴 / 7 少阳 / 8 少阴 / 9 老阳，6/9 为动爻）
    输出：□ 卦象已起____
-3. 装卦 → `liuyao.chart`
-   输出：□ 用神____ 世应____ 动爻____ 旺衰____
-4. 断卦 → domains/liuyao/（yongshen 选用神 → jixiong 判定链 → yingqi 应期 → liushou → yuejian）
-   输出：□ 吉凶____ 应期____
+3. 装卦 → `liuyao.chart`（引擎返回确定性因子：用神/动爻关系/格局）
+   输出：□ 用神____ 动爻关系____ 格局____
+4. 读解读规则 → domains/liuyao/（6 因子解读规则）
+5. LLM 解读 6 个重要因子（旺衰/月破/旬空/动爻关系/格局/六神）→ 吉凶、助力/阻碍、结构影响、色彩
+   输出：□ 吉凶____ 助力/阻碍____ 结构影响____ 色彩____
+6. 应期 → domains/liuyao/yingqi.md
+   输出：□ 应期____
+7. 生成断语 → LLM 综合 6 因子解读 + 应期，生成自然语言断语
+   输出：□ 断语____ 建议____
 
 ### 奇门（方向/时机）
 2. 排盘 → `qimen.chart`
