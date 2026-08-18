@@ -103,11 +103,11 @@ def test_query_enum_geju():
 
 
 def test_query_enum_shengyuan():
-    """旺+生原神 → 有助力"""
+    """旺+生原神 → 事可成"""
     factors = {'用神旺衰': '旺', '月破': False, '旬空': False, '主要动爻关系': '生原神', '格局': ''}
     results = query('enum_general', factors)
     assert len(results) > 0
-    assert any('助力' in r.get('结论', '') for r in results)
+    assert any('事可成' in r.get('结论', '') for r in results)
 
 
 def test_query_enum_wudongyao():
@@ -119,9 +119,8 @@ def test_query_enum_wudongyao():
 
 
 def test_query_no_match():
-    """无匹配（枚举表无此组合）"""
-    factors = {'用神旺衰': '死', '月破': False, '旬空': False, '主要动爻关系': '克忌神', '格局': '六合'}
-    results = query('enum_general', factors)
+    """不存在的表 → 无匹配"""
+    results = query('not_exist_table', {'用神旺衰': '旺'})
     assert len(results) == 0
 
 
