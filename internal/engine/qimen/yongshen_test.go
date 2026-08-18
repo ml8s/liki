@@ -214,3 +214,163 @@ func TestYongShenSymbolAnchor_JiaDun(t *testing.T) {
 		t.Errorf("甲辰日甲遁壬落宫 = %s(%d), want 乾(6)", ch.RiGanPalace, ch.RiGanPalace)
 	}
 }
+
+// TestJiaDunAllSix 六甲遁六仪全映射（领域规则：甲子遁戊/甲戌遁己/甲申遁庚/甲午遁辛/甲辰遁壬/甲寅遁癸）。
+func TestJiaDunAllSix(t *testing.T) {
+	cases := []struct {
+		zhi  ganzhi.Zhi
+		want ganzhi.Gan
+	}{
+		{ganzhi.ZhiZi, ganzhi.GanWu},   // 甲子→戊
+		{ganzhi.ZhiXu, ganzhi.GanJi},   // 甲戌→己
+		{ganzhi.ZhiShen, ganzhi.GanGeng}, // 甲申→庚
+		{ganzhi.ZhiWu, ganzhi.GanXin},  // 甲午→辛
+		{ganzhi.ZhiChen, ganzhi.GanRen}, // 甲辰→壬
+		{ganzhi.ZhiYin, ganzhi.GanGui}, // 甲寅→癸
+	}
+	for _, c := range cases {
+		got, ok := jiaDunLiuYi(c.zhi)
+		if !ok {
+			t.Errorf("jiaDunLiuYi(%s) 应命中", c.zhi)
+			continue
+		}
+		if got != c.want {
+			t.Errorf("jiaDunLiuYi(%s) = %s, want %s", c.zhi, got, c.want)
+		}
+	}
+	// 非六甲支不遁
+	if _, ok := jiaDunLiuYi(ganzhi.ZhiChou); ok {
+		t.Error("非六甲支(丑)不应遁甲")
+	}
+}
+
+// TestParseYongShen_SpiritYinYang 八神阴遁名（白虎/玄武）与阳遁名等价解析。
+func TestParseYongShen_SpiritYinYang(t *testing.T) {
+	cases := []struct {
+		yang, yin string
+	}{
+		{"勾陈", "白虎"}, // 阳遁勾陈=阴遁白虎
+		{"朱雀", "玄武"}, // 阳遁朱雀=阴遁玄武
+	}
+	for _, c := range cases {
+		yangSym, err := ParseYongShen(c.yang)
+		if err != nil {
+			t.Errorf("ParseYongShen(%q): %v", c.yang, err)
+			continue
+		}
+		yinSym, err := ParseYongShen(c.yin)
+		if err != nil {
+			t.Errorf("ParseYongShen(%q): %v", c.yin, err)
+			continue
+		}
+		if yangSym.Spirit == nil || yinSym.Spirit == nil || *yangSym.Spirit != *yinSym.Spirit {
+			t.Errorf("%q(%v) 与 %q(%v) 应为同一八神", c.yang, yangSym.Spirit, c.yin, yinSym.Spirit)
+		}
+	}
+}
+
+// TestYongShenSymbolStateAnchors 符号落宫完整状态锚点（Palace/TianGan/KongWang/MaXing）。
+// 2000-06-15 午时（阳遁9局）：时柱庚午（甲子旬）空戌亥→乾；午属寅午戌三合，马在申→坤。
+// 独立盘面锚定，非自证。
+func TestYongShenSymbolStateAnchors(t *testing.T) {
+	st := tianwen.GregorianToSolar(
+		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	chart := ComputeChart(st, ShiQiMen)
+	cases := []struct {
+		symbol    string
+		palace    string
+		tianGan   string
+		kongWang  bool
+		maXing    bool
+	}{
+		{"生门", "乾", "壬", true, false},  // 生门落乾6，天盘壬，乾空亡
+		{"戊", "坤", "戊", false, true},    // 戊天盘落坤2，坤为马星
+		{"庚", "巽", "庚", false, false},   // 庚天盘落巽4
+		{"开门", "震", "己", false, false}, // 开门落震3，天盘己
+		{"六合", "乾", "壬", true, false},  // 六合神落乾6（同宫）
+	}
+	for _, c := range cases {
+		sym, err := ParseYongShen(c.symbol)
+		if err != nil {
+			t.Errorf("ParseYongShen(%q): %v", c.symbol, err)
+			continue
+		}
+		ys := ComputeYongShen(chart, []YongShenSymbol{sym})
+		if len(ys.Symbols) != 1 {
+			t.Errorf("%s: 应有 1 个符号结果", c.symbol)
+			continue
+		}
+		r := ys.Symbols[0]
+		if r.Palace.String() != c.palace || r.TianGan != c.tianGan || r.KongWang != c.kongWang || r.MaXing != c.maXing {
+			t.Errorf("%s 状态 = {宫%s 天盘%s 空亡%v 马星%v}, want {宫%s 天盘%s 空亡%v 马星%v}",
+				c.symbol, r.Palace, r.TianGan, r.KongWang, r.MaXing,
+				c.palace, c.tianGan, c.kongWang, c.maXing)
+		}
+	}
+}
+
+// TestYongShenCombination_Marriage 多符号组合（婚姻：六合神 + 庚 + 乙）。
+func TestYongShenCombination_Marriage(t *testing.T) {
+	st := tianwen.GregorianToSolar(
+		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	chart := ComputeChart(st, ShiQiMen)
+	names := []string{"六合", "庚", "乙"}
+	syms := make([]YongShenSymbol, 0, len(names))
+	for _, n := range names {
+		sym, _ := ParseYongShen(n)
+		syms = append(syms, sym)
+	}
+	ys := ComputeYongShen(chart, syms)
+	if len(ys.Symbols) != 3 {
+		t.Fatalf("应有 3 个符号结果，got %d", len(ys.Symbols))
+	}
+	// 六合→乾6，庚→巽4，乙→坎1（天盘优先，独立盘面锚定）
+	want := []struct{ symbol, palace string }{
+		{"六合", "乾"},
+		{"庚", "巽"},
+		{"乙", "坎"},
+	}
+	for i, w := range want {
+		if ys.Symbols[i].Symbol != w.symbol || ys.Symbols[i].Palace.String() != w.palace {
+			t.Errorf("组合[%d] = %s@%s, want %s@%s",
+				i, ys.Symbols[i].Symbol, ys.Symbols[i].Palace, w.symbol, w.palace)
+		}
+	}
+}
+
+// TestComputeYongShen_EmptyDuplicate 空符号组合与重复符号边界。
+func TestComputeYongShen_EmptyDuplicate(t *testing.T) {
+	chart := chartForTest()
+	// 空符号组合 → 无符号结果（不 panic）
+	ys := ComputeYongShen(chart, nil)
+	if len(ys.Symbols) != 0 {
+		t.Errorf("空符号组合应无结果，got %d", len(ys.Symbols))
+	}
+	// 重复符号 → 各符号独立成项
+	sym, _ := ParseYongShen("开门")
+	ys = ComputeYongShen(chart, []YongShenSymbol{sym, sym})
+	if len(ys.Symbols) != 2 {
+		t.Errorf("重复符号应 2 项，got %d", len(ys.Symbols))
+	}
+	if ys.Symbols[0].Palace != ys.Symbols[1].Palace {
+		t.Error("重复同符号落宫应一致")
+	}
+}
+
+// TestYongShenNianGanAnchor 年命干具体落宫锚定（非仅非空断言）。
+func TestYongShenNianGanAnchor(t *testing.T) {
+	chart := chartForTest() // 1984-02-15 阳遁8局伏吟盘
+	sym, _ := ParseYongShen("开门")
+	// 1985 乙丑年 → 年干乙 → 天盘乙落宫7兑（盘面独立锚定）
+	ys := ComputeYongShenWithBirth(chart, []YongShenSymbol{sym}, 1985)
+	if ys.NianGanPalace == nil {
+		t.Fatal("有 birth_year 时年命干落宫不应为空")
+	}
+	if *ys.NianGanPalace != GongDui {
+		t.Errorf("1985乙丑年命乙落宫 = %s(%d), want 兑(7)", *ys.NianGanPalace, *ys.NianGanPalace)
+	}
+}
