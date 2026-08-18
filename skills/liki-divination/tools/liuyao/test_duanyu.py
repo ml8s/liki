@@ -93,10 +93,10 @@ def test_query_no_match():
         '月破': False,
         '旬空': False,
         '主要动爻关系': '克忌神',
-        '格局': '',
+        '格局': '六合',
     }
     results = query('enum_general', factors)
-    # enum_general 无"死+克忌神"组合 → 无匹配
+    # enum_general 无"死+克忌神+六合"组合（格局叠加只覆盖旺/休）→ 无匹配
     assert len(results) == 0
 
 

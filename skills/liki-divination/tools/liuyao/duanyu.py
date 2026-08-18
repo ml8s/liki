@@ -69,26 +69,36 @@ def evaluate_factors(chart: Dict[str, Any], yong_shen: Dict[str, Any]) -> Dict[s
 
 
 def query(category: str, factors: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """查询断语（支持枚举断语表）"""
+    """查询断语（支持枚举断语表）
+
+    语义（命理逻辑在表）：
+    - factors 中显式传入非空/非 False 值的列 → 必须精确匹配（行该列非空且相等）
+    - factors 中为空的列（未传该维度）→ 不关心（行任何值都行）
+    - 布尔 False 视为"未指定该维度"（不参与匹配，即"无修饰"也匹配）
+    """
     table = load_table(category)
     results = []
     for row in table:
         match = True
         for key, value in factors.items():
-            if key in row and row[key] != '':
-                row_value = row[key]
-                if isinstance(value, bool):
-                    row_value = row_value == '1'
-                elif isinstance(value, (list, tuple)):
-                    # 集合：列表中的任一值匹配即命中
-                    if value and row_value not in [str(v) for v in value]:
-                        match = False
-                        break
-                else:
-                    row_value = str(row_value)
-                    if str(value) != row_value:
-                        match = False
-                        break
+            if key not in row:
+                continue
+            if value is None or value == '':
+                continue  # 未传该维度 → 不关心
+            row_value = row[key]
+            if isinstance(value, bool):
+                # 布尔 False 视为未指定（无修饰也匹配）；True 必须行=1
+                if value is True and row_value != '1':
+                    match = False
+                    break
+            elif isinstance(value, (list, tuple)):
+                if value and row_value not in [str(v) for v in value]:
+                    match = False
+                    break
+            else:
+                if str(value) != row_value:
+                    match = False
+                    break
         if match:
             results.append(row)
     return results
