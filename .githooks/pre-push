@@ -5,6 +5,6 @@
 set -e
 
 echo "==> pre-push: 正在执行 make pre-push ..."
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/.."
 make pre-push
 echo "==> pre-push: 检查通过，推送继续"
