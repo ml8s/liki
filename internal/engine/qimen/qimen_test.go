@@ -856,6 +856,32 @@ func TestZhiPalace_Bidirectional(t *testing.T) {
 	}
 }
 
+// TestZhiPalace_All 地支→宫位直接锚定（独立于 palaceZhi，非往返自证）。
+func TestZhiPalace_All(t *testing.T) {
+	cases := []struct {
+		zhi  ganzhi.Zhi
+		want GongIndex
+	}{
+		{ganzhi.ZhiZi, GongKan},    // 子→坎
+		{ganzhi.ZhiChou, GongGen},  // 丑→艮
+		{ganzhi.ZhiYin, GongGen},   // 寅→艮
+		{ganzhi.ZhiMao, GongZhen},  // 卯→震
+		{ganzhi.ZhiChen, GongXun},  // 辰→巽
+		{ganzhi.ZhiSi, GongXun},    // 巳→巽
+		{ganzhi.ZhiWu, GongLi},     // 午→离
+		{ganzhi.ZhiWei, GongKun},   // 未→坤
+		{ganzhi.ZhiShen, GongKun},  // 申→坤
+		{ganzhi.ZhiYou, GongDui},   // 酉→兑
+		{ganzhi.ZhiXu, GongQian},   // 戌→乾
+		{ganzhi.ZhiHai, GongQian},  // 亥→乾
+	}
+	for _, c := range cases {
+		if got := zhiPalace(c.zhi); got != c.want {
+			t.Errorf("zhiPalace(%s) = %s, want %s", ganzhi.ZhiName(c.zhi), got, c.want)
+		}
+	}
+}
+
 func TestStarHomePalace_RoundTrip(t *testing.T) {
 	for i := 0; i < 9; i++ {
 		star := palaceStar[i]
@@ -979,18 +1005,33 @@ func buildSamplePan() pan {
 }
 
 func TestComputeMenInteractions(t *testing.T) {
-	p := buildSamplePan()
+	p := buildSamplePan() // 阳遁1局 乙丑时
 	result := computeMenInteractions(p)
 
-	for i := 0; i < 9; i++ {
-		if p.GongWei[i].Door != 0 && result[i].Name == "" {
-			t.Errorf("gong %d: door present but no interaction name", i)
+	// 独立锚定：门互克表条目（buildSamplePan 的门分布）。
+	// 宫1伤门加坎、宫2杜门加坤、宫6惊门加乾、宫7开门加兑、宫8休门加艮、宫9生门加离。
+	anchors := []struct {
+		idx   int
+		door  string
+		name  string
+		meaning string
+	}{
+		{0, "伤门", "伤门加坎", "道路之伤，水厄之灾"},
+		{1, "杜门", "杜门加坤", "土木之阻，田宅有损"},
+		{5, "惊门", "惊门加乾", "尊长不安，口舌失财"},
+		{6, "开门", "开门加兑", "说合之利，口舌得财"},
+		{7, "休门", "休门加艮", "求财有财，出行有喜"},
+		{8, "生门", "生门加离", "文书之喜，或火食之喜"},
+	}
+	for _, a := range anchors {
+		r := result[a.idx]
+		if r.Name != a.name {
+			t.Errorf("宫%d(%s) 门互克名 = %q, want %q", a.idx+1, GongIndex(a.idx+1), r.Name, a.name)
 		}
-		if p.GongWei[i].Door == 0 && result[i].Name != "" {
-			t.Errorf("gong %d: no door but got interaction name %s", i, result[i].Name)
+		if r.Meaning != a.meaning {
+			t.Errorf("宫%d(%s) 门互克意 = %q, want %q", a.idx+1, GongIndex(a.idx+1), r.Meaning, a.meaning)
 		}
 	}
-	// 雀投江 is a known empty test. Just verify no panic.
 }
 
 func TestDoorAuspicious(t *testing.T) {
@@ -1045,9 +1086,21 @@ func TestFindMenPo(t *testing.T) {
 	p.GongWei[0] = Gong{Door: DoorSi, EarthStem: ganzhi.GanWu} // pos 0=坎
 
 	result := findMenPo(p)
-	// at least 1迫 should be found (休门在离 pos8, 死门在坎 pos0)
-	if len(result) < 1 {
-		t.Error("expected at least 1 menPo")
+	// 门迫宫位应含坎1（死门土克坎水）与离9（休门水克离火）。
+	hasKan, hasLi := false, false
+	for _, g := range result {
+		if g == GongKan {
+			hasKan = true
+		}
+		if g == GongLi {
+			hasLi = true
+		}
+	}
+	if !hasKan {
+		t.Error("门迫应含坎1（死门土克坎水）")
+	}
+	if !hasLi {
+		t.Error("门迫应含离9（休门水克离火）")
 	}
 }
 
@@ -1059,8 +1112,21 @@ func TestFindMenZhi(t *testing.T) {
 	p.GongWei[2] = Gong{Door: DoorSheng}
 
 	result := findMenZhi(p)
-	if len(result) < 2 {
-		t.Errorf("expected at least 2 menZhi, got %d", len(result))
+	// 门制宫位应含坤2（休门水被坤土制）与震3（生门土被震木制）。
+	hasKun, hasZhen := false, false
+	for _, g := range result {
+		if g == GongKun {
+			hasKun = true
+		}
+		if g == GongZhen {
+			hasZhen = true
+		}
+	}
+	if !hasKun {
+		t.Error("门制应含坤2（休门水被坤土制）")
+	}
+	if !hasZhen {
+		t.Error("门制应含震3（生门土被震木制）")
 	}
 }
 
@@ -1069,17 +1135,29 @@ func TestFindMenZhi(t *testing.T) {
 // =============================================================================
 
 func TestComputeXingInteractions(t *testing.T) {
-	p := buildSamplePan()
+	p := buildSamplePan() // 阳遁1局 乙丑时
 	result := computeXingInteractions(p)
 
-	for i := 0; i < 9; i++ {
-		if p.GongWei[i].Star != 0 && result[i].Name == "" {
-			t.Errorf("gong %d: star present but no interaction name", i)
-		}
+	// 独立锚定：星入宫五行克应。
+	// 宫1坎天芮(土)入水宫、宫2坤天冲(木)入土宫、宫3震天辅(木)入木宫、宫9离天蓬(水)入火宫。
+	anchors := []struct {
+		idx   int
+		name  string
+		meaning string
+	}{
+		{0, "土星入水宫", "土能克水，事宜稳重"},
+		{1, "木星入土宫", "木能克土，宜田宅之事"},
+		{2, "木星入木宫", "兄弟同心，合作得利"},
+		{8, "水星入火宫", "水火相激，多事之秋"},
 	}
-	// Check known entry: StarTianPeng in gong index 0 (坎)=水星入水宫
-	if result[0].Name == "" {
-		t.Error("gong 0: star interaction name is empty")
+	for _, a := range anchors {
+		r := result[a.idx]
+		if r.Name != a.name {
+			t.Errorf("宫%d(%s) 星互克名 = %q, want %q", a.idx+1, GongIndex(a.idx+1), r.Name, a.name)
+		}
+		if r.Meaning != a.meaning {
+			t.Errorf("宫%d(%s) 星互克意 = %q, want %q", a.idx+1, GongIndex(a.idx+1), r.Meaning, a.meaning)
+		}
 	}
 }
 
@@ -1224,6 +1302,28 @@ func TestHasSpirit(t *testing.T) {
 	}
 }
 
+// TestPalaceZhi_All 宫→主支直接锚定（独立于 zhiPalace，非往返自证）。
+func TestPalaceZhi_All(t *testing.T) {
+	cases := []struct {
+		gong GongIndex
+		want ganzhi.Zhi
+	}{
+		{GongKan, ganzhi.ZhiZi},  // 坎→子
+		{GongKun, ganzhi.ZhiWei}, // 坤→未
+		{GongZhen, ganzhi.ZhiMao}, // 震→卯
+		{GongXun, ganzhi.ZhiSi},  // 巽→巳
+		{GongQian, ganzhi.ZhiXu}, // 乾→戌
+		{GongDui, ganzhi.ZhiYou}, // 兑→酉
+		{GongGen, ganzhi.ZhiYin}, // 艮→寅
+		{GongLi, ganzhi.ZhiWu},   // 离→午
+	}
+	for _, c := range cases {
+		if got := palaceZhi(c.gong); got != c.want {
+			t.Errorf("palaceZhi(%s) = %s, want %s", c.gong, ganzhi.ZhiName(got), ganzhi.ZhiName(c.want))
+		}
+	}
+}
+
 func TestPalaceZhi_Invalid(t *testing.T) {
 	if got := palaceZhi(0); got != ganzhi.ZhiZi {
 		t.Errorf("palaceZhi(0) = %s, want 子", ganzhi.ZhiName(got))
@@ -1255,10 +1355,7 @@ func TestFindPatterns(t *testing.T) {
 		}
 	}
 	if !found {
-		t.Log("天遁 pattern not triggered (may need specific configuration)")
-	}
-	if len(patterns) > 0 {
-		t.Logf("found patterns: %v", patterns)
+		t.Error("天遁 pattern 未触发（pan 含丙+生门+丁，应触发）")
 	}
 }
 
@@ -1313,11 +1410,15 @@ func TestFindPatterns_FuYin_Qin(t *testing.T) {
 // =============================================================================
 
 func TestComputeYingQi(t *testing.T) {
-	p := buildSamplePan()
+	p := buildSamplePan() // 阳遁1局 乙丑时
 	yq := computeYingQi(p)
 
-	if yq.MaXing == "" {
-		t.Error("MaXing is empty")
+	// 具体文案锚定：丑→巳酉丑马在亥（冲巳）；乙丑甲子旬空戌亥。
+	if yq.MaXing != "马星在亥，冲则动，应期在巳（年月日时）" {
+		t.Errorf("MaXing = %q, want 马星在亥（丑→巳酉丑马在亥）", yq.MaXing)
+	}
+	if yq.KongWang != "空亡在戌 亥，填实或冲空之时应事" {
+		t.Errorf("KongWang = %q, want 空亡在戌亥（乙丑甲子旬）", yq.KongWang)
 	}
 	if yq.DutyMove == "" {
 		t.Error("DutyMove is empty")

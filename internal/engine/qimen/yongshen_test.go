@@ -125,22 +125,37 @@ func TestComputeYongShen_AJiaDun(t *testing.T) {
 	}
 }
 
-// TestComputeYongShen_KongWangMaXing 符号落宫空亡/马星
+// TestComputeYongShen_KongWangMaXing 符号落宫空亡/马星独立锚定。
+// 2000-06-15 午时（阳遁9局）：空亡戌亥→乾、马星申→坤。
+// 生门落乾6（空亡true）、戊天盘落坤2（马星true）。
 func TestComputeYongShen_KongWangMaXing(t *testing.T) {
-	chart := chartForTest()
-	sym, _ := ParseYongShen("开门")
-	ys := ComputeYongShen(chart, []YongShenSymbol{sym})
-	if len(ys.Symbols) != 1 || ys.Symbols[0].Palace == 0 {
-		t.Fatal("开门落宫应>0")
+	st := tianwen.GregorianToSolar(
+		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	chart := ComputeChart(st, ShiQiMen)
+
+	shengMen, _ := ParseYongShen("生门")
+	ys := ComputeYongShen(chart, []YongShenSymbol{shengMen})
+	if len(ys.Symbols) != 1 {
+		t.Fatal("生门应有 1 个符号结果")
 	}
-	// 与盘一致
-	for _, k := range chart.Pan.KongWang {
-		if k == ys.Symbols[0].Palace && !ys.Symbols[0].KongWang {
-			t.Errorf("落宫%d为空亡宫，kong_wang应为true", ys.Symbols[0].Palace)
-		}
+	// 生门落乾6（戌亥空亡→乾）→ 空亡应为 true。
+	if !ys.Symbols[0].KongWang {
+		t.Errorf("生门落乾6应为空亡（戌亥空亡），got kong_wang=false")
 	}
-	if ys.Symbols[0].Palace == chart.Pan.MaXing && !ys.Symbols[0].MaXing {
-		t.Errorf("落宫%d为马星宫，ma_xing应为true", ys.Symbols[0].Palace)
+	if ys.Symbols[0].MaXing {
+		t.Errorf("生门落乾6不应为马星（马星坤），got ma_xing=true")
+	}
+
+	wu, _ := ParseYongShen("戊")
+	ys2 := ComputeYongShen(chart, []YongShenSymbol{wu})
+	if len(ys2.Symbols) != 1 {
+		t.Fatal("戊应有 1 个符号结果")
+	}
+	// 戊天盘落坤2（马星坤）→ 马星应为 true。
+	if !ys2.Symbols[0].MaXing {
+		t.Errorf("戊落坤2应为马星（马星坤），got ma_xing=false")
 	}
 }
 
