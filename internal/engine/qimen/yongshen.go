@@ -62,12 +62,47 @@ type YongShenResult struct {
 	Name          string        `json:"name"`                  // 占事类型
 	RiGanPalace   GongIndex     `json:"ri_gan_gong"`           // 日干落宫（求测人"我"）
 	ShiGanPalace  GongIndex     `json:"shi_gan_gong"`          // 时干落宫（所问之事）
-	NianGanPalace *GongIndex    `json:"nian_gan_gong,omitempty"` // 年命干落宫（本命根基，需 birth_year）
+	NianGanPalace *GongIndex    `json:"nian_gan_gong,omitempty"` // 年命干落宫（本命根基，需 birth_year；甲遁看六仪遁宫）
 	Body          YongShenBody  `json:"body"`                  // 事象用神（门/星/神/干）
-	BodyPalace    GongIndex     `json:"body_palace"`           // 事象用神落宫（门落宫为主）
+	BodyPalace    GongIndex     `json:"body_palace"`           // 事象用神主落宫（门落宫为主，否则星/神）
+	StemPalace    *GongIndex    `json:"stem_palace,omitempty"` // 事象干落宫（求财戊、婚姻庚/乙）
+	BodyTianGan   string        `json:"body_tian_gan"`         // 用神落宫天盘干（十干克应）
 	RiShiShengKe  string        `json:"ri_shi_sheng_ke"`       // 日干宫-时干宫生克（我 vs 事）
 	KongWang      bool          `json:"kong_wang"`             // 用神落宫是否空亡
 	MaXing        bool          `json:"ma_xing"`               // 用神落宫是否马星
+}
+
+// liuJiaLiuYi 六甲 → 六仪（甲遁）。顺序：甲子/甲戌/甲申/甲午/甲辰/甲寅 → 戊/己/庚/辛/壬/癸。
+var liuJiaZhi = [6]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiXu, ganzhi.ZhiShen, ganzhi.ZhiWu, ganzhi.ZhiChen, ganzhi.ZhiYin}
+
+// jiaDunLiuYi 年命干甲时，按年支映射遁入的六仪。
+func jiaDunLiuYi(nianZhi ganzhi.Zhi) (ganzhi.Gan, bool) {
+	for i, z := range liuJiaZhi {
+		if z == nianZhi {
+			return liuJiaLiuYi[i], true
+		}
+	}
+	return 0, false
+}
+
+// resolveNianGan 出生年份 → 年命干落宫（甲年命遁六仪）。
+func resolveNianGan(chart Chart, birthYear int) *GongIndex {
+	nian := tianwen.NianZhu(tianwen.GregorianTime(time.Date(birthYear, 2, 15, 0, 0, 0, 0, time.UTC)))
+	if nian.Gan == 0 {
+		return nil
+	}
+	gan := nian.Gan
+	// 甲遁：年命干甲 → 按年支遁六仪
+	if nian.Gan == ganzhi.GanJia {
+		if liuYi, ok := jiaDunLiuYi(nian.Zhi); ok {
+			gan = liuYi
+		}
+	}
+	palace := findGanPalaceIdx(chart.Pan, gan)
+	if palace > 0 {
+		return &palace
+	}
+	return nil
 }
 
 // 婚姻用神：男看庚（男方），女看乙（女方），配六合神。
@@ -134,7 +169,7 @@ func computeYongShen(chart Chart, q QianShiType, gender string, birthYear int, h
 		Body:          qianshiBody(q, gender),
 	}
 
-	// 事象用神落宫：门落宫为主，否则星/神落宫
+	// 事象用神主落宫：门落宫为主，否则星/神落宫
 	ys.BodyPalace = 0
 	if ys.Body.Door != nil {
 		ys.BodyPalace = findDoorPalaceIdx(chart.Pan, *ys.Body.Door)
@@ -142,6 +177,13 @@ func computeYongShen(chart Chart, q QianShiType, gender string, birthYear int, h
 		ys.BodyPalace = findStarPalaceIdx(chart.Pan, *ys.Body.Star)
 	} else if ys.Body.Spirit != nil {
 		ys.BodyPalace = findSpiritPalaceIdx(chart.Pan, *ys.Body.Spirit)
+	}
+
+	// 事象干落宫（求财戊、婚姻庚/乙）
+	if ys.Body.Stem != nil {
+		if palace := findGanPalaceIdx(chart.Pan, *ys.Body.Stem); palace > 0 {
+			ys.StemPalace = &palace
+		}
 	}
 
 	// 用神落宫状态（空亡/马星）
@@ -153,18 +195,15 @@ func computeYongShen(chart Chart, q QianShiType, gender string, birthYear int, h
 			}
 		}
 		ys.MaXing = ys.BodyPalace == chart.Pan.MaXing
+		// 用神落宫天盘干（十干克应）
+		if int(ys.BodyPalace) >= 1 && int(ys.BodyPalace) <= 9 {
+			ys.BodyTianGan = chart.Pan.GongWei[ys.BodyPalace-1].HeavenStem.String()
+		}
 	}
 
-	// 年命干落宫（需出生年份）
+	// 年命干落宫（需出生年份；甲年命遁六仪）
 	if hasBirth && birthYear > 0 {
-		// 出生年立春后的年柱 → 年干
-		nian := tianwen.NianZhu(tianwen.GregorianTime(time.Date(birthYear, 2, 15, 0, 0, 0, 0, time.UTC)))
-		if nian.Gan != 0 {
-			palace := findGanPalaceIdx(chart.Pan, nian.Gan)
-			if palace > 0 {
-				ys.NianGanPalace = &palace
-			}
-		}
+		ys.NianGanPalace = resolveNianGan(chart, birthYear)
 	}
 
 	return ys

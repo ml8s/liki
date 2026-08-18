@@ -135,3 +135,46 @@ func TestComputeYongShen_KongWangMaXing(t *testing.T) {
 		}
 	}
 }
+
+// TestComputeYongShen_StemPalace 求财事象干（戊）落宫
+func TestComputeYongShen_StemPalace(t *testing.T) {
+	chart := chartForTest()
+	ys := ComputeYongShen(chart, QianQiucai, "")
+	if ys.Body.Stem == nil || *ys.Body.Stem != ganzhi.GanWu {
+		t.Errorf("求财用神干 = %v, want 戊", ys.Body.Stem)
+	}
+	// 戊干落宫
+	if ys.StemPalace == nil || *ys.StemPalace <= 0 {
+		t.Error("求财戊干落宫应>0")
+	}
+	// 生门落宫（主落宫）
+	if ys.BodyPalace <= 0 {
+		t.Error("生门落宫应>0")
+	}
+}
+
+// TestComputeYongShen_AJiaDun 甲年命遁六仪
+func TestComputeYongShen_AJiaDun(t *testing.T) {
+	chart := chartForTest()
+	// 1984 甲子年 → 甲遁戊 → 戊落宫
+	ys := ComputeYongShenWithBirth(chart, QianZonghe, "", 1984)
+	if ys.NianGanPalace == nil {
+		t.Fatal("1984甲子年命干甲应遁戊有落宫")
+	}
+	// 甲子遁戊，落宫 = 戊在盘中的落宫
+	want := findGanPalaceIdx(chart.Pan, ganzhi.GanWu)
+	if want > 0 && *ys.NianGanPalace != want {
+		t.Errorf("甲遁戊落宫 = %d, want %d（戊落宫）", *ys.NianGanPalace, want)
+	}
+}
+
+// TestComputeYongShen_BodyTianGan 用神落宫天盘干
+func TestComputeYongShen_BodyTianGan(t *testing.T) {
+	chart := chartForTest()
+	ys := ComputeYongShen(chart, QianShiye, "")
+	if ys.BodyPalace > 0 {
+		if ys.BodyTianGan == "" {
+			t.Error("用神落宫天盘干不应为空")
+		}
+	}
+}
