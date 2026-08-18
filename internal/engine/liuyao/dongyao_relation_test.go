@@ -123,3 +123,25 @@ func TestDongYaoRelation_EnumTypes(t *testing.T) {
 		}
 	}
 }
+
+// TestYongShen_LiuShou 验证用神六神聚合
+func TestYongShen_LiuShou(t *testing.T) {
+	st := tianwen.GregorianToSolar(
+		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	chart := ComputeChart(st, YongGuanGui, [6]int{7, 7, 7, 7, 7, 7})
+
+	if chart.YongShen.Position == 0 {
+		t.Fatal("用神应存在")
+	}
+	// 用神六神应聚合（等于用神爻位的六神）
+	wantLiuShou := chart.Lines[chart.YongShen.Position-1].LiuShou
+	if chart.YongShen.LiuShou != wantLiuShou {
+		t.Errorf("yong_shen.liu_shou = %s, want %s", chart.YongShen.LiuShou, wantLiuShou)
+	}
+	// 六神应为合法值
+	if chart.YongShen.LiuShou.String() == "" {
+		t.Error("yong_shen.liu_shou should not be empty")
+	}
+}

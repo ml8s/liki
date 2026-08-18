@@ -187,6 +187,7 @@ type YongShenResult struct {
 	YuePo     bool     `json:"yue_po,omitempty"`  // 用神月破
 	XunKong   bool     `json:"xun_kong,omitempty"`// 用神旬空
 	MuKu      bool     `json:"mu_ku,omitempty"`   // 用神入墓
+	LiuShou   LiuShou  `json:"liu_shou,omitempty"`// 用神临的六神
 	FuShen    *FuShen  `json:"fu_shen,omitempty"`
 }
 
@@ -224,12 +225,13 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	// 每爻确定性派生状态（月破/发动/动爻生克）.
 	computeLineDerived(&chart)
 
-	// 聚合用神状态（旺衰/月破/旬空/入墓）.
+	// 聚合用神状态（旺衰/月破/旬空/入墓/六神）.
 	if pos > 0 {
 		chart.YongShen.WangShuai = chart.WangShuai[pos-1].String()
 		chart.YongShen.YuePo = chart.Lines[pos-1].YuePo
 		chart.YongShen.XunKong = chart.Lines[pos-1].XunKong
 		chart.YongShen.MuKu = chart.Lines[pos-1].MuKu
+		chart.YongShen.LiuShou = chart.Lines[pos-1].LiuShou
 	}
 
 	// 动爻关系（与用神的关系）.
