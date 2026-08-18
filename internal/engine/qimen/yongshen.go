@@ -80,26 +80,35 @@ type SymbolResult struct {
 	MaXing     bool      `json:"ma_xing"`     // 落宫是否马星
 }
 
-// YongShenResult 奇门用神领域对象（求测人 + 用神符号组合落宫状态）。
+// YongShenResult 奇门用神领域对象（用神符号组合落宫状态 + 年命干）。
+// 求测人定位（日干/时干落宫、生克）由排盘固有字段提供，见 Chart 顶层字段。
 type YongShenResult struct {
-	RiGanPalace   GongIndex      `json:"ri_gan_gong"`             // 日干落宫（求测人"我"）
-	ShiGanPalace  GongIndex      `json:"shi_gan_gong"`            // 时干落宫（所问之事）
 	NianGanPalace *GongIndex     `json:"nian_gan_gong,omitempty"` // 年命干落宫（需 birth_year；甲遁看六仪遁宫）
 	Symbols       []SymbolResult `json:"symbols"`                 // 用神符号组合落宫状态
-	RiShiShengKe  string         `json:"ri_shi_sheng_ke"`         // 日干宫-时干宫生克（我 vs 事）
 }
 
 // liuJiaLiuYi 六甲 → 六仪（甲遁）。顺序：甲子/甲戌/甲申/甲午/甲辰/甲寅 → 戊/己/庚/辛/壬/癸。
 var liuJiaZhi = [6]ganzhi.Zhi{ganzhi.ZhiZi, ganzhi.ZhiXu, ganzhi.ZhiShen, ganzhi.ZhiWu, ganzhi.ZhiChen, ganzhi.ZhiYin}
 
-// jiaDunLiuYi 年命干甲时，按年支映射遁入的六仪。
-func jiaDunLiuYi(nianZhi ganzhi.Zhi) (ganzhi.Gan, bool) {
+// jiaDunLiuYi 甲遁：六甲 → 六仪（甲子遁戊/甲戌遁己/甲申遁庚/甲午遁辛/甲辰遁壬/甲寅遁癸）。
+// 传入遁甲所依的地支（年支/日支/时支），返回对应的六仪。
+func jiaDunLiuYi(zhi ganzhi.Zhi) (ganzhi.Gan, bool) {
 	for i, z := range liuJiaZhi {
-		if z == nianZhi {
+		if z == zhi {
 			return liuJiaLiuYi[i], true
 		}
 	}
 	return 0, false
+}
+
+// resolveJiaDunGan 若天干为甲，按所依地支（年/日/时支）遁入六仪。
+func resolveJiaDunGan(gan ganzhi.Gan, zhi ganzhi.Zhi) ganzhi.Gan {
+	if gan == ganzhi.GanJia {
+		if liuYi, ok := jiaDunLiuYi(zhi); ok {
+			return liuYi
+		}
+	}
+	return gan
 }
 
 // resolveNianGan 出生年份 → 年命干落宫（甲年命遁六仪）。
@@ -108,12 +117,7 @@ func resolveNianGan(chart Chart, birthYear int) *GongIndex {
 	if nian.Gan == 0 {
 		return nil
 	}
-	gan := nian.Gan
-	if nian.Gan == ganzhi.GanJia {
-		if liuYi, ok := jiaDunLiuYi(nian.Zhi); ok {
-			gan = liuYi
-		}
-	}
+	gan := resolveJiaDunGan(nian.Gan, nian.Zhi)
 	palace := findGanPalaceIdx(chart.Pan, gan)
 	if palace > 0 {
 		return &palace
@@ -148,11 +152,7 @@ func ComputeYongShenWithBirth(chart Chart, syms []YongShenSymbol, birthYear int)
 }
 
 func computeYongShen(chart Chart, syms []YongShenSymbol, birthYear int, hasBirth bool) YongShenResult {
-	ys := YongShenResult{
-		RiGanPalace:  chart.RiGanPalace,
-		ShiGanPalace: chart.ShiGanPalace,
-		RiShiShengKe: chart.RiShiShengKe,
-	}
+	ys := YongShenResult{}
 
 	// 用神符号组合：逐个定位落宫取状态
 	for _, s := range syms {

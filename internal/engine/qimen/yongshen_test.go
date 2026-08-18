@@ -66,11 +66,11 @@ func TestComputeYongShen(t *testing.T) {
 	sym2, _ := ParseYongShen("戊")
 	ys := ComputeYongShen(chart, []YongShenSymbol{sym1, sym2})
 
-	// 求测人
-	if ys.RiGanPalace == 0 {
+	// 求测人定位由排盘固有字段提供（顶层）
+	if chart.RiGanPalace == 0 {
 		t.Error("日干落宫应为非零")
 	}
-	if ys.ShiGanPalace == 0 {
+	if chart.ShiGanPalace == 0 {
 		t.Error("时干落宫应为非零")
 	}
 	// 符号组合
@@ -89,9 +89,29 @@ func TestComputeYongShen(t *testing.T) {
 	if ys.Symbols[0].TianGan == "" {
 		t.Error("落宫天盘干不应为空")
 	}
-	// 日时生克
-	if ys.RiShiShengKe == "" {
+	// 日时生克（顶层）
+	if chart.RiShiShengKe == "" {
 		t.Error("日时生克不应为空")
+	}
+}
+
+// TestRiGanJiaDun 日干为甲时按日支遁六仪
+func TestRiGanJiaDun(t *testing.T) {
+	// 2000-06-15 甲辰日 → 甲辰遁壬 → 壬落宫
+	st := tianwen.GregorianToSolar(
+		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
+		116.4, 8,
+	)
+	ch := ComputeChart(st, ShiQiMen)
+	if ch.Pan.RiGan != ganzhi.GanJia {
+		t.Fatalf("预期甲日，got %s", ch.Pan.RiGan)
+	}
+	if ch.RiGanPalace == 0 {
+		t.Fatal("甲辰日应遁壬落宫，而非 0")
+	}
+	want := findGanPalaceIdx(ch.Pan, ganzhi.GanRen)
+	if want > 0 && ch.RiGanPalace != want {
+		t.Errorf("甲辰遁壬落宫 = %d, want %d", ch.RiGanPalace, want)
 	}
 }
 

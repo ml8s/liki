@@ -47,7 +47,7 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 	p.RiGan = bz.Ri.Gan
 	p.RiZhi = bz.Ri.Zhi
 
-	riGanP := findGanPalaceIdx(p, bz.Ri.Gan)
+	riGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
 	shiGanP := findGanPalaceIdx(p, p.DriveGan)
 
 	kongWangAffected := false
