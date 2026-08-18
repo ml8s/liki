@@ -67,8 +67,10 @@
 |------|------|------|
 | 用神符号落宫 | `yong_shen.symbols[]` | 所问之事各维度落宫（核心）|
 | 求测人定位 | `ri_gan_gong`/`shi_gan_gong`/`nian_gan_gong` | 我/事/本命 |
+| 值符值使 | `zhi_fu_xing_gong`/`zhi_shi_men_gong` | 盘之核心（值符星/值使门落宫）|
 | 我 vs 事 | `ri_shi_sheng_ke` | 求测人与事的成败关系 |
 | 空亡/马星 | `kong_wang_affected`/`ma_xing_affected` + 符号落宫空亡马星 | 事之虚实、快慢 |
+| 五不遇时 | `pan.wu_bu_yu_shi` | 时干克日干且同阴阳，主事难成/不宜举事 |
 | 格局 | `patterns`（天遁/地遁/人遁/伏吟/反吟等）| 结构影响、吉凶 |
 | 旺衰 | `wang_shuai` | 各宫星之力量 |
 | 门迫/门制 | `men_po`/`men_zhi` | 门受制/克宫，事有阻 |
