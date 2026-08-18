@@ -54,31 +54,41 @@ def evaluate_factors(chart: Dict[str, Any], yong_shen: Dict[str, Any]) -> Dict[s
                 factors['yongshen_muku'] = line.get('mu_ku', False)
     # 动爻关系（枚举集合，引擎已计算）
     relations = chart.get('dong_yao_relations', [])
-    factors['dong_yao_relations'] = [r.get('relation', '') for r in relations if r.get('relation')]
+    rel_list = [r.get('relation', '') for r in relations if r.get('relation')]
+    factors['dong_yao_relations'] = rel_list
+    # 主要动爻关系（枚举）：多动爻时取第一个（生克力量最直接者，命理上取关键一动）
+    factors['main_dongyao_relation'] = rel_list[0] if rel_list else '无动爻'
     # 特殊格局因子
     patterns = chart.get('patterns', [])
     for p in patterns:
         factors[f'pattern_{p["type"]}'] = p.get('sub_type', '')
+    # 格局枚举（合并 pattern_*：取第一个独立格局类型；空=无）
+    pattern_types = [p.get('type', '') for p in patterns if p.get('type')]
+    factors['pattern'] = pattern_types[0] if pattern_types else ''
     return factors
 
 
 def query(category: str, factors: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """查询断语"""
+    """查询断语（支持枚举断语表）"""
     table = load_table(category)
     results = []
     for row in table:
         match = True
         for key, value in factors.items():
             if key in row and row[key] != '':
-                # 处理布尔值与字符串 '1'/'0' 的转换
                 row_value = row[key]
                 if isinstance(value, bool):
                     row_value = row_value == '1'
-                elif isinstance(value, str):
+                elif isinstance(value, (list, tuple)):
+                    # 集合：列表中的任一值匹配即命中
+                    if value and row_value not in [str(v) for v in value]:
+                        match = False
+                        break
+                else:
                     row_value = str(row_value)
-                if str(value) != str(row_value):
-                    match = False
-                    break
+                    if str(value) != row_value:
+                        match = False
+                        break
         if match:
             results.append(row)
     return results

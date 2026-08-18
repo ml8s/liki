@@ -87,13 +87,16 @@ def test_query_patterns_xunkong():
 
 
 def test_query_no_match():
-    """测试无匹配断语"""
+    """测试无匹配断语（枚举表）"""
     factors = {
-        'yongshen_wangshuai': '旺',
-        'dong_sheng': True,
-        'dong_ke': True,
+        '用神旺衰': '死',
+        '月破': False,
+        '旬空': False,
+        '主要动爻关系': '克忌神',
+        '格局': '',
     }
-    results = query('career', factors)
+    results = query('enum_general', factors)
+    # enum_general 无"死+克忌神"组合 → 无匹配
     assert len(results) == 0
 
 
@@ -198,3 +201,83 @@ def test_query_general_nianyun():
     }
     results = query('general', factors)
     assert len(results) > 0
+
+
+def test_load_enum_general():
+    """测试加载枚举断语表"""
+    table = load_table('enum_general')
+    assert len(table) > 0
+    assert '用神旺衰' in table[0]
+
+
+def test_query_enum_wang_shengyong():
+    """测试枚举查询：旺+生用 → 事可成"""
+    factors = {
+        '用神旺衰': '旺',
+        '月破': False,
+        '旬空': False,
+        '主要动爻关系': '生用',
+        '格局': '',
+    }
+    results = query('enum_general', factors)
+    assert len(results) > 0
+    assert any('事可成' in r.get('结论', '') for r in results)
+
+
+def test_query_enum_xiu_keyong():
+    """测试枚举查询：休+克用 → 事难成"""
+    factors = {
+        '用神旺衰': '休',
+        '月破': False,
+        '旬空': False,
+        '主要动爻关系': '克用',
+        '格局': '',
+    }
+    results = query('enum_general', factors)
+    assert len(results) > 0
+    assert any('事难成' in r.get('结论', '') for r in results)
+
+
+def test_query_enum_yuepo():
+    """测试枚举查询：旺+月破+生用 → 先挫后成"""
+    factors = {
+        '用神旺衰': '旺',
+        '月破': True,
+        '旬空': False,
+        '主要动爻关系': '生用',
+        '格局': '',
+    }
+    results = query('enum_general', factors)
+    assert len(results) > 0
+    assert any('先挫后成' in r.get('结论', '') for r in results)
+
+
+def test_query_enum_geju():
+    """测试枚举查询：旺+生用+六冲 → 反复"""
+    factors = {
+        '用神旺衰': '旺',
+        '月破': False,
+        '旬空': False,
+        '主要动爻关系': '生用',
+        '格局': '六冲',
+    }
+    results = query('enum_general', factors)
+    assert len(results) > 0
+    assert any('反复' in r.get('结论', '') for r in results)
+
+
+def test_evaluate_factors_main_relation():
+    """测试主要动爻关系提取"""
+    chart = {
+        'dong_yao_relations': [
+            {'position': 1, 'relation': '生用'},
+            {'position': 3, 'relation': '克用'},
+        ],
+        'patterns': [
+            {'type': '六冲', 'sub_type': ''},
+        ],
+    }
+    yong_shen = {'position': 1, 'wang_shuai': '旺'}
+    factors = evaluate_factors(chart, yong_shen)
+    assert factors['main_dongyao_relation'] == '生用'
+    assert factors['pattern'] == '六冲'
