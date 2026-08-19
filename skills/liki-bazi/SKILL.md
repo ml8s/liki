@@ -22,15 +22,15 @@ description: 八字命理 — 八字、紫微斗数（八紫双盘同参）。�
 工具 schema 分两组，**动手前先各读一次**：
 
 1. **主流程 5 工具** → 读 `tools/skill-tools.json`（OpenAI function calling 格式，唯一来源），拿 `name`/`description`/`parameters`/`required`。
-2. **手调 RPC 方法** → 执行下面这条 `rpc.discover`（`methods` 填要用的方法名、逗号分隔），从 `result.methods[]` 拿每个方法的 `params.properties`/`required`：
+2. **手调 RPC 方法** → 启动时执行下面这条 `rpc.discover` 一次取全本 skill 需要的方法（域前缀 + 具体方法名），从 `result.methods[]` 拿每个方法的 `params.properties`/`required`：
 
 ```bash
 curl -s https://liki.hk/jsonrpc \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi.bond,ziwei.bond"},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi,ziwei,city.coords,tianwen.time,time.now"},"id":1}'
 ```
 
-不凭记忆拼参数；不一次性全量 discover（只列要用的方法）。
+不凭记忆拼参数；只取本 skill 需要的域（bazi/ziwei 域 + city.coords/tianwen.time/time.now），不一次性全量 discover 所有域。
 
 **排盘 correct 判定（full_paipan 参数）**：
 - 路 A（用户给具体时刻）→ `correct=True` + 出生地经度
@@ -39,7 +39,7 @@ curl -s https://liki.hk/jsonrpc \
 
 **手调 RPC 方法清单**（端点 `POST https://liki.hk/jsonrpc`，格式 `{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`）：
 
-- 合盘（compatibility 卡）：`bazi.bond` / `ziwei.bond`
+- 合盘（compatibility 卡）：`bazi.bond` / `ziwei.bond`（chart 输入从 `full_paipan` 返回的 `chart` 字段取）
 - 细化流：`bazi.liuyue` / `bazi.liuri` / `bazi.liushi` / `bazi.xiaoyun`、`ziwei.daxian` / `ziwei.liuyue` / `ziwei.liuri` / `ziwei.liushi` / `ziwei.fullchart`
 - 基础：`time.now`、`city.coords`、`tianwen.time`（真太阳时换算，调试/手排用）
 

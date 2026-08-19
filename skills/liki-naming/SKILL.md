@@ -24,13 +24,13 @@ description: 起名改名 — 排八字定用神、取字库、排三才五格�
 > 排盘/取字数据通过 JSON-RPC 2.0 获取，**禁止自行推算或凭训练知识编造**。
 
 - **端点**：`POST https://liki.hk/jsonrpc`；格式 `{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`
-- **调用前先 `rpc.discover` 按方法名取 schema**（`methods` 逗号分隔，只列要用的方法；`params.properties`/`required` 是唯一权威，不凭记忆拼参数）：
+- **启动时先 `rpc.discover` 一次取全本 skill 需要的方法**：域前缀 + 具体方法名，从 `result.methods[]` 拿每个方法的 `params.properties`/`required`（`params.properties`/`required` 是唯一权威，不凭记忆拼参数）：
   ```bash
   curl -s https://liki.hk/jsonrpc -H "Content-Type: application/json" \
-    -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi.chart,bazi.fullchart"},"id":1}'
+    -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi.chart,bazi.fullchart,qiming,city.coords,tianwen.time"},"id":1}'
   ```
 - **方法清单**：`bazi.chart`（排八字）/ `bazi.fullchart`（取用神）/ `qiming.pick`（取字）/ `qiming.build`（组名）/ `qiming.check`（评估）/ `qiming.char`（查字）
-- 排八字校正经度未知时先调 `city`（城市→经纬度）
+- 排八字校正经度未知时先调 `city.coords`；真太阳时换算用 `tianwen.time`
 
 ## 流程约定（强制）
 
