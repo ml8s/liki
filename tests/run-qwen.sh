@@ -48,6 +48,14 @@ if [ -d "$STASH_DIR" ] && [ -f "$STASH_DIR/answers.json" ]; then
   restore_answers
 fi
 
+# 自愈：清理上次评测 SIGKILL 残留的临时配置（含 key，防再次误入库）
+# （正常退出由 EXIT trap 删除；SIGKILL 无法捕获，此处启动时兜底）
+LEFTOVER_YAML="$(ls tests/evals/.run-eval.*.yaml 2>/dev/null | head -1 || true)"
+if [ -n "$LEFTOVER_YAML" ]; then
+  echo "检测到上次评测残留临时配置——自动清理: $LEFTOVER_YAML"
+  rm -f tests/evals/.run-eval.*.yaml
+fi
+
 # 1. 移走答案（确保容器 agent 物理读不到）——stash 目录先建（防 /tmp 残留被清后 mv 失败）
 mkdir -p "$STASH_DIR"
 for f in "${ANSWER_FILES[@]}"; do
