@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.3.1 —— 奇门应期/因子总览 + 4 skill 语言跟随 + discover 按需取
+
+- **[skill] 奇门应期文档 `domains/qimen/yingqi.md`**：补齐引擎 `ying_qi` 字段（马星逢冲/空亡填实/值符值使）解读；divination.md 奇门流程加应期环节
+- **[skill] 奇门断局因子总览**：yongshen.md 列出引擎全部因子（用神落宫/求测人/值符值使/生克/空亡马星/五不遇时/格局/旺衰/门迫门制/克应/应期），引导 LLM 综合断局；补五不遇时、值符值使落宫
+- **[skill] 4 skill 统一「输出语言跟随用户」**：对话/解读/结论用用户语言，各领域核心术语首次括注英文（bazi/divination/fengshui/naming）；foreign.md 加外国人起名语言策略（中文名+拼音保留、解读英文）
+- **[skill] `rpc.discover` 按需取全**：启动时一次 discover 本 skill 需要的全部方法（域前缀 + 具体方法名，用域前提是精确不导入多余）；naming 只取 bazi.chart/fullchart，bazi/divination/fengshui 用域前缀
+- **[安全] run-qwen.sh 启动自愈**：清理 SIGKILL 残留的 `.run-eval.*.yaml`（含 key 的临时评测配置），防再次误入库
+- **[引擎] schema 修正**：`gong_wei.xing` enum 去天禽（天禽寄坤2不占星位）、`ying_qi` 补 properties、`pan` 补 `wu_bu_yu_shi`、清理冗余 enum（ma_xing/kong_wang 去"中"、an_gan 去"甲"）
+- **[测试] 数据驱动命理锚定**：端到端 4 盘完整排盘锚定、多盘用神符号落宫锚定、边界/随机日期健壮性测试；修复多处放水/弱断言测试
+
 ## 4.3.0 —— 奇门用神符号化 + 命理排盘修复（对齐六爻架构）
 
 - **[架构] 奇门用神重构**：废弃「占事类型枚举（qianshi）」驱动，改为「用神符号（门/星/神/干，35 种封闭）」驱动。LLM 读 domains/qimen/yongshen.md「事象→符号映射」确定传什么符号，引擎按符号定位落宫取因子，与六爻「传 yong_shen、引擎聚合」架构一致
