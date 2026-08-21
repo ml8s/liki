@@ -17,16 +17,22 @@ description: 风水 — 八宅命卦、玄空飞星。房屋布局、家宅吉�
 4. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
 5. 检查未完成前，不得调 RPC 或读子 SKILL.md
 
-## RPC 调用说明
+## RPC 调用方式
 
 > 风水数据通过 JSON-RPC 2.0 获取，**禁止自行推算或凭训练知识编造**。
 
-- **端点**：`POST https://liki.hk/jsonrpc`；格式 `{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`
-- **启动时先 `rpc.discover` 一次取全本 skill 需要的方法**：域前缀，从 `result.methods[]` 拿每个方法的 `params.properties`/`required`（`params.properties`/`required` 是唯一权威，不凭记忆拼参数）：
-  ```bash
-  curl -s https://liki.hk/jsonrpc -H "Content-Type: application/json" \
-    -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazhai,xuankong,time.now"},"id":1}'
-  ```
+**RPC 调用方式**：
+- 端点：`POST https://liki.hk/jsonrpc`
+- Content-Type：`application/json`
+- 请求体格式：`{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`
+
+**rpc.discover 请求体**：
+```json
+{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazhai,xuankong,time.now"},"id":1}
+```
+
+使用你环境中的 HTTP 客户端（如 curl、fetch、urllib 等）发起请求。
+
 - **方法清单**：`bazhai.chart`（命卦）/ `bazhai.layout`（门主灶）/ `xuankong.chart`（山向盘）/ `xuankong.liunian`（流年飞星）
 
 ## 流程约定（强制）
@@ -50,7 +56,7 @@ JSON-RPC 返回 error 时：
 - `-32000` → 参数校验/计算错误，修正重试
 - `-32601` → method 不存在，检查拼写
 - 网络超时 → 告知用户可重试
-- HTTP 403 → Cloudflare Bot 拦截，改用 curl 调用
+- HTTP 403 → Cloudflare Bot 拦截，换用其他 HTTP 客户端或调整请求头
 
 ## 数据原则
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""agent_cli.py — liki 命理工具的 CLI 适配器（web agent 子进程入口）。
+"""agent_cli.py — liki 命理工具的 CLI 适配器。
 
 协议：stdin 读一行 JSON {"fn": <工具名>, "args": {<参数>}} → stdout 一行 JSON。
 成功：{"ok": true, "data": <结果>}；失败：{"ok": false, "error": "..."}。
@@ -9,8 +9,10 @@
 - 参数 dict 直接 **args 传给工具函数——参数化调用，零代码注入
 - 异常捕获进 error 字段（不 panic、exit 0）——Go 侧按 ok 字段判断
 
-与本地 agent 的关系：本地 agent 有 shell，直接 import 工具链使用；
-本文件只服务无 shell 的 web agent（Go exec python3 agent_cli.py）。
+使用方式：
+- 通过 `python3 tools/agent_cli.py` 执行 Python 工具
+- stdin 传 JSON：{"fn": "<工具名>", "args": {<参数>}}
+- stdout 返回 JSON：{"ok": true, "data": <结果>} 或 {"ok": false, "error": "..."}
 """
 from __future__ import annotations
 

@@ -17,18 +17,34 @@ description: 八字命理 — 八字、紫微斗数（八紫双盘同参）。�
 4. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
 5. 检查未完成前，不得调 RPC 或读子 SKILL.md
 
-## RPC 调用说明
+## 工具调用方式
 
 工具 schema 分两组，**动手前先各读一次**：
 
-1. **主流程 5 工具** → 读 `tools/skill-tools.json`（OpenAI function calling 格式，唯一来源），拿 `name`/`description`/`parameters`/`required`。
-2. **手调 RPC 方法** → 启动时执行下面这条 `rpc.discover` 一次取全本 skill 需要的方法（域前缀 + 具体方法名），从 `result.methods[]` 拿每个方法的 `params.properties`/`required`：
+### 1. 主流程 5 工具（本地 Python 执行）
 
-```bash
-curl -s https://liki.hk/jsonrpc \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi,ziwei,city.coords,tianwen.time,time.now"},"id":1}'
+读 `tools/skill-tools.json`（OpenAI function calling 格式，唯一来源），拿 `name`/`description`/`parameters`/`required`。
+
+**执行方式**：通过 `python3 tools/agent_cli.py` 直接执行 Python 脚本（推荐）。
+- stdin 传 JSON：`{"fn": "<工具名>", "args": {<参数>}}`
+- stdout 返回 JSON：`{"ok": true, "data": <结果>}` 或 `{"ok": false, "error": "..."}`
+- 白名单分派（无 eval/exec/getattr 动态调用），安全可控
+
+### 2. 手调 RPC 方法（远程 JSON-RPC）
+
+启动时执行一次 `rpc.discover` 取全本 skill 需要的方法（域前缀 + 具体方法名），从 `result.methods[]` 拿每个方法的 `params.properties`/`required`：
+
+**RPC 调用方式**：
+- 端点：`POST https://liki.hk/jsonrpc`
+- Content-Type：`application/json`
+- 请求体格式：`{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`
+
+**rpc.discover 请求体**：
+```json
+{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi,ziwei,city.coords,tianwen.time,time.now"},"id":1}
 ```
+
+使用你环境中的 HTTP 客户端（如 curl、fetch、urllib 等）发起请求。
 
 不凭记忆拼参数；只取本 skill 需要的域（bazi/ziwei 域 + city.coords/tianwen.time/time.now），不一次性全量 discover 所有域。
 
@@ -102,11 +118,11 @@ JSON-RPC 返回 error 时：
 - `-32000` → 参数校验/计算错误，修正重试
 - `-32601` → method 不存在，检查拼写
 - 网络超时 → 告知用户可重试
-- HTTP 403 → Cloudflare Bot 拦截（python/SDK 易触发），改用 curl 调用
+- HTTP 403 → Cloudflare Bot 拦截（python/SDK 易触发），换用其他 HTTP 客户端或调整请求头
 
 ## 数据原则
 
-- 计算结果一律经 RPC/工具获取，禁止凭训练知识臆造或编造
+- 计算结果一律经工具获取（本地执行或远程 RPC），禁止凭训练知识臆造或编造
 - **限运数据红线**：大运/大限干支与起止年龄必须来自 full_paipan（字段见 `tools/skill-tools.json` full_paipan result_schema），严禁自行推算；未到位前不得开始限运推理
 
 ## 输出原则
