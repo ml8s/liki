@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.0.0 —— 工程升级：liki-engine 并入单仓（monorepo）
+
+- **[工程] liki-engine 并入本仓库 `engine/`**：原独立仓库 `ml8s/liki-engine` 全量迁入（Go + JSON-RPC，8 领域），历史经 git subtree merge 完整保留。skill 与引擎同仓发布、同 CI、同版本节奏
+- **[工程] CI 合并**：根 `.github/workflows/ci.yml` 单一 workflow，path filter 分流 engine（Go）/skills（Python）；新增 e2e job 同仓 build 引擎→起服务→跑 skill 全链路集成测试（消除跨仓耦合）
+- **[工程] 版本双轨**：skills（4 子 skill 同步 `4.x`）与 engine（`engine/cmd/liki/VERSION` `2.6.x`）各自独立 bump
+- **[工程] liki-web 适配**：全部 `../liki-engine` 引用改为 `../liki-skills/engine`（dev-start/docker-test/2 个 compose/update-engine）；`npx skills add ml8s/liki` 安装语义不变
+
 ## 4.3.1 —— 奇门应期/因子总览 + 4 skill 语言跟随 + discover 按需取
 
 - **[skill] 奇门应期文档 `domains/qimen/yingqi.md`**：补齐引擎 `ying_qi` 字段（马星逢冲/空亡填实/值符值使）解读；divination.md 奇门流程加应期环节

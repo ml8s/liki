@@ -6,9 +6,89 @@ on:
   pull_request:
     branches: [master]
 
+# ─────────────────────────────────────────────────────────────
+# liki monorepo CI —— engine（Go）+ skills（Python）双栈
+# - engine job 仅 engine/** 变更触发（cd engine，Go 1.26）
+# - skills job 仅 skills/** tests/** scripts/** dist/** 变更触发
+# - integration job：engine 变更时 build+起服务 → 跑 engine integration + RPC 冒烟
+# - e2e job：engine 变更时 build+起服务 → 跑 skill 全链路集成测试（LIKI_RPC_URL）
+# ─────────────────────────────────────────────────────────────
+
 jobs:
-  test:
-    name: Python tests (rules engine)
+  # ── Engine: Lint ──
+  engine-lint:
+    name: Engine Lint
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+      - name: golangci-lint (engine)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          install-mode: goinstall
+        # binary 由 action 装入 PATH；手动 cd engine 运行（config .golangci.yml 在 engine/）
+      - name: run golangci-lint
+        run: cd engine && golangci-lint run ./...
+
+  # ── Engine: Unit Test ──
+  engine-test:
+    name: Engine Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+      - name: go vet (engine)
+        working-directory: engine
+        run: go vet ./...
+      - name: go test -race -short (engine)
+        working-directory: engine
+        run: go test -race -count=1 -short ./...
+
+  # ── Engine: Integration + RPC Smoke ──
+  engine-integration:
+    name: Engine Integration + Smoke
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+      - name: integration tests (engine)
+        working-directory: engine
+        run: go test -tags integration -count=1 -timeout 60s ./internal/agent/ ./internal/http/ ./internal/engine/bazi/
+      - name: build engine
+        working-directory: engine
+        run: go build -o /tmp/liki-engine ./cmd/liki/
+      - name: start engine
+        run: |
+          /tmp/liki-engine -addr :8082 &
+          echo "pid=$!"
+          for i in $(seq 1 15); do
+            if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
+              echo "engine ready"
+              break
+            fi
+            sleep 1
+          done
+      - name: RPC smoke test (engine)
+        working-directory: engine
+        run: |
+          bash -n scripts/test-rpc.sh
+          scripts/test-rpc.sh http://localhost:8082
+
+  # ── Skills: Python tests (rules engine) ──
+  skills-test:
+    name: Skills Python tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,8 +120,9 @@ jobs:
         # + skill-tools.json 版本与 VERSION 一致——改表/改文档后 CI 即拦
         run: bash tests/check.sh
 
-  data-check:
-    name: Data check (160 题断语覆盖/零命中)
+  # ── Skills: Data check (160 题断语覆盖/零命中) ──
+  skills-data-check:
+    name: Skills Data check (160 题断语覆盖/零命中)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,10 +134,46 @@ jobs:
         # 防"断语表改动后断语丢失/死行"（外部评审 #18 模式）只在全量数据检查暴露
         run: bash tests/check.sh --full
 
-  archive:
-    name: Build archive
+  # ── Skills: Build archive ──
+  skills-archive:
+    name: Skills Build archive
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build skill archive
         run: bash scripts/build-archive.sh
+
+  # ── E2E: 全链路（engine + skills 契约一致性）──
+  e2e:
+    name: E2E (engine + skills integration)
+    runs-on: ubuntu-latest
+    needs: [engine-lint, engine-test, skills-test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pytest
+        run: python3 -m pip install pytest
+      - name: build engine
+        working-directory: engine
+        run: go build -o /tmp/liki-engine ./cmd/liki/
+      - name: start engine
+        run: |
+          /tmp/liki-engine -addr :8082 &
+          echo "pid=$!"
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
+              echo "engine ready"
+              break
+            fi
+            sleep 1
+          done
+      - name: skill full-chain integration test (LIKI_RPC_URL)
+        # 引擎同仓 build，跑 skill 全链路——彻底消除此前"skill 集成测试依赖外部引擎"的跨仓耦合
+        run: |
+          LIKI_RPC_URL=http://localhost:8082/jsonrpc python3 -m pytest tests/test_integration.py -q -s

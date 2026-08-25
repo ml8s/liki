@@ -79,7 +79,7 @@ npx skills add ml8s/liki
 
 ## 实现机制
 
-**① 排盘：天文历算引擎** — 八字/紫微排盘由开源计算引擎（[liki-engine](https://github.com/ml8s/liki-engine)）完成：真太阳时校正、夏令时、经纬度时区按天文算法计算。模型只做解读，不自行推算排盘数据。
+**① 排盘：天文历算引擎** — 八字/紫微排盘由开源计算引擎 `engine/`（本仓库子目录，Go + JSON-RPC，原 [liki-engine](https://github.com/ml8s/liki-engine)）完成：真太阳时校正、夏令时、经纬度时区按天文算法计算，节气精度秒级（VSOP87D）。模型只做解读，不自行推算排盘数据。
 
 **② 断语：csv 真值表** — 46 张断语真值表（八字 26 + 紫微 20，共 **597 条断语**），每条带**经典原文列**（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。流年另有 7 张 yearly 断语表（应期/婚姻/六亲/财运/事业/健康/学业/子女，含值年神煞）。
 
@@ -92,6 +92,25 @@ npx skills add ml8s/liki
 - 全断语表**零冲突验证**：扫描 19 域"同盘命中矛盾条目"→ 补上下文因子 → 全部 0 撞
 
 **⑤ 考时校准** — 排盘前用已发生事件校准时辰；结论前用命主 3-5 个已发生时间段反向验证（"该时段命理引动 → 应验何事"），≥2 段吻合结论才成立。
+
+## 底层引擎（liki-engine）
+
+Skill 的计算底座在 `engine/`（Go 语言，独立 JSON-RPC 服务），与 skill 同仓发布。八字/紫微/六爻/奇门/起名/黄历/八宅/玄空 8 领域的数值计算（排盘、取用神、纳音、神煞、大运流年）全部在此，LLM 只做编排与解读。
+
+```bash
+# 直接运行引擎（可选——skill 场景通常走 https://liki.hk/jsonrpc）
+cd engine && go build -o ./liki ./cmd/liki/ && ./liki -addr :8080
+
+# 调一个方法
+curl -s http://localhost:8080/jsonrpc \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"bazi.chart","params":{"solar_time":"2000-06-15T12:00:00+08:00","gender":"male"}}'
+```
+
+- **天文精度**：VSOP87D（寿星历）秒级节气，章动/光行差/ΔT 全考虑，真太阳时/夏令时/经度时区/闰月按天文算法
+- **质量纵深**：115 个八字 golden 命例 + 数据驱动测试固化（纳音 60 全量、八宅对称性、奇门 16 关键格等）+ RPC 冒烟 74/74 + 契约一致性测试
+- **AI 友好**：`rpc.discover` 按方法名取 schema（30KB 全量 → 几 KB），省 token
+- 引擎细节见 [engine/README.md](engine/README.md)；版本独立（`engine/cmd/liki/VERSION`）
 
 ## 开发者
 
@@ -148,7 +167,8 @@ skill ── 文档层 ── 根 SKILL.md      ← 规则（全局骨架 + 强�
 │   └── liki-naming/            ← 起名（八字用神 + 三才五格）
 ├── tests/      ← 评测体系（160 题分组 case 挂 liki-bazi、答案分离、skill-up script judge）
 ├── scripts/    ← 构建脚本（build-archive.sh 打 4 包）
-└── webapp/     ← Web 集成流水线（liki-bazi 部署附带）
+├── webapp/     ← Web 集成流水线（liki-bazi 部署附带）
+└── engine/     ← 底层计算引擎（Go + JSON-RPC，8 领域数值计算；原独立 liki-engine 仓库并入）
 ```
 
 ### 设计原则

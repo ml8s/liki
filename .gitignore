@@ -8,6 +8,9 @@ reasonix.toml
 
 liki.tar.gz
 
+# Engine built binary (top-level make build)
+bin/
+
 # OS
 .DS_Store
 Thumbs.db

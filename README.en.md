@@ -79,7 +79,7 @@ Example: `How's my home's feng shui?`
 
 ## Implementation
 
-**① Charting: astronomical engine** — BaZi/ZiWei charts are computed by the open-source [liki-engine](https://github.com/ml8s/liki-engine): true solar time, DST, lat-lon timezone. The model only interprets; it does not derive chart data itself.
+**① Charting: astronomical engine** — BaZi/ZiWei charts are computed by the open-source `engine/` (subdirectory, Go + JSON-RPC, formerly standalone [liki-engine](https://github.com/ml8s/liki-engine)): true solar time, DST, lat-lon timezone, second-level solar-term precision (VSOP87D). The model only interprets; it does not derive chart data itself.
 
 **② Judgments: CSV truth tables** — 46 truth tables (BaZi 26 + ZiWei 20, **590 rules**), each with a **classical reference column** (《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》 etc.). Plus 7 yearly tables (marriage/kinship/wealth/career/health/study/children, incl. annual star spirits).
 
@@ -92,6 +92,25 @@ Example: `How's my home's feng shui?`
 - **Zero-conflict verification**: scanning 19 domains for contradictory rules → add contextual factors → zero collisions
 
 **⑤ Calibration** — before charting, calibrate the birth hour with known events; before concluding, verify against 3-5 known life periods, conclusion stands only if ≥2 periods match.
+
+## Underlying Engine (liki-engine)
+
+The computational base lives in `engine/` (Go, standalone JSON-RPC service), shipped in this same repo. All numeric computation for the 8 domains — charting, favorable-element selection, nayin, shensha, luck pillars / yearly transits — happens here; the LLM only orchestrates and interprets.
+
+```bash
+# Run the engine directly (optional — skill flows usually hit https://liki.hk/jsonrpc)
+cd engine && go build -o ./liki ./cmd/liki/ && ./liki -addr :8080
+
+# Call one method
+curl -s http://localhost:8080/jsonrpc \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"bazi.chart","params":{"solar_time":"2000-06-15T12:00:00+08:00","gender":"male"}}'
+```
+
+- **Astronomical precision**: VSOP87D (ShouXing calendar), second-level solar terms; nutation/aberration/ΔT handled; true solar time / DST / longitude timezone / leap month computed astronomically
+- **Quality depth**: 115 BaZi golden charts + data-driven tests (all-60 nayin, eight-mansion symmetry, 16 key Qimen cells, etc.) + RPC smoke 74/74 + contract-consistency tests
+- **AI-friendly**: `rpc.discover` fetches only the schemas you need (30KB full → a few KB), saving tokens
+- Details in [engine/README.md](engine/README.md); independent version (`engine/cmd/liki/VERSION`)
 
 ## For Developers
 
@@ -148,7 +167,8 @@ repo root (liki-skills engineering area — not installed by npx skills)
 │   └── liki-naming/            ← naming (BaZi yongshen + wuge-sancai)
 ├── tests/      ← evaluation harness (160 grouped cases, answer separation, grading scripts)
 ├── scripts/    ← build scripts (build-archive.sh packs 4)
-└── webapp/     ← web integration pipeline
+├── webapp/     ← web integration pipeline
+└── engine/     ← underlying computation engine (Go + JSON-RPC, 8 domains; formerly the standalone liki-engine repo, merged)
 ```
 
 ### Design Principles
