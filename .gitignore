@@ -3,7 +3,7 @@
 .reasonix/
 reasonix.toml
 
-# Local IDE config
+# Local IDE config (any level — root and engine/.claude)
 .claude/
 
 liki.tar.gz
