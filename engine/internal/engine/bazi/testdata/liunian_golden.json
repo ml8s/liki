@@ -1,0 +1,107 @@
+[
+  {
+    "name": "beijing-1984-2026",
+    "solar": "1984-02-15T08:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "year": 2026,
+    "year_name": "丙午",
+    "shi_shen": "正印",
+    "shensha": [
+      "灾煞",
+      "丧门",
+      "大耗"
+    ]
+  },
+  {
+    "name": "beijing-1984-2021",
+    "solar": "1984-02-15T08:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "year": 2021,
+    "year_name": "辛丑",
+    "shi_shen": "食神",
+    "shensha": [
+      "病符",
+      "吊客"
+    ]
+  },
+  {
+    "name": "beijing-1984-2017",
+    "solar": "1984-02-15T08:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "year": 2017,
+    "year_name": "丁酉",
+    "shi_shen": "偏印",
+    "shensha": [
+      "桃花",
+      "天喜",
+      "灾煞",
+      "大耗"
+    ]
+  },
+  {
+    "name": "beijing-1984-2004",
+    "solar": "1984-02-15T08:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "male",
+    "year": 2004,
+    "year_name": "甲申",
+    "shi_shen": "正官",
+    "shensha": [
+      "劫煞",
+      "天乙贵人",
+      "大耗"
+    ]
+  },
+  {
+    "name": "shanghai-1990-2022",
+    "solar": "1990-05-20T15:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "female",
+    "year": 2022,
+    "year_name": "壬寅",
+    "shi_shen": "正印",
+    "shensha": [
+      "劫煞",
+      "羊刃",
+      "大耗"
+    ]
+  },
+  {
+    "name": "shanghai-1990-2026",
+    "solar": "1990-05-20T15:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "female",
+    "year": 2026,
+    "year_name": "丙午",
+    "shi_shen": "伤官",
+    "shensha": [
+      "桃花",
+      "病符",
+      "吊客"
+    ]
+  },
+  {
+    "name": "shanghai-1990-2004",
+    "solar": "1990-05-20T15:00:00",
+    "tz": 8,
+    "lon": 120,
+    "gender": "female",
+    "year": 2004,
+    "year_name": "甲申",
+    "shi_shen": "劫财",
+    "shensha": [
+      "驿马",
+      "天乙贵人",
+      "丧门"
+    ]
+  }
+]

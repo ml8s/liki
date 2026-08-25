@@ -1,0 +1,4 @@
+# golangci-lint 配置：errcheck 显式忽略（`_ =`/`_, _ =`）视为有意忽略，不算问题
+linters-settings:
+  errcheck:
+    check-blank: false

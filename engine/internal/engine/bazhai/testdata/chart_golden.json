@@ -1,0 +1,141 @@
+{
+  "ming_gua": {
+    "gua": {
+      "index": 7,
+      "name": "兑",
+      "wuxing": "金",
+      "yin_yang": "阴"
+    },
+    "group": "西四命"
+  },
+  "ba_zhai_dirs": {
+    "sheng_qi": [
+      "西北"
+    ],
+    "tian_yi": [
+      "西南"
+    ],
+    "yan_nian": [
+      "东北"
+    ],
+    "fu_wei": [
+      "西"
+    ],
+    "huo_hai": [
+      "北"
+    ],
+    "wu_gui": [
+      "南"
+    ],
+    "liu_sha": [
+      "东南"
+    ],
+    "jue_ming": [
+      "东"
+    ]
+  },
+  "liu_nian_xing": {
+    "year": 1984,
+    "ru_zhong": "七赤破军",
+    "gong_wei": [
+      {
+        "gong_num": 5,
+        "xing": 7,
+        "xing_name": "七赤破军",
+        "wuxing": "金",
+        "rating": "凶",
+        "ru_zhong": true
+      },
+      {
+        "gong_num": 6,
+        "xing": 8,
+        "xing_name": "八白左辅",
+        "wuxing": "土",
+        "rating": "大吉",
+        "ru_zhong": false
+      },
+      {
+        "gong_num": 7,
+        "xing": 9,
+        "xing_name": "九紫右弼",
+        "wuxing": "火",
+        "rating": "吉",
+        "ru_zhong": false
+      },
+      {
+        "gong_num": 8,
+        "xing": 1,
+        "xing_name": "一白贪狼",
+        "wuxing": "水",
+        "rating": "吉",
+        "ru_zhong": false
+      },
+      {
+        "gong_num": 9,
+        "xing": 2,
+        "xing_name": "二黑巨门",
+        "wuxing": "土",
+        "rating": "凶",
+        "ru_zhong": false
+      },
+      {
+        "gong_num": 1,
+        "xing": 3,
+        "xing_name": "三碧禄存",
+        "wuxing": "木",
+        "rating": "凶",
+        "ru_zhong": false
+      },
+      {
+        "gong_num": 2,
+        "xing": 4,
+        "xing_name": "四绿文曲",
+        "wuxing": "木",
+        "rating": "平",
+        "ru_zhong": false
+      },
+      {
+        "gong_num": 3,
+        "xing": 5,
+        "xing_name": "五黄廉贞",
+        "wuxing": "土",
+        "rating": "大凶",
+        "ru_zhong": false
+      },
+      {
+        "gong_num": 4,
+        "xing": 6,
+        "xing_name": "六白武曲",
+        "wuxing": "金",
+        "rating": "吉",
+        "ru_zhong": false
+      }
+    ]
+  },
+  "pillar_bagua": [
+    {
+      "index": 6,
+      "name": "乾",
+      "wuxing": "金",
+      "yin_yang": "阳"
+    },
+    {
+      "index": 8,
+      "name": "艮",
+      "wuxing": "土",
+      "yin_yang": "阳"
+    },
+    {
+      "index": 9,
+      "name": "离",
+      "wuxing": "火",
+      "yin_yang": "阴"
+    },
+    {
+      "index": 1,
+      "name": "坎",
+      "wuxing": "水",
+      "yin_yang": "阳"
+    }
+  ]
+}

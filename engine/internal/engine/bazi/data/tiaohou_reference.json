@@ -1,0 +1,722 @@
+[
+  {
+    "ri_yuan": "甲",
+    "month_branch": "寅",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "卯",
+    "primary": "庚",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "辰",
+    "primary": "庚",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "巳",
+    "primary": "癸",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "午",
+    "primary": "癸",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "未",
+    "primary": "庚",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "申",
+    "primary": "庚",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "酉",
+    "primary": "丁",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "戌",
+    "primary": "庚",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "亥",
+    "primary": "庚",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "子",
+    "primary": "丁",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "甲",
+    "month_branch": "丑",
+    "primary": "丁",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "寅",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "卯",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "辰",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "巳",
+    "primary": "癸",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "午",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "未",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "申",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "酉",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "戌",
+    "primary": "癸",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "亥",
+    "primary": "丙",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "子",
+    "primary": "丙",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "乙",
+    "month_branch": "丑",
+    "primary": "丙",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "寅",
+    "primary": "壬",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "卯",
+    "primary": "壬",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "辰",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "巳",
+    "primary": "壬",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "午",
+    "primary": "壬",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "未",
+    "primary": "壬",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "申",
+    "primary": "壬",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "酉",
+    "primary": "壬",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "戌",
+    "primary": "甲",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "亥",
+    "primary": "甲",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "子",
+    "primary": "壬",
+    "secondary": "戊"
+  },
+  {
+    "ri_yuan": "丙",
+    "month_branch": "丑",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "寅",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "卯",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "辰",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "巳",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "午",
+    "primary": "壬",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "未",
+    "primary": "甲",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "申",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "酉",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "戌",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "亥",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "子",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "丁",
+    "month_branch": "丑",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "寅",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "卯",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "辰",
+    "primary": "甲",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "巳",
+    "primary": "甲",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "午",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "未",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "申",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "酉",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "戌",
+    "primary": "甲",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "亥",
+    "primary": "甲",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "子",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "戊",
+    "month_branch": "丑",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "寅",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "卯",
+    "primary": "甲",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "辰",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "巳",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "午",
+    "primary": "壬",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "未",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "申",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "酉",
+    "primary": "丙",
+    "secondary": "癸"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "戌",
+    "primary": "癸",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "亥",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "子",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "己",
+    "month_branch": "丑",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "寅",
+    "primary": "丁",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "卯",
+    "primary": "丁",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "辰",
+    "primary": "甲",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "巳",
+    "primary": "壬",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "午",
+    "primary": "壬",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "未",
+    "primary": "丁",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "申",
+    "primary": "丁",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "酉",
+    "primary": "丁",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "戌",
+    "primary": "甲",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "亥",
+    "primary": "丁",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "子",
+    "primary": "丙",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "庚",
+    "month_branch": "丑",
+    "primary": "丁",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "寅",
+    "primary": "己",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "卯",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "辰",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "巳",
+    "primary": "壬",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "午",
+    "primary": "壬",
+    "secondary": "己"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "未",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "申",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "酉",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "戌",
+    "primary": "壬",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "亥",
+    "primary": "丙",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "子",
+    "primary": "丙",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "辛",
+    "month_branch": "丑",
+    "primary": "丙",
+    "secondary": "壬"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "寅",
+    "primary": "庚",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "卯",
+    "primary": "庚",
+    "secondary": "戊"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "辰",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "巳",
+    "primary": "庚",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "午",
+    "primary": "庚",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "未",
+    "primary": "庚",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "申",
+    "primary": "戊",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "酉",
+    "primary": "戊",
+    "secondary": "丁"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "戌",
+    "primary": "甲",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "亥",
+    "primary": "戊",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "子",
+    "primary": "戊",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "壬",
+    "month_branch": "丑",
+    "primary": "戊",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "寅",
+    "primary": "辛",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "卯",
+    "primary": "庚",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "辰",
+    "primary": "丙",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "巳",
+    "primary": "辛",
+    "secondary": "庚"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "午",
+    "primary": "庚",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "未",
+    "primary": "庚",
+    "secondary": "辛"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "申",
+    "primary": "丁",
+    "secondary": ""
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "酉",
+    "primary": "辛",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "戌",
+    "primary": "辛",
+    "secondary": "甲"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "亥",
+    "primary": "戊",
+    "secondary": "丙"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "子",
+    "primary": "丙",
+    "secondary": "戊"
+  },
+  {
+    "ri_yuan": "癸",
+    "month_branch": "丑",
+    "primary": "丙",
+    "secondary": "丁"
+  }
+]

@@ -1,0 +1,210 @@
+# Changelog
+- 2.6.20: 奇门十干克应表方向修复 + 黄历复核（命理知识审计）
+  - [qimen] 十干克应表 gan_interaction.json 字段 di_pan_gan/tian_pan_gan 存反（65/65 与 name"天盘+地盘"标准方向相反）——导致查询 [地盘,天盘] 命中错误格名（如地盘戊天盘丙误判"青龙返首"，实为"飞鸟跌穴"）；修复：交换 65 条字段值 + 修错别字"寅蛇夭矫"→"螣蛇夭矫" + genericGanInteraction name 改"天盘+地盘"；修正 TestComputeGanInteractions_KnownPairs/TestGenericGanInteraction_AllRelations 旧断言（基于旧"地+天"误读）+ 重新生成 chart_golden.json；新增 TestGanInteraction_AuthoritativeAnchors（16 关键格：青龙返首/飞鸟跌穴/值符飞宫/天乙伏宫/青龙逃走/白虎猖狂/朱雀投江/螣蛇夭矫/太白入荧/荧入太白/大格/太白入网/移荡格/官符刑格/白虎干格/太白逢星）；补全 3 个缺失权威格（庚+己 官符刑格、庚+辛 白虎干格、庚+乙 太白逢星）
+  - [复核] 黄历 建除十二神（月建=建顺数十二神）✓、黄道黑道 12 神 ✓；奇门 24 节气定局（已有 72 项锚点）✓
+- 2.6.19: 八宅游年表修正 + 其他术数域复核（命理知识审计）
+  - [bazhai] 八宅游年九星表 5 处错误修复：乾宅 六煞巽→坎、五鬼坎→震、祸害震→巽；巽宅 五鬼乾→坤、祸害坤→乾（大游年歌"乾六天五祸绝延生"；游年对称性破坏为硬错误）；TestBaZhaiDirectionsForGua_AllEight/TestEightMansionPatterns_QianGua 旧断言基于错误表已修正；新增 TestEightMansionSymmetry（8 宅 × 7 关系全对称数据驱动防回归）
+  - [复核] 八宅命卦/中宫寄宫 ✓；玄空 三元九运（1864 上元一运/20年/五运寄宫正零神）✓、洛书飞星序 ✓、星曜交会表 33 条河图组合 ✓；奇门 24 节气定局表（《烟波钓叟歌》72 项锚点测试已存在）✓、十干克应/八门/九星交互表抽查 ✓；黄历 黄道黑道 12 神（《协纪辨方书》）✓、建除十二神（测试覆盖）✓
+  - [测试] 新增 2 个数据驱动测试（八宅游年对称性）
+- 2.6.18: 干支自合/三奇修正 + 八字测试数据驱动固化（复核修正：自合 12 组）
+  - [bazi] 干支自合 isSelfHe 改为 12 组查表（《三命通会》9 组 + 主流扩展己亥/壬午/戊辰）——原遍历全部藏干会多判甲丑/戊丑/丙丑/甲未/乙申等非主流暗合；复核确认 9 组版本偏窄，已修正为 12 组
+  - [bazi] 三奇 sanQiType 增加顺/逆次连续校验（年-月-日 或 月-日-时 三干顺次/逆次）——原仅"集齐"甲戊庚/乙丙丁/壬癸辛即判，乱序（如甲年庚月戊日）不再误判
+  - [bazi] 复核修复：柱间地支关系 analyzeZhiRelation 相刑判断改用 ganzhi.IsXing——原 containsPair 把自刑组（辰午酉亥）内不同支（午亥、辰酉等）误判为"自刑"；且同支自刑（亥亥/辰辰/午午/酉酉）被"相同"拦截、寅巳等"刑+害"并存被判害（刑优先级低于害）——现：自刑仅同支、刑优先于六害、六合/六冲优先于刑（巳申合、寅申冲、丑未冲）；新增 TestZhiRelation_Xing_Authoritative 数据驱动测试（8 正例 + 3 并存 + 7 反例）
+  - [bazi] 复核修复：bazi.bond nayin_cross 的五行分布（wuxings）与用神互见（yong_shen）为声明未实现的死字段——现补实现（四柱纳音五行计数 + 扶抑用神/忌神五行在对方纳音分布中的出现次数，内部 ComputeFullChart 取用神）；新增 TestComputeBond_NayinElementsYongShen
+  - [bazi] 复核修复：调候用神表 tiaohou.json 10 处错误（穷通宝鉴原文多源确认）：甲申 丁庚→庚丁（先庚后丁）、乙戌 癸甲→癸辛（必赖癸水辛金发源）、丙酉 壬庚→壬癸（无壬取癸）、丙戌 壬庚→甲壬（先甲次壬，原庚为忌神）、丙亥 壬甲→甲壬（甲为主要关键）、丙子 戊甲→壬戊（先壬戊佐）、丙丑 甲戊→壬甲（先壬甲佐）、癸辰 庚辛→丙辛（专用丙火辛甲佐）、癸酉 丙辛→辛丙（辛为用丙佐水暖金温）、癸丑 丙戊→丙丁（丙解冻丁雪后灯光）；tiaohou_reference.json 同步；TestTiaoHou_ReferenceEntries 旧断言基于错误表已修正（甲申金、丙子水）；新增 TestTiaoHou_AuthoritativeAnchors（50 条权威锚点数据驱动）
+  - [bazi] 测试加固：新增十神全量 10×10=100 组合测试（TestShiShenFromGan_All100）+ 纳音 60 甲子全量权威表测试（TestNayinLabel_All60Authoritative）
+  - [bazi] 测试固化：新增 TestSelfHe_Authoritative（9 组正例 + 壬午/戊辰等 14 反例）、TestSanQi_Order（顺/逆次 5 正例 + 乱序/缺一/分隔 3 反例）、TestGuChenGuaSu_AllYearBranches（12 年支全表孤辰寡宿数据驱动）
+  - [bazi] 审计确认：2.6.16 纳甲（8 混搭锚点 + 64 卦全量 + 64 世应）与 2.6.17 神煞（金舆/天德/月恩/血刃权威全表 + 去重 + xun_kong）测试均已数据驱动固化，无缺口
+- 2.6.17: 八字神煞表修正 + 神煞逻辑修复（命理知识自查发现）
+  - [bazi] shensha.json 修正 4 张错误表：金舆（禄前二位，8/10 错：丙午→未、丁未→申、戊辰→未、己巳→申、庚申→戌、辛酉→亥、壬亥→丑、癸亥→寅）、天德（《星平会海》干支混合：寅丁/卯申支/辰壬/巳辛/午亥支/未甲/申癸/酉寅支/戌丙/亥乙/子巳支/丑庚，原 8/12 错且不支持地支型）、血刃（禄前一位，6/10 错：乙寅→辰、丁巳→未、戊辰→午、己辰→未、辛申→戌、癸亥→丑）、月恩（9/12 错：正丙二丁三庚四己五戊六辛七壬八癸九庚十乙十一甲十二辛）
+  - [bazi] 孤辰寡宿改为按年支三会局起（原误用月支三会组——年支与月支不同组时错位，如子年寅月孤辰应寅）；天德表/匹配支持地支型（data.go 新加载器 + addTianDe 干支双匹配）
+  - [bazi] 天乙贵人（年干+日干双查）与三合类神煞（驿马/桃花/华盖/劫煞/灾煞/将星，年支+日支双查）同柱去重（原无去重，日干=年干/日支=年支时重复标注）
+  - [bazi] fullchart 新增 xun_kong 字段（旬空，按日柱所居之旬，如甲申旬空午未；schema/契约同步）
+  - [bazi] 测试：新增金舆/天德/月恩/血刃权威锚点全表测试 + 天乙/驿马去重测试 + xun_kong 测试；TestShenSha_RealChart 断言修正（月恩→月柱、血刃移除、孤辰→月柱）
+- 2.6.16: 六爻纳甲修复——按上下经卦分别纳甲（外部反馈 #10：liuyao.chart 装卦按本宫首卦纳甲错误）
+  - [liuyao] zhuangGua 改为按卦体上下经卦取纳甲（乾内甲外壬、坤内乙外癸，艮丙震庚…）：天山遁（上乾下艮）内卦三爻由误纳乾宫甲子甲寅甲辰 修正为 艮宫丙辰丙午丙申；变卦同理（无妄内卦震 → 庚子庚寅庚辰，原误纳巽宫辛丑辛亥辛酉）
+  - [liuyao] najia_test 补 8 组经卦混搭卦锚点（天山遁/天雷无妄/天地否/风地观/泽火革/水雷屯/山地剥/火地晋）；dongyao_bian 变卦锚点同步（姤初爻 甲子→辛丑、六亲 子孙→父母）
+  - [liuyao] 自查加固：全量 64 卦纳甲一致性测试 + 64 卦世应规则测试（京房八宫卦序）；复核六神起法/六亲（本宫五行，变卦按本卦宫）/伏神（本宫首卦八纯卦取纳甲，按宫=按经卦）/应期（动值/静冲/伏出）/月破旬空/卦辞索引序均正确；zhouyi.json 64 卦与京房卦序索引一致（抽查锚点覆盖）
+  - [版本] VERSION 文件 2.5.1 → 2.6.16 补齐（2.6.x 线此前只写 CHANGELOG 未 bump VERSION）
+- 2.6.15: 大运/大限重构（公历日期段替代虚岁）+ 外部评审其余项
+  - [bazi] DaYunStep 重构：qi_sui/zhi_sui → start_date/end_date（公历日期段）+ start_year/end_year（公历年）；顶层 start_age → start_date（起运公历日）；current_step_index/next_step_in_years 改公历年直判（免虚岁换算）
+  - [ziwei] DaXianStep 加 start_year/end_year（大限公历年，保留 qi_sui/zhi_sui——大限虚岁粒度无日概念）
+  - schema 同步（bazi.chart da_yun、ziwei.daxian）；golden/测试适配
+  - test-rpc.sh：yong_shen 断言改 fullchart（2.6.14 chart 纯排盘后旧断言 4 项失效——冒烟 73→74 全绿）
+- 2.6.14: 外部评审修复（用神归 fullchart + 四化一致性 + 空字段/子时/大运临界/借星 + Nominatim 策略）
+  - [bazi] 用神三派移入完整命盘：chart 纯排盘（移除 yong_shen 内联，2.6.10 合并回滚），bazi.fullchart 承载；skill 引用同步
+  - [ziwei] 修复四化一致性（评审⑥）：宫位辅星（文昌/文曲/左辅/右弼）四化标注与汇总 chart.SiHua 对齐（原只标主星——真 bug）；新增 TestSiHua_Consistency_StarLevel
+  - [bazi] 空字段语义（评审⑦）：gong_jia/san_qi_name omitempty（未命中缺席）
+  - [bazi] 子时换日说明（评审⑨）：chart 新增 zi_shi_rule（晚子时日柱不变、时柱按次日日干——lunar 约定）
+  - [bazi] 大运临界（评审⑩）：da_yun 新增 next_step_in_years（虚岁口径，距下一大运剩余年数）
+  - [ziwei] 空宫借星（评审⑪）：新增 kong_gong（无主星宫位借对宫主星，确定性派生）
+  - [city] Nominatim 策略（评审③）：countrycodes=cn + limit=5 + 行政级别过滤
+- 2.6.12（续）：test-rpc.sh 冒烟脚本对齐现役 31 RPC
+  - 清理 12 处已删方法引用（bazi.xiaoxian/yongshen/hehui/chart_extra、ziwei.judgment、qiming.wuge、bazhai.judgment/minggua、xuankong.sanyuan/annual、huangli.date/month/bond.*、qimen.judgment/select）
+  - 修正参数漂移（ziwei.chart 改 lunar 参数、liu_year→liu_nian、qiming.pick wuxing→wuxing1/build combos、xuankong sit_mountain→zuo_shan）
+  - qiming 段 jq 切片防 Argument list too long（combos/names 笛卡尔积巨大）——冒烟 77/77 全绿
+- 2.6.12: 修复 integration 测试构建失败 + 清理玄空死代码
+  - [bazi] bazi_chart_test.go（integration tag）适配 Chart/FullChart 结构拆分：computeFullChart 辅助返回 FullChart（原 lean Chart 无 CangGanArray/ShenSha 字段）——CI integration job 此前一直构建失败
+  - [xuankong] 删除 tiXingXiangStar 死代码（2.6.3 删替星应用后遗留，lint unused）
+- 2.6.11: 引擎层输入防御 + ziwei 性能基线
+  - [liuyao] computeChart 防御非法爻数（非 6-9 返回空盘，不产出错卦）；新增 TestComputeChart_InvalidYaos_EmptyChart
+  - [ziwei] 补 BenchmarkComputeChart（~9µs），性能基线覆盖全部 8 域
+- 2.6.10: bazi.yongshen 合并进 bazi.chart（用神三派内联）+ 正确性测试补强
+  - 修复 tools/paipan.py 仍调 bazi.yongshen RPC 的残留（改读 chart.yong_shen）——否则八字本地断语工具链直接 Method not found
+  - bazi.fullchart 透传 yong_shen（完整命盘一致），schema 同步 + 透传断言测试
+  - 新增 TestChart_YongShen_Inline：ComputeChart 输出 yong_shen 三派非空 + 与直接调用一致（4 例跨性别/年份）
+  - 修复 TestTiaoHou_ReferenceEntries：补上缺失的 yong 值断言（原只查合法性、wantYong 数据未生效）；修正 7 条 spot-check 期望与 120 条穷通宝鉴原文参考表 primary 五行不一致（甲卯/甲申/乙申/丙子/庚寅/壬寅/壬子）
+  - [bazi] chart 新增 yong_shen 字段（fu_yi 扶抑/tiao_hou 调候/ge_ju 格局三派，380B）；删 bazi.yongshen 方法（方法数 32→31，+discover=32）
+  - 用神为八字断命高频核心（断大运流年吉凶/命书/起名均需），确定性三派规则下沉引擎；前端 LLM 综合三派定用神的设计不变
+  - schema/测试/README/params.json（engine+web）同步；SKILL 4 处引用改读 chart.yong_shen
+- 2.6.9: 移除八字小限（bazi.xiaoxian）——概念与算法均非正统
+  - [bazi] 小限是紫微/神煞体系概念（从命宫起、一岁一宫），子平八字正统不用小限（用大运+流年）；八字域原实现"男寅女申固定起法"亦非标准小限起法 → 删除方法/实现/测试
+  - 紫微域已有正确小限（allPalaceXiaoXian 从命宫起，fullchart 含）不受影响
+  - 方法数 33→32（+discover=33）；README 方法表同步；params.json（engine/web）同步
+- 2.6.8: 玄空收山出煞理气语义修正 + 双星加会数据修正（《玄空秘旨》/《沈氏玄空学》权威锚点）
+  - [xuankong] 收山出煞：明确权威定义（收山=生旺山星见山、出煞=衰死星见水/见山，完整判定需峦头砂水）；纯排盘给出理气部分：收山=坐宫山星=当令正神、拨水入零堂=向宫向星=零神；补五运正零神寄宫（前十年寄坤正二、后十年寄艮正八，原 zhengShen=5 错误）
+  - [xuankong] 双星加会：补 5-7/7-5 紫黄毒药（《玄空秘旨》"紫黄毒药，邻宫兑口休尝"=五黄七赤，原缺失）；补 3-9/9-3 木火通明；5-9/9-5 正名"五九交加"（紫黄相会，非紫黄毒药主名）
+  - 测试：新增 shou_shan_anchors_test（正零神三元九运表锚点含五运寄宫 + 四大局理气判定 + 双星加会 9 组内容锚点）；golden 重生成（assessment 文案）
+- 2.6.7: 六爻动爻→变卦数据驱动锚点测试
+  - 测试：新增 dongyao_bian_test（乾为天初爻老阳动→天风姤、五爻动→火天大有；验证变卦名/动爻位置/变卦纳甲按变卦宫（甲子）/变爻六亲以本卦宫论（乾金生子水=子孙））
+- 2.6.5: 六爻纳甲天干修复（京房内甲外壬/内乙外癸）+ 数据驱动纳甲测试
+  - [liuyao] 纳甲天干补外卦：乾内甲外壬、坤内乙外癸（此前六爻全用内卦干，乾为天 4-6 爻错为甲午甲申甲戌）；hexagrams.json na_gan 改双干数组，zhuangGua 按内外卦取干；震巽坎离艮兑内外同干不变
+  - 测试：新增 najia_test（8 宫×2 纳甲干 + 8 宫×6 纳甲支共 64 项京房锚点 + 乾为天装卦集成）；golden 重生成（乾为天 4-6 爻 甲→壬）
+- 2.6.4: 奇门定局三元顺序修正 + 数据驱动命理锚点测试
+  - [qimen] determineYuan 修复：中元/下元顺序颠倒（旧 5-9 判下元、10-14 判中元）。按《奇门遁甲》拆补法三元符头规则：子午卯酉符头=上元、寅申巳亥=中元、辰戌丑未=下元，即 (日柱序数%15)/5 → 0上 1中 2下；修复中下元日期局数全错的 bug（如 2024-06-22 应为阴遁3局、旧判下元6局）
+  - 测试数据驱动化：新增 jushu_anchors_test（24 节气×3 元=72 项权威定局表 + 12 符头锚点 + 5 个日期端到端局数锚点）；chart_derived_test 改为表驱动（2 个 case：定局/落宫/生克/空亡马星全字段锚点，含时柱旬空与马星口诀独立校验）
+  - golden 重生成（2026-06-28 阴遁3局盘：值符天柱/惊门、日干时干俱落震）
+- 2.6.3: 玄空替星应用修正（下卦正向不用替星）
+  - [xuankong] 下卦（正向）排盘不再应用替星：API 输入为山向 index（无兼向度数），按《沈氏玄空学》正向一律不用替星；修复旧实现无条件替星导致地元/人元坐向星盘错误（如八运甲山庚向正向山星应为运星6入中，旧实现替成贪狼1）
+  - [xuankong] 替星函数修正为「替卦十三山」规则（甲申→1、壬卯乙→2、辰巽巳→6、丑艮丙→7、庚寅→9），修复天元龙巽艮漏替与自身重复十一山（子癸午丁未坤酉辛戌乾亥）误替；tiXingTable → needTiXing，仅供兼向替卦使用
+  - 测试：八运甲山庚向下卦锚点（山星6/向星1入中、双星会坐）、十三山替星表断言；golden 重生成（癸山癸向 5 入中逆飞）
+- 2.6.2: 玄空飞星山向盘排布规则修正（命理正确性）
+  - [xuankong] 山向星顺逆改用标准规则（《沈氏玄空学》《易学经世真诠》）：入中星对应洛书宫取同元龙之山的阴阳定顺逆（阳顺阴逆），五黄按坐向自身；修复旧实现直接按坐山/向首自身阴阳导致的山向盘错排（如八运子山午向山盘应顺飞、旧实现逆飞）
+  - [xuankong] 四大局判定修正为标准语义：shan_xing=双星会坐（坐宫山向星皆当令）、新增 xiang_xing=双星会向、xia_shui=上山下水（向宫山星=当令且坐宫向星=当令）；旧判定为占位逻辑
+  - [xuankong] fan_yin 修正：运盘恒顺飞无反吟（恒 false，注释说明）；fu_yin=运盘伏吟（五运顺飞全盘重合）
+  - 测试：权威锚点——七运子山午向=双星会坐、八运子山午向=双星会向、七运乾山巽向=上山下水、七运酉山卯向=旺山旺向；shanXiangForward 单测（含五黄）；golden 重生成
+- 2.6.1: 命理正确性修复——八宅命卦公式修正（2000 年分界）+ 六爻旬空补全
+  - [bazhai] ComputeMingGua 改用《八宅明镜》通行公式：2000 年前男 (100-y)%9 / 女 (y-4)%9，2000 年后男 (99-y)%9 / 女 (y+6)%9；余 0 作 9、余 5 男寄坤女寄艮。修复旧公式 (y-4)%9 几乎全年份命卦错误（如 1984 男应为兑、旧公式给艮）；bazhai golden 与八宅方位同步重算（兑命：生气西北/天医西南/延年东北/伏位西）
+  - [liuyao] chart 新增日柱旬空：xun_kong（日旬空地支）+ lines[].xun_kong（该爻是否值空），补齐断语表旬空引用所需数据（《增删卜易》用神旬空则事虚、出空填实）
+  - [ganzhi] 新增 XunKong(gan, zhi)（甲子旬空戌亥…六旬表）；修正 WangShuaiOf 注释口诀（当令旺/令生相/生令休/克令囚/令克死，原注释主语写反）
+  - 测试：命卦 12 组公式锚点（含 2000 前后）+ 寄宫系列（1995 男坤/1990 女艮/2000 后）+ 旬空锚点（甲子旬空戌亥等 8 例 + 六爻集成例）
+- 2.6.0: 占卜风水四门方法收敛——确定性下沉引擎，断语归位前端（破坏性 API）
+  - [架构] 参照八字紫微分层：引擎只出确定性要素（排盘+派生），吉凶综合/断语由前端断语表+LLM 产出；删除全部 judgment 方法（不再输出 rating/advice 类综合评级）
+  - [qimen] chart 并入确定性派生：新增 shi_gan_gong（时干落宫）/ri_shi_sheng_ke（日干宫-时干宫生克）/kong_wang_affected/ma_xing_affected；删 qimen.judgment（event 用神映射移前端断语表）
+  - [liuyao] chart 每爻补全确定性状态：lines[] 新增 yue_po（月破）/dong_self（发动）/dong_sheng/dong_ke（动爻生克）；保留 yong_shen 可选参数（聚合伏神）；删 liuyao.judgment
+  - [bazhai] judgment → layout 改名（门主灶配合，东四西四同组判断，结构不变）
+  - [xuankong] 删 annual/sanyuan/judgment；新增 liunian（chart 可选 + year → 共享年飞星盘 + 宅盘叠加凶星落宫提示）；元运随 chart 返回（yun 字段）
+  - [fengshui] 新增共享年飞星 ComputeAnnualFlyingStars（口诀：上元甲子一白/中元四绿/下元七赤，逐年逆行），bazhai/xuankong 共用——修复原 xuankong (tail+tail/4)%9 近似公式对甲子年（1864/1924/1984）入中星偏差
+  - [bazhai] chart 的 liu_nian_xing schema 统一为 ru_zhong + gong_wei（含 xing_name/wuxing/rating/ru_zhong），与玄空共用
+  - [schema] 方法数 35→33（rpc.discover 34）；liuyao/qimen chart Result schema 扩充
+- 2.5.0: 流年神煞补全（E1 年支+日支双查 / E2 值年凶煞）+ 灾煞表修正 + schema enum + 测试全面补全
+  - [bazi] 流年/流月/流日神煞：computeDynamicShenSha 由仅年支扩展为年支+日支双查（桃花/驿马/华盖/劫煞/灾煞——《三命通会》年日支皆可）；红鸾/天喜仅年支（年支体系）；去重合并；羊刃/天乙按日干
+  - [bazi] 新增值年神煞（computeAnnualShenSha）：病符=太岁后1、丧门=后2、吊客=前2、大耗=对冲（《协纪辨方书》），命局四柱逢煞支即应；白虎表有版本争议不做
+  - [bazi] 修复灾煞表命理错误：triad.zaisha 误填为将星中神，标准灾煞为 寅午戌→子/巳酉丑→卯/申子辰→午/亥卯未→酉（golden 测试抓出）
+  - [schema] bazi.liunian/liuyue/liuri 的 shensha 加 items.name enum（liunian 13 种含值年煞、liuyue/liuri 9 种动态），category enum 吉/凶/中性——给 agent 明确神煞清单
+  - [test] 流年 golden 数据驱动（7 条：男/女命例，手算锚点）+ 流年/流月/流日神煞单元测试 16 个（E1/E2 全分支）+ schema enum 保障测试
+  - [test] 修复 TestShenSha_RealChart 错误预期（跟随旧灾煞错表）；2026 流年断言更新（值年煞丧门+大耗）
+- 2.3.0: 八字域对齐 lunar-typescript（VSOP87 节气 + 起运精确化 + 测试扩充）
+  - [tianwen] 节气时刻用寿星历 VSOP87D（移植 lunar ShouXingUtil）：eLon/章动/光行差/ΔT，精度从 ±15min → 秒级
+    - 夏至 2026 与 lunar 差 2 秒；修复 solarLongitude 时区敏感（本地小时当 UTC）
+  - [bazi] 起运精确化：DaYun 新增 start_year_after/start_month_after/start_day_after（对齐 lunar Yun 算法）
+    - dayDiff(纯日期差)+hourDiff(时辰差) 公式；修复逆排目标节跨年（原 122 岁）、时区错乱
+  - [bazi] 大运 8→9 步（对齐 lunar 90 年）
+  - [bazi] ComputeHeHui 空切片输出 null → []（detect 函数初始化空切片）
+  - [schema] bazi.chart/fullchart 的 da_yun 补字段描述（LLM 可见起运精确值）
+  - [test] 95 例 golden（lunar 生成，12 维度）+ 13/13 Compute* 引擎测试 + 10/10 API Dispatch 测试
+    - 修复：ComputeXiaoYun 零测试、TestLiuNian_ShenSha 空断言、起运 ±1 容差、makeChart 过时经度校正
+- 2.2.0: 全域命理值 JSON 字段拼音化（破坏性 API） 全域命理值 JSON 字段拼音化（破坏性 API）
+  - [bazi] 合盘字段：a_zhu/a_stem/a_branch/a_na_yin → jia_zhu/jia_gan/jia_zhi/jia_na_yin（甲方），b_* → yi_*（乙方）
+  - [bazi] a_to_b/b_to_a → jia_dui_yi/yi_dui_jia（甲对乙十神）；stem/branch 关系 → gan_guan_xi/zhi_guan_xi
+  - [bazi] branch_rels → zhi_rels；age_start → qi_sui（起岁，与紫微统一）
+  - [xuankong] period_star/mountain_star/facing_star → yun_xing/shan_xing/xiang_xing；star/stars/star_name → xing/xing_yao/xing_name；palace(s) → gong(wei)
+  - [bazhai] center_star → zhong_gong_xing；year_stars → liu_nian_xing；palace_num → gong_num
+  - [qimen] duty_star/duty_door → zhi_fu_xing/zhi_shi_men；heaven_stem/earth_stem → tian_pan_gan/di_pan_gan；event_palace → ying_qi_gong
+  - [liuyao] month_gan/month_zhi → yue_jian_gan/yue_jian_zhi（月建）；day_gan/day_zhi → ri_chen_gan/ri_chen_zhi（日辰）；day_power/day_relations → ri_chen_power/ri_chen_relations
+  - [qiming] fortune → ji_xiong（三才/五格吉凶）
+  - [huangli] day_pillar → ri_zhu；stem_taboo/branch_taboo → gan_ji/zhi_ji；month_branch → yue_zhi
+  - [ziwei]（承接 2.1 的 star→xing/palace→gong/ysoul→ming_zhu 等）
+  - 保留：match/relation 等通用技术词（wuxing_match/gan_relation）、内部数据表 key、非命理字段（gender/name）
+  - 同步：agent schema（bazi/xuankong/qimen/liuyao/qiming/huangli）+ golden 重生成 + skill 提示词
+  - 验证：14/14 测试包全绿，全引擎+skill 层零英文命理残留
+- 2.1.0: 紫微流盘完整增强 + 坐标真相源改造 紫微流盘完整增强 + 坐标真相源改造
+  - [紫微] 流年/流月/流日/流时盘完整输出（12 宫 + 流耀落宫），与 iztro 完全对齐
+    - 流年盘：10 颗流耀（流魁钺/流昌曲/流禄/流羊陀/流马/流鸾喜）+ 年解 + 流年命宫
+    - 流月/日/时盘：iztro monthlyIndex/dailyIndex/hourlyIndex 公式（命主相关盘起点 + 目标日期干支）
+  - [紫微] 坐标真相源改造：palaceLabels 为唯一宫名根，删除 PalaceNames/iztroPALACES 衍生数组；顺逆=遍历方向不存数组
+  - [紫微] 坐标命名领域化：zhiMinus1→zhiIdx（地支索引）、display/iztroIdx→anXingIdx（安星索引、定寅首）；统一转换函数消除重复
+  - [紫微] 立春换年按精确时刻（非日期），闰月排盘与 iztro fixLeap 对齐（前后半月），补天德/月德 2 颗杂曜
+  - [紫微] 修正五鼠遁（10 天干验证）；Chart 补 BirthLunarMonth/BirthIsLeap
+  - [RPC] OpenRPC doc version 启动时注入 BuildTime（不再硬编码）
+  - [测试] golden 扩充 105→150 例（闰月全位置/大月三十/晚子时/立春/极端年份），断言 18000→23400 全过
+- 2.0.1: 修复 rpc.discover 按域过滤丢失 schema
+  - [RPC] rpc.discover 带 methods 参数过滤时，结果只剩方法名、丢失 params/description（弱类型重解 doc 导致）
+  - [RPC] 新增 RPCRegistry.DiscoverMethods(patterns)，下沉到 agent 层复用 openRPCMeth 强类型过滤（与 OpenRPCDocument 同模式）
+  - [RPC] 过滤结果保留完整 schema；具体方法过滤只返回自身；空 pattern 返回全量
+  - [测试] 新增 TestDiscoverMethods_Filter 固化验证
+- 2.0.0: 全引擎命理值序列化重构（schema 层全字符串+枚举）+ 起名域重构 + 黄历域收敛
+- 2.0.1: 修复 rpc.discover 按域过滤丢失 schema
+  - [RPC] rpc.discover 带 methods 参数过滤时，结果只剩方法名、丢失 params/description（弱类型重解 doc 导致）
+  - [RPC] 新增 RPCRegistry.DiscoverMethods(patterns)，下沉到 agent 层复用 openRPCMeth 强类型过滤（与 OpenRPCDocument 同模式）
+  - [RPC] 过滤结果保留完整 schema；具体方法过滤只返回自身；空 pattern 返回全量
+  - [测试] 新增 TestDiscoverMethods_Filter 固化验证
+- 2.0.0: 全引擎命理值序列化重构（schema 层全字符串+枚举）+ 起名域重构 + 黄历域收敛
+- 2.0.0: 全引擎命理值序列化重构（schema 层全字符串+枚举）+ 起名域重构 + 黄历域收敛
+  - [序列化] 紫微星名/地支/四化键 从数字改为字符串（`star` 输出星名、`si_hua` 键为星名、`fu_xing` 值地支名），JSON round-trip 配套 Unmarshal
+  - [序列化] 六爻/奇门/八宅命理值 string+enum 化（本卦/门/星/神煞/卦象），schema 与实现对齐
+  - [序列化] 奇门八神按阴阳遁输出名称（阳遁勾陈/朱雀，阴遁白虎/玄武），零值字段省略
+  - [起名] qiming 流程重构：`wuge` 并入 `pick`（删独立 `qiming.wuge`），`build` 简化收 combos 只出双名
+  - [起名] 三才过滤从"纯相生公式"改为查 125 组合表（与 check 同标准），>81 笔画按 `((n-1)%81)+1` 回绕对齐五格
+  - [起名] schema 补全：pick/build/check 描述衔接流程；check 的 sancai 修正为 configuration/fortune/description
+  - [黄历] 4 方法收敛为 1 个 `huangli.days`（date/month/bond.date/bond.month 合并），Day/Month 去掉 Suitable/Marks/Warnings
+  - [schema] qimen.chart palaces items 补全（九星/八门/八神枚举）
+  - [清理] 删除 ComposeNames/assertComposeResult/strokeToWuxing 死代码；修复 liuyao.qigua dong_yao null
+  - [破坏性] JSON 输出格式变更（数字→字符串），调用方需按新 schema 适配
+# Changelog
+- 1.12.0: 紫微斗数域系统化重构与正确性修复
+  - [命盘] 主星紫微定位算法：从简化查表法改为 iztro 经典"六五四三二"算法，消除 off-by-one 偏移
+  - [命盘] 天府系偏移方向修正（iztro 坐标系→Liki 逆时针同步反转）
+  - [命盘] 五虎遁布天干方向修正（从逆时针减序改为 iztro display 坐标写入），各宫天干与经典一致
+  - [命盘] 来因宫修复：`IsYuanGong` 字段从未赋值 → `buildChartDetail` 中调用 `yuanGongPalace`，排除子丑
+  - [命盘] 亮度表从 5 级扩展至 7 级（庙旺得利平陷不）并替换为 iztro `STARS_INFO` 源数据
+  - [大限] 起始年龄公式修正：`daXianStartAge(ju)=int(ju)`（取消 ju≥5 时多余的 -2）
+  - [大限] 方向符号修正：Liki 宫序为逆时针，`pos+1` 对应经典逆行，`pos-1` 对应经典顺行
+  - [小限] 映射源从循环变量 `i` 改为 iztro display 坐标 `(ageIdx±i)%12`，经 `zhiToPalace` 映射到 Liki 宫位
+  - [辅星] 左辅/右弼/火星/铃星/天魁/天钺 等 8 颗辅星从公式推导改为预计算查表（`star_positions.json`）
+  - [辅星] 火星/铃星公式直接使用 iztro `fixEarthlyBranchIndex` 坐标
+  - [长生] 方向与经典对齐
+  - [博士] 重写为从禄存起，方向=年支阴阳与性别一致→顺行
+  - [流命宫] 流年/月/日/时命宫返回固定命名"命宫"+`zhi`（原返回本命盘宫名，属于领域错误；下游需适配）
+  - [流运星] 新增流月星（月禄/月羊/月陀/月魁/月钺/月马/月鸾/月喜/月昌/月曲 10 颗）
+  - [流运星] 新增流日星（日禄/日羊/日陀/日魁/日钺/日马/日鸾/日喜/日昌/日曲 10 颗）
+  - [流运星] 新增流时星（时禄/时羊/时陀/时魁/时钺/时马/时鸾/时喜/时昌/时曲 10 颗）
+  - [流运四化] 文昌文曲左辅右弼四化补齐
+  - [五鼠遁] `shiGanCalc` 边界条件修复：仅己庚辛需减 1，壬癸原值正确
+  - [杂曜] 全部 35 颗年/月/时系杂曜从公式替换为 iztro 源数据表（`nianStars/yueStars/shiStars/ganStars`）
+  - [将前/岁前] 从 Liki 逆序改为 iztro display 坐标+`zhiToPalace` 映射
+  - [合盘] `ziwei.bond` 从简易星曜映射重写为经典合婚：命宫互入/夫妻宫对照/子女宫对照/吉煞星互入/禄马标注/四化双化检测/五行生克；28 例配对测试
+  - [天马表] 修复：`data.TianMa` 为空导致 `tianMaPos` 全返回 0，从 iztro 反查公式硬编码
+  - [四化] `computeSiHua` 去除错误的 `s<14` 过滤，保留文昌文曲左辅右弼四化
+  - [API] 流年/月/日/时 结构体新增 `zhi` 字段
+  - [测试] 静态命盘 10800 断言（100 例×108 字段），golden 全部来自 iztro 独立子进程，无状态污染
+  - [测试] 流月/日/时星 3000 断言（100 例×30 星），与 iztro horoscope 对比
+  - [测试] 合盘 28 例配对测试
+  - [测试] 端到端 RPC 回归 14400 断言（100 例×18 域），全量覆盖 chart/fullchart/daxian/liunian/liuyue/liuri/liushi/judgment/bond
+- 2.2.0: 流年/流日/流月/紫微无匹配时返回 [] 而非 nil
+- 2.1.0: liu_qin/wang_shuai 统一输出字符串(JSON enum→中文名), UnmarshalJSON 仅接受字符串
+- 2.0.0: [Breaking] bazi.chart 返回最小命盘(四柱+纳音+大运+性别), 新增 bazi.fullchart(chart) 扩展全量十神/藏干/神煞/长生/空亡
+- 1.11.0: README 全面更新 — liki-skills→liki, 品牌 Liki 灵机
+- 1.10.0: 起名域: wuge 三才过滤 + pick pairs过滤 + CharLite扩充；调候: 25条数据修正 + 空secondary支持
+- 1.9.2: 静卦 bian_lines gan/zhi 空串容错 + Gan/Zhi UnmarshalJSON 允许空值 + liuyao.judgment description 明确 chart 格式
+- 1.9.1: OpenRPC schema 改进 — qiming.build/bazi.hehui/bazi.yongshen description 优化；schemaSolarTime/schemaGender/qimen.select 加 examples
+- 1.9.0: handler 全覆盖测试 — judgment/annual 5 方法 + 剩余 9 方法 + assertError 防止方法名写错
+- 1.8.0: liuyao.judgment/ziwei.judgment/bazhai.judgment/xuankong.annual + 六爻卦辞爻辞
+- 1.7.0: ziwei.judgment 紫微综合论断
+- 1.6.0: liuyao.judgment 六爻断卦 用神旺衰+评级
+- 1.5.0: qimen.judgment/qimen.select — 奇门断事/择吉；bazi.xiaoyun/xiaoxian 小运小限补完
+- 1.4.0: 天干阴阳索引回归经典；dayun 重新计算 direction bug fix
+- 1.3.0: qi_men + liu_yao + xuan_kong 三元九运重构
+- 1.2.0: DaYunZhu→DaYunStep 架构重构 + current_step_index 自动计算
+- 1.1.1: qiming.build schema 字段名修正 + bazi.liunian/ziwei.daxian description 规范化
+- 1.1.0: 引擎初始发布

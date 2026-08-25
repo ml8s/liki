@@ -1,0 +1,78 @@
+{
+ "bazhai.chart": {
+  "gender": "male",
+  "solar_time": "2000-06-15T12:00:00+08:00"
+ },
+ "bazi.chart": {
+  "gender": "male",
+  "solar_time": "2000-06-15T12:00:00+08:00"
+ },
+ "city": {
+  "city": "Beijing"
+ },
+ "liuyao.chart": {
+  "solar_time": "2000-06-15T12:00:00+08:00",
+  "yaos": [
+   7,
+   7,
+   7,
+   7,
+   7,
+   7
+  ]
+ },
+ "liuyao.qigua": {
+  "seed": 12345
+ },
+ "qimen.chart": {
+  "solar_time": "2000-06-15T12:00:00+08:00",
+  "yong_shen": [
+   "生门",
+   "戊",
+   "天辅",
+   "六合"
+  ],
+  "birth_year": 1984
+ },
+ "qiming.char": {
+  "char": "明"
+ },
+ "qiming.check": {
+  "names": [
+   "明哲"
+  ],
+  "surname": "王",
+  "yongshen": "金"
+ },
+ "tianwen.time": {
+  "longitude": 116.4,
+  "time": "2000-06-15T12:00:00+08:00"
+ },
+ "time.now": {},
+ "xuankong.chart": {
+  "solar_time": "2000-06-15T12:00:00+08:00",
+  "zuo_shan": 0,
+  "xiang_shan": 12
+ },
+ "ziwei.chart": {
+  "gender": "male",
+  "lunar": {
+   "year": 2000,
+   "month": 6,
+   "day": 15,
+   "shichen": "午"
+  }
+ },
+ "bazhai.layout": {
+  "chart": {
+   "gender": "male",
+   "solar_time": "2000-06-15T12:00:00+08:00"
+  },
+  "door_gua": "乾",
+  "master_gua": "乾",
+  "stove_gua": "乾"
+ },
+ "xuankong.liunian": {
+  "year": 2026
+ }
+}

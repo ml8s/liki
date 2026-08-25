@@ -1,0 +1,146 @@
+[
+  {
+    "shang_yuan": 1,
+    "zhong_yuan": 7,
+    "xia_yuan": 4,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 2,
+    "zhong_yuan": 8,
+    "xia_yuan": 5,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 3,
+    "zhong_yuan": 9,
+    "xia_yuan": 6,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 8,
+    "zhong_yuan": 5,
+    "xia_yuan": 2,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 9,
+    "zhong_yuan": 6,
+    "xia_yuan": 3,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 1,
+    "zhong_yuan": 7,
+    "xia_yuan": 4,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 3,
+    "zhong_yuan": 9,
+    "xia_yuan": 6,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 4,
+    "zhong_yuan": 1,
+    "xia_yuan": 7,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 5,
+    "zhong_yuan": 2,
+    "xia_yuan": 8,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 4,
+    "zhong_yuan": 1,
+    "xia_yuan": 7,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 5,
+    "zhong_yuan": 2,
+    "xia_yuan": 8,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 6,
+    "zhong_yuan": 3,
+    "xia_yuan": 9,
+    "yang_dun": true
+  },
+  {
+    "shang_yuan": 9,
+    "zhong_yuan": 3,
+    "xia_yuan": 6,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 8,
+    "zhong_yuan": 2,
+    "xia_yuan": 5,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 7,
+    "zhong_yuan": 1,
+    "xia_yuan": 4,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 2,
+    "zhong_yuan": 5,
+    "xia_yuan": 8,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 1,
+    "zhong_yuan": 4,
+    "xia_yuan": 7,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 9,
+    "zhong_yuan": 3,
+    "xia_yuan": 6,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 7,
+    "zhong_yuan": 1,
+    "xia_yuan": 4,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 6,
+    "zhong_yuan": 9,
+    "xia_yuan": 3,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 5,
+    "zhong_yuan": 8,
+    "xia_yuan": 2,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 6,
+    "zhong_yuan": 9,
+    "xia_yuan": 3,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 5,
+    "zhong_yuan": 8,
+    "xia_yuan": 2,
+    "yang_dun": false
+  },
+  {
+    "shang_yuan": 4,
+    "zhong_yuan": 7,
+    "xia_yuan": 1,
+    "yang_dun": false
+  }
+]
