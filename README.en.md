@@ -1,9 +1,9 @@
 <p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/Liki-Professional_Skill_for_Chinese_Metaphysics-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="Liki" src="https://img.shields.io/badge/Liki-Open_Source_Engine_%2B_Skills-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>Liki — Professional Skill for Chinese Metaphysics</strong>
+  <strong>Liki — Open-Source Chinese Metaphysics Engine + AI Skills (Monorepo)</strong>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ---
 
-**Liki** is a Skill for Chinese metaphysics: **BaZi, ZiWei, Liuyao, Qimen, Huangli date selection, Bazhai feng shui, Xuankong feng shui, and naming** — 8 domains in your AI assistant. It implements traditional metaphysics as an engineered tool with **executable process, verifiable conclusions, and traceable judgments**: charts are computed by an astronomical engine, judgments are driven by 46 truth tables (590 rules with classical references), each process step fills in a form, and conclusions are calibrated against known life events.
+**Liki** is an open-source Chinese metaphysics monorepo: a **computation engine (`engine/`, Go + JSON-RPC) plus 4 AI Skills (`skills/`)**. As a Skill, it powers professional analysis across **BaZi, ZiWei, Liuyao, QiMen, Huangli date selection, Bazhai feng shui, Xuankong feng shui, and naming** (8 domains) in your AI assistant. As an engine, it can be embedded directly into web apps, mobile, desktop tools, or any AI framework. It implements traditional metaphysics as an engineered tool with **executable process, verifiable conclusions, and traceable judgments**: charts are computed by an astronomical engine (VSOP87D, second-level solar terms), judgments are driven by 46 truth tables (590 rules with classical references), each process step fills in a form, and conclusions are calibrated against known life events.
 
 ## Quick Start
 
@@ -110,11 +110,11 @@ curl -s http://localhost:8080/jsonrpc \
 - **Astronomical precision**: VSOP87D (ShouXing calendar), second-level solar terms; nutation/aberration/ΔT handled; true solar time / DST / longitude timezone / leap month computed astronomically
 - **Quality depth**: 115 BaZi golden charts + data-driven tests (all-60 nayin, eight-mansion symmetry, 16 key Qimen cells, etc.) + RPC smoke 74/74 + contract-consistency tests
 - **AI-friendly**: `rpc.discover` fetches only the schemas you need (30KB full → a few KB), saving tokens
-- Details in [engine/README.md](engine/README.md); independent version (`engine/cmd/liki/VERSION`)
+- Engine source is in `engine/`; unified repo version (`engine/cmd/liki/VERSION` in sync with 4 skill VERSIONs); quality tests via root `make test-engine`
 
 ## For Developers
 
-BaZi/ZiWei judgments are fully CSV truth-table based (readable, editable, reviewable); divination/feng shui (Liuyao/Qimen/Bazhai/Xuankong) judgments are unified "translation tables" (deterministic computation in the engine, LLM translates by table); the evaluation harness ships with the skill (160 questions, answer-isolated, auto-graded); engine and skill are separated (liki-engine is open source).
+BaZi/ZiWei judgments are fully CSV truth-table based (readable, editable, reviewable); divination/feng shui (Liuyao/Qimen/Bazhai/Xuankong) judgments are unified "translation tables" (deterministic computation in the engine, LLM translates by table); the evaluation harness ships with the skill (160 questions, answer-isolated, auto-graded); the engine (<code>engine/</code>) and skills (<code>skills/</code>) ship together in this monorepo.
 
 ### Evaluation: reproducible, data in release posts
 

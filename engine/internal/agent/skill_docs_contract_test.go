@@ -6,7 +6,7 @@ package agent
 //     yiji.md 曾引用天德/月德/三煞等无返回字段）
 //  2. skill 侧 check_docs.py 的方法白名单 == 引擎注册方法集——双向同步，防白名单漂移
 //
-// 依赖 liki-skills 仓库在工作区存在（../../../liki-skills）；独立运行时（无该目录）自动跳过。
+// 依赖本 monorepo 的 skills/ 目录（相对路径基于包目录 engine/internal/agent：../../../skills）；目录缺失时自动跳过。
 
 import (
 	"encoding/json"
@@ -19,11 +19,12 @@ import (
 )
 
 // 校验范围：liki-bazi（规则引擎）+ 子流程三 skill（domains 表引用引擎字段——jixiong/yiji 等）
+// 相对路径基于包目录 engine/internal/agent（go test cwd）：../../../skills/... 指向本 monorepo 根 skills/
 var skillDocsRels = []string{
-	"../../../liki-skills/skills/liki-bazi",
-	"../../../liki-skills/skills/liki-divination",
-	"../../../liki-skills/skills/liki-fengshui",
-	"../../../liki-skills/skills/liki-naming",
+	"../../../skills/liki-bazi",
+	"../../../skills/liki-divination",
+	"../../../skills/liki-fengshui",
+	"../../../skills/liki-naming",
 }
 
 var (
@@ -160,7 +161,7 @@ func loadSkillDocs() ([]string, error) {
 func TestSkillDocsFieldRefs(t *testing.T) {
 	files, err := loadSkillDocs()
 	if err != nil || len(files) == 0 {
-		t.Skip("liki-skills 仓库不在工作区，跳过 skill 文档契约测试")
+		t.Skip("skills/ 目录不存在，跳过 skill 文档契约测试")
 	}
 	reg := NewRPCRegistry()
 	refs := registryFieldRefs(reg)
@@ -195,11 +196,18 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 					strings.HasPrefix(tok, "webapp/") {
 					continue
 				}
+				// 含 '/' 但非已知路径前缀 → HTTP 头/媒体类型等值（如 Content-Type: application/json），非 schema 字段，跳过
+				if strings.Contains(tok, "/") &&
+					!strings.HasPrefix(tok, "tools/") && !strings.HasPrefix(tok, "app/") &&
+					!strings.HasPrefix(tok, "domains/") && !strings.HasPrefix(tok, "webapp/") &&
+					!strings.HasPrefix(tok, "skills/") {
+					continue
+				}
 				for _, seg := range normalizeFieldToken(tok) {
 					if allow[seg] || pathResolvable(seg, refs) {
 						continue
 					}
-					rel, _ := filepath.Rel(filepath.Join("..", "..", "..", "liki-skills"), f)
+					rel, _ := filepath.Rel(filepath.Join("..", "..", ".."), f)
 					unresolved = append(unresolved, rel+":"+line+": `"+tok+"`")
 				}
 			}
@@ -214,10 +222,10 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 
 // 双向同步：skill 侧 check_docs.py 方法白名单 == 引擎注册方法集（防两处漂移）。
 func TestSkillDocsMethodListSync(t *testing.T) {
-	path := filepath.Join("..", "..", "..", "liki-skills", "tests", "check_docs.py")
+	path := filepath.Join("..", "..", "..", "tests", "check_docs.py")
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		t.Skip("liki-skills 不在工作区，跳过方法集同步测试")
+		t.Skip("check_docs.py 不在本仓库，跳过方法集同步测试")
 	}
 	whitelist := map[string]bool{}
 	// 只提取 METHOD_WHITELIST = {...} 块内的字符串（避免 _SKIP_DOTTED 混入），允许无点单名

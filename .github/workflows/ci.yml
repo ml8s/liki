@@ -26,14 +26,11 @@ jobs:
         with:
           go-version: '1.26'
           check-latest: true
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
       - name: golangci-lint (engine)
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
-          install-mode: goinstall
-        # binary 由 action 装入 PATH；手动 cd engine 运行（config .golangci.yml 在 engine/）
-      - name: run golangci-lint
-        run: cd engine && golangci-lint run ./...
+        working-directory: engine
+        run: golangci-lint run ./...
 
   # ── Engine: Unit Test ──
   engine-test:

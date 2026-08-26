@@ -24,9 +24,6 @@ check: lint vet build test
 test:
 	go test ./internal/... -count=1
 
-update: ## 拉取最新引擎代码（部署前手动同步用）
-	git pull --ff-only origin master
-
 pre-push: ## 推送前检查（lint + vet + unit + 方法名同步）
 	scripts/pre-check.sh
 

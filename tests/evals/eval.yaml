@@ -1,18 +1,18 @@
 # skill-up 评测入口 —— MingLi-Bench 命盘分组版（32 命盘 × 4-6 题 = 160 题）· qwen_code 标准模式
 # 用法：bash tests/run-qwen.sh（自动：移走答案→跑评测→恢复答案→判分）
 #
-# 布局说明（工程区 = liki-skills/ 根）：
-#   - eval.yaml 在 tests/evals/（skill-up 的 Skill 目录 = eval 文件直接父目录 = tests/）
-#   - cases.files / skills.path 均相对 Skill 目录（tests/）解析：
-#       cases:     cases-grouped/pan01.yaml        → tests/cases-grouped/pan01.yaml
-#       skills:     ../../liki-skills/skills/liki-bazi   → liki-skills/skills/liki-bazi（安装源 = skill 本体）
+# 布局说明（skill-up Skill 目录 = eval 参考解析基准 = tests/）：
+#   - eval.yaml 在 tests/evals/（run-qwen.sh 在仓库根以 tests/evals/eval.yaml 运行）
+#   - cases.files / skills.path 均相对基准目录（tests/）解析：
+#       cases:     evals/cases/pan01.yaml        → tests/evals/cases/pan01.yaml
+#       skills:     ../skills/liki-bazi           → <仓库根>/skills/liki-bazi（安装源 = skill 本体，不依赖 clone 目录名）
 #   - 答案文件（tests/answers.json 等）不进 skill——run-qwen.sh 运行前 stash 隔离（容器 agent 读不到）
 #   - 产物输出由 run-qwen.sh 的 --output-dir 指到 tests/liki-workspace/（不入库不进包）
 schema_version: v1alpha1
 
 skills:
   - source: local_path
-    path: ../../liki-skills/skills/liki-bazi
+    path: ../skills/liki-bazi
     exclude:            # 只装 skill 本体（~1MB）：跳过 .git 历史与构建产物
       - ".git/**"
       - "dist/**"
@@ -27,6 +27,8 @@ environment:
     # key 由 run-qwen.sh 运行前 sed 注入（占位符防 key 入库；skill-up 不展开 ${VAR}）
     OPENAI_API_KEY: ${OPENAI_API_KEY}
     OPENAI_BASE_URL: https://api.deepseek.com/v1
+    # 本地引擎端点由 run-qwen.sh 注入（容器内经 bridge 网关访问宿主本地引擎；skill_up 评测脱离生产 liki.hk）
+    LIKI_RPC_URL: ${LIKI_RPC_URL}
 
 engine:
   name: qwen_code

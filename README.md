@@ -1,9 +1,9 @@
 <p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/Liki-命理师的_Skill-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="Liki" src="https://img.shields.io/badge/Liki-开源命理引擎与_Skill-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>Liki — 命理师的 Skill</strong>
+  <strong>Liki — 开源命理计算引擎 + AI Skill（Monorepo）</strong>
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ---
 
-**Liki** 是命理师的 Skill：在 AI 助手里完成**八字、紫微、六爻、奇门、黄历择日、八宅风水、玄空风水、起名**等 8 个领域的专业分析。它把传统命理实现为**流程可执行、结论可复验、断语可溯源**的工程化工具：排盘由天文历算引擎计算，断语由 46 张真值表（590 条，含经典原文）驱动，流程每步填表，结论用已发生事件校准。
+**Liki** 是一个开源命理 monorepo：**计算引擎（`engine/`，Go + JSON-RPC）+ 4 个 AI Skill（`skills/`）**。作为 Skill 使用，在 AI 助手里可完成**八字、紫微、六爻、奇门、黄历择日、八宅风水、玄空风水、起名**等 8 个领域的专业分析；作为引擎使用，可直接集成到 Web 应用、移动端、桌面工具或任意 AI 框架。它把传统命理实现为**流程可执行、结论可复验、断语可溯源**的工程化工具：排盘由天文历算引擎（VSOP87D 秒级节气）计算，断语由 46 张真值表（590 条，含经典原文）驱动，流程每步填表，结论用已发生事件校准。
 
 ## 快速开始
 
@@ -110,7 +110,7 @@ curl -s http://localhost:8080/jsonrpc \
 - **天文精度**：VSOP87D（寿星历）秒级节气，章动/光行差/ΔT 全考虑，真太阳时/夏令时/经度时区/闰月按天文算法
 - **质量纵深**：115 个八字 golden 命例 + 数据驱动测试固化（纳音 60 全量、八宅对称性、奇门 16 关键格等）+ RPC 冒烟 74/74 + 契约一致性测试
 - **AI 友好**：`rpc.discover` 按方法名取 schema（30KB 全量 → 几 KB），省 token
-- 引擎细节见 [engine/README.md](engine/README.md)；版本独立（`engine/cmd/liki/VERSION`）
+- 引擎源码在 `engine/`；全仓统一版本（`engine/cmd/liki/VERSION` 与 4 skill VERSION 同步）；质量测试经根 `make test-engine` 一键跑
 
 ## 开发者
 
