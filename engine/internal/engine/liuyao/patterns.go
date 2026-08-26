@@ -6,25 +6,25 @@ import "liki-engine/internal/engine/ganzhi"
 type PatternType string
 
 const (
-	PatternXunKong   PatternType = "旬空"   // 旬空
-	PatternYuePo     PatternType = "月破"   // 月破
-	PatternFeiFu     PatternType = "飞伏"   // 飞伏
-	PatternJinTui    PatternType = "进退"   // 进退神
-	PatternChongHe   PatternType = "冲合"   // 六冲/六合
-	PatternFanYin    PatternType = "反吟"   // 反吟/伏吟
+	PatternXunKong    PatternType = "旬空"   // 旬空
+	PatternYuePo      PatternType = "月破"   // 月破
+	PatternFeiFu      PatternType = "飞伏"   // 飞伏
+	PatternJinTui     PatternType = "进退"   // 进退神
+	PatternChongHe    PatternType = "冲合"   // 六冲/六合
+	PatternFanYin     PatternType = "反吟"   // 反吟/伏吟
 	PatternSuiGuiRuMu PatternType = "随鬼入墓" // 随鬼入墓
-	PatternDuFa      PatternType = "独发"   // 独发
-	PatternDuJing    PatternType = "独静"   // 独静
-	PatternLiangXian PatternType = "两现"   // 用神两现
+	PatternDuFa       PatternType = "独发"   // 独发
+	PatternDuJing     PatternType = "独静"   // 独静
+	PatternLiangXian  PatternType = "两现"   // 用神两现
 )
 
 // Pattern 特殊格局
 type Pattern struct {
-	Type      PatternType `json:"type"`       // 格局类型
-	SubType   string             `json:"sub_type"`   // 子类型（如真空/假空）
-	Position  int                `json:"position"`   // 相关爻位（0=全卦）
-	IsTrue    bool               `json:"is_true"`    // 是否为真格局（如真破/真空）
-	Assessment string            `json:"assessment"` // 断语描述
+	Type       PatternType `json:"type"`       // 格局类型
+	SubType    string      `json:"sub_type"`   // 子类型（如真空/假空）
+	Position   int         `json:"position"`   // 相关爻位（0=全卦）
+	IsTrue     bool        `json:"is_true"`    // 是否为真格局（如真破/真空）
+	Assessment string      `json:"assessment"` // 断语描述
 }
 
 // ComputePatterns 计算所有特殊格局

@@ -10,19 +10,19 @@ import (
 
 // LiuNian holds the annual (流年) analysis output.
 type LiuNian struct {
-	Year              int                 `json:"year"`
-	NianGan           ganzhi.Gan                 `json:"nian_gan"`
-	NianZhi           ganzhi.Zhi                 `json:"nian_zhi"`
-	YearName          string              `json:"nian_name"`
-	Element           string              `json:"wuxing"`
-	NaYin             string              `json:"na_yin"`
-	ShiShen            string              `json:"shi_shen"`
-	Generates         int                 `json:"sheng"`
-	Restrains         int                 `json:"ke"`
+	Year              int              `json:"year"`
+	NianGan           ganzhi.Gan       `json:"nian_gan"`
+	NianZhi           ganzhi.Zhi       `json:"nian_zhi"`
+	YearName          string           `json:"nian_name"`
+	Element           string           `json:"wuxing"`
+	NaYin             string           `json:"na_yin"`
+	ShiShen           string           `json:"shi_shen"`
+	Generates         int              `json:"sheng"`
+	Restrains         int              `json:"ke"`
 	NatalInteractions []zhuInteraction `json:"natal_interactions"`
 	DaYunInteractions []zhuInteraction `json:"dayun_interactions"`
-	ShenSha           []shenShaEntry      `json:"shensha"`
-	FuYinFanYin       []FuYinFanYin  `json:"fuyin_fanyin"`
+	ShenSha           []shenShaEntry   `json:"shensha"`
+	FuYinFanYin       []FuYinFanYin    `json:"fuyin_fanyin"`
 }
 
 // ComputeLiuNian computes the year pillar for a given year and analyzes its
@@ -52,7 +52,7 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 		YearName:  ganzhi.GanName(yearStem) + ganzhi.ZhiName(yearBranch),
 		Element:   yearElem.String(),
 		NaYin:     naYin,
-		ShiShen:    tgName.String(),
+		ShiShen:   tgName.String(),
 		Generates: gen,
 		Restrains: rest,
 	}
@@ -63,8 +63,8 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 	stemRels, branchRels := analyzeZhuWithBazi(liuNianZhu, bz)
 	r.NatalInteractions[0] = zhuInteraction{
 		ZhuLabel: r.YearName,
-		GanRels:     stemRels,
-		ZhiRels:     branchRels,
+		GanRels:  stemRels,
+		ZhiRels:  branchRels,
 	}
 
 	if currentDaYun != nil {
@@ -72,8 +72,8 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 		dyStemRels, dyBranchRels := analyzeZhuWithBazi(dyZhu, bz)
 		r.DaYunInteractions = []zhuInteraction{{
 			ZhuLabel: currentDaYun.ShiShen + "(" + currentDaYun.Name + ")",
-			GanRels:     dyStemRels,
-			ZhiRels:     dyBranchRels,
+			GanRels:  dyStemRels,
+			ZhiRels:  dyBranchRels,
 		}}
 	} else {
 		r.DaYunInteractions = []zhuInteraction{}

@@ -34,7 +34,7 @@ var (
 
 // fieldRefs 收集方法 schema 属性路径：type=object→properties 递归；type=array→items 递归（路径记 []）。
 type fieldRefs struct {
-	paths []string // 完整属性路径（相对 schema 根，如 "gong_wei[].xing_yao"）
+	paths  []string        // 完整属性路径（相对 schema 根，如 "gong_wei[].xing_yao"）
 	leaves map[string]bool // 全部叶子属性名
 }
 

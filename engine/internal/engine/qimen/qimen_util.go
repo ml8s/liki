@@ -24,6 +24,7 @@ func zhiPalace(z ganzhi.Zhi) GongIndex {
 	}
 	return GongKan
 }
+
 // palaceZhi returns the principal branch of a gong.
 func palaceZhi(p GongIndex) ganzhi.Zhi {
 	switch p {

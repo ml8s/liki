@@ -7,8 +7,8 @@ import "liki-engine/internal/engine/fengshui"
 // yearStarResult is the 流年紫白飞星 inside bazhai.chart.
 // schema 与玄空共用（fengshui.ComputeAnnualFlyingStars），字段与 xuankong 一致。
 type yearStarResult struct {
-	Year    int                          `json:"year"`
-	RuZhong string                       `json:"ru_zhong"`
+	Year    int                         `json:"year"`
+	RuZhong string                      `json:"ru_zhong"`
 	Palaces []fengshui.AnnualFlyingStar `json:"gong_wei"`
 }
 

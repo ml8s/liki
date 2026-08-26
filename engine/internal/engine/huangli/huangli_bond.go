@@ -23,7 +23,9 @@ type BondMonth struct {
 func computeBondDay(bz ganzhi.Bazi, eventType string, dateStr string) (BondDay, error) {
 	riYuan, dayBranch := bz.Ri.Gan, bz.Ri.Zhi
 	dayEntry, err := QueryDate(dateStr)
-	if err != nil { return BondDay{}, err }
+	if err != nil {
+		return BondDay{}, err
+	}
 	dayStem := dayEntry.RiZhu.Gan
 	riZhi := dayEntry.RiZhu.Zhi
 	t, _ := time.Parse("2006-01-02", dateStr) //nolint:errcheck
@@ -36,12 +38,15 @@ func computeBondDay(bz ganzhi.Bazi, eventType string, dateStr string) (BondDay, 
 func computeBondMonth(bz ganzhi.Bazi, eventType string, yearMonth string) (BondMonth, error) {
 	riYuan, dayBranch := bz.Ri.Gan, bz.Ri.Zhi
 	m, err := QueryMonth(yearMonth)
-	if err != nil { return BondMonth{}, err }
+	if err != nil {
+		return BondMonth{}, err
+	}
 	t, _ := time.Parse("2006-01", yearMonth) //nolint:errcheck
 	taiSui := taiSui(t.Year())
 	r := BondMonth{Month: m.Month, Stem: m.Stem, Branch: m.Branch, Days: make([]BondDay, len(m.Days))}
 	for i, e := range m.Days {
-		ds := e.RiZhu.Gan; dz := e.RiZhu.Zhi
+		ds := e.RiZhu.Gan
+		dz := e.RiZhu.Zhi
 		r.Days[i] = BondDay{Day: e}
 		r.Days[i].GanRelation = ganzhi.ShiShenFromGan(riYuan, ds).String()
 		r.Days[i].ZhiRelation, _, _ = evaluateZhi(dz, dayBranch, "日柱")

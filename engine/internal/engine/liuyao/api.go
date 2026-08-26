@@ -1,21 +1,24 @@
 // Package liuyao provides 六爻 (纳甲筮法) computation.
 //
 // Types
-//   Chart, Line, YaoType,
-//   LiuQin, LiuShou, YongShen,
-//   YongShenResult, FuShen,
-//   ganzhi.WangShuai, DayRelation, YingQi
+//
+//	Chart, Line, YaoType,
+//	LiuQin, LiuShou, YongShen,
+//	YongShenResult, FuShen,
+//	ganzhi.WangShuai, DayRelation, YingQi
 //
 // Constants
-//   YaoType: LaoYin, ShaoYang, ShaoYin, LaoYang
-//   LiuQin: QinFumu, QinXiongDi, QinGuanGui, QinQiCai, QinZiSun
-//   LiuShou: ShouQingLong, ShouZhuQue, ShouGouChen, ShouTengShe, ShouBaiHu, ShouXuanWu
-//   YongShen: YongFumu, YongXiongDi, YongGuanGui, YongQiCai, YongZiSun, YongShiYao
-//   ganzhi: WSWang, WSXiang, WSXiu, WSQiu, WSSi
+//
+//	YaoType: LaoYin, ShaoYang, ShaoYin, LaoYang
+//	LiuQin: QinFumu, QinXiongDi, QinGuanGui, QinQiCai, QinZiSun
+//	LiuShou: ShouQingLong, ShouZhuQue, ShouGouChen, ShouTengShe, ShouBaiHu, ShouXuanWu
+//	YongShen: YongFumu, YongXiongDi, YongGuanGui, YongQiCai, YongZiSun, YongShiYao
+//	ganzhi: WSWang, WSXiang, WSXiu, WSQiu, WSSi
 //
 // Functions
-//   Qigua() → QiguaResult           纯起卦（三枚铜钱摇六次）
-//   ComputeChart(st, yongShen, yaos) → Chart  装卦 + 用神 + 旺衰 + 应期
+//
+//	Qigua() → QiguaResult           纯起卦（三枚铜钱摇六次）
+//	ComputeChart(st, yongShen, yaos) → Chart  装卦 + 用神 + 旺衰 + 应期
 package liuyao
 
 import (

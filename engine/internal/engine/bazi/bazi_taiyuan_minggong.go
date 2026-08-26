@@ -31,9 +31,9 @@ func computeSanYuan(monthZhu ganzhi.Zhu, yearStem ganzhi.Gan, timeZhi ganzhi.Zhi
 	taiYuan := ganzhi.Zhu{Gan: ganzhi.Gan(tyStem), Zhi: ganzhi.Zhi(tyBranch)}
 
 	// 月支 → 寅起索引（寅=1 卯=2 ... 丑=12）
-	monthZhiIndex := (int(monthZhu.Zhi) + 9) % 12 + 1
+	monthZhiIndex := (int(monthZhu.Zhi)+9)%12 + 1
 	// 时支 → 寅起索引
-	timeZhiIndexM := (int(timeZhi) + 9) % 12 + 1
+	timeZhiIndexM := (int(timeZhi)+9)%12 + 1
 	// 时支 → 子起索引（子=1 ... 亥=12，即 ganzhi.Zhi 原值）
 	timeZhiIndexZ := int(timeZhi)
 

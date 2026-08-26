@@ -32,20 +32,25 @@ func arrangePalaceGans(nianGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan,
 	// 正月干（五虎遁）+ soulIndex（iztro算法）
 	var zhengYueGan Gan
 	switch nianGan {
-	case 1, 6: zhengYueGan = 3  // 甲己丙
-	case 2, 7: zhengYueGan = 5  // 乙庚戊
-	case 3, 8: zhengYueGan = 7  // 丙辛庚
-	case 4, 9: zhengYueGan = 9  // 丁壬壬
-	case 5, 10: zhengYueGan = 1 // 戊癸甲
+	case 1, 6:
+		zhengYueGan = 3 // 甲己丙
+	case 2, 7:
+		zhengYueGan = 5 // 乙庚戊
+	case 3, 8:
+		zhengYueGan = 7 // 丙辛庚
+	case 4, 9:
+		zhengYueGan = 9 // 丁壬壬
+	case 5, 10:
+		zhengYueGan = 1 // 戊癸甲
 	}
 	// iztro: mingGan = 正月干 + soulIndex(寅0系)
-	mingGan = Gan(((int(zhengYueGan) - 1 + soulIzTroIdx) % 10 + 10) % 10 + 1)
+	mingGan = Gan(((int(zhengYueGan)-1+soulIzTroIdx)%10+10)%10 + 1)
 	// iztro公式：gans[i] = fixIndex(HEAVENLY_STEMS.indexOf(mingGan) - soulIzTroIdx + i)
 	// 其中soulIzTroIdx是命宫在display坐标中的索引(寅=0 安星序)
 	for i := 0; i < 12; i++ {
 		// display坐标中第i宫的地支 = (寅+i)
 		// 对应天干 = mingGan - soulIzTroIdx + i
-		gan := Gan(((int(mingGan) - 1 - soulIzTroIdx + i) % 10 + 10) % 10 + 1)
+		gan := Gan(((int(mingGan)-1-soulIzTroIdx+i)%10+10)%10 + 1)
 		// i是display坐标索引，需要映射到Liki gong order
 		// display i → zhiIdx → Liki gong
 		palaceZhiM1 := (i + 2) % 12

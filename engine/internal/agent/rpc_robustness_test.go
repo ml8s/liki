@@ -15,7 +15,9 @@ func TestRPCInputRobustness(t *testing.T) {
 	// 合法基线参数（从 schema_consistency_test 抄录——保证"非法"确实非法而非缺依赖）
 	zc, _ := json.Marshal(map[string]any{"lunar": map[string]any{"year": 1984, "month": 1, "day": 15, "shichen": "辰"}, "gender": "male"})
 	bc, _ := json.Marshal(map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"})
-	var zr, br struct{ Data map[string]any `json:"data"` }
+	var zr, br struct {
+		Data map[string]any `json:"data"`
+	}
 	zout, _ := reg.Execute(context.Background(), "ziwei.chart", zc)
 	bout, _ := reg.Execute(context.Background(), "bazi.chart", bc)
 	_ = json.Unmarshal(zout, &zr)
@@ -40,14 +42,14 @@ func TestRPCInputRobustness(t *testing.T) {
 		"ziwei.liushi":    mk("chart", z, "liu_nian", 2026, "lunar_month", 6, "lunar_day", 4, "shi_zhi", "午"),
 		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`),
 		"huangli.days":    []byte(`{"start_date":"2026-07-31","count":3}`),
-		"time.now": []byte(`{}`),
+		"time.now":        []byte(`{}`),
 		// city 依赖外网 Nominatim，不测联网基线（非法参数仍由 schema 校验拦截）
 	}
 
 	badParams := []json.RawMessage{
-		json.RawMessage(`{}`),                    // 空对象（缺必填）
-		json.RawMessage(`null`),                  // null
-		json.RawMessage(`[]`),                    // 数组（类型错）
+		json.RawMessage(`{}`),                      // 空对象（缺必填）
+		json.RawMessage(`null`),                    // null
+		json.RawMessage(`[]`),                      // 数组（类型错）
 		json.RawMessage(`{"chart":"not-a-chart"}`), // 字段类型错
 	}
 	// 极端值（仅对含 year/date 参数的方法）

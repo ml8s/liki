@@ -13,12 +13,12 @@ var suiQianNames = [12]string{
 // computeJiangQian returns the 将前12神. iztro: 年支定起始→顺时针display序→zhiIdxToPalaceIndex.
 func computeJiangQian(nianZhi Zhi, mingZhi Zhi) [12]string {
 	var jqStartIdx int
-	switch {
-	case nianZhi == 3 || nianZhi == 7 || nianZhi == 11: // 寅午戌→午
+	switch nianZhi {
+	case 3, 7, 11: // 寅午戌→午
 		jqStartIdx = 4
-	case nianZhi == 9 || nianZhi == 1 || nianZhi == 5: // 申子辰→子
+	case 9, 1, 5: // 申子辰→子
 		jqStartIdx = 10
-	case nianZhi == 6 || nianZhi == 10 || nianZhi == 2: // 巳酉丑→酉(anXingIdx=7)
+	case 6, 10, 2: // 巳酉丑→酉(anXingIdx=7)
 		jqStartIdx = 7
 	default: // 亥卯未→卯
 		jqStartIdx = 1

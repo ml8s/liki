@@ -1,11 +1,13 @@
 // Package bazhai provides八宅风水 computation.
 //
 // Types
-//   Chart, MingGua, gua
+//
+//	Chart, MingGua, gua
 //
 // Functions
-//   ComputeChart(st SolarTime, gender Gender) → Chart
-//   ComputeMingGua(gender Gender, birthYear int) → MingGua
+//
+//	ComputeChart(st SolarTime, gender Gender) → Chart
+//	ComputeMingGua(gender Gender, birthYear int) → MingGua
 package bazhai
 
 import (

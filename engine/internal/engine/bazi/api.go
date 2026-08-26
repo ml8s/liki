@@ -1,12 +1,13 @@
 // Package bazi provides 八字 computation.
 //
 // Types
-//   Chart, Chart,
-//   DaYunStep, DaYun,
-//   Bond, XunGong,
-//   LiuNian, LiuYue, LiuRi, LiuShi,
-//   XiaoYunZhu, XiaoXian,
-//   YongShenResult, FuYiResult, TiaoHouResult, GeJuResult
+//
+//	Chart, Chart,
+//	DaYunStep, DaYun,
+//	Bond, XunGong,
+//	LiuNian, LiuYue, LiuRi, LiuShi,
+//	XiaoYunZhu, XiaoXian,
+//	YongShenResult, FuYiResult, TiaoHouResult, GeJuResult
 package bazi
 
 import (

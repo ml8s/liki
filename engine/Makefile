@@ -1,4 +1,6 @@
-.PHONY: all build build-linux lint vet check test test-all pre-push clean run
+# 语言原语层：单命令入口。编排（全量测试/推送检查）统一走仓库根 Makefile
+# （根 test-engine → scripts/ci-engine.sh）——单一编排入口，不在此重复。
+.PHONY: all build build-linux lint vet test clean run
 
 BINARY=liki
 VERSION=$(shell cat cmd/liki/VERSION 2>/dev/null || echo dev)
@@ -19,44 +21,11 @@ lint:
 vet:
 	go vet ./...
 
-check: lint vet build test
-
 test:
 	go test ./internal/... -count=1
-
-pre-push: ## 推送前检查（lint + vet + unit + 方法名同步）
-	scripts/pre-check.sh
-
-test-all: ## 全量测试（lint + vet + unit race + integration + RPC 冒烟）
-	scripts/ci-engine.sh
 
 clean:
 	rm -f $(BINARY) bin/liki-engine
 
 run:
 	go run ./cmd/liki/
-
-VERSION_FILE := cmd/liki/VERSION
-
-version-patch: ## Bump PATCH (1.9.0 → 1.9.1)
-	@V=$$(cat $(VERSION_FILE)); \
-	MAJOR=$${V%%.*}; \
-	REST=$${V#*.}; \
-	MINOR=$${REST%.*}; \
-	PATCH=$${REST#*.}; \
-	echo "$$MAJOR.$$MINOR.$$((PATCH + 1))" > $(VERSION_FILE); \
-	echo "✅ $$V → $$(cat $(VERSION_FILE))"
-
-version-minor: ## Bump MINOR (1.9.0 → 1.10.0)
-	@V=$$(cat $(VERSION_FILE)); \
-	MAJOR=$${V%%.*}; \
-	REST=$${V#*.}; \
-	MINOR=$${REST%.*}; \
-	echo "$$MAJOR.$$((MINOR + 1)).0" > $(VERSION_FILE); \
-	echo "✅ $$V → $$(cat $(VERSION_FILE))"
-
-version-major: ## Bump MAJOR (1.9.0 → 2.0.0)
-	@V=$$(cat $(VERSION_FILE)); \
-	MAJOR=$${V%%.*}; \
-	echo "$$((MAJOR + 1)).0.0" > $(VERSION_FILE); \
-	echo "✅ $$V → $$(cat $(VERSION_FILE))"

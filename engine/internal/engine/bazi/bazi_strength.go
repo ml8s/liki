@@ -20,7 +20,7 @@ type strengthRule struct {
 	Strength  string   `json:"strength"`
 	Upgrade   *string  `json:"upgrade,omitempty"`
 	NeedYinBi int      `json:"need_yinbi,omitempty"`
-	Note     string   `json:"note"`
+	Note      string   `json:"note"`
 }
 
 // congGeRule represents one 从格 detection rule.
@@ -45,7 +45,7 @@ type stemConditions struct {
 	YinBiMin      *int `json:"yin_bi_min,omitempty"`
 	GuanShaTouGan *int `json:"guan_sha_tou_gan,omitempty"`
 	GuanShaMin    *int `json:"guan_sha_min,omitempty"`
-	YinTouGan     *int `json:"yin_tou_gan,omitempty"`   // 印透干数量 (excluding 比劫)
+	YinTouGan     *int `json:"yin_tou_gan,omitempty"` // 印透干数量 (excluding 比劫)
 	CaiMin        *int `json:"cai_min,omitempty"`
 	BiJieTouGan   *int `json:"bi_jie_tou_gan,omitempty"`
 	ShiShangMin   *int `json:"shi_shang_min,omitempty"`
@@ -143,7 +143,6 @@ func classifySeason(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi) string {
 		return "休"
 	}
 }
-
 
 // countYinBi returns印比 count (比劫同五行+印生我) from the 4 stems.
 func countYinBi(c Chart) int {

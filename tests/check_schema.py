@@ -5,6 +5,7 @@
 2. 断语约束键必须 ∈ 该表"引用因子"声明（若表有声明）——防声明与实际脱节
 3. 引用因子声明中的因子名必须存在
 4. 各断语表条目 id 唯一
+5. 死列（表头列无任何行引用）——error（2026-08 存量 227 列已清零，此后新增即拦截）
 
 用法：
     python3 tests/check_schema.py        # 校验全部，退出码 0/1
@@ -123,12 +124,18 @@ def main() -> int:
             continue
         import csv as _csv
         dom = os.path.basename(f)[:-4]
+        _rel = os.path.relpath(f, DY).replace(os.sep, "/")
         rows = []
         _hdr = None
         with open(f, encoding="utf-8") as fh:
             _rd = _csv.DictReader(fh)
             _hdr = [c for c in _rd.fieldnames if c not in ("id", "事件", "结论", "依据", "经典原文")]
             for r in _rd:
+                # 参差行防御：行字段数 ≠ 表头（短缺 → 值补 None；多余 → 进 restkey=None）。
+                # 在解析口明确报错并跳过该行，而非下游 item["结论"].strip() 裸 AttributeError。
+                if None in r or any(v is None for v in r.values()):
+                    errors.append(f"[{_rel}] 第 {_rd.line_num} 行列数与表头不一致（参差 CSV）——请对齐列数后重查")
+                    continue
                 cons = {}
                 for k, v in r.items():
                     if k in ("id", "事件", "结论", "依据", "经典原文"):
@@ -138,7 +145,6 @@ def main() -> int:
                 # 交叉校验：八字表只用八字因子、紫微表只用紫微因子（防混合回潮——真分开）
                 # 表文件在 bazi/ziwei 子目录（load_table 按目录定位），expect 按目录判定——
                 # 文件名无 bazi_/ziwei_ 前缀，不能用 dom（basename）判断（历史盲区：expect 恒 None）
-                _rel = os.path.relpath(f, DY).replace(os.sep, "/")
                 expect = "bazi" if _rel.startswith("bazi/") else ("ziwei" if _rel.startswith("ziwei/") else None)
                 if expect:
                     for ck in cons:
@@ -168,11 +174,13 @@ def main() -> int:
                     errors.append(f"[{_rel}] 八字流年表引用紫微流年因子 '{k}'——跨术数死条件（八字流年快照恒无此键，永不命中）")
                 elif k not in bz_reach and k not in BUILTIN_KEYS and k in factor_names:
                     errors.append(f"[{_rel}] 流年表引用本命因子 '{k}'（非「引用本命[X]」形式）——流年快照不可达，死列")
-        # 强化⑤（外部评审 #20）：死列检测——表头列无任何行引用（纯冗余，易滋生死条件）
+        # 强化⑤（外部评审 #20）：死列检测——表头列无任何行引用（纯冗余，易滋生死条件）。
+        # 2026-08 起升级为 error：存量 227 列已清零（生成器时代的统一超集表头遗物），
+        # 基线为 0 后新增死列 = 回潮，直接拦（与 #17/#18 同级别的硬约束）。
         _unused = [c for c in _hdr if c not in used_keys]
         if _unused:
             _s = ",".join(_unused[:8]) + ("…" if len(_unused) > 8 else "")
-            warnings.append(f"[{dom}] 表头未引用列（死列/冗余）{len(_unused)} 个: {_s}")
+            errors.append(f"[{dom}] 死列 {len(_unused)} 个（表头列无任何行引用——删除该列，运行时无效纯冗余）: {_s}")
         # 强化⑦（自查 2026-08：重复断语行——同约束多条近似结论 → agent 输出冗余/矛盾）
         _seen_cons = {}
         for item in rows:

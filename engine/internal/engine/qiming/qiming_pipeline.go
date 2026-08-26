@@ -25,4 +25,3 @@ func computeWuGeFromStrokes(s SurnameStrokes, s1, s2 int) WuGe {
 		ZongGe: strokeResult(zong),
 	}
 }
-

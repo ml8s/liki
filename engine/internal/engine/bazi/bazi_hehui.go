@@ -46,7 +46,7 @@ type TripleGroup struct {
 func ComputeHeHui(c Chart) HeHuiResult {
 	bz := c.ToBazi()
 	return HeHuiResult{
-		GanHe: detectGanHe(bz),
+		GanHe:    detectGanHe(bz),
 		ZhiLiuHe: detectZhiPairs(bz, ganzhi.IsZhiHe, true),
 		SanHe:    detectTriple(bz, ganzhi.TripleHeList, relSanHe, "局"),
 		SanHui:   detectTriple(bz, ganzhi.TripleHuiList, relSanHui, "方"),

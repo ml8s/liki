@@ -1,0 +1,4 @@
+# 行尾统一 LF（历史存量 20 个 csv 为 CRLF，sed/diff/csv 工具链行为不一致——2026-08 归一）
+* text=auto
+*.csv text eol=lf
+*.sh text eol=lf

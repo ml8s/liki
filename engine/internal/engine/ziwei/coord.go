@@ -15,12 +15,12 @@ package ziwei
 
 // zhiIdxToZhi converts earth branch index (0=子) to Zhi (1-12).
 func zhiIdxToZhi(zhiIdx int) Zhi {
-	return Zhi((zhiIdx%12 + 12) % 12 + 1)
+	return Zhi((zhiIdx%12+12)%12 + 1)
 }
 
 // zhiToZhiIdx converts Zhi (1-12) to earth branch index (0=子).
 func zhiToZhiIdx(z Zhi) int {
-	return (int(z)-1+12) % 12
+	return (int(z) - 1 + 12) % 12
 }
 
 // anXingIdxToZhiIdx converts 安星索引 (寅=0 安星序) to 地支索引 (子=0).
@@ -36,9 +36,9 @@ func zhiIdxToAnXingIdx(zhiIdx int) int {
 // flowPalace is one gong of a flow chart (流年/流月/流日/流时盘),
 // expressed in earth-branch coordinates.
 type flowPalace struct {
-	Zhi    Zhi      `json:"zhi"`     // 地支
-	Name   string   `json:"name"`    // 宫名（命盘标签）
-	Stars  []string `json:"xing_yao"`   // 流耀星名（无则为空）
+	Zhi    Zhi      `json:"zhi"`         // 地支
+	Name   string   `json:"name"`        // 宫名（命盘标签）
+	Stars  []string `json:"xing_yao"`    // 流耀星名（无则为空）
 	IsMing bool     `json:"is_liu_ming"` // 是否流盘命宫
 }
 
@@ -52,7 +52,7 @@ func buildFlowPalaces(liuPanIdx int, starByAnXingIdx map[int][]string) [12]flowP
 		zhiIdx := anXingIdxToZhiIdx(i)
 		// 流盘宫名 = gongLabels（根）的反向索引（顺时针序）：
 		//   流盘序 names[i] = PALACES[(i - liuPanIdx) % 12]
-		palIdx := ((i - liuPanIdx) % 12 + 12) % 12
+		palIdx := ((i-liuPanIdx)%12 + 12) % 12
 		name := gongLabels[(12-palIdx)%12]
 		stars := starByAnXingIdx[i]
 		if stars == nil {

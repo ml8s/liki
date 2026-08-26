@@ -61,7 +61,7 @@ func findMaXing(driveZhi ganzhi.Zhi) GongIndex {
 // kongWangZhi returns the two 空亡 branches of the driving pillar's 旬.
 func kongWangZhi(driveZhu ganzhi.Zhu) [2]ganzhi.Zhi {
 	idx := ganzhi.SixtyCycleIndex(driveZhu.Gan, driveZhu.Zhi) // 0-59
-	xunIdx := idx / 10                                       // 0-5
+	xunIdx := idx / 10                                        // 0-5
 	return [6][2]ganzhi.Zhi{
 		{11, 12}, // 甲子旬: 戌亥
 		{9, 10},  // 甲戌旬: 申酉

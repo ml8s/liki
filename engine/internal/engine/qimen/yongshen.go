@@ -74,11 +74,11 @@ func parseGan(s string) (ganzhi.Gan, bool) {
 
 // SymbolResult 单个用神符号的落宫状态。
 type SymbolResult struct {
-	Symbol     string    `json:"symbol"`      // 符号名（开门/天辅/六合/戊）
-	Palace     GongIndex `json:"palace"`      // 符号落宫
-	TianGan    string    `json:"tian_gan"`    // 落宫天盘干（十干克应）
-	KongWang   bool      `json:"kong_wang"`   // 落宫是否空亡
-	MaXing     bool      `json:"ma_xing"`     // 落宫是否马星
+	Symbol   string    `json:"symbol"`    // 符号名（开门/天辅/六合/戊）
+	Palace   GongIndex `json:"palace"`    // 符号落宫
+	TianGan  string    `json:"tian_gan"`  // 落宫天盘干（十干克应）
+	KongWang bool      `json:"kong_wang"` // 落宫是否空亡
+	MaXing   bool      `json:"ma_xing"`   // 落宫是否马星
 }
 
 // YongShenResult 奇门用神领域对象（用神符号组合落宫状态 + 年命干）。

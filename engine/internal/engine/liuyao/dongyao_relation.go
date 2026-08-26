@@ -6,10 +6,10 @@ import "liki-engine/internal/engine/ganzhi"
 type DongYaoRelationType string
 
 const (
-	RelationShengYong DongYaoRelationType = "生用"   // 动爻生用神 → 吉
-	RelationKeYong    DongYaoRelationType = "克用"   // 动爻克用神 → 凶
-	RelationBiHe      DongYaoRelationType = "比和"   // 动爻与用神五行相同 → 助
-	RelationChongYong DongYaoRelationType = "冲用"   // 动爻地支冲用神 → 散
+	RelationShengYong DongYaoRelationType = "生用"  // 动爻生用神 → 吉
+	RelationKeYong    DongYaoRelationType = "克用"  // 动爻克用神 → 凶
+	RelationBiHe      DongYaoRelationType = "比和"  // 动爻与用神五行相同 → 助
+	RelationChongYong DongYaoRelationType = "冲用"  // 动爻地支冲用神 → 散
 	RelationShengYuan DongYaoRelationType = "生原神" // 动爻生原神 → 间接吉
 	RelationKeYuan    DongYaoRelationType = "克原神" // 动爻克原神 → 用神失助
 	RelationShengJi   DongYaoRelationType = "生忌神" // 动爻生忌神 → 间接凶
@@ -19,7 +19,7 @@ const (
 
 // DongYaoRelation 一个动爻与用神的关系。
 type DongYaoRelation struct {
-	Position int                  `json:"position"` // 动爻位置 1-6
+	Position int                 `json:"position"` // 动爻位置 1-6
 	Relation DongYaoRelationType `json:"relation"` // 关系类型
 }
 

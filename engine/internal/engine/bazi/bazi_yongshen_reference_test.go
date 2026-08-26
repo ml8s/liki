@@ -10,8 +10,6 @@ import (
 
 // ── 从格测试（合成数据） ──
 
-
-
 // ── 调候与扶抑冲突场景 ──
 
 func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
@@ -97,8 +95,8 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 	// 滴天髓原文: 乙木秋生, 火旺制杀 → 具体格局取决于透干的火是食神/伤官: 食神→顺用, 伤官→逆用
 	if result.GeJu.Usage != "逆用" {
 		if result.GeJu.Pattern != "七杀格" {
-		t.Errorf("pattern=%q, want 七杀格(滴天髓:乙木秋生火旺制杀)", result.GeJu.Pattern)
-	}
+			t.Errorf("pattern=%q, want 七杀格(滴天髓:乙木秋生火旺制杀)", result.GeJu.Pattern)
+		}
 	}
 }
 

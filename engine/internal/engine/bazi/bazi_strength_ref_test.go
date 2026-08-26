@@ -9,12 +9,12 @@ import (
 )
 
 type strengthRef struct {
-	name                    string
-	year, month, day, hour  int
-	gender                  ganzhi.Gender
-	longitude               float64
-	timezone                float64
-	expectStrength          string
+	name                   string
+	year, month, day, hour int
+	gender                 ganzhi.Gender
+	longitude              float64
+	timezone               float64
+	expectStrength         string
 }
 
 func TestFuYi_Strength_Reference(t *testing.T) {
@@ -93,14 +93,13 @@ func TestRegress_YinBi_HandCounted(t *testing.T) {
 
 func TestRegress_CountStems_ExcludesSelf(t *testing.T) {
 	chart := Chart{
-		Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}},
+		Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia}},
 		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi}},
-		Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}},
-		Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}},
+		Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}},
+		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng}},
 	}
 	sc := countStems(chart)
 	if sc.biBi != 1 || sc.yin != 1 || sc.guanSha != 1 {
 		t.Errorf("countStems=(biBi=%d,yin=%d,guan=%d), want(1,1,1)", sc.biBi, sc.yin, sc.guanSha)
 	}
 }
-

@@ -9,32 +9,31 @@ import (
 
 // Day is the huangli query result for one day.
 type ShiChenFortune struct {
-	Zhi     string `json:"zhi"`
-	Time    string `json:"time"`     // e.g. "23:00-01:00"
+	Zhi         string `json:"zhi"`
+	Time        string `json:"time"` // e.g. "23:00-01:00"
 	HuangDaoStr string `json:"huangdao"`
-	JianChu string `json:"jian_chu"`
-	Suitable bool   `json:"suitable"`
+	JianChu     string `json:"jian_chu"`
+	Suitable    bool   `json:"suitable"`
 }
 
 type Day struct {
-	Date       string            `json:"date"`
-	RiZhu  riZhuInfo     `json:"ri_zhu"`
-	NaYin    string `json:"na_yin"`
-	Wuxing   string `json:"wuxing"`
-	JianChu    string            `json:"jian_chu"`
-	HuangDao   huangDaoStar      `json:"huangdao"`
-	XiShen      string          `json:"xi_shen"`
-	CaiShen     string          `json:"cai_shen"`
-	FuShen      string          `json:"fu_shen"`
-	StemTaboo   string          `json:"gan_ji"`
-	BranchTaboo string          `json:"zhi_ji"`
-	Mansion    dayMansion        `json:"mansion"`
-	JieQi      string            `json:"jie_qi"`
-	JieQiDays  int               `json:"jie_qi_days"`
-	RenYuan    string            `json:"ren_yuan"`
-	ShiChen    []ShiChenFortune  `json:"shi_chen,omitempty"`
+	Date        string           `json:"date"`
+	RiZhu       riZhuInfo        `json:"ri_zhu"`
+	NaYin       string           `json:"na_yin"`
+	Wuxing      string           `json:"wuxing"`
+	JianChu     string           `json:"jian_chu"`
+	HuangDao    huangDaoStar     `json:"huangdao"`
+	XiShen      string           `json:"xi_shen"`
+	CaiShen     string           `json:"cai_shen"`
+	FuShen      string           `json:"fu_shen"`
+	StemTaboo   string           `json:"gan_ji"`
+	BranchTaboo string           `json:"zhi_ji"`
+	Mansion     dayMansion       `json:"mansion"`
+	JieQi       string           `json:"jie_qi"`
+	JieQiDays   int              `json:"jie_qi_days"`
+	RenYuan     string           `json:"ren_yuan"`
+	ShiChen     []ShiChenFortune `json:"shi_chen,omitempty"`
 }
-
 
 // Month holds monthly huangli data.
 type Month struct {
@@ -44,9 +43,10 @@ type Month struct {
 	Days   []Day  `json:"days"`
 }
 
-
 func renYuanName(ry renYuanSiLing) string {
-	if ry.Current == nil { return "" }
+	if ry.Current == nil {
+		return ""
+	}
 	return ry.Current.GanName
 }
 
@@ -63,21 +63,21 @@ func QueryDate(dateStr string) (Day, error) {
 	ry := computeRenYuanSiLingForDate(monthBranch, jq.DaysIn)
 
 	entry := Day{
-		Date:       dateStr,
-		RiZhu:  dpi,
-		JianChu:    lookupJianChu(t),
-		HuangDao:   huangDaoForDay(monthBranch, dpi.Zhi),
+		Date:        dateStr,
+		RiZhu:       dpi,
+		JianChu:     lookupJianChu(t),
+		HuangDao:    huangDaoForDay(monthBranch, dpi.Zhi),
 		XiShen:      xiShenDirection(dpi.Gan),
 		CaiShen:     caiShenDirection(dpi.Gan),
 		FuShen:      fuShenDirection(dpi.Gan),
 		StemTaboo:   pengZuStemTaboo(dpi.Gan),
 		BranchTaboo: pengZuBranchTaboo(dpi.Zhi),
-		NaYin:    ganzhi.NayinLabel(dpi.Gan, dpi.Zhi),
-		Wuxing:   ganzhi.ZhiWuxing(dpi.Zhi).String(),
-		Mansion:    mansionForDay(ganzhi.Zhu{Gan: dpi.Gan, Zhi: dpi.Zhi}),
-		JieQi:     jq.TermName,
-		JieQiDays: jq.DaysIn,
-		RenYuan:   renYuanName(ry),
+		NaYin:       ganzhi.NayinLabel(dpi.Gan, dpi.Zhi),
+		Wuxing:      ganzhi.ZhiWuxing(dpi.Zhi).String(),
+		Mansion:     mansionForDay(ganzhi.Zhu{Gan: dpi.Gan, Zhi: dpi.Zhi}),
+		JieQi:       jq.TermName,
+		JieQiDays:   jq.DaysIn,
+		RenYuan:     renYuanName(ry),
 	}
 
 	entry.ShiChen = computeShiChen(dpi.Zhi, monthBranch, entry.JianChu)

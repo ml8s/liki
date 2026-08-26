@@ -8,22 +8,22 @@ import (
 
 // Chart bundles a complete奇门盘 with all analysis layers.
 type Chart struct {
-	Pan              pan               `json:"pan"`
-	GanInteractions [9]GanInteraction `json:"gan_interaction"`
-	MenInteractions [9]MenInteraction `json:"men_interaction"`
+	Pan              pan                `json:"pan"`
+	GanInteractions  [9]GanInteraction  `json:"gan_interaction"`
+	MenInteractions  [9]MenInteraction  `json:"men_interaction"`
 	XingInteractions [9]XingInteraction `json:"xing_interaction"`
 	WangShuai        [9]WangShuai       `json:"wang_shuai"`
-	MenPo            []GongIndex      `json:"men_po"`
-	MenZhi           []GongIndex      `json:"men_zhi"`
+	MenPo            []GongIndex        `json:"men_po"`
+	MenZhi           []GongIndex        `json:"men_zhi"`
 	Patterns         []Pattern          `json:"patterns"`
 	YingQi           YingQi             `json:"ying_qi"`
-	RiGanPalace      GongIndex          `json:"ri_gan_gong"`       // 日干落宫（排盘固有）
-	ShiGanPalace     GongIndex          `json:"shi_gan_gong"`      // 时干落宫（排盘固有）
-	RiShiShengKe     string             `json:"ri_shi_sheng_ke"`   // 日干宫-时干宫五行生克（确定性派生）
-	KongWangAffected bool               `json:"kong_wang_affected"` // 日干宫或时干宫是否空亡（确定性派生）
-	MaXingAffected   bool               `json:"ma_xing_affected"`   // 日干宫或时干宫是否马星（确定性派生）
-	DutyStarPalace   GongIndex          `json:"zhi_fu_xing_gong"`  // 值符星落宫（排盘固有）
-	DutyDoorPalace   GongIndex          `json:"zhi_shi_men_gong"`  // 值使门落宫（排盘固有）
+	RiGanPalace      GongIndex          `json:"ri_gan_gong"`         // 日干落宫（排盘固有）
+	ShiGanPalace     GongIndex          `json:"shi_gan_gong"`        // 时干落宫（排盘固有）
+	RiShiShengKe     string             `json:"ri_shi_sheng_ke"`     // 日干宫-时干宫五行生克（确定性派生）
+	KongWangAffected bool               `json:"kong_wang_affected"`  // 日干宫或时干宫是否空亡（确定性派生）
+	MaXingAffected   bool               `json:"ma_xing_affected"`    // 日干宫或时干宫是否马星（确定性派生）
+	DutyStarPalace   GongIndex          `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
+	DutyDoorPalace   GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
 	YongShen         *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
 }
 
@@ -60,8 +60,8 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 
 	return Chart{
 		Pan:              p,
-		GanInteractions: computeGanInteractions(p),
-		MenInteractions: computeMenInteractions(p),
+		GanInteractions:  computeGanInteractions(p),
+		MenInteractions:  computeMenInteractions(p),
 		XingInteractions: computeXingInteractions(p),
 		WangShuai:        computeWangShuai(p),
 		MenPo:            findMenPo(p),
@@ -77,7 +77,6 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 		DutyDoorPalace:   findDoorPalaceIdx(p, p.DutyDoor),
 	}
 }
-
 
 // findGanPalaceIdx 求干（求测人日干/时干/用神干）的落宫。
 // 奇门领域规则：用神落宫以天盘为核心判断依据（天盘主求测人/所问事之当下状态，

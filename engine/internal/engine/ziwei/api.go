@@ -8,8 +8,8 @@ import (
 // ComputeChart computes a complete紫微命盘 from lunar time and gender.
 // The LunarTime should come from tianwen.time's "lunar" field.
 func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
-	nianGan := Gan(((lt.Year - 4) % 10 + 10) % 10 + 1)
-	nianZhi := Zhi(((lt.Year - 4) % 12 + 12) % 12 + 1)
+	nianGan := Gan(((lt.Year-4)%10+10)%10 + 1)
+	nianZhi := Zhi(((lt.Year-4)%12+12)%12 + 1)
 	shiZhi := Zhi(lt.Shichen)
 
 	// Reconstruct minimal Bazi for computeChart

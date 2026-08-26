@@ -92,12 +92,12 @@ func TestGoldenChart_JSONSnapshot(t *testing.T) {
 				t.Fatalf("unmarshal: %v", err)
 			}
 
-		// Required top-level keys (new Chart format)
-		for _, k := range []string{"nian", "yue", "ri", "shi", "da_yun", "gender"} {
-			if v, ok := m[k]; !ok || v == nil {
-				t.Errorf("%s = %v, want non-nil", k, v)
+			// Required top-level keys (new Chart format)
+			for _, k := range []string{"nian", "yue", "ri", "shi", "da_yun", "gender"} {
+				if v, ok := m[k]; !ok || v == nil {
+					t.Errorf("%s = %v, want non-nil", k, v)
+				}
 			}
-		}
 		})
 	}
 }

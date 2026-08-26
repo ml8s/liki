@@ -100,9 +100,9 @@ type Line struct {
 	Gan      ganzhi.Gan    `json:"gan"`
 	Zhi      ganzhi.Zhi    `json:"zhi"`
 	Wuxing   ganzhi.Wuxing `json:"wuxing"`
-	LiuQin  LiuQin `json:"liu_qin"`
-	ShiYing  string `json:"shi_ying"` // "世"/"应"/"""
-	LiuShou LiuShou `json:"liu_shou"`
+	LiuQin   LiuQin        `json:"liu_qin"`
+	ShiYing  string        `json:"shi_ying"` // "世"/"应"/"""
+	LiuShou  LiuShou       `json:"liu_shou"`
 	// Deterministic derived states (filled by computeChart):
 	YuePo     bool `json:"yue_po,omitempty"`     // 月破（月建冲该爻地支）
 	DongSelf  bool `json:"dong_self,omitempty"`  // 本爻发动（老阴/老阳）
@@ -138,34 +138,34 @@ func (g *guaIndex) UnmarshalJSON(data []byte) error {
 
 // guaMeta holds static data for a hexagram.
 type guaMeta struct {
-	Name      string `json:"name"`       // 卦名
+	Name      string `json:"name"`     // 卦名
 	PalaceIdx int    `json:"gong_idx"` // 0-7, which palace
-	ShiPos    int    `json:"shi_pos"`    // 1-6,世爻 position
+	ShiPos    int    `json:"shi_pos"`  // 1-6,世爻 position
 }
 
 // Chart is the complete 六爻排盘 with all analysis layers.
 type Chart struct {
-	Name          string         `json:"name"`
-	BenGua        guaIndex       `json:"ben_gua"`
-	BianGua       guaIndex       `json:"bian_gua,omitempty"` // 0 if no change
-	Palace        string         `json:"gong"`
-	PalaceWuxing  ganzhi.Wuxing  `json:"gong_wuxing"`
-	Lines         [6]Line        `json:"lines"`
-	BianLines     [6]Line        `json:"bian_yao,omitempty"`
-	RiGan        ganzhi.Gan     `json:"ri_chen_gan"`
-	RiZhi        ganzhi.Zhi     `json:"ri_chen_zhi"`
-	YueZhi      ganzhi.Zhi     `json:"yue_jian_zhi"`
-	YueGan      ganzhi.Gan     `json:"yue_jian_gan"`
-	DongYao   []int          `json:"dong_yao"` // 动爻位置 1-6
+	Name         string        `json:"name"`
+	BenGua       guaIndex      `json:"ben_gua"`
+	BianGua      guaIndex      `json:"bian_gua,omitempty"` // 0 if no change
+	Palace       string        `json:"gong"`
+	PalaceWuxing ganzhi.Wuxing `json:"gong_wuxing"`
+	Lines        [6]Line       `json:"lines"`
+	BianLines    [6]Line       `json:"bian_yao,omitempty"`
+	RiGan        ganzhi.Gan    `json:"ri_chen_gan"`
+	RiZhi        ganzhi.Zhi    `json:"ri_chen_zhi"`
+	YueZhi       ganzhi.Zhi    `json:"yue_jian_zhi"`
+	YueGan       ganzhi.Gan    `json:"yue_jian_gan"`
+	DongYao      []int         `json:"dong_yao"` // 动爻位置 1-6
 	// Analysis layers set by ComputeChart.
-	YongShen     YongShenResult `json:"yong_shen"`
-	GuaCi	GuaCi	`json:"gua_ci,omitempty"`
-	WangShuai    [6]ganzhi.WangShuai   `json:"wang_shuai"`
-	DayRelations [6]DayRelation `json:"ri_chen_relations"`
-	XunKong      [2]ganzhi.Zhi  `json:"xun_kong"` // 日柱旬空地支（六爻断卦：用神旬空则事虚，出空填实方应）
-	YingQi    YingQi         `json:"ying_qi"`
-	Patterns  []Pattern      `json:"patterns,omitempty"` // 特殊格局
-	DongYaoRelations []DongYaoRelation `json:"dong_yao_relations,omitempty"` // 动爻与用神的关系
+	YongShen         YongShenResult      `json:"yong_shen"`
+	GuaCi            GuaCi               `json:"gua_ci,omitempty"`
+	WangShuai        [6]ganzhi.WangShuai `json:"wang_shuai"`
+	DayRelations     [6]DayRelation      `json:"ri_chen_relations"`
+	XunKong          [2]ganzhi.Zhi       `json:"xun_kong"` // 日柱旬空地支（六爻断卦：用神旬空则事虚，出空填实方应）
+	YingQi           YingQi              `json:"ying_qi"`
+	Patterns         []Pattern           `json:"patterns,omitempty"`           // 特殊格局
+	DongYaoRelations []DongYaoRelation   `json:"dong_yao_relations,omitempty"` // 动爻与用神的关系
 }
 
 // palaceNames.

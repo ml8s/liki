@@ -63,7 +63,6 @@ func baziChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage
 	return wrapResult("chart", result)
 }
 
-
 func baziBondHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
 		A struct {
@@ -212,7 +211,6 @@ func baziXiaoYunHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	result := bazi.ComputeXiaoYun(core, p.Count)
 	return wrapResult("xiaoyun", result)
 }
-
 
 func parseSolarTime(s string) (tianwen.SolarTime, error) {
 	t, err := time.Parse(time.RFC3339, s)

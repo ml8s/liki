@@ -64,9 +64,9 @@ func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiS
 
 	case "身弱":
 		genElem := elementThatGenerates(dmElem)
-		yongShen = genElem.String()                      // 印生日主
-		xiShen = dmElem.String()                         // 比劫帮身
-		jiShen = elementThatControls(dmElem).String()    // 官杀克身
+		yongShen = genElem.String()                   // 印生日主
+		xiShen = dmElem.String()                      // 比劫帮身
+		jiShen = elementThatControls(dmElem).String() // 官杀克身
 
 	case "中和":
 		// 中和者无太过不及, 不应扶抑.

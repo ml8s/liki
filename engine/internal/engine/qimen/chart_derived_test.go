@@ -52,7 +52,7 @@ func TestChartDerived_Anchors(t *testing.T) {
 			ju: 3, yin: true,
 			riGanGong: "震", shiGanGong: "离",
 			riShiShengKe: "日干(3宫)生时干(9宫)",
-			kwAffected: false, maAffected: false,
+			kwAffected:   false, maAffected: false,
 			kongWang: []string{"坎", "艮"}, maXing: "坤",
 		},
 		{
@@ -64,7 +64,7 @@ func TestChartDerived_Anchors(t *testing.T) {
 			ju: 4, yin: false,
 			riGanGong: "兑", shiGanGong: "离",
 			riShiShengKe: "时干(9宫)克日干(7宫)",
-			kwAffected: false, maAffected: false,
+			kwAffected:   false, maAffected: false,
 			kongWang: []string{"坤", "兑"}, maXing: "艮",
 		},
 	}
@@ -134,11 +134,11 @@ func equalStrings(a, b []string) bool {
 // 期望值由三合局马星口诀 + 时柱旬空规则独立手算。
 func TestYingQiAnchors(t *testing.T) {
 	cases := []struct {
-		name          string
-		date          string
-		hour          int
-		maXingText    string // 马星文案（含具体地支）
-		kongWangText  string // 空亡文案（含具体两支）
+		name         string
+		date         string
+		hour         int
+		maXingText   string // 马星文案（含具体地支）
+		kongWangText string // 空亡文案（含具体两支）
 	}{
 		{
 			// 午→寅午戌马在申（应期冲申的寅）；戊午（甲寅旬）空子丑。

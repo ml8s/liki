@@ -11,9 +11,9 @@ import (
 
 // GuaCi holds the 周易 text for one hexagram.
 type GuaCi struct {
-	Name   string   `json:"name"`
-	GuaCi  string   `json:"gua_ci"`
-	YaoCi  [6]string `json:"yao_ci"` // from 初(0) to 上(5)
+	Name  string    `json:"name"`
+	GuaCi string    `json:"gua_ci"`
+	YaoCi [6]string `json:"yao_ci"` // from 初(0) to 上(5)
 }
 
 //go:embed data/zhouyi.json

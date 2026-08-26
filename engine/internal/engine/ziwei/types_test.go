@@ -35,7 +35,7 @@ func TestPalaceIndex_UnmarshalJSON_StringOnly(t *testing.T) {
 		{`"命宫"`, 0, false},
 		{`"兄弟"`, 1, false},
 		{`"父母"`, 11, false},
-		{`0`, 0, true},  // 整数必须拒绝
+		{`0`, 0, true}, // 整数必须拒绝
 		{`5`, 0, true},
 		{`"invalid"`, 0, true},
 		{`""`, 0, true},
@@ -62,7 +62,7 @@ func TestJuShu_MarshalJSON(t *testing.T) {
 		input juShu
 		want  string
 	}{
-		{0, `""`},     // unknown→empty
+		{0, `""`}, // unknown→empty
 		{2, `"水二局"`},
 		{3, `"木三局"`},
 		{4, `"金四局"`},

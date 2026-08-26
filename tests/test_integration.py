@@ -2,6 +2,10 @@
 
 独立文件——无服务阶段（make test / CI / test-skills）用 --ignore 文件级排除，
 不显示 deselected（与"全程无排除显示"一致）；服务已起阶段（make test-all Docker 段）全量运行。
+
+失败语义：LIKI_RPC_URL 已显式设置（make test-all / CI e2e）时，引擎不可达或链路
+失败一律算 FAIL——防止本地引擎没起来时静默 skip 造成"假绿"；未设置时（裸跑
+pytest）保留 skip。
 """
 import json
 import os
@@ -36,9 +40,9 @@ class TestIntegration_FullChain(unittest.TestCase):
             pan = call("full_paipan", {"time": "1990-06-01T12:00:00+08:00",
                                        "gender": "male", "longitude": 116.4, "correct": True})
         except Exception as e:  # noqa: BLE001
-            self.skipTest(f"引擎不可达，跳过全链路集成测试: {e}")
+            self.fail(f"LIKI_RPC_URL={url} 已设置但引擎不可达: {e}")
         if not pan.get("ok"):
-            self.skipTest(f"full_paipan 失败（引擎不可达？）: {pan.get('error')}")
+            self.fail(f"full_paipan 失败: {pan.get('error')}")
 
         ln = call("liunian", {"pan": pan["data"], "year": 2006})
         self.assertTrue(ln["ok"], ln.get("error"))

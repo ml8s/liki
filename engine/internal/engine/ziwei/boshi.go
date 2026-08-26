@@ -20,14 +20,18 @@ func computeBoShi(ju juShu, mingZhi Zhi, nianGan Gan, gender ganzhi.Gender, nian
 			break
 		}
 	}
-	if luPalace < 0 { return [12]string{} }
+	if luPalace < 0 {
+		return [12]string{}
+	}
 
 	// 年支阴阳 vs 性别 → 方向
 	nianIsYang := int(nianZhi)%2 == 1
 	isMale := gender == Male
 	same := (nianIsYang && isMale) || (!nianIsYang && !isMale)
-	dir := 1  // 相同→顺行
-	if !same { dir = -1 }
+	dir := 1 // 相同→顺行
+	if !same {
+		dir = -1
+	}
 
 	var result [12]string
 	for i := 0; i < 12; i++ {

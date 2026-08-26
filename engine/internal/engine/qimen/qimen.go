@@ -151,8 +151,8 @@ const (
 	SpiritTengShe
 	SpiritTaiYin
 	SpiritLiuHe
-	SpiritGouChen  // 阳遁=勾陈, 阴遁=白虎
-	SpiritZhuQue   // 阳遁=朱雀, 阴遁=玄武
+	SpiritGouChen // 阳遁=勾陈, 阴遁=白虎
+	SpiritZhuQue  // 阳遁=朱雀, 阴遁=玄武
 	SpiritJiuDi
 	SpiritJiuTian
 )
@@ -207,18 +207,18 @@ type Gong struct {
 
 // pan is the complete 奇门遁甲排盘。
 type pan struct {
-	Jushu    int            `json:"jushu"`
-	YinDun   bool           `json:"yin_dun"`
-	RiGan    ganzhi.Gan     `json:"ri_gan"`
-	RiZhi    ganzhi.Zhi     `json:"ri_zhi"`
-	DutyStar StarIndex      `json:"zhi_fu_xing"`
-	DutyDoor DoorIndex      `json:"zhi_shi_men"`
-	GongWei  [9]Gong        `json:"gong_wei"`
-	MaXing   GongIndex    `json:"ma_xing"`
-	DriveGan  ganzhi.Gan      `json:"shi_gan"`
-	DriveZhi  ganzhi.Zhi      `json:"shi_zhi"`
-	KongWang [2]GongIndex `json:"kong_wang"`
-	WuBuYuShi bool           `json:"wu_bu_yu_shi"`
+	Jushu     int          `json:"jushu"`
+	YinDun    bool         `json:"yin_dun"`
+	RiGan     ganzhi.Gan   `json:"ri_gan"`
+	RiZhi     ganzhi.Zhi   `json:"ri_zhi"`
+	DutyStar  StarIndex    `json:"zhi_fu_xing"`
+	DutyDoor  DoorIndex    `json:"zhi_shi_men"`
+	GongWei   [9]Gong      `json:"gong_wei"`
+	MaXing    GongIndex    `json:"ma_xing"`
+	DriveGan  ganzhi.Gan   `json:"shi_gan"`
+	DriveZhi  ganzhi.Zhi   `json:"shi_zhi"`
+	KongWang  [2]GongIndex `json:"kong_wang"`
+	WuBuYuShi bool         `json:"wu_bu_yu_shi"`
 }
 
 // MarshalJSON outputs spirit names per 阴/阳遁, keeping the rest as-is.
@@ -282,10 +282,10 @@ type GanInteraction struct {
 
 // MenInteraction represents an 八门克应 for a door in a specific gong.
 type MenInteraction struct {
-	Door      DoorIndex   `json:"door,omitempty"`
+	Door    DoorIndex `json:"door,omitempty"`
 	Gong    GongIndex `json:"gong,omitempty"`
-	Name      string    `json:"name"`
-	Meaning   string    `json:"meaning"`
+	Name    string    `json:"name"`
+	Meaning string    `json:"meaning"`
 }
 
 // Pattern represents a detected 格局 in the pan.
@@ -295,4 +295,3 @@ type Pattern struct {
 	Auspicious  bool        `json:"auspicious"`
 	GongWei     []GongIndex `json:"gong_wei,omitempty"`
 }
-

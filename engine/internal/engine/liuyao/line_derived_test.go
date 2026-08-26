@@ -21,7 +21,7 @@ func makeDerivedChart(lines [6]Line, yueZhi ganzhi.Zhi, dongYao []int) Chart {
 // 午 被 子 冲 → 月破；初爻发动 → dong_self；午火克酉金、生未土。
 func TestComputeLineDerived_YuePo_DongSelf_ShengKe(t *testing.T) {
 	lines := [6]Line{
-		{Position: 1, Type: LaoYang, Zhi: ganzhi.ZhiWu, Wuxing: ganzhi.WxHuo}, // 初爻午火，发动
+		{Position: 1, Type: LaoYang, Zhi: ganzhi.ZhiWu, Wuxing: ganzhi.WxHuo},   // 初爻午火，发动
 		{Position: 2, Type: ShaoYang, Zhi: ganzhi.ZhiYou, Wuxing: ganzhi.WxJin}, // 二爻酉金
 		{Position: 3, Type: ShaoYang, Zhi: ganzhi.ZhiWei, Wuxing: ganzhi.WxTu},  // 三爻未土
 		{Position: 4, Type: ShaoYang, Zhi: ganzhi.ZhiMao, Wuxing: ganzhi.WxMu},  // 四爻卯木

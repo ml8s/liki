@@ -6,8 +6,6 @@ reasonix.toml
 # Local IDE config (any level — root and engine/.claude)
 .claude/
 
-liki.tar.gz
-
 # Engine built binary (top-level make build)
 bin/
 
@@ -15,9 +13,6 @@ bin/
 .DS_Store
 Thumbs.db
 dist/
-
-# 评测报告（产物，不入库）
-results/eval/
 
 # 评测产物（agent 输出——可再生；skill-up 默认输出在 skill 目录旁）
 tests/liki-workspace/

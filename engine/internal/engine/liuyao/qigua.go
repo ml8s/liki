@@ -11,7 +11,11 @@ func shakeCoins(rng *rand.Rand) [6]YaoType {
 	for i := 0; i < 6; i++ {
 		sum := 0
 		for j := 0; j < 3; j++ {
-			if rng.Intn(2) == 0 { sum += 2 } else { sum += 3 }
+			if rng.Intn(2) == 0 {
+				sum += 2
+			} else {
+				sum += 3
+			}
 		}
 		yaos[i] = YaoType(sum)
 	}
@@ -20,12 +24,16 @@ func shakeCoins(rng *rand.Rand) [6]YaoType {
 
 func shakeCoinsFixed(results [6]int) [6]YaoType {
 	var y [6]YaoType
-	for i := 0; i < 6; i++ { y[i] = YaoType(results[i]) }
+	for i := 0; i < 6; i++ {
+		y[i] = YaoType(results[i])
+	}
 	return y
 }
 
 func yaoTypeToYang(y YaoType) int {
-	if y.IsYang() { return 1 }
+	if y.IsYang() {
+		return 1
+	}
 	return 0
 }
 
@@ -34,8 +42,12 @@ func yaoTypeToYang(y YaoType) int {
 // Trigram: 乾=7, 兑=6, 离=5, 震=4, 巽=3, 坎=2, 艮=1, 坤=0.
 func yaosToBin(yaos [6]YaoType) int {
 	upper, lower := 0, 0
-	for i := 0; i < 3; i++ { upper = upper<<1 | yaoTypeToYang(yaos[5-i]) }
-	for i := 0; i < 3; i++ { lower = lower<<1 | yaoTypeToYang(yaos[2-i]) }
+	for i := 0; i < 3; i++ {
+		upper = upper<<1 | yaoTypeToYang(yaos[5-i])
+	}
+	for i := 0; i < 3; i++ {
+		lower = lower<<1 | yaoTypeToYang(yaos[2-i])
+	}
 	return upper*8 + lower
 }
 
@@ -62,13 +74,17 @@ var binaryToGuaTable = [64]guaIndex{
 func dongYao(yaos [6]YaoType) []int {
 	dy := make([]int, 0)
 	for i := 0; i < 6; i++ {
-		if yaos[i].IsChanging() { dy = append(dy, i+1) }
+		if yaos[i].IsChanging() {
+			dy = append(dy, i+1)
+		}
 	}
 	return dy
 }
 
 func invertDongYao(benGua guaIndex, dy []int) (guaIndex, bool) {
-	if len(dy) == 0 { return 0, false }
+	if len(dy) == 0 {
+		return 0, false
+	}
 	// Find binary encoding for current guaTable index.
 	var benBin int
 	for bin, gIdx := range binaryToGuaTable {
@@ -78,7 +94,9 @@ func invertDongYao(benGua guaIndex, dy []int) (guaIndex, bool) {
 		}
 	}
 	val := benBin
-	for _, pos := range dy { val ^= 1 << (pos - 1) }
+	for _, pos := range dy {
+		val ^= 1 << (pos - 1)
+	}
 	return binaryToGuaTable[val], true
 }
 
@@ -90,7 +108,9 @@ func computeGuaPan(yaos [6]YaoType, riZhu ganzhi.Zhu) Chart {
 
 	benElem := palaceWuxing[meta.PalaceIdx]
 	lines := zhuangGua(benGua, riZhu.Gan, false, benElem)
-	for i := 0; i < 6; i++ { lines[i].Position, lines[i].Type = i+1, yaos[i] }
+	for i := 0; i < 6; i++ {
+		lines[i].Position, lines[i].Type = i+1, yaos[i]
+	}
 
 	var bianLines [6]Line
 	if hasBian {
@@ -117,8 +137,8 @@ func computeGuaPan(yaos [6]YaoType, riZhu ganzhi.Zhu) Chart {
 		PalaceWuxing: palaceWuxing[meta.PalaceIdx],
 		Lines:        lines,
 		BianLines:    bianLines,
-		RiGan:       riZhu.Gan,
-		RiZhi:       riZhu.Zhi,
+		RiGan:        riZhu.Gan,
+		RiZhi:        riZhu.Zhi,
 		DongYao:      dy,
 	}
 }
@@ -156,7 +176,12 @@ func zhuangGua(gua guaIndex, riGan ganzhi.Gan, isBian bool, palaceElem ganzhi.Wu
 		shiYing := ""
 		if !isBian {
 			shi := meta.ShiPos - 1
-			if i == shi { shiYing = "世" } else if i == (shi+3)%6 { shiYing = "应" }
+			switch i {
+			case shi:
+				shiYing = "世"
+			case (shi + 3) % 6:
+				shiYing = "应"
+			}
 		}
 		lines[i] = Line{Gan: gan, Zhi: z, Wuxing: zwx, LiuQin: qin, ShiYing: shiYing, LiuShou: shouOrder[i]}
 	}
@@ -181,14 +206,14 @@ func computeLiuQin(lineElem, palaceElem ganzhi.Wuxing) LiuQin {
 
 // YongShenResult holds the 用神 analysis result.
 type YongShenResult struct {
-	Name      string   `json:"name"`              // 用神六亲名
-	Position  int      `json:"position"`          // line position 1-6, 0 if not found
-	WangShuai string   `json:"wang_shuai"`        // 用神旺衰（旺/相/休/囚/死）聚合
-	YuePo     bool     `json:"yue_po,omitempty"`  // 用神月破
-	XunKong   bool     `json:"xun_kong,omitempty"`// 用神旬空
-	MuKu      bool     `json:"mu_ku,omitempty"`   // 用神入墓
-	LiuShou   LiuShou  `json:"liu_shou,omitempty"`// 用神临的六神
-	FuShen    *FuShen  `json:"fu_shen,omitempty"`
+	Name      string  `json:"name"`               // 用神六亲名
+	Position  int     `json:"position"`           // line position 1-6, 0 if not found
+	WangShuai string  `json:"wang_shuai"`         // 用神旺衰（旺/相/休/囚/死）聚合
+	YuePo     bool    `json:"yue_po,omitempty"`   // 用神月破
+	XunKong   bool    `json:"xun_kong,omitempty"` // 用神旬空
+	MuKu      bool    `json:"mu_ku,omitempty"`    // 用神入墓
+	LiuShou   LiuShou `json:"liu_shou,omitempty"` // 用神临的六神
+	FuShen    *FuShen `json:"fu_shen,omitempty"`
 }
 
 // computeChart computes a complete 六爻 chart from bazi, question type, and yaos (required).

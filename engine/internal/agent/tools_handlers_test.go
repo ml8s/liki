@@ -1166,8 +1166,12 @@ func TestHandler_ZiweiBond(t *testing.T) {
 	var envA, envB struct {
 		Data json.RawMessage `json:"data"`
 	}
-	if err := json.Unmarshal(chartA, &envA); err != nil { t.Fatal(err) }
-	if err := json.Unmarshal(chartB, &envB); err != nil { t.Fatal(err) }
+	if err := json.Unmarshal(chartA, &envA); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(chartB, &envB); err != nil {
+		t.Fatal(err)
+	}
 	params := json.RawMessage(fmt.Sprintf(`{"a":%s,"b":%s}`, envA.Data, envB.Data))
 	result, err := r.Execute(context.Background(), "ziwei.bond", params)
 	if err != nil {
@@ -1219,10 +1223,6 @@ func (m *mockNominatimTransport) RoundTrip(_ *http.Request) (*http.Response, err
 
 // ── Judgment / Annual handler tests ──
 
-
-
-
-
 func TestHandler_XuankongLiunian_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "xuankong.chart",
@@ -1254,7 +1254,9 @@ func TestHandler_BaziFullChart_Valid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazi.chart: %v", err)
 	}
-	var env struct{ Data json.RawMessage `json:"data"` }
+	var env struct {
+		Data json.RawMessage `json:"data"`
+	}
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
@@ -1264,14 +1266,19 @@ func TestHandler_BaziFullChart_Valid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazi.fullchart: %v", err)
 	}
-	var full struct{ Data map[string]any `json:"data"` }
+	var full struct {
+		Data map[string]any `json:"data"`
+	}
 	if err := json.Unmarshal(fullResult, &full); err != nil {
 		t.Fatal(err)
 	}
 	// 验证完整结果包含扩展字段
 	for _, pillar := range []string{"nian", "yue", "ri", "shi"} {
 		p, ok := full.Data[pillar].(map[string]any)
-		if !ok { t.Errorf("%s not found in fullchart result", pillar); continue }
+		if !ok {
+			t.Errorf("%s not found in fullchart result", pillar)
+			continue
+		}
 		// 应有 cang_gan（扩展字段）
 		if _, exists := p["cang_gan"]; !exists {
 			t.Errorf("%s.cang_gan missing in fullchart", pillar)
@@ -1300,9 +1307,15 @@ func TestHandler_BaziBond_Valid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	var e1, e2 struct{ Data json.RawMessage `json:"data"` }
-	if err := json.Unmarshal(c1, &e1); err != nil { t.Fatal(err) }
-	if err := json.Unmarshal(c2, &e2); err != nil { t.Fatal(err) }
+	var e1, e2 struct {
+		Data json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(c1, &e1); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(c2, &e2); err != nil {
+		t.Fatal(err)
+	}
 	_, err = r.Execute(context.Background(), "bazi.bond",
 		json.RawMessage(fmt.Sprintf(`{"a":{"chart":%s},"b":{"chart":%s}}`, e1.Data, e2.Data)))
 	if err != nil {
@@ -1317,8 +1330,12 @@ func TestHandler_BaziXiaoyun_Valid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	var env struct{ Data json.RawMessage `json:"data"` }
-if err := json.Unmarshal(chartResult, &env); err != nil { t.Fatal(err) }
+	var env struct {
+		Data json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(chartResult, &env); err != nil {
+		t.Fatal(err)
+	}
 	_, err = r.Execute(context.Background(), "bazi.xiaoyun",
 		json.RawMessage(fmt.Sprintf(`{"chart":%s,"count":3}`, env.Data)))
 	if err != nil {
@@ -1333,8 +1350,12 @@ func TestHandler_ZiweiLiuyue_Valid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	var env struct{ Data json.RawMessage `json:"data"` }
-if err := json.Unmarshal(chartResult, &env); err != nil { t.Fatal(err) }
+	var env struct {
+		Data json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(chartResult, &env); err != nil {
+		t.Fatal(err)
+	}
 	_, err = r.Execute(context.Background(), "ziwei.liuyue",
 		json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"lunar_month":5,"chart":%s}`, env.Data)))
 	if err != nil {
@@ -1354,13 +1375,18 @@ func TestHandler_ZiweiBond_Valid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
-	var e1, e2 struct{ Data json.RawMessage `json:"data"` }
-	if err := json.Unmarshal(c1, &e1); err != nil { t.Fatal(err) }
-	if err := json.Unmarshal(c2, &e2); err != nil { t.Fatal(err) }
+	var e1, e2 struct {
+		Data json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(c1, &e1); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(c2, &e2); err != nil {
+		t.Fatal(err)
+	}
 	_, err = r.Execute(context.Background(), "ziwei.bond",
 		json.RawMessage(fmt.Sprintf(`{"a":%s,"b":%s}`, e1.Data, e2.Data)))
 	if err != nil {
 		t.Fatalf("ziwei.bond: %v", err)
 	}
 }
-

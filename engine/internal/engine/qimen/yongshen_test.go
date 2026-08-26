@@ -164,11 +164,12 @@ func TestComputeYongShen_KongWangMaXing(t *testing.T) {
 // 非用 findGanPalaceIdx 自证，避免实现错误被测试掩盖。
 //
 // 2000-06-15 午时（阳遁9局，非伏吟盘，能验证天盘/地盘取值）盘面：
-//   宫1坎=天任/死/九天/天盘乙   宫2坤=天英/惊/值符/天盘戊
-//   宫3震=天蓬/开/螣蛇/天盘己   宫4巽=天芮/休/太阴/天盘庚
-//   宫5中=天冲/天盘辛           宫6乾=天辅/生/六合/天盘壬
-//   宫7兑=天禽/伤/勾陈/天盘癸   宫8艮=天心/杜/朱雀/天盘丁
-//   宫9离=天柱/景/九地/天盘丙
+//
+//	宫1坎=天任/死/九天/天盘乙   宫2坤=天英/惊/值符/天盘戊
+//	宫3震=天蓬/开/螣蛇/天盘己   宫4巽=天芮/休/太阴/天盘庚
+//	宫5中=天冲/天盘辛           宫6乾=天辅/生/六合/天盘壬
+//	宫7兑=天禽/伤/勾陈/天盘癸   宫8艮=天心/杜/朱雀/天盘丁
+//	宫9离=天柱/景/九地/天盘丙
 func TestYongShenSymbolAnchors(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
@@ -242,12 +243,12 @@ func TestJiaDunAllSix(t *testing.T) {
 		zhi  ganzhi.Zhi
 		want ganzhi.Gan
 	}{
-		{ganzhi.ZhiZi, ganzhi.GanWu},   // 甲子→戊
-		{ganzhi.ZhiXu, ganzhi.GanJi},   // 甲戌→己
+		{ganzhi.ZhiZi, ganzhi.GanWu},     // 甲子→戊
+		{ganzhi.ZhiXu, ganzhi.GanJi},     // 甲戌→己
 		{ganzhi.ZhiShen, ganzhi.GanGeng}, // 甲申→庚
-		{ganzhi.ZhiWu, ganzhi.GanXin},  // 甲午→辛
-		{ganzhi.ZhiChen, ganzhi.GanRen}, // 甲辰→壬
-		{ganzhi.ZhiYin, ganzhi.GanGui}, // 甲寅→癸
+		{ganzhi.ZhiWu, ganzhi.GanXin},    // 甲午→辛
+		{ganzhi.ZhiChen, ganzhi.GanRen},  // 甲辰→壬
+		{ganzhi.ZhiYin, ganzhi.GanGui},   // 甲寅→癸
 	}
 	for _, c := range cases {
 		got, ok := jiaDunLiuYi(c.zhi)
@@ -335,15 +336,15 @@ func TestYongShenSymbolStateAnchors(t *testing.T) {
 	)
 	chart := ComputeChart(st, ShiQiMen)
 	cases := []struct {
-		symbol    string
-		palace    string
-		tianGan   string
-		kongWang  bool
-		maXing    bool
+		symbol   string
+		palace   string
+		tianGan  string
+		kongWang bool
+		maXing   bool
 	}{
 		{"生门", "乾", "辛", true, false},  // 生门落乾6，天盘辛，乾空亡
-		{"戊", "坤", "戊", false, true},    // 戊天盘落坤2，坤为马星
-		{"庚", "巽", "庚", false, false},   // 庚天盘落巽4
+		{"戊", "坤", "戊", false, true},   // 戊天盘落坤2，坤为马星
+		{"庚", "巽", "庚", false, false},  // 庚天盘落巽4
 		{"开门", "震", "己", false, false}, // 开门落震3，天盘己
 		{"六合", "乾", "辛", true, false},  // 六合神落乾6（同宫）
 	}
@@ -436,10 +437,10 @@ func TestYongShenNianGanAnchor(t *testing.T) {
 // 期望值由各盘面九宫数据独立确定（用神落宫以天盘为核心）。
 func TestYongShenSymbolAnchors_MultiPan(t *testing.T) {
 	cases := []struct {
-		name     string
-		date     string
-		hour     int
-		symbols  map[string]string // 符号 → 期望落宫
+		name    string
+		date    string
+		hour    int
+		symbols map[string]string // 符号 → 期望落宫
 	}{
 		{
 			// 阴遁3局（八门逆排）：生门乾6、天辅坎1、天芮艮8、六合离9、值符震3、戊离9、庚兑7、乙坎1。

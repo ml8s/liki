@@ -10,17 +10,17 @@ import (
 // 宅盘 (chart). 全部为确定性计算：流年飞星盘来自共享 fengshui 实现，
 // house_overlay 把流年凶星（凶/大凶）落宫对照宅盘该宫三星。
 type LiuNianResult struct {
-	Year         int                            `json:"year"`
-	RuZhong      string                         `json:"ru_zhong"`
-	GongWei      []fengshui.AnnualFlyingStar    `json:"gong_wei"`
-	HouseOverlay []HouseOverlay                 `json:"house_overlay,omitempty"`
+	Year         int                         `json:"year"`
+	RuZhong      string                      `json:"ru_zhong"`
+	GongWei      []fengshui.AnnualFlyingStar `json:"gong_wei"`
+	HouseOverlay []HouseOverlay              `json:"house_overlay,omitempty"`
 }
 
 // HouseOverlay highlights a 流年凶星落宫 and the 宅盘 stars in that palace.
 type HouseOverlay struct {
 	GongNum     int    `json:"gong_num"`
-	Star        string `json:"star"`        // 流年星名（如 五黄廉贞）
-	StarRating  string `json:"star_rating"` // 星固有吉凶（凶/大凶）
+	Star        string `json:"star"`         // 流年星名（如 五黄廉贞）
+	StarRating  string `json:"star_rating"`  // 星固有吉凶（凶/大凶）
 	PalaceStars string `json:"palace_stars"` // 宅盘该宫 运星/山星/向星
 }
 

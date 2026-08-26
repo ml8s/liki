@@ -16,7 +16,7 @@ func hongLuanPos(zhi Zhi) int {
 // ── 流月 ──
 
 type LiuYue struct {
-	MingGong     gongIndex    `json:"ming_gong"`
+	MingGong     gongIndex      `json:"ming_gong"`
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
@@ -54,7 +54,6 @@ func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
 	}
 }
 
-
 func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {
 	chg, qu := liuChangQuByGan(gan)
 	toZhi := func(zhiIdx int) Zhi { return Zhi(zhiIdx + 1) }
@@ -76,7 +75,7 @@ func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {
 // ── 流日 ──
 
 type LiuRi struct {
-	MingGong     gongIndex    `json:"ming_gong"`
+	MingGong     gongIndex      `json:"ming_gong"`
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
@@ -127,11 +126,10 @@ func liuRiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	return m
 }
 
-
 // ── 流时 ──
 
 type LiuShi struct {
-	MingGong     gongIndex    `json:"ming_gong"`
+	MingGong     gongIndex      `json:"ming_gong"`
 	MingGongName string         `json:"ming_gong_name"`
 	Zhi          Zhi            `json:"zhi"`
 	SiHua        siHuaResult    `json:"si_hua"`
@@ -183,11 +181,10 @@ func liuShiStars(gan Gan, zhi Zhi) map[string]Zhi {
 	return m
 }
 
-
 func shiGanCalc(riGan Gan, shiZhi Zhi) Gan {
 	// 五鼠遁：甲己→甲子, 乙庚→丙子, 丙辛→戊子, 丁壬→庚子, 戊癸→壬子
 	ziGan := (int(riGan)-1)*2%10 + 1
-	return Gan(((ziGan - 1 + int(shiZhi) - 1) % 10 + 10) % 10 + 1)
+	return Gan(((ziGan-1+int(shiZhi)-1)%10+10)%10 + 1)
 }
 
 // ── riGan — calculates the day stem for a lunar date ──
@@ -221,15 +218,20 @@ func riZhi(liuYear, lunarMonth, lunarDay int) Zhi {
 	if gt.Time().IsZero() {
 		gt = tianwen.LunarToGregorian(tianwen.LunarTime{Year: liuYear - 1, Month: lunarMonth, Day: lunarDay})
 	}
-	if gt.Time().IsZero() { return 1 }
+	if gt.Time().IsZero() {
+		return 1
+	}
 	dp := tianwen.RiZhu(gt)
 	return dp.Zhi
 }
+
 // yueGanByWuHuDun computes the month stem via 五虎遁 (year stem + month branch).
 func yueGanByWuHuDun(nianGan Gan, yueZhi Zhi) Gan {
 	// 寅月干: 甲己→丙, 乙庚→戊, 丙辛→庚, 丁壬→壬, 戊癸→甲
 	base := [10]Gan{3, 5, 7, 9, 1, 3, 5, 7, 9, 1} // 寅月干（甲=1..癸=10）
-	offset := int(yueZhi) - 3 // 寅=0 偏移
-	if offset < 0 { offset += 12 }
+	offset := int(yueZhi) - 3                     // 寅=0 偏移
+	if offset < 0 {
+		offset += 12
+	}
 	return Gan(((int(base[nianGan-1]) - 1 + offset) % 10) + 1)
 }

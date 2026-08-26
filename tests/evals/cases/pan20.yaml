@@ -1,5 +1,5 @@
 # MingLi-Bench 分组 case: pan20（命盘 20/32，4 题）
-# 题目与答案分离：答案见 evals/answers.json（判分进程专用）
+# 题目与答案分离：答案见 tests/answers.json（判分进程专用；评测期间由 run-qwen.sh 移出隔离）
 id: pan20
 title: "命盘20：第一段婚姻什么时候结婚？"
 input:

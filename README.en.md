@@ -20,7 +20,7 @@
 
 ---
 
-**Liki** is an open-source Chinese metaphysics monorepo: a **computation engine (`engine/`, Go + JSON-RPC) plus 4 AI Skills (`skills/`)**. As a Skill, it powers professional analysis across **BaZi, ZiWei, Liuyao, QiMen, Huangli date selection, Bazhai feng shui, Xuankong feng shui, and naming** (8 domains) in your AI assistant. As an engine, it can be embedded directly into web apps, mobile, desktop tools, or any AI framework. It implements traditional metaphysics as an engineered tool with **executable process, verifiable conclusions, and traceable judgments**: charts are computed by an astronomical engine (VSOP87D, second-level solar terms), judgments are driven by 46 truth tables (590 rules with classical references), each process step fills in a form, and conclusions are calibrated against known life events.
+**Liki** is an open-source Chinese metaphysics monorepo: a **computation engine (`engine/`, Go + JSON-RPC) plus 4 AI Skills (`skills/`)**. As a Skill, it powers professional analysis across **BaZi, ZiWei, Liuyao, QiMen, Huangli date selection, Bazhai feng shui, Xuankong feng shui, and naming** (8 domains) in your AI assistant. As an engine, it can be embedded directly into web apps, mobile, desktop tools, or any AI framework. It implements traditional metaphysics as an engineered tool with **executable process, verifiable conclusions, and traceable judgments**: charts are computed by an astronomical engine (VSOP87D, second-level solar terms), judgments are driven by 46 truth tables (597 rules with classical references), each process step fills in a form, and conclusions are calibrated against known life events.
 
 ## Quick Start
 
@@ -81,7 +81,7 @@ Example: `How's my home's feng shui?`
 
 **① Charting: astronomical engine** — BaZi/ZiWei charts are computed by the open-source `engine/` (subdirectory, Go + JSON-RPC, formerly standalone [liki-engine](https://github.com/ml8s/liki-engine)): true solar time, DST, lat-lon timezone, second-level solar-term precision (VSOP87D). The model only interprets; it does not derive chart data itself.
 
-**② Judgments: CSV truth tables** — 46 truth tables (BaZi 26 + ZiWei 20, **590 rules**), each with a **classical reference column** (《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》 etc.). Plus 7 yearly tables (marriage/kinship/wealth/career/health/study/children, incl. annual star spirits).
+**② Judgments: CSV truth tables** — 46 truth tables (BaZi 26 + ZiWei 20, **597 rules**), each with a **classical reference column** (《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》 etc.). Plus 7 yearly tables (marriage/kinship/wealth/career/health/study/children, incl. annual star spirits).
 
 **③ Process: fill-in each step** — the root SKILL.md defines the global skeleton (chart → factors → judgments; annual questions follow the liunian chain) and mandatory rules; each domain follows its app card step by step, filling in an 「output: □」 form per step. An unfilled □ blocks the next step; conclusions must trace back to the filled □.
 
@@ -133,14 +133,14 @@ python3 -m pytest tests/ -q --ignore=tests/test_integration.py   # unit tests (f
 
 ### Architecture
 
-A skill = **documentation layer + tool layer**, plus an external **engine** (astronomical computation). The documentation layer is split into three layers by responsibility:
+A skill = **documentation layer + tool layer**, deterministic computation via the in-repo **`engine/`** (Go JSON-RPC engine).
 
 ```
 skill ── docs ── root SKILL.md      ← rules (global skeleton + mandatory fill-in + routing + RPC + output/interaction/behavior)
       │       ├─ app/               ← process (per-domain chart → lookup → output, each step 「output: □」+ output template)
       │       └─ domains/<domain>/  ← knowledge (methodology + judgment translation, flat per domain)
       └─ tools ── tools/            ← 5 tools (schema + impl) + judgment csv (46) + factors.csv
-external ── engine ── liki-engine   ← open-source JSON-RPC astronomical computation (BaZi/ZiWei/Liuyao/Qimen/feng shui)
+in-repo ── engine ── engine/        ← Go JSON-RPC astronomical computation (BaZi/ZiWei/Liuyao/Qimen/feng shui; VSOP87D)
 ```
 
 Call flow: **root SKILL.md reads the app card → the app card calls tools (inside tools/: RPC charting + csv matching) → tools return judgments → interpret via domains/ knowledge → render via the app card's output template**. The csv files are internal tool data (not read by the agent). The tool layer is **optional** — only skills with deterministic-computation needs have it (liki-bazi does; divination/fengshui/naming have no tool layer, using RPC + document translation directly).

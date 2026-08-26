@@ -446,12 +446,12 @@ func TestPlaceAnGan_Yang1YiChou(t *testing.T) {
 func TestPlaceAnGan_XunShouLocatable(t *testing.T) {
 	// 六甲旬首对应的六仪
 	xunShouStems := []ganzhi.Gan{
-		ganzhi.GanWu,  // 甲子→戊
-		ganzhi.GanJi,  // 甲戌→己
+		ganzhi.GanWu,   // 甲子→戊
+		ganzhi.GanJi,   // 甲戌→己
 		ganzhi.GanGeng, // 甲申→庚
-		ganzhi.GanXin, // 甲午→辛
-		ganzhi.GanRen, // 甲辰→壬
-		ganzhi.GanGui, // 甲寅→癸
+		ganzhi.GanXin,  // 甲午→辛
+		ganzhi.GanRen,  // 甲辰→壬
+		ganzhi.GanGui,  // 甲寅→癸
 	}
 	for _, g := range xunShouStems {
 		found := false
@@ -595,11 +595,11 @@ func TestComputePan_Yang1YiChou(t *testing.T) {
 		hidden        ganzhi.Gan
 	}
 	want := [9]wantPalace{
-		{ganzhi.GanWu, ganzhi.GanJi, StarTianRui, DoorShang, SpiritTengShe, ganzhi.GanJi},      // 坎1
-		{ganzhi.GanJi, ganzhi.GanGeng, StarTianChong, DoorDu, SpiritTaiYin, ganzhi.GanGeng},    // 坤2
-		{ganzhi.GanGeng, ganzhi.GanXin, StarTianFu, DoorJing, SpiritLiuHe, ganzhi.GanXin},      // 震3
-		{ganzhi.GanXin, ganzhi.GanGui, StarTianXin, DoorSi, SpiritGouChen, ganzhi.GanRen},      // 巽4（天禽寄坤2，此宫天心）
-		{ganzhi.GanRen, 0, 0, 0, 0, 0},                                                          // 中5（虚空）
+		{ganzhi.GanWu, ganzhi.GanJi, StarTianRui, DoorShang, SpiritTengShe, ganzhi.GanJi},   // 坎1
+		{ganzhi.GanJi, ganzhi.GanGeng, StarTianChong, DoorDu, SpiritTaiYin, ganzhi.GanGeng}, // 坤2
+		{ganzhi.GanGeng, ganzhi.GanXin, StarTianFu, DoorJing, SpiritLiuHe, ganzhi.GanXin},   // 震3
+		{ganzhi.GanXin, ganzhi.GanGui, StarTianXin, DoorSi, SpiritGouChen, ganzhi.GanRen},   // 巽4（天禽寄坤2，此宫天心）
+		{ganzhi.GanRen, 0, 0, 0, 0, 0}, // 中5（虚空）
 		{ganzhi.GanGui, ganzhi.GanDing, StarTianZhu, DoorJingMen, SpiritZhuQue, ganzhi.GanGui}, // 乾6
 		{ganzhi.GanDing, ganzhi.GanBing, StarTianRen, DoorKai, SpiritJiuDi, ganzhi.GanDing},    // 兑7
 		{ganzhi.GanBing, ganzhi.GanYi, StarTianYing, DoorXiu, SpiritJiuTian, ganzhi.GanYi},     // 艮8
@@ -862,18 +862,18 @@ func TestZhiPalace_All(t *testing.T) {
 		zhi  ganzhi.Zhi
 		want GongIndex
 	}{
-		{ganzhi.ZhiZi, GongKan},    // 子→坎
-		{ganzhi.ZhiChou, GongGen},  // 丑→艮
-		{ganzhi.ZhiYin, GongGen},   // 寅→艮
-		{ganzhi.ZhiMao, GongZhen},  // 卯→震
-		{ganzhi.ZhiChen, GongXun},  // 辰→巽
-		{ganzhi.ZhiSi, GongXun},    // 巳→巽
-		{ganzhi.ZhiWu, GongLi},     // 午→离
-		{ganzhi.ZhiWei, GongKun},   // 未→坤
-		{ganzhi.ZhiShen, GongKun},  // 申→坤
-		{ganzhi.ZhiYou, GongDui},   // 酉→兑
-		{ganzhi.ZhiXu, GongQian},   // 戌→乾
-		{ganzhi.ZhiHai, GongQian},  // 亥→乾
+		{ganzhi.ZhiZi, GongKan},   // 子→坎
+		{ganzhi.ZhiChou, GongGen}, // 丑→艮
+		{ganzhi.ZhiYin, GongGen},  // 寅→艮
+		{ganzhi.ZhiMao, GongZhen}, // 卯→震
+		{ganzhi.ZhiChen, GongXun}, // 辰→巽
+		{ganzhi.ZhiSi, GongXun},   // 巳→巽
+		{ganzhi.ZhiWu, GongLi},    // 午→离
+		{ganzhi.ZhiWei, GongKun},  // 未→坤
+		{ganzhi.ZhiShen, GongKun}, // 申→坤
+		{ganzhi.ZhiYou, GongDui},  // 酉→兑
+		{ganzhi.ZhiXu, GongQian},  // 戌→乾
+		{ganzhi.ZhiHai, GongQian}, // 亥→乾
 	}
 	for _, c := range cases {
 		if got := zhiPalace(c.zhi); got != c.want {
@@ -1011,9 +1011,9 @@ func TestComputeMenInteractions(t *testing.T) {
 	// 独立锚定：门互克表条目（buildSamplePan 的门分布）。
 	// 宫1伤门加坎、宫2杜门加坤、宫6惊门加乾、宫7开门加兑、宫8休门加艮、宫9生门加离。
 	anchors := []struct {
-		idx   int
-		door  string
-		name  string
+		idx     int
+		door    string
+		name    string
 		meaning string
 	}{
 		{0, "伤门", "伤门加坎", "道路之伤，水厄之灾"},
@@ -1141,8 +1141,8 @@ func TestComputeXingInteractions(t *testing.T) {
 	// 独立锚定：星入宫五行克应。
 	// 宫1坎天芮(土)入水宫、宫2坤天冲(木)入土宫、宫3震天辅(木)入木宫、宫9离天蓬(水)入火宫。
 	anchors := []struct {
-		idx   int
-		name  string
+		idx     int
+		name    string
 		meaning string
 	}{
 		{0, "土星入水宫", "土能克水，事宜稳重"},
@@ -1308,14 +1308,14 @@ func TestPalaceZhi_All(t *testing.T) {
 		gong GongIndex
 		want ganzhi.Zhi
 	}{
-		{GongKan, ganzhi.ZhiZi},  // 坎→子
-		{GongKun, ganzhi.ZhiWei}, // 坤→未
+		{GongKan, ganzhi.ZhiZi},   // 坎→子
+		{GongKun, ganzhi.ZhiWei},  // 坤→未
 		{GongZhen, ganzhi.ZhiMao}, // 震→卯
-		{GongXun, ganzhi.ZhiSi},  // 巽→巳
-		{GongQian, ganzhi.ZhiXu}, // 乾→戌
-		{GongDui, ganzhi.ZhiYou}, // 兑→酉
-		{GongGen, ganzhi.ZhiYin}, // 艮→寅
-		{GongLi, ganzhi.ZhiWu},   // 离→午
+		{GongXun, ganzhi.ZhiSi},   // 巽→巳
+		{GongQian, ganzhi.ZhiXu},  // 乾→戌
+		{GongDui, ganzhi.ZhiYou},  // 兑→酉
+		{GongGen, ganzhi.ZhiYin},  // 艮→寅
+		{GongLi, ganzhi.ZhiWu},    // 离→午
 	}
 	for _, c := range cases {
 		if got := palaceZhi(c.gong); got != c.want {
@@ -1387,8 +1387,8 @@ func TestFindPatterns_FuYin_Qin(t *testing.T) {
 	p := pan{
 		DutyStar: StarTianQin, // 天禽寄坤2随天芮
 		GongWei: [9]Gong{
-			{},                            // 坎1(pos0)
-			{Star: StarTianRui},            // 坤2(pos1) 天芮本位=归位
+			{},                  // 坎1(pos0)
+			{Star: StarTianRui}, // 坤2(pos1) 天芮本位=归位
 			{}, {}, {}, {}, {}, {}, {},
 		},
 	}

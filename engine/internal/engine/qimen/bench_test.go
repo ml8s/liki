@@ -19,4 +19,3 @@ func BenchmarkComputeChart(b *testing.B) {
 		ComputeChart(st, ShiQiMen)
 	}
 }
-

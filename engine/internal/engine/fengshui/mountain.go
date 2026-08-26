@@ -5,9 +5,9 @@ import "liki-engine/internal/engine/ganzhi"
 // Mountain24 represents one of the 24 directional mountains (二十四山).
 // Each mountain spans 15° of the compass (360° / 24 = 15°).
 type Mountain24 struct {
-	Index    int           `json:"index"`     // 0-23, starting from 子=0°
-	Name     string        `json:"name"`      // e.g. "子", "癸", "丑"
-	Angle    int           `json:"angle"`     // degrees, 0-345 in 15° steps
+	Index    int           `json:"index"` // 0-23, starting from 子=0°
+	Name     string        `json:"name"`  // e.g. "子", "癸", "丑"
+	Angle    int           `json:"angle"` // degrees, 0-345 in 15° steps
 	Element  ganzhi.Wuxing `json:"wuxing"`
 	YinYang  string        `json:"yin_yang"`  // "阳" or "阴"
 	Trigram  string        `json:"trigram"`   // Bagua trigram name

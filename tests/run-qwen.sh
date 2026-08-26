@@ -25,49 +25,9 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
 fi
 
 # 本地引擎生命周期（skill_up 评测脱离生产 liki.hk，连宿主机本地引擎）
-# 端口优先用 LIKI_ENGINE_PORT，默认 8082；端点由外部注入的 LIKI_RPC_URL 优先（尊重显式设定）
-ENGINE_PORT="${LIKI_ENGINE_PORT:-8082}"
-if [ -n "${LIKI_RPC_URL:-}" ]; then
-  LOCAL_RPC="$LIKI_RPC_URL"
-else
-  # 容器内经 Docker bridge 网关访问宿主引擎（Linux 默认 172.17.0.1；动态探测）
-  GATEWAY_IP="$(docker network inspect bridge --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}' 2>/dev/null || true)"
-  [ -n "$GATEWAY_IP" ] || GATEWAY_IP="172.17.0.1"
-  LOCAL_RPC="http://${GATEWAY_IP}:${ENGINE_PORT}/jsonrpc"
-fi
-
-# 起本地引擎（若已有在跑则复用；记录 PID 供评测后清理）
-ENGINE_BIN=""
-ensure_local_engine() {
-  echo "本地引擎: $LOCAL_RPC"
-  if curl -sf "http://localhost:${ENGINE_PORT}/health" >/dev/null 2>&1; then
-    echo "  ✓ 检测到已运行的本地引擎（:${ENGINE_PORT}），复用"
-    return 0
-  fi
-  echo "  → 启动本地引擎（:${ENGINE_PORT}）..."
-  ENGINE_BIN="$(mktemp /tmp/liki-engine.XXXXXX)"
-  export LISTEN_ADDR=":${ENGINE_PORT}"
-  ( cd engine && go build -o "$ENGINE_BIN" ./cmd/liki/ >/dev/null 2>&1 )
-  if [ ! -x "$ENGINE_BIN" ]; then
-    echo "  ⚠ 引擎构建失败，跳过本地引擎（评测将回落生产端点）" >&2
-    ENGINE_BIN=""; return 0
-  fi
-  unset LISTEN_ADDR
-  "$ENGINE_BIN" -addr ":${ENGINE_PORT}" >/tmp/liki-engine.log 2>&1 &
-  for i in $(seq 1 15); do
-    curl -sf "http://localhost:${ENGINE_PORT}/health" >/dev/null 2>&1 && { echo "  ✓ 本地引擎就绪"; return 0; }
-    sleep 1
-  done
-  echo "  ⚠ 本地引擎启动超时，跳过（评测将回落生产端点）" >&2
-}
-
-stop_local_engine() {
-  if [ -n "$ENGINE_BIN" ]; then
-    kill "$(pgrep -f "^$ENGINE_BIN" 2>/dev/null)" 2>/dev/null || true
-    rm -f "$ENGINE_BIN" 2>/dev/null || true
-    ENGINE_BIN=""
-  fi
-}
+# 复用单项目 helper：起/验/停引擎 + LIKI_RPC_URL；评测 agent 在容器内 → docker 模式
+LIKI_RPC_MODE=docker
+source scripts/local-engine.sh
 
 # 答案文件（运行期间必须不在 skill 目录内——stash 用固定路径 + 启动自愈：SIGKILL(137) 后残留自动恢复）
 ANSWER_FILES=(tests/answers.json tests/groups.json tests/cats.json)

@@ -1,5 +1,5 @@
 # MingLi-Bench 分组 case: pan01（命盘 1/32，5 题）
-# 题目与答案分离：答案见 evals/answers.json（判分进程专用）
+# 题目与答案分离：答案见 tests/answers.json（判分进程专用；评测期间由 run-qwen.sh 移出隔离）
 id: pan01
 title: "命盘1：此命1996年发生何事？"
 input:

@@ -16,15 +16,15 @@ import (
 func TestWuBuYuShi_AllTenDayStems(t *testing.T) {
 	// 命理: 10个日干各有1个五不遇时的时干
 	tests := []struct {
-		dayStem   ganzhi.Gan // 日干
-		hourStem  ganzhi.Gan // 五不遇时的时干
+		dayStem  ganzhi.Gan // 日干
+		hourStem ganzhi.Gan // 五不遇时的时干
 	}{
-		{dayStem: ganzhi.GanJia, hourStem: ganzhi.GanGeng}, // 甲→庚(阳金克阳木)
-		{dayStem: ganzhi.GanYi,  hourStem: ganzhi.GanXin},  // 乙→辛(阴金克阴木)
-		{dayStem: ganzhi.GanBing, hourStem: ganzhi.GanRen}, // 丙→壬(阳水克阳火)
-		{dayStem: ganzhi.GanDing, hourStem: ganzhi.GanGui}, // 丁→癸(阴水克阴火)
-		{dayStem: ganzhi.GanWu,  hourStem: ganzhi.GanJia},  // 戊→甲(阳木克阳土)
-		{dayStem: ganzhi.GanJi,  hourStem: ganzhi.GanYi},   // 己→乙(阴木克阴土)
+		{dayStem: ganzhi.GanJia, hourStem: ganzhi.GanGeng},  // 甲→庚(阳金克阳木)
+		{dayStem: ganzhi.GanYi, hourStem: ganzhi.GanXin},    // 乙→辛(阴金克阴木)
+		{dayStem: ganzhi.GanBing, hourStem: ganzhi.GanRen},  // 丙→壬(阳水克阳火)
+		{dayStem: ganzhi.GanDing, hourStem: ganzhi.GanGui},  // 丁→癸(阴水克阴火)
+		{dayStem: ganzhi.GanWu, hourStem: ganzhi.GanJia},    // 戊→甲(阳木克阳土)
+		{dayStem: ganzhi.GanJi, hourStem: ganzhi.GanYi},     // 己→乙(阴木克阴土)
 		{dayStem: ganzhi.GanGeng, hourStem: ganzhi.GanBing}, // 庚→丙(阳火克阳金)
 		{dayStem: ganzhi.GanXin, hourStem: ganzhi.GanDing},  // 辛→丁(阴火克阴金)
 		{dayStem: ganzhi.GanRen, hourStem: ganzhi.GanWu},    // 壬→戊(阳土克阳水)
@@ -47,7 +47,7 @@ func TestWuBuYuShi_NonMatching_ReturnsFalse(t *testing.T) {
 	tests := []struct {
 		dayStem  ganzhi.Gan
 		hourStem ganzhi.Gan
-		desc string
+		desc     string
 	}{
 		{ganzhi.GanJia, ganzhi.GanBing, "甲丙: 丙克甲? 火克金? 不, 丙火生甲木→非克"},
 		{ganzhi.GanJia, ganzhi.GanYi, "甲乙: 同木比和, 非克"},
@@ -78,7 +78,7 @@ func TestWuBuYuShi_SameYinYang_Required(t *testing.T) {
 	tests := []struct {
 		dayStem  ganzhi.Gan
 		hourStem ganzhi.Gan
-		desc string
+		desc     string
 	}{
 		{ganzhi.GanBing, ganzhi.GanGui, "丙癸: 癸水克丙火但阴克阳→非五不遇"},
 		{ganzhi.GanDing, ganzhi.GanRen, "丁壬: 壬水克丁火但阳克阴→非五不遇"},
@@ -102,7 +102,9 @@ func TestWuBuYuShi_ChartField_Present(t *testing.T) {
 		t.Run(d, func(t *testing.T) {
 			for hour := 0; hour < 24; hour += 2 {
 				bt, err := time.Parse("2006-01-02 15", d+" "+fmt.Sprintf("%02d", hour))
-				if err != nil { t.Fatal(err) }
+				if err != nil {
+					t.Fatal(err)
+				}
 				st := tianwen.GregorianToSolar(bt, 116.4, 8)
 				chart := ComputeChart(st, ShiQiMen)
 				// 验证isWuBuYuShi与chart字段一致

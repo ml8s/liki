@@ -56,8 +56,8 @@ func TestFilterSancai(t *testing.T) {
 	// 天格=3→火, 人格=2+7=9→水, 地格=7+3=10→水
 	// 火→水 ❌ (火生土)
 	pairs := []StrokePair{
-		{S1: 3, S2: 5},  // harmonious
-		{S1: 7, S2: 3},  // not harmonious
+		{S1: 3, S2: 5}, // harmonious
+		{S1: 7, S2: 3}, // not harmonious
 	}
 	result := FilterSancai(singleStrokes(2), pairs)
 	if len(result) != 1 {

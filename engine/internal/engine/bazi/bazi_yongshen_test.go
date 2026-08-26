@@ -67,7 +67,7 @@ func TestComputeGeJuYongShen_ShunYong(t *testing.T) {
 		},
 		Yue: zhuInfo{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiYou},
-			},
+		},
 		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
 		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
 	}
@@ -88,7 +88,7 @@ func TestComputeGeJuYongShen_NiYong(t *testing.T) {
 		},
 		Yue: zhuInfo{
 			Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen},
-			},
+		},
 		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiSi}},
 		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiShen}},
 	}

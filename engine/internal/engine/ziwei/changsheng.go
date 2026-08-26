@@ -12,15 +12,15 @@ var changShengCycle = []string{
 func juChangShengZhi(ju juShu) Zhi {
 	switch ju {
 	case JuWater:
-		return 9  // 申
+		return 9 // 申
 	case JuWood:
 		return 12 // 亥
 	case JuMetal:
-		return 6  // 巳
+		return 6 // 巳
 	case JuEarth:
-		return 9  // 申
+		return 9 // 申
 	case JuFire:
-		return 3  // 寅
+		return 3 // 寅
 	}
 	return 0
 }

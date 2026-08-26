@@ -7,11 +7,11 @@ type YongShen int
 
 const (
 	YongFumu    YongShen = iota // 父母: 长辈、文书、房屋
-	YongXiongDi                     // 兄弟: 朋友、同事、竞争
-	YongGuanGui                     // 官鬼: 工作、官运、疾病
-	YongQiCai                       // 妻财: 财运、妻子、物品
-	YongZiSun                       // 子孙: 子女、健康、宠物
-	YongShiYao                      // 世爻: 自身、求问人
+	YongXiongDi                 // 兄弟: 朋友、同事、竞争
+	YongGuanGui                 // 官鬼: 工作、官运、疾病
+	YongQiCai                   // 妻财: 财运、妻子、物品
+	YongZiSun                   // 子孙: 子女、健康、宠物
+	YongShiYao                  // 世爻: 自身、求问人
 )
 
 var yongShenNames = [6]string{"父母", "兄弟", "官鬼", "妻财", "子孙", "世爻"}
@@ -64,20 +64,26 @@ func (p *Chart) findShiYao() int {
 
 // FuShen holds the 飞伏 information when 用神 is not present.
 type FuShen struct {
-	Position int    `json:"position"`  // 爻位 1-6
-	LiuQin   LiuQin `json:"liu_qin"`   // 伏神六亲
-	Zhi      string `json:"zhi"`       // 伏神地支
+	Position int    `json:"position"` // 爻位 1-6
+	LiuQin   LiuQin `json:"liu_qin"`  // 伏神六亲
+	Zhi      string `json:"zhi"`      // 伏神地支
 }
 
 // yongShenToLiuQin maps YongShen → LiuQin for the first 5 types.
 func yongShenToLiuQin(typ YongShen) LiuQin {
 	switch typ {
-	case YongFumu: return QinFumu
-	case YongXiongDi: return QinXiongDi
-	case YongGuanGui: return QinGuanGui
-	case YongQiCai: return QinQiCai
-	case YongZiSun: return QinZiSun
-	default: return -1
+	case YongFumu:
+		return QinFumu
+	case YongXiongDi:
+		return QinXiongDi
+	case YongGuanGui:
+		return QinGuanGui
+	case YongQiCai:
+		return QinQiCai
+	case YongZiSun:
+		return QinZiSun
+	default:
+		return -1
 	}
 }
 

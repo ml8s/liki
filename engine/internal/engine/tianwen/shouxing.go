@@ -31,7 +31,7 @@ func eLon(t float64, n int) float64 {
 		if n < 0 {
 			m = n2
 		} else {
-			m = math.Floor(3*float64(n)*n0/m0+0.5+n1)
+			m = math.Floor(3*float64(n)*n0/m0 + 0.5 + n1)
 			if i != 0 {
 				m += 3
 			}
@@ -139,4 +139,3 @@ func solarLongitudeShouXing(jdOffset float64) float64 {
 
 // jieQiTimeShouXing 用寿星历反解（对齐 lunar qiAccurate2）求节气时刻。
 // 返回儒略日偏移（JD-2451545）。targetLon 为黄经（度）。
-

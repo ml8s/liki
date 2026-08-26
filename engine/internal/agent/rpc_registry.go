@@ -65,10 +65,18 @@ func (r *RPCRegistry) SetVersion(v string) {
 // NewRPCRegistry creates a registry with all 33 external compute methods.
 func NewRPCRegistry() *RPCRegistry {
 	r := &RPCRegistry{methods: make(map[string]*RPCMethod, 34)}
-	for _, m := range baziMethods   { r.mustRegister(m) }
-	for _, m := range ziweiMethods  { r.mustRegister(m) }
-	for _, m := range qimingMethods { r.mustRegister(m) }
-	for _, m := range otherMethods  { r.mustRegister(m) }
+	for _, m := range baziMethods {
+		r.mustRegister(m)
+	}
+	for _, m := range ziweiMethods {
+		r.mustRegister(m)
+	}
+	for _, m := range qimingMethods {
+		r.mustRegister(m)
+	}
+	for _, m := range otherMethods {
+		r.mustRegister(m)
+	}
 	return r
 }
 
@@ -134,4 +142,3 @@ type RPCError struct {
 }
 
 func (e *RPCError) Error() string { return e.Message }
-

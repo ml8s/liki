@@ -1,11 +1,13 @@
 // Package xuankong provides玄空风水 computation.
 //
 // Types
-//   Chart, SanYuanYun
+//
+//	Chart, SanYuanYun
 //
 // Functions
-//   ComputeChart(st SolarTime, sitMountain int, faceMountain int) → Chart
-//   ComputeSanYuanYun(year int) → SanYuanYun
+//
+//	ComputeChart(st SolarTime, sitMountain int, faceMountain int) → Chart
+//	ComputeSanYuanYun(year int) → SanYuanYun
 package xuankong
 
 import "liki-engine/internal/engine/tianwen"

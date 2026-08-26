@@ -36,23 +36,26 @@ build: build-archive ## 构建全部（当前 = skills archive + engine 二进�
 	@cd engine && go build -o ../bin/liki-engine ./cmd/liki/
 
 # ── 验证 / 测试 ──
+hooks: ## 安装 git hooks（贡献者克隆后执行一次；core.hooksPath 是本地配置不会随 clone 带上）
+	git config core.hooksPath .githooks
+
 check: ## Skills 改表后验证（schema 校验 + 数据检查）
 	@bash tests/check.sh
 
 test: ## Skills python 单测（规则引擎；integration 由服务已起阶段跑）
 	python3 -m pytest tests/ -q --ignore=tests/test_integration.py
 
-test-integration: ## Skills 全链路集成测试（需引擎服务：LIKI_RPC_URL 指向引擎 /jsonrpc）
-	python3 -m pytest tests/test_integration.py -q
+test-integration: ## Skill 全链路集成测试（本地起引擎 + LIKI_RPC_URL 连它；脱离生产）
+	@bash -c '. scripts/local-engine.sh; ensure_local_engine; trap stop_local_engine EXIT; LIKI_RPC_URL="$$LOCAL_RPC" python3 -m pytest tests/test_integration.py -q'
 
 # ── Engine 测试（全部在 engine/ 子目录，自含）──
 test-engine: ## Engine 全量测试（lint + vet + unit race + integration + RPC 冒烟 74/74）
 	cd engine && scripts/ci-engine.sh
 
-test-all: test test-engine ## 全量（skills + engine）
+test-all: test test-engine test-integration ## 全量（单项目：skills 单测 + engine 全量 + skill 全链路集成）
 
 pre-push: build-archive ## 推送前检查（重算指纹 + 校验）
 	@for s in liki-bazi liki-divination liki-fengshui liki-naming; do \
-		python3 tests/check_docs.py "skills/$s" || exit 1; \
+		python3 tests/check_docs.py "skills/$$s" || exit 1; \
 	done
 	@echo "✓ 推送前检查通过"

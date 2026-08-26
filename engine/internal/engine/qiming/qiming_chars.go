@@ -97,4 +97,3 @@ func getCharsByElement(elem Wuxing) map[int][]CharLite {
 	}
 	return result
 }
-

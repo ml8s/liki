@@ -56,10 +56,10 @@ func dayInteraction(lineZhi ganzhi.Zhi, riZhi ganzhi.Zhi) DayRelation {
 
 // YingQi holds 应期 prediction.
 type YingQi struct {
-	YongShen    string `json:"yong_shen"`
-	DongYaoPos  int    `json:"dong_yao_pos"` // 动爻位置
-	YingTime    string `json:"ying_time"`    // 应期描述
-	Assessment  string `json:"assessment"`   // 综合判断
+	YongShen   string `json:"yong_shen"`
+	DongYaoPos int    `json:"dong_yao_pos"` // 动爻位置
+	YingTime   string `json:"ying_time"`    // 应期描述
+	Assessment string `json:"assessment"`   // 综合判断
 }
 
 func computeYingQi(p *Chart, typ YongShen) YingQi {
@@ -113,11 +113,12 @@ func computeYingQi(p *Chart, typ YongShen) YingQi {
 
 func ordinal(n int) string {
 	names := [7]string{"", "初", "二", "三", "四", "五", "上"}
-	if n >= 1 && n <= 6 { return names[n] }
+	if n >= 1 && n <= 6 {
+		return names[n]
+	}
 	return "?"
 }
 
 func chongZhi(z ganzhi.Zhi) ganzhi.Zhi {
 	return ganzhi.ChongZhi(z)
 }
-

@@ -11,10 +11,14 @@ func allPalaceXiaoXian(nianZhi Zhi, gender ganzhi.Gender, count int, mingZhi Zhi
 func anXingXiaoXian(nianZhi Zhi, gender ganzhi.Gender, count int, mingZhi Zhi) [12][]int {
 	var ageIdx int
 	switch nianZhi {
-	case 3, 7, 11: ageIdx = 2  // 寅午戌→辰
-	case 9, 1, 5:  ageIdx = 8  // 申子辰→戌
-	case 6, 10, 2: ageIdx = 5  // 巳酉丑→未
-	case 12, 4, 8: ageIdx = 11 // 亥卯未→丑
+	case 3, 7, 11:
+		ageIdx = 2 // 寅午戌→辰
+	case 9, 1, 5:
+		ageIdx = 8 // 申子辰→戌
+	case 6, 10, 2:
+		ageIdx = 5 // 巳酉丑→未
+	case 12, 4, 8:
+		ageIdx = 11 // 亥卯未→丑
 	}
 	var result [12][]int
 	for i := 0; i < 12; i++ {

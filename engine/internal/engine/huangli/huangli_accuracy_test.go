@@ -1,8 +1,8 @@
 package huangli
 
 import (
-	"time"
 	"testing"
+	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
@@ -10,12 +10,12 @@ import (
 
 func TestEvaluateZhi_AllRelations(t *testing.T) {
 	tests := []struct {
-		name       string
+		name      string
 		riZhi     ganzhi.Zhi
-		refZhi     ganzhi.Zhi
-		wantRel    string
-		wantMarks  bool
-		wantWarns  bool
+		refZhi    ganzhi.Zhi
+		wantRel   string
+		wantMarks bool
+		wantWarns bool
 	}{
 		{"子丑六合", ganzhi.ZhiZi, ganzhi.ZhiChou, "六合", true, false},
 		{"申子三合半", ganzhi.ZhiShen, ganzhi.ZhiZi, "三合半", true, false},
@@ -137,13 +137,6 @@ func TestTaiSui_Cycle(t *testing.T) {
 
 // =============================================================================
 
-
-
-
-
-
-
-
 // =============================================================================
 // renYuanName — 人元司令名称
 // =============================================================================
@@ -207,15 +200,16 @@ func TestComputeRenYuanSiLing_NilPhases(t *testing.T) {
 		t.Error("MonthBranch should be preserved")
 	}
 }
+
 // 正月建寅: 寅月寅日=建(offset 0), 寅月卯日=除(offset 1)
 // 二月建卯: 卯月卯日=建(offset 0), 卯月辰日=除(offset 1)
 func TestJianChuOffset(t *testing.T) {
 	tests := []struct {
 		name        string
 		monthBranch ganzhi.Zhi
-		riZhi      ganzhi.Zhi
+		riZhi       ganzhi.Zhi
 		wantOffset  int
-		wantGod      string
+		wantGod     string
 	}{
 		{"寅月寅日→建", ganzhi.ZhiYin, ganzhi.ZhiYin, 0, "建"},
 		{"寅月卯日→除", ganzhi.ZhiYin, ganzhi.ZhiMao, 1, "除"},
@@ -250,7 +244,7 @@ func TestJianChuOffset(t *testing.T) {
 func TestHuangDaoForDay(t *testing.T) {
 	tests := []struct {
 		monthBranch ganzhi.Zhi
-		riZhi      ganzhi.Zhi
+		riZhi       ganzhi.Zhi
 		wantName    string
 		wantPath    string
 	}{
@@ -292,7 +286,7 @@ func TestHuangDaoCycle(t *testing.T) {
 		{"天牢", "黑道"}, {"玄武", "黑道"}, {"司命", "黄道"}, {"勾陈", "黑道"},
 	}
 	for i := 0; i < 12; i++ {
-		dz := ganzhi.Zhi((i) % 12 + 1) // 子=1 through 亥=12
+		dz := ganzhi.Zhi((i)%12 + 1) // 子=1 through 亥=12
 		got := huangDaoForDay(ganzhi.ZhiYin, dz)
 		if got.Name != expected[i].name {
 			t.Errorf("%s日: name = %s, want %s",
@@ -307,18 +301,18 @@ func TestQingLongStart(t *testing.T) {
 		monthBranch ganzhi.Zhi
 		wantStart   ganzhi.Zhi
 	}{
-		{ganzhi.ZhiYin, ganzhi.ZhiZi},   // 寅月青龙起子
-		{ganzhi.ZhiMao, ganzhi.ZhiYin},  // 卯月起寅
+		{ganzhi.ZhiYin, ganzhi.ZhiZi},    // 寅月青龙起子
+		{ganzhi.ZhiMao, ganzhi.ZhiYin},   // 卯月起寅
 		{ganzhi.ZhiChen, ganzhi.ZhiChen}, // 辰月起辰
-		{ganzhi.ZhiSi, ganzhi.ZhiWu},    // 巳月起午
-		{ganzhi.ZhiWu, ganzhi.ZhiShen},  // 午月起申
-		{ganzhi.ZhiWei, ganzhi.ZhiXu},   // 未月起戌
-		{ganzhi.ZhiShen, ganzhi.ZhiZi},  // 申月起子
-		{ganzhi.ZhiYou, ganzhi.ZhiYin},  // 酉月起寅
-		{ganzhi.ZhiXu, ganzhi.ZhiChen},  // 戌月起辰
-		{ganzhi.ZhiHai, ganzhi.ZhiWu},   // 亥月起午
-		{ganzhi.ZhiZi, ganzhi.ZhiShen},  // 子月起申
-		{ganzhi.ZhiChou, ganzhi.ZhiXu},  // 丑月起戌
+		{ganzhi.ZhiSi, ganzhi.ZhiWu},     // 巳月起午
+		{ganzhi.ZhiWu, ganzhi.ZhiShen},   // 午月起申
+		{ganzhi.ZhiWei, ganzhi.ZhiXu},    // 未月起戌
+		{ganzhi.ZhiShen, ganzhi.ZhiZi},   // 申月起子
+		{ganzhi.ZhiYou, ganzhi.ZhiYin},   // 酉月起寅
+		{ganzhi.ZhiXu, ganzhi.ZhiChen},   // 戌月起辰
+		{ganzhi.ZhiHai, ganzhi.ZhiWu},    // 亥月起午
+		{ganzhi.ZhiZi, ganzhi.ZhiShen},   // 子月起申
+		{ganzhi.ZhiChou, ganzhi.ZhiXu},   // 丑月起戌
 	}
 
 	for _, tt := range tests {

@@ -7,6 +7,9 @@
 #       cases:     evals/cases/pan01.yaml        → tests/evals/cases/pan01.yaml
 #       skills:     ../skills/liki-bazi           → <仓库根>/skills/liki-bazi（安装源 = skill 本体，不依赖 clone 目录名）
 #   - 答案文件（tests/answers.json 等）不进 skill——run-qwen.sh 运行前 stash 隔离（容器 agent 读不到）
+#   - 答案隔离不变量：容器只挂载 skills/liki-bazi（skills.path），tests/ 不进容器——
+#     grade-case.py 内嵌答案留在仓库树内因此安全；若改挂载范围（如挂仓库根），
+#     必须先把 grade-case.py 移出 agent 可读范围，否则答案泄漏
 #   - 产物输出由 run-qwen.sh 的 --output-dir 指到 tests/liki-workspace/（不入库不进包）
 schema_version: v1alpha1
 

@@ -11,9 +11,9 @@ import (
 
 // riZhuInfo holds the stem-branch for a single day.
 type riZhuInfo struct {
-	Gan   ganzhi.Gan    `json:"gan"`
-	Zhi   ganzhi.Zhi    `json:"zhi"`
-	NaYin string `json:"na_yin"`
+	Gan   ganzhi.Gan `json:"gan"`
+	Zhi   ganzhi.Zhi `json:"zhi"`
+	NaYin string     `json:"na_yin"`
 }
 
 // --- In-memory config ---
@@ -68,7 +68,6 @@ func lookupJianChu(t time.Time) string {
 	offset := (dayIdx - jianIdx + 12) % 12
 	return jianChuCfg.Sequence[offset]
 }
-
 
 // evaluateZhi checks the branch relationship and returns marks/warnings.
 func evaluateZhi(riZhi, refZhi ganzhi.Zhi, label string) (relation string, marks []string, warnings []string) {

@@ -10,9 +10,9 @@ import (
 
 func ziweiFullChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		Chart  json.RawMessage `json:"chart"`
-		RiGan  int             `json:"ri_gan,omitempty"`
-		RiZhi  int             `json:"ri_zhi,omitempty"`
+		Chart json.RawMessage `json:"chart"`
+		RiGan int             `json:"ri_gan,omitempty"`
+		RiZhi int             `json:"ri_zhi,omitempty"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("ziwei.fullchart: %w", err)

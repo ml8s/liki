@@ -1,5 +1,5 @@
 # MingLi-Bench 分组 case: pan13（命盘 13/32，5 题）
-# 题目与答案分离：答案见 evals/answers.json（判分进程专用）
+# 题目与答案分离：答案见 tests/answers.json（判分进程专用；评测期间由 run-qwen.sh 移出隔离）
 id: pan13
 title: "命盘13：命主在2011年发生什么事？"
 input:

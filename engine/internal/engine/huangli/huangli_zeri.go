@@ -84,6 +84,7 @@ func pengZuStemTaboo(stem ganzhi.Gan) string { return tabooFromStem(stem, stemTa
 
 // pengZuBranchTaboo returns the Peng Zu taboo for a given day branch.
 func pengZuBranchTaboo(branch ganzhi.Zhi) string { return tabooFromBranch(branch, branchTabooTable) }
+
 // -- 黄道黑道十二神 (Yellow/Black Path 12 Day Stars) --------------------------------
 // Determined by month branch (青龙 start) + day branch offset.
 // 黄道 = auspicious (6 stars), 黑道 = inauspicious (6 stars).
@@ -105,7 +106,6 @@ func huangDaoForDay(monthBranch, dayBranch ganzhi.Zhi) huangDaoStar {
 	offset := (int(dayBranch) - int(start) + 12) % 12
 	return huangDaoStars[offset]
 }
-
 
 // ShiChenFortune computes the hour-by-hour fortune for a given day.
 func computeShiChen(riZhi, yueZhi ganzhi.Zhi, dayJianChu string) []ShiChenFortune {
@@ -133,12 +133,17 @@ func computeShiChen(riZhi, yueZhi ganzhi.Zhi, dayJianChu string) []ShiChenFortun
 		return nil
 	}
 	qlStart := int(qlStartZhi - 1) // 子=0, 丑=1...
-	if qlStart < 0 { qlStart = 0 }
+	if qlStart < 0 {
+		qlStart = 0
+	}
 
 	// 2. Find JianChu start index
 	jcStart := 0
 	for i, n := range jianchuSeq {
-		if n == dayJianChu { jcStart = i; break }
+		if n == dayJianChu {
+			jcStart = i
+			break
+		}
 	}
 
 	result := make([]ShiChenFortune, 12)
@@ -148,11 +153,11 @@ func computeShiChen(riZhi, yueZhi ganzhi.Zhi, dayJianChu string) []ShiChenFortun
 		// 黄道=吉, 黑道=凶
 		isSuitable := huangDaoPath[hsIdx] == "黄道"
 		result[i] = ShiChenFortune{
-			Zhi:     zhiNames[i],
-			Time:    timeRanges[i],
+			Zhi:         zhiNames[i],
+			Time:        timeRanges[i],
 			HuangDaoStr: huangDaoNames[hsIdx],
-			JianChu: jianchuSeq[jcIdx],
-			Suitable: isSuitable,
+			JianChu:     jianchuSeq[jcIdx],
+			Suitable:    isSuitable,
 		}
 	}
 	return result

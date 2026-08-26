@@ -161,7 +161,9 @@ func TestRPC_DiscoverMethodsFilter(t *testing.T) {
 	HandleRPC(reg)(w, r)
 	var resp struct {
 		Result struct {
-			Methods []struct{ Name string `json:"name"` } `json:"methods"`
+			Methods []struct {
+				Name string `json:"name"`
+			} `json:"methods"`
 		} `json:"result"`
 		Error *RPCError `json:"error"`
 	}
@@ -431,8 +433,8 @@ func validateSchema(t *testing.T, method string, result any) {
 		if mm["name"].(string) == method {
 			c := jsonschema.NewCompiler()
 			if err := c.AddResource("schema.json", mm["result"]); err != nil {
-			t.Fatalf("add resource for %s: %v", method, err)
-		}
+				t.Fatalf("add resource for %s: %v", method, err)
+			}
 			sch, err := c.Compile("schema.json")
 			if err != nil {
 				t.Fatalf("compile result schema for %s: %v", method, err)
@@ -709,7 +711,6 @@ func getBaziChart(t *testing.T, reg *agent.RPCRegistry) map[string]any {
 	})
 	return chart
 }
-
 
 func TestRPC_Dispatch_BaziBond(t *testing.T) {
 	reg := agent.NewRPCRegistry()

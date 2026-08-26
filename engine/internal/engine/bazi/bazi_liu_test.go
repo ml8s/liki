@@ -11,10 +11,10 @@ import (
 // helper: make a Chart from a known BaZi for testing liu* functions.
 func makeTestChart(nian, yue, ri, shi ganzhi.Zhu, daYun *DaYun) Chart {
 	return Chart{
-		Nian: zhuInfo{Zhu: nian, NaYin: ganzhi.NayinLabel(nian.Gan, nian.Zhi)},
-		Yue:  zhuInfo{Zhu: yue, NaYin: ganzhi.NayinLabel(yue.Gan, yue.Zhi)},
-		Ri:   zhuInfo{Zhu: ri, NaYin: ganzhi.NayinLabel(ri.Gan, ri.Zhi)},
-		Shi:  zhuInfo{Zhu: shi, NaYin: ganzhi.NayinLabel(shi.Gan, shi.Zhi)},
+		Nian:  zhuInfo{Zhu: nian, NaYin: ganzhi.NayinLabel(nian.Gan, nian.Zhi)},
+		Yue:   zhuInfo{Zhu: yue, NaYin: ganzhi.NayinLabel(yue.Gan, yue.Zhi)},
+		Ri:    zhuInfo{Zhu: ri, NaYin: ganzhi.NayinLabel(ri.Gan, ri.Zhi)},
+		Shi:   zhuInfo{Zhu: shi, NaYin: ganzhi.NayinLabel(shi.Gan, shi.Zhi)},
 		DaYun: daYun,
 	}
 }
@@ -173,10 +173,10 @@ func TestComputeLiuShi_WuShuDun(t *testing.T) {
 		wantZhi ganzhi.Zhi
 	}{
 		{0, ganzhi.GanBing, ganzhi.ZhiZi},   // 乙日 子时: (2*2+1-2)%10=3 → 丙子
-		{2, ganzhi.GanDing, ganzhi.ZhiChou},  // 乙日 丑时: (2*2+2-2)%10=4 → 丁丑
-		{4, ganzhi.GanWu, ganzhi.ZhiYin},     // 乙日 寅时: (2*2+3-2)%10=5 → 戊寅
-		{12, ganzhi.GanRen, ganzhi.ZhiWu},    // 乙日 午时: (2*2+7-2)%10=9 → 壬午
-		{22, ganzhi.GanDing, ganzhi.ZhiHai},  // 乙日 亥时: (2*2+12-2)%10=14%10=4 → 丁亥
+		{2, ganzhi.GanDing, ganzhi.ZhiChou}, // 乙日 丑时: (2*2+2-2)%10=4 → 丁丑
+		{4, ganzhi.GanWu, ganzhi.ZhiYin},    // 乙日 寅时: (2*2+3-2)%10=5 → 戊寅
+		{12, ganzhi.GanRen, ganzhi.ZhiWu},   // 乙日 午时: (2*2+7-2)%10=9 → 壬午
+		{22, ganzhi.GanDing, ganzhi.ZhiHai}, // 乙日 亥时: (2*2+12-2)%10=14%10=4 → 丁亥
 	}
 
 	for _, tt := range tests {

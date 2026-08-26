@@ -6,27 +6,27 @@ import (
 
 // xuanKongStar holds the three stars (运星, 山星, 向星) for one palace.
 type xuanKongStar struct {
-	PalaceNum    int                  `json:"gong_num"`
-	PeriodStar   fengshui.FlyingStar  `json:"yun_xing"`
-	MountainStar fengshui.FlyingStar  `json:"shan_xing"`
-	FacingStar   fengshui.FlyingStar  `json:"xiang_xing"`
+	PalaceNum    int                 `json:"gong_num"`
+	PeriodStar   fengshui.FlyingStar `json:"yun_xing"`
+	MountainStar fengshui.FlyingStar `json:"shan_xing"`
+	FacingStar   fengshui.FlyingStar `json:"xiang_xing"`
 }
 
 // Chart is the complete 玄空飞星排盘 for a given坐向 and 运.
 type Chart struct {
-	Yun           SanYuanYun     `json:"yun"`
-	SitMountain   int            `json:"zuo_shan"`  // 0-23,坐山 index
-	FaceMountain  int            `json:"xiang_shan"` // 0-23,朝向 index
-	Palaces       [9]xuanKongStar `json:"gong_wei"`
-	WangShan      bool           `json:"wang_shan"`      // 旺山：坐宫山星=当令
-	WangXiang     bool           `json:"wang_xiang"`     // 旺向：向宫向星=当令
-	ShanXing      bool           `json:"shan_xing"`      // 双星会坐：坐宫山向星皆=当令
-	XiangXing     bool           `json:"xiang_xing"`     // 双星会向：向宫山向星皆=当令
-	XiaShui       bool           `json:"xia_shui"`       // 上山下水：向宫山星=当令 且 坐宫向星=当令
-	FanYin        bool           `json:"fan_yin"`        // 运盘反吟（恒 false，运盘恒顺飞）
-	FuYin         bool           `json:"fu_yin"`         // 运盘伏吟（五运顺飞全盘重合）
-	XingJiaHui    [9]xingJiaHui  `json:"xing_jia_hui"`
-	ShouShanChuSha shouShanChuSha `json:"shou_shan_chu_sha"`
+	Yun            SanYuanYun      `json:"yun"`
+	SitMountain    int             `json:"zuo_shan"`   // 0-23,坐山 index
+	FaceMountain   int             `json:"xiang_shan"` // 0-23,朝向 index
+	Palaces        [9]xuanKongStar `json:"gong_wei"`
+	WangShan       bool            `json:"wang_shan"`  // 旺山：坐宫山星=当令
+	WangXiang      bool            `json:"wang_xiang"` // 旺向：向宫向星=当令
+	ShanXing       bool            `json:"shan_xing"`  // 双星会坐：坐宫山向星皆=当令
+	XiangXing      bool            `json:"xiang_xing"` // 双星会向：向宫山向星皆=当令
+	XiaShui        bool            `json:"xia_shui"`   // 上山下水：向宫山星=当令 且 坐宫向星=当令
+	FanYin         bool            `json:"fan_yin"`    // 运盘反吟（恒 false，运盘恒顺飞）
+	FuYin          bool            `json:"fu_yin"`     // 运盘伏吟（五运顺飞全盘重合）
+	XingJiaHui     [9]xingJiaHui   `json:"xing_jia_hui"`
+	ShouShanChuSha shouShanChuSha  `json:"shou_shan_chu_sha"`
 }
 
 func computeChart(sitMountain, faceMountain int, year int) Chart {
@@ -172,9 +172,9 @@ func (p *Chart) evaluate() {
 
 	p.WangShan = sitMStar == yunNum
 	p.WangXiang = faceFStar == yunNum
-	p.ShanXing = sitMStar == yunNum && sitFStar == yunNum  // 双星会坐
+	p.ShanXing = sitMStar == yunNum && sitFStar == yunNum    // 双星会坐
 	p.XiangXing = faceMStar == yunNum && faceFStar == yunNum // 双星会向
-	p.XiaShui = faceMStar == yunNum && sitFStar == yunNum   // 上山下水
+	p.XiaShui = faceMStar == yunNum && sitFStar == yunNum    // 上山下水
 
 	// 运盘伏吟：运盘与地盘全盘重合（仅五运顺飞成立）。
 	p.FuYin = p.Yun.YunNumber == 5 && p.Palaces[4].PeriodStar.Number == 5

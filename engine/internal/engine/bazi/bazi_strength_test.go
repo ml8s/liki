@@ -12,7 +12,6 @@ func ptr[T any](v T) *T { return &v }
 // 验证 25 种 root×season 组合的查找表全覆盖
 // ────────────────────────────────────────────────────────────────
 
-
 func TestStrength_AllRules_FirstHit(t *testing.T) {
 	// 规则 1: month_main + 任何季节 → 身强
 	t.Run("rule1_month_main_any_season", func(t *testing.T) {
@@ -104,8 +103,8 @@ func TestCongGe_Rules_AllSeasons(t *testing.T) {
 		{
 			name: "从旺_甲日寅月印比多",
 			chart: Chart{
-				Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
-				Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin}},
+				Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+				Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin}},
 				Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 				Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiWu}},
 			},
@@ -115,8 +114,8 @@ func TestCongGe_Rules_AllSeasons(t *testing.T) {
 		{
 			name: "从杀_乙日申月庚透",
 			chart: Chart{
-				Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiWu}},
-				Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}},
+				Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiWu}},
+				Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}},
 				Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiWu}},
 				Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin, Zhi: ganzhi.ZhiWu}},
 			},
@@ -153,31 +152,31 @@ func TestClassifyRoot_AllTypes(t *testing.T) {
 		want   string
 	}{
 		{
-			name: "month_main_寅中甲",
+			name:  "month_main_寅中甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiYin,
 			cg:   [4]cangGanOut{{}, {Main: ganzhi.GanJia}, {}, {}},
 			want: "month_main",
 		},
 		{
-			name: "month_mid_亥中甲",
+			name:  "month_mid_亥中甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiHai,
 			cg:   [4]cangGanOut{{}, {Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, {}, {}},
 			want: "month_mid",
 		},
 		{
-			name: "branch_main_年支寅甲",
+			name:  "branch_main_年支寅甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
 			cg:   [4]cangGanOut{{Main: ganzhi.GanJia}, {Main: ganzhi.GanWu}, {}, {}},
 			want: "branch_main",
 		},
 		{
-			name: "branch_mid_年支亥中甲",
+			name:  "branch_mid_年支亥中甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
 			cg:   [4]cangGanOut{{Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, {Main: ganzhi.GanWu}, {}, {}},
 			want: "branch_mid",
 		},
 		{
-			name: "none_无根",
+			name:  "none_无根",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
 			cg:   [4]cangGanOut{{Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}},
 			want: "none",

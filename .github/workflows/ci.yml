@@ -8,10 +8,11 @@ on:
 
 # ─────────────────────────────────────────────────────────────
 # liki monorepo CI —— engine（Go）+ skills（Python）双栈
-# - engine job 仅 engine/** 变更触发（cd engine，Go 1.26）
-# - skills job 仅 skills/** tests/** scripts/** dist/** 变更触发
-# - integration job：engine 变更时 build+起服务 → 跑 engine integration + RPC 冒烟
-# - e2e job：engine 变更时 build+起服务 → 跑 skill 全链路集成测试（LIKI_RPC_URL）
+# 所有 job 每次 push/PR 全量跑（未做 path filter——monorepo 双栈常联动，
+# 引擎/skill 契约一致性优先于跳过节省；如需分流再引入 dorny/paths-filter）：
+# - engine-*：lint / unit(race) / integration + RPC 冒烟（build+起服务）
+# - skills-*：单测 + 指纹/文档校验 / 数据检查（本地起引擎，不打生产）/ 打包
+# - e2e：build+起服务 → skill 全链路集成测试（LIKI_RPC_URL）
 # ─────────────────────────────────────────────────────────────
 
 jobs:
@@ -19,18 +20,19 @@ jobs:
   engine-lint:
     name: Engine Lint
     runs-on: ubuntu-latest
-    if: ${{ !cancelled() }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26'
           check-latest: true
-      - name: Install golangci-lint
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
       - name: golangci-lint (engine)
-        working-directory: engine
-        run: golangci-lint run ./...
+        # 官方 Action + 锁定 v2（勿用 go install：golangci-lint 只支持 ≤ 编译它的 Go 版本，
+        # 且 v1.64.x 对 Go 1.25+ 已停止维护——配 Go 1.26 属未定义行为）
+        uses: golangci/golangci-lint-action@v8.0.0
+        with:
+          version: v2.13.1
+          working-directory: engine
 
   # ── Engine: Unit Test ──
   engine-test:
@@ -53,7 +55,6 @@ jobs:
   engine-integration:
     name: Engine Integration + Smoke
     runs-on: ubuntu-latest
-    if: ${{ !cancelled() }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -69,19 +70,24 @@ jobs:
       - name: start engine
         run: |
           /tmp/liki-engine -addr :8082 &
-          echo "pid=$!"
+          echo "pid=$!" > /tmp/liki-engine.pid
+          cat /tmp/liki-engine.pid
           for i in $(seq 1 15); do
             if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
               echo "engine ready"
-              break
+              exit 0
             fi
             sleep 1
           done
+          echo "engine failed to become ready"; exit 1
       - name: RPC smoke test (engine)
         working-directory: engine
         run: |
           bash -n scripts/test-rpc.sh
           scripts/test-rpc.sh http://localhost:8082
+      - name: stop engine
+        if: always()
+        run: kill "$(cat /tmp/liki-engine.pid)" 2>/dev/null || true
 
   # ── Skills: Python tests (rules engine) ──
   skills-test:
@@ -123,13 +129,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: build engine
+        working-directory: engine
+        run: go build -o /tmp/liki-engine ./cmd/liki/
+      - name: start engine
+        run: |
+          /tmp/liki-engine -addr :8082 &
+          echo "pid=$!" > /tmp/liki-engine.pid
+          cat /tmp/liki-engine.pid
+          for i in $(seq 1 15); do
+            if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
+              echo "engine ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "engine failed to become ready"; exit 1
       - name: Run full data check (eval_hybrid)
         # 慢路径（32 命例全量排盘，数分钟级）：断语覆盖统计 + 零命中题检测——
         # 防"断语表改动后断语丢失/死行"（外部评审 #18 模式）只在全量数据检查暴露
+        # 连本地引擎（同仓 build），不依赖生产 liki.hk
         run: bash tests/check.sh --full
+        env:
+          LIKI_RPC_URL: http://localhost:8082/jsonrpc
+      - name: stop engine
+        if: always()
+        run: kill "$(cat /tmp/liki-engine.pid)" 2>/dev/null || true
 
   # ── Skills: Build archive ──
   skills-archive:
@@ -162,15 +194,20 @@ jobs:
       - name: start engine
         run: |
           /tmp/liki-engine -addr :8082 &
-          echo "pid=$!"
-          for i in $(seq 1 30); do
+          echo "pid=$!" > /tmp/liki-engine.pid
+          cat /tmp/liki-engine.pid
+          for i in $(seq 1 15); do
             if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
               echo "engine ready"
-              break
+              exit 0
             fi
             sleep 1
           done
+          echo "engine failed to become ready"; exit 1
       - name: skill full-chain integration test (LIKI_RPC_URL)
         # 引擎同仓 build，跑 skill 全链路——彻底消除此前"skill 集成测试依赖外部引擎"的跨仓耦合
         run: |
           LIKI_RPC_URL=http://localhost:8082/jsonrpc python3 -m pytest tests/test_integration.py -q -s
+      - name: stop engine
+        if: always()
+        run: kill "$(cat /tmp/liki-engine.pid)" 2>/dev/null || true

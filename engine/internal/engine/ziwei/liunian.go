@@ -9,8 +9,6 @@ func yearStemBranch(year int) (Gan, Zhi) {
 	return g, z
 }
 
-
-
 // liuNianSiHua computes the annual four transformations.
 func liuNianSiHua(liuNian int) siHuaResult {
 	liuGan, _ := yearStemBranch(liuNian)
@@ -21,20 +19,20 @@ func liuNianSiHua(liuNian int) siHuaResult {
 // 10 颗流耀：流魁/流钺/流昌/流曲/流禄/流羊/流陀/流马/流鸾/流喜（iztro yearly 流耀）。
 func liuNianMinors(yearZhu ganzhi.Zhu, _ Zhi) map[starIndex]Zhi {
 	// zhiIdx(0-11) → Zhi(1-12)，输出地支名
-	toZhi := func(zhiIdx int) Zhi { return Zhi((zhiIdx%12 + 12) % 12 + 1) }
+	toZhi := func(zhiIdx int) Zhi { return Zhi((zhiIdx%12+12)%12 + 1) }
 	changZhiIdx, quZhiIdx := liuChangQuByGan(yearZhu.Gan)
 	hongLuanZhiIdx := hongLuanPos(yearZhu.Zhi)
 	return map[starIndex]Zhi{
 		TianKui:  toZhi(tianKuiPos(yearZhu.Gan)),   // 流魁
 		TianYue:  toZhi(tianYuePos(yearZhu.Gan)),   // 流钺
-		WenChang: toZhi(changZhiIdx),                     // 流昌
-		WenQu:    toZhi(quZhiIdx),                     // 流曲
+		WenChang: toZhi(changZhiIdx),               // 流昌
+		WenQu:    toZhi(quZhiIdx),                  // 流曲
 		LuCun:    toZhi(luCunPos(yearZhu.Gan)),     // 流禄
 		QingYang: toZhi(qingYangPos(yearZhu.Gan)),  // 流羊
 		TuoLuo:   toZhi(tuoLuoPos(yearZhu.Gan)),    // 流陀
 		TianMa:   toZhi(tianMaPos(yearZhu.Zhi)),    // 流马
-		HongLuan: toZhi(hongLuanZhiIdx),                     // 流鸾
-		TianXi:   toZhi((hongLuanZhiIdx + 6) % 12),          // 流喜
+		HongLuan: toZhi(hongLuanZhiIdx),            // 流鸾
+		TianXi:   toZhi((hongLuanZhiIdx + 6) % 12), // 流喜
 	}
 }
 
@@ -67,7 +65,9 @@ func ComputeLiuNian(chart Chart, liuNian int) LiuNian {
 	for sid, z := range minorStars {
 		anXingIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(z))
 		name, ok := flowShort[sid]
-		if !ok { name = starName(sid) }
+		if !ok {
+			name = starName(sid)
+		}
 		starByAnXingIdx[anXingIdx] = append(starByAnXingIdx[anXingIdx], name)
 	}
 	// 年解（流年附加星，iztro 年支定位）

@@ -17,4 +17,3 @@ func BenchmarkComputeChart(b *testing.B) {
 		ComputeChart(lt, ganzhi.Male)
 	}
 }
-

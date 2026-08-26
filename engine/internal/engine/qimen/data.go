@@ -22,9 +22,9 @@ var xingInteractionJSON []byte
 
 var (
 	ganInteractionTable map[[2]ganzhi.Gan]stemEntry
-	solarTermBureau      [24][4]int
-	menGongTable      map[[2]int]doorEntry
-	xingGongTable      map[[2]int]XingInteraction
+	solarTermBureau     [24][4]int
+	menGongTable        map[[2]int]doorEntry
+	xingGongTable       map[[2]int]XingInteraction
 )
 
 func init() {
@@ -97,7 +97,7 @@ func loadJushu() error {
 func loadMenInteractions() error {
 	var entries []struct {
 		Door    string `json:"door"`
-		Gong  string `json:"gong"`
+		Gong    string `json:"gong"`
 		Name    string `json:"name"`
 		Meaning string `json:"meaning"`
 	}
@@ -115,10 +115,10 @@ func loadMenInteractions() error {
 			return err
 		}
 		menGongTable[[2]int{int(d), int(p) - 1}] = doorEntry{
-			DoorName:   e.Door,
+			DoorName: e.Door,
 			GongName: e.Gong,
-			Name:       e.Name,
-			Meaning:    e.Meaning,
+			Name:     e.Name,
+			Meaning:  e.Meaning,
 		}
 	}
 	return nil
@@ -127,7 +127,7 @@ func loadMenInteractions() error {
 func loadXingInteractions() error {
 	var entries []struct {
 		Star       string `json:"xing"`
-		Gong     string `json:"gong"`
+		Gong       string `json:"gong"`
 		Name       string `json:"name"`
 		Meaning    string `json:"meaning"`
 		Auspicious bool   `json:"auspicious"`
@@ -147,7 +147,7 @@ func loadXingInteractions() error {
 		}
 		xingGongTable[[2]int{int(s), int(p) - 1}] = XingInteraction{
 			Star:       e.Star,
-			Gong:     e.Gong,
+			Gong:       e.Gong,
 			Name:       e.Name,
 			Meaning:    e.Meaning,
 			Auspicious: e.Auspicious,

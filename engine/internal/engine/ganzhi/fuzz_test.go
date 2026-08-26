@@ -14,15 +14,15 @@ func FuzzParseGender(f *testing.F) {
 
 	f.Fuzz(func(t *testing.T, s string) {
 		g, err := ParseGender(s)
-		switch {
-		case s == "male" || s == "男":
+		switch s {
+		case "male", "男":
 			if err != nil {
 				t.Errorf("ParseGender(%q) unexpected error: %v", s, err)
 			}
 			if g != Male {
 				t.Errorf("ParseGender(%q) = %v, want Male", s, g)
 			}
-		case s == "female" || s == "女":
+		case "female", "女":
 			if err != nil {
 				t.Errorf("ParseGender(%q) unexpected error: %v", s, err)
 			}

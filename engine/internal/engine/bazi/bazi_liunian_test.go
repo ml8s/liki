@@ -96,7 +96,7 @@ func TestDayunStepForYear(t *testing.T) {
 		{"过完_2080", dy, 1984, 2080, -1, ""},
 		{"过完_2100", dy, 1984, 2100, -1, ""},
 		{"dy为nil", nil, 1984, 2026, -1, ""},
-		{"年份早于出生年", dy, 1984, 1980, -1, ""},	}
+		{"年份早于出生年", dy, 1984, 1980, -1, ""}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := dayunStepForYear(tt.dy, tt.birthYear, tt.year)

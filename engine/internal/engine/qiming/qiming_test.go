@@ -55,15 +55,15 @@ func TestStrokeResult_KnownValues(t *testing.T) {
 		stroke  int
 		element string
 	}{
-		{1, "木"},   // 1=木
-		{5, "土"},   // 5=土
-		{8, "金"},   // 8=金
-		{13, "火"},  // 13=火
-		{21, "木"},  // 21=木
-		{24, "火"},  // 24=火
-		{31, "木"},  // 31=木
-		{37, "金"},  // 37=金
-		{45, "土"},  // 45=土
+		{1, "木"},  // 1=木
+		{5, "土"},  // 5=土
+		{8, "金"},  // 8=金
+		{13, "火"}, // 13=火
+		{21, "木"}, // 21=木
+		{24, "火"}, // 24=火
+		{31, "木"}, // 31=木
+		{37, "金"}, // 37=金
+		{45, "土"}, // 45=土
 	}
 
 	for _, tt := range tests {
@@ -80,7 +80,7 @@ func TestStrokeResult_KnownValues(t *testing.T) {
 
 func TestComputeSanCai_KnownConfigs(t *testing.T) {
 	tests := []struct {
-		config string   // e.g. "木木木"
+		config string // e.g. "木木木"
 	}{
 		{"木木木"}, {"木木火"}, {"木木土"}, {"木木金"}, {"木木水"},
 		{"木火木"}, {"木火火"}, {"木火土"}, {"木火金"}, {"木火水"},
@@ -177,8 +177,8 @@ func TestLookupKangxiStroke_KnownChars(t *testing.T) {
 		{"张", true},
 		{"明", true},
 		{"文", true},
-		{"xyz", false},    // non-existent
-		{"𠀀", false},     // very rare (probably not in DB)
+		{"xyz", false}, // non-existent
+		{"𠀀", false},   // very rare (probably not in DB)
 	}
 
 	for _, tt := range tests {
@@ -287,8 +287,6 @@ func TestInferElementFromRadical_UnknownRadical(t *testing.T) {
 // =============================================================================
 // ComposeNames
 // =============================================================================
-
-
 
 // =============================================================================
 // elementYAMLToChinese — 默认路径
@@ -431,22 +429,13 @@ func TestEvaluateNames_WithWuxing(t *testing.T) {
 // ComposeNames — 实际字符数据
 // =============================================================================
 
-
-
-
-
-
 // =============================================================================
 // ComposeNames — xiChars 含字符时 yong+xi 路径
 // =============================================================================
 
-
 // =============================================================================
 // ComposeNames — pairs 约束
 // =============================================================================
-
-
-
 
 // =============================================================================
 // BUG-9 regression: radical element corrections
@@ -532,7 +521,6 @@ func TestGetChars_NegativeCharFiltered(t *testing.T) {
 		}
 	}
 }
-
 
 // =============================================================================
 func TestComputeWuGeFromStrokes(t *testing.T) {
@@ -713,4 +701,3 @@ func TestWuxingFromChinese(t *testing.T) {
 		}
 	}
 }
-

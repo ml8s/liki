@@ -31,7 +31,7 @@ func brightnessFrom(s string) brightness {
 // minorBrightnessTable 文昌/文曲 × 12 地支亮度（iztro minor_star_brightness——golden 见 testdata/minor_brightness_golden.json）
 // 行序：文昌, 文曲；列序：子丑寅卯辰巳午未申酉戌亥
 var minorBrightnessTable = [2][12]brightness{
-	{De, Miao, Xian, Li, De, Miao, Xian, Li, De, Miao, Xian, Li},   // 文昌：得庙陷利得庙陷利得庙陷利
+	{De, Miao, Xian, Li, De, Miao, Xian, Li, De, Miao, Xian, Li},       // 文昌：得庙陷利得庙陷利得庙陷利
 	{De, Miao, Ping, Wang, De, Miao, Xian, Wang, De, Miao, Xian, Wang}, // 文曲：得庙平旺得庙陷旺得庙陷旺
 }
 

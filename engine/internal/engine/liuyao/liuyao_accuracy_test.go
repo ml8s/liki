@@ -13,38 +13,38 @@ import (
 // Rules: 同我者旺, 月建生爻→相, 爻生月建→休, 爻克月建→囚, 月建克爻→死
 func TestWangShuaiOf(t *testing.T) {
 	tests := []struct {
-		name     string
-		lineZhi  ganzhi.Zhi
-		yueZhi ganzhi.Zhi
-		want     ganzhi.WangShuai
+		name    string
+		lineZhi ganzhi.Zhi
+		yueZhi  ganzhi.Zhi
+		want    ganzhi.WangShuai
 	}{
 		// 月建寅(木)
-		{"寅月同木→旺", ganzhi.ZhiYin, ganzhi.ZhiYin, ganzhi.WSWang},     // 寅木=寅木 → 旺
-		{"寅月生火→相", ganzhi.ZhiSi, ganzhi.ZhiYin, ganzhi.WSXiang},     // 木生火,巳=火 → 相
-		{"寅月水生→休", ganzhi.ZhiZi, ganzhi.ZhiYin, ganzhi.WSXiu},       // 水生木,子=水 → 休
-		{"寅月金克→囚", ganzhi.ZhiShen, ganzhi.ZhiYin, ganzhi.WSQiu},     // 金克木,申=金 → 囚
-		{"寅月克土→死", ganzhi.ZhiChen, ganzhi.ZhiYin, ganzhi.WSSi},      // 木克土,辰=土 → 死
+		{"寅月同木→旺", ganzhi.ZhiYin, ganzhi.ZhiYin, ganzhi.WSWang}, // 寅木=寅木 → 旺
+		{"寅月生火→相", ganzhi.ZhiSi, ganzhi.ZhiYin, ganzhi.WSXiang}, // 木生火,巳=火 → 相
+		{"寅月水生→休", ganzhi.ZhiZi, ganzhi.ZhiYin, ganzhi.WSXiu},   // 水生木,子=水 → 休
+		{"寅月金克→囚", ganzhi.ZhiShen, ganzhi.ZhiYin, ganzhi.WSQiu}, // 金克木,申=金 → 囚
+		{"寅月克土→死", ganzhi.ZhiChen, ganzhi.ZhiYin, ganzhi.WSSi},  // 木克土,辰=土 → 死
 
 		// 月建午(火)
 		{"午月同火→旺", ganzhi.ZhiWu, ganzhi.ZhiWu, ganzhi.WSWang},
-		{"午月生土→相", ganzhi.ZhiChen, ganzhi.ZhiWu, ganzhi.WSXiang},     // 火生土
-		{"午月木生→休", ganzhi.ZhiMao, ganzhi.ZhiWu, ganzhi.WSXiu},       // 木生火
-		{"午月水克→囚", ganzhi.ZhiZi, ganzhi.ZhiWu, ganzhi.WSQiu},        // 水克火
-		{"午月克金→死", ganzhi.ZhiYou, ganzhi.ZhiWu, ganzhi.WSSi},         // 火克金
+		{"午月生土→相", ganzhi.ZhiChen, ganzhi.ZhiWu, ganzhi.WSXiang}, // 火生土
+		{"午月木生→休", ganzhi.ZhiMao, ganzhi.ZhiWu, ganzhi.WSXiu},    // 木生火
+		{"午月水克→囚", ganzhi.ZhiZi, ganzhi.ZhiWu, ganzhi.WSQiu},     // 水克火
+		{"午月克金→死", ganzhi.ZhiYou, ganzhi.ZhiWu, ganzhi.WSSi},     // 火克金
 
 		// 月建申(金)
 		{"申月同金→旺", ganzhi.ZhiShen, ganzhi.ZhiShen, ganzhi.WSWang},
-		{"申月生水→相", ganzhi.ZhiZi, ganzhi.ZhiShen, ganzhi.WSXiang},     // 金生水
-		{"申月土生→休", ganzhi.ZhiChen, ganzhi.ZhiShen, ganzhi.WSXiu},     // 土生金
-		{"申月火克→囚", ganzhi.ZhiWu, ganzhi.ZhiShen, ganzhi.WSQiu},       // 火克金
-		{"申月克木→死", ganzhi.ZhiYin, ganzhi.ZhiShen, ganzhi.WSSi},       // 金克木
+		{"申月生水→相", ganzhi.ZhiZi, ganzhi.ZhiShen, ganzhi.WSXiang}, // 金生水
+		{"申月土生→休", ganzhi.ZhiChen, ganzhi.ZhiShen, ganzhi.WSXiu}, // 土生金
+		{"申月火克→囚", ganzhi.ZhiWu, ganzhi.ZhiShen, ganzhi.WSQiu},   // 火克金
+		{"申月克木→死", ganzhi.ZhiYin, ganzhi.ZhiShen, ganzhi.WSSi},   // 金克木
 
 		// 月建亥(水)
 		{"亥月同水→旺", ganzhi.ZhiHai, ganzhi.ZhiHai, ganzhi.WSWang},
-		{"亥月生木→相", ganzhi.ZhiYin, ganzhi.ZhiHai, ganzhi.WSXiang},     // 水生木
-		{"亥月金生→休", ganzhi.ZhiShen, ganzhi.ZhiHai, ganzhi.WSXiu},      // 金生水
-		{"亥月土克→囚", ganzhi.ZhiChen, ganzhi.ZhiHai, ganzhi.WSQiu},      // 土克水
-		{"亥月克火→死", ganzhi.ZhiWu, ganzhi.ZhiHai, ganzhi.WSSi},         // 水克火
+		{"亥月生木→相", ganzhi.ZhiYin, ganzhi.ZhiHai, ganzhi.WSXiang}, // 水生木
+		{"亥月金生→休", ganzhi.ZhiShen, ganzhi.ZhiHai, ganzhi.WSXiu},  // 金生水
+		{"亥月土克→囚", ganzhi.ZhiChen, ganzhi.ZhiHai, ganzhi.WSQiu},  // 土克水
+		{"亥月克火→死", ganzhi.ZhiWu, ganzhi.ZhiHai, ganzhi.WSSi},     // 水克火
 	}
 
 	for _, tt := range tests {
@@ -65,8 +65,8 @@ func TestChongZhi(t *testing.T) {
 		z    ganzhi.Zhi
 		want ganzhi.Zhi
 	}{
-		{ganzhi.ZhiZi, ganzhi.ZhiWu},   // 子午冲
-		{ganzhi.ZhiWu, ganzhi.ZhiZi},   // 午子冲
+		{ganzhi.ZhiZi, ganzhi.ZhiWu},    // 子午冲
+		{ganzhi.ZhiWu, ganzhi.ZhiZi},    // 午子冲
 		{ganzhi.ZhiChou, ganzhi.ZhiWei}, // 丑未冲
 		{ganzhi.ZhiWei, ganzhi.ZhiChou}, // 未丑冲
 		{ganzhi.ZhiYin, ganzhi.ZhiShen}, // 寅申冲
@@ -94,8 +94,8 @@ func TestChongZhi(t *testing.T) {
 func TestInvertDongYao(t *testing.T) {
 	// 乾为天: all yang lines.
 	qianYao := [6]YaoType{ShaoYang, ShaoYang, ShaoYang, ShaoYang, ShaoYang, ShaoYang}
-	qianBin := yaosToBin(qianYao)            // 63
-	qianGua := binaryToGuaTable[qianBin]      // guaTable index for 乾为天 = 0
+	qianBin := yaosToBin(qianYao)        // 63
+	qianGua := binaryToGuaTable[qianBin] // guaTable index for 乾为天 = 0
 
 	tests := []struct {
 		name    string
@@ -103,9 +103,9 @@ func TestInvertDongYao(t *testing.T) {
 		dongYao []int
 		wantBin int // expected binary encoding of result
 	}{
-		{"动初爻", qianGua, []int{1}, qianBin ^ 1},       // 63→天风姤
-		{"动二爻", qianGua, []int{2}, qianBin ^ 2},       // 63→天山遁
-		{"动上爻", qianGua, []int{6}, qianBin ^ 32},      // 63→泽天夬
+		{"动初爻", qianGua, []int{1}, qianBin ^ 1},  // 63→天风姤
+		{"动二爻", qianGua, []int{2}, qianBin ^ 2},  // 63→天山遁
+		{"动上爻", qianGua, []int{6}, qianBin ^ 32}, // 63→泽天夬
 		{"动初上", qianGua, []int{1, 6}, qianBin ^ 1 ^ 32},
 		{"无动爻", qianGua, []int{}, 0},
 	}
@@ -530,8 +530,8 @@ func TestComputeYingQi_NotFound_WithFuShen(t *testing.T) {
 			{Position: 6, LiuQin: QinFumu, Zhi: ganzhi.ZhiXu},
 		},
 		YueZhi: ganzhi.ZhiYin,
-		RiGan:   ganzhi.GanJia,
-		RiZhi:   ganzhi.ZhiZi,
+		RiGan:  ganzhi.GanJia,
+		RiZhi:  ganzhi.ZhiZi,
 	}
 	yq := computeYingQi(p, YongQiCai)
 	if yq.YongShen != "妻财" {
@@ -692,7 +692,7 @@ func TestComputeChart_ChangingLines(t *testing.T) {
 func TestDayGanShouOrder(t *testing.T) {
 	tests := []struct {
 		riGan ganzhi.Gan
-		want0  LiuShou // expected first六兽
+		want0 LiuShou // expected first六兽
 	}{
 		{ganzhi.GanJia, ShouQingLong},
 		{ganzhi.GanYi, ShouQingLong},

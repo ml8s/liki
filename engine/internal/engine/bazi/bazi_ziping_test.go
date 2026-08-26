@@ -22,43 +22,43 @@ type geJuExpect struct {
 func TestZiPing_GeJu_AllEightPatterns(t *testing.T) {
 	tests := []geJuExpect{
 		{name: "正官格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiYou}},
 			Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen}},
 		}, wantPattern: "正官格", wantUsage: "顺用", wantYong: "土", wantXi: "水", wantJi: "火",
 			note: "财生官(土), 印制伤(水), 忌伤官(火)"},
 		{name: "正财格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiWei}},
 		}, wantPattern: "正财格", wantUsage: "顺用", wantYong: "火", wantXi: "金", wantJi: "木",
 			note: "食伤生财(火), 忌比劫(木)"},
 		{name: "偏财格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen}},
 		}, wantPattern: "偏财格", wantUsage: "顺用", wantYong: "火", wantXi: "金", wantJi: "木",
 			note: "同正财: 食伤生财(火), 忌比劫(木)"},
 		{name: "正印格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui, Zhi: ganzhi.ZhiZi}},
 		}, wantPattern: "正印格", wantUsage: "顺用", wantYong: "金", wantXi: "木", wantJi: "土",
 			note: "官杀生印(金), 忌财破印(土)"},
 		{name: "偏印格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen, Zhi: ganzhi.ZhiHai}},
 		}, wantPattern: "偏印格", wantUsage: "顺用", wantYong: "金", wantXi: "木", wantJi: "土",
 			note: "同正印: 官杀生印(金), 忌财破印(土)"},
 		{name: "食神格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiSi}},
 		}, wantPattern: "食神格", wantUsage: "顺用", wantYong: "木", wantXi: "土", wantJi: "水",
 			note: "财泄食(土), 忌印夺食(水)"},
 		{name: "七杀格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiShen}},
 		}, wantPattern: "七杀格", wantUsage: "逆用", wantYong: "火", wantXi: "木", wantJi: "土",
 			note: "食神制杀(火), 忌财生杀(土)"},
 		{name: "伤官格", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanDing, Zhi: ganzhi.ZhiWu}},
 		}, wantPattern: "伤官格", wantUsage: "逆用", wantYong: "水", wantXi: "金", wantJi: "木",
 			note: "印制伤(水), 忌比劫生伤(木)"},
@@ -94,17 +94,17 @@ func TestZiPing_GeJu_AllEightPatterns(t *testing.T) {
 func TestZiPing_JianLuYueRen(t *testing.T) {
 	tests := []geJuExpect{
 		{name: "建禄格_甲寅", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin}}, Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin}}, Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen}},
 		}, wantPattern: "建禄格", wantUsage: "逆用", wantYong: "金", wantXi: "土", wantJi: "水",
 			note: "子平真诠·建禄: 用官杀克身(金)"},
 		{name: "月刃格_甲卯", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiMao}}, Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanXin}}, Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen}},
 		}, wantPattern: "月刃格", wantUsage: "逆用", wantYong: "金", wantXi: "土", wantJi: "水",
 			note: "子平真诠·月刃: 用官杀克身(金)"},
 		{name: "杂格_甲辰_劫财透", chart: Chart{
-			Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+			Ri:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
 			Yue: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChen}},
 			// 辰支: 乙(劫财)透月干 → 劫财不入八格 → 杂格逆用
 			Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanGui}}, Shi: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanRen}},

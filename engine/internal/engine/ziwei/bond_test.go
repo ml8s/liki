@@ -9,8 +9,8 @@ import (
 )
 
 type bondCase struct {
-	a, b string // lunar dates
-	at, bt int  // birth time indices
+	a, b   string // lunar dates
+	at, bt int    // birth time indices
 	ag, bg string // genders
 	desc   string
 }
@@ -64,7 +64,9 @@ func TestBond(t *testing.T) {
 	var pass, fail int
 	for i, tc := range cases {
 		n := tc.desc
-		if len(n) > 14 { n = n[:14] }
+		if len(n) > 14 {
+			n = n[:14]
+		}
 		t.Run(fmt.Sprintf("%02d_%s", i+1, n), func(t *testing.T) {
 			ca := chartFrom(t, tc.a, tc.at, tc.ag)
 			cb := chartFrom(t, tc.b, tc.bt, tc.bg)
@@ -104,17 +106,32 @@ func chartFrom(t *testing.T, lunar string, ti int, gender string) Chart {
 	var y, m, d int
 	_, _ = fmt.Sscanf(lunar, "%d-%d-%d", &y, &m, &d)
 	sz := ti + 1
-	if ti == 12 { sz = 1; d++ }
+	if ti == 12 {
+		sz = 1
+		d++
+	}
 	g := ganzhi.Female
-	if gender == "男" { g = ganzhi.Male }
+	if gender == "男" {
+		g = ganzhi.Male
+	}
 	return ComputeChart(tianwen.LunarTime{Year: y, Month: m, Day: d, Shichen: ganzhi.Zhi(sz)}, g)
 }
 
 func strSliceEq(a, b []string) bool {
-	if len(a) != len(b) { return false }
+	if len(a) != len(b) {
+		return false
+	}
 	m := make(map[string]int)
-	for _, s := range a { m[s]++ }
-	for _, s := range b { m[s]-- }
-	for _, v := range m { if v != 0 { return false } }
+	for _, s := range a {
+		m[s]++
+	}
+	for _, s := range b {
+		m[s]--
+	}
+	for _, v := range m {
+		if v != 0 {
+			return false
+		}
+	}
 	return true
 }

@@ -11,8 +11,8 @@ import (
 
 func TestQimen_YinYangDun_Seasonal(t *testing.T) {
 	tests := []struct {
-		name  string
-		date  string
+		name    string
+		date    string
 		wantYin bool
 	}{
 		{name: "冬至后(阳遁)", date: "2024-12-22", wantYin: false},
@@ -23,7 +23,9 @@ func TestQimen_YinYangDun_Seasonal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bt, err := time.Parse("2006-01-02", tt.date)
-			if err != nil { t.Fatal(err) }
+			if err != nil {
+				t.Fatal(err)
+			}
 			st := tianwen.GregorianToSolar(bt, 116.4, 8)
 			chart := ComputeChart(st, "时家")
 			if chart.Pan.YinDun != tt.wantYin {
@@ -39,7 +41,9 @@ func TestQimen_JieQiDingJu_YangDun(t *testing.T) {
 	for _, d := range dates {
 		t.Run(d, func(t *testing.T) {
 			bt, err := time.Parse("2006-01-02", d)
-			if err != nil { t.Fatal(err) }
+			if err != nil {
+				t.Fatal(err)
+			}
 			st := tianwen.GregorianToSolar(bt, 116.4, 8)
 			chart := ComputeChart(st, "时家")
 			if chart.Pan.YinDun {
@@ -57,7 +61,9 @@ func TestQimen_ZhiFuZhiShi_NonEmpty(t *testing.T) {
 	for _, d := range dates {
 		t.Run(d, func(t *testing.T) {
 			bt, err := time.Parse("2006-01-02", d)
-			if err != nil { t.Fatal(err) }
+			if err != nil {
+				t.Fatal(err)
+			}
 			st := tianwen.GregorianToSolar(bt, 116.4, 8)
 			chart := ComputeChart(st, "时家")
 			if chart.Pan.DutyStar < 1 || chart.Pan.DutyStar > 9 {

@@ -75,7 +75,7 @@ func TestTiaoHou_All120_AgainstReference(t *testing.T) {
 
 	if mismatches > 0 {
 		if mismatches > 0 {
-		t.Errorf("共 %d/120 条与穷通原文不一致", mismatches)
-	}
+			t.Errorf("共 %d/120 条与穷通原文不一致", mismatches)
+		}
 	}
 }

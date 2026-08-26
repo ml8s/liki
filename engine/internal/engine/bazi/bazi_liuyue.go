@@ -12,11 +12,11 @@ import (
 type LiuYue struct {
 	Year      int            `json:"year"`
 	Month     int            `json:"month"`
-	YueGan  ganzhi.Gan            `json:"yue_gan"`
-	YueZhi  ganzhi.Zhi            `json:"yue_zhi"`
+	YueGan    ganzhi.Gan     `json:"yue_gan"`
+	YueZhi    ganzhi.Zhi     `json:"yue_zhi"`
 	MonthName string         `json:"month_name"`
 	Element   string         `json:"wuxing"`
-	ShiShen    string         `json:"shi_shen"`
+	ShiShen   string         `json:"shi_shen"`
 	Generates int            `json:"sheng"`
 	Restrains int            `json:"ke"`
 	GanRels   []GanRelation  `json:"gan_rels"`
@@ -54,11 +54,11 @@ func computeLiuYue(bz ganzhi.Bazi, year, month int) (*LiuYue, error) {
 	return &LiuYue{
 		Year:      year,
 		Month:     month,
-		YueGan:  mp.Gan,
-		YueZhi:  mp.Zhi,
+		YueGan:    mp.Gan,
+		YueZhi:    mp.Zhi,
 		MonthName: ganzhi.ZhiName(mp.Zhi) + "月",
 		Element:   monthElemStr,
-		ShiShen:    tgName.String(),
+		ShiShen:   tgName.String(),
 		Generates: gen,
 		Restrains: rest,
 		GanRels:   stemRels,

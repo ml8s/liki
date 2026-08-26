@@ -29,15 +29,24 @@ var guaTable = [10]gua{
 
 func ganNaJia(stem ganzhi.Gan) gua {
 	switch stem {
-	case 1, 9: return guaTable[6]  // 甲壬→乾
-	case 2, 10: return guaTable[2] // 乙癸→坤
-	case 3: return guaTable[8]     // 丙→艮
-	case 4: return guaTable[7]     // 丁→兑
-	case 5: return guaTable[1]     // 戊→坎
-	case 6: return guaTable[9]     // 己→离
-	case 7: return guaTable[3]     // 庚→震
-	case 8: return guaTable[4]     // 辛→巽
-	default: return guaTable[0]
+	case 1, 9:
+		return guaTable[6] // 甲壬→乾
+	case 2, 10:
+		return guaTable[2] // 乙癸→坤
+	case 3:
+		return guaTable[8] // 丙→艮
+	case 4:
+		return guaTable[7] // 丁→兑
+	case 5:
+		return guaTable[1] // 戊→坎
+	case 6:
+		return guaTable[9] // 己→离
+	case 7:
+		return guaTable[3] // 庚→震
+	case 8:
+		return guaTable[4] // 辛→巽
+	default:
+		return guaTable[0]
 	}
 }
 
@@ -45,8 +54,8 @@ func zhuNaJia(p ganzhi.Zhu) gua { return ganNaJia(p.Gan) }
 
 // MingGua is the 命卦 result.
 type MingGua struct {
-	Gua       gua    `json:"gua"`
-	Group     string `json:"group"`
+	Gua   gua    `json:"gua"`
+	Group string `json:"group"`
 }
 
 // ComputeMingGua computes the 命卦 from gender and birth year.
@@ -76,7 +85,11 @@ func ComputeMingGua(gender ganzhi.Gender, birthYear int) MingGua {
 		n = 9
 	}
 	if n == 5 {
-		if gender == ganzhi.Male { n = 2 } else { n = 8 }
+		if gender == ganzhi.Male {
+			n = 2
+		} else {
+			n = 8
+		}
 	}
 	g := guaTable[n]
 	group := "东四命"
@@ -88,10 +101,10 @@ func ComputeMingGua(gender ganzhi.Gender, birthYear int) MingGua {
 
 // Chart is the complete八宅合参 result.
 type Chart struct {
-	MingGua     MingGua          `json:"ming_gua"`
-	BaZhaiDirs  baZhaiDirections `json:"ba_zhai_dirs"`
-	YearStars   yearStarResult   `json:"liu_nian_xing"`
-	ZhuBagua [4]gua           `json:"pillar_bagua"`
+	MingGua    MingGua          `json:"ming_gua"`
+	BaZhaiDirs baZhaiDirections `json:"ba_zhai_dirs"`
+	YearStars  yearStarResult   `json:"liu_nian_xing"`
+	ZhuBagua   [4]gua           `json:"pillar_bagua"`
 }
 
 // computeChart computes a complete八宅合参 from bazi, gender and birth year.

@@ -10,15 +10,15 @@ type ShiShen int
 
 const (
 	ShiShenBiJian    ShiShen = iota // 比肩
-	ShiShenJieCai                  // 劫财
-	ShiShenShiShen                 // 食神
-	ShiShenShangGuan               // 伤官
-	ShiShenPianCai                 // 偏财
-	ShiShenZhengCai                // 正财
-	ShiShenQiSha                   // 七杀
-	ShiShenZhengGuan               // 正官
-	ShiShenPianYin                 // 偏印
-	ShiShenZhengYin                // 正印
+	ShiShenJieCai                   // 劫财
+	ShiShenShiShen                  // 食神
+	ShiShenShangGuan                // 伤官
+	ShiShenPianCai                  // 偏财
+	ShiShenZhengCai                 // 正财
+	ShiShenQiSha                    // 七杀
+	ShiShenZhengGuan                // 正官
+	ShiShenPianYin                  // 偏印
+	ShiShenZhengYin                 // 正印
 )
 
 var shiShenNamesZH = [10]string{

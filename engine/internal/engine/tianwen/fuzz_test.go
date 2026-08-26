@@ -12,11 +12,11 @@ const (
 )
 
 func FuzzSolarToLunar(f *testing.F) {
-	f.Add(int64(0))           // Unix epoch
-	f.Add(minEpoch)           // 1900
-	f.Add(int64(946684800))   // 2000-01-01
-	f.Add(int64(1704067200))  // 2024-01-01
-	f.Add(maxEpoch)           // 2100-12-31
+	f.Add(int64(0))            // Unix epoch
+	f.Add(minEpoch)            // 1900
+	f.Add(int64(946684800))    // 2000-01-01
+	f.Add(int64(1704067200))   // 2024-01-01
+	f.Add(maxEpoch)            // 2100-12-31
 	f.Add(int64(-62135596800)) // year 0
 
 	f.Fuzz(func(t *testing.T, epochSec int64) {

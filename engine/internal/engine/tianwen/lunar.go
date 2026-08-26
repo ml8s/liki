@@ -9,10 +9,10 @@ import (
 
 // LunarTime is a Chinese lunar calendar date with shichen.
 type LunarTime struct {
-	Year    int         `json:"year"`
-	Month   int         `json:"month"`
-	Day     int         `json:"day"`
-	Leap    bool        `json:"leap"`
+	Year    int        `json:"year"`
+	Month   int        `json:"month"`
+	Day     int        `json:"day"`
+	Leap    bool       `json:"leap"`
 	Shichen ganzhi.Zhi `json:"shichen"`
 }
 

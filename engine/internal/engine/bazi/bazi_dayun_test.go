@@ -8,14 +8,14 @@ func TestComputeCurrentStepIndex(t *testing.T) {
 		StartDate: "2026-03-15",
 		Direction: "顺排",
 		Steps: []DaYunStep{
-			{StartYear: 2026, EndYear: 2035},  // index 0
-			{StartYear: 2036, EndYear: 2045},  // index 1
-			{StartYear: 2046, EndYear: 2055},  // index 2
-			{StartYear: 2056, EndYear: 2065},  // index 3
-			{StartYear: 2066, EndYear: 2075},  // index 4
-			{StartYear: 2076, EndYear: 2085},  // index 5
-			{StartYear: 2086, EndYear: 2095},  // index 6
-			{StartYear: 2096, EndYear: 2105},  // index 7
+			{StartYear: 2026, EndYear: 2035}, // index 0
+			{StartYear: 2036, EndYear: 2045}, // index 1
+			{StartYear: 2046, EndYear: 2055}, // index 2
+			{StartYear: 2056, EndYear: 2065}, // index 3
+			{StartYear: 2066, EndYear: 2075}, // index 4
+			{StartYear: 2076, EndYear: 2085}, // index 5
+			{StartYear: 2086, EndYear: 2095}, // index 6
+			{StartYear: 2096, EndYear: 2105}, // index 7
 		},
 	}
 	tests := []struct {

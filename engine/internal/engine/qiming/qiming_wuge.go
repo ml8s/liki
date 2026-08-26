@@ -1,10 +1,10 @@
 package qiming
 
 const (
-	fortuneAuspicious    = "大吉"
-	fortuneGood          = "吉"
-	fortuneNeutral       = "半吉"
-	fortuneInauspicious  = "凶"
+	fortuneAuspicious   = "大吉"
+	fortuneGood         = "吉"
+	fortuneNeutral      = "半吉"
+	fortuneInauspicious = "凶"
 )
 
 // ge is one of the five-grid (五格) numbers.

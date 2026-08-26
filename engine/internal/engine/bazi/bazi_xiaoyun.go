@@ -4,11 +4,11 @@ import "liki-engine/internal/engine/ganzhi"
 
 // XiaoYunZhu is a single year of minor fortune (小运).
 type XiaoYunZhu struct {
-	Age    int    `json:"age"`
-	Gan ganzhi.Gan    `json:"gan"`
-	Zhi ganzhi.Zhi    `json:"zhi"`
-	Name   string `json:"name"`
-	ShiShen string `json:"shi_shen"`
+	Age     int        `json:"age"`
+	Gan     ganzhi.Gan `json:"gan"`
+	Zhi     ganzhi.Zhi `json:"zhi"`
+	Name    string     `json:"name"`
+	ShiShen string     `json:"shi_shen"`
 }
 
 // ComputeXiaoYun computes the minor fortune (小运) zhus for each age starting from 1.
@@ -42,10 +42,10 @@ func computeXiaoYun(bz ganzhi.Bazi, gender ganzhi.Gender, maxAge int) []XiaoYunZ
 		tg := ganzhi.ShiShenFromGan(riYuan, zhu.Gan)
 
 		zhus = append(zhus, XiaoYunZhu{
-			Age:    age,
-			Gan:    zhu.Gan,
-			Zhi:    zhu.Zhi,
-			Name:   name,
+			Age:     age,
+			Gan:     zhu.Gan,
+			Zhi:     zhu.Zhi,
+			Name:    name,
 			ShiShen: tg.String(),
 		})
 	}

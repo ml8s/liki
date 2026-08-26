@@ -1,4 +1,10 @@
-# golangci-lint 配置：errcheck 显式忽略（`_ =`/`_, _ =`）视为有意忽略，不算问题
-linters-settings:
-  errcheck:
-    check-blank: false
+# golangci-lint v2 配置（v1 格式自 v2 起不再被读取，必须带 version: "2"）
+# errcheck 显式忽略（`_ =`/`_, _ =`）视为有意忽略，不算问题
+version: "2"
+formatters:
+  enable:
+    - gofmt
+linters:
+  settings:
+    errcheck:
+      check-blank: false

@@ -2,7 +2,6 @@ package huangli
 
 import (
 	"testing"
-
 )
 
 // ── 时辰吉凶命理知识测试 ──
@@ -12,9 +11,9 @@ func TestShiChen_KnownDates_HuangDaoSequence(t *testing.T) {
 	// 命理: 日支不同则青龙起始时辰不同→黄道黑道分布不同
 	// 验证: 不同日支返回12个不同时辰
 	tests := []struct {
-		name     string
-		date     string
-		wantLen  int
+		name    string
+		date    string
+		wantLen int
 	}{
 		{name: "2026-07-20(日支卯)", date: "2026-07-20", wantLen: 12},
 		{name: "2026-07-21(日支辰)", date: "2026-07-21", wantLen: 12},
@@ -31,7 +30,7 @@ func TestShiChen_KnownDates_HuangDaoSequence(t *testing.T) {
 				t.Errorf("shi_chen=%d, want %d", len(day.ShiChen), tt.wantLen)
 			}
 			// 验证12时辰地支正确
-			expectedZhi := []string{"子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"}
+			expectedZhi := []string{"子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}
 			for i, sc := range day.ShiChen {
 				if sc.Zhi != expectedZhi[i] {
 					t.Errorf("shi_chen[%d].zhi=%q, want %q", i, sc.Zhi, expectedZhi[i])
@@ -40,7 +39,9 @@ func TestShiChen_KnownDates_HuangDaoSequence(t *testing.T) {
 			// 验证黄道黑道至少各有几个
 			huangCount := 0
 			for _, sc := range day.ShiChen {
-				if sc.Suitable { huangCount++ }
+				if sc.Suitable {
+					huangCount++
+				}
 			}
 			if huangCount < 3 || huangCount > 9 {
 				t.Errorf("黄道时辰=%d(应约6个左右)", huangCount)
@@ -52,11 +53,19 @@ func TestShiChen_KnownDates_HuangDaoSequence(t *testing.T) {
 func TestShiChen_DifferentDays_DifferentPattern(t *testing.T) {
 	// 命理: 不同日期(不同日支)的时辰吉凶分布不同
 	day1, err := QueryDate("2026-07-20")
-	if err != nil { t.Fatal(err) }
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
 	day2, err := QueryDate("2026-07-21")
-	if err != nil { t.Fatal(err) }
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(day1.ShiChen) != 12 || len(day2.ShiChen) != 12 {
 		t.Fatal("shi_chen length != 12")
@@ -67,7 +76,9 @@ func TestShiChen_DifferentDays_DifferentPattern(t *testing.T) {
 	// 辰日→青龙在辰(第5个=index4)
 	getQingLong := func(sc []ShiChenFortune) string {
 		for _, s := range sc {
-			if s.HuangDaoStr == "青龙" { return s.Zhi }
+			if s.HuangDaoStr == "青龙" {
+				return s.Zhi
+			}
 		}
 		return ""
 	}
@@ -85,7 +96,9 @@ func TestShiChen_DifferentDays_DifferentPattern(t *testing.T) {
 func TestShiChen_JianChuAlignsWithDay(t *testing.T) {
 	// 命理: 子时的建除应与本日建除相同(起建)
 	day, err := QueryDate("2026-07-20")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(day.ShiChen) == 0 {
 		t.Fatal("shi_chen empty")
@@ -111,7 +124,9 @@ func TestShiChen_GoodHoursForTravel(t *testing.T) {
 	// 命理: 出行宜开日(建除=开)或青龙黄道时辰
 	// 2026-07-20日支卯, 建除=开(宜出行)
 	day, err := QueryDate("2026-07-20")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// 列出宜出行的时辰
 	goodHours := 0
@@ -131,7 +146,9 @@ func TestShiChen_GoodHoursForTravel(t *testing.T) {
 func TestShiChen_TimeRanges_Correct(t *testing.T) {
 	// 命理: 时辰时间范围应正确
 	day, err := QueryDate("2026-07-20")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	expected := []string{
 		"23:00-01:00", "01:00-03:00", "03:00-05:00", "05:00-07:00",
 		"07:00-09:00", "09:00-11:00", "11:00-13:00", "13:00-15:00",
@@ -148,9 +165,13 @@ func TestShiChen_DifferentMonths_DifferentPattern(t *testing.T) {
 	// 不同月份的青龙起始不同→时辰吉凶分布不同
 	// 2026-02-01(寅月, 青龙起子) vs 2026-06-01(巳月, 青龙起午)
 	day1, err := QueryDate("2026-02-01")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	day2, err := QueryDate("2026-06-01")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	same := 0
 	for i := 0; i < 12 && i < len(day1.ShiChen) && i < len(day2.ShiChen); i++ {
@@ -164,4 +185,3 @@ func TestShiChen_DifferentMonths_DifferentPattern(t *testing.T) {
 	}
 	t.Logf("两月时辰吉凶相同数=%d/12", same)
 }
-

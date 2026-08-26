@@ -14,7 +14,7 @@ type flowTarget struct {
 	LunarMonth  int  // 目标农历月
 	LunarDay    int  // 目标农历日（流日/流时用）
 	IsLeapMonth bool // 目标是否闰月
-	ShiZhi     Zhi  // 目标时支（流时用）
+	ShiZhi      Zhi  // 目标时支（流时用）
 }
 
 // computeMonthlyIndex returns iztro's monthly index (display 寅=0).

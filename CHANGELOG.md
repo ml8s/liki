@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.0.1 —— 工程清理：死列清除 + CI 自含 + golangci v2（运行时等价，无断语变更）
+
+- **[数据] 断语表死列清除**：28 张表删除 227 个表头死列（yearly 表生成器时代的统一超集表头遗物；355 条断语逐条等价校验通过——id/约束/结论/依据/经典原文与清除前完全一致）；check_schema 死列检查 warning → error（基线归零后新增即拦）
+- **[数据] csv 行尾归一 LF**：存量 21 个 CRLF csv 全部转 LF；新增 `.gitattributes`（`* text=auto` + `*.csv|*.sh eol=lf`）防 Excel/Windows 编辑器回潮
+- **[工程] CI 数据检查自含引擎**：skills-data-check 改为 build + 起本地引擎（不再静默打生产 liki.hk）；三个起引擎 job readiness 超时即失败 + 显式清理
+- **[工程] 本地引擎严格失败语义**：构建/启动失败即中止（不再静默跳过造成 test-all 假绿、不回落生产）；`LIKI_RPC_MODE` 显式 local/docker 替代 pgrep 猜测（无 docker 机器本地直连）；集成测试显式端点不可达 = FAIL
+- **[工程] golangci-lint v2 迁移**：官方 Action v8.0.0 + v2.13.1（v1.64.8 对 Go 1.25+ 已停止维护，`go install` 方式官方不推荐）；`.golangci.yml` 升 v2 格式并启用 gofmt linter；v2 新检出的 6 处修复（staticcheck QF 标签化 switch ×5、errcheck 显式忽略 ×1）+ 全仓 gofmt 归一（133 文件，单行 struct 展开/末尾空行存量漂移）
+- **[工程] 编排收敛**：engine/Makefile 删除与根 Makefile/ci-engine.sh 重复的 check/test-all/pre-push；pre-check.sh 删除（102 行，功能已被 ci-engine.sh + 引擎测试覆盖）
+- **[工程] 参差 CSV 防御**：check_schema 对表头/数据行列数不一致报文件+行号（原为 AttributeError 裸崩）
+- **[测试] 答案双源守卫**：test_grade_sync.py 校验 grade-case.py 内嵌答案与 answers.json 一致（防 skill-up 自包含约束下的双源漂移）；eval.yaml 注明答案隔离的挂载范围不变量
+- **[工程] make hooks**：贡献者一键安装 git hooks（core.hooksPath 不随 clone 带上）；pre-push 简化；评测迭代期脚本/日志归档至 evals/archive/
+- **[文档] 订正**：tests/README 判分脚本引用（grade-case.py）、CONTRIBUTING（版本流程/golangci 安装/hooks）、32 个 case 答案路径注释、webapp/README（部署路径说明）
+
 ## 5.0.0 —— 工程升级：liki-engine 并入单仓（monorepo）+ 统一版本（big release）
 
 - **[工程] liki-engine 并入本仓库 `engine/`**：原独立仓库 `ml8s/liki-engine` 全量迁入（Go + JSON-RPC，8 领域），历史经 git subtree merge 完整保留。skill 与引擎同仓发布、同 CI

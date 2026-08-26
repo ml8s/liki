@@ -26,14 +26,14 @@ func init() {
 
 func loadHexagrams() error {
 	var data struct {
-		Palaces    []string `json:"palaces"`
-		Hexagrams  []struct {
-			Name    string `json:"name"`
-			Palace  string `json:"palace"`
-			ShiPos  int    `json:"shi_pos"`
+		Palaces   []string `json:"palaces"`
+		Hexagrams []struct {
+			Name   string `json:"name"`
+			Palace string `json:"palace"`
+			ShiPos int    `json:"shi_pos"`
 		} `json:"hexagrams"`
 		NaGan map[string]interface{} `json:"na_gan"`
-		NaZhi map[string][]string   `json:"na_zhi"`
+		NaZhi map[string][]string    `json:"na_zhi"`
 	}
 	if err := json.Unmarshal(hexagramsJSON, &data); err != nil {
 		return err

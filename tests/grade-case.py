@@ -18,7 +18,8 @@ import re
 import sys
 
 # ===== MingLi-Bench 评测数据（内嵌自包含——script judge 在复制后的 workspace 执行，不能依赖外部文件）=====
-# 由 tests/answers.json + tests/groups.json + tests/evals/cases/*.yaml 生成；数据更新后重新生成
+# 答案与 tests/answers.json 为同一份事实的两个形态（内嵌是 skill-up 复制约束所迫）——
+# 改答案时两处同步改，tests/test_grade_sync.py 会校验一致性
 CASE_BIRTH = {
     'pan01': '男命：1974年4月28日下午4:40分 出生地点：usa',
     'pan02': '女命：阳历1981年5月26日凌晨02:17 出生地点：中国香港',

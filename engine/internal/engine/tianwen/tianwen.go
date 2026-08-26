@@ -7,11 +7,13 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-var JieQiLongitudes = [24]float64{315,330,345,0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300}
+var JieQiLongitudes = [24]float64{315, 330, 345, 0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300}
 
 var solarTermLongitudes = func() [12]float64 {
 	var a [12]float64
-	for i := 0; i < 12; i++ { a[i] = JieQiLongitudes[i*2] }
+	for i := 0; i < 12; i++ {
+		a[i] = JieQiLongitudes[i*2]
+	}
 	return a
 }()
 
@@ -40,7 +42,7 @@ func julianDayHMS(year, month, day, hour, min, sec int) float64 {
 		month += 12
 	}
 	A := year / 100
-	jd := float64(int(365.25*float64(year+4716)) + int(30.6001*float64(month+1)) + day + (2-A+A/4) - 1524)
+	jd := float64(int(365.25*float64(year+4716)) + int(30.6001*float64(month+1)) + day + (2 - A + A/4) - 1524)
 	// 加时刻（UTC 当天的时分秒转小数天，减 0.5 对齐儒略日中午起算）
 	jd += (float64(hour)-12)/24.0 + float64(min)/1440.0 + float64(sec)/86400.0
 	return jd
@@ -74,10 +76,20 @@ func SolarTermTime(year int, targetLon float64) time.Time {
 	for iter := 0; iter < 30; iter++ {
 		lon := solarLongitude(t)
 		diff := targetLon - lon
-		if diff > 180 { diff -= 360 } else if diff < -180 { diff += 360 }
-		if math.Abs(diff) < 0.01 { break }
+		if diff > 180 {
+			diff -= 360
+		} else if diff < -180 {
+			diff += 360
+		}
+		if math.Abs(diff) < 0.01 {
+			break
+		}
 		step := diff / 0.9856
-		if step > 15 { step = 15 } else if step < -15 { step = -15 }
+		if step > 15 {
+			step = 15
+		} else if step < -15 {
+			step = -15
+		}
 		t = t.Add(time.Duration(step*24*3600) * time.Second)
 	}
 	// ΔT 修正：solarLongitude 算的是力学时，转世界时（对齐 lunar qiHigh）

@@ -1,10 +1,12 @@
 package bazi
+
 import (
-	"testing"
-	"time"
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
+	"testing"
+	"time"
 )
+
 // mkGeJuChart builds a Chart with shi shen entries from both month stem
 // and month branch hidden stems (支藏干). Hidden stems are auto-populated
 // from the month branch using the CangGan lookup.
@@ -12,7 +14,7 @@ func mkGeJuChart(riGan, yueGan, nianGan, shiGan ganzhi.Gan, yueZhi ganzhi.Zhi) C
 	return Chart{
 		Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: riGan, Zhi: ganzhi.ZhiWu}},
 		Yue: zhuInfo{
-			Zhu:      ganzhi.Zhu{Gan: yueGan, Zhi: yueZhi},
+			Zhu: ganzhi.Zhu{Gan: yueGan, Zhi: yueZhi},
 		},
 		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: nianGan, Zhi: ganzhi.ZhiSi}},
 		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: shiGan, Zhi: ganzhi.ZhiShen}},
@@ -35,7 +37,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 	}{
 		// ── 顺用六格 ──
 		{
-			name: "正官格 酉月辛透月干",
+			name:  "正官格 酉月辛透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanXin, yueZhi: ganzhi.ZhiYou,
 			wantPattern: "正官格", wantUsage: "顺用",
 			// pattern(金): yong=生金=土, ji=克金=火, xi=制火=水
@@ -43,7 +45,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 			note: "xi=水(印制伤), 不等于ji=火",
 		},
 		{
-			name: "正财格 未月己透月干",
+			name:  "正财格 未月己透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanJi, yueZhi: ganzhi.ZhiWei,
 			wantPattern: "正财格", wantUsage: "顺用",
 			// pattern(土): yong=生土=火, ji=克土=木, xi=制木=金
@@ -51,7 +53,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 			note: "xi=金(官杀制比劫护财)",
 		},
 		{
-			name: "偏财格 辰月戊透月干",
+			name:  "偏财格 辰月戊透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanWu, yueZhi: ganzhi.ZhiChen,
 			wantPattern: "偏财格", wantUsage: "顺用",
 			// pattern(土): yong=火, ji=木, xi=金
@@ -59,7 +61,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 			note: "同正财格公式",
 		},
 		{
-			name: "正印格 子月癸透月干",
+			name:  "正印格 子月癸透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanGui, yueZhi: ganzhi.ZhiZi,
 			wantPattern: "正印格", wantUsage: "顺用",
 			// pattern(水): yong=生水=金, ji=克水=土, xi=制土=木
@@ -67,7 +69,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 			note: "xi=木(比劫抗财护印)",
 		},
 		{
-			name: "偏印格 亥月壬透月干",
+			name:  "偏印格 亥月壬透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanRen, yueZhi: ganzhi.ZhiHai,
 			wantPattern: "偏印格", wantUsage: "顺用",
 			// pattern(水): yong=金, ji=土, xi=木
@@ -75,7 +77,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 			note: "同正印格公式",
 		},
 		{
-			name: "食神格 巳月丙透月干",
+			name:  "食神格 巳月丙透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanBing, yueZhi: ganzhi.ZhiSi,
 			wantPattern: "食神格", wantUsage: "顺用",
 			// pattern(火): yong=生火=木, ji=克火=水, xi=制水=土
@@ -84,7 +86,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 		},
 		// ── 逆用二格 ──
 		{
-			name: "七杀格 申月庚透月干",
+			name:  "七杀格 申月庚透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanGeng, yueZhi: ganzhi.ZhiShen,
 			wantPattern: "七杀格", wantUsage: "逆用",
 			// pattern(金): yong=克金=火, xi=生火=木, ji=生金=土
@@ -92,7 +94,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 			note: "逆用不变",
 		},
 		{
-			name: "伤官格 午月丁透月干",
+			name:  "伤官格 午月丁透月干",
 			riGan: ganzhi.GanJia, yueGan: ganzhi.GanDing, yueZhi: ganzhi.ZhiWu,
 			wantPattern: "伤官格", wantUsage: "逆用",
 			// pattern(火): yong=克火=水, xi=生水=金, ji=生火=木
@@ -197,6 +199,7 @@ func TestComputeGeJu_JianLuYueRen(t *testing.T) {
 		})
 	}
 }
+
 // TestGeJu_TouTou_Priority verifies that hidden stem 透干 takes priority
 // over month stem. 酉月(辛金本气), 月干癸水, 年干辛金透干 → 正官格(不是正印格).
 func TestGeJu_TouTou_Priority(t *testing.T) {
@@ -216,6 +219,7 @@ func TestGeJu_TouTou_Priority(t *testing.T) {
 		t.Errorf("Usage = %q, want 顺用", result.Usage)
 	}
 }
+
 // TestGeJu_DefaultPattern tests the fallback when the 透干 stem is 劫财/比肩
 // (not in the standard 八格).
 func TestGeJu_DefaultPattern(t *testing.T) {
@@ -240,6 +244,7 @@ func TestGeJu_DefaultPattern(t *testing.T) {
 		t.Errorf("Yong = %q, want 金 (克日主木)", result.Yong)
 	}
 }
+
 // TestGeJu_RealCharts tests with real birth charts via ComputeChart.
 func TestGeJu_RealCharts(t *testing.T) {
 	tests := []struct {
@@ -254,54 +259,54 @@ func TestGeJu_RealCharts(t *testing.T) {
 			// 甲子 丙寅 己卯 戊辰
 			// 己日主, 寅月(甲木正官本气), 年干甲木透 → 正官格
 			// 旧算法误得"正印格"(取月干丙火)
-			name: "己日寅月甲透年干→正官格",
+			name:        "己日寅月甲透年干→正官格",
 			birthTime:   time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,
 			wantPattern: "正官格",
 			wantUsage:   "顺用",
-			note: "年干甲=寅本气透→正官",
+			note:        "年干甲=寅本气透→正官",
 		},
 		{
 			// 甲子 癸酉 丁未 丙午
 			// 丁日主, 酉月(辛金偏财本气), 四干无金 → 虚格偏财
-			name: "丁日酉月辛不透→虚格偏财",
+			name:        "丁日酉月辛不透→虚格偏财",
 			birthTime:   time.Date(1984, 9, 10, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,
 			wantPattern: "偏财格",
 			wantUsage:   "顺用",
-			note: "四干无金→虚格偏财",
+			note:        "四干无金→虚格偏财",
 		},
 		{
 			// 壬戌 壬子 壬申 丙午
 			// 壬日主, 子月 → 子=壬刃 → 月刃格
-			name: "壬日子月→月刃格",
+			name:        "壬日子月→月刃格",
 			birthTime:   time.Date(1982, 12, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,
 			wantPattern: "月刃格",
 			wantUsage:   "逆用",
-			note: "月刃不变",
+			note:        "月刃不变",
 		},
 		{
 			// 乙丑 己卯 戊午 戊午
 			// 戊日主, 卯月(乙木正官本气), 年干乙木透 → 正官格
 			// 旧算法误得"杂格"(月干己土劫财)
-			name: "戊日卯月乙透年干→正官格",
+			name:        "戊日卯月乙透年干→正官格",
 			birthTime:   time.Date(1985, 3, 20, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,
 			wantPattern: "正官格",
 			wantUsage:   "顺用",
-			note: "年干乙=卯本气透→正官",
+			note:        "年干乙=卯本气透→正官",
 		},
 		{
 			// 戊辰 戊午 辛丑 甲午
 			// 辛日主, 午月(丁火七杀本气), 四干无丁 → 虚格七杀
 			// 旧算法误得"正印格"(月干戊土偏印)
-			name: "辛日午月丁不透→虚格七杀",
+			name:        "辛日午月丁不透→虚格七杀",
 			birthTime:   time.Date(1988, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,
 			wantPattern: "七杀格",
 			wantUsage:   "逆用",
-			note: "午丁不透→虚格七杀",
+			note:        "午丁不透→虚格七杀",
 		},
 	}
 	for _, tt := range tests {
@@ -318,6 +323,7 @@ func TestGeJu_RealCharts(t *testing.T) {
 		})
 	}
 }
+
 // TestGeJu_YongJiConsistency verifies yong/xi/ji are always valid 五行 values
 // and that 顺用 xi ≠ ji.
 func TestGeJu_YongJiConsistency(t *testing.T) {
@@ -328,12 +334,12 @@ func TestGeJu_YongJiConsistency(t *testing.T) {
 		yueZhi ganzhi.Zhi
 	}{
 		// 顺用
-		{ganzhi.GanJia, ganzhi.GanXin, ganzhi.ZhiYou},  // 正官
-		{ganzhi.GanJia, ganzhi.GanJi, ganzhi.ZhiWei},   // 正财
-		{ganzhi.GanJia, ganzhi.GanWu, ganzhi.ZhiChen},  // 偏财
-		{ganzhi.GanJia, ganzhi.GanGui, ganzhi.ZhiZi},   // 正印
-		{ganzhi.GanJia, ganzhi.GanRen, ganzhi.ZhiHai},  // 偏印
-		{ganzhi.GanJia, ganzhi.GanBing, ganzhi.ZhiSi},  // 食神
+		{ganzhi.GanJia, ganzhi.GanXin, ganzhi.ZhiYou}, // 正官
+		{ganzhi.GanJia, ganzhi.GanJi, ganzhi.ZhiWei},  // 正财
+		{ganzhi.GanJia, ganzhi.GanWu, ganzhi.ZhiChen}, // 偏财
+		{ganzhi.GanJia, ganzhi.GanGui, ganzhi.ZhiZi},  // 正印
+		{ganzhi.GanJia, ganzhi.GanRen, ganzhi.ZhiHai}, // 偏印
+		{ganzhi.GanJia, ganzhi.GanBing, ganzhi.ZhiSi}, // 食神
 		// 逆用
 		{ganzhi.GanJia, ganzhi.GanGeng, ganzhi.ZhiShen}, // 七杀
 		{ganzhi.GanJia, ganzhi.GanDing, ganzhi.ZhiWu},   // 伤官

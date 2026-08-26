@@ -34,22 +34,22 @@ type gongAnchor struct {
 
 // e2eCase 一个盘的完整端到端命理锚定。
 type e2eCase struct {
-	name          string
-	date          string
-	hour          int
-	ju            int
-	yin           bool
-	riGan         ganzhi.Gan
-	riZhi         ganzhi.Zhi
-	shiGan        ganzhi.Gan
-	riGong        GongIndex
-	shiGong       GongIndex
-	shengKe       string
-	kongWang      [2]GongIndex
-	maXing        GongIndex
-	dutyStar      StarIndex
-	dutyDoor      DoorIndex
-	gong          [9]gongAnchor // 0=坎1 ... 8=离9
+	name     string
+	date     string
+	hour     int
+	ju       int
+	yin      bool
+	riGan    ganzhi.Gan
+	riZhi    ganzhi.Zhi
+	shiGan   ganzhi.Gan
+	riGong   GongIndex
+	shiGong  GongIndex
+	shengKe  string
+	kongWang [2]GongIndex
+	maXing   GongIndex
+	dutyStar StarIndex
+	dutyDoor DoorIndex
+	gong     [9]gongAnchor // 0=坎1 ... 8=离9
 }
 
 var e2eCases = []e2eCase{
@@ -69,7 +69,7 @@ var e2eCases = []e2eCase{
 		kongWang: [2]GongIndex{GongQian, GongQian}, maXing: GongKun,
 		dutyStar: StarTianYing, dutyDoor: DoorJing,
 		gong: [9]gongAnchor{
-			{StarTianRen, DoorSi, SpiritJiuTian},   // 坎1
+			{StarTianRen, DoorSi, SpiritJiuTian},     // 坎1
 			{StarTianYing, DoorJingMen, SpiritZhiFu}, // 坤2
 			{StarTianPeng, DoorKai, SpiritTengShe},   // 震3
 			{StarTianRui, DoorXiu, SpiritTaiYin},     // 巽4
@@ -96,14 +96,14 @@ var e2eCases = []e2eCase{
 		kongWang: [2]GongIndex{GongKan, GongGen}, maXing: GongKun,
 		dutyStar: StarTianZhu, dutyDoor: DoorJingMen,
 		gong: [9]gongAnchor{
-			{StarTianFu, DoorSi, SpiritTaiYin},     // 坎1
-			{StarTianXin, DoorJing, SpiritTengShe}, // 坤2
-			{StarTianZhu, DoorDu, SpiritZhiFu},     // 震3
-			{StarTianRen, DoorShang, SpiritJiuTian}, // 巽4
-			{0, 0, 0},                              // 中5虚空
-			{StarTianYing, DoorSheng, SpiritJiuDi}, // 乾6
-			{StarTianPeng, DoorXiu, SpiritZhuQue},  // 兑7
-			{StarTianRui, DoorKai, SpiritGouChen},  // 艮8
+			{StarTianFu, DoorSi, SpiritTaiYin},        // 坎1
+			{StarTianXin, DoorJing, SpiritTengShe},    // 坤2
+			{StarTianZhu, DoorDu, SpiritZhiFu},        // 震3
+			{StarTianRen, DoorShang, SpiritJiuTian},   // 巽4
+			{0, 0, 0},                                 // 中5虚空
+			{StarTianYing, DoorSheng, SpiritJiuDi},    // 乾6
+			{StarTianPeng, DoorXiu, SpiritZhuQue},     // 兑7
+			{StarTianRui, DoorKai, SpiritGouChen},     // 艮8
 			{StarTianChong, DoorJingMen, SpiritLiuHe}, // 离9
 		},
 	},
@@ -121,15 +121,15 @@ var e2eCases = []e2eCase{
 		kongWang: [2]GongIndex{GongKun, GongDui}, maXing: GongGen,
 		dutyStar: StarTianQin, dutyDoor: DoorSi,
 		gong: [9]gongAnchor{
-			{StarTianZhu, DoorShang, SpiritGouChen},   // 坎1
-			{StarTianRen, DoorDu, SpiritZhuQue},       // 坤2
-			{StarTianYing, DoorJing, SpiritJiuDi},     // 震3
-			{StarTianPeng, DoorSi, SpiritJiuTian},     // 巽4
-			{0, 0, 0},                                 // 中5虚空
-			{StarTianRui, DoorJingMen, SpiritZhiFu},   // 乾6
-			{StarTianChong, DoorKai, SpiritTengShe},   // 兑7
-			{StarTianFu, DoorXiu, SpiritTaiYin},       // 艮8
-			{StarTianXin, DoorSheng, SpiritLiuHe},     // 离9
+			{StarTianZhu, DoorShang, SpiritGouChen}, // 坎1
+			{StarTianRen, DoorDu, SpiritZhuQue},     // 坤2
+			{StarTianYing, DoorJing, SpiritJiuDi},   // 震3
+			{StarTianPeng, DoorSi, SpiritJiuTian},   // 巽4
+			{0, 0, 0},                               // 中5虚空
+			{StarTianRui, DoorJingMen, SpiritZhiFu}, // 乾6
+			{StarTianChong, DoorKai, SpiritTengShe}, // 兑7
+			{StarTianFu, DoorXiu, SpiritTaiYin},     // 艮8
+			{StarTianXin, DoorSheng, SpiritLiuHe},   // 离9
 		},
 	},
 	{
@@ -222,11 +222,11 @@ func TestQimenEndToEnd_Anchors(t *testing.T) {
 //   - 玉女守门：值使门宫天盘有丁
 func TestQimenEndToEnd_Patterns(t *testing.T) {
 	cases := []struct {
-		name     string
-		date     string
-		hour     int
-		must     []string // 必须触发的格局名
-		mustNot  []string // 必须不触发的格局名
+		name    string
+		date    string
+		hour    int
+		must    []string // 必须触发的格局名
+		mustNot []string // 必须不触发的格局名
 	}{
 		{
 			// 2000-06-15：值使景门落离9（天盘丙）→三奇得使；值符天英落坤2本位→非伏吟。

@@ -13,10 +13,10 @@ import (
 
 func TestThreeSchools_Consistency(t *testing.T) {
 	tests := []struct {
-		name          string
+		name                   string
 		year, month, day, hour int
-		gender        ganzhi.Gender
-		wantFuYiEmpty bool // 允许扶抑为中和→空
+		gender                 ganzhi.Gender
+		wantFuYiEmpty          bool // 允许扶抑为中和→空
 	}{
 		{name: "己日寅月", year: 1984, month: 2, day: 15, hour: 8,
 			gender: ganzhi.Male, wantFuYiEmpty: true},

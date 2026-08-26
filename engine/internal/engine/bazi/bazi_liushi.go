@@ -11,10 +11,10 @@ import (
 // pillar and its interactions with the bazi chart.
 type LiuShi struct {
 	Time     string        `json:"time"`
-	ShiGan  ganzhi.Gan           `json:"shi_gan"`
-	ShiZhi  ganzhi.Zhi           `json:"shi_zhi"`
+	ShiGan   ganzhi.Gan    `json:"shi_gan"`
+	ShiZhi   ganzhi.Zhi    `json:"shi_zhi"`
 	HourName string        `json:"hour_name"`
-	ShiShen   string        `json:"shi_shen"`
+	ShiShen  string        `json:"shi_shen"`
 	GanRels  []GanRelation `json:"gan_rels"`
 	ZhiRels  []ZhiRelation `json:"zhi_rels"`
 }
@@ -52,10 +52,10 @@ func computeLiuShi(bz ganzhi.Bazi, year, month, day, hour int) (*LiuShi, error) 
 
 	return &LiuShi{
 		Time:     ganzhi.HourRanges[hbi],
-		ShiGan:  hourStem,
-		ShiZhi:  hourBranch,
+		ShiGan:   hourStem,
+		ShiZhi:   hourBranch,
 		HourName: hourName,
-		ShiShen:   tgName.String(),
+		ShiShen:  tgName.String(),
 		GanRels:  stemRels,
 		ZhiRels:  branchRels,
 	}, nil

@@ -311,7 +311,7 @@ func TestYueZhu_WuHuDun(t *testing.T) {
 func TestShiZhu_WuShuDun(t *testing.T) {
 	tests := []struct {
 		name    string
-		riGan  int
+		riGan   int
 		wantGan int // 子时天干
 	}{
 		{"甲日→甲子", 1, 1},
@@ -345,10 +345,10 @@ func TestRiZhu_ModernDates(t *testing.T) {
 	// 基于1900-01-01=甲戌(序号10) 独立推算现代日期日柱
 	// 公式: idx = (10 + daysFrom1900) % 60
 	tests := []struct {
-		name     string
-		y, m, d  int
-		wantGan  ganzhi.Gan
-		wantZhi  ganzhi.Zhi
+		name    string
+		y, m, d int
+		wantGan ganzhi.Gan
+		wantZhi ganzhi.Zhi
 	}{
 		// 2000-01-01: daysFrom1900(2000,1,1) = 从1900-01-01到2000-01-01
 		// 1900-1999: 100*365 + 24闰年 = 36500+24 = 36524
@@ -391,10 +391,10 @@ func TestRiZhu_ModernDates(t *testing.T) {
 
 func TestYueZhu_JieQiBoundaries(t *testing.T) {
 	tests := []struct {
-		name        string
-		y, m, d     int
-		wantZhi     ganzhi.Zhi // 期望月支
-		wantBefore  bool       // true=节气前(上月), false=节气后(本月)
+		name       string
+		y, m, d    int
+		wantZhi    ganzhi.Zhi // 期望月支
+		wantBefore bool       // true=节气前(上月), false=节气后(本月)
 	}{
 		// 2024年立春 约2月4日 → 之前丑月，之后寅月
 		{"2024-立春前-丑月", 2024, 2, 3, ganzhi.ZhiChou, true},
@@ -445,14 +445,14 @@ func TestYueZhu_JieQiBoundaries(t *testing.T) {
 
 func TestComputeBazi_ComplexBoundaries(t *testing.T) {
 	tests := []struct {
-		name           string
-		y, m, d        int
-		hour, min      int
-		longitude      float64
-		tz             float64
-		wantDayGan     ganzhi.Gan
-		wantDayZhi     ganzhi.Zhi
-		wantHourZhi    ganzhi.Zhi
+		name        string
+		y, m, d     int
+		hour, min   int
+		longitude   float64
+		tz          float64
+		wantDayGan  ganzhi.Gan
+		wantDayZhi  ganzhi.Zhi
+		wantHourZhi ganzhi.Zhi
 	}{
 		// 晚子时 23:30（对齐 lunar）：日柱当日不变，时柱=子时
 		{
@@ -549,7 +549,7 @@ func TestLunarLeapMonth_Consistency(t *testing.T) {
 			for gd := 1; gd <= 28; gd += 7 { // 每周取样
 				lt := SolarToLunar(GregorianTime(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
 				gt := LunarToGregorian(LunarTime{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
-	sy, sm, sd := gt.Time().Year(), int(gt.Time().Month()), gt.Time().Day()
+				sy, sm, sd := gt.Time().Year(), int(gt.Time().Month()), gt.Time().Day()
 				if sy != gy || sm != gm || sd != gd {
 					t.Errorf("round-trip failed: solar(%d,%d,%d) → lunar(%d,%d,%d,%v) → solar(%d,%d,%d)",
 						gy, gm, gd, lt.Year, lt.Month, lt.Day, lt.Leap, sy, sm, sd)

@@ -10,10 +10,10 @@ import (
 func TestNianZhu_Basic(t *testing.T) {
 	// 年柱公式：(year-3)%10=干, (year-3)%12=支
 	tests := []struct {
-		name     string
-		year     int
-		wantGan  ganzhi.Gan
-		wantZhi  ganzhi.Zhi
+		name    string
+		year    int
+		wantGan ganzhi.Gan
+		wantZhi ganzhi.Zhi
 	}{
 		{"1984-甲子", 1984, ganzhi.GanJia, ganzhi.ZhiZi},
 		{"2020-庚子", 2020, ganzhi.GanGeng, ganzhi.ZhiZi},
@@ -41,12 +41,12 @@ func TestNianZhu_LiChunBoundary(t *testing.T) {
 	// 立春前用上一年年柱，立春后用新年年柱。
 	// 1984年立春约 2月4日。
 	tests := []struct {
-		name     string
-		year     int
-		month    int
-		day      int
-		wantGan  ganzhi.Gan
-		wantZhi  ganzhi.Zhi
+		name    string
+		year    int
+		month   int
+		day     int
+		wantGan ganzhi.Gan
+		wantZhi ganzhi.Zhi
 	}{
 		// 1984-02-03 立春前 → 1983年 癸亥
 		{"1984-02-03-before-lichun", 1984, 2, 3, ganzhi.GanGui, ganzhi.ZhiHai},
@@ -101,11 +101,11 @@ func TestNianZhu_LiChunExactTime(t *testing.T) {
 func TestYueZhu_Basic(t *testing.T) {
 	// 用五虎遁独立计算月柱
 	tests := []struct {
-		name     string
-		nianGan  ganzhi.Gan
-		branch   int    // 月支 1=寅..12=丑
-		wantGan  ganzhi.Gan
-		wantZhi  ganzhi.Zhi
+		name    string
+		nianGan ganzhi.Gan
+		branch  int // 月支 1=寅..12=丑
+		wantGan ganzhi.Gan
+		wantZhi ganzhi.Zhi
 	}{
 		// 甲年：正月丙寅, 二月丁卯, ..., 十一月丙子, 十二月丁丑
 		{"甲年-正月-丙寅", ganzhi.GanJia, 1, ganzhi.GanBing, ganzhi.ZhiYin},
@@ -174,12 +174,12 @@ func TestRiZhu_BaseReference(t *testing.T) {
 func TestRiZhu_KnownDates(t *testing.T) {
 	// 基于1900-01-01=甲戌(序号10)推算出以下日柱
 	tests := []struct {
-		name     string
-		year     int
-		month    int
-		day      int
-		wantGan  ganzhi.Gan
-		wantZhi  ganzhi.Zhi
+		name    string
+		year    int
+		month   int
+		day     int
+		wantGan ganzhi.Gan
+		wantZhi ganzhi.Zhi
 	}{
 		// 1900-01-02 = 乙亥 (序号11)
 		{"1900-01-02-乙亥", 1900, 1, 2, ganzhi.GanYi, ganzhi.ZhiHai},

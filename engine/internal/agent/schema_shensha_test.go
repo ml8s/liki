@@ -17,7 +17,9 @@ func TestSchema_ShenShaEnum(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazi.chart: %v", err)
 	}
-	var br struct{ Data map[string]any `json:"data"` }
+	var br struct {
+		Data map[string]any `json:"data"`
+	}
 	_ = json.Unmarshal(bout, &br)
 	b := br.Data
 
@@ -69,9 +71,13 @@ func TestSchema_ShenShaEnum(t *testing.T) {
 			t.Errorf("%s 执行失败: %v", name, err)
 			continue
 		}
-		var res struct{ Data struct {
-			ShenSha []struct{ Name string `json:"name"` } `json:"shensha"`
-		} `json:"data"` }
+		var res struct {
+			Data struct {
+				ShenSha []struct {
+					Name string `json:"name"`
+				} `json:"shensha"`
+			} `json:"data"`
+		}
 		_ = json.Unmarshal(out, &res)
 		enumSet := map[string]bool{}
 		for _, e := range enum {

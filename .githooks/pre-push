@@ -1,7 +1,13 @@
 #!/bin/sh
-# pre-push: push 前自动跑测试
-if [ -f Makefile ] && grep -q '^test-all:' Makefile 2>/dev/null; then
-    echo "=== pre-push: make test-all ==="
-    make test-all || { echo "❌ test-all 失败，push 已阻止"; exit 1; }
-    echo "=== pre-push: 通过 ✅ ==="
-fi
+# pre-push: push 前自动检查（两层）
+#  1) make test-all   —— 全量测试（engine 全量 + skills 单测 + skill 全链路集成；本地起引擎）
+#  2) make pre-push   —— 推送前数据一致（build-archive 重算指纹 + check_docs 文档契约校验）
+# 任一失败即阻止推送。
+
+set -e
+
+echo "=== pre-push: make test-all ==="
+make test-all
+echo "=== pre-push: make pre-push（指纹+文档校验）==="
+make pre-push
+echo "=== pre-push: 通过 ✅ ==="

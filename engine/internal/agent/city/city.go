@@ -69,7 +69,7 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 	if err != nil {
 		return searchResult{}, fmt.Errorf("search: get: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return searchResult{}, fmt.Errorf("search: status %d", resp.StatusCode)

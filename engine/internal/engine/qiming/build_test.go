@@ -36,7 +36,7 @@ func TestBuildMultipleCombos(t *testing.T) {
 func TestBuildSkipSingleName(t *testing.T) {
 	// 无 second 的 combo（单名）跳过
 	combos := []Combo{
-		{ID: 0, First: []string{"中", "丰"}},  // 单名，跳过
+		{ID: 0, First: []string{"中", "丰"}},                   // 单名，跳过
 		{ID: 1, First: []string{"囊"}, Second: []string{"倔"}}, // 双名，保留
 	}
 	names := BuildNames(combos)

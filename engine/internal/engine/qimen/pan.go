@@ -1,7 +1,6 @@
 package qimen
 
 import (
-
 	"liki-engine/internal/engine/ganzhi"
 )
 
@@ -39,14 +38,14 @@ func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 	kongWang := findKongWang(driveZhu)
 
 	pan := pan{
-		Jushu:    ju.Number,
-		YinDun:   ju.YinDun,
-		DutyStar: duty.Star,
-		DutyDoor: duty.Door,
-		MaXing:   mata,
+		Jushu:     ju.Number,
+		YinDun:    ju.YinDun,
+		DutyStar:  duty.Star,
+		DutyDoor:  duty.Door,
+		MaXing:    mata,
 		DriveGan:  driveZhu.Gan,
-		DriveZhi: driveZhu.Zhi,
-		KongWang: kongWang,
+		DriveZhi:  driveZhu.Zhi,
+		KongWang:  kongWang,
 		WuBuYuShi: isWuBuYuShi(riGan, driveZhu.Gan),
 	}
 	for i := 0; i < 9; i++ {
@@ -61,7 +60,6 @@ func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 	}
 	return pan
 }
-
 
 // isWuBuYuShi checks if the hour stem (时干) controls the day stem (日干)
 // with the same yin-yang polarity. If true, it is 五不遇时 — an inauspicious time.

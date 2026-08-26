@@ -25,7 +25,7 @@ func ComputeDaXian(chart Chart) []DaXianStep {
 		if forward {
 			pos = (pos + 11) % 12 // 经典顺行→逆Liki序往后走
 		} else {
-			pos = (pos + 1) % 12  // 经典逆行→顺Liki序往前走
+			pos = (pos + 1) % 12 // 经典逆行→顺Liki序往前走
 		}
 	}
 	return steps

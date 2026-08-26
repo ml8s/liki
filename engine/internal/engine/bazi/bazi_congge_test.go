@@ -33,7 +33,9 @@ func TestCongGe_LookupRules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			loc := time.FixedZone("CST", 8*3600)
 			bt, err := time.ParseInLocation("2006-01-02T15:04:05Z07:00", tt.time, loc)
-			if err != nil { t.Fatal(err) }
+			if err != nil {
+				t.Fatal(err)
+			}
 			st := tianwen.GregorianToSolar(bt, 116.4, 8)
 			chart := ComputeChart(st, tt.gender)
 			pat, _, _, _ := lookupCongGe(chart)

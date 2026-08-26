@@ -5,7 +5,7 @@ import "liki-engine/internal/engine/ganzhi"
 // XingInteraction holds star-gong interaction data.
 type XingInteraction struct {
 	Star       string `json:"xing"`
-	Gong     string `json:"gong"`
+	Gong       string `json:"gong"`
 	Name       string `json:"name"`
 	Meaning    string `json:"meaning"`
 	Auspicious bool   `json:"auspicious"`
@@ -33,7 +33,7 @@ func computeXingInteractions(pan pan) [9]XingInteraction {
 func genericXingInteraction(star StarIndex, pal GongIndex) XingInteraction {
 	return XingInteraction{
 		Star:       star.String(),
-		Gong:     pal.String(),
+		Gong:       pal.String(),
 		Name:       star.String() + "加" + pal.String(),
 		Meaning:    starNature(star) + "临" + pal.String() + "宫",
 		Auspicious: isAuspiciousStar(star),
@@ -75,9 +75,9 @@ func isAuspiciousStar(s StarIndex) bool {
 
 // WangShuai represents 旺衰 state of a star in a gong.
 type WangShuai struct {
-	Star   StarIndex   `json:"xing"`
-	Gong GongIndex `json:"gong"`
-	State  string      `json:"state"` // 旺/相/休/囚/废
+	Star  StarIndex `json:"xing"`
+	Gong  GongIndex `json:"gong"`
+	State string    `json:"state"` // 旺/相/休/囚/废
 }
 
 // computeWangShuai computes the 旺衰 state for each star in the pan.
@@ -90,9 +90,9 @@ func computeWangShuai(pan pan) [9]WangShuai {
 		sw := starWuxing(p.Star)
 		pw := palaceWuxing(GongIndex(i + 1))
 		result[i] = WangShuai{
-			Star:   p.Star,
-			Gong: GongIndex(i + 1),
-			State:  wuxingState(sw, pw),
+			Star:  p.Star,
+			Gong:  GongIndex(i + 1),
+			State: wuxingState(sw, pw),
 		}
 	}
 	return result

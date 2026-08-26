@@ -4,10 +4,10 @@ import "liki-engine/internal/engine/ganzhi"
 
 // doorEntry holds named door-gong data (door/gong set at runtime).
 type doorEntry struct {
-	DoorName    string
-	GongName  string
-	Name        string
-	Meaning     string
+	DoorName string
+	GongName string
+	Name     string
+	Meaning  string
 }
 
 // computeMenInteractions returns door interactions for each gong.
@@ -22,7 +22,7 @@ func computeMenInteractions(pan pan) [9]MenInteraction {
 		if entry, ok := menGongTable[key]; ok {
 			result[i] = MenInteraction{
 				Door:    p.Door,
-				Gong:  GongIndex(i + 1),
+				Gong:    GongIndex(i + 1),
 				Name:    entry.Name,
 				Meaning: entry.Meaning,
 			}
@@ -30,7 +30,7 @@ func computeMenInteractions(pan pan) [9]MenInteraction {
 			// Generic: door name + gong name
 			result[i] = MenInteraction{
 				Door:    p.Door,
-				Gong:  GongIndex(i + 1),
+				Gong:    GongIndex(i + 1),
 				Name:    p.Door.String() + "加" + GongIndex(i+1).String(),
 				Meaning: doorAuspicious(p.Door),
 			}
