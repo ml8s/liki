@@ -130,7 +130,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 提供 2-3 个候选时辰 + 3-5 件人生大事及年份，技能会逐盘核验反推最可能的时辰（附置信度）。宝宝/青少年跳过考时，直接用默认时辰。
 
 **需要联网吗？**
-排盘计算通过 liki.hk 引擎完成，需要网络。不可达时技能会明确告知，不会退回"AI 凭感觉编"。想完全离线？见上方[自部署引擎](#自部署引擎可选)。
+排盘计算通过 liki.hk 引擎完成，需要网络。不可达时技能会明确告知，不会退回"AI 凭感觉编"。
 
 **我的出生数据会被存储吗？**
 不会。技能明确约定：不在对话之外存储出生信息、不索要真实姓名；排盘数据仅在你的对话上下文中使用。
@@ -169,21 +169,9 @@ repo root
 
 调用链：SKILL.md 路由到 app 卡 → 卡调工具（RPC 排盘 + csv 断语匹配）→ 按 domains 知识解读 → 按卡内模板输出。工具层是可选组成（liki-bazi 有；divination/fengshui/naming 直接 RPC + 文档翻译）。
 
-### 自部署引擎（可选）
+### 引擎镜像
 
-默认 skill 调用 liki.hk 公共引擎；想自建（隐私：出生数据不出你的服务器 / 不依赖外部可用性）：
-
-```bash
-docker run -d --name liki-engine -p 8082:8080 ghcr.io/ml8s/liki-engine:latest
-curl http://localhost:8082/health    # 就绪探测
-```
-
-然后在 AI 助手环境设置 `LIKI_RPC_URL=http://localhost:8082/jsonrpc`——skill 的全部计算（Python 工具链与手调 RPC）即走你的引擎。
-
-镜像随 GitHub Release 自动发布（`gh release create` → CI 全量测试 → 构建推送 + 冒烟）。锁定版本用不可变标签：`ghcr.io/ml8s/liki-engine:sha-<commit>`。
-
-进阶（源码构建，可定制）：`git clone https://github.com/ml8s/liki && cd liki/engine && docker compose -f deploy/docker-compose.yml up -d --build`
-
+镜像随 GitHub Release 自动发布（CI 全量测试 → 构建推送 + 冒烟）：`docker pull ghcr.io/ml8s/liki-engine:latest`。源码构建：`cd engine && docker compose -f deploy/docker-compose.yml up -d --build`。
 ### 快速开始
 
 ```bash

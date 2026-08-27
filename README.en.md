@@ -130,7 +130,7 @@ Output: hexagram basis → one-line verdict → timing.
 Offer 2-3 candidate hours + 3-5 life events with years; the skill cross-checks and infers the most likely hour (with confidence). Babies/teens skip calibration.
 
 **Does it need internet?**
-Chart computation goes through the liki.hk engine. If unreachable, the skill says so explicitly — never falls back to "AI guesswork". Want fully offline? See [self-deploy](#self-deploy-the-engine-optional) above.
+Chart computation goes through the liki.hk engine. If unreachable, the skill says so explicitly — never falls back to "AI guesswork".
 
 **Is my birth data stored?**
 No. The skill explicitly commits: no birth-info storage outside your conversation, no real names requested; chart data lives only in your chat context.
@@ -169,21 +169,9 @@ repo root
 
 Call chain: SKILL.md routes to an app card → the card calls tools (RPC charting + CSV matching) → interpreted via domains knowledge → rendered by the card's template. The tool layer is optional (liki-bazi has it; the other three use RPC + document translation directly).
 
-### Self-Deploy the Engine (Optional)
+### Engine Image
 
-By default, skills call the liki.hk public engine. To self-host (privacy: birth data never leaves your server / no external dependency):
-
-```bash
-docker run -d --name liki-engine -p 8082:8080 ghcr.io/ml8s/liki-engine:latest
-curl http://localhost:8082/health    # readiness check
-```
-
-Set `LIKI_RPC_URL=http://localhost:8082/jsonrpc` in your AI assistant environment — all skill computation (Python tools and manual RPC) goes through your engine.
-
-Images are automatically published on GitHub Releases (`gh release create` → CI full tests → build + push + smoke test). Pin a version with the immutable tag: `ghcr.io/ml8s/liki-engine:sha-<commit>`.
-
-Advanced (build from source): `git clone https://github.com/ml8s/liki && cd liki/engine && docker compose -f deploy/docker-compose.yml up -d --build`
-
+Images are auto-published on GitHub Releases (CI full tests → build + push + smoke test): `docker pull ghcr.io/ml8s/liki-engine:latest`. Build from source: `cd engine && docker compose -f deploy/docker-compose.yml up -d --build`.
 ### Quick Start
 
 ```bash

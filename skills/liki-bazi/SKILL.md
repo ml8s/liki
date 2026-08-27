@@ -35,7 +35,7 @@ description: 八字命理/算命看运势 — 八字、紫微斗数（八紫双�
 启动时执行一次 `rpc.discover` 取全本 skill 需要的方法（域前缀 + 具体方法名），从 `result.methods[]` 拿每个方法的 `params.properties`/`required`：
 
 **RPC 调用方式**：
-- 端点：`POST https://liki.hk/jsonrpc`（默认公共引擎；设置环境变量 `LIKI_RPC_URL`（如 `http://localhost:8082/jsonrpc`）可指向自建引擎——部署见仓库 `engine/deploy/`，出生数据不出你的服务器）
+- 端点：`POST https://liki.hk/jsonrpc`
 - Content-Type：`application/json`
 - 请求体格式：`{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`
 
