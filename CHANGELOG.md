@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.08.27.2 —— feedback 批次1：hash 机制拆除 + 断语/引擎修复
+
+> 来源：liki.hk 后台 17 条 pending 反馈（已建 issue #11–#27）。每项修复均先复现（红）再改（绿）。
+
+- **[拆除] content.sha256 指纹机制**：单树哈希对环境噪声（Windows CRLF、路径分隔符）零容忍，上线以来 0 次真阳性、5+ 次假阳性（#12/#19/#23/#24/#27），自检反成用户第一拦路虎。自检简化为 VERSION 比对；`tools/hash.py`、`content.sha256`、build-archive 指纹段、CI freshness 段、`tests/test_hash.py` 全部移除。同日重发以版本序号区分（`2026.08.27.2`）
+- **[修复] xueye.csv xue_201 条件反转**（#25）：条件列 `印星旺=0`（要求印不旺）与断语「印星得月令而旺」矛盾，无印盘误中「科甲至顶」。改 0→1；新增阴/阳性对照回归测试（印弱不命中/印旺+官杀得令命中/官杀不得令不命中）
+- **[修复] shiye.csv shi_102 措辞歧义**（#26）：「无食伤」→「无食伤生财」，对齐条件列 `食伤生财=0` 与 shi_101 精确表述
+- **[修复] time.now 假时区**（#14）：`now.Format("...+08:00")` 硬拼后缀——UTC 服务器时钟仍是 UTC。改 `now.In(FixedZone(+8h))`；新增 TZ=UTC 下的回归单测（本机 +08 时区测不出此 bug）
+
 ## 2026.08.27（续二）—— 自部署闭环与版本机制归零
 
 - **[自部署] ghcr 镜像**：`gh release create` 触发 CI 发 `ghcr.io/ml8s/liki-engine:latest`（+:sha 锚）——外部用户 `docker run` 一条命令；README 自部署节主路径改镜像，源码 build 降为进阶

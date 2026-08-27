@@ -41,11 +41,6 @@ else:
 PYEOF
     fi
 
-    # 内容指纹（外部评审 #1/#14：版本同内容滞后自检须能发现）——必须先于打包重算，
-    # 否则 archive 内 content.sha256 是上一代旧值，安装副本出现「声明指纹≠实际内容」的假同步
-    echo "[build-archive] 重算 $NAME 内容指纹..."
-    python3 "$SKILL_DIR/tools/hash.py" "$SKILL_DIR" "$SKILL_DIR/content.sha256"
-
     echo "[build-archive] 打包 $NAME..."
     tar czf "$ARCHIVE" \
         --transform 's|^\./||' \
@@ -62,23 +57,6 @@ PYEOF
         .
 
     DIGEST="sha256:$(sha256sum "$ARCHIVE" | awk '{print $1}')"
-
-    # 校验 archive 内一致性：archive 内 content.sha256 == archive 内实际内容指纹
-    # （安装副本 = archive 解包结果，此项通过则安装后「本地指纹 == 本地实际内容」必然成立）
-    TMP_EXTRACT="$(mktemp -d)"
-    tar xzf "$ARCHIVE" -C "$TMP_EXTRACT"
-    if [ -f "$TMP_EXTRACT/content.sha256" ]; then
-        ARCHIVE_FP="$(cat "$TMP_EXTRACT/content.sha256")"
-    else
-        ARCHIVE_FP=""
-    fi
-    ACTUAL_FP="$(python3 "$TMP_EXTRACT/tools/hash.py" "$TMP_EXTRACT")"
-    rm -rf "$TMP_EXTRACT"
-    if [ "$ARCHIVE_FP" != "$ACTUAL_FP" ]; then
-        echo "[build-archive] 错误：$NAME archive 内 content.sha256（$ARCHIVE_FP）≠ 实际内容指纹（$ACTUAL_FP），假同步未消除，请检查打包/指纹范围" >&2
-        exit 1
-    fi
-    echo "  ✓ $NAME archive 指纹一致（${ACTUAL_FP:0:16}…）"
 
     # 从 SKILL.md frontmatter 读取 description（单一事实源，避免硬编码漂移）
     DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1)"

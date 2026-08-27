@@ -120,5 +120,26 @@ class TestYueLingGe(unittest.TestCase):
         self.assertIn("ge_302", hits)
 
 
+class TestXueye201Regression(unittest.TestCase):
+    """回归保护：xue_201 条件曾误写 印星旺=0（要求印不旺），断语却是「印星得月令而旺」，
+    导致无印盘命中最高档学历断语（feedback ba47240e/issue #25）。修复后 0→1。"""
+
+    def _hits(self, yin_wang, guan_sha_de_ling):
+        out = duanyu.query("xueye", {"八字": {"印星旺": yin_wang, "官杀得令": guan_sha_de_ling},
+                                     "紫微": {}})
+        return [e["id"] for e in out["八字"]]
+
+    def test_印弱盘不命中科甲至顶(self):
+        # 复现盘：己土日主亥月、原局无火（印星旺=0/官杀得令=1）——不得再触发 xue_201
+        self.assertNotIn("xue_201", self._hits(0, 1))
+
+    def test_印旺官杀得令命中(self):
+        # 断语本义：印星得月令而旺 + 官杀得令 → 官印相生科甲至顶
+        self.assertIn("xue_201", self._hits(1, 1))
+
+    def test_印旺但官杀不得令不命中(self):
+        self.assertNotIn("xue_201", self._hits(1, 0))
+
+
 if __name__ == "__main__":
     unittest.main()

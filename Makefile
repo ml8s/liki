@@ -7,7 +7,7 @@
 # ── 统一版本（skill 4 份 + engine 1 份，同步 bump）──
 VERSION_FILES := skills/liki-bazi/VERSION skills/liki-divination/VERSION skills/liki-fengshui/VERSION skills/liki-naming/VERSION engine/cmd/liki/VERSION
 
-version: ## 写入今日日期（CalVer——内容指纹 content.sha256 才是内容真值，
+version: ## 写入今日日期（CalVer）
 	@DATE=$$(date +%Y.%m.%d); for F in $(VERSION_FILES); do echo "$$DATE" > $$F; done; \
 	echo "✅ 版本 → $$DATE（tag 按需：git tag -a $$DATE）"
 

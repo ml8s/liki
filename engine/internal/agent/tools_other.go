@@ -246,7 +246,9 @@ func timeNowHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, 
 	}{
 		UTC:   now.UTC().Format(time.RFC3339),
 		Local: now.Format(time.RFC3339),
-		CST:   now.Format("2006-01-02T15:04:05+08:00"),
+		// 真实时区转换（曾用 now.Format("...+08:00") 硬拼后缀——UTC 服务器上时钟仍是 UTC，
+		// 字段自相矛盾，feedback 0614cd6b / issue #14）
+		CST: now.In(time.FixedZone("CST", 8*3600)).Format(time.RFC3339),
 	}
 	return wrapResult("time_now", result)
 }
