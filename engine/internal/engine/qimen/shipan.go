@@ -84,12 +84,12 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 // 甲遁：甲不露，遁于六仪（由 resolveJiaDunGan 先转成六仪）。
 func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
 	for i := range p.GongWei {
-		if p.GongWei[i].HeavenStem == g {
+		if p.GongWei[i].TianPanGan == g {
 			return GongIndex(i + 1)
 		}
 	}
 	for i := range p.GongWei {
-		if p.GongWei[i].EarthStem == g {
+		if p.GongWei[i].DiPanGan == g {
 			return GongIndex(i + 1)
 		}
 	}

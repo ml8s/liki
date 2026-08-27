@@ -146,10 +146,10 @@ func TestComputeLiuRi_HasRequiredFields(t *testing.T) {
 		t.Error("DayNaYin is empty")
 	}
 	if len(lr.GanRels) == 0 {
-		t.Error("GanRels is empty: day stem should interact with bazi")
+		t.Error("GanRels is empty: day gan should interact with bazi")
 	}
 	if len(lr.ZhiRels) == 0 {
-		t.Error("ZhiRels is empty: day branch should interact with bazi")
+		t.Error("ZhiRels is empty: day zhi should interact with bazi")
 	}
 }
 
@@ -165,7 +165,7 @@ func TestComputeLiuShi_WuShuDun(t *testing.T) {
 		nil,
 	)
 
-	// 2024-06-15 = 乙日 (day stem 2).
+	// 2024-06-15 = 乙日 (day gan 2).
 	// 乙日五鼠遁: 子→丙, 丑→丁, 寅→戊, 午→壬, 亥→丁.
 	tests := []struct {
 		hour    int
@@ -220,10 +220,10 @@ func TestComputeLiuShi_HasRequiredFields(t *testing.T) {
 		t.Error("ShiShen is empty")
 	}
 	if len(ls.GanRels) == 0 {
-		t.Error("GanRels is empty: hour stem should interact with bazi")
+		t.Error("GanRels is empty: hour gan should interact with bazi")
 	}
 	if len(ls.ZhiRels) == 0 {
-		t.Error("ZhiRels is empty: hour branch should interact with bazi")
+		t.Error("ZhiRels is empty: hour zhi should interact with bazi")
 	}
 }
 

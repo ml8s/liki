@@ -4,10 +4,10 @@ import "liki-engine/internal/engine/ganzhi"
 
 // guaTable holds all 64 hexagrams, ordered by palace (八宫). Loaded from data/hexagrams.json.
 // naGanTable maps palace → [内卦干, 外卦干] for 纳甲（乾甲壬、坤乙癸，余宫内外同）.
-// naZhiTable maps palace → 6 branch indices（内三爻 + 外三爻）; 装卦按上下经卦取表
+// naZhiTable maps palace → 6 zhi indices（内三爻 + 外三爻）; 装卦按上下经卦取表
 //（trigramPalaceIdx 映射），非按本宫。Loaded from data/hexagrams.json.
 
-// dayGanShouOrder returns the六兽 assignment order starting from a given day stem.
+// dayGanShouOrder returns the六兽 assignment order starting from a given day gan.
 func dayGanShouOrder(d ganzhi.Gan) [6]LiuShou {
 	// 甲乙起青龙, 丙丁起朱雀, 戊起勾陈, 己起螣蛇, 庚辛起白虎, 壬癸起玄武
 	base := int(d)          // 甲(1)乙(2)...

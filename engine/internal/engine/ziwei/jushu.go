@@ -2,7 +2,7 @@ package ziwei
 
 import "liki-engine/internal/engine/ganzhi"
 
-// determineJuShu returns the bureau number from ming gong stem and branch.
+// determineJuShu returns the bureau number from ming gong gan and zhi.
 func determineJuShu(mingGan Gan, mingZhi Zhi) juShu {
 	nayinName := ganzhi.NayinLabel(mingGan, mingZhi)
 	wx := ganzhi.NayinWuxing(nayinName)

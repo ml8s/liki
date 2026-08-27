@@ -11,7 +11,7 @@ import (
 
 func TestIsAnHe_AllPairs(t *testing.T) {
 	// 地支暗合: 寅丑, 卯申, 午亥, 子戌
-	pairs := []BranchPair{
+	pairs := []ZhiPair{
 		{A: ZhiYin, B: ZhiChou}, // 寅丑
 		{A: ZhiMao, B: ZhiShen}, // 卯申
 		{A: ZhiWu, B: ZhiHai},   // 午亥
@@ -29,7 +29,7 @@ func TestIsAnHe_AllPairs(t *testing.T) {
 }
 
 func TestIsAnHe_NonPairs(t *testing.T) {
-	nonPairs := []BranchPair{
+	nonPairs := []ZhiPair{
 		{A: ZhiZi, B: ZhiChou}, // 子丑合不是暗合
 		{A: ZhiYin, B: ZhiMao}, // 寅卯会不是暗合
 		{A: ZhiZi, B: ZhiWu},   // 子午冲不是暗合
@@ -41,10 +41,10 @@ func TestIsAnHe_NonPairs(t *testing.T) {
 	}
 }
 
-func TestIsAnHe_SameBranch(t *testing.T) {
+func TestIsAnHe_SameZhi(t *testing.T) {
 	for _, z := range []Zhi{ZhiZi, ZhiYin, ZhiWu} {
 		if IsAnHe(z, z) {
-			t.Errorf("IsAnHe(%s,%s)=true, same branch should be false", ZhiName(z), ZhiName(z))
+			t.Errorf("IsAnHe(%s,%s)=true, same zhi should be false", ZhiName(z), ZhiName(z))
 		}
 	}
 }
@@ -55,7 +55,7 @@ func TestIsAnHe_SameBranch(t *testing.T) {
 
 func TestIsPo_AllPairs(t *testing.T) {
 	// 地支相破: 子酉, 寅亥, 辰丑, 午卯, 申巳, 戌未
-	pairs := []BranchPair{
+	pairs := []ZhiPair{
 		{A: ZhiZi, B: ZhiYou},    // 子酉
 		{A: ZhiYin, B: ZhiHai},   // 寅亥
 		{A: ZhiChen, B: ZhiChou}, // 辰丑
@@ -75,7 +75,7 @@ func TestIsPo_AllPairs(t *testing.T) {
 }
 
 func TestIsPo_NonPairs(t *testing.T) {
-	nonPairs := []BranchPair{
+	nonPairs := []ZhiPair{
 		{A: ZhiZi, B: ZhiChou}, // 子丑合不是破
 		{A: ZhiYin, B: ZhiMao}, // 寅卯会不是破
 		{A: ZhiZi, B: ZhiWu},   // 子午冲不是破
@@ -87,10 +87,10 @@ func TestIsPo_NonPairs(t *testing.T) {
 	}
 }
 
-func TestIsPo_SameBranch(t *testing.T) {
+func TestIsPo_SameZhi(t *testing.T) {
 	for _, z := range []Zhi{ZhiZi, ZhiYin, ZhiWu} {
 		if IsPo(z, z) {
-			t.Errorf("IsPo(%s,%s)=true, same branch should be false", ZhiName(z), ZhiName(z))
+			t.Errorf("IsPo(%s,%s)=true, same zhi should be false", ZhiName(z), ZhiName(z))
 		}
 	}
 }
@@ -208,7 +208,7 @@ func TestCangGanForZhi_Invalid(t *testing.T) {
 	}
 }
 
-func TestHiddenStems_Slice(t *testing.T) {
+func TestCangGan_Slice(t *testing.T) {
 	hs := CangGanForZhi(ZhiChou)
 	s := hs.Slice()
 	if len(s) != 3 {
@@ -224,7 +224,7 @@ func TestHiddenStems_Slice(t *testing.T) {
 // =============================================================================
 
 func TestRenYuanSiLingFenYeForZhi_All(t *testing.T) {
-	// Verify each month branch has phases totaling ~30 days
+	// Verify each month zhi has phases totaling ~30 days
 	for z := ZhiZi; z <= ZhiHai; z++ {
 		phases := RenYuanSiLingFenYeForZhi(z)
 		if len(phases) == 0 {
@@ -588,8 +588,8 @@ func TestGanHe_Result(t *testing.T) {
 func TestTripleHe_Consistency(t *testing.T) {
 	// 三合局每局3个地支
 	for _, th := range TripleHeList {
-		if len(th.Branches) != 3 {
-			t.Errorf("TripleHe element=%d: got %d branches, want 3", th.Element, len(th.Branches))
+		if len(th.Zhi) != 3 {
+			t.Errorf("TripleHe element=%d: got %d zhi, want 3", th.Element, len(th.Zhi))
 		}
 		if th.Element < 1 || th.Element > 5 {
 			t.Errorf("TripleHe: invalid element %d", th.Element)
@@ -600,8 +600,8 @@ func TestTripleHe_Consistency(t *testing.T) {
 func TestTripleHui_Consistency(t *testing.T) {
 	// 三会局每局3个连续地支
 	for _, th := range TripleHuiList {
-		if len(th.Branches) != 3 {
-			t.Errorf("TripleHui element=%d: got %d branches, want 3", th.Element, len(th.Branches))
+		if len(th.Zhi) != 3 {
+			t.Errorf("TripleHui element=%d: got %d zhi, want 3", th.Element, len(th.Zhi))
 		}
 	}
 }
@@ -625,8 +625,8 @@ func TestNayinTable_All60(t *testing.T) {
 // ChangShengTable — 十二长生
 // =============================================================================
 
-func TestChangShengTable_AllStems(t *testing.T) {
-	// Each stem should map to exactly 12 stages (branch positions)
+func TestChangShengTable_AllGan(t *testing.T) {
+	// Each gan should map to exactly 12 stages (zhi positions)
 	for g := GanJia; g <= GanGui; g++ {
 		stages, ok := ChangShengTable[g]
 		if !ok {
@@ -694,8 +694,8 @@ func TestXingGroups_NotEmpty(t *testing.T) {
 		if x.Type == "" {
 			t.Error("XingGroup has empty type")
 		}
-		if len(x.Branches) == 0 {
-			t.Error("XingGroup has empty branches")
+		if len(x.Zhi) == 0 {
+			t.Error("XingGroup has empty zhi")
 		}
 	}
 }
@@ -740,10 +740,10 @@ func TestIsGanHe_Negative(t *testing.T) {
 	}
 }
 
-func TestIsGanHe_SameStem(t *testing.T) {
+func TestIsGanHe_SameGan(t *testing.T) {
 	for _, g := range []Gan{GanJia, GanYi, GanBing, GanDing, GanWu} {
 		if IsGanHe(g, g) {
-			t.Errorf("IsGanHe(%d,%d)=true, same stem should be false", g, g)
+			t.Errorf("IsGanHe(%d,%d)=true, same gan should be false", g, g)
 		}
 	}
 }
@@ -912,10 +912,10 @@ func TestIsLiuChong_Negative(t *testing.T) {
 	}
 }
 
-func TestIsLiuChong_SameBranch(t *testing.T) {
+func TestIsLiuChong_SameZhi(t *testing.T) {
 	for _, z := range []Zhi{ZhiZi, ZhiYin, ZhiWu} {
 		if IsLiuChong(z, z) {
-			t.Errorf("IsLiuChong(%d,%d)=true, same branch should be false", z, z)
+			t.Errorf("IsLiuChong(%d,%d)=true, same zhi should be false", z, z)
 		}
 	}
 }
@@ -955,7 +955,7 @@ func TestIsXing_SelfXing(t *testing.T) {
 			t.Errorf("IsXing(%d,%d)=false, self-xing should be true", z, z)
 		}
 	}
-	// Non-self-xing branches should not be self-xing
+	// Non-self-xing zhi should not be self-xing
 	for _, z := range []Zhi{ZhiZi, ZhiChou, ZhiYin, ZhiMao, ZhiSi, ZhiWei, ZhiShen, ZhiXu} {
 		if IsXing(z, z) {
 			t.Errorf("IsXing(%d,%d)=true, should not be self-xing", z, z)
@@ -1020,18 +1020,18 @@ func TestIsHai_Negative(t *testing.T) {
 	}
 }
 
-func TestIsHai_SameBranch(t *testing.T) {
+func TestIsHai_SameZhi(t *testing.T) {
 	for _, z := range []Zhi{ZhiZi, ZhiWu, ZhiYin} {
 		if IsHai(z, z) {
-			t.Errorf("IsHai(%d,%d)=true, same branch should be false", z, z)
+			t.Errorf("IsHai(%d,%d)=true, same zhi should be false", z, z)
 		}
 	}
 }
 
-// ── inBranchList ──
+// ── inZhiList ──
 
-func TestInBranchList(t *testing.T) {
-	branches := []Zhi{1, 3, 5}
+func TestInZhiList(t *testing.T) {
+	zhi := []Zhi{1, 3, 5}
 	tests := []struct {
 		name string
 		z    Zhi
@@ -1044,19 +1044,19 @@ func TestInBranchList(t *testing.T) {
 		{"卯不在内", ZhiMao, false},
 	}
 	for _, tc := range tests {
-		got := inBranchList(branches, tc.z)
+		got := inZhiList(zhi, tc.z)
 		if got != tc.want {
-			t.Errorf("inBranchList(%v,%d)=%v, want %v (%s)", branches, tc.z, got, tc.want, tc.name)
+			t.Errorf("inZhiList(%v,%d)=%v, want %v (%s)", zhi, tc.z, got, tc.want, tc.name)
 		}
 	}
 }
 
-func TestInBranchList_Empty(t *testing.T) {
-	if inBranchList(nil, ZhiZi) {
-		t.Error("inBranchList(nil, 子)=true, want false")
+func TestInZhiList_Empty(t *testing.T) {
+	if inZhiList(nil, ZhiZi) {
+		t.Error("inZhiList(nil, 子)=true, want false")
 	}
-	if inBranchList([]Zhi{}, ZhiZi) {
-		t.Error("inBranchList([], 子)=true, want false")
+	if inZhiList([]Zhi{}, ZhiZi) {
+		t.Error("inZhiList([], 子)=true, want false")
 	}
 }
 
@@ -1843,7 +1843,7 @@ func TestWangShuaiOf(t *testing.T) {
 		}
 	})
 
-	// Edge: invalid month branch
+	// Edge: invalid month zhi
 	t.Run("无效月支", func(t *testing.T) {
 		if got := WangShuaiOf(WxMu, 0); got != -1 {
 			t.Errorf("WangShuaiOf(木, 0) = %d, want -1", got)

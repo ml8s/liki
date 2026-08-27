@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"liki-engine/internal/agent"
 )
@@ -91,7 +92,9 @@ func HandleRPC(reg *agent.RPCRegistry) http.HandlerFunc {
 			return
 		}
 
+		start := time.Now()
 		result, err := reg.Execute(r.Context(), req.Method, req.Params)
+		slog.Info("rpc", "method", req.Method, "dur", time.Since(start).String(), "ok", err == nil)
 		if err != nil {
 			rpcErr := &agent.RPCError{Code: -32000, Message: err.Error()}
 			if e, ok := err.(*agent.RPCError); ok {

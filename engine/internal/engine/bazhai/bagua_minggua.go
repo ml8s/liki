@@ -27,8 +27,8 @@ var guaTable = [10]gua{
 	{9, "离", "火", "阴"}, // 洛书 9 = 离
 }
 
-func ganNaJia(stem ganzhi.Gan) gua {
-	switch stem {
+func ganNaJia(gan ganzhi.Gan) gua {
+	switch gan {
 	case 1, 9:
 		return guaTable[6] // 甲壬→乾
 	case 2, 10:

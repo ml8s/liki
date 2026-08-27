@@ -55,7 +55,7 @@ ensure_local_engine() {
     return 1
   fi
   "$ENGINE_BIN" -addr ":${ENGINE_PORT}" >/tmp/liki-engine.log 2>&1 &
-  for i in $(seq 1 15); do
+  for i in $(seq 1 30); do
     curl -sf "http://localhost:${ENGINE_PORT}/health" >/dev/null 2>&1 && { echo "  ✓ 本地引擎就绪"; return 0; }
     sleep 1
   done

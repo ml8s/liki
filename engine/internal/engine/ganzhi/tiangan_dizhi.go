@@ -10,7 +10,7 @@ const (
 	Female Gender = "female"
 )
 
-// Gan is a heavenly stem (天干). 1=甲 .. 10=癸.
+// Gan is 天干 (heavenly gan). 1=甲 .. 10=癸.
 type Gan int
 
 const (
@@ -29,7 +29,7 @@ const (
 var ganWuxingBiao = [11]Wuxing{0, WxMu, WxMu, WxHuo, WxHuo, WxTu, WxTu, WxJin, WxJin, WxShui, WxShui}
 var ganYinYangBiao = [11]bool{false, true, false, true, false, true, false, true, false, true, false}
 
-// Zhi is an earthly branch (地支). 1=子 .. 12=亥.
+// Zhi is 地支 (earthly zhi). 1=子 .. 12=亥.
 type Zhi int
 
 const (
@@ -68,7 +68,7 @@ const (
 	Yang YinYang = true
 )
 
-// Zhu is one heavenly-stem / earthly-branch pair (一柱).
+// Zhu is one heavenly-gan / earthly-zhi pair (一柱).
 type Zhu struct {
 	Gan Gan `json:"gan"`
 	Zhi Zhi `json:"zhi"`
@@ -102,13 +102,13 @@ func (bz Bazi) Validate() error {
 
 // -- primitive lookups --
 
-// GanWuxing returns the five-phase element for a heavenly stem.
+// GanWuxing returns the five-phase element for a heavenly gan.
 func GanWuxing(g Gan) Wuxing { return ganWuxingBiao[g] }
 
-// GanYinYang returns the yin-yang classification for a heavenly stem.
+// GanYinYang returns the yin-yang classification for a heavenly gan.
 func GanYinYang(g Gan) YinYang { return YinYang(ganYinYangBiao[g]) }
 
-// ZhiWuxing returns the five-phase element for an earthly branch.
+// ZhiWuxing returns the five-phase element for an earthly zhi.
 func ZhiWuxing(z Zhi) Wuxing { return zhiWuxingBiao[z] }
 
 // -- five-phase cycle --
@@ -149,7 +149,7 @@ func SixtyToZhu(idx int) Zhu {
 	return Zhu{Gan: g, Zhi: z}
 }
 
-// XunKong returns the two 旬空（空亡）branches for the 旬 that a day pillar belongs to.
+// XunKong returns the two 旬空（空亡）zhi for the 旬 that a day pillar belongs to.
 //
 // 口诀：甲子旬空戌亥、甲戌旬空申酉、甲申旬空午未、甲午旬空辰巳、甲辰旬空寅卯、甲寅旬空子丑。
 func XunKong(gan Gan, zhi Zhi) [2]Zhi {
@@ -167,7 +167,7 @@ func XunKong(gan Gan, zhi Zhi) [2]Zhi {
 
 // -- hours --
 
-// HourRanges maps each earthly branch to its two-hour range.
+// HourRanges maps each earthly zhi to its two-hour range.
 var HourRanges = [12]string{
 	"23:00-01:00", "01:00-03:00", "03:00-05:00", "05:00-07:00",
 	"07:00-09:00", "09:00-11:00", "11:00-13:00", "13:00-15:00",

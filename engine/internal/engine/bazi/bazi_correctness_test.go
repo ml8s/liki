@@ -9,10 +9,10 @@ import (
 )
 
 // ============================================================================
-// 藏干 (Hidden Stems) — 标准命理参考数据
+// 藏干 (Hidden Gan) — 标准命理参考数据
 // ============================================================================
 
-// referenceCangGan is the standard hidden stems for each earthly branch.
+// referenceCangGan is the standard hidden gan for each earthly zhi.
 // Source: 渊海子平 / 三命通会.
 var referenceCangGan = map[ganzhi.Zhi]struct{ main, mid, minor ganzhi.Gan }{
 	ganzhi.ZhiZi:   {main: ganzhi.GanGui},
@@ -29,7 +29,7 @@ var referenceCangGan = map[ganzhi.Zhi]struct{ main, mid, minor ganzhi.Gan }{
 	ganzhi.ZhiHai:  {main: ganzhi.GanRen, mid: ganzhi.GanJia},
 }
 
-func TestCangGan_AllBranches(t *testing.T) {
+func TestCangGan_AllZhi(t *testing.T) {
 	for zhi, want := range referenceCangGan {
 		t.Run(ganzhi.ZhiName(zhi), func(t *testing.T) {
 			qi := ganzhi.CangGanForZhi(zhi)
@@ -127,9 +127,9 @@ func TestNaYin_ReferencePairs(t *testing.T) {
 func TestTiaoHou_ReferenceEntries(t *testing.T) {
 	// Spot-check entries against 穷通宝鉴.
 	tests := []struct {
-		riYuan      ganzhi.Gan
-		monthBranch ganzhi.Zhi
-		wantYong    string // expected yong element
+		riYuan   ganzhi.Gan
+		yueZhi   ganzhi.Zhi
+		wantYong string // expected yong element
 	}{
 		// 甲木调候
 		{ganzhi.GanJia, ganzhi.ZhiYin, "火"},  // 正月甲木: 丙癸
@@ -165,9 +165,9 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.monthBranch) + "月"
+		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.yueZhi) + "月"
 		t.Run(name, func(t *testing.T) {
-			result := computeTiaoHou(tt.riYuan, tt.monthBranch)
+			result := computeTiaoHou(tt.riYuan, tt.yueZhi)
 
 			if result.Yong == "" {
 				t.Skip("no tiaohou entry")
@@ -182,7 +182,7 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 			if result.Yong != tt.wantYong {
 				t.Errorf("Yong = %s, want %s（穷通宝鉴 %s日%s月 primary）",
 					result.Yong, tt.wantYong,
-					ganzhi.GanName(tt.riYuan), ganzhi.ZhiName(tt.monthBranch))
+					ganzhi.GanName(tt.riYuan), ganzhi.ZhiName(tt.yueZhi))
 			}
 
 			// Verify yong/xi/ji are valid 五行. Ji may be empty (no clear 忌神).
@@ -281,7 +281,7 @@ func TestDaYun_Direction(t *testing.T) {
 // ============================================================================
 
 func TestPillarConsistency_YearToMonth(t *testing.T) {
-	// Verify 年上起月法 (五虎遁): month stem follows year stem correctly.
+	// Verify 年上起月法 (五虎遁): month gan follows year gan correctly.
 	tests := []struct {
 		name        string
 		year        int
@@ -311,7 +311,7 @@ func TestPillarConsistency_YearToMonth(t *testing.T) {
 		{"癸年→甲寅月 1993-02", 1993, 2, 10, ganzhi.GanGui},
 	}
 
-	// Expected first-month stem for each year stem (正月 = 寅月).
+	// Expected first-month gan for each year gan (正月 = 寅月).
 	wuHuDun := map[ganzhi.Gan]ganzhi.Gan{
 		ganzhi.GanJia:  ganzhi.GanBing,
 		ganzhi.GanYi:   ganzhi.GanWu,
@@ -333,22 +333,22 @@ func TestPillarConsistency_YearToMonth(t *testing.T) {
 				120, 8)
 			chart := ComputeChart(st, ganzhi.Male)
 
-			// Verify year pillar stem.
+			// Verify year pillar gan.
 			if chart.Nian.Gan != tt.wantNianGan {
 				t.Errorf("Nian.Gan = %s, want %s",
 					ganzhi.GanName(chart.Nian.Gan), ganzhi.GanName(tt.wantNianGan))
 			}
 
-			// Verify month stem follows 年上起月.
+			// Verify month gan follows 年上起月.
 			// For dates in Feb, month is 寅月 (month 0 in the 0-based cycle).
-			expectedMonthStem := wuHuDun[tt.wantNianGan]
-			gotMonthStem := chart.Yue.Gan
-			if gotMonthStem != expectedMonthStem {
+			expectedYueGan := wuHuDun[tt.wantNianGan]
+			gotYueGan := chart.Yue.Gan
+			if gotYueGan != expectedYueGan {
 				t.Errorf("Yue.Gan = %s, want %s (五虎遁 for %s年正月)",
-					ganzhi.GanName(gotMonthStem), ganzhi.GanName(expectedMonthStem), ganzhi.GanName(tt.wantNianGan))
+					ganzhi.GanName(gotYueGan), ganzhi.GanName(expectedYueGan), ganzhi.GanName(tt.wantNianGan))
 			}
 
-			// Month branch for Feb (after 立春) should be 寅.
+			// Month zhi for Feb (after 立春) should be 寅.
 			if chart.Yue.Zhi != ganzhi.ZhiYin {
 				t.Errorf("Yue.Zhi = %s, want 寅", ganzhi.ZhiName(chart.Yue.Zhi))
 			}
@@ -357,7 +357,7 @@ func TestPillarConsistency_YearToMonth(t *testing.T) {
 }
 
 func TestPillarConsistency_DayToHour(t *testing.T) {
-	// Verify 日上起时法 (五鼠遁): hour stem follows day stem correctly.
+	// Verify 日上起时法 (五鼠遁): hour gan follows day gan correctly.
 	// Test for multiple days at 子时 (00:00).
 	tests := []struct {
 		name      string
@@ -366,7 +366,7 @@ func TestPillarConsistency_DayToHour(t *testing.T) {
 		day       int
 		wantRiGan ganzhi.Gan
 	}{
-		// These dates are chosen so riGan cycles through all 10 stems.
+		// These dates are chosen so riGan cycles through all 10 gan.
 		{"甲日→甲子时", 1984, 2, 15, ganzhi.GanJi},   // 己卯日, 子时=甲子
 		{"乙日→丙子时", 1984, 2, 16, ganzhi.GanGeng}, // 庚辰日, 子时=丙子
 		{"丙日→戊子时", 1984, 2, 17, ganzhi.GanXin},  // 辛巳日, 子时=戊子
@@ -374,7 +374,7 @@ func TestPillarConsistency_DayToHour(t *testing.T) {
 		{"戊日→壬子时", 1984, 2, 19, ganzhi.GanGui},  // 癸未日, 子时=壬子
 	}
 
-	// 五鼠遁: day stem → zi-hour stem.
+	// 五鼠遁: day gan → zi-hour gan.
 	wuShuDun := map[ganzhi.Gan]ganzhi.Gan{
 		ganzhi.GanJia:  ganzhi.GanJia,
 		ganzhi.GanYi:   ganzhi.GanBing,
@@ -395,22 +395,22 @@ func TestPillarConsistency_DayToHour(t *testing.T) {
 					time.FixedZone("CST", 8*3600)))
 			chart := ComputeChart(st, ganzhi.Male)
 
-			// Verify day stem matches expected.
+			// Verify day gan matches expected.
 			if chart.Ri.Gan != tt.wantRiGan {
 				t.Errorf("Ri.Gan = %s, want %s (date %d-%02d-%02d)",
 					ganzhi.GanName(chart.Ri.Gan), ganzhi.GanName(tt.wantRiGan),
 					tt.year, tt.month, tt.day)
 			}
 
-			// For 子时 (00:00), verify hour stem follows 日上起时.
-			expectedShiStem := wuShuDun[tt.wantRiGan]
-			gotShiStem := chart.Shi.Gan
-			if gotShiStem != expectedShiStem {
+			// For 子时 (00:00), verify hour gan follows 日上起时.
+			expectedShiGan := wuShuDun[tt.wantRiGan]
+			gotShiGan := chart.Shi.Gan
+			if gotShiGan != expectedShiGan {
 				t.Errorf("Shi.Gan = %s, want %s (五鼠遁 for %s日 子时)",
-					ganzhi.GanName(gotShiStem), ganzhi.GanName(expectedShiStem), ganzhi.GanName(tt.wantRiGan))
+					ganzhi.GanName(gotShiGan), ganzhi.GanName(expectedShiGan), ganzhi.GanName(tt.wantRiGan))
 			}
 
-			// For 子时, hour branch should be 子.
+			// For 子时, hour zhi should be 子.
 			if chart.Shi.Zhi != ganzhi.ZhiZi {
 				t.Errorf("Shi.Zhi = %s, want 子", ganzhi.ZhiName(chart.Shi.Zhi))
 			}
@@ -686,42 +686,42 @@ func TestWuxing_ShengKe(t *testing.T) {
 func TestTiaoHou_AllEntriesValid(t *testing.T) {
 	// Verify ALL entries in the tiaohou lookup table produce valid results.
 	for key, entry := range lookupTiaohou {
-		riYuan := ganzhi.Gan(key.stem)
-		monthBranch := ganzhi.Zhi(key.branch)
+		riYuan := ganzhi.Gan(key.gan)
+		yueZhi := ganzhi.Zhi(key.zhi)
 
-		result := computeTiaoHou(riYuan, monthBranch)
+		result := computeTiaoHou(riYuan, yueZhi)
 
 		// Season must not be empty.
 		if result.Season == "" {
 			t.Errorf("%s日%s月: Season is empty",
-				ganzhi.GanName(riYuan), ganzhi.ZhiName(monthBranch))
+				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi))
 		}
 
 		// Yong must be a valid five element.
 		validWuxing := map[string]bool{"木": true, "火": true, "土": true, "金": true, "水": true}
 		if !validWuxing[result.Yong] {
 			t.Errorf("%s日%s月: Yong = %q, want valid 五行 (primary=%s, secondary=%s)",
-				ganzhi.GanName(riYuan), ganzhi.ZhiName(monthBranch),
+				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
 				result.Yong, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 		}
 		if !validWuxing[result.Xi] {
 			// Xi may be empty when no secondary (喜神).
 			if result.Xi != "" {
 				t.Errorf("%s日%s月: Xi = %q, want valid 五行 (primary=%s, secondary=%s)",
-					ganzhi.GanName(riYuan), ganzhi.ZhiName(monthBranch),
+					ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
 					result.Xi, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 			}
 		}
 		if result.Ji != "" && !validWuxing[result.Ji] {
 			t.Errorf("%s日%s月: Ji = %q, want valid 五行 (primary=%s, secondary=%s)",
-				ganzhi.GanName(riYuan), ganzhi.ZhiName(monthBranch),
+				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
 				result.Ji, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 		}
 
-		// Detail should contain the day stem and month branch names.
+		// Detail should contain the day gan and month zhi names.
 		if result.Detail == "" {
 			t.Errorf("%s日%s月: Detail is empty",
-				ganzhi.GanName(riYuan), ganzhi.ZhiName(monthBranch))
+				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi))
 		}
 	}
 }

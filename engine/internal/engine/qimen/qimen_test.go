@@ -25,12 +25,12 @@ func TestPlaceDiPan_YangDunAll(t *testing.T) {
 		if dipan[pos] != ganzhi.GanWu {
 			t.Errorf("阳遁%d局: 戊应在%s, got %s", tt.ju, tt.wuAt, ganzhi.GanName(dipan[pos]))
 		}
-		allStems := map[ganzhi.Gan]bool{}
+		allGan := map[ganzhi.Gan]bool{}
 		for _, g := range dipan {
-			allStems[g] = true
+			allGan[g] = true
 		}
 		for _, g := range sanQiLiuYi {
-			if !allStems[g] {
+			if !allGan[g] {
 				t.Errorf("阳遁%d局: %s missing from dipan", tt.ju, ganzhi.GanName(g))
 			}
 		}
@@ -144,24 +144,24 @@ func TestPlaceTianPan_Yang1YiChou(t *testing.T) {
 	// 阳遁1局 乙丑时: 时干乙在离9(pos8), 值符天蓬(starOrder8[0])加临之
 	dipan := placeDiPan(1, false)
 	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, dipan)
-	stars, stems := placeTianPan(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, duty.Star, dipan)
+	stars, gan := placeTianPan(ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}, duty.Star, dipan)
 
 	// 8 星（不含天禽，天禽寄坤2）飞布，跳过中5：
-	// pos8: starOrder8[0]=天蓬(stem=dipan[0]=戊)
-	// pos0: starOrder8[1]=天芮(stem=dipan[1]=己)
-	// pos1: starOrder8[2]=天冲(stem=dipan[2]=庚)
-	// pos2: starOrder8[3]=天辅(stem=dipan[3]=辛)
-	// pos3: starOrder8[4]=天心(stem=dipan[5]=癸)
+	// pos8: starOrder8[0]=天蓬(gan=dipan[0]=戊)
+	// pos0: starOrder8[1]=天芮(gan=dipan[1]=己)
+	// pos1: starOrder8[2]=天冲(gan=dipan[2]=庚)
+	// pos2: starOrder8[3]=天辅(gan=dipan[3]=辛)
+	// pos3: starOrder8[4]=天心(gan=dipan[5]=癸)
 	// pos4: 中5虚空
-	// pos5: starOrder8[5]=天柱(stem=dipan[6]=丁)
-	// pos6: starOrder8[6]=天任(stem=dipan[7]=丙)
-	// pos7: starOrder8[7]=天英(stem=dipan[8]=乙)
+	// pos5: starOrder8[5]=天柱(gan=dipan[6]=丁)
+	// pos6: starOrder8[6]=天任(gan=dipan[7]=丙)
+	// pos7: starOrder8[7]=天英(gan=dipan[8]=乙)
 	expectedStars := [9]StarIndex{
 		StarTianRui, StarTianChong, StarTianFu,
 		StarTianXin, 0, StarTianZhu,
 		StarTianRen, StarTianYing, StarTianPeng,
 	}
-	expectedStems := [9]ganzhi.Gan{
+	expectedGan := [9]ganzhi.Gan{
 		ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin,
 		ganzhi.GanGui, 0, ganzhi.GanDing,
 		ganzhi.GanBing, ganzhi.GanYi, ganzhi.GanWu,
@@ -172,9 +172,9 @@ func TestPlaceTianPan_Yang1YiChou(t *testing.T) {
 			t.Errorf("gong %d(%s): star = %s, want %s",
 				i, GongIndex(i+1), stars[i], expectedStars[i])
 		}
-		if stems[i] != expectedStems[i] {
-			t.Errorf("gong %d(%s): heaven stem = %s, want %s",
-				i, GongIndex(i+1), ganzhi.GanName(stems[i]), ganzhi.GanName(expectedStems[i]))
+		if gan[i] != expectedGan[i] {
+			t.Errorf("gong %d(%s): heaven gan = %s, want %s",
+				i, GongIndex(i+1), ganzhi.GanName(gan[i]), ganzhi.GanName(expectedGan[i]))
 		}
 	}
 }
@@ -183,24 +183,24 @@ func TestPlaceTianPan_Yang1BingYin(t *testing.T) {
 	// 阳遁1局 丙寅时: 时干丙在艮8(pos7), 值符天蓬加临之
 	dipan := placeDiPan(1, false)
 	duty := findDuty(ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin}, dipan)
-	stars, stems := placeTianPan(ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin}, duty.Star, dipan)
+	stars, gan := placeTianPan(ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin}, duty.Star, dipan)
 
 	// 8 星（不含天禽，天禽寄坤2）飞布，跳过中5：
-	// pos7: starOrder8[0]=天蓬(stem=dipan[0]=戊)
-	// pos8: starOrder8[1]=天芮(stem=dipan[1]=己)
-	// pos0: starOrder8[2]=天冲(stem=dipan[2]=庚)
-	// pos1: starOrder8[3]=天辅(stem=dipan[3]=辛)
-	// pos2: starOrder8[4]=天心(stem=dipan[5]=癸)
-	// pos3: starOrder8[5]=天柱(stem=dipan[6]=丁)
+	// pos7: starOrder8[0]=天蓬(gan=dipan[0]=戊)
+	// pos8: starOrder8[1]=天芮(gan=dipan[1]=己)
+	// pos0: starOrder8[2]=天冲(gan=dipan[2]=庚)
+	// pos1: starOrder8[3]=天辅(gan=dipan[3]=辛)
+	// pos2: starOrder8[4]=天心(gan=dipan[5]=癸)
+	// pos3: starOrder8[5]=天柱(gan=dipan[6]=丁)
 	// pos4: 中5虚空
-	// pos5: starOrder8[6]=天任(stem=dipan[7]=丙)
-	// pos6: starOrder8[7]=天英(stem=dipan[8]=乙)
+	// pos5: starOrder8[6]=天任(gan=dipan[7]=丙)
+	// pos6: starOrder8[7]=天英(gan=dipan[8]=乙)
 	expectedStars := [9]StarIndex{
 		StarTianChong, StarTianFu, StarTianXin,
 		StarTianZhu, 0, StarTianRen,
 		StarTianYing, StarTianPeng, StarTianRui,
 	}
-	expectedStems := [9]ganzhi.Gan{
+	expectedGan := [9]ganzhi.Gan{
 		ganzhi.GanGeng, ganzhi.GanXin, ganzhi.GanGui,
 		ganzhi.GanDing, 0, ganzhi.GanBing,
 		ganzhi.GanYi, ganzhi.GanWu, ganzhi.GanJi,
@@ -211,9 +211,9 @@ func TestPlaceTianPan_Yang1BingYin(t *testing.T) {
 			t.Errorf("gong %d(%s): star = %s, want %s",
 				i, GongIndex(i+1), stars[i], expectedStars[i])
 		}
-		if stems[i] != expectedStems[i] {
-			t.Errorf("gong %d(%s): heaven stem = %s, want %s",
-				i, GongIndex(i+1), ganzhi.GanName(stems[i]), ganzhi.GanName(expectedStems[i]))
+		if gan[i] != expectedGan[i] {
+			t.Errorf("gong %d(%s): heaven gan = %s, want %s",
+				i, GongIndex(i+1), ganzhi.GanName(gan[i]), ganzhi.GanName(expectedGan[i]))
 		}
 	}
 }
@@ -445,7 +445,7 @@ func TestPlaceAnGan_Yang1YiChou(t *testing.T) {
 // 防止甲寅旬（旬首癸）暗干起点错误。
 func TestPlaceAnGan_XunShouLocatable(t *testing.T) {
 	// 六甲旬首对应的六仪
-	xunShouStems := []ganzhi.Gan{
+	xunShouGan := []ganzhi.Gan{
 		ganzhi.GanWu,   // 甲子→戊
 		ganzhi.GanJi,   // 甲戌→己
 		ganzhi.GanGeng, // 甲申→庚
@@ -453,9 +453,9 @@ func TestPlaceAnGan_XunShouLocatable(t *testing.T) {
 		ganzhi.GanRen,  // 甲辰→壬
 		ganzhi.GanGui,  // 甲寅→癸
 	}
-	for _, g := range xunShouStems {
+	for _, g := range xunShouGan {
 		found := false
-		for _, s := range eightStems {
+		for _, s := range eightGan {
 			if s == g {
 				found = true
 				break
@@ -471,7 +471,7 @@ func TestPlaceAnGan_XunShouLocatable(t *testing.T) {
 // 马星 (MaXing)
 // =============================================================================
 
-func TestFindMaXing_AllBranches(t *testing.T) {
+func TestFindMaXing_AllZhi(t *testing.T) {
 	tests := []struct {
 		zhi  ganzhi.Zhi
 		want GongIndex
@@ -608,13 +608,13 @@ func TestComputePan_Yang1YiChou(t *testing.T) {
 
 	for i, w := range want {
 		pal := p.GongWei[i]
-		if pal.EarthStem != w.earth {
+		if pal.DiPanGan != w.earth {
 			t.Errorf("gong %d(%s) earth: %s, want %s",
-				i, GongIndex(i+1), ganzhi.GanName(pal.EarthStem), ganzhi.GanName(w.earth))
+				i, GongIndex(i+1), ganzhi.GanName(pal.DiPanGan), ganzhi.GanName(w.earth))
 		}
-		if pal.HeavenStem != w.heaven {
+		if pal.TianPanGan != w.heaven {
 			t.Errorf("gong %d(%s) heaven: %s, want %s",
-				i, GongIndex(i+1), ganzhi.GanName(pal.HeavenStem), ganzhi.GanName(w.heaven))
+				i, GongIndex(i+1), ganzhi.GanName(pal.TianPanGan), ganzhi.GanName(w.heaven))
 		}
 		if pal.Star != w.star {
 			t.Errorf("gong %d(%s) star: %s, want %s",
@@ -628,9 +628,9 @@ func TestComputePan_Yang1YiChou(t *testing.T) {
 			t.Errorf("gong %d(%s) spirit: %d, want %d",
 				i, GongIndex(i+1), pal.Spirit, w.spirit)
 		}
-		if pal.HiddenStem != w.hidden {
+		if pal.CangGan != w.hidden {
 			t.Errorf("gong %d(%s) hidden: %s(%d), want %s(%d)",
-				i, GongIndex(i+1), ganzhi.GanName(pal.HiddenStem), pal.HiddenStem,
+				i, GongIndex(i+1), ganzhi.GanName(pal.CangGan), pal.CangGan,
 				ganzhi.GanName(w.hidden), w.hidden)
 		}
 	}
@@ -681,9 +681,9 @@ func TestComputePan_Yang1BingYin(t *testing.T) {
 			t.Errorf("gong %d(%s) door: %s, want %s",
 				i, GongIndex(i+1), pal.Door, w.door)
 		}
-		if pal.HeavenStem != w.heaven {
+		if pal.TianPanGan != w.heaven {
 			t.Errorf("gong %d(%s) heaven: %s, want %s",
-				i, GongIndex(i+1), ganzhi.GanName(pal.HeavenStem), ganzhi.GanName(w.heaven))
+				i, GongIndex(i+1), ganzhi.GanName(pal.TianPanGan), ganzhi.GanName(w.heaven))
 		}
 	}
 }
@@ -723,11 +723,11 @@ func TestComputePan_Yin9JiaWu(t *testing.T) {
 func TestComputeGanInteractions_KnownPairs(t *testing.T) {
 	p := pan{Jushu: 1, YinDun: false}
 	// name/pattern 按标准"天盘+地盘"（X加Y）：青龙返首=戊加丙=天盘戊地盘丙=[地丙,天戊]
-	p.GongWei[0] = Gong{EarthStem: ganzhi.GanBing, HeavenStem: ganzhi.GanWu}   // 戊加丙=青龙返首(吉)
-	p.GongWei[1] = Gong{EarthStem: ganzhi.GanBing, HeavenStem: ganzhi.GanGeng} // 庚加丙=太白入荧(凶)
-	p.GongWei[2] = Gong{EarthStem: ganzhi.GanWu, HeavenStem: ganzhi.GanBing}   // 丙加戊=飞鸟跌穴(吉)
-	p.GongWei[3] = Gong{EarthStem: ganzhi.GanYi, HeavenStem: ganzhi.GanXin}    // 辛加乙=白虎猖狂(凶)
-	p.GongWei[4] = Gong{EarthStem: ganzhi.GanWu, HeavenStem: ganzhi.GanRen}    // 壬加戊=小蛇化龙(吉)
+	p.GongWei[0] = Gong{DiPanGan: ganzhi.GanBing, TianPanGan: ganzhi.GanWu}   // 戊加丙=青龙返首(吉)
+	p.GongWei[1] = Gong{DiPanGan: ganzhi.GanBing, TianPanGan: ganzhi.GanGeng} // 庚加丙=太白入荧(凶)
+	p.GongWei[2] = Gong{DiPanGan: ganzhi.GanWu, TianPanGan: ganzhi.GanBing}   // 丙加戊=飞鸟跌穴(吉)
+	p.GongWei[3] = Gong{DiPanGan: ganzhi.GanYi, TianPanGan: ganzhi.GanXin}    // 辛加乙=白虎猖狂(凶)
+	p.GongWei[4] = Gong{DiPanGan: ganzhi.GanWu, TianPanGan: ganzhi.GanRen}    // 壬加戊=小蛇化龙(吉)
 
 	result := computeGanInteractions(p)
 
@@ -991,15 +991,15 @@ func buildSamplePan() pan {
 	p.KongWang = [2]GongIndex{GongQian, GongQian}
 	// Fill palaces with known data (阳遁1局 乙丑时).
 	p.GongWei = [9]Gong{
-		{EarthStem: ganzhi.GanWu, HeavenStem: ganzhi.GanJi, Star: StarTianRui, Door: DoorShang, Spirit: SpiritTengShe},
-		{EarthStem: ganzhi.GanJi, HeavenStem: ganzhi.GanGeng, Star: StarTianChong, Door: DoorDu, Spirit: SpiritTaiYin},
-		{EarthStem: ganzhi.GanGeng, HeavenStem: ganzhi.GanXin, Star: StarTianFu, Door: DoorJing, Spirit: SpiritLiuHe},
-		{EarthStem: ganzhi.GanXin, HeavenStem: ganzhi.GanRen, Star: StarTianQin, Door: DoorSi, Spirit: SpiritGouChen},
-		{EarthStem: ganzhi.GanRen, HeavenStem: ganzhi.GanGui, Star: StarTianXin, Door: 0, Spirit: 0}, // 中5
-		{EarthStem: ganzhi.GanGui, HeavenStem: ganzhi.GanDing, Star: StarTianZhu, Door: DoorJingMen, Spirit: SpiritZhuQue},
-		{EarthStem: ganzhi.GanDing, HeavenStem: ganzhi.GanBing, Star: StarTianRen, Door: DoorKai, Spirit: SpiritJiuDi},
-		{EarthStem: ganzhi.GanBing, HeavenStem: ganzhi.GanYi, Star: StarTianYing, Door: DoorXiu, Spirit: SpiritJiuTian},
-		{EarthStem: ganzhi.GanYi, HeavenStem: ganzhi.GanWu, Star: StarTianPeng, Door: DoorSheng, Spirit: SpiritZhiFu},
+		{DiPanGan: ganzhi.GanWu, TianPanGan: ganzhi.GanJi, Star: StarTianRui, Door: DoorShang, Spirit: SpiritTengShe},
+		{DiPanGan: ganzhi.GanJi, TianPanGan: ganzhi.GanGeng, Star: StarTianChong, Door: DoorDu, Spirit: SpiritTaiYin},
+		{DiPanGan: ganzhi.GanGeng, TianPanGan: ganzhi.GanXin, Star: StarTianFu, Door: DoorJing, Spirit: SpiritLiuHe},
+		{DiPanGan: ganzhi.GanXin, TianPanGan: ganzhi.GanRen, Star: StarTianQin, Door: DoorSi, Spirit: SpiritGouChen},
+		{DiPanGan: ganzhi.GanRen, TianPanGan: ganzhi.GanGui, Star: StarTianXin, Door: 0, Spirit: 0}, // 中5
+		{DiPanGan: ganzhi.GanGui, TianPanGan: ganzhi.GanDing, Star: StarTianZhu, Door: DoorJingMen, Spirit: SpiritZhuQue},
+		{DiPanGan: ganzhi.GanDing, TianPanGan: ganzhi.GanBing, Star: StarTianRen, Door: DoorKai, Spirit: SpiritJiuDi},
+		{DiPanGan: ganzhi.GanBing, TianPanGan: ganzhi.GanYi, Star: StarTianYing, Door: DoorXiu, Spirit: SpiritJiuTian},
+		{DiPanGan: ganzhi.GanYi, TianPanGan: ganzhi.GanWu, Star: StarTianPeng, Door: DoorSheng, Spirit: SpiritZhiFu},
 	}
 	return p
 }
@@ -1083,7 +1083,7 @@ func TestFindMenPo(t *testing.T) {
 	p.GongWei[8] = Gong{Door: DoorXiu}   // 离宫, 休门(水) — 水克火=迫
 	p.GongWei[1] = Gong{Door: DoorSi}    // 坤宫, 死门(土) — 比和
 	// 死门(土)在坎(水)=土克水=迫
-	p.GongWei[0] = Gong{Door: DoorSi, EarthStem: ganzhi.GanWu} // pos 0=坎
+	p.GongWei[0] = Gong{Door: DoorSi, DiPanGan: ganzhi.GanWu} // pos 0=坎
 
 	result := findMenPo(p)
 	// 门迫宫位应含坎1（死门土克坎水）与离9（休门水克离火）。
@@ -1228,7 +1228,7 @@ func TestComputeWangShuai(t *testing.T) {
 }
 
 // =============================================================================
-// findPatterns + helpers (dutyDoorPalace, hasStem, hasStemAtPalace, hasDoor, hasSpirit)
+// findPatterns + helpers (dutyDoorPalace, hasGan, hasGanAtPalace, hasDoor, hasSpirit)
 // =============================================================================
 
 func TestDutyDoorPalace(t *testing.T) {
@@ -1240,28 +1240,28 @@ func TestDutyDoorPalace(t *testing.T) {
 	}
 }
 
-func TestHasStem(t *testing.T) {
+func TestHasGan(t *testing.T) {
 	p := buildSamplePan()
-	if !hasStem(p, ganzhi.GanWu) {
+	if !hasGan(p, ganzhi.GanWu) {
 		t.Error("戊 should be present (earth坎, heaven离)")
 	}
-	if hasStem(p, 0) {
-		t.Error("invalid stem 0 should not be found")
+	if hasGan(p, 0) {
+		t.Error("invalid gan 0 should not be found")
 	}
 }
 
-func TestHasStemAtPalace(t *testing.T) {
+func TestHasGanAtPalace(t *testing.T) {
 	p := buildSamplePan()
-	if !hasStemAtPalace(p, ganzhi.GanWu, GongKan) {
-		t.Error("戊 should be at 坎宫 (earth stem)")
+	if !hasGanAtPalace(p, ganzhi.GanWu, GongKan) {
+		t.Error("戊 should be at 坎宫 (earth gan)")
 	}
-	if !hasStemAtPalace(p, ganzhi.GanWu, GongLi) {
-		t.Log("戊 also appears as heaven stem at 离宫")
+	if !hasGanAtPalace(p, ganzhi.GanWu, GongLi) {
+		t.Log("戊 also appears as heaven gan at 离宫")
 	}
-	if hasStemAtPalace(p, ganzhi.GanWu, GongIndex(0)) {
+	if hasGanAtPalace(p, ganzhi.GanWu, GongIndex(0)) {
 		t.Error("should return false for invalid gong 0")
 	}
-	if hasStemAtPalace(p, ganzhi.GanWu, GongIndex(10)) {
+	if hasGanAtPalace(p, ganzhi.GanWu, GongIndex(10)) {
 		t.Error("should return false for invalid gong 10")
 	}
 }
@@ -1335,13 +1335,13 @@ func TestPalaceZhi_Invalid(t *testing.T) {
 
 func TestFindPatterns(t *testing.T) {
 	// Use a pan with specific conditions:
-	// 丙 in heaven stem, 生门, 丁 → 天遁
+	// 丙 in heaven gan, 生门, 丁 → 天遁
 	p := pan{
 		DutyStar: StarTianPeng,
 		DutyDoor: DoorXiu,
 		GongWei: [9]Gong{
-			{HeavenStem: ganzhi.GanBing, Door: DoorSheng, Spirit: SpiritZhiFu}, // 天遁条件: 丙
-			{HeavenStem: ganzhi.GanDing},                                       // 天遁也需要丁
+			{TianPanGan: ganzhi.GanBing, Door: DoorSheng, Spirit: SpiritZhiFu}, // 天遁条件: 丙
+			{TianPanGan: ganzhi.GanDing},                                       // 天遁也需要丁
 			{}, {}, {}, {}, {}, {}, {},
 		},
 	}
@@ -1406,7 +1406,7 @@ func TestFindPatterns_FuYin_Qin(t *testing.T) {
 }
 
 // =============================================================================
-// computeYingQi / chongBranch
+// computeYingQi / chongZhi
 // =============================================================================
 
 func TestComputeYingQi(t *testing.T) {
@@ -1428,7 +1428,7 @@ func TestComputeYingQi(t *testing.T) {
 	}
 }
 
-func TestChongBranch(t *testing.T) {
+func TestChongZhi(t *testing.T) {
 	tests := []struct {
 		z    ganzhi.Zhi
 		want ganzhi.Zhi
@@ -1443,16 +1443,16 @@ func TestChongBranch(t *testing.T) {
 		{ganzhi.ZhiHai, ganzhi.ZhiSi},
 	}
 	for _, tt := range tests {
-		got := chongBranch(tt.z)
+		got := chongZhi(tt.z)
 		if got != tt.want {
-			t.Errorf("chongBranch(%s) = %s, want %s",
+			t.Errorf("chongZhi(%s) = %s, want %s",
 				ganzhi.ZhiName(tt.z), ganzhi.ZhiName(got), ganzhi.ZhiName(tt.want))
 		}
 	}
 }
 
 // =============================================================================
-// genericGanInteraction — all branches
+// genericGanInteraction — all zhi
 // =============================================================================
 
 func TestGenericGanInteraction_AllRelations(t *testing.T) {

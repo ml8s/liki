@@ -69,7 +69,7 @@ type changShengEntry struct {
 
 // Ten god source constants.
 const (
-	sourceGan    = "stem"
+	sourceGan    = "gan"
 	sourceMainQi = "main_qi"
 	sourceMidQi  = "mid_qi"
 	sourceMinQi  = "minor_qi"

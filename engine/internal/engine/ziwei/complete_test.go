@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
@@ -140,11 +141,12 @@ func TestComplete(t *testing.T) {
 			ln := ComputeLiuNian(fc, 2026)
 			assertFlowPalaces(t, "流年", ln.GongWei, tc.YFlow, &pass, &fail)
 			// 流月/日/时盘（变量复用后续流月/日/时断言）
-			ly2 := ComputeLiuYue(fc, 2026, 6)
+			tgtM := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(2026, 6, 4, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
+			ly2 := ComputeLiuYue(fc, 2026, tgtM.Month)
 			assertFlowPalaces(t, "流月", ly2.GongWei, tc.MFlow, &pass, &fail)
-			lr2 := ComputeLiuRi(fc, 2026, 6, 4)
+			lr2 := ComputeLiuRi(fc, 2026, tgtM.Month, tgtM.Day)
 			assertFlowPalaces(t, "流日", lr2.GongWei, tc.DFlow, &pass, &fail)
-			ls2 := ComputeLiuShi(fc, 2026, 6, 4, ganzhi.Zhi(1))
+			ls2 := ComputeLiuShi(fc, 2026, tgtM.Month, tgtM.Day, ganzhi.Zhi(1))
 			assertFlowPalaces(t, "流时", ls2.GongWei, tc.HFlow, &pass, &fail)
 			// 流年四化+zhi
 			lnZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ln.Zhi]
@@ -157,7 +159,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流月四化+zhi+星
-			ly := ComputeLiuYue(fc, 2026, 6)
+			ly := ComputeLiuYue(fc, 2026, tgtM.Month)
 			lyZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ly.Zhi]
 			if lyZhi != tc.Mzhi && tc.Mzhi != "" {
 				t.Errorf("流月zhi: got %s want %s", lyZhi, tc.Mzhi)
@@ -173,7 +175,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流日四化+zhi+星
-			lr := ComputeLiuRi(fc, 2026, 6, 4)
+			lr := ComputeLiuRi(fc, 2026, tgtM.Month, tgtM.Day)
 			lrZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[lr.Zhi]
 			if lrZhi != tc.Dzhi && tc.Dzhi != "" {
 				t.Errorf("流日zhi: got %s want %s", lrZhi, tc.Dzhi)
@@ -189,7 +191,7 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流时四化+zhi+星
-			ls := ComputeLiuShi(fc, 2026, 6, 4, ganzhi.Zhi(1))
+			ls := ComputeLiuShi(fc, 2026, tgtM.Month, tgtM.Day, ganzhi.Zhi(1))
 			lsZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ls.Zhi]
 			if lsZhi != tc.Hzhi && tc.Hzhi != "" {
 				t.Errorf("流时zhi: got %s want %s", lsZhi, tc.Hzhi)

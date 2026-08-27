@@ -30,11 +30,11 @@ func ComputeChartExtra(c Chart) ChartExtra {
 	bz := c.ToBazi()
 
 	stages := [12]ChangShengStage{}
-	branches := ganzhi.ChangShengTable[c.Ri.Gan]
+	zhi := ganzhi.ChangShengTable[c.Ri.Gan]
 	for i := 0; i < 12; i++ {
 		stages[i] = ChangShengStage{
 			Name:  ganzhi.StageNamesZH[i],
-			Index: branches[i],
+			Index: zhi[i],
 		}
 	}
 

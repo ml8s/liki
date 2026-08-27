@@ -24,14 +24,14 @@ var gongLabels = [12]string{
 	"迁移", "仆役", "官禄", "田宅", "福德", "父母",
 }
 
-// zhiIdxToPalaceIndex returns the gong index (0=命宫) whose earth branch
-// is zhiIdx (0=子), anchored at the 命宫 branch. Direction: 逆时针.
+// zhiIdxToPalaceIndex returns the gong index (0=命宫) whose earth zhi
+// is zhiIdx (0=子), anchored at the 命宫 zhi. Direction: 逆时针.
 func zhiIdxToPalaceIndex(mingZhiIdx, zhiIdx int) gongIndex {
 	return gongIndex(((mingZhiIdx-zhiIdx)%12 + 12) % 12)
 }
 
-// palaceIndexToZhiIdx returns the earth branch index (zhiIdx, 0=子) of a gong
-// index, anchored at the 命宫 branch. Direction: 逆时针.
+// palaceIndexToZhiIdx returns the earth zhi index (zhiIdx, 0=子) of a gong
+// index, anchored at the 命宫 zhi. Direction: 逆时针.
 func palaceIndexToZhiIdx(mingZhiIdx int, pi gongIndex) int {
 	return ((mingZhiIdx-int(pi))%12 + 12) % 12
 }

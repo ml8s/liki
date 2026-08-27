@@ -47,7 +47,7 @@ func TestParseYongShen(t *testing.T) {
 				t.Errorf("%q 应解析为神", tt.in)
 			}
 		case "gan":
-			if sym.Stem == nil {
+			if sym.Gan == nil {
 				t.Errorf("%q 应解析为干", tt.in)
 			}
 		}

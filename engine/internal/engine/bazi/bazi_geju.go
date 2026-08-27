@@ -17,8 +17,8 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 	dmElem := ganzhi.GanWuxing(riYuan)
 	yueZhi := c.Yue.Zhi
 
-	// 建禄格/月刃格: month branch is the day master's 临官(禄) or 帝旺(刃).
-	if isLu, isRen := jianLuYueRenBranch(riYuan, yueZhi); isLu || isRen {
+	// 建禄格/月刃格: month zhi is the day master's 临官(禄) or 帝旺(刃).
+	if isLu, isRen := jianLuYueRenZhi(riYuan, yueZhi); isLu || isRen {
 		return computeJianLuYueRen(dmElem, isRen)
 	}
 
@@ -114,8 +114,8 @@ func computeJianLuYueRen(dmElem ganzhi.Wuxing, isYueRen bool) GeJuResult {
 	}
 }
 
-// jianLuYueRenBranch checks if a branch is the day master's 临官(禄) or 帝旺(刃).
-func jianLuYueRenBranch(riGan ganzhi.Gan, yueZhi ganzhi.Zhi) (isLu, isYueRen bool) {
+// jianLuYueRenZhi checks if a zhi is the day master's 临官(禄) or 帝旺(刃).
+func jianLuYueRenZhi(riGan ganzhi.Gan, yueZhi ganzhi.Zhi) (isLu, isYueRen bool) {
 	stages := ganzhi.ChangShengTable[riGan]
 	if len(stages) < 5 {
 		return false, false

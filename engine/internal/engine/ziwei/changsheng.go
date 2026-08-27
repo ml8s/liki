@@ -8,7 +8,7 @@ var changShengCycle = []string{
 	"病", "死", "墓", "绝", "胎", "养",
 }
 
-// juChangShengZhi returns the earthly branch (1-12) where "长生" starts for a given bureau.
+// juChangShengZhi returns the earthly zhi (1-12) where "长生" starts for a given bureau.
 func juChangShengZhi(ju juShu) Zhi {
 	switch ju {
 	case JuWater:

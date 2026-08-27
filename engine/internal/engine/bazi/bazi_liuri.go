@@ -35,8 +35,8 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 
 	dayName := ganzhi.GanName(dp.Gan) + ganzhi.ZhiName(dp.Zhi)
 
-	// Day vs bazi (stem + branch relations) — all 4 pillars, consistent with liunian.
-	stemRels, branchRels := analyzeZhuWithBazi(dp, bz)
+	// Day vs bazi (gan + zhi relations) — all 4 pillars, consistent with liunian.
+	ganRels, zhiRels := analyzeZhuWithBazi(dp, bz)
 
 	// Day vs dayun.
 	DaYunRels := make([]ZhiRelation, 0)
@@ -53,9 +53,9 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 	// Na yin.
 	naYin := ganzhi.NayinLabel(dp.Gan, dp.Zhi)
 
-	// Daily shensha: day stem/branch vs bazi.
+	// Daily shensha: day gan/zhi vs bazi.
 	var shensha []shenShaEntry
-	// 天乙贵人 on day stem.
+	// 天乙贵人 on day gan.
 	if targets, ok := tianYiLookup[dp.Gan]; ok {
 		for _, tb := range targets {
 			for _, np := range bazi {
@@ -65,7 +65,7 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 			}
 		}
 	}
-	// 文昌 on day stem.
+	// 文昌 on day gan.
 	if targets, ok := wenChangLookup[dp.Gan]; ok {
 		for _, tb := range targets {
 			for _, np := range bazi {
@@ -75,7 +75,7 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 			}
 		}
 	}
-	// 驿马/桃花/华盖 from year branch triad → day branch check.
+	// 驿马/桃花/华盖 from year zhi triad → day zhi check.
 	yBranch := bazi[0].Zhi
 	triadMaps := []struct {
 		m    map[ganzhi.Zhi]ganzhi.Zhi
@@ -83,9 +83,9 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 		cat  string
 		desc string
 	}{
-		{yimaBranchMap, "驿马", catZhongXing, "流日驿马，动象"},
-		{taohuaBranchMap, "桃花", catZhongXing, "流日桃花，异性缘佳"},
-		{huagaiBranchMap, "华盖", catZhongXing, "流日华盖，宜静思"},
+		{yimaZhiMap, "驿马", catZhongXing, "流日驿马，动象"},
+		{taohuaZhiMap, "桃花", catZhongXing, "流日桃花，异性缘佳"},
+		{huagaiZhiMap, "华盖", catZhongXing, "流日华盖，宜静思"},
 	}
 	for _, tm := range triadMaps {
 		if tb, ok := tm.m[yBranch]; ok && dp.Zhi == tb {
@@ -103,8 +103,8 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 		DayName:     dayName,
 		DayNaYin:    naYin,
 		ShiShen:     tgName.String(),
-		GanRels:     stemRels,
-		ZhiRels:     branchRels,
+		GanRels:     ganRels,
+		ZhiRels:     zhiRels,
 		DaYunRels:   DaYunRels,
 		LiuNianRels: liunianRels,
 		ShenSha:     shensha,

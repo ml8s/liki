@@ -8,14 +8,14 @@ func xunIndex(riZhu ganzhi.Zhu) int {
 }
 
 type zhuPairEntry struct {
-	AZhu    string      `json:"jia_zhu"`
-	BZhu    string      `json:"yi_zhu"`
-	AStem   string      `json:"jia_gan"`
-	BStem   string      `json:"yi_gan"`
-	ABranch string      `json:"jia_zhi"`
-	BBranch string      `json:"yi_zhi"`
-	Stem    GanRelation `json:"gan_guan_xi"`
-	Branch  ZhiRelation `json:"zhi_guan_xi"`
+	AZhu   string      `json:"jia_zhu"`
+	BZhu   string      `json:"yi_zhu"`
+	JiaGan string      `json:"jia_gan"`
+	YiGan  string      `json:"yi_gan"`
+	JiaZhi string      `json:"jia_zhi"`
+	YiZhi  string      `json:"yi_zhi"`
+	GanRel GanRelation `json:"gan_guan_xi"`
+	ZhiRel ZhiRelation `json:"zhi_guan_xi"`
 }
 type zhuCross struct {
 	Pairs []zhuPairEntry `json:"pairs"`
@@ -69,10 +69,10 @@ type daYunCrossEntry struct {
 	ShiShen string     `json:"shi_shen"`
 }
 type daYunCross struct {
-	ACurrent  daYunCrossEntry `json:"a_current"`
-	BCurrent  daYunCrossEntry `json:"b_current"`
-	StemRel   GanRelation     `json:"gan_guan_xi"`
-	BranchRel ZhiRelation     `json:"zhi_guan_xi"`
+	ACurrent daYunCrossEntry `json:"a_current"`
+	BCurrent daYunCrossEntry `json:"b_current"`
+	GanRel   GanRelation     `json:"gan_guan_xi"`
+	ZhiRel   ZhiRelation     `json:"zhi_guan_xi"`
 }
 
 // XunGong describes whether two charts share the same xun (旬) or palace (宫).
@@ -114,10 +114,10 @@ func computeZhuCross(a, b Chart) zhuCross {
 		for j := 0; j < 4; j++ {
 			pairs = append(pairs, zhuPairEntry{
 				AZhu: zhuLabels[i], BZhu: zhuLabels[j],
-				AStem: ganzhi.GanName(aG[i]), BStem: ganzhi.GanName(bG[j]),
-				ABranch: ganzhi.ZhiName(aZ[i]), BBranch: ganzhi.ZhiName(bZ[j]),
-				Stem:   analyzeGanRelation(aG[i], bG[j]),
-				Branch: analyzeZhiRelation(aZ[i], bZ[j]),
+				JiaGan: ganzhi.GanName(aG[i]), YiGan: ganzhi.GanName(bG[j]),
+				JiaZhi: ganzhi.ZhiName(aZ[i]), YiZhi: ganzhi.ZhiName(bZ[j]),
+				GanRel: analyzeGanRelation(aG[i], bG[j]),
+				ZhiRel: analyzeZhiRelation(aZ[i], bZ[j]),
 			})
 		}
 	}
@@ -131,8 +131,8 @@ func computeShiShenCross(a, b Chart) shiShenCross {
 	bElem, bYY := ganzhi.GanWuxing(b.Ri.Gan), ganzhi.GanYinYang(b.Ri.Gan)
 	aToB, bToA := make(map[string]string, 4), make(map[string]string, 4)
 	for i := 0; i < 4; i++ {
-		aToB[zhuLabels[i]+"_stem"] = ganzhi.ShiShenName(ganzhi.ShiShenType(aElem, aYY, ganzhi.GanWuxing(bG[i]), ganzhi.GanYinYang(bG[i])))
-		bToA[zhuLabels[i]+"_stem"] = ganzhi.ShiShenName(ganzhi.ShiShenType(bElem, bYY, ganzhi.GanWuxing(aG[i]), ganzhi.GanYinYang(aG[i])))
+		aToB[zhuLabels[i]+"_gan"] = ganzhi.ShiShenName(ganzhi.ShiShenType(aElem, aYY, ganzhi.GanWuxing(bG[i]), ganzhi.GanYinYang(bG[i])))
+		bToA[zhuLabels[i]+"_gan"] = ganzhi.ShiShenName(ganzhi.ShiShenType(bElem, bYY, ganzhi.GanWuxing(aG[i]), ganzhi.GanYinYang(aG[i])))
 	}
 	return shiShenCross{AToB: aToB, BToA: bToA}
 }
@@ -195,21 +195,21 @@ func computeShenshaCross(a, b Chart) shenshaCross {
 	aBz, bBz := a.ToBazi(), b.ToBazi()
 	aPs, bPs := aBz.Slice(), bBz.Slice()
 	mut := func(aZ, bZ []ganzhi.Zhi) shenshaMutual {
-		return shenshaMutual{branchesInZhus(aZ, bBz), branchesInZhus(bZ, aBz)}
+		return shenshaMutual{zhiInZhus(aZ, bBz), zhiInZhus(bZ, aBz)}
 	}
 	return shenshaCross{
-		TianYi:   mut(tianYiBranches(a), tianYiBranches(b)),
-		Lu:       mut(luBranches(a), luBranches(b)),
-		TaoHua:   mut(zhiLookup(a, taohuaBranchMap), zhiLookup(b, taohuaBranchMap)),
-		YiMa:     mut(zhiLookup(a, yimaBranchMap), zhiLookup(b, yimaBranchMap)),
-		KongWang: mut(kongwangBranches(aBz), kongwangBranches(bBz)),
-		KuiGang:  mut(collectBranches(aPs, isKuiGang), collectBranches(bPs, isKuiGang)),
-		RiDe:     mut(collectBranches(aPs, isRiDe), collectBranches(bPs, isRiDe)),
-		RiGui:    mut(collectBranches(aPs, isRiGui), collectBranches(bPs, isRiGui)),
+		TianYi:   mut(tianYiZhi(a), tianYiZhi(b)),
+		Lu:       mut(luZhi(a), luZhi(b)),
+		TaoHua:   mut(zhiLookup(a, taohuaZhiMap), zhiLookup(b, taohuaZhiMap)),
+		YiMa:     mut(zhiLookup(a, yimaZhiMap), zhiLookup(b, yimaZhiMap)),
+		KongWang: mut(kongwangZhi(aBz), kongwangZhi(bBz)),
+		KuiGang:  mut(collectZhi(aPs, isKuiGang), collectZhi(bPs, isKuiGang)),
+		RiDe:     mut(collectZhi(aPs, isRiDe), collectZhi(bPs, isRiDe)),
+		RiGui:    mut(collectZhi(aPs, isRiGui), collectZhi(bPs, isRiGui)),
 	}
 }
 
-func branchesInZhus(ts []ganzhi.Zhi, bz ganzhi.Bazi) bool {
+func zhiInZhus(ts []ganzhi.Zhi, bz ganzhi.Bazi) bool {
 	for _, t := range ts {
 		for _, p := range bz.Slice() {
 			if p.Zhi == t {
@@ -219,7 +219,7 @@ func branchesInZhus(ts []ganzhi.Zhi, bz ganzhi.Bazi) bool {
 	}
 	return false
 }
-func tianYiBranches(c Chart) []ganzhi.Zhi {
+func tianYiZhi(c Chart) []ganzhi.Zhi {
 	var bs []ganzhi.Zhi
 	if b, ok := tianYiLookup[c.Nian.Gan]; ok {
 		bs = append(bs, b[0], b[1])
@@ -229,7 +229,7 @@ func tianYiBranches(c Chart) []ganzhi.Zhi {
 	}
 	return bs
 }
-func luBranches(c Chart) []ganzhi.Zhi {
+func luZhi(c Chart) []ganzhi.Zhi {
 	if c.Ri.Gan < 1 || c.Ri.Gan > 10 {
 		return nil
 	}
@@ -245,7 +245,7 @@ func zhiLookup(c Chart, m map[ganzhi.Zhi]ganzhi.Zhi) []ganzhi.Zhi {
 	}
 	return bs
 }
-func kongwangBranches(bz ganzhi.Bazi) []ganzhi.Zhi {
+func kongwangZhi(bz ganzhi.Bazi) []ganzhi.Zhi {
 	ps := bz.Slice()
 	vh := computeKongWang(bz)
 	bs := make([]ganzhi.Zhi, 0, len(vh))
@@ -254,7 +254,7 @@ func kongwangBranches(bz ganzhi.Bazi) []ganzhi.Zhi {
 	}
 	return bs
 }
-func collectBranches(ps [4]ganzhi.Zhu, f func(ganzhi.Zhu) bool) []ganzhi.Zhi {
+func collectZhi(ps [4]ganzhi.Zhu, f func(ganzhi.Zhu) bool) []ganzhi.Zhi {
 	var bs []ganzhi.Zhi
 	for _, p := range ps {
 		if f(p) {
@@ -277,8 +277,8 @@ func computeDaYunCross(a, b Chart) daYunCross {
 		return daYunCross{}
 	}
 	dc := daYunCross{ACurrent: currentDaYunEntry(a.DaYun), BCurrent: currentDaYunEntry(b.DaYun)}
-	dc.StemRel = analyzeGanRelation(dc.ACurrent.Gan, dc.BCurrent.Gan)
-	dc.BranchRel = analyzeZhiRelation(dc.ACurrent.Zhi, dc.BCurrent.Zhi)
+	dc.GanRel = analyzeGanRelation(dc.ACurrent.Gan, dc.BCurrent.Gan)
+	dc.ZhiRel = analyzeZhiRelation(dc.ACurrent.Zhi, dc.BCurrent.Zhi)
 	return dc
 }
 func currentDaYunEntry(dr *DaYun) daYunCrossEntry {

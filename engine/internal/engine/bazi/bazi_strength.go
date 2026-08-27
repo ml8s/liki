@@ -35,13 +35,13 @@ type congGeRule struct {
 }
 
 type congGeConditions struct {
-	Root       string         `json:"root"`
-	Season     []string       `json:"season"`
-	Stems      stemConditions `json:"stems"`
-	RootDetail []string       `json:"root_detail,omitempty"`
+	Root       string        `json:"root"`
+	Season     []string      `json:"season"`
+	Gan        ganConditions `json:"stems"`
+	RootDetail []string      `json:"root_detail,omitempty"`
 }
 
-type stemConditions struct {
+type ganConditions struct {
 	YinBiMin      *int `json:"yin_bi_min,omitempty"`
 	GuanShaTouGan *int `json:"guan_sha_tou_gan,omitempty"`
 	GuanShaMin    *int `json:"guan_sha_min,omitempty"`
@@ -96,7 +96,7 @@ func loadCongGeRules() error {
 // ── Root type classification ──
 
 // classifyRoot determines the root type for the day master.
-func classifyRoot(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi, cangGan [4]cangGanOut) string {
+func classifyRoot(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi, cangGan [4]cangGanOut) string {
 	dmElem := ganzhi.GanWuxing(riYuan)
 
 	monthCG := cangGan[1]
@@ -113,20 +113,20 @@ func classifyRoot(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi, cangGan [4]cangGanO
 			continue
 		}
 		if ganzhi.GanWuxing(hs.Main) == dmElem {
-			return "branch_main"
+			return "zhi_main"
 		}
 		if (hs.Mid != nil && ganzhi.GanWuxing(*hs.Mid) == dmElem) ||
 			(hs.Minor != nil && ganzhi.GanWuxing(*hs.Minor) == dmElem) {
-			return "branch_mid"
+			return "zhi_mid"
 		}
 	}
 	return "none"
 }
 
 // classifySeason returns the season label (旺相休囚死) for the day master.
-func classifySeason(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi) string {
+func classifySeason(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) string {
 	dmElem := ganzhi.GanWuxing(riYuan)
-	monthElem := ganzhi.ZhiWuxing(monthBranch)
+	monthElem := ganzhi.ZhiWuxing(yueZhi)
 	genElem := elementThatGenerates(dmElem)
 	ctrlElem := elementThatControls(dmElem)
 
@@ -144,7 +144,7 @@ func classifySeason(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi) string {
 	}
 }
 
-// countYinBi returns印比 count (比劫同五行+印生我) from the 4 stems.
+// countYinBi returns印比 count (比劫同五行+印生我) from the 4 gan.
 func countYinBi(c Chart) int {
 	// Count 印(生我) and 比劫(同我) from年/月/时干 only (excluding日主自身).
 	dmElem := ganzhi.GanWuxing(c.Ri.Gan)
@@ -194,7 +194,7 @@ func lookupCongGe(c Chart) (string, string, string, string) {
 	dmElem := ganzhi.GanWuxing(riYuan)
 	rootType := classifyRoot(riYuan, c.Yue.Zhi, computeCangGan(c.ToBazi()))
 	season := classifySeason(riYuan, c.Yue.Zhi)
-	stems := countStems(c)
+	gan := countGan(c)
 
 	for _, rule := range congGeRules {
 		if !matchRoot(rule.Conditions.Root, rootType, rule.Conditions.RootDetail) {
@@ -203,7 +203,7 @@ func lookupCongGe(c Chart) (string, string, string, string) {
 		if !matchSeasons(rule.Conditions.Season, season) {
 			continue
 		}
-		if !matchStemConditions(rule.Conditions.Stems, stems) {
+		if !matchGanConditions(rule.Conditions.Gan, gan) {
 			continue
 		}
 		yong, xi, ji := resolveCongGeYongXiJi(rule, dmElem)
@@ -214,7 +214,7 @@ func lookupCongGe(c Chart) (string, string, string, string) {
 
 // ── Helpers ──
 
-type stemCounts struct {
+type ganCounts struct {
 	biBi     int // 比劫 (same as dmElem)
 	yin      int // 印 (generates dmElem)
 	guanSha  int // 官杀 (controls dmElem)
@@ -222,11 +222,11 @@ type stemCounts struct {
 	shiShang int // 食伤 (drains dmElem)
 }
 
-func (sc stemCounts) yinBi() int { return sc.biBi + sc.yin }
+func (sc ganCounts) yinBi() int { return sc.biBi + sc.yin }
 
-func countStems(c Chart) stemCounts {
+func countGan(c Chart) ganCounts {
 	dmElem := ganzhi.GanWuxing(c.Ri.Gan)
-	var sc stemCounts
+	var sc ganCounts
 	for _, p := range []struct{ gan ganzhi.Gan }{
 		{c.Nian.Gan}, {c.Yue.Gan}, {c.Shi.Gan},
 	} {
@@ -254,7 +254,7 @@ func matchRoot(ruleRoot, actualRoot string, rootDetail []string) bool {
 	case "none":
 		return actualRoot == "none"
 	case "mid":
-		return actualRoot == "month_mid" || actualRoot == "branch_mid"
+		return actualRoot == "month_mid" || actualRoot == "zhi_mid"
 	default:
 		return ruleRoot == actualRoot
 	}
@@ -269,7 +269,7 @@ func matchSeasons(allowed []string, actual string) bool {
 	return false
 }
 
-func matchStemConditions(cond stemConditions, sc stemCounts) bool {
+func matchGanConditions(cond ganConditions, sc ganCounts) bool {
 	if cond.YinBiMin != nil && sc.yinBi() < *cond.YinBiMin {
 		return false
 	}

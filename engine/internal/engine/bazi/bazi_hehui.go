@@ -26,7 +26,7 @@ type GanHePair struct {
 	HeElement string `json:"he_element"`
 }
 
-// ZhiPairRel describes a paired branch relationship (六合/六冲/六害/相刑) between two pillars.
+// ZhiPairRel describes a paired zhi relationship (六合/六冲/六害/相刑) between two pillars.
 type ZhiPairRel struct {
 	ZhiA    string `json:"zhi_a"`
 	ZhiB    string `json:"zhi_b"`
@@ -64,7 +64,7 @@ const (
 )
 
 func detectGanHe(bz ganzhi.Bazi) []GanHePair {
-	pairs := make([]GanHePair, 0)
+	pairs := make([]GanHePair, 0, 5)
 	zhus := bz.Slice()
 	adjacent := [][2]int{{zhuNian, zhuYue}, {zhuYue, zhuRi}, {zhuRi, zhuShi}}
 	for _, adj := range adjacent {
@@ -92,11 +92,11 @@ func ganHeResult(a, b ganzhi.Gan) ganzhi.Wuxing {
 	return 0
 }
 
-// detectZhiPairs checks all pillar branch pairs using check. When withElem is true,
+// detectZhiPairs checks all pillar zhi pairs using check. When withElem is true,
 // also computes the 六合 element produced by the pair.
 func detectZhiPairs(bz ganzhi.Bazi, check func(ganzhi.Zhi, ganzhi.Zhi) bool, withElem bool) []ZhiPairRel {
 	zhus := bz.Slice()
-	rels := make([]ZhiPairRel, 0)
+	rels := make([]ZhiPairRel, 0, 12)
 	for i := 0; i < 3; i++ {
 		for j := i + 1; j < 4; j++ {
 			za, zb := zhus[i].Zhi, zhus[j].Zhi
@@ -119,13 +119,13 @@ func detectZhiPairs(bz ganzhi.Bazi, check func(ganzhi.Zhi, ganzhi.Zhi) bool, wit
 }
 
 func detectTriple(bz ganzhi.Bazi, list []ganzhi.SanHeHui, typ, suffix string) []TripleGroup {
-	bs := branchSet(bz)
-	results := make([]TripleGroup, 0)
+	bs := zhiSet(bz)
+	results := make([]TripleGroup, 0, 4)
 	for _, tr := range list {
-		if countBranches(bs, tr.Branches...) == len(tr.Branches) {
+		if countZhi(bs, tr.Zhi...) == len(tr.Zhi) {
 			results = append(results, TripleGroup{
 				Type:    typ,
-				Name:    tripleName(tr.Branches, tr.Element, suffix),
+				Name:    tripleName(tr.Zhi, tr.Element, suffix),
 				Element: tr.Element.String(),
 			})
 		}
@@ -142,7 +142,7 @@ func zhiHeElement(a, b ganzhi.Zhi) string {
 	return ""
 }
 
-func branchSet(bz ganzhi.Bazi) [13]bool {
+func zhiSet(bz ganzhi.Bazi) [13]bool {
 	zhus := bz.Slice()
 	var bs [13]bool
 	for _, p := range zhus {
@@ -153,7 +153,7 @@ func branchSet(bz ganzhi.Bazi) [13]bool {
 	return bs
 }
 
-func countBranches(bs [13]bool, targets ...ganzhi.Zhi) int {
+func countZhi(bs [13]bool, targets ...ganzhi.Zhi) int {
 	c := 0
 	for _, t := range targets {
 		if t >= 1 && t <= 12 && bs[int(t)] {
@@ -163,9 +163,9 @@ func countBranches(bs [13]bool, targets ...ganzhi.Zhi) int {
 	return c
 }
 
-func tripleName(branches []ganzhi.Zhi, element ganzhi.Wuxing, suffix string) string {
-	parts := make([]string, len(branches))
-	for i, b := range branches {
+func tripleName(zhi []ganzhi.Zhi, element ganzhi.Wuxing, suffix string) string {
+	parts := make([]string, len(zhi))
+	for i, b := range zhi {
 		parts[i] = ganzhi.ZhiName(b)
 	}
 	return strings.Join(parts, "") + element.String() + suffix

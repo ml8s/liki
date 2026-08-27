@@ -100,8 +100,8 @@ func TestQueryMonth_Basic(t *testing.T) {
 	if len(m.Days) != 30 {
 		t.Errorf("len(Days) = %d, want 30", len(m.Days))
 	}
-	if m.Stem == "" || m.Branch == "" {
-		t.Error("Month stem/branch should not be empty")
+	if m.Gan == "" || m.Zhi == "" {
+		t.Error("Month gan/zhi should not be empty")
 	}
 	for i, d := range m.Days {
 		if d.Date == "" {
@@ -168,7 +168,7 @@ func TestRenYuanName_NilCurrent(t *testing.T) {
 // =============================================================================
 
 func TestQueryDate_WithOtherEvents(t *testing.T) {
-	// Test various event types to exercise different jianChuSuitable branches.
+	// Test various event types to exercise different jianChuSuitable zhi.
 	events := []string{"wedding", "travel", "open", "medical", "funeral"}
 	for _, ev := range events {
 		t.Run("event="+ev, func(t *testing.T) {
@@ -196,8 +196,8 @@ func TestComputeRenYuanSiLing_NilPhases(t *testing.T) {
 	if len(r.Phases) != 0 {
 		t.Errorf("Phases len = %d, want 0", len(r.Phases))
 	}
-	if r.MonthBranch != ganzhi.Zhi(0) {
-		t.Error("MonthBranch should be preserved")
+	if r.YueZhi != ganzhi.Zhi(0) {
+		t.Error("YueZhi should be preserved")
 	}
 }
 
@@ -205,11 +205,11 @@ func TestComputeRenYuanSiLing_NilPhases(t *testing.T) {
 // 二月建卯: 卯月卯日=建(offset 0), 卯月辰日=除(offset 1)
 func TestJianChuOffset(t *testing.T) {
 	tests := []struct {
-		name        string
-		monthBranch ganzhi.Zhi
-		riZhi       ganzhi.Zhi
-		wantOffset  int
-		wantGod     string
+		name       string
+		yueZhi     ganzhi.Zhi
+		riZhi      ganzhi.Zhi
+		wantOffset int
+		wantGod    string
 	}{
 		{"寅月寅日→建", ganzhi.ZhiYin, ganzhi.ZhiYin, 0, "建"},
 		{"寅月卯日→除", ganzhi.ZhiYin, ganzhi.ZhiMao, 1, "除"},
@@ -223,7 +223,7 @@ func TestJianChuOffset(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			jianIdx := int(tt.monthBranch) - 1
+			jianIdx := int(tt.yueZhi) - 1
 			dayIdx := int(tt.riZhi) - 1
 			offset := (dayIdx - jianIdx + 12) % 12
 
@@ -243,10 +243,10 @@ func TestJianChuOffset(t *testing.T) {
 // TestHuangDaoForDay verifies 黄道黑道十二神.
 func TestHuangDaoForDay(t *testing.T) {
 	tests := []struct {
-		monthBranch ganzhi.Zhi
-		riZhi       ganzhi.Zhi
-		wantName    string
-		wantPath    string
+		yueZhi   ganzhi.Zhi
+		riZhi    ganzhi.Zhi
+		wantName string
+		wantPath string
 	}{
 		// 寅月: 青龙起子 → 子=青龙, 丑=明堂, 寅=天刑
 		{ganzhi.ZhiYin, ganzhi.ZhiZi, "青龙", "黄道"},
@@ -264,9 +264,9 @@ func TestHuangDaoForDay(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		name := ganzhi.ZhiName(tt.monthBranch) + "月" + ganzhi.ZhiName(tt.riZhi) + "日"
+		name := ganzhi.ZhiName(tt.yueZhi) + "月" + ganzhi.ZhiName(tt.riZhi) + "日"
 		t.Run(name, func(t *testing.T) {
-			got := huangDaoForDay(tt.monthBranch, tt.riZhi)
+			got := huangDaoForDay(tt.yueZhi, tt.riZhi)
 			if got.Name != tt.wantName {
 				t.Errorf("Name = %s, want %s", got.Name, tt.wantName)
 			}
@@ -298,8 +298,8 @@ func TestHuangDaoCycle(t *testing.T) {
 // TestQingLongStart verifies青龙起始 for all 12 months.
 func TestQingLongStart(t *testing.T) {
 	tests := []struct {
-		monthBranch ganzhi.Zhi
-		wantStart   ganzhi.Zhi
+		yueZhi    ganzhi.Zhi
+		wantStart ganzhi.Zhi
 	}{
 		{ganzhi.ZhiYin, ganzhi.ZhiZi},    // 寅月青龙起子
 		{ganzhi.ZhiMao, ganzhi.ZhiYin},   // 卯月起寅
@@ -316,13 +316,13 @@ func TestQingLongStart(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(ganzhi.ZhiName(tt.monthBranch)+"月", func(t *testing.T) {
-			start, ok := qingLongStart[tt.monthBranch]
+		t.Run(ganzhi.ZhiName(tt.yueZhi)+"月", func(t *testing.T) {
+			start, ok := qingLongStart[tt.yueZhi]
 			if !ok {
 				t.Fatal("month not found in qingLongStart map")
 			}
 			if start != tt.wantStart {
-				t.Errorf("start branch = %d(%s), want %d(%s)",
+				t.Errorf("start zhi = %d(%s), want %d(%s)",
 					start, ganzhi.ZhiName(start),
 					int(tt.wantStart), ganzhi.ZhiName(tt.wantStart))
 			}
@@ -517,11 +517,11 @@ func TestComputeBondMonth_Golden(t *testing.T) {
 	}
 
 	// 2024-06-01 is before 芒种 → 巳月 (甲年: 甲己之年丙作首 → 四月己巳)
-	if m.Stem != "己" {
-		t.Errorf("Month stem=%q, want 己 (before芒种→巳月)", m.Stem)
+	if m.Gan != "己" {
+		t.Errorf("Month gan=%q, want 己 (before芒种→巳月)", m.Gan)
 	}
-	if m.Branch != "巳" {
-		t.Errorf("Month branch=%q, want 巳 (before芒种→巳月)", m.Branch)
+	if m.Zhi != "巳" {
+		t.Errorf("Month zhi=%q, want 巳 (before芒种→巳月)", m.Zhi)
 	}
 
 	// 2024-06-15 = 庚戌日, 日主己土: 庚→己 = 伤官
@@ -537,7 +537,7 @@ func TestComputeBondMonth_Golden(t *testing.T) {
 // ── QueryDate golden: known 建除 values ──
 
 func TestQueryDate_Golden_JianChu(t *testing.T) {
-	// 建除十二神: based on month branch and day branch
+	// 建除十二神: based on month zhi and day zhi
 	// 2024-06-15: 午月(月支=午), 庚戌日(日支=戌)
 	// 午月起午日为建 → 午=建,未=除,申=满,酉=平,戌=定
 	// 戌日 → 定日

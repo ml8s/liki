@@ -20,7 +20,7 @@ func RiZhu(gt GregorianTime) ganzhi.Zhu {
 }
 
 // NianZhu computes the year pillar for a given date, accounting for 立春 boundary.
-// If the date is before 立春 (exact solar-term time), the year stem/branch is
+// If the date is before 立春 (exact solar-term time), the year gan/zhi is
 // based on (year-1). Uses the precise 立春 moment, not just the calendar day,
 // so births on 立春 day before the exact moment are still the previous year.
 func NianZhu(gt GregorianTime) ganzhi.Zhu {
@@ -41,7 +41,7 @@ func NianZhu(gt GregorianTime) ganzhi.Zhu {
 	return ganzhi.Zhu{Gan: ganzhi.Gan(s), Zhi: ganzhi.Zhi(b)}
 }
 
-// YueZhu computes the month pillar from the given time, deriving the year stem via NianZhu internally.
+// YueZhu computes the month pillar from the given time, deriving the year gan via NianZhu internally.
 func YueZhu(gt GregorianTime) ganzhi.Zhu {
 	t := gt.Time().UTC()
 	jz := JianYue(GregorianTime(t))

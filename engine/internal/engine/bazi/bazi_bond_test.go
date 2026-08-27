@@ -43,16 +43,16 @@ func TestComputeBond_GoldenValues(t *testing.T) {
 		}
 	}
 
-	// Verify day-stem shiShen A→B and B→A are computed
-	aToBDay := bond.ShiShenCross.AToB["ri_stem"]
-	bToADay := bond.ShiShenCross.BToA["ri_stem"]
+	// Verify day-gan shiShen A→B and B→A are computed
+	aToBDay := bond.ShiShenCross.AToB["ri_gan"]
+	bToADay := bond.ShiShenCross.BToA["ri_gan"]
 	if aToBDay == "" {
-		t.Error("AToB day_stem is empty")
+		t.Error("AToB ri_gan is empty")
 	}
 	if bToADay == "" {
-		t.Error("BToA day_stem is empty")
+		t.Error("BToA ri_gan is empty")
 	}
-	t.Logf("A(己) → B day stem: %s | B → A day stem: %s", aToBDay, bToADay)
+	t.Logf("A(己) → B day gan: %s | B → A day gan: %s", aToBDay, bToADay)
 }
 
 func computeChartForTest(t *testing.T, year, month, day, hour int, g ganzhi.Gender) Chart {

@@ -197,12 +197,12 @@ func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
 
 // Gong holds all layers of information for one 宫。
 type Gong struct {
-	EarthStem  ganzhi.Gan  `json:"di_pan_gan"`
-	HeavenStem ganzhi.Gan  `json:"tian_pan_gan,omitempty"`
+	DiPanGan   ganzhi.Gan  `json:"di_pan_gan"`
+	TianPanGan ganzhi.Gan  `json:"tian_pan_gan,omitempty"`
 	Star       StarIndex   `json:"xing,omitempty"`
 	Door       DoorIndex   `json:"men,omitempty"`
 	Spirit     SpiritIndex `json:"shen"`
-	HiddenStem ganzhi.Gan  `json:"an_gan,omitempty"`
+	CangGan    ganzhi.Gan  `json:"an_gan,omitempty"`
 }
 
 // pan is the complete 奇门遁甲排盘。
@@ -234,7 +234,7 @@ func (p pan) MarshalJSON() ([]byte, error) {
 	palaces := make([]map[string]any, 9)
 	for i, pl := range p.GongWei {
 		pm := map[string]any{
-			"di_pan_gan": pl.EarthStem, "tian_pan_gan": pl.HeavenStem,
+			"di_pan_gan": pl.DiPanGan, "tian_pan_gan": pl.TianPanGan,
 		}
 		if pl.Star != 0 {
 			pm["xing"] = pl.Star
@@ -249,8 +249,8 @@ func (p pan) MarshalJSON() ([]byte, error) {
 				pm["shen"] = pl.Spirit.YangName()
 			}
 		}
-		if pl.HiddenStem != 0 {
-			pm["an_gan"] = pl.HiddenStem
+		if pl.CangGan != 0 {
+			pm["an_gan"] = pl.CangGan
 		}
 		palaces[i] = pm
 	}
@@ -271,10 +271,10 @@ type juShu struct {
 	Yuan   string // 上元/中元/下元
 }
 
-// GanInteraction represents a 十干克应 between earth and heaven stems.
+// GanInteraction represents a 十干克应 between earth and heaven gan.
 type GanInteraction struct {
-	EarthStem  ganzhi.Gan `json:"di_pan_gan"`
-	HeavenStem ganzhi.Gan `json:"tian_pan_gan"`
+	DiPanGan   ganzhi.Gan `json:"di_pan_gan"`
+	TianPanGan ganzhi.Gan `json:"tian_pan_gan"`
 	Name       string     `json:"name"`
 	Meaning    string     `json:"meaning"`
 	Auspicious bool       `json:"auspicious"`

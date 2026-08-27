@@ -10,23 +10,23 @@ type FuYinFanYin struct {
 }
 
 // computeFuYinFanYin checks a flow pillar (e.g., liunian or dayun) against each
-// bazi pillar for 伏吟 (same stem+branch) and 反吟 (stem clash + branch clash —
+// bazi pillar for 伏吟 (same gan+zhi) and 反吟 (gan clash + zhi clash —
 // 天克地冲).
 func computeFuYinFanYin(flow ganzhi.Zhu, bz ganzhi.Bazi) []FuYinFanYin {
 	bazi := bz.Slice()
 	var entries []FuYinFanYin
 
 	for i, np := range bazi {
-		sameStem := flow.Gan == np.Gan
-		sameBranch := flow.Zhi == np.Zhi
+		sameGan := flow.Gan == np.Gan
+		sameZhi := flow.Zhi == np.Zhi
 
-		if sameStem && sameBranch {
+		if sameGan && sameZhi {
 			entries = append(entries, FuYinFanYin{
 				NatalIndex: i,
 				Type:       "伏吟",
 				Detail:     ganzhi.GanName(flow.Gan) + ganzhi.ZhiName(flow.Zhi) + "伏吟",
 			})
-		} else if sameBranch && !sameStem {
+		} else if sameZhi && !sameGan {
 			entries = append(entries, FuYinFanYin{
 				NatalIndex: i,
 				Type:       "伏吟",
@@ -34,7 +34,7 @@ func computeFuYinFanYin(flow ganzhi.Zhu, bz ganzhi.Bazi) []FuYinFanYin {
 			})
 		}
 
-		// 反吟: 天克地冲 (stem clash AND branch clash)
+		// 反吟: 天克地冲 (gan clash AND zhi clash)
 		sr := analyzeGanRelation(flow.Gan, np.Gan)
 		br := analyzeZhiRelation(flow.Zhi, np.Zhi)
 		if sr.Type == relKe && br.Type == relLiuChong {

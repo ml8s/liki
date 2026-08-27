@@ -14,7 +14,7 @@ type YongShenSymbol struct {
 	Door   *DoorIndex   `json:"door,omitempty"`   // 事象门
 	Star   *StarIndex   `json:"star,omitempty"`   // 事象星
 	Spirit *SpiritIndex `json:"spirit,omitempty"` // 事象神
-	Stem   *ganzhi.Gan  `json:"stem,omitempty"`   // 事象干
+	Gan    *ganzhi.Gan  `json:"stem,omitempty"`   // 事象干
 	Raw    string       `json:"-"`                // 用户原始输入（门/星/神/干名），保留展示原样
 }
 
@@ -30,7 +30,7 @@ func ParseYongShen(s string) (YongShenSymbol, error) {
 		return YongShenSymbol{Spirit: &sp, Raw: s}, nil
 	}
 	if g, ok := parseGan(s); ok {
-		return YongShenSymbol{Stem: &g, Raw: s}, nil
+		return YongShenSymbol{Gan: &g, Raw: s}, nil
 	}
 	return YongShenSymbol{}, fmt.Errorf("未知用神符号 %q，可选：门(休门/生门/伤门/杜门/景门/死门/惊门/开门)、星(天蓬/天芮/天冲/天辅/天禽/天心/天柱/天任/天英)、神(值符/螣蛇/太阴/六合/勾陈/朱雀/九地/九天，阴遁白虎/玄武)、干(甲/乙/丙/丁/戊/己/庚/辛/壬/癸)", s)
 }
@@ -139,8 +139,8 @@ func symbolName(s YongShenSymbol) string {
 		return s.Star.String()
 	case s.Spirit != nil:
 		return s.Spirit.YangName()
-	case s.Stem != nil:
-		return s.Stem.String()
+	case s.Gan != nil:
+		return s.Gan.String()
 	}
 	return ""
 }
@@ -168,9 +168,9 @@ func computeYongShen(chart Chart, syms []YongShenSymbol, birthYear int, hasBirth
 			sr.Palace = findStarPalaceIdx(chart.Pan, *s.Star)
 		case s.Spirit != nil:
 			sr.Palace = findSpiritPalaceIdx(chart.Pan, *s.Spirit)
-		case s.Stem != nil:
+		case s.Gan != nil:
 			// 用神干为甲时甲遁于六仪（按日支遁），与日干处理一致；否则直接找落宫。
-			gan := resolveJiaDunGan(*s.Stem, chart.Pan.RiZhi)
+			gan := resolveJiaDunGan(*s.Gan, chart.Pan.RiZhi)
 			sr.Palace = findGanPalaceIdx(chart.Pan, gan)
 		}
 		if sr.Palace > 0 {
@@ -182,7 +182,7 @@ func computeYongShen(chart Chart, syms []YongShenSymbol, birthYear int, hasBirth
 			}
 			sr.MaXing = sr.Palace == chart.Pan.MaXing
 			if int(sr.Palace) >= 1 && int(sr.Palace) <= 9 {
-				sr.TianGan = chart.Pan.GongWei[sr.Palace-1].HeavenStem.String()
+				sr.TianGan = chart.Pan.GongWei[sr.Palace-1].TianPanGan.String()
 			}
 		}
 		ys.Symbols = append(ys.Symbols, sr)

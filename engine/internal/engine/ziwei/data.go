@@ -77,8 +77,8 @@ func loadTables() error {
 
 	// siHuaTable
 	siHuaTable = make(map[Gan][4]starIndex, 10)
-	for stemName, h := range data.SiHua {
-		stem, err := ganzhi.ParseGan(stemName)
+	for ganName, h := range data.SiHua {
+		gan, err := ganzhi.ParseGan(ganName)
 		if err != nil {
 			return err
 		}
@@ -86,7 +86,7 @@ func loadTables() error {
 			nameToStar(h["hua_lu"]), nameToStar(h["hua_quan"]),
 			nameToStar(h["hua_ke"]), nameToStar(h["hua_ji"]),
 		}
-		siHuaTable[stem] = stars
+		siHuaTable[gan] = stars
 	}
 
 	// ziweiStartPos
@@ -104,21 +104,21 @@ func loadTables() error {
 	}
 
 	// luCunTable
-	for stemName, pos := range data.LuCun {
-		stem, err := ganzhi.ParseGan(stemName)
+	for ganName, pos := range data.LuCun {
+		gan, err := ganzhi.ParseGan(ganName)
 		if err != nil {
 			return err
 		}
-		luCunTable[int(stem)-1] = pos
+		luCunTable[int(gan)-1] = pos
 	}
 
 	// tianKuiTable
-	for stemName, pos := range data.TianKui {
-		stem, err := ganzhi.ParseGan(stemName)
+	for ganName, pos := range data.TianKui {
+		gan, err := ganzhi.ParseGan(ganName)
 		if err != nil {
 			return err
 		}
-		tianKuiTable[int(stem)-1] = pos
+		tianKuiTable[int(gan)-1] = pos
 	}
 
 	// miaoWangTable

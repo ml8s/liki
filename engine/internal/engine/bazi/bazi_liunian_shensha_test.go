@@ -13,7 +13,7 @@ import (
 // ============================================================================
 
 // T1: 日支神煞逢流年（年支不中、日支中）→ 应返回（原仅年支查不返回）
-func TestLiuNian_ShenSha_RiBranch(t *testing.T) {
+func TestLiuNian_ShenSha_RiZhi(t *testing.T) {
 	// 年支=寅（寅午戌：桃花卯/驿马申/华盖戌/劫煞亥/灾煞子——均非午），日支=辰（申子辰灾煞午），流年=午 → 仅日支灾煞中
 	ss := computeDynamicShenSha(ganzhi.ZhiWu, ganzhi.ZhiYin, ganzhi.ZhiChen, ganzhi.GanJia)
 	if len(ss) != 1 || ss[0].Name != "灾煞" {
@@ -197,7 +197,7 @@ func TestLiuNian_ShenSha_DynamicEmpty(t *testing.T) {
 }
 
 // E1.7: 年支=日支（同支双查）去重
-func TestLiuNian_ShenSha_SameBranchDedup(t *testing.T) {
+func TestLiuNian_ShenSha_SameZhiDedup(t *testing.T) {
 	// 年支=子、日支=子（同支）、流年=酉（子桃花酉）→ 年日都中桃花，去重只 1 条
 	ss := computeDynamicShenSha(ganzhi.ZhiYou, ganzhi.ZhiZi, ganzhi.ZhiZi, ganzhi.GanJia)
 	count := 0
@@ -212,7 +212,7 @@ func TestLiuNian_ShenSha_SameBranchDedup(t *testing.T) {
 }
 
 // E1.1: 日支华盖逢流年（年支不中）
-func TestLiuNian_ShenSha_HuaGaiRiBranch(t *testing.T) {
+func TestLiuNian_ShenSha_HuaGaiRiZhi(t *testing.T) {
 	// 年支=寅（寅午戌：桃花卯/驿马申/华盖戌/劫煞亥/灾煞子——均非辰），日支=辰（申子辰华盖辰），流年=辰 → 仅日支华盖
 	ss := computeDynamicShenSha(ganzhi.ZhiChen, ganzhi.ZhiYin, ganzhi.ZhiChen, ganzhi.GanJia)
 	if len(ss) != 1 || ss[0].Name != "华盖" {
@@ -221,7 +221,7 @@ func TestLiuNian_ShenSha_HuaGaiRiBranch(t *testing.T) {
 }
 
 // E1.1: 日支劫煞逢流年（年支不中）
-func TestLiuNian_ShenSha_JieShaRiBranch(t *testing.T) {
+func TestLiuNian_ShenSha_JieShaRiZhi(t *testing.T) {
 	// 年支=寅（寅午戌劫煞亥≠巳），日支=辰（申子辰劫煞巳），流年=巳 → 仅日支劫煞
 	ss := computeDynamicShenSha(ganzhi.ZhiSi, ganzhi.ZhiYin, ganzhi.ZhiChen, ganzhi.GanJia)
 	if len(ss) != 1 || ss[0].Name != "劫煞" {
@@ -257,7 +257,7 @@ func TestLiuNian_ShenSha_TianYi(t *testing.T) {
 }
 
 // E2.2: 四柱含重复支逢病符 → 只输出一条（去重）
-func TestLiuNian_Annual_SameBranchDedup(t *testing.T) {
+func TestLiuNian_Annual_SameZhiDedup(t *testing.T) {
 	// 四柱 子 子 寅 辰，太岁=丑（病符=丑后1=子，两子逢）→ 只 1 条病符
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},

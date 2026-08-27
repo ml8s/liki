@@ -103,7 +103,7 @@ func TestYueZhu_Basic(t *testing.T) {
 	tests := []struct {
 		name    string
 		nianGan ganzhi.Gan
-		branch  int // 月支 1=寅..12=丑
+		zhi     int // 月支 1=寅..12=丑
 		wantGan ganzhi.Gan
 		wantZhi ganzhi.Zhi
 	}{
@@ -129,7 +129,7 @@ func TestYueZhu_Basic(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// 直接用五虎遁公式：月干 = (正月干 + 月数 - 1) % 10
 			janGan := wuhudun(tt.nianGan)
-			monthNum := tt.branch // 1=寅月
+			monthNum := tt.zhi // 1=寅月
 			wantMonthGan := ganzhi.Gan((int(janGan) + monthNum - 1) % 10)
 			if wantMonthGan == 0 {
 				wantMonthGan = 10
@@ -140,14 +140,14 @@ func TestYueZhu_Basic(t *testing.T) {
 			}
 			// 月支=(monthNum+1)%12+1 → 寅(1)→寅(3), 丑(12)→丑(2)...
 			// 实际：寅月=支3(寅), 卯月=支4(卯), ...
-			// 我们这里的 branch 1=寅... 地支值 = (branch+1)%12+1
-			wantZhi := ganzhi.Zhi((tt.branch+1)%12 + 1)
+			// 我们这里的 zhi 1=寅... 地支值 = (zhi+1)%12+1
+			wantZhi := ganzhi.Zhi((tt.zhi+1)%12 + 1)
 			if wantZhi == 0 {
 				wantZhi = 12
 			}
 			if wantZhi != tt.wantZhi {
-				t.Fatalf("test data bug: branch %d → zhi %s, test expects %s",
-					tt.branch, ganzhi.ZhiName(wantZhi), ganzhi.ZhiName(tt.wantZhi))
+				t.Fatalf("test data bug: zhi %d → zhi %s, test expects %s",
+					tt.zhi, ganzhi.ZhiName(wantZhi), ganzhi.ZhiName(tt.wantZhi))
 			}
 		})
 	}
@@ -342,9 +342,9 @@ func TestShiZhu_KnownCases(t *testing.T) {
 	}
 }
 
-func TestShiZhu_BranchRanges(t *testing.T) {
+func TestShiZhu_ZhiRanges(t *testing.T) {
 	// 验证时辰边界
-	// 子时 23:00-01:00 → branch=子(1), 丑时 01:00-03:00 → branch=丑(2), ...
+	// 子时 23:00-01:00 → zhi=子(1), 丑时 01:00-03:00 → zhi=丑(2), ...
 	// 用1900-01-01(甲日)消除时干干扰
 	tests := []struct {
 		name    string
@@ -384,7 +384,7 @@ func TestComputeBazi_BeijingNoon(t *testing.T) {
 	// 月: 6月 → 芒种(6/5)后夏至(6/21)前 → 午月。甲年→庚午月
 	// 日: daysFrom1900=45456, idx=(10+45456)%60=...
 	//     45456/60=757*60=45420, rem=36. idx=(10+36)%60=46
-	//     46→己酉? stem=46%10+1=7=庚, branch=46%12+1=10+1=11=戌? No...
+	//     46→己酉? gan=46%10+1=7=庚, zhi=46%12+1=10+1=11=戌? No...
 	//     46%10=6, gan=7=庚. 46%12=10, zhi=11=戌. → 庚戌
 	// 时: 12:00 → 午时。庚日午时：庚日子=丙子...午=壬午
 	//     时干=(7*2+7-2)%10=19%10=9→壬 ✓

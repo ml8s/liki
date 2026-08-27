@@ -74,30 +74,30 @@ func computeJieQiDepth(year, month, day int) jieQiDepth {
 	return jieQiDepth{TermName: "未知"}
 }
 
-// renYuanSiLing describes which hidden stem governs during each portion of a month.
+// renYuanSiLing describes which hidden gan governs during each portion of a month.
 type renYuanSiLing struct {
-	MonthBranch ganzhi.Zhi                  `json:"yue_zhi"`
-	Phases      []ganzhi.RenYuanSiLingFenYe `json:"phases"`
-	Current     *ganzhi.RenYuanSiLingFenYe  `json:"current"` // current governing stem, if date provided
+	YueZhi  ganzhi.Zhi                  `json:"yue_zhi"`
+	Phases  []ganzhi.RenYuanSiLingFenYe `json:"phases"`
+	Current *ganzhi.RenYuanSiLingFenYe  `json:"current"` // current governing gan, if date provided
 }
 
-// computeRenYuanSiLing returns the 人元司令分野 for the given solar month branch.
-func computeRenYuanSiLing(solarMonthBranch ganzhi.Zhi) renYuanSiLing {
-	phases := ganzhi.RenYuanSiLingFenYeForZhi(solarMonthBranch)
+// computeRenYuanSiLing returns the 人元司令分野 for the given solar month zhi.
+func computeRenYuanSiLing(solarYueZhi ganzhi.Zhi) renYuanSiLing {
+	phases := ganzhi.RenYuanSiLingFenYeForZhi(solarYueZhi)
 	if phases == nil {
 		phases = []ganzhi.RenYuanSiLingFenYe{}
 	}
 	return renYuanSiLing{
-		MonthBranch: solarMonthBranch,
-		Phases:      phases,
+		YueZhi: solarYueZhi,
+		Phases: phases,
 	}
 }
 
 // computeRenYuanSiLingForDate returns the current governing phase for the given
-// solar month branch. daysIn is the number of days into the current solar term,
+// solar month zhi. daysIn is the number of days into the current solar term,
 // obtained from computeJieQiDepth.
-func computeRenYuanSiLingForDate(monthBranch ganzhi.Zhi, daysIn int) renYuanSiLing {
-	result := computeRenYuanSiLing(monthBranch)
+func computeRenYuanSiLingForDate(yueZhi ganzhi.Zhi, daysIn int) renYuanSiLing {
+	result := computeRenYuanSiLing(yueZhi)
 	result.Current = findCurrentRenYuanSiLingFenYe(result.Phases, daysIn)
 	return result
 }

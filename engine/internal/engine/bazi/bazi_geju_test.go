@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-// mkGeJuChart builds a Chart with shi shen entries from both month stem
-// and month branch hidden stems (支藏干). Hidden stems are auto-populated
-// from the month branch using the CangGan lookup.
+// mkGeJuChart builds a Chart with shi shen entries from both month gan
+// and month zhi hidden gan (支藏干). Hidden gan are auto-populated
+// from the month zhi using the CangGan lookup.
 func mkGeJuChart(riGan, yueGan, nianGan, shiGan ganzhi.Gan, yueZhi ganzhi.Zhi) Chart {
 	return Chart{
 		Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: riGan, Zhi: ganzhi.ZhiWu}},
@@ -21,7 +21,7 @@ func mkGeJuChart(riGan, yueGan, nianGan, shiGan ganzhi.Gan, yueZhi ganzhi.Zhi) C
 	}
 }
 func TestComputeGeJu_AllPatterns(t *testing.T) {
-	// Each case: 甲日主, month stem 透月令本气 (month stem == main qi).
+	// Each case: 甲日主, month gan 透月令本气 (month gan == main qi).
 	// 逆用格 expected values unchanged; 顺用格 xi=制忌神≠ji.
 	tests := []struct {
 		name        string
@@ -125,7 +125,7 @@ func TestComputeGeJu_AllPatterns(t *testing.T) {
 	}
 }
 func TestComputeGeJu_JianLuYueRen(t *testing.T) {
-	// 禄(临官) / 刃(帝旺) per stem — unchanged.
+	// 禄(临官) / 刃(帝旺) per gan — unchanged.
 	tests := []struct {
 		name        string
 		riGan       ganzhi.Gan
@@ -200,8 +200,8 @@ func TestComputeGeJu_JianLuYueRen(t *testing.T) {
 	}
 }
 
-// TestGeJu_TouTou_Priority verifies that hidden stem 透干 takes priority
-// over month stem. 酉月(辛金本气), 月干癸水, 年干辛金透干 → 正官格(不是正印格).
+// TestGeJu_TouTou_Priority verifies that hidden gan 透干 takes priority
+// over month gan. 酉月(辛金本气), 月干癸水, 年干辛金透干 → 正官格(不是正印格).
 func TestGeJu_TouTou_Priority(t *testing.T) {
 	cb := Chart{
 		Ri: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
@@ -220,7 +220,7 @@ func TestGeJu_TouTou_Priority(t *testing.T) {
 	}
 }
 
-// TestGeJu_DefaultPattern tests the fallback when the 透干 stem is 劫财/比肩
+// TestGeJu_DefaultPattern tests the fallback when the 透干 gan is 劫财/比肩
 // (not in the standard 八格).
 func TestGeJu_DefaultPattern(t *testing.T) {
 	// 甲日主, 辰月(戊乙癸), 月干乙木(劫财), 乙在中气.
@@ -327,7 +327,7 @@ func TestGeJu_RealCharts(t *testing.T) {
 // TestGeJu_YongJiConsistency verifies yong/xi/ji are always valid 五行 values
 // and that 顺用 xi ≠ ji.
 func TestGeJu_YongJiConsistency(t *testing.T) {
-	// Each pattern via month branch main qi 透干.
+	// Each pattern via month zhi main qi 透干.
 	allTests := []struct {
 		riGan  ganzhi.Gan
 		yueGan ganzhi.Gan

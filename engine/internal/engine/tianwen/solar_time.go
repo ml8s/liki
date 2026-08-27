@@ -92,7 +92,7 @@ func GregorianToSolar(t time.Time, longitude, timezone float64) SolarTime {
 	return SolarTime(time.Date(t.Year(), t.Month(), t.Day()+dayOffset, astHour, astMin, 0, 0, loc))
 }
 
-// HourBranchFromSolarTime converts solar time (minutes) to the earthly branch of the hour.
+// HourBranchFromSolarTime converts solar time (minutes) to the earthly zhi of the hour.
 func hourZhiFromSolarTime(astMinutes float64) ganzhi.Zhi {
 	idx := (int(astMinutes+60) / 120) % 12
 	return ganzhi.Zhi(idx + 1)

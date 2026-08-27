@@ -202,14 +202,20 @@ ZW_CHART=$(json_val "$RPC_BODY" '.result.data')
 rpc ziwei.daxian "{\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.daxian"
 
-rpc ziwei.liunian "{\"liu_nian\":2026,\"chart\":$ZW_CHART}"
+rpc ziwei.liunian "{\"lunar_year\":2026,\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liunian"
 
-rpc ziwei.liuyue "{\"liu_nian\":2026,\"lunar_month\":5,\"chart\":$ZW_CHART}"
+rpc ziwei.liuyue "{\"lunar_year\":2026,\"lunar_month\":5,\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liuyue"
 
-rpc ziwei.liuri "{\"liu_nian\":2026,\"lunar_month\":5,\"lunar_day\":10,\"chart\":$ZW_CHART}"
+rpc ziwei.liuri "{\"lunar_year\":2026,\"lunar_month\":5,\"lunar_day\":10,\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liuri"
+
+rpc ziwei.liushi "{\"lunar_year\":2026,\"lunar_month\":5,\"lunar_day\":10,\"shi_zhi\":\"午\",\"chart\":$ZW_CHART}"
+check_rpc_ok "ziwei.liushi"
+
+rpc ziwei.fullchart "{\"chart\":$ZW_CHART}"
+check_rpc_ok "ziwei.fullchart"
 
 
 rpc ziwei.chart "{\"lunar\":$ZW_LUNAR,\"gender\":\"male\"}"

@@ -63,7 +63,7 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 	if err != nil {
 		return searchResult{}, fmt.Errorf("search: new request: %w", err)
 	}
-	req.Header.Set("User-Agent", "Liki/1.0 (liki.app)")
+	req.Header.Set("User-Agent", "Liki-Engine/2026.08 (https://liki.hk; contact: api@liki.hk)")
 
 	resp, err := httpClient.Do(req)
 	if err != nil {

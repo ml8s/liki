@@ -34,22 +34,22 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 	}
 	riYuan := bz.Ri.Gan
 	yp := tianwen.NianZhu(tianwen.GregorianTime(time.Date(year, 6, 15, 0, 0, 0, 0, time.UTC))) // mid-year avoids LiChun edge
-	yearStem, yearBranch := yp.Gan, yp.Zhi
+	nianGan, nianZhi := yp.Gan, yp.Zhi
 
 	dmElem := ganzhi.GanWuxing(riYuan)
-	yearElem := ganzhi.GanWuxing(yearStem)
+	yearElem := ganzhi.GanWuxing(nianGan)
 
-	tgName := ganzhi.ShiShenFromGan(riYuan, yearStem)
+	tgName := ganzhi.ShiShenFromGan(riYuan, nianGan)
 
 	gen, rest := countGenRest(yearElem, dmElem)
 
-	naYin := ganzhi.NayinLabel(yearStem, yearBranch)
+	naYin := ganzhi.NayinLabel(nianGan, nianZhi)
 
 	r := &LiuNian{
 		Year:      year,
-		NianGan:   yearStem,
-		NianZhi:   yearBranch,
-		YearName:  ganzhi.GanName(yearStem) + ganzhi.ZhiName(yearBranch),
+		NianGan:   nianGan,
+		NianZhi:   nianZhi,
+		YearName:  ganzhi.GanName(nianGan) + ganzhi.ZhiName(nianZhi),
 		Element:   yearElem.String(),
 		NaYin:     naYin,
 		ShiShen:   tgName.String(),
@@ -58,29 +58,29 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 	}
 
 	// Three-layer analysis when bazi chart and current dayun are available.
-	liuNianZhu := ganzhi.Zhu{Gan: yearStem, Zhi: yearBranch}
+	liuNianZhu := ganzhi.Zhu{Gan: nianGan, Zhi: nianZhi}
 	r.NatalInteractions = make([]zhuInteraction, 1)
-	stemRels, branchRels := analyzeZhuWithBazi(liuNianZhu, bz)
+	ganRels, zhiRels := analyzeZhuWithBazi(liuNianZhu, bz)
 	r.NatalInteractions[0] = zhuInteraction{
 		ZhuLabel: r.YearName,
-		GanRels:  stemRels,
-		ZhiRels:  branchRels,
+		GanRels:  ganRels,
+		ZhiRels:  zhiRels,
 	}
 
 	if currentDaYun != nil {
 		dyZhu := ganzhi.Zhu{Gan: currentDaYun.Gan, Zhi: currentDaYun.Zhi}
-		dyStemRels, dyBranchRels := analyzeZhuWithBazi(dyZhu, bz)
+		dyGanRels, dyZhiRels := analyzeZhuWithBazi(dyZhu, bz)
 		r.DaYunInteractions = []zhuInteraction{{
 			ZhuLabel: currentDaYun.ShiShen + "(" + currentDaYun.Name + ")",
-			GanRels:  dyStemRels,
-			ZhiRels:  dyBranchRels,
+			GanRels:  dyGanRels,
+			ZhiRels:  dyZhiRels,
 		}}
 	} else {
 		r.DaYunInteractions = []zhuInteraction{}
 	}
 
-	r.ShenSha = computeDynamicShenSha(yearBranch, bz.Nian.Zhi, bz.Ri.Zhi, riYuan)
-	r.ShenSha = append(r.ShenSha, computeAnnualShenSha(yearBranch, bz)...)
+	r.ShenSha = computeDynamicShenSha(nianZhi, bz.Nian.Zhi, bz.Ri.Zhi, riYuan)
+	r.ShenSha = append(r.ShenSha, computeAnnualShenSha(nianZhi, bz)...)
 	r.FuYinFanYin = computeFuYinFanYin(liuNianZhu, bz)
 
 	return r, nil

@@ -21,7 +21,7 @@ var menInteractionJSON []byte
 var xingInteractionJSON []byte
 
 var (
-	ganInteractionTable map[[2]ganzhi.Gan]stemEntry
+	ganInteractionTable map[[2]ganzhi.Gan]ganEntry
 	solarTermBureau     [24][4]int
 	menGongTable        map[[2]int]doorEntry
 	xingGongTable       map[[2]int]XingInteraction
@@ -54,7 +54,7 @@ func loadGanInteractions() error {
 	if err := json.Unmarshal(ganInteractionJSON, &entries); err != nil {
 		return err
 	}
-	ganInteractionTable = make(map[[2]ganzhi.Gan]stemEntry, len(entries))
+	ganInteractionTable = make(map[[2]ganzhi.Gan]ganEntry, len(entries))
 	for _, e := range entries {
 		earth, err := ganzhi.ParseGan(e.Earth)
 		if err != nil {
@@ -64,7 +64,7 @@ func loadGanInteractions() error {
 		if err != nil {
 			return err
 		}
-		ganInteractionTable[[2]ganzhi.Gan{earth, heaven}] = stemEntry{
+		ganInteractionTable[[2]ganzhi.Gan{earth, heaven}] = ganEntry{
 			Name:        e.Name,
 			PatternName: e.Pattern,
 			Meaning:     e.Meaning,

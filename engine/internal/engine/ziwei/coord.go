@@ -13,12 +13,12 @@ package ziwei
 //   zhiIdx → anXingIdx  : (zhiIdx - 2 + 12) % 12
 //   zhiIdx → gongIndex（命宫支锚定）: 见 palace_map.go zhiIdxToPalaceIndex
 
-// zhiIdxToZhi converts earth branch index (0=子) to Zhi (1-12).
+// zhiIdxToZhi converts earth zhi index (0=子) to Zhi (1-12).
 func zhiIdxToZhi(zhiIdx int) Zhi {
 	return Zhi((zhiIdx%12+12)%12 + 1)
 }
 
-// zhiToZhiIdx converts Zhi (1-12) to earth branch index (0=子).
+// zhiToZhiIdx converts Zhi (1-12) to earth zhi index (0=子).
 func zhiToZhiIdx(z Zhi) int {
 	return (int(z) - 1 + 12) % 12
 }
@@ -34,7 +34,7 @@ func zhiIdxToAnXingIdx(zhiIdx int) int {
 }
 
 // flowPalace is one gong of a flow chart (流年/流月/流日/流时盘),
-// expressed in earth-branch coordinates.
+// expressed in earth-zhi coordinates.
 type flowPalace struct {
 	Zhi    Zhi      `json:"zhi"`         // 地支
 	Name   string   `json:"name"`        // 宫名（命盘标签）

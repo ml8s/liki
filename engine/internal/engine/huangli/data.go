@@ -91,8 +91,8 @@ func loadHuangdao() error {
 	}
 
 	qingLongStart = make(map[ganzhi.Zhi]ganzhi.Zhi, len(data.QingLongStart))
-	for branchStr, startStr := range data.QingLongStart {
-		branch, err := ganzhi.ParseZhi(branchStr)
+	for zhiStr, startStr := range data.QingLongStart {
+		zhi, err := ganzhi.ParseZhi(zhiStr)
 		if err != nil {
 			return err
 		}
@@ -100,7 +100,7 @@ func loadHuangdao() error {
 		if err != nil {
 			return err
 		}
-		qingLongStart[branch] = start
+		qingLongStart[zhi] = start
 	}
 
 	return nil

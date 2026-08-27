@@ -64,7 +64,7 @@ func nianJiePos(nianZhi Zhi) int {
 	return (10 - e + 12) % 12
 }
 
-// xunKongNianXi computes 旬空 using year-stem-branch formula (iztro年系).
+// xunKongNianXi computes 旬空 using year-gan-zhi formula (iztro年系).
 func xunKongNianXi(nianZhi Zhi, nianGan Gan) int {
 	yinIdx := (int(nianZhi) - 3 + 12) % 12 // EARTHLY_BRANCHES→寅0系
 	xk := yinIdx + 9 - (int(nianGan) - 1) + 1

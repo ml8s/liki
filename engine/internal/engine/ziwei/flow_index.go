@@ -20,7 +20,7 @@ type flowTarget struct {
 // computeMonthlyIndex returns iztro's monthly index (display 寅=0).
 func computeMonthlyIndex(chart Chart, t flowTarget) int {
 	// 流年支 = 目标年份的支 → fixEB（display 寅=0）
-	_, liuZhi := yearStemBranch(t.Year)
+	_, liuZhi := yearGanZhi(t.Year)
 	yi := zhiIdxToAnXingIdx(zhiToZhiIdx(liuZhi))
 	// 生月 + 闰补
 	birthLeap := 0

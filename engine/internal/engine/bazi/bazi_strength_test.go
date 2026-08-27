@@ -76,7 +76,7 @@ func TestStrength_AllRules_FirstHit(t *testing.T) {
 
 func TestStrength_All25Combos_NoGaps(t *testing.T) {
 	// 验证所有 25 种 root×season 组合每一条都能命中且有值
-	roots := []string{"month_main", "month_mid", "branch_main", "branch_mid", "none"}
+	roots := []string{"month_main", "month_mid", "zhi_main", "zhi_mid", "none"}
 	seasons := []string{"旺", "相", "休", "囚", "死"}
 
 	for _, r := range roots {
@@ -164,16 +164,16 @@ func TestClassifyRoot_AllTypes(t *testing.T) {
 			want: "month_mid",
 		},
 		{
-			name:  "branch_main_年支寅甲",
+			name:  "zhi_main_年支寅甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
 			cg:   [4]cangGanOut{{Main: ganzhi.GanJia}, {Main: ganzhi.GanWu}, {}, {}},
-			want: "branch_main",
+			want: "zhi_main",
 		},
 		{
-			name:  "branch_mid_年支亥中甲",
+			name:  "zhi_mid_年支亥中甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
 			cg:   [4]cangGanOut{{Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, {Main: ganzhi.GanWu}, {}, {}},
-			want: "branch_mid",
+			want: "zhi_mid",
 		},
 		{
 			name:  "none_无根",

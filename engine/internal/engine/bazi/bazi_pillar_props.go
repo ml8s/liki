@@ -64,16 +64,16 @@ func isKuiGang(p ganzhi.Zhu) bool {
 		(s == 5 && b == 11) // 戊戌
 }
 
-// sanQiType checks if the four-pillar stem sequence contains a 三奇贵人 pattern.
+// sanQiType checks if the four-pillar gan sequence contains a 三奇贵人 pattern.
 // 三奇要求三干在年-月-日-时（或时-日-月-年）中顺次/逆次连续排列：
 // 天上三奇（甲戊庚）、地下三奇（乙丙丁）、人中三奇（壬癸辛）。
 // 仅"集齐"而不连续（如甲年庚月戊日）不构成三奇。
 func sanQiType(bz ganzhi.Bazi) string {
 	zhus := bz.Slice()
-	stems := [4]int{}
+	gan := [4]int{}
 	for i, p := range zhus {
 		if s := int(p.Gan); s >= 1 && s <= 10 {
-			stems[i] = s
+			gan[i] = s
 		}
 	}
 	patterns := []struct {
@@ -86,7 +86,7 @@ func sanQiType(bz ganzhi.Bazi) string {
 	}
 	for _, pat := range patterns {
 		for start := 0; start <= 1; start++ { // 年-月-日 或 月-日-时 两个三元组
-			s0, s1, s2 := stems[start], stems[start+1], stems[start+2]
+			s0, s1, s2 := gan[start], gan[start+1], gan[start+2]
 			if (s0 == pat.a && s1 == pat.b && s2 == pat.c) || // 顺次
 				(s0 == pat.c && s1 == pat.b && s2 == pat.a) { // 逆次
 				return pat.name

@@ -2,8 +2,9 @@ package ziwei
 
 import "liki-engine/internal/engine/ganzhi"
 
-// yearStemBranch returns the stem and branch for a Gregorian year.
-func yearStemBranch(year int) (Gan, Zhi) {
+// yearGanZhi returns the nian gan-zhi (年干支) for a lunar year number.
+// e.g., yearGanZhi(2026) = 丙午. The formula uses (year-4)%10/%12 from the 1984 甲子 anchor.
+func yearGanZhi(year int) (Gan, Zhi) {
 	g := Gan(((year-4)%10+10)%10 + 1)
 	z := Zhi(((year-4)%12+12)%12 + 1)
 	return g, z
@@ -11,11 +12,11 @@ func yearStemBranch(year int) (Gan, Zhi) {
 
 // liuNianSiHua computes the annual four transformations.
 func liuNianSiHua(liuNian int) siHuaResult {
-	liuGan, _ := yearStemBranch(liuNian)
+	liuGan, _ := yearGanZhi(liuNian)
 	return computeSiHua(liuGan)
 }
 
-// liuNianMinors computes the annual minor stars (流耀) as Zhi (earth branch).
+// liuNianMinors computes the annual minor stars (流耀) as Zhi (earth zhi).
 // 10 颗流耀：流魁/流钺/流昌/流曲/流禄/流羊/流陀/流马/流鸾/流喜（iztro yearly 流耀）。
 func liuNianMinors(yearZhu ganzhi.Zhu, _ Zhi) map[starIndex]Zhi {
 	// zhiIdx(0-11) → Zhi(1-12)，输出地支名
@@ -47,7 +48,7 @@ func ComputeLiuNian(chart Chart, liuNian int) LiuNian {
 			}
 		}
 	}
-	liuYearGan, liuYearZhi := yearStemBranch(liuNian)
+	liuYearGan, liuYearZhi := yearGanZhi(liuNian)
 	minorStars := liuNianMinors(ganzhi.Zhu{Gan: liuYearGan, Zhi: liuYearZhi}, chart.ShiZhi)
 
 	// 流年命宫 = 流年支所在本命宫（地支坐标）

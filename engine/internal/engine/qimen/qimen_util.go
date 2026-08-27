@@ -2,7 +2,7 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// zhiPalace returns the gong index (1-9) where a branch sits.
+// zhiPalace returns the gong index (1-9) where a zhi sits.
 func zhiPalace(z ganzhi.Zhi) GongIndex {
 	switch int(z) {
 	case 1: // 子 → 坎
@@ -25,7 +25,7 @@ func zhiPalace(z ganzhi.Zhi) GongIndex {
 	return GongKan
 }
 
-// palaceZhi returns the principal branch of a gong.
+// palaceZhi returns the principal zhi of a gong.
 func palaceZhi(p GongIndex) ganzhi.Zhi {
 	switch p {
 	case GongKan:

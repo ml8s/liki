@@ -5,6 +5,8 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  release:
+    types: [published]
 
 # ─────────────────────────────────────────────────────────────
 # liki monorepo CI —— engine（Go）+ skills（Python）双栈
@@ -211,3 +213,37 @@ jobs:
       - name: stop engine
         if: always()
         run: kill "$(cat /tmp/liki-engine.pid)" 2>/dev/null || true
+
+  # ── 镜像发布（release 触发——gh release create 后才发；master push 只测试不发）──
+  docker-publish:
+    name: Publish engine image (ghcr)
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs: [engine-test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v4
+      - name: Login to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & push (latest + sha 锚)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./engine
+          file: ./engine/deploy/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/liki-engine:latest
+            ghcr.io/${{ github.repository_owner }}/liki-engine:sha-${{ github.sha }}
+      - name: Smoke test (发布物即测试物)
+        run: |
+          docker run -d --name engine-smoke -p 18082:8080 ghcr.io/${{ github.repository_owner }}/liki-engine:latest
+          for i in $(seq 1 15); do curl -sf http://localhost:18082/health && break; sleep 1; done
+          bash engine/scripts/test-rpc.sh http://localhost:18082 || { docker rm -f engine-smoke; exit 1; }
+          docker rm -f engine-smoke

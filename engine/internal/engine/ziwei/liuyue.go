@@ -25,20 +25,19 @@ type LiuYue struct {
 }
 
 // ComputeLiuYue computes the flow month chart.
-// 流月干支 = 目标日期月干支（五虎遁，与命主无关）——真相源
+// 流月干支 = 目标月干支（五虎遁，与命主无关）——真相源
 // 盘起点 = monthlyIndex（iztro 公式，命主相关）——只决定 gongLabels 旋转
-// liuYear/lunarMonth are GREGORIAN year/month (target date).
+// lunarMonth IS the lunar month number (1-12) — domain-native input.
+// The agent converts via tianwen.SolarToLunar before calling this.
 func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
-	// 目标农历月（公历 → 农历）
-	tgt := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), 1, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
-	liuYearGan, _ := yearStemBranch(liuYear)
+	liuYearGan, _ := yearGanZhi(liuYear)
 	// 流月干支 = 目标月干支（五虎遁：年干 + 农历月）——真相源，与命主无关
-	yueZhi := zhiIdxToZhi((tgt.Month + 1) % 12) // 正月寅起：农历1月→zhiIdx 2(寅)
+	yueZhi := zhiIdxToZhi((lunarMonth + 1) % 12) // 正月寅起：农历1月→zhiIdx 2(寅)
 	monthGan := yueGanByWuHuDun(liuYearGan, yueZhi)
 	stars := liuYueStars(monthGan, yueZhi)
 
 	// 盘起点 = monthlyIndex（iztro 公式，命主相关）
-	mi := computeMonthlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month})
+	mi := computeMonthlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: lunarMonth})
 	starByAnXingIdx := make(map[int][]string)
 	for k, z := range stars {
 		anXingIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(z))
@@ -84,13 +83,14 @@ type LiuRi struct {
 }
 
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
-// liuYear/lunarMonth/lunarDay are GREGORIAN (target date).
+// lunarMonth/lunarDay ARE lunar (domain-native). Day pillar requires Gregorian:
+// internally converts lunar→solar via search on SolarToLunar (the inverse).
 func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
-	tgt := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
-	// 盘起点 = dailyIndex
-	di := computeDailyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month, LunarDay: tgt.Day})
-	// 流日干支 = 目标公历日干支
-	zhu := tianwen.RiZhu(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
+	// 盘起点 = dailyIndex（直接用农历）
+	di := computeDailyIndex(chart, flowTarget{Year: liuYear, LunarMonth: lunarMonth, LunarDay: lunarDay})
+	// 流日干支 = 目标日干支（需公历——农历转公历）
+	gt := lunarToSolar(liuYear, lunarMonth, lunarDay)
+	zhu := tianwen.RiZhu(gt)
 	riGan, riZhi := Gan(zhu.Gan), Zhi(zhu.Zhi)
 	stars := liuRiStars(riGan, riZhi)
 	starByAnXingIdx := make(map[int][]string)
@@ -138,13 +138,13 @@ type LiuShi struct {
 }
 
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.
-// liuYear/lunarMonth/lunarDay are GREGORIAN; shiZhi is the target hour branch.
+// lunarMonth/lunarDay ARE lunar (domain-native); shiZhi is the target hour zhi.
 func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) LiuShi {
-	tgt := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
-	// 盘起点 = hourlyIndex
-	hi := computeHourlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: tgt.Month, LunarDay: tgt.Day, ShiZhi: shiZhi})
-	// 流时干支：日干 + 五鼠遁
-	zhu := tianwen.RiZhu(tianwen.GregorianTime(time.Date(liuYear, time.Month(lunarMonth), lunarDay, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
+	// 盘起点 = hourlyIndex（直接用农历）
+	hi := computeHourlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: lunarMonth, LunarDay: lunarDay, ShiZhi: shiZhi})
+	// 流时干支：日干 + 五鼠遁（需公历——农历转公历）
+	gt := lunarToSolar(liuYear, lunarMonth, lunarDay)
+	zhu := tianwen.RiZhu(gt)
 	riGan := Gan(zhu.Gan)
 	shiGan := shiGanCalc(riGan, shiZhi)
 	stars := liuShiStars(shiGan, shiZhi)
@@ -187,7 +187,7 @@ func shiGanCalc(riGan Gan, shiZhi Zhi) Gan {
 	return Gan(((ziGan-1+int(shiZhi)-1)%10+10)%10 + 1)
 }
 
-// ── riGan — calculates the day stem for a lunar date ──
+// ── riGan — calculates the day gan for a lunar date ──
 
 func riGan(liuYear, lunarMonth, lunarDay int) Gan {
 	// Try liuYear as the lunar year; fall back to liuYear-1 for months
@@ -225,7 +225,7 @@ func riZhi(liuYear, lunarMonth, lunarDay int) Zhi {
 	return dp.Zhi
 }
 
-// yueGanByWuHuDun computes the month stem via 五虎遁 (year stem + month branch).
+// yueGanByWuHuDun computes the month gan via 五虎遁 (year gan + month zhi).
 func yueGanByWuHuDun(nianGan Gan, yueZhi Zhi) Gan {
 	// 寅月干: 甲己→丙, 乙庚→戊, 丙辛→庚, 丁壬→壬, 戊癸→甲
 	base := [10]Gan{3, 5, 7, 9, 1, 3, 5, 7, 9, 1} // 寅月干（甲=1..癸=10）
@@ -234,4 +234,42 @@ func yueGanByWuHuDun(nianGan Gan, yueZhi Zhi) Gan {
 		offset += 12
 	}
 	return Gan(((int(base[nianGan-1]) - 1 + offset) % 10) + 1)
+}
+
+// lunarToSolar finds the Gregorian date for a lunar date by searching
+// SolarToLunar as an oracle (the inverse function). Lunar months are ~29-30
+// days; searching ±35 days from a rough estimate is sufficient.
+func lunarToSolar(lunarYear, lunarMonth, lunarDay int) tianwen.GregorianTime {
+	cst := time.FixedZone("CST", 8*3600)
+	// 粗估公历月 ≈ 农历月 + 1（农历四月 ≈ 公历五月）
+	approx := time.Date(lunarYear, time.Month(lunarMonth+1), lunarDay, 0, 0, 0, 0, cst)
+
+	// SolarToLunar 关于日期单调递增 → 二分搜索（O(log 70) ≈ 7 次调用）
+	lo, hi := -35, 35
+	match := func(offset int) int {
+		lt := tianwen.SolarToLunar(tianwen.GregorianTime(approx.AddDate(0, 0, offset)))
+		got := lt.Year*10000 + lt.Month*100 + lt.Day
+		want := lunarYear*10000 + lunarMonth*100 + lunarDay
+		if got < want {
+			return -1
+		}
+		if got > want {
+			return 1
+		}
+		return 0
+	}
+	for lo <= hi {
+		mid := (lo + hi) / 2
+		c := match(mid)
+		if c == 0 {
+			return tianwen.GregorianTime(approx.AddDate(0, 0, mid))
+		}
+		if c < 0 {
+			lo = mid + 1
+		} else {
+			hi = mid - 1
+		}
+	}
+	// 未找到（不应该发生）——返回粗估值，日柱可能偏差
+	return tianwen.GregorianTime(approx)
 }

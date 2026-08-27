@@ -29,6 +29,7 @@ var skillDocsRels = []string{
 
 var (
 	reFieldToken = regexp.MustCompile(`^[a-zA-Z_][\w.\[\]/]*$`)
+	reEnvVar     = regexp.MustCompile(`^[A-Z][A-Z0-9_]*$`)
 	reExtension  = regexp.MustCompile(`\.(md|py|json|csv|sh|yaml|yml|toml|txt)$`)
 )
 
@@ -188,7 +189,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 			}
 			for _, bt := range lineToken.FindAllStringSubmatch(line, -1) {
 				tok := strings.TrimSpace(bt[1])
-				if strings.ContainsAny(tok, "{}") || !reFieldToken.MatchString(tok) {
+				if strings.ContainsAny(tok, "{}") || reEnvVar.MatchString(tok) || !reFieldToken.MatchString(tok) { // reEnvVar: 全大写下划线=环境变量（LIKI_RPC_URL），非 schema 字段
 					continue
 				}
 				if reExtension.MatchString(tok) || strings.HasPrefix(tok, "tools/") ||

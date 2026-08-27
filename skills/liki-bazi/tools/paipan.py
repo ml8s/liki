@@ -67,8 +67,8 @@ def _bazi_liunian(chart: dict, year: int) -> dict:
     return call("bazi.liunian", {"chart": chart, "year": year})["data"]
 
 
-def _ziwei_liunian(ziwei: dict, liu_nian: int) -> dict:
-    return call("ziwei.liunian", {"chart": ziwei, "liu_nian": liu_nian})["data"]
+def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
+    return call("ziwei.liunian", {"chart": ziwei, "lunar_year": lunar_year})["data"]
 
 
 # ── agent 工具（排盘 2 个）──

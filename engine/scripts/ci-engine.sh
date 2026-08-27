@@ -80,14 +80,14 @@ cleanup() {
 trap cleanup EXIT
 
 echo -n "--- 等待引擎就绪"
-for i in $(seq 1 15); do
+for i in $(seq 1 30); do
   if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
     echo " ✓"
     break
   fi
   echo -n .
   sleep 1
-  if [ $i -eq 15 ]; then
+  if [ $i -eq 30 ]; then
     echo " ✗ 引擎启动超时"
     exit 1
   fi

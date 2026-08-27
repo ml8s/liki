@@ -186,10 +186,10 @@ func TestComputeMingGua(t *testing.T) {
 	}
 }
 
-// TestGanNaJia verifies 纳甲 mapping from stems to trigrams.
+// TestGanNaJia verifies 纳甲 mapping from gan to trigrams.
 func TestGanNaJia(t *testing.T) {
 	tests := []struct {
-		stem     ganzhi.Gan
+		gan      ganzhi.Gan
 		wantName string
 	}{
 		{ganzhi.GanJia, "乾"},
@@ -205,11 +205,11 @@ func TestGanNaJia(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(ganzhi.GanName(tt.stem), func(t *testing.T) {
-			got := ganNaJia(tt.stem)
+		t.Run(ganzhi.GanName(tt.gan), func(t *testing.T) {
+			got := ganNaJia(tt.gan)
 			if got.Name != tt.wantName {
 				t.Errorf("ganNaJia(%s) = %s, want %s",
-					ganzhi.GanName(tt.stem), got.Name, tt.wantName)
+					ganzhi.GanName(tt.gan), got.Name, tt.wantName)
 			}
 		})
 	}

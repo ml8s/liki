@@ -45,7 +45,7 @@ func computeLiuYue(bz ganzhi.Bazi, year, month int) (*LiuYue, error) {
 	gen, rest := countGenRest(monthElem, dmElem)
 
 	// Month vs bazi: all 4 pillars, consistent with liunian.
-	stemRels, branchRels := analyzeZhuWithBazi(mp, bz)
+	ganRels, zhiRels := analyzeZhuWithBazi(mp, bz)
 
 	shensha := computeDynamicShenSha(mp.Zhi, bazi[0].Zhi, bazi[2].Zhi, riYuan)
 
@@ -61,8 +61,8 @@ func computeLiuYue(bz ganzhi.Bazi, year, month int) (*LiuYue, error) {
 		ShiShen:   tgName.String(),
 		Generates: gen,
 		Restrains: rest,
-		GanRels:   stemRels,
-		ZhiRels:   branchRels,
+		GanRels:   ganRels,
+		ZhiRels:   zhiRels,
 		ShenSha:   shensha,
 	}, nil
 }

@@ -182,7 +182,7 @@ func TestSolarTime_LongitudeOffset(t *testing.T) {
 
 // ── 时辰边界测试 ──
 
-func TestHourBranch_Boundaries(t *testing.T) {
+func TestShiZhi_Boundaries(t *testing.T) {
 	tests := []struct {
 		name    string
 		minutes float64
@@ -240,7 +240,7 @@ func TestComputeTime_MidnightAdjustment(t *testing.T) {
 // 干支纪年: 公元4年=甲子(1,1), 逆推公元3年=癸亥(10,12)
 // 公式: s=(year-3)%10, b=(year-3)%12
 
-func TestNianZhu_StemBranch(t *testing.T) {
+func TestNianZhu_GanZhi(t *testing.T) {
 	tests := []struct {
 		name    string
 		year    int
@@ -266,7 +266,7 @@ func TestNianZhu_StemBranch(t *testing.T) {
 }
 
 // ── 月柱五虎遁公式验证 ──
-// 五虎遁: year stem → first month (寅月) stem.
+// 五虎遁: year gan → first month (寅月) gan.
 // 甲己→丙, 乙庚→戊, 丙辛→庚, 丁壬→壬, 戊癸→甲
 func wuhudun(nianGan ganzhi.Gan) ganzhi.Gan {
 	g := (int(nianGan)*2 + 1) % 10
@@ -575,7 +575,7 @@ func TestComputeBazi_ZiShiAdjustment(t *testing.T) {
 	}
 	// 时柱=子时
 	if bz.Shi.Zhi != ganzhi.ZhiZi {
-		t.Errorf("ZiShi: hour branch = %s, want 子", ganzhi.ZhiName(bz.Shi.Zhi))
+		t.Errorf("ZiShi: hour zhi = %s, want 子", ganzhi.ZhiName(bz.Shi.Zhi))
 	}
 	t.Logf("Day pillar: %v (Jun 15), hour: %s", bz.Ri, bz.Shi.Zhi)
 }

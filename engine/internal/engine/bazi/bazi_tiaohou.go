@@ -15,14 +15,14 @@ type TiaoHou struct {
 
 // tiaohouKey is the internal compound key for the lookup table.
 type tiaohouKey struct {
-	stem   int
-	branch int
+	gan int
+	zhi int
 }
 
 // computeTiaoHou returns the TiaoHou (调候) yongshen analysis for the given
-// day-master and month-branch. Based on 穷通宝鉴.
-func computeTiaoHou(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi) TiaoHouResult {
-	th, _ := queryTiaoHou(riYuan, monthBranch)
+// day-master and month-zhi. Based on 穷通宝鉴.
+func computeTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) TiaoHouResult {
+	th, _ := queryTiaoHou(riYuan, yueZhi)
 	return TiaoHouResult{
 		Yong:   th.Yong,
 		Xi:     th.Xi,
@@ -33,10 +33,10 @@ func computeTiaoHou(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi) TiaoHouResult {
 }
 
 // queryTiaoHou returns the 穷通宝鉴 climate-adjustment result for a given
-// day-master and month-branch. Returns (TiaoHou, true) on match, or
+// day-master and month-zhi. Returns (TiaoHou, true) on match, or
 // (zero, false) if no entry exists.
-func queryTiaoHou(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi) (TiaoHou, bool) {
-	e, ok := lookupTiaohou[tiaohouKey{int(riYuan), int(monthBranch)}]
+func queryTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) (TiaoHou, bool) {
+	e, ok := lookupTiaohou[tiaohouKey{int(riYuan), int(yueZhi)}]
 	if !ok {
 		return TiaoHou{}, false
 	}
@@ -49,9 +49,9 @@ func queryTiaoHou(riYuan ganzhi.Gan, monthBranch ganzhi.Zhi) (TiaoHou, bool) {
 
 	jiElem, hasJi := pickJiElement(ganzhi.GanWuxing(riYuan), e.primary, e.secondary)
 
-	season := ganzhi.ZhiSeasonLabel(monthBranch)
+	season := ganzhi.ZhiSeasonLabel(yueZhi)
 
-	detail := ganzhi.ZhiName(monthBranch) + "月" + ganzhi.GanName(riYuan) + ganzhi.GanWuxing(riYuan).String()
+	detail := ganzhi.ZhiName(yueZhi) + "月" + ganzhi.GanName(riYuan) + ganzhi.GanWuxing(riYuan).String()
 	detail += "，用" + ganzhi.GanName(e.primary) + "调候"
 	if e.secondary != 0 {
 		detail += "，" + ganzhi.GanName(e.secondary) + "辅之"

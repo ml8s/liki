@@ -59,7 +59,7 @@ func TestWangShuaiOf(t *testing.T) {
 	}
 }
 
-// TestChongZhi verifies 六冲 branch pairs.
+// TestChongZhi verifies 六冲 zhi pairs.
 func TestChongZhi(t *testing.T) {
 	tests := []struct {
 		z    ganzhi.Zhi

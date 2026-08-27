@@ -8,7 +8,7 @@ import (
 func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 	dipan := placeDiPan(ju.Number, ju.YinDun)
 	duty := findDuty(driveZhu, dipan)
-	tianStars, tianStems := placeTianPan(driveZhu, duty.Star, dipan)
+	tianStars, tianGan := placeTianPan(driveZhu, duty.Star, dipan)
 	renDoors := placeRenPan(driveZhu.Zhi, duty.Door, ju.YinDun)
 
 	var dutyStarPalace int
@@ -50,18 +50,18 @@ func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
 	}
 	for i := 0; i < 9; i++ {
 		pan.GongWei[i] = Gong{
-			EarthStem:  dipan[i],
-			HeavenStem: tianStems[i],
+			DiPanGan:   dipan[i],
+			TianPanGan: tianGan[i],
 			Star:       tianStars[i],
 			Door:       renDoors[i],
 			Spirit:     shenSpirits[i],
-			HiddenStem: angans[i],
+			CangGan:    angans[i],
 		}
 	}
 	return pan
 }
 
-// isWuBuYuShi checks if the hour stem (时干) controls the day stem (日干)
+// isWuBuYuShi checks if the hour gan (时干) controls the day gan (日干)
 // with the same yin-yang polarity. If true, it is 五不遇时 — an inauspicious time.
 // 五不遇时 = 时干克日干, 阴克阴/阳克阳
 // List: 甲庚、乙辛、丙壬、丁癸、戊甲、己乙、庚丙、辛丁、壬戊、癸己

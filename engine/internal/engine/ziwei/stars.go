@@ -139,8 +139,8 @@ func lingXingIndex(nianZhi, shiZhi Zhi) int {
 	return (base + ti + 2) % 12
 }
 
-// zhiIdxToPalaceIndex converts an absolute branch position (zhi-1: 0=子..11=亥) to
-// the gong index whose branch matches, given the 命宫 branch.
+// zhiIdxToPalaceIndex converts an absolute zhi position (zhi-1: 0=子..11=亥) to
+// the gong index whose zhi matches, given the 命宫 zhi.
 func inGroup(zhi, a, b, c Zhi) bool { return zhi == a || zhi == b || zhi == c }
 
 // placeMinorStars collects all 14 minor star placements.

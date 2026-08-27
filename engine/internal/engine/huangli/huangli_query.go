@@ -37,10 +37,10 @@ type Day struct {
 
 // Month holds monthly huangli data.
 type Month struct {
-	Month  string `json:"month"`
-	Stem   string `json:"gan"`
-	Branch string `json:"zhi"`
-	Days   []Day  `json:"days"`
+	Month string `json:"month"`
+	Gan   string `json:"gan"`
+	Zhi   string `json:"zhi"`
+	Days  []Day  `json:"days"`
 }
 
 func renYuanName(ry renYuanSiLing) string {
@@ -58,20 +58,20 @@ func QueryDate(dateStr string) (Day, error) {
 	}
 
 	dpi := lookupRiZhu(t)
-	monthBranch := yueZhuForDate(t).Zhi
+	yueZhi := yueZhuForDate(t).Zhi
 	jq := computeJieQiDepth(t.Year(), int(t.Month()), t.Day())
-	ry := computeRenYuanSiLingForDate(monthBranch, jq.DaysIn)
+	ry := computeRenYuanSiLingForDate(yueZhi, jq.DaysIn)
 
 	entry := Day{
 		Date:        dateStr,
 		RiZhu:       dpi,
 		JianChu:     lookupJianChu(t),
-		HuangDao:    huangDaoForDay(monthBranch, dpi.Zhi),
+		HuangDao:    huangDaoForDay(yueZhi, dpi.Zhi),
 		XiShen:      xiShenDirection(dpi.Gan),
 		CaiShen:     caiShenDirection(dpi.Gan),
 		FuShen:      fuShenDirection(dpi.Gan),
-		StemTaboo:   pengZuStemTaboo(dpi.Gan),
-		BranchTaboo: pengZuBranchTaboo(dpi.Zhi),
+		StemTaboo:   pengZuGanTaboo(dpi.Gan),
+		BranchTaboo: pengZuZhiTaboo(dpi.Zhi),
 		NaYin:       ganzhi.NayinLabel(dpi.Gan, dpi.Zhi),
 		Wuxing:      ganzhi.ZhiWuxing(dpi.Zhi).String(),
 		Mansion:     mansionForDay(ganzhi.Zhu{Gan: dpi.Gan, Zhi: dpi.Zhi}),
@@ -80,7 +80,7 @@ func QueryDate(dateStr string) (Day, error) {
 		RenYuan:     renYuanName(ry),
 	}
 
-	entry.ShiChen = computeShiChen(dpi.Zhi, monthBranch, entry.JianChu)
+	entry.ShiChen = computeShiChen(dpi.Zhi, yueZhi, entry.JianChu)
 
 	return entry, nil
 }
@@ -106,9 +106,9 @@ func QueryMonth(yearMonth string) (Month, error) {
 	}
 	mp := yueZhuForDate(t)
 	return Month{
-		Month:  yearMonth,
-		Stem:   ganzhi.GanName(mp.Gan),
-		Branch: ganzhi.ZhiName(mp.Zhi),
-		Days:   days,
+		Month: yearMonth,
+		Gan:   ganzhi.GanName(mp.Gan),
+		Zhi:   ganzhi.ZhiName(mp.Zhi),
+		Days:  days,
 	}, nil
 }

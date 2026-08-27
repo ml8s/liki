@@ -22,7 +22,7 @@ description: 风水/看风水 — 八宅命卦、玄空飞星。房屋布局、�
 > 风水数据通过 JSON-RPC 2.0 获取，**禁止自行推算或凭训练知识编造**。
 
 **RPC 调用方式**：
-- 端点：`POST https://liki.hk/jsonrpc`
+- 端点：`POST https://liki.hk/jsonrpc`（默认公共引擎；设置环境变量 `LIKI_RPC_URL`（如 `http://localhost:8082/jsonrpc`）可指向自建引擎——部署见仓库 `engine/deploy/`，出生数据不出你的服务器）
 - Content-Type：`application/json`
 - 请求体格式：`{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`
 

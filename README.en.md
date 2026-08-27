@@ -64,58 +64,82 @@ How will my career and wealth go in 2026?
 
 ## User Guide
 
-### liki-bazi (BaZi + ZiWei dual-chart)
+### Getting Started
 
-**How to ask** — ask by life domain; provide birth info (date + time + place + gender):
+**Prepare**: birth date (Gregorian), birth time (to the minute if possible), birth city, gender.
 
-- **Marriage**: `When will I marry?` `Will we divorce?` `What will my partner be like?`
-- **Career**: `What industry suits me? Startup or employment?` `Which years bring career shifts?`
-- **Wealth**: `What's my wealth source? Which years gain, which lose?`
-- **Health**: `Which organ systems are weak? Which years need care?`
-- **Education**: `How far will my education go? Exam luck?`
-- **Personality / Appearance / Family**: `What's my personality?` `Parents/children affinity?`
-- **Compatibility**: `Are we a match?` (both parties' birth info)
-- **Full report**: `Give me a full life reading`
+**Just send it** — birth info and your question in one message:
 
-**What you get** — conclusion first, with basis and timing:
+> Help me look at marriage, female, born 1992-03-15 14:30 in Guangzhou
 
-> Marriage palace stable; a real-relationship window opens in H2 2026 — Red Luan enters the spouse palace and the decade fortune reveals the wealth star. Spouse-star analysis: … palace checks: … (basis attached at each step)
+Missing details are fine: if you only know "morning" or don't know the time, the skill will follow up or start the calibration flow (see FAQ).
 
-### liki-naming
+### How to Talk to the Skill
 
-Yong-shen (favorable element) from BaZi → Sancai-Wuge numerology → candidate characters. Every recommended name carries its basis:
+The skill works like a practitioner — **one topic at a time**, with structured analysis you can drill into:
 
-> Top pick: Guanlan — from Mencius "observe the waves", all-auspicious Sancai, supplements the Fire yong-shen.
+| You want to… | Say |
+|------|-------|
+| Ask why | `Why?` `What's the basis?` |
+| Ask about a year | `What about 2026?` `Next three years?` |
+| Switch topic | `What about wealth?` `Health?` (same chart, no re-compute) |
+| Compatibility | `Are we compatible?` (provide both birth infos) |
+| Full report | `Give me a full life reading` |
 
-### liki-divination
+### Detailed Guide by Skill
 
-- **Liuyao**: outcomes and timing (`Will this succeed?` `When?`)
-- **QiMen**: direction and decision (`Which direction?` `Should I act now?`)
-- **Date selection**: auspicious dates (`Best day to move / sign / open business?`)
+#### liki-bazi (BaZi + ZiWei dual-chart)
 
-Output lists the hexagram basis first (yong-shen / shi-ying / moving lines), then a one-line verdict.
+Ask by life domain — the skill automatically charts, queries judgment tables, and gives conclusion + basis + timing:
 
-### liki-fengshui
+- **Marriage**: When to marry? Will we divorce? What's my partner like?
+- **Career**: Which industry? Startup or employment? Which years shift?
+- **Wealth**: Wealth source? Which years gain, which lose?
+- **Health**: Which organ systems? Which years to watch?
+- **Education**: How far? Exam luck?
+- **Personality / Family**: What's my personality? Parents/children affinity?
+
+**Output format**: conclusion first, basis attached. Every conclusion traces to specific steps and classical sources.
+
+#### liki-naming
+
+> Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen
+
+Flow: BaZi yong-shen → five-element supplement → Sancai-Wuge filter → recommended names (with source and basis).
+
+Also supports: renaming, company naming, Chinese names for English speakers, name evaluation.
+
+#### liki-divination
+
+Ask about a specific event's outcome and timing — **the more specific, the better**:
+
+- **Liuyao**: `Will this project succeed?` `When will I see results?`
+- **QiMen**: `Which direction?` `Should I sign now?`
+- **Date selection**: `Best day to move / sign / open?`
+
+Output: hexagram basis → one-line verdict → timing.
+
+#### liki-fengshui
 
 - **Bazhai**: `What's my ming gua?` `How to arrange door/kitchen/bedroom?`
 - **Xuankong**: `Is my home favorable this period?` `2026 annual cautions?`
 
 ### FAQ
 
+**Don't know the exact birth hour?**
+Offer 2-3 candidate hours + 3-5 life events with years; the skill cross-checks and infers the most likely hour (with confidence). Babies/teens skip calibration.
+
 **Does it need internet?**
-Chart computation goes through the liki.hk JSON-RPC engine. If unreachable, the skill says so explicitly — it never falls back to "AI guesswork".
+Chart computation goes through the liki.hk engine. If unreachable, the skill says so explicitly — never falls back to "AI guesswork". Want fully offline? See [self-deploy](#self-deploy-the-engine-optional) above.
 
 **Is my birth data stored?**
 No. The skill explicitly commits: no birth-info storage outside your conversation, no real names requested; chart data lives only in your chat context.
 
-**Don't know the exact birth hour?**
-A built-in **calibration flow**: offer 2-3 candidate hours plus 3-5 life events with years; it cross-checks each chart and infers the most likely hour (with confidence). Babies/teens skip calibration and use a default hour.
-
 **How should I interpret results?**
-Conclusions are from a traditional-cultural perspective, for reference only — not medical, legal, or financial advice. Every conclusion carries its basis and classical citation so you can verify it yourself.
+Every conclusion carries its basis and classical citation — verify it yourself. Traditional cultural perspective, not medical/legal/financial advice.
 
 **How do I update?**
-The skill self-checks its version (local fingerprint + remote) on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
+The skill self-checks its version on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
 
 ## Why It's Trustworthy
 
@@ -144,6 +168,21 @@ repo root
 ```
 
 Call chain: SKILL.md routes to an app card → the card calls tools (RPC charting + CSV matching) → interpreted via domains knowledge → rendered by the card's template. The tool layer is optional (liki-bazi has it; the other three use RPC + document translation directly).
+
+### Self-Deploy the Engine (Optional)
+
+By default, skills call the liki.hk public engine. To self-host (privacy: birth data never leaves your server / no external dependency):
+
+```bash
+docker run -d --name liki-engine -p 8082:8080 ghcr.io/ml8s/liki-engine:latest
+curl http://localhost:8082/health    # readiness check
+```
+
+Set `LIKI_RPC_URL=http://localhost:8082/jsonrpc` in your AI assistant environment — all skill computation (Python tools and manual RPC) goes through your engine.
+
+Images are automatically published on GitHub Releases (`gh release create` → CI full tests → build + push + smoke test). Pin a version with the immutable tag: `ghcr.io/ml8s/liki-engine:sha-<commit>`.
+
+Advanced (build from source): `git clone https://github.com/ml8s/liki && cd liki/engine && docker compose -f deploy/docker-compose.yml up -d --build`
 
 ### Quick Start
 

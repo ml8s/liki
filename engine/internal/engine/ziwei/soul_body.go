@@ -1,6 +1,6 @@
 package ziwei
 
-// soulStar returns the 命主 (soul star) name for a given ming gong branch.
+// soulStar returns the 命主 (soul star) name for a given ming gong zhi.
 func soulStar(mingZhi Zhi) string {
 	switch mingZhi {
 	case 1:
@@ -31,7 +31,7 @@ func soulStar(mingZhi Zhi) string {
 	return ""
 }
 
-// bodyStar returns the 身主 (body star) name for a given birth year branch.
+// bodyStar returns the 身主 (body star) name for a given birth year zhi.
 func bodyStar(nianZhi Zhi) string {
 	switch nianZhi {
 	case 1, 7:
@@ -51,7 +51,7 @@ func bodyStar(nianZhi Zhi) string {
 }
 
 // yuanGongPalace returns the gong index of 来因宫 (original gong).
-// iztro rule: the gong whose heavenly stem equals the birth year's heavenly stem.
+// iztro rule: the gong whose heavenly gan equals the birth year's heavenly gan.
 func yuanGongPalace(palaces [12]gong, nianGan Gan) gongIndex {
 	for i, p := range palaces {
 		if p.Gan == nianGan && p.Zhi != 1 && p.Zhi != 2 { // 排除子丑

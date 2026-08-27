@@ -7,10 +7,10 @@ import (
 
 // -- Symbol → Text -----------------------------------------------------------
 
-// GanName returns the Chinese character for a heavenly stem (e.g. "甲").
+// GanName returns the Chinese character for a heavenly gan (e.g. "甲").
 func GanName(g Gan) string { return ganNames[g] }
 
-// ZhiName returns the Chinese character for an earthly branch (e.g. "子").
+// ZhiName returns the Chinese character for an earthly zhi (e.g. "子").
 func ZhiName(z Zhi) string { return zhiNames[z] }
 
 func (g Gan) String() string { return GanName(g) }
@@ -43,7 +43,7 @@ func (y YinYang) String() string {
 
 // -- Text → Symbol -----------------------------------------------------------
 
-// ParseGan converts a Chinese stem name (e.g. "甲") to a Gan value.
+// ParseGan converts a Chinese gan name (e.g. "甲") to a Gan value.
 func ParseGan(s string) (Gan, error) {
 	for i := 1; i <= 10; i++ {
 		if ganNames[i] == s {
@@ -53,7 +53,7 @@ func ParseGan(s string) (Gan, error) {
 	return 0, fmt.Errorf("unknown gan: %q", s)
 }
 
-// ParseZhi converts a Chinese branch name (e.g. "子") to a Zhi value.
+// ParseZhi converts a Chinese zhi name (e.g. "子") to a Zhi value.
 func ParseZhi(s string) (Zhi, error) {
 	for i := 1; i <= 12; i++ {
 		if zhiNames[i] == s {
@@ -151,14 +151,14 @@ func ParseWangShuai(s string) (WangShuai, error) {
 }
 
 // WangShuaiOf returns the five-phase prosperity state for a given element
-// in a given solar month (branch 1-12).
+// in a given solar month (zhi 1-12).
 //
 // Rule: 当令者旺 / 令生者相 / 生令者休 / 克令者囚 / 令克者死
-func WangShuaiOf(elem Wuxing, monthBranch Zhi) WangShuai {
-	if monthBranch < 1 || monthBranch > 12 {
+func WangShuaiOf(elem Wuxing, yueZhi Zhi) WangShuai {
+	if yueZhi < 1 || yueZhi > 12 {
 		return -1
 	}
-	mwx := ZhiWuxing(monthBranch)
+	mwx := ZhiWuxing(yueZhi)
 	if elem == mwx {
 		return WSWang
 	}
@@ -287,10 +287,6 @@ func zhiLunarMonth(z Zhi) (string, bool) {
 }
 
 func zhiLunarMonthLabel(z Zhi) string { s, ok := zhiLunarMonth(z); return zhiLabel(s, ok) }
-
-// ZhiLunarMonthLabel returns the lunar month label (e.g. "正月") for a zhi.
-func ZhiLunarMonthLabel(z Zhi) string { return zhiLunarMonthLabel(z) }
-
 func zhiHourRange(z Zhi) (string, bool) {
 	if int(z) >= 1 && int(z) <= 12 {
 		return HourRanges[z-1], true

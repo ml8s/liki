@@ -9,7 +9,7 @@ import (
 
 // --- Types ---
 
-// riZhuInfo holds the stem-branch for a single day.
+// riZhuInfo holds the gan-zhi for a single day.
 type riZhuInfo struct {
 	Gan   ganzhi.Gan `json:"gan"`
 	Zhi   ganzhi.Zhi `json:"zhi"`
@@ -37,11 +37,11 @@ type jianchuConfig struct {
 
 // --- Engine Functions ---
 
-// taiSui returns the year's presiding branch (太岁).
+// taiSui returns the year's presiding zhi (太岁).
 func taiSui(year int) ganzhi.Zhi {
-	// Year pillar branch = (year - 3) % 12, with 1=子 through 12=亥.
+	// Year pillar zhi = (year - 3) % 12, with 1=子 through 12=亥.
 	// The formula already produces 1-based results after the <=0 guard;
-	// do NOT add +1 or the result shifts by one branch.
+	// do NOT add +1 or the result shifts by one zhi.
 	b := (year - 3) % 12
 	if b <= 0 {
 		b += 12
@@ -49,7 +49,7 @@ func taiSui(year int) ganzhi.Zhi {
 	return ganzhi.Zhi(b)
 }
 
-// lookupRiZhu returns the stem-branch and na-yin for a given date.
+// lookupRiZhu returns the gan-zhi and na-yin for a given date.
 func lookupRiZhu(t time.Time) riZhuInfo {
 	p := tianwen.RiZhu(tianwen.GregorianTime(t))
 	return riZhuInfo{Gan: p.Gan, Zhi: p.Zhi, NaYin: ganzhi.NayinLabel(p.Gan, p.Zhi)}
@@ -58,18 +58,18 @@ func lookupRiZhu(t time.Time) riZhuInfo {
 // lookupJianChu returns the JianChu (建除) god for a given date.
 func lookupJianChu(t time.Time) string {
 	mp := yueZhuForDate(t)
-	monthBranch := mp.Zhi
+	yueZhi := mp.Zhi
 
 	dp := tianwen.RiZhu(tianwen.GregorianTime(t))
 
-	jianIdx := int(monthBranch) - 1
+	jianIdx := int(yueZhi) - 1
 	dayIdx := int(dp.Zhi) - 1
 
 	offset := (dayIdx - jianIdx + 12) % 12
 	return jianChuCfg.Sequence[offset]
 }
 
-// evaluateZhi checks the branch relationship and returns marks/warnings.
+// evaluateZhi checks the zhi relationship and returns marks/warnings.
 func evaluateZhi(riZhi, refZhi ganzhi.Zhi, label string) (relation string, marks []string, warnings []string) {
 	switch {
 	case ganzhi.IsZhiHe(riZhi, refZhi):

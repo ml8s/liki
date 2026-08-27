@@ -194,8 +194,8 @@ func TestLiuNian_FuYinFanYin_Exists(t *testing.T) {
 	// 1984-02-15 甲子年 → 2024 甲辰年 (甲子 vs 甲辰 — not a match)
 	// Let's test with a year that has a known match.
 	// 甲子日: 2020 庚子年 has 子 matching 甲子日's 子 → it's 反吟 for 子.
-	// Actually, 甲子日: 流年庚子 = 甲 vs 庚 (different) + 子 vs 子 (same branch)
-	// → same branch = 反吟 for 地支部分 but NOT full 伏吟 (need both gan+zhi same).
+	// Actually, 甲子日: 流年庚子 = 甲 vs 庚 (different) + 子 vs 子 (same zhi)
+	// → same zhi = 反吟 for 地支部分 but NOT full 伏吟 (need both gan+zhi same).
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,

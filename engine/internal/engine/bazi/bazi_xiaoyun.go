@@ -12,8 +12,8 @@ type XiaoYunZhu struct {
 }
 
 // ComputeXiaoYun computes the minor fortune (小运) zhus for each age starting from 1.
-// ganzhi.Male: start from 丙寅 (stem=3, branch=3) and go forward.
-// ganzhi.Female: start from 壬申 (stem=9, branch=9) and go backward.
+// ganzhi.Male: start from 丙寅 (gan=3, zhi=3) and go forward.
+// ganzhi.Female: start from 壬申 (gan=9, zhi=9) and go backward.
 // Returns up to maxAge zhus (typically up to 12 for childhood).
 func computeXiaoYun(bz ganzhi.Bazi, gender ganzhi.Gender, maxAge int) []XiaoYunZhu {
 	riYuan := bz.Ri.Gan

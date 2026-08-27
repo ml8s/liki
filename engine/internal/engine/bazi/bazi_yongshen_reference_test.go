@@ -126,8 +126,8 @@ func TestReference_ZiPing_ZhengGuanGe(t *testing.T) {
 func TestReference_QiongTongBaoJian_SampleEntry(t *testing.T) {
 	// 穷通宝鉴验证: 丙日午月=壬+庚 (穷通宝鉴: 壬庚又须并用)
 	riYuan := ganzhi.GanBing
-	monthBranch := ganzhi.ZhiWu
-	th, ok := queryTiaoHou(riYuan, monthBranch)
+	yueZhi := ganzhi.ZhiWu
+	th, ok := queryTiaoHou(riYuan, yueZhi)
 	if !ok {
 		t.Fatalf("调候表中缺少(丙,午)条目")
 	}
@@ -147,19 +147,19 @@ func TestReference_QiongTongBaoJian_SampleEntry(t *testing.T) {
 // ── 调候表完整性 ──
 
 func TestTiaoHou_SeasonalConsistency(t *testing.T) {
-	allStems := []ganzhi.Gan{
+	allGan := []ganzhi.Gan{
 		ganzhi.GanJia, ganzhi.GanYi, ganzhi.GanBing, ganzhi.GanDing,
 		ganzhi.GanWu, ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin,
 		ganzhi.GanRen, ganzhi.GanGui,
 	}
-	summerBranches := []ganzhi.Zhi{ganzhi.ZhiSi, ganzhi.ZhiWu, ganzhi.ZhiWei}
-	winterBranches := []ganzhi.Zhi{ganzhi.ZhiHai, ganzhi.ZhiZi, ganzhi.ZhiChou}
+	summerZhi := []ganzhi.Zhi{ganzhi.ZhiSi, ganzhi.ZhiWu, ganzhi.ZhiWei}
+	winterZhi := []ganzhi.Zhi{ganzhi.ZhiHai, ganzhi.ZhiZi, ganzhi.ZhiChou}
 
 	summerFireCount := 0
 	summerTotal := 0
-	for _, stem := range allStems {
-		for _, branch := range summerBranches {
-			th, ok := queryTiaoHou(stem, branch)
+	for _, gan := range allGan {
+		for _, zhi := range summerZhi {
+			th, ok := queryTiaoHou(gan, zhi)
 			if !ok {
 				continue
 			}
@@ -175,9 +175,9 @@ func TestTiaoHou_SeasonalConsistency(t *testing.T) {
 
 	winterWaterCount := 0
 	winterTotal := 0
-	for _, stem := range allStems {
-		for _, branch := range winterBranches {
-			th, ok := queryTiaoHou(stem, branch)
+	for _, gan := range allGan {
+		for _, zhi := range winterZhi {
+			th, ok := queryTiaoHou(gan, zhi)
 			if !ok {
 				continue
 			}
@@ -195,13 +195,13 @@ func TestTiaoHou_SeasonalConsistency(t *testing.T) {
 // ── TiaoHou 忌神不冲突验证 ──
 
 func TestTiaoHou_JiNotConflict(t *testing.T) {
-	allStems := []ganzhi.Gan{
+	allGan := []ganzhi.Gan{
 		ganzhi.GanJia, ganzhi.GanYi, ganzhi.GanBing, ganzhi.GanDing,
 		ganzhi.GanWu, ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin,
 		ganzhi.GanRen, ganzhi.GanGui,
 	}
 	conflicts := 0
-	for _, s := range allStems {
+	for _, s := range allGan {
 		for b := ganzhi.ZhiZi; b <= ganzhi.ZhiHai; b++ {
 			th, ok := queryTiaoHou(s, b)
 			if !ok {

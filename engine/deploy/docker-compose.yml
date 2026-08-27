@@ -1,0 +1,18 @@
+# liki engine — 独立部署（单服务）
+# 用法：cd engine && docker compose -f deploy/docker-compose.yml up -d --build
+# 端点：http://localhost:8082/jsonrpc（health: GET /health）
+# 注意：镜像为 scratch（无 shell），compose 不配置容器内 healthcheck——
+#       就绪探测用宿主 curl http://localhost:8082/health
+services:
+  engine:
+    image: liki-engine:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    ports: ["8082:8080"]
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '1'

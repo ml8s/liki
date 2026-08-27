@@ -23,24 +23,24 @@ type ganZhiPair struct {
 
 // Package-level lookup maps, populated from data/shensha.json via data.go init().
 var (
-	taohuaBranchMap map[ganzhi.Zhi]ganzhi.Zhi
-	yimaBranchMap   map[ganzhi.Zhi]ganzhi.Zhi
-	huagaiBranchMap map[ganzhi.Zhi]ganzhi.Zhi
-	yangRenLookup   map[ganzhi.Gan]ganzhi.Zhi
-	jieshaBranch    map[ganzhi.Zhi]ganzhi.Zhi
-	zaishaBranch    map[ganzhi.Zhi]ganzhi.Zhi
-	hongluanLookup  map[ganzhi.Zhi]ganzhi.Zhi
-	tianxiLookup    map[ganzhi.Zhi]ganzhi.Zhi
+	taohuaZhiMap   map[ganzhi.Zhi]ganzhi.Zhi
+	yimaZhiMap     map[ganzhi.Zhi]ganzhi.Zhi
+	huagaiZhiMap   map[ganzhi.Zhi]ganzhi.Zhi
+	yangRenLookup  map[ganzhi.Gan]ganzhi.Zhi
+	jieshaZhi      map[ganzhi.Zhi]ganzhi.Zhi
+	zaishaZhi      map[ganzhi.Zhi]ganzhi.Zhi
+	hongluanLookup map[ganzhi.Zhi]ganzhi.Zhi
+	tianxiLookup   map[ganzhi.Zhi]ganzhi.Zhi
 )
 
 var tianYiLookup map[ganzhi.Gan][]ganzhi.Zhi
 
 var (
 	tiandeTargets   map[ganzhi.Zhi][]tianDeTarget
-	yuedeStem       map[ganzhi.Zhi]ganzhi.Gan
+	yuedeGan        map[ganzhi.Zhi]ganzhi.Gan
 	jiangxingLookup map[ganzhi.Zhi]ganzhi.Zhi
 	jinyuLookup     map[ganzhi.Gan][]ganzhi.Zhi
-	yueEnStems      map[ganzhi.Zhi][]ganzhi.Gan
+	yueEnGan        map[ganzhi.Zhi][]ganzhi.Gan
 	xueRenLookup    map[ganzhi.Gan]ganzhi.Zhi
 	tianLuoDiWang   map[ganzhi.Zhi]string
 	shiEDaBai       map[int]struct{}
@@ -56,39 +56,39 @@ type tianDeTarget struct {
 // computeShenSha computes all shensha for the bazi chart, grouped by pillar.
 func computeShenSha(bz ganzhi.Bazi) [4][]shenShaEntry {
 	riYuan := bz.Ri.Gan
-	monthBranch := bz.Yue.Zhi
+	yueZhi := bz.Yue.Zhi
 	zhus := bz.Slice()
 	var out [4][]shenShaEntry
-	branches := [4]ganzhi.Zhi{zhus[0].Zhi, zhus[1].Zhi, zhus[2].Zhi, zhus[3].Zhi}
+	zhi := [4]ganzhi.Zhi{zhus[0].Zhi, zhus[1].Zhi, zhus[2].Zhi, zhus[3].Zhi}
 	// seasonIdx（月支三会组）供四废（四时废日）使用：寅卯辰→0 巳午未→1 申酉戌→2 亥子丑→3。
-	seasonIdx := (int(monthBranch) - 1) / 3
-	yearBranch := zhus[0].Zhi
+	seasonIdx := (int(yueZhi) - 1) / 3
+	nianZhi := zhus[0].Zhi
 	// yearSanHuiIdx（年支三会组）供孤辰寡宿使用：寅卯辰→0 巳午未→1 申酉戌→2 亥子丑→3。
 	// 孤辰寡宿以年支为准（亥子丑人见寅为孤、见戌为寡），与月支三会组不同。
-	yearSanHuiIdx := ((int(yearBranch) - 3 + 12) % 12) / 3
+	yearSanHuiIdx := ((int(nianZhi) - 3 + 12) % 12) / 3
 
 	addTianYi(&out, bz, riYuan, zhus[0].Gan)
 	addWenChang(&out, bz, riYuan)
 	addXueTang(&out, bz, riYuan)
 	addLuShen(&out, bz, riYuan)
 	addYangRen(&out, bz, riYuan)
-	addTianDe(&out, bz, monthBranch)
-	addYueDe(&out, bz, monthBranch)
-	addTaoHua(&out, bz, branches)
-	addYiMa(&out, bz, branches)
-	addHuaGai(&out, bz, branches)
-	addJiangXing(&out, bz, branches)
-	addJieSha(&out, bz, branches)
-	addZaiSha(&out, bz, branches)
+	addTianDe(&out, bz, yueZhi)
+	addYueDe(&out, bz, yueZhi)
+	addTaoHua(&out, bz, zhi)
+	addYiMa(&out, bz, zhi)
+	addHuaGai(&out, bz, zhi)
+	addJiangXing(&out, bz, zhi)
+	addJieSha(&out, bz, zhi)
+	addZaiSha(&out, bz, zhi)
 	addGuChenGuaSu(&out, bz, yearSanHuiIdx)
-	addHongLuanTianXi(&out, bz, yearBranch)
+	addHongLuanTianXi(&out, bz, nianZhi)
 	addJinYu(&out, bz, riYuan)
 	addCiGuan(&out, bz, riYuan)
-	addYueEn(&out, bz, monthBranch)
-	addTianShe(&out, bz, monthBranch)
+	addYueEn(&out, bz, yueZhi)
+	addTianShe(&out, bz, yueZhi)
 	addTianLuoDiWang(&out, bz)
-	addGouJiao(&out, bz, yearBranch)
-	addYuanChen(&out, bz, yearBranch, zhus[0].Gan)
+	addGouJiao(&out, bz, nianZhi)
+	addYuanChen(&out, bz, nianZhi, zhus[0].Gan)
 	addXueRen(&out, bz, riYuan)
 	addSiFei(&out, bz, seasonIdx)
 	addShiEDaBai(&out, bz)
@@ -123,7 +123,7 @@ func addTianYi(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Ga
 var wenChangLookup map[ganzhi.Gan][]ganzhi.Zhi
 
 func addWenChang(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
-	appendShenShaByStemLookup(out, bz, riYuan, wenChangLookup, "文昌", catJi, "主学业、文书、才华")
+	appendShenShaByGanLookup(out, bz, riYuan, wenChangLookup, "文昌", catJi, "主学业、文书、才华")
 }
 
 func addXueTang(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
@@ -162,9 +162,9 @@ func addYangRen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
 	}
 }
 
-func addTianDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, monthBranch ganzhi.Zhi) {
+func addTianDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 	zhus := bz.Slice()
-	targets, ok := tiandeTargets[monthBranch]
+	targets, ok := tiandeTargets[yueZhi]
 	if !ok {
 		return
 	}
@@ -185,9 +185,9 @@ func addTianDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, monthBranch ganzhi.Zhi) {
 	}
 }
 
-func addYueDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, monthBranch ganzhi.Zhi) {
+func addYueDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 	zhus := bz.Slice()
-	targetStem, ok := yuedeStem[monthBranch]
+	targetStem, ok := yuedeGan[yueZhi]
 	if !ok {
 		return
 	}
@@ -202,11 +202,11 @@ func addYueDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, monthBranch ganzhi.Zhi) {
 
 // addTriadShenSha 三合类神煞（驿马/桃花/华盖/劫煞/灾煞/将星）：
 // 以年支与日支为参考（兼容两种流派），同一柱同一神煞只标注一次（去重）。
-func addTriadShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.Zhi, lookup map[ganzhi.Zhi]ganzhi.Zhi, name, cat, desc string) {
+func addTriadShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi, lookup map[ganzhi.Zhi]ganzhi.Zhi, name, cat, desc string) {
 	zhus := bz.Slice()
 	marked := map[int]bool{}
-	for _, refIdx := range []int{0, 2} { // year & day branch
-		if tb, ok := lookup[branches[refIdx]]; ok {
+	for _, refIdx := range []int{0, 2} { // year & day zhi
+		if tb, ok := lookup[zhi[refIdx]]; ok {
 			for pi, p := range zhus {
 				if p.Zhi == tb && !marked[pi] {
 					marked[pi] = true
@@ -217,28 +217,28 @@ func addTriadShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.
 	}
 }
 
-func addTaoHua(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.Zhi) {
-	addTriadShenSha(out, bz, branches, taohuaBranchMap, "桃花", catZhongXing, "主异性缘佳，浪漫多情")
+func addTaoHua(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, taohuaZhiMap, "桃花", catZhongXing, "主异性缘佳，浪漫多情")
 }
 
-func addYiMa(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.Zhi) {
-	addTriadShenSha(out, bz, branches, yimaBranchMap, "驿马", catZhongXing, "主动荡、奔波、迁移")
+func addYiMa(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, yimaZhiMap, "驿马", catZhongXing, "主动荡、奔波、迁移")
 }
 
-func addHuaGai(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.Zhi) {
-	addTriadShenSha(out, bz, branches, huagaiBranchMap, "华盖", catZhongXing, "主孤独清高，聪明好学，有艺术天赋")
+func addHuaGai(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, huagaiZhiMap, "华盖", catZhongXing, "主孤独清高，聪明好学，有艺术天赋")
 }
 
-func addJiangXing(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.Zhi) {
-	addTriadShenSha(out, bz, branches, jiangxingLookup, "将星", catJi, "主领导才能，有权威")
+func addJiangXing(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, jiangxingLookup, "将星", catJi, "主领导才能，有权威")
 }
 
-func addJieSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.Zhi) {
-	addTriadShenSha(out, bz, branches, jieshaBranch, "劫煞", catXiong, "主破财、意外、是非")
+func addJieSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, jieshaZhi, "劫煞", catXiong, "主破财、意外、是非")
 }
 
-func addZaiSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, branches [4]ganzhi.Zhi) {
-	addTriadShenSha(out, bz, branches, zaishaBranch, "灾煞", catXiong, "主灾祸、疾病、横事")
+func addZaiSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, zaishaZhi, "灾煞", catXiong, "主灾祸、疾病、横事")
 }
 
 func addGuChenGuaSu(out *[4][]shenShaEntry, bz ganzhi.Bazi, seasonIdx int) {
@@ -259,9 +259,9 @@ func addGuChenGuaSu(out *[4][]shenShaEntry, bz ganzhi.Bazi, seasonIdx int) {
 	}
 }
 
-func addHongLuanTianXi(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi.Zhi) {
+func addHongLuanTianXi(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi) {
 	zhus := bz.Slice()
-	if target, ok := hongluanLookup[yearBranch]; ok {
+	if target, ok := hongluanLookup[nianZhi]; ok {
 		for pi, p := range zhus {
 			if p.Zhi == target {
 				(*out)[pi] = append((*out)[pi], shenShaEntry{
@@ -270,7 +270,7 @@ func addHongLuanTianXi(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi
 			}
 		}
 	}
-	if target, ok := tianxiLookup[yearBranch]; ok {
+	if target, ok := tianxiLookup[nianZhi]; ok {
 		for pi, p := range zhus {
 			if p.Zhi == target {
 				(*out)[pi] = append((*out)[pi], shenShaEntry{
@@ -282,12 +282,12 @@ func addHongLuanTianXi(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi
 }
 
 func addJinYu(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
-	appendShenShaByStemLookup(out, bz, riYuan, jinyuLookup, "金舆", catJi, "主财运、车辆、出行顺利")
+	appendShenShaByGanLookup(out, bz, riYuan, jinyuLookup, "金舆", catJi, "主财运、车辆、出行顺利")
 }
 
-func addYueEn(out *[4][]shenShaEntry, bz ganzhi.Bazi, monthBranch ganzhi.Zhi) {
+func addYueEn(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 	zhus := bz.Slice()
-	targets, ok := yueEnStems[monthBranch]
+	targets, ok := yueEnGan[yueZhi]
 	if !ok {
 		return
 	}
@@ -302,9 +302,9 @@ func addYueEn(out *[4][]shenShaEntry, bz ganzhi.Bazi, monthBranch ganzhi.Zhi) {
 	}
 }
 
-func addTianShe(out *[4][]shenShaEntry, bz ganzhi.Bazi, monthBranch ganzhi.Zhi) {
+func addTianShe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 	zhus := bz.Slice()
-	season := (int(monthBranch) - 1) / 3
+	season := (int(yueZhi) - 1) / 3
 	tianSheChecks := [4]ganZhiPair{{5, 3}, {1, 7}, {5, 9}, {1, 1}} // 戊寅, 甲午, 戊申, 甲子
 	if season >= 0 && season < 4 {
 		pair := tianSheChecks[season]
@@ -327,10 +327,10 @@ func addTianLuoDiWang(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
 	}
 }
 
-func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi.Zhi) {
+func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi) {
 	zhus := bz.Slice()
-	gouShen := ganzhi.Zhi((int(yearBranch)+2)%12 + 1)
-	jiaoShen := ganzhi.Zhi((int(yearBranch)+4)%12 + 1)
+	gouShen := ganzhi.Zhi((int(nianZhi)+2)%12 + 1)
+	jiaoShen := ganzhi.Zhi((int(nianZhi)+4)%12 + 1)
 	for pi, p := range zhus {
 		if p.Zhi == gouShen {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{
@@ -345,9 +345,9 @@ func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi.Zhi) {
 	}
 }
 
-func addYuanChen(out *[4][]shenShaEntry, bz ganzhi.Bazi, yearBranch ganzhi.Zhi, nianGan ganzhi.Gan) {
+func addYuanChen(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi, nianGan ganzhi.Gan) {
 	zhus := bz.Slice()
-	ycBranch := yuanChenBranch(yearBranch, nianGan)
+	ycBranch := yuanChenZhi(nianZhi, nianGan)
 	for pi, p := range zhus {
 		if p.Zhi == ycBranch {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{
@@ -396,7 +396,7 @@ func addShiEDaBai(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
 	}
 }
 
-func appendShenShaByStemLookup(out *[4][]shenShaEntry, bz ganzhi.Bazi, s ganzhi.Gan, lookup map[ganzhi.Gan][]ganzhi.Zhi, name, cat, desc string) {
+func appendShenShaByGanLookup(out *[4][]shenShaEntry, bz ganzhi.Bazi, s ganzhi.Gan, lookup map[ganzhi.Gan][]ganzhi.Zhi, name, cat, desc string) {
 	zhus := bz.Slice()
 	targets, ok := lookup[s]
 	if !ok {
@@ -411,7 +411,7 @@ func appendShenShaByStemLookup(out *[4][]shenShaEntry, bz ganzhi.Bazi, s ganzhi.
 	}
 }
 
-// computeKongWang returns pillar indices whose branches fall in the void (空亡)
+// computeKongWang returns pillar indices whose zhi fall in the void (空亡)
 // of the day pillar's 旬.
 func computeKongWang(bz ganzhi.Bazi) []int {
 	sbIdx := ganzhi.SixtyCycleIndex(bz.Ri.Gan, bz.Ri.Zhi)
@@ -432,8 +432,8 @@ func computeKongWang(bz ganzhi.Bazi) []int {
 	return hits
 }
 
-// computeDynamicShenSha computes shensha triggered by an external branch against the bazi chart.
-func computeDynamicShenSha(b ganzhi.Zhi, yearBranch, riBranch ganzhi.Zhi, riYuan ganzhi.Gan) []shenShaEntry {
+// computeDynamicShenSha computes shensha triggered by an external zhi against the bazi chart.
+func computeDynamicShenSha(b ganzhi.Zhi, nianZhi, riBranch ganzhi.Zhi, riYuan ganzhi.Gan) []shenShaEntry {
 	var result []shenShaEntry
 	seen := map[string]bool{}
 	add := func(name, cat, desc string) {
@@ -443,28 +443,28 @@ func computeDynamicShenSha(b ganzhi.Zhi, yearBranch, riBranch ganzhi.Zhi, riYuan
 		}
 	}
 	// 三合局系神煞（桃花/驿马/华盖/劫煞/灾煞）——年支+日支双查（《三命通会》年支/日支桃花驿马）
-	for _, rb := range []ganzhi.Zhi{yearBranch, riBranch} {
-		if tb, ok := taohuaBranchMap[rb]; ok && tb == b {
+	for _, rb := range []ganzhi.Zhi{nianZhi, riBranch} {
+		if tb, ok := taohuaZhiMap[rb]; ok && tb == b {
 			add("桃花", catZhongXing, "流运桃花，异性缘佳")
 		}
-		if tb, ok := yimaBranchMap[rb]; ok && tb == b {
+		if tb, ok := yimaZhiMap[rb]; ok && tb == b {
 			add("驿马", catZhongXing, "流运驿马，动象奔波")
 		}
-		if tb, ok := huagaiBranchMap[rb]; ok && tb == b {
+		if tb, ok := huagaiZhiMap[rb]; ok && tb == b {
 			add("华盖", catZhongXing, "流运华盖，宜静思")
 		}
-		if js, ok := jieshaBranch[rb]; ok && js == b {
+		if js, ok := jieshaZhi[rb]; ok && js == b {
 			add("劫煞", catXiong, "流运劫煞，防破财是非")
 		}
-		if zs, ok := zaishaBranch[rb]; ok && zs == b {
+		if zs, ok := zaishaZhi[rb]; ok && zs == b {
 			add("灾煞", catXiong, "流运灾煞，防意外灾祸")
 		}
 	}
 	// 红鸾/天喜——仅年支查（红鸾属年支体系，日支不取）
-	if hl, ok := hongluanLookup[yearBranch]; ok && hl == b {
+	if hl, ok := hongluanLookup[nianZhi]; ok && hl == b {
 		add("红鸾", catJi, "流运红鸾，主婚喜添丁")
 	}
-	if tx, ok := tianxiLookup[yearBranch]; ok && tx == b {
+	if tx, ok := tianxiLookup[nianZhi]; ok && tx == b {
 		add("天喜", catJi, "流运天喜，喜庆之事")
 	}
 	// 天乙贵人/羊刃——按日干
@@ -521,24 +521,24 @@ func zhiOffset(z ganzhi.Zhi, n int) ganzhi.Zhi {
 	return ganzhi.Zhi((int(z)-1+n+120)%12 + 1)
 }
 
-func yuanChenBranch(yearBranch ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
+func yuanChenZhi(nianZhi ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
 	for _, p := range ganzhi.ChongPairs {
-		if p.A == yearBranch {
+		if p.A == nianZhi {
 			return yuanChenOffset(p.B, nianGan)
 		}
-		if p.B == yearBranch {
+		if p.B == nianZhi {
 			return yuanChenOffset(p.A, nianGan)
 		}
 	}
 	return 0
 }
 
-// yuanChenOffset applies the yin/yang offset to the clash branch.
+// yuanChenOffset applies the yin/yang offset to the clash zhi.
 // 阳年: +1, 阴年: -1.
-func yuanChenOffset(clashBranch ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
+func yuanChenOffset(chongZhi ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
 	isYang := int(nianGan)%2 == 1
 	if isYang {
-		return clashBranch%12 + 1
+		return chongZhi%12 + 1
 	}
-	return (clashBranch-2+12)%12 + 1
+	return (chongZhi-2+12)%12 + 1
 }

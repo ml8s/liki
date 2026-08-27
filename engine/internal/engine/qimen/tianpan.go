@@ -9,24 +9,24 @@ var starOrder8 = [8]StarIndex{
 	StarTianXin, StarTianZhu, StarTianRen, StarTianYing,
 }
 
-// placeTianPan arranges the heaven plate: 8 stars and their associated heaven stems.
+// placeTianPan arranges the heaven plate: 8 stars and their associated heaven gan.
 // 值符星 fits to the gong where 时干 sits on the earth plate.
 // Other stars follow clockwise, skipping 中5 (the void central palace).
 // 天禽星寄坤2 — always in the same gong as 天芮.
-// Heaven stem at each gong = the earth stem of the star's home gong.
+// Heaven gan at each gong = the earth gan of the star's home gong.
 // If the duty star is 天禽 (旬首 in 中5), it is treated as 天芮 (寄坤2), and 天禽
 // then follows 天芮's position.
 func placeTianPan(driveZhu ganzhi.Zhu, dutyStar StarIndex, dipan [9]ganzhi.Gan) ([9]StarIndex, [9]ganzhi.Gan) {
 	var stars [9]StarIndex
-	var stems [9]ganzhi.Gan
+	var gan [9]ganzhi.Gan
 
-	// 甲遁于旬首 — when the driving stem is 甲, use the xunShou instead.
+	// 甲遁于旬首 — when the driving gan is 甲, use the xunShou instead.
 	searchGan := driveZhu.Gan
 	if driveZhu.Gan == ganzhi.GanJia {
 		searchGan = findXunShou(driveZhu)
 	}
 
-	// Find the gong where the driving stem sits on the earth plate.
+	// Find the gong where the driving gan sits on the earth plate.
 	driveGanPalace := 0
 	for i := 0; i < 9; i++ {
 		if dipan[i] == searchGan {
@@ -66,13 +66,13 @@ func placeTianPan(driveZhu ganzhi.Zhu, dutyStar StarIndex, dipan [9]ganzhi.Gan) 
 		step++
 		stars[pos] = star
 
-		// Heaven stem = earth stem from the star's home gong.
+		// Heaven gan = earth gan from the star's home gong.
 		homePalace := starHomePalace(star)
-		stems[pos] = dipan[homePalace]
+		gan[pos] = dipan[homePalace]
 	}
 
 	// 天禽寄坤2: 天禽不占独立星位，隐含寄于天芮所在宫（与天芮同宫）。
 	// 排盘只列天芮，天禽随天芮（主流转盘法）。
 
-	return stars, stems
+	return stars, gan
 }

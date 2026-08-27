@@ -470,7 +470,7 @@ func TestRPC_Dispatch_ZiweiLiuNian(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	chart := getZiweiChart(t, reg)
 
-	params := map[string]any{"liu_nian": 2026, "chart": chart}
+	params := map[string]any{"lunar_year": 2026, "chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"ziwei.liunian","params":%s,"id":1}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_liunian")
@@ -484,7 +484,7 @@ func TestRPC_Dispatch_ZiweiLiuYue(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	chart := getZiweiChart(t, reg)
 
-	params := map[string]any{"liu_nian": 2026, "lunar_month": 1, "chart": chart}
+	params := map[string]any{"lunar_year": 2026, "lunar_month": 1, "chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"ziwei.liuyue","params":%s,"id":1}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_liuyue")
@@ -498,7 +498,7 @@ func TestRPC_Dispatch_ZiweiLiuRi(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	chart := getZiweiChart(t, reg)
 
-	params := map[string]any{"liu_nian": 2026, "lunar_month": 1, "lunar_day": 1, "chart": chart}
+	params := map[string]any{"lunar_year": 2026, "lunar_month": 1, "lunar_day": 1, "chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"ziwei.liuri","params":%s,"id":1}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_liuri")

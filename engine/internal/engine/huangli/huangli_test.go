@@ -271,7 +271,7 @@ func TestFindCurrentRenYuanSiLingFenYe_Empty(t *testing.T) {
 
 func TestXiShenDirection(t *testing.T) {
 	tests := []struct {
-		stem ganzhi.Gan
+		gan  ganzhi.Gan
 		want string
 	}{
 		{ganzhi.GanJia, "东北"}, {ganzhi.GanJi, "东北"},
@@ -281,10 +281,10 @@ func TestXiShenDirection(t *testing.T) {
 		{ganzhi.GanWu, "东南"}, {ganzhi.GanGui, "东南"},
 	}
 	for _, tt := range tests {
-		t.Run(ganzhi.GanName(tt.stem), func(t *testing.T) {
-			if got := xiShenDirection(tt.stem); got != tt.want {
+		t.Run(ganzhi.GanName(tt.gan), func(t *testing.T) {
+			if got := xiShenDirection(tt.gan); got != tt.want {
 				t.Errorf("xiShen(%s) = %q, want %q",
-					ganzhi.GanName(tt.stem), got, tt.want)
+					ganzhi.GanName(tt.gan), got, tt.want)
 			}
 		})
 	}
@@ -292,7 +292,7 @@ func TestXiShenDirection(t *testing.T) {
 
 func TestCaiShenDirection(t *testing.T) {
 	tests := []struct {
-		stem ganzhi.Gan
+		gan  ganzhi.Gan
 		want string
 	}{
 		{ganzhi.GanJia, "东北"}, {ganzhi.GanYi, "东北"},
@@ -302,10 +302,10 @@ func TestCaiShenDirection(t *testing.T) {
 		{ganzhi.GanRen, "正南"}, {ganzhi.GanGui, "正南"},
 	}
 	for _, tt := range tests {
-		t.Run(ganzhi.GanName(tt.stem), func(t *testing.T) {
-			if got := caiShenDirection(tt.stem); got != tt.want {
+		t.Run(ganzhi.GanName(tt.gan), func(t *testing.T) {
+			if got := caiShenDirection(tt.gan); got != tt.want {
 				t.Errorf("caiShen(%s) = %q, want %q",
-					ganzhi.GanName(tt.stem), got, tt.want)
+					ganzhi.GanName(tt.gan), got, tt.want)
 			}
 		})
 	}
@@ -313,7 +313,7 @@ func TestCaiShenDirection(t *testing.T) {
 
 func TestFuShenDirection(t *testing.T) {
 	tests := []struct {
-		stem ganzhi.Gan
+		gan  ganzhi.Gan
 		want string
 	}{
 		{ganzhi.GanJia, "东南"}, {ganzhi.GanYi, "东南"},
@@ -323,24 +323,24 @@ func TestFuShenDirection(t *testing.T) {
 		{ganzhi.GanRen, "西北"}, {ganzhi.GanGui, "正西"},
 	}
 	for _, tt := range tests {
-		t.Run(ganzhi.GanName(tt.stem), func(t *testing.T) {
-			if got := fuShenDirection(tt.stem); got != tt.want {
+		t.Run(ganzhi.GanName(tt.gan), func(t *testing.T) {
+			if got := fuShenDirection(tt.gan); got != tt.want {
 				t.Errorf("fuShen(%s) = %q, want %q",
-					ganzhi.GanName(tt.stem), got, tt.want)
+					ganzhi.GanName(tt.gan), got, tt.want)
 			}
 		})
 	}
 }
 
 func TestPengZuTaboos(t *testing.T) {
-	if got := pengZuStemTaboo(ganzhi.GanJia); got != "甲不开仓财物耗散" {
+	if got := pengZuGanTaboo(ganzhi.GanJia); got != "甲不开仓财物耗散" {
 		t.Errorf("甲 taboo = %q", got)
 	}
-	if got := pengZuBranchTaboo(ganzhi.ZhiZi); got != "子不问卜自惹祸殃" {
+	if got := pengZuZhiTaboo(ganzhi.ZhiZi); got != "子不问卜自惹祸殃" {
 		t.Errorf("子 taboo = %q", got)
 	}
 	// Spot check: 午不苫盖屋主更张
-	if got := pengZuBranchTaboo(ganzhi.ZhiWu); got != "午不苫盖屋主更张" {
+	if got := pengZuZhiTaboo(ganzhi.ZhiWu); got != "午不苫盖屋主更张" {
 		t.Errorf("午 taboo = %q", got)
 	}
 }
@@ -355,11 +355,11 @@ func TestZeRiFunctions_InvalidInput(t *testing.T) {
 	if got := fuShenDirection(ganzhi.Gan(0)); got != "" {
 		t.Errorf("fuShen(0) = %q, want empty", got)
 	}
-	if got := pengZuStemTaboo(ganzhi.Gan(0)); got != "" {
-		t.Errorf("pengZuStemTaboo(0) = %q, want empty", got)
+	if got := pengZuGanTaboo(ganzhi.Gan(0)); got != "" {
+		t.Errorf("pengZuGanTaboo(0) = %q, want empty", got)
 	}
-	if got := pengZuBranchTaboo(ganzhi.Zhi(0)); got != "" {
-		t.Errorf("pengZuBranchTaboo(0) = %q, want empty", got)
+	if got := pengZuZhiTaboo(ganzhi.Zhi(0)); got != "" {
+		t.Errorf("pengZuZhiTaboo(0) = %q, want empty", got)
 	}
 }
 

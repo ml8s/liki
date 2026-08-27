@@ -19,10 +19,10 @@ var tiaohouProdJSON []byte
 
 func TestTiaoHou_All120_AgainstReference(t *testing.T) {
 	type entry struct {
-		RiYuan      string `json:"ri_yuan"`
-		MonthBranch string `json:"month_branch"`
-		Primary     string `json:"primary"`
-		Secondary   string `json:"secondary"`
+		RiYuan    string `json:"ri_yuan"`
+		YueZhi    string `json:"month_branch"`
+		Primary   string `json:"primary"`
+		Secondary string `json:"secondary"`
 	}
 
 	var ref, prod []entry
@@ -41,34 +41,34 @@ func TestTiaoHou_All120_AgainstReference(t *testing.T) {
 
 	refMap := make(map[string]entry, 120)
 	for _, e := range ref {
-		refMap[e.RiYuan+e.MonthBranch] = e
+		refMap[e.RiYuan+e.YueZhi] = e
 	}
 	prodMap := make(map[string]entry, 120)
 	for _, e := range prod {
-		prodMap[e.RiYuan+e.MonthBranch] = e
+		prodMap[e.RiYuan+e.YueZhi] = e
 	}
 
 	mismatches := 0
 	for _, e := range ref {
-		key := e.RiYuan + e.MonthBranch
+		key := e.RiYuan + e.YueZhi
 		p, ok := prodMap[key]
 		if !ok {
-			t.Errorf("生产数据缺少 %s%s月", e.RiYuan, e.MonthBranch)
+			t.Errorf("生产数据缺少 %s%s月", e.RiYuan, e.YueZhi)
 			mismatches++
 			continue
 		}
 		if p.Primary != e.Primary || p.Secondary != e.Secondary {
 			t.Errorf("%s%s月: production=%s+%s, 穷通原文=%s+%s",
-				e.RiYuan, e.MonthBranch, p.Primary, p.Secondary, e.Primary, e.Secondary)
+				e.RiYuan, e.YueZhi, p.Primary, p.Secondary, e.Primary, e.Secondary)
 			mismatches++
 		}
 	}
 
 	// 检查生产数据多出的条目
 	for _, e := range prod {
-		key := e.RiYuan + e.MonthBranch
+		key := e.RiYuan + e.YueZhi
 		if _, ok := refMap[key]; !ok {
-			t.Errorf("生产数据多余 %s%s月", e.RiYuan, e.MonthBranch)
+			t.Errorf("生产数据多余 %s%s月", e.RiYuan, e.YueZhi)
 			mismatches++
 		}
 	}

@@ -1118,7 +1118,7 @@ func TestHandler_ZiweiLiunian(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"lunar_year":2026,"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liunian", params)
 	if err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
@@ -1141,7 +1141,7 @@ func TestHandler_ZiweiLiuyue(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"lunar_month":5,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"lunar_year":2026,"lunar_month":5,"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liuyue", params)
 	if err != nil {
 		t.Fatalf("ziwei.liuyue: %v", err)
@@ -1195,7 +1195,7 @@ func TestHandler_ZiweiLiuri_Valid(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"lunar_month":5,"lunar_day":10,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"lunar_year":2026,"lunar_month":5,"lunar_day":10,"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liuri", params)
 	if err != nil {
 		t.Fatalf("ziwei.liuri: %v", err)
@@ -1357,7 +1357,7 @@ func TestHandler_ZiweiLiuyue_Valid(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err = r.Execute(context.Background(), "ziwei.liuyue",
-		json.RawMessage(fmt.Sprintf(`{"liu_nian":2026,"lunar_month":5,"chart":%s}`, env.Data)))
+		json.RawMessage(fmt.Sprintf(`{"lunar_year":2026,"lunar_month":5,"chart":%s}`, env.Data)))
 	if err != nil {
 		t.Fatalf("ziwei.liuyue: %v", err)
 	}

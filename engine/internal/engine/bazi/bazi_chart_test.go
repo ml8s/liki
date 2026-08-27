@@ -104,7 +104,7 @@ func TestGoldenChart_JSONSnapshot(t *testing.T) {
 
 // ── Wuxing counts ──
 
-func TestGoldenChart_HiddenStems(t *testing.T) {
+func TestGoldenChart_CangGan(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
 			cr := computeFullChart(g)
@@ -116,7 +116,7 @@ func TestGoldenChart_HiddenStems(t *testing.T) {
 			names := [4]string{"nian", "yue", "ri", "shi"}
 			for i, h := range hs {
 				if h.Main == 0 {
-					t.Errorf("%s pillar hidden stem main qi is zero", names[i])
+					t.Errorf("%s pillar hidden gan main qi is zero", names[i])
 				}
 			}
 		})
@@ -228,7 +228,7 @@ func TestGoldenChart_ShiShens(t *testing.T) {
 					continue
 				}
 				if p.ShiShens[0].Source != sourceGan {
-					t.Errorf("%s pillar: first shi shen source = %s, want stem", names[i], p.ShiShens[0].Source)
+					t.Errorf("%s pillar: first shi shen source = %s, want gan", names[i], p.ShiShens[0].Source)
 				}
 				if !validShiShens[p.ShiShens[0].ShiShen.String()] {
 					t.Errorf("%s pillar: unknown shi shen %q", names[i], p.ShiShens[0].ShiShen)

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.08.27（续二）—— 自部署闭环与版本机制归零
+
+- **[自部署] ghcr 镜像**：`gh release create` 触发 CI 发 `ghcr.io/ml8s/liki-engine:latest`（+:sha 锚）——外部用户 `docker run` 一条命令；README 自部署节主路径改镜像，源码 build 降为进阶
+- **[版本机制归零]** liki-web CI 的 ref 锁删除（checkout master，与部署策略对齐——此前 CI 测锁定 tag 而部署 pull master，验证物≠部署物）；替代为日志记录 liki commit/VERSION（可追溯）
+- **[原则] 版本管理复杂度与变更频率匹配**：引擎近 3 个月计算逻辑零变更（7 commits 全为工程杂务）——稳定依赖按公共设施消费，不建版本编排机器；CI 测什么（master）部署就是什么
+- engine/deploy/docker-compose.yml 独立部署 compose + 4×SKILL.md 端点行注明 LIKI_RPC_URL 可指向自建引擎
+
 ## 2026.08.27 —— 版本制切换：semver → CalVer（日期版本）
 
 - **[版本] 取消 semver**（major/minor/patch 判断对该项目是仪式性负担——skill 用户装最新、无依赖解析场景）；VERSION 文件写入日期戳（如 2026.08.27），自检更新机制不变（VERSION 或指纹任一不一致即提示更新）

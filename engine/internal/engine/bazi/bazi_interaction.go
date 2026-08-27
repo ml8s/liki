@@ -6,7 +6,7 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// GanRelation describes a single stem-to-stem relationship.
+// GanRelation describes a single gan-to-gan relationship.
 type GanRelation struct {
 	GanA     ganzhi.Gan `json:"gan_a"`
 	GanB     ganzhi.Gan `json:"gan_b"`
@@ -14,7 +14,7 @@ type GanRelation struct {
 	Relation string     `json:"relation"`
 }
 
-// ZhiRelation describes a single branch-to-branch relationship.
+// ZhiRelation describes a single zhi-to-zhi relationship.
 type ZhiRelation struct {
 	ZhiA   ganzhi.Zhi `json:"zhi_a"`
 	ZhiB   ganzhi.Zhi `json:"zhi_b"`
@@ -22,7 +22,7 @@ type ZhiRelation struct {
 	Detail string     `json:"detail"`
 }
 
-// Relation type constants for stem and branch interactions.
+// Relation type constants for gan and zhi interactions.
 const (
 	relSame     = "相同"
 	relSheng    = "相生"
@@ -39,14 +39,14 @@ const (
 	relPo       = "破"
 )
 
-// zhuInteraction holds stem and branch relations for one pillar against the bazi chart.
+// zhuInteraction holds gan and zhi relations for one pillar against the bazi chart.
 type zhuInteraction struct {
 	ZhuLabel string        `json:"pillar_label"`
 	GanRels  []GanRelation `json:"gan_rels"`
 	ZhiRels  []ZhiRelation `json:"zhi_rels"`
 }
 
-// analyzeGanRelation checks the relationship between two stems.
+// analyzeGanRelation checks the relationship between two gan.
 func analyzeGanRelation(a, b ganzhi.Gan) GanRelation {
 	r := GanRelation{GanA: a, GanB: b}
 	if a == b {
@@ -86,7 +86,7 @@ func analyzeGanRelation(a, b ganzhi.Gan) GanRelation {
 	return r
 }
 
-// analyzeZhiRelation checks all relationship types between two branches.
+// analyzeZhiRelation checks all relationship types between two zhi.
 // Priority: 六合 > 三合 > 六冲 > 六害 > 三会 > 相刑 > 暗合 > 破.
 func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	r := ZhiRelation{ZhiA: a, ZhiB: b}
@@ -111,7 +111,7 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	}
 
 	for _, th := range ganzhi.TripleHeList {
-		if containsPair(th.Branches, a, b) {
+		if containsPair(th.Zhi, a, b) {
 			r.Type = relSanHe
 			r.Detail = fmt.Sprintf("%s%s三合%s局", ganzhi.ZhiName(a), ganzhi.ZhiName(b), th.Element.String())
 			return r
@@ -133,7 +133,7 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 		r.Type = relXing
 		xType := "刑"
 		for _, x := range ganzhi.XingGroups {
-			if containsPair(x.Branches, a, b) {
+			if containsPair(x.Zhi, a, b) {
 				xType = xingTypeLabel(x.Type)
 				break
 			}
@@ -151,7 +151,7 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	}
 
 	for _, th := range ganzhi.TripleHuiList {
-		if containsPair(th.Branches, a, b) {
+		if containsPair(th.Zhi, a, b) {
 			r.Type = relSanHui
 			r.Detail = fmt.Sprintf("%s%s三会%s方", ganzhi.ZhiName(a), ganzhi.ZhiName(b), th.Element.String())
 			return r
@@ -198,11 +198,11 @@ func xingTypeLabel(t string) string {
 
 // analyzeZhuWithBazi analyzes one pillar against all 4 bazi chart pillars.
 func analyzeZhuWithBazi(zhu ganzhi.Zhu, bz ganzhi.Bazi) ([]GanRelation, []ZhiRelation) {
-	stemRels := make([]GanRelation, 4)
-	branchRels := make([]ZhiRelation, 4)
+	ganRels := make([]GanRelation, 4)
+	zhiRels := make([]ZhiRelation, 4)
 	for i, np := range bz.Slice() {
-		stemRels[i] = analyzeGanRelation(zhu.Gan, np.Gan)
-		branchRels[i] = analyzeZhiRelation(zhu.Zhi, np.Zhi)
+		ganRels[i] = analyzeGanRelation(zhu.Gan, np.Gan)
+		zhiRels[i] = analyzeZhiRelation(zhu.Zhi, np.Zhi)
 	}
-	return stemRels, branchRels
+	return ganRels, zhiRels
 }

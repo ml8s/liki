@@ -2,8 +2,8 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// stemEntry holds the named interaction data (without stem fields set at runtime).
-type stemEntry struct {
+// ganEntry holds the named interaction data (without gan fields set at runtime).
+type ganEntry struct {
 	Name        string
 	PatternName string
 	Meaning     string
@@ -15,17 +15,17 @@ func computeGanInteractions(pan pan) [9]GanInteraction {
 	var result [9]GanInteraction
 	for i := 0; i < 9; i++ {
 		p := pan.GongWei[i]
-		key := [2]ganzhi.Gan{p.EarthStem, p.HeavenStem}
+		key := [2]ganzhi.Gan{p.DiPanGan, p.TianPanGan}
 		if entry, ok := ganInteractionTable[key]; ok {
 			result[i] = GanInteraction{
-				EarthStem:  p.EarthStem,
-				HeavenStem: p.HeavenStem,
+				DiPanGan:   p.DiPanGan,
+				TianPanGan: p.TianPanGan,
 				Name:       entry.Name,
 				Meaning:    entry.PatternName + "：" + entry.Meaning,
 				Auspicious: entry.Auspicious,
 			}
 		} else {
-			result[i] = genericGanInteraction(p.EarthStem, p.HeavenStem)
+			result[i] = genericGanInteraction(p.DiPanGan, p.TianPanGan)
 		}
 	}
 	return result
@@ -58,8 +58,8 @@ func genericGanInteraction(earth, heaven ganzhi.Gan) GanInteraction {
 	}
 
 	return GanInteraction{
-		EarthStem:  earth,
-		HeavenStem: heaven,
+		DiPanGan:   earth,
+		TianPanGan: heaven,
 		Name:       name,
 		Meaning:    meaning,
 		Auspicious: auspicious,

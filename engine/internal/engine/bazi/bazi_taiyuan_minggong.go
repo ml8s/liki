@@ -18,17 +18,17 @@ type SanYuan struct {
 //   - 命宫 offset = 14 - (月支寅起 + 时支寅起)，≥14 时用 26 - 和
 //   - 身宫 offset = (月支寅起 + 时支子起) mod 12
 //   - 天干 = 年干*2 + offset（mod 10，0→10）
-func computeSanYuan(monthZhu ganzhi.Zhu, yearStem ganzhi.Gan, timeZhi ganzhi.Zhi) SanYuan {
-	// 胎元: month stem+1 (mod 10), month branch+3 (mod 12)
-	tyStem := int(monthZhu.Gan) + 1
-	if tyStem > 10 {
-		tyStem -= 10
+func computeSanYuan(monthZhu ganzhi.Zhu, nianGan ganzhi.Gan, timeZhi ganzhi.Zhi) SanYuan {
+	// 胎元: month gan+1 (mod 10), month zhi+3 (mod 12)
+	tyGan := int(monthZhu.Gan) + 1
+	if tyGan > 10 {
+		tyGan -= 10
 	}
-	tyBranch := int(monthZhu.Zhi) + 3
-	if tyBranch > 12 {
-		tyBranch -= 12
+	tyZhi := int(monthZhu.Zhi) + 3
+	if tyZhi > 12 {
+		tyZhi -= 12
 	}
-	taiYuan := ganzhi.Zhu{Gan: ganzhi.Gan(tyStem), Zhi: ganzhi.Zhi(tyBranch)}
+	taiYuan := ganzhi.Zhu{Gan: ganzhi.Gan(tyGan), Zhi: ganzhi.Zhi(tyZhi)}
 
 	// 月支 → 寅起索引（寅=1 卯=2 ... 丑=12）
 	monthZhiIndex := (int(monthZhu.Zhi)+9)%12 + 1
@@ -45,11 +45,11 @@ func computeSanYuan(monthZhu ganzhi.Zhu, yearStem ganzhi.Gan, timeZhi ganzhi.Zhi
 		mgOffset = 14 - mgOffset
 	}
 	mgZhi := (mgOffset+1)%12 + 1
-	mgStem := (int(yearStem)*2 + mgOffset) % 10
-	if mgStem == 0 {
-		mgStem = 10
+	mgGan := (int(nianGan)*2 + mgOffset) % 10
+	if mgGan == 0 {
+		mgGan = 10
 	}
-	mingGong := ganzhi.Zhu{Gan: ganzhi.Gan(mgStem), Zhi: ganzhi.Zhi(mgZhi)}
+	mingGong := ganzhi.Zhu{Gan: ganzhi.Gan(mgGan), Zhi: ganzhi.Zhi(mgZhi)}
 
 	// 身宫
 	sgOffset := monthZhiIndex + timeZhiIndexZ
@@ -57,11 +57,11 @@ func computeSanYuan(monthZhu ganzhi.Zhu, yearStem ganzhi.Gan, timeZhi ganzhi.Zhi
 		sgOffset -= 12
 	}
 	sgZhi := (sgOffset+1)%12 + 1
-	sgStem := (int(yearStem)*2 + sgOffset) % 10
-	if sgStem == 0 {
-		sgStem = 10
+	sgGan := (int(nianGan)*2 + sgOffset) % 10
+	if sgGan == 0 {
+		sgGan = 10
 	}
-	shenGong := ganzhi.Zhu{Gan: ganzhi.Gan(sgStem), Zhi: ganzhi.Zhi(sgZhi)}
+	shenGong := ganzhi.Zhu{Gan: ganzhi.Gan(sgGan), Zhi: ganzhi.Zhi(sgZhi)}
 
 	return SanYuan{TaiYuan: taiYuan, MingGong: mingGong, ShenGong: shenGong}
 }

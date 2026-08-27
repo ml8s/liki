@@ -38,7 +38,7 @@ func TestSchemaGoConsistency(t *testing.T) {
 		"bazi.bond":    mk(map[string]any{"a": map[string]any{"chart": b}, "b": map[string]any{"chart": b}}),
 		"ziwei.chart":  zc, "ziwei.fullchart": mk(map[string]any{"chart": z}),
 		"ziwei.daxian":     mk(map[string]any{"chart": z}),
-		"ziwei.liunian":    mk(map[string]any{"chart": z, "liu_nian": 2026}),
+		"ziwei.liunian":    mk(map[string]any{"chart": z, "lunar_year": 2026}),
 		"liuyao.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","yaos":` + string(yaos) + `}`),
 		"qimen.chart":      []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`),
 		"bazhai.chart":     mk(map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"}),

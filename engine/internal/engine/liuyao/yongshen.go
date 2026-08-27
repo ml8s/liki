@@ -99,8 +99,8 @@ func (p *Chart) findFuShen(typ YongShen) *FuShen {
 
 	// For each line of the palace base hexagram, check if it has the target六亲.
 	for i := 0; i < 6; i++ {
-		branchWx := ganzhi.ZhiWuxing(naZhi[i])
-		qin := computeLiuQin(branchWx, elem)
+		zhiWx := ganzhi.ZhiWuxing(naZhi[i])
+		qin := computeLiuQin(zhiWx, elem)
 		if qin == target {
 			return &FuShen{
 				Position: i + 1,

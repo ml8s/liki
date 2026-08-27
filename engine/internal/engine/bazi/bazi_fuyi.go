@@ -7,11 +7,11 @@ import "liki-engine/internal/engine/ganzhi"
 func computeFuYi(c Chart, wc map[ganzhi.Wuxing]int, ws map[string]string) FuYiResult {
 	riYuan := c.Ri.Gan
 	cangGan := computeCangGan(c.ToBazi())
-	monthBranch := c.Yue.Zhi
+	yueZhi := c.Yue.Zhi
 
 	// Use lookup-based strength (qualitative root+season+印比, not scoring).
-	rootType := classifyRoot(riYuan, monthBranch, cangGan)
-	season := classifySeason(riYuan, monthBranch)
+	rootType := classifyRoot(riYuan, yueZhi, cangGan)
+	season := classifySeason(riYuan, yueZhi)
 	yinBi := countYinBi(c)
 	strengthLabel := lookupStrength(rootType, season, yinBi)
 

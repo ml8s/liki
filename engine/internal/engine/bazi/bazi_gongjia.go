@@ -11,12 +11,12 @@ type GongJia struct {
 	ZhuA int        `json:"pillar_a"` // index 0-3 of first pillar
 	ZhuB int        `json:"pillar_b"` // index 0-3 of second pillar
 	Type string     `json:"type"`     // "拱"
-	Zhi  ganzhi.Zhi `json:"zhi"`      // the hidden branch between them
+	Zhi  ganzhi.Zhi `json:"zhi"`      // the hidden zhi between them
 }
 
-// computeGongJia detects 拱 (gap=2) between branches of bazi pillars.
-// When two pillar branches differ by 2 (mod 12), the midpoint = 拱.
-// Adjacent branches (gap=1) have no hidden branch and are skipped.
+// computeGongJia detects 拱 (gap=2) between zhi of bazi pillars.
+// When two pillar zhi differ by 2 (mod 12), the midpoint = 拱.
+// Adjacent zhi (gap=1) have no hidden zhi and are skipped.
 func computeGongJia(bz ganzhi.Bazi) []GongJia {
 	zhus := bz.Slice()
 	bs := make([]int, 0, 4)
@@ -53,7 +53,7 @@ func computeGongJia(bz ganzhi.Bazi) []GongJia {
 			if midB > 12 {
 				midB = 1
 			}
-			pA, pB := zhuIndexForBranch(bz, a), zhuIndexForBranch(bz, bb)
+			pA, pB := zhuIndexForZhi(bz, a), zhuIndexForZhi(bz, bb)
 			if pA >= 0 && pB >= 0 {
 				results = append(results, GongJia{
 					ZhuA: pA,
@@ -68,7 +68,7 @@ func computeGongJia(bz ganzhi.Bazi) []GongJia {
 	return results
 }
 
-func zhuIndexForBranch(bz ganzhi.Bazi, b int) int {
+func zhuIndexForZhi(bz ganzhi.Bazi, b int) int {
 	zhus := bz.Slice()
 	for i, p := range zhus {
 		if int(p.Zhi) == b {

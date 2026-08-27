@@ -12,7 +12,7 @@ import (
 
 // RPC method schemas are defined as inline Go strings rather than in tools.json.
 // tools.json serves the 8 naming-chat tools sent to the LLM as function definitions.
-// The 29 RPC methods here are external API only (not LLM tools) — their schemas
+// The RPC methods here are external API only (not LLM tools) — their schemas
 // drive the OpenRPC document and parameter validation. Keeping them inline avoids
 // a second JSON file that would need to stay in sync with handler signatures.
 
@@ -62,9 +62,10 @@ func (r *RPCRegistry) SetVersion(v string) {
 	r.openrpcOnce = sync.Once{} // reset cache so the doc is rebuilt with the new version
 }
 
-// NewRPCRegistry creates a registry with all 33 external compute methods.
+// NewRPCRegistry creates a registry with all external compute methods
+// (count is locked by TestNewRPCRegistry_ExpectedMethodCount).
 func NewRPCRegistry() *RPCRegistry {
-	r := &RPCRegistry{methods: make(map[string]*RPCMethod, 34)}
+	r := &RPCRegistry{methods: make(map[string]*RPCMethod, 32)}
 	for _, m := range baziMethods {
 		r.mustRegister(m)
 	}

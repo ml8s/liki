@@ -4,47 +4,47 @@ import "liki-engine/internal/engine/ganzhi"
 
 // -- 择日体系：喜神/财神/福神/彭祖百忌 -----------------------------------------------
 // These belong to the huangli day-selection (择日) domain, NOT bazi fortune-telling.
-// They are pure stem→value lookups — no analysis, no scoring.
+// They are pure gan→value lookups — no analysis, no scoring.
 
-// -- 喜神方位 (joy god direction by day stem) ---------------------------------------
+// -- 喜神方位 (joy god direction by day gan) ---------------------------------------
 
 var xiShenDir = [11]string{
 	"", "东北", "西北", "西南", "正南", "东南", // 甲己→东北, 乙庚→西北, 丙辛→西南, 丁壬→南, 戊癸→东南
 	"东北", "西北", "西南", "正南", "东南",
 }
 
-// dirFromStem returns a direction from a 1-indexed stem lookup table.
-func dirFromStem(stem ganzhi.Gan, table [11]string) string {
-	if int(stem) >= 1 && int(stem) <= 10 {
-		return table[stem]
+// dirFromGan returns a direction from a 1-indexed gan lookup table.
+func dirFromGan(gan ganzhi.Gan, table [11]string) string {
+	if int(gan) >= 1 && int(gan) <= 10 {
+		return table[gan]
 	}
 	return ""
 }
 
-// xiShenDirection returns the 喜神方位 for a given day stem.
-func xiShenDirection(stem ganzhi.Gan) string { return dirFromStem(stem, xiShenDir) }
+// xiShenDirection returns the 喜神方位 for a given day gan.
+func xiShenDirection(gan ganzhi.Gan) string { return dirFromGan(gan, xiShenDir) }
 
-// -- 财神方位 (wealth god direction by day stem) ------------------------------------
+// -- 财神方位 (wealth god direction by day gan) ------------------------------------
 
 var caiShenDir = [11]string{
 	"", "东北", "东北", "正西", "正西", "正北", // 甲, 乙, 丙, 丁, 戊
 	"正北", "正东", "正东", "正南", "正南", // 己, 庚, 辛, 壬, 癸
 }
 
-// caiShenDirection returns the 财神方位 for a given day stem.
-func caiShenDirection(stem ganzhi.Gan) string { return dirFromStem(stem, caiShenDir) }
+// caiShenDirection returns the 财神方位 for a given day gan.
+func caiShenDirection(gan ganzhi.Gan) string { return dirFromGan(gan, caiShenDir) }
 
-// -- 福神方位 (blessing god direction by day stem) ----------------------------------
+// -- 福神方位 (blessing god direction by day gan) ----------------------------------
 
 var fuShenDir = [11]string{
 	"", "东南", "东南", "西北", "正东", "正南", // 甲, 乙, 丙, 丁, 戊
 	"正南", "西南", "西南", "西北", "正西", // 己, 庚, 辛, 壬, 癸
 }
 
-// fuShenDirection returns the 福神方位 for a given day stem.
-func fuShenDirection(stem ganzhi.Gan) string { return dirFromStem(stem, fuShenDir) }
+// fuShenDirection returns the 福神方位 for a given day gan.
+func fuShenDirection(gan ganzhi.Gan) string { return dirFromGan(gan, fuShenDir) }
 
-// -- 彭祖百忌 (Peng Zu daily taboos by stem and branch) -----------------------------
+// -- 彭祖百忌 (Peng Zu daily taboos by gan and zhi) -----------------------------
 
 var stemTabooTable = [11]string{
 	"", "甲不开仓财物耗散", "乙不栽植千株不长",
@@ -63,30 +63,30 @@ var branchTabooTable = [13]string{
 	"戌不吃犬作怪上床", "亥不嫁娶不利新郎",
 }
 
-// tabooFromStem returns a Peng Zu taboo for a given day stem.
-func tabooFromStem(stem ganzhi.Gan, table [11]string) string {
-	if int(stem) >= 1 && int(stem) <= 10 {
-		return table[stem]
+// tabooFromGan returns a Peng Zu taboo for a given day gan.
+func tabooFromGan(gan ganzhi.Gan, table [11]string) string {
+	if int(gan) >= 1 && int(gan) <= 10 {
+		return table[gan]
 	}
 	return ""
 }
 
-// tabooFromBranch returns a Peng Zu taboo for a given day branch.
-func tabooFromBranch(branch ganzhi.Zhi, table [13]string) string {
-	if int(branch) >= 1 && int(branch) <= 12 {
-		return table[branch]
+// tabooFromZhi returns a Peng Zu taboo for a given day zhi.
+func tabooFromZhi(zhi ganzhi.Zhi, table [13]string) string {
+	if int(zhi) >= 1 && int(zhi) <= 12 {
+		return table[zhi]
 	}
 	return ""
 }
 
-// pengZuStemTaboo returns the Peng Zu taboo for a given day stem.
-func pengZuStemTaboo(stem ganzhi.Gan) string { return tabooFromStem(stem, stemTabooTable) }
+// pengZuGanTaboo returns the Peng Zu taboo for a given day gan.
+func pengZuGanTaboo(gan ganzhi.Gan) string { return tabooFromGan(gan, stemTabooTable) }
 
-// pengZuBranchTaboo returns the Peng Zu taboo for a given day branch.
-func pengZuBranchTaboo(branch ganzhi.Zhi) string { return tabooFromBranch(branch, branchTabooTable) }
+// pengZuZhiTaboo returns the Peng Zu taboo for a given day zhi.
+func pengZuZhiTaboo(zhi ganzhi.Zhi) string { return tabooFromZhi(zhi, branchTabooTable) }
 
 // -- 黄道黑道十二神 (Yellow/Black Path 12 Day Stars) --------------------------------
-// Determined by month branch (青龙 start) + day branch offset.
+// Determined by month zhi (青龙 start) + day zhi offset.
 // 黄道 = auspicious (6 stars), 黑道 = inauspicious (6 stars).
 
 // huangDaoStar holds one of the 12 yellow/black path stars.
@@ -97,13 +97,13 @@ type huangDaoStar struct {
 	Sequence int    `json:"sequence"` // position in the 12-star cycle (0=青龙)
 }
 
-// huangDaoForDay returns the yellow/black path star for a given month branch and day branch.
-func huangDaoForDay(monthBranch, dayBranch ganzhi.Zhi) huangDaoStar {
-	start, ok := qingLongStart[monthBranch]
+// huangDaoForDay returns the yellow/black path star for a given month zhi and day zhi.
+func huangDaoForDay(yueZhi, riZhuZhi ganzhi.Zhi) huangDaoStar {
+	start, ok := qingLongStart[yueZhi]
 	if !ok {
 		return huangDaoStar{}
 	}
-	offset := (int(dayBranch) - int(start) + 12) % 12
+	offset := (int(riZhuZhi) - int(start) + 12) % 12
 	return huangDaoStars[offset]
 }
 

@@ -99,7 +99,7 @@ func computeNaYin(bz ganzhi.Bazi) [4]string {
 }
 
 func computeElementCount(bz ganzhi.Bazi, hs [4]cangGanOut) map[ganzhi.Wuxing]int {
-	wc := make(map[ganzhi.Wuxing]int)
+	wc := make(map[ganzhi.Wuxing]int, 5)
 	for _, z := range bz.Slice() {
 		wc[ganzhi.GanWuxing(z.Gan)]++
 	}

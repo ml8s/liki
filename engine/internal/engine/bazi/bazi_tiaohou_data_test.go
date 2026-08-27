@@ -12,26 +12,26 @@ import (
 // ──────────────────────────────────────────────────────────────────
 
 type tiaoHouExpectation struct {
-	riYuan      ganzhi.Gan
-	monthBranch ganzhi.Zhi
-	wantYong    string // expected yong element
+	riYuan   ganzhi.Gan
+	yueZhi   ganzhi.Zhi
+	wantYong string // expected yong element
 }
 
 func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 	// 冬季(亥子丑月)需火调候: 庚金须火炼, 壬癸水须丙火解冻
 	tests := []tiaoHouExpectation{
 		// 穷通宝鉴: "庚金生子月, 丁火调候, 丙火解冻"
-		{riYuan: ganzhi.GanGeng, monthBranch: ganzhi.ZhiZi, wantYong: "火"},
+		{riYuan: ganzhi.GanGeng, yueZhi: ganzhi.ZhiZi, wantYong: "火"},
 		// 穷通宝鉴: "壬水丑月, 丙火解冻, 戊土制水" — primary=戊(土), secondary=丙(火)
-		{riYuan: ganzhi.GanRen, monthBranch: ganzhi.ZhiChou, wantYong: "火"},
+		{riYuan: ganzhi.GanRen, yueZhi: ganzhi.ZhiChou, wantYong: "火"},
 		// 穷通宝鉴: "癸水丑月, 用丙火调候"
-		{riYuan: ganzhi.GanGui, monthBranch: ganzhi.ZhiChou, wantYong: "火"},
+		{riYuan: ganzhi.GanGui, yueZhi: ganzhi.ZhiChou, wantYong: "火"},
 	}
 
 	for _, tt := range tests {
-		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.monthBranch) + "月"
+		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.yueZhi) + "月"
 		t.Run(name, func(t *testing.T) {
-			result := computeTiaoHou(tt.riYuan, tt.monthBranch)
+			result := computeTiaoHou(tt.riYuan, tt.yueZhi)
 
 			if result.Yong != tt.wantYong {
 				// Also accept if fire is present as Xi (喜神) for winter entries

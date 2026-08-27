@@ -3,21 +3,21 @@ package qimen
 import "liki-engine/internal/engine/ganzhi"
 
 // findPatterns detects pan-level奇门格局.
-// Per-gong stem interaction patterns are handled by computeGanInteractions.
+// Per-gong gan interaction patterns are handled by computeGanInteractions.
 func findPatterns(pan pan) []Pattern {
 	var patterns []Pattern
 
 	// 三奇得使: 乙/丙/丁 at duty door gong.
 	if dutyPal := dutyDoorPalace(pan); dutyPal >= 1 {
 		p := pan.GongWei[dutyPal-1]
-		if p.HeavenStem == ganzhi.GanYi || p.HeavenStem == ganzhi.GanBing || p.HeavenStem == ganzhi.GanDing {
+		if p.TianPanGan == ganzhi.GanYi || p.TianPanGan == ganzhi.GanBing || p.TianPanGan == ganzhi.GanDing {
 			patterns = append(patterns, Pattern{
 				Name: "三奇得使", Description: "吉门得奇，百事可成",
 				Auspicious: true, GongWei: []GongIndex{dutyPal},
 			})
 		}
 		// 玉女守门: 值使门宫有丁.
-		if hasStemAtPalace(pan, ganzhi.GanDing, dutyPal) {
+		if hasGanAtPalace(pan, ganzhi.GanDing, dutyPal) {
 			patterns = append(patterns, Pattern{
 				Name: "玉女守门", Description: "值使门宫有丁，百事大吉",
 				Auspicious: true, GongWei: []GongIndex{dutyPal},
@@ -26,21 +26,21 @@ func findPatterns(pan pan) []Pattern {
 	}
 
 	// 天遁: 丙+生门+丁 in the pan.
-	if hasStem(pan, ganzhi.GanBing) && hasDoor(pan, DoorSheng) && hasStem(pan, ganzhi.GanDing) {
+	if hasGan(pan, ganzhi.GanBing) && hasDoor(pan, DoorSheng) && hasGan(pan, ganzhi.GanDing) {
 		patterns = append(patterns, Pattern{
 			Name: "天遁", Description: "丙+生门+丁，远行出兵大吉",
 			Auspicious: true,
 		})
 	}
 	// 地遁: 乙+开门+己.
-	if hasStem(pan, ganzhi.GanYi) && hasDoor(pan, DoorKai) && hasStem(pan, ganzhi.GanJi) {
+	if hasGan(pan, ganzhi.GanYi) && hasDoor(pan, DoorKai) && hasGan(pan, ganzhi.GanJi) {
 		patterns = append(patterns, Pattern{
 			Name: "地遁", Description: "乙+开门+己，安营立寨大吉",
 			Auspicious: true,
 		})
 	}
 	// 人遁: 丁+休门+太阴.
-	if hasStem(pan, ganzhi.GanDing) && hasDoor(pan, DoorXiu) && hasSpirit(pan, SpiritTaiYin) {
+	if hasGan(pan, ganzhi.GanDing) && hasDoor(pan, DoorXiu) && hasSpirit(pan, SpiritTaiYin) {
 		patterns = append(patterns, Pattern{
 			Name: "人遁", Description: "丁+休门+太阴，和谈联姻得吉",
 			Auspicious: true,
@@ -90,21 +90,21 @@ func dutyDoorPalace(pan pan) GongIndex {
 	return 0
 }
 
-func hasStem(pan pan, g ganzhi.Gan) bool {
+func hasGan(pan pan, g ganzhi.Gan) bool {
 	for _, p := range pan.GongWei {
-		if p.EarthStem == g || p.HeavenStem == g {
+		if p.DiPanGan == g || p.TianPanGan == g {
 			return true
 		}
 	}
 	return false
 }
 
-func hasStemAtPalace(pan pan, g ganzhi.Gan, gong GongIndex) bool {
+func hasGanAtPalace(pan pan, g ganzhi.Gan, gong GongIndex) bool {
 	if gong < 1 || gong > 9 {
 		return false
 	}
 	p := pan.GongWei[gong-1]
-	return p.EarthStem == g || p.HeavenStem == g
+	return p.DiPanGan == g || p.TianPanGan == g
 }
 
 func hasDoor(pan pan, d DoorIndex) bool {

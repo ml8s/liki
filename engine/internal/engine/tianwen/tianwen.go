@@ -17,7 +17,7 @@ var solarTermLongitudes = func() [12]float64 {
 	return a
 }()
 
-// JianYue returns the solar-term month branch (建月) for a given date.
+// JianYue returns the solar-term month zhi (建月) for a given date.
 // 寅=立春..丑=小寒.
 func JianYue(gt GregorianTime) ganzhi.Zhi {
 	t := gt.Time()

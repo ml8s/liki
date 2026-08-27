@@ -52,16 +52,16 @@ func loadHexagrams() error {
 		guaTable[i] = guaMeta{Name: h.Name, PalaceIdx: pi, ShiPos: h.ShiPos}
 	}
 
-	for palaceName, stemVal := range data.NaGan {
+	for palaceName, ganVal := range data.NaGan {
 		pi, ok := palaceIdx[palaceName]
 		if !ok {
 			log.Fatalf("liuyao: unknown palace %q in na_gan", palaceName)
 		}
-		stems, err := parseGanPair(stemVal)
+		ganPair, err := parseGanPair(ganVal)
 		if err != nil {
 			return err
 		}
-		naGanTable[pi] = stems
+		naGanTable[pi] = ganPair
 	}
 
 	for palaceName, zhiNames := range data.NaZhi {
