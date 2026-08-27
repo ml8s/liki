@@ -9,8 +9,8 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 ## 依赖的领域知识
 
 [必读] - bazi: domains/bazi/wuxing-jiankang.md「五行所属」
-[必读] - bazi: domains/bazi/hehui.md「冲宫位表」+「冲吉凶表」
-[必读] - bazi: domains/bazi/dayun.md「应期决策表」
+- bazi: domains/bazi/hehui.md「冲宫位表」+「冲吉凶表」（按需——论冲害细节时读取）
+- bazi: domains/bazi/dayun.md「应期决策表」（按需——应期走疾厄宫闭环）
 
 [必读] - ziwei: domains/ziwei/yingqi.md「健康紫微应期」
 ## 📖 流程

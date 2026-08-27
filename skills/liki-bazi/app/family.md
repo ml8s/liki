@@ -9,8 +9,8 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 ## 依赖的领域知识
 
 [必读] - bazi: domains/bazi/liuqin.md「六亲判断」
-[必读] - bazi: domains/bazi/gongwei.md「宫位论」
-[必读] - bazi: domains/bazi/dayun.md「应期决策表」
+- bazi: domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
+- bazi: domains/bazi/dayun.md「应期决策表」（按需——问亲人应期时读取）
 [必读] - bazi: domains/bazi/hehui.md「冲宫位表」
 
 [必读] - ziwei: domains/ziwei/yingqi.md「家庭紫微应期」

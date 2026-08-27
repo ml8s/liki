@@ -9,7 +9,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 ## 依赖的领域知识
 
 [必读] - bazi: domains/bazi/hepan.md「合盘评估」
-[必读] - bazi: domains/bazi/gongwei.md「宫位论」
+- bazi: domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
 [必读] - bazi: domains/bazi/shishen.md「十神组合」
 [必读] - 合盘 RPC：`bazi.bond`（八字合盘）+ `ziwei.bond`（紫微合盘），调用前 rpc.discover 取 schema
 

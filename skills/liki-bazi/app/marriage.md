@@ -9,9 +9,9 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 ## 依赖的领域知识
 
 [必读] - bazi: domains/bazi/shishen.md「女命婚姻——官杀混杂判断」
-[必读] - bazi: domains/bazi/gongwei.md「宫位论」
+- bazi: domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
 [必读] - bazi: domains/bazi/dayun.md「应期决策表」
-[必读] - bazi: domains/bazi/liuqin.md「六亲——配偶」
+- bazi: domains/bazi/liuqin.md「六亲——配偶」（按需——官杀线已覆盖配偶星主线）
 
 [必读] - ziwei: domains/ziwei/yingqi.md「婚姻紫微应期」
 ## 用户问法 → 流程侧重

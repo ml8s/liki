@@ -9,7 +9,7 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 ## 依赖的领域知识
 
 [必读] - bazi: domains/bazi/shiye.md「决策表」
-[必读] - bazi: domains/bazi/gongwei.md「宫位论」
+- bazi: domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
 [必读] - bazi: domains/bazi/dayun.md「应期决策表」
 
 [必读] - ziwei: domains/ziwei/yingqi.md「事业紫微应期」

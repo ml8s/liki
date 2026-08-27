@@ -9,9 +9,9 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 ## 依赖的领域知识
 
 - [必读] bazi: SKILL.md 排盘流程
-- bazi（方法+断语，按需读取）：
+- bazi（方法+断语；命书为整本产出，结构性必读较宽）：
   - [必读] `domains/bazi/dayun.md`、`domains/bazi/wangshuai.md`、`domains/bazi/geju.md`、`domains/bazi/yongshen.md`
-  - [必读] `domains/bazi/hehui.md`、`domains/bazi/shishen.md`、`domains/bazi/gongwei.md`、`domains/bazi/liuqin.md`（用户问及对应领域时读取）
+  - `domains/bazi/hehui.md`、`domains/bazi/shishen.md`、`domains/bazi/gongwei.md`、`domains/bazi/liuqin.md`（按需——用户问及对应领域时读取）
 - [必读] ziwei: SKILL.md 排盘流程
 - [必读] ziwei: `domains/ziwei/yingqi.md` 紫微应期
 - [按需] app: 各 app 的深入分析入口（汇总用，用户后续深入某领域时读取）
@@ -191,4 +191,3 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 | 健康 | [五行过旺过弱对应的身体系统倾向] | [提示方向，不做医学诊断] |
 
 从格按从格逻辑写。命局不足以判断某领域时建议方向标注"信号不足"。
-
