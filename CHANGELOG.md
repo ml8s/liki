@@ -1,6 +1,13 @@
 # Changelog
 
-## 5.1.0 —— 提示词工程优化：触发词 + 输出示例 + 正向化改写 + 应期双候选
+## 2026.08.27 —— 版本制切换：semver → CalVer（日期版本）
+
+- **[版本] 取消 semver**（major/minor/patch 判断对该项目是仪式性负担——skill 用户装最新、无依赖解析场景）；VERSION 文件写入日期戳（如 2026.08.27），自检更新机制不变（VERSION 或指纹任一不一致即提示更新）
+- **[发布] tag 按需**：里程碑时 `git tag -a <日期>` + release，不再为每个 commit 发号；历史版本条目（5.x/0.x）保留原样
+- **[工具] make version-patch/minor/major → make version**（写今日日期）
+- 引用面同步：CONTRIBUTING 版本流程 / README 设计原则 / liki-web CI skills 锁 ref
+
+## 2026.08.27 —— 提示词工程优化：触发词 + 输出示例 + 正向化改写 + 应期双候选
 
 > 提示词专家评审落地（指令经济性短板修复）。**应期双候选为行为变更，待评测验证后合入主线路径**（历史教训 iter6：微调曾致 -7pp，评测方差 ±5pp）。
 

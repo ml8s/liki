@@ -160,7 +160,7 @@ make build-archive # 打包 4 skill + 重算内容指纹
 - 分层单一职责：根=规则、app=流程、domains=知识、tools=工具
 - 单一数据来源：参数以 rpc.discover 为准、断语以 csv 真值表为准
 - 双体系交叉：八字定主、紫微复核，冲突显式列证
-- 语义版本：VERSION + CHANGELOG，内容指纹（content.sha256）防假同步
+- 日期版本（CalVer）：VERSION=日期戳 + CHANGELOG，里程碑按需 git tag；内容真值靠 content.sha256 指纹防假同步
 - 评测驱动：独立判分、答案隔离、数据公开
 
 贡献指南见 [CONTRIBUTING.md](./CONTRIBUTING.md)，版本历史见 [CHANGELOG.md](./CHANGELOG.md)。设计参考了 [mingli-skills](https://github.com/weizeW/mingli-skills)、[bazi-skill](https://github.com/jinchenma94/bazi-skill)、[iztro](https://github.com/SylarLong/iztro)、[MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) 等开源项目。

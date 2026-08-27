@@ -7,26 +7,9 @@
 # ── 统一版本（skill 4 份 + engine 1 份，同步 bump）──
 VERSION_FILES := skills/liki-bazi/VERSION skills/liki-divination/VERSION skills/liki-fengshui/VERSION skills/liki-naming/VERSION engine/cmd/liki/VERSION
 
-version-patch: ## Bump PATCH（统一，如 5.0.0 → 5.0.1）
-	@for F in $(VERSION_FILES); do \
-		V=$$(cat $$F); MAJOR=$${V%%.*}; REST=$${V#*.}; MINOR=$${REST%.*}; PATCH=$${REST#*.}; \
-		echo "$$MAJOR.$$MINOR.$$((PATCH + 1))" > $$F; \
-	done; \
-	echo "✅ 统一版本 → $$(cat skills/liki-bazi/VERSION)"
-
-version-minor: ## Bump MINOR（统一，如 5.0.0 → 5.1.0）
-	@for F in $(VERSION_FILES); do \
-		V=$$(cat $$F); MAJOR=$${V%%.*}; REST=$${V#*.}; MINOR=$${REST%.*}; \
-		echo "$$MAJOR.$$((MINOR + 1)).0" > $$F; \
-	done; \
-	echo "✅ 统一版本 → $$(cat skills/liki-bazi/VERSION)"
-
-version-major: ## Bump MAJOR（统一，如 5.0.0 → 6.0.0）
-	@for F in $(VERSION_FILES); do \
-		V=$$(cat $$F); MAJOR=$${V%%.*}; \
-		echo "$$((MAJOR + 1)).0.0" > $$F; \
-	done; \
-	echo "✅ 统一版本 → $$(cat skills/liki-bazi/VERSION)（skill + engine 同步）"
+version: ## 写入今日日期（CalVer——内容指纹 content.sha256 才是内容真值，
+	@DATE=$$(date +%Y.%m.%d); for F in $(VERSION_FILES); do echo "$$DATE" > $$F; done; \
+	echo "✅ 版本 → $$DATE（tag 按需：git tag -a $$DATE）"
 
 # ── 构建 ──
 build-archive: ## 打包 skill → dist/*.tar.gz + index.json

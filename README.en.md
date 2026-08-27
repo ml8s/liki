@@ -159,7 +159,7 @@ make build-archive # pack 4 skills + recompute content fingerprints
 - Single responsibility per layer: root=rules, app=process, domains=knowledge, tools=tools
 - Single data source: parameters from rpc.discover; judgments from CSV truth tables
 - Dual-system: BaZi leads, ZiWei reviews, conflicts explicit
-- Semver + content fingerprints (anti stale-sync)
+- CalVer (date-stamped VERSION + CHANGELOG; tags on milestones) + content fingerprints (anti stale-sync)
 - Evaluation-driven: independent grading, answer isolation, public data
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) and [CHANGELOG.md](./CHANGELOG.md). Design references include [mingli-skills](https://github.com/weizeW/mingli-skills), [bazi-skill](https://github.com/jinchenma94/bazi-skill), [iztro](https://github.com/SylarLong/iztro), and [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench).
