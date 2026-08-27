@@ -1,9 +1,11 @@
 <p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/Liki-Open_Source_Engine_%2B_Skills-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  <img alt="Liki" src="https://img.shields.io/badge/Liki-Skill_for_Chinese_Metaphysics-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
 </p>
 
 <p align="center">
-  <strong>Liki — Open-Source Chinese Metaphysics Engine + AI Skills (Monorepo)</strong>
+  <strong>Liki — Professional Skill for Chinese Metaphysics</strong><br>
+  Built to professional standards: astronomical-engine charting, classically-sourced judgments, verifiable conclusions<br>
+  BaZi · ZiWei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
 </p>
 
 <p align="center">
@@ -13,196 +15,155 @@
 <p align="center">
   <a href="https://github.com/ml8s/liki"><img src="https://img.shields.io/badge/GitHub-ml8s/liki-4a9e6b?style=flat&logo=github&logoColor=white&labelColor=30305c"></a>
   <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-website-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
-  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img src="https://github.com/ml8s/liki/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-passing-4a9e6b?style=flat&logo=githubactions&logoColor=white&labelColor=30305c"></a>
   <a href="./README.md"><img src="https://img.shields.io/badge/中文-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
 </p>
 
 ---
 
-**Liki** is an open-source Chinese metaphysics monorepo: a **computation engine (`engine/`, Go + JSON-RPC) plus 4 AI Skills (`skills/`)**. As a Skill, it powers professional analysis across **BaZi, ZiWei, Liuyao, QiMen, Huangli date selection, Bazhai feng shui, Xuankong feng shui, and naming** (8 domains) in your AI assistant. As an engine, it can be embedded directly into web apps, mobile, desktop tools, or any AI framework. It implements traditional metaphysics as an engineered tool with **executable process, verifiable conclusions, and traceable judgments**: charts are computed by an astronomical engine (VSOP87D, second-level solar terms), judgments are driven by 46 truth tables (597 rules with classical references), each process step fills in a form, and conclusions are calibrated against known life events.
+## In 30 Seconds
 
-## Quick Start
+After installation, your AI assistant gains 4 metaphysics skills:
 
-Install all 4 skills at once:
+| Skill | What you can ask | Try this |
+|-------|------------------|----------|
+| **liki-bazi** destiny | Marriage, career, wealth, health, education, personality, family, compatibility, full life report | `Read my BaZi, born 1990-05-20 12:00 in Beijing, male` |
+| **liki-naming** naming | Baby naming, renaming, company naming, Chinese names for English speakers, name evaluation | `Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen` |
+| **liki-divination** divination | Liuyao (outcome & timing), QiMen (direction & decision), auspicious date selection | `Will this work out? When will I see results?` |
+| **liki-fengshui** feng shui | Bazhai chart & layout, Xuankong flying stars, annual feng shui | `How is the feng shui of my home?` |
 
-```bash
-npx skills add ml8s/liki
-```
+**What professional standards mean here:**
 
-| skill | domain | install one |
-|-------|--------|-------------|
-| `liki-bazi` | metaphysics (BaZi + ZiWei dual-chart) | `--skill liki-bazi` |
-| `liki-divination` | divination (Liuyao/Qimen/Huangli) | `--skill liki-divination` |
-| `liki-fengshui` | feng shui (Bazhai/Xuankong) | `--skill liki-fengshui` |
-| `liki-naming` | naming (BaZi yongshen + wuge-sancai) | `--skill liki-naming` |
+- Charts are computed by an astronomical engine (true solar time, second-level solar terms) — the AI never invents numbers
+- Judgments come from 597 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
+- Independently evaluated on 160 competition questions with answer isolation
 
-Install one: `npx skills add ml8s/liki --skill liki-bazi`
-
-Then just talk to your AI assistant; what each skill does and how to ask — see "Features" below.
-
-## Features
-
-### liki-bazi — metaphysics (BaZi + ZiWei dual-chart)
-
-Covers the major life domains, each conclusion backed by classical references and timing years:
-
-- **Marriage**: when you'll marry, relationship direction, divorce risk, what kind of partner
-- **Career**: suitable industry, startup vs employment, career turning years
-- **Wealth**: income type, windfall/loss years
-- **Health**: vulnerable organs, likely ailments, risk years
-- **Study**: education level, exam luck
-- **Personality / appearance / family (parents & children) / compatibility (two people)**
-
-Example: `BaZi chart, 1990-05-20 12:00 Beijing, male`; `Write me a full life report`.
-
-### liki-naming — naming
-
-BaZi yongshen fixes the five-element direction → wuge-sancai → candidate characters. Supports baby naming, renaming, company naming, English-to-Chinese naming, and self-picked name review.
-
-Example: `Name my baby, 2024-06-10 Guangzhou, male, surname Chen`
-
-### liki-divination — divination
-
-- **Liuyao**: success/failure and timing ("will this work out", "when will I get the result")
-- **Qimen**: direction and timing decisions ("which direction", "should I do it now")
-- **Huangli date selection**: pick auspicious days ("which day to move/marry/open a shop")
-
-Example: `Should we move house tomorrow?`
-
-### liki-fengshui — feng shui
-
-- **Bazhai**: ming gua, person-house match, door/master/stove layout
-- **Xuankong**: yuan-yun flying stars, wang-shan-wang-xiang, annual feng shui
-
-Example: `How's my home's feng shui?`
-
-## Implementation
-
-**① Charting: astronomical engine** — BaZi/ZiWei charts are computed by the open-source `engine/` (subdirectory, Go + JSON-RPC, formerly standalone [liki-engine](https://github.com/ml8s/liki-engine)): true solar time, DST, lat-lon timezone, second-level solar-term precision (VSOP87D). The model only interprets; it does not derive chart data itself.
-
-**② Judgments: CSV truth tables** — 46 truth tables (BaZi 26 + ZiWei 20, **597 rules**), each with a **classical reference column** (《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》 etc.). Plus 7 yearly tables (marriage/kinship/wealth/career/health/study/children, incl. annual star spirits).
-
-**③ Process: fill-in each step** — the root SKILL.md defines the global skeleton (chart → factors → judgments; annual questions follow the liunian chain) and mandatory rules; each domain follows its app card step by step, filling in an 「output: □」 form per step. An unfilled □ blocks the next step; conclusions must trace back to the filled □.
-
-**④ Contextual factors eliminate rule conflicts** — contradicting rules on one chart are resolved with contextual factors:
-- **Month-branch master element defines personality** (《子平真诠》) — one primary face; ten-god strength rules are secondary
-- **Star-palace co-reference** (《三命通会》) — spouse star exposed + spouse palace clashed = marriage possible but turbulent
-- **Annual star spirits** (《协纪辨方书》) — Bingfu/Sangmen/Diaoke/Dahao looked up by Tai-sui year
-- **Zero-conflict verification**: scanning 19 domains for contradictory rules → add contextual factors → zero collisions
-
-**⑤ Calibration** — before charting, calibrate the birth hour with known events; before concluding, verify against 3-5 known life periods, conclusion stands only if ≥2 periods match.
-
-## Underlying Engine (liki-engine)
-
-The computational base lives in `engine/` (Go, standalone JSON-RPC service), shipped in this same repo. All numeric computation for the 8 domains — charting, favorable-element selection, nayin, shensha, luck pillars / yearly transits — happens here; the LLM only orchestrates and interprets.
+## Installation
 
 ```bash
-# Run the engine directly (optional — skill flows usually hit https://liki.hk/jsonrpc)
-cd engine && go build -o ./liki ./cmd/liki/ && ./liki -addr :8080
-
-# Call one method
-curl -s http://localhost:8080/jsonrpc \
-  -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"bazi.chart","params":{"solar_time":"2000-06-15T12:00:00+08:00","gender":"male"}}'
+npx skills add ml8s/liki          # install all 4 skills
 ```
 
-- **Astronomical precision**: VSOP87D (ShouXing calendar), second-level solar terms; nutation/aberration/ΔT handled; true solar time / DST / longitude timezone / leap month computed astronomically
-- **Quality depth**: 115 BaZi golden charts + data-driven tests (all-60 nayin, eight-mansion symmetry, 16 key Qimen cells, etc.) + RPC smoke 74/74 + contract-consistency tests
-- **AI-friendly**: `rpc.discover` fetches only the schemas you need (30KB full → a few KB), saving tokens
-- Engine source is in `engine/`; unified repo version (`engine/cmd/liki/VERSION` in sync with 4 skill VERSIONs); quality tests via root `make test-engine`
+Install one:
+
+```bash
+npx skills add ml8s/liki --skill liki-bazi       # destiny (BaZi + ZiWei)
+npx skills add ml8s/liki --skill liki-naming     # naming
+npx skills add ml8s/liki --skill liki-divination # divination
+npx skills add ml8s/liki --skill liki-fengshui   # feng shui
+```
+
+**After installing, start like this:**
+
+```
+Give me a full life reading, born 1990-05-20 12:00 in Beijing, male
+Are we compatible? I was born 1992-03-15, she on 1994-08-20
+How will my career and wealth go in 2026?
+```
+
+## User Guide
+
+### liki-bazi (BaZi + ZiWei dual-chart)
+
+**How to ask** — ask by life domain; provide birth info (date + time + place + gender):
+
+- **Marriage**: `When will I marry?` `Will we divorce?` `What will my partner be like?`
+- **Career**: `What industry suits me? Startup or employment?` `Which years bring career shifts?`
+- **Wealth**: `What's my wealth source? Which years gain, which lose?`
+- **Health**: `Which organ systems are weak? Which years need care?`
+- **Education**: `How far will my education go? Exam luck?`
+- **Personality / Appearance / Family**: `What's my personality?` `Parents/children affinity?`
+- **Compatibility**: `Are we a match?` (both parties' birth info)
+- **Full report**: `Give me a full life reading`
+
+**What you get** — conclusion first, with basis and timing:
+
+> Marriage palace stable; a real-relationship window opens in H2 2026 — Red Luan enters the spouse palace and the decade fortune reveals the wealth star. Spouse-star analysis: … palace checks: … (basis attached at each step)
+
+### liki-naming
+
+Yong-shen (favorable element) from BaZi → Sancai-Wuge numerology → candidate characters. Every recommended name carries its basis:
+
+> Top pick: Guanlan — from Mencius "observe the waves", all-auspicious Sancai, supplements the Fire yong-shen.
+
+### liki-divination
+
+- **Liuyao**: outcomes and timing (`Will this succeed?` `When?`)
+- **QiMen**: direction and decision (`Which direction?` `Should I act now?`)
+- **Date selection**: auspicious dates (`Best day to move / sign / open business?`)
+
+Output lists the hexagram basis first (yong-shen / shi-ying / moving lines), then a one-line verdict.
+
+### liki-fengshui
+
+- **Bazhai**: `What's my ming gua?` `How to arrange door/kitchen/bedroom?`
+- **Xuankong**: `Is my home favorable this period?` `2026 annual cautions?`
+
+### FAQ
+
+**Does it need internet?**
+Chart computation goes through the liki.hk JSON-RPC engine. If unreachable, the skill says so explicitly — it never falls back to "AI guesswork".
+
+**Is my birth data stored?**
+No. The skill explicitly commits: no birth-info storage outside your conversation, no real names requested; chart data lives only in your chat context.
+
+**Don't know the exact birth hour?**
+A built-in **calibration flow**: offer 2-3 candidate hours plus 3-5 life events with years; it cross-checks each chart and infers the most likely hour (with confidence). Babies/teens skip calibration and use a default hour.
+
+**How should I interpret results?**
+Conclusions are from a traditional-cultural perspective, for reference only — not medical, legal, or financial advice. Every conclusion carries its basis and classical citation so you can verify it yourself.
+
+**How do I update?**
+The skill self-checks its version (local fingerprint + remote) on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
+
+## Why It's Trustworthy
+
+- **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
+- **Sourced judgments** — 46 truth tables with 597 rules, each with a classical-citation column; plus 7 annual-timing tables.
+- **Dual-system cross-check** — BaZi leads, ZiWei verifies; conflicts resolved with explicit evidence.
+- **Auditable process** — every step fills a checklist; conclusions trace back to specific steps.
+- **Independent evaluation** — 160 competition questions (MingLi-Bench), answer isolation, public data (`tests/`).
+
+---
 
 ## For Developers
 
-BaZi/ZiWei judgments are fully CSV truth-table based (readable, editable, reviewable); divination/feng shui (Liuyao/Qimen/Bazhai/Xuankong) judgments are unified "translation tables" (deterministic computation in the engine, LLM translates by table); the evaluation harness ships with the skill (160 questions, answer-isolated, auto-graded); the engine (<code>engine/</code>) and skills (<code>skills/</code>) ship together in this monorepo.
-
-### Evaluation: reproducible, data in release posts
-
-Liki maintains an evaluation harness on [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) (160 questions from fortune-telling contests): answers separated from questions, Docker sandbox isolation (the agent cannot read answers), skill-up auto-grading.
-
-Evaluation data (accuracy/iteration records) lives in release posts and CHANGELOG, not in this README.
-
-Reproduce (eval config and grading scripts ship with the skill):
-
-```bash
-bash tests/run-qwen.sh --parallelism 16          # move answers → eval → restore → auto-grade
-python3 -m pytest tests/ -q --ignore=tests/test_integration.py   # unit tests (factors/judgments/agent_cli)
-```
-
-> The eval configuration (160 questions, answer isolation, auto-grading) is reproducible from this repo; eval data is in release posts and CHANGELOG.
-
 ### Architecture
 
-A skill = **documentation layer + tool layer**, deterministic computation via the in-repo **`engine/`** (Go JSON-RPC engine).
-
 ```
-skill ── docs ── root SKILL.md      ← rules (global skeleton + mandatory fill-in + routing + RPC + output/interaction/behavior)
-      │       ├─ app/               ← process (per-domain chart → lookup → output, each step 「output: □」+ output template)
-      │       └─ domains/<domain>/  ← knowledge (methodology + judgment translation, flat per domain)
-      └─ tools ── tools/            ← 5 tools (schema + impl) + judgment csv (46) + factors.csv
-in-repo ── engine ── engine/        ← Go JSON-RPC astronomical computation (BaZi/ZiWei/Liuyao/Qimen/feng shui; VSOP87D)
+skills/liki-bazi
+├── SKILL.md    ← rules (process skeleton + hard constraints)
+├── app/        ← process (9 cards: marriage/career/wealth/…)
+├── domains/    ← knowledge (bazi 16 + ziwei 8 docs)
+└── tools/      ← tools (5 tools + 46 judgment CSVs + factor tables)
+repo root
+├── engine/     ← Go JSON-RPC astronomical engine (8 domains)
+├── tests/      ← evaluation (160 grouped cases + answer isolation)
+└── scripts/    ← build / fingerprinting
 ```
 
-Call flow: **root SKILL.md reads the app card → the app card calls tools (inside tools/: RPC charting + csv matching) → tools return judgments → interpret via domains/ knowledge → render via the app card's output template**. The csv files are internal tool data (not read by the agent). The tool layer is **optional** — only skills with deterministic-computation needs have it (liki-bazi does; divination/fengshui/naming have no tool layer, using RPC + document translation directly).
+Call chain: SKILL.md routes to an app card → the card calls tools (RPC charting + CSV matching) → interpreted via domains knowledge → rendered by the card's template. The tool layer is optional (liki-bazi has it; the other three use RPC + document translation directly).
 
-### Project Structure
+### Quick Start
 
-```
-repo root (liki-skills engineering area — not installed by npx skills)
-├── skills/                     ← 4 independent skills (`npx skills add ml8s/liki` installs all)
-│   ├── liki-bazi/              ← metaphysics (BaZi+ZiWei dual-chart)
-│   │   ├── SKILL.md            ← rules (process convention + RPC + output/interaction/behavior)
-│   │   ├── app/                ← process (9 cards: report/marriage/career/wealth/health/study/personality/family/compatibility)
-│   │   ├── domains/            ← knowledge (bazi 16 + ziwei 8 files, flat per domain)
-│   │   ├── tools/              ← tools (skill-tools.json + 5 tools + judgment csv + factors)
-│   │   │   ├── skill-tools.json ← tool schema (parameters + result_schema)
-│   │   │   ├── bazi/           ← BaZi tables 26 (incl. yearly_* 7)
-│   │   │   ├── ziwei/          ← ZiWei tables 20
-│   │   │   ├── factors/        ← factor definitions (natal + liunian)
-│   │   │   ├── paipan.py       ← charting (full_paipan/liunian)
-│   │   │   └── duanyu.py       ← rule lookup (query/match)
-│   │   └── VERSION / content.sha256  ← version + content fingerprint (self-check)
-│   ├── liki-divination/        ← divination (Liuyao/Qimen/Huangli)
-│   ├── liki-fengshui/          ← feng shui (Bazhai/Xuankong)
-│   └── liki-naming/            ← naming (BaZi yongshen + wuge-sancai)
-├── tests/      ← evaluation harness (160 grouped cases, answer separation, grading scripts)
-├── scripts/    ← build scripts (build-archive.sh packs 4)
-├── webapp/     ← web integration pipeline
-└── engine/     ← underlying computation engine (Go + JSON-RPC, 8 domains; formerly the standalone liki-engine repo, merged)
+```bash
+make hooks         # install git hooks (once)
+make test-all      # full: skills unit + engine (lint/vet/race/integration/smoke) + e2e
+make check         # table schema + doc contracts + version consistency
+make build-archive # pack 4 skills + recompute content fingerprints
 ```
 
 ### Design Principles
 
-- **Single responsibility per layer** — root=rules, app=process, domains=knowledge, tools=tools; no cross-layer leakage.
-- **Single data source** — parameters/return fields from rpc.discover (or skill-tools.json result_schema); judgment conclusions from query (csv truth tables); domain docs only write what rpc/csv lack (business mapping, decision chains, constraints, system isolation).
-- **Dual-system cross-validation** — BaZi leads, ZiWei reviews; conflicts resolved with explicit evidence.
-- **Semantic versioning** — VERSION + CHANGELOG.
-- **Evaluation** — independent auto-grading, answer isolation, public data.
+- Single responsibility per layer: root=rules, app=process, domains=knowledge, tools=tools
+- Single data source: parameters from rpc.discover; judgments from CSV truth tables
+- Dual-system: BaZi leads, ZiWei reviews, conflicts explicit
+- Semver + content fingerprints (anti stale-sync)
+- Evaluation-driven: independent grading, answer isolation, public data
 
-## References
+See [CONTRIBUTING.md](./CONTRIBUTING.md) and [CHANGELOG.md](./CHANGELOG.md). Design references include [mingli-skills](https://github.com/weizeW/mingli-skills), [bazi-skill](https://github.com/jinchenma94/bazi-skill), [iztro](https://github.com/SylarLong/iztro), and [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench).
 
-This project's design references the following open-source projects:
+## License & Disclaimer
 
-- [weizeW/mingli-skills](https://github.com/weizeW/mingli-skills) — Four-dimensional cross-validation framework
-- [jinchenma94/bazi-skill](https://github.com/jinchenma94/bazi-skill) — Classical summary design, historical event calibration
-- [dzcmemory-web/bazi-ziwei-skill](https://github.com/dzcmemory-web/bazi-ziwei-skill) — Bazi+ZiWei cross-validation mode
-- [shizhilya/yuan](https://github.com/shizhilya/yuan) — Conclusion-first output design
-- [hhszzzz/taibu](https://github.com/hhszzzz/taibu) — Agent-friendly design
-- [SylarLong/iztro](https://github.com/SylarLong/iztro) — Ziwei Doushu charting engine
-- [ai-freer/fortune-skill](https://github.com/ai-freer/fortune-skill) — Three-layer computation architecture
-- [yanouyuan-bit/bazi-roundtable](https://github.com/yanouyuan-bit/bazi-roundtable) — Multi-school review and conclusion strength labeling
-- [DestinyLinker/MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) — Metaphysics benchmark reference
-- [2021291696/high-confidence-mingli-skill](https://github.com/2021291696/high-confidence-mingli-skill) — Confidence system, personality profile inference
-
-## Links
-
-- Website: [liki.hk](https://liki.hk)
-- GitHub: [ml8s/liki](https://github.com/ml8s/liki)
-
-## License
-
-MIT.
-
-## Disclaimer
-
-Liki provides Chinese Astrology analysis from a traditional cultural perspective for research and reference only. Its conclusions **do not constitute** medical diagnosis, legal advice, financial forecasts, or major life decisions. Please maintain a rational and proactive outlook.
+MIT. Conclusions are from a traditional cultural perspective, for research and reference only — they do **not** constitute medical diagnosis, legal advice, financial forecasts, or major life decisions. Please stay rational and proactive.

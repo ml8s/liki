@@ -1,6 +1,6 @@
 ---
 name: liki-bazi
-description: 八字命理 — 八字、紫微斗数（八紫双盘同参）。排盘看命、婚姻感情、事业财运、健康学业、合盘运势。命理结论为传统文化视角，仅供参考，不构成专业建议。
+description: 八字命理/算命看运势 — 八字、紫微斗数（八紫双盘同参）。排盘看命、婚姻感情、事业财运、健康学业、合盘运势、流年运程、本命年。BaZi reading & Chinese fortune analysis. 命理结论为传统文化视角，仅供参考，不构成专业建议。
 ---
 
 # Liki 八字 — 八字 / 紫微
@@ -53,7 +53,7 @@ description: 八字命理 — 八字、紫微斗数（八紫双盘同参）。�
 - 路 B（用户已明确「X时」）→ `correct=False`
 - 经度未知 → 先调 `city.coords`；仍未知 → 默认 116.4（北京）
 
-**手调 RPC 方法清单**（端点 `POST https://liki.hk/jsonrpc`，格式 `{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`）：
+**手调 RPC 方法清单**（端点与请求格式见上文「RPC 调用方式」，此处只列方法）：
 
 - 合盘（compatibility 卡）：`bazi.bond` / `ziwei.bond`（chart 输入从 `full_paipan` 返回的 `chart` 字段取）
 - 细化流：`bazi.liuyue` / `bazi.liuri` / `bazi.liushi` / `bazi.xiaoyun`、`ziwei.daxian` / `ziwei.liuyue` / `ziwei.liuri` / `ziwei.liushi` / `ziwei.fullchart`
@@ -65,7 +65,7 @@ description: 八字命理 — 八字、紫微斗数（八紫双盘同参）。�
 
 全局骨架（所有领域统一）：
 - 本命流程：`full_paipan → make_factors → query(本命域)`
-- 应期流程：`full_paipan → 逐候选年 liunian → make_liunian_factors → query(yearly_<主域> + yingqi)` → 候选取舍
+- 应期流程：`full_paipan → 逐候选年 liunian → make_liunian_factors → query(yearly_<主域> + yingqi)` → 候选取舍（输出首选年+备选年：同层级信号并列双候选并标注置信度，跨层级才单选首选——见各卡「双候选规则」）
 
 **排盘前考时分支（时辰不确定时）**：
 - 用户说"不知道时辰"或只给"上午/下午"等模糊信息 → 进入考时
@@ -128,6 +128,9 @@ JSON-RPC 返回 error 时：
 ## 输出原则
 
 - **结论先行**：首句直接给判断，不得以"可能/或许/从八字来看"开头；先结论后依据
+- 示例（结论先行）：
+  - ✅「婚姻宫稳定，2026 下半年有正缘窗口——流年红鸾入夫妻宫，大运财星透干引动。」
+  - ❌「从八字来看，您的婚姻状况可能会在未来出现一定变化……」
 - 语气沉稳专业；不输出 JSON/代码块
 - 分析用中文推理（术语准确）；输出语言跟随用户（英文时术语首次括注英文）
   - 核心术语英译：五行 Five Elements（Wood 木 / Fire 火 / Earth 土 / Metal 金 / Water 水）、日主 day-master、用神 favorable element、十神 Ten Gods、大运/流年 decade fortune / yearly fortune、神煞 star spirits
