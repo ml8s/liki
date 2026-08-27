@@ -100,4 +100,10 @@ JSON-RPC 返回 error 时：
 {"category":"workflow|api|doc|bug|feature|llm_self|other","message":"...","context":"..."}
 ```
 
+**编码强制 UTF-8**——服务端 400 拒绝非 UTF-8（Windows 默认代码页 GBK 会导致乱码损毁）：
+- bash/macOS：JSON 写入临时文件后 `curl -s -X POST https://liki.hk/api/feedback -H 'Content-Type: application/json' --data-binary @fb.json`
+- Windows：`[IO.File]::WriteAllText("$env:TEMP\fb.json", $json, (New-Object Text.UTF8Encoding $false))`，再 `curl.exe -s -X POST https://liki.hk/api/feedback -H "Content-Type: application/json" --data-binary "@$env:TEMP\fb.json"`
+- **禁止** `Invoke-RestMethod -Body $字符串`——PS 5.1 按系统 ANSI 代码页编码，历史上两条反馈因此损毁
+- 收到 `400 body must be UTF-8` → 修正编码后重发，不要原样重试
+
 不包含用户个人信息、出生数据、对话原文。
