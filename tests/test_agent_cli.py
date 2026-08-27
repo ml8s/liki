@@ -3,7 +3,9 @@
 覆盖：5 函数分派映射、参数透传、非法 fn、stdin 协议错误包装。
 """
 import json
+import os
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -137,3 +139,33 @@ class TestSchemaConsistency(unittest.TestCase):
                 else:
                     agent_cli._dispatch(n, {"rule": "marriage", "snapshots": {}})
 
+
+class TestFileRefs(unittest.TestCase):
+    """{"$file": path} 引用展开——大对象（pan）走文件，免 shell 转义（feedback fedd52aa）。"""
+
+    def test_dollar_file_loads_json(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
+            json.dump({"day": "己亥"}, f, ensure_ascii=False)
+            path = f.name
+        try:
+            args = agent_cli._load_file_refs({"pan": {"$file": path}, "year": 2026})
+            self.assertEqual(args["pan"]["day"], "己亥")
+            self.assertEqual(args["year"], 2026)
+        finally:
+            os.unlink(path)
+
+    def test_plain_args_untouched(self):
+        args = agent_cli._load_file_refs({"rule": "marriage", "snapshots": {"八字": {}}})
+        self.assertEqual(args["rule"], "marriage")
+
+    def test_dispatch_with_file_ref(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
+            json.dump({"day": "甲子"}, f)
+            path = f.name
+        try:
+            with mock.patch("agent_cli.make_factors", return_value={"fac": 1}) as mf:
+                out = agent_cli._dispatch("make_factors", {"pan": {"$file": path}})
+            self.assertEqual(out, {"fac": 1})
+            mf.assert_called_once_with({"day": "甲子"})
+        finally:
+            os.unlink(path)
