@@ -1,6 +1,6 @@
 #!/bin/bash
 # Build skill archives (liki-<name>.tar.gz + index.json) into dist/
-# 工程根 = liki-skills（仓库根）；skills/ 下每个子目录 = 一个独立 skill（唯一被安装的部分）
+# 工程根 = liki（仓库根，与仓库名 ml8s/liki 一致）；skills/ 下每个子目录 = 一个独立 skill（唯一被安装的部分）
 set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
