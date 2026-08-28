@@ -120,7 +120,7 @@ def main() -> int:
         pass
     files = glob.glob(os.path.join(DY, "**", "*.csv"), recursive=True)
     for f in sorted(files):
-        if os.path.basename(f) in ("factors.csv", "factors_liunian.csv", "factors_narrow.csv"):
+        if os.path.basename(f) in ("factors.csv", "factors_liunian.csv"):
             continue
         import csv as _csv
         dom = os.path.basename(f)[:-4]

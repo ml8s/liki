@@ -15,8 +15,8 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
-   输出：□ 本命盘已排____ 因子快照已写出____
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
+   输出：□ 本命盘已排____
 
 2. 日主五行定基础 → wangshuai.md「身弱五行属性降级表」
    输出：□ 日主____ 身强/弱____ 基础特征____

@@ -37,8 +37,23 @@ test-engine: ## Engine 全量测试（lint + vet + unit race + integration + RPC
 
 test-all: test test-engine test-integration ## 全量（单项目：skills 单测 + engine 全量 + skill 全链路集成）
 
-pre-push: build-archive ## 推送前检查（重算指纹 + 校验）
+# 推送前 PATH 补充（golangci-lint / go）
+export PATH := $(HOME)/go/bin:$(HOME)/app/go/bin:$(PATH)
+
+pre-push: ## 推送前门槛测试（与 CI 对齐——绿了再推，~30s）
+	@echo "=== [1/6] check_docs（文档契约 × 4 skill）==="
 	@for s in liki-bazi liki-divination liki-fengshui liki-naming; do \
 		python3 tests/check_docs.py "skills/$$s" || exit 1; \
 	done
-	@echo "✓ 推送前检查通过"
+	@echo "=== [2/6] Python 单测 ==="
+	python3 -m pytest tests/ --ignore=tests/test_integration.py -q --tb=short || exit 1
+	@echo "=== [3/6] eval_hybrid 冒烟（前 3 题验证管线通）==="
+	python3 -c "import tests.eval_hybrid" || exit 1
+	@echo "=== [4/6] Go build + vet ==="
+	cd engine && go build ./... && go vet ./... || exit 1
+	@echo "=== [5/6] golangci-lint ==="
+	cd engine && golangci-lint run ./... || exit 1
+	@echo "=== [6/6] Go 单测（-short）==="
+	cd engine && go test -short -count=1 ./... || exit 1
+	@echo ""
+	@echo "✓ 推送前门槛检查全部通过（CI 同集，绿了再推）"

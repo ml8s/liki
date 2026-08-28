@@ -14,8 +14,8 @@ description: 学业判断 — 学历层次、学习能力、考试运
 [必读] - ziwei: domains/ziwei/yingqi.md「学业紫微应期」
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
-   输出：□ 本命盘已排____ 因子快照已写出____
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
+   输出：□ 本命盘已排____
 
 2. 印星状态 → `query(rule=study)`
    输出：□ 三关通过____关 印星状态____

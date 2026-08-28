@@ -29,9 +29,9 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
    时辰不确定 → 走考时流程（见 SKILL.md「排盘前考时分支」）
-   输出：□ 本命盘已排____ 因子快照已写出____
+   输出：□ 本命盘已排____
 
 2. 快速扫描各领域 query 摘要（见下方快速扫描项）
 

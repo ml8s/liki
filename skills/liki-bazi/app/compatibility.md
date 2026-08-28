@@ -24,8 +24,8 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 ## 📖 流程
 
-1. 排盘（双方）→ `full_paipan(时间, 性别, 地点, correct)` × 2
-   输出：□ 双方本命盘已排____ 因子快照已写出____
+1. 排盘（双方）→ `full_paipan(gregorian, gender, longitude, correct)` × 2
+   输出：□ 双方本命盘已排____
 
 2. 八字+紫微合盘 → `bond(pan_a, pan_b)`（传 full_paipan 返回的完整盘）
    输出：□ 天干关系____ 地支关系____ 五行互补____

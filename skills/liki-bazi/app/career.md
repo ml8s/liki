@@ -15,8 +15,8 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 [必读] - ziwei: domains/ziwei/yingqi.md「事业紫微应期」
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
-   输出：□ 本命盘已排____ 因子快照已写出____
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
+   输出：□ 本命盘已排____
 
 2. 官财透干定层次 → `query(rule=career)`
    输出：□ 透干组合____ 事业档____

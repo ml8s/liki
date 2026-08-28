@@ -15,8 +15,8 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 [必读] - ziwei: domains/ziwei/yingqi.md「健康紫微应期」
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
-   输出：□ 本命盘已排____ 因子快照已写出____
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
+   输出：□ 本命盘已排____
 
 2. 原局薄弱脏腑 → `query(rule=health)` + wuxing-health.md「五行脏腑」
    输出：□ 过旺五行____ 过弱五行____ 易病脏腑____（过旺阈值：三合局/三会方或≥4次 → 旺极转忌）

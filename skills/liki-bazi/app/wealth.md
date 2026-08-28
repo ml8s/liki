@@ -14,8 +14,8 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 [必读] - ziwei: domains/ziwei/yingqi.md「财运紫微应期」
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
-   输出：□ 本命盘已排____ 因子快照已写出____
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
+   输出：□ 本命盘已排____
 
 2. 财星有无 → `query(rule=wealth)`
    输出：□ 财星类型____ 透/藏____

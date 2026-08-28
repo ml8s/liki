@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# PATH 补充——golangci-lint / go 可能在 ~/go/bin 或 ~/app/go/bin
+export PATH="$HOME/go/bin:$HOME/app/go/bin:$PATH"
+
 # ci-engine.sh — 全量测试（等价于 CI 所有 job 之和）
 # 用法: make test-all 或 scripts/ci-engine.sh
 

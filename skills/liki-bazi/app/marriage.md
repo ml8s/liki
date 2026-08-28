@@ -25,8 +25,8 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
-   输出：□ 本命盘已排____ 因子快照已写出____
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
+   输出：□ 本命盘已排____
 
 2. 定位配偶星（男看财星、女看官杀）→ shishen.md「女命婚姻——官杀混杂判断」
    输出：□ 配偶星____ 官杀几位____ 有取清？____

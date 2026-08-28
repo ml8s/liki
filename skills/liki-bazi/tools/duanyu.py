@@ -437,6 +437,10 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
         if "longitude" not in c or c.get("longitude") is None:
             raise ValueError(
                 f"candidate '{label}' 缺少 longitude，禁止静默降级")
+        if "gregorian" not in c or not c.get("gregorian"):
+            raise ValueError(f"candidate '{label}' 缺少 gregorian（出生公历时间）")
+        if "gender" not in c or c.get("gender") not in ("male", "female"):
+            raise ValueError(f"candidate '{label}' 缺少 gender 或值不是 male/female")
         pan = _fp(c["gregorian"], c["gender"],
                   longitude=c["longitude"], correct=c.get("correct", True))
         event_results = []

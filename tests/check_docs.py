@@ -117,7 +117,7 @@ def main() -> int:
     if os.path.exists(_readme) and os.path.abspath(SKILL) == os.path.abspath(os.path.join(_ROOT, "skills", "liki-bazi")):
         _actual = 0
         for f in glob.glob(os.path.join(SKILL, "tools", "**", "*.csv"), recursive=True):
-            if os.path.basename(f) in ("factors.csv", "factors_liunian.csv", "factors_narrow.csv"):
+            if os.path.basename(f) in ("factors.csv", "factors_liunian.csv"):
                 continue
             _actual += sum(1 for r in csv.DictReader(open(f, encoding="utf-8")) if r.get("id"))
         _m = re.search(r'共 \*\*(\d+) 条断语\*\*', open(_readme, encoding="utf-8").read())

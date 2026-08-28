@@ -1,13 +1,9 @@
 #!/bin/sh
-# pre-push: push 前自动检查（两层）
-#  1) make test-all   —— 全量测试（engine 全量 + skills 单测 + skill 全链路集成；本地起引擎）
-#  2) make pre-push   —— 推送前数据一致（build-archive 重算指纹 + check_docs 文档契约校验）
-# 任一失败即阻止推送。
+# pre-push: 门槛测试（与 CI 同集，~30s）
+# 目标：推上去 CI 是绿的。全量测试由 CI 负责，这里只做门槛拦截。
 
 set -e
 
-echo "=== pre-push: make test-all ==="
-make test-all
-echo "=== pre-push: make pre-push（指纹+文档校验）==="
+echo "=== pre-push: 门槛测试 ==="
 make pre-push
 echo "=== pre-push: 通过 ✅ ==="

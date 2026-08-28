@@ -17,8 +17,8 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 
 ## 📖 流程
 
-1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
-   输出：□ 本命盘已排____ 因子快照已写出____
+1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
+   输出：□ 本命盘已排____
 
 2. 确定目标六亲 → liuqin.md「判断分支」
    输出：□ 六亲类型（父/母/子女/兄弟）____ 目标星____
