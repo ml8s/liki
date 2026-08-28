@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 5 个命理工具（排盘/因子生成/断语查询），OpenAI function calling 格式（tools 数组）。执行方式：通过 `python3 tools/agent_cli.py` 调用（推荐），或通过 JSON-RPC 2.0 远程调用（备用）。",
-    "version": "2026.08.27.2"
+    "version": "2026.08.27.3"
   },
   "tools": [
     {

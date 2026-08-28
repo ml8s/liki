@@ -101,7 +101,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install pytest
-        run: python3 -m pip install pytest
+        run: python3 -m pip install pytest pyyaml
       - name: Run tests
         run: python3 -m pytest tests/ -q --ignore=tests/test_integration.py
       - name: Run check (schema + docs + version)
@@ -173,7 +173,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install pytest
-        run: python3 -m pip install pytest
+        run: python3 -m pip install pytest pyyaml
       - name: build engine
         working-directory: engine
         run: go build -o /tmp/liki-engine ./cmd/liki/

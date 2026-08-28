@@ -1,6 +1,6 @@
 ---
 name: liki-naming
-description: 起名改名/取名字 — 排八字定用神、取字库、排三才五格。新生儿起名、成人改名、英文起中文名。Chinese naming with BaZi & Sancai-Wuge. 命理结论为传统文化视角，仅供参考，不构成专业建议。
+description: "起名改名/取名字 — 排八字定用神、取字库、排三才五格。新生儿起名、成人改名、英文起中文名。Chinese naming with BaZi & Sancai-Wuge. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki 起名 — 八字用神 + 姓名学

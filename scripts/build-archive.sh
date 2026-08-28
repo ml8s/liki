@@ -59,7 +59,7 @@ PYEOF
     DIGEST="sha256:$(sha256sum "$ARCHIVE" | awk '{print $1}')"
 
     # 从 SKILL.md frontmatter 读取 description（单一事实源，避免硬编码漂移）
-    DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1)"
+    DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
 
     echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
 done
@@ -79,6 +79,7 @@ for arc in sorted(glob.glob(os.path.join(project_dir, "dist", "*.tar.gz"))):
     for ln in open(sk, encoding="utf-8"):
         if ln.startswith("description:"):
             desc = ln[len("description:"):].strip()
+            desc = desc.strip('"')  # description 已加引号防 YAML 歧义，index 中存裸值
             break
     digest = "sha256:" + hashlib.sha256(open(arc, "rb").read()).hexdigest()
     entries.append({"name": name, "type": "archive", "url": f"/skills/{name}.tar.gz",

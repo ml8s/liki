@@ -1,6 +1,6 @@
 ---
 name: liki-divination
-description: 问卦占卜/算一卦测事 — 六爻起卦、奇门决策、黄历择日。占卜吉凶成败、应期方向、择吉日。Divination: Liuyao / Qimen / date selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。
+description: "问卦占卜/算一卦测事 — 六爻起卦、奇门决策、黄历择日。占卜吉凶成败、应期方向、择吉日。Divination: Liuyao / Qimen / date selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki 问卦 — 六爻/奇门/黄历择日
