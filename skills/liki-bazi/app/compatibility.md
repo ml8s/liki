@@ -11,7 +11,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 [必读] - bazi: domains/bazi/hepan.md「合盘评估」
 - bazi: domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
 [必读] - bazi: domains/bazi/shishen.md「十神组合」
-[必读] - 合盘 RPC：`bazi.bond`（八字合盘）+ `ziwei.bond`（紫微合盘），调用前 rpc.discover 取 schema
+[必读] - 合盘工具：`bond(pan_a, pan_b)`（一次调用返回八字+紫微合盘）
 
 ## 用户问法 → 流程侧重
 
@@ -27,15 +27,14 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 1. 排盘（双方）→ `full_paipan(时间, 性别, 地点, correct)` × 2
    输出：□ 双方本命盘已排____ 因子快照已写出____
 
-2. 八字合盘 → `bazi.bond(a, b)`（chart 取 full_paipan 返回）
+2. 八字+紫微合盘 → `bond(pan_a, pan_b)`（传 full_paipan 返回的完整盘）
    输出：□ 天干关系____ 地支关系____ 五行互补____
 
-3. 紫微合盘 → `ziwei.bond(a, b)`（a/b 取 full_paipan 返回的 ziwei）
+3. （合盘结果已在 bond 中一并返回，跳过单独紫微合盘步骤）
    输出：□ 命宫互入____ 夫妻宫____ 生克____
 
 4. 综合评级 → hepan.md 评级标准
    输出：□ 良配/可配/慎配/不利____
-
 
 ## 边界条件
 

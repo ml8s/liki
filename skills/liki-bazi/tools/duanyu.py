@@ -168,12 +168,16 @@ def evaluate_factors(factors: dict, gender: str, chart: dict, shushi: Optional[s
             print(f"[FACTOR_DEBUG] 因子求值失败 {k}: {msg}", file=sys.stderr)
     return snapshot
 
-ALL_DUANYU_RULES = ("xueye", "marriage", "shiye", "chushen", "caiyun", "jiankang", "xingge",
-                    "liuqin", "waimao", "shensha", "geju", "zuhe", "ziwei", "tiaohou",
+ALL_DUANYU_RULES = ("study", "marriage", "career", "chushen", "wealth", "health", "personality",
+                    "family", "waimao", "shensha", "geju", "zuhe", "ziwei", "tiaohou",
                     "dayun", "tianzhai", "qianyi", "zinv", "zhiye",
                     # 流年断语域（yearly_*——列=流年因子名，流年快照查询专用；本命快照查询不命中）
-                    "yearly_marriage", "yearly_liuqin", "yearly_caiyun",
-                    "yearly_shiye", "yearly_jiankang", "yearly_xueye", "yearly_zinv")
+                    "yearly_marriage", "yearly_family", "yearly_wealth",
+                    "yearly_career", "yearly_health", "yearly_study", "yearly_zinv")
+
+# 有效域白名单（含 yingqi——有 CSV 但不在 ALL_DUANYU_RULES 中）
+_NATAL_RULES = frozenset(r for r in ALL_DUANYU_RULES if not r.startswith("yearly_")) | {"yingqi"}
+_YEARLY_RULES = frozenset(r for r in ALL_DUANYU_RULES if r.startswith("yearly_")) | {"yingqi"}
 
 _LIUNIAN_ROWS = None
 
@@ -297,21 +301,153 @@ def make_liunian_factors(pan: dict, liunian_pan: dict, target: str = "配偶星"
     }
 
 
-def query(rule: str, snapshots: dict) -> dict:
-    """断语查询：域 + 双盘因子快照 {八字, 紫微} → 该域断语 {八字: [...], 紫微: [...]}。
+def query(rule: str, pan: dict) -> dict:
+    """断语查询：域 + 本命盘 → 该域断语 {八字: [...], 紫微: [...]}。
 
-    rule ∈ ALL_DUANYU_RULES（19 域，如 "marriage"/"xueye"/"yingqi"）。
-    snapshots = make_factors(pan) 或 make_liunian_factors(pan, ln) 的返回（双盘因子快照）。
+    rule ∈ _NATAL_RULES（如 "marriage"/"study"/"yingqi"；流年域走 yearly_range）。
+    pan = full_paipan 返回的本命盘（含 fac 字段）——内部自动生成因子快照。
+    流年查询走 yearly_range，本函数不处理流年快照。
     数据层真分开（各查各表）、调用层一次查双盘——内部 load_table + match 内嵌。
     """
+    # 本命函数不允许查流年域——流年走 yearly_range
+    if rule.startswith("yearly_"):
+        raise ValueError(
+            f"query() 仅支持本命域，收到流年域 '{rule}'。"
+            f"流年查询请走 yearly_range(pan, start, end, rules)。"
+        )
+    if rule not in _NATAL_RULES:
+        raise ValueError(f"未知本命域 '{rule}'。有效域: {sorted(_NATAL_RULES)}")
+    # pan 直通——LLM 传 full_paipan 的返回即可，无需先调 make_factors
+    if "fac" in pan:
+        snapshots = make_factors(pan)
+    elif "八字" in pan and "紫微" in pan:
+        snapshots = pan  # 兼容：直接传快照也可
+    else:
+        raise ValueError(
+            "pan 必须是 full_paipan 返回的本命盘（含 fac）。"
+            "流年查询请走 yearly_range。"
+        )
+    return _match_rule(rule, snapshots)
+
+
+# ── 聚合编排层 ──
+
+_RULE_TARGET_MAP = {
+    "yearly_marriage": "配偶星",
+    "yearly_career": "官杀",
+    "yearly_wealth": "财星",
+    "yearly_study": "母星",
+    "yearly_health": "日主",
+    "yearly_family": "配偶星",
+    "yearly_liuqin": "配偶星",
+    "yearly_zinv": "子女星",
+}
+
+_BRIEF_FIELDS = ("事件", "结论")
+
+
+def _brief(conclusions: list) -> list:
+    return [{k: c[k] for k in _BRIEF_FIELDS if k in c}
+            for c in conclusions if isinstance(c, dict)]
+
+
+def _current_year():
+    try:
+        from paipan import call
+        r = call("time.now", {})
+        return int(r["data"]["cst"][:4]), "server"
+    except Exception:
+        from datetime import datetime
+        return datetime.now().year, "local"
+
+
+def query_yearly(rule: str, snapshots: dict) -> dict:
+    if snapshots.get("_snapshot_type") != "liunian":
+        raise ValueError("query_yearly 仅接受流年快照（含 _snapshot_type='liunian'）")
+    if not rule.startswith("yearly_") and rule != "yingqi":
+        raise ValueError(f"query_yearly 仅支持流年域，收到: '{rule}'")
+    if rule not in _YEARLY_RULES:
+        raise ValueError(f"未知流年域 '{rule}'。有效域: {sorted(_YEARLY_RULES)}")
+    return _match_rule(rule, snapshots)
+
+
+def _match_rule(rule: str, snapshots: dict) -> dict:
+    """加载断语表 + 匹配（query / query_yearly 共用）。"""
     from engine import match
-    # 外部评审 #2：yearly_* 流年域只接受流年快照（本命快照查 yearly_* 不得命中——
-    # 纯本命约束行（如财坏印）会误触发流年断语）。
-    if rule.startswith("yearly_") and snapshots.get("_snapshot_type") != "liunian":
-        return {"八字": [], "紫微": []}
     bz_e = load_table(f"bazi_{rule}.csv")
     zw_e = load_table(f"ziwei_{rule}.csv")
-    # 双盘结构稳定：紫微无表（纯八字域：chushen/dayun/shensha/tiaohou/waimao/xueye/zuhe）也返回"紫微"键（空列表）
-    out = {"八字": match(bz_e, snapshots["八字"]),
-           "紫微": match(zw_e, snapshots["紫微"]) if zw_e else []}
-    return out
+    return {"八字": match(bz_e, snapshots["八字"]),
+            "紫微": match(zw_e, snapshots["紫微"]) if zw_e else []}
+
+
+def yearly_range(pan: dict, start: int, end: int,
+                 rules: list = None, detail: bool = False) -> dict:
+    if rules is None:
+        rules = ["yearly_career", "yingqi"]
+    for rule in rules:
+        if rule not in _YEARLY_RULES:
+            raise ValueError(
+                f"yearly_range rules 含无效域 '{rule}'。"
+                f"有效域: {sorted(_YEARLY_RULES)}")
+    from paipan import liunian, RPCError
+    cur_year, cur_source = _current_year()
+    years = {}
+    for year in range(start, end + 1):
+        try:
+            lnp = liunian(pan, year)
+            year_data = {}
+            for rule in rules:
+                target = _RULE_TARGET_MAP.get(rule, "配偶星")
+                snap = make_liunian_factors(pan, lnp, target=target, year=year)
+                r = query_yearly(rule, snap)
+                if not detail:
+                    r = {"八字": _brief(r.get("八字", [])),
+                         "紫微": _brief(r.get("紫微", []))}
+                year_data[rule] = r
+            years[str(year)] = year_data
+        except (RPCError, ConnectionError, TimeoutError, OSError) as e:
+            years[str(year)] = {"error": f"{type(e).__name__}: {e}"}
+    return {"current_year": cur_year, "current_year_source": cur_source,
+            "years": years}
+
+
+def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
+    for e in events:
+        if not e.get("rule", "").startswith("yearly_"):
+            raise ValueError(
+                f"calibrate events.rule 必须以 yearly_ 开头，收到: '{e.get('rule')}'")
+        if "year" not in e or "label" not in e:
+            raise ValueError("calibrate events 每项必须含 year、rule、label")
+    labels = [c.get("label", "") for c in candidates]
+    if len(labels) != len(set(labels)):
+        dupes = [l for l in labels if labels.count(l) > 1]
+        raise ValueError(
+            f"calibrate candidates label 必须唯一，重复: {set(dupes)}。"
+            f"重复 label 会静默覆盖前一个候选的结果。")
+    if not candidates:
+        raise ValueError("calibrate candidates 不能为空")
+    if not events:
+        raise ValueError("calibrate events 不能为空")
+    from paipan import full_paipan as _fp, liunian as _ln
+    results = {}
+    for c in candidates:
+        label = c.get("label", "")
+        if not label:
+            raise ValueError("calibrate candidates 每项必须含 label")
+        if "longitude" not in c or c.get("longitude") is None:
+            raise ValueError(
+                f"candidate '{label}' 缺少 longitude，禁止静默降级")
+        pan = _fp(c["gregorian"], c["gender"],
+                  longitude=c["longitude"], correct=c.get("correct", True))
+        event_results = []
+        for e in events:
+            lnp = _ln(pan, e["year"])
+            target = _RULE_TARGET_MAP.get(e["rule"], "配偶星")
+            snap = make_liunian_factors(pan, lnp, target=target, year=e["year"])
+            r = query_yearly(e["rule"], snap)
+            event_results.append({
+                "year": e["year"], "label": e["label"], "rule": e["rule"],
+                "八字": r.get("八字", []), "紫微": r.get("紫微", []),
+            })
+        results[label] = event_results
+    return results

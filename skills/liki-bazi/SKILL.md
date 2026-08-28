@@ -14,13 +14,11 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 1. 读本地 `VERSION`，再读 `https://liki.hk/skills/liki-bazi/VERSION`
 2. 不一致 → 告知更新内容，提示 `npx skills add ml8s/liki/skills/liki-bazi -y`，用户确认后继续
 3. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
-4. 检查未完成前，不得调 RPC 或读子 SKILL.md
+4. 检查未完成前，不得调工具或读子 SKILL.md
 
 ## 工具调用方式
 
-工具 schema 分两组，**动手前先各读一次**：
-
-### 1. 主流程 5 工具（本地 Python 执行）
+工具 schema 见 `tools/skill-tools.json`（唯一来源），共 6 个工具：
 
 读 `tools/skill-tools.json`（OpenAI function calling 格式，唯一来源），拿 `name`/`description`/`parameters`/`required`。
 
@@ -28,53 +26,40 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 - stdin 传 JSON：`{"fn": "<工具名>", "args": {<参数>}}`
 - stdout 返回 JSON：`{"ok": true, "data": <结果>}` 或 `{"ok": false, "error": "..."}`
 - 白名单分派（无 eval/exec/getattr 动态调用），安全可控
-- 大对象免转义：`pan` 等长对象值可传 `{"$file": "pan.json"}`，从 UTF-8 文件加载——`full_paipan` 输出落盘后 `make_factors`/`liunian` 直接引用，不必手拼转义
+- 大对象免转义：`pan` 等长对象值可传 `{"$file": "pan.json"}`，从 UTF-8 文件加载——`full_paipan` 输出落盘后 `query`/`yearly_range` 直接引用，不必手拼转义
 
-### 2. 手调 RPC 方法（远程 JSON-RPC）
+### 2. 标准流程
 
-启动时执行一次 `rpc.discover` 取全本 skill 需要的方法（域前缀 + 具体方法名），从 `result.methods[]` 拿每个方法的 `params.properties`/`required`：
-
-**RPC 调用方式**：
-- 端点：`POST https://liki.hk/jsonrpc`
-- Content-Type：`application/json`
-- 请求体格式：`{"jsonrpc":"2.0","method":"<方法名>","params":{...},"id":1}`
-
-**rpc.discover 请求体**：
-```json
-{"jsonrpc":"2.0","method":"rpc.discover","params":{"methods":"bazi,ziwei,city.coords,tianwen.time,time.now"},"id":1}
 ```
-
-使用你环境中的 HTTP 客户端（如 curl、fetch、urllib 等）发起请求。
-
-不凭记忆拼参数；只取本 skill 需要的域（bazi/ziwei 域 + city.coords/tianwen.time/time.now），不一次性全量 discover 所有域。
+city_coords(城市) → 经度
+full_paipan(gregorian, 性别, 经度) → pan
+query(域, pan) → 本命断语
+yearly_range(pan, 起始年, 结束年, [域]) → 流年断语
+calibrate(候选列表, 事件列表) → 定盘原始数据
+bond(pan_a, pan_b) → 合盘
+```
 
 **排盘 correct 判定（full_paipan 参数）**：
 - 路 A（用户给具体时刻）→ `correct=True` + 出生地经度
 - 路 B（用户已明确「X时」）→ `correct=False`
-- 经度未知 → **先问用户出生地**（城市或经度）；用户不知 → 调 `city.coords`；仍未知 → 默认 116.4（北京），输出标注「真太阳时按北京经度估算」
+- 经度未知 → **先问用户出生地**（城市或经度）；用户给城市 → 调 `city_coords` 获取经度；仍无法获取 → **禁止排盘**（禁止用默认经度——真太阳时会偏移，盘就是错的）
 
-**手调 RPC 方法清单**（端点与请求格式见上文「RPC 调用方式」，此处只列方法）：
-
-- 合盘（compatibility 卡）：`bazi.bond` / `ziwei.bond`（chart 输入从 `full_paipan` 返回的 `chart` 字段取）
-- 细化流：`bazi.liuyue` / `bazi.liuri` / `bazi.liushi` / `bazi.xiaoyun`、`ziwei.daxian` / `ziwei.liuyue` / `ziwei.liuri` / `ziwei.liushi` / `ziwei.fullchart`
-- 基础：`time.now`、`city.coords`、`tianwen.time`（真太阳时换算，调试/手排用）
-
-**bazi.chart 单柱字段警示**：`bazi.chart` 单柱（nian/yue/ri/shi）仅含 `gan`/`zhi`/`na_yin`；十神（`shi_shens`）、藏干（`cang_gan`）、神煞（`shen_sha`）、空亡（`is_void`）、魁罡（`is_kui_gang`）、长生（`chang_sheng`）**只在 `bazi.fullchart`**——需要这些字段必须先调 `full_paipan` 或 `bazi.fullchart`，从 `bazi.chart` 取会拿到空。
+_NOTE_：经度必填——禁止静默降级到默认值。city_coords 找不到城市时问用户附近的较大城市。
 
 ## 流程约定（强制）
 
 全局骨架（所有领域统一）：
-- 本命流程：`full_paipan → make_factors → query(本命域)`
-- 应期流程：`full_paipan → 逐候选年 liunian → make_liunian_factors → query(yearly_<主域> + yingqi)` → 候选取舍（输出首选年+备选年：同层级信号并列双候选并标注置信度，跨层级才单选首选——见各卡「双候选规则」）
+- 本命流程：`full_paipan → query(本命域)`（pan 直通，无需 make_factors）
+- 应期流程：`full_paipan → yearly_range(pan, start, end, rules)`（一次调用返回多年多域）
 - 收尾约定：①排盘+用神完成后**询问是否保存命盘**（用户同意才存档）②给出验证时间点而用户未回应 → 结论标注「未经验证，时序判断置信度有限」③app 卡标[必读]的域文件未读**不得断具体细节**；必读越多越被跳过——**超过 3 个的卡应复审精简**（当前 career/compatibility/family/health/marriage/mingshu 待裁）
 
 **排盘前考时分支（时辰不确定时）**：
 - 用户说"不知道时辰"或只给"上午/下午"等模糊信息 → 进入考时
-- 步骤：① 收集候选时辰（2-3 个）+ 人生大事（3-5 件含年份）→ ② 对每个候选时辰排盘（full_paipan）→ ③ 用 `domains/bazi/calibration.md` 排除不合理时辰 → ④ 用 `domains/ziwei/calibration.md` 交叉验证 → ⑤ 确定时辰（置信度高/中/低）
+- 步骤：① 收集候选时辰（2-3 个）+ 人生大事（3-5 件含年份）→ ② 对每个候选时辰排盘并用 `calibrate(候选列表, 事件列表)` 批量校验 → ③ 用 `domains/bazi/calibration.md` 排除不合理时辰 → ④ 用 `domains/ziwei/calibration.md` 交叉验证 → ⑤ 确定时辰（置信度高/中/低）
 - 无法确定 → 默认午时排盘并标注；宝宝/青少年 → 跳过考时，用默认时辰
 
 强制规则：
-1. 先调 `time.now`（应期/流年/大运的时间基准，缺失禁止推理）
+1. 应期/流年分析时 yearly_range 自动附带 current_year（含 server/local 来源标注）；本命分析无时间依赖
 2. 按路由表读对应 app 卡（唯一事实源），卡内流程逐步执行，每步填「输出：□」表
 3. □为空（未填）不得进入下一步；结论必须回溯到已填的□，禁止跳步、禁止凭空给结论
 4. 冲突按 `domains/bazi/caijue.md` 裁决；输出前取 3-5 段已发生时段验证（无真实用户则跳过并标注"未验证"）
@@ -113,17 +98,16 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 
 ## 错误处理
 
-JSON-RPC 返回 error 时：
+工具返回 `{"ok": false, "error": "..."}` 时：
 
-- `-32602` → 参数不符 schema，修正重试
-- `-32000` → 参数校验/计算错误，修正重试
-- `-32601` → method 不存在，检查拼写
-- 网络超时 → 告知用户可重试
-- HTTP 403 → Cloudflare Bot 拦截（python/SDK 易触发），换用其他 HTTP 客户端或调整请求头
+- `RPCError` → 网络问题，告知用户可重试
+- `ValueError` → 参数/逻辑错误，按错误信息修正调用参数
+- `city_coords` 找不到城市 → 问用户附近较大城市，重试
+- `yearly_range` 某年标注 `error` → 该年数据缺失，结论中注明（禁止跳过不提）
 
 ## 数据原则
 
-- 计算结果一律经工具获取（本地执行或远程 RPC），禁止凭训练知识臆造或编造
+- 计算结果一律经工具获取，禁止凭训练知识臆造或编造
 - **限运数据红线**：大运/大限干支与起止年龄必须来自 full_paipan（字段见 `tools/skill-tools.json` full_paipan result_schema），严禁自行推算；未到位前不得开始限运推理
 
 ## 输出原则
@@ -165,7 +149,7 @@ JSON-RPC 返回 error 时：
 
 - 启动检测 `liki-memory.json`，有则问"用上次命盘存档？(y/n)"，Yes 跳过收集→排盘→用神直接分析
 - 排盘+用神完成后问"保存命盘？(y/n)"，Yes 写入
-- 格式 `{"birth":"...","pan":{...}}`：存 `full_paipan` 返回的 pan 全量（恢复时 `liunian(pan,y)`/`make_factors(pan)` 复用），不存流年/流月结果
+- 格式 `{"birth":"...","pan":{...}}`：存 `full_paipan` 返回的 pan 全量（恢复时 `query(rule,pan)`/`yearly_range(pan,...)` 直接复用），不存流年/流月结果
 - 首次保存提醒勿分享/勿提交仓库；帮他人排盘不主动提议存档
 
 ## 参考资料

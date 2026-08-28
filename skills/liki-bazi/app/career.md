@@ -8,7 +8,7 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 
 ## 依赖的领域知识
 
-[必读] - bazi: domains/bazi/shiye.md「决策表」
+[必读] - bazi: domains/bazi/career.md「决策表」
 - bazi: domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
 [必读] - bazi: domains/bazi/dayun.md「应期决策表」
 
@@ -18,13 +18,13 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
    输出：□ 本命盘已排____ 因子快照已写出____
 
-2. 官财透干定层次 → `query(rule=shiye)`
+2. 官财透干定层次 → `query(rule=career)`
    输出：□ 透干组合____ 事业档____
 
 3. 十神组合定方向 → `query(rule=zhiye)`
    输出：□ 组合____ 职业方向____
 
-4. 大运起伏 → shiye.md「大运影响」+ dayun.md「应期表」
+4. 大运起伏 → career.md「大运影响」+ dayun.md「应期表」
    输出：□ 当前大运____ 窗口年____
 
 5. 紫微佐证【强制——断「具体细节」时必做，禁止只凭八字粗断】→ yingqi「事业」表
@@ -37,7 +37,7 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 | 异常场景 | 处理方式 |
 |---------|---------|
 | 官杀财星均不透 | 查地支藏干，或食伤/印星定方向 |
-| 用户问换工作 | 结合大运流年引动判断 |
+| 用户问换工作 | 结合大运流年引动判断（用 `yearly_range` 查流年应期） |
 
 ## 📖 输出模板
 

@@ -171,9 +171,10 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	for name := range reg.methods {
 		allow[name] = true
 	}
-	for _, a := range []string{"rpc.discover", "full_paipan", "make_factors",
-		"make_liunian_factors", "liunian", "query", "skill-tools.json",
-		"VERSION", "content.sha256", "liki-memory.json",
+	for _, a := range []string{"rpc.discover", "full_paipan", "city_coords",
+		"query", "yearly_range", "calibrate", "bond", "skill-tools.json",
+		"VERSION", "content.sha256", "liki-memory.json", "RPCError", "ValueError",
+		"error",
 		"methods", "parameters", "required", "params.properties", "result.methods"} {
 		allow[a] = true
 	}

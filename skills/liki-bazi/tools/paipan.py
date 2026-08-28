@@ -3,6 +3,8 @@
 liki 命理 skill 的排盘层：
 - full_paipan：本命盘（八字 + 紫微一次排全）+ 内嵌 build_factors 归并（返回盘含 fac）
 - liunian：流年盘（八字 + 紫微单年合并——应期按候选年逐调）
+- city_coords：城市名→经纬度（交互式查询）
+- bond：合盘（八字合盘 + 紫微合盘）
 
 命理逻辑不在本层（见 duanyu.py 的因子生成 + 断语查询）。
 本层只做「读引擎字段 + 编排 RPC + 归并」，零命理判断。
@@ -84,8 +86,11 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
     """
     from aggregate import build_factors
 
-    if longitude is None:
-        longitude = 116.4
+    if correct and longitude is None:
+        raise ValueError(
+            "correct=true 时 longitude 必填——真太阳时校正需要出生地经度。"
+            "请先通过 city_coords 查询城市经度，或改用 correct=false（按给定时辰直接排）。"
+        )
     if correct:
         t = _solar_time(gregorian, longitude)
         solar = t["solar"]
@@ -125,4 +130,35 @@ def liunian(pan: dict, year: int) -> dict:
     return {
         "bazi": _bazi_liunian(pan["chart"], year),
         "ziwei": _ziwei_liunian(pan["ziwei"], year),
+    }
+
+
+# ── agent 工具（交互式查询 + 合盘）──
+
+def city_coords(city: str) -> dict:
+    """城市名→经纬度（交互式查询——找不到时抛 RPCError，LLM 负责问用户替代城市）。
+
+    返回: {"name": "桦川县", "longitude": 130.3, "latitude": ..., "country": "..."}
+    """
+    r = call("city.coords", {"city": city})
+    return r["data"]
+
+
+def bond(pan_a: dict, pan_b: dict) -> dict:
+    """合盘：两张本命盘 → 八字合盘 + 紫微合盘。
+
+    pan_a / pan_b 为 full_paipan 返回的完整盘。
+    返回: {"bazi": {...}, "ziwei": {...}}
+    """
+    bazi_r = call("bazi.bond", {
+        "a": {"chart": pan_a["chart"]},
+        "b": {"chart": pan_b["chart"]},
+    })
+    ziwei_r = call("ziwei.bond", {
+        "a": pan_a["ziwei"],
+        "b": pan_b["ziwei"],
+    })
+    return {
+        "bazi": bazi_r.get("data", {}),
+        "ziwei": ziwei_r.get("data", {}),
     }

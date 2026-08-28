@@ -1,5 +1,43 @@
 # Changelog
 
+## 2026.08.28.1 —— 架构收敛：双层工具合并为单层6工具 + 域名统一 + 静默降级清除
+
+> 来源：LLM 实测评测（用户全程真实排盘+定盘交互）暴露的工具层混乱、域名不一致、静默降级三类问题。
+
+### 架构收敛
+
+- **[架构] LLM 可见工具从 5+RPC 双层收敛为 6 个 Python 工具**：`city_coords`/`full_paipan`/`query`/`yearly_range`/`calibrate`/`bond`，唯一入口 `agent_cli.py`，RPC 层对 LLM 完全不可见。删除 `rpc.discover` 需求、手调 RPC 方法清单、JSON-RPC 端点/请求格式等全部双层调用文档。LLM 完成一次典型分析从 9 步降至 3 步
+- **[新增] yearly_range**：批量流年分析，一次调用替代 N×3 次（liunian+因子+query）。内置 target 映射（career→官杀/wealth→财星/marriage→配偶星/study→母星/health→日主），detail=False 精简输出（10年仅 3KB），单年失败显式标注 error 不静默跳过，附带 current_year（含 server/local 来源标注）
+- **[新增] calibrate**：定盘校验，多候选生日×人生事件批量排盘+查询，返回原始断语（不做命中判断——信号解读由 LLM 完成）。longitude 必填（禁止静默降级到默认经度），events.rule 必须以 yearly_ 开头，label 唯一性校验
+- **[新增] bond**：合盘，八字合盘+紫微合盘一次调用返回
+- **[新增] city_coords**：城市名→经纬度（交互式查询，找不到时 LLM 问用户附近大城市）
+- **[改造] query**：pan 直通（接受 full_paipan 返回值，内部自动 make_factors），参数名 snapshots→pan，仅支持本命域（流年走 yearly_range），规则白名单校验（拼错立即报错+列出有效域）
+- **[删除] liunian/make_factors/make_liunian_factors**：从 LLM 工具列表移除（内部化为 query/yearly_range/calibrate 的编排细节）
+
+### Bug 修复
+
+- **[修复] agent_cli.py $file 引用不兼容 {"ok":true,"data":{...}} 包装**：`_load_file_refs` 直接 `json.load` 拿到整个包装体而非裸 pan，传给 make_factors 报 missing arg。改为自动解包 ok/data 层级
+- **[修复] _RULE_TARGET_MAP 无效 key**：`"官星"` 和 `"印星"` 不是 constants.json 目标星的有效 key（应为 `"官杀"` 和 `"母星"`），导致 career/study 流年因子全为 0——静默产生错误数据
+- **[修复] full_paipan 静默降级到默认经度 116.4**：用户在乌鲁木齐排的是北京的盘。改为 correct=true 时 longitude 必填（缺失报错），correct=false 时可省略
+- **[修复] yearly_range except Exception 过宽**：吞掉编程 bug 伪装成数据缺失。收窄为 `(RPCError, ConnectionError, TimeoutError, OSError)`
+- **[修复] calibrate 重复 label 静默覆盖**：两个候选用同一 label 时后者覆盖前者，用户以为在比两盘实际只拿到一盘。加唯一性校验
+- **[修复] query/yearly_range 拼错规则名静默返回空**：`load_table` 对不存在的 CSV 返回空列表，拼错域名无任何提示。加 `_NATAL_RULES`/`_YEARLY_RULES` 白名单，拼错显式报错并列出有效域
+- **[修复] query() 校验顺序**：rule 校验在 pan 处理之前——无效 rule 快速失败，不等 pan 解析完才报错
+
+### 域名统一（拼音→英文，与 app 卡名对齐）
+
+- shiye→career, caiyun→wealth, jiankang→health, xueye→study, xingge→personality, liuqin→family
+- 影响面：28 张 CSV 文件重命名 + duanyu.py ALL_DUANYU_RULES 更新 + domains/bazi/ 5个 md 文件重命名 + app 卡全部引用替换
+- 命理特有术语保留拼音（geju/dayun/yingqi/shishen/yongshen/tiaohou 等）
+
+### 文档一致性
+
+- SKILL.md：删 RPC 层/手调方法清单/discover 段落，简化为单层 6 工具+标准流程（3步）
+- app 卡：compatibility.md 从旧 RPC 双步（bazi.bond + ziwei.bond）改为 bond() 单工具；mingshu.md/career.md 补 yearly_range 引用；marriage.md 删 ziwei.liunian 旧引用
+- domains：dayun.md/calibration.md 旧 RPC 方法名更新为 yearly_range
+- engine 测试白名单：skill_docs_contract_test.go allow 新增 Python 工具名
+- VERSION 更新为 2026.08.28.1（补换行符）
+
 ## 2026.08.27.2 —— feedback 批次1：hash 机制拆除 + 断语/引擎修复
 
 > 来源：liki.hk 后台 17 条 pending 反馈（已建 issue #11–#27）。每项修复均先复现（红）再改（绿）。

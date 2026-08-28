@@ -71,8 +71,8 @@
 
 ### 流年定年
 
-**先读 bazi.liunian**：
-- 对每个候选年份调 `bazi.liunian(year, chart)`，读 `natal_interactions`（流年 vs 原局四柱）、`dayun_interactions`（流年 vs 当年所在大运）、`fuyin_fanyin`（伏吟/反吟）、`shensha`（流年神煞）
+**先读流年盘（yearly_range 内部编排）**：
+- 对候选年份范围调 `yearly_range(pan, start, end, rules)`，内部编排流年排盘（流年 vs 原局四柱、大运交叉、伏吟/反吟、流年神煞）
 
 **流年引动类型**（以下为强应期信号）：
 - 值宫/伏吟：流年地支值目标宫位（年柱伏吟→父母事）

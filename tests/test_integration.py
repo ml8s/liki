@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 @pytest.mark.integration
 class TestIntegration_FullChain(unittest.TestCase):
-    """全链路集成测试：full_paipan→liunian→make_liunian_factors→query。"""
+    """全链路集成测试：full_paipan → query（本命） + yearly_range（流年）。"""
 
     def test_full_chain(self):
         url = os.environ.get("LIKI_RPC_URL", "")
@@ -37,22 +37,22 @@ class TestIntegration_FullChain(unittest.TestCase):
             return json.loads(p.stdout)
 
         try:
-            pan = call("full_paipan", {"time": "1990-06-01T12:00:00+08:00",
+            pan = call("full_paipan", {"gregorian": "1990-06-01T12:00:00+08:00",
                                        "gender": "male", "longitude": 116.4, "correct": True})
         except Exception as e:  # noqa: BLE001
             self.fail(f"LIKI_RPC_URL={url} 已设置但引擎不可达: {e}")
         if not pan.get("ok"):
             self.fail(f"full_paipan 失败: {pan.get('error')}")
 
-        ln = call("liunian", {"pan": pan["data"], "year": 2006})
-        self.assertTrue(ln["ok"], ln.get("error"))
-        lf = call("make_liunian_factors", {"pan": pan["data"], "liunian_pan": ln["data"],
-                                           "target": "配偶星", "year": 2006})
-        self.assertTrue(lf["ok"], lf.get("error"))
-        q = call("query", {"rule": "yearly_marriage", "snapshots": lf["data"]})
+        q = call("query", {"rule": "career", "pan": pan["data"]})
         self.assertTrue(q["ok"], q.get("error"))
-        self.assertGreater(len(lf["data"]["八字"]), 0)
         self.assertIn("八字", q["data"])
+
+        yr = call("yearly_range", {"pan": pan["data"], "start": 2006, "end": 2006,
+                                   "rules": ["yearly_marriage", "yingqi"]})
+        self.assertTrue(yr["ok"], yr.get("error"))
+        self.assertIn("current_year", yr["data"])
+        self.assertIn("2006", yr["data"]["years"])
 
 
 if __name__ == "__main__":

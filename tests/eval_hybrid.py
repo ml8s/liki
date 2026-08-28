@@ -27,18 +27,31 @@ for _p in (_TOOLS, _LOCAL):
 
 from birth import parse_birth
 from paipan import full_paipan
-from duanyu import make_factors, query, ALL_DUANYU_RULES
+from duanyu import make_factors, query, query_yearly, _NATAL_RULES, _YEARLY_RULES
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
 
 
 def query_all(pan: dict) -> dict:
-    """断语查询（数据检查用）——排盘(full_paipan) → 因子生成(make_factors) → 断语查询(query)。"""
+    """断语查询（数据检查用）——本命域查本命快照，流年域用当前年流年盘采样。"""
     snap = make_factors(pan)
     domains = {}
-    for rule in ALL_DUANYU_RULES:
-        domains[rule] = query(rule, snap)
+    # 本命域
+    for rule in sorted(_NATAL_RULES):
+        domains[rule] = query(rule, pan)
+    # 流年域——用当前年采样（完整流年覆盖需多年扫描，此处仅验证规则表不崩/有产出）
+    from datetime import datetime
+    cur_year = datetime.now().year
+    from paipan import liunian
+    from duanyu import make_liunian_factors
+    lnp = liunian(pan, cur_year)
+    for rule in sorted(_YEARLY_RULES - {"yingqi"}):
+        target = "配偶星"
+        snap_y = make_liunian_factors(pan, lnp, target=target, year=cur_year)
+        domains[rule] = query_yearly(rule, snap_y)
+    # yingqi 同时有本命表和流年表——流年版
+    domains["yingqi"] = query_yearly("yingqi", make_liunian_factors(pan, lnp, year=cur_year))
     return {"domains": domains}
 
 
@@ -59,7 +72,9 @@ def main():
             continue
         if case_id not in cache:
             solar, gender, lon, corr = parse_birth(birth)
-            pan = full_paipan(solar, gender, lon, correct=corr)
+            # longitude 未知时降级为 correct=False（无经度无法校正——宁可不校正也不用错误经度）
+            eff_corr = corr and lon is not None
+            pan = full_paipan(solar, gender, lon, correct=eff_corr)
             cache[case_id] = query_all(pan)
         r = cache[case_id]
         for qid in qids:

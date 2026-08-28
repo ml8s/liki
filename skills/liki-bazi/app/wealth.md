@@ -8,7 +8,7 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 ## 依赖的领域知识
 
-[必读] - bazi: domains/bazi/caiyun.md「决策表」
+[必读] - bazi: domains/bazi/wealth.md「决策表」
 [必读] - bazi: domains/bazi/shishen.md「十神」
 
 [必读] - ziwei: domains/ziwei/yingqi.md「财运紫微应期」
@@ -17,13 +17,13 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
    输出：□ 本命盘已排____ 因子快照已写出____
 
-2. 财星有无 → `query(rule=caiyun)`
+2. 财星有无 → `query(rule=wealth)`
    输出：□ 财星类型____ 透/藏____
 
-3. 胜财能力 → `query(rule=caiyun)`
-   输出：□ 胜财能力____（能担/不能担/中和）——财多身弱互斥锁见 caiyun.md「断语核心」
+3. 胜财能力 → `query(rule=wealth)`
+   输出：□ 胜财能力____（能担/不能担/中和）——财多身弱互斥锁见 wealth.md「断语核心」
 
-4. 大运/比劫 → `query(rule=caiyun)`
+4. 大运/比劫 → `query(rule=wealth)`
    输出：□ 当前大运____ 夺财风险____
 
 5. 紫微佐证【强制——断「具体细节」时必做，禁止只凭八字粗断】→ yingqi「财运」表

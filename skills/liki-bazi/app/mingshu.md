@@ -11,7 +11,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 - [必读] bazi: SKILL.md 排盘流程
 - bazi（方法+断语；命书为整本产出，结构性必读较宽）：
   - [必读] `domains/bazi/dayun.md`、`domains/bazi/wangshuai.md`、`domains/bazi/geju.md`、`domains/bazi/yongshen.md`
-  - `domains/bazi/hehui.md`、`domains/bazi/shishen.md`、`domains/bazi/gongwei.md`、`domains/bazi/liuqin.md`（按需——用户问及对应领域时读取）
+  - `domains/bazi/hehui.md`、`domains/bazi/shishen.md`、`domains/bazi/gongwei.md`、`domains/bazi/family.md`（按需——用户问及对应领域时读取）
 - [必读] ziwei: SKILL.md 排盘流程
 - [必读] ziwei: `domains/ziwei/yingqi.md` 紫微应期
 - [按需] app: 各 app 的深入分析入口（汇总用，用户后续深入某领域时读取）
@@ -44,7 +44,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 #### 快速扫描项
 
 □ 婚姻：配偶星（____） 夫妻宫（____）（冲/合/刑/害/无） → 深入: `app/marriage.md`
-□ 学业：印星状态（query(rule=xueye)） 学历倾向（____） → 深入: `app/study.md`
+□ 学业：印星状态（query(rule=study)） 学历倾向（____） → 深入: `app/study.md`
 □ 健康：五行（____旺/____弱） 对应脏腑（____） → 深入: `app/health.md`
 □ 事业：官财透干（____） 十神组合（____） → 深入: `app/career.md`
 □ 财运：财星（____） 身胜财（____） → 深入: `app/wealth.md`
@@ -77,7 +77,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 □ 婚姻类：官杀混杂取清分析了吗？ （____）
 □ 学业类：印星有效性检查做了吗？ （____）
 □ 性格类：身弱五行降级考虑了吗？ （____）
-□ 健康类：五行对应脏腑引用了 domains/bazi/wuxing-jiankang.md 吗？ （____）
+□ 健康类：五行对应脏腑引用了 domains/bazi/wuxing-health.md 吗？ （____）
 □ 财运类：比劫夺财检查做了吗？ （____）
 
 ## 双盘验证（八字+紫微交叉）
@@ -142,7 +142,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 - 当前大运 **粗体** 标注，换运年前后各一年单独说明
 - 大运对流年应期的引导（换运年、用神到位年、忌神发力年），参考 `domains/bazi/dayun.md`
 
-#### 六、当前流年（不少于 4 个维度）
+#### 六、当前流年（不少于 4 个维度）——用 `yearly_range(pan, 当前年, 当前年, ["yearly_career","yearly_wealth","yingqi"])` 获取
 
 - 当年干支与命局关系（生合冲克刑）
 - 当年大运与流年的互动（大运为十年基调，流年为当年应事）

@@ -7,7 +7,7 @@
 设计：
 - 白名单分派（显式 if/elif，无 eval/exec/getattr 动态调用）——LLM 不能执行任意代码
 - 参数 dict 直接 **args 传给工具函数——参数化调用，零代码注入
-- 异常捕获进 error 字段（不 panic、exit 0）——Go 侧按 ok 字段判断
+- 异常捕获进 error 字段（不 panic、exit 0）——调用方按 ok 字段判断
 
 使用方式：
 - 通过 `python3 tools/agent_cli.py` 执行 Python 工具
@@ -19,8 +19,8 @@ from __future__ import annotations
 import json
 import sys
 
-from paipan import full_paipan, liunian
-from duanyu import make_factors, make_liunian_factors, query
+from paipan import full_paipan, city_coords, bond
+from duanyu import query, yearly_range, calibrate
 
 
 def _load_file_refs(args: dict) -> dict:
@@ -30,7 +30,11 @@ def _load_file_refs(args: dict) -> dict:
     for k, v in args.items():
         if isinstance(v, dict) and "$file" in v:
             with open(v["$file"], encoding="utf-8") as f:
-                out[k] = json.load(f)
+                loaded = json.load(f)
+                # 自动解包 agent_cli 输出格式 {"ok": true, "data": {...}}
+                if isinstance(loaded, dict) and "ok" in loaded and "data" in loaded:
+                    loaded = loaded["data"]
+                out[k] = loaded
         else:
             out[k] = v
     return out
@@ -38,15 +42,16 @@ def _load_file_refs(args: dict) -> dict:
 
 # 白名单：工具名 → 参数提取器（无 eval/exec/getattr 动态调用）
 _DISPATCH = {
-    "full_paipan": lambda a: full_paipan(a["time"], a["gender"],
+    "city_coords":  lambda a: city_coords(a["city"]),
+    "full_paipan": lambda a: full_paipan(a["gregorian"], a["gender"],
                                          longitude=a.get("longitude"),
                                          correct=a.get("correct", True)),
-    "liunian": lambda a: liunian(a["pan"], a["year"]),
-    "make_factors": lambda a: make_factors(a["pan"]),
-    "make_liunian_factors": lambda a: make_liunian_factors(a["pan"], a["liunian_pan"],
-                                                           target=a.get("target", "配偶星"),
-                                                           year=a.get("year", 0)),
-    "query": lambda a: query(a["rule"], a["snapshots"]),
+    "query":        lambda a: query(a["rule"], a["pan"]),
+    "yearly_range": lambda a: yearly_range(a["pan"], a["start"], a["end"],
+                                           rules=a.get("rules"),
+                                           detail=a.get("detail", False)),
+    "calibrate":    lambda a: calibrate(a["candidates"], a["events"], detail=a.get("detail", False)),
+    "bond":         lambda a: bond(a["pan_a"], a["pan_b"]),
 }
 
 

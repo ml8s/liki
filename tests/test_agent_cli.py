@@ -1,6 +1,6 @@
 """agent_cli 分派单元测试（不连引擎——mock 工具链函数）。
 
-覆盖：5 函数分派映射、参数透传、非法 fn、stdin 协议错误包装。
+覆盖：6 函数分派映射、参数透传、非法 fn、stdin 协议错误包装。
 """
 import json
 import os
@@ -22,40 +22,45 @@ class TestDispatch(unittest.TestCase):
         # mock 工具链函数——验证分派映射与参数透传，不触发网络/真值表
         self.patchers = [
             mock.patch('agent_cli.full_paipan', return_value={"pan": "full"}),
-            mock.patch('agent_cli.liunian', return_value={"ln": True}),
-            mock.patch('agent_cli.make_factors', return_value={"fac": {}}),
-            mock.patch('agent_cli.make_liunian_factors', return_value={"lf": {}}),
+            mock.patch('agent_cli.city_coords', return_value={"longitude": 116.4}),
             mock.patch('agent_cli.query', return_value={"八字": [], "紫微": []}),
+            mock.patch('agent_cli.yearly_range', return_value={"years": {}}),
+            mock.patch('agent_cli.calibrate', return_value={}),
+            mock.patch('agent_cli.bond', return_value={"bazi": {}, "ziwei": {}}),
         ]
         for p in self.patchers:
             p.start()
         self.addCleanup(lambda: [p.stop() for p in self.patchers])
 
     def test_full_paipan_分派(self):
-        data = agent_cli._dispatch("full_paipan", {"time": "1990-06-01T12:00:00+08:00", "gender": "male"})
+        data = agent_cli._dispatch("full_paipan", {"gregorian": "1990-06-01T12:00:00+08:00", "gender": "male"})
         self.assertEqual(data, {"pan": "full"})
         agent_cli.full_paipan.assert_called_once_with(
             "1990-06-01T12:00:00+08:00", "male", longitude=None, correct=True)
 
     def test_full_paipan_默认值(self):
-        agent_cli._dispatch("full_paipan", {"time": "t", "gender": "female", "longitude": 116.4})
+        agent_cli._dispatch("full_paipan", {"gregorian": "t", "gender": "female", "longitude": 116.4})
         agent_cli.full_paipan.assert_called_once_with("t", "female", longitude=116.4, correct=True)
 
-    def test_liunian_分派(self):
-        agent_cli._dispatch("liunian", {"pan": {}, "year": 2006})
-        agent_cli.liunian.assert_called_once_with({}, 2006)
-
-    def test_make_factors_分派(self):
-        agent_cli._dispatch("make_factors", {"pan": {"fac": {}}})
-        agent_cli.make_factors.assert_called_once_with({"fac": {}})
-
-    def test_make_liunian_factors_默认参数(self):
-        agent_cli._dispatch("make_liunian_factors", {"pan": {}, "liunian_pan": {}})
-        agent_cli.make_liunian_factors.assert_called_once_with({}, {}, target="配偶星", year=0)
+    def test_city_coords_分派(self):
+        agent_cli._dispatch("city_coords", {"city": "北京"})
+        agent_cli.city_coords.assert_called_once_with("北京")
 
     def test_query_分派(self):
-        agent_cli._dispatch("query", {"rule": "marriage", "snapshots": {}})
+        agent_cli._dispatch("query", {"rule": "marriage", "pan": {}})
         agent_cli.query.assert_called_once_with("marriage", {})
+
+    def test_yearly_range_分派(self):
+        agent_cli._dispatch("yearly_range", {"pan": {}, "start": 2025, "end": 2026})
+        agent_cli.yearly_range.assert_called_once_with({}, 2025, 2026, rules=None, detail=False)
+
+    def test_calibrate_分派(self):
+        agent_cli._dispatch("calibrate", {"candidates": [], "events": []})
+        agent_cli.calibrate.assert_called_once_with([], [], detail=False)
+
+    def test_bond_分派(self):
+        agent_cli._dispatch("bond", {"pan_a": {}, "pan_b": {}})
+        agent_cli.bond.assert_called_once_with({}, {})
 
     def test_非法fn(self):
         with self.assertRaises(ValueError):
@@ -115,29 +120,27 @@ class TestSchemaConsistency(unittest.TestCase):
                          "skills", "liki-bazi", "tools", "skill-tools.json")
         doc = json.load(open(p, encoding="utf-8"))
         names = [t["function"]["name"] for t in doc["tools"]]
-        self.assertEqual(len(names), 5)
+        self.assertEqual(len(names), 6)
+        # 实际分派验证：白名单 6 名全部分派成功
         for n in names:
-            with self.subTest(tool=n):
-                # mock 下每个 schema 工具名都能分派（不抛 unknown tool）
-                with mock.patch("agent_cli._dispatch", return_value=None) as d:
-                    agent_cli.main() if False else None
-                    # 直接验证分派分支存在：非白名单名会 ValueError
-                    self.assertIsNotNone(d)  # 占位——实际验证在下方
-        # 实际分派验证：白名单 5 名全部分派成功，未知名抛错
-        for n in names:
-            with mock.patch("agent_cli.full_paipan"), mock.patch("agent_cli.liunian"), \
-                 mock.patch("agent_cli.make_factors"), mock.patch("agent_cli.make_liunian_factors"), \
-                 mock.patch("agent_cli.query"):
+            with mock.patch("agent_cli.full_paipan"), \
+                 mock.patch("agent_cli.city_coords"), \
+                 mock.patch("agent_cli.query"), \
+                 mock.patch("agent_cli.yearly_range"), \
+                 mock.patch("agent_cli.calibrate"), \
+                 mock.patch("agent_cli.bond"):
                 if n == "full_paipan":
-                    agent_cli._dispatch(n, {"time": "t", "gender": "male"})
-                elif n == "liunian":
-                    agent_cli._dispatch(n, {"pan": {}, "year": 1})
-                elif n == "make_factors":
-                    agent_cli._dispatch(n, {"pan": {}})
-                elif n == "make_liunian_factors":
-                    agent_cli._dispatch(n, {"pan": {}, "liunian_pan": {}})
+                    agent_cli._dispatch(n, {"gregorian": "t", "gender": "male"})
+                elif n == "city_coords":
+                    agent_cli._dispatch(n, {"city": "北京"})
+                elif n == "yearly_range":
+                    agent_cli._dispatch(n, {"pan": {}, "start": 2025, "end": 2026})
+                elif n == "calibrate":
+                    agent_cli._dispatch(n, {"candidates": [], "events": []})
+                elif n == "bond":
+                    agent_cli._dispatch(n, {"pan_a": {}, "pan_b": {}})
                 else:
-                    agent_cli._dispatch(n, {"rule": "marriage", "snapshots": {}})
+                    agent_cli._dispatch(n, {"rule": "marriage", "pan": {}})
 
 
 class TestFileRefs(unittest.TestCase):
@@ -163,9 +166,9 @@ class TestFileRefs(unittest.TestCase):
             json.dump({"day": "甲子"}, f)
             path = f.name
         try:
-            with mock.patch("agent_cli.make_factors", return_value={"fac": 1}) as mf:
-                out = agent_cli._dispatch("make_factors", {"pan": {"$file": path}})
-            self.assertEqual(out, {"fac": 1})
-            mf.assert_called_once_with({"day": "甲子"})
+            with mock.patch("agent_cli.query", return_value={"八字": []}) as q:
+                out = agent_cli._dispatch("query", {"rule": "career", "pan": {"$file": path}})
+            self.assertEqual(out, {"八字": []})
+            q.assert_called_once_with("career", {"day": "甲子"})
         finally:
             os.unlink(path)

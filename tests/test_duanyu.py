@@ -43,16 +43,16 @@ class TestEvaluateFactors(unittest.TestCase):
 
 
 class TestYearlyIsolation(unittest.TestCase):
-    """本命快照查 yearly_* 必须隔离（不得命中纯本命约束的流年断语）。"""
+    """query() 拒绝流年域；流年查询走 query_yearly（yearly_range 内部调用）。"""
 
     def test_本命快照查yearly_拒绝(self):
-        ben = {"八字": {"财坏印": 1}, "紫微": {}}  # 本命快照（无流年特征标记）
-        res = duanyu.query("yearly_liuqin", ben)
-        self.assertEqual(res["八字"], [])
+        pan = {"fac": {}}  # pan 直通
+        with self.assertRaises(ValueError):
+            duanyu.query("yearly_family", pan)
 
     def test_流年快照查yearly_正常命中(self):
-        liu = {"_snapshot_type": "liunian", "八字": {"财坏印": 1, "财坏印流年": 1}, "紫微": {}}  # 流年快照
-        res = duanyu.query("yearly_liuqin", liu)
+        liu = {"_snapshot_type": "liunian", "八字": {"财坏印": 1, "财坏印流年": 1}, "紫微": {}}
+        res = duanyu.query_yearly("yearly_family", liu)
         self.assertTrue(any(r.get("id") == "yliu_104" for r in res["八字"]))
 
 
@@ -125,7 +125,7 @@ class TestXueye201Regression(unittest.TestCase):
     导致无印盘命中最高档学历断语（feedback ba47240e/issue #25）。修复后 0→1。"""
 
     def _hits(self, yin_wang, guan_sha_de_ling):
-        out = duanyu.query("xueye", {"八字": {"印星旺": yin_wang, "官杀得令": guan_sha_de_ling},
+        out = duanyu.query("study", {"八字": {"印星旺": yin_wang, "官杀得令": guan_sha_de_ling},
                                      "紫微": {}})
         return [e["id"] for e in out["八字"]]
 

@@ -2,23 +2,37 @@
   "$schema": "https://json.schemastore.org/tools.json",
   "info": {
     "title": "liki Skill Tools — 命理工具",
-    "description": "liki skill 的 5 个命理工具（排盘/因子生成/断语查询），OpenAI function calling 格式（tools 数组）。执行方式：通过 `python3 tools/agent_cli.py` 调用（推荐），或通过 JSON-RPC 2.0 远程调用（备用）。",
-    "version": "2026.08.27.3"
+    "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
+    "version": "2026.08.28.1"
   },
   "tools": [
     {
       "type": "function",
       "function": {
-        "name": "full_paipan",
-        "description": "排盘（本命）：一次排全八字+紫微，返回本命盘（含内嵌因子 fac）。时间精度未知默认 12:00；correct=true 走真太阳时校正（需经度），false 按给定时辰直接排。 主流程编排（第 1 步）：full_paipan → make_factors → query（本命域）；应期场景 full_paipan 后逐候选年 liunian → make_liunian_factors → query（yearly_*/yingqi）",
+        "name": "city_coords",
+        "description": "城市名→经纬度（交互式查询）。找不到时返回 error——问用户附近较大城市后重试。",
         "parameters": {
           "type": "object",
           "properties": {
-            "time": {
+            "city": {
               "type": "string",
-              "format": "date-time",
-              "description": "出生公历时间（RFC3339），未知时分默认 12:00"
-            },
+              "description": "城市名称"
+            }
+          },
+          "required": [
+            "city"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "full_paipan",
+        "description": "排盘（本命）：八字+紫微一次排全，返回本命盘（pan）。pan 可直接传给 query、yearly_range 或 bond。流程：city_coords → full_paipan → query / yearly_range。",
+        "parameters": {
+          "type": "object",
+          "properties": {
             "gender": {
               "type": "string",
               "enum": [
@@ -29,466 +43,23 @@
             },
             "longitude": {
               "type": "number",
-              "description": "出生地经度（度），correct=true 时用于真太阳时校正；缺省北京 116.4"
+              "description": "出生地经度。correct=true 时必填（真太阳时校正需经度），correct=false 时可省略。通过 city_coords 获取。"
             },
             "correct": {
               "type": "boolean",
-              "description": "true=按真太阳时校正（路 A：给具体时刻）；false=按给定时辰直接排（路 B）",
+              "description": "true=按真太阳时校正（用户给具体时刻，需提供 longitude）；false=按给定时辰直接排（无需 longitude）",
               "default": true
+            },
+            "gregorian": {
+              "type": "string",
+              "format": "date-time",
+              "description": "出生公历时间（Gregorian calendar，RFC3339 格式）。农历时间请自行转换为公历后传入。"
             }
           },
           "required": [
-            "time",
+            "gregorian",
             "gender"
           ]
-        },
-        "result_schema": {
-          "type": "object",
-          "properties": {
-            "solar": {
-              "type": "string",
-              "description": "真太阳时（correct=true 时校正后）"
-            },
-            "lunar": {
-              "type": "object",
-              "description": "农历",
-              "properties": {
-                "year": {
-                  "type": "integer"
-                },
-                "month": {
-                  "type": "integer"
-                },
-                "day": {
-                  "type": "integer"
-                },
-                "shichen": {
-                  "type": "string"
-                }
-              }
-            },
-            "chart": {
-              "type": "object",
-              "description": "四柱排盘（四柱+大运+性别+出生年）",
-              "properties": {
-                "nian": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "yue": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "ri": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "shi": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "da_yun": {
-                  "type": "object",
-                  "properties": {
-                    "start_date": {
-                      "type": "string",
-                      "description": "起运公历日"
-                    },
-                    "direction": {
-                      "type": "string",
-                      "description": "顺排/逆排"
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "gan": {
-                            "type": "string"
-                          },
-                          "zhi": {
-                            "type": "string"
-                          },
-                          "start_date": {
-                            "type": "string",
-                            "description": "本步起始公历日 YYYY-MM-DD"
-                          },
-                          "end_date": {
-                            "type": "string",
-                            "description": "本步末日 YYYY-MM-DD"
-                          },
-                          "start_year": {
-                            "type": "integer",
-                            "description": "本步起始公历年"
-                          },
-                          "end_year": {
-                            "type": "integer",
-                            "description": "本步结束公历年"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "wuxing": {
-                            "type": "string"
-                          },
-                          "shi_shen": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "description": "每步十年（含 start_date/end_date + start_year/end_year）"
-                    },
-                    "current_step_index": {
-                      "type": "integer",
-                      "description": "当前大运索引（-1=未起运/已过完）"
-                    },
-                    "next_step_in_years": {
-                      "type": "integer",
-                      "description": "距下一大运剩余年数"
-                    }
-                  }
-                },
-                "gender": {
-                  "type": "string"
-                },
-                "birth_year": {
-                  "type": "integer"
-                },
-                "zi_shi_rule": {
-                  "type": "string",
-                  "description": "子时换日规则说明"
-                }
-              }
-            },
-            "full": {
-              "type": "object",
-              "description": "完整命盘扩展（十神/藏干/神煞/空亡/魁罡/三元/合会冲刑）",
-              "properties": {
-                "nian": {
-                  "type": "object",
-                  "description": "含 shi_shens/cang_gan/shen_sha/is_void/is_kui_gang"
-                },
-                "yue": {
-                  "type": "object",
-                  "description": "含 shi_shens/cang_gan（月令本气 main）/shen_sha"
-                },
-                "ri": {
-                  "type": "object"
-                },
-                "shi": {
-                  "type": "object"
-                }
-              }
-            },
-            "yongshen": {
-              "type": "object",
-              "description": "用神三派",
-              "properties": {
-                "fu_yi": {
-                  "type": "object",
-                  "properties": {
-                    "qiangruo": {
-                      "type": "string",
-                      "enum": [
-                        "身强",
-                        "身弱",
-                        "中和"
-                      ]
-                    },
-                    "yong": {
-                      "type": "string"
-                    },
-                    "xi": {
-                      "type": "string"
-                    },
-                    "ji": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "tiao_hou": {
-                  "type": "object",
-                  "properties": {
-                    "yong": {
-                      "type": "string"
-                    },
-                    "xi": {
-                      "type": "string"
-                    },
-                    "ji": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "ge_ju": {
-                  "type": "object",
-                  "properties": {
-                    "ge_ju": {
-                      "type": "string"
-                    },
-                    "yong": {
-                      "type": "string"
-                    },
-                    "xi": {
-                      "type": "string"
-                    },
-                    "ji": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            },
-            "ziwei": {
-              "type": "object",
-              "description": "紫微十二宫",
-              "properties": {
-                "gong_wei": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "zhi": {
-                        "type": "string"
-                      },
-                      "xing_yao": {
-                        "type": "array"
-                      }
-                    }
-                  }
-                },
-                "si_hua": {
-                  "type": "object",
-                  "description": "{星名: 禄/权/科/忌}"
-                },
-                "ju_shu": {
-                  "type": "string"
-                },
-                "ming_gong": {
-                  "type": "string"
-                }
-              }
-            },
-            "gender": {
-              "type": "string",
-              "description": "性别"
-            },
-            "fac": {
-              "type": "object",
-              "description": "内嵌因子原始数据（十神/五行/用神/大运 steps——make_factors 用）"
-            }
-          }
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liunian",
-        "description": "排盘（流年）：本命盘 + 年份 → 八字+紫微流年单年合并盘（应期按候选年逐调）。 编排（应期场景）：liunian(pan, 候选年) → make_liunian_factors → query(yearly_<主域> + yingqi)",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "pan": {
-              "type": "object",
-              "description": "本命盘（full_paipan 返回）"
-            },
-            "year": {
-              "type": "integer",
-              "description": "目标年份"
-            }
-          },
-          "required": [
-            "pan",
-            "year"
-          ]
-        },
-        "result_schema": {
-          "type": "object",
-          "properties": {
-            "bazi": {
-              "type": "object",
-              "description": "八字流年盘",
-              "properties": {
-                "year": {
-                  "type": "integer"
-                },
-                "nian_gan": {
-                  "type": "string"
-                },
-                "nian_zhi": {
-                  "type": "string"
-                },
-                "shi_shen": {
-                  "type": "string",
-                  "description": "流年十神（相对日主）"
-                },
-                "shensha": {
-                  "type": "array",
-                  "description": "流年神煞（红鸾/桃花/天乙贵人/华盖/大耗/丧门…）"
-                },
-                "natal_interactions": {
-                  "type": "array",
-                  "description": "流年与命局干支关系（gan_rels/zhi_rels）"
-                }
-              }
-            },
-            "ziwei": {
-              "type": "object",
-              "description": "紫微流年盘",
-              "properties": {
-                "ming_gong": {
-                  "type": "string"
-                },
-                "si_hua": {
-                  "type": "object",
-                  "description": "{星名: 化}"
-                },
-                "si_hua_gong": {
-                  "type": "object",
-                  "description": "{星名: 落宫}"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "make_factors",
-        "description": "因子生成（本命）：本命盘 → 双盘因子快照 {八字, 紫微}（数据层真分开、一次返回）。 编排（第 2 步）：full_paipan → make_factors → query（本命域）",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "pan": {
-              "type": "object",
-              "description": "本命盘（full_paipan 返回，含 fac）"
-            }
-          },
-          "required": [
-            "pan"
-          ]
-        },
-        "result_schema": {
-          "type": "object",
-          "properties": {
-            "八字": {
-              "type": "object",
-              "description": "八字因子快照"
-            },
-            "紫微": {
-              "type": "object",
-              "description": "紫微因子快照"
-            }
-          }
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "make_liunian_factors",
-        "description": "因子生成（流年）：本命盘 + 流年盘 → 双盘流年因子快照 {八字, 紫微}。 编排（应期场景）：liunian → make_liunian_factors → query（流年域）",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "pan": {
-              "type": "object",
-              "description": "本命盘（full_paipan 返回）"
-            },
-            "liunian_pan": {
-              "type": "object",
-              "description": "流年盘（liunian 返回）"
-            },
-            "target": {
-              "type": "string",
-              "description": "目标星/主题，默认 配偶星",
-              "default": "配偶星"
-            },
-            "year": {
-              "type": "integer",
-              "description": "目标年份",
-              "default": 0
-            }
-          },
-          "required": [
-            "pan",
-            "liunian_pan"
-          ]
-        },
-        "result_schema": {
-          "type": "object",
-          "properties": {
-            "_snapshot_type": {
-              "type": "string",
-              "description": "流年快照标记（query 校验 yearly_* 域用）"
-            },
-            "八字": {
-              "type": "object",
-              "description": "八字流年因子快照"
-            },
-            "紫微": {
-              "type": "object",
-              "description": "紫微流年因子快照"
-            }
-          }
         }
       }
     },
@@ -496,65 +67,174 @@
       "type": "function",
       "function": {
         "name": "query",
-        "description": "断语查询：域 + 双盘因子快照 → 该域断语 {八字: [...], 紫微: [...]}（内部真值表匹配）。rule ∈ 本命 19 域 + 流年域 yearly_*。 编排（第 3 步）：query(<域>, 快照)——本命域查 make_factors 快照、流年域查 make_liunian_factors 快照（快照决定域层，不用选）",
+        "description": "断语查询（本命域）。仅支持本命域，流年走 yearly_range。",
         "parameters": {
           "type": "object",
           "properties": {
             "rule": {
               "type": "string",
-              "enum": [
-                "xueye",
-                "marriage",
-                "shiye",
-                "chushen",
-                "caiyun",
-                "jiankang",
-                "xingge",
-                "liuqin",
-                "waimao",
-                "shensha",
-                "geju",
-                "zuhe",
-                "ziwei",
-                "tiaohou",
-                "dayun",
-                "tianzhai",
-                "qianyi",
-                "zinv",
-                "zhiye",
-                "yingqi",
-                "yearly_marriage",
-                "yearly_liuqin",
-                "yearly_caiyun",
-                "yearly_shiye",
-                "yearly_jiankang",
-                "yearly_xueye",
-                "yearly_zinv"
-              ],
-              "description": "断语域（本命 19 域 + 流年 yearly_*）"
+              "description": "本命域：career/wealth/health/study/marriage/personality/family/geju/dayun/yingqi"
             },
-            "snapshots": {
+            "pan": {
               "type": "object",
-              "description": "双盘因子快照（make_factors / make_liunian_factors 返回）"
+              "description": "full_paipan 返回的本命盘（可直接传或通过 $file 引用）"
             }
           },
           "required": [
             "rule",
-            "snapshots"
+            "pan"
           ]
-        },
-        "result_schema": {
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "yearly_range",
+        "description": "批量流年分析：一次调用替代逐年排盘+查断语。返回每年各域断语（精简格式）+ current_year。",
+        "parameters": {
           "type": "object",
           "properties": {
-            "八字": {
-              "type": "array",
-              "description": "该域八字断语命中列表"
+            "pan": {
+              "type": "object",
+              "description": "full_paipan 返回的本命盘（可直接传或通过 $file 引用）"
             },
-            "紫微": {
+            "start": {
+              "type": "integer",
+              "description": "起始年份"
+            },
+            "end": {
+              "type": "integer",
+              "description": "结束年份（含）"
+            },
+            "rules": {
               "type": "array",
-              "description": "该域紫微断语命中列表（紫微无表时为空列表）"
+              "items": {
+                "type": "string"
+              },
+              "description": "流年域列表，默认 [yearly_career, yingqi]"
+            },
+            "detail": {
+              "type": "boolean",
+              "description": "true=全量断语；false=精简（默认）"
             }
-          }
+          },
+          "required": [
+            "pan",
+            "start",
+            "end"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "calibrate",
+        "description": "定盘校验：多个候选生日 + 人生大事 → 每候选每事件的原始断语。不做命中判断——信号解读由 LLM 完成。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "candidates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "female"
+                    ],
+                    "description": "性别"
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "出生地经度（必填，通过 city_coords 获取）"
+                  },
+                  "correct": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "是否真太阳时校正"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "候选标签（如 25号/26号，必须唯一）"
+                  },
+                  "gregorian": {
+                    "type": "string",
+                    "description": "候选出生公历时间（Gregorian calendar，RFC3339）"
+                  }
+                },
+                "required": [
+                  "gregorian",
+                  "gender",
+                  "longitude",
+                  "label"
+                ]
+              },
+              "description": "候选出生信息列表（2-3 个，label 必须唯一）"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "description": "事件发生年份"
+                  },
+                  "rule": {
+                    "type": "string",
+                    "description": "流年域（必须以 yearly_ 开头，如 yearly_marriage/yearly_career）"
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "事件描述（如 感情重大问题/换工作）"
+                  }
+                },
+                "required": [
+                  "year",
+                  "rule",
+                  "label"
+                ]
+              },
+              "description": "人生大事列表（3-5 件含年份）"
+            },
+            "detail": {
+              "type": "boolean",
+              "description": "true=全量断语（含依据/经典原文）；false=精简（仅事件+结论）",
+              "default": false
+            }
+          },
+          "required": [
+            "candidates",
+            "events"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "bond",
+        "description": "合盘：两张本命盘 → 八字合盘 + 紫微合盘，一次调用返回双盘结果。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pan_a": {
+              "type": "object",
+              "description": "甲方本命盘（full_paipan 返回，可直接传或通过 $file 引用）"
+            },
+            "pan_b": {
+              "type": "object",
+              "description": "乙方本命盘（full_paipan 返回，可直接传或通过 $file 引用）"
+            }
+          },
+          "required": [
+            "pan_a",
+            "pan_b"
+          ]
         }
       }
     }

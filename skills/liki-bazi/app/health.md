@@ -8,7 +8,7 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 ## 依赖的领域知识
 
-[必读] - bazi: domains/bazi/wuxing-jiankang.md「五行所属」
+[必读] - bazi: domains/bazi/wuxing-health.md「五行所属」
 - bazi: domains/bazi/hehui.md「冲宫位表」+「冲吉凶表」（按需——论冲害细节时读取）
 - bazi: domains/bazi/dayun.md「应期决策表」（按需——应期走疾厄宫闭环）
 
@@ -18,7 +18,7 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 1. 排盘 → `full_paipan(时间, 性别, 地点, correct)`
    输出：□ 本命盘已排____ 因子快照已写出____
 
-2. 原局薄弱脏腑 → `query(rule=jiankang)` + wuxing-jiankang.md「五行脏腑」
+2. 原局薄弱脏腑 → `query(rule=health)` + wuxing-health.md「五行脏腑」
    输出：□ 过旺五行____ 过弱五行____ 易病脏腑____（过旺阈值：三合局/三会方或≥4次 → 旺极转忌）
 
 3. 大运流年触发 → hehui「冲宫位表」+ dayun「应期表」
