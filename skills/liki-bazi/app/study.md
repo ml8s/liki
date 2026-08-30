@@ -8,7 +8,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 ## 依赖的领域知识
 
-[必读] - bazi: query(rule=study)（xue_201-209 档位）
+[必读] - bazi: query(rule=十神)（xue_201-209 档位）
 [必读] - bazi: domains/bazi/shishen.md「十神组合」
 
 [必读] - ziwei: domains/ziwei/yingqi.md「学业紫微应期」
@@ -17,13 +17,13 @@ description: 学业判断 — 学历层次、学习能力、考试运
 1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
    输出：□ 本命盘已排____
 
-2. 印星状态 → `query(rule=study)`
+2. 印星状态 → `query(rule=十神)`
    输出：□ 三关通过____关 印星状态____
 
-3. 大运辅助 → `query(rule=study)`
+3. 大运辅助 → `query(rule=十神)`
    输出：□ 当前大运____ 对印星____
 
-4. 学历定档 → `query(rule=study)`
+4. 学历定档 → `query(rule=十神)`
    输出：□ 学历档____ 依据____
 
 5. 紫微佐证【强制——断「具体细节」时必做，禁止只凭八字粗断】→ yingqi「学业」表 + liunian.md（文昌文曲化科、流年命宫落宫）

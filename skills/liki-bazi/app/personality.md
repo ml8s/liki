@@ -12,6 +12,7 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 [必读] - bazi: domains/bazi/shishen.md「十神组合场景化」
 
 [必读] - ziwei: domains/ziwei/yingqi.md「性格紫微应期」
+[必读] - ziwei: domains/ziwei/gexing.md「紫微性格分析方法」
 
 ## 📖 流程
 

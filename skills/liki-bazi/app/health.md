@@ -11,6 +11,7 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 [必读] - bazi: domains/bazi/wuxing-health.md「五行所属」
 - bazi: domains/bazi/hehui.md「冲宫位表」+「冲吉凶表」（按需——论冲害细节时读取）
 - bazi: domains/bazi/dayun.md「应期决策表」（按需——应期走疾厄宫闭环）
+- bazi: domains/bazi/tiaohou.md「调候用神」（按需——冬夏寒燥失衡时读取）
 
 [必读] - ziwei: domains/ziwei/yingqi.md「健康紫微应期」
 ## 📖 流程
@@ -18,7 +19,7 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
    输出：□ 本命盘已排____
 
-2. 原局薄弱脏腑 → `query(rule=health)` + wuxing-health.md「五行脏腑」
+2. 原局薄弱脏腑 → `query(rule=五行)`（脏腑映射） + `query(rule=旺衰)`（五行过旺过弱） + `query(rule=合会)`（三合/三会成局） + `query(rule=用神)`（十神为忌→健康） + wuxing-health.md「五行脏腑」
    输出：□ 过旺五行____ 过弱五行____ 易病脏腑____（过旺阈值：三合局/三会方或≥4次 → 旺极转忌）
 
 3. 大运流年触发 → hehui「冲宫位表」+ dayun「应期表」

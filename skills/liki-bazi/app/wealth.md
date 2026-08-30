@@ -17,13 +17,13 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
    输出：□ 本命盘已排____
 
-2. 财星有无 → `query(rule=wealth)`
-   输出：□ 财星类型____ 透/藏____
+2. 财星有无 → `query(rule=十神)`（财星现/透/藏取象） + `query(rule=用神)`（财为用否）
+   输出：□ 财星类型____ 透/藏____ 财为用____
 
-3. 胜财能力 → `query(rule=wealth)`
+3. 胜财能力 → `query(rule=旺衰)`（身强弱）
    输出：□ 胜财能力____（能担/不能担/中和）——财多身弱互斥锁见 wealth.md「断语核心」
 
-4. 大运/比劫 → `query(rule=wealth)`
+4. 大运/比劫 → `query(rule=大运)` + `query(rule=十神)`（比劫夺财取象）
    输出：□ 当前大运____ 夺财风险____
 
 5. 紫微佐证【强制——断「具体细节」时必做，禁止只凭八字粗断】→ yingqi「财运」表

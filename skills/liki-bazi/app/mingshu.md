@@ -12,6 +12,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 - bazi（方法+断语；命书为整本产出，结构性必读较宽）：
   - [必读] `domains/bazi/dayun.md`、`domains/bazi/wangshuai.md`、`domains/bazi/geju.md`、`domains/bazi/yongshen.md`
   - `domains/bazi/hehui.md`、`domains/bazi/shishen.md`、`domains/bazi/gongwei.md`、`domains/bazi/family.md`（按需——用户问及对应领域时读取）
+  - `domains/ziwei/xiangmao.md`（按需——用户问外貌/气质时读取）
 - [必读] ziwei: SKILL.md 排盘流程
 - [必读] ziwei: `domains/ziwei/yingqi.md` 紫微应期
 - [按需] app: 各 app 的深入分析入口（汇总用，用户后续深入某领域时读取）
@@ -44,7 +45,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 #### 快速扫描项
 
 □ 婚姻：配偶星（____） 夫妻宫（____）（冲/合/刑/害/无） → 深入: `app/marriage.md`
-□ 学业：印星状态（query(rule=study)） 学历倾向（____） → 深入: `app/study.md`
+□ 学业：印星状态（query(rule=十神)） 学历倾向（____） → 深入: `app/study.md`
 □ 健康：五行（____旺/____弱） 对应脏腑（____） → 深入: `app/health.md`
 □ 事业：官财透干（____） 十神组合（____） → 深入: `app/career.md`
 □ 财运：财星（____） 身胜财（____） → 深入: `app/wealth.md`

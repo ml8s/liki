@@ -18,13 +18,13 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 1. 排盘 → `full_paipan(gregorian, gender, longitude, correct)`
    输出：□ 本命盘已排____
 
-2. 官财透干定层次 → `query(rule=career)`
-   输出：□ 透干组合____ 事业档____
+2. 官财透干定层次 → `query(rule=十神)`（官杀/财星/食伤/印星取象） + `query(rule=格局)`（shi_* 事业档） + `query(rule=用神)`（官杀为用→掌权） + `query(rule=旺衰)`（身强弱）
+   输出：□ 透干组合____ 事业档____ 身强弱____
 
-3. 十神组合定方向 → `query(rule=zhiye)`
+3. 十神组合定方向 → `query(rule=十神)`（职业取象） + `query(rule=神煞)`（羊刃/天乙/华盖→职业类型）
    输出：□ 组合____ 职业方向____
 
-4. 大运起伏 → career.md「大运影响」+ dayun.md「应期表」
+4. 大运起伏 → `query(rule=大运)` + dayun.md「应期表」
    输出：□ 当前大运____ 窗口年____
 
 5. 紫微佐证【强制——断「具体细节」时必做，禁止只凭八字粗断】→ yingqi「事业」表
