@@ -5,11 +5,8 @@
 import json
 import os
 import sys
-import tempfile
 import unittest
 from unittest import mock
-
-import pytest
 
 sys.path.insert(0, __import__('os').path.join(
     __import__('os').path.dirname(__import__('os').path.abspath(__file__)), '..', 'skills', 'liki-bazi', 'tools'))
@@ -106,11 +103,6 @@ class TestMainProtocol(unittest.TestCase):
         out = self._run_main('not json')
         self.assertFalse(out["ok"])
 
-
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestSchemaConsistency(unittest.TestCase):
     """skill-tools.json（schema 单一来源）与 agent_cli 分派实现一致（R6）。"""
 
@@ -118,7 +110,8 @@ class TestSchemaConsistency(unittest.TestCase):
         import os
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                          "skills", "liki-bazi", "tools", "skill-tools.json")
-        doc = json.load(open(p, encoding="utf-8"))
+        with open(p, encoding="utf-8") as f:
+            doc = json.load(f)
         names = [t["function"]["name"] for t in doc["tools"]]
         self.assertEqual(len(names), 6)
         # 实际分派验证：白名单 6 名全部分派成功
@@ -142,33 +135,22 @@ class TestSchemaConsistency(unittest.TestCase):
                 else:
                     agent_cli._dispatch(n, {"rule": "marriage", "pan": {}})
 
+    def test_schema_rule_enums_match_runtime_whitelists(self):
+        from duanyu import _NATAL_RULES, _YEARLY_RULES
 
-class TestFileRefs(unittest.TestCase):
-    """{"$file": path} 引用展开——大对象（pan）走文件，免 shell 转义（feedback fedd52aa）。"""
+        p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                         "skills", "liki-bazi", "tools", "skill-tools.json")
+        with open(p, encoding="utf-8") as f:
+            tools = {
+                item["function"]["name"]: item["function"]
+                for item in json.load(f)["tools"]
+            }
 
-    def test_dollar_file_loads_json(self):
-        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
-            json.dump({"day": "己亥"}, f, ensure_ascii=False)
-            path = f.name
-        try:
-            args = agent_cli._load_file_refs({"pan": {"$file": path}, "year": 2026})
-            self.assertEqual(args["pan"]["day"], "己亥")
-            self.assertEqual(args["year"], 2026)
-        finally:
-            os.unlink(path)
+        assert set(tools["query"]["parameters"]["properties"]["rule"]["enum"]) == _NATAL_RULES
+        assert set(tools["yearly_range"]["parameters"]["properties"]["rules"]["items"]["enum"]) == _YEARLY_RULES
+        assert set(tools["calibrate"]["parameters"]["properties"]["events"]["items"]
+                   ["properties"]["rule"]["enum"]) == _YEARLY_RULES
 
-    def test_plain_args_untouched(self):
-        args = agent_cli._load_file_refs({"rule": "marriage", "snapshots": {"八字": {}}})
-        self.assertEqual(args["rule"], "marriage")
 
-    def test_dispatch_with_file_ref(self):
-        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
-            json.dump({"day": "甲子"}, f)
-            path = f.name
-        try:
-            with mock.patch("agent_cli.query", return_value={"八字": []}) as q:
-                out = agent_cli._dispatch("query", {"rule": "career", "pan": {"$file": path}})
-            self.assertEqual(out, {"八字": []})
-            q.assert_called_once_with("career", {"day": "甲子"})
-        finally:
-            os.unlink(path)
+if __name__ == "__main__":
+    unittest.main()

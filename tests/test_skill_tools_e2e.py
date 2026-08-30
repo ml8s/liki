@@ -43,7 +43,7 @@ class TestAgentCliErrorPropagation(unittest.TestCase):
         self.assertIn("unknown tool", out["error"])
 
     def test_missing_arg(self):
-        out = self._run('{"fn":"query","args":{"rule":"career"}}')
+        out = self._run('{"fn":"query","args":{"rule":"十神"}}')
         self.assertFalse(out["ok"])
         self.assertIn("missing arg", out["error"])
 
@@ -53,7 +53,7 @@ class TestQueryWithMockPan(unittest.TestCase):
 
     def test_query_returns_bazi_ziwei(self):
         sys.path.insert(0, _TOOLS)
-        from duanyu import make_factors, query
+        from duanyu import query
 
         # 构造最小合法 pan
         mock_pan = {
@@ -71,19 +71,15 @@ class TestQueryWithMockPan(unittest.TestCase):
             "gender": "male",
             "fac": {},
         }
-        try:
-            r = query("career", mock_pan)
-            self.assertIn("八字", r)
-            self.assertIn("紫微", r)
-        except Exception:
-            # mock pan 可能缺少完整数据导致因子计算报错——验证接口签名即可
-            pass
+        r = query("十神", mock_pan)
+        self.assertIn("八字", r)
+        self.assertIn("紫微", r)
 
     def test_query_empty_pan_raises(self):
         sys.path.insert(0, _TOOLS)
         from duanyu import query
         with self.assertRaises(ValueError):
-            query("career", {})
+            query("十神", {})
 
 
 if __name__ == "__main__":

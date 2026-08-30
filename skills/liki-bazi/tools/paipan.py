@@ -1,18 +1,19 @@
 """排盘工具（数据准备——非命理逻辑，零命理判定）。
 
 liki 命理 skill 的排盘层：
-- full_paipan：本命盘（八字 + 紫微一次排全）+ 内嵌 build_factors 归并（返回盘含 fac）
+- full_paipan：本命盘（八字 + 紫微一次排全）+ 内嵌 extract 提取（返回盘含 fac）
 - liunian：流年盘（八字 + 紫微单年合并——应期按候选年逐调）
 - city_coords：城市名→经纬度（交互式查询）
 - bond：合盘（八字合盘 + 紫微合盘）
 
-命理逻辑不在本层（见 duanyu.py 的因子生成 + 断语查询）。
+命理逻辑不在本层（见 extract.py / factors.py / duanyu.py）。
 本层只做「读引擎字段 + 编排 RPC + 归并」，零命理判断。
 """
 from __future__ import annotations
 import json
 import os
 import urllib.request
+from urllib.error import URLError
 from typing import Optional
 
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
@@ -35,7 +36,7 @@ def call(method: str, params: dict, retries: int = 1) -> dict:
             if "error" in data:
                 raise RPCError(f"{method}: {data['error']}")
             return data["result"]
-        except Exception as e:  # noqa: BLE001
+        except (URLError, ConnectionError, TimeoutError, OSError) as e:
             last_err = e
     raise RPCError(f"{method} 失败: {last_err}")
 
@@ -56,11 +57,6 @@ def _bazi_fullchart(chart: dict) -> dict:
     return call("bazi.fullchart", {"chart": chart})["data"]
 
 
-def _bazi_yongshen(full: dict) -> dict:
-    # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
-    return full.get("yong_shen", {})
-
-
 def _ziwei_chart(lunar: dict, gender: str) -> dict:
     return call("ziwei.chart", {"lunar": lunar, "gender": gender})["data"]
 
@@ -76,15 +72,15 @@ def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
 # ── agent 工具（排盘 2 个）──
 
 def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, correct: bool = True) -> dict:
-    """本命盘（八字 + 紫微一次排全）+ 内嵌 fac（build_factors 归并结果）。
+    """本命盘（八字 + 紫微一次排全）+ 内嵌 fac（extract 提取结果）。
 
     correct=True：真太阳时校正（路 A，用户给具体时刻）；
     correct=False：直接排盘不校正（路 B，用户已定时辰——再校正会二次偏移，日柱/时柱全错）。
 
     返回盘结构：{solar, lunar, chart, full, yongshen, ziwei, gender, fac}
-    fac = build_factors(盘)——排盘数据归并（十神/五行/用神/紫微宫位），供因子生成直接读。
+    fac = extract(pan)——因子求值上下文（十神/五行/用神/日干/大运年段），供 factors.py 直接读。
     """
-    from aggregate import build_factors
+    from extract import extract
 
     if correct and longitude is None:
         raise ValueError(
@@ -104,7 +100,8 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         t = _solar_time(gregorian, 120.0)
         lunar = t["lunar"]
     full = _bazi_fullchart(chart)
-    ys = _bazi_yongshen(full)
+    # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
+    ys = full.get("yong_shen", {})
     zw = _ziwei_chart(lunar, gender)
     pan = {
         "solar": solar,
@@ -115,7 +112,7 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         "ziwei": zw,         # 十二宫/四化/格局
         "gender": gender,
     }
-    pan["fac"] = build_factors(pan)   # 内嵌归并——排盘产出即含 fac
+    pan["fac"] = extract(pan)   # 内嵌归并——排盘产出即含 fac
     return pan
 
 

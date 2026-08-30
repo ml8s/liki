@@ -1,0 +1,905 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "parent_palace_year_branch",
+      "rule": "父宫在年支",
+      "kind": "positive",
+      "category": "palace",
+      "mode": "operator",
+      "input": {
+        "op": "流年值",
+        "args": [
+          "父星"
+        ],
+        "fac": {
+          "ri_gan": "甲",
+          "palace_ri": {
+            "zhi": "酉"
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "壬",
+              "zhi": "戌"
+            },
+            "yue": {
+              "gan": "庚",
+              "zhi": "申"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          }
+        },
+        "ctx": {
+          "liunian": {
+            "nian_gan": "壬",
+            "nian_zhi": "戌"
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "父宫在年支，流年戌值年支戌。"
+    },
+    {
+      "id": "parent_palace_not_month_branch",
+      "rule": "父宫不在月支",
+      "kind": "negative",
+      "category": "palace",
+      "mode": "operator",
+      "input": {
+        "op": "流年值",
+        "args": [
+          "父星"
+        ],
+        "fac": {
+          "ri_gan": "甲",
+          "palace_ri": {
+            "zhi": "酉"
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "壬",
+              "zhi": "戌"
+            },
+            "yue": {
+              "gan": "庚",
+              "zhi": "申"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          }
+        },
+        "ctx": {
+          "liunian": {
+            "nian_gan": "壬",
+            "nian_zhi": "申"
+          }
+        }
+      },
+      "expect": 0,
+      "basis": "流年申值月支申，但父宫在年支戌，不得误判。"
+    },
+    {
+      "id": "mother_palace_year_branch",
+      "rule": "母宫在年支",
+      "kind": "positive",
+      "category": "palace",
+      "mode": "operator",
+      "input": {
+        "op": "流年值",
+        "args": [
+          "母星"
+        ],
+        "fac": {
+          "ri_gan": "甲",
+          "palace_ri": {
+            "zhi": "子"
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "壬",
+              "zhi": "戌"
+            },
+            "yue": {
+              "gan": "庚",
+              "zhi": "申"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          }
+        },
+        "ctx": {
+          "liunian": {
+            "nian_gan": "壬",
+            "nian_zhi": "戌"
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "母宫同用年柱，流年戌值年支戌。"
+    },
+    {
+      "id": "mother_star_direct_seal",
+      "rule": "母星取正印，不取印星大类",
+      "kind": "boundary",
+      "category": "six_relative",
+      "mode": "operator",
+      "input": {
+        "op": "流年透",
+        "args": [
+          "母星"
+        ],
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {},
+        "ctx": {
+          "liunian": {
+            "shi_shen": "正印"
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "正印为母；偏印不得直接混入母星。"
+    },
+    {
+      "id": "mother_star_secondary_seal_not_direct_mother",
+      "rule": "偏印不是常规母星",
+      "kind": "negative",
+      "category": "six_relative",
+      "mode": "operator",
+      "input": {
+        "op": "流年透",
+        "args": [
+          "母星"
+        ],
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {},
+        "ctx": {
+          "liunian": {
+            "shi_shen": "偏印"
+          }
+        }
+      },
+      "expect": 0,
+      "basis": "偏印为偏母/继母取象，不作为正母星直接命中。"
+    },
+    {
+      "id": "sanhe_full_group",
+      "rule": "三合必须三方齐备",
+      "kind": "positive",
+      "category": "liunian_relation",
+      "mode": "operator",
+      "input": {
+        "op": "流年合",
+        "args": [
+          "配偶星"
+        ],
+        "fac": {
+          "ri_gan": "甲",
+          "palace_ri": {
+            "zhi": "子"
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "甲",
+              "zhi": "辰"
+            },
+            "yue": {
+              "gan": "丙",
+              "zhi": "午"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          }
+        },
+        "ctx": {
+          "liunian": {
+            "nian_zhi": "申",
+            "natal_interactions": [
+              {
+                "zhi_rels": [
+                  {
+                    "zhi_a": "申",
+                    "zhi_b": "子",
+                    "type": "三合"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "流年申、日支子、年支辰，申子辰三方齐备。"
+    },
+    {
+      "id": "sanhe_half_group_not_full_combination",
+      "rule": "两支半合不算完整三合",
+      "kind": "negative",
+      "category": "liunian_relation",
+      "mode": "operator",
+      "input": {
+        "op": "流年合",
+        "args": [
+          "配偶星"
+        ],
+        "fac": {
+          "ri_gan": "甲",
+          "palace_ri": {
+            "zhi": "子"
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "甲",
+              "zhi": "午"
+            },
+            "yue": {
+              "gan": "丙",
+              "zhi": "午"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "丑"
+            }
+          }
+        },
+        "ctx": {
+          "liunian": {
+            "nian_zhi": "申",
+            "natal_interactions": [
+              {
+                "zhi_rels": [
+                  {
+                    "zhi_a": "申",
+                    "zhi_b": "子",
+                    "type": "三合"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expect": 0,
+      "basis": "申子有半合关系，但原局无辰，三合局不成。"
+    },
+    {
+      "id": "sanhui_full_group",
+      "rule": "三会必须三方齐备",
+      "kind": "positive",
+      "category": "liunian_relation",
+      "mode": "operator",
+      "input": {
+        "op": "流年合",
+        "args": [
+          "配偶星"
+        ],
+        "fac": {
+          "ri_gan": "甲",
+          "palace_ri": {
+            "zhi": "酉"
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "甲",
+              "zhi": "戌"
+            },
+            "yue": {
+              "gan": "丙",
+              "zhi": "午"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "酉"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          }
+        },
+        "ctx": {
+          "liunian": {
+            "nian_zhi": "申",
+            "natal_interactions": [
+              {
+                "zhi_rels": [
+                  {
+                    "zhi_a": "申",
+                    "zhi_b": "酉",
+                    "type": "三会"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "流年申、日支酉、年支戌，申酉戌三方齐备。"
+    },
+    {
+      "id": "sanhui_half_group_not_full_combination",
+      "rule": "两支不算完整三会",
+      "kind": "negative",
+      "category": "liunian_relation",
+      "mode": "operator",
+      "input": {
+        "op": "流年合",
+        "args": [
+          "配偶星"
+        ],
+        "fac": {
+          "ri_gan": "甲",
+          "palace_ri": {
+            "zhi": "酉"
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "甲",
+              "zhi": "午"
+            },
+            "yue": {
+              "gan": "丙",
+              "zhi": "午"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "酉"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          }
+        },
+        "ctx": {
+          "liunian": {
+            "nian_zhi": "申",
+            "natal_interactions": [
+              {
+                "zhi_rels": [
+                  {
+                    "zhi_a": "申",
+                    "zhi_b": "酉",
+                    "type": "三会"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expect": 0,
+      "basis": "流年申、日支酉有会方关系，但缺戌，申酉戌不成三会。"
+    },
+    {
+      "id": "wealth_in_tomb_same_pillar",
+      "rule": "财星入墓须财星与墓库同柱",
+      "kind": "positive",
+      "category": "wealth",
+      "mode": "operator",
+      "input": {
+        "op": "财星入墓",
+        "args": [],
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {
+          "full": {
+            "yue": {
+              "gan": "甲",
+              "zhi": "辰",
+              "shi_shens": [
+                {
+                  "shi_shen": "偏财",
+                  "gan": "戊",
+                  "source": "main_qi"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "甲以土为财，土墓在辰；月支辰中戊土为偏财。"
+    },
+    {
+      "id": "wealth_tomb_elsewhere_is_not_wealth_in_tomb",
+      "rule": "墓库支另见不等于财星入墓",
+      "kind": "negative",
+      "category": "wealth",
+      "mode": "operator",
+      "input": {
+        "op": "财星入墓",
+        "args": [],
+        "fac": {
+          "ri_gan": "甲",
+          "shishen": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土"
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "full": {
+            "nian": {
+              "gan": "甲",
+              "zhi": "辰",
+              "shi_shens": [
+                {
+                  "shi_shen": "比肩",
+                  "gan": "甲",
+                  "source": "gan"
+                }
+              ]
+            },
+            "yue": {
+              "gan": "己",
+              "zhi": "午",
+              "shi_shens": [
+                {
+                  "shi_shen": "正财",
+                  "gan": "己",
+                  "source": "gan"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expect": 0,
+      "basis": "年支辰虽为财墓，但年柱无比劫外无财星；财星在月支午，不与墓库同柱。"
+    },
+    {
+      "id": "guansha_purification_requires_mixed_guansha",
+      "rule": "官杀取清必须先见官杀混杂",
+      "kind": "positive",
+      "category": "guansha",
+      "mode": "operator",
+      "input": {
+        "op": "官杀取清",
+        "args": [],
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "庚",
+              "zhi": "申"
+            },
+            "yue": {
+              "gan": "辛",
+              "zhi": "酉"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          },
+          "full": {
+            "zhi_liu_he": [
+              {
+                "pillar_a": 0,
+                "pillar_b": 2,
+                "zhi_a": "申",
+                "zhi_b": "巳"
+              }
+            ],
+            "nian": {
+              "shi_shens": [
+                {
+                  "shi_shen": "七杀",
+                  "gan": "庚",
+                  "source": "gan"
+                }
+              ]
+            },
+            "yue": {
+              "shi_shens": [
+                {
+                  "shi_shen": "正官",
+                  "gan": "辛",
+                  "source": "gan"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "庚七杀、辛正官并见，合动七杀方，留官取清。"
+    },
+    {
+      "id": "guansha_purification_not_officer_removal",
+      "rule": "官杀混杂时不得合正官作合杀留官",
+      "kind": "negative",
+      "category": "guansha",
+      "mode": "operator",
+      "input": {
+        "op": "官杀取清",
+        "args": [],
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "庚",
+              "zhi": "申"
+            },
+            "yue": {
+              "gan": "辛",
+              "zhi": "酉"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          },
+          "full": {
+            "shi_shens": {
+              "nian": [
+                {
+                  "shi_shen": "七杀",
+                  "gan": "庚",
+                  "source": "gan"
+                }
+              ],
+              "yue": [
+                {
+                  "shi_shen": "正官",
+                  "gan": "辛",
+                  "source": "gan"
+                }
+              ]
+            },
+            "zhi_liu_he": [
+              {
+                "pillar_a": 1,
+                "pillar_b": 2,
+                "zhi_a": "酉",
+                "zhi_b": "辰"
+              }
+            ],
+            "nian": {
+              "shi_shens": [
+                {
+                  "shi_shen": "七杀",
+                  "gan": "庚",
+                  "source": "gan"
+                }
+              ]
+            },
+            "yue": {
+              "shi_shens": [
+                {
+                  "shi_shen": "正官",
+                  "gan": "辛",
+                  "source": "gan"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expect": 0,
+      "basis": "官杀混杂后，合动正官不是合杀留官；应合动七杀方。"
+    },
+    {
+      "id": "guansha_purification_not_single_officer",
+      "rule": "仅一位官杀不构成取清",
+      "kind": "negative",
+      "category": "guansha",
+      "mode": "operator",
+      "input": {
+        "op": "官杀取清",
+        "args": [],
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {
+          "chart": {
+            "nian": {
+              "gan": "庚",
+              "zhi": "申"
+            },
+            "yue": {
+              "gan": "甲",
+              "zhi": "午"
+            },
+            "ri": {
+              "gan": "甲",
+              "zhi": "子"
+            },
+            "shi": {
+              "gan": "甲",
+              "zhi": "子"
+            }
+          },
+          "full": {
+            "zhi_liu_he": [
+              {
+                "pillar_a": 0,
+                "pillar_b": 2,
+                "zhi_a": "申",
+                "zhi_b": "巳"
+              }
+            ],
+            "nian": {
+              "shi_shens": [
+                {
+                  "shi_shen": "七杀",
+                  "gan": "庚",
+                  "source": "gan"
+                }
+              ]
+            },
+            "yue": {
+              "shi_shens": [
+                {
+                  "shi_shen": "正官",
+                  "gan": "辛",
+                  "source": "gan"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expect": 0,
+      "basis": "只有七杀，无正官混杂；合动不叫取清。"
+    },
+    {
+      "id": "flow克_absent_target_uses_day_master_relation",
+      "rule": "本命目标星不现时，流年克按日主关系推导",
+      "kind": "positive",
+      "category": "liunian_relation",
+      "mode": "operator",
+      "input": {
+        "op": "流年克",
+        "args": [
+          "财星"
+        ],
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {},
+        "ctx": {
+          "liunian": {
+            "nian_gan": "甲",
+            "nian_zhi": "寅"
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "甲木以土为财，流年甲寅木克土。"
+    },
+    {
+      "id": "saved_pan_dayun_uses_query_year",
+      "rule": "当前大运按查询年重推导，不用保存 pan 的旧索引",
+      "kind": "boundary",
+      "category": "current_dayun",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "fac": {
+          "ri_gan": "甲",
+          "dayun_steps": [
+            {
+              "name": "戊辰",
+              "shi_shen": "正财运",
+              "start_year": 2000,
+              "end_year": 2010
+            },
+            {
+              "name": "己巳",
+              "shi_shen": "偏印运",
+              "start_year": 2011,
+              "end_year": 2020
+            }
+          ]
+        },
+        "gender": "male",
+        "chart": {
+          "da_yun": {
+            "current_step_index": 0,
+            "steps": [
+              {
+                "shi_shen": "正财运"
+              }
+            ]
+          }
+        },
+        "current_year": 2015
+      },
+      "expect_factors": {
+        "大运十神类": "印星",
+        "大运配偶星": 0
+      },
+      "basis": "旧 pan 索引停在正财运，但查询年 2015 已入偏印运。"
+    },
+    {
+      "id": "spouse_star_hidden_natal",
+      "rule": "配偶星藏支",
+      "kind": "positive",
+      "category": "marriage",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "fac": {
+          "ri_gan": "甲",
+          "shishen": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "cang_zhi": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "配偶星藏": 1,
+        "配偶星透": 0
+      },
+      "basis": "男命正财藏支，配偶星藏而不透。"
+    },
+    {
+      "id": "wealth_useful_for_day_master",
+      "rule": "财星为用按日主财星五行判定",
+      "kind": "positive",
+      "category": "wealth",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "fac": {
+          "ri_gan": "甲",
+          "shishen": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土"
+            }
+          },
+          "yongshen": {
+            "fu_yi": {
+              "yong": "土",
+              "xi": "火",
+              "ji": "木"
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财星为用": 1,
+        "财星为忌": 0
+      },
+      "basis": "甲木以土为财；土为用神，财星为用。"
+    },
+    {
+      "id": "seal_star_transparent_natal",
+      "rule": "印星透干为显",
+      "kind": "positive",
+      "category": "study",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "fac": {
+          "ri_gan": "甲",
+          "shishen": {
+            "正印": {
+              "count": 1,
+              "wuxing": "水",
+              "tou_gan": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "印星透": 1,
+        "印星现": 1
+      },
+      "basis": "正印透干，印星显而现。"
+    },
+    {
+      "id": "gender_is_context_not_factor",
+      "rule": "性别是匹配上下文，不是因子",
+      "kind": "boundary",
+      "category": "factor_contract",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "fac": {
+          "ri_gan": "甲"
+        },
+        "gender": "female",
+        "chart": {}
+      },
+      "expect_factors": {
+        "性别": 0
+      },
+      "basis": "性别只参与配偶星/子女星等性别化解析，不得进入因子快照。"
+    }
+  ]
+}

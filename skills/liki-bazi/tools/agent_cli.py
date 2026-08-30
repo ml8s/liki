@@ -20,24 +20,8 @@ import json
 import sys
 
 from paipan import full_paipan, city_coords, bond
-from duanyu import query, yearly_range, calibrate
-
-
-def _load_file_refs(args: dict) -> dict:
-    """{"$file": path} 引用展开——大对象（pan/liunian_pan/snapshots）从 UTF-8 文件读，
-    免 shell 内联转义（feedback fedd52aa：make_factors 手拼 pan 转义易错）。"""
-    out = {}
-    for k, v in args.items():
-        if isinstance(v, dict) and "$file" in v:
-            with open(v["$file"], encoding="utf-8") as f:
-                loaded = json.load(f)
-                # 自动解包 agent_cli 输出格式 {"ok": true, "data": {...}}
-                if isinstance(loaded, dict) and "ok" in loaded and "data" in loaded:
-                    loaded = loaded["data"]
-                out[k] = loaded
-        else:
-            out[k] = v
-    return out
+from duanyu import query, yearly_range
+from calibrate import calibrate
 
 
 # 白名单：工具名 → 参数提取器（无 eval/exec/getattr 动态调用）
@@ -57,7 +41,6 @@ _DISPATCH = {
 
 def _dispatch(fn: str, args: dict):
     """白名单分派（dict 映射）。args 为参数字典（由 schema 约束，此处直接传函数）。"""
-    args = _load_file_refs(args)
     handler = _DISPATCH.get(fn)
     if handler is None:
         raise ValueError(f"unknown tool: {fn}")

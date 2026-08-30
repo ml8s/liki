@@ -26,8 +26,9 @@ for _p in (_TOOLS, _LOCAL):
         sys.path.insert(0, _p)
 
 from birth import parse_birth
-from paipan import full_paipan
-from duanyu import make_factors, query, query_yearly, _NATAL_RULES, _YEARLY_RULES
+from paipan import full_paipan, liunian
+from factors import make_factors, make_liunian_factors
+from duanyu import _current_year, _match_rule, query_yearly, _NATAL_RULES, _YEARLY_RULES
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
@@ -39,19 +40,13 @@ def query_all(pan: dict) -> dict:
     domains = {}
     # 本命域
     for rule in sorted(_NATAL_RULES):
-        domains[rule] = query(rule, pan)
+        domains[rule] = _match_rule(rule, snap)
     # 流年域——用当前年采样（完整流年覆盖需多年扫描，此处仅验证规则表不崩/有产出）
-    from datetime import datetime
-    cur_year = datetime.now().year
-    from paipan import liunian
-    from duanyu import make_liunian_factors
+    cur_year, _ = _current_year()
     lnp = liunian(pan, cur_year)
-    for rule in sorted(_YEARLY_RULES - {"yingqi"}):
-        target = "配偶星"
-        snap_y = make_liunian_factors(pan, lnp, target=target, year=cur_year)
+    snap_y = make_liunian_factors(pan, lnp, year=cur_year)
+    for rule in sorted(_YEARLY_RULES):
         domains[rule] = query_yearly(rule, snap_y)
-    # yingqi 同时有本命表和流年表——流年版
-    domains["yingqi"] = query_yearly("yingqi", make_liunian_factors(pan, lnp, year=cur_year))
     return {"domains": domains}
 
 

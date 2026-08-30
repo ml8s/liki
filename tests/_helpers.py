@@ -10,6 +10,6 @@ if TOOLS not in sys.path:
 
 def mock_factors(**shishen):
     """构造最小因子快照（fac）。"""
-    fac = {"shishen": shishen, "ri_gan": "甲", "qiangruo": "中和",
+    fac = {"shishen": shishen, "ri_gan": "甲",
            "wuxing": {"wang_shuai": {}}}
     return fac

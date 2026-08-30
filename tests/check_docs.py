@@ -120,7 +120,7 @@ def main() -> int:
             if os.path.basename(f) in ("factors.csv", "factors_liunian.csv"):
                 continue
             _actual += sum(1 for r in csv.DictReader(open(f, encoding="utf-8")) if r.get("id"))
-        _m = re.search(r'共 \*\*(\d+) 条断语\*\*', open(_readme, encoding="utf-8").read())
+        _m = re.search(r"(\d+)\s*条断语", open(_readme, encoding="utf-8").read())
         if _m and int(_m.group(1)) != _actual:
             errors.append(f"[README] 断语统计 {_m.group(1)} ≠ 实际 {_actual}——补/删断语后未更新（make build-archive 不覆盖，需手动）")
 

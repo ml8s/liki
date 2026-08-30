@@ -349,7 +349,7 @@
             },
             "fac": {
               "type": "object",
-              "description": "内嵌因子原始数据（十神/五行/用神/大运 steps——make_factors 用）"
+              "description": "内嵌因子求值上下文（extract.py 产出，factors.py 消费）"
             }
           }
         }
@@ -365,11 +365,37 @@
           "properties": {
             "rule": {
               "type": "string",
-              "description": "本命域：career/wealth/health/study/marriage/personality/family/geju/dayun/yingqi"
+              "enum": [
+                "命宫",
+                "官禄",
+                "财帛",
+                "疾厄",
+                "夫妻",
+                "子女",
+                "迁移",
+                "田宅",
+                "父母",
+                "兄弟",
+                "仆役",
+                "福德",
+                "格局",
+                "十神",
+                "旺衰",
+                "用神",
+                "大运",
+                "合会",
+                "神煞",
+                "调候",
+                "五行",
+                "六亲",
+                "出身",
+                "外貌"
+              ],
+              "description": "命理域（紫微宫位 + 八字层次）"
             },
             "pan": {
               "type": "object",
-              "description": "full_paipan 返回的本命盘（可直接传或通过 $file 引用）"
+              "description": "full_paipan 返回的本命盘"
             }
           },
           "required": [
@@ -389,7 +415,7 @@
           "properties": {
             "pan": {
               "type": "object",
-              "description": "full_paipan 返回的本命盘（可直接传或通过 $file 引用）"
+              "description": "full_paipan 返回的本命盘"
             },
             "start": {
               "type": "integer",
@@ -402,7 +428,17 @@
             "rules": {
               "type": "array",
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "yearly_marriage",
+                  "yearly_family",
+                  "yearly_wealth",
+                  "yearly_career",
+                  "yearly_health",
+                  "yearly_study",
+                  "yearly_zinv",
+                  "yingqi"
+                ]
               },
               "description": "流年域列表，默认 [yearly_career, yingqi]"
             },
@@ -429,6 +465,8 @@
           "properties": {
             "candidates": {
               "type": "array",
+              "minItems": 2,
+              "maxItems": 3,
               "items": {
                 "type": "object",
                 "properties": {
@@ -469,6 +507,8 @@
             },
             "events": {
               "type": "array",
+              "minItems": 3,
+              "maxItems": 5,
               "items": {
                 "type": "object",
                 "properties": {
@@ -478,7 +518,17 @@
                   },
                   "rule": {
                     "type": "string",
-                    "description": "流年域（必须以 yearly_ 开头，如 yearly_marriage/yearly_career）"
+                    "enum": [
+                      "yearly_marriage",
+                      "yearly_family",
+                      "yearly_wealth",
+                      "yearly_career",
+                      "yearly_health",
+                      "yearly_study",
+                      "yearly_zinv",
+                      "yingqi"
+                    ],
+                    "description": "流年域（yearly_* 或 yingqi）"
                   },
                   "label": {
                     "type": "string",
@@ -516,11 +566,11 @@
           "properties": {
             "pan_a": {
               "type": "object",
-              "description": "甲方本命盘（full_paipan 返回，可直接传或通过 $file 引用）"
+              "description": "甲方本命盘（full_paipan 返回）"
             },
             "pan_b": {
               "type": "object",
-              "description": "乙方本命盘（full_paipan 返回，可直接传或通过 $file 引用）"
+              "description": "乙方本命盘（full_paipan 返回）"
             }
           },
           "required": [
