@@ -44,7 +44,7 @@ class TestIntegration_FullChain(unittest.TestCase):
         if not pan.get("ok"):
             self.fail(f"full_paipan 失败: {pan.get('error')}")
 
-        q = call("query", {"rule": "career", "pan": pan["data"]})
+        q = call("query", {"rule": "十神", "pan": pan["data"]})
         self.assertTrue(q["ok"], q.get("error"))
         self.assertIn("八字", q["data"])
 

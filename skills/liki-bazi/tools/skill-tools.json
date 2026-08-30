@@ -453,7 +453,11 @@
                   "yearly_health",
                   "yearly_study",
                   "yearly_zinv",
-                  "yingqi"
+                  "yingqi",
+                  "年田宅",
+                  "年迁移",
+                  "年兄弟",
+                  "年仆役"
                 ]
               },
               "description": "流年域（命理域 年十神/年官禄… 或场景别名 yearly_marriage/yingqi），默认 [yearly_career]"
@@ -558,7 +562,11 @@
                       "yearly_health",
                       "yearly_study",
                       "yearly_zinv",
-                      "yingqi"
+                      "yingqi",
+                      "年田宅",
+                      "年迁移",
+                      "年兄弟",
+                      "年仆役"
                     ],
                     "description": "流年命理域或场景别名（yearly_* 或 yingqi）"
                   },

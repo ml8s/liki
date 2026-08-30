@@ -59,7 +59,8 @@ _BZ_LAYER_RULES = ("十神", "旺衰", "用神", "大运", "合会", "神煞", "
                    "五行", "六亲", "出身", "外貌")
 # 流年命理域（八字层次 + 紫微宫位，前缀"年"）
 _YEAR_PALACE_RULES = ("年命宫", "年官禄", "年财帛", "年疾厄", "年福德",
-                      "年夫妻", "年父母", "年子女")
+                      "年夫妻", "年父母", "年子女", "年田宅", "年迁移",
+                      "年兄弟", "年仆役")
 _YEAR_BZ_RULES = ("年十神", "年六亲", "年神煞", "年用神", "年旺衰",
                   "年合会", "年大运", "年五行")
 
@@ -73,13 +74,15 @@ _YEARLY_RULES = frozenset(_YEAR_PALACE_RULES + _YEAR_BZ_RULES)
 # 场景别名 → 流年命理域（yearly_range rules 参数兼容旧生活场景名，自动展开为多命理域）
 _SCENE_ALIASES = {
     "yearly_marriage": ("年六亲", "年神煞", "年合会", "年用神"),
-    "yearly_career":    ("年十神", "年合会", "年用神", "年大运", "年神煞"),
+    "yearly_career":    ("年十神", "年合会", "年用神", "年大运", "年神煞", "年旺衰"),
     "yearly_wealth":    ("年十神", "年用神", "年合会", "年神煞"),
     "yearly_health":    ("年神煞", "年旺衰", "年合会", "年五行", "年用神", "年十神"),
     "yearly_family":    ("年六亲", "年合会", "年十神"),
     "yearly_study":     ("年六亲", "年十神", "年神煞", "年用神"),
     "yearly_zinv":      ("年六亲", "年合会", "年十神"),
-    "yingqi":           ("年合会", "年用神", "年神煞", "年十神", "年五行"),
+    "yingqi":           ("年合会", "年用神", "年神煞", "年十神", "年五行",
+                         "年命宫", "年官禄", "年财帛", "年疾厄", "年福德", "年夫妻", "年子女",
+                         "年田宅", "年迁移", "年兄弟", "年仆役"),
 }
 # 显式单侧域：八字层次/流年八字域（紫微侧无对应 csv 是设计事实）；紫微宫位/流年宫位域（八字侧无）
 _BAZI_ONLY_RULES = frozenset(_BZ_LAYER_RULES + _YEAR_BZ_RULES)
@@ -91,7 +94,7 @@ _CURRENT_DAYUN_RULES = frozenset({"大运"})
 def query(rule: str, pan: dict) -> dict:
     """断语查询：域 + 本命盘 → 该域断语 {八字: [...], 紫微: [...]}。
 
-    rule ∈ _NATAL_RULES（如 "marriage"/"study"；流年域走 yearly_range）。
+    rule ∈ _NATAL_RULES（如 "十神"/"旺衰"/"命宫"/"官禄"；流年域走 yearly_range）。
     pan = full_paipan 返回的本命盘（含 fac 字段）——内部自动生成因子快照。
     流年查询走 yearly_range，本函数不处理流年快照。
     数据层真分开（各查各表）、调用层一次查双盘——内部 load_table + match 内嵌。
