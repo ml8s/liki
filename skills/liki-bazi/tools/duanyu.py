@@ -57,20 +57,33 @@ _ZW_PALACE_RULES = ("命宫", "官禄", "财帛", "疾厄", "夫妻", "子女", 
 _ZW_COMMON_RULE = ("格局",)   # 八字也有格局域（双体系共用 rule 名，双侧都有表）
 _BZ_LAYER_RULES = ("十神", "旺衰", "用神", "大运", "合会", "神煞", "调候",
                    "五行", "六亲", "出身", "外貌")
+# 流年命理域（八字层次 + 紫微宫位，前缀"年"）
+_YEAR_PALACE_RULES = ("年命宫", "年官禄", "年财帛", "年疾厄", "年福德",
+                      "年夫妻", "年父母", "年子女")
+_YEAR_BZ_RULES = ("年十神", "年六亲", "年神煞", "年用神", "年旺衰",
+                  "年合会", "年大运", "年五行")
 
-ALL_DUANYU_RULES = _ZW_PALACE_RULES + _ZW_COMMON_RULE + _BZ_LAYER_RULES + (
-    # 流年断语域（yearly_* + yingqi——流年快照专用）
-    "yearly_marriage", "yearly_family", "yearly_wealth",
-    "yearly_career", "yearly_health", "yearly_study", "yearly_zinv", "yingqi")
+ALL_DUANYU_RULES = _ZW_PALACE_RULES + _ZW_COMMON_RULE + _BZ_LAYER_RULES + \
+    _YEAR_PALACE_RULES + _YEAR_BZ_RULES
 
-# 有效域白名单（本命/流年分开；yingqi 只归流年查询）
-_NATAL_RULES = frozenset(r for r in ALL_DUANYU_RULES
-                         if not r.startswith("yearly_") and r != "yingqi")
-_YEARLY_RULES = frozenset(r for r in ALL_DUANYU_RULES
-                         if r.startswith("yearly_") or r == "yingqi")
-# 显式单侧域：八字层次域（紫微侧无对应 csv 是设计事实）；紫微宫位域（八字侧无）
-_BAZI_ONLY_RULES = frozenset(_BZ_LAYER_RULES)   # 八字层次（紫微无）；「格局」双侧都有
-_ZIWEI_ONLY_RULES = frozenset(_ZW_PALACE_RULES)  # 紫微宫位（八字无）
+# 本命命理域
+_NATAL_RULES = frozenset(_ZW_PALACE_RULES + _ZW_COMMON_RULE + _BZ_LAYER_RULES)
+# 流年命理域
+_YEARLY_RULES = frozenset(_YEAR_PALACE_RULES + _YEAR_BZ_RULES)
+# 场景别名 → 流年命理域（yearly_range rules 参数兼容旧生活场景名，自动展开为多命理域）
+_SCENE_ALIASES = {
+    "yearly_marriage": ("年六亲", "年神煞", "年合会", "年用神"),
+    "yearly_career":    ("年十神", "年合会", "年用神", "年大运", "年神煞"),
+    "yearly_wealth":    ("年十神", "年用神", "年合会", "年神煞"),
+    "yearly_health":    ("年神煞", "年旺衰", "年合会", "年五行", "年用神", "年十神"),
+    "yearly_family":    ("年六亲", "年合会", "年十神"),
+    "yearly_study":     ("年六亲", "年十神", "年神煞", "年用神"),
+    "yearly_zinv":      ("年六亲", "年合会", "年十神"),
+    "yingqi":           ("年合会", "年用神", "年神煞", "年十神", "年五行"),
+}
+# 显式单侧域：八字层次/流年八字域（紫微侧无对应 csv 是设计事实）；紫微宫位/流年宫位域（八字侧无）
+_BAZI_ONLY_RULES = frozenset(_BZ_LAYER_RULES + _YEAR_BZ_RULES)
+_ZIWEI_ONLY_RULES = frozenset(_ZW_PALACE_RULES + _YEAR_PALACE_RULES)
 # 需 current_year（当前大运判断）的本命域——仅断语表约束直接用大运因子的规则
 _CURRENT_DAYUN_RULES = frozenset({"大运"})
 
@@ -121,10 +134,8 @@ def _current_year():
 def query_yearly(rule: str, snapshots: dict) -> dict:
     if snapshots.get("_snapshot_type") != "liunian":
         raise ValueError("query_yearly 仅接受流年快照（含 _snapshot_type='liunian'）")
-    if not rule.startswith("yearly_") and rule != "yingqi":
-        raise ValueError(f"query_yearly 仅支持流年域，收到: '{rule}'")
     if rule not in _YEARLY_RULES:
-        raise ValueError(f"未知流年域 '{rule}'。有效域: {sorted(_YEARLY_RULES)}")
+        raise ValueError(f"未知流年命理域 '{rule}'。有效域: {sorted(_YEARLY_RULES)}（场景别名请走 yearly_range 展开）")
     return _match_rule(rule, snapshots)
 
 
@@ -156,18 +167,36 @@ def _match_rule(rule: str, snapshots: dict) -> dict:
 def yearly_range(pan: dict, start: int, end: int,
                  rules: list = None, detail: bool = False) -> dict:
     if rules is None:
-        rules = ["yearly_career", "yingqi"]
+        rules = ["yearly_career"]   # 场景别名 → 命理域（默认查流年事业）
+    # 先在原始 rules 上校验：非空 + 无重复 + 有效（命理域或场景别名）
     if not rules:
         raise ValueError("yearly_range rules 不能为空")
     if len(rules) != len(set(rules)):
         raise ValueError("yearly_range rules 不能有重复域")
+    valid = set(_YEARLY_RULES) | set(_SCENE_ALIASES)
+    for rule in rules:
+        if rule not in valid:
+            raise ValueError(
+                f"yearly_range rules 含无效域 '{rule}'。"
+                f"有效域: {sorted(_YEARLY_RULES)}，场景别名: {sorted(_SCENE_ALIASES)}")
+    # 场景别名展开为命理域（yearly_marriage→年六亲/年神煞/…），去重保序
+    resolved = []
+    seen = set()
+    for r in rules:
+        expanded = _SCENE_ALIASES.get(r, (r,))
+        for er in expanded:
+            if er not in seen:
+                seen.add(er); resolved.append(er)
+    rules = resolved
+    if not rules:
+        raise ValueError("yearly_range rules 不能为空")
     if start > end:
         raise ValueError(f"yearly_range start 不能大于 end：{start} > {end}")
     for rule in rules:
         if rule not in _YEARLY_RULES:
             raise ValueError(
                 f"yearly_range rules 含无效域 '{rule}'。"
-                f"有效域: {sorted(_YEARLY_RULES)}")
+                f"有效域: {sorted(_YEARLY_RULES)}，场景别名: {sorted(_SCENE_ALIASES)}")
     from paipan import liunian, RPCError
     cur_year, cur_source = _current_year()
     years = {}

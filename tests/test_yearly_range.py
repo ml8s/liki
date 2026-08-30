@@ -32,10 +32,10 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
             {"fac": {}, "gender": "male"},
             2026,
             2026,
-            rules=["yearly_career", "yingqi"],
+            rules=["年十神", "年合会"],
         )
 
-    assert result["years"]["2026"]["yearly_career"] == {"八字": [], "紫微": []}
+    assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": []}
     liunian_mock.assert_called_once()
     make_snapshot.assert_called_once()
 

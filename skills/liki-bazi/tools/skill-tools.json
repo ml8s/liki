@@ -430,6 +430,22 @@
               "items": {
                 "type": "string",
                 "enum": [
+                  "年十神",
+                  "年六亲",
+                  "年神煞",
+                  "年用神",
+                  "年旺衰",
+                  "年合会",
+                  "年大运",
+                  "年五行",
+                  "年命宫",
+                  "年官禄",
+                  "年财帛",
+                  "年疾厄",
+                  "年福德",
+                  "年夫妻",
+                  "年父母",
+                  "年子女",
                   "yearly_marriage",
                   "yearly_family",
                   "yearly_wealth",
@@ -440,7 +456,7 @@
                   "yingqi"
                 ]
               },
-              "description": "流年域列表，默认 [yearly_career, yingqi]"
+              "description": "流年域（命理域 年十神/年官禄… 或场景别名 yearly_marriage/yingqi），默认 [yearly_career]"
             },
             "detail": {
               "type": "boolean",
@@ -519,6 +535,22 @@
                   "rule": {
                     "type": "string",
                     "enum": [
+                      "年十神",
+                      "年六亲",
+                      "年神煞",
+                      "年用神",
+                      "年旺衰",
+                      "年合会",
+                      "年大运",
+                      "年五行",
+                      "年命宫",
+                      "年官禄",
+                      "年财帛",
+                      "年疾厄",
+                      "年福德",
+                      "年夫妻",
+                      "年父母",
+                      "年子女",
                       "yearly_marriage",
                       "yearly_family",
                       "yearly_wealth",
@@ -528,7 +560,7 @@
                       "yearly_zinv",
                       "yingqi"
                     ],
-                    "description": "流年域（yearly_* 或 yingqi）"
+                    "description": "流年命理域或场景别名（yearly_* 或 yingqi）"
                   },
                   "label": {
                     "type": "string",

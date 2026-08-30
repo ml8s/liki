@@ -123,9 +123,9 @@ class TestYearlyIsolation(unittest.TestCase):
         with self.assertRaises(ValueError):
             duanyu.query("yingqi", pan)
 
-    def test_流年快照查yearly_正常命中(self):
+    def test_流年快照查命理域_正常命中(self):
         liu = {"_snapshot_type": "liunian", "八字": {"流年财坏印": 1}, "紫微": {}}
-        res = duanyu.query_yearly("yearly_family", liu)
+        res = duanyu.query_yearly("年十神", liu)   # yliu_104(财坏印)归入年十神域
         self.assertTrue(any(r.get("id") == "yliu_104" for r in res["八字"]))
 
 

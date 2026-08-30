@@ -11,14 +11,19 @@ from __future__ import annotations
 
 from paipan import full_paipan, liunian
 from factors import make_liunian_factors
-from duanyu import query_yearly, _YEARLY_RULES
+from duanyu import query_yearly, _YEARLY_RULES, _SCENE_ALIASES
+
+def _resolve_year_rule(rule: str):
+    """rule 可为流年命理域（年X）或场景别名（yearly_marriage/yingqi）。返回命理域列表。"""
+    return _SCENE_ALIASES.get(rule, (rule,))
 
 def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
+    valid = set(_YEARLY_RULES) | set(_SCENE_ALIASES)
     for e in events:
-        if e.get("rule") not in _YEARLY_RULES:
+        if e.get("rule") not in valid:
             raise ValueError(
-                f"calibrate events.rule 必须是流年域，收到: '{e.get('rule')}'。"
-                f"有效域: {sorted(_YEARLY_RULES)}")
+                f"calibrate events.rule 必须是流年命理域或场景别名，收到: '{e.get('rule')}'。"
+                f"有效: {sorted(_YEARLY_RULES)} + {sorted(_SCENE_ALIASES)}")
         if "year" not in e or "label" not in e:
             raise ValueError("calibrate events 每项必须含 year、rule、label")
     labels = [c.get("label", "") for c in candidates]
@@ -59,7 +64,11 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
                 year_cache[year] = snap
             else:
                 snap = year_cache[year]
-            r = query_yearly(e["rule"], snap)
+            r = {"八字": [], "紫微": []}
+            for er in _resolve_year_rule(e["rule"]):   # 别名→多命理域合并
+                qr = query_yearly(er, snap)
+                r["八字"] += qr.get("八字", [])
+                r["紫微"] += qr.get("紫微", [])
             if not detail:
                 r = {
                     "八字": [{k: item[k] for k in ("事件", "结论") if k in item} for item in r.get("八字", [])],

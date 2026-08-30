@@ -136,7 +136,8 @@ class TestSchemaConsistency(unittest.TestCase):
                     agent_cli._dispatch(n, {"rule": "marriage", "pan": {}})
 
     def test_schema_rule_enums_match_runtime_whitelists(self):
-        from duanyu import _NATAL_RULES, _YEARLY_RULES
+        import json
+        from duanyu import _NATAL_RULES, _YEARLY_RULES, _SCENE_ALIASES
 
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                          "skills", "liki-bazi", "tools", "skill-tools.json")
@@ -145,11 +146,12 @@ class TestSchemaConsistency(unittest.TestCase):
                 item["function"]["name"]: item["function"]
                 for item in json.load(f)["tools"]
             }
-
+        y_enum = set(tools["yearly_range"]["parameters"]["properties"]["rules"]["items"]["enum"])
         assert set(tools["query"]["parameters"]["properties"]["rule"]["enum"]) == _NATAL_RULES
-        assert set(tools["yearly_range"]["parameters"]["properties"]["rules"]["items"]["enum"]) == _YEARLY_RULES
+        # 流年 rules enum = 命理域 + 场景别名（yearly_* 别名由 yearly_range 展开）
+        assert y_enum == (_YEARLY_RULES | set(_SCENE_ALIASES))
         assert set(tools["calibrate"]["parameters"]["properties"]["events"]["items"]
-                   ["properties"]["rule"]["enum"]) == _YEARLY_RULES
+                   ["properties"]["rule"]["enum"]) == (_YEARLY_RULES | set(_SCENE_ALIASES))
 
 
 if __name__ == "__main__":

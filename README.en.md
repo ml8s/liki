@@ -36,7 +36,7 @@ After installation, your AI assistant gains 4 metaphysics skills:
 **What professional standards mean here:**
 
 - Charts are computed by an astronomical engine (true solar time, second-level solar terms) — the AI never invents numbers
-- Judgments come from 701 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
+- Judgments come from 688 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
 - Independently evaluated on 160 competition questions with answer isolation
 
 ## Installation
@@ -144,7 +144,7 @@ The skill self-checks its version on startup; when prompted, re-run: `npx skills
 ## Why It's Trustworthy
 
 - **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
-- **Sourced judgments** — 46 truth tables with 701 rules, each with a classical-citation column.
+- **Sourced judgments** — 46 truth tables with 688 rules, each with a classical-citation column.
 - **Dual-system cross-check** — BaZi leads, ZiWei verifies; conflicts resolved with explicit evidence.
 - **Auditable process** — every step fills a checklist; conclusions trace back to specific steps.
 - **Independent evaluation** — 160 competition questions (MingLi-Bench), answer isolation, public data (`tests/`).
