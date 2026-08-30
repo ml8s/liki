@@ -36,7 +36,7 @@ After installation, your AI assistant gains 4 metaphysics skills:
 **What professional standards mean here:**
 
 - Charts are computed by an astronomical engine (true solar time, second-level solar terms) — the AI never invents numbers
-- Judgments come from 597 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
+- Judgments come from 701 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
 - Independently evaluated on 160 competition questions with answer isolation
 
 ## Installation
@@ -144,7 +144,7 @@ The skill self-checks its version on startup; when prompted, re-run: `npx skills
 ## Why It's Trustworthy
 
 - **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
-- **Sourced judgments** — 46 truth tables with 597 rules, each with a classical-citation column; plus 7 annual-timing tables.
+- **Sourced judgments** — 46 truth tables with 701 rules, each with a classical-citation column.
 - **Dual-system cross-check** — BaZi leads, ZiWei verifies; conflicts resolved with explicit evidence.
 - **Auditable process** — every step fills a checklist; conclusions trace back to specific steps.
 - **Independent evaluation** — 160 competition questions (MingLi-Bench), answer isolation, public data (`tests/`).
@@ -158,16 +158,16 @@ The skill self-checks its version on startup; when prompted, re-run: `npx skills
 ```
 skills/liki-bazi
 ├── SKILL.md    ← rules (process skeleton + hard constraints)
-├── app/        ← process (9 cards: marriage/career/wealth/…)
+├── app/        ← process (10 cards: marriage/career/wealth/…)
 ├── domains/    ← knowledge (bazi 16 + ziwei 8 docs)
-└── tools/      ← tools (5 tools + 46 judgment CSVs + factor tables)
+└── tools/      ← tools (6 Python tools + 46 judgment CSVs + 2 factor tables)
 repo root
 ├── engine/     ← Go JSON-RPC astronomical engine (8 domains)
 ├── tests/      ← evaluation (160 grouped cases + answer isolation)
-└── scripts/    ← build / fingerprinting
+└── scripts/    ← build / distribution index
 ```
 
-Call chain: SKILL.md routes to an app card → the card calls tools (RPC charting + CSV matching) → interpreted via domains knowledge → rendered by the card's template. The tool layer is optional (liki-bazi has it; the other three use RPC + document translation directly).
+Call chain: SKILL.md routes to an app card → the card calls the six Python tools (`agent_cli.py` orchestrates RPC charting, factor evaluation, and CSV matching) → interpreted via domain knowledge → rendered by the card template. RPC methods are invisible to the liki-bazi LLM.
 
 ### Engine Image
 
@@ -178,18 +178,20 @@ Images are auto-published on GitHub Releases (CI full tests → build + push + s
 make hooks         # install git hooks (once)
 make test-all      # full: skills unit + engine (lint/vet/race/integration/smoke) + e2e
 make check         # table schema + doc contracts + version consistency
-make build-archive # pack 4 skills + recompute content fingerprints
+make build-archive # pack 4 skills + generate the distribution index/archive digest
 ```
 
 ### Design Principles
 
 - Single responsibility per layer: root=rules, app=process, domains=knowledge, tools=tools
-- Single data source: parameters from rpc.discover; judgments from CSV truth tables
+- Single data source: LLM tool contracts from `tools/skill-tools.json`; judgments from CSV truth tables
 - Dual-system: BaZi leads, ZiWei reviews, conflicts explicit
-- CalVer (date-stamped VERSION + CHANGELOG; tags on milestones) + content fingerprints (anti stale-sync)
+- CalVer (date-stamped VERSION + CHANGELOG; startup version self-check; tags on milestones)
 - Evaluation-driven: independent grading, answer isolation, public data
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) and [CHANGELOG.md](./CHANGELOG.md). Design references include [mingli-skills](https://github.com/weizeW/mingli-skills), [bazi-skill](https://github.com/jinchenma94/bazi-skill), [iztro](https://github.com/SylarLong/iztro), and [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench).
+
+See [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md) for liki-bazi's factor contract and full factor inventory.
 
 ## License & Disclaimer
 

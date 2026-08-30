@@ -36,7 +36,7 @@
 **专业标准意味着什么**：
 
 - 排盘由天文历算引擎计算（真太阳时/节气秒级精度），AI 不编数字
-- 判断依据 597 条断语真值表，每条附《渊海子平》《子平真诠》等经典原文
+- 判断依据 701 条断语真值表，每条附《渊海子平》《子平真诠》等经典原文
 - 160 道命理师大赛真题独立评测，答案与评测过程隔离
 
 ## 安装
@@ -127,7 +127,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 ### 常见问题
 
 **不知道出生时辰怎么办？**
-提供 2-3 个候选时辰 + 3-5 件人生大事及年份，技能会逐盘核验反推最可能的时辰（附置信度）。宝宝/青少年跳过考时，直接用默认时辰。
+提供 2-3 个候选时辰 + 3-5 件人生大事及年份，技能会逐盘核验反推最可能的时辰（附置信度）。若证据不足，会明确要求补充时辰范围或验证事件，不会自动代选默认时辰。
 
 **需要联网吗？**
 排盘计算通过 liki.hk 引擎完成，需要网络。不可达时技能会明确告知，不会退回"AI 凭感觉编"。
@@ -144,7 +144,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 ## 为什么可信
 
 - **计算不靠 AI 编** — 八字/紫微排盘由 Go 天文历算引擎完成：真太阳时校正、夏令时、经纬度时区、VSOP87D 秒级节气。模型只做解读，不推算排盘数据。
-- **断语有出处** — 46 张断语真值表共 597 条，每条附经典原文列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）；流年另有 7 张应期表。
+- **断语有出处** — 46 张断语真值表共 701 条，每条附经典原文列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
 - **双体系交叉验证** — 八字定主、紫微复核，冲突时显式列证裁决。
 - **流程可查** — 每步分析填「输出：□」表，未填不得进入下一步；结论可回溯到具体某一步。
 - **独立评测** — 160 道命理师大赛真题（MingLi-Bench），答案隔离、自动判分、数据公开（`tests/`）。
@@ -158,16 +158,16 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 ```
 skills/liki-bazi
 ├── SKILL.md    ← 规则层（流程骨架 + 强制规则）
-├── app/        ← 流程层（9 卡：婚姻/事业/财运/…）
+├── app/        ← 流程层（10 卡：婚姻/事业/财运/…）
 ├── domains/    ← 知识层（bazi 16 + ziwei 8 篇）
-└── tools/      ← 工具层（5 工具 + 46 张断语 csv + 因子表）
+└── tools/      ← 工具层（6 个 Python 工具 + 46 张断语 csv + 2 张因子表）
 repo root
 ├── engine/     ← Go JSON-RPC 天文历算引擎（8 领域）
 ├── tests/      ← 评测体系（160 题分组 + 答案隔离）
-└── scripts/    ← 构建/指纹
+└── scripts/    ← 构建 / 分发索引
 ```
 
-调用链：SKILL.md 路由到 app 卡 → 卡调工具（RPC 排盘 + csv 断语匹配）→ 按 domains 知识解读 → 按卡内模板输出。工具层是可选组成（liki-bazi 有；divination/fengshui/naming 直接 RPC + 文档翻译）。
+调用链：SKILL.md 路由到 app 卡 → 卡调用 6 个 Python 工具（`agent_cli.py` 内部编排 RPC 排盘、因子求值与 csv 断语匹配）→ 按 domains 知识解读 → 按卡内模板输出。RPC 方法对 liki-bazi 的 LLM 不可见。
 
 ### 引擎镜像
 
@@ -178,18 +178,20 @@ repo root
 make hooks        # 安装 git hooks（首次）
 make test-all     # 全量：skills 单测 + engine（lint/vet/race/集成/冒烟）+ 全链集成
 make check        # 断语表 schema + 文档契约 + 版本一致性
-make build-archive # 打包 4 skill + 重算内容指纹
+make build-archive # 打包 4 skill + 生成分发索引与归档摘要
 ```
 
 ### 设计原则
 
 - 分层单一职责：根=规则、app=流程、domains=知识、tools=工具
-- 单一数据来源：参数以 rpc.discover 为准、断语以 csv 真值表为准
+- 单一数据来源：LLM 工具契约以 `tools/skill-tools.json` 为准、断语以 csv 真值表为准
 - 双体系交叉：八字定主、紫微复核，冲突显式列证
-- 日期版本（CalVer）：VERSION=日期戳 + CHANGELOG，里程碑按需 git tag
+- 日期版本（CalVer）：VERSION=日期戳 + CHANGELOG，启动做版本自检，里程碑按需 git tag
 - 评测驱动：独立判分、答案隔离、数据公开
 
 贡献指南见 [CONTRIBUTING.md](./CONTRIBUTING.md)，版本历史见 [CHANGELOG.md](./CHANGELOG.md)。设计参考了 [mingli-skills](https://github.com/weizeW/mingli-skills)、[bazi-skill](https://github.com/jinchenma94/bazi-skill)、[iztro](https://github.com/SylarLong/iztro)、[MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) 等开源项目。
+
+liki-bazi 的因子契约与完整因子清单见 [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md)。
 
 ## 协议与声明
 

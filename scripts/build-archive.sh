@@ -56,8 +56,6 @@ PYEOF
         --exclude dist \
         .
 
-    DIGEST="sha256:$(sha256sum "$ARCHIVE" | awk '{print $1}')"
-
     # 从 SKILL.md frontmatter 读取 description（单一事实源，避免硬编码漂移）
     DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
 
