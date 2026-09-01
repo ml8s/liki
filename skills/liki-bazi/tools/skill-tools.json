@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.01.2"
+    "version": "2026.09.01.3"
   },
   "tools": [
     {

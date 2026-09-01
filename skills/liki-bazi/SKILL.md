@@ -164,20 +164,21 @@ _NOTE_：经度必填——禁止静默降级到默认值。city_coords 找不�
 
 ### Windows 调用规则
 
-- 优先使用 python tools/agent_cli.py；python3 可能指向 Microsoft Store 占位程序。
-- 调用前设置 UTF-8：
+- 优先使用稳定入口：
+
+```powershell
+Get-Content "$env:TEMP\liki-args.json" -Raw -Encoding UTF8 | tools\agent_cli.cmd
+```
+
+- `agent_cli.cmd` 自动设置 UTF-8，并优先选择 `py -3`；不要直接依赖裸 `python3`。
+- 中文 JSON 写入 UTF-8 文件后重定向；不要通过 PowerShell 默认管道直传。
+- 若必须显式调用 Python，使用：
 
 ```powershell
 $env:PYTHONUTF8 = "1"
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $OutputEncoding = [Text.Encoding]::UTF8
-```
-
-- 中文 JSON 不要通过 PowerShell 默认管道直传；写入 UTF-8 文件后重定向：
-
-```powershell
-[IO.File]::WriteAllText("$env:TEMP\liki-args.json", $json, (New-Object Text.UTF8Encoding $false))
-Get-Content "$env:TEMP\liki-args.json" -Raw -Encoding UTF8 | python tools/agent_cli.py
+py -3 -X utf8 tools\agent_cli.py
 ```
 
 ## 使用反馈
@@ -188,10 +189,10 @@ Get-Content "$env:TEMP\liki-args.json" -Raw -Encoding UTF8 | python tools/agent_
 {"category":"workflow|api|doc|bug|feature|llm_self|other","message":"...","context":"..."}
 ```
 
-**编码强制 UTF-8**——服务端 400 拒绝非 UTF-8（Windows 默认代码页 GBK 会导致乱码损毁）：
+**编码强制 UTF-8**——服务端 400 拒绝非 UTF-8（Windows CLI JSON 必须使用 UTF-8；默认代码页可能不是 UTF-8）：
 - bash/macOS：JSON 写入临时文件后 `curl -s -X POST https://liki.hk/api/feedback -H 'Content-Type: application/json' --data-binary @fb.json`
 - Windows：`[IO.File]::WriteAllText("$env:TEMP\fb.json", $json, (New-Object Text.UTF8Encoding $false))`，再 `curl.exe -s -X POST https://liki.hk/api/feedback -H "Content-Type: application/json" --data-binary "@$env:TEMP\fb.json"`
-- **禁止** `Invoke-RestMethod -Body $字符串`——PS 5.1 按系统 ANSI 代码页编码，历史上两条反馈因此损毁
+- **禁止** `Invoke-RestMethod -Body $字符串`——PS 5.1 按系统 ANSI 代码页编码，会导致中文数据损坏
 - 收到 `400 body must be UTF-8` → 修正编码后重发，不要原样重试
 
 不包含用户个人信息、出生数据、对话原文。

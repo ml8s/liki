@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.09.01.3 —— Windows CLI 稳定入口
+
+- **[新增] agent_cli.cmd**：Windows 下自动启用 UTF-8，并优先通过 `py -3` 调用 Python。
+- **[修复] JSON 输出编码**：CLI 结果改为 ASCII 转义，避免 PowerShell/CMD 代码页导致中文乱码。
+- **[文档] Windows 调用契约**：skill 现在优先推荐 `tools\agent_cli.cmd`，不再要求用户裸调 `python3`。（#34、#37）
+
 ## 2026.09.01.2 —— Issue 修复：Windows、起名笔画、fullchart 契约与流年证据
 
 - **[修复] Windows CLI 工作流**：agent CLI 显式配置 UTF-8 流；skill 增加 python/python3、`PYTHONUTF8=1` 和 PowerShell UTF-8 文件重定向规则。（#34、#37）
@@ -200,6 +206,12 @@
 - **[部署] liki-web/liki-bot 同步**：sync-skills.sh 4 skill 循环（webapp 仅挂 liki-bazi）；副本更新
 
 # Changelog
+
+## 2026.09.01.3 —— Windows CLI 稳定入口
+
+- **[新增] agent_cli.cmd**：Windows 下自动启用 UTF-8，并优先通过 `py -3` 调用 Python。
+- **[修复] JSON 输出编码**：CLI 结果改为 ASCII 转义，避免 PowerShell/CMD 代码页导致中文乱码。
+- **[文档] Windows 调用契约**：skill 现在优先推荐 `tools\agent_cli.cmd`，不再要求用户裸调 `python3`。（#34、#37）
 
 ## 2026.09.01.2 —— Issue 修复：Windows、起名笔画、fullchart 契约与流年证据
 

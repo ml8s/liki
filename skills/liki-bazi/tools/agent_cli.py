@@ -10,7 +10,7 @@
 - 异常捕获进 error 字段（不 panic、exit 0）——调用方按 ok 字段判断
 
 使用方式：
-- 通过 `python3 tools/agent_cli.py` 执行 Python 工具
+- Windows 优先通过 `tools\agent_cli.cmd`；POSIX 通过 `python3 tools/agent_cli.py` 执行
 - stdin 传 JSON：{"fn": "<工具名>", "args": {<参数>}}
 - stdout 返回 JSON：{"ok": true, "data": <结果>} 或 {"ok": false, "error": "..."}
 """
@@ -26,14 +26,23 @@ from calibrate import calibrate
 
 
 def _configure_windows_stdio() -> None:
-    """Windows 默认代码页不是 UTF-8；显式约束 CLI JSON 流。"""
+    """Windows CLI 的 JSON 流按 UTF-8 处理；诊断流不可编码时降级为转义。"""
     if os.name != "nt":
         return
-    for stream in (sys.stdin, sys.stdout, sys.stderr):
+    for stream in (sys.stdin, sys.stdout):
         try:
             stream.reconfigure(encoding="utf-8")
         except (AttributeError, OSError):
             pass
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
+    except (AttributeError, OSError):
+        pass
+
+
+def _emit(payload: dict) -> None:
+    """输出 JSON；ASCII 转义避免 Windows 控制台代码页破坏中文。"""
+    print(json.dumps(payload, ensure_ascii=True))
 
 
 # 白名单：工具名 → 参数提取器（无 eval/exec/getattr 动态调用）
@@ -62,7 +71,7 @@ def _dispatch(fn: str, args: dict):
 def main() -> int:
     raw = sys.stdin.read().strip()
     if not raw:
-        print(json.dumps({"ok": False, "error": "empty stdin"}, ensure_ascii=False))
+        _emit({"ok": False, "error": "empty stdin"})
         return 0
     try:
         req = json.loads(raw)
@@ -71,11 +80,11 @@ def main() -> int:
         if not isinstance(args, dict):
             raise ValueError("args must be an object")
         data = _dispatch(fn, args)
-        print(json.dumps({"ok": True, "data": data}, ensure_ascii=False))
+        _emit({"ok": True, "data": data})
     except KeyError as e:
-        print(json.dumps({"ok": False, "error": f"missing arg: {e}"}, ensure_ascii=False))
+        _emit({"ok": False, "error": f"missing arg: {e}"})
     except Exception as e:  # noqa: BLE001 —— 工具链异常（网络/参数/真值表）统一转错误
-        print(json.dumps({"ok": False, "error": f"{type(e).__name__}: {e}"}, ensure_ascii=False))
+        _emit({"ok": False, "error": f"{type(e).__name__}: {e}"})
     return 0
 
 
