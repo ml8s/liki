@@ -581,7 +581,7 @@ func TestComputeBazi_ZiShiAdjustment(t *testing.T) {
 }
 
 // =============================================================================
-// SolarTermTime — 非节气（气）目标年份正确性 (regression: ti=0 导致退到前一年)
+// SolarTermTime verifies non-jie targets resolve without shifting to the prior year.
 // =============================================================================
 
 func TestSolarTermTime_NonJieTargets(t *testing.T) {

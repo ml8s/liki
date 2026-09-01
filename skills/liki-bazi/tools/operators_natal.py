@@ -177,8 +177,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
             return 1 if str(val) == str(expect) else 0
         val = _path_get(base, chart, path)
         if expect == "任意":
-            # 返回字符串原值（月令格=ge_ju.ge_ju 如"正财格"——断语表 `月令格: 正财格` 匹配）；
-            # 旧实现返回存在性 1 → 与字符串约束永不匹配 → 月令格断语全灭
+            # 返回字符串原值，供断语表做标量等值匹配（如 `月令格: 正财格`）。
             return val if val else 0
         if expect.startswith("含"):
             target = expect[1:].strip()

@@ -8,9 +8,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-// 四化一致性：宫位星曜的四化标注须与汇总 chart.SiHua 一致。
-// 历史 bug：buildChartDetail 只给主星标四化，但四化表含辅星（文昌/文曲/左辅/右弼）——
-// 汇总有文昌忌/文曲科而宫位文昌/文曲未标（外部评审 ⑥）。
+// 四化一致性：主星和辅星在宫位明细与汇总 chart.SiHua 中的标注须一致。
 func TestSiHua_Consistency_StarLevel(t *testing.T) {
 	// 辛年：化科=文曲、化忌=文昌（四化表）——宫位里的文曲/文昌必须带科/忌。
 	st := tianwen.GregorianToSolar(

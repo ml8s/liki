@@ -161,7 +161,7 @@ func chartFromBazi(bz ganzhi.Bazi) Chart {
 	}
 }
 
-// combinedTriple returns combined SanHe + SanHui from ComputeHeHui (replaces legacy computeFullTripleHeHui).
+// combinedTriple returns combined SanHe + SanHui from ComputeHeHui.
 func combinedTriple(bz ganzhi.Bazi) []TripleGroup {
 	r := ComputeHeHui(chartFromBazi(bz))
 	return append(append([]TripleGroup{}, r.SanHe...), r.SanHui...)

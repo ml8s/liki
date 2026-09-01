@@ -160,7 +160,7 @@ def test_operator_arguments_use_constant_closures() -> None:
                     assert args[0] in classes | roles, f"{expression} 流年 target 未显式使用稳定类/角色"
 
 
-def test_legacy_constant_aliases_do_not_return() -> None:
+def test_constant_contract_has_only_stable_ten_god_classes() -> None:
     const = __import__("json").loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
     assert "目标星" not in const
     assert "类" not in const

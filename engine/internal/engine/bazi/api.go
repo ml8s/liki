@@ -81,8 +81,8 @@ func ComputeLiuShi(c Chart, year, month, day, hour int) (*LiuShi, error) {
 
 // dayunStepForYear returns the DaYun step governing the given year, based on
 // 虚岁 = year - birthYear + 1 matching the step's qi_sui/zhi_sui (虚岁) interval.
-// Returns nil when: dy is nil / empty, birthYear unknown (0 — legacy chart
-// without birth_year), year earlier than birth year, not yet in 大运, or past
+// Returns nil when: dy is nil / empty, birthYear unknown (0), year earlier than
+// birth year, not yet in 大运, or past
 // all steps.
 //
 // Note: differs from ComputeCurrentStepIndex (实岁, used to fill
