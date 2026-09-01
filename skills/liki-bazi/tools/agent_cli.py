@@ -17,11 +17,23 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 
 from paipan import full_paipan, city_coords, bond
 from duanyu import query, yearly_range
 from calibrate import calibrate
+
+
+def _configure_windows_stdio() -> None:
+    """Windows 默认代码页不是 UTF-8；显式约束 CLI JSON 流。"""
+    if os.name != "nt":
+        return
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, OSError):
+            pass
 
 
 # 白名单：工具名 → 参数提取器（无 eval/exec/getattr 动态调用）
@@ -68,4 +80,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    _configure_windows_stdio()
     sys.exit(main())

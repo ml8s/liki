@@ -162,6 +162,24 @@ _NOTE_：经度必填——禁止静默降级到默认值。city_coords 找不�
 - 欧美：美/加 3月第二周日至11月第一周日；英/欧盟 3月最后周日至10月最后周日
 - 时间精度未知：分钟填 0、时辰填 12:00
 
+### Windows 调用规则
+
+- 优先使用 python tools/agent_cli.py；python3 可能指向 Microsoft Store 占位程序。
+- 调用前设置 UTF-8：
+
+```powershell
+$env:PYTHONUTF8 = "1"
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+$OutputEncoding = [Text.Encoding]::UTF8
+```
+
+- 中文 JSON 不要通过 PowerShell 默认管道直传；写入 UTF-8 文件后重定向：
+
+```powershell
+[IO.File]::WriteAllText("$env:TEMP\liki-args.json", $json, (New-Object Text.UTF8Encoding $false))
+Get-Content "$env:TEMP\liki-args.json" -Raw -Encoding UTF8 | python tools/agent_cli.py
+```
+
 ## 使用反馈
 
 遇用户反馈/流程卡顿/调用偏差/文档不符时，POST `https://liki.hk/api/feedback`：
