@@ -1,12 +1,12 @@
 """排盘工具（数据准备——非命理逻辑，零命理判定）。
 
 liki 命理 skill 的排盘层：
-- full_paipan：本命盘（八字 + 紫微一次排全）+ 内嵌 extract 提取（返回盘含 fac）
+- full_paipan：本命盘（八字 + 紫微一次排全）
 - liunian：流年盘（八字 + 紫微单年合并——应期按候选年逐调）
 - city_coords：城市名→经纬度（交互式查询）
 - bond：合盘（八字合盘 + 紫微合盘）
 
-命理逻辑不在本层（见 extract.py / factors.py / duanyu.py）。
+命理逻辑不在本层（见 factors.py / duanyu.py）。
 本层只做「读引擎字段 + 编排 RPC + 归并」，零命理判断。
 """
 from __future__ import annotations
@@ -16,11 +16,14 @@ import urllib.request
 from urllib.error import URLError
 from typing import Optional
 
+from errors import LikiToolError
+from pan_schema import validate_natal_pan
+
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 
 
-class RPCError(Exception):
+class RPCError(LikiToolError):
     pass
 
 
@@ -72,16 +75,14 @@ def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
 # ── agent 工具（排盘 2 个）──
 
 def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, correct: bool = True) -> dict:
-    """本命盘（八字 + 紫微一次排全）+ 内嵌 fac（extract 提取结果）。
+    """本命盘（八字 + 紫微一次排全）。
 
     correct=True：真太阳时校正（路 A，用户给具体时刻）；
     correct=False：直接排盘不校正（路 B，用户已定时辰——再校正会二次偏移，日柱/时柱全错）。
 
-    返回盘结构：{solar, lunar, chart, full, yongshen, ziwei, gender, fac}
-    fac = extract(pan)——因子求值上下文（十神/五行/用神/日干/大运年段），供 factors.py 直接读。
+    返回盘结构：{solar, lunar, chart, full, yongshen, ziwei, gender}
+    返回结构是 factors 层的唯一输入；领域快照由 factors 层按 pan 生成。
     """
-    from extract import extract
-
     if correct and longitude is None:
         raise ValueError(
             "correct=true 时 longitude 必填——真太阳时校正需要出生地经度。"
@@ -103,7 +104,7 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
     # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
     ys = full.get("yong_shen", {})
     zw = _ziwei_chart(lunar, gender)
-    pan = {
+    result = {
         "solar": solar,
         "lunar": lunar,
         "chart": chart,      # 含 birth_year / da_yun
@@ -112,8 +113,8 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         "ziwei": zw,         # 十二宫/四化/格局
         "gender": gender,
     }
-    pan["fac"] = extract(pan)   # 内嵌归并——排盘产出即含 fac
-    return pan
+    validate_natal_pan(result, action="full_paipan result")
+    return result
 
 
 def liunian(pan: dict, year: int) -> dict:
@@ -124,6 +125,7 @@ def liunian(pan: dict, year: int) -> dict:
 
     返回：{bazi: 八字流年, ziwei: 紫微流年}。
     """
+    validate_natal_pan(pan, action="liunian")
     return {
         "bazi": _bazi_liunian(pan["chart"], year),
         "ziwei": _ziwei_liunian(pan["ziwei"], year),
@@ -147,6 +149,8 @@ def bond(pan_a: dict, pan_b: dict) -> dict:
     pan_a / pan_b 为 full_paipan 返回的完整盘。
     返回: {"bazi": {...}, "ziwei": {...}}
     """
+    validate_natal_pan(pan_a, action="bond pan_a")
+    validate_natal_pan(pan_b, action="bond pan_b")
     bazi_r = call("bazi.bond", {
         "a": {"chart": pan_a["chart"]},
         "b": {"chart": pan_b["chart"]},
@@ -156,6 +160,6 @@ def bond(pan_a: dict, pan_b: dict) -> dict:
         "b": pan_b["ziwei"],
     })
     return {
-        "bazi": bazi_r.get("data", {}),
-        "ziwei": ziwei_r.get("data", {}),
+        "bazi": bazi_r["data"],
+        "ziwei": ziwei_r["data"],
     }

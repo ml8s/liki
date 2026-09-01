@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.08.28.2"
+    "version": "2026.09.01.1"
   },
   "tools": [
     {
@@ -346,10 +346,6 @@
             "gender": {
               "type": "string",
               "description": "性别"
-            },
-            "fac": {
-              "type": "object",
-              "description": "内嵌因子求值上下文（extract.py 产出，factors.py 消费）"
             }
           }
         }
@@ -395,7 +391,7 @@
             },
             "pan": {
               "type": "object",
-              "description": "full_paipan 返回的本命盘"
+              "description": "full_paipan 返回的完整本命盘（禁止传快照、裁剪盘或半截盘）"
             }
           },
           "required": [
@@ -409,21 +405,21 @@
       "type": "function",
       "function": {
         "name": "yearly_range",
-        "description": "批量流年分析：一次调用替代逐年排盘+查断语。返回每年各域断语（精简格式）+ current_year。",
+        "description": "批量流年分析：一次调用替代逐年排盘+查断语；单次跨度最多 120 年。返回每年各域断语（精简格式）+ current_year。",
         "parameters": {
           "type": "object",
           "properties": {
             "pan": {
               "type": "object",
-              "description": "full_paipan 返回的本命盘"
+              "description": "full_paipan 返回的完整本命盘（禁止传快照、裁剪盘或半截盘）"
             },
             "start": {
               "type": "integer",
-              "description": "起始年份"
+              "description": "起始年份；与 end 的含端点跨度最多 120 年"
             },
             "end": {
               "type": "integer",
-              "description": "结束年份（含）"
+              "description": "结束年份（含）；与 start 的含端点跨度最多 120 年"
             },
             "rules": {
               "type": "array",

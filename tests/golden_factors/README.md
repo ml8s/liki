@@ -44,7 +44,7 @@ cases.json
   "mode": "factor_snapshot",
   "shushi": "bazi",
   "input": {
-    "fac": {},
+    "base": {},
     "gender": "male",
     "chart": {},
     "current_year": 0
@@ -71,7 +71,7 @@ cases.json
   "input": {
     "op": "流年合",
     "args": ["配偶星"],
-    "fac": {},
+    "base": {},
     "gender": "male",
     "chart": {},
     "ctx": {}

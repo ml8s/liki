@@ -1,13 +1,12 @@
-"""因子层 correctness 回归：引擎契约、关系算子、性别解析与重复定义防回潮。"""
+"""因子层契约：引擎字段、关系算子、性别解析与表定义唯一性。"""
 from __future__ import annotations
 
 import csv
 from collections import defaultdict
 from pathlib import Path
 
-from _helpers import mock_factors
-from extract import extract_shishen
-from factors import _op, _OP_NAMES, _LIU_OP_NAMES
+from _helpers import mock_base_context
+from factors import _op, _OP_NAMES, _LIU_OP_NAMES, _shishen_from_pan
 import factors
 
 TOOLS = Path(__file__).resolve().parents[1] / "skills" / "liki-bazi" / "tools"
@@ -15,28 +14,28 @@ META = {"因子", "术数", "原语直通", "依据"}
 
 
 def test_engine_source_gan_means_stem_and_counts() -> None:
-    full = {
+    pan = {"full": {
         "nian": {"shi_shens": [{"shi_shen": "正官", "gan": "辛", "source": "gan"}]},
         "yue": {"shi_shens": [{"shi_shen": "正印", "gan": "壬", "source": "main_qi"}]},
         "ri": {},
         "shi": {},
-    }
-    states = extract_shishen(full)
-    assert states["正官"].tou_gan is True
-    assert states["正官"].cang_zhi is False
-    assert states["正官"].count == 1
-    assert states["正印"].tou_gan is False
-    assert states["正印"].cang_zhi is True
-    assert states["正印"].count == 1
+    }}
+    states = _shishen_from_pan(pan)
+    assert states["正官"]["tou_gan"] is True
+    assert states["正官"]["cang_zhi"] is False
+    assert states["正官"]["count"] == 1
+    assert states["正印"]["tou_gan"] is False
+    assert states["正印"]["cang_zhi"] is True
+    assert states["正印"]["count"] == 1
 
 
 def test_ge_shen_uses_engine_gan_source() -> None:
-    fac = mock_factors()
-    fac["yongshen"] = {"ge_ju": {"ge_ju": "正官格"}}
+    base = mock_base_context()
+    base["yongshen"] = {"ge_ju": {"ge_ju": "正官格"}}
     chart = {"full": {"yue": {"shi_shens": [
         {"source": "gan", "gan": "辛", "shi_shen": "正官"}
     ]}}}
-    assert _op("格神透", [], fac, "male", chart) == 1
+    assert _op("格神透", [], "male", {**base, **chart}) == 1
 
 
 def test_relation_operator_reads_engine_results() -> None:
@@ -58,16 +57,16 @@ def test_relation_operator_reads_engine_results() -> None:
             "shi": {"zhi": "子"},
         },
     }
-    fac = mock_factors()
-    assert _op("关系", ["gan_he", "甲己"], fac, "male", chart) == 1
-    assert _op("关系", ["gan_he", "乙庚"], fac, "male", chart) == 0
-    assert _op("关系", ["zhi_liu_he", "子丑"], fac, "male", chart) == 1
-    assert _op("关系", ["san_he", "申子辰"], fac, "male", chart) == 1
-    assert _op("关系", ["san_hui", "寅卯辰"], fac, "male", chart) == 1
-    assert _op("关系", ["liu_chong", "子午"], fac, "male", chart) == 1
-    assert _op("关系", ["liu_hai", "子未"], fac, "male", chart) == 1
-    assert _op("关系", ["liu_xing", "寅巳申"], fac, "male", chart) == 1
-    assert _op("关系", ["liu_xing", "丑戌未"], fac, "male", chart) == 0
+    base = mock_base_context()
+    assert _op("关系", ["gan_he", "甲己"], "male", chart) == 1
+    assert _op("关系", ["gan_he", "乙庚"], "male", chart) == 0
+    assert _op("关系", ["zhi_liu_he", "子丑"], "male", chart) == 1
+    assert _op("关系", ["san_he", "申子辰"], "male", chart) == 1
+    assert _op("关系", ["san_hui", "寅卯辰"], "male", chart) == 1
+    assert _op("关系", ["liu_chong", "子午"], "male", chart) == 1
+    assert _op("关系", ["liu_hai", "子未"], "male", chart) == 1
+    assert _op("关系", ["liu_xing", "寅巳申"], "male", chart) == 1
+    assert _op("关系", ["liu_xing", "丑戌未"], "male", chart) == 0
 
 
 def test_factor_table_has_no_unknown_operator_or_self_reference() -> None:
@@ -75,39 +74,38 @@ def test_factor_table_has_no_unknown_operator_or_self_reference() -> None:
         with (TOOLS / "factors" / filename).open(encoding="utf-8", newline="") as f:
             rows = list(csv.DictReader(f))
         for row in rows:
-            direct = (row.get("原语直通") or "").strip()
-            if direct:
-                name = direct.split("[", 1)[0]
-                assert name in _OP_NAMES | _LIU_OP_NAMES, f"{filename}: {row['因子']} 未知算子 {name}"
-            for key, value in row.items():
-                if key in META or not (value or "").strip():
-                    continue
-                assert key != row["因子"], f"{filename}: {row['因子']} 自引用"
-                if "[" in key:
-                    name = key.split("[", 1)[0]
-                    assert name in _OP_NAMES | _LIU_OP_NAMES, f"{filename}: {key} 未知算子 {name}"
+            factor_id = row["factor_id"]
+            expression = row["expression"]
+            if row["kind"] == "direct":
+                name = expression.split("[", 1)[0]
+                assert name in _OP_NAMES | _LIU_OP_NAMES, f"{filename}: {factor_id} 未知算子 {name}"
+                continue
+            assert expression != factor_id, f"{filename}: {factor_id} 自引用"
+            if row["kind"] == "condition":
+                name = expression.split("[", 1)[0]
+                assert name in _OP_NAMES | _LIU_OP_NAMES, f"{filename}: {expression} 未知算子 {name}"
 
 
 def test_spouse_star_mixed_uses_gender_specific_stars() -> None:
-    male = mock_factors(
+    male = mock_base_context(
         正财={"count": 1, "wuxing": "土"},
         偏财={"count": 1, "wuxing": "土"},
     )
-    snap = factors.evaluate_factors(male, "male", {"gender": "male"}, shushi="bazi")
+    snap = factors.evaluate_factors("male", male, shushi="bazi")
     assert snap["配偶星混杂"] == 1
 
-    female = mock_factors(
+    female = mock_base_context(
         正官={"count": 1, "wuxing": "金"},
         七杀={"count": 1, "wuxing": "金"},
     )
-    snap = factors.evaluate_factors(female, "female", {"gender": "female"}, shushi="bazi")
+    snap = factors.evaluate_factors("female", female, shushi="bazi")
     assert snap["配偶星混杂"] == 1
 
-    female_looking_at_wealth = mock_factors(
+    female_looking_at_wealth = mock_base_context(
         正财={"count": 1, "wuxing": "土"},
         偏财={"count": 1, "wuxing": "土"},
     )
-    snap = factors.evaluate_factors(female_looking_at_wealth, "female", {"gender": "female"}, shushi="bazi")
+    snap = factors.evaluate_factors("female", female_looking_at_wealth, shushi="bazi")
     assert snap["配偶星混杂"] == 0
 
 

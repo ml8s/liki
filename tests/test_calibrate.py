@@ -23,30 +23,22 @@ def test_calibrate_accepts_yingqi_and_reuses_same_year_snapshot() -> None:
         {"year": 2010, "label": "同一年验证", "rule": "yearly_marriage"},
         {"year": 2010, "label": "同年第三件事", "rule": "yearly_career"},
     ]
-    pan = {"fac": {}, "gender": "male"}
-    liunian_pan = {"bazi": {}, "ziwei": {}}
-    flow_snapshot = {"八字": {}, "紫微": {}}
+    pan = {"base": {}, "gender": "male"}
+    context = object()
+
+    def fake_year(pan, year, rules, detail=False, natal_context=None):
+        return {rule: {"八字": [], "紫微": []} for rule in rules}
 
     with mock.patch.object(calibrate, "full_paipan", return_value=pan) as paipan_mock, \
-         mock.patch.object(calibrate, "liunian", return_value=liunian_pan) as liunian_mock, \
-         mock.patch.object(
-             calibrate,
-             "make_liunian_factors",
-             return_value=flow_snapshot,
-         ) as snapshot_mock, \
-         mock.patch.object(
-             calibrate,
-             "query_yearly",
-             return_value={"八字": [], "紫微": []},
-         ) as query_mock:
+         mock.patch.object(calibrate, "prepare_natal_context", return_value=context) as prepare_mock, \
+         mock.patch.object(calibrate, "yearly_snapshot", return_value={"_snapshot_type": "liunian", "八字": {}, "紫微": {}}) as snapshot_mock:
         result = calibrate.calibrate([candidate, second_candidate], events)
 
     assert len(result["25日"]) == 3
     assert len(result["26日"]) == 3
     assert paipan_mock.call_count == 2
-    assert liunian_mock.call_count == 2
+    assert prepare_mock.call_count == 2
     assert snapshot_mock.call_count == 2   # 同一年份快照只生成一次（每候选）
-    assert query_mock.call_count >= 6      # 每事件至少一次命理域查询（别名展开后次数更多）
 
 
 def test_calibrate_enforces_documented_candidate_and_event_counts() -> None:

@@ -27,8 +27,8 @@ for _p in (_TOOLS, _LOCAL):
 
 from birth import parse_birth
 from paipan import full_paipan, liunian
-from factors import make_factors, make_liunian_factors
-from duanyu import _current_year, _match_rule, query_yearly, _NATAL_RULES, _YEARLY_RULES
+from factors import evaluate_snap_from_pan, evaluate_liunian_snap_from_pan
+from duanyu import _current_year, _match_rule, query_yearly, NATAL_RULES, YEARLY_RULES
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
@@ -36,16 +36,16 @@ GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
 
 def query_all(pan: dict) -> dict:
     """断语查询（数据检查用）——本命域查本命快照，流年域用当前年流年盘采样。"""
-    snap = make_factors(pan)
+    snap = evaluate_snap_from_pan(pan)
     domains = {}
     # 本命域
-    for rule in sorted(_NATAL_RULES):
+    for rule in sorted(NATAL_RULES):
         domains[rule] = _match_rule(rule, snap)
     # 流年域——用当前年采样（完整流年覆盖需多年扫描，此处仅验证规则表不崩/有产出）
     cur_year, _ = _current_year()
     lnp = liunian(pan, cur_year)
-    snap_y = make_liunian_factors(pan, lnp, year=cur_year)
-    for rule in sorted(_YEARLY_RULES):
+    snap_y = evaluate_liunian_snap_from_pan(pan, lnp, year=cur_year)
+    for rule in sorted(YEARLY_RULES):
         domains[rule] = query_yearly(rule, snap_y)
     return {"domains": domains}
 

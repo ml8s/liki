@@ -1,4 +1,4 @@
-"""skill 工具端到端测试（从 liki-web 迁移——测的是 liki 自身的功能）。
+"""skill 工具端到端契约测试。
 
 覆盖：
 - skill-tools.json 解析 → 6 工具全部注册
@@ -49,7 +49,7 @@ class TestAgentCliErrorPropagation(unittest.TestCase):
 
 
 class TestQueryWithMockPan(unittest.TestCase):
-    """query(rule, pan) 传含 fac 的 mock pan → 返回 {八字:[], 紫微:[]}。"""
+    """query(rule, pan) 传含 base 的 mock pan → 返回 {八字:[], 紫微:[]}。"""
 
     def test_query_returns_bazi_ziwei(self):
         sys.path.insert(0, _TOOLS)
@@ -64,12 +64,17 @@ class TestQueryWithMockPan(unittest.TestCase):
                 "yue": {"gan": "壬", "zhi": "午"},
                 "ri": {"gan": "己", "zhi": "亥"},
                 "shi": {"gan": "庚", "zhi": "午"},
+                "da_yun": {"steps": [], "current_step_index": -1},
             },
-            "full": {},
+            "full": {
+                "nian": {"gan": "庚", "zhi": "午"},
+                "yue": {"gan": "壬", "zhi": "午"},
+                "ri": {"gan": "己", "zhi": "亥"},
+                "shi": {"gan": "庚", "zhi": "午"},
+            },
             "yongshen": {},
-            "ziwei": {},
+            "ziwei": {"gong_wei": []},
             "gender": "male",
-            "fac": {},
         }
         r = query("十神", mock_pan)
         self.assertIn("八字", r)

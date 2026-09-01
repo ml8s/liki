@@ -137,7 +137,7 @@ class TestSchemaConsistency(unittest.TestCase):
 
     def test_schema_rule_enums_match_runtime_whitelists(self):
         import json
-        from duanyu import _NATAL_RULES, _YEARLY_RULES, _SCENE_ALIASES
+        from duanyu import NATAL_RULES, YEARLY_RULES, SCENE_ALIASES
 
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                          "skills", "liki-bazi", "tools", "skill-tools.json")
@@ -147,11 +147,11 @@ class TestSchemaConsistency(unittest.TestCase):
                 for item in json.load(f)["tools"]
             }
         y_enum = set(tools["yearly_range"]["parameters"]["properties"]["rules"]["items"]["enum"])
-        assert set(tools["query"]["parameters"]["properties"]["rule"]["enum"]) == _NATAL_RULES
+        assert set(tools["query"]["parameters"]["properties"]["rule"]["enum"]) == NATAL_RULES
         # 流年 rules enum = 命理域 + 场景别名（yearly_* 别名由 yearly_range 展开）
-        assert y_enum == (_YEARLY_RULES | set(_SCENE_ALIASES))
+        assert y_enum == (YEARLY_RULES | set(SCENE_ALIASES))
         assert set(tools["calibrate"]["parameters"]["properties"]["events"]["items"]
-                   ["properties"]["rule"]["enum"]) == (_YEARLY_RULES | set(_SCENE_ALIASES))
+                   ["properties"]["rule"]["enum"]) == (YEARLY_RULES | set(SCENE_ALIASES))
 
 
 if __name__ == "__main__":

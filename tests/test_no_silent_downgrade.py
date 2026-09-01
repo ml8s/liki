@@ -5,6 +5,7 @@ import pytest
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import factors
+import duanyu
 from duanyu import _current_year, query
 from duanyu import load_table
 from paipan import RPCError
@@ -22,16 +23,15 @@ def _fac() -> dict:
 def test_evaluate_factors_propagates_operator_errors() -> None:
     with mock.patch.object(factors, "_atomic", side_effect=RuntimeError("boom")):
         with pytest.raises(RuntimeError, match="boom"):
-            factors.evaluate_factors(_fac(), "male", {}, shushi="bazi")
+            factors.evaluate_factors("male", _fac(), shushi="bazi")
 
 
 def test_evaluate_flow_factors_propagates_operator_errors() -> None:
     with mock.patch.object(factors, "_atomic", side_effect=RuntimeError("boom")):
         with pytest.raises(RuntimeError, match="boom"):
             factors.evaluate_liunian_factors(
-                _fac(),
                 "male",
-                {},
+                _fac(),
                 {"nian_gan": "甲", "nian_zhi": "子"},
                 year=2006,
                 shushi="bazi",
@@ -43,10 +43,75 @@ def test_query_rejects_snapshot_input() -> None:
         query("十神", {"八字": {}, "紫微": {}})
 
 
+@pytest.mark.parametrize("pan", [
+    {"full": {"ri": {"gan": "甲", "zhi": "子"}}},
+    {"chart": {"ri": {"gan": "甲", "zhi": "子"}}},
+    {
+        "solar": "1990-05-20T12:00:00",
+        "lunar": {"year": 1990, "month": 4, "day": 26},
+        "chart": {"ri": {"gan": "甲", "zhi": "子"}},
+        "full": {"ri": {"gan": "甲", "zhi": "子"}},
+        "yongshen": {},
+        "ziwei": {},
+        "gender": "male",
+    },
+])
+def test_query_rejects_partial_pan(pan) -> None:
+    with pytest.raises(ValueError, match="full_paipan|完整本命盘|四柱结构|缺失"):
+        query("十神", pan)
+
+
 def test_current_year_does_not_fall_back_to_local_time() -> None:
     with mock.patch("paipan.call", side_effect=RPCError("time.now failed")):
         with pytest.raises(RPCError, match="time.now failed"):
             _current_year()
+
+
+def _reset_year_cache() -> None:
+    duanyu._reset_current_year_cache()
+
+
+def test_current_year_caches_success_within_ttl() -> None:
+    _reset_year_cache()
+    payload = {"data": {"cst": "2026-03-15T12:00:00"}}
+    with mock.patch("paipan.call", return_value=payload) as call_mock:
+        assert _current_year() == (2026, "server")
+        assert _current_year() == (2026, "server")
+        # TTL 内第二次调用命中缓存
+        call_mock.assert_called_once_with("time.now", {})
+    _reset_year_cache()
+
+
+def test_current_year_cache_expires_and_refetches() -> None:
+    _reset_year_cache()
+    payload = {"data": {"cst": "2026-12-31T23:00:00"}}
+    with mock.patch("paipan.call", return_value=payload) as call_mock, \
+         mock.patch("duanyu.time.monotonic", side_effect=[0.0, 30.0, 61.0]):
+        _current_year()          # 首次：发 RPC
+        _current_year()          # +30s：仍命中
+        assert call_mock.call_count == 1
+        _current_year()          # +61s：过期，重发 RPC
+        assert call_mock.call_count == 2
+    _reset_year_cache()
+
+
+def test_current_year_failure_not_cached() -> None:
+    _reset_year_cache()
+    with mock.patch("paipan.call", side_effect=RPCError("time.now failed")), \
+         mock.patch("duanyu.time.monotonic", return_value=0.0):
+        with pytest.raises(RPCError):
+            _current_year()
+        # 失败不写入缓存——下一次仍会再试（不把错误当时间基准缓存）
+        assert duanyu._current_year_cached is None
+    _reset_year_cache()
+
+
+def test_current_year_rejects_missing_cst_and_does_not_cache() -> None:
+    _reset_year_cache()
+    with mock.patch("paipan.call", return_value={"data": {}}):
+        with pytest.raises(ValueError, match="cst"):
+            _current_year()
+    assert duanyu._current_year_cached is None
 
 
 def test_load_table_missing_required_file_raises() -> None:

@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026.09.01.1 —— 因子/断语长表与架构契约收敛
+
+### 架构收敛
+
+- 删除旧 `extract.py` 中间层，改为 `pan → factors → snap` 直读路径
+- 新增 `pan_schema.py`：query/yearly_range/liunian/bond/full_paipan 统一拒绝快照、裁剪盘和手工半截盘
+- 新增 `domain_snapshot.py` 与契约文件：reserved 领域事实显式投影，不因当前无消费者被误删
+- 新增 `FactorContext` / `NatalContext`：单次求值与多年流年复用上下文，且不再把 `_ctx`/`_snap` 写回公共 pan
+- 拆分 `operators_natal.py` / `operators_liunian.py` / `yearly_eval.py` / `factor_tables.py` / `errors.py`
+- 统一 `PanSchemaError` / `AssertionRuleError` / `YearRangeError` / `FactorEvaluateError` / `FactorTableError`，同时保持 `ValueError` 兼容
+
+### 数据长表
+
+- 因子表迁移为 `factor_id / group_id / term_index / kind / expression / expected` 长表
+- 断语表从 45 个宽表迁移为 `assertions/assertions.csv` + `assertion_conditions.csv`
+- 新增 `印星透根`、`财星透根`，收敛重复语义；`夫妻宫破` 改由冲/刑/害复合表达
+- `check_schema.py` / `check_docs.py` 改为校验长表契约与 696 条断语引用
+
+### 稳定性
+
+- 删除全局快照 LRU，避免 pan 引用滞留与内容指纹成本
+- `yearly_range` 保持 120 年跨度上限；`time.now` 失败不降级本地时钟
+- CLI 错误路径返回结构化错误，进程不崩溃；空 pan 明确提示完整盘契约
+
 ## 2026.08.28.1 —— 架构收敛：双层工具合并为单层6工具 + 域名统一 + 静默降级清除
 
 > 来源：LLM 实测评测（用户全程真实排盘+定盘交互）暴露的工具层混乱、域名不一致、静默降级三类问题。
@@ -169,6 +193,30 @@
 - **[部署] liki-web/liki-bot 同步**：sync-skills.sh 4 skill 循环（webapp 仅挂 liki-bazi）；副本更新
 
 # Changelog
+
+## 2026.09.01.1 —— 因子/断语长表与架构契约收敛
+
+### 架构收敛
+
+- 删除旧 `extract.py` 中间层，改为 `pan → factors → snap` 直读路径
+- 新增 `pan_schema.py`：query/yearly_range/liunian/bond/full_paipan 统一拒绝快照、裁剪盘和手工半截盘
+- 新增 `domain_snapshot.py` 与契约文件：reserved 领域事实显式投影，不因当前无消费者被误删
+- 新增 `FactorContext` / `NatalContext`：单次求值与多年流年复用上下文，且不再把 `_ctx`/`_snap` 写回公共 pan
+- 拆分 `operators_natal.py` / `operators_liunian.py` / `yearly_eval.py` / `factor_tables.py` / `errors.py`
+- 统一 `PanSchemaError` / `AssertionRuleError` / `YearRangeError` / `FactorEvaluateError` / `FactorTableError`，同时保持 `ValueError` 兼容
+
+### 数据长表
+
+- 因子表迁移为 `factor_id / group_id / term_index / kind / expression / expected` 长表
+- 断语表从 45 个宽表迁移为 `assertions/assertions.csv` + `assertion_conditions.csv`
+- 新增 `印星透根`、`财星透根`，收敛重复语义；`夫妻宫破` 改由冲/刑/害复合表达
+- `check_schema.py` / `check_docs.py` 改为校验长表契约与 696 条断语引用
+
+### 稳定性
+
+- 删除全局快照 LRU，避免 pan 引用滞留与内容指纹成本
+- `yearly_range` 保持 120 年跨度上限；`time.now` 失败不降级本地时钟
+- CLI 错误路径返回结构化错误，进程不崩溃；空 pan 明确提示完整盘契约
 
 ## 3.10.3 —— 仓库结构重构：liki-skills 工程根 + skills/liki 内容（GitHub 安装不再混入工程文件）
 

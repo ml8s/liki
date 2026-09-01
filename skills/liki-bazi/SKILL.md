@@ -12,7 +12,7 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 开始服务前先做版本检查（远程超时 10 秒）：
 
 1. 读本地 `VERSION`，再读 `https://liki.hk/skills/liki-bazi/VERSION`
-2. 不一致 → 告知更新内容，提示 `npx skills add ml8s/liki/skills/liki-bazi -y`，用户确认后继续
+2. 不一致 → 告知本地/远程版本号，提示 `npx skills add ml8s/liki/skills/liki-bazi -y`，用户确认后继续
 3. 远程不可达 → 询问是否继续（默认继续，本地兜底），首条输出标注"版本未校验（远程不可达）"
 4. 检查未完成前，不得调工具或读子 SKILL.md
 
@@ -28,7 +28,7 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 - 白名单分派（无 eval/exec/getattr 动态调用），安全可控
 - 会话内复用：`full_paipan` 返回的 `pan` 保存在当前对话上下文；后续 `query`/`yearly_range` 直接引用
 
-### 2. 标准流程
+### 标准流程
 
 ```
 city_coords(城市) → 经度
@@ -38,6 +38,8 @@ yearly_range(pan, 起始年, 结束年, [域]) → 流年断语
 calibrate(候选列表, 事件列表) → 定盘原始数据
 bond(pan_a, pan_b) → 合盘
 ```
+
+**pan 完整性与跨度**：`query`/`yearly_range` 只接受 `full_paipan` 完整返回的 `pan`，禁止传因子快照、裁剪盘或手工半截盘；`yearly_range` 单次起止年含端点跨度最多 120 年。
 
 **排盘 correct 判定（full_paipan 参数）**：
 - 路 A（用户给具体时刻）→ `correct=True` + 出生地经度
@@ -49,7 +51,7 @@ _NOTE_：经度必填——禁止静默降级到默认值。city_coords 找不�
 ## 流程约定（强制）
 
 全局骨架（所有领域统一）：
-- 本命流程：`full_paipan → query(本命域)`（pan 直通，无需 make_factors）
+- 本命流程：`full_paipan → query(本命域)`（排盘返回的 pan 直通，内部自动产因子快照，无需额外步骤）
 - 应期流程：`full_paipan → yearly_range(pan, start, end, rules)`（一次调用返回多年多域）
 - 收尾约定：①排盘+用神完成后按用户问题继续领域分析或输出结论，`pan` 在当前对话上下文复用 ②给出验证时间点而用户未回应 → 结论标注「未经验证，时序判断置信度有限」③app 卡标[必读]的域文件未读**不得断具体细节**；必读越多越被跳过——**超过 3 个的卡应复审精简**
 

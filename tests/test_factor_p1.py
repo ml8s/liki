@@ -1,7 +1,7 @@
 """第二批因子正确性回归：柱位、取清前提与流年目标五行推导。"""
 from unittest import mock
 
-from _helpers import mock_factors
+from _helpers import mock_base_context
 from factors import _target_stars, load_constants
 import factors
 from factors import _liu_op, _op
@@ -18,8 +18,8 @@ def _chart(pillars: dict) -> dict:
 
 
 def test_wealth_in_tomb_requires_wealth_star_on_tomb_pillar() -> None:
-    fac = mock_factors()
-    fac["ri_gan"] = "甲"
+    base = mock_base_context()
+    base["ri_gan"] = "甲"
 
     # 甲以土为财，土库在辰。年支虽见辰，但年柱无财星；财星在月支午。
     unrelated_tomb = _chart({
@@ -38,7 +38,7 @@ def test_wealth_in_tomb_requires_wealth_star_on_tomb_pillar() -> None:
             ],
         },
     })
-    assert _op("财星入墓", [], fac, "male", unrelated_tomb) == 0
+    assert _op("财星入墓", [], "male", {**base, **unrelated_tomb}) == 0
 
     # 月支辰中土气为甲之财，财星与墓库同柱，才构成财星入墓。
     in_tomb = _chart({
@@ -50,12 +50,12 @@ def test_wealth_in_tomb_requires_wealth_star_on_tomb_pillar() -> None:
             ],
         },
     })
-    assert _op("财星入墓", [], fac, "male", in_tomb) == 1
+    assert _op("财星入墓", [], "male", {**base, **in_tomb}) == 1
 
 
 def test_guansha_purification_requires_mixed_guansha() -> None:
-    fac = mock_factors()
-    fac["ri_gan"] = "甲"  # 甲以金为官杀；庚为七杀，辛为正官。
+    base = mock_base_context()
+    base["ri_gan"] = "甲"  # 甲以金为官杀；庚为七杀，辛为正官。
 
     one_guan_only = _chart({
         "nian": {
@@ -70,7 +70,7 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
     one_guan_only["full"]["zhi_liu_he"] = [
         {"pillar_a": 0, "pillar_b": 2, "zhi_a": "申", "zhi_b": "巳"}
     ]
-    assert _op("官杀取清", [], fac, "male", one_guan_only) == 0
+    assert _op("官杀取清", [], "male", {**base, **one_guan_only}) == 0
 
     mixed_guansha = _chart({
         "nian": {
@@ -92,7 +92,7 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
     mixed_guansha["full"]["zhi_liu_he"] = [
         {"pillar_a": 0, "pillar_b": 2, "zhi_a": "申", "zhi_b": "巳"}
     ]
-    assert _op("官杀取清", [], fac, "male", mixed_guansha) == 1
+    assert _op("官杀取清", [], "male", {**base, **mixed_guansha}) == 1
 
     # 官杀混杂后，取清方向是合杀/冲杀留官；仅合正官不构成「合杀留官」。
     combining_correct_officer = _chart({
@@ -116,19 +116,19 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
     combining_correct_officer["full"]["zhi_liu_he"] = [
         {"pillar_a": 1, "pillar_b": 3, "zhi_a": "酉", "zhi_b": "辰"}
     ]
-    assert _op("官杀取清", [], fac, "male", combining_correct_officer) == 0
+    assert _op("官杀取清", [], "male", {**base, **combining_correct_officer}) == 0
 
 
 def test_flow克_derives_target_wuxing_from_day_master() -> None:
-    fac = mock_factors()
-    fac["ri_gan"] = "甲"  # 甲木以土为财；庚/申金克土。
+    base = mock_base_context()
+    base["ri_gan"] = "甲"  # 甲木以土为财；庚/申金克土。
 
     ctx = {"liunian": {"nian_gan": "甲", "nian_zhi": "寅"}}
-    assert _liu_op("流年克", ["财星"], fac, "male", {}, ctx) == 1
-    assert _liu_op("流年克", ["配偶星"], fac, "male", {}, ctx) == 1
+    assert _liu_op("流年克", ["财星"], "male", base, ctx) == 1
+    assert _liu_op("流年克", ["配偶星"], "male", base, ctx) == 1
 
     ctx_water = {"liunian": {"nian_gan": "壬", "nian_zhi": "子"}}
-    assert _liu_op("流年克", ["财星"], fac, "male", {}, ctx_water) == 0
+    assert _liu_op("流年克", ["财星"], "male", base, ctx_water) == 0
 
 
 def test_flow_truth_table_consumes_common_factors() -> None:
@@ -140,9 +140,8 @@ def test_flow_truth_table_consumes_common_factors() -> None:
     }]
     with mock.patch.object(factors, "load_liunian_rows", return_value=rows):
         snap = factors.evaluate_liunian_factors(
-            mock_factors(),
             "male",
-            {},
+            mock_base_context(),
             {},
             year=2026,
             shushi="bazi",
@@ -152,8 +151,8 @@ def test_flow_truth_table_consumes_common_factors() -> None:
 
 
 def test_parent_palace_is_year_pillar() -> None:
-    fac = mock_factors()
-    fac["ri_gan"] = "甲"
+    base = mock_base_context()
+    base["ri_gan"] = "甲"
     chart = {
         "chart": {
             "nian": {"gan": "壬", "zhi": "戌"},
@@ -165,8 +164,8 @@ def test_parent_palace_is_year_pillar() -> None:
     ctx = {"liunian": {"nian_gan": "壬", "nian_zhi": "戌"}}
 
     # 父宫/母宫在年支；流年值年支戌必须命中，而不是错读月支申。
-    assert _liu_op("流年值", ["父星"], fac, "male", chart, ctx) == 1
-    assert _liu_op("流年值", ["母星"], fac, "male", chart, ctx) == 1
+    assert _liu_op("流年值", ["父星"], "male", {**base, **chart}, ctx) == 1
+    assert _liu_op("流年值", ["母星"], "male", {**base, **chart}, ctx) == 1
 
 
 def test_mother_star_is_direct_seal_not_the_broad_seal_class() -> None:
@@ -176,9 +175,9 @@ def test_mother_star_is_direct_seal_not_the_broad_seal_class() -> None:
 
 
 def test_flow_sanhe_requires_all_three_branches() -> None:
-    fac = mock_factors()
-    fac["ri_gan"] = "甲"
-    fac["palace_ri"] = {"zhi": "子"}
+    base = mock_base_context()
+    base["ri_gan"] = "甲"
+    base["palace_ri"] = {"zhi": "子"}
 
     def chart(has_third: bool):
         return {
@@ -204,6 +203,6 @@ def test_flow_sanhe_requires_all_three_branches() -> None:
     }
 
     # 申子辰三方齐备才成局。
-    assert _liu_op("流年合", ["配偶星"], fac, "male", chart(True), ctx) == 1
+    assert _liu_op("流年合", ["配偶星"], "male", {**base, **chart(True)}, ctx) == 1
     # 申子两支只是半合，不作为完整三合合会。
-    assert _liu_op("流年合", ["配偶星"], fac, "male", chart(False), ctx) == 0
+    assert _liu_op("流年合", ["配偶星"], "male", {**base, **chart(False)}, ctx) == 0

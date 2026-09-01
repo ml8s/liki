@@ -1,4 +1,4 @@
-"""回归保护：SKILL.md frontmatter 必须是合法 YAML。
+"""契约：SKILL.md frontmatter 必须是合法 YAML。
 
 feedback a9c24b71：liki-divination description 含未加引号的 ASCII ': '，
 npx skills add 解析 frontmatter 即报 'Nested mappings are not allowed'，安装失败。

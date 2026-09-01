@@ -8,8 +8,8 @@ if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
 
 
-def mock_factors(**shishen):
-    """构造最小因子快照（fac）。"""
-    fac = {"shishen": shishen, "ri_gan": "甲",
+def mock_base_context(**shishen):
+    """构造最小因子快照（base）。"""
+    base = {"shishen": shishen, "ri_gan": "甲",
            "wuxing": {"wang_shuai": {}}}
-    return fac
+    return base

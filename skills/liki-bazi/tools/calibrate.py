@@ -9,21 +9,24 @@
 
 from __future__ import annotations
 
+from errors import AssertionRuleError
+from factors import evaluate_liunian_snap_from_pan, prepare_natal_context
 from paipan import full_paipan, liunian
-from factors import make_liunian_factors
-from duanyu import query_yearly, _YEARLY_RULES, _SCENE_ALIASES
+from duanyu import SCENE_ALIASES, YEARLY_RULES, brief, query_yearly
+from yearly_eval import query_year_rules, yearly_snapshot
+
 
 def _resolve_year_rule(rule: str):
     """rule 可为流年命理域（年X）或场景别名（yearly_marriage/yingqi）。返回命理域列表。"""
-    return _SCENE_ALIASES.get(rule, (rule,))
+    return SCENE_ALIASES.get(rule, (rule,))
 
 def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
-    valid = set(_YEARLY_RULES) | set(_SCENE_ALIASES)
+    valid = set(YEARLY_RULES) | set(SCENE_ALIASES)
     for e in events:
         if e.get("rule") not in valid:
-            raise ValueError(
+            raise AssertionRuleError(
                 f"calibrate events.rule 必须是流年命理域或场景别名，收到: '{e.get('rule')}'。"
-                f"有效: {sorted(_YEARLY_RULES)} + {sorted(_SCENE_ALIASES)}")
+                f"有效: {sorted(YEARLY_RULES)} + {sorted(SCENE_ALIASES)}")
         if "year" not in e or "label" not in e:
             raise ValueError("calibrate events 每项必须含 year、rule、label")
     labels = [c.get("label", "") for c in candidates]
@@ -55,28 +58,36 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
         pan = full_paipan(c["gregorian"], c["gender"],
                   longitude=c["longitude"], correct=c.get("correct", True))
         event_results = []
+        natal_context = prepare_natal_context(pan)
         year_cache = {}
         for e in events:
             year = e["year"]
             if year not in year_cache:
-                lnp = liunian(pan, year)
-                snap = make_liunian_factors(pan, lnp, year=year)
-                year_cache[year] = snap
-            else:
-                snap = year_cache[year]
+                year_cache[year] = yearly_snapshot(
+                    pan, year, natal_context,
+                    liunian=liunian,
+                    evaluate_liunian_snap_from_pan=evaluate_liunian_snap_from_pan,
+                )
+            snapshot = year_cache[year]
+            rules = SCENE_ALIASES.get(e["rule"], (e["rule"],))
+            grouped = query_year_rules(
+                snapshot, rules, detail=True,
+                query_yearly=query_yearly,
+                brief=brief,
+            )
             r = {"八字": [], "紫微": []}
-            for er in _resolve_year_rule(e["rule"]):   # 别名→多命理域合并
-                qr = query_yearly(er, snap)
+            for er in rules:
+                qr = grouped[er]
                 r["八字"] += qr.get("八字", [])
                 r["紫微"] += qr.get("紫微", [])
             if not detail:
                 r = {
-                    "八字": [{k: item[k] for k in ("事件", "结论") if k in item} for item in r.get("八字", [])],
-                    "紫微": [{k: item[k] for k in ("事件", "结论") if k in item} for item in r.get("紫微", [])],
+                    "八字": [{k: item[k] for k in ("事件", "结论") if k in item} for item in r["八字"]],
+                    "紫微": [{k: item[k] for k in ("事件", "结论") if k in item} for item in r["紫微"]],
                 }
             event_results.append({
                 "year": year, "label": e["label"], "rule": e["rule"],
-                "八字": r.get("八字", []), "紫微": r.get("紫微", []),
+                "八字": r["八字"], "紫微": r["紫微"],
             })
         results[label] = event_results
     return results

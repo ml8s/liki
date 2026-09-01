@@ -5,20 +5,39 @@
 ```text
 paipan.py
   full_paipan / liunian / city_coords / bond
-  → pan（引擎排盘结果）
-      │
-      ▼
-extract.py
-  extract(pan)
-  → fac（十神状态、五行计数与旺衰、三派用神、日干、日支宫位、大运年段）
-      │
-      ▼
+  → pan（引擎排盘结果；返回与入口均经 pan_schema 校验）
+
+pan_schema.py
+  validate_natal_pan(pan)
+  → 拒绝快照、裁剪盘、手工半截盘
+
+operators_natal.py
+  _op / _base_ctx_from_pan
+operators_liunian.py
+  _liu_op / target helpers
+
 factors.py
-  make_factors(pan)
-  make_liunian_factors(pan, liunian_pan, year)
+  prepare_natal_context(pan)
+  evaluate_factors(gender, pan, shushi, current_year)
+  evaluate_liunian_factors(gender, pan, liunian_data, zw_liunian_data, year, shushi)
+  evaluate_snap_from_pan(pan, current_year)
+  evaluate_liunian_snap_from_pan(pan, liunian_pan, year, natal_context)
   → snap（八字快照 + 紫微快照 + context）
-      │
-      ▼
+
+factor_tables.py
+  factors.csv / factors_liunian.csv 长表
+  → OR group + AND term + direct 表达式
+
+domain_snapshot.py
+  project_domain_facts(pan)
+  → reserved 稳定领域事实（契约由 domain_snapshot_contract.json 保护）
+
+yearly_eval.py
+  resolve_rules / yearly_snapshot / query_year_rules
+
+assertion_store.py
+  assertion long-table index
+
 duanyu.py
   query / query_yearly / yearly_range
   → {八字: [...], 紫微: [...]}
@@ -39,6 +58,8 @@ duanyu.py
 7. **真值表禁止空定义**：断语行必须有约束；因子行必须有直通表达式或条件列。
 8. **标量值域闭集**：标量因子的断语约束值必须来自 `constants.json` 对应闭集。
 9. **计算错误必须暴露**：因子求值、必需断语表读取和 `time.now` 失败不得降级为 0 / 空表 / 本地时间。
+10. **完整 pan 契约**：`query` / `yearly_range` 只接受 `full_paipan` 完整返回的 pan；快照、裁剪盘和手工半截盘必须显式报错。
+11. **批量跨度上限**：`yearly_range` 单次起止年含端点跨度最多 120 年。
 
 ## 常量表分层
 
@@ -54,11 +75,16 @@ duanyu.py
 
 | 列 | 含义 |
 |---|---|
-| 因子 | 快照键 |
-| 术数 | bazi / ziwei |
-| 原语直通 | 单个 pan 原语直接计算值 |
-| 条件列 | `算子[参数]`，行内 AND，多行 OR |
-| 依据 | 因子命理依据，不参与求值 |
+| 字段 | 含义 |
+|---|---|
+| factor_id | 快照键 |
+| shushi | bazi / ziwei |
+| group_id | 同因子内 OR 分组 |
+| term_index | 同 group 内 AND 序号 |
+| kind | direct / condition / factor_ref |
+| expression | 算子表达式或因子引用 |
+| expected | 期望值 |
+| basis | 命理依据，不参与求值 |
 
 条件列中的 `引用本命[X]` 是跨层引用：读取本命八字快照因子 X，不是当前层原子事实。
 
@@ -70,15 +96,27 @@ duanyu.py
 - 流年三合/三会约束必须三方齐备成局；两支半合不按完整合会因子命中。
 - `原语直通[...,任意]` 可返回字符串标量。
 
-## 断语真值表
+## 断语长表
 
-| 列 | 含义 |
-|---|---|
-| id | 全局唯一 |
-| 事件 | 领域事件 |
-| 约束列 | 因子名 → 期望值 |
-| 结论 | 命理表达 |
-| 依据 / 经典原文 | 命理依据 |
+断语元数据：
+
+```csv
+assertion_id,rule,side,事件,结论,依据,经典原文
+```
+
+断语条件：
+
+```csv
+assertion_id,factor,expected
+```
+
+规则：
+
+- `assertion_id` 全局唯一。
+- `side ∈ {bazi, ziwei}`；`rule` 是命理域。
+- 同一 `assertion_id` 的多条 condition 是 AND。
+- `expected` 运行时按整数优先解析，失败保留字符串。
+- loader 名称格式为 `{side}_{rule}`，例如 `bazi_格局`。
 
 匹配规则：约束值与快照值精确相等，全部约束同时成立才命中。
 

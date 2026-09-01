@@ -1,13 +1,11 @@
-"""文档契约检查（外部评审 #15/#23/#26/#27/#28 类防回潮——文档引用可解析性）。
+"""文档契约检查：skill 文档中的 id、路径和方法引用必须可解析。
 
-校验（liki-bazi skill 内文档：SKILL.md + app/*.md + domains/**/*.md）：
-1. 断语 id 引用（如 `ymar_101`/xm_m06）必须存在于断语表 CSV（防引用已删除/改名的断语）
-2. 文件路径引用（`tools/skill-tools.json`、`app/marriage.md`…）必须真实存在（防引用已移动/删除的文档）
-3. RPC 方法名引用（`bazi.chart`、`ziwei.daxian`…）必须在方法白名单（引擎实际方法集，防拼错/臆造方法）
+校验 liki-bazi skill 内文档：SKILL.md + app/*.md + domains/**/*.md：
+1. 断语 id 引用必须存在于断语长表。
+2. 文件路径引用必须真实存在。
+3. RPC 方法名引用必须在引擎方法白名单。
 
-不做（误报率高、跨仓库）：
-- 引擎返回字段名校验（字段字典在 liki-engine schema——由引擎侧测试负责）
-- 自然语言/多行反引号内容（模板占位）——只校验单行标识符形态的引用
+不做跨仓库校验：引擎返回字段名和自然语言模板内容。
 
 用法：python3 tests/check_docs.py [skill_dir]
 """
@@ -21,7 +19,7 @@ import sys
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "liki-bazi")
 
-# 引擎实际方法集（与 liki-engine internal/agent 注册方法一致——新增/删除方法须同步本表）
+# 引擎实际方法集；方法集合变化时同步维护本表
 METHOD_WHITELIST = {
     "rpc.discover",
     # bazi
@@ -49,14 +47,12 @@ _SKIP_DOTTED = {"params.properties", "result.methods", "result.info", "result.in
 
 
 def load_duanyu_ids() -> set:
-    """全部断语表 id（bazi/ + ziwei/ CSV）。"""
-    ids = set()
-    for f in glob.glob(os.path.join(SKILL, "tools", "bazi", "*.csv")) + \
-            glob.glob(os.path.join(SKILL, "tools", "ziwei", "*.csv")):
-        for r in csv.DictReader(open(f, encoding="utf-8")):
-            if (r.get("id") or "").strip():
-                ids.add(r["id"].strip())
-    return ids
+    """全部断语 id（assertions/assertions.csv 长表）。"""
+    path = os.path.join(SKILL, "tools", "assertions", "assertions.csv")
+    if not os.path.exists(path):
+        return set()
+    with open(path, encoding="utf-8") as f:
+        return {r["assertion_id"].strip() for r in csv.DictReader(f) if r.get("assertion_id", "").strip()}
 
 
 def main() -> int:
@@ -115,11 +111,8 @@ def main() -> int:
     # 5) README 断语统计 vs 实际（仅主 skill——README 统计的是 liki-bazi 断语）
     _readme = os.path.join(_ROOT, "README.md")
     if os.path.exists(_readme) and os.path.abspath(SKILL) == os.path.abspath(os.path.join(_ROOT, "skills", "liki-bazi")):
-        _actual = 0
-        for f in glob.glob(os.path.join(SKILL, "tools", "**", "*.csv"), recursive=True):
-            if os.path.basename(f) in ("factors.csv", "factors_liunian.csv"):
-                continue
-            _actual += sum(1 for r in csv.DictReader(open(f, encoding="utf-8")) if r.get("id"))
+        _assertions = os.path.join(SKILL, "tools", "assertions", "assertions.csv")
+        _actual = sum(1 for r in csv.DictReader(open(_assertions, encoding="utf-8")) if r.get("assertion_id")) if os.path.exists(_assertions) else 0
         _m = re.search(r"(\d+)\s*条断语", open(_readme, encoding="utf-8").read())
         if _m and int(_m.group(1)) != _actual:
             errors.append(f"[README] 断语统计 {_m.group(1)} ≠ 实际 {_actual}——补/删断语后未更新（make build-archive 不覆盖，需手动）")

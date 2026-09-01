@@ -4,47 +4,44 @@ from unittest import mock
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import duanyu
 import factors
-from _helpers import mock_factors
 
 
 def _saved_pan() -> dict:
-    fac = mock_factors()
-    fac["dayun_steps"] = [
-        {
-            "name": "戊辰",
-            "shi_shen": "正财运",
-            "start_year": 2000,
-            "end_year": 2010,
-        },
-        {
-            "name": "己巳",
-            "shi_shen": "偏印运",
-            "start_year": 2011,
-            "end_year": 2020,
-        },
-    ]
+    pillars = ("nian", "yue", "ri", "shi")
     return {
-        "fac": fac,
+        "solar": "1990-05-20T12:00:00",
+        "lunar": {"year": 1990, "month": 4, "day": 26},
         "gender": "male",
         "chart": {
+            **{
+                pillar: {"gan": "甲", "zhi": "子"}
+                for pillar in ("nian", "yue", "ri", "shi")
+            },
             "da_yun": {
                 "current_step_index": 0,
-                "steps": [{"shi_shen": "正财运"}],
+                "steps": [
+                    {"name": "戊辰", "shi_shen": "正财运", "start_year": 2000, "end_year": 2010},
+                    {"name": "己巳", "shi_shen": "偏印运", "start_year": 2011, "end_year": 2020},
+                ],
             }
         },
-        "full": {},
-        "ziwei": {},
+        "full": {
+            pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars
+        },
+        "yongshen": {},
+        "ziwei": {"gong_wei": []},
     }
 
 
 def test_current_dayun_uses_query_year_not_saved_index() -> None:
     pan = _saved_pan()
 
-    snap = factors.make_factors(pan, current_year=2015)
+    snap = factors.evaluate_snap_from_pan(pan, current_year=2015)
 
     assert snap["八字"]["大运十神类"] == "印星"
     assert snap["八字"]["大运配偶星"] == 0
-    assert snap["context"] == {"性别": "male", "当前年份": 2015}
+    assert snap["context"]["性别"] == "male"
+    assert snap["context"]["当前年份"] == 2015
 
 
 def test_query_passes_server_year_for_current_dayun_rules() -> None:
@@ -54,25 +51,25 @@ def test_query_passes_server_year_for_current_dayun_rules() -> None:
     with mock.patch.object(duanyu, "_current_year", return_value=(2015, "server")), \
          mock.patch.object(
              duanyu,
-             "make_factors",
+             "evaluate_snap_from_pan",
              return_value=snapshots,
-         ) as make_factors, \
+         ) as evaluate_snap, \
          mock.patch.object(duanyu, "_match_rule", return_value={"八字": [], "紫微": []}):
         duanyu.query("大运", pan)
         duanyu.query("六亲", pan)
 
-    assert make_factors.call_args_list[0].kwargs["current_year"] == 2015
-    assert make_factors.call_args_list[1].kwargs["current_year"] == 0
+    assert evaluate_snap.call_args_list[0].kwargs["current_year"] == 2015
+    assert evaluate_snap.call_args_list[1].kwargs["current_year"] == 0
 
 
 def test_current_dayun_rule_set_matches_table_consumers() -> None:
     consumers = set()
-    for rule in duanyu._NATAL_RULES:
+    for rule in duanyu.NATAL_RULES:
         for table in (
-            duanyu.load_table(f"bazi_{rule}.csv", required=rule not in duanyu._ZIWEI_ONLY_RULES),
-            duanyu.load_table(f"ziwei_{rule}.csv", required=rule not in duanyu._BAZI_ONLY_RULES),
+            duanyu.load_table(f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES),
+            duanyu.load_table(f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES),
         ):
             if table and {"大运十神类", "大运配偶星"} & set(table[0]["约束"]):
                 consumers.add(rule)
 
-    assert consumers == duanyu._CURRENT_DAYUN_RULES
+    assert consumers == duanyu.CURRENT_DAYUN_RULES

@@ -12,7 +12,7 @@
         "args": [
           "父星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "palace_ri": {
             "zhi": "酉"
@@ -60,7 +60,7 @@
         "args": [
           "父星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "palace_ri": {
             "zhi": "酉"
@@ -108,7 +108,7 @@
         "args": [
           "母星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "palace_ri": {
             "zhi": "子"
@@ -156,7 +156,7 @@
         "args": [
           "母星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "male",
@@ -181,7 +181,7 @@
         "args": [
           "母星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "male",
@@ -206,7 +206,7 @@
         "args": [
           "配偶星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "palace_ri": {
             "zhi": "子"
@@ -264,7 +264,7 @@
         "args": [
           "配偶星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "palace_ri": {
             "zhi": "子"
@@ -322,7 +322,7 @@
         "args": [
           "配偶星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "palace_ri": {
             "zhi": "酉"
@@ -380,7 +380,7 @@
         "args": [
           "配偶星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "palace_ri": {
             "zhi": "酉"
@@ -436,7 +436,7 @@
       "input": {
         "op": "财星入墓",
         "args": [],
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "male",
@@ -468,7 +468,7 @@
       "input": {
         "op": "财星入墓",
         "args": [],
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "shishen": {
             "正财": {
@@ -517,7 +517,7 @@
       "input": {
         "op": "官杀取清",
         "args": [],
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "male",
@@ -582,7 +582,7 @@
       "input": {
         "op": "官杀取清",
         "args": [],
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "male",
@@ -663,7 +663,7 @@
       "input": {
         "op": "官杀取清",
         "args": [],
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "male",
@@ -730,7 +730,7 @@
         "args": [
           "财星"
         ],
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "male",
@@ -747,13 +747,13 @@
     },
     {
       "id": "saved_pan_dayun_uses_query_year",
-      "rule": "当前大运按查询年重推导，不用保存 pan 的旧索引",
+      "rule": "当前大运按查询年推导",
       "kind": "boundary",
       "category": "current_dayun",
       "mode": "factor_snapshot",
       "shushi": "bazi",
       "input": {
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "dayun_steps": [
             {
@@ -787,7 +787,7 @@
         "大运十神类": "印星",
         "大运配偶星": 0
       },
-      "basis": "旧 pan 索引停在正财运，但查询年 2015 已入偏印运。"
+      "basis": "查询年 2015 落在偏印运。"
     },
     {
       "id": "spouse_star_hidden_natal",
@@ -797,7 +797,7 @@
       "mode": "factor_snapshot",
       "shushi": "bazi",
       "input": {
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "shishen": {
             "正财": {
@@ -826,7 +826,7 @@
       "mode": "factor_snapshot",
       "shushi": "bazi",
       "input": {
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "shishen": {
             "正财": {
@@ -861,7 +861,7 @@
       "mode": "factor_snapshot",
       "shushi": "bazi",
       "input": {
-        "fac": {
+        "base": {
           "ri_gan": "甲",
           "shishen": {
             "正印": {
@@ -890,7 +890,7 @@
       "mode": "factor_snapshot",
       "shushi": "bazi",
       "input": {
-        "fac": {
+        "base": {
           "ri_gan": "甲"
         },
         "gender": "female",

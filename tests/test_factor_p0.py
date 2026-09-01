@@ -3,7 +3,8 @@ import csv
 import json
 from pathlib import Path
 
-from _helpers import mock_factors
+from _helpers import mock_base_context
+from duanyu import load_table
 from factors import _op, evaluate_factors
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,37 +13,35 @@ CONST = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
 
 
 def _minimal_fac() -> dict:
-    fac = mock_factors()
-    fac["wuxing"] = {"wang_shuai": {}, "count": {}}
-    fac["yongshen"] = {}
-    return fac
+    base = mock_base_context()
+    base["wuxing"] = {"wang_shuai": {}, "count": {}}
+    base["yongshen"] = {}
+    return base
 
 
 def test_career_palace_main_star_prosperity_is_not_always_true() -> None:
-    empty = evaluate_factors(_minimal_fac(), "male", {"ziwei": {}}, shushi="ziwei")
+    empty = evaluate_factors("male", _minimal_fac(), shushi="ziwei")
     assert empty["官禄宫主星庙旺"] == 0
 
     prosperous = evaluate_factors(
-        _minimal_fac(),
         "male",
-        {
-            "ziwei": {
-                "gong_wei": [
-                    {
-                        "name": "官禄宫",
-                        "xing_yao": [{"xing": "紫微", "liang_du": "庙"}],
-                    }
-                ]
-            }
-        },
+        {**_minimal_fac(),
+         "ziwei": {
+            "gong_wei": [
+                {
+                    "name": "官禄宫",
+                    "xing_yao": [{"xing": "紫微", "liang_du": "庙"}],
+                }
+            ]
+         }},
         shushi="ziwei",
     )
     assert prosperous["官禄宫主星庙旺"] == 1
 
 
 def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
-    fac = _minimal_fac()
-    fac["yongshen"] = {"ge_ju": {"ge_ju": "正官格"}}
+    base = _minimal_fac()
+    base["yongshen"] = {"ge_ju": {"ge_ju": "正官格"}}
 
     matching = {
         "full": {
@@ -53,7 +52,7 @@ def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
             }
         }
     }
-    assert _op("格神透", [], fac, "male", matching) == 1
+    assert _op("格神透", [], "male", {**base, **matching}) == 1
 
     non_matching = {
         "full": {
@@ -64,7 +63,7 @@ def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
             }
         }
     }
-    assert _op("格神透", [], fac, "male", non_matching) == 0
+    assert _op("格神透", [], "male", {**base, **non_matching}) == 0
 
 
 def test_geju_closures_are_explicit() -> None:
@@ -80,20 +79,18 @@ def test_geju_closures_are_explicit() -> None:
 
 
 def test_fuyi_congge_is_a_scalar_factor() -> None:
-    fac = _minimal_fac()
-    fac["yongshen"] = {"fu_yi": {"pattern": "从杀格"}}
+    base = _minimal_fac()
+    base["yongshen"] = {"fu_yi": {"pattern": "从杀格"}}
 
-    snap = evaluate_factors(fac, "male", {}, shushi="bazi")
+    snap = evaluate_factors("male", base, shushi="bazi")
     assert snap["扶抑从格"] == "从杀格"
 
 
 def test_geju_table_separates_month_pattern_from_fuyi_congge() -> None:
-    path = TOOLS / "bazi" / "格局.csv"
-    with path.open(encoding="utf-8", newline="") as f:
-        rows = list(csv.DictReader(f))
+    rows = load_table("bazi_格局.csv")
 
-    month_values = {row["月令格"] for row in rows if row.get("月令格", "").strip()}
-    congge_values = {row["扶抑从格"] for row in rows if row.get("扶抑从格", "").strip()}
+    month_values = {row["约束"]["月令格"] for row in rows if row["约束"].get("月令格")}
+    congge_values = {row["约束"]["扶抑从格"] for row in rows if row["约束"].get("扶抑从格")}
 
     assert month_values == set(CONST["月令格局"])
     assert congge_values <= set(CONST["扶抑从格"])

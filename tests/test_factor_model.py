@@ -7,6 +7,9 @@ import re
 from collections import defaultdict, deque
 from pathlib import Path
 
+import _helpers  # noqa: F401
+from factor_tables import load_long_rows
+
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs" / "FACTOR_MODEL.md"
 TOOLS = ROOT / "skills" / "liki-bazi" / "tools"
@@ -20,31 +23,27 @@ COMPLEX_DIRECT = {"财库现[]", "财星入墓[]", "官杀取清[]"}
 
 
 def read_groups(path: Path) -> dict[str, list[dict[str, str]]]:
-    grouped: dict[str, list[dict[str, str]]] = defaultdict(list)
-    with path.open(encoding="utf-8", newline="") as f:
-        for row in csv.DictReader(f):
-            if row.get("因子", "").strip():
-                grouped[row["因子"]].append(row)
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    key = "natal" if path.name == "factors.csv" else "liunian"
+    for row in load_long_rows(str(path), key):
+        grouped[row["因子"]].append(row)
     return grouped
 
 
-def natal_groups() -> dict[str, list[dict[str, str]]]:
+def natal_groups() -> dict[str, list[dict]]:
     return read_groups(TOOLS / "factors" / "factors.csv")
 
 
-def flow_groups() -> dict[str, list[dict[str, str]]]:
+def flow_groups() -> dict[str, list[dict]]:
     return read_groups(TOOLS / "factors" / "factors_liunian.csv")
 
 
-def conditions(rows: list[dict[str, str]]) -> list[list[tuple[str, str]]]:
-    return [
-        [(k, v.strip()) for k, v in row.items() if k not in META and v.strip()]
-        for row in rows
-    ]
+def conditions(rows: list[dict]) -> list[list[tuple[str, str]]]:
+    return [[(k, str(v)) for k, v in row["conds"].items()] for row in rows]
 
 
-def factor_kind(rows: list[dict[str, str]]) -> str:
-    direct = (rows[0].get("原语直通") or "").strip()
+def factor_kind(rows: list[dict]) -> str:
+    direct = (rows[0].get("直通") or "").strip()
     if direct:
         return "复合" if direct in COMPLEX_DIRECT else "直通原子"
     condition_rows = conditions(rows)
@@ -72,19 +71,20 @@ def factor_kind(rows: list[dict[str, str]]) -> str:
     return "提取原子"
 
 
-def factor_value(rows: list[dict[str, str]]) -> str:
-    direct = (rows[0].get("原语直通") or "").strip()
+def factor_value(rows: list[dict]) -> str:
+    direct = (rows[0].get("直通") or "").strip()
     return "string" if direct and "任意" in direct else "0/1"
 
 
-def factor_definition(rows: list[dict[str, str]]) -> str:
-    direct = (rows[0].get("原语直通") or "").strip()
+def factor_definition(rows: list[dict]) -> str:
+    direct = (rows[0].get("直通") or "").strip()
     if direct:
         return direct
     variants = []
     for row_conditions in conditions(rows):
         variants.append(" AND ".join(f"{k}={v}" for k, v in row_conditions) or "TRUE")
     return " OR ".join(f"({variant})" for variant in variants)
+
 
 
 def doc_rows(title: str, heading_level: int = 3) -> list[list[str]]:
@@ -132,11 +132,11 @@ def test_relation_closures_are_complete() -> None:
 def test_documented_natal_inventory_matches_implementation() -> None:
     groups = natal_groups()
     atoms = doc_rows("1. 原子因子（334 个）")
-    compounds = doc_rows("2. 复合因子（109 个）")
+    compounds = doc_rows("2. 复合因子（110 个）")
     documented = [row[1] for row in atoms + compounds]
-    assert len(groups) == 443
+    assert len(groups) == 444
     assert len(atoms) == 334
-    assert len(compounds) == 109
+    assert len(compounds) == 110
     assert len(documented) == len(set(documented))
     assert set(documented) == set(groups)
     art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
@@ -147,9 +147,9 @@ def test_documented_natal_inventory_matches_implementation() -> None:
         assert row[4] == factor_value(groups[name])
         assert row[5] == factor_definition(groups[name])
     text = DOC.read_text(encoding="utf-8")
-    assert "| 本命因子 | 443 |" in text
+    assert "| 本命因子 | 444 |" in text
     assert "| 本命原子因子 | 334 |" in text
-    assert "| 本命复合因子 | 109 |" in text
+    assert "| 本命复合因子 | 110 |" in text
 
 
 def test_documented_flow_inventory_matches_implementation() -> None:
@@ -206,7 +206,7 @@ def test_stable_factor_names_use_consistent_entities() -> None:
         "配偶星透",
         "配偶星藏",
         "财星透",
-        "财星透有根",
+        "财星透根",
         "财星旺",
         "财星弱",
         "财星得令",
@@ -218,30 +218,26 @@ def test_stable_factor_names_use_consistent_entities() -> None:
     assert {"本命夫妻宫破"} <= set(flow_groups())
 
 
-def test_factor_table_has_no_dead_columns_or_duplicate_signatures() -> None:
+def test_factor_long_table_schema_and_unique_signatures() -> None:
+    expected_fields = [
+        "factor_id", "shushi", "group_id", "term_index", "kind",
+        "expression", "expected", "basis",
+    ]
     for filename in ("factors.csv", "factors_liunian.csv"):
         path = TOOLS / "factors" / filename
         with path.open(encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)
             fields = list(reader.fieldnames or [])
             rows = list(reader)
-        assert len(fields) == len(set(fields))
-        assert fields[:4] == ["因子", "术数", "原语直通", "依据"]
-        assert "结论" not in fields
-        assert "经典原文" not in fields
-        assert all(row.get("因子", "").strip() for row in rows)
-        used = {k for row in rows for k, v in row.items() if (v or "").strip()}
-        assert set(fields) == used | META
-
+        assert fields == expected_fields
+        assert all(row["factor_id"].strip() for row in rows)
+        assert all(row["kind"] in {"direct", "condition", "factor_ref"} for row in rows)
         grouped = read_groups(path)
         signatures: dict[tuple, str] = {}
         for name, group in grouped.items():
-            if any((row.get("原语直通") or "").strip() for row in group):
+            if any((row.get("直通") or "").strip() for row in group):
                 continue
-            signature = tuple(sorted(
-                tuple(sorted((k, v.strip()) for k, v in row.items() if k not in META and v.strip()))
-                for row in group
-            ))
+            signature = tuple(sorted(tuple(sorted(item["conds"].items())) for item in group))
             assert signature not in signatures, f"{name} duplicates {signatures[signature]}"
             signatures[signature] = name
 
@@ -249,18 +245,15 @@ def test_factor_table_has_no_dead_columns_or_duplicate_signatures() -> None:
 def test_unreferenced_factors_are_only_complete_use_family() -> None:
     groups = natal_groups()
     names = set(groups)
-    refs: set[str] = set()
-    for art in ("bazi", "ziwei"):
-        for path in (TOOLS / art).glob("*.csv"):
-            with path.open(encoding="utf-8", newline="") as f:
-                for row in csv.DictReader(f):
-                    for key, value in row.items():
-                        if key not in ("id", "事件", "结论", "依据", "经典原文") and value.strip() and key in names:
-                            refs.add(key)
-    with (TOOLS / "factors" / "factors_liunian.csv").open(encoding="utf-8", newline="") as f:
+    refs = set()
+    with (TOOLS / "assertions" / "assertion_conditions.csv").open(encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
-            for key, value in row.items():
-                if key.startswith("引用本命[") and value.strip():
+            if row.get("factor") in names:
+                refs.add(row["factor"])
+    for row in flow_groups().values():
+        for item in row:
+            for key in item["conds"]:
+                if key.startswith("引用本命["):
                     name = key[len("引用本命["):-1]
                     if name in names:
                         refs.add(name)
@@ -268,13 +261,9 @@ def test_unreferenced_factors_are_only_complete_use_family() -> None:
     queue = deque(refs)
     while queue:
         name = queue.popleft()
-        for row in groups[name]:
-            for key, value in row.items():
-                if key in META or not value.strip() or "[" in key:
-                    continue
-                if key in names and key not in reach:
+        for item in groups[name]:
+            for key in item["conds"]:
+                if "[" not in key and key in names and key not in reach:
                     reach.add(key)
                     queue.append(key)
-    # 外部评审：X为用（印/比劫/食伤）作为命理公共知识已补断语消费（health/study/career），
-    # 视为用因子不再是不可达死因子——断言无可达缺口。
     assert set(names - reach) == set()

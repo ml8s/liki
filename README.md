@@ -144,7 +144,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 ## 为什么可信
 
 - **计算不靠 AI 编** — 八字/紫微排盘由 Go 天文历算引擎完成：真太阳时校正、夏令时、经纬度时区、VSOP87D 秒级节气。模型只做解读，不推算排盘数据。
-- **断语有出处** — 41 张断语真值表共 696 条，每条附经典原文列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
+- **断语有出处** — 断语长表共 696 条，每条附经典原文列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
 - **双体系交叉验证** — 八字定主、紫微复核，冲突时显式列证裁决。
 - **流程可查** — 每步分析填「输出：□」表，未填不得进入下一步；结论可回溯到具体某一步。
 - **独立评测** — 160 道命理师大赛真题（MingLi-Bench），答案隔离、自动判分、数据公开（`tests/`）。
@@ -160,14 +160,14 @@ skills/liki-bazi
 ├── SKILL.md    ← 规则层（流程骨架 + 强制规则）
 ├── app/        ← 流程层（10 卡：婚姻/事业/财运/…）
 ├── domains/    ← 知识层（bazi 16 + ziwei 8 篇）
-└── tools/      ← 工具层（6 个 Python 工具 + 41 张断语 csv + 2 张因子表）
+└── tools/      ← 工具层（6 个 Python 工具 + 断语/因子 4 张长表 + schema 契约）
 repo root
 ├── engine/     ← Go JSON-RPC 天文历算引擎（8 领域）
 ├── tests/      ← 评测体系（160 题分组 + 答案隔离）
 └── scripts/    ← 构建 / 分发索引
 ```
 
-调用链：SKILL.md 路由到 app 卡 → 卡调用 6 个 Python 工具（`agent_cli.py` 内部编排 RPC 排盘、因子求值与 csv 断语匹配）→ 按 domains 知识解读 → 按卡内模板输出。RPC 方法对 liki-bazi 的 LLM 不可见。
+调用链：SKILL.md 路由到 app 卡 → 卡调用 6 个 Python 工具（`agent_cli.py` 内部编排 RPC 排盘、领域快照、因子长表与断语长表匹配）→ 按 domains 知识解读 → 按卡内模板输出。RPC 方法对 liki-bazi 的 LLM 不可见。
 
 ### 引擎镜像
 
@@ -184,7 +184,7 @@ make build-archive # 打包 4 skill + 生成分发索引与归档摘要
 ### 设计原则
 
 - 分层单一职责：根=规则、app=流程、domains=知识、tools=工具
-- 单一数据来源：LLM 工具契约以 `tools/skill-tools.json` 为准、断语以 csv 真值表为准
+- 单一数据来源：LLM 工具契约以 `tools/skill-tools.json` 为准、因子与断语以长表 CSV 为准
 - 双体系交叉：八字定主、紫微复核，冲突显式列证
 - 日期版本（CalVer）：VERSION=日期戳 + CHANGELOG，启动做版本自检，里程碑按需 git tag
 - 评测驱动：独立判分、答案隔离、数据公开

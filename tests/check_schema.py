@@ -17,6 +17,9 @@ import sys
 import json
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(_ROOT, "skills", "liki-bazi", "tools"))
+
+from factor_tables import load_long_rows
 DY = os.path.join(_ROOT, "skills", "liki-bazi", "tools")   # skill 内容在 skills/liki-bazi/（工程根=仓库根）
 
 # 排盘上下文不是因子，但断语真值表可消费。
@@ -24,50 +27,35 @@ CONTEXT_KEYS = {"性别"}
 # 应期层因子（factors_liunian.csv 定义——yingqi 域用，不在 factors.csv）
 def load_liunian_names() -> set:
     """流年因子名——从 factors_liunian.csv（真值表单一权威——json 已删）。"""
-    import csv as _csv
-    return {r["因子"] for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors_liunian.csv"), encoding="utf-8"))}
+    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"), "check_liunian_names")}
 
 
 LIUNIAN_KEYS = load_liunian_names()
 
 
 def load_liunian_reachability() -> tuple:
-    """流年因子可达性（外部评审 #17/#18：跨术数死条件 / 域错配死列防回潮）。
-
-    返回 (bazi_reachable, ziwei_factors)：
-    - bazi_reachable: 八字流年快照可达键（factors_liunian.csv 表头算子列 ∪ 术数=bazi 因子名）
-    - ziwei_factors: 紫微流年因子名（术数=ziwei）——八字流年表引用 = 跨术数死条件
-    """
-    import csv as _csv
-    import os as _os
-    path = _os.path.join(DY, "factors", "factors_liunian.csv")
-    bz, zw, cols = set(), set(), set()
-    with open(path, encoding="utf-8") as fh:
-        rd = _csv.DictReader(fh)
-        cols = {c for c in rd.fieldnames if c not in ("因子", "术数", "原语直通", "依据")}
-        rows = list(rd)
+    """返回 (八字流年可达键, 紫微流年因子名)。"""
+    path = os.path.join(DY, "factors", "factors_liunian.csv")
+    rows = load_long_rows(path, "check_liunian_reach")
+    bz, zw = set(), set()
     for r in rows:
         if (r.get("术数") or "bazi").strip() == "ziwei":
             zw.add(r["因子"])
         else:
             bz.add(r["因子"])
-    bz |= cols  # 算子列名（流年宫化[X]/三刑[X]…）同为可达键——同名约定，因子行术数定归属
+        bz.update(key for key in r.get("conds", {}) if "[" in key)
     return bz, zw
 
 
 def load_factor_shushi() -> dict:
-    """因子名 → 术数（bazi/ziwei）——交叉校验：bazi 表只用八字因子、ziwei 表只用紫微因子。"""
-    import csv as _csv
-    mapping = {}
-    for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors.csv"), encoding="utf-8")):
-        mapping[r["因子"]] = (r.get("术数") or "bazi").strip()
-    return mapping
+    """因子名 → 术数（bazi/ziwei）。"""
+    rows = load_long_rows(os.path.join(DY, "factors", "factors.csv"), "check_factor_shushi")
+    return {r["因子"]: (r.get("术数") or "bazi").strip() for r in rows}
 
 
 def load_factors_names() -> set:
     """因子名清单——从 factors.csv（真值表单一权威——json 已删）。"""
-    import csv as _csv
-    return {r["因子"] for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors.csv"), encoding="utf-8"))}
+    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors.csv"), "check_factor_names")}
 
 
 def main() -> int:
@@ -75,73 +63,77 @@ def main() -> int:
     factor_names = load_factors_names()
     factor_shushi = load_factor_shushi()
     bz_reach, zw_factors = load_liunian_reachability()
-    import csv as _csv2
-    _LIUNIAN_ALL = list(_csv2.DictReader(open(os.path.join(DY, "factors", "factors_liunian.csv"), encoding="utf-8")))
+    _LIUNIAN_ALL = load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"), "check_liunian_all")
     # 因子 → 是否字符串直通（直读[..,任意]）——强化⑩ 校验断语字符串约束列值域
     _STR_ZHITONG = {}
     for _filename in ("factors.csv", "factors_liunian.csv"):
-        for _r in _csv2.DictReader(open(os.path.join(DY, "factors", _filename), encoding="utf-8")):
-            _zt = (_r.get("原语直通") or "").strip()
+        _cache = "check_str_natal" if _filename == "factors.csv" else "check_str_flow"
+        for _r in load_long_rows(os.path.join(DY, "factors", _filename), _cache):
+            _zt = (_r.get("直通") or "").strip()
             _STR_ZHITONG.setdefault(_r["因子"], set()).add(("任意" in _zt) if _zt else False)
     errors = []
     warnings = []
     seen_ids = {}
     # 强化⑥：引用本命[X] 的 X 必须是本命因子名。算子按本命快照通用读取。
-    import csv as _csv
-    for r in _csv.DictReader(open(os.path.join(DY, "factors", "factors_liunian.csv"), encoding="utf-8")):
-        for c, v in r.items():
-            if c.startswith("引用本命[") and (v or "").strip():
-                inner = c[len("引用本命["):-1]
+    for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"), "check_refs"):
+        for key in r.get("conds", {}):
+            if key.startswith("引用本命["):
+                inner = key[len("引用本命["):-1]
                 if inner not in factor_names:
                     errors.append(f"[factors_liunian] 引用本命[{inner}] 不是本命因子——恒 0 死条件")
     # 因子定义必须有直通或条件；空定义会恒假且绕过多数表结构检查。
     for _filename in ("factors.csv", "factors_liunian.csv"):
-        with open(os.path.join(DY, "factors", _filename), encoding="utf-8") as _fh:
-            for _r in _csv.DictReader(_fh):
-                _has_direct = bool((_r.get("原语直通") or "").strip())
-                _has_conds = any(
-                    (_v or "").strip() for _k, _v in _r.items()
-                    if _k not in ("因子", "术数", "原语直通", "依据")
-                )
-                if not _has_direct and not _has_conds:
-                    errors.append(f"[{_filename}] 因子 {_r['因子']} 空定义（恒 0）")
-    files = glob.glob(os.path.join(DY, "**", "*.csv"), recursive=True)
-    for f in sorted(files):
-        if os.path.basename(f) in ("factors.csv", "factors_liunian.csv"):
-            continue
-        import csv as _csv
-        dom = os.path.basename(f)[:-4]
-        _rel = os.path.relpath(f, DY).replace(os.sep, "/")
-        rows = []
-        _hdr = None
-        with open(f, encoding="utf-8") as fh:
-            _rd = _csv.DictReader(fh)
-            _hdr = [c for c in _rd.fieldnames if c not in ("id", "事件", "结论", "依据", "经典原文")]
-            for r in _rd:
-                # 参差行防御：行字段数 ≠ 表头（短缺 → 值补 None；多余 → 进 restkey=None）。
-                # 在解析口明确报错并跳过该行，而非下游 item["结论"].strip() 裸 AttributeError。
-                if None in r or any(v is None for v in r.values()):
-                    errors.append(f"[{_rel}] 第 {_rd.line_num} 行列数与表头不一致（参差 CSV）——请对齐列数后重查")
-                    continue
-                cons = {}
-                for k, v in r.items():
-                    if k in ("id", "事件", "结论", "依据", "经典原文"):
-                        continue
-                    if (v or "").strip():
-                        cons[k] = v
-                if not cons:
-                    errors.append(f"[{_rel}/{r.get('id')}] 断语无约束（恒命中）")
-                # 交叉校验：八字表只用八字因子、紫微表只用紫微因子（防混合回潮——真分开）
-                # 表文件在 bazi/ziwei 子目录（load_table 按目录定位），expect 按目录判定——
-                # 文件名无 bazi_/ziwei_ 前缀，不能用 dom（basename）判断（历史盲区：expect 恒 None）
-                expect = "bazi" if _rel.startswith("bazi/") else ("ziwei" if _rel.startswith("ziwei/") else None)
-                if expect:
-                    for ck in cons:
-                        cs = factor_shushi.get(ck)
-                        if cs and cs not in (expect, "common"):
-                            warnings.append(f"[{_rel}] 跨术数条件列 '{ck}'（{cs}）——{expect} 表应纯{expect}因子")
-                rows.append({"id": r.get("id", ""), "约束": cons, "结论": r.get("结论", ""),
-                    "依据": r.get("依据", ""), "经典原文": r.get("经典原文", "")})
+        _cache = "check_empty_natal" if _filename == "factors.csv" else "check_empty_flow"
+        for _r in load_long_rows(os.path.join(DY, "factors", _filename), _cache):
+            if not _r.get("直通") and not _r.get("conds"):
+                errors.append(f"[{_filename}] 因子 {_r['因子']} 空定义（恒 0）")
+    # 断语长表：assertions.csv 定义元数据，assertion_conditions.csv 定义约束。
+    # 这里重组为 evaluator 行结构，使值域、可达性和标签检查共用一套逻辑。
+    import csv as _csv
+    assertion_path = os.path.join(DY, "assertions", "assertions.csv")
+    condition_path = os.path.join(DY, "assertions", "assertion_conditions.csv")
+    assertion_groups = {}
+    with open(assertion_path, encoding="utf-8") as fh:
+        for r in _csv.DictReader(fh):
+            key = (r.get("side"), r.get("rule"))
+            item = {
+                "id": r.get("assertion_id", ""), "事件": r.get("事件", ""),
+                "约束": {}, "结论": r.get("结论", ""),
+                "依据": r.get("依据", ""), "经典原文": r.get("经典原文", ""),
+            }
+            assertion_groups.setdefault(key, []).append(item)
+    assertion_index = {
+        item["id"]: item
+        for items in assertion_groups.values()
+        for item in items
+    }
+    for r in _csv.DictReader(open(condition_path, encoding="utf-8")):
+        # expected 保持字符串语义；运行时 loader 负责转 int/string。
+        item = assertion_index.get(r.get("assertion_id"))
+        if item:
+            item["约束"][r.get("factor", "")] = (r.get("expected") or "").strip()
+    file_records = []
+    for (side, rule), rows in assertion_groups.items():
+        file_records.append({
+            "f": f"assertions/{side}_{rule}.csv",
+            "_rel": f"{side}/{rule}.csv", "dom": rule,
+            "rows": rows, "_hdr": [],
+        })
+    for rec in file_records:
+        f = rec["f"]
+        dom = rec["dom"]
+        _rel = rec["_rel"]
+        rows = rec["rows"]
+        _hdr = rec["_hdr"]
+        for r in rows:
+            cons = r["约束"]
+            if not cons:
+                errors.append(f"[{_rel}/{r.get('id')}] 断语无约束（恒命中）")
+            expect = _rel.split("/", 1)[0]
+            for ck in cons:
+                cs = factor_shushi.get(ck)
+                if cs and cs not in (expect, "common"):
+                    warnings.append(f"[{_rel}] 跨术数条件列 '{ck}'（{cs}）——{expect} 表应纯{expect}因子")
         used_keys = set()
         for item in rows:
             eid = item.get("id")
@@ -169,15 +161,18 @@ def main() -> int:
         _unused = [c for c in _hdr if c not in used_keys]
         if _unused:
             _s = ",".join(_unused[:8]) + ("…" if len(_unused) > 8 else "")
-            errors.append(f"[{dom}] 死列 {len(_unused)} 个（表头列无任何行引用——删除该列，运行时无效纯冗余）: {_s}")
-        # 强化⑦（自查 2026-08：重复断语行——同约束多条近似结论 → agent 输出冗余/矛盾）
+            errors.append(f"[{dom}] 死列 {len(_unused)} 个（表头列无任何行引用；长表不得包含无效列）: {_s}")
+        # 强化⑦（自查 2026-08：重复断语行——同约束+同事件多条近似结论 → agent 输出冗余/矛盾）。
+        # 去重键 = 约束元组 + 事件：同一因子条件对应不同事件/命理域（如 ys_101 事业阻 / yx_101 学业阻
+        # / ycai_102 破财）是「多义断语」的刻意设计，不算冗余，仅约束相同而事件也相同才判重。
         _seen_cons = {}
         for item in rows:
             _cons = tuple(sorted((k, v) for k, v in (item.get("约束") or {}).items()))
-            if _cons and _cons in _seen_cons:
-                warnings.append(f"[{dom}] 重复约束行: {_seen_cons[_cons]} 与 {item['id']} 约束完全相同（结论近似=冗余，应合并）")
+            _key = (_cons, item.get("事件", ""))
+            if _cons and _key in _seen_cons:
+                warnings.append(f"[{dom}] 重复约束行: {_seen_cons[_key]} 与 {item['id']} 约束+事件完全相同（冗余，应合并）")
             else:
-                _seen_cons[_cons] = item['id']
+                _seen_cons[_key] = item['id']
         # 强化⑧（自查 2026-08：约束值域——非枚举列出现 0/1 以外取值 = 静默永不匹配）
         _ENUM_COLS = {"月令格", "扶抑从格", "日主五行", "日主", "日主长生状态", "性别", "十神",
                               "身强弱", "调候季节", "日支神煞类型", "月令本气十神", "大运十神类",
