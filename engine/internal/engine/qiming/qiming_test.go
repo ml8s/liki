@@ -166,7 +166,7 @@ func TestAnalyzePhonetic(t *testing.T) {
 // 汉字笔画查询
 // =============================================================================
 
-func TestLookupWugeStroke_KnownChars(t *testing.T) {
+func TestLookupKangxiStroke_KnownChars(t *testing.T) {
 	tests := []struct {
 		char   string
 		stroke int
@@ -180,13 +180,13 @@ func TestLookupWugeStroke_KnownChars(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stroke, err := lookupWugeStroke(tt.char)
+		stroke, err := lookupKangxiStroke(tt.char)
 		if err != nil {
-			t.Errorf("lookupWugeStroke(%q): %v", tt.char, err)
+			t.Errorf("lookupKangxiStroke(%q): %v", tt.char, err)
 			continue
 		}
 		if stroke != tt.stroke {
-			t.Errorf("lookupWugeStroke(%q) = %d, want %d", tt.char, stroke, tt.stroke)
+			t.Errorf("lookupKangxiStroke(%q) = %d, want %d", tt.char, stroke, tt.stroke)
 		}
 	}
 }
@@ -228,36 +228,36 @@ func TestLookupCharReturnsBothStrokeSemantics(t *testing.T) {
 	if ce.Stroke != 8 {
 		t.Errorf("Stroke = %d, want 8", ce.Stroke)
 	}
-	if ce.WugeStroke != 19 {
-		t.Errorf("WugeStroke = %d, want 19", ce.WugeStroke)
+	if ce.KangxiStroke != 19 {
+		t.Errorf("KangxiStroke = %d, want 19", ce.KangxiStroke)
 	}
-	if ce.WugeForm != "鄭" {
-		t.Errorf("WugeForm = %q, want 鄭", ce.WugeForm)
+	if ce.KangxiForm != "鄭" {
+		t.Errorf("KangxiForm = %q, want 鄭", ce.KangxiForm)
 	}
 }
 
-func TestGetWugeCharsGroupsByWugeStroke(t *testing.T) {
-	chars, err := GetWugeChars("火")
+func TestGetCharsByKangxiStrokeGroupsByKangxiStroke(t *testing.T) {
+	chars, err := GetCharsByKangxiStroke("火")
 	if err != nil {
-		t.Fatalf("GetWugeChars: %v", err)
+		t.Fatalf("GetCharsByKangxiStroke: %v", err)
 	}
 	group := chars[19]
 	found := false
 	for _, char := range group {
 		if char.Char == "郑" {
 			found = true
-			if char.Stroke != 8 || char.WugeStroke != 19 {
-				t.Fatalf("郑 = modern %d / wuge %d, want 8 / 19", char.Stroke, char.WugeStroke)
+			if char.Stroke != 8 || char.KangxiStroke != 19 {
+				t.Fatalf("郑 = modern %d / wuge %d, want 8 / 19", char.Stroke, char.KangxiStroke)
 			}
 			break
 		}
 	}
 	if !found {
-		t.Fatal("郑 not grouped at Wuge stroke 19")
+		t.Fatal("郑 not grouped at Kangxi stroke 19 for Wuge")
 	}
 }
 
-func TestEvaluateNamesUsesWugeStrokesForGivenName(t *testing.T) {
+func TestEvaluateNamesUsesKangxiStrokesForGivenName(t *testing.T) {
 	results, err := EvaluateNames("郑", []string{"伟"}, "", nil, nil, true)
 	if err != nil {
 		t.Fatalf("EvaluateNames: %v", err)
@@ -719,7 +719,7 @@ func TestExampleNames_CharsInDatabase(t *testing.T) {
 		g2 := string(rs[2])
 
 		// 姓氏必须在字典中
-		stroke, err := lookupSurnameWugeStroke(surname)
+		stroke, err := lookupSurnameKangxiStroke(surname)
 		if err != nil {
 			t.Errorf("%s: surname %q not in database", full, surname)
 			continue
@@ -737,7 +737,7 @@ func TestExampleNames_CharsInDatabase(t *testing.T) {
 		}
 		// 五格必须可计算
 		ss := singleStrokes(stroke)
-		wg := computeWuGeFromStrokes(ss, ce1.WugeStroke, ce2.WugeStroke)
+		wg := computeWuGeFromStrokes(ss, ce1.KangxiStroke, ce2.KangxiStroke)
 		if wg.TianGe.Stroke == 0 || wg.RenGe.Stroke == 0 || wg.DiGe.Stroke == 0 {
 			t.Errorf("%s: wuge calculation failed: %+v", full, wg)
 		}

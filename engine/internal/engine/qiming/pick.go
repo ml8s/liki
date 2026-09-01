@@ -56,14 +56,14 @@ func PickChars(surname, wuxing1, wuxing2 string, count int, wuge bool) ([]Combo,
 	}
 
 	// 考虑五格：算吉笔画对，按笔画取字
-	chars1, err := GetWugeChars(wuxing1)
+	chars1, err := GetCharsByKangxiStroke(wuxing1)
 	if err != nil {
 		return nil, fmt.Errorf("pick: wuxing1: %w", err)
 	}
 	if wuxing2 == "" {
 		wuxing2 = wuxing1
 	}
-	chars2, err := GetWugeChars(wuxing2)
+	chars2, err := GetCharsByKangxiStroke(wuxing2)
 	if err != nil {
 		return nil, fmt.Errorf("pick: wuxing2: %w", err)
 	}

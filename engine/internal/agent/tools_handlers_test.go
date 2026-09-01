@@ -703,15 +703,15 @@ func TestHandler_QimingChar_StrokeSemantics(t *testing.T) {
 	}
 	var env struct {
 		Data struct {
-			Stroke     int    `json:"stroke"`
-			WugeStroke int    `json:"wuge_stroke"`
-			WugeForm   string `json:"wuge_form"`
+			Stroke       int    `json:"stroke"`
+			KangxiStroke int    `json:"kangxi_stroke"`
+			KangxiForm   string `json:"kangxi_form"`
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if env.Data.Stroke != 8 || env.Data.WugeStroke != 19 || env.Data.WugeForm != "鄭" {
+	if env.Data.Stroke != 8 || env.Data.KangxiStroke != 19 || env.Data.KangxiForm != "鄭" {
 		t.Fatalf("stroke data = %+v, want modern 8 / wuge 19 / form 鄭", env.Data)
 	}
 }

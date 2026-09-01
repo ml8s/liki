@@ -18,7 +18,7 @@ import (
 var gscCSV []byte
 
 //go:embed data/unihan_char_strokes.csv
-var wugeStrokesCSV []byte
+var kangxiStrokesCSV []byte
 
 //go:embed data/unihan_surname_forms.csv
 var wugeSurnameFormsCSV []byte
@@ -37,8 +37,8 @@ var radicalsYAML []byte
 
 var charByElement = make(map[Wuxing][]Character)
 var charByRune = make(map[rune]Character)
-var wugeByRune = make(map[rune]wugeStroke)
-var surnameWugeByRune = make(map[rune]wugeStroke)
+var kangxiByRune = make(map[rune]kangxiStroke)
+var surnameKangxiByRune = make(map[rune]kangxiStroke)
 var sanCaiNums map[int]sanCaiNum
 var sanCaiCfg map[string]sanCaiCfgEntry
 var negativeChars = make(map[string]bool)
@@ -55,7 +55,7 @@ type sanCaiCfgEntry struct {
 	Desc    string
 }
 
-type wugeStroke struct {
+type kangxiStroke struct {
 	Stroke int
 	Form   string
 }
@@ -67,10 +67,10 @@ func init() {
 	if err := loadRadicals(); err != nil {
 		log.Fatalf("qiming: load radicals: %v", err)
 	}
-	if err := loadWuge(); err != nil {
-		log.Fatalf("qiming: load wuge strokes: %v", err)
+	if err := loadKangxiStrokes(); err != nil {
+		log.Fatalf("qiming: load kangxi strokes: %v", err)
 	}
-	applyWugeStrokes()
+	applyKangxiStrokes()
 }
 
 // radicalToElement maps Kangxi radicals to five elements per Kangxi dictionary.
@@ -217,8 +217,8 @@ func loadRadicals() error {
 	return nil
 }
 
-func loadWuge() error {
-	readStrokeTable := func(content []byte, name string, into map[rune]wugeStroke) error {
+func loadKangxiStrokes() error {
+	readStrokeTable := func(content []byte, name string, into map[rune]kangxiStroke) error {
 		r := csv.NewReader(bytes.NewReader(content))
 		records, err := r.ReadAll()
 		if err != nil {
@@ -247,48 +247,48 @@ func loadWuge() error {
 			}
 			form := rec[columns["unihan_form"]]
 			if len([]rune(form)) != 1 {
-				return fmt.Errorf("%s: invalid wuge form for %q", name, char)
+				return fmt.Errorf("%s: invalid unihan form for %q", name, char)
 			}
 			r := []rune(char)[0]
 			if _, exists := into[r]; exists {
 				return fmt.Errorf("%s: duplicate character %q", name, char)
 			}
-			into[r] = wugeStroke{Stroke: stroke, Form: form}
+			into[r] = kangxiStroke{Stroke: stroke, Form: form}
 		}
 		return nil
 	}
 
-	if err := readStrokeTable(wugeStrokesCSV, "unihan_char_strokes.csv", wugeByRune); err != nil {
+	if err := readStrokeTable(kangxiStrokesCSV, "unihan_char_strokes.csv", kangxiByRune); err != nil {
 		return err
 	}
-	return readStrokeTable(wugeSurnameFormsCSV, "unihan_surname_forms.csv", surnameWugeByRune)
+	return readStrokeTable(wugeSurnameFormsCSV, "unihan_surname_forms.csv", surnameKangxiByRune)
 }
 
-func applyWugeStrokes() {
+func applyKangxiStrokes() {
 	for r := range charByRune {
-		entry, ok := wugeByRune[r]
+		entry, ok := kangxiByRune[r]
 		if !ok {
-			log.Fatalf("qiming: character %q has no wuge stroke", r)
+			log.Fatalf("qiming: character %q has no kangxi stroke", r)
 		}
 		ce := charByRune[r]
-		ce.WugeStroke = entry.Stroke
-		ce.WugeForm = entry.Form
+		ce.KangxiStroke = entry.Stroke
+		ce.KangxiForm = entry.Form
 		charByRune[r] = ce
 	}
 	for elem, chars := range charByElement {
 		for i := range chars {
 			r := []rune(chars[i].Char)[0]
-			entry, ok := wugeByRune[r]
+			entry, ok := kangxiByRune[r]
 			if !ok {
-				log.Fatalf("qiming: character %q has no wuge stroke", r)
+				log.Fatalf("qiming: character %q has no kangxi stroke", r)
 			}
-			charByElement[elem][i].WugeStroke = entry.Stroke
-			charByElement[elem][i].WugeForm = entry.Form
+			charByElement[elem][i].KangxiStroke = entry.Stroke
+			charByElement[elem][i].KangxiForm = entry.Form
 		}
 	}
-	for r := range surnameWugeByRune {
-		if _, ok := wugeByRune[r]; !ok {
-			log.Fatalf("qiming: surname override %q is absent from the wuge table", r)
+	for r := range surnameKangxiByRune {
+		if _, ok := kangxiByRune[r]; !ok {
+			log.Fatalf("qiming: surname override %q is absent from the kangxi table", r)
 		}
 	}
 }
