@@ -170,7 +170,7 @@ _NOTE_：经度必填——禁止静默降级到默认值。city_coords 找不�
 Get-Content "$env:TEMP\liki-args.json" -Raw -Encoding UTF8 | tools\agent_cli.cmd
 ```
 
-- `agent_cli.cmd` 自动设置 UTF-8，并优先选择 `py -3`；不要直接依赖裸 `python3`。
+- agent_cli.cmd 自动设置 UTF-8，并优先选择 `py -3`；不要直接依赖裸 python3。
 - 中文 JSON 写入 UTF-8 文件后重定向；不要通过 PowerShell 默认管道直传。
 - 若必须显式调用 Python，使用：
 

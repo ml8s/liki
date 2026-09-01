@@ -2,9 +2,9 @@
 
 ## 2026.09.01.3
 
-- 新增 Windows 稳定入口 `tools/agent_cli.cmd`，自动选择 `py -3` 或 `python` 并启用 UTF-8。
+- 新增 Windows 稳定入口 `tools/agent_cli.cmd`，自动选择 `py -3` 或 python 并启用 UTF-8。
 - CLI JSON 输出改为 ASCII 转义，避免控制台代码页破坏中文。
-- Windows 调用文档改为优先使用 `agent_cli.cmd`。
+- Windows 调用文档改为优先使用 agent_cli.cmd。
 ## 2026.09.01.2
 
 - Windows CLI 显式使用 UTF-8，并补充 python/python3 与 PowerShell 工作流规则。
