@@ -34,7 +34,7 @@ description: "起名改名/取名字 — 排八字定用神、取字库、排三
 
 使用你环境中的 HTTP 客户端（如 curl、fetch、urllib 等）发起请求。
 
-- **方法清单**：`bazi.chart`（排八字）/ `bazi.fullchart`（取用神）/ `qiming.pick`（取字）/ `qiming.build`（组名）/ `qiming.check`（评估）/ `qiming.char`（查字）
+- **方法清单**：`bazi.chart`（排八字）/ `bazi.fullchart`（取用神）/ `qiming.pick`（取字）/ `qiming.build`（组名）/ `qiming.check`（评估）/ `qiming.char`（查现代笔画与 Wuge/Kangxi 笔画）
 - 排八字校正经度未知时先调 `city.coords`；真太阳时换算用 `tianwen.time`
 
 ## 流程约定（强制）
@@ -65,7 +65,7 @@ JSON-RPC 返回 error 时：
 ## 数据原则
 
 - 排盘/用神/取字/五格数据一律经 RPC 获取，禁止凭训练知识臆造
-- **数理红线**：五格数理（笔画吉凶）由 `qiming.pick`/`qiming.check` 内部计算，**严禁自行推算**；候选字必须来自 `qiming.pick` 返回，禁止凭空编造
+- **数理红线**：Wuge=true 时，五格数理按内部 Wuge/Kangxi 笔画由 `qiming.pick`/`qiming.check` 计算，**严禁自行推算**；候选字必须来自 `qiming.pick` 返回，禁止凭空编造
 
 ## 输出原则
 

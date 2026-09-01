@@ -695,6 +695,27 @@ func TestHandler_QimingChar_Valid(t *testing.T) {
 	}
 }
 
+func TestHandler_QimingChar_StrokeSemantics(t *testing.T) {
+	r := NewRPCRegistry()
+	result, err := r.Execute(context.Background(), "qiming.char", json.RawMessage(`{"char":"郑"}`))
+	if err != nil {
+		t.Fatalf("qiming.char: %v", err)
+	}
+	var env struct {
+		Data struct {
+			Stroke       int    `json:"stroke"`
+			KangxiStroke int    `json:"kangxi_stroke"`
+			KangxiForm   string `json:"kangxi_form"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if env.Data.Stroke != 8 || env.Data.KangxiStroke != 19 || env.Data.KangxiForm != "鄭" {
+		t.Fatalf("stroke data = %+v, want modern 8 / kangxi 19 / form 鄭", env.Data)
+	}
+}
+
 func TestHandler_QimingChar_NotFound(t *testing.T) {
 	r := NewRPCRegistry()
 	_, err := r.Execute(context.Background(), "qiming.char", json.RawMessage(`{"char":"龍"}`))
@@ -959,9 +980,9 @@ func TestHandler_NamingCheck_CompoundSurname(t *testing.T) {
 	if tiange == nil {
 		t.Fatal("tiange should be present")
 	}
-	// 复姓天格 = 欧8 + 阳6 = 14（不加 1）
-	if stroke, _ := tiange["stroke"].(float64); stroke != 14 {
-		t.Errorf("复姓天格 stroke = %v, want 14", stroke)
+	// 复姓天格 = 欧15 + 阳17 = 32（不加 1）
+	if stroke, _ := tiange["stroke"].(float64); stroke != 32 {
+		t.Errorf("复姓天格 stroke = %v, want 32", stroke)
 	}
 }
 

@@ -28,16 +28,25 @@ func SurnameStroke(surname string) (int, error) {
 	return ss.Total, nil
 }
 
-// GetChars returns naming characters of the given element, grouped by stroke.
+// GetChars returns naming characters of the given element, grouped by modern stroke.
 func GetChars(wuxingName string) (map[int][]CharLite, error) {
 	elem := wuxingFromChinese(wuxingName)
 	if elem == 0 {
 		return nil, fmt.Errorf("chars: invalid wuxing %q", wuxingName)
 	}
-	return getCharsByElement(elem), nil
+	return getCharsByElement(elem, false), nil
 }
 
-// LookupChar looks up a single character's wuxing, stroke count, and other attributes.
+// GetWugeChars returns naming characters of the given element, grouped by Wuge stroke.
+func GetWugeChars(wuxingName string) (map[int][]CharLite, error) {
+	elem := wuxingFromChinese(wuxingName)
+	if elem == 0 {
+		return nil, fmt.Errorf("chars: invalid wuxing %q", wuxingName)
+	}
+	return getCharsByElement(elem, true), nil
+}
+
+// LookupChar looks up a single character's wuxing, modern stroke, Wuge stroke, and other attributes.
 // Returns nil if the character is not in the naming database.
 func LookupChar(char string) *Character {
 	rs := []rune(char)
@@ -90,9 +99,9 @@ func EvaluateNames(surname string, givenNames []string, yongShen string, xiShen,
 			continue
 		}
 
-		s1, s2 := charEntries[0].Stroke, 0
+		s1, s2 := charEntries[0].KangxiStroke, 0
 		if len(charEntries) > 1 {
-			s2 = charEntries[1].Stroke
+			s2 = charEntries[1].KangxiStroke
 		}
 		phon := analyzePhonetic(charEntries)
 

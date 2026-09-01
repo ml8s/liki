@@ -5,25 +5,28 @@ import (
 	"sort"
 )
 
-// Character is a naming character from the ben-hua general standard Chinese table.
+// Character is a naming character with modern and Wuge stroke semantics.
 type Character struct {
-	Char        string `json:"char"`
-	Element     Wuxing `json:"wuxing"`
-	Stroke      int    `json:"stroke"`
-	Radical     string `json:"radical"`
-	Pinyin      string `json:"pinyin"`
-	Tone        int    `json:"tone"`
-	Traditional string `json:"traditional,omitempty"`
+	Char         string `json:"char"`
+	Element      Wuxing `json:"wuxing"`
+	Stroke       int    `json:"stroke"`
+	KangxiStroke int    `json:"kangxi_stroke"`
+	Radical      string `json:"radical"`
+	Pinyin       string `json:"pinyin"`
+	Tone         int    `json:"tone"`
+	Traditional  string `json:"traditional,omitempty"`
+	KangxiForm   string `json:"kangxi_form,omitempty"`
 }
 
 // CharLite is a lightweight character view for the HTTP chars endpoint.
 type CharLite struct {
-	Char    string `json:"char"`
-	Wuxing  string `json:"wuxing"`
-	Stroke  int    `json:"stroke"`
-	Radical string `json:"radical"`
-	Pinyin  string `json:"pinyin"`
-	Tone    int    `json:"tone"`
+	Char         string `json:"char"`
+	Wuxing       string `json:"wuxing"`
+	Stroke       int    `json:"stroke"`
+	KangxiStroke int    `json:"kangxi_stroke"`
+	Radical      string `json:"radical"`
+	Pinyin       string `json:"pinyin"`
+	Tone         int    `json:"tone"`
 }
 
 func elementYAMLToChinese(e string) string {
@@ -42,22 +45,30 @@ func elementYAMLToChinese(e string) string {
 	return e
 }
 
-// lookupKangxiStroke returns the Kangxi dictionary stroke count for a character.
-func lookupKangxiStroke(char string) int {
+func lookupWugeStroke(char string) (int, error) {
 	rs := []rune(char)
 	if len(rs) == 0 {
-		return 0
+		return 0, fmt.Errorf("character is empty")
 	}
-	if stroke, ok := kangxiSurnameStrokes[string(rs[0])]; ok && stroke > 0 {
-		return stroke
+	entry, ok := wugeByRune[rs[0]]
+	if !ok || entry.Stroke <= 0 {
+		return 0, fmt.Errorf("character %q not found in wuge stroke table", char)
 	}
-	if ce, ok := charByRune[rs[0]]; ok {
-		return ce.Stroke
-	}
-	return 0
+	return entry.Stroke, nil
 }
 
-// SurnameStrokesOf 计算姓氏的康熙笔画信息（单姓/复姓）。
+func lookupSurnameWugeStroke(char string) (int, error) {
+	rs := []rune(char)
+	if len(rs) == 0 {
+		return 0, fmt.Errorf("character is empty")
+	}
+	if entry, ok := surnameWugeByRune[rs[0]]; ok && entry.Stroke > 0 {
+		return entry.Stroke, nil
+	}
+	return lookupWugeStroke(char)
+}
+
+// SurnameStrokesOf 计算姓氏的 Wuge 笔画信息（单姓/复姓）。
 // Total=全部笔画之和；Last=最后一字笔画；Compound=是否复姓。
 func SurnameStrokesOf(surname string) (SurnameStrokes, error) {
 	rs := []rune(surname)
@@ -66,9 +77,9 @@ func SurnameStrokesOf(surname string) (SurnameStrokes, error) {
 	}
 	ss := SurnameStrokes{Compound: len(rs) > 1}
 	for i, r := range rs {
-		stroke := lookupKangxiStroke(string(r))
-		if stroke == 0 {
-			return SurnameStrokes{}, fmt.Errorf("surname %q not found in Kangxi dictionary", surname)
+		stroke, err := lookupSurnameWugeStroke(string(r))
+		if err != nil {
+			return SurnameStrokes{}, fmt.Errorf("surname %q not found in wuge stroke table", surname)
 		}
 		ss.Total += stroke
 		if i == len(rs)-1 {
@@ -78,22 +89,27 @@ func SurnameStrokesOf(surname string) (SurnameStrokes, error) {
 	return ss, nil
 }
 
-// getCharsByElement returns all characters of the given element, grouped by stroke.
+// getCharsByElement groups characters by modern stroke or by Wuge stroke.
 // Negative characters are filtered at this level — they never appear in the char pool.
-func getCharsByElement(elem Wuxing) map[int][]CharLite {
+func getCharsByElement(elem Wuxing, wuge bool) map[int][]CharLite {
 	chars := charByElement[elem]
 	result := make(map[int][]CharLite)
 	for _, c := range chars {
 		if negativeChars[c.Char] {
 			continue
 		}
-		result[c.Stroke] = append(result[c.Stroke], CharLite{
-			Char:    c.Char,
-			Wuxing:  c.Element.String(),
-			Stroke:  c.Stroke,
-			Radical: c.Radical,
-			Pinyin:  c.Pinyin,
-			Tone:    c.Tone,
+		stroke := c.Stroke
+		if wuge {
+			stroke = c.KangxiStroke
+		}
+		result[stroke] = append(result[stroke], CharLite{
+			Char:         c.Char,
+			Wuxing:       c.Element.String(),
+			Stroke:       c.Stroke,
+			KangxiStroke: c.KangxiStroke,
+			Radical:      c.Radical,
+			Pinyin:       c.Pinyin,
+			Tone:         c.Tone,
 		})
 	}
 	for _, v := range result {

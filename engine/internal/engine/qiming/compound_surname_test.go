@@ -15,16 +15,16 @@ func singleStrokes(n int) SurnameStrokes {
 // =============================================================================
 
 func TestSurnameStrokesOf_Compound(t *testing.T) {
-	// 欧=8, 阳=6 → Total=14, Last=6（最后一字），复姓
+	// 欧=15, 阳=17 → Total=32, Last=17（最后一字），复姓
 	ss, err := SurnameStrokesOf("欧阳")
 	if err != nil {
 		t.Fatalf("SurnameStrokesOf(欧阳): %v", err)
 	}
-	if ss.Total != 14 {
-		t.Errorf("Total = %d, want 14", ss.Total)
+	if ss.Total != 32 {
+		t.Errorf("Total = %d, want 32", ss.Total)
 	}
-	if ss.Last != 6 {
-		t.Errorf("Last = %d, want 6", ss.Last)
+	if ss.Last != 17 {
+		t.Errorf("Last = %d, want 17", ss.Last)
 	}
 	if !ss.Compound {
 		t.Error("Compound = false, want true")
@@ -148,13 +148,13 @@ func TestEvaluateNames_CompoundSurname(t *testing.T) {
 	if r.Name != "欧阳佳桐" {
 		t.Errorf("Name = %q, want 欧阳佳桐", r.Name)
 	}
-	// 复姓天格 = 14（欧8+阳6，不加1）
-	if r.WuGe.TianGe.Stroke != 14 {
-		t.Errorf("复姓天格 = %d, want 14", r.WuGe.TianGe.Stroke)
+	// 复姓天格 = 32（欧15+阳17，不加1）
+	if r.WuGe.TianGe.Stroke != 32 {
+		t.Errorf("复姓天格 = %d, want 32", r.WuGe.TianGe.Stroke)
 	}
-	// 人格 = 阳(6) + 佳(8) = 14
-	if r.WuGe.RenGe.Stroke != 14 {
-		t.Errorf("复姓人格 = %d, want 14", r.WuGe.RenGe.Stroke)
+	// 人格 = 阳(17) + 佳(8) = 25
+	if r.WuGe.RenGe.Stroke != 25 {
+		t.Errorf("复姓人格 = %d, want 25", r.WuGe.RenGe.Stroke)
 	}
 }
 
@@ -215,7 +215,7 @@ func TestEvaluateNames_WithWuge(t *testing.T) {
 }
 
 // =============================================================================
-// SurnameStroke — 复姓总笔画（兼容返回 Total）
+// SurnameStroke — 复姓总笔画
 // =============================================================================
 
 func TestSurnameStroke_Compound(t *testing.T) {
@@ -223,7 +223,7 @@ func TestSurnameStroke_Compound(t *testing.T) {
 	if err != nil {
 		t.Fatalf("SurnameStroke(欧阳): %v", err)
 	}
-	if got != 14 {
-		t.Errorf("SurnameStroke(欧阳) = %d, want 14", got)
+	if got != 32 {
+		t.Errorf("SurnameStroke(欧阳) = %d, want 32", got)
 	}
 }

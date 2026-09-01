@@ -166,28 +166,27 @@ func TestAnalyzePhonetic(t *testing.T) {
 // 汉字笔画查询
 // =============================================================================
 
-func TestLookupKangxiStroke_KnownChars(t *testing.T) {
-	// Verify commonly used surname characters are in the database
+func TestLookupWugeStroke_KnownChars(t *testing.T) {
 	tests := []struct {
 		char   string
-		expect bool // expect >0 strokes (in DB)
+		stroke int
 	}{
-		{"王", true},
-		{"李", true},
-		{"张", true},
-		{"明", true},
-		{"文", true},
-		{"xyz", false}, // non-existent
-		{"𠀀", false},   // very rare (probably not in DB)
+		{"王", 4},
+		{"李", 7},
+		{"张", 11},
+		{"刘", 15},
+		{"陈", 16},
+		{"郑", 19},
 	}
 
 	for _, tt := range tests {
-		strokes := lookupKangxiStroke(tt.char)
-		if tt.expect && strokes == 0 {
-			t.Errorf("lookupKangxiStroke(%q) = 0, want >0 (expected in DB)", tt.char)
+		stroke, err := lookupWugeStroke(tt.char)
+		if err != nil {
+			t.Errorf("lookupWugeStroke(%q): %v", tt.char, err)
+			continue
 		}
-		if !tt.expect && strokes != 0 {
-			t.Errorf("lookupKangxiStroke(%q) = %d, want 0 (not in DB)", tt.char, strokes)
+		if stroke != tt.stroke {
+			t.Errorf("lookupWugeStroke(%q) = %d, want %d", tt.char, stroke, tt.stroke)
 		}
 	}
 }
@@ -205,6 +204,9 @@ func TestSurnameStroke_KnownSurnames(t *testing.T) {
 		{"李", 7},
 		{"张", 11},
 		{"郑", 19},
+		{"沈", 8},
+		{"胡", 9},
+		{"姜", 9},
 	}
 	for _, tt := range tests {
 		got, err := SurnameStroke(tt.surname)
@@ -215,6 +217,66 @@ func TestSurnameStroke_KnownSurnames(t *testing.T) {
 		if got != tt.stroke {
 			t.Errorf("SurnameStroke(%q) = %d, want %d", tt.surname, got, tt.stroke)
 		}
+	}
+}
+
+func TestLookupCharReturnsBothStrokeSemantics(t *testing.T) {
+	ce := LookupChar("郑")
+	if ce == nil {
+		t.Fatal("LookupChar(郑) = nil")
+	}
+	if ce.Stroke != 8 {
+		t.Errorf("Stroke = %d, want 8", ce.Stroke)
+	}
+	if ce.KangxiStroke != 19 {
+		t.Errorf("KangxiStroke = %d, want 19", ce.KangxiStroke)
+	}
+	if ce.KangxiForm != "鄭" {
+		t.Errorf("KangxiForm = %q, want 鄭", ce.KangxiForm)
+	}
+}
+
+func TestGetWugeCharsGroupsByKangxiStroke(t *testing.T) {
+	chars, err := GetWugeChars("火")
+	if err != nil {
+		t.Fatalf("GetWugeChars: %v", err)
+	}
+	group := chars[19]
+	found := false
+	for _, char := range group {
+		if char.Char == "郑" {
+			found = true
+			if char.Stroke != 8 || char.KangxiStroke != 19 {
+				t.Fatalf("郑 = modern %d / wuge %d, want 8 / 19", char.Stroke, char.KangxiStroke)
+			}
+			break
+		}
+	}
+	if !found {
+		t.Fatal("郑 not grouped at Wuge stroke 19")
+	}
+}
+
+func TestEvaluateNamesUsesWugeStrokesForGivenName(t *testing.T) {
+	results, err := EvaluateNames("郑", []string{"伟"}, "", nil, nil, true)
+	if err != nil {
+		t.Fatalf("EvaluateNames: %v", err)
+	}
+	if len(results) != 1 {
+		t.Fatalf("results = %d, want 1", len(results))
+	}
+	wg := results[0].WuGe
+	if wg == nil {
+		t.Fatal("WuGe should be present")
+	}
+	if wg.RenGe.Stroke != 30 {
+		t.Errorf("RenGe.Stroke = %d, want 30", wg.RenGe.Stroke)
+	}
+	if wg.DiGe.Stroke != 12 {
+		t.Errorf("DiGe.Stroke = %d, want 12", wg.DiGe.Stroke)
+	}
+	if wg.ZongGe.Stroke != 30 {
+		t.Errorf("ZongGe.Stroke = %d, want 30", wg.ZongGe.Stroke)
 	}
 }
 
@@ -232,7 +294,7 @@ func TestSurnameStroke_NotFound(t *testing.T) {
 func TestGetCharsByElement_Structure(t *testing.T) {
 	for _, elem := range []string{"木", "火", "土", "金", "水"} {
 		wx := wuxingFromChinese(elem)
-		chars := getCharsByElement(wx)
+		chars := getCharsByElement(wx, false)
 		if len(chars) == 0 {
 			t.Errorf("getCharsByElement(%s): empty result", elem)
 		}
@@ -439,7 +501,7 @@ func TestEvaluateNames_WithWuxing(t *testing.T) {
 // =============================================================================
 
 // =============================================================================
-// BUG-9 regression: radical element corrections
+// Radical-to-element corrections
 // =============================================================================
 
 func TestRadicalToElement_SilkRadical(t *testing.T) {
@@ -479,7 +541,7 @@ func TestRadicalToElement_MoonRadical(t *testing.T) {
 }
 
 // =============================================================================
-// BUG-8 regression: inferElementFromRadical no char-scanning fallback
+// Radical lookup accepts only canonical radical symbols.
 // =============================================================================
 
 func TestInferElementFromRadical_NoCharFallback(t *testing.T) {
@@ -495,7 +557,7 @@ func TestInferElementFromRadical_NoCharFallback(t *testing.T) {
 }
 
 // =============================================================================
-// BUG-7 regression: negative chars filtered in GetChars
+// Negative characters are excluded from character pools.
 // =============================================================================
 
 func TestGetChars_NegativeCharFiltered(t *testing.T) {
@@ -657,7 +719,8 @@ func TestExampleNames_CharsInDatabase(t *testing.T) {
 		g2 := string(rs[2])
 
 		// 姓氏必须在字典中
-		if lookupKangxiStroke(surname) == 0 {
+		stroke, err := lookupSurnameWugeStroke(surname)
+		if err != nil {
 			t.Errorf("%s: surname %q not in database", full, surname)
 			continue
 		}
@@ -673,8 +736,8 @@ func TestExampleNames_CharsInDatabase(t *testing.T) {
 			continue
 		}
 		// 五格必须可计算
-		ss := singleStrokes(lookupKangxiStroke(surname))
-		wg := computeWuGeFromStrokes(ss, ce1.Stroke, ce2.Stroke)
+		ss := singleStrokes(stroke)
+		wg := computeWuGeFromStrokes(ss, ce1.KangxiStroke, ce2.KangxiStroke)
 		if wg.TianGe.Stroke == 0 || wg.RenGe.Stroke == 0 || wg.DiGe.Stroke == 0 {
 			t.Errorf("%s: wuge calculation failed: %+v", full, wg)
 		}

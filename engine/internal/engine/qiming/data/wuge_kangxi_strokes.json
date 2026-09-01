@@ -1,0 +1,33 @@
+{
+  "unicode_version": "17.0.0",
+  "source": "Unicode Unihan Database (Unihan.zip)",
+  "source_url": "https://www.unicode.org/Public/UCD/latest/ucd/Unihan.zip",
+  "license": "Unicode License V3",
+  "license_url": "https://www.unicode.org/license.txt",
+  "copyright": "Copyright © 1991-2026 Unicode, Inc.",
+  "fields": [
+    "kRSUnicode",
+    "kTraditionalVariant",
+    "kIRGKangXi",
+    "kKangXi"
+  ],
+  "stroke_rule": "Kangxi radical strokes + kRSUnicode residual",
+  "multi_radical_rule": "select the kRSUnicode entry whose radical starts at the nearest preceding Kangxi page",
+  "character_count": 8105,
+  "generated_from": "Unihan.zip",
+  "expected_cases": {
+    "万": 15,
+    "叶": 15,
+    "冯": 12,
+    "刘": 15,
+    "张": 11,
+    "陈": 16,
+    "郑": 19,
+    "沈": 19,
+    "胡": 19,
+    "姜": 19,
+    "温": 14,
+    "蔡": 17,
+    "魏": 18
+  }
+}

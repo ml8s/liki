@@ -22,19 +22,18 @@ type PickResult struct {
 // count: 1=单名 2=双名（恒生效，决定单/双字池）
 // wuge: true=按吉笔画过滤取字 / false=按笔画拆 id 取字
 func PickChars(surname, wuxing1, wuxing2 string, count int, wuge bool) ([]Combo, error) {
-	chars1, err := GetChars(wuxing1)
-	if err != nil {
-		return nil, fmt.Errorf("pick: wuxing1: %w", err)
-	}
-	if wuxing2 == "" {
-		wuxing2 = wuxing1
-	}
-	chars2, err := GetChars(wuxing2)
-	if err != nil {
-		return nil, fmt.Errorf("pick: wuxing2: %w", err)
-	}
-
 	if !wuge {
+		chars1, err := GetChars(wuxing1)
+		if err != nil {
+			return nil, fmt.Errorf("pick: wuxing1: %w", err)
+		}
+		if wuxing2 == "" {
+			wuxing2 = wuxing1
+		}
+		chars2, err := GetChars(wuxing2)
+		if err != nil {
+			return nil, fmt.Errorf("pick: wuxing2: %w", err)
+		}
 		// 不考虑五格：按笔画拆 id（chars1 的笔画键）
 		combos := make([]Combo, 0)
 		id := 0
@@ -57,6 +56,17 @@ func PickChars(surname, wuxing1, wuxing2 string, count int, wuge bool) ([]Combo,
 	}
 
 	// 考虑五格：算吉笔画对，按笔画取字
+	chars1, err := GetWugeChars(wuxing1)
+	if err != nil {
+		return nil, fmt.Errorf("pick: wuxing1: %w", err)
+	}
+	if wuxing2 == "" {
+		wuxing2 = wuxing1
+	}
+	chars2, err := GetWugeChars(wuxing2)
+	if err != nil {
+		return nil, fmt.Errorf("pick: wuxing2: %w", err)
+	}
 	ss, err := SurnameStrokesOf(surname)
 	if err != nil {
 		return nil, fmt.Errorf("pick: %w", err)
