@@ -166,7 +166,9 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
     liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化。
     chart=排盘 pan 或内部 FactorContext；基础上下文不写回调用方 chart。
     """
+    evidence: dict = {}
     ctx = {
+        "evidence": evidence,
         "liunian": liunian_data or {},
         "zw_liunian": zw_liunian_data or {},
         "year": year,
@@ -177,10 +179,13 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
     rows = load_liunian_rows()
     if shushi:
         rows = [r for r in rows if r["术数"] in (shushi, "common")]
-    return _evaluate_truth_table(
+    result = _evaluate_truth_table(
         rows,
         lambda expression: _atomic(expression, gender, chart, ctx),
     )
+    if evidence:
+        result["_evidence"] = evidence
+    return result
 
 
 # ══════════════ 快照生成入口 ══════════════
@@ -204,9 +209,13 @@ def evaluate_liunian_snap_from_pan(pan: dict, liunian_pan: dict, year: int = 0,
         zw_liunian_data=liunian_pan["ziwei"], year=year,
         natal_snapshot=bz,
     )
-    return {
+    snap = {
         "_snapshot_type": "liunian",
         "八字": evaluate_liunian_factors(**base, shushi="bazi"),
         "紫微": evaluate_liunian_factors(**base, shushi="ziwei"),
         "context": {"性别": gender},
     }
+    evidence = snap["八字"].pop("_evidence", {})
+    if evidence:
+        snap["evidence"] = evidence
+    return snap

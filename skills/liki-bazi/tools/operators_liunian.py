@@ -165,22 +165,31 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
         return 1 if z1 and z2 and (const['六冲'].get(z1) == z2) else 0
 
     if op == '三刑':
-        zhis = []
+        available = {}
         for a in args:
             zv = _source_zhi(a, ctx)
-            if zv and a not in ('日支', '时支', '年支'):
-                zhis.append(zv)
+            if zv:
+                available[a] = zv
         pan = chart
         pan_chart = (pan or {}).get('chart', {}) or {}
+        pillar_zhis = []
         for zhu in ('nian', 'yue', 'ri', 'shi'):
             z = (pan_chart.get(zhu) or {}).get('zhi', '')
             if z:
-                zhis.append(z)
+                pillar_zhis.append(z)
+        zhis = list(available.values()) + pillar_zhis
         cnt: dict = {}
         for z in zhis:
             cnt[z] = cnt.get(z, 0) + 1
         for k, v in const['三刑'].items():
+            members = (k, *v)
             if cnt.get(k, 0) >= 1 and all((cnt.get(g, 0) >= (2 if g == k else 1) for g in v)):
+                ctx.setdefault('evidence', {})['三刑流年'] = {
+                    'group': k + ''.join(v),
+                    'members': list(dict.fromkeys(members)),
+                    'sources': available,
+                    'pillars': pillar_zhis,
+                }
                 return 1
         return 0
 

@@ -53,6 +53,8 @@ def query_year_rules(
     year_data: dict[str, dict] = {}
     for rule in rules:
         result = query_yearly(rule, snapshot)
+        if detail and snapshot.get("evidence"):
+            result["evidence"] = snapshot["evidence"]
         year_data[rule] = result if detail else {
             "八字": brief(result.get("八字", [])),
             "紫微": brief(result.get("紫微", [])),
