@@ -9,7 +9,7 @@ from factor_context import FactorContext
 
 __all__ = [
     "_OP_NAMES", "_op", "_base_ctx_from_pan",
-    "_shishen_from_pan", "_wuxing_from_pan",
+    "_shishen_from_pan",
 ]
 
 # 本命算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
@@ -556,15 +556,6 @@ def _nian_guan(base, chart):
         if ss.get("shi_shen") in ("正官", "七杀"):
             return 1
     return 0
-def _wuxing_from_pan(chart: dict) -> dict:
-    """直读 pan 的五行计数与旺衰（yongshen.fu_yi）。"""
-    fu_yi = (chart.get("yongshen", {}) or {}).get("fu_yi", {}) or {}
-    return {
-        "count": fu_yi.get("wuxing_count", {}) or {},
-        "wang_shuai": fu_yi.get("wang_shuai", {}) or {},
-    }
-
-
 def _base_ctx_from_pan(chart: dict) -> dict:
     """从 pan 直接构建算子求值所需的基础上下文（从 pan 直读，无中间层）。
 
@@ -583,9 +574,13 @@ def _base_ctx_from_pan(chart: dict) -> dict:
     steps = chart.get("dayun_steps") or da_yun.get("steps", [])
     ri_gan = (full.get("ri", {}) or {}).get("gan", "") or chart.get("ri_gan", "")
     ri_zhi = (full.get("ri", {}) or {}).get("zhi", "") or chart.get("palace_ri", {}).get("zhi", "")
+    fu_yi = (chart.get("yongshen", {}) or {}).get("fu_yi", {}) or {}
     ctx = {
         "shishen": _shishen_from_pan(chart),
-        "wuxing": _wuxing_from_pan(chart),
+        "wuxing": {
+            "count": fu_yi.get("wuxing_count", {}) or {},
+            "wang_shuai": fu_yi.get("wang_shuai", {}) or {},
+        },
         "yongshen": chart.get("yongshen", {}) or {},
         "ri_gan": ri_gan,
         "palace_ri": {"zhi": ri_zhi},

@@ -27,7 +27,7 @@ CONTEXT_KEYS = {"性别"}
 # 应期层因子（factors_liunian.csv 定义——yingqi 域用，不在 factors.csv）
 def load_liunian_names() -> set:
     """流年因子名——从 factors_liunian.csv（真值表单一权威——json 已删）。"""
-    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"), "check_liunian_names")}
+    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"))}
 
 
 LIUNIAN_KEYS = load_liunian_names()
@@ -36,7 +36,7 @@ LIUNIAN_KEYS = load_liunian_names()
 def load_liunian_reachability() -> tuple:
     """返回 (八字流年可达键, 紫微流年因子名)。"""
     path = os.path.join(DY, "factors", "factors_liunian.csv")
-    rows = load_long_rows(path, "check_liunian_reach")
+    rows = load_long_rows(path)
     bz, zw = set(), set()
     for r in rows:
         if (r.get("术数") or "bazi").strip() == "ziwei":
@@ -49,13 +49,13 @@ def load_liunian_reachability() -> tuple:
 
 def load_factor_shushi() -> dict:
     """因子名 → 术数（bazi/ziwei）。"""
-    rows = load_long_rows(os.path.join(DY, "factors", "factors.csv"), "check_factor_shushi")
+    rows = load_long_rows(os.path.join(DY, "factors", "factors.csv"))
     return {r["因子"]: (r.get("术数") or "bazi").strip() for r in rows}
 
 
 def load_factors_names() -> set:
     """因子名清单——从 factors.csv（真值表单一权威——json 已删）。"""
-    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors.csv"), "check_factor_names")}
+    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors.csv"))}
 
 
 def main() -> int:
@@ -63,19 +63,18 @@ def main() -> int:
     factor_names = load_factors_names()
     factor_shushi = load_factor_shushi()
     bz_reach, zw_factors = load_liunian_reachability()
-    _LIUNIAN_ALL = load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"), "check_liunian_all")
+    _LIUNIAN_ALL = load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"))
     # 因子 → 是否字符串直通（直读[..,任意]）——强化⑩ 校验断语字符串约束列值域
     _STR_ZHITONG = {}
     for _filename in ("factors.csv", "factors_liunian.csv"):
-        _cache = "check_str_natal" if _filename == "factors.csv" else "check_str_flow"
-        for _r in load_long_rows(os.path.join(DY, "factors", _filename), _cache):
+        for _r in load_long_rows(os.path.join(DY, "factors", _filename)):
             _zt = (_r.get("直通") or "").strip()
             _STR_ZHITONG.setdefault(_r["因子"], set()).add(("任意" in _zt) if _zt else False)
     errors = []
     warnings = []
     seen_ids = {}
     # 强化⑥：引用本命[X] 的 X 必须是本命因子名。算子按本命快照通用读取。
-    for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"), "check_refs"):
+    for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv")):
         for key in r.get("conds", {}):
             if key.startswith("引用本命["):
                 inner = key[len("引用本命["):-1]
@@ -83,8 +82,7 @@ def main() -> int:
                     errors.append(f"[factors_liunian] 引用本命[{inner}] 不是本命因子——恒 0 死条件")
     # 因子定义必须有直通或条件；空定义会恒假且绕过多数表结构检查。
     for _filename in ("factors.csv", "factors_liunian.csv"):
-        _cache = "check_empty_natal" if _filename == "factors.csv" else "check_empty_flow"
-        for _r in load_long_rows(os.path.join(DY, "factors", _filename), _cache):
+        for _r in load_long_rows(os.path.join(DY, "factors", _filename)):
             if not _r.get("直通") and not _r.get("conds"):
                 errors.append(f"[{_filename}] 因子 {_r['因子']} 空定义（恒 0）")
     # 断语长表：assertions.csv 定义元数据，assertion_conditions.csv 定义约束。

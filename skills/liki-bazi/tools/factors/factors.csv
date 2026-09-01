@@ -82,8 +82,8 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 夫妻宫被合,bazi,1,1,condition,夫妻宫状态[合],1,日支被六合——配偶心不在家/他人介入（《三命通会》；参考 mingli-skills phase6）
 夫妻宫被刑,bazi,1,1,condition,夫妻宫状态[刑],1,日支被刑——婚姻矛盾（《三命通会》；参考 mingli-skills phase6）
 夫妻宫安静,bazi,1,1,condition,夫妻宫状态[静],1,日支安静——婚姻稳定（《三命通会》；参考 mingli-skills phase6）
-财库现,bazi,1,1,direct,财库现[],1,日干财星五行之墓库支（金库丑/木库未/水库辰/火库戌/土库辰）在命局——《三命通会》财库论
-财星入墓,bazi,1,1,direct,财星入墓[],1,财星坐墓库支（财藏库中——蓄财）——《三命通会》财库论
+财库现,bazi,1,1,direct,财库现[],,日干财星五行之墓库支（金库丑/木库未/水库辰/火库戌/土库辰）在命局——《三命通会》财库论
+财星入墓,bazi,1,1,direct,财星入墓[],,财星坐墓库支（财藏库中——蓄财）——《三命通会》财库论
 配偶星得令,bazi,1,1,condition,得令[配偶星],1,配偶星得月令（夫/妻星得令有力——得令者夫星强，不轻断婚缘难成）（《子平真诠》月令司权）
 配偶星受克,bazi,1,1,condition,克者旺[配偶星],1,克配偶星者旺，配偶星现但不得地
 配偶星受克,bazi,1,2,factor_ref,配偶星得地,0,克配偶星者旺，配偶星现但不得地
@@ -126,13 +126,13 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 财坏印,bazi,1,2,condition,透[财星],1,财透干克印为实坏印（《渊海子平》财坏印）——财藏支虚克不坏印（财不透则印不受实克，官印相生仍可成学；0006 财藏大学 vs 0025 财透中学）
 财印相战,bazi,1,1,condition,现[印星],1,财印相战=财印并见（命理通论）
 财印相战,bazi,1,2,condition,现[财星],1,财印相战=财印并见（命理通论）
-月令格,bazi,1,1,direct,"直读[yongshen.ge_ju.ge_ju,任意]",1,月令取格（《子平真诠》）
+月令格,bazi,1,1,direct,"直读[yongshen.ge_ju.ge_ju,任意]",,月令取格（《子平真诠》）
 格神透干,bazi,1,1,condition,格神透[],1,格神透干成格（《子平真诠》）
 寒局无火,bazi,1,1,condition,"直读[yongshen.tiao_hou.season,冬]",1,冬生无火为寒局（《穷通宝鉴》调候）
 寒局无火,bazi,1,2,condition,缺[火],1,冬生无火为寒局（《穷通宝鉴》调候）
 燥局无水,bazi,1,1,condition,"直读[yongshen.tiao_hou.season,夏]",1,夏生无水为燥局（《穷通宝鉴》调候）
 燥局无水,bazi,1,2,condition,缺[水],1,夏生无水为燥局（《穷通宝鉴》调候）
-日主五行,bazi,1,1,direct,"直读[ri_gan_wx,任意]",1,引擎日干五行
+日主五行,bazi,1,1,direct,"直读[ri_gan_wx,任意]",,引擎日干五行
 年柱官杀攻身,bazi,1,1,condition,年柱官杀[],1,年柱官杀坐年攻身（命理通论）
 天机独坐夫妻宫,ziwei,1,1,condition,"宫含[夫妻宫,天机,唯一主星]",1,天机独坐夫妻宫姻缘淡薄（《紫微斗数》）
 贪狼化忌,ziwei,1,1,condition,"宫含[本命,贪狼,化忌]",1,贪狼化忌桃花受阻（《紫微斗数》）
@@ -175,7 +175,7 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 孤辰寡宿,bazi,1,1,condition,"含[shen_sha,孤辰或寡宿]",1,孤辰寡宿主孤（《三命通会》）
 寡宿,bazi,1,1,condition,"含[shen_sha,寡宿]",1,寡宿主孤独、婚姻不利（《三命通会》）
 大运配偶星,bazi,1,1,condition,"大运十神[当前,配偶星]",1,大运走配偶星运（婚姻窗口）
-官杀取清,bazi,1,1,direct,官杀取清[],1,"官杀混杂取清（《子平真诠》""官杀混杂取清为贵""）：克我（官杀）柱被六合/六冲 → 合杀留官/冲去多余 → 由浊转清"
+官杀取清,bazi,1,1,direct,官杀取清[],,"官杀混杂取清（《子平真诠》""官杀混杂取清为贵""）：克我（官杀）柱被六合/六冲 → 合杀留官/冲去多余 → 由浊转清"
 官杀为用,bazi,1,1,condition,为用[官杀],1,官杀五行属用神/喜神——官杀为用（《滴天髓》用神为枢；引擎五神体系）
 官杀为忌,bazi,1,1,condition,为忌[官杀],1,官杀五行属忌神——官杀为忌
 财星为用,bazi,1,1,condition,为用[财星],1,财五行属用神/喜神——财为用
@@ -446,47 +446,47 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 血刃,bazi,1,1,condition,"含[shen_sha,血刃]",1,
 元辰,bazi,1,1,condition,"含[shen_sha,元辰]",1,
 天赦,bazi,1,1,condition,"含[shen_sha,天赦]",1,
-天干五合甲己,bazi,1,1,direct,"关系[gan_he,甲己]",1,
-天干五合乙庚,bazi,1,1,direct,"关系[gan_he,乙庚]",1,
-天干五合丙辛,bazi,1,1,direct,"关系[gan_he,丙辛]",1,
-天干五合丁壬,bazi,1,1,direct,"关系[gan_he,丁壬]",1,
-天干五合戊癸,bazi,1,1,direct,"关系[gan_he,戊癸]",1,
-地支六合子丑,bazi,1,1,direct,"关系[zhi_liu_he,子丑]",1,
-地支六合寅亥,bazi,1,1,direct,"关系[zhi_liu_he,寅亥]",1,
-地支六合卯戌,bazi,1,1,direct,"关系[zhi_liu_he,卯戌]",1,
-地支六合辰酉,bazi,1,1,direct,"关系[zhi_liu_he,辰酉]",1,
-地支六合巳申,bazi,1,1,direct,"关系[zhi_liu_he,巳申]",1,
-地支六合午未,bazi,1,1,direct,"关系[zhi_liu_he,午未]",1,
-地支三合申子辰,bazi,1,1,direct,"关系[san_he,申子辰]",1,
-地支三合亥卯未,bazi,1,1,direct,"关系[san_he,亥卯未]",1,
-地支三合寅午戌,bazi,1,1,direct,"关系[san_he,寅午戌]",1,
-地支三合巳酉丑,bazi,1,1,direct,"关系[san_he,巳酉丑]",1,
-地支三会寅卯辰,bazi,1,1,direct,"关系[san_hui,寅卯辰]",1,
-地支三会巳午未,bazi,1,1,direct,"关系[san_hui,巳午未]",1,
-地支三会申酉戌,bazi,1,1,direct,"关系[san_hui,申酉戌]",1,
-地支三会亥子丑,bazi,1,1,direct,"关系[san_hui,亥子丑]",1,
-地支六冲子午,bazi,1,1,direct,"关系[liu_chong,子午]",1,
-地支六冲丑未,bazi,1,1,direct,"关系[liu_chong,丑未]",1,
-地支六冲寅申,bazi,1,1,direct,"关系[liu_chong,寅申]",1,
-地支六冲卯酉,bazi,1,1,direct,"关系[liu_chong,卯酉]",1,
-地支六冲辰戌,bazi,1,1,direct,"关系[liu_chong,辰戌]",1,
-地支六冲巳亥,bazi,1,1,direct,"关系[liu_chong,巳亥]",1,
-地支六害子未,bazi,1,1,direct,"关系[liu_hai,子未]",1,
-地支六害丑午,bazi,1,1,direct,"关系[liu_hai,丑午]",1,
-地支六害寅巳,bazi,1,1,direct,"关系[liu_hai,寅巳]",1,
-地支六害卯辰,bazi,1,1,direct,"关系[liu_hai,卯辰]",1,
-地支六害申亥,bazi,1,1,direct,"关系[liu_hai,申亥]",1,
-地支六害酉戌,bazi,1,1,direct,"关系[liu_hai,酉戌]",1,
-地支相刑寅巳申,bazi,1,1,direct,"关系[liu_xing,寅巳申]",1,
-地支相刑丑戌未,bazi,1,1,direct,"关系[liu_xing,丑戌未]",1,
-地支相刑子卯,bazi,1,1,direct,"关系[liu_xing,子卯]",1,
+天干五合甲己,bazi,1,1,direct,"关系[gan_he,甲己]",,
+天干五合乙庚,bazi,1,1,direct,"关系[gan_he,乙庚]",,
+天干五合丙辛,bazi,1,1,direct,"关系[gan_he,丙辛]",,
+天干五合丁壬,bazi,1,1,direct,"关系[gan_he,丁壬]",,
+天干五合戊癸,bazi,1,1,direct,"关系[gan_he,戊癸]",,
+地支六合子丑,bazi,1,1,direct,"关系[zhi_liu_he,子丑]",,
+地支六合寅亥,bazi,1,1,direct,"关系[zhi_liu_he,寅亥]",,
+地支六合卯戌,bazi,1,1,direct,"关系[zhi_liu_he,卯戌]",,
+地支六合辰酉,bazi,1,1,direct,"关系[zhi_liu_he,辰酉]",,
+地支六合巳申,bazi,1,1,direct,"关系[zhi_liu_he,巳申]",,
+地支六合午未,bazi,1,1,direct,"关系[zhi_liu_he,午未]",,
+地支三合申子辰,bazi,1,1,direct,"关系[san_he,申子辰]",,
+地支三合亥卯未,bazi,1,1,direct,"关系[san_he,亥卯未]",,
+地支三合寅午戌,bazi,1,1,direct,"关系[san_he,寅午戌]",,
+地支三合巳酉丑,bazi,1,1,direct,"关系[san_he,巳酉丑]",,
+地支三会寅卯辰,bazi,1,1,direct,"关系[san_hui,寅卯辰]",,
+地支三会巳午未,bazi,1,1,direct,"关系[san_hui,巳午未]",,
+地支三会申酉戌,bazi,1,1,direct,"关系[san_hui,申酉戌]",,
+地支三会亥子丑,bazi,1,1,direct,"关系[san_hui,亥子丑]",,
+地支六冲子午,bazi,1,1,direct,"关系[liu_chong,子午]",,
+地支六冲丑未,bazi,1,1,direct,"关系[liu_chong,丑未]",,
+地支六冲寅申,bazi,1,1,direct,"关系[liu_chong,寅申]",,
+地支六冲卯酉,bazi,1,1,direct,"关系[liu_chong,卯酉]",,
+地支六冲辰戌,bazi,1,1,direct,"关系[liu_chong,辰戌]",,
+地支六冲巳亥,bazi,1,1,direct,"关系[liu_chong,巳亥]",,
+地支六害子未,bazi,1,1,direct,"关系[liu_hai,子未]",,
+地支六害丑午,bazi,1,1,direct,"关系[liu_hai,丑午]",,
+地支六害寅巳,bazi,1,1,direct,"关系[liu_hai,寅巳]",,
+地支六害卯辰,bazi,1,1,direct,"关系[liu_hai,卯辰]",,
+地支六害申亥,bazi,1,1,direct,"关系[liu_hai,申亥]",,
+地支六害酉戌,bazi,1,1,direct,"关系[liu_hai,酉戌]",,
+地支相刑寅巳申,bazi,1,1,direct,"关系[liu_xing,寅巳申]",,
+地支相刑丑戌未,bazi,1,1,direct,"关系[liu_xing,丑戌未]",,
+地支相刑子卯,bazi,1,1,direct,"关系[liu_xing,子卯]",,
 印多,bazi,1,1,condition,"数量至少[3,印星]",1,印星出现总数至少 3（数量维度）
 印重,bazi,1,1,condition,"数量至少[4,印星]",1,印星出现总数至少 4（程度重于印多）
 比劫重,bazi,1,1,condition,"数量至少[4,比劫]",1,比劫出现总数至少 4，重于比劫旺
 官杀多,bazi,1,1,condition,"数量至少[3,官杀]",1,官杀出现总数至少 3
 土多,bazi,1,1,condition,"五行数量至少[2,土]",1,五行土计数至少 2（四柱多土，区别于土得令而旺）
-日主,bazi,1,1,direct,"直读[ri_gan,任意]",1,日干
-日主长生状态,bazi,1,1,direct,月支长生[任意],1,日主在月支的十二长生态
+日主,bazi,1,1,direct,"直读[ri_gan,任意]",,日干
+日主长生状态,bazi,1,1,direct,月支长生[任意],,日主在月支的十二长生态
 配偶星现,bazi,1,1,condition,现[财星],1,配偶星按性别解析后存在于原局
 配偶星现,bazi,1,2,condition,"直读[gender,male]",1,配偶星按性别解析后存在于原局
 配偶星现,bazi,2,1,condition,现[官杀],1,配偶星按性别解析后存在于原局
@@ -503,14 +503,14 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 木日主受金克,bazi,1,1,condition,旺[金],1,日主为木，金旺克木（五行相克）
 木日主受金克,bazi,1,2,condition,"直读[ri_gan_wx,木]",1,日主为木，金旺克木（五行相克）
 田宅宫主星陷,ziwei,1,1,condition,"宫含[田宅宫,紫微主星,落陷]",1,田宅宫主星落陷
-官禄宫主星庙旺,ziwei,1,1,direct,"宫含[官禄宫,紫微主星,庙旺]",1,
+官禄宫主星庙旺,ziwei,1,1,direct,"宫含[官禄宫,紫微主星,庙旺]",,
 财星现,bazi,1,1,condition,现[财星],1,正财或偏财存在于原局
-身强弱,bazi,1,1,direct,"直读[yongshen.fu_yi.qiangruo,任意]",1,身强 / 身弱 / 中和
-调候季节,bazi,1,1,direct,"直读[yongshen.tiao_hou.season,任意]",1,春 / 夏 / 秋 / 冬
-日支神煞类型,bazi,1,1,direct,日支类型[任意],1,桃花 / 驿马 / 墓库 / 无
-月令本气十神,bazi,1,1,direct,月令本气[任意],1,十神名
-大运十神类,bazi,1,1,direct,"大运十神[当前,任意]",1,官杀 / 印星 / 财星 / 食伤 / 比劫
-扶抑从格,bazi,1,1,direct,"直读[yongshen.fu_yi.pattern,任意]",1,从旺格 / 从杀格 / 从财格 / 从儿格 / 假从旺格 / 假从杀格 / 假从财格 / 假从儿格
+身强弱,bazi,1,1,direct,"直读[yongshen.fu_yi.qiangruo,任意]",,身强 / 身弱 / 中和
+调候季节,bazi,1,1,direct,"直读[yongshen.tiao_hou.season,任意]",,春 / 夏 / 秋 / 冬
+日支神煞类型,bazi,1,1,direct,日支类型[任意],,桃花 / 驿马 / 墓库 / 无
+月令本气十神,bazi,1,1,direct,月令本气[任意],,十神名
+大运十神类,bazi,1,1,direct,"大运十神[当前,任意]",,官杀 / 印星 / 财星 / 食伤 / 比劫
+扶抑从格,bazi,1,1,direct,"直读[yongshen.fu_yi.pattern,任意]",,从旺格 / 从杀格 / 从财格 / 从儿格 / 假从旺格 / 假从杀格 / 假从财格 / 假从儿格
 迁移宫得动星,ziwei,1,1,factor_ref,迁移宫紫微,1,迁移宫见紫微/七杀/太阳/天马，主外出得动
 迁移宫得动星,ziwei,2,1,factor_ref,迁移宫七杀,1,迁移宫见紫微/七杀/太阳/天马，主外出得动
 迁移宫得动星,ziwei,3,1,factor_ref,迁移宫太阳,1,迁移宫见紫微/七杀/太阳/天马，主外出得动

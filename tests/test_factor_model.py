@@ -24,8 +24,7 @@ COMPLEX_DIRECT = {"财库现[]", "财星入墓[]", "官杀取清[]"}
 
 def read_groups(path: Path) -> dict[str, list[dict[str, str]]]:
     grouped: dict[str, list[dict]] = defaultdict(list)
-    key = "natal" if path.name == "factors.csv" else "liunian"
-    for row in load_long_rows(str(path), key):
+    for row in load_long_rows(str(path)):
         grouped[row["因子"]].append(row)
     return grouped
 

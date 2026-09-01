@@ -11,7 +11,7 @@ pan（engine 排盘输出，领域事实，只读）
        · 算子(_op/_liu_op/_atomic)从 pan 直读，签名无中间上下文参数
        · _base_ctx_from_pan(chart)：聚合 shishen/wuxing；FactorContext 只读挂载，不写回 pan
        · 真值表复合求值 factors.csv
-       · _domain_facts_from_pan：透传稳定领域事实
+       · project_domain_facts：透传稳定领域事实
   │
   ▼ snap = 完整领域快照（孑合字段表，bool/int/str/结构）{八字, 紫微, context}
        · 本命快照按当前调用生命周期生成；NatalContext 支持多年显式复用
@@ -49,11 +49,15 @@ pan（engine 排盘输出，领域事实，只读）
 
 ## 五、验证
 
-- 全量 Python 单测：**239 passed, 1 skipped**。
+- 全量 Python 单测：**251 passed**。
 - `check.sh`（check_schema/check_docs/版本一致）全绿。
 - 多域查询按当前调用生成 snap；多年 yearly_range/calibrate 通过 NatalContext 复用本命上下文。
 
-## 六、可后续推进
+## 六、P2 表契约
 
-- **枚举拆列归并**（字段表化，低优先）：`夫妻宫状态`(5列→1字段)；`含[patterns]`(42列→格局字段)；`宫含`(247列)不建议（多属布尔归属判断）。
-- `_wuxing_from_pan`（3行）可内联进 `_base_ctx_from_pan`（收益极微）。
+- 因子长表按文件路径做进程内只读缓存，不再暴露调用方自定义 cache key。
+- 一个因子只归属 `bazi` 或 `ziwei`；两侧因子集合不相交。
+- `factor_ref` 目标必须存在；因子引用图必须无环。
+- `direct` 行的表达式就是唯一值来源，不再声明冗余 `expected`。
+- 真值表对同一原子表达式只求值一次；本命/流年算子注册表不相交。
+- `NatalContext` 只复用本命基础聚合和本命快照；流年盘、snap 和公共 pan 保持只读。

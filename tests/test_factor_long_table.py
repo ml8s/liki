@@ -5,6 +5,7 @@ from pathlib import Path
 
 import _helpers  # noqa: F401
 import pytest
+from errors import FactorTableError
 from factor_tables import load_long_rows
 
 ROOT = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/factors"
@@ -18,7 +19,7 @@ def _raw(path):
 
 
 def test_long_table_schema_and_terms_are_continuous():
-    for name, key in CASES.items():
+    for name in CASES:
         path = ROOT / name
         rows = _raw(path)
         assert rows and set(rows[0]) == FIELDS
@@ -38,9 +39,9 @@ def test_long_table_schema_and_terms_are_continuous():
 
 
 def test_loader_grouping_matches_csv_groups():
-    for name, key in CASES.items():
+    for name in CASES:
         raw = _raw(ROOT / name)
-        loaded = load_long_rows(str(ROOT / name), key)
+        loaded = load_long_rows(str(ROOT / name))
         assert len({r["factor_id"] for r in raw}) == len({r["因子"] for r in loaded})
         # direct 行必须保持 direct；其余因子必须补全为 0。
         direct_ids = {r["factor_id"] for r in raw if r["kind"] == "direct"}
@@ -61,7 +62,7 @@ def test_direct_group_must_not_mix_conditions(tmp_path):
     path = tmp_path / "factors.csv"
     fields = ["factor_id", "shushi", "group_id", "term_index", "kind", "expression", "expected", "basis"]
     rows = [
-        {"factor_id": "直读因子", "shushi": "bazi", "group_id": "1", "term_index": "1", "kind": "direct", "expression": "直读[gender,male]", "expected": "1", "basis": ""},
+        {"factor_id": "直读因子", "shushi": "bazi", "group_id": "1", "term_index": "1", "kind": "direct", "expression": "直读[gender,male]", "expected": "", "basis": ""},
         {"factor_id": "直读因子", "shushi": "bazi", "group_id": "1", "term_index": "2", "kind": "condition", "expression": "现[印星]", "expected": "1", "basis": ""},
     ]
     with path.open("w", encoding="utf-8", newline="") as f:
@@ -69,4 +70,59 @@ def test_direct_group_must_not_mix_conditions(tmp_path):
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader(); writer.writerows(rows)
     with pytest.raises(Exception, match="混用 direct/condition"):
-        load_long_rows(str(path), "test_direct_mix")
+        load_long_rows(str(path))
+
+
+def _write(tmp_path, rows):
+    path = tmp_path / "factors.csv"
+    fields = ["factor_id", "shushi", "group_id", "term_index", "kind", "expression", "expected", "basis"]
+    defaults = {
+        "factor_id": "", "shushi": "bazi", "group_id": "1",
+        "term_index": "1", "kind": "condition", "expression": "现[印星]",
+        "expected": "1", "basis": "",
+    }
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows([{**defaults, **row} for row in rows])
+    return str(path)
+
+
+def test_factor_must_belong_to_one_side(tmp_path):
+    path = _write(tmp_path, [
+        {"factor_id": "同一因子", "shushi": "bazi"},
+        {"factor_id": "同一因子", "shushi": "ziwei"},
+    ])
+    with pytest.raises(FactorTableError, match="混用术数"):
+        load_long_rows(path)
+
+
+def test_factor_refs_must_exist(tmp_path):
+    path = _write(tmp_path, [
+        {"factor_id": "引用因子", "expression": "不存在因子", "kind": "factor_ref"},
+    ])
+    with pytest.raises(FactorTableError, match="引用不存在因子"):
+        load_long_rows(path)
+
+
+def test_factor_refs_must_be_acyclic(tmp_path):
+    path = _write(tmp_path, [
+        {"factor_id": "因子甲", "expression": "因子乙", "kind": "factor_ref"},
+        {"factor_id": "因子乙", "group_id": "2", "expression": "因子甲", "kind": "factor_ref"},
+    ])
+    with pytest.raises(FactorTableError, match="因子引用成环"):
+        load_long_rows(path)
+
+
+def test_direct_rows_do_not_duplicate_expected_value(tmp_path):
+    path = _write(tmp_path, [
+        {"factor_id": "直读因子", "kind": "direct", "expression": "直读[gender,male]", "expected": "1"},
+    ])
+    with pytest.raises(FactorTableError, match="direct group 不能声明 expected"):
+        load_long_rows(path)
+
+
+def test_production_table_cache_is_keyed_by_path():
+    first = load_long_rows(str(ROOT / "factors.csv"))
+    second = load_long_rows(str(ROOT / "factors.csv"))
+    assert first is second
