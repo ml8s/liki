@@ -11,6 +11,28 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
+func validateFourPillarChart(chart bazi.Chart) error {
+	pillars := []struct {
+		name string
+		gan  ganzhi.Gan
+		zhi  ganzhi.Zhi
+	}{
+		{"nian", chart.Nian.Gan, chart.Nian.Zhi},
+		{"yue", chart.Yue.Gan, chart.Yue.Zhi},
+		{"ri", chart.Ri.Gan, chart.Ri.Zhi},
+		{"shi", chart.Shi.Gan, chart.Shi.Zhi},
+	}
+	for _, pillar := range pillars {
+		if pillar.gan == 0 || pillar.zhi == 0 {
+			return fmt.Errorf("bazi.fullchart: chart.%s requires non-empty gan and zhi", pillar.name)
+		}
+	}
+	if chart.Gender != ganzhi.Male && chart.Gender != ganzhi.Female {
+		return fmt.Errorf("bazi.fullchart: chart.gender must be male or female")
+	}
+	return nil
+}
+
 func baziFullChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
 		Chart json.RawMessage `json:"chart"`
@@ -21,6 +43,9 @@ func baziFullChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMes
 	var chart bazi.Chart
 	if err := json.Unmarshal(p.Chart, &chart); err != nil {
 		return nil, fmt.Errorf("bazi.fullchart: %w", err)
+	}
+	if err := validateFourPillarChart(chart); err != nil {
+		return nil, err
 	}
 	result := bazi.ComputeFullChart(chart)
 	return wrapResult("bazi_fullchart", result)
