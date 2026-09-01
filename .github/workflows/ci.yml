@@ -223,7 +223,7 @@ jobs:
           Write-Host $output
           $response = $output | ConvertFrom-Json
           if ($response.ok) { exit 1 }
-          if ($response.error -ne 'unknown tool: 测试') { exit 1 }
+          if ($response.error -ne 'ValueError: unknown tool: 测试') { exit 1 }
 
   # ── 镜像发布（release 触发——gh release create 后才发；master push 只测试不发）──
   docker-publish:
