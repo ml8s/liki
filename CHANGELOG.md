@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.09.01.2 —— Issue 修复：Windows、起名笔画、fullchart 契约与流年证据
+
+- **[修复] Windows CLI 工作流**：agent CLI 显式配置 UTF-8 流；skill 增加 python/python3、`PYTHONUTF8=1` 和 PowerShell UTF-8 文件重定向规则。（#34、#37）
+- **[修复] 起名康熙笔画**：简化/繁体形态不同的常见姓氏改用康熙笔画；`郑` 现按 14 画参与五格。（#35、#39、#41）
+- **[修复] bazi.fullchart 输入契约**：展开前校验四柱干支与性别；缺失字段返回结构化 handler 错误。（#40）
+- **[修复] 流年三刑可验证性**：detail 输出附带三刑组、成员、来源与四柱参与支。（#38）
+
 ## 2026.09.01.1 —— 因子/断语长表与架构契约收敛
 
 ### 架构收敛
@@ -193,6 +200,13 @@
 - **[部署] liki-web/liki-bot 同步**：sync-skills.sh 4 skill 循环（webapp 仅挂 liki-bazi）；副本更新
 
 # Changelog
+
+## 2026.09.01.2 —— Issue 修复：Windows、起名笔画、fullchart 契约与流年证据
+
+- **[修复] Windows CLI 工作流**：agent CLI 显式配置 UTF-8 流；skill 增加 python/python3、`PYTHONUTF8=1` 和 PowerShell UTF-8 文件重定向规则。（#34、#37）
+- **[修复] 起名康熙笔画**：简化/繁体形态不同的常见姓氏改用康熙笔画；`郑` 现按 14 画参与五格。（#35、#39、#41）
+- **[修复] bazi.fullchart 输入契约**：展开前校验四柱干支与性别；缺失字段返回结构化 handler 错误。（#40）
+- **[修复] 流年三刑可验证性**：detail 输出附带三刑组、成员、来源与四柱参与支。（#38）
 
 ## 2026.09.01.1 —— 因子/断语长表与架构契约收敛
 
