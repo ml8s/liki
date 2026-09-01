@@ -45,10 +45,14 @@ func elementYAMLToChinese(e string) string {
 // lookupKangxiStroke returns the Kangxi dictionary stroke count for a character.
 func lookupKangxiStroke(char string) int {
 	rs := []rune(char)
-	if len(rs) > 0 {
-		if ce, ok := charByRune[rs[0]]; ok {
-			return ce.Stroke
-		}
+	if len(rs) == 0 {
+		return 0
+	}
+	if stroke, ok := kangxiSurnameStrokes[string(rs[0])]; ok && stroke > 0 {
+		return stroke
+	}
+	if ce, ok := charByRune[rs[0]]; ok {
+		return ce.Stroke
 	}
 	return 0
 }
@@ -62,13 +66,13 @@ func SurnameStrokesOf(surname string) (SurnameStrokes, error) {
 	}
 	ss := SurnameStrokes{Compound: len(rs) > 1}
 	for i, r := range rs {
-		ce, ok := charByRune[r]
-		if !ok {
+		stroke := lookupKangxiStroke(string(r))
+		if stroke == 0 {
 			return SurnameStrokes{}, fmt.Errorf("surname %q not found in Kangxi dictionary", surname)
 		}
-		ss.Total += ce.Stroke
+		ss.Total += stroke
 		if i == len(rs)-1 {
-			ss.Last = ce.Stroke
+			ss.Last = stroke
 		}
 	}
 	return ss, nil

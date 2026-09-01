@@ -203,7 +203,7 @@ func TestSurnameStroke_KnownSurnames(t *testing.T) {
 	}{
 		{"王", 4},
 		{"李", 7},
-		{"张", 7},
+		{"张", 11},
 	}
 	for _, tt := range tests {
 		got, err := SurnameStroke(tt.surname)
