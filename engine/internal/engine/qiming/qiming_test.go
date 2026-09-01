@@ -228,15 +228,15 @@ func TestLookupCharReturnsBothStrokeSemantics(t *testing.T) {
 	if ce.Stroke != 8 {
 		t.Errorf("Stroke = %d, want 8", ce.Stroke)
 	}
-	if ce.KangxiStroke != 19 {
-		t.Errorf("KangxiStroke = %d, want 19", ce.KangxiStroke)
+	if ce.WugeStroke != 19 {
+		t.Errorf("WugeStroke = %d, want 19", ce.WugeStroke)
 	}
-	if ce.KangxiForm != "鄭" {
-		t.Errorf("KangxiForm = %q, want 鄭", ce.KangxiForm)
+	if ce.WugeForm != "鄭" {
+		t.Errorf("WugeForm = %q, want 鄭", ce.WugeForm)
 	}
 }
 
-func TestGetWugeCharsGroupsByKangxiStroke(t *testing.T) {
+func TestGetWugeCharsGroupsByWugeStroke(t *testing.T) {
 	chars, err := GetWugeChars("火")
 	if err != nil {
 		t.Fatalf("GetWugeChars: %v", err)
@@ -246,8 +246,8 @@ func TestGetWugeCharsGroupsByKangxiStroke(t *testing.T) {
 	for _, char := range group {
 		if char.Char == "郑" {
 			found = true
-			if char.Stroke != 8 || char.KangxiStroke != 19 {
-				t.Fatalf("郑 = modern %d / wuge %d, want 8 / 19", char.Stroke, char.KangxiStroke)
+			if char.Stroke != 8 || char.WugeStroke != 19 {
+				t.Fatalf("郑 = modern %d / wuge %d, want 8 / 19", char.Stroke, char.WugeStroke)
 			}
 			break
 		}
@@ -737,7 +737,7 @@ func TestExampleNames_CharsInDatabase(t *testing.T) {
 		}
 		// 五格必须可计算
 		ss := singleStrokes(stroke)
-		wg := computeWuGeFromStrokes(ss, ce1.KangxiStroke, ce2.KangxiStroke)
+		wg := computeWuGeFromStrokes(ss, ce1.WugeStroke, ce2.WugeStroke)
 		if wg.TianGe.Stroke == 0 || wg.RenGe.Stroke == 0 || wg.DiGe.Stroke == 0 {
 			t.Errorf("%s: wuge calculation failed: %+v", full, wg)
 		}

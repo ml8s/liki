@@ -1,4 +1,4 @@
-char,kangxi_stroke,kangxi_form,form_source,radical_no,residual,unicode_version
+char,unihan_stroke,unihan_form,form_source,radical_no,residual,unicode_version
 㑇,12,㑳,unihan:kTraditionalVariant[17.0.0],9,10,17.0.0
 㑊,8,㑊,unihan:identity,9,6,17.0.0
 㕮,7,㕮,unihan:identity,30,4,17.0.0

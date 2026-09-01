@@ -99,9 +99,9 @@ func EvaluateNames(surname string, givenNames []string, yongShen string, xiShen,
 			continue
 		}
 
-		s1, s2 := charEntries[0].KangxiStroke, 0
+		s1, s2 := charEntries[0].WugeStroke, 0
 		if len(charEntries) > 1 {
-			s2 = charEntries[1].KangxiStroke
+			s2 = charEntries[1].WugeStroke
 		}
 		phon := analyzePhonetic(charEntries)
 

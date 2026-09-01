@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the qiming Wuge/Kangxi stroke table from Unicode Unihan.
+"""Generate the qiming Wuge stroke input table from Unicode Unihan.
 
 The input name table supplies the set of publishable characters and its preferred
 traditional form for ambiguous simplified characters.  Stroke values are derived
-only from Unihan kRSUnicode; kTotalStrokes and kKangXi are never used as Wuge
+only from Unihan kRSUnicode; kTotalStrokes and kKangXi are never used as stroke
 values.  For characters with multiple kRSUnicode entries, the Kangxi dictionary
 page selects the radical entry that belongs to the Kangxi classification.
 """
@@ -18,7 +18,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_CHAR_TABLE = REPO / "engine/internal/engine/qiming/data/gsc_pinyin_with_tone.csv"
-DEFAULT_OUTPUT = REPO / "engine/internal/engine/qiming/data/wuge_kangxi_strokes.csv"
+DEFAULT_OUTPUT = REPO / "engine/internal/engine/qiming/data/unihan_char_strokes.csv"
 DEFAULT_UNIHAN = Path("/tmp/Unihan/Unihan.zip")
 
 # Kangxi radical number -> radical stroke count.
@@ -232,8 +232,8 @@ def main() -> int:
 
         rows.append({
             "char": char,
-            "kangxi_stroke": stroke,
-            "kangxi_form": form,
+            "unihan_stroke": stroke,
+            "unihan_form": form,
             "form_source": form_source,
             "radical_no": radical_no,
             "residual": residual,
@@ -245,11 +245,11 @@ def main() -> int:
         "陈": 16, "郑": 19, "沈": 19, "胡": 19, "姜": 19,
         "温": 14, "蔡": 17, "魏": 18,
     }
-    generated = {row["char"]: row["kangxi_stroke"] for row in rows}
+    generated = {row["char"]: row["unihan_stroke"] for row in rows}
     for char, expected in expected_cases.items():
         actual = generated.get(char)
         if actual != expected:
-            raise ValueError(f"{char}: kangxi_stroke={actual}, want {expected}")
+            raise ValueError(f"{char}: unihan_stroke={actual}, want {expected}")
 
     with args.output.open("w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=list(rows[0]), lineterminator="\n")
@@ -264,7 +264,7 @@ def main() -> int:
         "license_url": "https://www.unicode.org/license.txt",
         "copyright": "Copyright © 1991-2026 Unicode, Inc.",
         "fields": ["kRSUnicode", "kTraditionalVariant", "kIRGKangXi", "kKangXi"],
-        "stroke_rule": "Kangxi radical strokes + kRSUnicode residual",
+        "stroke_rule": "Unihan kRSUnicode radical strokes + residual",
         "multi_radical_rule": "select the kRSUnicode entry whose radical starts at the nearest preceding Kangxi page",
         "character_count": len(rows),
         "generated_from": args.unihan.name,

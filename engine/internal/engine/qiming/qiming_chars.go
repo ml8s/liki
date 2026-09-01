@@ -7,26 +7,26 @@ import (
 
 // Character is a naming character with modern and Wuge stroke semantics.
 type Character struct {
-	Char         string `json:"char"`
-	Element      Wuxing `json:"wuxing"`
-	Stroke       int    `json:"stroke"`
-	KangxiStroke int    `json:"kangxi_stroke"`
-	Radical      string `json:"radical"`
-	Pinyin       string `json:"pinyin"`
-	Tone         int    `json:"tone"`
-	Traditional  string `json:"traditional,omitempty"`
-	KangxiForm   string `json:"kangxi_form,omitempty"`
+	Char        string `json:"char"`
+	Element     Wuxing `json:"wuxing"`
+	Stroke      int    `json:"stroke"`
+	WugeStroke  int    `json:"wuge_stroke"`
+	Radical     string `json:"radical"`
+	Pinyin      string `json:"pinyin"`
+	Tone        int    `json:"tone"`
+	Traditional string `json:"traditional,omitempty"`
+	WugeForm    string `json:"wuge_form,omitempty"`
 }
 
 // CharLite is a lightweight character view for the HTTP chars endpoint.
 type CharLite struct {
-	Char         string `json:"char"`
-	Wuxing       string `json:"wuxing"`
-	Stroke       int    `json:"stroke"`
-	KangxiStroke int    `json:"kangxi_stroke"`
-	Radical      string `json:"radical"`
-	Pinyin       string `json:"pinyin"`
-	Tone         int    `json:"tone"`
+	Char       string `json:"char"`
+	Wuxing     string `json:"wuxing"`
+	Stroke     int    `json:"stroke"`
+	WugeStroke int    `json:"wuge_stroke"`
+	Radical    string `json:"radical"`
+	Pinyin     string `json:"pinyin"`
+	Tone       int    `json:"tone"`
 }
 
 func elementYAMLToChinese(e string) string {
@@ -100,16 +100,16 @@ func getCharsByElement(elem Wuxing, wuge bool) map[int][]CharLite {
 		}
 		stroke := c.Stroke
 		if wuge {
-			stroke = c.KangxiStroke
+			stroke = c.WugeStroke
 		}
 		result[stroke] = append(result[stroke], CharLite{
-			Char:         c.Char,
-			Wuxing:       c.Element.String(),
-			Stroke:       c.Stroke,
-			KangxiStroke: c.KangxiStroke,
-			Radical:      c.Radical,
-			Pinyin:       c.Pinyin,
-			Tone:         c.Tone,
+			Char:       c.Char,
+			Wuxing:     c.Element.String(),
+			Stroke:     c.Stroke,
+			WugeStroke: c.WugeStroke,
+			Radical:    c.Radical,
+			Pinyin:     c.Pinyin,
+			Tone:       c.Tone,
 		})
 	}
 	for _, v := range result {

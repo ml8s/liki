@@ -11,7 +11,7 @@
     "kIRGKangXi",
     "kKangXi"
   ],
-  "stroke_rule": "Kangxi radical strokes + kRSUnicode residual",
+  "stroke_rule": "Unihan kRSUnicode radical strokes + residual",
   "multi_radical_rule": "select the kRSUnicode entry whose radical starts at the nearest preceding Kangxi page",
   "character_count": 8105,
   "generated_from": "Unihan.zip",
