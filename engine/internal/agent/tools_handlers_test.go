@@ -154,7 +154,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
-		"qiming.pick", "qiming.build", "qiming.check",
+		"qiming.pick", "qiming.compose", "qiming.check",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
@@ -402,30 +402,6 @@ func TestHandler_HuangliDays_InvalidDate(t *testing.T) {
 		t.Error("expected error for invalid date format")
 	}
 }
-
-func TestHandler_AllHandlersAcceptContext(t *testing.T) {
-	r := NewRPCRegistry()
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-
-	// Verify handlers don't panic or hang when context is already cancelled.
-	// Some handlers may succeed anyway (if they don't use ctx), which is fine.
-	tests := []struct {
-		method string
-		params string
-	}{
-		{"time.now", `{}`},
-		{"liuyao.qigua", `{}`},
-	}
-	for _, tt := range tests {
-		result, err := r.Execute(ctx, tt.method, json.RawMessage(tt.params))
-		_ = result
-		_ = err
-		// OK if it errors, OK if it succeeds — the test just verifies no panic/timeout.
-	}
-}
-
-// ── valid paths for handlers with low coverage ──
 
 func TestHandler_ComputeXiaoYun_Valid(t *testing.T) {
 	r := NewRPCRegistry()
@@ -678,7 +654,7 @@ func TestHandler_City_Valid(t *testing.T) {
 }
 
 // =============================================================================
-// qiming.pick
+// qiming
 // =============================================================================
 
 func TestHandler_QimingChar_Valid(t *testing.T) {
@@ -712,343 +688,272 @@ func TestHandler_QimingChar_StrokeSemantics(t *testing.T) {
 		t.Fatal(err)
 	}
 	if env.Data.Stroke != 8 || env.Data.KangxiStroke != 19 || env.Data.KangxiForm != "鄭" {
-		t.Fatalf("stroke data = %+v, want modern 8 / wuge 19 / form 鄭", env.Data)
+		t.Fatalf("stroke data = %+v, want modern 8 / Kangxi 19 / form 鄭", env.Data)
+	}
+	var raw struct {
+		Data map[string]any `json:"data"`
+	}
+	if err := json.Unmarshal(result, &raw); err != nil {
+		t.Fatal(err)
+	}
+	if _, exists := raw.Data["traditional"]; exists {
+		t.Fatal("qiming.char output should not contain traditional")
 	}
 }
 
-func TestHandler_QimingChar_NotFound(t *testing.T) {
+func TestHandler_QimingChar_Errors(t *testing.T) {
 	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "qiming.char", json.RawMessage(`{"char":"龍"}`))
-	if err == nil {
-		t.Error("expected error for unknown character")
+	for name, params := range map[string]string{
+		"unknown":       `{"char":"龍"}`,
+		"empty":         `{"char":""}`,
+		"missing":       `{}`,
+		"unknown_field": `{"char":"林","disallowed":false}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := r.Execute(context.Background(), "qiming.char", json.RawMessage(params)); err == nil {
+				t.Fatal("expected error")
+			}
+		})
 	}
 }
 
-func TestHandler_QimingChar_InvalidParams(t *testing.T) {
+func TestHandler_QimingPick(t *testing.T) {
 	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "qiming.char", json.RawMessage(`{"char":""}`))
-	if err == nil {
-		t.Error("expected error for empty char")
-	}
-	_, err = r.Execute(context.Background(), "qiming.char", json.RawMessage(`{}`))
-	if err == nil {
-		t.Error("expected error for missing char")
-	}
-}
-func TestHandler_NamingPick(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"wuxing1":"金","wuge":false}`)
-	result, err := r.Execute(context.Background(), "qiming.pick", params)
+	result, err := r.Execute(context.Background(), "qiming.pick", json.RawMessage(`{"wuxing1":"木","wuxing2":"火","count":2}`))
 	if err != nil {
 		t.Fatalf("qiming.pick: %v", err)
 	}
-	if getStr(result, "_product") != "naming_pick" {
-		t.Errorf("_product = %q, want naming_pick", getStr(result, "_product"))
+	if getStr(result, "_product") != "qiming_pick" {
+		t.Errorf("_product = %q, want qiming_pick", getStr(result, "_product"))
 	}
-	if !hasKey(result, "data") {
-		t.Error("missing data")
-	}
-}
-
-// =============================================================================
-// qiming.wuge — 双字名
-// =============================================================================
-
-// =============================================================================
-// qiming.wuge — 单名
-// =============================================================================
-
-func TestHandler_NamingPick_CharInfo(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"wuxing1":"金","count":1,"wuge":false}`)
-	result, err := r.Execute(context.Background(), "qiming.pick", params)
-	if err != nil {
-		t.Fatalf("qiming.pick: %v", err)
-	}
-
 	var env struct {
 		Data struct {
-			Combos []struct {
-				ID    int      `json:"id"`
-				First []string `json:"first"`
-			} `json:"combos"`
+			Pools []struct {
+				Slot  string   `json:"slot"`
+				Chars []string `json:"chars"`
+			} `json:"pools"`
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if len(env.Data.Combos) == 0 {
-		t.Fatal("pick should return combos")
+	if len(env.Data.Pools) != 2 {
+		t.Fatalf("pick result = %+v, want two pools", env.Data)
 	}
+	if env.Data.Pools[0].Slot != "first" || env.Data.Pools[1].Slot != "second" {
+		t.Fatalf("slots = %q, %q", env.Data.Pools[0].Slot, env.Data.Pools[1].Slot)
+	}
+	if len(env.Data.Pools[0].Chars) == 0 || len(env.Data.Pools[1].Chars) == 0 {
+		t.Fatal("candidate pools are empty")
+	}
+}
 
-	checked := 0
-	for _, combo := range env.Data.Combos {
-		for _, ch := range combo.First {
-			checked++
-			if len([]rune(ch)) != 1 {
-				t.Errorf("char %q should be single rune", ch)
+func TestHandler_QimingPick_SingleName(t *testing.T) {
+	r := NewRPCRegistry()
+	result, err := r.Execute(context.Background(), "qiming.pick", json.RawMessage(`{"wuxing1":"木","count":1}`))
+	if err != nil {
+		t.Fatalf("qiming.pick: %v", err)
+	}
+	var env struct {
+		Data struct {
+			Pools []struct {
+				Slot string `json:"slot"`
+			} `json:"pools"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data.Pools) != 1 || env.Data.Pools[0].Slot != "first" {
+		t.Fatalf("pools = %+v, want one first pool", env.Data.Pools)
+	}
+}
+
+func TestHandler_QimingPick_DefaultCount(t *testing.T) {
+	r := NewRPCRegistry()
+	result, err := r.Execute(context.Background(), "qiming.pick", json.RawMessage(`{"wuxing1":"木"}`))
+	if err != nil {
+		t.Fatalf("qiming.pick: %v", err)
+	}
+	var env struct {
+		Data struct {
+			Pools []struct {
+				Slot string `json:"slot"`
+			} `json:"pools"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data.Pools) != 2 {
+		t.Fatalf("pools = %+v, want first and second pools", env.Data.Pools)
+	}
+}
+
+func TestHandler_QimingPick_RejectsInvalidParameters(t *testing.T) {
+	r := NewRPCRegistry()
+	for name, params := range map[string]string{
+		"surname":                  `{"surname":"陈","wuxing1":"木"}`,
+		"unknown":                  `{"wuxing1":"木","unknown":false}`,
+		"wuxing2_with_single_name": `{"wuxing1":"木","wuxing2":"火","count":1}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := r.Execute(context.Background(), "qiming.pick", json.RawMessage(params)); err == nil {
+				t.Fatal("expected error")
 			}
-		}
-	}
-	if checked == 0 {
-		t.Fatal("no chars checked")
+		})
 	}
 }
 
-// =============================================================================
-// qiming.build — 带 pairs
-// =============================================================================
-
-// =============================================================================
-// qiming.build — 双字名
-// =============================================================================
-
-func TestHandler_NamingBuild(t *testing.T) {
+func TestHandler_QimingCompose(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(`{"combos":[{"id":0,"first":["囊","耀"],"second":["倔","倜"]}]}`)
-	result, err := r.Execute(context.Background(), "qiming.build", params)
+	result, err := r.Execute(context.Background(), "qiming.compose", json.RawMessage(`{"first":["林"],"second":["炎"],"max_names":10}`))
 	if err != nil {
-		t.Fatalf("qiming.build: %v", err)
+		t.Fatalf("qiming.compose: %v", err)
 	}
-	if getStr(result, "_product") != "naming_build" {
-		t.Errorf("_product = %q, want naming_build", getStr(result, "_product"))
-	}
-}
-
-// =============================================================================
-// qiming.build — 单名
-// =============================================================================
-
-// =============================================================================
-// qiming.check — 批量两字名
-// =============================================================================
-
-func TestHandler_NamingCheck_MultiTwoCharNames(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{
-		"surname":"沙",
-		"names":["佳桐","若薇","梓卉"]
-	}`)
-	result, err := r.Execute(context.Background(), "qiming.check", params)
-	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			t.Skip("test chars not in DB: " + err.Error())
-		}
-		t.Fatalf("qiming.check: %v", err)
-	}
-	if getStr(result, "_product") != "naming_check" {
-		t.Errorf("_product = %q, want naming_check", getStr(result, "_product"))
-	}
-
-	var data []map[string]any
-	env := struct {
-		Data []map[string]any `json:"data"`
-	}{}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	data = env.Data
-	if len(data) != 3 {
-		t.Fatalf("expected 3 results, got %d", len(data))
-	}
-	for i, d := range data {
-		given, _ := d["given_name"].(string)
-		if len([]rune(given)) != 2 {
-			t.Errorf("result[%d] given_name = %q (len=%d), want 2 chars", i, given, len([]rune(given)))
-		}
-		surname, _ := d["surname"].(string)
-		if surname != "沙" {
-			t.Errorf("result[%d] surname = %q, want 沙", i, surname)
-		}
-		chars, _ := d["characters"].([]any)
-		if len(chars) != 2 {
-			t.Errorf("result[%d] characters count = %d, want 2", i, len(chars))
-		}
-	}
-}
-
-func TestHandler_NamingCheck_SingleName(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{
-		"surname":"王",
-		"names":["明辉"],
-		"yongshen":"火"
-	}`)
-	result, err := r.Execute(context.Background(), "qiming.check", params)
-	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			t.Skip("test chars not in DB: " + err.Error())
-		}
-		t.Fatalf("qiming.check: %v", err)
-	}
-	if getStr(result, "_product") != "naming_check" {
-		t.Errorf("_product = %q, want naming_check", getStr(result, "_product"))
+	if getStr(result, "_product") != "qiming_compose" {
+		t.Errorf("_product = %q, want qiming_compose", getStr(result, "_product"))
 	}
 	var env struct {
-		Data []map[string]any `json:"data"`
+		Data struct {
+			TotalPossible int      `json:"total_possible"`
+			Names         []string `json:"names"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if len(env.Data) != 1 {
-		t.Fatalf("expected 1 result, got %d", len(env.Data))
-	}
-	given, _ := env.Data[0]["given_name"].(string)
-	if given != "明辉" {
-		t.Errorf("given_name = %q, want 明辉", given)
-	}
-	name, _ := env.Data[0]["name"].(string)
-	if name == "" {
-		t.Error("name is empty — should be set")
+	if env.Data.TotalPossible != 1 || len(env.Data.Names) != 1 || env.Data.Names[0] != "林炎" {
+		t.Fatalf("compose result = %+v", env.Data)
 	}
 }
 
-func TestHandler_NamingCheck_AllParams(t *testing.T) {
+func TestHandler_QimingCompose_SingleName(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(`{
-		"surname":"沙",
-		"names":["佳桐"],
-		"yongshen":"火",
-		"xishen":["木"],
-		"jishen":["金"]
-	}`)
-	result, err := r.Execute(context.Background(), "qiming.check", params)
+	result, err := r.Execute(context.Background(), "qiming.compose", json.RawMessage(`{"first":["林","桐"],"max_names":10}`))
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			t.Skip("test chars not in DB: " + err.Error())
-		}
-		t.Fatalf("qiming.check: %v", err)
-	}
-	if getStr(result, "_product") != "naming_check" {
-		t.Errorf("_product = %q, want naming_check", getStr(result, "_product"))
-	}
-
-	var env struct {
-		Data []map[string]any `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	if len(env.Data) != 1 {
-		t.Fatalf("expected 1 result, got %d", len(env.Data))
-	}
-	wuxing, _ := env.Data[0]["wuxing"].(map[string]any)
-	if wuxing == nil {
-		t.Fatal("wuxing should be set when yong/xi/ji provided")
-	}
-	if _, ok := wuxing["yong"]; !ok {
-		t.Error("wuxing.yong should be present")
-	}
-	// xi and ji may be omitempty — only check they're set when they appear
-	t.Logf("wuxing: %+v", wuxing)
-}
-
-func TestHandler_NamingCheck_CompoundSurname(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{
-		"surname":"欧阳",
-		"names":["佳桐"]
-	}`)
-	result, err := r.Execute(context.Background(), "qiming.check", params)
-	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			t.Skip("test chars not in DB: " + err.Error())
-		}
-		t.Fatalf("qiming.check: %v", err)
-	}
-	if getStr(result, "_product") != "naming_check" {
-		t.Errorf("_product = %q, want naming_check", getStr(result, "_product"))
+		t.Fatalf("qiming.compose: %v", err)
 	}
 	var env struct {
-		Data []map[string]any `json:"data"`
+		Data struct {
+			TotalPossible int      `json:"total_possible"`
+			Names         []string `json:"names"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if len(env.Data) != 1 {
-		t.Fatalf("expected 1 result, got %d", len(env.Data))
-	}
-	name, _ := env.Data[0]["name"].(string)
-	if name != "欧阳佳桐" {
-		t.Errorf("name = %q, want 欧阳佳桐", name)
-	}
-	wuge, _ := env.Data[0]["wuge"].(map[string]any)
-	if wuge == nil {
-		t.Fatal("wuge should be present")
-	}
-	tiange, _ := wuge["tiange"].(map[string]any)
-	if tiange == nil {
-		t.Fatal("tiange should be present")
-	}
-	// 复姓天格 = 欧15 + 阳17 = 32（不加 1）
-	if stroke, _ := tiange["stroke"].(float64); stroke != 32 {
-		t.Errorf("复姓天格 stroke = %v, want 32", stroke)
+	if env.Data.TotalPossible != 2 || len(env.Data.Names) != 2 || env.Data.Names[0] != "林" || env.Data.Names[1] != "桐" {
+		t.Fatalf("compose result = %+v", env.Data)
 	}
 }
 
-func TestHandler_NamingCheck_NoWuge(t *testing.T) {
+func TestHandler_QimingCompose_Errors(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(`{
-		"surname":"王",
-		"names":["明辉"],
-		"wuge":false
-	}`)
-	result, err := r.Execute(context.Background(), "qiming.check", params)
+	tests := []struct {
+		name   string
+		params string
+	}{
+		{"unknown_char", `{"first":["龍"]}`},
+		{"duplicate", `{"first":["林","林"]}`},
+		{"unknown_parameter", `{"first":["林"],"count":2}`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := r.Execute(context.Background(), "qiming.compose", json.RawMessage(test.params)); err == nil {
+				t.Fatal("expected error")
+			}
+		})
+	}
+}
+
+func TestHandler_QimingCheck(t *testing.T) {
+	r := NewRPCRegistry()
+	result, err := r.Execute(context.Background(), "qiming.check", json.RawMessage(`{"given_names":["林炎"],"yongshen":"火","xishen":["木"],"jishen":["水"]}`))
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			t.Skip("test chars not in DB: " + err.Error())
-		}
 		t.Fatalf("qiming.check: %v", err)
 	}
-	if getStr(result, "_product") != "naming_check" {
-		t.Errorf("_product = %q, want naming_check", getStr(result, "_product"))
+	if getStr(result, "_product") != "qiming_check" {
+		t.Errorf("_product = %q, want qiming_check", getStr(result, "_product"))
 	}
 	var env struct {
-		Data []map[string]any `json:"data"`
+		Data []struct {
+			GivenName string `json:"given_name"`
+			Valid     bool   `json:"valid"`
+			Phonetic  struct {
+				Tones string `json:"tones"`
+			} `json:"phonetic"`
+			Wuxing struct {
+				Yong bool `json:"yong"`
+				Xi   bool `json:"xi"`
+				Ji   bool `json:"ji"`
+			} `json:"wuxing"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if len(env.Data) != 1 {
-		t.Fatalf("expected 1 result, got %d", len(env.Data))
+	if len(env.Data) != 1 || !env.Data[0].Valid || env.Data[0].GivenName != "林炎" {
+		t.Fatalf("check result = %+v", env.Data)
 	}
-	if _, has := env.Data[0]["wuge"]; has {
-		t.Error("wuge=false 时输出不应含 wuge 键")
+	if env.Data[0].Phonetic.Tones != "2-2" {
+		t.Errorf("tones = %q, want 2-2", env.Data[0].Phonetic.Tones)
 	}
-	if _, has := env.Data[0]["sancai"]; has {
-		t.Error("wuge=false 时输出不应含 sancai 键")
-	}
-	// 五行匹配仍应保留
-	if _, has := env.Data[0]["wuxing_match"]; !has {
-		t.Error("wuge=false 时 wuxing_match 应保留")
+	if !env.Data[0].Wuxing.Yong || !env.Data[0].Wuxing.Xi || env.Data[0].Wuxing.Ji {
+		t.Fatalf("wuxing = %+v", env.Data[0].Wuxing)
 	}
 }
 
-func TestHandler_NamingCheck_WugeDefaultTrue(t *testing.T) {
-	// 未传 wuge → 默认 true，照常输出五格三才
+func TestHandler_QimingCheck_UnknownChar(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(`{
-		"surname":"王",
-		"names":["明辉"]
-	}`)
-	result, err := r.Execute(context.Background(), "qiming.check", params)
+	result, err := r.Execute(context.Background(), "qiming.check", json.RawMessage(`{"given_names":["龍明"]}`))
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			t.Skip("test chars not in DB: " + err.Error())
-		}
 		t.Fatalf("qiming.check: %v", err)
 	}
 	var env struct {
-		Data []map[string]any `json:"data"`
+		Data []struct {
+			Valid  bool `json:"valid"`
+			Errors []struct {
+				Code string `json:"code"`
+				Char string `json:"char"`
+			} `json:"errors"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if len(env.Data) != 1 {
-		t.Fatalf("expected 1 result, got %d", len(env.Data))
+	if len(env.Data) != 1 || env.Data[0].Valid {
+		t.Fatalf("check result = %+v", env.Data)
 	}
-	if _, has := env.Data[0]["wuge"]; !has {
-		t.Error("默认 wuge=true，输出应含 wuge 键")
+	if len(env.Data[0].Errors) == 0 || env.Data[0].Errors[0].Code != "character_not_found" {
+		t.Fatalf("errors = %+v", env.Data[0].Errors)
+	}
+}
+
+func TestHandler_QimingCheck_WithoutWuxingConstraints(t *testing.T) {
+	r := NewRPCRegistry()
+	result, err := r.Execute(context.Background(), "qiming.check", json.RawMessage(`{"given_names":["林炎"]}`))
+	if err != nil {
+		t.Fatalf("qiming.check: %v", err)
+	}
+	var env struct {
+		Data []struct {
+			Valid  bool           `json:"valid"`
+			Wuxing map[string]any `json:"wuxing"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data) != 1 || !env.Data[0].Valid || env.Data[0].Wuxing != nil {
+		t.Fatalf("check result = %+v", env.Data)
+	}
+}
+
+func TestHandler_QimingCheck_RejectsUnknownParameter(t *testing.T) {
+	r := NewRPCRegistry()
+	if _, err := r.Execute(context.Background(), "qiming.check", json.RawMessage(`{"given_names":["林炎"],"unknown":false}`)); err == nil {
+		t.Fatal("expected error for unknown parameter")
 	}
 }
 

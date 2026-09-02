@@ -24,8 +24,7 @@ set -euo pipefail
 
 ENGINE_PORT="${LIKI_ENGINE_PORT:-8082}"
 
-# 节点端点：由调用方位置决定（此前用 pgrep 猜"已运行→localhost / 未运行→网关"，
-# 无 docker 的机器上网关 IP 不通，本地集成测试静默跳过——改为显式模式）
+# 节点端点由调用方位置显式决定。
 if [ -n "${LIKI_RPC_URL:-}" ]; then
   LOCAL_RPC="$LIKI_RPC_URL"
 elif [ "${LIKI_RPC_MODE:-local}" = "docker" ]; then

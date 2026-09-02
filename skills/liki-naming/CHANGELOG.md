@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026.09.02.1
+
+- Remove Sancai-Wuge naming rules.
+- Replace the legacy naming build endpoint with `qiming.compose`.
+- Return candidate character pools from `qiming.pick`.
+- Resolve all character facts from the qiming database during composition and evaluation.
+- Return only generated names from `qiming.compose`; `qiming.check` provides character facts.
+- Infer single/double names from the presence of `second`; `qiming.check` accepts `given_names`.
+- Resolve radical-based element inference while generating the runtime character table.
+- Normalize absent traditional and radical values.
+- Project the source character table into a six-field runtime table without the unused traditional-form field.
+- Project Kangxi source data into a three-field runtime table.
+
 ## 2026.09.01.7
 
 - Rename the public field to `kangxi_stroke`; Wuge calculations consume Kangxi strokes.

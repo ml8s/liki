@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026.09.02.1 —— 起名 API 领域收敛
+
+- **[架构] 移除三才五格与 81 数理规则**：起名链路改为「八字用神 → 五行候选池 → 受控组名 → 字库/五行/音韵评估」，保留 Kangxi 笔画与形体作为汉字事实。
+- **[API] `qiming.build` 替换为 `qiming.compose`**：`first`/`second` 只传字，服务端校验字库并生成 given name；最终字符事实由 `qiming.check` 返回。
+- **[API] `qiming.check` 输入收敛为 `given_names`**：评估候选名不再要求 surname 参数；姓氏仅由场景层用于最终展示和谐音判断。
+- **[API] `qiming.pick` 返回候选字池**：不再接收姓氏或数理参数；单/双名由 `count` 控制。
+- **[数据] 修正五行 fallback 生成顺序**：生成运行时字库时先解析部首五行表；961 个可由部首推断五行的字进入候选池，371 个无五行依据的字不进入运行时候选池。
+- **[数据] 强化字库校验**：非法笔画、声调、拼音、重复字、负面字表格式错误 now fail fast；`NULL` 占位不再进入 API。
+- **[数据] 运行时字库瘦身为领域投影**：新增 `naming_characters.csv` 与 `kangxi_character_strokes.csv`，只保留 qiming 当前消费字段；完整 GSC / Unihan 源表保留为非 embed 数据，姓氏五格覆写表已删除。
+- **[数据] 运行时投影只包含可用命名候选**：Kangxi 运行时表同步过滤到 7,734 个具备五行依据的字。
+
 ## 2026.09.01.3 —— Windows CLI 稳定入口
 
 - **[新增] agent_cli.cmd**：Windows 下自动启用 UTF-8，并优先通过 `py -3` 调用 Python。

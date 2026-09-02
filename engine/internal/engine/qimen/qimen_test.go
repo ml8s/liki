@@ -1602,18 +1602,6 @@ func TestZhiPalace_Invalid(t *testing.T) {
 	}
 }
 
-func TestFindMaXing_Invalid(t *testing.T) {
-	// All valid 12 zhi are covered. Just verify no panic for invalid.
-	got := findMaXing(0)
-	if got != GongKan {
-		t.Logf("findMaXing(0) = %s", got)
-	}
-	got2 := findMaXing(13)
-	if got2 != GongKan {
-		t.Logf("findMaXing(13) = %s", got2)
-	}
-}
-
 // =============================================================================
 // starHomePalace — 无效
 // =============================================================================
@@ -1628,7 +1616,6 @@ func TestStarHomePalace_Invalid(t *testing.T) {
 }
 
 // ── 十干克应权威锚点（《奇门遁甲秘笈大全》方向：name/pattern=天盘+地盘）──
-// 曾发现字段 di/tian 存反导致查询方向错误（65 条全反），修复后以此防回归。
 func TestGanInteraction_AuthoritativeAnchors(t *testing.T) {
 	// key = [Earth(地盘), Heaven(天盘)] → 期望格名（含关键子串）+ 吉凶
 	anchors := []struct {

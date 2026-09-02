@@ -7,7 +7,7 @@ import factors
 
 
 class TestEvaluateFactors(unittest.TestCase):
-    """因子快照（factors.evaluate_factors）——核心逻辑回归保护。"""
+    """因子快照（factors.evaluate_factors）核心逻辑。"""
 
     def _fac(self, **shishen):
         f = mock_base_context(**shishen)
@@ -131,7 +131,7 @@ class TestYearlyIsolation(unittest.TestCase):
 
 
 class TestRiZhuWuXing(unittest.TestCase):
-    """日主五行直通因子（自查 2026-08：曾被条件列 0/1 比较破坏 → 五行性情/外貌断语永久丢失）。"""
+    """日主五行直通因子。"""
 
     def test_直读任意返回字符串(self):
         # 「任意」模式返回字符串标量，供字符串约束匹配。
@@ -171,8 +171,7 @@ class TestBiDuoCai(unittest.TestCase):
 
 
 class TestYueLingGe(unittest.TestCase):
-    """月令格因子（自查 2026-08：直读任意取值语义 + 条件列比较 + 枚举缺"格"后缀
-    三重问题 → 月令格断语全部永久丢失）。"""
+    """月令格因子。"""
 
     def test_月令格因子为格局字符串(self):
         base = mock_base_context()

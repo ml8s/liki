@@ -66,7 +66,7 @@ mkdir -p "$STASH_DIR"
 for f in "${ANSWER_FILES[@]}"; do
   [ -f "$f" ] && mv "$f" "$STASH_DIR/"
 done
-echo "答案已移出 skill 目录（隔离生效）: ${ANSWER_FILES[*]}"
+echo "答案已隔离: ${ANSWER_FILES[*]}"
 
 # 2. 评测（标准 skill-up run；key/端点经 sed 注入 yaml 的 environment.env——宿主 export 通道对
 #    qwen_code 引擎不生效，environment.env 是容器级 env，qwen 必然读到；占位符防 key 入库）
@@ -101,11 +101,11 @@ skill-up run "$RUN_YAML" --parallelism "$PARALLELISM" --output-dir "$(pwd)/tests
 restore_answers
 
 # 4. 判分（skill-up script judge 已随评测完成——答案正确率在报告的 grading rationale 里；
-#    此处仅提示结果位置；--resume 时先合并旧 iteration 已完成 case 的输出）
+#    此处仅提示结果位置；--resume 时先合并已完成 iteration 的输出）
 LATEST_ITER="$(ls -dt tests/liki-workspace/iteration-* 2>/dev/null | head -1)"
 if [ -n "$LATEST_ITER" ]; then
   if [ "$RESUME" = 1 ] && [ -n "${LATEST_DONE:-}" ] && [ "$LATEST_DONE" != "$LATEST_ITER" ]; then
-    echo "合并旧 iteration 已完成 case 输出: $LATEST_DONE"
+    echo "合并已完成 iteration 输出: $LATEST_DONE"
     for d in "$LATEST_DONE"/pan*; do
       [ -d "$d" ] || continue
       base="$(basename "$d")"

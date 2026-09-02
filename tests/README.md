@@ -21,7 +21,7 @@ bash tests/run-qwen.sh --parallelism 16    # 一键评测 + 判分
 ```
 
 评测特点：
-- **本地引擎**：`run-qwen.sh` 自动起本仓 `engine/` 的引擎（`LIKI_RPC_URL` 注入容器），脱离生产 liki.hk，可回归复现
+- **本地引擎**：`run-qwen.sh` 自动起本仓 `engine/` 的引擎（`LIKI_RPC_URL` 注入容器），脱离生产 liki.hk，可重复复现
 - **答案隔离**：评测前把答案文件 stash 移出 skill 目录，agent 容器物理读不到
 - **判分**：skill-up script judge（`grade-case.py`，由各 case 的 `judge.script_path` 引用）随评测完成
 

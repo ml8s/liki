@@ -332,7 +332,6 @@ func TestZhuNaJia(t *testing.T) {
 
 // ── 八宅游年九星对称性（数据驱动）──
 // 游年关系必须对称：A宅的生气=X ↔ X宅的生气=A（天医/延年/祸害/五鬼/六煞/绝命同理）。
-// 曾发现乾宅/巽宅 5 处不对称（六煞/五鬼/祸害），修复后以此防回归。
 func TestEightMansionSymmetry(t *testing.T) {
 	guaNameToNum := map[string]int{"坎": 1, "坤": 2, "震": 3, "巽": 4, "乾": 6, "兑": 7, "艮": 8, "离": 9}
 	numToName := map[int]string{1: "坎", 2: "坤", 3: "震", 4: "巽", 6: "乾", 7: "兑", 8: "艮", 9: "离"}

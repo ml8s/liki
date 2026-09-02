@@ -14,6 +14,13 @@
   "stroke_rule": "Unihan kRSUnicode radical strokes + residual",
   "multi_radical_rule": "select the kRSUnicode entry whose radical starts at the nearest preceding Kangxi page",
   "character_count": 8105,
+  "runtime_output": "kangxi_character_strokes.csv",
+  "runtime_fields": [
+    "char",
+    "kangxi_form",
+    "kangxi_stroke"
+  ],
+  "runtime_character_count": 7734,
   "generated_from": "Unihan.zip",
   "expected_cases": {
     "万": 15,

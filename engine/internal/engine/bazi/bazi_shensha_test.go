@@ -1011,7 +1011,7 @@ func TestShenSha_XueRen_Authoritative(t *testing.T) {
 
 // ── 天乙贵人年干=日干去重 ──
 func TestShenSha_TianYi_Dedup(t *testing.T) {
-	// 年干=日干=甲（天乙丑未），年支=丑：旧逻辑会标 2 次，现在应恰好 1 次
+	// 年干=日干=甲（天乙丑未），年支=丑：同一柱命中只记录一次。
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChou},
 		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
@@ -1032,7 +1032,7 @@ func TestShenSha_TianYi_Dedup(t *testing.T) {
 
 // ── 三合神煞（驿马）年支=日支去重 ──
 func TestShenSha_Triad_Dedup(t *testing.T) {
-	// 年支=日支=子（申子辰驿马在寅），月支=寅：旧逻辑标 2 次，现在应恰好 1 次
+	// 年支=日支=子（申子辰驿马在寅），月支=寅：同一柱命中只记录一次。
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 		Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},

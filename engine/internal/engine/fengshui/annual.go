@@ -24,8 +24,7 @@ var StarRatings = [10]string{"", "吉", "凶", "凶", "平", "大凶", "吉", "�
 //
 // 口诀（《沈氏玄空》）：上元甲子(1864)一白入中，中元甲子(1924)四绿入中，
 // 下元甲子(1984)七赤入中，逐年逆行。1864 之前的年份按 60 年甲子周期向前回推。
-// 这是八宅「流年紫白」与玄空「流年飞星」的唯一共享实现（此前 bazhai 与
-// xuankong 各有一套公式，且对甲子年入中星结果不一致，已统一为本口诀）。
+// 八宅「流年紫白」与玄空「流年飞星」共享本实现。
 func ComputeAnnualFlyingStars(year int) AnnualBoard {
 	var jiaZiYear, jiaZiStar int
 	switch {

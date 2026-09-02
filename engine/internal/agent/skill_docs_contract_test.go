@@ -1,10 +1,9 @@
 package agent
 
-// skill 文档 ↔ 引擎 schema 契约测试（外部评审 #27/#28 模式防回潮）：
+// skill 文档 ↔ 引擎 schema 契约测试：
 //  1. liki-skills 文档（SKILL.md/app/domains）反引号引用的字段名必须存在于某方法
-//     Params/Result 的 JSON Schema 属性集合——防"文档引用引擎没有的字段"（yue_po 曾缺失、
-//     yiji.md 曾引用天德/月德/三煞等无返回字段）
-//  2. skill 侧 check_docs.py 的方法白名单 == 引擎注册方法集——双向同步，防白名单漂移
+//     Params/Result 的 JSON Schema 属性集合。
+//  2. skill 侧 check_docs.py 的方法白名单 == 引擎注册方法集。
 //
 // 依赖本 monorepo 的 skills/ 目录（相对路径基于包目录 engine/internal/agent：../../../skills）；目录缺失时自动跳过。
 

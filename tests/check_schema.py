@@ -5,7 +5,7 @@
 2. 断语约束键必须 ∈ 该表"引用因子"声明（若表有声明）——防声明与实际脱节
 3. 引用因子声明中的因子名必须存在
 4. 各断语表条目 id 唯一
-5. 死列（表头列无任何行引用）——error（2026-08 存量 227 列已清零，此后新增即拦截）
+5. 死列（表头列无任何行引用）
 
 用法：
     python3 tests/check_schema.py        # 校验全部，退出码 0/1
@@ -145,7 +145,7 @@ def main() -> int:
         for k in used_keys:
             if k not in factor_names and k not in CONTEXT_KEYS and k not in LIUNIAN_KEYS:
                 errors.append(f"[{dom}] 约束键 '{k}' 不在因子全集（factors.csv 无此因子）")
-        # 强化④（外部评审 #17/#18）：流年域表（yearly_*/yingqi）键可达性——
+        # 流年域表（yearly_*/yingqi）的约束键必须可达——
         # 八字流年表引用紫微流年因子 = 跨术数死条件；引用本命因子（非引用本命[X]）= 流年快照不可达死列
         if _rel.startswith("bazi/") and (dom.startswith("yearly_") or dom == "yingqi"):
             for k in used_keys:
@@ -153,14 +153,12 @@ def main() -> int:
                     errors.append(f"[{_rel}] 八字流年表引用紫微流年因子 '{k}'——跨术数死条件（八字流年快照恒无此键，永不命中）")
                 elif k not in bz_reach and k not in CONTEXT_KEYS and k in factor_names:
                     errors.append(f"[{_rel}] 流年表引用本命因子 '{k}'（非「引用本命[X]」形式）——流年快照不可达，死列")
-        # 强化⑤（外部评审 #20）：死列检测——表头列无任何行引用（纯冗余，易滋生死条件）。
-        # 2026-08 起升级为 error：存量 227 列已清零（生成器时代的统一超集表头遗物），
-        # 基线为 0 后新增死列 = 回潮，直接拦（与 #17/#18 同级别的硬约束）。
+        # 表头列必须至少被一行约束引用；未引用列属于死条件。
         _unused = [c for c in _hdr if c not in used_keys]
         if _unused:
             _s = ",".join(_unused[:8]) + ("…" if len(_unused) > 8 else "")
             errors.append(f"[{dom}] 死列 {len(_unused)} 个（表头列无任何行引用；长表不得包含无效列）: {_s}")
-        # 强化⑦（自查 2026-08：重复断语行——同约束+同事件多条近似结论 → agent 输出冗余/矛盾）。
+        # 同一约束和事件只能有一条断语。
         # 去重键 = 约束元组 + 事件：同一因子条件对应不同事件/命理域（如 ys_101 事业阻 / yx_101 学业阻
         # / ycai_102 破财）是「多义断语」的刻意设计，不算冗余，仅约束相同而事件也相同才判重。
         _seen_cons = {}
@@ -171,7 +169,7 @@ def main() -> int:
                 warnings.append(f"[{dom}] 重复约束行: {_seen_cons[_key]} 与 {item['id']} 约束+事件完全相同（冗余，应合并）")
             else:
                 _seen_cons[_key] = item['id']
-        # 强化⑧（自查 2026-08：约束值域——非枚举列出现 0/1 以外取值 = 静默永不匹配）
+        # 非枚举约束列只能使用 0/1 值。
         _ENUM_COLS = {"月令格", "扶抑从格", "日主五行", "日主", "日主长生状态", "性别", "十神",
                               "身强弱", "调候季节", "日支神煞类型", "月令本气十神", "大运十神类",
                               "流年日主长生状态"}
@@ -202,8 +200,7 @@ def main() -> int:
                     errors.append(
                         f"[{dom}/{item['id']}] 标量列 {_k}={_v!r} 不在 constants.{_source} 闭集"
                     )
-        # 强化⑩（自查 2026-08：断语字符串约束列 vs 因子值域——月令格=XX格 需因子为字符串直通，
-        # 否则因子返回 0/1 与字符串约束永不匹配 → 断语全灭）
+        # 字符串约束列必须对应会返回字符串的因子或直读键。
         for item in rows:
             for _k, _v in (item.get("约束") or {}).items():
                 if _v in ("0", "1") or _k in CONTEXT_KEYS:
@@ -213,25 +210,25 @@ def main() -> int:
                     errors.append(f"[{dom}/{item['id']}] 字符串约束列 {_k}={_v!r} 不是因子名（或引擎直读键）")
                 elif not any(_d for _d in _defs):
                     errors.append(f"[{dom}/{item['id']}] 列 {_k}={_v!r} 因子非字符串直通（值域错配→永不匹配）")
-        # 强化⑨（自查 2026-08：紫微流年表引用八字流年因子 = 跨术数死条件——与八字侧对称）
+        # 紫微流年表不得引用八字流年因子。
         if _rel.startswith("ziwei/") and dom.startswith("yearly_"):
             _bazi_liu_factors = {r["因子"] for r in _LIUNIAN_ALL if (r.get("术数") or "bazi").strip() == "bazi"}
             for k in used_keys:
                 if k in _bazi_liu_factors:
                     errors.append(f"[{_rel}] 紫微流年表引用八字流年因子 '{k}'——跨术数死条件（紫微流年快照恒无此键）")
-        # 强化①：结论=评测状态标签（3.6.0 去异化——结论须命理表达——防标签回潮）
+        # 断语结论必须使用命理表达，不能直接使用评测状态标签。
         _LABELS = {"已婚", "未婚", "独身", "离异", "夫早亡", "已婚波折", "博士", "硕士", "大学",
                    "专科", "中学", "小学", "主妇", "老板", "老板+管理层", "管理层/高管", "稳定职业",
                    "打工有积蓄", "普通打工", "富贵", "小康", "普通", "贫穷", "婚姻复杂"}
         for item in rows:
             if item["结论"].strip() in _LABELS:
                 warnings.append(f"[{dom}/{item['id']}] 结论为评测状态标签（{item['结论']}）——应为命理表达（标签在测试层映射）")
-        # 强化②：必填列（结论/依据/经典原文非空）
+        # 结论、依据、经典原文必填。
         for item in rows:
             for col in ("结论", "依据", "经典原文"):
                 if not (item.get(col) or "").strip():
                     warnings.append(f"[{dom}/{item['id']}] 必填列 '{col}' 为空")
-        # 强化③：经典原文覆盖率
+        # 经典原文必须全量覆盖。
         _total = len(rows)
         _filled = sum(1 for it in rows if (it.get("经典原文") or "").strip())
         if _total and _filled < _total:

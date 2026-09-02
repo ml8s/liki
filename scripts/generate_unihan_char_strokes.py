@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the qiming Wuge stroke input table from Unicode Unihan.
+"""Generate qiming source and runtime Kangxi character tables from Unicode Unihan.
 
 The input name table supplies the set of publishable characters and its preferred
 traditional form for ambiguous simplified characters.  Stroke values are derived
@@ -16,9 +16,13 @@ import zipfile
 from collections import defaultdict
 from pathlib import Path
 
+from qiming_projection import load_runtime_naming_rows
+
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_CHAR_TABLE = REPO / "engine/internal/engine/qiming/data/gsc_pinyin_with_tone.csv"
+DEFAULT_RADICALS = REPO / "engine/internal/engine/qiming/data/radicals.yaml"
 DEFAULT_OUTPUT = REPO / "engine/internal/engine/qiming/data/unihan_char_strokes.csv"
+DEFAULT_RUNTIME_OUTPUT = REPO / "engine/internal/engine/qiming/data/kangxi_character_strokes.csv"
 DEFAULT_UNIHAN = Path("/tmp/Unihan/Unihan.zip")
 
 # Kangxi radical number -> radical stroke count.
@@ -49,21 +53,6 @@ FORM_OVERRIDES = {
     "宁": "寧",
     "𫇭": "蒍",
 }
-
-# Characters whose surname convention keeps the simplified/original form even
-# though their non-surname meaning has a different traditional form.
-# The engine uses these values only through SurnameStrokesOf.
-SURNAME_FORMS = {
-    "沈": "沈",
-    "胡": "胡",
-    "姜": "姜",
-    "余": "余",
-    "云": "云",
-    "后": "后",
-    "里": "里",
-    "征": "征",
-}
-
 
 def parse_unihan_files(files: dict[str, str]) -> tuple[dict, dict, str]:
     data: dict[tuple[str, str], list[str]] = defaultdict(list)
@@ -195,7 +184,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--unihan", type=Path, default=DEFAULT_UNIHAN)
     parser.add_argument("--char-table", type=Path, default=DEFAULT_CHAR_TABLE)
+    parser.add_argument("--radicals", type=Path, default=DEFAULT_RADICALS)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--runtime-output", type=Path, default=DEFAULT_RUNTIME_OUTPUT)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_OUTPUT.with_suffix(".json"))
     args = parser.parse_args()
 
@@ -256,6 +247,21 @@ def main() -> int:
         writer.writeheader()
         writer.writerows(rows)
 
+    runtime_fields = ["char", "kangxi_form", "kangxi_stroke"]
+    runtime_chars = {
+        row["word"]
+        for row in load_runtime_naming_rows(args.char_table, args.radicals)
+    }
+    runtime_rows = [row for row in rows if row["char"] in runtime_chars]
+    with args.runtime_output.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=runtime_fields, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows({
+            "char": row["char"],
+            "kangxi_form": row["unihan_form"],
+            "kangxi_stroke": row["unihan_stroke"],
+        } for row in runtime_rows)
+
     manifest = {
         "unicode_version": unicode_version,
         "source": "Unicode Unihan Database (Unihan.zip)",
@@ -267,11 +273,15 @@ def main() -> int:
         "stroke_rule": "Unihan kRSUnicode radical strokes + residual",
         "multi_radical_rule": "select the kRSUnicode entry whose radical starts at the nearest preceding Kangxi page",
         "character_count": len(rows),
+        "runtime_character_count": len(runtime_rows),
+        "runtime_output": args.runtime_output.name,
+        "runtime_fields": runtime_fields,
         "generated_from": args.unihan.name,
         "expected_cases": expected_cases,
     }
     args.manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {len(rows)} rows to {args.output}")
+    print(f"wrote {len(runtime_rows)} rows to {args.runtime_output}")
     return 0
 
 

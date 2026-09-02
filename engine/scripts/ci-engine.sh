@@ -67,7 +67,7 @@ echo "--- 编译引擎 ---"
 go build -o /tmp/liki-engine ./cmd/liki/
 step_ok "编译引擎"
 
-# 清理旧引擎进程
+# Stop an engine process already listening on the test port.
 pkill -f "liki-engine -addr :8082" 2>/dev/null || true
 sleep 1
 

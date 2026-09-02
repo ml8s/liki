@@ -1,15 +1,22 @@
 # liki monorepo Makefile — skills（Python）+ engine（Go）双栈
 #
-# 版本策略：统一单一时版号（5.0.0），skill 与 engine 同步
-#   - 单一事实源：根 Makefile 统一 bump，同时写入 4 skill VERSION 与 engine VERSION
-#   - 历史上 skill 走 4.x、engine 走 2.6.x；本次 big release 合并后统一为同一版本
+# 版本策略：根 Makefile 统一写入 4 个 skill VERSION 与 engine VERSION
 
 # ── 统一版本（skill 4 份 + engine 1 份，同步 bump）──
 VERSION_FILES := skills/liki-bazi/VERSION skills/liki-divination/VERSION skills/liki-fengshui/VERSION skills/liki-naming/VERSION engine/cmd/liki/VERSION
 
 version: ## 写入今日日期（CalVer）
-	@DATE=$$(date +%Y.%m.%d); for F in $(VERSION_FILES); do echo "$$DATE" > $$F; done; \
-	echo "✅ 版本 → $$DATE（tag 按需：git tag -a $$DATE）"
+	@BASE=$$(date +%Y.%m.%d); SERIAL=0; FOUND=0; \
+	for F in $(VERSION_FILES); do \
+		V=$$(cat "$$F"); \
+		case "$$V" in \
+			"$$BASE".*) S=$${V##*.}; [ "$$S" -gt "$$SERIAL" ] && SERIAL=$$S; FOUND=1 ;; \
+		esac; \
+	done; \
+	if [ "$$FOUND" -eq 1 ]; then SERIAL=$$((SERIAL + 1)); else SERIAL=0; fi; \
+	VERSION="$$BASE.$$SERIAL"; \
+	for F in $(VERSION_FILES); do echo "$$VERSION" > "$$F"; done; \
+	echo "✅ 版本 → $$VERSION"
 
 # ── 构建 ──
 build-archive: ## 打包 skill → dist/*.tar.gz + index.json
@@ -32,7 +39,7 @@ test-integration: ## Skill 全链路集成测试（本地起引擎 + LIKI_RPC_UR
 	@bash -c '. scripts/local-engine.sh; ensure_local_engine; trap stop_local_engine EXIT; LIKI_RPC_URL="$$LOCAL_RPC" python3 -m pytest tests/test_integration.py -q'
 
 # ── Engine 测试（全部在 engine/ 子目录，自含）──
-test-engine: ## Engine 全量测试（lint + vet + unit race + integration + RPC 冒烟 74/74）
+test-engine: ## Engine 全量测试（lint + vet + unit race + integration + RPC 冒烟）
 	cd engine && scripts/ci-engine.sh
 
 test-all: test test-engine test-integration ## 全量（单项目：skills 单测 + engine 全量 + skill 全链路集成）

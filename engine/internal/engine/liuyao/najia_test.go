@@ -65,7 +65,7 @@ func ganName(g ganzhi.Gan) string { return ganzhi.GanName(g) }
 func zhiName(z ganzhi.Zhi) string { return ganzhi.ZhiName(z) }
 
 // 装卦集成——经卦混搭卦（上下卦不同经卦）：纳甲按卦体上下经卦分别取，
-// 而非按本宫（曾将天山遁内卦误纳乾宫甲子甲寅甲辰）。
+// 而非按本宫。
 func TestNaJia_ZhuangGua_MixedTrigrams(t *testing.T) {
 	cases := []struct {
 		name    string

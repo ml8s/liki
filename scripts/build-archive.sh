@@ -22,8 +22,7 @@ for NAME in "${SKILLS[@]}"; do
     fi
     ARCHIVE="$DIST_DIR/$NAME.tar.gz"
 
-    # 版本号单一来源（外部评审 #22：skill-tools.json info.version 曾落后包版本）——
-    # build 时从 VERSION 注入，杜绝多源漂移；无 skill-tools.json 的 skill（子流程三件套）跳过
+    # skill-tools.json uses the skill VERSION file as its single version source.
     if [ -f "$SKILL_DIR/tools/skill-tools.json" ] && [ -f "$SKILL_DIR/VERSION" ]; then
         python3 - "$SKILL_DIR" <<'PYEOF'
 import json, os, sys

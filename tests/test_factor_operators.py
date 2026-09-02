@@ -108,7 +108,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
         ctx = {"year": 2005, "liunian": {}}
         self.assertEqual(_liu_op("换运流年", ["配偶星"], "male", self._fac(), ctx), 0)
 
-    # ── 三刑边界（外部评审 #12：曾退化为「任一支在场即命中」→ 年年恒命中）──
+    # 三刑必须三方齐备。
     def _chart(self, nian, yue, ri, shi):
         return {"chart": {"nian": {"zhi": nian}, "yue": {"zhi": yue},
                           "ri": {"zhi": ri}, "shi": {"zhi": shi}}}
@@ -151,7 +151,7 @@ class TestDaYunOps_YearRange(unittest.TestCase):
 
 
 class TestLiuNianOps(unittest.TestCase):
-    """流年算子边界（自查补充——防部分满足误命中回归）。
+    """流年算子边界。
 
     关注点：三刑必须三方齐备，任一支在场或部分满足不命中——
     其余流年算子同样需要"不满足必为 0"的边界用例。

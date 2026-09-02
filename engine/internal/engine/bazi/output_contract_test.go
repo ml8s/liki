@@ -10,7 +10,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-// 外部评审 ⑨：chart 输出子时换日规则说明（zi_shi_rule）。
+// chart 输出子时换日规则说明。
 func TestZiShiRule(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1981, 8, 26, 23, 30, 0, 0, time.FixedZone("CST", 8*3600)), 130.7, 8)
@@ -23,7 +23,7 @@ func TestZiShiRule(t *testing.T) {
 	}
 }
 
-// 外部评审 ⑧ 重构锚点：起运公历日 + 首步日期段（1984-02-15 男 = lunar 6年5月20日 → 起运 1990-08-04）。
+// 起运公历日与首步日期段。
 func TestDaYun_StartDate_Anchor(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
@@ -40,13 +40,13 @@ func TestDaYun_StartDate_Anchor(t *testing.T) {
 	}
 }
 
-// 外部评审 ⑦：无 gong_jia/san_qi 的命例 → JSON 缺键（omitempty 未命中缺席）。
+// 可选字段未命中时 JSON 必须缺键而不是输出 null。
 func TestOmitEmpty_Optional(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 130.7, 8)
 	full := ComputeFullChart(ComputeChart(st, ganzhi.Male))
 	b, _ := json.Marshal(full)
-	// 该命例若无拱夹/三奇 → 键缺席（omitempty）；若有则键存在且非 null——断言"不会是 null"
+	// Optional output values must never be null.
 	if strings.Contains(string(b), `"gong_jia":null`) {
 		t.Error("gong_jia 不应为 null（omitempty：未命中缺席）")
 	}

@@ -47,7 +47,7 @@ func TestDiscoverMethods_Filter(t *testing.T) {
 
 	doc := reg.DiscoverMethods([]string{"bazi"})
 	var out openRPCDoc
-	_ = json.Unmarshal(doc, &out)
+	decodeJSON(t, doc, &out)
 	names := map[string]bool{}
 	for _, m := range out.Methods {
 		names[m.Name] = true
@@ -69,7 +69,7 @@ func TestDiscoverMethods_Filter(t *testing.T) {
 	}
 
 	doc2 := reg.DiscoverMethods([]string{"xuankong.chart"})
-	_ = json.Unmarshal(doc2, &out)
+	decodeJSON(t, doc2, &out)
 	if len(out.Methods) != 1 || out.Methods[0].Name != "xuankong.chart" {
 		t.Fatalf("xuankong.chart 过滤: got %v", out.Methods)
 	}
@@ -78,7 +78,7 @@ func TestDiscoverMethods_Filter(t *testing.T) {
 	}
 
 	doc3 := reg.DiscoverMethods(nil)
-	_ = json.Unmarshal(doc3, &out)
+	decodeJSON(t, doc3, &out)
 	if len(out.Methods) <= 2 {
 		t.Fatalf("空过滤: got %d", len(out.Methods))
 	}

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """【规则表数据检查】（非判题——评测唯一走 skill-up agent）
 
-角色（2026 去异化后定稿）：
+角色：
 - 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（排盘(client) → 因子生成(evaluate_factors) → 断语查询(match)——全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
   验证规则表改动不崩、断语覆盖正常。
 - 【不判题】——判题（题目→skill→答案→对比）唯一走 skill-up agent 评测
   （tests/run-qwen.sh：agent 读 SKILL.md → 排盘(RPC)+因子生成+断语查询 → 综合判题 → grade-grouped 判分）。
-- 无 _STATUS_MAP/族逻辑/紫微铁断（评测标签/判题逻辑已全部移出 skill 与工具脚本）。
+- 不包含评测标签、族逻辑或紫微铁断；评测标签只存在于测试层。
 
 用法：python3 tests/eval_hybrid.py
 输出：tests/RESULTS.md（断语覆盖统计——非正确率）
@@ -18,7 +18,7 @@ import sys
 
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# 4.1.0 重构：tools 移至 skills/liki-bazi/tools（原 _ROOT/tools 已不存在）
+# Rule-engine tools live with the liki-bazi skill.
 _TOOLS = os.path.join(_ROOT, "skills", "liki-bazi", "tools")
 _LOCAL = os.path.dirname(os.path.abspath(__file__))   # tests/（client/birth 排盘工具在此）
 for _p in (_TOOLS, _LOCAL):

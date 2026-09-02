@@ -10,11 +10,8 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-// RPC method schemas are defined as inline Go strings rather than in tools.json.
-// tools.json serves the 8 naming-chat tools sent to the LLM as function definitions.
-// The RPC methods here are external API only (not LLM tools) — their schemas
-// drive the OpenRPC document and parameter validation. Keeping them inline avoids
-// a second JSON file that would need to stay in sync with handler signatures.
+// RPC method schemas are defined as inline Go strings. They drive the OpenRPC
+// document and parameter validation while remaining adjacent to their handlers.
 
 // Common JSON Schema fragments (inline, no $ref — self-contained for AI agents).
 const (

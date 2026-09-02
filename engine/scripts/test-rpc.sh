@@ -246,35 +246,32 @@ check_rpc_err "qimen.chart (bad kind)" "-32602"
 echo ""
 echo "${BOLD}── QiMing ──${NC}"
 
-rpc qiming.pick '{"surname":"李","wuxing1":"水","wuge":true}'
+rpc qiming.pick '{"wuxing1":"水","wuxing2":"金","count":2}'
 check_rpc_ok "qiming.pick"
-check_rpc "  has combos" '.result.data.combos != null' 'true'
+check_rpc "  has pools" '.result.data.pools != null' 'true'
 
-# combos/names 可能巨大（笛卡尔积）——jq 提取切片避免 Argument list too long
-PICK_COMBOS=$(json_val "$RPC_BODY" '.result.data.combos[0:1] | map({id, first: .first[0:3], second: .second[0:3]})')
-rpc qiming.build "{\"combos\":$PICK_COMBOS}"
-check_rpc_ok "qiming.build"
+PICK_FIRST=$(json_val "$RPC_BODY" '.result.data.pools[] | select(.slot == "first") | .chars[0:3]')
+PICK_SECOND=$(json_val "$RPC_BODY" '.result.data.pools[] | select(.slot == "second") | .chars[0:3]')
+rpc qiming.compose "{\"first\":$PICK_FIRST,\"second\":$PICK_SECOND,\"max_names\":10}"
+check_rpc_ok "qiming.compose"
 check_rpc "  has names" '.result.data.names | length > 0' 'true'
 
 BUILD_NAMES=$(json_val "$RPC_BODY" '.result.data.names[0:5]')
-rpc qiming.check "{\"surname\":\"李\",\"names\":$BUILD_NAMES,\"yongshen\":\"水\",\"xishen\":[\"金\"],\"jishen\":[\"土\"]}"
+rpc qiming.check "{\"given_names\":$BUILD_NAMES,\"yongshen\":\"水\",\"xishen\":[\"金\"],\"jishen\":[\"土\"]}"
 check_rpc_ok "qiming.check"
-check_rpc "  has wuxing_match" '.result.data[0].wuxing_match != null' 'true'
 check_rpc "  has wuxing.yong" '.result.data[0].wuxing.yong != null' 'true'
 
-rpc qiming.check '{"surname":"李","names":["沐泽"]}'
+rpc qiming.check '{"given_names":["沐泽"]}'
 check_rpc_ok "qiming.check (basic)"
-check_rpc "  has wuge" '.result.data[0].wuge != null' 'true'
+check_rpc "  has valid" '.result.data[0].valid != null' 'true'
 
 rpc qiming.check '{}'
-check_rpc_err "qiming.check (missing surname)" "-32602"
+check_rpc_err "qiming.check (missing given_names)" "-32602"
 
 rpc qiming.char '{"char":"林"}'
 check_rpc_ok "qiming.char (林)"
 check_rpc "  has wuxing" '.result.data.wuxing != null' 'true'
 check_rpc "  has stroke" '.result.data.stroke > 0' 'true'
-
-# check_rpc "  has pairs" skipped (intermittent)
 
 # ============================================================================
 # Bazhai

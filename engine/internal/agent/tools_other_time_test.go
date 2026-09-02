@@ -8,8 +8,7 @@ import (
 	"time"
 )
 
-// 回归保护：time.now 的 cst 字段曾用 now.Format("...+08:00") 硬拼时区后缀——
-// UTC 服务器上时钟值仍是 UTC，字段自相矛盾（feedback 0614cd6b / issue #14）。
+// time.now 的 cst 字段必须表示同一时刻的北京时间。
 func TestTimeNowCSTIsRealBeijingTime(t *testing.T) {
 	raw, err := timeNowHandler(context.Background(), json.RawMessage("{}"))
 	if err != nil {

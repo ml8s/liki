@@ -56,7 +56,7 @@ def test_evaluate_snap_from_pan_produces_complete_snap():
 
 
 def test_snap_embeds_stable_domain_facts():
-    """P1/领域驱动：pan 的领域事实应完整透传进 snap（藏干/大运/宫位/solar lunar 等），供断语与未来扩展。"""
+    """pan 的领域事实应完整透传进 snap（藏干/大运/宫位/solar lunar 等）。"""
     pan = _cmp_bazi_pan()
     pan["full"]["nian"]["cang_gan"] = {"main": "丁", "mid": "己"}
     pan["full"]["yue"]["cang_gan"] = {"main": "丁", "mid": "己"}

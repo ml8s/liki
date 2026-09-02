@@ -7,11 +7,10 @@ frontmatter 声明 `依赖域`。流程由 app 卡自包含（排盘 → 定用�
 
 | 卡 | 功能 | 依赖域 |
 |----|------|--------|
-| [naming.md](naming.md) | **通用起名/改名**（含三才五格参数分支：考虑/不考虑） | bazi,qiming |
+| [naming.md](naming.md) | **通用起名/改名** | bazi,qiming |
 | [foreign.md](foreign.md) | **外国人起中文名**（英文姓→音近中国姓→中文流程） | bazi,qiming |
 | [selfcheck.md](selfcheck.md) | **自选名字评估**（跳过排盘取字，直接评估） | qiming |
 
 ## 卡间关系
 
-- 三张卡共享 7 步骨架（排盘→用神→参数→字库→取字→组名→评估）。naming.md 是完整骨架，foreign.md 在其前置「选姓」一步，selfcheck.md 只走「评估」一步。
-- 「考虑/不考虑三才五格」是 **naming.md 第 3 步的参数分支**（影响 pick/check 的 wuge 与字库策略），不是独立场景，不单独建卡。
+- naming.md 和 foreign.md 共享「排盘→用神→参数→取字→组名→评估」骨架；foreign.md 前置「选姓」一步。selfcheck.md 只执行「评估」。

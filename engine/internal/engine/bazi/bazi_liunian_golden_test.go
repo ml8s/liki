@@ -78,7 +78,7 @@ func TestLiuNian_Golden(t *testing.T) {
 					t.Errorf("%d 缺神煞 %q, got %v", gc.Year, want, ln.ShenSha)
 				}
 			}
-			// 断言无多余神煞（防回归多报）
+			// 流年神煞集合必须与基准一致。
 			if len(got) != len(gc.ShenSha) {
 				t.Errorf("%d 神煞数 = %d (got %v), want %d (%v)", gc.Year, len(got), ln.ShenSha, len(gc.ShenSha), gc.ShenSha)
 			}

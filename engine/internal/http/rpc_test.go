@@ -259,7 +259,9 @@ func TestRPC_BodyTooLarge(t *testing.T) {
 	stack := BodyLimit(http.HandlerFunc(HandleRPC(reg)))
 	stack.ServeHTTP(w, r)
 	var resp rpcResponse
-	_ = json.Unmarshal(w.Body.Bytes(), &resp)
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatal(err)
+	}
 	if resp.Error == nil || resp.Error.Code != -32600 || !strings.Contains(resp.Error.Message, "too large") {
 		t.Errorf("超限 body 应返回明确错误，got %+v", resp.Error)
 	}
@@ -287,7 +289,7 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 		"bazi.fullchart", "bazi.chart", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun",
 		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.bond",
 		"qimen.chart",
-		"qiming.char", "qiming.pick", "qiming.build", "qiming.check",
+		"qiming.char", "qiming.pick", "qiming.compose", "qiming.check",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
@@ -633,7 +635,7 @@ func TestRPC_Dispatch_BaziChart(t *testing.T) {
 		for _, k := range []string{"nian", "yue", "ri", "shi"} {
 			assertNonNil(t, data, k)
 		}
-		// 大运字段（重构：start_date 起运公历日 + start_*_after 偏移 + steps 日期段）
+		// 大运字段包含起运公历日、偏移和步骤日期段。
 		dy := data["da_yun"].(map[string]any)
 		for _, k := range []string{"start_date", "start_year_after", "start_month_after", "start_day_after", "direction", "steps", "current_step_index"} {
 			assertNonNil(t, dy, k)

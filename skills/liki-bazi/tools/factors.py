@@ -126,7 +126,7 @@ def evaluate_snap_from_pan(pan: dict, current_year: int = 0) -> dict:
 
     返回 {八字: {...}, 紫微: {...}, context: {...}}；
     内部用 _base_ctx_from_pan 从 pan 构建求值上下文，算子仍经 _op 从 pan 直读求值。
-    并透传 pan 的稳定领域事实（纳音/三元/旬空/局数/命身主/空宫 等）进对应盘 snap——供断语与未来扩展消费。
+    并透传 pan 的稳定领域事实（纳音/三元/旬空/局数/命身主/空宫 等）进对应盘 snap，供断语消费。
 
     不做全局内容缓存：agent CLI 一次调用只求值一次，长驻场景由调用方决定生命周期。
     同一 pan 的多域查询在进程内可复用外部传入的 NatalContext。

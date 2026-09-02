@@ -446,11 +446,10 @@ func TestSolarTime_LateNightDayShift(t *testing.T) {
 	}
 }
 
-func TestComputeBazi_ZeroTimeDoesNotPanic(t *testing.T) {
+func TestComputeBazi_ZeroTimeReturnsValidPillars(t *testing.T) {
 	st := SolarTime(time.Time{})
 	bz := ComputeBazi(st)
 
-	// All pillars should have valid (though meaningless) values, not panic.
 	if bz.Nian.Gan < 1 || bz.Nian.Gan > 10 {
 		t.Errorf("Nian.Gan = %d from zero time", bz.Nian.Gan)
 	}
@@ -460,14 +459,6 @@ func TestComputeBazi_ZeroTimeDoesNotPanic(t *testing.T) {
 }
 
 func TestLunarToGregorian_OutOfRange(t *testing.T) {
-	// Out-of-range lunar dates should return zero time, not panic.
-	lt := LunarTime{Year: -1, Month: 1, Day: 1}
-	gt := LunarToGregorian(lt)
-	if !gt.Time().IsZero() {
-		// -1 year may legitimately convert, so just verify no panic.
-		t.Log("LunarToGregorian(-1,1,1) returned non-zero time")
-	}
-
 	// Month 13 should return zero time.
 	lt13 := LunarTime{Year: 2024, Month: 13, Day: 1}
 	gt13 := LunarToGregorian(lt13)
@@ -484,7 +475,6 @@ func TestLunarToGregorian_OutOfRange(t *testing.T) {
 }
 
 func TestRiZhu_YearOutOfRange(t *testing.T) {
-	// RiZhu for very early years should not panic.
 	zhu := RiZhu(GregorianTime(time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)))
 	if zhu.Gan < 1 || zhu.Gan > 10 {
 		t.Errorf("RiZhu year 1: Gan = %d", zhu.Gan)
@@ -493,7 +483,6 @@ func TestRiZhu_YearOutOfRange(t *testing.T) {
 		t.Errorf("RiZhu year 1: Zhi = %d", zhu.Zhi)
 	}
 
-	// RiZhu for far future years should not panic.
 	zhu2100 := RiZhu(GregorianTime(time.Date(2100, 6, 15, 0, 0, 0, 0, time.UTC)))
 	if zhu2100.Gan < 1 || zhu2100.Gan > 10 {
 		t.Errorf("RiZhu year 2100: Gan = %d", zhu2100.Gan)
@@ -501,12 +490,10 @@ func TestRiZhu_YearOutOfRange(t *testing.T) {
 }
 
 func TestComputeTimeset_ExtremeLongitude(t *testing.T) {
-	// Longitude values at ±180 should not panic.
 	gt := GregorianTime(time.Date(2024, 6, 15, 12, 0, 0, 0, time.UTC))
 
 	for _, lon := range []float64{-180, 0, 180, 200, -200} {
 		ts := ComputeTimeset(gt, lon)
-		// Just verify we get a valid result without panicking.
 		if ts.Solar.Time().IsZero() {
 			t.Errorf("ComputeTimeset(lon=%.1f) returned zero solar time", lon)
 		}

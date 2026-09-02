@@ -258,7 +258,6 @@ func TestGeJu_RealCharts(t *testing.T) {
 		{
 			// 甲子 丙寅 己卯 戊辰
 			// 己日主, 寅月(甲木正官本气), 年干甲木透 → 正官格
-			// 旧算法误得"正印格"(取月干丙火)
 			name:        "己日寅月甲透年干→正官格",
 			birthTime:   time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,
@@ -289,7 +288,6 @@ func TestGeJu_RealCharts(t *testing.T) {
 		{
 			// 乙丑 己卯 戊午 戊午
 			// 戊日主, 卯月(乙木正官本气), 年干乙木透 → 正官格
-			// 旧算法误得"杂格"(月干己土劫财)
 			name:        "戊日卯月乙透年干→正官格",
 			birthTime:   time.Date(1985, 3, 20, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,
@@ -300,7 +298,6 @@ func TestGeJu_RealCharts(t *testing.T) {
 		{
 			// 戊辰 戊午 辛丑 甲午
 			// 辛日主, 午月(丁火七杀本气), 四干无丁 → 虚格七杀
-			// 旧算法误得"正印格"(月干戊土偏印)
 			name:        "辛日午月丁不透→虚格七杀",
 			birthTime:   time.Date(1988, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 			gender:      ganzhi.Male,

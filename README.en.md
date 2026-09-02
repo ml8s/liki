@@ -29,7 +29,7 @@ After installation, your AI assistant gains 4 metaphysics skills:
 | Skill | What you can ask | Try this |
 |-------|------------------|----------|
 | **liki-bazi** destiny | Marriage, career, wealth, health, education, personality, family, compatibility, full life report | `Read my BaZi, born 1990-05-20 12:00 in Beijing, male` |
-| **liki-naming** naming | Baby naming, renaming, company naming, Chinese names for English speakers, name evaluation | `Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen` |
+| **liki-naming** naming | Baby naming, renaming, Chinese names for English speakers, name evaluation | `Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen` |
 | **liki-divination** divination | Liuyao (outcome & timing), QiMen (direction & decision), auspicious date selection | `Will this work out? When will I see results?` |
 | **liki-fengshui** feng shui | Bazhai chart & layout, Xuankong flying stars, annual feng shui | `How is the feng shui of my home?` |
 
@@ -105,9 +105,9 @@ Ask by life domain — the skill automatically charts, queries judgment tables, 
 
 > Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen
 
-Flow: BaZi yong-shen → five-element supplement → Sancai-Wuge filter → recommended names (with source and basis).
+Flow: BaZi yong-shen → five-element supplement → candidate filtering → composition and evaluation → recommended names (with source and basis).
 
-Also supports: renaming, company naming, Chinese names for English speakers, name evaluation.
+Also supports: renaming, Chinese names for English speakers, name evaluation.
 
 #### liki-divination
 

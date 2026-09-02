@@ -8,7 +8,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-// 外部评审 ⑧：大限公历年段（start_year = birthYear + QiSui − 1，虚岁→公历年）。
+// 大限公历年段使用 start_year = birthYear + QiSui − 1。
 func TestDaXian_StartYear(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)

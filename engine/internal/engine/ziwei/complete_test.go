@@ -140,7 +140,7 @@ func TestComplete(t *testing.T) {
 			// 流年盘（命主特定）
 			ln := ComputeLiuNian(fc, 2026)
 			assertFlowPalaces(t, "流年", ln.GongWei, tc.YFlow, &pass, &fail)
-			// 流月/日/时盘（变量复用后续流月/日/时断言）
+			// 流月/日/时盘共用目标农历日。
 			tgtM := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(2026, 6, 4, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
 			ly2 := ComputeLiuYue(fc, 2026, tgtM.Month)
 			assertFlowPalaces(t, "流月", ly2.GongWei, tc.MFlow, &pass, &fail)

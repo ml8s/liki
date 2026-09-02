@@ -8,7 +8,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-// 空宫借星（外部评审 ⑪）：无主星宫位借对宫主星——确定性派生锚点。
+// 无主星宫位借对宫主星。
 // 1981-08-26T12:00 男命（SolarToLunar 路径实测）：命宫空宫 → 借对宫主星（紫微/贪狼）。
 func TestKongGong_BorrowFromDuiGong(t *testing.T) {
 	st := tianwen.GregorianToSolar(

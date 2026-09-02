@@ -13,7 +13,7 @@
 1. Fork 本仓库
 2. 创建一个功能分支：`git checkout -b feat/my-change`
 3. 安装 git hooks（一次）：`make hooks`
-4. 升版本用根 Makefile 统一写入当日日期（skill 4 份 VERSION + engine VERSION 同步；同日多次发布可在日期后追加 `.2`、`.3` 等序号，并同步 `skill-tools.json` info.version）：
+4. 升版本用根 Makefile 统一写入当日日期和序号（skill 4 份 VERSION + engine VERSION 同步；有 `skill-tools.json` 的 skill 会同步 `info.version`）：
    ```bash
    make version
    ```

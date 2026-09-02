@@ -34,7 +34,7 @@ METHOD_WHITELIST = {
     "huangli.days",
     "bazhai.chart", "bazhai.layout",
     "xuankong.chart", "xuankong.liunian",
-    "qiming.pick", "qiming.build", "qiming.check", "qiming.char",
+    "qiming.pick", "qiming.compose", "qiming.check", "qiming.char",
     # divination
     "liuyao.qigua", "liuyao.chart", "qimen.chart",
     # 基础
@@ -68,7 +68,7 @@ def main() -> int:
     docs += sorted(glob.glob(os.path.join(SKILL, "domains", "**", "*.md"), recursive=True))
     docs = [d for d in docs if os.path.exists(d)]
     # tools/*.py 中的 RPC 调用方法名（call("bazi.chart", ...)）——必须在引擎方法白名单
-    # （防引擎改名/拼错后 skill 侧静默失败——跨仓库契约，2026-08 自查固化）
+    # Keep tool RPC method names aligned with the engine registry.
     py_docs = sorted(glob.glob(os.path.join(SKILL, "tools", "*.py")))
 
     errors, warnings = [], []

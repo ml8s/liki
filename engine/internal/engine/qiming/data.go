@@ -5,55 +5,28 @@ import (
 	_ "embed"
 	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
-
-	"liki-engine/internal/engine/ganzhi"
-
-	"gopkg.in/yaml.v3"
 )
 
-//go:embed data/gsc_pinyin_with_tone.csv
-var gscCSV []byte
+//go:embed data/naming_characters.csv
+var namingCharactersCSV []byte
 
-//go:embed data/unihan_char_strokes.csv
-var kangxiStrokesCSV []byte
+var namingCharacterColumns = []string{"char", "pinyin", "radical", "stroke", "wuxing", "tone"}
 
-//go:embed data/unihan_surname_forms.csv
-var wugeSurnameFormsCSV []byte
-
-//go:embed data/sancai_numbers.yaml
-var sanCaiNumbersYAML []byte
-
-//go:embed data/sancai_configs.yaml
-var sanCaiConfigsYAML []byte
+//go:embed data/kangxi_character_strokes.csv
+var kangxiCharacterStrokesCSV []byte
 
 //go:embed data/negative_chars.txt
 var negativeCharsTxt []byte
 
-//go:embed data/radicals.yaml
-var radicalsYAML []byte
-
-var charByElement = make(map[Wuxing][]Character)
+var charByElement map[Wuxing][]Character
 var charByRune = make(map[rune]Character)
 var kangxiByRune = make(map[rune]kangxiStroke)
-var surnameKangxiByRune = make(map[rune]kangxiStroke)
-var sanCaiNums map[int]sanCaiNum
-var sanCaiCfg map[string]sanCaiCfgEntry
 var negativeChars = make(map[string]bool)
-var radicalToElement = make(map[string]Wuxing)
-
-type sanCaiNum struct {
-	Element string
-	Fortune string
-	Desc    string
-}
-
-type sanCaiCfgEntry struct {
-	Fortune string
-	Desc    string
-}
 
 type kangxiStroke struct {
 	Stroke int
@@ -64,231 +37,169 @@ func init() {
 	if err := loadNaming(); err != nil {
 		log.Fatalf("qiming: load qiming data: %v", err)
 	}
-	if err := loadRadicals(); err != nil {
-		log.Fatalf("qiming: load radicals: %v", err)
-	}
 	if err := loadKangxiStrokes(); err != nil {
 		log.Fatalf("qiming: load kangxi strokes: %v", err)
 	}
-	applyKangxiStrokes()
-}
-
-// radicalToElement maps Kangxi radicals to five elements per Kangxi dictionary.
-
-// inferElementFromRadical returns the element implied by a Kangxi radical.
-func inferElementFromRadical(radical string) (Wuxing, bool) {
-	e, ok := radicalToElement[radical]
-	return e, ok
+	if err := applyKangxiStrokes(); err != nil {
+		log.Fatalf("qiming: apply kangxi strokes: %v", err)
+	}
 }
 
 func loadNaming() error {
-	{
-		r := csv.NewReader(bytes.NewReader(gscCSV))
-		records, err := r.ReadAll()
-		if err != nil {
-			return err
-		}
-		for i, rec := range records {
-			if i == 0 {
-				continue // skip header
-			}
-			if len(rec) < 11 {
-				continue
-			}
-			word := rec[1]
-			if word == "" {
-				continue
-			}
-			elem := wuxingFromChinese(rec[5])
-			if elem == 0 {
-				var ok bool
-				elem, ok = inferElementFromRadical(rec[3])
-				if !ok {
-					continue
-				}
-			}
-			stroke, err := strconv.Atoi(rec[4])
-			if err != nil {
-				continue
-			}
-			tone, err := strconv.Atoi(rec[10])
-			if err != nil {
-				tone = 0
-			}
-
-			// Take the first reading when multiple pinyin are present ("zé,shì" → "ze").
-			pinyin := rec[2]
-			if idx := strings.IndexByte(pinyin, ','); idx >= 0 {
-				pinyin = pinyin[:idx]
-			}
-			// Strip tone numbers and neutral-tone markers.
-			pinyin = strings.TrimRight(pinyin, "0123456789·")
-
-			ce := Character{
-				Char:        word,
-				Element:     elem,
-				Stroke:      stroke,
-				Radical:     rec[3],
-				Pinyin:      pinyin,
-				Tone:        tone,
-				Traditional: rec[6],
-			}
-			charByElement[elem] = append(charByElement[elem], ce)
-			for _, r := range word {
-				if _, exists := charByRune[r]; !exists {
-					charByRune[r] = ce
-				}
-			}
-		}
-	}
-
-	{
-		// Load negative-meaning characters for name filtering.
-		for _, line := range strings.Split(strings.TrimSpace(string(negativeCharsTxt)), "\n") {
-			line = strings.TrimSpace(line)
-			if line != "" {
-				negativeChars[line] = true
-			}
-		}
-	}
-
-	{
-		var raw struct {
-			Numbers map[int]struct {
-				Element string `yaml:"element"`
-				Fortune string `yaml:"fortune"`
-				Desc    string `yaml:"desc"`
-			} `yaml:"numbers"`
-		}
-		if err := yaml.Unmarshal(sanCaiNumbersYAML, &raw); err != nil {
-			return err
-		}
-		sanCaiNums = make(map[int]sanCaiNum)
-		for n, v := range raw.Numbers {
-			sanCaiNums[n] = sanCaiNum{
-				Element: elementYAMLToChinese(v.Element),
-				Fortune: fortuneYAMLToChinese(v.Fortune),
-				Desc:    v.Desc,
-			}
-		}
-	}
-
-	{
-		var raw struct {
-			Configs map[string]struct {
-				Fortune string `yaml:"fortune"`
-				Desc    string `yaml:"desc"`
-			} `yaml:"configs"`
-		}
-		if err := yaml.Unmarshal(sanCaiConfigsYAML, &raw); err != nil {
-			return err
-		}
-		sanCaiCfg = make(map[string]sanCaiCfgEntry)
-		for k, v := range raw.Configs {
-			sanCaiCfg[k] = sanCaiCfgEntry{
-				Fortune: fortuneYAMLToChinese(v.Fortune),
-				Desc:    v.Desc,
-			}
-		}
-	}
-
-	return nil
-}
-
-func loadRadicals() error {
-	var data struct {
-		Radicals map[string][]string `yaml:",inline"`
-	}
-	if err := yaml.Unmarshal(radicalsYAML, &data); err != nil {
+	reader := csv.NewReader(bytes.NewReader(namingCharactersCSV))
+	reader.FieldsPerRecord = len(namingCharacterColumns)
+	header, err := reader.Read()
+	if err != nil {
 		return err
 	}
-	elemMap := map[string]Wuxing{
-		"木": ganzhi.WxMu, "火": ganzhi.WxHuo, "土": ganzhi.WxTu, "金": ganzhi.WxJin, "水": ganzhi.WxShui,
+	columns := make(map[string]int, len(header))
+	for i, column := range header {
+		columns[column] = i
 	}
-	for elemName, radicals := range data.Radicals {
-		elem, ok := elemMap[elemName]
-		if !ok {
-			log.Fatalf("qiming: unknown element %q in radicals", elemName)
-		}
-		for _, r := range radicals {
-			radicalToElement[r] = elem
+	for _, column := range namingCharacterColumns {
+		if _, ok := columns[column]; !ok {
+			return fmt.Errorf("naming_characters.csv: missing column %q", column)
 		}
 	}
+	line := 1
+	for {
+		rec, readErr := reader.Read()
+		if readErr == io.EOF {
+			break
+		}
+		if readErr != nil {
+			return readErr
+		}
+		line++
+		word := rec[columns["char"]]
+		if len([]rune(word)) != 1 {
+			return fmt.Errorf("naming_characters.csv row %d: invalid character %q", line, word)
+		}
+		radical := rec[columns["radical"]]
+		if radical == "NULL" {
+			radical = ""
+		}
+		stroke, parseErr := strconv.Atoi(rec[columns["stroke"]])
+		if parseErr != nil || stroke <= 0 {
+			return fmt.Errorf("naming_characters.csv row %d: invalid stroke for %q", line, word)
+		}
+		tone, parseErr := strconv.Atoi(rec[columns["tone"]])
+		if parseErr != nil || tone < 1 || tone > 5 {
+			return fmt.Errorf("naming_characters.csv row %d: invalid tone for %q", line, word)
+		}
+		pinyin := strings.TrimSpace(rec[columns["pinyin"]])
+		if pinyin == "" {
+			return fmt.Errorf("naming_characters.csv row %d: missing pinyin for %q", line, word)
+		}
+
+		elem := wuxingFromChinese(rec[columns["wuxing"]])
+		if elem == 0 {
+			return fmt.Errorf("naming_characters.csv row %d: missing naming element for %q", line, word)
+		}
+		charRune := []rune(word)[0]
+		if _, exists := charByRune[charRune]; exists {
+			return fmt.Errorf("naming_characters.csv row %d: duplicate character %q", line, word)
+		}
+		// Take the first reading when multiple pinyin values are present.
+		if idx := strings.IndexByte(pinyin, ','); idx >= 0 {
+			pinyin = pinyin[:idx]
+		}
+		pinyin = strings.TrimRight(pinyin, "0123456789·")
+		character := Character{
+			Char:    word,
+			Element: elem,
+			Stroke:  stroke,
+			Radical: radical,
+			Pinyin:  pinyin,
+			Tone:    tone,
+		}
+		charByRune[charRune] = character
+	}
+
+	// Load characters excluded from naming pools.
+	for _, excluded := range strings.Split(strings.TrimSpace(string(negativeCharsTxt)), "\n") {
+		excluded = strings.TrimSpace(excluded)
+		if excluded == "" {
+			continue
+		}
+		if len([]rune(excluded)) != 1 {
+			return fmt.Errorf("negative_chars.txt: invalid character %q", excluded)
+		}
+		if _, ok := charByRune[[]rune(excluded)[0]]; !ok {
+			return fmt.Errorf("negative_chars.txt: unknown character %q", excluded)
+		}
+		if negativeChars[excluded] {
+			return fmt.Errorf("negative_chars.txt: duplicate character %q", excluded)
+		}
+		negativeChars[excluded] = true
+	}
+
 	return nil
 }
 
 func loadKangxiStrokes() error {
-	readStrokeTable := func(content []byte, name string, into map[rune]kangxiStroke) error {
-		r := csv.NewReader(bytes.NewReader(content))
-		records, err := r.ReadAll()
-		if err != nil {
-			return err
-		}
-		if len(records) < 2 {
-			return fmt.Errorf("%s: empty table", name)
-		}
-		columns := map[string]int{}
-		for i, column := range records[0] {
-			columns[column] = i
-		}
-		for _, required := range []string{"char", "unihan_form", "unihan_stroke"} {
-			if _, ok := columns[required]; !ok {
-				return fmt.Errorf("%s: missing column %q", name, required)
-			}
-		}
-		for _, rec := range records[1:] {
-			char := rec[columns["char"]]
-			if len([]rune(char)) != 1 {
-				return fmt.Errorf("%s: invalid character %q", name, char)
-			}
-			stroke, err := strconv.Atoi(rec[columns["unihan_stroke"]])
-			if err != nil || stroke <= 0 {
-				return fmt.Errorf("%s: invalid stroke for %q", name, char)
-			}
-			form := rec[columns["unihan_form"]]
-			if len([]rune(form)) != 1 {
-				return fmt.Errorf("%s: invalid unihan form for %q", name, char)
-			}
-			r := []rune(char)[0]
-			if _, exists := into[r]; exists {
-				return fmt.Errorf("%s: duplicate character %q", name, char)
-			}
-			into[r] = kangxiStroke{Stroke: stroke, Form: form}
-		}
-		return nil
-	}
-
-	if err := readStrokeTable(kangxiStrokesCSV, "unihan_char_strokes.csv", kangxiByRune); err != nil {
+	r := csv.NewReader(bytes.NewReader(kangxiCharacterStrokesCSV))
+	records, err := r.ReadAll()
+	if err != nil {
 		return err
 	}
-	return readStrokeTable(wugeSurnameFormsCSV, "unihan_surname_forms.csv", surnameKangxiByRune)
+	if len(records) < 2 {
+		return fmt.Errorf("kangxi_character_strokes.csv: empty table")
+	}
+	columns := map[string]int{}
+	for i, column := range records[0] {
+		columns[column] = i
+	}
+	for _, required := range []string{"char", "kangxi_form", "kangxi_stroke"} {
+		if _, ok := columns[required]; !ok {
+			return fmt.Errorf("kangxi_character_strokes.csv: missing column %q", required)
+		}
+	}
+	for _, rec := range records[1:] {
+		if len(rec) <= columns["char"] || len(rec) <= columns["kangxi_form"] || len(rec) <= columns["kangxi_stroke"] {
+			return fmt.Errorf("kangxi_character_strokes.csv: missing columns")
+		}
+		char := rec[columns["char"]]
+		if len([]rune(char)) != 1 {
+			return fmt.Errorf("kangxi_character_strokes.csv: invalid character %q", char)
+		}
+		stroke, err := strconv.Atoi(rec[columns["kangxi_stroke"]])
+		if err != nil || stroke <= 0 {
+			return fmt.Errorf("kangxi_character_strokes.csv: invalid stroke for %q", char)
+		}
+		form := rec[columns["kangxi_form"]]
+		if len([]rune(form)) != 1 {
+			return fmt.Errorf("kangxi_character_strokes.csv: invalid Kangxi form for %q", char)
+		}
+		r := []rune(char)[0]
+		if _, exists := kangxiByRune[r]; exists {
+			return fmt.Errorf("kangxi_character_strokes.csv: duplicate character %q", char)
+		}
+		kangxiByRune[r] = kangxiStroke{Stroke: stroke, Form: form}
+	}
+	return nil
 }
 
-func applyKangxiStrokes() {
-	for r := range charByRune {
+func applyKangxiStrokes() error {
+	namingChars := make([]Character, 0, len(charByRune))
+	for r, character := range charByRune {
 		entry, ok := kangxiByRune[r]
 		if !ok {
-			log.Fatalf("qiming: character %q has no kangxi stroke", r)
+			return fmt.Errorf("character %q has no kangxi stroke", r)
 		}
-		ce := charByRune[r]
-		ce.KangxiStroke = entry.Stroke
-		ce.KangxiForm = entry.Form
-		charByRune[r] = ce
-	}
-	for elem, chars := range charByElement {
-		for i := range chars {
-			r := []rune(chars[i].Char)[0]
-			entry, ok := kangxiByRune[r]
-			if !ok {
-				log.Fatalf("qiming: character %q has no kangxi stroke", r)
-			}
-			charByElement[elem][i].KangxiStroke = entry.Stroke
-			charByElement[elem][i].KangxiForm = entry.Form
+		character.KangxiStroke = entry.Stroke
+		character.KangxiForm = entry.Form
+		charByRune[r] = character
+		if !negativeChars[character.Char] {
+			namingChars = append(namingChars, character)
 		}
 	}
-	for r := range surnameKangxiByRune {
-		if _, ok := kangxiByRune[r]; !ok {
-			log.Fatalf("qiming: surname override %q is absent from the kangxi table", r)
-		}
+	sort.Slice(namingChars, func(i, j int) bool {
+		return namingChars[i].Char < namingChars[j].Char
+	})
+	charByElement = make(map[Wuxing][]Character)
+	for _, character := range namingChars {
+		charByElement[character.Element] = append(charByElement[character.Element], character)
 	}
+	return nil
 }

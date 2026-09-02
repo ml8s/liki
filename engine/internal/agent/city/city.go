@@ -97,7 +97,7 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 		return searchResult{}, fmt.Errorf("search: no results for %s", query)
 	}
 
-	// 优先行政级别结果（county/city/state 地址或行政类型），排除 POI/街道抢占（外部评审 ③）。
+	// Prefer administrative results over POIs and streets.
 	r := results[0]
 	for _, cand := range results {
 		if cand.Address.County != "" || cand.Address.City != "" || cand.Address.State != "" ||

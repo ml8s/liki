@@ -28,7 +28,7 @@ def load_table(name, required: bool = True):
     """加载 `{side}_{rule}` 对应的断语长表行。"""
     return load_rule_table(name, required=required)
 
-# 命理域规则全集（激进重构：紫微按宫位、八字按命理层次；yly_* 流年保留）
+# 命理域规则全集：紫微按宫位，八字按命理层次。
 ZW_PALACE_RULES = ("命宫", "官禄", "财帛", "疾厄", "夫妻", "子女", "迁移",
                     "田宅", "父母", "兄弟", "仆役", "福德")
 ZW_COMMON_RULE = ("格局",)   # 八字也有格局域（双体系共用 rule 名，双侧都有表）

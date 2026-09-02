@@ -127,7 +127,7 @@ func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	}
 
 	// 相刑：与 ganzhi.IsXing 同口径——自刑（辰午酉亥）仅同支相见为刑，
-	// 组内不同支（如午亥、辰酉）不构成刑。此前用 containsPair 会把午亥等误判为自刑。
+	// 组内不同支（如午亥、辰酉）不构成刑。
 	// 优先级：六合/三合/六冲 > 相刑 > 六害（寅巳相刑显著于六害；寅申冲/丑未冲显著于刑）。
 	if ganzhi.IsXing(a, b) {
 		r.Type = relXing

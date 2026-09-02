@@ -1,4 +1,4 @@
-"""第二批因子正确性回归：柱位、取清前提与流年目标五行推导。"""
+"""柱位、取清前提与流年目标五行因子正确性。"""
 from unittest import mock
 
 from _helpers import mock_base_context

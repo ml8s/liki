@@ -1,4 +1,4 @@
-"""P0 因子回归：恒真因子、格神透干与格局值域。"""
+"""核心因子正确性：恒真因子、格神透干与格局值域。"""
 import csv
 import json
 from pathlib import Path

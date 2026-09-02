@@ -1,7 +1,6 @@
 package agent
 
-// RPC 输入健壮性测试（自查 2026-08）：全部方法 × 非法/极端参数——
-// 断言不 panic、返回带错误码的可读错误（-32602 schema 拒绝 或 -32000 handler 校验）。
+// RPC 输入健壮性测试：非法参数必须返回 -32602 或 -32000，不能 panic。
 
 import (
 	"context"
@@ -12,35 +11,33 @@ import (
 
 func TestRPCInputRobustness(t *testing.T) {
 	reg := NewRPCRegistry()
-	// 合法基线参数（从 schema_consistency_test 抄录——保证"非法"确实非法而非缺依赖）
-	zc, _ := json.Marshal(map[string]any{"lunar": map[string]any{"year": 1984, "month": 1, "day": 15, "shichen": "辰"}, "gender": "male"})
-	bc, _ := json.Marshal(map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"})
-	var zr, br struct {
-		Data map[string]any `json:"data"`
-	}
-	zout, _ := reg.Execute(context.Background(), "ziwei.chart", zc)
-	bout, _ := reg.Execute(context.Background(), "bazi.chart", bc)
-	_ = json.Unmarshal(zout, &zr)
-	_ = json.Unmarshal(bout, &br)
-	z, b := zr.Data, br.Data
+	// Valid baselines distinguish invalid input from missing dependent data.
+	zc := mustJSON(t, map[string]any{"lunar": map[string]any{"year": 1984, "month": 1, "day": 15, "shichen": "辰"}, "gender": "male"})
+	bc := mustJSON(t, map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"})
+	z := executeAndDecode(t, reg, "ziwei.chart", zc)["data"].(map[string]any)
+	b := executeAndDecode(t, reg, "bazi.chart", bc)["data"].(map[string]any)
 
 	valid := map[string]json.RawMessage{
 		"bazi.chart":      bc,
-		"bazi.fullchart":  mk("chart", b),
-		"bazi.liunian":    mk("chart", b, "year", 2026),
-		"bazi.liuyue":     mk("chart", b, "year", 2026, "month", 6),
-		"bazi.liuri":      mk("chart", b, "year", 2026, "month", 6, "day", 4),
-		"bazi.liushi":     mk("chart", b, "year", 2026, "month", 6, "day", 4, "hour", 12),
-		"bazi.xiaoyun":    mk("chart", b),
-		"bazi.bond":       mk("a", map[string]any{"chart": b}, "b", map[string]any{"chart": b}),
+		"bazi.fullchart":  mk(t, "chart", b),
+		"bazi.liunian":    mk(t, "chart", b, "year", 2026),
+		"bazi.liuyue":     mk(t, "chart", b, "year", 2026, "month", 6),
+		"bazi.liuri":      mk(t, "chart", b, "year", 2026, "month", 6, "day", 4),
+		"bazi.liushi":     mk(t, "chart", b, "year", 2026, "month", 6, "day", 4, "hour", 12),
+		"bazi.xiaoyun":    mk(t, "chart", b),
+		"bazi.bond":       mk(t, "a", map[string]any{"chart": b}, "b", map[string]any{"chart": b}),
 		"ziwei.chart":     zc,
-		"ziwei.fullchart": mk("chart", z),
-		"ziwei.daxian":    mk("chart", z),
-		"ziwei.liunian":   mk("chart", z, "lunar_year", 2026),
-		"ziwei.liuyue":    mk("chart", z, "lunar_year", 2026, "lunar_month", 6),
-		"ziwei.liuri":     mk("chart", z, "lunar_year", 2026, "lunar_month", 6, "lunar_day", 4),
-		"ziwei.liushi":    mk("chart", z, "lunar_year", 2026, "lunar_month", 6, "lunar_day", 4, "shi_zhi", "午"),
+		"ziwei.fullchart": mk(t, "chart", z),
+		"ziwei.daxian":    mk(t, "chart", z),
+		"ziwei.liunian":   mk(t, "chart", z, "lunar_year", 2026),
+		"ziwei.liuyue":    mk(t, "chart", z, "lunar_year", 2026, "lunar_month", 6),
+		"ziwei.liuri":     mk(t, "chart", z, "lunar_year", 2026, "lunar_month", 6, "lunar_day", 4),
+		"ziwei.liushi":    mk(t, "chart", z, "lunar_year", 2026, "lunar_month", 6, "lunar_day", 4, "shi_zhi", "午"),
 		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`),
+		"qiming.char":     []byte(`{"char":"明"}`),
+		"qiming.pick":     []byte(`{"wuxing1":"木","wuxing2":"火","count":2}`),
+		"qiming.compose":  []byte(`{"first":["德"],"second":["明"]}`),
+		"qiming.check":    []byte(`{"given_names":["德明"]}`),
 		"huangli.days":    []byte(`{"start_date":"2026-07-31","count":3}`),
 		"time.now":        []byte(`{}`),
 		// city 依赖外网 Nominatim，不测联网基线（非法参数仍由 schema 校验拦截）
@@ -98,13 +95,13 @@ func TestRPCInputRobustness(t *testing.T) {
 	t.Logf("统计: panic=%d 未报错=%d 错误码异常=%d", panics, okCount, errCount)
 }
 
-func mk(kvs ...any) json.RawMessage {
+func mk(t *testing.T, kvs ...any) json.RawMessage {
+	t.Helper()
 	out := map[string]any{}
 	for i := 0; i+1 < len(kvs); i += 2 {
 		out[fmt.Sprint(kvs[i])] = kvs[i+1]
 	}
-	b, _ := json.Marshal(out)
-	return b
+	return mustJSON(t, out)
 }
 
 func asRPCError(err error, out **RPCError) bool {
