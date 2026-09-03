@@ -40,7 +40,7 @@
 - 因子表迁移为 `factor_id / group_id / term_index / kind / expression / expected` 长表
 - 断语表从 45 个宽表迁移为 `assertions/assertions.csv` + `assertion_conditions.csv`
 - 新增 `印星透根`、`财星透根`，收敛重复语义；`夫妻宫破` 改由冲/刑/害复合表达
-- `check_schema.py` / `check_docs.py` 改为校验长表契约与 722 条断语引用
+- `check_schema.py` / `check_docs.py` 改为校验长表契约与 724 条断语引用
 
 ### 稳定性
 
@@ -247,7 +247,7 @@
 - 因子表迁移为 `factor_id / group_id / term_index / kind / expression / expected` 长表
 - 断语表从 45 个宽表迁移为 `assertions/assertions.csv` + `assertion_conditions.csv`
 - 新增 `印星透根`、`财星透根`，收敛重复语义；`夫妻宫破` 改由冲/刑/害复合表达
-- `check_schema.py` / `check_docs.py` 改为校验长表契约与 722 条断语引用
+- `check_schema.py` / `check_docs.py` 改为校验长表契约与 724 条断语引用
 
 ### 稳定性
 

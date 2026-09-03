@@ -540,3 +540,5 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 正印旺,bazi,3,1,condition,旺[正印],1,禄根（五行为某地支本气）亦作旺论（《渊海子平》禄根论）
 印星透根,bazi,2,1,condition,旺[印星],1,禄根（五行为某地支本气）亦作旺论（《渊海子平》禄根论）
 身弱,bazi,1,1,condition,"直读[yongshen.fu_yi.qiangruo,任意]",身弱,身弱判定（排盘直读）
+时柱食神,bazi,1,1,condition,时柱十神[食神],1,时柱天干为食神——女命子女星阴柔性
+时柱伤官,bazi,1,1,condition,时柱十神[伤官],1,时柱天干为伤官——子女星阳刚性

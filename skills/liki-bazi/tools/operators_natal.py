@@ -17,7 +17,7 @@ _OP_NAMES = frozenset({
     "现", "透", "藏", "得令", "有根", "旺", "弱", "缺", "克", "直读", "含", "宫含", "关系",
     "大运十神", "数量至少", "五行数量至少", "官杀取清", "为用", "为忌",
     "月支长生", "夫妻宫状态", "日支类型", "财库现", "财星入墓", "克者旺",
-    "格神透", "月令本气", "年柱官杀", "柱刑",
+    "格神透", "月令本气", "时柱十神", "年柱官杀", "柱刑",
 })
 
 
@@ -420,6 +420,17 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         main = (yue.get("cang_gan") or {}).get("main", "")
         for ss in yue.get("shi_shens", []):
             if ss.get("gan") == main:
+                name = ss.get("shi_shen", "")
+                if args and args[0] == "任意":
+                    return name
+                return 1 if name == args[0] else 0
+        return "" if args and args[0] == "任意" else 0
+    if op == "时柱十神":
+        # 时柱天干十神（子女性别判断）——任意模式返回十神标量。
+        full = chart.get("full", {}) or {}
+        shi = full.get("shi", {}) or {}
+        for ss in shi.get("shi_shens", []):
+            if ss.get("source") == "gan":
                 name = ss.get("shi_shen", "")
                 if args and args[0] == "任意":
                     return name
