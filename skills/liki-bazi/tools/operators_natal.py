@@ -17,7 +17,7 @@ _OP_NAMES = frozenset({
     "现", "透", "藏", "得令", "有根", "旺", "弱", "缺", "克", "直读", "含", "宫含", "关系",
     "大运十神", "数量至少", "五行数量至少", "官杀取清", "为用", "为忌",
     "月支长生", "夫妻宫状态", "日支类型", "财库现", "财星入墓", "克者旺",
-    "格神透", "月令本气", "时柱十神", "年柱官杀", "柱刑",
+    "格神透", "月令本气", "时柱十神", "禄根", "年柱官杀", "柱刑",
 })
 
 
@@ -144,24 +144,12 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
             # 十神弱 = 其五行失令 且 不透 且 无根（三者皆弱）
             return 1 if (_is_weak(base, wx) and not any((_shishen(base, t) or {}).get("tou_gan") for t in resolved)
                          and not any((_shishen(base, t) or {}).get("has_root") for t in resolved)) else 0
-        # 十神旺 = 得令（其五行月令旺相）或（透干且有根）或（五行为某地支本气=禄根）
-        # ——《子平真诠》得令为重，失令者透且有根可补；禄根本气亦有力（《渊海子平》禄根论）
+        # 十神旺 = 得令（其五行月令旺相）或（透干且有根）——《子平真诠》得令为重，失令者透且有根可补
         if _is_wang(base, wx):
             return 1
         tou = any((_shishen(base, t) or {}).get("tou_gan") for t in resolved)
         gen = any((_shishen(base, t) or {}).get("has_root") for t in resolved)
-        if tou and gen:
-            return 1
-        # 禄根：五行为某地支本气藏干（main qi）→ 有强根，作旺论
-        full = (chart or {}).get("full", {}) or {}
-        for pillar in ("nian", "yue", "ri", "shi"):
-            pi = full.get(pillar, {})
-            cang = pi.get("cang_gan", {}) or {}
-            if cang.get("main"):
-                main_wx = load_constants()["天干五行"].get(cang["main"], "")
-                if main_wx == wx:
-                    return 1
-        return 0
+        return 1 if tou and gen else 0
     if op == "缺":
         count = base.get("wuxing", {}).get("count", {}) or {}
         return 1 if args and count.get(args[0], 0) == 0 else 0
@@ -436,6 +424,22 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
                     return name
                 return 1 if name == args[0] else 0
         return "" if args and args[0] == "任意" else 0
+    if op == "禄根":
+        # 机械检查：十神/大类的五行是否为某地支本气藏干（main cang_gan）
+        # 命理解释（禄根=有力）在 factors.csv basis 列表达
+        tens = _resolve_tens(args, gender)
+        wx = _ten_to_wx(base, tens)
+        if not wx:
+            return 0
+        full = chart.get("full", {}) or {}
+        for pillar in ("nian", "yue", "ri", "shi"):
+            pi = full.get(pillar, {}) or {}
+            cang = pi.get("cang_gan", {}) or {}
+            if cang.get("main"):
+                main_wx = load_constants()["天干五行"].get(cang["main"], "")
+                if main_wx == wx:
+                    return 1
+        return 0
     if op == "年柱官杀":
         return _nian_guan(base, chart)
         return _palace_bad(base, chart)
