@@ -549,3 +549,8 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 比劫旺,bazi,3,1,condition,禄根[比劫],1,禄根（五行为某地支本气）亦作旺论（《渊海子平》禄根论）
 财星旺,bazi,3,1,condition,禄根[财星],1,禄根（五行为某地支本气）亦作旺论（《渊海子平》禄根论）
 印星旺,bazi,3,1,condition,禄根[印星],1,禄根（五行为某地支本气）亦作旺论（《渊海子平》禄根论）
+大运印星运,bazi,1,1,condition,"大运十神[当前,印星]",1,当前大运走印星运
+大运官杀运,bazi,1,1,condition,"大运十神[当前,官杀]",1,当前大运走官杀运
+大运财星运,bazi,1,1,condition,"大运十神[当前,财星]",1,当前大运走财星运
+大运食伤运,bazi,1,1,condition,"大运十神[当前,食伤]",1,当前大运走食伤运
+大运比劫运,bazi,1,1,condition,"大运十神[当前,比劫]",1,当前大运走比劫运

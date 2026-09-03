@@ -55,7 +55,7 @@ def factor_kind(rows: list[dict]) -> str:
     if not match:
         return "复合"
     op, args = match.group(1), match.group(2).split(",")
-    if op in {"现", "透", "藏", "得令", "有根", "克", "生", "为用", "为忌"}:
+    if op in {"现", "透", "藏", "得令", "有根", "克", "生", "为用", "为忌", "禄根", "时柱十神"}:
         return "复合" if any(x in CLASSES | ROLES | STAR_GROUPS for x in args) else "提取原子"
     if op == "数量至少":
         return "复合" if any(x in CLASSES | ROLES for x in args[1:]) else "提取原子"
@@ -63,7 +63,7 @@ def factor_kind(rows: list[dict]) -> str:
         return "复合" if args[1] in CLASSES | ROLES | STAR_GROUPS | {"煞星", "无主星", "任意"} else "提取原子"
     if op == "大运十神":
         return "复合" if args[1] in CLASSES | ROLES else "提取原子"
-    if op in {"流年透", "流年值", "流年合", "流年冲", "流年克", "大运窗口流年", "换运流年"}:
+    if op in {"流年透", "流年值", "流年合", "流年冲", "流年克", "大运窗口流年", "换运流年", "大运十神"}:
         return "复合" if args[0] in CLASSES | ROLES else "提取原子"
     if op == "引用本命":
         return "复合"
@@ -131,11 +131,11 @@ def test_relation_closures_are_complete() -> None:
 def test_documented_natal_inventory_matches_implementation() -> None:
     groups = natal_groups()
     atoms = doc_rows("1. 原子因子（337 个）")
-    compounds = doc_rows("2. 复合因子（110 个）")
+    compounds = doc_rows("2. 复合因子（115 个）")
     documented = [row[1] for row in atoms + compounds]
-    assert len(groups) == 447
+    assert len(groups) == 452
     assert len(atoms) == 337
-    assert len(compounds) == 110
+    assert len(compounds) == 115
     assert len(documented) == len(set(documented))
     assert set(documented) == set(groups)
     art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
@@ -146,16 +146,16 @@ def test_documented_natal_inventory_matches_implementation() -> None:
         assert row[4] == factor_value(groups[name])
         assert row[5] == factor_definition(groups[name])
     text = DOC.read_text(encoding="utf-8")
-    assert "| 本命因子 | 447 |" in text
+    assert "| 本命因子 | 452 |" in text
     assert "| 本命原子因子 | 337 |" in text
-    assert "| 本命复合因子 | 110 |" in text
+    assert "| 本命复合因子 | 115 |" in text
 
 
 def test_documented_flow_inventory_matches_implementation() -> None:
     groups = flow_groups()
-    rows = doc_rows("二、流年因子（80 个）", heading_level=2)
-    assert len(groups) == 80
-    assert len(rows) == 80
+    rows = doc_rows("二、流年因子（82 个）", heading_level=2)
+    assert len(groups) == 82
+    assert len(rows) == 82
     assert {row[1] for row in rows} == set(groups)
     art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
     for row in rows:

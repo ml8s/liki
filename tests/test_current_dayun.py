@@ -69,7 +69,8 @@ def test_current_dayun_rule_set_matches_table_consumers() -> None:
             duanyu.load_table(f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES),
             duanyu.load_table(f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES),
         ):
-            if table and {"大运十神类", "大运配偶星"} & set(table[0]["约束"]):
+            DAYUN_FACTORS = {"大运十神类", "大运配偶星", "大运印星运", "大运官杀运", "大运财星运", "大运食伤运", "大运比劫运"}
+            if table and any(k in DAYUN_FACTORS for row in table for k in row.get("约束", {}).keys()):
                 consumers.add(rule)
 
     assert consumers == duanyu.CURRENT_DAYUN_RULES

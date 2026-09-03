@@ -62,7 +62,7 @@ SCENE_ALIASES = {
 BAZI_ONLY_RULES = frozenset(BZ_LAYER_RULES + YEAR_BZ_RULES)
 ZIWEI_ONLY_RULES = frozenset(ZW_PALACE_RULES + YEAR_PALACE_RULES)
 # 需 current_year（当前大运判断）的本命域——仅断语表约束直接用大运因子的规则
-CURRENT_DAYUN_RULES = frozenset({"大运"})
+CURRENT_DAYUN_RULES = frozenset({"大运", "用神", "十神"})
 
 
 def query(rule: str, pan: dict) -> dict:

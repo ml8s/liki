@@ -79,3 +79,5 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 本命偏印旺,bazi,1,1,condition,引用本命[偏印旺],1,引用本命偏印旺
 本命官杀为用,bazi,1,1,condition,引用本命[官杀为用],1,引用本命官杀为用神
 本命华盖,bazi,1,1,condition,引用本命[华盖],1,引用本命华盖入命
+流年子女星值宫,bazi,1,1,condition,流年值[子女星],1,流年支值子女星事件宫
+流年支冲日支,bazi,1,1,condition,流年冲[日支],1,流年地支冲日支
