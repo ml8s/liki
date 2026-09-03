@@ -76,3 +76,6 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 流年母星克,bazi,1,1,condition,流年克[母星],1,流年克母星（正印）五行
 流年父星克,bazi,1,1,condition,流年克[父星],1,流年克父星（偏财）五行
 流年父星透,bazi,1,1,condition,流年透[父星],1,流年天干透父星（偏财）
+本命偏印旺,bazi,1,1,condition,引用本命[偏印旺],1,引用本命偏印旺
+本命官杀为用,bazi,1,1,condition,引用本命[官杀为用],1,引用本命官杀为用神
+本命华盖,bazi,1,1,condition,引用本命[华盖],1,引用本命华盖入命
