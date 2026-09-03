@@ -51,7 +51,8 @@ def _atomic(col: str, gender, chart, ctx: dict = None, current_year: int = 0):
         # 返回字符串原值供断语约束匹配（如 `日主五行: 木`）；否则按期望值比较返回 0/1
         if args and args[-1] == "任意":
             return v
-        return 1 if args and str(args[0]) == v else 0
+        # args[-1] 是期望值（如 直读[gender,male] 中 male）；与算子返回值 v 比较
+        return 1 if args and str(args[-1]) == v else 0
     return v
 
 def _evaluate_truth_table(rows: list, atomic) -> dict:
