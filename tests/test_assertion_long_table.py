@@ -19,9 +19,9 @@ def test_assertion_long_table_counts_and_unique_ids():
     assertions = _rows("assertions.csv")
     conditions = _rows("assertion_conditions.csv")
     ids = [row["assertion_id"] for row in assertions]
-    assert len(assertions) == 718
-    assert len(conditions) == 1005
-    assert len(ids) == len(set(ids)) == 718
+    assert len(assertions) == 722
+    assert len(conditions) == 1013
+    assert len(ids) == len(set(ids)) == 722
     assert all(row["side"] in {"bazi", "ziwei"} for row in assertions)
     assert all(row["rule"] for row in assertions)
 
