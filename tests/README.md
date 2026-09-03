@@ -14,7 +14,8 @@ Liki 的独立评测体系：160 道命理师大赛真题按命盘分组为 **32
 
 ## 运行
 
-前置：模型 key（`OPENAI_API_KEY`，兼容 deepseek）已配置。
+前置：模型 key（`OPENAI_API_KEY`，OpenAI-compatible；DeepSeek 或智谱均可）已配置。智谱可设置 `ZHIPU_API_KEY` 或 `ZHIPUAI_API_KEY`；默认使用 `glm-4-flash-250414`，可用 `OPENAI_MODEL` 覆盖。
+本地密钥可放在 `tests/evals/.zhipu.local.env`，该文件已加入 `.gitignore`。
 
 ```bash
 bash tests/run-qwen.sh --parallelism 16    # 一键评测 + 判分

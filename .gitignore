@@ -23,6 +23,10 @@ __pycache__/
 # 评测临时配置（run-qwen.sh 生成的临时 yaml）
 .run-eval.*.yaml
 
+# 本地模型供应商密钥（不提交）
+tests/evals/.zhipu.local.env
+tests/evals/*.local.env
+
 # 数据检查产物（可重新生成）
 tests/RESULTS.md
 tests/evals/*.log

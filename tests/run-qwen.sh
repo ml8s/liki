@@ -12,17 +12,48 @@ for a in "$@"; do
   [[ "$a" == "--resume" ]] && RESUME=1
 done
 
-# 模型 key（不硬编码）：优先用已 export 的 OPENAI_API_KEY，否则从 liki-web/.env 或 ~/.reasonix/.env 读 DEEPSEEK_API_KEY
+LOCAL_MODEL_ENV="${LOCAL_MODEL_ENV:-tests/evals/.zhipu.local.env}"
+if [ -f "$LOCAL_MODEL_ENV" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$LOCAL_MODEL_ENV"
+  set +a
+fi
+
+# Model access uses OpenAI-compatible settings. Zhipu is selected automatically
+# when only ZHIPU_API_KEY is present.
+OPENAI_API_KEY_SOURCE="openai"
+
+if [ -n "${ZHIPU_API_KEY:-}" ] || [ -n "${ZHIPUAI_API_KEY:-}" ]; then
+  export OPENAI_API_KEY="${ZHIPU_API_KEY:-${ZHIPUAI_API_KEY:-}}"
+  OPENAI_API_KEY_SOURCE="zhipu"
+fi
+
 if [ -z "${OPENAI_API_KEY:-}" ] && [ -f "../liki-web/.env" ]; then
   export OPENAI_API_KEY="$(grep '^DEEPSEEK_API_KEY=' "../liki-web/.env" | head -1 | cut -d= -f2- | tr -d '"')"
+  OPENAI_API_KEY_SOURCE="deepseek"
 fi
+
 if [ -z "${OPENAI_API_KEY:-}" ] && [ -f "$HOME/.reasonix/.env" ]; then
   export OPENAI_API_KEY="$(grep '^DEEPSEEK_API_KEY=' "$HOME/.reasonix/.env" | head -1 | cut -d= -f2- | tr -d '"')"
+  OPENAI_API_KEY_SOURCE="deepseek"
 fi
+
 if [ -z "${OPENAI_API_KEY:-}" ]; then
-  echo "错误：未找到模型 key。请先 export OPENAI_API_KEY=sk-...（或配置 ../liki-web/.env 的 DEEPSEEK_API_KEY）" >&2
+  echo "错误：未找到模型 key。可 export OPENAI_API_KEY=... 或 ZHIPU_API_KEY=..." >&2
   exit 1
 fi
+
+case "$OPENAI_API_KEY_SOURCE" in
+  zhipu)
+    OPENAI_BASE_URL="${OPENAI_BASE_URL:-https://open.bigmodel.cn/api/paas/v4}"
+    OPENAI_MODEL="${OPENAI_MODEL:-glm-5.3-flash}"
+    ;;
+  *)
+    OPENAI_BASE_URL="${OPENAI_BASE_URL:-https://api.deepseek.com/v1}"
+    OPENAI_MODEL="${OPENAI_MODEL:-deepseek-v4-flash}"
+    ;;
+esac
 
 # 本地引擎生命周期（skill_up 评测脱离生产 liki.hk，连宿主机本地引擎）
 # 复用单项目 helper：起/验/停引擎 + LIKI_RPC_URL；评测 agent 在容器内 → docker 模式
@@ -73,6 +104,8 @@ echo "答案已隔离: ${ANSWER_FILES[*]}"
 ensure_local_engine
 RUN_YAML="$(mktemp tests/evals/.run-eval.XXXXXX.yaml)"
 sed -e "s|\${OPENAI_API_KEY}|$OPENAI_API_KEY|g" \
+    -e "s|\${OPENAI_BASE_URL}|$OPENAI_BASE_URL|g" \
+    -e "s|\${OPENAI_MODEL}|$OPENAI_MODEL|g" \
     -e "s|\${LIKI_RPC_URL}|$LOCAL_RPC|g" \
     tests/evals/eval.yaml > "$RUN_YAML"
 echo "key + LIKI_RPC_URL 已渲染进临时配置: $RUN_YAML"
@@ -96,6 +129,28 @@ if [ "$RESUME" = 1 ]; then
   fi
 fi
 skill-up run "$RUN_YAML" --parallelism "$PARALLELISM" --output-dir "$(pwd)/tests/liki-workspace" --no-delete "${RESUME_ARGS[@]}"
+
+# 2.5 失败 case 自动重跑（空输出 / 截断 / API 超时）——最多 1 次重试
+LATEST_CHECK="$(ls -dt tests/liki-workspace/iteration-* 2>/dev/null | head -1)"
+if [ -n "$LATEST_CHECK" ]; then
+  RETRY_CASES=()
+  for d in "$LATEST_CHECK"/pan*; do
+    [ -d "$d" ] || continue
+    base="$(basename "$d")"
+    stdout="$d/with_skill/outputs/agent/run/stdout.txt"
+    # 无输出文件 或 输出无答案行 → 需要重跑
+    if [ ! -s "$stdout" ] || ! grep -q "题.*答案" "$stdout" 2>/dev/null; then
+      RETRY_CASES+=("$base")
+    fi
+  done
+  if [ ${#RETRY_CASES[@]} -gt 0 ]; then
+    echo "检测到 ${#RETRY_CASES[@]} 个失败 case（无输出或无答案行），自动重跑: $(IFS=,; echo "${RETRY_CASES[*]}")"
+    RETRY_ARGS=()
+    for g in "${RETRY_CASES[@]}"; do RETRY_ARGS+=(--case-name "$g"); done
+    # skill-up 按 --case-name 过滤重跑指定 case
+    skill-up run "$RUN_YAML" --parallelism 4 --output-dir "$(pwd)/tests/liki-workspace" --no-delete "${RETRY_ARGS[@]}" || true
+  fi
+fi
 
 # 3. 恢复答案（trap 兜底，这里显式再调一次）
 restore_answers
