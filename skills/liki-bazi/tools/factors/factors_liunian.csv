@@ -73,3 +73,6 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 本命七杀旺,bazi,1,1,condition,引用本命[七杀旺],1,引用本命七杀旺
 本命身弱,bazi,1,1,condition,"引用本命[身强弱,身弱]",1,引用本命身强弱为身弱
 本命印星弱,bazi,1,1,condition,引用本命[印星弱],1,引用本命印星弱
+流年母星克,bazi,1,1,condition,流年克[母星],1,流年克母星（正印）五行
+流年父星克,bazi,1,1,condition,流年克[父星],1,流年克父星（偏财）五行
+流年父星透,bazi,1,1,condition,流年透[父星],1,流年天干透父星（偏财）
