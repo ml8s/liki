@@ -144,12 +144,24 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
             # 十神弱 = 其五行失令 且 不透 且 无根（三者皆弱）
             return 1 if (_is_weak(base, wx) and not any((_shishen(base, t) or {}).get("tou_gan") for t in resolved)
                          and not any((_shishen(base, t) or {}).get("has_root") for t in resolved)) else 0
-        # 十神旺 = 得令（其五行月令旺相）或（透干且有根）——《子平真诠》得令为重，失令者透且有根可补
+        # 十神旺 = 得令（其五行月令旺相）或（透干且有根）或（五行为某地支本气=禄根）
+        # ——《子平真诠》得令为重，失令者透且有根可补；禄根本气亦有力（《渊海子平》禄根论）
         if _is_wang(base, wx):
             return 1
         tou = any((_shishen(base, t) or {}).get("tou_gan") for t in resolved)
         gen = any((_shishen(base, t) or {}).get("has_root") for t in resolved)
-        return 1 if tou and gen else 0
+        if tou and gen:
+            return 1
+        # 禄根：五行为某地支本气藏干（main qi）→ 有强根，作旺论
+        full = (chart or {}).get("full", {}) or {}
+        for pillar in ("nian", "yue", "ri", "shi"):
+            pi = full.get(pillar, {})
+            cang = pi.get("cang_gan", {}) or {}
+            if cang.get("main"):
+                main_wx = load_constants()["天干五行"].get(cang["main"], "")
+                if main_wx == wx:
+                    return 1
+        return 0
     if op == "缺":
         count = base.get("wuxing", {}).get("count", {}) or {}
         return 1 if args and count.get(args[0], 0) == 0 else 0
