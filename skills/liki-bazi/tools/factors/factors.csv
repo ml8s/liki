@@ -554,3 +554,7 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 大运财星运,bazi,1,1,condition,"大运十神[当前,财星]",1,当前大运走财星运
 大运食伤运,bazi,1,1,condition,"大运十神[当前,食伤]",1,当前大运走食伤运
 大运比劫运,bazi,1,1,condition,"大运十神[当前,比劫]",1,当前大运走比劫运
+年柱正财,bazi,1,1,condition,年柱十神[正财],1,年柱天干为正财——祖业殷实
+年柱七杀,bazi,1,1,condition,年柱十神[七杀],1,年柱天干为七杀——父辈有权
+年柱伤官,bazi,1,1,condition,年柱十神[伤官],1,年柱天干为伤官
+年柱正官,bazi,1,1,condition,年柱十神[正官],1,年柱天干为正官

@@ -130,11 +130,11 @@ def test_relation_closures_are_complete() -> None:
 
 def test_documented_natal_inventory_matches_implementation() -> None:
     groups = natal_groups()
-    atoms = doc_rows("1. 原子因子（337 个）")
+    atoms = doc_rows("1. 原子因子（341 个）")
     compounds = doc_rows("2. 复合因子（115 个）")
     documented = [row[1] for row in atoms + compounds]
-    assert len(groups) == 452
-    assert len(atoms) == 337
+    assert len(groups) == 456
+    assert len(atoms) == 341
     assert len(compounds) == 115
     assert len(documented) == len(set(documented))
     assert set(documented) == set(groups)
@@ -146,8 +146,8 @@ def test_documented_natal_inventory_matches_implementation() -> None:
         assert row[4] == factor_value(groups[name])
         assert row[5] == factor_definition(groups[name])
     text = DOC.read_text(encoding="utf-8")
-    assert "| 本命因子 | 452 |" in text
-    assert "| 本命原子因子 | 337 |" in text
+    assert "| 本命因子 | 456 |" in text
+    assert "| 本命原子因子 | 345 |" in text
     assert "| 本命复合因子 | 115 |" in text
 
 
