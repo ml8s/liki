@@ -82,3 +82,4 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 流年子女星值宫,bazi,1,1,condition,流年值[子女星],1,流年支值子女星事件宫
 流年支冲日支,bazi,1,1,condition,流年冲[日支],1,流年地支冲日支
 流年支半合日支,bazi,1,1,condition,"半合[日支,流年支]",1,流年支与日支构成半合（《三命通会》三合取两支亦有情）
+流年支冲年支,bazi,1,1,condition,流年冲[年支],1,流年地支冲年支（年柱父母宫被冲）

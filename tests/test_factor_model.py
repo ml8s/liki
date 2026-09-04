@@ -153,9 +153,9 @@ def test_documented_natal_inventory_matches_implementation() -> None:
 
 def test_documented_flow_inventory_matches_implementation() -> None:
     groups = flow_groups()
-    rows = doc_rows("二、流年因子（83 个）", heading_level=2)
-    assert len(groups) == 83
-    assert len(rows) == 83
+    rows = doc_rows("二、流年因子（84 个）", heading_level=2)
+    assert len(groups) == 84
+    assert len(rows) == 84
     assert {row[1] for row in rows} == set(groups)
     art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
     for row in rows:
@@ -164,7 +164,7 @@ def test_documented_flow_inventory_matches_implementation() -> None:
         assert row[3] == factor_kind(groups[name])
         assert row[4] == factor_value(groups[name])
         assert row[5] == factor_definition(groups[name])
-    assert "| 流年因子 | 83 |" in DOC.read_text(encoding="utf-8")
+    assert "| 流年因子 | 84 |" in DOC.read_text(encoding="utf-8")
 
 
 def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
