@@ -1,10 +1,6 @@
 
 import os
 import pytest
-pytestmark = pytest.mark.skipif(
-    not os.environ.get("LIKI_RPC_URL"),
-    reason="Requires local engine RPC"
-)
 """skill 工具端到端契约测试。
 
 覆盖：
@@ -58,6 +54,10 @@ class TestAgentCliErrorPropagation(unittest.TestCase):
 class TestQueryWithMockPan(unittest.TestCase):
     """query(rule, pan) 传含 base 的 mock pan → 返回 {八字:[], 紫微:[]}。"""
 
+    @pytest.mark.skipif(
+        not os.environ.get("LIKI_RPC_URL"),
+        reason="query needs RPC for time.now (current_year for 大运)"
+    )
     def test_query_returns_bazi_ziwei(self):
         sys.path.insert(0, _TOOLS)
         from duanyu import query
