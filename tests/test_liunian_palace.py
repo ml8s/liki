@@ -1,6 +1,7 @@
-"""流年宫位算子必须消费 factors._base_ctx_from_pan(pan) 产出的上下文，不允许测试手工补契约键。"""
+"""流年宫位算子必须消费 operators_natal._base_ctx_from_pan(pan) 产出的上下文。"""
 import _helpers  # noqa: F401 —— 注入 tools 路径
-from factors import _liu_op, _base_ctx_from_pan
+from operators_liunian import _liu_op
+from operators_natal import _base_ctx_from_pan
 
 
 def _pan() -> dict:

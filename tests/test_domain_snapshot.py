@@ -24,6 +24,7 @@ def _rich_pan() -> dict:
             "kong_gong": [{"gong_name": "兄弟"}], "nian_gan": "庚", "nian_zhi": "午",
             "shi_zhi": "子", "ziwei_pos": "命宫",
         },
+        "ziwei_daxian": [{"gong": "命宫", "name": "甲子", "start_year": 1990, "end_year": 1999, "qi_sui": 1, "zhi_sui": 10}],
     }
 
 

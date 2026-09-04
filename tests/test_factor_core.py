@@ -5,7 +5,8 @@ from pathlib import Path
 
 from _helpers import mock_base_context
 from duanyu import load_table
-from factors import _op, evaluate_factors
+from factors import evaluate_factors
+from operators_natal import _op
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "skills" / "liki-bazi" / "tools"
@@ -89,8 +90,18 @@ def test_fuyi_congge_is_a_scalar_factor() -> None:
 def test_geju_table_separates_month_pattern_from_fuyi_congge() -> None:
     rows = load_table("bazi_格局.csv")
 
-    month_values = {row["约束"]["月令格"] for row in rows if row["约束"].get("月令格")}
-    congge_values = {row["约束"]["扶抑从格"] for row in rows if row["约束"].get("扶抑从格")}
+    month_values = {
+        conditions["月令格"]
+        for row in rows
+        for conditions in row["约束组"]
+        if "月令格" in conditions
+    }
+    congge_values = {
+        conditions["扶抑从格"]
+        for row in rows
+        for conditions in row["约束组"]
+        if "扶抑从格" in conditions
+    }
 
     assert month_values == set(CONST["月令格局"])
     assert congge_values <= set(CONST["扶抑从格"])

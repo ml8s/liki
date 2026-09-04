@@ -19,6 +19,7 @@ def _pan(**changes):
         "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
         "yongshen": {},
         "ziwei": {"gong_wei": []},
+        "ziwei_daxian": _helpers.valid_daxian(),
     }
     pan.update(changes)
     return pan
@@ -28,7 +29,7 @@ def test_valid_pan_passes():
     validate_natal_pan(_pan(), action="test")
 
 
-@pytest.mark.parametrize("key", ["solar", "lunar", "chart", "full", "yongshen", "ziwei", "gender"])
+@pytest.mark.parametrize("key", ["solar", "lunar", "chart", "full", "yongshen", "ziwei", "ziwei_daxian", "gender"])
 def test_missing_required_field_rejected(key):
     pan = _pan(); pan.pop(key)
     with pytest.raises(ValueError, match=key):
@@ -59,6 +60,27 @@ def test_da_yun_and_gong_wei_required():
     pan = _pan(); pan["chart"].pop("da_yun")
     with pytest.raises(ValueError, match="da_yun"):
         validate_natal_pan(pan, action="test")
+
+
+def test_daxian_must_have_twelve_complete_steps():
+    short = _helpers.valid_daxian()[:-1]
+    with pytest.raises(ValueError, match="12 个大限段"):
+        validate_natal_pan(_pan(ziwei_daxian=short), action="test")
+
+    incomplete = _helpers.valid_daxian()
+    incomplete[0].pop("start_year")
+    with pytest.raises(ValueError, match="ziwei_daxian\\[0\\].*start_year"):
+        validate_natal_pan(_pan(ziwei_daxian=incomplete), action="test")
+
+    invalid_types = _helpers.valid_daxian()
+    invalid_types[0]["start_year"] = "1990"
+    with pytest.raises(ValueError, match="字段必须为整数.*start_year"):
+        validate_natal_pan(_pan(ziwei_daxian=invalid_types), action="test")
+
+    duplicate_palaces = _helpers.valid_daxian()
+    duplicate_palaces[1]["gong"] = duplicate_palaces[0]["gong"]
+    with pytest.raises(ValueError, match="12 个大限宫位必须唯一"):
+        validate_natal_pan(_pan(ziwei_daxian=duplicate_palaces), action="test")
     pan = _pan(); pan["ziwei"].pop("gong_wei")
     with pytest.raises(ValueError, match="gong_wei"):
         validate_natal_pan(pan, action="test")

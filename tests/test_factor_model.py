@@ -121,6 +121,10 @@ def test_relation_closures_are_complete() -> None:
         "六冲": 12, "六害": 12,
     }
     assert all(len(D[name]) == count for name, count in relation_key_counts.items())
+    assert set(D["三合半合"]) == {"子", "午", "卯", "酉"}
+    for imperial_branch, partners in D["三合半合"].items():
+        assert len(partners) == 2
+        assert set(partners) == set(D["三合"][imperial_branch])
     assert len(D["旬空"]) == 6
     # 关系映射必须是对称闭集。
     for name in ("六合", "六冲", "六害", "天干五合"):
@@ -130,16 +134,18 @@ def test_relation_closures_are_complete() -> None:
 
 def test_documented_natal_inventory_matches_implementation() -> None:
     groups = natal_groups()
-    atoms = doc_rows("1. 原子因子（341 个）")
-    compounds = doc_rows("2. 复合因子（115 个）")
-    documented = [row[1] for row in atoms + compounds]
+    direct = doc_rows("1. 直通原子因子（46 个）")
+    atoms = doc_rows("2. 提取原子因子（295 个）")
+    compounds = doc_rows("3. 复合因子（115 个）")
+    documented = [row[1] for row in direct + atoms + compounds]
     assert len(groups) == 456
-    assert len(atoms) == 341
+    assert len(direct) == 46
+    assert len(atoms) == 295
     assert len(compounds) == 115
     assert len(documented) == len(set(documented))
     assert set(documented) == set(groups)
     art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
-    for row in atoms + compounds:
+    for row in direct + atoms + compounds:
         name = row[1]
         assert row[2] == art[groups[name][0]["术数"]]
         assert row[3] == factor_kind(groups[name])
@@ -147,15 +153,16 @@ def test_documented_natal_inventory_matches_implementation() -> None:
         assert row[5] == factor_definition(groups[name])
     text = DOC.read_text(encoding="utf-8")
     assert "| 本命因子 | 456 |" in text
-    assert "| 本命原子因子 | 345 |" in text
+    assert "| 本命直通原子 | 46 |" in text
+    assert "| 本命提取原子 | 295 |" in text
     assert "| 本命复合因子 | 115 |" in text
 
 
 def test_documented_flow_inventory_matches_implementation() -> None:
     groups = flow_groups()
-    rows = doc_rows("二、流年因子（84 个）", heading_level=2)
-    assert len(groups) == 84
-    assert len(rows) == 84
+    rows = doc_rows("流年因子（101 个）", heading_level=3)
+    assert len(groups) == 101
+    assert len(rows) == 101
     assert {row[1] for row in rows} == set(groups)
     art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
     for row in rows:
@@ -164,7 +171,7 @@ def test_documented_flow_inventory_matches_implementation() -> None:
         assert row[3] == factor_kind(groups[name])
         assert row[4] == factor_value(groups[name])
         assert row[5] == factor_definition(groups[name])
-    assert "| 流年因子 | 84 |" in DOC.read_text(encoding="utf-8")
+    assert "| 流年因子 | 101 |" in DOC.read_text(encoding="utf-8")
 
 
 def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
@@ -243,26 +250,40 @@ def test_factor_long_table_schema_and_unique_signatures() -> None:
 
 def test_unreferenced_factors_are_only_complete_use_family() -> None:
     groups = natal_groups()
+    flow = flow_groups()
     names = set(groups)
-    refs = set()
+    natal_refs = set()
+    flow_refs = set()
     with (TOOLS / "assertions" / "assertion_conditions.csv").open(encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
-            if row.get("factor") in names:
-                refs.add(row["factor"])
+            factor = row["factor"]
+            if factor in names:
+                natal_refs.add(factor)
+            if factor in flow:
+                flow_refs.add(factor)
     for row in flow_groups().values():
         for item in row:
             for key in item["conds"]:
                 if key.startswith("引用本命["):
                     name = key[len("引用本命["):-1]
                     if name in names:
-                        refs.add(name)
-    reach = set(refs)
-    queue = deque(refs)
-    while queue:
-        name = queue.popleft()
-        for item in groups[name]:
-            for key in item["conds"]:
-                if "[" not in key and key in names and key not in reach:
-                    reach.add(key)
-                    queue.append(key)
-    assert set(names - reach) == set()
+                        natal_refs.add(name)
+                    if name in flow:
+                        flow_refs.add(name)
+
+    def closure(table: dict[str, list[dict]], seeds: set[str]) -> set[str]:
+        reach = set(seeds)
+        queue = deque(seeds)
+        while queue:
+            name = queue.popleft()
+            for item in table[name]:
+                for key in item["conds"]:
+                    if "[" not in key and key in table and key not in reach:
+                        reach.add(key)
+                        queue.append(key)
+        return reach
+
+    natal_reach = closure(groups, natal_refs)
+    flow_reach = closure(flow, flow_refs)
+    assert set(names - natal_reach) == set()
+    assert set(flow) == flow_reach

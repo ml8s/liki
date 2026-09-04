@@ -36,7 +36,7 @@ After installation, your AI assistant gains 4 metaphysics skills:
 **What professional standards mean here:**
 
 - Charts are computed by an astronomical engine (true solar time, second-level solar terms) — the AI never invents numbers
-- Judgments come from 756 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
+- Judgments come from 775 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
 - Independently evaluated on 160 competition questions with answer isolation
 
 ## Installation
@@ -144,8 +144,8 @@ The skill self-checks its version on startup; when prompted, re-run: `npx skills
 ## Why It's Trustworthy
 
 - **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
-- **Sourced judgments** — 41 truth tables with 756 rules, each with a classical-citation column.
-- **Dual-system cross-check** — BaZi leads, ZiWei verifies; conflicts resolved with explicit evidence.
+- **Sourced judgments** — 47 logical rule groups with 775 assertions, each with a classical-citation column.
+- **Dual-system cross-check** — BaZi and ZiWei are evaluated separately, with an explicit synthesis layer; conflicts are resolved with explicit evidence.
 - **Auditable process** — every step fills a checklist; conclusions trace back to specific steps.
 - **Independent evaluation** — 160 competition questions (MingLi-Bench), answer isolation, public data (`tests/`).
 
@@ -160,7 +160,7 @@ skills/liki-bazi
 ├── SKILL.md    ← rules (process skeleton + hard constraints)
 ├── app/        ← process (10 cards: marriage/career/wealth/…)
 ├── domains/    ← knowledge (bazi 16 + ziwei 8 docs)
-└── tools/      ← tools (6 Python tools + 46 judgment CSVs + 2 factor tables)
+└── tools/      ← tools (6 Python tools + 2 assertion tables + 2 factor tables)
 repo root
 ├── engine/     ← Go JSON-RPC astronomical engine (8 domains)
 ├── tests/      ← evaluation (160 grouped cases + answer isolation)

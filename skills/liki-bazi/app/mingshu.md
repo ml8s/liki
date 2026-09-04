@@ -8,12 +8,12 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 
 ## 依赖的领域知识
 
-- [必读] bazi: SKILL.md 排盘流程
+- bazi: SKILL.md 排盘流程（根 SKILL.md 已读，不重复标记）
 - bazi（方法+断语；命书为整本产出，结构性必读较宽）：
   - [必读] `domains/bazi/dayun.md`、`domains/bazi/wangshuai.md`、`domains/bazi/geju.md`、`domains/bazi/yongshen.md`
   - `domains/bazi/hehui.md`、`domains/bazi/shishen.md`、`domains/bazi/gongwei.md`、`domains/bazi/family.md`（按需——用户问及对应领域时读取）
   - `domains/ziwei/xiangmao.md`（按需——用户问外貌/气质时读取）
-- [必读] ziwei: SKILL.md 排盘流程
+- ziwei: SKILL.md 排盘流程（根 SKILL.md 已读，不重复标记）
 - [必读] ziwei: `domains/ziwei/yingqi.md` 紫微应期
 - [按需] app: 各 app 的深入分析入口（汇总用，用户后续深入某领域时读取）
 
@@ -34,7 +34,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
    时辰不确定 → 走考时流程（见 SKILL.md「排盘前考时分支」）
    输出：□ 本命盘已排____
 
-2. 快速扫描各领域 query 摘要（见下方快速扫描项）
+2. 快速扫描基础盘：`query(rule=格局)` + `query(rule=旺衰)` + `query(rule=用神)` + `query(rule=十神)` + `query(rule=五行)` + `query(rule=合会)`；再按下方领域项补对应 query
 
 3. 输出命盘报告（输出模板四部分）+ 结论验证（历史事件校准，见下方）
 
@@ -138,6 +138,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 #### 五、大运走势（不少于 5 个维度）
 
 - 起运年龄，各运干支
+- 逐运取代表年调用 `query(rule=大运, pan, year=该运起始年)` 获取限运断语；当前运省略 year
 - 每运与命局的生克制化关系（如大运地支冲合原局哪个柱）
 - 前五年天干主导 / 后五年地支主导，分开分析（参考 `domains/bazi/dayun.md`）
 - 当前大运 **粗体** 标注，换运年前后各一年单独说明
@@ -171,7 +172,7 @@ description: 命书/命盘分析 — 全盘综合解读，用户无明确问题�
 格局识别主格辅格，每个格局对事业/财运/性格的影响。
 
 #### 七、大限
-紫微大限独立于八字大运，按命宫起运、十年一宫流转。每限覆盖：宫位主星+四化+人生课题。当前大限粗体标注。
+紫微大限独立于八字大运，按命宫起运、十年一宫流转。读取 full_paipan 返回的 ziwei_daxian 字段，并逐限调用 `query(rule=大限, pan, year=该限起始年)`；当前大限可省略 year。每限覆盖：宫位主星+四化+人生课题。当前大限粗体标注。
 
 #### 八、紫微流年
 流年命宫所在宫位，对原盘的影响（哪宫被引动），该年主题。

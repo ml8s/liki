@@ -7,6 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from errors import FactorTableError
+from factor_constants import load_constants
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 NATAL_PATH = os.path.join(TOOLS_DIR, "factors", "factors.csv")
@@ -64,6 +65,7 @@ def load_long_rows(path: str):
     raw_groups = defaultdict(list)
     factor_meta = {}
     factor_sides: dict[str, str] = {}
+    valid_sides = set(load_constants()["命理侧"]["断言代码"])
     with open(path, encoding="utf-8-sig", newline="") as fh:
         for r in csv.DictReader(fh):
             factor_id = (r.get("factor_id") or "").strip()
@@ -83,14 +85,18 @@ def load_long_rows(path: str):
             expected = r.get("expected") or ""
             if kind == "direct" and expected.strip():
                 raise FactorTableError(f"{path}: {factor_id} direct group 不能声明 expected")
-            side = (r.get("shushi") or "bazi").strip()
+            side = (r.get("shushi") or "").strip()
+            if not side:
+                raise FactorTableError(f"{path}: {factor_id} shushi 不能为空")
+            if side not in valid_sides:
+                raise FactorTableError(f"{path}: {factor_id} 术数无效: {side}")
             previous_side = factor_sides.setdefault(factor_id, side)
             if previous_side != side:
                 raise FactorTableError(
                     f"{path}: {factor_id} 混用术数: {previous_side}/{side}"
                 )
             raw_groups[(factor_id, group_id)].append((term_index, kind, expression, r.get("expected") or ""))
-            factor_meta.setdefault((factor_id, group_id), (r.get("shushi") or "bazi", r.get("basis") or ""))
+            factor_meta.setdefault((factor_id, group_id), (side, r.get("basis") or ""))
 
     dependencies: dict[str, set[str]] = defaultdict(set)
     for (factor_id, _group_id), terms in raw_groups.items():

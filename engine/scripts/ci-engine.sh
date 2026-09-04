@@ -3,6 +3,10 @@ set -eo pipefail
 
 # PATH 补充——golangci-lint / go 可能在 ~/go/bin 或 ~/app/go/bin
 export PATH="$HOME/go/bin:$HOME/app/go/bin:$PATH"
+# Sandboxed/CI runners may mount the default user cache read-only; tool caches
+# are disposable, so keep them under /tmp to make lint behavior deterministic.
+export GOCACHE="${GOCACHE:-/tmp/gocache}"
+export GOLANGCI_LINT_CACHE="${GOLANGCI_LINT_CACHE:-/tmp/golangci-lint-cache}"
 
 # ci-engine.sh — 全量测试（等价于 CI 所有 job 之和）
 # 用法: make test-all 或 scripts/ci-engine.sh

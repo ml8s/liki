@@ -679,16 +679,14 @@ func TestHandler_QimingChar_StrokeSemantics(t *testing.T) {
 	}
 	var env struct {
 		Data struct {
-			Stroke       int    `json:"stroke"`
-			KangxiStroke int    `json:"kangxi_stroke"`
-			KangxiForm   string `json:"kangxi_form"`
+			Stroke int `json:"stroke"`
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if env.Data.Stroke != 8 || env.Data.KangxiStroke != 19 || env.Data.KangxiForm != "鄭" {
-		t.Fatalf("stroke data = %+v, want modern 8 / Kangxi 19 / form 鄭", env.Data)
+	if env.Data.Stroke != 8 {
+		t.Fatalf("stroke data = %+v, want modern 8", env.Data)
 	}
 	var raw struct {
 		Data map[string]any `json:"data"`
@@ -696,8 +694,10 @@ func TestHandler_QimingChar_StrokeSemantics(t *testing.T) {
 	if err := json.Unmarshal(result, &raw); err != nil {
 		t.Fatal(err)
 	}
-	if _, exists := raw.Data["traditional"]; exists {
-		t.Fatal("qiming.char output should not contain traditional")
+	for _, field := range []string{"traditional", "kangxi_stroke", "kangxi_form"} {
+		if _, exists := raw.Data[field]; exists {
+			t.Fatalf("qiming.char output should not contain %s", field)
+		}
 	}
 }
 

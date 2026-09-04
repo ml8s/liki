@@ -90,19 +90,17 @@ const qimingCharacterSchema = `{
 		"char":{"type":"string","minLength":1},
 		"wuxing":{"type":"string","enum":["金","木","水","火","土"]},
 		"stroke":{"type":"integer","minimum":1,"description":"现代规范汉字笔画"},
-		"kangxi_stroke":{"type":"integer","minimum":1,"description":"Kangxi 形体对应的笔画"},
 		"radical":{"type":"string","minLength":1},
 		"pinyin":{"type":"string","minLength":1},
-		"tone":{"type":"integer","minimum":1,"maximum":5},
-		"kangxi_form":{"type":"string","minLength":1,"description":"笔画对应的 Kangxi 形体"}
+		"tone":{"type":"integer","minimum":1,"maximum":5}
 	},
-	"required":["char","wuxing","stroke","kangxi_stroke","pinyin","tone","kangxi_form"]
+	"required":["char","wuxing","stroke","pinyin","tone"]
 }`
 
 var qimingMethods = []RPCMethod{
 	{
 		Name:        "qiming.char",
-		Description: "查字。查询单个汉字的五行、现代笔画、Kangxi 笔画、部首、拼音等信息。",
+		Description: "查字。查询单个汉字的五行、现代笔画、部首、拼音和声调。",
 		Params: mustSchema(`{
 			"type":"object",
 			"additionalProperties":false,

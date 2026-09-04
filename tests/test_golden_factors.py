@@ -5,7 +5,9 @@ from pathlib import Path
 import pytest
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
-from factors import _LIU_OP_NAMES, _OP_NAMES, _liu_op, _op, evaluate_factors
+from factors import evaluate_factors
+from operators_liunian import _LIU_OP_NAMES, _liu_op
+from operators_natal import _OP_NAMES, _op
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_PATH = ROOT / "tests" / "golden_factors" / "cases.json"

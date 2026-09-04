@@ -25,6 +25,7 @@ def _valid_mock_pan() -> dict:
         },
         "yongshen": {},
         "ziwei": {"gong_wei": []},
+        "ziwei_daxian": _helpers.valid_daxian(),
     }
 
 
@@ -47,7 +48,7 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
          mock.patch.object(
              duanyu,
              "query_yearly",
-             return_value={"八字": [], "紫微": []},
+            return_value={"八字": [], "紫微": [], "合参": []},
          ):
         result = duanyu.yearly_range(
             _valid_mock_pan(),
@@ -56,15 +57,18 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
             rules=["年十神", "年合会"],
         )
 
-    assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": []}
+    assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": [], "合参": []}
     liunian_mock.assert_called_once()
     make_snapshot.assert_called_once()
+    assert make_snapshot.call_args.kwargs["factor_names"]
 
 
 def test_yearly_range_rejects_empty_or_reversed_range() -> None:
     with mock.patch.object(duanyu, "_current_year", return_value=(2026, "server")):
         with mock.patch.object(duanyu, "evaluate_liunian_snap_from_pan") as make_snapshot:
             with mock.patch.object(duanyu, "query_yearly"):
+                with pytest.raises(ValueError, match="rules 不能为空"):
+                    duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=None)
                 with pytest.raises(ValueError, match="rules 不能为空"):
                     duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=[])
                 with pytest.raises(ValueError, match="rules 不能有重复域"):
@@ -73,7 +77,7 @@ def test_yearly_range_rejects_empty_or_reversed_range() -> None:
                         rules=["yearly_career", "yearly_career"],
                     )
                 with pytest.raises(ValueError, match="start 不能大于 end"):
-                    duanyu.yearly_range(_valid_mock_pan(), 2027, 2026)
+                    duanyu.yearly_range(_valid_mock_pan(), 2027, 2026, rules=["yingqi"])
 
     make_snapshot.assert_not_called()
 
@@ -83,7 +87,7 @@ def test_yearly_range_rejects_oversized_span() -> None:
          mock.patch.object(duanyu, "evaluate_liunian_snap_from_pan") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
         with pytest.raises(ValueError, match="单次最多 120 年"):
-            duanyu.yearly_range(_valid_mock_pan(), 1900, 2100)
+            duanyu.yearly_range(_valid_mock_pan(), 1900, 2100, rules=["yingqi"])
 
     make_snapshot.assert_not_called()
 
@@ -93,7 +97,7 @@ def test_yearly_range_rejects_incomplete_pan() -> None:
          mock.patch.object(duanyu, "evaluate_liunian_snap_from_pan") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
         with pytest.raises(ValueError, match="完整本命盘"):
-            duanyu.yearly_range({"gender": "male"}, 2026, 2026)
+            duanyu.yearly_range({"gender": "male"}, 2026, 2026, rules=["yingqi"])
 
     make_snapshot.assert_not_called()
 
@@ -111,9 +115,11 @@ def test_yearly_range_prepares_natal_context_once() -> None:
              duanyu, "evaluate_liunian_snap_from_pan", return_value=flow_snapshot
          ) as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly", return_value={"八字": [], "紫微": []}):
-        duanyu.yearly_range(pan, 2026, 2027)
+        duanyu.yearly_range(pan, 2026, 2027, rules=["yingqi"])
 
-    prepare.assert_called_once_with(pan)
+    prepare.assert_called_once()
+    assert prepare.call_args.args == (pan,)
+    assert prepare.call_args.kwargs["factor_names"]
     assert make_snapshot.call_args_list[0].kwargs["natal_context"] is natal_context
     assert make_snapshot.call_args_list[1].kwargs["natal_context"] is natal_context
 

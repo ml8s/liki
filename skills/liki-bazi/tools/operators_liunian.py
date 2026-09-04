@@ -1,20 +1,16 @@
 """流年因子算子：目标星、宫位、干支、神煞、大运与紫微四化判定。"""
 from __future__ import annotations
 
-from typing import Optional
-
 from errors import FactorEvaluateError
 from factor_constants import load_constants
 from operators_natal import _base_ctx_from_pan
-
-__all__ = ["_LIU_OP_NAMES", "_liu_op", "_target_stars"]
 
 # 流年算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _LIU_OP_NAMES = frozenset({
     "流年长生", "流年神煞", "流年透", "流年值", "流年合", "流年冲", "流年克",
     "忌神干", "忌神支", "财坏印流年", "大运窗口流年", "换运流年", "流年宫化", "引用本命",
     "干支相等", "干克", "支冲", "三刑", "旬空", "流年支受克", "年柱干伏吟", "天干合",
-    "半合",
+    "半合", "流曜入宫",
 })
 
 
@@ -46,11 +42,20 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
         return 1 if ss_year in star_keys else 0
 
     if op in ('流年值', '流年合', '流年冲'):
-        palace_key = const.get('事件宫位', {}).get(target, 'ri')
+        palace_key = const.get('事件宫位', {}).get(target, const['事件宫位默认'])
         ri_zhi = base.get('palace_ri', {}).get('zhi', '')
         pan_chart = (chart or {}).get('chart', {}) or {}
-        pillars_zhi = {zhu: (pan_chart.get(zhu, {}) or {}).get('zhi', ri_zhi) for zhu in ('nian', 'yue', 'ri', 'shi')}
+        pillars_zhi = {
+            zhu: (pan_chart.get(zhu, {}) or {}).get('zhi', ri_zhi)
+            for zhu in const['四柱']
+        }
         palace_zhi = pillars_zhi.get(palace_key, ri_zhi)
+        if target in const['四柱序号']:
+            palace_zhi = _source_zhi(target, ctx)
+        chong_map = const.get(const['关系取冲类型'], {})
+        if op == '流年冲' and palace_zhi:
+            if chong_map.get(nz) == palace_zhi:
+                return 1
         if op == '流年值':
             return 1 if nz == palace_zhi else 0
         zhi_he = zhi_chong = 0
@@ -61,14 +66,15 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
                 other = zb if za == nz else za if zb == nz else ''
                 if other == palace_zhi:
                     t = zr.get('type', '')
-                    if t == '六合':
+                    he_mode = const.get('关系取合类型', {}).get(t)
+                    if he_mode == '两支':
                         zhi_he = 1
-                    elif t in ('三合', '三会'):
+                    elif he_mode == '全组':
                         peers = const[t].get(nz, []) or []
                         complete = palace_zhi in peers and set(peers) <= chart_zhis
                         if complete:
                             zhi_he = 1
-                    elif t in const['冲类']:
+                    elif t == const['关系取冲类型']:
                         zhi_chong = 1
         return zhi_he if op == '流年合' else zhi_chong
 
@@ -76,7 +82,7 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
         _GANWX = const['天干五行']
         _DIZHI_WUXING = const['地支五行']
         target_wx = None
-        if target == '日主':
+        if target == const['日主目标']:
             target_wx = _GANWX.get(base.get('ri_gan', ''), '')
         else:
             for k in star_keys:
@@ -107,7 +113,7 @@ def _liu_handler_yongshen(op: str, args: list, base: dict, gender: str, chart: d
         return 1 if ji_wx and const['地支五行'].get(nz, '') == ji_wx else 0
 
     if op == '财坏印流年':
-        _YIN2 = {'正印', '偏印'}
+        _YIN2 = set(const['十神大类'][const['印星十神大类']])
         if nz and nian_gan and (ss_year in _YIN2):
             ke = const['五行生克'].get(const['地支五行'].get(nz, ''), {}).get('克')
             return 1 if ke == const['天干五行'].get(nian_gan, '') else 0
@@ -130,6 +136,7 @@ def _liu_handler_dayun(op: str, args: list, base: dict, gender: str, chart: dict
                     return 1
         return 0
 
+
 def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
@@ -147,16 +154,46 @@ def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict
         return (ctx.get('snapshot', {}) or {}).get(args[0], 0)
 
 
+def _liu_handler_flow_star(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
+                           current_year: int, const: dict, ln: dict, nz: str,
+                           nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
+    """机械检查流曜是否入指定流年宫位；星曜含义由断语表表达。"""
+    if len(args) < 2:
+        return 0
+    star, palace = str(args[0]), str(args[1])
+    for item in (ctx.get('zw_liunian', {}).get('gong_wei', []) or []):
+        engine_name = item.get('name')
+        suffix = const['流年宫名后缀']
+        if engine_name in const['流年宫名不加后缀']:
+            aliases = {engine_name}
+        else:
+            aliases = {engine_name, engine_name + suffix}
+        if palace not in aliases:
+            continue
+        if star in (item.get('xing_yao', []) or []):
+            return 1
+    return 0
+
+
 def _liu_handler_banhe(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                        current_year: int, const: dict, ln: dict, nz: str,
                        nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
-    """机械检查：日支与流年支是否属于同一三合组（查 constants.json 三合表）。"""
+    """机械检查：三合组旺支是否参与两支组合。
+
+    查 constants.json「三合半合」：子/午/卯/酉为各局旺支；缺旺支的
+    生墓两支为拱合，不属于本算子的半合事实。
+    """
     if len(args) < 2:
         return 0
-    a, b = str(args[0]), str(args[1])
-    san_he = const.get("三合", {})
-    partners_a = san_he.get(a, [])
-    return 1 if b in partners_a else 0
+    branches = set(const.get("地支", []))
+
+    def branch(value: str) -> str:
+        return value if value in branches else _source_zhi(value, ctx)
+
+    a, b = branch(str(args[0])), branch(str(args[1]))
+    half = const.get("三合半合", {})
+    return 1 if b in half.get(a, []) or a in half.get(b, []) else 0
+
 
 def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
@@ -175,7 +212,8 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
 
     if op == '支冲':
         z1, z2 = (_source_zhi(args[0], ctx), _source_zhi(args[1], ctx))
-        return 1 if z1 and z2 and (const['六冲'].get(z1) == z2) else 0
+        chong_map = const.get(const['关系取冲类型'], {})
+        return 1 if z1 and z2 and (chong_map.get(z1) == z2) else 0
 
     if op == '三刑':
         available = {}
@@ -186,7 +224,7 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
         pan = chart
         pan_chart = (pan or {}).get('chart', {}) or {}
         pillar_zhis = []
-        for zhu in ('nian', 'yue', 'ri', 'shi'):
+        for zhu in const['四柱']:
             z = (pan_chart.get(zhu) or {}).get('zhi', '')
             if z:
                 pillar_zhis.append(z)
@@ -212,28 +250,26 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
         if not gz or len(gz) < 2 or (not nz2):
             return 0
         day_g, day_z = (gz[0], gz[1])
-        _GAN_ORDER = list(const['天干五行'].keys())
-        _ZHI_ORDER = list(const['地支五行'].keys())
+        _GAN_ORDER = const['天干']
+        _ZHI_ORDER = const['地支']
         if day_g not in _GAN_ORDER or day_z not in _ZHI_ORDER:
             return 0
         xun_zhi_idx = (_ZHI_ORDER.index(day_z) - _GAN_ORDER.index(day_g)) % 12
-        xun = '甲' + _ZHI_ORDER[xun_zhi_idx]
+        xun = const['旬空起点'] + _ZHI_ORDER[xun_zhi_idx]
         return 1 if xun in const['旬空'] and nz2 in const['旬空'][xun] else 0
 
     if op == '流年支受克':
+        if not args:
+            return 0
+        wx = str(args[0])
         ln = ctx.get('liunian', {})
         nz = ln.get('nian_zhi', '')
-        if not nz:
-            return 0
-        snap = ctx.get('snapshot', {})
-        const = load_constants()
-        zhi_wx = const['地支五行'].get(nz, '')
+        zhi_wx = const.get('地支五行', {}).get(nz, '')
         if not zhi_wx:
             return 0
-        for wx in ('木', '火', '土', '金', '水'):
-            if snap.get(f'{wx}旺') and const['五行生克'].get(wx, {}).get('克') == zhi_wx:
-                return 1
-        return 0
+        snap = ctx.get('snapshot', {})
+        natal_factor = wx + const['五行旺因子后缀']
+        return 1 if snap.get(natal_factor) and const.get('五行生克', {}).get(wx, {}).get('克') == zhi_wx else 0
 
     if op == '年柱干伏吟':
         ln = ctx.get('liunian', {})
@@ -258,6 +294,7 @@ _LIU_OP_HANDLERS = {
         "大运窗口流年": _liu_handler_dayun,
         "换运流年": _liu_handler_dayun,
         "引用本命": _liu_handler_ziwei,
+        "流曜入宫": _liu_handler_flow_star,
         "流年宫化": _liu_handler_ziwei,
         "流年支受克": _liu_handler_mechanical,
         "干克": _liu_handler_mechanical,
@@ -302,49 +339,53 @@ def _current_dayun_gz(ctx: dict) -> str:
     return ""
 def _source_ganzhi(src: str, ctx: dict) -> str:
     """干支来源解析：大运/流年/日柱 → 干支。"""
-    ln = ctx.get("liunian", {})
-    if src == "流年":
-        return ln.get("nian_gan", "") + ln.get("nian_zhi", "")
-    if src == "大运":
-        return _current_dayun_gz(ctx)
-    if src == "日柱":
-        chart = ctx.get("chart", {}).get("chart", {}) or {}
-        return (chart.get("ri") or {}).get("gan", "") + (chart.get("ri") or {}).get("zhi", "")
-    return ""
+    return _source_value(src, ctx, "干支")
+
+
 def _source_gan(src: str, ctx: dict) -> str:
     """干来源：流年干/大运干/日干。"""
-    ln = ctx.get("liunian", {})
-    base = ctx.get("base", {})
-    if src == "流年干":
-        return ln.get("nian_gan", "")
-    if src == "大运干":
-        gz = _current_dayun_gz(ctx)
-        return gz[:1] if gz else ""
-    if src == "日干":
-        return base.get("ri_gan", "")
-    return ""
+    return _source_value(src, ctx, "干")
+
+
 def _source_zhi(src: str, ctx: dict) -> str:
     """支来源：流年支/大运支/四柱支。"""
-    ln = ctx.get("liunian", {})
-    if src == "流年支":
-        return ln.get("nian_zhi", "")
-    if src == "大运支":
+    return _source_value(src, ctx, "支")
+
+
+def _source_value(src: str, ctx: dict, part: str) -> str:
+    """按 constants.json「干支来源」解析指定干/支/干支。"""
+    spec = load_constants().get("干支来源", {}).get(src)
+    if not spec:
+        return ""
+    if spec.get("部分") != part:
+        return ""
+    source = spec.get("源", "")
+    if source == "流年":
+        ln = ctx.get("liunian", {})
+        gan, zhi = ln.get("nian_gan", ""), ln.get("nian_zhi", "")
+    elif source == "大运":
         gz = _current_dayun_gz(ctx)
-        return gz[1:] if gz else ""
-    # 四柱支：读 ctx["chart"][柱]
-    chart = ctx.get("chart", {}).get("chart", {}) or {}
-    if src == "日支":
-        return (chart.get("ri") or {}).get("zhi", "")
-    if src == "时支":
-        return (chart.get("shi") or {}).get("zhi", "")
-    if src == "年支":
-        return (chart.get("nian") or {}).get("zhi", "")
-    return ""
+        gan, zhi = gz[:1], gz[1:]
+    elif source == "四柱":
+        pillar = (ctx.get("chart", {}).get("chart", {}) or {}).get(spec.get("柱", ""), {}) or {}
+        gan, zhi = pillar.get("gan", ""), pillar.get("zhi", "")
+    elif source == "基础":
+        value = (ctx.get("base", {}) or {}).get(spec.get("字段", ""), "")
+        return str(value) if part == "干" else ""
+    else:
+        return ""
+    if part == "干":
+        return gan
+    if part == "支":
+        return zhi
+    return gan + zhi
+
+
 def _target_stars(target: str, gender: str, const: dict) -> tuple:
     """目标词 → 具体十神：六亲角色 → 十神大类 → 原子十神。"""
     role = const.get("六亲角色", {}).get(target, target)
     if isinstance(role, dict):
-        gender_key = {"男": "male", "女": "female"}.get(gender, gender)
+        gender_key = const.get("性别别名", {}).get(gender, gender)
         role = role.get(gender_key, "")
     if role in const.get("十神大类", {}):
         return tuple(const["十神大类"][role])
@@ -356,15 +397,18 @@ def _target_wuxing_from_day_master(day_gan: str, star_keys, const: dict) -> str:
     if not day_wx:
         return ""
     shengke = const["五行生克"]
+    classes = const.get("十神大类", {})
+    relations = const.get("十神大类日主关系", {})
     for star in star_keys:
-        if star in ("比肩", "劫财"):
+        class_name = next((name for name, members in classes.items() if star in members), "")
+        relation = relations.get(class_name)
+        if not relation:
+            continue
+        name = relation.get("关系", "")
+        if name == "同":
             return day_wx
-        if star in ("食神", "伤官"):
-            return shengke.get(day_wx, {}).get("生", "")
-        if star in ("正财", "偏财"):
-            return shengke.get(day_wx, {}).get("克", "")
-        if star in ("正官", "七杀"):
-            return next((wx for wx, rel in shengke.items() if rel.get("克") == day_wx), "")
-        if star in ("正印", "偏印"):
-            return next((wx for wx, rel in shengke.items() if rel.get("生") == day_wx), "")
+        if relation.get("方向") == "出":
+            return shengke.get(day_wx, {}).get(name, "")
+        if relation.get("方向") == "入":
+            return next((wx for wx, rel in shengke.items() if rel.get(name) == day_wx), "")
     return ""

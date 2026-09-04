@@ -5,6 +5,7 @@ import csv
 import os
 
 from errors import AssertionRuleError
+from factor_constants import load_constants
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSERTIONS_PATH = os.path.join(TOOLS_DIR, "assertions", "assertions.csv")
@@ -39,21 +40,45 @@ def _load_index() -> dict:
             assertion_id = (row.get("assertion_id") or "").strip()
             item = {
                 "id": assertion_id,
+                "领域": row.get("领域", ""),
+                "事件类型": row.get("事件类型", ""),
+                "时间层": row.get("时间层", ""),
                 "事件": row.get("事件", ""),
-                "约束": {},
+                "约束组": [],
                 "结论": row.get("结论", ""),
                 "依据": row.get("依据", ""),
-                "经典原文": row.get("经典原文", ""),
+                "经典依据": row.get("经典依据", ""),
             }
             rows_by_key.setdefault((side, rule), []).append(item)
             row_by_id[assertion_id] = item
 
+    # condition_group_id is explicit: terms in one group are ANDed;
+    # different groups are ORed. Empty/invalid groups are rejected by schema checks.
+    condition_groups: dict[tuple[str, str], dict[str, "int | str"]] = {}
     with open(CONDITIONS_PATH, encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
-            item = row_by_id.get((row.get("assertion_id") or "").strip())
+            assertion_id = (row.get("assertion_id") or "").strip()
+            group_id = (row.get("condition_group_id") or "").strip()
             factor = (row.get("factor") or "").strip()
+            item = row_by_id.get(assertion_id)
             if item and factor:
-                item["约束"][factor] = _typed_expected(row.get("expected", ""))
+                group = condition_groups.setdefault((assertion_id, group_id), {})
+                if factor in group:
+                    raise AssertionRuleError(
+                        f"断语 {assertion_id} 条件组 {group_id} 重复因子: {factor}"
+                    )
+                group[factor] = _typed_expected(row.get("expected", ""))
+
+    by_assertion: dict[str, list[tuple[str, dict[str, "int | str"]]]] = {}
+    for (_assertion_id, group_id), conditions in condition_groups.items():
+        by_assertion.setdefault(_assertion_id, []).append((group_id, conditions))
+    for assertion_id, groups in by_assertion.items():
+        item = row_by_id.get(assertion_id)
+        if item is not None:
+            item["约束组"] = [
+                conditions
+                for _group_id, conditions in sorted(groups, key=lambda pair: int(pair[0]))
+            ]
 
     _INDEX = rows_by_key
     return _INDEX
@@ -65,7 +90,7 @@ def load_rule_table(name: str, required: bool = True) -> list[dict]:
     if "_" not in stem:
         raise AssertionRuleError(f"断语表名无效: {name}")
     side, rule = stem.split("_", 1)
-    if side not in ("bazi", "ziwei"):
+    if side not in load_constants()["命理侧"]["断言代码"]:
         raise AssertionRuleError(f"断语表 side 无效: {side}")
     rows = _load_index().get((side, rule), [])
     if not rows and required:

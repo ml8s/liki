@@ -36,6 +36,8 @@ def test_calibrate_accepts_yingqi_and_reuses_same_year_snapshot() -> None:
 
     assert len(result["25日"]) == 3
     assert len(result["26日"]) == 3
+    assert all(set(event) >= {"八字", "紫微", "合参"} for event in result["25日"])
+    assert snapshot_mock.call_args_list[0].kwargs["factor_names"]
     assert paipan_mock.call_count == 2
     assert prepare_mock.call_count == 2
     assert snapshot_mock.call_count == 2   # 同一年份快照只生成一次（每候选）
@@ -66,3 +68,46 @@ def test_calibrate_enforces_documented_candidate_and_event_counts() -> None:
             raise AssertionError("两个事件未拒绝")
 
     paipan_mock.assert_not_called()
+
+
+def test_calibrate_allows_fixed_shichen_without_longitude() -> None:
+    base = {"label": "子时", "gregorian": "1981-08-25T00:15:00+08:00", "gender": "male"}
+    candidates = [{**base, "correct": False}, {**base, "label": "丑时", "gregorian": "1981-08-26T01:15:00+08:00", "correct": False}]
+    events = [{"year": 2010, "label": "事件", "rule": "yingqi"}] * 3
+    pan = {"base": {}, "gender": "male"}
+
+    with mock.patch.object(calibrate, "full_paipan", return_value=pan) as paipan_mock, \
+         mock.patch.object(calibrate, "prepare_natal_context", return_value=object()), \
+         mock.patch.object(calibrate, "yearly_snapshot", return_value={"_snapshot_type": "liunian", "八字": {}, "紫微": {}}):
+        calibrate.calibrate(candidates, events)
+
+    assert [call.kwargs["longitude"] for call in paipan_mock.call_args_list] == [None, None]
+    assert all(call.kwargs["correct"] is False for call in paipan_mock.call_args_list)
+
+
+def test_calibrate_detail_preserves_mechanical_evidence() -> None:
+    candidate = {
+        "label": "25日", "gregorian": "1981-08-25T00:15:00+08:00",
+        "gender": "male", "longitude": 130.3,
+    }
+    events = [{"year": 2010, "rule": "年十神", "label": "事件"}] * 3
+    grouped = {
+        "年十神": {
+            "八字": [], "紫微": [], "合参": [],
+            "evidence": {"三刑流年": {"group": "寅巳申"}},
+        }
+    }
+
+    with mock.patch.object(calibrate, "full_paipan", return_value={"gender": "male"}), \
+         mock.patch.object(calibrate, "prepare_natal_context", return_value=object()), \
+         mock.patch.object(
+             calibrate, "yearly_snapshot",
+             return_value={"_snapshot_type": "liunian", "八字": {}, "紫微": {}},
+         ), \
+         mock.patch.object(calibrate, "query_year_rules", return_value=grouped):
+        result = calibrate.calibrate([candidate, {**candidate, "label": "26日"}], events, detail=True)
+
+    assert all(
+        event["evidence"]["三刑流年"]["group"] == "寅巳申"
+        for event in result["25日"]
+    )

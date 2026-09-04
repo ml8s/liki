@@ -7,17 +7,13 @@ from errors import FactorEvaluateError
 from factor_constants import load_constants
 from factor_context import FactorContext
 
-__all__ = [
-    "_OP_NAMES", "_op", "_base_ctx_from_pan",
-    "_shishen_from_pan",
-]
-
 # 本命算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _OP_NAMES = frozenset({
     "现", "透", "藏", "得令", "有根", "旺", "弱", "缺", "克", "直读", "含", "宫含", "关系",
     "大运十神", "数量至少", "五行数量至少", "官杀取清", "为用", "为忌",
     "月支长生", "夫妻宫状态", "日支类型", "财库现", "财星入墓", "克者旺",
     "格神透", "月令本气", "时柱十神", "年柱十神", "禄根", "年柱官杀", "柱刑",
+    "大限宫位",
 })
 
 
@@ -28,11 +24,12 @@ def _shishen_from_pan(chart: dict) -> dict:
     仅做命理判定的机械聚合。
     """
     full = chart.get("full", {}) or {}
-    gan_wx = load_constants()["天干五行"]
-    de_ling_states = {"旺", "相"}
+    const = load_constants()
+    gan_wx = const["天干五行"]
+    de_ling_states = set(const["得令状态"])
     states: dict = {}
     roots: set = set()
-    for pillar in ("nian", "yue", "ri", "shi"):
+    for pillar in const["四柱"]:
         for item in (full.get(pillar, {}) or {}).get("shi_shens", []) or []:
             name = item.get("shi_shen", "")
             if not name:
@@ -65,8 +62,17 @@ def _shishen_from_pan(chart: dict) -> dict:
 
 
 def _shishen(base, ten: str) -> Optional[dict]:
-    """取某十神的聚合状态（factors._shishen_from_pan 产物）。"""
+    """取某十神的聚合状态（_shishen_from_pan 产物）。"""
     return (base.get("shishen") or {}).get(ten)
+
+
+def _pillar_key(branch: str, const: dict | None = None) -> str:
+    """按四柱序号表解析柱字段名。"""
+    const = const or load_constants()
+    index = const["四柱序号"].get(branch)
+    return const["四柱"][index] if index is not None else ""
+
+
 def _class_wuxing(base, ten_class: str) -> str:
     """十神大类的五行（取该类第一个出现的十神之五行）。"""
     classes = load_constants()["十神大类"]
@@ -95,7 +101,7 @@ def _resolve_tens(tens, gender):
     const = load_constants()
     classes = const["十神大类"]
     roles = const["六亲角色"]
-    gender_key = {"男": "male", "女": "female"}.get(gender, gender)
+    gender_key = load_constants()["性别别名"].get(gender, gender)
     result = []
     for name in tens:
         role = roles.get(name, name)
@@ -133,7 +139,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op in ("旺", "弱"):
         tens = args
         # 五行名原样（五行旺衰只看月令）；十神/大类/六亲 → 综合旺衰
-        if tens and tens[0] in ("木", "火", "土", "金", "水"):
+        if tens and tens[0] in const["五行"]:
             wx = tens[0]
             return 1 if (_is_wang(base, wx) if op == "旺" else _is_weak(base, wx)) else 0
         resolved = _resolve_tens(tens, gender)
@@ -141,15 +147,23 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         if not wx:
             return 0
         if op == "弱":
-            # 十神弱 = 其五行失令 且 不透 且 无根（三者皆弱）
-            return 1 if (_is_weak(base, wx) and not any((_shishen(base, t) or {}).get("tou_gan") for t in resolved)
-                         and not any((_shishen(base, t) or {}).get("has_root") for t in resolved)) else 0
-        # 十神旺 = 得令（其五行月令旺相）或（透干且有根）——《子平真诠》得令为重，失令者透且有根可补
-        if _is_wang(base, wx):
-            return 1
-        tou = any((_shishen(base, t) or {}).get("tou_gan") for t in resolved)
-        gen = any((_shishen(base, t) or {}).get("has_root") for t in resolved)
-        return 1 if tou and gen else 0
+            # 组合条件来自 constants.json「十神旺弱规则」。
+            required = set(const["十神旺弱规则"]["弱"])
+            facts = {
+                "失令": _is_weak(base, wx),
+                "不透干": not any((_shishen(base, t) or {}).get("tou_gan") for t in resolved),
+                "无根": not any((_shishen(base, t) or {}).get("has_root") for t in resolved),
+            }
+            return 1 if required <= set(name for name, ok in facts.items() if ok) else 0
+        facts = {
+            "得令": _is_wang(base, wx),
+            "透干有根": (
+                any((_shishen(base, t) or {}).get("tou_gan") for t in resolved)
+                and any((_shishen(base, t) or {}).get("has_root") for t in resolved)
+            ),
+        }
+        allowed = set(const["十神旺弱规则"]["旺"])
+        return 1 if any(name in allowed and ok for name, ok in facts.items()) else 0
     if op == "缺":
         count = base.get("wuxing", {}).get("count", {}) or {}
         return 1 if args and count.get(args[0], 0) == 0 else 0
@@ -171,7 +185,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
             return 1 if str(val) == str(expect) else 0
         if path == "ri_gan_wx":
             gan = base.get("ri_gan", "")
-            val = load_constants()["天干五行"].get(gan)
+            val = const["天干五行"].get(gan)
             if expect == "任意":
                 return val if val else 0     # 日主五行返回五行字符串（断语约束 `日主五行: 木` 匹配）
             return 1 if str(val) == str(expect) else 0
@@ -191,7 +205,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         if field == "shen_sha":
             names = []
             full = chart.get("full", {}) or {}
-            for zhu in ("nian", "yue", "ri", "shi"):
+            for zhu in const["四柱"]:
                 for it in (full.get(zhu) or {}).get("shen_sha", []) or []:
                     names.append(it.get("name") or it.get("xing"))
         elif field == "patterns":
@@ -208,7 +222,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         # 宫含(宫位, 星, 条件) —— ziwei gong_wei
         return _zw_gong_op(base, chart, args)
     if op == "大运十神":
-        return _dayun_op(base, chart, args, current_year)
+        return _dayun_op(base, chart, args, current_year, gender)
     if op == "数量至少":
         # 数量至少(N, 十神...)：十神出现总数 ≥ N（事实计数——印杂等"多"的定量）
         n = int(args[0])
@@ -218,27 +232,28 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op == "关系":
         # 关系[field, 组名]——读取引擎 fullchart 已判定的合会冲刑。
         field, group = args[0], args[1]
+        field_type = const["关系字段类型"].get(field)
         full = chart.get("full", {}) or {}
         items = full.get(field, []) or []
-        if field == "gan_he":
+        if field_type == "天干对":
             return 1 if any(
                 {item.get("gan_a", ""), item.get("gan_b", "")} == set(group)
                 for item in items
             ) else 0
-        if field in ("zhi_liu_he", "liu_chong", "liu_hai"):
+        if field_type == "地支对":
             return 1 if any(
                 {item.get("zhi_a", ""), item.get("zhi_b", "")} == set(group)
                 for item in items
             ) else 0
-        if field in ("san_he", "san_hui"):
+        if field_type == "三合三会组":
             # 引擎 TripleGroup.name 形如“申子辰水局 / 寅卯辰木方”。
             return 1 if any(group in (item.get("name", "") or "") for item in items) else 0
-        if field == "liu_xing":
+        if field_type == "三刑组":
             # 引擎相刑是成对记录；组名成立要求组内地支在命局中齐备，
             # 且至少有一对实际相刑记录，避免把无关散支拼成三刑组。
             chart_zhi = {
                 (chart.get("chart", {}).get(zhu, {}) or {}).get("zhi", "")
-                for zhu in ("nian", "yue", "ri", "shi")
+                for zhu in const["四柱"]
             }
             if not set(group).issubset(chart_zhi):
                 return 0
@@ -248,15 +263,15 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
                 if pair & set(group):
                     involved.update(pair)
             return 1 if set(group).issubset(involved) else 0
-        raise ValueError(f"未知关系字段: {field}")
+        raise ValueError(f"未知关系字段或类型: {field}")
     if op == "柱刑":
         # 柱刑(年支/月支/时支)：该柱地支是否参与命局相刑（六亲宫位刑伤——星宫分野中"宫"维度）
         # 年柱=父宫 / 月柱=兄弟宫 / 时柱=子女宫（family.md 宫位论；日支由 日支冲刑害/夫妻宫状态 专管）
-        pillar_idx = {"年支": 0, "月支": 1, "日支": 2, "时支": 3}.get(args[0] if args else "")
+        pillar_idx = const["四柱序号"].get(args[0] if args else "")
         if pillar_idx is None:
             return 0
         full = chart.get("full", {}) or {}
-        for r in full.get("liu_xing", []) or []:
+        for r in full.get(const["柱刑关系字段"], []) or []:
             if pillar_idx in (r.get("pillar_a", -1), r.get("pillar_b", -1)):
                 return 1
         return 0
@@ -267,18 +282,19 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         return 1 if count >= n else 0
     if op == "官杀取清":
         # 官杀混杂取清（《子平真诠》）：克我（官杀）所在柱被六合/六冲 → 合杀留官/冲去多余 → 取清
-        const = load_constants()
         gan_wx = const["天干五行"]
         ke = const["五行生克"]
         lean_chart = chart.get("chart", {}) or {}
         full = chart.get("full", {}) or {}
-        day_gan = (lean_chart.get("ri") or {}).get("gan", "")
+        day_gan = (
+            lean_chart.get(_pillar_key(const["算子柱位"][op], const)) or {}
+        ).get("gan", "")
         if not day_gan:
             return 0
         day_wx = gan_wx.get(day_gan, "")
         sha_pillars = []
         guan_names = set()
-        for i, zhu in enumerate(("nian", "yue", "ri", "shi")):
+        for i, zhu in enumerate(const["四柱"]):
             g = (lean_chart.get(zhu) or {}).get("gan", "")
             wx = gan_wx.get(g, "")
             # 克我者=官杀（ke[官杀五行] == 日主五行）
@@ -286,14 +302,19 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
                 for ss in (full.get(zhu, {}) or {}).get("shi_shens", []) or []:
                     if ss.get("source") == "gan" and ss.get("gan") == g:
                         guan_names.add(ss.get("shi_shen", ""))
-                        if ss.get("shi_shen") == "七杀":
+                        if ss.get("shi_shen") == const["官杀取清"]["取清对象"]:
                             sha_pillars.append(i)
         # 未混杂（仅正官或仅七杀）谈不上「取清」；先混后取才是官杀取清。
-        if not {"正官", "七杀"} <= guan_names:
+        guan_sha_members = set(const["十神大类"][const["官杀取清"]["十神大类"]])
+        if not guan_sha_members <= guan_names:
             return 0
         if not sha_pillars:
             return 0
-        rels = (full.get("zhi_liu_he") or []) + (full.get("liu_chong") or [])
+        rels = [
+            relation
+            for field in const["官杀取清"]["取清关系字段"]
+            for relation in (full.get(field) or [])
+        ]
         involved = set()
         for r in rels:
             involved.add(r.get("pillar_a"))
@@ -302,20 +323,21 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op in ("为用", "为忌"):
         # 为用(十神类)：该十神五行 ∈ {用, 喜}；为忌：== 忌（引擎五神体系 yong/xi/ji）
         fy = base.get("yongshen", {}).get("fu_yi", {}) or {}
-        yong, xi, ji = fy.get("yong", ""), fy.get("xi", ""), fy.get("ji", "")
+        favorable_fields = const["用忌映射"][op]
         tens = _resolve_tens(args, gender)
         wx = _ten_to_wx(base, tens)
         if not wx:
             return 0
-        if op == "为用":
-            return 1 if wx in (yong, xi) else 0
-        return 1 if wx == ji else 0
+        favorable = {fy.get(field, "") for field in favorable_fields}
+        return 1 if wx in favorable else 0
     if op == "月支长生":
         # 日主在月支的长生十二态（引擎 chang_sheng 表：长生在寅/沐浴在卯...）
         full = chart.get("full", {}) or {}
         cs = full.get("chang_sheng", []) or []
         chart = chart.get("chart", {}) or {}
-        yue_zhi = (chart.get("yue") or {}).get("zhi", "")
+        yue_zhi = (
+            chart.get(_pillar_key(const["算子柱位"][op], const)) or {}
+        ).get("zhi", "")
         for item in cs:
             if item.get("index", "") == yue_zhi:
                 return item.get("name", "")
@@ -324,41 +346,36 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         # 日支（夫妻宫）被冲/合/刑/害——引擎 liu_chong/zhi_liu_he/liu_xing/liu_hai
         full = chart.get("full", {}) or {}
         chart = chart.get("chart", {}) or {}
-        ri_zhi = (chart.get("ri") or {}).get("zhi", "")
+        ri_zhi = (
+            chart.get(_pillar_key(const["算子柱位"][op], const)) or {}
+        ).get("zhi", "")
         if not ri_zhi:
             return ""
         involved = set()
-        for rel_key in ("liu_chong", "zhi_liu_he", "liu_xing", "liu_hai"):
+        for relation in const["夫妻宫关系优先级"]:
+            rel_key = relation["字段"]
             for r in full.get(rel_key, []) or []:
                 involved.add(r.get("zhi_a", ""))
                 involved.add(r.get("zhi_b", ""))
         if ri_zhi in involved:
             # 判断具体类型（凶度：冲＞合＞刑＞害；同支多重则取更凶者）
-            for r in full.get("liu_chong", []) or []:
-                if ri_zhi in (r.get("zhi_a", ""), r.get("zhi_b", "")):
-                    return "冲"
-            for r in full.get("zhi_liu_he", []) or []:
-                if ri_zhi in (r.get("zhi_a", ""), r.get("zhi_b", "")):
-                    return "合"
-            for r in full.get("liu_xing", []) or []:
-                if ri_zhi in (r.get("zhi_a", ""), r.get("zhi_b", "")):
-                    return "刑"
-            for r in full.get("liu_hai", []) or []:
-                if ri_zhi in (r.get("zhi_a", ""), r.get("zhi_b", "")):
-                    return "害"
-        return "静"
+            for relation in const["夫妻宫关系优先级"]:
+                for r in full.get(relation["字段"], []) or []:
+                    if ri_zhi in (r.get("zhi_a", ""), r.get("zhi_b", "")):
+                        return relation["值"]
+        return const["夫妻宫无关系状态"]
     if op == "日支类型":
         # 日支四桃花/四驿马/四墓库——配偶特征（查 constants 日支神煞表）
         chart = chart.get("chart", {}) or {}
-        ri_zhi = (chart.get("ri") or {}).get("zhi", "")
-        const = load_constants()
+        ri_zhi = (
+            chart.get(_pillar_key(const["算子柱位"][op], const)) or {}
+        ).get("zhi", "")
         for cat, zhis in const["日支神煞"].items():
             if ri_zhi in zhis:
                 return cat
         return ""
     if op == "财库现":
         # 日干所克=财星五行 → 墓库支（金库丑/木库未/水库辰/火库戌/土库辰）→ 在命局四柱支中
-        const = load_constants()
         day_gan = base.get("ri_gan", "")
         day_wx = const["天干五行"].get(day_gan, "")
         cai_wx = const["五行生克"].get(day_wx, {}).get("克", "")
@@ -366,13 +383,12 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         if not ku:
             return 0
         chart = chart.get("chart", {}) or {}
-        for zhu in ("nian", "yue", "ri", "shi"):
+        for zhu in const["四柱"]:
             if (chart.get(zhu) or {}).get("zhi", "") == ku:
                 return 1
         return 0
     if op == "财星入墓":
         # 财星坐墓库支（财藏库中——蓄财之象）
-        const = load_constants()
         day_gan = base.get("ri_gan", "")
         day_wx = const["天干五行"].get(day_gan, "")
         cai_wx = const["五行生克"].get(day_wx, {}).get("克", "")
@@ -381,12 +397,12 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
             return 0
         full = chart.get("full", {}) or {}
         # 财星入墓要求财星与墓库同柱；不能把「原局另有财墓支」误作财星坐墓。
-        for zhu in ("nian", "yue", "ri", "shi"):
+        for zhu in const["四柱"]:
             pillar = full.get(zhu, {}) or {}
             if pillar.get("zhi", "") != ku:
                 continue
             if any(
-                ss.get("shi_shen") in ("正财", "偏财")
+                ss.get("shi_shen") in const["十神大类"][const["财星十神大类"]]
                 for ss in pillar.get("shi_shens", []) or []
             ):
                 return 1
@@ -397,14 +413,14 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         wx = _ten_to_wx(base, resolved)
         if not wx:
             return 0
-        ke_wx = [k for k, v in load_constants()["五行生克"].items() if v.get("克") == wx]
+        ke_wx = [k for k, v in const["五行生克"].items() if v.get("克") == wx]
         return 1 if ke_wx and _is_wang(base, ke_wx[0]) else 0
     if op == "格神透":
         return _ge_shen_tou(base, chart)
     if op == "月令本气":
         # 月令本气十神（性格主面/格神）——任意模式返回十神标量。
         full = chart.get("full", {}) or {}
-        yue = full.get("yue", {}) or {}
+        yue = full.get(_pillar_key(const["算子柱位"][op], const), {}) or {}
         main = (yue.get("cang_gan") or {}).get("main", "")
         for ss in yue.get("shi_shens", []):
             if ss.get("gan") == main:
@@ -416,7 +432,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op == "时柱十神":
         # 时柱天干十神（子女性别判断）——任意模式返回十神标量。
         full = chart.get("full", {}) or {}
-        shi = full.get("shi", {}) or {}
+        shi = full.get(_pillar_key(const["算子柱位"][op], const), {}) or {}
         for ss in shi.get("shi_shens", []):
             if ss.get("source") == "gan":
                 name = ss.get("shi_shen", "")
@@ -427,7 +443,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op == "年柱十神":
         # 年柱天干十神（出身判断）——任意模式返回十神标量。
         full = chart.get("full", {}) or {}
-        nian = full.get("nian", {}) or {}
+        nian = full.get(_pillar_key(const["算子柱位"][op], const), {}) or {}
         for ss in nian.get("shi_shens", []):
             if ss.get("source") == "gan":
                 name = ss.get("shi_shen", "")
@@ -443,24 +459,25 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         if not wx:
             return 0
         full = chart.get("full", {}) or {}
-        for pillar in ("nian", "yue", "ri", "shi"):
+        for pillar in const["四柱"]:
             pi = full.get(pillar, {}) or {}
             cang = pi.get("cang_gan", {}) or {}
             if cang.get("main"):
-                main_wx = load_constants()["天干五行"].get(cang["main"], "")
+                main_wx = const["天干五行"].get(cang["main"], "")
                 if main_wx == wx:
                     return 1
         return 0
     if op == "年柱官杀":
         return _nian_guan(base, chart)
-        return _palace_bad(base, chart)
+    if op == "大限宫位":
+        return _daxian_op(chart, current_year, args)
     # 流年算子（流年透/值/合/冲/克/忌神/财坏印/大运窗口/换运/岁运并临/干合等）由 _liu_op 处理
     raise FactorEvaluateError(f"未知算子: {op}")
 
 def _resolve_wx(base, gender, arg):
     """解析任意参数为五行：具体五行名原样；十神/大类 → 五行。"""
     const = load_constants()
-    if arg in ("木", "火", "土", "金", "水"):
+    if arg in const["五行"]:
         return arg
     if arg in const.get("十神大类", {}):
         return _class_wuxing(base, arg)
@@ -485,13 +502,13 @@ def _zw_gong_op(base, chart, args):
     四化（化禄/权/科/忌）用顶层 si_hua（{星:四化}）反推落宫——引擎本命四化无宫位字段，需按星找宫。
     """
     gong_name, star, cond = args[0], args[1], args[2] if len(args) > 2 else "任意"
+    const = load_constants()
     # 读紫微宫位/四化（chart["ziwei"]）
     zw = chart.get("ziwei", {}) or {}
     gw, top_sihua = zw.get("gong_wei", []) or [], zw.get("si_hua", {}) or {}
     # 化禄/权/科/忌：顶层 si_hua → 星 → 落宫
-    if cond in ("化禄", "化权", "化科", "化忌"):
-        sihua_map = {"化禄": "禄", "化权": "权", "化科": "科", "化忌": "忌"}
-        target = sihua_map[cond]
+    if cond in const.get("紫微四化条件", {}):
+        target = const["紫微四化条件"][cond]
         # 找该四化的星
         huaji_stars = [k for k, v in top_sihua.items() if v == target]
         if star != "任意":
@@ -505,10 +522,10 @@ def _zw_gong_op(base, chart, args):
             if any(hs in stars for hs in huaji_stars):
                 return 1
         return 0
-    const = load_constants()
+    star_aliases = const.get("紫微星组别名", {})
     group = set(const.get(star, []) or [])
-    if star == "任意":
-        group = set(const["紫微主星"])
+    if star in star_aliases:
+        group = set(const[star_aliases[star]])
     for g in gw:
         gname = g.get("name", "")
         if gong_name not in gname and gname not in gong_name:
@@ -516,19 +533,26 @@ def _zw_gong_op(base, chart, args):
         star_items = g.get("xing_yao", []) or []
         stars = [st.get("xing", "") for st in star_items]
         selected = group if group else {star}
-        if star == "煞星":
-            selected = set(const["紫微煞星"])
-        if star == "无主星":
+        if star in star_aliases:
+            selected = group
+        star_rule = const.get("紫微星曜特殊值", {}).get(star)
+        if star_rule:
             main_stars = set(const["紫微主星"])
-            return 1 if not (main_stars & set(stars)) else 0
-        if cond == "落陷":
-            return 1 if any(st.get("xing") in selected and st.get("liang_du") in ("陷", "平") for st in star_items) else 0
-        if cond == "庙旺":
-            return 1 if any(st.get("xing") in selected and st.get("liang_du") in ("庙", "旺", "得") for st in star_items) else 0
-        if cond == "唯一主星":
+            return 1 if len(main_stars & set(stars)) == star_rule["主星数量"] else 0
+        if cond in const.get("紫微亮度分组", {}):
+            brightness = set(const["紫微亮度分组"][cond])
+            return 1 if any(
+                st.get("xing") in selected and st.get("liang_du") in brightness
+                for st in star_items
+            ) else 0
+        cond_rule = const.get("紫微宫位特殊条件", {}).get(cond)
+        if cond_rule:
             main_stars = set(const["紫微主星"])
             present = [s for s in stars if s in main_stars]
-            return 1 if present == [star] else 0
+            matched = len(present) == cond_rule["主星数量"]
+            if cond_rule.get("参数星为唯一主星"):
+                matched = matched and present == [star]
+            return 1 if matched else 0
         return 1 if bool(selected & set(stars)) else 0
     return 0
 def _ten_class(name: str) -> str:
@@ -539,7 +563,7 @@ def _ten_class(name: str) -> str:
     return name
 
 
-def _dayun_op(base, chart, args, current_year: int = 0):
+def _dayun_op(base, chart, args, current_year: int = 0, gender: str = ""):
     """大运十神查询：大运十神(当前, 大类/任意)。任意模式返回十神大类标量。"""
     when, star_class = args[0], args[1]
     if when != "当前":
@@ -565,21 +589,46 @@ def _dayun_op(base, chart, args, current_year: int = 0):
 
     if selected is None:
         return "" if star_class == "任意" else 0
-    shi_shen = (selected.get("shi_shen", "") or "").replace("运", "")
+    shi_shen = selected.get("shi_shen", "") or ""
+    suffix = load_constants()["大运十神后缀"]
+    if suffix and shi_shen.endswith(suffix):
+        shi_shen = shi_shen[:-len(suffix)]
     if star_class == "任意":
         return _ten_class(shi_shen)
-    resolved = _resolve_tens([star_class], chart.get("gender"))
+    resolved = _resolve_tens([star_class], gender)
     return 1 if shi_shen in resolved else 0
+
+
+def _daxian_op(chart: dict, current_year: int, args) -> "int | str":
+    """当前公历年所在的紫微大限宫位；args=[当前, 任意/宫名]。"""
+    when, palace = args[0], args[1]
+    if when != "当前":
+        return "" if palace == "任意" else 0
+    year = current_year
+    if not year:
+        return "" if palace == "任意" else 0
+    steps = chart.get("ziwei_daxian") or []
+    selected = next((
+        step for step in steps
+        if year and step.get("start_year", 0) <= year <= step.get("end_year", 0)
+    ), None)
+    value = (selected or {}).get("gong", "")
+    if palace == "任意":
+        return value
+    return 1 if value == palace else 0
+
+
 def _ge_shen_tou(base, chart):
     """格神透干：月令所定十神格神透出到四柱天干。"""
+    const = load_constants()
     ge_ju = (base.get("yongshen") or {}).get("ge_ju", {}) or {}
     ge_name = ge_ju.get("ge_ju", "")
-    ge_shen = ge_name[:-1] if ge_name.endswith("格") else ""
-    if ge_shen not in load_constants()["十神"]:
+    ge_shen = const.get("格局十神", {}).get(ge_name, "")
+    if ge_shen not in const["十神"]:
         return 0
     # 建禄 / 月刃 / 杂格不是十神格名；十神格以四柱天干十神同气为透。
     full = chart.get("full", {}) or {}
-    for pillar in ("nian", "yue", "ri", "shi"):
+    for pillar in const["四柱"]:
         ss_list = (full.get(pillar, {}) or {}).get("shi_shens", []) or []
         for ss in ss_list:
             if ss.get("source") == "gan" and ss.get("shi_shen") == ge_shen:
@@ -587,10 +636,13 @@ def _ge_shen_tou(base, chart):
     return 0
 def _nian_guan(base, chart):
     """年柱官杀攻身：年柱 shi_shens 含官杀。"""
+    const = load_constants()
     full = chart.get("full", {}) or {}
-    nian_ss = (full.get("nian", {}) or {}).get("shi_shens", []) or []
+    nian_key = _pillar_key(const["算子柱位"]["年柱官杀"], const)
+    nian_ss = (full.get(nian_key, {}) or {}).get("shi_shens", []) or []
     for ss in nian_ss:
-        if ss.get("shi_shen") in ("正官", "七杀"):
+        config = const["官杀取清"]
+        if ss.get("shi_shen") in const["十神大类"][config["十神大类"]]:
             return 1
     return 0
 def _base_ctx_from_pan(chart: dict) -> dict:
@@ -609,8 +661,10 @@ def _base_ctx_from_pan(chart: dict) -> dict:
     bazi_chart = chart.get("chart", {}) or {}
     da_yun = bazi_chart.get("da_yun") or chart.get("da_yun") or {}
     steps = chart.get("dayun_steps") or da_yun.get("steps", [])
-    ri_gan = (full.get("ri", {}) or {}).get("gan", "") or chart.get("ri_gan", "")
-    ri_zhi = (full.get("ri", {}) or {}).get("zhi", "") or chart.get("palace_ri", {}).get("zhi", "")
+    const = load_constants()
+    ri_key = _pillar_key(const["算子柱位"]["日主上下文"], const)
+    ri_gan = (full.get(ri_key, {}) or {}).get("gan", "") or chart.get("ri_gan", "")
+    ri_zhi = (full.get(ri_key, {}) or {}).get("zhi", "") or chart.get("palace_ri", {}).get("zhi", "")
     fu_yi = (chart.get("yongshen", {}) or {}).get("fu_yi", {}) or {}
     ctx = {
         "shishen": _shishen_from_pan(chart),

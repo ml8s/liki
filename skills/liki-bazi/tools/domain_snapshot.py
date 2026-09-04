@@ -28,53 +28,43 @@ def load_contract() -> dict:
 def _pillar_extras(full: dict, pillar: str) -> dict:
     p = full.get(pillar, {}) or {}
     extras = {}
-    if p.get("na_yin"):
-        extras[f"{pillar}柱纳音"] = p["na_yin"]
-    if p.get("cang_gan"):
-        extras[f"{pillar}柱藏干"] = p.get("cang_gan")
-    if p.get("is_void") is not None:
-        extras[f"{pillar}柱旬空"] = p["is_void"]
-    if p.get("is_self_he") is not None:
-        extras[f"{pillar}柱自合"] = p["is_self_he"]
-    if p.get("is_kui_gang") is not None:
-        extras[f"{pillar}柱魁罡"] = p["is_kui_gang"]
-    if p.get("self_he_name"):
-        extras[f"{pillar}柱自合名"] = p["self_he_name"]
+    contract = load_contract()
+    pillar_suffix = contract["柱字段后缀"]
+    for field, fact in contract["柱值字段"].items():
+        if p.get(field):
+            extras[f"{pillar}{pillar_suffix}{fact}"] = p[field]
+    for field, fact in contract["柱存在字段"].items():
+        if p.get(field) is not None:
+            extras[f"{pillar}{pillar_suffix}{fact}"] = p[field]
     return extras
 
 
 def _project_bazi_facts(pan: dict) -> dict:
+    contract = load_contract()
     full = pan.get("full", {}) or {}
     chart = pan.get("chart", {}) or {}
     facts = {}
-    for pillar in ("nian", "yue", "ri", "shi"):
+    for pillar in contract["四柱"]:
         facts.update(_pillar_extras(full, pillar))
-    for source_key, fact_key in (
-        ("san_yuan", "三元"), ("xun_kong", "旬空"),
-        ("san_qi_name", "三奇贵人"), ("gong_jia", "拱夹"),
-        ("nayin_rel", "纳音生克"),
-    ):
+    for source_key, fact_key in contract["八字字段映射"]["full"].items():
         if full.get(source_key):
             facts[fact_key] = full[source_key]
-    # 大运完整透传：干支、五行、日期段、起止年与索引都是领域事实。
-    if chart.get("da_yun"):
-        facts["大运"] = chart["da_yun"]
+    for source_key, fact_key in contract["八字字段映射"]["chart"].items():
+        if chart.get(source_key):
+            facts[fact_key] = chart[source_key]
     return facts
 
 
 def _project_ziwei_facts(pan: dict) -> dict:
+    contract = load_contract()
     zw = pan.get("ziwei", {}) or {}
     facts = {}
-    mappings = (
-        ("gong_wei", "宫位"), ("ju_shu", "局数"),
-        ("ming_zhu", "命主"), ("shen_zhu", "身主"),
-        ("ming_gong", "命宫"), ("shen_gong", "身宫"),
-        ("kong_gong", "空宫"), ("nian_gan", "年干"),
-        ("nian_zhi", "太岁"), ("shi_zhi", "时支"),
-        ("ziwei_pos", "紫微星位"),
-    )
-    for source_key, fact_key in mappings:
+    for source_key, fact_key in contract["紫微字段映射"]["ziwei"].items():
         value = zw.get(source_key)
+        if value:
+            facts[fact_key] = value
+    for source_key, fact_key in contract["紫微字段映射"]["pan"].items():
+        value = pan.get(source_key)
         if value:
             facts[fact_key] = value
     return facts
@@ -82,7 +72,8 @@ def _project_ziwei_facts(pan: dict) -> dict:
 
 def project_domain_facts(pan: dict) -> dict:
     """从 pan 投影稳定领域事实；只读 pan，不写任何私有缓存。"""
+    projectors = {"bazi": _project_bazi_facts, "ziwei": _project_ziwei_facts}
     return {
-        "八字": _project_bazi_facts(pan),
-        "紫微": _project_ziwei_facts(pan),
+        label: projectors[code](pan)
+        for code, label in load_contract()["投影侧代码"].items()
     }

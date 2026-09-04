@@ -6,8 +6,9 @@ from collections import defaultdict
 from pathlib import Path
 
 from _helpers import mock_base_context
-from factors import _op, _OP_NAMES, _LIU_OP_NAMES, _shishen_from_pan
 import factors
+from operators_liunian import _LIU_OP_NAMES
+from operators_natal import _OP_NAMES, _op, _shishen_from_pan
 
 TOOLS = Path(__file__).resolve().parents[1] / "skills" / "liki-bazi" / "tools"
 META = {"因子", "术数", "原语直通", "依据"}

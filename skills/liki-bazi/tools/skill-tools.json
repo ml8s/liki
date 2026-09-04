@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.04.1"
+    "version": "2026.09.05.1"
   },
   "tools": [
     {
@@ -346,8 +346,55 @@
             "gender": {
               "type": "string",
               "description": "性别"
+            },
+            "ziwei_daxian": {
+              "type": "array",
+              "description": "紫微十年大限：公历年段、起止虚岁、大限宫位与干支",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "start_year": {
+                    "type": "integer"
+                  },
+                  "end_year": {
+                    "type": "integer"
+                  },
+                  "qi_sui": {
+                    "type": "integer"
+                  },
+                  "zhi_sui": {
+                    "type": "integer"
+                  },
+                  "gong": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "gong",
+                  "name",
+                  "start_year",
+                  "end_year",
+                  "qi_sui",
+                  "zhi_sui"
+                ]
+              },
+              "minItems": 12,
+              "maxItems": 12
             }
-          }
+          },
+          "required": [
+            "solar",
+            "lunar",
+            "chart",
+            "full",
+            "yongshen",
+            "ziwei",
+            "ziwei_daxian",
+            "gender"
+          ]
         }
       }
     },
@@ -355,7 +402,7 @@
       "type": "function",
       "function": {
         "name": "query",
-        "description": "断语查询（本命域）。仅支持本命域，流年走 yearly_range。",
+        "description": "断语查询（本命域）。仅支持本命域，流年走 yearly_range；大运/大限可用 year 指定历史或未来年限运，返回附带 current_year/source。",
         "parameters": {
           "type": "object",
           "properties": {
@@ -375,6 +422,7 @@
                 "仆役",
                 "福德",
                 "格局",
+                "大限",
                 "十神",
                 "旺衰",
                 "用神",
@@ -392,6 +440,11 @@
             "pan": {
               "type": "object",
               "description": "full_paipan 返回的完整本命盘（禁止传快照、裁剪盘或半截盘）"
+            },
+            "year": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "可选。仅限 rule=大运/大限：指定取哪一年的限运；省略时使用服务端当前年份。"
             }
           },
           "required": [
@@ -405,7 +458,7 @@
       "type": "function",
       "function": {
         "name": "yearly_range",
-        "description": "批量流年分析：一次调用替代逐年排盘+查断语；单次跨度最多 120 年。返回每年各域断语（精简格式）+ current_year。",
+        "description": "批量流年分析：一次调用替代逐年排盘+查断语；单次跨度最多 120 年。返回 years、current_year 与 year_basis；精简断语含 id/领域/事件类型/时间层/事件/结论，并输出八字、紫微、合参三层。",
         "parameters": {
           "type": "object",
           "properties": {
@@ -456,7 +509,7 @@
                   "年仆役"
                 ]
               },
-              "description": "流年域（命理域 年十神/年官禄… 或场景别名 yearly_marriage/yingqi），默认 [yearly_career]"
+              "description": "流年域（年十神/年官禄…）或场景别名（yearly_marriage/yingqi）；必须按用户问题显式选择"
             },
             "detail": {
               "type": "boolean",
@@ -466,7 +519,8 @@
           "required": [
             "pan",
             "start",
-            "end"
+            "end",
+            "rules"
           ]
         }
       }
@@ -475,7 +529,7 @@
       "type": "function",
       "function": {
         "name": "calibrate",
-        "description": "定盘校验：多个候选生日 + 人生大事 → 每候选每事件的原始断语。不做命中判断——信号解读由 LLM 完成。",
+        "description": "定盘校验：多个候选生日 + 人生大事 → 每候选每事件的原始断语，输出八字/紫微/合参三层；精简断语含 id 与受控事件标签。不做命中判断——信号解读由 LLM 完成。",
         "parameters": {
           "type": "object",
           "properties": {
@@ -496,12 +550,12 @@
                   },
                   "longitude": {
                     "type": "number",
-                    "description": "出生地经度（必填，通过 city_coords 获取）"
+                    "description": "出生地经度。correct=true 必填；correct=false 可省略"
                   },
                   "correct": {
                     "type": "boolean",
                     "default": true,
-                    "description": "是否真太阳时校正"
+                    "description": "true=按具体时刻真太阳时校正（需 longitude）；false=按已明确时辰直接排（无需 longitude）"
                   },
                   "label": {
                     "type": "string",
@@ -515,7 +569,6 @@
                 "required": [
                   "gregorian",
                   "gender",
-                  "longitude",
                   "label"
                 ]
               },
@@ -581,7 +634,7 @@
             },
             "detail": {
               "type": "boolean",
-              "description": "true=全量断语（含依据/经典原文）；false=精简（仅事件+结论）",
+              "description": "true=全量断语（含依据/经典依据/机械证据 evidence）；false=精简（id+领域+事件类型+时间层+事件+结论）",
               "default": false
             }
           },

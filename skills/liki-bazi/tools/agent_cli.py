@@ -51,7 +51,7 @@ _DISPATCH = {
     "full_paipan": lambda a: full_paipan(a["gregorian"], a["gender"],
                                          longitude=a.get("longitude"),
                                          correct=a.get("correct", True)),
-    "query":        lambda a: query(a["rule"], a["pan"]),
+    "query":        lambda a: query(a["rule"], a["pan"], year=a.get("year")),
     "yearly_range": lambda a: yearly_range(a["pan"], a["start"], a["end"],
                                            rules=a.get("rules"),
                                            detail=a.get("detail", False)),

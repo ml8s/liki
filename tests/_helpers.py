@@ -13,3 +13,22 @@ def mock_base_context(**shishen):
     base = {"shishen": shishen, "ri_gan": "甲",
            "wuxing": {"wang_shuai": {}}}
     return base
+
+
+def valid_daxian(birth_year: int = 1990):
+    """构造引擎 ziwei.daxian 形状的最小 12 段大限。"""
+    palaces = (
+        "命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄",
+        "迁移", "仆役", "官禄", "田宅", "福德", "父母",
+    )
+    return [
+        {
+            "gong": palace,
+            "name": f"限{i + 1}",
+            "start_year": birth_year + i * 10,
+            "end_year": birth_year + i * 10 + 9,
+            "qi_sui": i * 10 + 1,
+            "zhi_sui": i * 10 + 10,
+        }
+        for i, palace in enumerate(palaces)
+    ]

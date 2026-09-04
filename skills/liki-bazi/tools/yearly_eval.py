@@ -8,6 +8,7 @@ from typing import Callable, Iterable
 
 from errors import YearRangeError
 from factor_context import NatalContext
+from factor_constants import load_constants
 
 MAX_YEARS = 120
 
@@ -18,7 +19,8 @@ def resolve_rules(
     scene_aliases: dict[str, tuple[str, ...]],
 ) -> list[str]:
     """校验并展开流年场景别名；返回去重保序的命理域。"""
-    rules = ["yearly_career"] if rules is None else rules
+    if rules is None:
+        raise YearRangeError("yearly_range rules 不能为空")
     if not rules:
         raise YearRangeError("yearly_range rules 不能为空")
     if len(rules) != len(set(rules)):
@@ -55,9 +57,10 @@ def query_year_rules(
         result = query_yearly(rule, snapshot)
         if detail and snapshot.get("evidence"):
             result["evidence"] = snapshot["evidence"]
+        side_labels = load_constants()["命理侧"]["标签"]
         year_data[rule] = result if detail else {
-            "八字": brief(result.get("八字", [])),
-            "紫微": brief(result.get("紫微", [])),
+            side_labels[side]: brief(result.get(side_labels[side], []))
+            for side in load_constants()["命理侧"]["断言代码"]
         }
     return year_data
 
@@ -69,10 +72,12 @@ def yearly_snapshot(
     *,
     liunian: Callable[[dict, int], dict],
     evaluate_liunian_snap_from_pan: Callable[..., dict],
+    factor_names: set[str] | None = None,
 ) -> dict:
     """排单年流年盘并生成流年快照。"""
     return evaluate_liunian_snap_from_pan(
-        pan, liunian(pan, year), year=year, natal_context=natal_context
+        pan, liunian(pan, year), year=year, natal_context=natal_context,
+        factor_names=factor_names,
     )
 
 
@@ -87,12 +92,14 @@ def evaluate_year(
     brief: Callable[[list], list],
     liunian: Callable[[dict, int], dict],
     evaluate_liunian_snap_from_pan: Callable[..., dict],
+    factor_names: set[str] | None = None,
 ) -> dict[str, dict]:
     """统一 yearly_range 的年度求值流程。"""
     snapshot = yearly_snapshot(
         pan, year, natal_context,
         liunian=liunian,
         evaluate_liunian_snap_from_pan=evaluate_liunian_snap_from_pan,
+        factor_names=factor_names,
     )
     return query_year_rules(
         snapshot, rules, detail,

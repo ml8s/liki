@@ -51,6 +51,7 @@ PYEOF
         --exclude .reasonix \
         --exclude .pytest_cache \
         --exclude __pycache__ \
+        --exclude CHANGELOG.md \
         --exclude '*.tar.gz' \
         --exclude dist \
         .

@@ -14,7 +14,6 @@ DEFAULT_SOURCE = REPO / "engine/internal/engine/qiming/data/gsc_pinyin_with_tone
 DEFAULT_RADICALS = REPO / "engine/internal/engine/qiming/data/radicals.yaml"
 DEFAULT_OUTPUT = REPO / "engine/internal/engine/qiming/data/naming_characters.csv"
 FIELDS = ["char", "pinyin", "radical", "stroke", "wuxing", "tone"]
-SOURCE_FIELDS = {"word", "pinyin", "radical", "stroke_count", "wuxing", "tone"}
 
 
 def main() -> int:
@@ -24,25 +23,21 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
-    with args.source.open(encoding="utf-8-sig", newline="") as source:
-        rows = csv.DictReader(source)
-        missing = SOURCE_FIELDS - set(rows.fieldnames or [])
-        if missing:
-            raise ValueError(f"source table missing columns: {sorted(missing)}")
-        with args.output.open("w", encoding="utf-8", newline="") as output:
-            writer = csv.DictWriter(output, fieldnames=FIELDS, lineterminator="\n")
-            writer.writeheader()
-            count = 0
-            for row in load_runtime_naming_rows(args.source, args.radicals):
-                writer.writerow({
-                    "char": row["word"],
-                    "pinyin": row["pinyin"],
-                    "radical": row["radical"],
-                    "stroke": row["stroke_count"],
-                    "wuxing": row["wuxing"],
-                    "tone": row["tone"],
-                })
-                count += 1
+    rows = list(load_runtime_naming_rows(args.source, args.radicals))
+    with args.output.open("w", encoding="utf-8", newline="") as output:
+        writer = csv.DictWriter(output, fieldnames=FIELDS, lineterminator="\n")
+        writer.writeheader()
+        count = 0
+        for row in rows:
+            writer.writerow({
+                "char": row["word"],
+                "pinyin": row["pinyin"],
+                "radical": row["radical"],
+                "stroke": row["stroke_count"],
+                "wuxing": row["wuxing"],
+                "tone": row["tone"],
+            })
+            count += 1
 
     if count != 7734:
         raise ValueError(f"generated {count} rows, want 7734")

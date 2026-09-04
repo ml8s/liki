@@ -64,6 +64,10 @@ def _ziwei_chart(lunar: dict, gender: str) -> dict:
     return call("ziwei.chart", {"lunar": lunar, "gender": gender})["data"]
 
 
+def _ziwei_daxian(ziwei: dict) -> list:
+    return call("ziwei.daxian", {"chart": ziwei})["data"]
+
+
 def _bazi_liunian(chart: dict, year: int) -> dict:
     return call("bazi.liunian", {"chart": chart, "year": year})["data"]
 
@@ -94,8 +98,8 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         lunar = t["lunar"]
         chart = _bazi_chart(solar, gender)   # 校正后时间直接排盘，不传 longitude（防二次校正）
     else:
-        # 路 B：用户已定时辰，直接排盘不校正；紫微农历用经度 120（东八区中央经线，无真太阳时偏移——
-        # 与路 A 默认 116.4 北京经度区分：路 A 校正用出生地经度，路 B 不校正用标准时经度）查
+        # 路 B：用户已定时辰，直接排盘不做真太阳时校正；农历换算使用
+        # 东八区中央经线 120°，仅作历法转换，不引入出生地偏移。
         solar = gregorian
         chart = _bazi_chart(gregorian, gender)
         t = _solar_time(gregorian, 120.0)
@@ -104,6 +108,7 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
     # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
     ys = full.get("yong_shen", {})
     zw = _ziwei_chart(lunar, gender)
+    daxian = _ziwei_daxian(zw)
     result = {
         "solar": solar,
         "lunar": lunar,
@@ -111,6 +116,7 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         "full": full,        # 十神/藏干/神煞/合会冲刑/三元
         "yongshen": ys,      # 身强弱/旺衰/三派用神
         "ziwei": zw,         # 十二宫/四化/格局
+        "ziwei_daxian": daxian,  # 十年大限（公历年段与宫位）
         "gender": gender,
     }
     validate_natal_pan(result, action="full_paipan result")

@@ -36,6 +36,13 @@ class TestSkillFrontmatter(unittest.TestCase):
                 meta = yaml.safe_load(txt.split("---\n")[1])
                 self.assertIsInstance(meta, dict)
 
+    def test_bazi_app_cards_keep_required_reading_bounded(self):
+        cards = sorted((SKILLS_DIR / "liki-bazi" / "app").glob("*.md"))
+        for card in cards:
+            with self.subTest(card=card.name):
+                count = card.read_text(encoding="utf-8").count("[必读]")
+                self.assertLessEqual(count, 3)
+
 
 if __name__ == "__main__":
     unittest.main()

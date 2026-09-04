@@ -17,32 +17,18 @@ var namingCharactersCSV []byte
 
 var namingCharacterColumns = []string{"char", "pinyin", "radical", "stroke", "wuxing", "tone"}
 
-//go:embed data/kangxi_character_strokes.csv
-var kangxiCharacterStrokesCSV []byte
-
 //go:embed data/negative_chars.txt
 var negativeCharsTxt []byte
 
 var charByElement map[Wuxing][]Character
 var charByRune = make(map[rune]Character)
-var kangxiByRune = make(map[rune]kangxiStroke)
 var negativeChars = make(map[string]bool)
-
-type kangxiStroke struct {
-	Stroke int
-	Form   string
-}
 
 func init() {
 	if err := loadNaming(); err != nil {
 		log.Fatalf("qiming: load qiming data: %v", err)
 	}
-	if err := loadKangxiStrokes(); err != nil {
-		log.Fatalf("qiming: load kangxi strokes: %v", err)
-	}
-	if err := applyKangxiStrokes(); err != nil {
-		log.Fatalf("qiming: apply kangxi strokes: %v", err)
-	}
+	buildElementPools()
 }
 
 func loadNaming() error {
@@ -137,59 +123,9 @@ func loadNaming() error {
 	return nil
 }
 
-func loadKangxiStrokes() error {
-	r := csv.NewReader(bytes.NewReader(kangxiCharacterStrokesCSV))
-	records, err := r.ReadAll()
-	if err != nil {
-		return err
-	}
-	if len(records) < 2 {
-		return fmt.Errorf("kangxi_character_strokes.csv: empty table")
-	}
-	columns := map[string]int{}
-	for i, column := range records[0] {
-		columns[column] = i
-	}
-	for _, required := range []string{"char", "kangxi_form", "kangxi_stroke"} {
-		if _, ok := columns[required]; !ok {
-			return fmt.Errorf("kangxi_character_strokes.csv: missing column %q", required)
-		}
-	}
-	for _, rec := range records[1:] {
-		if len(rec) <= columns["char"] || len(rec) <= columns["kangxi_form"] || len(rec) <= columns["kangxi_stroke"] {
-			return fmt.Errorf("kangxi_character_strokes.csv: missing columns")
-		}
-		char := rec[columns["char"]]
-		if len([]rune(char)) != 1 {
-			return fmt.Errorf("kangxi_character_strokes.csv: invalid character %q", char)
-		}
-		stroke, err := strconv.Atoi(rec[columns["kangxi_stroke"]])
-		if err != nil || stroke <= 0 {
-			return fmt.Errorf("kangxi_character_strokes.csv: invalid stroke for %q", char)
-		}
-		form := rec[columns["kangxi_form"]]
-		if len([]rune(form)) != 1 {
-			return fmt.Errorf("kangxi_character_strokes.csv: invalid Kangxi form for %q", char)
-		}
-		r := []rune(char)[0]
-		if _, exists := kangxiByRune[r]; exists {
-			return fmt.Errorf("kangxi_character_strokes.csv: duplicate character %q", char)
-		}
-		kangxiByRune[r] = kangxiStroke{Stroke: stroke, Form: form}
-	}
-	return nil
-}
-
-func applyKangxiStrokes() error {
+func buildElementPools() {
 	namingChars := make([]Character, 0, len(charByRune))
-	for r, character := range charByRune {
-		entry, ok := kangxiByRune[r]
-		if !ok {
-			return fmt.Errorf("character %q has no kangxi stroke", r)
-		}
-		character.KangxiStroke = entry.Stroke
-		character.KangxiForm = entry.Form
-		charByRune[r] = character
+	for _, character := range charByRune {
 		if !negativeChars[character.Char] {
 			namingChars = append(namingChars, character)
 		}
@@ -201,5 +137,4 @@ func applyKangxiStrokes() error {
 	for _, character := range namingChars {
 		charByElement[character.Element] = append(charByElement[character.Element], character)
 	}
-	return nil
 }

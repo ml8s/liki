@@ -2,9 +2,10 @@
 from unittest import mock
 
 from _helpers import mock_base_context
-from factors import _target_stars, load_constants
 import factors
-from factors import _liu_op, _op
+from factor_constants import load_constants
+from operators_liunian import _liu_op, _target_stars
+from operators_natal import _op
 
 
 def _chart(pillars: dict) -> dict:

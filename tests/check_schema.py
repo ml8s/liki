@@ -1,249 +1,240 @@
-"""断语库 schema 校验（数据库约束：断语引用的因子必须存在）。
-
-校验内容：
-1. 断语表约束键（含 any_of 内）必须 ∈ 因子全集（factors.csv 因子名 + 引擎直读字段）
-2. 断语约束键必须 ∈ 该表"引用因子"声明（若表有声明）——防声明与实际脱节
-3. 引用因子声明中的因子名必须存在
-4. 各断语表条目 id 唯一
-5. 死列（表头列无任何行引用）
-
-用法：
-    python3 tests/check_schema.py        # 校验全部，退出码 0/1
-"""
+"""断言库 schema 校验（长表、条件组、术数/作用域与生产数据纯度）。"""
 from __future__ import annotations
-import glob
-import os
-import sys
+
+import csv
 import json
+import os
+import re
+import sys
+from collections import defaultdict
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(_ROOT, "skills", "liki-bazi", "tools"))
 
 from factor_tables import load_long_rows
-DY = os.path.join(_ROOT, "skills", "liki-bazi", "tools")   # skill 内容在 skills/liki-bazi/（工程根=仓库根）
 
-# 排盘上下文不是因子，但断语真值表可消费。
+TOOLS = os.path.join(_ROOT, "skills", "liki-bazi", "tools")
+ASSERTIONS_PATH = os.path.join(TOOLS, "assertions", "assertions.csv")
+CONDITIONS_PATH = os.path.join(TOOLS, "assertions", "assertion_conditions.csv")
 CONTEXT_KEYS = {"性别"}
-# 应期层因子（factors_liunian.csv 定义——yingqi 域用，不在 factors.csv）
-def load_liunian_names() -> set:
-    """流年因子名——从 factors_liunian.csv（真值表单一权威——json 已删）。"""
-    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"))}
+
+PROCESS_RE = re.compile(
+    r"(mingli-skills|phase\d+|step\d+|硬标注|fangfa/|app/|domains/|[A-Za-z_-]+\.md|factors\.csv|"
+    r"dayun\.md|hehui\.md|(?<!\d)0\d{3}(?!\d)|\bpan\d+\b|\b[a-z]+(?:_[a-z0-9]+)+\b|MingLi(?:-| )?Bench|benchmark|考时|回填|选项|题目|评测|合并原|根因|用户\s*\d{4}|"
+    r"\b[MFSH]\d+[A-Za-z]?\b)", re.I
+)
 
 
-LIUNIAN_KEYS = load_liunian_names()
+def _load_csv(path: str) -> tuple[list[str], list[dict]]:
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        return list(reader.fieldnames or []), list(reader)
 
 
-def load_liunian_reachability() -> tuple:
-    """返回 (八字流年可达键, 紫微流年因子名)。"""
-    path = os.path.join(DY, "factors", "factors_liunian.csv")
-    rows = load_long_rows(path)
-    bz, zw = set(), set()
-    for r in rows:
-        if (r.get("术数") or "bazi").strip() == "ziwei":
-            zw.add(r["因子"])
-        else:
-            bz.add(r["因子"])
-        bz.update(key for key in r.get("conds", {}) if "[" in key)
-    return bz, zw
+def _factor_rows(filename: str) -> list[dict]:
+    return load_long_rows(os.path.join(TOOLS, "factors", filename))
 
 
-def load_factor_shushi() -> dict:
-    """因子名 → 术数（bazi/ziwei）。"""
-    rows = load_long_rows(os.path.join(DY, "factors", "factors.csv"))
-    return {r["因子"]: (r.get("术数") or "bazi").strip() for r in rows}
-
-
-def load_factors_names() -> set:
-    """因子名清单——从 factors.csv（真值表单一权威——json 已删）。"""
-    return {r["因子"] for r in load_long_rows(os.path.join(DY, "factors", "factors.csv"))}
+def _sides_by_factor(rows: list[dict]) -> dict[str, set[str]]:
+    out: dict[str, set[str]] = defaultdict(set)
+    for row in rows:
+        out[row["因子"]].add((row.get("术数") or "bazi").strip())
+    return out
 
 
 def main() -> int:
-    constants = json.load(open(os.path.join(DY, "constants.json"), encoding="utf-8"))
-    factor_names = load_factors_names()
-    factor_shushi = load_factor_shushi()
-    bz_reach, zw_factors = load_liunian_reachability()
-    _LIUNIAN_ALL = load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv"))
-    # 因子 → 是否字符串直通（直读[..,任意]）——强化⑩ 校验断语字符串约束列值域
-    _STR_ZHITONG = {}
-    for _filename in ("factors.csv", "factors_liunian.csv"):
-        for _r in load_long_rows(os.path.join(DY, "factors", _filename)):
-            _zt = (_r.get("直通") or "").strip()
-            _STR_ZHITONG.setdefault(_r["因子"], set()).add(("任意" in _zt) if _zt else False)
-    errors = []
-    warnings = []
-    seen_ids = {}
-    # 强化⑥：引用本命[X] 的 X 必须是本命因子名。算子按本命快照通用读取。
-    for r in load_long_rows(os.path.join(DY, "factors", "factors_liunian.csv")):
-        for key in r.get("conds", {}):
-            if key.startswith("引用本命["):
-                inner = key[len("引用本命["):-1]
-                if inner not in factor_names:
-                    errors.append(f"[factors_liunian] 引用本命[{inner}] 不是本命因子——恒 0 死条件")
-    # 因子定义必须有直通或条件；空定义会恒假且绕过多数表结构检查。
-    for _filename in ("factors.csv", "factors_liunian.csv"):
-        for _r in load_long_rows(os.path.join(DY, "factors", _filename)):
-            if not _r.get("直通") and not _r.get("conds"):
-                errors.append(f"[{_filename}] 因子 {_r['因子']} 空定义（恒 0）")
-    # 断语长表：assertions.csv 定义元数据，assertion_conditions.csv 定义约束。
-    # 这里重组为 evaluator 行结构，使值域、可达性和标签检查共用一套逻辑。
-    import csv as _csv
-    assertion_path = os.path.join(DY, "assertions", "assertions.csv")
-    condition_path = os.path.join(DY, "assertions", "assertion_conditions.csv")
-    assertion_groups = {}
-    with open(assertion_path, encoding="utf-8") as fh:
-        for r in _csv.DictReader(fh):
-            key = (r.get("side"), r.get("rule"))
-            item = {
-                "id": r.get("assertion_id", ""), "事件": r.get("事件", ""),
-                "约束": {}, "结论": r.get("结论", ""),
-                "依据": r.get("依据", ""), "经典原文": r.get("经典原文", ""),
-            }
-            assertion_groups.setdefault(key, []).append(item)
-    assertion_index = {
-        item["id"]: item
-        for items in assertion_groups.values()
-        for item in items
+    constants = json.load(open(os.path.join(TOOLS, "constants.json"), encoding="utf-8"))
+    natal_rows = _factor_rows("factors.csv")
+    flow_rows = _factor_rows("factors_liunian.csv")
+    natal_sides = _sides_by_factor(natal_rows)
+    flow_sides = _sides_by_factor(flow_rows)
+    flow_trigger_factors = {
+        row["因子"] for row in flow_rows
+        if row.get("直通")
+        or any(not key.startswith("引用本命[") for key in row.get("conds", {}))
     }
-    for r in _csv.DictReader(open(condition_path, encoding="utf-8")):
-        # expected 保持字符串语义；运行时 loader 负责转 int/string。
-        item = assertion_index.get(r.get("assertion_id"))
-        if item:
-            item["约束"][r.get("factor", "")] = (r.get("expected") or "").strip()
-    file_records = []
-    for (side, rule), rows in assertion_groups.items():
-        file_records.append({
-            "f": f"assertions/{side}_{rule}.csv",
-            "_rel": f"{side}/{rule}.csv", "dom": rule,
-            "rows": rows, "_hdr": [],
-        })
-    for rec in file_records:
-        f = rec["f"]
-        dom = rec["dom"]
-        _rel = rec["_rel"]
-        rows = rec["rows"]
-        _hdr = rec["_hdr"]
-        for r in rows:
-            cons = r["约束"]
-            if not cons:
-                errors.append(f"[{_rel}/{r.get('id')}] 断语无约束（恒命中）")
-            expect = _rel.split("/", 1)[0]
-            for ck in cons:
-                cs = factor_shushi.get(ck)
-                if cs and cs not in (expect, "common"):
-                    warnings.append(f"[{_rel}] 跨术数条件列 '{ck}'（{cs}）——{expect} 表应纯{expect}因子")
-        used_keys = set()
-        for item in rows:
-            eid = item.get("id")
-            if eid:
-                if eid in seen_ids:
-                    errors.append(f"断语 id 重复: {eid}（{seen_ids[eid]} 与 {f}）")
-                seen_ids[eid] = f
-            for k in (item.get("约束") or {}):
-                used_keys.add(k)
-        # 约束键必须存在
-        for k in used_keys:
-            if k not in factor_names and k not in CONTEXT_KEYS and k not in LIUNIAN_KEYS:
-                errors.append(f"[{dom}] 约束键 '{k}' 不在因子全集（factors.csv 无此因子）")
-        # 流年域表（yearly_*/yingqi）的约束键必须可达——
-        # 八字流年表引用紫微流年因子 = 跨术数死条件；引用本命因子（非引用本命[X]）= 流年快照不可达死列
-        if _rel.startswith("bazi/") and (dom.startswith("yearly_") or dom == "yingqi"):
-            for k in used_keys:
-                if k in zw_factors:
-                    errors.append(f"[{_rel}] 八字流年表引用紫微流年因子 '{k}'——跨术数死条件（八字流年快照恒无此键，永不命中）")
-                elif k not in bz_reach and k not in CONTEXT_KEYS and k in factor_names:
-                    errors.append(f"[{_rel}] 流年表引用本命因子 '{k}'（非「引用本命[X]」形式）——流年快照不可达，死列")
-        # 表头列必须至少被一行约束引用；未引用列属于死条件。
-        _unused = [c for c in _hdr if c not in used_keys]
-        if _unused:
-            _s = ",".join(_unused[:8]) + ("…" if len(_unused) > 8 else "")
-            errors.append(f"[{dom}] 死列 {len(_unused)} 个（表头列无任何行引用；长表不得包含无效列）: {_s}")
-        # 同一约束和事件只能有一条断语。
-        # 去重键 = 约束元组 + 事件：同一因子条件对应不同事件/命理域（如 ys_101 事业阻 / yx_101 学业阻
-        # / ycai_102 破财）是「多义断语」的刻意设计，不算冗余，仅约束相同而事件也相同才判重。
-        _seen_cons = {}
-        for item in rows:
-            _cons = tuple(sorted((k, v) for k, v in (item.get("约束") or {}).items()))
-            _key = (_cons, item.get("事件", ""))
-            if _cons and _key in _seen_cons:
-                warnings.append(f"[{dom}] 重复约束行: {_seen_cons[_key]} 与 {item['id']} 约束+事件完全相同（冗余，应合并）")
-            else:
-                _seen_cons[_key] = item['id']
-        # 非枚举约束列只能使用 0/1 值。
-        _ENUM_COLS = {"月令格", "扶抑从格", "日主五行", "日主", "日主长生状态", "性别", "十神",
-                              "身强弱", "调候季节", "日支神煞类型", "月令本气十神", "大运十神类",
-                              "流年日主长生状态"}
-        for item in rows:
-            for _k, _v in (item.get("约束") or {}).items():
-                if _k in _ENUM_COLS:
-                    continue
-                if _v not in ("0", "1"):
-                    errors.append(f"[{dom}/{item['id']}] 约束列 {_k} 取值 {_v!r} 非 0/1（枚举列才可用字符串）")
-        # 标量列值域必须来自 constants 闭集，防止不可达字符串条件。
-        _ENUM_SOURCES = {
-            "月令格": "月令格局",
-            "扶抑从格": "扶抑从格",
-            "身强弱": "身强弱状态",
-            "调候季节": "调候季节",
-            "日主": "天干",
-            "日主五行": "五行",
-            "日主长生状态": "十二长生",
-            "日支神煞类型": "日支神煞",
-            "月令本气十神": "十神",
-            "大运十神类": "十神大类",
-            "流年日主长生状态": "十二长生",
-        }
-        for item in rows:
-            for _k, _v in (item.get("约束") or {}).items():
-                _source = _ENUM_SOURCES.get(_k)
-                if _source and _v not in constants[_source]:
-                    errors.append(
-                        f"[{dom}/{item['id']}] 标量列 {_k}={_v!r} 不在 constants.{_source} 闭集"
-                    )
-        # 字符串约束列必须对应会返回字符串的因子或直读键。
-        for item in rows:
-            for _k, _v in (item.get("约束") or {}).items():
-                if _v in ("0", "1") or _k in CONTEXT_KEYS:
-                    continue
-                _defs = _STR_ZHITONG.get(_k)
-                if _defs is None:
-                    errors.append(f"[{dom}/{item['id']}] 字符串约束列 {_k}={_v!r} 不是因子名（或引擎直读键）")
-                elif not any(_d for _d in _defs):
-                    errors.append(f"[{dom}/{item['id']}] 列 {_k}={_v!r} 因子非字符串直通（值域错配→永不匹配）")
-        # 紫微流年表不得引用八字流年因子。
-        if _rel.startswith("ziwei/") and dom.startswith("yearly_"):
-            _bazi_liu_factors = {r["因子"] for r in _LIUNIAN_ALL if (r.get("术数") or "bazi").strip() == "bazi"}
-            for k in used_keys:
-                if k in _bazi_liu_factors:
-                    errors.append(f"[{_rel}] 紫微流年表引用八字流年因子 '{k}'——跨术数死条件（紫微流年快照恒无此键）")
-        # 断语结论必须使用命理表达，不能直接使用评测状态标签。
-        _LABELS = {"已婚", "未婚", "独身", "离异", "夫早亡", "已婚波折", "博士", "硕士", "大学",
-                   "专科", "中学", "小学", "主妇", "老板", "老板+管理层", "管理层/高管", "稳定职业",
-                   "打工有积蓄", "普通打工", "富贵", "小康", "普通", "贫穷", "婚姻复杂"}
-        for item in rows:
-            if item["结论"].strip() in _LABELS:
-                warnings.append(f"[{dom}/{item['id']}] 结论为评测状态标签（{item['结论']}）——应为命理表达（标签在测试层映射）")
-        # 结论、依据、经典原文必填。
-        for item in rows:
-            for col in ("结论", "依据", "经典原文"):
-                if not (item.get(col) or "").strip():
-                    warnings.append(f"[{dom}/{item['id']}] 必填列 '{col}' 为空")
-        # 经典原文必须全量覆盖。
-        _total = len(rows)
-        _filled = sum(1 for it in rows if (it.get("经典原文") or "").strip())
-        if _total and _filled < _total:
-            warnings.append(f"[{dom}] 经典原文覆盖 {_filled}/{_total}（应为全量——缺 {_total - _filled} 条）")
 
-    print(f"因子全集: {len(factor_names)} 个")
+    direct_string: dict[str, bool] = defaultdict(bool)
+    for filename in ("factors.csv", "factors_liunian.csv"):
+        for row in _factor_rows(filename):
+            direct_string[row["因子"]] = bool("任意" in (row.get("直通") or ""))
+
+    assertion_fields, assertions = _load_csv(ASSERTIONS_PATH)
+    condition_fields, conditions = _load_csv(CONDITIONS_PATH)
+    expected_assertion_fields = [
+        "assertion_id", "rule", "side", "领域", "事件类型", "时间层",
+        "事件", "结论", "依据", "经典依据",
+    ]
+    expected_condition_fields = [
+        "assertion_id", "condition_group_id", "factor", "expected"
+    ]
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    if assertion_fields != expected_assertion_fields:
+        errors.append(f"assertions.csv 表头不符: {assertion_fields}")
+    if condition_fields != expected_condition_fields:
+        errors.append(f"assertion_conditions.csv 表头不符: {condition_fields}")
+
+    assertion_by_id = {row["assertion_id"]: row for row in assertions}
+    if len(assertion_by_id) != len(assertions):
+        errors.append("assertion_id 重复")
+
+    groups: dict[tuple[str, str], dict[str, str]] = defaultdict(dict)
+    for number, row in enumerate(conditions, 1):
+        aid = row["assertion_id"]
+        gid = row["condition_group_id"]
+        factor = row["factor"]
+        expected = row["expected"]
+        if aid not in assertion_by_id:
+            errors.append(f"条件第 {number} 行引用未知断语: {aid}")
+            continue
+        if not gid.isdigit() or int(gid) <= 0:
+            errors.append(f"[{aid}] condition_group_id 无效: {gid}")
+            continue
+        if not factor or not expected:
+            errors.append(f"[{aid}/{gid}] factor/expected 不能为空")
+            continue
+        if PROCESS_RE.search(f"{factor} {expected}"):
+            errors.append(f"[{aid}/{gid}] 条件含评测/内部过程残留")
+        key = (aid, gid)
+        if key in groups and factor in groups[key]:
+            errors.append(f"[{aid}/{gid}] 条件因子重复: {factor}")
+        groups[key][factor] = expected
+
+    # Rebuild evaluator-shaped rows and enforce scope/side reachability.
+    grouped_assertions: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for assertion in assertions:
+        grouped_assertions[(assertion["side"], assertion["rule"])].append(assertion)
+
+        aid = assertion["assertion_id"]
+        side = assertion["side"]
+        rule = assertion["rule"]
+        if assertion["领域"] not in {
+            "婚姻", "家庭", "子女", "学业", "事业", "财运", "健康", "官非",
+            "灾劫", "性格", "精神", "外貌", "人际", "迁移", "房产", "出身",
+            "玄学", "大限", "应期", "结构", "综合",
+        }:
+            errors.append(f"[{aid}] 领域不在受控闭集: {assertion['领域']}")
+        if assertion["事件类型"] not in {
+            "状态", "关系", "结构", "凶象", "吉象", "引动", "变动", "取象",
+        }:
+            errors.append(f"[{aid}] 事件类型不在受控闭集: {assertion['事件类型']}")
+        expected_layer = "流年" if rule.startswith("年") else "大限" if rule == "大限" else "本命"
+        if assertion["时间层"] != expected_layer:
+            errors.append(
+                f"[{aid}] 时间层 {assertion['时间层']} 与 rule {rule} 不符"
+            )
+        text_fields = ("领域", "事件类型", "时间层", "事件", "结论", "依据", "经典依据")
+        for field in text_fields:
+            if not assertion[field].strip():
+                errors.append(f"[{aid}] 必填字段 {field} 为空")
+            if assertion[field].count("（") != assertion[field].count("）"):
+                errors.append(f"[{aid}] {field} 中文括号不平衡")
+            if PROCESS_RE.search(assertion[field]):
+                errors.append(f"[{aid}] {field} 含评测/内部过程残留")
+        if "《" not in assertion["经典依据"] or "》" not in assertion["经典依据"]:
+            errors.append(f"[{aid}] 经典依据缺少可核验书名")
+
+        assertion_groups = [groups[key] for key in sorted(groups, key=lambda item: int(item[1])) if key[0] == aid]
+        if not assertion_groups:
+            errors.append(f"[{side}/{rule}/{aid}] 断言无条件组（恒不命中）")
+            continue
+        ordered_numbers = sorted(int(key[1]) for key in groups if key[0] == aid)
+        if ordered_numbers != list(range(1, len(ordered_numbers) + 1)):
+            errors.append(f"[{aid}] condition_group_id 不连续: {ordered_numbers}")
+
+        selected_sides = set()
+        has_flow_trigger = False
+        for conditions_in_group in assertion_groups:
+            # Current mechanical exclusivity guards. These are schema facts, not命理裁决.
+            if sum(factor in {
+                "大运印星运", "大运官杀运", "大运财星运", "大运食伤运", "大运比劫运"
+            } for factor in conditions_in_group) > 1:
+                errors.append(f"[{aid}] 同组同时要求多个互斥当前大运类")
+            if sum(factor.startswith("年柱") for factor in conditions_in_group) > 1:
+                errors.append(f"[{aid}] 同组同时要求多个年柱天干十神")
+            for factor, expected in conditions_in_group.items():
+                if factor in CONTEXT_KEYS:
+                    if factor not in natal_sides and factor not in flow_sides:
+                        selected_sides.add("context")
+                    continue
+                pool = flow_sides if rule.startswith("年") else natal_sides
+                factor_sides = pool.get(factor)
+                if factor_sides is None:
+                    errors.append(f"[{side}/{rule}/{aid}] 因子 '{factor}' 不在对应作用域因子表")
+                    continue
+                if rule.startswith("年") and factor in flow_trigger_factors:
+                    has_flow_trigger = True
+                selected_sides.update(factor_sides)
+                if side in {"bazi", "ziwei"} and factor_sides != {side} and "common" not in factor_sides:
+                    errors.append(
+                        f"[{side}/{rule}/{aid}] 引用异侧因子 '{factor}'（{sorted(factor_sides)}）"
+                    )
+                if expected not in ("0", "1") and not direct_string.get(factor):
+                    errors.append(f"[{aid}/{factor}] 非二值因子使用了字符串期望值")
+        if side == "common":
+            if not {"bazi", "ziwei"} <= selected_sides:
+                errors.append(f"[common/{rule}/{aid}] 合参断语未同时覆盖八字与紫微因子")
+        if rule.startswith("年") and not has_flow_trigger:
+            errors.append(
+                f"[{side}/{rule}/{aid}] 流年断语缺少当年引动因子，仅本命体质会逐年重复命中"
+            )
+
+    # Duplicate condition signature + event is redundant; different events are projections.
+    seen_signature: dict[tuple, str] = {}
+    for (side, rule), rows in grouped_assertions.items():
+        for row in rows:
+            aid = row["assertion_id"]
+            signatures = []
+            for key, conditions_in_group in groups.items():
+                if key[0] != aid:
+                    continue
+                signatures.append(tuple(sorted(conditions_in_group.items())))
+            signature = tuple(sorted(signatures))
+            dedup_key = (side, rule, row["事件"], signature)
+            if dedup_key in seen_signature:
+                warnings.append(
+                    f"[{side}/{rule}] 重复条件+事件: {seen_signature[dedup_key]} 与 {aid}"
+                )
+            else:
+                seen_signature[dedup_key] = aid
+
+    # Scalar value closures.
+    enum_sources = {
+        "月令格": "月令格局", "扶抑从格": "扶抑从格", "身强弱": "身强弱状态",
+        "调候季节": "调候季节", "日主": "天干", "日主五行": "五行",
+        "日主长生状态": "十二长生", "日支神煞类型": "日支神煞",
+        "月令本气十神": "十神", "大运十神类": "十神大类",
+        "流年日主长生状态": "十二长生",
+    }
+    for (aid, _gid), conditions_in_group in groups.items():
+        for factor, expected in conditions_in_group.items():
+            source = enum_sources.get(factor)
+            if source and expected not in constants.get(source, []):
+                errors.append(f"[{aid}] {factor}={expected!r} 不在 constants.{source} 闭集")
+
+    # Factor-table production purity and empty definitions.
+    for filename, rows in (("factors.csv", natal_rows), ("factors_liunian.csv", flow_rows)):
+        for row in rows:
+            if not row.get("直通") and not row.get("conds"):
+                errors.append(f"[{filename}] 因子 {row['因子']} 空定义")
+            if row.get("术数") not in {"bazi", "ziwei", "common"}:
+                errors.append(f"[{filename}] 因子 {row['因子']} 术数无效: {row.get('术数')}")
+            if PROCESS_RE.search(row.get("依据") or ""):
+                errors.append(f"[{filename}] 因子 {row['因子']} 含过程残留")
+
+    print(f"因子全集: 本命 {len(natal_sides)} / 流年 {len(flow_sides)} 个")
+    print(f"断语: {len(assertions)} 条 / 条件组 {len(groups)} 组 / 条件行 {len(conditions)} 行")
     print(f"错误: {len(errors)} 个")
-    for e in errors:
-        print("  ✗", e)
+    for error in errors:
+        print("  ✗", error)
     print(f"警告: {len(warnings)} 个")
-    for w in warnings[:40]:
-        print("  ⚠", w)
+    for warning in warnings[:40]:
+        print("  ⚠", warning)
     if len(warnings) > 40:
         print(f"  ... 共 {len(warnings)} 条警告")
-    return 1 if errors else 0
+    return 1 if errors or warnings else 0
 
 
 if __name__ == "__main__":

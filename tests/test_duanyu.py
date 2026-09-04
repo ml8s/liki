@@ -201,7 +201,7 @@ class TestStudySealFactorContract(unittest.TestCase):
         return [e["id"] for e in out["八字"]]
 
     def test_印弱盘不命中科甲至顶(self):
-        # 复现盘：己土日主亥月、原局无火（印星旺=0/官杀得令=1）——不得再触发 xue_201
+        # 控制盘：己土日主亥月、原局无火，印星旺为 0 而官杀得令为 1。
         self.assertNotIn("xue_201", self._hits(0, 1))
 
     def test_印旺官杀得令命中(self):

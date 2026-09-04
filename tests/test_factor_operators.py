@@ -2,7 +2,8 @@
 import unittest
 
 from _helpers import mock_base_context
-from factors import _op, _liu_op
+from operators_liunian import _liu_op
+from operators_natal import _op
 
 
 class TestOperators(unittest.TestCase):

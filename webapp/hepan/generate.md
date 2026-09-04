@@ -6,7 +6,7 @@
 
 1. **当前时间**：调用 `time.now`（用于确定双方大运位置）
 2. **获取双方数据**：分别获取双方 TimeSet
-3. **排盘**：双方各自调用 `full_paipan` 一次排全八字+紫微（correct 判定：给具体时刻→true+经度，已明确时辰→false；时间未知默认 12:00，经度未知默认 116.4）
+3. **排盘**：双方各自调用 `full_paipan` 一次排全八字+紫微（correct 判定：给具体时刻→true+经度，已明确时辰→false；给具体时刻且经度未知先问出生地；已明确时辰 correct=false 可省略经度）
 4. **合盘计算**：调用 bazi.bond（八字合盘）、ziwei.bond（紫微合盘）
 5. **论断**：读双方 full_paipan 返回的 pan（八字+紫微）与 bond 结果作论断基础（引擎不产 rating，断语由 LLM 组织）
 6. **生成报告**：按以下 JSON schema 输出。

@@ -6,7 +6,7 @@
 set -e
 cd "$(dirname "$0")/.."
 
-echo "=== check_schema（断语表质量：因子引用/跨术数/死列/结论标签/必填/经典原文）==="
+echo "=== check_schema（断语表质量：条件组/作用域/跨术数/互斥条件/生产纯度/必填/经典依据）==="
 python3 tests/check_schema.py
 
 echo "=== check_docs（文档契约：断语 id / 文件路径 / 方法名 / RPC 调用 引用可解析——4 skill）==="

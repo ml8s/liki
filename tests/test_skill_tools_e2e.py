@@ -1,19 +1,17 @@
-
-import os
-import pytest
 """skill 工具端到端契约测试。
 
 覆盖：
 - skill-tools.json 解析 → 6 工具全部注册
 - agent_cli.py 非法输入 → 错误透传（ValueError 非 crash）
-- query(rule, pan) 传 mock pan → 返回 {八字:[], 紫微:[]}
+- query(rule, pan) 传 mock pan → 返回 {八字:[], 紫微:[], 合参:[]}
 """
-import json
 import os
+import json
 import subprocess
 import sys
 import unittest
 
+import _helpers  # noqa: F401 —— 提供完整 daxian mock
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _TOOLS = os.path.join(_ROOT, "skills", "liki-bazi", "tools")
 _SCHEMA = os.path.join(_TOOLS, "skill-tools.json")
@@ -52,12 +50,8 @@ class TestAgentCliErrorPropagation(unittest.TestCase):
 
 
 class TestQueryWithMockPan(unittest.TestCase):
-    """query(rule, pan) 传含 base 的 mock pan → 返回 {八字:[], 紫微:[]}。"""
+    """query(rule, pan) 传含 base 的 mock pan → 返回 {八字:[], 紫微:[], 合参:[]}。"""
 
-    @pytest.mark.skipif(
-        not os.environ.get("LIKI_RPC_URL"),
-        reason="query needs RPC for time.now (current_year for 大运)"
-    )
     def test_query_returns_bazi_ziwei(self):
         sys.path.insert(0, _TOOLS)
         from duanyu import query
@@ -81,6 +75,7 @@ class TestQueryWithMockPan(unittest.TestCase):
             },
             "yongshen": {},
             "ziwei": {"gong_wei": []},
+            "ziwei_daxian": _helpers.valid_daxian(),
             "gender": "male",
         }
         r = query("十神", mock_pan)

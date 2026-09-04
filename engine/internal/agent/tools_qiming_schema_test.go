@@ -3,6 +3,7 @@ package agent
 import (
 	"encoding/json"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -72,8 +73,15 @@ func TestQimingSchemaContract(t *testing.T) {
 	}
 
 	character := objectSchema("qiming.char")
-	if _, exists := character["traditional"]; exists {
-		t.Error("qiming.char data must not declare traditional")
+	wantCharacterFields := []string{"char", "wuxing", "stroke", "radical", "pinyin", "tone"}
+	sort.Strings(wantCharacterFields)
+	gotCharacterFields := make([]string, 0, len(character))
+	for field := range character {
+		gotCharacterFields = append(gotCharacterFields, field)
+	}
+	sort.Strings(gotCharacterFields)
+	if !reflect.DeepEqual(gotCharacterFields, wantCharacterFields) {
+		t.Errorf("qiming.char fields = %v, want %v", gotCharacterFields, wantCharacterFields)
 	}
 	objectSchema("qiming.pick")
 	objectSchema("qiming.compose")

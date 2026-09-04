@@ -9,32 +9,31 @@ duanyu.py snap + 断语表 → 断语
 """
 from __future__ import annotations
 
+import re
 from typing import Optional
 
 from errors import FactorEvaluateError
 from factor_constants import load_constants
 from factor_context import FactorContext, NatalContext
-from operators_liunian import _LIU_OP_NAMES, _liu_op, _target_stars
+from operators_liunian import _LIU_OP_NAMES, _liu_op
 from operators_natal import (
     _OP_NAMES,
     _base_ctx_from_pan,
     _op,
-    _shishen_from_pan,
 )
 from domain_snapshot import project_domain_facts
 from factor_tables import load_factor_rows, load_liunian_rows
 
 __all__ = [
-    "load_constants", "evaluate_factors", "evaluate_liunian_factors",
+    "evaluate_factors", "evaluate_liunian_factors",
     "evaluate_snap_from_pan", "evaluate_liunian_snap_from_pan",
-    "_op", "_liu_op", "_OP_NAMES", "_LIU_OP_NAMES",
+    "prepare_natal_context",
 ]
 
 def _atomic(col: str, gender, chart, ctx: dict = None, current_year: int = 0):
     """原子执行：列名 "op[arg1,arg2]" → 原语（_op 本命 / _liu_op 流年）。
     字符串值算子：列名参数=期望值——比较返回 1/0。"""
-    import re as _re
-    m = _re.match(r'^([^\[]+)\[(.*)\]$', col)
+    m = re.match(r'^([^\[]+)\[(.*)\]$', col)
     if m:
         op, argstr = m.group(1), m.group(2)
         args = [int(a) if a.lstrip('-').isdigit() else a for a in argstr.split(',')] if argstr else []
@@ -92,14 +91,22 @@ def _evaluate_truth_table(rows: list, atomic) -> dict:
     return result
 
 def evaluate_factors(gender: str, chart: dict, shushi: Optional[str] = None,
-                     current_year: int = 0) -> dict:
+                     current_year: int = 0,
+                     factor_names: Optional[set[str]] = None) -> dict:
     """因子快照（真值表）：factors.csv 行条件匹配 → 因子值；直通因子=原语计算值。
     shushi="bazi"/"ziwei"：只算本术数因子（八字/紫微真分开——各自快照）；None=全算。
+    factor_names 可限定因子闭包；None=该侧全量。调用方仍须自行保证引用闭包完整。
     条件列：带 [] = 原子事实（原语执行）；不带 [] = 因子引用（读快照——多遍稳定）。
     chart=排盘 pan，算子从其直读。"""
     rows = load_factor_rows()
     if shushi:
-        rows = [r for r in rows if r["术数"] in (shushi, "common")]
+        side_config = load_constants()["命理侧"]
+        if shushi not in side_config["快照代码"]:
+            raise FactorEvaluateError(f"evaluate_factors shushi 无效: {shushi}")
+        common_code = side_config["公共代码"]
+        rows = [r for r in rows if r["术数"] in (shushi, common_code)]
+    if factor_names is not None:
+        rows = [r for r in rows if r["因子"] in factor_names]
     return _evaluate_truth_table(
         rows,
         lambda expression: _atomic(expression, gender, chart, current_year=current_year),
@@ -111,21 +118,31 @@ def _factor_context_from_pan(pan: dict) -> FactorContext:
     return FactorContext(pan, _base_ctx_from_pan(pan))
 
 
-def prepare_natal_context(pan: dict) -> NatalContext:
+def prepare_natal_context(
+    pan: dict, factor_names: Optional[set[str]] = None
+) -> NatalContext:
     """准备本命求值上下文与八字快照，供多年流年求值复用。
 
     yearly_range/calibrate 扫多年时，本命盘不变；基础聚合和本命八字因子
     只需算一次。返回值仅作为内部编排句柄，不进入工具输出。
+    factor_names 可按流年引用闭包裁剪本命八字因子；None=全量。
     """
     evaluation = _factor_context_from_pan(pan)
-    snapshot = evaluate_factors(pan.get("gender", ""), evaluation, shushi="bazi")
+    snapshot = evaluate_factors(
+        pan.get("gender", ""), evaluation, shushi="bazi",
+        factor_names=factor_names,
+    )
     return NatalContext(evaluation=evaluation, snapshot=snapshot)
 
 
-def evaluate_snap_from_pan(pan: dict, current_year: int = 0) -> dict:
+def evaluate_snap_from_pan(
+    pan: dict, current_year: int = 0, sides: Optional[set[str]] = None,
+    factor_names: Optional[set[str]] = None
+) -> dict:
     """从完整 pan 直接产出领域快照。
 
     返回 {八字: {...}, 紫微: {...}, context: {...}}；
+    sides 可内部限定 bazi/ziwei，未请求侧保留空对象；默认双侧求值。
     内部用 _base_ctx_from_pan 从 pan 构建求值上下文，算子仍经 _op 从 pan 直读求值。
     并透传 pan 的稳定领域事实（纳音/三元/旬空/局数/命身主/空宫 等）进对应盘 snap，供断语消费。
 
@@ -141,29 +158,39 @@ def evaluate_snap_from_pan(pan: dict, current_year: int = 0) -> dict:
     if current_year:
         context["当前年份"] = current_year
     evaluation = _factor_context_from_pan(pan)
+    side_config = load_constants()["命理侧"]
+    side_labels = side_config["标签"]
+    requested = set(side_config["快照代码"]) if sides is None else set(sides)
+    if not requested <= set(side_config["快照代码"]):
+        raise FactorEvaluateError(
+            f"evaluate_snap_from_pan sides 只支持 {side_config['快照代码']}，收到: {sorted(requested)}"
+        )
+    requested_factors = None if factor_names is None else set(factor_names)
     snap = {
-        "八字": evaluate_factors(
-            gender, evaluation, shushi="bazi",
-            current_year=current_year,
-        ),
-        "紫微": evaluate_factors(
-            gender, evaluation, shushi="ziwei",
-            current_year=current_year,
-        ),
+        **{
+            side_labels[code]: evaluate_factors(
+                gender, evaluation, shushi=code,
+                current_year=current_year,
+                factor_names=requested_factors,
+            ) if code in requested else {}
+            for code in side_config["快照代码"]
+        },
         "context": context,
     }
     facts = project_domain_facts(pan)
-    snap["八字"].update(facts["八字"])
-    snap["紫微"].update(facts["紫微"])
+    for code in side_config["快照代码"]:
+        snap[side_labels[code]].update(facts[side_labels[code]])
     return snap
 
 def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
                              zw_liunian_data: Optional[dict] = None,
                              year: int = 0, shushi: Optional[str] = None,
-                             natal_snapshot: Optional[dict] = None) -> dict:
+                             natal_snapshot: Optional[dict] = None,
+                             factor_names: Optional[set[str]] = None) -> dict:
     """流年复合因子（表驱动）：读 factors_liunian.csv 逐行求值 → 流年因子快照。
 
     与 evaluate_factors 同构——流年因子定义在表，本函数只做机械求值。
+    factor_names 可限定流年因子闭包；None=该侧全量。
     liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化。
     chart=排盘 pan 或内部 FactorContext；基础上下文不写回调用方 chart。
     """
@@ -179,7 +206,13 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
     }
     rows = load_liunian_rows()
     if shushi:
-        rows = [r for r in rows if r["术数"] in (shushi, "common")]
+        side_config = load_constants()["命理侧"]
+        if shushi not in side_config["快照代码"]:
+            raise FactorEvaluateError(f"evaluate_liunian_factors shushi 无效: {shushi}")
+        common_code = side_config["公共代码"]
+        rows = [r for r in rows if r["术数"] in (shushi, common_code)]
+    if factor_names is not None:
+        rows = [r for r in rows if r["因子"] in factor_names]
     result = _evaluate_truth_table(
         rows,
         lambda expression: _atomic(expression, gender, chart, ctx),
@@ -192,11 +225,13 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
 # ══════════════ 快照生成入口 ══════════════
 
 def evaluate_liunian_snap_from_pan(pan: dict, liunian_pan: dict, year: int = 0,
-                                   natal_context: Optional[NatalContext] = None) -> dict:
+                                   natal_context: Optional[NatalContext] = None,
+                                   factor_names: Optional[set[str]] = None) -> dict:
     """流年因子快照（从 pan 直读，无中间层）。
 
     与直读式流年快照同构；可传入 prepare_natal_context 的结果，在多年扫描中复用
     本命基础聚合与本命八字因子。函数只读 pan，不向其写入私有缓存。
+    factor_names 可限定流年因子闭包；None=双侧全量。
     """
     gender = pan.get("gender", "")
     if natal_context is None:
@@ -210,13 +245,19 @@ def evaluate_liunian_snap_from_pan(pan: dict, liunian_pan: dict, year: int = 0,
         zw_liunian_data=liunian_pan["ziwei"], year=year,
         natal_snapshot=bz,
     )
+    side_config = load_constants()["命理侧"]
+    side_labels = side_config["标签"]
     snap = {
         "_snapshot_type": "liunian",
-        "八字": evaluate_liunian_factors(**base, shushi="bazi"),
-        "紫微": evaluate_liunian_factors(**base, shushi="ziwei"),
+        **{
+            side_labels[code]: evaluate_liunian_factors(
+                **base, shushi=code, factor_names=factor_names
+            )
+            for code in side_config["快照代码"]
+        },
         "context": {"性别": gender},
     }
-    evidence = snap["八字"].pop("_evidence", {})
+    evidence = snap[side_labels["bazi"]].pop("_evidence", {})
     if evidence:
         snap["evidence"] = evidence
     return snap

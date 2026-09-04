@@ -41,7 +41,8 @@ def test_production_factor_tables_keep_sides_disjoint():
         assert sides <= {"bazi", "ziwei"}
         bazi_ids = {row["因子"] for row in rows if row["术数"] == "bazi"}
         ziwei_ids = {row["因子"] for row in rows if row["术数"] == "ziwei"}
-        assert not bazi_ids & ziwei_ids
+        common_ids = {row["因子"] for row in rows if row["术数"] == "common"}
+        assert not ((bazi_ids - common_ids) & (ziwei_ids - common_ids))
 
 
 def _pan() -> dict:
@@ -62,6 +63,7 @@ def _pan() -> dict:
         },
         "yongshen": {},
         "ziwei": {"gong_wei": []},
+        "ziwei_daxian": _helpers.valid_daxian(),
     }
 
 

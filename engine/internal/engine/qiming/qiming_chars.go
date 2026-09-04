@@ -3,16 +3,14 @@ package qiming
 
 import "fmt"
 
-// Character is a naming character with modern and Kangxi stroke semantics.
+// Character is a naming character consumed by the current qiming domain.
 type Character struct {
-	Char         string `json:"char"`
-	Element      Wuxing `json:"wuxing"`
-	Stroke       int    `json:"stroke"`
-	KangxiStroke int    `json:"kangxi_stroke"`
-	Radical      string `json:"radical,omitempty"`
-	Pinyin       string `json:"pinyin"`
-	Tone         int    `json:"tone"`
-	KangxiForm   string `json:"kangxi_form"`
+	Char    string `json:"char"`
+	Element Wuxing `json:"wuxing"`
+	Stroke  int    `json:"stroke"`
+	Radical string `json:"radical,omitempty"`
+	Pinyin  string `json:"pinyin"`
+	Tone    int    `json:"tone"`
 }
 
 func lookupCharacter(char string) (Character, error) {

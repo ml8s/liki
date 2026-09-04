@@ -34,7 +34,7 @@ description: "起名改名/取名字 — 排八字定用神、按五行取字、
 
 使用你环境中的 HTTP 客户端（如 curl、fetch、urllib 等）发起请求。
 
-- **方法清单**：`bazi.chart`（排八字）/ `bazi.fullchart`（取用神）/ `qiming.pick`（取字）/ `qiming.compose`（组名）/ `qiming.check`（评估）/ `qiming.char`（查现代笔画与 Kangxi 笔画）
+- **方法清单**：`bazi.chart`（排八字）/ `bazi.fullchart`（取用神）/ `qiming.pick`（取字）/ `qiming.compose`（组名）/ `qiming.check`（评估）/ `qiming.char`（查现代笔画、五行、拼音、声调与部首）
 - 排八字校正经度未知时先调 `city.coords`；真太阳时换算用 `tianwen.time`
 
 ## 流程约定（强制）

@@ -46,6 +46,8 @@ test-all: test test-engine test-integration ## 全量（单项目：skills 单�
 
 # 推送前 PATH 补充（golangci-lint / go）
 export PATH := $(HOME)/go/bin:$(HOME)/app/go/bin:$(PATH)
+export GOCACHE ?= /tmp/gocache
+export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 
 pre-push: ## 推送前门槛测试（与 CI 对齐——绿了再推，~30s）
 	@echo "=== [1/6] check_docs（文档契约 × 4 skill）==="
