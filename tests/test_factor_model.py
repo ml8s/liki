@@ -153,9 +153,9 @@ def test_documented_natal_inventory_matches_implementation() -> None:
 
 def test_documented_flow_inventory_matches_implementation() -> None:
     groups = flow_groups()
-    rows = doc_rows("二、流年因子（82 个）", heading_level=2)
-    assert len(groups) == 82
-    assert len(rows) == 82
+    rows = doc_rows("二、流年因子（83 个）", heading_level=2)
+    assert len(groups) == 83
+    assert len(rows) == 83
     assert {row[1] for row in rows} == set(groups)
     art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
     for row in rows:

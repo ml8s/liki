@@ -17,7 +17,7 @@ _OP_NAMES = frozenset({
     "现", "透", "藏", "得令", "有根", "旺", "弱", "缺", "克", "直读", "含", "宫含", "关系",
     "大运十神", "数量至少", "五行数量至少", "官杀取清", "为用", "为忌",
     "月支长生", "夫妻宫状态", "日支类型", "财库现", "财星入墓", "克者旺",
-    "格神透", "月令本气", "时柱十神", "禄根", "年柱官杀", "柱刑",
+    "格神透", "月令本气", "时柱十神", "禄根", "半合", "年柱官杀", "柱刑",
 })
 
 
@@ -440,6 +440,16 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
                 if main_wx == wx:
                     return 1
         return 0
+    if op == "半合":
+        # 机械检查：两个地支是否属于同一三合组（查 constants.json 三合表）
+        # 命理解释（半合有情→引动）在 factors.csv basis 列
+        # args: [地支A, 地支B] — A=本方(如日支), B=来方(如流年支)
+        if len(args) < 2:
+            return 0
+        a, b = str(args[0]), str(args[1])
+        san_he = load_constants().get("三合", {})
+        partners_a = san_he.get(a, [])
+        return 1 if b in partners_a else 0
     if op == "年柱官杀":
         return _nian_guan(base, chart)
         return _palace_bad(base, chart)
