@@ -1,3 +1,10 @@
+
+import os
+import pytest
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("LIKI_RPC_URL"),
+    reason="Requires local engine RPC"
+)
 """skill 工具端到端契约测试。
 
 覆盖：

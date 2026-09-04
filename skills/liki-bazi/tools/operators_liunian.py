@@ -14,6 +14,7 @@ _LIU_OP_NAMES = frozenset({
     "流年长生", "流年神煞", "流年透", "流年值", "流年合", "流年冲", "流年克",
     "忌神干", "忌神支", "财坏印流年", "大运窗口流年", "换运流年", "流年宫化", "引用本命",
     "干支相等", "干克", "支冲", "三刑", "旬空", "流年支受克", "年柱干伏吟", "天干合",
+    "半合",
 })
 
 
@@ -145,6 +146,18 @@ def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict
     if op == '引用本命':
         return (ctx.get('snapshot', {}) or {}).get(args[0], 0)
 
+
+def _liu_handler_banhe(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
+                       current_year: int, const: dict, ln: dict, nz: str,
+                       nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
+    """机械检查：日支与流年支是否属于同一三合组（查 constants.json 三合表）。"""
+    if len(args) < 2:
+        return 0
+    a, b = str(args[0]), str(args[1])
+    san_he = const.get("三合", {})
+    partners_a = san_he.get(a, [])
+    return 1 if b in partners_a else 0
+
 def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
@@ -254,6 +267,7 @@ _LIU_OP_HANDLERS = {
         "年柱干伏吟": _liu_handler_mechanical,
         "天干合": _liu_handler_mechanical,
         "三刑": _liu_handler_mechanical,
+        "半合": _liu_handler_banhe,
 }
 
 

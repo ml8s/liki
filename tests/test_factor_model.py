@@ -164,7 +164,7 @@ def test_documented_flow_inventory_matches_implementation() -> None:
         assert row[3] == factor_kind(groups[name])
         assert row[4] == factor_value(groups[name])
         assert row[5] == factor_definition(groups[name])
-    assert "| 流年因子 | 70 |" in DOC.read_text(encoding="utf-8")
+    assert "| 流年因子 | 83 |" in DOC.read_text(encoding="utf-8")
 
 
 def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
