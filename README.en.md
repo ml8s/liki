@@ -105,7 +105,7 @@ Ask by life domain — the skill automatically charts, queries judgment tables, 
 
 > Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen
 
-Flow: BaZi yong-shen → five-element supplement → candidate filtering → composition and evaluation → recommended names (with source and basis).
+Flow: preference and taboo intake → BaZi yong-shen → five-element supplement → candidate filtering → composition and evaluation → candidate reports (strengths, trade-offs, rejection reasons, and source evidence).
 
 Also supports: renaming, Chinese names for English speakers, name evaluation.
 
