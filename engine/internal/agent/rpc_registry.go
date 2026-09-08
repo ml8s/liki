@@ -15,7 +15,7 @@ import (
 
 // Common JSON Schema fragments (inline, no $ref — self-contained for AI agents).
 const (
-	schemaSolarTime = `{"type":"string","description":"真太阳时（RFC3339），从 tianwen.time 返回的 solar 字段","examples":["2026-07-20T12:00:00+08:00"]}`
+	schemaSolarTime = `{"type":"string","format":"date-time","description":"真太阳时（RFC3339），从 tianwen.time 返回的 solar 字段","examples":["2026-07-20T12:00:00+08:00"]}`
 	schemaGender    = `{"type":"string","enum":["male","female"],"description":"性别","examples":["male"]}`
 )
 

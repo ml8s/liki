@@ -11,6 +11,7 @@ import (
 
 	"liki-engine/internal/agent/city"
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/qimen"
 )
 
 const btOK = `"2000-06-15T12:00:00+08:00"`
@@ -235,7 +236,9 @@ func TestHandler_RangeValidation(t *testing.T) {
 		name   string
 		params string
 	}{
-		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"kind":"invalid"}`, btOK)},
+		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"yong_shen":["甲"]}`, btOK)},
+		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"scope":"ke"}`, btOK)},
+		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"birth_year":1984}`, btOK)},
 		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":-1,"xiang_shan":0}`, btOK)},
 		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":0,"xiang_shan":24}`, btOK)},
 	}
@@ -259,30 +262,70 @@ func TestHandler_RangeValidation(t *testing.T) {
 	})
 }
 
-func TestHandler_QimenKindDefault(t *testing.T) {
+func TestHandler_QimenDefault(t *testing.T) {
 	r := NewRPCRegistry()
 	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s}`, btOK))
-	result, err := r.Execute(context.Background(), "qimen.chart", params)
-	if err != nil {
-		t.Fatalf("qimen.chart (default kind): %v", err)
+	result := executeAndDecode(t, r, "qimen.chart", params)
+	if result["_product"] != "qimen" || result["data"] == nil {
+		t.Fatalf("default envelope = %+v", result)
 	}
-	if !hasKey(result, "_product") || !hasKey(result, "data") {
-		t.Error("expected envelope with _product and data")
+	method := result["data"].(map[string]any)["method"].(map[string]any)
+	if method["scope"] != "hour" || method["school"] != "zhuanpan" || method["dingju_method"] != "chaibu" {
+		t.Fatalf("default method = %v/%v/%v", method["scope"], method["school"], method["dingju_method"])
 	}
 }
 
-func TestHandler_QimenChart_Compatible(t *testing.T) {
+func TestHandler_QimenDingjuMethod(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s}`, btOK))
-	result, err := r.Execute(context.Background(), "qimen.chart", params)
-	if err != nil {
-		t.Fatalf("qimen.chart: %v", err)
+	params := json.RawMessage(`{"solar_time":"2026-01-05T13:00:00+08:00","dingju_method":"zhirun"}`)
+	result := executeAndDecode(t, r, "qimen.chart", params)
+	data := result["data"].(map[string]any)
+	method := data["method"].(map[string]any)
+	if method["dingju_method"] != "zhirun" || method["dingju_method_name"] != "置闰定局" {
+		t.Fatalf("dingju method = %v/%v, want zhirun/置闰定局", method["dingju_method"], method["dingju_method_name"])
 	}
-	if getStr(result, "_product") != "qimen" {
-		t.Errorf("_product = %q, want qimen", getStr(result, "_product"))
+	if method["jie_qi"] != "冬至" || method["yong_ju_jie_qi"] != "小寒" {
+		t.Fatalf("terms = %v/%v, want 冬至/小寒", method["jie_qi"], method["yong_ju_jie_qi"])
 	}
-	if !hasKey(result, "data") {
-		t.Error("missing data")
+	assertError(t, r, "qimen.chart", json.RawMessage(`{"solar_time":"2026-01-05T13:00:00+08:00","dingju_method":"luoshu_feipan"}`))
+}
+
+func TestHandler_QimenMethodMatrix(t *testing.T) {
+	r := NewRPCRegistry()
+	params := json.RawMessage(`{
+		"solar_time":"2026-01-14T01:03:00+08:00",
+		"scope":"hour","school":"luoshu_feipan","dingju_method":"zhirun"
+	}`)
+	result := executeAndDecode(t, r, "qimen.chart", params)
+	data := result["data"].(map[string]any)
+	method := data["method"].(map[string]any)
+	if method["scope"] != "hour" || method["school"] != "luoshu_feipan" || method["dingju_method"] != "zhirun" {
+		t.Fatalf("method = %v/%v/%v", method["scope"], method["school"], method["dingju_method"])
+	}
+	if _, exists := data["pan"].(map[string]any)["school"]; exists {
+		t.Fatal("pan school duplicates method.school")
+	}
+	invalid := []string{
+		`{"solar_time":"2026-01-14T01:03:00+08:00","scope":"ke"}`,
+		`{"solar_time":"2026-01-14T01:03:00+08:00","school":"yinpan"}`,
+		`{"solar_time":"2026-01-14T01:03:00+08:00","scope":"year","dingju_method":"chaibu"}`,
+		`{"solar_time":"2026-01-14T01:03:00+08:00","scope":"day","school":"mingfa_feipan"}`,
+		`{"solar_time":"2026-01-14T01:03:00+08:00","scope":"hour","school":"mingfa_feipan","dingju_method":"zhirun"}`,
+		`{"solar_time":"2026-01-14T01:03:00+08:00","kind":"hour"}`,
+		`{"solar_time":"2026-01-14T01:03:00+08:00","plate":"zhuanpan"}`,
+		`{"solar_time":"2026-01-14T01:03:00+08:00","ju_method":"chaibu"}`,
+	}
+	for _, params := range invalid {
+		assertError(t, r, "qimen.chart", json.RawMessage(params))
+	}
+}
+
+func TestHandler_QimenBirthDateBoundary(t *testing.T) {
+	if _, err := qimen.ParseBirthDate("2024-02-04"); err == nil {
+		t.Error("date-only Lichun boundary should require a time")
+	}
+	if _, err := qimen.ParseBirthDate("2024-02-04T02:00:00Z"); err != nil {
+		t.Fatalf("RFC3339 Lichun boundary should parse: %v", err)
 	}
 }
 
@@ -474,7 +517,6 @@ func TestHandler_FullChartIncludesExtra(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazi.fullchart: %v", err)
 	}
-	// fullchart 现在应包含 chart_extra 和 hehui 的数据
 	if !hasKey(result, "data") {
 		t.Error("missing data")
 	}

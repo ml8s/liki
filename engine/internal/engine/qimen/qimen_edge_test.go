@@ -18,7 +18,7 @@ func TestEdgeDates(t *testing.T) {
 		"2023-12-31", // 年末
 		"2024-03-20", // 春分
 		"2024-09-22", // 秋分
-		"1900-01-01", // 旧历
+		"1900-01-01",
 		"2099-12-31", // 远未来
 	}
 	for _, d := range dates {
@@ -29,7 +29,7 @@ func TestEdgeDates(t *testing.T) {
 		// 测两个时辰（子时/午时）
 		for _, h := range []int{0, 12} {
 			st := tianwen.GregorianToSolar(bt.Add(time.Duration(h)*time.Hour), 116.4, 8)
-			ch := ComputeChart(st, ShiQiMen)
+			ch := ComputeChart(st)
 			if ch.Pan.Jushu < 1 || ch.Pan.Jushu > 9 {
 				t.Errorf("%s %d时: 局数越界 %d", d, h, ch.Pan.Jushu)
 			}
@@ -42,7 +42,7 @@ func TestEdgeDates(t *testing.T) {
 				if err != nil {
 					t.Fatalf("%s %d时 解析 %s: %v", d, h, s, err)
 				}
-				_ = ComputeYongShen(ch, []YongShenSymbol{sym})
+				_ = computeYongShenSymbols(ch, []YongShenSymbol{sym})
 			}
 		}
 	}

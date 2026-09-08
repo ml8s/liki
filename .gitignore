@@ -27,6 +27,4 @@ __pycache__/
 tests/evals/.zhipu.local.env
 tests/evals/*.local.env
 
-# 数据检查产物（可重新生成）
-tests/RESULTS.md
 tests/evals/*.log

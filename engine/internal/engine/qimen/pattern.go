@@ -2,125 +2,152 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// findPatterns detects pan-level奇门格局.
-// Per-gong gan interaction patterns are handled by computeGanInteractions.
-func findPatterns(pan pan) []Pattern {
-	var patterns []Pattern
-
-	// 三奇得使: 乙/丙/丁 at duty door gong.
-	if dutyPal := dutyDoorPalace(pan); dutyPal >= 1 {
-		p := pan.GongWei[dutyPal-1]
-		if p.TianPanGan == ganzhi.GanYi || p.TianPanGan == ganzhi.GanBing || p.TianPanGan == ganzhi.GanDing {
-			patterns = append(patterns, Pattern{
-				Name: "三奇得使", Description: "吉门得奇，百事可成",
-				Auspicious: true, GongWei: []GongIndex{dutyPal},
-			})
-		}
-		// 玉女守门: 值使门宫有丁.
-		if hasGanAtPalace(pan, ganzhi.GanDing, dutyPal) {
-			patterns = append(patterns, Pattern{
-				Name: "玉女守门", Description: "值使门宫有丁，百事大吉",
-				Auspicious: true, GongWei: []GongIndex{dutyPal},
-			})
-		}
-	}
-
-	// 天遁: 丙+生门+丁 in the pan.
-	if hasGan(pan, ganzhi.GanBing) && hasDoor(pan, DoorSheng) && hasGan(pan, ganzhi.GanDing) {
-		patterns = append(patterns, Pattern{
-			Name: "天遁", Description: "丙+生门+丁，远行出兵大吉",
-			Auspicious: true,
-		})
-	}
-	// 地遁: 乙+开门+己.
-	if hasGan(pan, ganzhi.GanYi) && hasDoor(pan, DoorKai) && hasGan(pan, ganzhi.GanJi) {
-		patterns = append(patterns, Pattern{
-			Name: "地遁", Description: "乙+开门+己，安营立寨大吉",
-			Auspicious: true,
-		})
-	}
-	// 人遁: 丁+休门+太阴.
-	if hasGan(pan, ganzhi.GanDing) && hasDoor(pan, DoorXiu) && hasSpirit(pan, SpiritTaiYin) {
-		patterns = append(patterns, Pattern{
-			Name: "人遁", Description: "丁+休门+太阴，和谈联姻得吉",
-			Auspicious: true,
-		})
-	}
-
-	// 伏吟: duty star in its home gong.
-	// 值符星为天禽时按天芮处理（天禽寄坤2随天芮）。
-	searchStar := pan.DutyStar
-	if pan.DutyStar == StarTianQin {
-		searchStar = StarTianRui
-	}
-	dutyHome := starHomePalace(searchStar)
-	if pal := pan.GongWei[dutyHome]; pal.Star == searchStar {
-		patterns = append(patterns, Pattern{
-			Name: "伏吟", Description: "值符归位，凡事闭塞，静守为吉",
-			Auspicious: false,
-		})
-	}
-
-	// 反吟: duty star in opposite gong.
-	var dutyPos int
-	for i, p := range pan.GongWei {
-		if p.Star == searchStar {
-			dutyPos = i
-			break
+// findPatterns evaluates the table-driven pattern rules. All symbol conditions
+// are evaluated within one palace; pan-wide scattered symbols never combine.
+func findPatterns(chart pan) []Pattern {
+	patterns := []Pattern{}
+	for _, rule := range patternRules {
+		switch rule.DutyStarPosition {
+		case "home", "opposite":
+			if palace := dutyStarSpecialPosition(chart, rule.DutyStarPosition); palace != 0 {
+				patterns = append(patterns, newPattern(rule, []GongIndex{palace}))
+			}
+		default:
+			var palaces []GongIndex
+			for i, palace := range chart.GongWei {
+				if GongIndex(i+1) == GongZhong {
+					continue
+				}
+				if rule.RequiresDutyDoor && dutyDoorPalace(chart) != GongIndex(i+1) {
+					continue
+				}
+				if matchesPatternCondition(rule.Conditions, palace, GongIndex(i+1)) {
+					palaces = append(palaces, GongIndex(i+1))
+				}
+			}
+			if len(palaces) > 0 {
+				patterns = append(patterns, newPattern(rule, palaces))
+			}
 		}
 	}
-	opposite := 8 - dutyHome
-	if dutyPos == opposite {
-		patterns = append(patterns, Pattern{
-			Name: "反吟", Description: "值符反位，凡事反复，动则有成",
-			Auspicious: false,
-		})
-	}
-
 	return patterns
 }
 
-// dutyDoorPalace returns the 1-based gong where the duty door sits.
-func dutyDoorPalace(pan pan) GongIndex {
-	for i, p := range pan.GongWei {
-		if p.Door == pan.DutyDoor {
+func newPattern(rule patternRule, palaces []GongIndex) Pattern {
+	return Pattern{
+		Name: rule.Name, Description: rule.Description, Basis: rule.Basis,
+		Auspicious: rule.Auspicious, GongWei: palaces,
+	}
+}
+
+func matchesPatternCondition(conditions []patternCondition, palace Gong, position GongIndex) bool {
+	for _, condition := range conditions {
+		if !containsGan(condition.HeavenGan, heavenGans(palace)) ||
+			!containsGan(condition.EarthGan, []ganzhi.Gan{palace.DiPanGan}) ||
+			!containsDoor(condition.Doors, palace.Door) ||
+			!containsSpirit(condition.Spirits, palace.Spirit) ||
+			!containsPalace(condition.Palaces, position) {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+func heavenGans(palace Gong) []ganzhi.Gan {
+	result := make([]ganzhi.Gan, 0, len(palace.TianPan)+1)
+	for _, item := range palace.TianPan {
+		result = append(result, item.Gan)
+	}
+	if palace.TianPanGan != nil {
+		result = append(result, *palace.TianPanGan)
+	}
+	return result
+}
+
+func containsGan(expected []ganzhi.Gan, actual []ganzhi.Gan) bool {
+	if len(expected) == 0 {
+		return true
+	}
+	for _, want := range expected {
+		for _, got := range actual {
+			if want == got {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func containsDoor(expected []DoorIndex, actual DoorIndex) bool {
+	if len(expected) == 0 {
+		return true
+	}
+	for _, want := range expected {
+		if want == actual {
+			return true
+		}
+	}
+	return false
+}
+
+func containsSpirit(expected []SpiritIndex, actual SpiritIndex) bool {
+	if len(expected) == 0 {
+		return true
+	}
+	for _, want := range expected {
+		if want == actual {
+			return true
+		}
+	}
+	return false
+}
+
+func containsPalace(expected []GongIndex, actual GongIndex) bool {
+	if len(expected) == 0 {
+		return true
+	}
+	for _, want := range expected {
+		if want == actual {
+			return true
+		}
+	}
+	return false
+}
+
+func dutyDoorPalace(chart pan) GongIndex {
+	for i, palace := range chart.GongWei {
+		if palace.Door == chart.DutyDoor {
 			return GongIndex(i + 1)
 		}
 	}
 	return 0
 }
 
-func hasGan(pan pan, g ganzhi.Gan) bool {
-	for _, p := range pan.GongWei {
-		if p.DiPanGan == g || p.TianPanGan == g {
-			return true
-		}
+func dutyStarSpecialPosition(chart pan, position string) GongIndex {
+	duty := chart.DutyStar
+	if chart.School == SchoolZhuanPan && duty == tianQinStar {
+		duty = tianQinFollows
 	}
-	return false
+	current := findStarPalace(chart, duty)
+	home := GongIndex(starHomePalace(duty) + 1)
+	if position == "home" {
+		if current == home {
+			return current
+		}
+		return 0
+	}
+	opposite := palaceOpposite(home)
+	if current == opposite {
+		return current
+	}
+	return 0
 }
 
-func hasGanAtPalace(pan pan, g ganzhi.Gan, gong GongIndex) bool {
-	if gong < 1 || gong > 9 {
-		return false
+func palaceOpposite(p GongIndex) GongIndex {
+	index := outerRingIndex(p)
+	if index < 0 {
+		return 0
 	}
-	p := pan.GongWei[gong-1]
-	return p.DiPanGan == g || p.TianPanGan == g
-}
-
-func hasDoor(pan pan, d DoorIndex) bool {
-	for _, p := range pan.GongWei {
-		if p.Door == d {
-			return true
-		}
-	}
-	return false
-}
-
-func hasSpirit(pan pan, s SpiritIndex) bool {
-	for _, p := range pan.GongWei {
-		if p.Spirit == s {
-			return true
-		}
-	}
-	return false
+	return outerRing[(index+4)%8]
 }

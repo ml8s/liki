@@ -1,81 +1,239 @@
 package qimen
 
 import (
-	"fmt"
+	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 )
 
 // Chart bundles a complete奇门盘 with all analysis layers.
 type Chart struct {
-	Pan              pan                `json:"pan"`
-	GanInteractions  [9]GanInteraction  `json:"gan_interaction"`
-	MenInteractions  [9]MenInteraction  `json:"men_interaction"`
-	XingInteractions [9]XingInteraction `json:"xing_interaction"`
-	WangShuai        [9]WangShuai       `json:"wang_shuai"`
-	MenPo            []GongIndex        `json:"men_po"`
-	MenZhi           []GongIndex        `json:"men_zhi"`
-	Patterns         []Pattern          `json:"patterns"`
-	YingQi           YingQi             `json:"ying_qi"`
-	RiGanPalace      GongIndex          `json:"ri_gan_gong"`         // 日干落宫（排盘固有）
-	ShiGanPalace     GongIndex          `json:"shi_gan_gong"`        // 时干落宫（排盘固有）
-	RiShiShengKe     string             `json:"ri_shi_sheng_ke"`     // 日干宫-时干宫五行生克（确定性派生）
-	KongWangAffected bool               `json:"kong_wang_affected"`  // 日干宫或时干宫是否空亡（确定性派生）
-	MaXingAffected   bool               `json:"ma_xing_affected"`    // 日干宫或时干宫是否马星（确定性派生）
-	DutyStarPalace   GongIndex          `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
-	DutyDoorPalace   GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
-	YongShen         *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
+	Method              ChartMethod       `json:"method"`
+	Pan                 pan               `json:"pan"`
+	GanInteractions     []GanInteraction  `json:"gan_interaction"`
+	MenInteractions     []MenInteraction  `json:"men_interaction"`
+	XingInteractions    []XingInteraction `json:"xing_interaction"`
+	XingGongWuXing      []XingGongWuXing  `json:"xing_gong_wu_xing"`
+	MenPo               []GongIndex       `json:"men_po"`
+	MenZhi              []GongIndex       `json:"men_zhi"`
+	Patterns            []Pattern         `json:"patterns"`
+	YingQi              YingQi            `json:"ying_qi"`
+	RiGanPalace         GongIndex         `json:"ri_gan_gong"`  // 日干落宫（排盘固有）
+	ShiGanPalace        GongIndex         `json:"shi_gan_gong"` // 时干落宫（排盘固有）
+	RiShiRelation       RiShiRelation     `json:"ri_shi_relation"`
+	KongWangAffected    []AffectedSymbol  `json:"kong_wang_affected"`
+	MaXingAffected      []AffectedSymbol  `json:"ma_xing_affected"`
+	PalaceWangShuai     []PalaceWangShuai `json:"palace_wang_shuai"`
+	ShiGanGongWangShuai PalaceWangShuai   `json:"shi_gan_gong_wang_shuai"`
+	DutyStarPalace      GongIndex         `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
+	DutyDoorPalace      GongIndex         `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
+	YongShen            *YongShenResult   `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
 }
 
-// computeChart computes a complete奇门盘 with all analyses.
-func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
-	ju := determineJuShu(y, m, d, bz.Ri.Gan, bz.Ri.Zhi)
+type RiShiRelation struct {
+	Subject  string `json:"subject"`
+	Object   string `json:"object"`
+	Relation string `json:"relation"`
+	Name     string `json:"name"`
+}
 
-	var driveZhu ganzhi.Zhu
-	switch kind {
-	case RiQiMen:
-		driveZhu = bz.Ri
-	case YueQiMen:
-		driveZhu = bz.Yue
-	case NianQiMen:
-		driveZhu = bz.Nian
-	default: // ShiQiMen
-		driveZhu = bz.Shi
+type AffectedSymbol struct {
+	Symbol string     `json:"symbol"`
+	Role   string     `json:"role"`
+	Branch ganzhi.Zhi `json:"branch"`
+	Gong   GongIndex  `json:"gong"`
+}
+
+// PalaceWangShuai 表示宫位五行在当前月令下的旺相休囚死状态。
+type PalaceWangShuai struct {
+	Gong          GongIndex        `json:"gong"`
+	Wuxing        ganzhi.Wuxing    `json:"wuxing"`
+	WangShuai     ganzhi.WangShuai `json:"wang_shuai"`
+	WangShuaiName string           `json:"wang_shuai_name"`
+}
+
+// computeChart computes a qimen chart with the base timing focus.
+func computeChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
+	chart := buildChart(bz, chartTime, method)
+	chart.YingQi = computeYingQi(chart, chartTime, baseYingQiFocuses(chart))
+	return chart
+}
+
+// computeChartWithYongShen computes the chart and projects timing through the
+// selected symbols without first building and discarding a base timing result.
+func computeChartWithYongShen(
+	bz ganzhi.Bazi, chartTime time.Time, method Method,
+	syms []YongShenSymbol, birthDate BirthDate,
+) Chart {
+	chart := buildChart(bz, chartTime, method)
+	var yongShen YongShenResult
+	if birthDate.Has {
+		yongShen = computeYongShenWithBirth(chart, syms, birthDate)
+	} else {
+		yongShen = computeYongShenSymbols(chart, syms)
 	}
+	chart.YongShen = &yongShen
+	chart.YingQi = computeYingQi(chart, chartTime, yingQiFocuses(chart, yongShen))
+	return chart
+}
 
-	p := computePan(ju, driveZhu, bz.Ri.Gan)
-	p.RiGan = bz.Ri.Gan
-	p.RiZhi = bz.Ri.Zhi
+func buildChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
+	ju := determineJuShu(chartTime, bz, method)
+	p := computePan(ju, bz)
 
 	riGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
-	shiGanP := findGanPalaceIdx(p, p.DriveGan)
+	shiGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Shi.Gan, bz.Shi.Zhi))
+	leadP := leadPillarPalace(p)
 
-	kongWangAffected := false
-	for _, k := range p.KongWang {
-		if k == riGanP || k == shiGanP {
-			kongWangAffected = true
-			break
+	chart := Chart{
+		Method:              buildChartMethod(ju, bz),
+		Pan:                 p,
+		GanInteractions:     computeGanInteractions(p),
+		MenInteractions:     computeMenInteractions(p),
+		XingInteractions:    computeXingInteractions(p),
+		XingGongWuXing:      computeXingGongWuXing(p),
+		MenPo:               findMenPo(p),
+		MenZhi:              findMenZhi(p),
+		Patterns:            findPatterns(p),
+		RiGanPalace:         riGanP,
+		ShiGanPalace:        shiGanP,
+		RiShiRelation:       analyzeRiShiRelation(riGanP, shiGanP),
+		KongWangAffected:    affectedVoidSymbols(p, riGanP, shiGanP, leadP),
+		MaXingAffected:      affectedHorseSymbols(p, riGanP, shiGanP, leadP),
+		PalaceWangShuai:     palaceWangShuai(p, bz.Yue.Zhi),
+		ShiGanGongWangShuai: palaceWangShuaiForPalace(p, bz.Yue.Zhi, shiGanP),
+		DutyStarPalace:      findStarPalace(p, p.DutyStar),
+		DutyDoorPalace:      findDoorPalaceIdx(p, p.DutyDoor),
+	}
+	return chart
+}
+
+func buildChartMethod(ju juShu, bz ganzhi.Bazi) ChartMethod {
+	leadZhu := leadPillar(bz, ju)
+	xunIdx := ganzhi.SixtyCycleIndex(leadZhu.Gan, leadZhu.Zhi) / 10 * 10
+	xunShou := ganzhi.SixtyToZhu(xunIdx)
+	fu := fuTou(bz.Ri)
+	duty := findDuty(leadZhu, placeDiPan(ju.Number, ju.YinDun))
+	xunShouInfo := newPillarInfo(xunShou)
+	xunShouInfo.LiuYi = ganzhi.GanName(findXunShou(leadZhu))
+	scope := scopeMethods[ju.Method.Scope]
+	school := schoolMethods[ju.Method.School]
+	dingjuMethodName := dingjuMethodNames[ju.Method.Dingju]
+	quarterRuleName := quarterRuleNames[ju.Method.QuarterRule]
+	var tianQin *TianQinRule
+	if ju.Method.School == SchoolZhuanPan {
+		rule := tianQinRule
+		tianQin = &rule
+	}
+	var quarter *ChartQuarter
+	if ju.Quarter != nil {
+		quarter = &ChartQuarter{
+			Index:             ju.Quarter.Index,
+			MinutesPerQuarter: ju.Quarter.Minutes,
+			LeadPillarMode:    ju.Quarter.LeadPillarMode,
+			DunSource:         ju.Quarter.DunSource,
+			HourBoundary:      ju.Quarter.HourBoundary,
 		}
 	}
-
-	return Chart{
-		Pan:              p,
-		GanInteractions:  computeGanInteractions(p),
-		MenInteractions:  computeMenInteractions(p),
-		XingInteractions: computeXingInteractions(p),
-		WangShuai:        computeWangShuai(p),
-		MenPo:            findMenPo(p),
-		MenZhi:           findMenZhi(p),
-		Patterns:         findPatterns(p),
-		YingQi:           computeYingQi(p),
-		RiGanPalace:      riGanP,
-		ShiGanPalace:     shiGanP,
-		RiShiShengKe:     analyzeShengKe(riGanP, shiGanP),
-		KongWangAffected: kongWangAffected,
-		MaXingAffected:   p.MaXing == riGanP || p.MaXing == shiGanP,
-		DutyStarPalace:   findStarPalaceIdx(p, p.DutyStar),
-		DutyDoorPalace:   findDoorPalaceIdx(p, p.DutyDoor),
+	return ChartMethod{
+		Scope: scope.Scope, ScopeName: scope.Name,
+		School: school.School, SchoolName: school.Name,
+		DingjuMethod: string(ju.Method.Dingju), DingjuMethodName: dingjuMethodName,
+		QuarterRule: string(ju.Method.QuarterRule), QuarterRuleName: quarterRuleName,
+		BaseDingjuMethod:     string(ju.Method.BaseDingju),
+		BaseDingjuMethodName: dingjuMethodNames[ju.Method.BaseDingju],
+		MethodSource:         scope.MethodSource, DayBoundary: qimenDayBoundary,
+		SpiritMode: school.SpiritMode, Geometry: school.Geometry,
+		StarMode: school.StarMode, DoorMode: school.DoorMode,
+		SpiritFlight: school.SpiritFlight,
+		JieQi:        ju.JieQi, YongJuJieQi: ju.YongJuJieQi, Yuan: ju.Yuan,
+		ZhiRunState:     ju.ZhiRunState,
+		TianQin:         tianQin,
+		LeadPillar:      newPillarInfo(leadZhu),
+		LeadXunShou:     xunShouInfo,
+		LeadXunShouGong: duty.Palace,
+		DayFuTou:        newPillarInfo(fu),
+		Quarter:         quarter,
 	}
+}
+
+func newPillarInfo(zhu ganzhi.Zhu) PillarInfo {
+	return PillarInfo{
+		Name: ganzhi.GanName(zhu.Gan) + ganzhi.ZhiName(zhu.Zhi),
+		Gan:  ganzhi.GanName(zhu.Gan),
+		Zhi:  ganzhi.ZhiName(zhu.Zhi),
+	}
+}
+
+func affectedVoidSymbols(p pan, dayPalace, hourPalace, leadPalace GongIndex) []AffectedSymbol {
+	result := []AffectedSymbol{}
+	for _, void := range p.KongWang {
+		for _, focus := range focusSymbols(dayPalace, hourPalace, leadPalace) {
+			if void.Gong == focus.palace {
+				result = append(result, AffectedSymbol{
+					Symbol: focus.name, Role: focus.role, Branch: void.Branch, Gong: void.Gong,
+				})
+			}
+		}
+	}
+	return result
+}
+
+func affectedHorseSymbols(p pan, dayPalace, hourPalace, leadPalace GongIndex) []AffectedSymbol {
+	result := []AffectedSymbol{}
+	for _, focus := range focusSymbols(dayPalace, hourPalace, leadPalace) {
+		if p.MaXing.Gong == focus.palace {
+			result = append(result, AffectedSymbol{
+				Symbol: focus.name, Role: focus.role, Branch: p.MaXing.Branch, Gong: p.MaXing.Gong,
+			})
+		}
+	}
+	return result
+}
+
+type focusSymbol struct {
+	name   string
+	role   string
+	palace GongIndex
+}
+
+func focusSymbols(dayPalace, hourPalace, leadPalace GongIndex) []focusSymbol {
+	return []focusSymbol{
+		{name: "日干", role: "pillar", palace: dayPalace},
+		{name: "时干", role: "pillar", palace: hourPalace},
+		{name: "主柱", role: "lead", palace: leadPalace},
+	}
+}
+
+func palaceWangShuai(p pan, yueZhi ganzhi.Zhi) []PalaceWangShuai {
+	result := []PalaceWangShuai{}
+	for i := range p.GongWei {
+		wuxing := gongWuxingTable[i]
+		wangShuai := ganzhi.WangShuaiOf(wuxing, yueZhi)
+		result = append(result, PalaceWangShuai{
+			Gong:          GongIndex(i + 1),
+			Wuxing:        wuxing,
+			WangShuai:     wangShuai,
+			WangShuaiName: wangShuai.String(),
+		})
+	}
+	return result
+}
+
+func palaceWangShuaiForPalace(p pan, yueZhi ganzhi.Zhi, palace GongIndex) PalaceWangShuai {
+	if palace < GongKan || palace > GongLi {
+		return PalaceWangShuai{}
+	}
+	for _, item := range palaceWangShuai(p, yueZhi) {
+		if item.Gong == palace {
+			return item
+		}
+	}
+	return PalaceWangShuai{}
+}
+
+func leadPillarPalace(p pan) GongIndex {
+	return findGanPalaceIdx(p, resolveJiaDunGan(p.LeadGan, p.LeadZhi))
 }
 
 // findGanPalaceIdx 求干（求测人日干/时干/用神干）的落宫。
@@ -84,8 +242,10 @@ func computeChart(bz ganzhi.Bazi, kind ChartKind, y, m, d int) Chart {
 // 甲遁：甲不露，遁于六仪（由 resolveJiaDunGan 先转成六仪）。
 func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
 	for i := range p.GongWei {
-		if p.GongWei[i].TianPanGan == g {
-			return GongIndex(i + 1)
+		for _, item := range p.GongWei[i].TianPan {
+			if item.Gan == g {
+				return GongIndex(i + 1)
+			}
 		}
 	}
 	for i := range p.GongWei {
@@ -96,40 +256,38 @@ func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
 	return 0
 }
 
-// analyzeShengKe analyzes the 五行生克 between 日干宫 and 时干宫（确定性派生）。
-func analyzeShengKe(subjectP, eventP GongIndex) string {
-	if subjectP > 0 && eventP > 0 {
-		sp := palaceWuxing(subjectP)
-		ep := palaceWuxing(eventP)
-		if sp == ep {
-			return fmt.Sprintf("日干(%d宫)与时干(%d宫)比和", subjectP, eventP)
-		}
-		if ganzhi.Sheng(sp, ep) {
-			return fmt.Sprintf("日干(%d宫)生时干(%d宫)", subjectP, eventP)
-		}
-		if ganzhi.Sheng(ep, sp) {
-			return fmt.Sprintf("时干(%d宫)生日干(%d宫)", eventP, subjectP)
-		}
-		if ganzhi.Ke(sp, ep) {
-			return fmt.Sprintf("日干(%d宫)克时干(%d宫)", subjectP, eventP)
-		}
-		return fmt.Sprintf("时干(%d宫)克日干(%d宫)", eventP, subjectP)
-	}
-	return "无显著生克关系"
-}
-
-// findStarPalaceIdx finds which gong a star resides in.
-// 天禽寄坤2：天禽随天芮（与天芮同宫），故天禽落宫取天芮所在宫。
-func findStarPalaceIdx(p pan, s StarIndex) GongIndex {
-	if s == StarTianQin {
-		s = StarTianRui
-	}
-	for i, pg := range p.GongWei {
-		if pg.Star == s {
-			return GongIndex(i + 1)
+func findStarPalace(p pan, star StarIndex) GongIndex {
+	for i, palace := range p.GongWei {
+		for _, item := range palace.TianPan {
+			if item.Star == star {
+				return GongIndex(i + 1)
+			}
 		}
 	}
 	return 0
+}
+
+func analyzeRiShiRelation(dayPalace, hourPalace GongIndex) RiShiRelation {
+	relation := "same"
+	if dayPalace > 0 && hourPalace > 0 {
+		dayElement := palaceWuxing(dayPalace)
+		hourElement := palaceWuxing(hourPalace)
+		if dayElement == hourElement {
+			relation = "same"
+		} else if ganzhi.Sheng(dayElement, hourElement) {
+			relation = "ri_generates_shi"
+		} else if ganzhi.Sheng(hourElement, dayElement) {
+			relation = "shi_generates_ri"
+		} else if ganzhi.Ke(dayElement, hourElement) {
+			relation = "ri_controls_shi"
+		} else {
+			relation = "shi_controls_ri"
+		}
+	}
+	return RiShiRelation{
+		Subject: "ri_gan_gong", Object: "shi_gan_gong",
+		Relation: relation, Name: riShiRelations[relation],
+	}
 }
 
 // findDoorPalaceIdx finds which gong a door resides in.

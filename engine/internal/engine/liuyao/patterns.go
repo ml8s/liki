@@ -23,8 +23,24 @@ type Pattern struct {
 	Type       PatternType `json:"type"`       // 格局类型
 	SubType    string      `json:"sub_type"`   // 子类型（如真空/假空）
 	Position   int         `json:"position"`   // 相关爻位（0=全卦）
-	IsTrue     bool        `json:"is_true"`    // 是否为真格局（如真破/真空）
+	IsTrue     bool        `json:"is_true"`    // 结构是否有实质效力（空破区分真假，其余表示已成立）
 	Assessment string      `json:"assessment"` // 断语描述
+}
+
+// jinShenTable 固定进神同五行地支顺行；不用五行生克近似。
+var jinShenTable = map[ganzhi.Zhi]ganzhi.Zhi{
+	ganzhi.ZhiHai:  ganzhi.ZhiZi,  // 亥化子：进
+	ganzhi.ZhiYin:  ganzhi.ZhiMao, // 寅化卯：进
+	ganzhi.ZhiSi:   ganzhi.ZhiWu,  // 巳化午：进
+	ganzhi.ZhiShen: ganzhi.ZhiYou, // 申化酉：进
+}
+
+// tuiShenTable 固定退神同五行地支逆行；不用五行生克近似。
+var tuiShenTable = map[ganzhi.Zhi]ganzhi.Zhi{
+	ganzhi.ZhiZi:  ganzhi.ZhiHai,  // 子化亥：退
+	ganzhi.ZhiMao: ganzhi.ZhiYin,  // 卯化寅：退
+	ganzhi.ZhiWu:  ganzhi.ZhiSi,   // 午化巳：退
+	ganzhi.ZhiYou: ganzhi.ZhiShen, // 酉化申：退
 }
 
 // ComputePatterns 计算所有特殊格局
@@ -93,6 +109,7 @@ func computeXunKong(p *Chart, yongShen YongShen) []Pattern {
 
 	// 判断真假空
 	isTrueVacant := false
+	subType := "假空"
 	assessment := ""
 
 	if isWang && isDong {
@@ -101,6 +118,7 @@ func computeXunKong(p *Chart, yongShen YongShen) []Pattern {
 	} else if !isWang && !isDong {
 		// 休囚静爻旬空 = 真空
 		isTrueVacant = true
+		subType = "真空"
 		assessment = "休囚静爻旬空，事不实，出空方应"
 	} else if isWang && !isDong {
 		// 旺相静爻旬空 = 假空（旺不为空）
@@ -112,7 +130,7 @@ func computeXunKong(p *Chart, yongShen YongShen) []Pattern {
 
 	patterns = append(patterns, Pattern{
 		Type:       PatternXunKong,
-		SubType:    "假空",
+		SubType:    subType,
 		Position:   yongPos,
 		IsTrue:     isTrueVacant,
 		Assessment: assessment,
@@ -154,6 +172,7 @@ func computeYuePo(p *Chart, yongShen YongShen) []Pattern {
 
 	// 判断真假破
 	isTruePo := false
+	subType := "假破"
 	assessment := ""
 
 	if isWang && isDong {
@@ -165,6 +184,7 @@ func computeYuePo(p *Chart, yongShen YongShen) []Pattern {
 	} else if !isWang && !isDong && !deSheng {
 		// 休囚静爻月破 = 真破
 		isTruePo = true
+		subType = "真破"
 		assessment = "休囚静爻月破，当下无力"
 	} else {
 		// 其他情况 = 假破
@@ -173,7 +193,7 @@ func computeYuePo(p *Chart, yongShen YongShen) []Pattern {
 
 	patterns = append(patterns, Pattern{
 		Type:       PatternYuePo,
-		SubType:    "假破",
+		SubType:    subType,
 		Position:   yongPos,
 		IsTrue:     isTruePo,
 		Assessment: assessment,
@@ -263,31 +283,23 @@ func computeJinTui(p *Chart, yongShen YongShen) []Pattern {
 	bianLine := p.BianLines[yongPos-1]
 	benLine := p.Lines[yongPos-1]
 
-	// 判断进退
-	isJin := false
-	isTui := false
+	// 进退神只认同一五行地支的顺行 / 逆行；其他变爻不构成候选。
+	subType := ""
 	assessment := ""
-
-	// 化进：变爻地支在生旺库中前进
-	if ganzhi.Sheng(ganzhi.ZhiWuxing(benLine.Zhi), ganzhi.ZhiWuxing(bianLine.Zhi)) {
-		isJin = true
+	if next, ok := jinShenTable[benLine.Zhi]; ok && next == bianLine.Zhi {
+		subType = "进神"
 		assessment = "用神化进神，力量增长"
-	} else if ganzhi.Ke(ganzhi.ZhiWuxing(bianLine.Zhi), ganzhi.ZhiWuxing(benLine.Zhi)) {
-		isTui = true
+	} else if prev, ok := tuiShenTable[benLine.Zhi]; ok && prev == bianLine.Zhi {
+		subType = "退神"
 		assessment = "用神化退神，力量衰败"
 	}
 
-	if isJin || isTui {
-		patternType := PatternJinTui
-		subType := "进神"
-		if isTui {
-			subType = "退神"
-		}
+	if subType != "" {
 		patterns = append(patterns, Pattern{
-			Type:       patternType,
+			Type:       PatternJinTui,
 			SubType:    subType,
 			Position:   yongPos,
-			IsTrue:     isJin,
+			IsTrue:     true,
 			Assessment: assessment,
 		})
 	}

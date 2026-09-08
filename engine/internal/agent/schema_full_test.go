@@ -46,7 +46,7 @@ func TestAllMethodsSchema(t *testing.T) {
 		"ziwei.bond":      mustJSON(t, map[string]any{"a": z, "b": z}),
 		"liuyao.qigua":    mustJSON(t, map[string]any{"seed": 12345}),
 		"liuyao.chart":    []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","yaos":` + string(yaos) + `}`),
-		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`),
+		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
 		"bazhai.chart":    mustJSON(t, map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"}),
 		"bazhai.layout": mustJSON(t, map[string]any{
 			"chart":      map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"},

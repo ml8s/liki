@@ -117,6 +117,16 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 - **奇门**：`往哪个方向发展好？` `现在该不该签？`
 - **黄历**：`哪天搬家/签约/开业好？`
 
+奇门普通问法**无需选择排盘方法**，默认使用时家奇门、转盘法、拆补定局。想指定口径时直接说：
+
+| 想用 | 试试 |
+|---|---|
+| 置闰定局 | `用置闰盘看现在` |
+| 洛书飞盘 | `用洛书飞盘看这件事` |
+| 十分钟刻家 | `用十分钟刻家看看` |
+| 十二分钟十分局 | `用十二分钟十分局看看` |
+| 金函玉镜 | `用金函玉镜看今天` |
+
 输出：卦象依据 → 一句话判断 → 应期。
 
 #### liki-fengshui 风水
@@ -191,7 +201,7 @@ make build-archive # 打包 4 skill + 生成分发索引与归档摘要
 
 贡献指南见 [CONTRIBUTING.md](./CONTRIBUTING.md)，版本历史见 [CHANGELOG.md](./CHANGELOG.md)。设计参考了 [mingli-skills](https://github.com/weizeW/mingli-skills)、[bazi-skill](https://github.com/jinchenma94/bazi-skill)、[iztro](https://github.com/SylarLong/iztro)、[MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) 等开源项目。
 
-liki-bazi 的因子契约与完整因子清单见 [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md)。
+liki-bazi 的因子契约见 [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md)；完整因子清单以 `skills/liki-bazi/tools/factors/*.csv` 为唯一事实源。
 
 ## 协议与声明
 

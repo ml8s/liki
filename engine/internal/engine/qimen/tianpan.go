@@ -2,77 +2,76 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// starOrder8 is the clockwise order of 8 stars (starting from 天蓬),
-// excluding 天禽 which 寄坤2 (resides with 天芮).
-var starOrder8 = [8]StarIndex{
-	StarTianPeng, StarTianRui, StarTianChong, StarTianFu,
-	StarTianXin, StarTianZhu, StarTianRen, StarTianYing,
+// placeTianPan rotates the eight-star heaven plate.
+// The duty star moves to the lead gan's earth-palace; if that target is the
+// central palace, it is lodged in Kun2. TianQin follows TianRui and carries the
+// central palace's earth gan.
+func placeTianPan(
+	leadZhu ganzhi.Zhu, dutyStar StarIndex, dipan [9]ganzhi.Gan,
+) ([9][]TianPanSymbol, GongIndex) {
+	var result [9][]TianPanSymbol
+	searchGan := resolveJiaDunGan(leadZhu.Gan, leadZhu.Zhi)
+
+	target := 0
+	for i, g := range dipan {
+		if g == searchGan {
+			target = i
+			break
+		}
+	}
+	if GongIndex(target+1) == GongZhong {
+		target = int(centerLodgingPalace) - 1
+	}
+	landing := findEarthGanPalace(searchGan, dipan)
+
+	ringDutyStar := dutyStar
+	if ringDutyStar == tianQinStar {
+		ringDutyStar = tianQinFollows
+	}
+	dutyIdx := ringIndexForStar(ringDutyStar)
+	targetIdx := outerRingIndex(GongIndex(target + 1))
+
+	for offset := 0; offset < 8; offset++ {
+		palace := outerRing[(targetIdx+offset)%8]
+		star := starOrder8[(dutyIdx+offset)%8]
+		idx := int(palace) - 1
+		result[idx] = append(result[idx], TianPanSymbol{
+			Gan:  dipan[starHomePalace(star)],
+			Star: star,
+		})
+		if tianQinCarriesGan && star == tianQinFollows {
+			result[idx] = append(result[idx], TianPanSymbol{
+				Gan:  dipan[starHomePalace(tianQinStar)],
+				Star: tianQinStar,
+			})
+		}
+	}
+	return result, landing
 }
 
-// placeTianPan arranges the heaven plate: 8 stars and their associated heaven gan.
-// 值符星 fits to the gong where 时干 sits on the earth plate.
-// Other stars follow clockwise, skipping 中5 (the void central palace).
-// 天禽星寄坤2 — always in the same gong as 天芮.
-// Heaven gan at each gong = the earth gan of the star's home gong.
-// If the duty star is 天禽 (旬首 in 中5), it is treated as 天芮 (寄坤2), and 天禽
-// then follows 天芮's position.
-func placeTianPan(driveZhu ganzhi.Zhu, dutyStar StarIndex, dipan [9]ganzhi.Gan) ([9]StarIndex, [9]ganzhi.Gan) {
-	var stars [9]StarIndex
-	var gan [9]ganzhi.Gan
-
-	// 甲遁于旬首 — when the driving gan is 甲, use the xunShou instead.
-	searchGan := driveZhu.Gan
-	if driveZhu.Gan == ganzhi.GanJia {
-		searchGan = findXunShou(driveZhu)
-	}
-
-	// Find the gong where the driving gan sits on the earth plate.
-	driveGanPalace := 0
-	for i := 0; i < 9; i++ {
-		if dipan[i] == searchGan {
-			driveGanPalace = i
-			break
+func outerRingIndex(p GongIndex) int {
+	for i, candidate := range outerRing {
+		if candidate == p {
+			return i
 		}
 	}
-	// 中5寄坤2：时干（或旬首）落中5时，值符星寄于坤2（与地盘寄宫一致）。
-	if driveGanPalace == 4 {
-		driveGanPalace = 1 // 中5 → 坤2
-	}
+	return -1
+}
 
-	// 天禽寄坤2: treat duty 天禽 as 天芮 so it flies like the 坤2 star.
-	duty8 := dutyStar
-	if dutyStar == StarTianQin {
-		duty8 = StarTianRui
-	}
-
-	// Find the index of duty8 in starOrder8.
-	dutyIdx := 0
-	for i, s := range starOrder8 {
-		if s == duty8 {
-			dutyIdx = i
-			break
+func ringIndexForStar(s StarIndex) int {
+	for i, candidate := range starOrder8 {
+		if candidate == s {
+			return i
 		}
 	}
+	return -1
+}
 
-	// Place 8 stars clockwise from duty star over the 8 non-central palaces
-	// (skipping 中5, the void central palace).
-	step := 0
-	for i := 0; i < 9; i++ {
-		pos := (driveGanPalace + i) % 9
-		if pos == 4 {
-			continue // 中5 虚空
+func ringIndexForDoor(d DoorIndex) int {
+	for i, candidate := range doorOrder {
+		if candidate == d {
+			return i
 		}
-		star := starOrder8[(dutyIdx+step)%8]
-		step++
-		stars[pos] = star
-
-		// Heaven gan = earth gan from the star's home gong.
-		homePalace := starHomePalace(star)
-		gan[pos] = dipan[homePalace]
 	}
-
-	// 天禽寄坤2: 天禽不占独立星位，隐含寄于天芮所在宫（与天芮同宫）。
-	// 排盘只列天芮，天禽随天芮（主流转盘法）。
-
-	return stars, gan
+	return -1
 }

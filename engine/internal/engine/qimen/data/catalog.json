@@ -1,0 +1,230 @@
+{
+  "day_boundary": "late_zi_rolls_day_pillar",
+  "default": {
+    "scope": "hour",
+    "school": "zhuanpan",
+    "dingju_method": "chaibu"
+  },
+  "scopes": [
+    {
+      "scope": "hour",
+      "name": "时家奇门",
+      "lead_pillar": "hour",
+      "features": [
+        "wu_bu_yu_shi"
+      ],
+      "method_source": "solar_term",
+      "dingju_methods": [
+        "chaibu",
+        "zhirun",
+        "maoshan"
+      ],
+      "default_dingju_method": "chaibu"
+    },
+    {
+      "scope": "day",
+      "name": "日家奇门",
+      "lead_pillar": "day",
+      "features": [],
+      "method_source": "solar_term",
+      "dingju_methods": [
+        "chaibu",
+        "zhirun"
+      ],
+      "default_dingju_method": "chaibu",
+      "no_dingju_schools": [
+        "jinhan_yujing"
+      ]
+    },
+    {
+      "scope": "quarter",
+      "name": "刻家奇门",
+      "lead_pillar": "quarter",
+      "features": [],
+      "method_source": "quarter_rule",
+      "quarter_rules": [
+        "ten_minute_sanyuan",
+        "twelve_minute_ten_division"
+      ],
+      "default_quarter_rule": "ten_minute_sanyuan"
+    },
+    {
+      "scope": "month",
+      "name": "月家周期奇门",
+      "lead_pillar": "month",
+      "features": [],
+      "method_source": "month_cycle",
+      "dingju_methods": [],
+      "default_dingju_method": ""
+    },
+    {
+      "scope": "year",
+      "name": "年家周期奇门",
+      "lead_pillar": "year",
+      "features": [],
+      "method_source": "year_cycle",
+      "dingju_methods": [],
+      "default_dingju_method": ""
+    }
+  ],
+  "schools": [
+    {
+      "school": "zhuanpan",
+      "name": "转盘法",
+      "geometry": "luoshu_ring_rotation",
+      "star_mode": "tian_qin_lodges_kun",
+      "door_mode": "center_projects_kun",
+      "spirit_mode": "eight_spirits_yang_gouchen_zhuque_yin_baihu_xuanwu",
+      "spirit_flight": "yang_forward_yin_reverse",
+      "allowed_scopes": [
+        "hour",
+        "day",
+        "quarter",
+        "month",
+        "year"
+      ],
+      "allowed_dingju_methods": [
+        "chaibu",
+        "zhirun",
+        "maoshan"
+      ],
+      "allowed_quarter_rules": [
+        "ten_minute_sanyuan",
+        "twelve_minute_ten_division"
+      ]
+    },
+    {
+      "school": "luoshu_feipan",
+      "name": "洛书飞盘法",
+      "geometry": "palace_number_shift",
+      "star_mode": "star_gan_shift_together",
+      "door_mode": "eight_doors_real_center_step",
+      "spirit_mode": "nine_spirits_baihu_taichang_xuanwu",
+      "spirit_flight": "yang_forward_yin_reverse",
+      "allowed_scopes": [
+        "hour",
+        "day",
+        "month",
+        "year"
+      ],
+      "allowed_dingju_methods": [
+        "chaibu",
+        "zhirun"
+      ]
+    },
+    {
+      "school": "mingfa_feipan",
+      "name": "鸣法飞盘",
+      "allowed_scopes": [
+        "hour"
+      ],
+      "geometry": "mingfa_star_door_forward_flight",
+      "star_mode": "nine_stars_forward_with_center",
+      "door_mode": "nine_doors_with_center_forward",
+      "spirit_mode": "nine_spirits_gouchen_taichang_zhuque",
+      "spirit_flight": "yang_forward_yin_reverse",
+      "allowed_dingju_methods": [
+        "chaibu"
+      ]
+    },
+    {
+      "school": "jinhan_yujing",
+      "name": "金函玉镜",
+      "allowed_scopes": [
+        "day"
+      ],
+      "geometry": "solstice_day_star_flight",
+      "star_mode": "taiyi_nine_stars_day_flight",
+      "door_mode": "three_day_eight_door_rotation",
+      "spirit_mode": "day_gan_twelve_spirits",
+      "spirit_flight": "solstice_yang_forward_yin_reverse",
+      "allowed_dingju_methods": [
+        "none"
+      ]
+    }
+  ],
+  "dingju_methods": [
+    {
+      "dingju_method": "chaibu",
+      "name": "拆补定局"
+    },
+    {
+      "dingju_method": "zhirun",
+      "name": "置闰定局"
+    },
+    {
+      "dingju_method": "maoshan",
+      "name": "茅山定局"
+    },
+    {
+      "dingju_method": "none",
+      "name": "无定局"
+    }
+  ],
+  "quarter_rules": [
+    {
+      "quarter_rule": "ten_minute_sanyuan",
+      "name": "十分钟三元刻家"
+    },
+    {
+      "quarter_rule": "twelve_minute_ten_division",
+      "name": "十二分钟十分局刻家"
+    }
+  ],
+  "month_dingju": {
+    "first_month_branch": "寅",
+    "direction": "retreat",
+    "yin_dun": true,
+    "groups": [
+      {
+        "branches": [
+          "子",
+          "午",
+          "卯",
+          "酉"
+        ],
+        "leading_ju": 8,
+        "yuan": "上元"
+      },
+      {
+        "branches": [
+          "辰",
+          "戌",
+          "丑",
+          "未"
+        ],
+        "leading_ju": 5,
+        "yuan": "下元"
+      },
+      {
+        "branches": [
+          "寅",
+          "申",
+          "巳",
+          "亥"
+        ],
+        "leading_ju": 2,
+        "yuan": "中元"
+      }
+    ]
+  },
+  "year_dingju": {
+    "anchor_year": 1864,
+    "cycle_years": 60,
+    "yin_dun": true,
+    "yuan_ju": [
+      {
+        "yuan": "上元",
+        "ju": 1
+      },
+      {
+        "yuan": "中元",
+        "ju": 4
+      },
+      {
+        "yuan": "下元",
+        "ju": 7
+      }
+    ]
+  }
+}

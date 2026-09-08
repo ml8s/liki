@@ -1,5 +1,174 @@
 # Changelog
 
+## [2026.09.08.7] — Issue #42–#45 修复
+
+### liki-bazi
+
+- 流年“天克地冲日柱”改为同组同时满足流年天干克日干与流年地支冲日支，避免午午同支被误判为冲。
+- 流年三刑要求流年支实际进入成组三刑；本命自带三刑不再在无关流年逐年重复触发。
+- `ying_h18` 女命损胎断语补入 `性别=female` 门槛；同类通用食伤因子与紫微女命断语补入显性别门槛。
+- `fam_120` 财星得地、比劫旺夺财增加“比劫为忌”约束；身弱以比劫为用者不再机械断家境先裕后损。
+- 学业大运破坏候选要求当前大运比劫 / 食伤 / 财星既为忌又通根原局或得坐支本气；虚浮无根大运不作实质破坏。
+- 新增大运财星 / 食伤 / 比劫有根稳定因子，并补入正交因子与断语契约测试。
+
+### liki-divination
+
+- 六爻进退神改为同五行地支顺逆精确表：亥化子、寅化卯、巳化午、申化酉为进；子化亥、卯化寅、午化巳、酉化申为退。
+- 不构成进退迁移的动爻变化不再输出进退格局候选，也不再以 `is_true=false` 表示退神方向。
+- 空亡 / 月破 `sub_type` 与 `is_true` 同步输出真空 / 假空、真破 / 假破，消除真假标记矛盾。
+- 六爻格局文档与 RPC schema 明确 `is_true` 语义：空亡 / 月破中区分真假空、真假破；其他已成立结构为实质效力。
+
+## [2026.09.08.6] — 奇门捕盗稳定因子
+
+### liki-divination
+
+- 奇门 snapshot schema 升至 v3，并新增九星、八门、八神及神星 / 神神宫位五行关系稳定因子。
+- 奇门 snapshot 新增阴阳遁内外宫域与用神宫域稳定因子；走失人口专占补入方向、内外远近与神盘信号候选，不判定必然回归。
+- 奇门 snapshot 新增神门关系、宫位高低区间与时干五阳 / 五阴稳定因子；捕亡专占补入六合伤门生克、天网高低与太白入荧候选。
+- 捕亡专占补充六癸高位 / 阳时难获候选与六癸落宫追踪方向候选；候选仍并列输出，不做必然结论。
+- 走失人口神盘信号收紧为六合落宫所临之神；解释证据保留命中因子行，避免只给全盘粗粒度信号。
+- 新增八宫方向稳定因子表，走失人口与捕亡方向候选直接携带宫位方向证据。
+- 中宫稳定标记为 `center`，不输出内外远近与方向候选，避免无方向断语。
+- 修复可选年命字段缺省时奇门快照误报不完整的问题；多因子数组证据保留完整命中行。
+- 按标准转盘八神显隐对补齐勾陈 / 玄武稳定领域别名。
+- engine `pan` 补齐年 / 月柱稳定事实；失物补入时干落宫方向与内外候选。
+- 失物规则依据补入《元灵经》方向与内外口径；中宫不输出方向 / 内外候选。
+- 新增奇门排盘 + 五类专占解释的本地引擎集成测试，覆盖年 / 月柱 RPC 事实与规则适配层。
+- 引擎全量脚本的 RPC 端口改为 `LIKI_ENGINE_PORT` 可配置，避免端口硬编码。
+- 新增表驱动捕盗候选规则，覆盖制贼、难捕、串通、捕者为盗、纵盗、年 / 月 / 日 / 时庚格、无庚格与杜门方向。
+- 新增贼人画像规则，覆盖贵人 / 小人、八卦人物象与内外盘候选。
+- 走失人口补入六合宫旺相星临景 / 死 / 惊 / 伤四门的可得候选；神盘信号收敛到六合落宫。
+
+## [2026.09.08.1] — 刻家奇门双口径与领域轴收敛
+
+### 奇门刻家
+
+- 新增 **十二分钟十分局刻家**：`scope=quarter` + `school=zhuanpan` + `quarter_rule=twelve_minute_ten_division`。规则固定为一时辰 10 刻、每刻 12 分钟，初局取当前时家局，阳遁顺进、阴遁逆退，九局循环；该口径盘面仍以时柱为主柱，`method.quarter.lead_pillar_mode=hour` 显式说明，不与十分钟三元刻家的刻柱主盘混淆。
+- 十二分钟十分局支持 `base_dingju_method=chaibu/zhirun/maoshan` 选择基准时家定局法，默认拆补；`method.base_dingju_method/base_dingju_method_name` 输出事实源，其他方法在 schema 层拒绝该参数。
+- 十二分钟十分局补齐分遁与时辰界选项：`dun_source=hour_branch/solar_term`，默认时支分遁；`hour_boundary=late_zi/zi_zheng`，默认晚子时。两个选项均由 `quarter.json` 承载并只在十二分钟十分局下开放。
+- `scope=quarter` 显示名收敛为 **刻家奇门**；刻家内部以 `quarter_rule=ten_minute_sanyuan/twelve_minute_ten_division` 区分十分钟三元刻家与十二分钟十分局刻家，方法矩阵增至 17 组。
+- 新增十分钟三元刻家：`scope=quarter` 默认 `quarter_rule=ten_minute_sanyuan`；一个时辰 12 刻，每刻 10 分钟。
+- 两个刻家口径均封闭为 `quarter + zhuanpan`；飞盘、鸣法、金函与拆补 / 置闰 / 茅山组合均显式拒绝。
+- 刻柱、阴阳遁与三元定局全部入 `quarter.json`：刻柱由时干五鼠遁起子刻后逐刻进一；时支子至巳为阳遁、午至亥为阴遁；时柱五时符头按子午卯酉 / 寅申巳亥 / 辰戌丑未取 1-7-4 / 9-3-6。
+- `method.quarter` 输出刻序、每刻分钟数与主柱口径；主柱干支仍以 `method.lead_pillar` 为唯一事实源，避免重复。
+- 以大师奇门官方 Web 排盘固定 artifact 作为外部执行 golden，另覆盖晚子时、上中下三元与刻柱边界；不复制其商业代码或数据表。
+- 十二分钟十分局的外部执行源固定为 `Horace-Maxwell/Horosa-Web-App-comprehensively-improved-MacOS` commit `0604fa416f95e330dbd798ba2ede0f2aa0cb1688`，仅记录 AGPL-3.0 项目的执行事实，不复制实现；项目名只保留在测试 provenance，不进入公开参数、结果 enum 或方法显示名。
+- 奇门公开领域轴收敛为 `scope`（时间层级）、`school`（盘式）、`dingju_method`（定局法）与 `quarter_rule`（刻家规则）；`dingju_method` 仅保留拆补 / 置闰 / 茅山，刻家规则不再混入定局法。
+- 十二分钟十分局刻家与十分钟刻家是不同口径；文档与 schema 均显式区分，不互相近似替代。
+
+### 奇门契约与用神
+
+- 奇门拆分为 engine 排盘层与 Python 编排层：`qimen.chart` 只接收显式 `yong_shen`；事业 / 求财 / 婚姻 / 健康 / 诉讼 / 学业 / 出行 / 隐藏 / 走失人口 9 类事象到用神的映射上移到 `tools/data/qimen_matters.csv`，由 `qimen_chart` 查表后调用 engine。
+- 新增 `liki-divination` 奇门 Python 工具链：`city_coords`、`solar_time`、`qimen_chart`、`query`。失物解释规则入 `qimen_assertions.csv` / `qimen_conditions.csv`，只按引擎已稳定输出的反吟与时干空亡事实给出候选；“时干宫生日干宫”因古籍另需旺相气前提而暂不入表，不在代码或提示词中临场推理。
+- 奇门 Python 层补齐 `qimen_factors.py` 与 `qimen_snapshot_contract.json`：`qimen_chart` 结果先投影为稳定快照，解释表只消费快照字段并受契约校验，不再直接绑定 engine JSON path；`patterns`、十干克应、门星克应与应期日期仍由 engine 作为机械因子保留。
+- 奇门稳定快照显式预留十干克应名、门克应名、星克应名、星宫五行关系、门破 / 门制宫位与值符星 / 值使门落宫；这些字段当前失物表未消费，但属于稳定盘面因子，不作为死代码裁剪。
+- 奇门 Python 表加载层按职责拆分为 `qimen_matters.py` 与 `qimen_interpretations.py`，避免排盘编排依赖解释表；`qimen_rules.csv` 表达专占适用的 scope / school 与依据，失物限定为时家转盘 / 洛书飞盘 / 鸣法飞盘，金函玉镜在投影前显式拒绝。
+- 奇门 Python 契约测试补齐 tool enum ↔ 事象表 / 解释规则 / engine schema、快照来源路径 ↔ engine result schema、可选 `yong_shen` 半截结构、条件组排序与断语无优先级输出，防止表与 schema 漂移。
+- 奇门 Windows 启动器对齐八字兼容口径：优先使用 `py -3`，显式设置 `PYTHONUTF8` / `PYTHONIOENCODING` 并以 `-X utf8` 启动；Python 侧继续强制 UTF-8 stdio 与 ASCII JSON 输出。
+- 金函玉镜标准 `Chart` API 显式拒绝误用：`ComputeChartWithMethod` 与 `ComputeChartWithYongShenAndMethod` 不再落入常规九宫排盘流程，必须使用独立的 `ComputeJinhanChart`；RPC handler 的独立 Jinhan result 行为保持不变。
+- 显式 `yong_shen` 输入契约收紧：engine schema 与 Python tool schema 均拒绝空数组并要求符号唯一；Python 编排层在无符号时应省略该参数，不得用空数组伪装成高级显式取用。
+- 收窄奇门内部 Go API：无用神聚合包装仅由标准排盘内部调用，改为包内函数，不再作为公共导出入口。
+- 奇门 Python 排盘编排层增加边界防护：显式 `yong_shen` 必须是非空且不重复的字符串数组；事象表拒绝重复符号；JSON-RPC 返回体畸形或缺 `result` 时转换为清晰的 `RPCError`，不再透出底层解析异常。
+- 奇门 Python RPC 解包统一校验 engine envelope：`city_coords`、`solar_time`、`qimen_chart` 缺少 `data` 对象时返回清晰 `RPCError`，不再暴露 `KeyError`。
+- 奇门 Python 层新增真实 engine golden chart 投影契约测试；RPC 端点改为每次调用读取 `LIKI_RPC_URL`，HTTP 客户端错误区分状态码与响应体，5xx / 超时 / 网络错误重试，4xx 不再盲目重试。
+- 失物解释补入“时干宫乘旺相气生日干宫”复得候选；旺相状态复用 `WangShuaiOf` 的月令五行规则，由 engine 输出 `palace_wang_shuai` 与 `shi_gan_gong_wang_shuai`，解释层只消费 snapshot 因子。墓、绝仍不拟合。
+- 格局表新增 `六仪击刑`：按《奇门遁甲统宗》六甲值符刑宫口径绑定戊震三、己坤二、庚艮八、辛离九、壬癸巽四，六支均提供 golden 向量；Python 快照自动透出 `patterns` 因子供专占解释消费。
+- `ying_qi.candidates` 新增 `dates[]`：马星按冲日、空亡按值日与冲日在 60 日窗口内输出具体日期；日期锚点对齐排盘输出的日柱，避免晚子时日界漂移。LLM 只解释引擎日期，不补算。
+- 格局表新增青龙返首、飞鸟跌穴、荧入太白、太白入荧与三奇入墓；前四者直接引用十干克应表的唯一天地盘干组合与吉凶事实，三奇入墓按古籍口径绑定乙奇坤宫、丙奇乾宫、丁奇艮宫，不重复维护第二份条件。
+- 修正用神中门名重复输出“门门”的显示错误，门类符号统一输出完整“×门”名。
+- `qimen.chart` 参数 schema 将缺省 `scope` 固定为时家口径：未传 `scope` 时拒绝 `quarter_rule`、`base_dingju_method`、`dun_source` 与 `hour_boundary`，避免 schema 放行而引擎拒绝的漂移。
+- 结果 schema 禁止十分钟三元刻家输出十二分钟十分局专属的基准定局、分遁与时辰界字段，防止跨口径 result 漂移。
+- 奇门用神表外问事必须先映射表内问事；无法映射时说明无封闭规则，禁止 LLM 按五行临场类象。格局输出同样限定为已入表的封闭规则，不承诺全量格局识别。
+- 八神用神输出统一渲染为当前盘实际神名：转盘阳遁白虎 / 玄武别名解析后输出勾陈 / 朱雀，阴遁反向同理，避免名实不符。
+- 全年边界日期 result schema 抽样覆盖全部 17 个公开方法组合，包括茅山、鸣法、两种刻家与金函玉镜。
+- 十干克应、门克应与星克应数据文件增加文件级 `provenance=curated` 元数据；加载器显式校验来源状态与条目非空，避免把内部整理表伪装成外部 golden 或古籍原文。
+
+### 工程精简
+
+- `docs/FACTOR_MODEL.md` 不再逐行复制 456 个本命因子与 101 个流年因子，收敛为契约、统计与数据流说明；完整清单以 `factors.csv` / `factors_liunian.csv` 为唯一事实源。未引用的 `FACTOR_LAYER_DESIGN.md` 与重复的 `tests/schema.md` 合并删除。
+- `eval_hybrid.py` 覆盖统计默认输出 stdout，只有显式 `--output` 才落盘，删除固定生成 `tests/RESULTS.md` 的路径与 ignore 规则。
+- 删除仅测试使用的 `FullChart.CangGanArray()` internal 导出接口，测试直接断言四柱 `cang_gan` 领域字段。
+- 奇门十干克应删除 72 行由天地盘干机械推导的 `name` 列；星克应删除 30 行由星宫五行推导的 `name` 列，运行时保持原输出显示名不变。门克应的“入/加”口径依赖门归本宫事实，继续由表承载。
+
+## [2026.09.06.1] — 奇门完整方法矩阵与领域模型收敛
+
+### 奇门领域边界
+
+- `qimen.chart` 方法参数收敛为 `scope` / `school` / `bureau`：`scope` 表示 **hour 时家 / day 日家节气 / month 月家周期 / year 年家周期**，`school` 表示 **转盘法 / 洛书飞盘法 / 鸣法飞盘**，`bureau` 表示 **拆补 / 置闰**；month/year 使用固定周期定局并在 schema 层拒绝 `bureau`。
+- 新增 **鸣法飞盘** 方法包：`school=mingfa_feipan`，第一版封闭为 `scope=hour` + `bureau=chaibu`；九星含天禽顺飞、九门含中门顺飞、九神为值符→螣蛇→太阴→六合→勾陈→太常→朱雀→九地→九天，并输出鸣法旬内回绕暗干支。固定 potuo/feipan-qimen MIT 参考实现与已检入测试作为外部 golden，未开放鸣法 day/month/year 与置闰组合。
+- 鸣法 P0 收敛：新增 4 个 `potuo/feipan-qimen` 已检入参考锚点，覆盖阴遁、甲午旬、中门落宫与旬内回绕暗干支；中门按土行参与门迫 / 门制，但未入门克应表时不生成伪解释。schema 以 `method.school` 做 discriminator，非鸣法禁止 `中门` / `an_gan_zhi`，鸣法每宫必须输出 `an_gan_zhi`，且输入用神的 `中门` 仅鸣法可用。
+- 新增茅山定局：`bureau=maoshan`，第一版仅开放 `hour + zhuanpan`。规则以精确交节时刻为唯一锚点，不问符头、不置闰，每 60 时辰推进一元；三元后未交下一节气则继续用下元。固定 deminzhang/qimen-go MIT 实现执行 7 个边界锚点，覆盖交节前后、60/120/180 时辰与冬夏至边界。
+- 新增金函玉镜日家：`school=jinhan_yujing`，仅开放 `scope=day` 且不传 `bureau`。以《金函玉镜》九星落局、二至阴阳、八门三日一换与十干十二神为独立专用 chart，不复用三奇六仪、值符值使、常规格局或应期；以 ctext 古籍文本与 kinqimen 固定 commit 建立 9 个 golden 向量。
+- `solar_time` 明确必须来自 `city.coords` → `tianwen.time` 的真太阳时链路；skill 流程禁止 LLM 自行换算或排盘。
+- `an_gan` 按当前盘式与值使位移重新输出：转盘按外圈旋轴推导，洛书飞盘按九宫宫数位移推导，不再把两种几何混作一个结果。
+
+### 排盘核心修复
+
+- `qimen.chart` 在默认拆补之外支持表驱动的 hour/day 置闰定局，并可组合转盘 / 洛书飞盘。
+- day 层级以日柱为主柱并统称“日家奇门”：转盘/飞盘按节气拆补或置闰定局，金函玉镜为独立日家盘；月家按年支组与寅月退行定局；年家按 1864 锚点、60 年周期与上中下元固定局定局。
+- 洛书飞盘采用九宫宫数位移：中五参与飞宫、天禽独立落宫、八门存在一个空宫、九神包含太常。
+- 方法元数据显式输出盘式几何与飞行口径：洛书飞盘为 `palace_number_shift`，九星与本宫天盘干整体宫数位移；八门真实中宫步位可为空；九神阳顺阴逆。不同飞盘流派不再被泛称 `feipan` 掩盖。
+- 奇门 `params/result` JSON Schema 迁至 `qimen_schema.json` 并由引擎 embed 加载；保留自包含、无 `$ref` 的 OpenRPC 契约，消除 1.4 万字符单行 schema 的审查盲区。
+- 奇门方法矩阵 golden 补齐实际节气、用局节气、阴阳遁、局数、三元、置闰状态与日符头断言；新增 `2033-06-14` 日家洛书飞盘置闰状态样本，并明确 `method-06` 为接气样本。置闰十五日网格、九日传统阈值等价、十二节气上限与芒种 / 大雪置闰依据入 `zhirun.json`。
+- 日家洛书飞盘置闰的独立验证缺口提升为显式 gap，并收窄到阴遁核心盘面；`2033-06-14` 阳遁置闰样本与 mingyu 逐项核对定局、主柱、旬首、值符值使与九宫星干核心，门盘 / 神盘 / 暗干因流派差异显式排除。所有未交叉验证的生成向量必须被 gap 覆盖，避免单一来源事实被误读为已验证。
+- open gap 显式声明必需口径：日柱主柱、阴遁、宫数位移、星干同移、真实中宫八门步位与置闰定局；`spirit_mode` 同步收敛为完整命名序列，洛书飞盘固定为白虎—太常—玄武九神。
+- 奇门结果移除盘式、主柱干支与值符 / 值使落宫的重复输出；这些事实分别以 `method.school`、`method.lead_pillar` 和顶层落宫字段为唯一 API 事实源，引擎内部仍保留排盘几何所需数据。
+- 置闰输出区分 `method.jie_qi`（实际天文节气）与 `method.yong_ju_jie_qi`（用局节气），并提供 `zhi_run_state`（正授/超神/接气/置闰）。
+- 奇门排盘显式采用晚子时日柱换日口径，并输出 `method.day_boundary`，避免 23:00 后置闰三元与日柱符头错位。
+- 建立表驱动九宫外圈环序，修复原实现按洛书数字顺序旋转天盘 / 人盘 / 神盘的错误。
+- 天盘改为标准转盘几何：值符随时干（时干甲遁旬首六仪）、中五寄坤二、九星同步旋转；天禽随天芮同宫并携带中五宫地盘干。
+- 值使门改为从旬首宫按时辰旬内序数阳顺阴逆飞九宫，再以八门外圈环序对齐；不再误用时支本位宫。
+- 修正旬首遁干落中五时的值使飞步：先从中五真实宫起数，只有飞步结果落中五时才按外圈寄坤二；不再起步前提前寄宫。
+- 八神以值符落宫起排，阳遁顺行、阴遁逆行；当前八诈盘流派写入 method metadata。
+- 定局改用精确节气交接时刻，而非日期中午太阳黄经采样；冬至、夏至、立春边界均按时刻切换。
+
+### 领域模型与 API
+
+- 每宫 `tian_pan[]` 以 `{gan,xing}` 绑定天盘干与九星；转盘中宫无星时用 `tian_pan_gan` 保留天盘干事实；天禽寄宫不再丢失。
+- 新增 / 收敛 `method` 元数据：家法、盘式、定局法、定局来源、主柱、主柱旬首六仪、旬首真实落宫、日符头、八神 / 九神流派、天禽规则、节气与三元。
+- 每宫输出 `an_gan`、`men_present`、`shen_present`；pan 聚焦局数、阴阳遁、四柱干支、值符值使、九宫与空亡马星，洛书飞盘空门与转盘中宫状态不再混淆。
+- `birth_year` 改为 `birth_date`，按精确立春推年命干；仅给日期且恰逢立春日时拒绝推断，要求提供时刻。
+- Go 方法排盘 API 对非法 scope / school / bureau 组合返回错误，不再输出空盘；默认 `ComputeChart` 仍保持无错误快捷入口。
+- 删除仅剩测试调用的 `ComputeChartWithJuMethod` / `ComputeChartWithYongShenAndJuMethod` / `ComputeChartWithYongShen` 固定默认盘包装；Go 层统一使用表达完整方法矩阵的 `*WithMethod` API。
+- 用神符号不再接受独立 `甲`；甲不露盘，只能通过日干 / 时干 / 年命或对应六仪进入盘面。
+- `xing_gong_wu_xing` 替代伪完整 `wang_shuai`，只输出星宫五行关系；`ying_qi` 改为结构化候选并标注日干 / 时干 / 年命干 / 所选用神相关性，不输出无关确定断语。
+
+### 命理规则入表
+
+- 新增 `plate.json`：外圈环序、地盘三奇六仪、九星 / 八门 / 八神环序、本宫星门、宫 / 星 / 门五行、五行关系断语、支宫、马星、六甲遁仪、旬空、五不遇时与三元名称全部入表。
+- 新增 `patterns.json`：天遁、地遁、人遁、三奇得使、玉女守门、伏吟、反吟均为表驱动；条件显式同宫、天盘 / 地盘干、门 / 神与值使约束，代码只做机械匹配。
+- 删除代码中的泛化十干克应 / 门克应 / 星克应兜底；未入权威表的组合不生成伪规则解释。
+
+### 领域模型二次收敛
+
+- 每宫新增显式 `gong` 身份（名称、洛书数、外圈序号），不再依赖数组下标识别宫位。
+- `ma_xing` 与 `kong_wang[]` 改为 `{branch,gong}`，保留地支事实，宫位只是投影；空亡不再因两支同宫而丢失支身份。
+- `ri_shi_sheng_ke` 收敛为结构化 `ri_shi_relation`（subject/object/relation/name）；`kong_wang_affected[]`、`ma_xing_affected[]` 逐项列出命中符号、地支与宫位，不再压缩成布尔值。
+- `xing_gong_wu_xing[]` 输出 relation、relation_name 与 traditional_label，避免把关系标签误读为完整季节旺衰。
+- `ying_qi` 在传入用神后按日干、时干、主柱、年命干与所选用神重新投影；新增 `yingqi.json` 承接机制与解释文案。
+- 用神排盘链路先构建盘面因子再一次性按用神投影应期，不再先计算并丢弃基础 `ying_qi` 结果。
+- `birth_date` 引入 DateOnly / Moment 精度值对象，立春跨界日的推断约束下沉到奇门领域层。
+- 八神阳 / 阴遁名称、三元符头支组、宫 / 星 / 门五行、定局表全部改为 keyed 自描述表；`jushu.json` 直接以节气与太阳黄经为键，不再依赖数组顺序。
+- `tian_qin` 新增表驱动 `star` 与 `lodging_gong`，中五寄宫和九星本位不再写死在代码；删除与外圈环序重复的九宫本位星门表，中五不伪造八门本位，值使门按寄宫规则取门。
+- 奇门内置表加载时校验环序、九宫本位星门、三奇六仪、八神槽位、五行表、支宫、马星、六甲遁仪、旬空、五不遇时与关系文案的完整性和一致性；门表命名统一为完整“×门”。
+- method 元数据改为 `lead_pillar`、`lead_xun_shou`、`lead_xun_shou_gong`、`day_fu_tou`，天禽寄宫改为转盘专属结构化规则对象；内部通用 `drive` 命名全部收敛为 lead。
+- 方法矩阵、默认时家 / 转盘 / 拆补、主柱、定局法兼容性与定局法名称统一由 `catalog.json` 驱动，`ParseMethod` 按 scope/school/bureau 封闭目录校验，不把任意技术坐标拼装伪装成门派。
+- 修正洛书飞盘天禽伏吟沿用转盘“禽随芮寄坤”的判断错误：洛书飞盘按天禽真实中五落宫，转盘才使用寄坤有效落宫。
+- 修正转盘中宫 `tian_pan_gan` 无法进入十干克应的求值遗漏；中宫天盘干事实现在按表参与克应。
+- 十干克应显示名统一为“天盘干+地盘干”，修正己辛、辛壬两组双向组合的顺序标反。
+
+### 文档与测试
+
+- 奇门 OpenRPC 契约完成 schema→handler→method 表→盘面输出→skill 文档的逐层核对：`solar_time` 标注 `date-time`，`birth_date` 明确 date / date-time 双格式，month/year 在 schema 层禁止携带 `bureau`；37 个用神输入名逐一通过 `ParseYongShen`，15 个方法组合的 method / pan / 宫位字段与 schema 精确一致，全年边界日期抽样全部通过 result schema 验证。奇门 result schema 补齐十干克应、门克应、星克应、门迫门制、应期、用神、干支宫枚举与 always-required 字段，并关闭未声明字段。
+- 四个 skill 的根文档与 app 流程收敛为「条件 / 目标 → 动作 → 产物」步骤表；移除用户可见 `□` 过程检查、重复红线、工程 troubleshooting、长篇输出举例与 app 卡重复排盘步骤，输出模板压缩为字段表，通用硬边界集中在根 SKILL.md，场景差异留在 app 卡，六亲 / 健康 / 体型 / 婚姻状态裁决细则下沉 domain 文档。起名用神文档改为直接选择 `bazi.fullchart` 已返回的三派结果并保留冲突裁决表；奇门 / 六爻用神文档删除与 RPC schema 重复的字段长说明。命书拆为快速扫描与完整报告，问卦拆为六爻 / 奇门分支卡；考时与六亲检查框改为决策表。`check_docs` 新增流程与信息可达契约：根文档 ≤80 行、app 卡 ≤65 行、流程区 ≤20 行、单卡必读 domain ≤6 个且加载 ≤650 行，统计真实 `.md` 引用而非标记行，检查 domain 死文档、过程检查框与旧 Step 编号回流。
+- `liki-divination` 的 app 流程与领域文档同步 `scope/school/bureau` 选择表、真太阳时调用链、method 审计与候选应期边界，并明确阴盘与非鸣法九门飞盘当前不支持，金函玉镜按 day 专用 chart 调用。
+- 测试重建为当前功能契约：标准阳遁六局转盘手工锚点、时干甲遁、值使飞宫、八门外圈、精确节气边界、立春年命边界、格局同宫约束与表完整性；另引入 atopx/qimen 固定 commit 的 11 个“置闰与拆补定局及转盘盘面一致”外部锚点、16 个时家转盘置闰定局锚点，以及时家洛书飞盘、日家节气、月家、年家外部锚点、15 个方法组合不变量与金函玉镜专用 chart 契约；删除旧错误算法的过程性断言。
+- 外部 golden 向量外置为 JSON 并记录 repo / commit / source hash / license / provenance；同时锁住每宫天盘干、地盘干、暗干、星、门、神六列事实与转盘天禽展开规则。
+- 新增 deminzhang/qimen-go（MIT）与 Brhiza/mingyu（AGPL，仅作事实交叉核对、不引入源码或依赖）固定 commit 作为第二参考源，对时家洛书飞盘拆补、日家转盘置闰、日家洛书飞盘拆补、月家洛书飞盘、年家洛书飞盘与阳遁日家洛书飞盘置闰六个向量交叉验证共享口径下的阴阳遁、局数、主柱、旬首、空亡、值符值使与九宫核心；暗干、门盘几何、第九中门 / 中宫序列化、落宫元数据与九神流派差异显式列为 exclusion，不伪装成一致。阴遁日家洛书飞盘置闰核心仍保持单源 provenance。
+- 新增十干克应、门克应、星克应表契约：条目数、唯一键、非空解释、命名一致与未入表组合不得生成伪解释。
+- 新增七个格局的经典定义向量，覆盖当前 `patterns.json` 全部规则，并校验向量依据与表内 `basis` 一致。
+- 统一 4 个 skill 与 engine 分发版本为 2026.09.06.1。
+
 ## [2026.09.05.2] — liki-naming 偏好与候选报告收敛
 
 ### liki-naming

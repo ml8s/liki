@@ -1,33 +1,35 @@
 package qimen
 
-// spiritOrder is the standard 8-spirit clockwise order.
-var spiritOrder = [8]SpiritIndex{
-	SpiritZhiFu, SpiritTengShe, SpiritTaiYin, SpiritLiuHe,
-	SpiritGouChen, SpiritZhuQue, SpiritJiuDi, SpiritJiuTian,
-}
-
-// placeShenPan arranges the spirit plate: 8 spirits on the 9 palaces.
-// 值符神 fits to the same gong as 天盘值符星.
-// 阳遁: clockwise; 阴遁: counter-clockwise.
+// placeShenPan arranges the spirit plate around the outer ring.
+// The leading spirit follows the duty star; Yang Dun proceeds clockwise and
+// Yin Dun counter-clockwise.
 func placeShenPan(yinDun bool, tianStarPos GongIndex) [9]SpiritIndex {
 	var spirits [9]SpiritIndex
-
-	// 值符星 gong → same position for 值符神.
-	start := int(tianStarPos) - 1
-
-	for i, si := 0, 0; si < 8; i++ {
-		var pos int
+	start := outerRingIndex(tianStarPos)
+	if start < 0 {
+		return spirits
+	}
+	for step, si := 0, 0; si < 8; step++ {
+		ringIdx := (start + step) % 8
 		if yinDun {
-			pos = (start - i + 9) % 9
-		} else {
-			pos = (start + i) % 9
+			ringIdx = (start - step + 8) % 8
 		}
-		if pos == 4 {
-			continue
-		}
-		spirits[pos] = spiritOrder[si]
+		spirits[int(outerRing[ringIdx])-1] = spiritOrder[si]
 		si++
 	}
-
 	return spirits
+}
+
+func spiritDisplayName(spirit SpiritIndex, yinDun bool, school School) string {
+	if school == SchoolMingFaFeiPan && int(spirit) < len(mingfaSpiritNames) &&
+		mingfaSpiritNames[int(spirit)] != "" {
+		return mingfaSpiritNames[int(spirit)]
+	}
+	if school == SchoolLuoShuFeiPan && int(spirit) < len(flySpiritNames) && flySpiritNames[spirit] != "" {
+		return flySpiritNames[spirit]
+	}
+	if yinDun {
+		return spirit.YinName()
+	}
+	return spirit.YangName()
 }

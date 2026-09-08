@@ -2,46 +2,55 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// doorOrder is the clockwise order of 8 doors.
-var doorOrder = [8]DoorIndex{
-	DoorXiu, DoorSheng, DoorShang, DoorDu,
-	DoorJing, DoorSi, DoorJingMen, DoorKai,
-}
-
-// placeRenPan arranges the human plate: 8 doors on the 9 palaces.
-// 值使门 fits to the gong where 时支 (or drive zhi) sits on the earth plate.
-// 阳遁顺排、阴遁逆排（与八神阳顺阴逆一致）。
-func placeRenPan(driveZhi ganzhi.Zhi, dutyDoor DoorIndex, yinDun bool) [9]DoorIndex {
+// placeRenPan first flies the duty door from the ten-day-cycle head palace by
+// the lead pillar's offset, then aligns the fixed door ring at that palace. The
+// flight starts from the real source palace (including Zhong5); only the
+// resulting ring position is projected to Kun2.
+func placeRenPan(
+	leadZhu ganzhi.Zhu, dutyDoor DoorIndex, yinDun bool, dipan [9]ganzhi.Gan,
+) ([9]DoorIndex, GongIndex) {
 	var doors [9]DoorIndex
-
-	driveZhiPalace := zhiPalace(driveZhi)
-
-	// Find the index of dutyDoor in doorOrder.
-	dutyIdx := 0
-	for i, d := range doorOrder {
-		if d == dutyDoor {
-			dutyIdx = i
+	xunShou := findXunShou(leadZhu)
+	source := 0
+	for i, g := range dipan {
+		if g == xunShou {
+			source = i
 			break
 		}
 	}
-
-	// Place doors from duty door starting at driveZhiPalace.
-	// 阳遁顺时针、阴遁逆时针。
-	doorIdx := dutyIdx
-	startPos := int(driveZhiPalace) - 1 // GongIndex is 1-based, convert to 0-based
-	for i := 0; i < 9; i++ {
-		var pos int
-		if yinDun {
-			pos = (startPos - i + 9) % 9
-		} else {
-			pos = (startPos + i) % 9
-		}
-		if pos == 4 {
-			continue // 中宫无门
-		}
-		doors[pos] = doorOrder[doorIdx%8]
-		doorIdx++
+	offset := ganzhi.SixtyCycleIndex(leadZhu.Gan, leadZhu.Zhi) % 10
+	targetPos := source + offset
+	if yinDun {
+		targetPos = source - offset
+	}
+	targetPos = ((targetPos % 9) + 9) % 9
+	realTarget := GongIndex(targetPos + 1)
+	if targetPos == int(GongZhong)-1 {
+		targetPos = int(centerLodgingPalace) - 1
 	}
 
-	return doors
+	target := GongIndex(targetPos + 1)
+	targetRing := outerRingIndex(target)
+	dutyRing := ringIndexForDoor(dutyDoor)
+	for step := 0; step < 8; step++ {
+		palace := outerRing[(targetRing+step)%8]
+		doors[int(palace)-1] = doorOrder[(dutyRing+step)%8]
+	}
+	return doors, realTarget
+}
+
+func placeHiddenPan(dipan [9]ganzhi.Gan, source, landing GongIndex) [9]ganzhi.Gan {
+	var result [9]ganzhi.Gan
+	sourceRing := outerRingIndex(projectCenter(source))
+	landingRing := outerRingIndex(projectCenter(landing))
+	if sourceRing < 0 || landingRing < 0 {
+		return result
+	}
+	shift := floorMod(landingRing-sourceRing, 8)
+	for i, palace := range outerRing {
+		target := outerRing[(i+shift)%8]
+		result[int(target)-1] = dipan[int(palace)-1]
+	}
+	result[int(GongZhong)-1] = dipan[int(GongZhong)-1]
+	return result
 }

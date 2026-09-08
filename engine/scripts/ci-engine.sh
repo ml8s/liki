@@ -7,6 +7,7 @@ export PATH="$HOME/go/bin:$HOME/app/go/bin:$PATH"
 # are disposable, so keep them under /tmp to make lint behavior deterministic.
 export GOCACHE="${GOCACHE:-/tmp/gocache}"
 export GOLANGCI_LINT_CACHE="${GOLANGCI_LINT_CACHE:-/tmp/golangci-lint-cache}"
+ENGINE_PORT="${LIKI_ENGINE_PORT:-8082}"
 
 # ci-engine.sh — 全量测试（等价于 CI 所有 job 之和）
 # 用法: make test-all 或 scripts/ci-engine.sh
@@ -72,11 +73,11 @@ go build -o /tmp/liki-engine ./cmd/liki/
 step_ok "编译引擎"
 
 # Stop an engine process already listening on the test port.
-pkill -f "liki-engine -addr :8082" 2>/dev/null || true
+pkill -f "liki-engine -addr :${ENGINE_PORT}" 2>/dev/null || true
 sleep 1
 
 # 启动引擎
-/tmp/liki-engine -addr :8082 &
+/tmp/liki-engine -addr ":${ENGINE_PORT}" &
 ENGINE_PID=$!
 
 cleanup() {
@@ -88,7 +89,7 @@ trap cleanup EXIT
 
 echo -n "--- 等待引擎就绪"
 for i in $(seq 1 30); do
-  if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
+	if curl -sf -o /dev/null "http://localhost:${ENGINE_PORT}/health" 2>/dev/null; then
     echo " ✓"
     break
   fi
@@ -101,7 +102,7 @@ for i in $(seq 1 30); do
 done
 
 echo "--- RPC 冒烟测试 ---"
-if scripts/test-rpc.sh http://localhost:8082; then
+	if scripts/test-rpc.sh "http://localhost:${ENGINE_PORT}"; then
   step_ok "RPC 冒烟测试"
 else
   step_fail "RPC 冒烟测试"

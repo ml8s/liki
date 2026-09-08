@@ -1,0 +1,25 @@
+{
+  "summary": "应期候选由马星与空亡给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论",
+  "horizon_days": 60,
+  "date_matches": {
+    "ma_xing": [
+      {"match": "opposite", "reason": "{branch}日冲{target}"}
+    ],
+    "kong_wang": [
+      {"match": "same", "reason": "{target}日填实"},
+      {"match": "opposite", "reason": "{branch}日冲{target}"}
+    ]
+  },
+  "rules": [
+    {
+      "type": "ma_xing",
+      "mechanism": "冲",
+      "description": "马星逢冲为动期候选"
+    },
+    {
+      "type": "kong_wang",
+      "mechanism": "值冲",
+      "description": "空亡逢值或逢冲为填实候选"
+    }
+  ]
+}

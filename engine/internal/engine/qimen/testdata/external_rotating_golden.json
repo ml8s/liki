@@ -1,0 +1,353 @@
+{
+  "source": {
+    "name": "atopx/qimen",
+    "url": "https://github.com/atopx/qimen",
+    "commit": "8eb06d007d4a5fcc5352d9054f81469e5f023f45",
+    "source_file": "qimen_golden_test.go",
+    "source_sha256": "fb0f27c58e62152f130a0026c713f985c36c42651d319f5601e32784fed0b026",
+    "license": "MIT"
+  },
+  "vectors": [
+    {
+      "id": "rotating-01",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2026-02-18 22:59",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "癸亥",
+      "hour_pillar": "癸亥",
+      "yin_dun": false,
+      "ju": 2,
+      "jie_qi": "立春",
+      "yuan": "下元",
+      "xun_shou": "癸",
+      "duty_star": "天柱",
+      "xun_shou_gong": 7,
+      "kong_wang": "子丑",
+      "palaces": [
+        "乙乙乙蓬休阴",
+        "戊戊戊芮死天",
+        "己己己冲伤虎",
+        "庚庚庚辅杜玄",
+        "辛辛辛---",
+        "壬壬壬心开蛇",
+        "癸癸癸柱惊符",
+        "丁丁丁任生合",
+        "丙丙丙英景地"
+      ]
+    },
+    {
+      "id": "rotating-02",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2026-01-14 18:45",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "戊子",
+      "hour_pillar": "辛酉",
+      "yin_dun": false,
+      "ju": 8,
+      "jie_qi": "小寒",
+      "yuan": "中元",
+      "xun_shou": "癸",
+      "duty_star": "天辅",
+      "xun_shou_gong": 4,
+      "kong_wang": "子丑",
+      "palaces": [
+        "乙庚乙柱惊合",
+        "癸辛癸辅杜符",
+        "庚壬庚蓬休玄",
+        "戊癸戊任生地",
+        "丁丁丁---",
+        "辛丙辛芮死阴",
+        "己乙己英景蛇",
+        "丙戊丙心开虎",
+        "壬己壬冲伤天"
+      ]
+    },
+    {
+      "id": "rotating-03",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2026-03-02 18:30",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "乙亥",
+      "hour_pillar": "乙酉",
+      "yin_dun": false,
+      "ju": 3,
+      "jie_qi": "雨水",
+      "yuan": "下元",
+      "xun_shou": "庚",
+      "duty_star": "天禽",
+      "xun_shou_gong": 5,
+      "kong_wang": "午未",
+      "palaces": [
+        "丙丙壬蓬惊合",
+        "乙乙己芮杜符",
+        "戊戊丙冲休玄",
+        "己己癸辅生地",
+        "庚庚庚---",
+        "辛辛乙心死阴",
+        "壬壬丁柱景蛇",
+        "癸癸辛任开虎",
+        "丁丁戊英伤天"
+      ]
+    },
+    {
+      "id": "rotating-04",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2026-10-31 12:02",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "戊寅",
+      "hour_pillar": "戊午",
+      "yin_dun": true,
+      "ju": 2,
+      "jie_qi": "霜降",
+      "yuan": "下元",
+      "xun_shou": "癸",
+      "duty_star": "天心",
+      "xun_shou_gong": 6,
+      "kong_wang": "子丑",
+      "palaces": [
+        "乙己乙冲伤玄",
+        "癸戊癸心开符",
+        "庚乙庚英景合",
+        "戊丙戊芮死阴",
+        "丁丁丁---",
+        "辛癸辛任生地",
+        "己壬己蓬休天",
+        "丙辛丙辅杜虎",
+        "壬庚壬柱惊蛇"
+      ]
+    },
+    {
+      "id": "rotating-05",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2024-12-31 12:00",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "己巳",
+      "hour_pillar": "庚午",
+      "yin_dun": false,
+      "ju": 7,
+      "jie_qi": "冬至",
+      "yuan": "中元",
+      "xun_shou": "戊",
+      "duty_star": "天柱",
+      "xun_shou_gong": 7,
+      "kong_wang": "戌亥",
+      "palaces": [
+        "癸辛丁冲杜虎",
+        "乙壬辛心休蛇",
+        "庚癸壬英死地",
+        "壬丁戊芮惊天",
+        "丙丙丙---",
+        "己乙癸任伤合",
+        "辛戊己蓬生阴",
+        "丁己庚辅景玄",
+        "戊庚乙柱开符"
+      ]
+    },
+    {
+      "id": "rotating-06",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2024-12-21 12:00",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "己未",
+      "hour_pillar": "庚午",
+      "yin_dun": true,
+      "ju": 1,
+      "jie_qi": "大雪",
+      "yuan": "下元",
+      "xun_shou": "戊",
+      "duty_star": "天蓬",
+      "xun_shou_gong": 1,
+      "kong_wang": "戌亥",
+      "palaces": [
+        "壬戊乙心死蛇",
+        "己乙丙英伤虎",
+        "庚丙壬任开天",
+        "丙丁戊冲休地",
+        "癸癸癸---",
+        "辛壬己柱景阴",
+        "乙辛丁芮杜合",
+        "戊庚辛蓬惊符",
+        "丁己庚辅生玄"
+      ]
+    },
+    {
+      "id": "rotating-07",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2024-12-28 12:00",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "丙寅",
+      "hour_pillar": "甲午",
+      "yin_dun": false,
+      "ju": 1,
+      "jie_qi": "冬至",
+      "yuan": "上元",
+      "xun_shou": "辛",
+      "duty_star": "天辅",
+      "xun_shou_gong": 4,
+      "kong_wang": "辰巳",
+      "palaces": [
+        "戊戊戊蓬休玄",
+        "己己己芮死阴",
+        "庚庚庚冲伤天",
+        "辛辛辛辅杜符",
+        "壬壬壬---",
+        "癸癸癸心开虎",
+        "丁丁丁柱惊合",
+        "丙丙丙任生地",
+        "乙乙乙英景蛇"
+      ]
+    },
+    {
+      "id": "rotating-08",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2033-06-14 12:00",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "丙申",
+      "hour_pillar": "甲午",
+      "yin_dun": false,
+      "ju": 6,
+      "jie_qi": "芒种",
+      "yuan": "上元",
+      "xun_shou": "辛",
+      "duty_star": "天英",
+      "xun_shou_gong": 9,
+      "kong_wang": "辰巳",
+      "palaces": [
+        "壬壬壬蓬休虎",
+        "癸癸癸芮死蛇",
+        "丁丁丁冲伤地",
+        "丙丙丙辅杜天",
+        "乙乙乙---",
+        "戊戊戊心开合",
+        "己己己柱惊阴",
+        "庚庚庚任生玄",
+        "辛辛辛英景符"
+      ]
+    },
+    {
+      "id": "rotating-09",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2027-12-18 12:00",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "辛未",
+      "hour_pillar": "甲午",
+      "yin_dun": true,
+      "ju": 7,
+      "jie_qi": "大雪",
+      "yuan": "中元",
+      "xun_shou": "辛",
+      "duty_star": "天辅",
+      "xun_shou_gong": 4,
+      "kong_wang": "辰巳",
+      "palaces": [
+        "丁丁丁蓬休合",
+        "癸癸癸芮死地",
+        "壬壬壬冲伤蛇",
+        "辛辛辛辅杜符",
+        "庚庚庚---",
+        "己己己心开虎",
+        "戊戊戊柱惊玄",
+        "乙乙乙任生阴",
+        "丙丙丙英景天"
+      ]
+    },
+    {
+      "id": "rotating-10",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "1995-12-15 12:00",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "庚辰",
+      "hour_pillar": "壬午",
+      "yin_dun": true,
+      "ju": 4,
+      "jie_qi": "大雪",
+      "yuan": "上元",
+      "xun_shou": "己",
+      "duty_star": "天冲",
+      "xun_shou_gong": 3,
+      "kong_wang": "申酉",
+      "palaces": [
+        "丁辛丙柱开虎",
+        "戊庚壬辅景天",
+        "辛己癸蓬生阴",
+        "癸戊己任伤蛇",
+        "乙乙乙---",
+        "庚丙丁芮惊玄",
+        "壬丁庚英死地",
+        "丙癸辛心休合",
+        "己壬戊冲杜符"
+      ]
+    },
+    {
+      "id": "rotating-11",
+      "provenance": "atopx_checked_in_zhirun_vector_verified_as_chaibu",
+      "when": "2024-12-10 04:00",
+      "method": {
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "chaibu"
+      },
+      "day_pillar": "戊申",
+      "hour_pillar": "甲寅",
+      "yin_dun": true,
+      "ju": 1,
+      "jie_qi": "大雪",
+      "yuan": "下元",
+      "xun_shou": "癸",
+      "duty_star": "天禽",
+      "xun_shou_gong": 5,
+      "kong_wang": "子丑",
+      "palaces": [
+        "戊戊戊蓬休玄",
+        "乙乙乙芮死符",
+        "丙丙丙冲伤合",
+        "丁丁丁辅杜阴",
+        "癸癸癸---",
+        "壬壬壬心开地",
+        "辛辛辛柱惊天",
+        "庚庚庚任生虎",
+        "己己己英景蛇"
+      ]
+    }
+  ]
+}

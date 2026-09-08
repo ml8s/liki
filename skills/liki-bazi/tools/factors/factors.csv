@@ -551,6 +551,9 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 大运财星运,bazi,1,1,condition,"大运十神[当前,财星]",1,当前大运走财星运
 大运食伤运,bazi,1,1,condition,"大运十神[当前,食伤]",1,当前大运走食伤运
 大运比劫运,bazi,1,1,condition,"大运十神[当前,比劫]",1,当前大运走比劫运
+大运财星有根,bazi,1,1,condition,"大运十神有根[当前,财星]",1,当前大运财星透干且通根原局或得坐支本气
+大运食伤有根,bazi,1,1,condition,"大运十神有根[当前,食伤]",1,当前大运食伤透干且通根原局或得坐支本气
+大运比劫有根,bazi,1,1,condition,"大运十神有根[当前,比劫]",1,当前大运比劫透干且通根原局或得坐支本气
 年柱正财,bazi,1,1,condition,年柱十神[正财],1,年柱天干为正财——祖业殷实
 年柱伤官,bazi,1,1,condition,年柱十神[伤官],1,年柱天干为伤官
 财坏印,bazi,1,1,condition,透[财星],1,财透干克印为实坏印（《渊海子平》财坏印）

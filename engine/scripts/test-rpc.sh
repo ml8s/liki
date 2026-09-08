@@ -234,11 +234,83 @@ check_rpc_err "ziwei.chart (bad lunar)" "-32602"
 echo ""
 echo "${BOLD}── QiMen ──${NC}"
 
-rpc qimen.chart "{\"solar_time\":$ST,\"kind\":\"shi\"}"
-check_rpc_ok "qimen.chart (shi)"
+rpc qimen.chart "{\"solar_time\":$ST}"
+check_rpc_ok "qimen.chart"
 
-rpc qimen.chart "{\"solar_time\":$ST,\"kind\":\"invalid\"}"
-check_rpc_err "qimen.chart (bad kind)" "-32602"
+rpc qimen.chart "{\"solar_time\":$ST,\"dingju_method\":\"zhirun\"}"
+check_rpc_ok "qimen.chart (zhirun)"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"hour\",\"school\":\"luoshu_feipan\",\"dingju_method\":\"zhirun\"}"
+check_rpc_ok "qimen.chart (hour fly zhirun)"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"day\",\"school\":\"luoshu_feipan\",\"dingju_method\":\"chaibu\"}"
+check_rpc_ok "qimen.chart (day fly chaibu)"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"quarter\",\"school\":\"zhuanpan\"}"
+check_rpc_ok "qimen.chart (quarter)"
+check_rpc "  ten-minute quarter" '.result.data.method.quarter.minutes_per_quarter' '10'
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"quarter\",\"school\":\"zhuanpan\",\"quarter_rule\":\"twelve_minute_ten_division\"}"
+check_rpc_ok "qimen.chart (twelve-minute quarter)"
+check_rpc "  twelve-minute quarter" '.result.data.method.quarter.minutes_per_quarter' '12'
+check_rpc "  hour lead mode" '.result.data.method.quarter.lead_pillar_mode' 'hour'
+
+rpc qimen.chart '{"solar_time":"2026-01-05T00:00:00+08:00","scope":"quarter","school":"zhuanpan","quarter_rule":"twelve_minute_ten_division","base_dingju_method":"zhirun"}'
+check_rpc_ok "qimen.chart (twelve-minute quarter zhirun base)"
+check_rpc "  zhirun base" '.result.data.method.base_dingju_method' 'zhirun'
+check_rpc "  shifted ju" '.result.data.pan.jushu' '7'
+
+rpc qimen.chart '{"solar_time":"2026-09-07T00:00:00+08:00","scope":"quarter","school":"zhuanpan","quarter_rule":"twelve_minute_ten_division","dun_source":"solar_term","hour_boundary":"zi_zheng"}'
+check_rpc_ok "qimen.chart (twelve-minute quarter options)"
+check_rpc "  solar-term dun" '.result.data.method.quarter.dun_source' 'solar_term'
+check_rpc "  zi-zheng boundary" '.result.data.method.quarter.hour_boundary' 'zi_zheng'
+check_rpc "  option shifted ju" '.result.data.pan.jushu' '4'
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"month\",\"school\":\"zhuanpan\"}"
+check_rpc_ok "qimen.chart (month rotate)"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"year\",\"school\":\"luoshu_feipan\"}"
+check_rpc_ok "qimen.chart (year fly)"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"hour\",\"school\":\"mingfa_feipan\"}"
+check_rpc_ok "qimen.chart (Ming Fa fly)"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"hour\",\"school\":\"zhuanpan\",\"dingju_method\":\"maoshan\"}"
+check_rpc_ok "qimen.chart (Mao Shan)"
+
+rpc qimen.chart '{"solar_time":"2024-06-29T12:00:00+08:00","scope":"day","school":"jinhan_yujing"}'
+check_rpc_ok "qimen.chart (Jin Han)"
+check_rpc "  method school" '.result.data.method.school' 'jinhan_yujing'
+check_rpc "  no standard ju" '.result.data.pan.jushu == null' 'true'
+check_rpc "  taiyi palace" '.result.data.pan.gong_wei[] | select(.gong.name == "坤") | .xing' '太乙'
+check_rpc "  day spirit count" '.result.data.pan.day_spirits | length' '12'
+
+rpc qimen.chart '{"solar_time":"2024-06-29T12:00:00+08:00","scope":"day","school":"jinhan_yujing","dingju_method":"none"}'
+check_rpc_err "qimen.chart (Jin Han explicit dingju method)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"yong_shen\":[\"甲\"]}"
+check_rpc_err "qimen.chart (hidden jia)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"dingju_method\":\"feipan\"}"
+check_rpc_err "qimen.chart (unsupported dingju method)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"year\",\"dingju_method\":\"chaibu\"}"
+check_rpc_err "qimen.chart (year dingju method)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"quarter\",\"school\":\"luoshu_feipan\"}"
+check_rpc_err "qimen.chart (quarter fly)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"hour\",\"school\":\"zhuanpan\",\"quarter_rule\":\"twelve_minute_ten_division\"}"
+check_rpc_err "qimen.chart (twelve-minute quarter outside quarter scope)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"hour\",\"school\":\"zhuanpan\",\"dingju_method\":\"chaibu\",\"base_dingju_method\":\"zhirun\"}"
+check_rpc_err "qimen.chart (base dingju method outside twelve-minute quarter)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"hour\",\"school\":\"zhuanpan\",\"dingju_method\":\"chaibu\",\"dun_source\":\"solar_term\"}"
+check_rpc_err "qimen.chart (dun source outside twelve-minute quarter)" "-32602"
+
+rpc qimen.chart "{\"solar_time\":$ST,\"scope\":\"hour\",\"school\":\"zhuanpan\",\"dingju_method\":\"chaibu\",\"hour_boundary\":\"zi_zheng\"}"
+check_rpc_err "qimen.chart (hour boundary outside twelve-minute quarter)" "-32602"
 
 # ============================================================================
 # QiMing

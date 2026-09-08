@@ -4,6 +4,7 @@
 1. 断语 id 引用必须存在于断语长表。
 2. 文件路径引用必须真实存在。
 3. RPC 方法名引用必须在引擎方法白名单。
+4. 流程文档保持分层精简，domain 文档必须可达。
 
 不做跨仓库校验：引擎返回字段名和自然语言模板内容。
 
@@ -15,6 +16,7 @@ import glob
 import os
 import re
 import sys
+from pathlib import Path
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "liki-bazi")
@@ -106,9 +108,71 @@ def main() -> int:
         for m in _rpc_call_re.finditer(open(f, encoding="utf-8").read()):
             if m.group(1) not in METHOD_WHITELIST:
                 errors.append(f"[{rel}] RPC 调用方法 '{m.group(1)}' 不在引擎方法白名单——skill 侧将静默失败")
+    # 5) 流程文档契约：根文档精简、app 分支加载、domain 文档可达。
+    domain_files = {
+        Path(p).name: Path(p)
+        for p in glob.glob(os.path.join(SKILL, "domains", "**", "*.md"), recursive=True)
+    }
+    all_doc_text = "\n".join(
+        open(doc, encoding="utf-8").read()
+        for doc in docs
+    )
+    for domain in glob.glob(os.path.join(SKILL, "domains", "**", "*.md"), recursive=True):
+        if os.path.basename(domain) not in all_doc_text:
+            errors.append(f"[{os.path.relpath(domain, _ROOT)}] domain 文档未被 root/app/domain 引用")
+
+    skill_doc = os.path.join(SKILL, "SKILL.md")
+    if os.path.exists(skill_doc):
+        skill_text = open(skill_doc, encoding="utf-8").read()
+        rel = os.path.relpath(skill_doc, _ROOT)
+        if len(skill_text.splitlines()) > 80:
+            errors.append(f"[{rel}] 根 SKILL.md {len(skill_text.splitlines())} 行，超过 80 行精简上限")
+        if "□" in skill_text:
+            errors.append(f"[{rel}] 根 SKILL.md 含过程检查框；内部产物应写入流程表")
+
+        for doc in sorted(glob.glob(os.path.join(SKILL, "app", "*.md"))):
+            rel = os.path.relpath(doc, _ROOT)
+            text = open(doc, encoding="utf-8").read()
+            if "□" in text:
+                errors.append(f"[{rel}] app 卡含过程检查框；用条件/动作/产物表代替")
+            if "## 红线（强制）" in text or "### ⚠️" in text:
+                errors.append(f"[{rel}] app 卡含重复红线/警示段；通用硬边界放根 SKILL.md，领域细则放 domain 文档")
+            start = text.find("## 📖 流程")
+            if start >= 0:
+                end = text.find("\n## ", start + 1)
+                if end < 0:
+                    end = len(text)
+                flow_line_count = len(text[start:end].splitlines())
+                if flow_line_count > 20:
+                    errors.append(f"[{rel}] 流程区 {flow_line_count} 行，超过 20 行精简上限")
+            if len(text.splitlines()) > 65:
+                errors.append(f"[{rel}] app 卡 {len(text.splitlines())} 行，超过 65 行精简上限")
+
+            required_paths = []
+            for line in text.splitlines():
+                if not line.lstrip().startswith("[必读]"):
+                    continue
+                for name in re.findall(r"([\w.-]+\.md)", line):
+                    if name in domain_files and name not in required_paths:
+                        required_paths.append(name)
+            if len(required_paths) > 6:
+                errors.append(f"[{rel}] 必读 domain 文件 {len(required_paths)} 个，超过 6 个分支上限")
+            loaded_lines = sum(
+                len(open(domain_files[name], encoding="utf-8").read().splitlines())
+                for name in required_paths
+            )
+            if loaded_lines > 650:
+                errors.append(f"[{rel}] 必读 domain 共 {loaded_lines} 行，超过 650 行上下文预算")
+
+    for doc in docs:
+        text = open(doc, encoding="utf-8").read()
+        if "□" in text:
+            errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含过程检查框；应改为决策表")
+        if re.search(r"\bStep\s+\d+(?:\.\d+)?\b", text):
+            errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含旧流程步骤编号；应引用当前领域动作")
     if not docs:
         warnings.append(f"SKILL 目录未找到文档（{SKILL}）")
-    # 5) README 断语统计 vs 实际（仅主 skill——README 统计的是 liki-bazi 断语）
+    # 6) README 断语统计 vs 实际（仅主 skill——README 统计的是 liki-bazi 断语）
     _readme = os.path.join(_ROOT, "README.md")
     if os.path.exists(_readme) and os.path.abspath(SKILL) == os.path.abspath(os.path.join(_ROOT, "skills", "liki-bazi")):
         _assertions = os.path.join(SKILL, "tools", "assertions", "assertions.csv")

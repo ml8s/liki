@@ -1,0 +1,930 @@
+{
+  "source": {
+    "name": "atopx/qimen",
+    "url": "https://github.com/atopx/qimen",
+    "commit": "8eb06d007d4a5fcc5352d9054f81469e5f023f45",
+    "source_file": "qimen_golden_test.go",
+    "source_sha256": "fb0f27c58e62152f130a0026c713f985c36c42651d319f5601e32784fed0b026",
+    "license": "MIT"
+  },
+  "vectors": [
+    {
+      "id": "method-01",
+      "name": "hour fly zhirun",
+      "provenance": "atopx_checked_in",
+      "when": "2026-01-14 01:03",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "hour",
+        "dingju_method": "zhirun"
+      },
+      "lead": "癸丑",
+      "xun_shou": "壬",
+      "kong_wang": "寅卯",
+      "duty_star": "天冲",
+      "duty_source": 3,
+      "duty_land": 4,
+      "duty_door": "伤门",
+      "door_land": 3,
+      "palaces": [
+        "己庚庚英休玄",
+        "庚辛辛蓬死地",
+        "辛壬壬芮伤天",
+        "壬癸癸冲杜符",
+        "癸丁丁辅-蛇",
+        "丁丙丙禽开阴",
+        "丙乙乙心惊合",
+        "乙戊戊柱生虎",
+        "戊己己任景常"
+      ],
+      "actual_jie_qi": "小寒",
+      "yong_ju_jie_qi": "小寒",
+      "yin_dun": false,
+      "ju": 8,
+      "yuan": "中元",
+      "zhi_run_state": "正授",
+      "day_fu_tou": "甲申"
+    },
+    {
+      "id": "method-02",
+      "name": "day rotate chaibu fu-yin",
+      "provenance": "atopx_checked_in",
+      "when": "2024-12-26 12:00",
+      "method": {
+        "school": "zhuanpan",
+        "scope": "day",
+        "dingju_method": "chaibu"
+      },
+      "lead": "甲子",
+      "xun_shou": "戊",
+      "kong_wang": "戌亥",
+      "duty_star": "天蓬",
+      "duty_source": 1,
+      "duty_land": 1,
+      "duty_door": "休门",
+      "door_land": 1,
+      "palaces": [
+        "戊戊戊蓬休符",
+        "己己己芮死玄",
+        "庚庚庚冲伤阴",
+        "辛辛辛辅杜合",
+        "壬壬壬---",
+        "癸癸癸心开天",
+        "丁丁丁柱惊地",
+        "丙丙丙任生蛇",
+        "乙乙乙英景虎"
+      ],
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "冬至",
+      "yin_dun": false,
+      "ju": 1,
+      "yuan": "上元",
+      "day_fu_tou": "甲子"
+    },
+    {
+      "id": "method-03",
+      "name": "hour fly chaibu",
+      "provenance": "generated_from_atopx_reference",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "hour",
+        "dingju_method": "chaibu"
+      },
+      "lead": "戊午",
+      "xun_shou": "癸",
+      "kong_wang": "子丑",
+      "duty_star": "天英",
+      "duty_source": 9,
+      "duty_land": 4,
+      "duty_door": "景门",
+      "door_land": 4,
+      "palaces": [
+        "庚丁庚心开玄",
+        "辛丙辛柱惊地",
+        "壬乙壬任生天",
+        "癸戊癸英景符",
+        "丁己丁蓬休蛇",
+        "丙庚丙芮死阴",
+        "乙辛乙冲伤合",
+        "戊壬戊辅杜虎",
+        "己癸己禽-常"
+      ],
+      "cross_validation": {
+        "source_id": "qimen_go",
+        "status": "partial_match",
+        "compared_facts": [
+          "yin_dun",
+          "ju",
+          "lead",
+          "xun_shou",
+          "kong_wang",
+          "duty_star",
+          "duty_land",
+          "duty_door",
+          "door_land",
+          "heaven_stem",
+          "earth_stem",
+          "star",
+          "outer_door"
+        ],
+        "excluded_facts": [
+          {
+            "fact": "hidden_stem",
+            "reason": "qimen-go uses a different hidden-stem method"
+          },
+          {
+            "fact": "center_door_serialization",
+            "reason": "qimen-go emits the moving ninth center door; the liki domain model keeps only the eight actionable doors and leaves that palace unset"
+          },
+          {
+            "fact": "spirit",
+            "reason": "yang-dun nine-spirit naming differs between the two published conventions"
+          }
+        ],
+        "yin_dun": false,
+        "ju": 4,
+        "lead": "戊午",
+        "xun_shou": "癸",
+        "kong_wang": "子丑",
+        "duty_star": "天英",
+        "duty_land": 4,
+        "duty_door": "景门",
+        "door_land": 4,
+        "core_palaces": [
+          "庚丁心",
+          "辛丙柱",
+          "壬乙任",
+          "癸戊英",
+          "丁己蓬",
+          "丙庚芮",
+          "乙辛冲",
+          "戊壬辅",
+          "己癸禽"
+        ],
+        "outer_doors": [
+          "开",
+          "惊",
+          "生",
+          "景",
+          "休",
+          "死",
+          "伤",
+          "杜"
+        ]
+      },
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "冬至",
+      "yin_dun": false,
+      "ju": 4,
+      "yuan": "下元",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-04",
+      "name": "day rotate zhirun",
+      "provenance": "generated_from_atopx_reference",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "zhuanpan",
+        "scope": "day",
+        "dingju_method": "zhirun"
+      },
+      "lead": "癸亥",
+      "xun_shou": "癸",
+      "kong_wang": "子丑",
+      "duty_star": "天禽",
+      "duty_source": 5,
+      "duty_land": 5,
+      "duty_door": "死门",
+      "door_land": 5,
+      "palaces": [
+        "戊戊戊蓬休玄",
+        "乙乙乙芮死符",
+        "丙丙丙冲伤合",
+        "丁丁丁辅杜阴",
+        "癸癸癸---",
+        "壬壬壬心开地",
+        "辛辛辛柱惊天",
+        "庚庚庚任生虎",
+        "己己己英景蛇"
+      ],
+      "cross_validation": {
+        "source_id": "mingyu",
+        "status": "partial_match",
+        "compared_facts": [
+          "yin_dun",
+          "ju",
+          "lead",
+          "xun_shou",
+          "kong_wang",
+          "duty_star",
+          "duty_source",
+          "duty_door",
+          "heaven_stem",
+          "earth_stem",
+          "star",
+          "outer_door",
+          "spirit"
+        ],
+        "excluded_facts": [
+          {
+            "fact": "hidden_stem",
+            "reason": "the compared mingyu layout helpers do not output hidden stems"
+          },
+          {
+            "fact": "center_heaven_and_star",
+            "reason": "mingyu leaves the rotating center heaven and star slots empty; liki preserves the center heaven stem and omits its star"
+          },
+          {
+            "fact": "duty_landing_serialization",
+            "reason": "the compared mingyu layout helpers do not expose real duty landing metadata"
+          }
+        ],
+        "yin_dun": true,
+        "ju": 1,
+        "lead": "癸亥",
+        "xun_shou": "癸",
+        "kong_wang": "子丑",
+        "duty_star": "天禽",
+        "duty_source": 5,
+        "duty_door": "死门",
+        "core_palaces": [
+          "戊戊蓬",
+          "乙乙芮",
+          "丙丙冲",
+          "丁丁辅",
+          "",
+          "壬壬心",
+          "辛辛柱",
+          "庚庚任",
+          "己己英"
+        ],
+        "outer_doors": [
+          "休",
+          "死",
+          "伤",
+          "杜",
+          "开",
+          "惊",
+          "生",
+          "景"
+        ],
+        "spirits": [
+          "玄武",
+          "值符",
+          "六合",
+          "太阴",
+          "九地",
+          "九天",
+          "白虎",
+          "螣蛇"
+        ]
+      },
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "大雪",
+      "yin_dun": true,
+      "ju": 1,
+      "yuan": "下元",
+      "zhi_run_state": "接气",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-05",
+      "name": "day fly chaibu",
+      "provenance": "generated_from_atopx_reference",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "day",
+        "dingju_method": "chaibu"
+      },
+      "lead": "癸亥",
+      "xun_shou": "癸",
+      "kong_wang": "子丑",
+      "duty_star": "天英",
+      "duty_source": 9,
+      "duty_land": 9,
+      "duty_door": "景门",
+      "door_land": 9,
+      "palaces": [
+        "丁丁丁蓬休蛇",
+        "丙丙丙芮死阴",
+        "乙乙乙冲伤合",
+        "戊戊戊辅杜虎",
+        "己己己禽-常",
+        "庚庚庚心开玄",
+        "辛辛辛柱惊地",
+        "壬壬壬任生天",
+        "癸癸癸英景符"
+      ],
+      "cross_validation": {
+        "source_id": "mingyu",
+        "status": "partial_match",
+        "compared_facts": [
+          "yin_dun",
+          "ju",
+          "lead",
+          "xun_shou",
+          "kong_wang",
+          "duty_star",
+          "duty_source",
+          "duty_land",
+          "duty_door",
+          "door_land",
+          "heaven_stem",
+          "earth_stem",
+          "star",
+          "outer_door"
+        ],
+        "excluded_facts": [
+          {
+            "fact": "hidden_stem",
+            "reason": "the compared mingyu layout helpers do not output hidden stems"
+          },
+          {
+            "fact": "spirit",
+            "reason": "the two implementations use different nine-spirit ordering conventions"
+          }
+        ],
+        "yin_dun": false,
+        "ju": 4,
+        "lead": "癸亥",
+        "xun_shou": "癸",
+        "kong_wang": "子丑",
+        "duty_star": "天英",
+        "duty_source": 9,
+        "duty_land": 9,
+        "duty_door": "景门",
+        "door_land": 9,
+        "core_palaces": [
+          "丁丁蓬",
+          "丙丙芮",
+          "乙乙冲",
+          "戊戊辅",
+          "己己禽",
+          "庚庚心",
+          "辛辛柱",
+          "壬壬任",
+          "癸癸英"
+        ],
+        "outer_doors": [
+          "休",
+          "死",
+          "伤",
+          "杜",
+          "开",
+          "惊",
+          "生",
+          "景"
+        ]
+      },
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "冬至",
+      "yin_dun": false,
+      "ju": 4,
+      "yuan": "下元",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-06",
+      "name": "day fly zhirun",
+      "provenance": "generated_from_atopx_reference",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "day",
+        "dingju_method": "zhirun"
+      },
+      "lead": "癸亥",
+      "xun_shou": "癸",
+      "kong_wang": "子丑",
+      "duty_star": "天禽",
+      "duty_source": 5,
+      "duty_land": 5,
+      "duty_door": "死门",
+      "door_land": 5,
+      "palaces": [
+        "戊戊辛蓬惊虎",
+        "乙乙庚芮生合",
+        "丙丙己冲景阴",
+        "丁丁戊辅休蛇",
+        "癸癸乙禽死符",
+        "壬壬丙心伤天",
+        "辛辛丁柱杜地",
+        "庚庚癸任-玄",
+        "己己壬英开常"
+      ],
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "大雪",
+      "yin_dun": true,
+      "ju": 1,
+      "yuan": "下元",
+      "zhi_run_state": "接气",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-07",
+      "name": "day rotate chaibu winter-lower",
+      "provenance": "atopx_checked_in",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "zhuanpan",
+        "scope": "day",
+        "dingju_method": "chaibu"
+      },
+      "lead": "癸亥",
+      "xun_shou": "癸",
+      "kong_wang": "子丑",
+      "duty_star": "天英",
+      "duty_source": 9,
+      "duty_land": 9,
+      "duty_door": "景门",
+      "door_land": 9,
+      "palaces": [
+        "丁丁丁蓬休虎",
+        "丙丙丙芮死蛇",
+        "乙乙乙冲伤地",
+        "戊戊戊辅杜天",
+        "己己己---",
+        "庚庚庚心开合",
+        "辛辛辛柱惊阴",
+        "壬壬壬任生玄",
+        "癸癸癸英景符"
+      ],
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "冬至",
+      "yin_dun": false,
+      "ju": 4,
+      "yuan": "下元",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-08",
+      "name": "month rotate",
+      "provenance": "atopx_checked_in",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "zhuanpan",
+        "scope": "month"
+      },
+      "lead": "丙子",
+      "xun_shou": "己",
+      "kong_wang": "申酉",
+      "duty_star": "天冲",
+      "duty_source": 3,
+      "duty_land": 6,
+      "duty_door": "伤门",
+      "door_land": 1,
+      "palaces": [
+        "戊辛己辅伤天",
+        "辛庚丙蓬开阴",
+        "庚己壬芮景玄",
+        "丁戊庚柱死虎",
+        "乙乙乙---",
+        "己丙癸冲生符",
+        "癸丁辛任休蛇",
+        "壬癸戊英杜地",
+        "丙壬丁心惊合"
+      ],
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "月家定局",
+      "yin_dun": true,
+      "ju": 4,
+      "yuan": "下元",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-09",
+      "name": "month fly",
+      "provenance": "generated_from_atopx_reference",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "month"
+      },
+      "lead": "丙子",
+      "xun_shou": "己",
+      "kong_wang": "申酉",
+      "duty_star": "天冲",
+      "duty_source": 3,
+      "duty_land": 6,
+      "duty_door": "伤门",
+      "door_land": 1,
+      "palaces": [
+        "丁辛己柱伤常",
+        "癸庚戊任杜虎",
+        "壬己乙英-合",
+        "辛戊丙蓬开阴",
+        "庚乙丁芮惊蛇",
+        "己丙癸冲生符",
+        "戊丁壬辅景天",
+        "乙癸辛禽休地",
+        "丙壬庚心死玄"
+      ],
+      "cross_validation": {
+        "source_id": "qimen_go",
+        "status": "partial_match",
+        "compared_facts": [
+          "yin_dun",
+          "ju",
+          "lead",
+          "xun_shou",
+          "kong_wang",
+          "duty_star",
+          "duty_land",
+          "duty_door",
+          "door_land",
+          "heaven_stem",
+          "earth_stem",
+          "star",
+          "outer_door",
+          "spirit"
+        ],
+        "excluded_facts": [
+          {
+            "fact": "hidden_stem",
+            "reason": "qimen-go uses a different hidden-stem method"
+          },
+          {
+            "fact": "center_door_serialization",
+            "reason": "qimen-go emits the moving ninth center door; the liki domain model keeps only the eight actionable doors and leaves that palace unset"
+          }
+        ],
+        "yin_dun": true,
+        "ju": 4,
+        "lead": "丙子",
+        "xun_shou": "己",
+        "kong_wang": "申酉",
+        "duty_star": "天冲",
+        "duty_land": 6,
+        "duty_door": "伤门",
+        "door_land": 1,
+        "core_palaces": [
+          "丁辛柱",
+          "癸庚任",
+          "壬己英",
+          "辛戊蓬",
+          "庚乙芮",
+          "己丙冲",
+          "戊丁辅",
+          "乙癸禽",
+          "丙壬心"
+        ],
+        "outer_doors": [
+          "伤",
+          "杜",
+          "开",
+          "惊",
+          "生",
+          "景",
+          "休",
+          "死"
+        ],
+        "spirits": [
+          "太常",
+          "白虎",
+          "六合",
+          "太阴",
+          "螣蛇",
+          "值符",
+          "九天",
+          "九地",
+          "玄武"
+        ]
+      },
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "月家定局",
+      "yin_dun": true,
+      "ju": 4,
+      "yuan": "下元",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-10",
+      "name": "year rotate",
+      "provenance": "atopx_checked_in",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "zhuanpan",
+        "scope": "year"
+      },
+      "lead": "甲辰",
+      "xun_shou": "壬",
+      "kong_wang": "寅卯",
+      "duty_star": "天冲",
+      "duty_source": 3,
+      "duty_land": 3,
+      "duty_door": "伤门",
+      "door_land": 3,
+      "palaces": [
+        "丁丁丁蓬休阴",
+        "癸癸癸芮死玄",
+        "壬壬壬冲伤符",
+        "辛辛辛辅杜天",
+        "庚庚庚---",
+        "己己己心开合",
+        "戊戊戊柱惊虎",
+        "乙乙乙任生蛇",
+        "丙丙丙英景地"
+      ],
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "年家定局",
+      "yin_dun": true,
+      "ju": 7,
+      "yuan": "下元",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-11",
+      "name": "year fly",
+      "provenance": "generated_from_atopx_reference",
+      "when": "2024-12-25 12:00",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "year"
+      },
+      "lead": "甲辰",
+      "xun_shou": "壬",
+      "kong_wang": "寅卯",
+      "duty_star": "天冲",
+      "duty_source": 3,
+      "duty_land": 3,
+      "duty_door": "伤门",
+      "door_land": 3,
+      "palaces": [
+        "丁丁丁蓬休阴",
+        "癸癸癸芮死蛇",
+        "壬壬壬冲伤符",
+        "辛辛辛辅杜天",
+        "庚庚庚禽-地",
+        "己己己心开玄",
+        "戊戊戊柱惊常",
+        "乙乙乙任生虎",
+        "丙丙丙英景合"
+      ],
+      "cross_validation": {
+        "source_id": "qimen_go",
+        "status": "partial_match",
+        "compared_facts": [
+          "yin_dun",
+          "ju",
+          "lead",
+          "xun_shou",
+          "kong_wang",
+          "duty_star",
+          "duty_land",
+          "duty_door",
+          "door_land",
+          "heaven_stem",
+          "earth_stem",
+          "star",
+          "outer_door",
+          "spirit"
+        ],
+        "excluded_facts": [
+          {
+            "fact": "hidden_stem",
+            "reason": "qimen-go uses a different hidden-stem method"
+          },
+          {
+            "fact": "center_door_serialization",
+            "reason": "qimen-go emits the moving ninth center door; the liki domain model keeps only the eight actionable doors and leaves that palace unset"
+          }
+        ],
+        "yin_dun": true,
+        "ju": 7,
+        "lead": "甲辰",
+        "xun_shou": "壬",
+        "kong_wang": "寅卯",
+        "duty_star": "天冲",
+        "duty_land": 3,
+        "duty_door": "伤门",
+        "door_land": 3,
+        "core_palaces": [
+          "丁丁蓬",
+          "癸癸芮",
+          "壬壬冲",
+          "辛辛辅",
+          "庚庚禽",
+          "己己心",
+          "戊戊柱",
+          "乙乙任",
+          "丙丙英"
+        ],
+        "outer_doors": [
+          "休",
+          "死",
+          "伤",
+          "杜",
+          "开",
+          "惊",
+          "生",
+          "景"
+        ],
+        "spirits": [
+          "太阴",
+          "螣蛇",
+          "值符",
+          "九天",
+          "九地",
+          "玄武",
+          "太常",
+          "白虎",
+          "六合"
+        ]
+      },
+      "actual_jie_qi": "冬至",
+      "yong_ju_jie_qi": "年家定局",
+      "yin_dun": true,
+      "ju": 7,
+      "yuan": "下元",
+      "day_fu_tou": "己未"
+    },
+    {
+      "id": "method-12",
+      "name": "day fly zhirun repeat state",
+      "provenance": "generated_from_atopx_reference",
+      "when": "2033-06-14 12:00",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "day",
+        "dingju_method": "zhirun"
+      },
+      "actual_jie_qi": "芒种",
+      "yong_ju_jie_qi": "芒种",
+      "yin_dun": false,
+      "ju": 6,
+      "yuan": "上元",
+      "zhi_run_state": "置闰",
+      "day_fu_tou": "甲午",
+      "lead": "丙申",
+      "xun_shou": "辛",
+      "kong_wang": "辰巳",
+      "duty_star": "天英",
+      "duty_source": 9,
+      "duty_land": 4,
+      "duty_door": "景门",
+      "door_land": 2,
+      "palaces": [
+        "戊壬庚心生玄",
+        "己癸辛柱景地",
+        "庚丁壬任休天",
+        "辛丙癸英死符",
+        "壬乙丁蓬伤蛇",
+        "癸戊丙芮杜阴",
+        "丁己乙冲-合",
+        "丙庚戊辅开虎",
+        "乙辛己禽惊常"
+      ],
+      "cross_validation": {
+        "source_id": "mingyu",
+        "status": "partial_match",
+        "compared_facts": [
+          "yin_dun",
+          "ju",
+          "lead",
+          "xun_shou",
+          "kong_wang",
+          "duty_star",
+          "duty_source",
+          "duty_land",
+          "duty_door",
+          "door_land",
+          "heaven_stem",
+          "earth_stem",
+          "star"
+        ],
+        "excluded_facts": [
+          {
+            "fact": "hidden_stem",
+            "reason": "the compared mingyu layout helpers do not output hidden stems"
+          },
+          {
+            "fact": "outer_door",
+            "reason": "mingyu rotates the eight-door ring while liki flies the eight doors by palace number with a real center step"
+          },
+          {
+            "fact": "spirit",
+            "reason": "the compared mingyu fly layout emits eight spirits while liki emits the nine-spirit Baihu-Taichang-Xuanwu sequence"
+          }
+        ],
+        "yin_dun": false,
+        "ju": 6,
+        "lead": "丙申",
+        "xun_shou": "辛",
+        "kong_wang": "辰巳",
+        "duty_star": "天英",
+        "duty_source": 9,
+        "duty_land": 4,
+        "duty_door": "景门",
+        "door_land": 2,
+        "core_palaces": [
+          "戊壬心",
+          "己癸柱",
+          "庚丁任",
+          "辛丙英",
+          "壬乙蓬",
+          "癸戊芮",
+          "丁己冲",
+          "丙庚辅",
+          "乙辛禽"
+        ],
+        "outer_doors": []
+      }
+    }
+  ],
+  "cross_sources": [
+    {
+      "id": "qimen_go",
+      "name": "deminzhang/qimen-go",
+      "url": "https://github.com/deminzhang/qimen-go",
+      "commit": "4d3f58fa0f401b5b3a337f119138e99e90685dda",
+      "license": "MIT",
+      "usage": "independent_execution",
+      "license_sha256": "cfdb13c1a086ecc3f498b6a75a65d1dab3d93072c58efd26d383db776749b996",
+      "source_files": [
+        {
+          "path": "xuan/qimen.go",
+          "sha256": "93ba61a632af3d402bfd65754d1adeb74b937f87b40e62fc50adc15a1d4bd350"
+        },
+        {
+          "path": "xuan/qimen_defs.go",
+          "sha256": "bacb7684160cb0d4297e1a13fb3674c7eebf56183fea2e7a5c12bb18a7dd47ac"
+        }
+      ]
+    },
+    {
+      "id": "mingyu",
+      "name": "Brhiza/mingyu",
+      "url": "https://github.com/Brhiza/mingyu",
+      "commit": "7823b99fe0263608a538ed894c40cb825f0b3145",
+      "license": "AGPL-3.0-only",
+      "usage": "factual_cross_check_only",
+      "license_sha256": "d6662a5292a32e7bd3220901fc34aa2630eef474ae784caedc6d404cbd59e1ed",
+      "source_files": [
+        {
+          "path": "packages/core/src/calendar/timeManager.ts",
+          "sha256": "f1dfb5f713ce9596b96a64665ac09ae95fa1f6dfc25e1947d89b6ade0980a2f1"
+        },
+        {
+          "path": "packages/core/src/divination/algorithms/qimen/helpers/jushu.ts",
+          "sha256": "c8b9165084f2537985c7788854798e5251f2cd7fef9bf483bc180b8691afda88"
+        },
+        {
+          "path": "packages/core/src/divination/algorithms/qimen/helpers/layout.ts",
+          "sha256": "a47c8aa64d61866bfcaabe35641191dbc5894498b41e46ed829ca0123053ecfa"
+        }
+      ]
+    }
+  ],
+  "cross_validation_gaps": [
+    {
+      "id": "day-feipan-zhirun-yin-core",
+      "method": {
+        "school": "luoshu_feipan",
+        "scope": "day",
+        "dingju_method": "zhirun"
+      },
+      "vector_ids": [
+        "method-06"
+      ],
+      "status": "open",
+      "reason": "No audited same-convention independent vector supplies the yin-dun day-fly zhirun core; mingyu reverses its nine-star order in yin dun, while this method uses palace-number shift with star-gan pairs kept together. The yang repeat-state vector is independently checked over its shared core facts.",
+      "wanted_facts": [
+        "yin_dun",
+        "ju",
+        "lead",
+        "xun_shou",
+        "kong_wang",
+        "duty_star",
+        "duty_source",
+        "duty_land",
+        "duty_door",
+        "door_land",
+        "heaven_stem",
+        "earth_stem",
+        "star",
+        "outer_door"
+      ],
+      "excluded_facts": [
+        {
+          "fact": "hidden_stem",
+          "reason": "Hidden-stem placement is school-specific and is not a core same-convention fact without an explicitly matching reference."
+        },
+        {
+          "fact": "spirit",
+          "reason": "Fly-plate nine-spirit naming and ordering differ across published conventions; liki uses the fixed Baihu-Taichang-Xuanwu sequence."
+        }
+      ],
+      "required_conventions": [
+        "day_lead_pillar",
+        "yin_dun",
+        "palace_number_shift",
+        "star_gan_shift_together",
+        "eight_doors_real_center_step",
+        "zhirun"
+      ]
+    }
+  ]
+}

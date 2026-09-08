@@ -10,7 +10,7 @@ from factor_context import FactorContext
 # 本命算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _OP_NAMES = frozenset({
     "现", "透", "藏", "得令", "有根", "旺", "弱", "缺", "克", "直读", "含", "宫含", "关系",
-    "大运十神", "数量至少", "五行数量至少", "官杀取清", "为用", "为忌",
+    "大运十神", "大运十神有根", "数量至少", "五行数量至少", "官杀取清", "为用", "为忌",
     "月支长生", "夫妻宫状态", "日支类型", "财库现", "财星入墓", "克者旺",
     "格神透", "月令本气", "时柱十神", "年柱十神", "禄根", "年柱官杀", "柱刑",
     "大限宫位",
@@ -223,6 +223,8 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         return _zw_gong_op(base, chart, args)
     if op == "大运十神":
         return _dayun_op(base, chart, args, current_year, gender)
+    if op == "大运十神有根":
+        return _dayun_root_op(base, chart, args, current_year, gender)
     if op == "数量至少":
         # 数量至少(N, 十神...)：十神出现总数 ≥ N（事实计数——印杂等"多"的定量）
         n = int(args[0])
@@ -563,29 +565,32 @@ def _ten_class(name: str) -> str:
     return name
 
 
+def _selected_dayun_step(base, chart, current_year: int = 0):
+    steps = base.get("dayun_steps", [])
+    if current_year:
+        return next((
+            step for step in steps
+            if step.get("start_year", 0) <= current_year <= step.get("end_year", 0)
+        ), None)
+
+    # 排盘时索引（原子层已提取 current_step_index），缺则回退 da_yun 原始表。
+    idx = base.get("dayun_current_index", -1)
+    if idx < 0:
+        dx = (chart.get("full") or chart.get("chart") or {}).get("da_yun", {}) or {}
+        raw_steps = dx.get("steps", []) or steps
+        idx = dx.get("current_step_index", -1)
+        raw_steps = raw_steps or steps
+        return raw_steps[idx] if 0 <= idx < len(raw_steps) else None
+    return steps[idx] if 0 <= idx < len(steps) else None
+
+
 def _dayun_op(base, chart, args, current_year: int = 0, gender: str = ""):
     """大运十神查询：大运十神(当前, 大类/任意)。任意模式返回十神大类标量。"""
     when, star_class = args[0], args[1]
     if when != "当前":
         return "" if star_class == "任意" else 0
 
-    steps = base.get("dayun_steps", [])
-    if current_year:
-        selected = next((
-            step for step in steps
-            if step.get("start_year", 0) <= current_year <= step.get("end_year", 0)
-        ), None)
-    else:
-        # 排盘时索引（原子层已提取 current_step_index），缺则回退 da_yun 原始表
-        idx = base.get("dayun_current_index", -1)
-        if idx < 0:
-            dx = (chart.get("full") or chart.get("chart") or {}).get("da_yun", {}) or {}
-            raw_steps = dx.get("steps", []) or steps
-            idx = dx.get("current_step_index", -1)
-            raw_steps = raw_steps or steps
-            selected = raw_steps[idx] if 0 <= idx < len(raw_steps) else None
-        else:
-            selected = steps[idx] if 0 <= idx < len(steps) else None
+    selected = _selected_dayun_step(base, chart, current_year)
 
     if selected is None:
         return "" if star_class == "任意" else 0
@@ -597,6 +602,40 @@ def _dayun_op(base, chart, args, current_year: int = 0, gender: str = ""):
         return _ten_class(shi_shen)
     resolved = _resolve_tens([star_class], gender)
     return 1 if shi_shen in resolved else 0
+
+
+def _dayun_root_op(base, chart, args, current_year: int = 0, gender: str = ""):
+    """当前大运干透十神是否通根原局；无根大运不构成实质性破坏。"""
+    if args[0] != "当前":
+        return 0
+    selected = _selected_dayun_step(base, chart, current_year)
+    if not selected:
+        return 0
+
+    const = load_constants()
+    shi_shen = selected.get("shi_shen", "") or ""
+    suffix = const["大运十神后缀"]
+    if suffix and shi_shen.endswith(suffix):
+        shi_shen = shi_shen[:-len(suffix)]
+    resolved = _resolve_tens([args[1]], gender)
+    if shi_shen not in resolved:
+        return 0
+
+    dayun_ganzhi = selected.get("name", "")
+    dayun_gan = dayun_ganzhi[:1]
+    dayun_zhi = dayun_ganzhi[1:]
+    dayun_wx = const["天干五行"].get(dayun_gan, "")
+    if not dayun_wx:
+        return 0
+    if dayun_zhi and const["地支五行"].get(dayun_zhi, "") == dayun_wx:
+        return 1
+    full = (chart.get("full") or {}) if isinstance(chart, dict) else {}
+    for pillar in const["四柱"]:
+        cang = (full.get(pillar, {}) or {}).get("cang_gan", {}) or {}
+        for gan in (cang.get("main"), cang.get("mid"), cang.get("minor")):
+            if gan and const["天干五行"].get(gan, "") == dayun_wx:
+                return 1
+    return 0
 
 
 def _daxian_op(chart: dict, current_year: int, args) -> "int | str":

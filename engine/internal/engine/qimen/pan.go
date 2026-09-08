@@ -1,76 +1,107 @@
 package qimen
 
-import (
-	"liki-engine/internal/engine/ganzhi"
-)
+import "liki-engine/internal/engine/ganzhi"
 
-// computePan builds a pan from bureau info and driving pillar.
-func computePan(ju juShu, driveZhu ganzhi.Zhu, riGan ganzhi.Gan) pan {
+// computePan builds a chart from its table-driven plates and method geometry.
+func computePan(ju juShu, bz ganzhi.Bazi) pan {
 	dipan := placeDiPan(ju.Number, ju.YinDun)
-	duty := findDuty(driveZhu, dipan)
-	tianStars, tianGan := placeTianPan(driveZhu, duty.Star, dipan)
-	renDoors := placeRenPan(driveZhu.Zhi, duty.Door, ju.YinDun)
-
-	var dutyStarPalace int
-	// 值符星为天禽时按天芮处理（天禽寄坤2，与天芮同宫，天盘只列天芮）。
-	searchStar := duty.Star
-	if duty.Star == StarTianQin {
-		searchStar = StarTianRui
+	leadZhu := leadPillar(bz, ju)
+	duty := findDuty(leadZhu, dipan)
+	var tianPan [9][]TianPanSymbol
+	var renDoors [9]DoorIndex
+	var shenSpirits [9]SpiritIndex
+	var hidden [9]ganzhi.Gan
+	var hiddenPillars [9]string
+	var dutyStarLanding, dutyDoorLanding GongIndex
+	switch ju.Method.School {
+	case SchoolLuoShuFeiPan:
+		tianPan, dutyStarLanding = placeFlyTianPan(leadZhu, duty.Palace, dipan)
+		renDoors, dutyDoorLanding = placeFlyRenPan(leadZhu, duty.Palace, ju.YinDun)
+		shenSpirits = placeFlyShenPan(ju.YinDun, dutyStarLanding)
+		hidden = placeFlyHidden(dipan, duty.Palace, dutyDoorLanding)
+	case SchoolMingFaFeiPan:
+		duty = findMingFaDuty(leadZhu, dipan)
+		tianPan, dutyStarLanding = placeMingFaTianPan(leadZhu, duty.Palace, dipan)
+		renDoors, dutyDoorLanding = placeMingFaRenPan(leadZhu, duty.Door, duty.Palace, ju.YinDun)
+		shenSpirits = placeMingFaShenPan(ju.YinDun, dutyStarLanding)
+		hiddenPillars, hidden = placeMingFaHidden(leadZhu, dutyDoorLanding, ju.YinDun)
+	default:
+		tianPan, dutyStarLanding = placeTianPan(leadZhu, duty.Star, dipan)
+		renDoors, dutyDoorLanding = placeRenPan(leadZhu, duty.Door, ju.YinDun, dipan)
+		visibleDutyStar := findStarPalace(pan{GongWei: palacesFromTianPan(tianPan)}, duty.Star)
+		shenSpirits = placeShenPan(ju.YinDun, visibleDutyStar)
+		hidden = placeHiddenPan(dipan, duty.Palace, dutyDoorLanding)
 	}
-	for i, s := range tianStars {
-		if s == searchStar {
-			dutyStarPalace = i
-			break
-		}
-	}
-	shenSpirits := placeShenPan(ju.YinDun, GongIndex(dutyStarPalace+1))
-
-	var dutyDoorPalace int
-	for i, d := range renDoors {
-		if d == duty.Door {
-			dutyDoorPalace = i
-			break
-		}
-	}
-	angans := placeAnGan(driveZhu, dutyDoorPalace)
-
-	mata := findMaXing(driveZhu.Zhi)
-	kongWang := findKongWang(driveZhu)
-
-	pan := pan{
-		Jushu:     ju.Number,
-		YinDun:    ju.YinDun,
-		DutyStar:  duty.Star,
-		DutyDoor:  duty.Door,
-		MaXing:    mata,
-		DriveGan:  driveZhu.Gan,
-		DriveZhi:  driveZhu.Zhi,
-		KongWang:  kongWang,
-		WuBuYuShi: isWuBuYuShi(riGan, driveZhu.Gan),
+	result := pan{
+		Jushu:          ju.Number,
+		School:         ju.Method.School,
+		YinDun:         ju.YinDun,
+		RiGan:          bz.Ri.Gan,
+		RiZhi:          bz.Ri.Zhi,
+		NianGan:        bz.Nian.Gan,
+		NianZhi:        bz.Nian.Zhi,
+		YueGan:         bz.Yue.Gan,
+		YueZhi:         bz.Yue.Zhi,
+		LeadGan:        leadZhu.Gan,
+		LeadZhi:        leadZhu.Zhi,
+		DutyStar:       duty.Star,
+		DutyDoor:       duty.Door,
+		DutyStarPalace: dutyStarLanding,
+		DutyDoorPalace: dutyDoorLanding,
+		MaXing:         findMaXing(leadZhu.Zhi),
+		HourGan:        bz.Shi.Gan,
+		HourZhi:        bz.Shi.Zhi,
+		KongWang:       findKongWang(leadZhu),
+		WuBuYuShi: scopeMethods[ju.Method.Scope].hasFeature("wu_bu_yu_shi") &&
+			isWuBuYuShi(bz.Ri.Gan, bz.Shi.Gan),
 	}
 	for i := 0; i < 9; i++ {
-		pan.GongWei[i] = Gong{
-			DiPanGan:   dipan[i],
-			TianPanGan: tianGan[i],
-			Star:       tianStars[i],
-			Door:       renDoors[i],
-			Spirit:     shenSpirits[i],
-			CangGan:    angans[i],
+		result.GongWei[i] = Gong{
+			Gong:      palaceIdentity(GongIndex(i + 1)),
+			DiPanGan:  dipan[i],
+			AnGan:     hidden[i],
+			TianPan:   tianPan[i],
+			Door:      renDoors[i],
+			DoorSet:   renDoors[i] != 0,
+			Spirit:    shenSpirits[i],
+			SpiritSet: shenSpirits[i] != 0,
 		}
+		if len(tianPan[i]) == 0 && ju.Method.School == SchoolZhuanPan {
+			heavenGan := dipan[i]
+			result.GongWei[i].TianPanGan = &heavenGan
+		}
+		result.GongWei[i].HiddenPillar = hiddenPillars[i]
 	}
-	return pan
+	return result
 }
 
-// isWuBuYuShi checks if the hour gan (时干) controls the day gan (日干)
-// with the same yin-yang polarity. If true, it is 五不遇时 — an inauspicious time.
-// 五不遇时 = 时干克日干, 阴克阴/阳克阳
-// List: 甲庚、乙辛、丙壬、丁癸、戊甲、己乙、庚丙、辛丁、壬戊、癸己
-func isWuBuYuShi(riGan, shiGan ganzhi.Gan) bool {
-	riWx := ganzhi.GanWuxing(riGan)
-	shiWx := ganzhi.GanWuxing(shiGan)
-	if !ganzhi.Ke(shiWx, riWx) {
-		return false // 时干不克日干
+func leadPillar(bz ganzhi.Bazi, ju juShu) ganzhi.Zhu {
+	if ju.Method.Scope == ScopeQuarter && ju.Quarter != nil {
+		return ju.Quarter.Pillar
 	}
-	// Same yin-yang polarity
-	return ganzhi.GanYinYang(shiGan) == ganzhi.GanYinYang(riGan)
+	switch scopeMethods[ju.Method.Scope].LeadPillar {
+	case "day":
+		return bz.Ri
+	case "month":
+		return bz.Yue
+	case "year":
+		return bz.Nian
+	case "hour":
+		return bz.Shi
+	default:
+		return ganzhi.Zhu{}
+	}
+}
+
+func palacesFromTianPan(items [9][]TianPanSymbol) [9]Gong {
+	var result [9]Gong
+	for i := range result {
+		result[i].TianPan = items[i]
+	}
+	return result
+}
+
+// isWuBuYuShi marks an hour gan controlling the day gan with the same polarity.
+func isWuBuYuShi(dayGan, hourGan ganzhi.Gan) bool {
+	return wuBuYuShiTable[[2]ganzhi.Gan{dayGan, hourGan}]
 }

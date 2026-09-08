@@ -1,0 +1,6 @@
+{
+  "method": "maoshan",
+  "shichen_per_yuan": 60,
+  "max_yuan": 3,
+  "basis": "交节时刻为唯一锚点，不问符头、不置闰；每60时辰一元，三元后未交下一节气则继续用下元。"
+}

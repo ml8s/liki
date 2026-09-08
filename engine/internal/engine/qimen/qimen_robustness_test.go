@@ -17,7 +17,7 @@ func TestRandomDates(t *testing.T) {
 		hour := rng.Intn(24)
 		bt := time.Date(year, time.Month(month), day, hour, rng.Intn(60), 0, 0, time.FixedZone("CST", 8*3600))
 		st := tianwen.GregorianToSolar(bt, 116.4, 8)
-		ch := ComputeChart(st, ShiQiMen)
+		ch := ComputeChart(st)
 		if ch.Pan.Jushu < 1 || ch.Pan.Jushu > 9 {
 			t.Fatalf("随机 %d-%d-%d %d时: 局数越界 %d", year, month, day, hour, ch.Pan.Jushu)
 		}
@@ -27,6 +27,6 @@ func TestRandomDates(t *testing.T) {
 		// 随机用神符号
 		syms := []string{"生门", "开门", "天辅", "天芮", "六合", "值符", "戊", "庚", "乙", "天禽"}
 		s, _ := ParseYongShen(syms[i%len(syms)])
-		_ = ComputeYongShen(ch, []YongShenSymbol{s})
+		_ = computeYongShenSymbols(ch, []YongShenSymbol{s})
 	}
 }

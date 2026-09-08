@@ -2,6 +2,7 @@
 import unittest
 
 from _helpers import mock_base_context
+from factors import evaluate_liunian_factors
 from operators_liunian import _liu_op
 from operators_natal import _op
 
@@ -109,6 +110,39 @@ class TestDaYunOps_YearRange(unittest.TestCase):
         ctx = {"year": 2005, "liunian": {}}
         self.assertEqual(_liu_op("换运流年", ["配偶星"], "male", self._fac(), ctx), 0)
 
+    def test_大运十神有根_通根原局(self):
+        chart = {
+            "dayun_steps": [
+                {"name": "戊辰", "shi_shen": "正财运", "start_year": 2001, "end_year": 2010},
+            ],
+            "full": {"ri": {"cang_gan": {"main": "戊", "mid": "乙", "minor": "癸"}}},
+        }
+        self.assertEqual(
+            _op("大运十神有根", ["当前", "财星"], "male", chart, 2005), 1
+        )
+
+    def test_大运十神有根_虚浮无根(self):
+        chart = {
+            "dayun_steps": [
+                {"name": "戊申", "shi_shen": "正财运", "start_year": 2001, "end_year": 2010},
+            ],
+            "full": {"ri": {"cang_gan": {"main": "甲", "mid": "丙", "minor": "庚"}}},
+        }
+        self.assertEqual(
+            _op("大运十神有根", ["当前", "财星"], "male", chart, 2005), 0
+        )
+
+    def test_大运十神有根_得坐支本气(self):
+        chart = {
+            "dayun_steps": [
+                {"name": "戊辰", "shi_shen": "正财运", "start_year": 2001, "end_year": 2010},
+            ],
+            "full": {"ri": {"cang_gan": {"main": "甲", "mid": "丙", "minor": "庚"}}},
+        }
+        self.assertEqual(
+            _op("大运十神有根", ["当前", "财星"], "male", chart, 2005), 1
+        )
+
     # 三刑必须三方齐备。
     def _chart(self, nian, yue, ri, shi):
         return {"chart": {"nian": {"zhi": nian}, "yue": {"zhi": yue},
@@ -150,6 +184,33 @@ class TestDaYunOps_YearRange(unittest.TestCase):
         ch = self._chart("寅", "午", "辰", "戌")
         self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 0)
 
+    def test_三刑_本命齐备而流年无关不触发(self):
+        # 命局已自带丑戌未，流年午未入组；三刑流年不得逐年重复命中。
+        ctx = {"liunian": {"nian_zhi": "午"}}
+        ch = self._chart("丑", "戌", "未", "子")
+        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 0)
+
+
+class TestTianKeDiChongFactor(unittest.TestCase):
+    """天克地冲必须同时满足干克与支冲。"""
+
+    def _evaluate(self, nian_gan, nian_zhi):
+        pan = {
+            "full": {"ri": {"gan": "庚", "zhi": "午"}},
+            "chart": {"ri": {"gan": "庚", "zhi": "午"}},
+        }
+        liunian = {"nian_gan": nian_gan, "nian_zhi": nian_zhi}
+        snap = evaluate_liunian_factors(
+            "male", pan, liunian,
+            shushi="bazi", factor_names={"天克地冲日柱"},
+        )
+        return snap["天克地冲日柱"]
+
+    def test_same_branch_is_not_tian_ke_di_chong(self):
+        self.assertEqual(self._evaluate("丙", "午"), 0)
+
+    def test_gan_ke_and_branch_chong_hits(self):
+        self.assertEqual(self._evaluate("丙", "子"), 1)
 
 class TestLiuNianOps(unittest.TestCase):
     """流年算子边界。

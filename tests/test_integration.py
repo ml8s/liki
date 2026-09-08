@@ -100,5 +100,62 @@ class TestIntegration_FullChain(unittest.TestCase):
         )
 
 
+@pytest.mark.integration
+class TestIntegration_QimenRules(unittest.TestCase):
+    """奇门 RPC 排盘 + Python 表驱动解释链路。"""
+
+    def test_qimen_specialized_rules_full_chain(self):
+        url = os.environ.get("LIKI_RPC_URL", "")
+        if not url:
+            self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
+        cli = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "skills", "liki-divination", "tools", "agent_cli.py",
+        )
+        env = dict(os.environ, LIKI_RPC_URL=url)
+
+        def call(fn, args):
+            p = subprocess.run(
+                ["python3", cli],
+                input=json.dumps({"fn": fn, "args": args}).encode(),
+                capture_output=True,
+                env=env,
+                timeout=60,
+            )
+            return json.loads(p.stdout)
+
+        solar_time = "2026-06-28T12:00:00+08:00"
+        base = call("qimen_chart", {"solar_time": solar_time})
+        self.assertTrue(base["ok"], base.get("error"))
+        self.assertIsNone(base["data"]["matter"])
+        for key in ("nian_gan", "nian_zhi", "yue_gan", "yue_zhi"):
+            self.assertIn(key, base["data"]["chart"]["pan"])
+
+        expected = {
+            "lost_property": base["data"],
+            "thief_capture": base["data"],
+            "thief_profile": base["data"],
+            "capture_escape": base["data"],
+        }
+        for rule, pan in expected.items():
+            result = call("query", {"rule": rule, "pan": pan})
+            self.assertTrue(result["ok"], result.get("error"))
+            self.assertEqual(result["data"]["rule"], rule)
+            self.assertIsInstance(result["data"]["assertions"], list)
+            self.assertTrue(all(item["basis"] for item in result["data"]["assertions"]))
+
+        missing = call("qimen_chart", {
+            "solar_time": solar_time,
+            "matter": "missing_person",
+        })
+        self.assertTrue(missing["ok"], missing.get("error"))
+        self.assertEqual(missing["data"]["matter"]["matter"], "missing_person")
+        self.assertEqual(missing["data"]["chart"]["yong_shen"]["symbols"][0]["symbol"], "六合")
+        result = call("query", {"rule": "missing_person", "pan": missing["data"]})
+        self.assertTrue(result["ok"], result.get("error"))
+        self.assertEqual(result["data"]["rule"], "missing_person")
+        self.assertTrue(all(item["basis"] for item in result["data"]["assertions"]))
+
+
 if __name__ == "__main__":
     unittest.main()

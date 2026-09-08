@@ -10,6 +10,7 @@ import operators_natal
 from domain_snapshot import load_contract
 import factors
 from factor_tables import load_factor_rows
+from factor_tables import load_liunian_rows
 
 
 def test_financial_star_damages_resource_requires_real_target():
@@ -19,6 +20,53 @@ def test_financial_star_damages_resource_requires_real_target():
         "透[财星]": 1,
         "现[印星]": 1,
         "克[财,印]": 1,
+    }]
+
+
+def test_tian_ke_di_chong_requires_both_gan_ke_and_zhi_chong():
+    rows = [r for r in load_liunian_rows() if r["因子"] == "天克地冲日柱"]
+    assert [r["conds"] for r in rows] == [{
+        "干克[流年干,日干]": 1,
+        "支冲[流年支,日支]": 1,
+    }]
+
+
+def test_family_wealth_loss_requires_unfavorable_peers():
+    with (Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertion_conditions.csv").open(
+        encoding="utf-8", newline=""
+    ) as source:
+        groups: dict[str, dict[str, str]] = {}
+        for row in csv.DictReader(source):
+            if row["assertion_id"] == "fam_120":
+                groups.setdefault(row["condition_group_id"], {})[row["factor"]] = row["expected"]
+    assert list(groups.values()) == [{"财星得地": "1", "比劫旺": "1", "比劫为忌": "1"}]
+
+
+def test_study_dayun_damage_requires_rooted_unfavorable_god():
+    with (Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertion_conditions.csv").open(
+        encoding="utf-8", newline=""
+    ) as source:
+        groups: dict[str, dict[str, str]] = {}
+        for row in csv.DictReader(source):
+            if row["assertion_id"] == "xue_401":
+                groups.setdefault(row["condition_group_id"], {})[row["factor"]] = row["expected"]
+    assert list(groups.values()) == [
+        {"大运比劫运": "1", "比劫为忌": "1", "大运比劫有根": "1"},
+        {"大运食伤运": "1", "食伤为忌": "1", "大运食伤有根": "1"},
+        {"大运财星运": "1", "财星为忌": "1", "大运财星有根": "1"},
+    ]
+
+
+def test_female_specific_child_loss_is_gender_gated():
+    with (Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertion_conditions.csv").open(
+        encoding="utf-8", newline=""
+    ) as source:
+        groups: dict[str, dict[str, str]] = {}
+        for row in csv.DictReader(source):
+            if row["assertion_id"] == "ying_h18":
+                groups.setdefault(row["condition_group_id"], {})[row["factor"]] = row["expected"]
+    assert list(groups.values()) == [{
+        "三刑流年": "1", "本命食伤旺": "1", "性别": "female",
     }]
 
 

@@ -117,6 +117,16 @@ Ask about a specific event's outcome and timing — **the more specific, the bet
 - **QiMen**: `Which direction?` `Should I sign now?`
 - **Date selection**: `Best day to move / sign / open?`
 
+Ordinary Qimen questions require **no chart-method selection**; the skill defaults to hour-scope Qimen with the rotating plate and chai-bu bureau. To choose an explicit method:
+
+| Want | Try |
+|---|---|
+| Zhirun bureau | `Use the zhirun chart for now` |
+| Luo Shu flying plate | `Use the Luo Shu flying plate for this matter` |
+| Ten-minute Kejia | `Use the ten-minute Kejia chart` |
+| Twelve-minute ten-division | `Use the twelve-minute ten-division chart` |
+| Golden Mirror | `Use Golden Mirror for today` |
+
 Output: hexagram basis → one-line verdict → timing.
 
 #### liki-fengshui
@@ -191,7 +201,7 @@ make build-archive # pack 4 skills + generate the distribution index/archive dig
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) and [CHANGELOG.md](./CHANGELOG.md). Design references include [mingli-skills](https://github.com/weizeW/mingli-skills), [bazi-skill](https://github.com/jinchenma94/bazi-skill), [iztro](https://github.com/SylarLong/iztro), and [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench).
 
-See [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md) for liki-bazi's factor contract and full factor inventory.
+See [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md) for liki-bazi's factor contract; the CSV files under `skills/liki-bazi/tools/factors/` are the sole source of the full inventory.
 
 ## License & Disclaimer
 

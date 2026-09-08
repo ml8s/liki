@@ -9,12 +9,14 @@
 - 不包含评测标签、族逻辑或紫微铁断；评测标签只存在于测试层。
 
 用法：python3 tests/eval_hybrid.py
-输出：tests/RESULTS.md（断语覆盖统计——非正确率）
+输出：stdout（断语覆盖统计——非正确率）；需要留档时显式传 --output FILE
 """
+import argparse
 import json
 import os
 import re
 import sys
+from pathlib import Path
 
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,7 +58,28 @@ def load_case_birth(case_id: str) -> str:
     return m.group(1) if m else ""
 
 
-def main():
+def build_report(total: int, zero: list[str], dom_hits: dict[str, int]) -> str:
+    lines = []
+    lines.append("# 规则表数据检查（非判题——评测唯一走 skill-up agent）")
+    lines.append("")
+    lines.append(f"- 总题数：{total}")
+    lines.append(f"- 零命中（全断语域无覆盖）：{len(zero)}")
+    lines.append(f"- 零命中题：{zero}")
+    lines.append("")
+    lines.append("## 各域断语覆盖（命中题数）")
+    lines.append("")
+    for rule, count in sorted(dom_hits.items(), key=lambda item: -item[1]):
+        lines.append(f"- {rule}：{count} 题有断语")
+    lines.append("")
+    lines.append("> 判题（题目→skill→答案→对比）请跑 skill-up agent 评测：`bash tests/run-qwen.sh`")
+    return "\n".join(lines) + "\n"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="规则表断语覆盖数据检查")
+    parser.add_argument("--output", type=Path, help="可选报告文件；缺省打印到 stdout")
+    args = parser.parse_args()
+
     total = 0
     zero = []                       # 全断语域零命中的题
     dom_hits = {}                   # 域 → 命中次数（覆盖）
@@ -83,24 +106,14 @@ def main():
             if n == 0:
                 zero.append(qid)
 
-    lines = []
-    lines.append("# 规则表数据检查（非判题——评测唯一走 skill-up agent）")
-    lines.append("")
-    lines.append(f"- 总题数：{total}")
-    lines.append(f"- 零命中（全断语域无覆盖）：{len(zero)}")
-    lines.append(f"- 零命中题：{zero}")
-    lines.append("")
-    lines.append("## 各域断语覆盖（命中题数）")
-    lines.append("")
-    for rule, n in sorted(dom_hits.items(), key=lambda x: -x[1]):
-        lines.append(f"- {rule}：{n} 题有断语")
-    lines.append("")
-    lines.append("> 判题（题目→skill→答案→对比）请跑 skill-up agent 评测：`bash tests/run-qwen.sh`")
-    out = os.path.join(BASE, "RESULTS.md")
-    open(out, "w", encoding="utf-8").write("\n".join(lines) + "\n")
-    print("\n".join(lines[:6]))
-    print(f"完整统计已写 {out}")
+    report = build_report(total, zero, dom_hits)
+    if args.output is None:
+        print(report, end="")
+    else:
+        args.output.write_text(report, encoding="utf-8")
+        print(f"完整统计已写 {args.output}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

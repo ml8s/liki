@@ -7,12 +7,7 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// GongIndex is a 洛书九宫 index. 1-9 map to:
-//
-//	生-4 立-9 杜-2
-//		伤-3 中-5 景-7
-//			休-8 开-1 惊-6
-//
+// GongIndex is a 洛书九宫 index:
 // 1=坎, 2=坤, 3=震, 4=巽, 5=中, 6=乾, 7=兑, 8=艮, 9=离.
 type GongIndex int
 
@@ -97,7 +92,7 @@ func (s *StarIndex) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("unknown star: %q", name)
 }
 
-// DoorIndex represents one of the 八门 (eight doors).
+// DoorIndex represents the eight doors and the Ming Fa center door.
 type DoorIndex int
 
 const (
@@ -109,19 +104,20 @@ const (
 	DoorSi
 	DoorJingMen
 	DoorKai
+	DoorZhong
 )
 
-var doorNames = [9]string{"", "休", "生", "伤", "杜", "景", "死", "惊", "开"}
+var doorNames = [10]string{"", "休", "生", "伤", "杜", "景", "死", "惊", "开", "中"}
 
 func (d DoorIndex) String() string {
-	if d >= 1 && d <= 8 {
-		return doorNames[d]
+	if d >= 1 && d <= 9 {
+		return doorNames[d] + "门"
 	}
 	return "?"
 }
 
 func (d DoorIndex) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.String() + "门")
+	return json.Marshal(d.String())
 }
 
 func (d *DoorIndex) UnmarshalJSON(data []byte) error {
@@ -129,13 +125,8 @@ func (d *DoorIndex) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &name); err != nil {
 		return fmt.Errorf("door must be a string (e.g. \"休门\"), got %s", string(data))
 	}
-	// strip trailing "门" (3 bytes) if present
-	base := name
-	if len(name) >= 3 && name[len(name)-3:] == "门" {
-		base = name[:len(name)-3]
-	}
 	for i, n := range doorNames {
-		if i > 0 && n == base {
+		if i > 0 && n+"门" == name {
 			*d = DoorIndex(i)
 			return nil
 		}
@@ -143,7 +134,7 @@ func (d *DoorIndex) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("unknown door: %q", name)
 }
 
-// SpiritIndex represents one of the 八神 (eight spirits).
+// SpiritIndex represents the rotate-plate 八神 and the fly-plate ninth spirit.
 type SpiritIndex int
 
 const (
@@ -155,38 +146,42 @@ const (
 	SpiritZhuQue  // 阳遁=朱雀, 阴遁=玄武
 	SpiritJiuDi
 	SpiritJiuTian
+	SpiritTaiChang
 )
 
 // YangSpiritNames returns the spirit name for 阳遁.
 func (s SpiritIndex) YangName() string {
-	names := [9]string{"", "值符", "螣蛇", "太阴", "六合", "勾陈", "朱雀", "九地", "九天"}
-	if s >= 1 && s <= 8 {
-		return names[s]
+	if s >= 1 && int(s) < len(spiritYangNames) {
+		if spiritYangNames[s] != "" {
+			return spiritYangNames[s]
+		}
+	}
+	if s >= 1 && int(s) < len(flySpiritNames) && flySpiritNames[s] != "" {
+		return flySpiritNames[s]
 	}
 	return "?"
 }
 
-// YinSpiritNames returns the spirit name for 阴遁.
+// YinName returns the spirit name for 阴遁.
 func (s SpiritIndex) YinName() string {
-	names := [9]string{"", "值符", "螣蛇", "太阴", "六合", "白虎", "玄武", "九地", "九天"}
-	if s >= 1 && s <= 8 {
-		return names[s]
+	if s >= 1 && int(s) < len(spiritYinNames) {
+		if spiritYinNames[s] != "" {
+			return spiritYinNames[s]
+		}
+	}
+	if s >= 1 && int(s) < len(flySpiritNames) && flySpiritNames[s] != "" {
+		return flySpiritNames[s]
 	}
 	return "?"
 }
 
-// UnmarshalJSON accepts either a spirit name (值符/螣蛇/…) or an integer.
+// UnmarshalJSON accepts a spirit name (值符/螣蛇/…).
 func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
-	var n int
-	if err := json.Unmarshal(data, &n); err == nil {
-		*s = SpiritIndex(n)
-		return nil
-	}
 	var name string
 	if err := json.Unmarshal(data, &name); err != nil {
-		return fmt.Errorf("spirit must be a string or int, got %s", string(data))
+		return fmt.Errorf("spirit must be a string, got %s", string(data))
 	}
-	for i := 1; i <= 8; i++ {
+	for i := 1; i < len(spiritYangNames); i++ {
 		if SpiritIndex(i).YangName() == name || SpiritIndex(i).YinName() == name {
 			*s = SpiritIndex(i)
 			return nil
@@ -195,62 +190,94 @@ func (s *SpiritIndex) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("unknown spirit: %q", name)
 }
 
+// TianPanSymbol binds a heaven-plate star to the gan carried from its home palace.
+type TianPanSymbol struct {
+	Gan  ganzhi.Gan `json:"gan"`
+	Star StarIndex  `json:"xing"`
+}
+
+type PalaceIdentity struct {
+	Name      string `json:"name"`
+	Luoshu    int    `json:"luoshu"`
+	RingIndex *int   `json:"ring_index,omitempty"`
+}
+
+type BranchPalace struct {
+	Branch ganzhi.Zhi `json:"branch"`
+	Gong   GongIndex  `json:"gong"`
+}
+
 // Gong holds all layers of information for one 宫。
 type Gong struct {
-	DiPanGan   ganzhi.Gan  `json:"di_pan_gan"`
-	TianPanGan ganzhi.Gan  `json:"tian_pan_gan,omitempty"`
-	Star       StarIndex   `json:"xing,omitempty"`
-	Door       DoorIndex   `json:"men,omitempty"`
-	Spirit     SpiritIndex `json:"shen"`
-	CangGan    ganzhi.Gan  `json:"an_gan,omitempty"`
+	Gong         PalaceIdentity
+	DiPanGan     ganzhi.Gan
+	AnGan        ganzhi.Gan
+	HiddenPillar string `json:"an_gan_zhi,omitempty"`
+	TianPan      []TianPanSymbol
+	TianPanGan   *ganzhi.Gan
+	Door         DoorIndex
+	DoorSet      bool
+	Spirit       SpiritIndex
+	SpiritSet    bool
 }
 
 // pan is the complete 奇门遁甲排盘。
 type pan struct {
-	Jushu     int          `json:"jushu"`
-	YinDun    bool         `json:"yin_dun"`
-	RiGan     ganzhi.Gan   `json:"ri_gan"`
-	RiZhi     ganzhi.Zhi   `json:"ri_zhi"`
-	DutyStar  StarIndex    `json:"zhi_fu_xing"`
-	DutyDoor  DoorIndex    `json:"zhi_shi_men"`
-	GongWei   [9]Gong      `json:"gong_wei"`
-	MaXing    GongIndex    `json:"ma_xing"`
-	DriveGan  ganzhi.Gan   `json:"shi_gan"`
-	DriveZhi  ganzhi.Zhi   `json:"shi_zhi"`
-	KongWang  [2]GongIndex `json:"kong_wang"`
-	WuBuYuShi bool         `json:"wu_bu_yu_shi"`
+	Jushu          int
+	School         School
+	YinDun         bool
+	RiGan          ganzhi.Gan
+	RiZhi          ganzhi.Zhi
+	NianGan        ganzhi.Gan
+	NianZhi        ganzhi.Zhi
+	YueGan         ganzhi.Gan
+	YueZhi         ganzhi.Zhi
+	LeadGan        ganzhi.Gan
+	LeadZhi        ganzhi.Zhi
+	DutyStarPalace GongIndex
+	DutyDoorPalace GongIndex
+	DutyStar       StarIndex
+	DutyDoor       DoorIndex
+	GongWei        [9]Gong
+	MaXing         BranchPalace
+	HourGan        ganzhi.Gan
+	HourZhi        ganzhi.Zhi
+	KongWang       [2]BranchPalace
+	WuBuYuShi      bool
 }
 
-// MarshalJSON outputs spirit names per 阴/阳遁, keeping the rest as-is.
+// MarshalJSON projects the API fields and renders spirit names for the current
+// 阴阳遁 and plate style.
 func (p pan) MarshalJSON() ([]byte, error) {
-	// 用 map 保留默认序列化，只覆盖 palaces 里的 spirit 为名称
 	m := map[string]any{
 		"jushu": p.Jushu, "yin_dun": p.YinDun,
 		"ri_gan": p.RiGan, "ri_zhi": p.RiZhi,
+		"nian_gan": p.NianGan, "nian_zhi": p.NianZhi,
+		"yue_gan": p.YueGan, "yue_zhi": p.YueZhi,
 		"zhi_fu_xing": p.DutyStar, "zhi_shi_men": p.DutyDoor,
-		"ma_xing": p.MaXing, "shi_gan": p.DriveGan, "shi_zhi": p.DriveZhi,
+		"ma_xing": p.MaXing, "shi_gan": p.HourGan, "shi_zhi": p.HourZhi,
 		"kong_wang": p.KongWang, "wu_bu_yu_shi": p.WuBuYuShi,
 	}
 	palaces := make([]map[string]any, 9)
 	for i, pl := range p.GongWei {
 		pm := map[string]any{
-			"di_pan_gan": pl.DiPanGan, "tian_pan_gan": pl.TianPanGan,
+			"gong": pl.Gong, "di_pan_gan": pl.DiPanGan, "an_gan": pl.AnGan,
+			"men_present": pl.DoorSet, "shen_present": pl.SpiritSet,
 		}
-		if pl.Star != 0 {
-			pm["xing"] = pl.Star
+		if pl.HiddenPillar != "" {
+			pm["an_gan_zhi"] = pl.HiddenPillar
+		}
+		if len(pl.TianPan) > 0 {
+			pm["tian_pan"] = pl.TianPan
+		}
+		if pl.TianPanGan != nil {
+			pm["tian_pan_gan"] = pl.TianPanGan
 		}
 		if pl.Door != 0 {
 			pm["men"] = pl.Door
 		}
 		if pl.Spirit != 0 {
-			if p.YinDun {
-				pm["shen"] = pl.Spirit.YinName()
-			} else {
-				pm["shen"] = pl.Spirit.YangName()
-			}
-		}
-		if pl.CangGan != 0 {
-			pm["an_gan"] = pl.CangGan
+			pm["shen"] = spiritDisplayName(pl.Spirit, p.YinDun, p.School)
 		}
 		palaces[i] = pm
 	}
@@ -260,19 +287,72 @@ func (p pan) MarshalJSON() ([]byte, error) {
 
 // duty holds the value符 star and value使 door.
 type duty struct {
-	Star StarIndex
-	Door DoorIndex
+	Star   StarIndex
+	Door   DoorIndex
+	Palace GongIndex
 }
 
-// juShu holds the result of bureau determination.
+// juShu holds the result of dingju determination.
 type juShu struct {
-	Number int
-	YinDun bool
-	Yuan   string // 上元/中元/下元
+	Method      Method
+	Number      int
+	YinDun      bool
+	Yuan        string // 上元/中元/下元
+	JieQi       string
+	YongJuJieQi string
+	ZhiRunState string
+	Quarter     *quarterInfo
+}
+
+type TianQinRule struct {
+	Star                  string `json:"star"`
+	HomeGong              string `json:"home_gong"`
+	LodgingGong           string `json:"lodging_gong"`
+	Follows               string `json:"follows"`
+	CarriesCenterEarthGan bool   `json:"carries_center_earth_gan"`
+	LodgingRule           string `json:"lodging_rule"`
+}
+
+type ChartMethod struct {
+	Scope                string        `json:"scope"`
+	ScopeName            string        `json:"scope_name"`
+	School               string        `json:"school"`
+	SchoolName           string        `json:"school_name"`
+	DingjuMethod         string        `json:"dingju_method,omitempty"`
+	DingjuMethodName     string        `json:"dingju_method_name,omitempty"`
+	QuarterRule          string        `json:"quarter_rule,omitempty"`
+	QuarterRuleName      string        `json:"quarter_rule_name,omitempty"`
+	BaseDingjuMethod     string        `json:"base_dingju_method,omitempty"`
+	BaseDingjuMethodName string        `json:"base_dingju_method_name,omitempty"`
+	MethodSource         string        `json:"method_source"`
+	DayBoundary          string        `json:"day_boundary"`
+	SpiritMode           string        `json:"spirit_mode"`
+	Geometry             string        `json:"geometry"`
+	StarMode             string        `json:"star_mode"`
+	DoorMode             string        `json:"door_mode"`
+	SpiritFlight         string        `json:"spirit_flight"`
+	TianQin              *TianQinRule  `json:"tian_qin,omitempty"`
+	JieQi                string        `json:"jie_qi"`
+	YongJuJieQi          string        `json:"yong_ju_jie_qi"`
+	Yuan                 string        `json:"yuan"`
+	ZhiRunState          string        `json:"zhi_run_state,omitempty"`
+	LeadPillar           PillarInfo    `json:"lead_pillar"`
+	LeadXunShou          PillarInfo    `json:"lead_xun_shou"`
+	LeadXunShouGong      GongIndex     `json:"lead_xun_shou_gong"`
+	DayFuTou             PillarInfo    `json:"day_fu_tou"`
+	Quarter              *ChartQuarter `json:"quarter,omitempty"`
+}
+
+type PillarInfo struct {
+	Name  string `json:"name"`
+	Gan   string `json:"gan"`
+	Zhi   string `json:"zhi"`
+	LiuYi string `json:"liu_yi,omitempty"`
 }
 
 // GanInteraction represents a 十干克应 between earth and heaven gan.
 type GanInteraction struct {
+	Gong       GongIndex  `json:"gong"`
 	DiPanGan   ganzhi.Gan `json:"di_pan_gan"`
 	TianPanGan ganzhi.Gan `json:"tian_pan_gan"`
 	Name       string     `json:"name"`
@@ -292,6 +372,25 @@ type MenInteraction struct {
 type Pattern struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
+	Basis       string      `json:"basis,omitempty"`
 	Auspicious  bool        `json:"auspicious"`
 	GongWei     []GongIndex `json:"gong_wei,omitempty"`
+}
+
+type patternRule struct {
+	Name             string
+	Description      string
+	Basis            string
+	Auspicious       bool
+	RequiresDutyDoor bool
+	DutyStarPosition string
+	Conditions       []patternCondition
+}
+
+type patternCondition struct {
+	HeavenGan []ganzhi.Gan
+	EarthGan  []ganzhi.Gan
+	Doors     []DoorIndex
+	Spirits   []SpiritIndex
+	Palaces   []GongIndex
 }

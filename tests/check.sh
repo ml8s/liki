@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 改表/改码后自动验证：
 #   默认（快）  ：check_schema（断语表质量）+ check_docs（文档引用契约）+ 版本一致性
-#   --full（慢）：另加 eval_hybrid（160 题断语覆盖/零命中——32 命例全量排盘，数分钟级）
+#   --full（慢）：另加 eval_hybrid（160 题断语覆盖/零命中，统计输出到 stdout）
 # 用法：bash tests/check.sh [--full]
 set -e
 cd "$(dirname "$0")/.."
@@ -31,7 +31,7 @@ else:
 PYEOF
 
 if [ "${1:-}" = "--full" ]; then
-  echo "=== 数据检查（eval_hybrid——160 题断语覆盖/零命中，数分钟级）==="
+  echo "=== 数据检查（eval_hybrid——160 题断语覆盖/零命中，输出 stdout）==="
   python3 tests/eval_hybrid.py
 fi
 echo "✅ check 通过"

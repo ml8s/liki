@@ -11,7 +11,7 @@ import (
 // 奇门定局数据驱动锚点（《奇门遁甲》通行定局表 + 三元符头规则）。
 
 // 24 节气 × 上中下元 = 72 项权威定局值（阳遁/阴遁）。
-func TestJushu_SolarTermBureau_All72(t *testing.T) {
+func TestJushu_SolarTermDingju_All72(t *testing.T) {
 	want := []struct {
 		name                   string
 		shang, zhong, xia, yin int
@@ -25,11 +25,14 @@ func TestJushu_SolarTermBureau_All72(t *testing.T) {
 		{"秋分", 7, 1, 4, 0}, {"寒露", 6, 9, 3, 0}, {"霜降", 5, 8, 2, 0},
 		{"立冬", 6, 9, 3, 0}, {"小雪", 5, 8, 2, 0}, {"大雪", 4, 7, 1, 0},
 	}
-	if len(solarTermBureau) != 24 {
-		t.Fatalf("solarTermBureau 长度 = %d, want 24", len(solarTermBureau))
+	if len(solarTermJuTable) != 24 {
+		t.Fatalf("solarTermJuTable 长度 = %d, want 24", len(solarTermJuTable))
 	}
-	for i, w := range want {
-		e := solarTermBureau[i]
+	for _, w := range want {
+		e, ok := solarTermJuTable[w.name]
+		if !ok {
+			t.Fatalf("%s missing from dingju table", w.name)
+		}
 		if e[0] != w.shang || e[1] != w.zhong || e[2] != w.xia || e[3] != w.yin {
 			t.Errorf("%s: 上中下/阴阳 = [%d %d %d %d], want [%d %d %d %d]",
 				w.name, e[0], e[1], e[2], e[3], w.shang, w.zhong, w.xia, w.yin)
@@ -56,7 +59,7 @@ func TestJushu_DetermineYuan_FuTou(t *testing.T) {
 		{ganzhi.GanJi, ganzhi.ZhiChou, 2},  // 己丑 → 下元
 		{ganzhi.GanJia, ganzhi.ZhiChen, 2}, // 甲辰 → 下元
 		{ganzhi.GanJi, ganzhi.ZhiWei, 2},   // 己未 → 下元
-		// 非符头日按 15 日循环
+		// 非符头日按所在五日符头段定元
 		{ganzhi.GanYi, ganzhi.ZhiChou, 0}, // 乙丑（甲子后1日）→ 上元
 		{ganzhi.GanGeng, ganzhi.ZhiWu, 1}, // 庚午（己巳后1日）→ 中元
 		{ganzhi.GanYi, ganzhi.ZhiHai, 2},  // 乙亥（甲戌后1日）→ 下元
@@ -92,7 +95,7 @@ func TestJushu_EndToEnd_Dates(t *testing.T) {
 			}
 			bt = bt.Add(12 * time.Hour)
 			st := tianwen.GregorianToSolar(bt, 116.4, 8)
-			chart := ComputeChart(st, "时家")
+			chart := ComputeChart(st)
 			if chart.Pan.Jushu != c.wantJu || chart.Pan.YinDun != c.wantYin {
 				t.Errorf("%s: ju=%d yin=%v, want ju=%d yin=%v（拆补法）",
 					c.date, chart.Pan.Jushu, chart.Pan.YinDun, c.wantJu, c.wantYin)

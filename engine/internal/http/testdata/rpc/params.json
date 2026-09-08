@@ -32,7 +32,10 @@
    "天辅",
    "六合"
   ],
-  "birth_year": 1984
+  "birth_date": "1984-02-15",
+  "scope": "hour",
+  "school": "zhuanpan",
+  "dingju_method": "zhirun"
  },
  "qiming.char": {
   "char": "明"

@@ -9,6 +9,7 @@ package agent
 
 import (
 	"encoding/json"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -48,6 +49,13 @@ func collectFieldRefs(schema json.RawMessage, root string, out *fieldRefs) {
 		obj, ok := node.(map[string]any)
 		if !ok {
 			return
+		}
+		for _, keyword := range []string{"oneOf", "anyOf", "allOf"} {
+			if branches, ok := obj[keyword].([]any); ok {
+				for _, branch := range branches {
+					walk(branch, path)
+				}
+			}
 		}
 		// array 节点：遍历 items（顶层 data 为数组的 Result——如 huangli.days 返回数组）
 		if obj["type"] == "array" {
@@ -165,22 +173,30 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	}
 	reg := NewRPCRegistry()
 	refs := registryFieldRefs(reg)
-	// 放行集合：引擎方法名 + skill 工具名（full_paipan 等非引擎 RPC 字段）+ OpenRPC 文档字段 + skill 根文件
+	// 放行集合：引擎方法名 + 当前 skill 工具 schema 词表 + OpenRPC 文档字段 + skill 根文件
 	allow := map[string]bool{}
 	for name := range reg.methods {
 		allow[name] = true
 	}
-	for _, a := range []string{"rpc.discover", "full_paipan", "city_coords",
-		"query", "yearly_range", "calibrate", "bond", "skill-tools.json",
-		"VERSION", "content.sha256", "liki-memory.json", "RPCError", "ValueError",
-		"error",
-		"methods", "parameters", "required", "params.properties", "result.methods"} {
+	toolVocabulary, err := loadSkillToolVocabulary()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, a := range []string{"rpc.discover", "skill-tools.json", "VERSION", "content.sha256",
+		"liki-memory.json", "RPCError", "ValueError", "error", "methods", "parameters",
+		"required", "params.properties", "result.methods"} {
 		allow[a] = true
 	}
 
 	var unresolved []string
 	lineToken := regexp.MustCompile("`([^`]+)`")
 	for _, f := range files {
+		docAllow := allow
+		if vocabulary, exists := toolVocabulary[skillNameForDoc(f)]; exists {
+			docAllow = make(map[string]bool, len(allow)+len(vocabulary))
+			maps.Copy(docAllow, allow)
+			maps.Copy(docAllow, vocabulary)
+		}
 		raw, _ := os.ReadFile(f)
 		// 逐行扫描：字段引用均为单行内成对反引号；含奇数反引号的行（```json 代码块边界）跳过，
 		// 避免三反引号代码块与单反引号配对错位（markdown 嵌套导致 findall 跨行吞 token）
@@ -206,7 +222,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 					continue
 				}
 				for _, seg := range normalizeFieldToken(tok) {
-					if allow[seg] || pathResolvable(seg, refs) {
+					if docAllow[seg] || pathResolvable(seg, refs) {
 						continue
 					}
 					rel, _ := filepath.Rel(filepath.Join("..", "..", ".."), f)
@@ -219,6 +235,101 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	if len(unresolved) > 0 {
 		t.Errorf("skill 文档引用了引擎 schema 不存在的字段（%d 处）：\n  %s",
 			len(unresolved), strings.Join(unresolved, "\n  "))
+	}
+}
+
+func skillNameForDoc(path string) string {
+	rel, err := filepath.Rel(filepath.Join("..", "..", "..", "skills"), path)
+	if err != nil {
+		return ""
+	}
+	return strings.SplitN(rel, string(filepath.Separator), 2)[0]
+}
+
+func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
+	files, err := filepath.Glob(filepath.Join("..", "..", "..", "skills", "*", "tools", "skill-tools.json"))
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[string]map[string]bool)
+	for _, path := range files {
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
+		var document struct {
+			Tools []struct {
+				Function struct {
+					Name       string         `json:"name"`
+					Parameters map[string]any `json:"parameters"`
+				} `json:"function"`
+			} `json:"tools"`
+		}
+		if err := json.Unmarshal(raw, &document); err != nil {
+			return nil, err
+		}
+		skill := filepath.Base(filepath.Dir(filepath.Dir(path)))
+		vocabulary := result[skill]
+		if vocabulary == nil {
+			vocabulary = make(map[string]bool)
+			result[skill] = vocabulary
+		}
+		for _, tool := range document.Tools {
+			vocabulary[tool.Function.Name] = true
+			collectToolVocabulary(tool.Function.Parameters, vocabulary)
+		}
+	}
+	return result, nil
+}
+
+func TestSkillToolVocabularyIsScoped(t *testing.T) {
+	vocabulary, err := loadSkillToolVocabulary()
+	if err != nil {
+		t.Fatal(err)
+	}
+	bazi := vocabulary["liki-bazi"]
+	divination := vocabulary["liki-divination"]
+	if !bazi["full_paipan"] || bazi["qimen_chart"] {
+		t.Fatal("liki-bazi tool vocabulary is missing its own tools or leaks qimen tools")
+	}
+	if !divination["qimen_chart"] || divination["full_paipan"] {
+		t.Fatal("liki-divination tool vocabulary is missing its own tools or leaks bazi tools")
+	}
+}
+
+func TestSkillNameForDoc(t *testing.T) {
+	got := skillNameForDoc(filepath.Join("..", "..", "..", "skills", "liki-divination", "SKILL.md"))
+	if got != "liki-divination" {
+		t.Fatalf("skill name = %q, want liki-divination", got)
+	}
+}
+
+func collectToolVocabulary(value any, allow map[string]bool) {
+	switch item := value.(type) {
+	case map[string]any:
+		if properties, ok := item["properties"].(map[string]any); ok {
+			for name, child := range properties {
+				allow[name] = true
+				collectToolVocabulary(child, allow)
+			}
+		}
+		if enums, ok := item["enum"].([]any); ok {
+			for _, enum := range enums {
+				if name, ok := enum.(string); ok {
+					allow[name] = true
+				}
+			}
+		}
+		for key, child := range item {
+			if key == "properties" {
+				continue
+			}
+			collectToolVocabulary(child, allow)
+		}
+	case []any:
+		for _, child := range item {
+			collectToolVocabulary(child, allow)
+		}
 	}
 }
 

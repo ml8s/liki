@@ -1,18 +1,16 @@
-# app — 用户价值层（场景卡索引）
+# app — 场景卡索引
 
-每张卡 = 一类用户问题 → 用户问法路由 + 📖 流程（逐步 + 每步「输出：□」填表）+ 输出模板。
-frontmatter 声明 `依赖域`（命理概念层）。流程由 app 卡自包含（排盘 → 查断语 → 八字/紫微合参 → 输出），根 SKILL.md「流程约定」定全局骨架与强制填表规则。
+场景卡默认使用根 `SKILL.md` 核心流程取得的 `pan`；卡内只写场景查询、裁决与输出。全局工具契约和硬边界见根文档。
 
-## 八字 + 紫微全流程
-
-| 卡 | 功能 | 依赖域 |
-|----|------|--------|
-| [mingshu.md](mingshu.md) | **命书/命盘综合解读**（用户无明确问题走此入口） | bazi,ziwei |
-| [marriage.md](marriage.md) | 婚姻：何时结婚、婚姻质量、感情走向、离婚 | bazi,ziwei |
-| [career.md](career.md) | 事业：职业方向、事业起伏、成就层次 | bazi,ziwei |
-| [wealth.md](wealth.md) | 财运：财源类型、收入层次、风险提示 | bazi,ziwei |
-| [health.md](health.md) | 健康：脏腑薄弱、易感疾病、健康建议 | bazi,ziwei |
-| [study.md](study.md) | 学业：学历层次、学习能力、考试运 | bazi,ziwei |
-| [personality.md](personality.md) | 性格：五行基础性格、十神修正、身强弱 | bazi,ziwei |
-| [family.md](family.md) | 家庭六亲：父母、兄弟姐妹、子女、祖上 | bazi,ziwei |
-| [compatibility.md](compatibility.md) | 合盘合婚：感情匹配、关系评估（双人） | bazi,ziwei |
+| 卡 | 功能 | 依赖域 | 历史验证聚焦 |
+|---|---|---|---|
+| `mingshu.md` | 快速扫描与深入入口 | bazi,ziwei | 全盘大事 |
+| `mingshu-full.md` | 完整命书 | bazi,ziwei | 全盘大事 |
+| `marriage.md` | 婚姻与感情 | bazi,ziwei | 结婚 / 婚变年 |
+| `career.md` | 事业方向与起伏 | bazi,ziwei | 升职 / 离职 / 创业年 |
+| `wealth.md` | 财源与风险 | bazi,ziwei | 得财 / 破财年 |
+| `health.md` | 健康倾向 | bazi,ziwei | 大病 / 手术年 |
+| `study.md` | 学业与考试 | bazi,ziwei | 升学 / 毕业 / 中断年 |
+| `personality.md` | 性格与体型 | bazi,ziwei | 状态题可免验证 |
+| `family.md` | 父母六亲与子女 | bazi,ziwei | 父母灾 / 子女出生年 |
+| `compatibility.md` | 双人合盘 | bazi,ziwei | 婚运窗口 |

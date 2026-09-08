@@ -1,0 +1,38 @@
+{
+  "method": "zhirun",
+  "leader_interval_days": 15,
+  "adopt_threshold_days": 7,
+  "max_term_intervals": 12,
+  "repeatable_terms": [
+    "芒种",
+    "大雪"
+  ],
+  "states": [
+    {
+      "state": "exact",
+      "name": "正授",
+      "condition": "working_term_starts_on_current_leader"
+    },
+    {
+      "state": "ahead",
+      "name": "超神",
+      "condition": "working_term_is_ahead_of_actual_term"
+    },
+    {
+      "state": "behind",
+      "name": "接气",
+      "condition": "working_term_is_behind_actual_term"
+    },
+    {
+      "state": "repeat",
+      "name": "置闰",
+      "condition": "repeatable_term_occupies_second_interval"
+    }
+  ],
+  "basis": {
+    "leader_interval_days": "一节气三元共十五日，符头以十五日为定局网格。",
+    "adopt_threshold_days": "传统口径为符头超前满九日置闰；含符头日计数时，实现等价为超过七日即进入下一符头网格。",
+    "max_term_intervals": "二至之间按十二节气为工作节气推进上限。",
+    "repeatable_terms": "置闰只置于夏至前的芒种与冬至前的大雪。"
+  }
+}

@@ -108,14 +108,10 @@ func TestGoldenChart_CangGan(t *testing.T) {
 	for _, g := range goldenCharts {
 		t.Run(g.Name, func(t *testing.T) {
 			cr := computeFullChart(g)
-			hs := cr.CangGanArray()
-
-			if len(hs) != 4 {
-				t.Fatalf("len(CangGanArray) = %d, want 4", len(hs))
-			}
 			names := [4]string{"nian", "yue", "ri", "shi"}
-			for i, h := range hs {
-				if h.Main == 0 {
+			pillars := [4]cangGanOut{cr.Nian.CangGan, cr.Yue.CangGan, cr.Ri.CangGan, cr.Shi.CangGan}
+			for i, pillar := range pillars {
+				if pillar.Main == 0 {
 					t.Errorf("%s pillar hidden gan main qi is zero", names[i])
 				}
 			}

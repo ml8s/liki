@@ -221,6 +221,7 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
             zv = _source_zhi(a, ctx)
             if zv:
                 available[a] = zv
+        flow_zhi = _source_zhi('流年支', ctx)
         pan = chart
         pan_chart = (pan or {}).get('chart', {}) or {}
         pillar_zhis = []
@@ -234,7 +235,9 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
             cnt[z] = cnt.get(z, 0) + 1
         for k, v in const['三刑'].items():
             members = (k, *v)
-            if cnt.get(k, 0) >= 1 and all((cnt.get(g, 0) >= (2 if g == k else 1) for g in v)):
+            complete = cnt.get(k, 0) >= 1 and all((cnt.get(g, 0) >= (2 if g == k else 1) for g in v))
+            # 三刑流年要求流年支实际入组；本命自带三刑不得在无关流年重复触发。
+            if complete and flow_zhi and flow_zhi in members:
                 ctx.setdefault('evidence', {})['三刑流年'] = {
                     'group': k + ''.join(v),
                     'members': list(dict.fromkeys(members)),

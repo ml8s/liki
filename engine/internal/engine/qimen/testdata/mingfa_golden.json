@@ -1,0 +1,171 @@
+{
+  "source": {
+    "name": "potuo/feipan-qimen",
+    "url": "https://github.com/potuo/feipan-qimen",
+    "commit": "e4fe69d45b91ff18b7de04ea3555a9ff9f69eafa",
+    "source_file": "app/src/test/java/com/potuo/feipanqimen2/qimen/QimenCalculatorTest.kt",
+    "source_sha256": "52a0e06219bdaba06981563a810d21c2ebec894d6607af2f1f76b976a52a6644",
+    "license": "MIT",
+    "license_sha256": "dd127edca411f5d3d54ec2557cc18297abdf7c546ca76edf3a996a5f9cb279b7"
+  },
+  "vectors": [
+    {
+      "provenance": "potuo_checked_in",
+      "when": "2026-08-17 22:00",
+      "method": {
+        "scope": "hour",
+        "school": "mingfa_feipan",
+        "dingju_method": "chaibu"
+      },
+      "actual_jie_qi": "立秋",
+      "yong_ju_jie_qi": "立秋",
+      "yin_dun": true,
+      "ju": 8,
+      "yuan": "下元",
+      "lead": "癸亥",
+      "xun_shou": "癸",
+      "kong_wang": "子丑",
+      "duty_star": "天冲",
+      "duty_source": 3,
+      "duty_land": 3,
+      "duty_door": "伤门",
+      "door_land": 3,
+      "palaces": [
+        {
+          "heaven": "丙",
+          "earth": "丙",
+          "star": "天蓬",
+          "door": "休门",
+          "spirit": "太阴",
+          "hidden_pillar": "丙辰"
+        },
+        {
+          "heaven": "丁",
+          "earth": "丁",
+          "star": "天芮",
+          "door": "死门",
+          "spirit": "螣蛇",
+          "hidden_pillar": "乙卯"
+        },
+        {
+          "heaven": "癸",
+          "earth": "癸",
+          "star": "天冲",
+          "door": "伤门",
+          "spirit": "值符",
+          "hidden_pillar": "癸亥"
+        },
+        {
+          "heaven": "壬",
+          "earth": "壬",
+          "star": "天辅",
+          "door": "杜门",
+          "spirit": "九天",
+          "hidden_pillar": "壬戌"
+        },
+        {
+          "heaven": "辛",
+          "earth": "辛",
+          "star": "天禽",
+          "door": "中门",
+          "spirit": "九地",
+          "hidden_pillar": "辛酉"
+        },
+        {
+          "heaven": "庚",
+          "earth": "庚",
+          "star": "天心",
+          "door": "开门",
+          "spirit": "朱雀",
+          "hidden_pillar": "庚申"
+        },
+        {
+          "heaven": "己",
+          "earth": "己",
+          "star": "天柱",
+          "door": "惊门",
+          "spirit": "太常",
+          "hidden_pillar": "己未"
+        },
+        {
+          "heaven": "戊",
+          "earth": "戊",
+          "star": "天任",
+          "door": "生门",
+          "spirit": "勾陈",
+          "hidden_pillar": "戊午"
+        },
+        {
+          "heaven": "乙",
+          "earth": "乙",
+          "star": "天英",
+          "door": "景门",
+          "spirit": "六合",
+          "hidden_pillar": "丁巳"
+        }
+      ]
+    }
+  ],
+  "reference_anchors": [
+    {
+      "when": "2025-10-22 06:00",
+      "yin_dun": true,
+      "ju": 6,
+      "xun_shou": "戊",
+      "duty_door": "开门",
+      "door_land": 3
+    },
+    {
+      "when": "2026-08-30 22:00",
+      "yin_dun": true,
+      "ju": 7,
+      "xun_shou": "辛",
+      "kong_wang": "辰巳",
+      "duty_star": "天辅",
+      "duty_source": 4,
+      "duty_land": 6,
+      "duty_door": "杜门",
+      "door_land": 8,
+      "center_star_palace": 7,
+      "center_door_palace": 9
+    },
+    {
+      "when": "2026-08-30 20:36",
+      "yin_dun": true,
+      "ju": 7,
+      "xun_shou": "辛",
+      "duty_door": "杜门",
+      "door_land": 9,
+      "hidden_pillars": [
+        "丁酉",
+        "丙申",
+        "乙未",
+        "癸卯",
+        "壬寅",
+        "辛丑",
+        "庚子",
+        "己亥",
+        "戊戌"
+      ]
+    },
+    {
+      "when": "2024-12-03 09:19",
+      "yin_dun": true,
+      "ju": 8,
+      "xun_shou": "庚",
+      "duty_door": "开门",
+      "door_land": 6,
+      "hidden_pillars": [
+        "己丑",
+        "戊子",
+        "丁亥",
+        "丙戌",
+        "乙酉",
+        "癸巳",
+        "壬辰",
+        "辛卯",
+        "庚寅"
+      ]
+    }
+  ]
+}

@@ -119,7 +119,7 @@ func TestDoorIndex_MarshalJSON(t *testing.T) {
 		{DoorXiu, `"休门"`},
 		{DoorSheng, `"生门"`},
 		{DoorKai, `"开门"`},
-		{0, `"?门"`},
+		{0, `"?"`},
 	}
 	for _, tt := range tests {
 		b, err := json.Marshal(tt.input)
@@ -142,7 +142,7 @@ func TestDoorIndex_UnmarshalJSON_StringOnly(t *testing.T) {
 		{`"休门"`, DoorXiu, false},
 		{`"生门"`, DoorSheng, false},
 		{`"开门"`, DoorKai, false},
-		{`"休"`, DoorXiu, false}, // 没门字也接受
+		{`"休"`, DoorXiu, true},
 		{`1`, 0, true},
 	}
 	for _, tt := range tests {
@@ -159,5 +159,25 @@ func TestDoorIndex_UnmarshalJSON_StringOnly(t *testing.T) {
 				t.Errorf("UnmarshalJSON(%s) = %d, want %d", tt.input, d, tt.want)
 			}
 		}
+	}
+}
+
+func TestSpiritIndex_UnmarshalJSON_StringOnly(t *testing.T) {
+	var spirit SpiritIndex
+	if err := json.Unmarshal([]byte(`"值符"`), &spirit); err != nil || spirit != SpiritZhiFu {
+		t.Fatalf("unmarshal 值符 = %d, %v; want %d", spirit, err, SpiritZhiFu)
+	}
+	if err := json.Unmarshal([]byte(`"白虎"`), &spirit); err != nil || spirit != SpiritGouChen {
+		t.Fatalf("unmarshal 白虎 = %d, %v; want %d", spirit, err, SpiritGouChen)
+	}
+	if err := json.Unmarshal([]byte(`5`), &spirit); err == nil {
+		t.Fatal("integer spirit should be rejected")
+	}
+}
+
+func TestSpiritIndex_ParseTaiChang(t *testing.T) {
+	spirit, err := ParseSpiritIndex("太常")
+	if err != nil || spirit != SpiritTaiChang {
+		t.Fatalf("ParseSpiritIndex(太常) = %d, %v; want %d", spirit, err, SpiritTaiChang)
 	}
 }

@@ -144,9 +144,6 @@ func (c FullChart) ToBazi() ganzhi.Bazi {
 func (c FullChart) NaYinArray() [4]string {
 	return [4]string{c.Nian.NaYin, c.Yue.NaYin, c.Ri.NaYin, c.Shi.NaYin}
 }
-func (c FullChart) CangGanArray() [4]cangGanOut {
-	return [4]cangGanOut{c.Nian.CangGan, c.Yue.CangGan, c.Ri.CangGan, c.Shi.CangGan}
-}
 
 var zhuLabels = [4]string{"nian", "yue", "ri", "shi"}
 

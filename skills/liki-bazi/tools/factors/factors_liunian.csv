@@ -21,7 +21,8 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 本命比劫夺财,bazi,1,1,condition,引用本命[比劫夺财],1,引用本命比劫夺财
 本命夫妻宫破,bazi,1,1,condition,引用本命[夫妻宫破],1,引用本命夫妻宫破
 岁运并临,bazi,1,1,condition,"干支相等[大运,流年]",1,大运与流年干支相同
-天克地冲日柱,bazi,1,1,condition,"干克[流年干,日干]",1,流年天克地冲日柱
+天克地冲日柱,bazi,1,1,condition,"干克[流年干,日干]",1,流年天干克日干
+天克地冲日柱,bazi,1,2,condition,"支冲[流年支,日支]",1,流年地支冲日支
 日犯岁君,bazi,1,1,condition,"干克[日干,流年干]",1,日干克流年天干
 伏吟流年,bazi,1,1,condition,"干支相等[流年,日柱]",1,流年与日柱伏吟
 三刑流年,bazi,1,1,condition,"三刑[流年支,日支,时支]",1,流年凑齐三刑

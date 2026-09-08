@@ -33,7 +33,7 @@ func TestRPCInputRobustness(t *testing.T) {
 		"ziwei.liuyue":    mk(t, "chart", z, "lunar_year", 2026, "lunar_month", 6),
 		"ziwei.liuri":     mk(t, "chart", z, "lunar_year", 2026, "lunar_month", 6, "lunar_day", 4),
 		"ziwei.liushi":    mk(t, "chart", z, "lunar_year", 2026, "lunar_month", 6, "lunar_day", 4, "shi_zhi", "午"),
-		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","kind":"shi"}`),
+		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
 		"qiming.char":     []byte(`{"char":"明"}`),
 		"qiming.pick":     []byte(`{"wuxing1":"木","wuxing2":"火","count":2}`),
 		"qiming.compose":  []byte(`{"first":["德"],"second":["明"]}`),

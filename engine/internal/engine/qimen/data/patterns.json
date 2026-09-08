@@ -1,0 +1,198 @@
+[
+  {
+    "name": "天遁",
+    "description": "天盘丙奇、生门、地盘丁奇同宫，得日月精华，宜上书求官、行商隐伏",
+    "basis": "《奇门遁甲秘笈大全》：生门六丙合六丁，此为天遁自分明",
+    "auspicious": true,
+    "conditions": [
+      {
+        "heaven_gan": [
+          "丙"
+        ],
+        "earth_gan": [
+          "丁"
+        ],
+        "doors": [
+          "生门"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "地遁",
+    "description": "天盘乙奇、开门、地盘己土同宫，宜设伏安营、埋藏修造",
+    "basis": "《奇门遁甲秘笈大全》：开门六乙合六己，地遁如斯而已矣",
+    "auspicious": true,
+    "conditions": [
+      {
+        "heaven_gan": [
+          "乙"
+        ],
+        "earth_gan": [
+          "己"
+        ],
+        "doors": [
+          "开门"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "人遁",
+    "description": "天盘丁奇、休门、太阴同宫，宜和谈联姻、阴柔谋事",
+    "basis": "《奇门遁甲秘笈大全》：休门六丁共太阴，欲求人遁无差忒",
+    "auspicious": true,
+    "conditions": [
+      {
+        "heaven_gan": [
+          "丁"
+        ],
+        "doors": [
+          "休门"
+        ],
+        "spirits": [
+          "太阴"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "三奇得使",
+    "description": "天盘奇仪同宫相得，得用神之使，变被动为主动",
+    "basis": "三奇得使：乙加甲戌己/甲午辛，丙加甲子戊/甲申庚，丁加甲辰壬/甲寅癸",
+    "auspicious": true,
+    "conditions": [
+      {
+        "heaven_gan": [
+          "乙"
+        ],
+        "earth_gan": [
+          "己",
+          "辛"
+        ]
+      },
+      {
+        "heaven_gan": [
+          "丙"
+        ],
+        "earth_gan": [
+          "戊",
+          "庚"
+        ]
+      },
+      {
+        "heaven_gan": [
+          "丁"
+        ],
+        "earth_gan": [
+          "壬",
+          "癸"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "玉女守门",
+    "description": "值使门临地盘丁奇，宜宴会喜乐、阴私和合之事",
+    "basis": "门盘值使加临地盘丁奇",
+    "auspicious": true,
+    "requires_duty_door": true,
+    "conditions": [
+      {
+        "earth_gan": [
+          "丁"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "伏吟",
+    "description": "值符星归本宫，凡事闭塞，静守为吉",
+    "basis": "值符星还本宫",
+    "auspicious": false,
+    "duty_star_position": "home"
+  },
+  {
+    "name": "反吟",
+    "description": "值符星临对宫，凡事反复，动中求变",
+    "basis": "值符星临本宫对冲之宫",
+    "auspicious": false,
+    "duty_star_position": "opposite"
+  },
+  {
+    "name": "青龙返首",
+    "description": "天盘戊加地盘丙，谋为动作大吉；逢迫墓击刑则吉事成凶",
+    "basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：戊加丙为「青龙返首」，动作大吉，若逢迫、墓、击、刑，吉事成凶",
+    "gan_interaction": "青龙返首"
+  },
+  {
+    "name": "飞鸟跌穴",
+    "description": "天盘丙加地盘戊，谋为百事洞澈",
+    "basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：丙加戊名「飞鸟跌穴」，谋为百事洞澈",
+    "gan_interaction": "飞鸟跌穴"
+  },
+  {
+    "name": "荧入太白",
+    "description": "天盘丙加地盘庚，门户破败，盗贼耗失",
+    "basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：丙加庚为「荧入太白」，门户破败，盗贼耗失",
+    "gan_interaction": "荧入太白"
+  },
+  {
+    "name": "太白入荧",
+    "description": "天盘庚加地盘丙，占贼必来，为客进利，为主破财",
+    "basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：庚加丙曰「太白入荧」，占贼必来，为客进利，为主破财",
+    "gan_interaction": "太白入荧"
+  },
+  {
+    "name": "三奇入墓",
+    "description": "乙奇入坤、丙奇入乾、丁奇入艮，光明收藏，诸事不宜轻进",
+    "basis": "《奇门遁甲统宗·奇门四十格》：三奇入墓，乙奇坤宫，丙奇乾宫，丁奇艮宫",
+    "auspicious": false,
+    "conditions": [
+      {
+        "heaven_gan": ["乙"],
+        "palaces": ["坤"]
+      },
+      {
+        "heaven_gan": ["丙"],
+        "palaces": ["乾"]
+      },
+      {
+        "heaven_gan": ["丁"],
+        "palaces": ["艮"]
+      }
+    ]
+  },
+  {
+    "name": "六仪击刑",
+    "description": "六仪落刑宫：戊震、己坤、庚艮、辛离、壬癸巽，刑伤冲动，谋为多凶",
+    "basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
+    "auspicious": false,
+    "conditions": [
+      {
+        "heaven_gan": ["戊"],
+        "palaces": ["震"]
+      },
+      {
+        "heaven_gan": ["己"],
+        "palaces": ["坤"]
+      },
+      {
+        "heaven_gan": ["庚"],
+        "palaces": ["艮"]
+      },
+      {
+        "heaven_gan": ["辛"],
+        "palaces": ["离"]
+      },
+      {
+        "heaven_gan": ["壬"],
+        "palaces": ["巽"]
+      },
+      {
+        "heaven_gan": ["癸"],
+        "palaces": ["巽"]
+      }
+    ]
+  }
+]

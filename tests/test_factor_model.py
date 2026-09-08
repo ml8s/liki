@@ -13,13 +13,8 @@ from factor_tables import load_long_rows
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs" / "FACTOR_MODEL.md"
 TOOLS = ROOT / "skills" / "liki-bazi" / "tools"
-META = {"因子", "术数", "原语直通", "依据"}
 D = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
-CLASSES = set(D["十神大类"])
-ROLES = set(D["六亲角色"])
 ATOM_TEN_GODS = set(D["十神"])
-STAR_GROUPS = {k for k, v in D.items() if isinstance(v, list) and k.startswith("紫微")}
-COMPLEX_DIRECT = {"财库现[]", "财星入墓[]", "官杀取清[]"}
 
 
 def read_groups(path: Path) -> dict[str, list[dict[str, str]]]:
@@ -35,69 +30,6 @@ def natal_groups() -> dict[str, list[dict]]:
 
 def flow_groups() -> dict[str, list[dict]]:
     return read_groups(TOOLS / "factors" / "factors_liunian.csv")
-
-
-def conditions(rows: list[dict]) -> list[list[tuple[str, str]]]:
-    return [[(k, str(v)) for k, v in row["conds"].items()] for row in rows]
-
-
-def factor_kind(rows: list[dict]) -> str:
-    direct = (rows[0].get("直通") or "").strip()
-    if direct:
-        return "复合" if direct in COMPLEX_DIRECT else "直通原子"
-    condition_rows = conditions(rows)
-    if len(rows) != 1 or len(condition_rows[0]) != 1:
-        return "复合"
-    key = condition_rows[0][0][0]
-    if "[" not in key:
-        return "复合"
-    match = re.match(r"^([^\[]+)\[(.*)\]$", key)
-    if not match:
-        return "复合"
-    op, args = match.group(1), match.group(2).split(",")
-    if op in {"现", "透", "藏", "得令", "有根", "克", "生", "为用", "为忌", "禄根", "时柱十神"}:
-        return "复合" if any(x in CLASSES | ROLES | STAR_GROUPS for x in args) else "提取原子"
-    if op == "数量至少":
-        return "复合" if any(x in CLASSES | ROLES for x in args[1:]) else "提取原子"
-    if op == "宫含":
-        return "复合" if args[1] in CLASSES | ROLES | STAR_GROUPS | {"煞星", "无主星", "任意"} else "提取原子"
-    if op == "大运十神":
-        return "复合" if args[1] in CLASSES | ROLES else "提取原子"
-    if op in {"流年透", "流年值", "流年合", "流年冲", "流年克", "大运窗口流年", "换运流年", "大运十神"}:
-        return "复合" if args[0] in CLASSES | ROLES else "提取原子"
-    if op == "引用本命":
-        return "复合"
-    return "提取原子"
-
-
-def factor_value(rows: list[dict]) -> str:
-    direct = (rows[0].get("直通") or "").strip()
-    return "string" if direct and "任意" in direct else "0/1"
-
-
-def factor_definition(rows: list[dict]) -> str:
-    direct = (rows[0].get("直通") or "").strip()
-    if direct:
-        return direct
-    variants = []
-    for row_conditions in conditions(rows):
-        variants.append(" AND ".join(f"{k}={v}" for k, v in row_conditions) or "TRUE")
-    return " OR ".join(f"({variant})" for variant in variants)
-
-
-
-def doc_rows(title: str, heading_level: int = 3) -> list[list[str]]:
-    text = DOC.read_text(encoding="utf-8")
-    prefix = "#" * heading_level
-    start = text.index(f"{prefix} {title}\n")
-    following = re.search(r"^#{2,3} ", text[start + 10:], re.M)
-    stop = start + 10 + (following.start() if following else len(text[start + 10:]))
-    rows: list[list[str]] = []
-    for line in text[start:stop].splitlines():
-        if not line.startswith("| ") or line.startswith("| #") or line.startswith("|---"):
-            continue
-        rows.append([cell.strip() for cell in line.strip("|").split("|")])
-    return rows
 
 
 def test_constant_closures_are_partitioned_and_complete() -> None:
@@ -132,46 +64,22 @@ def test_relation_closures_are_complete() -> None:
             assert D[name][b] == a
 
 
-def test_documented_natal_inventory_matches_implementation() -> None:
+def test_factor_inventory_has_single_source_of_truth() -> None:
     groups = natal_groups()
-    direct = doc_rows("1. 直通原子因子（46 个）")
-    atoms = doc_rows("2. 提取原子因子（295 个）")
-    compounds = doc_rows("3. 复合因子（115 个）")
-    documented = [row[1] for row in direct + atoms + compounds]
-    assert len(groups) == 456
-    assert len(direct) == 46
-    assert len(atoms) == 295
-    assert len(compounds) == 115
-    assert len(documented) == len(set(documented))
-    assert set(documented) == set(groups)
-    art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
-    for row in direct + atoms + compounds:
-        name = row[1]
-        assert row[2] == art[groups[name][0]["术数"]]
-        assert row[3] == factor_kind(groups[name])
-        assert row[4] == factor_value(groups[name])
-        assert row[5] == factor_definition(groups[name])
+    flows = flow_groups()
+    assert len(groups) == 459
+    assert len(flows) == 101
+
     text = DOC.read_text(encoding="utf-8")
-    assert "| 本命因子 | 456 |" in text
+    assert "tools/factors/factors.csv" in text
+    assert "tools/factors/factors_liunian.csv" in text
+    assert "CSV 是因子清单唯一事实源" in text
+    assert "| 本命因子 | 459 |" in text
     assert "| 本命直通原子 | 46 |" in text
     assert "| 本命提取原子 | 295 |" in text
-    assert "| 本命复合因子 | 115 |" in text
-
-
-def test_documented_flow_inventory_matches_implementation() -> None:
-    groups = flow_groups()
-    rows = doc_rows("流年因子（101 个）", heading_level=3)
-    assert len(groups) == 101
-    assert len(rows) == 101
-    assert {row[1] for row in rows} == set(groups)
-    art = {"common": "共同", "bazi": "八字", "ziwei": "紫微"}
-    for row in rows:
-        name = row[1]
-        assert row[2] == art[groups[name][0]["术数"]]
-        assert row[3] == factor_kind(groups[name])
-        assert row[4] == factor_value(groups[name])
-        assert row[5] == factor_definition(groups[name])
-    assert "| 流年因子 | 101 |" in DOC.read_text(encoding="utf-8")
+    assert "| 本命复合因子 | 118 |" in text
+    assert "| 流年因子 | 101 |" in text
+    assert not re.search(r"^\|\s*\d+\s*\|", text, re.M)
 
 
 def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:

@@ -1,0 +1,6 @@
+rule,name,scopes,schools,basis
+lost_property,失物,hour,zhuanpan|luoshu_feipan|mingfa_feipan,《奇门遁甲秘笈大全·卷九·占失物》以日干落宫为失主、时干落宫为失物；《奇门遁甲元灵经·卷十八·占失物》补方向与内外远近
+thief_capture,捕盗,hour,zhuanpan,《奇门遁甲秘笈大全·卷九·占捕盗贼》以天蓬为大贼、玄武为小贼、勾陈为捕盗之人，并参年 / 月 / 日 / 时庚格
+missing_person,走失人口,hour,zhuanpan,《奇门遁甲元灵经·卷十八·占走失》以时干为失主、六合为走失者，以落宫分内外远近
+capture_escape,捕亡,hour,zhuanpan,《奇门遁甲元灵经·卷十八·占捕亡》以六合为逃人、伤门为捕者，并参六癸天网高低与阴阳时
+thief_profile,贼人画像,hour,zhuanpan,《奇门遁甲秘笈大全·卷九·占何人盗》以蓬元为盗主，观旺相、吉格与八卦宫位

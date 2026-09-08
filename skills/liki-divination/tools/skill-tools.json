@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json.schemastore.org/tools.json",
+  "info": {
+    "title": "liki-divination 奇门工具",
+    "description": "奇门排盘编排与表驱动解释工具。唯一执行方式：python3 tools/agent_cli.py。",
+    "version": "2026.09.08.7"
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "city_coords",
+        "description": "城市名→经纬度。找不到时返回 error，先问附近较大城市再重试。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "city": {
+              "type": "string",
+              "description": "城市名称"
+            }
+          },
+          "required": [
+            "city"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "solar_time",
+        "description": "钟表时间与经度→真太阳时、农历与干支时间事实。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "time": {
+              "type": "string",
+              "description": "RFC3339 时间"
+            },
+            "longitude": {
+              "type": "number",
+              "description": "地点经度"
+            }
+          },
+          "required": [
+            "time",
+            "longitude"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "qimen_chart",
+        "description": "奇门排盘：普通问事传 matter，由 Python 事象表转换为显式 yong_shen；高级用户直接传 yong_shen。engine 只负责排盘和机械因子。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "solar_time": {
+              "type": "string",
+              "description": "真太阳时 RFC3339"
+            },
+            "matter": {
+              "type": "string",
+              "enum": [
+                "career",
+                "wealth",
+                "marriage",
+                "health",
+                "lawsuit",
+                "study",
+                "travel",
+                "hiding",
+                "missing_person"
+              ],
+              "description": "问事领域；与 yong_shen 互斥"
+            },
+            "yong_shen": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "显式用神符号；与 matter 互斥"
+            },
+            "birth_date": {
+              "type": "string",
+              "description": "出生日期或时刻，用于年命干落宫"
+            },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "day",
+                "quarter",
+                "month",
+                "year"
+              ]
+            },
+            "school": {
+              "type": "string",
+              "enum": [
+                "zhuanpan",
+                "luoshu_feipan",
+                "mingfa_feipan",
+                "jinhan_yujing"
+              ]
+            },
+            "dingju_method": {
+              "type": "string",
+              "enum": [
+                "chaibu",
+                "zhirun",
+                "maoshan"
+              ]
+            },
+            "quarter_rule": {
+              "type": "string",
+              "enum": [
+                "ten_minute_sanyuan",
+                "twelve_minute_ten_division"
+              ]
+            },
+            "base_dingju_method": {
+              "type": "string",
+              "enum": [
+                "chaibu",
+                "zhirun",
+                "maoshan"
+              ]
+            },
+            "dun_source": {
+              "type": "string",
+              "enum": [
+                "hour_branch",
+                "solar_term"
+              ]
+            },
+            "hour_boundary": {
+              "type": "string",
+              "enum": [
+                "late_zi",
+                "zi_zheng"
+              ]
+            }
+          },
+          "required": [
+            "solar_time"
+          ],
+          "not": {
+            "required": [
+              "matter",
+              "yong_shen"
+            ]
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "query",
+        "description": "奇门占法解释：按规则表校验方法适用范围，将 qimen_chart 盘面投影为稳定快照后查解释表；输出候选断语和证据，不做最终裁决。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "rule": {
+              "type": "string",
+              "enum": [
+                "lost_property",
+                "thief_capture",
+                "missing_person",
+                "capture_escape",
+                "thief_profile"
+              ],
+              "description": "占法规则"
+            },
+            "pan": {
+              "type": "object",
+              "description": "qimen_chart 返回的完整结构"
+            }
+          },
+          "required": [
+            "rule",
+            "pan"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

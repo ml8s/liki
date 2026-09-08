@@ -1,22 +1,12 @@
 package qimen
 
 import (
-	"strings"
 	"testing"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
-
-// qimen.chart 确定性派生字段 — 数据驱动命理锚点测试。
-// 每个 case 断言：定局（局数/阴阳遁）、日时干落宫、生克文案、空亡马星影响标记，
-// 及 pan 级空亡/马星数据。锚点值独立由命理规则手算确认（拆补法定局 × 时柱旬空/马星口诀）。
-//
-// 校验规则：
-//   - 空亡 = 时柱旬空地支落宫（甲子旬空戌亥→乾…）
-//   - 马星 = 时支三合局冲支落宫（申子辰马在寅→艮…）
-//   - kong_wang_affected/ma_xing_affected = 日干宫或时干宫是否值空/值马
 
 func chartAt(t *testing.T, date string, hour int) Chart {
 	t.Helper()
@@ -25,159 +15,85 @@ func chartAt(t *testing.T, date string, hour int) Chart {
 		t.Fatal(err)
 	}
 	st := tianwen.GregorianToSolar(bt.Add(time.Duration(hour)*time.Hour), 116.4, 8)
-	return ComputeChart(st, "时家")
+	return ComputeChart(st)
 }
 
 func TestChartDerived_Anchors(t *testing.T) {
 	cases := []struct {
-		name         string
-		date         string
-		hour         int
-		ju           int
-		yin          bool
-		riGanGong    string
-		shiGanGong   string
-		riShiShengKe string
-		kwAffected   bool
-		maAffected   bool
-		kongWang     []string
-		maXing       string
+		name       string
+		date       string
+		hour       int
+		ju         int
+		yin        bool
+		dayGong    string
+		hourGong   string
+		riShi      string
+		voidBranch [2]string
+		voidGong   [2]string
+		horse      string
+		horseGong  string
 	}{
 		{
-			// 2026-06-28 午时：夏至中元（癸酉日 mod15=9 中元）→ 阴遁3局。
-			// 日干癸天盘落震、时干戊天盘落离（用神落宫以天盘为核心判断依据）；
-			// 时柱戊午（甲寅旬）空子丑→坎艮；午→寅午戌马在申→坤。
-			name: "2026-06-28 午时 夏至中元 阴遁3局",
-			date: "2026-06-28", hour: 12,
-			ju: 3, yin: true,
-			riGanGong: "震", shiGanGong: "离",
-			riShiShengKe: "日干(3宫)生时干(9宫)",
-			kwAffected:   false, maAffected: false,
-			kongWang: []string{"坎", "艮"}, maXing: "坤",
+			name: "2026-06-28 午时 夏至中元 阴遁3局", date: "2026-06-28", hour: 12,
+			ju: 3, yin: true, dayGong: "震", hourGong: "兑", riShi: "shi_controls_ri",
+			voidBranch: [2]string{"子", "丑"}, voidGong: [2]string{"坎", "艮"},
+			horse: "申", horseGong: "坤",
 		},
 		{
-			// 2026-01-01 辰时：冬至下元（日柱 mod15 下元）→ 阳遁4局。
-			// 日干乙天盘落兑、时干庚天盘落离（用神落宫以天盘为核心判断依据）；
-			// 时柱庚辰（甲戌旬）空申酉→坤兑；辰→申子辰马在寅→艮。
-			name: "2026-01-01 辰时 冬至下元 阳遁4局",
-			date: "2026-01-01", hour: 8,
-			ju: 4, yin: false,
-			riGanGong: "兑", shiGanGong: "离",
-			riShiShengKe: "时干(9宫)克日干(7宫)",
-			kwAffected:   false, maAffected: false,
-			kongWang: []string{"坤", "兑"}, maXing: "艮",
+			name: "2026-01-01 辰时 冬至下元 阳遁4局", date: "2026-01-01", hour: 8,
+			ju: 4, yin: false, dayGong: "离", hourGong: "艮", riShi: "ri_generates_shi",
+			voidBranch: [2]string{"申", "酉"}, voidGong: [2]string{"坤", "兑"},
+			horse: "寅", horseGong: "艮",
 		},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			ch := chartAt(t, c.date, c.hour)
-
-			// 定局锚点。
-			if ch.Pan.Jushu != c.ju || ch.Pan.YinDun != c.yin {
-				t.Errorf("ju=%d yin=%v, want ju=%d yin=%v", ch.Pan.Jushu, ch.Pan.YinDun, c.ju, c.yin)
+			chart := chartAt(t, c.date, c.hour)
+			if chart.Pan.Jushu != c.ju || chart.Pan.YinDun != c.yin {
+				t.Fatalf("ju=%d yin=%v, want %d/%v", chart.Pan.Jushu, chart.Pan.YinDun, c.ju, c.yin)
 			}
-			// 日时干落宫 + 生克文案。
-			if ch.RiGanPalace.String() != c.riGanGong {
-				t.Errorf("ri_gan_gong=%s, want %s", ch.RiGanPalace, c.riGanGong)
+			if chart.RiGanPalace.String() != c.dayGong || chart.ShiGanPalace.String() != c.hourGong {
+				t.Fatalf("day/hour palaces = %s/%s, want %s/%s",
+					chart.RiGanPalace, chart.ShiGanPalace, c.dayGong, c.hourGong)
 			}
-			if ch.ShiGanPalace.String() != c.shiGanGong {
-				t.Errorf("shi_gan_gong=%s, want %s", ch.ShiGanPalace, c.shiGanGong)
+			if chart.RiShiRelation.Relation != c.riShi {
+				t.Fatalf("ri_shi_relation = %+v, want %s", chart.RiShiRelation, c.riShi)
 			}
-			if ch.RiShiShengKe != c.riShiShengKe {
-				t.Errorf("ri_shi_sheng_ke=%q, want %q", ch.RiShiShengKe, c.riShiShengKe)
-			}
-			// 生克文案自洽：宫五行关系与文案方向一致。
-			sp, rp := palaceWuxing(ch.ShiGanPalace), palaceWuxing(ch.RiGanPalace)
-			if !strings.Contains(ch.RiShiShengKe, "比和") && !ganzhi.Ke(sp, rp) && !ganzhi.Ke(rp, sp) && !ganzhi.Sheng(sp, rp) && !ganzhi.Sheng(rp, sp) {
-				t.Errorf("生克文案 %q 与宫五行关系矛盾（时宫%s 日宫%s）", ch.RiShiShengKe, sp, rp)
-			}
-			// 空亡/马星宫位锚点。
-			kwStr := []string{ch.Pan.KongWang[0].String(), ch.Pan.KongWang[1].String()}
-			if !equalStrings(kwStr, c.kongWang) {
-				t.Errorf("kong_wang=%v, want %v", kwStr, c.kongWang)
-			}
-			if ch.Pan.MaXing.String() != c.maXing {
-				t.Errorf("ma_xing=%s, want %s", ch.Pan.MaXing, c.maXing)
-			}
-			// 影响标记自洽：与 pan 级空亡/马星数据一致。
-			ri, shi := ch.RiGanPalace, ch.ShiGanPalace
-			kw := false
-			for _, k := range ch.Pan.KongWang {
-				if k == ri || k == shi {
-					kw = true
-					break
+			for i, want := range c.voidBranch {
+				got := chart.Pan.KongWang[i]
+				if got.Branch.String() != want || got.Gong.String() != c.voidGong[i] {
+					t.Errorf("void[%d] = %s@%s, want %s@%s", i, got.Branch, got.Gong, want, c.voidGong[i])
 				}
 			}
-			if kw != ch.KongWangAffected {
-				t.Errorf("kong_wang_affected(%v) 与 pan.KongWang 推导(%v) 不一致", ch.KongWangAffected, kw)
-			}
-			if (ch.Pan.MaXing == ri || ch.Pan.MaXing == shi) != ch.MaXingAffected {
-				t.Errorf("ma_xing_affected(%v) 与 pan.MaXing 推导不一致", ch.MaXingAffected)
+			if chart.Pan.MaXing.Branch.String() != c.horse || chart.Pan.MaXing.Gong.String() != c.horseGong {
+				t.Errorf("horse = %s@%s, want %s@%s", chart.Pan.MaXing.Branch, chart.Pan.MaXing.Gong, c.horse, c.horseGong)
 			}
 		})
 	}
 }
 
-func equalStrings(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
+func TestPalaceWangShuaiUsesMonthBranch(t *testing.T) {
+	chart := chartAt(t, "2026-06-28", 12)
+	if len(chart.PalaceWangShuai) != 9 {
+		t.Fatalf("palace wangshuai count = %d, want 9", len(chart.PalaceWangShuai))
 	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
+	want := map[GongIndex]ganzhi.WangShuai{
+		GongLi:    ganzhi.WSWang,
+		GongKun:   ganzhi.WSXiang,
+		GongGen:   ganzhi.WSXiang,
+		GongZhong: ganzhi.WSXiang,
+		GongZhen:  ganzhi.WSXiu,
+		GongXun:   ganzhi.WSXiu,
+		GongKan:   ganzhi.WSQiu,
+		GongQian:  ganzhi.WSSi,
+		GongDui:   ganzhi.WSSi,
+	}
+	for _, item := range chart.PalaceWangShuai {
+		if item.WangShuai != want[item.Gong] {
+			t.Fatalf("%s wangshuai = %s, want %s", item.Gong.String(), item.WangShuai.String(), want[item.Gong].String())
 		}
 	}
-	return true
-}
-
-// TestYingQiAnchors 应期文案数据驱动锚定（马星/空亡用具体地支，与盘面一致）。
-// 期望值由三合局马星口诀 + 时柱旬空规则独立手算。
-func TestYingQiAnchors(t *testing.T) {
-	cases := []struct {
-		name         string
-		date         string
-		hour         int
-		maXingText   string // 马星文案（含具体地支）
-		kongWangText string // 空亡文案（含具体两支）
-	}{
-		{
-			// 午→寅午戌马在申（应期冲申的寅）；戊午（甲寅旬）空子丑。
-			name: "2026-06-28 午时 马在申 空子丑",
-			date: "2026-06-28", hour: 12,
-			maXingText:   "马星在申，冲则动，应期在寅（年月日时）",
-			kongWangText: "空亡在子 丑，填实或冲空之时应事",
-		},
-		{
-			// 辰→申子辰马在寅（应期冲寅的申）；庚辰（甲戌旬）空申酉。
-			name: "2026-01-01 辰时 马在寅 空申酉",
-			date: "2026-01-01", hour: 8,
-			maXingText:   "马星在寅，冲则动，应期在申（年月日时）",
-			kongWangText: "空亡在申 酉，填实或冲空之时应事",
-		},
-		{
-			// 午→马在申；庚午（甲子旬）空戌亥。
-			name: "2000-06-15 午时 马在申 空戌亥",
-			date: "2000-06-15", hour: 12,
-			maXingText:   "马星在申，冲则动，应期在寅（年月日时）",
-			kongWangText: "空亡在戌 亥，填实或冲空之时应事",
-		},
-		{
-			// 辰→马在寅（应期冲寅的申）；时柱戊辰（甲子旬）空戌亥。
-			name: "1984-02-15 辰时 马在寅 空戌亥",
-			date: "1984-02-15", hour: 8,
-			maXingText:   "马星在寅，冲则动，应期在申（年月日时）",
-			kongWangText: "空亡在戌 亥，填实或冲空之时应事",
-		},
-	}
-	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			ch := chartAt(t, c.date, c.hour)
-			if ch.YingQi.MaXing != c.maXingText {
-				t.Errorf("ma_xing_dir = %q, want %q", ch.YingQi.MaXing, c.maXingText)
-			}
-			if ch.YingQi.KongWang != c.kongWangText {
-				t.Errorf("kong_wang_fill = %q, want %q", ch.YingQi.KongWang, c.kongWangText)
-			}
-		})
+	if chart.ShiGanGongWangShuai.Gong != GongDui || chart.ShiGanGongWangShuai.WangShuai != ganzhi.WSSi {
+		t.Fatalf("shi gan palace wangshuai = %+v", chart.ShiGanGongWangShuai)
 	}
 }

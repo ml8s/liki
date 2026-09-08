@@ -1,146 +1,194 @@
 [
   {
+    "jie_qi": "冬至",
     "shang_yuan": 1,
     "zhong_yuan": 7,
     "xia_yuan": 4,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 270
   },
   {
+    "jie_qi": "小寒",
     "shang_yuan": 2,
     "zhong_yuan": 8,
     "xia_yuan": 5,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 285
   },
   {
+    "jie_qi": "大寒",
     "shang_yuan": 3,
     "zhong_yuan": 9,
     "xia_yuan": 6,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 300
   },
   {
+    "jie_qi": "立春",
     "shang_yuan": 8,
     "zhong_yuan": 5,
     "xia_yuan": 2,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 315
   },
   {
+    "jie_qi": "雨水",
     "shang_yuan": 9,
     "zhong_yuan": 6,
     "xia_yuan": 3,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 330
   },
   {
+    "jie_qi": "惊蛰",
     "shang_yuan": 1,
     "zhong_yuan": 7,
     "xia_yuan": 4,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 345
   },
   {
+    "jie_qi": "春分",
     "shang_yuan": 3,
     "zhong_yuan": 9,
     "xia_yuan": 6,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 0
   },
   {
+    "jie_qi": "清明",
     "shang_yuan": 4,
     "zhong_yuan": 1,
     "xia_yuan": 7,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 15
   },
   {
+    "jie_qi": "谷雨",
     "shang_yuan": 5,
     "zhong_yuan": 2,
     "xia_yuan": 8,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 30
   },
   {
+    "jie_qi": "立夏",
     "shang_yuan": 4,
     "zhong_yuan": 1,
     "xia_yuan": 7,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 45
   },
   {
+    "jie_qi": "小满",
     "shang_yuan": 5,
     "zhong_yuan": 2,
     "xia_yuan": 8,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 60
   },
   {
+    "jie_qi": "芒种",
     "shang_yuan": 6,
     "zhong_yuan": 3,
     "xia_yuan": 9,
-    "yang_dun": true
+    "yang_dun": true,
+    "longitude": 75
   },
   {
+    "jie_qi": "夏至",
     "shang_yuan": 9,
     "zhong_yuan": 3,
     "xia_yuan": 6,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 90
   },
   {
+    "jie_qi": "小暑",
     "shang_yuan": 8,
     "zhong_yuan": 2,
     "xia_yuan": 5,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 105
   },
   {
+    "jie_qi": "大暑",
     "shang_yuan": 7,
     "zhong_yuan": 1,
     "xia_yuan": 4,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 120
   },
   {
+    "jie_qi": "立秋",
     "shang_yuan": 2,
     "zhong_yuan": 5,
     "xia_yuan": 8,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 135
   },
   {
+    "jie_qi": "处暑",
     "shang_yuan": 1,
     "zhong_yuan": 4,
     "xia_yuan": 7,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 150
   },
   {
+    "jie_qi": "白露",
     "shang_yuan": 9,
     "zhong_yuan": 3,
     "xia_yuan": 6,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 165
   },
   {
+    "jie_qi": "秋分",
     "shang_yuan": 7,
     "zhong_yuan": 1,
     "xia_yuan": 4,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 180
   },
   {
+    "jie_qi": "寒露",
     "shang_yuan": 6,
     "zhong_yuan": 9,
     "xia_yuan": 3,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 195
   },
   {
+    "jie_qi": "霜降",
     "shang_yuan": 5,
     "zhong_yuan": 8,
     "xia_yuan": 2,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 210
   },
   {
+    "jie_qi": "立冬",
     "shang_yuan": 6,
     "zhong_yuan": 9,
     "xia_yuan": 3,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 225
   },
   {
+    "jie_qi": "小雪",
     "shang_yuan": 5,
     "zhong_yuan": 8,
     "xia_yuan": 2,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 240
   },
   {
+    "jie_qi": "大雪",
     "shang_yuan": 4,
     "zhong_yuan": 7,
     "xia_yuan": 1,
-    "yang_dun": false
+    "yang_dun": false,
+    "longitude": 255
   }
 ]

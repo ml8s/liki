@@ -1,0 +1,3475 @@
+{
+  "params": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "solar_time": {
+        "type": "string",
+        "format": "date-time",
+        "description": "真太阳时（RFC3339），从 tianwen.time 返回的 solar 字段",
+        "examples": [
+          "2026-07-20T12:00:00+08:00"
+        ]
+      },
+      "scope": {
+        "type": "string",
+        "enum": [
+          "hour",
+          "day",
+          "quarter",
+          "month",
+          "year"
+        ],
+        "description": "时间层级；默认 hour；quarter 为刻家奇门；month/year 为固定周期定局"
+      },
+      "school": {
+        "type": "string",
+        "enum": [
+          "zhuanpan",
+          "luoshu_feipan",
+          "mingfa_feipan",
+          "jinhan_yujing"
+        ],
+        "description": "盘式流派；默认 zhuanpan；金函玉镜为独立日家专用盘型"
+      },
+      "dingju_method": {
+        "type": "string",
+        "enum": [
+          "chaibu",
+          "zhirun",
+          "maoshan"
+        ],
+        "description": "定局法；默认 hour/day=chaibu；仅 hour/day 可传"
+      },
+      "quarter_rule": {
+        "type": "string",
+        "enum": [
+          "ten_minute_sanyuan",
+          "twelve_minute_ten_division"
+        ],
+        "description": "刻家规则；默认 ten_minute_sanyuan；仅 scope=quarter 可传"
+      },
+      "base_dingju_method": {
+        "type": "string",
+        "enum": [
+          "chaibu",
+          "zhirun",
+          "maoshan"
+        ],
+        "description": "十二分钟十分局刻家的基准时家定局法；默认 chaibu；仅 quarter_rule=twelve_minute_ten_division 可传"
+      },
+      "dun_source": {
+        "type": "string",
+        "enum": [
+          "hour_branch",
+          "solar_term"
+        ],
+        "description": "十二分钟十分局刻家的分遁口径；默认 hour_branch；仅 quarter_rule=twelve_minute_ten_division 可传"
+      },
+      "hour_boundary": {
+        "type": "string",
+        "enum": [
+          "late_zi",
+          "zi_zheng"
+        ],
+        "description": "十二分钟十分局刻家的时辰界；默认 late_zi；仅 quarter_rule=twelve_minute_ten_division 可传"
+      },
+      "yong_shen": {
+        "type": "array",
+        "description": "用神符号组合；甲不露盘，不能作为独立符号",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "birth_date": {
+        "anyOf": [
+          {
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "description": "出生日期 YYYY-MM-DD 或 RFC3339；按精确立春取年命干，跨立春日必须给时刻"
+      }
+    },
+    "required": [
+      "solar_time"
+    ],
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "scope": {
+              "enum": [
+                "hour",
+                "day"
+              ]
+            }
+          },
+          "required": [
+            "scope"
+          ]
+        },
+        "then": {
+          "properties": {
+            "dingju_method": {
+              "enum": [
+                "chaibu",
+                "zhirun",
+                "maoshan"
+              ]
+            },
+            "quarter_rule": {
+              "not": {}
+            },
+            "base_dingju_method": {
+              "not": {}
+            },
+            "dun_source": {
+              "not": {}
+            },
+            "hour_boundary": {
+              "not": {}
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "not": {
+            "required": [
+              "scope"
+            ]
+          }
+        },
+        "then": {
+          "properties": {
+            "quarter_rule": {
+              "not": {}
+            },
+            "base_dingju_method": {
+              "not": {}
+            },
+            "dun_source": {
+              "not": {}
+            },
+            "hour_boundary": {
+              "not": {}
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "scope": {
+              "const": "quarter"
+            }
+          },
+          "required": [
+            "scope"
+          ]
+        },
+        "then": {
+          "properties": {
+            "school": {
+              "const": "zhuanpan"
+            },
+            "dingju_method": {
+              "not": {}
+            },
+            "quarter_rule": {
+              "enum": [
+                "ten_minute_sanyuan",
+                "twelve_minute_ten_division"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "scope": {
+              "enum": [
+                "month",
+                "year"
+              ]
+            }
+          },
+          "required": [
+            "scope"
+          ]
+        },
+        "then": {
+          "properties": {
+            "dingju_method": {
+              "not": {}
+            },
+            "quarter_rule": {
+              "not": {}
+            },
+            "base_dingju_method": {
+              "not": {}
+            },
+            "dun_source": {
+              "not": {}
+            },
+            "hour_boundary": {
+              "not": {}
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "quarter_rule": {
+              "const": "ten_minute_sanyuan"
+            }
+          },
+          "required": [
+            "quarter_rule"
+          ]
+        },
+        "then": {
+          "properties": {
+            "base_dingju_method": {
+              "not": {}
+            },
+            "dun_source": {
+              "not": {}
+            },
+            "hour_boundary": {
+              "not": {}
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "quarter_rule": {
+              "const": "twelve_minute_ten_division"
+            }
+          },
+          "required": [
+            "quarter_rule"
+          ]
+        },
+        "then": {
+          "properties": {
+            "base_dingju_method": {
+              "enum": [
+                "chaibu",
+                "zhirun",
+                "maoshan"
+              ]
+            },
+            "dun_source": {
+              "enum": [
+                "hour_branch",
+                "solar_term"
+              ]
+            },
+            "hour_boundary": {
+              "enum": [
+                "late_zi",
+                "zi_zheng"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "dingju_method": {
+              "const": "maoshan"
+            }
+          },
+          "required": [
+            "dingju_method"
+          ]
+        },
+        "then": {
+          "properties": {
+            "scope": {
+              "const": "hour"
+            },
+            "school": {
+              "const": "zhuanpan"
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "school": {
+              "enum": [
+                "zhuanpan",
+                "luoshu_feipan"
+              ]
+            }
+          },
+          "required": [
+            "school"
+          ]
+        },
+        "then": {
+          "properties": {
+            "yong_shen": {
+              "items": {
+                "enum": [
+                  "休门",
+                  "生门",
+                  "伤门",
+                  "杜门",
+                  "景门",
+                  "死门",
+                  "惊门",
+                  "开门",
+                  "天蓬",
+                  "天芮",
+                  "天禽",
+                  "天冲",
+                  "天辅",
+                  "天心",
+                  "天柱",
+                  "天任",
+                  "天英",
+                  "值符",
+                  "螣蛇",
+                  "太阴",
+                  "六合",
+                  "勾陈",
+                  "朱雀",
+                  "白虎",
+                  "玄武",
+                  "九地",
+                  "九天",
+                  "太常",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "not": {
+            "required": [
+              "school"
+            ]
+          }
+        },
+        "then": {
+          "properties": {
+            "yong_shen": {
+              "items": {
+                "enum": [
+                  "休门",
+                  "生门",
+                  "伤门",
+                  "杜门",
+                  "景门",
+                  "死门",
+                  "惊门",
+                  "开门",
+                  "天蓬",
+                  "天芮",
+                  "天禽",
+                  "天冲",
+                  "天辅",
+                  "天心",
+                  "天柱",
+                  "天任",
+                  "天英",
+                  "值符",
+                  "螣蛇",
+                  "太阴",
+                  "六合",
+                  "勾陈",
+                  "朱雀",
+                  "白虎",
+                  "玄武",
+                  "九地",
+                  "九天",
+                  "太常",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "school": {
+              "const": "mingfa_feipan"
+            }
+          },
+          "required": [
+            "school"
+          ]
+        },
+        "then": {
+          "properties": {
+            "yong_shen": {
+              "items": {
+                "enum": [
+                  "休门",
+                  "生门",
+                  "伤门",
+                  "杜门",
+                  "景门",
+                  "死门",
+                  "惊门",
+                  "开门",
+                  "中门",
+                  "天蓬",
+                  "天芮",
+                  "天禽",
+                  "天冲",
+                  "天辅",
+                  "天心",
+                  "天柱",
+                  "天任",
+                  "天英",
+                  "值符",
+                  "螣蛇",
+                  "太阴",
+                  "六合",
+                  "勾陈",
+                  "朱雀",
+                  "白虎",
+                  "玄武",
+                  "九地",
+                  "九天",
+                  "太常",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "school": {
+              "const": "mingfa_feipan"
+            }
+          },
+          "required": [
+            "school"
+          ]
+        },
+        "then": {
+          "properties": {
+            "dingju_method": {
+              "enum": [
+                "chaibu"
+              ]
+            },
+            "quarter_rule": {
+              "not": {}
+            },
+            "base_dingju_method": {
+              "not": {}
+            },
+            "dun_source": {
+              "not": {}
+            },
+            "hour_boundary": {
+              "not": {}
+            },
+            "scope": {
+              "enum": [
+                "hour"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "school": {
+              "const": "jinhan_yujing"
+            }
+          },
+          "required": [
+            "school"
+          ]
+        },
+          "then": {
+            "properties": {
+              "yong_shen": {
+                "not": {}
+            },
+            "birth_date": {
+              "not": {}
+            },
+            "scope": {
+              "const": "day"
+            },
+            "dingju_method": {
+              "not": {}
+            },
+            "quarter_rule": {
+              "not": {}
+            },
+            "base_dingju_method": {
+              "not": {}
+            },
+            "dun_source": {
+              "not": {}
+            },
+            "hour_boundary": {
+              "not": {}
+            }
+          }
+        }
+      }
+    ],
+    "examples": [
+      {
+        "solar_time": "2026-09-07T12:00:00+08:00"
+      },
+      {
+        "solar_time": "2026-09-07T12:00:00+08:00",
+        "scope": "hour",
+        "school": "zhuanpan",
+        "dingju_method": "zhirun"
+      },
+      {
+        "solar_time": "2026-09-07T12:00:00+08:00",
+        "scope": "day"
+      },
+      {
+        "solar_time": "2026-09-07T12:00:00+08:00",
+        "scope": "quarter",
+        "school": "zhuanpan",
+        "quarter_rule": "ten_minute_sanyuan"
+      },
+      {
+        "solar_time": "2026-09-07T12:00:00+08:00",
+        "scope": "quarter",
+        "school": "zhuanpan",
+        "quarter_rule": "twelve_minute_ten_division",
+        "base_dingju_method": "zhirun",
+        "dun_source": "solar_term",
+        "hour_boundary": "zi_zheng"
+      },
+      {
+        "solar_time": "2026-09-07T12:00:00+08:00",
+        "scope": "day",
+        "school": "jinhan_yujing"
+      },
+      {
+        "solar_time": "2026-09-07T12:00:00+08:00",
+        "yong_shen": ["生门", "戊"],
+        "birth_date": "1984-02-15"
+      }
+    ]
+  },
+  "result": {
+    "oneOf": [
+      {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "object",
+            "description": "排盘方法元数据",
+            "properties": {
+              "scope": {
+                "type": "string",
+                "enum": [
+                  "hour",
+                  "day",
+                  "quarter",
+                  "month",
+                  "year"
+                ],
+                "description": "时间层级"
+              },
+              "scope_name": {
+                "type": "string",
+                "enum": [
+                  "时家奇门",
+                  "日家奇门",
+                  "刻家奇门",
+                  "月家周期奇门",
+                  "年家周期奇门"
+                ],
+                "description": "时间层级名称"
+              },
+              "school": {
+                "type": "string",
+                "enum": [
+                  "zhuanpan",
+                  "luoshu_feipan",
+                  "mingfa_feipan"
+                ],
+                "description": "盘式流派"
+              },
+              "school_name": {
+                "type": "string",
+                "enum": [
+                  "转盘法",
+                  "洛书飞盘法",
+                  "鸣法飞盘"
+                ],
+                "description": "盘式流派名称"
+              },
+              "dingju_method": {
+                "type": "string",
+                "enum": [
+                  "chaibu",
+                  "zhirun",
+                  "maoshan"
+                ],
+                "description": "定局法；quarter 输出 quarter_rule，不输出本字段"
+              },
+              "dingju_method_name": {
+                "type": "string",
+                "enum": [
+                  "拆补定局",
+                  "置闰定局",
+                  "茅山定局"
+                ],
+                "description": "定局法名称"
+              },
+              "quarter_rule": {
+                "type": "string",
+                "enum": [
+                  "ten_minute_sanyuan",
+                  "twelve_minute_ten_division"
+                ],
+                "description": "刻家规则；仅 scope=quarter 输出"
+              },
+              "quarter_rule_name": {
+                "type": "string",
+                "enum": [
+                  "十分钟三元刻家",
+                  "十二分钟十分局刻家"
+                ],
+                "description": "刻家规则名称"
+              },
+              "base_dingju_method": {
+                "type": "string",
+                "enum": [
+                  "chaibu",
+                  "zhirun",
+                  "maoshan"
+                ],
+                "description": "十二分钟十分局的基准时家定局法"
+              },
+              "base_dingju_method_name": {
+                "type": "string",
+                "enum": [
+                  "拆补定局",
+                  "置闰定局",
+                  "茅山定局"
+                ],
+                "description": "基准时家定局法名称"
+              },
+              "method_source": {
+                "type": "string",
+                "enum": [
+                  "solar_term",
+                  "quarter_rule",
+                  "month_cycle",
+                  "year_cycle"
+                ],
+                "description": "方法来源：节气定局、刻家规则、月周期或年周期"
+              },
+              "day_boundary": {
+                "type": "string",
+                "enum": [
+                  "late_zi_rolls_day_pillar"
+                ]
+              },
+              "spirit_mode": {
+                "type": "string",
+                "enum": [
+                  "eight_spirits_yang_gouchen_zhuque_yin_baihu_xuanwu",
+                  "nine_spirits_baihu_taichang_xuanwu",
+                  "nine_spirits_gouchen_taichang_zhuque"
+                ]
+              },
+              "geometry": {
+                "type": "string",
+                "enum": [
+                  "luoshu_ring_rotation",
+                  "palace_number_shift",
+                  "mingfa_star_door_forward_flight"
+                ]
+              },
+              "star_mode": {
+                "type": "string",
+                "enum": [
+                  "tian_qin_lodges_kun",
+                  "star_gan_shift_together",
+                  "nine_stars_forward_with_center"
+                ]
+              },
+              "door_mode": {
+                "type": "string",
+                "enum": [
+                  "center_projects_kun",
+                  "eight_doors_real_center_step",
+                  "nine_doors_with_center_forward"
+                ]
+              },
+              "spirit_flight": {
+                "type": "string",
+                "enum": [
+                  "yang_forward_yin_reverse"
+                ]
+              },
+              "tian_qin": {
+                "type": "object",
+                "properties": {
+                  "star": {
+                    "type": "string",
+                    "enum": [
+                      "天禽"
+                    ]
+                  },
+                  "home_gong": {
+                    "type": "string",
+                    "enum": [
+                      "坎",
+                      "坤",
+                      "震",
+                      "巽",
+                      "中",
+                      "乾",
+                      "兑",
+                      "艮",
+                      "离"
+                    ]
+                  },
+                  "lodging_gong": {
+                    "type": "string",
+                    "enum": [
+                      "坎",
+                      "坤",
+                      "震",
+                      "巽",
+                      "乾",
+                      "兑",
+                      "艮",
+                      "离"
+                    ]
+                  },
+                  "follows": {
+                    "type": "string",
+                    "enum": [
+                      "天芮"
+                    ]
+                  },
+                  "carries_center_earth_gan": {
+                    "type": "boolean"
+                  },
+                  "lodging_rule": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "star",
+                  "home_gong",
+                  "lodging_gong",
+                  "follows",
+                  "carries_center_earth_gan",
+                  "lodging_rule"
+                ],
+                "additionalProperties": false
+              },
+              "jie_qi": {
+                "type": "string",
+                "enum": [
+                  "冬至",
+                  "惊蛰",
+                  "小寒",
+                  "大寒",
+                  "立春",
+                  "雨水",
+                  "春分",
+                  "清明",
+                  "立夏",
+                  "谷雨",
+                  "小满",
+                  "芒种",
+                  "夏至",
+                  "白露",
+                  "小暑",
+                  "大暑",
+                  "立秋",
+                  "处暑",
+                  "秋分",
+                  "寒露",
+                  "立冬",
+                  "霜降",
+                  "小雪",
+                  "大雪"
+                ]
+              },
+              "yong_ju_jie_qi": {
+                "type": "string"
+              },
+              "yuan": {
+                "type": "string",
+                "enum": [
+                  "上元",
+                  "中元",
+                  "下元"
+                ]
+              },
+              "zhi_run_state": {
+                "type": "string",
+                "enum": [
+                  "正授",
+                  "超神",
+                  "接气",
+                  "置闰"
+                ]
+              },
+              "lead_pillar": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "gan": {
+                    "type": "string",
+                    "enum": [
+                      "甲",
+                      "乙",
+                      "丙",
+                      "丁",
+                      "戊",
+                      "己",
+                      "庚",
+                      "辛",
+                      "壬",
+                      "癸"
+                    ]
+                  },
+                  "zhi": {
+                    "type": "string",
+                    "enum": [
+                      "子",
+                      "丑",
+                      "寅",
+                      "卯",
+                      "辰",
+                      "巳",
+                      "午",
+                      "未",
+                      "申",
+                      "酉",
+                      "戌",
+                      "亥"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "gan",
+                  "zhi"
+                ],
+                "additionalProperties": false
+              },
+              "lead_xun_shou": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "enum": [
+                      "甲子",
+                      "甲戌",
+                      "甲申",
+                      "甲午",
+                      "甲辰",
+                      "甲寅"
+                    ]
+                  },
+                  "gan": {
+                    "type": "string",
+                    "enum": [
+                      "甲"
+                    ]
+                  },
+                  "zhi": {
+                    "type": "string",
+                    "enum": [
+                      "子",
+                      "丑",
+                      "寅",
+                      "卯",
+                      "辰",
+                      "巳",
+                      "午",
+                      "未",
+                      "申",
+                      "酉",
+                      "戌",
+                      "亥"
+                    ]
+                  },
+                  "liu_yi": {
+                    "type": "string",
+                    "enum": [
+                      "戊",
+                      "己",
+                      "庚",
+                      "辛",
+                      "壬",
+                      "癸"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "gan",
+                  "zhi",
+                  "liu_yi"
+                ],
+                "additionalProperties": false
+              },
+              "lead_xun_shou_gong": {
+                "type": "string",
+                "enum": [
+                  "坎",
+                  "坤",
+                  "震",
+                  "巽",
+                  "中",
+                  "乾",
+                  "兑",
+                  "艮",
+                  "离"
+                ]
+              },
+              "day_fu_tou": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "enum": [
+                      "甲子",
+                      "己巳",
+                      "甲戌",
+                      "己卯",
+                      "甲申",
+                      "己丑",
+                      "甲午",
+                      "己亥",
+                      "甲辰",
+                      "己酉",
+                      "甲寅",
+                      "己未"
+                    ]
+                  },
+                  "gan": {
+                    "type": "string",
+                    "enum": [
+                      "甲",
+                      "己"
+                    ]
+                  },
+                  "zhi": {
+                    "type": "string",
+                    "enum": [
+                      "子",
+                      "丑",
+                      "寅",
+                      "卯",
+                      "辰",
+                      "巳",
+                      "午",
+                      "未",
+                      "申",
+                      "酉",
+                      "戌",
+                      "亥"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "gan",
+                  "zhi"
+                ],
+                "additionalProperties": false
+              },
+              "quarter": {
+                "type": "object",
+                "description": "刻家序数与主柱口径；干支不重复输出，以 lead_pillar 为准",
+                "properties": {
+                  "index": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "minutes_per_quarter": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "lead_pillar_mode": {
+                    "type": "string",
+                    "enum": [
+                      "quarter",
+                      "hour"
+                    ],
+                    "description": "quarter=刻柱主盘；hour=十二分钟十分局刻家的时柱主盘"
+                  },
+                  "dun_source": {
+                    "type": "string",
+                    "enum": [
+                      "hour_branch",
+                      "solar_term"
+                    ],
+                    "description": "hour_branch=时支分遁；solar_term=沿基准时家节气分遁"
+                  },
+                  "hour_boundary": {
+                    "type": "string",
+                    "enum": [
+                      "late_zi",
+                      "zi_zheng"
+                    ],
+                    "description": "late_zi=23点起子时；zi_zheng=0点起子时"
+                  }
+                },
+                "required": [
+                  "index",
+                  "minutes_per_quarter",
+                  "lead_pillar_mode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "scope",
+              "scope_name",
+              "school",
+              "school_name",
+              "day_boundary",
+              "spirit_mode",
+              "geometry",
+              "star_mode",
+              "door_mode",
+              "spirit_flight",
+              "jie_qi",
+              "yong_ju_jie_qi",
+              "yuan",
+              "lead_pillar",
+              "lead_xun_shou",
+              "lead_xun_shou_gong",
+              "day_fu_tou",
+              "method_source"
+            ],
+            "additionalProperties": false
+          },
+          "pan": {
+            "type": "object",
+            "properties": {
+              "jushu": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9
+              },
+              "yin_dun": {
+                "type": "boolean"
+              },
+              "ri_gan": {
+                "type": "string",
+                "enum": [
+                  "甲",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
+              },
+              "ri_zhi": {
+                "type": "string",
+                "enum": [
+                  "子",
+                  "丑",
+                  "寅",
+                  "卯",
+                  "辰",
+                  "巳",
+                  "午",
+                  "未",
+                  "申",
+                  "酉",
+                  "戌",
+                  "亥"
+                ]
+              },
+              "nian_gan": {
+                "type": "string",
+                "enum": ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]
+              },
+              "nian_zhi": {
+                "type": "string",
+                "enum": ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]
+              },
+              "yue_gan": {
+                "type": "string",
+                "enum": ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]
+              },
+              "yue_zhi": {
+                "type": "string",
+                "enum": ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]
+              },
+              "zhi_fu_xing": {
+                "type": "string",
+                "enum": [
+                  "天蓬",
+                  "天芮",
+                  "天冲",
+                  "天辅",
+                  "天禽",
+                  "天心",
+                  "天柱",
+                  "天任",
+                  "天英"
+                ]
+              },
+              "zhi_shi_men": {
+                "type": "string",
+                "enum": [
+                  "休门",
+                  "生门",
+                  "伤门",
+                  "杜门",
+                  "景门",
+                  "死门",
+                  "惊门",
+                  "开门",
+                  "中门"
+                ]
+              },
+              "gong_wei": {
+                "type": "array",
+                "minItems": 9,
+                "maxItems": 9,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gong": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "坎",
+                            "坤",
+                            "震",
+                            "巽",
+                            "中",
+                            "乾",
+                            "兑",
+                            "艮",
+                            "离"
+                          ]
+                        },
+                        "luoshu": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9
+                        },
+                        "ring_index": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 7
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "luoshu"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "di_pan_gan": {
+                      "type": "string",
+                      "enum": [
+                        "乙",
+                        "丙",
+                        "丁",
+                        "戊",
+                        "己",
+                        "庚",
+                        "辛",
+                        "壬",
+                        "癸"
+                      ]
+                    },
+                    "an_gan": {
+                      "type": "string",
+                      "enum": [
+                        "乙",
+                        "丙",
+                        "丁",
+                        "戊",
+                        "己",
+                        "庚",
+                        "辛",
+                        "壬",
+                        "癸"
+                      ]
+                    },
+                    "tian_pan_gan": {
+                      "type": "string",
+                      "enum": [
+                        "乙",
+                        "丙",
+                        "丁",
+                        "戊",
+                        "己",
+                        "庚",
+                        "辛",
+                        "壬",
+                        "癸"
+                      ]
+                    },
+                    "tian_pan": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "gan": {
+                            "type": "string",
+                            "enum": [
+                              "乙",
+                              "丙",
+                              "丁",
+                              "戊",
+                              "己",
+                              "庚",
+                              "辛",
+                              "壬",
+                              "癸"
+                            ]
+                          },
+                          "xing": {
+                            "type": "string",
+                            "enum": [
+                              "天蓬",
+                              "天芮",
+                              "天冲",
+                              "天辅",
+                              "天禽",
+                              "天心",
+                              "天柱",
+                              "天任",
+                              "天英"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "gan",
+                          "xing"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1,
+                      "maxItems": 2
+                    },
+                    "men": {
+                      "type": "string"
+                    },
+                    "men_present": {
+                      "type": "boolean"
+                    },
+                    "shen": {
+                      "type": "string",
+                      "enum": [
+                        "值符",
+                        "螣蛇",
+                        "太阴",
+                        "六合",
+                        "勾陈",
+                        "白虎",
+                        "朱雀",
+                        "玄武",
+                        "太常",
+                        "九地",
+                        "九天"
+                      ]
+                    },
+                    "shen_present": {
+                      "type": "boolean"
+                    },
+                    "an_gan_zhi": {
+                      "type": "string",
+                      "description": "鸣法暗干支；仅鸣法飞盘输出，其他方法省略"
+                    }
+                  },
+                  "required": [
+                    "gong",
+                    "di_pan_gan",
+                    "an_gan",
+                    "men_present",
+                    "shen_present"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "shi_gan": {
+                "type": "string",
+                "enum": [
+                  "甲",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
+              },
+              "shi_zhi": {
+                "type": "string",
+                "enum": [
+                  "子",
+                  "丑",
+                  "寅",
+                  "卯",
+                  "辰",
+                  "巳",
+                  "午",
+                  "未",
+                  "申",
+                  "酉",
+                  "戌",
+                  "亥"
+                ]
+              },
+              "ma_xing": {
+                "type": "object",
+                "properties": {
+                  "branch": {
+                    "type": "string",
+                    "enum": [
+                      "子",
+                      "丑",
+                      "寅",
+                      "卯",
+                      "辰",
+                      "巳",
+                      "午",
+                      "未",
+                      "申",
+                      "酉",
+                      "戌",
+                      "亥"
+                    ]
+                  },
+                  "gong": {
+                    "type": "string",
+                    "enum": [
+                      "坎",
+                      "艮",
+                      "震",
+                      "巽",
+                      "离",
+                      "坤",
+                      "兑",
+                      "乾"
+                    ]
+                  }
+                },
+                "required": [
+                  "branch",
+                  "gong"
+                ],
+                "additionalProperties": false
+              },
+              "kong_wang": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "branch": {
+                      "type": "string",
+                      "enum": [
+                        "子",
+                        "丑",
+                        "寅",
+                        "卯",
+                        "辰",
+                        "巳",
+                        "午",
+                        "未",
+                        "申",
+                        "酉",
+                        "戌",
+                        "亥"
+                      ]
+                    },
+                    "gong": {
+                      "type": "string",
+                      "enum": [
+                        "坎",
+                        "艮",
+                        "震",
+                        "巽",
+                        "离",
+                        "坤",
+                        "兑",
+                        "乾"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "branch",
+                    "gong"
+                  ],
+                  "additionalProperties": false
+                },
+                "uniqueItems": true
+              },
+              "wu_bu_yu_shi": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "jushu",
+              "yin_dun",
+              "ri_gan",
+              "ri_zhi",
+              "nian_gan",
+              "nian_zhi",
+              "yue_gan",
+              "yue_zhi",
+              "zhi_fu_xing",
+              "zhi_shi_men",
+              "gong_wei",
+              "shi_gan",
+              "shi_zhi",
+              "ma_xing",
+              "kong_wang",
+              "wu_bu_yu_shi"
+            ],
+            "additionalProperties": false
+          },
+          "patterns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "enum": [
+                    "天遁",
+                    "地遁",
+                    "人遁",
+                    "三奇得使",
+                    "玉女守门",
+                    "伏吟",
+                    "反吟",
+                    "青龙返首",
+                    "飞鸟跌穴",
+                    "荧入太白",
+                    "太白入荧",
+                    "三奇入墓",
+                    "六仪击刑"
+                  ]
+                },
+                "description": {
+                  "type": "string"
+                },
+                "basis": {
+                  "type": "string"
+                },
+                "auspicious": {
+                  "type": "boolean"
+                },
+                "gong_wei": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "坎",
+                      "坤",
+                      "震",
+                      "巽",
+                      "中",
+                      "乾",
+                      "兑",
+                      "艮",
+                      "离"
+                    ]
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "name",
+                "description",
+                "basis",
+                "auspicious",
+                "gong_wei"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "gan_interaction": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "gong": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "坤",
+                    "震",
+                    "巽",
+                    "中",
+                    "乾",
+                    "兑",
+                    "艮",
+                    "离"
+                  ]
+                },
+                "di_pan_gan": {
+                  "type": "string",
+                  "enum": [
+                    "乙",
+                    "丙",
+                    "丁",
+                    "戊",
+                    "己",
+                    "庚",
+                    "辛",
+                    "壬",
+                    "癸"
+                  ]
+                },
+                "tian_pan_gan": {
+                  "type": "string",
+                  "enum": [
+                    "乙",
+                    "丙",
+                    "丁",
+                    "戊",
+                    "己",
+                    "庚",
+                    "辛",
+                    "壬",
+                    "癸"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "meaning": {
+                  "type": "string"
+                },
+                "auspicious": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "gong",
+                "di_pan_gan",
+                "tian_pan_gan",
+                "name",
+                "meaning",
+                "auspicious"
+              ]
+            }
+          },
+          "men_interaction": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "door": {
+                  "type": "string",
+                  "enum": [
+                    "休门",
+                    "生门",
+                    "伤门",
+                    "杜门",
+                    "景门",
+                    "死门",
+                    "惊门",
+                    "开门",
+                    "中门"
+                  ]
+                },
+                "gong": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "坤",
+                    "震",
+                    "巽",
+                    "中",
+                    "乾",
+                    "兑",
+                    "艮",
+                    "离"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "meaning": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "door",
+                "gong",
+                "name",
+                "meaning"
+              ]
+            }
+          },
+          "xing_interaction": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "xing": {
+                  "type": "string",
+                  "enum": [
+                    "天蓬",
+                    "天芮",
+                    "天冲",
+                    "天辅",
+                    "天禽",
+                    "天心",
+                    "天柱",
+                    "天任",
+                    "天英"
+                  ]
+                },
+                "gong": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "坤",
+                    "震",
+                    "巽",
+                    "中",
+                    "乾",
+                    "兑",
+                    "艮",
+                    "离"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "meaning": {
+                  "type": "string"
+                },
+                "auspicious": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "xing",
+                "gong",
+                "name",
+                "meaning",
+                "auspicious"
+              ]
+            }
+          },
+          "xing_gong_wu_xing": {
+            "type": "array",
+            "description": "星与宫的五行关系；不是完整季节旺衰",
+            "items": {
+              "type": "object",
+              "properties": {
+                "xing": {
+                  "type": "string",
+                  "enum": [
+                    "天蓬",
+                    "天芮",
+                    "天冲",
+                    "天辅",
+                    "天禽",
+                    "天心",
+                    "天柱",
+                    "天任",
+                    "天英"
+                  ]
+                },
+                "gong": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "坤",
+                    "震",
+                    "巽",
+                    "中",
+                    "乾",
+                    "兑",
+                    "艮",
+                    "离"
+                  ]
+                },
+                "relation": {
+                  "type": "string",
+                  "enum": [
+                    "same",
+                    "gong_generates_xing",
+                    "xing_generates_gong",
+                    "xing_controls_gong",
+                    "gong_controls_xing"
+                  ]
+                },
+                "relation_name": {
+                  "type": "string"
+                },
+                "traditional_label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "xing",
+                "gong",
+                "relation",
+                "relation_name",
+                "traditional_label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "men_po": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "坎",
+                "坤",
+                "震",
+                "巽",
+                "中",
+                "乾",
+                "兑",
+                "艮",
+                "离"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "men_zhi": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "坎",
+                "坤",
+                "震",
+                "巽",
+                "中",
+                "乾",
+                "兑",
+                "艮",
+                "离"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "ying_qi": {
+            "type": "object",
+            "properties": {
+              "candidates": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "ma_xing",
+                        "kong_wang"
+                      ]
+                    },
+                    "mechanism": {
+                      "type": "string"
+                    },
+                    "branch": {
+                      "type": "string",
+                      "enum": [
+                        "子",
+                        "丑",
+                        "寅",
+                        "卯",
+                        "辰",
+                        "巳",
+                        "午",
+                        "未",
+                        "申",
+                        "酉",
+                        "戌",
+                        "亥"
+                      ]
+                    },
+                    "gong": {
+                      "type": "string",
+                      "enum": [
+                        "坎",
+                        "艮",
+                        "震",
+                        "巽",
+                        "离",
+                        "坤",
+                        "兑",
+                        "乾"
+                      ]
+                    },
+                    "related_to": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "pillar",
+                              "lead",
+                              "yong_shen"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "symbol",
+                          "role"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "dates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "branch": {
+                            "type": "string",
+                            "enum": [
+                              "子",
+                              "丑",
+                              "寅",
+                              "卯",
+                              "辰",
+                              "巳",
+                              "午",
+                              "未",
+                              "申",
+                              "酉",
+                              "戌",
+                              "亥"
+                            ]
+                          },
+                          "match": {
+                            "type": "string",
+                            "enum": [
+                              "same",
+                              "opposite"
+                            ]
+                          },
+                          "reason": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "date",
+                          "branch",
+                          "match",
+                          "reason"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1,
+                      "uniqueItems": true
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "mechanism",
+                    "branch",
+                    "gong",
+                    "related_to",
+                    "description",
+                    "dates"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "candidates",
+              "summary"
+            ],
+            "additionalProperties": false
+          },
+          "ri_gan_gong": {
+            "type": "string",
+            "enum": [
+              "坎",
+              "坤",
+              "震",
+              "巽",
+              "中",
+              "乾",
+              "兑",
+              "艮",
+              "离"
+            ]
+          },
+          "shi_gan_gong": {
+            "type": "string",
+            "enum": [
+              "坎",
+              "坤",
+              "震",
+              "巽",
+              "中",
+              "乾",
+              "兑",
+              "艮",
+              "离"
+            ]
+          },
+          "ri_shi_relation": {
+            "type": "object",
+            "properties": {
+              "subject": {
+                "type": "string",
+                "enum": [
+                  "ri_gan_gong"
+                ]
+              },
+              "object": {
+                "type": "string",
+                "enum": [
+                  "shi_gan_gong"
+                ]
+              },
+              "relation": {
+                "type": "string",
+                "enum": [
+                  "same",
+                  "ri_generates_shi",
+                  "shi_generates_ri",
+                  "ri_controls_shi",
+                  "shi_controls_ri"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "subject",
+              "object",
+              "relation",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "kong_wang_affected": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "branch": {
+                  "type": "string",
+                  "enum": [
+                    "子",
+                    "丑",
+                    "寅",
+                    "卯",
+                    "辰",
+                    "巳",
+                    "午",
+                    "未",
+                    "申",
+                    "酉",
+                    "戌",
+                    "亥"
+                  ]
+                },
+                "gong": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "艮",
+                    "震",
+                    "巽",
+                    "离",
+                    "坤",
+                    "兑",
+                    "乾"
+                  ]
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "pillar",
+                    "lead",
+                    "yong_shen"
+                  ]
+                }
+              },
+              "required": [
+                "symbol",
+                "role",
+                "branch",
+                "gong"
+              ],
+              "additionalProperties": false
+            },
+            "uniqueItems": true
+          },
+          "ma_xing_affected": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "branch": {
+                  "type": "string",
+                  "enum": [
+                    "子",
+                    "丑",
+                    "寅",
+                    "卯",
+                    "辰",
+                    "巳",
+                    "午",
+                    "未",
+                    "申",
+                    "酉",
+                    "戌",
+                    "亥"
+                  ]
+                },
+                "gong": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "艮",
+                    "震",
+                    "巽",
+                    "离",
+                    "坤",
+                    "兑",
+                    "乾"
+                  ]
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "pillar",
+                    "lead",
+                    "yong_shen"
+                  ]
+                }
+              },
+              "required": [
+                "symbol",
+                "role",
+                "branch",
+                "gong"
+              ],
+              "additionalProperties": false
+            },
+            "uniqueItems": true
+          },
+          "palace_wang_shuai": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "gong": {
+                  "type": "string",
+                  "enum": ["坎","坤","震","巽","中","乾","兑","艮","离"]
+                },
+                "wuxing": {
+                  "type": "string",
+                  "enum": ["木","火","土","金","水"]
+                },
+                "wang_shuai": {
+                  "type": "string",
+                  "enum": ["旺","相","休","囚","死"]
+                },
+                "wang_shuai_name": {
+                  "type": "string",
+                  "enum": ["旺","相","休","囚","死"]
+                }
+              },
+              "required": ["gong","wuxing","wang_shuai","wang_shuai_name"],
+              "additionalProperties": false
+            }
+          },
+          "shi_gan_gong_wang_shuai": {
+            "type": "object",
+            "properties": {
+              "gong": {
+                "type": "string",
+                "enum": ["坎","坤","震","巽","中","乾","兑","艮","离"]
+              },
+              "wuxing": {
+                "type": "string",
+                "enum": ["木","火","土","金","水"]
+              },
+              "wang_shuai": {
+                "type": "string",
+                "enum": ["旺","相","休","囚","死"]
+              },
+              "wang_shuai_name": {
+                "type": "string",
+                "enum": ["旺","相","休","囚","死"]
+              }
+            },
+            "required": ["gong","wuxing","wang_shuai","wang_shuai_name"],
+            "additionalProperties": false
+          },
+          "zhi_fu_xing_gong": {
+            "type": "string",
+            "enum": [
+              "坎",
+              "坤",
+              "震",
+              "巽",
+              "中",
+              "乾",
+              "兑",
+              "艮",
+              "离"
+            ]
+          },
+          "zhi_shi_men_gong": {
+            "type": "string",
+            "enum": [
+              "坎",
+              "坤",
+              "震",
+              "巽",
+              "中",
+              "乾",
+              "兑",
+              "艮",
+              "离"
+            ]
+          },
+          "yong_shen": {
+            "type": "object",
+            "properties": {
+              "nian_gan_gong": {
+                "type": "string",
+                "enum": [
+                  "坎",
+                  "坤",
+                  "震",
+                  "巽",
+                  "中",
+                  "乾",
+                  "兑",
+                  "艮",
+                  "离"
+                ]
+              },
+              "symbols": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "palace": {
+                      "type": "string",
+                      "enum": [
+                        "坎",
+                        "坤",
+                        "震",
+                        "巽",
+                        "中",
+                        "乾",
+                        "兑",
+                        "艮",
+                        "离"
+                      ]
+                    },
+                    "tian_gan": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "乙",
+                          "丙",
+                          "丁",
+                          "戊",
+                          "己",
+                          "庚",
+                          "辛",
+                          "壬",
+                          "癸"
+                        ]
+                      },
+                      "minItems": 0,
+                      "maxItems": 2,
+                      "uniqueItems": true
+                    },
+                    "kong_wang_branches": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "子",
+                          "丑",
+                          "寅",
+                          "卯",
+                          "辰",
+                          "巳",
+                          "午",
+                          "未",
+                          "申",
+                          "酉",
+                          "戌",
+                          "亥"
+                        ]
+                      }
+                    },
+                    "ma_xing_branch": {
+                      "type": "string",
+                      "enum": [
+                        "子",
+                        "丑",
+                        "寅",
+                        "卯",
+                        "辰",
+                        "巳",
+                        "午",
+                        "未",
+                        "申",
+                        "酉",
+                        "戌",
+                        "亥"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "symbol",
+                    "palace",
+                    "tian_gan",
+                    "kong_wang_branches"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "symbols"
+            ]
+          }
+        },
+        "required": [
+          "method",
+          "pan",
+          "gan_interaction",
+          "men_interaction",
+          "xing_interaction",
+          "xing_gong_wu_xing",
+          "men_po",
+          "men_zhi",
+          "patterns",
+          "ying_qi",
+          "ri_gan_gong",
+          "shi_gan_gong",
+          "ri_shi_relation",
+          "kong_wang_affected",
+          "ma_xing_affected",
+          "palace_wang_shuai",
+          "shi_gan_gong_wang_shuai",
+          "zhi_fu_xing_gong",
+          "zhi_shi_men_gong"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "enum": [
+                        "hour",
+                        "day"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "required": [
+                    "dingju_method",
+                    "dingju_method_name"
+                  ]
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "method": {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "dingju_method"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "dingju_method_name"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "const": "quarter"
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "required": [
+                    "quarter_rule",
+                    "quarter_rule_name"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "enum": [
+                        "hour",
+                        "day",
+                        "month",
+                        "year"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "quarter_rule"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "quarter_rule_name"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "base_dingju_method"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "base_dingju_method_name"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "quarter_rule": {
+                      "const": "ten_minute_sanyuan"
+                    }
+                  },
+                  "required": [
+                    "quarter_rule"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "base_dingju_method"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "base_dingju_method_name"
+                        ]
+                      }
+                    ]
+                  },
+                  "properties": {
+                    "quarter": {
+                      "properties": {
+                        "lead_pillar_mode": {
+                          "const": "quarter"
+                        },
+                        "minutes_per_quarter": {
+                          "const": 10
+                        },
+                        "dun_source": {
+                          "not": {}
+                        },
+                        "hour_boundary": {
+                          "not": {}
+                        }
+                      },
+                      "required": [
+                        "index",
+                        "minutes_per_quarter",
+                        "lead_pillar_mode"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "quarter_rule": {
+                      "const": "twelve_minute_ten_division"
+                    }
+                  },
+                  "required": [
+                    "quarter_rule"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "required": [
+                    "base_dingju_method",
+                    "base_dingju_method_name"
+                  ],
+                  "properties": {
+                    "quarter": {
+                      "properties": {
+                        "lead_pillar_mode": {
+                          "const": "hour"
+                        },
+                        "minutes_per_quarter": {
+                          "const": 12
+                        },
+                        "index": {
+                          "maximum": 10
+                        },
+                        "dun_source": {
+                          "enum": [
+                            "hour_branch",
+                            "solar_term"
+                          ]
+                        },
+                        "hour_boundary": {
+                          "enum": [
+                            "late_zi",
+                            "zi_zheng"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "index",
+                        "minutes_per_quarter",
+                        "lead_pillar_mode",
+                        "dun_source",
+                        "hour_boundary"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "school": {
+                      "enum": [
+                        "zhuanpan"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "school"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "required": [
+                    "tian_qin"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "school": {
+                      "enum": [
+                        "luoshu_feipan"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "school"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "not": {
+                    "required": [
+                      "tian_qin"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "enum": [
+                        "day",
+                        "month",
+                        "year"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "pan": {
+                  "properties": {
+                    "wu_bu_yu_shi": {
+                      "enum": [
+                        false
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "enum": [
+                        "month"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "yong_ju_jie_qi": {
+                      "enum": [
+                        "月家定局"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "enum": [
+                        "year"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "yong_ju_jie_qi": {
+                      "enum": [
+                        "年家定局"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "enum": [
+                        "hour",
+                        "day"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "scope"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "yong_ju_jie_qi": {
+                      "enum": [
+                        "冬至",
+                        "惊蛰",
+                        "小寒",
+                        "大寒",
+                        "立春",
+                        "雨水",
+                        "春分",
+                        "清明",
+                        "立夏",
+                        "谷雨",
+                        "小满",
+                        "芒种",
+                        "夏至",
+                        "白露",
+                        "小暑",
+                        "大暑",
+                        "立秋",
+                        "处暑",
+                        "秋分",
+                        "寒露",
+                        "立冬",
+                        "霜降",
+                        "小雪",
+                        "大雪"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "school": {
+                      "const": "mingfa_feipan"
+                    }
+                  },
+                  "required": [
+                    "school"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "not": {
+                    "required": [
+                      "tian_qin"
+                    ]
+                  }
+                },
+                "men_interaction": {
+                  "items": {
+                    "properties": {
+                      "door": {
+                        "enum": [
+                          "休门",
+                          "生门",
+                          "伤门",
+                          "杜门",
+                          "景门",
+                          "死门",
+                          "惊门",
+                          "开门"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "school": {
+                      "enum": [
+                        "zhuanpan",
+                        "luoshu_feipan"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "school"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "pan": {
+                  "properties": {
+                    "gong_wei": {
+                      "items": {
+                        "properties": {
+                          "men": {
+                            "enum": [
+                              "休门",
+                              "生门",
+                              "伤门",
+                              "杜门",
+                              "景门",
+                              "死门",
+                              "惊门",
+                              "开门"
+                            ]
+                          },
+                          "an_gan_zhi": {
+                            "not": {}
+                          }
+                        }
+                      }
+                    },
+                    "zhi_shi_men": {
+                      "enum": [
+                        "休门",
+                        "生门",
+                        "伤门",
+                        "杜门",
+                        "景门",
+                        "死门",
+                        "惊门",
+                        "开门"
+                      ]
+                    }
+                  }
+                },
+                "men_interaction": {
+                  "items": {
+                    "properties": {
+                      "door": {
+                        "enum": [
+                          "休门",
+                          "生门",
+                          "伤门",
+                          "杜门",
+                          "景门",
+                          "死门",
+                          "惊门",
+                          "开门"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "school": {
+                      "const": "mingfa_feipan"
+                    }
+                  },
+                  "required": [
+                    "school"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "pan": {
+                  "properties": {
+                    "gong_wei": {
+                      "items": {
+                        "properties": {
+                          "men": {
+                            "enum": [
+                              "休门",
+                              "生门",
+                              "伤门",
+                              "杜门",
+                              "景门",
+                              "死门",
+                              "惊门",
+                              "开门",
+                              "中门"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "an_gan_zhi"
+                        ]
+                      }
+                    },
+                    "zhi_shi_men": {
+                      "enum": [
+                        "休门",
+                        "生门",
+                        "伤门",
+                        "杜门",
+                        "景门",
+                        "死门",
+                        "惊门",
+                        "开门",
+                        "中门"
+                      ]
+                    }
+                  }
+                },
+                "men_interaction": {
+                  "items": {
+                    "properties": {
+                      "door": {
+                        "enum": [
+                          "休门",
+                          "生门",
+                          "伤门",
+                          "杜门",
+                          "景门",
+                          "死门",
+                          "惊门",
+                          "开门"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "school": {
+                      "const": "mingfa_feipan"
+                    }
+                  },
+                  "required": [
+                    "school"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "scope": {
+                      "const": "hour"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "dingju_method": {
+                      "const": "zhirun"
+                    }
+                  },
+                  "required": [
+                    "dingju_method"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "required": [
+                    "zhi_run_state"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "properties": {
+                    "dingju_method": {
+                      "enum": [
+                        "chaibu",
+                        "maoshan"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "dingju_method"
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            },
+            "then": {
+              "properties": {
+                "method": {
+                  "not": {
+                    "required": [
+                      "zhi_run_state"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "scope": {
+                "type": "string",
+                "enum": [
+                  "day"
+                ]
+              },
+              "scope_name": {
+                "type": "string",
+                "enum": [
+                  "日家奇门"
+                ]
+              },
+              "school": {
+                "type": "string",
+                "enum": [
+                  "jinhan_yujing"
+                ]
+              },
+              "school_name": {
+                "type": "string",
+                "enum": [
+                  "金函玉镜"
+                ]
+              },
+              "day_boundary": {
+                "type": "string",
+                "enum": [
+                  "late_zi_rolls_day_pillar"
+                ]
+              },
+              "geometry": {
+                "type": "string",
+                "enum": [
+                  "solstice_day_star_flight"
+                ]
+              },
+              "star_mode": {
+                "type": "string",
+                "enum": [
+                  "taiyi_nine_stars_day_flight"
+                ]
+              },
+              "door_mode": {
+                "type": "string",
+                "enum": [
+                  "three_day_eight_door_rotation"
+                ]
+              },
+              "spirit_mode": {
+                "type": "string",
+                "enum": [
+                  "day_gan_twelve_spirits"
+                ]
+              },
+              "spirit_flight": {
+                "type": "string",
+                "enum": [
+                  "solstice_yang_forward_yin_reverse"
+                ]
+              },
+              "dun_source": {
+                "type": "string",
+                "enum": [
+                  "winter_solstice_yang_summer_solstice_yin"
+                ]
+              },
+              "jie_qi": {
+                "type": "string",
+                "enum": [
+                  "冬至",
+                  "小寒",
+                  "大寒",
+                  "立春",
+                  "雨水",
+                  "惊蛰",
+                  "春分",
+                  "清明",
+                  "谷雨",
+                  "立夏",
+                  "小满",
+                  "芒种",
+                  "夏至",
+                  "小暑",
+                  "大暑",
+                  "立秋",
+                  "处暑",
+                  "白露",
+                  "秋分",
+                  "寒露",
+                  "霜降",
+                  "立冬",
+                  "小雪",
+                  "大雪"
+                ]
+              },
+              "basis": {
+                "type": "string",
+                "minLength": 1
+              },
+              "dingju_method": {
+                "type": "string",
+                "enum": [
+                  "none"
+                ]
+              },
+              "dingju_method_name": {
+                "type": "string",
+                "enum": [
+                  "无定局"
+                ]
+              },
+              "method_source": {
+                "type": "string",
+                "enum": [
+                  "solstice_day_cycle"
+                ]
+              }
+            },
+            "required": [
+              "scope",
+              "scope_name",
+              "school",
+              "school_name",
+              "dingju_method",
+              "dingju_method_name",
+              "method_source",
+              "day_boundary",
+              "geometry",
+              "star_mode",
+              "door_mode",
+              "spirit_mode",
+              "spirit_flight",
+              "dun_source",
+              "jie_qi",
+              "basis"
+            ]
+          },
+          "pan": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "yin_dun": {
+                "type": "boolean"
+              },
+              "ri_gan": {
+                "type": "string",
+                "enum": [
+                  "甲",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
+              },
+              "ri_zhi": {
+                "type": "string",
+                "enum": [
+                  "子",
+                  "丑",
+                  "寅",
+                  "卯",
+                  "辰",
+                  "巳",
+                  "午",
+                  "未",
+                  "申",
+                  "酉",
+                  "戌",
+                  "亥"
+                ]
+              },
+              "gong_wei": {
+                "type": "array",
+                "minItems": 9,
+                "maxItems": 9,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "gong": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "坎",
+                            "坤",
+                            "震",
+                            "巽",
+                            "中",
+                            "乾",
+                            "兑",
+                            "艮",
+                            "离"
+                          ]
+                        },
+                        "luoshu": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9
+                        },
+                        "ring_index": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 7
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "luoshu"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "xing": {
+                      "type": "string",
+                      "enum": [
+                        "太乙",
+                        "摄提",
+                        "轩辕",
+                        "招摇",
+                        "天符",
+                        "青龙",
+                        "咸池",
+                        "太阴",
+                        "天乙"
+                      ]
+                    },
+                    "men": {
+                      "type": "string",
+                      "enum": [
+                        "休门",
+                        "生门",
+                        "伤门",
+                        "杜门",
+                        "景门",
+                        "死门",
+                        "惊门",
+                        "开门"
+                      ]
+                    },
+                    "men_present": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "gong",
+                    "xing",
+                    "men_present"
+                  ]
+                }
+              },
+              "day_spirits": {
+                "type": "array",
+                "minItems": 12,
+                "maxItems": 12,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "zhi": {
+                      "type": "string",
+                      "enum": [
+                        "子",
+                        "丑",
+                        "寅",
+                        "卯",
+                        "辰",
+                        "巳",
+                        "午",
+                        "未",
+                        "申",
+                        "酉",
+                        "戌",
+                        "亥"
+                      ]
+                    },
+                    "shen": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "zhi",
+                    "shen"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "yin_dun",
+              "ri_gan",
+              "ri_zhi",
+              "gong_wei",
+              "day_spirits"
+            ]
+          }
+        },
+        "required": [
+          "method",
+          "pan"
+        ]
+      }
+    ]
+  }
+}

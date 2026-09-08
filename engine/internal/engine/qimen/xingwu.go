@@ -12,87 +12,48 @@ type XingInteraction struct {
 }
 
 // computeXingInteractions returns star-gong 克应 for each gong.
-func computeXingInteractions(pan pan) [9]XingInteraction {
-	var result [9]XingInteraction
+func computeXingInteractions(pan pan) []XingInteraction {
+	result := []XingInteraction{}
 	for i := 0; i < 9; i++ {
 		p := pan.GongWei[i]
-		if p.Star == 0 {
-			continue
-		}
-		key := [2]int{int(p.Star), i}
-		if entry, ok := xingGongTable[key]; ok {
-			result[i] = entry
-		} else {
-			// Generic five-element-based description.
-			result[i] = genericXingInteraction(p.Star, GongIndex(i+1))
+		for _, item := range p.TianPan {
+			key := [2]int{int(item.Star), i}
+			if entry, ok := xingGongTable[key]; ok {
+				entry.Name = xingInteractionName(item.Star, GongIndex(i+1))
+				result = append(result, entry)
+			}
 		}
 	}
 	return result
 }
 
-func genericXingInteraction(star StarIndex, pal GongIndex) XingInteraction {
-	return XingInteraction{
-		Star:       star.String(),
-		Gong:       pal.String(),
-		Name:       star.String() + "加" + pal.String(),
-		Meaning:    starNature(star) + "临" + pal.String() + "宫",
-		Auspicious: isAuspiciousStar(star),
+func xingInteractionName(star StarIndex, gong GongIndex) string {
+	if gong == GongZhong {
+		return starWuxing(star).String() + "星入中宫"
 	}
+	return starWuxing(star).String() + "星入" + palaceWuxing(gong).String() + "宫"
 }
 
-func starNature(s StarIndex) string {
-	switch s {
-	case StarTianPeng:
-		return "水性之精"
-	case StarTianRui:
-		return "土性之精"
-	case StarTianChong:
-		return "木性之精"
-	case StarTianFu:
-		return "木性文明"
-	case StarTianQin:
-		return "土性中和"
-	case StarTianXin:
-		return "金性肃杀"
-	case StarTianZhu:
-		return "金性锐利"
-	case StarTianRen:
-		return "土性厚重"
-	case StarTianYing:
-		return "火性光明"
-	}
-	return ""
+// XingGongWuXing represents 五行关系 of a star in a gong.
+type XingGongWuXing struct {
+	Star             StarIndex `json:"xing"`
+	Gong             GongIndex `json:"gong"`
+	Relation         string    `json:"relation"`
+	RelationName     string    `json:"relation_name"`
+	TraditionalLabel string    `json:"traditional_label"`
 }
 
-func isAuspiciousStar(s StarIndex) bool {
-	switch s {
-	case StarTianFu, StarTianQin, StarTianXin, StarTianRen:
-		return true
-	default:
-		return false
-	}
-}
-
-// WangShuai represents 旺衰 state of a star in a gong.
-type WangShuai struct {
-	Star  StarIndex `json:"xing"`
-	Gong  GongIndex `json:"gong"`
-	State string    `json:"state"` // 旺/相/休/囚/废
-}
-
-// computeWangShuai computes the 旺衰 state for each star in the pan.
-func computeWangShuai(pan pan) [9]WangShuai {
-	var result [9]WangShuai
+// computeXingGongWuXing computes the 五行关系 for each star in the pan.
+func computeXingGongWuXing(pan pan) []XingGongWuXing {
+	result := []XingGongWuXing{}
 	for i, p := range pan.GongWei {
-		if p.Star == 0 {
-			continue
-		}
-		sw := starWuxing(p.Star)
-		pw := palaceWuxing(GongIndex(i + 1))
-		result[i] = WangShuai{
-			Star:  p.Star,
-			Gong:  GongIndex(i + 1),
-			State: wuxingState(sw, pw),
+		for _, item := range p.TianPan {
+			relation := xingGongRelation(item.Star, GongIndex(i+1))
+			result = append(result, XingGongWuXing{
+				Star: item.Star, Gong: GongIndex(i + 1),
+				Relation: relation, RelationName: wuxingRelations[relation].Name,
+				TraditionalLabel: wuxingRelations[relation].TraditionalLabel,
+			})
 		}
 	}
 	return result
@@ -100,34 +61,26 @@ func computeWangShuai(pan pan) [9]WangShuai {
 
 // starWuxing returns the element of a star.
 func starWuxing(s StarIndex) ganzhi.Wuxing {
-	switch s {
-	case StarTianPeng:
-		return ganzhi.WxShui
-	case StarTianRui, StarTianQin, StarTianRen:
-		return ganzhi.WxTu
-	case StarTianChong, StarTianFu:
-		return ganzhi.WxMu
-	case StarTianXin, StarTianZhu:
-		return ganzhi.WxJin
-	case StarTianYing:
-		return ganzhi.WxHuo
+	if s >= 1 && int(s) <= len(starWuxingTable) {
+		return starWuxingTable[int(s)-1]
 	}
 	return 0
 }
 
-// wuxingState returns 旺/相/休/囚/废 for star(at starElem) in gong(at palElem).
-func wuxingState(starElem, palElem ganzhi.Wuxing) string {
+func xingGongRelation(star StarIndex, palace GongIndex) string {
+	starElem := starWuxing(star)
+	palElem := palaceWuxing(palace)
 	if starElem == palElem {
-		return "旺"
+		return "same"
 	}
-	if ganzhi.Sheng(palElem, starElem) { // gong generates star → 相
-		return "相"
+	switch {
+	case ganzhi.Sheng(palElem, starElem):
+		return "gong_generates_xing"
+	case ganzhi.Sheng(starElem, palElem):
+		return "xing_generates_gong"
+	case ganzhi.Ke(starElem, palElem):
+		return "xing_controls_gong"
+	default:
+		return "gong_controls_xing"
 	}
-	if ganzhi.Sheng(starElem, palElem) { // star generates gong → 休
-		return "休"
-	}
-	if ganzhi.Ke(starElem, palElem) { // star overcomes gong → 囚
-		return "囚"
-	}
-	return "废"
 }
