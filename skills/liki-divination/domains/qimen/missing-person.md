@@ -9,7 +9,7 @@ description: 奇门占走失人口解释边界
 
 ## 流程
 
-1. 用 `qimen_read(matter=missing_person)`；Python 表把事象映射为六合，engine 输出用神落宫。
+1. 用 `qimen_snapshot(matter=missing_person)`；Python 表把事象映射为六合，engine 输出用神落宫。
 2. 用 `query(rule=missing_person, pan=...)`。
 3. 只解释表内候选；候选并列，不排序，不推出必然回归或必然失踪。
 

@@ -1,265 +1,24 @@
 {
   "$schema": "https://json.schemastore.org/tools.json",
   "info": {
-    "title": "liki-divination 奇门 / 六爻工具",
-    "description": "奇门排盘与六爻起卦排盘编排工具。唯一执行方式：python3 tools/agent_cli.py。",
+    "title": "liki-divination 奇门 / 六爻 / 黄历工具",
+    "description": "问卦分域 snapshot 与 ask 工具。唯一执行方式：python3 tools/agent_cli.py。",
     "version": "2026.09.09.0"
   },
   "tools": [
     {
       "type": "function",
       "function": {
-        "name": "divination_route",
-        "description": "问卦场景路由：根据事件结果、策略进退、方向方位、应期或择日选择默认单法；不自动双法合参。",
+        "name": "liuyao_snapshot",
+        "description": "创建六爻 immutable snapshot：auto/coins/yaos 起卦、排盘、用神因子、专题、应期候选一次完成。后续追问必须复用该 snapshot。",
         "parameters": {
           "type": "object",
           "properties": {
             "question": {
               "type": "string",
-              "description": "用户原问题；应先锁定本次要判断的一个目标"
-            },
-            "category": {
-              "type": "string",
-              "enum": [
-                "event_outcome",
-                "strategy_decision",
-                "direction_space",
-                "timing_event",
-                "timing_action",
-                "date_selection",
-                "mixed_outcome_strategy",
-                "life_pattern",
-                "ambiguous"
-              ],
-              "description": "LLM 语义判断后的场景类别；省略时使用保守关键词兜底"
-            },
-            "specified_method": {
-              "type": "string",
-              "enum": [
-                "liuyao",
-                "qimen",
-                "huangli"
-              ],
-              "description": "用户明确指定方法时传入；仅在安全放行时生效"
-            }
-          },
-          "required": [
-            "question"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "qimen_read",
-        "description": "奇门一次读盘：自动补时间 / 换算真太阳时 / 排盘 / 投影 snapshot / 可选专占查询。这是奇门主入口。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "question": {
-              "type": "string",
+              "minLength": 2,
               "description": "本次要判断的一个具体目标"
             },
-            "city": {
-              "type": "string",
-              "description": "起局地点；与 longitude 二选一"
-            },
-            "longitude": {
-              "type": "number",
-              "minimum": -180,
-              "maximum": 180,
-              "description": "起局经度；与 city 二选一"
-            },
-            "time": {
-              "type": "string",
-              "description": "起局钟表时间 RFC3339；缺省时使用服务端当前时间"
-            },
-            "matter": {
-              "type": "string",
-              "enum": [
-                "career",
-                "health",
-                "hiding",
-                "legal",
-                "missing_person",
-                "relationship",
-                "study",
-                "travel",
-                "wealth"
-              ],
-              "description": "普通事象；与 yong_shen 互斥"
-            },
-            "yong_shen": {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true,
-              "items": {
-                "type": "string"
-              },
-              "description": "高级显式用神；与 matter 互斥"
-            },
-            "rule": {
-              "type": "string",
-              "enum": [
-                "lost_property",
-                "thief_capture",
-                "missing_person",
-                "capture_escape",
-                "thief_profile"
-              ],
-              "description": "可选专占规则；仅与兼容的 scope / school 一起使用"
-            },
-            "scope": {
-              "type": "string",
-              "enum": [
-                "hour",
-                "day",
-                "quarter",
-                "month",
-                "year"
-              ],
-              "description": "奇门范围；缺省 hour"
-            },
-            "school": {
-              "type": "string",
-              "enum": [
-                "zhuanpan",
-                "luoshu_feipan",
-                "mingfa_feipan",
-                "jinhan_yujing"
-              ],
-              "description": "奇门流派；缺省 zhuanpan"
-            },
-            "dingju_method": {
-              "type": "string",
-              "enum": [
-                "chaibu",
-                "zhirun",
-                "maoshan"
-              ],
-              "description": "定局方法；仅在支持的 scope / school 传入"
-            },
-            "quarter_rule": {
-              "type": "string",
-              "enum": [
-                "ten_minute_sanyuan",
-                "twelve_minute_ten_division"
-              ],
-              "description": "刻家规则；仅 scope=quarter 使用"
-            },
-            "base_dingju_method": {
-              "type": "string",
-              "enum": [
-                "chaibu",
-                "zhirun",
-                "maoshan"
-              ],
-              "description": "十二分钟十分局基准定局法"
-            },
-            "dun_source": {
-              "type": "string",
-              "enum": [
-                "hour_branch",
-                "solar_term"
-              ],
-              "description": "十二分钟十分局遁甲来源"
-            },
-            "hour_boundary": {
-              "type": "string",
-              "enum": [
-                "late_zi",
-                "zi_zheng"
-              ],
-              "description": "子时边界口径"
-            },
-            "birth_date": {
-              "type": "string",
-              "description": "出生日期或时刻，用于年命干落宫"
-            }
-          },
-          "required": [
-            "question"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_audit",
-        "description": "审计六爻报告中的显式盘面事实（本卦、变卦、世应、爻位六亲）；不校验吉凶、应期和取象推断。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "report": {
-              "description": "文本报告，或 liuyao-report-v1 结构化报告对象",
-              "oneOf": [
-                {
-                  "type": "string",
-                  "minLength": 1
-                },
-                {
-                  "type": "object"
-                }
-              ]
-            },
-            "chart": {
-              "type": "object",
-              "description": "liuyao_chart 返回的完整结果或其中的 chart 对象"
-            }
-          },
-          "required": [
-            "report",
-            "chart"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_report",
-        "description": "六爻结构化报告：action=template 生成证据引用骨架；action=validate 校验报告引用、冲突覆盖和禁止性表述。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "string",
-              "enum": [
-                "template",
-                "validate"
-              ],
-              "description": "template 生成报告骨架；validate 校验已完成报告"
-            },
-            "snapshot": {
-              "type": "object",
-              "description": "liuyao_chart 返回的 snapshot"
-            },
-            "report": {
-              "type": "object",
-              "description": "action=validate 时必填的结构化报告"
-            }
-          },
-          "required": [
-            "action",
-            "snapshot"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_qigua",
-        "description": "六爻起卦。auto 使用安全随机；coins 传入六组三枚正/反；yaos 传入六个爻值。返回可审计 casting，供 liuyao_chart 使用。",
-        "parameters": {
-          "type": "object",
-          "properties": {
             "mode": {
               "type": "string",
               "enum": [
@@ -274,7 +33,7 @@
               "type": "array",
               "minItems": 6,
               "maxItems": 6,
-              "description": "coins 模式必填；六组三枚硬币，初爻到上爻",
+              "description": "coins 模式必填；六组三枚正/反，顺序为初爻到上爻",
               "items": {
                 "type": "array",
                 "minItems": 3,
@@ -298,240 +57,6 @@
                 "minimum": 6,
                 "maximum": 9
               }
-            },
-            "seed": {
-              "type": "integer",
-              "description": "仅 auto 模式测试复现用；不要用于普通问事"
-            }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_session",
-        "description": "创建或校验六爻追问会话；固化原卦、snapshot 和首次结论，禁止未声明新事件就重排。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "string",
-              "enum": [
-                "create",
-                "append",
-                "validate"
-              ]
-            },
-            "question": {
-              "type": "string",
-              "description": "action=create 时必填"
-            },
-            "snapshot": {
-              "type": "object",
-              "description": "liuyao-snapshot-v2"
-            },
-            "headline": {
-              "type": "string"
-            },
-            "verdict": {
-              "type": "string"
-            },
-            "confidence": {
-              "type": "string",
-              "enum": [
-                "low",
-                "medium",
-                "high"
-              ],
-              "default": "medium"
-            },
-            "report": {
-              "type": "object"
-            },
-            "session": {
-              "type": "object",
-              "description": "action=append/validate 时必填"
-            },
-            "kind": {
-              "type": "string",
-              "enum": [
-                "clarification",
-                "strategy",
-                "reality_feedback",
-                "term_explanation"
-              ],
-              "description": "action=append 时必填"
-            },
-            "text": {
-              "type": "string",
-              "description": "追问或反馈内容；action=append 时必填"
-            },
-            "answer": {
-              "type": "string"
-            },
-            "outcome": {
-              "type": "string",
-              "enum": [
-                "supported",
-                "contradicted",
-                "unresolved"
-              ],
-              "description": "reality_feedback 必填"
-            }
-          },
-          "required": [
-            "action"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_topic_guidance",
-        "description": "查询六爻专题断法；可单独查询，也可绑定 snapshot 返回主判因子、常见误判与安全边界。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "topic": {
-              "type": "string",
-              "enum": [
-                "wealth",
-                "career",
-                "marriage",
-                "study",
-                "lost_item",
-                "travel",
-                "lawsuit",
-                "health_context"
-              ]
-            },
-            "question": {
-              "type": "string",
-              "description": "提供时表示绑定 snapshot 应用专题规则"
-            },
-            "snapshot": {
-              "type": "object",
-              "description": "liuyao-snapshot-v2；question 存在时必填"
-            }
-          },
-          "required": [
-            "topic"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_timing",
-        "description": "对 engine 已返回的六爻应期候选做条件化排序；不发明日期，不输出必然结果。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "snapshot": {
-              "type": "object",
-              "description": "liuyao-snapshot-v2"
-            },
-            "topic": {
-              "type": "string",
-              "enum": [
-                "wealth",
-                "career",
-                "marriage",
-                "study",
-                "lost_item",
-                "travel",
-                "lawsuit",
-                "health_context"
-              ]
-            },
-            "limit": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 20,
-              "default": 6
-            }
-          },
-          "required": [
-            "snapshot"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_conditions",
-        "description": "还原六爻流行断语条件；检查月破、旬空、六合、六冲、兄弟动是否满足适用条件，不输出绝对结论。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "string",
-              "enum": [
-                "evaluate",
-                "list"
-              ],
-              "default": "evaluate"
-            },
-            "snapshot": {
-              "type": "object",
-              "description": "liuyao-snapshot-v2"
-            },
-            "topic": {
-              "type": "string",
-              "enum": [
-                "wealth",
-                "career",
-                "marriage",
-                "study",
-                "lost_item",
-                "travel",
-                "lawsuit",
-                "health_context"
-              ]
-            }
-          },
-          "required": [
-            "action",
-            "snapshot"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "liuyao_read",
-        "description": "六爻一次解读包：排盘后自动生成 snapshot、专题规则、应期排序、条件还原和报告骨架；后续仍须 report validate / audit / session。",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "casting": {
-              "type": "object",
-              "description": "liuyao_qigua 返回的完整起卦收据；与 yaos 互斥"
-            },
-            "yaos": {
-              "type": "array",
-              "minItems": 6,
-              "maxItems": 6,
-              "items": {
-                "type": "integer",
-                "minimum": 6,
-                "maximum": 9
-              },
-              "description": "兼容旧输入；与 casting 互斥"
-            },
-            "solar_time": {
-              "type": "string",
-              "description": "可选起卦时间 RFC3339；缺省用服务端当前时间"
             },
             "matter": {
               "type": "string",
@@ -575,10 +100,6 @@
               ],
               "description": "仅 relationship 使用"
             },
-            "question": {
-              "type": "string",
-              "description": "用户原问题，用于 snapshot 复核"
-            },
             "topic": {
               "type": "string",
               "enum": [
@@ -597,37 +118,59 @@
           "required": [
             "question"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "anyOf": [
+            {
+              "required": [
+                "matter"
+              ]
+            },
+            {
+              "required": [
+                "yong_shen"
+              ]
+            }
+          ]
         }
       }
     },
     {
       "type": "function",
       "function": {
-        "name": "qimen_report",
-        "description": "奇门结构化报告：action=template 生成骨架；action=validate 校验方法、证据、应期引用和禁语。",
+        "name": "liuyao_ask",
+        "description": "基于同一个 immutable liuyao snapshot 追问；校验 digest 后返回结构化条件性 answer，不重排。",
         "parameters": {
           "type": "object",
           "properties": {
-            "action": {
+            "snapshot": {
+              "type": "object",
+              "description": "liuyao_snapshot 返回的完整 snapshot",
+              "required": [
+                "method",
+                "schema_version",
+                "snapshot_digest"
+              ],
+              "properties": {
+                "method": {
+                  "const": "liuyao"
+                },
+                "schema_version": {
+                  "const": "liuyao-snapshot-v3"
+                },
+                "snapshot_digest": {
+                  "type": "string"
+                }
+              }
+            },
+            "message": {
               "type": "string",
-              "enum": [
-                "template",
-                "validate"
-              ]
-            },
-            "read_result": {
-              "type": "object",
-              "description": "qimen_read 返回的完整结果"
-            },
-            "report": {
-              "type": "object",
-              "description": "action=validate 时必填的结构化报告"
+              "minLength": 2,
+              "description": "本次追问内容"
             }
           },
           "required": [
-            "action",
-            "read_result"
+            "snapshot",
+            "message"
           ],
           "additionalProperties": false
         }
@@ -636,74 +179,189 @@
     {
       "type": "function",
       "function": {
-        "name": "qimen_session",
-        "description": "创建或校验奇门追问会话；固化原局时间、地点、方法、snapshot 和首次结论。",
+        "name": "qimen_snapshot",
+        "description": "创建奇门 immutable snapshot：自动补时间、换算真太阳时、排盘、因子投影和可选专占查询一次完成。",
         "parameters": {
           "type": "object",
           "properties": {
-            "action": {
+            "question": {
+              "type": "string",
+              "minLength": 2,
+              "description": "本次要判断的一个具体目标"
+            },
+            "city": {
+              "type": "string",
+              "description": "起局地点；与 longitude 二选一"
+            },
+            "longitude": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180,
+              "description": "起局经度；与 city 二选一"
+            },
+            "time": {
+              "type": "string",
+              "description": "起局钟表时间 RFC3339；缺省使用服务端当前时间"
+            },
+            "matter": {
               "type": "string",
               "enum": [
-                "create",
-                "append",
-                "validate"
-              ]
-            },
-            "read_result": {
-              "type": "object",
-              "description": "action=create 时必填"
-            },
-            "headline": {
-              "type": "string"
-            },
-            "verdict": {
-              "type": "string"
-            },
-            "confidence": {
-              "type": "string",
-              "enum": [
-                "low",
-                "medium",
-                "high"
+                "career",
+                "health",
+                "hiding",
+                "legal",
+                "missing_person",
+                "relationship",
+                "study",
+                "travel",
+                "wealth"
               ],
-              "default": "medium"
+              "description": "普通事象；与 yong_shen 互斥"
             },
-            "report": {
-              "type": "object"
+            "yong_shen": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "description": "高级显式用神；与 matter 互斥"
             },
-            "session": {
-              "type": "object",
-              "description": "action=append/validate 时必填"
-            },
-            "kind": {
+            "rule": {
               "type": "string",
               "enum": [
-                "clarification",
-                "strategy",
-                "reality_feedback",
-                "term_explanation"
+                "lost_property",
+                "thief_capture",
+                "missing_person",
+                "capture_escape",
+                "thief_profile"
               ],
-              "description": "action=append 时必填"
+              "description": "可选专占规则"
             },
-            "text": {
-              "type": "string",
-              "description": "action=append 时必填"
-            },
-            "answer": {
-              "type": "string"
-            },
-            "outcome": {
+            "scope": {
               "type": "string",
               "enum": [
-                "supported",
-                "contradicted",
-                "unresolved"
+                "hour",
+                "day",
+                "quarter",
+                "month",
+                "year"
               ],
-              "description": "reality_feedback 必填"
+              "description": "奇门范围；缺省 hour"
+            },
+            "school": {
+              "type": "string",
+              "enum": [
+                "zhuanpan",
+                "luoshu_feipan",
+                "mingfa_feipan",
+                "jinhan_yujing"
+              ],
+              "description": "奇门流派；缺省 zhuanpan"
+            },
+            "dingju_method": {
+              "type": "string",
+              "enum": [
+                "chaibu",
+                "zhirun",
+                "maoshan"
+              ],
+              "description": "定局方法；仅支持范围可用"
+            },
+            "quarter_rule": {
+              "type": "string",
+              "enum": [
+                "ten_minute_sanyuan",
+                "twelve_minute_ten_division"
+              ],
+              "description": "刻家规则；仅 scope=quarter 使用"
+            },
+            "base_dingju_method": {
+              "type": "string",
+              "enum": [
+                "chaibu",
+                "zhirun",
+                "maoshan"
+              ],
+              "description": "十二分钟十分局基准定局法"
+            },
+            "dun_source": {
+              "type": "string",
+              "enum": [
+                "hour_branch",
+                "solar_term"
+              ],
+              "description": "十二分钟十分局遁甲来源"
+            },
+            "hour_boundary": {
+              "type": "string",
+              "enum": [
+                "late_zi",
+                "zi_zheng"
+              ],
+              "description": "子时边界口径"
+            },
+            "birth_date": {
+              "type": "string",
+              "description": "出生日期或时刻，用于年命干落宫"
             }
           },
           "required": [
-            "action"
+            "question"
+          ],
+          "additionalProperties": false,
+          "anyOf": [
+            {
+              "required": [
+                "city"
+              ]
+            },
+            {
+              "required": [
+                "longitude"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "qimen_ask",
+        "description": "基于同一个 immutable qimen snapshot 追问；校验 digest 后返回结构化条件性 answer，不重排。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "snapshot": {
+              "type": "object",
+              "description": "qimen_snapshot 返回的完整 snapshot",
+              "required": [
+                "method",
+                "schema_version",
+                "snapshot_digest"
+              ],
+              "properties": {
+                "method": {
+                  "const": "qimen"
+                },
+                "schema_version": {
+                  "const": "qimen-snapshot-v3"
+                },
+                "snapshot_digest": {
+                  "type": "string"
+                }
+              }
+            },
+            "message": {
+              "type": "string",
+              "minLength": 2,
+              "description": "本次追问内容"
+            }
+          },
+          "required": [
+            "snapshot",
+            "message"
           ],
           "additionalProperties": false
         }

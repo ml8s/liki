@@ -158,22 +158,23 @@ def test_chart_requires_exclusive_yong_shen_source():
 def test_tool_schema_matches_python_surface():
     schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
     names = {item["function"]["name"] for item in schema["tools"]}
-    assert {"liuyao_qigua", "liuyao_read", "liuyao_report"} <= names
-    assert "liuyao_chart" not in names
+    assert {"liuyao_snapshot", "liuyao_ask"} <= names
+    assert {"liuyao_chart", "liuyao_qigua", "liuyao_read", "liuyao_report"} .isdisjoint(names)
 
 
-def test_liuyao_read_input_against_tool_schema():
+def test_liuyao_snapshot_input_against_tool_schema():
     schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
     tool = next(
         item["function"]
         for item in schema["tools"]
-        if item["function"]["name"] == "liuyao_read"
+        if item["function"]["name"] == "liuyao_snapshot"
     )
     validate(
         {
-            "casting": {"yaos": [7, 7, 7, 7, 7, 7]},
-            "matter": "career",
             "question": "这次面试能不能通过",
+            "mode": "yaos",
+            "yaos": [7, 7, 7, 7, 7, 7],
+            "matter": "career",
         },
         tool["parameters"],
     )

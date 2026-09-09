@@ -126,21 +126,21 @@ class TestIntegration_QimenRules(unittest.TestCase):
 
         solar_time = "2026-06-28T12:00:00+08:00"
         longitude = 120.0
-        base = call("qimen_read", {
+        base = call("qimen_snapshot", {
             "question": "当前态势",
             "time": solar_time,
             "longitude": longitude,
         })
         self.assertTrue(base["ok"], base.get("error"))
         self.assertIsNone(base["data"]["matter"])
-        self.assertIn("method", base["data"]["chart"])
-        self.assertIn("snapshot", base["data"])
+        self.assertIn("method_context", base["data"])
+        self.assertIn("snapshot_digest", base["data"])
 
         specialized_rules = (
             "lost_property", "thief_capture", "thief_profile", "capture_escape",
         )
         for rule in specialized_rules:
-            result = call("qimen_read", {
+            result = call("qimen_snapshot", {
                 "question": f"专占：{rule}",
                 "time": solar_time,
                 "longitude": longitude,
@@ -152,7 +152,7 @@ class TestIntegration_QimenRules(unittest.TestCase):
             self.assertIsInstance(assertions, list)
             self.assertTrue(all(item["basis"] for item in assertions))
 
-        missing = call("qimen_read", {
+        missing = call("qimen_snapshot", {
             "question": "家人走失了",
             "time": solar_time,
             "longitude": longitude,

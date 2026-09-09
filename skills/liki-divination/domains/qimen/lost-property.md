@@ -9,7 +9,7 @@ description: 奇门占失物解释边界
 
 ## 解释边界
 
-1. 先用 `qimen_read` 取默认时家标准盘的日干 / 时干基础盘，不传 `matter` 或 `yong_shen`；失主与失物读 `ri_gan_gong` / `shi_gan_gong`。
+1. 先用 `qimen_snapshot` 取默认时家标准盘的日干 / 时干基础盘，不传 `matter` 或 `yong_shen`；失主与失物读 `ri_gan_gong` / `shi_gan_gong`。
 2. 再用 `query(rule=lost_property, pan=...)`；工具先按 `qimen_snapshot_contract.json` 投影稳定快照，再查解释表，只输出命中候选、证据与古籍依据。快照中的十干克应、门星克应、门破 / 门制与值符值使落宫是预留领域因子，当前失物表未消费不等于可删。
 3. 反吟为复得候选；时干落空亡为难复得候选。时干宫生日干宫且乘旺相气为复得候选，旺相状态由 engine 的 `palace_wang_shuai` / `shi_gan_gong_wang_shuai` 输出；墓、绝未入表，不得临场补断。
 4. 时干落宫方向由八宫方向表投影；内宫为近处候选，外宫为远处候选。中宫无内外 / 方向，不输出对应候选。

@@ -1,14 +1,15 @@
-"""奇门读盘编排：城市 / 时间 / 排盘 / snapshot / 专占解释一次完成。"""
+"""奇门 snapshot 创建：时间、地点、排盘与因子投影一次完成。"""
 from __future__ import annotations
 
-from typing import Any
-
 from divination_safety import assess, blocked_payload
+from divination_snapshot import build_snapshot
 from qimen_duanyu import query
 from qimen_factors import project_qimen_snapshot
 from qimen_interpretations import assert_rule_for_pan
 from qimen_paipan import city_coords, engine_data, qimen_chart, solar_time
-from qimen_report import template as report_template
+
+
+SCHEMA_VERSION = "qimen-snapshot-v3"
 
 
 def _server_time() -> str:
@@ -19,12 +20,9 @@ def _server_time() -> str:
     return cst
 
 
-def _resolve_location(
-    city: str | None,
-    longitude: float | None,
-) -> tuple[str | None, float]:
+def _resolve_location(city: str | None, longitude: float | None) -> tuple[str | None, float]:
     if longitude is not None:
-        if not isinstance(longitude, (int, float)) or isinstance(longitude, bool):
+        if isinstance(longitude, bool) or not isinstance(longitude, (int, float)):
             raise ValueError("longitude must be a number")
         if not -180 <= float(longitude) <= 180:
             raise ValueError("longitude must be between -180 and 180")
@@ -32,13 +30,13 @@ def _resolve_location(
     if city:
         coords = city_coords(city)
         value = coords.get("longitude")
-        if not isinstance(value, (int, float)) or isinstance(value, bool):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise ValueError("city.coords returned no longitude")
         return city, float(value)
-    raise ValueError("奇门需要地点口径：请提供 city 或 longitude")
+    raise ValueError("qimen requires city or longitude")
 
 
-def read(
+def create(
     *,
     question: str,
     city: str | None = None,
@@ -56,12 +54,15 @@ def read(
     hour_boundary: str | None = None,
     birth_date: str | None = None,
 ) -> dict:
-    """一次调用完成奇门时间解析、排盘、快照投影和可选专占查询。"""
-    if not isinstance(question, str) or not question.strip():
-        raise ValueError("question must be non-empty text")
+    """创建 immutable qimen snapshot；LLM 后续只依赖该对象。"""
     safety = assess(question)
     if safety["status"] != "allow":
-        return blocked_payload("qimen-read-v1", question, "qimen")
+        return blocked_payload(SCHEMA_VERSION, question, "qimen")
+    if not city and longitude is None:
+        raise ValueError("qimen requires city or longitude")
+    if matter is not None and yong_shen is not None:
+        raise ValueError("matter 与 yong_shen 互斥")
+
     if not time:
         time = _server_time()
     resolved_city, resolved_longitude = _resolve_location(city, longitude)
@@ -83,30 +84,31 @@ def read(
         dun_source=dun_source,
         hour_boundary=hour_boundary,
     )
-    snapshot = project_qimen_snapshot(pan)
-
+    factors = project_qimen_snapshot(pan)
+    method_context = pan.get("chart", {}).get("method")
     special = None
     if rule is not None:
         assert_rule_for_pan(rule, pan)
-        special = query(rule, snapshot)
+        special = query(rule, factors)
 
-    return {
-        "schema_version": "qimen-read-v1",
-        "question": question,
-        "input": {
-            "city": resolved_city,
-            "longitude": resolved_longitude,
-            "local_time": time,
-            "solar_time": solar,
-        },
-        "matter": pan.get("matter"),
-        "chart": pan.get("chart"),
-        "snapshot": snapshot,
-        "special": special,
-        "report_template": report_template({
-            "schema_version": "qimen-read-v1",
-            "question": question,
-            "snapshot": snapshot,
+    return build_snapshot(
+        method="qimen",
+        schema_version=SCHEMA_VERSION,
+        payload={
+            "question": question.strip(),
+            "input": {
+                "city": resolved_city,
+                "longitude": resolved_longitude,
+                "local_time": time,
+                "solar_time": solar,
+            },
+            "matter": pan.get("matter"),
+            "method_context": method_context,
+            "factors": factors,
             "special": special,
-        }),
-    }
+            "policy": {
+                "immutable": True,
+                "no_rechart_without_new_event": True,
+            },
+        },
+    )

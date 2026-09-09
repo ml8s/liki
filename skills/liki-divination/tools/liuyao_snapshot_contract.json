@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "liki:liuyao-snapshot-v2",
-  "title": "六爻解释快照契约",
+  "$id": "liki:liuyao-snapshot-v3",
+  "title": "六爻 immutable snapshot 契约",
   "type": "object",
   "required": [
     "schema_version",
@@ -13,63 +13,160 @@
     "facts",
     "timing_candidates",
     "policy",
-    "followup"
+    "followup",
+    "method",
+    "snapshot_digest",
+    "matter",
+    "topic",
+    "solar_time",
+    "topic_guidance",
+    "timing_plan",
+    "condition_rules"
   ],
   "properties": {
     "schema_version": {
-      "const": "liuyao-snapshot-v2"
+      "const": "liuyao-snapshot-v3"
     },
     "question": {
       "type": "object",
-      "required": ["text", "domain"],
+      "required": [
+        "text",
+        "domain"
+      ],
       "properties": {
-        "text": {"type": "string"},
-        "domain": {"type": "string"},
-        "perspective": {"type": ["string", "null"]}
+        "text": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "perspective": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "casting": {
       "type": "object",
-      "required": ["mode", "fingerprint", "yaos", "dong_yao"],
+      "required": [
+        "mode",
+        "fingerprint",
+        "yaos",
+        "dong_yao"
+      ],
       "properties": {
-        "mode": {"type": "string"},
-        "fingerprint": {"type": ["string", "null"]},
-        "rounds": {"type": "array"},
-        "yaos": {"type": "array", "minItems": 6, "maxItems": 6},
-        "dong_yao": {"type": "array"}
+        "mode": {
+          "type": "string"
+        },
+        "fingerprint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rounds": {
+          "type": "array"
+        },
+        "yaos": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "dong_yao": {
+          "type": "array"
+        }
       }
     },
     "board": {
       "type": "object",
-      "required": ["name", "ben_gua", "palace", "lines"],
+      "required": [
+        "name",
+        "ben_gua",
+        "palace",
+        "lines"
+      ],
       "properties": {
-        "name": {"type": "string"},
-        "ben_gua": {"type": "string"},
-        "bian_gua": {"type": ["string", "null"]},
-        "palace": {"type": "string"},
-        "palace_wuxing": {"type": "string"},
-        "lines": {"type": "array", "minItems": 6, "maxItems": 6}
+        "name": {
+          "type": "string"
+        },
+        "ben_gua": {
+          "type": "string"
+        },
+        "bian_gua": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "palace": {
+          "type": "string"
+        },
+        "palace_wuxing": {
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6
+        }
       }
     },
     "focus": {
       "type": "object",
-      "required": ["yong_shen"],
+      "required": [
+        "yong_shen"
+      ],
       "properties": {
-        "yong_shen": {"type": "object"},
-        "yong_line": {"type": ["object", "null"]},
-        "world": {"type": ["object", "null"]},
-        "other": {"type": ["object", "null"]}
+        "yong_shen": {
+          "type": "object"
+        },
+        "yong_line": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "world": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "other": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
       }
     },
     "evidence": {
       "type": "object",
-      "required": ["primary", "secondary", "reference", "conflicts", "ignored_scope"],
+      "required": [
+        "primary",
+        "secondary",
+        "reference",
+        "conflicts",
+        "ignored_scope"
+      ],
       "properties": {
-        "primary": {"type": "array"},
-        "secondary": {"type": "array"},
-        "reference": {"type": "array"},
-        "conflicts": {"type": "array"},
-        "ignored_scope": {"type": "array"}
+        "primary": {
+          "type": "array"
+        },
+        "secondary": {
+          "type": "array"
+        },
+        "reference": {
+          "type": "array"
+        },
+        "conflicts": {
+          "type": "array"
+        },
+        "ignored_scope": {
+          "type": "array"
+        }
       }
     },
     "facts": {
@@ -84,19 +181,77 @@
         "yong_shen_candidates"
       ]
     },
-    "timing_candidates": {"type": "array"},
+    "timing_candidates": {
+      "type": "array"
+    },
     "policy": {
       "type": "object",
-      "required": ["may_output", "must_cover_conflicts", "forbidden"],
+      "required": [
+        "may_output",
+        "must_cover_conflicts",
+        "forbidden",
+        "immutable",
+        "no_recast_without_new_event"
+      ],
       "properties": {
-        "may_output": {"type": "array"},
-        "must_cover_conflicts": {"type": "boolean"},
-        "forbidden": {"type": "array"}
+        "may_output": {
+          "type": "array"
+        },
+        "must_cover_conflicts": {
+          "type": "boolean"
+        },
+        "forbidden": {
+          "type": "array"
+        },
+        "immutable": {
+          "const": true
+        },
+        "no_recast_without_new_event": {
+          "const": true
+        }
       }
     },
     "followup": {
       "type": "object",
-      "required": ["locked", "casting_fingerprint", "rules"]
+      "required": [
+        "locked",
+        "casting_fingerprint",
+        "rules"
+      ]
+    },
+    "method": {
+      "const": "liuyao"
+    },
+    "snapshot_digest": {
+      "type": "string",
+      "minLength": 16
+    },
+    "matter": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "topic": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "solar_time": {
+      "type": "string"
+    },
+    "topic_guidance": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "timing_plan": {
+      "type": "object"
+    },
+    "condition_rules": {
+      "type": "object"
     }
   }
 }

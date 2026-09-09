@@ -393,7 +393,7 @@ def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
     qimen_read = next(
         item["function"]["parameters"]
         for item in schema["tools"]
-        if item["function"]["name"] == "qimen_read"
+        if item["function"]["name"] == "qimen_snapshot"
     )["properties"]["yong_shen"]
     assert qimen_read["minItems"] == 1
     assert qimen_read["uniqueItems"] is True
@@ -1501,17 +1501,17 @@ def test_python_tool_schema_stays_aligned_with_fact_sources() -> None:
     root = Path(__file__).resolve().parents[1]
     tool = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
     functions = {item["function"]["name"]: item["function"] for item in tool["tools"]}
-    assert set(functions["qimen_read"]["parameters"]["properties"]["matter"]["enum"]) == set(
+    assert set(functions["qimen_snapshot"]["parameters"]["properties"]["matter"]["enum"]) == set(
         load_routing_matter_table()
     )
-    assert functions["qimen_read"]["parameters"]["properties"]["rule"]["enum"] == list(
+    assert functions["qimen_snapshot"]["parameters"]["properties"]["rule"]["enum"] == list(
         load_rule_table()
     )
 
     engine = json.loads(
         (root / "engine/internal/agent/qimen_schema.json").read_text(encoding="utf-8")
     )["params"]["properties"]
-    python = functions["qimen_read"]["parameters"]["properties"]
+    python = functions["qimen_snapshot"]["parameters"]["properties"]
     for field in (
         "scope", "school", "dingju_method", "quarter_rule",
         "base_dingju_method", "dun_source", "hour_boundary",
@@ -1583,11 +1583,8 @@ def test_tool_schema_matches_cli_dispatch() -> None:
     schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
     names = {item["function"]["name"] for item in schema["tools"]}
     assert names == {
-        "divination_route", "qimen_read",
-        "liuyao_qigua", "liuyao_audit", "liuyao_report",
-        "liuyao_session", "liuyao_topic_guidance", "liuyao_timing",
-        "liuyao_conditions", "liuyao_read",
-        "qimen_report", "qimen_session", "huangli_days",
+        "liuyao_snapshot", "liuyao_ask",
+        "qimen_snapshot", "qimen_ask", "huangli_days",
     }
     assert names == set(agent_cli._DISPATCH)
 

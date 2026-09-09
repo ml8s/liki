@@ -1,7 +1,7 @@
 ---
 name: app-question
-description: 问卦总路由 — 先判断结果、策略、方向、应期或择日，再选单一方法
-依赖域: liuyao
+description: 问卦总路由 — 由 LLM 判断结果、策略、方向、应期或择日
+依赖域: liuyao,qimen,huangli
 ---
 
 # 问卦总路由
@@ -13,29 +13,26 @@ description: 问卦总路由 — 先判断结果、策略、方向、应期或�
 - 用户明确指定六爻 / 奇门 / 黄历时，安全放行后优先用户指定。
 - 医疗、自伤、怀孕、重大人身或财务风险先分流，不排盘。
 
-## 路由流程
+## LLM 路由流程
 
 | 步骤 | 动作 | 产物 |
 |---|---|---|
 | 1 | 识别本次要判断的结果 | 问题目标 |
-| 2 | 调用 `divination_route`；语义清楚时传 `category`，用户指定方法时传 `specified_method` | route + reason |
-| 3 | `route=blocked` 时按安全提示分流 | 专业帮助 / 紧急帮助 |
-| 4 | `route=clarify` 时只问一个问题或给出编号选项 | 明确主问题 |
-| 5 | `route=qimen` 时调用 `qimen_read`；`route=liuyao` 时进入六爻 app 卡；`route=huangli` 时进入择日 app 卡 | 单法排盘与解读 |
+| 2 | 按下方场景映射选择链路 | 方法与工具链 |
+| 3 | 高风险现实事项 | 专业帮助 / 紧急帮助，不排盘 |
+| 4 | 目标混合或不足 | 只问一个问题或给出编号选项 |
 
 ## 场景映射
 
-| category | 默认方法 | 适用 |
+| 场景 | 默认工具链 | 适用 |
 |---|---|---|
-| `event_outcome` | 六爻 | 事件成败、能否通过、能否到账、对方态度 |
-| `strategy_decision` | 奇门 | 该不该做、主动还是等待、方案取舍 |
-| `direction_space` | 奇门 | 方向、方位、路径 |
-| `timing_event` | 六爻 | 具体事件何时有结果 |
-| `timing_action` | 奇门 | 现在是否适合行动、谈判或推进 |
-| `date_selection` | 黄历 | 择日、吉日 |
-| `mixed_outcome_strategy` | 先澄清 | 结果和策略混合，默认不双排 |
-| `life_pattern` | 先澄清 | 长期命局建议走八字，不临时起卦 |
-| `ambiguous` | 先澄清 | 目标不足，不能排盘 |
+| 事件结果 / 能否成 | `liuyao_snapshot` → `liuyao_ask` | 通过、到账、答应、复合 |
+| 事件应期 | `liuyao_snapshot` → `liuyao_ask` | 何时有结果 |
+| 策略决策 | `qimen_snapshot` → `qimen_ask` | 该不该做、怎么选 |
+| 方向 / 方位 | `qimen_snapshot` → `qimen_ask` | 路径、方位 |
+| 行动时机 | `qimen_snapshot` → `qimen_ask` | 现在是否推进 |
+| 择日 | `huangli_days` | 哪天适合 |
+| 长期命局 | 转八字命理技能，不临时起卦 | 终身趋势、行业、婚姻整体 |
 
 ## 输出
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from liuyao_snapshot import project_snapshot
+from liuyao_projection import project_snapshot
 from liuyao_matters import resolve_matter
 from divination_rpc import engine_data
 

@@ -82,7 +82,7 @@
 4. 有无出空、填实、冲空、逢合机会；
 5. 所问事项的时间范围。
 
-`liuyao_conditions` 会把这类断语转为 `strong / weak / conditional` 分支；未满足条件时只能列为参考，不得写入主结论。
+snapshot 的 condition_rules 会把这类断语转为 `strong / weak / conditional` 分支；未满足条件时只能列为参考，不得写入主结论。
 
 ## 日冲细分
 

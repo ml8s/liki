@@ -292,7 +292,7 @@ func TestSkillToolVocabularyIsScoped(t *testing.T) {
 	if !bazi["full_paipan"] || bazi["qimen_chart"] {
 		t.Fatal("liki-bazi tool vocabulary is missing its own tools or leaks qimen tools")
 	}
-	if !divination["qimen_read"] || divination["full_paipan"] {
+	if !divination["qimen_snapshot"] || divination["full_paipan"] {
 		t.Fatal("liki-divination tool vocabulary is missing its own tools or leaks bazi tools")
 	}
 }

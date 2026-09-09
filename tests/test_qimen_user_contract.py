@@ -81,12 +81,12 @@ def test_lost_property_stays_in_interpretation_layer() -> None:
 
 def test_missing_person_stays_conservative_and_interpretation_layer() -> None:
     text = MISSING_PERSON.read_text(encoding="utf-8")
-    assert "`qimen_read(matter=missing_person)`" in text
+    assert "`qimen_snapshot(matter=missing_person)`" in text
     assert "`query(rule=missing_person, pan=...)`" in text
     assert "不排序" in text
     assert "不推出必然回归或必然失踪" in text
     assert "六合落宫星旺 / 相且临景、死、惊、伤四门时" in text
-    assert "`qimen_read(matter=missing_person, rule=missing_person)`" in CARD.read_text(
+    assert "`qimen_snapshot(matter=missing_person, rule=missing_person)`" in CARD.read_text(
         encoding="utf-8"
     )
 
@@ -98,7 +98,7 @@ def test_capture_escape_stays_conservative_and_interpretation_layer() -> None:
     assert "不排序" in text
     assert "不做执法建议或必然结论" in text
     assert "行人年命、官府差人等另占口径未入表" in text
-    assert "`qimen_read(rule=thief_capture/capture_escape/thief_profile)`" in CARD.read_text(encoding="utf-8")
+    assert "`qimen_snapshot(rule=thief_capture/capture_escape/thief_profile)`" in CARD.read_text(encoding="utf-8")
 
 
 def test_thief_capture_documents_geng_branches() -> None:
@@ -119,7 +119,7 @@ def test_thief_profile_is_table_driven_route() -> None:
     assert "`query(rule=thief_profile, pan=...)`" in text
     assert "贵人 / 小人" in text
     assert "内盘亲近人或外盘外人" in text
-    assert "`qimen_read(rule=thief_capture/capture_escape/thief_profile)`" in CARD.read_text(
+    assert "`qimen_snapshot(rule=thief_capture/capture_escape/thief_profile)`" in CARD.read_text(
         encoding="utf-8"
     )
 
