@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "method",
+    "snapshot_digest",
+    "message_digest",
+    "headline",
+    "verdict",
+    "confidence",
+    "conflicts",
+    "timing_refs",
+    "action",
+    "boundary",
+    "disclaimer",
+    "audit",
+    "primary_evidence_refs",
+    "secondary_evidence_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "liuyao-answer-v1"
+    },
+    "method": {
+      "const": "liuyao"
+    },
+    "snapshot_digest": {
+      "type": "string",
+      "minLength": 16
+    },
+    "message_digest": {
+      "type": "string",
+      "minLength": 16
+    },
+    "headline": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 160
+    },
+    "verdict": {
+      "type": "string",
+      "minLength": 8
+    },
+    "confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "timing_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "action": {
+      "type": "string",
+      "minLength": 4
+    },
+    "boundary": {
+      "type": "string",
+      "minLength": 8
+    },
+    "disclaimer": {
+      "type": "string",
+      "minLength": 8
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accepted",
+        "errors",
+        "checked",
+        "unchecked"
+      ],
+      "properties": {
+        "accepted": {
+          "const": true
+        },
+        "errors": {
+          "type": "array"
+        },
+        "checked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unchecked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "primary_evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "secondary_evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$id": "liki:liuyao-answer-v1",
+  "title": "六爻结构化 answer 契约"
+}

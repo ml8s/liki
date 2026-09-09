@@ -6,8 +6,9 @@ import json
 
 from divination_safety import assess, blocked_payload
 from divination_snapshot import validate_snapshot
-from liuyao_report import template as report_template
-from liuyao_report import validate_report
+from divination_contracts import validate_document
+from liuyao_answer_core import build as build_core
+from liuyao_answer_core import validate_core
 from liuyao_snapshot import SCHEMA_VERSION
 
 
@@ -29,12 +30,12 @@ def ask(snapshot: dict, *, message: str) -> dict:
         return blocked_payload(ANSWER_SCHEMA_VERSION, message, "liuyao")
     validate_snapshot(snapshot, method="liuyao", schema_version=SCHEMA_VERSION)
 
-    report = report_template(snapshot)
-    primary_count = len(report.get("primary_evidence_refs", []))
-    secondary_count = len(report.get("secondary_evidence_refs", []))
-    timing_count = len(report.get("timing_refs", []))
+    core = build_core(snapshot)
+    primary_count = len(core.get("primary_evidence_refs", []))
+    secondary_count = len(core.get("secondary_evidence_refs", []))
+    timing_count = len(core.get("timing_refs", []))
     conflicts = snapshot.get("evidence", {}).get("conflicts", [])
-    report.update({
+    core.update({
         "headline": "六爻 snapshot 条件性解读",
         "verdict": (
             f"当前盘面提供 {primary_count} 项主要因子、{secondary_count} 项辅助因子"
@@ -43,7 +44,7 @@ def ask(snapshot: dict, *, message: str) -> dict:
         "action": "先核对主要因子对应的现实条件，再决定推进或调整节奏。",
         "confidence": "low" if conflicts else "medium",
     })
-    audit = validate_report(report, snapshot)
+    audit = validate_core(core, snapshot)
     if not audit.get("accepted"):
         errors = "; ".join(
             str(item.get("reason") or item.get("field") or item)
@@ -51,24 +52,27 @@ def ask(snapshot: dict, *, message: str) -> dict:
         )
         raise ValueError(f"liuyao answer failed validation: {errors}")
 
-    return {
+    answer = {
         "schema_version": ANSWER_SCHEMA_VERSION,
         "method": "liuyao",
         "snapshot_digest": snapshot["snapshot_digest"],
         "message_digest": _message_digest(message),
-        "headline": report["headline"],
-        "verdict": report["verdict"],
-        "confidence": report["confidence"],
-        "primary_evidence_refs": report["primary_evidence_refs"],
-        "secondary_evidence_refs": report["secondary_evidence_refs"],
-        "conflicts": report["conflicts"],
-        "timing_refs": report["timing_refs"],
-        "action": report["action"],
-        "boundary": report["boundary"],
-        "disclaimer": report["disclaimer"],
+        "headline": core["headline"],
+        "verdict": core["verdict"],
+        "confidence": core["confidence"],
+        "primary_evidence_refs": core["primary_evidence_refs"],
+        "secondary_evidence_refs": core["secondary_evidence_refs"],
+        "conflicts": core["conflicts"],
+        "timing_refs": core["timing_refs"],
+        "action": core["action"],
+        "boundary": core["boundary"],
+        "disclaimer": core["disclaimer"],
         "audit": {
             "accepted": audit["accepted"],
+            "errors": audit["errors"],
             "checked": audit["checked"],
             "unchecked": audit["unchecked"],
         },
     }
+    validate_document("liuyao_answer", answer)
+    return answer

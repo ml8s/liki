@@ -6,8 +6,9 @@ import json
 
 from divination_safety import assess, blocked_payload
 from divination_snapshot import validate_snapshot
-from qimen_report import template as report_template
-from qimen_report import validate_report
+from divination_contracts import validate_document
+from qimen_answer_core import build as build_core
+from qimen_answer_core import validate_core
 from qimen_snapshot import SCHEMA_VERSION
 
 
@@ -29,17 +30,17 @@ def ask(snapshot: dict, *, message: str) -> dict:
         return blocked_payload(ANSWER_SCHEMA_VERSION, message, "qimen")
     validate_snapshot(snapshot, method="qimen", schema_version=SCHEMA_VERSION)
 
-    report = report_template(snapshot)
-    timing_count = len(report.get("timing_refs", []))
-    report.update({
+    core = build_core(snapshot)
+    timing_count = len(core.get("timing_refs", []))
+    core.update({
         "headline": "奇门 snapshot 条件性解读",
         "verdict": (
-            f"当前局提供 {len(report.get('evidence_refs', []))} 项宫位因子"
+            f"当前局提供 {len(core.get('evidence_refs', []))} 项宫位因子"
             f"和 {timing_count} 个应期候选；只能表达态势倾向，不构成结果承诺。"
         ),
         "action": "先核查现实约束，再结合候选方向或时机推进。",
     })
-    audit = validate_report(report, snapshot)
+    audit = validate_core(core, snapshot)
     if not audit.get("accepted"):
         errors = "; ".join(
             str(item.get("reason") or item.get("field") or item)
@@ -47,24 +48,27 @@ def ask(snapshot: dict, *, message: str) -> dict:
         )
         raise ValueError(f"qimen answer failed validation: {errors}")
 
-    return {
+    answer = {
         "schema_version": ANSWER_SCHEMA_VERSION,
         "method": "qimen",
         "snapshot_digest": snapshot["snapshot_digest"],
         "message_digest": _message_digest(message),
-        "headline": report["headline"],
-        "verdict": report["verdict"],
-        "confidence": report["confidence"],
-        "evidence_refs": report["evidence_refs"],
-        "assertion_refs": report["assertion_refs"],
-        "timing_refs": report["timing_refs"],
-        "conflicts": report["conflicts"],
-        "action": report["action"],
-        "boundary": report["boundary"],
-        "disclaimer": report["disclaimer"],
+        "headline": core["headline"],
+        "verdict": core["verdict"],
+        "confidence": core["confidence"],
+        "evidence_refs": core["evidence_refs"],
+        "assertion_refs": core["assertion_refs"],
+        "timing_refs": core["timing_refs"],
+        "conflicts": core["conflicts"],
+        "action": core["action"],
+        "boundary": core["boundary"],
+        "disclaimer": core["disclaimer"],
         "audit": {
             "accepted": audit["accepted"],
+            "errors": audit["errors"],
             "checked": audit["checked"],
             "unchecked": audit["unchecked"],
         },
     }
+    validate_document("qimen_answer", answer)
+    return answer

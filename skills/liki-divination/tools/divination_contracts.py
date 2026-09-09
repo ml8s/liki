@@ -12,8 +12,8 @@ PATH = Path(__file__).with_name("liuyao_snapshot_contract.json").parent
 
 CONTRACT_FILES = {
     "liuyao_snapshot": "liuyao_snapshot_contract.json",
-    "liuyao_report": "liuyao_report_contract.json",
-    "qimen_report": "qimen_report_contract.json",
+    "liuyao_answer": "liuyao_answer_contract.json",
+    "qimen_answer": "qimen_answer_contract.json",
 }
 
 

@@ -1,14 +1,12 @@
-"""奇门结构化 answer 契约：校验证据引用和禁止性表述。"""
+"""奇门 answer core：从 snapshot 投影证据并校验引用与禁语。"""
 from __future__ import annotations
 
 import hashlib
 import json
 
 
-SCHEMA_VERSION = "qimen-report-v1"
 FORBIDDEN = ["必然", "百分百", "100%", "保证", "一定会"]
 ALLOWED_FIELDS = {
-    "schema_version",
     "headline",
     "verdict",
     "confidence",
@@ -47,21 +45,17 @@ def available_ids(snapshot: dict) -> tuple[set[str], set[str]]:
         if item.get("id")
     }
     evidence_ids |= assertion_ids
-    timing_ids = {
-        candidate_id(candidate)
-        for candidate in factors.get("ying_qi", [])
-    }
+    timing_ids = {candidate_id(candidate) for candidate in factors.get("ying_qi", [])}
     return evidence_ids, timing_ids
 
 
-def template(snapshot: dict) -> dict:
+def build(snapshot: dict) -> dict:
     if not isinstance(snapshot, dict) or snapshot.get("schema_version") != "qimen-snapshot-v3":
         raise ValueError("snapshot must be qimen-snapshot-v3")
     evidence_ids, timing_ids = available_ids(snapshot)
     method = snapshot.get("method_context", {})
     matter = snapshot.get("matter") or {}
     return {
-        "schema_version": SCHEMA_VERSION,
         "headline": "",
         "verdict": "",
         "confidence": "medium",
@@ -77,23 +71,22 @@ def template(snapshot: dict) -> dict:
         "conflicts": [],
         "action": "",
         "boundary": "传统奇门视角；不构成医疗、法律、财务、人事或紧急决策建议。",
-        "disclaimer": "结论为传统文化视角下的条件性倾向，不承诺现实结果。",
+        "disclaimer": "结论为传统文化视角下的条件性倾向，不构成结果承诺。",
     }
 
 
-def validate_report(report: dict, snapshot: dict) -> dict:
+def validate_core(core: dict, snapshot: dict) -> dict:
     errors: list[dict] = []
-    if not isinstance(report, dict):
-        raise ValueError("report must be an object")
-    if report.get("schema_version") != SCHEMA_VERSION:
-        errors.append({"field": "schema_version", "reason": "must be qimen-report-v1"})
-    for field in report:
+    if not isinstance(core, dict):
+        raise ValueError("answer core must be an object")
+    for field in core:
         if field not in ALLOWED_FIELDS:
             errors.append({"field": field, "reason": "unknown field"})
+
     for field in ("headline", "verdict", "action", "boundary", "disclaimer"):
-        if not isinstance(report.get(field), str) or not report.get(field, "").strip():
+        if not isinstance(core.get(field), str) or not core.get(field, "").strip():
             errors.append({"field": field, "reason": "required non-empty text"})
-    if report.get("confidence") not in {"low", "medium", "high"}:
+    if core.get("confidence") not in {"low", "medium", "high"}:
         errors.append({"field": "confidence", "reason": "must be low/medium/high"})
 
     evidence_ids, timing_ids = available_ids(snapshot)
@@ -102,7 +95,7 @@ def validate_report(report: dict, snapshot: dict) -> dict:
         ("assertion_refs", evidence_ids),
         ("timing_refs", timing_ids),
     ):
-        refs = report.get(field, [])
+        refs = core.get(field, [])
         if not isinstance(refs, list):
             errors.append({"field": field, "reason": "must be array"})
             continue
@@ -110,9 +103,9 @@ def validate_report(report: dict, snapshot: dict) -> dict:
             if ref not in allowed:
                 errors.append({"field": field, "reason": "unknown ref", "ref": ref})
 
-    if not report.get("evidence_refs"):
+    if not core.get("evidence_refs"):
         errors.append({"field": "evidence_refs", "reason": "at least one snapshot fact is required"})
-    method_ref = report.get("method_ref")
+    method_ref = core.get("method_ref")
     method = snapshot.get("method_context", {})
     if (
         not isinstance(method_ref, dict)
@@ -122,7 +115,7 @@ def validate_report(report: dict, snapshot: dict) -> dict:
         errors.append({"field": "method_ref", "reason": "must match snapshot scope/school"})
 
     for field in ("headline", "verdict", "action"):
-        text = report.get(field, "")
+        text = core.get(field, "")
         if not isinstance(text, str):
             continue
         for word in FORBIDDEN:
@@ -130,9 +123,9 @@ def validate_report(report: dict, snapshot: dict) -> dict:
                 errors.append({"field": "forbidden_language", "reason": f"contains {word}"})
 
     return {
-        "schema_version": "qimen-report-audit-v1",
+        "schema_version": "qimen-answer-core-audit-v1",
         "accepted": not errors,
         "errors": errors,
-        "checked": ["schema", "method ref", "evidence refs", "timing refs", "forbidden language"],
+        "checked": ["fields", "method ref", "evidence refs", "timing refs", "forbidden language"],
         "unchecked": ["格局主次", "吉凶结论", "现实建议", "应期是否必然发生"],
     }
