@@ -352,8 +352,8 @@ echo ""
 echo "${BOLD}── Bazhai ──${NC}"
 
 
-rpc bazhai.ming_gua '{"birth_year":1984,"gender":"male"}'
-check_rpc_ok "bazhai.ming_gua"
+rpc bazhai.chart '{"birth_year":1984,"gender":"male"}'
+check_rpc_ok "bazhai.chart"
 check_rpc "  has ming_gua" '.result.data.ming_gua != null' 'true'
 check_rpc "  has ba_zhai_dirs" '.result.data.ba_zhai_dirs != null' 'true'
 

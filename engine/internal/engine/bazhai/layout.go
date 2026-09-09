@@ -3,11 +3,11 @@ package bazhai
 // ── 门主灶判断 ──
 
 type LayoutResult struct {
-	Group      string        `json:"group"` // 东四宅/西四宅
-	MingGuaStr string        `json:"ming_gua_str"`
-	Door       doorStoveInfo `json:"door"`
-	Master     doorStoveInfo `json:"master"`
-	Stove      doorStoveInfo `json:"stove"`
+	Group   string        `json:"group"` // 东四宅/西四宅
+	MingGua string        `json:"ming_gua"`
+	Door    doorStoveInfo `json:"door"`
+	Master  doorStoveInfo `json:"master"`
+	Stove   doorStoveInfo `json:"stove"`
 }
 
 type doorStoveInfo struct {
@@ -49,11 +49,11 @@ func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) LayoutResult {
 	stove := evalPosition(guaNameToNum(stoveGua), mg)
 
 	return LayoutResult{
-		Group:      mgGroup,
-		MingGuaStr: guaNames[mg],
-		Door:       door,
-		Master:     master,
-		Stove:      stove,
+		Group:   mgGroup,
+		MingGua: guaNames[mg],
+		Door:    door,
+		Master:  master,
+		Stove:   stove,
 	}
 }
 

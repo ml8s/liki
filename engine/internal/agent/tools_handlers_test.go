@@ -156,7 +156,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
 		"qiming.pick", "qiming.compose", "qiming.check",
-		"bazhai.ming_gua", "bazhai.layout",
+		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",
@@ -191,7 +191,7 @@ func TestHandler_BadGender(t *testing.T) {
 	}{
 		{"bazi.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"other"}`, btOK)},
 		{"ziwei.chart", fmt.Sprintf(`{"lunar":%s,"gender":"bad"}`, lunarOK)},
-		{"bazhai.ming_gua", `{"birth_year":1984,"gender":"bad"}`},
+		{"bazhai.chart", `{"birth_year":1984,"gender":"bad"}`},
 	}
 	for _, tt := range handlers {
 		t.Run(tt.name, func(t *testing.T) {
@@ -239,7 +239,7 @@ func TestHandler_RangeValidation(t *testing.T) {
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"yong_shen":["甲"]}`, btOK)},
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"scope":"ke"}`, btOK)},
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"birth_year":1984}`, btOK)},
-		{"bazhai.ming_gua", `{"birth_year":1899,"gender":"male"}`},
+		{"bazhai.chart", `{"birth_year":1899,"gender":"male"}`},
 		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":-1,"xiang_shan":0}`},
 		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":24}`},
 	}
@@ -401,9 +401,9 @@ func TestHandler_ComputeZiwei_Valid(t *testing.T) {
 func TestHandler_ComputeBazhaiChart_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	params := json.RawMessage(`{"birth_year":1984,"gender":"male"}`)
-	result, err := r.Execute(context.Background(), "bazhai.ming_gua", params)
+	result, err := r.Execute(context.Background(), "bazhai.chart", params)
 	if err != nil {
-		t.Fatalf("bazhai.ming_gua: %v", err)
+		t.Fatalf("bazhai.chart: %v", err)
 	}
 	if getStr(result, "_product") != "bazhai" {
 		t.Errorf("_product = %q, want bazhai", getStr(result, "_product"))

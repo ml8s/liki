@@ -6,10 +6,10 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-func BenchmarkComputeMingGuaChart(b *testing.B) {
+func BenchmarkComputeChart(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ComputeMingGuaChart(ganzhi.Male, 1984)
+		ComputeChart(ganzhi.Male, 1984)
 	}
 }
 

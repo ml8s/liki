@@ -97,21 +97,21 @@ func bazhaiLayoutHandler(ctx context.Context, raw json.RawMessage) (json.RawMess
 	return wrapResult("bazhai_layout", result)
 }
 
-func bazhaiMingGuaHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+func bazhaiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
 		BirthYear int           `json:"birth_year"`
 		Gender    ganzhi.Gender `json:"gender"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("bazhai.ming_gua: %w", err)
+		return nil, fmt.Errorf("bazhai.chart: %w", err)
 	}
 	if err := validateGender(p.Gender); err != nil {
-		return nil, fmt.Errorf("bazhai.ming_gua: %w", err)
+		return nil, fmt.Errorf("bazhai.chart: %w", err)
 	}
 	if p.BirthYear < 1900 || p.BirthYear > 2100 {
-		return nil, fmt.Errorf("bazhai.ming_gua: birth_year must be 1900-2100, got %d", p.BirthYear)
+		return nil, fmt.Errorf("bazhai.chart: birth_year must be 1900-2100, got %d", p.BirthYear)
 	}
-	result := bazhai.ComputeMingGuaChart(p.Gender, p.BirthYear)
+	result := bazhai.ComputeChart(p.Gender, p.BirthYear)
 	return wrapResult("bazhai", result)
 }
 
@@ -387,16 +387,16 @@ var otherMethods = []RPCMethod{
 		Result:  envelopeSchema(string(qimenSchemas.Result)),
 	},
 	{
-		Name: "bazhai.ming_gua", Description: "八宅命卦。按出生年份与性别排命卦 + 四吉四凶方 + 流年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
+		Name: "bazhai.chart", Description: "八宅排盘。按出生年份与性别排命卦 + 四吉四凶方 + 流年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
 		Params:  mustSchema(`{"type":"object","properties":{"birth_year":{"type":"integer","minimum":1900,"maximum":2100,"description":"出生公历年份"},"gender":{"type":"string","enum":["male","female"]}},"required":["birth_year","gender"]}`),
-		Handler: bazhaiMingGuaHandler,
+		Handler: bazhaiChartHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gua":{"type":"object"},"ba_zhai_dirs":{"type":"object"},"liu_nian_xing":{"type":"object","description":"流年紫白飞星（与玄空共用 schema：year/ru_zhong/gong_wei）"}},"required":["ming_gua","ba_zhai_dirs","liu_nian_xing"]}`),
 	},
 	{
 		Name: "bazhai.layout", Description: "八宅门主灶配合。命卦 + 门/主/灶卦 → 方向、游年九星、吉凶。确定性计算。",
 		Params:  mustSchema(`{"type":"object","properties":{"ming_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"命卦"},"door_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"门卦"},"master_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"主卧卦"},"stove_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"灶卦"}},"required":["ming_gua","door_gua","master_gua","stove_gua"]}`),
 		Handler: bazhaiLayoutHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"group":{"type":"string","enum":["东四宅","西四宅"]},"ming_gua_str":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"]},"door":` + schemaDoorStoveItem + `,"master":` + schemaDoorStoveItem + `,"stove":` + schemaDoorStoveItem + `},"required":["group","ming_gua_str","door","master","stove"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"group":{"type":"string","enum":["东四宅","西四宅"]},"ming_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"]},"door":` + schemaDoorStoveItem + `,"master":` + schemaDoorStoveItem + `,"stove":` + schemaDoorStoveItem + `},"required":["group","ming_gua","door","master","stove"]}`),
 	},
 	{
 		Name: "xuankong.chart", Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",

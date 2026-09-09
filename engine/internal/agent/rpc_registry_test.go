@@ -24,7 +24,7 @@ func TestNewRPCRegistry_KeyMethods(t *testing.T) {
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
 		"qiming.char", "qiming.pick", "qiming.compose", "qiming.check",
-		"bazhai.ming_gua", "bazhai.layout",
+		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",

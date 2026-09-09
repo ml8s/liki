@@ -23,7 +23,7 @@ description: "风水/看风水 — 八宅命卦、玄空飞星。房屋布局、
 | 步骤 | 条件 | 动作 | 产物 |
 |---|---|---|---|
 | 1 | 流年或元运问题 | `time.now` | 当前年基准 |
-| 2 | 八宅问题 | `bazhai.ming_gua` → `bazhai.layout` | 命卦、吉凶方、门主灶 |
+| 2 | 八宅问题 | `bazhai.chart` → `bazhai.layout` | 命卦、吉凶方、门主灶 |
 | 2 | 玄空问题 | `xuankong.chart`，按需 `xuankong.liunian` | 山向盘、元运、流年飞星 |
 | 3 | 已有数据 | 读取 `app/fengshui.md` 与 domain 文档 | 解读规则 |
 | 4 | 输出 | 按模板综合 | 结论 + 方位建议 |

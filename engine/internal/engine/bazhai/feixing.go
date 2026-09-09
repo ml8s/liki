@@ -4,7 +4,7 @@ import "liki-engine/internal/engine/fengshui"
 
 // -- 紫白年飞星 (Annual Purple-White Flying Stars) -------------------------------
 
-// yearStarResult is the 流年紫白飞星 inside bazhai.ming_gua.
+// yearStarResult is the 流年紫白飞星 inside bazhai.chart.
 // schema 与玄空共用（fengshui.ComputeAnnualFlyingStars），字段与 xuankong 一致。
 type yearStarResult struct {
 	Year    int                         `json:"year"`

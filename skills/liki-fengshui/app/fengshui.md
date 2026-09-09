@@ -23,7 +23,7 @@ description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 |---|---|---|---|
 | 1 | 收集参数 | 八宅：出生年份、性别；玄空：宅运日期、坐向；流年问题先 `time.now` | 分析参数与年份 |
-| 2 | 八宅盘 | `bazhai.ming_gua` → `bazhai.layout` | 命卦、四吉四凶、门主灶 |
+| 2 | 八宅盘 | `bazhai.chart` → `bazhai.layout` | 命卦、四吉四凶、门主灶 |
 | 3 | 八宅断局 | 读取 `domains/bazhai/youxing.md` | 游星吉凶与布局建议 |
 | 4 | 玄空盘 | `xuankong.chart`，按需 `xuankong.liunian` | 山向盘、元运、流年飞星 |
 | 5 | 玄空断局 | 读取 `domains/xuankong/feixing.md`、`domains/xuankong/yuanyun.md` | 飞星组合与旺衰 |

@@ -11,8 +11,8 @@ import (
 
 var updateGolden = os.Getenv("UPDATE_GOLDEN") == "1"
 
-func TestGoldenComputeMingGuaChart(t *testing.T) {
-	chart := ComputeMingGuaChart(ganzhi.Male, 1984)
+func TestGoldenComputeChart(t *testing.T) {
+	chart := ComputeChart(ganzhi.Male, 1984)
 
 	// 命理锚点断言（独立于 golden 文件——UPDATE_GOLDEN=1 时同样执行，
 	// 防止错误输出被锁进 golden 后测试自证）。
@@ -23,7 +23,7 @@ func TestGoldenComputeMingGuaChart(t *testing.T) {
 		t.Fatalf("marshal: %v", err)
 	}
 
-	golden := filepath.Join("testdata", "minggua_golden.json")
+	golden := filepath.Join("testdata", "chart_golden.json")
 	if updateGolden {
 		if err := os.MkdirAll("testdata", 0755); err != nil {
 			t.Fatalf("mkdir testdata: %v", err)

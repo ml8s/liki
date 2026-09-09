@@ -75,11 +75,11 @@ func TestComputeMingGua_FormulaAnchors(t *testing.T) {
 }
 
 // =============================================================================
-// ComputeMingGuaChart — 整合测试
+// ComputeChart — 整合测试
 // =============================================================================
 
-func TestComputeMingGuaChart_Integration(t *testing.T) {
-	chart := ComputeMingGuaChart(ganzhi.Male, 1984)
+func TestComputeChart_Integration(t *testing.T) {
+	chart := ComputeChart(ganzhi.Male, 1984)
 
 	if chart.MingGua.Gua.Name == "" {
 		t.Error("MingGua.Name is empty")
@@ -93,11 +93,11 @@ func TestComputeMingGuaChart_Integration(t *testing.T) {
 }
 
 // =============================================================================
-// ComputeMingGuaChart — 年星一致性
+// ComputeChart — 年星一致性
 // =============================================================================
 
-func TestComputeMingGuaChart_YearStarMatches(t *testing.T) {
-	chart := ComputeMingGuaChart(ganzhi.Female, 2024)
+func TestComputeChart_YearStarMatches(t *testing.T) {
+	chart := ComputeChart(ganzhi.Female, 2024)
 
 	// 2024: 三碧入中
 	if chart.YearStars.RuZhong != "三碧禄存" {
