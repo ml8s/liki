@@ -74,3 +74,40 @@ def test_qimen_read_schema_accepts_primary_call():
         },
         tool["parameters"],
     )
+
+
+def test_special_uses_duanyu_query_envelope(monkeypatch):
+    calls = []
+
+    def fake_engine_data(method, params):
+        calls.append(method)
+        if method == "time.now":
+            return {"cst": "2026-09-09T12:00:00+08:00"}
+        raise AssertionError(method)
+
+    monkeypatch.setattr(qimen_read, "engine_data", fake_engine_data)
+    monkeypatch.setattr(qimen_read, "_resolve_location", lambda city, longitude: ("上海", 121.47))
+    monkeypatch.setattr(qimen_read, "solar_time", lambda time, longitude: {"solar": "2026-09-09T11:57:00+08:00"})
+    def fake_chart(solar, **kwargs):
+        calls.append("qimen.chart")
+        return {"matter": None, "chart": {"method": {"scope": "hour", "school": "zhuanpan"}}}
+    monkeypatch.setattr(qimen_read, "qimen_chart", fake_chart)
+    monkeypatch.setattr(qimen_read, "project_qimen_snapshot", lambda pan: {"method": {"scope": "hour", "school": "zhuanpan"}, "ying_qi": []})
+    print("patched", qimen_read.engine_data, qimen_read.qimen_chart, qimen_read.project_qimen_snapshot)
+
+    def fake_query(rule, snapshot):
+        assert rule == "lost_property"
+        assert snapshot["method"]["scope"] == "hour"
+        return {"rule": rule, "assertions": [{"id": "qimen_lost_property_direction"}]}
+
+    monkeypatch.setattr(qimen_read, "assert_rule_for_pan", lambda rule, pan: None)
+    monkeypatch.setattr(qimen_read, "query", fake_query)
+    monkeypatch.setattr(qimen_read, "report_template", lambda read_result: {})
+
+    result = qimen_read.read(
+        question="钥匙还能找到吗", city="上海",
+        time="2026-09-09T12:00:00+08:00", rule="lost_property",
+    )
+    assert result["special"]["rule"] == "lost_property"
+    assert result["special"]["assertions"][0]["id"] == "qimen_lost_property_direction"
+    assert "qimen.chart" in calls
