@@ -60,6 +60,29 @@ def _liuyao_chart(**kwargs):
     }
 
 
+def test_snapshot_envelope_fields_cannot_be_overridden():
+    with pytest.raises(ValueError, match="cannot override envelope"):
+        divination_snapshot.build_snapshot(
+            method="liuyao",
+            schema_version="liuyao-snapshot-v3",
+            payload={"method": "qimen"},
+        )
+
+
+def test_snapshot_validate_rejects_wrong_schema_version():
+    snapshot = divination_snapshot.build_snapshot(
+        method="liuyao",
+        schema_version="liuyao-snapshot-v3",
+        payload={"question": {"text": "测试"}},
+    )
+    with pytest.raises(ValueError, match="schema_version"):
+        divination_snapshot.validate_snapshot(
+            snapshot,
+            method="liuyao",
+            schema_version="liuyao-snapshot-v4",
+        )
+
+
 def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {"casting": {"mode": "coins"}})
     monkeypatch.setattr(liuyao_snapshot, "liuyao_chart", _liuyao_chart)

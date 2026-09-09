@@ -27,11 +27,13 @@ def build_snapshot(
     """给 method-specific snapshot 加公共 envelope 和 digest。"""
     if not isinstance(payload, dict):
         raise ValueError("snapshot payload must be an object")
-    snapshot = {
-        "schema_version": schema_version,
-        "method": method,
-        **payload,
-    }
+    reserved = {"method", "schema_version", "snapshot_digest"}
+    conflicts = reserved.intersection(payload)
+    if conflicts:
+        raise ValueError(f"snapshot payload cannot override envelope fields: {sorted(conflicts)}")
+    snapshot = dict(payload)
+    snapshot["schema_version"] = schema_version
+    snapshot["method"] = method
     snapshot["snapshot_digest"] = canonical_digest(snapshot)
     return snapshot
 

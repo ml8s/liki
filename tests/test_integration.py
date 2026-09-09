@@ -101,6 +101,89 @@ class TestIntegration_FullChain(unittest.TestCase):
 
 
 @pytest.mark.integration
+class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
+    """六爻 / 奇门 snapshot → ask 的真实引擎链路。"""
+
+    def call_tool(self, fn: str, args: dict):
+        url = os.environ.get("LIKI_RPC_URL", "")
+        if not url:
+            self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
+        cli = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "skills", "liki-divination", "tools", "agent_cli.py",
+        )
+        env = dict(os.environ, LIKI_RPC_URL=url)
+        process = subprocess.run(
+            ["python3", cli],
+            input=json.dumps({"fn": fn, "args": args}).encode(),
+            capture_output=True,
+            env=env,
+            timeout=60,
+        )
+        result = json.loads(process.stdout)
+        self.assertTrue(result.get("ok"), result.get("error"))
+        return result["data"]
+
+    def test_liuyao_snapshot_ask_and_tamper_rejection(self):
+        snapshot = self.call_tool(**{
+            "fn": "liuyao_snapshot",
+            "args": {
+                "question": "这次面试能不能通过？",
+                "mode": "yaos",
+                "yaos": [7, 7, 7, 7, 7, 7],
+                "matter": "career",
+            },
+        })
+        self.assertEqual(snapshot["method"], "liuyao")
+        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v3")
+        self.assertTrue(snapshot["snapshot_digest"])
+        self.assertIn("focus", snapshot)
+
+        answer = self.call_tool(**{
+            "fn": "liuyao_ask",
+            "args": {
+                "snapshot": snapshot,
+                "message": "现在应该注意什么？",
+            },
+        })
+        self.assertEqual(answer["method"], "liuyao")
+        self.assertEqual(answer["snapshot_digest"], snapshot["snapshot_digest"])
+        self.assertTrue(answer["audit"]["accepted"])
+
+        tampered = dict(snapshot)
+        tampered["question"] = dict(snapshot["question"], text="篡改后的问题")
+        with self.assertRaises(AssertionError):
+            self.call_tool(**{
+                "fn": "liuyao_ask",
+                "args": {"snapshot": tampered, "message": "现在应该注意什么？"},
+            })
+
+    def test_qimen_snapshot_ask_chain(self):
+        snapshot = self.call_tool(**{
+            "fn": "qimen_snapshot",
+            "args": {
+                "question": "当前应该往哪个方向推进？",
+                "time": "2026-06-28T12:00:00+08:00",
+                "longitude": 120.0,
+                "matter": "career",
+            },
+        })
+        self.assertEqual(snapshot["method"], "qimen")
+        self.assertEqual(snapshot["schema_version"], "qimen-snapshot-v3")
+        self.assertIn("method_context", snapshot)
+
+        answer = self.call_tool(**{
+            "fn": "qimen_ask",
+            "args": {
+                "snapshot": snapshot,
+                "message": "现在适合推进吗？",
+            },
+        })
+        self.assertEqual(answer["method"], "qimen")
+        self.assertEqual(answer["snapshot_digest"], snapshot["snapshot_digest"])
+        self.assertTrue(answer["audit"]["accepted"])
+
+@pytest.mark.integration
 class TestIntegration_QimenRules(unittest.TestCase):
     """奇门 RPC 排盘 + Python 表驱动解释链路。"""
 

@@ -14,7 +14,7 @@ TOOLS = ROOT / "skills/liki-divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-import liuyao_cast as cast_tool  # noqa: E402
+import liuyao_casting as cast_tool  # noqa: E402
 import liuyao_matters as matters  # noqa: E402
 import liuyao_paipan as paipan  # noqa: E402
 

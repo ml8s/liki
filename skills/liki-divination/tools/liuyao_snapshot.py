@@ -1,7 +1,7 @@
 """六爻 snapshot 创建：起卦、排盘、因子投影一次完成。"""
 from __future__ import annotations
 
-from liuyao_cast import qigua
+from liuyao_casting import qigua
 from liuyao_conditions import evaluate as evaluate_conditions
 from divination_safety import assess, blocked_payload
 from divination_snapshot import build_snapshot
