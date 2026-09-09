@@ -32,6 +32,7 @@
 - `qimen-report-v1` 纳入集中契约文件；snapshot、assertion、timing 引用前缀分离并可 schema 校验。
 - 修复 `qimen_read` 专占链路：`special` 直接使用 `qimen_duanyu.query` 返回的 rule/assertions envelope，避免二次嵌套导致报告模板崩溃。
 - 新增回归测试锁定 `qimen_read.special` envelope、内部 chart 调用和工具面不含旧 qimen_chart / query / liuyao_chart。
+- 修复测试隔离：内部编排测试不再污染 `sys.modules`，工具面测试在 `test_qimen_tools` 移除 TOOLS 后仍可稳定加载 agent_cli。
 - 新增 `docs/DIVINATION_MODEL.md`，说明问卦领域对象、场景层、方法层、证据分层、报告审计与会话锁定。
 - 六爻领域命名收敛：`liuyao_interpret` 更名 `liuyao_read`，snapshot / topic guidance 模块更名；新增 `liuyao-reading-v1` 聚合根、reading_id 和 reading_digest。
 - 统一六爻 matter 语言：canonical 使用 relationship / study / legal，旧 academic / legal_risk / marriage / lawsuit 仅作输入别名；移除易误解的 `xi_shen` 主作用链字段。
