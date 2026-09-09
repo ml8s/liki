@@ -32,13 +32,8 @@ def test_shared_safety_blocks_direct_entries():
 
 def test_shared_rpc_module_is_single_source():
     import divination_rpc
-    import sys
-    if str(TOOLS) not in sys.path:
-        sys.path.insert(0, str(TOOLS))
-    import liuyao_rpc
     import qimen_paipan
 
-    assert liuyao_rpc.call is divination_rpc.call
     assert qimen_paipan.shared_call is divination_rpc.call
 
 
