@@ -28,6 +28,7 @@
 - 六爻 / 奇门 matter 语言统一 canonical：relationship、study、legal；旧 marriage、lawsuit、academic、legal_risk 仅作输入别名。
 - app 层新增 outcome / decision / date 用户场景卡；方法卡只作为六爻 / 奇门实现说明，不再作为第一入口。
 - 六爻 / 奇门 session 新增 integrity 摘要：casting/input、method、snapshot、first_verdict 和 report 任一被篡改都会被校验拒绝。
+- 修复 `qimen_read` 专占链路：`special` 直接使用 `qimen_duanyu.query` 返回的 rule/assertions envelope，避免二次嵌套导致报告模板崩溃。
 - 新增共享安全边界、统一 RPC 出口、集中契约校验和 `huangli_days` Python 编排；所有问卦 / 择日入口都不再让 LLM 直接编排 JSON-RPC。
 - `qimen-report-v1` 纳入集中契约文件；snapshot、assertion、timing 引用前缀分离并可 schema 校验。
 - 修复 `qimen_read` 专占链路：`special` 直接使用 `qimen_duanyu.query` 返回的 rule/assertions envelope，避免二次嵌套导致报告模板崩溃。

@@ -88,10 +88,7 @@ def read(
     special = None
     if rule is not None:
         assert_rule_for_pan(rule, pan)
-        special = {
-            "rule": rule,
-            "assertions": query(rule, snapshot),
-        }
+        special = query(rule, snapshot)
 
     return {
         "schema_version": "qimen-read-v1",
