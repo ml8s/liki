@@ -104,12 +104,15 @@ type Line struct {
 	ShiYing  string        `json:"shi_ying"` // "世"/"应"/"""
 	LiuShou  LiuShou       `json:"liu_shou"`
 	// Deterministic derived states (filled by computeChart):
-	YuePo     bool `json:"yue_po,omitempty"`     // 月破（月建冲该爻地支）
-	DongSelf  bool `json:"dong_self,omitempty"`  // 本爻发动（老阴/老阳）
-	DongSheng bool `json:"dong_sheng,omitempty"` // 有动爻生此爻
-	DongKe    bool `json:"dong_ke,omitempty"`    // 有动爻克此爻
-	XunKong   bool `json:"xun_kong,omitempty"`   // 该爻地支值日柱旬空
-	MuKu      bool `json:"mu_ku,omitempty"`      // 入墓（地支为墓库）
+	YuePo         bool   `json:"yue_po,omitempty"`          // 月破（月建冲该爻地支）
+	DongSelf      bool   `json:"dong_self,omitempty"`       // 本爻发动（老阴/老阳）
+	DongSheng     bool   `json:"dong_sheng,omitempty"`      // 有动爻生此爻
+	DongKe        bool   `json:"dong_ke,omitempty"`         // 有动爻克此爻
+	XunKong       bool   `json:"xun_kong,omitempty"`        // 该爻地支值日柱旬空
+	MuKu          bool   `json:"mu_ku,omitempty"`           // 入墓（地支为墓库）
+	MuKuBranch    string `json:"mu_ku_branch,omitempty"`    // 本五行墓库地支
+	MuKuElement   string `json:"mu_ku_element,omitempty"`   // 被入库的五行
+	ChangShengYue string `json:"chang_sheng_yue,omitempty"` // 本爻五行在月支的十二长生
 }
 
 // guaIndex identifies one of the 64 hexagrams.
@@ -158,14 +161,24 @@ type Chart struct {
 	YueGan       ganzhi.Gan    `json:"yue_jian_gan"`
 	DongYao      []int         `json:"dong_yao"` // 动爻位置 1-6
 	// Analysis layers set by ComputeChart.
-	YongShen         YongShenResult      `json:"yong_shen"`
-	GuaCi            GuaCi               `json:"gua_ci,omitempty"`
-	WangShuai        [6]ganzhi.WangShuai `json:"wang_shuai"`
-	DayRelations     [6]DayRelation      `json:"ri_chen_relations"`
-	XunKong          [2]ganzhi.Zhi       `json:"xun_kong"` // 日柱旬空地支（六爻断卦：用神旬空则事虚，出空填实方应）
-	YingQi           YingQi              `json:"ying_qi"`
-	Patterns         []Pattern           `json:"patterns,omitempty"`           // 特殊格局
-	DongYaoRelations []DongYaoRelation   `json:"dong_yao_relations,omitempty"` // 动爻与用神的关系
+	YongShen              YongShenResult         `json:"yong_shen"`
+	GuaCi                 GuaCi                  `json:"gua_ci,omitempty"`
+	WangShuai             [6]ganzhi.WangShuai    `json:"wang_shuai"`
+	DayRelations          [6]DayRelation         `json:"ri_chen_relations"`
+	XunKong               [2]ganzhi.Zhi          `json:"xun_kong"` // 日柱旬空地支（六爻断卦：用神旬空则事虚，出空填实方应）
+	YingQi                YingQi                 `json:"ying_qi"`
+	TimingCandidates      []TimingCandidate      `json:"timing_candidates,omitempty"`
+	Patterns              []Pattern              `json:"patterns,omitempty"`           // 特殊格局
+	DongYaoRelations      []DongYaoRelation      `json:"dong_yao_relations,omitempty"` // 动爻与用神的关系
+	HiddenLines           []HiddenLine           `json:"hidden_lines,omitempty"`       // 本宫全部伏神
+	BranchRelationFacts   []BranchRelationFact   `json:"branch_relation_facts,omitempty"`
+	CastingMode           string                 `json:"casting_mode,omitempty"` // 起卦输入模式（audit only）
+	Casting               *Casting               `json:"casting,omitempty"`      // 完整起卦收据（audit only）
+	DayClashFacts         []DayClashFact         `json:"day_clash_facts,omitempty"`
+	MovingTransformations []MovingTransformation `json:"moving_transformations,omitempty"`
+	SanHeCandidates       []SanHeCandidate       `json:"san_he_candidates,omitempty"`
+	ForceChain            *ForceChain            `json:"force_chain,omitempty"`
+	YongShenCandidates    []YongShenCandidate    `json:"yong_shen_candidates,omitempty"`
 }
 
 // palaceNames.

@@ -206,14 +206,15 @@ func computeLiuQin(lineElem, palaceElem ganzhi.Wuxing) LiuQin {
 
 // YongShenResult holds the 用神 analysis result.
 type YongShenResult struct {
-	Name      string  `json:"name"`               // 用神六亲名
-	Position  int     `json:"position"`           // line position 1-6, 0 if not found
-	WangShuai string  `json:"wang_shuai"`         // 用神旺衰（旺/相/休/囚/死）聚合
-	YuePo     bool    `json:"yue_po,omitempty"`   // 用神月破
-	XunKong   bool    `json:"xun_kong,omitempty"` // 用神旬空
-	MuKu      bool    `json:"mu_ku,omitempty"`    // 用神入墓
-	LiuShou   LiuShou `json:"liu_shou,omitempty"` // 用神临的六神
-	FuShen    *FuShen `json:"fu_shen,omitempty"`
+	Name       string  `json:"name"`                  // 用神六亲名
+	Position   int     `json:"position"`              // line position 1-6, 0 if not found
+	WangShuai  string  `json:"wang_shuai"`            // 用神旺衰（旺/相/休/囚/死）聚合
+	YuePo      bool    `json:"yue_po,omitempty"`      // 用神月破
+	XunKong    bool    `json:"xun_kong,omitempty"`    // 用神旬空
+	MuKu       bool    `json:"mu_ku,omitempty"`       // 用神入墓
+	LiuShou    LiuShou `json:"liu_shou,omitempty"`    // 用神临的六神
+	ChangSheng string  `json:"chang_sheng,omitempty"` // 用神五行在月支的十二长生
+	FuShen     *FuShen `json:"fu_shen,omitempty"`
 }
 
 // computeChart computes a complete 六爻 chart from bazi, question type, and yaos (required).
@@ -257,6 +258,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 		chart.YongShen.XunKong = chart.Lines[pos-1].XunKong
 		chart.YongShen.MuKu = chart.Lines[pos-1].MuKu
 		chart.YongShen.LiuShou = chart.Lines[pos-1].LiuShou
+		chart.YongShen.ChangSheng = chart.Lines[pos-1].ChangShengYue
 	}
 
 	// 动爻关系（与用神的关系）.
@@ -267,6 +269,14 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 
 	// 应期.
 	chart.YingQi = computeYingQi(&chart, yongShen)
+	chart.TimingCandidates = computeTimingCandidates(&chart, yongShen)
+	chart.DayClashFacts = computeDayClashFacts(&chart)
+	chart.MovingTransformations = computeMovingTransformations(&chart)
+	chart.SanHeCandidates = computeSanHeCandidates(&chart)
+	chart.ForceChain = computeForceChain(&chart, yongShen)
+	chart.YongShenCandidates = computeYongShenCandidates(&chart, yongShen)
+	chart.HiddenLines = computeHiddenLines(&chart)
+	chart.BranchRelationFacts = computeBranchRelationFacts(&chart)
 
 	gc, err := GetGuaCi(int(chart.BenGua))
 	if err == nil {
@@ -283,11 +293,12 @@ func computeLineDerived(p *Chart) {
 			lines[i].YuePo = ganzhi.IsLiuChong(lines[i].Zhi, p.YueZhi)
 			lines[i].DongSelf = lines[i].Type.IsChanging()
 			lines[i].XunKong = lines[i].Zhi == p.XunKong[0] || lines[i].Zhi == p.XunKong[1]
-			// 入墓（辰戌丑未为墓库）
-			lines[i].MuKu = lines[i].Zhi == ganzhi.ZhiChen ||
-				lines[i].Zhi == ganzhi.ZhiXu ||
-				lines[i].Zhi == ganzhi.ZhiChou ||
-				lines[i].Zhi == ganzhi.ZhiWei
+			if tomb := tombOf(lines[i].Wuxing); tomb != 0 && lines[i].Zhi == tomb {
+				lines[i].MuKu = true
+				lines[i].MuKuBranch = ganzhi.ZhiName(tomb)
+				lines[i].MuKuElement = lines[i].Wuxing.String()
+			}
+			lines[i].ChangShengYue = lifeStageOf(lines[i].Wuxing, p.YueZhi)
 		}
 	}
 	mark(&p.Lines)

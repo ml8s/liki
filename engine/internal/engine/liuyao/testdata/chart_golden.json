@@ -12,7 +12,8 @@
       "wuxing": "水",
       "liu_qin": "子孙",
       "shi_ying": "",
-      "liu_shou": "螣蛇"
+      "liu_shou": "螣蛇",
+      "chang_sheng_yue": "病"
     },
     {
       "position": 2,
@@ -22,7 +23,8 @@
       "wuxing": "木",
       "liu_qin": "妻财",
       "shi_ying": "",
-      "liu_shou": "白虎"
+      "liu_shou": "白虎",
+      "chang_sheng_yue": "临官"
     },
     {
       "position": 3,
@@ -33,7 +35,10 @@
       "liu_qin": "父母",
       "shi_ying": "应",
       "liu_shou": "玄武",
-      "mu_ku": true
+      "mu_ku": true,
+      "mu_ku_branch": "辰",
+      "mu_ku_element": "土",
+      "chang_sheng_yue": "长生"
     },
     {
       "position": 4,
@@ -43,7 +48,8 @@
       "wuxing": "火",
       "liu_qin": "官鬼",
       "shi_ying": "",
-      "liu_shou": "青龙"
+      "liu_shou": "青龙",
+      "chang_sheng_yue": "长生"
     },
     {
       "position": 5,
@@ -55,7 +61,8 @@
       "shi_ying": "",
       "liu_shou": "朱雀",
       "yue_po": true,
-      "xun_kong": true
+      "xun_kong": true,
+      "chang_sheng_yue": "绝"
     },
     {
       "position": 6,
@@ -66,7 +73,7 @@
       "liu_qin": "父母",
       "shi_ying": "世",
       "liu_shou": "勾陈",
-      "mu_ku": true
+      "chang_sheng_yue": "长生"
     }
   ],
   "bian_yao": [
@@ -139,7 +146,8 @@
   "yong_shen": {
     "name": "官鬼",
     "position": 4,
-    "wang_shuai": "相"
+    "wang_shuai": "相",
+    "chang_sheng": "长生"
   },
   "gua_ci": {
     "name": "乾",
@@ -196,5 +204,206 @@
     "dong_yao_pos": 0,
     "ying_time": "",
     "assessment": "官鬼在四爻，月建相，日建生(旺)，静爻待冲。冲子之时为应"
-  }
+  },
+  "branch_relation_facts": [
+    {
+      "left_position": 1,
+      "right_position": 4,
+      "relations": [
+        "六冲"
+      ],
+      "targets": [
+        "yong_shen"
+      ],
+      "basis": [
+        "left=子",
+        "right=午"
+      ]
+    },
+    {
+      "left_position": 2,
+      "right_position": 5,
+      "relations": [
+        "六冲",
+        "刑（成组候选）"
+      ],
+      "basis": [
+        "left=寅",
+        "right=申"
+      ]
+    },
+    {
+      "left_position": 3,
+      "right_position": 4,
+      "relations": [
+        "刑（成组候选）"
+      ],
+      "targets": [
+        "yong_shen",
+        "other"
+      ],
+      "basis": [
+        "left=辰",
+        "right=午"
+      ]
+    },
+    {
+      "left_position": 3,
+      "right_position": 6,
+      "relations": [
+        "六冲"
+      ],
+      "targets": [
+        "other",
+        "world"
+      ],
+      "basis": [
+        "left=辰",
+        "right=戌"
+      ]
+    }
+  ],
+  "san_he_candidates": [
+    {
+      "positions": [
+        1,
+        3,
+        5
+      ],
+      "branches": [
+        "子",
+        "辰",
+        "申"
+      ],
+      "element": "水",
+      "complete": true,
+      "moving_count": 0,
+      "qualification": "卦中三支齐但无发动或见空破，作潜在聚气候选，不直接论成局",
+      "line_complete": true,
+      "day_present": false,
+      "month_present": false,
+      "static_count": 3,
+      "void_count": 1,
+      "break_count": 1,
+      "activated": false,
+      "targets": [
+        "other"
+      ],
+      "conclusion_scope": "structure_candidate_only_not_outcome"
+    },
+    {
+      "positions": [
+        2,
+        4,
+        6
+      ],
+      "branches": [
+        "寅",
+        "午",
+        "戌"
+      ],
+      "element": "火",
+      "complete": true,
+      "moving_count": 0,
+      "qualification": "卦中三支齐但无发动或见空破，作潜在聚气候选，不直接论成局",
+      "line_complete": true,
+      "day_present": false,
+      "month_present": true,
+      "static_count": 3,
+      "void_count": 0,
+      "break_count": 0,
+      "activated": false,
+      "targets": [
+        "yong_shen",
+        "world"
+      ],
+      "conclusion_scope": "structure_candidate_only_not_outcome"
+    }
+  ],
+  "force_chain": {
+    "yong_shen": "官鬼",
+    "yong_element": "火",
+    "position": 4,
+    "is_hidden": false,
+    "entries": [
+      {
+        "role": "用神",
+        "element": "火",
+        "positions": [
+          4
+        ],
+        "branches": [
+          "午"
+        ],
+        "relations": [
+          "日生"
+        ],
+        "states": [
+          "相/安静"
+        ],
+        "note": "所问事项主线"
+      },
+      {
+        "role": "原神",
+        "element": "木",
+        "positions": [
+          2
+        ],
+        "branches": [
+          "寅"
+        ],
+        "relations": [
+          "日扶"
+        ],
+        "states": [
+          "旺/安静"
+        ],
+        "note": "生用神者"
+      },
+      {
+        "role": "忌神",
+        "element": "水",
+        "positions": [
+          1
+        ],
+        "branches": [
+          "子"
+        ],
+        "relations": [
+          "日平"
+        ],
+        "states": [
+          "休/安静"
+        ],
+        "note": "克用神者"
+      },
+      {
+        "role": "仇神",
+        "element": "金",
+        "positions": [
+          5
+        ],
+        "branches": [
+          "申"
+        ],
+        "relations": [
+          "日平"
+        ],
+        "states": [
+          "囚/安静/旬空/月破"
+        ],
+        "note": "克原神者"
+      }
+    ]
+  },
+  "yong_shen_candidates": [
+    {
+      "position": 4,
+      "branch": "午",
+      "is_hidden": false,
+      "selected": true,
+      "wang_shuai": "相",
+      "reason": "卦中唯现"
+    }
+  ]
 }

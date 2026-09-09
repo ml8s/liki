@@ -1,0 +1,89 @@
+{
+  "schema_version": "liuyao-condition-rules-v1",
+  "conclusion_scope": "conditional_rule_restoration_not_absolute_verdict",
+  "rules": [
+    {
+      "id": "month-break-not-always-failed",
+      "statement": "月破必废",
+      "restored": "月破只在休囚静爻且无救应时，才作为真破 / 当下无力候选；旺相有救为假破候选。",
+      "applies_if": {"focus.yong_shen.yue_po": true},
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "旺相月破先作假破 / 先挫后成候选。",
+        "requires": ["月日生扶或动爻救应", "不与其他真空真破叠加"]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "休囚月破先作真破 / 当下无力候选。",
+        "requires": ["静爻或失令", "无有效原神救应"]
+      },
+      "forbidden": ["见月破直接断废", "以月破单独决定最终结果"]
+    },
+    {
+      "id": "void-not-always-useless",
+      "statement": "旬空无用",
+      "restored": "旬空须分真空 / 假空；旺相、发动、有救不作无用。",
+      "applies_if": {"focus.yong_shen.xun_kong": true},
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "旺相或发动旬空先作假空 / 迟成候选。",
+        "requires": ["出空、填实或冲空的触发候选", "事项仍存在现实基础"]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "休囚安静旬空先作真空 / 事不实候选。",
+        "requires": ["无动爻生扶", "无冲空救应"]
+      },
+      "forbidden": ["见旬空断无用", "把冲空一律解释为冲实"]
+    },
+    {
+      "id": "liuhe-not-always-success",
+      "statement": "见六合必成",
+      "restored": "六合只是聚 / 稳 / 缓结构，必须用神有气且世应能承接。",
+      "applies_if": {"pattern.sub_type": "六合"},
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "六合且用神旺相，可作事易聚 / 易稳候选。",
+        "requires": ["用神不受真空真破压制", "世应或用神实际受益"]
+      },
+      "weak_branch": {
+        "status": "rejected",
+        "conclusion": "用神无气时，六合不单独支持成事结论。"
+      },
+      "forbidden": ["见六合断吉", "把六合当作婚姻或合作已经成立"]
+    },
+    {
+      "id": "six-chong-not-always-failure",
+      "statement": "见六冲必散",
+      "restored": "六冲主反复、冲动或离散候选；旺相有救不一定败，衰而受冲才加重不利。",
+      "applies_if": {"pattern.sub_type": "六冲"},
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "六冲而用神有气，先作反复 / 波折候选。",
+        "requires": ["月日或动爻有救应", "世爻能承受冲击"]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "六冲且用神无气，作散 / 难成候选。",
+        "requires": ["无原神救应", "世应不能承接"]
+      },
+      "forbidden": ["见六冲断凶", "把六冲单独当作结果"]
+    },
+    {
+      "id": "brother-moving-not-certain-loss",
+      "statement": "兄弟动必破财",
+      "restored": "兄弟动是克财候选，必须实际作用到妻财且妻财无力。",
+      "applies_if": {"moving_relation.relation": "克用", "topic": "wealth"},
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "兄弟动且克到弱财，作耗损 / 竞争压力候选。",
+        "requires": ["兄弟有气", "妻财休囚空破或受冲", "世爻承受力弱"]
+      },
+      "weak_branch": {
+        "status": "rejected",
+        "conclusion": "兄弟不动、无力或未作用妻财，不直接断破财。"
+      },
+      "forbidden": ["只凭六亲名称断破财", "把竞争压力换算成金额"]
+    }
+  ]
+}

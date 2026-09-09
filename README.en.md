@@ -111,11 +111,15 @@ Also supports: renaming, Chinese names for English speakers, name evaluation.
 
 #### liki-divination
 
-Ask about a specific event's outcome and timing — **the more specific, the better**:
+The skill chooses one method by user goal; it does **not** run dual divination by default:
 
-- **Liuyao**: `Will this project succeed?` `When will I see results?`
-- **QiMen**: `Which direction?` `Should I sign now?`
-- **Date selection**: `Best day to move / sign / open?`
+| Goal | Default method | Try |
+|---|---|---|
+| Event outcome / timing | Liuyao | `Will this project succeed?` |
+| Action, direction, strategy, timing | QiMen | `Should I sign now?` |
+| Date selection | HuangLi | `Best day to move / sign / open?` |
+
+If a request mixes outcome and strategy, the skill asks you to choose the primary question first. Explicit dual-method cross-check remains available on request.
 
 Ordinary Qimen questions require **no chart-method selection**; the skill defaults to hour-scope Qimen with the rotating plate and chai-bu bureau. To choose an explicit method:
 
@@ -127,7 +131,10 @@ Ordinary Qimen questions require **no chart-method selection**; the skill defaul
 | Twelve-minute ten-division | `Use the twelve-minute ten-division chart` |
 | Golden Mirror | `Use Golden Mirror for today` |
 
-Output: hexagram basis → one-line verdict → timing.
+Output: method basis → one-line verdict → timing / direction → practical advice.
+Liuyao and Qimen retain casting/charter receipts, snapshots, evidence references, conflict signals, audit results, and session integrity summaries. Follow-ups reuse the original chart.
+
+See [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) for the domain model.
 
 #### liki-fengshui
 
@@ -156,7 +163,7 @@ The skill self-checks its version on startup; when prompted, re-run: `npx skills
 - **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
 - **Sourced judgments** — 47 logical rule groups with 775 assertions, each with a classical-citation column.
 - **Dual-system cross-check** — BaZi and ZiWei are evaluated separately, with an explicit synthesis layer; conflicts are resolved with explicit evidence.
-- **Auditable process** — every step fills a checklist; conclusions trace back to specific steps.
+- **Auditable process** — divination flows retain casting/charter receipts, snapshots, evidence references, report audits, and session integrity summaries; conclusions trace back to specific steps (`docs/DIVINATION_MODEL.md`).
 - **Independent evaluation** — 160 competition questions (MingLi-Bench), answer isolation, public data (`tests/`).
 
 ---

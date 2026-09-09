@@ -13,7 +13,7 @@
 | 神 |洛书飞盘按值符、螣蛇、太阴、六合、白虎、太常、玄武、九地、九天；转盘阴阳遁的神名以 `method.spirit_mode` 为准 |
 | 干 |乙、丙、丁、戊、己、庚、辛、壬、癸 |
 
-普通问事传 `qimen_chart` 的 `matter`，Python 编排层查事象表并转为显式 `yong_shen`；engine 只接收 `yong_shen`，`matter` 不进入 `qimen.chart`。`matter` 与 `yong_shen` 互斥；高级用户可直接传 `yong_shen`。
+普通问事传 `qimen_read` 的 `matter`，Python 编排层查事象表并转为显式 `yong_shen`；engine 只接收 `yong_shen`，`matter` 不进入 `qimen.chart`。`matter` 与 `yong_shen` 互斥；高级用户可直接传 `yong_shen`。
 
 ## 事象 → 用神
 

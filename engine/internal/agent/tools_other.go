@@ -177,30 +177,104 @@ func xuankongLiunianHandler(ctx context.Context, raw json.RawMessage) (json.RawM
 
 func liuyaoQiguaHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		Seed *int64 `json:"seed,omitempty"` // 可选：固定随机种子（测试用）
+		Seed   *int64     `json:"seed,omitempty"` // 可选：固定随机种子（测试用）
+		Mode   string     `json:"mode,omitempty"`
+		Rounds [][]string `json:"rounds,omitempty"`
+		Yaos   []int      `json:"yaos,omitempty"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("liuyao.qigua: %w", err)
 	}
+
 	var result liuyao.QiguaResult
-	if p.Seed != nil {
-		result = liuyao.QiguaWithSeed(*p.Seed)
-	} else {
-		result = liuyao.Qigua()
+	var casting liuyao.Casting
+	var err error
+	mode := p.Mode
+	if mode == "" {
+		mode = "auto"
 	}
-	return wrapResult("liuyao_qigua", result)
+	switch mode {
+	case "auto":
+		if p.Rounds != nil || p.Yaos != nil {
+			return nil, fmt.Errorf("liuyao.qigua: auto mode does not accept rounds or yaos")
+		}
+		if p.Seed != nil {
+			result = liuyao.QiguaWithSeed(*p.Seed)
+			casting, err = liuyao.NewValuesCasting(result.Yaos, "yaos", "deterministic_seed")
+			if err != nil {
+				return nil, fmt.Errorf("liuyao.qigua: %w", err)
+			}
+		} else {
+			casting, err = liuyao.SecureQigua()
+			if err != nil {
+				return nil, fmt.Errorf("liuyao.qigua: %w", err)
+			}
+			result.Yaos = casting.Yaos
+			result.DongYao = casting.DongYao
+		}
+	case "coins":
+		if p.Seed != nil || p.Yaos != nil {
+			return nil, fmt.Errorf("liuyao.qigua: coins mode accepts rounds only")
+		}
+		casting, err = liuyao.NewCoinsCasting(p.Rounds, "external_manual")
+		if err != nil {
+			return nil, fmt.Errorf("liuyao.qigua: %w", err)
+		}
+		result.Yaos = casting.Yaos
+		result.DongYao = casting.DongYao
+	case "yaos":
+		if p.Seed != nil || p.Rounds != nil {
+			return nil, fmt.Errorf("liuyao.qigua: yaos mode accepts yaos only")
+		}
+		var values [6]int
+		copy(values[:], p.Yaos)
+		casting, err = liuyao.NewValuesCasting(values, "yaos", "external_user_values")
+		if err != nil {
+			return nil, fmt.Errorf("liuyao.qigua: %w", err)
+		}
+		result.Yaos = casting.Yaos
+		result.DongYao = casting.DongYao
+	default:
+		return nil, fmt.Errorf("liuyao.qigua: unsupported mode %q", mode)
+	}
+
+	return wrapResult("liuyao_qigua", struct {
+		liuyao.QiguaResult
+		Casting liuyao.Casting `json:"casting"`
+	}{
+		QiguaResult: result,
+		Casting:     casting,
+	})
 }
 
 func liuyaoChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		SolarTime string `json:"solar_time"`
-		YongShen  string `json:"yong_shen"`
-		Yaos      [6]int `json:"yaos"`
+		SolarTime string          `json:"solar_time"`
+		YongShen  string          `json:"yong_shen"`
+		Yaos      [6]int          `json:"yaos"`
+		Casting   *liuyao.Casting `json:"casting"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	for i, v := range p.Yaos {
+	var yaos [6]int
+	castingMode := "legacy_yaos"
+	if p.Casting != nil {
+		if p.Yaos != ([6]int{}) {
+			return nil, fmt.Errorf("liuyao.chart: casting and yaos are mutually exclusive")
+		}
+		if err := p.Casting.Validate(); err != nil {
+			return nil, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
+		}
+		yaos = p.Casting.Yaos
+		castingMode = p.Casting.Mode
+	} else {
+		yaos = p.Yaos
+		if yaos == ([6]int{}) {
+			return nil, fmt.Errorf("liuyao.chart: casting or yaos is required")
+		}
+	}
+	for i, v := range yaos {
 		if v < 6 || v > 9 {
 			return nil, fmt.Errorf("liuyao.chart: yao[%d] = %d, must be 6-9", i, v)
 		}
@@ -216,7 +290,13 @@ func liuyaoChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if err != nil {
 		return nil, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	result := liuyao.ComputeChart(st, ys, p.Yaos)
+	result := liuyao.ComputeChart(st, ys, yaos)
+	result.CastingMode = castingMode
+	if p.Casting != nil {
+		result.Casting = p.Casting
+	} else if legacy, castErr := liuyao.NewValuesCasting(yaos, "legacy_yaos", "legacy_rpc_yaos"); castErr == nil {
+		result.Casting = &legacy
+	}
 	return wrapResult("liuyao", result)
 }
 
@@ -332,16 +412,16 @@ var otherMethods = []RPCMethod{
 		Result:  envelopeSchema(`{"type":"object","properties":{"year":{"type":"integer"},"ru_zhong":{"type":"string","description":"入中星名"},"gong_wei":{"type":"array","description":"流年飞星盘（gong_num/xing/xing_name/wuxing/rating/ru_zhong）"},"house_overlay":{"type":"array","description":"流年凶星落宫对照宅盘该宫三星"}},"required":["year","ru_zhong","gong_wei"]}`),
 	},
 	{
-		Name: "liuyao.qigua", Description: "六爻起卦。摇卦（三枚铜钱起六次），返回原始爻值和动爻位置。",
-		Params:  mustSchema(`{"type":"object","properties":{"seed":{"type":"integer","description":"可选：固定随机种子（测试用）"}},"required":[]}`),
+		Name: "liuyao.qigua", Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次；mode=coins 时传入六组正/反记录；mode=yaos 时传入六个爻值。返回原始爻值、动爻和可审计起卦收据。",
+		Params:  mustSchema(`{"type":"object","properties":{"mode":{"type":"string","enum":["auto","coins","yaos"],"default":"auto"},"seed":{"type":"integer","description":"仅 auto 模式：固定随机种子（测试用）"},"rounds":{"type":"array","minItems":6,"maxItems":6,"description":"coins 模式：六组三枚硬币，初爻到上爻","items":{"type":"array","minItems":3,"maxItems":3,"items":{"type":"string","enum":["正","反"]}}},"yaos":{"type":"array","minItems":6,"maxItems":6,"items":{"type":"integer","minimum":6,"maximum":9},"description":"yaos 模式：六爻值，初爻到上爻"}},"required":[]}`),
 		Handler: liuyaoQiguaHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"yaos":{"type":"array","items":{"type":"integer"}, "description":"六爻值 6-9"},"dong_yao":{"type":"array","items":{"type":"integer"},"description":"动爻位置 1-6"}},"required":["yaos","dong_yao"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"yaos":{"type":"array","items":{"type":"integer"}, "description":"六爻值 6-9"},"dong_yao":{"type":"array","items":{"type":"integer"},"description":"动爻位置 1-6"},"casting":{"type":"object","description":"完整起卦收据，可回传 liuyao.chart"}},"required":["yaos","dong_yao","casting"]}`),
 	},
 	{
-		Name: "liuyao.chart", Description: "六爻装卦。传入起卦结果和问事时辰，装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。lines.liu_qin: 0=父母 1=兄弟 2=官鬼 3=妻财 4=子孙；lines.liu_shou: 0=青龙 1=朱雀 2=勾陈 3=螣蛇 4=白虎 5=玄武；wang_shuai: 0=旺 1=相 2=休 3=囚 4=死",
-		Params:  mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"yong_shen":{"type":"string","description":"用神六亲（如 妻财/官鬼/父母/兄弟/子孙/世爻），可选，默认世爻"},"yaos":{"type":"array","items":{"type":"integer"},"minItems":6,"maxItems":6,"description":"六爻值（6-9），必填，先调 liuyao.qigua 获取"}},"required":["solar_time","yaos"]}`),
+		Name: "liuyao.chart", Description: "六爻装卦。优先传入 liuyao.qigua 返回的 casting；兼容旧 yaos 输入。装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。lines.liu_qin: 0=父母 1=兄弟 2=官鬼 3=妻财 4=子孙；lines.liu_shou: 0=青龙 1=朱雀 2=勾陈 3=螣蛇 4=白虎 5=玄武；wang_shuai: 0=旺 1=相 2=休 3=囚 4=死",
+		Params:  mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"yong_shen":{"type":"string","description":"用神六亲（如 妻财/官鬼/父母/兄弟/子孙/世爻），可选，默认世爻"},"yaos":{"type":"array","items":{"type":"integer"},"minItems":6,"maxItems":6,"description":"兼容旧输入：六爻值（6-9）；与 casting 互斥"},"casting":{"type":"object","description":"liuyao.qigua 返回的完整起卦收据；与 yaos 互斥"}},"required":["solar_time"]}`),
 		Handler: liuyaoChartHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"ben_gua":{"type":"string","enum":["乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人","临","损","节","中孚","归妹","睽","兑","履","泰","大畜","需","小畜","大壮","大有","夬","乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人"]},"lines":{"type":"array","description":"每爻：六亲/六神/世应 + 确定性状态（yue_po 月破/dong_self 发动/dong_sheng 动爻生/dong_ke 动爻克）","items":{"type":"object","properties":{"position":{"type":"integer"},"type":{"type":"integer"},"gan":{"type":"string"},"zhi":{"type":"string"},"wuxing":{"type":"string"},"liu_qin":{"type":"string","enum":["父母","兄弟","官鬼","妻财","子孙"]},"shi_ying":{"type":"string","description":"世/应"},"liu_shou":{"type":"string","enum":["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]},"yue_po":{"type":"boolean","description":"月破"},"dong_self":{"type":"boolean","description":"本爻发动"},"dong_sheng":{"type":"boolean","description":"有动爻生此爻"},"dong_ke":{"type":"boolean","description":"有动爻克此爻"},"xun_kong":{"type":"boolean","description":"该爻地支值日柱旬空"}},"required":["position","type","gan","zhi","wuxing","liu_qin","shi_ying","liu_shou"]}},"yong_shen":{"type":"object","description":"用神结果","properties":{"name":{"type":"string","description":"用神六亲"},"position":{"type":"integer","description":"爻位1-6（0=未找到）"},"wang_shuai":{"type":"string","description":"用神旺衰"},"yue_po":{"type":"boolean","description":"用神月破"},"xun_kong":{"type":"boolean","description":"用神旬空"},"mu_ku":{"type":"boolean","description":"用神入墓"},"liu_shou":{"type":"string","description":"用神临的六神","enum":["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]},"fu_shen":{"type":"object","description":"飞伏（用神不现时）","properties":{"position":{"type":"integer","description":"爻位"},"liu_qin":{"type":"string","description":"伏神六亲"},"zhi":{"type":"string","description":"伏神地支"}},"required":["position","liu_qin","zhi"]}},"required":["name","position"]},"wang_shuai":{"type":"array"},"yue_jian_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"yue_jian_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ying_qi":{"type":"object","description":"应期判断结果","properties":{"yong_shen":{"type":"string","description":"用神"},"dong_yao_pos":{"type":"integer","description":"动爻位置"},"ying_time":{"type":"string","description":"应期描述"},"assessment":{"type":"string","description":"综合判断"}},"required":["yong_shen","assessment"]},"bian_gua":{"type":"string","description":"变卦名"},"bian_yao":{"type":"array","description":"变爻"},"dong_yao":{"type":"array","items":{"type":"integer"},"description":"动爻位置"},"gong":{"type":"string","description":"八宫"},"gua_ci":{"type":"object","description":"卦辞爻辞"},"gong_wuxing":{"type":"string","description":"宫五行"},"ri_chen_gan":{"type":"string","description":"日辰天干"},"ri_chen_zhi":{"type":"string","description":"日辰地支"},"ri_chen_relations":{"type":"array","description":"日辰与爻关系"},"xun_kong":{"type":"array","items":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"description":"日柱旬空地支（甲子旬空戌亥…）"},"dong_yao_relations":{"type":"array","description":"动爻与用神的关系","items":{"type":"object","properties":{"position":{"type":"integer","description":"动爻位置"},"relation":{"type":"string","description":"关系类型（生用/克用/比和/冲用/生原神/克原神/生忌神/克忌神）"}},"required":["position","relation"]}},"patterns":{"type":"array","description":"特殊格局","items":{"type":"object","properties":{"type":{"type":"string","description":"格局类型"},"sub_type":{"type":"string","description":"子类型"},"position":{"type":"integer"},"is_true":{"type":"boolean","description":"结构是否有实质效力；空亡/月破中 true=真空/真破，false=假空/假破"},"assessment":{"type":"string"}},"required":["type","assessment"]}}},"required":["name","ben_gua","lines","yong_shen"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"ben_gua":{"type":"string","enum":["乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人","临","损","节","中孚","归妹","睽","兑","履","泰","大畜","需","小畜","大壮","大有","夬","乾","姤","遁","否","观","晋","大有","剥","复","颐","屯","益","震","噬嗑","随","无妄","明夷","贲","既济","家人","丰","离","革","同人"]},"lines":{"type":"array","description":"每爻：六亲/六神/世应 + 确定性状态（yue_po 月破/dong_self 发动/dong_sheng 动爻生/dong_ke 动爻克）","items":{"type":"object","properties":{"position":{"type":"integer"},"type":{"type":"integer"},"gan":{"type":"string"},"zhi":{"type":"string"},"wuxing":{"type":"string"},"liu_qin":{"type":"string","enum":["父母","兄弟","官鬼","妻财","子孙"]},"shi_ying":{"type":"string","description":"世/应"},"liu_shou":{"type":"string","enum":["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]},"yue_po":{"type":"boolean","description":"月破"},"dong_self":{"type":"boolean","description":"本爻发动"},"dong_sheng":{"type":"boolean","description":"有动爻生此爻"},"dong_ke":{"type":"boolean","description":"有动爻克此爻"},"xun_kong":{"type":"boolean","description":"该爻地支值日柱旬空"},"mu_ku_branch":{"type":"string"},"mu_ku_element":{"type":"string"},"chang_sheng_yue":{"type":"string"}},"required":["position","type","gan","zhi","wuxing","liu_qin","shi_ying","liu_shou"]}},"yong_shen":{"type":"object","description":"用神结果","properties":{"name":{"type":"string","description":"用神六亲"},"position":{"type":"integer","description":"爻位1-6（0=未找到）"},"wang_shuai":{"type":"string","description":"用神旺衰"},"yue_po":{"type":"boolean","description":"用神月破"},"xun_kong":{"type":"boolean","description":"用神旬空"},"mu_ku":{"type":"boolean","description":"用神入墓"},"liu_shou":{"type":"string","description":"用神临的六神","enum":["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]},"fu_shen":{"type":"object","description":"飞伏（用神不现时）","properties":{"position":{"type":"integer","description":"爻位"},"liu_qin":{"type":"string","description":"伏神六亲"},"zhi":{"type":"string","description":"伏神地支"}},"required":["position","liu_qin","zhi"]},"chang_sheng":{"type":"string"}},"required":["name","position"]},"wang_shuai":{"type":"array"},"yue_jian_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"yue_jian_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"ying_qi":{"type":"object","description":"应期判断结果","properties":{"yong_shen":{"type":"string","description":"用神"},"dong_yao_pos":{"type":"integer","description":"动爻位置"},"ying_time":{"type":"string","description":"应期描述"},"assessment":{"type":"string","description":"综合判断"}},"required":["yong_shen","assessment"]},"bian_gua":{"type":"string","description":"变卦名"},"bian_yao":{"type":"array","description":"变爻"},"dong_yao":{"type":"array","items":{"type":"integer"},"description":"动爻位置"},"gong":{"type":"string","description":"八宫"},"gua_ci":{"type":"object","description":"卦辞爻辞"},"gong_wuxing":{"type":"string","description":"宫五行"},"ri_chen_gan":{"type":"string","description":"日辰天干"},"ri_chen_zhi":{"type":"string","description":"日辰地支"},"ri_chen_relations":{"type":"array","description":"日辰与爻关系"},"xun_kong":{"type":"array","items":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"description":"日柱旬空地支（甲子旬空戌亥…）"},"dong_yao_relations":{"type":"array","description":"动爻与用神的关系","items":{"type":"object","properties":{"position":{"type":"integer","description":"动爻位置"},"relation":{"type":"string","description":"关系类型（生用/克用/比和/冲用/生原神/克原神/生忌神/克忌神）"}},"required":["position","relation"]}},"patterns":{"type":"array","description":"特殊格局","items":{"type":"object","properties":{"type":{"type":"string","description":"格局类型"},"sub_type":{"type":"string","description":"子类型"},"position":{"type":"integer"},"is_true":{"type":"boolean","description":"结构是否有实质效力；空亡/月破中 true=真空/真破，false=假空/假破"},"assessment":{"type":"string"}},"required":["type","assessment"]}},"casting":{"type":"object","description":"完整起卦收据"},"casting_mode":{"type":"string","description":"起卦输入模式"},"timing_candidates":{"type":"array","description":"应期触发机制候选；非确定日期","items":{"type":"object","properties":{"id":{"type":"string"},"mechanism":{"type":"string"},"position":{"type":"integer"},"trigger_branch":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"window":{"type":"string"},"basis":{"type":"array","items":{"type":"string"}},"condition":{"type":"string"},"confidence":{"type":"string"}},"required":["id","mechanism","confidence"]}},"day_clash_facts":{"type":"array","description":"日冲细分事实","items":{"type":"object","properties":{"position":{"type":"integer"},"kind":{"type":"string"},"basis":{"type":"array","items":{"type":"string"}},"condition":{"type":"string"}},"required":["position","kind"]}},"moving_transformations":{"type":"array","description":"动爻到变爻的机械变化","items":{"type":"object","properties":{"position":{"type":"integer"},"from_branch":{"type":"string"},"to_branch":{"type":"string"},"return_relation":{"type":"string"},"advance_retreat":{"type":"string"},"changed_void":{"type":"boolean"},"changed_break":{"type":"boolean"},"basis":{"type":"array","items":{"type":"string"}}},"required":["position","from_branch","to_branch"]}},"force_chain":{"type":"object","properties":{"yong_shen":{"type":"string"},"yong_element":{"type":"string"},"position":{"type":"integer"},"is_hidden":{"type":"boolean"},"entries":{"type":"array","items":{"type":"object","properties":{"role":{"type":"string"},"element":{"type":"string"},"positions":{"type":"array","items":{"type":"integer"}},"branches":{"type":"array","items":{"type":"string"}},"relations":{"type":"array","items":{"type":"string"}},"states":{"type":"array","items":{"type":"string"}},"note":{"type":"string"}},"required":["role","element"]}}},"required":["yong_shen","yong_element","position","entries"]},"yong_shen_candidates":{"type":"array","description":"用神候选与当前确定性选择","items":{"type":"object","properties":{"position":{"type":"integer"},"branch":{"type":"string"},"is_hidden":{"type":"boolean"},"selected":{"type":"boolean"},"wang_shuai":{"type":"string"},"reason":{"type":"string"},"basis":{"type":"array","items":{"type":"string"}}},"required":["position","branch","is_hidden","selected","reason"]}},"san_he_candidates":{"type":"array","properties":{"moving_count":{"type":"integer"},"static_count":{"type":"integer"},"void_count":{"type":"integer"},"break_count":{"type":"integer"},"positions":{"type":"array","items":{"type":"integer"}},"branches":{"type":"array","items":{"type":"string"}},"element":{"type":"string"},"complete":{"type":"boolean"},"qualification":{"type":"string"},"line_complete":{"type":"boolean"},"day_present":{"type":"boolean"},"month_present":{"type":"boolean"},"missing":{"type":"array","items":{"type":"string"}},"activated":{"type":"boolean"},"targets":{"type":"array","items":{"type":"string"}},"conclusion_scope":{"type":"string"}},"required":["positions","branches","element","complete","moving_count","qualification","line_complete","activated","conclusion_scope"],"description":"三合候选；complete=true 只是三支齐，成局仍须按发动与空破月日复核","items":{"type":"object","properties":{"moving_count":{"type":"integer"},"static_count":{"type":"integer"},"void_count":{"type":"integer"},"break_count":{"type":"integer"},"positions":{"type":"array","items":{"type":"integer"}},"branches":{"type":"array","items":{"type":"string"}},"element":{"type":"string"},"complete":{"type":"boolean"},"qualification":{"type":"string"},"line_complete":{"type":"boolean"},"day_present":{"type":"boolean"},"month_present":{"type":"boolean"},"missing":{"type":"array","items":{"type":"string"}},"activated":{"type":"boolean"},"targets":{"type":"array","items":{"type":"string"}},"conclusion_scope":{"type":"string"}},"required":["positions","branches","element","complete","moving_count","qualification","line_complete","activated","conclusion_scope"]}},"hidden_lines":{"type":"array","description":"本宫全部伏神","items":{"type":"object","properties":{"position":{"type":"integer"},"liu_qin":{"type":"string"},"gan":{"type":"string"},"zhi":{"type":"string"},"wuxing":{"type":"string"},"flying_position":{"type":"integer"},"flying_liu_qin":{"type":"string"},"flying_gan":{"type":"string"},"flying_zhi":{"type":"string"},"flying_wuxing":{"type":"string"},"fei_fu_relation":{"type":"string"},"xun_kong":{"type":"boolean"},"yue_po":{"type":"boolean"},"mu_ku":{"type":"boolean"},"exit_condition":{"type":"string"}},"required":["position","liu_qin","gan","zhi","wuxing","flying_position","flying_liu_qin","fei_fu_relation"]}},"branch_relation_facts":{"type":"array","description":"爻间地支关系","items":{"type":"object","properties":{"left_position":{"type":"integer"},"right_position":{"type":"integer"},"relations":{"type":"array","items":{"type":"string"}},"targets":{"type":"array","items":{"type":"string"}},"basis":{"type":"array","items":{"type":"string"}}},"required":["left_position","right_position","relations"]}}},"required":["name","ben_gua","lines","yong_shen"]}`),
 	},
 	{
 		Name: "huangli.days", Description: "黄历查日。返回连续N天的黄历信息（建除、黄道、二十八宿、时辰吉凶等）。",

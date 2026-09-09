@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "liki:liuyao-snapshot-v2",
+  "title": "六爻解释快照契约",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "question",
+    "casting",
+    "board",
+    "focus",
+    "evidence",
+    "facts",
+    "timing_candidates",
+    "policy",
+    "followup"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "liuyao-snapshot-v2"
+    },
+    "question": {
+      "type": "object",
+      "required": ["text", "domain"],
+      "properties": {
+        "text": {"type": "string"},
+        "domain": {"type": "string"},
+        "perspective": {"type": ["string", "null"]}
+      }
+    },
+    "casting": {
+      "type": "object",
+      "required": ["mode", "fingerprint", "yaos", "dong_yao"],
+      "properties": {
+        "mode": {"type": "string"},
+        "fingerprint": {"type": ["string", "null"]},
+        "rounds": {"type": "array"},
+        "yaos": {"type": "array", "minItems": 6, "maxItems": 6},
+        "dong_yao": {"type": "array"}
+      }
+    },
+    "board": {
+      "type": "object",
+      "required": ["name", "ben_gua", "palace", "lines"],
+      "properties": {
+        "name": {"type": "string"},
+        "ben_gua": {"type": "string"},
+        "bian_gua": {"type": ["string", "null"]},
+        "palace": {"type": "string"},
+        "palace_wuxing": {"type": "string"},
+        "lines": {"type": "array", "minItems": 6, "maxItems": 6}
+      }
+    },
+    "focus": {
+      "type": "object",
+      "required": ["yong_shen"],
+      "properties": {
+        "yong_shen": {"type": "object"},
+        "yong_line": {"type": ["object", "null"]},
+        "world": {"type": ["object", "null"]},
+        "other": {"type": ["object", "null"]}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["primary", "secondary", "reference", "conflicts", "ignored_scope"],
+      "properties": {
+        "primary": {"type": "array"},
+        "secondary": {"type": "array"},
+        "reference": {"type": "array"},
+        "conflicts": {"type": "array"},
+        "ignored_scope": {"type": "array"}
+      }
+    },
+    "facts": {
+      "type": "object",
+      "required": [
+        "hidden_lines",
+        "branch_relation_facts",
+        "day_clash_facts",
+        "moving_transformations",
+        "san_he_candidates",
+        "force_chain",
+        "yong_shen_candidates"
+      ]
+    },
+    "timing_candidates": {"type": "array"},
+    "policy": {
+      "type": "object",
+      "required": ["may_output", "must_cover_conflicts", "forbidden"],
+      "properties": {
+        "may_output": {"type": "array"},
+        "must_cover_conflicts": {"type": "boolean"},
+        "forbidden": {"type": "array"}
+      }
+    },
+    "followup": {
+      "type": "object",
+      "required": ["locked", "casting_fingerprint", "rules"]
+    }
+  }
+}

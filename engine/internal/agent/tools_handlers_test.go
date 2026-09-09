@@ -623,6 +623,47 @@ func TestHandler_LiuyaoQigua(t *testing.T) {
 	}
 }
 
+func TestHandler_LiuyaoQigua_ManualCoins(t *testing.T) {
+	r := NewRPCRegistry()
+	rounds := []string{
+		`["正","反","反"]`, `["正","正","反"]`, `["正","正","正"]`,
+		`["反","反","反"]`, `["正","正","反"]`, `["正","反","反"]`,
+	}
+	params := `{"mode":"coins","rounds":[` + strings.Join(rounds, ",") + `]}`
+	result, err := r.Execute(context.Background(), "liuyao.qigua", json.RawMessage(params))
+	if err != nil {
+		t.Fatalf("liuyao.qigua coins: %v", err)
+	}
+	var env struct {
+		Data struct {
+			Yaos    [6]int `json:"yaos"`
+			DongYao []int  `json:"dong_yao"`
+			Casting struct {
+				Mode string `json:"mode"`
+			} `json:"casting"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	want := [6]int{7, 8, 9, 6, 8, 7}
+	if env.Data.Yaos != want || env.Data.Casting.Mode != "coins" {
+		t.Fatalf("got=%+v, want yaos=%v mode=coins", env.Data, want)
+	}
+}
+
+func TestHandler_LiuyaoChart_CastingAndYaosConflict(t *testing.T) {
+	r := NewRPCRegistry()
+	params := fmt.Sprintf(
+		`{"solar_time":%s,"yaos":[7,7,7,7,7,7],"casting":{"schema_version":"liuyao-cast-v1","mode":"yaos","yaos":[7,7,7,7,7,7],"dong_yao":[]}}`,
+		btOK,
+	)
+	_, err := r.Execute(context.Background(), "liuyao.chart", json.RawMessage(params))
+	if err == nil || !strings.Contains(err.Error(), "mutually exclusive") {
+		t.Fatalf("error = %v, want mutually exclusive", err)
+	}
+}
+
 // ── liuyao.chart — yaos required ──
 
 func TestHandler_LiuyaoChart_InvalidYongShen(t *testing.T) {
@@ -634,15 +675,15 @@ func TestHandler_LiuyaoChart_InvalidYongShen(t *testing.T) {
 	}
 }
 
-func TestHandler_LiuyaoChart_MissingYaos(t *testing.T) {
+func TestHandler_LiuyaoChart_MissingInput(t *testing.T) {
 	r := NewRPCRegistry()
 	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s}`, btOK))
 	_, err := r.Execute(context.Background(), "liuyao.chart", params)
 	if err == nil {
-		t.Fatal("expected error for missing yaos")
+		t.Fatal("expected error for missing casting and yaos")
 	}
-	if !strings.Contains(err.Error(), "missing property 'yaos'") {
-		t.Errorf("error = %q, want 'missing property \\'yaos\\''", err.Error())
+	if !strings.Contains(err.Error(), "casting or yaos is required") {
+		t.Errorf("error = %q, want 'casting or yaos is required'", err.Error())
 	}
 }
 

@@ -1,0 +1,42 @@
+{
+  "schema_version": "liuyao-external-diff-v1",
+  "description": "跨开源实现与经典纳甲表口径的锚点用例。source_scope 仅标注参考来源，不复制第三方代码。",
+  "sources": [
+    {
+      "name": "published_najia_tables",
+      "references": [
+        "bopo/najia README 与测试口径",
+        "Johnson-Jia/liuyao-divination 装卦 / 旺衰 / 空亡参考",
+        "《卜筮正宗》八宫纳甲次序"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "qian-1984-02-15-cst-0800",
+      "input": {
+        "solar_time": "1984-02-15T08:00:00+08:00",
+        "yaos": [7, 7, 7, 7, 7, 7],
+        "yong_shen": "官鬼"
+      },
+      "expected": {
+        "name": "乾为天",
+        "ben_gua": "乾",
+        "bian_gua": null,
+        "palace": "乾",
+        "palace_wuxing": "金",
+        "dong_yao": [],
+        "day_gan": "己",
+        "day_zhi": "卯",
+        "month_branch": "寅",
+        "xun_kong": ["申", "酉"],
+        "line_branches": ["子", "寅", "辰", "午", "申", "戌"],
+        "line_liu_qin": ["子孙", "妻财", "父母", "官鬼", "兄弟", "父母"],
+        "shi_position": 6,
+        "ying_position": 3,
+        "yong_shen_position": 4
+      },
+      "conclusion_scope": "najia_hard_facts_only_not_interpretation"
+    }
+  ]
+}

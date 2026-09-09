@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "liki:liuyao-session-v1",
+  "title": "六爻追问会话契约",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schema_version",
+    "session_id",
+    "question",
+    "casting",
+    "snapshot_digest",
+    "snapshot",
+    "first_verdict",
+    "integrity",
+    "followups",
+    "policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "liuyao-session-v1"
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "question": {
+      "type": "string",
+      "minLength": 2
+    },
+    "casting": {
+      "type": "object",
+      "required": [
+        "fingerprint",
+        "yaos",
+        "dong_yao"
+      ],
+      "properties": {
+        "fingerprint": {
+          "type": "string"
+        },
+        "yaos": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "dong_yao": {
+          "type": "array"
+        }
+      }
+    },
+    "snapshot_digest": {
+      "type": "string"
+    },
+    "snapshot": {
+      "type": "object"
+    },
+    "first_verdict": {
+      "type": "object",
+      "required": [
+        "headline",
+        "verdict"
+      ],
+      "properties": {
+        "headline": {
+          "type": "string"
+        },
+        "verdict": {
+          "type": "string"
+        },
+        "confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "report": {
+          "type": ["object", "null"]
+        }
+      }
+    },
+    "followups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "text"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "clarification",
+              "strategy",
+              "reality_feedback",
+              "term_explanation"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "supported",
+              "contradicted",
+              "unresolved",
+              null
+            ]
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "immutable_casting",
+        "immutable_first_verdict",
+        "no_recast_without_new_event"
+      ],
+      "properties": {
+        "immutable_casting": {
+          "const": true
+        },
+        "immutable_first_verdict": {
+          "const": true
+        },
+        "no_recast_without_new_event": {
+          "const": true
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "required": [
+        "casting",
+        "snapshot",
+        "first_verdict",
+        "report"
+      ],
+      "properties": {
+        "casting": {
+          "type": "string"
+        },
+        "snapshot": {
+          "type": "string"
+        },
+        "first_verdict": {
+          "type": "string"
+        },
+        "report": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,46 @@
 # Changelog
 
+## [2026.09.09.0] — 问卦场景路由与六爻事实层
+
+### liki-divination
+
+- 六爻 Skill 主链路改为 `tools/agent_cli.py`：LLM 调用 `liuyao_qigua` / `liuyao_read`，不再直接编排 JSON-RPC。
+- 新增六爻事项路由、RPC 访问、起卦编排与 snapshot 投影模块；原始硬币仍只由 engine 归一化。
+- `liuyao_qigua` 支持 auto / coins / yaos，并输出完整起卦收据；auto 生产路径改用 crypto/rand。
+- `liuyao_chart` 支持回传完整 casting，同时兼容旧 `yaos` 输入；冲突输入显式报错。
+- Python 层新增 snapshot 投影和事项→默认用神表；`matter` 不进入 engine，engine 只接收显式用神。
+- 六爻 app 卡补充问题澄清、手动起卦、感情视角、追问锁定、冲突并列和高风险边界。
+- 六爻 chart 新增 `timing_candidates` 结构化应期候选，输出机制、触发支、依据和成立条件，不再只给单段判断。
+- 新增 `liuyao_audit` Python 工具，审计报告中的本卦、变卦、世应和爻位六亲硬事实；不裁决吉凶、应期与取象。
+- 新增六爻 4096 爻值组合 property test，覆盖装卦核心不变量、世应唯一性和动变一致性。
+- `liuyao.chart` 新增日冲细分、动变转换、三合候选、用神原忌仇作用链和用神多现候选；全部为可解释事实/候选，不直接给最终吉凶。
+- Snapshot 升级至 v2：evidence 分为 primary / secondary / reference / conflicts / ignored_scope，明确主判、参考与不应升级为结论的信号。
+- 新增六爻 report v1 契约和 `liuyao_report` 工具：生成证据引用骨架，校验未知引用、冲突覆盖和“必然 / 百分百 / 保证”类表述。
+- 新增 `divination_route` 场景路由：事件结果默认六爻，策略进退 / 方向默认奇门，择日默认黄历；结果与策略混合时先澄清，不自动双法合参。
+- 新增 `app/question.md` 问卦总入口，六爻与奇门 app 卡改为场景路由通过后才进入排盘。
+- 新增 `qimen_read` 奇门一次读盘入口：自动补时间 / 换真太阳时 / 排盘 / 投影 snapshot / 可选专占查询；LLM-facing 工具面移除底层 city / solar / raw chart / query 分步调用。
+- 六爻墓库改为五行对应墓库，新增十二长生、完整伏神层和爻间地支关系；三合候选补充日 / 月来源、空破计数、激活条件与作用目标。
+- 新增 `liuyao_session` 会话契约：固化原卦 fingerprint、snapshot digest 和首次结论；追问可记录澄清、策略、解释与结果反馈，禁止静默重排或改写。
+- 新增 `liuyao_topic_methods` 专题库与 `liuyao_topic` 工具：覆盖求财、事业、婚恋、学业、失物、出行、争议和健康语境，输出主判因子、参考因子、常见误判与边界。
+- 新增 `liuyao_timing` 应期排序器：只整理 engine 已返回候选，输出 priority、rank_score、horizon、required_check 和条件化结论范围；健康语境直接拦截。
+- 新增跨开源纳甲表口径的 external diff fixture，并以 Go 测试校验乾卦锚点的本卦、纳甲地支、六亲、世应、旬空和用神位置。
+- 新增 `liuyao_conditions` 歌诀条件还原器：将“月破必废 / 旬空无用 / 六合必成 / 六冲必散 / 兄弟动破财”转为旺衰、动静、救应和作用路径条件，不输出绝对结论。
+- 六爻 / 奇门 matter 语言统一 canonical：relationship、study、legal；旧 marriage、lawsuit、academic、legal_risk 仅作输入别名。
+- app 层新增 outcome / decision / date 用户场景卡；方法卡只作为六爻 / 奇门实现说明，不再作为第一入口。
+- 六爻 / 奇门 session 新增 integrity 摘要：casting/input、method、snapshot、first_verdict 和 report 任一被篡改都会被校验拒绝。
+- 新增共享安全边界、统一 RPC 出口、集中契约校验和 `huangli_days` Python 编排；所有问卦 / 择日入口都不再让 LLM 直接编排 JSON-RPC。
+- `qimen-report-v1` 纳入集中契约文件；snapshot、assertion、timing 引用前缀分离并可 schema 校验。
+- 新增 `docs/DIVINATION_MODEL.md`，说明问卦领域对象、场景层、方法层、证据分层、报告审计与会话锁定。
+- 六爻领域命名收敛：`liuyao_interpret` 更名 `liuyao_read`，snapshot / topic guidance 模块更名；新增 `liuyao-reading-v1` 聚合根、reading_id 和 reading_digest。
+- 统一六爻 matter 语言：canonical 使用 relationship / study / legal，旧 academic / legal_risk / marriage / lawsuit 仅作输入别名；移除易误解的 `xi_shen` 主作用链字段。
+- `liuyao_timing.plan()` 更名 `rank_timing_candidates()`，明确其只排序条件候选，不做择时决策。
+- 新增 `liuyao_interpret` 六爻一次解读包：排盘后自动绑定专题规则、应期排序、条件还原和 report 骨架，减少 LLM 分步编排。
+- 新增 `qimen_report` / `qimen_session`：奇门报告可校验方法、snapshot、专占断语和应期引用；会话固化原局时间、地点、方法与首次结论。
+- `liuyao_session` 创建前会校验 report v1 的证据引用、冲突覆盖和禁语；headline / verdict 必须与结构化报告一致。
+- `liuyao_audit` 同时支持文本报告和 report v1 结构化报告，并合并硬事实审计与报告契约审计结果。
+- 六爻 / 奇门结构化报告运行时校验补齐未知字段拒绝，奇门 session 新增首次结论篡改测试。
+- 新增六爻节气换月边界 fixtures，覆盖立春、惊蛰、清明、立夏、小暑、立秋、白露、寒露、立冬、大雪、小寒前后。
+
 ## [2026.09.08.7] — Issue #42–#45 修复
 
 ### liki-bazi

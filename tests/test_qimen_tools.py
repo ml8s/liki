@@ -15,6 +15,7 @@ TOOLS = Path(__file__).resolve().parents[1] / "skills/liki-divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
+import divination_rpc  # noqa: E402
 import qimen_paipan as paipan  # noqa: E402
 from qimen_duanyu import query  # noqa: E402
 from qimen_factors import (  # noqa: E402
@@ -389,13 +390,13 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
 
 def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
     schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
-    qimen_chart = next(
+    qimen_read = next(
         item["function"]["parameters"]
         for item in schema["tools"]
-        if item["function"]["name"] == "qimen_chart"
+        if item["function"]["name"] == "qimen_read"
     )["properties"]["yong_shen"]
-    assert qimen_chart["minItems"] == 1
-    assert qimen_chart["uniqueItems"] is True
+    assert qimen_read["minItems"] == 1
+    assert qimen_read["uniqueItems"] is True
 
 
 def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
@@ -450,7 +451,7 @@ def test_rpc_call_reports_malformed_engine_payload(monkeypatch) -> None:
             return False
 
     monkeypatch.setattr(
-        paipan.urllib.request,
+        divination_rpc.urllib.request,
         "urlopen",
         lambda *_, **__: Response(b"not-json"),
     )
@@ -473,7 +474,7 @@ def test_rpc_call_reports_missing_result(monkeypatch) -> None:
             return False
 
     monkeypatch.setattr(
-        paipan.urllib.request,
+        divination_rpc.urllib.request,
         "urlopen",
         lambda *_, **__: Response(b'{"jsonrpc":"2.0","id":1}'),
     )
@@ -516,7 +517,7 @@ def test_rpc_retries_server_error_but_not_client_error(monkeypatch) -> None:
         calls.append("ok")
         return Response(b'{"jsonrpc":"2.0","id":1,"result":{"data":{"ok":true}}}')
 
-    monkeypatch.setattr(paipan.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(divination_rpc.urllib.request, "urlopen", urlopen)
     result = paipan.engine_data("qimen.chart", {"solar_time": "x"})
     assert result == {"ok": True}
     assert calls == ["server-error", "ok"]
@@ -525,7 +526,7 @@ def test_rpc_retries_server_error_but_not_client_error(monkeypatch) -> None:
         "https://example.test", 403, "forbidden", {}, None
     )
     monkeypatch.setattr(
-        paipan.urllib.request,
+        divination_rpc.urllib.request,
         "urlopen",
         lambda *_, **__: (_ for _ in ()).throw(client_error),
     )
@@ -551,7 +552,7 @@ def test_rpc_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
         return Response()
 
     monkeypatch.setenv("LIKI_RPC_URL", "https://dynamic.example/jsonrpc")
-    monkeypatch.setattr(paipan.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(divination_rpc.urllib.request, "urlopen", urlopen)
     assert paipan.engine_data("qimen.chart", {"solar_time": "x"}) == {"ok": True}
     assert seen == ["https://dynamic.example/jsonrpc"]
 
@@ -1500,17 +1501,17 @@ def test_python_tool_schema_stays_aligned_with_fact_sources() -> None:
     root = Path(__file__).resolve().parents[1]
     tool = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
     functions = {item["function"]["name"]: item["function"] for item in tool["tools"]}
-    assert functions["qimen_chart"]["parameters"]["properties"]["matter"]["enum"] == list(
+    assert set(functions["qimen_read"]["parameters"]["properties"]["matter"]["enum"]) == set(
         load_routing_matter_table()
     )
-    assert functions["query"]["parameters"]["properties"]["rule"]["enum"] == list(
+    assert functions["qimen_read"]["parameters"]["properties"]["rule"]["enum"] == list(
         load_rule_table()
     )
 
     engine = json.loads(
         (root / "engine/internal/agent/qimen_schema.json").read_text(encoding="utf-8")
     )["params"]["properties"]
-    python = functions["qimen_chart"]["parameters"]["properties"]
+    python = functions["qimen_read"]["parameters"]["properties"]
     for field in (
         "scope", "school", "dingju_method", "quarter_rule",
         "base_dingju_method", "dun_source", "hour_boundary",
@@ -1581,7 +1582,13 @@ def test_tool_schema_matches_cli_dispatch() -> None:
     agent_cli = _load_agent_cli()
     schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
     names = {item["function"]["name"] for item in schema["tools"]}
-    assert names == {"city_coords", "solar_time", "qimen_chart", "query"}
+    assert names == {
+        "divination_route", "qimen_read",
+        "liuyao_qigua", "liuyao_audit", "liuyao_report",
+        "liuyao_session", "liuyao_topic_guidance", "liuyao_timing",
+        "liuyao_conditions", "liuyao_read",
+        "qimen_report", "qimen_session", "huangli_days",
+    }
     assert names == set(agent_cli._DISPATCH)
 
 
@@ -1620,52 +1627,27 @@ def test_windows_launcher_matches_bazi_compatibility() -> None:
         assert required in launcher
 
 
-def test_agent_cli_query_without_network() -> None:
-    import subprocess
+def test_query_compatibility_without_network() -> None:
+    from qimen_duanyu import query
+    from qimen_factors import project_qimen_snapshot
 
-    payload = {
-        "fn": "query",
-        "args": {
-            "rule": "lost_property",
-            "pan": _lost_pan(kong_wang_affected=[]),
-        },
-    }
-    process = subprocess.run(
-        [sys.executable, str(TOOLS / "agent_cli.py")],
-        input=json.dumps(payload, ensure_ascii=True),
-        capture_output=True,
-        text=True,
-        check=True,
-        timeout=10,
+    pan = _lost_pan(kong_wang_affected=[])
+    result = query("lost_property", project_qimen_snapshot(pan))
+    assert result["assertions"][0]["id"] == "qimen_lost_property_direction"
+
+
+def test_query_rejects_incompatible_rule_before_projection() -> None:
+    import pytest
+
+    from qimen_interpretations import assert_rule_for_pan
+    from qimen_factors import project_qimen_snapshot
+
+    pan = _lost_pan(
+        method={
+            "scope": "hour", "school": "jinhan_yujing",
+            "spirit_mode": "jinhan_day_spirits",
+        }
     )
-    output = json.loads(process.stdout)
-    assert output["ok"] is True
-    assert output["data"]["assertions"][0]["id"] == "qimen_lost_property_direction"
-
-
-def test_agent_cli_rejects_incompatible_rule_before_projection() -> None:
-    import subprocess
-
-    payload = {
-        "fn": "query",
-        "args": {
-            "rule": "lost_property",
-            "pan": _lost_pan(
-                method={
-                    "scope": "hour", "school": "jinhan_yujing",
-                    "spirit_mode": "jinhan_day_spirits",
-                }
-            ),
-        },
-    }
-    process = subprocess.run(
-        [sys.executable, str(TOOLS / "agent_cli.py")],
-        input=json.dumps(payload, ensure_ascii=True),
-        capture_output=True,
-        text=True,
-        check=True,
-        timeout=10,
-    )
-    output = json.loads(process.stdout)
-    assert output["ok"] is False
-    assert "lost_property requires scope" in output["error"]
+    with pytest.raises(ValueError, match="lost_property requires scope"):
+        assert_rule_for_pan("lost_property", pan)
+        project_qimen_snapshot(pan)
