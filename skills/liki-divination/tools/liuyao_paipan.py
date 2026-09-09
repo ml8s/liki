@@ -5,7 +5,7 @@ from typing import Any
 
 from liuyao_snapshot import project_snapshot
 from liuyao_matters import resolve_matter
-from liuyao_rpc import engine_data
+from divination_rpc import engine_data
 
 
 def _resolve_yong_shen(
