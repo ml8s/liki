@@ -125,36 +125,48 @@ class TestIntegration_QimenRules(unittest.TestCase):
             return json.loads(p.stdout)
 
         solar_time = "2026-06-28T12:00:00+08:00"
-        base = call("qimen_chart", {"solar_time": solar_time})
+        longitude = 120.0
+        base = call("qimen_read", {
+            "question": "当前态势",
+            "time": solar_time,
+            "longitude": longitude,
+        })
         self.assertTrue(base["ok"], base.get("error"))
         self.assertIsNone(base["data"]["matter"])
-        for key in ("nian_gan", "nian_zhi", "yue_gan", "yue_zhi"):
-            self.assertIn(key, base["data"]["chart"]["pan"])
+        self.assertIn("method", base["data"]["chart"])
+        self.assertIn("snapshot", base["data"])
 
-        expected = {
-            "lost_property": base["data"],
-            "thief_capture": base["data"],
-            "thief_profile": base["data"],
-            "capture_escape": base["data"],
-        }
-        for rule, pan in expected.items():
-            result = call("query", {"rule": rule, "pan": pan})
+        specialized_rules = (
+            "lost_property", "thief_capture", "thief_profile", "capture_escape",
+        )
+        for rule in specialized_rules:
+            result = call("qimen_read", {
+                "question": f"专占：{rule}",
+                "time": solar_time,
+                "longitude": longitude,
+                "rule": rule,
+            })
             self.assertTrue(result["ok"], result.get("error"))
-            self.assertEqual(result["data"]["rule"], rule)
-            self.assertIsInstance(result["data"]["assertions"], list)
-            self.assertTrue(all(item["basis"] for item in result["data"]["assertions"]))
+            self.assertEqual(result["data"]["special"]["rule"], rule)
+            assertions = result["data"]["special"]["assertions"]
+            self.assertIsInstance(assertions, list)
+            self.assertTrue(all(item["basis"] for item in assertions))
 
-        missing = call("qimen_chart", {
-            "solar_time": solar_time,
+        missing = call("qimen_read", {
+            "question": "家人走失了",
+            "time": solar_time,
+            "longitude": longitude,
             "matter": "missing_person",
+            "rule": "missing_person",
         })
         self.assertTrue(missing["ok"], missing.get("error"))
         self.assertEqual(missing["data"]["matter"]["matter"], "missing_person")
-        self.assertEqual(missing["data"]["chart"]["yong_shen"]["symbols"][0]["symbol"], "六合")
-        result = call("query", {"rule": "missing_person", "pan": missing["data"]})
-        self.assertTrue(result["ok"], result.get("error"))
-        self.assertEqual(result["data"]["rule"], "missing_person")
-        self.assertTrue(all(item["basis"] for item in result["data"]["assertions"]))
+        self.assertEqual(
+            missing["data"]["special"]["rule"], "missing_person"
+        )
+        self.assertTrue(
+            all(item["basis"] for item in missing["data"]["special"]["assertions"])
+        )
 
 
 if __name__ == "__main__":

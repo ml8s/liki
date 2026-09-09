@@ -34,6 +34,7 @@
 - 六爻领域命名收敛：`liuyao_interpret` 更名 `liuyao_read`，snapshot / topic guidance 模块更名；新增 `liuyao-reading-v1` 聚合根、reading_id 和 reading_digest。
 - 统一六爻 matter 语言：canonical 使用 relationship / study / legal，旧 academic / legal_risk / marriage / lawsuit 仅作输入别名；移除易误解的 `xi_shen` 主作用链字段。
 - `liuyao_timing.plan()` 更名 `rank_timing_candidates()`，明确其只排序条件候选，不做择时决策。
+- CI 回归固化：奇门集成链路改用 `qimen_read`；LLM-facing 工具面禁止重新暴露 `qimen_chart`、`query`、`liuyao_chart`。
 - 新增 `liuyao_interpret` 六爻一次解读包：排盘后自动绑定专题规则、应期排序、条件还原和 report 骨架，减少 LLM 分步编排。
 - 新增 `qimen_report` / `qimen_session`：奇门报告可校验方法、snapshot、专占断语和应期引用；会话固化原局时间、地点、方法与首次结论。
 - `liuyao_session` 创建前会校验 report v1 的证据引用、冲突覆盖和禁语；headline / verdict 必须与结构化报告一致。
