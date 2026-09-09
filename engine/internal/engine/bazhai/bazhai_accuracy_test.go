@@ -2,11 +2,9 @@ package bazhai
 
 import (
 	"testing"
-	"time"
 
 	"liki-engine/internal/engine/fengshui"
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 func TestComputeMingGua_WestGroupMembership(t *testing.T) {
@@ -77,12 +75,11 @@ func TestComputeMingGua_FormulaAnchors(t *testing.T) {
 }
 
 // =============================================================================
-// ComputeChart — 整合测试
+// ComputeMingGuaChart — 整合测试
 // =============================================================================
 
-func TestComputeChart_Integration(t *testing.T) {
-	st := tianwen.SolarTime(time.Date(1984, 2, 4, 12, 0, 0, 0, time.UTC))
-	chart := ComputeChart(st, ganzhi.Male)
+func TestComputeMingGuaChart_Integration(t *testing.T) {
+	chart := ComputeMingGuaChart(ganzhi.Male, 1984)
 
 	if chart.MingGua.Gua.Name == "" {
 		t.Error("MingGua.Name is empty")
@@ -93,23 +90,14 @@ func TestComputeChart_Integration(t *testing.T) {
 	if len(chart.BaZhaiDirs.ShengQi) == 0 {
 		t.Error("BaZhaiDirs.ShengQi is empty")
 	}
-	if len(chart.ZhuBagua) != 4 {
-		t.Errorf("ZhuBagua len = %d, want 4", len(chart.ZhuBagua))
-	}
-	for i, g := range chart.ZhuBagua {
-		if g.Name == "" {
-			t.Errorf("ZhuBagua[%d] is empty", i)
-		}
-	}
 }
 
 // =============================================================================
-// ComputeChart — 年星与年柱一致性
+// ComputeMingGuaChart — 年星一致性
 // =============================================================================
 
-func TestComputeChart_YearStarMatches(t *testing.T) {
-	st := tianwen.SolarTime(time.Date(2024, 6, 15, 12, 0, 0, 0, time.UTC))
-	chart := ComputeChart(st, ganzhi.Female)
+func TestComputeMingGuaChart_YearStarMatches(t *testing.T) {
+	chart := ComputeMingGuaChart(ganzhi.Female, 2024)
 
 	// 2024: 三碧入中
 	if chart.YearStars.RuZhong != "三碧禄存" {
@@ -181,35 +169,6 @@ func TestComputeMingGua(t *testing.T) {
 			}
 			if mg.Group != tt.wantGroup {
 				t.Errorf("Group = %s, want %s", mg.Group, tt.wantGroup)
-			}
-		})
-	}
-}
-
-// TestGanNaJia verifies 纳甲 mapping from gan to trigrams.
-func TestGanNaJia(t *testing.T) {
-	tests := []struct {
-		gan      ganzhi.Gan
-		wantName string
-	}{
-		{ganzhi.GanJia, "乾"},
-		{ganzhi.GanYi, "坤"},
-		{ganzhi.GanBing, "艮"},
-		{ganzhi.GanDing, "兑"},
-		{ganzhi.GanWu, "坎"},
-		{ganzhi.GanJi, "离"},
-		{ganzhi.GanGeng, "震"},
-		{ganzhi.GanXin, "巽"},
-		{ganzhi.GanRen, "乾"},
-		{ganzhi.GanGui, "坤"},
-	}
-
-	for _, tt := range tests {
-		t.Run(ganzhi.GanName(tt.gan), func(t *testing.T) {
-			got := ganNaJia(tt.gan)
-			if got.Name != tt.wantName {
-				t.Errorf("ganNaJia(%s) = %s, want %s",
-					ganzhi.GanName(tt.gan), got.Name, tt.wantName)
 			}
 		})
 	}

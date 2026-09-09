@@ -13,6 +13,7 @@ import (
 	"liki-engine/internal/engine/huangli"
 	"liki-engine/internal/engine/liuyao"
 	"liki-engine/internal/engine/qimen"
+	"liki-engine/internal/engine/tianwen"
 	"liki-engine/internal/engine/xuankong"
 )
 
@@ -84,38 +85,33 @@ func qimenChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 
 func bazhaiLayoutHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		Chart     json.RawMessage `json:"chart"`
-		DoorGua   string          `json:"door_gua"`
-		MasterGua string          `json:"master_gua"`
-		StoveGua  string          `json:"stove_gua"`
+		MingGua   string `json:"ming_gua"`
+		DoorGua   string `json:"door_gua"`
+		MasterGua string `json:"master_gua"`
+		StoveGua  string `json:"stove_gua"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("bazhai.layout: %w", err)
 	}
-	var chart bazhai.Chart
-	if err := json.Unmarshal(p.Chart, &chart); err != nil {
-		return nil, fmt.Errorf("bazhai.layout: parse chart: %w", err)
-	}
-	result := bazhai.ComputeLayout(chart, p.DoorGua, p.MasterGua, p.StoveGua)
+	result := bazhai.ComputeLayout(p.MingGua, p.DoorGua, p.MasterGua, p.StoveGua)
 	return wrapResult("bazhai_layout", result)
 }
 
-func bazhaiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+func bazhaiMingGuaHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		SolarTime string        `json:"solar_time"`
+		BirthYear int           `json:"birth_year"`
 		Gender    ganzhi.Gender `json:"gender"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("bazhai.chart: %w", err)
+		return nil, fmt.Errorf("bazhai.ming_gua: %w", err)
 	}
 	if err := validateGender(p.Gender); err != nil {
-		return nil, fmt.Errorf("bazhai.chart: %w", err)
+		return nil, fmt.Errorf("bazhai.ming_gua: %w", err)
 	}
-	st, err := parseSolarTime(p.SolarTime)
-	if err != nil {
-		return nil, fmt.Errorf("bazhai.chart: %w", err)
+	if p.BirthYear < 1900 || p.BirthYear > 2100 {
+		return nil, fmt.Errorf("bazhai.ming_gua: birth_year must be 1900-2100, got %d", p.BirthYear)
 	}
-	result := bazhai.ComputeChart(st, p.Gender)
+	result := bazhai.ComputeMingGuaChart(p.Gender, p.BirthYear)
 	return wrapResult("bazhai", result)
 }
 
@@ -123,7 +119,7 @@ func bazhaiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 
 func xuankongChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		SolarTime    string `json:"solar_time"`
+		PeriodDate   string `json:"period_date"`
 		SitMountain  *int   `json:"zuo_shan"`
 		FaceMountain *int   `json:"xiang_shan"`
 	}
@@ -142,11 +138,11 @@ func xuankongChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMes
 	if *p.FaceMountain < 0 || *p.FaceMountain > 23 {
 		return nil, fmt.Errorf("xuankong.chart: xiang_shan must be 0-23, got %d", *p.FaceMountain)
 	}
-	st, err := parseSolarTime(p.SolarTime)
+	periodDate, err := time.Parse("2006-01-02", p.PeriodDate)
 	if err != nil {
-		return nil, fmt.Errorf("xuankong.chart: %w", err)
+		return nil, fmt.Errorf("xuankong.chart: invalid period_date %q: %w", p.PeriodDate, err)
 	}
-	result := xuankong.ComputeChart(st, *p.SitMountain, *p.FaceMountain)
+	result := xuankong.ComputeChart(tianwen.SolarTime(periodDate), *p.SitMountain, *p.FaceMountain)
 	return wrapResult("xuankong", result)
 }
 
@@ -381,6 +377,8 @@ func mustLoadQimenSchemas() qimenSchemaDocument {
 	return doc
 }
 
+const schemaDoorStoveItem = `{"type":"object","properties":{"direction":{"type":"string","description":"方位，如西北"},"gua_name":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"]},"wuxing":{"type":"string","enum":["水","土","木","金","火"]},"youxing":{"type":"string","enum":["生气","天医","延年","伏位","祸害","五鬼","六煞","绝命"]},"rating":{"type":"string","enum":["大吉","吉","平","凶","大凶"]},"group":{"type":"string","enum":["东四宅","西四宅"]},"match":{"type":"string","enum":["吉","凶"]}},"required":["direction","gua_name","wuxing","youxing","rating","group","match"]}`
+
 var otherMethods = []RPCMethod{
 	{
 		Name: "qimen.chart", Description: "奇门排盘：时/刻/日/月/年家 × 转盘/飞盘/鸣法；时家与日家支持拆补/置闰；刻家包含十分钟三元与十二分钟十分局；金函玉镜为 day 专用盘。yong_shen 可显式定位用神，事象路由由上层 skill 完成；ying_qi 返回日期窗口。solar_time 必须来自 tianwen.time 的真太阳时。",
@@ -389,19 +387,20 @@ var otherMethods = []RPCMethod{
 		Result:  envelopeSchema(string(qimenSchemas.Result)),
 	},
 	{
-		Name: "bazhai.chart", Description: "八宅风水。排盘：命卦 + 四吉四凶方 + 流年紫白飞星。",
-		Params: mustSchema(`{"type":"object","properties":{"solar_time":{"type":"string","format":"date-time","description":"ISO 8601 时间"},"gender":{"type":"string","enum":["male","female"]}},"required":["solar_time","gender"]}`), Handler: bazhaiChartHandler,
-		Result: envelopeSchema(`{"type":"object","properties":{"ming_gua":{"type":"object"},"ba_zhai_dirs":{"type":"object"},"pillar_bagua":{"type":"array"},"liu_nian_xing":{"type":"object","description":"流年紫白飞星（与玄空共用 schema：year/ru_zhong/gong_wei）"}},"required":["ming_gua","ba_zhai_dirs","pillar_bagua"]}`),
+		Name: "bazhai.ming_gua", Description: "八宅命卦。按出生年份与性别排命卦 + 四吉四凶方 + 流年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
+		Params:  mustSchema(`{"type":"object","properties":{"birth_year":{"type":"integer","minimum":1900,"maximum":2100,"description":"出生公历年份"},"gender":{"type":"string","enum":["male","female"]}},"required":["birth_year","gender"]}`),
+		Handler: bazhaiMingGuaHandler,
+		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gua":{"type":"object"},"ba_zhai_dirs":{"type":"object"},"liu_nian_xing":{"type":"object","description":"流年紫白飞星（与玄空共用 schema：year/ru_zhong/gong_wei）"}},"required":["ming_gua","ba_zhai_dirs","liu_nian_xing"]}`),
 	},
 	{
-		Name: "bazhai.layout", Description: "八宅门主灶配合。chart + 门/主/灶方位 → 各宫与命卦 match（东四西四同组=吉）。确定性计算。",
-		Params:  mustSchema(`{"type":"object","properties":{"chart":{"type":"object"},"door_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"门卦"},"master_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"主卧卦"},"stove_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"灶卦"}},"required":["chart","door_gua","master_gua","stove_gua"]}`),
+		Name: "bazhai.layout", Description: "八宅门主灶配合。命卦 + 门/主/灶卦 → 方向、游年九星、吉凶。确定性计算。",
+		Params:  mustSchema(`{"type":"object","properties":{"ming_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"命卦"},"door_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"门卦"},"master_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"主卧卦"},"stove_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"灶卦"}},"required":["ming_gua","door_gua","master_gua","stove_gua"]}`),
 		Handler: bazhaiLayoutHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"group":{"type":"string"},"ming_gua_str":{"type":"string"},"door":{"type":"object","description":"门卦信息: gua_number,gua_name,wuxing,group(东四/西四),match(吉/凶)"},"master":{"type":"object","description":"主(卧室)八卦信息, 同door结构"},"stove":{"type":"object","description":"灶(厨房)卦信息, 同door结构"}},"required":["group","ming_gua_str","door","master","stove"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"group":{"type":"string","enum":["东四宅","西四宅"]},"ming_gua_str":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"]},"door":` + schemaDoorStoveItem + `,"master":` + schemaDoorStoveItem + `,"stove":` + schemaDoorStoveItem + `},"required":["group","ming_gua_str","door","master","stove"]}`),
 	},
 	{
-		Name: "xuankong.chart", Description: "玄空飞星。返回山向飞星盘。zuo_shan/xiang_shan 为坐向（0-23）。",
-		Params:  mustSchema(`{"type":"object","properties":{"solar_time":` + schemaSolarTime + `,"zuo_shan":{"type":"integer","minimum":0,"maximum":23,"description":"山向"},"xiang_shan":{"type":"integer","minimum":0,"maximum":23,"description":"朝向"}},"required":["solar_time","zuo_shan","xiang_shan"]}`),
+		Name: "xuankong.chart", Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",
+		Params:  mustSchema(`{"type":"object","properties":{"period_date":{"type":"string","format":"date","description":"宅运起盘日期，YYYY-MM-DD"},"zuo_shan":{"type":"integer","minimum":0,"maximum":23,"description":"山向"},"xiang_shan":{"type":"integer","minimum":0,"maximum":23,"description":"朝向"}},"required":["period_date","zuo_shan","xiang_shan"]}`),
 		Handler: xuankongChartHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"yun":{"type":"object","description":"三元九运","properties":{"year":{"type":"integer","description":"当前年份"},"yuan":{"type":"string","description":"上元/中元/下元"},"yun_number":{"type":"integer","description":"运数1-9"},"yun_name":{"type":"string","description":"运名:一运/九运"},"start_year":{"type":"integer","description":"本运起始年"}},"required":["year","yuan","yun_number"]},"gong_wei":{"type":"array"},"wang_shan":{"type":"boolean"},"zuo_shan":{"type":"integer","description":"坐山(0-23)"},"xiang_shan":{"type":"integer","description":"向山(0-23)"},"shan_xing":{"type":"boolean","description":"双星会坐：坐宫山向星皆当令"},"wang_xiang":{"type":"boolean","description":"旺向：向宫向星=当令"},"xiang_xing":{"type":"boolean","description":"双星会向：向宫山向星皆当令"},"xing_jia_hui":{"type":"array","description":"星加会"},"shou_shan_chu_sha":{"type":"object","description":"收山出煞"},"fu_yin":{"type":"boolean","description":"伏吟（运盘）"},"fan_yin":{"type":"boolean","description":"反吟（运盘，恒false）"},"xia_shui":{"type":"boolean","description":"上山下水：向宫山星=当令且坐宫向星=当令"}},"required":["yun","gong_wei","wang_shan"]}`),
 	},

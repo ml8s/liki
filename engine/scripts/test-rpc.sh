@@ -352,15 +352,14 @@ echo ""
 echo "${BOLD}── Bazhai ──${NC}"
 
 
-rpc bazhai.chart "$BR"
-check_rpc_ok "bazhai.chart"
+rpc bazhai.ming_gua '{"birth_year":1984,"gender":"male"}'
+check_rpc_ok "bazhai.ming_gua"
 check_rpc "  has ming_gua" '.result.data.ming_gua != null' 'true'
 check_rpc "  has ba_zhai_dirs" '.result.data.ba_zhai_dirs != null' 'true'
 
-BH_CHART=$(json_val "$RPC_BODY" '.result.data')
-rpc bazhai.layout "{\"chart\":$BH_CHART,\"door_gua\":\"坎\",\"master_gua\":\"震\",\"stove_gua\":\"离\"}"
+rpc bazhai.layout '{"ming_gua":"兑","door_gua":"坎","master_gua":"震","stove_gua":"离"}'
 check_rpc_ok "bazhai.layout"
-rpc bazhai.layout "{\"chart\":$BH_CHART}"
+rpc bazhai.layout '{"ming_gua":"兑"}'
 check_rpc_err "bazhai.layout (missing gua)" "-32602"
 
 # ============================================================================
@@ -374,10 +373,10 @@ check_rpc_ok "xuankong.liunian (2024)"
 rpc xuankong.liunian '{"year":1800}'
 check_rpc_err "xuankong.liunian (bad year)" "-32000"
 
-rpc xuankong.chart "{\"solar_time\":$ST,\"zuo_shan\":0,\"xiang_shan\":11}"
+rpc xuankong.chart '{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":11}'
 check_rpc_ok "xuankong.chart"
 
-rpc xuankong.chart "{\"solar_time\":$ST}"
+rpc xuankong.chart '{"period_date":"2026-07-31"}'
 check_rpc_err "xuankong.chart (missing mountains)" "-32602"
 
 # ============================================================================

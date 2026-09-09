@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"liki-engine/internal/engine/fengshui"
-	"liki-engine/internal/engine/ganzhi"
 )
 
 // =============================================================================
@@ -304,25 +303,6 @@ func TestGuaTable_Completeness(t *testing.T) {
 		if guaTable[i].Name == "" {
 			t.Errorf("guaTable[%d].Name is empty", i)
 		}
-	}
-}
-
-// =============================================================================
-// 纳甲 — 柱纳甲
-// =============================================================================
-
-func TestZhuNaJia(t *testing.T) {
-	// zhuNaJia wraps ganNaJia — 柱的纳甲取决于天干
-	p := ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}
-	g := zhuNaJia(p)
-	if g.Name != "乾" {
-		t.Errorf("zhuNaJia(甲子) = %s, want 乾", g.Name)
-	}
-
-	p2 := ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiChou}
-	g2 := zhuNaJia(p2)
-	if g2.Name != "坤" {
-		t.Errorf("zhuNaJia(乙丑) = %s, want 坤", g2.Name)
 	}
 }
 

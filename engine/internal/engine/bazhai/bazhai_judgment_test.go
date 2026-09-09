@@ -38,10 +38,7 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			chart := Chart{
-				MingGua: MingGua{Gua: gua{Index: guaNameToNum(tt.mingGua), Name: tt.mingGua}},
-			}
-			result := ComputeLayout(chart, tt.doorGua, tt.masterGua, tt.stoveGua)
+			result := ComputeLayout(tt.mingGua, tt.doorGua, tt.masterGua, tt.stoveGua)
 			if result.Group != tt.wantGroup {
 				t.Errorf("group=%q, want %q", result.Group, tt.wantGroup)
 			}
@@ -55,5 +52,25 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 				t.Errorf("stove.match=%q, want %q", result.Stove.Match, tt.wantZao)
 			}
 		})
+	}
+}
+
+func TestBazhaiJudgment_YouXing(t *testing.T) {
+	tests := []struct {
+		mingGua string
+		target  string
+		youxing string
+		rating  string
+	}{
+		{"兑", "乾", "生气", "大吉"},
+		{"坎", "巽", "生气", "大吉"},
+	}
+	for _, tt := range tests {
+		result := ComputeLayout(tt.mingGua, tt.target, tt.target, tt.target)
+		for _, item := range []doorStoveInfo{result.Door, result.Master, result.Stove} {
+			if item.YouXing != tt.youxing || item.Rating != tt.rating {
+				t.Fatalf("%s命见%s: got %s(%s), want %s(%s)", tt.mingGua, tt.target, item.YouXing, item.Rating, tt.youxing, tt.rating)
+			}
+		}
 	}
 }

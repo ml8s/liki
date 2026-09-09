@@ -27,31 +27,6 @@ var guaTable = [10]gua{
 	{9, "离", "火", "阴"}, // 洛书 9 = 离
 }
 
-func ganNaJia(gan ganzhi.Gan) gua {
-	switch gan {
-	case 1, 9:
-		return guaTable[6] // 甲壬→乾
-	case 2, 10:
-		return guaTable[2] // 乙癸→坤
-	case 3:
-		return guaTable[8] // 丙→艮
-	case 4:
-		return guaTable[7] // 丁→兑
-	case 5:
-		return guaTable[1] // 戊→坎
-	case 6:
-		return guaTable[9] // 己→离
-	case 7:
-		return guaTable[3] // 庚→震
-	case 8:
-		return guaTable[4] // 辛→巽
-	default:
-		return guaTable[0]
-	}
-}
-
-func zhuNaJia(p ganzhi.Zhu) gua { return ganNaJia(p.Gan) }
-
 // MingGua is the 命卦 result.
 type MingGua struct {
 	Gua   gua    `json:"gua"`
@@ -104,21 +79,4 @@ type Chart struct {
 	MingGua    MingGua          `json:"ming_gua"`
 	BaZhaiDirs baZhaiDirections `json:"ba_zhai_dirs"`
 	YearStars  yearStarResult   `json:"liu_nian_xing"`
-	ZhuBagua   [4]gua           `json:"pillar_bagua"`
-}
-
-// computeChart computes a complete八宅合参 from bazi, gender and birth year.
-func computeChart(bz ganzhi.Bazi, gender ganzhi.Gender, year int) Chart {
-	mg := ComputeMingGua(gender, year)
-	return Chart{
-		MingGua:    mg,
-		BaZhaiDirs: baZhaiDirectionsForGua(mg.Gua.Index),
-		YearStars:  computeYearStars(year),
-		ZhuBagua: [4]gua{
-			zhuNaJia(bz.Nian),
-			zhuNaJia(bz.Yue),
-			zhuNaJia(bz.Ri),
-			zhuNaJia(bz.Shi),
-		},
-	}
 }

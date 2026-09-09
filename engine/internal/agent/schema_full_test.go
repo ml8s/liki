@@ -23,7 +23,7 @@ func TestAllMethodsSchema(t *testing.T) {
 	qr := executeAndDecode(t, reg, "liuyao.qigua", []byte(`{"seed":12345}`))
 	yaos := mustJSON(t, qr["data"].(map[string]any)["yaos"])
 	xr := executeAndDecode(t, reg, "xuankong.chart", []byte(
-		`{"solar_time":"2026-07-31T10:00:00+08:00","zuo_shan":2,"xiang_shan":8}`,
+		`{"period_date":"2026-07-31","zuo_shan":2,"xiang_shan":8}`,
 	))
 	x := xr["data"].(map[string]any)
 
@@ -47,14 +47,14 @@ func TestAllMethodsSchema(t *testing.T) {
 		"liuyao.qigua":    mustJSON(t, map[string]any{"seed": 12345}),
 		"liuyao.chart":    []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","yaos":` + string(yaos) + `}`),
 		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
-		"bazhai.chart":    mustJSON(t, map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"}),
+		"bazhai.ming_gua": mustJSON(t, map[string]any{"birth_year": 1984, "gender": "male"}),
 		"bazhai.layout": mustJSON(t, map[string]any{
-			"chart":      map[string]any{"solar_time": "1984-02-15T08:00:00+08:00", "gender": "male"},
+			"ming_gua":   "兑",
 			"door_gua":   "乾",
 			"master_gua": "乾",
 			"stove_gua":  "乾",
 		}),
-		"xuankong.chart":   mustJSON(t, map[string]any{"solar_time": "2026-07-31T10:00:00+08:00", "zuo_shan": 2, "xiang_shan": 8}),
+		"xuankong.chart":   mustJSON(t, map[string]any{"period_date": "2026-07-31", "zuo_shan": 2, "xiang_shan": 8}),
 		"xuankong.liunian": mustJSON(t, map[string]any{"chart": x, "year": 2026}),
 		"huangli.days":     mustJSON(t, map[string]any{"start_date": "2026-08-01", "count": 2}),
 		"tianwen.time":     mustJSON(t, map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "latitude": 39.9}),

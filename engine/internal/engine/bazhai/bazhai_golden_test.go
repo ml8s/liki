@@ -5,20 +5,14 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 var updateGolden = os.Getenv("UPDATE_GOLDEN") == "1"
 
-func TestGoldenComputeChart(t *testing.T) {
-	st := tianwen.GregorianToSolar(
-		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
-		116.4, 8,
-	)
-	chart := ComputeChart(st, ganzhi.Male)
+func TestGoldenComputeMingGuaChart(t *testing.T) {
+	chart := ComputeMingGuaChart(ganzhi.Male, 1984)
 
 	// 命理锚点断言（独立于 golden 文件——UPDATE_GOLDEN=1 时同样执行，
 	// 防止错误输出被锁进 golden 后测试自证）。
@@ -29,7 +23,7 @@ func TestGoldenComputeChart(t *testing.T) {
 		t.Fatalf("marshal: %v", err)
 	}
 
-	golden := filepath.Join("testdata", "chart_golden.json")
+	golden := filepath.Join("testdata", "minggua_golden.json")
 	if updateGolden {
 		if err := os.MkdirAll("testdata", 0755); err != nil {
 			t.Fatalf("mkdir testdata: %v", err)
@@ -49,8 +43,8 @@ func TestGoldenComputeChart(t *testing.T) {
 	}
 }
 
-// assertChartAnchors 校验命理关键字段（1984-02-15 08:00 男）：
-// 男命 1984 → 艮卦/西四命；四吉方之首生气=西南；流年紫白 1984 七赤入中。
+// assertChartAnchors 校验命理关键字段（1984 男）：
+// 男命 1984 → 兑卦/西四命；四吉方之首生气=西北；流年紫白 1984 七赤入中。
 func assertChartAnchors(t *testing.T, chart Chart) {
 	t.Helper()
 	// 1984 男：命卦公式（《八宅明镜》2000 前）男 (100-84)%9=7 → 兑，西四命。
@@ -69,8 +63,5 @@ func assertChartAnchors(t *testing.T, chart Chart) {
 	}
 	if chart.YearStars.RuZhong != "七赤破军" {
 		t.Errorf("liu_nian_xing.ru_zhong = %s, want 七赤破军（下元甲子）", chart.YearStars.RuZhong)
-	}
-	if len(chart.ZhuBagua) != 4 {
-		t.Errorf("zhu_bagua len = %d, want 4", len(chart.ZhuBagua))
 	}
 }

@@ -156,7 +156,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
 		"qiming.pick", "qiming.compose", "qiming.check",
-		"bazhai.chart", "bazhai.layout",
+		"bazhai.ming_gua", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
 		"huangli.days",
@@ -173,7 +173,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 func TestHandler_MissingGender(t *testing.T) {
 	r := NewRPCRegistry()
 	handlers := []string{
-		"bazi.chart", "ziwei.chart", "bazhai.chart",
+		"bazi.chart", "ziwei.chart",
 	}
 	noGender := json.RawMessage(fmt.Sprintf(`{"solar_time":%s}`, btOK))
 	for _, name := range handlers {
@@ -191,7 +191,7 @@ func TestHandler_BadGender(t *testing.T) {
 	}{
 		{"bazi.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"other"}`, btOK)},
 		{"ziwei.chart", fmt.Sprintf(`{"lunar":%s,"gender":"bad"}`, lunarOK)},
-		{"bazhai.chart", fmt.Sprintf(`{"solar_time":%s,"gender":"bad"}`, btOK)},
+		{"bazhai.ming_gua", `{"birth_year":1984,"gender":"bad"}`},
 	}
 	for _, tt := range handlers {
 		t.Run(tt.name, func(t *testing.T) {
@@ -209,7 +209,7 @@ func TestHandler_MissingRequiredFields(t *testing.T) {
 		{"ziwei.daxian", `{}`},
 		{"qiming.pick", `{}`},
 		{"qiming.check", `{}`},
-		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s}`, btOK)},
+		{"xuankong.chart", `{"period_date":"2026-07-31"}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -239,8 +239,9 @@ func TestHandler_RangeValidation(t *testing.T) {
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"yong_shen":["甲"]}`, btOK)},
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"scope":"ke"}`, btOK)},
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"birth_year":1984}`, btOK)},
-		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":-1,"xiang_shan":0}`, btOK)},
-		{"xuankong.chart", fmt.Sprintf(`{"solar_time":%s,"zuo_shan":0,"xiang_shan":24}`, btOK)},
+		{"bazhai.ming_gua", `{"birth_year":1899,"gender":"male"}`},
+		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":-1,"xiang_shan":0}`},
+		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":24}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -399,10 +400,10 @@ func TestHandler_ComputeZiwei_Valid(t *testing.T) {
 
 func TestHandler_ComputeBazhaiChart_Valid(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"gender":"male"}`, btOK))
-	result, err := r.Execute(context.Background(), "bazhai.chart", params)
+	params := json.RawMessage(`{"birth_year":1984,"gender":"male"}`)
+	result, err := r.Execute(context.Background(), "bazhai.ming_gua", params)
 	if err != nil {
-		t.Fatalf("bazhai.chart: %v", err)
+		t.Fatalf("bazhai.ming_gua: %v", err)
 	}
 	if getStr(result, "_product") != "bazhai" {
 		t.Errorf("_product = %q, want bazhai", getStr(result, "_product"))
@@ -414,7 +415,7 @@ func TestHandler_ComputeBazhaiChart_Valid(t *testing.T) {
 
 func TestHandler_ComputeXuankongChart_Valid(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"zuo_shan":0,"xiang_shan":12}`, btOK))
+	params := json.RawMessage(`{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":12}`)
 	result, err := r.Execute(context.Background(), "xuankong.chart", params)
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
@@ -1235,7 +1236,7 @@ func (m *mockNominatimTransport) RoundTrip(_ *http.Request) (*http.Response, err
 func TestHandler_XuankongLiunian_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chartResult, err := r.Execute(context.Background(), "xuankong.chart",
-		json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"zuo_shan":20,"xiang_shan":8}`, btOK)))
+		json.RawMessage(`{"period_date":"2026-07-31","zuo_shan":20,"xiang_shan":8}`))
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
 	}
