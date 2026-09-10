@@ -9,7 +9,7 @@ from urllib.error import HTTPError, URLError
 
 TIMEOUT = 30
 RETRYABLE_HTTP_CODES = {408, 429}
-MIN_ENGINE_VERSION = "2026.09.10.3"
+MIN_ENGINE_VERSION = "2026.09.10.5"
 
 
 class RPCError(RuntimeError):

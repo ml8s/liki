@@ -55,7 +55,7 @@ bazi.chart
 
 ### CharacterFact
 
-字库事实由 `qiming.char` 或 `qiming.check.characters` 返回，包括字、五行、现代规范笔画、部首、拼音和声调。LLM 不得修改这些属性，也不得用网络传闻或五格笔画规则覆盖 engine 字库。
+字库事实由 `qiming.char` 或 `qiming.check.characters` 返回，包括字、频度分级、五行、现代规范笔画、部首、拼音和声调。LLM 不得修改这些属性，也不得用网络传闻或五格笔画规则覆盖 engine 字库。
 
 ### CharPool
 
@@ -65,13 +65,13 @@ bazi.chart
 {
   "wuxing1": "木",
   "pools": [
-    {"slot": "first", "chars": ["..."]},
-    {"slot": "second", "chars": ["..."]}
+    {"slot": "first", "chars": [{"char": "...", "frequency": "common"}]},
+    {"slot": "second", "chars": [{"char": "...", "frequency": "standard"}]}
   ]
 }
 ```
 
-生成类候选只能来自对应 `chars`。用户避讳字、生僻字、负面字和不合语义字可以删除；领域外的新字不能加入。必含字不在字池时报告冲突，请用户调整必含字或五行策略。
+生成类候选只能来自对应 `chars` 中的 `char`。`frequency` 是《通用规范汉字表》分级事实：`common`（一级）、`standard`（二级）、`rare`（三级）；它不等于当代取名流行度。用户避讳字、生僻字、负面字和不合语义字可以删除；领域外的新字不能加入。必含字不在字池时报告冲突，请用户调整必含字或五行策略。
 
 ### CandidateName
 

@@ -32,7 +32,7 @@ func PickChars(wuxing1, wuxing2 string, count int) (*PickResult, error) {
 		Wuxing1: elem1.String(),
 		Pools: []CandidatePool{{
 			Slot:  "first",
-			Chars: characterNames(first),
+			Chars: pickedCharacters(first),
 		}},
 	}
 	if count == 1 {
@@ -48,15 +48,15 @@ func PickChars(wuxing1, wuxing2 string, count int) (*PickResult, error) {
 	}
 	result.Pools = append(result.Pools, CandidatePool{
 		Slot:  "second",
-		Chars: characterNames(second),
+		Chars: pickedCharacters(second),
 	})
 	return result, nil
 }
 
-func characterNames(chars []Character) []string {
-	out := make([]string, 0, len(chars))
+func pickedCharacters(chars []Character) []PickedCharacter {
+	out := make([]PickedCharacter, 0, len(chars))
 	for _, char := range chars {
-		out = append(out, char.Char)
+		out = append(out, PickedCharacter{Char: char.Char, Frequency: char.Frequency})
 	}
 	return out
 }

@@ -1,0 +1,14 @@
+id: bazi-ziwei-fusion
+title: "八紫双盘合参调用"
+input:
+  prompt: |
+    SMOKE_ID: bazi-ziwei-fusion
+    出生信息：1990-06-01T12:00:00+08:00，男，出生地经度 116.4。
+
+    请从八字和紫微双盘综合看事业方向。无人值守评测，不要向用户提问。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

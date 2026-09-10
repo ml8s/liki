@@ -159,7 +159,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 技能启动时自动做版本检查，提示更新时重跑：`npx skills add ml8s/liki -y`。
 
 **自建引擎怎么升级？**
-`2026.09.10.3` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
+`2026.09.10.5` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
 
 ## 为什么可信
 
@@ -167,7 +167,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 - **断语有出处** — 断语长表共 775 条，每条附经典依据列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
 - **双体系交叉验证** — 八字/紫微分侧计算，跨体系结论走显式合参表；冲突时列证裁决。
 - **流程可查** — 问卦链路保留起卦 / 起局收据、immutable snapshot、证据引用和 answer 审计；结论可回溯到具体某一步。
-- **独立评测** — 160 道命理师大赛真题（MingLi-Bench），答案隔离、自动判分、数据公开（`tests/`）。
+- **独立评测** — 160 道命理师大赛真题（MingLi-Bench）测准确率；另有跨领域 skill-up smoke 测功能契约。
 
 ---
 
@@ -183,7 +183,7 @@ skills/liki-bazi
 └── tools/      ← 工具层（6 个 Python 工具 + 断语/因子 4 张长表 + schema 契约）
 repo root
 ├── engine/     ← Go JSON-RPC 天文历算引擎（8 领域）
-├── tests/      ← 评测体系（160 题分组 + 答案隔离）
+├── tests/      ← 准确率基准（160 题）+ 跨领域功能 smoke
 └── scripts/    ← 构建 / 分发索引
 ```
 
@@ -201,6 +201,14 @@ repo root
 ### 引擎镜像
 
 镜像随 GitHub Release 自动发布（CI 全量测试 → 构建推送 + 冒烟）：`docker pull ghcr.io/ml8s/liki-engine:latest`。源码构建：`cd engine && docker compose -f deploy/docker-compose.yml up -d --build`。
+
+### 测试命令
+
+```bash
+make benchmark-mingli160       # 160 题准确率基准（模型）
+make skillup-smoke-validate    # 跨领域功能契约校验（无模型）
+make skillup-smoke             # 跨领域功能 smoke（模型）
+```
 ### 快速开始
 
 ```bash

@@ -1,0 +1,14 @@
+id: naming-lee
+title: "罗马字姓 Lee 候选"
+input:
+  prompt: |
+    SMOKE_ID: naming-lee
+    My surname is Lee. Please show controlled Chinese surname candidates only.
+
+    This is an unattended smoke test. Follow liki-naming; do not invent a surname.
+    At the end, output a receipt with SMOKE_ID, RPC_CALLS, EVIDENCE, and BOUNDARY.
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

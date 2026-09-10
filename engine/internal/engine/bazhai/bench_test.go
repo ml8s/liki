@@ -16,6 +16,8 @@ func BenchmarkComputeChart(b *testing.B) {
 func BenchmarkComputeLayout(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ComputeLayout("兑", "乾", "坤", "艮")
+		if _, err := ComputeLayout("兑", "乾", "坤", "艮"); err != nil {
+			b.Fatal(err)
+		}
 	}
 }

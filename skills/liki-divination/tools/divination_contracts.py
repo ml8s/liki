@@ -28,7 +28,7 @@ def load_contract(name: str) -> dict:
 
 
 @lru_cache
-def _validator(name: str) -> Draft202012Validator:
+def _validator(name: str):
     return Draft202012Validator(load_contract(name))
 
 

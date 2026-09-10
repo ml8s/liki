@@ -1,0 +1,36 @@
+schema_version: v1alpha1
+skills:
+  - source: local_path
+    path: ../../skills/liki-naming
+    exclude:
+      - ".git/**"
+      - "dist/**"
+      - ".run-eval.*.yaml"
+      - ".setup/**"
+environment:
+  type: docker
+  image: liki-qwen:1
+  workspace_mount: /workspace
+  env:
+    OPENAI_API_KEY: ${OPENAI_API_KEY}
+    OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+    QWEN_CODE_MAX_OUTPUT_TOKENS: "16384"
+    LIKI_RPC_URL: ${LIKI_RPC_URL}
+engine:
+  name: qwen_code
+  model:
+    name: ${OPENAI_MODEL}
+    max_tokens: 16384
+cases:
+  files:
+    - cases/naming-lee.yaml
+    - cases/naming-wong.yaml
+    - cases/naming-fallback.yaml
+    - cases/naming-no-birth.yaml
+    - cases/naming-selfcheck.yaml
+    - cases/naming-non-latin.yaml
+  defaults:
+    timeout_seconds: 900
+    max_turns: 16
+report:
+  formats: [json, markdown]

@@ -116,8 +116,12 @@ pan → factors → snap → assertions
 - `duanyu.query` 只接受本命域；`query_yearly` / `yearly_range` 只接受流年域，`yingqi` 必须通过流年查询。
 - `query(year=...)` 只允许 `大运 / 大限` 限运域；省略 year 时由服务端当前时间推导。
 - 限运域结果附带 `current_year / current_year_source`；显式传 year 时 source 为 `specified`。
+- `query` / `yearly_range` 支持可选 `domains` 过滤器；有效领域来自所选 rule 展开后的断语表。未知领域 fail closed，过滤结果不携带 snapshot evidence。
+- 场景别名可在 `constants.json` 的 `场景领域过滤` 中声明主领域。未显式传 `domains` 时，纯场景查询应用默认领域过滤。
 - `query` / `yearly_range` 只接受 `full_paipan` 完整返回的 pan，拒绝快照、裁剪盘和手工半截盘。
 - `yearly_range` 单次起止年含端点跨度最多 120 年。
+
+`full_paipan` 在真太阳时或既定时辰距时辰交界 ≤30 分钟时，返回可选 `calibration_hint`。该提示只表达“接近交界，建议用人生大事校准”，不修改四柱，也不构成吉凶结论。
 
 ## 6. 因子长表
 

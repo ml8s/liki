@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = REPO / "engine/internal/engine/qiming/data/gsc_pinyin_with_tone.csv"
 DEFAULT_RADICALS = REPO / "engine/internal/engine/qiming/data/radicals.yaml"
 DEFAULT_OUTPUT = REPO / "engine/internal/engine/qiming/data/naming_characters.csv"
-FIELDS = ["char", "pinyin", "radical", "stroke", "wuxing", "tone"]
+FIELDS = ["char", "frequency", "pinyin", "radical", "stroke", "wuxing", "tone"]
 
 
 def main() -> int:
@@ -31,6 +31,7 @@ def main() -> int:
         for row in rows:
             writer.writerow({
                 "char": row["word"],
+                "frequency": row["frequency"],
                 "pinyin": row["pinyin"],
                 "radical": row["radical"],
                 "stroke": row["stroke_count"],

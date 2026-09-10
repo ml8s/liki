@@ -11,9 +11,10 @@ description: "问卦占卜/算一卦测事 — 六爻起卦、奇门决策、黄
 
 1. 外部安装副本先读本地 `VERSION` 与远程 `VERSION`；不一致时提示更新命令并等待确认，远程 10 秒不可达时标注后继续。托管环境跳过检查。
 2. 读 `tools/skill-tools.json` 取工具 schema。
-3. 只使用 `python3 tools/agent_cli.py`：stdin 传 `{"fn":"...","args":{...}}`，stdout 读 JSON；Windows 使用 `tools/agent_cli.cmd` 和 UTF-8 文件。底层 RPC 端点由 `LIKI_RPC_URL` 控制，是工具层内部依赖，不是 LLM 的直接调用接口。
-4. 启动 CLI 会通过 `rpc.discover` 检查 engine 版本；低于 `2026.09.10.3` 时直接失败并提示升级 engine，不得降级调用旧 RPC。
-5. 完成上述检查后进入路由。
+3. Python 依赖见 `tools/requirements.txt`；缺失时用 `python3 -m pip install -r tools/requirements.txt` 安装，不得跳过契约校验。
+4. 只使用 `python3 tools/agent_cli.py`：stdin 传 `{"fn":"...","args":{...}}`，stdout 读 JSON；Windows 使用 `tools/agent_cli.cmd` 和 UTF-8 文件。底层 RPC 端点由 `LIKI_RPC_URL` 控制，是工具层内部依赖，不是 LLM 的直接调用接口。
+5. 启动 CLI 会通过 `rpc.discover` 检查 engine 版本；低于 `2026.09.10.5` 时直接失败并提示升级 engine，不得降级调用旧 RPC。
+6. 完成上述检查后进入路由。
 
 ## 路由
 
@@ -46,11 +47,14 @@ LLM 先读取 `app/question.md` 并判断用户目标；不要调用独立 route
 - 先给一句话判断，再列用神 / 盘面 / 动爻或方法与关键因子。
 - 专断因子优先；冲突因子并列解释，三个以上同向因子才形成综合判断。
 - 应期只解释 answer 引用且与所问对象相关的候选。
+- 涉及健康、生育、年龄窗口、重大财务或时间敏感决策时，附现实专业确认提示；不得把条件性倾向写成必然结果。
 - 输出语言跟随用户；英文首次出现核心术语时括注英文。
 
 工具参数错误按 `tools/skill-tools.json` schema 修正后重试；网络超时告知用户可重试；HTTP 403 更换 HTTP 客户端或请求头。反馈提交到 `https://liki.hk/api/feedback`，请求体使用 UTF-8。
 
 ## 交互与安全
 
-- 参数不完整时给默认建议和编号选项；关键排盘结果先确认再深入。
+- 流程表中标记 ⛔ 的步骤为阻塞确认：LLM 必须展示当前结果和编号选项，等待用户回复后才能继续。禁止跳过 ⛔ 节点直接起卦、排盘或展开分析。
+- 流程表中标记 💬 的步骤为参数收集：LLM 一次列出所有待收集项和默认值，用户可一次回复或说“都用默认”。
+- 每个交互步骤只输出该步骤的内容，禁止提前输出后续步骤的结果。
 - 仅服务问卦 / 择日话题；明显焦虑时引导专业帮助，避免宿命化表述。

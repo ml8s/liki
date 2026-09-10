@@ -1,0 +1,14 @@
+id: qimen-direction
+title: "方位择机走奇门"
+input:
+  prompt: |
+    SMOKE_ID: qimen-direction
+    2026-09-12T10:00:00+08:00 出门签约，请用时家奇门看方位。
+
+    这是无人值守评测。请按 liki-divination 流程排盘，并引用盘局、用神/符使与方位事实。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

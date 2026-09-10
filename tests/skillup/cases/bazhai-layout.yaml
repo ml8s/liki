@@ -1,0 +1,14 @@
+id: bazhai-layout
+title: "八宅门主灶布局"
+input:
+  prompt: |
+    SMOKE_ID: bazhai-layout
+    命卦是兑，大门在乾，主卧在乾，灶在艮。请看八宅门主灶。
+
+    这是无人值守评测。请按 liki-fengshui 流程调用 RPC，并引用门主灶和四吉/四凶事实。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

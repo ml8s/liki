@@ -5,12 +5,13 @@ import "fmt"
 
 // Character is a naming character consumed by the current qiming domain.
 type Character struct {
-	Char    string `json:"char"`
-	Element Wuxing `json:"wuxing"`
-	Stroke  int    `json:"stroke"`
-	Radical string `json:"radical,omitempty"`
-	Pinyin  string `json:"pinyin"`
-	Tone    int    `json:"tone"`
+	Char      string `json:"char"`
+	Frequency string `json:"frequency"`
+	Element   Wuxing `json:"wuxing"`
+	Stroke    int    `json:"stroke"`
+	Radical   string `json:"radical,omitempty"`
+	Pinyin    string `json:"pinyin"`
+	Tone      int    `json:"tone"`
 }
 
 func lookupCharacter(char string) (Character, error) {

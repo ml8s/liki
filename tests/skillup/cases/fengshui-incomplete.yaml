@@ -1,0 +1,14 @@
+id: fengshui-incomplete
+title: "风水缺输入不排盘"
+input:
+  prompt: |
+    SMOKE_ID: fengshui-incomplete
+    我家风水不好，帮我看看怎么改。
+
+    这是无人值守评测。缺少必要信息时不要排盘，请说明需要补充坐向、年份或性别等事实。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

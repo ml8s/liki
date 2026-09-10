@@ -1,8 +1,8 @@
 """答案双源一致性守卫。
 
 评测答案存在两个必然形态（skill-up script judge 被复制到容器 workspace 执行，
-不能读外部文件，只能内嵌）：tests/answers.json（判分数据源）与
-tests/grade-case.py 内嵌 Q_ANSWERS（judge 自包含副本）。本测试防两处静默漂移。
+不能读外部文件，只能内嵌）：tests/benchmark/mingli160/answers.json（判分数据源）与
+tests/benchmark/mingli160/grade-case.py 内嵌 Q_ANSWERS（judge 自包含副本）。本测试防两处静默漂移。
 """
 import importlib.util
 import json
@@ -10,7 +10,10 @@ import os
 
 
 def _load_judge_module():
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "grade-case.py")
+    path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "benchmark/mingli160/grade-case.py",
+    )
     spec = importlib.util.spec_from_file_location("grade_case", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)  # grade-case.py 顶层只有数据定义，无副作用
@@ -18,7 +21,7 @@ def _load_judge_module():
 
 
 def test_grade_case_answers_match_answers_json():
-    base = os.path.dirname(os.path.abspath(__file__))
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "benchmark/mingli160")
     answers = json.load(open(os.path.join(base, "answers.json"), encoding="utf-8"))
     embedded = _load_judge_module().Q_ANSWERS
     assert set(embedded) == set(answers), (

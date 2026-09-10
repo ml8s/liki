@@ -1,0 +1,14 @@
+id: naming-selfcheck
+title: "自选名校验链路"
+input:
+  prompt: |
+    SMOKE_ID: naming-selfcheck
+    请评估李思德这个名字。没有出生时间，只需要字库和音韵事实。
+
+    这是无人值守评测。请按 liki-naming 流程调用名字校验，不要虚构五行补益结论。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

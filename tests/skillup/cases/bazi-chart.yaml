@@ -1,0 +1,14 @@
+id: bazi-chart
+title: "八字主链路排盘并引用原子事实"
+input:
+  prompt: |
+    SMOKE_ID: bazi-chart
+    出生信息：1990-06-01T12:00:00+08:00，男，出生地经度 116.4。
+
+    请按 liki-bazi 领域流程排盘，并给出四柱、十神和大运/命宫事实。无人值守评测，不要向用户提问。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

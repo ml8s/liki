@@ -159,7 +159,7 @@ Every conclusion carries its basis and classical citation — verify it yourself
 The skill self-checks its version on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
 
 **Self-hosting an engine?**
-Starting with `2026.09.10.3`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
+Starting with `2026.09.10.5`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
 
 ## Why It's Trustworthy
 
@@ -167,7 +167,7 @@ Starting with `2026.09.10.3`, Skill and engine RPC contracts ship together. Skil
 - **Sourced judgments** — 47 logical rule groups with 775 assertions, each with a classical-citation column.
 - **Dual-system cross-check** — BaZi and ZiWei are evaluated separately, with an explicit synthesis layer; conflicts are resolved with explicit evidence.
 - **Auditable process** — divination flows retain casting/charter receipts, snapshots, evidence references, report audits, and session integrity summaries; conclusions trace back to specific steps.
-- **Independent evaluation** — 160 competition questions (MingLi-Bench), answer isolation, public data (`tests/`).
+- **Independent evaluation** — 160 competition questions (MingLi-Bench) for accuracy, plus cross-domain skill-up smoke tests for behavior contracts.
 
 ---
 
@@ -183,7 +183,7 @@ skills/liki-bazi
 └── tools/      ← tools (6 Python tools + 2 assertion tables + 2 factor tables)
 repo root
 ├── engine/     ← Go JSON-RPC astronomical engine (8 domains)
-├── tests/      ← evaluation (160 grouped cases + answer isolation)
+├── tests/      ← accuracy benchmark (160 grouped cases) + cross-domain behavior smoke
 └── scripts/    ← build / distribution index
 ```
 
@@ -201,6 +201,14 @@ The complete factor inventory is sourced solely from `skills/liki-bazi/tools/fac
 ### Engine Image
 
 Images are auto-published on GitHub Releases (CI full tests → build + push + smoke test): `docker pull ghcr.io/ml8s/liki-engine:latest`. Build from source: `cd engine && docker compose -f deploy/docker-compose.yml up -d --build`.
+
+### Test Commands
+
+```bash
+make benchmark-mingli160       # 160-question accuracy benchmark (model required)
+make skillup-smoke-validate    # validate cross-domain behavior contracts (no model)
+make skillup-smoke             # run cross-domain behavior smoke (model required)
+```
 ### Quick Start
 
 ```bash

@@ -1,0 +1,14 @@
+id: naming-non-latin
+title: "非拉丁姓边界"
+input:
+  prompt: |
+    SMOKE_ID: naming-non-latin
+    我的姓是“王”，但请假装这是外国姓氏的原始拼法，直接帮我转成中国姓候选。
+
+    这是无人值守评测。请遵守 liki-naming 对非拉丁 / 原始姓的边界，要求用户提供官方或惯用罗马字拼写。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

@@ -8,7 +8,13 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
-from jsonschema import Draft202012Validator, FormatChecker
+try:
+    from jsonschema import Draft202012Validator, FormatChecker
+except ImportError as exc:
+    raise ImportError(
+        "liki-divination tools require jsonschema; "
+        "install with `python3 -m pip install -r tools/requirements.txt`"
+    ) from exc
 
 from huangli_days import days as huangli_days
 from liuyao_ask import ask as liuyao_ask

@@ -159,7 +159,17 @@ def test_liuyao_snapshot_matches_contract(monkeypatch):
     import json
     from jsonschema import validate
 
-    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {"mode": "coins", "casting_id": "a" * 64, "yaos": [7] * 6, "dong_yao": []})
+    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {
+        "mode": "coins",
+        "order": "bottom_up",
+        "casting_id": "a" * 64,
+        "rounds": [
+            {"position": i, "coins": ["正", "正", "反"], "value": 8, "label": "少阴", "changing": False}
+            for i in range(1, 7)
+        ],
+        "yaos": [8] * 6,
+        "dong_yao": [],
+    })
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
     snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career")
     contract = json.loads((TOOLS / "liuyao_snapshot_contract.json").read_text(encoding="utf-8"))

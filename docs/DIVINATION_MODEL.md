@@ -51,7 +51,15 @@
 ```json
 {
   "mode": "coins",
-  "rounds": [],
+  "rounds": [
+    {
+      "position": 1,
+      "coins": ["正", "正", "反"],
+      "value": 8,
+      "label": "少阴",
+      "changing": false
+    }
+  ],
   "yaos": [7, 7, 7, 7, 7, 7],
   "dong_yao": [],
   "casting_id": "..."
@@ -99,6 +107,8 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 六爻额外包含 `casting`、`board`、`focus`、`evidence`、`facts`、`timing_candidates`、`topic_guidance`、`timing_plan`、`condition_rules`。
 
 奇门额外包含 `input`、`matter`、`method_context`、`factors`、`special`。
+
+问卦工具运行时显式依赖 `jsonschema>=4,<5`；依赖缺失时 fail closed，不得跳过 snapshot / answer contract 校验。
 
 ### EvidencePack
 
@@ -178,6 +188,8 @@ ask(snapshot, message)
 ```
 
 追问不重排、不改 snapshot、不重建上下文。只有现实事件出现新变化时才创建新 snapshot。
+
+六爻 `chart.ying_qi` 同时携带 `ying_time_text` 和机器可读 `ying_time`。后者只描述 `relation / target_branch / trigger_branch` 等触发机制；它不是日期，LLM 不得把触发分支包装成确定应期。
 
 ## 5. 统一领域语言
 

@@ -201,7 +201,12 @@
   "ying_qi": {
     "yong_shen": "官鬼",
     "dong_yao_pos": 0,
-    "ying_time": "",
+    "ying_time_text": "",
+    "ying_time": {
+      "relation": "冲",
+      "target_branch": "午",
+      "trigger_branch": "子"
+    },
     "assessment": "官鬼在四爻，月建相，日建生(旺)，静爻待冲。冲子之时为应"
   },
   "branch_relation_facts": [

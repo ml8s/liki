@@ -1,0 +1,14 @@
+id: xuankong-chart
+title: "玄空宅盘 RPC"
+input:
+  prompt: |
+    SMOKE_ID: xuankong-chart
+    八运房，period_date=2026-09-12，坐子山午向，请排玄空宅盘。
+
+    这是无人值守评测。请按 liki-fengshui 流程调用 RPC，并引用山星、向星和飞星事实。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

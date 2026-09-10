@@ -14,20 +14,25 @@ bin/
 Thumbs.db
 dist/
 
-# 评测产物（agent 输出——可再生；skill-up 默认输出在 skill 目录旁）
-tests/liki-workspace/
+# 评测产物（agent 输出——可再生）
+tests/benchmark/mingli160/workspace/
+tests/skillup/workspace/
 # Python 缓存
 __pycache__/
 *.pyc
 
-# 评测临时配置（run-qwen.sh 生成的临时 yaml）
+# 评测临时配置（runner 生成的临时 yaml）
 .run-eval.*.yaml
+.run-bazi.*.yaml
+.run-divination.*.yaml
+.run-fengshui.*.yaml
+.run-naming.*.yaml
 
 # 本地模型供应商密钥（不提交）
-tests/evals/.zhipu.local.env
-tests/evals/*.local.env
+tests/benchmark/mingli160/evals/*.local.env
+tests/skillup/evals/*.local.env
 
-tests/evals/*.log
+tests/benchmark/mingli160/evals/*.log
 
 # Coverage artifacts
 .coverage

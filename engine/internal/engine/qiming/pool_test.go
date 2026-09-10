@@ -1,6 +1,8 @@
 package qiming
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestPickChars_DoubleName(t *testing.T) {
 	result, err := PickChars("木", "火", 2)
@@ -22,28 +24,33 @@ func TestPickChars_DoubleName(t *testing.T) {
 	for _, pool := range result.Pools {
 		seen := make(map[string]bool)
 		for i, char := range pool.Chars {
-			if len([]rune(char)) != 1 {
-				t.Fatalf("pool contains non-single character %q", char)
+			if len([]rune(char.Char)) != 1 {
+				t.Fatalf("pool contains non-single character %q", char.Char)
 			}
-			if seen[char] {
-				t.Fatalf("pool contains duplicate character %q", char)
+			switch char.Frequency {
+			case "common", "standard", "rare":
+			default:
+				t.Fatalf("character %q has invalid frequency %q", char.Char, char.Frequency)
 			}
-			seen[char] = true
-			if i != 0 && pool.Chars[i-1] >= char {
-				t.Fatalf("pool is not sorted: %q >= %q", pool.Chars[i-1], char)
+			if seen[char.Char] {
+				t.Fatalf("pool contains duplicate character %q", char.Char)
+			}
+			seen[char.Char] = true
+			if i != 0 && pool.Chars[i-1].Char >= char.Char {
+				t.Fatalf("pool is not sorted: %q >= %q", pool.Chars[i-1].Char, char.Char)
 			}
 		}
 	}
 	for _, char := range result.Pools[0].Chars {
-		character := LookupChar(char)
+		character := LookupChar(char.Char)
 		if character == nil || character.Element.String() != "木" {
-			t.Fatalf("first pool character %q has unexpected element", char)
+			t.Fatalf("first pool character %q has unexpected element", char.Char)
 		}
 	}
 	for _, char := range result.Pools[1].Chars {
-		character := LookupChar(char)
+		character := LookupChar(char.Char)
 		if character == nil || character.Element.String() != "火" {
-			t.Fatalf("second pool character %q has unexpected element", char)
+			t.Fatalf("second pool character %q has unexpected element", char.Char)
 		}
 	}
 }
@@ -74,7 +81,7 @@ func TestPickChars_ExcludesNegativeCharacters(t *testing.T) {
 		t.Fatalf("PickChars() error = %v", err)
 	}
 	for _, char := range result.Pools[0].Chars {
-		if char == "病" {
+		if char.Char == "病" {
 			t.Fatal("pool contains excluded character 病")
 		}
 	}

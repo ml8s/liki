@@ -492,8 +492,12 @@ func TestComputeYingQi_YongShenDongYao(t *testing.T) {
 	if yq.DongYaoPos != 3 {
 		t.Errorf("DongYaoPos = %d, want 3 (三爻为动爻)", yq.DongYaoPos)
 	}
-	if yq.YingTime == "" {
-		t.Error("expected YingTime not empty")
+	if yq.YingTimeText == "" {
+		t.Error("expected YingTimeText not empty")
+	}
+	if yq.YingTime == nil || yq.YingTime.Relation != "逢值" ||
+		yq.YingTime.TriggerBranch != "辰" || yq.YingTime.TargetBranch != "辰" {
+		t.Fatalf("YingTime = %+v, want 逢值/辰/辰", yq.YingTime)
 	}
 	if yq.Assessment == "" {
 		t.Error("expected Assessment not empty")
@@ -511,8 +515,8 @@ func TestComputeYingQi_YongShenJingYao(t *testing.T) {
 		t.Errorf("expected DongYaoPos=0 for static yao, got %d", yq.DongYaoPos)
 	}
 	// 静爻待冲.
-	if yq.YingTime != "" {
-		t.Errorf("expected empty YingTime for static yao, got %s", yq.YingTime)
+	if yq.YingTime == nil || yq.YingTime.Relation != "冲" {
+		t.Fatalf("YingTime = %+v, want static clash condition", yq.YingTime)
 	}
 }
 

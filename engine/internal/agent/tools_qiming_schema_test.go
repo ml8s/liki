@@ -74,7 +74,7 @@ func TestQimingSchemaContract(t *testing.T) {
 	}
 
 	character := objectSchema("qiming.char")
-	wantCharacterFields := []string{"char", "wuxing", "stroke", "radical", "pinyin", "tone"}
+	wantCharacterFields := []string{"char", "frequency", "wuxing", "stroke", "radical", "pinyin", "tone"}
 	sort.Strings(wantCharacterFields)
 	gotCharacterFields := make([]string, 0, len(character))
 	for field := range character {

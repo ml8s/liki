@@ -56,10 +56,19 @@ func dayInteraction(lineZhi ganzhi.Zhi, riZhi ganzhi.Zhi) DayRelation {
 
 // YingQi holds 应期 prediction.
 type YingQi struct {
-	YongShen   string `json:"yong_shen"`
-	DongYaoPos int    `json:"dong_yao_pos"` // 动爻位置
-	YingTime   string `json:"ying_time"`    // 应期描述
-	Assessment string `json:"assessment"`   // 综合判断
+	YongShen     string             `json:"yong_shen"`
+	DongYaoPos   int                `json:"dong_yao_pos"`        // 动爻位置
+	YingTimeText string             `json:"ying_time_text"`      // 应期描述
+	YingTime     *YingTimeCondition `json:"ying_time,omitempty"` // 机器可读触发条件
+	Assessment   string             `json:"assessment"`          // 综合判断
+}
+
+// YingTimeCondition is the auditable trigger behind an 应期 statement. A
+// trigger branch is not a date: it must be projected onto the calendar.
+type YingTimeCondition struct {
+	Relation      string `json:"relation"`
+	TargetBranch  string `json:"target_branch,omitempty"`
+	TriggerBranch string `json:"trigger_branch,omitempty"`
 }
 
 func computeYingQi(p *Chart, typ YongShen) YingQi {
@@ -75,6 +84,11 @@ func computeYingQi(p *Chart, typ YongShen) YingQi {
 		if fs != nil {
 			flying := p.Lines[fs.Position-1]
 			yq.Assessment = typ.String() + "不上卦，伏于" + ganzhi.ZhiName(flying.Zhi) + "之下，待冲飞神" + ganzhi.ZhiName(flying.Zhi) + "（" + ganzhi.ZhiName(chongZhi(flying.Zhi)) + "）出伏为应"
+			yq.YingTime = &YingTimeCondition{
+				Relation:      "冲飞出伏",
+				TargetBranch:  ganzhi.ZhiName(flying.Zhi),
+				TriggerBranch: ganzhi.ZhiName(chongZhi(flying.Zhi)),
+			}
 			return yq
 		}
 		yq.Assessment = typ.String() + "不上卦，问事不吉"
@@ -86,7 +100,12 @@ func computeYingQi(p *Chart, typ YongShen) YingQi {
 	// Check if the用神 line is a动爻.
 	if yao.Type.IsChanging() {
 		yq.DongYaoPos = yongPos
-		yq.YingTime = "动爻临值之时（" + ganzhi.ZhiName(yao.Zhi) + "年月）为应"
+		yq.YingTimeText = "动爻临值之时（" + ganzhi.ZhiName(yao.Zhi) + "年月）为应"
+		yq.YingTime = &YingTimeCondition{
+			Relation:      "逢值",
+			TargetBranch:  ganzhi.ZhiName(yao.Zhi),
+			TriggerBranch: ganzhi.ZhiName(yao.Zhi),
+		}
 	}
 
 	// Month旺衰.
@@ -98,9 +117,14 @@ func computeYingQi(p *Chart, typ YongShen) YingQi {
 	yq.Assessment = typ.String() + "在" + ordinal(yongPos) + "爻" +
 		"，月建" + ws.String() + "，日建" + di.Relation + "(" + di.Strength + ")"
 	if yq.DongYaoPos > 0 {
-		yq.Assessment += "，" + yq.YingTime
+		yq.Assessment += "，" + yq.YingTimeText
 	} else {
 		yq.Assessment += "，静爻待冲。冲" + ganzhi.ZhiName(chongZhi(yao.Zhi)) + "之时为应"
+		yq.YingTime = &YingTimeCondition{
+			Relation:      "冲",
+			TargetBranch:  ganzhi.ZhiName(yao.Zhi),
+			TriggerBranch: ganzhi.ZhiName(chongZhi(yao.Zhi)),
+		}
 	}
 
 	return yq

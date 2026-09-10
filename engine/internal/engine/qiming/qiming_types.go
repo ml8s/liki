@@ -2,8 +2,14 @@ package qiming
 
 // CandidatePool is one ordered pool of naming characters.
 type CandidatePool struct {
-	Slot  string   `json:"slot"`
-	Chars []string `json:"chars"`
+	Slot  string            `json:"slot"`
+	Chars []PickedCharacter `json:"chars"`
+}
+
+// PickedCharacter is the stable machine fact exposed for filtering a pool.
+type PickedCharacter struct {
+	Char      string `json:"char"`
+	Frequency string `json:"frequency"`
 }
 
 // PickResult is the character pool output for a naming request.

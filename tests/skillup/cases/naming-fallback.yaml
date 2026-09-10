@@ -1,0 +1,14 @@
+id: naming-fallback
+title: "无可靠音近时 fallback"
+input:
+  prompt: |
+    SMOKE_ID: naming-fallback
+    My surname is Qwzx. Please show Chinese surname candidates using the liki-naming boundary.
+
+    This is an unattended smoke test. If there is no reliable close phonetic match, say so clearly.
+    At the end, output a receipt with SMOKE_ID, RPC_CALLS, EVIDENCE, and BOUNDARY.
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

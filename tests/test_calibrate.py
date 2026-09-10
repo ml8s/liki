@@ -70,6 +70,25 @@ def test_calibrate_enforces_documented_candidate_and_event_counts() -> None:
     paipan_mock.assert_not_called()
 
 
+def test_calibrate_invalid_rule_error_includes_event_context() -> None:
+    candidate = {"label": "A", "gregorian": "1981-08-25T00:15:00+08:00", "gender": "male"}
+    second = {**candidate, "label": "B"}
+    event = {"domain": "学业", "rules": ["yearly_study"], "year": 2000}
+
+    with mock.patch.object(calibrate, "full_paipan") as paipan_mock:
+        try:
+            calibrate.calibrate([candidate, second], [event] * 3)
+        except Exception as exc:
+            message = str(exc)
+        else:
+            raise AssertionError("invalid rule shape was accepted")
+
+    assert "期望字段为 rule" in message
+    assert "'domain': '学业'" in message
+    assert "'rules': ['yearly_study']" in message
+    paipan_mock.assert_not_called()
+
+
 def test_calibrate_allows_fixed_shichen_without_longitude() -> None:
     base = {"label": "子时", "gregorian": "1981-08-25T00:15:00+08:00", "gender": "male"}
     candidates = [{**base, "correct": False}, {**base, "label": "丑时", "gregorian": "1981-08-26T01:15:00+08:00", "correct": False}]

@@ -45,11 +45,13 @@ class TestDispatch(unittest.TestCase):
 
     def test_query_分派(self):
         agent_cli._dispatch("query", {"rule": "marriage", "pan": {}})
-        agent_cli.query.assert_called_once_with("marriage", {}, year=None)
+        agent_cli.query.assert_called_once_with("marriage", {}, year=None, domains=None)
 
     def test_yearly_range_分派(self):
         agent_cli._dispatch("yearly_range", {"pan": {}, "start": 2025, "end": 2026})
-        agent_cli.yearly_range.assert_called_once_with({}, 2025, 2026, rules=None, detail=False)
+        agent_cli.yearly_range.assert_called_once_with(
+            {}, 2025, 2026, rules=None, detail=False, domains=None,
+        )
 
     def test_calibrate_分派(self):
         agent_cli._dispatch("calibrate", {"candidates": [], "events": []})

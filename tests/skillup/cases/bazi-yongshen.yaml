@@ -1,0 +1,14 @@
+id: bazi-yongshen
+title: "用神候选来自 engine"
+input:
+  prompt: |
+    SMOKE_ID: bazi-yongshen
+    出生信息：1990-06-01T12:00:00+08:00，男，出生地经度 116.4。
+
+    请基于完整命盘给出用神 / 喜神 / 忌神候选，并说明所用学派。无人值守评测，不要向用户提问。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

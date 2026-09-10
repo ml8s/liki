@@ -122,6 +122,10 @@ SCENE_ALIASES = {
     alias: tuple(rules)
     for alias, rules in _DOMAIN_CONFIG["场景别名"].items()
 }
+SCENE_DOMAIN_FILTERS = {
+    alias: tuple(domains)
+    for alias, domains in _DOMAIN_CONFIG.get("场景领域过滤", {}).items()
+}
 # 显式单侧域：八字层次/流年八字域（紫微侧无对应 csv 是设计事实）；紫微宫位/流年宫位域（八字侧无）
 # 显式单侧域同样来自 constants.json，不在代码里重复维护。
 BAZI_ONLY_RULES = frozenset(_DOMAIN_CONFIG["八字专属域"])
@@ -130,7 +134,43 @@ ZIWEI_ONLY_RULES = frozenset(_DOMAIN_CONFIG["紫微专属域"])
 CURRENT_LIMIT_RULES = frozenset(_DOMAIN_CONFIG["当前限运规则"])
 
 
-def query(rule: str, pan: dict, year: int | None = None) -> dict:
+def _assertion_domains(tables: list[list[dict]]) -> set[str]:
+    """读取规则表自带的领域闭集；不硬编码领域清单。"""
+    return {
+        row["领域"]
+        for table in tables
+        for row in table
+        if row.get("领域")
+    }
+
+
+def _filter_domains(result: dict, domains: list[str] | None) -> dict:
+    """按命理领域过滤命中断语；None 表示不过滤。"""
+    if domains is None:
+        return result
+    side_labels = load_constants()["命理侧"]["标签"]
+    wanted = set(domains)
+    return {
+        side: [
+            row for row in result.get(side, [])
+            if not isinstance(row, dict) or row.get("领域") in wanted
+        ]
+        for side in (side_labels["bazi"], side_labels["ziwei"], side_labels["common"])
+    }
+
+
+def _default_scene_domains(rules: list[str]) -> list[str] | None:
+    """场景别名未显式传 domains 时，应用数据表声明的主领域过滤。"""
+    if not rules or not all(rule in SCENE_DOMAIN_FILTERS for rule in rules):
+        return None
+    domains: set[str] = set()
+    for rule in rules:
+        domains.update(SCENE_DOMAIN_FILTERS[rule])
+    return sorted(domains)
+
+
+def query(rule: str, pan: dict, year: int | None = None,
+          domains: list[str] | None = None) -> dict:
     """断语查询：域 + 本命盘 → 该域断语 {八字: [...], 紫微: [...], 合参: [...]}。
 
     rule ∈ NATAL_RULES（如 "十神"/"旺衰"/"命宫"/"官禄"；流年域走 yearly_range）。
@@ -171,13 +211,26 @@ def query(rule: str, pan: dict, year: int | None = None) -> dict:
     else:
         requested_sides = {"bazi", "ziwei"}
     query_tables = list(_load_rule_tables(rule).values())
+    if domains is not None:
+        if not isinstance(domains, list) or not domains or \
+                any(not isinstance(item, str) or not item for item in domains):
+            raise ValueError("domains 必须是非空字符串数组。")
+        if len(domains) != len(set(domains)):
+            raise ValueError("domains 不能有重复领域。")
+        allowed_domains = _assertion_domains(query_tables)
+        unknown = [item for item in domains if item not in allowed_domains]
+        if unknown:
+            raise ValueError(
+                f"domains 含无效领域: {unknown}。"
+                f"rule={rule} 有效领域: {sorted(allowed_domains)}"
+            )
     snapshots = evaluate_snap_from_pan(
         pan,
         current_year=current_year,
         sides=requested_sides,
         factor_names=_required_natal_factors(query_tables),
     )
-    result = _match_rule(rule, snapshots)
+    result = _filter_domains(_match_rule(rule, snapshots), domains)
     if current_year:
         result["current_year"] = current_year
         result["current_year_source"] = current_year_source
@@ -304,8 +357,13 @@ def _match_rule(rule: str, snapshots: dict) -> dict:
 
 
 def yearly_range(pan: dict, start: int, end: int,
-                 rules: list, detail: bool = False) -> dict:
+                 rules: list, detail: bool = False,
+                 domains: list[str] | None = None) -> dict:
     resolved_rules = _resolve_rules(rules)
+    if domains is None:
+        domains = _default_scene_domains(rules)
+    if domains is not None:
+        domains = list(domains)
     if start > end:
         raise YearRangeError(f"yearly_range start 不能大于 end：{start} > {end}")
     if end - start + 1 > MAX_YEARS:
@@ -317,6 +375,24 @@ def yearly_range(pan: dict, start: int, end: int,
     from paipan import RPCError
     cur_year, cur_source = _current_year()
     flow_factors = flow_factor_names(rules)
+    yearly_tables = [
+        table
+        for rule in resolved_rules
+        for table in _load_rule_tables(rule).values()
+    ]
+    if domains is not None:
+        if not isinstance(domains, list) or not domains or \
+                any(not isinstance(item, str) or not item for item in domains):
+            raise ValueError("domains 必须是非空字符串数组。")
+        if len(domains) != len(set(domains)):
+            raise ValueError("domains 不能有重复领域。")
+        allowed_domains = _assertion_domains(yearly_tables)
+        unknown = [item for item in domains if item not in allowed_domains]
+        if unknown:
+            raise ValueError(
+                f"domains 含无效领域: {unknown}。"
+                f"有效领域: {sorted(allowed_domains)}"
+            )
     natal_context = prepare_natal_context(
         pan, factor_names=natal_factors_for_flow(flow_factors)
     )
@@ -327,6 +403,11 @@ def yearly_range(pan: dict, start: int, end: int,
                 pan, year, resolved_rules, detail, natal_context,
                 factor_names=flow_factors,
             )
+            if domains is not None and "error" not in years[str(year)]:
+                years[str(year)] = {
+                    rule: _filter_domains(result, domains)
+                    for rule, result in years[str(year)].items()
+                }
         except (RPCError, ConnectionError, TimeoutError, OSError) as e:
             years[str(year)] = {"error": f"{type(e).__name__}: {e}"}
     return {"current_year": cur_year, "current_year_source": cur_source,

@@ -1,0 +1,14 @@
+id: naming-no-birth
+title: "无出生信息不虚构用神"
+input:
+  prompt: |
+    SMOKE_ID: naming-no-birth
+    请给李姓女孩起名，想要木属性，但没有出生时间。
+
+    这是无人值守评测。请按 liki-naming 流程从字池取字、组名并校验，同时明确未评估用神。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

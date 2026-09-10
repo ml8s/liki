@@ -1,0 +1,14 @@
+id: liuyao-health
+title: "健康六爻主链路"
+input:
+  prompt: |
+    SMOKE_ID: liuyao-health
+    我想测近期健康，请用六爻看。
+
+    这是无人值守评测。请按 liki-divination 流程起卦，并引用 casting 与官鬼等关键事实。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

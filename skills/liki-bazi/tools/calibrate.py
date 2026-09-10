@@ -25,8 +25,10 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
     valid = set(YEARLY_RULES) | set(SCENE_ALIASES)
     for e in events:
         if e.get("rule") not in valid:
+            received = {key: e.get(key) for key in ("domain", "rules", "rule", "year", "label")}
             raise AssertionRuleError(
                 f"calibrate events.rule 必须是流年命理域或场景别名，收到: '{e.get('rule')}'。"
+                f"收到 event: {received}。期望字段为 rule（单数字符串）。"
                 f"有效: {sorted(YEARLY_RULES)} + {sorted(SCENE_ALIASES)}")
         if "year" not in e or "label" not in e:
             raise ValueError("calibrate events 每项必须含 year、rule、label")

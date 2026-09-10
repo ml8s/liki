@@ -25,6 +25,11 @@ def test_runtime_naming_characters_projection():
     for source_row, row in zip(source, runtime):
         assert row == {
             "char": source_row["word"],
+            "frequency": (
+                "common" if int(source_row["num"]) <= 3500
+                else "standard" if int(source_row["num"]) <= 6500
+                else "rare"
+            ),
             "pinyin": source_row["pinyin"],
             "radical": source_row["radical"],
             "stroke": source_row["stroke_count"],

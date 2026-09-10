@@ -1,0 +1,14 @@
+id: xuankong-liunian
+title: "玄空流年叠加"
+input:
+  prompt: |
+    SMOKE_ID: xuankong-liunian
+    八运房，period_date=2026-09-12，坐子山午向。请先排 2026 年的玄空宅盘，再看流年叠加。
+
+    这是无人值守评测。请按 liki-fengshui 流程调用宅盘和流年 RPC。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

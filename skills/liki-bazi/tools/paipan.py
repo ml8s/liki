@@ -14,6 +14,7 @@ import json
 import os
 import urllib.request
 from urllib.error import URLError
+from datetime import datetime, timedelta
 from typing import Optional
 
 from errors import LikiToolError
@@ -22,6 +23,7 @@ from pan_schema import validate_natal_pan
 
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
+SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
 
 
 class RPCError(LikiToolError):
@@ -73,6 +75,39 @@ def _bazi_liunian(chart: dict, year: int) -> dict:
     return call("bazi.liunian", {"chart": chart, "year": year})["data"]
 
 
+def _shichen_boundary_hint(solar: str) -> dict | None:
+    """返回距时辰交界的确定性提示；不做吉凶判断。
+
+    晚子时 / 早子时的换日口径仍由 engine 与 skill 文档决定；这里只提示
+    输入分钟接近传统两小时交界，建议用户用事件校准。
+    """
+    try:
+        moment = datetime.fromisoformat(solar.replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+
+    boundaries = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
+    candidates = []
+    for day_offset in (-1, 0, 1):
+        for hour in boundaries:
+            candidate = moment.replace(
+                hour=hour, minute=0, second=0, microsecond=0
+            ) + timedelta(days=day_offset)
+            candidates.append(candidate)
+
+    nearest = min(candidates, key=lambda item: abs((moment - item).total_seconds()))
+    minutes = int(abs((moment - nearest).total_seconds()) // 60)
+    if minutes > SHICHEN_BOUNDARY_THRESHOLD_MINUTES:
+        return None
+    return {
+        "near_boundary": True,
+        "minutes_to_boundary": minutes,
+        "boundary_solar": nearest.isoformat(),
+        "threshold_minutes": SHICHEN_BOUNDARY_THRESHOLD_MINUTES,
+        "message": "出生时间接近时辰交界；建议提供 3-5 件已发生大事校准时辰。",
+    }
+
+
 def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
     return call("ziwei.liunian", {"chart": ziwei, "lunar_year": lunar_year})["data"]
 
@@ -118,6 +153,8 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         "ziwei_daxian": daxian,  # 十年大限（公历年段与宫位）
         "gender": gender,
     }
+    if hint := _shichen_boundary_hint(solar):
+        result["calibration_hint"] = hint
     result = with_natal_digest(result)
     validate_natal_pan(result, action="full_paipan result")
     return result

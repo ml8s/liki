@@ -58,13 +58,34 @@ func TestComposeNames_DefaultMaxNames(t *testing.T) {
 		t.Fatal("wood pool does not contain enough characters")
 	}
 	result, err := ComposeNames(ComposeRequest{
-		First: pool.Pools[0].Chars[:101],
+		First: pickedChars(pool.Pools[0].Chars[:101]),
 	})
 	if err != nil {
 		t.Fatalf("ComposeNames() error = %v", err)
 	}
 	if result.TotalPossible != 101 || len(result.Names) != 100 {
 		t.Fatalf("ComposeNames() = %+v, want 100 of 101 names", result)
+	}
+}
+
+func pickedChars(picked []PickedCharacter) []string {
+	out := make([]string, 0, len(picked))
+	for _, item := range picked {
+		out = append(out, item.Char)
+	}
+	return out
+}
+
+func TestComposeNames_CrossSlotSameCharacterIsAllowed(t *testing.T) {
+	result, err := ComposeNames(ComposeRequest{
+		First:  []string{"浩"},
+		Second: []string{"浩"},
+	})
+	if err != nil {
+		t.Fatalf("ComposeNames() error = %v", err)
+	}
+	if result.TotalPossible != 1 || len(result.Names) != 1 || result.Names[0] != "浩浩" {
+		t.Fatalf("ComposeNames() = %+v, want [浩浩]", result)
 	}
 }
 

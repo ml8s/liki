@@ -38,6 +38,27 @@ test: ## Skills python 单测（规则引擎；integration 由服务已起阶段
 test-integration: ## Skill 全链路集成测试（本地起引擎 + LIKI_RPC_URL 连它；脱离生产）
 	@bash -c '. scripts/local-engine.sh; ensure_local_engine; trap stop_local_engine EXIT; LIKI_RPC_URL="$$LOCAL_RPC" python3 -m pytest tests/test_integration.py -q'
 
+benchmark-mingli160: ## 160 题命理准确率基准（模型 + skill-up；不进入 pre-push）
+	bash tests/benchmark/mingli160/run.sh
+
+skillup-smoke-validate: ## 校验跨领域 skill-up 功能 smoke 配置（不调模型）
+	bash tests/skillup/run.sh --validate
+
+skillup-smoke: ## 跨领域 skill-up 功能 smoke（模型 + 本地 engine；不进入 pre-push）
+	bash tests/skillup/run.sh
+
+skillup-smoke-bazi: ## 八字功能 smoke
+	bash tests/skillup/run.sh bazi
+
+skillup-smoke-divination: ## 问卦功能 smoke（六爻 + 奇门）
+	bash tests/skillup/run.sh divination
+
+skillup-smoke-fengshui: ## 风水功能 smoke（八宅 + 玄空）
+	bash tests/skillup/run.sh fengshui
+
+skillup-smoke-naming: ## 起名功能 smoke
+	bash tests/skillup/run.sh naming
+
 # ── Engine 测试（全部在 engine/ 子目录，自含）──
 test-engine: ## Engine 全量测试（lint + vet + unit race + integration + RPC 冒烟）
 	cd engine && scripts/ci-engine.sh

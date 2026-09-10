@@ -17,6 +17,8 @@ type Chart struct {
 	Yun            SanYuanYun      `json:"yun"`
 	SitMountain    int             `json:"zuo_shan"`   // 0-23,坐山 index
 	FaceMountain   int             `json:"xiang_shan"` // 0-23,朝向 index
+	ZuoShanName    string          `json:"zuo_shan_name"`
+	XiangShanName  string          `json:"xiang_shan_name"`
 	Palaces        [9]xuanKongStar `json:"gong_wei"`
 	WangShan       bool            `json:"wang_shan"`  // 旺山：坐宫山星=当令
 	WangXiang      bool            `json:"wang_xiang"` // 旺向：向宫向星=当令
@@ -61,9 +63,11 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 
 	// 4. Assemble the pan.
 	pan := Chart{
-		Yun:          yun,
-		SitMountain:  sitMountain,
-		FaceMountain: faceMountain,
+		Yun:           yun,
+		SitMountain:   sitMountain,
+		FaceMountain:  faceMountain,
+		ZuoShanName:   fengshui.Mountains24Table[sitMountain].Name,
+		XiangShanName: fengshui.Mountains24Table[faceMountain].Name,
 	}
 
 	for i := 0; i < 9; i++ {

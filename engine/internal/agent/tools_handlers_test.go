@@ -882,8 +882,11 @@ func TestHandler_QimingPick(t *testing.T) {
 	var env struct {
 		Data struct {
 			Pools []struct {
-				Slot  string   `json:"slot"`
-				Chars []string `json:"chars"`
+				Slot  string `json:"slot"`
+				Chars []struct {
+					Char      string `json:"char"`
+					Frequency string `json:"frequency"`
+				} `json:"chars"`
 			} `json:"pools"`
 		} `json:"data"`
 	}
@@ -898,6 +901,15 @@ func TestHandler_QimingPick(t *testing.T) {
 	}
 	if len(env.Data.Pools[0].Chars) == 0 || len(env.Data.Pools[1].Chars) == 0 {
 		t.Fatal("candidate pools are empty")
+	}
+	for _, pool := range env.Data.Pools {
+		for _, char := range pool.Chars {
+			switch char.Frequency {
+			case "common", "standard", "rare":
+			default:
+				t.Fatalf("character %q has invalid frequency %q", char.Char, char.Frequency)
+			}
+		}
 	}
 }
 

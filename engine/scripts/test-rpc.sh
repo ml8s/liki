@@ -325,8 +325,8 @@ rpc qiming.pick '{"wuxing1":"水","wuxing2":"金","count":2}'
 check_rpc_ok "qiming.pick"
 check_rpc "  has pools" '.result.data.pools != null' 'true'
 
-PICK_FIRST=$(json_val "$RPC_BODY" '.result.data.pools[] | select(.slot == "first") | .chars[0:3]')
-PICK_SECOND=$(json_val "$RPC_BODY" '.result.data.pools[] | select(.slot == "second") | .chars[0:3]')
+PICK_FIRST=$(json_val "$RPC_BODY" '.result.data.pools[] | select(.slot == "first") | .chars[0:3] | map(.char)')
+PICK_SECOND=$(json_val "$RPC_BODY" '.result.data.pools[] | select(.slot == "second") | .chars[0:3] | map(.char)')
 rpc qiming.compose "{\"first\":$PICK_FIRST,\"second\":$PICK_SECOND,\"max_names\":10}"
 check_rpc_ok "qiming.compose"
 check_rpc "  has names" '.result.data.names | length > 0' 'true'

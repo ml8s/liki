@@ -5,7 +5,8 @@
 - 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（排盘(client) → 因子生成(evaluate_factors) → 断语查询(match)——全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
   验证规则表改动不崩、断语覆盖正常。
 - 【不判题】——判题（题目→skill→答案→对比）唯一走 skill-up agent 评测
-  （tests/run-qwen.sh：agent 读 SKILL.md → 排盘(RPC)+因子生成+断语查询 → 综合判题 → grade-grouped 判分）。
+  （tests/benchmark/mingli160/run.sh：agent 读 SKILL.md → 排盘(RPC)+因子生成+断语查询 → 综合判题 →
+   grade-case.py 判分）。
 - 不包含评测标签、族逻辑或紫微铁断；评测标签只存在于测试层。
 
 用法：python3 tests/eval_hybrid.py
@@ -23,6 +24,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the liki-bazi skill.
 _TOOLS = os.path.join(_ROOT, "skills", "liki-bazi", "tools")
 _LOCAL = os.path.dirname(os.path.abspath(__file__))   # tests/（client/birth 排盘工具在此）
+_BENCHMARK = os.path.join(_ROOT, "tests", "benchmark", "mingli160")
 for _p in (_TOOLS, _LOCAL):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -32,8 +34,8 @@ from paipan import full_paipan, liunian
 from factors import evaluate_snap_from_pan, evaluate_liunian_snap_from_pan
 from duanyu import _current_year, _match_rule, query_yearly, NATAL_RULES, YEARLY_RULES
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-GROUPS = json.load(open(os.path.join(BASE, "groups.json"), encoding="utf-8"))
+BENCHMARK = _BENCHMARK
+GROUPS = json.load(open(os.path.join(BENCHMARK, "groups.json"), encoding="utf-8"))
 
 
 def query_all(pan: dict) -> dict:
@@ -53,7 +55,7 @@ def query_all(pan: dict) -> dict:
 
 
 def load_case_birth(case_id: str) -> str:
-    s = open(os.path.join(BASE, "evals/cases", f"{case_id}.yaml"), encoding="utf-8").read()
+    s = open(os.path.join(BENCHMARK, "evals/cases", f"{case_id}.yaml"), encoding="utf-8").read()
     m = re.search(r"出生信息：([^\n]+)", s)
     return m.group(1) if m else ""
 
@@ -71,7 +73,7 @@ def build_report(total: int, zero: list[str], dom_hits: dict[str, int]) -> str:
     for rule, count in sorted(dom_hits.items(), key=lambda item: -item[1]):
         lines.append(f"- {rule}：{count} 题有断语")
     lines.append("")
-    lines.append("> 判题（题目→skill→答案→对比）请跑 skill-up agent 评测：`bash tests/run-qwen.sh`")
+    lines.append("> 判题（题目→skill→答案→对比）请跑准确率基准：`make benchmark-mingli160`")
     return "\n".join(lines) + "\n"
 
 

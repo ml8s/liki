@@ -30,4 +30,11 @@ def load_runtime_naming_rows(source: Path, radicals: Path) -> Iterator[dict[str,
                 wuxing = radical_elements.get(row["radical"])
             if wuxing is None:
                 continue
-            yield {**row, "wuxing": wuxing}
+            number = int(row["num"])
+            if number <= 3500:
+                frequency = "common"
+            elif number <= 6500:
+                frequency = "standard"
+            else:
+                frequency = "rare"
+            yield {**row, "wuxing": wuxing, "frequency": frequency}

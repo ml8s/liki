@@ -86,17 +86,54 @@
         "rounds": {
           "type": "array",
           "items": {
-            "type": "array",
-            "minItems": 3,
-            "maxItems": 3,
-            "items": {
-              "type": "string",
-              "enum": [
-                "正",
-                "反"
-              ]
-            }
-          }
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "position": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              },
+              "coins": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "正",
+                    "反"
+                  ]
+                }
+              },
+              "value": {
+                "type": "integer",
+                "minimum": 6,
+                "maximum": 9
+              },
+              "label": {
+                "type": "string",
+                "enum": [
+                  "老阴",
+                  "少阳",
+                  "少阴",
+                  "老阳"
+                ]
+              },
+              "changing": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "position",
+              "coins",
+              "value",
+              "label",
+              "changing"
+            ]
+          },
+          "minItems": 6,
+          "maxItems": 6
         },
         "yaos": {
           "type": "array",

@@ -15,7 +15,7 @@ import (
 //go:embed data/naming_characters.csv
 var namingCharactersCSV []byte
 
-var namingCharacterColumns = []string{"char", "pinyin", "radical", "stroke", "wuxing", "tone"}
+var namingCharacterColumns = []string{"char", "frequency", "pinyin", "radical", "stroke", "wuxing", "tone"}
 
 //go:embed data/negative_chars.txt
 var negativeCharsTxt []byte
@@ -77,6 +77,12 @@ func loadNaming() error {
 		if pinyin == "" {
 			return fmt.Errorf("naming_characters.csv row %d: missing pinyin for %q", line, word)
 		}
+		frequency := rec[columns["frequency"]]
+		switch frequency {
+		case "common", "standard", "rare":
+		default:
+			return fmt.Errorf("naming_characters.csv row %d: invalid frequency %q for %q", line, frequency, word)
+		}
 
 		elem := wuxingFromChinese(rec[columns["wuxing"]])
 		if elem == 0 {
@@ -92,12 +98,13 @@ func loadNaming() error {
 		}
 		pinyin = strings.TrimRight(pinyin, "0123456789·")
 		character := Character{
-			Char:    word,
-			Element: elem,
-			Stroke:  stroke,
-			Radical: radical,
-			Pinyin:  pinyin,
-			Tone:    tone,
+			Char:      word,
+			Frequency: rec[columns["frequency"]],
+			Element:   elem,
+			Stroke:    stroke,
+			Radical:   radical,
+			Pinyin:    pinyin,
+			Tone:      tone,
 		}
 		charByRune[charRune] = character
 	}

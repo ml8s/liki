@@ -1,0 +1,14 @@
+id: qimen-late-zi
+title: "晚子时日柱口径"
+input:
+  prompt: |
+    SMOKE_ID: qimen-late-zi
+    2026-09-11T23:20:00+08:00 想看出行，请用时家奇门，并明确晚子时的日柱口径。
+
+    这是无人值守评测。请按 liki-divination 流程排盘并引用盘局与日柱口径。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

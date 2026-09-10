@@ -1,6 +1,9 @@
 package bazhai
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 	tests := []struct {
@@ -38,7 +41,10 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ComputeLayout(tt.mingGua, tt.doorGua, tt.masterGua, tt.stoveGua)
+			result, err := ComputeLayout(tt.mingGua, tt.doorGua, tt.masterGua, tt.stoveGua)
+			if err != nil {
+				t.Fatalf("ComputeLayout() error = %v", err)
+			}
 			if result.Group != tt.wantGroup {
 				t.Errorf("group=%q, want %q", result.Group, tt.wantGroup)
 			}
@@ -66,11 +72,21 @@ func TestBazhaiJudgment_YouXing(t *testing.T) {
 		{"坎", "巽", "生气", "大吉"},
 	}
 	for _, tt := range tests {
-		result := ComputeLayout(tt.mingGua, tt.target, tt.target, tt.target)
+		result, err := ComputeLayout(tt.mingGua, tt.target, tt.target, tt.target)
+		if err != nil {
+			t.Fatalf("ComputeLayout() error = %v", err)
+		}
 		for _, item := range []doorStoveInfo{result.Door, result.Master, result.Stove} {
 			if item.YouXing != tt.youxing || item.Rating != tt.rating {
 				t.Fatalf("%s命见%s: got %s(%s), want %s(%s)", tt.mingGua, tt.target, item.YouXing, item.Rating, tt.youxing, tt.rating)
 			}
 		}
+	}
+}
+
+func TestBazhaiJudgment_RejectsInvalidGua(t *testing.T) {
+	_, err := ComputeLayout("兑", "门", "乾", "艮")
+	if err == nil || !strings.Contains(err.Error(), `invalid door_gua "门"`) {
+		t.Fatalf("error = %v, want invalid door_gua", err)
 	}
 }

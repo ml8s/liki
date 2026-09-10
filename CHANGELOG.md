@@ -1,5 +1,49 @@
 # Changelog
 
+## [2026.09.10.5] — 领域过滤、交互门控与测试分层
+
+### Breaking changes
+
+- Skill 运行要求 engine >= `2026.09.10.5`；低版本会 fail closed。
+- 问卦 skill 显式声明 `jsonschema>=4,<5`；缺失时 fail closed，不再静默跳过契约校验。
+- 160 题 MingLi-Bench 移入 `tests/benchmark/mingli160/`，命令统一为 `make benchmark-mingli160`；该套件只测命理答案准确率。
+- 新增 `tests/skillup/` 跨领域功能 smoke，覆盖八字、问卦、风水和起名；命令为 `make skillup-smoke-*`，不进入 pre-push。
+- 问卦 skill 显式声明 `jsonschema` 依赖；缺失时 fail closed 并给出标准安装命令，不再静默跳过契约校验。
+- 修正六爻 snapshot contract 的 `casting.rounds` 形状，使其匹配 engine canonical object schema。
+- `full_paipan` 在时间距时辰交界 ≤30 分钟时输出确定性校准提示。
+- `yearly_study` 场景移除 `年六亲`，避免学业查询混入婚姻 / 子女信号。
+- `query` / `yearly_range` 新增 `domains` 领域过滤器，避免结构域命中混入单一生活领域分析。
+- 八宅 `bazhai.layout` engine fail closed 校验命卦和门 / 主 / 灶卦名。
+
+### Testing
+
+- 功能 smoke 的 script judge 检查工具调用、关键事实、fallback 和拒绝边界；八字 / 问卦按 skill 工具名而非 raw RPC 名判分。
+- 六爻功能 case 超时从 900 秒调整为 1800 秒。
+- 四个 skill 的 app 卡新增标准阻塞确认 / 参数收集节点；根契约要求 ⛔ 节点等待用户回复、💬 节点提供默认值，且交互步骤不得提前输出后续结果。
+
+### liki-naming
+
+- `qiming.pick` 字池新增《通用规范汉字表》层级标记 `frequency`：`common` / `standard` / `rare`；该标记不是当代取名流行度。
+- 锁定 `qiming.compose` 行为：`first` 与 `second` 可包含同一字，用于组合叠字 / 同字名。
+
+### liki-bazi
+
+- `query` / `yearly_range` 新增 `domains` 领域过滤器，避免结构域命中混入单一生活领域分析。
+- `yearly_study` 场景默认只保留学业领域，移除原婚姻 / 子女类串域信号。
+- `full_paipan` 在时间距时辰交界 ≤30 分钟时输出确定性校准提示。
+
+### liki-divination
+
+- 修正六爻 snapshot contract 的 `casting.rounds` 形状，使其匹配 engine canonical object schema。
+- `liuyao.chart` 应期新增机器可读 `ying_time`，保留 `ying_time_text` 给自然语言表达。
+- 问卦文档补充 `matter` / `yong_shen` 选择规则、同 snapshot 边界和线上 `mode=auto` 口径。
+
+### liki-fengshui
+
+- `xuankong.chart` schema 明确二十四山 index 映射，并返回 `zuo_shan_name` / `xiang_shan_name`。
+- 八宅门主灶规则补充方向 → 卦位映射；八宅与玄空冲突新增分层裁决文档。
+- `bazhai.layout` engine fail closed 校验命卦和门 / 主 / 灶卦名。
+
 ## [2026.09.10.3] — 外国人中文姓候选域
 
 ### Breaking changes

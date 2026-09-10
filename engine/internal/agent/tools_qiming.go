@@ -103,13 +103,14 @@ const qimingCharacterSchema = `{
 	"additionalProperties":false,
 	"properties":{
 		"char":{"type":"string","minLength":1},
+		"frequency":{"type":"string","enum":["common","standard","rare"],"description":"通用规范汉字表层级频度标记：common=一级，standard=二级，rare=三级"},
 		"wuxing":{"type":"string","enum":["金","木","水","火","土"]},
 		"stroke":{"type":"integer","minimum":1,"description":"现代规范汉字笔画"},
 		"radical":{"type":"string","minLength":1},
 		"pinyin":{"type":"string","minLength":1},
 		"tone":{"type":"integer","minimum":1,"maximum":5}
 	},
-	"required":["char","wuxing","stroke","pinyin","tone"]
+	"required":["char","frequency","wuxing","stroke","pinyin","tone"]
 }`
 
 var qimingMethods = []RPCMethod{
@@ -190,7 +191,7 @@ var qimingMethods = []RPCMethod{
 						"additionalProperties":false,
 						"properties":{
 							"slot":{"type":"string","enum":["first","second"]},
-							"chars":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":1}}
+							"chars":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"object","additionalProperties":false,"properties":{"char":{"type":"string","minLength":1,"maxLength":1},"frequency":{"type":"string","enum":["common","standard","rare"]}},"required":["char","frequency"]}}
 						},
 						"required":["slot","chars"]
 					}

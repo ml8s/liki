@@ -447,3 +447,13 @@ func TestComputeChart_FourJu_Anchors(t *testing.T) {
 		}
 	}
 }
+
+func TestComputeChart_ExposesMountainNames(t *testing.T) {
+	chart := computeChart(1, 13, 2026)
+	if chart.ZuoShanName != "癸" {
+		t.Fatalf("zuo_shan_name = %q, want 癸", chart.ZuoShanName)
+	}
+	if chart.XiangShanName != "丁" {
+		t.Fatalf("xiang_shan_name = %q, want 丁", chart.XiangShanName)
+	}
+}

@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.10.3"
+    "version": "2026.09.10.5"
   },
   "tools": [
     {
@@ -717,12 +717,44 @@
                   "zhi_sui"
                 ]
               },
-              "minItems": 12,
-              "maxItems": 12
+            "minItems": 12,
+            "maxItems": 12
+          },
+          "calibration_hint": {
+            "type": "object",
+            "description": "出生时间接近时辰交界时的确定性校准提示",
+            "properties": {
+              "near_boundary": {
+                "type": "boolean"
+              },
+              "minutes_to_boundary": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 30
+              },
+              "boundary_solar": {
+                "type": "string"
+              },
+              "threshold_minutes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 30
+              },
+              "message": {
+                "type": "string"
+              }
             },
-            "pan_digest": {
-              "type": "string",
-              "minLength": 64,
+            "required": [
+              "near_boundary",
+              "minutes_to_boundary",
+              "boundary_solar",
+              "threshold_minutes",
+              "message"
+            ]
+          },
+          "pan_digest": {
+            "type": "string",
+            "minLength": 64,
               "maxLength": 64,
               "description": "canonical SHA-256 pan digest；query/yearly/bond/calibrate 会校验"
             }
@@ -744,7 +776,7 @@
       "type": "function",
       "function": {
         "name": "query",
-        "description": "断语查询（本命域）。仅支持本命域，流年走 yearly_range；大运/大限可用 year 指定历史或未来年限运，返回附带 current_year/source。",
+        "description": "断语查询（本命域）。仅支持本命域，流年走 yearly_range；夫妻/官禄/财帛返回对应紫微宫位域；十神返回八字结构及跨人生领域信号；大运/大限可用 year 指定历史或未来年限运，返回附带 current_year/source。",
         "parameters": {
           "type": "object",
           "properties": {
@@ -787,6 +819,18 @@
               "type": "integer",
               "minimum": 1,
               "description": "可选。仅限 rule=大运/大限：指定取哪一年的限运；省略时使用服务端当前年份。"
+            }
+            ,
+            "domains": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "可选领域过滤器；只保留命中断语中的这些领域。有效领域由所选 rule 的断语表决定。"
             }
           },
           "required": [
@@ -856,6 +900,18 @@
             "detail": {
               "type": "boolean",
               "description": "true=全量断语；false=精简（默认）"
+            }
+            ,
+            "domains": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "可选领域过滤器；只保留命中断语中的这些领域。省略时，场景别名按数据表声明的主领域过滤。"
             }
           },
           "required": [

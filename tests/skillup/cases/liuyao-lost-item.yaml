@@ -1,0 +1,14 @@
+id: liuyao-lost-item
+title: "失物六爻事实链"
+input:
+  prompt: |
+    SMOKE_ID: liuyao-lost-item
+    我在家附近丢了钥匙，请用六爻看能否找到。
+
+    这是无人值守评测。请按 liki-divination 流程起卦并引用 casting 和用神。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

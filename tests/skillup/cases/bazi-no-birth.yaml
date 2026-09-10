@@ -1,0 +1,14 @@
+id: bazi-no-birth
+title: "缺出生时间时不排八字"
+input:
+  prompt: |
+    SMOKE_ID: bazi-no-birth
+    请帮我看事业和财运。
+
+    这是无人值守评测。如果缺少必要信息，不要排盘，直接说明还缺什么。
+    最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
+expect:
+  must_contain: ["SMOKE_ID"]
+judge:
+  type: script
+  script_path: grade.py

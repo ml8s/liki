@@ -1,0 +1,36 @@
+schema_version: v1alpha1
+skills:
+  - source: local_path
+    path: ../../skills/liki-divination
+    exclude:
+      - ".git/**"
+      - "dist/**"
+      - ".run-eval.*.yaml"
+      - ".setup/**"
+environment:
+  type: docker
+  image: liki-qwen:1
+  workspace_mount: /workspace
+  env:
+    OPENAI_API_KEY: ${OPENAI_API_KEY}
+    OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+    QWEN_CODE_MAX_OUTPUT_TOKENS: "16384"
+    LIKI_RPC_URL: ${LIKI_RPC_URL}
+engine:
+  name: qwen_code
+  model:
+    name: ${OPENAI_MODEL}
+    max_tokens: 16384
+cases:
+  files:
+    - cases/liuyao-career.yaml
+    - cases/liuyao-lost-item.yaml
+    - cases/liuyao-health.yaml
+    - cases/qimen-direction.yaml
+    - cases/qimen-negotiation.yaml
+    - cases/qimen-late-zi.yaml
+  defaults:
+    timeout_seconds: 1800
+    max_turns: 16
+report:
+  formats: [json, markdown]

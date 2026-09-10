@@ -9,6 +9,8 @@
   },
   "zuo_shan": 1,
   "xiang_shan": 13,
+  "zuo_shan_name": "癸",
+  "xiang_shan_name": "丁",
   "gong_wei": [
     {
       "gong_num": 1,
@@ -298,7 +300,7 @@
       "auspicious": false
     }
   ],
-  "chart_digest": "d49e458bbf41b923194a10ae42d796d38ce815e93d94c3b220386a4f17499803",
+  "chart_digest": "cd9ecfe9b55f7081288a3c6d098a4a4ce77f73b3948591a958e6edde54f31ed2",
   "shou_shan_chu_sha": {
     "zheng_shen": 9,
     "ling_shen": 1,

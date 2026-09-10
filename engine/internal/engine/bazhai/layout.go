@@ -1,5 +1,7 @@
 package bazhai
 
+import "fmt"
+
 // ── 门主灶判断 ──
 
 type LayoutResult struct {
@@ -37,8 +39,20 @@ var dongSiGua = map[int]bool{1: true, 3: true, 4: true, 9: true} // 坎震巽离
 var xiSiGua = map[int]bool{2: true, 6: true, 7: true, 8: true}   // 坤乾兑艮
 
 // ComputeLayout analyzes 门主灶 in八宅风水.
-func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) LayoutResult {
+func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) (LayoutResult, error) {
 	mg := guaNameToNum(mingGua)
+	if mg == 0 {
+		return LayoutResult{}, fmt.Errorf("invalid ming_gua %q", mingGua)
+	}
+	for slot, gua := range map[string]string{
+		"door_gua":   doorGua,
+		"master_gua": masterGua,
+		"stove_gua":  stoveGua,
+	} {
+		if guaNameToNum(gua) == 0 {
+			return LayoutResult{}, fmt.Errorf("invalid %s %q", slot, gua)
+		}
+	}
 	mgGroup := "东四宅"
 	if xiSiGua[mg] {
 		mgGroup = "西四宅"
@@ -54,7 +68,7 @@ func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) LayoutResult {
 		Door:    door,
 		Master:  master,
 		Stove:   stove,
-	}
+	}, nil
 }
 
 func evalPosition(guaNum, mingGua int) doorStoveInfo {
