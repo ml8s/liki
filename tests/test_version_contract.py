@@ -1,9 +1,10 @@
 """仓库 CalVer 契约：分发版本与契约版本保持一致。"""
 import json
-from datetime import date
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
+LOCAL_TIMEZONE = ZoneInfo("Asia/Shanghai")
 VERSION_FILES = (
     ROOT / "skills/liki-bazi/VERSION",
     ROOT / "skills/liki-divination/VERSION",
@@ -39,7 +40,10 @@ def test_changelog_is_project_level_and_current_version_is_calver():
         line for line in changelog.splitlines() if line.startswith("## ")
     )
     assert version in first_heading
-    assert version.startswith(date.today().strftime("%Y.%m.%d."))
+    from datetime import datetime
+
+    release_date = datetime.now(LOCAL_TIMEZONE).date()
+    assert version.startswith(release_date.strftime("%Y.%m.%d."))
 
 
 def test_project_changelog_has_no_duplicate_release_headings():

@@ -6,7 +6,7 @@
 VERSION_FILES := skills/liki-bazi/VERSION skills/liki-divination/VERSION skills/liki-fengshui/VERSION skills/liki-naming/VERSION engine/cmd/liki/VERSION
 
 version: ## 写入今日日期（CalVer）
-	@BASE=$$(date +%Y.%m.%d); SERIAL=0; FOUND=0; \
+	@BASE=$$(TZ=Asia/Shanghai date +%Y.%m.%d); SERIAL=0; FOUND=0; \
 	for F in $(VERSION_FILES); do \
 		V=$$(cat "$$F"); \
 		case "$$V" in \
