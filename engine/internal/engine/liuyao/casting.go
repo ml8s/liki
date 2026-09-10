@@ -31,8 +31,7 @@ type Casting struct {
 	Rounds         []CoinRound    `json:"rounds,omitempty"`
 	Yaos           [6]int         `json:"yaos"`
 	DongYao        []int          `json:"dong_yao"`
-	RandomSource   string         `json:"random_source,omitempty"`
-	Fingerprint    string         `json:"fingerprint,omitempty"`
+	CastingID      string         `json:"casting_id"`
 }
 
 const (
@@ -67,7 +66,7 @@ func coinValue(symbol string) (int, error) {
 }
 
 // NewCoinsCasting normalizes six three-coin rounds, bottom line first.
-func NewCoinsCasting(rounds [][]string, randomSource string) (Casting, error) {
+func NewCoinsCasting(rounds [][]string) (Casting, error) {
 	if len(rounds) != 6 {
 		return Casting{}, fmt.Errorf("coins requires exactly 6 rounds, got %d", len(rounds))
 	}
@@ -76,7 +75,6 @@ func NewCoinsCasting(rounds [][]string, randomSource string) (Casting, error) {
 		Mode:           "coins",
 		Order:          "bottom_up",
 		CoinConvention: map[string]int{coinHeads: 3, coinTails: 2},
-		RandomSource:   randomSource,
 	}
 	values := [6]YaoType{}
 	for i, coins := range rounds {
@@ -105,28 +103,24 @@ func NewCoinsCasting(rounds [][]string, randomSource string) (Casting, error) {
 	}
 	receipt.Yaos = yaosToInts(values)
 	receipt.DongYao = dongYao(values)
-	receipt.Fingerprint = castingFingerprint(receipt)
+	receipt.CastingID = castingID(receipt)
 	return receipt, nil
 }
 
 // NewValuesCasting records user-supplied 6/7/8/9 line values.
-func NewValuesCasting(values [6]int, mode, randomSource string) (Casting, error) {
-	if mode != "yaos" && mode != "legacy_yaos" {
-		return Casting{}, fmt.Errorf("invalid values casting mode %q", mode)
-	}
+func NewValuesCasting(values [6]int) (Casting, error) {
 	yts, err := validateValues(values)
 	if err != nil {
 		return Casting{}, err
 	}
 	receipt := Casting{
 		SchemaVersion: castingSchemaVersion,
-		Mode:          mode,
+		Mode:          "yaos",
 		Order:         "bottom_up",
 		Yaos:          values,
 		DongYao:       dongYao(yts),
-		RandomSource:  randomSource,
 	}
-	receipt.Fingerprint = castingFingerprint(receipt)
+	receipt.CastingID = castingID(receipt)
 	return receipt, nil
 }
 
@@ -136,10 +130,13 @@ func (c Casting) Validate() error {
 	if c.SchemaVersion != castingSchemaVersion {
 		return fmt.Errorf("unsupported casting schema_version %q", c.SchemaVersion)
 	}
-	if c.Mode == "" {
-		return fmt.Errorf("casting mode is required")
+	if c.CastingID == "" {
+		return fmt.Errorf("casting_id is required")
 	}
-	if c.Order != "" && c.Order != "bottom_up" {
+	if c.Mode != "coins" && c.Mode != "yaos" {
+		return fmt.Errorf("unsupported casting mode %q", c.Mode)
+	}
+	if c.Order != "bottom_up" {
 		return fmt.Errorf("casting order must be bottom_up")
 	}
 	yts, err := validateValues(c.Yaos)
@@ -155,18 +152,44 @@ func (c Casting) Validate() error {
 			return fmt.Errorf("casting dong_yao mismatch: got %v, want %v", c.DongYao, expected)
 		}
 	}
-	if len(c.Rounds) != 0 {
+	switch c.Mode {
+	case "coins":
 		if len(c.Rounds) != 6 {
-			return fmt.Errorf("casting rounds requires exactly 6 rounds, got %d", len(c.Rounds))
+			return fmt.Errorf("coins casting requires exactly 6 rounds, got %d", len(c.Rounds))
+		}
+		if len(c.CoinConvention) != 2 ||
+			c.CoinConvention[coinHeads] != 3 || c.CoinConvention[coinTails] != 2 {
+			return fmt.Errorf("casting coin convention mismatch")
 		}
 		for i, round := range c.Rounds {
 			if round.Position != i+1 {
 				return fmt.Errorf("casting round position mismatch: got %d, want %d", round.Position, i+1)
 			}
-			if round.Value != int(yts[i]) || round.Changing != yts[i].IsChanging() {
+			if len(round.Coins) != 3 {
+				return fmt.Errorf("casting round %d requires exactly 3 coins, got %d", i+1, len(round.Coins))
+			}
+			sum := 0
+			for _, coin := range round.Coins {
+				value, err := coinValue(coin)
+				if err != nil {
+					return fmt.Errorf("casting round %d coin: %w", i+1, err)
+				}
+				sum += value
+			}
+			if round.Value != sum || int(yts[i]) != sum {
 				return fmt.Errorf("casting round %d conflicts with yaos", i+1)
 			}
+			if round.Label != yaoLabel(yts[i]) || round.Changing != yts[i].IsChanging() {
+				return fmt.Errorf("casting round %d audit mismatch", i+1)
+			}
 		}
+	case "yaos":
+		if len(c.Rounds) != 0 || len(c.CoinConvention) != 0 {
+			return fmt.Errorf("yaos casting must not contain coin rounds")
+		}
+	}
+	if c.CastingID != castingID(c) {
+		return fmt.Errorf("casting_id mismatch")
 	}
 	return nil
 }
@@ -217,13 +240,12 @@ func SecureQigua() (Casting, error) {
 		}
 		rounds[i] = coins
 	}
-	return NewCoinsCasting(rounds, "crypto_rand")
+	return NewCoinsCasting(rounds)
 }
 
-// castingFingerprint is a stable audit identifier for normalized cast facts.
-// It deliberately excludes random_source so the same physical cast remains the
-// same fingerprint whether it is later replayed or copied between systems.
-func castingFingerprint(c Casting) string {
+// castingID is the stable domain identity of one normalized cast. It excludes
+// the derived casting_id itself and engineering telemetry.
+func castingID(c Casting) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "%s\x1f%s\x1f%s", c.SchemaVersion, c.Mode, c.Order)
 	if len(c.Rounds) != 0 {

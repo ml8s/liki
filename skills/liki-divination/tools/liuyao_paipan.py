@@ -1,11 +1,11 @@
-"""六爻排盘编排：LLM 工具层的唯一入口；RPC 由本模块内部调用。"""
+"""六爻因子投影编排：调用 engine 排盘并投影 snapshot 内部因子。"""
 from __future__ import annotations
 
 from typing import Any
 
-from liuyao_projection import project_snapshot
+from liuyao_factors import project_factors
 from liuyao_matters import resolve_matter
-from divination_rpc import engine_data
+from divination_rpc import engine_data, server_time
 
 
 def _resolve_yong_shen(
@@ -28,75 +28,42 @@ def _resolve_yong_shen(
     return None, yong_shen
 
 
-def _server_time() -> str:
-    response = engine_data("time.now", {})
-    cst = response.get("cst")
-    if not isinstance(cst, str) or not cst:
-        raise ValueError("time.now returned no cst")
-    return cst
 
 
-def _casting_yaos(casting: dict | None, yaos: list[int] | None) -> tuple[dict | None, list[int]]:
-    if casting is not None and yaos is not None:
-        raise ValueError("casting 与 yaos 互斥")
-    if casting is not None:
-        if not isinstance(casting, dict):
-            raise ValueError("casting must be an object")
-        values = casting.get("yaos")
-        if not isinstance(values, list) or len(values) != 6:
-            raise ValueError("casting.yaos must contain exactly 6 values")
-        return casting, values
-    if yaos is None:
-        raise ValueError("casting 或 yaos 必须提供一个")
-    if not isinstance(yaos, list) or len(yaos) != 6:
-        raise ValueError("yaos must contain exactly 6 values")
-    return None, yaos
-
-
-def chart(
+def factors(
     *,
-    casting: dict | None = None,
-    yaos: list[int] | None = None,
+    casting: dict,
     solar_time: str | None = None,
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
     question: str | None = None,
 ) -> dict:
-    """排盘并返回 raw chart + 稳定 snapshot；不直接暴露 matter 给 engine。"""
+    """排盘并返回 engine raw chart 与稳定因子投影；不直接暴露 matter 给 engine。"""
     matter_fact, resolved_yong_shen = _resolve_yong_shen(
         matter, yong_shen, perspective
     )
-    receipt, values = _casting_yaos(casting, yaos)
+    if not isinstance(casting, dict):
+        raise ValueError("casting must be an object")
     if solar_time is None:
-        solar_time = _server_time()
+        solar_time = server_time()
 
     params: dict[str, Any] = {
         "solar_time": solar_time,
         "yong_shen": resolved_yong_shen,
     }
-    if receipt is not None:
-        params["casting"] = receipt
-    else:
-        params["yaos"] = values
+    params["casting"] = casting
     raw = engine_data("liuyao.chart", params)
     question_fact = {
         "text": question or "",
-        "domain": matter or "advanced",
+        "matter": matter,
+        "explicit_yong_shen": None if matter else resolved_yong_shen,
         "perspective": perspective,
         "solar_time": solar_time,
     }
-    if receipt is None:
-        receipt = raw.get("casting")
-    if not isinstance(receipt, dict):
-        receipt = {"mode": "unknown", "yaos": values}
-
-    snapshot = project_snapshot(receipt, raw, question_fact)
+    factors = project_factors(casting, raw, question_fact)
     return {
         "question": question_fact,
         "matter": matter_fact,
-        "solar_time": solar_time,
-        "casting": receipt,
-        "chart": raw,
-        "snapshot": snapshot,
+        "factors": factors,
     }

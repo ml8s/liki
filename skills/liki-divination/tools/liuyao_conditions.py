@@ -23,10 +23,6 @@ def _get_path(source: dict, path: str):
     return current
 
 
-def _is_weak(wang_shuai: str | None) -> bool:
-    return wang_shuai in {"休", "囚", "死"}
-
-
 def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, str, list[str]]:
     applies = rule.get("applies_if", {})
     for path, expected in applies.items():
@@ -38,11 +34,10 @@ def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, st
         else:
             if _get_path(snapshot, path) != expected:
                 return False, "not_applicable", []
-    yong = snapshot.get("focus", {}).get("yong_shen", {}) or {}
     yong_line = snapshot.get("focus", {}).get("yong_line", {}) or {}
-    wang = yong.get("wang_shuai")
-    strong = wang in {"旺", "相"}
-    weak = _is_weak(wang)
+    state_rules = load_rules()["state_classes"]
+    strong = _matches_state_class(snapshot, state_rules["strong"])
+    weak = _matches_state_class(snapshot, state_rules["weak"])
     moving = bool((yong_line.get("flags") or {}).get("moving"))
     missing = []
     if strong:
@@ -54,6 +49,10 @@ def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, st
     if path_has_moving_relation(snapshot, rule):
         return True, "conditional", ["须核对作用爻旺衰与是否实际作用用神"]
     return True, "conditional", list(missing)
+
+
+def _matches_state_class(snapshot: dict, rule: dict) -> bool:
+    return _get_path(snapshot, rule["path"]) in set(rule["values"])
 
 
 def path_has_moving_relation(snapshot: dict, rule: dict) -> bool:
@@ -104,14 +103,3 @@ def evaluate(snapshot: dict, topic: str | None = None) -> dict:
             "reference_may_not_override_primary": True,
         },
     }
-
-
-def list_rules() -> list[dict]:
-    return [
-        {
-            "id": rule["id"],
-            "statement": rule["statement"],
-            "restored": rule["restored"],
-        }
-        for rule in load_rules().get("rules", [])
-    ]

@@ -719,5 +719,45 @@
     "wang_shuai_name": "死"
   },
   "zhi_fu_xing_gong": "震",
-  "zhi_shi_men_gong": "震"
+  "zhi_shi_men_gong": "震",
+  "specialized": {
+    "geng_ge": [
+      {
+        "level": "month",
+        "gong": "离",
+        "door": "休门",
+        "earth_gan": "辛"
+      }
+    ],
+    "lost_context": [
+      {
+        "gong": "兑",
+        "door": "伤门",
+        "wang_shuai": "死"
+      }
+    ],
+    "thief_context": [
+      {
+        "role": "小贼",
+        "symbol": "玄武",
+        "gong": "坤",
+        "wang_shuai_label": "相",
+        "lucky_pattern_names": []
+      },
+      {
+        "role": "大贼",
+        "symbol": "天蓬",
+        "gong": "离",
+        "wang_shuai_label": "囚",
+        "lucky_pattern_names": []
+      }
+    ],
+    "tianwang_context": [
+      {
+        "gong": "震",
+        "hour_gong": "兑",
+        "relation_to_hour": "controlled_by"
+      }
+    ]
+  }
 }

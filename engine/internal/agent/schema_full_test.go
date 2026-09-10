@@ -20,10 +20,10 @@ func TestAllMethodsSchema(t *testing.T) {
 	zr := executeAndDecode(t, reg, "ziwei.chart", zc)
 	br := executeAndDecode(t, reg, "bazi.chart", bc)
 	z, b := zr["data"].(map[string]any), br["data"].(map[string]any)
-	qr := executeAndDecode(t, reg, "liuyao.qigua", []byte(`{"seed":12345}`))
-	yaos := mustJSON(t, qr["data"].(map[string]any)["yaos"])
+	qr := executeAndDecode(t, reg, "liuyao.qigua", []byte(`{"mode":"yaos","yaos":[7,7,7,7,7,7]}`))
+	casting := mustJSON(t, qr["data"].(map[string]any)["casting"])
 	xr := executeAndDecode(t, reg, "xuankong.chart", []byte(
-		`{"period_date":"2026-07-31","zuo_shan":2,"xiang_shan":8}`,
+		`{"period_date":"2026-07-31","zuo_shan":2,"xiang_shan":14}`,
 	))
 	x := xr["data"].(map[string]any)
 
@@ -44,8 +44,8 @@ func TestAllMethodsSchema(t *testing.T) {
 		"ziwei.liuri":     mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026, "lunar_month": 6, "lunar_day": 4}),
 		"ziwei.liushi":    mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026, "lunar_month": 6, "lunar_day": 4, "shi_zhi": "午"}),
 		"ziwei.bond":      mustJSON(t, map[string]any{"a": z, "b": z}),
-		"liuyao.qigua":    mustJSON(t, map[string]any{"seed": 12345}),
-		"liuyao.chart":    []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","yaos":` + string(yaos) + `}`),
+		"liuyao.qigua":    mustJSON(t, map[string]any{"mode": "yaos", "yaos": []int{7, 7, 7, 7, 7, 7}}),
+		"liuyao.chart":    []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","casting":` + string(casting) + `}`),
 		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
 		"bazhai.chart":    mustJSON(t, map[string]any{"birth_year": 1984, "gender": "male"}),
 		"bazhai.layout": mustJSON(t, map[string]any{
@@ -54,7 +54,7 @@ func TestAllMethodsSchema(t *testing.T) {
 			"master_gua": "乾",
 			"stove_gua":  "乾",
 		}),
-		"xuankong.chart":   mustJSON(t, map[string]any{"period_date": "2026-07-31", "zuo_shan": 2, "xiang_shan": 8}),
+		"xuankong.chart":   mustJSON(t, map[string]any{"period_date": "2026-07-31", "zuo_shan": 2, "xiang_shan": 14}),
 		"xuankong.liunian": mustJSON(t, map[string]any{"chart": x, "year": 2026}),
 		"huangli.days":     mustJSON(t, map[string]any{"start_date": "2026-08-01", "count": 2}),
 		"tianwen.time":     mustJSON(t, map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "latitude": 39.9}),

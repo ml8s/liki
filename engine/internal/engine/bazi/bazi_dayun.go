@@ -18,15 +18,26 @@ const (
 
 // DaYunStep holds one 10-year fortune step in the big fortune cycle.
 type DaYunStep struct {
-	Gan       ganzhi.Gan `json:"gan"`
-	Zhi       ganzhi.Zhi `json:"zhi"`
-	StartDate string     `json:"start_date"` // 本步起始公历日 YYYY-MM-DD
-	EndDate   string     `json:"end_date"`   // 本步末日 YYYY-MM-DD（= 下步起始日前一天）
-	StartYear int        `json:"start_year"` // 本步起始公历年（skill 大运窗口算子用，免虚岁换算）
-	EndYear   int        `json:"end_year"`   // 本步结束公历年
-	Name      string     `json:"name"`
-	Element   string     `json:"wuxing"`
-	ShiShen   string     `json:"shi_shen"`
+	Gan       ganzhi.Gan     `json:"gan"`
+	Zhi       ganzhi.Zhi     `json:"zhi"`
+	StartDate string         `json:"start_date"` // 本步起始公历日 YYYY-MM-DD
+	EndDate   string         `json:"end_date"`   // 本步末日 YYYY-MM-DD（= 下步起始日前一天）
+	StartYear int            `json:"start_year"` // 本步起始公历年（skill 大运窗口算子用，免虚岁换算）
+	EndYear   int            `json:"end_year"`   // 本步结束公历年
+	Name      string         `json:"name"`
+	Element   string         `json:"wuxing"`
+	ShiShen   string         `json:"shi_shen"`
+	Rooted    *bool          `json:"rooted,omitempty"`
+	RootRefs  []DaYunRootRef `json:"root_refs,omitempty"`
+}
+
+// DaYunRootRef explains why a dayun stem is rooted. A sitting branch counts
+// only by its main qi; natal roots come from hidden stems.
+type DaYunRootRef struct {
+	Source string `json:"source"`
+	Pillar string `json:"pillar,omitempty"`
+	Stem   string `json:"stem"`
+	Branch string `json:"branch"`
 }
 
 // DaYun holds the big fortune (大运) cycle for a bazi chart.
@@ -140,7 +151,8 @@ func computeDaYunSteps(st tianwen.SolarTime, month ganzhi.Zhu, nianGan ganzhi.Ga
 }
 
 // computeDaYun computes the labeled big fortune (大运) steps.
-func computeDaYun(st tianwen.SolarTime, month ganzhi.Zhu, nianGan, riGan ganzhi.Gan, gender ganzhi.Gender) *DaYun {
+func computeDaYun(st tianwen.SolarTime, bz ganzhi.Bazi, gender ganzhi.Gender) *DaYun {
+	month, nianGan, riGan := bz.Yue, bz.Nian.Gan, bz.Ri.Gan
 	bf := computeDaYunSteps(st, month, nianGan, gender)
 	// 起运公历日 = 出生日 + 出生后偏移（start_*_after，对齐 lunar Yun sect=1）。
 	startDate := st.Time().AddDate(bf.startY, bf.startM, bf.startD)
@@ -167,6 +179,44 @@ func computeDaYun(st tianwen.SolarTime, month ganzhi.Zhu, nianGan, riGan ganzhi.
 		})
 	}
 	return r
+}
+
+func daYunRootRefs(step ganzhi.Zhu, bz ganzhi.Bazi) []DaYunRootRef {
+	element := ganzhi.GanWuxing(step.Gan)
+	refs := []DaYunRootRef{}
+	sitting := ganzhi.CangGanForZhi(step.Zhi)
+	if sitting.Main != nil && ganzhi.GanWuxing(*sitting.Main) == element {
+		refs = append(refs, DaYunRootRef{
+			Source: "sitting_branch_main_qi",
+			Stem:   ganzhi.GanName(*sitting.Main),
+			Branch: ganzhi.ZhiName(step.Zhi),
+		})
+	}
+	pillarNames := []string{"nian", "yue", "ri", "shi"}
+	for pillarIndex, pillar := range bz.Slice() {
+		hidden := ganzhi.CangGanForZhi(pillar.Zhi)
+		stems := []ganzhi.Gan{}
+		if hidden.Main != nil {
+			stems = append(stems, *hidden.Main)
+		}
+		if hidden.Mid != nil {
+			stems = append(stems, *hidden.Mid)
+		}
+		if hidden.Minor != nil {
+			stems = append(stems, *hidden.Minor)
+		}
+		for _, stem := range stems {
+			if stem != 0 && ganzhi.GanWuxing(stem) == element {
+				refs = append(refs, DaYunRootRef{
+					Source: "natal_hidden_stem",
+					Pillar: pillarNames[pillarIndex],
+					Stem:   ganzhi.GanName(stem),
+					Branch: ganzhi.ZhiName(pillar.Zhi),
+				})
+			}
+		}
+	}
+	return refs
 }
 
 func daYunShiShenLabel(riYuan, other ganzhi.Gan) string {

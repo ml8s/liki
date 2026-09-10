@@ -33,6 +33,11 @@ type Day struct {
 	JieQiDays   int              `json:"jie_qi_days"`
 	RenYuan     string           `json:"ren_yuan"`
 	ShiChen     []ShiChenFortune `json:"shi_chen,omitempty"`
+	Event       string           `json:"event,omitempty"`
+	EventLabel  string           `json:"event_label,omitempty"`
+	Suitability string           `json:"suitability,omitempty"`
+	Reason      string           `json:"reason,omitempty"`
+	Warnings    []string         `json:"warnings,omitempty"`
 }
 
 // Month holds monthly huangli data.
@@ -51,7 +56,7 @@ func renYuanName(ry renYuanSiLing) string {
 }
 
 // QueryDate returns huangli info for a single date.
-func QueryDate(dateStr string) (Day, error) {
+func QueryDate(dateStr string, event ...string) (Day, error) {
 	t, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
 		return Day{}, fmt.Errorf("huangli: parse date %s: %w", dateStr, err)
@@ -81,8 +86,48 @@ func QueryDate(dateStr string) (Day, error) {
 	}
 
 	entry.ShiChen = computeShiChen(dpi.Zhi, yueZhi, entry.JianChu)
+	if len(event) > 0 {
+		if err := applyEventRule(&entry, event[0]); err != nil {
+			return Day{}, err
+		}
+	}
 
 	return entry, nil
+}
+
+func applyEventRule(entry *Day, event string) error {
+	if event == "" {
+		entry.Suitability = "unspecified"
+		entry.Reason = "未指定事项，仅列黄历事实。"
+		return nil
+	}
+	rule, ok := jianChuCfg.EventRules[event]
+	if !ok {
+		return fmt.Errorf("huangli: unknown event %q", event)
+	}
+	entry.Event = event
+	entry.EventLabel = rule.Label
+	switch {
+	case containsJianChu(rule.Suitable, entry.JianChu):
+		entry.Suitability = "recommended"
+		entry.Reason = "建除「" + entry.JianChu + "」适合" + rule.Label + "。"
+	case containsJianChu(rule.Forbidden, entry.JianChu):
+		entry.Suitability = "unsuitable"
+		entry.Reason = "建除「" + entry.JianChu + "」忌" + rule.Label + "。"
+	default:
+		entry.Suitability = "possible"
+		entry.Reason = "建除「" + entry.JianChu + "」无明确适配或冲突。"
+	}
+	return nil
+}
+
+func containsJianChu(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
 }
 
 // QueryMonth returns huangli entries for every day in the given month.

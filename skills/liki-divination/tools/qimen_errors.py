@@ -1,14 +1,6 @@
-"""奇门工具层错误类型。"""
+"""奇门工具层表结构错误。"""
 from __future__ import annotations
 
 
-class LikiQimenToolError(Exception):
-    """奇门工具链错误。"""
-
-
-class RPCError(LikiQimenToolError):
-    """JSON-RPC 网络或协议错误。"""
-
-
-class TableError(LikiQimenToolError):
+class TableError(Exception):
     """事象表或解释表结构错误。"""

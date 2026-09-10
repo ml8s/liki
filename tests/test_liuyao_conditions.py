@@ -30,8 +30,8 @@ def _snapshot(wang="休", yuepo=True, xunkong=False, moving=False, patterns=None
     }
 
 
-def test_list_rules_all_have_restoration():
-    rules = liuyao_conditions.list_rules()
+def test_rules_all_have_restoration():
+    rules = liuyao_conditions.load_rules()["rules"]
     assert len(rules) >= 5
     assert all(rule["restored"].strip() for rule in rules)
 

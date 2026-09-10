@@ -17,6 +17,6 @@ description: 问结果 / 能不能成 / 何时有结果 — 默认六爻
 | 步骤 | 动作 |
 |---|---|
 | 1 | 按 `app/question.md` 判断为事件结果 |
-| 2 | 按 `app/liuyao-chart.md` 调 `liuyao_snapshot` |
+| 2 | 按 `app/liuyao-snapshot.md` 调 `liuyao_snapshot` |
 | 3 | 调 `liuyao_ask(snapshot, message)` |
-| 4 | 按 `app/liuyao-chart.md` 输出 |
+| 4 | 按 `app/liuyao-snapshot.md` 输出 |

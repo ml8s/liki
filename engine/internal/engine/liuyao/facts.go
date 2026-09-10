@@ -152,14 +152,13 @@ func forceEntry(chart *Chart, role ForceRole, element ganzhi.Wuxing, note string
 }
 
 func computeForceChain(chart *Chart, typ YongShen) *ForceChain {
-	position, isBian := chart.findYongShen(typ)
+	position := chart.findYongShen(typ)
 	if position == 0 {
+		if fuShen := chart.findFuShen(typ); fuShen != nil {
+			return computeHiddenForceChain(chart, typ, fuShen)
+		}
 		return nil
 	}
-	// The force chain is evaluated on the original visible line layer. Changed
-	// layers are handled by MovingTransformation; mixing them here would make
-	// role positions ambiguous.
-	_ = isBian
 	yong := chart.Lines[position-1]
 	yongElement := yong.Wuxing
 	var yuan, ji, chou ganzhi.Wuxing
@@ -185,6 +184,53 @@ func computeForceChain(chart *Chart, typ YongShen) *ForceChain {
 	}
 	chain.Entries = append(chain.Entries,
 		forceEntry(chart, RoleYongShen, yongElement, "所问事项主线"),
+		forceEntry(chart, RoleYuanShen, yuan, "生用神者"),
+		forceEntry(chart, RoleJiShen, ji, "克用神者"),
+	)
+	if chou != 0 {
+		chain.Entries = append(chain.Entries, forceEntry(chart, RoleChouShen, chou, "克原神者"))
+	}
+	return chain
+}
+
+func computeHiddenForceChain(chart *Chart, typ YongShen, fuShen *FuShen) *ForceChain {
+	fuZhi := fuShenZhi(fuShen)
+	if fuZhi == 0 {
+		return nil
+	}
+	yongElement := ganzhi.ZhiWuxing(fuZhi)
+	var yuan, ji, chou ganzhi.Wuxing
+	for _, element := range []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui} {
+		if ganzhi.Sheng(element, yongElement) {
+			yuan = element
+		}
+		if ganzhi.Ke(element, yongElement) {
+			ji = element
+		}
+	}
+	for _, element := range []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui} {
+		if yuan != 0 && ganzhi.Ke(element, yuan) {
+			chou = element
+		}
+	}
+
+	relation := dayInteraction(fuZhi, chart.RiZhi)
+	chain := &ForceChain{
+		YongShen:    typ.String(),
+		YongElement: yongElement.String(),
+		Position:    fuShen.Position,
+		IsHidden:    true,
+		Entries: []ForceEntry{{
+			Role:      RoleYongShen,
+			Element:   yongElement.String(),
+			Positions: []int{fuShen.Position},
+			Branches:  []string{fuShen.Zhi},
+			Relations: []string{fmt.Sprintf("日%s", relation.Relation)},
+			States:    []string{"伏藏"},
+			Note:      "本卦不现，取本宫伏神",
+		}},
+	}
+	chain.Entries = append(chain.Entries,
 		forceEntry(chart, RoleYuanShen, yuan, "生用神者"),
 		forceEntry(chart, RoleJiShen, ji, "克用神者"),
 	)
@@ -446,7 +492,7 @@ func computeYongShenCandidates(chart *Chart, typ YongShen) []YongShenCandidate {
 		}
 		candidates = append(candidates, candidate)
 	}
-	selected, _ := chart.findYongShen(typ)
+	selected := chart.findYongShen(typ)
 	for i := range candidates {
 		if candidates[i].Position == selected {
 			candidates[i].Selected = true

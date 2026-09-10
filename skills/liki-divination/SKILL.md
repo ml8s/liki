@@ -12,7 +12,8 @@ description: "问卦占卜/算一卦测事 — 六爻起卦、奇门决策、黄
 1. 外部安装副本先读本地 `VERSION` 与远程 `VERSION`；不一致时提示更新命令并等待确认，远程 10 秒不可达时标注后继续。托管环境跳过检查。
 2. 读 `tools/skill-tools.json` 取工具 schema。
 3. 只使用 `python3 tools/agent_cli.py`：stdin 传 `{"fn":"...","args":{...}}`，stdout 读 JSON；Windows 使用 `tools/agent_cli.cmd` 和 UTF-8 文件。底层 RPC 端点由 `LIKI_RPC_URL` 控制，是工具层内部依赖，不是 LLM 的直接调用接口。
-4. 完成上述检查后进入路由。
+4. 启动 CLI 会通过 `rpc.discover` 检查 engine 版本；低于 `2026.09.10.1` 时直接失败并提示升级 engine，不得降级调用旧 RPC。
+5. 完成上述检查后进入路由。
 
 ## 路由
 

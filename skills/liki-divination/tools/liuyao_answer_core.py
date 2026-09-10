@@ -1,8 +1,9 @@
 """六爻 answer core：从 snapshot 投影证据并校验引用与禁语。"""
 from __future__ import annotations
 
+from divination_answer import validate_common_core
 
-FORBIDDEN = ["必然", "百分百", "100%", "保证", "一定会"]
+
 ALLOWED_FIELDS = {
     "headline",
     "verdict",
@@ -17,17 +18,13 @@ ALLOWED_FIELDS = {
 }
 
 
-def _evidence_ids(snapshot: dict) -> set[str]:
-    ids: set[str] = set()
-    evidence = snapshot.get("evidence")
-    if isinstance(evidence, dict):
-        for layer in evidence.values():
-            if not isinstance(layer, list):
-                continue
-            for item in layer:
-                if isinstance(item, dict) and isinstance(item.get("id"), str):
-                    ids.add(item["id"])
-    return ids
+def _evidence_ids(snapshot: dict, layer: str) -> set[str]:
+    items = snapshot.get("evidence", {}).get(layer, [])
+    return {
+        item["id"]
+        for item in items
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
 
 
 def _timing_ids(snapshot: dict) -> set[str]:
@@ -66,21 +63,17 @@ def build(snapshot: dict) -> dict:
 
 
 def validate_core(core: dict, snapshot: dict) -> dict:
-    errors: list[dict] = []
-    if not isinstance(core, dict):
-        raise ValueError("answer core must be an object")
-    for field in core:
-        if field not in ALLOWED_FIELDS:
-            errors.append({"field": field, "reason": "unknown field"})
+    errors = validate_common_core(
+        core,
+        allowed_fields=ALLOWED_FIELDS,
+        required_text_fields=("headline", "verdict", "action"),
+    )
 
-    for field in ("headline", "verdict", "action", "boundary", "disclaimer"):
-        if not isinstance(core.get(field), str) or not core.get(field, "").strip():
-            errors.append({"field": field, "reason": "required non-empty text"})
-    if core.get("confidence") not in {"low", "medium", "high"}:
-        errors.append({"field": "confidence", "reason": "must be low/medium/high"})
-
-    evidence_ids = _evidence_ids(snapshot)
-    for field in ("primary_evidence_refs", "secondary_evidence_refs"):
+    for field, layer in (
+        ("primary_evidence_refs", "primary"),
+        ("secondary_evidence_refs", "secondary"),
+    ):
+        evidence_ids = _evidence_ids(snapshot, layer)
         refs = core.get(field, [])
         if not isinstance(refs, list):
             errors.append({"field": field, "reason": "must be array"})
@@ -98,13 +91,6 @@ def validate_core(core: dict, snapshot: dict) -> dict:
         if ref not in timing_ids:
             errors.append({"field": "timing_refs", "reason": "unknown timing candidate id", "ref": ref})
 
-    texts = [core.get(field, "") for field in ("headline", "verdict", "action")]
-    for text in texts:
-        if not isinstance(text, str):
-            continue
-        for word in FORBIDDEN:
-            if word.lower() in text.lower():
-                errors.append({"field": "forbidden_language", "reason": f"contains {word}"})
 
     conflicts = snapshot.get("evidence", {}).get("conflicts", [])
     if conflicts and not core.get("conflicts"):

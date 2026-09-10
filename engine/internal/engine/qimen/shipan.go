@@ -8,26 +8,27 @@ import (
 
 // Chart bundles a complete奇门盘 with all analysis layers.
 type Chart struct {
-	Method              ChartMethod       `json:"method"`
-	Pan                 pan               `json:"pan"`
-	GanInteractions     []GanInteraction  `json:"gan_interaction"`
-	MenInteractions     []MenInteraction  `json:"men_interaction"`
-	XingInteractions    []XingInteraction `json:"xing_interaction"`
-	XingGongWuXing      []XingGongWuXing  `json:"xing_gong_wu_xing"`
-	MenPo               []GongIndex       `json:"men_po"`
-	MenZhi              []GongIndex       `json:"men_zhi"`
-	Patterns            []Pattern         `json:"patterns"`
-	YingQi              YingQi            `json:"ying_qi"`
-	RiGanPalace         GongIndex         `json:"ri_gan_gong"`  // 日干落宫（排盘固有）
-	ShiGanPalace        GongIndex         `json:"shi_gan_gong"` // 时干落宫（排盘固有）
-	RiShiRelation       RiShiRelation     `json:"ri_shi_relation"`
-	KongWangAffected    []AffectedSymbol  `json:"kong_wang_affected"`
-	MaXingAffected      []AffectedSymbol  `json:"ma_xing_affected"`
-	PalaceWangShuai     []PalaceWangShuai `json:"palace_wang_shuai"`
-	ShiGanGongWangShuai PalaceWangShuai   `json:"shi_gan_gong_wang_shuai"`
-	DutyStarPalace      GongIndex         `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
-	DutyDoorPalace      GongIndex         `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
-	YongShen            *YongShenResult   `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
+	Method              ChartMethod        `json:"method"`
+	Pan                 pan                `json:"pan"`
+	GanInteractions     []GanInteraction   `json:"gan_interaction"`
+	MenInteractions     []MenInteraction   `json:"men_interaction"`
+	XingInteractions    []XingInteraction  `json:"xing_interaction"`
+	XingGongWuXing      []XingGongWuXing   `json:"xing_gong_wu_xing"`
+	MenPo               []GongIndex        `json:"men_po"`
+	MenZhi              []GongIndex        `json:"men_zhi"`
+	Patterns            []Pattern          `json:"patterns"`
+	YingQi              YingQi             `json:"ying_qi"`
+	RiGanPalace         GongIndex          `json:"ri_gan_gong"`  // 日干落宫（排盘固有）
+	ShiGanPalace        GongIndex          `json:"shi_gan_gong"` // 时干落宫（排盘固有）
+	RiShiRelation       RiShiRelation      `json:"ri_shi_relation"`
+	KongWangAffected    []AffectedSymbol   `json:"kong_wang_affected"`
+	MaXingAffected      []AffectedSymbol   `json:"ma_xing_affected"`
+	PalaceWangShuai     []PalaceWangShuai  `json:"palace_wang_shuai"`
+	ShiGanGongWangShuai PalaceWangShuai    `json:"shi_gan_gong_wang_shuai"`
+	DutyStarPalace      GongIndex          `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
+	DutyDoorPalace      GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
+	YongShen            *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
+	Specialized         SpecializedContext `json:"specialized"`
 }
 
 type RiShiRelation struct {
@@ -105,6 +106,7 @@ func buildChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
 		DutyStarPalace:      findStarPalace(p, p.DutyStar),
 		DutyDoorPalace:      findDoorPalaceIdx(p, p.DutyDoor),
 	}
+	chart.Specialized = computeSpecializedContext(chart, bz)
 	return chart
 }
 

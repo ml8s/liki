@@ -1,0 +1,601 @@
+{
+  "schema_version": "domain-oracle-fengshui-v1",
+  "basis": "八宅明镜大游年、二十四山罗盘次序、沈氏玄空三元九运与下卦飞星通行口径。",
+  "sources": [
+    "《八宅明镜》命卦与大游年歌",
+    "罗盘二十四山次序",
+    "《沈氏玄空学》三元九运与下卦飞星"
+  ],
+  "mountains_24": [
+    {
+      "index": 0,
+      "name": "子",
+      "angle": 0,
+      "trigram": "坎",
+      "yuan_long": "天元龙",
+      "yin_yang": "阴",
+      "wuxing": "水"
+    },
+    {
+      "index": 1,
+      "name": "癸",
+      "angle": 15,
+      "trigram": "坎",
+      "yuan_long": "人元龙",
+      "yin_yang": "阴",
+      "wuxing": "水"
+    },
+    {
+      "index": 2,
+      "name": "丑",
+      "angle": 30,
+      "trigram": "艮",
+      "yuan_long": "地元龙",
+      "yin_yang": "阴",
+      "wuxing": "土"
+    },
+    {
+      "index": 3,
+      "name": "艮",
+      "angle": 45,
+      "trigram": "艮",
+      "yuan_long": "天元龙",
+      "yin_yang": "阳",
+      "wuxing": "土"
+    },
+    {
+      "index": 4,
+      "name": "寅",
+      "angle": 60,
+      "trigram": "艮",
+      "yuan_long": "人元龙",
+      "yin_yang": "阳",
+      "wuxing": "木"
+    },
+    {
+      "index": 5,
+      "name": "甲",
+      "angle": 75,
+      "trigram": "震",
+      "yuan_long": "地元龙",
+      "yin_yang": "阳",
+      "wuxing": "木"
+    },
+    {
+      "index": 6,
+      "name": "卯",
+      "angle": 90,
+      "trigram": "震",
+      "yuan_long": "天元龙",
+      "yin_yang": "阴",
+      "wuxing": "木"
+    },
+    {
+      "index": 7,
+      "name": "乙",
+      "angle": 105,
+      "trigram": "震",
+      "yuan_long": "人元龙",
+      "yin_yang": "阴",
+      "wuxing": "木"
+    },
+    {
+      "index": 8,
+      "name": "辰",
+      "angle": 120,
+      "trigram": "巽",
+      "yuan_long": "地元龙",
+      "yin_yang": "阴",
+      "wuxing": "土"
+    },
+    {
+      "index": 9,
+      "name": "巽",
+      "angle": 135,
+      "trigram": "巽",
+      "yuan_long": "天元龙",
+      "yin_yang": "阳",
+      "wuxing": "木"
+    },
+    {
+      "index": 10,
+      "name": "巳",
+      "angle": 150,
+      "trigram": "巽",
+      "yuan_long": "人元龙",
+      "yin_yang": "阳",
+      "wuxing": "火"
+    },
+    {
+      "index": 11,
+      "name": "丙",
+      "angle": 165,
+      "trigram": "离",
+      "yuan_long": "地元龙",
+      "yin_yang": "阳",
+      "wuxing": "火"
+    },
+    {
+      "index": 12,
+      "name": "午",
+      "angle": 180,
+      "trigram": "离",
+      "yuan_long": "天元龙",
+      "yin_yang": "阴",
+      "wuxing": "火"
+    },
+    {
+      "index": 13,
+      "name": "丁",
+      "angle": 195,
+      "trigram": "离",
+      "yuan_long": "人元龙",
+      "yin_yang": "阴",
+      "wuxing": "火"
+    },
+    {
+      "index": 14,
+      "name": "未",
+      "angle": 210,
+      "trigram": "坤",
+      "yuan_long": "地元龙",
+      "yin_yang": "阴",
+      "wuxing": "土"
+    },
+    {
+      "index": 15,
+      "name": "坤",
+      "angle": 225,
+      "trigram": "坤",
+      "yuan_long": "天元龙",
+      "yin_yang": "阳",
+      "wuxing": "土"
+    },
+    {
+      "index": 16,
+      "name": "申",
+      "angle": 240,
+      "trigram": "坤",
+      "yuan_long": "人元龙",
+      "yin_yang": "阳",
+      "wuxing": "金"
+    },
+    {
+      "index": 17,
+      "name": "庚",
+      "angle": 255,
+      "trigram": "兑",
+      "yuan_long": "地元龙",
+      "yin_yang": "阳",
+      "wuxing": "金"
+    },
+    {
+      "index": 18,
+      "name": "酉",
+      "angle": 270,
+      "trigram": "兑",
+      "yuan_long": "天元龙",
+      "yin_yang": "阴",
+      "wuxing": "金"
+    },
+    {
+      "index": 19,
+      "name": "辛",
+      "angle": 285,
+      "trigram": "兑",
+      "yuan_long": "人元龙",
+      "yin_yang": "阴",
+      "wuxing": "金"
+    },
+    {
+      "index": 20,
+      "name": "戌",
+      "angle": 300,
+      "trigram": "乾",
+      "yuan_long": "地元龙",
+      "yin_yang": "阴",
+      "wuxing": "土"
+    },
+    {
+      "index": 21,
+      "name": "乾",
+      "angle": 315,
+      "trigram": "乾",
+      "yuan_long": "天元龙",
+      "yin_yang": "阳",
+      "wuxing": "金"
+    },
+    {
+      "index": 22,
+      "name": "亥",
+      "angle": 330,
+      "trigram": "乾",
+      "yuan_long": "人元龙",
+      "yin_yang": "阳",
+      "wuxing": "水"
+    },
+    {
+      "index": 23,
+      "name": "壬",
+      "angle": 345,
+      "trigram": "坎",
+      "yuan_long": "地元龙",
+      "yin_yang": "阳",
+      "wuxing": "水"
+    }
+  ],
+  "eight_mansion_patterns": {
+    "坎": {
+      "sheng_qi": 4,
+      "tian_yi": 3,
+      "yan_nian": 9,
+      "fu_wei": 1,
+      "huo_hai": 7,
+      "wu_gui": 8,
+      "liu_sha": 6,
+      "jue_ming": 2
+    },
+    "坤": {
+      "sheng_qi": 8,
+      "tian_yi": 7,
+      "yan_nian": 6,
+      "fu_wei": 2,
+      "huo_hai": 3,
+      "wu_gui": 4,
+      "liu_sha": 9,
+      "jue_ming": 1
+    },
+    "震": {
+      "sheng_qi": 9,
+      "tian_yi": 1,
+      "yan_nian": 4,
+      "fu_wei": 3,
+      "huo_hai": 2,
+      "wu_gui": 6,
+      "liu_sha": 8,
+      "jue_ming": 7
+    },
+    "巽": {
+      "sheng_qi": 1,
+      "tian_yi": 9,
+      "yan_nian": 3,
+      "fu_wei": 4,
+      "huo_hai": 6,
+      "wu_gui": 2,
+      "liu_sha": 7,
+      "jue_ming": 8
+    },
+    "乾": {
+      "sheng_qi": 7,
+      "tian_yi": 8,
+      "yan_nian": 2,
+      "fu_wei": 6,
+      "huo_hai": 4,
+      "wu_gui": 3,
+      "liu_sha": 1,
+      "jue_ming": 9
+    },
+    "兑": {
+      "sheng_qi": 6,
+      "tian_yi": 2,
+      "yan_nian": 8,
+      "fu_wei": 7,
+      "huo_hai": 1,
+      "wu_gui": 9,
+      "liu_sha": 4,
+      "jue_ming": 3
+    },
+    "艮": {
+      "sheng_qi": 2,
+      "tian_yi": 6,
+      "yan_nian": 7,
+      "fu_wei": 8,
+      "huo_hai": 9,
+      "wu_gui": 1,
+      "liu_sha": 3,
+      "jue_ming": 4
+    },
+    "离": {
+      "sheng_qi": 3,
+      "tian_yi": 4,
+      "yan_nian": 1,
+      "fu_wei": 9,
+      "huo_hai": 8,
+      "wu_gui": 7,
+      "liu_sha": 2,
+      "jue_ming": 6
+    }
+  },
+  "ming_gua_anchors": [
+    {
+      "gender": "male",
+      "year": 1900,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1901,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1904,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1966,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1977,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1990,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2000,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2009,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2022,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1900,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1901,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1904,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1962,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1984,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1985,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1990,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2000,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2026,
+      "gua": "艮",
+      "group": "西四命"
+    }
+  ],
+  "annual_flying_star_anchors": [
+    {
+      "year": 1864,
+      "ru_zhong": "一白贪狼"
+    },
+    {
+      "year": 1924,
+      "ru_zhong": "四绿文曲"
+    },
+    {
+      "year": 1984,
+      "ru_zhong": "七赤破军"
+    },
+    {
+      "year": 1985,
+      "ru_zhong": "六白武曲"
+    },
+    {
+      "year": 2004,
+      "ru_zhong": "五黄廉贞"
+    },
+    {
+      "year": 2024,
+      "ru_zhong": "三碧禄存"
+    },
+    {
+      "year": 2025,
+      "ru_zhong": "二黑巨门"
+    },
+    {
+      "year": 2044,
+      "ru_zhong": "一白贪狼"
+    }
+  ],
+  "annual_distribution_1984": {
+    "1": 3,
+    "2": 4,
+    "3": 5,
+    "4": 6,
+    "5": 7,
+    "6": 8,
+    "7": 9,
+    "8": 1,
+    "9": 2
+  },
+  "san_yuan_yun_periods": [
+    {
+      "year": 1864,
+      "yuan": "上元",
+      "yun_number": 1,
+      "start_year": 1864,
+      "end_year": 1883
+    },
+    {
+      "year": 1884,
+      "yuan": "上元",
+      "yun_number": 2,
+      "start_year": 1884,
+      "end_year": 1903
+    },
+    {
+      "year": 1904,
+      "yuan": "上元",
+      "yun_number": 3,
+      "start_year": 1904,
+      "end_year": 1923
+    },
+    {
+      "year": 1924,
+      "yuan": "中元",
+      "yun_number": 4,
+      "start_year": 1924,
+      "end_year": 1943
+    },
+    {
+      "year": 1944,
+      "yuan": "中元",
+      "yun_number": 5,
+      "start_year": 1944,
+      "end_year": 1963
+    },
+    {
+      "year": 1964,
+      "yuan": "中元",
+      "yun_number": 6,
+      "start_year": 1964,
+      "end_year": 1983
+    },
+    {
+      "year": 1984,
+      "yuan": "下元",
+      "yun_number": 7,
+      "start_year": 1984,
+      "end_year": 2003
+    },
+    {
+      "year": 2004,
+      "yuan": "下元",
+      "yun_number": 8,
+      "start_year": 2004,
+      "end_year": 2023
+    },
+    {
+      "year": 2024,
+      "yuan": "下元",
+      "yun_number": 9,
+      "start_year": 2024,
+      "end_year": 2043
+    },
+    {
+      "year": 2044,
+      "yuan": "上元",
+      "yun_number": 1,
+      "start_year": 2044,
+      "end_year": 2063
+    }
+  ],
+  "xuankong_four_situation_anchors": [
+    {
+      "case_id": "yun7-zi-wu",
+      "sit_mountain": 0,
+      "face_mountain": 12,
+      "year": 1990,
+      "wang_shan": true,
+      "wang_xiang": false,
+      "double_star_sit": true,
+      "double_star_face": false,
+      "uphill_downwater": false
+    },
+    {
+      "case_id": "yun8-zi-wu",
+      "sit_mountain": 0,
+      "face_mountain": 12,
+      "year": 2020,
+      "wang_shan": false,
+      "wang_xiang": true,
+      "double_star_sit": false,
+      "double_star_face": true,
+      "uphill_downwater": false
+    },
+    {
+      "case_id": "yun7-qian-xun",
+      "sit_mountain": 21,
+      "face_mountain": 9,
+      "year": 1990,
+      "wang_shan": false,
+      "wang_xiang": false,
+      "double_star_sit": false,
+      "double_star_face": false,
+      "uphill_downwater": true
+    },
+    {
+      "case_id": "yun7-you-mao",
+      "sit_mountain": 18,
+      "face_mountain": 6,
+      "year": 1990,
+      "wang_shan": true,
+      "wang_xiang": true,
+      "double_star_sit": false,
+      "double_star_face": false,
+      "uphill_downwater": false
+    }
+  ],
+  "invalid_sit_face_pairs": [
+    {
+      "sit": 0,
+      "face": 0
+    },
+    {
+      "sit": 1,
+      "face": 1
+    },
+    {
+      "sit": 0,
+      "face": 1
+    },
+    {
+      "sit": 2,
+      "face": 8
+    }
+  ],
+  "rule_sit_face_opposite_offset": 12
+}

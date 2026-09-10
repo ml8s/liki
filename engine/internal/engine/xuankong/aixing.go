@@ -23,14 +23,17 @@ type Chart struct {
 	ShanXing       bool            `json:"shan_xing"`  // 双星会坐：坐宫山向星皆=当令
 	XiangXing      bool            `json:"xiang_xing"` // 双星会向：向宫山向星皆=当令
 	XiaShui        bool            `json:"xia_shui"`   // 上山下水：向宫山星=当令 且 坐宫向星=当令
-	FanYin         bool            `json:"fan_yin"`    // 运盘反吟（恒 false，运盘恒顺飞）
 	FuYin          bool            `json:"fu_yin"`     // 运盘伏吟（五运顺飞全盘重合）
 	XingJiaHui     [9]xingJiaHui   `json:"xing_jia_hui"`
+	ChartDigest    string          `json:"chart_digest"`
 	ShouShanChuSha shouShanChuSha  `json:"shou_shan_chu_sha"`
 }
 
 func computeChart(sitMountain, faceMountain int, year int) Chart {
 	if sitMountain < 0 || sitMountain > 23 || faceMountain < 0 || faceMountain > 23 {
+		return Chart{}
+	}
+	if (sitMountain+12)%24 != faceMountain {
 		return Chart{}
 	}
 
@@ -72,12 +75,13 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 		}
 	}
 
-	// 5. Evaluate 旺山旺向/上山下水/反吟伏吟.
+	// 5. Evaluate 旺山旺向/上山下水/伏吟.
 	pan.evaluate()
 
 	// 6. 双星加会 + 收山出煞.
 	pan.XingJiaHui = pan.computeXingJiaHui()
 	pan.ShouShanChuSha = pan.computeShouShanChuSha()
+	pan.refreshDigest()
 
 	return pan
 }
@@ -159,7 +163,6 @@ func mountainPalace(idx int) int {
 //	上山下水   : 向宫山星=当令（山星下水）且 坐宫向星=当令（向星上山）
 //
 // 伏吟（运盘）：五运运盘顺飞与地盘全盘重合（入中=宫序恒等）；运盘恒顺飞，
-// 故运盘无反吟（fan_yin 恒 false，反吟须看山向星盘与运盘对冲，此处不判定）。
 func (p *Chart) evaluate() {
 	sitPalace := mountainPalace(p.SitMountain)
 	facePalace := mountainPalace(p.FaceMountain)
@@ -178,39 +181,6 @@ func (p *Chart) evaluate() {
 
 	// 运盘伏吟：运盘与地盘全盘重合（仅五运顺飞成立）。
 	p.FuYin = p.Yun.YunNumber == 5 && p.Palaces[4].PeriodStar.Number == 5
-	p.FanYin = false // 运盘恒顺飞，无反吟
-}
-
-func tiXingShanStar(sitIdx int) int {
-	return needTiXing[sitIdx%24]
-}
-
-// needTiXing maps mountain index → 替星数（替卦十三山）；非十三山无替（0）。
-var needTiXing = [24]int{
-	0, // 子(0)
-	0, // 癸(1)
-	7, // 丑(2) → 破军7
-	7, // 艮(3) → 破军7（天元龙亦替）
-	9, // 寅(4) → 右弼9
-	1, // 甲(5) → 贪狼1
-	2, // 卯(6) → 巨门2
-	2, // 乙(7) → 巨门2
-	6, // 辰(8) → 武曲6
-	6, // 巽(9) → 武曲6（天元龙亦替）
-	6, // 巳(10) → 武曲6
-	7, // 丙(11) → 破军7
-	0, // 午(12)
-	0, // 丁(13)
-	0, // 未(14)
-	0, // 坤(15)
-	1, // 申(16) → 贪狼1
-	9, // 庚(17) → 右弼9
-	0, // 酉(18)
-	0, // 辛(19)
-	0, // 戌(20)
-	0, // 乾(21)
-	0, // 亥(22)
-	2, // 壬(23) → 巨门2
 }
 
 // -- 双星加会 (Double Star Combination) --------------------------------
@@ -233,9 +203,9 @@ func (p *Chart) computeXingJiaHui() [9]xingJiaHui {
 			result[i] = xingJiaHui{
 				ShanNum:    pal.MountainStar.Number,
 				XiangNum:   pal.FacingStar.Number,
-				Name:       "双星到向",
-				Meaning:    "山向配合，需参合判断",
-				Auspicious: pal.MountainStar.Auspicious && pal.FacingStar.Auspicious,
+				Name:       "星曜加会",
+				Meaning:    "该组合未列入固定通则，须参合星、宫、运与峦头判断",
+				Auspicious: false,
 			}
 		}
 	}

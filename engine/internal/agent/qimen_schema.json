@@ -535,10 +535,10 @@
             "school"
           ]
         },
-          "then": {
-            "properties": {
-              "yong_shen": {
-                "not": {}
+        "then": {
+          "properties": {
+            "yong_shen": {
+              "not": {}
             },
             "birth_date": {
               "not": {}
@@ -601,7 +601,10 @@
       },
       {
         "solar_time": "2026-09-07T12:00:00+08:00",
-        "yong_shen": ["生门", "戊"],
+        "yong_shen": [
+          "生门",
+          "戊"
+        ],
         "birth_date": "1984-02-15"
       }
     ]
@@ -1152,19 +1155,67 @@
               },
               "nian_gan": {
                 "type": "string",
-                "enum": ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]
+                "enum": [
+                  "甲",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
               },
               "nian_zhi": {
                 "type": "string",
-                "enum": ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]
+                "enum": [
+                  "子",
+                  "丑",
+                  "寅",
+                  "卯",
+                  "辰",
+                  "巳",
+                  "午",
+                  "未",
+                  "申",
+                  "酉",
+                  "戌",
+                  "亥"
+                ]
               },
               "yue_gan": {
                 "type": "string",
-                "enum": ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]
+                "enum": [
+                  "甲",
+                  "乙",
+                  "丙",
+                  "丁",
+                  "戊",
+                  "己",
+                  "庚",
+                  "辛",
+                  "壬",
+                  "癸"
+                ]
               },
               "yue_zhi": {
                 "type": "string",
-                "enum": ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]
+                "enum": [
+                  "子",
+                  "丑",
+                  "寅",
+                  "卯",
+                  "辰",
+                  "巳",
+                  "午",
+                  "未",
+                  "申",
+                  "酉",
+                  "戌",
+                  "亥"
+                ]
               },
               "zhi_fu_xing": {
                 "type": "string",
@@ -2163,22 +2214,55 @@
               "properties": {
                 "gong": {
                   "type": "string",
-                  "enum": ["坎","坤","震","巽","中","乾","兑","艮","离"]
+                  "enum": [
+                    "坎",
+                    "坤",
+                    "震",
+                    "巽",
+                    "中",
+                    "乾",
+                    "兑",
+                    "艮",
+                    "离"
+                  ]
                 },
                 "wuxing": {
                   "type": "string",
-                  "enum": ["木","火","土","金","水"]
+                  "enum": [
+                    "木",
+                    "火",
+                    "土",
+                    "金",
+                    "水"
+                  ]
                 },
                 "wang_shuai": {
                   "type": "string",
-                  "enum": ["旺","相","休","囚","死"]
+                  "enum": [
+                    "旺",
+                    "相",
+                    "休",
+                    "囚",
+                    "死"
+                  ]
                 },
                 "wang_shuai_name": {
                   "type": "string",
-                  "enum": ["旺","相","休","囚","死"]
+                  "enum": [
+                    "旺",
+                    "相",
+                    "休",
+                    "囚",
+                    "死"
+                  ]
                 }
               },
-              "required": ["gong","wuxing","wang_shuai","wang_shuai_name"],
+              "required": [
+                "gong",
+                "wuxing",
+                "wang_shuai",
+                "wang_shuai_name"
+              ],
               "additionalProperties": false
             }
           },
@@ -2187,22 +2271,55 @@
             "properties": {
               "gong": {
                 "type": "string",
-                "enum": ["坎","坤","震","巽","中","乾","兑","艮","离"]
+                "enum": [
+                  "坎",
+                  "坤",
+                  "震",
+                  "巽",
+                  "中",
+                  "乾",
+                  "兑",
+                  "艮",
+                  "离"
+                ]
               },
               "wuxing": {
                 "type": "string",
-                "enum": ["木","火","土","金","水"]
+                "enum": [
+                  "木",
+                  "火",
+                  "土",
+                  "金",
+                  "水"
+                ]
               },
               "wang_shuai": {
                 "type": "string",
-                "enum": ["旺","相","休","囚","死"]
+                "enum": [
+                  "旺",
+                  "相",
+                  "休",
+                  "囚",
+                  "死"
+                ]
               },
               "wang_shuai_name": {
                 "type": "string",
-                "enum": ["旺","相","休","囚","死"]
+                "enum": [
+                  "旺",
+                  "相",
+                  "休",
+                  "囚",
+                  "死"
+                ]
               }
             },
-            "required": ["gong","wuxing","wang_shuai","wang_shuai_name"],
+            "required": [
+              "gong",
+              "wuxing",
+              "wang_shuai",
+              "wang_shuai_name"
+            ],
             "additionalProperties": false
           },
           "zhi_fu_xing_gong": {
@@ -2344,6 +2461,124 @@
             "required": [
               "symbols"
             ]
+          },
+          "specialized": {
+            "type": "object",
+            "description": "专占领域原子事实；Python 只做 projection",
+            "additionalProperties": false,
+            "required": [
+              "geng_ge",
+              "lost_context",
+              "thief_context",
+              "tianwang_context"
+            ],
+            "properties": {
+              "geng_ge": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "level",
+                    "gong",
+                    "earth_gan"
+                  ],
+                  "properties": {
+                    "level": {
+                      "type": "string"
+                    },
+                    "gong": {
+                      "type": "string"
+                    },
+                    "door": {
+                      "type": "string"
+                    },
+                    "earth_gan": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "lost_context": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "gong",
+                    "wang_shuai"
+                  ],
+                  "properties": {
+                    "gong": {
+                      "type": "string"
+                    },
+                    "door": {
+                      "type": "string"
+                    },
+                    "wang_shuai": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "thief_context": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "role",
+                    "symbol",
+                    "gong",
+                    "wang_shuai_label",
+                    "lucky_pattern_names"
+                  ],
+                  "properties": {
+                    "role": {
+                      "type": "string"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "gong": {
+                      "type": "string"
+                    },
+                    "wang_shuai_label": {
+                      "type": "string"
+                    },
+                    "lucky_pattern_names": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "tianwang_context": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "gong",
+                    "hour_gong",
+                    "relation_to_hour"
+                  ],
+                  "properties": {
+                    "gong": {
+                      "type": "string"
+                    },
+                    "hour_gong": {
+                      "type": "string"
+                    },
+                    "relation_to_hour": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "required": [

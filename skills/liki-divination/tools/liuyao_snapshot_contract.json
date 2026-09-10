@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "liki:liuyao-snapshot-v3",
+  "$id": "liki:liuyao-snapshot-v4",
   "title": "六爻 immutable snapshot 契约",
   "type": "object",
   "required": [
@@ -13,71 +13,115 @@
     "facts",
     "timing_candidates",
     "policy",
-    "followup",
     "method",
     "snapshot_digest",
     "matter",
     "topic",
-    "solar_time",
     "topic_guidance",
     "timing_plan",
     "condition_rules"
   ],
   "properties": {
     "schema_version": {
-      "const": "liuyao-snapshot-v3"
+      "const": "liuyao-snapshot-v4"
     },
     "question": {
       "type": "object",
       "required": [
         "text",
-        "domain"
+        "matter",
+        "explicit_yong_shen",
+        "perspective",
+        "solar_time"
       ],
       "properties": {
         "text": {
-          "type": "string"
+          "type": "string",
+          "minLength": 2
         },
-        "domain": {
-          "type": "string"
+        "matter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "explicit_yong_shen": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "perspective": {
           "type": [
             "string",
             "null"
           ]
+        },
+        "solar_time": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "casting": {
       "type": "object",
       "required": [
         "mode",
-        "fingerprint",
+        "order",
+        "casting_id",
         "yaos",
         "dong_yao"
       ],
       "properties": {
         "mode": {
-          "type": "string"
-        },
-        "fingerprint": {
-          "type": [
-            "string",
-            "null"
+          "type": "string",
+          "enum": [
+            "coins",
+            "yaos"
           ]
         },
         "rounds": {
-          "type": "array"
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "enum": [
+                "正",
+                "反"
+              ]
+            }
+          }
         },
         "yaos": {
           "type": "array",
           "minItems": 6,
-          "maxItems": 6
+          "maxItems": 6,
+          "items": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 9
+          }
         },
         "dong_yao": {
           "type": "array"
+        },
+        "casting_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "canonical deterministic casting identity"
+        },
+        "order": {
+          "type": "string",
+          "const": "bottom_up"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "board": {
       "type": "object",
@@ -111,7 +155,8 @@
           "minItems": 6,
           "maxItems": 6
         }
-      }
+      },
+      "additionalProperties": false
     },
     "focus": {
       "type": "object",
@@ -140,7 +185,8 @@
             "null"
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "evidence": {
       "type": "object",
@@ -167,7 +213,8 @@
         "ignored_scope": {
           "type": "array"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "facts": {
       "type": "object",
@@ -209,15 +256,8 @@
         "no_recast_without_new_event": {
           "const": true
         }
-      }
-    },
-    "followup": {
-      "type": "object",
-      "required": [
-        "locked",
-        "casting_fingerprint",
-        "rules"
-      ]
+      },
+      "additionalProperties": false
     },
     "method": {
       "const": "liuyao"
@@ -238,9 +278,6 @@
         "null"
       ]
     },
-    "solar_time": {
-      "type": "string"
-    },
     "topic_guidance": {
       "type": [
         "object",
@@ -253,5 +290,6 @@
     "condition_rules": {
       "type": "object"
     }
-  }
+  },
+  "additionalProperties": false
 }

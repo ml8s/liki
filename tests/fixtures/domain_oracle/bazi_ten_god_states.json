@@ -1,0 +1,264 @@
+{
+  "schema_version": "domain-oracle-bazi-ten-god-states-v1",
+  "basis": "十神显隐按四柱天干与藏干；通根按同五行藏干；得令按月令旺相；组合旺弱采用得令，或透干且通根即旺，失令且不透无根才弱。",
+  "sources": [
+    "《渊海子平》天干透显与地支藏干",
+    "《子平真诠》根重身轻与得令为先",
+    "五行旺相休囚死通行口径"
+  ],
+  "cases": [
+    {
+      "id": "jiawood-month-yin-mixed-visibility",
+      "pillars": [
+        "甲子",
+        "甲寅",
+        "甲子",
+        "甲子"
+      ],
+      "expected_ten_god_states": {
+        "比肩": {
+          "wuxing": "木",
+          "transparent": true,
+          "hidden": true,
+          "rooted": true,
+          "timely": true,
+          "count": 5,
+          "strength": "strong"
+        },
+        "食神": {
+          "wuxing": "火",
+          "transparent": false,
+          "hidden": true,
+          "rooted": true,
+          "timely": true,
+          "count": 1,
+          "strength": "strong"
+        },
+        "偏财": {
+          "wuxing": "土",
+          "transparent": false,
+          "hidden": true,
+          "rooted": true,
+          "timely": false,
+          "count": 1,
+          "strength": "neutral"
+        },
+        "正印": {
+          "wuxing": "水",
+          "transparent": false,
+          "hidden": true,
+          "rooted": true,
+          "timely": false,
+          "count": 3,
+          "strength": "neutral"
+        }
+      },
+      "expected_element_states": {
+        "木": {
+          "season_strength": "strong",
+          "strength": "strong",
+          "transparent": true,
+          "rooted": true,
+          "controls": "土",
+          "controlled_by": "金",
+          "controller_strength": "weak"
+        },
+        "火": {
+          "season_strength": "strong",
+          "strength": "strong",
+          "transparent": false,
+          "rooted": true,
+          "controls": "金",
+          "controlled_by": "水",
+          "controller_strength": "weak"
+        },
+        "土": {
+          "season_strength": "weak",
+          "strength": "neutral",
+          "transparent": false,
+          "rooted": true,
+          "controls": "水",
+          "controlled_by": "木",
+          "controller_strength": "strong"
+        },
+        "金": {
+          "season_strength": "weak",
+          "strength": "weak",
+          "transparent": false,
+          "rooted": false,
+          "controls": "木",
+          "controlled_by": "火",
+          "controller_strength": "strong"
+        },
+        "水": {
+          "season_strength": "weak",
+          "strength": "neutral",
+          "transparent": false,
+          "rooted": true,
+          "controls": "火",
+          "controlled_by": "土",
+          "controller_strength": "weak"
+        }
+      }
+    },
+    {
+      "id": "transparent-wealth-rooted-by-same-element-hidden-stem",
+      "pillars": [
+        "己子",
+        "甲寅",
+        "甲子",
+        "甲子"
+      ],
+      "expected_ten_god_states": {
+        "正财": {
+          "wuxing": "土",
+          "transparent": true,
+          "hidden": false,
+          "rooted": true,
+          "timely": false,
+          "count": 1,
+          "strength": "strong"
+        }
+      },
+      "expected_element_states": {
+        "土": {
+          "season_strength": "weak",
+          "strength": "strong",
+          "transparent": true,
+          "rooted": true,
+          "controls": "水",
+          "controlled_by": "木",
+          "controller_strength": "strong"
+        }
+      }
+    },
+    {
+      "id": "transparent-killing-without-root-is-not-weak",
+      "pillars": [
+        "庚卯",
+        "甲卯",
+        "甲子",
+        "甲子"
+      ],
+      "expected_ten_god_states": {
+        "七杀": {
+          "wuxing": "金",
+          "transparent": true,
+          "hidden": false,
+          "rooted": false,
+          "timely": false,
+          "count": 1,
+          "strength": "neutral"
+        }
+      },
+      "expected_element_states": {
+        "金": {
+          "season_strength": "weak",
+          "strength": "neutral",
+          "transparent": true,
+          "rooted": false,
+          "controls": "木",
+          "controlled_by": "火",
+          "controller_strength": "strong"
+        }
+      }
+    },
+    {
+      "id": "same-element-alternate-transparency",
+      "pillars": [
+        "庚子",
+        "甲子",
+        "甲子",
+        "乙丑"
+      ],
+      "expected_ten_god_states": {
+        "七杀": {
+          "wuxing": "金",
+          "transparent": true,
+          "hidden": false,
+          "rooted": true,
+          "timely": false,
+          "count": 1,
+          "strength": "strong"
+        },
+        "正官": {
+          "wuxing": "金",
+          "transparent": false,
+          "hidden": true,
+          "rooted": true,
+          "timely": false,
+          "count": 1,
+          "strength": "neutral"
+        }
+      },
+      "expected_element_states": {
+        "金": {
+          "season_strength": "weak",
+          "strength": "strong",
+          "transparent": true,
+          "rooted": true,
+          "controls": "木",
+          "controlled_by": "火",
+          "controller_strength": "weak"
+        }
+      }
+    }
+  ],
+  "dayun_root_cases": [
+    {
+      "id": "wood-dayun-no-root",
+      "pillars": [
+        "甲子",
+        "甲子",
+        "甲子",
+        "甲子"
+      ],
+      "dayun": "甲午",
+      "expected_rooted": false,
+      "expected_root_ref_sources": []
+    },
+    {
+      "id": "wood-dayun-root-at-sitting-main-qi",
+      "pillars": [
+        "甲子",
+        "甲子",
+        "甲子",
+        "甲子"
+      ],
+      "dayun": "甲寅",
+      "expected_rooted": true,
+      "expected_root_ref_sources": [
+        "sitting_branch_main_qi"
+      ]
+    },
+    {
+      "id": "earth-dayun-root-in-natal-hidden-stem",
+      "pillars": [
+        "甲辰",
+        "甲子",
+        "甲子",
+        "甲子"
+      ],
+      "dayun": "戊寅",
+      "expected_rooted": true,
+      "expected_root_ref_sources": [
+        "natal_hidden_stem"
+      ]
+    },
+    {
+      "id": "earth-dayun-both-sitting-and-natal-roots",
+      "pillars": [
+        "甲辰",
+        "甲子",
+        "甲子",
+        "甲子"
+      ],
+      "dayun": "戊辰",
+      "expected_rooted": true,
+      "expected_root_ref_sources": [
+        "sitting_branch_main_qi",
+        "natal_hidden_stem"
+      ]
+    }
+  ]
+}

@@ -37,6 +37,9 @@ func ComputeLiuNian(year int, chart *Chart) LiuNianResult {
 	if chart == nil {
 		return res
 	}
+	if err := chart.ValidateChartDigest(); err != nil {
+		return LiuNianResult{}
+	}
 
 	for _, s := range board.GongWei {
 		if s.Rating != "凶" && s.Rating != "大凶" {

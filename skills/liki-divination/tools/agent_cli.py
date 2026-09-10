@@ -5,12 +5,45 @@ from __future__ import annotations
 import json
 import os
 import sys
+from functools import lru_cache
+from pathlib import Path
+
+from jsonschema import Draft202012Validator, FormatChecker
 
 from huangli_days import days as huangli_days
 from liuyao_ask import ask as liuyao_ask
 from liuyao_snapshot import create as liuyao_snapshot
 from qimen_ask import ask as qimen_ask
 from qimen_snapshot import create as qimen_snapshot
+from divination_rpc import ensure_engine_compatible
+
+
+_TOOLFACE_PATH = Path(__file__).with_name("skill-tools.json")
+
+
+@lru_cache
+def _toolface_schemas() -> dict[str, dict]:
+    document = json.loads(_TOOLFACE_PATH.read_text(encoding="utf-8"))
+    return {
+        item["function"]["name"]: item["function"]["parameters"]
+        for item in document["tools"]
+    }
+
+
+def _validate_tool_args(fn: str, args: dict) -> None:
+    schema = _toolface_schemas().get(fn)
+    if schema is None:
+        raise ValueError(f"unknown tool: {fn}")
+    errors = sorted(
+        Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(args),
+        key=lambda error: list(error.absolute_path),
+    )
+    if errors:
+        details = "; ".join(
+            f"{'.'.join(str(part) for part in error.absolute_path) or '$'}: {error.message}"
+            for error in errors
+        )
+        raise ValueError(f"invalid {fn} args: {details}")
 
 
 def _configure_windows_stdio() -> None:
@@ -78,6 +111,7 @@ _DISPATCH = {
 
 
 def _dispatch(fn: str, args: dict):
+    _validate_tool_args(fn, args)
     handler = _DISPATCH.get(fn)
     if handler is None:
         raise ValueError(f"unknown tool: {fn}")
@@ -90,6 +124,7 @@ def main() -> int:
         _emit({"ok": False, "error": "empty stdin"})
         return 0
     try:
+        ensure_engine_compatible()
         request = json.loads(raw)
         args = request.get("args", {})
         if not isinstance(args, dict):

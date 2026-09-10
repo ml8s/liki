@@ -1,21 +1,15 @@
 """问卦 snapshot 公共契约：canonical digest 与类型校验。"""
 from __future__ import annotations
 
-import hashlib
-import json
 from typing import Any
+
+from divination_hashing import sha256_json
 
 
 def canonical_digest(snapshot: dict) -> str:
     """计算 snapshot 的稳定 digest；digest 字段本身不参与计算。"""
     core = {key: value for key, value in snapshot.items() if key != "snapshot_digest"}
-    raw = json.dumps(
-        core,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    return sha256_json(core)
 
 
 def build_snapshot(
@@ -25,6 +19,10 @@ def build_snapshot(
     payload: dict[str, Any],
 ) -> dict:
     """给 method-specific snapshot 加公共 envelope 和 digest。"""
+    if not isinstance(method, str) or not method:
+        raise ValueError("snapshot method must be non-empty")
+    if not isinstance(schema_version, str) or not schema_version:
+        raise ValueError("snapshot schema_version must be non-empty")
     if not isinstance(payload, dict):
         raise ValueError("snapshot payload must be an object")
     reserved = {"method", "schema_version", "snapshot_digest"}

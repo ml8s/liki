@@ -1,0 +1,441 @@
+{
+  "schema_version": "domain-oracle-qimen-v1",
+  "basis": "通行奇门二十四节气阴阳遁与上中下三元定局表。",
+  "solar_term_ju_all_72": [
+    {
+      "term": "冬至",
+      "yuan": "上元",
+      "ju": 1,
+      "yang_dun": true
+    },
+    {
+      "term": "冬至",
+      "yuan": "中元",
+      "ju": 7,
+      "yang_dun": true
+    },
+    {
+      "term": "冬至",
+      "yuan": "下元",
+      "ju": 4,
+      "yang_dun": true
+    },
+    {
+      "term": "小寒",
+      "yuan": "上元",
+      "ju": 2,
+      "yang_dun": true
+    },
+    {
+      "term": "小寒",
+      "yuan": "中元",
+      "ju": 8,
+      "yang_dun": true
+    },
+    {
+      "term": "小寒",
+      "yuan": "下元",
+      "ju": 5,
+      "yang_dun": true
+    },
+    {
+      "term": "大寒",
+      "yuan": "上元",
+      "ju": 3,
+      "yang_dun": true
+    },
+    {
+      "term": "大寒",
+      "yuan": "中元",
+      "ju": 9,
+      "yang_dun": true
+    },
+    {
+      "term": "大寒",
+      "yuan": "下元",
+      "ju": 6,
+      "yang_dun": true
+    },
+    {
+      "term": "立春",
+      "yuan": "上元",
+      "ju": 8,
+      "yang_dun": true
+    },
+    {
+      "term": "立春",
+      "yuan": "中元",
+      "ju": 5,
+      "yang_dun": true
+    },
+    {
+      "term": "立春",
+      "yuan": "下元",
+      "ju": 2,
+      "yang_dun": true
+    },
+    {
+      "term": "雨水",
+      "yuan": "上元",
+      "ju": 9,
+      "yang_dun": true
+    },
+    {
+      "term": "雨水",
+      "yuan": "中元",
+      "ju": 6,
+      "yang_dun": true
+    },
+    {
+      "term": "雨水",
+      "yuan": "下元",
+      "ju": 3,
+      "yang_dun": true
+    },
+    {
+      "term": "惊蛰",
+      "yuan": "上元",
+      "ju": 1,
+      "yang_dun": true
+    },
+    {
+      "term": "惊蛰",
+      "yuan": "中元",
+      "ju": 7,
+      "yang_dun": true
+    },
+    {
+      "term": "惊蛰",
+      "yuan": "下元",
+      "ju": 4,
+      "yang_dun": true
+    },
+    {
+      "term": "春分",
+      "yuan": "上元",
+      "ju": 3,
+      "yang_dun": true
+    },
+    {
+      "term": "春分",
+      "yuan": "中元",
+      "ju": 9,
+      "yang_dun": true
+    },
+    {
+      "term": "春分",
+      "yuan": "下元",
+      "ju": 6,
+      "yang_dun": true
+    },
+    {
+      "term": "清明",
+      "yuan": "上元",
+      "ju": 4,
+      "yang_dun": true
+    },
+    {
+      "term": "清明",
+      "yuan": "中元",
+      "ju": 1,
+      "yang_dun": true
+    },
+    {
+      "term": "清明",
+      "yuan": "下元",
+      "ju": 7,
+      "yang_dun": true
+    },
+    {
+      "term": "谷雨",
+      "yuan": "上元",
+      "ju": 5,
+      "yang_dun": true
+    },
+    {
+      "term": "谷雨",
+      "yuan": "中元",
+      "ju": 2,
+      "yang_dun": true
+    },
+    {
+      "term": "谷雨",
+      "yuan": "下元",
+      "ju": 8,
+      "yang_dun": true
+    },
+    {
+      "term": "立夏",
+      "yuan": "上元",
+      "ju": 4,
+      "yang_dun": true
+    },
+    {
+      "term": "立夏",
+      "yuan": "中元",
+      "ju": 1,
+      "yang_dun": true
+    },
+    {
+      "term": "立夏",
+      "yuan": "下元",
+      "ju": 7,
+      "yang_dun": true
+    },
+    {
+      "term": "小满",
+      "yuan": "上元",
+      "ju": 5,
+      "yang_dun": true
+    },
+    {
+      "term": "小满",
+      "yuan": "中元",
+      "ju": 2,
+      "yang_dun": true
+    },
+    {
+      "term": "小满",
+      "yuan": "下元",
+      "ju": 8,
+      "yang_dun": true
+    },
+    {
+      "term": "芒种",
+      "yuan": "上元",
+      "ju": 6,
+      "yang_dun": true
+    },
+    {
+      "term": "芒种",
+      "yuan": "中元",
+      "ju": 3,
+      "yang_dun": true
+    },
+    {
+      "term": "芒种",
+      "yuan": "下元",
+      "ju": 9,
+      "yang_dun": true
+    },
+    {
+      "term": "夏至",
+      "yuan": "上元",
+      "ju": 9,
+      "yang_dun": false
+    },
+    {
+      "term": "夏至",
+      "yuan": "中元",
+      "ju": 3,
+      "yang_dun": false
+    },
+    {
+      "term": "夏至",
+      "yuan": "下元",
+      "ju": 6,
+      "yang_dun": false
+    },
+    {
+      "term": "小暑",
+      "yuan": "上元",
+      "ju": 8,
+      "yang_dun": false
+    },
+    {
+      "term": "小暑",
+      "yuan": "中元",
+      "ju": 2,
+      "yang_dun": false
+    },
+    {
+      "term": "小暑",
+      "yuan": "下元",
+      "ju": 5,
+      "yang_dun": false
+    },
+    {
+      "term": "大暑",
+      "yuan": "上元",
+      "ju": 7,
+      "yang_dun": false
+    },
+    {
+      "term": "大暑",
+      "yuan": "中元",
+      "ju": 1,
+      "yang_dun": false
+    },
+    {
+      "term": "大暑",
+      "yuan": "下元",
+      "ju": 4,
+      "yang_dun": false
+    },
+    {
+      "term": "立秋",
+      "yuan": "上元",
+      "ju": 2,
+      "yang_dun": false
+    },
+    {
+      "term": "立秋",
+      "yuan": "中元",
+      "ju": 5,
+      "yang_dun": false
+    },
+    {
+      "term": "立秋",
+      "yuan": "下元",
+      "ju": 8,
+      "yang_dun": false
+    },
+    {
+      "term": "处暑",
+      "yuan": "上元",
+      "ju": 1,
+      "yang_dun": false
+    },
+    {
+      "term": "处暑",
+      "yuan": "中元",
+      "ju": 4,
+      "yang_dun": false
+    },
+    {
+      "term": "处暑",
+      "yuan": "下元",
+      "ju": 7,
+      "yang_dun": false
+    },
+    {
+      "term": "白露",
+      "yuan": "上元",
+      "ju": 9,
+      "yang_dun": false
+    },
+    {
+      "term": "白露",
+      "yuan": "中元",
+      "ju": 3,
+      "yang_dun": false
+    },
+    {
+      "term": "白露",
+      "yuan": "下元",
+      "ju": 6,
+      "yang_dun": false
+    },
+    {
+      "term": "秋分",
+      "yuan": "上元",
+      "ju": 7,
+      "yang_dun": false
+    },
+    {
+      "term": "秋分",
+      "yuan": "中元",
+      "ju": 1,
+      "yang_dun": false
+    },
+    {
+      "term": "秋分",
+      "yuan": "下元",
+      "ju": 4,
+      "yang_dun": false
+    },
+    {
+      "term": "寒露",
+      "yuan": "上元",
+      "ju": 6,
+      "yang_dun": false
+    },
+    {
+      "term": "寒露",
+      "yuan": "中元",
+      "ju": 9,
+      "yang_dun": false
+    },
+    {
+      "term": "寒露",
+      "yuan": "下元",
+      "ju": 3,
+      "yang_dun": false
+    },
+    {
+      "term": "霜降",
+      "yuan": "上元",
+      "ju": 5,
+      "yang_dun": false
+    },
+    {
+      "term": "霜降",
+      "yuan": "中元",
+      "ju": 8,
+      "yang_dun": false
+    },
+    {
+      "term": "霜降",
+      "yuan": "下元",
+      "ju": 2,
+      "yang_dun": false
+    },
+    {
+      "term": "立冬",
+      "yuan": "上元",
+      "ju": 6,
+      "yang_dun": false
+    },
+    {
+      "term": "立冬",
+      "yuan": "中元",
+      "ju": 9,
+      "yang_dun": false
+    },
+    {
+      "term": "立冬",
+      "yuan": "下元",
+      "ju": 3,
+      "yang_dun": false
+    },
+    {
+      "term": "小雪",
+      "yuan": "上元",
+      "ju": 5,
+      "yang_dun": false
+    },
+    {
+      "term": "小雪",
+      "yuan": "中元",
+      "ju": 8,
+      "yang_dun": false
+    },
+    {
+      "term": "小雪",
+      "yuan": "下元",
+      "ju": 2,
+      "yang_dun": false
+    },
+    {
+      "term": "大雪",
+      "yuan": "上元",
+      "ju": 4,
+      "yang_dun": false
+    },
+    {
+      "term": "大雪",
+      "yuan": "中元",
+      "ju": 7,
+      "yang_dun": false
+    },
+    {
+      "term": "大雪",
+      "yuan": "下元",
+      "ju": 1,
+      "yang_dun": false
+    }
+  ],
+  "sources": [
+    "通行奇门二十四节气阴阳遁定局表"
+  ]
+}

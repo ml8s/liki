@@ -16,14 +16,10 @@ def _data() -> dict:
     return _DATA
 
 
-def list_topics() -> list[str]:
-    return sorted(_data()["topics"])
-
-
 def get_topic(topic: str) -> dict:
     data = _data()
     if topic not in data["topics"]:
-        raise ValueError(f"unknown topic: {topic}; valid: {', '.join(list_topics())}")
+        raise ValueError(f"unknown topic: {topic}; valid: {', '.join(sorted(_data()['topics']))}")
     return {
         "schema_version": data["schema_version"],
         "topic": topic,

@@ -17,7 +17,7 @@ func TestGoldenComputeChart(t *testing.T) {
 		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, 1, 1)
+	chart := ComputeChart(st, 1, 13)
 
 	got, err := json.MarshalIndent(chart, "", "  ")
 	if err != nil {

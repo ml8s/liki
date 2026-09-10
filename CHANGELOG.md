@@ -1,5 +1,42 @@
 # Changelog
 
+## [2026.09.10.1] — 命理原子事实与流年策略下沉
+
+### Breaking changes
+
+- Skill 运行要求 engine >= `2026.09.10.1`；低版本会 fail closed。
+- `liuyao.qigua` 只返回 `{ casting }`，不再返回顶层 `yaos` / `dong_yao`。
+- `liuyao.chart` 只接受完整 `casting`，不再接受裸 `yaos`。
+- casting 删除 `random_source`，`fingerprint` 更名为 `casting_id`。
+- `bazi.fullchart` 新增并要求 `relation_groups`、`ten_god_states`、`element_states`、扩展 atomic facts。
+
+### liki-bazi / liki-divination
+
+- `FACTOR_MODEL.md` 更名为 `BAZI_MODEL.md`，并把因子 / 断言机制降为本命领域模型内的求值契约；README 领域契约统一收口到问卦、八紫、风水和起名四份文档。
+- 八字本命盘新增 `pan_digest`，query / yearly / bond / calibrate 统一防篡改。
+- 本命与流年命理判断持续下沉 engine：十神显隐 / 通根 / 旺弱、五行生克方向、大运通根、十干禄、官杀取清、财库、夫妻宫、流年生克、忌神、财坏印、三合 / 三会 / 三刑 / 半合均输出原子事实。
+- 本命柱位十神、月支长生、格神透干与柱刑改为 engine 原子事实；六爻真假空破与动爻生克冲突由 engine 输出；奇门庚格 / 盗贼 / 天网专占参数改为数据表。
+- 六爻 RPC 清理兼容面：`liuyao.qigua` 只返回完整 casting，`liuyao.chart` 只接受 casting，删除裸 yaos 输入与重复 `casting_mode`。
+- 六爻 casting 领域模型收敛为 mode / order / coins-or-yaos 证据 / 动爻 / casting_id；按 coins / yaos 分形校验，删除来源标记、RPC 测试 seed 和裸 yaos。
+- 修正十神 `strength` 误用五行聚合态的问题：同五行另一十神透干不再让当前不透十神被判为透干有根。
+- 八字合会冲刑完整组下沉 engine 原子事实；天干五合保持邻柱口径，三刑组不再由 Python 从成对记录反推。多语言问卦安全边界改为数据表驱动。
+- 紫微宫位星曜、星组、四化落宫、亮度分组与主星数量下沉为 engine 原子事实；Python `宫含` 只做精确匹配。
+- 奇门庚格、失物、捕盗与天网专占匹配下沉 engine 原子事实；Python 只做固定呈现字段投影，并删除专占规则 JSON。
+- Python 因子层只读取 engine 原子事实和 CSV 条件，不复算命理规则。
+- 奇门标准投影与专占上下文拆分；黄历事项适配下沉 engine。
+- 玄空宅盘新增 `chart_digest`，流年叠加拒绝篡改 chart。
+
+## [2026.09.09.1] — 领域边界与完整性收口
+
+### liki-bazi / liki-divination / liki-fengshui
+
+- 八字本命盘新增 canonical `pan_digest`，query / yearly / bond / calibrate 统一防篡改。
+- 八字 `fullchart` 新增十干禄、官杀取清、财库、夫妻宫状态、日支神煞与年柱官杀原子事实；Python 对应算子只读 engine 结果。
+- 黄历事项适配下沉 engine，Python 只投影稳定 contract。
+- 六爻事项与应期策略改为数据表驱动；Question 契约升级为 v4。
+- 奇门标准投影与专占上下文拆分；玄空宅盘新增 `chart_digest` 并校验。
+- 清理玄空替卦死代码、恒 false 反吟字段和 legacy casting 命名。
+
 ## [2026.09.09.0] — 问卦场景路由与六爻事实层
 
 ### liki-divination

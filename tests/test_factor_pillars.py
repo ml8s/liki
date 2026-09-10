@@ -39,6 +39,7 @@ def test_wealth_in_tomb_requires_wealth_star_on_tomb_pillar() -> None:
             ],
         },
     })
+    unrelated_tomb["full"]["atomic_facts"] = {"wealth_star_in_tomb": False}
     assert _op("财星入墓", [], "male", {**base, **unrelated_tomb}) == 0
 
     # 月支辰中土气为甲之财，财星与墓库同柱，才构成财星入墓。
@@ -51,6 +52,7 @@ def test_wealth_in_tomb_requires_wealth_star_on_tomb_pillar() -> None:
             ],
         },
     })
+    in_tomb["full"]["atomic_facts"] = {"wealth_star_in_tomb": True}
     assert _op("财星入墓", [], "male", {**base, **in_tomb}) == 1
 
 
@@ -71,6 +73,7 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
     one_guan_only["full"]["zhi_liu_he"] = [
         {"pillar_a": 0, "pillar_b": 2, "zhi_a": "申", "zhi_b": "巳"}
     ]
+    one_guan_only["full"]["atomic_facts"] = {"officer_killing_cleaned": False}
     assert _op("官杀取清", [], "male", {**base, **one_guan_only}) == 0
 
     mixed_guansha = _chart({
@@ -93,6 +96,7 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
     mixed_guansha["full"]["zhi_liu_he"] = [
         {"pillar_a": 0, "pillar_b": 2, "zhi_a": "申", "zhi_b": "巳"}
     ]
+    mixed_guansha["full"]["atomic_facts"] = {"officer_killing_cleaned": True}
     assert _op("官杀取清", [], "male", {**base, **mixed_guansha}) == 1
 
     # 官杀混杂后，取清方向是合杀/冲杀留官；仅合正官不构成「合杀留官」。
@@ -117,6 +121,7 @@ def test_guansha_purification_requires_mixed_guansha() -> None:
     combining_correct_officer["full"]["zhi_liu_he"] = [
         {"pillar_a": 1, "pillar_b": 3, "zhi_a": "酉", "zhi_b": "辰"}
     ]
+    combining_correct_officer["full"]["atomic_facts"] = {"officer_killing_cleaned": False}
     assert _op("官杀取清", [], "male", {**base, **combining_correct_officer}) == 0
 
 
@@ -124,11 +129,11 @@ def test_flow克_derives_target_wuxing_from_day_master() -> None:
     base = mock_base_context()
     base["ri_gan"] = "甲"  # 甲木以土为财；庚/申金克土。
 
-    ctx = {"liunian": {"nian_gan": "甲", "nian_zhi": "寅"}}
+    ctx = {"liunian": {"nian_gan": "甲", "nian_zhi": "寅", "atomic_facts": {"controls_elements": ["土"], "controls_targets": {"wealth_star": True}}}}
     assert _liu_op("流年克", ["财星"], "male", base, ctx) == 1
     assert _liu_op("流年克", ["配偶星"], "male", base, ctx) == 1
 
-    ctx_water = {"liunian": {"nian_gan": "壬", "nian_zhi": "子"}}
+    ctx_water = {"liunian": {"nian_gan": "壬", "nian_zhi": "子", "atomic_facts": {"controls_elements": ["火"], "controls_targets": {"wealth_star": False}}}}
     assert _liu_op("流年克", ["财星"], "male", base, ctx_water) == 0
 
 
@@ -203,7 +208,17 @@ def test_flow_sanhe_requires_all_three_branches() -> None:
         }
     }
 
-    # 申子辰三方齐备才成局。
-    assert _liu_op("流年合", ["配偶星"], "male", {**base, **chart(True)}, ctx) == 1
+    # 申子辰三方齐备才成局；engine 原子事实只报告完整三合。
+    full_ctx = {
+        **ctx,
+        "liunian": {
+            **ctx["liunian"],
+            "atomic_facts": {"combinations": [{
+                "kind": "san_he", "group": "三合申子辰",
+                "branches": ["申", "子", "辰"], "includes_year": True,
+            }]},
+        },
+    }
+    assert _liu_op("流年合", ["配偶星"], "male", {**base, **chart(True)}, full_ctx) == 1
     # 申子两支只是半合，不作为完整三合合会。
     assert _liu_op("流年合", ["配偶星"], "male", {**base, **chart(False)}, ctx) == 0

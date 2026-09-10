@@ -1,0 +1,134 @@
+{
+  "schema_version": "domain-oracle-bazi-atomic-v1",
+  "basis": "《子平真诠》官杀取清与月令格神透干、《三命通会》财库与夫妻宫论、十二长生、四桃花 / 四驿马 / 四墓库与三刑通行口径。",
+  "sources": [
+    "《子平真诠》官杀混杂取清",
+    "《三命通会》财库论与夫妻宫论",
+    "四桃花 / 四驿马 / 四墓库通行分类",
+    "《子平真诠》月令格神透干",
+    "十二长生阳顺阴逆通行口径",
+    "三刑丑戌未通行口径"
+  ],
+  "cases": [
+    {
+      "id": "jiawood-wealth-in-chen-tomb",
+      "pillars": [
+        "甲子",
+        "戊辰",
+        "甲子",
+        "甲子"
+      ],
+      "expected": {
+        "officer_killing_cleaned": false,
+        "wealth_tomb_present": true,
+        "wealth_star_in_tomb": true,
+        "spouse_palace_state": "静",
+        "day_branch_type": "桃花",
+        "year_officer_killing": false,
+        "month_longevity": "衰",
+        "year_stem_ten_god": "比肩",
+        "month_main_ten_god": "偏财",
+        "hour_stem_ten_god": "比肩",
+        "pattern_god_transparent": true,
+        "pillar_punishments": {
+          "nian": false,
+          "yue": false,
+          "ri": false,
+          "shi": false
+        },
+        "day_master_stem": "甲",
+        "day_branch": "子"
+      }
+    },
+    {
+      "id": "mixed-guansha-clash-killing-pillar",
+      "pillars": [
+        "庚午",
+        "辛丑",
+        "甲子",
+        "甲子"
+      ],
+      "expected": {
+        "officer_killing_cleaned": true,
+        "wealth_tomb_present": false,
+        "wealth_star_in_tomb": false,
+        "spouse_palace_state": "冲",
+        "day_branch_type": "桃花",
+        "year_officer_killing": true,
+        "month_longevity": "冠带",
+        "year_stem_ten_god": "七杀",
+        "month_main_ten_god": "正财",
+        "hour_stem_ten_god": "比肩",
+        "pattern_god_transparent": true,
+        "pillar_punishments": {
+          "nian": false,
+          "yue": false,
+          "ri": false,
+          "shi": false
+        },
+        "day_master_stem": "甲",
+        "day_branch": "子"
+      }
+    },
+    {
+      "id": "single-killing-not-purification",
+      "pillars": [
+        "庚午",
+        "甲子",
+        "甲子",
+        "甲子"
+      ],
+      "expected": {
+        "officer_killing_cleaned": false,
+        "wealth_tomb_present": false,
+        "wealth_star_in_tomb": false,
+        "spouse_palace_state": "冲",
+        "day_branch_type": "桃花",
+        "year_officer_killing": true,
+        "month_longevity": "沐浴",
+        "year_stem_ten_god": "七杀",
+        "month_main_ten_god": "正印",
+        "hour_stem_ten_god": "比肩",
+        "pattern_god_transparent": false,
+        "pillar_punishments": {
+          "nian": false,
+          "yue": false,
+          "ri": false,
+          "shi": false
+        },
+        "day_master_stem": "甲",
+        "day_branch": "子"
+      }
+    },
+    {
+      "id": "chou-xu-wei-pillar-punishment",
+      "pillars": [
+        "乙丑",
+        "甲戌",
+        "甲未",
+        "甲子"
+      ],
+      "expected": {
+        "officer_killing_cleaned": false,
+        "wealth_tomb_present": false,
+        "wealth_star_in_tomb": false,
+        "spouse_palace_state": "冲",
+        "day_branch_type": "墓库",
+        "year_officer_killing": true,
+        "month_longevity": "养",
+        "year_stem_ten_god": "劫财",
+        "month_main_ten_god": "偏财",
+        "hour_stem_ten_god": "比肩",
+        "pattern_god_transparent": false,
+        "pillar_punishments": {
+          "nian": true,
+          "yue": true,
+          "ri": true,
+          "shi": false
+        },
+        "day_master_stem": "甲",
+        "day_branch": "未"
+      }
+    }
+  ]
+}

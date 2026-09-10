@@ -159,7 +159,7 @@ type Chart struct {
 	RiZhi        ganzhi.Zhi    `json:"ri_chen_zhi"`
 	YueZhi       ganzhi.Zhi    `json:"yue_jian_zhi"`
 	YueGan       ganzhi.Gan    `json:"yue_jian_gan"`
-	DongYao      []int         `json:"dong_yao"` // 动爻位置 1-6
+	DongYao      []int         `json:"-"` // 动爻位置 1-6；RPC 审计以完整 casting 收据为准
 	// Analysis layers set by ComputeChart.
 	YongShen              YongShenResult         `json:"yong_shen"`
 	GuaCi                 GuaCi                  `json:"gua_ci,omitempty"`
@@ -172,13 +172,13 @@ type Chart struct {
 	DongYaoRelations      []DongYaoRelation      `json:"dong_yao_relations,omitempty"` // 动爻与用神的关系
 	HiddenLines           []HiddenLine           `json:"hidden_lines,omitempty"`       // 本宫全部伏神
 	BranchRelationFacts   []BranchRelationFact   `json:"branch_relation_facts,omitempty"`
-	CastingMode           string                 `json:"casting_mode,omitempty"` // 起卦输入模式（audit only）
-	Casting               *Casting               `json:"casting,omitempty"`      // 完整起卦收据（audit only）
+	Casting               *Casting               `json:"casting,omitempty"` // 完整起卦收据（audit only）
 	DayClashFacts         []DayClashFact         `json:"day_clash_facts,omitempty"`
 	MovingTransformations []MovingTransformation `json:"moving_transformations,omitempty"`
 	SanHeCandidates       []SanHeCandidate       `json:"san_he_candidates,omitempty"`
 	ForceChain            *ForceChain            `json:"force_chain,omitempty"`
 	YongShenCandidates    []YongShenCandidate    `json:"yong_shen_candidates,omitempty"`
+	Conflicts             []Conflict             `json:"conflicts,omitempty"`
 }
 
 // palaceNames.

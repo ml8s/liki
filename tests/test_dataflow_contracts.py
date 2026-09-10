@@ -56,10 +56,13 @@ def _pan() -> dict:
             "da_yun": {"steps": [], "current_step_index": -1},
         },
         "full": {
-            pillar: {
-                "gan": "甲", "zhi": "子",
-                "shi_shens": [{"shi_shen": "比肩", "gan": "甲", "source": "gan"}],
-            } for pillar in pillars
+            **{
+                pillar: {
+                    "gan": "甲", "zhi": "子",
+                    "shi_shens": [{"shi_shen": "比肩", "gan": "甲", "source": "gan"}],
+                } for pillar in pillars
+            },
+            **_helpers.mock_engine_facts(),
         },
         "yongshen": {},
         "ziwei": {"gong_wei": []},

@@ -1,829 +1,326 @@
 {
-  "schema_version": 3,
-  "version": "2026.09.09.0",
-  "fields": {
-    "scope": {
-      "kind": "scalar",
-      "path": "method.scope",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "liki:qimen-snapshot-v3",
+  "title": "奇门 immutable snapshot 契约",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "method",
+    "snapshot_digest",
+    "question",
+    "input",
+    "matter",
+    "method_context",
+    "factors",
+    "special",
+    "policy",
+    "snapshot_kind"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "qimen-snapshot-v3"
+    },
+    "method": {
+      "const": "qimen"
+    },
+    "snapshot_digest": {
       "type": "string",
-      "required": true
+      "minLength": 16
     },
-    "school": {
-      "kind": "scalar",
-      "path": "method.school",
+    "question": {
       "type": "string",
-      "required": true
+      "minLength": 2
     },
-    "wu_bu_yu_shi": {
-      "kind": "boolean",
-      "path": "pan.wu_bu_yu_shi",
-      "required": true
-    },
-    "pillars": {
-      "kind": "object",
-      "path": "pan",
-      "required": true,
-      "fields": {
-        "ri_gan": {
-          "path": "ri_gan",
-          "type": "string",
-          "required": true
+    "input": {
+      "type": "object",
+      "required": [
+        "city",
+        "longitude",
+        "local_time",
+        "solar_time"
+      ],
+      "properties": {
+        "city": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
-        "ri_zhi": {
-          "path": "ri_zhi",
-          "type": "string",
-          "required": true
+        "longitude": {
+          "type": "number"
         },
-        "shi_gan": {
-          "path": "shi_gan",
-          "type": "string",
-          "required": true
+        "local_time": {
+          "type": "string"
         },
-        "shi_zhi": {
-          "path": "shi_zhi",
-          "type": "string",
-          "required": true
-        },
-        "nian_gan": {
-          "path": "nian_gan",
-          "type": "string",
-          "required": true
-        },
-        "nian_zhi": {
-          "path": "nian_zhi",
-          "type": "string",
-          "required": true
-        },
-        "yue_gan": {
-          "path": "yue_gan",
-          "type": "string",
-          "required": true
-        },
-        "yue_zhi": {
-          "path": "yue_zhi",
-          "type": "string",
-          "required": true
+        "solar_time": {
+          "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     },
-    "ri_gan_gong": {
-      "kind": "scalar",
-      "path": "ri_gan_gong",
-      "type": "string",
-      "required": true
+    "matter": {
+      "type": [
+        "object",
+        "null"
+      ]
     },
-    "shi_gan_gong": {
-      "kind": "scalar",
-      "path": "shi_gan_gong",
-      "type": "string",
-      "required": true
-    },
-    "shi_gan_domain": {
-      "kind": "scalar",
-      "projection": "gong_domain",
-      "path": "shi_gan_gong",
-      "type": "string",
-      "required": true
-    },
-    "ri_shi_relation": {
-      "kind": "object",
-      "path": "ri_shi_relation",
-      "required": true,
-      "fields": {
-        "subject": {
-          "path": "subject",
-          "type": "string",
-          "required": true
+    "method_context": {
+      "type": "object",
+      "required": [
+        "scope",
+        "school"
+      ],
+      "properties": {
+        "scope": {
+          "type": "string"
         },
-        "object": {
-          "path": "object",
-          "type": "string",
-          "required": true
-        },
-        "relation": {
-          "path": "relation",
-          "type": "string",
-          "required": true
-        },
-        "name": {
-          "path": "name",
-          "type": "string",
-          "required": true
+        "school": {
+          "type": "string"
         }
-      }
+      },
+      "additionalProperties": true
     },
-    "nian_gan_gong": {
-      "kind": "scalar",
-      "path": "yong_shen.nian_gan_gong",
-      "type": "string",
-      "required": false,
-      "nullable": true
+    "factors": {
+      "type": "object"
     },
-    "patterns": {
-      "kind": "object_array",
-      "path": "patterns",
-      "required": true,
-      "fields": {
-        "name": {
-          "path": "name",
-          "type": "string",
-          "required": true
+    "special": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "assertions"
+      ],
+      "properties": {
+        "rule": {
+          "enum": [
+            "lost_property",
+            "thief_capture",
+            "missing_person",
+            "capture_escape",
+            "thief_profile"
+          ]
         },
-        "palaces": {
-          "path": "gong_wei",
+        "assertions": {
           "type": "array",
-          "required": true
-        },
-        "auspicious": {
-          "path": "auspicious",
-          "type": "boolean",
-          "required": true
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "conclusion",
+              "basis",
+              "evidence"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "conclusion": {
+                "type": "string"
+              },
+              "basis": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array"
+              }
+            }
+          }
         }
       }
     },
-    "gan_interactions": {
-      "kind": "object_array",
-      "projection": "gan_interactions",
-      "path": "gan_interaction",
-      "required": true,
-      "fields": {
-        "name": {
-          "path": "name",
-          "type": "string",
-          "required": true
+    "policy": {
+      "type": "object",
+      "required": [
+        "immutable",
+        "no_rechart_without_new_event"
+      ],
+      "properties": {
+        "immutable": {
+          "const": true
         },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
+        "no_rechart_without_new_event": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "snapshot_kind": {
+      "enum": [
+        "standard",
+        "jinhan"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "snapshot_kind": {
+            "const": "standard"
+          }
         },
-        "range": {
-          "path": "range",
-          "type": "string",
-          "required": true
-        },
-        "direction": {
-          "path": "direction",
-          "type": "string",
-          "required": true,
-          "nullable": true
-        },
-        "heaven_gan": {
-          "path": "tian_pan_gan",
-          "type": "string",
-          "required": true
-        },
-        "earth_gan": {
-          "path": "di_pan_gan",
-          "type": "string",
-          "required": true
-        },
-        "auspicious": {
-          "path": "auspicious",
-          "type": "boolean",
-          "required": true
+        "required": [
+          "snapshot_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "factors": {
+            "type": "object",
+            "required": [
+              "scope",
+              "school",
+              "wu_bu_yu_shi",
+              "pillars",
+              "ri_gan_gong",
+              "shi_gan_gong",
+              "ri_shi_relation",
+              "patterns",
+              "stars",
+              "doors",
+              "spirits",
+              "kong_wang",
+              "ma_xing",
+              "palace_wang_shuai",
+              "shi_gan_gong_wang_shuai",
+              "ying_qi",
+              "yong_shen",
+              "zhi_fu_xing_gong",
+              "zhi_shi_men_gong",
+              "gong_domains",
+              "palace_directions",
+              "hour_polarity"
+            ]
+          }
         }
       }
     },
-    "men_interactions": {
-      "kind": "object_array",
-      "path": "men_interaction",
-      "required": true,
-      "fields": {
-        "name": {
-          "path": "name",
-          "type": "string",
-          "required": true
+    {
+      "if": {
+        "properties": {
+          "snapshot_kind": {
+            "const": "jinhan"
+          }
         },
-        "door": {
-          "path": "door",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
+        "required": [
+          "snapshot_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "matter": {
+            "const": null
+          },
+          "special": {
+            "const": null
+          },
+          "factors": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "school",
+              "scope",
+              "yin_dun",
+              "ri_gan",
+              "ri_zhi",
+              "palaces",
+              "day_spirits"
+            ],
+            "properties": {
+              "kind": {
+                "const": "jinhan"
+              },
+              "school": {
+                "const": "jinhan_yujing"
+              },
+              "scope": {
+                "const": "day"
+              },
+              "yin_dun": {
+                "type": "boolean"
+              },
+              "ri_gan": {
+                "type": "string"
+              },
+              "ri_zhi": {
+                "type": "string"
+              },
+              "palaces": {
+                "type": "array",
+                "minItems": 9,
+                "maxItems": 9,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "gong",
+                    "luoshu",
+                    "xing",
+                    "men",
+                    "men_present"
+                  ],
+                  "properties": {
+                    "gong": {
+                      "type": "string"
+                    },
+                    "luoshu": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9
+                    },
+                    "xing": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "men": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "men_present": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "day_spirits": {
+                "type": "array",
+                "minItems": 12,
+                "maxItems": 12,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "zhi",
+                    "shen"
+                  ],
+                  "properties": {
+                    "zhi": {
+                      "type": "string"
+                    },
+                    "shen": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
-      }
-    },
-    "xing_interactions": {
-      "kind": "object_array",
-      "path": "xing_interaction",
-      "required": true,
-      "fields": {
-        "name": {
-          "path": "name",
-          "type": "string",
-          "required": true
-        },
-        "star": {
-          "path": "xing",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "auspicious": {
-          "path": "auspicious",
-          "type": "boolean",
-          "required": true
-        }
-      }
-    },
-    "xing_gong_wuxing": {
-      "kind": "object_array",
-      "path": "xing_gong_wu_xing",
-      "required": true,
-      "fields": {
-        "star": {
-          "path": "xing",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "relation": {
-          "path": "relation",
-          "type": "string",
-          "required": true
-        },
-        "relation_name": {
-          "path": "relation_name",
-          "type": "string",
-          "required": true
-        },
-        "traditional_label": {
-          "path": "traditional_label",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "men_po": {
-      "kind": "value_array",
-      "path": "men_po",
-      "type": "string",
-      "required": true
-    },
-    "men_zhi": {
-      "kind": "value_array",
-      "path": "men_zhi",
-      "type": "string",
-      "required": true
-    },
-    "stars": {
-      "kind": "object_array",
-      "projection": "stars",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "star": {
-          "path": "xing",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong.name",
-          "type": "string",
-          "required": true
-        },
-        "heaven_gan": {
-          "path": "gan",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "doors": {
-      "kind": "object_array",
-      "projection": "doors",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "door": {
-          "path": "men",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong.name",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "spirits": {
-      "kind": "object_array",
-      "projection": "spirits",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "name": {
-          "path": "name",
-          "type": "string",
-          "required": true
-        },
-        "archetype": {
-          "path": "archetype",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "spirit_star_relations": {
-      "kind": "object_array",
-      "projection": "spirit_star_relations",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "spirit": {
-          "path": "spirit",
-          "type": "string",
-          "required": true
-        },
-        "spirit_name": {
-          "path": "spirit_name",
-          "type": "string",
-          "required": true
-        },
-        "spirit_gong": {
-          "path": "spirit_gong",
-          "type": "string",
-          "required": true
-        },
-        "star": {
-          "path": "star",
-          "type": "string",
-          "required": true
-        },
-        "star_gong": {
-          "path": "star_gong",
-          "type": "string",
-          "required": true
-        },
-        "relation": {
-          "path": "relation",
-          "type": "string",
-          "required": true
-        },
-        "same_gong": {
-          "path": "same_gong",
-          "type": "boolean",
-          "required": true
-        }
-      }
-    },
-    "spirit_spirit_relations": {
-      "kind": "object_array",
-      "projection": "spirit_spirit_relations",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "spirit": {
-          "path": "spirit",
-          "type": "string",
-          "required": true
-        },
-        "spirit_name": {
-          "path": "spirit_name",
-          "type": "string",
-          "required": true
-        },
-        "spirit_gong": {
-          "path": "spirit_gong",
-          "type": "string",
-          "required": true
-        },
-        "other": {
-          "path": "other",
-          "type": "string",
-          "required": true
-        },
-        "other_name": {
-          "path": "other_name",
-          "type": "string",
-          "required": true
-        },
-        "other_gong": {
-          "path": "other_gong",
-          "type": "string",
-          "required": true
-        },
-        "relation": {
-          "path": "relation",
-          "type": "string",
-          "required": true
-        },
-        "same_gong": {
-          "path": "same_gong",
-          "type": "boolean",
-          "required": true
-        }
-      }
-    },
-    "spirit_door_relations": {
-      "kind": "object_array",
-      "projection": "spirit_door_relations",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "spirit": {
-          "path": "spirit",
-          "type": "string",
-          "required": true
-        },
-        "spirit_gong": {
-          "path": "spirit_gong",
-          "type": "string",
-          "required": true
-        },
-        "door": {
-          "path": "door",
-          "type": "string",
-          "required": true
-        },
-        "door_gong": {
-          "path": "door_gong",
-          "type": "string",
-          "required": true
-        },
-        "relation": {
-          "path": "relation",
-          "type": "string",
-          "required": true
-        },
-        "same_gong": {
-          "path": "same_gong",
-          "type": "boolean",
-          "required": true
-        }
-      }
-    },
-    "kong_wang": {
-      "kind": "object_array",
-      "path": "kong_wang_affected",
-      "required": true,
-      "fields": {
-        "symbol": {
-          "path": "symbol",
-          "type": "string",
-          "required": true
-        },
-        "role": {
-          "path": "role",
-          "type": "string",
-          "required": true
-        },
-        "branch": {
-          "path": "branch",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "ma_xing": {
-      "kind": "object_array",
-      "path": "ma_xing_affected",
-      "required": true,
-      "fields": {
-        "symbol": {
-          "path": "symbol",
-          "type": "string",
-          "required": true
-        },
-        "role": {
-          "path": "role",
-          "type": "string",
-          "required": true
-        },
-        "branch": {
-          "path": "branch",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "palace_wang_shuai": {
-      "kind": "object_array",
-      "path": "palace_wang_shuai",
-      "required": true,
-      "fields": {
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "wuxing": {
-          "path": "wuxing",
-          "type": "string",
-          "required": true
-        },
-        "wang_shuai": {
-          "path": "wang_shuai",
-          "type": "string",
-          "required": true
-        },
-        "wang_shuai_name": {
-          "path": "wang_shuai_name",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "shi_gan_gong_wang_shuai": {
-      "kind": "object",
-      "path": "shi_gan_gong_wang_shuai",
-      "required": true,
-      "fields": {
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "wuxing": {
-          "path": "wuxing",
-          "type": "string",
-          "required": true
-        },
-        "wang_shuai": {
-          "path": "wang_shuai",
-          "type": "string",
-          "required": true
-        },
-        "wang_shuai_name": {
-          "path": "wang_shuai_name",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "ying_qi": {
-      "kind": "object_array",
-      "path": "ying_qi.candidates",
-      "required": true,
-      "fields": {
-        "type": {
-          "path": "type",
-          "type": "string",
-          "required": true
-        },
-        "branch": {
-          "path": "branch",
-          "type": "string",
-          "required": true
-        },
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "related_to": {
-          "path": "related_to",
-          "type": "array",
-          "required": true
-        }
-      }
-    },
-    "yong_shen": {
-      "kind": "object_array",
-      "path": "yong_shen.symbols",
-      "required": false,
-      "fields": {
-        "symbol": {
-          "path": "symbol",
-          "type": "string",
-          "required": true
-        },
-        "palace": {
-          "path": "palace",
-          "type": "string",
-          "required": true
-        },
-        "tian_gan": {
-          "path": "tian_gan",
-          "type": "array",
-          "required": true
-        },
-        "kong_wang_branches": {
-          "path": "kong_wang_branches",
-          "type": "array",
-          "required": true
-        },
-        "ma_xing_branch": {
-          "path": "ma_xing_branch",
-          "type": "string",
-          "required": false,
-          "nullable": true
-        }
-      }
-    },
-    "yong_shen_palaces": {
-      "kind": "object_array",
-      "projection": "symbol_palaces",
-      "path": "yong_shen.symbols",
-      "required": false,
-      "fields": {
-        "symbol": {
-          "path": "symbol",
-          "type": "string",
-          "required": true
-        },
-        "palace": {
-          "path": "palace",
-          "type": "string",
-          "required": true
-        },
-        "domain": {
-          "path": "domain",
-          "type": "string",
-          "required": true
-        },
-        "direction": {
-          "path": "direction",
-          "type": "string",
-          "required": true,
-          "nullable": true
-        },
-        "spirit": {
-          "path": "spirit",
-          "type": "string",
-          "required": true,
-          "nullable": true
-        },
-        "door": {
-          "path": "door",
-          "type": "string",
-          "required": true,
-          "nullable": true
-        },
-        "wang_shuai": {
-          "path": "wang_shuai",
-          "type": "string",
-          "required": true,
-          "nullable": true
-        },
-        "star": {
-          "path": "star",
-          "type": "string",
-          "required": true,
-          "nullable": true
-        },
-        "star_traditional_label": {
-          "path": "star_traditional_label",
-          "type": "string",
-          "required": true,
-          "nullable": true
-        }
-      }
-    },
-    "zhi_fu_xing_gong": {
-      "kind": "scalar",
-      "path": "zhi_fu_xing_gong",
-      "type": "string",
-      "required": true
-    },
-    "zhi_shi_men_gong": {
-      "kind": "scalar",
-      "path": "zhi_shi_men_gong",
-      "type": "string",
-      "required": true
-    },
-    "gong_domains": {
-      "kind": "object_array",
-      "projection": "palace_domains",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "domain": {
-          "path": "domain",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "palace_directions": {
-      "kind": "object_array",
-      "projection": "palace_directions",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "gong": {
-          "path": "gong",
-          "type": "string",
-          "required": true
-        },
-        "direction": {
-          "path": "direction",
-          "type": "string",
-          "required": true
-        }
-      }
-    },
-    "hour_polarity": {
-      "kind": "scalar",
-      "projection": "hour_polarity",
-      "path": "pan.shi_gan",
-      "type": "string",
-      "required": true
-    },
-    "lost_context": {
-      "kind": "object_array",
-      "projection": "lost_context",
-      "path": "palace_wang_shuai",
-      "required": true,
-      "fields": {
-        "gong": {"path": "gong", "type": "string", "required": true},
-        "direction": {"path": "direction", "type": "string", "required": true, "nullable": true},
-        "domain": {"path": "domain", "type": "string", "required": true},
-        "door": {"path": "door", "type": "string", "required": true, "nullable": true},
-        "wang_shuai": {"path": "wang_shuai", "type": "string", "required": true, "nullable": true}
-      }
-    },
-    "geng_ge": {
-      "kind": "object_array",
-      "projection": "geng_ge",
-      "path": "gan_interaction",
-      "required": true,
-      "fields": {
-        "level": {"path": "level", "type": "string", "required": true},
-        "gong": {"path": "gong", "type": "string", "required": true},
-        "direction": {"path": "direction", "type": "string", "required": true, "nullable": true},
-        "door": {"path": "door", "type": "string", "required": true, "nullable": true},
-        "earth_gan": {"path": "earth_gan", "type": "string", "required": true}
-      }
-    },
-    "geng_ge_levels": {
-      "kind": "value_array",
-      "projection": "geng_ge_levels",
-      "path": "gan_interaction",
-      "type": "string",
-      "required": true
-    },
-    "geng_ge_status": {
-      "kind": "scalar",
-      "projection": "geng_ge_status",
-      "path": "gan_interaction",
-      "type": "string",
-      "required": true
-    },
-    "thief_context": {
-      "kind": "object_array",
-      "projection": "thief_context",
-      "path": "pan.gong_wei",
-      "required": true,
-      "fields": {
-        "role": {"path": "role", "type": "string", "required": true},
-        "thief_symbol": {"path": "thief_symbol", "type": "string", "required": true},
-        "gong": {"path": "gong", "type": "string", "required": true},
-        "direction": {"path": "direction", "type": "string", "required": true, "nullable": true},
-        "domain": {"path": "domain", "type": "string", "required": true},
-        "person_image": {"path": "person_image", "type": "string", "required": true},
-        "wang_shuai_label": {"path": "wang_shuai_label", "type": "string", "required": true},
-        "lucky_pattern": {"path": "lucky_pattern", "type": "boolean", "required": true},
-        "lucky_pattern_names": {"path": "lucky_pattern_names", "type": "array", "required": true}
-      }
-    },
-    "tianwang_context": {
-      "kind": "object_array",
-      "projection": "tianwang_context",
-      "path": "gan_interaction",
-      "required": true,
-      "fields": {
-        "gong": {"path": "gong", "type": "string", "required": true},
-        "direction": {"path": "direction", "type": "string", "required": true, "nullable": true},
-        "range": {"path": "range", "type": "string", "required": true},
-        "hour_gong": {"path": "hour_gong", "type": "string", "required": true},
-        "hour_direction": {"path": "hour_direction", "type": "string", "required": true, "nullable": true},
-        "relation_to_hour": {"path": "relation_to_hour", "type": "string", "required": true},
-        "hour_polarity": {"path": "hour_polarity", "type": "string", "required": true}
       }
     }
-  }
+  ]
 }

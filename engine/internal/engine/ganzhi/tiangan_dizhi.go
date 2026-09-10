@@ -151,6 +151,30 @@ func SixtyToZhu(idx int) Zhu {
 
 // XunKong returns the two 旬空（空亡）zhi for the 旬 that a day pillar belongs to.
 //
+// LuZhi returns the traditional Ten Stem Lu branch.
+func LuZhi(g Gan) Zhi {
+	switch g {
+	case GanJia:
+		return ZhiYin
+	case GanYi:
+		return ZhiMao
+	case GanBing, GanWu:
+		return ZhiSi
+	case GanDing, GanJi:
+		return ZhiWu
+	case GanGeng:
+		return ZhiShen
+	case GanXin:
+		return ZhiYou
+	case GanRen:
+		return ZhiHai
+	case GanGui:
+		return ZhiZi
+	default:
+		return 0
+	}
+}
+
 // 口诀：甲子旬空戌亥、甲戌旬空申酉、甲申旬空午未、甲午旬空辰巳、甲辰旬空寅卯、甲寅旬空子丑。
 func XunKong(gan Gan, zhi Zhi) [2]Zhi {
 	xun := SixtyCycleIndex(gan, zhi) / 10

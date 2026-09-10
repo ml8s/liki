@@ -17,6 +17,6 @@ description: 问该不该做 / 方向 / 策略 / 时机 — 默认奇门
 | 步骤 | 动作 |
 |---|---|
 | 1 | 按 `app/question.md` 判断为策略 / 方向 / 时机 |
-| 2 | 按 `app/qimen-chart.md` 调 `qimen_snapshot` |
+| 2 | 按 `app/qimen-snapshot.md` 调 `qimen_snapshot` |
 | 3 | 调 `qimen_ask(snapshot, message)` |
-| 4 | 按 `app/qimen-chart.md` 输出 |
+| 4 | 按 `app/qimen-snapshot.md` 输出 |

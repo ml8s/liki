@@ -10,7 +10,7 @@ description: 奇门占捕盗解释边界
 ## 流程
 
 1. 用 `qimen_snapshot` 取默认时家转盘基础盘，不传 `matter` 或 `yong_shen`。
-2. 捕获关系用 `query(rule=thief_capture, pan=...)`；贼人画像用 `query(rule=thief_profile, pan=...)`。
+2. 捕获关系用 snapshot.special.assertions；贼人画像用 snapshot.special.assertions。
 3. 只解释工具命中的表内候选；候选并列，不排序、不合并成最终结论。
 
 ## 当前边界

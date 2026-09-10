@@ -25,7 +25,7 @@ def test_bazi_tool_and_domain_contracts_use_distributed_version():
         (ROOT / "skills/liki-bazi/tools/skill-tools.json").read_text(encoding="utf-8")
     )
     domain_contract = json.loads(
-        (ROOT / "skills/liki-bazi/tools/domain_snapshot_contract.json").read_text(encoding="utf-8")
+        (ROOT / "skills/liki-bazi/tools/natal_projection_contract.json").read_text(encoding="utf-8")
     )
     assert tools["info"]["version"] == version
     assert domain_contract["version"] == version

@@ -12,17 +12,18 @@
  },
  "liuyao.chart": {
   "solar_time": "2000-06-15T12:00:00+08:00",
-  "yaos": [
-   7,
-   7,
-   7,
-   7,
-   7,
-   7
-  ]
+  "casting": {
+   "schema_version": "liuyao-cast-v1",
+   "mode": "yaos",
+   "order": "bottom_up",
+   "yaos": [7, 7, 7, 7, 7, 7],
+   "dong_yao": [],
+   "casting_id": "7496b4e4e1355a561e52cf3892e3603c04a57582156f148a6f76c94bb65774ff"
+  }
  },
  "liuyao.qigua": {
-  "seed": 12345
+  "mode": "yaos",
+  "yaos": [7, 7, 7, 7, 7, 7]
  },
  "qimen.chart": {
   "solar_time": "2000-06-15T12:00:00+08:00",

@@ -26,13 +26,19 @@ type DongYaoRelation struct {
 // computeDongYaoRelations 计算每个动爻与用神的关系（9 种枚举）。
 // 原神 = 生用神五行的五行；忌神 = 克用神五行的五行。
 func computeDongYaoRelations(p *Chart, yongShenType YongShen) []DongYaoRelation {
-	yongPos, _ := p.findYongShen(yongShenType)
-	if yongPos == 0 {
-		return nil // 用神不现
+	yongPos := p.findYongShen(yongShenType)
+	var yWuxing ganzhi.Wuxing
+	var yongZhi ganzhi.Zhi
+	if yongPos > 0 {
+		yongLine := p.Lines[yongPos-1]
+		yWuxing = yongLine.Wuxing
+		yongZhi = yongLine.Zhi
+	} else if fuShen := p.findFuShen(yongShenType); fuShen != nil {
+		yongZhi = fuShenZhi(fuShen)
+		yWuxing = ganzhi.ZhiWuxing(yongZhi)
+	} else {
+		return nil // 本卦和本宫伏神都不现
 	}
-	yongLine := p.Lines[yongPos-1]
-	yWuxing := yongLine.Wuxing
-
 	// 原神五行 = 生用神者；忌神五行 = 克用神者
 	var yuanWuxing, jiWuxing ganzhi.Wuxing
 	for _, wx := range []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui} {
@@ -66,7 +72,7 @@ func computeDongYaoRelations(p *Chart, yongShenType YongShen) []DongYaoRelation 
 			rel.Relation = RelationBiHe
 		}
 		// 冲用
-		if ganzhi.IsLiuChong(dLine.Zhi, yongLine.Zhi) {
+		if yongZhi > 0 && ganzhi.IsLiuChong(dLine.Zhi, yongZhi) {
 			rel.Relation = RelationChongYong
 		}
 		// 通过原神/忌神

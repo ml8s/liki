@@ -8,11 +8,54 @@ if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
 
 
-def mock_base_context(**shishen):
+def mock_base_context(**ten_god_states):
     """构造最小因子快照（base）。"""
-    base = {"shishen": shishen, "ri_gan": "甲",
-           "wuxing": {"wang_shuai": {}}}
+    base = {
+        "ten_god_states": ten_god_states,
+        "element_states": {},
+        "ri_gan": "甲",
+        "wuxing": {"count": {}},
+    }
     return base
+
+
+def mock_engine_facts() -> dict:
+    """构造 fullchart engine 事实的最小契约片段。"""
+    return {
+        "lu_roots": [],
+        "relation_groups": [],
+        "ten_god_states": [{
+            "shi_shen": "比肩", "wuxing": "木", "transparent": True, "hidden": True,
+            "rooted": True, "timely": True, "count": 1, "strength": "strong",
+        }],
+        "element_states": [
+            {
+                "wuxing": element, "season_strength": season, "strength": season,
+                "transparent": element == "木", "rooted": element == "木",
+                "controls": controls, "controlled_by": controlled_by,
+                "controller_strength": "weak", "reasons": ["timely"] if season == "strong" else [],
+            }
+            for element, season, controls, controlled_by in (
+                ("木", "strong", "土", "金"),
+                ("火", "strong", "金", "水"),
+                ("土", "weak", "水", "木"),
+                ("金", "weak", "木", "火"),
+                ("水", "weak", "火", "土"),
+            )
+        ],
+        "atomic_facts": {
+            "day_master_element": "木", "officer_killing_cleaned": False,
+            "day_master_stem": "甲", "day_branch": "子",
+            "wealth_tomb_present": False, "wealth_star_in_tomb": False,
+            "spouse_palace_state": "静", "day_branch_type": "桃花",
+            "year_officer_killing": False,
+            "month_longevity": "沐浴", "year_stem_ten_god": "比肩",
+            "month_main_ten_god": "正印", "hour_stem_ten_god": "比肩",
+            "pattern_god_transparent": False,
+            "pillar_punishments": {"nian": False, "yue": False, "ri": False, "shi": False},
+        },
+        "da_yun": {"steps": [{"rooted": False, "root_refs": []}]},
+    }
 
 
 def valid_daxian(birth_year: int = 1990):

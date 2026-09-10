@@ -3,14 +3,16 @@ from __future__ import annotations
 
 from errors import PanSchemaError
 from factor_constants import load_constants
+from pan_integrity import DIGEST_FIELD, validate_natal_digest
 
 _CONSTANTS = load_constants()
 REQUIRED_FIELDS = (
-    "solar", "lunar", "chart", "full", "yongshen", "ziwei",
-    "ziwei_daxian", "gender",
+    "solar", "lunar", "chart", "full", "ziwei",
+    "ziwei_daxian", "gender", DIGEST_FIELD,
 )
 PILLARS = tuple(_CONSTANTS["四柱"])
 GENDERS = tuple(_CONSTANTS["性别闭集"])
+ENGINE_LIST_FACTS = ("lu_roots", "relation_groups", "ten_god_states", "element_states")
 
 
 def validate_natal_pan(pan: object, action: str = "pan") -> None:
@@ -28,7 +30,8 @@ def validate_natal_pan(pan: object, action: str = "pan") -> None:
         )
     wrong = [
         key for key in REQUIRED_FIELDS
-        if key not in ("solar", "gender", "ziwei_daxian") and not isinstance(pan[key], dict)
+        if key not in ("solar", "gender", "ziwei_daxian", DIGEST_FIELD)
+        and not isinstance(pan[key], dict)
     ]
     if wrong:
         raise PanSchemaError(
@@ -56,6 +59,40 @@ def validate_natal_pan(pan: object, action: str = "pan") -> None:
         )
     if not isinstance(chart.get("da_yun"), dict):
         raise PanSchemaError(f"{action} pan.chart.da_yun 缺失或不是 object。")
+    for key in ENGINE_LIST_FACTS:
+        if not isinstance(full.get(key), list):
+            raise PanSchemaError(f"{action} pan.full.{key} 缺失或不是 array。")
+    if not full["ten_god_states"]:
+        raise PanSchemaError(f"{action} pan.full.ten_god_states 不能为空。")
+    if len(full["element_states"]) != len(_CONSTANTS["五行"]):
+        raise PanSchemaError(f"{action} pan.full.element_states 必须覆盖五行闭集。")
+    atomic = full.get("atomic_facts")
+    if not isinstance(atomic, dict) or not atomic.get("day_master_element"):
+        raise PanSchemaError(f"{action} pan.full.atomic_facts.day_master_element 缺失。")
+    for key in ("day_master_stem", "day_branch"):
+        if not isinstance(atomic.get(key), str):
+            raise PanSchemaError(f"{action} pan.full.atomic_facts.{key} 缺失或不是 string。")
+    for key in (
+        "month_longevity", "year_stem_ten_god", "month_main_ten_god", "hour_stem_ten_god",
+    ):
+        if not isinstance(atomic.get(key), str):
+            raise PanSchemaError(f"{action} pan.full.atomic_facts.{key} 缺失或不是 string。")
+    if not isinstance(atomic.get("pattern_god_transparent"), bool):
+        raise PanSchemaError(f"{action} pan.full.atomic_facts.pattern_god_transparent 缺失或不是 boolean。")
+    if not isinstance(atomic.get("pillar_punishments"), dict):
+        raise PanSchemaError(f"{action} pan.full.atomic_facts.pillar_punishments 缺失或不是 object。")
+    full_dayun = full.get("da_yun")
+    if not isinstance(full_dayun, dict) or not isinstance(full_dayun.get("steps"), list):
+        raise PanSchemaError(f"{action} pan.full.da_yun.steps 缺失或不是 array。")
+    for index, step in enumerate(full_dayun["steps"]):
+        if not isinstance(step, dict) or not isinstance(step.get("rooted"), bool):
+            raise PanSchemaError(
+                f"{action} pan.full.da_yun.steps[{index}] 缺少 rooted engine 事实。"
+            )
+        if step["rooted"] and not isinstance(step.get("root_refs"), list):
+            raise PanSchemaError(
+                f"{action} pan.full.da_yun.steps[{index}].root_refs 缺失或不是 array。"
+            )
     if not isinstance(pan["ziwei"].get("gong_wei"), list):
         raise PanSchemaError(f"{action} pan.ziwei.gong_wei 缺失或不是 array。")
     if not isinstance(pan["ziwei_daxian"], list):
@@ -96,3 +133,4 @@ def validate_natal_pan(pan: object, action: str = "pan") -> None:
         raise PanSchemaError(
             f"{action} pan.ziwei_daxian 的 {daxian_count} 个大限宫位必须唯一。"
         )
+    validate_natal_digest(pan, action=action)

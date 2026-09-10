@@ -8,10 +8,13 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 
-PATH = Path(__file__).with_name("liuyao_snapshot_contract.json").parent
+PATH = Path(__file__).parent
 
 CONTRACT_FILES = {
+    "divination_blocked": "divination_blocked_contract.json",
     "liuyao_snapshot": "liuyao_snapshot_contract.json",
+    "qimen_snapshot": "qimen_snapshot_contract.json",
+    "huangli_days": "huangli_days_contract.json",
     "liuyao_answer": "liuyao_answer_contract.json",
     "qimen_answer": "qimen_answer_contract.json",
 }
@@ -24,9 +27,14 @@ def load_contract(name: str) -> dict:
     return json.loads((PATH / CONTRACT_FILES[name]).read_text(encoding="utf-8"))
 
 
+@lru_cache
+def _validator(name: str) -> Draft202012Validator:
+    return Draft202012Validator(load_contract(name))
+
+
 def validate_document(name: str, document: dict) -> None:
     """校验失败抛 ValueError；成功返回 None。"""
-    validator = Draft202012Validator(load_contract(name))
+    validator = _validator(name)
     errors = sorted(validator.iter_errors(document), key=lambda item: list(item.absolute_path))
     if not errors:
         return

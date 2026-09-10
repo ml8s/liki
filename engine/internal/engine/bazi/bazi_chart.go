@@ -113,6 +113,17 @@ type FullChart struct {
 	// 用神三派（透传自 lean Chart）。
 	YongShen YongShenResult `json:"yong_shen"`
 
+	// 确定性命理原子事实：透干十神得十干禄位。
+	LuRoots []LuRoot `json:"lu_roots"`
+	// 合会冲刑完整组；Python 因子层只读。
+	RelationGroups []RelationGroup `json:"relation_groups"`
+	// 十神显隐、通根、得令与旺弱状态；Python 因子层只读。
+	TenGodStates []TenGodState `json:"ten_god_states"`
+	// 五行季节旺弱、组合旺弱与生克方向；Python 因子层只读。
+	ElementStates []ElementState `json:"element_states"`
+	// 确定性命理原子事实：Python 因子层只读，不复算。
+	AtomicFacts AtomicFacts `json:"atomic_facts"`
+
 	// 补充信息（原 bazi.chart_extra）
 	SanYuan    SanYuan             `json:"san_yuan"`
 	GongJia    []GongJia           `json:"gong_jia,omitempty"`

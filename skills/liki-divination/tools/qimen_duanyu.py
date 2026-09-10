@@ -1,24 +1,24 @@
-"""奇门解释层：稳定快照 × 结构化条件表 → 结构化候选；不做最终裁决。"""
+"""奇门解释层：稳定因子投影 × 结构化条件表 → 结构化候选；不做最终裁决。"""
 from __future__ import annotations
 
 import json
 
-from qimen_factors import load_snapshot_contract, validate_qimen_snapshot
+from qimen_projection import load_factors_contract, validate as validate_factors
 from qimen_interpretations import assert_rule_compatibility, load_interpretation_index
 
 
-def query(rule: str, snapshot: dict) -> dict:
+def query(rule: str, factors: dict) -> dict:
     """返回某个奇门占法的命中断语候选；未命中返回空列表。"""
-    validate_qimen_snapshot(snapshot)
-    snapshot_contract = load_snapshot_contract()
+    validate_factors(factors)
+    factors_contract = load_factors_contract()
     index = load_interpretation_index()
     if rule not in index:
         raise ValueError(f"unknown qimen interpretation rule: {rule}")
-    assert_rule_compatibility(rule, snapshot["scope"], snapshot["school"])
+    assert_rule_compatibility(rule, factors["scope"], factors["school"])
 
     matched = []
     for row in index[rule]:
-        evidence = match_groups(row["conditions"], snapshot, snapshot_contract)
+        evidence = match_groups(row["conditions"], factors, factors_contract)
         if evidence is None:
             continue
         matched.append({
@@ -33,15 +33,15 @@ def query(rule: str, snapshot: dict) -> dict:
 
 
 def match_groups(
-    groups: list[list[dict]], snapshot: dict, snapshot_contract: dict
+    groups: list[list[dict]], factors: dict, factors_contract: dict
 ) -> list[dict] | None:
     object_array_fields = {
-        name for name, spec in snapshot_contract["fields"].items()
+        name for name, spec in factors_contract["fields"].items()
         if spec["kind"] == "object_array"
     }
     for conditions in groups:
         if evidence := match_condition_group(
-            conditions, snapshot, snapshot_contract, object_array_fields
+            conditions, factors, factors_contract, object_array_fields
         ):
             return evidence
     return None
@@ -49,8 +49,8 @@ def match_groups(
 
 def match_condition_group(
     conditions: list[dict],
-    snapshot: dict,
-    snapshot_contract: dict,
+    factors: dict,
+    factors_contract: dict,
     object_array_fields: set[str],
 ) -> list[dict] | None:
     array_conditions: dict[str, list[dict]] = {}
@@ -61,7 +61,7 @@ def match_condition_group(
     matched_items: dict[str, dict] = {}
     for field, field_conditions in array_conditions.items():
         matched_item = None
-        for item in snapshot[field]:
+        for item in factors[field]:
             if all(
                 condition_matches(
                     item.get(condition["item_key"]),
@@ -86,7 +86,7 @@ def match_condition_group(
                 else condition["operator"]
             )
         else:
-            actual = condition_value(snapshot, condition, snapshot_contract)
+            actual = condition_value(factors, condition, factors_contract)
             operator = condition["operator"]
         if not condition_matches(actual, operator, condition["expected"]):
             return None
@@ -104,8 +104,8 @@ def match_condition_group(
     return evidence
 
 
-def condition_value(snapshot: dict, condition: dict, field_spec: dict):
-    actual = snapshot[condition["field"]]
+def condition_value(factors: dict, condition: dict, field_spec: dict):
+    actual = factors[condition["field"]]
     field_spec = field_spec["fields"][condition["field"]]
     kind = field_spec["kind"]
     if kind == "object":

@@ -28,12 +28,10 @@ def test_career_palace_main_star_prosperity_is_not_always_true() -> None:
         "male",
         {**_minimal_fac(),
          "ziwei": {
-            "gong_wei": [
-                {
-                    "name": "官禄宫",
-                    "xing_yao": [{"xing": "紫微", "liang_du": "庙"}],
-                }
-            ]
+            "palace_facts": [{
+                "palace": "官禄宫", "kind": "brightness",
+                "target": "庙旺", "star": "紫微", "value": "庙",
+            }]
          }},
         shushi="ziwei",
     )
@@ -46,6 +44,7 @@ def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
 
     matching = {
         "full": {
+            "atomic_facts": {"pattern_god_transparent": True},
             "yue": {
                 "shi_shens": [
                     {"shi_shen": "正官", "gan": "辛", "source": "gan"}
@@ -57,6 +56,7 @@ def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
 
     non_matching = {
         "full": {
+            "atomic_facts": {"pattern_god_transparent": False},
             "yue": {
                 "shi_shens": [
                     {"shi_shen": "正财", "gan": "己", "source": "gan"}

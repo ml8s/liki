@@ -54,7 +54,7 @@ def test_factor_table_error():
 
 def test_factor_evaluate_error():
     try:
-        _atomic("不存在算子[]", "male", {"shishen": {}})
+        _atomic("不存在算子[]", "male", {"ten_god_states": {}})
     except ValueError as exc:
         assert isinstance(exc, FactorEvaluateError)
     else:

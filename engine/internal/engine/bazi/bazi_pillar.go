@@ -20,7 +20,7 @@ func computeChartCore(bz ganzhi.Bazi, st tianwen.SolarTime, gender ganzhi.Gender
 		Shi:    makePI(3),
 		Gender: gender,
 	}
-	cr.DaYun = computeDaYun(st, bz.Yue, bz.Nian.Gan, bz.Ri.Gan, gender)
+	cr.DaYun = computeDaYun(st, bz, gender)
 	cr.BirthYear = st.Time().Year()
 	cr.ZiShiRule = "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
 	return cr

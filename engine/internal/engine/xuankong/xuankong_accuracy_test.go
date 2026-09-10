@@ -174,49 +174,6 @@ func TestFlyStars(t *testing.T) {
 // Reference: 子癸甲申→1(贪狼), 壬卯乙未坤→2(巨门),
 //
 //	乾亥辰巽巳戌→6(武曲), 酉辛丑艮丙→7(破军), 寅午庚丁→9(右弼)
-func TestTiXingTable(t *testing.T) {
-	// 替卦十三山（中州派口诀）：甲申→1、壬卯乙→2、辰巽巳→6、丑艮丙→7、庚寅→9
-	wantMap := map[string]int{
-		"甲": 1, "申": 1,
-		"壬": 2, "卯": 2, "乙": 2,
-		"辰": 6, "巽": 6, "巳": 6,
-		"丑": 7, "艮": 7, "丙": 7,
-		"庚": 9, "寅": 9,
-	}
-	for i, m := range fengshui.Mountains24Table {
-		want, ok := wantMap[m.Name]
-		if ok {
-			if got := needTiXing[i]; got != want {
-				t.Errorf("needTiXing[%d=%s] = %d, want %d (替卦十三山)", i, m.Name, got, want)
-			}
-		} else {
-			if got := needTiXing[i]; got != 0 {
-				t.Errorf("needTiXing[%d=%s] = %d, want 0 (自身重复无须寻替)", i, m.Name, got)
-			}
-		}
-	}
-}
-
-func TestTiXingShanStar(t *testing.T) {
-	// 替卦十三山：甲(5)→1、巽(9)→6（天元龙亦替）、艮(3)→7（天元龙亦替）
-	cases := []struct {
-		idx  int
-		want int
-		why  string
-	}{
-		{5, 1, "甲=地元龙应替贪狼1"},
-		{9, 6, "巽=天元龙亦应替武曲6（巽卦三山皆武曲）"},
-		{3, 7, "艮=天元龙亦应替破军7（艮丙山替破军）"},
-		{0, 0, "子=自身重复无须寻替"},
-		{15, 0, "坤=自身重复无须寻替"},
-	}
-	for _, c := range cases {
-		if got := tiXingShanStar(c.idx); got != c.want {
-			t.Errorf("tiXingShanStar(%d) = %d, want %d (%s)", c.idx, got, c.want, c.why)
-		}
-	}
-}
-
 func TestSubstituteStarUsage(t *testing.T) {
 	// 正向（下卦）不用替星：八运甲山庚向（地元龙），山星=震宫运星6 入中（非替星1），
 	// 向星=兑宫运星1 入中（非替星9）。《沈氏玄空学》：替星仅用于兼向（替卦）。

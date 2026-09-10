@@ -208,11 +208,12 @@ func computeLiuQin(lineElem, palaceElem ganzhi.Wuxing) LiuQin {
 type YongShenResult struct {
 	Name       string  `json:"name"`                  // 用神六亲名
 	Position   int     `json:"position"`              // line position 1-6, 0 if not found
+	IsHidden   bool    `json:"is_hidden,omitempty"`   // 本卦不现，取本宫伏神
 	WangShuai  string  `json:"wang_shuai"`            // 用神旺衰（旺/相/休/囚/死）聚合
 	YuePo      bool    `json:"yue_po,omitempty"`      // 用神月破
 	XunKong    bool    `json:"xun_kong,omitempty"`    // 用神旬空
 	MuKu       bool    `json:"mu_ku,omitempty"`       // 用神入墓
-	LiuShou    LiuShou `json:"liu_shou,omitempty"`    // 用神临的六神
+	LiuShou    LiuShou `json:"liu_shou,omitempty"`    // 用神临的六神；伏神不继承飞神六神
 	ChangSheng string  `json:"chang_sheng,omitempty"` // 用神五行在月支的十二长生
 	FuShen     *FuShen `json:"fu_shen,omitempty"`
 }
@@ -236,7 +237,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	chart.XunKong = ganzhi.XunKong(bz.Ri.Gan, bz.Ri.Zhi)
 
 	// 用神.
-	pos, _ := chart.findYongShen(yongShen)
+	pos := chart.findYongShen(yongShen)
 	chart.YongShen = YongShenResult{Name: yongShen.String(), Position: pos}
 	if pos == 0 {
 		chart.YongShen.FuShen = chart.findFuShen(yongShen)
@@ -259,6 +260,17 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 		chart.YongShen.MuKu = chart.Lines[pos-1].MuKu
 		chart.YongShen.LiuShou = chart.Lines[pos-1].LiuShou
 		chart.YongShen.ChangSheng = chart.Lines[pos-1].ChangShengYue
+	} else if fuShen := chart.YongShen.FuShen; fuShen != nil {
+		fuZhi := fuShenZhi(fuShen)
+		fuElement := ganzhi.ZhiWuxing(fuZhi)
+		chart.YongShen.IsHidden = true
+		chart.YongShen.WangShuai = ganzhi.WangShuaiOf(fuElement, chart.YueZhi).String()
+		chart.YongShen.YuePo = ganzhi.IsLiuChong(fuZhi, chart.YueZhi)
+		chart.YongShen.XunKong = fuZhi == chart.XunKong[0] || fuZhi == chart.XunKong[1]
+		if tomb := tombOf(fuElement); tomb != 0 && fuZhi == tomb {
+			chart.YongShen.MuKu = true
+		}
+		chart.YongShen.ChangSheng = lifeStageOf(fuElement, chart.YueZhi)
 	}
 
 	// 动爻关系（与用神的关系）.
@@ -277,6 +289,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	chart.YongShenCandidates = computeYongShenCandidates(&chart, yongShen)
 	chart.HiddenLines = computeHiddenLines(&chart)
 	chart.BranchRelationFacts = computeBranchRelationFacts(&chart)
+	chart.Conflicts = computeConflicts(&chart)
 
 	gc, err := GetGuaCi(int(chart.BenGua))
 	if err == nil {
@@ -286,7 +299,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 }
 
 // computeLineDerived fills per-line deterministic states: 月破（月建冲）、本爻发动、
-// 以及各动爻对本爻的生克方向。本卦与变卦爻都标记（用神可能在变卦）。
+// 以及各动爻对本爻的生克方向。变卦仅保留动变事实，不参与主用神定位。
 func computeLineDerived(p *Chart) {
 	mark := func(lines *[6]Line) {
 		for i := range lines {

@@ -52,72 +52,42 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
         palace_zhi = pillars_zhi.get(palace_key, ri_zhi)
         if target in const['四柱序号']:
             palace_zhi = _source_zhi(target, ctx)
-        chong_map = const.get(const['关系取冲类型'], {})
-        if op == '流年冲' and palace_zhi:
-            if chong_map.get(nz) == palace_zhi:
-                return 1
         if op == '流年值':
             return 1 if nz == palace_zhi else 0
-        zhi_he = zhi_chong = 0
-        chart_zhis = {nz, palace_zhi, *pillars_zhi.values()}
-        for it in ln.get('natal_interactions', []):
-            for zr in it.get('zhi_rels', []):
-                za, zb = (zr.get('zhi_a', ''), zr.get('zhi_b', ''))
-                other = zb if za == nz else za if zb == nz else ''
-                if other == palace_zhi:
-                    t = zr.get('type', '')
-                    he_mode = const.get('关系取合类型', {}).get(t)
-                    if he_mode == '两支':
-                        zhi_he = 1
-                    elif he_mode == '全组':
-                        peers = const[t].get(nz, []) or []
-                        complete = palace_zhi in peers and set(peers) <= chart_zhis
-                        if complete:
-                            zhi_he = 1
-                    elif t == const['关系取冲类型']:
-                        zhi_chong = 1
-        return zhi_he if op == '流年合' else zhi_chong
+        atomic = _atomic_facts(ctx)
+        relations = atomic.get('year_branch_relations', {})
+        if op == '流年冲':
+            return 1 if relations.get(palace_zhi) == 'liu_chong' else 0
+        if op == '流年合':
+            if relations.get(palace_zhi) == 'liu_he':
+                return 1
+            return 1 if any(
+                item.get('kind') in {'san_he', 'san_hui'}
+                and item.get('includes_year')
+                and palace_zhi in item.get('branches', [])
+                for item in atomic.get('combinations', [])
+            ) else 0
 
     if op == '流年克':
-        _GANWX = const['天干五行']
-        _DIZHI_WUXING = const['地支五行']
-        target_wx = None
-        if target == const['日主目标']:
-            target_wx = _GANWX.get(base.get('ri_gan', ''), '')
-        else:
-            for k in star_keys:
-                st = base.get('shishen', {}).get(k)
-                if st and st.get('wuxing'):
-                    target_wx = st['wuxing']
-                    break
-            if not target_wx:
-                target_wx = _target_wuxing_from_day_master(base.get('ri_gan', ''), star_keys, const)
-        if target_wx and nian_gan:
-            ke = const['五行生克'].get(_GANWX.get(nian_gan, ''), {}).get('克')
-            ke2 = const['五行生克'].get(_DIZHI_WUXING.get(nz, ''), {}).get('克')
-            return 1 if ke == target_wx or ke2 == target_wx else 0
-        return 0
+        role = const.get('六亲角色', {}).get(target, target)
+        if isinstance(role, dict):
+            gender_key = const.get('性别别名', {}).get(gender, gender)
+            role = role.get(gender_key, '')
+        atomic_key = const.get('流年克目标', {}).get(role, 'day_master')
+        return 1 if _atomic_facts(ctx).get('controls_targets', {}).get(atomic_key) else 0
 
 def _liu_handler_yongshen(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     year = current_year
     if op == '忌神干':
-        ji = base.get('yongshen', {}).get('fu_yi', {}).get('ji', '')
-        ji_wx = const['天干五行'].get(ji, '') or ji
-        return 1 if ji_wx and const['天干五行'].get(nian_gan, '') == ji_wx else 0
+        return 1 if _atomic_facts(ctx).get('unfavorable_gan') else 0
 
     if op == '忌神支':
-        ji = base.get('yongshen', {}).get('fu_yi', {}).get('ji', '')
-        ji_wx = const['天干五行'].get(ji, '') or ji
-        return 1 if ji_wx and const['地支五行'].get(nz, '') == ji_wx else 0
+        return 1 if _atomic_facts(ctx).get('unfavorable_branch') else 0
 
     if op == '财坏印流年':
-        _YIN2 = set(const['十神大类'][const['印星十神大类']])
-        if nz and nian_gan and (ss_year in _YIN2):
-            ke = const['五行生克'].get(const['地支五行'].get(nz, ''), {}).get('克')
-            return 1 if ke == const['天干五行'].get(nian_gan, '') else 0
-        return 0
+        return 1 if _atomic_facts(ctx).get('wealth_breaks_seal') else 0
 
 def _liu_handler_dayun(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
@@ -178,110 +148,90 @@ def _liu_handler_flow_star(op: str, args: list, base: dict, gender: str, chart: 
 def _liu_handler_banhe(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                        current_year: int, const: dict, ln: dict, nz: str,
                        nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
-    """机械检查：三合组旺支是否参与两支组合。
-
-    查 constants.json「三合半合」：子/午/卯/酉为各局旺支；缺旺支的
-    生墓两支为拱合，不属于本算子的半合事实。
-    """
+    """读取 engine 三合半合原子事实；旺支规则不在 Python 复算。"""
     if len(args) < 2:
         return 0
-    branches = set(const.get("地支", []))
-
-    def branch(value: str) -> str:
-        return value if value in branches else _source_zhi(value, ctx)
-
-    a, b = branch(str(args[0])), branch(str(args[1]))
-    half = const.get("三合半合", {})
-    return 1 if b in half.get(a, []) or a in half.get(b, []) else 0
-
+    branches = set()
+    for value in args:
+        if value in const.get('地支', []):
+            branches.add(value)
+        else:
+            resolved = _source_zhi(value, ctx)
+            if resolved:
+                branches.add(resolved)
+    return 1 if any(
+        item.get('kind') == 'half_he' and branches <= set(item.get('branches', []))
+        for item in _atomic_facts(ctx).get('combinations', [])
+    ) else 0
 
 def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     year = current_year
     if op == '干支相等':
-        ga, gb = (_source_ganzhi(args[0], ctx), _source_ganzhi(args[1], ctx))
-        return 1 if ga and ga == gb else 0
+        pair = tuple(args)
+        if pair == ("大运", "流年"):
+            return 1 if _atomic_facts(ctx).get('dayun_equals_year_pillar') else 0
+        if pair == ("流年", "日柱"):
+            return 1 if _atomic_facts(ctx).get('year_equals_day_pillar') else 0
+        raise FactorEvaluateError(f"干支相等不支持的来源组合: {args}")
 
     if op == '干克':
-        g1, g2 = (_source_gan(args[0], ctx), _source_gan(args[1], ctx))
-        if not g1 or not g2:
-            return 0
-        ke = const['五行生克'].get(const['天干五行'].get(g1, ''), {}).get('克')
-        return 1 if ke and ke == const['天干五行'].get(g2, '') else 0
+        pair = tuple(args)
+        if pair == ("流年干", "日干"):
+            return 1 if _atomic_facts(ctx).get('year_gan_controls_day_gan') else 0
+        if pair == ("日干", "流年干"):
+            return 1 if _atomic_facts(ctx).get('day_gan_controls_year_gan') else 0
+        raise FactorEvaluateError(f"干克不支持的来源组合: {args}")
 
     if op == '支冲':
-        z1, z2 = (_source_zhi(args[0], ctx), _source_zhi(args[1], ctx))
-        chong_map = const.get(const['关系取冲类型'], {})
-        return 1 if z1 and z2 and (chong_map.get(z1) == z2) else 0
-
-    if op == '三刑':
-        available = {}
-        for a in args:
-            zv = _source_zhi(a, ctx)
-            if zv:
-                available[a] = zv
-        flow_zhi = _source_zhi('流年支', ctx)
-        pan = chart
-        pan_chart = (pan or {}).get('chart', {}) or {}
-        pillar_zhis = []
-        for zhu in const['四柱']:
-            z = (pan_chart.get(zhu) or {}).get('zhi', '')
-            if z:
-                pillar_zhis.append(z)
-        zhis = list(available.values()) + pillar_zhis
-        cnt: dict = {}
-        for z in zhis:
-            cnt[z] = cnt.get(z, 0) + 1
-        for k, v in const['三刑'].items():
-            members = (k, *v)
-            complete = cnt.get(k, 0) >= 1 and all((cnt.get(g, 0) >= (2 if g == k else 1) for g in v))
-            # 三刑流年要求流年支实际入组；本命自带三刑不得在无关流年重复触发。
-            if complete and flow_zhi and flow_zhi in members:
-                ctx.setdefault('evidence', {})['三刑流年'] = {
-                    'group': k + ''.join(v),
-                    'members': list(dict.fromkeys(members)),
-                    'sources': available,
-                    'pillars': pillar_zhis,
-                }
-                return 1
-        return 0
+        day_zhi_source = next(
+            key for key, spec in const['干支来源'].items()
+            if spec == {'源': '四柱', '柱': 'ri', '部分': '支'}
+        )
+        if tuple(args) == ("大运支", "流年支"):
+            return 1 if _atomic_facts(ctx).get('dayun_zhi_clashes_year') else 0
+        if tuple(args) != ("流年支", day_zhi_source):
+            raise FactorEvaluateError(f"支冲不支持的来源组合: {args}")
+        day_zhi = _source_zhi(day_zhi_source, ctx)
+        relation = _atomic_facts(ctx).get('year_branch_relations', {}).get(day_zhi)
+        return 1 if relation == 'liu_chong' else 0
 
     if op == '旬空':
-        gz = _source_ganzhi(args[0], ctx)
-        nz2 = _source_zhi(args[1], ctx)
-        if not gz or len(gz) < 2 or (not nz2):
+        if tuple(args) != ("日柱", "流年支"):
+            raise FactorEvaluateError(f"旬空不支持的来源组合: {args}")
+        year_zhi = _source_zhi('流年支', ctx)
+        return 1 if year_zhi in _atomic_facts(ctx).get('day_void_branches', []) else 0
+
+    if op == '三刑':
+        facts = _atomic_facts(ctx).get('combinations', [])
+        hit = next((item for item in facts if item.get('kind') == 'xing' and item.get('includes_year')), None)
+        if hit is None:
             return 0
-        day_g, day_z = (gz[0], gz[1])
-        _GAN_ORDER = const['天干']
-        _ZHI_ORDER = const['地支']
-        if day_g not in _GAN_ORDER or day_z not in _ZHI_ORDER:
-            return 0
-        xun_zhi_idx = (_ZHI_ORDER.index(day_z) - _GAN_ORDER.index(day_g)) % 12
-        xun = const['旬空起点'] + _ZHI_ORDER[xun_zhi_idx]
-        return 1 if xun in const['旬空'] and nz2 in const['旬空'][xun] else 0
+        ctx.setdefault('evidence', {})['三刑流年'] = {
+            'group': hit.get('group', ''),
+            'members': hit.get('branches', []),
+        }
+        return 1
 
     if op == '流年支受克':
         if not args:
             return 0
         wx = str(args[0])
-        ln = ctx.get('liunian', {})
-        nz = ln.get('nian_zhi', '')
-        zhi_wx = const.get('地支五行', {}).get(nz, '')
-        if not zhi_wx:
-            return 0
         snap = ctx.get('snapshot', {})
         natal_factor = wx + const['五行旺因子后缀']
-        return 1 if snap.get(natal_factor) and const.get('五行生克', {}).get(wx, {}).get('克') == zhi_wx else 0
+        return 1 if snap.get(natal_factor) and wx in _atomic_facts(ctx).get('year_branch_controlled_by', []) else 0
 
     if op == '年柱干伏吟':
-        ln = ctx.get('liunian', {})
-        nian_gan = (ctx.get('chart', {}).get('chart', {}) or {}).get('nian', {}).get('gan', '')
-        return 1 if ln.get('nian_gan') and ln.get('nian_gan') == nian_gan else 0
+        return 1 if _atomic_facts(ctx).get('year_gan_equals_natal_year_gan') else 0
 
     if op == '天干合':
-        g1, g2 = (_source_gan(args[0], ctx), _source_gan(args[1], ctx))
-        return 1 if g1 and g2 and (const['天干五合'].get(g1) == g2) else 0
+        pair = tuple(args)
+        if pair == ('大运干', '流年干'):
+            return 1 if _atomic_facts(ctx).get('dayun_gan_combines') else 0
+        if pair != ('流年干', '日干'):
+            raise FactorEvaluateError(f"天干合不支持的来源组合: {args}")
+        return 1 if _atomic_facts(ctx).get('gan_combines') else 0
 
 _LIU_OP_HANDLERS = {
         "流年长生": _liu_handler_longevity,
@@ -340,6 +290,11 @@ def _current_dayun_gz(ctx: dict) -> str:
         if s.get("start_year", 0) <= year <= s.get("end_year", 0):
             return s.get("name", "")
     return ""
+def _atomic_facts(ctx: dict) -> dict:
+    facts = ctx.get('liunian', {}).get('atomic_facts')
+    return facts if isinstance(facts, dict) else {}
+
+
 def _source_ganzhi(src: str, ctx: dict) -> str:
     """干支来源解析：大运/流年/日柱 → 干支。"""
     return _source_value(src, ctx, "干支")
@@ -393,25 +348,3 @@ def _target_stars(target: str, gender: str, const: dict) -> tuple:
     if role in const.get("十神大类", {}):
         return tuple(const["十神大类"][role])
     return (role,)
-
-def _target_wuxing_from_day_master(day_gan: str, star_keys, const: dict) -> str:
-    """本命星不现时，按十神与日主的生克关系推导目标五行。"""
-    day_wx = const["天干五行"].get(day_gan, "")
-    if not day_wx:
-        return ""
-    shengke = const["五行生克"]
-    classes = const.get("十神大类", {})
-    relations = const.get("十神大类日主关系", {})
-    for star in star_keys:
-        class_name = next((name for name, members in classes.items() if star in members), "")
-        relation = relations.get(class_name)
-        if not relation:
-            continue
-        name = relation.get("关系", "")
-        if name == "同":
-            return day_wx
-        if relation.get("方向") == "出":
-            return shengke.get(day_wx, {}).get(name, "")
-        if relation.get("方向") == "入":
-            return next((wx for wx, rel in shengke.items() if rel.get(name) == day_wx), "")
-    return ""

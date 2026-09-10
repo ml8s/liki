@@ -1,8 +1,8 @@
-"""领域快照契约：reserved domain facts 的结构与只读投影。"""
+"""本命事实投影契约：reserved domain facts 的结构与只读投影。"""
 import pytest
 
 import _helpers  # noqa: F401
-from domain_snapshot import load_contract, project_domain_facts
+from natal_projection import load_contract, project_natal_facts
 
 
 def _rich_pan() -> dict:
@@ -29,23 +29,23 @@ def _rich_pan() -> dict:
 
 
 def test_projected_domain_facts_match_contract():
-    facts = project_domain_facts(_rich_pan())
+    facts = project_natal_facts(_rich_pan())
     contract = load_contract()
     assert set(facts["八字"]) == set(contract["八字"])
     assert set(facts["紫微"]) == set(contract["紫微"])
 
 
 def test_empty_pan_projects_empty_domain_facts():
-    assert project_domain_facts({}) == {"八字": {}, "紫微": {}}
+    assert project_natal_facts({}) == {"八字": {}, "紫微": {}}
 
 
 def test_domain_projection_does_not_mutate_pan():
     pan = _rich_pan()
-    project_domain_facts(pan)
+    project_natal_facts(pan)
     assert "_snap" not in pan and "_ctx" not in pan
 
 
 def test_fields_are_declared_when_present():
-    facts = project_domain_facts(_rich_pan())
+    facts = project_natal_facts(_rich_pan())
     assert facts["八字"]["大运"]["current_step_index"] == 0
     assert facts["紫微"]["局数"] == "火六局"

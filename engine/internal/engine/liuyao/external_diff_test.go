@@ -40,7 +40,7 @@ type externalDiffCases struct {
 }
 
 func TestExternalDiffFixtures_HardFacts(t *testing.T) {
-	raw, err := os.ReadFile("../../../tests/fixtures/liuyao/external_diff_cases.json")
+	raw, err := os.ReadFile("../../../../tests/fixtures/liuyao/external_diff_cases.json")
 	if err != nil {
 		t.Skipf("external diff fixtures unavailable: %v", err)
 	}

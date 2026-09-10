@@ -13,7 +13,7 @@ from paipan import RPCError
 
 def _fac() -> dict:
     return {
-        "shishen": {},
+        "ten_god_states": {},
         "wuxing": {"wang_shuai": {}, "count": {}},
         "yongshen": {},
         "ri_gan": "甲",

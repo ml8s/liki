@@ -7,7 +7,7 @@ import _helpers  # noqa: F401
 import duanyu
 import operators_liunian
 import operators_natal
-from domain_snapshot import load_contract
+from natal_projection import load_contract
 import factors
 from factor_tables import load_factor_rows
 from factor_tables import load_liunian_rows
@@ -124,11 +124,11 @@ def test_factor_rows_require_declared_side(tmp_path):
 
 
 def test_half_sanhe_requires_imperial_branch():
-    ctx = {"liunian": {}, "zw_liunian": {}, "year": 2026}
+    ctx = {"liunian": {"atomic_facts": {"combinations": [{"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}]}}, "zw_liunian": {}, "year": 2026}
     assert operators_liunian._liu_op("半合", ["子", "辰"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("半合", ["亥", "未"], "male", {}, ctx) == 0
     source_ctx = {
-        "liunian": {"nian_zhi": "辰"},
+        "liunian": {"nian_zhi": "辰", "atomic_facts": {"combinations": [{"kind": "half_he", "group": "三合申子辰", "branches": ["子", "辰"], "includes_year": True}]}},
         "zw_liunian": {},
         "year": 2026,
         "chart": {"chart": {"ri": {"zhi": "子"}}},
@@ -156,24 +156,12 @@ def test_pillar_sources_cover_all_four_pillars():
     assert operators_liunian._source_zhi("时支", ctx) == "卯"
 
 
-def test_ten_god_wuxing_follows_day_master_relation_table():
+def test_flow_control_targets_cover_all_ten_god_classes():
     const = duanyu.load_constants()
-    assert operators_liunian._target_wuxing_from_day_master(
-        "甲", operators_liunian._target_stars("比劫", "male", const), const
-    ) == "木"
-    assert operators_liunian._target_wuxing_from_day_master(
-        "甲", operators_liunian._target_stars("食伤", "male", const), const
-    ) == "火"
-    assert operators_liunian._target_wuxing_from_day_master(
-        "甲", operators_liunian._target_stars("财星", "male", const), const
-    ) == "土"
-    assert operators_liunian._target_wuxing_from_day_master(
-        "甲", operators_liunian._target_stars("官杀", "male", const), const
-    ) == "金"
-    assert operators_liunian._target_wuxing_from_day_master(
-        "甲", operators_liunian._target_stars("印星", "male", const), const
-    ) == "水"
-
+    assert set(const["流年克目标"]) == {"日主", *const["十神大类"]}
+    assert set(const["流年克目标"].values()) == {
+        "day_master", "wealth_star", "officer_killing", "seal_star", "food_injury"
+    }
 
 def test_current_limit_does_not_pollute_natal_layers():
     assert duanyu.CURRENT_LIMIT_RULES == frozenset({"大运", "大限"})
@@ -240,13 +228,16 @@ def test_explicit_pillar_clash_uses_requested_pillar():
     ctx = {
         "liunian": {"nian_zhi": "午", "natal_interactions": [{
             "zhi_rels": [{"zhi_a": "午", "zhi_b": "子", "type": "六冲"}]
-        }]},
+        }], "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}}},
         "zw_liunian": {},
         "chart": {"chart": {"nian": {"zhi": "子"}, "ri": {"zhi": "卯"}}},
     }
     assert operators_liunian._liu_op("流年冲", ["年支"], "male", {}, ctx) == 1
     assert operators_liunian._liu_op("流年冲", ["日支"], "male", {}, ctx) == 0
-    direct_ctx = {**ctx, "liunian": {"nian_zhi": "午", "natal_interactions": []}}
+    direct_ctx = {**ctx, "liunian": {
+        "nian_zhi": "午", "natal_interactions": [],
+        "atomic_facts": {"year_branch_relations": {"子": "liu_chong"}},
+    }}
     assert operators_liunian._liu_op("流年冲", ["年支"], "male", {}, direct_ctx) == 1
 
 
@@ -295,7 +286,7 @@ def test_required_flow_factors_use_assertion_conditions():
 def test_dayun_spouse_star_uses_evaluation_gender():
     from operators_natal import _op
     base = {
-        "shishen": {},
+        "ten_god_states": {},
         "dayun_steps": [
             {"name": "戊辰", "shi_shen": "正财运",
              "start_year": 2011, "end_year": 2020}
@@ -319,15 +310,12 @@ def test_domain_configuration_covers_mechanical_operator_contracts():
         assert relation["关系"] in {"同", "生", "克"}
         if relation["关系"] != "同":
             assert relation["方向"] in {"出", "入"}
-    assert const["十神大类"][const["财星十神大类"]] == ["正财", "偏财"]
+    assert const["十神大类"]["财星"] == ["正财", "偏财"]
     assert const["十神大类"][const["印星十神大类"]] == ["正印", "偏印"]
-    assert const["官杀取清"]["十神大类"] in const["十神大类"]
     assert set(const["性别闭集"]) == set(const["性别别名"].values())
     assert const["大限段数"] == 12
     assert set(const["关系取合类型"]) == {"六合", "三合", "三会"}
     assert const["关系取冲类型"] == "六冲"
-    assert set(const["格局十神"]) <= set(const["月令格局"])
-    assert set(const["格局十神"].values()) <= set(const["十神"])
     assert set(const["干支来源"]) == {
         "流年", "大运", "日柱", "流年干", "大运干", "日干",
         "流年支", "大运支", "年支", "月支", "日支", "时支",
@@ -337,9 +325,7 @@ def test_domain_configuration_covers_mechanical_operator_contracts():
         if spec["源"] == "四柱"
     }
     assert pillar_sources == set(const["四柱"])
-    assert set(const["算子柱位"]) <= operators_natal._OP_NAMES | {"日主上下文"}
-    assert set(const["算子柱位"].values()) <= set(const["四柱序号"])
-    assert const["关系字段类型"][const["柱刑关系字段"]] == "三刑组"
+    assert {"算子柱位", "柱刑关系字段", "格局十神"}.isdisjoint(const)
     assert load_contract()["柱字段后缀"] == "柱"
     assert set(const["关系取合类型"].values()) == {"两支", "全组"}
     assert const["旬空起点"] in const["天干"]
@@ -365,10 +351,8 @@ def test_operator_code_contains_no_domain_member_literals():
     domain_members.update(const["关系取合类型"])
     domain_members.add(const["关系取冲类型"])
     domain_members.update(const["紫微主星"])
-    domain_members.update(const["格局十神"])
     domain_members.update(const["紫微星曜特殊值"])
     domain_members.update(const["紫微宫位特殊条件"])
-    domain_members.add(const["夫妻宫无关系状态"])
     domain_members.update(const["命理侧"]["标签"].values())
     domain_members.update(const["四柱序号"])
     domain_members.update(const["六亲角色"])

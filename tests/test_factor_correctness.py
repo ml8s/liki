@@ -8,55 +8,48 @@ from pathlib import Path
 from _helpers import mock_base_context
 import factors
 from operators_liunian import _LIU_OP_NAMES
-from operators_natal import _OP_NAMES, _op, _shishen_from_pan
+from operators_natal import _OP_NAMES, _op, _ten_god_states_from_pan
 
 TOOLS = Path(__file__).resolve().parents[1] / "skills" / "liki-bazi" / "tools"
 META = {"因子", "术数", "原语直通", "依据"}
 
 
-def test_engine_source_gan_means_stem_and_counts() -> None:
+def test_ten_god_state_projection_is_readonly() -> None:
     pan = {"full": {
-        "nian": {"shi_shens": [{"shi_shen": "正官", "gan": "辛", "source": "gan"}]},
-        "yue": {"shi_shens": [{"shi_shen": "正印", "gan": "壬", "source": "main_qi"}]},
-        "ri": {},
-        "shi": {},
+        "ten_god_states": [
+            {"shi_shen": "正官", "wuxing": "金", "transparent": True, "hidden": False, "count": 1},
+            {"shi_shen": "正印", "wuxing": "水", "transparent": False, "hidden": True, "count": 1},
+        ]
     }}
-    states = _shishen_from_pan(pan)
-    assert states["正官"]["tou_gan"] is True
-    assert states["正官"]["cang_zhi"] is False
+    states = _ten_god_states_from_pan(pan)
+    assert states["正官"]["transparent"] is True
+    assert states["正官"]["hidden"] is False
     assert states["正官"]["count"] == 1
-    assert states["正印"]["tou_gan"] is False
-    assert states["正印"]["cang_zhi"] is True
+    assert states["正印"]["transparent"] is False
+    assert states["正印"]["hidden"] is True
     assert states["正印"]["count"] == 1
 
 
 def test_ge_shen_uses_engine_gan_source() -> None:
     base = mock_base_context()
     base["yongshen"] = {"ge_ju": {"ge_ju": "正官格"}}
-    chart = {"full": {"yue": {"shi_shens": [
+    chart = {"full": {"atomic_facts": {"pattern_god_transparent": True}, "yue": {"shi_shens": [
         {"source": "gan", "gan": "辛", "shi_shen": "正官"}
     ]}}}
     assert _op("格神透", [], "male", {**base, **chart}) == 1
 
 
 def test_relation_operator_reads_engine_results() -> None:
-    full = {
-        "gan_he": [{"gan_a": "甲", "gan_b": "己"}],
-        "zhi_liu_he": [{"zhi_a": "子", "zhi_b": "丑"}],
-        "san_he": [{"name": "申子辰水局"}],
-        "san_hui": [{"name": "寅卯辰木方"}],
-        "liu_chong": [{"zhi_a": "子", "zhi_b": "午"}],
-        "liu_hai": [{"zhi_a": "子", "zhi_b": "未"}],
-        "liu_xing": [{"zhi_a": "寅", "zhi_b": "巳"}, {"zhi_a": "巳", "zhi_b": "申"}],
-    }
     chart = {
-        "full": full,
-        "chart": {
-            "nian": {"zhi": "寅"},
-            "yue": {"zhi": "巳"},
-            "ri": {"zhi": "申"},
-            "shi": {"zhi": "子"},
-        },
+        "full": {"atomic_facts": {"relation_groups": [
+            {"field": "gan_he", "group": "甲己"},
+            {"field": "zhi_liu_he", "group": "子丑"},
+            {"field": "san_he", "group": "申子辰"},
+            {"field": "san_hui", "group": "寅卯辰"},
+            {"field": "liu_chong", "group": "子午"},
+            {"field": "liu_hai", "group": "子未"},
+            {"field": "liu_xing", "group": "寅巳申"},
+        ]}},
     }
     base = mock_base_context()
     assert _op("关系", ["gan_he", "甲己"], "male", chart) == 1

@@ -246,7 +246,21 @@
                   }
                 ]
               }
-            ]
+            ],
+            "atomic_facts": {
+              "combinations": [
+                {
+                  "kind": "san_he",
+                  "group": "三合申子辰",
+                  "branches": [
+                    "申",
+                    "子",
+                    "辰"
+                  ],
+                  "includes_year": true
+                }
+              ]
+            }
           }
         }
       },
@@ -362,7 +376,21 @@
                   }
                 ]
               }
-            ]
+            ],
+            "atomic_facts": {
+              "combinations": [
+                {
+                  "kind": "san_hui",
+                  "group": "三会申酉戌",
+                  "branches": [
+                    "申",
+                    "酉",
+                    "戌"
+                  ],
+                  "includes_year": true
+                }
+              ]
+            }
           }
         }
       },
@@ -452,6 +480,10 @@
                   "source": "main_qi"
                 }
               ]
+            },
+            "atomic_facts": {
+              "wealth_star_in_tomb": true,
+              "wealth_tomb_present": true
             }
           }
         }
@@ -470,7 +502,7 @@
         "args": [],
         "base": {
           "ri_gan": "甲",
-          "shishen": {
+          "ten_god_states": {
             "正财": {
               "count": 1,
               "wuxing": "土"
@@ -501,6 +533,10 @@
                   "source": "gan"
                 }
               ]
+            },
+            "atomic_facts": {
+              "wealth_star_in_tomb": false,
+              "wealth_tomb_present": true
             }
           }
         }
@@ -566,6 +602,9 @@
                   "source": "gan"
                 }
               ]
+            },
+            "atomic_facts": {
+              "officer_killing_cleaned": true
             }
           }
         }
@@ -647,6 +686,9 @@
                   "source": "gan"
                 }
               ]
+            },
+            "atomic_facts": {
+              "officer_killing_cleaned": false
             }
           }
         }
@@ -712,6 +754,9 @@
                   "source": "gan"
                 }
               ]
+            },
+            "atomic_facts": {
+              "officer_killing_cleaned": false
             }
           }
         }
@@ -738,7 +783,15 @@
         "ctx": {
           "liunian": {
             "nian_gan": "甲",
-            "nian_zhi": "寅"
+            "nian_zhi": "寅",
+            "atomic_facts": {
+              "controls_elements": [
+                "土"
+              ],
+              "controls_targets": {
+                "wealth_star": true
+              }
+            }
           }
         }
       },
@@ -799,11 +852,11 @@
       "input": {
         "base": {
           "ri_gan": "甲",
-          "shishen": {
+          "ten_god_states": {
             "正财": {
               "count": 1,
               "wuxing": "土",
-              "cang_zhi": true
+              "hidden": true
             }
           }
         },
@@ -828,7 +881,7 @@
       "input": {
         "base": {
           "ri_gan": "甲",
-          "shishen": {
+          "ten_god_states": {
             "正财": {
               "count": 1,
               "wuxing": "土"
@@ -863,11 +916,11 @@
       "input": {
         "base": {
           "ri_gan": "甲",
-          "shishen": {
+          "ten_god_states": {
             "正印": {
               "count": 1,
               "wuxing": "水",
-              "tou_gan": true
+              "transparent": true
             }
           }
         },

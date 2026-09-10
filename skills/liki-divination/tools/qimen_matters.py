@@ -8,10 +8,6 @@ from qimen_errors import TableError
 
 
 MATTERS_PATH = Path(__file__).with_name("data") / "qimen_matters.csv"
-ALIASES = {
-    "marriage": "relationship",
-    "lawsuit": "legal",
-}
 _MATTER_TABLE = None
 
 
@@ -46,7 +42,6 @@ def load_matter_table() -> dict[str, dict]:
 
 def resolve_matter(matter: str) -> dict:
     table = load_matter_table()
-    matter = ALIASES.get(matter, matter)
     if matter not in table:
         raise ValueError(f"unknown matter: {matter}")
     fact = table[matter]

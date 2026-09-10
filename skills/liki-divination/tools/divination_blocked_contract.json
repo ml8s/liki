@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "liki:divination-blocked-v1",
+  "title": "问卦安全拦截契约",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "blocked",
+    "method",
+    "question",
+    "safety",
+    "policy"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "liki:divination-blocked-v1"
+    },
+    "schema_version": {
+      "const": "divination-blocked-v1"
+    },
+    "blocked": {
+      "const": true
+    },
+    "method": {
+      "enum": [
+        "liuyao",
+        "qimen",
+        "huangli"
+      ]
+    },
+    "question": {
+      "type": "string"
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "category",
+        "message",
+        "guidance"
+      ],
+      "properties": {
+        "status": {
+          "const": "redirect"
+        },
+        "category": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "guidance": {
+          "type": "string"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "no_casting",
+        "no_chart",
+        "no_timing",
+        "no_guilty_or_fatal_prediction"
+      ],
+      "properties": {
+        "no_casting": {
+          "const": true
+        },
+        "no_chart": {
+          "const": true
+        },
+        "no_timing": {
+          "const": true
+        },
+        "no_guilty_or_fatal_prediction": {
+          "const": true
+        }
+      }
+    }
+  }
+}

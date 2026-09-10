@@ -3,22 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from divination_rpc import RPCError, call as shared_call, engine_data as shared_engine_data
-from urllib.error import HTTPError, URLError
+from divination_rpc import engine_data
 from qimen_matters import resolve_matter
-
-
-def call(method: str, params: dict, retries: int = 1) -> dict:
-    return shared_call(method, params, retries=retries)
-
-
-def engine_data(method: str, params: dict) -> dict:
-    response = call(method, params)
-    if not isinstance(response, dict) or not isinstance(response.get("data"), dict):
-        raise RPCError(f"{method}: engine response missing data object")
-    return response["data"]
-
-
 
 
 def city_coords(city: str) -> dict:

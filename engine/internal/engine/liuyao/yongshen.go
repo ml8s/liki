@@ -12,18 +12,22 @@ const (
 	YongQiCai                   // 妻财: 财运、妻子、物品
 	YongZiSun                   // 子孙: 子女、健康、宠物
 	YongShiYao                  // 世爻: 自身、求问人
+	YongYingYao                 // 应爻: 对方、外部环境
 )
 
-var yongShenNames = [6]string{"父母", "兄弟", "官鬼", "妻财", "子孙", "世爻"}
+var yongShenNames = [7]string{"父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"}
 
 func (y YongShen) String() string { return yongShenNames[y] }
 
-// findYongShen finds the 用神 line position (1-6) based on the question type.
-// Returns (position, isBian) — isBian is true if found in变卦.
-// Returns (0, false) if the 用神 is not present (needs 飞伏).
-func (p *Chart) findYongShen(typ YongShen) (int, bool) {
-	if typ == YongShiYao {
-		return p.findShiYao(), false
+// findYongShen finds the 用神 in the visible ben-gua only. The bian-gua is a
+// transformation layer; it must never become the primary 用神 location. When
+// the target is absent here the caller must use findFuShen.
+func (p *Chart) findYongShen(typ YongShen) int {
+	switch typ {
+	case YongShiYao:
+		return p.findShiYao()
+	case YongYingYao:
+		return p.findYingYao()
 	}
 	target := yongShenToLiuQin(typ)
 	// 多现取旺: 取月建旺衰最佳者 (Wang=0 > Xiang=1 > Xiu=2 > Qiu=3 > Si=4).
@@ -41,21 +45,21 @@ func (p *Chart) findYongShen(typ YongShen) (int, bool) {
 			}
 		}
 	}
-	if bestPos > 0 {
-		return bestPos, false
-	}
-	// Check变卦.
-	for _, l := range p.BianLines {
-		if l.LiuQin == target {
-			return l.Position, true
-		}
-	}
-	return 0, false
+	return bestPos
 }
 
 func (p *Chart) findShiYao() int {
 	for _, l := range p.Lines {
 		if l.ShiYing == "世" {
+			return l.Position
+		}
+	}
+	return 0
+}
+
+func (p *Chart) findYingYao() int {
+	for _, l := range p.Lines {
+		if l.ShiYing == "应" {
 			return l.Position
 		}
 	}
@@ -110,4 +114,14 @@ func (p *Chart) findFuShen(typ YongShen) *FuShen {
 		}
 	}
 	return nil
+}
+
+// fuShenZhi converts the already-validated public fu-shen branch name back to
+// the internal branch value used by deterministic state derivation.
+func fuShenZhi(fuShen *FuShen) ganzhi.Zhi {
+	zhi, err := ganzhi.ParseZhi(fuShen.Zhi)
+	if err != nil {
+		return 0
+	}
+	return zhi
 }

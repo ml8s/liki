@@ -5,7 +5,7 @@ from __future__ import annotations
 CONCLUSION_SCOPE = "conditional_candidate_not_outcome"
 
 
-def project_snapshot(casting: dict, chart: dict, question: dict) -> dict:
+def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     """把 RPC raw chart 投影为稳定解释上下文。"""
     if not isinstance(casting, dict):
         raise ValueError("casting must be an object")
@@ -62,6 +62,21 @@ def project_snapshot(casting: dict, chart: dict, question: dict) -> dict:
             "fact": {
                 "position": yong_line.get("position"),
                 "liu_qin": yong_line.get("liu_qin"),
+                "wang_shuai": yong_shen.get("wang_shuai"),
+                "yue_po": yong_shen.get("yue_po", False),
+                "xun_kong": yong_shen.get("xun_kong", False),
+                "mu_ku": yong_shen.get("mu_ku", False),
+                "chang_sheng": yong_shen.get("chang_sheng"),
+            },
+            "conclusion_scope": CONCLUSION_SCOPE,
+        })
+    elif yong_shen.get("is_hidden") and isinstance(yong_shen.get("fu_shen"), dict):
+        primary.append({
+            "id": "yong-shen-hidden-state",
+            "fact": {
+                "is_hidden": True,
+                "position": 0,
+                "fu_shen": yong_shen.get("fu_shen"),
                 "wang_shuai": yong_shen.get("wang_shuai"),
                 "yue_po": yong_shen.get("yue_po", False),
                 "xun_kong": yong_shen.get("xun_kong", False),
@@ -153,30 +168,7 @@ def project_snapshot(casting: dict, chart: dict, question: dict) -> dict:
             "conclusion_scope": "reference_not_primary_judgment",
         })
 
-    conflicts = []
-    relations = [item.get("relation") for item in chart.get("dong_yao_relations", [])]
-    if "生用" in relations and "克用" in relations:
-        conflicts.append({
-            "id": "moving-support-opposition",
-            "reason": "动爻同时存在生用与克用信号",
-            "facts": relations,
-        })
-    if "生原神" in relations and "克原神" in relations:
-        conflicts.append({
-            "id": "yuanshen-support-opposition",
-            "reason": "原神同时受到生扶与克制信号",
-            "facts": relations,
-        })
-    if yong_shen.get("wang_shuai") in {"旺", "相"} and yong_shen.get("xun_kong"):
-        conflicts.append({
-            "id": "strong-but-void",
-            "reason": "用神旺相与旬空并存，须辨真假空",
-        })
-    if yong_shen.get("wang_shuai") in {"旺", "相"} and yong_shen.get("yue_po"):
-        conflicts.append({
-            "id": "strong-but-break",
-            "reason": "用神旺相与月破并存，须辨真假破",
-        })
+    conflicts = [item for item in chart.get("conflicts", []) if isinstance(item, dict)]
 
     evidence = {
         "primary": primary,
@@ -192,11 +184,12 @@ def project_snapshot(casting: dict, chart: dict, question: dict) -> dict:
         timing_candidates = [timing] if isinstance(timing, dict) else []
 
     return {
-        "schema_version": "liuyao-snapshot-v2",
+        "schema_version": "liuyao-factors-v1",
         "question": question,
         "casting": {
             "mode": casting.get("mode"),
-            "fingerprint": casting.get("fingerprint"),
+            "order": casting.get("order", "bottom_up"),
+            "casting_id": casting.get("casting_id"),
             "rounds": casting.get("rounds", []),
             "yaos": casting.get("yaos", []),
             "dong_yao": casting.get("dong_yao", []),
@@ -231,16 +224,5 @@ def project_snapshot(casting: dict, chart: dict, question: dict) -> dict:
             "must_cover_conflicts": True,
             "forbidden": ["absolute_guarantee"],
         },
-        "followup": {
-            "locked": True,
-            "casting_fingerprint": casting.get("fingerprint"),
-            "yaos": casting.get("yaos", []),
-            "dong_yao": casting.get("dong_yao", []),
-            "original_solar_time": question.get("solar_time"),
-            "rules": [
-                "沿用原卦与首次判断，不用当前时间重排",
-                "现实实质变化时先声明新占问，确认后再起新卦",
-                "反馈结果时按原条件复盘，不事后改写原结论",
-            ],
-        },
+
     }

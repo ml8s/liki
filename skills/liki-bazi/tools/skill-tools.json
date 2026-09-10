@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.09.0"
+    "version": "2026.09.10.1"
   },
   "tools": [
     {
@@ -248,67 +248,374 @@
                 },
                 "shi": {
                   "type": "object"
-                }
-              }
-            },
-            "yongshen": {
-              "type": "object",
-              "description": "用神三派",
-              "properties": {
-                "fu_yi": {
+                },
+                "yong_shen": {
                   "type": "object",
+                  "description": "用神三派",
                   "properties": {
-                    "qiangruo": {
+                    "fu_yi": {
+                      "type": "object",
+                      "properties": {
+                        "qiangruo": {
+                          "type": "string",
+                          "enum": [
+                            "身强",
+                            "身弱",
+                            "中和"
+                          ]
+                        },
+                        "yong": {
+                          "type": "string"
+                        },
+                        "xi": {
+                          "type": "string"
+                        },
+                        "ji": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "tiao_hou": {
+                      "type": "object",
+                      "properties": {
+                        "yong": {
+                          "type": "string"
+                        },
+                        "xi": {
+                          "type": "string"
+                        },
+                        "ji": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "ge_ju": {
+                      "type": "object",
+                      "properties": {
+                        "ge_ju": {
+                          "type": "string"
+                        },
+                        "yong": {
+                          "type": "string"
+                        },
+                        "xi": {
+                          "type": "string"
+                        },
+                        "ji": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "lu_roots": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "shi_shen": {
+                        "type": "string"
+                      },
+                      "gan": {
+                        "type": "string"
+                      },
+                      "zhi": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "shi_shen",
+                      "gan",
+                      "zhi"
+                    ]
+                  },
+                  "description": "透干十神得十干禄的 engine 原子事实"
+                },
+                "atomic_facts": {
+                  "type": "object",
+                  "description": "engine 确定性命理原子事实；Python 因子层只读",
+                  "properties": {
+                    "officer_killing_cleaned": {
+                      "type": "boolean"
+                    },
+                    "wealth_tomb_present": {
+                      "type": "boolean"
+                    },
+                    "wealth_star_in_tomb": {
+                      "type": "boolean"
+                    },
+                    "spouse_palace_state": {
                       "type": "string",
                       "enum": [
-                        "身强",
-                        "身弱",
-                        "中和"
+                        "冲",
+                        "合",
+                        "刑",
+                        "害",
+                        "静"
                       ]
                     },
-                    "yong": {
+                    "day_branch_type": {
+                      "type": "string",
+                      "enum": [
+                        "桃花",
+                        "驿马",
+                        "墓库",
+                        ""
+                      ]
+                    },
+                    "year_officer_killing": {
+                      "type": "boolean"
+                    },
+                    "day_master_element": {
                       "type": "string"
                     },
-                    "xi": {
+                    "month_longevity": {
                       "type": "string"
                     },
-                    "ji": {
+                    "year_stem_ten_god": {
+                      "type": "string"
+                    },
+                    "month_main_ten_god": {
+                      "type": "string"
+                    },
+                    "hour_stem_ten_god": {
+                      "type": "string"
+                    },
+                    "pattern_god_transparent": {
+                      "type": "boolean"
+                    },
+                    "pillar_punishments": {
+                      "type": "object",
+                      "properties": {
+                        "nian": {
+                          "type": "boolean"
+                        },
+                        "yue": {
+                          "type": "boolean"
+                        },
+                        "ri": {
+                          "type": "boolean"
+                        },
+                        "shi": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "nian",
+                        "yue",
+                        "ri",
+                        "shi"
+                      ]
+                    },
+                    "day_master_stem": {
+                      "type": "string"
+                    },
+                    "day_branch": {
                       "type": "string"
                     }
+                  },
+                  "required": [
+                    "day_master_element",
+                    "day_master_stem",
+                    "day_branch",
+                    "officer_killing_cleaned",
+                    "wealth_tomb_present",
+                    "wealth_star_in_tomb",
+                    "spouse_palace_state",
+                    "day_branch_type",
+                    "year_officer_killing",
+                    "month_longevity",
+                    "year_stem_ten_god",
+                    "month_main_ten_god",
+                    "hour_stem_ten_god",
+                    "pattern_god_transparent",
+                    "pillar_punishments"
+                  ]
+                },
+                "ten_god_states": {
+                  "type": "array",
+                  "description": "engine 十神显隐 / 通根 / 得令 / 旺弱状态",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "shi_shen": {
+                        "type": "string"
+                      },
+                      "wuxing": {
+                        "type": "string"
+                      },
+                      "transparent": {
+                        "type": "boolean"
+                      },
+                      "hidden": {
+                        "type": "boolean"
+                      },
+                      "rooted": {
+                        "type": "boolean"
+                      },
+                      "timely": {
+                        "type": "boolean"
+                      },
+                      "count": {
+                        "type": "integer"
+                      },
+                      "strength": {
+                        "type": "string",
+                        "enum": [
+                          "strong",
+                          "weak",
+                          "neutral"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "shi_shen",
+                      "wuxing",
+                      "transparent",
+                      "hidden",
+                      "rooted",
+                      "timely",
+                      "count",
+                      "strength"
+                    ]
                   }
                 },
-                "tiao_hou": {
-                  "type": "object",
-                  "properties": {
-                    "yong": {
-                      "type": "string"
+                "element_states": {
+                  "type": "array",
+                  "description": "engine 五行季节旺弱、组合旺弱与生克方向",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "wuxing": {
+                        "type": "string"
+                      },
+                      "season_strength": {
+                        "type": "string",
+                        "enum": [
+                          "strong",
+                          "weak"
+                        ]
+                      },
+                      "strength": {
+                        "type": "string",
+                        "enum": [
+                          "strong",
+                          "weak",
+                          "neutral"
+                        ]
+                      },
+                      "transparent": {
+                        "type": "boolean"
+                      },
+                      "rooted": {
+                        "type": "boolean"
+                      },
+                      "controls": {
+                        "type": "string"
+                      },
+                      "controlled_by": {
+                        "type": "string"
+                      },
+                      "controller_strength": {
+                        "type": "string",
+                        "enum": [
+                          "strong",
+                          "weak"
+                        ]
+                      },
+                      "reasons": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
                     },
-                    "xi": {
-                      "type": "string"
-                    },
-                    "ji": {
-                      "type": "string"
-                    }
+                    "required": [
+                      "wuxing",
+                      "season_strength",
+                      "strength",
+                      "transparent",
+                      "rooted",
+                      "controls",
+                      "controlled_by",
+                      "controller_strength",
+                      "reasons"
+                    ]
                   }
                 },
-                "ge_ju": {
+                "da_yun": {
                   "type": "object",
+                  "description": "大运；fullchart 每步补 rooted/root_refs",
                   "properties": {
-                    "ge_ju": {
-                      "type": "string"
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rooted": {
+                            "type": "boolean"
+                          },
+                          "root_refs": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "source": {
+                                  "type": "string"
+                                },
+                                "pillar": {
+                                  "type": "string"
+                                },
+                                "stem": {
+                                  "type": "string"
+                                },
+                                "branch": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "source",
+                                "stem",
+                                "branch"
+                              ]
+                            }
+                          }
+                        }
+                      }
                     },
-                    "yong": {
-                      "type": "string"
+                    "required": [
+                      "steps"
+                    ]
+                  }
+                },
+                "relation_groups": {
+                  "type": "array",
+                  "description": "完整合会冲刑组；Python 只读",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "group": {
+                        "type": "string"
+                      }
                     },
-                    "xi": {
-                      "type": "string"
-                    },
-                    "ji": {
-                      "type": "string"
-                    }
+                    "required": [
+                      "field",
+                      "group"
+                    ]
                   }
                 }
-              }
+              },
+              "required": [
+                "yong_shen",
+                "lu_roots",
+                "relation_groups",
+                "atomic_facts",
+                "ten_god_states",
+                "element_states"
+              ]
             },
             "ziwei": {
               "type": "object",
@@ -340,6 +647,35 @@
                 },
                 "ming_gong": {
                   "type": "string"
+                },
+                "palace_facts": {
+                  "type": "array",
+                  "description": "宫位原子事实；Python 因子层只读",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "palace": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "target": {
+                        "type": "string"
+                      },
+                      "star": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "palace",
+                      "kind",
+                      "target"
+                    ]
+                  }
                 }
               }
             },
@@ -383,6 +719,12 @@
               },
               "minItems": 12,
               "maxItems": 12
+            },
+            "pan_digest": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "description": "canonical SHA-256 pan digest；query/yearly/bond/calibrate 会校验"
             }
           },
           "required": [
@@ -390,10 +732,10 @@
             "lunar",
             "chart",
             "full",
-            "yongshen",
             "ziwei",
             "ziwei_daxian",
-            "gender"
+            "gender",
+            "pan_digest"
           ]
         }
       }
@@ -439,7 +781,7 @@
             },
             "pan": {
               "type": "object",
-              "description": "full_paipan 返回的完整本命盘（禁止传快照、裁剪盘或半截盘）"
+              "description": "full_paipan 返回的完整本命盘；pan_digest 必须未被修改"
             },
             "year": {
               "type": "integer",
@@ -464,7 +806,7 @@
           "properties": {
             "pan": {
               "type": "object",
-              "description": "full_paipan 返回的完整本命盘（禁止传快照、裁剪盘或半截盘）"
+              "description": "full_paipan 返回的完整本命盘；pan_digest 必须未被修改"
             },
             "start": {
               "type": "integer",
@@ -655,11 +997,11 @@
           "properties": {
             "pan_a": {
               "type": "object",
-              "description": "甲方本命盘（full_paipan 返回）"
+              "description": "full_paipan 返回的完整本命盘；pan_digest 必须未被修改"
             },
             "pan_b": {
               "type": "object",
-              "description": "乙方本命盘（full_paipan 返回）"
+              "description": "full_paipan 返回的完整本命盘；pan_digest 必须未被修改"
             }
           },
           "required": [

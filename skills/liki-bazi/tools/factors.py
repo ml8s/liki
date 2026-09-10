@@ -21,7 +21,7 @@ from operators_natal import (
     _base_ctx_from_pan,
     _op,
 )
-from domain_snapshot import project_domain_facts
+from natal_projection import project_natal_facts
 from factor_tables import load_factor_rows, load_liunian_rows
 
 __all__ = [
@@ -177,7 +177,7 @@ def evaluate_snap_from_pan(
         },
         "context": context,
     }
-    facts = project_domain_facts(pan)
+    facts = project_natal_facts(pan)
     for code in side_config["快照代码"]:
         snap[side_labels[code]].update(facts[side_labels[code]])
     return snap

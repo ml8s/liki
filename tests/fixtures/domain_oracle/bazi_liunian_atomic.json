@@ -1,0 +1,142 @@
+{
+  "schema_version": "domain-oracle-bazi-liunian-atomic-v1",
+  "basis": "流年干支五行所克、三合 / 三会 / 三刑成组、半合须含旺支、财坏印与忌神五行口径。",
+  "sources": [
+    "《三命通会》三合三会与三刑",
+    "《渊海子平》生克与财印关系"
+  ],
+  "cases": [
+    {
+      "id": "fire-year-controls-metal",
+      "year": 2026,
+      "pillars": [
+        "壬子",
+        "壬子",
+        "壬子",
+        "壬子"
+      ],
+      "expected": {
+        "controls_elements": [
+          "金"
+        ],
+        "year_branch_relations": {
+          "子": "liu_chong"
+        },
+        "year_branch_controlled_by": [
+          "水"
+        ],
+        "year_gan_controls_day_gan": false,
+        "day_gan_controls_year_gan": true,
+        "gan_combines": false,
+        "day_void_branches": [
+          "寅",
+          "卯"
+        ],
+        "year_equals_day_pillar": false,
+        "dayun_equals_year_pillar": false,
+        "year_gan_equals_natal_year_gan": false,
+        "dayun_gan_combines": false,
+        "dayun_zhi_clashes_year": false,
+        "controls_targets": {
+          "day_master": false,
+          "wealth_star": false,
+          "officer_killing": false,
+          "seal_star": true,
+          "food_injury": false
+        }
+      }
+    },
+    {
+      "id": "zi-chen-half-combination",
+      "year": 2032,
+      "pillars": [
+        "甲子",
+        "甲辰",
+        "甲子",
+        "甲子"
+      ],
+      "expected": {
+        "combination_kinds": {
+          "half_he": [
+            "三合申子辰"
+          ]
+        },
+        "year_gan_controls_day_gan": false,
+        "day_gan_controls_year_gan": false,
+        "gan_combines": false,
+        "day_void_branches": [
+          "戌",
+          "亥"
+        ],
+        "year_equals_day_pillar": false,
+        "dayun_equals_year_pillar": false,
+        "year_gan_equals_natal_year_gan": false,
+        "dayun_gan_combines": false,
+        "dayun_zhi_clashes_year": false
+      }
+    },
+    {
+      "id": "shen-zi-chen-complete-combination",
+      "year": 2032,
+      "pillars": [
+        "甲子",
+        "甲辰",
+        "甲申",
+        "甲子"
+      ],
+      "expected": {
+        "combination_kinds": {
+          "san_he": [
+            "三合申子辰"
+          ]
+        },
+        "dayun_gan_combines": false,
+        "dayun_zhi_clashes_year": false
+      }
+    },
+    {
+      "id": "self-punishment-requires-two-chen",
+      "year": 2024,
+      "pillars": [
+        "甲辰",
+        "甲子",
+        "甲子",
+        "甲子"
+      ],
+      "expected": {
+        "combination_kinds": {
+          "xing": [
+            "三刑辰"
+          ]
+        },
+        "dayun_gan_combines": false,
+        "dayun_zhi_clashes_year": false
+      }
+    },
+    {
+      "id": "wealth-branch-breaks-seal-stem",
+      "year": 2050,
+      "pillars": [
+        "甲子",
+        "甲子",
+        "壬子",
+        "甲子"
+      ],
+      "expected": {
+        "wealth_breaks_seal": true,
+        "year_gan_controls_day_gan": false,
+        "day_gan_controls_year_gan": false,
+        "gan_combines": false,
+        "day_void_branches": [
+          "寅",
+          "卯"
+        ],
+        "year_equals_day_pillar": false,
+        "dayun_equals_year_pillar": false,
+        "year_gan_equals_natal_year_gan": false,
+        "dayun_gan_combines": false,
+        "dayun_zhi_clashes_year": false
+      }
+    }
+  ]
+}

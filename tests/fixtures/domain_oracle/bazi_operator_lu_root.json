@@ -1,0 +1,159 @@
+{
+  "schema_version": "domain-oracle-operator-v1",
+  "basis": "禄根以目标十神实际天干的十干禄为准；同五行任意本气不是禄根。",
+  "cases": [
+    {
+      "id": "ding-shangguan-lu-wrong-element-root",
+      "day_master": "甲",
+      "op": "禄根",
+      "args": [
+        "伤官"
+      ],
+      "visible": [
+        {
+          "pillar": "nian",
+          "shi_shen": "伤官",
+          "gan": "丁"
+        }
+      ],
+      "branches": [
+        "巳",
+        "申",
+        "酉",
+        "亥"
+      ],
+      "expect": 0,
+      "why": "甲日伤官为丁，丁禄在午；见巳虽为火本气，仍不是丁禄。",
+      "lu_roots": []
+    },
+    {
+      "id": "ding-shangguan-lu-hit",
+      "day_master": "甲",
+      "op": "禄根",
+      "args": [
+        "伤官"
+      ],
+      "visible": [
+        {
+          "pillar": "nian",
+          "shi_shen": "伤官",
+          "gan": "丁"
+        }
+      ],
+      "branches": [
+        "丑",
+        "卯",
+        "午",
+        "酉"
+      ],
+      "expect": 1,
+      "why": "丁禄在午，午入四柱。",
+      "lu_roots": [
+        {
+          "shi_shen": "伤官",
+          "gan": "丁",
+          "zhi": "午"
+        }
+      ]
+    },
+    {
+      "id": "bing-shishen-lu-hit",
+      "day_master": "己",
+      "op": "禄根",
+      "args": [
+        "食神"
+      ],
+      "visible": [
+        {
+          "pillar": "yue",
+          "shi_shen": "食神",
+          "gan": "丙"
+        }
+      ],
+      "branches": [
+        "寅",
+        "卯",
+        "巳",
+        "午"
+      ],
+      "expect": 1,
+      "why": "己日食神为丙，丙戊禄在巳。",
+      "lu_roots": [
+        {
+          "shi_shen": "食神",
+          "gan": "丙",
+          "zhi": "巳"
+        }
+      ]
+    },
+    {
+      "id": "class-includes-yin-yang",
+      "day_master": "甲",
+      "op": "禄根",
+      "args": [
+        "财星"
+      ],
+      "visible": [
+        {
+          "pillar": "nian",
+          "shi_shen": "偏财",
+          "gan": "戊"
+        },
+        {
+          "pillar": "yue",
+          "shi_shen": "正财",
+          "gan": "己"
+        }
+      ],
+      "branches": [
+        "寅",
+        "卯",
+        "巳",
+        "午"
+      ],
+      "expect": 1,
+      "why": "甲日财星含戊己；戊禄巳、己禄午，任一见即为禄根。",
+      "lu_roots": [
+        {
+          "shi_shen": "偏财",
+          "gan": "戊",
+          "zhi": "巳"
+        },
+        {
+          "shi_shen": "正财",
+          "gan": "己",
+          "zhi": "午"
+        }
+      ]
+    },
+    {
+      "id": "hidden-only-not-lu",
+      "day_master": "甲",
+      "op": "禄根",
+      "args": [
+        "伤官"
+      ],
+      "visible": [],
+      "hidden": [
+        {
+          "pillar": "yue",
+          "shi_shen": "伤官",
+          "gan": "丁"
+        }
+      ],
+      "branches": [
+        "丑",
+        "卯",
+        "午",
+        "酉"
+      ],
+      "expect": 0,
+      "why": "禄根本义指透干之星得其禄位；藏星不因同五行地支本气误判。",
+      "lu_roots": []
+    }
+  ],
+  "sources": [
+    "《三命通会·论十干禄》",
+    "《渊海子平》十神通根口径"
+  ]
+}

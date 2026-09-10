@@ -1,4 +1,4 @@
-"""因子实现、constants 闭集与 FACTOR_MODEL.md 的一致性测试。"""
+"""因子实现、constants 闭集与 BAZI_MODEL.md 的一致性测试。"""
 from __future__ import annotations
 
 import csv
@@ -11,7 +11,7 @@ import _helpers  # noqa: F401
 from factor_tables import load_long_rows
 
 ROOT = Path(__file__).resolve().parents[1]
-DOC = ROOT / "docs" / "FACTOR_MODEL.md"
+DOC = ROOT / "docs" / "BAZI_MODEL.md"
 TOOLS = ROOT / "skills" / "liki-bazi" / "tools"
 D = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
 ATOM_TEN_GODS = set(D["十神"])
@@ -38,8 +38,7 @@ def test_constant_closures_are_partitioned_and_complete() -> None:
     assert len(members) == len(set(members))
     assert set(members) == ATOM_TEN_GODS
     assert set(D["五行"]) == {"木", "火", "土", "金", "水"}
-    assert set(D["天干"]) == set(D["天干五行"])
-    assert set(D["地支"]) == set(D["地支五行"])
+    assert {"天干五行", "地支五行", "五行生克", "得令状态", "十神旺弱规则", "旺衰"}.isdisjoint(D)
     assert len(D["十二长生"]) == 12
     assert set(D["旺衰状态"]) == {"旺", "相", "休", "囚", "死"}
     assert len(D["紫微主星"]) == len(set(D["紫微主星"])) == 14

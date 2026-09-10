@@ -242,6 +242,10 @@ func TestHandler_RangeValidation(t *testing.T) {
 		{"bazhai.chart", `{"birth_year":1899,"gender":"male"}`},
 		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":-1,"xiang_shan":0}`},
 		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":24}`},
+		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":0}`},
+		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":1}`},
+		{"xuankong.chart", `{"period_date":"1863-07-31","zuo_shan":0,"xiang_shan":12}`},
+		{"xuankong.chart", `{"period_date":"2201-07-31","zuo_shan":0,"xiang_shan":12}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -330,9 +334,35 @@ func TestHandler_QimenBirthDateBoundary(t *testing.T) {
 	}
 }
 
+func liuyaoCastingJSON(t *testing.T, r *RPCRegistry, values [6]int) json.RawMessage {
+	t.Helper()
+	valuesJSON, err := json.Marshal(values)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := r.Execute(context.Background(), "liuyao.qigua", json.RawMessage(
+		[]byte(`{"mode":"yaos","yaos":`+string(valuesJSON)+`}`),
+	))
+	if err != nil {
+		t.Fatalf("liuyao.qigua yaos: %v", err)
+	}
+	var env struct {
+		Data struct {
+			Casting json.RawMessage `json:"casting"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data.Casting) == 0 {
+		t.Fatal("liuyao.qigua returned no casting")
+	}
+	return env.Data.Casting
+}
+
 func TestHandler_LiuyaoYongShenDefault(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"yaos":[7,7,7,7,7,7]}`, btOK))
+	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"casting":%s}`, btOK, liuyaoCastingJSON(t, r, [6]int{7, 7, 7, 7, 7, 7})))
 	result, err := r.Execute(context.Background(), "liuyao.chart", params)
 	if err != nil {
 		t.Fatalf("liuyao.chart (default yong_shen): %v", err)
@@ -530,6 +560,15 @@ func TestHandler_FullChartIncludesExtra(t *testing.T) {
 	if !hasPath(result, "data.zhi_liu_he") {
 		t.Error("fullchart missing zhi_liu_he (from hehui)")
 	}
+	if !hasPath(result, "data.ten_god_states") {
+		t.Error("fullchart missing ten_god_states")
+	}
+	if !hasPath(result, "data.element_states") {
+		t.Error("fullchart missing element_states")
+	}
+	if !hasPath(result, "data.da_yun") {
+		t.Error("fullchart missing da_yun")
+	}
 }
 
 func TestHandler_ComputeLiuyue_Valid(t *testing.T) {
@@ -612,15 +651,45 @@ func TestHandler_LiuyaoQigua(t *testing.T) {
 	if getStr(result, "_product") != "liuyao_qigua" {
 		t.Errorf("_product = %q, want liuyao_qigua", getStr(result, "_product"))
 	}
-	// Check yaos and dong_yao exist.
 	var env struct {
-		Data struct {
-			Yaos    [6]int `json:"yaos"`
-			DongYao []int  `json:"dong_yao"`
+		Data map[string]any `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if len(env.Data) != 1 {
+		t.Fatalf("qigua data keys = %v, want only casting", env.Data)
+	}
+	casting, ok := env.Data["casting"].(map[string]any)
+	if !ok || casting["schema_version"] != "liuyao-cast-v1" {
+		t.Fatalf("casting receipt = %#v, want liuyao-cast-v1", env.Data["casting"])
+	}
+}
+
+func TestHandler_HuangliDays_EventClassification(t *testing.T) {
+	r := NewRPCRegistry()
+	result, err := r.Execute(context.Background(), "huangli.days", json.RawMessage(
+		`{"start_date":"2024-06-15","count":1,"event":"sign"}`,
+	))
+	if err != nil {
+		t.Fatalf("huangli.days: %v", err)
+	}
+	var env struct {
+		Data []struct {
+			Event       string `json:"event"`
+			EventLabel  string `json:"event_label"`
+			Suitability string `json:"suitability"`
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
+	}
+	if len(env.Data) != 1 {
+		t.Fatalf("days = %d, want 1", len(env.Data))
+	}
+	got := env.Data[0]
+	if got.Event != "sign" || got.EventLabel != "签约" || got.Suitability != "recommended" {
+		t.Fatalf("classification = %+v, want sign/签约/recommended", got)
 	}
 }
 
@@ -637,10 +706,9 @@ func TestHandler_LiuyaoQigua_ManualCoins(t *testing.T) {
 	}
 	var env struct {
 		Data struct {
-			Yaos    [6]int `json:"yaos"`
-			DongYao []int  `json:"dong_yao"`
 			Casting struct {
 				Mode string `json:"mode"`
+				Yaos [6]int `json:"yaos"`
 			} `json:"casting"`
 		} `json:"data"`
 	}
@@ -648,28 +716,28 @@ func TestHandler_LiuyaoQigua_ManualCoins(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := [6]int{7, 8, 9, 6, 8, 7}
-	if env.Data.Yaos != want || env.Data.Casting.Mode != "coins" {
-		t.Fatalf("got=%+v, want yaos=%v mode=coins", env.Data, want)
+	if env.Data.Casting.Yaos != want || env.Data.Casting.Mode != "coins" {
+		t.Fatalf("got=%+v, want casting yaos=%v mode=coins", env.Data.Casting, want)
 	}
 }
 
-func TestHandler_LiuyaoChart_CastingAndYaosConflict(t *testing.T) {
+func TestHandler_LiuyaoChart_RejectsLegacyYaosInput(t *testing.T) {
 	r := NewRPCRegistry()
-	params := fmt.Sprintf(
-		`{"solar_time":%s,"yaos":[7,7,7,7,7,7],"casting":{"schema_version":"liuyao-cast-v1","mode":"yaos","yaos":[7,7,7,7,7,7],"dong_yao":[]}}`,
-		btOK,
-	)
+	params := fmt.Sprintf(`{"solar_time":%s,"yaos":[7,7,7,7,7,7]}`, btOK)
 	_, err := r.Execute(context.Background(), "liuyao.chart", json.RawMessage(params))
-	if err == nil || !strings.Contains(err.Error(), "mutually exclusive") {
-		t.Fatalf("error = %v, want mutually exclusive", err)
+	if err == nil || !strings.Contains(err.Error(), "yaos") {
+		t.Fatalf("error = %v, want legacy yaos rejected", err)
 	}
 }
 
-// ── liuyao.chart — yaos required ──
+// ── liuyao.chart — casting required ──
 
 func TestHandler_LiuyaoChart_InvalidYongShen(t *testing.T) {
 	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"yong_shen":"invalid","yaos":[7,7,7,7,7,7]}`, btOK))
+	params := json.RawMessage(fmt.Sprintf(
+		`{"solar_time":%s,"yong_shen":"invalid","casting":%s}`,
+		btOK, liuyaoCastingJSON(t, r, [6]int{7, 7, 7, 7, 7, 7}),
+	))
 	_, err := r.Execute(context.Background(), "liuyao.chart", params)
 	if err == nil {
 		t.Error("expected error for invalid yong_shen")
@@ -681,10 +749,10 @@ func TestHandler_LiuyaoChart_MissingInput(t *testing.T) {
 	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s}`, btOK))
 	_, err := r.Execute(context.Background(), "liuyao.chart", params)
 	if err == nil {
-		t.Fatal("expected error for missing casting and yaos")
+		t.Fatal("expected error for missing casting")
 	}
-	if !strings.Contains(err.Error(), "casting or yaos is required") {
-		t.Errorf("error = %q, want 'casting or yaos is required'", err.Error())
+	if !strings.Contains(err.Error(), "casting") {
+		t.Errorf("error = %q, want 'casting is required'", err.Error())
 	}
 }
 
@@ -1253,6 +1321,32 @@ func TestHandler_XuankongLiunian_Valid(t *testing.T) {
 	}
 	if getStr(result, "_product") != "xuankong_liunian" {
 		t.Errorf("_product = %q, want xuankong_liunian", getStr(result, "_product"))
+	}
+}
+
+func TestHandler_XuankongLiunian_RejectsTamperedChart(t *testing.T) {
+	r := NewRPCRegistry()
+	chartResult, err := r.Execute(context.Background(), "xuankong.chart",
+		json.RawMessage(`{"period_date":"2026-07-31","zuo_shan":20,"xiang_shan":8}`))
+	if err != nil {
+		t.Fatalf("xuankong.chart: %v", err)
+	}
+	var env struct {
+		Data map[string]any `json:"data"`
+	}
+	if err := json.Unmarshal(chartResult, &env); err != nil {
+		t.Fatal(err)
+	}
+	env.Data["zuo_shan"] = 0
+	tampered, err := json.Marshal(env.Data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = r.Execute(context.Background(), "xuankong.liunian", json.RawMessage(
+		fmt.Sprintf(`{"chart":%s,"year":2026}`, tampered),
+	))
+	if err == nil || !strings.Contains(err.Error(), "digest mismatch") {
+		t.Fatalf("error = %v, want chart digest mismatch", err)
 	}
 }
 

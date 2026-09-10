@@ -1,12 +1,10 @@
 """六爻 ask：校验 immutable snapshot 并生成结构化 answer。"""
 from __future__ import annotations
 
-import hashlib
-import json
-
-from divination_safety import assess, blocked_payload
-from divination_snapshot import validate_snapshot
 from divination_contracts import validate_document
+from divination_safety import assess, blocked_payload
+from divination_hashing import message_digest
+from divination_snapshot import validate_snapshot
 from liuyao_answer_core import build as build_core
 from liuyao_answer_core import validate_core
 from liuyao_snapshot import SCHEMA_VERSION
@@ -15,20 +13,18 @@ from liuyao_snapshot import SCHEMA_VERSION
 ANSWER_SCHEMA_VERSION = "liuyao-answer-v1"
 
 
-def _message_digest(message: str) -> str:
-    raw = json.dumps({"message": message}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
-
-
 def ask(snapshot: dict, *, message: str) -> dict:
     """基于同一六爻 snapshot 回答一次提问；不重排，不修改原 snapshot。"""
-    if not isinstance(message, str) or not message.strip():
+    if not isinstance(message, str):
         raise ValueError("message must be non-empty text")
     message = message.strip()
+    if not message:
+        raise ValueError("message must be non-empty text")
     safety = assess(message)
     if safety["status"] != "allow":
-        return blocked_payload(ANSWER_SCHEMA_VERSION, message, "liuyao")
+        return blocked_payload(question=message, method="liuyao", safety=safety)
     validate_snapshot(snapshot, method="liuyao", schema_version=SCHEMA_VERSION)
+    validate_document("liuyao_snapshot", snapshot)
 
     core = build_core(snapshot)
     primary_count = len(core.get("primary_evidence_refs", []))
@@ -56,7 +52,7 @@ def ask(snapshot: dict, *, message: str) -> dict:
         "schema_version": ANSWER_SCHEMA_VERSION,
         "method": "liuyao",
         "snapshot_digest": snapshot["snapshot_digest"],
-        "message_digest": _message_digest(message),
+        "message_digest": message_digest(message),
         "headline": core["headline"],
         "verdict": core["verdict"],
         "confidence": core["confidence"],

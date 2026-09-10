@@ -132,9 +132,9 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 | 金函玉镜 | `用金函玉镜看今天` |
 
 输出：方法依据 → 一句话判断 → 应期 / 方向 → 现实建议。
-六爻和奇门会保留起卦 / 起局收据、snapshot、证据引用、冲突信号、审计结果与会话完整性摘要；追问沿用原局，不重排。
+六爻和奇门会保留起卦 / 起局收据、immutable snapshot、证据引用、冲突信号与 answer 审计；追问复用同一 snapshot，不重排。
 
-领域模型详见 [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md)。
+领域契约文档见下方「开发者 → 领域契约」。
 
 #### liki-fengshui 风水
 
@@ -158,12 +158,15 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 **怎么更新？**
 技能启动时自动做版本检查，提示更新时重跑：`npx skills add ml8s/liki -y`。
 
+**自建引擎怎么升级？**
+`2026.09.10.1` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
+
 ## 为什么可信
 
 - **计算不靠 AI 编** — 八字/紫微排盘由 Go 天文历算引擎完成：真太阳时校正、夏令时、经纬度时区、VSOP87D 秒级节气。模型只做解读，不推算排盘数据。
 - **断语有出处** — 断语长表共 775 条，每条附经典依据列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
 - **双体系交叉验证** — 八字/紫微分侧计算，跨体系结论走显式合参表；冲突时列证裁决。
-- **流程可查** — 问卦链路保留起卦 / 起局收据、immutable snapshot、证据引用和 answer 审计；结论可回溯到具体某一步。模型见 `docs/DIVINATION_MODEL.md`。
+- **流程可查** — 问卦链路保留起卦 / 起局收据、immutable snapshot、证据引用和 answer 审计；结论可回溯到具体某一步。
 - **独立评测** — 160 道命理师大赛真题（MingLi-Bench），答案隔离、自动判分、数据公开（`tests/`）。
 
 ---
@@ -185,6 +188,15 @@ repo root
 ```
 
 调用链：SKILL.md 路由到 app 卡 → 卡调用 6 个 Python 工具（`agent_cli.py` 内部编排 RPC 排盘、领域快照、因子长表与断语长表匹配）→ 按 domains 知识解读 → 按卡内模板输出。RPC 方法对 liki-bazi 的 LLM 不可见。
+
+### 领域契约
+
+- [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — 问卦领域模型与分层：casting、snapshot、evidence、answer 与审计边界。
+- [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — 八字领域模型（八紫双盘）：八字、紫微、原子事实、因子条件、断言与查询边界。
+- [docs/FENGSHUI_MODEL.md](./docs/FENGSHUI_MODEL.md) — 风水领域模型与分层：八宅命卦、门主灶、玄空飞星、元运与流年边界。
+- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — 起名领域模型与分层：八字用神策略、字池、候选名、校验与出处边界。
+
+完整因子清单以 `skills/liki-bazi/tools/factors/*.csv` 为唯一事实源。
 
 ### 引擎镜像
 
@@ -208,7 +220,6 @@ make build-archive # 打包 4 skill + 生成分发索引与归档摘要
 
 贡献指南见 [CONTRIBUTING.md](./CONTRIBUTING.md)，版本历史见 [CHANGELOG.md](./CHANGELOG.md)。设计参考了 [mingli-skills](https://github.com/weizeW/mingli-skills)、[bazi-skill](https://github.com/jinchenma94/bazi-skill)、[iztro](https://github.com/SylarLong/iztro)、[MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) 等开源项目。
 
-liki-bazi 的因子契约见 [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md)；完整因子清单以 `skills/liki-bazi/tools/factors/*.csv` 为唯一事实源。
 
 ## 协议与声明
 

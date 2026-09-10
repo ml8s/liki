@@ -10,19 +10,20 @@ import (
 
 // LiuNian holds the annual (流年) analysis output.
 type LiuNian struct {
-	Year              int              `json:"year"`
-	NianGan           ganzhi.Gan       `json:"nian_gan"`
-	NianZhi           ganzhi.Zhi       `json:"nian_zhi"`
-	YearName          string           `json:"nian_name"`
-	Element           string           `json:"wuxing"`
-	NaYin             string           `json:"na_yin"`
-	ShiShen           string           `json:"shi_shen"`
-	Generates         int              `json:"sheng"`
-	Restrains         int              `json:"ke"`
-	NatalInteractions []zhuInteraction `json:"natal_interactions"`
-	DaYunInteractions []zhuInteraction `json:"dayun_interactions"`
-	ShenSha           []shenShaEntry   `json:"shensha"`
-	FuYinFanYin       []FuYinFanYin    `json:"fuyin_fanyin"`
+	Year              int                `json:"year"`
+	NianGan           ganzhi.Gan         `json:"nian_gan"`
+	NianZhi           ganzhi.Zhi         `json:"nian_zhi"`
+	YearName          string             `json:"nian_name"`
+	Element           string             `json:"wuxing"`
+	NaYin             string             `json:"na_yin"`
+	ShiShen           string             `json:"shi_shen"`
+	Generates         int                `json:"sheng"`
+	Restrains         int                `json:"ke"`
+	NatalInteractions []zhuInteraction   `json:"natal_interactions"`
+	DaYunInteractions []zhuInteraction   `json:"dayun_interactions"`
+	ShenSha           []shenShaEntry     `json:"shensha"`
+	FuYinFanYin       []FuYinFanYin      `json:"fuyin_fanyin"`
+	AtomicFacts       LiuNianAtomicFacts `json:"atomic_facts"`
 }
 
 // ComputeLiuNian computes the year pillar for a given year and analyzes its
@@ -82,6 +83,7 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 	r.ShenSha = computeDynamicShenSha(nianZhi, bz.Nian.Zhi, bz.Ri.Zhi, riYuan)
 	r.ShenSha = append(r.ShenSha, computeAnnualShenSha(nianZhi, bz)...)
 	r.FuYinFanYin = computeFuYinFanYin(liuNianZhu, bz)
+	r.AtomicFacts = computeLiuNianAtomicFacts(bz, nianGan, nianZhi, tgName, currentDaYun)
 
 	return r, nil
 }

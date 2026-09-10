@@ -388,16 +388,16 @@ func TestFindYongShen_InBenGua(t *testing.T) {
 			{Position: 6, LiuQin: QinFumu},
 		},
 	}
-	if got, _ := p.findYongShen(YongQiCai); got != 2 {
+	if got := p.findYongShen(YongQiCai); got != 2 {
 		t.Errorf("findYongShen(YongQiCai) = %d, want 2", got)
 	}
 	// YongShiYao with no shiYao → findShiYao returns 0.
-	if got, _ := p.findYongShen(YongShiYao); got != 0 {
+	if got := p.findYongShen(YongShiYao); got != 0 {
 		t.Errorf("findYongShen(YongShiYao) = %d, want 0", got)
 	}
 }
 
-func TestFindYongShen_InBianGua(t *testing.T) {
+func TestFindYongShen_IgnoresBianGua(t *testing.T) {
 	p := &Chart{
 		Lines: [6]Line{
 			{Position: 1, LiuQin: QinFumu},
@@ -416,8 +416,8 @@ func TestFindYongShen_InBianGua(t *testing.T) {
 			{Position: 6, LiuQin: QinFumu},
 		},
 	}
-	if got, isBian := p.findYongShen(YongQiCai); got != 3 || !isBian {
-		t.Errorf("findYongShen(YongQiCai) in bianGua = (%d, %v), want (3, true)", got, isBian)
+	if got := p.findYongShen(YongQiCai); got != 0 {
+		t.Errorf("findYongShen(YongQiCai) = %d, want 0; bian-gua must not be primary", got)
 	}
 }
 
@@ -432,7 +432,7 @@ func TestFindYongShen_NotFound(t *testing.T) {
 			{Position: 6, LiuQin: QinFumu},
 		},
 	}
-	if got, _ := p.findYongShen(YongQiCai); got != 0 {
+	if got := p.findYongShen(YongQiCai); got != 0 {
 		t.Errorf("findYongShen(YongQiCai) = %d, want 0", got)
 	}
 }
@@ -548,8 +548,11 @@ func TestComputeYingQi_NotFound_WithFuShen(t *testing.T) {
 
 func TestComputeChart_RandomShake(t *testing.T) {
 	st := tianwen.SolarTime(time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
-	qigua := Qigua()
-	chart := ComputeChart(st, YongQiCai, qigua.Yaos)
+	casting, err := SecureQigua()
+	if err != nil {
+		t.Fatalf("SecureQigua() error = %v", err)
+	}
+	chart := ComputeChart(st, YongQiCai, casting.Yaos)
 
 	if chart.Name == "" {
 		t.Error("Name is empty")
@@ -723,13 +726,16 @@ func TestDayGanShouOrder(t *testing.T) {
 
 func TestQigua_ValuesInRange(t *testing.T) {
 	for i := 0; i < 20; i++ {
-		q := Qigua()
-		for pos, y := range q.Yaos {
+		casting, err := SecureQigua()
+		if err != nil {
+			t.Fatalf("SecureQigua() error = %v", err)
+		}
+		for pos, y := range casting.Yaos {
 			if y < 6 || y > 9 {
 				t.Errorf("yao %d = %d, want [6,9]", pos+1, y)
 			}
 		}
-		for _, d := range q.DongYao {
+		for _, d := range casting.DongYao {
 			if d < 1 || d > 6 {
 				t.Errorf("dong_yao position = %d, want [1,6]", d)
 			}
@@ -739,11 +745,14 @@ func TestQigua_ValuesInRange(t *testing.T) {
 
 func TestQigua_DongYaoMatchesChangingLines(t *testing.T) {
 	for i := 0; i < 20; i++ {
-		q := Qigua()
-		for pos, y := range q.Yaos {
+		casting, err := SecureQigua()
+		if err != nil {
+			t.Fatalf("SecureQigua() error = %v", err)
+		}
+		for pos, y := range casting.Yaos {
 			isChanging := y == 6 || y == 9
 			isInList := false
-			for _, d := range q.DongYao {
+			for _, d := range casting.DongYao {
 				if d == pos+1 {
 					isInList = true
 					break

@@ -12,6 +12,7 @@ import sys
 import unittest
 
 import _helpers  # noqa: F401 —— 提供完整 daxian mock
+from pan_integrity import with_natal_digest
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _TOOLS = os.path.join(_ROOT, "skills", "liki-bazi", "tools")
 _SCHEMA = os.path.join(_TOOLS, "skill-tools.json")
@@ -72,13 +73,14 @@ class TestQueryWithMockPan(unittest.TestCase):
                 "yue": {"gan": "壬", "zhi": "午"},
                 "ri": {"gan": "己", "zhi": "亥"},
                 "shi": {"gan": "庚", "zhi": "午"},
+                **_helpers.mock_engine_facts(),
             },
             "yongshen": {},
             "ziwei": {"gong_wei": []},
             "ziwei_daxian": _helpers.valid_daxian(),
             "gender": "male",
         }
-        r = query("十神", mock_pan)
+        r = query("十神", with_natal_digest(mock_pan))
         self.assertIn("八字", r)
         self.assertIn("紫微", r)
 

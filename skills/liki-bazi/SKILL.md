@@ -30,8 +30,8 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 
 | 步骤 | 条件 | 动作 | 产物 |
 |---|---|---|---|
-| 1 | 用户给具体时刻 | `city_coords` → `full_paipan(correct=true)` | `pan` |
-| 1 | 用户已明确时辰 | `full_paipan(correct=false)` | `pan` |
+| 1 | 用户给具体时刻 | `city_coords` → `full_paipan(correct=true)` | 带 pan_digest 的完整 `pan` |
+| 1 | 用户已明确时辰 | `full_paipan(correct=false)` | 带 pan_digest 的完整 `pan` |
 | 1 | 时辰模糊或未知 | 收集候选与事件 → `calibrate`；读取 `domains/bazi/calibration.md`、`domains/ziwei/calibration.md` | 候选置信度 |
 | 2 | 场景明确 | 读取对应 app 卡并执行 | 场景所需断言 |
 | 3 | 本命分析 | `query(rule, pan)` | 八字 / 紫微 / 合参断语 |
@@ -42,6 +42,8 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 同一会话复用 `full_paipan` 返回的完整 `pan`；多领域问题走主场景全流程，次领域仅查询佐证。信号冲突按 `domains/bazi/caijue.md` 裁决；有真实事件时取 3-5 段已发生时段验证，无验证则标注。用户只给出生地与时钟时间，时区、夏令时与真太阳时由工具链处理。
 
 ## 硬边界
+
+- `pan` 是 immutable 排盘结果；`query` / `yearly_range` / `bond` / `calibrate` 会校验 pan_digest，不得修改或手工拼装。
 
 - 排盘、限运、因子与断语以工具和表数据为准；缺失字段标注不可用。
 - `query` / `yearly_range` 只传入 `full_paipan` 的完整 `pan`；跨度含端点最多 120 年。

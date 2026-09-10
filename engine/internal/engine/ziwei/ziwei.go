@@ -258,6 +258,8 @@ type Chart struct {
 	JuShuName string      `json:"ju_shu_name"`
 	ZiweiPos  gongIndex   `json:"ziwei_pos"`
 	SiHua     siHuaResult `json:"si_hua"`
+	// 宫位原子事实：Python 因子层只做 exact match，不复算星曜条件。
+	PalaceFacts []PalaceFact `json:"palace_facts"`
 
 	// 空宫借星（确定性派生）：无主星的宫位借对宫主星论（紫微标准处理）。
 	// 仅空宫出现（omitempty）；对宫亦空则 jie_xing 为空数组。

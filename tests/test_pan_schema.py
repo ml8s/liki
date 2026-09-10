@@ -1,8 +1,11 @@
 """pan 契约：快照、裁剪盘、半截盘全部显式报错。"""
+from pathlib import Path
+
 import pytest
 
 import _helpers  # noqa: F401
 
+from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 import paipan
 
@@ -16,20 +19,35 @@ def _pan(**changes):
             **{p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             "da_yun": {"steps": [], "current_step_index": 0},
         },
-        "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
-        "yongshen": {},
+        "full": {
+            **{p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
+            **_helpers.mock_engine_facts(),
+        },
         "ziwei": {"gong_wei": []},
         "ziwei_daxian": _helpers.valid_daxian(),
     }
     pan.update(changes)
-    return pan
+    return with_natal_digest(pan)
 
 
 def test_valid_pan_passes():
     validate_natal_pan(_pan(), action="test")
 
 
-@pytest.mark.parametrize("key", ["solar", "lunar", "chart", "full", "yongshen", "ziwei", "ziwei_daxian", "gender"])
+def test_pan_digest_rejects_tampering():
+    pan = _pan()
+    pan["solar"] = "2000-01-01T00:00:00"
+    with pytest.raises(ValueError, match="digest mismatch"):
+        validate_natal_pan(pan, action="test")
+
+
+def test_full_paipan_has_single_yong_shen_path():
+    source = (Path(__file__).parents[1] / "skills/liki-bazi/tools/paipan.py").read_text(encoding="utf-8")
+    assert '"yongshen":' not in source
+    assert '"full"' in source
+
+
+@pytest.mark.parametrize("key", ["solar", "lunar", "chart", "full", "ziwei", "ziwei_daxian", "gender"])
 def test_missing_required_field_rejected(key):
     pan = _pan(); pan.pop(key)
     with pytest.raises(ValueError, match=key):
@@ -83,6 +101,34 @@ def test_daxian_must_have_twelve_complete_steps():
         validate_natal_pan(_pan(ziwei_daxian=duplicate_palaces), action="test")
     pan = _pan(); pan["ziwei"].pop("gong_wei")
     with pytest.raises(ValueError, match="gong_wei"):
+        validate_natal_pan(pan, action="test")
+
+
+def test_engine_fact_fields_required():
+    pan = _pan(); pan["full"].pop("ten_god_states")
+    with pytest.raises(ValueError, match="ten_god_states"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan(); pan["full"].pop("relation_groups")
+    with pytest.raises(ValueError, match="relation_groups"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan(); pan["full"]["atomic_facts"].pop("day_master_element")
+    with pytest.raises(ValueError, match="day_master_element"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan(); pan["full"]["atomic_facts"].pop("month_main_ten_god")
+    with pytest.raises(ValueError, match="month_main_ten_god"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan(); pan["full"]["da_yun"]["steps"][0].pop("rooted")
+    with pytest.raises(ValueError, match="rooted engine"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan()
+    pan["full"]["da_yun"]["steps"][0].update({"rooted": True})
+    pan["full"]["da_yun"]["steps"][0].pop("root_refs")
+    with pytest.raises(ValueError, match="root_refs"):
         validate_natal_pan(pan, action="test")
 
 

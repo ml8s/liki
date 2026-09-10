@@ -1,0 +1,1468 @@
+{
+  "schema_version": "domain-oracle-bazi-v1",
+  "basis": "《渊海子平》《三命通会》通行干支口径；测试文件独立于实现表。",
+  "ten_gods_all_100": [
+    {
+      "day": "甲",
+      "other": "甲",
+      "expected": "比肩"
+    },
+    {
+      "day": "甲",
+      "other": "乙",
+      "expected": "劫财"
+    },
+    {
+      "day": "甲",
+      "other": "丙",
+      "expected": "食神"
+    },
+    {
+      "day": "甲",
+      "other": "丁",
+      "expected": "伤官"
+    },
+    {
+      "day": "甲",
+      "other": "戊",
+      "expected": "偏财"
+    },
+    {
+      "day": "甲",
+      "other": "己",
+      "expected": "正财"
+    },
+    {
+      "day": "甲",
+      "other": "庚",
+      "expected": "七杀"
+    },
+    {
+      "day": "甲",
+      "other": "辛",
+      "expected": "正官"
+    },
+    {
+      "day": "甲",
+      "other": "壬",
+      "expected": "偏印"
+    },
+    {
+      "day": "甲",
+      "other": "癸",
+      "expected": "正印"
+    },
+    {
+      "day": "乙",
+      "other": "甲",
+      "expected": "劫财"
+    },
+    {
+      "day": "乙",
+      "other": "乙",
+      "expected": "比肩"
+    },
+    {
+      "day": "乙",
+      "other": "丙",
+      "expected": "伤官"
+    },
+    {
+      "day": "乙",
+      "other": "丁",
+      "expected": "食神"
+    },
+    {
+      "day": "乙",
+      "other": "戊",
+      "expected": "正财"
+    },
+    {
+      "day": "乙",
+      "other": "己",
+      "expected": "偏财"
+    },
+    {
+      "day": "乙",
+      "other": "庚",
+      "expected": "正官"
+    },
+    {
+      "day": "乙",
+      "other": "辛",
+      "expected": "七杀"
+    },
+    {
+      "day": "乙",
+      "other": "壬",
+      "expected": "正印"
+    },
+    {
+      "day": "乙",
+      "other": "癸",
+      "expected": "偏印"
+    },
+    {
+      "day": "丙",
+      "other": "甲",
+      "expected": "偏印"
+    },
+    {
+      "day": "丙",
+      "other": "乙",
+      "expected": "正印"
+    },
+    {
+      "day": "丙",
+      "other": "丙",
+      "expected": "比肩"
+    },
+    {
+      "day": "丙",
+      "other": "丁",
+      "expected": "劫财"
+    },
+    {
+      "day": "丙",
+      "other": "戊",
+      "expected": "食神"
+    },
+    {
+      "day": "丙",
+      "other": "己",
+      "expected": "伤官"
+    },
+    {
+      "day": "丙",
+      "other": "庚",
+      "expected": "偏财"
+    },
+    {
+      "day": "丙",
+      "other": "辛",
+      "expected": "正财"
+    },
+    {
+      "day": "丙",
+      "other": "壬",
+      "expected": "七杀"
+    },
+    {
+      "day": "丙",
+      "other": "癸",
+      "expected": "正官"
+    },
+    {
+      "day": "丁",
+      "other": "甲",
+      "expected": "正印"
+    },
+    {
+      "day": "丁",
+      "other": "乙",
+      "expected": "偏印"
+    },
+    {
+      "day": "丁",
+      "other": "丙",
+      "expected": "劫财"
+    },
+    {
+      "day": "丁",
+      "other": "丁",
+      "expected": "比肩"
+    },
+    {
+      "day": "丁",
+      "other": "戊",
+      "expected": "伤官"
+    },
+    {
+      "day": "丁",
+      "other": "己",
+      "expected": "食神"
+    },
+    {
+      "day": "丁",
+      "other": "庚",
+      "expected": "正财"
+    },
+    {
+      "day": "丁",
+      "other": "辛",
+      "expected": "偏财"
+    },
+    {
+      "day": "丁",
+      "other": "壬",
+      "expected": "正官"
+    },
+    {
+      "day": "丁",
+      "other": "癸",
+      "expected": "七杀"
+    },
+    {
+      "day": "戊",
+      "other": "甲",
+      "expected": "七杀"
+    },
+    {
+      "day": "戊",
+      "other": "乙",
+      "expected": "正官"
+    },
+    {
+      "day": "戊",
+      "other": "丙",
+      "expected": "偏印"
+    },
+    {
+      "day": "戊",
+      "other": "丁",
+      "expected": "正印"
+    },
+    {
+      "day": "戊",
+      "other": "戊",
+      "expected": "比肩"
+    },
+    {
+      "day": "戊",
+      "other": "己",
+      "expected": "劫财"
+    },
+    {
+      "day": "戊",
+      "other": "庚",
+      "expected": "食神"
+    },
+    {
+      "day": "戊",
+      "other": "辛",
+      "expected": "伤官"
+    },
+    {
+      "day": "戊",
+      "other": "壬",
+      "expected": "偏财"
+    },
+    {
+      "day": "戊",
+      "other": "癸",
+      "expected": "正财"
+    },
+    {
+      "day": "己",
+      "other": "甲",
+      "expected": "正官"
+    },
+    {
+      "day": "己",
+      "other": "乙",
+      "expected": "七杀"
+    },
+    {
+      "day": "己",
+      "other": "丙",
+      "expected": "正印"
+    },
+    {
+      "day": "己",
+      "other": "丁",
+      "expected": "偏印"
+    },
+    {
+      "day": "己",
+      "other": "戊",
+      "expected": "劫财"
+    },
+    {
+      "day": "己",
+      "other": "己",
+      "expected": "比肩"
+    },
+    {
+      "day": "己",
+      "other": "庚",
+      "expected": "伤官"
+    },
+    {
+      "day": "己",
+      "other": "辛",
+      "expected": "食神"
+    },
+    {
+      "day": "己",
+      "other": "壬",
+      "expected": "正财"
+    },
+    {
+      "day": "己",
+      "other": "癸",
+      "expected": "偏财"
+    },
+    {
+      "day": "庚",
+      "other": "甲",
+      "expected": "偏财"
+    },
+    {
+      "day": "庚",
+      "other": "乙",
+      "expected": "正财"
+    },
+    {
+      "day": "庚",
+      "other": "丙",
+      "expected": "七杀"
+    },
+    {
+      "day": "庚",
+      "other": "丁",
+      "expected": "正官"
+    },
+    {
+      "day": "庚",
+      "other": "戊",
+      "expected": "偏印"
+    },
+    {
+      "day": "庚",
+      "other": "己",
+      "expected": "正印"
+    },
+    {
+      "day": "庚",
+      "other": "庚",
+      "expected": "比肩"
+    },
+    {
+      "day": "庚",
+      "other": "辛",
+      "expected": "劫财"
+    },
+    {
+      "day": "庚",
+      "other": "壬",
+      "expected": "食神"
+    },
+    {
+      "day": "庚",
+      "other": "癸",
+      "expected": "伤官"
+    },
+    {
+      "day": "辛",
+      "other": "甲",
+      "expected": "正财"
+    },
+    {
+      "day": "辛",
+      "other": "乙",
+      "expected": "偏财"
+    },
+    {
+      "day": "辛",
+      "other": "丙",
+      "expected": "正官"
+    },
+    {
+      "day": "辛",
+      "other": "丁",
+      "expected": "七杀"
+    },
+    {
+      "day": "辛",
+      "other": "戊",
+      "expected": "正印"
+    },
+    {
+      "day": "辛",
+      "other": "己",
+      "expected": "偏印"
+    },
+    {
+      "day": "辛",
+      "other": "庚",
+      "expected": "劫财"
+    },
+    {
+      "day": "辛",
+      "other": "辛",
+      "expected": "比肩"
+    },
+    {
+      "day": "辛",
+      "other": "壬",
+      "expected": "伤官"
+    },
+    {
+      "day": "辛",
+      "other": "癸",
+      "expected": "食神"
+    },
+    {
+      "day": "壬",
+      "other": "甲",
+      "expected": "食神"
+    },
+    {
+      "day": "壬",
+      "other": "乙",
+      "expected": "伤官"
+    },
+    {
+      "day": "壬",
+      "other": "丙",
+      "expected": "偏财"
+    },
+    {
+      "day": "壬",
+      "other": "丁",
+      "expected": "正财"
+    },
+    {
+      "day": "壬",
+      "other": "戊",
+      "expected": "七杀"
+    },
+    {
+      "day": "壬",
+      "other": "己",
+      "expected": "正官"
+    },
+    {
+      "day": "壬",
+      "other": "庚",
+      "expected": "偏印"
+    },
+    {
+      "day": "壬",
+      "other": "辛",
+      "expected": "正印"
+    },
+    {
+      "day": "壬",
+      "other": "壬",
+      "expected": "比肩"
+    },
+    {
+      "day": "壬",
+      "other": "癸",
+      "expected": "劫财"
+    },
+    {
+      "day": "癸",
+      "other": "甲",
+      "expected": "伤官"
+    },
+    {
+      "day": "癸",
+      "other": "乙",
+      "expected": "食神"
+    },
+    {
+      "day": "癸",
+      "other": "丙",
+      "expected": "正财"
+    },
+    {
+      "day": "癸",
+      "other": "丁",
+      "expected": "偏财"
+    },
+    {
+      "day": "癸",
+      "other": "戊",
+      "expected": "正官"
+    },
+    {
+      "day": "癸",
+      "other": "己",
+      "expected": "七杀"
+    },
+    {
+      "day": "癸",
+      "other": "庚",
+      "expected": "正印"
+    },
+    {
+      "day": "癸",
+      "other": "辛",
+      "expected": "偏印"
+    },
+    {
+      "day": "癸",
+      "other": "壬",
+      "expected": "劫财"
+    },
+    {
+      "day": "癸",
+      "other": "癸",
+      "expected": "比肩"
+    }
+  ],
+  "hidden_stems_all_12": [
+    {
+      "branch": "子",
+      "main": "癸",
+      "mid": null,
+      "minor": null
+    },
+    {
+      "branch": "丑",
+      "main": "己",
+      "mid": "癸",
+      "minor": "辛"
+    },
+    {
+      "branch": "寅",
+      "main": "甲",
+      "mid": "丙",
+      "minor": "戊"
+    },
+    {
+      "branch": "卯",
+      "main": "乙",
+      "mid": null,
+      "minor": null
+    },
+    {
+      "branch": "辰",
+      "main": "戊",
+      "mid": "乙",
+      "minor": "癸"
+    },
+    {
+      "branch": "巳",
+      "main": "丙",
+      "mid": "庚",
+      "minor": "戊"
+    },
+    {
+      "branch": "午",
+      "main": "丁",
+      "mid": "己",
+      "minor": null
+    },
+    {
+      "branch": "未",
+      "main": "己",
+      "mid": "乙",
+      "minor": "丁"
+    },
+    {
+      "branch": "申",
+      "main": "庚",
+      "mid": "壬",
+      "minor": "戊"
+    },
+    {
+      "branch": "酉",
+      "main": "辛",
+      "mid": null,
+      "minor": null
+    },
+    {
+      "branch": "戌",
+      "main": "戊",
+      "mid": "辛",
+      "minor": "丁"
+    },
+    {
+      "branch": "亥",
+      "main": "壬",
+      "mid": "甲",
+      "minor": null
+    }
+  ],
+  "nayin_all_30_pairs": [
+    {
+      "index": 1,
+      "first": "甲子",
+      "second": "乙丑",
+      "expected": "海中金"
+    },
+    {
+      "index": 3,
+      "first": "丙寅",
+      "second": "丁卯",
+      "expected": "炉中火"
+    },
+    {
+      "index": 5,
+      "first": "戊辰",
+      "second": "己巳",
+      "expected": "大林木"
+    },
+    {
+      "index": 7,
+      "first": "庚午",
+      "second": "辛未",
+      "expected": "路旁土"
+    },
+    {
+      "index": 9,
+      "first": "壬申",
+      "second": "癸酉",
+      "expected": "剑锋金"
+    },
+    {
+      "index": 11,
+      "first": "甲戌",
+      "second": "乙亥",
+      "expected": "山头火"
+    },
+    {
+      "index": 13,
+      "first": "丙子",
+      "second": "丁丑",
+      "expected": "涧下水"
+    },
+    {
+      "index": 15,
+      "first": "戊寅",
+      "second": "己卯",
+      "expected": "城头土"
+    },
+    {
+      "index": 17,
+      "first": "庚辰",
+      "second": "辛巳",
+      "expected": "白蜡金"
+    },
+    {
+      "index": 19,
+      "first": "壬午",
+      "second": "癸未",
+      "expected": "杨柳木"
+    },
+    {
+      "index": 21,
+      "first": "甲申",
+      "second": "乙酉",
+      "expected": "泉中水"
+    },
+    {
+      "index": 23,
+      "first": "丙戌",
+      "second": "丁亥",
+      "expected": "屋上土"
+    },
+    {
+      "index": 25,
+      "first": "戊子",
+      "second": "己丑",
+      "expected": "霹雳火"
+    },
+    {
+      "index": 27,
+      "first": "庚寅",
+      "second": "辛卯",
+      "expected": "松柏木"
+    },
+    {
+      "index": 29,
+      "first": "壬辰",
+      "second": "癸巳",
+      "expected": "长流水"
+    },
+    {
+      "index": 31,
+      "first": "甲午",
+      "second": "乙未",
+      "expected": "沙中金"
+    },
+    {
+      "index": 33,
+      "first": "丙申",
+      "second": "丁酉",
+      "expected": "山下火"
+    },
+    {
+      "index": 35,
+      "first": "戊戌",
+      "second": "己亥",
+      "expected": "平地木"
+    },
+    {
+      "index": 37,
+      "first": "庚子",
+      "second": "辛丑",
+      "expected": "壁上土"
+    },
+    {
+      "index": 39,
+      "first": "壬寅",
+      "second": "癸卯",
+      "expected": "金箔金"
+    },
+    {
+      "index": 41,
+      "first": "甲辰",
+      "second": "乙巳",
+      "expected": "覆灯火"
+    },
+    {
+      "index": 43,
+      "first": "丙午",
+      "second": "丁未",
+      "expected": "天河水"
+    },
+    {
+      "index": 45,
+      "first": "戊申",
+      "second": "己酉",
+      "expected": "大驿土"
+    },
+    {
+      "index": 47,
+      "first": "庚戌",
+      "second": "辛亥",
+      "expected": "钗钏金"
+    },
+    {
+      "index": 49,
+      "first": "壬子",
+      "second": "癸丑",
+      "expected": "桑柘木"
+    },
+    {
+      "index": 51,
+      "first": "甲寅",
+      "second": "乙卯",
+      "expected": "大溪水"
+    },
+    {
+      "index": 53,
+      "first": "丙辰",
+      "second": "丁巳",
+      "expected": "沙中土"
+    },
+    {
+      "index": 55,
+      "first": "戊午",
+      "second": "己未",
+      "expected": "天上火"
+    },
+    {
+      "index": 57,
+      "first": "庚申",
+      "second": "辛酉",
+      "expected": "石榴木"
+    },
+    {
+      "index": 59,
+      "first": "壬戌",
+      "second": "癸亥",
+      "expected": "大海水"
+    }
+  ],
+  "xun_kong_all_6": [
+    {
+      "leader": "甲子",
+      "void": [
+        "戌",
+        "亥"
+      ]
+    },
+    {
+      "leader": "甲戌",
+      "void": [
+        "申",
+        "酉"
+      ]
+    },
+    {
+      "leader": "甲申",
+      "void": [
+        "午",
+        "未"
+      ]
+    },
+    {
+      "leader": "甲午",
+      "void": [
+        "辰",
+        "巳"
+      ]
+    },
+    {
+      "leader": "甲辰",
+      "void": [
+        "寅",
+        "卯"
+      ]
+    },
+    {
+      "leader": "甲寅",
+      "void": [
+        "子",
+        "丑"
+      ]
+    }
+  ],
+  "chang_sheng_all_120": [
+    {
+      "stem": "甲",
+      "branch": "亥",
+      "stage": "长生"
+    },
+    {
+      "stem": "甲",
+      "branch": "子",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "甲",
+      "branch": "丑",
+      "stage": "冠带"
+    },
+    {
+      "stem": "甲",
+      "branch": "寅",
+      "stage": "临官"
+    },
+    {
+      "stem": "甲",
+      "branch": "卯",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "甲",
+      "branch": "辰",
+      "stage": "衰"
+    },
+    {
+      "stem": "甲",
+      "branch": "巳",
+      "stage": "病"
+    },
+    {
+      "stem": "甲",
+      "branch": "午",
+      "stage": "死"
+    },
+    {
+      "stem": "甲",
+      "branch": "未",
+      "stage": "墓"
+    },
+    {
+      "stem": "甲",
+      "branch": "申",
+      "stage": "绝"
+    },
+    {
+      "stem": "甲",
+      "branch": "酉",
+      "stage": "胎"
+    },
+    {
+      "stem": "甲",
+      "branch": "戌",
+      "stage": "养"
+    },
+    {
+      "stem": "乙",
+      "branch": "午",
+      "stage": "长生"
+    },
+    {
+      "stem": "乙",
+      "branch": "巳",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "乙",
+      "branch": "辰",
+      "stage": "冠带"
+    },
+    {
+      "stem": "乙",
+      "branch": "卯",
+      "stage": "临官"
+    },
+    {
+      "stem": "乙",
+      "branch": "寅",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "乙",
+      "branch": "丑",
+      "stage": "衰"
+    },
+    {
+      "stem": "乙",
+      "branch": "子",
+      "stage": "病"
+    },
+    {
+      "stem": "乙",
+      "branch": "亥",
+      "stage": "死"
+    },
+    {
+      "stem": "乙",
+      "branch": "戌",
+      "stage": "墓"
+    },
+    {
+      "stem": "乙",
+      "branch": "酉",
+      "stage": "绝"
+    },
+    {
+      "stem": "乙",
+      "branch": "申",
+      "stage": "胎"
+    },
+    {
+      "stem": "乙",
+      "branch": "未",
+      "stage": "养"
+    },
+    {
+      "stem": "丙",
+      "branch": "寅",
+      "stage": "长生"
+    },
+    {
+      "stem": "丙",
+      "branch": "卯",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "丙",
+      "branch": "辰",
+      "stage": "冠带"
+    },
+    {
+      "stem": "丙",
+      "branch": "巳",
+      "stage": "临官"
+    },
+    {
+      "stem": "丙",
+      "branch": "午",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "丙",
+      "branch": "未",
+      "stage": "衰"
+    },
+    {
+      "stem": "丙",
+      "branch": "申",
+      "stage": "病"
+    },
+    {
+      "stem": "丙",
+      "branch": "酉",
+      "stage": "死"
+    },
+    {
+      "stem": "丙",
+      "branch": "戌",
+      "stage": "墓"
+    },
+    {
+      "stem": "丙",
+      "branch": "亥",
+      "stage": "绝"
+    },
+    {
+      "stem": "丙",
+      "branch": "子",
+      "stage": "胎"
+    },
+    {
+      "stem": "丙",
+      "branch": "丑",
+      "stage": "养"
+    },
+    {
+      "stem": "丁",
+      "branch": "酉",
+      "stage": "长生"
+    },
+    {
+      "stem": "丁",
+      "branch": "申",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "丁",
+      "branch": "未",
+      "stage": "冠带"
+    },
+    {
+      "stem": "丁",
+      "branch": "午",
+      "stage": "临官"
+    },
+    {
+      "stem": "丁",
+      "branch": "巳",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "丁",
+      "branch": "辰",
+      "stage": "衰"
+    },
+    {
+      "stem": "丁",
+      "branch": "卯",
+      "stage": "病"
+    },
+    {
+      "stem": "丁",
+      "branch": "寅",
+      "stage": "死"
+    },
+    {
+      "stem": "丁",
+      "branch": "丑",
+      "stage": "墓"
+    },
+    {
+      "stem": "丁",
+      "branch": "子",
+      "stage": "绝"
+    },
+    {
+      "stem": "丁",
+      "branch": "亥",
+      "stage": "胎"
+    },
+    {
+      "stem": "丁",
+      "branch": "戌",
+      "stage": "养"
+    },
+    {
+      "stem": "戊",
+      "branch": "寅",
+      "stage": "长生"
+    },
+    {
+      "stem": "戊",
+      "branch": "卯",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "戊",
+      "branch": "辰",
+      "stage": "冠带"
+    },
+    {
+      "stem": "戊",
+      "branch": "巳",
+      "stage": "临官"
+    },
+    {
+      "stem": "戊",
+      "branch": "午",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "戊",
+      "branch": "未",
+      "stage": "衰"
+    },
+    {
+      "stem": "戊",
+      "branch": "申",
+      "stage": "病"
+    },
+    {
+      "stem": "戊",
+      "branch": "酉",
+      "stage": "死"
+    },
+    {
+      "stem": "戊",
+      "branch": "戌",
+      "stage": "墓"
+    },
+    {
+      "stem": "戊",
+      "branch": "亥",
+      "stage": "绝"
+    },
+    {
+      "stem": "戊",
+      "branch": "子",
+      "stage": "胎"
+    },
+    {
+      "stem": "戊",
+      "branch": "丑",
+      "stage": "养"
+    },
+    {
+      "stem": "己",
+      "branch": "酉",
+      "stage": "长生"
+    },
+    {
+      "stem": "己",
+      "branch": "申",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "己",
+      "branch": "未",
+      "stage": "冠带"
+    },
+    {
+      "stem": "己",
+      "branch": "午",
+      "stage": "临官"
+    },
+    {
+      "stem": "己",
+      "branch": "巳",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "己",
+      "branch": "辰",
+      "stage": "衰"
+    },
+    {
+      "stem": "己",
+      "branch": "卯",
+      "stage": "病"
+    },
+    {
+      "stem": "己",
+      "branch": "寅",
+      "stage": "死"
+    },
+    {
+      "stem": "己",
+      "branch": "丑",
+      "stage": "墓"
+    },
+    {
+      "stem": "己",
+      "branch": "子",
+      "stage": "绝"
+    },
+    {
+      "stem": "己",
+      "branch": "亥",
+      "stage": "胎"
+    },
+    {
+      "stem": "己",
+      "branch": "戌",
+      "stage": "养"
+    },
+    {
+      "stem": "庚",
+      "branch": "巳",
+      "stage": "长生"
+    },
+    {
+      "stem": "庚",
+      "branch": "午",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "庚",
+      "branch": "未",
+      "stage": "冠带"
+    },
+    {
+      "stem": "庚",
+      "branch": "申",
+      "stage": "临官"
+    },
+    {
+      "stem": "庚",
+      "branch": "酉",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "庚",
+      "branch": "戌",
+      "stage": "衰"
+    },
+    {
+      "stem": "庚",
+      "branch": "亥",
+      "stage": "病"
+    },
+    {
+      "stem": "庚",
+      "branch": "子",
+      "stage": "死"
+    },
+    {
+      "stem": "庚",
+      "branch": "丑",
+      "stage": "墓"
+    },
+    {
+      "stem": "庚",
+      "branch": "寅",
+      "stage": "绝"
+    },
+    {
+      "stem": "庚",
+      "branch": "卯",
+      "stage": "胎"
+    },
+    {
+      "stem": "庚",
+      "branch": "辰",
+      "stage": "养"
+    },
+    {
+      "stem": "辛",
+      "branch": "子",
+      "stage": "长生"
+    },
+    {
+      "stem": "辛",
+      "branch": "亥",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "辛",
+      "branch": "戌",
+      "stage": "冠带"
+    },
+    {
+      "stem": "辛",
+      "branch": "酉",
+      "stage": "临官"
+    },
+    {
+      "stem": "辛",
+      "branch": "申",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "辛",
+      "branch": "未",
+      "stage": "衰"
+    },
+    {
+      "stem": "辛",
+      "branch": "午",
+      "stage": "病"
+    },
+    {
+      "stem": "辛",
+      "branch": "巳",
+      "stage": "死"
+    },
+    {
+      "stem": "辛",
+      "branch": "辰",
+      "stage": "墓"
+    },
+    {
+      "stem": "辛",
+      "branch": "卯",
+      "stage": "绝"
+    },
+    {
+      "stem": "辛",
+      "branch": "寅",
+      "stage": "胎"
+    },
+    {
+      "stem": "辛",
+      "branch": "丑",
+      "stage": "养"
+    },
+    {
+      "stem": "壬",
+      "branch": "申",
+      "stage": "长生"
+    },
+    {
+      "stem": "壬",
+      "branch": "酉",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "壬",
+      "branch": "戌",
+      "stage": "冠带"
+    },
+    {
+      "stem": "壬",
+      "branch": "亥",
+      "stage": "临官"
+    },
+    {
+      "stem": "壬",
+      "branch": "子",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "壬",
+      "branch": "丑",
+      "stage": "衰"
+    },
+    {
+      "stem": "壬",
+      "branch": "寅",
+      "stage": "病"
+    },
+    {
+      "stem": "壬",
+      "branch": "卯",
+      "stage": "死"
+    },
+    {
+      "stem": "壬",
+      "branch": "辰",
+      "stage": "墓"
+    },
+    {
+      "stem": "壬",
+      "branch": "巳",
+      "stage": "绝"
+    },
+    {
+      "stem": "壬",
+      "branch": "午",
+      "stage": "胎"
+    },
+    {
+      "stem": "壬",
+      "branch": "未",
+      "stage": "养"
+    },
+    {
+      "stem": "癸",
+      "branch": "卯",
+      "stage": "长生"
+    },
+    {
+      "stem": "癸",
+      "branch": "寅",
+      "stage": "沐浴"
+    },
+    {
+      "stem": "癸",
+      "branch": "丑",
+      "stage": "冠带"
+    },
+    {
+      "stem": "癸",
+      "branch": "子",
+      "stage": "临官"
+    },
+    {
+      "stem": "癸",
+      "branch": "亥",
+      "stage": "帝旺"
+    },
+    {
+      "stem": "癸",
+      "branch": "戌",
+      "stage": "衰"
+    },
+    {
+      "stem": "癸",
+      "branch": "酉",
+      "stage": "病"
+    },
+    {
+      "stem": "癸",
+      "branch": "申",
+      "stage": "死"
+    },
+    {
+      "stem": "癸",
+      "branch": "未",
+      "stage": "墓"
+    },
+    {
+      "stem": "癸",
+      "branch": "午",
+      "stage": "绝"
+    },
+    {
+      "stem": "癸",
+      "branch": "巳",
+      "stage": "胎"
+    },
+    {
+      "stem": "癸",
+      "branch": "辰",
+      "stage": "养"
+    }
+  ],
+  "ten_stem_lu": {
+    "甲": "寅",
+    "乙": "卯",
+    "丙": "巳",
+    "丁": "午",
+    "戊": "巳",
+    "己": "午",
+    "庚": "申",
+    "辛": "酉",
+    "壬": "亥",
+    "癸": "子"
+  },
+  "five_tigers_all_10": [
+    {
+      "year_stem": "甲",
+      "zheng_yue_stem": "丙"
+    },
+    {
+      "year_stem": "乙",
+      "zheng_yue_stem": "丙"
+    },
+    {
+      "year_stem": "丙",
+      "zheng_yue_stem": "戊"
+    },
+    {
+      "year_stem": "丁",
+      "zheng_yue_stem": "戊"
+    },
+    {
+      "year_stem": "戊",
+      "zheng_yue_stem": "庚"
+    },
+    {
+      "year_stem": "己",
+      "zheng_yue_stem": "庚"
+    },
+    {
+      "year_stem": "庚",
+      "zheng_yue_stem": "壬"
+    },
+    {
+      "year_stem": "辛",
+      "zheng_yue_stem": "壬"
+    },
+    {
+      "year_stem": "壬",
+      "zheng_yue_stem": "甲"
+    },
+    {
+      "year_stem": "癸",
+      "zheng_yue_stem": "甲"
+    }
+  ],
+  "school": "子平真诠/格局月令人元口径：巳丙庚戊、未己乙丁；与项目格局文档一致",
+  "sources": [
+    "项目《格局论命》月令本气/中气/余气表",
+    "《子平真诠》月令人元口径",
+    "《渊海子平》十神、十干禄与纳音"
+  ]
+}

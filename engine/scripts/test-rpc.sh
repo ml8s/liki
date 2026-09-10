@@ -183,6 +183,9 @@ check_rpc "  has san_yuan" '.result.data.san_yuan.tai_yuan != null' 'true'
 check_rpc "  has chang_sheng" '.result.data.chang_sheng[0].name != null' 'true'
 check_rpc "  has nayin_rel" '.result.data.nayin_rel != null' 'true'
 check_rpc "  has yong_shen" '.result.data.yong_shen.fu_yi.yong != null' 'true'
+check_rpc "  has ten_god_states" '.result.data.ten_god_states | length > 0' 'true'
+check_rpc "  has element_states" '.result.data.element_states | length == 5' 'true'
+check_rpc "  has dayun rooted facts" '.result.data.da_yun.steps[0].rooted != null' 'true'
 
 # ============================================================================
 # ZiWei
@@ -373,8 +376,12 @@ check_rpc_ok "xuankong.liunian (2024)"
 rpc xuankong.liunian '{"year":1800}'
 check_rpc_err "xuankong.liunian (bad year)" "-32000"
 
-rpc xuankong.chart '{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":11}'
+rpc xuankong.chart '{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":12}'
 check_rpc_ok "xuankong.chart"
+check_rpc "  has chart_digest" '.result.data.chart_digest != null' 'true'
+
+rpc xuankong.chart '{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":11}'
+check_rpc_err "xuankong.chart (non-opposite mountains)" "-32000"
 
 rpc xuankong.chart '{"period_date":"2026-07-31"}'
 check_rpc_err "xuankong.chart (missing mountains)" "-32602"
@@ -388,17 +395,26 @@ echo "${BOLD}── LiuYao ──${NC}"
 rpc liuyao.qigua '{}'
 check_rpc_ok "liuyao.qigua"
 
-YAOS=$(json_val "$RPC_BODY" '.result.data.yaos')
-YAOS_JSON=$(echo "$YAOS" | jq -c '.')
+CASTING=$(json_val "$RPC_BODY" '.result.data.casting')
+CASTING_JSON=$(echo "$CASTING" | jq -c '.')
 
-rpc liuyao.chart "{\"solar_time\":$ST,\"yaos\":$YAOS_JSON}"
+rpc liuyao.chart "{\"solar_time\":$ST,\"casting\":$CASTING_JSON}"
 check_rpc_ok "liuyao.chart"
 
-rpc liuyao.chart "{\"solar_time\":$ST,\"yaos\":[6,7,8,9,6,7],\"yong_shen\":\"妻财\"}"
+rpc liuyao.qigua '{"mode":"yaos","yaos":[6,7,8,9,6,7]}'
+CASTING=$(json_val "$RPC_BODY" '.result.data.casting')
+CASTING_JSON=$(echo "$CASTING" | jq -c '.')
+rpc liuyao.chart "{\"solar_time\":$ST,\"yong_shen\":\"妻财\",\"casting\":$CASTING_JSON}"
 check_rpc_ok "liuyao.chart (with yong_shen)"
 
-rpc liuyao.chart "{\"solar_time\":$ST,\"yaos\":[7,8,7,6,9,7]}"
-check_rpc_ok "liuyao.chart (mixed yaos)"
+rpc liuyao.qigua '{"mode":"yaos","yaos":[7,8,7,6,9,7]}'
+CASTING=$(json_val "$RPC_BODY" '.result.data.casting')
+CASTING_JSON=$(echo "$CASTING" | jq -c '.')
+rpc liuyao.chart "{\"solar_time\":$ST,\"casting\":$CASTING_JSON}"
+check_rpc_ok "liuyao.chart (mixed casting)"
+
+rpc liuyao.chart "{\"solar_time\":$ST,\"yaos\":[7,7,7,7,7,7]}"
+check_rpc_err "liuyao.chart (legacy yaos rejected)" "-32602"
 
 # ============================================================================
 # Huangli

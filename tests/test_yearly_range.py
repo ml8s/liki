@@ -5,10 +5,11 @@ import pytest
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import duanyu
+from pan_integrity import with_natal_digest
 
 
 def _valid_mock_pan() -> dict:
-    return {
+    return with_natal_digest({
         "solar": "1990-05-20T12:00:00",
         "lunar": {"year": 1990, "month": 4, "day": 26},
         "gender": "male",
@@ -20,13 +21,13 @@ def _valid_mock_pan() -> dict:
             "da_yun": {"steps": [], "current_step_index": -1},
         },
         "full": {
-            pillar: {"gan": "甲", "zhi": "子"}
-            for pillar in ("nian", "yue", "ri", "shi")
+            **{pillar: {"gan": "甲", "zhi": "子"} for pillar in ("nian", "yue", "ri", "shi")},
+            **_helpers.mock_engine_facts(),
         },
         "yongshen": {},
         "ziwei": {"gong_wei": []},
         "ziwei_daxian": _helpers.valid_daxian(),
-    }
+    })
 
 
 def test_yearly_range_builds_one_snapshot_per_year() -> None:

@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from qimen_errors import TableError
-from qimen_factors import load_snapshot_contract
+from qimen_projection import load_factors_contract
 
 
 TOOLS_DIR = Path(__file__).resolve().parent
@@ -66,19 +66,6 @@ def assert_rule_compatibility(rule: str, scope: str, school: str) -> None:
         )
 
 
-def assert_rule_for_pan(rule: str, pan: dict) -> None:
-    if not isinstance(pan, dict) or not isinstance(pan.get("chart"), dict):
-        raise ValueError("pan 必须是 qimen_chart 返回的结构，且包含 chart 字段")
-    method = pan["chart"].get("method")
-    if not isinstance(method, dict):
-        raise ValueError("qimen chart 缺少可用字段: method")
-    scope = method.get("scope")
-    school = method.get("school")
-    if not isinstance(scope, str) or not isinstance(school, str):
-        raise ValueError("qimen chart 缺少可用字段: method.scope / method.school")
-    assert_rule_compatibility(rule, scope, school)
-
-
 def load_interpretation_index() -> dict[str, list[dict]]:
     """按 rule 聚合解释行；条件组内 AND、组间 OR。"""
     global _INTERPRETATION_INDEX
@@ -112,7 +99,7 @@ def load_interpretation_index() -> dict[str, list[dict]]:
             row_by_id[assertion_id] = item
 
     groups: dict[tuple[str, int], list[dict]] = defaultdict(list)
-    snapshot_fields = load_snapshot_contract()["fields"]
+    snapshot_fields = load_factors_contract()["fields"]
     with INTERPRETATION_CONDITIONS_PATH.open(encoding="utf-8-sig", newline="") as stream:
         for source in csv.DictReader(stream):
             assertion_id = (source.get("assertion_id") or "").strip()

@@ -8,7 +8,7 @@
     "end_year": 2043
   },
   "zuo_shan": 1,
-  "xiang_shan": 1,
+  "xiang_shan": 13,
   "gong_wei": [
     {
       "gong_num": 1,
@@ -51,10 +51,10 @@
         "auspicious": true
       },
       "xiang_xing": {
-        "number": 8,
+        "number": 1,
         "color": "白",
-        "name": "八白左辅",
-        "wuxing": "土",
+        "name": "一白贪狼",
+        "wuxing": "水",
         "auspicious": true
       }
     },
@@ -75,10 +75,10 @@
         "auspicious": false
       },
       "xiang_xing": {
-        "number": 7,
-        "color": "赤",
-        "name": "七赤破军",
-        "wuxing": "金",
+        "number": 2,
+        "color": "黑",
+        "name": "二黑巨门",
+        "wuxing": "土",
         "auspicious": false
       }
     },
@@ -99,11 +99,11 @@
         "auspicious": true
       },
       "xiang_xing": {
-        "number": 6,
-        "color": "白",
-        "name": "六白武曲",
-        "wuxing": "金",
-        "auspicious": true
+        "number": 3,
+        "color": "碧",
+        "name": "三碧禄存",
+        "wuxing": "木",
+        "auspicious": false
       }
     },
     {
@@ -123,11 +123,11 @@
         "auspicious": false
       },
       "xiang_xing": {
-        "number": 5,
-        "color": "黄",
-        "name": "五黄廉贞",
-        "wuxing": "土",
-        "auspicious": false
+        "number": 4,
+        "color": "绿",
+        "name": "四绿文曲",
+        "wuxing": "木",
+        "auspicious": true
       }
     },
     {
@@ -147,11 +147,11 @@
         "auspicious": true
       },
       "xiang_xing": {
-        "number": 4,
-        "color": "绿",
-        "name": "四绿文曲",
-        "wuxing": "木",
-        "auspicious": true
+        "number": 5,
+        "color": "黄",
+        "name": "五黄廉贞",
+        "wuxing": "土",
+        "auspicious": false
       }
     },
     {
@@ -171,11 +171,11 @@
         "auspicious": false
       },
       "xiang_xing": {
-        "number": 3,
-        "color": "碧",
-        "name": "三碧禄存",
-        "wuxing": "木",
-        "auspicious": false
+        "number": 6,
+        "color": "白",
+        "name": "六白武曲",
+        "wuxing": "金",
+        "auspicious": true
       }
     },
     {
@@ -195,10 +195,10 @@
         "auspicious": false
       },
       "xiang_xing": {
-        "number": 2,
-        "color": "黑",
-        "name": "二黑巨门",
-        "wuxing": "土",
+        "number": 7,
+        "color": "赤",
+        "name": "七赤破军",
+        "wuxing": "金",
         "auspicious": false
       }
     },
@@ -219,86 +219,86 @@
         "auspicious": true
       },
       "xiang_xing": {
-        "number": 1,
+        "number": 8,
         "color": "白",
-        "name": "一白贪狼",
-        "wuxing": "水",
+        "name": "八白左辅",
+        "wuxing": "土",
         "auspicious": true
       }
     }
   ],
   "wang_shan": true,
-  "wang_xiang": true,
+  "wang_xiang": false,
   "shan_xing": true,
-  "xiang_xing": true,
-  "xia_shui": true,
-  "fan_yin": false,
+  "xiang_xing": false,
+  "xia_shui": false,
   "fu_yin": false,
   "xing_jia_hui": [
     {
       "shan_num": 9,
       "xiang_num": 9,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
-      "auspicious": true
+      "name": "星曜加会",
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
+      "auspicious": false
     },
     {
       "shan_num": 8,
-      "xiang_num": 8,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
-      "auspicious": true
+      "xiang_num": 1,
+      "name": "星曜加会",
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
+      "auspicious": false
     },
     {
       "shan_num": 7,
-      "xiang_num": 7,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
+      "xiang_num": 2,
+      "name": "七二同道",
+      "meaning": "火煞重重，定见火灾",
       "auspicious": false
     },
     {
       "shan_num": 6,
-      "xiang_num": 6,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
-      "auspicious": true
+      "xiang_num": 3,
+      "name": "星曜加会",
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
+      "auspicious": false
     },
     {
       "shan_num": 5,
-      "xiang_num": 5,
-      "name": "五黄同宫",
-      "meaning": "大凶之象，损丁破财",
+      "xiang_num": 4,
+      "name": "星曜加会",
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
       "auspicious": false
     },
     {
       "shan_num": 4,
-      "xiang_num": 4,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
-      "auspicious": true
+      "xiang_num": 5,
+      "name": "星曜加会",
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
+      "auspicious": false
     },
     {
       "shan_num": 3,
-      "xiang_num": 3,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
+      "xiang_num": 6,
+      "name": "星曜加会",
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
       "auspicious": false
     },
     {
       "shan_num": 2,
-      "xiang_num": 2,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
+      "xiang_num": 7,
+      "name": "二七同道",
+      "meaning": "火煞重重，定见火灾",
       "auspicious": false
     },
     {
       "shan_num": 1,
-      "xiang_num": 1,
-      "name": "双星到向",
-      "meaning": "山向配合，需参合判断",
-      "auspicious": true
+      "xiang_num": 8,
+      "name": "星曜加会",
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
+      "auspicious": false
     }
   ],
+  "chart_digest": "d49e458bbf41b923194a10ae42d796d38ce815e93d94c3b220386a4f17499803",
   "shou_shan_chu_sha": {
     "zheng_shen": 9,
     "ling_shen": 1,

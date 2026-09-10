@@ -1,6 +1,6 @@
 """领域快照测试：完整 pan 生成 snap，并保留基础因子与领域事实。
 
-断言快照结构自洽（{八字, 紫微, context} + 因子产生），并经 _base_ctx_from_pan 保证 shishen/wuxing 直读。
+断言快照结构自洽（{八字, 紫微, context} + 因子产生），并经 _base_ctx_from_pan 保证 ten_god_states/wuxing 直读。
 """
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import factors
@@ -15,6 +15,23 @@ def _cmp_bazi_pan() -> dict:
                        "current_step_index": 0},
         },
         "full": {
+            "ten_god_states": [
+                {"shi_shen": "七杀", "wuxing": "金", "transparent": True, "hidden": False,
+                 "rooted": True, "timely": False, "count": 2, "strength": "neutral"},
+                {"shi_shen": "伤官", "wuxing": "火", "transparent": False, "hidden": True,
+                 "rooted": True, "timely": True, "count": 2, "strength": "strong"},
+                {"shi_shen": "偏印", "wuxing": "水", "transparent": True, "hidden": False,
+                 "rooted": True, "timely": False, "count": 1, "strength": "neutral"},
+            ],
+            "element_states": [
+                {"wuxing": element, "season_strength": state, "strength": state, "transparent": False,
+                 "rooted": False, "controls": "", "controlled_by": "", "controller_strength": "weak"}
+                for element, state in (("木", "strong"), ("火", "strong"), ("土", "weak"), ("金", "weak"), ("水", "weak"))
+            ],
+            "atomic_facts": {
+                "day_master_element": "木", "day_master_stem": "甲", "day_branch": "子",
+                "month_longevity": "沐浴",
+            },
             "nian": {"gan": "庚", "zhi": "午", "shi_shens": [
                 {"shi_shen": "七杀", "gan": "庚", "source": "gan"},
                 {"shi_shen": "伤官", "gan": "丁", "source": "main_qi"}],
@@ -48,11 +65,11 @@ def test_evaluate_snap_from_pan_produces_complete_snap():
     # 因子被产出（八字/紫微各有若干因子，非空）
     assert len(new["八字"]) > 0
     assert len(new["紫微"]) > 0
-    # 基础字段已直读：宫含命宫(=含紫微) 应在 snap 被解释为具体因子，此处验证 shishen 直读正常
+    # 基础字段已直读：宫含命宫(=含紫微) 应在 snap 被解释为具体因子，此处验证 ten_god_states 直读正常
     ctx = factors._base_ctx_from_pan(pan)
     assert ctx["ri_gan"] == "甲"
     assert ctx["palace_ri"] == {"zhi": "子"}
-    assert "七杀" in ctx["shishen"]  # 年干庚=甲日主之七杀(金克木)，应聚合出该十神键
+    assert "七杀" in ctx["ten_god_states"]  # 年干庚=甲日主之七杀(金克木)，应聚合出该十神键
 
 
 def test_snap_embeds_stable_domain_facts():

@@ -28,12 +28,19 @@ def _ctx(nian_zhi: str, relation_type: str | None = None) -> dict:
         if relation_type
         else []
     )
+    relation_label = {
+        "六冲": "liu_chong",
+        "六合": "liu_he",
+    }.get(relation_type)
     return {
         "year": 2006,
         "chart": _pan(),
         "liunian": {
             "nian_zhi": nian_zhi,
             "natal_interactions": [{"zhi_rels": relation}],
+            "atomic_facts": {
+                "year_branch_relations": {"子": relation_label} if relation_label else {},
+            },
         },
     }
 

@@ -17,6 +17,6 @@ description: 问哪天适合做事 — 默认黄历择日
 | 步骤 | 动作 |
 |---|---|
 | 1 | 按 `app/question.md` 判断为择日 |
-| 2 | 调 `huangli_days`，传入 `question / event / start_date / end_date` |
+| 2 | 调 `huangli_days`，传入 `question / event / start_date / end_date / days`；事项适配由 engine 判定 |
 | 3 | 读取 `domains/huangli/jiri.md`、`yiji.md` |
 | 4 | 输出推荐日、排除日和边界 |

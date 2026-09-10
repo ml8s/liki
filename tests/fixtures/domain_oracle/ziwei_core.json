@@ -1,0 +1,223 @@
+{
+  "schema_version": "domain-oracle-ziwei-v1",
+  "basis": "通行紫微安星口径；闰月为 iztro 兼容通行做法：前十五日按本月，后十五日按下月。",
+  "si_hua_all_10": [
+    {
+      "stem": "甲",
+      "transformations": {
+        "禄": "廉贞",
+        "权": "破军",
+        "科": "武曲",
+        "忌": "太阳"
+      }
+    },
+    {
+      "stem": "乙",
+      "transformations": {
+        "禄": "天机",
+        "权": "天梁",
+        "科": "紫微",
+        "忌": "太阴"
+      }
+    },
+    {
+      "stem": "丙",
+      "transformations": {
+        "禄": "天同",
+        "权": "天机",
+        "科": "文昌",
+        "忌": "廉贞"
+      }
+    },
+    {
+      "stem": "丁",
+      "transformations": {
+        "禄": "太阴",
+        "权": "天同",
+        "科": "天机",
+        "忌": "巨门"
+      }
+    },
+    {
+      "stem": "戊",
+      "transformations": {
+        "禄": "贪狼",
+        "权": "太阴",
+        "科": "右弼",
+        "忌": "天机"
+      }
+    },
+    {
+      "stem": "己",
+      "transformations": {
+        "禄": "武曲",
+        "权": "贪狼",
+        "科": "天梁",
+        "忌": "文曲"
+      }
+    },
+    {
+      "stem": "庚",
+      "transformations": {
+        "禄": "太阳",
+        "权": "武曲",
+        "科": "太阴",
+        "忌": "天同"
+      }
+    },
+    {
+      "stem": "辛",
+      "transformations": {
+        "禄": "巨门",
+        "权": "太阳",
+        "科": "文曲",
+        "忌": "文昌"
+      }
+    },
+    {
+      "stem": "壬",
+      "transformations": {
+        "禄": "天梁",
+        "权": "紫微",
+        "科": "左辅",
+        "忌": "武曲"
+      }
+    },
+    {
+      "stem": "癸",
+      "transformations": {
+        "禄": "破军",
+        "权": "巨门",
+        "科": "太阴",
+        "忌": "贪狼"
+      }
+    }
+  ],
+  "soul_star_all_12": [
+    {
+      "palace_branch": "子",
+      "expected": "贪狼"
+    },
+    {
+      "palace_branch": "丑",
+      "expected": "巨门"
+    },
+    {
+      "palace_branch": "寅",
+      "expected": "禄存"
+    },
+    {
+      "palace_branch": "卯",
+      "expected": "文曲"
+    },
+    {
+      "palace_branch": "辰",
+      "expected": "廉贞"
+    },
+    {
+      "palace_branch": "巳",
+      "expected": "武曲"
+    },
+    {
+      "palace_branch": "午",
+      "expected": "破军"
+    },
+    {
+      "palace_branch": "未",
+      "expected": "武曲"
+    },
+    {
+      "palace_branch": "申",
+      "expected": "廉贞"
+    },
+    {
+      "palace_branch": "酉",
+      "expected": "文曲"
+    },
+    {
+      "palace_branch": "戌",
+      "expected": "禄存"
+    },
+    {
+      "palace_branch": "亥",
+      "expected": "巨门"
+    }
+  ],
+  "body_star_all_12": [
+    {
+      "year_branch": "子",
+      "expected": "火星"
+    },
+    {
+      "year_branch": "丑",
+      "expected": "天相"
+    },
+    {
+      "year_branch": "寅",
+      "expected": "天梁"
+    },
+    {
+      "year_branch": "卯",
+      "expected": "天同"
+    },
+    {
+      "year_branch": "辰",
+      "expected": "文昌"
+    },
+    {
+      "year_branch": "巳",
+      "expected": "天机"
+    },
+    {
+      "year_branch": "午",
+      "expected": "火星"
+    },
+    {
+      "year_branch": "未",
+      "expected": "天相"
+    },
+    {
+      "year_branch": "申",
+      "expected": "天梁"
+    },
+    {
+      "year_branch": "酉",
+      "expected": "天同"
+    },
+    {
+      "year_branch": "戌",
+      "expected": "文昌"
+    },
+    {
+      "year_branch": "亥",
+      "expected": "天机"
+    }
+  ],
+  "leap_month_boundaries": [
+    {
+      "case": "闰月十五",
+      "year": 2025,
+      "month": 6,
+      "day": 15,
+      "leap": true,
+      "effective_month": 6
+    },
+    {
+      "case": "闰月十六",
+      "year": 2025,
+      "month": 6,
+      "day": 16,
+      "leap": true,
+      "effective_month": 7
+    },
+    {
+      "case": "非闰对照",
+      "year": 2025,
+      "month": 6,
+      "day": 16,
+      "leap": false,
+      "effective_month": 6
+    }
+  ],
+  "school": "通行紫微安星；闰月用前十五日本月、后十五日次月口径"
+}

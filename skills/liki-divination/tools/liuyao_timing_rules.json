@@ -1,0 +1,52 @@
+{
+  "schema_version": "liuyao-timing-rules-v1",
+  "default_priority": 30,
+  "default_horizon": "event_based",
+  "target_bonus": 8,
+  "non_candidate_penalty": 10,
+  "priority_thresholds": {
+    "high": 75,
+    "medium": 50
+  },
+  "required_check": "仍须核对旺衰、空破真假和现实时间范围",
+  "target_indicators": {
+    "basis_tokens": ["yong_shen"],
+    "fields": ["position"]
+  },
+  "blocked_topics": {
+    "health_context": {
+      "reason": "健康语境不给应期；先引导专业医疗或紧急帮助。"
+    }
+  },
+  "mechanism_priority": {
+    "旬空填实": 82,
+    "冲空": 74,
+    "冲飞出伏": 66,
+    "动爻逢值": 70,
+    "动爻逢合": 62,
+    "静爻逢冲": 58,
+    "月破逢值": 54,
+    "月破逢合": 46,
+    "出月令": 38
+  },
+  "topic_horizon": {
+    "wealth": "short_to_medium",
+    "career": "medium",
+    "relationship": "event_based",
+    "study": "deadline_based",
+    "lost_item": "short",
+    "travel": "short",
+    "legal": "process_based",
+    "health_context": "blocked"
+  },
+  "focus_id_prefixes": {
+    "moving-value": ["moving-value"],
+    "moving-harmony": ["moving-harmony"],
+    "void-fill": ["void-fill"],
+    "static-clash": ["static-clash"],
+    "hidden-release": ["hidden-release"],
+    "yuepo-recovery": ["month-break-value", "month-break-harmony", "month-break-exit"],
+    "changsheng-support": [],
+    "timing-action": []
+  }
+}

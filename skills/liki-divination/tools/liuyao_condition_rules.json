@@ -1,6 +1,10 @@
 {
   "schema_version": "liuyao-condition-rules-v1",
   "conclusion_scope": "conditional_rule_restoration_not_absolute_verdict",
+  "state_classes": {
+    "strong": {"path": "focus.yong_shen.wang_shuai", "values": ["旺", "相"]},
+    "weak": {"path": "focus.yong_shen.wang_shuai", "values": ["休", "囚", "死"]}
+  },
   "rules": [
     {
       "id": "month-break-not-always-failed",

@@ -1,4 +1,4 @@
-"""领域快照层 — pan 中稳定命理事实的只读投影。
+"""本命事实投影层 — pan 中稳定命理事实的只读投影。
 
 snap 不是只为当前断语表服务的中间结构：这些 reserved domain facts 是领域模型
 的一部分，当前未消费不代表可删。本层只做结构投影，不做因子判定。
@@ -8,16 +8,16 @@ from __future__ import annotations
 import json
 import os
 
-__all__ = ["project_domain_facts", "load_contract", "CONTRACT_PATH"]
+__all__ = ["project_natal_facts", "load_contract", "CONTRACT_PATH"]
 
 CONTRACT_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "domain_snapshot_contract.json"
+    os.path.dirname(os.path.abspath(__file__)), "natal_projection_contract.json"
 )
 _CONTRACT = None
 
 
 def load_contract() -> dict:
-    """加载领域快照契约；契约是投影字段的唯一事实源。"""
+    """加载本命事实投影契约；契约是投影字段的唯一事实源。"""
     global _CONTRACT
     if _CONTRACT is None:
         with open(CONTRACT_PATH, encoding="utf-8") as fh:
@@ -70,7 +70,7 @@ def _project_ziwei_facts(pan: dict) -> dict:
     return facts
 
 
-def project_domain_facts(pan: dict) -> dict:
+def project_natal_facts(pan: dict) -> dict:
     """从 pan 投影稳定领域事实；只读 pan，不写任何私有缓存。"""
     projectors = {"bazi": _project_bazi_facts, "ziwei": _project_ziwei_facts}
     return {

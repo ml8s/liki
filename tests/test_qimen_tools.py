@@ -18,11 +18,12 @@ if str(TOOLS) not in sys.path:
 import divination_rpc  # noqa: E402
 import qimen_paipan as paipan  # noqa: E402
 from qimen_duanyu import query  # noqa: E402
-from qimen_factors import (  # noqa: E402
-    load_snapshot_contract,
-    project_qimen_snapshot,
-    validate_qimen_snapshot,
+from qimen_projection import (  # noqa: E402
+    load_factors_contract,
+    project as project_chart,
+    validate as validate_standard_factors,
 )
+from divination_rpc import HTTPError, RPCError  # noqa: E402
 from qimen_errors import TableError  # noqa: E402
 from qimen_interpretations import (  # noqa: E402
     load_interpretation_index,
@@ -30,7 +31,6 @@ from qimen_interpretations import (  # noqa: E402
 )
 from qimen_matters import load_matter_table as load_routing_matter_table  # noqa: E402
 
-sys.path.remove(str(TOOLS))
 
 
 def _load_agent_cli():
@@ -43,8 +43,14 @@ def _load_agent_cli():
     try:
         spec.loader.exec_module(module)
     finally:
-        sys.path.remove(str(TOOLS))
-    return module
+            return module
+
+
+def _project(pan):
+    """Project the chart payload returned by the local *_pan helpers."""
+    if not isinstance(pan, dict) or not isinstance(pan.get("chart"), dict):
+        raise AssertionError("qimen test fixture must contain chart")
+    return project_chart(pan["chart"])
 
 
 def _pan(**changes):
@@ -100,6 +106,10 @@ def _pan(**changes):
         "men_zhi": [],
         "zhi_fu_xing_gong": "坎",
         "zhi_shi_men_gong": "坎",
+        "specialized": {
+            "geng_ge": [], "lost_context": [],
+            "thief_context": [], "tianwang_context": [],
+        },
     }
     chart.update(changes)
     return {"matter": None, "chart": chart}
@@ -107,6 +117,9 @@ def _pan(**changes):
 
 def _lost_pan(**changes):
     pan = _pan()
+    pan["chart"]["specialized"]["lost_context"] = [{
+        "gong": "兑", "wang_shuai": "旺",
+    }]
     pan["chart"].update({
         "patterns": [{
             "name": "反吟",
@@ -144,6 +157,10 @@ def _lost_pan(**changes):
 
 def _thief_pan(**changes):
     pan = _pan()
+    pan["chart"]["specialized"]["thief_context"] = [
+        {"role": "大贼", "symbol": "天蓬", "gong": "坎", "wang_shuai_label": "囚", "lucky_pattern_names": []},
+        {"role": "小贼", "symbol": "玄武", "gong": "坎", "wang_shuai_label": "囚", "lucky_pattern_names": []},
+    ]
     pan["chart"]["pan"]["gong_wei"] = [
         {
             "gong": {"name": "坤", "luoshu": 2},
@@ -279,6 +296,9 @@ def _missing_pan(**changes):
 
 def _escape_pan(**changes):
     pan = _pan()
+    pan["chart"].setdefault("specialized", {
+        "geng_ge": [], "lost_context": [], "thief_context": [], "tianwang_context": [],
+    })
     pan["chart"]["pan"]["gong_wei"] = [
         {
             "gong": {"name": "坎", "luoshu": 1},
@@ -328,12 +348,12 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
     )["params"]
     requests = []
 
-    def fake_call(method: str, params: dict) -> dict:
+    def fake_engine_data(method: str, params: dict) -> dict:
         assert method == "qimen.chart"
         requests.append(params)
-        return {"data": {}}
+        return {}
 
-    monkeypatch.setattr(paipan, "call", fake_call)
+    monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
     for matter in load_routing_matter_table():
         paipan.qimen_chart("2026-09-07T12:00:00+08:00", matter=matter)
     assert len(requests) == len(load_routing_matter_table())
@@ -344,11 +364,11 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
 def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
     calls = []
 
-    def fake_call(method: str, params: dict) -> dict:
+    def fake_engine_data(method: str, params: dict) -> dict:
         calls.append((method, params))
-        return {"data": {"ri_gan_gong": "震", "shi_gan_gong": "兑"}}
+        return {"ri_gan_gong": "震", "shi_gan_gong": "兑"}
 
-    monkeypatch.setattr(paipan, "call", fake_call)
+    monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
     result = paipan.qimen_chart(
         "2026-09-07T12:00:00+08:00",
         matter="wealth",
@@ -369,7 +389,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 
 
 def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
-    monkeypatch.setattr(paipan, "call", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
+    monkeypatch.setattr(paipan, "engine_data", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     try:
         paipan.qimen_chart("2026-09-07T12:00:00+08:00", matter="wealth", yong_shen=["生门"])
     except ValueError as exc:
@@ -381,7 +401,7 @@ def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
 def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
     monkeypatch.setattr(
         paipan,
-        "call",
+        "engine_data",
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 不能为空"):
@@ -390,19 +410,19 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
 
 def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
     schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
-    qimen_read = next(
+    qimen_snapshot = next(
         item["function"]["parameters"]
         for item in schema["tools"]
         if item["function"]["name"] == "qimen_snapshot"
     )["properties"]["yong_shen"]
-    assert qimen_read["minItems"] == 1
-    assert qimen_read["uniqueItems"] is True
+    assert qimen_snapshot["minItems"] == 1
+    assert qimen_snapshot["uniqueItems"] is True
 
 
 def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
     monkeypatch.setattr(
         paipan,
-        "call",
+        "engine_data",
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 符号重复"):
@@ -414,7 +434,7 @@ def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
 def test_qimen_chart_rejects_string_yong_shen(monkeypatch) -> None:
     monkeypatch.setattr(
         paipan,
-        "call",
+        "engine_data",
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 必须是字符串数组"):
@@ -455,8 +475,8 @@ def test_rpc_call_reports_malformed_engine_payload(monkeypatch) -> None:
         "urlopen",
         lambda *_, **__: Response(b"not-json"),
     )
-    with pytest.raises(paipan.RPCError, match="malformed JSON-RPC response"):
-        paipan.call("qimen.chart", {"solar_time": "x"})
+    with pytest.raises(RPCError, match="malformed JSON-RPC response"):
+        divination_rpc.call("qimen.chart", {"solar_time": "x"})
 
 
 def test_rpc_call_reports_missing_result(monkeypatch) -> None:
@@ -478,18 +498,8 @@ def test_rpc_call_reports_missing_result(monkeypatch) -> None:
         "urlopen",
         lambda *_, **__: Response(b'{"jsonrpc":"2.0","id":1}'),
     )
-    with pytest.raises(paipan.RPCError, match="missing result"):
-        paipan.call("qimen.chart", {"solar_time": "x"})
-
-
-def test_qimen_chart_reports_missing_engine_data(monkeypatch) -> None:
-    monkeypatch.setattr(
-        paipan,
-        "call",
-        lambda *_: {"_product": "qimen"},
-    )
-    with pytest.raises(paipan.RPCError, match="missing data object"):
-        paipan.qimen_chart("2026-09-07T12:00:00+08:00")
+    with pytest.raises(RPCError, match="missing result"):
+        divination_rpc.call("qimen.chart", {"solar_time": "x"})
 
 
 def test_rpc_retries_server_error_but_not_client_error(monkeypatch) -> None:
@@ -511,7 +521,7 @@ def test_rpc_retries_server_error_but_not_client_error(monkeypatch) -> None:
     def urlopen(*_, **__):
         if not calls:
             calls.append("server-error")
-            raise paipan.HTTPError(
+            raise HTTPError(
                 "https://example.test", 500, "server error", {}, None
             )
         calls.append("ok")
@@ -522,7 +532,7 @@ def test_rpc_retries_server_error_but_not_client_error(monkeypatch) -> None:
     assert result == {"ok": True}
     assert calls == ["server-error", "ok"]
 
-    client_error = paipan.HTTPError(
+    client_error = HTTPError(
         "https://example.test", 403, "forbidden", {}, None
     )
     monkeypatch.setattr(
@@ -530,7 +540,7 @@ def test_rpc_retries_server_error_but_not_client_error(monkeypatch) -> None:
         "urlopen",
         lambda *_, **__: (_ for _ in ()).throw(client_error),
     )
-    with pytest.raises(paipan.RPCError, match="HTTP 403"):
+    with pytest.raises(RPCError, match="HTTP 403"):
         paipan.engine_data("qimen.chart", {"solar_time": "x"})
 
 
@@ -560,11 +570,11 @@ def test_rpc_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
 def test_specialized_lost_property_chart_keeps_base_day_hour_facts(monkeypatch) -> None:
     calls = []
 
-    def fake_call(method: str, params: dict) -> dict:
+    def fake_engine_data(method: str, params: dict) -> dict:
         calls.append((method, params))
-        return {"data": {"ri_gan_gong": "震", "shi_gan_gong": "兑"}}
+        return {"ri_gan_gong": "震", "shi_gan_gong": "兑"}
 
-    monkeypatch.setattr(paipan, "call", fake_call)
+    monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
     result = paipan.qimen_chart("2026-09-07T12:00:00+08:00")
     assert calls == [("qimen.chart", {"solar_time": "2026-09-07T12:00:00+08:00"})]
     assert result["matter"] is None
@@ -574,7 +584,7 @@ def test_specialized_lost_property_chart_keeps_base_day_hour_facts(monkeypatch) 
 def test_qimen_snapshot_is_readonly_contract_projection() -> None:
     pan = _rich_pan()
     before = json.loads(json.dumps(pan, ensure_ascii=False))
-    snapshot = project_qimen_snapshot(pan)
+    snapshot = _project(pan)
     assert pan == before
     assert snapshot == {
         "scope": "hour",
@@ -690,10 +700,7 @@ def test_qimen_snapshot_is_readonly_contract_projection() -> None:
         "zhi_shi_men_gong": "开",
         "gong_domains": [{"gong": "兑", "domain": "outer"}],
         "palace_directions": [{"gong": "兑", "direction": "西"}],
-        "lost_context": [{
-            "gong": "兑", "direction": "西", "domain": "outer",
-            "door": "杜门", "wang_shuai": "死",
-        }],
+        "lost_context": [],
         "geng_ge": [],
         "geng_ge_levels": [],
         "geng_ge_status": "absent",
@@ -703,8 +710,8 @@ def test_qimen_snapshot_is_readonly_contract_projection() -> None:
 
 
 def test_snapshot_contract_covers_all_projection_fields() -> None:
-    contract = load_snapshot_contract()
-    snapshot = project_qimen_snapshot(_rich_pan())
+    contract = load_factors_contract()
+    snapshot = _project(_rich_pan())
     assert set(snapshot) == set(contract["fields"])
     assert "chart_required" not in contract
 
@@ -715,11 +722,11 @@ def test_snapshot_reserves_stable_unconsumed_qimen_factors() -> None:
         "xing_gong_wuxing", "men_po", "men_zhi",
         "zhi_fu_xing_gong", "zhi_shi_men_gong",
     }
-    assert reserved <= set(load_snapshot_contract()["fields"])
+    assert reserved <= set(load_factors_contract()["fields"])
 
 
 def test_snapshot_projects_stable_star_door_spirit_factors() -> None:
-    snapshot = project_qimen_snapshot(_rich_pan())
+    snapshot = _project(_rich_pan())
     assert snapshot["stars"] == [
         {"star": "天蓬", "gong": "兑", "heaven_gan": "庚"},
     ]
@@ -739,14 +746,14 @@ def test_spirit_archetypes_preserve_hidden_domain_pairs() -> None:
         {"gong": "坎", "wuxing": "水", "wang_shuai": "囚", "wang_shuai_name": "囚"},
         {"gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
     ]
-    snapshot = project_qimen_snapshot(pan)
+    snapshot = _project(pan)
     by_name = {item["name"]: item for item in snapshot["spirits"]}
     assert by_name["白虎"]["archetype"] == "勾陈"
     assert by_name["朱雀"]["archetype"] == "玄武"
 
 
 def test_palace_domains_follow_yang_and_yin_dun() -> None:
-    yang = project_qimen_snapshot(_pan())
+    yang = _project(_pan())
     assert {
         item["gong"]: item["domain"]
         for item in yang["gong_domains"]
@@ -765,7 +772,7 @@ def test_center_palace_has_no_domain_direction_candidate() -> None:
         "men_present": False,
         "shen_present": False,
     }]
-    snapshot = project_qimen_snapshot(pan)
+    snapshot = _project(pan)
     assert snapshot["yong_shen_palaces"][0]["domain"] == "center"
     assert snapshot["yong_shen_palaces"][0]["direction"] == "center"
     ids = {
@@ -803,7 +810,7 @@ def test_python_wuxing_relations_match_engine_semantics() -> None:
 
     yin = _pan()
     yin["chart"]["pan"]["yin_dun"] = True
-    yin_snapshot = project_qimen_snapshot(yin)
+    yin_snapshot = _project(yin)
     assert {
         item["gong"]: item["domain"]
         for item in yin_snapshot["gong_domains"]
@@ -814,7 +821,7 @@ def test_python_wuxing_relations_match_engine_semantics() -> None:
 
 
 def test_snapshot_projects_stable_spirit_spirit_relations() -> None:
-    snapshot = project_qimen_snapshot(_thief_pan())
+    snapshot = _project(_thief_pan())
     assert {
         (item["spirit"], item["other"], item["relation"], item["same_gong"])
         for item in snapshot["spirit_spirit_relations"]
@@ -831,8 +838,8 @@ def test_snapshot_projects_real_engine_golden_chart() -> None:
             / "engine/internal/engine/qimen/testdata/chart_golden.json"
         ).read_text(encoding="utf-8")
     )
-    snapshot = project_qimen_snapshot({"matter": None, "chart": golden})
-    validate_qimen_snapshot(snapshot)
+    snapshot = _project({"matter": None, "chart": golden})
+    validate_standard_factors(snapshot)
     assert snapshot["scope"] == "hour"
     assert snapshot["school"] == "zhuanpan"
     assert snapshot["ri_gan_gong"]
@@ -887,7 +894,7 @@ def test_missing_person_direction_evidence_keeps_table_direction() -> None:
         "symbol": "六合", "palace": "震", "tian_gan": ["癸"],
         "kong_wang_branches": [], "ma_xing_branch": None,
     }]}
-    snapshot = project_qimen_snapshot({"matter": None, "chart": golden})
+    snapshot = _project({"matter": None, "chart": golden})
     result = query("missing_person", snapshot)
     direction = next(
         item for item in result["assertions"]
@@ -902,7 +909,7 @@ def test_missing_person_direction_evidence_keeps_table_direction() -> None:
 
 
 def test_missing_person_candidates_are_conservative_and_unranked() -> None:
-    snapshot = project_qimen_snapshot(_missing_pan())
+    snapshot = _project(_missing_pan())
     result = query("missing_person", snapshot)
     ids = [item["id"] for item in result["assertions"]]
     assert "qimen_missing_person_direction" in ids
@@ -925,24 +932,24 @@ def test_missing_person_wang_star_four_door_candidate_is_table_driven() -> None:
         "xing": "天蓬", "gong": "坎", "relation": "same",
         "relation_name": "比和", "traditional_label": "旺",
     }]
-    snapshot = project_qimen_snapshot(pan)
+    snapshot = _project(pan)
     ids = {item["id"] for item in query("missing_person", snapshot)["assertions"]}
     assert "qimen_missing_person_wang_star_four_doors" in ids
 
     pan["chart"]["xing_gong_wu_xing"][0]["traditional_label"] = "囚"
-    snapshot = project_qimen_snapshot(pan)
+    snapshot = _project(pan)
     ids = {item["id"] for item in query("missing_person", snapshot)["assertions"]}
     assert "qimen_missing_person_wang_star_four_doors" not in ids
 
     pan["chart"]["xing_gong_wu_xing"][0]["traditional_label"] = "旺"
     pan["chart"]["pan"]["gong_wei"][0]["men"] = "开门"
-    snapshot = project_qimen_snapshot(pan)
+    snapshot = _project(pan)
     ids = {item["id"] for item in query("missing_person", snapshot)["assertions"]}
     assert "qimen_missing_person_wang_star_four_doors" not in ids
 
 
 def test_missing_person_outer_hour_inner_liuhe_is_findable_candidate() -> None:
-    snapshot = project_qimen_snapshot(_missing_pan(
+    snapshot = _project(_missing_pan(
         gong_domains=[
             {"gong": "坎", "domain": "inner"},
             {"gong": "兑", "domain": "outer"},
@@ -978,7 +985,7 @@ def test_missing_person_spirit_signal_must_share_liuhe_palace() -> None:
         {"gong": "离", "wuxing": "火", "wang_shuai": "旺", "wang_shuai_name": "旺"},
         {"gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
     ]
-    snapshot = project_qimen_snapshot(pan)
+    snapshot = _project(pan)
     ids = {item["id"] for item in query("missing_person", snapshot)["assertions"]}
     assert "qimen_missing_person_jiutian" in ids
 
@@ -1001,13 +1008,13 @@ def test_missing_person_spirit_signal_must_share_liuhe_palace() -> None:
     ]
     cross_ids = {
         item["id"]
-        for item in query("missing_person", project_qimen_snapshot(cross_palace))["assertions"]
+        for item in query("missing_person", _project(cross_palace))["assertions"]
     }
     assert "qimen_missing_person_jiutian" not in cross_ids
 
 
 def test_missing_person_rejects_incompatible_school() -> None:
-    snapshot = project_qimen_snapshot(_missing_pan(method={
+    snapshot = _project(_missing_pan(method={
         "scope": "hour", "school": "jinhan_yujing",
         "spirit_mode": "jinhan_day_spirits",
     }))
@@ -1016,7 +1023,7 @@ def test_missing_person_rejects_incompatible_school() -> None:
 
 
 def test_snapshot_projects_escape_capture_factors() -> None:
-    snapshot = project_qimen_snapshot(_escape_pan())
+    snapshot = _project(_escape_pan())
     assert snapshot["hour_polarity"] == "yang"
     assert snapshot["spirit_door_relations"] == [
         {
@@ -1044,7 +1051,7 @@ def test_snapshot_projects_escape_capture_factors() -> None:
 
 
 def test_escape_capture_candidates_are_table_driven_and_unranked() -> None:
-    snapshot = project_qimen_snapshot(_escape_pan(
+    pan = _escape_pan(
         patterns=[{
             "name": "太白入荧", "gong_wei": ["震"], "auspicious": False,
         }],
@@ -1052,7 +1059,11 @@ def test_escape_capture_candidates_are_table_driven_and_unranked() -> None:
             "name": "天网", "gong": "坎", "tian_pan_gan": "癸",
             "di_pan_gan": "壬", "auspicious": False,
         }],
-    ))
+    )
+    pan["chart"]["specialized"]["tianwang_context"] = [{
+        "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
+    }]
+    snapshot = _project(pan)
     result = query("capture_escape", snapshot)
     ids = [item["id"] for item in result["assertions"]]
     assert ids == [
@@ -1093,7 +1104,7 @@ def test_escape_capture_door_spirit_relations_are_table_driven() -> None:
         ]
         ids = {
             item["id"]
-            for item in query("capture_escape", project_qimen_snapshot(pan))["assertions"]
+            for item in query("capture_escape", _project(pan))["assertions"]
         }
         assert assertion_id in ids
 
@@ -1103,7 +1114,11 @@ def test_escape_tianwang_requires_low_palace_and_yin_hour() -> None:
         "name": "天网", "gong": "坎", "tian_pan_gan": "癸",
         "di_pan_gan": "壬", "auspicious": False,
     }]
-    capture = project_qimen_snapshot(_escape_pan(gan_interaction=tianwang))
+    capture_pan = _escape_pan(gan_interaction=tianwang)
+    capture_pan["chart"]["specialized"]["tianwang_context"] = [{
+        "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
+    }]
+    capture = _project(capture_pan)
     capture_ids = {
         item["id"] for item in query("capture_escape", capture)["assertions"]
     }
@@ -1113,7 +1128,10 @@ def test_escape_tianwang_requires_low_palace_and_yin_hour() -> None:
 
     yin_hour = _escape_pan(gan_interaction=tianwang)
     yin_hour["chart"]["pan"]["shi_gan"] = "癸"
-    yin_snapshot = project_qimen_snapshot(yin_hour)
+    yin_hour["chart"]["specialized"]["tianwang_context"] = [{
+        "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
+    }]
+    yin_snapshot = _project(yin_hour)
     assert yin_snapshot["hour_polarity"] == "yin"
     yin_ids = {
         item["id"] for item in query("capture_escape", yin_snapshot)["assertions"]
@@ -1129,7 +1147,10 @@ def test_escape_tianwang_requires_low_palace_and_yin_hour() -> None:
     high["chart"]["palace_wang_shuai"].extend([
         {"gong": "乾", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
     ])
-    high_snapshot = project_qimen_snapshot(high)
+    high["chart"]["specialized"]["tianwang_context"] = [{
+        "gong": "乾", "hour_gong": "兑", "relation_to_hour": "same",
+    }]
+    high_snapshot = _project(high)
     high_ids = {
         item["id"] for item in query("capture_escape", high_snapshot)["assertions"]
     }
@@ -1143,7 +1164,10 @@ def test_array_rule_evidence_preserves_matched_domain_row() -> None:
         "name": "天网", "gong": "震", "tian_pan_gan": "癸",
         "di_pan_gan": "壬", "auspicious": False,
     }])
-    snapshot = project_qimen_snapshot(pan)
+    pan["chart"]["specialized"]["tianwang_context"] = [{
+        "gong": "震", "hour_gong": "兑", "relation_to_hour": "controlled_by",
+    }]
+    snapshot = _project(pan)
     result = query("capture_escape", snapshot)
     direction = next(
         item for item in result["assertions"]
@@ -1160,7 +1184,7 @@ def test_array_rule_evidence_preserves_matched_domain_row() -> None:
 
 
 def test_capture_escape_rejects_incompatible_school() -> None:
-    snapshot = project_qimen_snapshot(_escape_pan(method={
+    snapshot = _project(_escape_pan(method={
         "scope": "hour", "school": "jinhan_yujing",
         "spirit_mode": "jinhan_day_spirits",
     }))
@@ -1172,15 +1196,15 @@ def test_optional_snapshot_branch_must_be_complete_when_present() -> None:
     pan = _pan()
     pan["chart"]["yong_shen"] = {}
     with pytest.raises(ValueError, match="yong_shen.symbols"):
-        project_qimen_snapshot(pan)
+        _project(pan)
 
     pan["chart"]["yong_shen"] = None
     with pytest.raises(ValueError, match="yong_shen.symbols"):
-        project_qimen_snapshot(pan)
+        _project(pan)
 
 
 def test_lost_property_does_not_infer_wang_shuai_from_relation_only() -> None:
-    snapshot = project_qimen_snapshot(_pan(ri_shi_relation={
+    snapshot = _project(_pan(ri_shi_relation={
         "subject": "ri_gan_gong",
         "object": "shi_gan_gong",
         "relation": "shi_generates_ri",
@@ -1196,7 +1220,7 @@ def test_lost_property_does_not_infer_wang_shuai_from_relation_only() -> None:
 
 
 def test_lost_property_candidates_can_coexist_without_ranking() -> None:
-    snapshot = project_qimen_snapshot(_lost_pan())
+    snapshot = _project(_lost_pan())
     result = query("lost_property", snapshot)
     ids = [item["id"] for item in result["assertions"]]
     assert ids == [
@@ -1210,7 +1234,7 @@ def test_lost_property_candidates_can_coexist_without_ranking() -> None:
 
 
 def test_thief_capture_candidates_are_table_driven_and_unranked() -> None:
-    snapshot = project_qimen_snapshot(_thief_pan())
+    snapshot = _project(_thief_pan())
     result = query("thief_capture", snapshot)
     ids = [item["id"] for item in result["assertions"]]
     assert ids == [
@@ -1238,7 +1262,10 @@ def test_geng_ge_levels_project_all_four_pillars() -> None:
             "name": "庚格", "gong": "坎", "tian_pan_gan": "庚",
             "di_pan_gan": gan, "auspicious": False,
         }]
-        snapshot = project_qimen_snapshot(pan)
+        pan["chart"]["specialized"]["geng_ge"] = [{
+            "level": level, "gong": "坎", "door": "休门", "earth_gan": gan,
+        }]
+        snapshot = _project(pan)
         assert snapshot["geng_ge_status"] == "present"
         assert any(
             row["level"] == level and row["gong"] == "坎" and row["earth_gan"] == gan
@@ -1272,21 +1299,23 @@ def test_thief_profile_noble_and_common_are_table_driven() -> None:
     base["chart"]["patterns"] = [{
         "name": "青龙返首", "gong_wei": ["坎"], "auspicious": True,
     }]
-    noble = query("thief_profile", project_qimen_snapshot(base))
+    base["chart"]["specialized"]["thief_context"][0]["lucky_pattern_names"] = ["青龙返首"]
+    base["chart"]["specialized"]["thief_context"][0]["wang_shuai_label"] = "旺"
+    noble = query("thief_profile", _project(base))
     assert "qimen_thief_profile_noble" in {
         item["id"] for item in noble["assertions"]
     }
 
     base["chart"]["patterns"] = []
-    base["chart"]["xing_gong_wu_xing"][0]["traditional_label"] = "囚"
-    common = query("thief_profile", project_qimen_snapshot(base))
+    base["chart"]["specialized"]["thief_context"][0]["wang_shuai_label"] = "囚"
+    common = query("thief_profile", _project(base))
     assert "qimen_thief_profile_common" in {
         item["id"] for item in common["assertions"]
     }
 
 
 def test_thief_capture_rejects_incompatible_school() -> None:
-    snapshot = project_qimen_snapshot(
+    snapshot = _project(
         _thief_pan(method={
             "scope": "hour", "school": "jinhan_yujing",
             "spirit_mode": "jinhan_day_spirits",
@@ -1330,7 +1359,7 @@ def test_interpretation_output_does_not_use_table_row_order_as_priority(monkeypa
         }
 
     monkeypatch.setattr(qimen_duanyu, "load_interpretation_index", reversed_index)
-    result = qimen_duanyu.query("lost_property", project_qimen_snapshot(_lost_pan()))
+    result = qimen_duanyu.query("lost_property", _project(_lost_pan()))
     assert [item["id"] for item in result["assertions"]] == [
         "qimen_lost_property_fan_yin",
         "qimen_lost_property_shi_gan_void",
@@ -1341,7 +1370,7 @@ def test_query_rejects_partial_chart() -> None:
     pan = _pan()
     del pan["chart"]["kong_wang_affected"]
     with pytest.raises(ValueError, match="kong_wang_affected"):
-        project_qimen_snapshot(pan)
+        _project(pan)
 
 
 def test_interpretation_table_has_complete_rules() -> None:
@@ -1358,7 +1387,7 @@ def test_interpretation_table_has_complete_rules() -> None:
         for conditions in row["conditions"]
         for condition in conditions
     }
-    assert paths <= set(load_snapshot_contract()["fields"])
+    assert paths <= set(load_factors_contract()["fields"])
 
 
 def test_interpretation_table_rejects_unknown_snapshot_path(tmp_path, monkeypatch) -> None:
@@ -1458,7 +1487,7 @@ def test_interpretation_rule_applicability_is_table_driven() -> None:
     ]
     assert rules["lost_property"]["basis"]
 
-    snapshot = project_qimen_snapshot(
+    snapshot = _project(
         _lost_pan(method={
             "scope": "hour", "school": "jinhan_yujing",
             "spirit_mode": "jinhan_day_spirits",
@@ -1521,7 +1550,7 @@ def test_python_tool_schema_stays_aligned_with_fact_sources() -> None:
 
 def test_snapshot_contract_version_and_engine_paths_are_bound() -> None:
     root = Path(__file__).resolve().parents[1]
-    contract = load_snapshot_contract()
+    contract = load_factors_contract()
     version = (root / "skills/liki-divination/VERSION").read_text(encoding="utf-8").strip()
     assert contract["version"] == version
 
@@ -1594,7 +1623,7 @@ def test_python_layers_are_orthogonal() -> None:
     matters_source = (TOOLS / "qimen_matters.py").read_text(encoding="utf-8")
     interpretations_source = (TOOLS / "qimen_interpretations.py").read_text(encoding="utf-8")
     duanyu_source = (TOOLS / "qimen_duanyu.py").read_text(encoding="utf-8")
-    factors_source = (TOOLS / "qimen_factors.py").read_text(encoding="utf-8")
+    factors_source = (TOOLS / "qimen_projection.py").read_text(encoding="utf-8")
     assert "from qimen_duanyu" not in paipan_source and "import qimen_duanyu" not in paipan_source
     assert "from qimen_interpretations" not in paipan_source
     assert "from qimen_duanyu" not in matters_source and "import qimen_duanyu" not in matters_source
@@ -1626,18 +1655,17 @@ def test_windows_launcher_matches_bazi_compatibility() -> None:
 
 def test_query_compatibility_without_network() -> None:
     from qimen_duanyu import query
-    from qimen_factors import project_qimen_snapshot
+    from qimen_projection import project as project_chart
 
     pan = _lost_pan(kong_wang_affected=[])
-    result = query("lost_property", project_qimen_snapshot(pan))
+    result = query("lost_property", _project(pan))
     assert result["assertions"][0]["id"] == "qimen_lost_property_direction"
 
 
-def test_query_rejects_incompatible_rule_before_projection() -> None:
+def test_query_rejects_incompatible_rule_after_projection() -> None:
     import pytest
 
-    from qimen_interpretations import assert_rule_for_pan
-    from qimen_factors import project_qimen_snapshot
+    from qimen_projection import project as project_chart
 
     pan = _lost_pan(
         method={
@@ -1645,6 +1673,6 @@ def test_query_rejects_incompatible_rule_before_projection() -> None:
             "spirit_mode": "jinhan_day_spirits",
         }
     )
+    factors = _project(pan)
     with pytest.raises(ValueError, match="lost_property requires scope"):
-        assert_rule_for_pan("lost_property", pan)
-        project_qimen_snapshot(pan)
+        query("lost_property", factors)

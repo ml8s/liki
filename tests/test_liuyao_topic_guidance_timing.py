@@ -14,7 +14,7 @@ import liuyao_topic_guidance  # noqa: E402
 
 
 def test_topic_library_loads_all_topics():
-    topics = liuyao_topic_guidance.list_topics()
+    topics = sorted(liuyao_topic_guidance._data()["topics"])
     assert {
         "wealth", "career", "relationship", "study", "lost_item",
         "travel", "legal", "health_context"

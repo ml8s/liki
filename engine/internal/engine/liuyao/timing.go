@@ -65,7 +65,7 @@ func appendBranchTrigger(
 // date; the caller must judge which candidates apply to the concrete question.
 func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 	var candidates []TimingCandidate
-	yongPos, isBian := p.findYongShen(typ)
+	yongPos := p.findYongShen(typ)
 	if yongPos == 0 {
 		if fs := p.findFuShen(typ); fs != nil && fs.Position >= 1 && fs.Position <= 6 {
 			flying := p.Lines[fs.Position-1]
@@ -82,14 +82,8 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 		return candidates
 	}
 
-	var yao Line
+	yao := p.Lines[yongPos-1]
 	layer := "ben"
-	if isBian {
-		yao = p.BianLines[yongPos-1]
-		layer = "bian"
-	} else {
-		yao = p.Lines[yongPos-1]
-	}
 	yong := p.YongShen
 	moving := yao.Type.IsChanging()
 
@@ -169,7 +163,7 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 		)
 	}
 
-	if !moving && !isBian && ganzhi.IsLiuChong(yao.Zhi, p.RiZhi) {
+	if !moving && ganzhi.IsLiuChong(yao.Zhi, p.RiZhi) {
 		candidates = appendBranchTrigger(
 			candidates,
 			"static-clash",

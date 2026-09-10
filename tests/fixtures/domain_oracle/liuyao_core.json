@@ -1,0 +1,274 @@
+{
+  "schema_version": "domain-oracle-liuyao-v1",
+  "basis": "《卜筮正宗》京房纳甲与八宫世应口径；伏神只取本宫，不取变卦。；冲突层采用旺相真假空破与生克并存须辨的通行口径。",
+  "na_jia_all_8": [
+    {
+      "palace": "乾",
+      "upper_stem": "壬",
+      "lower_stem": "甲",
+      "branches": [
+        "子",
+        "寅",
+        "辰",
+        "午",
+        "申",
+        "戌"
+      ]
+    },
+    {
+      "palace": "兑",
+      "upper_stem": "丁",
+      "lower_stem": "丁",
+      "branches": [
+        "巳",
+        "卯",
+        "丑",
+        "亥",
+        "酉",
+        "未"
+      ]
+    },
+    {
+      "palace": "离",
+      "upper_stem": "己",
+      "lower_stem": "己",
+      "branches": [
+        "卯",
+        "丑",
+        "亥",
+        "酉",
+        "未",
+        "巳"
+      ]
+    },
+    {
+      "palace": "震",
+      "upper_stem": "庚",
+      "lower_stem": "庚",
+      "branches": [
+        "子",
+        "寅",
+        "辰",
+        "午",
+        "申",
+        "戌"
+      ]
+    },
+    {
+      "palace": "巽",
+      "upper_stem": "辛",
+      "lower_stem": "辛",
+      "branches": [
+        "丑",
+        "亥",
+        "酉",
+        "未",
+        "巳",
+        "卯"
+      ]
+    },
+    {
+      "palace": "坎",
+      "upper_stem": "戊",
+      "lower_stem": "戊",
+      "branches": [
+        "寅",
+        "辰",
+        "午",
+        "申",
+        "戌",
+        "子"
+      ]
+    },
+    {
+      "palace": "艮",
+      "upper_stem": "丙",
+      "lower_stem": "丙",
+      "branches": [
+        "辰",
+        "午",
+        "申",
+        "戌",
+        "子",
+        "寅"
+      ]
+    },
+    {
+      "palace": "坤",
+      "upper_stem": "癸",
+      "lower_stem": "乙",
+      "branches": [
+        "未",
+        "巳",
+        "卯",
+        "丑",
+        "亥",
+        "酉"
+      ]
+    }
+  ],
+  "world_by_palace_sequence": [
+    {
+      "sequence": 0,
+      "world": 6,
+      "other": 3
+    },
+    {
+      "sequence": 1,
+      "world": 1,
+      "other": 4
+    },
+    {
+      "sequence": 2,
+      "world": 2,
+      "other": 5
+    },
+    {
+      "sequence": 3,
+      "world": 3,
+      "other": 6
+    },
+    {
+      "sequence": 4,
+      "world": 4,
+      "other": 1
+    },
+    {
+      "sequence": 5,
+      "world": 5,
+      "other": 2
+    },
+    {
+      "sequence": 6,
+      "world": 4,
+      "other": 1
+    },
+    {
+      "sequence": 7,
+      "world": 3,
+      "other": 6
+    }
+  ],
+  "hidden_yong_shen_boundaries": [
+    {
+      "case_id": "gou-qianfu-wealth",
+      "hexagram": "天风姤",
+      "palace": "乾",
+      "target": "妻财",
+      "visible_target": false,
+      "fu_position": 2,
+      "fu_branch": "寅"
+    },
+    {
+      "case_id": "qian-visible-officer",
+      "hexagram": "乾为天",
+      "palace": "乾",
+      "target": "官鬼",
+      "visible_target": true,
+      "fu_position": null,
+      "fu_branch": null
+    }
+  ],
+  "sources": [
+    "《卜筮正宗》京房纳甲与八宫世应",
+    "《增删卜易》旬空月破真假辨"
+  ],
+  "visible_yong_shen_positions": [
+    {
+      "case_id": "qian-world-officer",
+      "hexagram": "乾为天",
+      "yong_shen": "官鬼",
+      "expected_position": 4
+    },
+    {
+      "case_id": "qian-self-world",
+      "hexagram": "乾为天",
+      "yong_shen": "世爻",
+      "expected_position": 6
+    },
+    {
+      "case_id": "qian-other-response",
+      "hexagram": "乾为天",
+      "yong_shen": "应爻",
+      "expected_position": 3
+    }
+  ],
+  "conflict_cases": [
+    {
+      "id": "moving-support-opposition",
+      "relations": [
+        "生用",
+        "克用"
+      ],
+      "wang_shuai": "休",
+      "xun_kong": false,
+      "yue_po": false,
+      "expected_ids": [
+        "moving-support-opposition"
+      ]
+    },
+    {
+      "id": "yuanshen-support-opposition",
+      "relations": [
+        "生原神",
+        "克原神"
+      ],
+      "wang_shuai": "休",
+      "xun_kong": false,
+      "yue_po": false,
+      "expected_ids": [
+        "yuanshen-support-opposition"
+      ]
+    },
+    {
+      "id": "both-relation-conflicts",
+      "relations": [
+        "生用",
+        "克用",
+        "生原神",
+        "克原神"
+      ],
+      "wang_shuai": "休",
+      "xun_kong": false,
+      "yue_po": false,
+      "expected_ids": [
+        "moving-support-opposition",
+        "yuanshen-support-opposition"
+      ]
+    },
+    {
+      "id": "strong-but-void",
+      "relations": [
+        "比和"
+      ],
+      "wang_shuai": "旺",
+      "xun_kong": true,
+      "yue_po": false,
+      "expected_ids": [
+        "strong-but-void"
+      ]
+    },
+    {
+      "id": "strong-but-break",
+      "relations": [
+        "比和"
+      ],
+      "wang_shuai": "相",
+      "xun_kong": false,
+      "yue_po": true,
+      "expected_ids": [
+        "strong-but-break"
+      ]
+    },
+    {
+      "id": "weak-void-break-not-conflict",
+      "relations": [
+        "比和"
+      ],
+      "wang_shuai": "休",
+      "xun_kong": true,
+      "yue_po": true,
+      "expected_ids": []
+    }
+  ]
+}

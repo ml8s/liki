@@ -68,25 +68,20 @@ func computeYingQi(p *Chart, typ YongShen) YingQi {
 		YongShen: typ.String(),
 	}
 
-	yongPos, isBian := p.findYongShen(typ)
+	yongPos := p.findYongShen(typ)
 	if yongPos == 0 {
 		// 用神不上卦，找伏神.
 		fs := p.findFuShen(typ)
 		if fs != nil {
-			yq.Assessment = typ.String() + "不上卦，伏于" + ganzhi.ZhiName(p.Lines[fs.Position-1].Zhi) + "之下，待" + fs.Zhi + "年月冲出为应"
+			flying := p.Lines[fs.Position-1]
+			yq.Assessment = typ.String() + "不上卦，伏于" + ganzhi.ZhiName(flying.Zhi) + "之下，待冲飞神" + ganzhi.ZhiName(flying.Zhi) + "（" + ganzhi.ZhiName(chongZhi(flying.Zhi)) + "）出伏为应"
 			return yq
 		}
 		yq.Assessment = typ.String() + "不上卦，问事不吉"
 		return yq
 	}
 
-	// 用神在变卦时读变卦数据，在本卦时读本卦数据.
-	var yao Line
-	if isBian {
-		yao = p.BianLines[yongPos-1]
-	} else {
-		yao = p.Lines[yongPos-1]
-	}
+	yao := p.Lines[yongPos-1]
 
 	// Check if the用神 line is a动爻.
 	if yao.Type.IsChanging() {

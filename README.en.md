@@ -134,7 +134,7 @@ Ordinary Qimen questions require **no chart-method selection**; the skill defaul
 Output: method basis → one-line verdict → timing / direction → practical advice.
 Liuyao and Qimen retain casting/charter receipts, snapshots, evidence references, conflict signals, audit results, and session integrity summaries. Follow-ups reuse the original chart.
 
-See [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) for the domain model.
+Domain contract documents are listed under **For Developers → Domain contracts**.
 
 #### liki-fengshui
 
@@ -158,12 +158,15 @@ Every conclusion carries its basis and classical citation — verify it yourself
 **How do I update?**
 The skill self-checks its version on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
 
+**Self-hosting an engine?**
+Starting with `2026.09.10.1`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
+
 ## Why It's Trustworthy
 
 - **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
 - **Sourced judgments** — 47 logical rule groups with 775 assertions, each with a classical-citation column.
 - **Dual-system cross-check** — BaZi and ZiWei are evaluated separately, with an explicit synthesis layer; conflicts are resolved with explicit evidence.
-- **Auditable process** — divination flows retain casting/charter receipts, snapshots, evidence references, report audits, and session integrity summaries; conclusions trace back to specific steps (`docs/DIVINATION_MODEL.md`).
+- **Auditable process** — divination flows retain casting/charter receipts, snapshots, evidence references, report audits, and session integrity summaries; conclusions trace back to specific steps.
 - **Independent evaluation** — 160 competition questions (MingLi-Bench), answer isolation, public data (`tests/`).
 
 ---
@@ -185,6 +188,15 @@ repo root
 ```
 
 Call chain: SKILL.md routes to an app card → the card calls the six Python tools (`agent_cli.py` orchestrates RPC charting, factor evaluation, and CSV matching) → interpreted via domain knowledge → rendered by the card template. RPC methods are invisible to the liki-bazi LLM.
+
+### Domain contracts
+
+- [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — divination domain model and layers: casting, snapshot, evidence, answer, and audit boundaries.
+- [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — BaZi domain model covering Four Pillars and Zi Wei: engine atomic facts, factor predicates, assertions, and query boundaries.
+- [docs/FENGSHUI_MODEL.md](./docs/FENGSHUI_MODEL.md) — Feng Shui domain model and layers: Bazhai ming gua, door/master/stove, Xuankong flying stars, periods, and annual boundaries.
+- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — naming domain model and layers: BaZi yongshen strategy, character pools, candidate names, evaluation, and source boundaries.
+
+The complete factor inventory is sourced solely from `skills/liki-bazi/tools/factors/*.csv`.
 
 ### Engine Image
 
@@ -208,7 +220,6 @@ make build-archive # pack 4 skills + generate the distribution index/archive dig
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) and [CHANGELOG.md](./CHANGELOG.md). Design references include [mingli-skills](https://github.com/weizeW/mingli-skills), [bazi-skill](https://github.com/jinchenma94/bazi-skill), [iztro](https://github.com/SylarLong/iztro), and [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench).
 
-See [docs/FACTOR_MODEL.md](./docs/FACTOR_MODEL.md) for liki-bazi's factor contract; the CSV files under `skills/liki-bazi/tools/factors/` are the sole source of the full inventory.
 
 ## License & Disclaimer
 

@@ -1,57 +1,64 @@
-"""问卦 / 择日统一安全边界。"""
+"""问卦 / 择日统一安全边界；规则与指导语来自数据表。"""
+
 from __future__ import annotations
 
+import json
 import re
+from functools import lru_cache
+from pathlib import Path
+
+from divination_contracts import validate_document
+
+RULES_PATH = Path(__file__).with_name("divination_safety_rules.json")
 
 
-RULES = [
-    ("self_harm", r"自杀|自残|不想活|伤害自己|轻生"),
-    ("emergency_medical", r"大出血|呼吸困难|昏迷|失去意识|剧烈腹痛|急救|救护车"),
-    ("pregnancy", r"怀孕|胎儿|保胎|流产|预产期|胎儿性别"),
-    ("serious_medical", r"癌症|重病|手术|能活多久|生死|确诊.*怎么治|停药|换药"),
-    ("missing_person_safety", r"被绑架|凶手|还活着吗|下落不明.*生死"),
-    ("major_financial_risk", r"全部身家|倾家荡产|高利贷|梭哈|借.*全部.*投"),
-    ("criminal_risk", r"犯罪|逃税|杀人|伤害他人|毒品"),
-]
+@lru_cache
+def _load_rules() -> dict:
+    return json.loads(RULES_PATH.read_text(encoding="utf-8"))
 
-GUIDANCE = {
-    "self_harm": "请立即联系当地紧急援助、心理危机干预热线或可信赖的人陪伴。",
-    "emergency_medical": "请立即联系当地急救或医疗机构。",
-    "pregnancy": "请咨询产科或医疗机构。",
-    "serious_medical": "请咨询主治医疗机构，不要用卦象判断病情或调整治疗。",
-    "missing_person_safety": "请优先联系警方或救援机构。",
-    "major_financial_risk": "请咨询持牌财务或法律专业人士，先止损再做决定。",
-    "criminal_risk": "请咨询律师或联系有权处理机关。",
-}
+
+@lru_cache
+def _compiled_rules() -> list[tuple[str, re.Pattern[str], str]]:
+    compiled: list[tuple[str, re.Pattern[str], str]] = []
+    for rule in _load_rules()["rules"]:
+        patterns = "|".join(f"(?:{pattern})" for pattern in rule["patterns"])
+        compiled.append((rule["category"], re.compile(patterns, re.IGNORECASE), rule["guidance"]))
+    return compiled
 
 
 def assess(question: str) -> dict:
     """返回 allow/redirect 状态；调用方必须在排盘前检查。"""
     if not isinstance(question, str):
         raise ValueError("question must be a string")
-    for category, pattern in RULES:
-        if re.search(pattern, question, re.IGNORECASE):
+    message = _load_rules()["message"]
+    for category, pattern, guidance in _compiled_rules():
+        if pattern.search(question):
             return {
                 "status": "redirect",
                 "category": category,
-                "message": "该问题涉及高风险现实事项；不用卦象判断结果，先寻求专业或紧急支持。",
-                "guidance": GUIDANCE[category],
+                "message": message,
+                "guidance": guidance,
             }
     return {"status": "allow", "category": None, "message": "", "guidance": ""}
 
 
-def blocked_payload(schema_version: str, question: str, method: str = "divination") -> dict:
-    safety = assess(question)
-    return {
-        "schema_version": schema_version,
-        "blocked": safety["status"] == "redirect",
-        "route": "blocked",
+def blocked_payload(*, question: str, method: str, safety: dict) -> dict:
+    """返回统一安全拦截对象；其中不包含任何盘面或应期因子。"""
+    if safety.get("status") != "redirect":
+        raise ValueError("blocked payload requires redirect safety")
+    payload = {
+        "$schema": "liki:divination-blocked-v1",
+        "schema_version": "divination-blocked-v1",
+        "blocked": True,
         "method": method,
         "question": question,
         "safety": safety,
         "policy": {
+            "no_casting": True,
             "no_chart": True,
             "no_timing": True,
             "no_guilty_or_fatal_prediction": True,
         },
     }
+    validate_document("divination_blocked", payload)
+    return payload

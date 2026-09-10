@@ -1,0 +1,170 @@
+{
+  "schema_version": "domain-oracle-huangli-v1",
+  "basis": "建除十二神、月建起例、青龙黄道起例与二十八宿通行口径。",
+  "sources": [
+    "《协纪辨方书》建除与黄黑道起例",
+    "通行二十八宿序"
+  ],
+  "jianchu_sequence": [
+    "建",
+    "除",
+    "满",
+    "平",
+    "定",
+    "执",
+    "破",
+    "危",
+    "成",
+    "收",
+    "开",
+    "闭"
+  ],
+  "qing_long_start_all_12": {
+    "寅": "子",
+    "卯": "寅",
+    "辰": "辰",
+    "巳": "午",
+    "午": "申",
+    "未": "戌",
+    "申": "子",
+    "酉": "寅",
+    "戌": "辰",
+    "亥": "午",
+    "子": "申",
+    "丑": "戌"
+  },
+  "event_rules": {
+    "wedding": {
+      "suitable": [
+        "成",
+        "开"
+      ],
+      "forbidden": [
+        "破",
+        "建",
+        "除",
+        "满",
+        "收"
+      ]
+    },
+    "engage": {
+      "suitable": [
+        "定",
+        "成"
+      ],
+      "forbidden": [
+        "破",
+        "满"
+      ]
+    },
+    "open": {
+      "suitable": [
+        "成",
+        "开"
+      ],
+      "forbidden": [
+        "破",
+        "除",
+        "危",
+        "闭"
+      ]
+    },
+    "sign": {
+      "suitable": [
+        "定",
+        "成"
+      ],
+      "forbidden": [
+        "破",
+        "满",
+        "闭"
+      ]
+    },
+    "move": {
+      "suitable": [
+        "成",
+        "平"
+      ],
+      "forbidden": [
+        "破",
+        "执"
+      ]
+    },
+    "travel": {
+      "suitable": [
+        "建",
+        "开"
+      ],
+      "forbidden": [
+        "破",
+        "平",
+        "危",
+        "收"
+      ]
+    },
+    "build": {
+      "suitable": [
+        "平"
+      ],
+      "forbidden": [
+        "破",
+        "定",
+        "开"
+      ]
+    },
+    "exam": {
+      "suitable": [
+        "定",
+        "成"
+      ],
+      "forbidden": [
+        "破"
+      ]
+    },
+    "medical": {
+      "suitable": [
+        "除"
+      ],
+      "forbidden": [
+        "破"
+      ]
+    },
+    "funeral": {
+      "suitable": [
+        "闭"
+      ],
+      "forbidden": [
+        "破",
+        "开"
+      ]
+    }
+  },
+  "known_dates": [
+    {
+      "date": "2024-01-01",
+      "day_gan": "甲",
+      "day_zhi": "子",
+      "mansion": "虚日鼠",
+      "jianchu": "建",
+      "huangdao_name": "金匮",
+      "huangdao_path": "黄道"
+    },
+    {
+      "date": "2024-02-10",
+      "day_gan": "甲",
+      "day_zhi": "辰",
+      "mansion": "鬼金羊",
+      "jianchu": "满",
+      "huangdao_name": "金匮",
+      "huangdao_path": "黄道"
+    },
+    {
+      "date": "2024-06-15",
+      "day_gan": "庚",
+      "day_zhi": "戌",
+      "jianchu": "定",
+      "huangdao_name": "天刑",
+      "huangdao_path": "黑道"
+    }
+  ]
+}

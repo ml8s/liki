@@ -135,7 +135,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             },
         })
         self.assertEqual(snapshot["method"], "liuyao")
-        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v3")
+        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v4")
         self.assertTrue(snapshot["snapshot_digest"])
         self.assertIn("focus", snapshot)
 
@@ -157,6 +157,81 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
                 "fn": "liuyao_ask",
                 "args": {"snapshot": tampered, "message": "现在应该注意什么？"},
             })
+
+    def test_huangli_days_contract(self):
+        result = self.call_tool(**{
+            "fn": "huangli_days",
+            "args": {"question": "哪天适合签约？", "event": "sign", "days": 3},
+        })
+        self.assertEqual(result["schema_version"], "huangli-days-v1")
+        self.assertEqual(result["range"]["days"], 3)
+        self.assertLessEqual(len(result["candidates"]), 3)
+
+    def test_liuyao_other_matter_routes_to_response_line(self):
+        snapshot = self.call_tool(**{
+            "fn": "liuyao_snapshot",
+            "args": {
+                "question": "对方现在怎么看这件事？",
+                "matter": "other",
+                "mode": "yaos",
+                "yaos": [7, 7, 7, 7, 7, 7],
+            },
+        })
+        self.assertEqual(snapshot["focus"]["yong_shen"]["name"], "应爻")
+        self.assertEqual(snapshot["focus"]["yong_shen"]["position"], 3)
+        self.assertEqual(snapshot["focus"]["yong_line"]["shi_ying"], "应")
+
+    def test_liuyao_hidden_yong_shen_contract(self):
+        snapshot = self.call_tool(**{
+            "fn": "liuyao_snapshot",
+            "args": {
+                "question": "这笔财能不能拿到？",
+                "mode": "yaos",
+                "yaos": [8, 7, 9, 9, 7, 7],
+                "yong_shen": "妻财",
+            },
+        })
+        focus = snapshot["focus"]
+        self.assertEqual(focus["yong_shen"]["position"], 0)
+        self.assertTrue(focus["yong_shen"]["is_hidden"])
+        self.assertEqual(focus["yong_shen"]["fu_shen"]["zhi"], "寅")
+        self.assertIsNone(focus["yong_line"])
+        primary_ids = {item["id"] for item in snapshot["evidence"]["primary"]}
+        self.assertIn("yong-shen-hidden-state", primary_ids)
+        timing_mechanisms = {item["mechanism"] for item in snapshot["timing_candidates"]}
+        self.assertIn("冲飞出伏", timing_mechanisms)
+
+        answer = self.call_tool(**{
+            "fn": "liuyao_ask",
+            "args": {"snapshot": snapshot, "message": "现在应该注意什么？"},
+        })
+        self.assertTrue(answer["audit"]["accepted"])
+        self.assertIn("yong-shen-hidden-state", answer["primary_evidence_refs"])
+
+    def test_qimen_jinhan_snapshot_ask_chain(self):
+        snapshot = self.call_tool(**{
+            "fn": "qimen_snapshot",
+            "args": {
+                "question": "今天整体态势如何？",
+                "longitude": 121.47,
+                "time": "2026-09-08T12:00:00+08:00",
+                "scope": "day",
+                "school": "jinhan_yujing",
+            },
+        })
+        self.assertEqual(snapshot["snapshot_kind"], "jinhan")
+        self.assertEqual(snapshot["factors"]["kind"], "jinhan")
+        self.assertEqual(len(snapshot["factors"]["palaces"]), 9)
+        self.assertEqual(len(snapshot["factors"]["day_spirits"]), 12)
+
+        answer = self.call_tool(**{
+            "fn": "qimen_ask",
+            "args": {"snapshot": snapshot, "message": "今天整体态势如何？"},
+        })
+        self.assertEqual(answer["method"], "qimen")
+        self.assertEqual(answer["snapshot_digest"], snapshot["snapshot_digest"])
+        self.assertEqual(answer["assertion_refs"], [])
+        self.assertEqual(answer["timing_refs"], [])
 
     def test_qimen_snapshot_ask_chain(self):
         snapshot = self.call_tool(**{
@@ -210,12 +285,13 @@ class TestIntegration_QimenRules(unittest.TestCase):
         solar_time = "2026-06-28T12:00:00+08:00"
         longitude = 120.0
         base = call("qimen_snapshot", {
-            "question": "当前态势",
+            "question": "当前事业态势",
             "time": solar_time,
             "longitude": longitude,
+            "matter": "career",
         })
         self.assertTrue(base["ok"], base.get("error"))
-        self.assertIsNone(base["data"]["matter"])
+        self.assertEqual(base["data"]["matter"]["matter"], "career")
         self.assertIn("method_context", base["data"])
         self.assertIn("snapshot_digest", base["data"])
 

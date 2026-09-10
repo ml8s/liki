@@ -82,7 +82,7 @@ func computeXunKong(p *Chart, yongShen YongShen) []Pattern {
 	var patterns []Pattern
 
 	// 用神爻位
-	yongPos, _ := p.findYongShen(yongShen)
+	yongPos := p.findYongShen(yongShen)
 	if yongPos == 0 {
 		return patterns
 	}
@@ -144,7 +144,7 @@ func computeYuePo(p *Chart, yongShen YongShen) []Pattern {
 	var patterns []Pattern
 
 	// 用神爻位
-	yongPos, _ := p.findYongShen(yongShen)
+	yongPos := p.findYongShen(yongShen)
 	if yongPos == 0 {
 		return patterns
 	}
@@ -207,7 +207,7 @@ func computeFeiFu(p *Chart, yongShen YongShen) []Pattern {
 	var patterns []Pattern
 
 	// 用神爻位
-	yongPos, _ := p.findYongShen(yongShen)
+	yongPos := p.findYongShen(yongShen)
 	if yongPos != 0 {
 		// 用神在本卦，无飞伏
 		return patterns
@@ -265,7 +265,7 @@ func computeJinTui(p *Chart, yongShen YongShen) []Pattern {
 	var patterns []Pattern
 
 	// 用神爻位
-	yongPos, _ := p.findYongShen(yongShen)
+	yongPos := p.findYongShen(yongShen)
 	if yongPos == 0 {
 		return patterns
 	}
@@ -404,7 +404,7 @@ func computeSuiGuiRuMu(p *Chart, yongShen YongShen) []Pattern {
 	var patterns []Pattern
 
 	// 用神爻位
-	yongPos, _ := p.findYongShen(yongShen)
+	yongPos := p.findYongShen(yongShen)
 	if yongPos == 0 {
 		return patterns
 	}

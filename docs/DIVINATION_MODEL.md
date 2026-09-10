@@ -8,7 +8,7 @@
 |---|---|---|
 | App 场景层 | 面向用户目标组织流程，由 LLM 做语义路由 | `question.md`、`outcome.md`、`decision.md`、`date.md` |
 | Domain 知识层 | 解释术数规则、取象、常见误判 | 六爻用神 / 旺衰 / 应期；奇门门星神 / 应期 |
-| Tool 编排层 | 调 RPC、创建 immutable snapshot、投影证据、生成 answer | `liuyao_snapshot`、`liuyao_ask`、`qimen_snapshot`、`qimen_ask`、`huangli_days` |
+| Tool 编排层 | 调 RPC、创建 immutable snapshot、投影证据、生成 answer；黄历事项适配由 engine 返回，Python 只投影 | `liuyao_snapshot`、`liuyao_ask`、`qimen_snapshot`、`qimen_ask`、`huangli_days` |
 | Engine 事实层 | 确定性排盘、历法、硬事实计算 | Go `liuyao`、`qimen`、`huangli`、`tianwen` |
 | LLM 解释层 | 在 answer 和 snapshot 证据边界内综合表达 | 不补算盘面、不改引用、不编应期 |
 
@@ -37,7 +37,7 @@
 ```json
 {
   "text": "这次面试能不能通过",
-  "domain": "career",
+  "matter": "career",
   "perspective": null
 }
 ```
@@ -54,11 +54,13 @@
   "rounds": [],
   "yaos": [7, 7, 7, 7, 7, 7],
   "dong_yao": [],
-  "fingerprint": "..."
+  "casting_id": "..."
 }
 ```
 
 原始硬币只能传给 `liuyao_snapshot`，由 engine 归一化；LLM 和 Python 不得自行换算爻值。
+
+`liuyao.qigua` 只返回一个完整 `casting` 收据；`liuyao.chart` 也只接受该收据，不再提供裸 `yaos` 输入或重复的顶层 `yaos / dong_yao / casting_mode` 字段。casting 只携带领域事实：起卦方式、顺序、coins / yaos 证据、动爻和 canonical casting_id；按 coins / yaos 校验各自形状，不混用。
 
 ### Chart
 
@@ -75,7 +77,7 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 
 ```json
 {
-  "schema_version": "liuyao-snapshot-v3",
+  "schema_version": "liuyao-snapshot-v4",
   "method": "liuyao",
   "snapshot_digest": "...",
   "question": {},
@@ -89,7 +91,7 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 公共规则：
 
 - `method` 和 `schema_version` 必须匹配；
-- `snapshot_digest` 覆盖 payload，不能被 LLM 伪造；
+- `snapshot_digest` 是 canonical SHA-256 完整性摘要，用于发现 payload 被修改或字段缺失；
 - ask 只接受自己的 method；
 - 追问复用同一 snapshot；
 - 只有新事件才创建新 snapshot。
@@ -109,6 +111,10 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 | reference | 卦名、六神、卦辞等参考 |
 | conflicts | 冲突信号，必须并列 |
 | ignored_scope | 未作用主线的信号，不升级为主结论 |
+
+六爻 conflicts 由 engine 计算；Python 只把 `chart.conflicts` 投影进 snapshot，不在因子层拼生克、真假空破规则。
+
+奇门专占的庚格层级、盗贼角色与天网干位匹配由 engine 计算；Python 只读取 `specialized` 原子事实并补固定方向、范围、宫域与人物投影。
 
 ### Answer
 
@@ -159,7 +165,9 @@ LLM 判断策略 / 方向 / 时机场景
 
 ```text
 LLM 判断择日场景
- → huangli_days
+ → huangli_days(event)
+ → engine 建除事项适配
+ → Python 投影 stable contract
  → 用户输出
 ```
 

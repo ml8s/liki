@@ -49,8 +49,8 @@ def test_golden_categories_are_not_app_conclusions() -> None:
 def test_golden_case(case_id: str) -> None:
     case = next(item for item in CASES if item["id"] == case_id)
     input_data = case["input"]
-    # 删 base 后：把 case 提供的 base(预设 shishen/ri_gan/yongshen) 并入 chart，
-    # 使算子从单一 chart 读到全量数据（_base_ctx_from_pan 对含 shishen 的输入原样返回）。
+    # 删 base 后：把 case 提供的 base(预设 ten_god_states/ri_gan/yongshen) 并入 chart，
+    # 使算子从单一 chart 读到全量数据（_base_ctx_from_pan 对含 ten_god_states 的输入原样返回）。
     chart = {**input_data.get("chart", {}), **input_data.get("base", {})}
     input_data = {**input_data, "chart": chart}
 

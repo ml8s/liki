@@ -36,6 +36,7 @@ func TestComputeLiuNian_HouseOverlay(t *testing.T) {
 			FacingStar:   fengshui.StarByNumber(n),
 		}
 	}
+	chart.refreshDigest()
 
 	res := ComputeLiuNian(2024, chart)
 
@@ -75,6 +76,7 @@ func TestComputeLiuNian_HouseOverlay_2027(t *testing.T) {
 			FacingStar:   fengshui.StarByNumber(n),
 		}
 	}
+	chart.refreshDigest()
 	res := ComputeLiuNian(2027, chart)
 
 	wantGongs := map[int]string{7: "二黑巨门", 1: "五黄廉贞", 3: "七赤破军", 8: "三碧禄存"}
@@ -90,5 +92,13 @@ func TestComputeLiuNian_HouseOverlay_2027(t *testing.T) {
 		if o.Star != wantStar {
 			t.Errorf("gong %d: star = %s, want %s", o.GongNum, o.Star, wantStar)
 		}
+	}
+}
+
+func TestComputeLiuNian_RejectsTamperedChart(t *testing.T) {
+	chart := computeChart(0, 12, 2024)
+	chart.SitMountain = 1
+	if got := ComputeLiuNian(2026, &chart); got.Year != 0 || got.RuZhong != "" || len(got.GongWei) != 0 {
+		t.Fatalf("tampered chart returned data: %+v", got)
 	}
 }

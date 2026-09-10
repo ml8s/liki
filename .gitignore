@@ -28,3 +28,8 @@ tests/evals/.zhipu.local.env
 tests/evals/*.local.env
 
 tests/evals/*.log
+
+# Coverage artifacts
+.coverage
+coverage.xml
+htmlcov/

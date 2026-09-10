@@ -12,7 +12,11 @@ def _mk(ri_gan: str, ri_zhi: str) -> dict:
     return {
         "chart": {"nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},
                   "ri": {"gan": ri_gan, "zhi": ri_zhi}, "shi": {"gan": "庚", "zhi": "午"}},
-        "full": {"ri": {"gan": ri_gan, "zhi": ri_zhi}, "chang_sheng": []},
+        "full": {
+            "ri": {"gan": ri_gan, "zhi": ri_zhi},
+            "chang_sheng": [],
+            "atomic_facts": {"day_master_stem": ri_gan, "day_branch": ri_zhi},
+        },
         "yongshen": {}, "gender": "male",
     }
 
@@ -20,7 +24,7 @@ def _mk(ri_gan: str, ri_zhi: str) -> dict:
 def test_evaluate_snap_reuses_base_context_within_single_evaluation():
     pan = _mk("甲", "子")
     with mock.patch.object(
-        operators_natal, "_shishen_from_pan", wraps=operators_natal._shishen_from_pan
+        operators_natal, "_ten_god_states_from_pan", wraps=operators_natal._ten_god_states_from_pan
     ) as aggregate:
         snap = factors.evaluate_snap_from_pan(pan)
         assert snap["八字"]["日主"] == "甲"

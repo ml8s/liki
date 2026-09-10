@@ -17,6 +17,7 @@ from urllib.error import URLError
 from typing import Optional
 
 from errors import LikiToolError
+from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
@@ -106,7 +107,6 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         lunar = t["lunar"]
     full = _bazi_fullchart(chart)
     # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
-    ys = full.get("yong_shen", {})
     zw = _ziwei_chart(lunar, gender)
     daxian = _ziwei_daxian(zw)
     result = {
@@ -114,11 +114,11 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         "lunar": lunar,
         "chart": chart,      # 含 birth_year / da_yun
         "full": full,        # 十神/藏干/神煞/合会冲刑/三元
-        "yongshen": ys,      # 身强弱/旺衰/三派用神
         "ziwei": zw,         # 十二宫/四化/格局
         "ziwei_daxian": daxian,  # 十年大限（公历年段与宫位）
         "gender": gender,
     }
+    result = with_natal_digest(result)
     validate_natal_pan(result, action="full_paipan result")
     return result
 

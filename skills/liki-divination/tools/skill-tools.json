@@ -3,7 +3,7 @@
   "info": {
     "title": "liki-divination 奇门 / 六爻 / 黄历工具",
     "description": "问卦分域 snapshot 与 ask 工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.09.0"
+    "version": "2026.09.10.1"
   },
   "tools": [
     {
@@ -16,7 +16,6 @@
           "properties": {
             "question": {
               "type": "string",
-              "minLength": 2,
               "description": "本次要判断的一个具体目标"
             },
             "mode": {
@@ -76,7 +75,7 @@
                 "lost_item",
                 "legal"
               ],
-              "description": "普通问事类别；与 yong_shen 互斥"
+              "description": "普通问事类别；必须与 yong_shen 二选一"
             },
             "yong_shen": {
               "type": "string",
@@ -89,16 +88,15 @@
                 "世爻",
                 "应爻"
               ],
-              "description": "高级显式用神；与 matter 互斥"
+              "description": "高级显式用神；必须与 matter 二选一"
             },
             "perspective": {
               "type": "string",
               "enum": [
                 "male",
-                "female",
-                "unspecified"
+                "female"
               ],
-              "description": "仅 relationship 使用"
+              "description": "relationship 必填；男问取妻财，女问取官鬼"
             },
             "topic": {
               "type": "string",
@@ -119,16 +117,165 @@
             "question"
           ],
           "additionalProperties": false,
-          "anyOf": [
+          "allOf": [
             {
-              "required": [
-                "matter"
+              "oneOf": [
+                {
+                  "required": [
+                    "matter"
+                  ],
+                  "not": {
+                    "required": [
+                      "yong_shen"
+                    ]
+                  }
+                },
+                {
+                  "required": [
+                    "yong_shen"
+                  ],
+                  "not": {
+                    "required": [
+                      "matter"
+                    ]
+                  }
+                }
               ]
             },
             {
-              "required": [
-                "yong_shen"
-              ]
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "coins"
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              },
+              "then": {
+                "required": [
+                  "rounds"
+                ],
+                "not": {
+                  "required": [
+                    "yaos"
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "rounds"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "yaos"
+                    ]
+                  }
+                ]
+              },
+              "then": {
+                "required": [
+                  "mode"
+                ],
+                "properties": {
+                  "mode": {
+                    "enum": [
+                      "coins",
+                      "yaos"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "yaos"
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              },
+              "then": {
+                "required": [
+                  "yaos"
+                ],
+                "not": {
+                  "required": [
+                    "rounds"
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "auto"
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              },
+              "then": {
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "rounds"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "yaos"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "perspective"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "matter": {
+                    "const": "relationship"
+                  }
+                },
+                "required": [
+                  "matter"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "matter": {
+                    "const": "relationship"
+                  }
+                },
+                "required": [
+                  "matter"
+                ]
+              },
+              "then": {
+                "required": [
+                  "perspective"
+                ]
+              }
             }
           ]
         }
@@ -155,7 +302,7 @@
                   "const": "liuyao"
                 },
                 "schema_version": {
-                  "const": "liuyao-snapshot-v3"
+                  "const": "liuyao-snapshot-v4"
                 },
                 "snapshot_digest": {
                   "type": "string"
@@ -186,12 +333,12 @@
           "properties": {
             "question": {
               "type": "string",
-              "minLength": 2,
               "description": "本次要判断的一个具体目标"
             },
             "city": {
               "type": "string",
-              "description": "起局地点；与 longitude 二选一"
+              "description": "起局地点；与 longitude 二选一",
+              "minLength": 1
             },
             "longitude": {
               "type": "number",
@@ -201,7 +348,8 @@
             },
             "time": {
               "type": "string",
-              "description": "起局钟表时间 RFC3339；缺省使用服务端当前时间"
+              "description": "起局钟表时间 RFC3339；缺省使用服务端当前时间",
+              "format": "date-time"
             },
             "matter": {
               "type": "string",
@@ -216,7 +364,7 @@
                 "travel",
                 "wealth"
               ],
-              "description": "普通事象；与 yong_shen 互斥"
+              "description": "普通事象；必须与 yong_shen 二选一"
             },
             "yong_shen": {
               "type": "array",
@@ -225,7 +373,7 @@
               "items": {
                 "type": "string"
               },
-              "description": "高级显式用神；与 matter 互斥"
+              "description": "高级显式用神；必须与 matter 二选一"
             },
             "rule": {
               "type": "string",
@@ -236,7 +384,7 @@
                 "capture_escape",
                 "thief_profile"
               ],
-              "description": "可选专占规则"
+              "description": "可选专占规则；由因子契约校验适用盘型"
             },
             "scope": {
               "type": "string",
@@ -310,16 +458,391 @@
             "question"
           ],
           "additionalProperties": false,
-          "anyOf": [
+          "allOf": [
             {
-              "required": [
-                "city"
+              "oneOf": [
+                {
+                  "required": [
+                    "city"
+                  ],
+                  "not": {
+                    "required": [
+                      "longitude"
+                    ]
+                  }
+                },
+                {
+                  "required": [
+                    "longitude"
+                  ],
+                  "not": {
+                    "required": [
+                      "city"
+                    ]
+                  }
+                }
               ]
             },
             {
-              "required": [
-                "longitude"
-              ]
+              "not": {
+                "allOf": [
+                  {
+                    "required": [
+                      "matter"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "yong_shen"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "if": {
+                "not": {
+                  "required": [
+                    "rule"
+                  ]
+                },
+                "properties": {
+                  "school": {
+                    "not": {
+                      "const": "jinhan_yujing"
+                    }
+                  },
+                  "scope": {
+                    "not": {
+                      "const": "quarter"
+                    }
+                  }
+                }
+              },
+              "then": {
+                "oneOf": [
+                  {
+                    "required": [
+                      "matter"
+                    ],
+                    "not": {
+                      "required": [
+                        "yong_shen"
+                      ]
+                    }
+                  },
+                  {
+                    "required": [
+                      "yong_shen"
+                    ],
+                    "not": {
+                      "required": [
+                        "matter"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "if": {
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "matter"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "yong_shen"
+                      ]
+                    }
+                  ]
+                },
+                "properties": {
+                  "school": {
+                    "not": {
+                      "const": "jinhan_yujing"
+                    }
+                  },
+                  "scope": {
+                    "not": {
+                      "const": "quarter"
+                    }
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "rule"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "school": {
+                    "const": "jinhan_yujing"
+                  }
+                },
+                "required": [
+                  "school"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "scope": {
+                    "const": "day"
+                  },
+                  "matter": {
+                    "not": {}
+                  },
+                  "yong_shen": {
+                    "not": {}
+                  },
+                  "rule": {
+                    "not": {}
+                  },
+                  "birth_date": {
+                    "not": {}
+                  },
+                  "dingju_method": {
+                    "not": {}
+                  },
+                  "quarter_rule": {
+                    "not": {}
+                  },
+                  "base_dingju_method": {
+                    "not": {}
+                  },
+                  "dun_source": {
+                    "not": {}
+                  },
+                  "hour_boundary": {
+                    "not": {}
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "school": {
+                    "const": "mingfa_feipan"
+                  }
+                },
+                "required": [
+                  "school"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "scope": {
+                    "const": "hour"
+                  },
+                  "dingju_method": {
+                    "const": "chaibu"
+                  },
+                  "quarter_rule": {
+                    "not": {}
+                  },
+                  "base_dingju_method": {
+                    "not": {}
+                  },
+                  "dun_source": {
+                    "not": {}
+                  },
+                  "hour_boundary": {
+                    "not": {}
+                  }
+                },
+                "required": [
+                  "scope",
+                  "dingju_method"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "scope": {
+                    "const": "quarter"
+                  }
+                },
+                "required": [
+                  "scope"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "school": {
+                    "const": "zhuanpan"
+                  },
+                  "quarter_rule": {},
+                  "dingju_method": {
+                    "not": {}
+                  }
+                },
+                "required": [
+                  "quarter_rule"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "quarter_rule": {
+                    "const": "ten_minute_sanyuan"
+                  }
+                },
+                "required": [
+                  "quarter_rule"
+                ]
+              },
+              "then": {
+                "base_dingju_method": {
+                  "not": {}
+                },
+                "dun_source": {
+                  "not": {}
+                },
+                "hour_boundary": {
+                  "not": {}
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "quarter_rule": {
+                    "const": "twelve_minute_ten_division"
+                  }
+                },
+                "required": [
+                  "quarter_rule"
+                ]
+              },
+              "then": {
+                "required": [
+                  "base_dingju_method",
+                  "dun_source",
+                  "hour_boundary"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "scope": {
+                    "enum": [
+                      "month",
+                      "year"
+                    ]
+                  }
+                },
+                "required": [
+                  "scope"
+                ]
+              },
+              "then": {
+                "dingju_method": {
+                  "not": {}
+                },
+                "quarter_rule": {
+                  "not": {}
+                },
+                "base_dingju_method": {
+                  "not": {}
+                },
+                "dun_source": {
+                  "not": {}
+                },
+                "hour_boundary": {
+                  "not": {}
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "dingju_method": {
+                    "const": "maoshan"
+                  }
+                },
+                "required": [
+                  "dingju_method"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "scope": {
+                    "const": "hour"
+                  },
+                  "school": {
+                    "const": "zhuanpan"
+                  }
+                },
+                "required": [
+                  "scope",
+                  "school"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "rule": {
+                    "enum": [
+                      "lost_property",
+                      "thief_capture",
+                      "capture_escape",
+                      "thief_profile"
+                    ]
+                  }
+                },
+                "required": [
+                  "rule"
+                ]
+              },
+              "then": {
+                "not": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "matter"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "yong_shen"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "rule": {
+                    "const": "missing_person"
+                  }
+                },
+                "required": [
+                  "rule"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "matter": {
+                    "const": "missing_person"
+                  }
+                },
+                "required": [
+                  "matter"
+                ]
+              }
             }
           ]
         }
@@ -393,15 +916,17 @@
                 "medical",
                 "funeral"
               ],
-              "description": "择日事项；也可传中文别名"
+              "description": "择日事项；使用规范英文事件名"
             },
             "start_date": {
               "type": "string",
-              "description": "起始日期 YYYY-MM-DD；缺省为服务端当前日期次日"
+              "description": "起始日期 YYYY-MM-DD；缺省为服务端当前日期次日",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
             },
             "end_date": {
               "type": "string",
-              "description": "结束日期 YYYY-MM-DD，包含当日；与 days 二选一"
+              "description": "结束日期 YYYY-MM-DD，包含当日；与 days 二选一",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
             },
             "days": {
               "type": "integer",
@@ -413,7 +938,37 @@
           "required": [
             "question"
           ],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "required": [
+                  "end_date"
+                ]
+              },
+              "then": {
+                "not": {
+                  "required": [
+                    "days"
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "days"
+                ]
+              },
+              "then": {
+                "not": {
+                  "required": [
+                    "end_date"
+                  ]
+                }
+              }
+            }
+          ]
         }
       }
     }

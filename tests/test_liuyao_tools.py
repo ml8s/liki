@@ -15,6 +15,7 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 import liuyao_casting as cast_tool  # noqa: E402
+import liuyao_factors as projection  # noqa: E402
 import liuyao_matters as matters  # noqa: E402
 import liuyao_paipan as paipan  # noqa: E402
 
@@ -50,9 +51,9 @@ def test_qigua_sends_original_coins_to_engine(monkeypatch):
 
     monkeypatch.setattr(cast_tool, "engine_data", fake_engine_data)
     rounds = [["正", "反", "反"]] * 6
-    result = cast_tool.qigua(mode="coins", rounds=rounds)
+    casting = cast_tool.qigua(mode="coins", rounds=rounds)
     assert calls == [("liuyao.qigua", {"mode": "coins", "rounds": rounds})]
-    assert result["casting"]["mode"] == "coins"
+    assert casting["mode"] == "coins"
 
 
 def test_qigua_rejects_coin_conversion_inputs(monkeypatch):
@@ -67,7 +68,7 @@ def test_qigua_rejects_coin_conversion_inputs(monkeypatch):
         cast_tool.qigua(mode="coins", rounds=[["正", "反"]] * 6)
 
 
-def test_chart_maps_matter_and_builds_snapshot(monkeypatch):
+def test_factors_maps_matter_and_projection(monkeypatch):
     calls = []
     casting = {
         "schema_version": "liuyao-cast-v1",
@@ -112,47 +113,84 @@ def test_chart_maps_matter_and_builds_snapshot(monkeypatch):
         }],
     }
 
+    monkeypatch.setattr(paipan, "server_time", lambda: "2026-09-08T12:00:00+08:00")
+
     def fake_engine_data(method, params):
         calls.append((method, params))
-        if method == "time.now":
-            return {"cst": "2026-09-08T12:00:00+08:00"}
         assert method == "liuyao.chart"
         return raw_chart
 
     monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
-    result = paipan.chart(
+    result = paipan.factors(
         casting=casting,
         matter="career",
         question="这次面试能不能通过",
     )
-    assert calls[0] == ("time.now", {})
-    assert calls[1][0] == "liuyao.chart"
-    assert calls[1][1] == {
+    assert len(calls) == 1
+    assert calls[0][0] == "liuyao.chart"
+    assert calls[0][1] == {
         "solar_time": "2026-09-08T12:00:00+08:00",
         "yong_shen": "官鬼",
         "casting": casting,
     }
-    assert "matter" not in calls[1][1]
+    assert "matter" not in calls[0][1]
     assert result["matter"]["matter"] == "career"
-    assert result["snapshot"]["schema_version"] == "liuyao-snapshot-v2"
-    assert result["snapshot"]["focus"]["yong_shen"]["name"] == "官鬼"
-    assert result["snapshot"]["focus"]["world"]["position"] == 1
-    assert result["snapshot"]["board"]["lines"][0]["chang_sheng_yue"] == "长生"
-    assert result["snapshot"]["board"]["lines"][0]["flags"]["mu_ku_branch"] == "戌"
-    assert result["snapshot"]["focus"]["yong_shen"]["chang_sheng"] == "长生"
-    assert result["snapshot"]["facts"]["hidden_lines"][0]["liu_qin"] == "妻财"
-    assert result["snapshot"]["facts"]["branch_relation_facts"][0]["relations"] == ["六冲"]
-    assert result["snapshot"]["facts"]["day_clash_facts"][0]["kind"] == "暗动"
-    assert result["snapshot"]["facts"]["moving_transformations"][0]["to_branch"] == "丑"
-    assert result["snapshot"]["facts"]["force_chain"]["yong_element"] == "火"
-    assert result["snapshot"]["followup"]["locked"] is True
-    assert result["snapshot"]["followup"]["original_solar_time"] == "2026-09-08T12:00:00+08:00"
-    assert result["snapshot"]["timing_candidates"][0]["mechanism"] == "动爻逢值"
+    assert result["factors"]["schema_version"] == "liuyao-factors-v1"
+    assert result["factors"]["focus"]["yong_shen"]["name"] == "官鬼"
+    assert result["factors"]["focus"]["world"]["position"] == 1
+    assert result["factors"]["board"]["lines"][0]["chang_sheng_yue"] == "长生"
+    assert result["factors"]["board"]["lines"][0]["flags"]["mu_ku_branch"] == "戌"
+    assert result["factors"]["focus"]["yong_shen"]["chang_sheng"] == "长生"
+    assert result["factors"]["facts"]["hidden_lines"][0]["liu_qin"] == "妻财"
+    assert result["factors"]["facts"]["branch_relation_facts"][0]["relations"] == ["六冲"]
+    assert result["factors"]["facts"]["day_clash_facts"][0]["kind"] == "暗动"
+    assert result["factors"]["facts"]["moving_transformations"][0]["to_branch"] == "丑"
+    assert result["factors"]["facts"]["force_chain"]["yong_element"] == "火"
+    assert result["factors"]["timing_candidates"][0]["mechanism"] == "动爻逢值"
 
 
-def test_chart_requires_exclusive_yong_shen_source():
+def test_factors_requires_exclusive_yong_shen_source():
     with pytest.raises(ValueError, match="互斥"):
-        paipan.chart(matter="career", yong_shen="官鬼", casting={"yaos": [7] * 6})
+        paipan.factors(matter="career", yong_shen="官鬼", casting={"yaos": [7] * 6})
+
+
+def test_factors_projects_hidden_yong_shen_without_flying_line_facts():
+    casting = {"mode": "yaos", "yaos": [8, 7, 9, 9, 7, 7], "dong_yao": [3, 4]}
+    chart = {
+        "name": "天风姤",
+        "ben_gua": "姤",
+        "bian_gua": "涣",
+        "gong": "乾",
+        "gong_wuxing": "金",
+        "lines": [],
+        "yong_shen": {
+            "name": "妻财",
+            "position": 0,
+            "is_hidden": True,
+            "wang_shuai": "死",
+            "fu_shen": {"position": 2, "liu_qin": "妻财", "zhi": "寅"},
+        },
+        "force_chain": {
+            "yong_shen": "妻财",
+            "yong_element": "木",
+            "position": 2,
+            "is_hidden": True,
+            "entries": [],
+        },
+        "hidden_lines": [],
+        "timing_candidates": [],
+    }
+    factors = projection.project_factors(casting, chart, {
+        "text": "这次能否成？", "matter": "general", "explicit_yong_shen": None, "perspective": None, "solar_time": "x",
+    })
+    focus = factors["focus"]
+    assert focus["yong_shen"]["is_hidden"] is True
+    assert focus["yong_line"] is None
+    primary_ids = {item["id"] for item in factors["evidence"]["primary"]}
+    assert "yong-shen-hidden-state" in primary_ids
+    hidden_state = next(item for item in factors["evidence"]["primary"] if item["id"] == "yong-shen-hidden-state")
+    assert hidden_state["fact"]["fu_shen"]["zhi"] == "寅"
+    assert hidden_state["fact"]["wang_shuai"] == "死"
 
 
 def test_tool_schema_matches_python_surface():

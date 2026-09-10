@@ -27,6 +27,7 @@ func ComputeChart(st tianwen.SolarTime, gender ganzhi.Gender) Chart {
 func ComputeFullChart(c Chart) FullChart {
 	bz := c.ToBazi()
 	fc := computeFullFromCore(c, bz)
+	enrichDaYunRoots(&fc, bz)
 	extra := ComputeChartExtra(c)
 	fc.SanYuan = extra.SanYuan
 	fc.GongJia = extra.GongJia
@@ -42,7 +43,25 @@ func ComputeFullChart(c Chart) FullChart {
 	fc.LiuHai = hehui.LiuHai
 	fc.LiuXing = hehui.LiuXing
 	fc.YongShen = ComputeYongShen(c) // 用神三派归完整命盘（chart 纯排盘不含）
+	var elementStates map[string]ElementState
+	fc.TenGodStates, elementStates = computeTenGodStates(fc)
+	fc.ElementStates = elementStateList(elementStates)
+	fc.LuRoots = computeLuRoots(fc)
+	fc.RelationGroups = computeRelationGroups(fc)
+	fc.AtomicFacts = computeAtomicFacts(fc)
 	return fc
+}
+
+func enrichDaYunRoots(fc *FullChart, bz ganzhi.Bazi) {
+	if fc.DaYun == nil {
+		return
+	}
+	for index := range fc.DaYun.Steps {
+		step := &fc.DaYun.Steps[index]
+		step.RootRefs = daYunRootRefs(ganzhi.Zhu{Gan: step.Gan, Zhi: step.Zhi}, bz)
+		rooted := len(step.RootRefs) > 0
+		step.Rooted = &rooted
+	}
 }
 
 // ComputeLiuNian computes the year pillar and its interactions with the bazi chart.

@@ -1,13 +1,21 @@
-# 因子与断言模型契约
+# 八字领域模型（八紫双盘）
 
-因子清单的唯一事实源是长表：
+`liki-bazi` 的领域名 `bazi` 是八紫双盘同参的稳定领域包名：它覆盖八字四柱、紫微斗数，以及两条体系之间的 `common` 合参边界。狭义“八字”只在 `shushi=bazi`、RPC 名称或具体柱盘上下文中表示四柱子系统。
 
-- `skills/liki-bazi/tools/factors/factors.csv`
-- `skills/liki-bazi/tools/factors/factors_liunian.csv`
+本文记录该领域的稳定对象、分层边界和求值契约。因子与断言是本命断语的条件机制，不是领域模型的顶层名字。
 
-本文只记录分层、统计与不可变契约，不复制因子行。CSV 是因子清单唯一事实源，文档、测试或快照不得再维护第二份逐因子清单。
+## 1. 领域对象
 
-## 模块分层
+| 对象 | 含义 | 边界 |
+|---|---|---|
+| Pan | 一次排盘得到的只读领域上下文，包含八字、紫微或双盘事实 | 只接受 `full_paipan` 的完整返回；拒绝裁剪盘、手工半截盘和旧快照 |
+| Side | 命理侧别：`bazi` / `ziwei` / `common` | 八字与紫微各自求值；跨体系断言只能在双盘合并上下文命中 |
+| AtomicFact | engine 输出的确定性命理事实 | Python 只读取，不复算十神、五行、关系、宫位和亮度规则 |
+| Factor | 可被断言引用的稳定条件因子 | 因子清单由长表唯一定义，OR / AND 分组与引用关系可校验 |
+| Assertion | 一条带条件组和经典依据的断语 | 不直接内嵌命理推导；只能引用可达因子 |
+| TimeLayer | 本命、大运 / 大限、流年等时间层 | 跨层引用必须显式；限运域必须携带目标年份上下文 |
+
+## 2. 模块分层
 
 ```text
 paipan.py           排盘 RPC 适配
@@ -16,7 +24,7 @@ factor_tables.py    长表加载与 OR/AND 分组
 operators_natal.py  本命机械算子
 operators_liunian.py 流年机械算子
 factors.py          因子门面：snap 编排
-domain_snapshot.py  稳定领域事实只读投影
+natal_projection.py  稳定本命事实只读投影
 assertion_store.py  断言长表索引
 duanyu.py           断言门面
 ```
@@ -27,7 +35,56 @@ duanyu.py           断言门面
 pan → factors → snap → assertions
 ```
 
-## 统计口径
+## 3. Engine 原子事实
+
+命理结论先由 engine 计算为原子事实，Python 算子只读取和组合，不复算：
+
+| 字段 | 含义 |
+|---|---|
+| `full.lu_roots` | 透干十神得十干禄 |
+| `full.relation_groups` | 去重后的完整关系组：天干五合按邻柱；地支六合 / 三合 / 三会 / 六冲 / 六害 / 三刑按全组或成对规则 |
+| `full.ten_god_states` | 十神透干 / 藏支、数量、通根、得令与组合旺弱 |
+| `full.element_states` | 五行季节旺弱、组合旺弱、生克方向与克者旺弱 |
+| `full.da_yun.steps[].rooted / root_refs` | 大运干通根事实与坐支本气 / 原局藏干证据 |
+| `full.atomic_facts.day_master_element` | 日主五行 |
+| `full.atomic_facts.month_longevity` | 日主在月支的十二长生 |
+| `full.atomic_facts.year_stem_ten_god / month_main_ten_god / hour_stem_ten_god` | 年干、月令本气、时干十神 |
+| `full.atomic_facts.pattern_god_transparent` | 月令格局的格神是否透干 |
+| `full.atomic_facts.pillar_punishments` | 年 / 月 / 日 / 时柱是否参与命局相刑 |
+| `full.atomic_facts.officer_killing_cleaned` | 官杀混杂后七杀被合 / 冲取清 |
+| `full.atomic_facts.wealth_tomb_present` | 日干财星墓库现于四柱 |
+| `full.atomic_facts.wealth_star_in_tomb` | 财星与墓库同柱 |
+| `full.atomic_facts.spouse_palace_state` | 夫妻宫冲 / 合 / 刑 / 害 / 静 |
+| `full.atomic_facts.day_branch_type` | 日支桃花 / 驿马 / 墓库 |
+| `full.atomic_facts.year_officer_killing` | 年柱官杀攻身 |
+| `ziwei.palace_facts` | 紫微宫位星曜、星组、四化、亮度与主星数量原子事实 |
+
+流年层同样由 `bazi.liunian` 输出原子事实：
+
+| 字段 | 含义 |
+|---|---|
+| `atomic_facts.controls_elements` | 流年干或支所克五行 |
+| `atomic_facts.controls_targets` | 日主 / 财官印食等语义目标是否受流年干支克 |
+| `atomic_facts.unfavorable_gan / unfavorable_branch` | 流年干 / 支为扶抑忌神 |
+| `atomic_facts.wealth_breaks_seal` | 印星流年被本支克 |
+| `atomic_facts.combinations` | 三合 / 三会 / 三刑 / 半合，是否包含流年支 |
+| `atomic_facts.year_branch_relations` | 流年支与原局各支的合 / 冲 / 刑 / 害关系 |
+| `atomic_facts.year_branch_controlled_by` | 原局旺相五行所克流年支 |
+| `atomic_facts.year_gan_controls_day_gan / day_gan_controls_year_gan` | 流年干与日干方向性相克 |
+| `atomic_facts.gan_combines` | 流年干与日干五合 |
+| `atomic_facts.dayun_gan_combines` | 大运干与流年干五合 |
+| `atomic_facts.dayun_zhi_clashes_year` | 大运支与流年支六冲 |
+| `atomic_facts.day_void_branches` | 日柱旬空支 |
+| `atomic_facts.year_equals_day_pillar / dayun_equals_year_pillar` | 流年与日柱 / 大运干支伏吟 |
+| `atomic_facts.year_gan_equals_natal_year_gan` | 流年干伏吟年柱 |
+
+这些字段的命理口径由 engine 单测与 `tests/fixtures/domain_oracle/` 锁定。Python 新增因子时不得重新实现上述推导。
+
+紫微 `宫含` 算子只对 `ziwei.palace_facts` 做 palace / kind / target / star exact match；Python 不再遍历宫位、推导四化落宫、解释亮度分组或计算主星数量。
+
+`ten_god_states.transparent / hidden` 只描述该具体十神；`rooted / timely` 按其五行判定。`ten_god_states.strength` 的口径是：得令，或该具体十神透干且五行通根为 `strong`；失令且该十神不透、五行无根为 `weak`；其余为 `neutral`。同五行的另一十神透干，不会把本十神错误升级为透干有根。`element_states.season_strength` 只表达月令旺相休囚死；`element_states.strength` 是五行聚合态；`controller_strength` 表达受克目标的克者是否旺相。Python 只读取这些结论，不再维护五行生克、天干五行、得令状态或十神旺弱规则表。
+
+## 4. 统计口径
 
 | 口径 | 数量 | 事实源 |
 |---|---:|---|
@@ -48,9 +105,11 @@ pan → factors → snap → assertions
 | 流年提取原子 | 59 | `factors_liunian.csv` |
 | 流年复合因子 | 38 | `factors_liunian.csv` |
 
-统计由 `tests/test_factor_model.py` 与表数据同步校验，不需要手工维护第二份清单。
+统计由 `tests/test_bazi_model.py` 与表数据同步校验，不需要手工维护第二份清单。
 
-## 查询契约
+## 5. 查询契约
+
+`pan_digest` 是 canonical SHA-256 完整性摘要，用于发现误改或手工拼装；当前不承担服务端防伪造签名职责。
 
 `calibrate.py` 是独立考时工具，编排 `paipan → factors → duanyu`。候选 `correct=true` 必须提供 longitude；`correct=false` 表示已明确时辰，longitude 可省略。`detail=true` 输出机械 evidence；`detail=false` 只保留断语。
 
@@ -60,7 +119,14 @@ pan → factors → snap → assertions
 - `query` / `yearly_range` 只接受 `full_paipan` 完整返回的 pan，拒绝快照、裁剪盘和手工半截盘。
 - `yearly_range` 单次起止年含端点跨度最多 120 年。
 
-## 长表结构
+## 6. 因子长表
+
+因子清单的唯一事实源是长表：
+
+- `skills/liki-bazi/tools/factors/factors.csv`
+- `skills/liki-bazi/tools/factors/factors_liunian.csv`
+
+本文只记录分层、统计与不可变契约，不复制因子行。CSV 是因子清单唯一事实源，文档、测试或快照不得再维护第二份逐因子清单。
 
 两张因子表均使用同一字段：
 
@@ -90,7 +156,7 @@ pan → factors → snap → assertions
 - 流年三合 / 三会约束必须三方齐备成局；两支半合不按完整合会因子命中。
 - `原语直通[...,任意]` 可返回字符串标量。
 
-## 常量与闭集
+## 7. 常量与闭集
 
 十神、五行、干支、十二长生、紫微星曜、宫位、神煞、关系表与命理侧闭集均以 `skills/liki-bazi/tools/constants.json` 为唯一事实源。代码只做机械查表、解析与求值，不内置命理结论。
 
@@ -107,7 +173,7 @@ pan → factors → snap → assertions
 | 结构闭集 | 性别、四柱、大限段数 | pan 校验与考时入参复用 |
 | 命理侧 | bazi / ziwei / common 与输出标签 | 快照、断言与考时聚合复用 |
 
-## 断言长表
+## 8. 断言长表
 
 断语元数据字段：
 
@@ -128,9 +194,9 @@ assertion_id,condition_group_id,factor,expected
 - loader 名称格式为 `{side}_{rule}`，例如 `bazi_格局`。
 - 跨术数条件必须写入 `side=common`，并在双盘合并快照上匹配。
 
-## 稳定领域事实
+## 9. 稳定领域事实
 
-`domain_snapshot.py` 从完整 `pan` 只读投影稳定命理事实，入口和目标字段由 `domain_snapshot_contract.json` 锁定：
+`natal_projection.py` 从完整 `pan` 只读投影稳定命理事实，入口和目标字段由 `natal_projection_contract.json` 锁定：
 
 - 八字：纳音、藏干、旬空、自合、魁罡、三元、三奇、拱夹、大运等。
 - 紫微：宫位与星曜、局数、命主、身主、命身宫、空宫、大限等。
@@ -138,7 +204,7 @@ assertion_id,condition_group_id,factor,expected
 
 这些领域事实与因子表同属稳定领域模型；当前断语是否消费不作为删除依据。
 
-## 排盘上下文
+## 10. 排盘上下文
 
 | 上下文 | 值域 | 消费方式 |
 |---|---|---|
@@ -147,13 +213,13 @@ assertion_id,condition_group_id,factor,expected
 | 公历出生 | 字符串 | `full_paipan` 出生事实透传 |
 | 农历出生 | 字符串 | `full_paipan` 出生事实透传 |
 
-## 缓存与复用
+## 11. 缓存与复用
 
 - `FactorContext` 只缓存一次求值内的基础聚合，不写回公共 `pan`。
 - `NatalContext` 只复用本命基础聚合和本命快照；流年盘、流年快照与公共 `pan` 保持只读。
 - 本命快照按调用生命周期生成，不做全局 pan 内容缓存。
 
-## 硬约束
+## 12. 硬约束
 
 1. 命理规则只由 `constants.json`、因子长表与断言长表定义；代码只做机械解析、查表与求值。
 2. 因子行必须有直通表达式或条件；断言行必须有条件组。

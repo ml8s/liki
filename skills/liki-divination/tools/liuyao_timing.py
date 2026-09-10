@@ -1,57 +1,65 @@
-"""六爻应期候选排序；只整理 engine 事实，不发明日期或结果。"""
+"""六爻应期候选排序；策略来自 JSON 表，只整理 engine 事实。"""
 from __future__ import annotations
 
+import json
+from functools import lru_cache
+from pathlib import Path
 
-BASE_PRIORITY = {
-    "旬空填实": 82,
-    "冲空": 74,
-    "动爻逢值": 70,
-    "动爻逢合": 62,
-    "静爻逢冲": 58,
-    "月破逢值": 54,
-    "月破逢合": 46,
-    "出月令": 38,
-    "冲飞出伏": 66,
-}
+RULES_PATH = Path(__file__).with_name("liuyao_timing_rules.json")
+TOPIC_PATH = Path(__file__).with_name("liuyao_topic_methods.json")
 
-HORIZONS = {
-    "wealth": "short_to_medium",
-    "career": "medium",
-    "relationship": "event_based",
-    "study": "deadline_based",
-    "lost_item": "short",
-    "travel": "short",
-    "legal": "process_based",
-    "health_context": "blocked",
-}
+
+@lru_cache
+def _rules() -> dict:
+    return json.loads(RULES_PATH.read_text(encoding="utf-8"))
+
+
+@lru_cache
+def _topic_methods() -> dict:
+    return json.loads(TOPIC_PATH.read_text(encoding="utf-8"))
 
 
 def _targets_hit(candidate: dict) -> int:
+    indicators = _rules()["target_indicators"]
     text = " ".join(str(item) for item in candidate.get("basis", []))
-    return 1 if "yong_shen" in text or candidate.get("position") else 0
+    return 1 if (
+        any(token in text for token in indicators["basis_tokens"])
+        or any(candidate.get(field) for field in indicators["fields"])
+    ) else 0
 
 
-def _topic_bonus(mechanism: str, topic: str | None) -> int:
+def _topic_focus(topic: str | None) -> set[str]:
     if not topic:
+        return set()
+    return set(_topic_methods().get("topics", {}).get(topic, {}).get("timing_focus", []))
+
+
+def _topic_bonus(mechanism: str, candidate_id: str, topic: str | None) -> int:
+    focus = _topic_focus(topic)
+    if not focus:
         return 0
-    focus = {
-        "wealth": {"moving-value", "void-fill", "yuepo-recovery", "changsheng-support"},
-        "career": {"moving-value", "static-clash", "void-fill", "changsheng-support"},
-        "study": {"moving-value", "void-fill", "static-clash", "changsheng-support"},
-        "lost_item": {"hidden-release", "static-clash", "void-fill"},
-    }.get(topic, set())
     normalized = mechanism.lower().replace(" ", "-")
-    return 6 if normalized in focus else 0
+    prefixes = _rules()["focus_id_prefixes"]
+    identifier = candidate_id.lower()
+    return 6 if (
+        normalized in focus
+        or any(
+            identifier.startswith(prefix)
+            for token in focus
+            for prefix in prefixes.get(token, ())
+        )
+    ) else 0
 
 
 def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: int = 6) -> dict:
-    """按透明规则整理应期候选；score 只表示当前上下文优先级，不是概率。"""
-
-    if topic == "health_context":
+    """按表驱动策略整理应期候选；score 是上下文优先级，不是概率。"""
+    rules = _rules()
+    blocked = rules["blocked_topics"].get(topic or "")
+    if blocked:
         return {
             "schema_version": "liuyao-timing-plan-v1",
             "blocked": True,
-            "reason": "健康语境不给应期；先引导专业医疗或紧急帮助。",
+            "reason": blocked["reason"],
             "candidates": [],
         }
     candidates = snapshot.get("timing_candidates", [])
@@ -60,24 +68,28 @@ def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: i
     if limit < 1 or limit > 20:
         raise ValueError("limit must be 1-20")
 
+    thresholds = rules["priority_thresholds"]
     ranked = []
     for candidate in candidates:
         if not isinstance(candidate, dict) or not candidate.get("id"):
             continue
         mechanism = candidate.get("mechanism", "")
-        base = BASE_PRIORITY.get(mechanism, 30)
-        bonus = 8 if _targets_hit(candidate) else 0
-        bonus += _topic_bonus(mechanism, topic)
-        penalty = 10 if candidate.get("confidence") != "candidate" else 0
-        score = base + bonus - penalty
-        priority = "high" if score >= 75 else "medium" if score >= 50 else "low"
+        score = rules["mechanism_priority"].get(mechanism, rules["default_priority"])
+        score += rules["target_bonus"] if _targets_hit(candidate) else 0
+        score += _topic_bonus(mechanism, str(candidate.get("id", "")), topic)
+        score -= rules["non_candidate_penalty"] if candidate.get("confidence") != "candidate" else 0
+        priority = (
+            "high" if score >= thresholds["high"]
+            else "medium" if score >= thresholds["medium"]
+            else "low"
+        )
         ranked.append({
             **candidate,
             "priority": priority,
             "rank_score": score,
-            "horizon": HORIZONS.get(topic or "", "event_based"),
+            "horizon": rules["topic_horizon"].get(topic or "", rules["default_horizon"]),
             "conclusion_scope": "conditional_timing_candidate_not_date",
-            "required_check": "仍须核对旺衰、空破真假和现实时间范围",
+            "required_check": rules["required_check"],
         })
     ranked.sort(key=lambda item: (-item["rank_score"], str(item["id"])))
     ranked = ranked[:limit]

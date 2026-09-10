@@ -1,11 +1,9 @@
 """奇门 answer core：从 snapshot 投影证据并校验引用与禁语。"""
 from __future__ import annotations
 
-import hashlib
-import json
+from divination_answer import validate_common_core
+from divination_hashing import short_object_id
 
-
-FORBIDDEN = ["必然", "百分百", "100%", "保证", "一定会"]
 ALLOWED_FIELDS = {
     "headline",
     "verdict",
@@ -22,18 +20,8 @@ ALLOWED_FIELDS = {
 }
 
 
-def _digest(value: dict) -> str:
-    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
-
-
 def candidate_id(candidate: dict) -> str:
-    raw = {
-        "type": candidate.get("type"),
-        "branch": candidate.get("branch"),
-        "gong": candidate.get("gong"),
-    }
-    return f"timing-{_digest(raw)}"
+    return short_object_id("timing", candidate)
 
 
 def available_ids(snapshot: dict) -> tuple[set[str], set[str]]:
@@ -76,18 +64,11 @@ def build(snapshot: dict) -> dict:
 
 
 def validate_core(core: dict, snapshot: dict) -> dict:
-    errors: list[dict] = []
-    if not isinstance(core, dict):
-        raise ValueError("answer core must be an object")
-    for field in core:
-        if field not in ALLOWED_FIELDS:
-            errors.append({"field": field, "reason": "unknown field"})
-
-    for field in ("headline", "verdict", "action", "boundary", "disclaimer"):
-        if not isinstance(core.get(field), str) or not core.get(field, "").strip():
-            errors.append({"field": field, "reason": "required non-empty text"})
-    if core.get("confidence") not in {"low", "medium", "high"}:
-        errors.append({"field": "confidence", "reason": "must be low/medium/high"})
+    errors = validate_common_core(
+        core,
+        allowed_fields=ALLOWED_FIELDS,
+        required_text_fields=("headline", "verdict", "action"),
+    )
 
     evidence_ids, timing_ids = available_ids(snapshot)
     for field, allowed in (
@@ -114,13 +95,6 @@ def validate_core(core: dict, snapshot: dict) -> dict:
     ):
         errors.append({"field": "method_ref", "reason": "must match snapshot scope/school"})
 
-    for field in ("headline", "verdict", "action"):
-        text = core.get(field, "")
-        if not isinstance(text, str):
-            continue
-        for word in FORBIDDEN:
-            if word.lower() in text.lower():
-                errors.append({"field": "forbidden_language", "reason": f"contains {word}"})
 
     return {
         "schema_version": "qimen-answer-core-audit-v1",

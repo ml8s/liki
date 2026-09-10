@@ -1,0 +1,91 @@
+{
+  "schema_version": "domain-oracle-qimen-specialized-v1",
+  "basis": "庚格以四柱干支遁甲后与天盘庚加地盘比对；天网以天盘癸落宫论；盗贼以天蓬为 大贼、玄武为 小贼；失物以时干落宫为定位。",
+  "sources": [
+    "《奇门遁甲秘笈大全·卷九·占盗贼》",
+    "奇门遁甲甲遁六仪与九宫五行通行口径"
+  ],
+  "geng_ge_cases": [
+    {
+      "id": "geng-hits-all-four-pillar-targets",
+      "pillars": {"nian": "丙午", "yue": "丙申", "ri": "庚辰", "shi": "庚午"},
+      "gan_interactions": [
+        {"gong": "离", "di_pan_gan": "丙", "tian_pan_gan": "庚"},
+        {"gong": "兑", "di_pan_gan": "庚", "tian_pan_gan": "庚"}
+      ],
+      "expected": [
+        {"level": "year", "gong": "离", "earth_gan": "丙"},
+        {"level": "month", "gong": "离", "earth_gan": "丙"},
+        {"level": "day", "gong": "兑", "earth_gan": "庚"},
+        {"level": "hour", "gong": "兑", "earth_gan": "庚"}
+      ]
+    },
+    {
+      "id": "jia-pillar-resolves-to-hidden-liuyi",
+      "pillars": {"nian": "甲子", "yue": "丙寅", "ri": "甲戌", "shi": "丙寅"},
+      "gan_interactions": [
+        {"gong": "坎", "di_pan_gan": "戊", "tian_pan_gan": "庚"},
+        {"gong": "乾", "di_pan_gan": "己", "tian_pan_gan": "庚"}
+      ],
+      "expected": [
+        {"level": "year", "gong": "坎", "earth_gan": "戊"},
+        {"level": "day", "gong": "乾", "earth_gan": "己"}
+      ]
+    }
+  ],
+  "lost_cases": [
+    {
+      "id": "hour-palace-and-door-audit",
+      "shi_gan_gong": "兑",
+      "door": "开门",
+      "wang_shuai": "死",
+      "expected": [{"gong": "兑", "door": "开门", "wang_shuai": "死"}]
+    }
+  ],
+  "thief_cases": [
+    {
+      "id": "tianpeng-with-lucky-pattern",
+      "gong": "坎",
+      "star": "天蓬",
+      "spirit": null,
+      "traditional_label": "旺",
+      "patterns": [{"name": "青龙返首", "gong": "坎", "auspicious": true}],
+      "expected": [{
+        "role": "大贼",
+        "symbol": "天蓬",
+        "gong": "坎",
+        "wang_shuai_label": "旺",
+        "lucky_pattern_names": ["青龙返首"]
+      }]
+    },
+    {
+      "id": "zhuque-archetype-is-xuanwu-thief",
+      "gong": "坤",
+      "star": null,
+      "spirit": "朱雀",
+      "traditional_label": "",
+      "patterns": [],
+      "expected": [{
+        "role": "小贼",
+        "symbol": "玄武",
+        "gong": "坤",
+        "wang_shuai_label": "未知",
+        "lucky_pattern_names": []
+      }]
+    }
+  ],
+  "tianwang_cases": [
+    {
+      "id": "tianwang-relation-to-hour-palace",
+      "hour_gong": "兑",
+      "gan_interactions": [
+        {"gong": "坎", "tian_pan_gan": "癸"},
+        {"gong": "震", "tian_pan_gan": "癸"}
+      ],
+      "expected": [
+        {"gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by"},
+        {"gong": "震", "hour_gong": "兑", "relation_to_hour": "controlled_by"}
+      ]
+    }
+  ]
+}
