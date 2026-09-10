@@ -159,7 +159,7 @@ Every conclusion carries its basis and classical citation — verify it yourself
 The skill self-checks its version on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
 
 **Self-hosting an engine?**
-Starting with `2026.09.10.1`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
+Starting with `2026.09.10.3`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
 
 ## Why It's Trustworthy
 
@@ -194,7 +194,7 @@ Call chain: SKILL.md routes to an app card → the card calls the six Python too
 - [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — divination domain model and layers: casting, snapshot, evidence, answer, and audit boundaries.
 - [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — BaZi domain model covering Four Pillars and Zi Wei: engine atomic facts, factor predicates, assertions, and query boundaries.
 - [docs/FENGSHUI_MODEL.md](./docs/FENGSHUI_MODEL.md) — Feng Shui domain model and layers: Bazhai ming gua, door/master/stove, Xuankong flying stars, periods, and annual boundaries.
-- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — naming domain model and layers: BaZi yongshen strategy, character pools, candidate names, evaluation, and source boundaries.
+- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — naming domain model and layers: BaZi yongshen strategy, character pools, candidate names, foreign surname candidates, evaluation, and source boundaries.
 
 The complete factor inventory is sourced solely from `skills/liki-bazi/tools/factors/*.csv`.
 

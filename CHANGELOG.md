@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026.09.10.3] — 外国人中文姓候选域
+
+### Breaking changes
+
+- 新增 `qiming.surname`；外国人起名中的中国姓只能来自 engine 受控《百家姓》候选，LLM 不得自行音译。
+- 姓氏候选输出结构化匹配依据和传统《百家姓》序号；解释由 LLM 基于结构化事实生成，无音近时显式使用 `baijiaxing_fallback`。
+- `qiming.surname` 候选只输出确定性事实；fallback 只由 `strategy` / `match_level` 表达。
+- 姓氏表保留传统《百家姓》完整 504 条目；运行时去重为 502 个姓氏，并修复重复条目截断加载的问题。
+- 姓氏 loader 对传统顺序、重复序号、缺调拼音和非法 / 行内重复 alias fail closed；跨姓 alias 冲突作为合法事实保留。
+- Skill 运行要求 engine >= `2026.09.10.3`；低版本会 fail closed。
+
+### liki-naming
+
+- `foreign.md` 改为罗马字姓 → `qiming.surname` 候选 → 用户确认 → 八字策略 → 取字链。
+- 外国人流程补充非拉丁姓氏、无音近 fallback、出生时区和非法律改名边界。
+- `NAMING_MODEL.md` 新增 `SourceName`、`SurnameCandidate` 与 `PhoneticFit` 领域对象。
+
 ## [2026.09.10.1] — 命理原子事实与流年策略下沉
 
 ### Breaking changes

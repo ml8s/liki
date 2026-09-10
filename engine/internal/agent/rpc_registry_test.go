@@ -10,8 +10,8 @@ import (
 func TestNewRPCRegistry_Count(t *testing.T) {
 	reg := NewRPCRegistry()
 	// rpc.discover is generated separately by OpenRPCDocument.
-	if got := len(reg.names); got != 31 {
-		t.Errorf("expected 31 methods, got %d", got)
+	if got := len(reg.names); got != 32 {
+		t.Errorf("expected 32 methods, got %d", got)
 	}
 }
 
@@ -23,7 +23,7 @@ func TestNewRPCRegistry_KeyMethods(t *testing.T) {
 		"bazi.xiaoyun",
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
-		"qiming.char", "qiming.pick", "qiming.compose", "qiming.check",
+		"qiming.surname", "qiming.char", "qiming.pick", "qiming.compose", "qiming.check",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
@@ -81,9 +81,9 @@ func TestOpenRPCDocument_Structure(t *testing.T) {
 	if parsed.Info.Title != "liki.hk JSON-RPC API" {
 		t.Errorf("title = %q", parsed.Info.Title)
 	}
-	// 33 external + rpc.discover
-	if got := len(parsed.Methods); got != 32 {
-		t.Errorf("expected 32 methods in OpenRPC doc (31 + rpc.discover), got %d", got)
+	// 32 external methods + rpc.discover.
+	if got := len(parsed.Methods); got != 33 {
+		t.Errorf("expected 33 methods in OpenRPC doc (32 + rpc.discover), got %d", got)
 	}
 }
 

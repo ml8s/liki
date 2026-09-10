@@ -1,4 +1,5 @@
 import csv
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -61,3 +62,24 @@ def test_naming_character_generator_rejects_missing_source(tmp_path):
     )
     assert completed.returncode != 0
     assert not output.exists()
+
+
+def test_baijiaxing_surname_table_is_complete_and_canonical():
+    path = DATA / "surnames.csv"
+    with path.open(encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+
+    # The classic source has 504 entries. Two surname variants repeat; the
+    # runtime matcher therefore exposes 502 unique surnames.
+    assert len(rows) == 504
+    assert len({row["surname"] for row in rows}) == 502
+    assert sum(len(row["surname"]) > 1 for row in rows) == 60
+    assert [int(row["baijiaxing_index"]) for row in rows] == list(range(1, 505))
+    for row in rows:
+        assert 1 <= len(row["surname"]) <= 2
+        assert re.fullmatch(r"[a-z]+", row["plain_pinyin"])
+        assert re.search(r"[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]", row["pinyin"])
+        aliases = [alias for alias in row["aliases"].split(",") if alias]
+        assert len(aliases) == len(set(aliases))
+        assert row["plain_pinyin"] not in aliases
+        assert all(re.fullmatch(r"[a-z]+", alias) for alias in aliases)

@@ -27,6 +27,21 @@ func qimingPickHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	return wrapResult("qiming_pick", result)
 }
 
+func qimingSurnameHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
+	var params struct {
+		SourceSurname string `json:"source_surname"`
+		MaxCandidates int    `json:"max_candidates"`
+	}
+	if err := json.Unmarshal(raw, &params); err != nil {
+		return nil, fmt.Errorf("qiming.surname: %w", err)
+	}
+	result, err := qiming.MatchSurnames(params.SourceSurname, params.MaxCandidates)
+	if err != nil {
+		return nil, fmt.Errorf("qiming.surname: %w", err)
+	}
+	return wrapResult("qiming_surname", result)
+}
+
 func qimingComposeHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var params struct {
 		First    []string `json:"first"`
@@ -98,6 +113,44 @@ const qimingCharacterSchema = `{
 }`
 
 var qimingMethods = []RPCMethod{
+	{
+		Name:        "qiming.surname",
+		Description: "外国人中文姓候选。source_surname 只传罗马字姓；返回受控《百家姓》中的罗马字匹配候选。无可靠音近候选时按传统《百家姓》顺序 fallback。",
+		Params: mustSchema(`{
+			"type":"object",
+			"additionalProperties":false,
+			"properties":{
+				"source_surname":{"type":"string","minLength":1,"maxLength":64,"description":"用户的罗马字姓；只传姓氏，不含名；复姓可使用空格或连字符；非拉丁姓先要求用户提供官方或惯用罗马字拼写"},
+				"max_candidates":{"type":"integer","minimum":1,"maximum":12,"default":6,"description":"候选数量上限"}
+			},
+			"required":["source_surname"]
+		}`),
+		Handler: qimingSurnameHandler,
+		Result: envelopeSchema(`{
+			"type":"object",
+			"additionalProperties":false,
+			"properties":{
+				"source_surname":{"type":"string","minLength":1},
+				"strategy":{"type":"string","enum":["phonetic","baijiaxing_fallback"]},
+				"candidates":{
+					"type":"array","minItems":1,"maxItems":12,
+					"items":{
+						"type":"object","additionalProperties":false,
+						"properties":{
+							"surname":{"type":"string","minLength":1,"maxLength":2},
+							"pinyin":{"type":"string","minLength":1},
+							"tone":{"type":"integer","minimum":1,"maximum":5},
+							"baijiaxing_index":{"type":"integer","minimum":1,"maximum":504,"description":"传统《百家姓》序号，不是现代人口排名"},
+							"match_level":{"type":"string","enum":["pinyin_exact","romanization_exact","phonetic_close","fallback_baijiaxing"]},
+							"basis":{"type":"array","minItems":1,"items":{"type":"string"}}
+						},
+						"required":["surname","pinyin","tone","baijiaxing_index","match_level","basis"]
+					}
+				}
+			},
+			"required":["source_surname","strategy","candidates"]
+		}`),
+	},
 	{
 		Name:        "qiming.char",
 		Description: "查字。查询单个汉字的五行、现代笔画、部首、拼音和声调。",

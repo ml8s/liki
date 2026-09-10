@@ -289,7 +289,7 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 		"bazi.fullchart", "bazi.chart", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun",
 		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.bond",
 		"qimen.chart",
-		"qiming.char", "qiming.pick", "qiming.compose", "qiming.check",
+		"qiming.surname", "qiming.char", "qiming.pick", "qiming.compose", "qiming.check",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",

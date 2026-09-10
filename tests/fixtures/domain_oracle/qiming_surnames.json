@@ -1,0 +1,115 @@
+{
+  "schema_version": "domain-oracle-qiming-surnames-v2",
+  "basis": "中文姓候选必须来自受控姓氏表；拼音、声调、传统《百家姓》序号与罗马字别名是 engine 事实，不是 LLM 联想。",
+  "cases": [
+    {
+      "id": "mandarin-pinyin-exact",
+      "source_surname": "Li",
+      "max_candidates": 6,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "李",
+          "tone": 3,
+          "match_level": "pinyin_exact"
+        },
+        "contains_surnames": ["李", "黎"]
+      }
+    },
+    {
+      "id": "romanization-alias-exact",
+      "source_surname": "Lee",
+      "max_candidates": 6,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "李",
+          "tone": 3,
+          "match_level": "romanization_exact"
+        }
+      }
+    },
+    {
+      "id": "ambiguous-cantonese-wong",
+      "source_surname": "Wong",
+      "max_candidates": 6,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "王",
+          "match_level": "romanization_exact"
+        },
+        "contains_surnames": ["王", "黄"]
+      }
+    },
+    {
+      "id": "latin-cluster-phonetic-close",
+      "source_surname": "Smith",
+      "max_candidates": 6,
+      "expected": {
+        "strategy": "phonetic",
+        "contains_surnames": ["石", "史"],
+        "match_levels": ["phonetic_close"]
+      }
+    },
+    {
+      "id": "compound-surname-spelling",
+      "source_surname": "Si Ma",
+      "max_candidates": 6,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "司马",
+          "match_level": "pinyin_exact"
+        }
+      }
+    },
+    {
+      "id": "late-table-romanization-exact",
+      "source_surname": "Tsang",
+      "max_candidates": 6,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "曾",
+          "match_level": "romanization_exact"
+        }
+      }
+    },
+    {
+      "id": "after-second-duplicate-pinyin-exact",
+      "source_surname": "Mou",
+      "max_candidates": 6,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "牟",
+          "tone": 2,
+          "match_level": "pinyin_exact"
+        }
+      }
+    },
+    {
+      "id": "accented-uppercase-latin",
+      "source_surname": "MÜller",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "穆",
+          "match_level": "phonetic_close"
+        }
+      }
+    },
+    {
+      "id": "no-close-match-uses-common-fallback",
+      "source_surname": "Qwzx",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "baijiaxing_fallback",
+        "surnames": ["赵", "钱", "孙"],
+        "match_levels": ["fallback_baijiaxing"]
+      }
+    }
+  ]
+}

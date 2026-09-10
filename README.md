@@ -159,7 +159,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 技能启动时自动做版本检查，提示更新时重跑：`npx skills add ml8s/liki -y`。
 
 **自建引擎怎么升级？**
-`2026.09.10.1` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
+`2026.09.10.3` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
 
 ## 为什么可信
 
@@ -194,7 +194,7 @@ repo root
 - [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — 问卦领域模型与分层：casting、snapshot、evidence、answer 与审计边界。
 - [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — 八字领域模型（八紫双盘）：八字、紫微、原子事实、因子条件、断言与查询边界。
 - [docs/FENGSHUI_MODEL.md](./docs/FENGSHUI_MODEL.md) — 风水领域模型与分层：八宅命卦、门主灶、玄空飞星、元运与流年边界。
-- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — 起名领域模型与分层：八字用神策略、字池、候选名、校验与出处边界。
+- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — 起名领域模型与分层：八字用神策略、字池、候选名、外国人中文姓候选、校验与出处边界。
 
 完整因子清单以 `skills/liki-bazi/tools/factors/*.csv` 为唯一事实源。
 

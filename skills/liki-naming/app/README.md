@@ -5,5 +5,5 @@
 | 卡 | 功能 | 依赖域 |
 |---|---|---|
 | `naming.md` | 通用起名 / 改名 | bazi,qiming |
-| `foreign.md` | 英文姓转音近中国姓并起中文名 | bazi,qiming |
+| `foreign.md` | 罗马字姓转受控中文姓候选并起中文名 | bazi,qiming |
 | `selfcheck.md` | 自选名字评估 | qiming |

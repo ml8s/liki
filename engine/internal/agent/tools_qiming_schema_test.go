@@ -31,7 +31,7 @@ func TestQimingSchemaContract(t *testing.T) {
 	for i, method := range document.Methods {
 		methods[method.Name] = i
 	}
-	for _, name := range []string{"qiming.char", "qiming.pick", "qiming.compose", "qiming.check"} {
+	for _, name := range []string{"qiming.surname", "qiming.char", "qiming.pick", "qiming.compose", "qiming.check"} {
 		index, ok := methods[name]
 		if !ok {
 			t.Fatalf("OpenRPC document missing %s", name)
@@ -46,6 +46,7 @@ func TestQimingSchemaContract(t *testing.T) {
 		got  []string
 		want []string
 	}{
+		{"qiming.surname params", document.Methods[methods["qiming.surname"]].Params.Required, []string{"source_surname"}},
 		{"qiming.pick params", document.Methods[methods["qiming.pick"]].Params.Required, []string{"wuxing1"}},
 		{"qiming.compose params", document.Methods[methods["qiming.compose"]].Params.Required, []string{"first"}},
 		{"qiming.check params", document.Methods[methods["qiming.check"]].Params.Required, []string{"given_names"}},
@@ -85,6 +86,18 @@ func TestQimingSchemaContract(t *testing.T) {
 	}
 	objectSchema("qiming.pick")
 	objectSchema("qiming.compose")
+
+	surname := objectSchema("qiming.surname")
+	wantSurnameFields := []string{"candidates", "source_surname", "strategy"}
+	sort.Strings(wantSurnameFields)
+	gotSurnameFields := make([]string, 0, len(surname))
+	for field := range surname {
+		gotSurnameFields = append(gotSurnameFields, field)
+	}
+	sort.Strings(gotSurnameFields)
+	if !reflect.DeepEqual(gotSurnameFields, wantSurnameFields) {
+		t.Errorf("qiming.surname fields = %v, want %v", gotSurnameFields, wantSurnameFields)
+	}
 
 	var checkSchema struct {
 		Type  string `json:"type"`

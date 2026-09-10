@@ -3,7 +3,7 @@
   "info": {
     "title": "liki-divination 奇门 / 六爻 / 黄历工具",
     "description": "问卦分域 snapshot 与 ask 工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.10.1"
+    "version": "2026.09.10.3"
   },
   "tools": [
     {

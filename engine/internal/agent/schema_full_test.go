@@ -59,6 +59,7 @@ func TestAllMethodsSchema(t *testing.T) {
 		"huangli.days":     mustJSON(t, map[string]any{"start_date": "2026-08-01", "count": 2}),
 		"tianwen.time":     mustJSON(t, map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "latitude": 39.9}),
 		"time.now":         mustJSON(t, map[string]any{}),
+		"qiming.surname":   mustJSON(t, map[string]any{"source_surname": "Lee", "max_candidates": 2}),
 		"qiming.char":      mustJSON(t, map[string]any{"char": "明"}),
 		"qiming.pick":      mustJSON(t, map[string]any{"wuxing1": "木", "wuxing2": "火", "count": 2}),
 		"qiming.compose":   mustJSON(t, map[string]any{"first": []string{"德"}, "second": []string{"明"}}),

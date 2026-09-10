@@ -36,7 +36,7 @@ METHOD_WHITELIST = {
     "huangli.days",
     "bazhai.chart", "bazhai.layout",
     "xuankong.chart", "xuankong.liunian",
-    "qiming.pick", "qiming.compose", "qiming.check", "qiming.char",
+    "qiming.surname", "qiming.pick", "qiming.compose", "qiming.check", "qiming.char",
     # divination
     "liuyao.qigua", "liuyao.chart", "qimen.chart",
     # 基础

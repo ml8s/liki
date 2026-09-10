@@ -1,6 +1,6 @@
 ---
 name: liki-naming
-description: "起名改名/取名字 — 排八字定用神、按五行取字、组名与评估。新生儿起名、成人改名、英文起中文名。Chinese naming with BaZi and Five-Element character selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
+description: "起名改名/取名字 — 排八字定用神、按五行取字、组名与评估。新生儿起名、成人改名、外国人罗马字姓起中文名。Chinese naming with BaZi and Five-Element character selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki 起名 — 八字用神 + 五行选字
@@ -11,7 +11,7 @@ description: "起名改名/取名字 — 排八字定用神、按五行取字、
 
 1. 外部安装副本先读本地 `VERSION` 与 `https://liki.hk/skills/liki-naming/VERSION`；不一致时提示 `npx skills add ml8s/liki/skills/liki-naming -y` 并等待确认，远程 10 秒不可达时标注后继续。托管环境跳过检查。
 2. POST JSON-RPC：默认 `https://liki.hk/jsonrpc`，设置 `LIKI_RPC_URL` 时使用该端点；Content-Type 为 `application/json`。
-3. 用 `rpc.discover` 读取 `bazi.chart,bazi.fullchart,qiming,city.coords,tianwen.time` 的最终 schema。
+3. 用 `rpc.discover` 读取 `bazi.chart,bazi.fullchart,qiming.surname,qiming.pick,qiming.compose,qiming.check,qiming.char,city.coords,tianwen.time` 的最终 schema。
 4. 完成上述检查后进入路由。
 
 ## 路由
@@ -37,6 +37,7 @@ description: "起名改名/取名字 — 排八字定用神、按五行取字、
 ## 硬边界
 
 - 排盘、用神、字池、字符属性全部来自 RPC；缺失字段标注不可用。
+- 外国人的中文姓候选只能来自 `qiming.surname`；无音近候选时说明 fallback，不得自创音译姓。
 - 生成流候选字仅从 `qiming.pick` 返回的 `chars` 过滤；必含字冲突时报告并请用户选择。
 - `qiming.compose` 只传字；`qiming.check` 的 `given_names` 只传不含姓的名。
 - 无出生信息时跳过五行匹配，并明确输出未评估用神。
@@ -49,6 +50,7 @@ description: "起名改名/取名字 — 排八字定用神、按五行取字、
 - 附代表性不推荐清单和具体淘汰原因；候选不足时如实说明。
 - 有排盘时说明用神依据；无排盘时说明未评估用神。
 - 输出语言跟随用户；英文首次出现核心术语时括注英文；外国用户中文名保留拼音，解释可用英文。
+- 外国人中文名是文化 / 社交用名；不宣称改变法律姓名，不默认按中国出生时间处理。
 
 JSON-RPC 参数错误按 schema 修正后重试；网络超时告知用户可重试；HTTP 403 更换 HTTP 客户端或请求头。反馈提交到 `https://liki.hk/api/feedback`，请求体使用 UTF-8。
 
