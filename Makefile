@@ -49,20 +49,22 @@ export PATH := $(HOME)/go/bin:$(HOME)/app/go/bin:$(PATH)
 export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 
-pre-push: ## 推送前门槛测试（与 CI 对齐——绿了再推，~30s）
-	@echo "=== [1/6] check_docs（文档契约 × 4 skill）==="
+pre-push: ## 推送前门槛测试（与 CI 对齐——绿了再推，~2min）
+	@echo "=== [1/7] check_docs（文档契约 × 4 skill）==="
 	@for s in liki-bazi liki-divination liki-fengshui liki-naming; do \
 		python3 tests/check_docs.py "skills/$$s" || exit 1; \
 	done
-	@echo "=== [2/6] Python 单测 ==="
+	@echo "=== [2/7] Python 单测 ==="
 	python3 -m pytest tests/ --ignore=tests/test_integration.py -q --tb=short || exit 1
-	@echo "=== [3/6] eval_hybrid 冒烟（前 3 题验证管线通）==="
+	@echo "=== [3/7] eval_hybrid 冒烟（前 3 题验证管线通）==="
 	python3 -c "import tests.eval_hybrid" || exit 1
-	@echo "=== [4/6] Go build + vet ==="
+	@echo "=== [4/7] Go build + vet ==="
 	cd engine && go build ./... && go vet ./... || exit 1
-	@echo "=== [5/6] golangci-lint ==="
+	@echo "=== [5/7] golangci-lint ==="
 	cd engine && golangci-lint run ./... || exit 1
-	@echo "=== [6/6] Go 单测（-short）==="
+	@echo "=== [6/7] Go 单测（-short）==="
 	cd engine && go test -short -count=1 ./... || exit 1
+	@echo "=== [7/7] 流年/断语全量数据检查（对齐 CI full check）==="
+	@bash -c '. scripts/local-engine.sh; ensure_local_engine; trap stop_local_engine EXIT; LIKI_RPC_URL="$$LOCAL_RPC" python3 tests/eval_hybrid.py' || exit 1
 	@echo ""
 	@echo "✓ 推送前门槛检查全部通过（CI 同集，绿了再推）"

@@ -12,6 +12,8 @@
 
 ### liki-bazi / liki-divination
 
+- 修正流年原子事实 `combinations` 为空时序列化成 `null` 的契约问题；空集合稳定输出 `[]`，并由 engine 契约测试锁定。
+- pre-push 新增流年 / 断语全量数据检查，提前拦截 CI `eval_hybrid` 失败。
 - `FACTOR_MODEL.md` 更名为 `BAZI_MODEL.md`，并把因子 / 断言机制降为本命领域模型内的求值契约；README 领域契约统一收口到问卦、八紫、风水和起名四份文档。
 - 八字本命盘新增 `pan_digest`，query / yearly / bond / calibrate 统一防篡改。
 - 本命与流年命理判断持续下沉 engine：十神显隐 / 通根 / 旺弱、五行生克方向、大运通根、十干禄、官杀取清、财库、夫妻宫、流年生克、忌神、财坏印、三合 / 三会 / 三刑 / 半合均输出原子事实。

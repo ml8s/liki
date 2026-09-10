@@ -134,7 +134,7 @@ func computeAnnualBranchCombinations(bz ganzhi.Bazi, yearZhi ganzhi.Zhi) []Branc
 		return prefix + strings.Join(names(group), "")
 	}
 
-	var result []BranchCombination
+	result := []BranchCombination{}
 	appendCombination := func(kind, group string, branches []ganzhi.Zhi) {
 		result = append(result, BranchCombination{
 			Kind: kind, Group: group, Branches: names(branches), IncludesYear: containsYear(branches),
