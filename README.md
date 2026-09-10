@@ -159,7 +159,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 技能启动时自动做版本检查，提示更新时重跑：`npx skills add ml8s/liki -y`。
 
 **自建引擎怎么升级？**
-`2026.09.10.5` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
+`2026.09.11.0` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
 
 ## 为什么可信
 

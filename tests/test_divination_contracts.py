@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from jsonschema.exceptions import ValidationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -73,7 +74,7 @@ def test_engine_version_gate_accepts_minimum(monkeypatch):
     monkeypatch.setattr(
         divination_rpc,
         "engine_version",
-        lambda: "2026.09.10.5",
+        lambda: "2026.09.11.0",
     )
     divination_rpc.ensure_engine_compatible()
 
@@ -205,6 +206,56 @@ def test_liuyao_snapshot_contract_rejects_invalid_yao_values():
             {"mode": "yaos", "order": "bottom_up", "casting_id": "a" * 64, "yaos": [1] * 6, "dong_yao": []},
             contract["properties"]["casting"],
         )
+
+
+def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
+    from jsonschema import validate
+
+    contract = divination_contracts.load_contract("liuyao_snapshot")
+    casting = contract["properties"]["casting"]
+    validate({
+        "mode": "coins",
+        "order": "bottom_up",
+        "casting_id": "a" * 64,
+        "rounds": [
+            {
+                "position": index,
+                "coins": ["正", "正", "反"],
+                "value": 8,
+                "label": "少阴",
+                "changing": False,
+            }
+            for index in range(1, 7)
+        ],
+        "yaos": [8] * 6,
+        "dong_yao": [],
+    }, casting)
+    validate({
+        "mode": "yaos",
+        "order": "bottom_up",
+        "casting_id": "b" * 64,
+        "rounds": [],
+        "yaos": [7] * 6,
+        "dong_yao": [],
+    }, casting)
+
+    with pytest.raises(ValidationError):
+        validate({
+            "mode": "yaos",
+            "order": "bottom_up",
+            "casting_id": "c" * 64,
+            "rounds": [
+                {
+                    "position": 1,
+                    "coins": ["正", "正", "反"],
+                    "value": 8,
+                    "label": "少阴",
+                    "changing": False,
+                }
+            ],
+            "yaos": [7] * 6,
+            "dong_yao": [],
+        }, casting)
 
 
 def test_qimen_snapshot_special_rule_enum_matches_table():

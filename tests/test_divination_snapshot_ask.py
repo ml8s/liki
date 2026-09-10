@@ -19,10 +19,30 @@ import qimen_snapshot  # noqa: E402
 from qimen_projection import project as project_chart  # noqa: E402
 
 
+def _coin_casting():
+    return {
+        "mode": "coins",
+        "order": "bottom_up",
+        "casting_id": "a" * 64,
+        "rounds": [
+            {
+                "position": index,
+                "coins": ["正", "正", "反"],
+                "value": 8,
+                "label": "少阴",
+                "changing": False,
+            }
+            for index in range(1, 7)
+        ],
+        "yaos": [8] * 6,
+        "dong_yao": [],
+    }
+
+
 def _liuyao_projected():
     return {
         "question": {"text": "这次面试能不能通过？", "matter": "career", "explicit_yong_shen": None, "perspective": None, "solar_time": "2026-09-08T12:00:00+08:00"},
-        "casting": {"mode": "coins", "order": "bottom_up", "casting_id": "a" * 64, "yaos": [7] * 6, "dong_yao": []},
+        "casting": _coin_casting(),
         "board": {
             "name": "乾为天", "ben_gua": "乾", "palace": "乾", "palace_wuxing": "金",
             "lines": [{
@@ -82,7 +102,7 @@ def test_snapshot_validate_rejects_wrong_schema_version():
 
 
 def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
-    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {"mode": "coins", "casting_id": "a" * 64, "yaos": [7] * 6, "dong_yao": []})
+    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
     result = liuyao_snapshot.create(
         question="这次面试能不能通过？", mode="coins", matter="career"
@@ -97,7 +117,7 @@ def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
 
 
 def test_liuyao_ask_rejects_tampered_snapshot(monkeypatch):
-    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {"mode": "coins", "casting_id": "a" * 64, "yaos": [7] * 6, "dong_yao": []})
+    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
     snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career")
     snapshot["question"]["text"] = "篡改后的问题"
@@ -106,7 +126,7 @@ def test_liuyao_ask_rejects_tampered_snapshot(monkeypatch):
 
 
 def test_liuyao_ask_returns_structured_answer(monkeypatch):
-    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {"mode": "coins", "casting_id": "a" * 64, "yaos": [7] * 6, "dong_yao": []})
+    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
     snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career")
     answer = liuyao_ask.ask(snapshot, message="现在该注意什么？")

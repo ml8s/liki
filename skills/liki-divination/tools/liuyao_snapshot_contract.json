@@ -131,11 +131,9 @@
               "label",
               "changing"
             ]
-          },
-          "minItems": 6,
-          "maxItems": 6
+          }
         },
-        "yaos": {
+          "yaos": {
           "type": "array",
           "minItems": 6,
           "maxItems": 6,
@@ -158,7 +156,51 @@
           "const": "bottom_up"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "coins"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "rounds"
+            ],
+            "properties": {
+              "rounds": {
+                "minItems": 6,
+                "maxItems": 6
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "yaos"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "rounds": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
     },
     "board": {
       "type": "object",

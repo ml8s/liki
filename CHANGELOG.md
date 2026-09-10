@@ -1,15 +1,16 @@
 # Changelog
 
-## [2026.09.10.5] — 领域过滤、交互门控与测试分层
+## [2026.09.11.0] — 领域过滤、交互门控与测试分层
 
 ### Breaking changes
 
-- Skill 运行要求 engine >= `2026.09.10.5`；低版本会 fail closed。
+- Skill 运行要求 engine >= `2026.09.11.0`；低版本会 fail closed。
 - 问卦 skill 显式声明 `jsonschema>=4,<5`；缺失时 fail closed，不再静默跳过契约校验。
 - 160 题 MingLi-Bench 移入 `tests/benchmark/mingli160/`，命令统一为 `make benchmark-mingli160`；该套件只测命理答案准确率。
 - 新增 `tests/skillup/` 跨领域功能 smoke，覆盖八字、问卦、风水和起名；命令为 `make skillup-smoke-*`，不进入 pre-push。
 - 问卦 skill 显式声明 `jsonschema` 依赖；缺失时 fail closed 并给出标准安装命令，不再静默跳过契约校验。
 - 修正六爻 snapshot contract 的 `casting.rounds` 形状，使其匹配 engine canonical object schema。
+- 六爻 snapshot contract 改为按起卦方式校验：`coins` 必须有 6 组对象证据，`yaos` 不得携带 rounds。
 - `full_paipan` 在时间距时辰交界 ≤30 分钟时输出确定性校准提示。
 - `yearly_study` 场景移除 `年六亲`，避免学业查询混入婚姻 / 子女信号。
 - `query` / `yearly_range` 新增 `domains` 领域过滤器，避免结构域命中混入单一生活领域分析。

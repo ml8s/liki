@@ -159,7 +159,7 @@ Every conclusion carries its basis and classical citation — verify it yourself
 The skill self-checks its version on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
 
 **Self-hosting an engine?**
-Starting with `2026.09.10.5`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
+Starting with `2026.09.11.0`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
 
 ## Why It's Trustworthy
 
