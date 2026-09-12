@@ -1,0 +1,51 @@
+{
+  "schema_version": "domain-oracle-liuyao-dong-yao-priority-v1",
+  "basis": "一个动爻可同时具备直接与间接作用；直接生克冲用不得丢弃，生克原神、忌神也可并列输出。",
+  "sources": [
+    "《增删卜易》动变章：动爻对用神之生克为先，原忌神为辅"
+  ],
+  "cases": [
+    {
+      "id": "direct-control-not-masked-by-yuan-support",
+      "target": "妻财",
+      "yong_zhi": "巳",
+      "moving_zhi": "子",
+      "expected": ["克用", "生原神"]
+    },
+    {
+      "id": "direct-support",
+      "target": "妻财",
+      "yong_zhi": "巳",
+      "moving_zhi": "寅",
+      "expected": ["生用"]
+    },
+    {
+      "id": "same-element",
+      "target": "妻财",
+      "yong_zhi": "巳",
+      "moving_zhi": "午",
+      "expected": ["比和"]
+    },
+    {
+      "id": "branch-clash-is-direct",
+      "target": "妻财",
+      "yong_zhi": "午",
+      "moving_zhi": "子",
+      "expected": ["克用", "冲用", "生原神"]
+    },
+    {
+      "id": "indirect-generate-ji",
+      "target": "妻财",
+      "yong_zhi": "巳",
+      "moving_zhi": "丑",
+      "expected": ["克忌神"]
+    },
+    {
+      "id": "indirect-control-yuan",
+      "target": "妻财",
+      "yong_zhi": "巳",
+      "moving_zhi": "申",
+      "expected": ["克原神", "生忌神"]
+    }
+  ]
+}

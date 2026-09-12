@@ -1,10 +1,10 @@
 {
-  "schema_version": "domain-oracle-bazi-relation-groups-v1",
-  "basis": "天干五合、地支六合、三合、三会、六冲、六害与三刑通行口径；组成立必须成员齐备，自刑须同支成双。；天干五合按引擎既有邻柱口径成立，隔柱不构成五合组。",
+  "schema_version": "domain-oracle-bazi-relation-groups-v2",
+  "basis": "天干五合、地支六合、三合、三会、六冲、六害与三刑通行口径；组成立必须成员齐备，自刑须同支成双。紧邻天干五合进 gan_he，隔位 / 远隔只进 gan_he_candidate。",
   "sources": [
     "《三命通会》合会冲刑",
     "《子平真诠》地支关系",
-    "天干五合邻柱口径"
+    "《三命通会》天干五合"
   ],
   "cases": [
     {
@@ -88,7 +88,7 @@
       ]
     },
     {
-      "id": "non-adjacent-stem-he-is-not-group",
+      "id": "non-adjacent-stem-he-is-candidate-not-tight-group",
       "pillars": [
         "甲子",
         "丙寅",
@@ -96,6 +96,10 @@
         "庚午"
       ],
       "expected": [
+        {
+          "field": "gan_he_candidate",
+          "group": "甲己"
+        },
         {
           "field": "liu_chong",
           "group": "子午"

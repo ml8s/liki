@@ -247,11 +247,14 @@ func annualBranchControlledBy(chart Chart, yearZhi ganzhi.Zhi) []string {
 	if target == 0 {
 		return []string{}
 	}
+	natalCounts := computeElementCount(chart.ToBazi(), computeCangGan(chart.ToBazi()))
 	states := ComputeYongShen(chart).FuYi.WangShuai
 	result := make([]string, 0, 2)
 	for _, element := range []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui} {
 		state := states[element.String()]
-		if (state == ganzhi.WSWang.String() || state == ganzhi.WSXiang.String()) && ganzhi.Ke(element, target) {
+		if natalCounts[element] > 0 &&
+			(state == ganzhi.WSWang.String() || state == ganzhi.WSXiang.String()) &&
+			ganzhi.Ke(element, target) {
 			result = append(result, element.String())
 		}
 	}

@@ -63,43 +63,29 @@ func TestXingJiaHuiUnknownCombinationIsUnlisted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
-	if !containsUnlisted(chart.XingJiaHui) {
-		t.Fatal("expected at least one unlisted combination")
-	}
 	if string(encoded) == "" || json.Unmarshal(encoded, &[]map[string]any{}) != nil {
 		t.Fatalf("invalid xing_jia_hui JSON: %s", encoded)
 	}
-	// 布尔 auspicious 已无法区分未知与凶局，不允许再进入公开契约。
-	if strings.Contains(string(encoded), `"auspicious"`) {
-		t.Fatalf("xing_jia_hui still contains boolean field %q", "auspicious")
+	if strings.Contains(string(encoded), `"classification"`) || strings.Contains(string(encoded), `"auspicious"`) {
+		t.Fatal("xing_jia_hui must not expose fixed auspiciousness")
 	}
-}
-
-func containsUnlisted(items [9]xingJiaHui) bool {
-	for _, item := range items {
-		if item.Classification == "unlisted" {
-			return true
-		}
-	}
-	return false
 }
 
 // 双星加会《玄空秘旨》权威星组内容锚点（防止表内容被误改）。
 func TestXingJiaHui_Content_Anchors(t *testing.T) {
 	type want struct {
-		name           string
-		classification string
+		name string
 	}
 	cases := map[[2]int]want{
-		{1, 4}: {"一四同宫", "auspicious"},   // 准发科名之显（文昌）
-		{5, 7}: {"五七同宫", "inauspicious"}, // 紫黄毒药，邻宫兑口休尝（五黄七赤）
-		{7, 5}: {"七五同宫", "inauspicious"},
-		{3, 9}: {"三九同宫", "auspicious"}, // 木火通明，主文章秀士
-		{9, 3}: {"九三同宫", "auspicious"},
-		{2, 5}: {"二五交加", "inauspicious"}, // 损主重病
-		{5, 9}: {"五九交加", "inauspicious"}, // 紫黄相会（九紫生五黄，非紫黄毒药主名）
-		{6, 9}: {"六九同宫", "inauspicious"}, // 火照天门
-		{1, 6}: {"一六共宗", "auspicious"},   // 启八代之文章
+		{1, 4}: {"一四同宫"},
+		{5, 7}: {"五七加会"},
+		{7, 5}: {"七五加会"},
+		{3, 9}: {"三九同宫"},
+		{9, 3}: {"九三同宫"},
+		{2, 5}: {"二五交加"},
+		{5, 9}: {"五九交加"},
+		{6, 9}: {"六九同宫"},
+		{1, 6}: {"一六共宗"},
 	}
 	for key, w := range cases {
 		got, ok := xingJiaHuiTable[key]
@@ -107,9 +93,8 @@ func TestXingJiaHui_Content_Anchors(t *testing.T) {
 			t.Errorf("xingJiaHuiTable 缺 [%d,%d]（%s）", key[0], key[1], w.name)
 			continue
 		}
-		if got.Name != w.name || got.Classification != w.classification {
-			t.Errorf("[%d,%d] = %s(%s), want %s(%s)",
-				key[0], key[1], got.Name, got.Classification, w.name, w.classification)
+		if got.Name != w.name {
+			t.Errorf("[%d,%d] = %s, want %s", key[0], key[1], got.Name, w.name)
 		}
 	}
 }

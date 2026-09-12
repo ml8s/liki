@@ -71,7 +71,7 @@ type SanFangInfo struct {
 	Name    string   `json:"name"`
 	ZhuXing []string `json:"zhu_xing"`
 	FuXing  []string `json:"fu_xing"`
-	SiHua   string   `json:"si_hua"`
+	SiHua   []string `json:"si_hua"`
 }
 
 // buildSanFangInfo collects the major/minor stars and 四化 of the 三方四正 palaces.
@@ -79,13 +79,14 @@ func buildSanFangInfo(c Chart, sfPalaces [4]gongIndex) []SanFangInfo {
 	var result []SanFangInfo
 	for _, pi := range sfPalaces {
 		p := c.GongWei[pi]
-		info := SanFangInfo{Name: gongLabels[pi], ZhuXing: make([]string, 0), FuXing: make([]string, 0)}
-		for _, s := range p.Stars {
-			if s.SiHua != "" {
-				info.SiHua = s.SiHua
-			}
+		info := SanFangInfo{
+			Name: gongLabels[pi], ZhuXing: make([]string, 0),
+			FuXing: make([]string, 0), SiHua: make([]string, 0),
 		}
 		for _, s := range p.Stars {
+			if s.SiHua != "" {
+				info.SiHua = append(info.SiHua, s.SiHua)
+			}
 			if s.IsMajor {
 				info.ZhuXing = append(info.ZhuXing, s.Name)
 			} else {

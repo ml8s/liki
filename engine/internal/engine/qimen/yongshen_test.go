@@ -95,6 +95,14 @@ func TestYongShenBirthDateBoundary(t *testing.T) {
 	if before.NianGanPalace == nil || after.NianGanPalace == nil {
 		t.Fatal("year-stem palace missing")
 	}
+	if len(before.NianGanPalaceFacts) == 0 || len(after.NianGanPalaceFacts) == 0 {
+		t.Fatal("year-stem palace layer facts missing")
+	}
+	for _, fact := range append(append([]GanPalaceFact(nil), before.NianGanPalaceFacts...), after.NianGanPalaceFacts...) {
+		if fact.Palace == 0 || (fact.Layer != "heaven" && fact.Layer != "earth") {
+			t.Fatalf("year-stem palace fact = %+v", fact)
+		}
+	}
 	if before.Symbols == nil || after.Symbols == nil {
 		t.Fatal("empty selected-symbol collection must serialize as an array")
 	}

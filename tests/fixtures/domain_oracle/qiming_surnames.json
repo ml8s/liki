@@ -13,7 +13,10 @@
           "tone": 3,
           "match_level": "pinyin_exact"
         },
-        "contains_surnames": ["李", "黎"]
+        "contains_surnames": [
+          "李",
+          "黎"
+        ]
       }
     },
     {
@@ -39,7 +42,10 @@
           "surname": "王",
           "match_level": "romanization_exact"
         },
-        "contains_surnames": ["王", "黄"]
+        "contains_surnames": [
+          "王",
+          "黄"
+        ]
       }
     },
     {
@@ -48,8 +54,13 @@
       "max_candidates": 6,
       "expected": {
         "strategy": "phonetic",
-        "contains_surnames": ["石", "史"],
-        "match_levels": ["phonetic_close"]
+        "contains_surnames": [
+          "石",
+          "史"
+        ],
+        "match_levels": [
+          "phonetic_close"
+        ]
       }
     },
     {
@@ -154,13 +165,55 @@
       }
     },
     {
+      "id": "vietnamese-nguyen-maps-to-ruan",
+      "source_surname": "Nguyễn",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "阮",
+          "match_level": "romanization_exact"
+        }
+      }
+    },
+    {
+      "id": "vietnamese-pham-maps-to-fan",
+      "source_surname": "Phạm",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "范",
+          "match_level": "romanization_exact"
+        }
+      }
+    },
+    {
+      "id": "vietnamese-tran-maps-to-chen",
+      "source_surname": "Trần",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "陈",
+          "match_level": "romanization_exact"
+        }
+      }
+    },
+    {
       "id": "no-close-match-uses-common-fallback",
       "source_surname": "Qwzx",
       "max_candidates": 3,
       "expected": {
         "strategy": "baijiaxing_fallback",
-        "surnames": ["赵", "钱", "孙"],
-        "match_levels": ["fallback_baijiaxing"]
+        "surnames": [
+          "赵",
+          "钱",
+          "孙"
+        ],
+        "match_levels": [
+          "fallback_baijiaxing"
+        ]
       }
     }
   ]

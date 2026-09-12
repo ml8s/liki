@@ -36,8 +36,8 @@ func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
 	// 记录三派结果供人工审核
 	t.Logf("扶抑: yong=%s xi=%s ji=%s (strength=%s)",
 		result.FuYi.Yong, result.FuYi.Xi, result.FuYi.Ji, result.FuYi.Strength)
-	t.Logf("调候: yong=%s xi=%s ji=%s (detail=%s)",
-		result.TiaoHou.Yong, result.TiaoHou.Xi, result.TiaoHou.Ji, result.TiaoHou.Detail)
+	t.Logf("调候: yong=%s xi=%s (detail=%s)",
+		result.TiaoHou.Yong, result.TiaoHou.Xi, result.TiaoHou.Detail)
 	t.Logf("格局: yong=%s xi=%s ji=%s (pattern=%s %s)",
 		result.GeJu.Yong, result.GeJu.Xi, result.GeJu.Ji, result.GeJu.Pattern, result.GeJu.Usage)
 }
@@ -89,8 +89,8 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 	t.Logf("  格局: %s %s, yong=%s xi=%s ji=%s",
 		result.GeJu.Pattern, result.GeJu.Usage,
 		result.GeJu.Yong, result.GeJu.Xi, result.GeJu.Ji)
-	t.Logf("  调候: yong=%s xi=%s ji=%s detail=%s",
-		result.TiaoHou.Yong, result.TiaoHou.Xi, result.TiaoHou.Ji, result.TiaoHou.Detail)
+	t.Logf("  调候: yong=%s xi=%s detail=%s",
+		result.TiaoHou.Yong, result.TiaoHou.Xi, result.TiaoHou.Detail)
 
 	// 滴天髓原文: 乙木秋生, 火旺制杀 → 具体格局取决于透干的火是食神/伤官: 食神→顺用, 伤官→逆用
 	if result.GeJu.Usage != "逆用" {
@@ -190,30 +190,4 @@ func TestTiaoHou_SeasonalConsistency(t *testing.T) {
 	if winterWaterCount >= 5 {
 		t.Errorf("冬季%d/%d条用水(穷通例外应<5)", winterWaterCount, winterTotal)
 	}
-}
-
-// ── TiaoHou 忌神不冲突验证 ──
-
-func TestTiaoHou_JiNotConflict(t *testing.T) {
-	allGan := []ganzhi.Gan{
-		ganzhi.GanJia, ganzhi.GanYi, ganzhi.GanBing, ganzhi.GanDing,
-		ganzhi.GanWu, ganzhi.GanJi, ganzhi.GanGeng, ganzhi.GanXin,
-		ganzhi.GanRen, ganzhi.GanGui,
-	}
-	conflicts := 0
-	for _, s := range allGan {
-		for b := ganzhi.ZhiZi; b <= ganzhi.ZhiHai; b++ {
-			th, ok := queryTiaoHou(s, b)
-			if !ok {
-				continue
-			}
-			if th.Ji == th.Yong || th.Ji == th.Xi {
-				conflicts++
-			}
-		}
-	}
-	if conflicts > 9 {
-		t.Errorf("忌神冲突=%d/120, 超过预期9条(穷通原文占满五行空间)", conflicts)
-	}
-	t.Logf("调候忌神冲突: %d/120 (9条穷通固有)", conflicts)
 }

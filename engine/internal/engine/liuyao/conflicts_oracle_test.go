@@ -38,11 +38,11 @@ func TestDomainOracle_LiuyaoConflicts(t *testing.T) {
 					YuePo:     tc.YuePo,
 				},
 			}
+			relations := make([]DongYaoRelationType, 0, len(tc.Relations))
 			for _, name := range tc.Relations {
-				chart.DongYaoRelations = append(chart.DongYaoRelations, DongYaoRelation{
-					Relation: relationTypeFromOracle(name),
-				})
+				relations = append(relations, relationTypeFromOracle(t, name))
 			}
+			chart.DongYaoRelations = []DongYaoRelation{{Position: 1, Relations: relations}}
 			got := make([]string, 0)
 			for _, conflict := range computeConflicts(&chart) {
 				got = append(got, conflict.ID)
@@ -57,7 +57,8 @@ func TestDomainOracle_LiuyaoConflicts(t *testing.T) {
 	}
 }
 
-func relationTypeFromOracle(name string) DongYaoRelationType {
+func relationTypeFromOracle(t *testing.T, name string) DongYaoRelationType {
+	t.Helper()
 	switch name {
 	case "生用":
 		return RelationShengYong
@@ -76,6 +77,7 @@ func relationTypeFromOracle(name string) DongYaoRelationType {
 	case "克忌神":
 		return RelationKeJi
 	default:
-		return RelationNone
+		t.Fatalf("unknown dong-yao relation %q", name)
+		return ""
 	}
 }

@@ -86,6 +86,8 @@ def _pan(**changes):
         },
         "ri_gan_gong": "震",
         "shi_gan_gong": "兑",
+        "ri_gan_palace_facts": [{"palace": "震", "layer": "heaven"}],
+        "shi_gan_palace_facts": [{"palace": "兑", "layer": "heaven"}],
         "shi_gan_domain": "outer",
         "ri_shi_relation": {
             "subject": "ri_gan_gong",
@@ -607,9 +609,12 @@ def test_qimen_snapshot_is_readonly_contract_projection() -> None:
             "yue_gan": "丙",
             "yue_zhi": "申",
         },
-        "ri_gan_gong": "震",
-        "shi_gan_gong": "兑",
-        "shi_gan_domain": "outer",
+    "ri_gan_gong": "震",
+    "shi_gan_gong": "兑",
+    "ri_gan_palace_facts": [{"palace": "震", "layer": "heaven"}],
+    "shi_gan_palace_facts": [{"palace": "兑", "layer": "heaven"}],
+    "nian_gan_palace_facts": [],
+    "shi_gan_domain": "outer",
         "ri_shi_relation": {
             "subject": "ri_gan_gong",
             "object": "shi_gan_gong",
@@ -1077,7 +1082,7 @@ def test_escape_capture_candidates_are_table_driven_and_unranked() -> None:
         }],
     )
     pan["chart"]["specialized"]["tianwang_context"] = [{
-        "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
+        "kind": "天网四张", "gan": "癸", "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
     }]
     snapshot = _project(pan)
     result = query("capture_escape", snapshot)
@@ -1132,7 +1137,7 @@ def test_escape_tianwang_requires_low_palace_and_yin_hour() -> None:
     }]
     capture_pan = _escape_pan(gan_interaction=tianwang)
     capture_pan["chart"]["specialized"]["tianwang_context"] = [{
-        "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
+        "kind": "天网四张", "gan": "癸", "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
     }]
     capture = _project(capture_pan)
     capture_ids = {
@@ -1145,7 +1150,7 @@ def test_escape_tianwang_requires_low_palace_and_yin_hour() -> None:
     yin_hour = _escape_pan(gan_interaction=tianwang)
     yin_hour["chart"]["pan"]["shi_gan"] = "癸"
     yin_hour["chart"]["specialized"]["tianwang_context"] = [{
-        "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
+        "kind": "天网四张", "gan": "癸", "gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by",
     }]
     yin_snapshot = _project(yin_hour)
     assert yin_snapshot["hour_polarity"] == "yin"
@@ -1164,7 +1169,7 @@ def test_escape_tianwang_requires_low_palace_and_yin_hour() -> None:
         {"gong": "乾", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
     ])
     high["chart"]["specialized"]["tianwang_context"] = [{
-        "gong": "乾", "hour_gong": "兑", "relation_to_hour": "same",
+        "kind": "天网四张", "gan": "癸", "gong": "乾", "hour_gong": "兑", "relation_to_hour": "same",
     }]
     high_snapshot = _project(high)
     high_ids = {
@@ -1181,7 +1186,7 @@ def test_array_rule_evidence_preserves_matched_domain_row() -> None:
         "di_pan_gan": "壬", "auspicious": False,
     }])
     pan["chart"]["specialized"]["tianwang_context"] = [{
-        "gong": "震", "hour_gong": "兑", "relation_to_hour": "controlled_by",
+        "kind": "天网四张", "gan": "癸", "gong": "震", "hour_gong": "兑", "relation_to_hour": "controlled_by",
     }]
     snapshot = _project(pan)
     result = query("capture_escape", snapshot)

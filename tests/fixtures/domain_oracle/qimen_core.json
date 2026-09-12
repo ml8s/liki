@@ -1,6 +1,23 @@
 {
-  "schema_version": "domain-oracle-qimen-v1",
-  "basis": "通行奇门二十四节气阴阳遁与上中下三元定局表。",
+  "schema_version": "domain-oracle-qimen-v2",
+  "basis": "通行奇门二十四节气阴阳遁与上中下三元定局表；值符 / 值使落宫取该宫地支，逢值或逢冲仅为应期候选。",
+  "yingqi_cases": [
+    {
+      "id": "duty-star-dui-and-door-zhen",
+      "duty_star_palace": "兑",
+      "duty_door_palace": "震",
+      "expected": [
+        {"type": "duty_star", "branch": "酉", "gong": "兑"},
+        {"type": "duty_door", "branch": "卯", "gong": "震"}
+      ]
+    },
+    {
+      "id": "center-duty-palace-has-no-branch-candidate",
+      "duty_star_palace": "中",
+      "duty_door_palace": "中",
+      "expected": []
+    }
+  ],
   "solar_term_ju_all_72": [
     {
       "term": "冬至",
@@ -436,6 +453,7 @@
     }
   ],
   "sources": [
-    "通行奇门二十四节气阴阳遁定局表"
+    "通行奇门二十四节气阴阳遁定局表",
+    "《奇门遁甲统宗》值符值使动静应期口径"
   ]
 }

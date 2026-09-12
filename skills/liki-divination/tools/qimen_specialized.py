@@ -68,6 +68,8 @@ def _tianwang_rows(chart: dict) -> list[dict]:
     for row in _context(chart, "tianwang_context"):
         gong, hour_gong = row.get("gong"), row.get("hour_gong")
         result.append({
+            "kind": row.get("kind"),
+            "gan": row.get("gan"),
             "gong": gong,
             "direction": _palace_direction(gong),
             "range": _palace_range(gong),

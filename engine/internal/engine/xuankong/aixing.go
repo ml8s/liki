@@ -20,15 +20,21 @@ type Chart struct {
 	ZuoShanName    string          `json:"zuo_shan_name"`
 	XiangShanName  string          `json:"xiang_shan_name"`
 	Palaces        [9]xuanKongStar `json:"gong_wei"`
-	WangShan       bool            `json:"wang_shan"`  // 旺山：坐宫山星=当令
-	WangXiang      bool            `json:"wang_xiang"` // 旺向：向宫向星=当令
-	ShanXing       bool            `json:"shan_xing"`  // 双星会坐：坐宫山向星皆=当令
-	XiangXing      bool            `json:"xiang_xing"` // 双星会向：向宫山向星皆=当令
-	XiaShui        bool            `json:"xia_shui"`   // 上山下水：向宫山星=当令 且 坐宫向星=当令
-	FuYin          bool            `json:"fu_yin"`     // 运盘伏吟（五运顺飞全盘重合）
+	FourSituation  FourSituation   `json:"four_situation"`
+	FuYinLayers    []string        `json:"fu_yin_layers"`
+	FanYinLayers   []string        `json:"fan_yin_layers"`
 	XingJiaHui     [9]xingJiaHui   `json:"xing_jia_hui"`
 	ChartDigest    string          `json:"chart_digest"`
 	ShouShanChuSha shouShanChuSha  `json:"shou_shan_chu_sha"`
+}
+
+// FourSituation records the classical situation name and its four position facts.
+type FourSituation struct {
+	Name               string `json:"name"`
+	SitMountainTimely  bool   `json:"sit_mountain_timely"`
+	FaceFacingTimely   bool   `json:"face_facing_timely"`
+	SitFacingTimely    bool   `json:"sit_facing_timely"`
+	FaceMountainTimely bool   `json:"face_mountain_timely"`
 }
 
 func computeChart(sitMountain, faceMountain int, year int) Chart {
@@ -177,24 +183,36 @@ func (p *Chart) evaluate() {
 	faceMStar := p.Palaces[facePalace-1].MountainStar.Number
 	faceFStar := p.Palaces[facePalace-1].FacingStar.Number
 
-	p.WangShan = sitMStar == yunNum
-	p.WangXiang = faceFStar == yunNum
-	p.ShanXing = sitMStar == yunNum && sitFStar == yunNum    // 双星会坐
-	p.XiangXing = faceMStar == yunNum && faceFStar == yunNum // 双星会向
-	p.XiaShui = faceMStar == yunNum && sitFStar == yunNum    // 上山下水
+	sitM := sitMStar == yunNum
+	faceF := faceFStar == yunNum
+	sitF := sitFStar == yunNum
+	faceM := faceMStar == yunNum
+	name := "未入四大局"
+	switch {
+	case sitM && faceF:
+		name = "旺山旺向"
+	case sitM && sitF:
+		name = "双星会坐"
+	case faceM && faceF:
+		name = "双星会向"
+	case faceM && sitF:
+		name = "上山下水"
+	}
+	p.FourSituation = FourSituation{
+		Name: name, SitMountainTimely: sitM, FaceFacingTimely: faceF,
+		SitFacingTimely: sitF, FaceMountainTimely: faceM,
+	}
 
-	// 运盘伏吟：运盘与地盘全盘重合（仅五运顺飞成立）。
-	p.FuYin = p.Yun.YunNumber == 5 && p.Palaces[4].PeriodStar.Number == 5
+	p.FuYinLayers, p.FanYinLayers = p.recitationLayers()
 }
 
 // -- 双星加会 (Double Star Combination) --------------------------------
 
 type xingJiaHui struct {
-	ShanNum        int    `json:"shan_num"`
-	XiangNum       int    `json:"xiang_num"`
-	Name           string `json:"name"`
-	Meaning        string `json:"meaning"`
-	Classification string `json:"classification"`
+	ShanNum  int    `json:"shan_num"`
+	XiangNum int    `json:"xiang_num"`
+	Name     string `json:"name"`
+	Meaning  string `json:"meaning"`
 }
 
 func (p *Chart) computeXingJiaHui() [9]xingJiaHui {
@@ -205,15 +223,82 @@ func (p *Chart) computeXingJiaHui() [9]xingJiaHui {
 			result[i] = entry
 		} else {
 			result[i] = xingJiaHui{
-				ShanNum:        pal.MountainStar.Number,
-				XiangNum:       pal.FacingStar.Number,
-				Name:           "星曜加会",
-				Meaning:        "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-				Classification: "unlisted",
+				ShanNum:  pal.MountainStar.Number,
+				XiangNum: pal.FacingStar.Number,
+				Name:     "星曜加会",
+				Meaning:  "该组合未列入固定通则，须参合星、宫、运与峦头判断",
 			}
 		}
 	}
 	return result
+}
+
+func (p *Chart) recitationLayers() (fuYin, fanYin []string) {
+	fuYin = []string{}
+	fanYin = []string{}
+	layers := []struct {
+		name  string
+		stars [9]fengshui.FlyingStar
+	}{
+		{"运盘", p.periodStars()},
+		{"山星", p.mountainStars()},
+		{"向星", p.facingStars()},
+	}
+	for _, layer := range layers {
+		layerFu, layerFan := true, true
+		for palace := 1; palace <= 9; palace++ {
+			star := layer.stars[palace-1].Number
+			if star != palace {
+				layerFu = false
+			}
+			if star != 10-palace {
+				layerFan = false
+			}
+		}
+		if layerFu {
+			fuYin = append(fuYin, layer.name+"伏吟")
+		}
+		if layerFan {
+			fanYin = append(fanYin, layer.name+"反吟")
+		}
+	}
+	if containsLayer(fuYin, "山星伏吟") && containsLayer(fuYin, "向星伏吟") {
+		fuYin = append(fuYin, "全盘伏吟")
+	}
+	return fuYin, fanYin
+}
+
+func (p *Chart) periodStars() [9]fengshui.FlyingStar {
+	var out [9]fengshui.FlyingStar
+	for i := range p.Palaces {
+		out[i] = p.Palaces[i].PeriodStar
+	}
+	return out
+}
+
+func (p *Chart) mountainStars() [9]fengshui.FlyingStar {
+	var out [9]fengshui.FlyingStar
+	for i := range p.Palaces {
+		out[i] = p.Palaces[i].MountainStar
+	}
+	return out
+}
+
+func (p *Chart) facingStars() [9]fengshui.FlyingStar {
+	var out [9]fengshui.FlyingStar
+	for i := range p.Palaces {
+		out[i] = p.Palaces[i].FacingStar
+	}
+	return out
+}
+
+func containsLayer(layers []string, target string) bool {
+	for _, layer := range layers {
+		if layer == target {
+			return true
+		}
+	}
+	return false
 }
 
 // -- 收山出煞 (Mountain Containment & Sha Removal) --------------------

@@ -63,6 +63,7 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 			Gong             string  `json:"gong"`
 			Star             *string `json:"star"`
 			Spirit           *string `json:"spirit"`
+			YinDun           bool    `json:"yin_dun"`
 			TraditionalLabel string  `json:"traditional_label"`
 			Patterns         []struct {
 				Name       string `json:"name"`
@@ -84,7 +85,7 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		t.Fatalf("decode oracle: %v", err)
 	}
-	if len(doc.GengGe) != 2 || len(doc.Lost) != 1 || len(doc.Thief) != 2 || len(doc.Tianwang) != 1 {
+	if len(doc.GengGe) != 2 || len(doc.Lost) != 1 || len(doc.Thief) != 3 || len(doc.Tianwang) != 1 {
 		t.Fatalf("oracle coverage incomplete: geng=%d lost=%d thief=%d tianwang=%d", len(doc.GengGe), len(doc.Lost), len(doc.Thief), len(doc.Tianwang))
 	}
 
@@ -153,6 +154,7 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 				chart.Pan.GongWei[gong-1].SpiritSet = true
 				chart.Pan.GongWei[gong-1].Spirit = SpiritZhuQue
 			}
+			chart.Pan.YinDun = tc.YinDun
 			for _, pattern := range tc.Patterns {
 				chart.Patterns = append(chart.Patterns, Pattern{
 					Name: pattern.Name, Auspicious: pattern.Auspicious,
@@ -180,6 +182,8 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 			}
 			for index, want := range tc.Expected {
 				if got[index].Gong != want.Gong ||
+					got[index].Kind != want.Kind ||
+					got[index].Gan != want.Gan ||
 					got[index].HourGong != want.HourGong ||
 					got[index].RelationToHour != want.RelationToHour {
 					t.Fatalf("row %d = %#v, want %#v", index, got[index], want)

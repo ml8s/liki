@@ -379,7 +379,7 @@
       "expected_palaces": [
         "离"
       ],
-      "source_basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：丙加庚为「荧入太白」，门户破败，盗贼耗失",
+      "source_basis": "《奇门遁甲统宗·奇门秘诀总赋》：六丙加庚荧入白；荧入白兮贼欲隔",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
@@ -405,7 +405,7 @@
       "expected_palaces": [
         "离"
       ],
-      "source_basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：庚加丙曰「太白入荧」，占贼必来，为客进利，为主破财",
+      "source_basis": "《奇门遁甲统宗·奇门秘诀总赋》：六庚加丙白入荧；白入荧兮贼即来",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
@@ -506,102 +506,156 @@
     {
       "id": "liu-yi-ji-xing-wu-zhen",
       "expected_pattern": "六仪击刑",
-      "expected_palaces": ["震"],
+      "expected_palaces": [
+        "震"
+      ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
-        "palaces": [{
-          "gong": "震",
-          "di_pan_gan": "丁",
-          "tian_pan": [{"gan": "戊", "star": "天芮"}]
-        }],
+        "palaces": [
+          {
+            "gong": "震",
+            "di_pan_gan": "丁",
+            "tian_pan": [
+              {
+                "gan": "戊",
+                "star": "天芮"
+              }
+            ]
+          }
+        ],
         "school": "zhuanpan"
       }
     },
     {
       "id": "liu-yi-ji-xing-ji-kun",
       "expected_pattern": "六仪击刑",
-      "expected_palaces": ["坤"],
+      "expected_palaces": [
+        "坤"
+      ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
-        "palaces": [{
-          "gong": "坤",
-          "di_pan_gan": "癸",
-          "tian_pan": [{"gan": "己", "star": "天芮"}]
-        }],
+        "palaces": [
+          {
+            "gong": "坤",
+            "di_pan_gan": "癸",
+            "tian_pan": [
+              {
+                "gan": "己",
+                "star": "天芮"
+              }
+            ]
+          }
+        ],
         "school": "zhuanpan"
       }
     },
     {
       "id": "liu-yi-ji-xing-geng-gen",
       "expected_pattern": "六仪击刑",
-      "expected_palaces": ["艮"],
+      "expected_palaces": [
+        "艮"
+      ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
-        "palaces": [{
-          "gong": "艮",
-          "di_pan_gan": "丁",
-          "tian_pan": [{"gan": "庚", "star": "天芮"}]
-        }],
+        "palaces": [
+          {
+            "gong": "艮",
+            "di_pan_gan": "丁",
+            "tian_pan": [
+              {
+                "gan": "庚",
+                "star": "天芮"
+              }
+            ]
+          }
+        ],
         "school": "zhuanpan"
       }
     },
     {
       "id": "liu-yi-ji-xing-xin-li",
       "expected_pattern": "六仪击刑",
-      "expected_palaces": ["离"],
+      "expected_palaces": [
+        "离"
+      ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
-        "palaces": [{
-          "gong": "离",
-          "di_pan_gan": "癸",
-          "tian_pan": [{"gan": "辛", "star": "天芮"}]
-        }],
+        "palaces": [
+          {
+            "gong": "离",
+            "di_pan_gan": "癸",
+            "tian_pan": [
+              {
+                "gan": "辛",
+                "star": "天芮"
+              }
+            ]
+          }
+        ],
         "school": "zhuanpan"
       }
     },
     {
       "id": "liu-yi-ji-xing-ren-xun",
       "expected_pattern": "六仪击刑",
-      "expected_palaces": ["巽"],
+      "expected_palaces": [
+        "巽"
+      ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
-        "palaces": [{
-          "gong": "巽",
-          "di_pan_gan": "丁",
-          "tian_pan": [{"gan": "壬", "star": "天芮"}]
-        }],
+        "palaces": [
+          {
+            "gong": "巽",
+            "di_pan_gan": "丁",
+            "tian_pan": [
+              {
+                "gan": "壬",
+                "star": "天芮"
+              }
+            ]
+          }
+        ],
         "school": "zhuanpan"
       }
     },
     {
       "id": "liu-yi-ji-xing-gui-xun",
       "expected_pattern": "六仪击刑",
-      "expected_palaces": ["巽"],
+      "expected_palaces": [
+        "巽"
+      ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
       "pan": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
-        "palaces": [{
-          "gong": "巽",
-          "di_pan_gan": "癸",
-          "tian_pan": [{"gan": "癸", "star": "天芮"}]
-        }],
+        "palaces": [
+          {
+            "gong": "巽",
+            "di_pan_gan": "癸",
+            "tian_pan": [
+              {
+                "gan": "癸",
+                "star": "天芮"
+              }
+            ]
+          }
+        ],
         "school": "zhuanpan"
       }
     }

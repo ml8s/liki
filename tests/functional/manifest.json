@@ -10,7 +10,7 @@
     "conflicts": "conflicts/cases.json"
   },
   "minimum_counts": {
-    "factors": 44,
+    "factors": 45,
     "assertions": 46,
     "scenarios": 8,
     "conflicts": 7
@@ -26,7 +26,8 @@
       "six_relative",
       "study",
       "ten_god_structure",
-      "wealth"
+      "wealth",
+      "shen_sha"
     ],
     "assertion_domains": [
       "健康",

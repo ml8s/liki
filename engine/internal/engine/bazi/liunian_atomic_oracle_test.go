@@ -24,8 +24,8 @@ func TestDomainOracle_LiuNianAtomicFacts(t *testing.T) {
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		t.Fatalf("decode oracle: %v", err)
 	}
-	if len(doc.Cases) != 5 {
-		t.Fatalf("cases = %d, want 5", len(doc.Cases))
+	if len(doc.Cases) != 6 {
+		t.Fatalf("cases = %d, want 6", len(doc.Cases))
 	}
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {

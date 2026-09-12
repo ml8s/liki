@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "liki:liuyao-snapshot-v5",
+  "$id": "liki:liuyao-snapshot-v6",
   "title": "六爻 immutable snapshot 契约",
   "type": "object",
   "required": [
@@ -23,7 +23,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "liuyao-snapshot-v5"
+      "const": "liuyao-snapshot-v6"
     },
     "question": {
       "type": "object",
@@ -133,7 +133,7 @@
             ]
           }
         },
-          "yaos": {
+        "yaos": {
           "type": "array",
           "minItems": 6,
           "maxItems": 6,
@@ -205,16 +205,16 @@
     "board": {
       "type": "object",
       "required": [
-    "name",
-    "ben_gua",
-    "palace",
-    "lines",
-    "bian_lines",
-    "ri_gan",
-    "ri_zhi",
-    "yue_gan",
-    "yue_zhi",
-    "xun_kong"
+        "name",
+        "ben_gua",
+        "palace",
+        "lines",
+        "bian_lines",
+        "ri_gan",
+        "ri_zhi",
+        "yue_gan",
+        "yue_zhi",
+        "xun_kong"
       ],
       "properties": {
         "name": {
@@ -232,36 +232,36 @@
         "palace": {
           "type": "string"
         },
-    "palace_wuxing": {
-      "type": "string"
-    },
-    "lines": {
-      "type": "array",
-      "minItems": 6,
-      "maxItems": 6
-    },
-    "bian_lines": {
-      "type": "array",
-      "maxItems": 6
-    },
-    "ri_gan": {
-      "type": "string"
-    },
-    "ri_zhi": {
-      "type": "string"
-    },
-    "yue_gan": {
-      "type": "string"
-    },
-    "yue_zhi": {
-      "type": "string"
-    },
-    "xun_kong": {
-      "type": "array",
-      "minItems": 2,
-      "maxItems": 2
-    }
-  },
+        "palace_wuxing": {
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "bian_lines": {
+          "type": "array",
+          "maxItems": 6
+        },
+        "ri_gan": {
+          "type": "string"
+        },
+        "ri_zhi": {
+          "type": "string"
+        },
+        "yue_gan": {
+          "type": "string"
+        },
+        "yue_zhi": {
+          "type": "string"
+        },
+        "xun_kong": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
       "additionalProperties": false
     },
     "focus": {
@@ -391,7 +391,69 @@
       ]
     },
     "timing_plan": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "liuyao-timing-plan-v2"
+        },
+        "blocked": {
+          "const": false
+        },
+        "topic": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "boundary": {
+          "const": "传统六爻应期候选；不构成医疗、法律、财务或其他专业建议。"
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "may_output": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "forbidden": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "advice_scope": {
+              "const": "traditional_reference_not_professional_advice"
+            }
+          },
+          "required": [
+            "may_output",
+            "forbidden",
+            "advice_scope"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "blocked",
+        "topic",
+        "candidates",
+        "boundary",
+        "policy"
+      ]
     },
     "condition_rules": {
       "type": "object"

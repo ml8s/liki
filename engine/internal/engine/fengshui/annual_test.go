@@ -83,8 +83,7 @@ func TestComputeAnnualFlyingStars_Distribution_1984(t *testing.T) {
 	}
 }
 
-func TestComputeAnnualFlyingStars_StarRatings(t *testing.T) {
-	// 星的吉凶是命理经典定论（符号固有属性），此处校验共享评级表与星表一致
+func TestComputeAnnualFlyingStars_NamesAndElements(t *testing.T) {
 	board := ComputeAnnualFlyingStars(2024) // 三碧入中
 	for _, s := range board.GongWei {
 		ref := StarByNumber(s.Xing)
@@ -93,9 +92,6 @@ func TestComputeAnnualFlyingStars_StarRatings(t *testing.T) {
 		}
 		if s.Wuxing != ref.Element.String() {
 			t.Errorf("gong %d: wuxing = %s, want %s", s.GongNum, s.Wuxing, ref.Element.String())
-		}
-		if s.Rating != StarRatings[s.Xing] {
-			t.Errorf("gong %d: rating = %s, want %s", s.GongNum, s.Rating, StarRatings[s.Xing])
 		}
 	}
 }

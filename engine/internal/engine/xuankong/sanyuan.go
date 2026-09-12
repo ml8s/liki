@@ -11,12 +11,13 @@ const periodLength = 20
 
 // SanYuanYun holds the 三元九运 classification for a given year.
 type SanYuanYun struct {
-	Year      int    `json:"year"`
-	Yuan      string `json:"yuan"`       // "上元"/"中元"/"下元"
-	YunNumber int    `json:"yun_number"` // 1-9
-	YunName   string `json:"yun_name"`   // "一运"..."九运"
-	StartYear int    `json:"start_year"` // this period's start year
-	EndYear   int    `json:"end_year"`   // this period's end year
+	Year         int    `json:"year"`
+	Yuan         string `json:"yuan"`       // "上元"/"中元"/"下元"
+	YunNumber    int    `json:"yun_number"` // 1-9
+	YunName      string `json:"yun_name"`   // "一运"..."九运"
+	StartYear    int    `json:"start_year"` // this period's start year
+	EndYear      int    `json:"end_year"`   // this period's end year
+	YearBoundary string `json:"year_boundary"`
 }
 
 // ComputeSanYuanYun determines which 元 and 运 a given year belongs to.
@@ -46,12 +47,13 @@ func ComputeSanYuanYun(year int) SanYuanYun {
 	yunNames := [10]string{"", "一运", "二运", "三运", "四运", "五运", "六运", "七运", "八运", "九运"}
 
 	return SanYuanYun{
-		Year:      year,
-		Yuan:      yuanName,
-		YunNumber: yunNum,
-		YunName:   yunNames[yunNum],
-		StartYear: startYear,
-		EndYear:   endYear,
+		Year:         year,
+		Yuan:         yuanName,
+		YunNumber:    yunNum,
+		YunName:      yunNames[yunNum],
+		StartYear:    startYear,
+		EndYear:      endYear,
+		YearBoundary: "gregorian_calendar_year",
 	}
 }
 

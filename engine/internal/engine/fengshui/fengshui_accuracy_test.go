@@ -76,14 +76,6 @@ func TestStarTable(t *testing.T) {
 		}
 	}
 
-	// Verify auspicious stars: 1,4,6,8,9 (一白四绿六白八白九紫)
-	auspicious := map[int]bool{1: true, 4: true, 6: true, 8: true, 9: true}
-	for i := 1; i <= 9; i++ {
-		if auspicious[i] != StarTable[i].Auspicious {
-			t.Errorf("star %d (%s): auspicious=%v, want %v",
-				i, StarTable[i].Name, StarTable[i].Auspicious, auspicious[i])
-		}
-	}
 }
 
 // TestPalaceTable verifies九宫 data integrity.

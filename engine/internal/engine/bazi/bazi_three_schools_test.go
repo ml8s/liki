@@ -42,8 +42,8 @@ func TestThreeSchools_Consistency(t *testing.T) {
 
 			t.Logf("  扶抑: strength=%s yong=%s xi=%s ji=%s pattern=%s",
 				result.FuYi.Strength, result.FuYi.Yong, result.FuYi.Xi, result.FuYi.Ji, result.FuYi.Pattern)
-			t.Logf("  调候: yong=%s xi=%s ji=%s",
-				result.TiaoHou.Yong, result.TiaoHou.Xi, result.TiaoHou.Ji)
+			t.Logf("  调候: yong=%s xi=%s",
+				result.TiaoHou.Yong, result.TiaoHou.Xi)
 			t.Logf("  格局: %s %s yong=%s xi=%s ji=%s",
 				result.GeJu.Pattern, result.GeJu.Usage,
 				result.GeJu.Yong, result.GeJu.Xi, result.GeJu.Ji)

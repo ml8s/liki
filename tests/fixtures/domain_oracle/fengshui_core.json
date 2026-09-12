@@ -539,44 +539,52 @@
       "sit_mountain": 0,
       "face_mountain": 12,
       "year": 1990,
-      "wang_shan": true,
-      "wang_xiang": false,
-      "double_star_sit": true,
-      "double_star_face": false,
-      "uphill_downwater": false
+      "four_situation": {
+        "name": "双星会坐",
+        "sit_mountain_timely": true,
+        "face_facing_timely": false,
+        "sit_facing_timely": true,
+        "face_mountain_timely": false
+      }
     },
     {
       "case_id": "yun8-zi-wu",
       "sit_mountain": 0,
       "face_mountain": 12,
       "year": 2020,
-      "wang_shan": false,
-      "wang_xiang": true,
-      "double_star_sit": false,
-      "double_star_face": true,
-      "uphill_downwater": false
+      "four_situation": {
+        "name": "双星会向",
+        "sit_mountain_timely": false,
+        "face_facing_timely": true,
+        "sit_facing_timely": false,
+        "face_mountain_timely": true
+      }
     },
     {
       "case_id": "yun7-qian-xun",
       "sit_mountain": 21,
       "face_mountain": 9,
       "year": 1990,
-      "wang_shan": false,
-      "wang_xiang": false,
-      "double_star_sit": false,
-      "double_star_face": false,
-      "uphill_downwater": true
+      "four_situation": {
+        "name": "上山下水",
+        "sit_mountain_timely": false,
+        "face_facing_timely": false,
+        "sit_facing_timely": true,
+        "face_mountain_timely": true
+      }
     },
     {
       "case_id": "yun7-you-mao",
       "sit_mountain": 18,
       "face_mountain": 6,
       "year": 1990,
-      "wang_shan": true,
-      "wang_xiang": true,
-      "double_star_sit": false,
-      "double_star_face": false,
-      "uphill_downwater": false
+      "four_situation": {
+        "name": "旺山旺向",
+        "sit_mountain_timely": true,
+        "face_facing_timely": true,
+        "sit_facing_timely": false,
+        "face_mountain_timely": false
+      }
     }
   ],
   "invalid_sit_face_pairs": [

@@ -135,7 +135,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             },
         })
         self.assertEqual(snapshot["method"], "liuyao")
-        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v5")
+        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v6")
         self.assertTrue(snapshot["snapshot_digest"])
         self.assertIn("focus", snapshot)
 

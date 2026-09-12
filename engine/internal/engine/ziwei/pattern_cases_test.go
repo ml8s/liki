@@ -87,9 +87,22 @@ func TestZiWeiChaoyuanRequiresAuxiliaryStars(t *testing.T) {
 	}
 
 	palaces[4].Stars = []starInfo{makeStar(ZuoFu, "左辅", "")}
+	if hasPattern(findPatterns(palaces), "紫微朝垣") {
+		t.Error("紫微朝垣 should require at least two distinct court stars")
+	}
+
 	palaces[8].Stars = []starInfo{makeStar(YouBi, "右弼", "")}
 	if !hasPattern(findPatterns(palaces), "紫微朝垣") {
 		t.Error("紫微朝垣 should match with 左辅 and 右弼")
+	}
+}
+
+func TestFuXiangChaoyuanRequiresBothStarsOutsideCommand(t *testing.T) {
+	palaces := blankPalaces()
+	palaces[0].Stars = []starInfo{makeStar(TianXiang, "天相", "")}
+	palaces[4].Stars = []starInfo{makeStar(TianFu, "天府", "")}
+	if hasPattern(findPatterns(palaces), "府相朝垣") {
+		t.Error("府相朝垣 should not count a star sitting in the command palace as flanking it")
 	}
 }
 

@@ -1,0 +1,274 @@
+{
+  "schema_version": "domain-oracle-bazi-yongshen-structure-v1",
+  "basis": "格局只输出月令格神、克格神与生格神的结构事实，不输出成败格终判；扶抑输出强弱表输入与日主相关关系投影；调候输出《穷通宝鉴》主辅神在四柱的显隐事实。",
+  "sources": [
+    "《子平真诠·论用神》月令藏干透干与顺逆用法",
+    "《穷通宝鉴》十干十二月主用辅用表",
+    "《渊海子平》通根、透干与合会冲刑基础口径"
+  ],
+  "ge_ju_cases": [
+    {
+      "id": "transparent-month-command-officer-with-root-relations",
+      "pillars": [
+        "辛巳",
+        "癸酉",
+        "甲卯",
+        "庚辰"
+      ],
+      "expected_pattern": "正官格",
+      "expected_pattern_god": "辛",
+      "expected_transparent_pillars": [
+        "nian"
+      ],
+      "expected_pattern_roots": [
+        {
+          "pillar": "nian",
+          "branch": "巳",
+          "stem": "庚",
+          "source": "mid_qi"
+        },
+        {
+          "pillar": "yue",
+          "branch": "酉",
+          "stem": "辛",
+          "source": "main_qi"
+        }
+      ],
+      "expected_pattern_timely": true,
+      "expected_relation_facts": [
+        {
+          "field": "liu_chong",
+          "group": "酉卯冲",
+          "targets": [
+            "pattern"
+          ]
+        },
+        {
+          "field": "zhi_liu_he",
+          "group": "酉辰合金",
+          "targets": [
+            "pattern",
+            "generator"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hidden-month-command-god-and-transparent-controller",
+      "pillars": [
+        "癸巳",
+        "壬酉",
+        "甲午",
+        "丙寅"
+      ],
+      "expected_pattern": "正官格",
+      "expected_pattern_god": "辛",
+      "expected_transparent_pillars": [],
+      "expected_pattern_roots": [
+        {
+          "pillar": "nian",
+          "branch": "巳",
+          "stem": "庚",
+          "source": "mid_qi"
+        },
+        {
+          "pillar": "yue",
+          "branch": "酉",
+          "stem": "辛",
+          "source": "main_qi"
+        }
+      ],
+      "expected_controller_transparent_pillars": [
+        "shi"
+      ],
+      "expected_pattern_timely": true
+    },
+    {
+      "id": "jian-lu-has-element-structure-without-pattern-god",
+      "pillars": [
+        "甲子",
+        "丙寅",
+        "甲寅",
+        "丙寅"
+      ],
+      "expected_pattern": "建禄格",
+      "expected_transparent_pillars": [
+        "nian",
+        "ri"
+      ],
+      "expected_pattern_roots": [
+        {
+          "pillar": "yue",
+          "branch": "寅",
+          "stem": "甲",
+          "source": "main_qi"
+        },
+        {
+          "pillar": "ri",
+          "branch": "寅",
+          "stem": "甲",
+          "source": "main_qi"
+        },
+        {
+          "pillar": "shi",
+          "branch": "寅",
+          "stem": "甲",
+          "source": "main_qi"
+        }
+      ],
+      "expected_pattern_timely": true
+    },
+    {
+      "id": "one-branch-with-multiple-target-elements-keeps-all-relation-targets",
+      "pillars": [
+        "乙酉",
+        "丙辰",
+        "甲卯",
+        "庚午"
+      ],
+      "expected_pattern": "杂格",
+      "expected_pattern_god": "乙",
+      "expected_transparent_pillars": [
+        "nian"
+      ],
+      "expected_pattern_roots": [
+        {
+          "pillar": "yue",
+          "branch": "辰",
+          "stem": "乙",
+          "source": "mid_qi"
+        },
+        {
+          "pillar": "ri",
+          "branch": "卯",
+          "stem": "乙",
+          "source": "main_qi"
+        }
+      ],
+      "expected_pattern_timely": false,
+      "expected_relation_facts": [
+        {
+          "field": "zhi_liu_he",
+          "group": "酉辰合金",
+          "targets": [
+            "controller",
+            "pattern",
+            "generator"
+          ]
+        }
+      ]
+    }
+  ],
+  "fu_yi_cases": [
+    {
+      "id": "day-master-stem-combination-and-day-branch-clash",
+      "pillars": [
+        "己巳",
+        "癸酉",
+        "甲子",
+        "庚午"
+      ],
+      "expected_root_type": "none",
+      "expected_yin_bi_count": 1,
+      "expected_day_master_roots": [],
+      "expected_relation_facts": [
+        {
+          "field": "gan_he",
+          "group": "己甲合土",
+          "targets": [
+            "day_master"
+          ]
+        },
+        {
+          "field": "liu_chong",
+          "group": "子午冲",
+          "targets": [
+            "day_branch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "day-master-root-involved-in-clash-harm-and-combination",
+      "pillars": [
+        "辛巳",
+        "癸酉",
+        "甲卯",
+        "庚辰"
+      ],
+      "expected_root_type": "zhi_main",
+      "expected_yin_bi_count": 1,
+      "expected_day_master_roots": [
+        {
+          "pillar": "ri",
+          "branch": "卯",
+          "stem": "乙",
+          "source": "main_qi"
+        },
+        {
+          "pillar": "shi",
+          "branch": "辰",
+          "stem": "乙",
+          "source": "mid_qi"
+        }
+      ],
+      "expected_relation_facts": [
+        {
+          "field": "liu_chong",
+          "group": "酉卯冲",
+          "targets": [
+            "day_branch",
+            "day_master_root"
+          ]
+        }
+      ]
+    }
+  ],
+  "tiao_hou_cases": [
+    {
+      "id": "primary-hidden-and-secondary-transparent",
+      "pillars": [
+        "甲子",
+        "丙子",
+        "甲午",
+        "庚午"
+      ],
+      "expected_primary": {
+        "stem": "丁",
+        "transparent": false,
+        "hidden": true,
+        "occurrences": [
+          {
+            "pillar": "ri",
+            "branch": "午",
+            "stem": "丁",
+            "source": "main_qi"
+          },
+          {
+            "pillar": "shi",
+            "branch": "午",
+            "stem": "丁",
+            "source": "main_qi"
+          }
+        ]
+      },
+      "expected_secondary": {
+        "stem": "庚",
+        "transparent": true,
+        "hidden": false,
+        "occurrences": [
+          {
+            "pillar": "shi",
+            "branch": "午",
+            "stem": "庚",
+            "source": "gan"
+          }
+        ]
+      },
+      "expected_primary_relation_groups": [
+        "子午冲",
+        "午午刑"
+      ]
+    }
+  ]
+}

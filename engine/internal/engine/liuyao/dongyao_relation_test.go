@@ -20,27 +20,28 @@ func TestDongYaoRelations_Array(t *testing.T) {
 		t.Fatal("DongYaoRelations should be an array (not nil)")
 	}
 
-	// 验证每个元素有 position + relation
+	// 验证每个元素有 position + 非空 relations
 	for _, r := range chart.DongYaoRelations {
 		if r.Position < 1 || r.Position > 6 {
 			t.Errorf("position %d out of range", r.Position)
 		}
-		if r.Relation == "" {
-			t.Error("relation should not be empty")
+		if len(r.Relations) == 0 {
+			t.Error("relations should not be empty")
 		}
-		// 验证 relation 是枚举
-		valid := false
-		for _, v := range []DongYaoRelationType{
-			RelationShengYong, RelationKeYong, RelationBiHe, RelationChongYong,
-			RelationShengYuan, RelationKeYuan, RelationShengJi, RelationKeJi,
-		} {
-			if r.Relation == v {
-				valid = true
-				break
+		for _, got := range r.Relations {
+			valid := false
+			for _, want := range []DongYaoRelationType{
+				RelationShengYong, RelationKeYong, RelationBiHe, RelationChongYong,
+				RelationShengYuan, RelationKeYuan, RelationShengJi, RelationKeJi,
+			} {
+				if got == want {
+					valid = true
+					break
+				}
 			}
-		}
-		if !valid {
-			t.Errorf("invalid relation type: %s", r.Relation)
+			if !valid {
+				t.Errorf("invalid relation type: %s", got)
+			}
 		}
 	}
 }
@@ -107,15 +108,16 @@ func TestYongShen_InvalidPosition(t *testing.T) {
 	}
 }
 
-// TestDongYaoRelation_EnumTypes 验证 9 种枚举类型都存在
+// TestDongYaoRelation_EnumTypes 验证 8 种可出现的关系枚举。
+// 静卦由空数组表达，不再设置“无动爻”伪关系。
 func TestDongYaoRelation_EnumTypes(t *testing.T) {
 	types := []DongYaoRelationType{
 		RelationShengYong, RelationKeYong, RelationBiHe, RelationChongYong,
-		RelationShengYuan, RelationKeYuan, RelationShengJi, RelationKeJi, RelationNone,
+		RelationShengYuan, RelationKeYuan, RelationShengJi, RelationKeJi,
 	}
 	expected := []string{
 		"生用", "克用", "比和", "冲用",
-		"生原神", "克原神", "生忌神", "克忌神", "无动爻",
+		"生原神", "克原神", "生忌神", "克忌神",
 	}
 	for i, tt := range types {
 		if string(tt) != expected[i] {

@@ -1,8 +1,9 @@
 {
   "schema_version": "domain-oracle-qimen-specialized-v1",
-  "basis": "庚格以四柱干支遁甲后与天盘庚加地盘比对；天网以天盘癸落宫论；盗贼以天蓬为 大贼、玄武为 小贼；失物以时干落宫为定位。",
+  "basis": "庚格以四柱干支遁甲后与天盘庚加地盘比对；天网四张为六癸临时干宫，地罗遮蔽为六壬临时干宫；盗贼以天蓬为大贼、阴遁玄武为小贼；失物以时干落宫为定位。",
   "sources": [
     "《奇门遁甲秘笈大全·卷九·占盗贼》",
+    "《奇门遁甲统宗·奇门四十格》",
     "奇门遁甲甲遁六仪与九宫五行通行口径"
   ],
   "geng_ge_cases": [
@@ -59,10 +60,21 @@
       }]
     },
     {
-      "id": "zhuque-archetype-is-xuanwu-thief",
+      "id": "yang-zhuque-is-not-xuanwu-thief",
       "gong": "坤",
       "star": null,
       "spirit": "朱雀",
+      "yin_dun": false,
+      "traditional_label": "",
+      "patterns": [],
+      "expected": []
+    },
+    {
+      "id": "yin-xuanwu-is-small-thief",
+      "gong": "坤",
+      "star": null,
+      "spirit": "朱雀",
+      "yin_dun": true,
       "traditional_label": "",
       "patterns": [],
       "expected": [{
@@ -76,15 +88,17 @@
   ],
   "tianwang_cases": [
     {
-      "id": "tianwang-relation-to-hour-palace",
+      "id": "tianwang-and-diluo-require-hour-palace",
       "hour_gong": "兑",
       "gan_interactions": [
         {"gong": "坎", "tian_pan_gan": "癸"},
+        {"gong": "兑", "tian_pan_gan": "癸"},
+        {"gong": "兑", "tian_pan_gan": "壬"},
         {"gong": "震", "tian_pan_gan": "癸"}
       ],
       "expected": [
-        {"gong": "坎", "hour_gong": "兑", "relation_to_hour": "generated_by"},
-        {"gong": "震", "hour_gong": "兑", "relation_to_hour": "controlled_by"}
+        {"kind": "天网四张", "gan": "癸", "gong": "兑", "hour_gong": "兑", "relation_to_hour": "same"},
+        {"kind": "地罗遮蔽", "gan": "壬", "gong": "兑", "hour_gong": "兑", "relation_to_hour": "same"}
       ]
     }
   ]

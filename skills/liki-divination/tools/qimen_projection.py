@@ -41,6 +41,8 @@ def _project_root_field(chart: dict, name: str, spec: dict):
             raise ValueError(f"qimen chart lacks source field: {spec['path']}")
         if spec.get("nullable"):
             return None
+        if spec["kind"] in {"object_array", "value_array"}:
+            return []
         raise ValueError(f"qimen chart lacks optional source field: {spec['path']}")
     return _project_source(source, spec)
 

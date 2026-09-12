@@ -118,8 +118,8 @@
     },
     "da_yun": {
       "start_year_after": 9,
-      "start_month_after": 8,
-      "start_day_after": 0,
+      "start_month_after": 11,
+      "start_day_after": 20,
       "forward": true,
       "steps": [
         "辛卯",
@@ -398,8 +398,8 @@
     },
     "da_yun": {
       "start_year_after": 0,
-      "start_month_after": 1,
-      "start_day_after": 10,
+      "start_month_after": -3,
+      "start_day_after": 20,
       "forward": true,
       "steps": [
         "甲午",
@@ -643,8 +643,8 @@
     },
     "da_yun": {
       "start_year_after": 5,
-      "start_month_after": 9,
-      "start_day_after": 10,
+      "start_month_after": 5,
+      "start_day_after": 20,
       "forward": true,
       "steps": [
         "丁未",

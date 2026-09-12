@@ -49,5 +49,9 @@ func ComputeFullChart(chart Chart, riGan, riZhi int) Chart {
 		chart.GongWei[i].SuiQian = sq[i]
 	}
 
+	// 6. Patterns depend on both stars and miscellaneous stars (for example
+	// 刑忌夹印 needs 天刑). Recompute them after all palace residents are final.
+	chart.Patterns = findPatterns(chart.GongWei)
+
 	return chart
 }

@@ -6,7 +6,8 @@
       "wuxing": "金",
       "yin_yang": "阴"
     },
-    "group": "西四命"
+    "group": "西四命",
+    "year_boundary": "gregorian_calendar_year"
   },
   "ba_zhai_dirs": {
     "sheng_qi": [
@@ -37,13 +38,13 @@
   "liu_nian_xing": {
     "year": 1984,
     "ru_zhong": "七赤破军",
+    "year_boundary": "gregorian_calendar_year",
     "gong_wei": [
       {
         "gong_num": 5,
         "xing": 7,
         "xing_name": "七赤破军",
         "wuxing": "金",
-        "rating": "凶",
         "ru_zhong": true
       },
       {
@@ -51,7 +52,6 @@
         "xing": 8,
         "xing_name": "八白左辅",
         "wuxing": "土",
-        "rating": "大吉",
         "ru_zhong": false
       },
       {
@@ -59,7 +59,6 @@
         "xing": 9,
         "xing_name": "九紫右弼",
         "wuxing": "火",
-        "rating": "吉",
         "ru_zhong": false
       },
       {
@@ -67,7 +66,6 @@
         "xing": 1,
         "xing_name": "一白贪狼",
         "wuxing": "水",
-        "rating": "吉",
         "ru_zhong": false
       },
       {
@@ -75,7 +73,6 @@
         "xing": 2,
         "xing_name": "二黑巨门",
         "wuxing": "土",
-        "rating": "凶",
         "ru_zhong": false
       },
       {
@@ -83,7 +80,6 @@
         "xing": 3,
         "xing_name": "三碧禄存",
         "wuxing": "木",
-        "rating": "凶",
         "ru_zhong": false
       },
       {
@@ -91,7 +87,6 @@
         "xing": 4,
         "xing_name": "四绿文曲",
         "wuxing": "木",
-        "rating": "平",
         "ru_zhong": false
       },
       {
@@ -99,7 +94,6 @@
         "xing": 5,
         "xing_name": "五黄廉贞",
         "wuxing": "土",
-        "rating": "大凶",
         "ru_zhong": false
       },
       {
@@ -107,7 +101,6 @@
         "xing": 6,
         "xing_name": "六白武曲",
         "wuxing": "金",
-        "rating": "吉",
         "ru_zhong": false
       }
     ]

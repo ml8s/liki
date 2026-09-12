@@ -56,7 +56,7 @@
 
 `bazhai.chart.ba_zhai_dirs` 输出命卦对应的四吉四凶方位。四吉是生气、天医、延年、伏位；四凶是祸害、五鬼、六煞、绝命。每个游年星绑定具体方向，LLM 不得按卦名重排。
 
-`bazhai.chart.liu_nian_xing` 是输入 `birth_year` 当年的紫白年星，不是自动改取当前年份；用户询问当前流年时走 `time.now` 与 `xuankong.liunian`。
+`bazhai.chart.liu_nian_xing` 是输入 `birth_year` 当年的紫白年星，不是自动改取当前年份；命卦与年飞星均显式 `year_boundary=gregorian_calendar_year`。用户询问当前流年时走 `time.now` 与 `xuankong.liunian`。
 
 ### DoorMasterStove
 
@@ -78,7 +78,7 @@
 
 ### SanYuanYun
 
-元运事实来自 `xuankong.chart.yun`，包括当前年份、上元 / 中元 / 下元、运数、运名和本运起止年。三元九运以 1864 年为一运起点，每运二十年。
+元运事实来自 `xuankong.chart.yun`，包括当前年份、上元 / 中元 / 下元、运数、运名、本运起止年与 `year_boundary`。三元九运以 1864 年为一运起点，每运二十年；当前实现显式采用 `gregorian_calendar_year`，立春换年属另一流派，不在盘内隐含。
 
 ### Chart
 
@@ -89,11 +89,9 @@
 | `zuo_shan` / `xiang_shan` | 二十四山坐向索引 |
 | `zuo_shan_name` / `xiang_shan_name` | 坐山 / 向山名称，用于向用户确认坐向 |
 | `gong_wei` | 九宫的运星、山星、向星 |
-| `wang_shan` / `wang_xiang` | 旺山、旺向 |
-| `shan_xing` / `xiang_xing` | 双星会坐、双星会向 |
-| `xia_shui` | 上山下水 |
-| `fu_yin` | 伏吟信号 |
-| `xing_jia_hui` | 双星加会事实；`classification` 区分 `auspicious` / `inauspicious` / `unlisted`，未列入通则不冒充凶局 |
+| `four_situation` | 四大局分类名及四个位置事实：坐宫山星当令、向宫向星当令、坐宫向星当令、向宫山星当令 |
+| `fu_yin_layers` / `fan_yin_layers` | 运盘、山星、向星与全盘伏吟 / 反吟结构层 |
+| `xing_jia_hui` | 双星加会的星数、通则名与语境说明；不输出固有吉凶分类 |
 | `shou_shan_chu_sha` | 正神 / 零神、收山、出煞与评估 |
 | `chart_digest` | canonical SHA-256 完整性摘要 |
 
@@ -103,7 +101,7 @@
 
 ### LiuNianResult
 
-流年盘包括年份、入中星和九宫飞星。传入宅盘后，engine 会输出 `house_overlay`，把流年凶星落宫与宅盘该宫的运 / 山 / 向三星对照。LLM 只能引用 engine 给出的叠加结果，不能自行把流年星“飞入”宅盘。
+流年盘包括年份、入中星和九宫飞星。传入宅盘后，engine 会输出全量 `house_overlay`，把每个流年星落宫与宅盘该宫的运 / 山 / 向三星对照。LLM 只能引用 engine 给出的叠加结果，不能自行把流年星“飞入”宅盘，也不能把星曜固有吉凶当作唯一判断。
 
 ## 5. 结论与证据边界
 

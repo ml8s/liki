@@ -142,40 +142,40 @@ func TestComputeGeJu_JianLuYueRen(t *testing.T) {
 			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "金", wantXi: "土", wantJi: "水"},
 		{name: "建禄格 乙日卯月(禄)", riGan: ganzhi.GanYi, yueZhi: ganzhi.ZhiMao,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "金", wantXi: "土", wantJi: "水"},
-		{name: "月刃格 乙日寅月(刃)", riGan: ganzhi.GanYi, yueZhi: ganzhi.ZhiYin,
-			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "金", wantXi: "土", wantJi: "水"},
+		{name: "乙日寅月阴干无刃", riGan: ganzhi.GanYi, yueZhi: ganzhi.ZhiYin,
+			wantPattern: "伤官格", wantUsage: "逆用", wantYong: "水", wantXi: "金", wantJi: "木"},
 		{name: "建禄格 丙日巳月(禄)", riGan: ganzhi.GanBing, yueZhi: ganzhi.ZhiSi,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "水", wantXi: "金", wantJi: "木"},
 		{name: "月刃格 丙日午月(刃)", riGan: ganzhi.GanBing, yueZhi: ganzhi.ZhiWu,
 			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "水", wantXi: "金", wantJi: "木"},
 		{name: "建禄格 丁日午月(禄)", riGan: ganzhi.GanDing, yueZhi: ganzhi.ZhiWu,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "水", wantXi: "金", wantJi: "木"},
-		{name: "月刃格 丁日巳月(刃)", riGan: ganzhi.GanDing, yueZhi: ganzhi.ZhiSi,
-			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "水", wantXi: "金", wantJi: "木"},
+		{name: "丁日巳月阴干无刃", riGan: ganzhi.GanDing, yueZhi: ganzhi.ZhiSi,
+			wantPattern: "杂格", wantUsage: "逆用", wantYong: "水", wantXi: "金", wantJi: "木"},
 		{name: "建禄格 戊日巳月(禄)", riGan: ganzhi.GanWu, yueZhi: ganzhi.ZhiSi,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "木", wantXi: "水", wantJi: "火"},
 		{name: "月刃格 戊日午月(刃)", riGan: ganzhi.GanWu, yueZhi: ganzhi.ZhiWu,
 			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "木", wantXi: "水", wantJi: "火"},
 		{name: "建禄格 己日午月(禄)", riGan: ganzhi.GanJi, yueZhi: ganzhi.ZhiWu,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "木", wantXi: "水", wantJi: "火"},
-		{name: "月刃格 己日巳月(刃)", riGan: ganzhi.GanJi, yueZhi: ganzhi.ZhiSi,
-			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "木", wantXi: "水", wantJi: "火"},
+		{name: "己日巳月阴干无刃", riGan: ganzhi.GanJi, yueZhi: ganzhi.ZhiSi,
+			wantPattern: "正印格", wantUsage: "顺用", wantYong: "木", wantXi: "土", wantJi: "水"},
 		{name: "建禄格 庚日申月(禄)", riGan: ganzhi.GanGeng, yueZhi: ganzhi.ZhiShen,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "火", wantXi: "木", wantJi: "土"},
 		{name: "月刃格 庚日酉月(刃)", riGan: ganzhi.GanGeng, yueZhi: ganzhi.ZhiYou,
 			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "火", wantXi: "木", wantJi: "土"},
 		{name: "建禄格 辛日酉月(禄)", riGan: ganzhi.GanXin, yueZhi: ganzhi.ZhiYou,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "火", wantXi: "木", wantJi: "土"},
-		{name: "月刃格 辛日申月(刃)", riGan: ganzhi.GanXin, yueZhi: ganzhi.ZhiShen,
-			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "火", wantXi: "木", wantJi: "土"},
+		{name: "辛日申月阴干无刃", riGan: ganzhi.GanXin, yueZhi: ganzhi.ZhiShen,
+			wantPattern: "伤官格", wantUsage: "逆用", wantYong: "土", wantXi: "火", wantJi: "金"},
 		{name: "建禄格 壬日亥月(禄)", riGan: ganzhi.GanRen, yueZhi: ganzhi.ZhiHai,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "土", wantXi: "火", wantJi: "金"},
 		{name: "月刃格 壬日子月(刃)", riGan: ganzhi.GanRen, yueZhi: ganzhi.ZhiZi,
 			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "土", wantXi: "火", wantJi: "金"},
 		{name: "建禄格 癸日子月(禄)", riGan: ganzhi.GanGui, yueZhi: ganzhi.ZhiZi,
 			wantPattern: "建禄格", wantUsage: "逆用", wantYong: "土", wantXi: "火", wantJi: "金"},
-		{name: "月刃格 癸日亥月(刃)", riGan: ganzhi.GanGui, yueZhi: ganzhi.ZhiHai,
-			wantPattern: "月刃格", wantUsage: "逆用", wantYong: "土", wantXi: "火", wantJi: "金"},
+		{name: "癸日亥月阴干无刃", riGan: ganzhi.GanGui, yueZhi: ganzhi.ZhiHai,
+			wantPattern: "杂格", wantUsage: "逆用", wantYong: "土", wantXi: "火", wantJi: "金"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -375,6 +375,9 @@ func TestGeJu_YongJiConsistency(t *testing.T) {
 		{ganzhi.GanGui, ganzhi.ZhiZi}, {ganzhi.GanGui, ganzhi.ZhiHai},
 	}
 	for _, tt := range jianLuTests {
+		if isLu, isRen := jianLuYueRenZhi(tt.riGan, tt.yueZhi); !isLu && !isRen {
+			continue
+		}
 		cb := mkGeJuChart(tt.riGan, ganzhi.GanBing, ganzhi.GanGui, ganzhi.GanRen, tt.yueZhi)
 		result := computeGeJu(cb, nil)
 		dmElem := ganzhi.GanWuxing(tt.riGan)

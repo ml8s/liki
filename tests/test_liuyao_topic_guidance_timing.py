@@ -63,6 +63,14 @@ def test_timing_position_alone_is_not_target_evidence():
     assert scores["with-position"] == scores["without-position"]
 
 
-def test_timing_blocks_health_topic():
-    result = liuyao_timing.rank_timing_candidates({"timing_candidates": []}, topic="health_context")
-    assert result["blocked"] is True
+def test_timing_keeps_health_topic_with_unified_boundary():
+    snapshot = {
+        "timing_candidates": [
+            {"id": "health-watch", "mechanism": "旬空填实", "confidence": "candidate"}
+        ]
+    }
+    result = liuyao_timing.rank_timing_candidates(snapshot, topic="health_context")
+    assert result["blocked"] is False
+    assert [item["id"] for item in result["candidates"]] == ["health-watch"]
+    assert "不构成医疗" in result["boundary"]
+    assert result["policy"]["advice_scope"] == "traditional_reference_not_professional_advice"

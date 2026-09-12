@@ -37,9 +37,11 @@ type ThiefFact struct {
 }
 
 type TianwangFact struct {
-	Gong           GongIndex `json:"gong"`
-	HourGong       GongIndex `json:"hour_gong"`
-	RelationToHour string    `json:"relation_to_hour"`
+	Kind           string     `json:"kind"`
+	Gan            ganzhi.Gan `json:"gan"`
+	Gong           GongIndex  `json:"gong"`
+	HourGong       GongIndex  `json:"hour_gong"`
+	RelationToHour string     `json:"relation_to_hour"`
 }
 
 type pillarLevel struct {
@@ -185,8 +187,8 @@ func computeThiefFacts(chart Chart) []ThiefFact {
 			}
 			add("大贼", "天蓬", gong, label)
 		}
-		// 朱雀 is the yang-side name of the玄武 archetype.
-		if palace.SpiritSet && palace.Spirit == SpiritZhuQue {
+		if palace.SpiritSet && palace.Spirit == SpiritZhuQue &&
+			spiritDisplayName(palace.Spirit, chart.Pan.YinDun, chart.Pan.School) == "玄武" {
 			label := palaceWang[gong]
 			if label == "" {
 				label = "未知"
@@ -204,10 +206,20 @@ func computeTianwangFacts(chart Chart) []TianwangFact {
 	}
 	result := []TianwangFact{}
 	for _, interaction := range chart.GanInteractions {
-		if interaction.TianPanGan != ganzhi.GanGui {
+		if interaction.Gong != hourGong {
+			continue
+		}
+		kind := ""
+		switch interaction.TianPanGan {
+		case ganzhi.GanGui:
+			kind = "天网四张"
+		case ganzhi.GanRen:
+			kind = "地罗遮蔽"
+		default:
 			continue
 		}
 		result = append(result, TianwangFact{
+			Kind: kind, Gan: interaction.TianPanGan,
 			Gong: interaction.Gong, HourGong: hourGong,
 			RelationToHour: elementRelationToHour(
 				palaceWuxing(interaction.Gong), palaceWuxing(hourGong),

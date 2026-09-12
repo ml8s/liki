@@ -51,6 +51,9 @@ func TestComputeSanYuanYun(t *testing.T) {
 			if got.StartYear > tt.year || got.EndYear < tt.year {
 				t.Errorf("year %d not in range [%d, %d]", tt.year, got.StartYear, got.EndYear)
 			}
+			if got.YearBoundary != "gregorian_calendar_year" {
+				t.Errorf("YearBoundary = %s, want explicit gregorian_calendar_year", got.YearBoundary)
+			}
 		})
 	}
 }
@@ -190,8 +193,8 @@ func TestSubstituteStarUsage(t *testing.T) {
 		t.Errorf("庚向正向向星入中 = %d, want 1（下卦不用替）", got)
 	}
 	// 权威：八运甲山庚向=双星会坐（坐宫震山星8=当令 + 坐宫向星8=当令）。
-	if !chart.ShanXing {
-		t.Errorf("八运甲山庚向应双星会坐（shan_xing=true）")
+	if chart.FourSituation.Name != "双星会坐" {
+		t.Errorf("八运甲山庚向 four_situation = %s, want 双星会坐", chart.FourSituation.Name)
 	}
 }
 
@@ -372,12 +375,12 @@ func TestComputeChart_FuYin_Detection(t *testing.T) {
 	// FuYin occurs when every palace's period star equals its palace number.
 	// This happens in 五运 with forward flying: center(5)=5, then 6,7,8,9,1,2,3,4.
 	chart := computeChart(0, 12, 1945) // 五运 子山午向
-	if !chart.FuYin {
+	if !containsLayer(chart.FuYinLayers, "运盘伏吟") {
 		t.Error("FuYin not detected for 子山午向五运 — check evaluate() logic")
 	}
 	// Verify a non-FuYin case: 八运 should NOT have FuYin.
 	chart8 := computeChart(0, 12, 2020) // 八运 子山午向
-	if chart8.FuYin {
+	if containsLayer(chart8.FuYinLayers, "运盘伏吟") {
 		t.Error("FuYin false-positive for 子山午向八运 — should not have FuYin")
 	}
 }
@@ -430,20 +433,19 @@ func TestShanXiangForward(t *testing.T) {
 //	七运子山午向=双星会坐；八运子山午向=双星会向；七运乾山巽向=上山下水；七运酉山卯向=旺山旺向。
 func TestComputeChart_FourJu_Anchors(t *testing.T) {
 	cases := []struct {
-		label              string
-		sit, face, yr      int
-		wS, wX, sZ, xX, ss bool
+		label         string
+		sit, face, yr int
+		want          FourSituation
 	}{
-		{"七运子山午向=双星会坐", 0, 12, 1990, true, false, true, false, false},
-		{"八运子山午向=双星会向", 0, 12, 2020, false, true, false, true, false},
-		{"七运乾山巽向=上山下水", 21, 9, 1990, false, false, false, false, true},
-		{"七运酉山卯向=旺山旺向", 18, 6, 1990, true, true, false, false, false},
+		{"七运子山午向=双星会坐", 0, 12, 1990, FourSituation{Name: "双星会坐", SitMountainTimely: true, SitFacingTimely: true}},
+		{"八运子山午向=双星会向", 0, 12, 2020, FourSituation{Name: "双星会向", FaceMountainTimely: true, FaceFacingTimely: true}},
+		{"七运乾山巽向=上山下水", 21, 9, 1990, FourSituation{Name: "上山下水", FaceMountainTimely: true, SitFacingTimely: true}},
+		{"七运酉山卯向=旺山旺向", 18, 6, 1990, FourSituation{Name: "旺山旺向", SitMountainTimely: true, FaceFacingTimely: true}},
 	}
 	for _, c := range cases {
 		ch := computeChart(c.sit, c.face, c.yr)
-		if ch.WangShan != c.wS || ch.WangXiang != c.wX || ch.ShanXing != c.sZ || ch.XiangXing != c.xX || ch.XiaShui != c.ss {
-			t.Errorf("%s: got 旺山=%v 旺向=%v 双星会坐=%v 双星会向=%v 上山下水=%v; want %v %v %v %v %v",
-				c.label, ch.WangShan, ch.WangXiang, ch.ShanXing, ch.XiangXing, ch.XiaShui, c.wS, c.wX, c.sZ, c.xX, c.ss)
+		if ch.FourSituation != c.want {
+			t.Errorf("%s: got %+v, want %+v", c.label, ch.FourSituation, c.want)
 		}
 	}
 }

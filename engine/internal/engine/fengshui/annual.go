@@ -6,19 +6,16 @@ type AnnualFlyingStar struct {
 	Xing     int    `json:"xing"`
 	XingName string `json:"xing_name"`
 	Wuxing   string `json:"wuxing"`
-	Rating   string `json:"rating"`
 	RuZhong  bool   `json:"ru_zhong"`
 }
 
 // AnnualBoard is the 紫白流年飞星 board for one year.
 type AnnualBoard struct {
-	Year    int                `json:"year"`
-	RuZhong string             `json:"ru_zhong"`
-	GongWei []AnnualFlyingStar `json:"gong_wei"`
+	Year         int                `json:"year"`
+	RuZhong      string             `json:"ru_zhong"`
+	YearBoundary string             `json:"year_boundary"`
+	GongWei      []AnnualFlyingStar `json:"gong_wei"`
 }
-
-// StarRatings maps star number (1-9) to its 吉凶 rating (五档：大吉/吉/平/凶/大凶).
-var StarRatings = [10]string{"", "吉", "凶", "凶", "平", "大凶", "吉", "凶", "大吉", "吉"}
 
 // ComputeAnnualFlyingStars computes the 紫白流年飞星 board for a year.
 //
@@ -53,9 +50,10 @@ func ComputeAnnualFlyingStars(year int) AnnualBoard {
 
 	centerStar := StarByNumber(centerNum)
 	board := AnnualBoard{
-		Year:    year,
-		RuZhong: centerStar.Name,
-		GongWei: make([]AnnualFlyingStar, 0, 9),
+		Year:         year,
+		RuZhong:      centerStar.Name,
+		YearBoundary: "gregorian_calendar_year",
+		GongWei:      make([]AnnualFlyingStar, 0, 9),
 	}
 
 	board.GongWei = append(board.GongWei, AnnualFlyingStar{
@@ -63,7 +61,6 @@ func ComputeAnnualFlyingStars(year int) AnnualBoard {
 		Xing:     centerStar.Number,
 		XingName: centerStar.Name,
 		Wuxing:   centerStar.Element.String(),
-		Rating:   StarRatings[centerStar.Number],
 		RuZhong:  true,
 	})
 
@@ -78,7 +75,6 @@ func ComputeAnnualFlyingStars(year int) AnnualBoard {
 			Xing:     s.Number,
 			XingName: s.Name,
 			Wuxing:   s.Element.String(),
-			Rating:   StarRatings[s.Number],
 			RuZhong:  false,
 		})
 	}

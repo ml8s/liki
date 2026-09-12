@@ -1,5 +1,7 @@
 package liuyao
 
+import "strings"
+
 import "liki-engine/internal/engine/ganzhi"
 
 // PatternType 特殊格局类型
@@ -33,14 +35,22 @@ var jinShenTable = map[ganzhi.Zhi]ganzhi.Zhi{
 	ganzhi.ZhiYin:  ganzhi.ZhiMao, // 寅化卯：进
 	ganzhi.ZhiSi:   ganzhi.ZhiWu,  // 巳化午：进
 	ganzhi.ZhiShen: ganzhi.ZhiYou, // 申化酉：进
+	ganzhi.ZhiChou: ganzhi.ZhiChen,
+	ganzhi.ZhiChen: ganzhi.ZhiWei,
+	ganzhi.ZhiWei:  ganzhi.ZhiXu,
+	ganzhi.ZhiXu:   ganzhi.ZhiChou,
 }
 
 // tuiShenTable 固定退神同五行地支逆行；不用五行生克近似。
 var tuiShenTable = map[ganzhi.Zhi]ganzhi.Zhi{
-	ganzhi.ZhiZi:  ganzhi.ZhiHai,  // 子化亥：退
-	ganzhi.ZhiMao: ganzhi.ZhiYin,  // 卯化寅：退
-	ganzhi.ZhiWu:  ganzhi.ZhiSi,   // 午化巳：退
-	ganzhi.ZhiYou: ganzhi.ZhiShen, // 酉化申：退
+	ganzhi.ZhiZi:   ganzhi.ZhiHai,  // 子化亥：退
+	ganzhi.ZhiMao:  ganzhi.ZhiYin,  // 卯化寅：退
+	ganzhi.ZhiWu:   ganzhi.ZhiSi,   // 午化巳：退
+	ganzhi.ZhiYou:  ganzhi.ZhiShen, // 酉化申：退
+	ganzhi.ZhiChen: ganzhi.ZhiChou,
+	ganzhi.ZhiWei:  ganzhi.ZhiChen,
+	ganzhi.ZhiXu:   ganzhi.ZhiWei,
+	ganzhi.ZhiChou: ganzhi.ZhiXu,
 }
 
 // ComputePatterns 计算所有特殊格局
@@ -100,32 +110,29 @@ func computeXunKong(p *Chart, yongShen YongShen) []Pattern {
 		return patterns
 	}
 
-	// 判断动静
-	isDong := p.Lines[yongPos-1].Type.IsChanging()
-
-	// 判断旺衰
-	wangshuai := p.WangShuai[yongPos-1]
-	isWang := wangshuai == ganzhi.WSWang || wangshuai == ganzhi.WSXiang
-
-	// 判断真假空
-	isTrueVacant := false
+	line := p.Lines[yongPos-1]
+	isWang := p.WangShuai[yongPos-1] == ganzhi.WSWang || p.WangShuai[yongPos-1] == ganzhi.WSXiang
+	support := []string{}
+	if isWang {
+		support = append(support, "旺相")
+	}
+	if line.DongSelf {
+		support = append(support, "发动")
+	}
+	if line.DongSheng {
+		support = append(support, "动爻生扶")
+	}
+	if p.dayRelationHas(yongPos, "生", "扶") {
+		support = append(support, "日建生扶")
+	}
+	isTrueVacant := len(support) == 0
 	subType := "假空"
 	assessment := ""
-
-	if isWang && isDong {
-		// 旺相动爻旬空 = 假空
-		assessment = "旺相动爻旬空，迟成而非不成"
-	} else if !isWang && !isDong {
-		// 休囚静爻旬空 = 真空
-		isTrueVacant = true
+	if isTrueVacant {
 		subType = "真空"
-		assessment = "休囚静爻旬空，事不实，出空方应"
-	} else if isWang && !isDong {
-		// 旺相静爻旬空 = 假空（旺不为空）
-		assessment = "旺相静爻旬空，旺不为空，出空方应"
+		assessment = "休囚安静且无日建动爻生扶，旬空为真空"
 	} else {
-		// 休囚动爻旬空 = 假空（动不为空）
-		assessment = "休囚动爻旬空，动不为空，出空方应"
+		assessment = "旬空有" + strings.Join(support, "、") + "，不为真空，出空方应"
 	}
 
 	patterns = append(patterns, Pattern{
@@ -154,20 +161,12 @@ func computeYuePo(p *Chart, yongShen YongShen) []Pattern {
 		return patterns
 	}
 
-	// 判断动静
-	isDong := p.Lines[yongPos-1].Type.IsChanging()
-
-	// 判断旺衰
-	wangshuai := p.WangShuai[yongPos-1]
-	isWang := wangshuai == ganzhi.WSWang || wangshuai == ganzhi.WSXiang
-
-	// 判断得生
-	deSheng := false
-	for _, rel := range p.DayRelations {
-		if rel.Relation == "生" && rel.Strength == "旺" {
-			deSheng = true
-			break
-		}
+	line := p.Lines[yongPos-1]
+	isDong := line.DongSelf
+	isWang := p.WangShuai[yongPos-1] == ganzhi.WSWang || p.WangShuai[yongPos-1] == ganzhi.WSXiang
+	deSheng := line.DongSheng || p.dayRelationHas(yongPos, "生", "扶", "合")
+	if line.DongSelf && len(p.BianLines) == 6 && ganzhi.Sheng(p.BianLines[yongPos-1].Wuxing, line.Wuxing) {
+		deSheng = true
 	}
 
 	// 判断真假破
@@ -213,49 +212,25 @@ func computeFeiFu(p *Chart, yongShen YongShen) []Pattern {
 		return patterns
 	}
 
-	// 查找伏神
-	fuShen := p.findFuShen(yongShen)
-	if fuShen == nil {
+	fuShenAll := p.findFuShenAll(yongShen)
+	if len(fuShenAll) == 0 {
 		return patterns
 	}
-
-	// 判断飞伏关系
-	assessment := ""
-	feiShengFu := false
-
-	// 飞神生伏神
-	feiWuxing := p.Lines[fuShen.Position-1].Wuxing
-	// 将伏神地支转换为五行
-	fuWuxingStr := fuShen.Zhi
-	var fuWuxing ganzhi.Wuxing
-	switch fuWuxingStr {
-	case "子", "亥":
-		fuWuxing = ganzhi.WxShui
-	case "寅", "卯":
-		fuWuxing = ganzhi.WxMu
-	case "巳", "午":
-		fuWuxing = ganzhi.WxHuo
-	case "申", "酉":
-		fuWuxing = ganzhi.WxJin
-	case "辰", "戌", "丑", "未":
-		fuWuxing = ganzhi.WxTu
+	for _, fuShen := range fuShenAll {
+		fuZhi, err := ganzhi.ParseZhi(fuShen.Zhi)
+		if err != nil {
+			continue
+		}
+		flying := p.Lines[fuShen.Position-1]
+		relation := feiFuRelation(flying.Wuxing, ganzhi.ZhiWuxing(fuZhi))
+		patterns = append(patterns, Pattern{
+			Type:       PatternFeiFu,
+			SubType:    relation,
+			Position:   fuShen.Position,
+			IsTrue:     true,
+			Assessment: relation + "，" + hiddenExitCondition(relation),
+		})
 	}
-	if ganzhi.Sheng(feiWuxing, fuWuxing) {
-		feiShengFu = true
-		assessment = "飞神生伏神，伏神得力，待冲飞出伏"
-	} else if ganzhi.Ke(feiWuxing, fuWuxing) {
-		assessment = "飞神克伏神，伏神受压，待冲飞出伏"
-	} else {
-		assessment = "飞伏比和，伏神待出"
-	}
-
-	patterns = append(patterns, Pattern{
-		Type:       PatternFeiFu,
-		SubType:    "伏藏",
-		Position:   fuShen.Position,
-		IsTrue:     !feiShengFu,
-		Assessment: assessment,
-	})
 
 	return patterns
 }
@@ -338,6 +313,27 @@ func computeChongHe(p *Chart, yongShen YongShen) []Pattern {
 			Assessment: "六合卦，事易成",
 		})
 	}
+	if p.BianGua != 0 {
+		benChong, benHe := p.BenGua.isLiuChong(), p.BenGua.isLiuHe()
+		bianChong, bianHe := p.BianGua.isLiuChong(), p.BianGua.isLiuHe()
+		for _, tc := range []struct {
+			subType   string
+			matched   bool
+			candidate bool
+		}{
+			{"六冲变六合", benChong && bianHe, true},
+			{"六合变六冲", benHe && bianChong, true},
+			{"六冲变六冲", benChong && bianChong, true},
+			{"六合变六合", benHe && bianHe, true},
+		} {
+			if tc.matched {
+				patterns = append(patterns, Pattern{
+					Type: PatternChongHe, SubType: tc.subType, Position: 0, IsTrue: true,
+					Assessment: tc.subType + "，为本卦与变卦的卦体结构事实",
+				})
+			}
+		}
+	}
 
 	// 冲合不同时出现
 	if isLiuChong && isLiuHe {
@@ -352,11 +348,12 @@ func computeChongHe(p *Chart, yongShen YongShen) []Pattern {
 func computeFanYin(p *Chart, yongShen YongShen) []Pattern {
 	var patterns []Pattern
 
-	// 检查反吟（本卦与变卦地支相冲）
+	// 反吟 / 伏吟只看动爻本爻与变爻；静爻在变卦中保留原支，不是伏吟。
 	if len(p.BianLines) > 0 {
 		isFanYin := false
-		for i, line := range p.Lines {
-			bianLine := p.BianLines[i]
+		for _, position := range p.DongYao {
+			line := p.Lines[position-1]
+			bianLine := p.BianLines[position-1]
 			if ganzhi.IsLiuChong(line.Zhi, bianLine.Zhi) {
 				isFanYin = true
 				break
@@ -369,16 +366,44 @@ func computeFanYin(p *Chart, yongShen YongShen) []Pattern {
 				SubType:    "反吟",
 				Position:   0,
 				IsTrue:     true,
-				Assessment: "反吟卦，事多反复",
+				Assessment: "动爻化反吟，事多反复",
 			})
+		}
+	}
+
+	if len(p.DongYao) > 0 {
+		scopes := []struct {
+			name  string
+			start int
+			end   int
+		}{
+			{"全卦", 0, 6}, {"内卦", 0, 3}, {"外卦", 3, 6},
+		}
+		for _, scope := range scopes {
+			fuYin, fanYin := true, true
+			for i := scope.start; i < scope.end; i++ {
+				if p.Lines[i].Zhi != p.BianLines[i].Zhi {
+					fuYin = false
+				}
+				if !ganzhi.IsLiuChong(p.Lines[i].Zhi, p.BianLines[i].Zhi) {
+					fanYin = false
+				}
+			}
+			if fuYin {
+				patterns = append(patterns, Pattern{Type: PatternFanYin, SubType: scope.name + "伏吟", Position: 0, IsTrue: true, Assessment: scope.name + "纳支伏吟，停滞牵延"})
+			}
+			if fanYin {
+				patterns = append(patterns, Pattern{Type: PatternFanYin, SubType: scope.name + "反吟", Position: 0, IsTrue: true, Assessment: scope.name + "纳支反吟，事多反复"})
+			}
 		}
 	}
 
 	// 检查伏吟（本卦与变卦地支相同）
 	if len(p.BianLines) > 0 {
 		isFuYin := false
-		for i, line := range p.Lines {
-			bianLine := p.BianLines[i]
+		for _, position := range p.DongYao {
+			line := p.Lines[position-1]
+			bianLine := p.BianLines[position-1]
 			if line.Zhi == bianLine.Zhi {
 				isFuYin = true
 				break
@@ -391,7 +416,7 @@ func computeFanYin(p *Chart, yongShen YongShen) []Pattern {
 				SubType:    "伏吟",
 				Position:   0,
 				IsTrue:     true,
-				Assessment: "伏吟卦，事多停滞",
+				Assessment: "动爻化伏吟，事多停滞牵延",
 			})
 		}
 	}
@@ -409,21 +434,18 @@ func computeSuiGuiRuMu(p *Chart, yongShen YongShen) []Pattern {
 		return patterns
 	}
 
-	// 检查用神是否入墓
-	if p.Lines[yongPos-1].MuKu {
-		// 检查是否随鬼（官鬼爻发动）
-		for _, pos := range p.DongYao {
-			if p.Lines[pos-1].LiuQin == QinGuanGui {
-				patterns = append(patterns, Pattern{
-					Type:       PatternSuiGuiRuMu,
-					SubType:    "随鬼入墓",
-					Position:   yongPos,
-					IsTrue:     true,
-					Assessment: "用神随鬼入墓，事多闭塞",
-				})
-				break
-			}
-		}
+	line := p.Lines[yongPos-1]
+	if !line.MuKu || len(line.MuKuTypes) == 0 {
+		return patterns
+	}
+	for _, source := range line.MuKuTypes {
+		patterns = append(patterns, Pattern{
+			Type:       PatternSuiGuiRuMu,
+			SubType:    map[string]string{"day": "随鬼入日墓", "moving": "随鬼入动墓", "transformed": "随鬼化墓"}[source],
+			Position:   yongPos,
+			IsTrue:     true,
+			Assessment: "自占看世爻、代占看用神；旺相非真墓，出墓之期另核",
+		})
 	}
 
 	return patterns
@@ -491,7 +513,7 @@ func computeLiangXian(p *Chart, yongShen YongShen) []Pattern {
 			SubType:    "用神两现",
 			Position:   0,
 			IsTrue:     true,
-			Assessment: "用神两现，取旺不取衰",
+			Assessment: "用神两现，按旺衰、动静、破空、被伤取舍；墓只作状态事实",
 		})
 	}
 

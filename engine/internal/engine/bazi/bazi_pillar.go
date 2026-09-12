@@ -31,7 +31,7 @@ func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
 	ny := c.NaYinArray()
 	tgTable := computeShiShensTable(bz, hs)
 	lsTable := computeChangShengTable(bz, hs)
-	shensha := computeShenSha(bz)
+	shensha := computeShenSha(bz, c.Gender)
 	voidHits := computeKongWang(bz)
 	ps := bz.Slice()
 

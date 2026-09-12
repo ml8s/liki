@@ -29,8 +29,9 @@ var guaTable = [10]gua{
 
 // MingGua is the 命卦 result.
 type MingGua struct {
-	Gua   gua    `json:"gua"`
-	Group string `json:"group"`
+	Gua          gua    `json:"gua"`
+	Group        string `json:"group"`
+	YearBoundary string `json:"year_boundary"`
 }
 
 // ComputeMingGua computes the 命卦 from gender and birth year.
@@ -71,7 +72,7 @@ func ComputeMingGua(gender ganzhi.Gender, birthYear int) MingGua {
 	if westGroup[n] {
 		group = "西四命"
 	}
-	return MingGua{Gua: g, Group: group}
+	return MingGua{Gua: g, Group: group, YearBoundary: "gregorian_calendar_year"}
 }
 
 // Chart is the complete八宅合参 result.

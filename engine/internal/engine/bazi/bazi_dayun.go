@@ -226,13 +226,13 @@ func daYunShiShenLabel(riYuan, other ganzhi.Gan) string {
 	return "未知运"
 }
 
-// hourZhiIndex 时辰地支索引（子=0..亥=11，23 点=11）。
+// hourZhiIndex 时辰地支索引（子=0..亥=11；23:00–24:00 为晚子时）。
 func hourZhiIndex(t time.Time) int {
 	// 八字时辰按北京时间（+8）判定
 	local := t.In(cstLocation)
 	h := local.Hour()
 	if h == 23 {
-		return 11
+		return 0
 	}
 	return (h + 1) / 2 % 12
 }

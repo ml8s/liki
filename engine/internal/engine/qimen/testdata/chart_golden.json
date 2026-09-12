@@ -504,6 +504,172 @@
         "description": "马星逢冲为动期候选"
       },
       {
+        "type": "duty_star",
+        "mechanism": "值冲",
+        "branch": "卯",
+        "gong": "震",
+        "related_to": [
+          {
+            "symbol": "日干",
+            "role": "pillar"
+          },
+          {
+            "symbol": "值符星",
+            "role": "duty"
+          },
+          {
+            "symbol": "值使门",
+            "role": "duty"
+          }
+        ],
+        "dates": [
+          {
+            "date": "2026-06-28",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值符宫卯"
+          },
+          {
+            "date": "2026-07-04",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值符宫引动"
+          },
+          {
+            "date": "2026-07-10",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值符宫卯"
+          },
+          {
+            "date": "2026-07-16",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值符宫引动"
+          },
+          {
+            "date": "2026-07-22",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值符宫卯"
+          },
+          {
+            "date": "2026-07-28",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值符宫引动"
+          },
+          {
+            "date": "2026-08-03",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值符宫卯"
+          },
+          {
+            "date": "2026-08-09",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值符宫引动"
+          },
+          {
+            "date": "2026-08-15",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值符宫卯"
+          },
+          {
+            "date": "2026-08-21",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值符宫引动"
+          }
+        ],
+        "description": "值符宫支逢值或逢冲为引动候选"
+      },
+      {
+        "type": "duty_door",
+        "mechanism": "值冲",
+        "branch": "卯",
+        "gong": "震",
+        "related_to": [
+          {
+            "symbol": "日干",
+            "role": "pillar"
+          },
+          {
+            "symbol": "值符星",
+            "role": "duty"
+          },
+          {
+            "symbol": "值使门",
+            "role": "duty"
+          }
+        ],
+        "dates": [
+          {
+            "date": "2026-06-28",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值使宫卯"
+          },
+          {
+            "date": "2026-07-04",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值使宫引动"
+          },
+          {
+            "date": "2026-07-10",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值使宫卯"
+          },
+          {
+            "date": "2026-07-16",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值使宫引动"
+          },
+          {
+            "date": "2026-07-22",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值使宫卯"
+          },
+          {
+            "date": "2026-07-28",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值使宫引动"
+          },
+          {
+            "date": "2026-08-03",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值使宫卯"
+          },
+          {
+            "date": "2026-08-09",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值使宫引动"
+          },
+          {
+            "date": "2026-08-15",
+            "branch": "酉",
+            "match": "opposite",
+            "reason": "酉日冲值使宫卯"
+          },
+          {
+            "date": "2026-08-21",
+            "branch": "卯",
+            "match": "same",
+            "reason": "卯日值使宫引动"
+          }
+        ],
+        "description": "值使宫支逢值或逢冲为引动候选"
+      },
+      {
         "type": "kong_wang",
         "mechanism": "值冲",
         "branch": "子",
@@ -644,10 +810,30 @@
         "description": "空亡逢值或逢冲为填实候选"
       }
     ],
-    "summary": "应期候选由马星与空亡给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论"
+    "summary": "应期候选由马星、空亡、值符宫与值使宫给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论"
   },
   "ri_gan_gong": "震",
   "shi_gan_gong": "兑",
+  "ri_gan_palace_facts": [
+    {
+      "palace": "震",
+      "layer": "heaven"
+    },
+    {
+      "palace": "兑",
+      "layer": "earth"
+    }
+  ],
+  "shi_gan_palace_facts": [
+    {
+      "palace": "兑",
+      "layer": "heaven"
+    },
+    {
+      "palace": "震",
+      "layer": "earth"
+    }
+  ],
   "ri_shi_relation": {
     "subject": "ri_gan_gong",
     "object": "shi_gan_gong",
@@ -752,12 +938,6 @@
         "lucky_pattern_names": []
       }
     ],
-    "tianwang_context": [
-      {
-        "gong": "震",
-        "hour_gong": "兑",
-        "relation_to_hour": "controlled_by"
-      }
-    ]
+    "tianwang_context": []
   }
 }

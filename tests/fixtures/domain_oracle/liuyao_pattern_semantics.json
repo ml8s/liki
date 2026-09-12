@@ -1,0 +1,160 @@
+{
+  "schema_version": "domain-oracle-liuyao-pattern-semantics-v2",
+  "basis": "三墓为用爻入日墓、入动墓、动而化墓；用神多现按旺衰、动静、破空、被伤取舍；卦体六冲 / 六合要求一至三爻与四至六爻三组对应支全冲 / 全合；伏吟 / 反吟分全卦与内外卦。",
+  "sources": [
+    "《增删卜易》三墓章",
+    "《增删卜易》用神两现与空破动静取舍"
+  ],
+  "tomb_cases": [
+    {"id": "wood-enters-day-tomb", "target_wuxing": "木", "day_zhi": "未", "expected_types": ["day"]},
+    {"id": "wood-enters-moving-tomb", "target_wuxing": "木", "moving_tomb_position": 2, "moving_tomb_zhi": "未", "expected_types": ["moving"]},
+    {"id": "moving-wood-transforms-to-tomb", "target_wuxing": "木", "target_is_moving": true, "changed_zhi": "未", "expected_types": ["transformed"]},
+    {"id": "wood-branch-itself-is-not-universal-tomb", "target_wuxing": "木", "target_zhi": "未", "expected_types": []}
+  ],
+  "selection_cases": [
+    {
+      "id": "prosperity-precedes-void",
+      "yong_shen": "妻财",
+      "lines": [
+        {"position": 1, "zhi": "子", "liu_qin": "妻财", "wang_shuai": "旺", "xun_kong": true},
+        {"position": 4, "zhi": "巳", "liu_qin": "妻财", "wang_shuai": "休"}
+      ],
+    "expected_position": 1
+    },
+    {
+      "id": "prosperity-precedes-moving",
+      "yong_shen": "妻财",
+      "lines": [
+        {"position": 1, "zhi": "子", "liu_qin": "妻财", "wang_shuai": "旺"},
+        {"position": 4, "zhi": "亥", "liu_qin": "妻财", "wang_shuai": "休", "dong_self": true}
+      ],
+      "expected_position": 1
+    },
+    {
+      "id": "moving-precedes-world-proximity",
+      "yong_shen": "妻财",
+      "lines": [
+        {"position": 1, "zhi": "子", "liu_qin": "妻财", "wang_shuai": "休", "shi_ying": "世"},
+        {"position": 4, "zhi": "亥", "liu_qin": "妻财", "wang_shuai": "休", "dong_self": true}
+      ],
+      "expected_position": 4
+    },
+    {
+      "id": "world-proximity-breaks-final-tie",
+      "yong_shen": "妻财",
+      "lines": [
+        {"position": 1, "zhi": "子", "liu_qin": "妻财", "wang_shuai": "休"},
+        {"position": 4, "zhi": "亥", "liu_qin": "妻财", "wang_shuai": "休", "shi_ying": "应"}
+      ],
+      "expected_position": 4
+    }
+  ],
+  "pattern_cases": [
+    {
+      "id": "another-line-day-support-cannot-rescue-target-yuepo",
+      "target": "妻财",
+      "lines": [
+        {"position": 1, "zhi": "午", "liu_qin": "妻财", "wang_shuai": "囚", "yue_po": true}
+      ],
+      "day_relations": [
+        {"relations": ["克"]},
+        {"relations": ["生"]}
+      ],
+      "expected_subtype": "真破",
+      "expected_is_true": true
+    },
+    {
+      "id": "static-line-unchanged-is-not-fuyin",
+      "target": "妻财",
+      "moving_positions": [1],
+      "lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
+      "changed_lines_zhi": ["丑", "丑", "寅", "卯", "辰", "巳"],
+      "expected_absent_subtype": "伏吟"
+    },
+    {
+      "id": "moving-line-unchanged-is-fuyin",
+      "target": "妻财",
+      "moving_positions": [1],
+      "lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
+      "changed_lines_zhi": ["子", "丑", "寅", "卯", "辰", "巳"],
+      "expected_subtype": "全卦伏吟",
+      "expected_is_true": true
+    }
+  ],
+  "computed_cases": [
+    {
+      "id": "hidden-yong-shen-feifu-is-established",
+      "time": "2026-09-09T17:28:00+08:00",
+      "yaos": [8, 7, 9, 9, 7, 7],
+      "yong_shen": "妻财",
+      "expected_pattern": {"type": "飞伏", "sub_type": "飞来生伏", "is_true": true}
+    }
+  ],
+  "whole_gua_cases": [
+    {
+      "id": "pure-palace-qian-is-whole-gua-clash",
+      "time": "2026-09-09T17:28:00+08:00",
+      "yaos": [7, 7, 7, 7, 7, 7],
+      "expected_name": "乾为天",
+      "expected_subtype": "六冲"
+    },
+    {
+      "id": "non-pure-wuwang-is-whole-gua-clash",
+      "time": "2026-09-09T17:28:00+08:00",
+      "yaos": [7, 8, 8, 7, 7, 7],
+      "expected_name": "天雷无妄",
+      "expected_subtype": "六冲"
+    },
+    {
+      "id": "fu-is-whole-gua-combination",
+      "time": "2026-09-09T17:28:00+08:00",
+      "yaos": [7, 8, 8, 8, 8, 8],
+      "expected_name": "地雷复",
+      "expected_subtype": "六合"
+    },
+    {
+      "id": "pi-is-whole-gua-combination",
+      "time": "2026-09-09T17:28:00+08:00",
+      "yaos": [8, 8, 8, 7, 7, 7],
+      "expected_name": "天地否",
+      "expected_subtype": "六合"
+    },
+    {
+      "id": "gou-is-neither-whole-gua-clash-nor-combination",
+      "time": "2026-09-09T17:28:00+08:00",
+      "yaos": [8, 7, 7, 7, 7, 7],
+      "expected_name": "天风姤",
+      "expected_subtype": ""
+    }
+  ],
+  "whole_gua_closure": {
+    "six_clash": ["乾为天", "坎为水", "艮为山", "震为雷", "巽为风", "离为火", "坤为地", "兑为泽", "天雷无妄", "雷天大壮"],
+    "six_combination": ["天地否", "地天泰", "地雷复", "雷地豫", "泽水困", "水泽节", "山火贲", "火山旅"]
+  },
+  "sanhe_cases": [
+    {
+      "id": "day-and-month-duplicating-lines-do-not-complete",
+      "lines": [
+        {"position": 1, "zhi": "子"},
+        {"position": 2, "zhi": "辰"}
+      ],
+      "ri_zhi": "子",
+      "yue_zhi": "辰",
+      "element": "水",
+      "expected_complete": false,
+      "expected_missing": ["申"]
+    },
+    {
+      "id": "day-supplies-missing-branch",
+      "lines": [
+        {"position": 1, "zhi": "子"},
+        {"position": 2, "zhi": "辰"}
+      ],
+      "ri_zhi": "申",
+      "yue_zhi": "辰",
+      "element": "水",
+      "expected_complete": true,
+      "expected_missing": []
+    }
+  ]
+}

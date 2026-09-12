@@ -35,9 +35,6 @@
       "liu_qin": "父母",
       "shi_ying": "应",
       "liu_shou": "玄武",
-      "mu_ku": true,
-      "mu_ku_branch": "辰",
-      "mu_ku_element": "土",
       "chang_sheng_yue": "长生"
     },
     {
@@ -170,45 +167,50 @@
   ],
   "ri_chen_relations": [
     {
-      "relation": "平",
-      "strength": "平"
+      "relations": [
+        "平"
+      ]
     },
     {
-      "relation": "扶",
-      "strength": "旺"
+      "relations": [
+        "扶"
+      ]
     },
     {
-      "relation": "克",
-      "strength": "衰"
+      "relations": [
+        "克"
+      ]
     },
     {
-      "relation": "生",
-      "strength": "旺"
+      "relations": [
+        "生"
+      ]
     },
     {
-      "relation": "平",
-      "strength": "平"
+      "relations": [
+        "平"
+      ]
     },
     {
-      "relation": "合",
-      "strength": "旺"
+      "relations": [
+        "合",
+        "克"
+      ]
     }
   ],
   "xun_kong": [
     "申",
     "酉"
   ],
-  "ying_qi": {
-    "yong_shen": "官鬼",
-    "dong_yao_pos": 0,
-    "ying_time_text": "",
-    "ying_time": {
-      "relation": "冲",
-      "target_branch": "午",
-      "trigger_branch": "子"
-    },
-    "assessment": "官鬼在四爻，月建相，日建生(旺)，静爻待冲。冲子之时为应"
-  },
+  "patterns": [
+    {
+      "type": "冲合",
+      "sub_type": "六冲",
+      "position": 0,
+      "is_true": true,
+      "assessment": "六冲卦，事多反复"
+    }
+  ],
   "branch_relation_facts": [
     {
       "left_position": 1,
@@ -267,6 +269,10 @@
       ]
     }
   ],
+  "tomb_school": {
+    "earth_branch": "辰",
+    "school": "engine_default_chen"
+  },
   "san_he_candidates": [
     {
       "positions": [

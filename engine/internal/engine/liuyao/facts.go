@@ -130,7 +130,7 @@ func forceEntry(chart *Chart, role ForceRole, element ganzhi.Wuxing, note string
 		entry.Positions = append(entry.Positions, line.Position)
 		entry.Branches = append(entry.Branches, ganzhi.ZhiName(line.Zhi))
 		relation := dayInteraction(line.Zhi, chart.RiZhi)
-		entry.Relations = append(entry.Relations, fmt.Sprintf("日%s", relation.Relation))
+		entry.Relations = append(entry.Relations, "日"+relation.String())
 		state := []string{chart.WangShuai[line.Position-1].String()}
 		if line.DongSelf {
 			state = append(state, "发动")
@@ -225,7 +225,7 @@ func computeHiddenForceChain(chart *Chart, typ YongShen, fuShen *FuShen) *ForceC
 			Element:   yongElement.String(),
 			Positions: []int{fuShen.Position},
 			Branches:  []string{fuShen.Zhi},
-			Relations: []string{fmt.Sprintf("日%s", relation.Relation)},
+			Relations: []string{"日" + relation.String()},
 			States:    []string{"伏藏"},
 			Note:      "本卦不现，取本宫伏神",
 		}},
@@ -360,14 +360,24 @@ func computeSanHeCandidates(chart *Chart) []SanHeCandidate {
 
 		dayPresent := containsZhi(group.Zhi, chart.RiZhi)
 		monthPresent := containsZhi(group.Zhi, chart.YueZhi)
+		availableBranches := map[ganzhi.Zhi]bool{}
+		for _, branch := range lineBranches {
+			availableBranches[branch] = true
+		}
+		if dayPresent {
+			availableBranches[chart.RiZhi] = true
+		}
+		if monthPresent {
+			availableBranches[chart.YueZhi] = true
+		}
 		var missing []string
 		for _, zhi := range group.Zhi {
-			if !containsZhi(lineBranches, zhi) {
+			if !availableBranches[zhi] {
 				missing = append(missing, ganzhi.ZhiName(zhi))
 			}
 		}
 		lineComplete := len(linePositions) == len(group.Zhi)
-		complete := lineComplete || (len(linePositions)+boolToInt(dayPresent)+boolToInt(monthPresent) >= len(group.Zhi))
+		complete := len(availableBranches) >= len(group.Zhi)
 		targets := make([]string, 0, 3)
 		yongPos := chart.YongShen.Position
 		if yongPos > 0 {
@@ -424,13 +434,6 @@ func computeSanHeCandidates(chart *Chart) []SanHeCandidate {
 		})
 	}
 	return facts
-}
-
-func boolToInt(value bool) int {
-	if value {
-		return 1
-	}
-	return 0
 }
 
 func namedBranches(branches []ganzhi.Zhi) []string {
@@ -490,6 +493,9 @@ func computeYongShenCandidates(chart *Chart, typ YongShen) []YongShenCandidate {
 		if line.YuePo {
 			candidate.Basis = append(candidate.Basis, "yue_po=true")
 		}
+		if chart.lineInjured(line) {
+			candidate.Basis = append(candidate.Basis, "injured=true")
+		}
 		candidates = append(candidates, candidate)
 	}
 	selected := chart.findYongShen(typ)
@@ -497,7 +503,7 @@ func computeYongShenCandidates(chart *Chart, typ YongShen) []YongShenCandidate {
 		if candidates[i].Position == selected {
 			candidates[i].Selected = true
 			if len(candidates) > 1 {
-				candidates[i].Reason = "用神两现，按旺衰与空破取舍"
+				candidates[i].Reason = "用神两现，按旺衰、动静、破空、被伤取舍"
 			} else {
 				candidates[i].Reason = "卦中唯现"
 			}
@@ -506,14 +512,18 @@ func computeYongShenCandidates(chart *Chart, typ YongShen) []YongShenCandidate {
 		}
 	}
 	if selected == 0 {
-		if hidden := chart.findFuShen(typ); hidden != nil {
+		for _, hidden := range chart.findFuShenAll(typ) {
 			candidates = append(candidates, YongShenCandidate{
 				Position: hidden.Position,
 				Branch:   hidden.Zhi,
 				IsHidden: true,
-				Selected: true,
-				Reason:   "本卦不现，取本宫伏神",
+				Selected: false,
+				Reason:   "本卦不现，本宫伏神候选",
 			})
+		}
+		if len(candidates) > 0 {
+			candidates[len(candidates)-1].Selected = true
+			candidates[len(candidates)-1].Reason = "本卦不现，取本宫首个同六亲伏神；其余候选列出复核"
 		}
 	}
 	return candidates

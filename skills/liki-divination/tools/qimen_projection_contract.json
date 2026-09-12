@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "version": "2026.09.12.0",
+  "version": "2026.09.12.2",
   "fields": {
     "scope": {
       "kind": "scalar",
@@ -95,11 +95,45 @@
       "type": "string",
       "required": true
     },
+    "ri_gan_palace_facts": {
+      "kind": "object_array",
+      "path": "ri_gan_palace_facts",
+      "required": true,
+      "fields": {
+        "palace": {
+          "path": "palace",
+          "type": "string",
+          "required": true
+        },
+        "layer": {
+          "path": "layer",
+          "type": "string",
+          "required": true
+        }
+      }
+    },
     "shi_gan_gong": {
       "kind": "scalar",
       "path": "shi_gan_gong",
       "type": "string",
       "required": true
+    },
+    "shi_gan_palace_facts": {
+      "kind": "object_array",
+      "path": "shi_gan_palace_facts",
+      "required": true,
+      "fields": {
+        "palace": {
+          "path": "palace",
+          "type": "string",
+          "required": true
+        },
+        "layer": {
+          "path": "layer",
+          "type": "string",
+          "required": true
+        }
+      }
     },
     "shi_gan_domain": {
       "kind": "scalar",
@@ -662,6 +696,23 @@
         }
       }
     },
+    "nian_gan_palace_facts": {
+      "kind": "object_array",
+      "path": "yong_shen.nian_gan_palace_facts",
+      "required": false,
+      "fields": {
+        "palace": {
+          "path": "palace",
+          "type": "string",
+          "required": true
+        },
+        "layer": {
+          "path": "layer",
+          "type": "string",
+          "required": true
+        }
+      }
+    },
     "yong_shen_palaces": {
       "kind": "object_array",
       "projection": "symbol_palaces",
@@ -921,6 +972,16 @@
       "path": "specialized.tianwang_context",
       "required": true,
       "fields": {
+        "kind": {
+          "path": "kind",
+          "type": "string",
+          "required": true
+        },
+        "gan": {
+          "path": "gan",
+          "type": "string",
+          "required": true
+        },
         "gong": {
           "path": "gong",
           "type": "string",

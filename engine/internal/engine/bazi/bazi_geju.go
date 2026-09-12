@@ -19,13 +19,14 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 
 	// 建禄格/月刃格: month zhi is the day master's 临官(禄) or 帝旺(刃).
 	if isLu, isRen := jianLuYueRenZhi(riYuan, yueZhi); isLu || isRen {
-		return computeJianLuYueRen(dmElem, isRen)
+		return computeJianLuYueRen(c, dmElem, isRen)
 	}
 
 	// 月令透干定格局: 本气→中气→余气, 第一个透干者定格.
 	var patternGan ganzhi.Gan
 	var patternShiShen ganzhi.ShiShen
 	found := false
+	patternSource := ""
 
 	// 本气 → 中气 → 余气 遍历
 	for _, source := range []string{sourceMainQi, sourceMidQi, sourceMinQi} {
@@ -37,6 +38,7 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 				ss.Gan == c.Ri.Gan || ss.Gan == c.Shi.Gan {
 				patternGan = ss.Gan
 				patternShiShen = ss.ShiShen
+				patternSource = source
 				found = true
 				break
 			}
@@ -52,6 +54,7 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 			if ss.Source == sourceMainQi {
 				patternGan = ss.Gan
 				patternShiShen = ss.ShiShen
+				patternSource = sourceMainQi + "_not_transparent"
 				break
 			}
 		}
@@ -87,15 +90,19 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 	}
 
 	return GeJuResult{
-		Yong:    yong.String(),
-		Xi:      xi.String(),
-		Ji:      ji.String(),
-		Pattern: patternName,
-		Usage:   yongFa,
+		Yong:             yong.String(),
+		Xi:               xi.String(),
+		Ji:               ji.String(),
+		Pattern:          patternName,
+		Usage:            yongFa,
+		PatternGod:       ganzhi.GanName(patternGan),
+		PatternGodTenGod: patternShiShen.String(),
+		PatternGodSource: patternSource,
+		Structure:        buildGeJuStructure(c, &patternGan, patternElem),
 	}
 }
 
-func computeJianLuYueRen(dmElem ganzhi.Wuxing, isYueRen bool) GeJuResult {
+func computeJianLuYueRen(c Chart, dmElem ganzhi.Wuxing, isYueRen bool) GeJuResult {
 	var patternName string
 	if isYueRen {
 		patternName = "月刃格"
@@ -106,11 +113,13 @@ func computeJianLuYueRen(dmElem ganzhi.Wuxing, isYueRen bool) GeJuResult {
 	xi := elementThatGenerates(yong)
 	ji := elementThatGenerates(dmElem)
 	return GeJuResult{
-		Yong:    yong.String(),
-		Xi:      xi.String(),
-		Ji:      ji.String(),
-		Pattern: patternName,
-		Usage:   "逆用",
+		Yong:             yong.String(),
+		Xi:               xi.String(),
+		Ji:               ji.String(),
+		Pattern:          patternName,
+		Usage:            "逆用",
+		PatternGodSource: map[bool]string{true: "month_blade", false: "month_lu"}[isYueRen],
+		Structure:        buildGeJuStructure(c, nil, dmElem),
 	}
 }
 
@@ -127,6 +136,11 @@ func jianLuYueRenZhi(riGan ganzhi.Gan, yueZhi ganzhi.Zhi) (isLu, isYueRen bool) 
 	case lu:
 		return true, false
 	case ren:
+		// 《三命通会·论阳刃》：五阳干有刃，五阴干无刃。
+		// 阴干帝旺位仍可作为十二长生事实，但不得命名为月刃格。
+		if int(riGan)%2 != 1 {
+			return false, false
+		}
 		return false, true
 	}
 	return false, false

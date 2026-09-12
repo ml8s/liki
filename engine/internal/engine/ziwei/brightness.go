@@ -15,6 +15,14 @@ const (
 
 var brightnessNames = [7]string{"庙", "旺", "得", "利", "平", "陷", "不"}
 
+// Branch anchors used by textual pattern boundaries.
+const (
+	zhiZi   Zhi = 1
+	zhiChen Zhi = 5
+	zhiWu   Zhi = 7
+	zhiXu   Zhi = 11
+)
+
 func (b brightness) String() string { return brightnessNames[b] }
 
 var miaoWangTable [14][12]brightness

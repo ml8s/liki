@@ -4,25 +4,24 @@ import "liki-engine/internal/engine/ganzhi"
 
 // FlyingStar holds a single purple-white flying star (紫白飞星).
 type FlyingStar struct {
-	Number     int           `json:"number"`
-	Color      string        `json:"color"`
-	Name       string        `json:"name"`
-	Element    ganzhi.Wuxing `json:"wuxing"`
-	Auspicious bool          `json:"auspicious"`
+	Number  int           `json:"number"`
+	Color   string        `json:"color"`
+	Name    string        `json:"name"`
+	Element ganzhi.Wuxing `json:"wuxing"`
 }
 
 // StarTable maps star number (1-9) to its attributes.
 var StarTable = [10]FlyingStar{
 	{},
-	{1, "白", "一白贪狼", ganzhi.WxShui, true},
-	{2, "黑", "二黑巨门", ganzhi.WxTu, false},
-	{3, "碧", "三碧禄存", ganzhi.WxMu, false},
-	{4, "绿", "四绿文曲", ganzhi.WxMu, true},
-	{5, "黄", "五黄廉贞", ganzhi.WxTu, false},
-	{6, "白", "六白武曲", ganzhi.WxJin, true},
-	{7, "赤", "七赤破军", ganzhi.WxJin, false},
-	{8, "白", "八白左辅", ganzhi.WxTu, true},
-	{9, "紫", "九紫右弼", ganzhi.WxHuo, true},
+	{Number: 1, Color: "白", Name: "一白贪狼", Element: ganzhi.WxShui},
+	{Number: 2, Color: "黑", Name: "二黑巨门", Element: ganzhi.WxTu},
+	{Number: 3, Color: "碧", Name: "三碧禄存", Element: ganzhi.WxMu},
+	{Number: 4, Color: "绿", Name: "四绿文曲", Element: ganzhi.WxMu},
+	{Number: 5, Color: "黄", Name: "五黄廉贞", Element: ganzhi.WxTu},
+	{Number: 6, Color: "白", Name: "六白武曲", Element: ganzhi.WxJin},
+	{Number: 7, Color: "赤", Name: "七赤破军", Element: ganzhi.WxJin},
+	{Number: 8, Color: "白", Name: "八白左辅", Element: ganzhi.WxTu},
+	{Number: 9, Color: "紫", Name: "九紫右弼", Element: ganzhi.WxHuo},
 }
 
 // StarByNumber returns the flying star for a given number (1-9).

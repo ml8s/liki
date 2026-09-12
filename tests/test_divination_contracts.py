@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import csv
 from pathlib import Path
 
 import pytest
@@ -25,6 +26,23 @@ import qimen_ask  # noqa: E402
 import qimen_paipan  # noqa: E402
 import qimen_snapshot  # noqa: E402
 from qimen_projection import validate as validate_standard_factors  # noqa: E402
+from qimen_projection_common import _hour_polarity  # noqa: E402
+
+
+def test_qimen_hour_polarity_follows_stem_parity():
+    expected = {
+        "甲": "yang", "乙": "yin", "丙": "yang", "丁": "yin",
+        "戊": "yang", "己": "yin", "庚": "yang", "辛": "yin",
+        "壬": "yang", "癸": "yin",
+    }
+    with (TOOLS / "data/qimen_hour_polarities.csv").open(
+        encoding="utf-8-sig", newline=""
+    ) as source:
+        actual = {row["gan"]: row["polarity"] for row in csv.DictReader(source)}
+    assert actual == expected
+
+    for stem, polarity in expected.items():
+        assert _hour_polarity({"pan": {"shi_gan": stem}}) == polarity
 
 
 def test_safety_block_matches_common_contract():
@@ -74,7 +92,7 @@ def test_engine_version_gate_accepts_minimum(monkeypatch):
     monkeypatch.setattr(
         divination_rpc,
         "engine_version",
-        lambda: "2026.09.12.0",
+        lambda: "2026.09.12.2",
     )
     divination_rpc.ensure_engine_compatible()
 

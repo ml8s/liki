@@ -5,7 +5,7 @@
 //	Chart, Line, YaoType,
 //	LiuQin, LiuShou, YongShen,
 //	YongShenResult, FuShen,
-//	ganzhi.WangShuai, DayRelation, YingQi
+//	ganzhi.WangShuai, DayRelation, TimingCandidate
 //
 // Constants
 //

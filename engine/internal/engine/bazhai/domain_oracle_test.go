@@ -49,6 +49,9 @@ func TestDomainOracle_BazhaiCore(t *testing.T) {
 			gender = ganzhi.Female
 		}
 		got := ComputeMingGua(gender, want.Year)
+		if got.YearBoundary != "gregorian_calendar_year" {
+			t.Fatalf("%s %d year_boundary = %s", want.Gender, want.Year, got.YearBoundary)
+		}
 		if got.Gua.Name != want.Gua || got.Group != want.Group {
 			t.Errorf("%s %d = %s/%s, want %s/%s", want.Gender, want.Year, got.Gua.Name, got.Group, want.Gua, want.Group)
 		}

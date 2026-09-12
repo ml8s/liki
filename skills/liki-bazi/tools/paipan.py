@@ -24,7 +24,7 @@ from pan_schema import validate_natal_pan
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
-MIN_ENGINE_VERSION = "2026.09.12.0"
+MIN_ENGINE_VERSION = "2026.09.12.2"
 
 
 class RPCError(LikiToolError):
@@ -93,6 +93,11 @@ def _bazi_fullchart(chart: dict) -> dict:
 
 def _ziwei_chart(lunar: dict, gender: str) -> dict:
     return call("ziwei.chart", {"lunar": lunar, "gender": gender})["data"]
+
+
+def _ziwei_fullchart(lunar: dict, gender: str) -> dict:
+    chart = _ziwei_chart(lunar, gender)
+    return call("ziwei.fullchart", {"chart": chart})["data"]
 
 
 def _ziwei_daxian(ziwei: dict) -> list:
@@ -170,14 +175,14 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
         lunar = t["lunar"]
     full = _bazi_fullchart(chart)
     # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
-    zw = _ziwei_chart(lunar, gender)
+    zw = _ziwei_fullchart(lunar, gender)
     daxian = _ziwei_daxian(zw)
     result = {
         "solar": solar,
         "lunar": lunar,
         "chart": chart,      # 含 birth_year / da_yun
         "full": full,        # 十神/藏干/神煞/合会冲刑/三元
-        "ziwei": zw,         # 十二宫/四化/格局
+        "ziwei": zw,         # 十二宫/四化/杂曜/格局
         "ziwei_daxian": daxian,  # 十年大限（公历年段与宫位）
         "gender": gender,
     }

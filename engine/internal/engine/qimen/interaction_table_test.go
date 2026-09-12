@@ -99,6 +99,26 @@ func TestGanInteractionDisplayNameIsMechanical(t *testing.T) {
 	}
 }
 
+func TestGanPalaceFactsPreserveHeavenAndEarthLayers(t *testing.T) {
+	heavenMoving, err := ganzhi.ParseGan("壬")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := pan{GongWei: [9]Gong{
+		{DiPanGan: heavenMoving},
+		{TianPan: []TianPanSymbol{{Gan: heavenMoving, Star: StarTianPeng}}},
+	}}
+
+	got := findGanPalaceFacts(p, heavenMoving)
+	if len(got) != 2 || got[0].Palace != GongKun || got[0].Layer != "heaven" ||
+		got[1].Palace != GongKan || got[1].Layer != "earth" {
+		t.Fatalf("gan palace facts = %+v, want heaven@坤 and earth@坎", got)
+	}
+	if primary := findGanPalaceIdx(p, heavenMoving); primary != GongKun {
+		t.Fatalf("primary palace = %s, want heaven-first 坤", primary)
+	}
+}
+
 func TestGanInteractionDoesNotInventMissingRule(t *testing.T) {
 	earth, err := ganzhi.ParseGan("己")
 	if err != nil {

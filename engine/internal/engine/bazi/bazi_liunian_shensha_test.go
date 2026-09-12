@@ -67,7 +67,8 @@ func TestLiuNian_AnnualBingFu(t *testing.T) {
 	}
 }
 
-// T5: 值年丧门临命（太岁后2辰）——2022 壬寅太岁，丧门=寅后2=子（命局年/日支子）→ 应返回丧门
+// T5: 值年丧门、吊客同临命——2022 壬寅太岁，丧门=寅前2辰、吊客=寅后2辰。
+// 1984 甲子命含子与辰，二煞均应返回；该盘同时覆盖方向反转边界。
 func TestLiuNian_AnnualSangMen(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
@@ -80,17 +81,17 @@ func TestLiuNian_AnnualSangMen(t *testing.T) {
 	for _, s := range ln.ShenSha {
 		names[s.Name] = true
 	}
-	if !names["丧门"] {
-		t.Errorf("2022 缺丧门（太岁寅→丧门子，命局有子），got %v", ln.ShenSha)
+	if !names["丧门"] || !names["吊客"] {
+		t.Errorf("2022 缺丧门/吊客（太岁寅→丧门辰、吊客子），got %v", ln.ShenSha)
 	}
 }
 
-// T5b: 值年吊客临命（太岁前2辰）——2020 庚子太岁，吊客=子前2=寅（命局月支寅）→ 应返回吊客
+// T5b: 值年吊客方向反例——2006 丙戌太岁，吊客=戌后2辰申；命局无申，不应误取前2辰子。
 func TestLiuNian_AnnualDiaoKe(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(st, ganzhi.Male)
-	ln, err := ComputeLiuNian(chart, 2020) // 庚子
+	ln, err := ComputeLiuNian(chart, 2006) // 丙戌
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2020): %v", err)
 	}
@@ -98,8 +99,8 @@ func TestLiuNian_AnnualDiaoKe(t *testing.T) {
 	for _, s := range ln.ShenSha {
 		names[s.Name] = true
 	}
-	if !names["吊客"] {
-		t.Errorf("2020 缺吊客（太岁子→吊客寅，命局有寅），got %v", ln.ShenSha)
+	if names["吊客"] {
+		t.Errorf("2006 不应误标吊客（太岁戌→吊客申，命局无申），got %v", ln.ShenSha)
 	}
 }
 
@@ -136,7 +137,7 @@ func TestLiuNian_AnnualNoHit(t *testing.T) {
 	}
 }
 
-// T7: 值年煞与年支型神煞并存 → 都输出（2022：丧门子 + 年支子劫煞位巳？验证至少含丧门且整体非空）
+// T7: 值年煞与年支型神煞并存 → 都输出（2022：丧门辰 + 吊客子；验证至少含二者且整体非空）
 func TestLiuNian_AnnualAndDynamicCoexist(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
@@ -149,8 +150,8 @@ func TestLiuNian_AnnualAndDynamicCoexist(t *testing.T) {
 	for _, s := range ln.ShenSha {
 		names[s.Name] = true
 	}
-	if !names["丧门"] {
-		t.Errorf("2022 缺丧门：got %v", ln.ShenSha)
+	if !names["丧门"] || !names["吊客"] {
+		t.Errorf("2022 缺丧门/吊客：got %v", ln.ShenSha)
 	}
 	// 2022 寅年：年支子劫煞位巳（子年劫煞巳）——流年寅≠巳，但验证整体机制不冲突即可
 	if len(ln.ShenSha) == 0 {
@@ -173,7 +174,7 @@ func TestLiuNian_ShenSha_HongLuanYearOnly(t *testing.T) {
 // E1.6: 动态神煞无命中（年支+日支神煞位都不在流年）——但值年煞可能命中
 func TestLiuNian_ShenSha_DynamicEmpty(t *testing.T) {
 	// beijing-1984（子寅卯辰）流年 2006 戌：年支子/日支卯的动态神煞位（酉午巳寅辰未申）均非戌 → 动态空
-	// 值年 2006 戌：吊客=戌顺2=子（年支子✓）、大耗=戌冲辰（月支辰✓）→ 返回[吊客 大耗]
+	// 值年 2006 戌：吊客=戌后2辰申（命局无申）、大耗=戌冲辰（月支辰✓）→ 只返回大耗
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	chart := ComputeChart(st, ganzhi.Male)
@@ -185,8 +186,8 @@ func TestLiuNian_ShenSha_DynamicEmpty(t *testing.T) {
 	for _, s := range ln.ShenSha {
 		names[s.Name] = true
 	}
-	if !names["吊客"] || !names["大耗"] {
-		t.Errorf("2006 应返回值年[吊客 大耗]，got %v", ln.ShenSha)
+	if names["吊客"] || !names["大耗"] {
+		t.Errorf("2006 值年神煞应为[大耗]而非[吊客 大耗]，got %v", ln.ShenSha)
 	}
 	// 动态神煞不应出现（桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/羊刃/天乙）
 	for _, dyn := range []string{"桃花", "驿马", "华盖", "劫煞", "灾煞", "红鸾", "天喜", "羊刃", "天乙贵人"} {

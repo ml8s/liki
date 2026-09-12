@@ -23,8 +23,7 @@ func TestComputeLiuNian_NoChart(t *testing.T) {
 	}
 }
 
-// TestComputeLiuNian_HouseOverlay：2024 年凶星（凶/大凶）落宫必须被叠加出来。
-// 2024 三碧入中飞布：中5=3碧(凶)、兑7=5黄(大凶)、离9=7赤(凶)、巽4=2黑(凶) → 4 个凶星宫。
+// TestComputeLiuNian_HouseOverlay：流年星落宫全量叠加，不预设星曜固有吉凶。
 func TestComputeLiuNian_HouseOverlay(t *testing.T) {
 	chart := &Chart{}
 	for i := 0; i < 9; i++ {
@@ -40,21 +39,17 @@ func TestComputeLiuNian_HouseOverlay(t *testing.T) {
 
 	res := ComputeLiuNian(2024, chart)
 
-	wantGongs := map[int]string{5: "三碧禄存", 7: "五黄廉贞", 9: "七赤破军", 4: "二黑巨门"}
-	if len(res.HouseOverlay) != len(wantGongs) {
-		t.Fatalf("house_overlay len = %d, want %d (gongs %v)", len(res.HouseOverlay), len(wantGongs), wantGongs)
+	if len(res.HouseOverlay) != 9 {
+		t.Fatalf("house_overlay len = %d, want 9", len(res.HouseOverlay))
+	}
+	annualByGong := map[int]fengshui.AnnualFlyingStar{}
+	for _, annual := range res.GongWei {
+		annualByGong[annual.GongNum] = annual
 	}
 	for _, o := range res.HouseOverlay {
-		wantStar, ok := wantGongs[o.GongNum]
-		if !ok {
-			t.Errorf("unexpected overlay gong %d (star %s)", o.GongNum, o.Star)
-			continue
-		}
-		if o.Star != wantStar {
-			t.Errorf("gong %d: star = %s, want %s", o.GongNum, o.Star, wantStar)
-		}
-		if o.StarRating != "凶" && o.StarRating != "大凶" {
-			t.Errorf("gong %d: star_rating = %s, want 凶/大凶", o.GongNum, o.StarRating)
+		annual := annualByGong[o.GongNum]
+		if annual.GongNum != o.GongNum || annual.XingName != o.Star {
+			t.Errorf("overlay gong %d does not match annual board: %+v", o.GongNum, o)
 		}
 		// PalaceStars 应含宅盘该宫三星（构造时均为同名星）
 		if o.PalaceStars == "" {
@@ -64,7 +59,6 @@ func TestComputeLiuNian_HouseOverlay(t *testing.T) {
 }
 
 // TestComputeLiuNian_HouseOverlay_2027：另一个年份锚点。
-// 2027 九紫入中飞布：兑7=二黑(凶)、坎1=五黄(大凶)、震3=七赤(凶)、艮8=三碧(凶) → 4 个凶星宫。
 func TestComputeLiuNian_HouseOverlay_2027(t *testing.T) {
 	chart := &Chart{}
 	for i := 0; i < 9; i++ {
@@ -79,18 +73,17 @@ func TestComputeLiuNian_HouseOverlay_2027(t *testing.T) {
 	chart.refreshDigest()
 	res := ComputeLiuNian(2027, chart)
 
-	wantGongs := map[int]string{7: "二黑巨门", 1: "五黄廉贞", 3: "七赤破军", 8: "三碧禄存"}
-	if len(res.HouseOverlay) != len(wantGongs) {
-		t.Fatalf("2027 house_overlay len = %d, want %d (gongs %v)", len(res.HouseOverlay), len(wantGongs), wantGongs)
+	if len(res.HouseOverlay) != 9 {
+		t.Fatalf("2027 house_overlay len = %d, want 9", len(res.HouseOverlay))
+	}
+	annualByGong := map[int]fengshui.AnnualFlyingStar{}
+	for _, annual := range res.GongWei {
+		annualByGong[annual.GongNum] = annual
 	}
 	for _, o := range res.HouseOverlay {
-		wantStar, ok := wantGongs[o.GongNum]
-		if !ok {
-			t.Errorf("unexpected overlay gong %d (star %s)", o.GongNum, o.Star)
-			continue
-		}
-		if o.Star != wantStar {
-			t.Errorf("gong %d: star = %s, want %s", o.GongNum, o.Star, wantStar)
+		annual := annualByGong[o.GongNum]
+		if annual.GongNum != o.GongNum || annual.XingName != o.Star {
+			t.Errorf("2027 overlay gong %d does not match annual board: %+v", o.GongNum, o)
 		}
 	}
 }

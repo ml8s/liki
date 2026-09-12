@@ -29,7 +29,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "shi_ying": line.get("shi_ying"),
             "chang_sheng_yue": line.get("chang_sheng_yue"),
             "wang_shuai": line.get("wang_shuai"),
-            "ri_chen_relation": line.get("ri_chen_relation"),
+            "ri_chen_relations": line.get("ri_chen_relations"),
             "flags": {
                 "moving": bool(line.get("dong_self")),
                 "yue_po": bool(line.get("yue_po")),
@@ -51,7 +51,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
         lines.append(project_line({
             **line,
             "wang_shuai": wang_shuai[index] if index < len(wang_shuai) else None,
-            "ri_chen_relation": (
+            "ri_chen_relations": (
                 day_relations[index] if index < len(day_relations) else None
             ),
         }))
@@ -199,8 +199,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
 
     timing_candidates = chart.get("timing_candidates")
     if not isinstance(timing_candidates, list):
-        timing = chart.get("ying_qi")
-        timing_candidates = [timing] if isinstance(timing, dict) else []
+        timing_candidates = []
 
     return {
         "schema_version": "liuyao-factors-v1",

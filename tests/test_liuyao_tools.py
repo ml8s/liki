@@ -96,7 +96,6 @@ def test_factors_maps_matter_and_projection(monkeypatch):
             "mu_ku_element": "火",
         }],
         "yong_shen": {"name": "官鬼", "position": 1, "wang_shuai": "休", "chang_sheng": "长生"},
-        "ying_qi": {"assessment": "candidate only"},
         "day_clash_facts": [{"position": 1, "kind": "暗动"}],
         "moving_transformations": [{"position": 1, "from_branch": "子", "to_branch": "丑"}],
         "san_he_candidates": [],
@@ -173,13 +172,13 @@ def test_projected_board_preserves_core_time_and_line_states():
         "yue_jian_zhi": "子",
         "xun_kong": ["戌", "亥"],
         "wang_shuai": ["旺", "相", "休", "囚", "死", "旺"],
-        "ri_chen_relations": ["同日", "生日", None, None, None, None],
+        "ri_chen_relations": [["扶"], ["生"], None, None, None, None],
         "yong_shen": {"name": "父母", "position": 1, "wang_shuai": "旺"},
     }
     result = projection.project_factors(casting, chart, {"text": "测试"})
     board = result["board"]
     assert board["lines"][0]["wang_shuai"] == "旺"
-    assert board["lines"][0]["ri_chen_relation"] == "同日"
+    assert board["lines"][0]["ri_chen_relations"] == ["扶"]
     assert board["bian_lines"][0]["liu_qin"] == "官鬼"
     assert (board["ri_gan"], board["ri_zhi"]) == ("甲", "子")
     assert (board["yue_gan"], board["yue_zhi"]) == ("甲", "子")

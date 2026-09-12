@@ -9,6 +9,15 @@ func zhiPalace(z ganzhi.Zhi) GongIndex {
 	return 0
 }
 
+func palaceZhi(p GongIndex) ganzhi.Zhi {
+	for z := ganzhi.Zhi(1); z <= 12; z++ {
+		if zhiPalace(z) == p {
+			return z
+		}
+	}
+	return 0
+}
+
 func palaceWuxing(p GongIndex) ganzhi.Wuxing {
 	if p >= 1 && int(p) <= len(gongWuxingTable) {
 		return gongWuxingTable[int(p)-1]

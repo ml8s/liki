@@ -98,7 +98,19 @@ func TestFacts_SanHeRequiresThreeDistinctBranchesForComplete(t *testing.T) {
 		chart := factsChart(t, yaos)
 		for _, candidate := range chart.SanHeCandidates {
 			if candidate.Complete && !candidate.LineComplete &&
-				len(candidate.Positions)+boolToInt(candidate.DayPresent)+boolToInt(candidate.MonthPresent) < 3 {
+				func() bool {
+					distinct := map[string]bool{}
+					for _, branch := range candidate.Branches {
+						distinct[branch] = true
+					}
+					if candidate.DayPresent {
+						distinct[ganzhi.ZhiName(chart.RiZhi)] = true
+					}
+					if candidate.MonthPresent {
+						distinct[ganzhi.ZhiName(chart.YueZhi)] = true
+					}
+					return len(distinct) < 3
+				}() {
 				t.Fatalf("yaos=%v invalid complete candidate: %+v", yaos, candidate)
 			}
 			if candidate.ConclusionScope == "" {

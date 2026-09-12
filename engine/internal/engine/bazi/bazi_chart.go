@@ -112,6 +112,8 @@ type FullChart struct {
 
 	// 用神三派（透传自 lean Chart）。
 	YongShen YongShenResult `json:"yong_shen"`
+	// 神煞双参照流派：年参照与日参照并取，不在解释层隐含二选一。
+	ShenShaSchool ShenShaSchool `json:"shen_sha_school"`
 
 	// 确定性命理原子事实：透干十神得十干禄位。
 	LuRoots []LuRoot `json:"lu_roots"`
@@ -142,6 +144,12 @@ type FullChart struct {
 
 	// 旬空（按日柱所居之旬），如 "午未"（甲申旬空午未）。空亡柱另见各柱 is_void。
 	XunKong string `json:"xun_kong"`
+}
+
+// ShenShaSchool records the union policy used by dual-reference shensha.
+type ShenShaSchool struct {
+	DualReference []string `json:"dual_reference"`
+	Policy        string   `json:"policy"`
 }
 
 func (c FullChart) ToBazi() ganzhi.Bazi {

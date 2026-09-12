@@ -1,5 +1,5 @@
 {
-  "summary": "应期候选由马星与空亡给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论",
+  "summary": "应期候选由马星、空亡、值符宫与值使宫给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论",
   "horizon_days": 60,
   "date_matches": {
     "ma_xing": [
@@ -8,6 +8,14 @@
     "kong_wang": [
       {"match": "same", "reason": "{target}日填实"},
       {"match": "opposite", "reason": "{branch}日冲{target}"}
+    ],
+    "duty_star": [
+      {"match": "same", "reason": "{target}日值符宫引动"},
+      {"match": "opposite", "reason": "{branch}日冲值符宫{target}"}
+    ],
+    "duty_door": [
+      {"match": "same", "reason": "{target}日值使宫引动"},
+      {"match": "opposite", "reason": "{branch}日冲值使宫{target}"}
     ]
   },
   "rules": [
@@ -20,6 +28,16 @@
       "type": "kong_wang",
       "mechanism": "值冲",
       "description": "空亡逢值或逢冲为填实候选"
+    },
+    {
+      "type": "duty_star",
+      "mechanism": "值冲",
+      "description": "值符宫支逢值或逢冲为引动候选"
+    },
+    {
+      "type": "duty_door",
+      "mechanism": "值冲",
+      "description": "值使宫支逢值或逢冲为引动候选"
     }
   ]
 }

@@ -1,6 +1,10 @@
 {
-  "schema_version": "domain-oracle-ziwei-v1",
-  "basis": "通行紫微安星口径；闰月为 iztro 兼容通行做法：前十五日按本月，后十五日按下月。",
+  "schema_version": "domain-oracle-ziwei-v2",
+  "basis": "紫微核心安星硬事实。四化按《紫微斗数全书·卷二》十干四化诀；天魁天钺按同卷安天魁天钺诀拆为二星；闰月为 iztro 兼容通行做法：前十五日按本月，后十五日按下月。",
+  "sources": [
+    "《紫微斗数全书·卷二》十干四化诀",
+    "《紫微斗数全书·卷二》安天魁天钺诀"
+  ],
   "si_hua_all_10": [
     {
       "stem": "甲",
@@ -79,7 +83,7 @@
       "transformations": {
         "禄": "天梁",
         "权": "紫微",
-        "科": "左辅",
+        "科": "天府",
         "忌": "武曲"
       }
     },
@@ -192,6 +196,30 @@
       "year_branch": "亥",
       "expected": "天机"
     }
+  ],
+  "tian_kui_all_10": [
+    {"stem": "甲", "branch": "丑"},
+    {"stem": "乙", "branch": "子"},
+    {"stem": "丙", "branch": "亥"},
+    {"stem": "丁", "branch": "亥"},
+    {"stem": "戊", "branch": "丑"},
+    {"stem": "己", "branch": "子"},
+    {"stem": "庚", "branch": "丑"},
+    {"stem": "辛", "branch": "午"},
+    {"stem": "壬", "branch": "卯"},
+    {"stem": "癸", "branch": "卯"}
+  ],
+  "tian_yue_all_10": [
+    {"stem": "甲", "branch": "未"},
+    {"stem": "乙", "branch": "申"},
+    {"stem": "丙", "branch": "酉"},
+    {"stem": "丁", "branch": "酉"},
+    {"stem": "戊", "branch": "未"},
+    {"stem": "己", "branch": "申"},
+    {"stem": "庚", "branch": "未"},
+    {"stem": "辛", "branch": "寅"},
+    {"stem": "壬", "branch": "巳"},
+    {"stem": "癸", "branch": "巳"}
   ],
   "leap_month_boundaries": [
     {

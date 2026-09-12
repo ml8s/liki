@@ -1,7 +1,6 @@
 package liuyao
 
 import (
-	"strings"
 	"testing"
 	"time"
 
@@ -35,12 +34,6 @@ func TestComputeChart_HiddenYongShenDoesNotUseBianOrFlyingLine(t *testing.T) {
 	}
 	if chart.YongShen.LiuShou.String() != "青龙" {
 		t.Errorf("liu_shou = %q, want omitted; fu-shen must not inherit flying liu-shou", chart.YongShen.LiuShou)
-	}
-	if strings.Contains(chart.YingQi.Assessment, "初爻") {
-		t.Errorf("ying_qi = %q, must not describe hidden yong-shen as first visible line", chart.YingQi.Assessment)
-	}
-	if !strings.Contains(chart.YingQi.Assessment, "不上卦，伏于亥之下，待冲飞神亥（巳）出伏为应") {
-		t.Errorf("ying_qi = %q, want hidden fu-shen reading", chart.YingQi.Assessment)
 	}
 	if chart.ForceChain == nil || !chart.ForceChain.IsHidden {
 		t.Fatalf("force_chain = %+v, want hidden force chain", chart.ForceChain)

@@ -12,23 +12,20 @@ func findPatterns(palaces [12]gong) []pattern {
 
 	// --- A.1 命宫三维 ---
 	if starWith(ming, ZiWei) &&
-		(anyInSF(palaces, sf, ZuoFu) || anyInSF(palaces, sf, YouBi) ||
-			anyInSF(palaces, sf, TianKui) || anyInSF(palaces, sf, TianYue) ||
-			anyInSF(palaces, sf, WenChang) || anyInSF(palaces, sf, WenQu) ||
-			anyInSF(palaces, sf, LuCun)) {
+		sfDistinctCount(palaces, sf, ZuoFu, YouBi, TianKui, TianYue, WenChang, WenQu, LuCun) >= 2 {
 		p.add("紫微朝垣", "紫微坐命百官朝拱，帝王气象", 2)
 	}
-	if starAtZhi(palaces, TaiYang, 7) { // 太阳居午宫（绝对支位午=7）
+	if ming.Zhi == 7 && starWith(ming, TaiYang) {
 		p.add("日丽中天", "太阳居午，光明磊落", 2)
 	}
-	if starAtZhi(palaces, TaiYin, 12) { // 太阴居亥宫（绝对支位亥=12）
+	if ming.Zhi == 12 && starWith(ming, TaiYin) {
 		p.add("月朗天门", "太阴居亥，清辉遍洒", 2)
 	}
 	if sunMoonBright(palaces) {
 		p.add("日月并明", "太阳太阴双双庙旺，阴阳调和", 2)
 	}
 	if sunMoonDark(palaces) {
-		p.add("日月反背", "太阳太阴双双落陷，光辉不显", 0)
+		p.add("日月反背", "太阳太阴按日戌月辰或日子月午反背，勿概以双落陷论", 0)
 	}
 	if starWith(ming, HuoXing) && starWith(ming, TanLang) && !isXian(ming.Zhi, TanLang) {
 		p.add("火贪格", "火星贪狼同宫，爆发之格", 2)
@@ -45,18 +42,19 @@ func findPatterns(palaces [12]gong) []pattern {
 	if starWith(ming, LianZhen) && starWith(ming, QiSha) {
 		p.add("廉杀同宫", "廉贞七杀同宫，将星得地", 1)
 	}
-	if starWith(ming, PoJun) && isMiao(ming.Zhi, PoJun) {
-		p.add("雄宿乾元", "破军入庙，英雄独断", 2)
+	if starWith(ming, LianZhen) && (ming.Zhi == 8 || ming.Zhi == 9) && noSixMalefic(ming) {
+		p.add("雄宿朝元", "廉贞居未申无六煞，雄宿朝元", 2)
 	}
 
 	// --- A.2 命宫三方 ---
-	if anyInSF(palaces, sf, TianFu) && anyInSF(palaces, sf, TianXiang) {
+	if !starWith(ming, TianFu) && !starWith(ming, TianXiang) &&
+		anyInSF(palaces, sf, TianFu) && anyInSF(palaces, sf, TianXiang) {
 		p.add("府相朝垣", "天府或天相在三方拱照命宫", 1)
 	}
 	if anyInSF(palaces, sf, QiSha) && anyInSF(palaces, sf, PoJun) && anyInSF(palaces, sf, TanLang) {
 		p.add("杀破狼", "七杀破军贪狼会聚命宫三方", 2)
 	}
-	if sfCount(palaces, sf, TianJi, TaiYin, TianTong, TianLiang) >= 3 {
+	if sfCount(palaces, sf, TianJi, TaiYin, TianTong, TianLiang) == 4 {
 		p.add("机月同梁", "天机太阴天同天梁汇聚命宫三方", 1)
 	}
 	if anyInSF(palaces, sf, WenChang) && anyInSF(palaces, sf, WenQu) {
@@ -74,8 +72,8 @@ func findPatterns(palaces [12]gong) []pattern {
 		(starAt(palaces[1], YouBi) && starAt(palaces[11], ZuoFu)) {
 		p.add("左右夹命", "左辅右弼夹命，助力环绕", 2)
 	}
-	if sfSiHuaCount(palaces, sf, HuaLu) >= 2 {
-		p.add("双禄朝垣", "两颗化禄在命宫三方，财禄丰厚", 2)
+	if sfLuCount(palaces, sf) >= 2 {
+		p.add("双禄朝垣", "禄存与化禄会命宫三方，财禄丰厚", 2)
 	}
 	if starInSF(palaces, sf, LuCun) && starInSF(palaces, sf, TianMa) {
 		p.add("禄马交驰", "禄存天马会聚命宫三方", 1)
@@ -85,11 +83,11 @@ func findPatterns(palaces [12]gong) []pattern {
 		p.add("阳梁昌禄", "太阳天梁文昌会照，化禄入命", 2)
 	}
 
-	// --- A.3 财帛官禄 ---
-	if sfSiHuaCount(palaces, sanFang(4), HuaLu) >= 1 {
-		p.add("财荫夹印", "财帛宫有化禄拱照", 1)
+	// --- A.3 财荫夹印 ---
+	if hasCaiYinJiaYin(palaces) {
+		p.add("财荫夹印", "天相被禄财与天梁相夹，财荫护印", 1)
 	}
-	if starAt(palaces[0], TaiYang) && ming.Zhi == 7 && isMiao(ming.Zhi, TaiYang) {
+	if majorCount(ming) == 1 && starWith(ming, TaiYang) && ming.Zhi == 7 && isMiao(ming.Zhi, TaiYang) {
 		p.add("金灿光辉", "太阳独坐命宫午宫，光明磊落", 1)
 	}
 
@@ -104,47 +102,43 @@ func findPatterns(palaces [12]gong) []pattern {
 	}
 
 	// --- A.6 刑忌夹印: 天相被化忌星+天刑夹制 ---
-	for i, palace := range palaces {
-		if !starWith(palace, TianXiang) {
-			continue
-		}
-		prev := palaces[(i+11)%12]
-		next := palaces[(i+1)%12]
+	if !starWith(palaces[0], TianXiang) {
+		return p.list
+	}
+	prev, next := palaces[11], palaces[1]
 
-		prevHasJi, nextHasJi := false, false
-		for _, s := range prev.Stars {
-			if s.SiHua == "忌" {
-				prevHasJi = true
-			}
+	prevHasJi, nextHasJi := false, false
+	for _, s := range prev.Stars {
+		if s.SiHua == "忌" {
+			prevHasJi = true
 		}
-		for _, s := range next.Stars {
-			if s.SiHua == "忌" {
-				nextHasJi = true
-			}
+	}
+	for _, s := range next.Stars {
+		if s.SiHua == "忌" {
+			nextHasJi = true
 		}
+	}
 
-		prevHasXing, nextHasXing := false, false
-		for _, zy := range prev.ZaYao {
-			if zy == "天刑" {
-				prevHasXing = true
-			}
+	prevHasXing, nextHasXing := false, false
+	for _, zy := range prev.ZaYao {
+		if zy == "天刑" {
+			prevHasXing = true
 		}
-		for _, zy := range next.ZaYao {
-			if zy == "天刑" {
-				nextHasXing = true
-			}
+	}
+	for _, zy := range next.ZaYao {
+		if zy == "天刑" {
+			nextHasXing = true
 		}
+	}
 
-		// 必须分居两侧才算"夹"
-		huaJiFound := (prevHasJi && !nextHasJi) || (nextHasJi && !prevHasJi)
-		tianXingFound := (prevHasXing && !nextHasXing) || (nextHasXing && !prevHasXing)
-		_ = tianXingFound
+	// 必须分居两侧才算"夹"
+	huaJiFound := (prevHasJi && !nextHasJi) || (nextHasJi && !prevHasJi)
+	tianXingFound := (prevHasXing && !nextHasXing) || (nextHasXing && !prevHasXing)
+	_ = tianXingFound
 
-		oppositeSides := (prevHasJi && nextHasXing) || (nextHasJi && prevHasXing)
-
-		if huaJiFound && tianXingFound && oppositeSides {
-			p.add("刑忌夹印", "天相被化忌天刑夹制，受制受拖累", 0)
-		}
+	oppositeSides := (prevHasJi && nextHasXing) || (nextHasJi && prevHasXing)
+	if huaJiFound && tianXingFound && oppositeSides {
+		p.add("刑忌夹印", "命宫天相被化忌天刑夹制，受制受拖累", 0)
 	}
 
 	return p.list
@@ -159,14 +153,6 @@ func (p *patterns) add(name, desc string, _ int) {
 // ------ helpers ------
 
 func starAt(pa gong, star starIndex) bool { return starWith(pa, star) }
-func starAtZhi(palaces [12]gong, star starIndex, zhi Zhi) bool {
-	for _, p := range palaces {
-		if p.Zhi == zhi && starWith(p, star) {
-			return true
-		}
-	}
-	return false
-}
 func starWith(pa gong, star starIndex) bool {
 	for _, s := range pa.Stars {
 		if s.Star == star {
@@ -174,6 +160,55 @@ func starWith(pa gong, star starIndex) bool {
 		}
 	}
 	return false
+}
+
+func majorCount(pa gong) int {
+	count := 0
+	for _, item := range pa.Stars {
+		if mainStars[item.Star] {
+			count++
+		}
+	}
+	return count
+}
+
+func noSixMalefic(pa gong) bool {
+	for _, item := range pa.Stars {
+		switch item.Star {
+		case QingYang, TuoLuo, HuoXing, LingXing, DiKong, DiJie:
+			return false
+		}
+	}
+	return true
+}
+
+func sfLuCount(bz [12]gong, sf [4]gongIndex) int {
+	count := 0
+	for _, pi := range sf {
+		for _, s := range bz[pi].Stars {
+			if s.Star == LuCun || s.SiHua == string(HuaLu) {
+				count++
+			}
+		}
+	}
+	return count
+}
+
+func hasCaiYinJiaYin(palaces [12]gong) bool {
+	if !starWith(palaces[0], TianXiang) {
+		return false
+	}
+	prev, next := palaces[11], palaces[1]
+	hasLuCai := func(pa gong) bool {
+		for _, item := range pa.Stars {
+			if item.Star == LuCun || item.SiHua == string(HuaLu) {
+				return true
+			}
+		}
+		return false
+	}
+	return (hasLuCai(prev) && starWith(next, TianLiang)) ||
+		(starWith(prev, TianLiang) && hasLuCai(next))
 }
 
 func isMiao(z Zhi, star starIndex) bool { return miaoWang(star, z) <= Wang }
@@ -205,19 +240,27 @@ func sunMoonBright(palaces [12]gong) bool {
 }
 
 func sunMoonDark(palaces [12]gong) bool {
-	sunDark := false
-	moonDark := false
-	for _, p := range palaces {
-		for _, s := range p.Stars {
-			if s.Star == TaiYang && miaoWang(TaiYang, p.Zhi) == Xian {
-				sunDark = true
+	// 《紫微斗数全书·卷三》：“日月最嫌反背……若反背日戌月辰，子月午。”
+	// 这里只取原文明确结构，不把命宫三方四正任意双落陷泛化为反背。
+	var sunZhis, moonZhis []Zhi
+	for _, cp := range []gongIndex{0, 4, 6, 8} { // 命财官迁（三方四正）
+		for _, s := range palaces[cp].Stars {
+			if s.Star == TaiYang {
+				sunZhis = append(sunZhis, palaces[cp].Zhi)
 			}
-			if s.Star == TaiYin && miaoWang(TaiYin, p.Zhi) == Xian {
-				moonDark = true
+			if s.Star == TaiYin {
+				moonZhis = append(moonZhis, palaces[cp].Zhi)
 			}
 		}
 	}
-	return sunDark && moonDark
+	for _, sun := range sunZhis {
+		for _, moon := range moonZhis {
+			if (sun == zhiXu && moon == zhiChen) || (sun == zhiZi && moon == zhiWu) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func sanFang(ming gongIndex) [4]gongIndex {
@@ -244,6 +287,16 @@ func sfCount(bz [12]gong, sf [4]gongIndex, stars ...starIndex) int {
 			if starAt(bz[pi], s) {
 				count++
 			}
+		}
+	}
+	return count
+}
+
+func sfDistinctCount(bz [12]gong, sf [4]gongIndex, stars ...starIndex) int {
+	count := 0
+	for _, star := range stars {
+		if anyInSF(bz, sf, star) {
+			count++
 		}
 	}
 	return count

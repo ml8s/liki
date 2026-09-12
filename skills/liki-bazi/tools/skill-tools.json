@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.12.0"
+    "version": "2026.09.12.2"
   },
   "tools": [
     {
@@ -251,62 +251,7 @@
                 },
                 "yong_shen": {
                   "type": "object",
-                  "description": "用神三派",
-                  "properties": {
-                    "fu_yi": {
-                      "type": "object",
-                      "properties": {
-                        "qiangruo": {
-                          "type": "string",
-                          "enum": [
-                            "身强",
-                            "身弱",
-                            "中和"
-                          ]
-                        },
-                        "yong": {
-                          "type": "string"
-                        },
-                        "xi": {
-                          "type": "string"
-                        },
-                        "ji": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "tiao_hou": {
-                      "type": "object",
-                      "properties": {
-                        "yong": {
-                          "type": "string"
-                        },
-                        "xi": {
-                          "type": "string"
-                        },
-                        "ji": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "ge_ju": {
-                      "type": "object",
-                      "properties": {
-                        "ge_ju": {
-                          "type": "string"
-                        },
-                        "yong": {
-                          "type": "string"
-                        },
-                        "xi": {
-                          "type": "string"
-                        },
-                        "ji": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
+                  "description": "engine 用神三派只读对象；含扶抑 basis、调候 primary/secondary 显隐与格局 structure。具体结构由 pan_schema fail-closed 校验，工具 schema 不维护第二份内部字段清单"
                 },
                 "lu_roots": {
                   "type": "array",
@@ -776,7 +721,7 @@
       "type": "function",
       "function": {
         "name": "query",
-        "description": "断语查询（本命域）。仅支持本命域，流年走 yearly_range；夫妻/官禄/财帛返回对应紫微宫位域；十神返回八字结构及跨人生领域信号；大运/大限可用 year 指定历史或未来年限运，返回附带 current_year/source。",
+        "description": "断语查询（本命域）。仅支持本命域，流年走 yearly_range；夫妻/官禄/财帛返回对应紫微宫位域；十神返回八字结构及跨人生领域信号；用神返回 yong_shen_context（engine 三派、五行状态与十神状态只读投影）；大运/大限可用 year 指定历史或未来年限运，返回附带 current_year/source。",
         "parameters": {
           "type": "object",
           "properties": {

@@ -342,7 +342,7 @@
       "shi": "甲戌"
     },
     "da_yun": {
-      "start_year_after": 7,
+      "start_year_after": 6,
       "forward": true,
       "steps": [
         "癸未",
@@ -408,7 +408,7 @@
       "shi": "壬申"
     },
     "da_yun": {
-      "start_year_after": 7,
+      "start_year_after": 6,
       "forward": true,
       "steps": [
         "癸未",

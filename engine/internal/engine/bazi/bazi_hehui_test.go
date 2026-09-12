@@ -24,6 +24,7 @@ func TestComputeFullTripleHeHui_SanHeWater(t *testing.T) {
 	if got[0].Element != "水" {
 		t.Errorf("Element = %q, want 水", got[0].Element)
 	}
+	assertTripleLocation(t, got[0], []string{"申", "子", "辰"}, []string{"nian", "yue", "ri"})
 }
 
 func TestComputeFullTripleHeHui_SanHeFire(t *testing.T) {
@@ -124,6 +125,7 @@ func TestComputeFullTripleHeHui_SanHuiWater(t *testing.T) {
 	if got[0].Element != "水" {
 		t.Errorf("Element = %q, want 水", got[0].Element)
 	}
+	assertTripleLocation(t, got[0], []string{"亥", "子", "丑"}, []string{"nian", "yue", "ri"})
 }
 
 func TestComputeFullTripleHeHui_NoMatch(t *testing.T) {
@@ -167,6 +169,26 @@ func combinedTriple(bz ganzhi.Bazi) []TripleGroup {
 	return append(append([]TripleGroup{}, r.SanHe...), r.SanHui...)
 }
 
+func assertTripleLocation(t *testing.T, got TripleGroup, branches, pillars []string) {
+	t.Helper()
+	if len(got.Branches) != len(branches) {
+		t.Fatalf("branches = %v, want %v", got.Branches, branches)
+	}
+	for index := range branches {
+		if got.Branches[index] != branches[index] {
+			t.Fatalf("branches = %v, want %v", got.Branches, branches)
+		}
+	}
+	if len(got.Pillars) != len(pillars) {
+		t.Fatalf("pillars = %v, want %v", got.Pillars, pillars)
+	}
+	for index := range pillars {
+		if got.Pillars[index] != pillars[index] {
+			t.Fatalf("pillars = %v, want %v", got.Pillars, pillars)
+		}
+	}
+}
+
 //nolint:errcheck
 func mustParseGan(s string) ganzhi.Gan { g, _ := ganzhi.ParseGan(s); return g }
 
@@ -174,21 +196,22 @@ func mustParseGan(s string) ganzhi.Gan { g, _ := ganzhi.ParseGan(s); return g }
 func mustParseZhi(s string) ganzhi.Zhi { z, _ := ganzhi.ParseZhi(s); return z }
 
 func TestComputeHeHui_GanHe(t *testing.T) {
-	// 甲子 己巳 甲子 己巳 → all 3 adjacent pairs are 甲己合
+	// 甲子 己巳 甲子 己巳 → 四个两两甲己合均需列出；三个紧邻，一个年时远隔。
 	ch := chartFrom("甲", "子", "己", "巳", "甲", "子", "己", "巳")
 	r := ComputeHeHui(ch)
 
-	if len(r.GanHe) != 3 {
-		t.Fatalf("got %d gan he pairs, want 3 (all adjacent)", len(r.GanHe))
+	if len(r.GanHe) != 4 {
+		t.Fatalf("got %d gan he pairs, want all 4 cross-pillar pairs", len(r.GanHe))
 	}
-	if r.GanHe[0].PillarA != 0 || r.GanHe[0].PillarB != 1 {
-		t.Errorf("pair 0: want [0,1], got [%d,%d]", r.GanHe[0].PillarA, r.GanHe[0].PillarB)
+	positions := map[string]int{}
+	for _, pair := range r.GanHe {
+		positions[pair.Position]++
+		if !pair.Contested {
+			t.Fatalf("pair [%d,%d] participates in multiple combinations and must be contested", pair.PillarA, pair.PillarB)
+		}
 	}
-	if r.GanHe[1].PillarA != 1 || r.GanHe[1].PillarB != 2 {
-		t.Errorf("pair 1: want [1,2], got [%d,%d]", r.GanHe[1].PillarA, r.GanHe[1].PillarB)
-	}
-	if r.GanHe[2].PillarA != 2 || r.GanHe[2].PillarB != 3 {
-		t.Errorf("pair 2: want [2,3], got [%d,%d]", r.GanHe[2].PillarA, r.GanHe[2].PillarB)
+	if positions["adjacent"] != 3 || positions["separated"] != 0 || positions["remote"] != 1 {
+		t.Fatalf("positions = %v, want adjacent=3 separated=0 remote=1", positions)
 	}
 }
 

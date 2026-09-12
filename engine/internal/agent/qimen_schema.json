@@ -1894,7 +1894,9 @@
                       "type": "string",
                       "enum": [
                         "ma_xing",
-                        "kong_wang"
+                        "kong_wang",
+                        "duty_star",
+                        "duty_door"
                       ]
                     },
                     "mechanism": {
@@ -1943,7 +1945,8 @@
                             "enum": [
                               "pillar",
                               "lead",
-                              "yong_shen"
+                              "yong_shen",
+                              "duty"
                             ]
                           }
                         },
@@ -2136,7 +2139,8 @@
                   "enum": [
                     "pillar",
                     "lead",
-                    "yong_shen"
+                    "yong_shen",
+                    "duty"
                   ]
                 }
               },
@@ -2193,7 +2197,8 @@
                   "enum": [
                     "pillar",
                     "lead",
-                    "yong_shen"
+                    "yong_shen",
+                    "duty"
                   ]
                 }
               },
@@ -2455,6 +2460,42 @@
                   ],
                   "additionalProperties": false
                 }
+              },
+              "nian_gan_palace_facts": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "palace": {
+                      "type": "string",
+                      "enum": [
+                        "坎",
+                        "坤",
+                        "震",
+                        "巽",
+                        "中",
+                        "乾",
+                        "兑",
+                        "艮",
+                        "离"
+                      ]
+                    },
+                    "layer": {
+                      "type": "string",
+                      "enum": [
+                        "heaven",
+                        "earth"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "palace",
+                    "layer"
+                  ]
+                }
               }
             },
             "additionalProperties": false,
@@ -2561,11 +2602,27 @@
                   "type": "object",
                   "additionalProperties": false,
                   "required": [
+                    "kind",
+                    "gan",
                     "gong",
                     "hour_gong",
                     "relation_to_hour"
                   ],
                   "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "天网四张",
+                        "地罗遮蔽"
+                      ]
+                    },
+                    "gan": {
+                      "type": "string",
+                      "enum": [
+                        "壬",
+                        "癸"
+                      ]
+                    },
                     "gong": {
                       "type": "string"
                     },
@@ -2578,6 +2635,78 @@
                   }
                 }
               }
+            }
+          },
+          "ri_gan_palace_facts": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "palace": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "坤",
+                    "震",
+                    "巽",
+                    "中",
+                    "乾",
+                    "兑",
+                    "艮",
+                    "离"
+                  ]
+                },
+                "layer": {
+                  "type": "string",
+                  "enum": [
+                    "heaven",
+                    "earth"
+                  ]
+                }
+              },
+              "required": [
+                "palace",
+                "layer"
+              ]
+            }
+          },
+          "shi_gan_palace_facts": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "palace": {
+                  "type": "string",
+                  "enum": [
+                    "坎",
+                    "坤",
+                    "震",
+                    "巽",
+                    "中",
+                    "乾",
+                    "兑",
+                    "艮",
+                    "离"
+                  ]
+                },
+                "layer": {
+                  "type": "string",
+                  "enum": [
+                    "heaven",
+                    "earth"
+                  ]
+                }
+              },
+              "required": [
+                "palace",
+                "layer"
+              ]
             }
           }
         },
@@ -2600,7 +2729,9 @@
           "palace_wang_shuai",
           "shi_gan_gong_wang_shuai",
           "zhi_fu_xing_gong",
-          "zhi_shi_men_gong"
+          "zhi_shi_men_gong",
+          "ri_gan_palace_facts",
+          "shi_gan_palace_facts"
         ],
         "additionalProperties": false,
         "allOf": [

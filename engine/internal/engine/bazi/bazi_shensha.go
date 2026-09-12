@@ -54,14 +54,13 @@ type tianDeTarget struct {
 }
 
 // computeShenSha computes all shensha for the bazi chart, grouped by pillar.
-func computeShenSha(bz ganzhi.Bazi) [4][]shenShaEntry {
+func computeShenSha(bz ganzhi.Bazi, gender ganzhi.Gender) [4][]shenShaEntry {
 	riYuan := bz.Ri.Gan
 	yueZhi := bz.Yue.Zhi
 	zhus := bz.Slice()
 	var out [4][]shenShaEntry
 	zhi := [4]ganzhi.Zhi{zhus[0].Zhi, zhus[1].Zhi, zhus[2].Zhi, zhus[3].Zhi}
-	// seasonIdx（月支三会组）供四废（四时废日）使用：寅卯辰→0 巳午未→1 申酉戌→2 亥子丑→3。
-	seasonIdx := (int(yueZhi) - 1) / 3
+	seasonIdx := sanHuiSeasonIndex(yueZhi)
 	nianZhi := zhus[0].Zhi
 	// yearSanHuiIdx（年支三会组）供孤辰寡宿使用：寅卯辰→0 巳午未→1 申酉戌→2 亥子丑→3。
 	// 孤辰寡宿以年支为准（亥子丑人见寅为孤、见戌为寡），与月支三会组不同。
@@ -69,7 +68,7 @@ func computeShenSha(bz ganzhi.Bazi) [4][]shenShaEntry {
 
 	addTianYi(&out, bz, riYuan, zhus[0].Gan)
 	addWenChang(&out, bz, riYuan)
-	addXueTang(&out, bz, riYuan)
+	addXueTang(&out, bz)
 	addLuShen(&out, bz, riYuan)
 	addYangRen(&out, bz, riYuan)
 	addTianDe(&out, bz, yueZhi)
@@ -83,12 +82,12 @@ func computeShenSha(bz ganzhi.Bazi) [4][]shenShaEntry {
 	addGuChenGuaSu(&out, bz, yearSanHuiIdx)
 	addHongLuanTianXi(&out, bz, nianZhi)
 	addJinYu(&out, bz, riYuan)
-	addCiGuan(&out, bz, riYuan)
+	addCiGuan(&out, bz)
 	addYueEn(&out, bz, yueZhi)
 	addTianShe(&out, bz, yueZhi)
 	addTianLuoDiWang(&out, bz)
-	addGouJiao(&out, bz, nianZhi)
-	addYuanChen(&out, bz, nianZhi, zhus[0].Gan)
+	addGouJiao(&out, bz, nianZhi, zhus[0].Gan, gender)
+	addYuanChen(&out, bz, nianZhi, zhus[0].Gan, gender)
 	addXueRen(&out, bz, riYuan)
 	addSiFei(&out, bz, seasonIdx)
 	addShiEDaBai(&out, bz)
@@ -126,16 +125,14 @@ func addWenChang(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
 	appendShenShaByGanLookup(out, bz, riYuan, wenChangLookup, "文昌", catJi, "主学业、文书、才华")
 }
 
-func addXueTang(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
-	addChangShengShenSha(out, bz, riYuan, 0, "学堂", catJi, "日主长生之位，主学业聪颖")
+// addXueTang 采用《三命通会》学堂正位：年命纳音五行的长生支上，
+// 再见同一纳音五行的干支，方为学堂。
+func addXueTang(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	addNayinStageShenSha(out, bz, "学堂", "主学业聪颖", true)
 }
 
 func addLuShen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
 	addChangShengShenSha(out, bz, riYuan, 3, "禄神", catJi, "日主临官之位，主福禄安康")
-}
-
-func addCiGuan(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
-	addChangShengShenSha(out, bz, riYuan, 3, "词馆", catJi, "主文章、口才、文职")
 }
 
 func addChangShengShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan, stageIdx int, name, cat, desc string) {
@@ -148,6 +145,48 @@ func addChangShengShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.
 		if bn := p.Zhi; bn >= 1 && bn <= 12 && stageRow[stageIdx] == bn {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{Name: name, Category: cat, Description: desc})
 		}
+	}
+}
+
+// addCiGuan 采用《三命通会》词馆正位：年命纳音五行的临官支上，
+// 再见同一纳音五行的干支，方为词馆。
+func addCiGuan(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	addNayinStageShenSha(out, bz, "词馆", "主文章、口才、文职", false)
+}
+
+func addNayinStageShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, name, desc string, changSheng bool) {
+	zhus := bz.Slice()
+	yearElement := ganzhi.NayinWuxing(ganzhi.NayinLabel(zhus[0].Gan, zhus[0].Zhi))
+	if yearElement == 0 {
+		return
+	}
+	targets := nayinStageBranches(changSheng)
+	for pi, p := range zhus {
+		if ganzhi.NayinWuxing(ganzhi.NayinLabel(p.Gan, p.Zhi)) != yearElement {
+			continue
+		}
+		if p.Zhi == targets[yearElement] {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{Name: name, Category: catJi, Description: desc})
+		}
+	}
+}
+
+func nayinStageBranches(changSheng bool) map[ganzhi.Wuxing]ganzhi.Zhi {
+	if changSheng {
+		return map[ganzhi.Wuxing]ganzhi.Zhi{
+			ganzhi.WxMu:   ganzhi.ZhiHai,
+			ganzhi.WxHuo:  ganzhi.ZhiYin,
+			ganzhi.WxTu:   ganzhi.ZhiShen,
+			ganzhi.WxJin:  ganzhi.ZhiSi,
+			ganzhi.WxShui: ganzhi.ZhiShen,
+		}
+	}
+	return map[ganzhi.Wuxing]ganzhi.Zhi{
+		ganzhi.WxMu:   ganzhi.ZhiYin,
+		ganzhi.WxHuo:  ganzhi.ZhiSi,
+		ganzhi.WxTu:   ganzhi.ZhiHai,
+		ganzhi.WxJin:  ganzhi.ZhiShen,
+		ganzhi.WxShui: ganzhi.ZhiHai,
 	}
 }
 
@@ -304,7 +343,7 @@ func addYueEn(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 
 func addTianShe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 	zhus := bz.Slice()
-	season := (int(yueZhi) - 1) / 3
+	season := sanHuiSeasonIndex(yueZhi)
 	tianSheChecks := [4]ganZhiPair{{5, 3}, {1, 7}, {5, 9}, {1, 1}} // 戊寅, 甲午, 戊申, 甲子
 	if season >= 0 && season < 4 {
 		pair := tianSheChecks[season]
@@ -318,8 +357,11 @@ func addTianShe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 
 func addTianLuoDiWang(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
 	zhus := bz.Slice()
+	yearElement := ganzhi.NayinWuxing(ganzhi.NayinLabel(zhus[0].Gan, zhus[0].Zhi))
 	for pi, p := range zhus {
-		if label, ok := tianLuoDiWang[p.Zhi]; ok {
+		label, ok := tianLuoDiWang[p.Zhi]
+		if ok && ((label == "天罗" && yearElement == ganzhi.WxHuo) ||
+			(label == "地网" && (yearElement == ganzhi.WxShui || yearElement == ganzhi.WxTu))) {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{
 				Name: label, Category: catXiong, Description: "主运势阻滞，有志难伸",
 			})
@@ -327,10 +369,19 @@ func addTianLuoDiWang(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
 	}
 }
 
-func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi) {
+// sanHuiSeasonIndex returns 寅卯辰→0、巳午未→1、申酉戌→2、亥子丑→3.
+func sanHuiSeasonIndex(zhi ganzhi.Zhi) int {
+	return ((int(zhi) - int(ganzhi.ZhiYin) + 12) % 12) / 3
+}
+
+func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) {
 	zhus := bz.Slice()
-	gouShen := ganzhi.Zhi((int(nianZhi)+2)%12 + 1)
-	jiaoShen := ganzhi.Zhi((int(nianZhi)+4)%12 + 1)
+	ahead := zhiOffset(nianZhi, 3)
+	behind := zhiOffset(nianZhi, -3)
+	gouShen, jiaoShen := ahead, behind
+	if !yangMaleOrYinFemale(nianGan, gender) {
+		gouShen, jiaoShen = behind, ahead
+	}
 	for pi, p := range zhus {
 		if p.Zhi == gouShen {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{
@@ -345,9 +396,9 @@ func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi) {
 	}
 }
 
-func addYuanChen(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi, nianGan ganzhi.Gan) {
+func addYuanChen(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) {
 	zhus := bz.Slice()
-	ycBranch := yuanChenZhi(nianZhi, nianGan)
+	ycBranch := yuanChenZhi(nianZhi, nianGan, gender)
 	for pi, p := range zhus {
 		if p.Zhi == ycBranch {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{
@@ -487,7 +538,7 @@ func computeDynamicShenSha(b ganzhi.Zhi, nianZhi, riBranch ganzhi.Zhi, riYuan ga
 }
 
 // computeAnnualShenSha 值年神煞（《协纪辨方书》——按太岁/流年支查表，命局四柱逢煞支即应）。
-// 病符=太岁后1辰、丧门=后2辰、吊客=前2辰、大耗（岁破）=对冲。白虎查表有版本争议，不做。
+// 病符=太岁后1辰、丧门=前2辰、吊客=后2辰、大耗（岁破）=对冲。白虎查表有版本争议，不做。
 func computeAnnualShenSha(b ganzhi.Zhi, bz ganzhi.Bazi) []shenShaEntry {
 	annual := []struct {
 		name string
@@ -495,8 +546,8 @@ func computeAnnualShenSha(b ganzhi.Zhi, bz ganzhi.Bazi) []shenShaEntry {
 		desc string
 	}{
 		{"病符", zhiOffset(b, -1), "流运病符临命，主病灾"},
-		{"丧门", zhiOffset(b, -2), "流运丧门临命，主孝服/丧事"},
-		{"吊客", zhiOffset(b, +2), "流运吊客临命，主吊丧/孝服"},
+		{"丧门", zhiOffset(b, +2), "流运丧门临命，主孝服/丧事"},
+		{"吊客", zhiOffset(b, -2), "流运吊客临命，主吊丧/孝服"},
 		{"大耗", zhiOffset(b, +6), "流运大耗临命，主破财大耗"},
 	}
 	var result []shenShaEntry
@@ -521,24 +572,28 @@ func zhiOffset(z ganzhi.Zhi, n int) ganzhi.Zhi {
 	return ganzhi.Zhi((int(z)-1+n+120)%12 + 1)
 }
 
-func yuanChenZhi(nianZhi ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
+func yuanChenZhi(nianZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) ganzhi.Zhi {
 	for _, p := range ganzhi.ChongPairs {
 		if p.A == nianZhi {
-			return yuanChenOffset(p.B, nianGan)
+			return yuanChenOffset(p.B, nianGan, gender)
 		}
 		if p.B == nianZhi {
-			return yuanChenOffset(p.A, nianGan)
+			return yuanChenOffset(p.A, nianGan, gender)
 		}
 	}
 	return 0
 }
 
-// yuanChenOffset applies the yin/yang offset to the clash zhi.
-// 阳年: +1, 阴年: -1.
-func yuanChenOffset(chongZhi ganzhi.Zhi, nianGan ganzhi.Gan) ganzhi.Zhi {
-	isYang := int(nianGan)%2 == 1
-	if isYang {
+// yuanChenOffset applies the gender-aware offset to the clash zhi.
+// 阳男阴女取冲前一位；阴男阳女取冲后一位（《三命通会·论元辰》）。
+func yuanChenOffset(chongZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) ganzhi.Zhi {
+	if yangMaleOrYinFemale(nianGan, gender) {
 		return chongZhi%12 + 1
 	}
 	return (chongZhi-2+12)%12 + 1
+}
+
+func yangMaleOrYinFemale(nianGan ganzhi.Gan, gender ganzhi.Gender) bool {
+	yangYear := ganzhi.GanYinYang(nianGan) == ganzhi.Yang
+	return yangYear == (gender == ganzhi.Male)
 }

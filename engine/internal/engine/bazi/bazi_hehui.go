@@ -17,12 +17,15 @@ type HeHuiResult struct {
 	LiuXing  []ZhiPairRel  `json:"liu_xing"`
 }
 
-// GanHePair describes a 天干五合 between two adjacent pillars.
+// GanHePair describes a 天干五合 pair. Adjacency is an engine-owned fact;
+// non-adjacent pairs remain candidates and must not be promoted to tight combinations.
 type GanHePair struct {
 	GanA      string `json:"gan_a"`
 	GanB      string `json:"gan_b"`
 	PillarA   int    `json:"pillar_a"`
 	PillarB   int    `json:"pillar_b"`
+	Position  string `json:"position"`
+	Contested bool   `json:"contested"`
 	HeElement string `json:"he_element"`
 }
 
@@ -37,9 +40,11 @@ type ZhiPairRel struct {
 
 // TripleGroup describes a complete 三合局 or 三会方.
 type TripleGroup struct {
-	Type    string `json:"type"`
-	Name    string `json:"name"`
-	Element string `json:"wuxing"`
+	Type     string   `json:"type"`
+	Name     string   `json:"name"`
+	Element  string   `json:"wuxing"`
+	Branches []string `json:"branches"`
+	Pillars  []string `json:"pillars"`
 }
 
 // ComputeHeHui computes the full 合会冲刑 analysis from a Chart.
@@ -66,19 +71,35 @@ const (
 func detectGanHe(bz ganzhi.Bazi) []GanHePair {
 	pairs := make([]GanHePair, 0, 5)
 	zhus := bz.Slice()
-	adjacent := [][2]int{{zhuNian, zhuYue}, {zhuYue, zhuRi}, {zhuRi, zhuShi}}
-	for _, adj := range adjacent {
-		a, b := zhus[adj[0]].Gan, zhus[adj[1]].Gan
-		if ganzhi.IsGanHe(a, b) {
-			heWx := ganHeResult(a, b)
+	for i := 0; i < 3; i++ {
+		for j := i + 1; j < 4; j++ {
+			a, b := zhus[i].Gan, zhus[j].Gan
+			if !ganzhi.IsGanHe(a, b) {
+				continue
+			}
+			position := "separated"
+			switch j - i {
+			case 1:
+				position = "adjacent"
+			case 3:
+				position = "remote"
+			}
 			pairs = append(pairs, GanHePair{
-				GanA:      ganzhi.GanName(a),
-				GanB:      ganzhi.GanName(b),
-				PillarA:   adj[0],
-				PillarB:   adj[1],
-				HeElement: heWx.String(),
+				GanA: ganzhi.GanName(a), GanB: ganzhi.GanName(b),
+				PillarA: i, PillarB: j, Position: position,
+				HeElement: ganHeResult(a, b).String(),
 			})
 		}
+	}
+	for i := range pairs {
+		participations := 0
+		for _, other := range pairs {
+			if other.PillarA == pairs[i].PillarA || other.PillarA == pairs[i].PillarB ||
+				other.PillarB == pairs[i].PillarA || other.PillarB == pairs[i].PillarB {
+				participations++
+			}
+		}
+		pairs[i].Contested = participations > 1
 	}
 	return pairs
 }
@@ -124,13 +145,36 @@ func detectTriple(bz ganzhi.Bazi, list []ganzhi.SanHeHui, typ, suffix string) []
 	for _, tr := range list {
 		if countZhi(bs, tr.Zhi...) == len(tr.Zhi) {
 			results = append(results, TripleGroup{
-				Type:    typ,
-				Name:    tripleName(tr.Zhi, tr.Element, suffix),
-				Element: tr.Element.String(),
+				Type:     typ,
+				Name:     tripleName(tr.Zhi, tr.Element, suffix),
+				Element:  tr.Element.String(),
+				Branches: zhiNames(tr.Zhi),
+				Pillars:  pillarsWithAnyZhi(bz, tr.Zhi...),
 			})
 		}
 	}
 	return results
+}
+
+func zhiNames(items []ganzhi.Zhi) []string {
+	names := make([]string, 0, len(items))
+	for _, item := range items {
+		names = append(names, ganzhi.ZhiName(item))
+	}
+	return names
+}
+
+func pillarsWithAnyZhi(bz ganzhi.Bazi, targets ...ganzhi.Zhi) []string {
+	pillars := make([]string, 0, 4)
+	for index, pillar := range bz.Slice() {
+		for _, target := range targets {
+			if pillar.Zhi == target {
+				pillars = append(pillars, zhuLabels[index])
+				break
+			}
+		}
+	}
+	return pillars
 }
 
 func zhiHeElement(a, b ganzhi.Zhi) string {

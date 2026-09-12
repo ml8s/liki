@@ -1,0 +1,39 @@
+{
+  "schema_version": "domain-oracle-bazi-nayin-shen-sha-v1",
+  "basis": "学堂、词馆取三命纳音正位：以年柱纳音五行为命，长生支见同纳音五行干支为学堂，临官支见同纳音五行干支为词馆；仅地支相同而纳音不同气不成立。",
+  "sources": [
+    "《三命通会·论学堂词馆》：长生乃学堂之正位……临官乃词馆正位……支干纳音又同气"
+  ],
+  "cases": [
+    {
+      "id": "wood",
+      "pillars": ["辛卯", "己亥", "庚寅", "甲子"],
+      "expected": {"学堂": ["yue"], "词馆": ["ri"]}
+    },
+    {
+      "id": "fire",
+      "pillars": ["丁卯", "丙寅", "乙巳", "甲子"],
+      "expected": {"学堂": ["yue"], "词馆": ["ri"]}
+    },
+    {
+      "id": "earth",
+      "pillars": ["辛丑", "戊申", "丁亥", "甲子"],
+      "expected": {"学堂": ["yue"], "词馆": ["ri"]}
+    },
+    {
+      "id": "metal",
+      "pillars": ["庚辰", "辛巳", "壬申", "甲子"],
+      "expected": {"学堂": ["yue"], "词馆": ["ri"]}
+    },
+    {
+      "id": "water",
+      "pillars": ["乙酉", "甲申", "癸亥", "甲子"],
+      "expected": {"学堂": ["yue"], "词馆": ["ri"]}
+    },
+    {
+      "id": "same-branch-different-nayin",
+      "pillars": ["辛卯", "辛亥", "戊寅", "甲子"],
+      "expected": {"学堂": [], "词馆": []}
+    }
+  ]
+}

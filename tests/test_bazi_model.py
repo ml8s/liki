@@ -129,7 +129,7 @@ def test_factor_inventory_has_single_source_of_truth() -> None:
         flow_categories[category(rows)] += 1
         flow_sides[side(rows)] += 1
 
-    assert len(groups) == 463
+    assert len(groups) == 475
     assert len(flows) == 101
 
     text = DOC.read_text(encoding="utf-8")
@@ -165,6 +165,19 @@ def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
         if name.startswith("流年配偶星") or name.startswith("流年财星") or name.startswith("流年母星") or name.startswith("流年子女星"):
             assert name.split("流年", 1)[1]
     assert "流年官杀换运首年" in flow_groups()
+
+
+def test_yong_shen_guidance_requires_effective_support_not_team_labels() -> None:
+    text = (ROOT / "skills/liki-bazi/domains/bazi/yongshen.md").read_text(encoding="utf-8")
+    assert "数量不等于有效力量" in text
+    assert "禁止用 `wuxing_count` 做加总评分" in text
+    assert "喜神不是“同党标签”" in text
+    for required in ("生克方向", "力量反转", "通关条件", "合冲牵制", "调候辅证"):
+        assert required in text
+    assert "若候选五行克用神，不得直接作喜神" in text
+
+    model = DOC.read_text(encoding="utf-8")
+    assert "`duanyu.query(rule=用神)` 除断语外返回 `yong_shen_context`" in model
 
 
 def test_stable_factor_names_use_consistent_entities() -> None:

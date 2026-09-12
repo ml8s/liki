@@ -1413,7 +1413,11 @@
       "input": {
         "base": {
           "ri_gan": "甲",
-          "yongshen": {"fu_yi": {"qiangruo": "身强"}},
+          "yongshen": {
+            "fu_yi": {
+              "qiangruo": "身强"
+            }
+          },
           "ten_god_states": {
             "食神": {
               "count": 1,
@@ -1443,7 +1447,11 @@
       "input": {
         "base": {
           "ri_gan": "甲",
-          "yongshen": {"fu_yi": {"qiangruo": "身强"}},
+          "yongshen": {
+            "fu_yi": {
+              "qiangruo": "身强"
+            }
+          },
           "ten_god_states": {
             "食神": {
               "count": 1,
@@ -1741,8 +1749,18 @@
           "gender": "male",
           "ziwei": {
             "palace_facts": [
-              {"palace": "夫妻", "kind": "star", "target": "紫微", "star": "紫微"},
-              {"palace": "夫妻", "kind": "si_hua", "target": "忌", "star": "贪狼"}
+              {
+                "palace": "夫妻",
+                "kind": "star",
+                "target": "紫微",
+                "star": "紫微"
+              },
+              {
+                "palace": "夫妻",
+                "kind": "si_hua",
+                "target": "忌",
+                "star": "贪狼"
+              }
             ]
           }
         }
@@ -1752,6 +1770,83 @@
         "贪狼化忌": 1
       },
       "basis": "engine 本命宫名除命宫外不带宫字；因子表必须精确消费 engine palace_facts。"
+    },
+    {
+      "id": "engine_natal_shen_sha_coverage",
+      "rule": "本命 engine 神煞全部进入因子层",
+      "kind": "positive",
+      "category": "shen_sha",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male",
+          "full": {
+            "nian": {
+              "shen_sha": [
+                {
+                  "name": "学堂"
+                },
+                {
+                  "name": "禄神"
+                },
+                {
+                  "name": "词馆"
+                },
+                {
+                  "name": "金舆"
+                },
+                {
+                  "name": "月恩"
+                },
+                {
+                  "name": "天罗"
+                },
+                {
+                  "name": "地网"
+                },
+                {
+                  "name": "劫煞"
+                },
+                {
+                  "name": "灾煞"
+                },
+                {
+                  "name": "勾神"
+                },
+                {
+                  "name": "绞神"
+                },
+                {
+                  "name": "四废"
+                },
+                {
+                  "name": "十恶大败"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expect_factors": {
+        "学堂": 1,
+        "禄神": 1,
+        "词馆": 1,
+        "金舆": 1,
+        "月恩": 1,
+        "天罗地网": 1,
+        "劫煞": 1,
+        "灾煞": 1,
+        "勾神": 1,
+        "绞神": 1,
+        "四废": 1,
+        "十恶大败": 1
+      },
+      "basis": "engine 本命神煞是确定事实；缺失项必须进入因子层，不能只停留在 raw chart。"
     },
     {
       "id": "natal_relation_operator_reads_engine_group",

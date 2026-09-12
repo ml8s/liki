@@ -291,8 +291,31 @@ func TestComplete(t *testing.T) {
 			}
 		})
 	}
+
 	if pass+fail > 0 {
 		fmt.Printf("断言汇总: %d pass / %d fail / %d total\n", pass, fail, pass+fail)
+	}
+}
+
+func TestComputeFullChartPatternsMatchFinalPalaces(t *testing.T) {
+	for _, tc := range loadCases(t) {
+		t.Run(tc.Lunar+"_"+tc.Gender, func(t *testing.T) {
+			lt := parseLT(tc)
+			gender := ganzhi.Female
+			if tc.Gender == "男" {
+				gender = ganzhi.Male
+			}
+			full := ComputeFullChart(ComputeChart(lt, gender), 0, 0)
+			want := findPatterns(full.GongWei)
+			if len(full.Patterns) != len(want) {
+				t.Fatalf("patterns = %#v, want recomputed %#v", full.Patterns, want)
+			}
+			for i := range want {
+				if full.Patterns[i] != want[i] {
+					t.Fatalf("pattern %d = %#v, want %#v", i, full.Patterns[i], want[i])
+				}
+			}
+		})
 	}
 }
 

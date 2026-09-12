@@ -84,8 +84,9 @@ type SymbolResult struct {
 // YongShenResult 奇门用神领域对象（用神符号组合落宫状态 + 年命干）。
 // 求测人定位（日干/时干落宫、生克）由排盘固有字段提供，见 Chart 顶层字段。
 type YongShenResult struct {
-	NianGanPalace *GongIndex     `json:"nian_gan_gong,omitempty"` // 年命干落宫（需 birth_date；甲遁看六仪遁宫）
-	Symbols       []SymbolResult `json:"symbols"`                 // 用神符号组合落宫状态
+	NianGanPalace      *GongIndex      `json:"nian_gan_gong,omitempty"` // 年命干落宫（需 birth_date；甲遁看六仪遁宫）
+	NianGanPalaceFacts []GanPalaceFact `json:"nian_gan_palace_facts,omitempty"`
+	Symbols            []SymbolResult  `json:"symbols"` // 用神符号组合落宫状态
 }
 
 // jiaDunLiuYi 甲遁：六甲 → 六仪（甲子遁戊/甲戌遁己/甲申遁庚/甲午遁辛/甲辰遁壬/甲寅遁癸）。
@@ -121,6 +122,14 @@ func resolveNianGan(chart Chart, birthDate BirthDate) *GongIndex {
 		return &palace
 	}
 	return nil
+}
+
+func resolveNianGanFacts(chart Chart, birthDate BirthDate) []GanPalaceFact {
+	nian := tianwen.NianZhu(tianwen.GregorianTime(birthDate.Time))
+	if nian.Gan == 0 {
+		return nil
+	}
+	return findGanPalaceFacts(chart.Pan, resolveJiaDunGan(nian.Gan, nian.Zhi))
 }
 
 // symbolName 符号名称。
@@ -191,6 +200,7 @@ func computeYongShen(chart Chart, syms []YongShenSymbol, birthDate BirthDate, ha
 	// 年命干落宫（需出生年份；甲年命遁六仪）
 	if hasBirth && birthDate.Has {
 		ys.NianGanPalace = resolveNianGan(chart, birthDate)
+		ys.NianGanPalaceFacts = resolveNianGanFacts(chart, birthDate)
 	}
 
 	return ys

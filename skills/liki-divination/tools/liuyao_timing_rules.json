@@ -1,5 +1,5 @@
 {
-  "schema_version": "liuyao-timing-rules-v1",
+  "schema_version": "liuyao-timing-rules-v2",
   "default_priority": 30,
   "default_horizon": "event_based",
   "target_bonus": 8,
@@ -9,15 +9,11 @@
     "medium": 50
   },
   "required_check": "仍须核对旺衰、空破真假和现实时间范围",
+  "boundary": "传统六爻应期候选；不构成医疗、法律、财务或其他专业建议。",
   "target_indicators": {
     "basis_tokens": [
       "yong_shen"
     ]
-  },
-  "blocked_topics": {
-    "health_context": {
-      "reason": "健康语境不给应期；先引导专业医疗或紧急帮助。"
-    }
   },
   "mechanism_priority": {
     "旬空填实": 82,
@@ -38,7 +34,7 @@
     "lost_item": "short",
     "travel": "short",
     "legal": "process_based",
-    "health_context": "blocked"
+    "health_context": "event_based"
   },
   "focus_id_prefixes": {
     "moving-value": [

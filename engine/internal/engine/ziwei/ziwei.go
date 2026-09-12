@@ -251,6 +251,7 @@ const (
 
 // Chart holds the complete ziwei chart.
 type Chart struct {
+	School    ChartSchool `json:"school"`
 	GongWei   [12]gong    `json:"gong_wei"`
 	MingGong  gongIndex   `json:"ming_gong"`
 	ShenGong  gongIndex   `json:"shen_gong"`
@@ -277,6 +278,14 @@ type Chart struct {
 	ShenZhu         string         `json:"shen_zhu,omitempty"`
 	Patterns        []pattern      `json:"patterns,omitempty"`
 	SanFang         []SanFangInfo  `json:"san_fang,omitempty"` // 三方四正（命/财帛/官禄/迁移）
+}
+
+// ChartSchool makes the leap-month convention explicit. The engine currently
+// follows the common iztro-compatible rule rather than silently claiming the
+// Quanshu year-start rule.
+type ChartSchool struct {
+	LeapMonth string `json:"leap_month"`
+	Source    string `json:"source"`
 }
 
 // siHuaResult maps star → transformation.

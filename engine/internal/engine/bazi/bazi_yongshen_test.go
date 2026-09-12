@@ -41,7 +41,6 @@ func TestComputeYongShen_AllSchoolsPresent(t *testing.T) {
 	for _, field := range []struct{ name, val string }{
 		{"TiaoHou.Yong", result.TiaoHou.Yong},
 		{"TiaoHou.Xi", result.TiaoHou.Xi},
-		{"TiaoHou.Ji", result.TiaoHou.Ji},
 		{"TiaoHou.Season", result.TiaoHou.Season},
 		{"GeJu.Yong", result.GeJu.Yong},
 		{"GeJu.Xi", result.GeJu.Xi},

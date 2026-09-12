@@ -30,22 +30,67 @@ func (p *Chart) findYongShen(typ YongShen) int {
 		return p.findYingYao()
 	}
 	target := yongShenToLiuQin(typ)
-	// 多现取旺: 取月建旺衰最佳者 (Wang=0 > Xiang=1 > Xiu=2 > Qiu=3 > Si=4).
+	// 多现取舍（《增删卜易》口径）：舍休囚用旺相、舍静用动、舍破用不破、
+	// 舍空用不空、舍被伤用不伤；同格才以临世应近取。墓不作为第一层通用取舍。
 	bestPos := 0
-	bestWs := 999
+	bestRank := [6]int{999, 999, 999, 999, 999, 999}
 	for _, l := range p.Lines {
-		if l.LiuQin == target {
-			ws := 999
-			if l.Position > 0 && l.Position <= 6 {
-				ws = int(p.WangShuai[l.Position-1])
-			}
-			if ws < bestWs {
-				bestWs = ws
-				bestPos = l.Position
-			}
+		if l.LiuQin != target {
+			continue
+		}
+		ws := 999
+		if l.Position > 0 && l.Position <= 6 {
+			ws = int(p.WangShuai[l.Position-1])
+		}
+		weak := 1
+		if ws <= int(ganzhi.WSXiang) {
+			weak = 0
+		}
+		moving := 1
+		if l.DongSelf {
+			moving = 0
+		}
+		broken := boolInt(l.YuePo)
+		void := boolInt(l.XunKong)
+		injured := boolInt(p.lineInjured(l))
+		proximity := 1
+		if l.ShiYing != "" {
+			proximity = 0
+		}
+		rank := [6]int{weak, moving, broken, void, injured, proximity}
+		if lessRank(rank, bestRank) {
+			bestPos = l.Position
+			bestRank = rank
 		}
 	}
 	return bestPos
+}
+
+func boolInt(v bool) int {
+	if v {
+		return 1
+	}
+	return 0
+}
+
+func (p *Chart) lineInjured(line Line) bool {
+	if line.DongKe || p.dayRelationHas(line.Position, "克", "冲") {
+		return true
+	}
+	if !line.DongSelf || len(p.BianLines) != 6 {
+		return false
+	}
+	bian := p.BianLines[line.Position-1]
+	return ganzhi.Ke(bian.Wuxing, line.Wuxing)
+}
+
+func lessRank(left, right [6]int) bool {
+	for i := range left {
+		if left[i] != right[i] {
+			return left[i] < right[i]
+		}
+	}
+	return false
 }
 
 func (p *Chart) findShiYao() int {
@@ -93,6 +138,14 @@ func yongShenToLiuQin(typ YongShen) LiuQin {
 
 // findFuShen finds the 伏神 when 用神 is not present.
 func (p *Chart) findFuShen(typ YongShen) *FuShen {
+	all := p.findFuShenAll(typ)
+	if len(all) == 0 {
+		return nil
+	}
+	return &all[0]
+}
+
+func (p *Chart) findFuShenAll(typ YongShen) []FuShen {
 	meta := guaTable[p.BenGua]
 	palaceBase := meta.PalaceIdx * 8 // 本宫卦 = palace * 8
 	baseMeta := guaTable[palaceBase]
@@ -101,19 +154,19 @@ func (p *Chart) findFuShen(typ YongShen) *FuShen {
 
 	target := yongShenToLiuQin(typ)
 
-	// For each line of the palace base hexagram, check if it has the target六亲.
+	var result []FuShen
 	for i := 0; i < 6; i++ {
 		zhiWx := ganzhi.ZhiWuxing(naZhi[i])
 		qin := computeLiuQin(zhiWx, elem)
 		if qin == target {
-			return &FuShen{
+			result = append(result, FuShen{
 				Position: i + 1,
 				LiuQin:   qin,
 				Zhi:      ganzhi.ZhiName(naZhi[i]),
-			}
+			})
 		}
 	}
-	return nil
+	return result
 }
 
 // fuShenZhi converts the already-validated public fu-shen branch name back to

@@ -60,14 +60,44 @@ def mock_engine_facts() -> dict:
 
 def mock_yong_shen() -> dict:
     """构造 bazi.fullchart 用神三派的最小契约片段。"""
+    def element(wuxing: str, season: str, strength: str = "strong") -> dict:
+        return {
+            "wuxing": wuxing, "transparent_pillars": [], "roots": [],
+            "season": season, "timely": season in ("旺", "相"), "strength": strength,
+        }
     return {
         "fu_yi": {
             "wuxing_count": {"木": 1, "火": 1, "土": 1, "金": 1, "水": 1},
             "wang_shuai": {"木": "旺", "火": "相", "土": "死", "金": "囚", "水": "休"},
             "yong": "木", "xi": "水", "ji": "金", "qiangruo": "身强",
+            "model": "support_control_with_day_master_strength",
+            "basis": {
+                "root_type": "month_main", "season": "旺", "yin_bi_count": 1,
+                "day_master_roots": [], "relation_facts": [],
+            },
         },
-        "tiao_hou": {"yong": "火", "xi": "木", "ji": "水", "season": "春", "detail": "mock"},
-        "ge_ju": {"yong": "木", "xi": "水", "ji": "金", "ge_ju": "正印格", "yong_fa": "顺用"},
+        "tiao_hou": {
+            "yong": "火", "xi": "木", "season": "春", "detail": "mock",
+            "model": "qiongtong_primary_secondary_table",
+            "primary": {
+                "stem": "丙", "transparent": True,
+                "hidden": False, "occurrences": [], "relation_facts": [],
+            },
+            "secondary": {
+                "stem": "甲", "transparent": True,
+                "hidden": False, "occurrences": [], "relation_facts": [],
+            },
+        },
+        "ge_ju": {
+            "yong": "木", "xi": "水", "ji": "金", "ge_ju": "正印格", "yong_fa": "顺用",
+            "pattern_god": "癸", "pattern_god_ten_god": "正印", "pattern_god_source": "main_qi",
+            "structure": {
+                "pattern": element("水", "旺"),
+                "controller": element("土", "死", "weak"),
+                "generator": element("金", "囚", "weak"),
+                "relation_facts": [],
+            },
+        },
     }
 
 

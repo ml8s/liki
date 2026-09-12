@@ -48,7 +48,15 @@ func computeYingQi(chart Chart, chartTime time.Time, focuses map[GongIndex][]Rel
 			Description: rule.Description,
 		})
 	}
-	appendCandidate("ma_xing", chart.Pan.MaXing)
+	if chart.Pan.MaXing.Branch != 0 {
+		appendCandidate("ma_xing", chart.Pan.MaXing)
+	}
+	if branch := palaceZhi(chart.DutyStarPalace); branch != 0 {
+		appendCandidate("duty_star", BranchPalace{Branch: branch, Gong: chart.DutyStarPalace})
+	}
+	if branch := palaceZhi(chart.DutyDoorPalace); branch != 0 {
+		appendCandidate("duty_door", BranchPalace{Branch: branch, Gong: chart.DutyDoorPalace})
+	}
 	for _, voidBranch := range chart.Pan.KongWang {
 		if voidBranch.Branch == 0 {
 			continue
@@ -134,6 +142,12 @@ func baseYingQiFocuses(chart Chart) map[GongIndex][]RelatedSymbol {
 	addFocus(result, chart.RiGanPalace, RelatedSymbol{Symbol: "日干", Role: "pillar"})
 	addFocus(result, chart.ShiGanPalace, RelatedSymbol{Symbol: "时干", Role: "pillar"})
 	addFocus(result, leadPillarPalace(chart.Pan), RelatedSymbol{Symbol: "主柱", Role: "lead"})
+	if chart.DutyStarPalace != 0 {
+		addFocus(result, chart.DutyStarPalace, RelatedSymbol{Symbol: "值符星", Role: "duty"})
+	}
+	if chart.DutyDoorPalace != 0 {
+		addFocus(result, chart.DutyDoorPalace, RelatedSymbol{Symbol: "值使门", Role: "duty"})
+	}
 	return result
 }
 

@@ -159,6 +159,28 @@ def test_consumed_engine_atomic_facts_are_required():
             validate_natal_pan(pan, action="test")
 
 
+def test_yong_shen_structural_facts_are_required():
+    pan = _pan()
+    pan["full"]["yong_shen"]["fu_yi"].pop("basis")
+    with pytest.raises(ValueError, match="fu_yi.basis"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan()
+    pan["full"]["yong_shen"]["ge_ju"].pop("structure")
+    with pytest.raises(ValueError, match="ge_ju.structure"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan()
+    pan["full"]["yong_shen"]["tiao_hou"].pop("primary")
+    with pytest.raises(ValueError, match="tiao_hou.primary"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan()
+    pan["full"]["yong_shen"]["ge_ju"]["structure"]["relation_facts"] = [{"field": "liu_chong"}]
+    with pytest.raises(ValueError, match="relation_facts\\[0\\].*group"):
+        validate_natal_pan(pan, action="test")
+
+
 def test_engine_list_fact_item_shapes_are_required():
     pan = _pan()
     pan["full"]["relation_groups"] = [{"field": "", "group": "申子辰"}]

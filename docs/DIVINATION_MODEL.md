@@ -77,6 +77,14 @@ Engine 输出的确定性盘面，属于工具层内部中间对象：
 - 六爻：本卦、变卦、纳甲、六亲、六神、世应；
 - 奇门：九宫、门星神、干支、用神落宫。
 
+六爻用神两现由 engine 按《增删卜易》「舍休囚用旺相、舍静用动、舍破用不破、舍空用不空、舍被伤用不伤」确定性取舍；Python 与 LLM 直接使用返回爻位，不得另选。三墓分为日墓、动墓、化墓，不再把“爻支为自己五行墓库”冒充入墓。伏吟 / 反吟输出动爻层与全卦 / 内卦 / 外卦层；卦变冲合并列输出本卦、变卦与互化事实。
+六爻土爻墓库显式输出 `tomb_school=engine_default_chen`：当前机械默认土墓在辰。土墓辰戌之争属流派差异，解释层不得临场改用戌而不说明 school。
+卦体六冲 / 六合按初爻对四爻、二爻对五爻、三爻对上爻的三组纳甲支判定，三组全冲为六冲卦，三组全合为六合卦；单组冲合只留在爻间关系事实中。`dong_yao_relations[].relations` 是一个动爻的关系集合，直接作用与原忌神间接作用可并列，静卦由空数组表达。
+
+奇门时干阴阳遵循十干奇偶：甲丙戊庚壬为阳，乙丁己辛癸为阴。天网四张 / 地罗遮蔽只在天盘六癸 / 六壬临时干宫时成立；高低与阴阳只作为传统条件并入断言。捕盗的小贼只取阴遁玄武，不得把阳遁朱雀冒充玄武。
+
+奇门日干 / 时干保留两层落宫事实：`ri_gan_palace_facts` 与 `shi_gan_palace_facts` 分别列出 `heaven / earth` 层；带出生年命时，`yong_shen.nian_gan_palace_facts` 同样保留年命干双层落宫。`ri_gan_gong / shi_gan_gong` 仍是天盘优先的主定位，但解释层不得用地盘落宫被删除后的单值反推全层事实。
+
 LLM 不直接消费 raw chart。
 
 ### Snapshot
@@ -85,7 +93,7 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 
 ```json
 {
-  "schema_version": "liuyao-snapshot-v5",
+  "schema_version": "liuyao-snapshot-v6",
   "method": "liuyao",
   "snapshot_digest": "...",
   "question": {},
@@ -111,6 +119,7 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 奇门额外包含 `input`、`matter`、`method_context`、`factors`、`special`。
 
 标准奇门 factors 保留局数、阴阳遁、值符星、值使门及落宫；LLM 必须复述这些盘面锚点，不得只按宫位生克临场推断。
+奇门应期候选除马星与空亡外，还输出值符星宫与值使门宫地支的逢值 / 逢冲引动候选；所有候选仍须以 `related_to` 非空为解释门槛。
 
 黄历事项为受控枚举：嫁娶、领证、开业、签约、搬家、出行、动土、修造、考试、就医、祭祀、扫除、安床、纳财、丧葬。表外事项先确认目标，不得映射成相近事件。
 
@@ -197,7 +206,8 @@ ask(snapshot, message)
 
 追问不重排、不改 snapshot、不重建上下文。只有现实事件出现新变化时才创建新 snapshot。
 
-六爻 `chart.ying_qi` 同时携带 `ying_time_text` 和机器可读 `ying_time`。后者只描述 `relation / target_branch / trigger_branch` 等触发机制；它不是日期，LLM 不得把触发分支包装成确定应期。
+六爻应期唯一来自 `timing_candidates`。每条候选只描述机制、爻位、触发分支与成立条件；它不是日期，LLM 不得把触发分支包装成确定应期，也不得在吉凶未定前排序。
+`timing_plan` 按 topic 做优先级整理，但不因 health context 删除候选；所有 topic（含健康语境）统一携带 `boundary`：传统六爻应期候选，不构成医疗、法律、财务或其他专业建议。
 
 ## 5. 统一领域语言
 

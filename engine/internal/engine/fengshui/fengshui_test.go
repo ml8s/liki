@@ -327,20 +327,6 @@ func TestStarTable_Wuxing(t *testing.T) {
 	}
 }
 
-func TestStarTable_Auspicious(t *testing.T) {
-	// 吉星: 一白,四绿,六白,八白,九紫 / 凶星: 二黑,三碧,五黄,七赤
-	auspicious := map[int]bool{
-		1: true, 2: false, 3: false, 4: true, 5: false,
-		6: true, 7: false, 8: true, 9: true,
-	}
-	for i := 1; i <= 9; i++ {
-		if StarTable[i].Auspicious != auspicious[i] {
-			t.Errorf("star %d(%s): auspicious=%v, want %v",
-				i, StarTable[i].Name, StarTable[i].Auspicious, auspicious[i])
-		}
-	}
-}
-
 // =============================================================================
 // 洛书飞星顺序
 // =============================================================================

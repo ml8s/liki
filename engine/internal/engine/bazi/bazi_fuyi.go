@@ -14,6 +14,7 @@ func computeFuYi(c Chart, wc map[ganzhi.Wuxing]int, ws map[string]string) FuYiRe
 	season := classifySeason(riYuan, yueZhi)
 	yinBi := countYinBi(c)
 	strengthLabel := lookupStrength(rootType, season, yinBi)
+	basis := buildFuYiBasis(c, rootType, season, yinBi)
 
 	// Try congGe rules first (qualitative rule chain, not percentages).
 	pat, yong, xi, ji := lookupCongGe(c)
@@ -30,6 +31,8 @@ func computeFuYi(c Chart, wc map[ganzhi.Wuxing]int, ws map[string]string) FuYiRe
 			Ji:          ji,
 			Strength:    strengthLabel,
 			Pattern:     pat,
+			Model:       "support_control_with_day_master_strength",
+			Basis:       basis,
 		}
 	}
 
@@ -48,6 +51,8 @@ func computeFuYi(c Chart, wc map[ganzhi.Wuxing]int, ws map[string]string) FuYiRe
 		Xi:          xi,
 		Ji:          ji,
 		Strength:    strengthLabel,
+		Model:       "support_control_with_day_master_strength",
+		Basis:       basis,
 	}
 }
 

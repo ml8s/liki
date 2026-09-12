@@ -206,16 +206,17 @@ func computeLiuQin(lineElem, palaceElem ganzhi.Wuxing) LiuQin {
 
 // YongShenResult holds the 用神 analysis result.
 type YongShenResult struct {
-	Name       string  `json:"name"`                  // 用神六亲名
-	Position   int     `json:"position"`              // line position 1-6, 0 if not found
-	IsHidden   bool    `json:"is_hidden,omitempty"`   // 本卦不现，取本宫伏神
-	WangShuai  string  `json:"wang_shuai"`            // 用神旺衰（旺/相/休/囚/死）聚合
-	YuePo      bool    `json:"yue_po,omitempty"`      // 用神月破
-	XunKong    bool    `json:"xun_kong,omitempty"`    // 用神旬空
-	MuKu       bool    `json:"mu_ku,omitempty"`       // 用神入墓
-	LiuShou    LiuShou `json:"liu_shou,omitempty"`    // 用神临的六神；伏神不继承飞神六神
-	ChangSheng string  `json:"chang_sheng,omitempty"` // 用神五行在月支的十二长生
-	FuShen     *FuShen `json:"fu_shen,omitempty"`
+	Name             string   `json:"name"`                  // 用神六亲名
+	Position         int      `json:"position"`              // line position 1-6, 0 if not found
+	IsHidden         bool     `json:"is_hidden,omitempty"`   // 本卦不现，取本宫伏神
+	WangShuai        string   `json:"wang_shuai"`            // 用神旺衰（旺/相/休/囚/死）聚合
+	YuePo            bool     `json:"yue_po,omitempty"`      // 用神月破
+	XunKong          bool     `json:"xun_kong,omitempty"`    // 用神旬空
+	MuKu             bool     `json:"mu_ku,omitempty"`       // 用神入墓
+	LiuShou          LiuShou  `json:"liu_shou,omitempty"`    // 用神临的六神；伏神不继承飞神六神
+	ChangSheng       string   `json:"chang_sheng,omitempty"` // 用神五行在月支的十二长生
+	FuShen           *FuShen  `json:"fu_shen,omitempty"`
+	FuShenCandidates []FuShen `json:"fu_shen_candidates,omitempty"`
 }
 
 // computeChart computes a complete 六爻 chart from bazi, question type, and yaos (required).
@@ -228,6 +229,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	}
 	yts := shakeCoinsFixed(yaos)
 	chart := computeGuaPan(yts, bz.Ri)
+	chart.TombSchool = TombSchool{EarthBranch: "辰", School: "engine_default_chen"}
 
 	// Month building from bazi.
 	chart.YueZhi = bz.Yue.Zhi
@@ -235,13 +237,6 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 
 	// 日柱旬空（甲子旬空戌亥…）.
 	chart.XunKong = ganzhi.XunKong(bz.Ri.Gan, bz.Ri.Zhi)
-
-	// 用神.
-	pos := chart.findYongShen(yongShen)
-	chart.YongShen = YongShenResult{Name: yongShen.String(), Position: pos}
-	if pos == 0 {
-		chart.YongShen.FuShen = chart.findFuShen(yongShen)
-	}
 
 	// 旺衰 + 日建关系.
 	for i := 0; i < 6; i++ {
@@ -251,6 +246,14 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 
 	// 每爻确定性派生状态（月破/发动/动爻生克）.
 	computeLineDerived(&chart)
+
+	// 用神多现必须在空破墓、旺衰、动静与世应都算出后再取舍。
+	pos := chart.findYongShen(yongShen)
+	chart.YongShen = YongShenResult{Name: yongShen.String(), Position: pos}
+	if pos == 0 {
+		chart.YongShen.FuShen = chart.findFuShen(yongShen)
+		chart.YongShen.FuShenCandidates = chart.findFuShenAll(yongShen)
+	}
 
 	// 聚合用神状态（旺衰/月破/旬空/入墓/六神）.
 	if pos > 0 {
@@ -267,9 +270,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 		chart.YongShen.WangShuai = ganzhi.WangShuaiOf(fuElement, chart.YueZhi).String()
 		chart.YongShen.YuePo = ganzhi.IsLiuChong(fuZhi, chart.YueZhi)
 		chart.YongShen.XunKong = fuZhi == chart.XunKong[0] || fuZhi == chart.XunKong[1]
-		if tomb := tombOf(fuElement); tomb != 0 && fuZhi == tomb {
-			chart.YongShen.MuKu = true
-		}
+		chart.YongShen.MuKu = len(fuTombSources(&chart, fuElement, fuZhi)) > 0
 		chart.YongShen.ChangSheng = lifeStageOf(fuElement, chart.YueZhi)
 	}
 
@@ -279,8 +280,6 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 	// 特殊格局计算.
 	chart.Patterns = ComputePatterns(&chart, yongShen)
 
-	// 应期.
-	chart.YingQi = computeYingQi(&chart, yongShen)
 	chart.TimingCandidates = computeTimingCandidates(&chart, yongShen)
 	chart.DayClashFacts = computeDayClashFacts(&chart)
 	chart.MovingTransformations = computeMovingTransformations(&chart)
@@ -306,16 +305,36 @@ func computeLineDerived(p *Chart) {
 			lines[i].YuePo = ganzhi.IsLiuChong(lines[i].Zhi, p.YueZhi)
 			lines[i].DongSelf = lines[i].Type.IsChanging()
 			lines[i].XunKong = lines[i].Zhi == p.XunKong[0] || lines[i].Zhi == p.XunKong[1]
-			if tomb := tombOf(lines[i].Wuxing); tomb != 0 && lines[i].Zhi == tomb {
-				lines[i].MuKu = true
-				lines[i].MuKuBranch = ganzhi.ZhiName(tomb)
-				lines[i].MuKuElement = lines[i].Wuxing.String()
-			}
 			lines[i].ChangShengYue = lifeStageOf(lines[i].Wuxing, p.YueZhi)
 		}
 	}
 	mark(&p.Lines)
 	mark(&p.BianLines)
+
+	for i := range p.Lines {
+		tomb := tombOf(p.Lines[i].Wuxing)
+		types := []string{}
+		if tomb != 0 && p.RiZhi == tomb {
+			types = append(types, "day")
+		}
+		if tomb != 0 {
+			for _, position := range p.DongYao {
+				if position >= 1 && position <= 6 && p.Lines[position-1].Zhi == tomb {
+					types = append(types, "moving")
+					break
+				}
+			}
+		}
+		if tomb != 0 && p.Lines[i].DongSelf && len(p.BianLines) == 6 && p.BianLines[i].Zhi == tomb {
+			types = append(types, "transformed")
+		}
+		if len(types) > 0 {
+			p.Lines[i].MuKu = true
+			p.Lines[i].MuKuBranch = ganzhi.ZhiName(tomb)
+			p.Lines[i].MuKuElement = p.Lines[i].Wuxing.String()
+			p.Lines[i].MuKuTypes = types
+		}
+	}
 
 	for _, dpos := range p.DongYao {
 		if dpos < 1 || dpos > 6 {

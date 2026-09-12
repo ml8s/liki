@@ -18,8 +18,8 @@ var (
 		QiSha: true, PoJun: true,
 	}
 	auspiciousStars = map[starIndex]bool{
-		LuCun: true, TianKui: true, TianYue: true,
-		ZuoFu: true, YouBi: true, WenChang: true, WenQu: true,
+		TianKui: true, TianYue: true, ZuoFu: true,
+		YouBi: true, WenChang: true, WenQu: true,
 	}
 	literaryStars      = map[starIndex]bool{WenChang: true, WenQu: true}
 	palaceMaleficStars = map[starIndex]bool{
@@ -27,8 +27,8 @@ var (
 		LingXing: true, DiKong: true, DiJie: true,
 	}
 	brightnessGroups = map[string][]string{
-		"庙旺": {"庙", "旺", "得"},
-		"落陷": {"陷", "平"},
+		"庙旺": {"庙", "旺"},
+		"落陷": {"陷"},
 	}
 )
 

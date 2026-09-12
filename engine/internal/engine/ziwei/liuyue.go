@@ -187,22 +187,6 @@ func shiGanCalc(riGan Gan, shiZhi Zhi) Gan {
 	return Gan(((ziGan-1+int(shiZhi)-1)%10+10)%10 + 1)
 }
 
-// ── riGan — calculates the day gan for a lunar date ──
-
-func riGan(liuYear, lunarMonth, lunarDay int) Gan {
-	// Try liuYear as the lunar year; fall back to liuYear-1 for months
-	// before Chinese New Year (when the lunar year hasn't caught up).
-	gt := tianwen.LunarToGregorian(tianwen.LunarTime{Year: liuYear, Month: lunarMonth, Day: lunarDay})
-	if gt.Time().IsZero() {
-		gt = tianwen.LunarToGregorian(tianwen.LunarTime{Year: liuYear - 1, Month: lunarMonth, Day: lunarDay})
-	}
-	if gt.Time().IsZero() {
-		return 1 // fallback
-	}
-	dp := tianwen.RiZhu(gt)
-	return dp.Gan
-}
-
 // 流昌流曲：天干定位（iztro算法）, 返回zhiIdx
 func liuChangQuByGan(gan Gan) (changZhiIdx, quZhiIdx int) {
 	table := [10][2]int{
@@ -211,18 +195,6 @@ func liuChangQuByGan(gan Gan) (changZhiIdx, quZhiIdx int) {
 	}
 	idx := int(gan) - 1
 	return (table[idx][0] + 2) % 12, (table[idx][1] + 2) % 12
-}
-
-func riZhi(liuYear, lunarMonth, lunarDay int) Zhi {
-	gt := tianwen.LunarToGregorian(tianwen.LunarTime{Year: liuYear, Month: lunarMonth, Day: lunarDay})
-	if gt.Time().IsZero() {
-		gt = tianwen.LunarToGregorian(tianwen.LunarTime{Year: liuYear - 1, Month: lunarMonth, Day: lunarDay})
-	}
-	if gt.Time().IsZero() {
-		return 1
-	}
-	dp := tianwen.RiZhu(gt)
-	return dp.Zhi
 }
 
 // yueGanByWuHuDun computes the month gan via 五虎遁 (year gan + month zhi).

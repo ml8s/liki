@@ -1,0 +1,28 @@
+{
+  "schema_version": "domain-oracle-bazi-lu-roots-v1",
+  "basis": "禄根只记录透干十神且其十干禄位实际见于四柱；藏干或同五行非禄位不成立。",
+  "sources": [
+    "《三命通会·论十干禄》",
+    "《渊海子平》通根口径"
+  ],
+  "cases": [
+    {
+      "id": "transparent-stems-with-actual-lu-branches",
+      "pillars": ["庚午", "辛未", "己巳", "庚申"],
+      "expected": [
+        {"shi_shen": "伤官", "gan": "庚", "zhi": "申"},
+        {"shi_shen": "比肩", "gan": "己", "zhi": "午"},
+        {"shi_shen": "伤官", "gan": "庚", "zhi": "申"}
+      ],
+      "why": "己日见庚为伤官，庚禄在申；年时申支实见，故两处庚皆得禄。己禄在午，年支午实见。辛禄在酉而四柱无酉，月干辛不作禄根。"
+    },
+    {
+      "id": "actual-lu-branch-absent",
+      "pillars": ["庚午", "辛未", "己卯", "庚戌"],
+      "expected": [
+        {"shi_shen": "比肩", "gan": "己", "zhi": "午"}
+      ],
+      "why": "庚禄申、辛禄酉均不见于四柱；只有己禄午实见。"
+    }
+  ]
+}

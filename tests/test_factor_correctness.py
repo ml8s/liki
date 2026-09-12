@@ -236,6 +236,52 @@ def test_relation_operator_groups_use_constant_closures() -> None:
     assert seen_groups == valid_groups
 
 
+EXPECTED_ENGINE_NATAL_SHEN_SHA = {
+    "天乙贵人", "文昌", "学堂", "禄神", "词馆", "羊刃",
+    "天德", "月德", "桃花", "驿马", "华盖", "将星", "劫煞", "灾煞",
+    "孤辰", "寡宿", "红鸾", "天喜", "金舆", "月恩", "天赦",
+    "天罗", "地网", "勾神", "绞神", "元辰", "血刃", "四废", "十恶大败",
+}
+
+
+def test_python_consumes_every_engine_natal_shen_sha() -> None:
+    with (TOOLS / "factors/factors.csv").open(
+        encoding="utf-8-sig", newline=""
+    ) as source:
+        rows = list(csv.DictReader(source))
+    consumed = set()
+    for row in rows:
+        match = re.match(r"^含\[shen_sha,([^]]+)\]$", row["expression"])
+        if match:
+            consumed.update(
+                value.strip()
+                for value in match.group(1).replace("或", "|").split("|")
+            )
+    assert consumed == EXPECTED_ENGINE_NATAL_SHEN_SHA
+
+    with (TOOLS / "assertions/assertion_conditions.csv").open(
+        encoding="utf-8-sig", newline=""
+    ) as source:
+        condition_rows = list(csv.DictReader(source))
+    direct_factors = {
+        row["factor_id"]: {
+            value.strip()
+            for value in re.sub(r"^含\[shen_sha,|]$", "", row["expression"])
+            .replace("或", "|")
+            .split("|")
+        }
+        for row in rows
+        if row["expression"].startswith("含[shen_sha,")
+    }
+    factored = {
+        value
+        for factor in (row["factor"] for row in condition_rows)
+        for value in direct_factors.get(factor, {factor})
+    }
+    missing = EXPECTED_ENGINE_NATAL_SHEN_SHA - factored
+    assert not missing, f"engine 本命神煞未被断语层消费: {sorted(missing)}"
+
+
 def test_constant_contract_has_only_stable_ten_god_classes() -> None:
     const = __import__("json").loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
     assert "目标星" not in const

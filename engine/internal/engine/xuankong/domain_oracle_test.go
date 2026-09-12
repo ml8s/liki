@@ -20,15 +20,11 @@ func TestDomainOracle_XuankongCore(t *testing.T) {
 			EndYear   int    `json:"end_year"`
 		} `json:"san_yuan_yun_periods"`
 		FourSituations []struct {
-			CaseID          string `json:"case_id"`
-			Sit             int    `json:"sit_mountain"`
-			Face            int    `json:"face_mountain"`
-			Year            int    `json:"year"`
-			WangShan        bool   `json:"wang_shan"`
-			WangXiang       bool   `json:"wang_xiang"`
-			DoubleSit       bool   `json:"double_star_sit"`
-			DoubleFace      bool   `json:"double_star_face"`
-			UphillDownwater bool   `json:"uphill_downwater"`
+			CaseID        string        `json:"case_id"`
+			Sit           int           `json:"sit_mountain"`
+			Face          int           `json:"face_mountain"`
+			Year          int           `json:"year"`
+			FourSituation FourSituation `json:"four_situation"`
 		} `json:"xuankong_four_situation_anchors"`
 		InvalidPairs []struct {
 			Sit  int `json:"sit"`
@@ -46,8 +42,7 @@ func TestDomainOracle_XuankongCore(t *testing.T) {
 	}
 	for _, want := range doc.FourSituations {
 		got := computeChart(want.Sit, want.Face, want.Year)
-		if got.WangShan != want.WangShan || got.WangXiang != want.WangXiang || got.ShanXing != want.DoubleSit ||
-			got.XiangXing != want.DoubleFace || got.XiaShui != want.UphillDownwater {
+		if got.FourSituation != want.FourSituation {
 			t.Errorf("%s = %+v, want %+v", want.CaseID, got, want)
 		}
 	}

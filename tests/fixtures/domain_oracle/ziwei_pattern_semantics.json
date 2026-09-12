@@ -1,0 +1,169 @@
+{
+  "schema_version": "domain-oracle-ziwei-pattern-semantics-v2",
+  "basis": "六吉星为左辅、右弼、文昌、文曲、天魁、天钺；平亮度不作落陷。命局格局必须以命宫或命宫三方四正为体；财荫夹印 / 刑忌夹印只取命宫天相被两侧相夹；同宫多颗四化星必须全部保留；雄宿朝元按廉贞居未申且无六煞。",
+  "sources": [
+    "《紫微斗数全书·卷二》辅星与格局篇",
+    "《紫微斗数全书·卷三》廉贞星格局",
+    "《紫微斗数全书·卷三》太阳太阴格局"
+  ],
+  "palace_fact_cases": [
+    {
+      "id": "lucun-is-not-one-of-six-auspicious-stars",
+      "palaces": [
+        {"name": "命宫", "stars": [{"name": "禄存"}]}
+      ],
+      "expected_star_targets": ["禄存"],
+      "expected_absent_targets": ["紫微六吉星"]
+    },
+    {
+      "id": "ping-brightness-is-not-falling",
+      "palaces": [
+        {"name": "命宫", "stars": [{"name": "文曲", "brightness": "平"}]}
+      ],
+      "expected_brightness_targets": ["平"],
+      "expected_absent_targets": ["落陷", "庙旺"]
+    }
+  ],
+  "san_fang_cases": [
+    {
+      "id": "same-palace-keeps-all-four-transformations",
+      "palaces": [
+        {
+          "name": "命宫",
+          "stars": [
+            {"name": "天梁", "si_hua": "禄"},
+            {"name": "紫微", "si_hua": "权"},
+            {"name": "天府", "si_hua": "科"},
+            {"name": "武曲", "si_hua": "忌"}
+          ]
+        }
+      ],
+      "expected_si_hua": {"命宫": ["禄", "权", "科", "忌"]}
+    },
+    {
+      "id": "palace-without-transformation-returns-empty-list",
+      "palaces": [{"name": "命宫", "stars": [{"name": "天机"}]}],
+      "expected_si_hua": {"命宫": []}
+    }
+  ],
+  "pattern_cases": [
+    {
+      "id": "sun-in-command-wu-is-jin-can",
+      "palaces": [{"name": "命宫", "zhi": "午", "stars": [{"name": "太阳"}]}],
+      "expected_present": ["日丽中天", "金灿光辉"]
+    },
+    {
+      "id": "sun-with-another-major-star-in-command-wu-is-not-jin-can",
+      "palaces": [{"name": "命宫", "zhi": "午", "stars": [{"name": "太阳"}, {"name": "天梁"}]}],
+      "expected_present": ["日丽中天"],
+      "expected_absent": ["金灿光辉"]
+    },
+    {
+      "id": "sun-outside-command-is-not-jin-can",
+      "palaces": [{"name": "兄弟", "zhi": "午", "stars": [{"name": "太阳"}]}],
+      "expected_absent": ["日丽中天", "金灿光辉"]
+    },
+    {
+      "id": "moon-outside-command-is-not-yue-lang",
+      "palaces": [{"name": "兄弟", "zhi": "亥", "stars": [{"name": "太阴"}]}],
+      "expected_absent": ["月朗天门"]
+    },
+    {
+      "id": "lianzhen-at-wei-without-six-malefic-is-xiong-su",
+      "palaces": [{"name": "命宫", "zhi": "未", "stars": [{"name": "廉贞"}]}],
+      "expected_present": ["雄宿朝元"]
+    },
+    {
+      "id": "qisha-at-yin-is-not-xiong-su",
+      "palaces": [{"name": "命宫", "zhi": "寅", "stars": [{"name": "七杀"}]}],
+      "expected_absent": ["雄宿朝元"]
+    },
+    {
+      "id": "lianzhen-at-wei-with-tuo-luo-breaks-xiong-su",
+      "palaces": [{"name": "命宫", "zhi": "未", "stars": [{"name": "廉贞"}, {"name": "陀罗"}]}],
+      "expected_absent": ["雄宿朝元"]
+    },
+    {
+      "id": "lucai-and-tianliang-flank-tianxiang",
+      "palaces": [
+        {"name": "父母", "stars": [{"name": "天梁"}]},
+        {"name": "命宫", "stars": [{"name": "天相"}]},
+        {"name": "兄弟", "stars": [{"name": "禄存"}]}
+      ],
+      "expected_present": ["财荫夹印"]
+    },
+    {
+      "id": "hualu-in-caifang-trine-without-flanking-is-not-caiyin",
+      "palaces": [
+        {"name": "子女", "stars": [{"name": "天相"}]},
+        {"name": "迁移", "stars": [{"name": "天机", "si_hua": "禄"}]}
+      ],
+      "expected_absent": ["财荫夹印"]
+    },
+    {
+      "id": "single-court-star-is-not-ziwei-court",
+      "palaces": [
+        {"name": "命宫", "stars": [{"name": "紫微"}]},
+        {"name": "财帛", "stars": [{"name": "左辅"}]}
+      ],
+      "expected_absent": ["紫微朝垣"]
+    },
+    {
+      "id": "tianxiang-in-command-is-not-fuxiang-court",
+      "palaces": [
+        {"name": "命宫", "stars": [{"name": "天相"}]},
+        {"name": "财帛", "stars": [{"name": "天府"}]}
+      ],
+      "expected_absent": ["府相朝垣"]
+    },
+    {
+      "id": "three-of-four-machine-moon-tian-liang-stars-is-insufficient",
+      "palaces": [
+        {"name": "命宫", "stars": [{"name": "天机"}]},
+        {"name": "财帛", "stars": [{"name": "太阴"}]},
+        {"name": "官禄", "stars": [{"name": "天同"}]}
+      ],
+      "expected_absent": ["机月同梁"]
+    },
+    {
+      "id": "lucun-and-hualu-in-command-trine-is-double-lu",
+      "palaces": [
+        {"name": "命宫", "stars": [{"name": "禄存"}]},
+        {"name": "财帛", "stars": [{"name": "天机", "si_hua": "禄"}]}
+      ],
+      "expected_present": ["双禄朝垣"]
+    },
+    {
+      "id": "dark-sun-moon-outside-command-trine-is-not-fanbei",
+      "palaces": [
+        {"name": "兄弟", "zhi": "亥", "stars": [{"name": "太阳"}]},
+        {"name": "夫妻", "zhi": "卯", "stars": [{"name": "太阴"}]}
+      ],
+      "expected_absent": ["日月反背"]
+    },
+    {
+      "id": "sun-xu-moon-chen-in-command-trine-is-fanbei",
+      "palaces": [
+        {"name": "命宫", "zhi": "戌", "stars": [{"name": "太阳"}]},
+        {"name": "财帛", "zhi": "辰", "stars": [{"name": "太阴"}]}
+      ],
+      "expected_present": ["日月反背"]
+    },
+    {
+      "id": "sun-zi-moon-wu-in-command-trine-is-fanbei",
+      "palaces": [
+        {"name": "命宫", "zhi": "子", "stars": [{"name": "太阳"}]},
+        {"name": "财帛", "zhi": "午", "stars": [{"name": "太阴"}]}
+      ],
+      "expected_present": ["日月反背"]
+    },
+    {
+      "id": "two-dim-stars-with-non-classical-branches-are-not-fanbei",
+      "palaces": [
+        {"name": "命宫", "zhi": "亥", "stars": [{"name": "太阳"}]},
+        {"name": "财帛", "zhi": "辰", "stars": [{"name": "太阴"}]}
+      ],
+      "expected_absent": ["日月反背"]
+    }
+  ]
+}

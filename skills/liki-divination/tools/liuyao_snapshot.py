@@ -12,7 +12,7 @@ from liuyao_timing import rank_timing_candidates as plan_timing
 from liuyao_topic_guidance import load_topic_table, project_topic_guidance
 
 
-SCHEMA_VERSION = "liuyao-snapshot-v5"
+SCHEMA_VERSION = "liuyao-snapshot-v6"
 ALLOWED_MATTERS = set(load_matter_table())
 ALLOWED_TOPICS = set(load_topic_table()["topics"])
 MATTER_TO_TOPIC = {

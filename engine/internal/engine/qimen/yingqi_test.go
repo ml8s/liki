@@ -27,6 +27,11 @@ func TestYingQiTableDefinesDateWindow(t *testing.T) {
 	if !reflectStrings(matchNames(table.DateMatches["kong_wang"]), []string{"same", "opposite"}) {
 		t.Fatalf("kong_wang date matches = %v", table.DateMatches["kong_wang"])
 	}
+	for _, ruleType := range []string{"duty_star", "duty_door"} {
+		if !reflectStrings(matchNames(table.DateMatches[ruleType]), []string{"same", "opposite"}) {
+			t.Fatalf("%s date matches = %v", ruleType, table.DateMatches[ruleType])
+		}
+	}
 }
 
 func TestYingQiComputesCivilDateWindow(t *testing.T) {
@@ -99,6 +104,27 @@ func TestYingQiComputesCivilDateWindow(t *testing.T) {
 		return
 	}
 	t.Fatal("酉 void candidate missing")
+}
+
+func TestYingQiIncludesDutyStarAndDoorCandidates(t *testing.T) {
+	chart := Chart{
+		DutyStarPalace: GongDui,
+		DutyDoorPalace: GongZhen,
+	}
+	result := computeYingQi(chart, time.Date(2026, 9, 9, 12, 0, 0, 0, time.FixedZone("CST", 8)), baseYingQiFocuses(chart))
+	types := map[string]bool{}
+	for _, candidate := range result.Candidates {
+		types[candidate.Type] = true
+		if candidate.Type != "duty_star" && candidate.Type != "duty_door" {
+			continue
+		}
+		if candidate.Branch == "" || candidate.Gong == 0 || len(candidate.RelatedTo) == 0 {
+			t.Fatalf("duty candidate = %+v", candidate)
+		}
+	}
+	if !types["duty_star"] || !types["duty_door"] {
+		t.Fatalf("candidate types = %+v, want duty_star and duty_door", types)
+	}
 }
 
 func assertYingQiDates(

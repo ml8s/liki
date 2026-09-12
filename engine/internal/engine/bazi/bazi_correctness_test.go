@@ -167,7 +167,7 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 	for _, tt := range tests {
 		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.yueZhi) + "月"
 		t.Run(name, func(t *testing.T) {
-			result := computeTiaoHou(tt.riYuan, tt.yueZhi)
+			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi))
 
 			if result.Yong == "" {
 				t.Skip("no tiaohou entry")
@@ -185,13 +185,11 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 					ganzhi.GanName(tt.riYuan), ganzhi.ZhiName(tt.yueZhi))
 			}
 
-			// Verify yong/xi/ji are valid 五行. Ji may be empty (no clear 忌神).
+			// Verify yong/xi are valid 五行. 穷通宝鉴表只承载用神与辅神，
+			// 忌神须由扶抑/格局另行推导，不能机械反推后冒充原文事实。
 			for _, field := range []struct{ label, val string }{
-				{"Yong", result.Yong}, {"Xi", result.Xi}, {"Ji", result.Ji},
+				{"Yong", result.Yong}, {"Xi", result.Xi},
 			} {
-				if field.label == "Ji" && field.val == "" {
-					continue // no clear 忌神 is valid
-				}
 				if field.label == "Xi" && field.val == "" {
 					continue // no 喜神 when no secondary
 				}
@@ -689,7 +687,7 @@ func TestTiaoHou_AllEntriesValid(t *testing.T) {
 		riYuan := ganzhi.Gan(key.gan)
 		yueZhi := ganzhi.Zhi(key.zhi)
 
-		result := computeTiaoHou(riYuan, yueZhi)
+		result := computeTiaoHou(mkTiaoHouChart(riYuan, yueZhi))
 
 		// Season must not be empty.
 		if result.Season == "" {
@@ -712,12 +710,6 @@ func TestTiaoHou_AllEntriesValid(t *testing.T) {
 					result.Xi, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 			}
 		}
-		if result.Ji != "" && !validWuxing[result.Ji] {
-			t.Errorf("%s日%s月: Ji = %q, want valid 五行 (primary=%s, secondary=%s)",
-				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
-				result.Ji, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
-		}
-
 		// Detail should contain the day gan and month zhi names.
 		if result.Detail == "" {
 			t.Errorf("%s日%s月: Detail is empty",

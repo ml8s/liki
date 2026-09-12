@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"unicode"
+
+	"golang.org/x/text/unicode/norm"
 )
 
 //go:embed data/surnames.csv
@@ -280,7 +282,7 @@ func surnameSourceTokens(source string) []string {
 		token := foldLatin(part)
 		// Pinyin lü/nü are conventionally typed lv/nv. Apply this only to a
 		// complete token so foreign spellings containing lü keep the generic fold.
-		if strings.Contains(part, "ü") {
+		if hasCombiningDiaeresis(part) {
 			switch token {
 			case "lu":
 				token = "lv"
@@ -336,30 +338,43 @@ func firstVowel(s string) rune {
 }
 
 func foldLatin(value string) string {
-	value = strings.ToLower(strings.TrimSpace(value))
-	return strings.Map(func(r rune) rune {
-		switch r {
-		case 'ā', 'á', 'à', 'â', 'ä', 'ã', 'å', 'ǎ':
-			return 'a'
-		case 'ç':
-			return 'c'
-		case 'ē', 'é', 'è', 'ê', 'ë', 'ě':
-			return 'e'
-		case 'ī', 'í', 'ì', 'î', 'ï', 'ǐ':
-			return 'i'
-		case 'ō', 'ó', 'ò', 'ô', 'ö', 'õ', 'ǒ':
-			return 'o'
-		case 'ū', 'ú', 'ù', 'û', 'ü', 'ǔ':
-			return 'u'
-		case 'ǖ', 'ǘ', 'ǚ', 'ǜ':
-			return 'v'
-		case 'ý', 'ÿ':
-			return 'y'
-		case 'ñ':
-			return 'n'
+	lowered := strings.ToLower(strings.TrimSpace(value))
+	var out strings.Builder
+	for _, r := range norm.NFD.String(lowered) {
+		if unicode.Is(unicode.Mn, r) {
+			continue
 		}
-		return r
-	}, value)
+		if replacement, ok := nonDecomposingLatin[r]; ok {
+			out.WriteString(replacement)
+			continue
+		}
+		out.WriteRune(r)
+	}
+	return out.String()
+}
+
+var nonDecomposingLatin = map[rune]string{
+	'æ': "ae",
+	'œ': "oe",
+	'ß': "ss",
+	'ø': "o",
+	'đ': "d",
+	'ð': "d",
+	'ł': "l",
+	'þ': "th",
+	'ı': "i",
+	'ħ': "h",
+	'ŋ': "n",
+	'ſ': "s",
+}
+
+func hasCombiningDiaeresis(value string) bool {
+	for _, r := range norm.NFD.String(value) {
+		if r == '\u0308' {
+			return true
+		}
+	}
+	return false
 }
 
 func toneFromPinyin(pinyin string) int {

@@ -7,16 +7,20 @@ import "liki-engine/internal/engine/fengshui"
 // yearStarResult is the 流年紫白飞星 inside bazhai.chart.
 // schema 与玄空共用（fengshui.ComputeAnnualFlyingStars），字段与 xuankong 一致。
 type yearStarResult struct {
-	Year    int                         `json:"year"`
-	RuZhong string                      `json:"ru_zhong"`
-	Palaces []fengshui.AnnualFlyingStar `json:"gong_wei"`
+	Year         int                         `json:"year"`
+	RuZhong      string                      `json:"ru_zhong"`
+	YearBoundary string                      `json:"year_boundary"`
+	Palaces      []fengshui.AnnualFlyingStar `json:"gong_wei"`
 }
 
 // computeYearStars computes the annual purple-white flying star distribution
 // via the shared fengshui implementation (口诀：上元甲子一白/中元四绿/下元七赤，逐年逆行).
 func computeYearStars(year int) yearStarResult {
 	board := fengshui.ComputeAnnualFlyingStars(year)
-	return yearStarResult{Year: board.Year, RuZhong: board.RuZhong, Palaces: board.GongWei}
+	return yearStarResult{
+		Year: board.Year, RuZhong: board.RuZhong,
+		YearBoundary: board.YearBoundary, Palaces: board.GongWei,
+	}
 }
 
 // -- 八宅 四吉四凶 ------------------------------------------

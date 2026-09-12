@@ -202,13 +202,27 @@ def test_liuyao_condition_state_classes_are_table_driven():
     assert '"休", "囚", "死"' not in source
 
 
-def test_liuyao_timing_blocking_and_target_rules_are_table_driven():
+def test_liuyao_timing_boundary_and_target_rules_are_table_driven():
     source = (TOOLS / "liuyao_timing.py").read_text(encoding="utf-8")
     rules = json.loads((TOOLS / "liuyao_timing_rules.json").read_text(encoding="utf-8"))
-    assert set(rules["blocked_topics"]) == {"health_context"}
+    assert "blocked_topics" not in rules
+    assert rules["schema_version"] == "liuyao-timing-rules-v2"
+    assert "不构成医疗" in rules["boundary"]
     assert set(rules["target_indicators"]["basis_tokens"]) == {"yong_shen"}
     assert '"health_context"' not in source
     assert '"yong_shen" in text' not in source
+    contract = json.loads((TOOLS / "liuyao_snapshot_contract.json").read_text(encoding="utf-8"))
+    timing_plan = contract["properties"]["timing_plan"]
+    assert timing_plan["properties"]["schema_version"]["const"] == "liuyao-timing-plan-v2"
+    assert timing_plan["properties"]["blocked"]["const"] is False
+    assert "boundary" in timing_plan["required"]
+
+
+def test_liuyao_static_hexagram_doc_separates_fact_from_action():
+    text = (ROOT / "skills/liki-divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
+    assert "静卦，只说明无明显动爻" in text
+    assert "不因静卦直接断顺势吉凶" in text
+    assert "顺势/事缓" not in text
 
 
 def test_divination_safety_boundary_is_table_driven():

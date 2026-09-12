@@ -6,24 +6,24 @@ import "liki-engine/internal/engine/ganzhi"
 type DongYaoRelationType string
 
 const (
-	RelationShengYong DongYaoRelationType = "生用"  // 动爻生用神 → 吉
-	RelationKeYong    DongYaoRelationType = "克用"  // 动爻克用神 → 凶
-	RelationBiHe      DongYaoRelationType = "比和"  // 动爻与用神五行相同 → 助
-	RelationChongYong DongYaoRelationType = "冲用"  // 动爻地支冲用神 → 散
-	RelationShengYuan DongYaoRelationType = "生原神" // 动爻生原神 → 间接吉
-	RelationKeYuan    DongYaoRelationType = "克原神" // 动爻克原神 → 用神失助
-	RelationShengJi   DongYaoRelationType = "生忌神" // 动爻生忌神 → 间接凶
-	RelationKeJi      DongYaoRelationType = "克忌神" // 动爻克忌神 → 间接吉
-	RelationNone      DongYaoRelationType = "无动爻" // 静卦
+	RelationShengYong DongYaoRelationType = "生用"  // 动爻生用神
+	RelationKeYong    DongYaoRelationType = "克用"  // 动爻克用神
+	RelationBiHe      DongYaoRelationType = "比和"  // 动爻与用神五行相同
+	RelationChongYong DongYaoRelationType = "冲用"  // 动爻地支冲用神
+	RelationShengYuan DongYaoRelationType = "生原神" // 动爻生原神
+	RelationKeYuan    DongYaoRelationType = "克原神" // 动爻克原神
+	RelationShengJi   DongYaoRelationType = "生忌神" // 动爻生忌神
+	RelationKeJi      DongYaoRelationType = "克忌神" // 动爻克忌神
 )
 
-// DongYaoRelation 一个动爻与用神的关系。
+// DongYaoRelation 一个动爻与用神的关系集合。
+// 直接作用与间接作用可以并存；静卦没有记录，不使用伪关系填充。
 type DongYaoRelation struct {
-	Position int                 `json:"position"` // 动爻位置 1-6
-	Relation DongYaoRelationType `json:"relation"` // 关系类型
+	Position  int                   `json:"position"` // 动爻位置 1-6
+	Relations []DongYaoRelationType `json:"relations"`
 }
 
-// computeDongYaoRelations 计算每个动爻与用神的关系（9 种枚举）。
+// computeDongYaoRelations 计算每个动爻与用神的关系（8 种枚举）。
 // 原神 = 生用神五行的五行；忌神 = 克用神五行的五行。
 func computeDongYaoRelations(p *Chart, yongShenType YongShen) []DongYaoRelation {
 	yongPos := p.findYongShen(yongShenType)
@@ -39,7 +39,7 @@ func computeDongYaoRelations(p *Chart, yongShenType YongShen) []DongYaoRelation 
 	} else {
 		return nil // 本卦和本宫伏神都不现
 	}
-	// 原神五行 = 生用神者；忌神五行 = 克用神者
+
 	var yuanWuxing, jiWuxing ganzhi.Wuxing
 	for _, wx := range []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui} {
 		if ganzhi.Sheng(wx, yWuxing) {
@@ -60,38 +60,37 @@ func computeDongYaoRelations(p *Chart, yongShenType YongShen) []DongYaoRelation 
 			continue // 动爻即用神本身
 		}
 		dWuxing := dLine.Wuxing
+		rel := DongYaoRelation{Position: dpos, Relations: []DongYaoRelationType{}}
+		appendRelation := func(item DongYaoRelationType) {
+			for _, existing := range rel.Relations {
+				if existing == item {
+					return
+				}
+			}
+			rel.Relations = append(rel.Relations, item)
+		}
 
-		rel := DongYaoRelation{Position: dpos}
-
-		// 直接关系
 		if ganzhi.Sheng(dWuxing, yWuxing) {
-			rel.Relation = RelationShengYong
+			appendRelation(RelationShengYong)
 		} else if ganzhi.Ke(dWuxing, yWuxing) {
-			rel.Relation = RelationKeYong
+			appendRelation(RelationKeYong)
 		} else if dWuxing == yWuxing {
-			rel.Relation = RelationBiHe
+			appendRelation(RelationBiHe)
 		}
-		// 冲用
 		if yongZhi > 0 && ganzhi.IsLiuChong(dLine.Zhi, yongZhi) {
-			rel.Relation = RelationChongYong
+			appendRelation(RelationChongYong)
 		}
-		// 通过原神/忌神
-		if yuanWuxing != 0 {
-			if ganzhi.Sheng(dWuxing, yuanWuxing) {
-				rel.Relation = RelationShengYuan
-			} else if ganzhi.Ke(dWuxing, yuanWuxing) {
-				rel.Relation = RelationKeYuan
-			}
+		if ganzhi.Sheng(dWuxing, yuanWuxing) {
+			appendRelation(RelationShengYuan)
+		} else if ganzhi.Ke(dWuxing, yuanWuxing) {
+			appendRelation(RelationKeYuan)
 		}
-		if jiWuxing != 0 {
-			if ganzhi.Sheng(dWuxing, jiWuxing) {
-				rel.Relation = RelationShengJi
-			} else if ganzhi.Ke(dWuxing, jiWuxing) {
-				rel.Relation = RelationKeJi
-			}
+		if ganzhi.Sheng(dWuxing, jiWuxing) {
+			appendRelation(RelationShengJi)
+		} else if ganzhi.Ke(dWuxing, jiWuxing) {
+			appendRelation(RelationKeJi)
 		}
-
-		if rel.Relation != "" {
+		if len(rel.Relations) > 0 {
 			relations = append(relations, rel)
 		}
 	}

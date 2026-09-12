@@ -43,6 +43,10 @@ func ComputeFullChart(c Chart) FullChart {
 	fc.LiuHai = hehui.LiuHai
 	fc.LiuXing = hehui.LiuXing
 	fc.YongShen = ComputeYongShen(c) // 用神三派归完整命盘（chart 纯排盘不含）
+	fc.ShenShaSchool = ShenShaSchool{
+		DualReference: []string{"天乙贵人", "桃花", "驿马", "华盖", "将星", "劫煞", "灾煞"},
+		Policy:        "union_of_year_and_day_references",
+	}
 	var elementStates map[string]ElementState
 	fc.TenGodStates, elementStates = computeTenGodStates(fc)
 	fc.ElementStates = elementStateList(elementStates)

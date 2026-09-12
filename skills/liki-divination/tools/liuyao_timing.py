@@ -57,14 +57,6 @@ def _topic_bonus(mechanism: str, candidate_id: str, topic: str | None) -> int:
 def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: int = 6) -> dict:
     """按表驱动策略整理应期候选；score 是上下文优先级，不是概率。"""
     rules = _rules()
-    blocked = rules["blocked_topics"].get(topic or "")
-    if blocked:
-        return {
-            "schema_version": "liuyao-timing-plan-v1",
-            "blocked": True,
-            "reason": blocked["reason"],
-            "candidates": [],
-        }
     candidates = snapshot.get("timing_candidates", [])
     if not isinstance(candidates, list):
         raise ValueError("snapshot.timing_candidates must be an array")
@@ -99,12 +91,14 @@ def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: i
     for index, item in enumerate(ranked, 1):
         item["rank"] = index
     return {
-        "schema_version": "liuyao-timing-plan-v1",
+        "schema_version": "liuyao-timing-plan-v2",
         "blocked": False,
         "topic": topic,
         "candidates": ranked,
+        "boundary": rules["boundary"],
         "policy": {
             "may_output": ["time_window", "condition", "watchpoint"],
             "forbidden": ["exact_destiny_date", "guarantee", "probability_percent"],
+            "advice_scope": "traditional_reference_not_professional_advice",
         },
     }

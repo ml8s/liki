@@ -17,6 +17,15 @@ type tiaoHouExpectation struct {
 	wantYong string // expected yong element
 }
 
+func mkTiaoHouChart(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) Chart {
+	return Chart{
+		Nian: zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}},
+		Yue:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: yueZhi}},
+		Ri:   zhuInfo{Zhu: ganzhi.Zhu{Gan: riYuan, Zhi: ganzhi.ZhiChou}},
+		Shi:  zhuInfo{Zhu: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu}},
+	}
+}
+
 func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 	// 冬季(亥子丑月)需火调候: 庚金须火炼, 壬癸水须丙火解冻
 	tests := []tiaoHouExpectation{
@@ -31,7 +40,7 @@ func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 	for _, tt := range tests {
 		name := ganzhi.GanName(tt.riYuan) + "日" + ganzhi.ZhiName(tt.yueZhi) + "月"
 		t.Run(name, func(t *testing.T) {
-			result := computeTiaoHou(tt.riYuan, tt.yueZhi)
+			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi))
 
 			if result.Yong != tt.wantYong {
 				// Also accept if fire is present as Xi (喜神) for winter entries
@@ -50,21 +59,21 @@ func TestTiaoHou_WinterWater_ShouldHaveFire(t *testing.T) {
 	// 注意: 壬亥月已有丙火(丙丁), 检查子/丑
 
 	// 穷通宝鉴: "壬水生子月, 戊土制水, 丙火调候" — primary=戊(土), secondary=丙(火)
-	result := computeTiaoHou(ganzhi.GanRen, ganzhi.ZhiZi)
+	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanRen, ganzhi.ZhiZi))
 	if result.Yong != "土" && result.Yong != "火" {
 		t.Errorf("壬日子月调候 = yong=%s, 应为土或火", result.Yong)
 	}
-	t.Logf("壬日子月: yong=%s xi=%s ji=%s detail=%s",
-		result.Yong, result.Xi, result.Ji, result.Detail)
+	t.Logf("壬日子月: yong=%s xi=%s detail=%s",
+		result.Yong, result.Xi, result.Detail)
 }
 
 func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
 	// 穷通宝鉴: "五月丙火, 愈炎, 壬庚又须并用"
 	// primary=壬正确, 但secondary应为庚(非戊)
-	result := computeTiaoHou(ganzhi.GanBing, ganzhi.ZhiWu)
+	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanBing, ganzhi.ZhiWu))
 
-	t.Logf("丙午月: yong=%s xi=%s ji=%s detail=%s",
-		result.Yong, result.Xi, result.Ji, result.Detail)
+	t.Logf("丙午月: yong=%s xi=%s detail=%s",
+		result.Yong, result.Xi, result.Detail)
 
 	if result.Yong != "水" {
 		t.Errorf("丙午月调候 = %q, want 水 (穷通宝鉴: 壬水)", result.Yong)
@@ -88,13 +97,13 @@ func TestTiaoHou_AllWinterEntries_HaveFireWhenNeeded(t *testing.T) {
 	mismatches := 0
 	for _, dm := range coldDayMasters {
 		for _, mb := range coldMonths {
-			result := computeTiaoHou(dm, mb)
+			result := computeTiaoHou(mkTiaoHouChart(dm, mb))
 			hasFire := result.Yong == "火" || result.Xi == "火"
 			if !hasFire {
 				mismatches++
-				t.Logf("冬季无火: %s日%s月: yong=%s xi=%s ji=%s",
+				t.Logf("冬季无火: %s日%s月: yong=%s xi=%s",
 					ganzhi.GanName(dm), ganzhi.ZhiName(mb),
-					result.Yong, result.Xi, result.Ji)
+					result.Yong, result.Xi)
 			}
 		}
 	}

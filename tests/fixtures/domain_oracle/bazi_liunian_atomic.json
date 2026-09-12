@@ -137,6 +137,19 @@
         "dayun_gan_combines": false,
         "dayun_zhi_clashes_year": false
       }
+    },
+    {
+      "id": "seasonally-strong-but-absent-element-cannot-control-flow-branch",
+      "year": 2028,
+      "pillars": [
+        "壬子",
+        "辛卯",
+        "庚申",
+        "壬子"
+      ],
+      "expected": {
+        "year_branch_controlled_by": []
+      }
     }
   ]
 }

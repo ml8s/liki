@@ -15,8 +15,10 @@ func computeConflicts(chart *Chart) []Conflict {
 	relations := make([]string, 0, len(chart.DongYaoRelations))
 	has := map[DongYaoRelationType]bool{}
 	for _, relation := range chart.DongYaoRelations {
-		relations = append(relations, string(relation.Relation))
-		has[relation.Relation] = true
+		for _, item := range relation.Relations {
+			relations = append(relations, string(item))
+			has[item] = true
+		}
 	}
 
 	var conflicts []Conflict

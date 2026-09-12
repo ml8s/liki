@@ -28,5 +28,9 @@ func TestLeapMonth(t *testing.T) {
 			t.Errorf("%s: 命宫=%s 局=%s, want 命宫=%s 局=%s",
 				tt.name, mg.Zhi.String(), c.JuShuName, tt.wantGong, tt.wantJu)
 		}
+		if c.School.LeapMonth != "first_fifteen_days_current_month_next_fifteen_days_following_month" ||
+			c.School.Source != "iztro_compatible" {
+			t.Errorf("%s: school = %+v, want explicit iztro-compatible leap rule", tt.name, c.School)
+		}
 	}
 }

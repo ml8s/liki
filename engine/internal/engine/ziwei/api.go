@@ -21,6 +21,10 @@ func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
 	chart := computeChart(bz, lt)
 	chart.BirthYear = lt.Year
 	chart.Gender = gender
+	chart.School = ChartSchool{
+		LeapMonth: "first_fifteen_days_current_month_next_fifteen_days_following_month",
+		Source:    "iztro_compatible",
+	}
 	// LunarMonth/LunarDay 已在 computeChart 内设置（含闰月调整），不覆盖
 	chart.NianZhi = nianZhi
 	chart = buildChartDetail(chart)

@@ -12,15 +12,19 @@ type FuYiResult struct {
 	Ji          string            `json:"ji"`
 	Strength    string            `json:"qiangruo"`
 	Pattern     string            `json:"pattern,omitempty"`
+	Model       string            `json:"model"`
+	Basis       FuYiBasis         `json:"basis"`
 }
 
 // TiaoHouResult is the TiaoHou (调候) yongshen analysis based on climate.
 type TiaoHouResult struct {
-	Yong   string `json:"yong"`
-	Xi     string `json:"xi"`
-	Ji     string `json:"ji"`
-	Season string `json:"season"`
-	Detail string `json:"detail"`
+	Yong      string               `json:"yong"`
+	Xi        string               `json:"xi"`
+	Season    string               `json:"season"`
+	Detail    string               `json:"detail"`
+	Model     string               `json:"model"`
+	Primary   TiaoHouAvailability  `json:"primary"`
+	Secondary *TiaoHouAvailability `json:"secondary,omitempty"`
 }
 
 // GeJuResult is the GeJu (格局) yongshen analysis based on chart pattern.
@@ -30,6 +34,12 @@ type GeJuResult struct {
 	Ji      string `json:"ji"`
 	Pattern string `json:"ge_ju"`
 	Usage   string `json:"yong_fa"` // "顺用" or "逆用"
+	// 结构事实：月令格神与来源。当前模型未完整实现相神、成格、败格、
+	// 救应，因此 Pattern 是格局候选，不是子平真诠完整成格结论。
+	PatternGod       string        `json:"pattern_god,omitempty"`
+	PatternGodTenGod string        `json:"pattern_god_ten_god,omitempty"`
+	PatternGodSource string        `json:"pattern_god_source"`
+	Structure        GeJuStructure `json:"structure"`
 }
 
 // YongShenResult holds the three-school yongshen analysis.
@@ -46,7 +56,7 @@ func ComputeYongShen(c Chart) YongShenResult {
 
 	return YongShenResult{
 		FuYi:    computeFuYi(c, wc, ws),
-		TiaoHou: computeTiaoHou(c.Ri.Gan, c.Yue.Zhi),
+		TiaoHou: computeTiaoHou(c),
 		GeJu:    computeGeJu(c, wc),
 	}
 }

@@ -121,7 +121,7 @@ var qimingMethods = []RPCMethod{
 			"type":"object",
 			"additionalProperties":false,
 			"properties":{
-				"source_surname":{"type":"string","minLength":1,"maxLength":64,"description":"用户的罗马字姓；只传姓氏，不含名；复姓可使用空格或连字符；非拉丁姓先要求用户提供官方或惯用罗马字拼写"},
+				"source_surname":{"type":"string","minLength":1,"maxLength":64,"description":"用户的罗马字姓；只传姓氏，不含名；复姓可使用空格或连字符；Latin 重音符号会归一化；非拉丁姓先要求用户提供官方或惯用罗马字拼写"},
 				"max_candidates":{"type":"integer","minimum":1,"maximum":12,"default":6,"description":"候选数量上限"}
 			},
 			"required":["source_surname"]

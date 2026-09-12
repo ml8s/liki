@@ -20,6 +20,8 @@ type Chart struct {
 	YingQi              YingQi             `json:"ying_qi"`
 	RiGanPalace         GongIndex          `json:"ri_gan_gong"`  // 日干落宫（排盘固有）
 	ShiGanPalace        GongIndex          `json:"shi_gan_gong"` // 时干落宫（排盘固有）
+	RiGanPalaceFacts    []GanPalaceFact    `json:"ri_gan_palace_facts"`
+	ShiGanPalaceFacts   []GanPalaceFact    `json:"shi_gan_palace_facts"`
 	RiShiRelation       RiShiRelation      `json:"ri_shi_relation"`
 	KongWangAffected    []AffectedSymbol   `json:"kong_wang_affected"`
 	MaXingAffected      []AffectedSymbol   `json:"ma_xing_affected"`
@@ -29,6 +31,14 @@ type Chart struct {
 	DutyDoorPalace      GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
 	YongShen            *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
 	Specialized         SpecializedContext `json:"specialized"`
+}
+
+// GanPalaceFact records every palace layer occupied by a stem. The primary
+// ri_gan_gong/shi_gan_gong keeps the heaven-first rule; these facts preserve
+// the earth-stem palace that the single value previously discarded.
+type GanPalaceFact struct {
+	Palace GongIndex `json:"palace"`
+	Layer  string    `json:"layer"` // heaven / earth
 }
 
 type RiShiRelation struct {
@@ -84,6 +94,8 @@ func buildChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
 
 	riGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
 	shiGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Shi.Gan, bz.Shi.Zhi))
+	riGanFacts := findGanPalaceFacts(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
+	shiGanFacts := findGanPalaceFacts(p, resolveJiaDunGan(bz.Shi.Gan, bz.Shi.Zhi))
 	leadP := leadPillarPalace(p)
 
 	chart := Chart{
@@ -98,6 +110,8 @@ func buildChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
 		Patterns:            findPatterns(p),
 		RiGanPalace:         riGanP,
 		ShiGanPalace:        shiGanP,
+		RiGanPalaceFacts:    riGanFacts,
+		ShiGanPalaceFacts:   shiGanFacts,
 		RiShiRelation:       analyzeRiShiRelation(riGanP, shiGanP),
 		KongWangAffected:    affectedVoidSymbols(p, riGanP, shiGanP, leadP),
 		MaXingAffected:      affectedHorseSymbols(p, riGanP, shiGanP, leadP),
@@ -256,6 +270,23 @@ func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
 		}
 	}
 	return 0
+}
+
+func findGanPalaceFacts(p pan, g ganzhi.Gan) []GanPalaceFact {
+	facts := []GanPalaceFact{}
+	for i := range p.GongWei {
+		for _, item := range p.GongWei[i].TianPan {
+			if item.Gan == g {
+				facts = append(facts, GanPalaceFact{Palace: GongIndex(i + 1), Layer: "heaven"})
+			}
+		}
+	}
+	for i := range p.GongWei {
+		if p.GongWei[i].DiPanGan == g {
+			facts = append(facts, GanPalaceFact{Palace: GongIndex(i + 1), Layer: "earth"})
+		}
+	}
+	return facts
 }
 
 func findStarPalace(p pan, star StarIndex) GongIndex {

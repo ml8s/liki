@@ -41,8 +41,17 @@ pan → factors → snap → assertions
 
 | 字段 | 含义 |
 |---|---|
+| `full.nian/yue/ri/shi.shen_sha` | engine 神煞事实；勾绞、元辰按年干阴阳 × 性别定向，学堂 / 词馆按年命纳音同气正位 |
+| `full.shen_sha_school` | 天乙、桃花、驿马、华盖、将星、劫煞、灾煞采用年参照与日参照并集；不隐含单一流派 |
+| `full.yong_shen.tiao_hou` | 《穷通宝鉴》主用 / 辅用表候选；`primary / secondary` 记录表内天干在四柱的透干、藏支与所在柱，并投影其宫支参与的合会冲刑；不机械反推忌神，原文额外条件与扶抑 / 格局上下文另核 |
+| `full.yong_shen.fu_yi.basis` | 扶抑强弱表输入：日主根型、月令旺相、印比数量、日主藏干根，以及日主 / 印比 / 日支 / 日主根相关的关系投影；动态再权衡仍须整体合参 |
+| `full.yong_shen.ge_ju.structure` | 月令格神、克格神与生格神三类原子状态：透干柱、藏干根、季节旺相与组合强弱；同时投影与三类五行相关的天干五合和地支合会冲刑 |
+| `full.yong_shen.ge_ju` | 月令藏干透干格局候选、格神、十神与来源；`structure` 是候选证据，不输出成格 / 败格 / 救应终判，不得冒充完整子平结论 |
+| `full.yong_shen.*.relation_facts[].targets` | 关系投影的角色闭集；同一地支多藏干可命中多个角色，必须全部保留，不得按第一个藏干截断 |
 | `full.lu_roots` | 透干十神得十干禄 |
-| `full.relation_groups` | 去重后的完整关系组：天干五合按邻柱；地支六合 / 三合 / 三会 / 六冲 / 六害 / 三刑按全组或成对规则 |
+| `full.gan_he` | 全部两两天干五合事实，含 `adjacent / separated / remote` 柱距与 `contested` 争合候选标记 |
+| `full.san_he / full.san_hui` | 完整三合局与三会方，含成员支与所在柱；结构投影只消费这些 engine 定位事实 |
+| `full.relation_groups` | 去重后的完整关系组：紧邻天干五合进 `gan_he`，隔位 / 远隔进 `gan_he_candidate`；地支六合 / 三合 / 三会 / 六冲 / 六害 / 三刑按全组或成对规则 |
 | `full.ten_god_states` | 十神透干 / 藏支、数量、通根、得令与组合旺弱 |
 | `full.element_states` | 五行季节旺弱、组合旺弱、生克方向与克者旺弱 |
 | `full.da_yun.steps[].rooted / root_refs` | 大运干通根事实与坐支本气 / 原局藏干证据 |
@@ -57,12 +66,15 @@ pan → factors → snap → assertions
 | `full.atomic_facts.spouse_palace_state` | 夫妻宫冲 / 合 / 刑 / 害 / 静 |
 | `full.atomic_facts.day_branch_type` | 日支桃花 / 驿马 / 墓库 |
 | `full.atomic_facts.year_officer_killing` | 年柱官杀攻身 |
+| `full.da_yun` | 按节气顺逆与晚子时口径计算起运；23:00–24:00 属子时 |
 | `ziwei.palace_facts` | 紫微宫位星曜、星组、四化、亮度与主星数量原子事实 |
+| `ziwei.patterns` | 紫微格局候选；`金灿光辉` 限太阳独坐命宫午宫，`日月反背` 只取命宫三方四正文言明的日戌月辰 / 日子月午结构，不得泛化为任意双落陷 |
 
 流年层同样由 `bazi.liunian` 输出原子事实：
 
 | 字段 | 含义 |
 |---|---|
+| `liunian.shen_sha` | 流年动态神煞与值年神煞；丧门取太岁前二位、吊客取后二位 |
 | `atomic_facts.controls_elements` | 流年干或支所克五行 |
 | `atomic_facts.controls_targets` | 日主 / 财官印食等语义目标是否受流年干支克 |
 | `atomic_facts.unfavorable_gan / unfavorable_branch` | 流年干 / 支为扶抑忌神 |
@@ -81,6 +93,7 @@ pan → factors → snap → assertions
 这些字段的命理口径由 engine 单测与 `tests/fixtures/domain_oracle/` 锁定。Python 新增因子时不得重新实现上述推导。
 
 紫微 `宫含` 算子只对 `ziwei.palace_facts` 做 palace / kind / target / star exact match；Python 不再遍历宫位、推导四化落宫、解释亮度分组或计算主星数量。
+紫微盘显式输出 `school`：当前闰月口径为 iztro 兼容的“前十五日本月、后十五日次月”。这不是《紫微斗数全书》闰月按下月口径；两派不得混写。
 本命宫名使用 engine 闭集：`命宫、兄弟、夫妻、子女、财帛、疾厄、迁移、仆役、官禄、田宅、福德、父母`；除命宫外不追加“宫”字。`任意` 只表示跨全部本命宫匹配，不是宫名。
 流年紫微同样消费 engine 宫名闭集；`流曜入宫` 与 `流年宫化` 不做带“宫”字后的显示别名适配。
 
@@ -90,13 +103,13 @@ pan → factors → snap → assertions
 
 | 口径 | 数量 | 事实源 |
 |---|---:|---|
-| 本命因子 | 463 | `factors.csv` |
-| 本命八字因子 | 186 | `factors.csv` |
+| 本命因子 | 475 | `factors.csv` |
+| 本命八字因子 | 198 | `factors.csv` |
 | 本命紫微因子 | 277 | `factors.csv` |
-| 本命定义组 | 503 | `factors.csv` |
-| 本命数据行 | 574 | `factors.csv` |
+| 本命定义组 | 515 | `factors.csv` |
+| 本命数据行 | 586 | `factors.csv` |
 | 本命直通原子 | 50 | `factors.csv` |
-| 本命提取原子 | 298 | `factors.csv` |
+| 本命提取原子 | 310 | `factors.csv` |
 | 本命复合因子 | 115 | `factors.csv` |
 | 流年因子 | 101 | `factors_liunian.csv` |
 | 流年八字因子 | 69 | `factors_liunian.csv` |
@@ -115,12 +128,14 @@ pan → factors → snap → assertions
 
 `pan_digest` 是 canonical SHA-256 完整性摘要，用于发现误改或手工拼装；当前不承担服务端防伪造签名职责。
 `pan_schema` 要求 `ziwei.gong_wei` 按 engine 12 宫闭集完整输出，`palace_facts` 非空且 palace 名必须落在同一闭集内。
+`bazi.fullchart` 只接受 engine `bazi.chart` 产生的 canonical lean chart：四柱必须构成合法六十甲子，且每柱 `na_yin` 存在并与干支一致；缺失或错配直接报错，不把裁剪盘扩展成空纳音。
 
 `calibrate.py` 是独立考时工具，编排 `paipan → factors → duanyu`。候选 `correct=true` 必须提供 longitude；`correct=false` 表示已明确时辰，longitude 可省略。`detail=true` 输出机械 evidence；`detail=false` 只保留断语。场景领域过滤只作用于断语，不删除机械 evidence。
 
 考时事件的 `rule` 若是场景别名，同样应用 `场景领域过滤`；例如 `yearly_study` 只保留学业断语，避免用婚姻或财运信号校时。
 
 - `duanyu.query` 只接受本命域；`query_yearly` / `yearly_range` 只接受流年域，`yingqi` 必须通过流年查询。
+- `duanyu.query(rule=用神)` 除断语外返回 `yong_shen_context`，直接投影 engine 的 `yong_shen / element_states / ten_god_states`；Python 不重算三派、不推导最终喜忌。
 - `query(year=...)` 只允许 `大运 / 大限` 限运域；省略 year 时由服务端当前时间推导。
 - 限运域结果附带 `current_year / current_year_source`；显式传 year 时 source 为 `specified`。
 - `query` / `yearly_range` 支持可选 `domains` 过滤器；有效领域来自所选 rule 展开后的断语表。未知领域 fail closed，过滤结果不携带 snapshot evidence。

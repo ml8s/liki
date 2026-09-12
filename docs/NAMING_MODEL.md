@@ -55,7 +55,7 @@ bazi.chart
 
 ### CharacterFact
 
-字库事实由 `qiming.char` 或 `qiming.check.characters` 返回，包括字、频度分级、五行、现代规范笔画、部首、拼音和声调。`pinyin` 保留逗号分隔的全部库内读音；`tone` 与 `phonetic.tones` 按第一库内读音生成。多音字必须结合用户意图确认读音，不得只按第一读音解释。LLM 不得修改这些属性，也不得用网络传闻或五格笔画规则覆盖 engine 字库。
+字库事实由 `qiming.char` 或 `qiming.check.characters` 返回，包括字、频度分级、五行、现代规范笔画、部首、拼音和声调；源库无部首时 `radical` 省略。`pinyin` 保留逗号分隔的全部库内读音；`tone` 与 `phonetic.tones` 按第一库内读音生成。多音字必须结合用户意图确认读音，不得只按第一读音解释。LLM 不得修改这些属性，也不得用网络传闻或五格笔画规则覆盖 engine 字库。
 
 ### CharPool
 
@@ -131,6 +131,7 @@ invalid 候选必须丢弃或明确标注，不得继续推荐。没有传入五
 ### SourceName
 
 用户原始姓氏，只接收姓氏，不接收名；复姓可使用官方罗马字中的空格或连字符。非拉丁姓必须先由用户提供官方或惯用罗马字拼写；系统不做西里尔、阿拉伯、日文或韩文转写。
+拉丁罗马字中的重音符号由 engine 归一化后匹配；仅 Mandarin pinyin 的完整 `lü/nü` token 按惯例折叠为 `lv/nv`，外语姓中的 `ü` 仍按 `u` 处理。 curated alias 覆盖常见粤语、闽南、客家与越南裔官方罗马字；未覆盖的官方拼写仍按音近或传统《百家姓》fallback 处理。
 
 ### SurnameCandidate
 

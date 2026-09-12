@@ -54,6 +54,7 @@ var (
 	ziweiStartPos map[juShu]int
 	luCunTable    [10]int
 	tianKuiTable  [10]int
+	tianYueTable  [10]int
 	tianMaTable   [12]int
 )
 
@@ -69,6 +70,7 @@ func loadTables() error {
 		ZiweiStart map[string]int               `json:"ziwei_start"`
 		LuCun      map[string]int               `json:"lu_cun"`
 		TianKui    map[string]int               `json:"tian_kui"`
+		TianYue    map[string]int               `json:"tian_yue"`
 		TianMa     map[string]int               `json:"tian_ma"`
 	}
 	if err := json.Unmarshal(tablesJSON, &data); err != nil {
@@ -112,13 +114,20 @@ func loadTables() error {
 		luCunTable[int(gan)-1] = pos
 	}
 
-	// tianKuiTable
+	// tianKuiTable / tianYueTable
 	for ganName, pos := range data.TianKui {
 		gan, err := ganzhi.ParseGan(ganName)
 		if err != nil {
 			return err
 		}
 		tianKuiTable[int(gan)-1] = pos
+	}
+	for ganName, pos := range data.TianYue {
+		gan, err := ganzhi.ParseGan(ganName)
+		if err != nil {
+			return err
+		}
+		tianYueTable[int(gan)-1] = pos
 	}
 
 	// miaoWangTable

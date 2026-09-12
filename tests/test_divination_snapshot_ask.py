@@ -84,7 +84,7 @@ def test_snapshot_envelope_fields_cannot_be_overridden():
     with pytest.raises(ValueError, match="cannot override envelope"):
         divination_snapshot.build_snapshot(
             method="liuyao",
-            schema_version="liuyao-snapshot-v5",
+            schema_version="liuyao-snapshot-v6",
             payload={"method": "qimen"},
         )
 
@@ -92,14 +92,14 @@ def test_snapshot_envelope_fields_cannot_be_overridden():
 def test_snapshot_validate_rejects_wrong_schema_version():
     snapshot = divination_snapshot.build_snapshot(
         method="liuyao",
-        schema_version="liuyao-snapshot-v5",
+        schema_version="liuyao-snapshot-v6",
         payload={"question": {"text": "测试"}},
     )
     with pytest.raises(ValueError, match="schema_version"):
         divination_snapshot.validate_snapshot(
             snapshot,
             method="liuyao",
-            schema_version="liuyao-snapshot-v6",
+            schema_version="liuyao-snapshot-v7",
         )
 
 
@@ -110,12 +110,31 @@ def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
         question="这次面试能不能通过？", mode="coins", matter="career"
     )
     assert result["method"] == "liuyao"
-    assert result["schema_version"] == "liuyao-snapshot-v5"
+    assert result["schema_version"] == "liuyao-snapshot-v6"
     assert result["snapshot_digest"]
     assert result["policy"]["immutable"] is True
     assert "chart" not in result
     assert "solar_time" not in result
     assert result["snapshot_digest"] == divination_snapshot.canonical_digest(result)
+
+
+def test_liuyao_health_snapshot_keeps_timing_plan(monkeypatch):
+    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
+    monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
+    result = liuyao_snapshot.create(
+        question="最近身体状态何时需要关注？",
+        mode="coins",
+        matter="career",
+        topic="health_context",
+    )
+    divination_snapshot.validate_snapshot(
+        result,
+        method="liuyao",
+        schema_version=liuyao_snapshot.SCHEMA_VERSION,
+    )
+    assert result["timing_plan"]["blocked"] is False
+    assert [item["id"] for item in result["timing_plan"]["candidates"]] == ["timing-1"]
+    assert "不构成医疗" in result["timing_plan"]["boundary"]
 
 
 def test_liuyao_relationship_and_legal_default_topics_resolve(monkeypatch):

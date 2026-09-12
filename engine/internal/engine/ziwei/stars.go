@@ -79,15 +79,17 @@ func luCunPos(nianGan Gan) int {
 }
 
 func tianKuiPos(nianGan Gan) int {
-	// iztro公式：fixEarthlyBranchIndex(某支)
-	m := map[Gan]int{1: 11, 2: 10, 3: 9, 4: 9, 5: 11, 6: 10, 7: 11, 8: 4, 9: 1, 10: 1}
-	return (m[nianGan] + 2) % 12
+	if yg := int(nianGan); yg >= 1 && yg <= 10 {
+		return tianKuiTable[yg-1]
+	}
+	return 0
 }
 
 func tianYuePos(nianGan Gan) int {
-	// iztro独立表：甲未乙申丙酉丁酉戊未己申庚未辛寅壬巳癸巳
-	m := map[Gan]int{1: 5, 2: 6, 3: 7, 4: 7, 5: 5, 6: 6, 7: 5, 8: 0, 9: 3, 10: 3}
-	return (m[nianGan] + 2) % 12
+	if yg := int(nianGan); yg >= 1 && yg <= 10 {
+		return tianYueTable[yg-1]
+	}
+	return 0
 }
 
 func qingYangPos(nianGan Gan) int { return (luCunPos(nianGan) + 1) % 12 }

@@ -157,7 +157,7 @@ func TestLiuNian_ShenSha(t *testing.T) {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
 	}
 
-	// 2026 丙午年对 1984 甲子命：值年煞——丧门（太岁午后2=辰，时支辰临命）、大耗（午对冲子，年/日支子临命）
+	// 2026 丙午年对 1984 甲子命：值年煞——吊客（太岁后二位为辰，时支辰临命；丧门前二位为申，本造无申）、大耗（午对冲子，年/日支子临命）
 	if ln.ShenSha == nil {
 		t.Error("ShenSha is nil, want empty slice")
 	}
@@ -165,14 +165,14 @@ func TestLiuNian_ShenSha(t *testing.T) {
 	for _, s := range ln.ShenSha {
 		names2026[s.Name] = true
 	}
-	if !names2026["丧门"] {
-		t.Errorf("2026 缺丧门（值年煞：太岁午→丧门辰，时支辰临命），got %v", ln.ShenSha)
+	if !names2026["吊客"] {
+		t.Errorf("2026 缺吊客（值年煞：太岁午→吊客辰，时支辰临命），got %v", ln.ShenSha)
 	}
 	if !names2026["大耗"] {
 		t.Errorf("2026 缺大耗（值年煞：太岁午→大耗子，命局有子），got %v", ln.ShenSha)
 	}
 
-	// 2025 乙巳年：命主日支子见巳 → 羊刃；年支子见巳 → 劫煞（具体断言）
+	// 2025 乙巳年：己为阴干无经典羊刃；年支子见巳 → 劫煞。
 	ln2025, err := ComputeLiuNian(chart, 2025)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2025): %v", err)
@@ -181,8 +181,8 @@ func TestLiuNian_ShenSha(t *testing.T) {
 	for _, s := range ln2025.ShenSha {
 		names[s.Name] = true
 	}
-	if !names["羊刃"] {
-		t.Errorf("2025 缺羊刃, got %v", ln2025.ShenSha)
+	if names["羊刃"] {
+		t.Errorf("2025 己日阴干不应输出羊刃, got %v", ln2025.ShenSha)
 	}
 	if !names["劫煞"] {
 		t.Errorf("2025 缺劫煞, got %v", ln2025.ShenSha)

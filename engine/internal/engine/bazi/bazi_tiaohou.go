@@ -9,7 +9,6 @@ type TiaoHou struct {
 	Season string
 	Yong   string
 	Xi     string
-	Ji     string // empty when no clear 忌神
 	Detail string
 }
 
@@ -19,17 +18,37 @@ type tiaohouKey struct {
 	zhi int
 }
 
-// computeTiaoHou returns the TiaoHou (调候) yongshen analysis for the given
-// day-master and month-zhi. Based on 穷通宝鉴.
-func computeTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) TiaoHouResult {
+// computeTiaoHou returns the TiaoHou (调候) yongshen analysis for a natal
+// chart. The table is keyed by day-master and month-zhi; the availability
+// projection is computed against all four palaces.
+func computeTiaoHou(c Chart) TiaoHouResult {
+	riYuan, yueZhi := c.Ri.Gan, c.Yue.Zhi
 	th, _ := queryTiaoHou(riYuan, yueZhi)
-	return TiaoHouResult{
-		Yong:   th.Yong,
-		Xi:     th.Xi,
-		Ji:     th.Ji,
-		Season: th.Season,
-		Detail: th.Detail,
+	entry, hasEntry := lookupTiaohou[tiaohouKey{int(riYuan), int(yueZhi)}]
+	if !hasEntry {
+		return TiaoHouResult{
+			Season:  th.Season,
+			Model:   "qiongtong_primary_secondary_table",
+			Primary: TiaoHouAvailability{Occurrences: []StemOccurrence{}, RelationFacts: []RelationFact{}},
+		}
 	}
+	return TiaoHouResult{
+		Yong:      th.Yong,
+		Xi:        th.Xi,
+		Season:    th.Season,
+		Detail:    th.Detail,
+		Model:     "qiongtong_primary_secondary_table",
+		Primary:   buildTiaoHouAvailability(c, entry.primary, "primary"),
+		Secondary: tiaoHouSecondary(c, entry.secondary),
+	}
+}
+
+func tiaoHouSecondary(c Chart, secondary ganzhi.Gan) *TiaoHouAvailability {
+	if secondary == 0 {
+		return nil
+	}
+	availability := buildTiaoHouAvailability(c, secondary, "secondary")
+	return &availability
 }
 
 // queryTiaoHou returns the 穷通宝鉴 climate-adjustment result for a given
@@ -47,19 +66,12 @@ func queryTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) (TiaoHou, bool) {
 		xiElem = ganzhi.GanWuxing(e.secondary)
 	}
 
-	jiElem, hasJi := pickJiElement(ganzhi.GanWuxing(riYuan), e.primary, e.secondary)
-
 	season := ganzhi.ZhiSeasonLabel(yueZhi)
 
 	detail := ganzhi.ZhiName(yueZhi) + "月" + ganzhi.GanName(riYuan) + ganzhi.GanWuxing(riYuan).String()
 	detail += "，用" + ganzhi.GanName(e.primary) + "调候"
 	if e.secondary != 0 {
 		detail += "，" + ganzhi.GanName(e.secondary) + "辅之"
-	}
-
-	jiStr := ""
-	if hasJi {
-		jiStr = jiElem.String()
 	}
 
 	xiStr := ""
@@ -71,29 +83,6 @@ func queryTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) (TiaoHou, bool) {
 		Season: season,
 		Yong:   yongElem.String(),
 		Xi:     xiStr,
-		Ji:     jiStr,
 		Detail: detail,
 	}, true
-}
-
-// pickJiElement returns the Ji (忌神) element for the TiaoHou result.
-// Ji is the element that controls (克) the day master. If the controlling
-// element collides with yong/xi at the WUXING level — and the drain fallback
-// also collides — returns false to signal no clear 忌神.
-func pickJiElement(dmElem ganzhi.Wuxing, yong, xi ganzhi.Gan) (ganzhi.Wuxing, bool) {
-	ctrlElem := elementThatControls(dmElem)
-	yongWx := ganzhi.GanWuxing(yong)
-	xiWx := ganzhi.GanWuxing(xi)
-
-	if ctrlElem != yongWx && ctrlElem != xiWx {
-		return ctrlElem, true
-	}
-
-	drain := elementThatDrains(dmElem)
-	if drain != yongWx && drain != xiWx {
-		return drain, true
-	}
-
-	// Both ctrl and drain conflict with yong/xi — no clear 忌神.
-	return 0, false
 }

@@ -105,6 +105,35 @@ func TestFengshuiResultSchemasAreExplicit(t *testing.T) {
 	}
 }
 
+func TestFengshuiFixedOutputClosures(t *testing.T) {
+	reg := NewRPCRegistry()
+	schemas := resultDataSchemas(t, reg)
+	chart, ok := schemas["xuankong.chart"].(map[string]any)
+	if !ok {
+		t.Fatal("xuankong.chart result schema is not an object")
+	}
+	properties := chart["properties"].(map[string]any)
+	if got := properties["chart_digest"].(map[string]any)["pattern"]; got != "^[a-f0-9]{64}$" {
+		t.Fatalf("chart_digest pattern = %#v, want canonical SHA-256 pattern", got)
+	}
+	for _, field := range []string{"zuo_shan_name", "xiang_shan_name"} {
+		enum, ok := properties[field].(map[string]any)["enum"].([]any)
+		if !ok || len(enum) != 24 {
+			t.Fatalf("%s enum = %#v, want 24 mountains", field, properties[field])
+		}
+	}
+
+	shou := properties["shou_shan_chu_sha"].(map[string]any)["properties"].(map[string]any)["assessment"].(map[string]any)
+	if _, ok := shou["enum"].([]any); !ok {
+		t.Fatal("shou_shan_chu_sha.assessment lacks fixed enum")
+	}
+
+	annual := schemas["xuankong.liunian"].(map[string]any)["properties"].(map[string]any)["ru_zhong"].(map[string]any)
+	if _, ok := annual["enum"].([]any); !ok {
+		t.Fatal("xuankong.liunian.ru_zhong lacks flying-star enum")
+	}
+}
+
 func assertClosedObjectSchema(t *testing.T, method string, schema any, path string) {
 	t.Helper()
 	objectSchema, ok := schema.(map[string]any)

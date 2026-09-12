@@ -477,72 +477,35 @@ func TestFindFuShen_DifferentTarget(t *testing.T) {
 }
 
 // =============================================================================
-// computeYingQi — 应期推算 (完整路径)
+// TimingCandidates — 应期候选（完整路径）
 // =============================================================================
 
-func TestComputeYingQi_YongShenDongYao(t *testing.T) {
-	// 乾为天, 三爻动(LaoYang=9) → 辰土父母为动爻.
-	st := tianwen.SolarTime(time.Date(2000, 1, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
-	chart := ComputeChart(st, YongFumu, [6]int{7, 7, 9, 7, 7, 7})
-
-	yq := computeYingQi(&chart, YongFumu)
-	if yq.YongShen != "父母" {
-		t.Errorf("YongShen = %s, want 父母", yq.YongShen)
+func TestTimingCandidates_MovingYongShenUsesValueCandidate(t *testing.T) {
+	st := tianwen.SolarTime(time.Date(2000, 1, 1, 12, 0, 0, 0, time.FixedZone("CST", 8)))
+	chart := ComputeChart(st, YongFumu, [6]int{7, 7, 7, 7, 7, 9})
+	found := false
+	for _, candidate := range chart.TimingCandidates {
+		if candidate.Mechanism == "动爻逢值" && candidate.Position == chart.YongShen.Position &&
+			candidate.TriggerBranch == "戌" {
+			found = true
+		}
 	}
-	if yq.DongYaoPos != 3 {
-		t.Errorf("DongYaoPos = %d, want 3 (三爻为动爻)", yq.DongYaoPos)
-	}
-	if yq.YingTimeText == "" {
-		t.Error("expected YingTimeText not empty")
-	}
-	if yq.YingTime == nil || yq.YingTime.Relation != "逢值" ||
-		yq.YingTime.TriggerBranch != "辰" || yq.YingTime.TargetBranch != "辰" {
-		t.Fatalf("YingTime = %+v, want 逢值/辰/辰", yq.YingTime)
-	}
-	if yq.Assessment == "" {
-		t.Error("expected Assessment not empty")
+	if !found {
+		t.Fatalf("timing_candidates = %#v, want moving-value/戌", chart.TimingCandidates)
 	}
 }
 
-func TestComputeYingQi_YongShenJingYao(t *testing.T) {
-	// 用神在静爻上
-	st := tianwen.SolarTime(time.Date(2000, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
-	// All ShaoYang (=7, 静) → 乾为天, 世爻在6
-	chart := ComputeChart(st, YongShiYao, [6]int{7, 7, 7, 7, 7, 7})
-
-	yq := computeYingQi(&chart, YongShiYao)
-	if yq.DongYaoPos != 0 {
-		t.Errorf("expected DongYaoPos=0 for static yao, got %d", yq.DongYaoPos)
+func TestTimingCandidates_HiddenYongShenUsesFlyingClash(t *testing.T) {
+	st := tianwen.SolarTime(time.Date(2026, 9, 9, 17, 28, 0, 0, time.FixedZone("CST", 8)))
+	chart := ComputeChart(st, YongQiCai, [6]int{8, 7, 9, 9, 7, 7})
+	found := false
+	for _, candidate := range chart.TimingCandidates {
+		if candidate.Mechanism == "冲飞出伏" && candidate.Position == chart.YongShen.FuShen.Position {
+			found = true
+		}
 	}
-	// 静爻待冲.
-	if yq.YingTime == nil || yq.YingTime.Relation != "冲" {
-		t.Fatalf("YingTime = %+v, want static clash condition", yq.YingTime)
-	}
-}
-
-func TestComputeYingQi_NotFound_WithFuShen(t *testing.T) {
-	// 用神不上卦, 有伏神.
-	// 构造一个全部爻位为父母的卦, 搜索妻财 → 乾宫本宫卦有妻财(寅)为伏神.
-	p := &Chart{
-		BenGua: 1, // 天风姤, PalaceIdx=0 (乾宫)
-		Lines: [6]Line{
-			{Position: 1, LiuQin: QinFumu, Zhi: ganzhi.ZhiZi},
-			{Position: 2, LiuQin: QinFumu, Zhi: ganzhi.ZhiYin},
-			{Position: 3, LiuQin: QinFumu, Zhi: ganzhi.ZhiChen},
-			{Position: 4, LiuQin: QinFumu, Zhi: ganzhi.ZhiWu},
-			{Position: 5, LiuQin: QinFumu, Zhi: ganzhi.ZhiShen},
-			{Position: 6, LiuQin: QinFumu, Zhi: ganzhi.ZhiXu},
-		},
-		YueZhi: ganzhi.ZhiYin,
-		RiGan:  ganzhi.GanJia,
-		RiZhi:  ganzhi.ZhiZi,
-	}
-	yq := computeYingQi(p, YongQiCai)
-	if yq.YongShen != "妻财" {
-		t.Errorf("YongShen = %s, want 妻财", yq.YongShen)
-	}
-	if yq.Assessment == "" {
-		t.Error("expected Assessment not empty")
+	if !found {
+		t.Fatalf("timing_candidates = %#v, want hidden-release", chart.TimingCandidates)
 	}
 }
 
@@ -572,15 +535,12 @@ func TestComputeChart_RandomShake(t *testing.T) {
 		if chart.WangShuai[i].String() == "" {
 			t.Errorf("line %d: empty wangshuai", i+1)
 		}
-		if chart.DayRelations[i].Relation == "" {
+		if len(chart.DayRelations[i].Relations) == 0 {
 			t.Errorf("line %d: empty day relation", i+1)
 		}
 	}
 	if chart.YongShen.Name != "妻财" {
 		t.Errorf("YongShen.Name = %s, want 妻财", chart.YongShen.Name)
-	}
-	if chart.YingQi.Assessment == "" {
-		t.Error("YingQi.Assessment is empty")
 	}
 }
 
@@ -860,11 +820,8 @@ func TestComputeChart_FullAnalysis(t *testing.T) {
 		if chart.WangShuai[i].String() == "" {
 			t.Errorf("line %d: wang_shuai empty", i+1)
 		}
-		if chart.DayRelations[i].Relation == "" {
+		if len(chart.DayRelations[i].Relations) == 0 {
 			t.Errorf("line %d: day_relation empty", i+1)
 		}
-	}
-	if chart.YingQi.Assessment == "" {
-		t.Error("ying_qi.assessment empty")
 	}
 }

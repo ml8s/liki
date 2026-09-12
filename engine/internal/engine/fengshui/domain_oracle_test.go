@@ -73,6 +73,9 @@ func TestDomainOracle_AnnualFlyingStars(t *testing.T) {
 		}
 	}
 	board := ComputeAnnualFlyingStars(1984)
+	if board.YearBoundary != "gregorian_calendar_year" {
+		t.Fatalf("year_boundary = %s, want explicit gregorian_calendar_year", board.YearBoundary)
+	}
 	if board.RuZhong != "七赤破军" {
 		t.Fatalf("1984 ru_zhong = %s", board.RuZhong)
 	}

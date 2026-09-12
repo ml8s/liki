@@ -104,7 +104,7 @@ func TestShenSha_TianYi(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: tt.pillarZhi[2]},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: tt.pillarZhi[3]},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 
 			gotSet := make(map[int]bool)
 			for i, pillar := range ss {
@@ -168,7 +168,7 @@ func TestShenSha_WenChang(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 
 			// 检查所有柱是否有文昌
 			hasWenChang := false
@@ -221,7 +221,7 @@ func TestShenSha_TaoHua(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -261,7 +261,7 @@ func TestShenSha_YiMa(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -303,7 +303,7 @@ func TestShenSha_HuaGai(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -320,7 +320,7 @@ func TestShenSha_HuaGai(t *testing.T) {
 }
 
 // ── 羊刃 ──
-// 甲刃在卯，乙刃在寅，丙戊刃在午，丁己刃在巳，庚刃在酉，辛刃在申，壬刃在子，癸刃在亥
+// 五阳干有刃：甲卯、丙午、戊午、庚酉、壬子；五阴干无经典羊刃。
 
 func TestShenSha_YangRen(t *testing.T) {
 	tests := []struct {
@@ -330,15 +330,15 @@ func TestShenSha_YangRen(t *testing.T) {
 		wantHit bool
 	}{
 		{"甲刃在卯", ganzhi.GanJia, ganzhi.ZhiMao, true},
-		{"乙刃在寅", ganzhi.GanYi, ganzhi.ZhiYin, true},
+		{"乙无羊刃", ganzhi.GanYi, ganzhi.ZhiYin, false},
 		{"丙刃在午", ganzhi.GanBing, ganzhi.ZhiWu, true},
-		{"丁刃在巳", ganzhi.GanDing, ganzhi.ZhiSi, true},
+		{"丁无羊刃", ganzhi.GanDing, ganzhi.ZhiSi, false},
 		{"戊刃在午", ganzhi.GanWu, ganzhi.ZhiWu, true},
-		{"己刃在巳", ganzhi.GanJi, ganzhi.ZhiSi, true},
+		{"己无羊刃", ganzhi.GanJi, ganzhi.ZhiSi, false},
 		{"庚刃在酉", ganzhi.GanGeng, ganzhi.ZhiYou, true},
-		{"辛刃在申", ganzhi.GanXin, ganzhi.ZhiShen, true},
+		{"辛无羊刃", ganzhi.GanXin, ganzhi.ZhiShen, false},
 		{"壬刃在子", ganzhi.GanRen, ganzhi.ZhiZi, true},
-		{"癸刃在亥", ganzhi.GanGui, ganzhi.ZhiHai, true},
+		{"癸无羊刃", ganzhi.GanGui, ganzhi.ZhiHai, false},
 		{"甲非刃在寅", ganzhi.GanJia, ganzhi.ZhiYin, false},
 		{"庚非刃在申", ganzhi.GanGeng, ganzhi.ZhiShen, false},
 	}
@@ -351,7 +351,7 @@ func TestShenSha_YangRen(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -392,7 +392,7 @@ func TestShenSha_JieSha(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -430,7 +430,7 @@ func TestShenSha_ZaiSha(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -474,7 +474,7 @@ func TestShenSha_YueDe(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, s := range ss[1] {
 				if s.Name == "月德" {
@@ -553,33 +553,35 @@ func TestShenSha_KongWang(t *testing.T) {
 // ── 天罗地网 ──
 
 func TestShenSha_TianLuoDiWang(t *testing.T) {
-	// 戌亥为天罗(11,12)，辰巳为地网(5,6)
+	// 火命见戌亥为天罗；水土命见辰巳为地网；金木命无。
 	tests := []struct {
 		name     string
-		zhi      ganzhi.Zhi
-		wantName string // "天罗" or "地网" or ""
+		year     string
+		zhi      string
+		wantName string
 	}{
-		{"戌为天罗", ganzhi.ZhiXu, "天罗"},
-		{"亥为天罗", ganzhi.ZhiHai, "天罗"},
-		{"辰为地网", ganzhi.ZhiChen, "地网"},
-		{"巳为地网", ganzhi.ZhiSi, "地网"},
-		{"子非天罗地网", ganzhi.ZhiZi, ""},
+		{"火命戌为天罗", "甲辰", "戌", "天罗"},
+		{"火命亥为天罗", "乙巳", "亥", "天罗"},
+		{"水命辰为地网", "壬辰", "辰", "地网"},
+		{"水命巳为地网", "癸巳", "巳", "地网"},
+		{"金命戌非天罗", "甲子", "戌", ""},
+		{"子非天罗地网", "甲辰", "子", ""},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
-				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.zhi},
+				Nian: parseOracleZhu(t, tt.year),
+				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: mustOracleBaziZhi(t, tt.zhi)},
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiShen},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			if tt.wantName == "" {
 				for _, pillar := range ss {
 					for _, e := range pillar {
 						if e.Name == "天罗" || e.Name == "地网" {
-							t.Errorf("unexpected %s at zhi=%s", e.Name, ganzhi.ZhiName(tt.zhi))
+							t.Errorf("unexpected %s at zhi=%s", e.Name, tt.zhi)
 						}
 					}
 				}
@@ -631,7 +633,7 @@ func TestShenSha_LuShen(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -678,7 +680,7 @@ func TestShenSha_HongLuanTianXi(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			hasHL := false
 			hasTX := false
 			for _, pillar := range ss {
@@ -701,50 +703,7 @@ func TestShenSha_HongLuanTianXi(t *testing.T) {
 	}
 }
 
-// ── 学堂 (日主长生之位) ──
-
-func TestShenSha_XueTang(t *testing.T) {
-	// 学堂 = 日主长生之位
-	// 甲长生在亥，乙长生在午，丙长生在寅，丁长生在酉，
-	// 戊长生在寅，己长生在酉，庚长生在巳，辛长生在子，
-	// 壬长生在申，癸长生在卯
-	tests := []struct {
-		name    string
-		riGan   ganzhi.Gan
-		zhi     ganzhi.Zhi
-		wantHit bool
-	}{
-		{"甲长生亥→学堂", ganzhi.GanJia, ganzhi.ZhiHai, true},
-		{"乙长生午→学堂", ganzhi.GanYi, ganzhi.ZhiWu, true},
-		{"丙长生寅→学堂", ganzhi.GanBing, ganzhi.ZhiYin, true},
-		{"庚长生巳→学堂", ganzhi.GanGeng, ganzhi.ZhiSi, true},
-		{"壬长生申→学堂", ganzhi.GanRen, ganzhi.ZhiShen, true},
-		{"甲长生非寅", ganzhi.GanJia, ganzhi.ZhiYin, false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			bz := ganzhi.Bazi{
-				Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
-				Yue:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: tt.zhi},
-				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
-				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
-			}
-			ss := computeShenSha(bz)
-			found := false
-			for _, pillar := range ss {
-				for _, e := range pillar {
-					if e.Name == "学堂" {
-						found = true
-					}
-				}
-			}
-			if found != tt.wantHit {
-				t.Errorf("学堂 found = %v, want %v", found, tt.wantHit)
-			}
-		})
-	}
-}
+// 学堂 / 词馆的《三命通会》年命纳音同气口径由 nayin_shen_sha_oracle_test.go 独立覆盖。
 
 // ── 综合神煞：真实八字盘 ──
 
@@ -793,7 +752,7 @@ func TestShenSha_RealChart(t *testing.T) {
 	//   将星: 日支卯→亥卯未将星在卯(自坐)
 	//   灾煞: 日支卯→亥卯未灾煞在酉（四柱无酉——不中）
 	//   红鸾: 年支子→红鸾在卯, 日支卯✓
-	//   勾神: 年支子→勾神=(1+2)%12+1=卯, 日支卯✓
+	//   勾神: 甲子阳男命前三辰为卯，日支卯✓（《三命通会·论勾绞》）
 	//
 	// 时柱戊辰:
 	//   华盖: 年支子→申子辰华盖在辰, 时支辰✓
@@ -806,7 +765,7 @@ func TestShenSha_RealChart(t *testing.T) {
 		0: {"天乙贵人", "桃花", "将星"},
 		1: {"月德", "驿马", "月恩", "孤辰"},
 		2: {"将星", "红鸾", "勾神"},
-		3: {"华盖", "地网"},
+		3: {"华盖"},
 	}
 
 	pillarLabels := [4]string{"年柱", "月柱", "日柱", "时柱"}
@@ -882,7 +841,7 @@ func TestShenSha_JinYu_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiZi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			if !hasShenSha(ss[0], "金舆") {
 				t.Errorf("%s日主: 金舆应在 %s，年柱未见", ganzhi.GanName(gan), ganzhi.ZhiName(zhi))
 			}
@@ -931,7 +890,7 @@ func TestShenSha_TianDe_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: riGan, Zhi: ganzhi.ZhiZi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			found := false
 			for i := 0; i < 4; i++ {
 				if hasShenSha(ss[i], "天德") {
@@ -970,7 +929,7 @@ func TestShenSha_YueEn_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			if !hasShenSha(ss[0], "月恩") {
 				t.Errorf("%s: 月恩应在 %s（年干），未见", ganzhi.ZhiName(month), ganzhi.GanName(gan))
 			}
@@ -1001,7 +960,7 @@ func TestShenSha_XueRen_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiZi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			if !hasShenSha(ss[0], "血刃") {
 				t.Errorf("%s日主: 血刃应在 %s，年柱未见", ganzhi.GanName(gan), ganzhi.ZhiName(zhi))
 			}
@@ -1018,7 +977,7 @@ func TestShenSha_TianYi_Dedup(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 	}
-	ss := computeShenSha(bz)
+	ss := computeShenSha(bz, ganzhi.Male)
 	var count int
 	for _, e := range ss[0] {
 		if e.Name == "天乙贵人" {
@@ -1039,7 +998,7 @@ func TestShenSha_Triad_Dedup(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 	}
-	ss := computeShenSha(bz)
+	ss := computeShenSha(bz, ganzhi.Male)
 	var count int
 	for _, e := range ss[1] {
 		if e.Name == "驿马" {
@@ -1169,7 +1128,7 @@ func TestGuChenGuaSu_AllYearZhi(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: w.gua}, // 时支=寡宿位
 			}
-			ss := computeShenSha(bz)
+			ss := computeShenSha(bz, ganzhi.Male)
 			if !hasShenSha(ss[1], "孤辰") {
 				t.Errorf("%s年: 孤辰应在月支%s", ganzhi.ZhiName(nianZhi), ganzhi.ZhiName(w.gu))
 			}

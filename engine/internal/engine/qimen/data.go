@@ -1694,8 +1694,8 @@ func loadYingQi() error {
 	if err := json.Unmarshal(yingqiJSON, &table); err != nil {
 		return err
 	}
-	if table.Summary == "" || len(table.Rules) != 2 ||
-		table.HorizonDays <= 0 || table.HorizonDays > 60 || len(table.DateMatches) != 2 {
+	if table.Summary == "" || len(table.Rules) != 4 ||
+		table.HorizonDays <= 0 || table.HorizonDays > 60 || len(table.DateMatches) != 4 {
 		return fmt.Errorf("load yingqi: invalid table dimensions")
 	}
 	yingqiSummary = table.Summary
@@ -1718,7 +1718,7 @@ func loadYingQi() error {
 		}
 		yingqiDateMatches[entry.Type] = matches
 	}
-	for _, ruleType := range []string{"ma_xing", "kong_wang"} {
+	for _, ruleType := range []string{"ma_xing", "kong_wang", "duty_star", "duty_door"} {
 		rule, ok := yingqiRuleTable[ruleType]
 		if !ok || rule.Mechanism == "" || rule.Description == "" {
 			return fmt.Errorf("load yingqi: missing rule %q", ruleType)

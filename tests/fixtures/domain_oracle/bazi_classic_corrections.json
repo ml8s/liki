@@ -1,0 +1,75 @@
+{
+  "schema_version": "domain-oracle-bazi-classic-corrections-v1",
+  "basis": "阴干无经典羊刃；四季以寅卯辰、巳午未、申酉戌、亥子丑分组；天罗地网按年命纳音限火命见戌亥、水土命见辰巳。",
+  "sources": [
+    "《三命通会·论阳刃》",
+    "《三命通会·论天赦》",
+    "《三命通会·论四废》",
+    "《三命通会·论天罗地网》"
+  ],
+  "yang_ren": [
+    {"day_gan": "甲", "branch": "卯", "hit": true},
+    {"day_gan": "乙", "branch": "寅", "hit": false},
+    {"day_gan": "丙", "branch": "午", "hit": true},
+    {"day_gan": "丁", "branch": "巳", "hit": false},
+    {"day_gan": "戊", "branch": "午", "hit": true},
+    {"day_gan": "己", "branch": "巳", "hit": false},
+    {"day_gan": "庚", "branch": "酉", "hit": true},
+    {"day_gan": "辛", "branch": "申", "hit": false},
+    {"day_gan": "壬", "branch": "子", "hit": true},
+    {"day_gan": "癸", "branch": "亥", "hit": false}
+  ],
+  "yue_ren_ge": [
+    {"day_gan": "甲", "month": "卯", "pattern": "月刃格", "usage": "逆用"},
+    {"day_gan": "乙", "month": "寅", "pattern": "伤官格", "usage": "逆用"},
+    {"day_gan": "丙", "month": "午", "pattern": "月刃格", "usage": "逆用"},
+    {"day_gan": "丁", "month": "巳", "pattern": "杂格", "usage": "逆用"},
+    {"day_gan": "戊", "month": "午", "pattern": "月刃格", "usage": "逆用"},
+    {"day_gan": "己", "month": "巳", "pattern": "正印格", "usage": "顺用"},
+    {"day_gan": "庚", "month": "酉", "pattern": "月刃格", "usage": "逆用"},
+    {"day_gan": "辛", "month": "申", "pattern": "伤官格", "usage": "逆用"},
+    {"day_gan": "壬", "month": "子", "pattern": "月刃格", "usage": "逆用"},
+    {"day_gan": "癸", "month": "亥", "pattern": "杂格", "usage": "逆用"}
+  ],
+  "feedback_charts": [
+    {
+      "id": "xin-day-shen-month-is-not-month-blade",
+      "pillars": ["丙午", "丙申", "辛巳", "癸巳"],
+      "yang_ren": false,
+      "pattern": "杂格",
+      "pattern_god": "庚",
+      "pattern_god_source": "main_qi_not_transparent",
+      "usage": "逆用",
+      "yong": "火",
+      "xi": "木",
+      "ji": "土",
+      "strength": "身强",
+      "tiao_hou_primary": "壬",
+      "tiao_hou_primary_hidden": true,
+      "tiao_hou_secondary": "甲",
+      "tiao_hou_secondary_present": false
+    }
+  ],
+  "season_shen_sha": [
+    {"id": "tianshe-spring-yin", "name": "天赦", "month": "寅", "day": "戊寅", "hit": true},
+    {"id": "tianshe-spring-chen", "name": "天赦", "month": "辰", "day": "戊寅", "hit": true},
+    {"id": "tianshe-summer-si", "name": "天赦", "month": "巳", "day": "戊寅", "hit": false},
+    {"id": "tianshe-summer-wu", "name": "天赦", "month": "午", "day": "甲午", "hit": true},
+    {"id": "tianshe-autumn-shen", "name": "天赦", "month": "申", "day": "戊申", "hit": true},
+    {"id": "tianshe-winter-hai", "name": "天赦", "month": "亥", "day": "甲子", "hit": true},
+    {"id": "sifei-spring-yin", "name": "四废", "month": "寅", "day": "庚申", "hit": true},
+    {"id": "sifei-spring-chen", "name": "四废", "month": "辰", "day": "辛酉", "hit": true},
+    {"id": "sifei-summer-wu", "name": "四废", "month": "午", "day": "壬子", "hit": true},
+    {"id": "sifei-autumn-you", "name": "四废", "month": "酉", "day": "甲寅", "hit": true},
+    {"id": "sifei-winter-zi", "name": "四废", "month": "子", "day": "丙午", "hit": true},
+    {"id": "sifei-winter-chou", "name": "四废", "month": "丑", "day": "丁巳", "hit": true}
+  ],
+  "tian_luo_di_wang": [
+    {"id": "fire-life-xu", "year": "甲辰", "branch": "戌", "name": "天罗"},
+    {"id": "fire-life-hai", "year": "乙巳", "branch": "亥", "name": "天罗"},
+    {"id": "water-life-chen", "year": "壬辰", "branch": "辰", "name": "地网"},
+    {"id": "water-life-si", "year": "癸巳", "branch": "巳", "name": "地网"},
+    {"id": "metal-life-xu", "year": "甲子", "branch": "戌", "name": ""},
+    {"id": "wood-life-chen", "year": "戊辰", "branch": "辰", "name": ""}
+  ]
+}

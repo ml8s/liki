@@ -1,9 +1,38 @@
 """单元测试：factors 因子求值 + duanyu 断语查询 / yearly 隔离。"""
 import unittest
 
-from _helpers import mock_base_context
+from unittest import mock
+
+from _helpers import (
+    mock_base_context,
+    mock_engine_facts,
+    mock_yong_shen,
+    mock_ziwei,
+    valid_daxian,
+)
 import duanyu
 import factors
+from pan_integrity import with_natal_digest
+
+
+def _valid_query_pan() -> dict:
+    pillars = ("nian", "yue", "ri", "shi")
+    return with_natal_digest({
+        "solar": "1990-05-20T12:00:00",
+        "lunar": {"year": 1990, "month": 4, "day": 26},
+        "gender": "male",
+        "chart": {
+            **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
+            "da_yun": {"steps": [], "current_step_index": -1},
+        },
+        "full": {
+            **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
+            **mock_engine_facts(),
+            "yong_shen": mock_yong_shen(),
+        },
+        "ziwei": mock_ziwei(),
+        "ziwei_daxian": valid_daxian(),
+    })
 
 
 class TestEvaluateFactors(unittest.TestCase):
@@ -131,6 +160,30 @@ class TestYearlyIsolation(unittest.TestCase):
         liu = {"_snapshot_type": "liunian", "八字": {"流年财坏印": 1}, "紫微": {}}
         res = duanyu.query_yearly("年十神", liu)   # yliu_104(财坏印)归入年十神域
         self.assertTrue(any(r.get("id") == "yliu_104" for r in res["八字"]))
+
+
+class TestYongShenQueryContext(unittest.TestCase):
+    """用神域必须同时给出 engine 三派与强弱证据，不能只剩断语。"""
+
+    def test_用神查询附带只读engine上下文(self):
+        pan = _valid_query_pan()
+        snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
+        with mock.patch.object(
+            duanyu, "evaluate_snap_from_pan", return_value=snapshots,
+        ), mock.patch.object(
+            duanyu,
+            "match_rule",
+            return_value={"八字": [], "紫微": [], "合参": []},
+        ):
+            result = duanyu.query("用神", pan)
+            other = duanyu.query("旺衰", pan)
+
+        self.assertEqual(result["yong_shen_context"], {
+            "yong_shen": pan["full"]["yong_shen"],
+            "element_states": pan["full"]["element_states"],
+            "ten_god_states": pan["full"]["ten_god_states"],
+        })
+        self.assertNotIn("yong_shen_context", other)
 
 
 class TestRiZhuWuXing(unittest.TestCase):

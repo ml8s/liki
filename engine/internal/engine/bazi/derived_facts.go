@@ -188,7 +188,7 @@ func computeLuRoots(c FullChart) []LuRoot {
 	}
 	for _, pillar := range pillars {
 		for _, item := range pillar.ShiShens {
-			if item.Source != sourceGan || branches[ganzhi.LuZhi(item.Gan)] {
+			if item.Source != sourceGan || !branches[ganzhi.LuZhi(item.Gan)] {
 				continue
 			}
 			roots = append(roots, LuRoot{
@@ -363,7 +363,11 @@ func computeRelationGroups(c FullChart) []RelationGroup {
 
 	for _, relation := range c.GanHe {
 		if group := ganHeGroupLabel(relation.GanA, relation.GanB); group != "" {
-			add("gan_he", group)
+			field := "gan_he_candidate"
+			if relation.Position == "adjacent" {
+				field = "gan_he"
+			}
+			add(field, group)
 		}
 	}
 	for _, relation := range ganzhi.ZhiHes {

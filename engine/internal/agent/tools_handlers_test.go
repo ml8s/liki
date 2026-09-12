@@ -570,6 +570,67 @@ func TestHandler_FullChartIncludesExtra(t *testing.T) {
 	if !hasPath(result, "data.da_yun") {
 		t.Error("fullchart missing da_yun")
 	}
+	for _, pillar := range []string{"nian", "yue", "ri", "shi"} {
+		path := "data." + pillar + ".na_yin"
+		if !hasPath(result, path) {
+			t.Errorf("fullchart missing %s", path)
+		}
+	}
+	var full struct {
+		Data struct {
+			NayinRel []map[string]string `json:"nayin_rel"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &full); err != nil {
+		t.Fatal(err)
+	}
+	if len(full.Data.NayinRel) != 6 {
+		t.Fatalf("nayin_rel len = %d, want 6", len(full.Data.NayinRel))
+	}
+	hasElementRelation := false
+	for _, relation := range full.Data.NayinRel {
+		if relation["relation"] != "相同" {
+			hasElementRelation = true
+			break
+		}
+	}
+	if !hasElementRelation {
+		t.Fatalf("nayin_rel are all 相同: %#v", full.Data.NayinRel)
+	}
+}
+
+func TestHandler_BaziFullChartRejectsMissingOrWrongNaYin(t *testing.T) {
+	r := NewRPCRegistry()
+	raw := getBaziChart(t, r, btOK, "male")
+	var chart map[string]any
+	if err := json.Unmarshal(raw, &chart); err != nil {
+		t.Fatal(err)
+	}
+	nian, _ := chart["nian"].(map[string]any)
+	original, _ := nian["na_yin"].(string)
+	if original == "" {
+		t.Fatal("bazi.chart returned empty nian.na_yin")
+	}
+
+	nian["na_yin"] = ""
+	payload, err := json.Marshal(map[string]any{"chart": chart})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = r.Execute(context.Background(), "bazi.fullchart", payload)
+	if err == nil || !strings.Contains(err.Error(), "chart.nian.na_yin is required") {
+		t.Fatalf("missing na_yin error = %v, want explicit contract failure", err)
+	}
+
+	nian["na_yin"] = "错误纳音"
+	payload, err = json.Marshal(map[string]any{"chart": chart})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = r.Execute(context.Background(), "bazi.fullchart", payload)
+	if err == nil || !strings.Contains(err.Error(), original) {
+		t.Fatalf("wrong na_yin error = %v, want mismatch with %q", err, original)
+	}
 }
 
 func TestHandler_ComputeLiuyue_Valid(t *testing.T) {

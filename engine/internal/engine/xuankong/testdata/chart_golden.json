@@ -5,7 +5,8 @@
     "yun_number": 9,
     "yun_name": "九运",
     "start_year": 2024,
-    "end_year": 2043
+    "end_year": 2043,
+    "year_boundary": "gregorian_calendar_year"
   },
   "zuo_shan": 1,
   "xiang_shan": 13,
@@ -18,22 +19,19 @@
         "number": 5,
         "color": "黄",
         "name": "五黄廉贞",
-        "wuxing": "土",
-        "auspicious": false
+        "wuxing": "土"
       },
       "shan_xing": {
         "number": 9,
         "color": "紫",
         "name": "九紫右弼",
-        "wuxing": "火",
-        "auspicious": true
+        "wuxing": "火"
       },
       "xiang_xing": {
         "number": 9,
         "color": "紫",
         "name": "九紫右弼",
-        "wuxing": "火",
-        "auspicious": true
+        "wuxing": "火"
       }
     },
     {
@@ -42,22 +40,19 @@
         "number": 6,
         "color": "白",
         "name": "六白武曲",
-        "wuxing": "金",
-        "auspicious": true
+        "wuxing": "金"
       },
       "shan_xing": {
         "number": 8,
         "color": "白",
         "name": "八白左辅",
-        "wuxing": "土",
-        "auspicious": true
+        "wuxing": "土"
       },
       "xiang_xing": {
         "number": 1,
         "color": "白",
         "name": "一白贪狼",
-        "wuxing": "水",
-        "auspicious": true
+        "wuxing": "水"
       }
     },
     {
@@ -66,22 +61,19 @@
         "number": 7,
         "color": "赤",
         "name": "七赤破军",
-        "wuxing": "金",
-        "auspicious": false
+        "wuxing": "金"
       },
       "shan_xing": {
         "number": 7,
         "color": "赤",
         "name": "七赤破军",
-        "wuxing": "金",
-        "auspicious": false
+        "wuxing": "金"
       },
       "xiang_xing": {
         "number": 2,
         "color": "黑",
         "name": "二黑巨门",
-        "wuxing": "土",
-        "auspicious": false
+        "wuxing": "土"
       }
     },
     {
@@ -90,22 +82,19 @@
         "number": 8,
         "color": "白",
         "name": "八白左辅",
-        "wuxing": "土",
-        "auspicious": true
+        "wuxing": "土"
       },
       "shan_xing": {
         "number": 6,
         "color": "白",
         "name": "六白武曲",
-        "wuxing": "金",
-        "auspicious": true
+        "wuxing": "金"
       },
       "xiang_xing": {
         "number": 3,
         "color": "碧",
         "name": "三碧禄存",
-        "wuxing": "木",
-        "auspicious": false
+        "wuxing": "木"
       }
     },
     {
@@ -114,22 +103,19 @@
         "number": 9,
         "color": "紫",
         "name": "九紫右弼",
-        "wuxing": "火",
-        "auspicious": true
+        "wuxing": "火"
       },
       "shan_xing": {
         "number": 5,
         "color": "黄",
         "name": "五黄廉贞",
-        "wuxing": "土",
-        "auspicious": false
+        "wuxing": "土"
       },
       "xiang_xing": {
         "number": 4,
         "color": "绿",
         "name": "四绿文曲",
-        "wuxing": "木",
-        "auspicious": true
+        "wuxing": "木"
       }
     },
     {
@@ -138,22 +124,19 @@
         "number": 1,
         "color": "白",
         "name": "一白贪狼",
-        "wuxing": "水",
-        "auspicious": true
+        "wuxing": "水"
       },
       "shan_xing": {
         "number": 4,
         "color": "绿",
         "name": "四绿文曲",
-        "wuxing": "木",
-        "auspicious": true
+        "wuxing": "木"
       },
       "xiang_xing": {
         "number": 5,
         "color": "黄",
         "name": "五黄廉贞",
-        "wuxing": "土",
-        "auspicious": false
+        "wuxing": "土"
       }
     },
     {
@@ -162,22 +145,19 @@
         "number": 2,
         "color": "黑",
         "name": "二黑巨门",
-        "wuxing": "土",
-        "auspicious": false
+        "wuxing": "土"
       },
       "shan_xing": {
         "number": 3,
         "color": "碧",
         "name": "三碧禄存",
-        "wuxing": "木",
-        "auspicious": false
+        "wuxing": "木"
       },
       "xiang_xing": {
         "number": 6,
         "color": "白",
         "name": "六白武曲",
-        "wuxing": "金",
-        "auspicious": true
+        "wuxing": "金"
       }
     },
     {
@@ -186,22 +166,19 @@
         "number": 3,
         "color": "碧",
         "name": "三碧禄存",
-        "wuxing": "木",
-        "auspicious": false
+        "wuxing": "木"
       },
       "shan_xing": {
         "number": 2,
         "color": "黑",
         "name": "二黑巨门",
-        "wuxing": "土",
-        "auspicious": false
+        "wuxing": "土"
       },
       "xiang_xing": {
         "number": 7,
         "color": "赤",
         "name": "七赤破军",
-        "wuxing": "金",
-        "auspicious": false
+        "wuxing": "金"
       }
     },
     {
@@ -210,97 +187,90 @@
         "number": 4,
         "color": "绿",
         "name": "四绿文曲",
-        "wuxing": "木",
-        "auspicious": true
+        "wuxing": "木"
       },
       "shan_xing": {
         "number": 1,
         "color": "白",
         "name": "一白贪狼",
-        "wuxing": "水",
-        "auspicious": true
+        "wuxing": "水"
       },
       "xiang_xing": {
         "number": 8,
         "color": "白",
         "name": "八白左辅",
-        "wuxing": "土",
-        "auspicious": true
+        "wuxing": "土"
       }
     }
   ],
-  "wang_shan": true,
-  "wang_xiang": false,
-  "shan_xing": true,
-  "xiang_xing": false,
-  "xia_shui": false,
-  "fu_yin": false,
+  "four_situation": {
+    "name": "双星会坐",
+    "sit_mountain_timely": true,
+    "face_facing_timely": false,
+    "sit_facing_timely": true,
+    "face_mountain_timely": false
+  },
+  "fu_yin_layers": [],
+  "fan_yin_layers": [
+    "山星反吟"
+  ],
   "xing_jia_hui": [
     {
       "shan_num": 9,
       "xiang_num": 9,
       "name": "星曜加会",
-      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "classification": "unlisted"
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断"
     },
     {
       "shan_num": 8,
       "xiang_num": 1,
       "name": "星曜加会",
-      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "classification": "unlisted"
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断"
     },
     {
       "shan_num": 7,
       "xiang_num": 2,
       "name": "七二同道",
-      "meaning": "火煞重重，定见火灾",
-      "classification": "inauspicious"
+      "meaning": "二七同宫，传统论火灾风险；成灾与否须核元运、生旺与峦头"
     },
     {
       "shan_num": 6,
       "xiang_num": 3,
       "name": "星曜加会",
-      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "classification": "unlisted"
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断"
     },
     {
       "shan_num": 5,
       "xiang_num": 4,
       "name": "星曜加会",
-      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "classification": "unlisted"
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断"
     },
     {
       "shan_num": 4,
       "xiang_num": 5,
       "name": "星曜加会",
-      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "classification": "unlisted"
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断"
     },
     {
       "shan_num": 3,
       "xiang_num": 6,
       "name": "星曜加会",
-      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "classification": "unlisted"
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断"
     },
     {
       "shan_num": 2,
       "xiang_num": 7,
       "name": "二七同道",
-      "meaning": "火煞重重，定见火灾",
-      "classification": "inauspicious"
+      "meaning": "二七同宫，传统论火灾风险；成灾与否须核元运、生旺与峦头"
     },
     {
       "shan_num": 1,
       "xiang_num": 8,
       "name": "星曜加会",
-      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "classification": "unlisted"
+      "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断"
     }
   ],
-  "chart_digest": "25e0f526b1a7735faf49c1a6fc810b080809b73594bd21b2e6cf95c0f7e6ca84",
+  "chart_digest": "2ba66298a779db557fd8940eae26026a5effe01ca4bf756412ec486ae85ed4ba",
   "shou_shan_chu_sha": {
     "zheng_shen": 9,
     "ling_shen": 1,
