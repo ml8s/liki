@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "liki:liuyao-snapshot-v4",
+  "$id": "liki:liuyao-snapshot-v5",
   "title": "六爻 immutable snapshot 契约",
   "type": "object",
   "required": [
@@ -23,7 +23,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "liuyao-snapshot-v4"
+      "const": "liuyao-snapshot-v5"
     },
     "question": {
       "type": "object",
@@ -205,10 +205,16 @@
     "board": {
       "type": "object",
       "required": [
-        "name",
-        "ben_gua",
-        "palace",
-        "lines"
+    "name",
+    "ben_gua",
+    "palace",
+    "lines",
+    "bian_lines",
+    "ri_gan",
+    "ri_zhi",
+    "yue_gan",
+    "yue_zhi",
+    "xun_kong"
       ],
       "properties": {
         "name": {
@@ -226,15 +232,36 @@
         "palace": {
           "type": "string"
         },
-        "palace_wuxing": {
-          "type": "string"
-        },
-        "lines": {
-          "type": "array",
-          "minItems": 6,
-          "maxItems": 6
-        }
-      },
+    "palace_wuxing": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6
+    },
+    "bian_lines": {
+      "type": "array",
+      "maxItems": 6
+    },
+    "ri_gan": {
+      "type": "string"
+    },
+    "ri_zhi": {
+      "type": "string"
+    },
+    "yue_gan": {
+      "type": "string"
+    },
+    "yue_zhi": {
+      "type": "string"
+    },
+    "xun_kong": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2
+    }
+  },
       "additionalProperties": false
     },
     "focus": {

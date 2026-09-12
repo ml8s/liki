@@ -22,15 +22,16 @@ def _date(value: str, field: str) -> date:
         raise ValueError(f"{field} must be YYYY-MM-DD") from error
 
 
-def _normalize_event(event: str | None) -> tuple[str | None, None]:
-    if event is None or event == "":
-        return None, None
+def _normalize_event(event: str | None) -> str | None:
+    if event is None:
+        return None
     if event not in {
-        "wedding", "engage", "open", "sign", "move",
-        "travel", "build", "exam", "medical", "funeral",
+        "wedding", "engage", "opening", "sign", "move",
+        "travel", "build", "exam", "medical", "sacrifice", "cleaning",
+        "renovation", "bed_install", "income", "funeral",
     }:
         raise ValueError(f"unknown event: {event}")
-    return event, None
+    return event
 
 
 def _project_day(day: dict) -> dict:
@@ -64,7 +65,7 @@ def days(
     if len(question) < 2:
         raise ValueError("question must be at least 2 characters")
 
-    event_key, _ = _normalize_event(event)
+    event_key = _normalize_event(event)
     if end_date is not None and days is not None:
         raise ValueError("provide only one of end_date or days")
     if days is not None:

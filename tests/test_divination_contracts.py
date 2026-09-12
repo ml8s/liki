@@ -74,7 +74,7 @@ def test_engine_version_gate_accepts_minimum(monkeypatch):
     monkeypatch.setattr(
         divination_rpc,
         "engine_version",
-        lambda: "2026.09.11.0",
+        lambda: "2026.09.12.0",
     )
     divination_rpc.ensure_engine_compatible()
 
@@ -401,3 +401,23 @@ def test_qimen_snapshot_accepts_missing_person_focus(monkeypatch):
     )
     assert snapshot["snapshot_kind"] == "standard"
     assert snapshot["special"]["rule"] == "missing_person"
+
+
+def test_huangli_event_enum_covers_engine_event_rules():
+    import json
+    engine_events = set(json.loads(
+        (ROOT / "tests/fixtures/domain_oracle/huangli_core.json").read_text(encoding="utf-8")
+    )["event_rules"])
+    schema_events = set(json.loads(
+        (TOOLS / "skill-tools.json").read_text(encoding="utf-8")
+    )["tools"][4]["function"]["parameters"]["properties"]["event"]["enum"]
+    )
+
+    assert engine_events == schema_events
+    assert {"sacrifice", "cleaning", "renovation", "bed_install", "income"} <= schema_events
+    for event in schema_events:
+        assert huangli_days._normalize_event(event) == event
+    with pytest.raises(ValueError, match="unknown event"):
+        huangli_days._normalize_event("")
+    with pytest.raises(ValueError, match="unknown event"):
+        huangli_days._normalize_event("open")

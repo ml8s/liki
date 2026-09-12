@@ -63,9 +63,10 @@ def _pan() -> dict:
                 } for pillar in pillars
             },
             **_helpers.mock_engine_facts(),
+            "yong_shen": _helpers.mock_yong_shen(),
         },
         "yongshen": {},
-        "ziwei": {"gong_wei": []},
+        "ziwei": _helpers.mock_ziwei(),
         "ziwei_daxian": _helpers.valid_daxian(),
     }
 
@@ -105,6 +106,6 @@ def test_natal_snapshot_has_no_flow_runtime_marker():
 
 def test_rule_matching_does_not_mutate_snapshot_with_context():
     snapshot = {"八字": {"日主": "甲"}, "紫微": {}, "context": {"性别": "male"}}
-    result = duanyu._match_rule("十神", snapshot)
+    result = duanyu.match_rule("十神", snapshot)
     assert snapshot["八字"].keys() == {"日主"}
     assert all("性别" not in row for row in result["八字"])

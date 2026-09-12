@@ -241,66 +241,66 @@
       "xiang_num": 9,
       "name": "星曜加会",
       "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "auspicious": false
+      "classification": "unlisted"
     },
     {
       "shan_num": 8,
       "xiang_num": 1,
       "name": "星曜加会",
       "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "auspicious": false
+      "classification": "unlisted"
     },
     {
       "shan_num": 7,
       "xiang_num": 2,
       "name": "七二同道",
       "meaning": "火煞重重，定见火灾",
-      "auspicious": false
+      "classification": "inauspicious"
     },
     {
       "shan_num": 6,
       "xiang_num": 3,
       "name": "星曜加会",
       "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "auspicious": false
+      "classification": "unlisted"
     },
     {
       "shan_num": 5,
       "xiang_num": 4,
       "name": "星曜加会",
       "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "auspicious": false
+      "classification": "unlisted"
     },
     {
       "shan_num": 4,
       "xiang_num": 5,
       "name": "星曜加会",
       "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "auspicious": false
+      "classification": "unlisted"
     },
     {
       "shan_num": 3,
       "xiang_num": 6,
       "name": "星曜加会",
       "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "auspicious": false
+      "classification": "unlisted"
     },
     {
       "shan_num": 2,
       "xiang_num": 7,
       "name": "二七同道",
       "meaning": "火煞重重，定见火灾",
-      "auspicious": false
+      "classification": "inauspicious"
     },
     {
       "shan_num": 1,
       "xiang_num": 8,
       "name": "星曜加会",
       "meaning": "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-      "auspicious": false
+      "classification": "unlisted"
     }
   ],
-  "chart_digest": "cd9ecfe9b55f7081288a3c6d098a4a4ce77f73b3948591a958e6edde54f31ed2",
+  "chart_digest": "25e0f526b1a7735faf49c1a6fc810b080809b73594bd21b2e6cf95c0f7e6ca84",
   "shou_shan_chu_sha": {
     "zheng_shen": 9,
     "ling_shen": 1,

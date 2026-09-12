@@ -69,13 +69,13 @@ class TestDispatch(unittest.TestCase):
         with self.assertRaises(KeyError):
             agent_cli._dispatch("full_paipan", {})  # 缺 time
 
-
 class TestMainProtocol(unittest.TestCase):
     """stdin → stdout 协议：{ok,data} / {ok:false,error}。"""
 
     def _run_main(self, stdin_text):
         out = {}
-        with mock.patch('sys.stdin') as stdin, \
+        with mock.patch('agent_cli.ensure_engine_compatible'), \
+             mock.patch('sys.stdin') as stdin, \
              mock.patch('builtins.print') as pr:
             stdin.read.return_value = stdin_text
             agent_cli.main()
@@ -84,15 +84,29 @@ class TestMainProtocol(unittest.TestCase):
                 out = json.loads(call.args[0])
         return out
 
+    def test_缺参与非法fn不触发版本检查(self):
+        with mock.patch("agent_cli.ensure_engine_compatible") as version_check:
+            out = self._run_main('{"fn":"evil","args":{}}')
+            self.assertIn("unknown tool", out["error"])
+
+            out = self._run_main('{"fn":"full_paipan","args":{}}')
+            self.assertIn("missing arg", out["error"])
+
+        version_check.assert_not_called()
+
     def test_成功(self):
         with mock.patch('agent_cli._dispatch', return_value={"ok_data": 1}):
-            out = self._run_main('{"fn":"query","args":{}}')
+            out = self._run_main(
+                '{"fn":"query","args":{"rule":"十神","pan":{}}}'
+            )
         self.assertTrue(out["ok"])
         self.assertEqual(out["data"], {"ok_data": 1})
 
     def test_失败_错误包装(self):
         with mock.patch('agent_cli._dispatch', side_effect=ValueError("boom")):
-            out = self._run_main('{"fn":"query","args":{}}')
+            out = self._run_main(
+                '{"fn":"query","args":{"rule":"十神","pan":{}}}'
+            )
         self.assertFalse(out["ok"])
         self.assertIn("boom", out["error"])
 
@@ -154,6 +168,27 @@ class TestSchemaConsistency(unittest.TestCase):
         assert y_enum == (YEARLY_RULES | set(SCENE_ALIASES))
         assert set(tools["calibrate"]["parameters"]["properties"]["events"]["items"]
                    ["properties"]["rule"]["enum"]) == (YEARLY_RULES | set(SCENE_ALIASES))
+
+    def test_schema_required_args_match_cli_precheck(self):
+        import json
+        import os
+
+        p = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "skills/liki-bazi/tools/skill-tools.json",
+        )
+        with open(p, encoding="utf-8") as f:
+            doc = json.load(f)
+
+        schema_required = {
+            item["function"]["name"]: set(
+                item["function"]["parameters"].get("required", [])
+            )
+            for item in doc["tools"]
+        }
+        assert {
+            name: set(args) for name, args in agent_cli._REQUIRED_ARGS.items()
+        } == schema_required
 
 
 if __name__ == "__main__":

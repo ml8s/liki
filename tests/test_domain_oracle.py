@@ -68,7 +68,7 @@ def test_domain_oracle_datasets_have_expected_coverage() -> None:
     assert len(fengshui["xuankong_four_situation_anchors"]) == 4
     assert len(huangli["jianchu_sequence"]) == 12
     assert len(huangli["qing_long_start_all_12"]) == 12
-    assert len(huangli["event_rules"]) == 10
+    assert len(huangli["event_rules"]) == 15
     assert len(atomic["cases"]) == 4
     assert len(ten_god_states["cases"]) == 4
     assert len(ten_god_states["dayun_root_cases"]) == 4

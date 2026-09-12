@@ -33,7 +33,7 @@ def test_ask_schemas_accept_primary_calls_and_bind_method():
     validate(
         {
             "method": "liuyao",
-            "schema_version": "liuyao-snapshot-v4",
+            "schema_version": "liuyao-snapshot-v5",
             "snapshot_digest": "a" * 16,
         },
         liuyao,
@@ -41,7 +41,7 @@ def test_ask_schemas_accept_primary_calls_and_bind_method():
     validate(
         {
             "method": "qimen",
-            "schema_version": "qimen-snapshot-v3",
+            "schema_version": "qimen-snapshot-v4",
             "snapshot_digest": "a" * 16,
         },
         qimen,
@@ -50,7 +50,7 @@ def test_ask_schemas_accept_primary_calls_and_bind_method():
         validate(
             {
                 "method": "qimen",
-                "schema_version": "qimen-snapshot-v3",
+                "schema_version": "qimen-snapshot-v4",
                 "snapshot_digest": "a" * 16,
             },
             liuyao,

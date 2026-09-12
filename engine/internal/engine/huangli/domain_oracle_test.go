@@ -33,7 +33,7 @@ func TestDomainOracle_HuangliCore(t *testing.T) {
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		t.Fatalf("decode oracle: %v", err)
 	}
-	if len(doc.Sequence) != 12 || len(doc.QingLong) != 12 || len(doc.EventRules) != 10 {
+	if len(doc.Sequence) != 12 || len(doc.QingLong) != 12 || len(doc.EventRules) != 15 {
 		t.Fatalf("oracle coverage invalid: seq=%d qinglong=%d events=%d", len(doc.Sequence), len(doc.QingLong), len(doc.EventRules))
 	}
 	for i, name := range doc.Sequence {

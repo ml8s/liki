@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from _helpers import mock_base_context
-from duanyu import load_table
+from duanyu import load_rule_table
 from factors import evaluate_factors
 from operators_natal import _op
 
@@ -29,8 +29,11 @@ def test_career_palace_main_star_prosperity_is_not_always_true() -> None:
         {**_minimal_fac(),
          "ziwei": {
             "palace_facts": [{
-                "palace": "官禄宫", "kind": "brightness",
+                "palace": "官禄", "kind": "brightness",
                 "target": "庙旺", "star": "紫微", "value": "庙",
+            }, {
+                "palace": "官禄", "kind": "brightness",
+                "target": "紫微主星", "star": "紫微", "value": "庙",
             }]
          }},
         shushi="ziwei",
@@ -88,7 +91,7 @@ def test_fuyi_congge_is_a_scalar_factor() -> None:
 
 
 def test_geju_table_separates_month_pattern_from_fuyi_congge() -> None:
-    rows = load_table("bazi_格局.csv")
+    rows = load_rule_table("bazi_格局.csv")
 
     month_values = {
         conditions["月令格"]

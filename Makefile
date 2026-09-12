@@ -35,6 +35,9 @@ check: ## Skills 改表后验证（schema 校验 + 数据检查）
 test: ## Skills python 单测（规则引擎；integration 由服务已起阶段跑）
 	python3 -m pytest tests/ -q --ignore=tests/test_integration.py
 
+test-functional: ## 规则引擎功能测试（因子/断语/场景/冲突）
+	python3 -m pytest tests/test_functional.py -q
+
 test-integration: ## Skill 全链路集成测试（本地起引擎 + LIKI_RPC_URL 连它；脱离生产）
 	@bash -c '. scripts/local-engine.sh; ensure_local_engine; trap stop_local_engine EXIT; LIKI_RPC_URL="$$LOCAL_RPC" python3 -m pytest tests/test_integration.py -q'
 

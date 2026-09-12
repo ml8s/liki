@@ -15,6 +15,7 @@ def _cmp_bazi_pan() -> dict:
                        "current_step_index": 0},
         },
         "full": {
+            "yong_shen": _helpers.mock_yong_shen(),
             "ten_god_states": [
                 {"shi_shen": "七杀", "wuxing": "金", "transparent": True, "hidden": False,
                  "rooted": True, "timely": False, "count": 2, "strength": "neutral"},
@@ -50,7 +51,7 @@ def _cmp_bazi_pan() -> dict:
         },
         "yongshen": {"fu_yi": {"wuxing_count": {"木": 1, "火": 2}, "wang_shuai": {"木": "旺", "火": "相", "土": "死", "金": "囚", "水": "休"},
             "yong": "木", "xi": "水", "ji": "金", "qiangruo": "身强"}, "tiao_hou": {"season": "冬"}, "ge_ju": {"ge_ju": "正印格"}},
-        "ziwei": {"gong_wei": [{"index": "命宫", "name": "命宫", "xing_yao": [{"name": "七杀", "xing": "七杀", "is_major": True}]}],
+        "ziwei": {"palace_facts": [], "gong_wei": [{"index": "命宫", "name": "命宫", "xing_yao": [{"name": "七杀", "xing": "七杀", "is_major": True}]}],
             "si_hua": {"七杀": "禄"}, "patterns": [{"name": "杀破狼"}]},
         "gender": "male",
     }

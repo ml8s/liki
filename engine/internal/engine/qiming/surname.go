@@ -268,19 +268,32 @@ func matchOrder(level string) int {
 }
 
 func surnameSourceTokens(source string) []string {
-	normalized := foldLatin(source)
-	parts := strings.FieldsFunc(normalized, func(r rune) bool {
+	raw := strings.ToLower(strings.TrimSpace(source))
+	parts := strings.FieldsFunc(raw, func(r rune) bool {
 		return r == ' ' || r == '-' || r == '\'' || r == '.' || r == ',' || !unicode.IsLetter(r)
 	})
-	tokens := make([]string, 0, len(parts)+1)
+	folded := make([]string, 0, len(parts))
 	for _, part := range parts {
-		if part = strings.TrimSpace(part); part != "" {
-			if !isLatinLower(part) {
-				return nil
-			}
-			tokens = append(tokens, part)
+		if part == "" {
+			continue
 		}
+		token := foldLatin(part)
+		// Pinyin lü/nü are conventionally typed lv/nv. Apply this only to a
+		// complete token so foreign spellings containing lü keep the generic fold.
+		if strings.Contains(part, "ü") {
+			switch token {
+			case "lu":
+				token = "lv"
+			case "nu":
+				token = "nv"
+			}
+		}
+		if !isLatinLower(token) {
+			return nil
+		}
+		folded = append(folded, token)
 	}
+	tokens := folded
 	if len(tokens) > 1 {
 		tokens = append(tokens, strings.Join(tokens, ""))
 	}
@@ -326,18 +339,20 @@ func foldLatin(value string) string {
 	value = strings.ToLower(strings.TrimSpace(value))
 	return strings.Map(func(r rune) rune {
 		switch r {
-		case 'á', 'à', 'â', 'ä', 'ã', 'å':
+		case 'ā', 'á', 'à', 'â', 'ä', 'ã', 'å', 'ǎ':
 			return 'a'
 		case 'ç':
 			return 'c'
-		case 'é', 'è', 'ê', 'ë':
+		case 'ē', 'é', 'è', 'ê', 'ë', 'ě':
 			return 'e'
-		case 'í', 'ì', 'î', 'ï':
+		case 'ī', 'í', 'ì', 'î', 'ï', 'ǐ':
 			return 'i'
-		case 'ó', 'ò', 'ô', 'ö', 'õ':
+		case 'ō', 'ó', 'ò', 'ô', 'ö', 'õ', 'ǒ':
 			return 'o'
-		case 'ú', 'ù', 'û', 'ü':
+		case 'ū', 'ú', 'ù', 'û', 'ü', 'ǔ':
 			return 'u'
+		case 'ǖ', 'ǘ', 'ǚ', 'ǜ':
+			return 'v'
 		case 'ý', 'ÿ':
 			return 'y'
 		case 'ñ':

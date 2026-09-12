@@ -188,12 +188,12 @@ class TestYueLingGe(unittest.TestCase):
         # 正财格 + 身弱 → ge_302（正财格身弱分支）
         base = mock_base_context(正财={"wuxing": "土", "timely": True, "count": 3})
         base["yongshen"] = {"ge_ju": {"ge_ju": "正财格"}}
-        from duanyu import load_table
-        from duanyu import match
+        from duanyu import load_rule_table
+        from duanyu import match_table
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         # 手动构造断语表查询依赖的最小快照（身弱/从杀格）
         snap["身强弱"] = "身弱"
-        hits = [e["id"] for e in match(load_table("bazi_格局.csv"), snap)]
+        hits = [e["id"] for e in match_table(load_rule_table("bazi_格局.csv"), snap)]
         self.assertIn("ge_302", hits)
 
 
@@ -201,7 +201,7 @@ class TestStudySealFactorContract(unittest.TestCase):
     """xue_201 要求印星旺与官杀得令同时成立。"""
 
     def _hits(self, yin_wang, guan_sha_timely):
-        out = duanyu._match_rule("十神", {"八字": {"印星旺": yin_wang, "官杀得令": guan_sha_timely},
+        out = duanyu.match_rule("十神", {"八字": {"印星旺": yin_wang, "官杀得令": guan_sha_timely},
                                           "紫微": {}})
         return [e["id"] for e in out["八字"]]
 

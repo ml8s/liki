@@ -169,7 +169,7 @@ func TestRenYuanName_NilCurrent(t *testing.T) {
 
 func TestQueryDate_WithOtherEvents(t *testing.T) {
 	// Test various event types to exercise different jianChuSuitable zhi.
-	events := []string{"wedding", "travel", "open", "medical", "funeral"}
+	events := []string{"wedding", "travel", "opening", "medical", "funeral"}
 	for _, ev := range events {
 		t.Run("event="+ev, func(t *testing.T) {
 			got, err := QueryDate("2024-06-15")
@@ -563,7 +563,7 @@ func TestQueryDate_Golden_JianChu(t *testing.T) {
 
 func TestQueryDate_Golden_MarksWarnings(t *testing.T) {
 	// Verify that event type filtering produces marks/warnings.
-	for _, ev := range []string{"wedding", "travel", "open"} {
+	for _, ev := range []string{"wedding", "travel", "opening"} {
 		t.Run(ev, func(t *testing.T) {
 			got, err := QueryDate("2024-06-15")
 			if err != nil {

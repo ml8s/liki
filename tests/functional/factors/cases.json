@@ -922,6 +922,14 @@
               "wuxing": "水",
               "transparent": true
             }
+          },
+          "element_states": {
+            "水": {
+              "controls": "火"
+            },
+            "火": {
+              "controls": "土"
+            }
           }
         },
         "gender": "male",
@@ -953,6 +961,851 @@
         "性别": 0
       },
       "basis": "性别只参与配偶星/子女星等性别化解析，不得进入因子快照。"
+    },
+    {
+      "id": "owl_god_takes_food_god",
+      "rule": "枭神夺食限定偏印夺食神",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "偏印": {
+              "count": 1,
+              "wuxing": "水",
+              "timely": true,
+              "transparent": true
+            },
+            "食神": {
+              "count": 1,
+              "wuxing": "火",
+              "transparent": true
+            }
+          },
+          "element_states": {
+            "水": {
+              "controls": "火"
+            },
+            "火": {
+              "controls": "土"
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "枭神夺食": 1
+      },
+      "basis": "枭神夺食的传统口径是偏印夺食神；偏印得令、食神透干时成立。"
+    },
+    {
+      "id": "orthodox_seal_with_food_god_is_not_owl_god",
+      "rule": "正印见食神不作枭神夺食",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正印": {
+              "count": 1,
+              "wuxing": "水",
+              "timely": true,
+              "transparent": true
+            },
+            "食神": {
+              "count": 1,
+              "wuxing": "火",
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "枭神夺食": 0
+      },
+      "basis": "正印生身而不称枭神；正印见食神不得触发枭神夺食。"
+    },
+    {
+      "id": "orthodox_officer_with_seal_is_officer_seal",
+      "rule": "官印相生限定正官佩印",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "transparent": true
+            },
+            "正印": {
+              "count": 1,
+              "wuxing": "水",
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "官印相生": 1,
+        "杀印相生": 0
+      },
+      "basis": "官印相生传统口径为正官佩印，不等同于官杀大类任意佩印。"
+    },
+    {
+      "id": "seven_killing_with_seal_is_killing_seal",
+      "rule": "七杀佩印归杀印相生",
+      "kind": "boundary",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "七杀": {
+              "count": 1,
+              "wuxing": "金",
+              "timely": true,
+              "rooted": true,
+              "transparent": true
+            },
+            "正印": {
+              "count": 1,
+              "wuxing": "水",
+              "timely": true,
+              "rooted": true,
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "官印相生": 0,
+        "杀印相生": 1
+      },
+      "basis": "七杀佩印是杀印相生 / 化杀为权，不得同时命名官印相生。"
+    },
+    {
+      "id": "female_officer_star_rooted_without_output",
+      "rule": "女命官星得地格需官杀得地",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "rooted": true
+            },
+            "食神": {
+              "count": 1,
+              "wuxing": "火",
+              "transparent": false
+            }
+          }
+        },
+        "gender": "female",
+        "chart": {
+          "gender": "female"
+        }
+      },
+      "expect_factors": {
+        "女命官星得地格": 1
+      },
+      "basis": "女命官星得地格须同时满足女性、官杀有根、食伤不透。"
+    },
+    {
+      "id": "female_without_officer_root_is_not_settled_household",
+      "rule": "女命官星不得地不触发官星得地格",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "rooted": false
+            },
+            "食神": {
+              "count": 1,
+              "wuxing": "火",
+              "transparent": false
+            }
+          }
+        },
+        "gender": "female",
+        "chart": {
+          "gender": "female"
+        }
+      },
+      "expect_factors": {
+        "女命官星得地格": 0
+      },
+      "basis": "官星无根即不得地；仅女性且食伤不透不足以成立官星得地格。"
+    },
+    {
+      "id": "hurting_officer_sees_officer_without_seal",
+      "rule": "伤官见官须伤官旺且无印通关",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "伤官": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": true,
+              "transparent": true
+            },
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "transparent": true
+            }
+          },
+          "element_states": {
+            "火": {
+              "controls": "金"
+            },
+            "金": {
+              "controls": "水"
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "伤官见官": 1
+      },
+      "basis": "伤官透根有力、正官显见且无印星通关，伤官见官结构成立。"
+    },
+    {
+      "id": "strong_food_god_does_not_make_weak_hurting_officer_see_officer",
+      "rule": "食神旺不替代伤官旺",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "伤官": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": false,
+              "timely": false,
+              "transparent": false
+            },
+            "食神": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": true,
+              "transparent": true
+            },
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "伤官见官": 0
+      },
+      "basis": "食神与伤官同五行但不同象；食神旺不能把弱伤官升级为伤官见官。"
+    },
+    {
+      "id": "indirect_seal_blocks_hurting_officer_seeing_officer",
+      "rule": "偏印亦可通关伤官见官",
+      "kind": "boundary",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "伤官": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": true,
+              "transparent": true
+            },
+            "偏印": {
+              "count": 1,
+              "wuxing": "水",
+              "transparent": true
+            },
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "伤官见官": 0
+      },
+      "basis": "通关看印绶存在，不限定正印；偏印见也可制伤官。"
+    },
+    {
+      "id": "wealth_controls_weak_seal_is_financial_seal_conflict",
+      "rule": "财旺印弱成财印相战",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "rooted": true,
+              "transparent": true
+            },
+            "正印": {
+              "count": 1,
+              "wuxing": "水",
+              "rooted": false,
+              "timely": false
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财印相战": 1
+      },
+      "basis": "财星透根而印星失令无根，财旺坏印，才作财印相战。"
+    },
+    {
+      "id": "wealth_and_seal_coexisting_is_not_auto_conflict",
+      "rule": "财印并见不自动相战",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "rooted": false,
+              "timely": false,
+              "transparent": false
+            },
+            "正印": {
+              "count": 1,
+              "wuxing": "水",
+              "rooted": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财印相战": 0
+      },
+      "basis": "财弱印有根时只是并见，不能直接命名为财印交战。"
+    },
+    {
+      "id": "strong_wealth_and_strong_seal_can_conflict",
+      "rule": "财印俱旺仍可交战",
+      "kind": "boundary",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "rooted": true,
+              "transparent": true
+            },
+            "正印": {
+              "count": 1,
+              "wuxing": "水",
+              "rooted": true,
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财印相战": 1
+      },
+      "basis": "财印相战不等于印星必然弱；印星有力时双方交战仍是候选结构。"
+    },
+    {
+      "id": "strong_output_releases_strong_day_master",
+      "rule": "食伤泄秀须食伤有力",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "yongshen": {"fu_yi": {"qiangruo": "身强"}},
+          "ten_god_states": {
+            "食神": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": true,
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "食伤泄秀": 1
+      },
+      "basis": "日主强且食伤透根有力，秀气可流通。"
+    },
+    {
+      "id": "weak_output_does_not_release_strong_day_master",
+      "rule": "食伤弱仅现不作泄秀",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "yongshen": {"fu_yi": {"qiangruo": "身强"}},
+          "ten_god_states": {
+            "食神": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": false,
+              "timely": false,
+              "transparent": false
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "食伤泄秀": 0
+      },
+      "basis": "日主虽强，但食伤失令无根不透，不能把仅现升级为秀气流通。"
+    },
+    {
+      "id": "wealth_generates_present_officer",
+      "rule": "财旺生官是结构事实",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "rooted": true,
+              "transparent": true
+            },
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财旺生官": 1
+      },
+      "basis": "财星透根有力且正官显见，只断财旺生官结构，不直接断双美。"
+    },
+    {
+      "id": "weak_wealth_does_not_generate_officer",
+      "rule": "财弱不成立财旺生官",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "rooted": false,
+              "timely": false,
+              "transparent": false
+            },
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "transparent": true
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财旺生官": 0
+      },
+      "basis": "财星失令无根不透时，不能命名为财旺生官。"
+    },
+    {
+      "id": "hurting_officer_controls_present_officer_for_female",
+      "rule": "女命伤官克官须正官存在",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "伤官": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": true,
+              "transparent": true
+            },
+            "正官": {
+              "count": 1,
+              "wuxing": "金",
+              "transparent": true
+            }
+          },
+          "element_states": {
+            "火": {
+              "controls": "金"
+            },
+            "金": {
+              "controls": "水"
+            }
+          }
+        },
+        "gender": "female",
+        "chart": {
+          "gender": "female"
+        }
+      },
+      "expect_factors": {
+        "伤官克官": 1
+      },
+      "basis": "女命伤官有力且正官显见，伤官克官结构成立。"
+    },
+    {
+      "id": "hurting_officer_without_officer_has_no_target",
+      "rule": "无正官则不成立伤官克官",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "伤官": {
+              "count": 1,
+              "wuxing": "火",
+              "rooted": true,
+              "transparent": true
+            },
+            "正官": {
+              "count": 0,
+              "wuxing": "金"
+            }
+          }
+        },
+        "gender": "female",
+        "chart": {
+          "gender": "female"
+        }
+      },
+      "expect_factors": {
+        "伤官克官": 0
+      },
+      "basis": "伤官旺但正官不现时没有可克对象，不得输出克夫/克官结构。"
+    },
+    {
+      "id": "wealth_transparent_controls_present_seal",
+      "rule": "财坏印使用财星与印星闭集名称",
+      "kind": "positive",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "rooted": true,
+              "transparent": true
+            },
+            "正印": {
+              "count": 1,
+              "wuxing": "水"
+            }
+          },
+          "element_states": {
+            "土": {
+              "controls": "水"
+            },
+            "水": {
+              "controls": "火"
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财坏印": 1
+      },
+      "basis": "财星透根有力、印星现且土克水，财坏印结构成立。"
+    },
+    {
+      "id": "wealth_without_seal_has_no_damage_target",
+      "rule": "无印星则不成立财坏印",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "transparent": true
+            },
+            "正印": {
+              "count": 0,
+              "wuxing": "水"
+            }
+          },
+          "element_states": {
+            "土": {
+              "controls": "水"
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财坏印": 0
+      },
+      "basis": "财星虽透但印星不现时没有受克对象，不成立财坏印。"
+    },
+    {
+      "id": "floating_wealth_does_not_damage_seal",
+      "rule": "财浮无根不作实坏印",
+      "kind": "negative",
+      "category": "ten_god_structure",
+      "mode": "factor_snapshot",
+      "shushi": "bazi",
+      "input": {
+        "base": {
+          "ri_gan": "甲",
+          "ten_god_states": {
+            "正财": {
+              "count": 1,
+              "wuxing": "土",
+              "rooted": false,
+              "timely": false,
+              "transparent": true
+            },
+            "正印": {
+              "count": 1,
+              "wuxing": "水"
+            }
+          },
+          "element_states": {
+            "土": {
+              "controls": "水"
+            }
+          }
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male"
+        }
+      },
+      "expect_factors": {
+        "财坏印": 0
+      },
+      "basis": "财星虽透但失令无根，不足以实坏印。"
+    },
+    {
+      "id": "ziwei_factors_use_engine_palace_labels",
+      "rule": "本命紫微因子消费 engine 宫名闭集",
+      "kind": "positive",
+      "category": "palace",
+      "mode": "factor_snapshot",
+      "shushi": "ziwei",
+      "input": {
+        "base": {
+          "ri_gan": "甲"
+        },
+        "gender": "male",
+        "chart": {
+          "gender": "male",
+          "ziwei": {
+            "palace_facts": [
+              {"palace": "夫妻", "kind": "star", "target": "紫微", "star": "紫微"},
+              {"palace": "夫妻", "kind": "si_hua", "target": "忌", "star": "贪狼"}
+            ]
+          }
+        }
+      },
+      "expect_factors": {
+        "夫妻宫紫微": 1,
+        "贪狼化忌": 1
+      },
+      "basis": "engine 本命宫名除命宫外不带宫字；因子表必须精确消费 engine palace_facts。"
+    },
+    {
+      "id": "natal_relation_operator_reads_engine_group",
+      "kind": "positive",
+      "category": "natal_relation",
+      "mode": "operator",
+      "rule": "本命完整关系组从 full.relation_groups 读取",
+      "input": {
+        "op": "关系",
+        "args": [
+          "san_he",
+          "申子辰"
+        ],
+        "gender": "male",
+        "chart": {
+          "full": {
+            "relation_groups": [
+              {
+                "field": "san_he",
+                "group": "申子辰"
+              }
+            ]
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "engine bazi.fullchart 将完整三合组输出在 full.relation_groups，Python 只做机械匹配。"
+    },
+    {
+      "id": "natal_self_punishment_operator_reads_engine_group",
+      "kind": "boundary",
+      "category": "natal_relation",
+      "mode": "operator",
+      "rule": "自刑同支成双从完整关系组读取",
+      "input": {
+        "op": "关系",
+        "args": [
+          "liu_xing",
+          "辰辰"
+        ],
+        "gender": "male",
+        "chart": {
+          "full": {
+            "relation_groups": [
+              {
+                "field": "liu_xing",
+                "group": "辰辰"
+              }
+            ]
+          }
+        }
+      },
+      "expect": 1,
+      "basis": "辰辰同支成双为自刑；engine 已按完整关系组输出。"
     }
   ]
 }

@@ -238,10 +238,10 @@ func TestBaZhaiDirectionsForGua_DirectionNames(t *testing.T) {
 // =============================================================================
 
 func TestBaZhaiDirectionsForGua_DongXiGroups(t *testing.T) {
-	// 东四命(1,3,4,9)的吉方位都是东四宅方向
-	// 西四命(2,6,7,8)的吉方位都是西四宅方向
-	// 东四宅: 1(北),3(东),4(东南),9(南)
-	// 西四宅: 2(西南),6(西北),7(西),8(东北)
+	// 东四命(1,3,4,9)的吉方位都是东四卦方向
+	// 西四命(2,6,7,8)的吉方位都是西四卦方向
+	// 东四卦: 1(北),3(东),4(东南),9(南)
+	// 西四卦: 2(西南),6(西北),7(西),8(东北)
 	dongSiHouses := map[int]bool{1: true, 3: true, 4: true, 9: true}
 	xiSiHouses := map[int]bool{2: true, 6: true, 7: true, 8: true}
 
@@ -249,7 +249,7 @@ func TestBaZhaiDirectionsForGua_DongXiGroups(t *testing.T) {
 		aus, _ := eightMansionDirs(num)
 		for _, pn := range aus {
 			if !dongSiHouses[pn] {
-				t.Errorf("东四命%d: 吉方%d不在东四宅", num, pn)
+				t.Errorf("东四命%d: 吉方%d不在东四卦", num, pn)
 			}
 		}
 	}
@@ -258,7 +258,7 @@ func TestBaZhaiDirectionsForGua_DongXiGroups(t *testing.T) {
 		aus, _ := eightMansionDirs(num)
 		for _, pn := range aus {
 			if !xiSiHouses[pn] {
-				t.Errorf("西四命%d: 吉方%d不在西四宅", num, pn)
+				t.Errorf("西四命%d: 吉方%d不在西四卦", num, pn)
 			}
 		}
 	}

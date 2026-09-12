@@ -29,9 +29,10 @@ def _saved_pan() -> dict:
         "full": {
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             **_helpers.mock_engine_facts(),
+            "yong_shen": _helpers.mock_yong_shen(),
         },
         "yongshen": {},
-        "ziwei": {"gong_wei": []},
+        "ziwei": _helpers.mock_ziwei(),
         "ziwei_daxian": _helpers.valid_daxian(),
     })
 
@@ -51,13 +52,13 @@ def test_query_passes_server_year_for_current_limit_rules() -> None:
     pan = _saved_pan()
     snapshots = {"八字": {}, "紫微": {}, "context": {}}
 
-    with mock.patch.object(duanyu, "_current_year", return_value=(2015, "server")), \
+    with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
          mock.patch.object(
              duanyu,
              "evaluate_snap_from_pan",
              return_value=snapshots,
          ) as evaluate_snap, \
-         mock.patch.object(duanyu, "_match_rule", return_value={"八字": [], "紫微": []}):
+         mock.patch.object(duanyu, "match_rule", return_value={"八字": [], "紫微": []}):
         duanyu.query("大运", pan)
         duanyu.query("六亲", pan)
 
@@ -68,10 +69,10 @@ def test_query_passes_server_year_for_current_limit_rules() -> None:
 def test_query_explicit_year_does_not_call_time_now() -> None:
     pan = _saved_pan()
     snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
-    with mock.patch.object(duanyu, "_current_year", side_effect=AssertionError("should not call time.now")), \
+    with mock.patch.object(duanyu, "resolve_current_year", side_effect=AssertionError("should not call time.now")), \
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots) as evaluate_snap, \
          mock.patch.object(
-             duanyu, "_match_rule",
+             duanyu, "match_rule",
              side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []},
          ):
         duanyu.query("大限", pan, year=2005)
@@ -82,10 +83,10 @@ def test_query_explicit_year_does_not_call_time_now() -> None:
 def test_query_limit_result_reports_year_source() -> None:
     pan = _saved_pan()
     snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
-    with mock.patch.object(duanyu, "_current_year", return_value=(2015, "server")), \
+    with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots), \
          mock.patch.object(
-             duanyu, "_match_rule",
+             duanyu, "match_rule",
              side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []},
          ):
         current = duanyu.query("大运", pan)
@@ -100,11 +101,11 @@ def test_query_limit_result_reports_year_source() -> None:
 def test_query_evaluates_only_sides_required_by_rule() -> None:
     pan = _saved_pan()
     snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
-    with mock.patch.object(duanyu, "_current_year", return_value=(2015, "server")), \
+    with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
          mock.patch.object(
              duanyu, "evaluate_snap_from_pan", return_value=snapshots
          ) as evaluate_snap, \
-         mock.patch.object(duanyu, "_match_rule", side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []}):
+         mock.patch.object(duanyu, "match_rule", side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []}):
         duanyu.query("大运", pan)
         duanyu.query("大限", pan)
         duanyu.query("格局", pan)
@@ -122,13 +123,13 @@ def test_factor_closure_preserves_all_natal_rule_matches() -> None:
     full = factors.evaluate_snap_from_pan(pan, current_year=2005)
     for rule in duanyu.NATAL_RULES:
         tables = [
-            duanyu.load_table(
+            duanyu.load_rule_table(
                 f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES
             ),
-            duanyu.load_table(
+            duanyu.load_rule_table(
                 f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES
             ),
-            duanyu.load_table(f"common_{rule}.csv", required=False),
+            duanyu.load_rule_table(f"common_{rule}.csv", required=False),
         ]
         sides = (
             {"bazi"} if rule in duanyu.BAZI_ONLY_RULES
@@ -139,9 +140,9 @@ def test_factor_closure_preserves_all_natal_rule_matches() -> None:
             pan,
             current_year=2005,
             sides=sides,
-            factor_names=duanyu._required_natal_factors(tables),
+            factor_names=duanyu.required_natal_factors(tables),
         )
-        assert duanyu._match_rule(rule, pruned) == duanyu._match_rule(rule, full)
+        assert duanyu.match_rule(rule, pruned) == duanyu.match_rule(rule, full)
 
 
 def test_factor_closure_preserves_all_yearly_rule_matches() -> None:
@@ -155,20 +156,20 @@ def test_factor_closure_preserves_all_yearly_rule_matches() -> None:
     )
     for rule in duanyu.YEARLY_RULES:
         tables = [
-            duanyu.load_table(
+            duanyu.load_rule_table(
                 f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES
             ),
-            duanyu.load_table(
+            duanyu.load_rule_table(
                 f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES
             ),
-            duanyu.load_table(f"common_{rule}.csv", required=False),
+            duanyu.load_rule_table(f"common_{rule}.csv", required=False),
         ]
         pruned = evaluate_liunian_snap_from_pan(
             pan,
             liunian_pan,
             year=2006,
             natal_context=natal_context,
-            factor_names=duanyu._required_flow_factors(tables),
+            factor_names=duanyu.required_flow_factors(tables),
         )
         assert duanyu.query_yearly(rule, pruned) == duanyu.query_yearly(rule, full)
 
@@ -177,8 +178,8 @@ def test_current_limit_rule_set_matches_table_consumers() -> None:
     consumers = set()
     for rule in duanyu.NATAL_RULES:
         for table in (
-            duanyu.load_table(f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES),
-            duanyu.load_table(f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES),
+            duanyu.load_rule_table(f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES),
+            duanyu.load_rule_table(f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES),
         ):
             DAYUN_FACTORS = {"大运十神类", "大运配偶星", "大运印星运", "大运官杀运", "大运财星运", "大运食伤运", "大运比劫运", "当前大限宫"}
             if table and any(

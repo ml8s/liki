@@ -1,15 +1,16 @@
 # Changelog
 
-## [2026.09.11.0] — 领域过滤、交互门控与测试分层
+## [2026.09.12.0] — 领域守卫、交互门控与测试分层
 
 ### Breaking changes
 
-- Skill 运行要求 engine >= `2026.09.11.0`；低版本会 fail closed。
+- Skill 运行要求 engine >= `2026.09.12.0`；低版本会 fail closed。
 - 问卦 skill 显式声明 `jsonschema>=4,<5`；缺失时 fail closed，不再静默跳过契约校验。
 - 160 题 MingLi-Bench 移入 `tests/benchmark/mingli160/`，命令统一为 `make benchmark-mingli160`；该套件只测命理答案准确率。
 - 新增 `tests/skillup/` 跨领域功能 smoke，覆盖八字、问卦、风水和起名；命令为 `make skillup-smoke-*`，不进入 pre-push。
 - 问卦 skill 显式声明 `jsonschema` 依赖；缺失时 fail closed 并给出标准安装命令，不再静默跳过契约校验。
 - 修正六爻 snapshot contract 的 `casting.rounds` 形状，使其匹配 engine canonical object schema。
+- 六爻 snapshot 契约升级为 `liuyao-snapshot-v5`，新增 board 基础盘面字段。
 - 六爻 snapshot contract 改为按起卦方式校验：`coins` 必须有 6 组对象证据，`yaos` 不得携带 rounds。
 - `full_paipan` 在时间距时辰交界 ≤30 分钟时输出确定性校准提示。
 - `yearly_study` 场景移除 `年六亲`，避免学业查询混入婚姻 / 子女信号。
@@ -18,17 +19,57 @@
 
 ### Testing
 
+- 新增统一规则引擎功能套件 `tests/functional/` 与 `make test-functional`；覆盖因子算子、断语条件匹配、场景领域过滤和多断语边界。
+- 功能套件补齐查询领域过滤、错误负载保留、条件组 AND / OR、排除式命中和未知算子 fail closed 契约。
+- 功能契约新增干支关系组闭集与全覆盖检查，天干五合、六合、三合、三会、六冲、六害、三刑因子必须与 constants 完全一致。
+- 功能套件新增本命关系组、自刑、common 合参与断语 trace 回归，防止 engine 字段与 Python 算子再次错位。
+- 功能套件新增单侧域 + common 合参查询回归，防止跨术数断语因裁剪快照变成死规则。
 - 功能 smoke 的 script judge 检查工具调用、关键事实、fallback 和拒绝边界；八字 / 问卦按 skill 工具名而非 raw RPC 名判分。
 - 六爻功能 case 超时从 900 秒调整为 1800 秒。
 - 四个 skill 的 app 卡新增标准阻塞确认 / 参数收集节点；根契约要求 ⛔ 节点等待用户回复、💬 节点提供默认值，且交互步骤不得提前输出后续结果。
 
 ### liki-naming
 
+- `qiming.surname` 修复拼音声调字符归一化：第三声 `ǎ/ě/ǐ/ǒ/ǔ` 与 `ǖ/ǘ/ǚ/ǜ` 不再被误判为非 Latin，`Lǚ` 可按 `lv` 精确匹配吕姓。
+- `qiming.surname` 继续补齐第一声长音字符 `ā/ē/ī/ō/ū`，并区分无调 `lü/nü → lv/nv` 与外语 `ü → u`；`Zhāng` 和 `Lü` 均可精确匹配。
+- `qiming.char` / `qiming.check.characters` 保留字库全部多音字读音；`tone` 与 `phonetic.tones` 明确按第一库内读音生成，多音语义需结合用户读音意图复核。
+- `qiming.check` 对用神 / 喜神 / 忌神五行约束做互斥校验，并列输入直接 fail closed，不再输出自相矛盾的命中事实。
 - `qiming.pick` 字池新增《通用规范汉字表》层级标记 `frequency`：`common` / `standard` / `rare`；该标记不是当代取名流行度。
 - 锁定 `qiming.compose` 行为：`first` 与 `second` 可包含同一字，用于组合叠字 / 同字名。
 
 ### liki-bazi
 
+- 规则层公开 API 收口为 `load_rule_table*`、`match_table`、`match_rule`、`filter_domains` 与 `resolve_current_year`；删除旧下划线方法依赖。
+- `factors.evaluate_operator` 新增为本命 / 流年算子的公开执行入口。
+- 修复本命合会冲刑算子读取路径：现在读取 engine `full.relation_groups`，34 个关系因子与对应断语恢复可用。
+- 新增辰辰 / 午午 / 酉酉 / 亥亥自刑因子与断语，并把“合化成功 / 成局 / 极旺”降级为“结构显现 + 化气另核”。
+- 修复 `枭神夺食` 口径：由“印星大类克食伤大类”收敛为“偏印旺而夺食神”，正印见食神不再误判为枭夺。
+- 修复 `官印相生` 与 `杀印相生` 的边界：官印限定正官佩印，七杀佩印只归杀印相生，不再双触发。
+- 修复 `女命官星得地格` 漏条件：必须同时满足女性、配偶星（官杀）得地、食伤不透，不再仅凭性别误触发。
+- 修复 `伤官见官` 口径：旺衰只看伤官而非食伤大类；通关排除正偏印，不再只排除正印。
+- 修复 `食伤泄秀` 漏强度条件：日主强之外还须食伤有气有力，食伤弱而仅现不再误作秀气流通。
+- 将 `财官双美` 降为结构事实 `财旺生官`：财星旺且正官现只断生官结构，是否双美另核官星有力与日主承载力，不再直接断富贵双全。
+- 修复 `财坏印` 强度条件：财星须透且有力，浮透无根不再直接实坏印。
+- 修复 `hun_204` 内部矛盾：女命官杀不现时改用“伤官旺”描述岁运见官后的潜在阻力，不再要求无官又“伤官克官”同时成立。
+- 修复 `财印相战` 口径：财印并见不再自动交战，须财星有力；印弱受制或印旺抗财由断语层另核。
+- 修复 `伤官克官` 漏目标条件：女命伤官旺仍须正官现，无官不输出克夫 / 克官结构。
+- 修复 `财坏印` 因子使用裸词 `财/印` 导致永不命中的机械错误；条件改用 `财星/印星` 领域闭集名称。
+- 修复本命紫微因子宫位命名错位：因子表改为精确消费 engine 宫名闭集（命宫、兄弟、夫妻等），218 条 `宫含` 条件恢复可命中；新增 `任意宫` 只作全盘机械匹配，不接受伪宫名 `本命`。
+- 修复本命紫微四化条件命名错位：`化禄/化权/化科/化忌` 改为 engine `palace_facts.target` 的 `禄/权/科/忌`，19 条四化因子恢复可命中。
+- 流年紫微 `流曜入宫` 统一使用 engine 无后缀宫名，删除运行时加“宫”的显示别名适配；新增 `紫微流曜` 闭集守卫。
+- 删除未消费的 `紫微四化条件`、`紫微亮度分组`、`紫微星组别名` 旧配置；紫微机械事实以 engine `palace_facts` 为唯一来源。
+- 删除未消费的 `日主目标` 旧配置，避免 constants 继续保留死领域概念。
+- 修复紫微 `宫含` 亮度匹配未过滤指定星曜的问题；`文昌庙旺` 不再被同宫其他星曜误触发，`紫微主星庙旺` 只由主星亮度命中。
+- `pan_schema` fail closed 校验紫微 12 宫闭集与非空 `palace_facts`，防止宫名契约漂移或裁剪盘再次进入因子层。
+- 修复六爻应期排序把 `position` 当作用神相关指标的问题；所有 engine 候选共有的 position 不再参与目标加分。
+- 命中断语输出 `trace`，包含命中条件组与因子 expected / actual，提升解释链可审计性。
+- 新增 8 条八字 / 紫微 common 合参断语，覆盖事业、财运、学业、婚姻、子女、健康、迁移与房产。
+- 修复本命单侧域存在 common 条件时的快照裁剪问题；`十神` / `六亲` 现在会为 common 断语同时计算八字与紫微因子。
+- `pan_schema` 对用神三派、十神 / 五行状态、关系组、禄根与紫微 `palace_facts` 做 fail-closed 结构校验。
+- `calibrate` 对场景别名应用默认领域过滤，避免用婚姻 / 财运信号校时。
+- `calibrate(detail=true)` 在场景领域过滤后仍保留机械 evidence，符合考时解释链契约。
+- 场景别名删除全量被过滤器删除的死规则；健康场景纳入精神信号，年兄弟 / 年田宅 / 年迁移等断语改回家庭、房产、迁移领域。
+- Bazi CLI 启动时检查 engine 版本，低版本在进入因子层前失败。
 - `query` / `yearly_range` 新增 `domains` 领域过滤器，避免结构域命中混入单一生活领域分析。
 - `yearly_study` 场景默认只保留学业领域，移除原婚姻 / 子女类串域信号。
 - `full_paipan` 在时间距时辰交界 ≤30 分钟时输出确定性校准提示。
@@ -37,10 +78,29 @@
 
 - 修正六爻 snapshot contract 的 `casting.rounds` 形状，使其匹配 engine canonical object schema。
 - `liuyao.chart` 应期新增机器可读 `ying_time`，保留 `ying_time_text` 给自然语言表达。
+- 六爻 snapshot board 新增每爻旺衰、日辰关系、月建 / 日辰干支、旬空与变爻投影。
+- 六爻 topic 闭环统一为 `relationship` / `legal`，并为 general、self、other、home、family、competition、children 补专题方法。
+- 六爻反误解规则新增伏神、动爻、回头生克与三合结构候选 5 条。
+- 修复六爻六合 / 六冲反误解规则读取路径，使其消费真实 snapshot 的 `evidence.secondary` 结构；动爻关系条件同样改为标准数组路径。
+- 修复六爻“兄弟动克财”旺衰分支反向：妻财休囚才作耗损候选，妻财旺相不直接断破财。
+- 奇门 answer 审计收紧 `evidence_refs` / `assertion_refs` 命名空间，断语引用不得伪装成 snapshot 证据。
+- 标准奇门 answer 只允许引用非空 factors；空数组、空对象与 null 不再作为 snapshot 证据。
+- 金函玉镜 answer 审计显式拒绝 `assertion_refs` / `timing_refs`；该盘型没有断语表和应期因子，不得引用不存在的事实。
+- 奇门专占规则的 focus 口径迁入 `qimen_rules.csv`（`focus_policy`），Python 不再维护第二份专占规则闭集。
+- 奇门标准 factors 新增局数、阴阳遁、值符星与值使门，保留排盘锚点。
+- 奇门 snapshot 契约升级为 `qimen-snapshot-v4`。
+- 黄历事项补齐祭祀、扫除、修造、安床、纳财，并将开业事件统一为 `opening`。
 - 问卦文档补充 `matter` / `yong_shen` 选择规则、同 snapshot 边界和线上 `mode=auto` 口径。
 
 ### liki-fengshui
 
+- `bazhai.layout` 领域命名修正：顶层命卦分组输出 `东四命 / 西四命`，门 / 主 / 灶方位卦输出 `东四卦 / 西四卦`，不再把命卦或方位卦伪装成 `东四宅 / 西四宅`。
+- 明确 `bazhai.chart.liu_nian_xing` 是 `birth_year` 当年的紫白年星，不是自动改取当前年份；当前流年仍走 `time.now` 与 `xuankong.liunian`。
+- 玄空 `xing_jia_hui` 将布尔吉凶改为三态 `classification`：`auspicious` / `inauspicious` / `unlisted`，未列入固定通则的组合不再被误读为凶。
+- 风水四个 RPC 的 Result schema 全面收紧为 closed object：命卦、四吉四凶、紫白飞星、九宫三星、星加会、收山出煞与流年宅盘叠加均声明字段、闭集与 required；`TestAllMethodsSchema` 现在直接用 JSON Schema 校验全部真实 Result，防止 enum / type / required 漂移。
+- 八宅门 / 主 / 灶 `direction` 同步收敛到八方位闭集，不再允许任意字符串。
+- `xuankong.liunian.chart` 参数复用完整 `xuankong.chart` Result schema，必须在 schema 层就是全盘而不只携带 digest。
+- `xuankong.liunian.year` 在 OpenRPC schema 层声明 1864-2200 闭集；越界输入返回参数错误 `-32602`，RPC 冒烟测试同步固化。
 - `xuankong.chart` schema 明确二十四山 index 映射，并返回 `zuo_shan_name` / `xiang_shan_name`。
 - 八宅门主灶规则补充方向 → 卦位映射；八宅与玄空冲突新增分层裁决文档。
 - `bazhai.layout` engine fail closed 校验命卦和门 / 主 / 灶卦名。

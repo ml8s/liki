@@ -12,7 +12,7 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 		doorGua   string
 		masterGua string
 		stoveGua  string
-		wantGroup string // 东四宅/西四宅
+		wantGroup string // 东四命/西四命
 		wantDong  string // door match
 		wantZhu   string // master match
 		wantZao   string // stove match
@@ -21,21 +21,21 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 			name: "东四命+东四门主灶→吉",
 			// 巽命(4, 东四), 坎门(1, 东四), 震主(3, 东四), 离灶(9, 东四)
 			mingGua: "巽", doorGua: "坎", masterGua: "震", stoveGua: "离",
-			wantGroup: "东四宅",
+			wantGroup: "东四命",
 			wantDong:  "吉", wantZhu: "吉", wantZao: "吉",
 		},
 		{
 			name: "西四命+西四门主灶→吉",
 			// 乾命(6, 西四), 坤门(2, 西四), 兑主(7, 西四), 艮灶(8, 西四)
 			mingGua: "乾", doorGua: "坤", masterGua: "兑", stoveGua: "艮",
-			wantGroup: "西四宅",
+			wantGroup: "西四命",
 			wantDong:  "吉", wantZhu: "吉", wantZao: "吉",
 		},
 		{
 			name: "西四命+东四门→凶",
 			// 乾命(6, 西四), 离门(9, 东四) → 不匹配
 			mingGua: "乾", doorGua: "离", masterGua: "乾", stoveGua: "乾",
-			wantGroup: "西四宅",
+			wantGroup: "西四命",
 			wantDong:  "凶", wantZhu: "吉", wantZao: "吉",
 		},
 	}
@@ -47,6 +47,11 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 			}
 			if result.Group != tt.wantGroup {
 				t.Errorf("group=%q, want %q", result.Group, tt.wantGroup)
+			}
+			for _, item := range []doorStoveInfo{result.Door, result.Master, result.Stove} {
+				if item.Group != "东四卦" && item.Group != "西四卦" {
+					t.Fatalf("item group=%q, want East/Four trigram group", item.Group)
+				}
 			}
 			if result.Door.Match != tt.wantDong {
 				t.Errorf("door.match=%q, want %q", result.Door.Match, tt.wantDong)

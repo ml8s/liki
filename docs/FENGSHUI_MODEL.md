@@ -56,21 +56,25 @@
 
 `bazhai.chart.ba_zhai_dirs` 输出命卦对应的四吉四凶方位。四吉是生气、天医、延年、伏位；四凶是祸害、五鬼、六煞、绝命。每个游年星绑定具体方向，LLM 不得按卦名重排。
 
+`bazhai.chart.liu_nian_xing` 是输入 `birth_year` 当年的紫白年星，不是自动改取当前年份；用户询问当前流年时走 `time.now` 与 `xuankong.liunian`。
+
 ### DoorMasterStove
 
 `bazhai.layout` 输入门、主、灶三类布局事实。输入是命卦和门 / 主 / 灶卦，输出包括：
 
 | 对象 | 含义 |
 |---|---|
-| `group` | 命卦所属的东四宅 / 西四宅 |
+| `group` | 命卦所属的东四命 / 西四命 |
 | `ming_gua` | 参与配合的命卦 |
-| `door` / `master` / `stove` | 各自方向、卦名、五行、游年九星、rating、group 与 match |
+| `door` / `master` / `stove` | 各自方向、卦名、五行、游年九星、rating、东四卦 / 西四卦分组与 match |
 
 `match` 是东四 / 西四同组的粗判；`youxing` 是更细的游年九星。解释时以 `youxing` 为主，不能用 `match` 覆盖 `youxing`。多点位结论必须逐项引用，不做单一总分。
 
 八方位到卦位的领域映射固定为：北=坎、东北=艮、东=震、东南=巽、南=离、西南=坤、西=兑、西北=乾。二十四山先按中间山归入八宫；边界山必须向用户确认精确朝向。engine 对非法命卦或门 / 主 / 灶卦 fail closed。
 
 ## 4. 玄空领域对象
+
+风水 RPC 的 Result schema 均为 closed object；领域字段、枚举和 required 由 OpenRPC 声明，LLM 不得解读 schema 未声明的新字段。
 
 ### SanYuanYun
 
@@ -89,7 +93,7 @@
 | `shan_xing` / `xiang_xing` | 双星会坐、双星会向 |
 | `xia_shui` | 上山下水 |
 | `fu_yin` | 伏吟信号 |
-| `xing_jia_hui` | 双星加会事实 |
+| `xing_jia_hui` | 双星加会事实；`classification` 区分 `auspicious` / `inauspicious` / `unlisted`，未列入通则不冒充凶局 |
 | `shou_shan_chu_sha` | 正神 / 零神、收山、出煞与评估 |
 | `chart_digest` | canonical SHA-256 完整性摘要 |
 

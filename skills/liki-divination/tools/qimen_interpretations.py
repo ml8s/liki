@@ -34,9 +34,16 @@ def load_rule_table() -> dict[str, dict]:
             name = (row.get("name") or "").strip()
             scopes = _split_values(row.get("scopes") or "")
             schools = _split_values(row.get("schools") or "")
+            focus_policy = (row.get("focus_policy") or "").strip()
             basis = (row.get("basis") or "").strip()
+            valid_focus_policy = focus_policy == "none" or (
+                focus_policy.startswith("required_matter:")
+                and len(focus_policy) > len("required_matter:")
+            )
             if not rule or not name or not scopes or not schools or not basis:
                 raise TableError(f"奇门解释规则表存在空字段: {row}")
+            if not valid_focus_policy:
+                raise TableError(f"奇门解释规则 focus_policy 无效: {rule}")
             if rule in result:
                 raise TableError(f"奇门解释规则重复: {rule}")
             if len(scopes) != len(set(scopes)):
@@ -47,6 +54,7 @@ def load_rule_table() -> dict[str, dict]:
                 "name": name,
                 "scopes": scopes,
                 "schools": schools,
+                "focus_policy": focus_policy,
                 "basis": basis,
             }
     if not result:

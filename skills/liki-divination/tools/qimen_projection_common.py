@@ -136,6 +136,8 @@ def _type_matches(value, expected: str, nullable: bool = False) -> bool:
         return isinstance(value, str) and value != ""
     if expected == "boolean":
         return isinstance(value, bool)
+    if expected == "integer":
+        return isinstance(value, int) and not isinstance(value, bool)
     if expected == "array":
         return isinstance(value, list)
     if expected == "object":

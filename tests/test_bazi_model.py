@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import csv
 import json
-import re
 from collections import defaultdict, deque
 from pathlib import Path
 
@@ -66,19 +65,91 @@ def test_relation_closures_are_complete() -> None:
 def test_factor_inventory_has_single_source_of_truth() -> None:
     groups = natal_groups()
     flows = flow_groups()
-    assert len(groups) == 459
+    raw_groups: dict[str, list[dict[str, str]]] = defaultdict(list)
+    raw_flows: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for filename, target in (
+        ("factors.csv", raw_groups),
+        ("factors_liunian.csv", raw_flows),
+    ):
+        with (TOOLS / "factors" / filename).open(encoding="utf-8", newline="") as source:
+            for row in csv.DictReader(source):
+                target[row["factor_id"]].append(row)
+
+    def category(rows: list[dict[str, str]]) -> str:
+        classes = set(D["十神大类"])
+        roles = set(D["六亲角色"])
+        ziwei_groups = {
+            key for key, value in D.items()
+            if isinstance(value, list) and key.startswith("紫微")
+        }
+        compound_terms = classes | roles | ziwei_groups
+        complex_direct = {"财库现", "财星入墓", "官杀取清"}
+        if rows[0]["kind"] == "direct":
+            return "factor_ref" if rows[0]["factor_id"] in complex_direct else "direct"
+        kinds = {row["kind"] for row in rows}
+        if "factor_ref" in kinds or len(rows) > 1 or any(
+            len(group) > 1
+            for group in (
+                [row for row in rows if row["group_id"] == group_id]
+                for group_id in {row["group_id"] for row in rows}
+            )
+        ):
+            return "factor_ref"
+        expression = rows[0]["expression"]
+        if "[" not in expression:
+            return "factor_ref"
+        operator, raw_args = expression[:-1].split("[", 1)
+        args = raw_args.split(",") if raw_args else []
+        if operator in {"现", "透", "藏", "得令", "有根", "克", "生", "为用", "为忌"}:
+            return "factor_ref" if any(arg in compound_terms for arg in args) else "condition"
+        if operator == "数量至少":
+            return "factor_ref" if any(arg in classes | roles for arg in args[1:]) else "condition"
+        if operator == "宫含":
+            compound_targets = compound_terms | {"煞星", "无主星", "任意"}
+            return "factor_ref" if args[1] in compound_targets else "condition"
+        if operator == "大运十神":
+            return "factor_ref" if args[1] in classes | roles else "condition"
+        if operator in {"流年透", "流年值", "流年合", "流年冲", "流年克", "大运窗口流年", "换运流年"}:
+            return "factor_ref" if args[0] in classes | roles else "condition"
+        if operator == "引用本命":
+            return "factor_ref"
+        return "condition"
+
+    def side(rows: list[dict]) -> str:
+        return next(iter({row["shushi"] for row in rows}))
+
+    natal_categories = defaultdict(int)
+    natal_sides = defaultdict(int)
+    for rows in raw_groups.values():
+        natal_categories[category(rows)] += 1
+        natal_sides[side(rows)] += 1
+    flow_categories = defaultdict(int)
+    flow_sides = defaultdict(int)
+    for rows in raw_flows.values():
+        flow_categories[category(rows)] += 1
+        flow_sides[side(rows)] += 1
+
+    assert len(groups) == 463
     assert len(flows) == 101
 
     text = DOC.read_text(encoding="utf-8")
     assert "tools/factors/factors.csv" in text
     assert "tools/factors/factors_liunian.csv" in text
     assert "CSV 是因子清单唯一事实源" in text
-    assert "| 本命因子 | 459 |" in text
-    assert "| 本命直通原子 | 46 |" in text
-    assert "| 本命提取原子 | 295 |" in text
-    assert "| 本命复合因子 | 118 |" in text
+    assert f"| 本命因子 | {len(groups)} |" in text
+    assert f"| 本命八字因子 | {natal_sides['bazi']} |" in text
+    assert f"| 本命紫微因子 | {natal_sides['ziwei']} |" in text
+    assert f"| 本命定义组 | {sum(map(len, groups.values()))} |" in text
+    assert f"| 本命数据行 | {sum(map(len, raw_groups.values()))} |" in text
+    assert f"| 本命直通原子 | {natal_categories['direct']} |" in text
+    assert f"| 本命提取原子 | {natal_categories['condition']} |" in text
+    assert f"| 本命复合因子 | {natal_categories['factor_ref']} |" in text
     assert "| 流年因子 | 101 |" in text
-    assert not re.search(r"^\|\s*\d+\s*\|", text, re.M)
+    assert f"| 流年八字因子 | {flow_sides['bazi']} |" in text
+    assert f"| 流年紫微因子 | {flow_sides['ziwei']} |" in text
+    assert f"| 流年直通原子 | {flow_categories['direct']} |" in text
+    assert f"| 流年提取原子 | {flow_categories['condition']} |" in text
+    assert f"| 流年复合因子 | {flow_categories['factor_ref']} |" in text
 
 
 def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:

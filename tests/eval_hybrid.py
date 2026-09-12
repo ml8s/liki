@@ -2,7 +2,7 @@
 """【规则表数据检查】（非判题——评测唯一走 skill-up agent）
 
 角色：
-- 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（排盘(client) → 因子生成(evaluate_factors) → 断语查询(match)——全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
+- 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（排盘(client) → 因子生成(evaluate_factors) → 断语查询(match_rule)——全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
   验证规则表改动不崩、断语覆盖正常。
 - 【不判题】——判题（题目→skill→答案→对比）唯一走 skill-up agent 评测
   （tests/benchmark/mingli160/run.sh：agent 读 SKILL.md → 排盘(RPC)+因子生成+断语查询 → 综合判题 →
@@ -32,7 +32,7 @@ for _p in (_TOOLS, _LOCAL):
 from birth import parse_birth
 from paipan import full_paipan, liunian
 from factors import evaluate_snap_from_pan, evaluate_liunian_snap_from_pan
-from duanyu import _current_year, _match_rule, query_yearly, NATAL_RULES, YEARLY_RULES
+from duanyu import resolve_current_year, match_rule, query_yearly, NATAL_RULES, YEARLY_RULES
 
 BENCHMARK = _BENCHMARK
 GROUPS = json.load(open(os.path.join(BENCHMARK, "groups.json"), encoding="utf-8"))
@@ -44,9 +44,9 @@ def query_all(pan: dict) -> dict:
     domains = {}
     # 本命域
     for rule in sorted(NATAL_RULES):
-        domains[rule] = _match_rule(rule, snap)
+        domains[rule] = match_rule(rule, snap)
     # 流年域——用当前年采样（完整流年覆盖需多年扫描，此处仅验证规则表不崩/有产出）
-    cur_year, _ = _current_year()
+    cur_year, _ = resolve_current_year()
     lnp = liunian(pan, cur_year)
     snap_y = evaluate_liunian_snap_from_pan(pan, lnp, year=cur_year)
     for rule in sorted(YEARLY_RULES):

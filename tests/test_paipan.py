@@ -6,6 +6,7 @@ from urllib.error import URLError
 import pytest
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
+import paipan
 from paipan import RPCError, call
 
 
@@ -32,3 +33,25 @@ def test_rpc_transport_error_is_retried() -> None:
             call("bazi.chart", {}, retries=1)
 
     assert urlopen.call_count == 2
+
+
+def test_engine_compatibility_uses_rpc_discover(monkeypatch) -> None:
+    calls = []
+
+    def fake_call(method, params, retries=1):
+        calls.append((method, params, retries))
+        return {"info": {"version": "2026.09.12.0"}}
+
+    monkeypatch.setattr(paipan, "call", fake_call)
+    paipan.ensure_engine_compatible()
+
+    assert calls == [("rpc.discover", {"methods": "bazi.fullchart"}, 0)]
+
+
+def test_engine_compatibility_rejects_old_engine(monkeypatch) -> None:
+    monkeypatch.setattr(
+        paipan, "call", lambda *_a, **_k: {"info": {"version": "2026.09.10.9"}}
+    )
+
+    with pytest.raises(RPCError, match="incompatible"):
+        paipan.ensure_engine_compatible()

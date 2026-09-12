@@ -19,7 +19,8 @@ def test_financial_star_damages_resource_requires_real_target():
     assert [r["conds"] for r in rows] == [{
         "透[财星]": 1,
         "现[印星]": 1,
-        "克[财,印]": 1,
+        "克[财星,印星]": 1,
+        "财星旺": 1,
     }]
 
 
@@ -194,7 +195,7 @@ def test_common_assertions_merge_both_system_snapshots():
         "紫微": {"流年迁移宫禄": 1},
         "context": {},
     }
-    result = duanyu._match_rule("年神煞", snapshot)
+    result = duanyu.match_rule("年神煞", snapshot)
     assert [row["id"] for row in result["合参"]] == ["ycai_120"]
 
 
@@ -220,8 +221,22 @@ def test_flow_star_palace_is_mechanical():
         {"name": "子女", "xing_yao": ["流羊"]},
         {"name": "夫妻", "xing_yao": ["流鸾"]},
     ]}}
-    assert operators_liunian._liu_op("流曜入宫", ["流羊", "子女宫"], "male", {}, ctx) == 1
-    assert operators_liunian._liu_op("流曜入宫", ["流鸾", "子女宫"], "male", {}, ctx) == 0
+    assert operators_liunian._liu_op("流曜入宫", ["流羊", "子女"], "male", {}, ctx) == 1
+    assert operators_liunian._liu_op("流曜入宫", ["流鸾", "子女"], "male", {}, ctx) == 0
+    assert operators_liunian._liu_op("流曜入宫", ["流羊", "子女宫"], "male", {}, ctx) == 0
+
+
+def test_flow_si_hua_uses_engine_star_indices_and_palace_labels():
+    ctx = {
+        "liunian": {},
+        "zw_liunian": {
+            "si_hua_gong": {"0": "夫妻"},
+            "si_hua": {"0": "禄"},
+        },
+    }
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "禄"], "male", {}, ctx) == 1
+    assert operators_liunian._liu_op("流年宫化", ["夫妻宫", "禄"], "male", {}, ctx) == 0
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "忌"], "male", {}, ctx) == 0
 
 
 def test_explicit_pillar_clash_uses_requested_pillar():
@@ -250,7 +265,7 @@ def test_query_year_is_rejected_for_pure_natal_rules():
             "gender": "male",
             "chart": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
-            "yongshen": {}, "ziwei": {"gong_wei": []}, "ziwei_daxian": _helpers.valid_daxian(),
+            "yongshen": {}, "ziwei": _helpers.mock_ziwei(), "ziwei_daxian": _helpers.valid_daxian(),
         }, year=2005)
 
 
@@ -259,7 +274,7 @@ def test_required_natal_factors_include_reference_closure():
         "id": "test",
         "约束组": [{"比劫夺财": 1}],
     }]]
-    assert duanyu._required_natal_factors(tables) >= {
+    assert duanyu.required_natal_factors(tables) >= {
         "比劫夺财", "比劫旺", "财星弱", "财星现"
     }
 
@@ -280,7 +295,7 @@ def test_required_flow_factors_use_assertion_conditions():
         "id": "test",
         "约束组": [{"流年配偶星透": 1}],
     }]]
-    assert duanyu._required_flow_factors(tables) == {"流年配偶星透"}
+    assert duanyu.required_flow_factors(tables) == {"流年配偶星透"}
 
 
 def test_dayun_spouse_star_uses_evaluation_gender():
@@ -380,3 +395,42 @@ def test_operator_code_contains_no_domain_member_literals():
             if node.value in domain_members:
                 failures.append(f"{path.name}:{node.lineno}:{node.value}")
     assert not failures
+
+
+def test_relation_assertions_do_not_overstate_transformation_success():
+    """engine relation_groups 只证明结构存在，不能直接断合化成功或五行极旺。"""
+    import csv
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertions.csv"
+    with path.open(encoding="utf-8-sig", newline="") as source:
+        rows = [row for row in csv.DictReader(source) if row["rule"] == "合会"]
+
+    assert rows
+    for row in rows:
+        assert "合化成功" not in row["结论"], row["assertion_id"]
+        assert "极旺" not in row["结论"], row["assertion_id"]
+        if "三合" in row["事件"] or "三会" in row["事件"]:
+            assert "结构显现" in row["结论"], row["assertion_id"]
+
+
+def test_yearly_scene_aliases_have_matchable_domain_assertions():
+    """场景别名不得包含全量被领域过滤删除的死规则。"""
+    import csv
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    path = root / "skills/liki-bazi/tools/assertions/assertions.csv"
+    with path.open(encoding="utf-8-sig", newline="") as source:
+        rows = list(csv.DictReader(source))
+
+    for scene, rules in duanyu.SCENE_ALIASES.items():
+        if scene == "yingqi":
+            continue
+        allowed = set(duanyu.SCENE_DOMAIN_FILTERS[scene])
+        for rule in rules:
+            matchable = any(
+                row["rule"] == rule and row["领域"] in allowed
+                for row in rows
+            )
+            assert matchable, f"{scene}/{rule} 没有可通过领域过滤的断语"

@@ -374,7 +374,7 @@ echo "${BOLD}── XuanKong ──${NC}"
 rpc xuankong.liunian '{"year":2024}'
 check_rpc_ok "xuankong.liunian (2024)"
 rpc xuankong.liunian '{"year":1800}'
-check_rpc_err "xuankong.liunian (bad year)" "-32000"
+check_rpc_err "xuankong.liunian (bad year)" "-32602"
 
 rpc xuankong.chart '{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":12}'
 check_rpc_ok "xuankong.chart"

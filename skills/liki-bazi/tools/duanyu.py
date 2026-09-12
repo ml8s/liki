@@ -23,14 +23,17 @@ from factors import (
 import yearly_eval
 from yearly_eval import MAX_YEARS, resolve_rules
 
+__all__ = [
+    "NATAL_RULES", "YEARLY_RULES", "SCENE_ALIASES", "SCENE_DOMAIN_FILTERS",
+    "BAZI_ONLY_RULES", "ZIWEI_ONLY_RULES", "CURRENT_LIMIT_RULES",
+    "load_rule_table", "load_rule_tables", "required_natal_factors",
+    "required_flow_factors", "natal_factors_for_flow", "flow_factor_names",
+    "filter_domains", "default_scene_domains", "query", "brief",
+    "resolve_current_year", "reset_current_year_cache", "query_yearly",
+    "match_table", "match_rule", "yearly_range",
+]
 
-
-def load_table(name, required: bool = True):
-    """加载 `{side}_{rule}` 对应的断语长表行。"""
-    return load_rule_table(name, required=required)
-
-
-def _load_rule_tables(rule: str) -> dict[str, list[dict]]:
+def load_rule_tables(rule: str) -> dict[str, list[dict]]:
     """按命理侧配置加载一个域的三侧断言表。"""
     side_config = load_constants()["命理侧"]
     tables = {}
@@ -41,7 +44,7 @@ def _load_rule_tables(rule: str) -> dict[str, list[dict]]:
             required = rule not in ZIWEI_ONLY_RULES
         else:
             required = rule not in BAZI_ONLY_RULES
-        tables[side] = load_table(f"{side}_{rule}.csv", required=required)
+        tables[side] = load_rule_table(f"{side}_{rule}.csv", required=required)
     return tables
 
 
@@ -61,7 +64,7 @@ def _factor_closure(
     return required
 
 
-def _required_natal_factors(tables: list[list[dict]]) -> set[str]:
+def required_natal_factors(tables: list[list[dict]]) -> set[str]:
     """从断言条件反向求本命因子闭包；query 只计算实际消费的因子。"""
     groups: dict[str, list[dict]] = {}
     for row in load_factor_rows():
@@ -76,7 +79,7 @@ def _required_natal_factors(tables: list[list[dict]]) -> set[str]:
     return _factor_closure(groups, seeds)
 
 
-def _required_flow_factors(tables: list[list[dict]]) -> set[str]:
+def required_flow_factors(tables: list[list[dict]]) -> set[str]:
     """从流年断言条件反向求因子闭包；yearly_range 只算实际消费因子。"""
     groups: dict[str, list[dict]] = {}
     for row in load_liunian_rows():
@@ -111,8 +114,8 @@ def natal_factors_for_flow(flow_factors: set[str]) -> set[str]:
 def flow_factor_names(rules: list[str]) -> set[str]:
     """展开流年场景别名并返回断言消费的流年因子闭包。"""
     resolved_rules = _resolve_rules(rules)
-    tables = [table for rule in resolved_rules for table in _load_rule_tables(rule).values()]
-    return _required_flow_factors(tables)
+    tables = [table for rule in resolved_rules for table in load_rule_tables(rule).values()]
+    return required_flow_factors(tables)
 
 # 命理域全集与场景别名来自 constants.json「命理域」；代码不内置领域清单。
 _DOMAIN_CONFIG = load_constants()["命理域"]
@@ -144,8 +147,10 @@ def _assertion_domains(tables: list[list[dict]]) -> set[str]:
     }
 
 
-def _filter_domains(result: dict, domains: list[str] | None) -> dict:
+def filter_domains(result: dict, domains: list[str] | None) -> dict:
     """按命理领域过滤命中断语；None 表示不过滤。"""
+    if "error" in result:
+        return result
     if domains is None:
         return result
     side_labels = load_constants()["命理侧"]["标签"]
@@ -159,7 +164,7 @@ def _filter_domains(result: dict, domains: list[str] | None) -> dict:
     }
 
 
-def _default_scene_domains(rules: list[str]) -> list[str] | None:
+def default_scene_domains(rules: list[str]) -> list[str] | None:
     """场景别名未显式传 domains 时，应用数据表声明的主领域过滤。"""
     if not rules or not all(rule in SCENE_DOMAIN_FILTERS for rule in rules):
         return None
@@ -177,7 +182,7 @@ def query(rule: str, pan: dict, year: int | None = None,
     pan = full_paipan 返回的完整本命盘；内部从 pan 生成领域快照。
     year 仅用于「大运/大限」这类限运域：省略用服务端当前年，显式传入则取该年限运。
     流年查询走 yearly_range，本函数不处理流年快照。
-    数据层真分开（各查各表）、调用层一次查双盘——内部 load_table + match 内嵌。
+    数据层真分开（各查各表）、调用层一次查双盘——内部 load_rule_table + match_table 内嵌。
     """
     # 本命函数不允许查流年域——流年走 yearly_range
     if rule in YEARLY_RULES:
@@ -195,22 +200,27 @@ def query(rule: str, pan: dict, year: int | None = None,
     # pan 直通——LLM 传 full_paipan 的返回即可，内部从 pan 直读产因子快照。
     # 校验完整排盘结构，杜绝把空 dict/快照/半截盘误当命盘（防兜底断语污染）。
     validate_natal_pan(pan, action="query")
-    current_year = 0
+    resolved_current_year = 0
     current_year_source = ""
     if year is not None:
         if year <= 0:
             raise ValueError(f"query(year) 必须为正整数，收到: {year}")
-        current_year = year
+        resolved_current_year = year
         current_year_source = "specified"
     elif rule in CURRENT_LIMIT_RULES:
-        current_year, current_year_source = _current_year()
-    if rule in BAZI_ONLY_RULES:
+        resolved_current_year, current_year_source = resolve_current_year()
+    query_tables_by_side = load_rule_tables(rule)
+    query_tables = list(query_tables_by_side.values())
+    # 单侧域只限制 bazi/ziwei 断言表；common 是跨术数边界，
+    # 只要该域存在 common 条件，就必须同时计算双盘快照。
+    if query_tables_by_side["common"]:
+        requested_sides = {"bazi", "ziwei"}
+    elif rule in BAZI_ONLY_RULES:
         requested_sides = {"bazi"}
     elif rule in ZIWEI_ONLY_RULES:
         requested_sides = {"ziwei"}
     else:
         requested_sides = {"bazi", "ziwei"}
-    query_tables = list(_load_rule_tables(rule).values())
     if domains is not None:
         if not isinstance(domains, list) or not domains or \
                 any(not isinstance(item, str) or not item for item in domains):
@@ -226,13 +236,13 @@ def query(rule: str, pan: dict, year: int | None = None,
             )
     snapshots = evaluate_snap_from_pan(
         pan,
-        current_year=current_year,
+        current_year=resolved_current_year,
         sides=requested_sides,
-        factor_names=_required_natal_factors(query_tables),
+        factor_names=required_natal_factors(query_tables),
     )
-    result = _filter_domains(_match_rule(rule, snapshots), domains)
-    if current_year:
-        result["current_year"] = current_year
+    result = filter_domains(match_rule(rule, snapshots), domains)
+    if resolved_current_year:
+        result["current_year"] = resolved_current_year
         result["current_year_source"] = current_year_source
     return result
 
@@ -253,7 +263,7 @@ _current_year_cached = None
 _current_year_cached_at = None
 
 
-def _current_year():
+def resolve_current_year():
     global _current_year_cached, _current_year_cached_at
     from paipan import call
 
@@ -271,7 +281,7 @@ def _current_year():
     return result
 
 
-def _reset_current_year_cache():
+def reset_current_year_cache():
     global _current_year_cached, _current_year_cached_at
     _current_year_cached = None
     _current_year_cached_at = None
@@ -304,15 +314,15 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
         raise AssertionRuleError("query_yearly 仅接受流年快照（含 _snapshot_type='liunian'）")
     if rule not in YEARLY_RULES:
         raise AssertionRuleError(f"未知流年命理域 '{rule}'。有效域: {sorted(YEARLY_RULES)}（场景别名请走 yearly_range 展开）")
-    return _match_rule(rule, snapshots)
+    return match_rule(rule, snapshots)
 
 
-def _val_match(cond, actual):
+def _value_matches(cond, actual):
     """单约束匹配：条件值与因子实际值相等即命中。"""
     return actual == cond
 
 
-def match(table: list, snapshot: dict, exclusive: bool = False) -> list:
+def match_table(table: list, snapshot: dict, exclusive: bool = False) -> list:
     """真值表匹配：因子快照 × 断言条件组 → 命中条目（按表序）。
 
     同一 condition_group 内的条件为 AND，不同 condition_group 为 OR。
@@ -320,35 +330,48 @@ def match(table: list, snapshot: dict, exclusive: bool = False) -> list:
     hits = []
     for item in table:
         condition_groups = item.get("约束组") or []
-        matched = any(
-            all(_val_match(value, snapshot.get(key)) for key, value in conditions.items())
-            for conditions in condition_groups
-        )
-        if not matched:
+        traces = []
+        for group_number, conditions in enumerate(condition_groups, 1):
+            if not all(
+                _value_matches(value, snapshot.get(key))
+                for key, value in conditions.items()
+            ):
+                continue
+            traces.append({
+                "condition_group": group_number,
+                "factors": {
+                    key: {
+                        "expected": value,
+                        "actual": snapshot.get(key),
+                    }
+                    for key, value in conditions.items()
+                },
+            })
+        if not traces:
             continue
-        hits.append(item)
+        hits.append({**item, "trace": traces})
     return [hits[0]] if exclusive and hits else hits
 
 
-def _match_rule(rule: str, snapshots: dict) -> dict:
+def match_rule(rule: str, snapshots: dict) -> dict:
     """加载断语表 + 匹配。排盘上下文只参与匹配，不计入因子数。
 
     bazi/ziwei 表分别匹配各自快照；common 表在合并后的双盘快照上匹配，
     专用于显式八紫合参断语，不伪装成单侧事实。
     """
-    tables = _load_rule_tables(rule)
+    tables = load_rule_tables(rule)
     side_codes = load_constants()["命理侧"]["断言代码"]
     bz_e, zw_e, common_e = (tables[side] for side in side_codes)
     context = snapshots.get("context", {}) or {}
     side_labels = load_constants()["命理侧"]["标签"]
     return {
-        side_labels["bazi"]: match(
+        side_labels["bazi"]: match_table(
             bz_e, {**snapshots[side_labels["bazi"]], **context}
         ),
-        side_labels["ziwei"]: match(
+        side_labels["ziwei"]: match_table(
             zw_e, {**snapshots[side_labels["ziwei"]], **context}
         ) if zw_e else [],
-        side_labels["common"]: match(common_e, {
+        side_labels["common"]: match_table(common_e, {
             **snapshots[side_labels["bazi"]],
             **snapshots[side_labels["ziwei"]],
             **context,
@@ -361,7 +384,7 @@ def yearly_range(pan: dict, start: int, end: int,
                  domains: list[str] | None = None) -> dict:
     resolved_rules = _resolve_rules(rules)
     if domains is None:
-        domains = _default_scene_domains(rules)
+        domains = default_scene_domains(rules)
     if domains is not None:
         domains = list(domains)
     if start > end:
@@ -373,12 +396,12 @@ def yearly_range(pan: dict, start: int, end: int,
         )
     validate_natal_pan(pan, action="yearly_range")
     from paipan import RPCError
-    cur_year, cur_source = _current_year()
+    cur_year, cur_source = resolve_current_year()
     flow_factors = flow_factor_names(rules)
     yearly_tables = [
         table
         for rule in resolved_rules
-        for table in _load_rule_tables(rule).values()
+        for table in load_rule_tables(rule).values()
     ]
     if domains is not None:
         if not isinstance(domains, list) or not domains or \
@@ -405,7 +428,7 @@ def yearly_range(pan: dict, start: int, end: int,
             )
             if domains is not None and "error" not in years[str(year)]:
                 years[str(year)] = {
-                    rule: _filter_domains(result, domains)
+                    rule: filter_domains(result, domains)
                     for rule, result in years[str(year)].items()
                 }
         except (RPCError, ConnectionError, TimeoutError, OSError) as e:

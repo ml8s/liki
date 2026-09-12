@@ -61,6 +61,9 @@ def _pan(**changes):
         },
         "pan": {
             "yin_dun": False,
+            "jushu": 5,
+            "zhi_fu_xing": "天芮",
+            "zhi_shi_men": "死门",
         "ri_gan": "甲",
         "ri_zhi": "辰",
         "nian_gan": "丙",
@@ -589,6 +592,10 @@ def test_qimen_snapshot_is_readonly_contract_projection() -> None:
     assert snapshot == {
         "scope": "hour",
         "school": "zhuanpan",
+        "jushu": 5,
+        "yin_dun": False,
+        "duty_star": "天芮",
+        "duty_door": "死门",
         "wu_bu_yu_shi": False,
         "pillars": {
             "ri_gan": "甲",
@@ -713,7 +720,16 @@ def test_snapshot_contract_covers_all_projection_fields() -> None:
     contract = load_factors_contract()
     snapshot = _project(_rich_pan())
     assert set(snapshot) == set(contract["fields"])
+    assert contract["schema_version"] == 4
     assert "chart_required" not in contract
+
+
+def test_snapshot_projects_plate_method_anchor_fields() -> None:
+    snapshot = _project(_pan())
+    assert snapshot["jushu"] == 5
+    assert snapshot["yin_dun"] is False
+    assert snapshot["duty_star"] == "天芮"
+    assert snapshot["duty_door"] == "死门"
 
 
 def test_snapshot_reserves_stable_unconsumed_qimen_factors() -> None:
@@ -1439,8 +1455,8 @@ def test_interpretation_condition_groups_sort_numerically(tmp_path, monkeypatch)
 
     rules = tmp_path / "rules.csv"
     rules.write_text(
-        "rule,name,scopes,schools,basis\n"
-        "lost_property,失物,hour,zhuanpan,test\n",
+        "rule,name,scopes,schools,focus_policy,basis\n"
+        "lost_property,失物,hour,zhuanpan,none,test\n",
         encoding="utf-8",
     )
     assertions = tmp_path / "assertions.csv"
@@ -1485,6 +1501,12 @@ def test_interpretation_rule_applicability_is_table_driven() -> None:
     assert rules["lost_property"]["schools"] == [
         "zhuanpan", "luoshu_feipan", "mingfa_feipan",
     ]
+    assert rules["lost_property"]["focus_policy"] == "none"
+    assert rules["missing_person"]["focus_policy"] == "required_matter:missing_person"
+    for metadata in rules.values():
+        policy = metadata["focus_policy"]
+        if policy.startswith("required_matter:"):
+            assert policy.split(":", 1)[1] in load_routing_matter_table()
     assert rules["lost_property"]["basis"]
 
     snapshot = _project(
@@ -1516,13 +1538,28 @@ def test_rule_table_rejects_duplicate_axes(tmp_path, monkeypatch) -> None:
 
     rules = tmp_path / "rules.csv"
     rules.write_text(
-        "rule,name,scopes,schools,basis\n"
-        "lost_property,失物,hour|hour,zhuanpan,test\n",
+        "rule,name,scopes,schools,focus_policy,basis\n"
+        "lost_property,失物,hour|hour,zhuanpan,none,test\n",
         encoding="utf-8",
     )
     monkeypatch.setattr(qimen_interpretations, "_RULE_TABLE", None)
     monkeypatch.setattr(qimen_interpretations, "RULES_PATH", rules)
     with pytest.raises(TableError, match="scopes"):
+        qimen_interpretations.load_rule_table()
+
+
+def test_rule_table_rejects_invalid_focus_policy(tmp_path, monkeypatch) -> None:
+    import qimen_interpretations
+
+    rules = tmp_path / "rules.csv"
+    rules.write_text(
+        "rule,name,scopes,schools,focus_policy,basis\n"
+        "lost_property,失物,hour,zhuanpan,optional,test\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(qimen_interpretations, "_RULE_TABLE", None)
+    monkeypatch.setattr(qimen_interpretations, "RULES_PATH", rules)
+    with pytest.raises(TableError, match="focus_policy"):
         qimen_interpretations.load_rule_table()
 
 

@@ -9,21 +9,14 @@ from qimen_duanyu import query
 from qimen_projection import project as project_standard_factors
 from qimen_projection import validate as validate_standard_factors
 from qimen_jinhan_factors import project as project_jinhan_factors
-from qimen_interpretations import assert_rule_compatibility
+from qimen_interpretations import assert_rule_compatibility, load_rule_table
 from qimen_paipan import city_coords, qimen_chart, solar_time
 
 
-SCHEMA_VERSION = "qimen-snapshot-v3"
+SCHEMA_VERSION = "qimen-snapshot-v4"
 
-# 专占规则与 focus 的领域边界：
-# - 失物 / 捕盗 / 捕亡 / 贼人画像只读日干、时干与盘面固有因子；
-# - 走失人口通过 matter=missing_person 取六合用神。
-NO_FOCUS_RULES = frozenset({
-    "lost_property",
-    "thief_capture",
-    "capture_escape",
-    "thief_profile",
-})
+#
+# 专占规则是否接受 matter / yong_shen 由 qimen_rules.csv 的 focus_policy 声明。
 
 
 
@@ -100,10 +93,13 @@ def create(
         raise ValueError("yong_shen cannot be empty")
     if rule is not None:
         assert_rule_compatibility(rule, effective_scope, effective_school)
-        if rule in NO_FOCUS_RULES and (matter is not None or yong_shen is not None):
+        focus_policy = load_rule_table()[rule]["focus_policy"]
+        if focus_policy == "none" and (matter is not None or yong_shen is not None):
             raise ValueError(f"qimen rule {rule} does not accept matter or yong_shen")
-        if rule == "missing_person" and matter != "missing_person":
-            raise ValueError("qimen rule missing_person requires matter=missing_person")
+        if focus_policy.startswith("required_matter:"):
+            required_matter = focus_policy.split(":", 1)[1]
+            if matter != required_matter:
+                raise ValueError(f"qimen rule {rule} requires matter={required_matter}")
     resolved_city, resolved_longitude = _resolve_location(city, longitude)
     if not time:
         time = server_time()

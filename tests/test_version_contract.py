@@ -32,6 +32,18 @@ def test_bazi_tool_and_domain_contracts_use_distributed_version():
     assert domain_contract["version"] == version
 
 
+def test_divination_tool_and_projection_contracts_use_distributed_version():
+    version = (ROOT / "skills/liki-divination/VERSION").read_text(encoding="utf-8").strip()
+    tools = json.loads(
+        (ROOT / "skills/liki-divination/tools/skill-tools.json").read_text(encoding="utf-8")
+    )
+    projection_contract = json.loads(
+        (ROOT / "skills/liki-divination/tools/qimen_projection_contract.json").read_text(encoding="utf-8")
+    )
+    assert tools["info"]["version"] == version
+    assert projection_contract["version"] == version
+
+
 def test_changelog_is_project_level_and_current_version_is_calver():
     version = (ROOT / "skills/liki-bazi/VERSION").read_text(encoding="utf-8").strip()
     assert not list((ROOT / "skills").rglob("CHANGELOG.md"))

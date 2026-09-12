@@ -1,6 +1,35 @@
 # Liki testing layers
 
-`tests/` 有两类独立的 agent 评测。不要用 160 题准确率基准做功能回归，也不要把功能 smoke 当作命理准确率证明。
+`tests/` 有确定性功能测试与两类独立的 agent 评测。不要用 160 题准确率基准做功能回归，也不要把功能 smoke 当作命理准确率证明。
+
+## Functional rule-engine tests: `functional/`
+
+`functional/` 是规则引擎功能测试，不负责证明全部命理断语正确。它锁定确定性行为：
+
+```text
+factor      因子求值与机械算子行为
+assertion   断语表加载、条件匹配、命中与禁止行为
+scenario    场景别名展开与默认领域过滤
+conflict    多断语共存 / 互斥边界
+```
+
+数据与执行分离：
+
+| 文件 / 目录 | 说明 |
+|---|---|
+| `functional/manifest.json` | 功能样本索引与最低覆盖契约 |
+| `functional/factors/cases.json` | 因子与机械算子行为样本 |
+| `functional/assertions/cases.json` | 断语匹配行为样本 |
+| `functional/scenarios/cases.json` | 场景别名与领域过滤样本 |
+| `functional/conflicts/cases.json` | 多断语行为样本 |
+| `test_functional.py` | runner，只加载、执行、比较 |
+
+`fixtures/domain_oracle/` 继续作为跨 Python / Go 的领域真值表与锚点数据源；本目录不复制这些大表。
+修改因子表、断语表或场景映射前先运行：
+
+```bash
+make test-functional
+```
 
 ## Accuracy benchmark: `benchmark/mingli160`
 
@@ -63,6 +92,7 @@ make skillup-smoke-naming
 
 ```bash
 make check
+make test-functional
 make test
 make test-engine
 make test-integration

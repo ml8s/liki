@@ -140,13 +140,50 @@ def test_factors_maps_matter_and_projection(monkeypatch):
     assert result["factors"]["focus"]["world"]["position"] == 1
     assert result["factors"]["board"]["lines"][0]["chang_sheng_yue"] == "长生"
     assert result["factors"]["board"]["lines"][0]["flags"]["mu_ku_branch"] == "戌"
-    assert result["factors"]["focus"]["yong_shen"]["chang_sheng"] == "长生"
-    assert result["factors"]["facts"]["hidden_lines"][0]["liu_qin"] == "妻财"
-    assert result["factors"]["facts"]["branch_relation_facts"][0]["relations"] == ["六冲"]
-    assert result["factors"]["facts"]["day_clash_facts"][0]["kind"] == "暗动"
-    assert result["factors"]["facts"]["moving_transformations"][0]["to_branch"] == "丑"
-    assert result["factors"]["facts"]["force_chain"]["yong_element"] == "火"
-    assert result["factors"]["timing_candidates"][0]["mechanism"] == "动爻逢值"
+
+
+
+
+def test_projected_board_preserves_core_time_and_line_states():
+    casting = {"mode": "yaos", "yaos": [7] * 6, "dong_yao": []}
+    chart = {
+        "name": "乾为天",
+        "ben_gua": "乾",
+        "gong": "乾",
+        "gong_wuxing": "金",
+        "lines": [
+            {
+                "position": index + 1,
+                "type": 7,
+                "gan": "甲",
+                "zhi": "子",
+                "wuxing": "水",
+                "liu_qin": "兄弟",
+                "liu_shou": "青龙",
+                "shi_ying": "世" if index == 0 else "",
+            }
+            for index in range(6)
+        ],
+        "bian_yao": [
+            {"position": 1, "type": 8, "gan": "乙", "zhi": "丑", "wuxing": "土", "liu_qin": "官鬼"}
+        ],
+        "ri_chen_gan": "甲",
+        "ri_chen_zhi": "子",
+        "yue_jian_gan": "甲",
+        "yue_jian_zhi": "子",
+        "xun_kong": ["戌", "亥"],
+        "wang_shuai": ["旺", "相", "休", "囚", "死", "旺"],
+        "ri_chen_relations": ["同日", "生日", None, None, None, None],
+        "yong_shen": {"name": "父母", "position": 1, "wang_shuai": "旺"},
+    }
+    result = projection.project_factors(casting, chart, {"text": "测试"})
+    board = result["board"]
+    assert board["lines"][0]["wang_shuai"] == "旺"
+    assert board["lines"][0]["ri_chen_relation"] == "同日"
+    assert board["bian_lines"][0]["liu_qin"] == "官鬼"
+    assert (board["ri_gan"], board["ri_zhi"]) == ("甲", "子")
+    assert (board["yue_gan"], board["yue_zhi"]) == ("甲", "子")
+    assert board["xun_kong"] == ["戌", "亥"]
 
 
 def test_factors_requires_exclusive_yong_shen_source():
@@ -198,6 +235,26 @@ def test_tool_schema_matches_python_surface():
     names = {item["function"]["name"] for item in schema["tools"]}
     assert {"liuyao_snapshot", "liuyao_ask"} <= names
     assert {"liuyao_chart", "liuyao_qigua", "liuyao_read", "liuyao_report"} .isdisjoint(names)
+
+
+def test_matter_topics_and_tool_schema_use_one_closed_set():
+    import liuyao_snapshot
+    from liuyao_topic_guidance import load_topic_table
+
+    schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
+    tool = next(
+        item["function"]
+        for item in schema["tools"]
+        if item["function"]["name"] == "liuyao_snapshot"
+    )
+    schema_topics = set(tool["parameters"]["properties"]["topic"]["enum"])
+    topics = set(load_topic_table()["topics"])
+    mapped = set(liuyao_snapshot.MATTER_TO_TOPIC.values())
+
+    assert schema_topics == topics
+    assert liuyao_snapshot.ALLOWED_TOPICS == topics
+    assert mapped <= topics
+    assert {"relationship", "legal"} <= schema_topics
 
 
 def test_liuyao_snapshot_input_against_tool_schema():

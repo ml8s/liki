@@ -190,11 +190,11 @@ func (p *Chart) evaluate() {
 // -- 双星加会 (Double Star Combination) --------------------------------
 
 type xingJiaHui struct {
-	ShanNum    int    `json:"shan_num"`
-	XiangNum   int    `json:"xiang_num"`
-	Name       string `json:"name"`
-	Meaning    string `json:"meaning"`
-	Auspicious bool   `json:"auspicious"`
+	ShanNum        int    `json:"shan_num"`
+	XiangNum       int    `json:"xiang_num"`
+	Name           string `json:"name"`
+	Meaning        string `json:"meaning"`
+	Classification string `json:"classification"`
 }
 
 func (p *Chart) computeXingJiaHui() [9]xingJiaHui {
@@ -205,11 +205,11 @@ func (p *Chart) computeXingJiaHui() [9]xingJiaHui {
 			result[i] = entry
 		} else {
 			result[i] = xingJiaHui{
-				ShanNum:    pal.MountainStar.Number,
-				XiangNum:   pal.FacingStar.Number,
-				Name:       "星曜加会",
-				Meaning:    "该组合未列入固定通则，须参合星、宫、运与峦头判断",
-				Auspicious: false,
+				ShanNum:        pal.MountainStar.Number,
+				XiangNum:       pal.FacingStar.Number,
+				Name:           "星曜加会",
+				Meaning:        "该组合未列入固定通则，须参合星、宫、运与峦头判断",
+				Classification: "unlisted",
 			}
 		}
 	}

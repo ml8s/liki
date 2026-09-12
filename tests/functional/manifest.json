@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "name": "liki-rule-functional-suite",
+  "description": "规则引擎功能测试：因子、断语、场景与冲突行为。",
+  "sources": {
+    "domain_truth_tables": "../fixtures/domain_oracle",
+    "factors": "factors/cases.json",
+    "assertions": "assertions/cases.json",
+    "scenarios": "scenarios/cases.json",
+    "conflicts": "conflicts/cases.json"
+  },
+  "minimum_counts": {
+    "factors": 44,
+    "assertions": 46,
+    "scenarios": 8,
+    "conflicts": 7
+  },
+  "coverage": {
+    "factor_categories": [
+      "factor_contract",
+      "current_dayun",
+      "guansha",
+      "liunian_relation",
+      "marriage",
+      "palace",
+      "six_relative",
+      "study",
+      "ten_god_structure",
+      "wealth"
+    ],
+    "assertion_domains": [
+      "健康",
+      "性格",
+      "家庭",
+      "婚姻",
+      "事业",
+      "学业",
+      "子女",
+      "财运"
+    ],
+    "assertion_layers": [
+      "natal",
+      "yearly"
+    ],
+    "assertion_sides": [
+      "bazi",
+      "ziwei",
+      "common"
+    ],
+    "assertion_rules": [
+      "五行",
+      "六亲",
+      "子女",
+      "疾厄",
+      "年六亲",
+      "年子女",
+      "年官禄",
+      "年用神",
+      "年神煞",
+      "年十神"
+    ]
+  }
+}

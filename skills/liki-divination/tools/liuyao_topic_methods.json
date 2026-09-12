@@ -22,8 +22,7 @@
       "timing_focus": [
         "moving-value",
         "void-fill",
-        "yuepo-recovery",
-        "changsheng-support"
+        "yuepo-recovery"
       ],
       "common_misjudgments": [
         "兄弟发动不必然破财，须看是否克到用神以及用神旺衰",
@@ -51,8 +50,7 @@
       "timing_focus": [
         "moving-value",
         "static-clash",
-        "void-fill",
-        "changsheng-support"
+        "void-fill"
       ],
       "common_misjudgments": [
         "官鬼旺不一定升迁，须看世爻能否承官以及文书 / 名位是否有力",
@@ -80,8 +78,7 @@
       "timing_focus": [
         "moving-value",
         "void-fill",
-        "static-clash",
-        "changsheng-support"
+        "static-clash"
       ],
       "common_misjudgments": [
         "父母爻旺只是文书 / 名位有气，不等于真实成绩或录取",
@@ -218,6 +215,204 @@
         "世应冲合不能替代证据、程序和法院判断"
       ],
       "boundary": "不构成法律建议；重大争议应咨询律师。"
+    },
+    "general": {
+      "name": "一般问事",
+      "yong_shen": "世爻",
+      "yuan_shen": "生世爻之六亲",
+      "ji_shen": "克世爻之六亲",
+      "chou_shen": "克原神之六亲",
+      "primary_factors": [
+        "yong_shen.wang_shuai",
+        "force_chain",
+        "moving-relation",
+        "world-state"
+      ],
+      "reference_factors": [
+        "liu_shou",
+        "hexagram-name",
+        "branch_relation"
+      ],
+      "timing_focus": [
+        "moving-value",
+        "void-fill",
+        "static-clash"
+      ],
+      "common_misjudgments": [
+        "一般问事须先确认具体目标，不得把世爻状态直接作最终结论",
+        "应爻与世爻关系只描述互动，不替代现实条件"
+      ],
+      "boundary": "缺乏具体目标时先澄清，不输出绝对成败。"
+    },
+    "self": {
+      "name": "自身状态",
+      "yong_shen": "世爻",
+      "yuan_shen": "生世爻之六亲",
+      "ji_shen": "克世爻之六亲",
+      "chou_shen": "克原神之六亲",
+      "primary_factors": [
+        "yong_shen.wang_shuai",
+        "force_chain",
+        "moving-relation",
+        "world-state"
+      ],
+      "reference_factors": [
+        "liu_shou",
+        "hexagram-name",
+        "branch_relation"
+      ],
+      "timing_focus": [
+        "moving-value",
+        "void-fill",
+        "static-clash"
+      ],
+      "common_misjudgments": [
+        "世爻旺不等于身心强健，健康语境须专业医疗",
+        "世爻弱不等于无力，须看原神救应"
+      ],
+      "boundary": "健康、安全与情绪危机以专业帮助为准。"
+    },
+    "other": {
+      "name": "对方或环境",
+      "yong_shen": "应爻",
+      "yuan_shen": "生应爻之六亲",
+      "ji_shen": "克应爻之六亲",
+      "chou_shen": "克原神之六亲",
+      "primary_factors": [
+        "world-other-relation",
+        "yong_shen.wang_shuai",
+        "force_chain",
+        "branch_relation"
+      ],
+      "reference_factors": [
+        "liu_shou",
+        "hexagram-name",
+        "branch_relation"
+      ],
+      "timing_focus": [
+        "moving-value",
+        "void-fill",
+        "static-clash"
+      ],
+      "common_misjudgments": [
+        "应爻只代表所问对象或环境，不自动指特定个人",
+        "应爻强弱不能替代对方真实意愿或事实核查"
+      ],
+      "boundary": "不判断他人私密意愿、忠诚或健康状况。"
+    },
+    "home": {
+      "name": "房产 / 住宅",
+      "yong_shen": "父母",
+      "yuan_shen": "官鬼",
+      "ji_shen": "子孙",
+      "chou_shen": "妻财",
+      "primary_factors": [
+        "yong_shen.wang_shuai",
+        "force_chain",
+        "moving-relation",
+        "world-state"
+      ],
+      "reference_factors": [
+        "liu_shou",
+        "hexagram-name",
+        "branch_relation",
+        "position"
+      ],
+      "timing_focus": [
+        "moving-value",
+        "void-fill",
+        "static-clash"
+      ],
+      "common_misjudgments": [
+        "父母爻旺只说明屋宅文书有气，不等于交易必然成功",
+        "搬家、买卖与产权须核实现实流程"
+      ],
+      "boundary": "产权、贷款、安全与法律事项以专业核查为准。"
+    },
+    "family": {
+      "name": "家庭亲属",
+      "yong_shen": "按具体亲属确认；未明确前以世爻参考",
+      "yuan_shen": "生用神之六亲",
+      "ji_shen": "克用神之六亲",
+      "chou_shen": "克原神之六亲",
+      "primary_factors": [
+        "yong_shen.candidate-selection",
+        "world-other-relation",
+        "force_chain",
+        "branch_relation"
+      ],
+      "reference_factors": [
+        "liu_shou",
+        "hexagram-name",
+        "branch_relation"
+      ],
+      "timing_focus": [
+        "moving-value",
+        "void-fill",
+        "static-clash"
+      ],
+      "common_misjudgments": [
+        "家庭问事先明确具体亲属，不得用性别替代关系",
+        "六亲爻旺衰须与宫位及现实事件合参"
+      ],
+      "boundary": "家庭冲突、监护与安全问题须寻求现实支持。"
+    },
+    "competition": {
+      "name": "竞争 / 合伙",
+      "yong_shen": "兄弟",
+      "yuan_shen": "子孙",
+      "ji_shen": "官鬼",
+      "chou_shen": "父母",
+      "primary_factors": [
+        "world-other-relation",
+        "yong_shen.wang_shuai",
+        "force_chain",
+        "moving-relation"
+      ],
+      "reference_factors": [
+        "liu_shou",
+        "hexagram-name",
+        "branch_relation"
+      ],
+      "timing_focus": [
+        "moving-value",
+        "void-fill",
+        "static-clash"
+      ],
+      "common_misjudgments": [
+        "兄弟爻不必然代表破财或胜利，须分清竞争、合作或分利",
+        "胜负不能替代实力、规则与合同核查"
+      ],
+      "boundary": "重大合作与竞争决策应核查合同、资质和风险。"
+    },
+    "children": {
+      "name": "子女 / 晚辈",
+      "yong_shen": "子孙",
+      "yuan_shen": "兄弟",
+      "ji_shen": "官鬼",
+      "chou_shen": "父母",
+      "primary_factors": [
+        "yong_shen.wang_shuai",
+        "force_chain",
+        "moving-relation",
+        "world-state"
+      ],
+      "reference_factors": [
+        "liu_shou",
+        "hexagram-name",
+        "branch_relation",
+        "position"
+      ],
+      "timing_focus": [
+        "moving-value",
+        "void-fill",
+        "static-clash"
+      ],
+      "common_misjudgments": [
+        "子孙爻旺不必然指向生育，可能是解忧、创作或晚辈事务",
+        "生育、健康与监护须以医疗和现实条件为准"
+      ],
+      "boundary": "孕育、子女健康与监护问题须专业医疗或专业帮助。"
     }
   }
 }

@@ -69,3 +69,46 @@ func TestSurnameSourceTableKeepsClassicPositions(t *testing.T) {
 		}
 	}
 }
+
+func TestFoldLatinSupportsAllMandarinToneMarks(t *testing.T) {
+	tests := map[string]string{
+		"Zhāng":  "zhang",
+		"Zháng":  "zhang",
+		"Zhǎng":  "zhang",
+		"Zhàng":  "zhang",
+		"Lǖ":     "lv",
+		"Lǘ":     "lv",
+		"Lǚ":     "lv",
+		"Lǜ":     "lv",
+		"Lü":     "lu",
+		"Nü":     "nu",
+		"Müller": "muller",
+	}
+	for source, want := range tests {
+		if got := foldLatin(source); got != want {
+			t.Errorf("foldLatin(%q) = %q, want %q", source, got, want)
+		}
+	}
+}
+
+func TestSurnameSourceTokensApplyPinyinUmlautConventionOnlyToCompleteToken(t *testing.T) {
+	tests := map[string][]string{
+		"Lü":     {"lv"},
+		"Nü":     {"nv"},
+		"Lühl":   {"luhl"},
+		"Müller": {"muller"},
+	}
+	for source, want := range tests {
+		got := surnameSourceTokens(source)
+		if len(got) != len(want) {
+			t.Errorf("surnameSourceTokens(%q) = %v, want %v", source, got, want)
+			continue
+		}
+		for index := range want {
+			if got[index] != want[index] {
+				t.Errorf("surnameSourceTokens(%q) = %v, want %v", source, got, want)
+				break
+			}
+		}
+	}
+}

@@ -358,24 +358,42 @@ class TestZiweiPalaceAtomicFacts(unittest.TestCase):
             {"palace": "命宫", "kind": "star", "target": "紫微主星", "star": "紫微"},
             {"palace": "命宫", "kind": "brightness", "target": "庙旺", "star": "文昌", "value": "庙"},
             {"palace": "命宫", "kind": "si_hua", "target": "忌", "star": "贪狼"},
-            {"palace": "子女宫", "kind": "special", "target": "无主星"},
-            {"palace": "夫妻宫", "kind": "special", "target": "唯一主星", "star": "七杀"},
-            {"palace": "夫妻宫", "kind": "star", "target": "煞星", "star": "擎羊"},
+            {"palace": "子女", "kind": "special", "target": "无主星"},
+            {"palace": "夫妻", "kind": "special", "target": "唯一主星", "star": "七杀"},
+            {"palace": "夫妻", "kind": "star", "target": "煞星", "star": "擎羊"},
         ]}}
 
     def test_star_group_brightness_sihua_and_special(self):
         chart = self._chart()
         self.assertEqual(_op("宫含", ["命宫", "紫微"], "male", chart), 1)
-        self.assertEqual(_op("宫含", ["夫妻宫", "煞星"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["夫妻", "煞星"], "male", chart), 1)
         self.assertEqual(_op("宫含", ["命宫", "文昌", "庙旺"], "male", chart), 1)
         self.assertEqual(_op("宫含", ["命宫", "任意", "忌"], "male", chart), 1)
         self.assertEqual(_op("宫含", ["命宫", "贪狼", "忌"], "male", chart), 1)
-        self.assertEqual(_op("宫含", ["子女宫", "无主星"], "male", chart), 1)
-        self.assertEqual(_op("宫含", ["夫妻宫", "七杀", "唯一主星"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["子女", "无主星"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["夫妻", "七杀", "唯一主星"], "male", chart), 1)
 
     def test_missing_fact_is_false(self):
         chart = self._chart()
         self.assertEqual(_op("宫含", ["命宫", "擎羊"], "male", chart), 0)
         self.assertEqual(_op("宫含", ["命宫", "文昌", "落陷"], "male", chart), 0)
         self.assertEqual(_op("宫含", ["命宫", "任意", "禄"], "male", chart), 0)
-        self.assertEqual(_op("宫含", ["夫妻宫", "紫微", "唯一主星"], "male", chart), 0)
+        self.assertEqual(_op("宫含", ["夫妻", "紫微", "唯一主星"], "male", chart), 0)
+
+    def test_any_palace_is_engine_wide_not_a_fake_palace(self):
+        chart = self._chart()
+        self.assertEqual(_op("宫含", ["任意", "贪狼", "忌"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["任意", "紫微"], "male", chart), 1)
+        with self.assertRaises(ValueError):
+            _op("宫含", ["本命", "贪狼", "忌"], "male", chart)
+
+    def test_brightness_condition_filters_requested_star(self):
+        chart = {"ziwei": {"palace_facts": [
+            {"palace": "命宫", "kind": "brightness", "target": "庙旺", "star": "擎羊", "value": "庙"},
+            {"palace": "官禄", "kind": "brightness", "target": "庙旺", "star": "紫微", "value": "庙"},
+            {"palace": "官禄", "kind": "brightness", "target": "紫微主星", "star": "紫微", "value": "庙"},
+        ]}}
+        self.assertEqual(_op("宫含", ["命宫", "文昌", "庙旺"], "male", chart), 0)
+        self.assertEqual(_op("宫含", ["命宫", "擎羊", "庙旺"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["官禄", "紫微主星", "庙旺"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["命宫", "紫微主星", "庙旺"], "male", chart), 0)

@@ -22,8 +22,9 @@ def _pan(**changes):
         "full": {
             **{p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             **_helpers.mock_engine_facts(),
+            "yong_shen": _helpers.mock_yong_shen(),
         },
-        "ziwei": {"gong_wei": []},
+        "ziwei": _helpers.mock_ziwei(),
         "ziwei_daxian": _helpers.valid_daxian(),
     }
     pan.update(changes)
@@ -104,6 +105,21 @@ def test_daxian_must_have_twelve_complete_steps():
         validate_natal_pan(pan, action="test")
 
 
+def test_ziwei_gong_wei_must_use_engine_palace_closure():
+    palaces = [row["name"] for row in _helpers.mock_ziwei()["gong_wei"]]
+    palaces[1] = "兄弟宫"
+    ziwei = {**_helpers.mock_ziwei(), "gong_wei": [
+        {"name": name} for name in palaces
+    ]}
+    with pytest.raises(ValueError, match="engine 宫位闭集"):
+        validate_natal_pan(_pan(ziwei=ziwei), action="test")
+
+    ziwei = _helpers.mock_ziwei()
+    ziwei["palace_facts"] = []
+    with pytest.raises(ValueError, match="palace_facts 不能为空"):
+        validate_natal_pan(_pan(ziwei=ziwei), action="test")
+
+
 def test_engine_fact_fields_required():
     pan = _pan(); pan["full"].pop("ten_god_states")
     with pytest.raises(ValueError, match="ten_god_states"):
@@ -129,6 +145,46 @@ def test_engine_fact_fields_required():
     pan["full"]["da_yun"]["steps"][0].update({"rooted": True})
     pan["full"]["da_yun"]["steps"][0].pop("root_refs")
     with pytest.raises(ValueError, match="root_refs"):
+        validate_natal_pan(pan, action="test")
+
+
+def test_consumed_engine_atomic_facts_are_required():
+    for key in (
+        "officer_killing_cleaned", "wealth_tomb_present", "wealth_star_in_tomb",
+        "spouse_palace_state", "day_branch_type", "year_officer_killing",
+    ):
+        pan = _pan()
+        pan["full"]["atomic_facts"].pop(key)
+        with pytest.raises(ValueError, match=key):
+            validate_natal_pan(pan, action="test")
+
+
+def test_engine_list_fact_item_shapes_are_required():
+    pan = _pan()
+    pan["full"]["relation_groups"] = [{"field": "", "group": "申子辰"}]
+    with pytest.raises(ValueError, match="relation_groups.*field/group"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan()
+    pan["full"]["ten_god_states"] = [{"shi_shen": "比肩"}]
+    with pytest.raises(ValueError, match="ten_god_states.*字符串状态"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan()
+    pan["full"]["element_states"][0]["strength"] = ""
+    with pytest.raises(ValueError, match="element_states.*字符串状态"):
+        validate_natal_pan(pan, action="test")
+
+
+def test_ziwei_palace_atomic_facts_are_required():
+    pan = _pan()
+    pan["ziwei"].pop("palace_facts")
+    with pytest.raises(ValueError, match="palace_facts"):
+        validate_natal_pan(pan, action="test")
+
+    pan = _pan()
+    pan["ziwei"]["palace_facts"] = [{"palace": "命宫"}]
+    with pytest.raises(ValueError, match="palace/kind/target"):
         validate_natal_pan(pan, action="test")
 
 

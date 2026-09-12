@@ -80,6 +80,15 @@ def validate_core(core: dict, snapshot: dict) -> dict:
             errors.append({"field": "evidence_refs", "reason": "unknown ref", "ref": ref})
     if not core.get("evidence_refs"):
         errors.append({"field": "evidence_refs", "reason": "at least one snapshot fact is required"})
+    for field in ("assertion_refs", "timing_refs"):
+        refs = core.get(field, [])
+        if not isinstance(refs, list):
+            errors.append({"field": field, "reason": "must be array"})
+        elif refs:
+            errors.append({
+                "field": field,
+                "reason": "jinhan snapshot has no assertions or timing candidates",
+            })
 
     method_ref = core.get("method_ref")
     method = snapshot.get("method_context") or {}

@@ -85,7 +85,7 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 
 ```json
 {
-  "schema_version": "liuyao-snapshot-v4",
+  "schema_version": "liuyao-snapshot-v5",
   "method": "liuyao",
   "snapshot_digest": "...",
   "question": {},
@@ -106,7 +106,13 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 
 六爻额外包含 `casting`、`board`、`focus`、`evidence`、`facts`、`timing_candidates`、`topic_guidance`、`timing_plan`、`condition_rules`。
 
+六爻 `board` 保留每爻旺衰、日辰关系、月建 / 日辰干支、旬空与变爻投影；解释层不得只看用神而忽略世应与其他爻的状态。
+
 奇门额外包含 `input`、`matter`、`method_context`、`factors`、`special`。
+
+标准奇门 factors 保留局数、阴阳遁、值符星、值使门及落宫；LLM 必须复述这些盘面锚点，不得只按宫位生克临场推断。
+
+黄历事项为受控枚举：嫁娶、领证、开业、签约、搬家、出行、动土、修造、考试、就医、祭祀、扫除、安床、纳财、丧葬。表外事项先确认目标，不得映射成相近事件。
 
 问卦工具运行时显式依赖 `jsonschema>=4,<5`；依赖缺失时 fail closed，不得跳过 snapshot / answer contract 校验。
 
@@ -125,6 +131,7 @@ Snapshot 是某次问卦的 immutable 上下文，包含公共 envelope 和领�
 六爻 conflicts 由 engine 计算；Python 只把 `chart.conflicts` 投影进 snapshot，不在因子层拼生克、真假空破规则。
 
 奇门专占的庚格层级、盗贼角色与天网干位匹配由 engine 计算；Python 只读取 `specialized` 原子事实并补固定方向、范围、宫域与人物投影。
+专占规则是否接受 `matter / yong_shen` 由 `assertions/qimen_rules.csv` 的 `focus_policy` 声明：`none` 表示只读盘面固有因子，`required_matter:<matter>` 表示必须携带指定事象。
 
 ### Answer
 
@@ -136,6 +143,7 @@ Answer 是一次提问的结构化输出，不是自然语言报告本身。
 公共字段包括 `method`、`snapshot_digest`、`message_digest`、`headline`、`verdict`、`confidence`、`timing_refs`、`action`、`boundary`、`disclaimer` 和 `audit`。
 
 Answer 必须引用真实 snapshot / assertion / timing，禁止“必然”“百分百”“保证”等表述。ask 返回前会执行 answer contract 校验。
+标准奇门的 `evidence_refs` 与 `assertion_refs` 使用 disjoint namespace，且 `evidence_refs` 只能指向非空 factors；金函玉镜没有断语表和应期因子，二者不得伪造引用。
 
 ### AuditResult
 

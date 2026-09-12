@@ -26,7 +26,11 @@ def candidate_id(candidate: dict) -> str:
 
 def available_ids(snapshot: dict) -> tuple[set[str], set[str]]:
     factors = snapshot.get("factors", {})
-    evidence_ids = {f"snapshot:{key}" for key in factors}
+    evidence_ids = {
+        f"snapshot:{key}"
+        for key, value in factors.items()
+        if value not in (None, [], {}, "")
+    }
     assertion_ids = {
         f"assertion:{item['id']}"
         for item in (snapshot.get("special") or {}).get("assertions", [])
@@ -38,8 +42,8 @@ def available_ids(snapshot: dict) -> tuple[set[str], set[str]]:
 
 
 def build(snapshot: dict) -> dict:
-    if not isinstance(snapshot, dict) or snapshot.get("schema_version") != "qimen-snapshot-v3":
-        raise ValueError("snapshot must be qimen-snapshot-v3")
+    if not isinstance(snapshot, dict) or snapshot.get("schema_version") != "qimen-snapshot-v4":
+        raise ValueError("snapshot must be qimen-snapshot-v4")
     evidence_ids, timing_ids = available_ids(snapshot)
     method = snapshot.get("method_context", {})
     matter = snapshot.get("matter") or {}
@@ -70,10 +74,12 @@ def validate_core(core: dict, snapshot: dict) -> dict:
         required_text_fields=("headline", "verdict", "action"),
     )
 
-    evidence_ids, timing_ids = available_ids(snapshot)
+    all_ids, timing_ids = available_ids(snapshot)
+    snapshot_ids = {ref for ref in all_ids if ref.startswith("snapshot:")}
+    assertion_ids = {ref for ref in all_ids if ref.startswith("assertion:")}
     for field, allowed in (
-        ("evidence_refs", evidence_ids),
-        ("assertion_refs", evidence_ids),
+        ("evidence_refs", snapshot_ids),
+        ("assertion_refs", assertion_ids),
         ("timing_refs", timing_ids),
     ):
         refs = core.get(field, [])

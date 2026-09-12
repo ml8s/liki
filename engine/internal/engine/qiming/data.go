@@ -92,11 +92,8 @@ func loadNaming() error {
 		if _, exists := charByRune[charRune]; exists {
 			return fmt.Errorf("naming_characters.csv row %d: duplicate character %q", line, word)
 		}
-		// Take the first reading when multiple pinyin values are present.
-		if idx := strings.IndexByte(pinyin, ','); idx >= 0 {
-			pinyin = pinyin[:idx]
-		}
-		pinyin = strings.TrimRight(pinyin, "0123456789·")
+		// Preserve every database reading. The source tone column describes
+		// the first reading and is used for the deterministic tone sequence.
 		character := Character{
 			Char:      word,
 			Frequency: rec[columns["frequency"]],

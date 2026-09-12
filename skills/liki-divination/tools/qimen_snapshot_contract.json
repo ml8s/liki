@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "liki:qimen-snapshot-v3",
+  "$id": "liki:qimen-snapshot-v4",
   "title": "奇门 immutable snapshot 契约",
   "type": "object",
   "additionalProperties": false,
@@ -19,7 +19,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "qimen-snapshot-v3"
+      "const": "qimen-snapshot-v4"
     },
     "method": {
       "const": "qimen"

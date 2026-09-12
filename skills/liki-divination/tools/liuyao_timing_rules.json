@@ -10,8 +10,9 @@
   },
   "required_check": "仍须核对旺衰、空破真假和现实时间范围",
   "target_indicators": {
-    "basis_tokens": ["yong_shen"],
-    "fields": ["position"]
+    "basis_tokens": [
+      "yong_shen"
+    ]
   },
   "blocked_topics": {
     "health_context": {
@@ -40,13 +41,26 @@
     "health_context": "blocked"
   },
   "focus_id_prefixes": {
-    "moving-value": ["moving-value"],
-    "moving-harmony": ["moving-harmony"],
-    "void-fill": ["void-fill"],
-    "static-clash": ["static-clash"],
-    "hidden-release": ["hidden-release"],
-    "yuepo-recovery": ["month-break-value", "month-break-harmony", "month-break-exit"],
-    "changsheng-support": [],
+    "moving-value": [
+      "moving-value"
+    ],
+    "moving-harmony": [
+      "moving-harmony"
+    ],
+    "void-fill": [
+      "void-fill"
+    ],
+    "static-clash": [
+      "static-clash"
+    ],
+    "hidden-release": [
+      "hidden-release"
+    ],
+    "yuepo-recovery": [
+      "month-break-value",
+      "month-break-harmony",
+      "month-break-exit"
+    ],
     "timing-action": []
   }
 }

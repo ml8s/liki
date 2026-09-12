@@ -3,7 +3,7 @@
   "info": {
     "title": "liki-divination 奇门 / 六爻 / 黄历工具",
     "description": "问卦分域 snapshot 与 ask 工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.11.0"
+    "version": "2026.09.12.0"
   },
   "tools": [
     {
@@ -101,14 +101,21 @@
             "topic": {
               "type": "string",
               "enum": [
-                "wealth",
                 "career",
-                "marriage",
-                "study",
+                "children",
+                "competition",
+                "family",
+                "general",
+                "health_context",
+                "home",
+                "legal",
                 "lost_item",
+                "other",
+                "relationship",
+                "self",
+                "study",
                 "travel",
-                "lawsuit",
-                "health_context"
+                "wealth"
               ],
               "description": "可选专题；省略时按 matter 推导"
             }
@@ -302,7 +309,7 @@
                   "const": "liuyao"
                 },
                 "schema_version": {
-                  "const": "liuyao-snapshot-v4"
+                  "const": "liuyao-snapshot-v5"
                 },
                 "snapshot_digest": {
                   "type": "string"
@@ -869,7 +876,7 @@
                   "const": "qimen"
                 },
                 "schema_version": {
-                  "const": "qimen-snapshot-v3"
+                  "const": "qimen-snapshot-v4"
                 },
                 "snapshot_digest": {
                   "type": "string"
@@ -914,6 +921,11 @@
                 "build",
                 "exam",
                 "medical",
+                "sacrifice",
+                "cleaning",
+                "renovation",
+                "bed_install",
+                "income",
                 "funeral"
               ],
               "description": "择日事项；使用规范英文事件名"

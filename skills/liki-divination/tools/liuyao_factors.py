@@ -18,11 +18,8 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     if not isinstance(yong_shen, dict):
         raise ValueError("chart lacks yong_shen object")
 
-    lines = []
-    for line in chart.get("lines", []):
-        if not isinstance(line, dict):
-            raise ValueError("chart lines contains a non-object")
-        lines.append({
+    def project_line(line: dict) -> dict:
+        return {
             "position": line.get("position"),
             "type": line.get("type"),
             "gan_zhi": f"{line.get('gan', '')}{line.get('zhi', '')}",
@@ -31,6 +28,8 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "liu_shou": line.get("liu_shou"),
             "shi_ying": line.get("shi_ying"),
             "chang_sheng_yue": line.get("chang_sheng_yue"),
+            "wang_shuai": line.get("wang_shuai"),
+            "ri_chen_relation": line.get("ri_chen_relation"),
             "flags": {
                 "moving": bool(line.get("dong_self")),
                 "yue_po": bool(line.get("yue_po")),
@@ -41,7 +40,27 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
                 "dong_sheng": bool(line.get("dong_sheng")),
                 "dong_ke": bool(line.get("dong_ke")),
             },
-        })
+        }
+
+    lines = []
+    wang_shuai = chart.get("wang_shuai", []) or []
+    day_relations = chart.get("ri_chen_relations", []) or []
+    for index, line in enumerate(chart.get("lines", [])):
+        if not isinstance(line, dict):
+            raise ValueError("chart lines contains a non-object")
+        lines.append(project_line({
+            **line,
+            "wang_shuai": wang_shuai[index] if index < len(wang_shuai) else None,
+            "ri_chen_relation": (
+                day_relations[index] if index < len(day_relations) else None
+            ),
+        }))
+
+    bian_lines = []
+    for line in chart.get("bian_yao", []) or []:
+        if not isinstance(line, dict):
+            raise ValueError("chart bian_yao contains a non-object")
+        bian_lines.append(project_line(line))
 
     yong_position = yong_shen.get("position")
     yong_line = next(
@@ -201,6 +220,12 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "palace": chart.get("gong"),
             "palace_wuxing": chart.get("gong_wuxing"),
             "lines": lines,
+            "bian_lines": bian_lines,
+            "ri_gan": chart.get("ri_chen_gan"),
+            "ri_zhi": chart.get("ri_chen_zhi"),
+            "yue_gan": chart.get("yue_jian_gan"),
+            "yue_zhi": chart.get("yue_jian_zhi"),
+            "xun_kong": chart.get("xun_kong", []),
         },
         "focus": {
             "yong_shen": yong_shen,

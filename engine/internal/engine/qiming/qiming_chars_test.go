@@ -24,3 +24,16 @@ func TestLookupCharOmitsMissingRadical(t *testing.T) {
 		t.Fatalf("radical = %q, want empty", character.Radical)
 	}
 }
+
+func TestLookupCharPreservesMultipleReadings(t *testing.T) {
+	character := LookupChar("乐")
+	if character == nil {
+		t.Fatal("LookupChar(乐) = nil")
+	}
+	if character.Pinyin != "lè,yuè,yào,lào" {
+		t.Fatalf("pinyin = %q, want all database readings", character.Pinyin)
+	}
+	if character.Tone != 4 {
+		t.Fatalf("tone = %d, want first-reading tone 4", character.Tone)
+	}
+}

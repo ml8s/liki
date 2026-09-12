@@ -45,6 +45,8 @@ def _liuyao_projected():
         "casting": _coin_casting(),
         "board": {
             "name": "乾为天", "ben_gua": "乾", "palace": "乾", "palace_wuxing": "金",
+            "bian_lines": [], "ri_gan": "甲", "ri_zhi": "子",
+            "yue_gan": "甲", "yue_zhi": "子", "xun_kong": ["戌", "亥"],
             "lines": [{
                 "position": index + 1, "type": 7, "gan_zhi": "甲子", "wuxing": "水",
                 "liu_qin": "子孙", "liu_shou": "螣蛇", "shi_ying": "",
@@ -82,7 +84,7 @@ def test_snapshot_envelope_fields_cannot_be_overridden():
     with pytest.raises(ValueError, match="cannot override envelope"):
         divination_snapshot.build_snapshot(
             method="liuyao",
-            schema_version="liuyao-snapshot-v4",
+            schema_version="liuyao-snapshot-v5",
             payload={"method": "qimen"},
         )
 
@@ -90,14 +92,14 @@ def test_snapshot_envelope_fields_cannot_be_overridden():
 def test_snapshot_validate_rejects_wrong_schema_version():
     snapshot = divination_snapshot.build_snapshot(
         method="liuyao",
-        schema_version="liuyao-snapshot-v4",
+        schema_version="liuyao-snapshot-v5",
         payload={"question": {"text": "测试"}},
     )
     with pytest.raises(ValueError, match="schema_version"):
         divination_snapshot.validate_snapshot(
             snapshot,
             method="liuyao",
-            schema_version="liuyao-snapshot-v5",
+            schema_version="liuyao-snapshot-v6",
         )
 
 
@@ -108,12 +110,29 @@ def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
         question="这次面试能不能通过？", mode="coins", matter="career"
     )
     assert result["method"] == "liuyao"
-    assert result["schema_version"] == "liuyao-snapshot-v4"
+    assert result["schema_version"] == "liuyao-snapshot-v5"
     assert result["snapshot_digest"]
     assert result["policy"]["immutable"] is True
     assert "chart" not in result
     assert "solar_time" not in result
     assert result["snapshot_digest"] == divination_snapshot.canonical_digest(result)
+
+
+def test_liuyao_relationship_and_legal_default_topics_resolve(monkeypatch):
+    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
+
+    def fake_factors(**kwargs):
+        return _liuyao_factors(**kwargs)
+
+    monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", fake_factors)
+    for matter, expected in (("relationship", "relationship"), ("legal", "legal")):
+        snapshot = liuyao_snapshot.create(
+            question="这件事怎么看？",
+            matter=matter,
+            perspective="male" if matter == "relationship" else None,
+        )
+        assert snapshot["topic"] == expected
+        assert snapshot["topic_guidance"]["topic"] == expected
 
 
 def test_liuyao_ask_rejects_tampered_snapshot(monkeypatch):
@@ -149,7 +168,7 @@ def test_qimen_snapshot_is_immutable_envelope(monkeypatch):
     monkeypatch.setattr(qimen_snapshot, "qimen_chart", lambda *_, **__: {"matter": None, "chart": _pan()["chart"]})
     result = qimen_snapshot.create(question="该往哪里推进？", city="上海", matter="wealth")
     assert result["method"] == "qimen"
-    assert result["schema_version"] == "qimen-snapshot-v3"
+    assert result["schema_version"] == "qimen-snapshot-v4"
     assert result["snapshot_digest"] == divination_snapshot.canonical_digest(result)
     assert "chart" not in result
     assert result["method_context"]["scope"] == "hour"
@@ -157,7 +176,7 @@ def test_qimen_snapshot_is_immutable_envelope(monkeypatch):
 
 
 def test_qimen_ask_rejects_wrong_method():
-    wrong = {"method": "liuyao", "schema_version": "qimen-snapshot-v3", "snapshot_digest": "x"}
+    wrong = {"method": "liuyao", "schema_version": "qimen-snapshot-v4", "snapshot_digest": "x"}
     with pytest.raises(ValueError, match="snapshot method|qimen_snapshot contract failed"):
         qimen_ask.ask(wrong, message="现在适合行动吗？")
 

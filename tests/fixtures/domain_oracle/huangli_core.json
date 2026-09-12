@@ -57,18 +57,6 @@
         "满"
       ]
     },
-    "open": {
-      "suitable": [
-        "成",
-        "开"
-      ],
-      "forbidden": [
-        "破",
-        "除",
-        "危",
-        "闭"
-      ]
-    },
     "sign": {
       "suitable": [
         "定",
@@ -136,6 +124,58 @@
       "forbidden": [
         "破",
         "开"
+      ]
+    },
+    "sacrifice": {
+      "suitable": [
+        "满"
+      ],
+      "forbidden": [
+        "破"
+      ]
+    },
+    "cleaning": {
+      "suitable": [
+        "除"
+      ],
+      "forbidden": [
+        "破"
+      ]
+    },
+    "renovation": {
+      "suitable": [
+        "平"
+      ],
+      "forbidden": [
+        "破"
+      ]
+    },
+    "bed_install": {
+      "suitable": [
+        "危"
+      ],
+      "forbidden": [
+        "破"
+      ]
+    },
+    "income": {
+      "suitable": [
+        "收"
+      ],
+      "forbidden": [
+        "破"
+      ]
+    },
+    "opening": {
+      "suitable": [
+        "成",
+        "开"
+      ],
+      "forbidden": [
+        "破",
+        "除",
+        "危",
+        "闭"
       ]
     }
   },

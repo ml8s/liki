@@ -5,7 +5,7 @@ import "fmt"
 // ── 门主灶判断 ──
 
 type LayoutResult struct {
-	Group   string        `json:"group"` // 东四宅/西四宅
+	Group   string        `json:"group"` // 东四命/西四命
 	MingGua string        `json:"ming_gua"`
 	Door    doorStoveInfo `json:"door"`
 	Master  doorStoveInfo `json:"master"`
@@ -18,7 +18,7 @@ type doorStoveInfo struct {
 	Wuxing    string `json:"wuxing"`
 	YouXing   string `json:"youxing"`
 	Rating    string `json:"rating"`
-	Group     string `json:"group"` // 东四/西四
+	Group     string `json:"group"` // 东四卦/西四卦
 	Match     string `json:"match"` // 吉/凶(与命卦同组不同组)
 }
 
@@ -53,9 +53,9 @@ func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) (LayoutResult, 
 			return LayoutResult{}, fmt.Errorf("invalid %s %q", slot, gua)
 		}
 	}
-	mgGroup := "东四宅"
+	mgGroup := "东四命"
 	if xiSiGua[mg] {
-		mgGroup = "西四宅"
+		mgGroup = "西四命"
 	}
 
 	door := evalPosition(guaNameToNum(doorGua), mg)
@@ -72,9 +72,9 @@ func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) (LayoutResult, 
 }
 
 func evalPosition(guaNum, mingGua int) doorStoveInfo {
-	group := "东四宅"
+	group := "东四卦"
 	if xiSiGua[guaNum] {
-		group = "西四宅"
+		group = "西四卦"
 	}
 	isMatch := dongSiGua[guaNum] == dongSiGua[mingGua]
 	match := "凶"

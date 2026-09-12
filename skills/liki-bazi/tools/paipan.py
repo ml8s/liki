@@ -24,6 +24,7 @@ from pan_schema import validate_natal_pan
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
+MIN_ENGINE_VERSION = "2026.09.12.0"
 
 
 class RPCError(LikiToolError):
@@ -45,6 +46,33 @@ def call(method: str, params: dict, retries: int = 1) -> dict:
         except (URLError, ConnectionError, TimeoutError, OSError) as e:
             last_err = e
     raise RPCError(f"{method} 失败: {last_err}")
+
+
+def engine_version() -> str:
+    payload = call("rpc.discover", {"methods": "bazi.fullchart"}, retries=0)
+    info = payload.get("info") if isinstance(payload, dict) else None
+    version = info.get("version") if isinstance(info, dict) else None
+    if not isinstance(version, str) or not version:
+        raise RPCError("engine rpc.discover response missing version")
+    return version
+
+
+def _version_key(version: str) -> tuple[int, ...]:
+    try:
+        key = tuple(int(part) for part in version.split("."))
+        return key + (0,) * (4 - len(key))
+    except ValueError as error:
+        raise RPCError(f"engine version is invalid: {version}") from error
+
+
+def ensure_engine_compatible() -> None:
+    """Reject old engines before malformed half pans reach the factor layer."""
+    version = engine_version()
+    if _version_key(version) < _version_key(MIN_ENGINE_VERSION):
+        raise RPCError(
+            f"engine version {version} is incompatible; "
+            f"skill requires engine >= {MIN_ENGINE_VERSION}"
+        )
 
 
 # ── 内部 RPC 封装（full_paipan / liunian 编排用，agent 不直接碰）──

@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "description": "同盘共存、互斥或需显式裁决的命理冲突行为契约。",
+  "cases": [
+    {
+      "id": "conflict_study_pressure_with_relief",
+      "kind": "boundary",
+      "level": "conflict",
+      "side": "bazi",
+      "rule": "财坏印压力下有食伤泄秀",
+      "input": {
+        "snapshot": {
+          "官杀得令": 1,
+          "财坏印": 1,
+          "食伤透": 1
+        }
+      },
+      "expect_assertions": [
+        "xue_206"
+      ],
+      "forbidden_assertions": [
+        "xue_207"
+      ],
+      "basis": "压力与泄秀同见时必须选择有补救的学业断，不得同时输出无补救断。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "conflict_study_pressure_without_relief",
+      "kind": "boundary",
+      "level": "conflict",
+      "side": "bazi",
+      "rule": "财坏印压力下无食伤泄秀",
+      "input": {
+        "snapshot": {
+          "官杀得令": 1,
+          "财坏印": 1,
+          "食伤透": 0
+        }
+      },
+      "expect_assertions": [
+        "xue_207"
+      ],
+      "forbidden_assertions": [
+        "xue_206"
+      ],
+      "basis": "无食伤补救时只能取压力求学、学历中低，不得借泄秀断提升学历。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "conflict_strong_day_master_peer_cycle",
+      "kind": "boundary",
+      "level": "conflict",
+      "side": "bazi",
+      "rule": "身强逢比劫运取竞争破耗",
+      "input": {
+        "snapshot": {
+          "大运十神类": "比劫",
+          "身强弱": "身强"
+        }
+      },
+      "expect_assertions": [
+        "dy_102a"
+      ],
+      "forbidden_assertions": [
+        "dy_102b"
+      ],
+      "basis": "比劫对身强者为分财竞争；不得因大运十神相同而套用身弱得助断。",
+      "domain_rules": [
+        "大运"
+      ]
+    },
+    {
+      "id": "conflict_weak_day_master_peer_cycle",
+      "kind": "boundary",
+      "level": "conflict",
+      "side": "bazi",
+      "rule": "身弱逢比劫运取帮身",
+      "input": {
+        "snapshot": {
+          "大运十神类": "比劫",
+          "身强弱": "身弱"
+        }
+      },
+      "expect_assertions": [
+        "dy_102b"
+      ],
+      "forbidden_assertions": [
+        "dy_102a"
+      ],
+      "basis": "比劫对身弱者有帮身作用；不得机械套用身强破耗断。",
+      "domain_rules": [
+        "大运"
+      ]
+    },
+    {
+      "id": "conflict_father_stable_vs_weak",
+      "kind": "boundary",
+      "level": "conflict",
+      "side": "bazi",
+      "rule": "父星得地旺而不受克时排除弱断",
+      "input": {
+        "snapshot": {
+          "偏财得地": 1,
+          "偏财旺": 1,
+          "偏财弱": 0,
+          "比劫夺财": 0
+        }
+      },
+      "expect_assertions": [
+        "liu_101"
+      ],
+      "forbidden_assertions": [
+        "liu_102",
+        "liu_103"
+      ],
+      "basis": "父星得地而旺且无夺财时，父缘稳定候选成立；弱断与无靠断不得并存。",
+      "domain_rules": [
+        "六亲"
+      ]
+    },
+    {
+      "id": "conflict_strong_seal_damaged_by_wealth",
+      "kind": "boundary",
+      "level": "conflict",
+      "side": "bazi",
+      "rule": "印旺与财坏印同见必须取中断结构",
+      "input": {
+        "snapshot": {
+          "印星旺": 1,
+          "财坏印": 1,
+          "印星弱": 0
+        }
+      },
+      "expect_assertions": [
+        "xue_312"
+      ],
+      "forbidden_assertions": [
+        "xue_311"
+      ],
+      "basis": "印旺给学习机会，财坏印造成中断；该组合不能退化为印弱学历一般。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "conflict_annual_spouse_combination_and_clash",
+      "kind": "boundary",
+      "level": "conflict",
+      "side": "bazi",
+      "rule": "配偶星透、合会与冲同见",
+      "input": {
+        "snapshot": {
+          "流年配偶星透": 1,
+          "流年配偶星合会": 1,
+          "流年配偶星冲": 1
+        }
+      },
+      "expect_assertions": [
+        "ymar_104",
+        "ymar_106",
+        "ymar_107"
+      ],
+      "forbidden_assertions": [
+        "ymar_109"
+      ],
+      "basis": "合会带来聚合引动，冲带来变动；无受克时不得升级为关系受损判断，但聚合与变动必须同报。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    }
+  ]
+}

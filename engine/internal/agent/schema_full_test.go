@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"sort"
 	"testing"
+
+	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 func TestAllMethodsSchema(t *testing.T) {
@@ -75,6 +77,65 @@ func TestAllMethodsSchema(t *testing.T) {
 	for _, name := range names {
 		output := executeAndDecode(t, reg, name, calls[name])
 		assertSchemaAllows(t, name, output["data"], schemas[name], "data")
+		validateResultJSONSchema(t, name, schemas[name], output["data"])
+	}
+}
+
+func validateResultJSONSchema(t *testing.T, name string, schemaDocument any, output any) {
+	t.Helper()
+	compiler := jsonschema.NewCompiler()
+	resource := name + "-result.json"
+	if err := compiler.AddResource(resource, schemaDocument); err != nil {
+		t.Fatalf("%s: add result schema: %v", name, err)
+	}
+	schema, err := compiler.Compile(resource)
+	if err != nil {
+		t.Fatalf("%s: compile result schema: %v", name, err)
+	}
+	if err := schema.Validate(output); err != nil {
+		t.Errorf("%s: result schema validation: %v", name, err)
+	}
+}
+
+func TestFengshuiResultSchemasAreExplicit(t *testing.T) {
+	reg := NewRPCRegistry()
+	schemas := resultDataSchemas(t, reg)
+	for _, name := range []string{"bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian"} {
+		assertClosedObjectSchema(t, name, schemas[name], "$")
+	}
+}
+
+func assertClosedObjectSchema(t *testing.T, method string, schema any, path string) {
+	t.Helper()
+	objectSchema, ok := schema.(map[string]any)
+	if !ok {
+		t.Fatalf("%s %s: expected object schema", method, path)
+	}
+	properties, _ := objectSchema["properties"].(map[string]any)
+	if len(properties) == 0 {
+		t.Fatalf("%s %s: object schema has no properties", method, path)
+	}
+	if objectSchema["additionalProperties"] != false {
+		t.Fatalf("%s %s: object schema is not closed", method, path)
+	}
+	for key, child := range properties {
+		childSchema, ok := child.(map[string]any)
+		if !ok {
+			continue
+		}
+		if childSchema["type"] == "object" {
+			assertClosedObjectSchema(t, method, childSchema, path+"."+key)
+			continue
+		}
+		if childSchema["type"] == "array" {
+			items, ok := childSchema["items"].(map[string]any)
+			if !ok {
+				t.Fatalf("%s %s: array schema lacks object items", method, path+"."+key)
+			}
+			if items["type"] == "object" {
+				assertClosedObjectSchema(t, method, items, path+"."+key+"[]")
+			}
+		}
 	}
 }
 
@@ -113,6 +174,18 @@ func assertSchemaAllows(t *testing.T, method string, value any, schema any, path
 			return
 		}
 		properties, _ := objectSchema["properties"].(map[string]any)
+		if required, ok := objectSchema["required"].([]any); ok {
+			for _, rawKey := range required {
+				key, ok := rawKey.(string)
+				if !ok || key == "" {
+					t.Errorf("%s %s: invalid required key %#v", method, path, rawKey)
+					continue
+				}
+				if _, exists := actual[key]; !exists {
+					t.Errorf("%s %s: required field %q is missing", method, path, key)
+				}
+			}
+		}
 		keys := make([]string, 0, len(actual))
 		for key := range actual {
 			keys = append(keys, key)

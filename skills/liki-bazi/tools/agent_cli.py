@@ -20,7 +20,7 @@ import json
 import os
 import sys
 
-from paipan import full_paipan, city_coords, bond
+from paipan import ensure_engine_compatible, full_paipan, city_coords, bond
 from duanyu import query, yearly_range
 from calibrate import calibrate
 
@@ -61,6 +61,15 @@ _DISPATCH = {
     "bond":         lambda a: bond(a["pan_a"], a["pan_b"]),
 }
 
+_REQUIRED_ARGS = {
+    "city_coords": ("city",),
+    "full_paipan": ("gregorian", "gender"),
+    "query": ("rule", "pan",),
+    "yearly_range": ("pan", "start", "end", "rules"),
+    "calibrate": ("candidates", "events"),
+    "bond": ("pan_a", "pan_b"),
+}
+
 
 def _dispatch(fn: str, args: dict):
     """白名单分派（dict 映射）。args 为参数字典（由 schema 约束，此处直接传函数）。"""
@@ -81,6 +90,12 @@ def main() -> int:
         args = req.get("args", {})
         if not isinstance(args, dict):
             raise ValueError("args must be an object")
+        if fn not in _DISPATCH:
+            raise ValueError(f"unknown tool: {fn}")
+        missing = [key for key in _REQUIRED_ARGS[fn] if key not in args]
+        if missing:
+            raise ValueError(f"missing arg: {', '.join(missing)}")
+        ensure_engine_compatible()
         data = _dispatch(fn, args)
         _emit({"ok": True, "data": data})
     except KeyError as e:

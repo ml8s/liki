@@ -132,13 +132,7 @@ def _liu_handler_flow_star(op: str, args: list, base: dict, gender: str, chart: 
         return 0
     star, palace = str(args[0]), str(args[1])
     for item in (ctx.get('zw_liunian', {}).get('gong_wei', []) or []):
-        engine_name = item.get('name')
-        suffix = const['流年宫名后缀']
-        if engine_name in const['流年宫名不加后缀']:
-            aliases = {engine_name}
-        else:
-            aliases = {engine_name, engine_name + suffix}
-        if palace not in aliases:
+        if palace != item.get('name'):
             continue
         if star in (item.get('xing_yao', []) or []):
             return 1
@@ -293,16 +287,6 @@ def _current_dayun_gz(ctx: dict) -> str:
 def _atomic_facts(ctx: dict) -> dict:
     facts = ctx.get('liunian', {}).get('atomic_facts')
     return facts if isinstance(facts, dict) else {}
-
-
-def _source_ganzhi(src: str, ctx: dict) -> str:
-    """干支来源解析：大运/流年/日柱 → 干支。"""
-    return _source_value(src, ctx, "干支")
-
-
-def _source_gan(src: str, ctx: dict) -> str:
-    """干来源：流年干/大运干/日干。"""
-    return _source_value(src, ctx, "干")
 
 
 def _source_zhi(src: str, ctx: dict) -> str:

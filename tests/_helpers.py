@@ -58,6 +58,33 @@ def mock_engine_facts() -> dict:
     }
 
 
+def mock_yong_shen() -> dict:
+    """构造 bazi.fullchart 用神三派的最小契约片段。"""
+    return {
+        "fu_yi": {
+            "wuxing_count": {"木": 1, "火": 1, "土": 1, "金": 1, "水": 1},
+            "wang_shuai": {"木": "旺", "火": "相", "土": "死", "金": "囚", "水": "休"},
+            "yong": "木", "xi": "水", "ji": "金", "qiangruo": "身强",
+        },
+        "tiao_hou": {"yong": "火", "xi": "木", "ji": "水", "season": "春", "detail": "mock"},
+        "ge_ju": {"yong": "木", "xi": "水", "ji": "金", "ge_ju": "正印格", "yong_fa": "顺用"},
+    }
+
+
+def mock_ziwei() -> dict:
+    """构造 factor 层需要的最小紫微原子事实盘。"""
+    palaces = (
+        "命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄",
+        "迁移", "仆役", "官禄", "田宅", "福德", "父母",
+    )
+    return {
+        "gong_wei": [{"name": palace} for palace in palaces],
+        "palace_facts": [
+            {"palace": "命宫", "kind": "special", "target": "无主星"}
+        ],
+    }
+
+
 def valid_daxian(birth_year: int = 1990):
     """构造引擎 ziwei.daxian 形状的最小 12 段大限。"""
     palaces = (

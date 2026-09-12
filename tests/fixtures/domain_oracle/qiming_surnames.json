@@ -102,6 +102,58 @@
       }
     },
     {
+      "id": "third-tone-pinyin-fold",
+      "source_surname": "Zhǎo",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "赵",
+          "tone": 4,
+          "match_level": "pinyin_exact"
+        }
+      }
+    },
+    {
+      "id": "umlaut-third-tone-pinyin-fold",
+      "source_surname": "Lǚ",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "吕",
+          "tone": 3,
+          "match_level": "pinyin_exact"
+        }
+      }
+    },
+    {
+      "id": "first-tone-pinyin-fold",
+      "source_surname": "Zhāng",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "张",
+          "tone": 1,
+          "match_level": "pinyin_exact"
+        }
+      }
+    },
+    {
+      "id": "umlaut-without-tone-uses-pinyin-v",
+      "source_surname": "Lü",
+      "max_candidates": 3,
+      "expected": {
+        "strategy": "phonetic",
+        "first": {
+          "surname": "吕",
+          "tone": 3,
+          "match_level": "pinyin_exact"
+        }
+      }
+    },
+    {
       "id": "no-close-match-uses-common-fallback",
       "source_surname": "Qwzx",
       "max_candidates": 3,

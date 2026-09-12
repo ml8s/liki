@@ -81,6 +81,8 @@ pan → factors → snap → assertions
 这些字段的命理口径由 engine 单测与 `tests/fixtures/domain_oracle/` 锁定。Python 新增因子时不得重新实现上述推导。
 
 紫微 `宫含` 算子只对 `ziwei.palace_facts` 做 palace / kind / target / star exact match；Python 不再遍历宫位、推导四化落宫、解释亮度分组或计算主星数量。
+本命宫名使用 engine 闭集：`命宫、兄弟、夫妻、子女、财帛、疾厄、迁移、仆役、官禄、田宅、福德、父母`；除命宫外不追加“宫”字。`任意` 只表示跨全部本命宫匹配，不是宫名。
+流年紫微同样消费 engine 宫名闭集；`流曜入宫` 与 `流年宫化` 不做带“宫”字后的显示别名适配。
 
 `ten_god_states.transparent / hidden` 只描述该具体十神；`rooted / timely` 按其五行判定。`ten_god_states.strength` 的口径是：得令，或该具体十神透干且五行通根为 `strong`；失令且该十神不透、五行无根为 `weak`；其余为 `neutral`。同五行的另一十神透干，不会把本十神错误升级为透干有根。`element_states.season_strength` 只表达月令旺相休囚死；`element_states.strength` 是五行聚合态；`controller_strength` 表达受克目标的克者是否旺相。Python 只读取这些结论，不再维护五行生克、天干五行、得令状态或十神旺弱规则表。
 
@@ -88,35 +90,41 @@ pan → factors → snap → assertions
 
 | 口径 | 数量 | 事实源 |
 |---|---:|---|
-| 本命因子 | 459 | `factors.csv` |
-| 本命八字因子 | 179 | `factors.csv` |
+| 本命因子 | 463 | `factors.csv` |
+| 本命八字因子 | 186 | `factors.csv` |
 | 本命紫微因子 | 277 | `factors.csv` |
-| 本命定义组 | 496 | `factors.csv` |
-| 本命数据行 | 559 | `factors.csv` |
-| 本命直通原子 | 46 | `factors.csv` |
-| 本命提取原子 | 295 | `factors.csv` |
-| 本命复合因子 | 118 | `factors.csv` |
+| 本命定义组 | 503 | `factors.csv` |
+| 本命数据行 | 574 | `factors.csv` |
+| 本命直通原子 | 50 | `factors.csv` |
+| 本命提取原子 | 298 | `factors.csv` |
+| 本命复合因子 | 115 | `factors.csv` |
 | 流年因子 | 101 | `factors_liunian.csv` |
 | 流年八字因子 | 69 | `factors_liunian.csv` |
 | 流年紫微因子 | 32 | `factors_liunian.csv` |
 | 流年定义组 | 105 | `factors_liunian.csv` |
 | 流年数据行 | 101 | `factors_liunian.csv` |
 | 流年直通原子 | 4 | `factors_liunian.csv` |
-| 流年提取原子 | 59 | `factors_liunian.csv` |
-| 流年复合因子 | 38 | `factors_liunian.csv` |
+| 流年提取原子 | 58 | `factors_liunian.csv` |
+| 流年复合因子 | 39 | `factors_liunian.csv` |
+
+口径说明：直通因子仅含 direct 表达式；提取因子是单条件组且不引用其他因子；复合因子含多条件组或 factor_ref。
 
 统计由 `tests/test_bazi_model.py` 与表数据同步校验，不需要手工维护第二份清单。
 
 ## 5. 查询契约
 
 `pan_digest` 是 canonical SHA-256 完整性摘要，用于发现误改或手工拼装；当前不承担服务端防伪造签名职责。
+`pan_schema` 要求 `ziwei.gong_wei` 按 engine 12 宫闭集完整输出，`palace_facts` 非空且 palace 名必须落在同一闭集内。
 
-`calibrate.py` 是独立考时工具，编排 `paipan → factors → duanyu`。候选 `correct=true` 必须提供 longitude；`correct=false` 表示已明确时辰，longitude 可省略。`detail=true` 输出机械 evidence；`detail=false` 只保留断语。
+`calibrate.py` 是独立考时工具，编排 `paipan → factors → duanyu`。候选 `correct=true` 必须提供 longitude；`correct=false` 表示已明确时辰，longitude 可省略。`detail=true` 输出机械 evidence；`detail=false` 只保留断语。场景领域过滤只作用于断语，不删除机械 evidence。
+
+考时事件的 `rule` 若是场景别名，同样应用 `场景领域过滤`；例如 `yearly_study` 只保留学业断语，避免用婚姻或财运信号校时。
 
 - `duanyu.query` 只接受本命域；`query_yearly` / `yearly_range` 只接受流年域，`yingqi` 必须通过流年查询。
 - `query(year=...)` 只允许 `大运 / 大限` 限运域；省略 year 时由服务端当前时间推导。
 - 限运域结果附带 `current_year / current_year_source`；显式传 year 时 source 为 `specified`。
 - `query` / `yearly_range` 支持可选 `domains` 过滤器；有效领域来自所选 rule 展开后的断语表。未知领域 fail closed，过滤结果不携带 snapshot evidence。
+- `八字专属域 / 紫微专属域` 只限制对应 bazi / ziwei 断言表；若该域还有 common 断言，`query` 必须同时生成双盘快照，否则跨术数条件会变成死规则。
 - 场景别名可在 `constants.json` 的 `场景领域过滤` 中声明主领域。未显式传 `domains` 时，纯场景查询应用默认领域过滤。
 - `query` / `yearly_range` 只接受 `full_paipan` 完整返回的 pan，拒绝快照、裁剪盘和手工半截盘。
 - `yearly_range` 单次起止年含端点跨度最多 120 年。
@@ -197,6 +205,8 @@ assertion_id,condition_group_id,factor,expected
 - `expected` 按整数优先解析，失败保留字符串。
 - loader 名称格式为 `{side}_{rule}`，例如 `bazi_格局`。
 - 跨术数条件必须写入 `side=common`，并在双盘合并快照上匹配。
+- 命中结果附带 `trace`：命中的 condition group、每个因子 expected / actual。`brief` 不输出 trace；`detail=true` 或直接 `query` 保留完整解释链。
+- common 断语只表达八字与紫微同向证据；无 common 命中时，LLM 只能并列解释两侧结果，不得伪装成已合参。
 
 ## 9. 稳定领域事实
 

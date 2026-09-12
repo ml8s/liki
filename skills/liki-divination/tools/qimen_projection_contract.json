@@ -1,6 +1,6 @@
 {
-  "schema_version": 3,
-  "version": "2026.09.11.0",
+  "schema_version": 4,
+  "version": "2026.09.12.0",
   "fields": {
     "scope": {
       "kind": "scalar",
@@ -11,6 +11,29 @@
     "school": {
       "kind": "scalar",
       "path": "method.school",
+      "type": "string",
+      "required": true
+    },
+    "jushu": {
+      "kind": "scalar",
+      "path": "pan.jushu",
+      "type": "integer",
+      "required": true
+    },
+    "yin_dun": {
+      "kind": "boolean",
+      "path": "pan.yin_dun",
+      "required": true
+    },
+    "duty_star": {
+      "kind": "scalar",
+      "path": "pan.zhi_fu_xing",
+      "type": "string",
+      "required": true
+    },
+    "duty_door": {
+      "kind": "scalar",
+      "path": "pan.zhi_shi_men",
       "type": "string",
       "required": true
     },

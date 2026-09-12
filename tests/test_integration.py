@@ -135,7 +135,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             },
         })
         self.assertEqual(snapshot["method"], "liuyao")
-        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v4")
+        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v5")
         self.assertTrue(snapshot["snapshot_digest"])
         self.assertIn("focus", snapshot)
 
@@ -244,7 +244,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             },
         })
         self.assertEqual(snapshot["method"], "qimen")
-        self.assertEqual(snapshot["schema_version"], "qimen-snapshot-v3")
+        self.assertEqual(snapshot["schema_version"], "qimen-snapshot-v4")
         self.assertIn("method_context", snapshot)
 
         answer = self.call_tool(**{

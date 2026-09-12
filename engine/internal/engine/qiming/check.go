@@ -21,6 +21,9 @@ func EvaluateNames(givenNames []string, yongShen string, xiShen, jiShen []string
 	if err != nil {
 		return nil, err
 	}
+	if err := rejectConflictingWuxing(yongElem, xiElems, jiElems); err != nil {
+		return nil, err
+	}
 
 	results := make([]Evaluation, 0, len(givenNames))
 	for _, givenName := range givenNames {
@@ -118,7 +121,32 @@ func parseWuxingList(field string, values []string) ([]Wuxing, error) {
 		if elem == 0 {
 			return nil, fmt.Errorf("invalid %s value %q", field, value)
 		}
+		for _, existing := range out {
+			if existing == elem {
+				return nil, fmt.Errorf("duplicate %s value %q", field, value)
+			}
+		}
 		out = append(out, elem)
 	}
 	return out, nil
+}
+
+func rejectConflictingWuxing(yong Wuxing, xi, ji []Wuxing) error {
+	contains := func(values []Wuxing, want Wuxing) bool {
+		for _, value := range values {
+			if value == want {
+				return true
+			}
+		}
+		return false
+	}
+	if yong != 0 && (contains(xi, yong) || contains(ji, yong)) {
+		return fmt.Errorf("yongshen must be disjoint with xishen/jishen")
+	}
+	for _, elem := range xi {
+		if contains(ji, elem) {
+			return fmt.Errorf("xishen and jishen must be disjoint")
+		}
+	}
+	return nil
 }

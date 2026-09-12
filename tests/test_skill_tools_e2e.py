@@ -10,6 +10,7 @@ import json
 import subprocess
 import sys
 import unittest
+from unittest import mock
 
 import _helpers  # noqa: F401 —— 提供完整 daxian mock
 from pan_integrity import with_natal_digest
@@ -34,10 +35,16 @@ class TestAgentCliErrorPropagation(unittest.TestCase):
     """agent_cli.py 非法输入 → 错误透传为 JSON（不 crash）。"""
 
     def _run(self, stdin_text):
-        p = subprocess.run(
-            [sys.executable, os.path.join(_TOOLS, "agent_cli.py")],
-            input=stdin_text.encode(), capture_output=True, timeout=30)
-        return json.loads(p.stdout)
+        sys.path.insert(0, _TOOLS)
+        import agent_cli
+        output = {}
+        with mock.patch.object(agent_cli, "ensure_engine_compatible"), \
+             mock.patch("sys.stdin") as stdin, \
+             mock.patch("builtins.print") as printed:
+            stdin.read.return_value = stdin_text
+            agent_cli.main()
+            output = json.loads(printed.call_args.args[0])
+        return output
 
     def test_unknown_tool(self):
         out = self._run('{"fn":"nonexistent","args":{}}')
@@ -74,9 +81,10 @@ class TestQueryWithMockPan(unittest.TestCase):
                 "ri": {"gan": "己", "zhi": "亥"},
                 "shi": {"gan": "庚", "zhi": "午"},
                 **_helpers.mock_engine_facts(),
+            "yong_shen": _helpers.mock_yong_shen(),
             },
             "yongshen": {},
-            "ziwei": {"gong_wei": []},
+            "ziwei": _helpers.mock_ziwei(),
             "ziwei_daxian": _helpers.valid_daxian(),
             "gender": "male",
         }

@@ -15,8 +15,8 @@ from factor_constants import load_constants
 from pan_schema import GENDERS
 from paipan import full_paipan, liunian
 from duanyu import (
-    SCENE_ALIASES, YEARLY_RULES, brief, flow_factor_names,
-    natal_factors_for_flow, query_yearly,
+    SCENE_ALIASES, YEARLY_RULES, brief, default_scene_domains,
+    filter_domains, flow_factor_names, natal_factors_for_flow, query_yearly,
 )
 from yearly_eval import query_year_rules, yearly_snapshot
 
@@ -92,10 +92,13 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
             evidence = {}
             for er in rules:
                 qr = grouped[er]
+                evidence.update(qr.get("evidence", {}) or {})
+                domains = default_scene_domains([e["rule"]])
+                if domains is not None:
+                    qr = filter_domains(qr, domains)
                 for side in side_config["断言代码"]:
                     side_label = side_labels[side]
                     r[side_label] += qr.get(side_label, [])
-                evidence.update(qr.get("evidence", {}) or {})
             if not detail:
                 r = {side: brief(items) for side, items in r.items()}
             else:

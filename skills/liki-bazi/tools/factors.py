@@ -25,10 +25,24 @@ from natal_projection import project_natal_facts
 from factor_tables import load_factor_rows, load_liunian_rows
 
 __all__ = [
+    "evaluate_operator",
     "evaluate_factors", "evaluate_liunian_factors",
     "evaluate_snap_from_pan", "evaluate_liunian_snap_from_pan",
     "prepare_natal_context",
 ]
+
+
+def evaluate_operator(op: str, args, gender: str, chart: dict, *,
+                      ctx: dict | None = None, current_year: int = 0):
+    """执行单个命理算子，作为本命 / 流年算子的公开测试与调用入口。"""
+    if op in _OP_NAMES:
+        return _op(op, args, gender, chart, current_year)
+    if op in _LIU_OP_NAMES:
+        flow_ctx = dict(ctx or {})
+        if current_year:
+            flow_ctx["year"] = current_year
+        return _liu_op(op, args, gender, chart, flow_ctx)
+    raise FactorEvaluateError(f"未知算子: {op}")
 
 def _atomic(col: str, gender, chart, ctx: dict = None, current_year: int = 0):
     """原子执行：列名 "op[arg1,arg2]" → 原语（_op 本命 / _liu_op 流年）。
@@ -39,12 +53,7 @@ def _atomic(col: str, gender, chart, ctx: dict = None, current_year: int = 0):
         args = [int(a) if a.lstrip('-').isdigit() else a for a in argstr.split(',')] if argstr else []
     else:
         op, args = col, []
-    if op in _OP_NAMES:
-        v = _op(op, args, gender, chart, current_year)
-    elif op in _LIU_OP_NAMES:
-        v = _liu_op(op, args, gender, chart, ctx)
-    else:
-        raise FactorEvaluateError(f"未知算子: {op}")
+    v = evaluate_operator(op, args, gender, chart, ctx=ctx, current_year=current_year)
     if isinstance(v, str):
         # 「任意」= 取值模式（直读[ri_gan_wx,任意] 返回五行字符串、宫含[..,任意] 等）——
         # 返回字符串原值供断语约束匹配（如 `日主五行: 木`）；否则按期望值比较返回 0/1

@@ -55,7 +55,7 @@ bazi.chart
 
 ### CharacterFact
 
-字库事实由 `qiming.char` 或 `qiming.check.characters` 返回，包括字、频度分级、五行、现代规范笔画、部首、拼音和声调。LLM 不得修改这些属性，也不得用网络传闻或五格笔画规则覆盖 engine 字库。
+字库事实由 `qiming.char` 或 `qiming.check.characters` 返回，包括字、频度分级、五行、现代规范笔画、部首、拼音和声调。`pinyin` 保留逗号分隔的全部库内读音；`tone` 与 `phonetic.tones` 按第一库内读音生成。多音字必须结合用户意图确认读音，不得只按第一读音解释。LLM 不得修改这些属性，也不得用网络传闻或五格笔画规则覆盖 engine 字库。
 
 ### CharPool
 
@@ -96,6 +96,7 @@ bazi.chart
 - `wuxing.yong / xi / ji`：是否命中传入的五行策略。
 
 invalid 候选必须丢弃或明确标注，不得继续推荐。没有传入五行策略时，`wuxing` 命中字段不可虚构。
+传入的用神、喜神、忌神五行必须互斥；重叠输入由 engine fail closed，不在结果中并列解释。
 
 ## 4. 出处与表达边界
 

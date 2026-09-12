@@ -1,0 +1,335 @@
+{
+  "version": 1,
+  "description": "场景别名与默认领域过滤的行为契约。",
+  "cases": [
+    {
+      "id": "scenario_yearly_study_scope",
+      "kind": "boundary",
+      "level": "scenario",
+      "rule": "学业场景只进入学业域",
+      "input": {
+        "rules": [
+          "yearly_study"
+        ]
+      },
+      "expect_rules": [
+        "年十神",
+        "年神煞",
+        "年用神",
+        "年官禄"
+      ],
+      "forbidden_rules": [
+        "年六亲",
+        "年夫妻",
+        "年子女"
+      ],
+      "expect_domains": [
+        "学业"
+      ],
+      "forbidden_domains": [
+        "婚姻",
+        "事业",
+        "财运",
+        "健康",
+        "子女"
+      ],
+      "basis": "学业查询不应因年六亲/夫妻/子女规则而泄漏婚恋或家庭断语。",
+      "expect_filter": true,
+      "required_assertions": [
+        "yx_101",
+        "yx_102",
+        "yx_205",
+        "yxz_201",
+        "yxz_202",
+        "yxz_203"
+      ]
+    },
+    {
+      "id": "scenario_yearly_career_scope",
+      "kind": "boundary",
+      "level": "scenario",
+      "rule": "事业场景聚焦事业域",
+      "input": {
+        "rules": [
+          "yearly_career"
+        ]
+      },
+      "expect_rules": [
+        "年十神",
+        "年合会",
+        "年用神",
+        "年大运",
+        "年神煞",
+        "年旺衰",
+        "年官禄"
+      ],
+      "forbidden_rules": [
+        "年子女",
+        "年夫妻",
+        "年六亲",
+        "年迁移"
+      ],
+      "expect_domains": [
+        "事业"
+      ],
+      "forbidden_domains": [
+        "婚姻",
+        "学业",
+        "财运",
+        "健康",
+        "子女"
+      ],
+      "basis": "事业场景不应默认输出婚姻、子女或学业断语。",
+      "expect_filter": true,
+      "required_assertions": [
+        "ys_103",
+        "ysz_201"
+      ]
+    },
+    {
+      "id": "scenario_yearly_marriage_scope",
+      "kind": "boundary",
+      "level": "scenario",
+      "rule": "婚姻场景聚焦婚姻域",
+      "input": {
+        "rules": [
+          "yearly_marriage"
+        ]
+      },
+      "expect_rules": [
+        "年六亲",
+        "年神煞",
+        "年合会",
+        "年夫妻"
+      ],
+      "forbidden_rules": [
+        "年用神",
+        "年命宫",
+        "年官禄",
+        "年财帛",
+        "年子女"
+      ],
+      "expect_domains": [
+        "婚姻"
+      ],
+      "forbidden_domains": [
+        "事业",
+        "财运",
+        "学业",
+        "健康",
+        "子女"
+      ],
+      "basis": "婚姻场景不应默认混入事业、财运或子女结论。",
+      "expect_filter": true,
+      "required_assertions": [
+        "ymar_104",
+        "ymz_201"
+      ]
+    },
+    {
+      "id": "scenario_yearly_wealth_scope",
+      "kind": "boundary",
+      "level": "scenario",
+      "rule": "财运场景聚焦财运域",
+      "input": {
+        "rules": [
+          "yearly_wealth"
+        ]
+      },
+      "expect_rules": [
+        "年十神",
+        "年用神",
+        "年合会",
+        "年神煞",
+        "年财帛"
+      ],
+      "forbidden_rules": [
+        "年夫妻",
+        "年官禄",
+        "年子女",
+        "年田宅"
+      ],
+      "expect_domains": [
+        "财运"
+      ],
+      "forbidden_domains": [
+        "婚姻",
+        "事业",
+        "学业",
+        "健康",
+        "子女"
+      ],
+      "basis": "财运场景不应默认输出婚恋、事业或子女断语。",
+      "expect_filter": true,
+      "required_assertions": [
+        "ycai_103",
+        "ycz_201"
+      ]
+    },
+    {
+      "id": "scenario_yearly_health_scope",
+      "kind": "boundary",
+      "level": "scenario",
+      "rule": "健康场景聚焦健康域",
+      "input": {
+        "rules": [
+          "yearly_health"
+        ]
+      },
+      "expect_rules": [
+        "年神煞",
+        "年旺衰",
+        "年合会",
+        "年五行",
+        "年用神",
+        "年十神",
+        "年疾厄",
+        "年福德"
+      ],
+      "forbidden_rules": [
+        "年夫妻",
+        "年子女",
+        "年官禄"
+      ],
+      "expect_domains": [
+        "健康",
+        "精神"
+      ],
+      "forbidden_domains": [
+        "婚姻",
+        "事业",
+        "财运",
+        "学业",
+        "子女"
+      ],
+      "basis": "健康场景不应默认输出婚恋、事业或财运断语。",
+      "expect_filter": true,
+      "required_assertions": [
+        "yj_102",
+        "yjz_201"
+      ]
+    },
+    {
+      "id": "scenario_yearly_family_scope",
+      "kind": "boundary",
+      "level": "boundary",
+      "rule": "家庭场景允许父母兄弟子女等家庭域",
+      "input": {
+        "rules": [
+          "yearly_family"
+        ]
+      },
+      "expect_rules": [
+        "年六亲",
+        "年合会",
+        "年十神",
+        "年父母",
+        "年兄弟",
+        "年子女"
+      ],
+      "forbidden_rules": [
+        "年官禄",
+        "年夫妻",
+        "年疾厄",
+        "年仆役",
+        "年田宅",
+        "年迁移"
+      ],
+      "expect_domains": [
+        "兄弟",
+        "家庭",
+        "父母",
+        "子女"
+      ],
+      "forbidden_domains": [
+        "婚姻",
+        "事业",
+        "财运",
+        "健康"
+      ],
+      "basis": "家庭场景按声明包含家庭、父母、兄弟、子女；不应扩到婚恋、事业或健康。",
+      "expect_filter": true,
+      "required_assertions": [
+        "yliu_101",
+        "ylz_201"
+      ]
+    },
+    {
+      "id": "scenario_yearly_children_scope",
+      "kind": "boundary",
+      "level": "scenario",
+      "rule": "子女场景聚焦子女域",
+      "input": {
+        "rules": [
+          "yearly_zinv"
+        ]
+      },
+      "expect_rules": [
+        "年六亲",
+        "年子女"
+      ],
+      "forbidden_rules": [
+        "年夫妻",
+        "年父母",
+        "年兄弟",
+        "年官禄",
+        "年合会",
+        "年十神"
+      ],
+      "expect_domains": [
+        "子女"
+      ],
+      "forbidden_domains": [
+        "婚姻",
+        "父母",
+        "兄弟",
+        "事业",
+        "财运",
+        "健康"
+      ],
+      "basis": "子女专题不应默认泄漏父母、兄弟、婚恋或事业断语。",
+      "expect_filter": true,
+      "required_assertions": [
+        "yz_101",
+        "yzz_201"
+      ]
+    },
+    {
+      "id": "scenario_yingqi_has_no_default_domain_filter",
+      "kind": "boundary",
+      "level": "scenario",
+      "rule": "应期总览保留全领域，不做默认收窄",
+      "input": {
+        "rules": [
+          "yingqi"
+        ]
+      },
+      "expect_rules": [
+        "年六亲",
+        "年大运",
+        "年旺衰",
+        "年合会",
+        "年用神",
+        "年神煞",
+        "年十神",
+        "年五行",
+        "年命宫",
+        "年官禄",
+        "年财帛",
+        "年疾厄",
+        "年福德",
+        "年夫妻",
+        "年子女",
+        "年田宅",
+        "年迁移",
+        "年兄弟",
+        "年仆役"
+      ],
+      "forbidden_rules": [],
+      "expect_domains": [],
+      "forbidden_domains": [],
+      "basis": "应期总览需要跨域扫描；只有专题场景才应用默认领域过滤。",
+      "expect_filter": false
+    }
+  ]
+}

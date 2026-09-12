@@ -188,9 +188,11 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op == "关系":
         # 关系[field, 组名]——读取引擎完整合会冲刑组。
         field, group = args[0], args[1]
+        relation_groups = (chart.get("full", {}) or {}).get("relation_groups", [])
         return 1 if any(
             item.get("field") == field and item.get("group") == group
-            for item in _atomic_facts(chart).get("relation_groups", [])
+            for item in relation_groups
+            if isinstance(item, dict)
         ) else 0
     if op == "柱刑":
         # 读取 engine 柱位刑伤事实；日支由夫妻宫状态专管。
@@ -292,11 +294,16 @@ def _zw_gong_op(base, chart, args):
     gong_name = args[0]
     star = args[1]
     cond = args[2] if len(args) > 2 else "任意"
+    palaces = set(const["紫微宫位"]) | {"任意"}
+    if gong_name not in palaces:
+        raise FactorEvaluateError(
+            f"宫含宫位无效: {gong_name}; 有效: {sorted(palaces)}"
+        )
     facts = ((chart.get("ziwei") or {}).get("palace_facts") or [])
 
     def hit(kind: str, target: str, star_name: str = "") -> bool:
         return any(
-            fact.get("palace") == gong_name
+            (gong_name == "任意" or fact.get("palace") == gong_name)
             and fact.get("kind") == kind
             and fact.get("target") == target
             and (not star_name or fact.get("star") == star_name)
@@ -312,7 +319,26 @@ def _zw_gong_op(base, chart, args):
     if cond in const.get("紫微宫位特殊条件", {}):
         return 1 if hit("special", cond, star) else 0
     if cond in {"庙旺", "落陷"}:
-        return 1 if hit("brightness", cond) else 0
+        if star == "任意":
+            return 1 if hit("brightness", cond) else 0
+        if star == "紫微主星":
+            main_stars = {
+                fact.get("star")
+                for fact in facts
+                if isinstance(fact, dict)
+                and (gong_name == "任意" or fact.get("palace") == gong_name)
+                and fact.get("kind") == "brightness"
+                and fact.get("target") == "紫微主星"
+            }
+            return 1 if any(
+                (gong_name == "任意" or fact.get("palace") == gong_name)
+                and fact.get("kind") == "brightness"
+                and fact.get("target") == cond
+                and fact.get("star") in main_stars
+                for fact in facts
+                if isinstance(fact, dict)
+            ) else 0
+        return 1 if hit("brightness", cond, star) else 0
     return 1 if hit("star", star) else 0
 def _ten_class(name: str) -> str:
     """具体十神 → 十神大类；无映射时原样返回。"""

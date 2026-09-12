@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 import _helpers  # noqa: F401
-from duanyu import load_table
+from duanyu import load_rule_table
 
 ROOT = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions"
 
@@ -19,8 +19,8 @@ def test_assertion_long_table_counts_and_unique_ids():
     assertions = _rows("assertions.csv")
     conditions = _rows("assertion_conditions.csv")
     ids = [row["assertion_id"] for row in assertions]
-    assert len(assertions) == 775
-    assert len(conditions) == 1119
+    assert len(assertions) == 787
+    assert len(conditions) == 1140
     assert len(ids) == len(set(ids)) == len(assertions)
     assert all(row["side"] in {"bazi", "ziwei", "common"} for row in assertions)
     assert all(row["rule"] for row in assertions)
@@ -37,7 +37,7 @@ def test_all_conditions_reference_known_assertions_and_have_expected():
 
 
 def test_loader_returns_metadata_and_typed_constraints():
-    rows = load_table("bazi_十神.csv")
+    rows = load_rule_table("bazi_十神.csv")
     assert rows
     assert all({
         "id", "领域", "事件类型", "时间层", "事件", "约束组",
@@ -50,13 +50,13 @@ def test_loader_returns_metadata_and_typed_constraints():
 
 
 def test_loader_optional_missing_table_and_required_missing_table():
-    assert load_table("bazi_missing_domain", required=False) == []
+    assert load_rule_table("bazi_missing_domain", required=False) == []
     with pytest.raises(FileNotFoundError):
-        load_table("bazi_missing_domain")
+        load_rule_table("bazi_missing_domain")
 
 
 def test_rule_table_groups_all_sides_and_rules():
-    rows = load_table("bazi_格局.csv")
+    rows = load_rule_table("bazi_格局.csv")
     assert rows
     assert all(row["约束组"] for row in rows)
     assert {row["id"] for row in rows}

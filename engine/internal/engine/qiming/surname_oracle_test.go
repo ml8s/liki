@@ -33,8 +33,8 @@ func TestDomainOracle_SurnameCandidates(t *testing.T) {
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		t.Fatalf("decode oracle: %v", err)
 	}
-	if len(doc.Cases) != 9 {
-		t.Fatalf("cases = %d, want 9", len(doc.Cases))
+	if len(doc.Cases) != 13 {
+		t.Fatalf("cases = %d, want 13", len(doc.Cases))
 	}
 
 	for _, tc := range doc.Cases {

@@ -103,6 +103,10 @@ func TestEvaluateNames_RejectsInvalidConstraints(t *testing.T) {
 		{"yongshen", "风", nil, nil},
 		{"xishen", "", []string{"风"}, nil},
 		{"jishen", "", nil, []string{"风"}},
+		{"duplicate-xishen", "", []string{"木", "木"}, nil},
+		{"yong-in-xishen", "木", []string{"木"}, nil},
+		{"yong-in-jishen", "木", nil, []string{"木"}},
+		{"xi-ji-overlap", "", []string{"木"}, []string{"木"}},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

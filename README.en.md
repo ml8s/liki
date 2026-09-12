@@ -36,7 +36,7 @@ After installation, your AI assistant gains 4 metaphysics skills:
 **What professional standards mean here:**
 
 - Charts are computed by an astronomical engine (true solar time, second-level solar terms) — the AI never invents numbers
-- Judgments come from 775 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
+- Judgments come from 787 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
 - Independently evaluated on 160 competition questions with answer isolation
 
 ## Installation
@@ -159,12 +159,12 @@ Every conclusion carries its basis and classical citation — verify it yourself
 The skill self-checks its version on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
 
 **Self-hosting an engine?**
-Starting with `2026.09.11.0`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
+Starting with `2026.09.12.0`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
 
 ## Why It's Trustworthy
 
 - **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
-- **Sourced judgments** — 47 logical rule groups with 775 assertions, each with a classical-citation column.
+- **Sourced judgments** — 47 logical rule groups with 787 assertions, each with a classical-citation column.
 - **Dual-system cross-check** — BaZi and ZiWei are evaluated separately, with an explicit synthesis layer; conflicts are resolved with explicit evidence.
 - **Auditable process** — divination flows retain casting/charter receipts, snapshots, evidence references, report audits, and session integrity summaries; conclusions trace back to specific steps.
 - **Independent evaluation** — 160 competition questions (MingLi-Bench) for accuracy, plus cross-domain skill-up smoke tests for behavior contracts.
@@ -183,7 +183,7 @@ skills/liki-bazi
 └── tools/      ← tools (6 Python tools + 2 assertion tables + 2 factor tables)
 repo root
 ├── engine/     ← Go JSON-RPC astronomical engine (8 domains)
-├── tests/      ← accuracy benchmark (160 grouped cases) + cross-domain behavior smoke
+├── tests/      ← rule-engine functional tests + accuracy benchmark (160 grouped cases) + cross-domain behavior smoke
 └── scripts/    ← build / distribution index
 ```
 
@@ -205,10 +205,12 @@ Images are auto-published on GitHub Releases (CI full tests → build + push + s
 ### Test Commands
 
 ```bash
+make test-functional           # rule-engine functional tests (factors/assertions/scenarios/conflicts)
 make benchmark-mingli160       # 160-question accuracy benchmark (model required)
 make skillup-smoke-validate    # validate cross-domain behavior contracts (no model)
 make skillup-smoke             # run cross-domain behavior smoke (model required)
 ```
+
 ### Quick Start
 
 ```bash

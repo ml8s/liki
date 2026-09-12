@@ -23,14 +23,38 @@ def _get_path(source: dict, path: str):
     return current
 
 
+def _path_has_any(source: dict, path: str, expected) -> bool:
+    current: object = [source]
+    parts = path.split(".")
+    for index, part in enumerate(parts):
+        if part == "[]":
+            current = [item for sublist in current for item in sublist]
+            continue
+        if part.endswith("[]"):
+            field = part[:-2]
+            current = [
+                item
+                for sublist in current
+                if isinstance(sublist, dict)
+                for item in sublist.get(field, [])
+                if isinstance(item, dict)
+            ]
+            continue
+        if not isinstance(current, list):
+            return False
+        current = [item.get(part) for item in current if isinstance(item, dict)]
+    return expected in current
+
+
 def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, str, list[str]]:
     applies = rule.get("applies_if", {})
     for path, expected in applies.items():
         if path == "topic":
             if topic != expected:
                 return False, "not_applicable", []
-        elif path == "moving_relation.relation":
-            continue
+        elif "[]" in path:
+            if not _path_has_any(snapshot, path, expected):
+                return False, "not_applicable", []
         else:
             if _get_path(snapshot, path) != expected:
                 return False, "not_applicable", []
@@ -38,7 +62,6 @@ def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, st
     state_rules = load_rules()["state_classes"]
     strong = _matches_state_class(snapshot, state_rules["strong"])
     weak = _matches_state_class(snapshot, state_rules["weak"])
-    moving = bool((yong_line.get("flags") or {}).get("moving"))
     missing = []
     if strong:
         branch = rule.get("strong_branch", {})
@@ -46,27 +69,11 @@ def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, st
     if weak:
         branch = rule.get("weak_branch", {})
         return True, "weak", branch.get("requires", missing)
-    if path_has_moving_relation(snapshot, rule):
-        return True, "conditional", ["须核对作用爻旺衰与是否实际作用用神"]
     return True, "conditional", list(missing)
 
 
 def _matches_state_class(snapshot: dict, rule: dict) -> bool:
     return _get_path(snapshot, rule["path"]) in set(rule["values"])
-
-
-def path_has_moving_relation(snapshot: dict, rule: dict) -> bool:
-    applies = rule.get("applies_if", {})
-    expected = applies.get("moving_relation.relation")
-    if not expected:
-        return True
-    for item in snapshot.get("evidence", {}).get("primary", []):
-        if not isinstance(item.get("fact"), dict):
-            continue
-        fact = item.get("fact", {})
-        if fact.get("relation") == expected:
-            return True
-    return False
 
 
 def evaluate(snapshot: dict, topic: str | None = None) -> dict:

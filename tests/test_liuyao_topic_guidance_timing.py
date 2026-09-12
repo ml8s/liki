@@ -51,6 +51,18 @@ def test_timing_ranks_candidates_without_dates():
     )
 
 
+def test_timing_position_alone_is_not_target_evidence():
+    snapshot = {
+        "timing_candidates": [
+            {"id": "with-position", "mechanism": "出月令", "position": 3, "confidence": "candidate"},
+            {"id": "without-position", "mechanism": "出月令", "confidence": "candidate"},
+        ]
+    }
+    result = liuyao_timing.rank_timing_candidates(snapshot, topic="wealth")
+    scores = {item["id"]: item["rank_score"] for item in result["candidates"]}
+    assert scores["with-position"] == scores["without-position"]
+
+
 def test_timing_blocks_health_topic():
     result = liuyao_timing.rank_timing_candidates({"timing_candidates": []}, topic="health_context")
     assert result["blocked"] is True

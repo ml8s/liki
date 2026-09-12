@@ -3,11 +3,13 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
 import _helpers  # noqa: F401
 import duanyu
+import agent_cli
 from errors import (
     AssertionRuleError, FactorEvaluateError, FactorTableError,
     LikiToolError, PanSchemaError, YearRangeError,
@@ -62,15 +64,15 @@ def test_factor_evaluate_error():
 
 
 def test_agent_cli_transports_error_as_json():
-    process = subprocess.run(
-        [sys.executable, str(ROOT / "skills/liki-bazi/tools/agent_cli.py")],
-        input=json.dumps(
+    output = {}
+    with mock.patch.object(agent_cli, "ensure_engine_compatible"), \
+         mock.patch("sys.stdin") as stdin, \
+         mock.patch("builtins.print") as printed:
+        stdin.read.return_value = json.dumps(
             {"fn": "query", "args": {"rule": "十神", "pan": {}}}
-        ).encode(),
-        capture_output=True,
-        timeout=10,
-    )
-    assert process.returncode == 0
-    payload = json.loads(process.stdout)
+        )
+        assert agent_cli.main() == 0
+        output = json.loads(printed.call_args.args[0])
+    payload = output
     assert payload["ok"] is False
     assert "PanSchemaError" in payload["error"]

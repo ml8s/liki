@@ -6,8 +6,8 @@ import pytest
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import factors
 import duanyu
-from duanyu import _current_year, query
-from duanyu import load_table
+from duanyu import resolve_current_year, query
+from duanyu import load_rule_table
 from paipan import RPCError
 
 
@@ -64,19 +64,19 @@ def test_query_rejects_partial_pan(pan) -> None:
 def test_current_year_does_not_fall_back_to_local_time() -> None:
     with mock.patch("paipan.call", side_effect=RPCError("time.now failed")):
         with pytest.raises(RPCError, match="time.now failed"):
-            _current_year()
+            resolve_current_year()
 
 
 def _reset_year_cache() -> None:
-    duanyu._reset_current_year_cache()
+    duanyu.reset_current_year_cache()
 
 
 def test_current_year_caches_success_within_ttl() -> None:
     _reset_year_cache()
     payload = {"data": {"cst": "2026-03-15T12:00:00"}}
     with mock.patch("paipan.call", return_value=payload) as call_mock:
-        assert _current_year() == (2026, "server")
-        assert _current_year() == (2026, "server")
+        assert resolve_current_year() == (2026, "server")
+        assert resolve_current_year() == (2026, "server")
         # TTL 内第二次调用命中缓存
         call_mock.assert_called_once_with("time.now", {})
     _reset_year_cache()
@@ -87,10 +87,10 @@ def test_current_year_cache_expires_and_refetches() -> None:
     payload = {"data": {"cst": "2026-12-31T23:00:00"}}
     with mock.patch("paipan.call", return_value=payload) as call_mock, \
          mock.patch("duanyu.time.monotonic", side_effect=[0.0, 30.0, 61.0]):
-        _current_year()          # 首次：发 RPC
-        _current_year()          # +30s：仍命中
+        resolve_current_year()          # 首次：发 RPC
+        resolve_current_year()          # +30s：仍命中
         assert call_mock.call_count == 1
-        _current_year()          # +61s：过期，重发 RPC
+        resolve_current_year()          # +61s：过期，重发 RPC
         assert call_mock.call_count == 2
     _reset_year_cache()
 
@@ -100,7 +100,7 @@ def test_current_year_failure_not_cached() -> None:
     with mock.patch("paipan.call", side_effect=RPCError("time.now failed")), \
          mock.patch("duanyu.time.monotonic", return_value=0.0):
         with pytest.raises(RPCError):
-            _current_year()
+            resolve_current_year()
         # 失败不写入缓存——下一次仍会再试（不把错误当时间基准缓存）
         assert duanyu._current_year_cached is None
     _reset_year_cache()
@@ -110,14 +110,14 @@ def test_current_year_rejects_missing_cst_and_does_not_cache() -> None:
     _reset_year_cache()
     with mock.patch("paipan.call", return_value={"data": {}}):
         with pytest.raises(ValueError, match="cst"):
-            _current_year()
+            resolve_current_year()
     assert duanyu._current_year_cached is None
 
 
-def test_load_table_missing_required_file_raises() -> None:
-    assert load_table("bazi_missing_domain", required=False) == []
+def test_load_rule_table_missing_required_file_raises() -> None:
+    assert load_rule_table("bazi_missing_domain", required=False) == []
     with pytest.raises(FileNotFoundError, match="missing_domain.csv"):
-        load_table("bazi_missing_domain")
+        load_rule_table("bazi_missing_domain")
 
 
 def test_skill_does_not_silently_default_birth_hour() -> None:

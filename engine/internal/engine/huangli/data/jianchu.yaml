@@ -41,7 +41,7 @@ jianchu:
       label: "领证"
       suitable: ["定", "成"]
       forbidden: ["破", "满"]
-    open:
+    opening:
       label: "开业"
       suitable: ["成", "开"]
       forbidden: ["破", "除", "危", "闭"]
@@ -68,6 +68,26 @@ jianchu:
     medical:
       label: "就医"
       suitable: ["除"]
+      forbidden: ["破"]
+    sacrifice:
+      label: "祭祀"
+      suitable: ["满"]
+      forbidden: ["破"]
+    cleaning:
+      label: "扫除"
+      suitable: ["除"]
+      forbidden: ["破"]
+    renovation:
+      label: "修造"
+      suitable: ["平"]
+      forbidden: ["破"]
+    bed_install:
+      label: "安床"
+      suitable: ["危"]
+      forbidden: ["破"]
+    income:
+      label: "纳财"
+      suitable: ["收"]
       forbidden: ["破"]
     funeral:
       label: "丧葬"

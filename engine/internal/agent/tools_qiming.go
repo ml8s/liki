@@ -107,8 +107,8 @@ const qimingCharacterSchema = `{
 		"wuxing":{"type":"string","enum":["金","木","水","火","土"]},
 		"stroke":{"type":"integer","minimum":1,"description":"现代规范汉字笔画"},
 		"radical":{"type":"string","minLength":1},
-		"pinyin":{"type":"string","minLength":1},
-		"tone":{"type":"integer","minimum":1,"maximum":5}
+		"pinyin":{"type":"string","minLength":1,"description":"逗号分隔的全部库内读音；多音字不得只按第一读音解释"},
+		"tone":{"type":"integer","minimum":1,"maximum":5,"description":"第一库内读音的声调；phonetic.tones 也按第一读音生成"}
 	},
 	"required":["char","frequency","wuxing","stroke","pinyin","tone"]
 }`
@@ -236,8 +236,8 @@ var qimingMethods = []RPCMethod{
 			"properties":{
 				"given_names":{"type":"array","minItems":1,"maxItems":50,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":2},"description":"候选名字列表（不含姓）"},
 				"yongshen":{"type":"string","enum":["木","火","土","金","水"]},
-				"xishen":{"type":"array","maxItems":5,"uniqueItems":true,"items":{"type":"string","enum":["木","火","土","金","水"]}},
-				"jishen":{"type":"array","maxItems":5,"uniqueItems":true,"items":{"type":"string","enum":["木","火","土","金","水"]}}
+				"xishen":{"type":"array","maxItems":5,"uniqueItems":true,"items":{"type":"string","enum":["木","火","土","金","水"]},"description":"喜神五行；须与用神、忌神互斥"},
+				"jishen":{"type":"array","maxItems":5,"uniqueItems":true,"items":{"type":"string","enum":["木","火","土","金","水"]},"description":"忌神五行；须与用神、喜神互斥"}
 			},
 			"required":["given_names"]
 		}`),
@@ -266,7 +266,7 @@ var qimingMethods = []RPCMethod{
 					"phonetic":{
 						"type":"object",
 						"additionalProperties":false,
-						"properties":{"tones":{"type":"string","minLength":1}},
+						"properties":{"tones":{"type":"string","minLength":1,"description":"按 characters.pinyin 第一库内读音生成的声调序列"}},
 						"required":["tones"]
 					},
 					"wuxing":{

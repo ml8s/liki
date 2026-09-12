@@ -1,4 +1,5 @@
 """模块边界：本命事实投影、pan 契约、表加载层不得反向依赖断语层。"""
+import json
 from pathlib import Path
 
 import _helpers  # noqa: F401
@@ -167,10 +168,8 @@ def test_factor_facade_owns_snap_and_error_contract():
 def test_ziwei_gong_matching_is_atomic_not_python_logic():
     operators = _source(operators_natal)
     assert '"palace_facts"' in operators
-    for forbidden in (
-        "紫微亮度分组",
-        "紫微星组别名",
-        "紫微主星",
-    ):
-        assert f'const.get("{forbidden}"' not in operators
-        assert f'const["{forbidden}"]' not in operators
+    constants = json.loads((ROOT / "constants.json").read_text(encoding="utf-8"))
+    assert {
+        "紫微四化条件", "紫微亮度分组", "紫微星组别名"
+    }.isdisjoint(constants)
+    assert 'const["紫微主星"]' not in operators

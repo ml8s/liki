@@ -854,6 +854,26 @@ func TestHandler_QimingChar_StrokeSemantics(t *testing.T) {
 	}
 }
 
+func TestHandler_QimingChar_PreservesMultipleReadings(t *testing.T) {
+	r := NewRPCRegistry()
+	result, err := r.Execute(context.Background(), "qiming.char", json.RawMessage(`{"char":"乐"}`))
+	if err != nil {
+		t.Fatalf("qiming.char: %v", err)
+	}
+	var env struct {
+		Data struct {
+			Pinyin string `json:"pinyin"`
+			Tone   int    `json:"tone"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(result, &env); err != nil {
+		t.Fatal(err)
+	}
+	if env.Data.Pinyin != "lè,yuè,yào,lào" || env.Data.Tone != 4 {
+		t.Fatalf("char result = %+v, want all readings and first-reading tone", env.Data)
+	}
+}
+
 func TestHandler_QimingChar_Errors(t *testing.T) {
 	r := NewRPCRegistry()
 	for name, params := range map[string]string{
@@ -1122,6 +1142,23 @@ func TestHandler_QimingCheck_RejectsUnknownParameter(t *testing.T) {
 	}
 }
 
+func TestHandler_QimingCheck_RejectsConflictingWuxingConstraints(t *testing.T) {
+	tests := map[string]string{
+		"duplicate-xi": `{"given_names":["林炎"],"xishen":["木","木"]}`,
+		"yong-xi":      `{"given_names":["林炎"],"yongshen":"木","xishen":["木"]}`,
+		"yong-ji":      `{"given_names":["林炎"],"yongshen":"木","jishen":["木"]}`,
+		"xi-ji":        `{"given_names":["林炎"],"xishen":["木"],"jishen":["木"]}`,
+	}
+	for name, params := range tests {
+		t.Run(name, func(t *testing.T) {
+			r := NewRPCRegistry()
+			if _, err := r.Execute(context.Background(), "qiming.check", json.RawMessage(params)); err == nil {
+				t.Fatal("expected conflicting wuxing constraints to fail")
+			}
+		})
+	}
+}
+
 // =============================================================================
 // tianwen.time
 // =============================================================================
@@ -1360,6 +1397,19 @@ func TestHandler_XuankongLiunian_RejectsTamperedChart(t *testing.T) {
 	))
 	if err == nil || !strings.Contains(err.Error(), "digest mismatch") {
 		t.Fatalf("error = %v, want chart digest mismatch", err)
+	}
+}
+
+func TestHandler_XuankongLiunian_RejectsDigestOnlyChart(t *testing.T) {
+	r := NewRPCRegistry()
+	_, err := r.Execute(context.Background(), "xuankong.liunian", json.RawMessage(
+		`{"chart":{"chart_digest":"0000000000000000000000000000000000000000000000000000000000000000"},"year":2026}`,
+	))
+	if err == nil {
+		t.Fatal("expected digest-only chart to fail schema validation")
+	}
+	if !strings.Contains(err.Error(), "missing properties") {
+		t.Fatalf("error = %v, want full-chart schema validation", err)
 	}
 }
 

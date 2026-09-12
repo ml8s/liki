@@ -1,0 +1,1065 @@
+{
+  "version": 1,
+  "description": "因子组合后的断语行为契约。期望与禁止结论独立维护。",
+  "cases": [
+    {
+      "id": "assertion_health_missing_wood_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "五行缺木对应肝胆筋骨目偏弱",
+      "input": {
+        "snapshot": {
+          "缺木": 1
+        }
+      },
+      "expect_assertions": [
+        "jk_101"
+      ],
+      "forbidden_assertions": [
+        "jk_102",
+        "jk_103",
+        "jk_104",
+        "jk_111"
+      ],
+      "basis": "木主肝、胆、筋骨、目；缺木时只应触发木系健康取象。",
+      "domain_rules": [
+        "五行"
+      ]
+    },
+    {
+      "id": "assertion_health_missing_wood_negative",
+      "kind": "negative",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "木不缺时不得触发缺木健康断语",
+      "input": {
+        "snapshot": {
+          "缺木": 0
+        }
+      },
+      "expect_assertions": [],
+      "forbidden_assertions": [
+        "jk_101"
+      ],
+      "basis": "缺木因子不成立时，不能输出肝胆筋骨偏弱候选。",
+      "domain_rules": [
+        "五行"
+      ]
+    },
+    {
+      "id": "assertion_personality_wood_day_master_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "木日主取仁慈温和",
+      "input": {
+        "snapshot": {
+          "日主五行": "木"
+        }
+      },
+      "expect_assertions": [
+        "xg_101"
+      ],
+      "forbidden_assertions": [
+        "xg_102",
+        "xg_103",
+        "xg_104",
+        "xg_105"
+      ],
+      "basis": "木主仁；日主五行为木时只应触发木性取象。",
+      "domain_rules": [
+        "五行"
+      ]
+    },
+    {
+      "id": "assertion_personality_water_day_master_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "水日主取智巧思变",
+      "input": {
+        "snapshot": {
+          "日主五行": "水"
+        }
+      },
+      "expect_assertions": [
+        "xg_105"
+      ],
+      "forbidden_assertions": [
+        "xg_101",
+        "xg_102",
+        "xg_103",
+        "xg_104"
+      ],
+      "basis": "水主智；日主五行为水时只应触发水性取象。",
+      "domain_rules": [
+        "五行"
+      ]
+    },
+    {
+      "id": "assertion_father_supported_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "偏财得地旺而不受比劫夺",
+      "input": {
+        "snapshot": {
+          "偏财得地": 1,
+          "偏财旺": 1,
+          "比劫夺财": 0
+        }
+      },
+      "expect_assertions": [
+        "liu_101"
+      ],
+      "forbidden_assertions": [
+        "liu_102",
+        "liu_103"
+      ],
+      "basis": "偏财为父星，得地而旺主父缘与资源支撑较稳；无比劫夺财时不应转弱。",
+      "domain_rules": [
+        "六亲"
+      ]
+    },
+    {
+      "id": "assertion_father_weak_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "偏财弱另取父星弱",
+      "input": {
+        "snapshot": {
+          "偏财弱": 1
+        }
+      },
+      "expect_assertions": [
+        "liu_102"
+      ],
+      "forbidden_assertions": [
+        "liu_101"
+      ],
+      "basis": "偏财弱是独立的父星弱候选，不能同时套用得地旺断。",
+      "domain_rules": [
+        "六亲"
+      ]
+    },
+    {
+      "id": "assertion_father_not_grounded_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "偏财不得地另取父星无靠",
+      "input": {
+        "snapshot": {
+          "偏财得地": 0
+        }
+      },
+      "expect_assertions": [
+        "liu_103"
+      ],
+      "forbidden_assertions": [
+        "liu_101"
+      ],
+      "basis": "偏财不得地时缺少资源支撑证据，不应套用得地断。",
+      "domain_rules": [
+        "六亲"
+      ]
+    },
+    {
+      "id": "assertion_wealth_peers_robbing_weak_wealth_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "比劫旺而财星弱",
+      "input": {
+        "snapshot": {
+          "比劫旺": 1,
+          "财星弱": 1
+        }
+      },
+      "expect_assertions": [
+        "cai_102"
+      ],
+      "forbidden_assertions": [
+        "cai_104"
+      ],
+      "basis": "比劫分财而财星弱，取财难积存；并非财多身弱。",
+      "domain_rules": [
+        "旺衰"
+      ]
+    },
+    {
+      "id": "assertion_wealth_rich_but_weak_day_master_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "财旺身弱且财无根时取富屋贫人",
+      "input": {
+        "snapshot": {
+          "财星旺": 1,
+          "身强弱": "身弱",
+          "财星透根": 0
+        }
+      },
+      "expect_assertions": [
+        "cai_104"
+      ],
+      "forbidden_assertions": [
+        "cai_102"
+      ],
+      "basis": "财旺而身弱不任财是富屋贫人；比劫旺财弱的条件未成立。",
+      "domain_rules": [
+        "旺衰"
+      ]
+    },
+    {
+      "id": "assertion_wealth_unfavorable_god_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "财星为忌主求财辛苦",
+      "input": {
+        "snapshot": {
+          "财星为忌": 1
+        }
+      },
+      "expect_assertions": [
+        "cai_305"
+      ],
+      "forbidden_assertions": [],
+      "basis": "财为忌神时见财易成负担，不能因财星出现即断得财。",
+      "domain_rules": [
+        "用神"
+      ]
+    },
+    {
+      "id": "assertion_career_secondary_resource_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "偏印旺主研究谋划",
+      "input": {
+        "snapshot": {
+          "偏印旺": 1
+        }
+      },
+      "expect_assertions": [
+        "zy_101"
+      ],
+      "forbidden_assertions": [
+        "zy_102"
+      ],
+      "basis": "偏印旺的作业性质不同于食伤泄秀，不应误取食伤事业断。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_career_output_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "食伤旺而无正财牵制",
+      "input": {
+        "snapshot": {
+          "食伤旺": 1,
+          "正财旺": 0
+        }
+      },
+      "expect_assertions": [
+        "zy_102"
+      ],
+      "forbidden_assertions": [
+        "zy_101"
+      ],
+      "basis": "食伤旺主技艺表达；无正财牵制时才取此向。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_marriage_stable_spouse_star_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "男命配偶星透而不受损",
+      "input": {
+        "snapshot": {
+          "配偶星透": 1,
+          "配偶星受克": 0,
+          "大运配偶星": 0,
+          "寡宿": 0,
+          "夫妻宫被冲": 0,
+          "性别": "male"
+        }
+      },
+      "expect_assertions": [
+        "hun_101"
+      ],
+      "forbidden_assertions": [],
+      "basis": "配偶星显而受克、冲破、孤辰寡宿均未成立，取婚缘较稳候选。",
+      "domain_rules": [
+        "大运"
+      ]
+    },
+    {
+      "id": "assertion_marriage_damaged_spouse_star_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "男命配偶星透但受克且夫妻宫破",
+      "input": {
+        "snapshot": {
+          "配偶星透": 1,
+          "配偶星受克": 1,
+          "夫妻宫破": 1,
+          "性别": "male"
+        }
+      },
+      "expect_assertions": [
+        "hun_102"
+      ],
+      "forbidden_assertions": [],
+      "basis": "配偶星显而受克并见夫妻宫破，婚缘受损，不能只取显达一面。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_female_without_spouse_star_but_strong_hurting_officer",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "女命官杀不现而伤官旺",
+      "input": {
+        "snapshot": {
+          "性别": "female",
+          "配偶星现": 0,
+          "伤官旺": 1,
+          "伤官克官": 0
+        }
+      },
+      "expect_assertions": [
+        "hun_204"
+      ],
+      "forbidden_assertions": [],
+      "basis": "官杀不现时没有本命克官目标，只能以伤官旺描述岁运见官后的潜在阻力。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_study_weak_seal_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "印星弱主学途受阻",
+      "input": {
+        "snapshot": {
+          "印星弱": 1
+        }
+      },
+      "expect_assertions": [
+        "xue_311"
+      ],
+      "forbidden_assertions": [
+        "xue_312"
+      ],
+      "basis": "印弱主文书学习受阻；不满足印旺而财坏印的中断结构。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_study_strong_seal_damaged_by_wealth_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "印星旺但财坏印",
+      "input": {
+        "snapshot": {
+          "印星旺": 1,
+          "财坏印": 1
+        }
+      },
+      "expect_assertions": [
+        "xue_312"
+      ],
+      "forbidden_assertions": [
+        "xue_311"
+      ],
+      "basis": "印旺主有入学机会，财坏印主中途受损；不能简化为印弱学历一般。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_study_pressure_relieved_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "财坏印遇官杀得令且有食伤泄秀",
+      "input": {
+        "snapshot": {
+          "官杀得令": 1,
+          "财坏印": 1,
+          "食伤透": 1
+        }
+      },
+      "expect_assertions": [
+        "xue_206"
+      ],
+      "forbidden_assertions": [
+        "xue_207"
+      ],
+      "basis": "同见压力与泄秀时取学可至中学；无泄秀才取压力求学。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_study_pressure_without_relief_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "财坏印遇官杀得令但无食伤泄秀",
+      "input": {
+        "snapshot": {
+          "官杀得令": 1,
+          "财坏印": 1,
+          "食伤透": 0
+        }
+      },
+      "expect_assertions": [
+        "xue_207"
+      ],
+      "forbidden_assertions": [
+        "xue_206"
+      ],
+      "basis": "压力无泄秀化解时取学历中低；不得误取有食伤补救的一支。",
+      "domain_rules": [
+        "十神"
+      ]
+    },
+    {
+      "id": "assertion_annual_marriage_combination_with_transparent_star_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年配偶星合会且透干",
+      "input": {
+        "snapshot": {
+          "流年配偶星合会": 1,
+          "流年配偶星透": 1
+        }
+      },
+      "expect_assertions": [
+        "ymar_104",
+        "ymar_106"
+      ],
+      "forbidden_assertions": [
+        "ymar_107",
+        "ymar_109"
+      ],
+      "basis": "配偶星合会并透干有婚动或成婚候选；冲、克未成立时不得取婚变。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_marriage_combination_without_transparent_star_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年配偶星合会但不透干",
+      "input": {
+        "snapshot": {
+          "流年配偶星合会": 1,
+          "流年配偶星透": 0
+        }
+      },
+      "expect_assertions": [
+        "ymar_106"
+      ],
+      "forbidden_assertions": [
+        "ymar_104"
+      ],
+      "basis": "仅有合会只能取感情聚合或恋爱引动；成婚候选需要透干等实据。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_marriage_clash_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年配偶星冲夫妻宫",
+      "input": {
+        "snapshot": {
+          "流年配偶星冲": 1
+        }
+      },
+      "expect_assertions": [
+        "ymar_107"
+      ],
+      "forbidden_assertions": [
+        "ymar_109"
+      ],
+      "basis": "冲主变动；缺配偶星受克时不得升级为亲密关系受损判断。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_marriage_clash_and_control_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年配偶星冲且受克",
+      "input": {
+        "snapshot": {
+          "流年配偶星冲": 1,
+          "流年配偶星克": 1
+        }
+      },
+      "expect_assertions": [
+        "ymar_109"
+      ],
+      "forbidden_assertions": [],
+      "basis": "冲与受克同见时取关系受损或婚变候选；不能只取普通变动。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_study_unfavorable_stem_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年忌神透干主学业受阻",
+      "input": {
+        "snapshot": {
+          "流年干忌神": 1
+        }
+      },
+      "expect_assertions": [
+        "yx_101"
+      ],
+      "forbidden_assertions": [
+        "yx_102",
+        "yx_205"
+      ],
+      "basis": "忌神透干主阻力；未同时出现财坏印或驿马时不得混入同类学业断。",
+      "domain_rules": [
+        "年用神",
+        "年十神",
+        "年神煞",
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_study_wealth_damages_resource_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年财坏印主考试失利",
+      "input": {
+        "snapshot": {
+          "流年财坏印": 1
+        }
+      },
+      "expect_assertions": [
+        "yx_102"
+      ],
+      "forbidden_assertions": [
+        "yx_101",
+        "yx_206"
+      ],
+      "basis": "财坏印专指学术文书受损；与本命母星透出的升学引动不同。",
+      "domain_rules": [
+        "年用神",
+        "年十神",
+        "年神煞",
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_study_official_palace_power_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "ziwei",
+      "rule": "流年官禄化权利于竞争",
+      "input": {
+        "snapshot": {
+          "流年官禄宫权": 1
+        }
+      },
+      "expect_assertions": [
+        "yxz_202"
+      ],
+      "forbidden_assertions": [
+        "yxz_201",
+        "yxz_203"
+      ],
+      "basis": "官禄化权主竞争得势；不得误取化科平稳或化忌挫折。",
+      "domain_rules": [
+        "年官禄"
+      ]
+    },
+    {
+      "id": "assertion_children_star_grounded_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "子女星得地而无枭印夺食",
+      "input": {
+        "snapshot": {
+          "子女星得地": 1,
+          "印星旺": 0
+        }
+      },
+      "expect_assertions": [
+        "zv_103"
+      ],
+      "forbidden_assertions": [
+        "zv_201"
+      ],
+      "basis": "子女星得地而印星不旺，子女缘较稳；不满足枭印克食伤的受阻结构。",
+      "domain_rules": [
+        "六亲"
+      ]
+    },
+    {
+      "id": "assertion_children_seal_controls_output_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "枭印旺而食伤现",
+      "input": {
+        "snapshot": {
+          "印星旺": 1,
+          "食伤现": 1
+        }
+      },
+      "expect_assertions": [
+        "zv_201"
+      ],
+      "forbidden_assertions": [
+        "zv_103"
+      ],
+      "basis": "枭印克食伤时取子女缘波折；与子女星得地稳定断不得混同。",
+      "domain_rules": [
+        "六亲"
+      ]
+    },
+    {
+      "id": "assertion_children_female_output_star_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "女命食伤重取子女缘",
+      "input": {
+        "snapshot": {
+          "食伤旺": 1,
+          "性别": "female"
+        }
+      },
+      "expect_assertions": [
+        "zv_106b"
+      ],
+      "forbidden_assertions": [],
+      "basis": "女命以食伤为子女星；性别是门控条件，不得脱离性别套用。",
+      "domain_rules": [
+        "六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_children_star_transparent_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年子女星透干为生育候选",
+      "input": {
+        "snapshot": {
+          "流年子女星透": 1
+        }
+      },
+      "expect_assertions": [
+        "yz_101"
+      ],
+      "forbidden_assertions": [
+        "yz_102",
+        "yz_103"
+      ],
+      "basis": "子女星透干只是生育信号；受克或合会未成立时不得混入对应断语。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_children_star_controlled_negative",
+      "kind": "negative",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年子女星受克另取风险候选",
+      "input": {
+        "snapshot": {
+          "流年子女星克": 1
+        }
+      },
+      "expect_assertions": [
+        "yz_102"
+      ],
+      "forbidden_assertions": [
+        "yz_101"
+      ],
+      "basis": "子女星受克取孕产或亲子关系风险；不能同时套用单纯透干生育信号。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_annual_children_star_and_palace_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "rule": "流年子女星值宫且透干",
+      "input": {
+        "snapshot": {
+          "流年子女星值宫": 1,
+          "流年子女星透": 1
+        }
+      },
+      "expect_assertions": [
+        "yz_101",
+        "yz_110"
+      ],
+      "forbidden_assertions": [],
+      "basis": "星与宫同动加强生育实据候选；单纯透干信号仍成立，但二者口径不同。",
+      "domain_rules": [
+        "年六亲"
+      ]
+    },
+    {
+      "id": "assertion_ziwei_health_major_risk_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "ziwei",
+      "domain_rules": [
+        "疾厄"
+      ],
+      "rule": "疾厄宫主星陷且化忌",
+      "input": {
+        "snapshot": {
+          "疾厄宫主星陷": 1,
+          "疾厄宫化忌": 1
+        }
+      },
+      "expect_assertions": [
+        "zw_101",
+        "zw_601"
+      ],
+      "forbidden_assertions": [],
+      "basis": "紫微疾厄宫化忌又逢主星落陷，才升级为健康重大风险；单纯化忌只能作隐患候选。"
+    },
+    {
+      "id": "assertion_ziwei_health_taboo_without_fallen_star_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "ziwei",
+      "domain_rules": [
+        "疾厄"
+      ],
+      "rule": "疾厄宫化忌但主星不陷",
+      "input": {
+        "snapshot": {
+          "疾厄宫主星陷": 0,
+          "疾厄宫化忌": 1
+        }
+      },
+      "expect_assertions": [
+        "zw_601"
+      ],
+      "forbidden_assertions": [
+        "zw_101"
+      ],
+      "basis": "化忌未逢主星落陷时只取脏腑健康隐患候选，不得升级为重大风险。"
+    },
+    {
+      "id": "assertion_ziwei_children_palace_taboo_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "ziwei",
+      "domain_rules": [
+        "子女"
+      ],
+      "rule": "子女宫化忌",
+      "input": {
+        "snapshot": {
+          "子女宫化忌": 1
+        }
+      },
+      "expect_assertions": [
+        "zv_105"
+      ],
+      "forbidden_assertions": [
+        "zv_107"
+      ],
+      "basis": "子女宫化忌主子女缘薄或操心；吉煞并存条件未成立时不得混入成败互见断。"
+    },
+    {
+      "id": "assertion_ziwei_children_auspicious_and_malefic_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "ziwei",
+      "domain_rules": [
+        "子女"
+      ],
+      "rule": "子女宫吉星与煞星并存",
+      "input": {
+        "snapshot": {
+          "子女宫吉星": 1,
+          "子女宫煞": 1
+        }
+      },
+      "expect_assertions": [
+        "zv_107"
+      ],
+      "forbidden_assertions": [
+        "zv_101",
+        "zv_102",
+        "zv_104"
+      ],
+      "basis": "吉煞并存取子女缘可得但波折；不得简化为纯吉、纯煞或空宫。"
+    },
+    {
+      "id": "assertion_annual_ziwei_children_lu_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "ziwei",
+      "domain_rules": [
+        "年子女"
+      ],
+      "rule": "流年子女宫化禄",
+      "input": {
+        "snapshot": {
+          "流年子女宫禄": 1
+        }
+      },
+      "expect_assertions": [
+        "yzz_201"
+      ],
+      "forbidden_assertions": [
+        "yzz_202"
+      ],
+      "basis": "流年子女宫化禄为生育引动候选；化忌未成立时不得取孕产风险。"
+    },
+    {
+      "id": "assertion_annual_ziwei_children_ji_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "ziwei",
+      "domain_rules": [
+        "年子女"
+      ],
+      "rule": "流年子女宫化忌",
+      "input": {
+        "snapshot": {
+          "流年子女宫忌": 1
+        }
+      },
+      "expect_assertions": [
+        "yzz_202"
+      ],
+      "forbidden_assertions": [
+        "yzz_201"
+      ],
+      "basis": "流年子女宫化忌取孕产、健康或亲子关系风险；不得同取化禄生育引动。"
+    },
+    {
+      "id": "assertion_common_annual_wealth_opportunity_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "common",
+      "domain_rules": [
+        "年神煞"
+      ],
+      "rule": "流年天乙贵人与迁移宫化禄同见",
+      "input": {
+        "snapshot": {
+          "流年神煞天乙贵人": 1,
+          "流年迁移宫禄": 1
+        }
+      },
+      "expect_assertions": [
+        "ycai_120"
+      ],
+      "forbidden_assertions": [],
+      "basis": "八字神煞贵人提供人助，紫微迁移禄主异地得利；两系统证据同见才合参为异地机遇得财。"
+    },
+    {
+      "id": "assertion_common_annual_wealth_missing_migration_negative",
+      "kind": "negative",
+      "level": "assertion",
+      "side": "common",
+      "domain_rules": [
+        "年神煞"
+      ],
+      "rule": "只有天乙贵人而迁移宫无禄",
+      "input": {
+        "snapshot": {
+          "流年神煞天乙贵人": 1,
+          "流年迁移宫禄": 0
+        }
+      },
+      "expect_assertions": [],
+      "forbidden_assertions": [
+        "ycai_120"
+      ],
+      "basis": "合参断语必须两侧证据闭合；缺少迁移宫化禄时不得输出异地贵人得财断。"
+    },
+    {
+      "id": "assertion_common_career_support_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "common",
+      "domain_rules": [
+        "十神"
+      ],
+      "rule": "官杀有力与官禄化禄合参",
+      "input": {
+        "snapshot": {
+          "官杀有力": 1,
+          "官禄宫化禄": 1
+        }
+      },
+      "expect_assertions": [
+        "cc_101"
+      ],
+      "forbidden_assertions": [
+        "cc_102",
+        "cc_103"
+      ],
+      "basis": "八字官杀与紫微官禄吉化同向，才进入 common 合参断语。"
+    },
+    {
+      "id": "assertion_common_wealth_support_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "common",
+      "domain_rules": [
+        "十神"
+      ],
+      "rule": "财星为用与财帛化禄合参",
+      "input": {
+        "snapshot": {
+          "财星为用": 1,
+          "财帛宫化禄": 1
+        }
+      },
+      "expect_assertions": [
+        "cc_102"
+      ],
+      "forbidden_assertions": [
+        "cc_101",
+        "cc_103"
+      ],
+      "basis": "求财方向与财帛资源同向，构成 common 财运证据。"
+    },
+    {
+      "id": "assertion_common_study_support_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "common",
+      "domain_rules": [
+        "十神"
+      ],
+      "rule": "印星旺与官禄化科合参",
+      "input": {
+        "snapshot": {
+          "印星旺": 1,
+          "官禄宫化科": 1
+        }
+      },
+      "expect_assertions": [
+        "cc_103"
+      ],
+      "forbidden_assertions": [
+        "cc_101",
+        "cc_102"
+      ],
+      "basis": "文书根基与科名显露同向，构成 common 学业证据。"
+    },
+    {
+      "id": "assertion_common_health_risk_boundary",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "common",
+      "domain_rules": [
+        "十神"
+      ],
+      "rule": "身弱与疾厄化忌合参",
+      "input": {
+        "snapshot": {
+          "身强弱": "身弱",
+          "疾厄宫化忌": 1
+        }
+      },
+      "expect_assertions": [
+        "cc_106"
+      ],
+      "forbidden_assertions": [
+        "cc_101"
+      ],
+      "basis": "承载力弱与健康隐患同向时进入 common 候选，并保留专业医疗边界。"
+    },
+    {
+      "id": "assertion_natal_complete_sanhe_structure_positive",
+      "kind": "positive",
+      "level": "assertion",
+      "side": "bazi",
+      "domain_rules": [
+        "合会"
+      ],
+      "rule": "完整三合结构断语可命中",
+      "input": {
+        "snapshot": {
+          "地支三合申子辰": 1
+        }
+      },
+      "expect_assertions": [
+        "zh_212"
+      ],
+      "forbidden_assertions": [
+        "zh_213"
+      ],
+      "basis": "完整三合结构因子命中后，结构断语必须可触达。"
+    },
+    {
+      "id": "assertion_natal_self_punishment_positive",
+      "kind": "boundary",
+      "level": "assertion",
+      "side": "bazi",
+      "domain_rules": [
+        "合会"
+      ],
+      "rule": "自刑结构断语可命中",
+      "input": {
+        "snapshot": {
+          "地支自刑辰辰": 1
+        }
+      },
+      "expect_assertions": [
+        "zh_235"
+      ],
+      "forbidden_assertions": [
+        "zh_236",
+        "zh_237",
+        "zh_238"
+      ],
+      "basis": "辰辰同支成双为自刑，应命中自刑结构断语而不误取其他自刑。"
+    }
+  ]
+}

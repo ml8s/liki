@@ -24,7 +24,10 @@ def _targets_hit(candidate: dict) -> int:
     text = " ".join(str(item) for item in candidate.get("basis", []))
     return 1 if (
         any(token in text for token in indicators["basis_tokens"])
-        or any(candidate.get(field) for field in indicators["fields"])
+        or any(
+            candidate.get(field)
+            for field in indicators.get("fields", ())
+        )
     ) else 0
 
 

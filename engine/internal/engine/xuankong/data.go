@@ -30,12 +30,16 @@ func loadXingJiaHui() error {
 	}
 	xingJiaHuiTable = make(map[[2]int]xingJiaHui, len(entries))
 	for _, e := range entries {
+		classification := "inauspicious"
+		if e.Auspicious {
+			classification = "auspicious"
+		}
 		xingJiaHuiTable[[2]int{e.Shan, e.Xiang}] = xingJiaHui{
-			ShanNum:    e.Shan,
-			XiangNum:   e.Xiang,
-			Name:       e.Name,
-			Meaning:    e.Meaning,
-			Auspicious: e.Auspicious,
+			ShanNum:        e.Shan,
+			XiangNum:       e.Xiang,
+			Name:           e.Name,
+			Meaning:        e.Meaning,
+			Classification: classification,
 		}
 	}
 	return nil

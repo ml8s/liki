@@ -9,23 +9,14 @@ from liuyao_conditions import evaluate as evaluate_conditions
 from liuyao_matters import load_matter_table, resolve_matter
 from liuyao_paipan import factors as build_liuyao_factors
 from liuyao_timing import rank_timing_candidates as plan_timing
-from liuyao_topic_guidance import project_topic_guidance
+from liuyao_topic_guidance import load_topic_table, project_topic_guidance
 
 
-SCHEMA_VERSION = "liuyao-snapshot-v4"
+SCHEMA_VERSION = "liuyao-snapshot-v5"
 ALLOWED_MATTERS = set(load_matter_table())
-ALLOWED_TOPICS = {
-    "wealth", "career", "marriage", "study", "lost_item", "travel",
-    "lawsuit", "health_context",
-}
+ALLOWED_TOPICS = set(load_topic_table()["topics"])
 MATTER_TO_TOPIC = {
-    "wealth": "wealth",
-    "career": "career",
-    "relationship": "marriage",
-    "study": "study",
-    "lost_item": "lost_item",
-    "travel": "travel",
-    "legal": "lawsuit",
+    matter: matter for matter in ALLOWED_MATTERS if matter in ALLOWED_TOPICS
 }
 
 
