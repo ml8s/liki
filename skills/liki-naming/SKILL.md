@@ -1,12 +1,14 @@
 ---
 name: liki-naming
 agent_created: true
-description: "起名改名/取名字 — 排八字定用神、按五行取字、组名与评估。新生儿起名、成人改名、外国人罗马字姓起中文名。Chinese naming with BaZi and Five-Element character selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
+description: "起名改名/取名字 — 懂命理，用灵机。排八字定用神、按五行取字、组名与评估。新生儿起名、成人改名、外国人罗马字姓起中文名。Chinese naming with BaZi and Five-Element character selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki 起名 — 八字用神 + 五行选字
 
-覆盖通用起名、外国人起中文名与自选名评估。八字与字库属性由引擎计算，LLM 只在引擎返回范围内做语义、出处、音韵与文化适配筛选。
+> **懂命理，用灵机。**
+>
+> 覆盖通用起名、外国人起中文名与自选名评估。八字与字库属性由引擎计算，LLM 只在引擎返回范围内做语义、出处、音韵与文化适配筛选。
 
 ## 启动与 RPC
 

@@ -1,4 +1,4 @@
-Liki Canonical Brand Definition (v3.3)
+Liki Canonical Brand Definition (v3.4)
 
 ---
 
@@ -83,6 +83,35 @@ English
 «Liki, Professional Skill for Chinese Metaphysics»
 
 Built to professional standards for Chinese Metaphysics, enabling professionals to work more efficiently while remaining accessible to everyone.
+
+---
+
+Slogan（品牌口号）
+
+中文
+
+«懂命理，用灵机»
+
+这是 Liki 唯一对外 slogan，只重复，不做同义改写。
+
+语义基准：
+
+«懂命理，用灵机»表达的是「懂命理的人，都在用灵机」。它是专业人群选择灵机的圈层证明，不是使用门槛，也不要求用户先成为命理师。
+
+使用规则：
+
+- 官网、README、产品启动页、广告图、视频结尾、社交简介统一使用同一文字顺序；
+- 不改写为「问命理，用灵机」「命理事，问灵机」「灵机，懂命理」等变体；
+- 视觉排版可省略句尾标点，但不得省略或改写逗号、字序和核心词；
+- slogan 与「命理师的 Skill」并存：前者是对外心智句，后者是品牌定位和内部叙事基准。
+
+English
+
+The canonical slogan is Chinese-only and is not translated into an alternative slogan.
+
+English explanatory rendering:
+
+«Trusted by those who understand Chinese Metaphysics»
 
 ---
 
@@ -290,6 +319,10 @@ Brand Language（品牌语言）
 
 «命理师的 Skill»
 
+对外重复使用：
+
+«懂命理，用灵机»
+
 专业领域统一使用：
 
 «中华命理（Chinese Metaphysics）»
@@ -303,6 +336,7 @@ Brand Language（品牌语言）
 - 产品名：**灵机 Skill**
 - 定位语：**命理师的专业AI工具**
 - 一句话介绍：**灵机 Skill，命理师的专业AI工具**
+- Slogan：**懂命理，用灵机**
 
 品牌正式名「Liki 灵机」保持不变，宣传口径与品牌正式名不冲突——正式名用于产品界面和官网，宣传口径用于对外传播。
 
@@ -413,3 +447,4 @@ This principle guides every product, engineering, design, and operational decisi
 
 - **2026-07 · 品牌迁移排查不全**：品牌从「灵机」迁移到 liki.hk 时，README/网站/i18n/Skill 文件残留旧表述。修复：逐文件清理，确立品牌真相源文件。教训：品牌词变更必须全仓扫描（含多仓库分散文件）。
 - **2026-08 · 真相源文件名漂移**：台账曾指向不存在的 `Identity.zh-Hans.md`。修复：澄清唯一品牌真相源为本文件（brand.md），并随 liki-skills 仓库纳入版本控制。教训：真相源指针必须与文件实名一致，且本身要有版本管理。
+- **2026-09 · Slogan 唯一化**：确立「懂命理，用灵机」为唯一对外 slogan，语义基准是「懂命理的人，都在用灵机」。该句承载专业圈层选择，不是使用门槛；禁止用「问命理」「命理事」等变体稀释心智。

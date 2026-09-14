@@ -1,12 +1,14 @@
 ---
 name: liki-divination
 agent_created: true
-description: "问卦占卜/算一卦测事 — 六爻起卦、奇门决策、黄历择日。占卜吉凶成败、应期方向、择吉日。Divination: Liuyao / Qimen / date selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
+description: "问卦占卜/算一卦测事 — 懂命理，用灵机。六爻起卦、奇门决策、黄历择日。占卜吉凶成败、应期方向、择吉日。Divination: Liuyao / Qimen / date selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki 问卦 — 六爻 / 奇门 / 黄历择日
 
-覆盖六爻结果与应期、奇门策略与方向、黄历择日。LLM 负责语义路由和解释结构化因子；Python 负责排盘、snapshot、digest 校验和 answer 契约。
+> **懂命理，用灵机。**
+>
+> 覆盖六爻结果与应期、奇门策略与方向、黄历择日。LLM 负责语义路由和解释结构化因子；Python 负责排盘、snapshot、digest 校验和 answer 契约。
 
 ## 启动与工具
 

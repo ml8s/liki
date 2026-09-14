@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026.09.15.2] — 品牌心智与 slogan 契约
+
+- 四个 SKILL.md 与两份 README 统一展示唯一 slogan「懂命理，用灵机」，强化专业圈层心智。
+- 新增 slogan 契约测试：锁定 README / SKILL / frontmatter description 展示位置，并禁止已退役变体。
+
 ## [2026.09.15.1] — Skill frontmatter 与交互契约修复
 
 - 4 个 skill 的 SKILL.md frontmatter 补上 `agent_created: true`，满足 WorkBuddy SkillManage 修改/删除要求；契约测试同步新增该字段断言。

@@ -1,19 +1,18 @@
 ---
 name: liki-bazi
 agent_created: true
-description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双盘同参）。排盘看命、婚姻感情、事业财运、健康学业、合盘运势、流年运程、本命年。BaZi reading & Chinese fortune analysis. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
+description: "八字命理/算命看运势 — 懂命理，用灵机。八字、紫微斗数（八紫双盘同参）。排盘看命、婚姻感情、事业财运、健康学业、合盘运势、流年运程、本命年。BaZi reading & Chinese fortune analysis. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki 八字 — 八字 / 紫微
-
-覆盖八字排盘、十神格局、大运流年，以及紫微命盘、宫位星曜、大限流年；两者通过引擎断语合参。
+> **懂命理，用灵机。**
+>
+> 覆盖八字排盘、十神格局、大运流年，以及紫微命盘、宫位星曜、大限流年；两者通过引擎断语合参。
 
 ## 启动与工具
 
-1. 外部安装副本先读本地 `VERSION` 与远程 `VERSION`；不一致时提示更新命令并等待确认，远程 10 秒不可达时标注后继续。设置 `LIKI_HOSTED=1` 时视为托管环境，跳过检查。
-2. 读 `tools/skill-tools.json` 取工具 schema。
-3. 用 `python3 tools/agent_cli.py` 执行工具：stdin 传 `{"fn":"...","args":{...}}`，stdout 读 JSON；RPC 端点默认生产地址，设置 `LIKI_RPC_URL` 时优先使用。Windows 使用 `tools/agent_cli.cmd` 和 UTF-8 文件。
-4. 完成上述检查后进入路由。
+1. 外部安装副本先读本地 `VERSION` 与远程 `VERSION`；不一致时提示更新命令并等待确认，远程 10 秒不可达时标注后继续，设置 `LIKI_HOSTED=1` 时视为托管环境跳过检查。读 `tools/skill-tools.json` 取工具 schema；用 `python3 tools/agent_cli.py` 执行工具：stdin 传 `{"fn":"...","args":{...}}`，stdout 读 JSON。RPC 端点默认生产地址，设置 `LIKI_RPC_URL` 时优先使用。Windows 使用 `tools/agent_cli.cmd` 和 UTF-8 文件。
+2. 完成上述检查后进入路由。
 
 ## 路由
 

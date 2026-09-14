@@ -1,12 +1,14 @@
 ---
 name: liki-fengshui
 agent_created: true
-description: "风水/看风水 — 八宅命卦、玄空飞星。房屋布局、家宅吉凶、流年风水、旺山旺向。Feng Shui analysis for home & direction. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
+description: "风水/看风水 — 懂命理，用灵机。八宅命卦、玄空飞星。房屋布局、家宅吉凶、流年风水、旺山旺向。Feng Shui analysis for home & direction. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki 风水 — 八宅 / 玄空
 
-覆盖八宅命卦、门主灶与方位吉凶，以及玄空飞星、元运和流年盘。引擎负责排盘，LLM 负责解读返回因子。
+> **懂命理，用灵机。**
+>
+> 覆盖八宅命卦、门主灶与方位吉凶，以及玄空飞星、元运和流年盘。引擎负责排盘，LLM 负责解读返回因子。
 
 ## 启动与 RPC
 
