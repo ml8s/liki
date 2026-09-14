@@ -40,7 +40,7 @@ def test_engine_compatibility_uses_rpc_discover(monkeypatch) -> None:
 
     def fake_call(method, params, retries=1):
         calls.append((method, params, retries))
-        return {"info": {"version": "2026.09.14.1"}}
+        return {"info": {"version": "2026.09.15.1"}}
 
     monkeypatch.setattr(paipan, "call", fake_call)
     paipan.ensure_engine_compatible()

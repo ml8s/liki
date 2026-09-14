@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.09.15.1] — Skill frontmatter 与交互契约修复
+
+- 4 个 skill 的 SKILL.md frontmatter 补上 `agent_created: true`，满足 WorkBuddy SkillManage 修改/删除要求；契约测试同步新增该字段断言。
+- 交互门控指代修正：「流程表中标记 ⛔ / 💬 的步骤」改为「各场景卡（app/）流程表中标记 ⛔ / 💬 的步骤」，避免执行方在根文档找不到门控标记。
+- 托管环境跳过 VERSION 检查的判据明确为 `LIKI_HOSTED=1`，与 `LIKI_RPC_URL` 风格一致。
+- liki-fengshui 硬边界列表去除空行断开。
+
 ## [2026.09.14.1] — 紫微亮度校准与流月周期契约
 
 ### Breaking changes

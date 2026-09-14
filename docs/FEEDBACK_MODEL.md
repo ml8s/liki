@@ -55,8 +55,8 @@ skills/liki-naming/feedback.schema.json
   "meta": {
     "source": "skill-agent",
     "skill": "liki-bazi",
-    "skill_version": "2026.09.14.1",
-    "engine_version": "2026.09.14.1"
+    "skill_version": "2026.09.15.1",
+    "engine_version": "2026.09.15.1"
   },
   "agent": {
     "name": "codex-cli",

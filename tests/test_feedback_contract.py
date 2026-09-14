@@ -29,8 +29,8 @@ class TestFeedbackContract(unittest.TestCase):
             "meta": {
                 "source": "skill-agent",
                 "skill": "liki-bazi",
-                "skill_version": "2026.09.14.1",
-                "engine_version": "2026.09.14.1",
+                "skill_version": "2026.09.15.1",
+                "engine_version": "2026.09.15.1",
             },
             "agent": {"name": "codex-cli", "version": "0.21.6"},
             "llm": {"provider": "openai", "model": "gpt-5.1"},
@@ -65,8 +65,8 @@ class TestFeedbackContract(unittest.TestCase):
             "meta": {
                 "source": "skill-agent",
                 "skill": "liki-bazi",
-                "skill_version": "2026.09.14.1",
-                "engine_version": "2026.09.14.1",
+                "skill_version": "2026.09.15.1",
+                "engine_version": "2026.09.15.1",
             },
             "agent": {"name": "unknown", "version": "unknown"},
             "llm": {"provider": "unknown", "model": "unknown"},
@@ -91,8 +91,8 @@ class TestFeedbackContract(unittest.TestCase):
                 "meta": {
                     "source": "skill-agent",
                     "skill": "liki-bazi",
-                    "skill_version": "2026.09.14.1",
-                    "engine_version": "2026.09.14.1",
+                    "skill_version": "2026.09.15.1",
+                    "engine_version": "2026.09.15.1",
                 },
                 "conversation": "private user text",
                 "problem": {"type": "clarity", "severity": "low", "summary": "ok"},

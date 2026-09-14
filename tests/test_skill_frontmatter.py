@@ -24,6 +24,8 @@ class TestSkillFrontmatter(unittest.TestCase):
                 self.assertEqual(meta.get("name"), s)
                 self.assertIsInstance(meta.get("description"), str)
                 self.assertTrue(meta["description"].strip())
+                # WorkBuddy SkillManage 要求 agent_created: true 才能修改/删除技能
+                self.assertIs(meta.get("agent_created"), True)
 
     def test_app_cards_frontmatter_is_valid_yaml(self):
         cards = sorted((SKILLS_DIR / "liki-bazi" / "app").glob("*.md"))

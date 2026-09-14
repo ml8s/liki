@@ -1,5 +1,6 @@
 ---
 name: liki-divination
+agent_created: true
 description: "问卦占卜/算一卦测事 — 六爻起卦、奇门决策、黄历择日。占卜吉凶成败、应期方向、择吉日。Divination: Liuyao / Qimen / date selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
@@ -9,7 +10,7 @@ description: "问卦占卜/算一卦测事 — 六爻起卦、奇门决策、黄
 
 ## 启动与工具
 
-1. 外部安装副本先读本地 `VERSION` 与远程 `VERSION`；不一致时提示更新命令并等待确认，远程 10 秒不可达时标注后继续。托管环境跳过检查。
+1. 外部安装副本先读本地 `VERSION` 与远程 `VERSION`；不一致时提示更新命令并等待确认，远程 10 秒不可达时标注后继续。设置 `LIKI_HOSTED=1` 时视为托管环境，跳过检查。
 2. 读 `tools/skill-tools.json` 取工具 schema。
 3. Python 依赖见 `tools/requirements.txt`；缺失时用 `python3 -m pip install -r tools/requirements.txt` 安装，不得跳过契约校验。
 4. 只使用 `python3 tools/agent_cli.py`：stdin 传 `{"fn":"...","args":{...}}`，stdout 读 JSON；Windows 使用 `tools/agent_cli.cmd` 和 UTF-8 文件。底层 RPC 端点由 `LIKI_RPC_URL` 控制，是工具层内部依赖，不是 LLM 的直接调用接口。
@@ -54,7 +55,7 @@ LLM 先读取 `app/question.md` 并判断用户目标；不要调用独立 route
 
 ## 交互与安全
 
-- 流程表中标记 ⛔ 的步骤为阻塞确认：LLM 必须展示当前结果和编号选项，等待用户回复后才能继续。禁止跳过 ⛔ 节点直接起卦、排盘或展开分析。
-- 流程表中标记 💬 的步骤为参数收集：LLM 一次列出所有待收集项和默认值，用户可一次回复或说“都用默认”。
+- 各场景卡（app/）流程表中标记 ⛔ 的步骤为阻塞确认：LLM 必须展示当前结果和编号选项，等待用户回复后才能继续。禁止跳过 ⛔ 节点直接起卦、排盘或展开分析。
+- 各场景卡（app/）流程表中标记 💬 的步骤为参数收集：LLM 一次列出所有待收集项和默认值，用户可一次回复或说“都用默认”。
 - 每个交互步骤只输出该步骤的内容，禁止提前输出后续步骤的结果。
 - 仅服务问卦 / 择日话题；明显焦虑时引导专业帮助，避免宿命化表述。

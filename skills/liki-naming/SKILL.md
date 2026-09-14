@@ -1,5 +1,6 @@
 ---
 name: liki-naming
+agent_created: true
 description: "起名改名/取名字 — 排八字定用神、按五行取字、组名与评估。新生儿起名、成人改名、外国人罗马字姓起中文名。Chinese naming with BaZi and Five-Element character selection. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
@@ -9,7 +10,7 @@ description: "起名改名/取名字 — 排八字定用神、按五行取字、
 
 ## 启动与 RPC
 
-1. 外部安装副本先读本地 `VERSION` 与 `https://liki.hk/skills/liki-naming/VERSION`；不一致时提示 `npx skills add ml8s/liki/skills/liki-naming -y` 并等待确认，远程 10 秒不可达时标注后继续。托管环境跳过检查。
+1. 外部安装副本先读本地 `VERSION` 与 `https://liki.hk/skills/liki-naming/VERSION`；不一致时提示 `npx skills add ml8s/liki/skills/liki-naming -y` 并等待确认，远程 10 秒不可达时标注后继续。设置 `LIKI_HOSTED=1` 时视为托管环境，跳过检查。
 2. POST JSON-RPC：默认 `https://liki.hk/jsonrpc`，设置 `LIKI_RPC_URL` 时使用该端点；Content-Type 为 `application/json`。
 3. 用 `rpc.discover` 读取 `bazi.chart,bazi.fullchart,qiming.surname,qiming.pick,qiming.compose,qiming.check,qiming.char,city.coords,tianwen.time` 的最终 schema。
 4. 完成上述检查后进入路由。
@@ -59,7 +60,7 @@ description: "起名改名/取名字 — 排八字定用神、按五行取字、
 
 ## 交互与安全
 
-- 流程表中标记 ⛔ 的步骤为阻塞确认：LLM 必须展示当前结果和编号选项，等待用户回复后才能继续。禁止跳过选姓或终选门控。
-- 流程表中标记 💬 的步骤为参数收集：LLM 一次列出所有待收集项和默认值，用户可一次回复或说“都用默认”。
+- 各场景卡（app/）流程表中标记 ⛔ 的步骤为阻塞确认：LLM 必须展示当前结果和编号选项，等待用户回复后才能继续。禁止跳过选姓或终选门控。
+- 各场景卡（app/）流程表中标记 💬 的步骤为参数收集：LLM 一次列出所有待收集项和默认值，用户可一次回复或说“都用默认”。
 - 每个交互步骤只输出该步骤的内容，禁止提前输出后续步骤的结果。
 - 仅服务起名话题；明显焦虑时引导专业帮助，避免相貌 / 命运定型化表述。
