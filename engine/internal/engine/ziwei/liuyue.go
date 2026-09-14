@@ -1,6 +1,7 @@
 package ziwei
 
 import (
+	"fmt"
 	"time"
 
 	"liki-engine/internal/engine/tianwen"
@@ -16,41 +17,108 @@ func hongLuanPos(zhi Zhi) int {
 // ── 流月 ──
 
 type LiuYue struct {
-	MingGong     gongIndex      `json:"ming_gong"`
-	MingGongName string         `json:"ming_gong_name"`
-	Zhi          Zhi            `json:"zhi"`
-	SiHua        siHuaResult    `json:"si_hua"`
-	Stars        map[string]Zhi `json:"xing_yao,omitempty"`
-	GongWei      [12]flowPalace `json:"gong_wei,omitempty"`
+	TargetLunar    tianwen.LunarDate `json:"target_lunar"`
+	ResolvedPeriod FlowMonthPeriod   `json:"resolved_period"`
+	MingGong       gongIndex         `json:"ming_gong"`
+	MingGongName   string            `json:"ming_gong_name"`
+	Zhi            Zhi               `json:"zhi"`
+	SiHua          siHuaResult       `json:"si_hua"`
+	Stars          map[string]Zhi    `json:"xing_yao,omitempty"`
+	GongWei        [12]flowPalace    `json:"gong_wei,omitempty"`
+}
+
+// FlowMonthPeriod separates calendar truth from the Ziwei flow-month choice.
+type FlowMonthPeriod struct {
+	CalendarPeriod LunarMonthPeriod `json:"calendar_period"`
+	FlowMonth      LunarMonth       `json:"flow_month"`
+}
+
+type LunarMonthPeriod struct {
+	Year     int    `json:"year"`
+	Month    int    `json:"month"`
+	Leap     bool   `json:"leap"`
+	Half     string `json:"half"`
+	DayStart int    `json:"day_start"`
+	DayEnd   int    `json:"day_end"`
+}
+
+type LunarMonth struct {
+	Year  int  `json:"year"`
+	Month int  `json:"month"`
+	Leap  bool `json:"leap"`
 }
 
 // ComputeLiuYue computes the flow month chart.
-// 流月干支 = 目标月干支（五虎遁，与命主无关）——真相源
-// 盘起点 = monthlyIndex（iztro 公式，命主相关）——只决定 gongLabels 旋转
-// lunarMonth IS the lunar month number (1-12) — domain-native input.
-// The agent converts via tianwen.SolarToLunar before calling this.
-func ComputeLiuYue(chart Chart, liuYear, lunarMonth int) LiuYue {
-	liuYearGan, _ := yearGanZhi(liuYear)
+// target IS a complete resolved lunar date. The day is required because the
+// iztro-compatible rule splits a leap month at day 15; no half/fixLeap flag
+// is exposed to callers.
+func ComputeLiuYue(chart Chart, target tianwen.LunarDate) (LiuYue, error) {
+	period, err := resolveLiuYuePeriod(target)
+	if err != nil {
+		return LiuYue{}, err
+	}
+
+	flowYear, flowMonth := period.FlowMonth.Year, period.FlowMonth.Month
+	flowYearGan, _ := yearGanZhi(flowYear)
 	// 流月干支 = 目标月干支（五虎遁：年干 + 农历月）——真相源，与命主无关
-	yueZhi := zhiIdxToZhi((lunarMonth + 1) % 12) // 正月寅起：农历1月→zhiIdx 2(寅)
-	monthGan := yueGanByWuHuDun(liuYearGan, yueZhi)
+	yueZhi := zhiIdxToZhi((flowMonth + 1) % 12) // 正月寅起：农历1月→zhiIdx 2(寅)
+	monthGan := yueGanByWuHuDun(flowYearGan, yueZhi)
 	stars := liuYueStars(monthGan, yueZhi)
 
 	// 盘起点 = monthlyIndex（iztro 公式，命主相关）
-	mi := computeMonthlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: lunarMonth})
+	mi := computeMonthlyIndex(chart, flowTarget{
+		Year:        target.Year,
+		LunarMonth:  target.Month,
+		LunarDay:    target.Day,
+		IsLeapMonth: target.Leap,
+	})
 	starByAnXingIdx := make(map[int][]string)
 	for k, z := range stars {
 		anXingIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(z))
 		starByAnXingIdx[anXingIdx] = append(starByAnXingIdx[anXingIdx], k)
 	}
 	return LiuYue{
-		MingGong:     0,
-		MingGongName: "命宫",
-		Zhi:          yueZhi,
-		SiHua:        computeSiHua(monthGan),
-		Stars:        stars,
-		GongWei:      buildFlowPalaces(mi, starByAnXingIdx),
+		TargetLunar:    target,
+		ResolvedPeriod: period,
+		MingGong:       0,
+		MingGongName:   "命宫",
+		Zhi:            yueZhi,
+		SiHua:          computeSiHua(monthGan),
+		Stars:          stars,
+		GongWei:        buildFlowPalaces(mi, starByAnXingIdx),
+	}, nil
+}
+
+func resolveLiuYuePeriod(target tianwen.LunarDate) (FlowMonthPeriod, error) {
+	meta, err := tianwen.ValidateLunarDate(target)
+	if err != nil {
+		return FlowMonthPeriod{}, fmt.Errorf("resolve flow month: %w", err)
 	}
+
+	calendar := LunarMonthPeriod{
+		Year:     target.Year,
+		Month:    target.Month,
+		Leap:     target.Leap,
+		Half:     "whole",
+		DayStart: 1,
+		DayEnd:   meta.DayCount,
+	}
+	flowMonth := LunarMonth{Year: target.Year, Month: target.Month, Leap: target.Leap}
+	if target.Leap {
+		if target.Day <= 15 {
+			calendar.Half = "first"
+			calendar.DayEnd = 15
+		} else {
+			calendar.Half = "second"
+			calendar.DayStart = 16
+			next, err := tianwen.NextLunarMonth(target.Year, target.Month, true)
+			if err != nil {
+				return FlowMonthPeriod{}, fmt.Errorf("resolve flow month: %w", err)
+			}
+			flowMonth = LunarMonth{Year: next.Year, Month: next.Month, Leap: next.Leap}
+		}
+	}
+	return FlowMonthPeriod{CalendarPeriod: calendar, FlowMonth: flowMonth}, nil
 }
 
 func liuYueStars(gan Gan, zhi Zhi) map[string]Zhi {

@@ -142,7 +142,11 @@ func TestComplete(t *testing.T) {
 			assertFlowPalaces(t, "流年", ln.GongWei, tc.YFlow, &pass, &fail)
 			// 流月/日/时盘共用目标农历日。
 			tgtM := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(2026, 6, 4, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
-			ly2 := ComputeLiuYue(fc, 2026, tgtM.Month)
+			lyTarget := tianwen.LunarDate{Year: tgtM.Year, Month: tgtM.Month, Day: tgtM.Day, Leap: tgtM.Leap}
+			ly2, err := ComputeLiuYue(fc, lyTarget)
+			if err != nil {
+				t.Fatalf("ComputeLiuYue: %v", err)
+			}
 			assertFlowPalaces(t, "流月", ly2.GongWei, tc.MFlow, &pass, &fail)
 			lr2 := ComputeLiuRi(fc, 2026, tgtM.Month, tgtM.Day)
 			assertFlowPalaces(t, "流日", lr2.GongWei, tc.DFlow, &pass, &fail)
@@ -159,7 +163,10 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流月四化+zhi+星
-			ly := ComputeLiuYue(fc, 2026, tgtM.Month)
+			ly, err := ComputeLiuYue(fc, lyTarget)
+			if err != nil {
+				t.Fatalf("ComputeLiuYue: %v", err)
+			}
 			lyZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ly.Zhi]
 			if lyZhi != tc.Mzhi && tc.Mzhi != "" {
 				t.Errorf("流月zhi: got %s want %s", lyZhi, tc.Mzhi)

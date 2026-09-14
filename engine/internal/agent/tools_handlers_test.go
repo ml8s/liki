@@ -1330,7 +1330,7 @@ func TestHandler_ZiweiLiuyue(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"lunar_year":2026,"lunar_month":5,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"target_lunar":{"year":2026,"month":5,"day":10,"leap":false},"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liuyue", params)
 	if err != nil {
 		t.Fatalf("ziwei.liuyue: %v", err)
@@ -1585,7 +1585,7 @@ func TestHandler_ZiweiLiuyue_Valid(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err = r.Execute(context.Background(), "ziwei.liuyue",
-		json.RawMessage(fmt.Sprintf(`{"lunar_year":2026,"lunar_month":5,"chart":%s}`, env.Data)))
+		json.RawMessage(fmt.Sprintf(`{"target_lunar":{"year":2026,"month":5,"day":10,"leap":false},"chart":%s}`, env.Data)))
 	if err != nil {
 		t.Fatalf("ziwei.liuyue: %v", err)
 	}

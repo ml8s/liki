@@ -278,6 +278,41 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 			vocabulary[tool.Function.Name] = true
 			collectToolVocabulary(tool.Function.Parameters, vocabulary)
 		}
+
+		// Root feedback contracts are per-skill. Keep their enums scoped to the owning
+		// skill so SKILL.md can cite feedback problem types without polluting other
+		// skills or pretending they belong to an engine RPC schema.
+		feedbackPath := filepath.Join(filepath.Dir(filepath.Dir(path)), "feedback.schema.json")
+		if feedbackRaw, err := os.ReadFile(feedbackPath); err == nil {
+			var feedbackSchema any
+			if err := json.Unmarshal(feedbackRaw, &feedbackSchema); err != nil {
+				return nil, err
+			}
+			collectToolVocabulary(feedbackSchema, vocabulary)
+		}
+	}
+
+	// Skills without a Python tool layer still publish their root feedback schema.
+	feedbackFiles, err := filepath.Glob(filepath.Join("..", "..", "..", "skills", "*", "feedback.schema.json"))
+	if err != nil {
+		return nil, err
+	}
+	for _, path := range feedbackFiles {
+		skill := filepath.Base(filepath.Dir(path))
+		vocabulary := result[skill]
+		if vocabulary == nil {
+			vocabulary = make(map[string]bool)
+			result[skill] = vocabulary
+		}
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
+		var schema any
+		if err := json.Unmarshal(raw, &schema); err != nil {
+			return nil, err
+		}
+		collectToolVocabulary(schema, vocabulary)
 	}
 	return result, nil
 }

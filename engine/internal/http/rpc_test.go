@@ -486,7 +486,7 @@ func TestRPC_Dispatch_ZiweiLiuYue(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	chart := getZiweiChart(t, reg)
 
-	params := map[string]any{"lunar_year": 2026, "lunar_month": 1, "chart": chart}
+	params := map[string]any{"target_lunar": map[string]any{"year": 2026, "month": 1, "day": 1, "leap": false}, "chart": chart}
 	body := fmt.Sprintf(`{"jsonrpc":"2.0","method":"ziwei.liuyue","params":%s,"id":1}`, mustMarshal(params))
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_liuyue")

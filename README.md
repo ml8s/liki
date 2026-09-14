@@ -178,8 +178,9 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 ```
 skills/liki-bazi
 ├── SKILL.md    ← 规则层（流程骨架 + 强制规则）
+├── feedback.schema.json ← 自主反馈 feedback-v1 契约
 ├── app/        ← 流程层（10 卡：婚姻/事业/财运/…）
-├── domains/    ← 知识层（bazi 16 + ziwei 8 篇）
+├── domains/    ← 知识层（bazi 16 + ziwei 9 篇）
 └── tools/      ← 工具层（6 个 Python 工具 + 断语/因子 4 张长表 + schema 契约）
 repo root
 ├── engine/     ← Go JSON-RPC 天文历算引擎（8 领域）
@@ -195,6 +196,7 @@ repo root
 - [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — 八字领域模型（八紫双盘）：八字、紫微、原子事实、因子条件、断言与查询边界。
 - [docs/FENGSHUI_MODEL.md](./docs/FENGSHUI_MODEL.md) — 风水领域模型与分层：八宅命卦、门主灶、玄空飞星、元运与流年边界。
 - [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — 起名领域模型与分层：八字用神策略、字池、候选名、外国人中文姓候选、校验与出处边界。
+- [docs/FEEDBACK_MODEL.md](./docs/FEEDBACK_MODEL.md) — 反馈契约与分层：`feedback-v1` 诊断组、问题类型、隐私边界与后端兼容策略。
 
 完整因子清单以 `skills/liki-bazi/tools/factors/*.csv` 为唯一事实源。
 

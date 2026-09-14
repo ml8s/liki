@@ -1,6 +1,6 @@
 # Changelog
 
-## [2026.09.12.2] — 领域守卫、交互门控与测试分层
+## [2026.09.14.1] — 紫微亮度校准与流月周期契约
 
 ### Breaking changes
 
@@ -31,6 +31,9 @@
 - 功能 smoke 的 script judge 检查工具调用、关键事实、fallback 和拒绝边界；八字 / 问卦按 skill 工具名而非 raw RPC 名判分。
 - 六爻功能 case 超时从 900 秒调整为 1800 秒。
 - 四个 skill 的 app 卡新增标准阻塞确认 / 参数收集节点；根契约要求 ⛔ 节点等待用户回复、💬 节点提供默认值，且交互步骤不得提前输出后续结果。
+- 四个 skill 统一自主反馈策略：影响使用的问题由 agent 择时提交最小诊断，静默、免确认、去隐私、去重且失败不阻塞。
+- 新增 `feedback-v1` 契约与四份 skill 内置 schema：必填 meta/agent/llm/problem 四组精简诊断；新增隐私边界、issue 类型与后端 additive 兼容文档。
+- 新增 `docs/FEEDBACK_MODEL.md` 并同步 README 领域契约索引，说明最小反馈分组、隐私边界、问题类型与后端兼容策略。
 
 ### liki-naming
 
@@ -45,6 +48,8 @@
 
 ### liki-bazi
 
+- 紫微主星亮度表同步 iztro v2.6.1：太阳、太阴、七杀居酉分别改为平、旺、旺；150 例完整 golden 同步该外部修正，并新增定向回归测试。
+- `ziwei.liuyue` breaking change：裸 `lunar_year/lunar_month` 改为完整 `target_lunar{year,month,day,leap}`；新增 `resolved_period` 显式区分真实农历周期与实际流月。闰月 1–15 日取本闰月，16 日至月末取下一农历月，历法校验和下月推导由 tianwen 承载。
 - `query(rule=用神)` 除断语外返回 `yong_shen_context`：直接投影 engine 三派、五行状态与十神状态，避免 LLM 只凭单条断语自行推导喜忌；Python 不新增命理推导。
 - 用神文档补强：五行数量不等于有效力量；喜神必须核对生克方向、力量反转、通关、合冲牵制与调候辅证，不能只按“生扶 / 克泄耗同党”贴标签。
 - #57 反馈命例（丙午 / 丙申 / 辛巳 / 癸巳）进入独立 oracle：辛日申月不得称月刃格，格局用火、喜木、忌土，并锁定调候壬藏、甲缺的原局显隐事实。

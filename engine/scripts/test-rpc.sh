@@ -208,7 +208,7 @@ check_rpc_ok "ziwei.daxian"
 rpc ziwei.liunian "{\"lunar_year\":2026,\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liunian"
 
-rpc ziwei.liuyue "{\"lunar_year\":2026,\"lunar_month\":5,\"chart\":$ZW_CHART}"
+rpc ziwei.liuyue "{\"target_lunar\":{\"year\":2026,\"month\":5,\"day\":10,\"leap\":false},\"chart\":$ZW_CHART}"
 check_rpc_ok "ziwei.liuyue"
 
 rpc ziwei.liuri "{\"lunar_year\":2026,\"lunar_month\":5,\"lunar_day\":10,\"chart\":$ZW_CHART}"

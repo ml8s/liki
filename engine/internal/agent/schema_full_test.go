@@ -42,7 +42,7 @@ func TestAllMethodsSchema(t *testing.T) {
 		"ziwei.fullchart": mustJSON(t, map[string]any{"chart": z}),
 		"ziwei.daxian":    mustJSON(t, map[string]any{"chart": z}),
 		"ziwei.liunian":   mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026}),
-		"ziwei.liuyue":    mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026, "lunar_month": 6}),
+		"ziwei.liuyue":    mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 10, "leap": false}}),
 		"ziwei.liuri":     mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026, "lunar_month": 6, "lunar_day": 4}),
 		"ziwei.liushi":    mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026, "lunar_month": 6, "lunar_day": 4, "shi_zhi": "午"}),
 		"ziwei.bond":      mustJSON(t, map[string]any{"a": z, "b": z}),

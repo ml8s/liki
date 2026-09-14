@@ -43,6 +43,28 @@ class TestSkillFrontmatter(unittest.TestCase):
                 count = card.read_text(encoding="utf-8").count("[必读]")
                 self.assertLessEqual(count, 3)
 
+    def test_all_skills_define_autonomous_silent_feedback_policy(self):
+        required = [
+            "https://liki.hk/api/feedback",
+            "agent 自行择时",
+            "最小诊断",
+            "`error`",
+            "`gap`",
+            "`conflict`",
+            "`friction`",
+            "`clarity`",
+            "静默",
+            "免确认",
+            "去隐私",
+            "去重",
+            "失败不阻塞",
+        ]
+        for s in SKILLS:
+            with self.subTest(skill=s):
+                text = (SKILLS_DIR / s / "SKILL.md").read_text(encoding="utf-8")
+                for phrase in required:
+                    self.assertIn(phrase, text)
+
 
 if __name__ == "__main__":
     unittest.main()

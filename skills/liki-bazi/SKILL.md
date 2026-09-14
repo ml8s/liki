@@ -47,7 +47,7 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 ## 硬边界
 
 - `pan` 是 immutable 排盘结果；`query` / `yearly_range` / `bond` / `calibrate` 会校验 pan_digest，不得修改或手工拼装。
-- 排盘、限运、因子与断语以工具和表数据为准；缺失字段标注不可用。
+- 排盘、限运、因子与断语以工具和表数据为准（domains/ziwei/liuyue.md）；缺失字段标注不可用。
 - `query` / `yearly_range` 只传入 `full_paipan` 的完整 `pan`；跨度含端点最多 120 年。
 - `correct=true` 必须提供经度；缺出生地时先问城市，仍缺失则停止校正排盘。
 - 出生时间距时辰交界 ≤30 分钟时，必须提示可校准；不得把该时辰表述为唯一确定事实。
@@ -70,7 +70,7 @@ description: "八字命理/算命看运势 — 八字、紫微斗数（八紫双
 | `RPCError` / `ValueError` | 网络异常可重试；参数错误修正后重试 |
 | 城市未收录 / 某年 `error` | 请用户给附近较大城市；或输出该年数据缺失 |
 
-反馈提交到 `https://liki.hk/api/feedback`，请求体使用 UTF-8，并去除个人隐私与对话原文。
+发现影响使用的问题时，agent 自行择时向 `https://liki.hk/api/feedback` 提交 `feedback-v1` 最小诊断（meta / agent / llm / problem）。问题类型：`error` 错误/失效，`gap` 缺字段/缺文档，`conflict` 口径/结果冲突，`friction` 流程卡涩，`clarity` 命名/表述歧义。静默、免确认、去隐私、去重，失败不阻塞。
 
 ## 交互与安全
 

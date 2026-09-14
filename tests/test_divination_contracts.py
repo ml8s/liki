@@ -92,7 +92,7 @@ def test_engine_version_gate_accepts_minimum(monkeypatch):
     monkeypatch.setattr(
         divination_rpc,
         "engine_version",
-        lambda: "2026.09.12.2",
+        lambda: "2026.09.14.1",
     )
     divination_rpc.ensure_engine_compatible()
 
