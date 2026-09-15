@@ -8,7 +8,7 @@
    - 当前限运另查 `query(rule=大运)` 与 `query(rule=大限)`
 3. 应期调用 `yearly_range(pan, start, end, rules)`；rules 必填，并读取返回的 current_year/year_basis
 4. 读 full_paipan 返回的 pan 字段（chart/full/yongshen/ziwei/ziwei_daxian）作为报告 data 的原始数据，禁止编造
-5. 按 liki-bazi/domains/bazi/、liki-bazi/domains/ziwei/ 的方法论 + query/yearly_range 断语，写各节 analysis/advice（LLM 成稿）
+5. 按 liki/bazi/domains/bazi/、liki/bazi/domains/ziwei/ 的方法论 + query/yearly_range 断语，写各节 analysis/advice（LLM 成稿）
 ## 输出格式
 
 命书报告由三部分组成：综合报告（含八字紫微交叉验证）、八字报告（完整）、紫微报告（完整）。按以下 JSON schema 输出，不要遗漏字段：
@@ -18,8 +18,8 @@
   "summary": {
     "personality": {
       "title": "性格画像",
-      "bazi": "八字格局+十神行为模式+合冲影响（按 liki-bazi/webapp/mingshu/format-chart.md 命盘+十神+格局维度展开）",
-      "ziwei": "紫微命宫主星+身宫+福德（按 liki-bazi/webapp/mingshu/format-ziwei.md 命盘总览+身宫维度展开）",
+      "bazi": "八字格局+十神行为模式+合冲影响（按 liki/webapp/mingshu/format-chart.md 命盘+十神+格局维度展开）",
+      "ziwei": "紫微命宫主星+身宫+福德（按 liki/webapp/mingshu/format-ziwei.md 命盘总览+身宫维度展开）",
       "cross": "两系一致/有差异/交叉结论",
       "advice": "1-2 句"
     },
@@ -89,9 +89,9 @@
 - 所有字段的值用纯文本，禁止使用 HTML 标签（`<tr>`、`<td>`、`<p>` 等）
 - summary 各节 bazi/ziwei/cross 三个字段分别引用八字和紫微引擎数据。cross 字段必须给出明确的综合结论（一致/有差异/交叉结论）
 - window: 大运切换带来的事业机会说明
-- summary.fortune.phases 逐十年大运展开，每运按 liki-bazi/webapp/mingshu/format-chart.md 维度要求
+- summary.fortune.phases 逐十年大运展开，每运按 liki/webapp/mingshu/format-chart.md 维度要求
 - summary.fortune.daxian 逐大限展开；每限用 query(rule=大限, pan, year=该限起始年) 取断语，并标注与八字大运的同步关系
 - summary.fortune.liunian 展开未来 10 个流年（含今年），每年分别从八字和紫微分析，cross 给出综合结论
 - milestones: 挑出最重要的三件事，每件须说明为什么现在重要
 - health.advice 末尾必须注明"不做医学诊断"
-- bazi.sections 和 ziwei.sections 各节内容分别按 liki-bazi/webapp/mingshu/format-chart.md 和 liki-bazi/webapp/mingshu/format-ziwei.md 的维度要求生成。ziwei 各节至少 2 个维度，大限和流年分开
+- bazi.sections 和 ziwei.sections 各节内容分别按 liki/webapp/mingshu/format-chart.md 和 liki/webapp/mingshu/format-ziwei.md 的维度要求生成。ziwei 各节至少 2 个维度，大限和流年分开
