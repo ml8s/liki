@@ -37,7 +37,10 @@ func ziweiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	if err := json.Unmarshal(p.Lunar, &lt); err != nil {
 		return nil, fmt.Errorf("ziwei.chart: parse lunar: %w", err)
 	}
-	result := ziwei.ComputeChart(lt, p.Gender)
+	result, err := ziwei.ComputeChart(lt, p.Gender)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.chart: %w", err)
+	}
 	return wrapResult("ziwei", result)
 }
 
@@ -93,10 +96,8 @@ func ziweiLiuyueHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 
 func ziweiLiuriHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		LunarYear  int             `json:"lunar_year"`
-		LunarMonth int             `json:"lunar_month"`
-		LunarDay   int             `json:"lunar_day"`
-		Chart      json.RawMessage `json:"chart"`
+		TargetLunar tianwen.LunarDate `json:"target_lunar"`
+		Chart       json.RawMessage   `json:"chart"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("ziwei.liuri: %w", err)
@@ -105,7 +106,10 @@ func ziweiLiuriHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	if err := json.Unmarshal(p.Chart, &chart); err != nil {
 		return nil, fmt.Errorf("ziwei.liuri: parse chart: %w", err)
 	}
-	result := ziwei.ComputeLiuRi(chart, p.LunarYear, p.LunarMonth, p.LunarDay)
+	result, err := ziwei.ComputeLiuRi(chart, p.TargetLunar)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.liuri: %w", err)
+	}
 	return wrapResult("ziwei_liuri", result)
 }
 
@@ -159,10 +163,9 @@ var ziweiMethods = []RPCMethod{
 		Result:  envelopeSchema(`{"type":"object","additionalProperties":false,"properties":{"target_lunar":{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"leap":{"type":"boolean"}},"required":["year","month","day","leap"]},"resolved_period":{"type":"object","additionalProperties":false,"properties":{"calendar_period":{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer"},"month":{"type":"integer"},"leap":{"type":"boolean"},"half":{"type":"string","enum":["whole","first","second"]},"day_start":{"type":"integer"},"day_end":{"type":"integer"}},"required":["year","month","leap","half","day_start","day_end"]},"flow_month":{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer"},"month":{"type":"integer"},"leap":{"type":"boolean"}},"required":["year","month","leap"]}},"required":["calendar_period","flow_month"]},"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流月地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object","additionalProperties":{"type":"string","enum":["禄","权","科","忌"]},"description":"四化：{星名: 禄/权/科/忌}"},"xing_yao":{"type":"object","description":"月星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流月十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["target_lunar","resolved_period","ming_gong","zhi","si_hua"]}`),
 	},
 	{
-		Name: "ziwei.liuri", Description: "紫微流日。返回流日命盘及各宫变化。",
-		Params:  mustSchema(`{"type":"object","properties":{"lunar_year":{"type":"integer","description":"农历年份（以正月初一为年界，2026=丙午年）"},"lunar_month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"lunar_day":{"type":"integer","minimum":1,"maximum":30,"description":"农历日"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["lunar_year","lunar_month","lunar_day","chart"]}`),
-		Handler: ziweiLiuriHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流日地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object","additionalProperties":{"type":"string","enum":["禄","权","科","忌"]},"description":"四化：{星名: 禄/权/科/忌}"},"xing_yao":{"type":"object","description":"日星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流日十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
+		Name: "ziwei.liuri", Description: "紫微流日。target_lunar 必须是已解析的完整农历日期。",
+		Params: mustSchema(`{"type":"object","additionalProperties":false,"properties":{"target_lunar":{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer","description":"农历年份"},"month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"day":{"type":"integer","minimum":1,"maximum":30,"description":"农历日期"},"leap":{"type":"boolean","description":"是否闰月"}},"required":["year","month","day","leap"]},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["target_lunar","chart"]}`), Handler: ziweiLiuriHandler,
+		Result: envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流日地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object","additionalProperties":{"type":"string","enum":["禄","权","科","忌"]},"description":"四化：{星名: 禄/权/科/忌}"},"xing_yao":{"type":"object","description":"日星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流日十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 	{
 		Name: "ziwei.bond", Description: "紫微合盘。返回双方命盘交互分析。",
@@ -179,18 +182,15 @@ var ziweiMethods = []RPCMethod{
 	{
 		Name: "ziwei.liushi", Description: "紫微流时。返回流时命宫及四化。",
 		Handler: ziweiLiuShiHandler,
-		Params:  mustSchema(`{"type":"object","properties":{"lunar_year":{"type":"integer"},"lunar_month":{"type":"integer","description":"农历月份"},"lunar_day":{"type":"integer","description":"农历日"},"shi_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"时支"},"chart":{"type":"object"}},"required":["lunar_year","lunar_month","lunar_day","shi_zhi","chart"]}`),
-		Result:  envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流时地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object","additionalProperties":{"type":"string","enum":["禄","权","科","忌"]},"description":"四化：{星名: 禄/权/科/忌}"},"xing_yao":{"type":"object","description":"时星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流时十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
+		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"target_lunar":{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer","description":"农历年份"},"month":{"type":"integer","minimum":1,"maximum":12,"description":"农历月份"},"day":{"type":"integer","minimum":1,"maximum":30,"description":"农历日期"},"leap":{"type":"boolean","description":"是否闰月"}},"required":["year","month","day","leap"]},"shi_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"],"description":"时辰"},"chart":{"type":"object","description":"ziwei.chart 返回的完整 chart 对象"}},"required":["target_lunar","shi_zhi","chart"]}`), Result: envelopeSchema(`{"type":"object","properties":{"ming_gong":{"type":"string","enum":["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","仆役","官禄","田宅","福德","父母"]},"ming_gong_name":{"type":"string"},"zhi":{"type":"string","description":"流时地支","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"si_hua":{"type":"object","additionalProperties":{"type":"string","enum":["禄","权","科","忌"]},"description":"四化：{星名: 禄/权/科/忌}"},"xing_yao":{"type":"object","description":"时星: {星名: zhiIdx}"},"gong_wei":{"type":"array","description":"流时十二宫盘","items":{"type":"object","properties":{"zhi":{"type":"string"},"name":{"type":"string"},"xing_yao":{"type":"array"},"is_liu_ming":{"type":"boolean"}}}}},"required":["ming_gong","zhi","si_hua"]}`),
 	},
 }
 
 func ziweiLiuShiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
-		LunarYear  int             `json:"lunar_year"`
-		LunarMonth int             `json:"lunar_month"`
-		LunarDay   int             `json:"lunar_day"`
-		ShiZhi     string          `json:"shi_zhi"`
-		Chart      json.RawMessage `json:"chart"`
+		TargetLunar tianwen.LunarDate `json:"target_lunar"`
+		ShiZhi      string            `json:"shi_zhi"`
+		Chart       json.RawMessage   `json:"chart"`
 	}
 	if err := json.Unmarshal(raw, &p); err != nil {
 		return nil, fmt.Errorf("ziwei.liushi: %w", err)
@@ -203,6 +203,9 @@ func ziweiLiuShiHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.liushi: 时辰应为地支(子丑寅卯...): %w", err)
 	}
-	result := ziwei.ComputeLiuShi(chart, p.LunarYear, p.LunarMonth, p.LunarDay, shiZhi)
+	result, err := ziwei.ComputeLiuShi(chart, p.TargetLunar, shiZhi)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.liushi: %w", err)
+	}
 	return wrapResult("ziwei_liushi", result)
 }

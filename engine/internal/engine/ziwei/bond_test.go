@@ -114,7 +114,11 @@ func chartFrom(t *testing.T, lunar string, ti int, gender string) Chart {
 	if gender == "男" {
 		g = ganzhi.Male
 	}
-	return ComputeChart(tianwen.LunarTime{Year: y, Month: m, Day: d, Shichen: ganzhi.Zhi(sz)}, g)
+	chart, err := ComputeChart(tianwen.LunarTime{Year: y, Month: m, Day: d, Shichen: ganzhi.Zhi(sz)}, g)
+	if err != nil {
+		t.Fatalf("invalid chart fixture: %v", err)
+	}
+	return chart
 }
 
 func strSliceEq(a, b []string) bool {

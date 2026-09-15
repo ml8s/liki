@@ -14,6 +14,6 @@ func BenchmarkComputeChart(b *testing.B) {
 	lt := tianwen.SolarToLunar(tianwen.GregorianTime(st.Time()))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ComputeChart(lt, ganzhi.Male)
+		_, _ = ComputeChart(lt, ganzhi.Male)
 	}
 }

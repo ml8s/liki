@@ -32,10 +32,10 @@ skills/liki-naming/feedback.schema.json
 | `meta` | 是 | `source`, `skill`, `skill_version`, `engine_version`, `session_hash?` | 识别反馈来源、版本组合和会话去重 |
 | `agent` | 是 | `name`, `version` | 判断是否为 agent 宿主或框架问题 |
 | `llm` | 是 | `provider`, `model`, `model_version?` | 判断是否为模型能力或快照差异 |
-| `problem` | 是 | `type`, `severity`, `summary`, `tool?`, `expected?`, `observed?`, `dedup_hash?` | 描述问题本体 |
+| `problem` | 是 | `type`, `severity`, `summary`, `tool?`, `expected?`, `observed?` | 描述问题本体 |
 
 `meta.source` 只能是 `skill-agent` 或 `user`。  
-`session_hash` 和 `problem.dedup_hash` 只能是 SHA-256 摘要，不能是明文 session ID。
+`session_hash` 只能是 SHA-256 摘要，不能是明文 session ID。去重指纹由后端基于会话与问题内容计算。
 
 ## 4. 问题类型
 
@@ -55,8 +55,8 @@ skills/liki-naming/feedback.schema.json
   "meta": {
     "source": "skill-agent",
     "skill": "liki-bazi",
-    "skill_version": "2026.09.15.1",
-    "engine_version": "2026.09.15.1"
+    "skill_version": "x.y.z",
+    "engine_version": "x.y.z"
   },
   "agent": {
     "name": "codex-cli",
@@ -90,7 +90,24 @@ skills/liki-naming/feedback.schema.json
 feedback(id, schema_version, payload_json, created_at)
 ```
 
-## 7. 隐私边界
+## 7. 运行治理
+
+反馈必须支持部署级关闭：
+
+```bash
+LIKI_FEEDBACK_DISABLED=1
+```
+
+默认 endpoint 为 `https://liki.hk/api/feedback`，自托管部署可用以下变量覆盖或关闭：
+
+```bash
+LIKI_FEEDBACK_URL=https://your-host.example/api/feedback
+LIKI_FEEDBACK_DISABLED=1
+```
+
+agent / LLM 事实应由宿主注入，不要求 LLM 自报身份。后端必须执行 payload 大小限制、rate limit、基础 PII 扫描与会话去重。
+
+## 8. 隐私边界
 
 禁止采集：
 

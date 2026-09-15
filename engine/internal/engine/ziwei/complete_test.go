@@ -89,7 +89,10 @@ func TestComplete(t *testing.T) {
 			if tc.Gender == "男" {
 				gender = ganzhi.Male
 			}
-			chart := ComputeChart(lt, gender)
+			chart, err := ComputeChart(lt, gender)
+			if err != nil {
+				t.Fatalf("ComputeChart: %v", err)
+			}
 			fc := ComputeFullChart(chart, 0, 0)
 
 			// 五行局
@@ -148,9 +151,16 @@ func TestComplete(t *testing.T) {
 				t.Fatalf("ComputeLiuYue: %v", err)
 			}
 			assertFlowPalaces(t, "流月", ly2.GongWei, tc.MFlow, &pass, &fail)
-			lr2 := ComputeLiuRi(fc, 2026, tgtM.Month, tgtM.Day)
+			lrTarget := tianwen.LunarDate{Year: tgtM.Year, Month: tgtM.Month, Day: tgtM.Day, Leap: tgtM.Leap}
+			lr2, err := ComputeLiuRi(fc, lrTarget)
+			if err != nil {
+				t.Fatalf("ComputeLiuRi: %v", err)
+			}
 			assertFlowPalaces(t, "流日", lr2.GongWei, tc.DFlow, &pass, &fail)
-			ls2 := ComputeLiuShi(fc, 2026, tgtM.Month, tgtM.Day, ganzhi.Zhi(1))
+			ls2, err := ComputeLiuShi(fc, lrTarget, ganzhi.Zhi(1))
+			if err != nil {
+				t.Fatalf("ComputeLiuShi: %v", err)
+			}
 			assertFlowPalaces(t, "流时", ls2.GongWei, tc.HFlow, &pass, &fail)
 			// 流年四化+zhi
 			lnZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ln.Zhi]
@@ -182,7 +192,10 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流日四化+zhi+星
-			lr := ComputeLiuRi(fc, 2026, tgtM.Month, tgtM.Day)
+			lr, err := ComputeLiuRi(fc, lrTarget)
+			if err != nil {
+				t.Fatalf("ComputeLiuRi: %v", err)
+			}
 			lrZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[lr.Zhi]
 			if lrZhi != tc.Dzhi && tc.Dzhi != "" {
 				t.Errorf("流日zhi: got %s want %s", lrZhi, tc.Dzhi)
@@ -198,7 +211,10 @@ func TestComplete(t *testing.T) {
 				}
 			}
 			// 流时四化+zhi+星
-			ls := ComputeLiuShi(fc, 2026, tgtM.Month, tgtM.Day, ganzhi.Zhi(1))
+			ls, err := ComputeLiuShi(fc, lrTarget, ganzhi.Zhi(1))
+			if err != nil {
+				t.Fatalf("ComputeLiuShi: %v", err)
+			}
 			lsZhi := []string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}[ls.Zhi]
 			if lsZhi != tc.Hzhi && tc.Hzhi != "" {
 				t.Errorf("流时zhi: got %s want %s", lsZhi, tc.Hzhi)
@@ -312,7 +328,11 @@ func TestComputeFullChartPatternsMatchFinalPalaces(t *testing.T) {
 			if tc.Gender == "男" {
 				gender = ganzhi.Male
 			}
-			full := ComputeFullChart(ComputeChart(lt, gender), 0, 0)
+			chart, err := ComputeChart(lt, gender)
+			if err != nil {
+				t.Fatalf("ComputeChart: %v", err)
+			}
+			full := ComputeFullChart(chart, 0, 0)
 			want := findPatterns(full.GongWei)
 			if len(full.Patterns) != len(want) {
 				t.Fatalf("patterns = %#v, want recomputed %#v", full.Patterns, want)

@@ -332,7 +332,7 @@ func SolarToLunar(gt GregorianTime) LunarTime {
 func LunarToGregorian(lt LunarTime) GregorianTime {
 	tz := defaultTZ
 
-	targetK, ok := findLunarMonthK(lt.Year, lt.Month, lt.Leap, tz)
+	targetK, ok := findLunarMonthInLunarYear(lt.Year, lt.Month, lt.Leap)
 	if !ok {
 		return GregorianTime(time.Time{})
 	}
@@ -355,29 +355,6 @@ func LunarToGregorian(lt LunarTime) GregorianTime {
 	targetJD := midnightJD + float64(lt.Day-1)
 	gy, gm, gd := jdToGregorian(targetJD, tz)
 	return GregorianTime(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.FixedZone("CST", int(defaultTZ*3600))))
-}
-
-// findLunarMonthK searches for the lunation number k that corresponds to
-// the given lunar year, month, and leap flag.
-func findLunarMonthK(lunarYear, lunarMonth int, leap bool, tz float64) (float64, bool) {
-	// Primary anchor: the Gregorian year whose Month 11 starts this lunar year.
-	anchorYear := lunarYear
-	if lunarMonth < 11 {
-		anchorYear = lunarYear - 1
-	}
-
-	if k, ok := searchMonthKInRange(anchorYear, lunarMonth, leap, tz); ok {
-		return k, true
-	}
-
-	// Fallback for months < 11: the leap month may shift the year boundary.
-	if lunarMonth < 11 {
-		if k, ok := searchMonthKInRange(lunarYear, lunarMonth, leap, tz); ok {
-			return k, true
-		}
-	}
-
-	return 0, false
 }
 
 func searchMonthKInRange(anchorYear, lunarMonth int, leap bool, tz float64) (float64, bool) {

@@ -1,19 +1,15 @@
 """Contract test: the canonical Liki slogan stays consistent across public windows."""
 
-from pathlib import Path
-
 import yaml
 
-ROOT = Path(__file__).resolve().parents[1]
-SKILL_NAMES = ["liki-bazi", "liki-divination", "liki-fengshui", "liki-naming"]
-SLOGAN = "懂命理，用灵机"
+from helpers import ROOT, SKILL_NAMES, skill_dir, SLOGAN
 FORBIDDEN_VARIANTS = [
     "问命理，用灵机",
     "命理事，问灵机",
     "灵机，懂命理",
 ]
 PUBLIC_WINDOWS = [ROOT / "README.md", ROOT / "README.en.md"] + [
-    ROOT / "skills" / name / "SKILL.md" for name in SKILL_NAMES
+    skill_dir(name) / "SKILL.md" for name in SKILL_NAMES
 ]
 
 
@@ -28,7 +24,7 @@ def test_root_readmes_repeat_canonical_slogan():
 
 def test_each_skill_repeats_canonical_slogan_in_description_and_intro():
     for name in SKILL_NAMES:
-        path = ROOT / "skills" / name / "SKILL.md"
+        path = skill_dir(name) / "SKILL.md"
         text = path.read_text(encoding="utf-8")
         meta = yaml.safe_load(text.split("---\n")[1])
         assert SLOGAN in meta["description"], f"{name}: discovery description lacks canonical slogan"

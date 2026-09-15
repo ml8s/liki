@@ -4,7 +4,13 @@
   "title": "Liki skill feedback",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "meta", "agent", "llm", "problem"],
+  "required": [
+    "schema_version",
+    "meta",
+    "agent",
+    "llm",
+    "problem"
+  ],
   "properties": {
     "schema_version": {
       "const": "feedback-v1"
@@ -12,10 +18,18 @@
     "meta": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source", "skill", "skill_version", "engine_version"],
+      "required": [
+        "source",
+        "skill",
+        "skill_version",
+        "engine_version"
+      ],
       "properties": {
         "source": {
-          "enum": ["skill-agent", "user"]
+          "enum": [
+            "skill-agent",
+            "user"
+          ]
         },
         "skill": {
           "type": "string",
@@ -36,7 +50,10 @@
     "agent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "version"],
+      "required": [
+        "name",
+        "version"
+      ],
       "properties": {
         "name": {
           "$ref": "#/$defs/shortText"
@@ -49,7 +66,10 @@
     "llm": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["provider", "model"],
+      "required": [
+        "provider",
+        "model"
+      ],
       "properties": {
         "provider": {
           "$ref": "#/$defs/shortText"
@@ -65,13 +85,28 @@
     "problem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "severity", "summary"],
+      "required": [
+        "type",
+        "severity",
+        "summary"
+      ],
       "properties": {
         "type": {
-          "enum": ["error", "gap", "conflict", "friction", "clarity"]
+          "enum": [
+            "error",
+            "gap",
+            "conflict",
+            "friction",
+            "clarity"
+          ]
         },
         "severity": {
-          "enum": ["blocker", "high", "medium", "low"]
+          "enum": [
+            "blocker",
+            "high",
+            "medium",
+            "low"
+          ]
         },
         "tool": {
           "$ref": "#/$defs/shortText"
@@ -88,9 +123,6 @@
         "observed": {
           "type": "string",
           "maxLength": 500
-        },
-        "dedup_hash": {
-          "$ref": "#/$defs/sha256"
         }
       }
     }

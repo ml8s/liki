@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026.09.15.3] — 农历日期 fail-closed 与反馈治理
+
+### Breaking changes
+
+- `ziwei.chart` 对不存在的农历日期、不存在闰月和超出月末日期 fail closed，不再返回非法命盘。
+- `ziwei.liuri` / `ziwei.liushi` 改用完整 `target_lunar{year,month,day,leap}`，可正确表达闰月。
+- `feedback-v1` 删除客户端 `problem.dedup_hash`；去重指纹由后端基于 `meta.session_hash` 和问题内容计算。
+- Skill 自主反馈支持 `LIKI_FEEDBACK_URL` 覆盖与 `LIKI_FEEDBACK_DISABLED=1` 禁用，并约定同一会话最多 3 条。
+
+### Fixes
+
+- `LunarToGregorian` 不存在的闰月不再错误 fallback 到下一年同名闰月。
+- `ComputeLiuRi` / `ComputeLiuShi` 接入农历日期校验，非法日期 fail closed。
+- `LunarToGregorian` / `ComputeLiuRi` / `ComputeLiuShi` 统一使用 strict lunar lookup，移除客户端日期搜索 fallback。
+
 ## [2026.09.15.2] — 品牌心智与 slogan 契约
 
 - 四个 SKILL.md 与两份 README 统一展示唯一 slogan「懂命理，用灵机」，强化专业圈层心智。

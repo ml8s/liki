@@ -1384,7 +1384,7 @@ func TestHandler_ZiweiLiuri_Valid(t *testing.T) {
 	if err := json.Unmarshal(chartResult, &env); err != nil {
 		t.Fatal(err)
 	}
-	params := json.RawMessage(fmt.Sprintf(`{"lunar_year":2026,"lunar_month":5,"lunar_day":10,"chart":%s}`, env.Data))
+	params := json.RawMessage(fmt.Sprintf(`{"target_lunar":{"year":2026,"month":5,"day":10,"leap":false},"chart":%s}`, env.Data))
 	result, err := r.Execute(context.Background(), "ziwei.liuri", params)
 	if err != nil {
 		t.Fatalf("ziwei.liuri: %v", err)

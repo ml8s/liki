@@ -13,7 +13,10 @@ func TestDaXian_StartYear(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	lt := tianwen.SolarToLunar(tianwen.GregorianTime(st.Time()))
-	chart := ComputeChart(lt, ganzhi.Male)
+	chart, err := ComputeChart(lt, ganzhi.Male)
+	if err != nil {
+		t.Fatalf("ComputeChart: %v", err)
+	}
 	steps := ComputeDaXian(chart)
 	if len(steps) == 0 {
 		t.Fatal("大限为空")

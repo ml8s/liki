@@ -2,7 +2,6 @@ package ziwei
 
 import (
 	"fmt"
-	"time"
 
 	"liki-engine/internal/engine/tianwen"
 )
@@ -153,11 +152,25 @@ type LiuRi struct {
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native). Day pillar requires Gregorian:
 // internally converts lunar→solar via search on SolarToLunar (the inverse).
-func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
+func ComputeLiuRi(chart Chart, target tianwen.LunarDate) (LiuRi, error) {
+	if _, err := tianwen.ValidateLunarDate(target); err != nil {
+		return LiuRi{}, fmt.Errorf("validate flow day: %w", err)
+	}
+
 	// 盘起点 = dailyIndex（直接用农历）
-	di := computeDailyIndex(chart, flowTarget{Year: liuYear, LunarMonth: lunarMonth, LunarDay: lunarDay})
+	di := computeDailyIndex(chart, flowTarget{
+		Year:        target.Year,
+		LunarMonth:  target.Month,
+		LunarDay:    target.Day,
+		IsLeapMonth: target.Leap,
+	})
 	// 流日干支 = 目标日干支（需公历——农历转公历）
-	gt := lunarToSolar(liuYear, lunarMonth, lunarDay)
+	gt := tianwen.LunarToGregorian(tianwen.LunarTime{
+		Year:  target.Year,
+		Month: target.Month,
+		Day:   target.Day,
+		Leap:  target.Leap,
+	})
 	zhu := tianwen.RiZhu(gt)
 	riGan, riZhi := Gan(zhu.Gan), Zhi(zhu.Zhi)
 	stars := liuRiStars(riGan, riZhi)
@@ -173,7 +186,7 @@ func ComputeLiuRi(chart Chart, liuYear, lunarMonth, lunarDay int) LiuRi {
 		SiHua:        computeSiHua(riGan),
 		Stars:        stars,
 		GongWei:      buildFlowPalaces(di, starByAnXingIdx),
-	}
+	}, nil
 }
 
 func liuRiStars(gan Gan, zhi Zhi) map[string]Zhi {
@@ -207,11 +220,26 @@ type LiuShi struct {
 
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native); shiZhi is the target hour zhi.
-func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) LiuShi {
+func ComputeLiuShi(chart Chart, target tianwen.LunarDate, shiZhi Zhi) (LiuShi, error) {
+	if _, err := tianwen.ValidateLunarDate(target); err != nil {
+		return LiuShi{}, fmt.Errorf("validate flow hour: %w", err)
+	}
+
 	// 盘起点 = hourlyIndex（直接用农历）
-	hi := computeHourlyIndex(chart, flowTarget{Year: liuYear, LunarMonth: lunarMonth, LunarDay: lunarDay, ShiZhi: shiZhi})
+	hi := computeHourlyIndex(chart, flowTarget{
+		Year:        target.Year,
+		LunarMonth:  target.Month,
+		LunarDay:    target.Day,
+		IsLeapMonth: target.Leap,
+		ShiZhi:      shiZhi,
+	})
 	// 流时干支：日干 + 五鼠遁（需公历——农历转公历）
-	gt := lunarToSolar(liuYear, lunarMonth, lunarDay)
+	gt := tianwen.LunarToGregorian(tianwen.LunarTime{
+		Year:  target.Year,
+		Month: target.Month,
+		Day:   target.Day,
+		Leap:  target.Leap,
+	})
 	zhu := tianwen.RiZhu(gt)
 	riGan := Gan(zhu.Gan)
 	shiGan := shiGanCalc(riGan, shiZhi)
@@ -228,7 +256,7 @@ func ComputeLiuShi(chart Chart, liuYear, lunarMonth, lunarDay int, shiZhi Zhi) L
 		SiHua:        computeSiHua(shiGan),
 		Stars:        stars,
 		GongWei:      buildFlowPalaces(hi, starByAnXingIdx),
-	}
+	}, nil
 }
 
 func liuShiStars(gan Gan, zhi Zhi) map[string]Zhi {
@@ -274,42 +302,4 @@ func yueGanByWuHuDun(nianGan Gan, yueZhi Zhi) Gan {
 		offset += 12
 	}
 	return Gan(((int(base[nianGan-1]) - 1 + offset) % 10) + 1)
-}
-
-// lunarToSolar finds the Gregorian date for a lunar date by searching
-// SolarToLunar as an oracle (the inverse function). Lunar months are ~29-30
-// days; searching ±35 days from a rough estimate is sufficient.
-func lunarToSolar(lunarYear, lunarMonth, lunarDay int) tianwen.GregorianTime {
-	cst := time.FixedZone("CST", 8*3600)
-	// 粗估公历月 ≈ 农历月 + 1（农历四月 ≈ 公历五月）
-	approx := time.Date(lunarYear, time.Month(lunarMonth+1), lunarDay, 0, 0, 0, 0, cst)
-
-	// SolarToLunar 关于日期单调递增 → 二分搜索（O(log 70) ≈ 7 次调用）
-	lo, hi := -35, 35
-	match := func(offset int) int {
-		lt := tianwen.SolarToLunar(tianwen.GregorianTime(approx.AddDate(0, 0, offset)))
-		got := lt.Year*10000 + lt.Month*100 + lt.Day
-		want := lunarYear*10000 + lunarMonth*100 + lunarDay
-		if got < want {
-			return -1
-		}
-		if got > want {
-			return 1
-		}
-		return 0
-	}
-	for lo <= hi {
-		mid := (lo + hi) / 2
-		c := match(mid)
-		if c == 0 {
-			return tianwen.GregorianTime(approx.AddDate(0, 0, mid))
-		}
-		if c < 0 {
-			lo = mid + 1
-		} else {
-			hi = mid - 1
-		}
-	}
-	// 未找到（不应该发生）——返回粗估值，日柱可能偏差
-	return tianwen.GregorianTime(approx)
 }

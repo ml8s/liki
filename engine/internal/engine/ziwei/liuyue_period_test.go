@@ -15,7 +15,11 @@ func liuYueTestChart(t *testing.T) Chart {
 	if err != nil {
 		t.Fatalf("parse shichen: %v", err)
 	}
-	return ComputeChart(tianwen.LunarTime{Year: 2000, Month: 8, Day: 23, Shichen: shiZhi}, Female)
+	chart, err := ComputeChart(tianwen.LunarTime{Year: 2000, Month: 8, Day: 23, Shichen: shiZhi}, Female)
+	if err != nil {
+		t.Fatalf("ComputeChart: %v", err)
+	}
+	return chart
 }
 
 func lunarDate(year, month, day int, leap bool) tianwen.LunarDate {

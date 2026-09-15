@@ -30,7 +30,10 @@ func TestMinorBrightnessInChart(t *testing.T) {
 		if tc.Gender == "男" {
 			gender = ganzhi.Male
 		}
-		chart := ComputeChart(lt, gender)
+		chart, err := ComputeChart(lt, gender)
+		if err != nil {
+			t.Fatalf("ComputeChart: %v", err)
+		}
 		fc := ComputeFullChart(chart, 0, 0)
 		for i := range fc.GongWei {
 			zhi := fc.GongWei[i].Zhi.String()

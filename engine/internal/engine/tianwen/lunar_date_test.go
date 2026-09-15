@@ -1,6 +1,9 @@
 package tianwen
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestLunarMonthMeta_LeapMonth(t *testing.T) {
 	// 2025 has a leap sixth month. This is an external calendar fact used as
@@ -32,6 +35,15 @@ func TestLunarMonthMeta_MissingLeapMonth(t *testing.T) {
 	// 2024 does not have a leap sixth month.
 	if _, err := LunarMonthMeta(2024, 6, true); err == nil {
 		t.Fatal("missing leap month succeeded, want error")
+	}
+}
+
+func TestLunarToGregorian_MissingLeapMonthDoesNotFallThrough(t *testing.T) {
+	// Regression: a fallback search previously mapped 2024 leap 6 to the
+	// real 2025 leap 6. A nonexistent lunar month must stay unresolved.
+	got := LunarToGregorian(LunarTime{Year: 2024, Month: 6, Day: 1, Leap: true})
+	if !got.Time().IsZero() {
+		t.Fatalf("LunarToGregorian(2024 leap 6) = %s, want zero time", got.Time().Format(time.RFC3339))
 	}
 }
 

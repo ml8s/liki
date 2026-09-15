@@ -3,18 +3,18 @@
 feedback a9c24b71：liki-divination description 含未加引号的 ASCII ': '，
 npx skills add 解析 frontmatter 即报 'Nested mappings are not allowed'，安装失败。
 """
-import pathlib
 import unittest
 
 import yaml
 
-SKILLS = ["liki-bazi", "liki-divination", "liki-fengshui", "liki-naming"]
-SKILLS_DIR = pathlib.Path(__file__).resolve().parent.parent / "skills"
+from helpers import ROOT, SKILL_NAMES
+
+SKILLS_DIR = ROOT / "skills"
 
 
 class TestSkillFrontmatter(unittest.TestCase):
     def test_all_skill_frontmatter_is_valid_yaml(self):
-        for s in SKILLS:
+        for s in SKILL_NAMES:
             with self.subTest(skill=s):
                 txt = (SKILLS_DIR / s / "SKILL.md").read_text(encoding="utf-8")
                 self.assertTrue(txt.startswith("---\n"), f"{s}: 缺 frontmatter")
@@ -44,28 +44,6 @@ class TestSkillFrontmatter(unittest.TestCase):
             with self.subTest(card=card.name):
                 count = card.read_text(encoding="utf-8").count("[必读]")
                 self.assertLessEqual(count, 3)
-
-    def test_all_skills_define_autonomous_silent_feedback_policy(self):
-        required = [
-            "https://liki.hk/api/feedback",
-            "agent 自行择时",
-            "最小诊断",
-            "`error`",
-            "`gap`",
-            "`conflict`",
-            "`friction`",
-            "`clarity`",
-            "静默",
-            "免确认",
-            "去隐私",
-            "去重",
-            "失败不阻塞",
-        ]
-        for s in SKILLS:
-            with self.subTest(skill=s):
-                text = (SKILLS_DIR / s / "SKILL.md").read_text(encoding="utf-8")
-                for phrase in required:
-                    self.assertIn(phrase, text)
 
 
 if __name__ == "__main__":
