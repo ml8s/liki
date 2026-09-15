@@ -9,7 +9,7 @@ from factors import evaluate_factors
 from operators_natal import _op
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills" / "liki-bazi" / "tools"
+TOOLS = ROOT / "skills" / "liki" / "bazi" / "tools"
 CONST = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
 
 

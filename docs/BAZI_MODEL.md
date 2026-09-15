@@ -1,6 +1,6 @@
 # 八字领域模型（八紫双盘）
 
-`liki-bazi` 的领域名 `bazi` 是八紫双盘同参的稳定领域包名：它覆盖八字四柱、紫微斗数，以及两条体系之间的 `common` 合参边界。狭义“八字”只在 `shushi=bazi`、RPC 名称或具体柱盘上下文中表示四柱子系统。
+`skills/liki/bazi` 的领域名 `bazi` 是八紫双盘同参的稳定领域包名：它覆盖八字四柱、紫微斗数，以及两条体系之间的 `common` 合参边界。狭义“八字”只在 `shushi=bazi`、RPC 名称或具体柱盘上下文中表示四柱子系统。
 
 本文记录该领域的稳定对象、分层边界和求值契约。因子与断言是本命断语的条件机制，不是领域模型的顶层名字。
 
@@ -95,6 +95,7 @@ pan → factors → snap → assertions
 紫微 `宫含` 算子只对 `ziwei.palace_facts` 做 palace / kind / target / star exact match；Python 不再遍历宫位、推导四化落宫、解释亮度分组或计算主星数量。
 紫微盘显式输出 `school`：当前闰月口径为 iztro v2.6.1 兼容的“前十五日本月、后十五日次月”。这不是《紫微斗数全书》闰月按下月口径；两派不得混写。主星亮度表同步 iztro v2.6.1 对太阳、太阴、七杀居酉的修正。
 `ziwei.liuyue` 输入必须已经是完整农历日期（`year/month/day/leap`）；engine 只消费该领域输入。真实闰月由 `resolved_period.calendar_period` 表达，实际流月由 `resolved_period.flow_month` 表达：闰月 1–15 日取本闰月，16 日至月末取下一农历月。Python 不得判断 `day > 15`，也不得把闰月提前改写成普通月。
+`ziwei.liuyue` 不接受公历、裸农历月份或 `half / fixLeap` 修正参数；同一农历年的六月与闰六月是两个真实月份。农历月不存在、日期超过真实月末或缺少 `day / leap` 时必须 fail closed。
 `ziwei.liuri` / `ziwei.liushi` 同样必须提供完整农历日期（`year/month/day/leap`），用于定位真实干支纪日；不得用裸农历序数表达闰月。流盘 `xing_yao` 数组只保证确定性展示顺序：禄、羊、陀、魁、钺、马、鸾、喜、昌、曲；该顺序不是吉凶排序，也不改变星曜落宫与作用。
 本命宫名使用 engine 闭集：`命宫、兄弟、夫妻、子女、财帛、疾厄、迁移、仆役、官禄、田宅、福德、父母`；除命宫外不追加“宫”字。`任意` 只表示跨全部本命宫匹配，不是宫名。
 流年紫微同样消费 engine 宫名闭集；`流曜入宫` 与 `流年宫化` 不做带“宫”字后的显示别名适配。
@@ -152,8 +153,8 @@ pan → factors → snap → assertions
 
 因子清单的唯一事实源是长表：
 
-- `skills/liki-bazi/tools/factors/factors.csv`
-- `skills/liki-bazi/tools/factors/factors_liunian.csv`
+- `skills/liki/bazi/tools/factors/factors.csv`
+- `skills/liki/bazi/tools/factors/factors_liunian.csv`
 
 本文只记录分层、统计与不可变契约，不复制因子行。CSV 是因子清单唯一事实源，文档、测试或快照不得再维护第二份逐因子清单。
 
@@ -187,7 +188,7 @@ pan → factors → snap → assertions
 
 ## 7. 常量与闭集
 
-十神、五行、干支、十二长生、紫微星曜、宫位、神煞、关系表与命理侧闭集均以 `skills/liki-bazi/tools/constants.json` 为唯一事实源。代码只做机械查表、解析与求值，不内置命理结论。
+十神、五行、干支、十二长生、紫微星曜、宫位、神煞、关系表与命理侧闭集均以 `skills/liki/bazi/tools/constants.json` 为唯一事实源。代码只做机械查表、解析与求值，不内置命理结论。
 
 | 层 | 内容 | 说明 |
 |---|---|---|

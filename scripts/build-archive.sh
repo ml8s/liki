@@ -1,89 +1,69 @@
 #!/bin/bash
-# Build skill archives (liki-<name>.tar.gz + index.json) into dist/
-# 工程根 = liki（仓库根，与仓库名 ml8s/liki 一致）；skills/ 下每个子目录 = 一个独立 skill（唯一被安装的部分）
+# Build the single unified Liki skill archive.
+# 工程根 = liki（仓库根）；skills/liki = 唯一可安装 skill。
 set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-DIST_DIR="$PROJECT_DIR/dist"   # 构建产物属工程区（仓库根），不进 skill 内容区
-
-# 4 个 skill：命理 / 问卦 / 风水 / 起名
-SKILLS=(liki-bazi liki-divination liki-fengshui liki-naming)
+DIST_DIR="$PROJECT_DIR/dist"
+SKILL_NAME="liki"
+SKILL_DIR="$PROJECT_DIR/skills/$SKILL_NAME"
 
 mkdir -p "$DIST_DIR"
 
-SKILL_ENTRIES=""
+if [ ! -f "$SKILL_DIR/SKILL.md" ]; then
+    echo "[build-archive] error: $SKILL_DIR/SKILL.md not found" >&2
+    exit 1
+fi
 
-for NAME in "${SKILLS[@]}"; do
-    SKILL_DIR="$PROJECT_DIR/skills/$NAME"
-    if [ ! -f "$SKILL_DIR/SKILL.md" ]; then
-        echo "[build-archive] 警告：$SKILL_DIR 无 SKILL.md，跳过" >&2
-        continue
-    fi
-    ARCHIVE="$DIST_DIR/$NAME.tar.gz"
-
-    # skill-tools.json uses the skill VERSION file as its single version source.
-    if [ -f "$SKILL_DIR/tools/skill-tools.json" ] && [ -f "$SKILL_DIR/VERSION" ]; then
-        python3 - "$SKILL_DIR" <<'PYEOF'
-import json, os, sys
-skill_dir = sys.argv[1]
-p = os.path.join(skill_dir, "tools", "skill-tools.json")
-version = open(os.path.join(skill_dir, "VERSION"), encoding="utf-8").read().strip()
-d = json.load(open(p, encoding="utf-8"))
+# Every domain manifest stays domain-local, but its distributed version is
+# injected from the single root VERSION file.
+VERSION="$(tr -d '\r\n' < "$SKILL_DIR/VERSION")"
+find "$SKILL_DIR" -mindepth 3 -maxdepth 3 -type f -name skill-tools.json -print0 |
+while IFS= read -r -d '' manifest; do
+    python3 - "$manifest" "$VERSION" <<'PYEOF'
+import json, sys
+path, version = sys.argv[1:]
+d = json.load(open(path, encoding="utf-8"))
 info = d.setdefault("info", {})
 if info.get("version") != version:
     info["version"] = version
-    json.dump(d, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"  ✓ skill-tools.json info.version → {version}")
+    json.dump(d, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    print(f"  ✓ {path} info.version → {version}")
 else:
-    print(f"  ✓ skill-tools.json info.version 已是最新（{version}）")
+    print(f"  ✓ {path} info.version 已是最新（{version}）")
 PYEOF
-    fi
-
-    echo "[build-archive] 打包 $NAME..."
-    tar czf "$ARCHIVE" \
-        --transform 's|^\./||' \
-        -C "$SKILL_DIR" \
-        --exclude .git \
-        --exclude .github \
-        --exclude .githooks \
-        --exclude .claude \
-        --exclude .reasonix \
-        --exclude .pytest_cache \
-        --exclude __pycache__ \
-        --exclude CHANGELOG.md \
-        --exclude '*.tar.gz' \
-        --exclude dist \
-        .
-
-    # 从 SKILL.md frontmatter 读取 description（单一事实源，避免硬编码漂移）
-    DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
-
-    echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
 done
 
+ARCHIVE="$DIST_DIR/$SKILL_NAME.tar.gz"
+echo "[build-archive] 打包 $SKILL_NAME..."
+tar czf "$ARCHIVE" \
+    --transform 's|^\./||' \
+    -C "$SKILL_DIR" \
+    --exclude .git \
+    --exclude .github \
+    --exclude .githooks \
+    --exclude .claude \
+    --exclude .reasonix \
+    --exclude .pytest_cache \
+    --exclude __pycache__ \
+    --exclude CHANGELOG.md \
+    --exclude '*.tar.gz' \
+    --exclude dist \
+    .
+
+DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
+echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
+
 INDEX="$DIST_DIR/index.json"
-python3 - "$PROJECT_DIR" <<'PYEOF'
-import glob, hashlib, json, os, re, sys
-project_dir = sys.argv[1]
-entries = []
-for arc in sorted(glob.glob(os.path.join(project_dir, "dist", "*.tar.gz"))):
-    name = os.path.basename(arc)[:-len(".tar.gz")]
-    skill_dir = os.path.join(project_dir, "skills", name)
-    sk = os.path.join(skill_dir, "SKILL.md")
-    if not os.path.exists(sk):
-        continue
-    desc = ""
-    for ln in open(sk, encoding="utf-8"):
-        if ln.startswith("description:"):
-            desc = ln[len("description:"):].strip()
-            desc = desc.strip('"')  # description 已加引号防 YAML 歧义，index 中存裸值
-            break
-    digest = "sha256:" + hashlib.sha256(open(arc, "rb").read()).hexdigest()
-    entries.append({"name": name, "type": "archive", "url": f"/skills/{name}.tar.gz",
-                    "digest": digest, "description": desc})
-with open(os.path.join(project_dir, "dist", "index.json"), "w", encoding="utf-8") as fh:
-    json.dump({"$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json", "skills": entries},
-              fh, ensure_ascii=False, indent=2)
+python3 - "$ARCHIVE" "$SKILL_DIR" "$SKILL_NAME" "$DESC" <<'PYEOF'
+import hashlib, json, sys
+archive, skill_dir, name, description = sys.argv[1:]
+digest = "sha256:" + hashlib.sha256(open(archive, "rb").read()).hexdigest()
+entry = {"name": name, "type": "archive", "url": f"/skills/{name}.tar.gz",
+         "digest": digest, "description": description}
+with open("dist/index.json", "w", encoding="utf-8") as fh:
+    json.dump({"$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+               "skills": [entry]}, fh, ensure_ascii=False, indent=2)
 PYEOF
 echo "  ✓ $INDEX"

@@ -2,8 +2,8 @@
 import os
 import sys
 
-# 注入 tools 目录到 sys.path（tests 与 tools 平级于 skills/liki-bazi 下）
-TOOLS = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'skills', 'liki-bazi', 'tools')
+# 注入 tools 目录到 sys.path（tests 与 tools 平级于 skills/liki/bazi 下）
+TOOLS = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'skills', 'liki', 'bazi', 'tools')
 if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
 

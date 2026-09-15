@@ -8,7 +8,7 @@ import pytest
 from errors import FactorTableError
 from factor_tables import load_long_rows
 
-ROOT = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/factors"
+ROOT = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/factors"
 CASES = {"factors.csv": "natal", "factors_liunian.csv": "flow"}
 FIELDS = {"factor_id", "shushi", "group_id", "term_index", "kind", "expression", "expected", "basis"}
 

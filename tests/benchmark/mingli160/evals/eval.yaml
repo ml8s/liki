@@ -6,9 +6,9 @@
 #   - eval.yaml 在 tests/benchmark/mingli160/evals/，基准解析目录是其上级 tests/benchmark/mingli160/
 #   - cases.files / skills.path 均相对该基准目录解析：
 #       cases:     evals/cases/pan01.yaml          → tests/benchmark/mingli160/evals/cases/pan01.yaml
-#       skills:    ../../../skills/liki-bazi       → <仓库根>/skills/liki-bazi
+#       skills:    ../../../skills/liki       → <仓库根>/skills/liki
 #   - 答案文件不进 skill——run.sh 运行前 stash 隔离（容器 agent 读不到）
-#   - 答案隔离不变量：容器只挂载 skills/liki-bazi（skills.path），tests/ 不进容器——
+#   - 答案隔离不变量：容器只挂载 skills/liki（skills.path），tests/ 不进容器——
 #     grade-case.py 内嵌答案留在仓库树内因此安全；若改挂载范围（如挂仓库根），
 #     必须先把 grade-case.py 移出 agent 可读范围，否则答案泄漏
 #   - 产物输出由 run.sh 的 --output-dir 指到 tests/benchmark/mingli160/workspace/（不入库不进包）
@@ -16,7 +16,7 @@ schema_version: v1alpha1
 
 skills:
   - source: local_path
-    path: ../../../skills/liki-bazi
+    path: ../../../skills/liki
     exclude:            # 只装 skill 本体（~1MB）：跳过 .git 历史与构建产物
       - ".git/**"
       - "dist/**"

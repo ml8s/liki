@@ -2,6 +2,27 @@
 
 `tests/` 有确定性功能测试与两类独立的 agent 评测。不要用 160 题准确率基准做功能回归，也不要把功能 smoke 当作命理准确率证明。
 
+## Unified skill structure: `skills/liki/`
+
+仓库现在只有一个可安装 skill：`skills/liki`。根 `SKILL.md` 只负责产品路由、全局 RPC、安全和 feedback；四个领域入口是：
+
+```text
+bazi/ENTRY.md
+divination/ENTRY.md
+fengshui/ENTRY.md
+naming/ENTRY.md
+```
+
+结构契约由 `tests/test_unified_skill_structure.py` 和 `tests/check.sh` 锁定：
+
+- 全 skill 只有一个 `SKILL.md`；
+- 四个领域都有 `ENTRY.md`；
+- `VERSION`、`feedback.py`、`feedback.schema.json` 不重复；
+- 根入口保持轻量；
+- 旧 `liki-*` skill 名不出现在安装内容中；
+- `bazi/TOOLS.md` 与 `divination/TOOLS.md` 覆盖全部 Python 工具；
+- `naming/RPC.md` 与 `fengshui/RPC.md` 覆盖全部固定 RPC。
+
 ## Functional rule-engine tests: `functional/`
 
 `functional/` 是规则引擎功能测试，不负责证明全部命理断语正确。它锁定确定性行为：

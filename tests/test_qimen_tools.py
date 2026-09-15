@@ -11,7 +11,7 @@ import pytest
 from jsonschema import validate
 
 
-TOOLS = Path(__file__).resolve().parents[1] / "skills/liki-divination/tools"
+TOOLS = Path(__file__).resolve().parents[1] / "skills/liki/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -1593,7 +1593,7 @@ def test_python_tool_schema_stays_aligned_with_fact_sources() -> None:
 def test_snapshot_contract_version_and_engine_paths_are_bound() -> None:
     root = Path(__file__).resolve().parents[1]
     contract = load_factors_contract()
-    version = (root / "skills/liki-divination/VERSION").read_text(encoding="utf-8").strip()
+    version = (root / "skills/liki/VERSION").read_text(encoding="utf-8").strip()
     assert contract["version"] == version
 
     schema = json.loads(

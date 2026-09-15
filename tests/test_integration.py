@@ -16,7 +16,7 @@ import unittest
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                'skills', 'liki-bazi', 'tools'))
+                                'skills', 'liki', 'bazi', 'tools'))
 
 
 @pytest.mark.integration
@@ -28,7 +28,7 @@ class TestIntegration_FullChain(unittest.TestCase):
         if not url:
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           "skills", "liki-bazi", "tools", "agent_cli.py")
+                           "skills", "liki", "bazi", "tools", "agent_cli.py")
         env = dict(os.environ, LIKI_RPC_URL=url)
 
         def call(fn, args):
@@ -68,7 +68,7 @@ class TestIntegration_FullChain(unittest.TestCase):
         if not url:
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           "skills/liki-bazi/tools/agent_cli.py")
+                           "skills/liki/bazi/tools/agent_cli.py")
         env = dict(os.environ, LIKI_RPC_URL=url)
 
         def call(fn, args):
@@ -110,7 +110,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "skills", "liki-divination", "tools", "agent_cli.py",
+            "skills", "liki", "divination", "tools", "agent_cli.py",
         )
         env = dict(os.environ, LIKI_RPC_URL=url)
         process = subprocess.run(
@@ -135,7 +135,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             },
         })
         self.assertEqual(snapshot["method"], "liuyao")
-        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v6")
+        self.assertEqual(snapshot["schema_version"], "liuyao-snapshot-v7")
         self.assertTrue(snapshot["snapshot_digest"])
         self.assertIn("focus", snapshot)
 
@@ -163,9 +163,26 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             "fn": "huangli_days",
             "args": {"question": "哪天适合签约？", "event": "sign", "days": 3},
         })
-        self.assertEqual(result["schema_version"], "huangli-days-v1")
+        self.assertEqual(result["schema_version"], "huangli-days-v2")
         self.assertEqual(result["range"]["days"], 3)
         self.assertLessEqual(len(result["candidates"]), 3)
+
+    def test_huangli_medical_topic_returns_result_with_safety_advisory(self):
+        result = self.call_tool(**{
+            "fn": "huangli_days",
+            "args": {
+                "question": "手术后的复诊日期哪天适合？",
+                "event": "medical",
+                "days": 3,
+            },
+        })
+        self.assertEqual(result["schema_version"], "huangli-days-v2")
+        self.assertTrue(result["candidates"])
+        advisory = result["safety_advisory"]
+        self.assertEqual(advisory["status"], "advisory")
+        self.assertFalse(advisory["blocking"])
+        self.assertEqual(advisory["category"], "serious_medical")
+        self.assertIn("医生", advisory["guidance"])
 
     def test_liuyao_other_matter_routes_to_response_line(self):
         snapshot = self.call_tool(**{
@@ -244,7 +261,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             },
         })
         self.assertEqual(snapshot["method"], "qimen")
-        self.assertEqual(snapshot["schema_version"], "qimen-snapshot-v4")
+        self.assertEqual(snapshot["schema_version"], "qimen-snapshot-v5")
         self.assertIn("method_context", snapshot)
 
         answer = self.call_tool(**{
@@ -268,7 +285,7 @@ class TestIntegration_QimenRules(unittest.TestCase):
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "skills", "liki-divination", "tools", "agent_cli.py",
+            "skills", "liki", "divination", "tools", "agent_cli.py",
         )
         env = dict(os.environ, LIKI_RPC_URL=url)
 

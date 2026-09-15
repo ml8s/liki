@@ -1,7 +1,7 @@
 schema_version: v1alpha1
 skills:
   - source: local_path
-    path: ../../skills/liki-naming
+    path: ../../skills/liki
     exclude:
       - ".git/**"
       - "dist/**"

@@ -18,13 +18,10 @@ import (
 	"testing"
 )
 
-// 校验范围：liki-bazi（规则引擎）+ 子流程三 skill（domains 表引用引擎字段——jixiong/yiji 等）
+// 校验范围：unified Liki skill（根入口 + 四个领域包）
 // 相对路径基于包目录 engine/internal/agent（go test cwd）：../../../skills/... 指向本 monorepo 根 skills/
 var skillDocsRels = []string{
-	"../../../skills/liki-bazi",
-	"../../../skills/liki-divination",
-	"../../../skills/liki-fengshui",
-	"../../../skills/liki-naming",
+	"../../../skills/liki",
 }
 
 var (
@@ -184,7 +181,14 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	}
 	for _, a := range []string{"rpc.discover", "skill-tools.json", "VERSION", "content.sha256",
 		"liki-memory.json", "RPCError", "ValueError", "error", "methods", "parameters",
-		"required", "params.properties", "result.methods"} {
+		"required", "params.properties", "params.methods", "result.methods",
+		"data", "result.data", "result.info", "result.info.version",
+		"result.methods[].name", "bazhai.chart.result.data.ming_gua.gua.name",
+		"result.methods.name", "xuankong.chart.result.data", "bazhai",
+		"xuankong", "qiming", "snapshot", "data", "error", "unknown",
+		"true", "false", "skills/liki/VERSION", "full_paipan.data",
+		"safety_advisory", "meta.skill", "info.version", "pan_digest",
+		"pan.ziwei_daxian"} {
 		allow[a] = true
 	}
 
@@ -192,7 +196,14 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	lineToken := regexp.MustCompile("`([^`]+)`")
 	for _, f := range files {
 		docAllow := allow
-		if vocabulary, exists := toolVocabulary[skillNameForDoc(f)]; exists {
+		docSkill := skillNameForDoc(f)
+		if docSkill == "liki" {
+			docAllow = make(map[string]bool, len(allow))
+			maps.Copy(docAllow, allow)
+			for _, vocabulary := range toolVocabulary {
+				maps.Copy(docAllow, vocabulary)
+			}
+		} else if vocabulary, exists := toolVocabulary[docSkill]; exists {
 			docAllow = make(map[string]bool, len(allow)+len(vocabulary))
 			maps.Copy(docAllow, allow)
 			maps.Copy(docAllow, vocabulary)
@@ -211,7 +222,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 				}
 				if reExtension.MatchString(tok) || strings.HasPrefix(tok, "tools/") ||
 					strings.HasPrefix(tok, "app/") || strings.HasPrefix(tok, "domains/") ||
-					strings.HasPrefix(tok, "webapp/") {
+					strings.HasPrefix(tok, "webapp/") || strings.HasPrefix(tok, "skills/liki/") {
 					continue
 				}
 				// 含 '/' 但非已知路径前缀 → HTTP 头/媒体类型等值（如 Content-Type: application/json），非 schema 字段，跳过
@@ -243,11 +254,21 @@ func skillNameForDoc(path string) string {
 	if err != nil {
 		return ""
 	}
-	return strings.SplitN(rel, string(filepath.Separator), 2)[0]
+	parts := strings.Split(rel, string(filepath.Separator))
+	if len(parts) == 0 {
+		return ""
+	}
+	if parts[0] != "liki" {
+		return parts[0]
+	}
+	if len(parts) == 1 || parts[len(parts)-1] == "SKILL.md" {
+		return "liki"
+	}
+	return parts[1]
 }
 
 func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
-	files, err := filepath.Glob(filepath.Join("..", "..", "..", "skills", "*", "tools", "skill-tools.json"))
+	files, err := filepath.Glob(filepath.Join("..", "..", "..", "skills", "liki", "*", "tools", "skill-tools.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +289,14 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 		if err := json.Unmarshal(raw, &document); err != nil {
 			return nil, err
 		}
-		skill := filepath.Base(filepath.Dir(filepath.Dir(path)))
+		parts := strings.Split(filepath.ToSlash(path), "/")
+		skill := "liki"
+		for index, part := range parts {
+			if part == "liki" && index+1 < len(parts) {
+				skill = parts[index+1]
+				break
+			}
+		}
 		vocabulary := result[skill]
 		if vocabulary == nil {
 			vocabulary = make(map[string]bool)
@@ -279,26 +307,28 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 			collectToolVocabulary(tool.Function.Parameters, vocabulary)
 		}
 
-		// Root feedback contracts are per-skill. Keep their enums scoped to the owning
-		// skill so SKILL.md can cite feedback problem types without polluting other
-		// skills or pretending they belong to an engine RPC schema.
-		feedbackPath := filepath.Join(filepath.Dir(filepath.Dir(path)), "feedback.schema.json")
+		// The unified root owns the feedback contract. Keep its vocabulary under
+		// the product skill so domain tool vocabularies stay scoped.
+		feedbackPath := filepath.Join("..", "..", "..", "skills", "liki", "feedback.schema.json")
 		if feedbackRaw, err := os.ReadFile(feedbackPath); err == nil {
 			var feedbackSchema any
 			if err := json.Unmarshal(feedbackRaw, &feedbackSchema); err != nil {
 				return nil, err
 			}
-			collectToolVocabulary(feedbackSchema, vocabulary)
+			if result["liki"] == nil {
+				result["liki"] = make(map[string]bool)
+			}
+			collectToolVocabulary(feedbackSchema, result["liki"])
 		}
 	}
 
 	// Skills without a Python tool layer still publish their root feedback schema.
-	feedbackFiles, err := filepath.Glob(filepath.Join("..", "..", "..", "skills", "*", "feedback.schema.json"))
+	feedbackFiles, err := filepath.Glob(filepath.Join("..", "..", "..", "skills", "liki", "feedback.schema.json"))
 	if err != nil {
 		return nil, err
 	}
 	for _, path := range feedbackFiles {
-		skill := filepath.Base(filepath.Dir(path))
+		skill := "liki"
 		vocabulary := result[skill]
 		if vocabulary == nil {
 			vocabulary = make(map[string]bool)
@@ -322,20 +352,20 @@ func TestSkillToolVocabularyIsScoped(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bazi := vocabulary["liki-bazi"]
-	divination := vocabulary["liki-divination"]
+	bazi := vocabulary["bazi"]
+	divination := vocabulary["divination"]
 	if !bazi["full_paipan"] || bazi["qimen_chart"] {
-		t.Fatal("liki-bazi tool vocabulary is missing its own tools or leaks qimen tools")
+		t.Fatal("bazi tool vocabulary is missing its own tools or leaks qimen tools")
 	}
 	if !divination["qimen_snapshot"] || divination["full_paipan"] {
-		t.Fatal("liki-divination tool vocabulary is missing its own tools or leaks bazi tools")
+		t.Fatal("divination tool vocabulary is missing its own tools or leaks bazi tools")
 	}
 }
 
 func TestSkillNameForDoc(t *testing.T) {
-	got := skillNameForDoc(filepath.Join("..", "..", "..", "skills", "liki-divination", "SKILL.md"))
-	if got != "liki-divination" {
-		t.Fatalf("skill name = %q, want liki-divination", got)
+	got := skillNameForDoc(filepath.Join("..", "..", "..", "skills", "liki", "divination", "ENTRY.md"))
+	if got != "divination" {
+		t.Fatalf("skill name = %q, want divination", got)
 	}
 }
 

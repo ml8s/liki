@@ -25,14 +25,14 @@
 
 ## 30 秒了解
 
-安装后，你的 AI 助手获得 4 个命理技能：
+安装后，你的 AI 助手获得一个专业命理 Skill：
 
-| 技能 | 能问什么 | 试试这样问 |
+| 领域 | 能问什么 | 试试这样问 |
 |------|---------|-----------|
-| **liki-bazi** 命理 | 婚姻、事业、财运、健康、学业、性格、六亲、两人合盘、全盘命书 | `算八字，1990-05-20 12:00 北京出生，男` |
-| **liki-naming** 起名 | 新生儿起名、成人改名、英文起中文名、名字评估 | `宝宝起名，2024-06-10 广州出生，男，姓陈` |
-| **liki-divination** 问卦 | 六爻问成败应期、奇门问方向时机、黄历选吉日 | `这件事能成吗？什么时候有结果` |
-| **liki-fengshui** 风水 | 八宅命卦布局、玄空飞星、流年风水 | `我家风水怎么样` |
+| 命理（八字 + 紫微） | 婚姻、事业、财运、健康、学业、性格、六亲、两人合盘、全盘命书 | `算八字，1990-05-20 12:00 北京出生，男` |
+| 起名 | 新生儿起名、成人改名、英文起中文名、名字评估 | `宝宝起名，2024-06-10 广州出生，男，姓陈` |
+| 问卦 | 六爻问成败应期、奇门问方向时机、黄历选吉日 | `这件事能成吗？什么时候有结果` |
+| 风水 | 八宅命卦布局、玄空飞星、流年风水 | `我家风水怎么样` |
 
 **专业标准意味着什么**：
 
@@ -41,29 +41,6 @@
 - 160 道命理师大赛真题独立评测，答案与评测过程隔离
 
 **懂命理，用灵机。**
-
-## 安装
-
-```bash
-npx skills add ml8s/liki          # 一次安装全部 4 个技能
-```
-
-只装某一个：
-
-```bash
-npx skills add ml8s/liki --skill liki-bazi      # 命理（八字+紫微）
-npx skills add ml8s/liki --skill liki-naming    # 起名
-npx skills add ml8s/liki --skill liki-divination # 问卦
-npx skills add ml8s/liki --skill liki-fengshui  # 风水
-```
-
-**装完后，直接这样开始**：
-
-```
-帮我出一份命书，1990-05-20 12:00 北京出生，男
-我和她合不合？我 1992-03-15 生，她 1994-08-20 生
-2026 年我的事业和财运怎么样？
-```
 
 ## 使用手册
 
@@ -89,9 +66,9 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 | 问对方 | `我们俩合不合？`（提供双方出生信息） |
 | 要完整报告 | `帮我出一份命书`（全盘：婚姻/事业/财运/健康/学业/六亲） |
 
-### 各技能详细指南
+### 各领域指南
 
-#### liki-bazi 命理（八字 + 紫微双盘同参）
+#### 命理（八字 + 紫微双盘同参）
 
 按人生领域直接问——技能自动排盘、查断语、给出结论+依据+应期：
 
@@ -104,7 +81,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 
 **输出格式**：结论先行，后附依据。每个结论可追溯到具体命理步骤和经典依据。
 
-#### liki-naming 起名
+#### 起名
 
 > 宝宝起名，2024-06-10 广州出生，男，姓陈
 
@@ -112,7 +89,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 
 也支持：改名、英文起中文名、自选名字评估。
 
-#### liki-divination 问卦
+#### 问卦
 
 先按用户目标选法，默认单法，不自动双盘合参：
 
@@ -139,7 +116,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 
 领域契约文档见下方「开发者 → 领域契约」。
 
-#### liki-fengshui 风水
+#### 风水
 
 - **八宅**：`我的命卦是什么？` `大门/厨房/卧室怎么布局？`
 - **玄空**：`现在的元运我家旺不旺？` `2026年流年风水注意什么？`
@@ -178,23 +155,29 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 
 ### 架构
 
-```
-skills/liki-bazi
-├── SKILL.md    ← 规则层（流程骨架 + 强制规则）
-├── feedback.schema.json ← 自主反馈 feedback-v1 契约
-├── feedback.py ← feedback sender / runtime governance
-├── app/        ← 流程层（10 卡：婚姻/事业/财运/…）
-├── domains/    ← 知识层（bazi 16 + ziwei 9 篇）
-└── tools/      ← 工具层（6 个 Python 工具 + 断语/因子 4 张长表 + schema 契约）
+```text
+skills/liki/
+├── SKILL.md              ← 唯一 skill 入口：品牌、全局路由、安全与反馈
+├── VERSION               ← 唯一分发版本
+├── feedback.py           ← feedback sender / runtime governance
+├── feedback.schema.json  ← autonomous feedback-v1 contract
+├── bazi/                 ← 八字 + 紫微：ENTRY / TOOLS / app / domains / tools
+├── divination/           ← 六爻 + 奇门 + 黄历：ENTRY / TOOLS / app / domains / tools
+├── fengshui/             ← 八宅 + 玄空：ENTRY / RPC / app / domains
+└── naming/               ← 起名：ENTRY / RPC / app / domains
 repo root
 ├── engine/     ← Go JSON-RPC 天文历算引擎（8 领域）
 ├── tests/      ← 规则引擎功能测试 + 准确率基准（160 题）+ 跨领域功能 smoke
 └── scripts/    ← 构建 / 分发索引
 ```
 
-调用链：SKILL.md 路由到 app 卡 → 卡调用 6 个 Python 工具（`agent_cli.py` 内部编排 RPC 排盘、领域快照、因子长表与断语长表匹配）→ 按 domains 知识解读 → 按卡内模板输出。RPC 方法对 liki-bazi 的 LLM 不可见。
+调用链：根 `SKILL.md` 路由到领域 `ENTRY.md` → 领域入口读取 app 卡。bazi / divination 通过 Python 工具层编排 RPC、快照、因子与断语；naming / fengshui 当前无 Python 工具层，按固定 discover scope 直接调用 RPC，再按领域知识和卡内模板输出。
 
 ### 领域契约
+
+- [docs/SKILL_PACKAGE.md](./docs/SKILL_PACKAGE.md) — 统一 Skill 包结构、入口与打包契约。
+- [bazi/TOOLS.md](./skills/liki/bazi/TOOLS.md) / [divination/TOOLS.md](./skills/liki/divination/TOOLS.md) — Python 工具完整 stdin 报文。
+- [naming/RPC.md](./skills/liki/naming/RPC.md) / [fengshui/RPC.md](./skills/liki/fengshui/RPC.md) — 直接 JSON-RPC 完整报文。
 
 - [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — 问卦领域模型与分层：casting、snapshot、evidence、answer 与审计边界。
 - [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — 八字领域模型（八紫双盘）：八字、紫微、原子事实、因子条件、断言与查询边界。
@@ -202,7 +185,7 @@ repo root
 - [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — 起名领域模型与分层：八字用神策略、字池、候选名、外国人中文姓候选、校验与出处边界。
 - [docs/FEEDBACK_MODEL.md](./docs/FEEDBACK_MODEL.md) — 反馈契约与分层：`feedback-v1` 诊断组、问题类型、隐私边界与后端兼容策略。
 
-完整因子清单以 `skills/liki-bazi/tools/factors/*.csv` 为唯一事实源。
+完整因子清单以 `skills/liki/bazi/tools/factors/*.csv` 为唯一事实源。
 
 ### 引擎镜像
 
@@ -223,13 +206,13 @@ make skillup-smoke             # 跨领域功能 smoke（模型）
 make hooks        # 安装 git hooks（首次）
 make test-all     # 全量：skills 单测 + engine（lint/vet/race/集成/冒烟）+ 全链集成
 make check        # 断语表 schema + 文档契约 + 版本一致性
-make build-archive # 打包 4 skill + 生成分发索引与归档摘要
+make build-archive # 打包 unified Liki skill + 生成分发索引
 ```
 
 ### 设计原则
 
-- 分层单一职责：根=规则、app=流程、domains=知识、tools=工具
-- 单一数据来源：LLM 工具契约以 `tools/skill-tools.json` 为准、因子与断语以长表 CSV 为准
+- 分层单一职责：根=统一入口、ENTRY=领域入口、app=流程、domains=知识、tools=工具
+- 单一数据来源：LLM 工具契约以各领域 `tools/skill-tools.json` 为准、因子与断语以长表 CSV 为准
 - 双体系交叉：八字/紫微分侧计算，common 表显式合参，冲突分层列证
 - 日期版本（CalVer）：VERSION=日期戳 + CHANGELOG，启动做版本自检，里程碑按需 git tag
 - 评测驱动：独立判分、答案隔离、数据公开

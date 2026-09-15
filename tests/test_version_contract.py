@@ -6,10 +6,7 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_TIMEZONE = ZoneInfo("Asia/Shanghai")
 VERSION_FILES = (
-    ROOT / "skills/liki-bazi/VERSION",
-    ROOT / "skills/liki-divination/VERSION",
-    ROOT / "skills/liki-fengshui/VERSION",
-    ROOT / "skills/liki-naming/VERSION",
+    ROOT / "skills/liki/VERSION",
     ROOT / "engine/cmd/liki/VERSION",
 )
 
@@ -21,31 +18,31 @@ def test_all_distributed_versions_are_synchronized():
 
 
 def test_bazi_tool_and_domain_contracts_use_distributed_version():
-    version = (ROOT / "skills/liki-bazi/VERSION").read_text(encoding="utf-8").strip()
+    version = (ROOT / "skills/liki/VERSION").read_text(encoding="utf-8").strip()
     tools = json.loads(
-        (ROOT / "skills/liki-bazi/tools/skill-tools.json").read_text(encoding="utf-8")
+        (ROOT / "skills/liki/bazi/tools/skill-tools.json").read_text(encoding="utf-8")
     )
     domain_contract = json.loads(
-        (ROOT / "skills/liki-bazi/tools/natal_projection_contract.json").read_text(encoding="utf-8")
+        (ROOT / "skills/liki/bazi/tools/natal_projection_contract.json").read_text(encoding="utf-8")
     )
     assert tools["info"]["version"] == version
     assert domain_contract["version"] == version
 
 
 def test_divination_tool_and_projection_contracts_use_distributed_version():
-    version = (ROOT / "skills/liki-divination/VERSION").read_text(encoding="utf-8").strip()
+    version = (ROOT / "skills/liki/VERSION").read_text(encoding="utf-8").strip()
     tools = json.loads(
-        (ROOT / "skills/liki-divination/tools/skill-tools.json").read_text(encoding="utf-8")
+        (ROOT / "skills/liki/divination/tools/skill-tools.json").read_text(encoding="utf-8")
     )
     projection_contract = json.loads(
-        (ROOT / "skills/liki-divination/tools/qimen_projection_contract.json").read_text(encoding="utf-8")
+        (ROOT / "skills/liki/divination/tools/qimen_projection_contract.json").read_text(encoding="utf-8")
     )
     assert tools["info"]["version"] == version
     assert projection_contract["version"] == version
 
 
 def test_changelog_is_project_level_and_current_version_is_calver():
-    version = (ROOT / "skills/liki-bazi/VERSION").read_text(encoding="utf-8").strip()
+    version = (ROOT / "skills/liki/VERSION").read_text(encoding="utf-8").strip()
     assert not list((ROOT / "skills").rglob("CHANGELOG.md"))
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     first_heading = next(

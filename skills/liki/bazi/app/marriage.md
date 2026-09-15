@@ -1,0 +1,46 @@
+---
+name: app-marriage
+description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
+依赖域: bazi,ziwei
+---
+
+# 婚姻分析
+
+
+> 工具报文：只使用 `bazi/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
+## 依赖的领域知识
+
+[必读] - bazi: bazi/domains/bazi/shishen.md「女命婚姻——官杀混杂判断」
+- bazi: bazi/domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
+[必读] - bazi: bazi/domains/bazi/dayun.md「应期决策表」
+- bazi: bazi/domains/bazi/family.md「六亲——配偶」（按需——官杀线已覆盖配偶星主线）
+
+[必读] - ziwei: bazi/domains/ziwei/yingqi.md「婚姻紫微应期」
+## 📖 流程
+
+| 步骤 | 条件 / 目标 | 动作 | 产物 |
+|---|---|---|---|
+| 1 | 配偶星 | 男看财星、女看官杀；读取 `bazi/domains/bazi/shishen.md` | 星名、清浊、取清状态 |
+| 2 | 夫妻宫 | 发送 `TOOLS.md §3.1 query.夫妻`；读取 `bazi/domains/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
+| 3 | 婚姻状态 | 分别发送 `TOOLS.md §3.1` 的 `query.十神`、`query.大运`、`query.大限` | 已婚 / 单身 / 离异 / 婚缘迟 |
+| 4 | 应期 | 读取 `bazi/domains/bazi/dayun.md`；发送 `TOOLS.md §4.1 yearly_range.marriage` | 首选年、备选年、引动层 |
+| 5 | 具体细节 | 发送 `TOOLS.md §4.1 yearly_range.marriage` | 紫微夫妻宫、四化、桃花信号 |
+
+## 边界条件
+
+| 异常场景 | 处理方式 |
+|---------|---------|
+| 用户未婚但问离婚 | 先问是否已有稳定对象，有则分析当前关系，无则分析命局倾向 |
+| 男命问感情但原局无财星 | 食伤为财源，查食伤状态（食伤生财为隐性妻星） |
+| 女命问婚姻但原局无官杀 | 查财星（财生官杀为隐性夫星），或大运引动 |
+| 已离婚问再婚 | 查七杀是否清透，大运有无正官/正财出现 |
+| 用户只提供了一个人的八字但想看合盘 | 提示需要双方出生信息，引导到 bazi/app/compatibility.md |
+
+## 📖 输出模板
+
+| 输出 | 内容 |
+|---|---|
+| 结论 | 婚姻状态、婚缘强弱或婚变倾向 |
+| 依据 | 配偶星清浊、夫妻宫状态、大运 / 大限引动 |
+| 应期 | 首选年、备选年、引动层级与置信度 |
+| 建议 | 可行动方向；未验证时明确标注 |

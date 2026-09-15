@@ -9,7 +9,7 @@ from jsonschema.exceptions import ValidationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills/liki-divination/tools"
+TOOLS = ROOT / "skills/liki/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -45,13 +45,11 @@ def test_qimen_hour_polarity_follows_stem_parity():
         assert _hour_polarity({"pan": {"shi_gan": stem}}) == polarity
 
 
-def test_safety_block_matches_common_contract():
+def test_safety_advisory_does_not_block_flow():
     safety = divination_safety.assess("我不想活了")
-    payload = divination_safety.blocked_payload(
-        question="我不想活了", method="liuyao", safety=safety,
-    )
-    divination_contracts.validate_document("divination_blocked", payload)
-    assert payload["policy"]["no_casting"] is True
+    assert safety["status"] == "advisory"
+    assert safety["blocking"] is False
+    assert safety["support_first"] is True
 
 
 def test_safety_rules_support_multilingual_boundary():
@@ -67,7 +65,7 @@ def test_safety_rules_support_multilingual_boundary():
     }
     for question, expected in cases.items():
         safety = divination_safety.assess(question)
-        assert safety["status"] == "redirect", question
+        assert safety["status"] == "advisory", question
         assert safety["category"] == expected, question
 
 
@@ -354,32 +352,18 @@ def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
     divination_contracts.validate_document("qimen_answer", answer)
 
 
-def test_short_high_risk_question_is_blocked_before_length(monkeypatch):
-    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: (_ for _ in ()).throw(AssertionError("engine called")))
-    payload = liuyao_snapshot.create(question="我不想活", mode="yaos", yaos=[7] * 6, matter="career")
-    assert payload["blocked"] is True
-    assert payload["safety"]["status"] == "redirect"
+def test_short_high_risk_question_is_not_blocked_by_safety():
+    safety = divination_safety.assess("我不想活")
+    assert safety["status"] == "advisory"
+    assert safety["blocking"] is False
+    assert safety["support_first"] is True
 
 
-def test_qimen_short_high_risk_message_is_blocked_before_length():
-    payload = qimen_ask.ask(
-        {
-            "snapshot_kind": "jinhan",
-            "schema_version": qimen_snapshot.SCHEMA_VERSION,
-            "method": "qimen",
-            "snapshot_digest": "x" * 16,
-            "question": "今天整体态势如何？",
-            "input": {"city": "上海", "longitude": 121.47, "local_time": "x", "solar_time": "x"},
-            "matter": None,
-            "method_context": {"scope": "day", "school": "jinhan_yujing"},
-            "factors": {"kind": "jinhan", "school": "jinhan_yujing", "scope": "day"},
-            "special": None,
-            "policy": {"immutable": True, "no_rechart_without_new_event": True},
-        },
-        message="自杀",
-    )
-    assert payload["blocked"] is True
-
+def test_qimen_short_high_risk_message_is_not_blocked_by_safety():
+    safety = divination_safety.assess("自杀")
+    assert safety["status"] == "advisory"
+    assert safety["blocking"] is False
+    assert safety["support_first"] is True
 
 def test_qimen_snapshot_rejects_invalid_special_focus_before_rpc(monkeypatch):
     monkeypatch.setattr(qimen_snapshot, "server_time", lambda: (_ for _ in ()).throw(AssertionError("engine called")))

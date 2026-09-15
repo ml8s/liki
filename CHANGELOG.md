@@ -1,3 +1,40 @@
+# Changelog
+
+## [2026.09.15.7] — ready-to-use payload contracts and advisory safety
+
+### Breaking changes
+
+- 四个旧 skill 已合并为唯一 `liki` skill；安装与更新统一为 `npx skills add ml8s/liki -y`。
+- `divination` 高风险主题不再返回 blocked payload；snapshot / answer / 择日结果继续生成，并附带 `safety_advisory`。
+- 六爻、奇门、黄历契约加入 `safety_advisory` 并升级 schema 版本，旧 blocked 契约移除。
+
+### Changes
+
+- 新增 `bazi/TOOLS.md` 与 `divination/TOOLS.md`，为全部 Python 高阶工具提供完整 stdin 报文、默认值和动态对象绑定规则。
+- 新增 `naming/RPC.md` 与 `fengshui/RPC.md`，为固定 discover scope 和全部业务 RPC 提供完整 JSON-RPC 报文。
+- bazi query 扩展为 25 个合法 rule 的完整报文矩阵；`yearly_range` 提供婚姻、家庭、事业、财运、健康、学业和年度总览固定场景报文。
+- app 卡改为引用 `TOOLS.md` / `RPC.md` 固定章节，避免 agent 自行组包或猜参数。
+- discover 改用固定子域 / 方法 scope；runtime 校验关键方法必须存在，缺失或引擎版本过低时 fail closed。
+- 命名域缺时辰时不再默认午时；改为询问一次，仍未确认则切换期望五行路径并标注「未评估用神」。
+
+# Changelog
+
+## [2026.09.15.6] — unify four skills into one Liki skill
+
+### Breaking changes
+
+- `liki-bazi`、`liki-divination`、`liki-fengshui`、`liki-naming` 合并为唯一可安装 skill `liki`。
+- 分发产物改为 `dist/liki.tar.gz`；`dist/index.json` 只包含 `liki`。
+- 删除旧 skill 名称、旧 VERSION 副本和四份重复 feedback sender/schema；不提供旧名称兼容层。
+- 安装与更新统一为 `npx skills add ml8s/liki -y`。
+
+### Changes
+
+- 新增根 `SKILL.md`：只负责品牌入口、全局 RPC、领域路由、统一安全和 feedback。
+- 旧四个 `SKILL.md` 转为 `bazi/ENTRY.md`、`divination/ENTRY.md`、`fengshui/ENTRY.md`、`naming/ENTRY.md`。
+- 保留四个领域的 app、domains、tools 分层；所有文档路径改为 unified-skill-root 相对路径。
+- 新增 unified skill 结构契约测试，并更新打包、CI、README、贡献指南和领域文档。
+
 ## [2026.09.15.5] — cross-domain deterministic golden tests
 
 ### Changes
@@ -5,8 +42,6 @@
 - 新增跨域确定性 golden：八字三源共识、天文历法两源共识、六爻 64 卦八宫、黄历建除矩阵、八宅命卦全周期与玄空飞星矩阵。
 - 新增 `make golden-engine` 统一入口，并按域提供只读验证与开发期生成命令。
 - 同步八字、问卦、风水领域文档与测试说明，明确 golden 只锁确定性事实，不用开源项目投票解释层。
-
-# Changelog
 
 ## [2026.09.15.4] — deterministic flow stars and feedback sender
 

@@ -8,7 +8,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills/liki-divination/tools"
+TOOLS = ROOT / "skills/liki/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 EXPECTED_TOOLS = {
@@ -59,7 +59,7 @@ def test_removed_orchestration_modules_are_gone():
         "qimen_session_contract.json",
         "app/auspicious.md",
     ):
-        assert not (TOOLS / name if not name.startswith("app/") else ROOT / "skills/liki-divination" / name).exists(), name
+        assert not (TOOLS / name if not name.startswith("app/") else ROOT / "skills/liki/divination" / name).exists(), name
 
 
 def test_only_common_rpc_module_touches_urllib():
@@ -75,7 +75,6 @@ def test_contract_registry_has_exact_domain_contracts():
     from divination_contracts import CONTRACT_FILES
 
     assert set(CONTRACT_FILES) == {
-        "divination_blocked",
         "liuyao_snapshot",
         "qimen_snapshot",
         "huangli_days",
@@ -87,10 +86,10 @@ def test_contract_registry_has_exact_domain_contracts():
 
 
 def test_snapshot_app_cards_replace_chart_cards():
-    assert (ROOT / "skills/liki-divination/app/liuyao-snapshot.md").is_file()
-    assert (ROOT / "skills/liki-divination/app/qimen-snapshot.md").is_file()
-    assert not (ROOT / "skills/liki-divination/app/liuyao-chart.md").exists()
-    assert not (ROOT / "skills/liki-divination/app/qimen-chart.md").exists()
+    assert (ROOT / "skills/liki/divination/app/liuyao-snapshot.md").is_file()
+    assert (ROOT / "skills/liki/divination/app/qimen-snapshot.md").is_file()
+    assert not (ROOT / "skills/liki/divination/app/liuyao-chart.md").exists()
+    assert not (ROOT / "skills/liki/divination/app/qimen-chart.md").exists()
 
 
 def test_primary_entries_use_shared_safety():
@@ -219,7 +218,7 @@ def test_liuyao_timing_boundary_and_target_rules_are_table_driven():
 
 
 def test_liuyao_static_hexagram_doc_separates_fact_from_action():
-    text = (ROOT / "skills/liki-divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
+    text = (ROOT / "skills/liki/divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
     assert "静卦，只说明无明显动爻" in text
     assert "不因静卦直接断顺势吉凶" in text
     assert "顺势/事缓" not in text
@@ -228,7 +227,7 @@ def test_liuyao_static_hexagram_doc_separates_fact_from_action():
 def test_divination_safety_boundary_is_table_driven():
     source = (TOOLS / "divination_safety.py").read_text(encoding="utf-8")
     rules = json.loads((TOOLS / "divination_safety_rules.json").read_text(encoding="utf-8"))
-    assert rules["schema_version"] == "divination-safety-rules-v1"
+    assert rules["schema_version"] == "divination-safety-rules-v2"
     assert {rule["category"] for rule in rules["rules"]} >= {
         "self_harm", "emergency_medical", "serious_medical", "domestic_violence",
     }

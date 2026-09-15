@@ -8,10 +8,10 @@ import urllib.error
 from io import StringIO
 from unittest import mock
 
-from helpers import SKILL_NAMES, skill_dir, skill_version
+from helpers import SKILL_ROOT, skill_dir, skill_version
 
 
-def load_sender(skill="liki-bazi"):
+def load_sender(skill="liki"):
     return load_sender_from(skill_dir(skill) / "feedback.py", skill)
 
 
@@ -25,7 +25,7 @@ def load_sender_from(path, name="feedback"):
 def payload() -> dict:
     return {
         "meta": {
-            "skill": "liki-bazi",
+            "skill": "liki",
             "skill_version": skill_version(),
             "engine_version": skill_version(),
         },
@@ -40,9 +40,9 @@ def payload() -> dict:
     }
 
 
-def test_all_skill_senders_are_identical():
-    raw = {(skill_dir(s) / "feedback.py").read_bytes() for s in SKILL_NAMES}
-    assert len(raw) == 1
+def test_unified_skill_has_one_sender():
+    senders = list(SKILL_ROOT.rglob("feedback.py"))
+    assert [p.relative_to(SKILL_ROOT) for p in senders] == [__import__("pathlib").Path("feedback.py")]
 
 
 def test_sender_builds_valid_payload_and_uses_endpoint(monkeypatch):
@@ -137,7 +137,7 @@ def test_sender_host_overrides_win_over_payload(monkeypatch, tmp_path):
 
     monkeypatch.setattr(sender.urllib.request, "urlopen", fake_urlopen)
     monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
-    monkeypatch.setenv("LIKI_FEEDBACK_SKILL", "liki-divination")
+    monkeypatch.setenv("LIKI_FEEDBACK_SKILL", "liki")
     monkeypatch.setenv("LIKI_FEEDBACK_SKILL_VERSION", "2026.01.01.0")
     monkeypatch.setenv("LIKI_ENGINE_VERSION", "2026.01.01.0")
     monkeypatch.setenv("LIKI_FEEDBACK_SESSION_HASH", "sha256:" + "0" * 64)
@@ -145,7 +145,7 @@ def test_sender_host_overrides_win_over_payload(monkeypatch, tmp_path):
     body = json.loads(sent["request"].data.decode("utf-8"))
     assert body["meta"] == {
         "source": "skill-agent",
-        "skill": "liki-divination",
+        "skill": "liki",
         "skill_version": "2026.01.01.0",
         "engine_version": "2026.01.01.0",
         "session_hash": "sha256:" + "0" * 64,
@@ -180,7 +180,7 @@ def test_sender_context_and_unknown_defaults_fill_partial_host_facts(monkeypatch
 
 def test_sender_prefers_explicit_context_over_sidecar(monkeypatch, tmp_path):
     sender_path = tmp_path / "feedback.py"
-    shutil.copy2(skill_dir("liki-bazi") / "feedback.py", sender_path)
+    shutil.copy2(skill_dir("liki") / "feedback.py", sender_path)
     sender = load_sender_from(sender_path)
     sidecar_path = tmp_path / "feedback.context.json"
     sidecar_path.write_text(
@@ -216,7 +216,7 @@ def test_sender_prefers_explicit_context_over_sidecar(monkeypatch, tmp_path):
 
 def test_sender_uses_sidecar_context_when_env_absent(monkeypatch, tmp_path):
     sender_path = tmp_path / "feedback.py"
-    shutil.copy2(skill_dir("liki-bazi") / "feedback.py", sender_path)
+    shutil.copy2(skill_dir("liki") / "feedback.py", sender_path)
     sender = load_sender_from(sender_path)
     sidecar_path = tmp_path / "feedback.context.json"
     sidecar_path.write_text(

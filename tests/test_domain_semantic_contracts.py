@@ -33,7 +33,7 @@ def test_tian_ke_di_chong_requires_both_gan_ke_and_zhi_chong():
 
 
 def test_family_wealth_loss_requires_unfavorable_peers():
-    with (Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertion_conditions.csv").open(
+    with (Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/assertions/assertion_conditions.csv").open(
         encoding="utf-8", newline=""
     ) as source:
         groups: dict[str, dict[str, str]] = {}
@@ -44,7 +44,7 @@ def test_family_wealth_loss_requires_unfavorable_peers():
 
 
 def test_study_dayun_damage_requires_rooted_unfavorable_god():
-    with (Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertion_conditions.csv").open(
+    with (Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/assertions/assertion_conditions.csv").open(
         encoding="utf-8", newline=""
     ) as source:
         groups: dict[str, dict[str, str]] = {}
@@ -59,7 +59,7 @@ def test_study_dayun_damage_requires_rooted_unfavorable_god():
 
 
 def test_female_specific_child_loss_is_gender_gated():
-    with (Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertion_conditions.csv").open(
+    with (Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/assertions/assertion_conditions.csv").open(
         encoding="utf-8", newline=""
     ) as source:
         groups: dict[str, dict[str, str]] = {}
@@ -72,7 +72,7 @@ def test_female_specific_child_loss_is_gender_gated():
 
 
 def test_factor_groups_do_not_duplicate_definitions():
-    root = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/factors"
+    root = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/factors"
     for name in ("factors.csv", "factors_liunian.csv"):
         with (root / name).open(encoding="utf-8", newline="") as source:
             rows = list(csv.DictReader(source))
@@ -91,7 +91,7 @@ def test_factor_groups_do_not_duplicate_definitions():
 
 
 def test_factor_model_preserves_assertion_unconsumed_domain_fact():
-    root = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools"
+    root = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools"
     with (root / "factors/factors.csv").open(encoding="utf-8", newline="") as source:
         factor_ids = {row["factor_id"] for row in csv.DictReader(source)}
     with (root / "assertions/assertion_conditions.csv").open(
@@ -282,7 +282,7 @@ def test_required_natal_factors_include_reference_closure():
 def test_documented_query_rules_use_runtime_whitelist():
     from pathlib import Path
     import re
-    root = Path(__file__).resolve().parents[1] / "skills/liki-bazi"
+    root = Path(__file__).resolve().parents[1] / "skills/liki/bazi"
     documented = set()
     for path in list((root / "app").glob("*.md")) + list((root / "domains").glob("*/*.md")):
         documented.update(re.findall(r"query\(rule=([^,\)\s]+)", path.read_text(encoding="utf-8")))
@@ -378,7 +378,7 @@ def test_operator_code_contains_no_domain_member_literals():
             domain_members.add(role)
 
     failures = []
-    root = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools"
+    root = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools"
     for path in sorted(root.glob("*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"))
         docstrings = set()
@@ -402,7 +402,7 @@ def test_relation_assertions_do_not_overstate_transformation_success():
     import csv
     from pathlib import Path
 
-    path = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions/assertions.csv"
+    path = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/assertions/assertions.csv"
     with path.open(encoding="utf-8-sig", newline="") as source:
         rows = [row for row in csv.DictReader(source) if row["rule"] == "合会"]
 
@@ -420,7 +420,7 @@ def test_yearly_scene_aliases_have_matchable_domain_assertions():
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[1]
-    path = root / "skills/liki-bazi/tools/assertions/assertions.csv"
+    path = root / "skills/liki/bazi/tools/assertions/assertions.csv"
     with path.open(encoding="utf-8-sig", newline="") as source:
         rows = list(csv.DictReader(source))
 

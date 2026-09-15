@@ -40,18 +40,20 @@ def test_engine_compatibility_uses_rpc_discover(monkeypatch) -> None:
 
     def fake_call(method, params, retries=1):
         calls.append((method, params, retries))
-        return {"info": {"version": "2026.09.15.5"}}
+        methods = [{"name": name} for name in paipan.REQUIRED_METHODS]
+        return {"info": {"version": "2026.09.15.5"}, "methods": methods}
 
     monkeypatch.setattr(paipan, "call", fake_call)
     paipan.ensure_engine_compatible()
 
-    assert calls == [("rpc.discover", {"methods": "bazi.fullchart"}, 0)]
+    assert calls == [("rpc.discover", {"methods": ",".join(paipan.DISCOVER_SCOPES)}, 0)]
 
 
 def test_engine_compatibility_rejects_old_engine(monkeypatch) -> None:
-    monkeypatch.setattr(
-        paipan, "call", lambda *_a, **_k: {"info": {"version": "2026.09.10.9"}}
-    )
+    methods = [{"name": name} for name in paipan.REQUIRED_METHODS]
+    monkeypatch.setattr(paipan, "call", lambda *_a, **_k: {
+        "info": {"version": "2026.09.10.9"}, "methods": methods
+    })
 
     with pytest.raises(RPCError, match="incompatible"):
         paipan.ensure_engine_compatible()

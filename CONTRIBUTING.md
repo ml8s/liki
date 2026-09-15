@@ -13,7 +13,7 @@
 1. Fork 本仓库
 2. 创建一个功能分支：`git checkout -b feat/my-change`
 3. 安装 git hooks（一次）：`make hooks`
-4. 升版本用根 Makefile 统一写入当日日期和序号（skill 4 份 VERSION + engine VERSION 同步；有 `skill-tools.json` 的 skill 会同步 `info.version`）：
+4. 升版本用根 Makefile 统一写入当日日期和序号（`skills/liki/VERSION` + engine VERSION 同步；各领域 `skill-tools.json` 会同步 `info.version`）：
    ```bash
    make version
    ```
@@ -22,7 +22,7 @@
 
 ## 代码规范
 
-- SKILL.md 以中文为主，术语保持原文；liki-bazi 的 LLM 只能看到 `tools/skill-tools.json` 中的 6 个 Python 工具，不提示直接调用引擎 RPC 方法
+- 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。bazi / divination 的 LLM 只调用对应 `tools/skill-tools.json` 中的 Python 工具；naming / fengshui 当前无 Python 工具层，只能使用 ENTRY 固定 discover 闭集内声明的 RPC
 - 引擎 lint 用 golangci-lint v2（配置 `engine/.golangci.yml`）。本地安装用官方二进制脚本，**不要 `go install`**（golangci-lint 与 Go 版本强耦合，官方明确不推荐该方式）：
   ```bash
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
@@ -31,7 +31,7 @@
 
 ## 设计原则（为什么这样设计）
 
-- **RPC 不暴露给 LLM**：liki-bazi 的 SKILL.md/app 卡只引用 6 个 Python 工具；RPC 排盘、因子求值和断语匹配由 `agent_cli.py` 白名单编排。原因：双层工具会让 LLM 混用入口并漏做 Python 层契约校验。防回潮门禁：`tests/check_docs.py` 的方法白名单与根文档契约测试。
+- **RPC 调用边界分层**：bazi / divination 的领域 `ENTRY.md` / app 卡只引用本领域 Python 工具；RPC 排盘、因子求值和断语匹配由 `agent_cli.py` 白名单编排。naming / fengshui 当前无工具层，只允许固定 discover 闭集内声明的方法。原因：双层工具会让 LLM 混用入口并漏做 Python 层契约校验。防回潮门禁：`tests/check_docs.py` 的方法白名单与根文档契约测试。
 - **历史事件只验证整体框架**：校准/结论验证回退的对象是「格局+用神+大运」的综合解读框架，不是单一用神选择——事件是框架的综合结果，无法反推单一变量（v1.23.0 教训）。落地处：`app/mingshu.md` 历史事件校准节、`domains/bazi/calibration.md`。
 - **三派用神必须聚合出唯一结论**：扶抑/调候/格局三派按决策表聚合（`domains/bazi/yongshen.md`），不并列列出让用户选——并列等于把专业判断推给用户（v1.16.0 教训，已落地 yongshen.md 聚合决策表）。
 
@@ -42,7 +42,7 @@
 # 搜代码（含脚本）
 grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
 # 搜 skill 文档
-grep -rn "旧方法名" skills/*/app/*.md skills/*/SKILL.md
+grep -rn "旧方法名" skills/liki/*/app/*.md skills/liki/*/ENTRY.md skills/liki/SKILL.md
 ```
 
 **添加新 RPC 方法时**（同步更新测试）：

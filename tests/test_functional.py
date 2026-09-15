@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-import _helpers  # noqa: F401 —— 注入 liki-bazi tools 路径
+import _helpers  # noqa: F401 —— 注入 unified Liki bazi tools 路径
 import duanyu
 from errors import FactorEvaluateError
 from duanyu import (

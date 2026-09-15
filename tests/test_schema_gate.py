@@ -7,7 +7,7 @@ import _helpers  # noqa: F401
 from factor_tables import load_long_rows
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills/liki-bazi" / "tools"
+TOOLS = ROOT / "skills/liki/bazi" / "tools"
 CONSTANTS = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
 ENUM_SOURCES = {
     "月令格": "月令格局", "扶抑从格": "扶抑从格", "身强弱": "身强弱状态",

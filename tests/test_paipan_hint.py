@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools"))
 
 from paipan import _shichen_boundary_hint
 

@@ -7,7 +7,7 @@ import pytest
 import _helpers  # noqa: F401
 from duanyu import load_rule_table
 
-ROOT = Path(__file__).resolve().parents[1] / "skills/liki-bazi/tools/assertions"
+ROOT = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/assertions"
 
 
 def _rows(name):

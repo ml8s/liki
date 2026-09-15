@@ -26,19 +26,19 @@
 
 ## In 30 Seconds
 
-After installation, your AI assistant gains 4 metaphysics skills:
+After installation, your AI assistant gains one professional Skill for Chinese metaphysics:
 
-| Skill | What you can ask | Try this |
+| Domain | What you can ask | Try this |
 |-------|------------------|----------|
-| **liki-bazi** destiny | Marriage, career, wealth, health, education, personality, family, compatibility, full life report | `Read my BaZi, born 1990-05-20 12:00 in Beijing, male` |
-| **liki-naming** naming | Baby naming, renaming, Chinese names for English speakers, name evaluation | `Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen` |
-| **liki-divination** divination | Liuyao (outcome & timing), QiMen (direction & decision), auspicious date selection | `Will this work out? When will I see results?` |
-| **liki-fengshui** feng shui | Bazhai chart & layout, Xuankong flying stars, annual feng shui | `How is the feng shui of my home?` |
+| Destiny (BaZi + ZiWei) | Marriage, career, wealth, health, education, personality, family, compatibility, full life report | `Read my BaZi, born 1990-05-20 12:00 in Beijing, male` |
+| Naming | Baby naming, renaming, Chinese names for English speakers, name evaluation | `Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen` |
+| Divination | Liuyao (outcome & timing), QiMen (direction & decision), auspicious date selection | `Will this work out? When will I see results?` |
+| Feng Shui | Bazhai chart & layout, Xuankong flying stars, annual feng shui | `How is the feng shui of my home?` |
 
 **What professional standards mean here:**
 
 - Charts are computed by an astronomical engine (true solar time, second-level solar terms) — the AI never invents numbers
-- Judgments come from 799 truth-table rules, each citing classical sources (Ziping Zhenquan, Dih Tian Sui, etc.)
+- Judgments come from 799 truth-table rules, each citing classical sources
 - Independently evaluated on 160 competition questions with answer isolation
 
 **懂命理，用灵机。**
@@ -46,16 +46,7 @@ After installation, your AI assistant gains 4 metaphysics skills:
 ## Installation
 
 ```bash
-npx skills add ml8s/liki          # install all 4 skills
-```
-
-Install one:
-
-```bash
-npx skills add ml8s/liki --skill liki-bazi       # destiny (BaZi + ZiWei)
-npx skills add ml8s/liki --skill liki-naming     # naming
-npx skills add ml8s/liki --skill liki-divination # divination
-npx skills add ml8s/liki --skill liki-fengshui   # feng shui
+npx skills add ml8s/liki
 ```
 
 **After installing, start like this:**
@@ -90,9 +81,9 @@ The skill works like a practitioner — **one topic at a time**, with structured
 | Compatibility | `Are we compatible?` (provide both birth infos) |
 | Full report | `Give me a full life reading` |
 
-### Detailed Guide by Skill
+### Detailed Guide by Domain
 
-#### liki-bazi (BaZi + ZiWei dual-chart)
+#### Destiny (BaZi + ZiWei dual-chart)
 
 Ask by life domain — the skill automatically charts, queries judgment tables, and gives conclusion + basis + timing:
 
@@ -105,7 +96,7 @@ Ask by life domain — the skill automatically charts, queries judgment tables, 
 
 **Output format**: conclusion first, basis attached. Every conclusion traces to specific steps and classical sources.
 
-#### liki-naming
+#### Naming
 
 > Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen
 
@@ -113,7 +104,7 @@ Flow: preference and taboo intake → BaZi yong-shen → five-element supplement
 
 Also supports: renaming, Chinese names for English speakers, name evaluation.
 
-#### liki-divination
+#### Divination
 
 The skill chooses one method by user goal; it does **not** run dual divination by default:
 
@@ -140,7 +131,7 @@ Liuyao and Qimen retain casting/charter receipts, snapshots, evidence references
 
 Domain contract documents are listed under **For Developers → Domain contracts**.
 
-#### liki-fengshui
+#### Feng Shui
 
 - **Bazhai**: `What's my ming gua?` `How to arrange door/kitchen/bedroom?`
 - **Xuankong**: `Is my home favorable this period?` `2026 annual cautions?`
@@ -179,23 +170,29 @@ Starting with `2026.09.12.2`, Skill and engine RPC contracts ship together. Skil
 
 ### Architecture
 
-```
-skills/liki-bazi
-├── SKILL.md    ← rules (process skeleton + hard constraints)
-├── feedback.schema.json ← autonomous feedback-v1 contract
-├── feedback.py ← feedback sender / runtime governance
-├── app/        ← process (10 cards: marriage/career/wealth/…)
-├── domains/    ← knowledge (bazi 16 + ziwei 9 docs)
-└── tools/      ← tools (6 Python tools + 2 assertion tables + 2 factor tables + schema contracts)
+```text
+skills/liki/
+├── SKILL.md              ← single skill entry: routing, safety, feedback
+├── VERSION               ← single distribution version
+├── feedback.py           ← feedback sender / runtime governance
+├── feedback.schema.json  ← autonomous feedback-v1 contract
+├── bazi/                 ← BaZi + ZiWei: ENTRY / TOOLS / app / domains / tools
+├── divination/           ← Liuyao + QiMen + HuangLi: ENTRY / TOOLS / app / domains / tools
+├── fengshui/             ← Bazhai + Xuankong: ENTRY / RPC / app / domains
+└── naming/               ← Chinese naming: ENTRY / RPC / app / domains
 repo root
 ├── engine/     ← Go JSON-RPC astronomical engine (8 domains)
 ├── tests/      ← rule-engine functional tests + accuracy benchmark (160 grouped cases) + cross-domain behavior smoke
 └── scripts/    ← build / distribution index
 ```
 
-Call chain: SKILL.md routes to an app card → the card calls the six Python tools (`agent_cli.py` orchestrates RPC charting, factor evaluation, and CSV matching) → interpreted via domain knowledge → rendered by the card template. RPC methods are invisible to the liki-bazi LLM.
+Call chain: root `SKILL.md` routes to a domain `ENTRY.md` → the domain entry selects an app card. bazi / divination use domain-local Python tools to orchestrate RPC, snapshots, factors, and assertions; naming / fengshui currently have no Python tool layer and call RPC directly from the fixed discover scope, then shape the response with domain knowledge and card templates.
 
 ### Domain contracts
+
+- [docs/SKILL_PACKAGE.md](./docs/SKILL_PACKAGE.md) — unified skill package layout, entry, and archive contract.
+- [bazi/TOOLS.md](./skills/liki/bazi/TOOLS.md) / [divination/TOOLS.md](./skills/liki/divination/TOOLS.md) — complete Python tool stdin payloads.
+- [naming/RPC.md](./skills/liki/naming/RPC.md) / [fengshui/RPC.md](./skills/liki/fengshui/RPC.md) — complete direct JSON-RPC payloads.
 
 - [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — divination domain model and layers: casting, snapshot, evidence, answer, and audit boundaries.
 - [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — BaZi domain model covering Four Pillars and Zi Wei: engine atomic facts, factor predicates, assertions, and query boundaries.
@@ -203,7 +200,7 @@ Call chain: SKILL.md routes to an app card → the card calls the six Python too
 - [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — naming domain model and layers: BaZi yongshen strategy, character pools, candidate names, foreign surname candidates, evaluation, and source boundaries.
 - [docs/FEEDBACK_MODEL.md](./docs/FEEDBACK_MODEL.md) — feedback contract and layers: `feedback-v1` diagnostic groups, issue types, privacy boundaries, and backend compatibility.
 
-The complete factor inventory is sourced solely from `skills/liki-bazi/tools/factors/*.csv`.
+The complete factor inventory is sourced solely from `skills/liki/bazi/tools/factors/*.csv`.
 
 ### Engine Image
 
@@ -224,7 +221,7 @@ make skillup-smoke             # run cross-domain behavior smoke (model required
 make hooks         # install git hooks (once)
 make test-all      # full: skills unit + engine (lint/vet/race/integration/smoke) + e2e
 make check         # table schema + doc contracts + version consistency
-make build-archive # pack 4 skills + generate the distribution index/archive digest
+make build-archive # pack the unified Liki skill + generate the distribution index/archive digest
 ```
 
 ### Design Principles

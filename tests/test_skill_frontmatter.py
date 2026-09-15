@@ -1,45 +1,39 @@
-"""契约：SKILL.md frontmatter 必须是合法 YAML。
-
-feedback a9c24b71：liki-divination description 含未加引号的 ASCII ': '，
-npx skills add 解析 frontmatter 即报 'Nested mappings are not allowed'，安装失败。
-"""
+"""Contract: the unified skill has one valid SKILL.md and bounded app cards."""
 import unittest
 
 import yaml
 
-from helpers import ROOT, SKILL_NAMES
-
-SKILLS_DIR = ROOT / "skills"
+from helpers import SKILL_ROOT, ROOT
 
 
 class TestSkillFrontmatter(unittest.TestCase):
-    def test_all_skill_frontmatter_is_valid_yaml(self):
-        for s in SKILL_NAMES:
-            with self.subTest(skill=s):
-                txt = (SKILLS_DIR / s / "SKILL.md").read_text(encoding="utf-8")
-                self.assertTrue(txt.startswith("---\n"), f"{s}: 缺 frontmatter")
-                fm = txt.split("---\n")[1]
-                meta = yaml.safe_load(fm)  # 含未引号 ': ' 会在此抛 ParserError
-                self.assertIsInstance(meta, dict)
-                self.assertEqual(meta.get("name"), s)
-                self.assertIsInstance(meta.get("description"), str)
-                self.assertTrue(meta["description"].strip())
-                # WorkBuddy SkillManage 要求 agent_created: true 才能修改/删除技能
-                self.assertIs(meta.get("agent_created"), True)
+    def test_unified_skill_frontmatter_is_valid_yaml(self):
+        txt = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(txt.startswith("---\n"))
+        meta = yaml.safe_load(txt.split("---\n")[1])
+        self.assertIsInstance(meta, dict)
+        self.assertEqual(meta.get("name"), "liki")
+        self.assertIsInstance(meta.get("description"), str)
+        self.assertTrue(meta["description"].strip())
+        self.assertIs(meta.get("agent_created"), True)
+
+    def test_skill_has_no_nested_skill_entries(self):
+        skills = list(SKILL_ROOT.rglob("SKILL.md"))
+        self.assertEqual([p.relative_to(SKILL_ROOT) for p in skills], [__import__("pathlib").Path("SKILL.md")])
 
     def test_app_cards_frontmatter_is_valid_yaml(self):
-        cards = sorted((SKILLS_DIR / "liki-bazi" / "app").glob("*.md"))
+        cards = sorted((SKILL_ROOT / "bazi" / "app").glob("*.md"))
         self.assertGreater(len(cards), 0)
         for card in cards:
             with self.subTest(card=card.name):
                 txt = card.read_text(encoding="utf-8")
                 if not txt.startswith("---\n"):
-                    continue  # 无 frontmatter 的卡（如 README）跳过
+                    continue
                 meta = yaml.safe_load(txt.split("---\n")[1])
                 self.assertIsInstance(meta, dict)
 
     def test_bazi_app_cards_keep_required_reading_bounded(self):
-        cards = sorted((SKILLS_DIR / "liki-bazi" / "app").glob("*.md"))
+        cards = sorted((SKILL_ROOT / "bazi" / "app").glob("*.md"))
         for card in cards:
             with self.subTest(card=card.name):
                 count = card.read_text(encoding="utf-8").count("[必读]")

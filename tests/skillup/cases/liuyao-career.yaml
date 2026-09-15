@@ -5,7 +5,7 @@ input:
     SMOKE_ID: liuyao-career
     我下个月想换工作，请用六爻看这件事。
 
-    这是无人值守评测。请按 liki-divination 流程起卦并引用 casting、用神、世应等事实。
+    这是无人值守评测。请按 Liki divination 流程起卦并引用 casting、用神、世应等事实。
     最后单独输出收据：SMOKE_ID、RPC_CALLS、EVIDENCE、BOUNDARY。
 expect:
   must_contain: ["SMOKE_ID"]

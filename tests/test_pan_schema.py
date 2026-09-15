@@ -43,7 +43,7 @@ def test_pan_digest_rejects_tampering():
 
 
 def test_full_paipan_has_single_yong_shen_path():
-    source = (Path(__file__).parents[1] / "skills/liki-bazi/tools/paipan.py").read_text(encoding="utf-8")
+    source = (Path(__file__).parents[1] / "skills/liki/bazi/tools/paipan.py").read_text(encoding="utf-8")
     assert '"yongshen":' not in source
     assert '"full"' in source
 

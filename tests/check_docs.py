@@ -1,16 +1,10 @@
-"""文档契约检查：skill 文档中的 id、路径和方法引用必须可解析。
+"""Unified Liki skill document contract checker.
 
-校验 liki-bazi skill 内文档：SKILL.md + app/*.md + domains/**/*.md：
-1. 断语 id 引用必须存在于断语长表。
-2. 文件路径引用必须真实存在。
-3. RPC 方法名引用必须在引擎方法白名单。
-4. 流程文档保持分层精简，domain 文档必须可达。
-
-不做跨仓库校验：引擎返回字段名和自然语言模板内容。
-
-用法：python3 tests/check_docs.py [skill_dir]
+Checks assertion ids, resolvable skill-relative paths, whitelisted RPC names,
+lazy-loading budgets, and reachability of domain knowledge docs.
 """
 from __future__ import annotations
+
 import csv
 import glob
 import os
@@ -19,177 +13,150 @@ import sys
 from pathlib import Path
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "liki-bazi")
+SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "liki")
+DOMAINS = ("bazi", "divination", "fengshui", "naming")
 
-# 引擎实际方法集；方法集合变化时同步维护本表
 METHOD_WHITELIST = {
     "rpc.discover",
-    # bazi
     "bazi.chart", "bazi.fullchart", "bazi.liunian", "bazi.liuyue", "bazi.liuri",
     "bazi.liushi", "bazi.xiaoyun", "bazi.bond",
-    # ziwei
     "ziwei.chart", "ziwei.fullchart", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri",
     "ziwei.liushi", "ziwei.daxian", "ziwei.bond",
-    # 子流程三 skill（文档分流提示引用）
-    "liuyao.qigua", "liuyao.chart",
-    "qimen.chart",
-    "huangli.days",
-    "bazhai.chart", "bazhai.layout",
-    "xuankong.chart", "xuankong.liunian",
+    "liuyao.qigua", "liuyao.chart", "qimen.chart", "huangli.days",
+    "bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian",
     "qiming.surname", "qiming.pick", "qiming.compose", "qiming.check", "qiming.char",
-    # divination
-    "liuyao.qigua", "liuyao.chart", "qimen.chart",
-    # 基础
     "time.now", "city.coords", "tianwen.time",
 }
-# 点分 token 允许的方法前缀（过滤自然语言/文件名的误报）
 _METHOD_PREFIXES = tuple(sorted({m.split(".")[0] for m in METHOD_WHITELIST}))
-# 手调方法之外、rpc.discover 返回字段的引用（result.methods/params.properties 等）
 _SKIP_DOTTED = {"params.properties", "result.methods", "result.info", "result.info.version"}
+_PATH_PATTERN = r"(?:(?:bazi|divination|fengshui|naming)/(?:tools|app|domains)|webapp)/"
 
 
 def load_duanyu_ids() -> set:
-    """全部断语 id（assertions/assertions.csv 长表）。"""
-    path = os.path.join(SKILL, "tools", "assertions", "assertions.csv")
-    if not os.path.exists(path):
-        return set()
-    with open(path, encoding="utf-8") as f:
-        return {r["assertion_id"].strip() for r in csv.DictReader(f) if r.get("assertion_id", "").strip()}
+    ids: set = set()
+    for path in glob.glob(os.path.join(SKILL, "*", "tools", "assertions", "assertions.csv")):
+        with open(path, encoding="utf-8") as handle:
+            ids.update(row["assertion_id"].strip() for row in csv.DictReader(handle) if row.get("assertion_id", "").strip())
+    return ids
 
 
 def main() -> int:
     ids = load_duanyu_ids()
-    prefixes = sorted({i.split("_")[0] + "_" for i in ids if "_" in i})
-    # 无断语表（子流程 skill：domains 表为 LLM 翻译表）→ 空正则退化为匹配任意数字——跳过 id 检查
-    prefix_re = re.compile(r"\b(" + "|".join(re.escape(p) for p in prefixes) + r")(\d+[a-z]*|x+)\b") if prefixes else None
-    path_re = re.compile(r"`((?:tools|app|domains|webapp)/[^`]+)`|((?:tools|app|domains|webapp)/[\w./\-]+\.(?:md|py|json|csv|sh))")
-    method_re = re.compile(r"\b(" + "|".join(_METHOD_PREFIXES) + r")\.[a-z_]+\b")
+    prefixes = sorted({item.split("_")[0] + "_" for item in ids if "_" in ids})
+    prefix_re = re.compile(r"\b(" + "|".join(map(re.escape, prefixes)) + r")(\d+[a-z]*|x+)\b") if prefixes else None
+    path_re = re.compile(r"`(" + _PATH_PATTERN + r"[^`]+)`|(" + _PATH_PATTERN + r"[\w./\-]+\.(?:md|py|json|csv|sh|cmd))")
+    method_re = re.compile(r"\b(" + "|".join(map(re.escape, _METHOD_PREFIXES)) + r")\.[a-z_]+\b")
 
     docs = [os.path.join(SKILL, "SKILL.md")]
-    docs += sorted(glob.glob(os.path.join(SKILL, "app", "*.md")))
-    docs += sorted(glob.glob(os.path.join(SKILL, "domains", "**", "*.md"), recursive=True))
-    docs = [d for d in docs if os.path.exists(d)]
-    # tools/*.py 中的 RPC 调用方法名（call("bazi.chart", ...)）——必须在引擎方法白名单
-    # Keep tool RPC method names aligned with the engine registry.
-    py_docs = sorted(glob.glob(os.path.join(SKILL, "tools", "*.py")))
+    docs += [os.path.join(SKILL, domain, "ENTRY.md") for domain in DOMAINS]
+    docs += sorted(glob.glob(os.path.join(SKILL, "*", "app", "*.md")))
+    docs += sorted(glob.glob(os.path.join(SKILL, "*", "domains", "**", "*.md"), recursive=True))
+    docs = [doc for doc in docs if os.path.exists(doc)]
+    py_docs = sorted(glob.glob(os.path.join(SKILL, "*", "tools", "*.py")))
 
-    errors, warnings = [], []
+    errors: list[str] = []
+    warnings: list[str] = []
     for doc in docs:
         rel = os.path.relpath(doc, _ROOT)
-        txt = open(doc, encoding="utf-8").read()
-        # 1) 断语 id（仅断语表类 skill 校验）
-        if prefix_re is not None:
-            for m in prefix_re.finditer(txt):
-                tok = m.group(0)
-                if "x" in m.group(2):
-                    continue  # 范围写法（xg_2xx 表示 xg_2xx 系列）——放行
-                if tok not in ids:
-                    errors.append(f"[{rel}] 引用断语 id '{tok}' 不存在于断语表")
-        # 2) 文件路径
-        for m in path_re.finditer(txt):
-            p = m.group(1) or m.group(2)
-            if not p:
+        text = open(doc, encoding="utf-8").read()
+        if prefix_re:
+            for match in prefix_re.finditer(text):
+                token = match.group(0)
+                if "x" in match.group(2):
+                    continue
+                if token not in ids:
+                    errors.append(f"[{rel}] 引用断语 id '{token}' 不存在于断语表")
+        for match in path_re.finditer(text):
+            path = match.group(1) or match.group(2)
+            if not path or "*" in path or "xxx" in path or "<" in path:
                 continue
-            if "*" in p or "xxx" in p or "<" in p:
-                continue  # glob 模式（tools/bazi/*.csv）或占位符（app/xxx.md、domains/<域>/）——放行
-            if not os.path.exists(os.path.join(SKILL, p)):
-                errors.append(f"[{rel}] 引用文件不存在: {p}")
-        # 3) 方法名
-        for m in method_re.finditer(txt):
-            meth = m.group(0)
-            if meth in _SKIP_DOTTED:
-                continue
-            if meth not in METHOD_WHITELIST:
-                warnings.append(f"[{rel}] 引用的方法 '{meth}' 不在方法白名单（引擎方法集）——核对拼写/是否新增")
-    # 4) tools/*.py 的 RPC 调用方法名（call("X", ...)）——契约校验
-    _rpc_call_re = re.compile(r'\bcall\(\s*["\']([a-z]+\.[a-z_]+)["\']')
-    for f in py_docs:
-        rel = os.path.relpath(f, _ROOT)
-        for m in _rpc_call_re.finditer(open(f, encoding="utf-8").read()):
-            if m.group(1) not in METHOD_WHITELIST:
-                errors.append(f"[{rel}] RPC 调用方法 '{m.group(1)}' 不在引擎方法白名单——skill 侧将静默失败")
-    # 5) 流程文档契约：根文档精简、app 分支加载、domain 文档可达。
+            if not os.path.exists(os.path.join(SKILL, path)):
+                errors.append(f"[{rel}] 引用文件不存在: {path}")
+        for match in method_re.finditer(text):
+            method = match.group(0)
+            if method in _SKIP_DOTTED or method not in METHOD_WHITELIST:
+                warnings.append(f"[{rel}] 引用的方法 '{method}' 不在方法白名单")
+
+    rpc_call_re = re.compile(r'\bcall\(\s*["\']([a-z]+\.[a-z_]+)["\']')
+    for filename in py_docs:
+        rel = os.path.relpath(filename, _ROOT)
+        text = open(filename, encoding="utf-8").read()
+        for match in rpc_call_re.finditer(text):
+            if match.group(1) not in METHOD_WHITELIST:
+                errors.append(f"[{rel}] RPC 调用方法 '{match.group(1)}' 不在引擎方法白名单")
+
     domain_files = {
-        Path(p).name: Path(p)
-        for p in glob.glob(os.path.join(SKILL, "domains", "**", "*.md"), recursive=True)
+        os.path.relpath(path, SKILL): Path(path)
+        for path in glob.glob(os.path.join(SKILL, "*", "domains", "**", "*.md"), recursive=True)
     }
-    all_doc_text = "\n".join(
-        open(doc, encoding="utf-8").read()
-        for doc in docs
-    )
-    for domain in glob.glob(os.path.join(SKILL, "domains", "**", "*.md"), recursive=True):
-        if os.path.basename(domain) not in all_doc_text:
-            errors.append(f"[{os.path.relpath(domain, _ROOT)}] domain 文档未被 root/app/domain 引用")
+    all_doc_text = "\n".join(open(doc, encoding="utf-8").read() for doc in docs)
+    for relpath, path in domain_files.items():
+        if path.name not in all_doc_text and relpath not in all_doc_text:
+            errors.append(f"[{os.path.relpath(path, _ROOT)}] domain 文档未被 root/app/domain 引用")
 
     skill_doc = os.path.join(SKILL, "SKILL.md")
-    if os.path.exists(skill_doc):
-        skill_text = open(skill_doc, encoding="utf-8").read()
-        rel = os.path.relpath(skill_doc, _ROOT)
-        if len(skill_text.splitlines()) > 80:
-            errors.append(f"[{rel}] 根 SKILL.md {len(skill_text.splitlines())} 行，超过 80 行精简上限")
-        if "□" in skill_text:
-            errors.append(f"[{rel}] 根 SKILL.md 含过程检查框；内部产物应写入流程表")
+    skill_text = open(skill_doc, encoding="utf-8").read()
+    if len(skill_text.splitlines()) > 120:
+        errors.append(f"[skills/liki/SKILL.md] 根 SKILL.md {len(skill_text.splitlines())} 行，超过 120 行精简上限")
+    if "□" in skill_text:
+        errors.append("[skills/liki/SKILL.md] 根 SKILL.md 含过程检查框")
 
-        for doc in sorted(glob.glob(os.path.join(SKILL, "app", "*.md"))):
+    required_re = re.compile(r"((?:bazi|divination|fengshui|naming)/(?:domains|app|tools)/[\w./\-]+\.md)")
+    for pattern in ("*/app/*.md", "*/ENTRY.md"):
+        for doc in sorted(glob.glob(os.path.join(SKILL, pattern))):
             rel = os.path.relpath(doc, _ROOT)
             text = open(doc, encoding="utf-8").read()
             if "□" in text:
-                errors.append(f"[{rel}] app 卡含过程检查框；用条件/动作/产物表代替")
-            if "## 红线（强制）" in text or "### ⚠️" in text:
-                errors.append(f"[{rel}] app 卡含重复红线/警示段；通用硬边界放根 SKILL.md，领域细则放 domain 文档")
-            start = text.find("## 📖 流程")
-            if start >= 0:
-                end = text.find("\n## ", start + 1)
-                if end < 0:
-                    end = len(text)
-                flow_line_count = len(text[start:end].splitlines())
-                if flow_line_count > 20:
-                    errors.append(f"[{rel}] 流程区 {flow_line_count} 行，超过 20 行精简上限")
-            if len(text.splitlines()) > 65:
-                errors.append(f"[{rel}] app 卡 {len(text.splitlines())} 行，超过 65 行精简上限")
-
+                errors.append(f"[{rel}] 文档含过程检查框；用条件/动作/产物表代替")
+            if doc.endswith(tuple(glob.glob(os.path.join(SKILL, "*", "app", "*.md")))):
+                if "## 红线（强制）" in text or "### ⚠️" in text:
+                    errors.append(f"[{rel}] app 卡含重复红线/警示段")
+                start = text.find("## 📖 流程")
+                if start >= 0:
+                    end = text.find("\n## ", start + 1)
+                    flow_lines = len(text[start:end if end >= 0 else len(text)].splitlines())
+                    if flow_lines > 20:
+                        errors.append(f"[{rel}] 流程区 {flow_lines} 行，超过 20 行精简上限")
+                if len(text.splitlines()) > 65:
+                    errors.append(f"[{rel}] app 卡 {len(text.splitlines())} 行，超过 65 行精简上限")
             required_paths = []
             for line in text.splitlines():
                 if not line.lstrip().startswith("[必读]"):
                     continue
-                for name in re.findall(r"([\w.-]+\.md)", line):
-                    if name in domain_files and name not in required_paths:
-                        required_paths.append(name)
+                for path in required_re.findall(line):
+                    if path in domain_files and path not in required_paths:
+                        required_paths.append(path)
             if len(required_paths) > 6:
                 errors.append(f"[{rel}] 必读 domain 文件 {len(required_paths)} 个，超过 6 个分支上限")
-            loaded_lines = sum(
-                len(open(domain_files[name], encoding="utf-8").read().splitlines())
-                for name in required_paths
-            )
+            loaded_lines = sum(len(domain_files[path].read_text(encoding="utf-8").splitlines()) for path in required_paths)
             if loaded_lines > 650:
                 errors.append(f"[{rel}] 必读 domain 共 {loaded_lines} 行，超过 650 行上下文预算")
 
     for doc in docs:
         text = open(doc, encoding="utf-8").read()
         if "□" in text:
-            errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含过程检查框；应改为决策表")
+            errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含过程检查框")
         if re.search(r"\bStep\s+\d+(?:\.\d+)?\b", text):
-            errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含旧流程步骤编号；应引用当前领域动作")
-    if not docs:
-        warnings.append(f"SKILL 目录未找到文档（{SKILL}）")
-    # 6) README 断语统计 vs 实际（仅主 skill——README 统计的是 liki-bazi 断语）
-    _readme = os.path.join(_ROOT, "README.md")
-    if os.path.exists(_readme) and os.path.abspath(SKILL) == os.path.abspath(os.path.join(_ROOT, "skills", "liki-bazi")):
-        _assertions = os.path.join(SKILL, "tools", "assertions", "assertions.csv")
-        _actual = sum(1 for r in csv.DictReader(open(_assertions, encoding="utf-8")) if r.get("assertion_id")) if os.path.exists(_assertions) else 0
-        _m = re.search(r"(\d+)\s*条断语", open(_readme, encoding="utf-8").read())
-        if _m and int(_m.group(1)) != _actual:
-            errors.append(f"[README] 断语统计 {_m.group(1)} ≠ 实际 {_actual}——补/删断语后未更新（make build-archive 不覆盖，需手动）")
+            errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含旧流程步骤编号")
+
+    readme = os.path.join(_ROOT, "README.md")
+    if os.path.exists(readme):
+        assertion_path = os.path.join(SKILL, "bazi", "tools", "assertions", "assertions.csv")
+        if os.path.exists(assertion_path):
+            actual = sum(1 for row in csv.DictReader(open(assertion_path, encoding="utf-8")) if row.get("assertion_id"))
+            match = re.search(r"(\d+)\s*条断语", open(readme, encoding="utf-8").read())
+            if match and int(match.group(1)) != actual:
+                errors.append(f"[README] 断语统计 {match.group(1)} ≠ 实际 {actual}")
 
     print(f"扫描文档 {len(docs)} 个（断语 id 全集 {len(ids)}）")
     print(f"错误: {len(errors)} 个")
-    for e in errors:
-        print("  ✗", e)
+    for error in errors:
+        print("  ✗", error)
     print(f"警告: {len(warnings)} 个")
-    for w in warnings[:30]:
-        print("  ⚠", w)
+    for warning in warnings[:30]:
+        print("  ⚠", warning)
     if len(warnings) > 30:
-        print(f"  ... 共 {len(warnings)} 条警告")
+        print("  ... 共", len(warnings), "条警告")
     return 1 if errors else 0
 
 

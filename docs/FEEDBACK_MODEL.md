@@ -14,13 +14,10 @@
 
 ## 2. Schema 位置
 
-四个 skill 内置同一份 JSON Schema：
+统一 skill 内置一份 JSON Schema：
 
 ```text
-skills/liki-bazi/feedback.schema.json
-skills/liki-divination/feedback.schema.json
-skills/liki-fengshui/feedback.schema.json
-skills/liki-naming/feedback.schema.json
+skills/liki/feedback.schema.json
 ```
 
 契约版本固定为 `feedback-v1`。字段结构或语义变化时升级版本。
@@ -34,7 +31,7 @@ skills/liki-naming/feedback.schema.json
 | `llm` | 是 | `provider`, `model`, `model_version?` | 判断是否为模型能力或快照差异 |
 | `problem` | 是 | `type`, `severity`, `summary`, `tool?`, `expected?`, `observed?` | 描述问题本体 |
 
-`meta.source` 只能是 `skill-agent` 或 `user`。  
+`meta.source` 只能是 `skill-agent` 或 `user`；统一 skill 后 `meta.skill` 固定为 `liki`。
 `session_hash` 只能是 SHA-256 摘要，不能是明文 session ID。去重指纹由后端基于会话与问题内容计算。
 
 ## 4. 问题类型
@@ -54,7 +51,7 @@ skills/liki-naming/feedback.schema.json
   "schema_version": "feedback-v1",
   "meta": {
     "source": "skill-agent",
-    "skill": "liki-bazi",
+    "skill": "liki",
     "skill_version": "x.y.z",
     "engine_version": "x.y.z"
   },
@@ -92,7 +89,7 @@ feedback(id, schema_version, payload_json, created_at)
 
 ## 7. 运行治理
 
-每个 skill 内置统一 sender：
+统一 skill 内置一个 sender：
 
 ```text
 feedback.py
@@ -111,7 +108,6 @@ agent 可通过 stdin 传入 problem / meta / agent / llm payload。sender 会�
 - 若 sender 同目录存在 `feedback.context.json`，且未设置 `LIKI_FEEDBACK_CONTEXT`，会自动使用该默认上下文
 - 宿主可信覆盖：`LIKI_FEEDBACK_SKILL`、`LIKI_FEEDBACK_SKILL_VERSION`、`LIKI_ENGINE_VERSION`、`LIKI_FEEDBACK_SESSION_HASH`
 - 最终优先级：宿主覆盖变量 > 显式 payload > context 补齐 > sender 默认值
-- payload 上限：32 KiB
 - payload 上限：32 KiB
 
 backend 必须独立执行 payload 大小限制、rate limit、基础 PII 扫描与会话去重。

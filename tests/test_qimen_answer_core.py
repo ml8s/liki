@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills/liki-divination/tools"
+TOOLS = ROOT / "skills/liki/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -15,7 +15,7 @@ import qimen_jinhan_answer_core as jinhan_core  # noqa: E402
 
 def _snapshot() -> dict:
     return {
-        "schema_version": "qimen-snapshot-v4",
+        "schema_version": "qimen-snapshot-v5",
         "question": "测试",
         "method_context": {"scope": "hour", "school": "zhuanpan"},
         "matter": {"matter": "career"},
@@ -61,7 +61,7 @@ def test_empty_factor_values_are_not_available_evidence() -> None:
 
 def test_jinhan_rejects_assertion_and_timing_refs() -> None:
     snapshot = {
-        "schema_version": "qimen-snapshot-v4",
+        "schema_version": "qimen-snapshot-v5",
         "question": "测试",
         "method_context": {"scope": "day", "school": "jinhan_yujing"},
         "factors": {

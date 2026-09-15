@@ -7,7 +7,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills/liki-divination/tools"
+TOOLS = ROOT / "skills/liki/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -84,7 +84,7 @@ def test_snapshot_envelope_fields_cannot_be_overridden():
     with pytest.raises(ValueError, match="cannot override envelope"):
         divination_snapshot.build_snapshot(
             method="liuyao",
-            schema_version="liuyao-snapshot-v6",
+            schema_version="liuyao-snapshot-v7",
             payload={"method": "qimen"},
         )
 
@@ -92,14 +92,14 @@ def test_snapshot_envelope_fields_cannot_be_overridden():
 def test_snapshot_validate_rejects_wrong_schema_version():
     snapshot = divination_snapshot.build_snapshot(
         method="liuyao",
-        schema_version="liuyao-snapshot-v6",
+        schema_version="liuyao-snapshot-v7",
         payload={"question": {"text": "测试"}},
     )
     with pytest.raises(ValueError, match="schema_version"):
         divination_snapshot.validate_snapshot(
             snapshot,
             method="liuyao",
-            schema_version="liuyao-snapshot-v7",
+            schema_version="liuyao-snapshot-v6",
         )
 
 
@@ -110,7 +110,7 @@ def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
         question="这次面试能不能通过？", mode="coins", matter="career"
     )
     assert result["method"] == "liuyao"
-    assert result["schema_version"] == "liuyao-snapshot-v6"
+    assert result["schema_version"] == "liuyao-snapshot-v7"
     assert result["snapshot_digest"]
     assert result["policy"]["immutable"] is True
     assert "chart" not in result
@@ -187,7 +187,7 @@ def test_qimen_snapshot_is_immutable_envelope(monkeypatch):
     monkeypatch.setattr(qimen_snapshot, "qimen_chart", lambda *_, **__: {"matter": None, "chart": _pan()["chart"]})
     result = qimen_snapshot.create(question="该往哪里推进？", city="上海", matter="wealth")
     assert result["method"] == "qimen"
-    assert result["schema_version"] == "qimen-snapshot-v4"
+    assert result["schema_version"] == "qimen-snapshot-v5"
     assert result["snapshot_digest"] == divination_snapshot.canonical_digest(result)
     assert "chart" not in result
     assert result["method_context"]["scope"] == "hour"
@@ -195,7 +195,7 @@ def test_qimen_snapshot_is_immutable_envelope(monkeypatch):
 
 
 def test_qimen_ask_rejects_wrong_method():
-    wrong = {"method": "liuyao", "schema_version": "qimen-snapshot-v4", "snapshot_digest": "x"}
+    wrong = {"method": "liuyao", "schema_version": "qimen-snapshot-v5", "snapshot_digest": "x"}
     with pytest.raises(ValueError, match="snapshot method|qimen_snapshot contract failed"):
         qimen_ask.ask(wrong, message="现在适合行动吗？")
 
@@ -282,6 +282,11 @@ def test_qimen_answer_timing_ids_are_collision_resistant(monkeypatch):
             "method_context": {"scope": "hour", "school": "zhuanpan"},
             "factors": factors,
             "special": None,
+            "safety_advisory": {
+                "status": "allow", "blocking": False, "category": None,
+                "severity": "none", "support_first": False,
+                "message": "", "guidance": "",
+            },
             "policy": {"immutable": True, "no_rechart_without_new_event": True},
         },
     )

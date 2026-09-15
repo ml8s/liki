@@ -10,7 +10,7 @@ from jsonschema import validate
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills/liki-divination/tools"
+TOOLS = ROOT / "skills/liki/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 

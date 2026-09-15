@@ -123,7 +123,7 @@ def test_load_rule_table_missing_required_file_raises() -> None:
 def test_skill_does_not_silently_default_birth_hour() -> None:
     from pathlib import Path
 
-    skill = Path(__file__).resolve().parents[1] / "skills" / "liki-bazi" / "SKILL.md"
+    skill = Path(__file__).resolve().parents[1] / "skills" / "liki" / "bazi" / "ENTRY.md"
     text = skill.read_text(encoding="utf-8")
 
     assert "默认午时" not in text
@@ -136,7 +136,7 @@ def test_calibration_docs_do_not_silently_default_birth_hour() -> None:
 
     path = (
         Path(__file__).resolve().parents[1]
-        / "skills" / "liki-bazi" / "domains" / "bazi" / "calibration.md"
+        / "skills" / "liki" / "bazi" / "domains" / "bazi" / "calibration.md"
     )
     text = path.read_text(encoding="utf-8")
     assert "直接走默认时辰" not in text
@@ -146,7 +146,7 @@ def test_calibration_docs_do_not_silently_default_birth_hour() -> None:
 def test_skill_has_no_local_pan_archive_contract() -> None:
     from pathlib import Path
 
-    skill_dir = Path(__file__).resolve().parents[1] / "skills" / "liki-bazi"
+    skill_dir = Path(__file__).resolve().parents[1] / "skills" / "liki" / "bazi"
     for path in skill_dir.rglob("*"):
         if not path.is_file() or "__pycache__" in path.parts:
             continue

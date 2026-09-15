@@ -31,7 +31,7 @@
 | `liuyao_core.json` | 京房纳甲 8 宫、世应 8 序、可见 / 伏藏用神边界、真假空破与动爻生克冲突 |
 | `liuyao_pattern_semantics.json` | 三墓来源、用神两现取舍、真假空破救应、卦变冲合 / 伏吟与三合去重边界 |
 | `liuyao_dong_yao_priority.json` | 动爻直接作用与原忌神间接作用并列输出 |
-| `../skills/liki-divination/tools/liuyao_timing_rules.json` | 六爻应期机制优先级、专题加权与视野策略 |
+| `../skills/liki/divination/tools/liuyao_timing_rules.json` | 六爻应期机制优先级、专题加权与视野策略 |
 | `qimen_core.json` | 二十四节气 × 三元 72 局、值符 / 值使应期候选 |
 | `qimen_specialized.json` | 庚格四柱遁甲、失物时干宫、天蓬 / 阴遁玄武、天网与地罗临时干宫 |
 | `huangli_core.json` | 建除 12、十二月青龙起例 12、事项规则 10、日期锚点 |

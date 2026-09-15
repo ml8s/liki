@@ -1,9 +1,9 @@
 # liki monorepo Makefile — skills（Python）+ engine（Go）双栈
 #
-# 版本策略：根 Makefile 统一写入 4 个 skill VERSION 与 engine VERSION
+# 版本策略：根 Makefile 统一写入 unified skill VERSION 与 engine VERSION
 
-# ── 统一版本（skill 4 份 + engine 1 份，同步 bump）──
-VERSION_FILES := skills/liki-bazi/VERSION skills/liki-divination/VERSION skills/liki-fengshui/VERSION skills/liki-naming/VERSION engine/cmd/liki/VERSION
+# ── 统一版本（skill 1 份 + engine 1 份，同步 bump）──
+VERSION_FILES := skills/liki/VERSION engine/cmd/liki/VERSION
 
 version: ## 写入今日日期（CalVer）
 	@BASE=$$(TZ=Asia/Shanghai date +%Y.%m.%d); SERIAL=0; FOUND=0; \
@@ -116,10 +116,8 @@ export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 
 pre-push: ## 推送前门槛测试（与 CI 对齐——绿了再推，~2min）
-	@echo "=== [1/7] check_docs（文档契约 × 4 skill）==="
-	@for s in liki-bazi liki-divination liki-fengshui liki-naming; do \
-		python3 tests/check_docs.py "skills/$$s" || exit 1; \
-	done
+	@echo "=== [1/7] check_docs（unified Liki skill）==="
+	@python3 tests/check_docs.py skills/liki || exit 1
 	@echo "=== [2/7] Python 单测 ==="
 	python3 -m pytest tests/ --ignore=tests/test_integration.py -q --tb=short || exit 1
 	@echo "=== [3/7] eval_hybrid 冒烟（前 3 题验证管线通）==="

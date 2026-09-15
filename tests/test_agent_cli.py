@@ -9,7 +9,7 @@ import unittest
 from unittest import mock
 
 sys.path.insert(0, __import__('os').path.join(
-    __import__('os').path.dirname(__import__('os').path.abspath(__file__)), '..', 'skills', 'liki-bazi', 'tools'))
+    __import__('os').path.dirname(__import__('os').path.abspath(__file__)), '..', 'skills', 'liki', 'bazi', 'tools'))
 
 import agent_cli
 
@@ -125,7 +125,7 @@ class TestSchemaConsistency(unittest.TestCase):
     def test_schema工具名全部分派支持(self):
         import os
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         "skills", "liki-bazi", "tools", "skill-tools.json")
+                         "skills", "liki", "bazi", "tools", "skill-tools.json")
         with open(p, encoding="utf-8") as f:
             doc = json.load(f)
         names = [t["function"]["name"] for t in doc["tools"]]
@@ -156,7 +156,7 @@ class TestSchemaConsistency(unittest.TestCase):
         from duanyu import NATAL_RULES, YEARLY_RULES, SCENE_ALIASES
 
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         "skills", "liki-bazi", "tools", "skill-tools.json")
+                         "skills", "liki", "bazi", "tools", "skill-tools.json")
         with open(p, encoding="utf-8") as f:
             tools = {
                 item["function"]["name"]: item["function"]
@@ -175,7 +175,7 @@ class TestSchemaConsistency(unittest.TestCase):
 
         p = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "skills/liki-bazi/tools/skill-tools.json",
+            "skills/liki/bazi/tools/skill-tools.json",
         )
         with open(p, encoding="utf-8") as f:
             doc = json.load(f)
