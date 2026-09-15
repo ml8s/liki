@@ -12,8 +12,9 @@ liki 命理 skill 的排盘层：
 from __future__ import annotations
 import json
 import os
+import time
 import urllib.request
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -24,6 +25,7 @@ from pan_schema import validate_natal_pan
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
+RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 MIN_ENGINE_VERSION = "2026.09.15.5"
 DISCOVER_SCOPES = ("bazi", "ziwei", "city", "tianwen", "time")
 REQUIRED_METHODS = (
@@ -38,10 +40,10 @@ class RPCError(LikiToolError):
 
 
 def call(method: str, params: dict, retries: int = 1) -> dict:
-    """调 JSON-RPC。失败重试 retries 次。"""
+    """调 JSON-RPC；传输类错误和限流可重试，业务错误不重试。"""
     body = json.dumps({"jsonrpc": "2.0", "method": method, "params": params, "id": 1}).encode()
     last_err = None
-    for _ in range(retries + 1):
+    for attempt in range(retries + 1):
         try:
             req = urllib.request.Request(RPC_URL, data=body, headers={"Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
@@ -49,8 +51,14 @@ def call(method: str, params: dict, retries: int = 1) -> dict:
             if "error" in data:
                 raise RPCError(f"{method}: {data['error']}")
             return data["result"]
+        except HTTPError as e:
+            last_err = e
+            if e.code not in RETRYABLE_HTTP_CODES:
+                raise RPCError(f"{method}: HTTP {e.code}: {e.reason}") from e
         except (URLError, ConnectionError, TimeoutError, OSError) as e:
             last_err = e
+        if attempt < retries:
+            time.sleep(min(0.25 * (2**attempt), 2.0))
     raise RPCError(f"{method} 失败: {last_err}")
 
 
@@ -229,7 +237,7 @@ def city_coords(city: str) -> dict:
 
     返回: {"name": "桦川县", "longitude": 130.3, "latitude": ..., "country": "..."}
     """
-    r = call("city.coords", {"city": city})
+    r = call("city.coords", {"city": city}, retries=3)
     return r["data"]
 
 

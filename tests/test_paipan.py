@@ -1,7 +1,7 @@
 """排盘层 RPC 重试契约：传输错误可重试，逻辑错误不重试。"""
 import json
 from unittest import mock
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 import pytest
 
@@ -31,6 +31,22 @@ def test_rpc_transport_error_is_retried() -> None:
     ) as urlopen:
         with pytest.raises(RPCError, match="connection refused"):
             call("bazi.chart", {}, retries=1)
+
+    assert urlopen.call_count == 2
+
+
+def test_rpc_http_429_is_retried() -> None:
+    success = json.dumps({"result": {"data": {"ok": True}}}).encode()
+    ok_response = mock.MagicMock()
+    ok_response.read.return_value = success
+    ok_response.__enter__.return_value = ok_response
+    ok_response.__exit__.return_value = False
+
+    with mock.patch(
+        "urllib.request.urlopen",
+        side_effect=[HTTPError("liki", 429, "Too Many Requests", {}, None), ok_response],
+    ) as urlopen:
+        assert call("city.coords", {"city": "北京"}, retries=1)["data"] == {"ok": True}
 
     assert urlopen.call_count == 2
 
