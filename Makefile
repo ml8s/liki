@@ -38,6 +38,48 @@ test: ## Skills python 单测（规则引擎；integration 由服务已起阶段
 test-functional: ## 规则引擎功能测试（因子/断语/场景/冲突）
 	python3 -m pytest tests/test_functional.py -q
 
+golden-bazi: ## 八字多源共识 golden（只读 checked-in fixture）
+	@cd engine && go test -count=1 -run 'TestBaziMultiOracleGolden_AllTermBoundaries' ./internal/engine/bazi
+
+golden-bazi-generate: ## 重新生成八字多源 golden（开发机需 lunar-python/sxtwl/bazi-calculator）
+	@BAZI_CALCULATOR_DIR="$${BAZI_CALCULATOR_DIR:-/tmp/bazi-calculator}" \
+		PYTHONPATH="$${PYTHONPATH:-}" python3 tests/golden/bazi/generate.py \
+		--output engine/internal/engine/bazi/testdata/multi_oracle_golden.json
+
+golden-tianwen: ## 天文历法两源共识 golden（只读 checked-in fixture）
+	@cd engine && go test -count=1 -run 'TestTianwenMultiOracleGolden_LunarMonthBoundaries' ./internal/engine/tianwen
+
+golden-tianwen-generate: ## 重新生成天文历法 golden（开发机需 lunar-python/sxtwl）
+	@PYTHONPATH="$${PYTHONPATH:-}" python3 tests/golden/tianwen/generate.py
+
+golden-liuyao: ## 六爻 64 卦八宫 golden
+	@cd engine && go test -count=1 -run 'TestCore64Golden_JingFangEightPalaces' ./internal/engine/liuyao
+
+golden-liuyao-generate: ## 重新生成六爻 64 卦领域 golden
+	@python3 tests/golden/liuyao/generate.py
+
+golden-huangli: ## 黄历两源日柱 + 建除黄黑道矩阵 golden
+	@cd engine && go test -count=1 -run 'TestQueryDateMatrixGolden_TwoOracleCalendarAndEventRules' ./internal/engine/huangli
+
+golden-huangli-generate: ## 重新生成黄历矩阵 golden（开发机需 lunar-python/sxtwl）
+	@PYTHONPATH="$${PYTHONPATH:-}" python3 tests/golden/huangli/generate.py
+
+golden-bazhai: ## 八宅命卦 1900-2099 全周期 golden
+	@cd engine && go test -count=1 -run 'TestMingGuaCycleGolden_AllYearsAndGenders' ./internal/engine/bazhai
+
+golden-bazhai-generate: ## 重新生成八宅命卦周期 golden
+	@python3 tests/golden/bazhai/generate.py
+
+golden-xuankong: ## 玄空九运十二山向飞星矩阵 golden
+	@cd engine && go test -count=1 -run 'TestFlyingStarMatrixGolden_AllYunAndOppositePairs' ./internal/engine/xuankong
+
+golden-xuankong-generate: ## 重新生成玄空飞星矩阵 golden
+	@python3 tests/golden/xuankong/generate.py
+
+golden-engine: ## 全部 engine 领域 golden（含八字/紫微既有锚点与奇门外部 golden）
+	@make golden-bazi golden-tianwen golden-liuyao golden-huangli golden-bazhai golden-xuankong
+	@cd engine && go test -count=1 -run 'Golden|External|Matrix|Pattern' ./internal/engine/qimen ./internal/engine/ziwei
+
 test-integration: ## Skill 全链路集成测试（本地起引擎 + LIKI_RPC_URL 连它；脱离生产）
 	@bash -c '. scripts/local-engine.sh; ensure_local_engine; trap stop_local_engine EXIT; LIKI_RPC_URL="$$LOCAL_RPC" python3 -m pytest tests/test_integration.py -q'
 

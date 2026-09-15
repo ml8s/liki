@@ -1,0 +1,2413 @@
+{
+  "version": 1,
+  "basis": "《八宅明镜》通行命卦公式；2000前后公式分段；5男寄坤、5女寄艮。",
+  "policy": {
+    "year_boundary": "gregorian_calendar_year",
+    "coverage": "1900-2099_all_gender"
+  },
+  "scope": {
+    "case_count": 400
+  },
+  "cases": [
+    {
+      "gender": "male",
+      "year": 1900,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1900,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1901,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1901,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1902,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1902,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1903,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1903,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1904,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1904,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1905,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1905,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1906,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1906,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1907,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1907,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1908,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1908,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1909,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1909,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1910,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1910,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1911,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1911,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1912,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1912,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1913,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1913,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1914,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1914,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1915,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1915,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1916,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1916,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1917,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1917,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1918,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1918,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1919,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1919,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1920,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1920,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1921,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1921,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1922,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1922,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1923,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1923,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1924,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1924,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1925,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1925,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1926,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1926,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1927,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1927,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1928,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1928,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1929,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1929,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1930,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1930,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1931,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1931,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1932,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1932,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1933,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1933,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1934,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1934,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1935,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1935,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1936,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1936,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1937,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1937,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1938,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1938,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1939,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1939,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1940,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1940,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1941,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1941,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1942,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1942,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1943,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1943,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1944,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1944,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1945,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1945,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1946,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1946,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1947,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1947,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1948,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1948,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1949,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1949,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1950,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1950,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1951,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1951,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1952,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1952,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1953,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1953,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1954,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1954,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1955,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1955,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1956,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1956,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1957,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1957,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1958,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1958,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1959,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1959,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1960,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1960,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1961,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1961,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1962,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1962,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1963,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1963,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1964,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1964,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1965,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1965,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1966,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1966,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1967,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1967,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1968,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1968,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1969,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1969,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1970,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1970,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1971,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1971,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1972,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1972,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1973,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1973,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1974,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1974,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1975,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1975,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1976,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1976,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1977,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1977,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1978,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1978,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1979,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1979,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1980,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1980,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1981,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1981,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1982,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1982,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1983,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1983,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1984,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1984,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1985,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1985,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1986,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1986,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1987,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1987,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1988,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1988,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1989,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1989,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1990,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1990,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1991,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1991,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1992,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1992,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1993,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1993,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1994,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1994,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1995,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1995,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1996,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1996,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 1997,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1997,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1998,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 1998,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 1999,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 1999,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2000,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2000,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2001,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2001,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2002,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2002,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2003,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2003,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2004,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2004,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2005,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2005,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2006,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2006,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2007,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2007,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2008,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2008,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2009,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2009,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2010,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2010,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2011,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2011,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2012,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2012,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2013,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2013,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2014,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2014,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2015,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2015,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2016,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2016,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2017,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2017,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2018,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2018,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2019,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2019,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2020,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2020,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2021,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2021,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2022,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2022,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2023,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2023,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2024,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2024,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2025,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2025,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2026,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2026,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2027,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2027,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2028,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2028,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2029,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2029,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2030,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2030,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2031,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2031,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2032,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2032,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2033,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2033,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2034,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2034,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2035,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2035,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2036,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2036,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2037,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2037,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2038,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2038,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2039,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2039,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2040,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2040,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2041,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2041,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2042,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2042,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2043,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2043,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2044,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2044,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2045,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2045,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2046,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2046,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2047,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2047,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2048,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2048,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2049,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2049,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2050,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2050,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2051,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2051,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2052,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2052,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2053,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2053,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2054,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2054,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2055,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2055,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2056,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2056,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2057,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2057,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2058,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2058,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2059,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2059,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2060,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2060,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2061,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2061,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2062,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2062,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2063,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2063,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2064,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2064,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2065,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2065,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2066,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2066,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2067,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2067,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2068,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2068,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2069,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2069,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2070,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2070,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2071,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2071,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2072,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2072,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2073,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2073,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2074,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2074,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2075,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2075,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2076,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2076,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2077,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2077,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2078,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2078,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2079,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2079,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2080,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2080,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2081,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2081,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2082,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2082,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2083,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2083,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2084,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2084,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2085,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2085,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2086,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2086,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2087,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2087,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2088,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2088,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2089,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2089,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2090,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2090,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2091,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2091,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2092,
+      "gua": "兑",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2092,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2093,
+      "gua": "乾",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2093,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2094,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2094,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2095,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2095,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2096,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2096,
+      "gua": "震",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2097,
+      "gua": "坤",
+      "group": "西四命"
+    },
+    {
+      "gender": "female",
+      "year": 2097,
+      "gua": "巽",
+      "group": "东四命"
+    },
+    {
+      "gender": "male",
+      "year": 2098,
+      "gua": "坎",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2098,
+      "gua": "艮",
+      "group": "西四命"
+    },
+    {
+      "gender": "male",
+      "year": 2099,
+      "gua": "离",
+      "group": "东四命"
+    },
+    {
+      "gender": "female",
+      "year": 2099,
+      "gua": "乾",
+      "group": "西四命"
+    }
+  ]
+}

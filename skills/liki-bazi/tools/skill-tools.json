@@ -3,7 +3,7 @@
   "info": {
     "title": "liki Skill Tools — 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.15.4"
+    "version": "2026.09.15.5"
   },
   "tools": [
     {
@@ -662,44 +662,44 @@
                   "zhi_sui"
                 ]
               },
-            "minItems": 12,
-            "maxItems": 12
-          },
-          "calibration_hint": {
-            "type": "object",
-            "description": "出生时间接近时辰交界时的确定性校准提示",
-            "properties": {
-              "near_boundary": {
-                "type": "boolean"
-              },
-              "minutes_to_boundary": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 30
-              },
-              "boundary_solar": {
-                "type": "string"
-              },
-              "threshold_minutes": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 30
-              },
-              "message": {
-                "type": "string"
-              }
+              "minItems": 12,
+              "maxItems": 12
             },
-            "required": [
-              "near_boundary",
-              "minutes_to_boundary",
-              "boundary_solar",
-              "threshold_minutes",
-              "message"
-            ]
-          },
-          "pan_digest": {
-            "type": "string",
-            "minLength": 64,
+            "calibration_hint": {
+              "type": "object",
+              "description": "出生时间接近时辰交界时的确定性校准提示",
+              "properties": {
+                "near_boundary": {
+                  "type": "boolean"
+                },
+                "minutes_to_boundary": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 30
+                },
+                "boundary_solar": {
+                  "type": "string"
+                },
+                "threshold_minutes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 30
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "near_boundary",
+                "minutes_to_boundary",
+                "boundary_solar",
+                "threshold_minutes",
+                "message"
+              ]
+            },
+            "pan_digest": {
+              "type": "string",
+              "minLength": 64,
               "maxLength": 64,
               "description": "canonical SHA-256 pan digest；query/yearly/bond/calibrate 会校验"
             }
@@ -764,8 +764,7 @@
               "type": "integer",
               "minimum": 1,
               "description": "可选。仅限 rule=大运/大限：指定取哪一年的限运；省略时使用服务端当前年份。"
-            }
-            ,
+            },
             "domains": {
               "type": "array",
               "minItems": 1,
@@ -845,8 +844,7 @@
             "detail": {
               "type": "boolean",
               "description": "true=全量断语；false=精简（默认）"
-            }
-            ,
+            },
             "domains": {
               "type": "array",
               "minItems": 1,

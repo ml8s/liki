@@ -31,6 +31,40 @@ conflict    多断语共存 / 互斥边界
 make test-functional
 ```
 
+## External golden calibration: `golden/bazi/`
+
+八字四柱有独立多源共识 golden。`golden/bazi/` 的 generator 只在开发机运行，
+它用 `6tail/lunar-python`、`sxtwl` 和 `shenshuge/bazi-calculator` 三方完全
+一致的四柱生成 checked-in fixture；CI 只运行 fixture，不访问网络，也不安装
+这三个 oracle。
+
+当前覆盖 2024-2027 年全部 24 节气的前后锚点，共 192 例。精确分钟边界、
+晚子时和海外时区仍由 engine 内的 `bazi_golden*.json` 锁定；旺衰、用神和断语
+不做开源项目多数派投票。
+
+```bash
+make golden-bazi            # 只跑 checked-in 数据
+make golden-bazi-generate   # 开发机重新生成；依赖见目录 README
+```
+
+其他 engine 域使用同一套原则补齐了数据驱动 golden：
+
+| 域 | fixture | 覆盖 |
+|---|---|---|
+| `tianwen` | lunar-python + sxtwl 共识 | 2024-2027 农历月初 / 月末、闰月与节月支，99 例 |
+| `liuyao` | 京房八宫领域 oracle | 64 卦卦名、宫位、世应全量 |
+| `huangli` | lunar-python + sxtwl + 建除黄黑道规则 | 90 个日期，覆盖 15 类事项、12 建除 |
+| `bazhai` | 通行命卦公式 checked-in oracle | 1900-2099 × 男 / 女，400 例 |
+| `xuankong` | 三元九运飞星矩阵 | 九运 × 12 对正向下卦山向，108 张完整盘 |
+| `qimen` | 已有 atopx 外部锚点 + 置闰 / 飞盘 / 山向等多套 golden | 方法矩阵与流派边界继续锁定 |
+| `ziwei` | 已有 iztro 兼容流日 / 流时 / 流分与亮度 golden | 流盘边界与确定性契约继续锁定 |
+
+一键运行确定性 engine golden：
+
+```bash
+make golden-engine
+```
+
 ## Accuracy benchmark: `benchmark/mingli160`
 
 MingLi-Bench 保持独立：160 道命理师大赛真题按命盘分组为 32 个 case，每盘 4-6 题。它用金标准答案判分，回答的问题是：

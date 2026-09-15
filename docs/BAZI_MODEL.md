@@ -90,7 +90,7 @@ pan → factors → snap → assertions
 | `atomic_facts.year_equals_day_pillar / dayun_equals_year_pillar` | 流年与日柱 / 大运干支伏吟 |
 | `atomic_facts.year_gan_equals_natal_year_gan` | 流年干伏吟年柱 |
 
-这些字段的命理口径由 engine 单测与 `tests/fixtures/domain_oracle/` 锁定。Python 新增因子时不得重新实现上述推导。
+这些字段的命理口径由 engine 单测、`tests/fixtures/domain_oracle/` 与 `tests/golden/bazi/` 的三源共识 fixture 锁定。Python 新增因子时不得重新实现上述推导。
 
 紫微 `宫含` 算子只对 `ziwei.palace_facts` 做 palace / kind / target / star exact match；Python 不再遍历宫位、推导四化落宫、解释亮度分组或计算主星数量。
 紫微盘显式输出 `school`：当前闰月口径为 iztro v2.6.1 兼容的“前十五日本月、后十五日次月”。这不是《紫微斗数全书》闰月按下月口径；两派不得混写。主星亮度表同步 iztro v2.6.1 对太阳、太阴、七杀居酉的修正。

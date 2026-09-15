@@ -24,7 +24,7 @@ from pan_schema import validate_natal_pan
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
-MIN_ENGINE_VERSION = "2026.09.15.4"
+MIN_ENGINE_VERSION = "2026.09.15.5"
 
 
 class RPCError(LikiToolError):

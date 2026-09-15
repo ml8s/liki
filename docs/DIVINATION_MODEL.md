@@ -268,3 +268,7 @@ wealth
 - 重大不可逆财务决策。
 
 `liuyao_snapshot`、`liuyao_ask`、`qimen_snapshot`、`qimen_ask`、`huangli_days` 共用同一安全检查，防止绕过场景文档直接排盘。
+
+## 7. 确定性 golden 边界
+
+六爻按京房八宫完整覆盖 64 卦卦名、宫位与世应；奇门已有外部项目锚点、置闰 / 飞盘 / 山向方法和格局矩阵 golden；黄历用两源历法共识锁定日柱与节月，并覆盖建除、黄黑道与事项适配矩阵。这些 fixture 只锁确定性领域事实，不把开放解释当作 golden。

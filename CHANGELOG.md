@@ -1,3 +1,11 @@
+## [2026.09.15.5] — cross-domain deterministic golden tests
+
+### Changes
+
+- 新增跨域确定性 golden：八字三源共识、天文历法两源共识、六爻 64 卦八宫、黄历建除矩阵、八宅命卦全周期与玄空飞星矩阵。
+- 新增 `make golden-engine` 统一入口，并按域提供只读验证与开发期生成命令。
+- 同步八字、问卦、风水领域文档与测试说明，明确 golden 只锁确定性事实，不用开源项目投票解释层。
+
 # Changelog
 
 ## [2026.09.15.4] — deterministic flow stars and feedback sender
