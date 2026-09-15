@@ -1,5 +1,15 @@
 # Changelog
 
+## [2026.09.15.4] — deterministic flow stars and feedback sender
+
+### Changes
+
+- 流盘 `xing_yao` 数组按禄、羊、陀、魁、钺、马、鸾、喜、昌、曲固定展示序输出，消除 Go map 迭代导致的顺序抖动；该顺序只用于展示，不构成吉凶排序。
+- 四个 skill 内置标准 `feedback.py` sender：统一 schema 校验、endpoint 覆盖、禁用开关、宿主上下文补齐、2 秒 timeout、32KiB payload 上限与失败不阻塞。
+- `docs/BAZI_MODEL.md` 与 feedback 文档同步确定性输出、流日 / 流时完整农历日期和 runtime governance 契约。
+- `flowTarget.Year` 的历法语义与注释统一为农历年。
+- 修正中文 README 断语计数漂移，统一为数据源实际的 799 条。
+
 ## [2026.09.15.3] — 农历日期 fail-closed 与反馈治理
 
 ### Breaking changes

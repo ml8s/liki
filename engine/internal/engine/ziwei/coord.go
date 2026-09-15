@@ -1,5 +1,7 @@
 package ziwei
 
+import "sort"
+
 // ── 坐标系统一辅助层 ──────────────────────────────────────────────
 // 内部坐标约定（全部领域根表达）：
 //   zhiIdx (int)      : 地支索引，0=子 1=丑 ... 11=亥 —— 地支历法根，安星最终落在此
@@ -58,6 +60,7 @@ func buildFlowPalaces(liuPanIdx int, starByAnXingIdx map[int][]string) [12]flowP
 		if stars == nil {
 			stars = []string{}
 		}
+		stars = sortFlowStars(stars)
 		out[i] = flowPalace{
 			Zhi:    zhiIdxToZhi(zhiIdx),
 			Name:   name,
@@ -66,4 +69,55 @@ func buildFlowPalaces(liuPanIdx int, starByAnXingIdx map[int][]string) [12]flowP
 		}
 	}
 	return out
+}
+
+// flowStarKind extracts the stable star kind from a prefixed flow-star name
+// (for example 月禄/流禄 → 禄). The kind controls display order only; it does
+// not imply importance, strength, or a new interpretation order.
+func flowStarKind(name string) rune {
+	runes := []rune(name)
+	if len(runes) < 2 {
+		if len(runes) == 0 {
+			return 0
+		}
+		return runes[0]
+	}
+	return runes[1]
+}
+
+// sortFlowStars gives the JSON contract a deterministic array order. The order
+// follows the conventional flow-star enumeration (禄羊陀魁钺马鸾喜昌曲), not a
+// new fortune ranking.
+func sortFlowStars(stars []string) []string {
+	ordered := make([]string, 0, len(stars))
+	ordered = append(ordered, stars...)
+	rank := func(name string) (int, string) {
+		kind := flowStarKind(name)
+		if rank, ok := flowStarDisplayRank[kind]; ok {
+			return rank, name
+		}
+		return len(flowStarDisplayRank), name
+	}
+	sort.SliceStable(ordered, func(i, j int) bool {
+		leftRank, leftName := rank(ordered[i])
+		rightRank, rightName := rank(ordered[j])
+		if leftRank != rightRank {
+			return leftRank < rightRank
+		}
+		return leftName < rightName
+	})
+	return ordered
+}
+
+var flowStarDisplayRank = map[rune]int{
+	'禄': 0,
+	'羊': 1,
+	'陀': 2,
+	'魁': 3,
+	'钺': 4,
+	'马': 5,
+	'鸾': 6,
+	'喜': 7,
+	'昌': 8,
+	'曲': 9,
 }

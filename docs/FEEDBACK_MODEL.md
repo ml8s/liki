@@ -92,20 +92,29 @@ feedback(id, schema_version, payload_json, created_at)
 
 ## 7. 运行治理
 
-反馈必须支持部署级关闭：
+每个 skill 内置统一 sender：
 
-```bash
-LIKI_FEEDBACK_DISABLED=1
+```text
+feedback.py
 ```
 
-默认 endpoint 为 `https://liki.hk/api/feedback`，自托管部署可用以下变量覆盖或关闭：
+agent 可通过 stdin 传入 problem / meta / agent / llm payload。sender 会补齐 contract 默认值、校验 payload，并提交到 endpoint。
 
-```bash
-LIKI_FEEDBACK_URL=https://your-host.example/api/feedback
-LIKI_FEEDBACK_DISABLED=1
-```
+治理规则：
 
-agent / LLM 事实应由宿主注入，不要求 LLM 自报身份。后端必须执行 payload 大小限制、rate limit、基础 PII 扫描与会话去重。
+- 默认 endpoint：`https://liki.hk/api/feedback`
+- 覆盖 endpoint：`LIKI_FEEDBACK_URL=https://your-host.example/api/feedback`
+- 禁用：`LIKI_FEEDBACK_DISABLED=1`
+- timeout：2 秒；失败不重试、不阻塞
+- 同一会话最多 3 条
+- `LIKI_FEEDBACK_CONTEXT` 可指向 JSON 文件，注入宿主侧 `meta / agent / llm` 事实；同一文件字段内，显式 payload 字段优先
+- 若 sender 同目录存在 `feedback.context.json`，且未设置 `LIKI_FEEDBACK_CONTEXT`，会自动使用该默认上下文
+- 宿主可信覆盖：`LIKI_FEEDBACK_SKILL`、`LIKI_FEEDBACK_SKILL_VERSION`、`LIKI_ENGINE_VERSION`、`LIKI_FEEDBACK_SESSION_HASH`
+- 最终优先级：宿主覆盖变量 > 显式 payload > context 补齐 > sender 默认值
+- payload 上限：32 KiB
+- payload 上限：32 KiB
+
+backend 必须独立执行 payload 大小限制、rate limit、基础 PII 扫描与会话去重。
 
 ## 8. 隐私边界
 

@@ -167,7 +167,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 ## 为什么可信
 
 - **计算不靠 AI 编** — 八字/紫微排盘由 Go 天文历算引擎完成：真太阳时校正、夏令时、经纬度时区、VSOP87D 秒级节气。模型只做解读，不推算排盘数据。
-- **断语有出处** — 断语长表共 798 条，每条附经典依据列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
+- **断语有出处** — 断语长表共 799 条，每条附经典依据列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
 - **双体系交叉验证** — 八字/紫微分侧计算，跨体系结论走显式合参表；冲突时列证裁决。
 - **流程可查** — 问卦链路保留起卦 / 起局收据、immutable snapshot、证据引用和 answer 审计；结论可回溯到具体某一步。
 - **独立评测** — 160 道命理师大赛真题（MingLi-Bench）测准确率；另有跨领域 skill-up smoke 测功能契约。
@@ -182,6 +182,7 @@ npx skills add ml8s/liki --skill liki-fengshui  # 风水
 skills/liki-bazi
 ├── SKILL.md    ← 规则层（流程骨架 + 强制规则）
 ├── feedback.schema.json ← 自主反馈 feedback-v1 契约
+├── feedback.py ← feedback sender / runtime governance
 ├── app/        ← 流程层（10 卡：婚姻/事业/财运/…）
 ├── domains/    ← 知识层（bazi 16 + ziwei 9 篇）
 └── tools/      ← 工具层（6 个 Python 工具 + 断语/因子 4 张长表 + schema 契约）

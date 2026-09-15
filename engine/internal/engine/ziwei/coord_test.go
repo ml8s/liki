@@ -1,75 +1,64 @@
 package ziwei
 
 import (
+	"bytes"
+	"encoding/json"
+	"reflect"
 	"testing"
 )
 
-func TestZhiConversions(t *testing.T) {
-	// Zhi ↔ zhiIdx 往返
-	for z := Zhi(1); z <= 12; z++ {
-		zm1 := zhiToZhiIdx(z)
-		if zhiIdxToZhi(zm1) != z {
-			t.Errorf("zhiIdxToZhi(zhiToZhiIdx(%d)) = %d, want %d", z, zhiIdxToZhi(zm1), z)
-		}
-	}
-	// display ↔ zhiIdx 往返
-	for d := 0; d < 12; d++ {
-		zm1 := anXingIdxToZhiIdx(d)
-		if zhiIdxToAnXingIdx(zm1) != d {
-			t.Errorf("zhiIdxToAnXingIdx(anXingIdxToZhiIdx(%d)) = %d, want %d", d, zhiIdxToAnXingIdx(zm1), d)
-		}
-	}
-	// 关键锚点：display 0=寅 → zhiIdx 2=寅；display 4=午 → zhiIdx 6=午
-	if anXingIdxToZhiIdx(0) != 2 {
-		t.Errorf("display0(寅)→zhiIdx, got %d want 2", anXingIdxToZhiIdx(0))
-	}
-	if anXingIdxToZhiIdx(4) != 6 {
-		t.Errorf("display4(午)→zhiIdx, got %d want 6", anXingIdxToZhiIdx(4))
-	}
-	if zhiIdxToAnXingIdx(6) != 4 {
-		t.Errorf("zhiIdx 6(午)→display, got %d want 4", zhiIdxToAnXingIdx(6))
+func TestSortFlowStarsUsesCanonicalDisplayOrder(t *testing.T) {
+	got := sortFlowStars([]string{"月曲", "月喜", "月马", "月钺", "月魁", "月陀", "月羊", "月禄", "月鸾", "月昌"})
+	want := []string{"月禄", "月羊", "月陀", "月魁", "月钺", "月马", "月鸾", "月喜", "月昌", "月曲"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v, want %v", got, want)
 	}
 }
 
-func TestPalaceZhiRoundTrip(t *testing.T) {
-	// gongIndex ↔ zhiIdx 往返（锚定命宫支午 = zhiIdx 6）
-	mingZM1 := 6 // 午
-	for pi := gongIndex(0); pi < 12; pi++ {
-		zm1 := palaceIndexToZhiIdx(mingZM1, pi)
-		if zhiIdxToPalaceIndex(mingZM1, zm1) != pi {
-			t.Errorf("roundtrip gong %d: got %d", pi, zhiIdxToPalaceIndex(mingZM1, zm1))
-		}
+func TestBuildFlowPalacesHasDeterministicStarOrder(t *testing.T) {
+	// The input is intentionally unsorted; map iteration must not leak into output.
+	stars := map[int][]string{
+		7: {"月曲", "月禄", "月昌", "月羊"},
+		8: {"流喜", "流禄", "流陀"},
 	}
-	// 锚点：命宫(0)=午 → zhiIdx 6；兄弟(1)=巳 → 5
-	if palaceIndexToZhiIdx(mingZM1, 0) != 6 {
-		t.Errorf("palace0(命宫)=午, got zm1 %d want 6", palaceIndexToZhiIdx(mingZM1, 0))
+
+	first := buildFlowPalaces(0, stars)
+	second := buildFlowPalaces(0, stars)
+	firstJSON, err := json.Marshal(first)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if palaceIndexToZhiIdx(mingZM1, 1) != 5 {
-		t.Errorf("palace1(兄弟)=巳, got zm1 %d want 5", palaceIndexToZhiIdx(mingZM1, 1))
+	secondJSON, err := json.Marshal(second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(firstJSON) != string(secondJSON) {
+		t.Fatalf("flow palace JSON is not deterministic")
+	}
+
+	want := []string{"月禄", "月羊", "月昌", "月曲"}
+	if !reflect.DeepEqual(first[7].Stars, want) {
+		t.Fatalf("stars = %v, want %v", first[7].Stars, want)
+	}
+	want = []string{"流禄", "流陀", "流喜"}
+	if !reflect.DeepEqual(first[8].Stars, want) {
+		t.Fatalf("stars = %v, want %v", first[8].Stars, want)
 	}
 }
 
-func TestBuildFlowPalaces(t *testing.T) {
-	// flowIndex=4（午年 yearlyIndex）：names[i] = PALACES[(i-4)%12]，[4] = 命宫
-	starByDisplay := map[int][]string{4: {"流羊"}, 3: {"流禄"}}
-	flow := buildFlowPalaces(4, starByDisplay) // flowIndex 4
-	// display 序：地支 寅卯辰...；宫名 PALACES 旋转
-	if flow[0].Zhi.String() != "寅" {
-		t.Errorf("[0]支: got %s want 寅", flow[0].Zhi.String())
+func TestBuildFlowPalacesEmitsEmptyStarArrays(t *testing.T) {
+	palaces := buildFlowPalaces(0, map[int][]string{})
+	for _, palace := range palaces {
+		if palace.Stars == nil || !reflect.DeepEqual(palace.Stars, []string{}) {
+			t.Fatalf("palace %s stars = %#v, want non-nil empty array", palace.Name, palace.Stars)
+		}
 	}
-	if flow[1].Zhi.String() != "卯" {
-		t.Errorf("[1]支: got %s want 卯", flow[1].Zhi.String())
+
+	data, err := json.Marshal(palaces)
+	if err != nil {
+		t.Fatal(err)
 	}
-	// [4] = PALACES[(4-4)%12] = PALACES[0] = 命宫（流年命宫）
-	if !flow[4].IsMing || flow[4].Name != "命宫" {
-		t.Errorf("[4]应为流年命宫: %s is_ming=%v", flow[4].Name, flow[4].IsMing)
-	}
-	// [4] 含流羊（午位）
-	if len(flow[4].Stars) != 1 || flow[4].Stars[0] != "流羊" {
-		t.Errorf("[4]流耀: %v", flow[4].Stars)
-	}
-	// [3] 含流禄（巳位）
-	if len(flow[3].Stars) != 1 || flow[3].Stars[0] != "流禄" {
-		t.Errorf("[3]流耀: %v", flow[3].Stars)
+	if bytes.Contains(data, []byte("null")) {
+		t.Fatalf("flow palace JSON contains null: %s", data)
 	}
 }

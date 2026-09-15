@@ -1,6 +1,7 @@
 """Contract tests for the autonomous skill feedback payload."""
 
 import json
+import re
 import unittest
 
 from helpers import ROOT, SKILL_NAMES, skill_dir, skill_version
@@ -69,10 +70,58 @@ class TestFeedbackContract(unittest.TestCase):
             "agent": {"name": "unknown", "version": "unknown"},
             "llm": {"provider": "unknown", "model": "unknown"},
             "rpc": {"method": "ziwei.liuyue"},
-            "problem": {"type": "clarity", "severity": "low", "summary": "ok"},
+            "problem": {"type": "clarity", "severity": "low", "summary": "valid problem"},
         }
         with self.assertRaises(ValidationError):
             validator.validate(payload)
+
+    def test_schema_enforces_text_boundaries(self):
+        schema = json.loads((skill_dir("liki-bazi") / "feedback.schema.json").read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+        payload = {
+            "schema_version": "feedback-v1",
+            "meta": {
+                "source": "skill-agent",
+                "skill": "liki-bazi",
+                "skill_version": skill_version(),
+                "engine_version": skill_version(),
+            },
+            "agent": {"name": "unknown", "version": "unknown"},
+            "llm": {"provider": "unknown", "model": "unknown"},
+            "problem": {"type": "clarity", "severity": "low", "summary": "valid problem"},
+        }
+
+        boundaries = {
+            ("problem", "summary"): (3, 240),
+            ("problem", "expected"): (0, 500),
+            ("problem", "observed"): (0, 500),
+        }
+        for (group, field), (valid_length, max_length) in boundaries.items():
+            valid = json.loads(json.dumps(payload))
+            valid[group][field] = "x" * valid_length
+            validator.validate(valid)
+
+            invalid = json.loads(json.dumps(payload))
+            invalid[group][field] = "x" * (max_length + 1)
+            with self.assertRaises(ValidationError):
+                validator.validate(invalid)
+
+    def test_docs_example_matches_feedback_schema(self):
+        schema = json.loads((skill_dir("liki-bazi") / "feedback.schema.json").read_text(encoding="utf-8"))
+        text = (ROOT / "docs" / "FEEDBACK_MODEL.md").read_text(encoding="utf-8")
+        blocks = re.findall(r"```json\n(.*?)\n```", text, flags=re.DOTALL)
+        self.assertTrue(blocks)
+        for block in blocks:
+            payload = json.loads(block)
+            Draft202012Validator(schema).validate(payload)
+
+    def test_all_skills_document_feedback_runtime_governance(self):
+        for skill in SKILL_NAMES:
+            with self.subTest(skill=skill):
+                text = (skill_dir(skill) / "SKILL.md").read_text(encoding="utf-8")
+                self.assertIn("LIKI_FEEDBACK_URL", text)
+                self.assertIn("LIKI_FEEDBACK_DISABLED=1", text)
+                self.assertIn("同一会话最多 3 条", text)
 
     def test_schema_rejects_unknown_and_oversized_content(self):
         schema = json.loads((skill_dir("liki-bazi") / "feedback.schema.json").read_text(encoding="utf-8"))
@@ -81,7 +130,7 @@ class TestFeedbackContract(unittest.TestCase):
             validator.validate({
                 "schema_version": "feedback-v1",
                 "meta": {},
-                "problem": {"type": "clarity", "severity": "low", "summary": "ok"},
+                "problem": {"type": "clarity", "severity": "low", "summary": "valid problem"},
             })
         with self.assertRaises(ValidationError):
             validator.validate({
@@ -93,7 +142,7 @@ class TestFeedbackContract(unittest.TestCase):
                     "engine_version": skill_version(),
                 },
                 "conversation": "private user text",
-                "problem": {"type": "clarity", "severity": "low", "summary": "ok"},
+                "problem": {"type": "clarity", "severity": "low", "summary": "valid problem"},
             })
 
     def test_all_skills_publish_feedback_v1_policy(self):

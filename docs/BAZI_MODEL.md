@@ -95,6 +95,7 @@ pan → factors → snap → assertions
 紫微 `宫含` 算子只对 `ziwei.palace_facts` 做 palace / kind / target / star exact match；Python 不再遍历宫位、推导四化落宫、解释亮度分组或计算主星数量。
 紫微盘显式输出 `school`：当前闰月口径为 iztro v2.6.1 兼容的“前十五日本月、后十五日次月”。这不是《紫微斗数全书》闰月按下月口径；两派不得混写。主星亮度表同步 iztro v2.6.1 对太阳、太阴、七杀居酉的修正。
 `ziwei.liuyue` 输入必须已经是完整农历日期（`year/month/day/leap`）；engine 只消费该领域输入。真实闰月由 `resolved_period.calendar_period` 表达，实际流月由 `resolved_period.flow_month` 表达：闰月 1–15 日取本闰月，16 日至月末取下一农历月。Python 不得判断 `day > 15`，也不得把闰月提前改写成普通月。
+`ziwei.liuri` / `ziwei.liushi` 同样必须提供完整农历日期（`year/month/day/leap`），用于定位真实干支纪日；不得用裸农历序数表达闰月。流盘 `xing_yao` 数组只保证确定性展示顺序：禄、羊、陀、魁、钺、马、鸾、喜、昌、曲；该顺序不是吉凶排序，也不改变星曜落宫与作用。
 本命宫名使用 engine 闭集：`命宫、兄弟、夫妻、子女、财帛、疾厄、迁移、仆役、官禄、田宅、福德、父母`；除命宫外不追加“宫”字。`任意` 只表示跨全部本命宫匹配，不是宫名。
 流年紫微同样消费 engine 宫名闭集；`流曜入宫` 与 `流年宫化` 不做带“宫”字后的显示别名适配。
 
