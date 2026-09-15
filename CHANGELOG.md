@@ -1,5 +1,10 @@
 # Changelog
 
+## [2026.09.16.0] — unified liki skill ready
+
+### Changes
+
+- 统一 `liki` skill 契约就绪：单入口路由 + 四域 `TOOLS.md`/`RPC.md` + `safety_advisory`；liki-web 平台侧已按单一 skill 完成适配（权益、Chat 单一入口、工具域、报告提示词路径收敛到 `liki/`）。
 ## [2026.09.15.7] — ready-to-use payload contracts and advisory safety
 
 ### Breaking changes
