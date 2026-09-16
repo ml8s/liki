@@ -4,8 +4,8 @@
 
 <p align="center">
   <strong>Liki — Professional Skill for Chinese Metaphysics</strong><br>
-  <strong>懂命理，用灵机</strong><br>
-  Trusted by those who understand Chinese Metaphysics.<br>
+  <strong>懂命理，用 Liki</strong><br>
+  For Chinese Metaphysics, use Liki.<br>
   Built to professional standards: astronomical-engine charting, classically-sourced judgments, verifiable conclusions<br>
   BaZi · ZiWei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
 </p>
@@ -41,7 +41,7 @@ After installation, your AI assistant gains one professional Skill for Chinese m
 - Judgments come from 799 truth-table rules, each citing classical sources
 - Independently evaluated on 160 competition questions with answer isolation
 
-**懂命理，用灵机。**
+**懂命理，用 Liki。**
 
 ## Installation
 

@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = ROOT / "skills" / "liki"
 DOMAIN_NAMES = ("bazi", "divination", "fengshui", "naming")
-SLOGAN = "懂命理，用灵机"
+SLOGAN = "懂命理，用 Liki"
 
 
 def skill_dir(name: str = "liki") -> Path:

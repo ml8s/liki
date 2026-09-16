@@ -16,6 +16,7 @@ import time
 import urllib.request
 from urllib.error import HTTPError, URLError
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Optional
 
 from errors import LikiToolError
@@ -26,7 +27,7 @@ RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
-MIN_ENGINE_VERSION = "2026.09.15.5"
+VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION"
 DISCOVER_SCOPES = ("bazi", "ziwei", "city", "tianwen", "time")
 REQUIRED_METHODS = (
     "bazi.chart", "bazi.fullchart", "bazi.bond", "bazi.liunian",
@@ -87,13 +88,31 @@ def _version_key(version: str) -> tuple[int, ...]:
         raise RPCError(f"engine version is invalid: {version}") from error
 
 
+def skill_version() -> str:
+    """Read the distributed skill version; fail closed when missing or invalid."""
+    try:
+        version = VERSION_PATH.read_text(encoding="utf-8").strip()
+    except OSError as error:
+        raise RPCError(f"skill VERSION is unavailable: {error}") from error
+    if not version:
+        raise RPCError("skill VERSION is empty")
+    _version_key(version)
+    return version
+
+
+def required_engine_version() -> str:
+    """Require the engine to meet the installed skill's CalVer, not a stale floor."""
+    return skill_version()
+
+
 def ensure_engine_compatible() -> None:
     """Reject old engines before malformed half pans reach the factor layer."""
     version = engine_version()
-    if _version_key(version) < _version_key(MIN_ENGINE_VERSION):
+    required = required_engine_version()
+    if _version_key(version) < _version_key(required):
         raise RPCError(
             f"engine version {version} is incompatible; "
-            f"skill requires engine >= {MIN_ENGINE_VERSION}"
+            f"skill VERSION requires engine >= {required}"
         )
 
 

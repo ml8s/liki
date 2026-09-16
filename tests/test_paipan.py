@@ -57,7 +57,7 @@ def test_engine_compatibility_uses_rpc_discover(monkeypatch) -> None:
     def fake_call(method, params, retries=1):
         calls.append((method, params, retries))
         methods = [{"name": name} for name in paipan.REQUIRED_METHODS]
-        return {"info": {"version": "2026.09.15.5"}, "methods": methods}
+        return {"info": {"version": paipan.required_engine_version()}, "methods": methods}
 
     monkeypatch.setattr(paipan, "call", fake_call)
     paipan.ensure_engine_compatible()
@@ -72,4 +72,16 @@ def test_engine_compatibility_rejects_old_engine(monkeypatch) -> None:
     })
 
     with pytest.raises(RPCError, match="incompatible"):
+        paipan.ensure_engine_compatible()
+
+
+def test_engine_compatibility_requires_installed_skill_version(monkeypatch) -> None:
+    methods = [{"name": name} for name in paipan.REQUIRED_METHODS]
+    required = paipan.required_engine_version()
+    older = required.split(".")[:-1] + [str(int(required.split(".")[-1]) - 1)]
+    monkeypatch.setattr(paipan, "call", lambda *_a, **_k: {
+        "info": {"version": ".".join(older)}, "methods": methods
+    })
+
+    with pytest.raises(RPCError, match="skill VERSION requires engine"):
         paipan.ensure_engine_compatible()

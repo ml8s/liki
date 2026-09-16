@@ -1,18 +1,18 @@
 ---
 name: liki
 agent_created: true
-description: "懂命理，用灵机。一个专业命理 Skill：八字、紫微斗数、大运流年、合盘、六爻、奇门、黄历择日、八宅风水、玄空飞星、起名改名与外国人中文名。Bazi, Ziwei, Liuyao, QiMen, date selection, Feng Shui and Chinese naming. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
+description: "懂命理，用 Liki。一个专业命理 Skill：八字、紫微斗数、大运流年、合盘、六爻、奇门、黄历择日、八宅风水、玄空飞星、起名改名与外国人中文名。Bazi, Ziwei, Liuyao, QiMen, date selection, Feng Shui and Chinese naming. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
 ---
 
 # Liki — 专业命理 Skill
 
-> **懂命理，用灵机。**
+> **懂命理，用 Liki。**
 
 Liki 是一个统一命理 Skill，内部分为四个领域包。进入领域后，只读取该领域入口和当前任务需要的 app 卡；保持上下文聚焦。
 
 ## 全局启动
 
-1. 外部安装副本先执行版本检查：本地读 `skills/liki/VERSION`，远程执行 `curl -fsS https://liki.hk/skills/liki/VERSION`；二者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达时标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
+1. 外部安装副本先执行版本检查：本地读安装根目录的 `VERSION`（仓库开发副本是 `skills/liki/VERSION`），远程执行 `curl -fsS https://liki.hk/skills/liki/VERSION`；二者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达时标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
 2. JSON-RPC 默认端点是 `https://liki.hk/jsonrpc`；`LIKI_RPC_URL` 优先。
 3. bazi / divination 只通过各自 `agent_cli.py` 调用 Python 工具层；CLI 启动时校验引擎版本和内部必需 RPC，agent 不直接 POST RPC。
 4. naming / fengshui 无 Python 工具层；agent 只复制领域 `RPC.md` 中的固定 discover scope 和完整 JSON-RPC 报文。

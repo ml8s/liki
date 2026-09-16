@@ -1,4 +1,4 @@
-Liki Canonical Brand Definition (v3.4)
+Liki Canonical Brand Definition (v4.0)
 
 ---
 
@@ -6,7 +6,7 @@ Brand（品牌）
 
 中文
 
-Liki 灵机
+Liki
 
 English
 
@@ -14,13 +14,19 @@ Liki
 
 Liki is the brand.
 
+中文展示
+
+Liki 命理
+
+Liki has no separate Chinese brand name. In Chinese contexts, “Liki 命理” is a brand-plus-category display: “命理” describes the domain, not a translated brand name.
+
 ---
 
 Category（产品类别）
 
 中文
 
-命理师的 Skill
+专业命理 Skill
 
 Liki 是一种面向中华命理的专业 Skill，而不是传统软件或聊天机器人。
 
@@ -72,9 +78,9 @@ Positioning（品牌定位）
 
 中文
 
-«Liki 灵机，命理师的 Skill。»
+«Liki，专业命理 Skill。»
 
-这里的"命理师"代表专业标准，而不是用户边界。
+这里的"专业"代表以命理师真实工作标准构建，而不是用户边界。
 
 Liki 按照命理师真实工作标准构建，因此专业人士能够信赖，普通用户同样可以自然使用。
 
@@ -90,28 +96,28 @@ Slogan（品牌口号）
 
 中文
 
-«懂命理，用灵机»
+«懂命理，用 Liki»
 
 这是 Liki 唯一对外 slogan，只重复，不做同义改写。
 
 语义基准：
 
-«懂命理，用灵机»表达的是「懂命理的人，都在用灵机」。它是专业人群选择灵机的圈层证明，不是使用门槛，也不要求用户先成为命理师。
+«懂命理，用 Liki»表达的是「懂命理的人，都在用 Liki」。它是专业人群选择 Liki 的圈层证明，不是使用门槛，也不要求用户先成为命理师。
 
 使用规则：
 
 - 官网、README、产品启动页、广告图、视频结尾、社交简介统一使用同一文字顺序；
-- 不改写为「问命理，用灵机」「命理事，问灵机」「灵机，懂命理」等变体；
+- 不改写为「问命理，用 Liki」「命理事，问 Liki」「Liki，懂命理」等变体；
 - 视觉排版可省略句尾标点，但不得省略或改写逗号、字序和核心词；
-- slogan 与「命理师的 Skill」并存：前者是对外心智句，后者是品牌定位和内部叙事基准。
+- slogan 与「专业命理 Skill」并存：前者是对外心智句，后者是品牌定位和内部叙事基准。
 
 English
 
-The canonical slogan is Chinese-only and is not translated into an alternative slogan.
+The canonical slogan is a Chinese sentence that uses the Latin brand name “Liki”; it is not translated into an alternative slogan.
 
 English explanatory rendering:
 
-«Trusted by those who understand Chinese Metaphysics»
+«For Chinese Metaphysics, use Liki.»
 
 ---
 
@@ -285,7 +291,7 @@ Liki 不参与娱乐化 AI 产品竞争。
 
 Liki 希望建立新的产品类别：
 
-«命理师的 Skill»
+«专业命理 Skill»
 
 竞争的是：
 
@@ -317,11 +323,11 @@ Brand Language（品牌语言）
 
 品牌统一使用：
 
-«命理师的 Skill»
+«专业命理 Skill»
 
 对外重复使用：
 
-«懂命理，用灵机»
+«懂命理，用 Liki»
 
 专业领域统一使用：
 
@@ -333,12 +339,12 @@ Brand Language（品牌语言）
 
 对外宣传、软文、社交媒体中，使用以下表述以获得更好的传播效果：
 
-- 产品名：**灵机 Skill**
-- 定位语：**命理师的专业AI工具**
-- 一句话介绍：**灵机 Skill，命理师的专业AI工具**
-- Slogan：**懂命理，用灵机**
+- 产品名：**Liki**
+- 定位语：**按命理师的专业标准构建**
+- 一句话介绍：**Liki，专业命理 Skill**
+- Slogan：**懂命理，用 Liki**
 
-品牌正式名「Liki 灵机」保持不变，宣传口径与品牌正式名不冲突——正式名用于产品界面和官网，宣传口径用于对外传播。
+品牌不设中文核心名。宣传口径必须回到 Liki；「命理」只作为领域描述，不承担品牌名职责。
 
 ---
 
@@ -376,7 +382,7 @@ GitHub README、产品官网、文档站等**产品门面**统一使用两层结
 
 **第一层（品类——说清是什么）**：
 
-- 中文标题：**Liki 灵机 — 命理 Skill**
+- 中文标题：**Liki — 专业命理 Skill**
 - 英文标题：**Liki — Professional Skill for Chinese Metaphysics**（英文 "Professional" 修饰标准、无属格歧义，保留并与第二层呼应）
 
 **第二层（定位——说亮不同）**：
@@ -384,10 +390,11 @@ GitHub README、产品官网、文档站等**产品门面**统一使用两层结
 - 副行：**按命理师的专业标准构建**（可按场景续依据：引擎排盘、断语溯源、结论可验证）
 - 领域罗列以 Domain 清单为准
 
-**北极星句的使用范围**：
+**定位句与标题位的关系**：
 
-- «命理师的 Skill» 仅限**内部文档**与**品牌叙事段落**（如关于页第一段——须紧随标准解释：「按照命理师真实工作标准构建，专业人士能够信赖，普通用户同样可以自然使用」）
-- 外部门面标题位不使用北极星句（中文「的」字属格有用户边界歧义，标准句是其无歧义展开式）
+- 定位句 «Liki，专业命理 Skill。」用于品牌叙事，应紧随标准解释：「按照命理师真实工作标准构建，专业人士能够信赖，普通用户同样可以自然使用」。
+- 外部门面标题位使用无主谓的品类形式 «Liki — 专业命理 Skill»，避免完整定位句在标题中显得冗长。
+- 不恢复旧北极星句；该句的属格歧义已在 v3 收口，v4 继续退役。
 
 **收束行退役**：
 
@@ -402,11 +409,11 @@ English
 
 Product-facing documentation (GitHub README, website, docs) uses a two-layer structure:
 
-**Layer 1 (Category)**: Chinese title: **Liki 灵机 — 命理 Skill**; English title: **Liki — Professional Skill for Chinese Metaphysics** ("Professional" modifies standards — no genitive ambiguity in English; retained).
+**Layer 1 (Category)**: Chinese title: **Liki — 专业命理 Skill**; English title: **Liki — Professional Skill for Chinese Metaphysics** ("Professional" modifies standards — no genitive ambiguity in English; retained).
 
 **Layer 2 (Positioning)**: "按命理师的专业标准构建 / Built to professional standards" (optionally followed by evidence: engine-computed charts, classically-sourced judgments, verifiable conclusions).
 
-The North Star phrase «命理师的 Skill» is reserved for internal documents and brand-narrative paragraphs (e.g. the About opening, always with the standards explanation). It is not used in external title positions. The former closing line ("trusted by professionals, accessible to everyone") was a patch for the North Star's genitive ambiguity and is retired once titles use the category term.
+The positioning sentence is used in brand narrative with its standards explanation. Product-facing titles use the compact category form “Liki — 专业命理 Skill”. The former North Star phrase remains retired because of its possessive ambiguity.
 
 ---
 
@@ -414,7 +421,7 @@ North Star（品牌北极星）
 
 中文
 
-«Liki 灵机，命理师的 Skill。»
+«Liki，专业命理 Skill。»
 
 English
 
@@ -439,6 +446,8 @@ This principle guides every product, engineering, design, and operational decisi
 ---
 
 ## Governance Log（治理记录）
+
+- **2026-09 · 品牌去中文名化**：因「灵机」与广州灵机文化存在行业、语义和搜索心智冲突，品牌不再使用中文核心名，也不采用「理机」等近似替代。正式品牌统一为 **Liki**；中文语境使用 **Liki 命理** 作为品牌 + 品类展示。唯一对外 slogan 改为「懂命理，用 Liki」。旧口径只保留在历史记录中，不再作为活跃品牌语言。
 
 - **2026-08 · 两层结构的误诊与收口**：v3.2 确立两层门面结构后，liki-web 首页 hero 未同步执行（标题仍为北极星句），造成两仓门面分裂。当时误将**执行不一致**诊断为**设计失败**，一度提议回退统一北极星句。复盘确认：两层结构本身正确（标准句是北极星句的无歧义展开式，歧义应消灭而非修补）；分裂根因是执行遗漏。v3.3 收口：标题品类统一「命理 Skill」、收束行（歧义补丁）全面退役、北极星句限定内部与品牌叙事。教训：门面分裂先查执行覆盖，再动设计。
 

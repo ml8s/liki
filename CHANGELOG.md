@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026.09.16.2] — brand renormalized to Liki
+
+### Changes
+
+- 品牌真相源 `docs/brand.md` 升级到 v4.0：主品牌统一为 `Liki`，不再设置中文核心品牌名；中文展示口径为 `Liki 命理`，其中“命理”是品类描述。
+- 唯一对外 slogan 更新为「懂命理，用 Liki。」；README 中英文口径与统一 `SKILL.md` 同步。
+- `webapp/mingshu` 与 `webapp/hepan` 的旧提示词品牌口径改为 `Liki 命书` / `Liki 合盘`。
+- 品牌契约测试改为锁定新 slogan，并在活跃门面禁止 `Liki 灵机`、`灵机命书`、`灵机合盘`、`灵机命理` 等旧口径；`CHANGELOG` 与 `brand.md` 治理记录保留历史。
+- 评审修正品牌真相源遗留的 v3 北极星逻辑和 “Chinese-only” 表述；v4 明确定位句、标题位与中文展示口径。
+- 修正外部安装副本的版本检查路径：统一读安装根目录 `VERSION`，仓库开发副本才是 `skills/liki/VERSION`。
+- bazi / divination CLI 引擎兼容门禁改为读取当前 skill `VERSION`，不再只用硬编码历史最低版本；文档契约与运行时 fail-closed 行为一致。
+
 ## [2026.09.16.0] — unified liki skill ready
 
 ### Changes
