@@ -68,6 +68,17 @@ Before `v5.0.0`, major architecture milestones were retro-tagged so public histo
 | `v3.0.0` | `a0884cf` | 2026-08-16 | Four-skill split, flat domains, and unified versioning. |
 | `v4.0.0` | `0743ce8` | 2026-08-25 | Liki Engine merged into the monorepo. |
 
+### Final minor tag per historical major
+
+For complete compatibility anchors, the highest minor of each historical major is also tagged:
+
+| Tag | Commit | Date | Meaning |
+|---|---|---|---|
+| `v1.40.0` | `359fd54` | 2026-07-29 | Final 1.x prompt-skill release before the 2.x domain/app split. |
+| `v2.4.0` | `90b8656` | 2026-08-07 | Final 2.x domain/app two-layer release. |
+| `v3.10.2` | `fad44b0` | 2026-08-15 | Final 3.x skill-tools architecture release. |
+| `v4.3.1` | `0d24031` | 2026-08-19 | Final four-skill split release before engine monorepo integration. |
+
 These are historical anchors for the pre-unified architecture.
 
 The last independent four-skill snapshot was `1039ec5`, where every old skill `VERSION` was synchronized to `2026.09.15.5`. Scoped tags:
