@@ -91,11 +91,7 @@ class TestIntegration_FullChain(unittest.TestCase):
         self.assertTrue(result["ok"], result.get("error"))
         self.assertEqual(set(result["data"]), {"11时", "12时"})
         self.assertTrue(
-            all(set(event) >= {"八字", "紫微", "合参"}
-                for events in result["data"].values() for event in events)
-        )
-        self.assertTrue(
-            all("evidence" in event
+            all(set(event) == {"year", "label", "rule", "八字", "紫微", "合参"}
                 for events in result["data"].values() for event in events)
         )
 

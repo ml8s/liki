@@ -112,11 +112,23 @@ def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     year = current_year
     if op == '流年宫化':
-        gong, hua = (args[0], args[1])
-        sg = ctx.get('zw_liunian', {}).get('si_hua_gong', {}) or {}
-        sh = ctx.get('zw_liunian', {}).get('si_hua', {}) or {}
-        for star, gname in sg.items():
-            if gname == gong and sh.get(star) == hua:
+        # [宫位, 星曜, 四化]——与「宫含」同构的三维 key：星曜是显式维度，
+        # 因子值 0/1 自身即构成完整命题（如「廉贞化忌落流年官禄宫」），
+        # 不需要任何返回值之外的旁路来补全事实。
+        if len(args) != 3:
+            raise FactorEvaluateError(
+                f"流年宫化需 3 参 [宫位,星曜,四化]，实得 {len(args)}: {args}"
+            )
+        gong, star, hua = args
+        zw = ctx.get('zw_liunian', {}) or {}
+        si_hua_gong = zw.get('si_hua_gong', {}) or {}
+        si_hua = zw.get('si_hua', {}) or {}
+        for hit_star, gname in si_hua_gong.items():
+            if gong not in ('任意', gname):
+                continue
+            if star not in ('任意', hit_star):
+                continue
+            if si_hua.get(hit_star) == hua:
                 return 1
         return 0
 
@@ -198,15 +210,27 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
         return 1 if year_zhi in _atomic_facts(ctx).get('day_void_branches', []) else 0
 
     if op == '三刑':
-        facts = _atomic_facts(ctx).get('combinations', [])
-        hit = next((item for item in facts if item.get('kind') == 'xing' and item.get('includes_year')), None)
-        if hit is None:
-            return 0
-        ctx.setdefault('evidence', {})['三刑流年'] = {
-            'group': hit.get('group', ''),
-            'members': hit.get('branches', []),
-        }
-        return 1
+        # 三刑[来源, 刑组]：来源决定参与判定的地支，刑组决定是哪一组刑。
+        # 两者都进 key——答案（刑组）不在参数里时的证据旁路已被删除。
+        if len(args) != 2:
+            raise FactorEvaluateError(
+                f"三刑需 2 参 [来源,刑组]，实得 {len(args)}: {args}"
+            )
+        source, group = args[0], args[1]
+        spec = load_constants().get("干支来源", {}).get(source)
+        if not spec or spec.get("部分") != "支":
+            raise FactorEvaluateError(f"三刑来源必须是地支来源: {source}")
+        members = _xing_members(group)
+        if members is None:
+            raise FactorEvaluateError(f"三刑刑组无效: {group}")
+        source_zhi = _source_zhi(source, ctx)
+        for item in _atomic_facts(ctx).get('combinations', []):
+            if item.get('kind') != 'xing':
+                continue
+            branches = item.get('branches') or []
+            if source_zhi in branches and set(branches) == members:
+                return 1
+        return 0
 
     if op == '流年支受克':
         if not args:
@@ -292,6 +316,26 @@ def _atomic_facts(ctx: dict) -> dict:
 def _source_zhi(src: str, ctx: dict) -> str:
     """支来源：流年支/大运支/四柱支。"""
     return _source_value(src, ctx, "支")
+
+
+def _xing_members(group: str) -> frozenset | None:
+    """校验刑组名并返回其成员集合；刑组名不自洽时返回 None。
+
+    刑组闭集取自 constants「三刑」（地支 → 同组其余地支），因此不写死任何
+    地支字面量。成员以集合比较，与引擎组合事实的支序、与本命侧组名写法
+    （丑戌未 / 丑未戌 同组）均无关。
+    """
+    table = load_constants().get("三刑", {})
+    members = set(group)
+    if not members or len(members) > 3:
+        return None
+    if len(members) == 1 and len(group) != 2:
+        return None
+    for branch in members:
+        partners = table.get(branch)
+        if partners is None or set(partners) - members:
+            return None
+    return frozenset(members)
 
 
 def _source_value(src: str, ctx: dict, part: str) -> str:

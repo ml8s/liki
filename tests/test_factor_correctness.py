@@ -191,6 +191,35 @@ def test_operator_arguments_use_constant_closures() -> None:
                 assert args[1] in valid_palaces, f"{expression} 宫位不在紫微宫位闭集"
             if op == "流年宫化":
                 assert args[0] in valid_palaces, f"{expression} 宫位不在紫微宫位闭集"
+                assert len(args) == 3, (
+                    f"{expression} 流年宫化 必须显式声明星曜维度 [宫位,星曜,四化]"
+                )
+                assert args[1] in valid_palace_stars, (
+                    f"{expression} 星曜不在紫微星曜闭集"
+                )
+            if op == "三刑":
+                assert len(args) == 2, (
+                    f"{expression} 三刑 必须显式声明 [来源,刑组]"
+                )
+                source = const["干支来源"].get(args[0], {})
+                assert source.get("部分") == "支", (
+                    f"{expression} 三刑 来源不是地支来源"
+                )
+                xing_members = set(args[1])
+                assert 0 < len(xing_members) <= 3, (
+                    f"{expression} 三刑 刑组不在刑闭集"
+                )
+                assert len(args[1]) == (2 if len(xing_members) == 1 else len(xing_members)), (
+                    f"{expression} 自刑组必须写成双字"
+                )
+                for branch in xing_members:
+                    partners = const["三刑"].get(branch)
+                    assert partners is not None, (
+                        f"{expression} 刑组含非刑成员"
+                    )
+                    assert not set(partners) - xing_members, (
+                        f"{expression} 刑组不自洽"
+                    )
             if op in target_ops:
                 assert args[0] in valid_flow_targets, (
                     f"{expression} 流年 target 未显式使用稳定类/角色"
@@ -234,6 +263,33 @@ def test_relation_operator_groups_use_constant_closures() -> None:
         checked += 1
     assert checked > 30
     assert seen_groups == valid_groups
+
+
+def test_flow_xing_groups_match_natal_xing_closure() -> None:
+    """流年 三刑[来源,刑组] 与本命 关系[liu_xing,组名] 必须共用同一刑组闭集。
+
+    两侧组名的书写次序可以不同（丑戌未 / 丑未戌），但成员集合必须一致；
+    任一侧漏组或多组都说明刑因子被坍缩或凭空扩展。
+    """
+
+    def canonical(group: str) -> tuple:
+        return tuple(sorted(group)) if len(set(group)) > 1 else (group[0], group[0])
+
+    def collect(filename: str, pattern: str) -> set[tuple]:
+        with (TOOLS / "factors" / filename).open(
+            encoding="utf-8-sig", newline=""
+        ) as source:
+            rows = list(csv.DictReader(source))
+        return {
+            canonical(match.group(1))
+            for row in rows
+            if (match := re.match(pattern, row["expression"]))
+        }
+
+    natal = collect("factors.csv", r"^关系\[liu_xing,([^\]]+)\]$")
+    flow = collect("factors_liunian.csv", r"^三刑\[[^,\]]+,([^\]]+)\]$")
+    assert len(natal) == 7
+    assert flow == natal, f"两侧刑组闭集不一致: {sorted(flow ^ natal)}"
 
 
 EXPECTED_ENGINE_NATAL_SHEN_SHA = {

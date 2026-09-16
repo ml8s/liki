@@ -98,7 +98,8 @@ pan → factors → snap → assertions
 `ziwei.liuyue` 不接受公历、裸农历月份或 `half / fixLeap` 修正参数；同一农历年的六月与闰六月是两个真实月份。农历月不存在、日期超过真实月末或缺少 `day / leap` 时必须 fail closed。
 `ziwei.liuri` / `ziwei.liushi` 同样必须提供完整农历日期（`year/month/day/leap`），用于定位真实干支纪日；不得用裸农历序数表达闰月。流盘 `xing_yao` 数组只保证确定性展示顺序：禄、羊、陀、魁、钺、马、鸾、喜、昌、曲；该顺序不是吉凶排序，也不改变星曜落宫与作用。
 本命宫名使用 engine 闭集：`命宫、兄弟、夫妻、子女、财帛、疾厄、迁移、仆役、官禄、田宅、福德、父母`；除命宫外不追加“宫”字。`任意` 只表示跨全部本命宫匹配，不是宫名。
-流年紫微同样消费 engine 宫名闭集；`流曜入宫` 与 `流年宫化` 不做带“宫”字后的显示别名适配。
+流年紫微同样消费 engine 宫名闭集；`流曜入宫` 与 `流年宫化` 不做带“宫”字后的显示别名适配。`流年宫化` 的三维 key 为 `[宫位,星曜,四化]`，与 `宫含` 同构；`宫位`/`星曜` 取 `任意` 表示该维通配，星曜维度必须显式声明、不得省略。
+`三刑` 的二维 key 为 `[来源,刑组]`：`来源` 决定参与判定的地支，`刑组` 决定是哪一组刑，两者都必须显式声明。刑组闭集取自 `constants.json` 的「三刑」（地支 → 同组其余地支），成员按集合比较，因此与本命侧 `关系[liu_xing,组名]` 的组名书写次序（`丑戌未` / `丑未戌`）无关；刑组名不自洽时 fail closed。`三刑` 因子与断语条件逐组对齐，不写 `任意` 通配。
 
 `ten_god_states.transparent / hidden` 只描述该具体十神；`rooted / timely` 按其五行判定。`ten_god_states.strength` 的口径是：得令，或该具体十神透干且五行通根为 `strong`；失令且该十神不透、五行无根为 `weak`；其余为 `neutral`。同五行的另一十神透干，不会把本十神错误升级为透干有根。`element_states.season_strength` 只表达月令旺相休囚死；`element_states.strength` 是五行聚合态；`controller_strength` 表达受克目标的克者是否旺相。Python 只读取这些结论，不再维护五行生克、天干五行、得令状态或十神旺弱规则表。
 
@@ -114,13 +115,13 @@ pan → factors → snap → assertions
 | 本命直通原子 | 50 | `factors.csv` |
 | 本命提取原子 | 310 | `factors.csv` |
 | 本命复合因子 | 115 | `factors.csv` |
-| 流年因子 | 101 | `factors_liunian.csv` |
-| 流年八字因子 | 69 | `factors_liunian.csv` |
+| 流年因子 | 107 | `factors_liunian.csv` |
+| 流年八字因子 | 75 | `factors_liunian.csv` |
 | 流年紫微因子 | 32 | `factors_liunian.csv` |
-| 流年定义组 | 105 | `factors_liunian.csv` |
-| 流年数据行 | 101 | `factors_liunian.csv` |
+| 流年定义组 | 111 | `factors_liunian.csv` |
+| 流年数据行 | 117 | `factors_liunian.csv` |
 | 流年直通原子 | 4 | `factors_liunian.csv` |
-| 流年提取原子 | 58 | `factors_liunian.csv` |
+| 流年提取原子 | 64 | `factors_liunian.csv` |
 | 流年复合因子 | 39 | `factors_liunian.csv` |
 
 口径说明：直通因子仅含 direct 表达式；提取因子是单条件组且不引用其他因子；复合因子含多条件组或 factor_ref。
@@ -133,7 +134,7 @@ pan → factors → snap → assertions
 `pan_schema` 要求 `ziwei.gong_wei` 按 engine 12 宫闭集完整输出，`palace_facts` 非空且 palace 名必须落在同一闭集内。
 `bazi.fullchart` 只接受 engine `bazi.chart` 产生的 canonical lean chart：四柱必须构成合法六十甲子，且每柱 `na_yin` 存在并与干支一致；缺失或错配直接报错，不把裁剪盘扩展成空纳音。
 
-`calibrate.py` 是独立考时工具，编排 `paipan → factors → duanyu`。候选 `correct=true` 必须提供 longitude；`correct=false` 表示已明确时辰，longitude 可省略。`detail=true` 输出机械 evidence；`detail=false` 只保留断语。场景领域过滤只作用于断语，不删除机械 evidence。
+`calibrate.py` 是独立考时工具，编排 `paipan → factors → duanyu`。候选 `correct=true` 必须提供 longitude；`correct=false` 表示已明确时辰，longitude 可省略。`detail=true` 输出全量断语（结论 + 依据 + 经典依据 + trace）；`detail=false` 只保留精简字段。场景领域过滤只作用于断语。
 
 考时事件的 `rule` 若是场景别名，同样应用 `场景领域过滤`；例如 `yearly_study` 只保留学业断语，避免用婚姻或财运信号校时。
 
@@ -141,13 +142,15 @@ pan → factors → snap → assertions
 - `duanyu.query(rule=用神)` 除断语外返回 `yong_shen_context`，直接投影 engine 的 `yong_shen / element_states / ten_god_states`；Python 不重算三派、不推导最终喜忌。
 - `query(year=...)` 只允许 `大运 / 大限` 限运域；省略 year 时由服务端当前时间推导。
 - 限运域结果附带 `current_year / current_year_source`；显式传 year 时 source 为 `specified`。
-- `query` / `yearly_range` 支持可选 `domains` 过滤器；有效领域来自所选 rule 展开后的断语表。未知领域 fail closed，过滤结果不携带 snapshot evidence。
+- `query` / `yearly_range` 支持可选 `domains` 过滤器；有效领域来自所选 rule 展开后的断语表。未知领域 fail closed，过滤结果只含八字/紫微/合参三侧。
 - `八字专属域 / 紫微专属域` 只限制对应 bazi / ziwei 断言表；若该域还有 common 断言，`query` 必须同时生成双盘快照，否则跨术数条件会变成死规则。
 - 场景别名可在 `constants.json` 的 `场景领域过滤` 中声明主领域。未显式传 `domains` 时，纯场景查询应用默认领域过滤。
 - `query` / `yearly_range` 只接受 `full_paipan` 完整返回的 pan，拒绝快照、裁剪盘和手工半截盘。
 - `yearly_range` 单次起止年含端点跨度最多 120 年。
 
 `full_paipan` 在真太阳时或既定时辰距时辰交界 ≤30 分钟时，返回可选 `calibration_hint`。该提示只表达“接近交界，建议用人生大事校准”，不修改四柱，也不构成吉凶结论。
+
+除无符号的 `minutes_to_boundary` 外，提示同时给出可核验的机械字段：`boundary_offset_minutes`（有符号，负数=早于交界）、`current_shichen` / `alternate_shichen`（当前时辰与跨过最近交界后的时辰，含 `name` / `branch` / `span`）与 `direction`（`later` / `earlier`）。这些字段直接回答“往哪边偏会翻”，调用方不再自行二次推断。时辰名由 `constants.json` 的「地支」与既有交界表推导，不写死命理成员。**换日口径不在本层表达**——提示只标注两小时窗口，`23:00` 前后同属一个窗口，不区分早晚子时。
 
 ## 6. 因子长表
 

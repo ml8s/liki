@@ -89,10 +89,8 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
                 brief=brief,
             )
             r = {side_labels[side]: [] for side in side_config["断言代码"]}
-            evidence = {}
             for er in rules:
                 qr = grouped[er]
-                evidence.update(qr.get("evidence", {}) or {})
                 domains = default_scene_domains([e["rule"]])
                 if domains is not None:
                     qr = filter_domains(qr, domains)
@@ -101,8 +99,6 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
                     r[side_label] += qr.get(side_label, [])
             if not detail:
                 r = {side: brief(items) for side, items in r.items()}
-            else:
-                r["evidence"] = evidence
             event_results.append({
                 "year": year, "label": e["label"], "rule": e["rule"],
                 **r,

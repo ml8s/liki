@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Optional
 
 from errors import LikiToolError
+from factor_constants import load_constants
 from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 
@@ -149,8 +150,26 @@ def _bazi_liunian(chart: dict, year: int) -> dict:
     return call("bazi.liunian", {"chart": chart, "year": year})["data"]
 
 
+def _shichen_window(index: int, boundaries: list, zhi: list) -> dict:
+    """交界索引 → 时辰窗口（纯机械映射，不涉及换日口径，不做吉凶判断）。
+
+    名称与起始小时均由 boundaries 与 constants.json 的「地支」推导，不写死
+    命理成员字面量（见 tests/test_domain_semantic_contracts.py）。
+    """
+    start = boundaries[index]
+    return {
+        "name": zhi[index] + "时",
+        "branch": zhi[index],
+        "span": f"{start:02d}:00-{(start + 2) % 24:02d}:00",
+    }
+
+
 def _shichen_boundary_hint(solar: str) -> dict | None:
     """返回距时辰交界的确定性提示；不做吉凶判断。
+
+    同时给出当前时辰与跨过最近交界后的时辰，调用方无需自行二次推断
+    「往哪边偏会翻」。boundary_offset_minutes 有符号：负数=早于交界，
+    正数=晚于交界，与 direction 一一对应。
 
     晚子时 / 早子时的换日口径仍由 engine 与 skill 文档决定；这里只提示
     输入分钟接近传统两小时交界，建议用户用事件校准。
@@ -163,21 +182,33 @@ def _shichen_boundary_hint(solar: str) -> dict | None:
     boundaries = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
     candidates = []
     for day_offset in (-1, 0, 1):
-        for hour in boundaries:
+        for index, hour in enumerate(boundaries):
             candidate = moment.replace(
                 hour=hour, minute=0, second=0, microsecond=0
             ) + timedelta(days=day_offset)
-            candidates.append(candidate)
+            candidates.append((index, candidate))
 
-    nearest = min(candidates, key=lambda item: abs((moment - item).total_seconds()))
-    minutes = int(abs((moment - nearest).total_seconds()) // 60)
+    index, nearest = min(
+        candidates, key=lambda item: abs((moment - item[1]).total_seconds())
+    )
+    delta = moment - nearest
+    minutes = int(abs(delta.total_seconds()) // 60)
     if minutes > SHICHEN_BOUNDARY_THRESHOLD_MINUTES:
         return None
+    before_boundary = delta.total_seconds() < 0
+    zhi = load_constants()["地支"]
+    # 交界 index 是「跨过去之后」那个时辰的起点：未跨=前一窗，已跨=本窗。
+    current_index = (index - 1) % len(boundaries) if before_boundary else index
+    alternate_index = index if before_boundary else (index - 1) % len(boundaries)
     return {
         "near_boundary": True,
         "minutes_to_boundary": minutes,
+        "boundary_offset_minutes": -minutes if before_boundary else minutes,
         "boundary_solar": nearest.isoformat(),
         "threshold_minutes": SHICHEN_BOUNDARY_THRESHOLD_MINUTES,
+        "current_shichen": _shichen_window(current_index, boundaries, zhi),
+        "alternate_shichen": _shichen_window(alternate_index, boundaries, zhi),
+        "direction": "later" if before_boundary else "earlier",
         "message": "出生时间接近时辰交界；建议提供 3-5 件已发生大事校准时辰。",
     }
 

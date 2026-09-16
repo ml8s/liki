@@ -66,9 +66,13 @@ def test_female_specific_child_loss_is_gender_gated():
         for row in csv.DictReader(source):
             if row["assertion_id"] == "ying_h18":
                 groups.setdefault(row["condition_group_id"], {})[row["factor"]] = row["expected"]
-    assert list(groups.values()) == [{
-        "三刑流年": "1", "本命食伤旺": "1", "性别": "female",
-    }]
+    assert list(groups.values()) == [
+        {xing: "1", "本命食伤旺": "1", "性别": "female"}
+        for xing in (
+            "流年地支相刑寅巳申", "流年地支相刑丑戌未", "流年地支相刑子卯",
+            "流年地支自刑辰辰", "流年地支自刑午午", "流年地支自刑酉酉", "流年地支自刑亥亥",
+        )
+    ]
 
 
 def test_factor_groups_do_not_duplicate_definitions():
@@ -234,9 +238,12 @@ def test_flow_si_hua_uses_engine_star_indices_and_palace_labels():
             "si_hua": {"0": "禄"},
         },
     }
-    assert operators_liunian._liu_op("流年宫化", ["夫妻", "禄"], "male", {}, ctx) == 1
-    assert operators_liunian._liu_op("流年宫化", ["夫妻宫", "禄"], "male", {}, ctx) == 0
-    assert operators_liunian._liu_op("流年宫化", ["夫妻", "忌"], "male", {}, ctx) == 0
+    # [宫位, 星曜, 四化]——星曜是显式维度，与「宫含」同构
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "任意", "禄"], "male", {}, ctx) == 1
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "0", "禄"], "male", {}, ctx) == 1
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "1", "禄"], "male", {}, ctx) == 0
+    assert operators_liunian._liu_op("流年宫化", ["夫妻宫", "任意", "禄"], "male", {}, ctx) == 0
+    assert operators_liunian._liu_op("流年宫化", ["夫妻", "任意", "忌"], "male", {}, ctx) == 0
 
 
 def test_explicit_pillar_clash_uses_requested_pillar():

@@ -2,6 +2,7 @@
 import unittest
 
 from _helpers import mock_base_context
+from errors import FactorEvaluateError
 from factors import evaluate_liunian_factors
 from operators_liunian import _liu_op
 from operators_natal import _op
@@ -150,52 +151,90 @@ class TestDaYunOps_YearRange(unittest.TestCase):
             _op("大运十神有根", ["当前", "财星"], "male", chart, 2005), 1
         )
 
-    # 三刑必须三方齐备。
+    # 三刑有两维：来源与刑组；两者都必须显式声明，缺一维即 fail closed。
     def _chart(self, nian, yue, ri, shi):
         return {"chart": {"nian": {"zhi": nian}, "yue": {"zhi": yue},
                           "ri": {"zhi": ri}, "shi": {"zhi": shi}}}
 
+    @staticmethod
+    def _xing_ctx(*branches):
+        return {"liunian": {"nian_zhi": branches[0], "atomic_facts": {"combinations": [
+            {"kind": "xing", "group": "三刑", "branches": list(branches), "includes_year": True},
+        ]}}}
+
     def test_三刑_整组齐备(self):
-        # 丑戌未三刑齐备 → 1
-        ctx = {"liunian": {"nian_zhi": "丑", "atomic_facts": {"combinations": [{"kind": "xing", "group": "三刑丑戌未", "branches": ["丑", "戌", "未"], "includes_year": True}]}}}
+        # 丑戌未三刑齐备 → 1；组名按集合比较，与引擎支序无关。
+        ctx = self._xing_ctx("丑", "戌", "未")
         ch = self._chart("戌", "未", "子", "午")
-        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 1)
+        self.assertEqual(_liu_op("三刑", ["流年支", "丑戌未"], "male", ch, ctx), 1)
+        self.assertEqual(_liu_op("三刑", ["流年支", "丑未戌"], "male", ch, ctx), 1)
 
     def test_三刑_缺一组支(self):
-        # 命局丑戌、流年寅——丑戌未缺未 → 0。
+        # 命局丑戌、流年寅——丑戌未缺未，引擎不产出该组合 → 0。
         ctx = {"liunian": {"nian_zhi": "寅"}}
         ch = self._chart("戌", "丑", "子", "午")
-        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 0)
+        self.assertEqual(_liu_op("三刑", ["流年支", "丑戌未"], "male", ch, ctx), 0)
 
     def test_三刑_流年支补全(self):
         # 命局仅 寅巳，流年申 → 寅巳申齐 → 1
-        ctx = {"liunian": {"nian_zhi": "申", "atomic_facts": {"combinations": [{"kind": "xing", "group": "三刑寅巳申", "branches": ["寅", "巳", "申"], "includes_year": True}]}}}
+        ctx = self._xing_ctx("寅", "巳", "申")
         ch = self._chart("寅", "巳", "子", "午")
-        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 1)
+        self.assertEqual(_liu_op("三刑", ["流年支", "寅巳申"], "male", ch, ctx), 1)
+
+    def test_三刑_刑组与命中组不符(self):
+        # 命局成寅巳申，问丑戌未 → 0；刑组维度必须参与判定。
+        ctx = self._xing_ctx("寅", "巳", "申")
+        ch = self._chart("寅", "巳", "子", "午")
+        self.assertEqual(_liu_op("三刑", ["流年支", "丑戌未"], "male", ch, ctx), 0)
 
     def test_三刑_自刑双字(self):
-        # 辰辰自刑（辰午酉亥自刑组需同字≥2）→ 1
-        ctx = {"liunian": {"nian_zhi": "辰", "atomic_facts": {"combinations": [{"kind": "xing", "group": "三刑辰", "branches": ["辰", "辰"], "includes_year": True}]}}}
+        # 辰辰自刑（辰午酉亥自刑组需同字≥2）→ 1；组名写成双字。
+        ctx = self._xing_ctx("辰", "辰")
         ch = self._chart("辰", "子", "子", "午")
-        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 1)
+        self.assertEqual(_liu_op("三刑", ["流年支", "辰辰"], "male", ch, ctx), 1)
 
     def test_三刑_自刑单字(self):
         # 仅一个辰（无同字成双）→ 0；自刑不成立。
         ctx = {"liunian": {"nian_zhi": "午"}}
         ch = self._chart("辰", "丑", "寅", "巳")
-        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 0)
+        self.assertEqual(_liu_op("三刑", ["流年支", "午午"], "male", ch, ctx), 0)
 
     def test_三刑_无刑(self):
         # 寅午辰戌 + 流年亥——丑戌未缺丑/未、寅巳申缺巳/申、辰午酉亥无同字成双 → 0
         ctx = {"liunian": {"nian_zhi": "亥"}}
         ch = self._chart("寅", "午", "辰", "戌")
-        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 0)
+        self.assertEqual(_liu_op("三刑", ["流年支", "丑戌未"], "male", ch, ctx), 0)
 
     def test_三刑_本命齐备而流年无关不触发(self):
-        # 命局已自带丑戌未，流年午未入组；三刑流年不得逐年重复命中。
-        ctx = {"liunian": {"nian_zhi": "午"}}
+        # 命局已自带丑戌未、流年午不入组；三刑流年不得逐年重复命中。
+        ctx = {"liunian": {"nian_zhi": "午", "atomic_facts": {"combinations": [
+            {"kind": "xing", "group": "三刑丑戌未", "branches": ["丑", "戌", "未"], "includes_year": False},
+        ]}}}
         ch = self._chart("丑", "戌", "未", "子")
-        self.assertEqual(_liu_op("三刑", ["流年支"], "male", ch, ctx), 0)
+        self.assertEqual(_liu_op("三刑", ["流年支", "丑戌未"], "male", ch, ctx), 0)
+
+    def test_三刑_缺维报错(self):
+        # 单参不再被容忍——静默降级会复活隐式维度。
+        ctx = {"liunian": {"nian_zhi": "申"}}
+        ch = self._chart("寅", "巳", "子", "午")
+        with self.assertRaises(FactorEvaluateError):
+            _liu_op("三刑", ["流年支"], "male", ch, ctx)
+
+    def test_三刑_刑组名不自洽报错(self):
+        # 寅巳不成组、辰不写双字、任意非具体组 → fail closed，不退化成 0。
+        ctx = {"liunian": {"nian_zhi": "申"}}
+        ch = self._chart("寅", "巳", "子", "午")
+        for bad_group in ("寅巳", "辰", "子午", "任意"):
+            with self.assertRaises(FactorEvaluateError):
+                _liu_op("三刑", ["流年支", bad_group], "male", ch, ctx)
+
+    def test_三刑_来源必须是地支来源(self):
+        # 天干来源做刑的判定没有意义 → fail closed。
+        ctx = {"liunian": {"nian_zhi": "申"}}
+        ch = self._chart("寅", "巳", "子", "午")
+        for bad_source in ("日干", "流年干", "不存在"):
+            with self.assertRaises(FactorEvaluateError):
+                _liu_op("三刑", [bad_source, "寅巳申"], "male", ch, ctx)
 
 
 class TestTianKeDiChongFactor(unittest.TestCase):
@@ -303,7 +342,31 @@ class TestLiuNianOps(unittest.TestCase):
     def test_流年宫化_无紫微四化数据(self):
         # 无 zw_liunian 数据 → 0（不得误命中）
         ctx = {"zw_liunian": {}}
-        self.assertEqual(_liu_op("流年宫化", ["夫妻", "禄"], "male", None, ctx), 0)
+        self.assertEqual(_liu_op("流年宫化", ["夫妻", "任意", "禄"], "male", None, ctx), 0)
+
+    def test_流年宫化_星曜通配命中(self):
+        # 星曜维度写「任意」＝该宫任一星化该四化即成立
+        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        self.assertEqual(_liu_op("流年宫化", ["官禄", "任意", "忌"], "male", {}, ctx), 1)
+        self.assertEqual(_liu_op("流年宫化", ["官禄", "任意", "禄"], "male", {}, ctx), 0)
+
+    def test_流年宫化_指定星曜在key内(self):
+        # 星曜进 key 后，「廉贞化忌落流年官禄宫」由因子自身表达，不再依赖返回值外的旁路
+        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        self.assertEqual(_liu_op("流年宫化", ["官禄", "廉贞", "忌"], "male", {}, ctx), 1)
+        self.assertEqual(_liu_op("流年宫化", ["官禄", "贪狼", "忌"], "male", {}, ctx), 0)
+
+    def test_流年宫化_宫位通配命中(self):
+        # 宫位维度同样支持「任意」，与「宫含」保持同一套通配语义
+        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        self.assertEqual(_liu_op("流年宫化", ["任意", "廉贞", "忌"], "male", {}, ctx), 1)
+        self.assertEqual(_liu_op("流年宫化", ["任意", "廉贞", "禄"], "male", {}, ctx), 0)
+
+    def test_流年宫化_缺星曜维度即报错(self):
+        # 三维 key 是契约本身；2 参形态不得静默降级为「星曜任意」
+        ctx = {"zw_liunian": {"si_hua_gong": {"廉贞": "官禄"}, "si_hua": {"廉贞": "忌"}}}
+        with self.assertRaises(FactorEvaluateError):
+            _liu_op("流年宫化", ["官禄", "忌"], "male", {}, ctx)
 
     def test_流年透_配偶星透与不透(self):
         # 男命配偶星=正财/偏财——流年十神为正财 → 1；比肩 → 0

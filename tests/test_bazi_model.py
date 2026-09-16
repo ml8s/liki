@@ -130,7 +130,7 @@ def test_factor_inventory_has_single_source_of_truth() -> None:
         flow_sides[side(rows)] += 1
 
     assert len(groups) == 475
-    assert len(flows) == 101
+    assert len(flows) == 107
 
     text = DOC.read_text(encoding="utf-8")
     assert "tools/factors/factors.csv" in text
@@ -144,7 +144,7 @@ def test_factor_inventory_has_single_source_of_truth() -> None:
     assert f"| 本命直通原子 | {natal_categories['direct']} |" in text
     assert f"| 本命提取原子 | {natal_categories['condition']} |" in text
     assert f"| 本命复合因子 | {natal_categories['factor_ref']} |" in text
-    assert "| 流年因子 | 101 |" in text
+    assert "| 流年因子 | 107 |" in text
     assert f"| 流年八字因子 | {flow_sides['bazi']} |" in text
     assert f"| 流年紫微因子 | {flow_sides['ziwei']} |" in text
     assert f"| 流年直通原子 | {flow_categories['direct']} |" in text

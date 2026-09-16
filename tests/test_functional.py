@@ -238,16 +238,16 @@ def test_filter_domains_keeps_error_payload_unchanged() -> None:
     assert duanyu.filter_domains(result, ["学业"]) == result
 
 
-def test_filter_domains_omits_snapshot_evidence() -> None:
+def test_filter_domains_keeps_only_side_keys() -> None:
     result = {
         "八字": [{"id": "yx_101", "领域": "学业"}],
         "紫微": [],
         "合参": [],
-        "evidence": {"三刑流年": {"group": "寅巳申"}},
+        "context": {"性别": "male"},
     }
     filtered = duanyu.filter_domains(result, ["学业"])
     assert [row["id"] for row in filtered["八字"]] == ["yx_101"]
-    assert "evidence" not in filtered
+    assert set(filtered) == {"八字", "紫微", "合参"}
 
 
 def test_query_keeps_both_sides_alive_for_common_assertions() -> None:

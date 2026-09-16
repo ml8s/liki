@@ -667,7 +667,7 @@
             },
             "calibration_hint": {
               "type": "object",
-              "description": "出生时间接近时辰交界时的确定性校准提示",
+              "description": "出生时间接近时辰交界时的确定性校准提示；自带当前时辰与跨后时辰，调用方无需二次推断",
               "properties": {
                 "near_boundary": {
                   "type": "boolean"
@@ -677,6 +677,12 @@
                   "minimum": 0,
                   "maximum": 30
                 },
+                "boundary_offset_minutes": {
+                  "type": "integer",
+                  "minimum": -30,
+                  "maximum": 30,
+                  "description": "有符号偏移：负数=早于交界，正数=晚于交界；与 direction 一一对应"
+                },
                 "boundary_solar": {
                   "type": "string"
                 },
@@ -685,6 +691,54 @@
                   "minimum": 0,
                   "maximum": 30
                 },
+                "current_shichen": {
+                  "type": "object",
+                  "description": "当前所在时辰（纯两小时窗口映射，不表达换日结论）",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "branch": {
+                      "type": "string"
+                    },
+                    "span": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "branch",
+                    "span"
+                  ]
+                },
+                "alternate_shichen": {
+                  "type": "object",
+                  "description": "跨过最近时辰交界后变成的时辰",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "branch": {
+                      "type": "string"
+                    },
+                    "span": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "branch",
+                    "span"
+                  ]
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "earlier",
+                    "later"
+                  ],
+                  "description": "往哪边偏会翻成 alternate_shichen"
+                },
                 "message": {
                   "type": "string"
                 }
@@ -692,8 +746,12 @@
               "required": [
                 "near_boundary",
                 "minutes_to_boundary",
+                "boundary_offset_minutes",
                 "boundary_solar",
                 "threshold_minutes",
+                "current_shichen",
+                "alternate_shichen",
+                "direction",
                 "message"
               ]
             },
@@ -975,7 +1033,7 @@
             },
             "detail": {
               "type": "boolean",
-              "description": "true=全量断语（含依据/经典依据/机械证据 evidence）；false=精简（id+领域+事件类型+时间层+事件+结论）",
+              "description": "true=全量断语（含依据/经典依据）；false=精简（id+领域+事件类型+时间层+事件+结论）",
               "default": false
             }
           },

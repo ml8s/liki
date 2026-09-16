@@ -203,9 +203,7 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
     liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化。
     chart=排盘 pan 或内部 FactorContext；基础上下文不写回调用方 chart。
     """
-    evidence: dict = {}
     ctx = {
-        "evidence": evidence,
         "liunian": liunian_data or {},
         "zw_liunian": zw_liunian_data or {},
         "year": year,
@@ -226,8 +224,6 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
         rows,
         lambda expression: _atomic(expression, gender, chart, ctx),
     )
-    if evidence:
-        result["_evidence"] = evidence
     return result
 
 
@@ -266,7 +262,4 @@ def evaluate_liunian_snap_from_pan(pan: dict, liunian_pan: dict, year: int = 0,
         },
         "context": {"性别": gender},
     }
-    evidence = snap[side_labels["bazi"]].pop("_evidence", {})
-    if evidence:
-        snap["evidence"] = evidence
     return snap
