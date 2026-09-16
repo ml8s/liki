@@ -57,7 +57,31 @@ Semantics:
 | Backward-compatible new domain, tool, RPC, report, or product capability | minor |
 | Bug fix, docs, small correction without breaking contracts | patch |
 
-## 3. v5.0.0 baseline
+## 3. Historical SemVer baselines
+
+Before `v5.0.0`, major architecture milestones were retro-tagged so public history has stable SemVer anchors:
+
+| Tag | Commit | Date | Meaning |
+|---|---|---|---|
+| `v1.0.0` | `c2dd692` | 2026-07-16 | Historical prompt-based Liki Skills baseline. |
+| `v2.0.0` | `2713559` | 2026-07-29 | Domain and application separation. |
+| `v3.0.0` | `a0884cf` | 2026-08-16 | Four-skill split, flat domains, and unified versioning. |
+| `v4.0.0` | `0743ce8` | 2026-08-25 | Liki Engine merged into the monorepo. |
+
+These are historical anchors for the pre-unified architecture.
+
+The last independent four-skill snapshot was `1039ec5`, where every old skill `VERSION` was synchronized to `2026.09.15.5`. Scoped tags:
+
+| Tag | Skill |
+|---|---|
+| `bazi-v2026.09.15.5` | `liki-bazi` |
+| `divination-v2026.09.15.5` | `liki-divination` |
+| `fengshui-v2026.09.15.5` | `liki-fengshui` |
+| `naming-v2026.09.15.5` | `liki-naming` |
+
+They mark the final state immediately before consolidation into unified `liki`.
+
+## 4. v5.0.0 baseline
 
 `v5.0.0` is the first unified product release using the single-skill architecture.
 
@@ -77,7 +101,7 @@ Breaking scope included:
 - replacement of divination hard blocking with `safety_advisory`;
 - explicit fail-closed discover scope and required-method checks.
 
-## 4. Release identity
+## 5. Release identity
 
 Use both identifiers in release material:
 
@@ -96,7 +120,7 @@ git push origin v5.0.0
 
 The GitHub Release should use the same tag and include the CalVer and commit in its notes.
 
-## 5. Release decision rules
+## 6. Release decision rules
 
 A normal documentation or bug-fix push does not automatically create a SemVer release.
 
@@ -108,7 +132,7 @@ Create `vX.Y.Z` only when the main branch is green and the milestone is intentio
 
 If breaking work lands on main after `v5.0.0`, the next release must be `v6.0.0`; do not hide breaking changes in `v5.1.0`.
 
-## 6. Release process
+## 7. Release process
 
 1. Confirm main is green.
 2. Confirm `skills/liki/VERSION` and `engine/cmd/liki/VERSION` are the intended runtime CalVer.
