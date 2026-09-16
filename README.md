@@ -176,6 +176,7 @@ repo root
 ### 领域契约
 
 - [docs/SKILL_PACKAGE.md](./docs/SKILL_PACKAGE.md) — 统一 Skill 包结构、入口与打包契约。
+- [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md) — CalVer 运行时版本与 SemVer 发行版模型。
 - [bazi/TOOLS.md](./skills/liki/bazi/TOOLS.md) / [divination/TOOLS.md](./skills/liki/divination/TOOLS.md) — Python 工具完整 stdin 报文。
 - [naming/RPC.md](./skills/liki/naming/RPC.md) / [fengshui/RPC.md](./skills/liki/fengshui/RPC.md) — 直接 JSON-RPC 完整报文。
 
@@ -214,7 +215,7 @@ make build-archive # 打包 unified Liki skill + 生成分发索引
 - 分层单一职责：根=统一入口、ENTRY=领域入口、app=流程、domains=知识、tools=工具
 - 单一数据来源：LLM 工具契约以各领域 `tools/skill-tools.json` 为准、因子与断语以长表 CSV 为准
 - 双体系交叉：八字/紫微分侧计算，common 表显式合参，冲突分层列证
-- 日期版本（CalVer）：VERSION=日期戳 + CHANGELOG，启动做版本自检，里程碑按需 git tag
+- 双版本模型：CalVer 作为运行时 / 兼容性版本；正式发行版使用 SemVer tag（如 `v5.0.0`）。详见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)
 - 评测驱动：独立判分、答案隔离、数据公开
 
 贡献指南见 [CONTRIBUTING.md](./CONTRIBUTING.md)，版本历史见 [CHANGELOG.md](./CHANGELOG.md)。设计参考了 [mingli-skills](https://github.com/weizeW/mingli-skills)、[bazi-skill](https://github.com/jinchenma94/bazi-skill)、[iztro](https://github.com/SylarLong/iztro)、[MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) 等开源项目。

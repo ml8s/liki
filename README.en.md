@@ -191,6 +191,7 @@ Call chain: root `SKILL.md` routes to a domain `ENTRY.md` → the domain entry s
 ### Domain contracts
 
 - [docs/SKILL_PACKAGE.md](./docs/SKILL_PACKAGE.md) — unified skill package layout, entry, and archive contract.
+- [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md) — CalVer runtime versions and SemVer release model.
 - [bazi/TOOLS.md](./skills/liki/bazi/TOOLS.md) / [divination/TOOLS.md](./skills/liki/divination/TOOLS.md) — complete Python tool stdin payloads.
 - [naming/RPC.md](./skills/liki/naming/RPC.md) / [fengshui/RPC.md](./skills/liki/fengshui/RPC.md) — complete direct JSON-RPC payloads.
 
@@ -229,7 +230,7 @@ make build-archive # pack the unified Liki skill + generate the distribution ind
 - Single responsibility per layer: root=rules, app=process, domains=knowledge, tools=tools
 - Single data source: LLM tool contracts from `tools/skill-tools.json`; judgments from CSV truth tables
 - Dual-system: BaZi leads, ZiWei reviews, conflicts explicit
-- CalVer (date-stamped VERSION + CHANGELOG; startup version self-check; tags on milestones)
+- Dual version model: CalVer is the runtime / compatibility version; formal releases use SemVer tags (for example `v5.0.0`). See [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)
 - Evaluation-driven: independent grading, answer isolation, public data
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) and [CHANGELOG.md](./CHANGELOG.md). Design references include [mingli-skills](https://github.com/weizeW/mingli-skills), [bazi-skill](https://github.com/jinchenma94/bazi-skill), [iztro](https://github.com/SylarLong/iztro), and [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench).

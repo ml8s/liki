@@ -5,6 +5,7 @@
 ### Changes
 
 - 统一 `liki` skill 契约就绪：单入口路由 + 四域 `TOOLS.md`/`RPC.md` + `safety_advisory`；liki-web 平台侧已按单一 skill 完成适配（权益、Chat 单一入口、工具域、报告提示词路径收敛到 `liki/`）。
+
 ## [2026.09.15.7] — ready-to-use payload contracts and advisory safety
 
 ### Breaking changes
@@ -21,8 +22,6 @@
 - app 卡改为引用 `TOOLS.md` / `RPC.md` 固定章节，避免 agent 自行组包或猜参数。
 - discover 改用固定子域 / 方法 scope；runtime 校验关键方法必须存在，缺失或引擎版本过低时 fail closed。
 - 命名域缺时辰时不再默认午时；改为询问一次，仍未确认则切换期望五行路径并标注「未评估用神」。
-
-# Changelog
 
 ## [2026.09.15.6] — unify four skills into one Liki skill
 

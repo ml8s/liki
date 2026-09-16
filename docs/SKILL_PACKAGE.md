@@ -39,6 +39,15 @@ skills/liki/
 5. 有 `tools/` 的领域，LLM 只能通过 Python 工具层调用 RPC；无 `tools/` 的领域，LLM 只能使用 `ENTRY.md` / `RPC.md` 固定 discover scope 内声明的 RPC。
 6. `VERSION`、`feedback.py`、`feedback.schema.json` 不允许在领域内重复。
 
+## Release model
+
+Liki uses dual versions:
+
+- Runtime / compatibility contract: CalVer in `VERSION`.
+- Product release identity: SemVer Git tag, for example `v5.0.0`.
+
+Do not merge these into one value. See [RELEASE_MODEL.md](./RELEASE_MODEL.md).
+
 ## Ready-to-use payload
 
 `TOOLS.md` 和 `RPC.md` 是报文库，不是解释文档。app 卡应引用固定章节；动态对象（`pan`、`snapshot`、chart result）按“变量绑定”原样传回，不得裁剪、重建或猜字段。
