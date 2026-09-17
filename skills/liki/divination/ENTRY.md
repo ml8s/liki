@@ -8,7 +8,7 @@ divination 域只通过 Python 工具层调用，不直接调用 RPC。
 
 - 工具 schema：`divination/tools/skill-tools.json`
 - CLI：`python3 divination/tools/agent_cli.py`
-- Windows CLI：`divination/tools/agent_cli.cmd`
+- Windows CLI：`py -3 -X utf8 divination/tools/agent_cli.py`；fallback `python -X utf8 divination/tools/agent_cli.py`
 - Python 依赖：缺失时安装 Skill 根目录 `requirements.txt`，不得跳过契约校验。
 - 输入：`{"fn":"<工具名>","args":{...}}`
 - 输出：stdout JSON；`ok=true` 读 `data`，`ok=false` 读 `error`。

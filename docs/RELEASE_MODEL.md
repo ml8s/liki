@@ -47,7 +47,15 @@ v5.1.0
 v5.0.1
 ```
 
-SemVer is the public release identity. It is not stored in `VERSION.txt`; it is represented by an annotated Git tag and GitHub Release.
+SemVer is the public release identity. It is not stored in `VERSION.txt`; it is represented by an annotated Git tag and GitHub Release. For SkillHub distribution, the same release SemVer is mirrored to `skills/liki/SKILL.md` frontmatter `version`.
+
+Version-surface rules:
+
+| Surface | Version | Update cadence |
+|---|---|---|
+| Runtime / compatibility | CalVer in `VERSION.txt` and engine `VERSION` | Every engineering bump by `make version` |
+| Product release | SemVer Git tag and GitHub Release | Only on an intentional release |
+| SkillHub package | `skills/liki/SKILL.md` frontmatter `version` | Only when preparing a SkillHub release; do not bump it during normal CalVer changes |
 
 Semantics:
 
@@ -147,11 +155,12 @@ If breaking work lands on main after `v5.0.0`, the next release must be `v6.0.0`
 
 1. Confirm main is green.
 2. Confirm `skills/liki/VERSION.txt` and `engine/cmd/liki/VERSION` are the intended runtime CalVer.
-3. Confirm `CHANGELOG.md` contains the milestone entries.
-4. Create the annotated SemVer tag on the approved commit.
-5. Push the tag.
-6. Create the GitHub Release with both versions and release notes.
-7. Verify release artifacts and CI.
+3. If this commit is also a SkillHub release, confirm `skills/liki/SKILL.md` frontmatter `version` equals the SemVer tag. Do not change it for routine CalVer bumps.
+4. Confirm `CHANGELOG.md` contains the milestone entries.
+5. Create the annotated SemVer tag on the approved commit.
+6. Push the tag.
+7. Create the GitHub Release with both versions and release notes.
+8. Verify release artifacts and CI.
 
 ## 8. Quality gates
 

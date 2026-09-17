@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026.09.17.3] — SkillHub-safe package release prep
+
+### Breaking changes
+
+- Skill 包不再携带 `.cmd` 启动器；Windows 统一执行 `py -3 -X utf8 <domain>/tools/agent_cli.py`，fallback `python -X utf8 ...`。
+
+### Changes
+
+- `SKILL.md` 新增 SkillHub 包版本 `5.0.1`；该 SemVer 只在准备 SkillHub 发布时更新，日常开发继续使用 `VERSION.txt` CalVer。
+- Release Model 和 Skill Package 文档拆分 runtime CalVer、产品 SemVer 与 SkillHub 包版本的更新时机。
+- Windows CI smoke 改为直接执行 Python CLI；归档器修正 tar listing 读取方式，并拒绝 `.cmd` / `.bat` / `.ps1`。
+- `make version` 同步两个 `skill-tools.json` 的 manifest 版本，避免 bump 后测试漂移。
+
 ## [2026.09.17.2] — README entry docs and package-safe VERSION.txt
 
 ### Breaking changes

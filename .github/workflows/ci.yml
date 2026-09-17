@@ -226,13 +226,13 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Run agent_cli.cmd with Chinese JSON
+      - name: Run agent_cli.py directly with Chinese JSON
         shell: pwsh
         run: |
           $request = '{"fn":"测试","args":{}}'
           $path = Join-Path $env:TEMP 'liki-windows-smoke.json'
           Set-Content -Path $path -Value $request -Encoding utf8NoBOM
-          $output = Get-Content -Path $path -Raw -Encoding UTF8 | skills\liki\bazi\tools\agent_cli.cmd
+          $output = Get-Content -Path $path -Raw -Encoding UTF8 | py -3 -X utf8 skills\liki\bazi\tools\agent_cli.py
           Write-Host $output
           $response = $output | ConvertFrom-Json
           if ($response.ok) { exit 1 }

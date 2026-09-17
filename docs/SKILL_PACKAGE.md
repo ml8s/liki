@@ -46,8 +46,9 @@ skills/liki/
 
 Liki uses dual versions:
 
-- Runtime / compatibility contract: CalVer in `VERSION.txt`.
-- Product release identity: SemVer Git tag, for example `v5.0.0`.
+- Runtime / compatibility contract: CalVer in `VERSION.txt`; updated by normal engineering bumps.
+- Product release identity: SemVer Git tag, for example `v5.0.0`; updated only on an intentional release.
+- SkillHub package: `SKILL.md` frontmatter `version`; mirror the SemVer only when preparing a SkillHub release.
 
 Do not merge these into one value. See [RELEASE_MODEL.md](./RELEASE_MODEL.md).
 

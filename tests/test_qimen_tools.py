@@ -12,6 +12,7 @@ from jsonschema import validate
 
 
 TOOLS = Path(__file__).resolve().parents[1] / "skills/liki/divination/tools"
+SKILL_ROOT = TOOLS.parent.parent
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -1677,22 +1678,17 @@ def test_python_layers_are_orthogonal() -> None:
     assert "kong_wang_affected" not in duanyu_source
 
 
-def test_windows_launcher_matches_bazi_compatibility() -> None:
+def test_windows_invocation_does_not_depend_on_forbidden_launcher() -> None:
     agent_cli = (TOOLS / "agent_cli.py").read_text(encoding="utf-8")
-    launcher = (TOOLS / "agent_cli.cmd").read_text(encoding="ascii")
+    entry = (SKILL_ROOT / "divination" / "ENTRY.md").read_text(encoding="utf-8")
+    tools_doc = (SKILL_ROOT / "divination" / "TOOLS.md").read_text(encoding="utf-8")
     assert "if os.name != \"nt\":" in agent_cli
     assert "reconfigure(encoding=\"utf-8\")" in agent_cli
     assert "ensure_ascii=True" in agent_cli
-    for required in (
-        "setlocal",
-        "set \"PYTHONUTF8=1\"",
-        "set \"PYTHONIOENCODING=utf-8\"",
-        "where py >nul 2>nul",
-        "set \"PYTHON_CMD=py -3\"",
-        "-X utf8",
-        "%~dp0agent_cli.py",
-    ):
-        assert required in launcher
+    for text in (entry, tools_doc):
+        assert "py -3 -X utf8 divination/tools/agent_cli.py" in text
+        assert "python -X utf8 divination/tools/agent_cli.py" in text
+        assert "agent_cli.cmd" not in text
 
 
 def test_query_compatibility_without_network() -> None:

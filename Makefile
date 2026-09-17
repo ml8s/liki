@@ -5,6 +5,7 @@
 # ── 统一版本（skill 1 份 + engine 1 份，同步 bump）──
 VERSION_FILES := skills/liki/VERSION.txt engine/cmd/liki/VERSION
 VERSION_CONTRACTS := skills/liki/bazi/tools/natal_projection_contract.json skills/liki/divination/tools/qimen_projection_contract.json
+VERSION_MANIFESTS := skills/liki/bazi/tools/skill-tools.json skills/liki/divination/tools/skill-tools.json
 
 version: ## 写入今日日期（CalVer）
 	@BASE=$$(TZ=Asia/Shanghai date +%Y.%m.%d); SERIAL=0; FOUND=0; \
@@ -19,6 +20,9 @@ version: ## 写入今日日期（CalVer）
 	for F in $(VERSION_FILES); do echo "$$VERSION" > "$$F"; done; \
 	for F in $(VERSION_CONTRACTS); do \
 		sed -i 's/"version": "[^"]*"/"version": "'"$$VERSION"'"/' "$$F"; \
+	done; \
+	for F in $(VERSION_MANIFESTS); do \
+		python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding="utf-8")); d.setdefault("info",{})["version"]=sys.argv[2]; json.dump(d,open(p,"w",encoding="utf-8"),ensure_ascii=False,indent=2); open(p,"a",encoding="utf-8").write("\n")' "$$F" "$$VERSION"; \
 	done; \
 	echo "✅ 版本 → $$VERSION"
 

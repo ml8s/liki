@@ -7,7 +7,7 @@ bazi 域只通过 Python 工具层调用，不直接调用 RPC。
 
 - 工具 schema：`bazi/tools/skill-tools.json`
 - CLI：`python3 bazi/tools/agent_cli.py`
-- Windows CLI：`bazi/tools/agent_cli.cmd`
+- Windows CLI：`py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf8 bazi/tools/agent_cli.py`
 - 输入：`{"fn":"<工具名>","args":{...}}`
 - 输出：stdout JSON；`ok=true` 读 `data`，`ok=false` 读 `error`。
 - CLI 启动时校验 engine 版本和必需 RPC；不满足即 fail closed。

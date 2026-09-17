@@ -77,11 +77,16 @@ def test_old_skill_names_are_absent_from_installed_content():
     for path in SKILL_ROOT.rglob("*"):
         if not path.is_file() or "__pycache__" in path.parts:
             continue
-        if path.suffix not in {".py", ".md", ".json", ".yaml", ".yml", ".cmd", ".txt"}:
+        if path.suffix not in {".py", ".md", ".json", ".yaml", ".yml", ".txt"}:
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
         for old in OLD_SKILL_NAMES:
             assert old not in text, f"{path}: {old}"
+
+
+def test_package_has_no_platform_specific_launchers():
+    for pattern in ("*.cmd", "*.bat", "*.ps1"):
+        assert not list(SKILL_ROOT.rglob(pattern))
 
 
 def test_old_skill_directories_are_gone():

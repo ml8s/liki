@@ -10,7 +10,7 @@
 - 异常捕获进 error 字段（不 panic、exit 0）——调用方按 ok 字段判断
 
 使用方式：
-- Windows 优先通过 `tools\agent_cli.cmd`；POSIX 通过 `python3 tools/agent_cli.py` 执行
+- Windows 使用 `py -3 -X utf8 tools/agent_cli.py`（fallback `python -X utf8 ...`）；POSIX 通过 `python3 tools/agent_cli.py` 执行
 - stdin 传 JSON：{"fn": "<工具名>", "args": {<参数>}}
 - stdout 返回 JSON：{"ok": true, "data": <结果>} 或 {"ok": false, "error": "..."}
 """

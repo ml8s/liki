@@ -6,7 +6,7 @@
 python3 bazi/tools/agent_cli.py
 ```
 
-Windows 使用 `bazi/tools/agent_cli.cmd`。CLI stdin 是一行 JSON：
+Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf8 bazi/tools/agent_cli.py`。CLI stdin 是一行 JSON：
 
 ```json
 {"fn":"<工具名>","args":{...}}
