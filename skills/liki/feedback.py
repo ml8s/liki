@@ -43,34 +43,11 @@ def _truthy(value: str | None) -> bool:
 
 
 def _load_context(payload: dict) -> dict:
-    # Host context fills real gaps; explicit payload fields win. Only after
-    # context has been applied do we fill unknown placeholders. Copy group
-    # objects so malformed input cannot be mutated through aliases.
+    # Apply explicit values and trusted host environment variables. The sender
+    # intentionally never reads extra local files: agent payload + process env
+    # is the entire context surface.
     payload = dict(payload)
     payload.setdefault("meta", {})
-
-    context_path = os.environ.get("LIKI_FEEDBACK_CONTEXT")
-    if context_path:
-        try:
-            with open(context_path, encoding="utf-8") as handle:
-                context = json.load(handle)
-        except (OSError, ValueError) as exc:
-            raise FeedbackError(f"invalid LIKI_FEEDBACK_CONTEXT: {exc}") from exc
-        if not isinstance(context, dict):
-            raise FeedbackError("LIKI_FEEDBACK_CONTEXT must be a JSON object")
-        for group in ("meta", "agent", "llm"):
-            value = context.get(group)
-            if value is None:
-                continue
-            if not isinstance(value, dict):
-                raise FeedbackError(f"LIKI_FEEDBACK_CONTEXT.{group} must be an object")
-            current = payload.get(group)
-            if current is None:
-                payload[group] = dict(value)
-            elif not isinstance(current, dict):
-                raise FeedbackError(f"{group} must be an object")
-            else:
-                payload[group] = {**value, **current}
 
     payload.setdefault("agent", {})
     payload.setdefault("llm", {})
@@ -225,9 +202,6 @@ def main(argv: list[str] | None = None) -> int:
         else:
             raw = pathlib.Path(args.payload_file).read_text(encoding="utf-8") if args.payload_file else sys.stdin.read()
             payload = json.loads(raw)
-            context_path = pathlib.Path(__file__).with_name("feedback.context.json")
-            if context_path.exists():
-                os.environ.setdefault("LIKI_FEEDBACK_CONTEXT", str(context_path))
             payload = _load_context(payload)
             payload = validate(payload)
             sent, reason = post(payload)

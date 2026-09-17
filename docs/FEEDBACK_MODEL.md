@@ -104,10 +104,9 @@ agent 可通过 stdin 传入 problem / meta / agent / llm payload。sender 会�
 - 禁用：`LIKI_FEEDBACK_DISABLED=1`
 - timeout：2 秒；失败不重试、不阻塞
 - 同一会话最多 3 条
-- `LIKI_FEEDBACK_CONTEXT` 可指向 JSON 文件，注入宿主侧 `meta / agent / llm` 事实；同一文件字段内，显式 payload 字段优先
-- 若 sender 同目录存在 `feedback.context.json`，且未设置 `LIKI_FEEDBACK_CONTEXT`，会自动使用该默认上下文
 - 宿主可信覆盖：`LIKI_FEEDBACK_SKILL`、`LIKI_FEEDBACK_SKILL_VERSION`、`LIKI_ENGINE_VERSION`、`LIKI_FEEDBACK_SESSION_HASH`
-- 最终优先级：宿主覆盖变量 > 显式 payload > context 补齐 > sender 默认值
+- 上下文只来自显式 payload 和宿主覆盖变量；sender 不读取额外本地文件
+- 最终优先级：宿主覆盖变量 > 显式 payload > sender 默认值
 - payload 上限：32 KiB
 
 backend 必须独立执行 payload 大小限制、rate limit、基础 PII 扫描与会话去重。

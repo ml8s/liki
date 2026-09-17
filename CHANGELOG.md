@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026.09.17.5] — remove file-based feedback context
+
+### Security
+
+- 移除 `LIKI_FEEDBACK_CONTEXT` 和 sidecar context 读取路径；feedback sender 不再通过环境变量读取任意本地文件。
+- 反馈上下文只允许显式 payload 和宿主覆盖变量，降低自主遥测的本地文件外发面。
+- SkillHub 包版本升至 `5.0.3`。
+
 ## [2026.09.17.4] — transparent autonomous feedback
 
 ### Changes

@@ -146,6 +146,7 @@ class TestFeedbackContract(unittest.TestCase):
         self.assertIn("不向用户请求确认", text)
         self.assertIn("禁止用户原文", text)
         self.assertIn("出生数据", text)
+        self.assertNotIn("LIKI_FEEDBACK_CONTEXT", text)
 
     def test_schema_rejects_unknown_and_oversized_content(self):
         schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))

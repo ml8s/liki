@@ -3,7 +3,7 @@ name: liki
 slug: liki
 displayName: "Liki 命理"
 agent_created: true
-version: 5.0.2
+version: 5.0.3
 summary: "八字、紫微、六爻、奇门、黄历、风水与起名的一体化命理 Skill。"
 license: MIT
 description: "懂命理，用 Liki。一个专业命理 Skill：八字、紫微斗数、大运流年、合盘、六爻、奇门、黄历择日、八宅风水、玄空飞星、起名改名与外国人中文名。Bazi, Ziwei, Liuyao, QiMen, date selection, Feng Shui and Chinese naming. 命理结论为传统文化视角，仅供参考，不构成专业建议。"

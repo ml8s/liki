@@ -2,7 +2,6 @@
 
 import importlib.util
 import json
-import shutil
 import sys
 import urllib.error
 from io import StringIO
@@ -89,37 +88,6 @@ def test_sender_honors_disabled(monkeypatch):
     assert sender.main([]) == 0
 
 
-def test_sender_context_fills_gaps_but_payload_wins(monkeypatch, tmp_path):
-    sender = load_sender()
-    context = {
-        "agent": {"name": "host-agent", "version": "9.9.9"},
-        "llm": {"provider": "host", "model": "host-model", "model_version": "2026-01"},
-    }
-    context_path = tmp_path / "context.json"
-    context_path.write_text(json.dumps(context), encoding="utf-8")
-    payload_path = tmp_path / "payload.json"
-    source = payload()
-    payload_path.write_text(json.dumps(source), encoding="utf-8")
-    sent = {}
-
-    def fake_urlopen(request, timeout):
-        sent["request"] = request
-        sent["timeout"] = timeout
-        response = mock.MagicMock()
-        response.status = 204
-        response.__enter__.return_value = response
-        response.__exit__.return_value = False
-        return response
-
-    monkeypatch.setattr(sender.urllib.request, "urlopen", fake_urlopen)
-    monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
-    monkeypatch.setenv("LIKI_FEEDBACK_CONTEXT", str(context_path))
-    assert sender.main(["--payload-file", str(payload_path)]) == 0
-    body = json.loads(sent["request"].data.decode("utf-8"))
-    assert body["agent"] == context["agent"] | source["agent"]
-    assert body["llm"] == context["llm"] | source["llm"]
-
-
 def test_sender_host_overrides_win_over_payload(monkeypatch, tmp_path):
     sender = load_sender()
     payload_path = tmp_path / "payload.json"
@@ -152,14 +120,33 @@ def test_sender_host_overrides_win_over_payload(monkeypatch, tmp_path):
     }
 
 
-def test_sender_context_and_unknown_defaults_fill_partial_host_facts(monkeypatch, tmp_path):
+def test_sender_unknown_defaults_fill_partial_host_facts(monkeypatch):
     sender = load_sender()
-    context_path = tmp_path / "context.json"
-    context_path.write_text(json.dumps({"agent": {"name": "host-agent"}}), encoding="utf-8")
-    payload_path = tmp_path / "payload.json"
     source = payload()
     source.pop("agent")
-    payload_path.write_text(json.dumps(source), encoding="utf-8")
+    sent = {}
+
+    def fake_urlopen(request, timeout):
+        sent["request"] = request
+        response = mock.MagicMock()
+        response.status = 204
+        response.__enter__.return_value = response
+        response.__exit__.return_value = False
+        return response
+
+    monkeypatch.setattr(sender.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
+    monkeypatch.setattr(sys, "stdin", StringIO(json.dumps(source)))
+    assert sender.main([]) == 0
+    body = json.loads(sent["request"].data.decode("utf-8"))
+    assert body["agent"] == {"name": "unknown", "version": "unknown"}
+
+
+def test_sender_ignores_context_file_env(monkeypatch, tmp_path):
+    context_path = tmp_path / "context.json"
+    context_path.write_text(json.dumps({"agent": {"name": "host-agent"}}), encoding="utf-8")
+    sender = load_sender()
+    source = payload()
     sent = {}
 
     def fake_urlopen(request, timeout):
@@ -173,91 +160,10 @@ def test_sender_context_and_unknown_defaults_fill_partial_host_facts(monkeypatch
     monkeypatch.setattr(sender.urllib.request, "urlopen", fake_urlopen)
     monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
     monkeypatch.setenv("LIKI_FEEDBACK_CONTEXT", str(context_path))
-    assert sender.main(["--payload-file", str(payload_path)]) == 0
+    monkeypatch.setattr(sys, "stdin", StringIO(json.dumps(source)))
+    assert sender.main([]) == 0
     body = json.loads(sent["request"].data.decode("utf-8"))
-    assert body["agent"] == {"name": "host-agent", "version": "unknown"}
-
-
-def test_sender_prefers_explicit_context_over_sidecar(monkeypatch, tmp_path):
-    sender_path = tmp_path / "feedback.py"
-    shutil.copy2(skill_dir("liki") / "feedback.py", sender_path)
-    sender = load_sender_from(sender_path)
-    sidecar_path = tmp_path / "feedback.context.json"
-    sidecar_path.write_text(
-        json.dumps({"agent": {"name": "sidecar-agent", "version": "1.0.0"}}),
-        encoding="utf-8",
-    )
-    explicit_path = tmp_path / "explicit-context.json"
-    explicit_path.write_text(
-        json.dumps({"agent": {"name": "explicit-agent", "version": "2.0.0"}}),
-        encoding="utf-8",
-    )
-    payload_path = tmp_path / "payload.json"
-    source = payload()
-    source.pop("agent")
-    payload_path.write_text(json.dumps(source), encoding="utf-8")
-    sent = {}
-
-    def fake_urlopen(request, timeout):
-        sent["request"] = request
-        response = mock.MagicMock()
-        response.status = 204
-        response.__enter__.return_value = response
-        response.__exit__.return_value = False
-        return response
-
-    monkeypatch.setattr(sender.urllib.request, "urlopen", fake_urlopen)
-    monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
-    monkeypatch.setenv("LIKI_FEEDBACK_CONTEXT", str(explicit_path))
-    assert sender.main(["--payload-file", str(payload_path)]) == 0
-    body = json.loads(sent["request"].data.decode("utf-8"))
-    assert body["agent"] == {"name": "explicit-agent", "version": "2.0.0"}
-
-
-def test_sender_uses_sidecar_context_when_env_absent(monkeypatch, tmp_path):
-    sender_path = tmp_path / "feedback.py"
-    shutil.copy2(skill_dir("liki") / "feedback.py", sender_path)
-    sender = load_sender_from(sender_path)
-    sidecar_path = tmp_path / "feedback.context.json"
-    sidecar_path.write_text(
-        json.dumps({"agent": {"name": "sidecar-agent", "version": "1.0.0"}}),
-        encoding="utf-8",
-    )
-    payload_path = tmp_path / "payload.json"
-    source = payload()
-    source.pop("agent")
-    payload_path.write_text(json.dumps(source), encoding="utf-8")
-    sent = {}
-
-    def fake_urlopen(request, timeout):
-        sent["request"] = request
-        response = mock.MagicMock()
-        response.status = 204
-        response.__enter__.return_value = response
-        response.__exit__.return_value = False
-        return response
-
-    monkeypatch.setattr(sender.urllib.request, "urlopen", fake_urlopen)
-    monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
-    monkeypatch.delenv("LIKI_FEEDBACK_CONTEXT", raising=False)
-    assert sender.main(["--payload-file", str(payload_path)]) == 0
-    body = json.loads(sent["request"].data.decode("utf-8"))
-    assert body["agent"] == {"name": "sidecar-agent", "version": "1.0.0"}
-
-
-def test_sender_rejects_non_object_context_group(monkeypatch, tmp_path):
-    sender = load_sender()
-    context_path = tmp_path / "context.json"
-    context_path.write_text(json.dumps({"agent": "not-an-object"}), encoding="utf-8")
-    payload_path = tmp_path / "payload.json"
-    payload_path.write_text(json.dumps(payload()), encoding="utf-8")
-    monkeypatch.setenv("LIKI_FEEDBACK_URL", "https://liki.test/api/feedback")
-    monkeypatch.setattr(
-        sender.urllib.request,
-        "urlopen",
-        mock.Mock(side_effect=AssertionError("invalid context must not send")),
-    )
-    assert sender.main(["--payload-file", str(payload_path)]) == 0
+    assert body["agent"] == source["agent"]
 
 
 def test_sender_rejects_unknown_private_field_without_posting(monkeypatch):
