@@ -12,8 +12,7 @@ try:
     from jsonschema import Draft202012Validator, FormatChecker
 except ImportError as exc:
     raise ImportError(
-        "Liki divination tools require jsonschema; "
-        "install with `python3 -m pip install -r tools/requirements.txt`"
+        "Liki divination tools require jsonschema; install the skill-root requirements.txt"
     ) from exc
 
 from huangli_days import days as huangli_days

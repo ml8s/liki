@@ -17,6 +17,7 @@ naming/ENTRY.md
 
 - 全 skill 只有一个 `SKILL.md`；
 - 四个领域都有 `ENTRY.md`；
+- `app/README.md` 外的 App 卡都有 `流程`、`边界条件`、`输出模板`；
 - `VERSION`、`feedback.py`、`feedback.schema.json` 不重复；
 - 根入口保持轻量；
 - 旧 `liki-*` skill 名不出现在安装内容中；
@@ -139,7 +140,7 @@ make skillup-smoke-naming
 
 `grade.py` 只做 script judge，检查必要事实、RPC 收据和禁止行为。
 本套件不进入 `pre-push`；模型 key 放在 `skillup/evals/.local.env`。
-问卦 smoke 的 Docker 镜像必须预装 `jsonschema>=4,<5`；不要依赖 agent 临时联网安装。
+问卦 smoke 的 Docker 镜像必须预装 `jsonschema>=4,<5`；不要依赖 agent 临时联网安装。Skill 内唯一的 Python 依赖清单是 `skills/liki/requirements.txt`。
 
 ## Stable checks
 
@@ -153,3 +154,5 @@ make test-engine
 make test-integration
 make pre-push
 ```
+
+运行期失败、依赖缺失、版本 / digest / schema 校验失败的 Skill 内恢复入口是 `skills/liki/FAQ.md`；它只约束 agent 恢复行为，不替代这里的测试分层。

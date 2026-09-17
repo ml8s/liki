@@ -13,7 +13,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
 [必读] - bazi: `bazi/domains/bazi/study.md`「学历决策」+ `bazi/domains/bazi/shishen.md`「十神组合」
 
 [必读] - ziwei: `bazi/domains/ziwei/yingqi.md`「学业应期」+ `bazi/domains/ziwei/liunian.md`「流年宫位」
-## 📖 流程
+## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 |---|---|---|---|
@@ -29,7 +29,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
 | 成年人问学业（非在校） | 学历定档按原局印星终生有效；大运影响按当前运判断深造/进修可能 |
 | 原局无印星 | 查食伤（技术学习能力）+ 官杀（压力中学业） |
 
-## 📖 输出模板
+## 输出模板
 
 | 输出 | 内容 |
 |---|---|

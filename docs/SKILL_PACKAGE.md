@@ -8,6 +8,8 @@ Liki 对外只有一个可安装 skill：`liki`。它是产品入口，不是四
 skills/liki/
 ├── SKILL.md              # 唯一 skill 入口
 ├── VERSION               # 唯一分发版本
+├── FAQ.md                # 唯一运行失败 / 反模式恢复入口
+├── requirements.txt      # 唯一 Python 依赖清单
 ├── feedback.py           # 唯一 feedback sender
 ├── feedback.schema.json  # feedback-v1 contract
 ├── bazi/ENTRY.md         # 八字 + 紫微领域入口
@@ -26,7 +28,7 @@ skills/liki/
 |---|---|
 | `SKILL.md` | 识别主意图、选择领域、声明全局 RPC / 安全 / feedback |
 | `<domain>/ENTRY.md` | 领域内路由和领域硬边界 |
-| `<domain>/app/*.md` | 用户任务流程卡与交互门控 |
+| `<domain>/app/*.md` | 用户任务流程卡与交互门控；核心段固定为 `流程`、`边界条件`、`输出模板` |
 | `<domain>/domains/**/*.md` | 稳定领域知识和决策表 |
 | `<domain>/tools/` | 如存在：Python 工具、schema、长表与 RPC 编排；naming / fengshui 当前直接使用固定 discover scope 内声明的 RPC |
 
@@ -37,7 +39,8 @@ skills/liki/
 3. 每个领域必须有 `ENTRY.md`。
 4. 所有文档路径从 `skills/liki` 根开始书写。
 5. 有 `tools/` 的领域，LLM 只能通过 Python 工具层调用 RPC；无 `tools/` 的领域，LLM 只能使用 `ENTRY.md` / `RPC.md` 固定 discover scope 内声明的 RPC。
-6. `VERSION`、`feedback.py`、`feedback.schema.json` 不允许在领域内重复。
+6. `VERSION`、`FAQ.md`、`requirements.txt`、`feedback.py`、`feedback.schema.json` 不允许在领域内重复。
+7. App 卡（`app/README.md` 除外）必须包含 `## 流程`、`## 边界条件`、`## 输出模板`；不得回退为 emoji 变体、`边界` 或带括号的专用变体。
 
 ## Release model
 

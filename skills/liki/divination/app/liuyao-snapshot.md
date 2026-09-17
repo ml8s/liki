@@ -29,6 +29,15 @@ description: 六爻问卦 — snapshot 生成、结构化 answer 与追问
 - 高级复现可用 `mode=yaos`，传六个爻值 6-9。
 - 普通问事传 `matter`；高级用户才传 `yong_shen`；两者互斥。
 
+## 边界条件
+
+| 场景 | 处理 |
+|---|---|
+| 手动摇币 | 六组三枚“正 / 反”必须按初爻到上爻原样传入 |
+| `matter` / `yong_shen` | 只能传一项；普通问事优先 `matter` |
+| 追问与新事件 | 原事件复用 snapshot；新事件、新时间或新决策新建 snapshot |
+| 高风险事项 | 正常执行，附 `safety_advisory` 和现实专业建议 |
+
 ## 输出模板
 
 ```text

@@ -36,6 +36,36 @@ def test_shared_runtime_files_are_not_duplicated():
     assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.schema.json")] == [Path("feedback.schema.json")]
 
 
+def test_python_dependency_has_one_skill_root_manifest():
+    manifests = [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("requirements.txt")]
+    assert manifests == [Path("requirements.txt")]
+    assert "jsonschema>=4,<5" in (SKILL_ROOT / "requirements.txt").read_text(encoding="utf-8")
+
+
+def test_faq_is_the_single_runtime_failure_entry():
+    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("FAQ.md")] == [Path("FAQ.md")]
+    root = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    faq = (SKILL_ROOT / "FAQ.md").read_text(encoding="utf-8")
+    assert "工具失败、依赖缺失、版本 / digest / schema 校验失败时读 `FAQ.md`" in root
+    assert "不得绕过校验" in faq
+    assert "不可用" in faq
+    assert "⛔" in faq and "💬" in faq
+    for entry in DOMAINS:
+        assert "FAQ.md" not in (SKILL_ROOT / entry / "ENTRY.md").read_text(encoding="utf-8")
+
+
+def test_app_cards_use_standard_contract_sections():
+    required = {"## 流程", "## 边界条件", "## 输出模板"}
+    forbidden = {"## 📖 流程", "## 📖 输出模板", "## 边界", "## 输出模板（标准奇门）"}
+    cards = [p for p in SKILL_ROOT.glob("*/app/*.md") if p.name != "README.md"]
+    assert len(cards) == 20
+    for path in cards:
+        lines = {line.strip() for line in path.read_text(encoding="utf-8").splitlines()}
+        assert not (required & forbidden)
+        assert required <= lines, (path, required - lines)
+        assert not (forbidden & lines), (path, forbidden & lines)
+
+
 def test_root_entry_is_a_lightweight_router():
     lines = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").splitlines()
     assert len(lines) <= 120
@@ -80,6 +110,17 @@ def test_direct_rpc_domains_have_fixed_contracts():
             "method": "rpc.discover",
             "params": {"methods": ",".join(scopes)},
         }
+
+
+def test_entry_declares_invocation_model_once():
+    for domain in ("bazi", "divination"):
+        text = (SKILL_ROOT / domain / "ENTRY.md").read_text(encoding="utf-8")
+        assert text.count("工具 schema：") == 1, domain
+        assert len([line for line in text.splitlines() if line.startswith("- CLI：")]) == 1, domain
+    for domain in ("naming", "fengshui"):
+        text = (SKILL_ROOT / domain / "ENTRY.md").read_text(encoding="utf-8")
+        assert text.count("无 Python 工具层") == 1, domain
+        assert "## 领域工具" not in text, domain
 
 
 def test_direct_rpc_contracts_require_all_business_methods():

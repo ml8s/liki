@@ -15,7 +15,7 @@ description: 起名分析 — 通用起名/改名，结合八字用神与五行�
 [必读] - bazi: `naming/domains/bazi/yongshen.md`「用神方法论」+ `naming/domains/bazi/calibration.md`「时辰判定」
 [必读] - qiming: `naming/domains/qiming/ziku.md`「字库与选字」
 
-## 📖 流程
+## 流程
 
 | 步骤 | 类型 | 条件 / 目标 | 动作 | 产物 |
 |---|---|---|---|---|
@@ -47,7 +47,7 @@ description: 起名分析 — 通用起名/改名，结合八字用神与五行�
 | `qiming.compose` 报字符错误 | 只能改用 `qiming.pick` 返回池中的字 |
 | `qiming.check` 标记 invalid | 丢弃该候选并保留 invalid 原因 |
 
-## 📖 输出模板
+## 输出模板
 
 | 输出 | 内容 |
 |---|---|

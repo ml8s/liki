@@ -14,10 +14,6 @@
 | 外国人起中文名 | `naming/app/foreign.md` |
 | 评估自选名字 | `naming/app/selfcheck.md` |
 
-## 领域工具
-
-本领域无 Python 工具层；直接使用固定 RPC discover 契约返回的方法调用引擎。
-
 ## 核心流程
 
 | 步骤 | 条件 | 动作 | 产物 |

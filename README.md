@@ -196,6 +196,7 @@ repo root
 
 ```bash
 make test-functional           # 规则引擎功能测试（因子/断语/场景/冲突）
+make golden-engine             # 引擎领域 golden（八字/紫微/六爻/奇门/黄历/八宅/玄空）
 make benchmark-mingli160       # 160 题准确率基准（模型）
 make skillup-smoke-validate    # 跨领域功能契约校验（无模型）
 make skillup-smoke             # 跨领域功能 smoke（模型）

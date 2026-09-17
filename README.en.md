@@ -211,6 +211,7 @@ Images are auto-published on GitHub Releases (CI full tests → build + push + s
 
 ```bash
 make test-functional           # rule-engine functional tests (factors/assertions/scenarios/conflicts)
+make golden-engine             # engine domain goldens (Bazi/Ziwei/Liuyao/Qimen/Huangli/Bazhai/Xuankong)
 make benchmark-mingli160       # 160-question accuracy benchmark (model required)
 make skillup-smoke-validate    # validate cross-domain behavior contracts (no model)
 make skillup-smoke             # run cross-domain behavior smoke (model required)

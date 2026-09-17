@@ -24,11 +24,6 @@ bazi 域只通过 Python 工具层调用，不直接调用 RPC。
 | 占卜 / 风水 / 起名 | 返回根 `SKILL.md` 的领域路由 |
 | 其他 | 确认意图后选择相近卡 |
 
-## 领域工具
-
-- 工具 schema：`bazi/tools/skill-tools.json`
-- CLI：`python3 bazi/tools/agent_cli.py`，Windows 使用 `bazi/tools/agent_cli.cmd`
-
 ## 核心流程
 
 | 步骤 | 条件 | 动作 | 产物 |
@@ -64,5 +59,6 @@ bazi 域只通过 Python 工具层调用，不直接调用 RPC。
 
 | 异常 | 处理 |
 |---|---|
-| `RPCError` / `ValueError` | 网络异常可重试；参数错误修正后重试 |
+| 网络超时 / 可重试 HTTP 状态 | 可重试；连续失败时说明引擎不可用 |
+| `ValueError` / schema / digest | 先修参数、补齐输入或重新获取完整引擎产物；不得盲目重试 |
 | 城市未收录 / 某年 `error` | 请用户给附近较大城市；或输出该年数据缺失 |

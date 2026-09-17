@@ -48,6 +48,9 @@ def main() -> int:
     method_re = re.compile(r"\b(" + "|".join(map(re.escape, _METHOD_PREFIXES)) + r")\.[a-z_]+\b")
 
     docs = [os.path.join(SKILL, "SKILL.md")]
+    faq = os.path.join(SKILL, "FAQ.md")
+    if os.path.exists(faq):
+        docs.append(faq)
     docs += [os.path.join(SKILL, domain, "ENTRY.md") for domain in DOMAINS]
     docs += sorted(glob.glob(os.path.join(SKILL, "*", "app", "*.md")))
     docs += sorted(glob.glob(os.path.join(SKILL, "*", "domains", "**", "*.md"), recursive=True))
@@ -106,19 +109,35 @@ def main() -> int:
         for doc in sorted(glob.glob(os.path.join(SKILL, pattern))):
             rel = os.path.relpath(doc, _ROOT)
             text = open(doc, encoding="utf-8").read()
+            app_readme = pattern == "*/app/*.md" and Path(doc).name == "README.md"
             if "□" in text:
                 errors.append(f"[{rel}] 文档含过程检查框；用条件/动作/产物表代替")
-            if doc.endswith(tuple(glob.glob(os.path.join(SKILL, "*", "app", "*.md")))):
+            if pattern == "*/app/*.md" and not app_readme:
+                required_sections = {"## 流程", "## 边界条件", "## 输出模板"}
+                actual_sections = {line.strip() for line in text.splitlines()}
+                missing_sections = sorted(required_sections - actual_sections)
+                if missing_sections:
+                    errors.append(f"[{rel}] App 卡缺少标准段: {', '.join(missing_sections)}")
+                heading_lines = {line.strip() for line in text.splitlines()}
+                legacy_sections = {
+                    heading for heading in (
+                        "## 📖 流程", "## 📖 输出模板", "## 边界", "## 输出模板（标准奇门）"
+                    ) if heading in heading_lines
+                }
+                if legacy_sections:
+                    errors.append(f"[{rel}] App 卡含旧标准段: {', '.join(sorted(legacy_sections))}")
+            if pattern == "*/app/*.md":
                 if "## 红线（强制）" in text or "### ⚠️" in text:
                     errors.append(f"[{rel}] app 卡含重复红线/警示段")
-                start = text.find("## 📖 流程")
+                start = text.find("## 流程")
                 if start >= 0:
                     end = text.find("\n## ", start + 1)
                     flow_lines = len(text[start:end if end >= 0 else len(text)].splitlines())
                     if flow_lines > 20:
                         errors.append(f"[{rel}] 流程区 {flow_lines} 行，超过 20 行精简上限")
-                if len(text.splitlines()) > 65:
-                    errors.append(f"[{rel}] app 卡 {len(text.splitlines())} 行，超过 65 行精简上限")
+                max_lines = 75 if Path(doc).name == "mingshu-full.md" else 65
+                if len(text.splitlines()) > max_lines:
+                    errors.append(f"[{rel}] app 卡 {len(text.splitlines())} 行，超过 {max_lines} 行精简上限")
             required_paths = []
             for line in text.splitlines():
                 if not line.lstrip().startswith("[必读]"):

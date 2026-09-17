@@ -2,6 +2,7 @@
 .git-old/
 .reasonix/
 reasonix.toml
+.agents/
 
 # Local IDE config (any level — root and engine/.claude)
 .claude/

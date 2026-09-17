@@ -152,3 +152,36 @@ If breaking work lands on main after `v5.0.0`, the next release must be `v6.0.0`
 5. Push the tag.
 6. Create the GitHub Release with both versions and release notes.
 7. Verify release artifacts and CI.
+
+## 8. Quality gates
+
+Local fast checks are deterministic:
+
+```bash
+make check
+make test-functional
+```
+
+The push gate is the same set used by CI:
+
+```bash
+make pre-push
+```
+
+Release checks add the full deterministic surface and package:
+
+```bash
+make test-all
+make golden-engine
+make build-archive
+```
+
+Model- or local-tool-backed checks are release evidence, not pre-push requirements. `skillup-*` targets require the local `skill-up` CLI:
+
+```bash
+make skillup-smoke-validate
+make skillup-smoke
+make benchmark-mingli160
+```
+
+TRACE is an external static Skill-quality review. It complements, but does not replace, deterministic golden tests, domain oracles, functional contracts, integration tests, skill-up smoke, or MingLi-Bench.

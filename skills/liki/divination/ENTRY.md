@@ -9,12 +9,12 @@ divination 域只通过 Python 工具层调用，不直接调用 RPC。
 - 工具 schema：`divination/tools/skill-tools.json`
 - CLI：`python3 divination/tools/agent_cli.py`
 - Windows CLI：`divination/tools/agent_cli.cmd`
-- Python 依赖：缺失时安装 `divination/tools/requirements.txt`，不得跳过契约校验。
+- Python 依赖：缺失时安装 Skill 根目录 `requirements.txt`，不得跳过契约校验。
 - 输入：`{"fn":"<工具名>","args":{...}}`
 - 输出：stdout JSON；`ok=true` 读 `data`，`ok=false` 读 `error`。
 - CLI 启动时校验 engine 版本和必需 RPC；不满足即 fail closed。
 
- ## 路由
+## 路由
 
 LLM 先读取 `divination/app/question.md` 并判断用户目标；不要调用独立 route 工具。
 
@@ -26,13 +26,6 @@ LLM 先读取 `divination/app/question.md` 并判断用户目标；不要调用�
 | 结果和策略混合 | 先澄清，只保留一个主目标 |
 | 长期命局 | 不临时起卦，改用八字命理技能 |
 | 高风险现实事项 | 继续执行所选问卦流程；结果附 `safety_advisory` 和专业建议 |
-
-## 领域工具
-
-- 工具 schema：`divination/tools/skill-tools.json`
-- CLI：`python3 divination/tools/agent_cli.py`，Windows 使用 `divination/tools/agent_cli.cmd`
-- Python 依赖：缺失时用 `python3 -m pip install -r divination/tools/requirements.txt` 安装，不得跳过契约校验。
-- CLI 启动会检查 engine 版本；不满足最低版本时 fail closed，不降级调用旧 RPC。
 
 用户明确指定六爻、奇门或黄历时，安全放行后优先用户指定。
 

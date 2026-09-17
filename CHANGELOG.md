@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026.09.17.1] — skill markdown contracts and runtime recovery
+
+### Changes
+
+- 新增根级 `FAQ.md`，统一处理依赖缺失、引擎版本不匹配、RPC / schema / digest 校验失败、缺输入和可重试错误；明确不得绕过校验或自行降级。
+- Python 依赖清单收敛为根级 `requirements.txt`，移除 `divination/tools/requirements.txt`；CLI 缺依赖提示指向 Skill 根清单。
+- 四个 `ENTRY.md` 清理重复调用契约：bazi / divination 只声明一次 Python 工具入口，naming / fengshui 只声明一次固定 JSON-RPC 边界。
+- bazi 异常处理口径收敛：只有网络超时和 RPC 层声明的可重试 HTTP 状态可重试；`ValueError`、schema、digest 和参数错误必须先修正，不得盲目重试。
+- 20 张可执行 App 卡统一为 `## 流程`、`## 边界条件`、`## 输出模板` 核心结构；补齐黄历、六爻结果、奇门决策、命盘扫描和完整命书的缺失边界或输出契约。
+- `check_docs` 增加 FAQ / requirements 唯一性和 App 卡标准段防回潮检查。
+- README 测试命令补齐 `make golden-engine`；Release Model 新增本地、push、发布和模型评测质量门禁分层。
+
 ## [2026.09.17.0] — factor contracts and LLM-facing result schemas
 
 ### Changes

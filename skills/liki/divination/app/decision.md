@@ -22,3 +22,20 @@ description: 问该不该做 / 方向 / 策略 / 时机 — 默认奇门
 | 2 | 按 `divination/app/qimen-snapshot.md` 发送 `TOOLS.md §3 qimen_snapshot` 报文 |
 | 3 | 发送 `TOOLS.md §4 qimen_ask` 报文，`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` |
 | 4 | 按 `divination/app/qimen-snapshot.md` 输出 |
+
+## 边界条件
+
+| 场景 | 处理 |
+|---|---|
+| 缺地点 / 时间 | 按 `qimen-snapshot.md` 补城市、经度或使用服务端当前时间 |
+| 高风险事项 | 正常执行，附 `safety_advisory` 和现实专业建议 |
+| 长期命局问题 | 转八字域，不用奇门替代终身命局 |
+
+## 输出模板
+
+```text
+结论：可行 / 需调整 / 暂缓 / 时机未明。
+依据：用神落宫、门星神和关键生克。
+时机：answer 引用的应期候选。
+边界：传统奇门视角，不承诺现实结果。
+```

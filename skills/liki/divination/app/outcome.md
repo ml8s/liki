@@ -22,3 +22,20 @@ description: 问结果 / 能不能成 / 何时有结果 — 默认六爻
 | 2 | 按 `divination/app/liuyao-snapshot.md` 发送 `TOOLS.md §1 liuyao_snapshot` 报文 |
 | 3 | 发送 `TOOLS.md §2 liuyao_ask` 报文，`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` |
 | 4 | 按 `divination/app/liuyao-snapshot.md` 输出 |
+
+## 边界条件
+
+| 场景 | 处理 |
+|---|---|
+| 目标混合或缺失 | 先按 `question.md` 确认单一目标 |
+| 高风险事项 | 正常执行，附 `safety_advisory` 和现实专业建议 |
+| 追问 | 复用同一 snapshot；新事件必须新建 snapshot |
+
+## 输出模板
+
+```text
+结论：可成 / 难成 / 有条件成 / 时机未明。
+依据：用神、世应、动爻和关键旺衰。
+应期：只列 answer 引用的候选。
+边界：传统六爻视角，不承诺现实结果。
+```
