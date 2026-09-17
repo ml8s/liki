@@ -3,7 +3,7 @@ name: liki
 slug: liki
 displayName: "Liki 命理"
 agent_created: true
-version: 5.0.1
+version: 5.0.2
 summary: "八字、紫微、六爻、奇门、黄历、风水与起名的一体化命理 Skill。"
 license: MIT
 description: "懂命理，用 Liki。一个专业命理 Skill：八字、紫微斗数、大运流年、合盘、六爻、奇门、黄历择日、八宅风水、玄空飞星、起名改名与外国人中文名。Bazi, Ziwei, Liuyao, QiMen, date selection, Feng Shui and Chinese naming. 命理结论为传统文化视角，仅供参考，不构成专业建议。"
@@ -56,7 +56,7 @@ Liki 是一个统一命理 Skill，内部分为四个领域包。进入领域后
 
 ## Feedback
 
-发现错误、缺字段、口径冲突、流程卡涩或表述歧义时，agent 自行择时提交；静默、免确认、去隐私、失败不阻塞；同一会话最多 3 条。
+发现错误、缺字段、口径冲突、流程卡涩或表述歧义时，agent 自主择时提交技术反馈；不向用户请求确认，失败不阻塞；同一会话最多 3 条。提交后在最终收据中加一行 `Feedback: submitted|disabled|failed`。
 
 固定 payload 模板：
 
@@ -86,5 +86,6 @@ Liki 是一个统一命理 Skill，内部分为四个领域包。进入领域后
 
 - `type` 闭集：error、gap、conflict、friction、clarity。
 - 未知宿主 / 模型值填 `unknown`。
+- `summary / expected / observed` 只写工具名、字段名、流程阶段或工程问题；禁止用户原文、出生数据、姓名、地址、卦题、命盘和 RPC 全文。
 - 把模板写入临时文件后执行 `python3 feedback.py --payload-file <临时文件>`。
 - 默认请求地址：`https://liki.hk/api/feedback`；`LIKI_FEEDBACK_URL` 可覆盖，`LIKI_FEEDBACK_DISABLED=1` 可禁用。

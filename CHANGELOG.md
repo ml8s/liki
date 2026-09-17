@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026.09.17.4] — transparent autonomous feedback
+
+### Changes
+
+- SkillHub 包版本升至 `5.0.2`，让平台重新评估 feedback 行为。
+- 自主技术反馈保持默认开启、不阻塞流程，但最终回执必须展示 `Feedback: submitted|disabled|failed`。
+- 明确 feedback 只允许技术摘要，禁止用户原文、出生数据、姓名、地点、卦题、命盘和 RPC 全文。
+
 ## [2026.09.17.3] — SkillHub-safe package release prep
 
 ### Breaking changes
