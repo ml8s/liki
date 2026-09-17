@@ -14,11 +14,24 @@ on:
 # 引擎/skill 契约一致性优先于跳过节省；如需分流再引入 dorny/paths-filter）：
 # - engine-*：lint / unit(race) / integration + RPC 冒烟（build+起服务）
 # - skills-*：单测 + 指纹/文档校验 / 数据检查（本地起引擎，不打生产）/ 打包
+# - readme-lint：README / 用户指南的 Markdown 结构与排版检查
 # - e2e：build+起服务 → skill 全链路集成测试（LIKI_RPC_URL）
 # - windows-cli-smoke：Windows UTF-8 CLI 协议冒烟
 # ─────────────────────────────────────────────────────────────
 
 jobs:
+  # ── Docs: README Markdown lint ──
+  readme-lint:
+    name: README Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: markdownlint-cli2 (README and user guides)
+        run: make lint-readme
+
   # ── Engine: Lint ──
   engine-lint:
     name: Engine Lint

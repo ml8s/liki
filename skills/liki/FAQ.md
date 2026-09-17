@@ -7,7 +7,7 @@
 - bazi / divination 只通过各自 `tools/agent_cli.py` 调用；缺少 Python 依赖时安装本 Skill 根目录的 `requirements.txt`。
 - jsonschema 依赖缺失不是跳过契约校验的理由；安装依赖后重试。
 - JSON-RPC 默认端点是 `https://liki.hk/jsonrpc`，`LIKI_RPC_URL` 优先；网络或引擎不可用时明确说明不可用。
-- 引擎版本低于本地 `VERSION` 时停止；不得用旧结果、缓存或模型知识补齐引擎事实。
+- 引擎版本低于本地 `VERSION.txt` 时停止；不得用旧结果、缓存或模型知识补齐引擎事实。
 
 ## 调用边界
 

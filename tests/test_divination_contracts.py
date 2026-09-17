@@ -99,7 +99,7 @@ def test_engine_version_gate_requires_installed_skill_version(monkeypatch):
     required = divination_rpc.required_engine_version()
     older = required.split(".")[:-1] + [str(int(required.split(".")[-1]) - 1)]
     monkeypatch.setattr(divination_rpc, "engine_version", lambda: ".".join(older))
-    with pytest.raises(Exception, match="skill VERSION requires engine"):
+    with pytest.raises(Exception, match="skill VERSION.txt requires engine"):
         divination_rpc.ensure_engine_compatible()
 
 

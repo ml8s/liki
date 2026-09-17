@@ -86,7 +86,7 @@ def test_engine_compatibility_requires_installed_skill_version(monkeypatch) -> N
         "info": {"version": ".".join(older)}, "methods": methods
     })
 
-    with pytest.raises(RPCError, match="skill VERSION requires engine"):
+    with pytest.raises(RPCError, match="skill VERSION.txt requires engine"):
         paipan.ensure_engine_compatible()
 
 

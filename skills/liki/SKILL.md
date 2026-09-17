@@ -12,11 +12,11 @@ Liki 是一个统一命理 Skill，内部分为四个领域包。进入领域后
 
 ## 全局启动
 
-1. 外部安装副本先执行版本检查：本地读安装根目录的 `VERSION`（仓库开发副本是 `skills/liki/VERSION`），远程执行 `curl -fsS https://liki.hk/skills/liki/VERSION`；二者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达时标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
+1. 外部安装副本先执行版本检查：本地读安装根目录的 `VERSION.txt`（仓库开发副本是 `skills/liki/VERSION.txt`），远程执行 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；二者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达时标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
 2. JSON-RPC 默认端点是 `https://liki.hk/jsonrpc`；`LIKI_RPC_URL` 优先。
 3. bazi / divination 只通过各自 `agent_cli.py` 调用 Python 工具层；CLI 启动时校验引擎版本和内部必需 RPC，agent 不直接 POST RPC。
 4. naming / fengshui 无 Python 工具层；agent 只复制领域 `RPC.md` 中的固定 discover scope 和完整 JSON-RPC 报文。
-5. 直接 discover 返回的 `methods[]` 必须覆盖领域契约要求的完整方法集；按点号整数逐段比较版本，`info.version` 低于本地 `VERSION` 时 fail closed。
+5. 直接 discover 返回的 `methods[]` 必须覆盖领域契约要求的完整方法集；按点号整数逐段比较版本，`info.version` 低于本地 `VERSION.txt` 时 fail closed。
 6. 工具失败、依赖缺失、版本 / digest / schema 校验失败时读 `FAQ.md`；不得绕过校验或自行降级。
 
 ## 领域路由

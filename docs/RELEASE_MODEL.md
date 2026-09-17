@@ -18,7 +18,7 @@ Example:
 
 Sources:
 
-- `skills/liki/VERSION`
+- `skills/liki/VERSION.txt`
 - `engine/cmd/liki/VERSION`
 - `rpc.discover.info.version`
 - skill version self-check
@@ -47,7 +47,7 @@ v5.1.0
 v5.0.1
 ```
 
-SemVer is the public release identity. It is not stored in `VERSION`; it is represented by an annotated Git tag and GitHub Release.
+SemVer is the public release identity. It is not stored in `VERSION.txt`; it is represented by an annotated Git tag and GitHub Release.
 
 Semantics:
 
@@ -146,7 +146,7 @@ If breaking work lands on main after `v5.0.0`, the next release must be `v6.0.0`
 ## 7. Release process
 
 1. Confirm main is green.
-2. Confirm `skills/liki/VERSION` and `engine/cmd/liki/VERSION` are the intended runtime CalVer.
+2. Confirm `skills/liki/VERSION.txt` and `engine/cmd/liki/VERSION` are the intended runtime CalVer.
 3. Confirm `CHANGELOG.md` contains the milestone entries.
 4. Create the annotated SemVer tag on the approved commit.
 5. Push the tag.

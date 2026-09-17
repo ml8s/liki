@@ -179,7 +179,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, a := range []string{"rpc.discover", "skill-tools.json", "VERSION", "content.sha256",
+	for _, a := range []string{"rpc.discover", "skill-tools.json", "VERSION.txt", "content.sha256",
 		"liki-memory.json", "RPCError", "ValueError", "error", "methods", "parameters",
 		"required", "params.properties", "params.methods", "result.methods",
 		"data", "result.data", "result.info", "result.info.version", "result_schema",
@@ -187,7 +187,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"result.methods[].name", "bazhai.chart.result.data.ming_gua.gua.name",
 		"result.methods.name", "xuankong.chart.result.data", "bazhai",
 		"xuankong", "qiming", "snapshot", "data", "error", "unknown",
-		"true", "false", "skills/liki/VERSION", "full_paipan.data",
+		"true", "false", "skills/liki/VERSION.txt", "full_paipan.data",
 		"safety_advisory", "meta.skill", "info.version", "pan_digest",
 		"pan.ziwei_daxian"} {
 		allow[a] = true

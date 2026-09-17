@@ -42,7 +42,7 @@ Content-Type: application/json
 
 `qiming` 会返回全部 `qiming.*` schema。校验：
 
-1. `result.info.version` 按点号整数逐段比较，不低于本地 `VERSION`。
+1. `result.info.version` 按点号整数逐段比较，不低于本地 `VERSION.txt`。
 2. `result.methods[].name` 至少包含下方业务契约中的全部方法。
 3. 任一缺失即 fail closed。
 

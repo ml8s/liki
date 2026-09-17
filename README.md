@@ -1,227 +1,155 @@
-<p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/Liki-命理_Skill-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
-</p>
+<h1 align="center">Liki</h1>
 
 <p align="center">
-  <strong>Liki — 专业命理 Skill</strong><br>
-  <strong>懂命理，用 Liki</strong><br>
-  按命理师的专业标准构建：排盘走天文历算引擎，断语附经典出处，结论可验证<br>
+  专业命理 Skill<br>
+  懂命理，用 Liki。<br>
+  排盘由 Go 引擎计算，判断由规则表解释，依据可回溯。<br>
   八字 · 紫微 · 六爻 · 奇门 · 黄历择日 · 风水 · 起名
 </p>
 
 <p align="center">
-  <code>npx skills add ml8s/liki</code>
+  <a href="./README.en.md"><img alt="English" src="https://img.shields.io/badge/English-4a9e6b?style=flat-square"></a>
+  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ml8s/liki/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat-square"></a>
+  <a href="https://liki.hk"><img alt="website" src="https://img.shields.io/badge/liki.hk-6d5acf?style=flat-square"></a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/ml8s/liki"><img src="https://img.shields.io/badge/GitHub-ml8s/liki-4a9e6b?style=flat&logo=github&logoColor=white&labelColor=30305c"></a>
-  <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-官方网站-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
-  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-全绿-4a9e6b?style=flat&logo=githubactions&logoColor=white&labelColor=30305c"></a>
-  <a href="./README.en.md"><img src="https://img.shields.io/badge/English-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
-</p>
+## 安装
 
----
+```bash
+npx skills add ml8s/liki
+```
 
-## 30 秒了解
+安装后，在支持 Agent Skills 的 AI 客户端中直接提问即可。Skill 启动时会检查版本；提示更新后重新执行：
 
-安装后，你的 AI 助手获得一个专业命理 Skill：
+```bash
+npx skills add ml8s/liki -y
+```
 
-| 领域 | 能问什么 | 试试这样问 |
-|------|---------|-----------|
-| 命理（八字 + 紫微） | 婚姻、事业、财运、健康、学业、性格、六亲、两人合盘、全盘命书 | `算八字，1990-05-20 12:00 北京出生，男` |
-| 起名 | 新生儿起名、成人改名、英文起中文名、名字评估 | `宝宝起名，2024-06-10 广州出生，男，姓陈` |
-| 问卦 | 六爻问成败应期、奇门问方向时机、黄历选吉日 | `这件事能成吗？什么时候有结果` |
-| 风水 | 八宅命卦布局、玄空飞星、流年风水 | `我家风水怎么样` |
+## 快速开始
 
-**专业标准意味着什么**：
-
-- 排盘由天文历算引擎计算（真太阳时/节气秒级精度），AI 不编数字
-- 判断依据 799 条断语真值表，每条附《渊海子平》《子平真诠》等经典依据
-- 160 道命理师大赛真题独立评测，答案与评测过程隔离
-
-**懂命理，用 Liki。**
-
-## 使用手册
-
-### 第一次使用
-
-**准备**：出生日期（公历）、出生时间（尽量精确到分）、出生城市、性别。
-
-**直接发**——出生信息和问题写在一条消息里即可：
-
-> 帮我看看婚姻，女，1992-03-15 14:30 广州出生
-
-信息不全也没关系：只知道"上午"或"不知道几点"，技能会追问或进入考时流程（见下方 FAQ）。
-
-### 对话方式
-
-技能像命理师一样与你对话——**一次问一个主题**，得到结构化分析后可以继续追问：
-
-| 你想… | 这样说 |
-|------|-------|
-| 追问依据 | `为什么？` `这个结论的依据是什么？` |
-| 问具体年份 | `2026年呢？` `未来三年怎么样？` |
-| 换主题 | `那财运呢？` `健康方面呢？`（同一命盘，不用重新排） |
-| 问对方 | `我们俩合不合？`（提供双方出生信息） |
-| 要完整报告 | `帮我出一份命书`（全盘：婚姻/事业/财运/健康/学业/六亲） |
-
-### 各领域指南
-
-#### 命理（八字 + 紫微双盘同参）
-
-按人生领域直接问——技能自动排盘、查断语、给出结论+依据+应期：
-
-- **婚姻**：什么时候结婚？会不会离婚？对方什么样的人？
-- **事业**：适合什么行业？创业还是打工？起伏在哪几年？
-- **财运**：财源类型？哪年得财、哪年破财？
-- **健康**：哪个脏腑薄弱？哪些年份要注意？
-- **学业**：能读到什么学历？考试运如何？
-- **性格 / 六亲**：我是什么性格？父母/子女缘分如何？
-
-**输出格式**：结论先行，后附依据。每个结论可追溯到具体命理步骤和经典依据。
-
-#### 起名
-
-> 宝宝起名，2024-06-10 广州出生，男，姓陈
-
-流程：偏好与避讳确认 → 八字定用神 → 补五行 → 候选字筛选 → 组名与评估 → 候选报告（优点、可商榷点、不推荐原因与出处依据）。
-
-也支持：改名、英文起中文名、自选名字评估。
-
-#### 问卦
-
-先按用户目标选法，默认单法，不自动双盘合参：
-
-| 你想问 | 默认方法 | 试试 |
-|---|---|---|
-| 事情能不能成 / 何时有结果 | 六爻 | `这个项目能成吗？` |
-| 该不该行动 / 往哪个方向 / 怎么推进 | 奇门 | `现在该不该签？` |
-| 哪天搬家 / 签约 / 开业 | 黄历 | `哪天搬家好？` |
-
-如果同时问“能不能成”和“该怎么推进”，技能会先让你选本次主问题；明确要求双法互证时才分别排盘。
-
-奇门普通问法**无需选择排盘方法**，默认使用时家奇门、转盘法、拆补定局。想指定口径时直接说：
-
-| 想用 | 试试 |
+| 目标 | 直接这样问 |
 |---|---|
-| 置闰定局 | `用置闰盘看现在` |
-| 洛书飞盘 | `用洛书飞盘看这件事` |
-| 十分钟刻家 | `用十分钟刻家看看` |
-| 十二分钟十分局 | `用十二分钟十分局看看` |
-| 金函玉镜 | `用金函玉镜看今天` |
+| 命理 | `算八字，1990-05-20 12:00 北京出生，男` |
+| 起名 | `宝宝起名，2024-06-10 广州出生，男，姓陈` |
+| 问卦 | `这个项目能成吗？什么时候有结果？` |
+| 择日 | `下个月哪天适合搬家？` |
+| 风水 | `我家风水怎么样？` |
 
-输出：方法依据 → 一句话判断 → 应期 / 方向 → 现实建议。
-六爻和奇门会保留起卦 / 起局收据、immutable snapshot、证据引用、冲突信号与 answer 审计；追问复用同一 snapshot，不重排。
+第一次使用命理时，建议提供出生日期、尽量精确的时间、出生城市和性别。信息不全时，Skill 会追问或进入考时流程。
 
-领域契约文档见下方「开发者 → 领域契约」。
+## 能力概览
 
-#### 风水
+| 领域 | 覆盖能力 |
+|---|---|
+| 命理 | 八字、紫微、大运流年、性格、婚姻、事业、财运、健康、学业、六亲、合盘 |
+| 起名 | 新生儿起名、成人改名、外国人中文名、自选名字评估 |
+| 问卦 | 六爻成败与应期、奇门方向与时机、黄历择日 |
+| 风水 | 八宅命卦与门主灶、玄空飞星、流年风水 |
 
-- **八宅**：`我的命卦是什么？` `大门/厨房/卧室怎么布局？`
-- **玄空**：`现在的元运我家旺不旺？` `2026年流年风水注意什么？`
+## 可信度与边界
 
-### 常见问题
+- 排盘由 Go 天文历算引擎完成，支持真太阳时、经纬度时区和节气计算。
+- 断语来自 799 条规则真值表，命中结果保留因子依据和经典出处。
+- 160 道命理师大赛真题用于独立评测；答案与评测过程隔离。
+- 出生信息只保留在当前会话；Skill 不索要真实姓名，不在对话之外存储数据。
+- 命理结论是传统文化视角的条件性解读，不构成医疗、法律、投资或重大人生决策建议。
 
-**不知道出生时辰怎么办？**
-提供 2-3 个候选时辰 + 3-5 件人生大事及年份，技能会逐盘核验反推最可能的时辰（附置信度）。若证据不足，会明确要求补充时辰范围或验证事件，不会自动代选默认时辰。
+## 常见问题
 
-**需要联网吗？**
-排盘计算通过 liki.hk 引擎完成，需要网络。不可达时技能会明确告知，不会退回"AI 凭感觉编"。
+### 不知道出生时辰怎么办？
 
-**我的出生数据会被存储吗？**
-不会。技能明确约定：不在对话之外存储出生信息、不索要真实姓名；排盘数据仅在你的对话上下文中使用。
+Skill 会追问，或使用真实事件进入考时流程。证据不足时明确标注，不会默认时辰。
 
-**结果该怎么理解？**
-每个结论附命理依据与经典出处，可自行检验。命理为传统文化视角，不构成医疗、法律、金融或重大人生决策依据。
+### 需要联网吗？
 
-**怎么更新？**
-技能启动时自动做版本检查，提示更新时重跑：`npx skills add ml8s/liki -y`。
+默认需要访问 JSON-RPC 引擎。高级用户可以自建 engine，并用 `LIKI_RPC_URL` 指向本地服务。
 
-**自建引擎怎么升级？**
-`2026.09.12.2` 起 Skill 与 engine RPC 契约一起发布。engine 低于该版本会 fail closed；请先更新 / 重启 liki-engine，再更新 Skill。
+### 出生数据会被存储吗？
 
-## 为什么可信
+不会。出生数据只在当前会话上下文中使用；不写入本地档案，也不提交到反馈。
 
-- **计算不靠 AI 编** — 八字/紫微排盘由 Go 天文历算引擎完成：真太阳时校正、夏令时、经纬度时区、VSOP87D 秒级节气。模型只做解读，不推算排盘数据。
-- **断语有出处** — 断语长表共 799 条，每条附经典依据列（《渊海子平》《子平真诠》《滴天髓》《三命通会》《紫微斗数全书》等）。
-- **双体系交叉验证** — 八字/紫微分侧计算，跨体系结论走显式合参表；冲突时列证裁决。
-- **流程可查** — 问卦链路保留起卦 / 起局收据、immutable snapshot、证据引用和 answer 审计；结论可回溯到具体某一步。
-- **独立评测** — 160 道命理师大赛真题（MingLi-Bench）测准确率；另有跨领域 skill-up smoke 测功能契约。
+### 怎么更新？
 
----
+按提示重新执行 `npx skills add ml8s/liki -y`。版本校验失败时不降级调用旧 RPC。
+
+## 文档
+
+| 文档 | 用途 |
+|---|---|
+| [用户指南](./docs/USER_GUIDE.md) | 完整使用说明、领域流程、FAQ 与输出边界 |
+| [Skill 包结构](./docs/SKILL_PACKAGE.md) | 统一 Skill 的目录、入口和打包契约 |
+| [README 规范](./docs/README_STYLE.md) | 中英文 README 的结构、标题和排版契约 |
+| [八字 / 紫微模型](./docs/BAZI_MODEL.md) | 排盘、因子、断语和查询边界 |
+| [问卦模型](./docs/DIVINATION_MODEL.md) | 六爻、奇门、黄历的 snapshot 与 answer 契约 |
+| [风水模型](./docs/FENGSHUI_MODEL.md) | 八宅、玄空、流年和冲突裁决 |
+| [起名模型](./docs/NAMING_MODEL.md) | 用神策略、字池、候选名和校验边界 |
+| [反馈模型](./docs/FEEDBACK_MODEL.md) | Agent feedback 的隐私和契约 |
+| [版本与发布](./docs/RELEASE_MODEL.md) | CalVer 运行时版本和 SemVer 发行版 |
 
 ## 开发者
+
+### 开发环境
+
+```bash
+make hooks         # 安装 git hooks
+make check         # 断语表、文档契约和版本一致性
+make test-all      # skills、engine 和全链路集成测试
+make build-archive # 打包 unified Liki skill
+```
 
 ### 架构
 
 ```text
 skills/liki/
-├── SKILL.md              ← 唯一 skill 入口：品牌、全局路由、安全与反馈
-├── VERSION               ← 唯一分发版本
-├── feedback.py           ← feedback sender / runtime governance
-├── feedback.schema.json  ← autonomous feedback-v1 contract
-├── bazi/                 ← 八字 + 紫微：ENTRY / TOOLS / app / domains / tools
-├── divination/           ← 六爻 + 奇门 + 黄历：ENTRY / TOOLS / app / domains / tools
-├── fengshui/             ← 八宅 + 玄空：ENTRY / RPC / app / domains
-└── naming/               ← 起名：ENTRY / RPC / app / domains
-repo root
-├── engine/     ← Go JSON-RPC 天文历算引擎（8 领域）
-├── tests/      ← 规则引擎功能测试 + 准确率基准（160 题）+ 跨领域功能 smoke
-└── scripts/    ← 构建 / 分发索引
+├── SKILL.md              # 唯一 skill 入口：路由、安全、反馈
+├── VERSION.txt           # 唯一分发版本
+├── FAQ.md                # 运行失败与恢复契约
+├── bazi/                 # 八字 + 紫微：ENTRY / TOOLS / app / domains / tools
+├── divination/           # 六爻 + 奇门 + 黄历：ENTRY / TOOLS / app / domains / tools
+├── fengshui/             # 八宅 + 玄空：ENTRY / RPC / app / domains
+└── naming/               # 起名：ENTRY / RPC / app / domains
 ```
 
-调用链：根 `SKILL.md` 路由到领域 `ENTRY.md` → 领域入口读取 app 卡。bazi / divination 通过 Python 工具层编排 RPC、快照、因子与断语；naming / fengshui 当前无 Python 工具层，按固定 discover scope 直接调用 RPC，再按领域知识和卡内模板输出。
-
-### 领域契约
-
-- [docs/SKILL_PACKAGE.md](./docs/SKILL_PACKAGE.md) — 统一 Skill 包结构、入口与打包契约。
-- [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md) — CalVer 运行时版本与 SemVer 发行版模型。
-- [bazi/TOOLS.md](./skills/liki/bazi/TOOLS.md) / [divination/TOOLS.md](./skills/liki/divination/TOOLS.md) — Python 工具完整 stdin 报文。
-- [naming/RPC.md](./skills/liki/naming/RPC.md) / [fengshui/RPC.md](./skills/liki/fengshui/RPC.md) — 直接 JSON-RPC 完整报文。
-
-- [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — 问卦领域模型与分层：casting、snapshot、evidence、answer 与审计边界。
-- [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — 八字领域模型（八紫双盘）：八字、紫微、原子事实、因子条件、断言与查询边界。
-- [docs/FENGSHUI_MODEL.md](./docs/FENGSHUI_MODEL.md) — 风水领域模型与分层：八宅命卦、门主灶、玄空飞星、元运与流年边界。
-- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — 起名领域模型与分层：八字用神策略、字池、候选名、外国人中文姓候选、校验与出处边界。
-- [docs/FEEDBACK_MODEL.md](./docs/FEEDBACK_MODEL.md) — 反馈契约与分层：`feedback-v1` 诊断组、问题类型、隐私边界与后端兼容策略。
-
-完整因子清单以 `skills/liki/bazi/tools/factors/*.csv` 为唯一事实源。
+仓库根的 `engine/`、`tests/` 和 `scripts/` 分别承载引擎、评测和构建脚本；可安装包只来自 `skills/liki`。调用链固定为：`SKILL.md` → `ENTRY.md` → app 卡 → Python 工具或固定 RPC。bazi / divination 通过 Python 工具层编排 RPC、snapshot、因子和断语；naming / fengshui 没有本地 Python 工具层，只使用固定 JSON-RPC 报文。
 
 ### 引擎镜像
 
-镜像随 GitHub Release 自动发布（CI 全量测试 → 构建推送 + 冒烟）：`docker pull ghcr.io/ml8s/liki-engine:latest`。源码构建：`cd engine && docker compose -f deploy/docker-compose.yml up -d --build`。
+引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:latest`。源码构建使用 `engine/deploy/docker-compose.yml`。
 
-### 测试命令
+### 领域契约
+
+| 契约 | 用途 |
+|---|---|
+| [bazi TOOLS](./skills/liki/bazi/TOOLS.md) | 六个 Python 工具的完整 stdin 报文 |
+| [divination TOOLS](./skills/liki/divination/TOOLS.md) | 六爻、奇门、黄历工具报文 |
+| [naming RPC](./skills/liki/naming/RPC.md) | 起名与八字辅助 RPC 报文 |
+| [fengshui RPC](./skills/liki/fengshui/RPC.md) | 八宅、玄空和流年 RPC 报文 |
+
+### 测试与发布
 
 ```bash
-make test-functional           # 规则引擎功能测试（因子/断语/场景/冲突）
-make golden-engine             # 引擎领域 golden（八字/紫微/六爻/奇门/黄历/八宅/玄空）
-make benchmark-mingli160       # 160 题准确率基准（模型）
-make skillup-smoke-validate    # 跨领域功能契约校验（无模型）
-make skillup-smoke             # 跨领域功能 smoke（模型）
+make test-functional
+make golden-engine
+make test-integration
+make lint-readme
 ```
 
-### 快速开始
-
-```bash
-make hooks        # 安装 git hooks（首次）
-make test-all     # 全量：skills 单测 + engine（lint/vet/race/集成/冒烟）+ 全链集成
-make check        # 断语表 schema + 文档契约 + 版本一致性
-make build-archive # 打包 unified Liki skill + 生成分发索引
-```
+正式发布使用 SemVer tag，运行兼容版本使用 CalVer。规则见 [Release model](./docs/RELEASE_MODEL.md)。
 
 ### 设计原则
 
-- 分层单一职责：根=统一入口、ENTRY=领域入口、app=流程、domains=知识、tools=工具
-- 单一数据来源：LLM 工具契约以各领域 `tools/skill-tools.json` 为准、因子与断语以长表 CSV 为准
-- 双体系交叉：八字/紫微分侧计算，common 表显式合参，冲突分层列证
-- 双版本模型：CalVer 作为运行时 / 兼容性版本；正式发行版使用 SemVer tag（如 `v5.0.0`）。详见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)
-- 评测驱动：独立判分、答案隔离、数据公开
+- 分层单一职责：根入口、领域入口、App 卡、领域知识和工具层不互相替代。
+- 单一事实源：工具契约来自 `skill-tools.json`，因子和断语来自 CSV 长表。
+- 双体系显式合参：八字和紫微分侧计算，冲突分层列证。
+- 评测驱动：golden、functional、integration、skill-up smoke 和 160 题基准分层运行。
 
-贡献指南见 [CONTRIBUTING.md](./CONTRIBUTING.md)，版本历史见 [CHANGELOG.md](./CHANGELOG.md)。设计参考了 [mingli-skills](https://github.com/weizeW/mingli-skills)、[bazi-skill](https://github.com/jinchenma94/bazi-skill)、[iztro](https://github.com/SylarLong/iztro)、[MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench) 等开源项目。
+## 贡献
 
+阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)，提交 PR 前同步更新 `CHANGELOG.md` 和版本契约。版本历史见 [CHANGELOG.md](./CHANGELOG.md)。
 
-## 协议与声明
+> 懂命理，用 Liki。
 
-MIT。命理结论为传统文化视角，仅供参考，不构成医疗诊断、法律建议、金融投资预测或重大人生决策；请保持理性。
+## 许可与声明
+
+MIT。命理结论为传统文化视角，仅供参考；不构成医疗诊断、法律建议、金融投资预测或重大人生决策。

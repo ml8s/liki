@@ -1,0 +1,23 @@
+{
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD026": {
+      "punctuation": ".,;:!。，；：！"
+    },
+    "MD024": {
+      "siblings_only": true
+    },
+    "MD033": {
+      "allowed_elements": ["h1", "p", "br", "a", "img"]
+    },
+    "MD041": false
+  },
+  "globs": [
+    "README.md",
+    "README.en.md",
+    "docs/README_STYLE.md",
+    "docs/USER_GUIDE.md",
+    "docs/USER_GUIDE.en.md"
+  ]
+}

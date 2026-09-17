@@ -7,7 +7,7 @@ Liki 对外只有一个可安装 skill：`liki`。它是产品入口，不是四
 ```text
 skills/liki/
 ├── SKILL.md              # 唯一 skill 入口
-├── VERSION               # 唯一分发版本
+├── VERSION.txt           # 唯一分发版本
 ├── FAQ.md                # 唯一运行失败 / 反模式恢复入口
 ├── requirements.txt      # 唯一 Python 依赖清单
 ├── feedback.py           # 唯一 feedback sender
@@ -39,14 +39,14 @@ skills/liki/
 3. 每个领域必须有 `ENTRY.md`。
 4. 所有文档路径从 `skills/liki` 根开始书写。
 5. 有 `tools/` 的领域，LLM 只能通过 Python 工具层调用 RPC；无 `tools/` 的领域，LLM 只能使用 `ENTRY.md` / `RPC.md` 固定 discover scope 内声明的 RPC。
-6. `VERSION`、`FAQ.md`、`requirements.txt`、`feedback.py`、`feedback.schema.json` 不允许在领域内重复。
+6. `VERSION.txt`、`FAQ.md`、`requirements.txt`、`feedback.py`、`feedback.schema.json` 不允许在领域内重复。
 7. App 卡（`app/README.md` 除外）必须包含 `## 流程`、`## 边界条件`、`## 输出模板`；不得回退为 emoji 变体、`边界` 或带括号的专用变体。
 
 ## Release model
 
 Liki uses dual versions:
 
-- Runtime / compatibility contract: CalVer in `VERSION`.
+- Runtime / compatibility contract: CalVer in `VERSION.txt`.
 - Product release identity: SemVer Git tag, for example `v5.0.0`.
 
 Do not merge these into one value. See [RELEASE_MODEL.md](./RELEASE_MODEL.md).

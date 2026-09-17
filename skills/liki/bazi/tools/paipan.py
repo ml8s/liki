@@ -29,7 +29,7 @@ TIMEOUT = 30
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
 SHICHEN_BOUNDARY_START_HOURS = (23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
-VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION"
+VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
 DISCOVER_SCOPES = ("bazi", "ziwei", "city", "tianwen", "time")
 REQUIRED_METHODS = (
     "bazi.chart", "bazi.fullchart", "bazi.bond", "bazi.liunian",
@@ -95,9 +95,9 @@ def skill_version() -> str:
     try:
         version = VERSION_PATH.read_text(encoding="utf-8").strip()
     except OSError as error:
-        raise RPCError(f"skill VERSION is unavailable: {error}") from error
+        raise RPCError(f"skill VERSION.txt is unavailable: {error}") from error
     if not version:
-        raise RPCError("skill VERSION is empty")
+        raise RPCError("skill VERSION.txt is empty")
     _version_key(version)
     return version
 
@@ -114,7 +114,7 @@ def ensure_engine_compatible() -> None:
     if _version_key(version) < _version_key(required):
         raise RPCError(
             f"engine version {version} is incompatible; "
-            f"skill VERSION requires engine >= {required}"
+            f"skill VERSION.txt requires engine >= {required}"
         )
 
 

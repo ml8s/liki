@@ -13,12 +13,13 @@
 1. Fork 本仓库
 2. 创建一个功能分支：`git checkout -b feat/my-change`
 3. 安装 git hooks（一次）：`make hooks`
-4. 升版本用根 Makefile 统一写入当日日期和序号（`skills/liki/VERSION` + engine VERSION 同步；各领域 `skill-tools.json` 会同步 `info.version`）：
+4. 升版本用根 Makefile 统一写入当日日期和序号（`skills/liki/VERSION.txt` + engine VERSION 同步；各领域 `skill-tools.json` 会同步 `info.version`）：
    ```bash
    make version
    ```
 5. 同步更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
-6. 提交 PR，描述清楚改了什么、为什么
+6. README / 用户指南改动需遵循 [README_STYLE.md](./docs/README_STYLE.md)，并运行 `make lint-readme`
+7. 提交 PR，描述清楚改了什么、为什么
 
 ## 代码规范
 
@@ -27,7 +28,7 @@
   ```bash
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
   ```
-- 每次升版本必须同步更新：`VERSION`（make 统一 bump）+ `CHANGELOG.md`；需要生成分发包时运行 `make build-archive`
+- 每次升版本必须同步更新：`VERSION.txt`（make 统一 bump）+ `CHANGELOG.md`；需要生成分发包时运行 `make build-archive`
 
 ## 设计原则（为什么这样设计）
 

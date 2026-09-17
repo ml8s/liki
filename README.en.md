@@ -1,242 +1,155 @@
+<h1 align="center">Liki</h1>
+
 <p align="center">
-  <img alt="Liki" src="https://img.shields.io/badge/Liki-Skill_for_Chinese_Metaphysics-6d5acf?style=for-the-badge&logo=openai&logoColor=white&labelColor=30305c">
+  A professional Skill for Chinese Metaphysics<br>
+  懂命理，用 Liki。 For Chinese Metaphysics, use Liki.<br>
+  Charts are calculated by a Go engine; judgments are explained from rule tables with traceable sources.<br>
+  Bazi · Ziwei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
 </p>
 
 <p align="center">
-  <strong>Liki — Professional Skill for Chinese Metaphysics</strong><br>
-  <strong>懂命理，用 Liki</strong><br>
-  For Chinese Metaphysics, use Liki.<br>
-  Built to professional standards: astronomical-engine charting, classically-sourced judgments, verifiable conclusions<br>
-  BaZi · ZiWei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
+  <a href="./README.md"><img alt="中文" src="https://img.shields.io/badge/中文-4a9e6b?style=flat-square"></a>
+  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ml8s/liki/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat-square"></a>
+  <a href="https://liki.hk"><img alt="website" src="https://img.shields.io/badge/liki.hk-6d5acf?style=flat-square"></a>
 </p>
 
-<p align="center">
-  <code>npx skills add ml8s/liki</code>
-</p>
-
-<p align="center">
-  <a href="https://github.com/ml8s/liki"><img src="https://img.shields.io/badge/GitHub-ml8s/liki-4a9e6b?style=flat&logo=github&logoColor=white&labelColor=30305c"></a>
-  <a href="https://liki.hk"><img src="https://img.shields.io/badge/liki.hk-website-6d5acf?style=flat&logo=safari&logoColor=white&labelColor=30305c"></a>
-  <a href="https://github.com/ml8s/liki/actions/workflows/ci.yml"><img src="https://img.shields.io/badge/CI-passing-4a9e6b?style=flat&logo=githubactions&logoColor=white&labelColor=30305c"></a>
-  <a href="./README.md"><img src="https://img.shields.io/badge/中文-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-4a9e6b?style=flat&logo=readme&logoColor=white&labelColor=30305c"></a>
-</p>
-
----
-
-## In 30 Seconds
-
-After installation, your AI assistant gains one professional Skill for Chinese metaphysics:
-
-| Domain | What you can ask | Try this |
-|-------|------------------|----------|
-| Destiny (BaZi + ZiWei) | Marriage, career, wealth, health, education, personality, family, compatibility, full life report | `Read my BaZi, born 1990-05-20 12:00 in Beijing, male` |
-| Naming | Baby naming, renaming, Chinese names for English speakers, name evaluation | `Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen` |
-| Divination | Liuyao (outcome & timing), QiMen (direction & decision), auspicious date selection | `Will this work out? When will I see results?` |
-| Feng Shui | Bazhai chart & layout, Xuankong flying stars, annual feng shui | `How is the feng shui of my home?` |
-
-**What professional standards mean here:**
-
-- Charts are computed by an astronomical engine (true solar time, second-level solar terms) — the AI never invents numbers
-- Judgments come from 799 truth-table rules, each citing classical sources
-- Independently evaluated on 160 competition questions with answer isolation
-
-**懂命理，用 Liki。**
-
-## Installation
+## Install
 
 ```bash
 npx skills add ml8s/liki
 ```
 
-**After installing, start like this:**
+After installation, ask questions directly in an AI client that supports Agent Skills. The Skill checks its version at startup. When prompted, update with:
 
-```
-Give me a full life reading, born 1990-05-20 12:00 in Beijing, male
-Are we compatible? I was born 1992-03-15, she on 1994-08-20
-How will my career and wealth go in 2026?
+```bash
+npx skills add ml8s/liki -y
 ```
 
-## User Guide
+## Quick start
 
-### Getting Started
-
-**Prepare**: birth date (Gregorian), birth time (to the minute if possible), birth city, gender.
-
-**Just send it** — birth info and your question in one message:
-
-> Help me look at marriage, female, born 1992-03-15 14:30 in Guangzhou
-
-Missing details are fine: if you only know "morning" or don't know the time, the skill will follow up or start the calibration flow (see FAQ).
-
-### How to Talk to the Skill
-
-The skill works like a practitioner — **one topic at a time**, with structured analysis you can drill into:
-
-| You want to… | Say |
-|------|-------|
-| Ask why | `Why?` `What's the basis?` |
-| Ask about a year | `What about 2026?` `Next three years?` |
-| Switch topic | `What about wealth?` `Health?` (same chart, no re-compute) |
-| Compatibility | `Are we compatible?` (provide both birth infos) |
-| Full report | `Give me a full life reading` |
-
-### Detailed Guide by Domain
-
-#### Destiny (BaZi + ZiWei dual-chart)
-
-Ask by life domain — the skill automatically charts, queries judgment tables, and gives conclusion + basis + timing:
-
-- **Marriage**: When to marry? Will we divorce? What's my partner like?
-- **Career**: Which industry? Startup or employment? Which years shift?
-- **Wealth**: Wealth source? Which years gain, which lose?
-- **Health**: Which organ systems? Which years to watch?
-- **Education**: How far? Exam luck?
-- **Personality / Family**: What's my personality? Parents/children affinity?
-
-**Output format**: conclusion first, basis attached. Every conclusion traces to specific steps and classical sources.
-
-#### Naming
-
-> Name my baby, born 2024-06-10 in Guangzhou, male, surname Chen
-
-Flow: preference and taboo intake → BaZi yong-shen → five-element supplement → candidate filtering → composition and evaluation → candidate reports (strengths, trade-offs, rejection reasons, and source evidence).
-
-Also supports: renaming, Chinese names for English speakers, name evaluation.
-
-#### Divination
-
-The skill chooses one method by user goal; it does **not** run dual divination by default:
-
-| Goal | Default method | Try |
-|---|---|---|
-| Event outcome / timing | Liuyao | `Will this project succeed?` |
-| Action, direction, strategy, timing | QiMen | `Should I sign now?` |
-| Date selection | HuangLi | `Best day to move / sign / open?` |
-
-If a request mixes outcome and strategy, the skill asks you to choose the primary question first. Explicit dual-method cross-check remains available on request.
-
-Ordinary Qimen questions require **no chart-method selection**; the skill defaults to hour-scope Qimen with the rotating plate and chai-bu bureau. To choose an explicit method:
-
-| Want | Try |
+| Goal | Ask |
 |---|---|
-| Zhirun bureau | `Use the zhirun chart for now` |
-| Luo Shu flying plate | `Use the Luo Shu flying plate for this matter` |
-| Ten-minute Kejia | `Use the ten-minute Kejia chart` |
-| Twelve-minute ten-division | `Use the twelve-minute ten-division chart` |
-| Golden Mirror | `Use Golden Mirror for today` |
+| Destiny | `Calculate Bazi for a male born 1990-05-20 12:00 in Beijing.` |
+| Naming | `Name a boy born 2024-06-10 in Guangzhou; family name Chen.` |
+| Divination | `Can this project succeed? When will I know?` |
+| Date selection | `Which day next month is good for moving?` |
+| Feng shui | `How is my home's feng shui?` |
 
-Output: method basis → one-line verdict → timing / direction → practical advice.
-Liuyao and Qimen retain casting/charter receipts, snapshots, evidence references, conflict signals, audit results, and session integrity summaries. Follow-ups reuse the original chart.
+For destiny readings, provide the birth date, exact time when possible, birth city, and gender. If data is incomplete, the Skill asks follow-up questions or enters time calibration.
 
-Domain contract documents are listed under **For Developers → Domain contracts**.
+## What you get
 
-#### Feng Shui
+| Domain | Coverage |
+|---|---|
+| Destiny | Bazi, Ziwei, luck periods, annual readings, personality, marriage, career, wealth, health, study, family, and compatibility |
+| Naming | Baby naming, adult renaming, Chinese names for foreigners, and self-selected name review |
+| Divination | Liuyao outcomes and timing, QiMen direction and strategy, Huangli date selection |
+| Feng shui | Bazhai ming gua and door / master / stove, Xuankong flying stars, annual readings |
 
-- **Bazhai**: `What's my ming gua?` `How to arrange door/kitchen/bedroom?`
-- **Xuankong**: `Is my home favorable this period?` `2026 annual cautions?`
+## Trust and boundaries
 
-### FAQ
+- Charts are calculated by the Go astronomical engine, including true solar time, longitude / timezone, and solar terms.
+- Judgments come from 799 assertion rules and preserve factor evidence and classical sources.
+- 160 professional competition questions provide independent accuracy evaluation with isolated answers.
+- Birth data remains in the current conversation; the Skill does not ask for real names or store data outside the session.
+- Conclusions are conditional interpretations from a traditional cultural perspective. They are not medical, legal, investment, or major life advice.
 
-**Don't know the exact birth hour?**
-Offer 2-3 candidate hours + 3-5 life events with years; the skill cross-checks and infers the most likely hour (with confidence). Babies/teens skip calibration.
+## FAQ
 
-**Does it need internet?**
-Chart computation goes through the liki.hk engine. If unreachable, the skill says so explicitly — never falls back to "AI guesswork".
+### What if I don't know the exact birth hour?
 
-**Is my birth data stored?**
-No. The skill explicitly commits: no birth-info storage outside your conversation, no real names requested; chart data lives only in your chat context.
+The Skill asks follow-up questions or uses real events for calibration. Insufficient evidence is labeled explicitly; the hour is never silently defaulted.
 
-**How should I interpret results?**
-Every conclusion carries its basis and classical citation — verify it yourself. Traditional cultural perspective, not medical/legal/financial advice.
+### Does it need internet?
 
-**How do I update?**
-The skill self-checks its version on startup; when prompted, re-run: `npx skills add ml8s/liki -y`.
+By default, yes. The JSON-RPC engine performs calendar and chart calculations. Advanced users can run a private engine and set `LIKI_RPC_URL`.
 
-**Self-hosting an engine?**
-Starting with `2026.09.12.2`, Skill and engine RPC contracts ship together. Skills fail closed when the engine is older; update and restart liki-engine before updating the Skill.
+### Is my birth data stored?
 
-## Why It's Trustworthy
+No. Birth data remains in the current conversation context. It is not written to a local profile or submitted through feedback.
 
-- **Engine-computed, not AI-invented** — charts come from a Go astronomical engine: true solar time, DST, longitude-based timezone, VSOP87D second-level solar terms. The model interprets; it never computes charts.
-- **Sourced judgments** — 47 logical rule groups with 799 assertions, each with a classical-citation column.
-- **Dual-system cross-check** — BaZi and ZiWei are evaluated separately, with an explicit synthesis layer; conflicts are resolved with explicit evidence.
-- **Auditable process** — divination flows retain casting/charter receipts, snapshots, evidence references, report audits, and session integrity summaries; conclusions trace back to specific steps.
-- **Independent evaluation** — 160 competition questions (MingLi-Bench) for accuracy, plus cross-domain skill-up smoke tests for behavior contracts.
+### How do I update?
 
----
+Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead of calling incompatible old RPCs.
 
-## For Developers
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
+| [Skill package](./docs/SKILL_PACKAGE.md) | Unified skill layout, entries, and archive contract |
+| [README style](./docs/README_STYLE.md) | Structure, heading, and formatting contract for both READMEs |
+| [Bazi model](./docs/BAZI_MODEL.md) | Four Pillars and Ziwei facts, factors, assertions, and query boundaries |
+| [Divination model](./docs/DIVINATION_MODEL.md) | Liuyao, QiMen, and Huangli snapshot and answer contracts |
+| [Feng shui model](./docs/FENGSHUI_MODEL.md) | Bazhai, Xuankong, annual readings, and conflict adjudication |
+| [Naming model](./docs/NAMING_MODEL.md) | Yongshen strategy, character pools, candidates, and validation |
+| [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and contract |
+| [Release model](./docs/RELEASE_MODEL.md) | CalVer runtime versions and SemVer releases |
+
+## For developers
+
+### Developer setup
+
+```bash
+make hooks         # install git hooks
+make check         # assertion schema, document contracts, and version consistency
+make test-all      # skills, engine, and end-to-end integration tests
+make build-archive # pack the unified Liki skill
+```
 
 ### Architecture
 
 ```text
 skills/liki/
-├── SKILL.md              ← single skill entry: routing, safety, feedback
-├── VERSION               ← single distribution version
-├── feedback.py           ← feedback sender / runtime governance
-├── feedback.schema.json  ← autonomous feedback-v1 contract
-├── bazi/                 ← BaZi + ZiWei: ENTRY / TOOLS / app / domains / tools
-├── divination/           ← Liuyao + QiMen + HuangLi: ENTRY / TOOLS / app / domains / tools
-├── fengshui/             ← Bazhai + Xuankong: ENTRY / RPC / app / domains
-└── naming/               ← Chinese naming: ENTRY / RPC / app / domains
-repo root
-├── engine/     ← Go JSON-RPC astronomical engine (8 domains)
-├── tests/      ← rule-engine functional tests + accuracy benchmark (160 grouped cases) + cross-domain behavior smoke
-└── scripts/    ← build / distribution index
+├── SKILL.md              # single skill entry: routing, safety, feedback
+├── VERSION.txt           # single distribution version
+├── FAQ.md                # runtime failure and recovery contract
+├── bazi/                 # Bazi + Ziwei: ENTRY / TOOLS / app / domains / tools
+├── divination/           # Liuyao + QiMen + Huangli: ENTRY / TOOLS / app / domains / tools
+├── fengshui/             # Bazhai + Xuankong: ENTRY / RPC / app / domains
+└── naming/               # naming: ENTRY / RPC / app / domains
 ```
 
-Call chain: root `SKILL.md` routes to a domain `ENTRY.md` → the domain entry selects an app card. bazi / divination use domain-local Python tools to orchestrate RPC, snapshots, factors, and assertions; naming / fengshui currently have no Python tool layer and call RPC directly from the fixed discover scope, then shape the response with domain knowledge and card templates.
+The repository root keeps `engine/`, `tests/`, and `scripts/` for the engine, evaluations, and build scripts; the installable package comes only from `skills/liki`. The call chain is fixed: `SKILL.md` → `ENTRY.md` → app card → Python tools or fixed RPC. Destiny and divination use domain-local Python tools to orchestrate RPC, snapshots, factors, and assertions. Naming and feng shui have no local Python tool layer and use fixed JSON-RPC payloads.
+
+### Engine image
+
+The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:latest`. Build from source with `engine/deploy/docker-compose.yml`.
 
 ### Domain contracts
 
-- [docs/SKILL_PACKAGE.md](./docs/SKILL_PACKAGE.md) — unified skill package layout, entry, and archive contract.
-- [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md) — CalVer runtime versions and SemVer release model.
-- [bazi/TOOLS.md](./skills/liki/bazi/TOOLS.md) / [divination/TOOLS.md](./skills/liki/divination/TOOLS.md) — complete Python tool stdin payloads.
-- [naming/RPC.md](./skills/liki/naming/RPC.md) / [fengshui/RPC.md](./skills/liki/fengshui/RPC.md) — complete direct JSON-RPC payloads.
+| Contract | Purpose |
+|---|---|
+| [Bazi tools](./skills/liki/bazi/TOOLS.md) | Complete stdin payloads for six Python tools |
+| [Divination tools](./skills/liki/divination/TOOLS.md) | Liuyao, QiMen, and Huangli tool payloads |
+| [Naming RPC](./skills/liki/naming/RPC.md) | Naming and Bazi helper RPC payloads |
+| [Feng shui RPC](./skills/liki/fengshui/RPC.md) | Bazhai, Xuankong, and annual RPC payloads |
 
-- [docs/DIVINATION_MODEL.md](./docs/DIVINATION_MODEL.md) — divination domain model and layers: casting, snapshot, evidence, answer, and audit boundaries.
-- [docs/BAZI_MODEL.md](./docs/BAZI_MODEL.md) — BaZi domain model covering Four Pillars and Zi Wei: engine atomic facts, factor predicates, assertions, and query boundaries.
-- [docs/FENGSHUI_MODEL.md](./docs/FENGSHUI_MODEL.md) — Feng Shui domain model and layers: Bazhai ming gua, door/master/stove, Xuankong flying stars, periods, and annual boundaries.
-- [docs/NAMING_MODEL.md](./docs/NAMING_MODEL.md) — naming domain model and layers: BaZi yongshen strategy, character pools, candidate names, foreign surname candidates, evaluation, and source boundaries.
-- [docs/FEEDBACK_MODEL.md](./docs/FEEDBACK_MODEL.md) — feedback contract and layers: `feedback-v1` diagnostic groups, issue types, privacy boundaries, and backend compatibility.
-
-The complete factor inventory is sourced solely from `skills/liki/bazi/tools/factors/*.csv`.
-
-### Engine Image
-
-Images are auto-published on GitHub Releases (CI full tests → build + push + smoke test): `docker pull ghcr.io/ml8s/liki-engine:latest`. Build from source: `cd engine && docker compose -f deploy/docker-compose.yml up -d --build`.
-
-### Test Commands
+### Tests and release
 
 ```bash
-make test-functional           # rule-engine functional tests (factors/assertions/scenarios/conflicts)
-make golden-engine             # engine domain goldens (Bazi/Ziwei/Liuyao/Qimen/Huangli/Bazhai/Xuankong)
-make benchmark-mingli160       # 160-question accuracy benchmark (model required)
-make skillup-smoke-validate    # validate cross-domain behavior contracts (no model)
-make skillup-smoke             # run cross-domain behavior smoke (model required)
+make test-functional
+make golden-engine
+make test-integration
+make lint-readme
 ```
 
-### Quick Start
+Formal releases use SemVer tags; runtime compatibility uses CalVer. See [Release model](./docs/RELEASE_MODEL.md).
 
-```bash
-make hooks         # install git hooks (once)
-make test-all      # full: skills unit + engine (lint/vet/race/integration/smoke) + e2e
-make check         # table schema + doc contracts + version consistency
-make build-archive # pack the unified Liki skill + generate the distribution index/archive digest
-```
+### Design principles
 
-### Design Principles
+- Single responsibility: root entry, domain entry, app cards, domain knowledge, and tool layers do not replace each other.
+- Single source of truth: tool contracts come from `skill-tools.json`; factors and assertions come from CSV tables.
+- Explicit dual-system review: Bazi and Ziwei are calculated separately and conflicts are listed by evidence layer.
+- Evaluation-driven: golden, functional, integration, skill-up smoke, and the 160-question benchmark run in separate layers.
 
-- Single responsibility per layer: root=rules, app=process, domains=knowledge, tools=tools
-- Single data source: LLM tool contracts from `tools/skill-tools.json`; judgments from CSV truth tables
-- Dual-system: BaZi leads, ZiWei reviews, conflicts explicit
-- Dual version model: CalVer is the runtime / compatibility version; formal releases use SemVer tags (for example `v5.0.0`). See [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)
-- Evaluation-driven: independent grading, answer isolation, public data
+## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) and [CHANGELOG.md](./CHANGELOG.md). Design references include [mingli-skills](https://github.com/weizeW/mingli-skills), [bazi-skill](https://github.com/jinchenma94/bazi-skill), [iztro](https://github.com/SylarLong/iztro), and [MingLi-Bench](https://github.com/DestinyLinker/MingLi-Bench).
+Read [CONTRIBUTING.md](./CONTRIBUTING.md). Update `CHANGELOG.md` and version contracts before submitting a PR. Release history is available in [CHANGELOG.md](./CHANGELOG.md).
 
+> 懂命理，用 Liki。
 
-## License & Disclaimer
+## License and disclaimer
 
-MIT. Conclusions are from a traditional cultural perspective, for research and reference only — they do **not** constitute medical diagnosis, legal advice, financial forecasts, or major life decisions. Please stay rational and proactive.
+MIT. Conclusions are traditional cultural interpretations for reference only. They are not medical, legal, investment, or major life advice.

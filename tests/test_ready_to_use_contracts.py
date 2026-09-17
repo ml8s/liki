@@ -197,7 +197,7 @@ def test_ambiguous_tool_triggers_are_absent():
 
 def test_root_has_exact_version_and_feedback_commands():
     text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
-    assert "curl -fsS https://liki.hk/skills/liki/VERSION" in text
+    assert "curl -fsS https://liki.hk/skills/liki/VERSION.txt" in text
     assert "按点号整数逐段比较" in text
     assert "python3 feedback.py --payload-file" in text
     assert '"schema_version": "feedback-v1"' in text

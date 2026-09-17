@@ -31,7 +31,8 @@ def test_skill_has_exactly_one_entry_and_four_domain_entries():
 
 
 def test_shared_runtime_files_are_not_duplicated():
-    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("VERSION")] == [Path("VERSION")]
+    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("VERSION.txt")] == [Path("VERSION.txt")]
+    assert not list(SKILL_ROOT.rglob("VERSION"))
     assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.py")] == [Path("feedback.py")]
     assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.schema.json")] == [Path("feedback.schema.json")]
 
@@ -61,7 +62,6 @@ def test_app_cards_use_standard_contract_sections():
     assert len(cards) == 20
     for path in cards:
         lines = {line.strip() for line in path.read_text(encoding="utf-8").splitlines()}
-        assert not (required & forbidden)
         assert required <= lines, (path, required - lines)
         assert not (forbidden & lines), (path, forbidden & lines)
 

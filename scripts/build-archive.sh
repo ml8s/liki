@@ -15,10 +15,18 @@ if [ ! -f "$SKILL_DIR/SKILL.md" ]; then
     echo "[build-archive] error: $SKILL_DIR/SKILL.md not found" >&2
     exit 1
 fi
+if [ -e "$SKILL_DIR/VERSION" ]; then
+    echo "[build-archive] error: stale $SKILL_DIR/VERSION found; use VERSION.txt" >&2
+    exit 1
+fi
+if [ ! -f "$SKILL_DIR/VERSION.txt" ]; then
+    echo "[build-archive] error: $SKILL_DIR/VERSION.txt not found" >&2
+    exit 1
+fi
 
 # Every domain manifest stays domain-local, but its distributed version is
-# injected from the single root VERSION file.
-VERSION="$(tr -d '\r\n' < "$SKILL_DIR/VERSION")"
+# injected from the single skill distribution VERSION.txt file.
+VERSION="$(tr -d '\r\n' < "$SKILL_DIR/VERSION.txt")"
 find "$SKILL_DIR" -mindepth 3 -maxdepth 3 -type f -name skill-tools.json -print0 |
 while IFS= read -r -d '' manifest; do
     python3 - "$manifest" "$VERSION" <<'PYEOF'
@@ -54,6 +62,15 @@ tar czf "$ARCHIVE" \
 
 DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
 echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
+
+if tar -tzf "$ARCHIVE" | grep -q '^VERSION$'; then
+    echo "[build-archive] error: archive contains unsupported extensionless VERSION" >&2
+    exit 1
+fi
+if ! tar -tzf "$ARCHIVE" | grep -q '^VERSION\.txt$'; then
+    echo "[build-archive] error: archive missing VERSION.txt" >&2
+    exit 1
+fi
 
 INDEX="$DIST_DIR/index.json"
 python3 - "$ARCHIVE" "$SKILL_DIR" "$SKILL_NAME" "$DESC" <<'PYEOF'

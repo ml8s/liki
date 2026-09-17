@@ -10,7 +10,7 @@ from pathlib import Path
 
 TIMEOUT = 30
 RETRYABLE_HTTP_CODES = {408, 429}
-VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION"
+VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
 DISCOVER_SCOPES = ("liuyao", "qimen", "huangli", "city", "tianwen", "time")
 REQUIRED_METHODS = (
     "liuyao.qigua", "liuyao.chart", "qimen.chart", "huangli.days",
@@ -120,9 +120,9 @@ def skill_version() -> str:
     try:
         version = VERSION_PATH.read_text(encoding="utf-8").strip()
     except OSError as error:
-        raise RPCError(f"skill VERSION is unavailable: {error}") from error
+        raise RPCError(f"skill VERSION.txt is unavailable: {error}") from error
     if not version:
-        raise RPCError("skill VERSION is empty")
+        raise RPCError("skill VERSION.txt is empty")
     _version_key(version)
     return version
 
@@ -138,5 +138,5 @@ def ensure_engine_compatible() -> None:
     required = required_engine_version()
     if _version_key(version) < _version_key(required):
         raise RPCError(
-            f"engine version {version} is incompatible; skill VERSION requires engine >= {required}"
+            f"engine version {version} is incompatible; skill VERSION.txt requires engine >= {required}"
         )

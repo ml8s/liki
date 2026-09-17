@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026.09.17.2] — README entry docs and package-safe VERSION.txt
+
+### Breaking changes
+
+- Skill 分发版本文件从 `VERSION` 改为 `VERSION.txt`；本地启动检查、远程版本 URL、打包器和部署同步全部切换到新文件名。
+- 无后缀 `VERSION` 不再进入 Skill 包；打包器检测到旧文件时 fail closed。
+
+### Changes
+
+- README 重构为快速入口，完整使用说明拆分到中英文 User Guide；新增 README Style Guide 固化结构和排版契约。
+- 新增 `markdownlint-cli2` 与 README / User Guide 契约测试，锁定唯一 H1、固定 H2、标题层级、伪标题、HTML 边界和本地链接。
+- `make pre-push` 纳入 README lint，与 CI 门控对齐。
+- `make version` 同步 projection contract 版本，避免 bump 后 domain contract 漂移。
+- 用户指南补回奇门高级口径、考时候选与证据数量、snapshot 追问复用等关键信息。
+
 ## [2026.09.17.1] — skill markdown contracts and runtime recovery
 
 ### Changes

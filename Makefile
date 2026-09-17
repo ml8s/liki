@@ -1,9 +1,10 @@
 # liki monorepo Makefile — skills（Python）+ engine（Go）双栈
 #
-# 版本策略：根 Makefile 统一写入 unified skill VERSION 与 engine VERSION
+# 版本策略：根 Makefile 统一写入 unified skill VERSION.txt 与 engine VERSION
 
 # ── 统一版本（skill 1 份 + engine 1 份，同步 bump）──
-VERSION_FILES := skills/liki/VERSION engine/cmd/liki/VERSION
+VERSION_FILES := skills/liki/VERSION.txt engine/cmd/liki/VERSION
+VERSION_CONTRACTS := skills/liki/bazi/tools/natal_projection_contract.json skills/liki/divination/tools/qimen_projection_contract.json
 
 version: ## 写入今日日期（CalVer）
 	@BASE=$$(TZ=Asia/Shanghai date +%Y.%m.%d); SERIAL=0; FOUND=0; \
@@ -16,6 +17,9 @@ version: ## 写入今日日期（CalVer）
 	if [ "$$FOUND" -eq 1 ]; then SERIAL=$$((SERIAL + 1)); else SERIAL=0; fi; \
 	VERSION="$$BASE.$$SERIAL"; \
 	for F in $(VERSION_FILES); do echo "$$VERSION" > "$$F"; done; \
+	for F in $(VERSION_CONTRACTS); do \
+		sed -i 's/"version": "[^"]*"/"version": "'"$$VERSION"'"/' "$$F"; \
+	done; \
 	echo "✅ 版本 → $$VERSION"
 
 # ── 构建 ──
@@ -116,19 +120,24 @@ export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 
 pre-push: ## 推送前门槛测试（与 CI 对齐——绿了再推，~2min）
-	@echo "=== [1/7] check_docs（unified Liki skill）==="
+	@echo "=== [1/8] README / user guide lint ==="
+	@make --no-print-directory lint-readme || exit 1
+	@echo "=== [2/8] check_docs（unified Liki skill）==="
 	@python3 tests/check_docs.py skills/liki || exit 1
-	@echo "=== [2/7] Python 单测 ==="
+	@echo "=== [3/8] Python 单测 ==="
 	python3 -m pytest tests/ --ignore=tests/test_integration.py -q --tb=short || exit 1
-	@echo "=== [3/7] eval_hybrid 冒烟（前 3 题验证管线通）==="
+	@echo "=== [4/8] eval_hybrid 冒烟（前 3 题验证管线通）==="
 	python3 -c "import tests.eval_hybrid" || exit 1
-	@echo "=== [4/7] Go build + vet ==="
+	@echo "=== [5/8] Go build + vet ==="
 	cd engine && go build ./... && go vet ./... || exit 1
-	@echo "=== [5/7] golangci-lint ==="
+	@echo "=== [6/8] golangci-lint ==="
 	cd engine && golangci-lint run ./... || exit 1
-	@echo "=== [6/7] Go 单测（-short）==="
+	@echo "=== [7/8] Go 单测（-short）==="
 	cd engine && go test -short -count=1 ./... || exit 1
-	@echo "=== [7/7] 流年/断语全量数据检查（对齐 CI full check）==="
+	@echo "=== [8/8] 流年/断语全量数据检查（对齐 CI full check）==="
 	@bash -c '. scripts/local-engine.sh; ensure_local_engine; trap stop_local_engine EXIT; LIKI_RPC_URL="$$LOCAL_RPC" python3 tests/eval_hybrid.py' || exit 1
 	@echo ""
 	@echo "✓ 推送前门槛检查全部通过（CI 同集，绿了再推）"
+
+lint-readme: ## 检查 README 和用户指南 Markdown 结构
+	npx --yes markdownlint-cli2@0.17.2 "README.md" "README.en.md" "docs/USER_GUIDE.md" "docs/USER_GUIDE.en.md"

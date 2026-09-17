@@ -15,4 +15,4 @@ def skill_dir(name: str = "liki") -> Path:
 
 
 def skill_version(name: str = "liki") -> str:
-    return (skill_dir(name) / "VERSION").read_text(encoding="utf-8").strip()
+    return (skill_dir(name) / "VERSION.txt").read_text(encoding="utf-8").strip()

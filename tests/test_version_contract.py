@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILES = (
-    ROOT / "skills/liki/VERSION",
+    ROOT / "skills/liki/VERSION.txt",
     ROOT / "engine/cmd/liki/VERSION",
 )
 
@@ -20,7 +20,7 @@ def test_all_distributed_versions_are_synchronized():
 
 
 def test_bazi_tool_and_domain_contracts_use_distributed_version():
-    version = (ROOT / "skills/liki/VERSION").read_text(encoding="utf-8").strip()
+    version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
     tools = json.loads(
         (ROOT / "skills/liki/bazi/tools/skill-tools.json").read_text(encoding="utf-8")
     )
@@ -32,7 +32,7 @@ def test_bazi_tool_and_domain_contracts_use_distributed_version():
 
 
 def test_divination_tool_and_projection_contracts_use_distributed_version():
-    version = (ROOT / "skills/liki/VERSION").read_text(encoding="utf-8").strip()
+    version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
     tools = json.loads(
         (ROOT / "skills/liki/divination/tools/skill-tools.json").read_text(encoding="utf-8")
     )

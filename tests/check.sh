@@ -19,12 +19,13 @@ python3 - <<'PYEOF'
 import json
 from pathlib import Path
 root = Path('skills/liki')
-version = (root / 'VERSION').read_text(encoding='utf-8').strip()
+version = (root / 'VERSION.txt').read_text(encoding='utf-8').strip()
 skills = list(root.rglob('SKILL.md'))
 entries = [root / d / 'ENTRY.md' for d in ('bazi', 'divination', 'fengshui', 'naming')]
 assert [p.relative_to(root) for p in skills] == [Path('SKILL.md')], skills
 assert all(p.exists() for p in entries), entries
-assert len(list(root.rglob('VERSION'))) == 1
+assert len(list(root.rglob('VERSION.txt'))) == 1
+assert not list(root.rglob('VERSION'))
 assert len(list(root.rglob('feedback.py'))) == 1
 assert len(list(root.rglob('feedback.schema.json'))) == 1
 manifests = sorted(root.glob('*/tools/skill-tools.json'))
@@ -32,7 +33,7 @@ for p in manifests:
     got = json.loads(p.read_text(encoding='utf-8')).get('info', {}).get('version')
     assert got == version, f'{p}: {got} != {version}'
 print(f'  ✓ unique SKILL.md + 4 ENTRY.md')
-print(f'  ✓ {len(manifests)} domain manifests == VERSION == {version}')
+print(f'  ✓ {len(manifests)} domain manifests == VERSION.txt == {version}')
 PYEOF
 
 if [ "${1:-}" = "--full" ]; then

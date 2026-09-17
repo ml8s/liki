@@ -18,7 +18,8 @@ naming/ENTRY.md
 - 全 skill 只有一个 `SKILL.md`；
 - 四个领域都有 `ENTRY.md`；
 - `app/README.md` 外的 App 卡都有 `流程`、`边界条件`、`输出模板`；
-- `VERSION`、`feedback.py`、`feedback.schema.json` 不重复；
+- 中英文 README 和用户指南遵循 `docs/README_STYLE.md`，由 `tests/test_readme_contract.py` 与 `make lint-readme` 检查；
+- `VERSION.txt`、`feedback.py`、`feedback.schema.json` 不重复；
 - 根入口保持轻量；
 - 旧 `liki-*` skill 名不出现在安装内容中；
 - `bazi/TOOLS.md` 与 `divination/TOOLS.md` 覆盖全部 Python 工具；
@@ -148,6 +149,7 @@ make skillup-smoke-naming
 
 ```bash
 make check
+make lint-readme
 make test-functional
 make test
 make test-engine
