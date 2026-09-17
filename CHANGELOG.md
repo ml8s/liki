@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026.09.17.0] — factor contracts and LLM-facing result schemas
+
+### Changes
+
+- 三刑流年因子按七组刑组拆分，与本命刑组闭集同构；断语条件同步展开。
+- 移除三刑 evidence 旁路，命中依据统一由 snapshot factors 和断语 trace 表达。
+- 收紧 `三刑[来源,刑组]` 契约：来源当前仅支持 `流年支`，必须包含流年，刑组字符串必须精确枚举成员。
+- 因子 DSL 通配符收敛到 `factor_tokens.FACTOR_WILDCARD`，生产代码不再硬编码 `任意`。
+- 统一 `FactorValue` 契约：`0 / 1` 或领域字符串；断语 trace 的 `expected / actual` 使用同一契约。
+- 为六个 Bazi Python 工具补齐 LLM-facing `result_schema`，新增 schema 生成与防漂移检查。
+- `full_paipan` 的 LLM-facing schema 精简为稳定 surface contract；深层 runtime 校验仍由 `pan_schema.py` 负责。
+- `calibration_hint` schema 显式覆盖当前时辰、备选时辰、有符号偏移和方向。
+- `query` / `yearly_range` 公共边界校验参与断语的因子存在且符合 `FactorValue`，缺失因子 fail closed。
+- 清理重复的旧时辰提示测试和未用 runtime 局部变量。
+
 ## [2026.09.16.2] — brand renormalized to Liki
 
 ### Changes

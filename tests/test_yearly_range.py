@@ -5,6 +5,7 @@ import pytest
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import duanyu
+from yearly_eval import query_year_rules
 from pan_integrity import with_natal_digest
 
 
@@ -63,6 +64,36 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
     liunian_mock.assert_called_once()
     make_snapshot.assert_called_once()
     assert make_snapshot.call_args.kwargs["factor_names"]
+
+
+def test_detail_year_rules_do_not_restore_snapshot_evidence() -> None:
+    """evidence 旁路退役；解释链只允许经由断语 trace 承载。"""
+    detail_row = {
+        "id": "ying_h09",
+        "结论": "三刑成立",
+        "trace": [{"condition_group": 1, "factors": {
+            "流年地支相刑寅巳申": {"expected": 1, "actual": 1},
+        }}],
+    }
+    snapshot = {
+        "_snapshot_type": "liunian",
+        "evidence": {"三刑流年": {"group": "寅巳申"}},
+        "八字": {},
+        "紫微": {},
+    }
+
+    result = query_year_rules(
+        snapshot,
+        ["年合会"],
+        detail=True,
+        query_yearly=lambda _rule, _snapshot: {"八字": [detail_row], "紫微": [], "合参": []},
+        brief=lambda rows: rows,
+    )
+
+    assert result["年合会"]["八字"][0]["trace"][0]["factors"] == {
+        "流年地支相刑寅巳申": {"expected": 1, "actual": 1},
+    }
+    assert "evidence" not in result["年合会"]
 
 
 def test_yearly_range_rejects_empty_or_reversed_range() -> None:

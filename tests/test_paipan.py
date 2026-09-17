@@ -1,11 +1,14 @@
 """排盘层 RPC 重试契约：传输错误可重试，逻辑错误不重试。"""
 import json
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from unittest import mock
 from urllib.error import HTTPError, URLError
 
 import pytest
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
+from factor_constants import load_constants
 import paipan
 from paipan import RPCError, call
 
@@ -147,3 +150,33 @@ def test_boundary_hint_is_silent_far_from_boundary_and_on_bad_input() -> None:
     assert paipan._shichen_boundary_hint("1981-08-26T00:15:00+08:00") is None
     assert paipan._shichen_boundary_hint("1981-08-26T12:28:00+08:00") is None
     assert paipan._shichen_boundary_hint("not-a-time") is None
+
+
+@pytest.mark.parametrize("index", range(12))
+def test_boundary_hint_covers_every_shichen_boundary(index: int) -> None:
+    """12 个交界都要验证前/后侧窗口；不得只覆盖子时或午时等代表点。"""
+    zhi = load_constants()["地支"]
+    boundaries = paipan.SHICHEN_BOUNDARY_START_HOURS
+    start_hour = boundaries[index]
+    previous = (index - 1) % len(boundaries)
+
+    before = datetime(
+        1981, 8, 25, (start_hour - 1) % 24, 59, tzinfo=ZoneInfo("Asia/Shanghai")
+    )
+
+    hint = paipan._shichen_boundary_hint(before.isoformat())
+    assert hint is not None
+    assert hint["current_shichen"]["branch"] == zhi[previous]
+    assert hint["alternate_shichen"]["branch"] == zhi[index]
+    assert hint["direction"] == "later"
+    assert hint["boundary_offset_minutes"] == -1
+
+    after = datetime(
+        1981, 8, 25, start_hour, 1, tzinfo=ZoneInfo("Asia/Shanghai")
+    )
+    hint = paipan._shichen_boundary_hint(after.isoformat())
+    assert hint is not None
+    assert hint["current_shichen"]["branch"] == zhi[index]
+    assert hint["alternate_shichen"]["branch"] == zhi[previous]
+    assert hint["direction"] == "earlier"
+    assert hint["boundary_offset_minutes"] == 1

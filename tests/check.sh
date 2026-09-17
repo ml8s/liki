@@ -11,6 +11,9 @@ python3 tests/check_schema.py
 echo "=== check_docs（统一 Liki skill 文档契约）==="
 python3 tests/check_docs.py skills/liki
 
+echo "=== tool result contracts（LLM-facing schema 防漂移）==="
+python3 scripts/generate_bazi_tool_contracts.py --check
+
 echo "=== unified skill structure & version consistency ===="
 python3 - <<'PYEOF'
 import json

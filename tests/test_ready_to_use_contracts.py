@@ -3,6 +3,7 @@ import json
 import re
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
 import pytest
 
 from helpers import SKILL_ROOT
@@ -63,6 +64,102 @@ def test_python_tool_payload_names_match_manifests():
             tool["function"]["name"] for tool in manifest.get("tools", [])
         }
         assert expected_tools == actual_tools
+
+
+def test_bazi_tools_declare_valid_result_and_closed_args_contracts():
+    manifest = json.loads(
+        (SKILL_ROOT / "bazi" / "tools" / "skill-tools.json").read_text(encoding="utf-8")
+    )
+    expected_required = {
+        "city_coords": ["city"],
+        "full_paipan": ["gregorian", "gender"],
+        "query": ["rule", "pan"],
+        "yearly_range": ["pan", "start", "end", "rules"],
+        "calibrate": ["candidates", "events"],
+        "bond": ["pan_a", "pan_b"],
+    }
+    for tool in manifest["tools"]:
+        fn = tool["function"]
+        name = fn["name"]
+        params = fn["parameters"]
+        result = fn.get("result_schema")
+
+        assert params.get("additionalProperties") is False, name
+        assert params.get("required") == expected_required[name], name
+        assert result, name
+        Draft202012Validator.check_schema(result)
+
+    query = next(
+        tool["function"] for tool in manifest["tools"]
+        if tool["function"]["name"] == "query"
+    )
+    query_payload = {
+        "八字": [],
+        "紫微": [],
+        "合参": [{
+            "id": "ying_h09",
+            "领域": "应期",
+            "事件类型": "引动",
+            "时间层": "流年",
+            "事件": "三刑成立",
+            "结论": "断事年",
+            "依据": "三刑主刑伤断事",
+            "经典依据": "《三命通会》论三刑",
+            "约束组": [{"流年地支相刑寅巳申": 1}],
+            "trace": [{
+                "condition_group": 1,
+                "factors": {
+                    "流年地支相刑寅巳申": {"expected": 1, "actual": 1},
+                },
+            }],
+        }],
+    }
+    errors = list(Draft202012Validator(query["result_schema"]).iter_errors(query_payload))
+    assert not errors, errors
+
+
+def test_yearly_result_schema_allows_rpc_error_but_requires_success_contract():
+    manifest = json.loads(
+        (SKILL_ROOT / "bazi" / "tools" / "skill-tools.json").read_text(encoding="utf-8")
+    )
+    schema = next(
+        tool["function"]["result_schema"] for tool in manifest["tools"]
+        if tool["function"]["name"] == "yearly_range"
+    )
+    payload = {
+        "current_year": 2026,
+        "current_year_source": "server",
+        "year_basis": {
+            "八字": "按输入年份编号取干支流年",
+            "紫微": "按同一编号取农历流年",
+            "usage": "具体日期须先确认命理年",
+        },
+        "years": {
+            "2026": {
+                "年合会": {
+                    "八字": [{
+                        "id": "ying_h09",
+                        "领域": "应期",
+                        "事件类型": "引动",
+                        "时间层": "流年",
+                        "事件": "三刑成立",
+                        "约束组": [{"流年地支相刑寅巳申": 1}],
+                        "结论": "断事年",
+                        "依据": "三刑主刑伤断事",
+                        "经典依据": "《三命通会》论三刑",
+                        "trace": [{"condition_group": 1, "factors": {
+                            "流年地支相刑寅巳申": {"expected": 1, "actual": 1},
+                        }}],
+                    }],
+                    "紫微": [],
+                    "合参": [],
+                }
+            },
+            "2027": {"error": "RPCError: timeout"},
+        },
+    }
+    errors = list(Draft202012Validator(schema).iter_errors(payload))
+    assert not errors, errors
 
 
 def test_direct_rpc_domains_have_a_payload_for_every_method():

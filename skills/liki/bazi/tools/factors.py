@@ -14,6 +14,7 @@ from typing import Optional
 
 from errors import FactorEvaluateError
 from factor_constants import load_constants
+from factor_tokens import FACTOR_WILDCARD
 from factor_context import FactorContext, NatalContext
 from operators_liunian import _LIU_OP_NAMES, _liu_op
 from operators_natal import (
@@ -57,7 +58,7 @@ def _atomic(col: str, gender, chart, ctx: dict = None, current_year: int = 0):
     if isinstance(v, str):
         # 「任意」= 取值模式（直读[ri_gan_wx,任意] 返回五行字符串、宫含[..,任意] 等）——
         # 返回字符串原值供断语约束匹配（如 `日主五行: 木`）；否则按期望值比较返回 0/1
-        if args and args[-1] == "任意":
+        if args and args[-1] == FACTOR_WILDCARD:
             return v
         # args[-1] 是期望值（如 直读[gender,male] 中 male）；与算子返回值 v 比较
         return 1 if args and str(args[-1]) == v else 0

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from _helpers import mock_base_context
 import factors
+from factor_tokens import FACTOR_WILDCARD
 from operators_liunian import _LIU_OP_NAMES
 from operators_natal import _OP_NAMES, _op, _ten_god_states_from_pan
 
@@ -133,16 +134,17 @@ def test_operator_arguments_use_constant_closures() -> None:
     valid_ten = ten_gods | classes | roles
     valid_elements = set(const["五行"])
     valid_flow_targets = classes | roles | set(const["干支来源"])
-    valid_palaces = set(const["紫微宫位"]) | {"任意"}
+    wildcard = FACTOR_WILDCARD
+    valid_palaces = set(const["紫微宫位"]) | {wildcard}
     valid_palace_stars = (
         set(const["紫微主星"]) | set(const["紫微煞星"])
         | set(const["紫微六吉星"]) | set(const["紫微文星"])
         | set(const["紫微辅星"])
-        | {"任意", "紫微主星", "紫微六吉星", "紫微文星", "煞星"}
+        | {wildcard, "紫微主星", "紫微六吉星", "紫微文星", "煞星"}
         | set(const["紫微星曜特殊值"])
     )
     valid_palace_conditions = (
-        {"任意", "禄", "权", "科", "忌", "庙旺", "落陷"}
+        {wildcard, "禄", "权", "科", "忌", "庙旺", "落陷"}
         | set(const["紫微宫位特殊条件"])
     )
     valid_flow_stars = set(const["紫微流曜"])
@@ -205,12 +207,15 @@ def test_operator_arguments_use_constant_closures() -> None:
                 assert source.get("部分") == "支", (
                     f"{expression} 三刑 来源不是地支来源"
                 )
+                assert args[0] != wildcard, f"{expression} 三刑 来源不能通配"
                 xing_members = set(args[1])
                 assert 0 < len(xing_members) <= 3, (
                     f"{expression} 三刑 刑组不在刑闭集"
                 )
-                assert len(args[1]) == (2 if len(xing_members) == 1 else len(xing_members)), (
-                    f"{expression} 自刑组必须写成双字"
+                assert len(args[1]) == (
+                    2 if len(xing_members) == 1 else len(xing_members)
+                ), (
+                    f"{expression} 刑组必须恰好枚举全部成员，不得重复或缺字"
                 )
                 for branch in xing_members:
                     partners = const["三刑"].get(branch)
@@ -290,6 +295,52 @@ def test_flow_xing_groups_match_natal_xing_closure() -> None:
     flow = collect("factors_liunian.csv", r"^三刑\[[^,\]]+,([^\]]+)\]$")
     assert len(natal) == 7
     assert flow == natal, f"两侧刑组闭集不一致: {sorted(flow ^ natal)}"
+
+
+def test_three_xing_assertions_cover_full_flow_closure() -> None:
+    """三刑族断语必须覆盖完整 7 组；伴随条件不得只在部分刑组出现。"""
+    flow_xings = {
+        "流年地支相刑寅巳申",
+        "流年地支相刑丑戌未",
+        "流年地支相刑子卯",
+        "流年地支自刑辰辰",
+        "流年地支自刑午午",
+        "流年地支自刑酉酉",
+        "流年地支自刑亥亥",
+    }
+    family = {
+        "ying_h09": set(),
+        "ying_h18": {"本命食伤旺", "性别"},
+        "ying_h19": {"流年配偶星透", "本命食伤旺"},
+        "ys_106": set(),
+        "yliu_108": set(),
+        "ying_h20": {"年柱干伏吟"},
+        "yj_220": {"本命七杀旺", "本命身弱", "本命印星弱"},
+    }
+    rows = list(csv.DictReader(
+        (TOOLS / "assertions" / "assertion_conditions.csv")
+        .open(encoding="utf-8-sig", newline="")
+    ))
+    grouped: dict[str, dict[int, set[str]]] = {
+        assertion_id: defaultdict(set) for assertion_id in family
+    }
+    for row in rows:
+        if row["assertion_id"] in family:
+            grouped[row["assertion_id"]][int(row["condition_group_id"])].add(row["factor"])
+
+    for assertion_id, additional in family.items():
+        groups = grouped[assertion_id]
+        assert set(groups) == set(range(1, 8)), (assertion_id, groups)
+        seen_xings: set[str] = set()
+        for group_id, factors in groups.items():
+            hit_xings = factors & flow_xings
+            assert len(hit_xings) == 1, (assertion_id, group_id, factors)
+            hit_xing = next(iter(hit_xings))
+            assert factors == {hit_xing, *additional}, (
+                assertion_id, group_id, factors
+            )
+            seen_xings.add(next(iter(hit_xings)))
+        assert seen_xings == flow_xings, (assertion_id, seen_xings)
 
 
 EXPECTED_ENGINE_NATAL_SHEN_SHA = {

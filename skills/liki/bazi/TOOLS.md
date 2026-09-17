@@ -25,6 +25,21 @@ Windows 使用 `bazi/tools/agent_cli.cmd`。CLI stdin 是一行 JSON：
 | `$CALIBRATE_RESULT` | `calibrate` 响应的 `data` |
 | `$BOND_RESULT` | `bond` 响应的 `data` |
 
+## 响应契约
+
+所有工具都只读 `ok` / `data` / `error`。`data` 的顶层契约如下；字段细节以 `skill-tools.json` 的 `result_schema` 为准。
+
+| 工具 | `data` 契约 |
+|---|---|
+| `city_coords` | `{name, longitude, latitude, country}` |
+| `full_paipan` | 完整 `pan`：`{solar, lunar, chart, full, ziwei, ziwei_daxian, gender, pan_digest[, calibration_hint]}` |
+| `query` | `{八字: [命中断语], 紫微: [命中断语], 合参: [命中断语]}`；`用神` 额外有 `yong_shen_context`，`大运` / `大限` 额外有 `current_year` / `current_year_source` |
+| `yearly_range` | `{current_year, current_year_source, year_basis, years}`；`years` 以年份字符串为 key |
+| `calibrate` | `{候选label: [事件报告]}`；每个事件报告含 `year`、`label`、`rule` 和三侧断语 |
+| `bond` | `{bazi: ..., ziwei: ...}` |
+
+命中断语公共字段是 `id`、`领域`、`事件类型`、`时间层`、`事件`、`结论`、`依据`、`经典依据`；`detail=true` 时另有 `trace`。因子值只允许 `0 / 1` 或领域字符串（空字符串表示字符串型因子不可用）；`trace` 中的每个证据固定为 `{expected, actual}`。
+
 ## 1. city_coords
 
 ```json

@@ -31,7 +31,13 @@ def test_calibrate_accepts_yingqi_and_reuses_same_year_snapshot() -> None:
 
     with mock.patch.object(calibrate, "full_paipan", return_value=pan) as paipan_mock, \
          mock.patch.object(calibrate, "prepare_natal_context", return_value=context) as prepare_mock, \
-         mock.patch.object(calibrate, "yearly_snapshot", return_value={"_snapshot_type": "liunian", "八字": {}, "紫微": {}}) as snapshot_mock:
+         mock.patch.object(calibrate, "yearly_snapshot", return_value={"_snapshot_type": "liunian", "八字": {}, "紫微": {}}) as snapshot_mock, \
+         mock.patch.object(
+             calibrate,
+             "query_yearly",
+             return_value={"八字": [], "紫微": [], "合参": []},
+         ):
+        # The assertion below checks snapshot reuse, not rule matching.
         result = calibrate.calibrate([candidate, second_candidate], events)
 
     assert len(result["25日"]) == 3
@@ -136,7 +142,12 @@ def test_calibrate_allows_fixed_shichen_without_longitude() -> None:
 
     with mock.patch.object(calibrate, "full_paipan", return_value=pan) as paipan_mock, \
          mock.patch.object(calibrate, "prepare_natal_context", return_value=object()), \
-         mock.patch.object(calibrate, "yearly_snapshot", return_value={"_snapshot_type": "liunian", "八字": {}, "紫微": {}}):
+         mock.patch.object(calibrate, "yearly_snapshot", return_value={"_snapshot_type": "liunian", "八字": {}, "紫微": {}}), \
+         mock.patch.object(
+             calibrate,
+             "query_yearly",
+             return_value={"八字": [], "紫微": [], "合参": []},
+         ):
         calibrate.calibrate(candidates, events)
 
     assert [call.kwargs["longitude"] for call in paipan_mock.call_args_list] == [None, None]

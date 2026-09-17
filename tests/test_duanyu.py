@@ -157,7 +157,14 @@ class TestYearlyIsolation(unittest.TestCase):
             duanyu.query("yingqi", pan)
 
     def test_流年快照查命理域_正常命中(self):
-        liu = {"_snapshot_type": "liunian", "八字": {"流年财坏印": 1}, "紫微": {}}
+        tables = list(duanyu.load_rule_tables("年十神").values())
+        required = duanyu.required_flow_factors(tables)
+        liu = {
+            "_snapshot_type": "liunian",
+            "八字": {factor: 0 for factor in required} | {"流年财坏印": 1},
+            "紫微": {factor: 0 for factor in required},
+            "context": {"性别": "male"},
+        }
         res = duanyu.query_yearly("年十神", liu)   # yliu_104(财坏印)归入年十神域
         self.assertTrue(any(r.get("id") == "yliu_104" for r in res["八字"]))
 
@@ -167,7 +174,21 @@ class TestYongShenQueryContext(unittest.TestCase):
 
     def test_用神查询附带只读engine上下文(self):
         pan = _valid_query_pan()
-        snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
+        rules = ("用神", "旺衰")
+        required_factors = {
+            factor
+            for rule in rules
+            for table in duanyu.load_rule_tables(rule).values()
+            for row in table
+            for group in row.get("约束组") or []
+            for factor in group
+        }
+        snapshots = {
+            "八字": {factor: 0 for factor in required_factors},
+            "紫微": {factor: 0 for factor in required_factors},
+            "合参": [],
+            "context": {"性别": "male"},
+        }
         with mock.patch.object(
             duanyu, "evaluate_snap_from_pan", return_value=snapshots,
         ), mock.patch.object(

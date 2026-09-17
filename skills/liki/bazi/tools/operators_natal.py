@@ -6,6 +6,7 @@ from typing import Optional
 from errors import FactorEvaluateError
 from factor_constants import load_constants
 from factor_context import FactorContext
+from factor_tokens import FACTOR_WILDCARD
 
 # 本命算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _OP_NAMES = frozenset({
@@ -135,16 +136,16 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         if path == "gender":
             # gender 是求值上下文；mock/单元测试可只传 gender 参数而无完整 pan。
             val = gender
-            if expect == "任意":
+            if expect == FACTOR_WILDCARD:
                 return val if val else 0
             return 1 if str(val) == str(expect) else 0
         if path == "ri_gan_wx":
             val = base.get("day_master_element", "")
-            if expect == "任意":
+            if expect == FACTOR_WILDCARD:
                 return val if val else 0     # 日主五行返回五行字符串（断语约束 `日主五行: 木` 匹配）
             return 1 if str(val) == str(expect) else 0
         val = _path_get(base, chart, path)
-        if expect == "任意":
+        if expect == FACTOR_WILDCARD:
             # 返回字符串原值，供断语表做标量等值匹配（如 `月令格: 正财格`）。
             return val if val else 0
         if expect.startswith("含"):
@@ -218,14 +219,14 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         return 1 if wx in favorable else 0
     if op == "月支长生":
         value = _atomic_facts(chart).get("month_longevity", "")
-        return value if args and args[0] == "任意" else 1 if value == args[0] else 0
+        return value if args and args[0] == FACTOR_WILDCARD else 1 if value == args[0] else 0
     if op == "夫妻宫状态":
         # Engine atomic fact: 日支按冲、合、刑、害优先级归并夫妻宫状态。
         value = _atomic_facts(chart).get("spouse_palace_state", "")
-        return value if args and args[0] == "任意" else 1 if value == args[0] else 0
+        return value if args and args[0] == FACTOR_WILDCARD else 1 if value == args[0] else 0
     if op == "日支类型":
         value = _atomic_facts(chart).get("day_branch_type", "")
-        return value if args and args[0] == "任意" else 1 if value == args[0] else 0
+        return value if args and args[0] == FACTOR_WILDCARD else 1 if value == args[0] else 0
     if op == "财库现":
         return 1 if _atomic_facts(chart).get("wealth_tomb_present") else 0
     if op == "财星入墓":
@@ -241,17 +242,17 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         return 1 if _atomic_facts(chart).get("pattern_god_transparent") else 0
     if op == "月令本气":
         value = _atomic_facts(chart).get("month_main_ten_god", "")
-        if args and args[0] == "任意":
+        if args and args[0] == FACTOR_WILDCARD:
             return value
         return 1 if value == args[0] else 0
     if op == "时柱十神":
         value = _atomic_facts(chart).get("hour_stem_ten_god", "")
-        if args and args[0] == "任意":
+        if args and args[0] == FACTOR_WILDCARD:
             return value
         return 1 if value == args[0] else 0
     if op == "年柱十神":
         value = _atomic_facts(chart).get("year_stem_ten_god", "")
-        if args and args[0] == "任意":
+        if args and args[0] == FACTOR_WILDCARD:
             return value
         return 1 if value == args[0] else 0
     if op == "禄根":
@@ -293,8 +294,8 @@ def _zw_gong_op(base, chart, args):
     const = load_constants()
     gong_name = args[0]
     star = args[1]
-    cond = args[2] if len(args) > 2 else "任意"
-    palaces = set(const["紫微宫位"]) | {"任意"}
+    cond = args[2] if len(args) > 2 else FACTOR_WILDCARD
+    palaces = set(const["紫微宫位"]) | {FACTOR_WILDCARD}
     if gong_name not in palaces:
         raise FactorEvaluateError(
             f"宫含宫位无效: {gong_name}; 有效: {sorted(palaces)}"
@@ -303,7 +304,7 @@ def _zw_gong_op(base, chart, args):
 
     def hit(kind: str, target: str, star_name: str = "") -> bool:
         return any(
-            (gong_name == "任意" or fact.get("palace") == gong_name)
+            (gong_name == FACTOR_WILDCARD or fact.get("palace") == gong_name)
             and fact.get("kind") == kind
             and fact.get("target") == target
             and (not star_name or fact.get("star") == star_name)
@@ -312,26 +313,26 @@ def _zw_gong_op(base, chart, args):
         )
 
     if cond in {"禄", "权", "科", "忌"}:
-        target_star = "" if star == "任意" else star
+        target_star = "" if star == FACTOR_WILDCARD else star
         return 1 if hit("si_hua", cond, target_star) else 0
     if star in const.get("紫微星曜特殊值", {}):
         return 1 if hit("special", star) else 0
     if cond in const.get("紫微宫位特殊条件", {}):
         return 1 if hit("special", cond, star) else 0
     if cond in {"庙旺", "落陷"}:
-        if star == "任意":
+        if star == FACTOR_WILDCARD:
             return 1 if hit("brightness", cond) else 0
         if star == "紫微主星":
             main_stars = {
                 fact.get("star")
                 for fact in facts
                 if isinstance(fact, dict)
-                and (gong_name == "任意" or fact.get("palace") == gong_name)
+                and (gong_name == FACTOR_WILDCARD or fact.get("palace") == gong_name)
                 and fact.get("kind") == "brightness"
                 and fact.get("target") == "紫微主星"
             }
             return 1 if any(
-                (gong_name == "任意" or fact.get("palace") == gong_name)
+                (gong_name == FACTOR_WILDCARD or fact.get("palace") == gong_name)
                 and fact.get("kind") == "brightness"
                 and fact.get("target") == cond
                 and fact.get("star") in main_stars
@@ -363,17 +364,17 @@ def _dayun_op(base, chart, args, current_year: int = 0, gender: str = ""):
     """大运十神查询：大运十神(当前, 大类/任意)。任意模式返回十神大类标量。"""
     when, star_class = args[0], args[1]
     if when != "当前":
-        return "" if star_class == "任意" else 0
+        return "" if star_class == FACTOR_WILDCARD else 0
 
     selected = _selected_dayun_step(base, current_year)
 
     if selected is None:
-        return "" if star_class == "任意" else 0
+        return "" if star_class == FACTOR_WILDCARD else 0
     shi_shen = selected.get("shi_shen", "") or ""
     suffix = load_constants()["大运十神后缀"]
     if suffix and shi_shen.endswith(suffix):
         shi_shen = shi_shen[:-len(suffix)]
-    if star_class == "任意":
+    if star_class == FACTOR_WILDCARD:
         return _ten_class(shi_shen)
     resolved = _resolve_tens([star_class], gender)
     return 1 if shi_shen in resolved else 0
@@ -402,17 +403,17 @@ def _daxian_op(chart: dict, current_year: int, args) -> "int | str":
     """当前公历年所在的紫微大限宫位；args=[当前, 任意/宫名]。"""
     when, palace = args[0], args[1]
     if when != "当前":
-        return "" if palace == "任意" else 0
+        return "" if palace == FACTOR_WILDCARD else 0
     year = current_year
     if not year:
-        return "" if palace == "任意" else 0
+        return "" if palace == FACTOR_WILDCARD else 0
     steps = chart.get("ziwei_daxian") or []
     selected = next((
         step for step in steps
         if year and step.get("start_year", 0) <= year <= step.get("end_year", 0)
     ), None)
     value = (selected or {}).get("gong", "")
-    if palace == "任意":
+    if palace == FACTOR_WILDCARD:
         return value
     return 1 if value == palace else 0
 
@@ -445,7 +446,6 @@ def _base_ctx_from_pan(chart: dict) -> dict:
             if index < len(full_steps) else step
             for index, step in enumerate(chart_da_yun["steps"])
         ]
-    const = load_constants()
     fu_yi = (full.get("yong_shen") or {}).get("fu_yi", {}) or {}
     atomic = _atomic_facts(chart)
     ctx = {

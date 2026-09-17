@@ -7,6 +7,21 @@ from pan_integrity import with_natal_digest
 import factors
 
 
+def _full_mock_rule_snapshot(*rules: str) -> dict:
+    """Current-limit orchestration tests need a contract-complete mock snapshot."""
+    tables = [
+        table
+        for rule in rules
+        for table in duanyu.load_rule_tables(rule).values()
+    ]
+    required = duanyu.required_natal_factors(tables)
+    return {
+        "八字": {factor: 0 for factor in required},
+        "紫微": {factor: 0 for factor in required},
+        "context": {"性别": "male"},
+    }
+
+
 def _saved_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return with_natal_digest({
@@ -50,7 +65,7 @@ def test_current_limit_uses_query_year_not_saved_index() -> None:
 
 def test_query_passes_server_year_for_current_limit_rules() -> None:
     pan = _saved_pan()
-    snapshots = {"八字": {}, "紫微": {}, "context": {}}
+    snapshots = _full_mock_rule_snapshot("大运", "六亲", "大限")
 
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
          mock.patch.object(
@@ -68,7 +83,7 @@ def test_query_passes_server_year_for_current_limit_rules() -> None:
 
 def test_query_explicit_year_does_not_call_time_now() -> None:
     pan = _saved_pan()
-    snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
+    snapshots = _full_mock_rule_snapshot("大限")
     with mock.patch.object(duanyu, "resolve_current_year", side_effect=AssertionError("should not call time.now")), \
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots) as evaluate_snap, \
          mock.patch.object(
@@ -82,7 +97,7 @@ def test_query_explicit_year_does_not_call_time_now() -> None:
 
 def test_query_limit_result_reports_year_source() -> None:
     pan = _saved_pan()
-    snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
+    snapshots = _full_mock_rule_snapshot("大运", "六亲", "大限")
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots), \
          mock.patch.object(
@@ -100,10 +115,13 @@ def test_query_limit_result_reports_year_source() -> None:
 
 def test_query_evaluates_only_sides_required_by_rule() -> None:
     pan = _saved_pan()
-    snapshots = {"八字": {}, "紫微": {}, "合参": [], "context": {}}
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
          mock.patch.object(
-             duanyu, "evaluate_snap_from_pan", return_value=snapshots
+             duanyu,
+             "evaluate_snap_from_pan",
+             side_effect=lambda *_args, **_kwargs: _full_mock_rule_snapshot(
+                 "大运", "大限", "格局"
+             ),
          ) as evaluate_snap, \
          mock.patch.object(duanyu, "match_rule", side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []}):
         duanyu.query("大运", pan)

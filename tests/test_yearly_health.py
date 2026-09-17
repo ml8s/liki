@@ -1,20 +1,28 @@
 """流年健康表条件契约：禁止无条件恒命中。"""
 import _helpers  # noqa: F401 —— 注入 tools 路径
+import duanyu
 from duanyu import query_yearly
 
 
-def _flow(bazi: dict | None = None) -> dict:
+def _flow(rule: str, bazi: dict | None = None) -> dict:
+    tables = [duanyu.load_rule_table(
+        f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES
+    )]
+    required = duanyu.required_flow_factors(tables)
+    values = {factor: 0 for factor in required}
+    values.update(bazi or {})
     return {
         "_snapshot_type": "liunian",
-        "八字": bazi or {},
+        "八字": values,
         "紫微": {},
+        "context": {"性别": "male"},
     }
 
 
 def _bazi_ids(bazi: dict | None = None) -> set[str]:
-    flow = _flow(bazi)
     ids: set[str] = set()
     for rule in ("年十神", "年旺衰"):   # yj_103(财坏印)在年十神；yj_206/207/208(长生)在年旺衰
+        flow = _flow(rule, bazi)
         ids |= {item["id"] for item in query_yearly(rule, flow)["八字"]}
     return ids
 

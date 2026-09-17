@@ -27,6 +27,7 @@ from pan_schema import validate_natal_pan
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 TIMEOUT = 30
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
+SHICHEN_BOUNDARY_START_HOURS = (23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION"
 DISCOVER_SCOPES = ("bazi", "ziwei", "city", "tianwen", "time")
@@ -179,7 +180,7 @@ def _shichen_boundary_hint(solar: str) -> dict | None:
     except (TypeError, ValueError):
         return None
 
-    boundaries = [23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
+    boundaries = SHICHEN_BOUNDARY_START_HOURS
     candidates = []
     for day_offset in (-1, 0, 1):
         for index, hour in enumerate(boundaries):
@@ -225,7 +226,8 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
     correct=True：真太阳时校正（路 A，用户给具体时刻）；
     correct=False：直接排盘不校正（路 B，用户已定时辰——再校正会二次偏移，日柱/时柱全错）。
 
-    返回盘结构：{solar, lunar, chart, full, yongshen, ziwei, gender}
+    返回盘结构：{solar, lunar, chart, full, ziwei, ziwei_daxian, gender,
+    pan_digest[, calibration_hint]}；用神结论位于 full.yong_shen。
     返回结构是 factors 层的唯一输入；领域快照由 factors 层按 pan 生成。
     """
     if correct and longitude is None:

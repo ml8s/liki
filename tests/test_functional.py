@@ -13,6 +13,7 @@ import pytest
 import _helpers  # noqa: F401 —— 注入 unified Liki bazi tools 路径
 import duanyu
 from errors import FactorEvaluateError
+from errors import AssertionRuleError
 from duanyu import (
     SCENE_ALIASES,
     YEARLY_RULES,
@@ -197,8 +198,44 @@ def test_duanyu_public_api_has_no_private_symbols() -> None:
     assert all(hasattr(duanyu, name) for name in duanyu.__all__)
 
 
+def test_three_xing_trace_preserves_exact_group_factor() -> None:
+    """evidence 旁路删除后，命中依据必须仍能精确指出是哪一组流年三刑。"""
+    row = next(
+        item for item in load_rule_table("bazi_年合会.csv") if item["id"] == "ying_h09"
+    )
+    snapshot = {
+        factor: (1 if factor == "流年地支相刑寅巳申" else 0)
+        for factor in (
+            "流年地支相刑寅巳申",
+            "流年地支相刑丑戌未",
+            "流年地支相刑子卯",
+            "流年地支自刑辰辰",
+            "流年地支自刑午午",
+            "流年地支自刑酉酉",
+            "流年地支自刑亥亥",
+        )
+    }
+
+    hits = match_table([row], snapshot)
+
+    assert hits[0]["id"] == "ying_h09"
+    assert hits[0]["trace"][0]["condition_group"] == 1
+    assert hits[0]["trace"][0]["factors"] == {
+        "流年地支相刑寅巳申": {"expected": 1, "actual": 1},
+    }
+
+
 def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
     pan = {"gender": "male"}
+    rule = "大运"
+    query_tables = list(duanyu.load_rule_tables(rule).values())
+    required_factors = {
+        factor
+        for table in query_tables
+        for row in table
+        for group in row.get("约束组") or []
+        for factor in group
+    }
     matched = {
         "八字": [
             {"id": "hun_101", "领域": "婚姻"},
@@ -212,10 +249,14 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
          mock.patch.object(
              duanyu,
              "evaluate_snap_from_pan",
-             return_value={"八字": {}, "紫微": {}, "context": {}},
+             return_value={
+                 "八字": {factor: 0 for factor in required_factors},
+                 "紫微": {factor: 0 for factor in required_factors},
+                 "context": {"性别": "male"},
+             },
          ), \
          mock.patch.object(duanyu, "match_rule", return_value=matched):
-        result = duanyu.query("大运", pan, year=2020, domains=["财运"])
+        result = duanyu.query(rule, pan, year=2020, domains=["财运"])
 
     assert [row["id"] for row in result["八字"]] == ["cai_110"]
     assert result["紫微"] == []
@@ -256,20 +297,47 @@ def test_query_keeps_both_sides_alive_for_common_assertions() -> None:
     cc_106 同时消费八字「身弱」与紫微「疾厄宫化忌」；若按八字专属裁掉
     紫微快照，这类跨术数规则会变成永远不可命中的死规则。
     """
+    rule = "十神"
+    tables_by_side = duanyu.load_rule_tables(rule)
     snapshots = {
-        "八字": {"身强弱": "身弱"},
-        "紫微": {"疾厄宫化忌": 1},
-        "context": {},
+        "八字": {
+            factor: 0
+            for table in [tables_by_side["bazi"], tables_by_side["common"]]
+            for row in table
+            for group in row.get("约束组") or []
+            for factor in group
+        } | {"身强弱": "身弱"},
+        "紫微": {
+            factor: 0
+            for table in [tables_by_side["ziwei"]]
+            for row in table
+            for group in row.get("约束组") or []
+            for factor in group
+        } | {"疾厄宫化忌": 1},
+        "context": {"性别": "male"},
     }
 
     with mock.patch.object(duanyu, "validate_natal_pan"), \
          mock.patch.object(
              duanyu, "evaluate_snap_from_pan", return_value=snapshots
          ) as evaluate:
-        result = duanyu.query("十神", {"gender": "male"})
+        result = duanyu.query(rule, {"gender": "male"})
 
     assert evaluate.call_args.kwargs["sides"] == {"bazi", "ziwei"}
     assert any(row["id"] == "cc_106" for row in result["合参"])
+
+
+def test_query_missing_required_factor_fails_closed() -> None:
+    """公共 query 边界不得把缺失因子静默当作 0。"""
+    rule = "十神"
+    with mock.patch.object(duanyu, "validate_natal_pan"), \
+         mock.patch.object(
+             duanyu,
+             "evaluate_snap_from_pan",
+             return_value={"八字": {}, "紫微": {}, "context": {}},
+         ):
+        with pytest.raises(AssertionRuleError, match="断语因子缺失"):
+            duanyu.query(rule, {"gender": "male"})
 
 
 def test_all_single_side_rules_with_common_request_dual_snapshots() -> None:
@@ -295,6 +363,10 @@ def test_all_single_side_rules_with_common_request_dual_snapshots() -> None:
                  duanyu,
                  "match_rule",
                  return_value={"八字": [], "紫微": [], "合参": []},
+             ), \
+             mock.patch.object(
+                 duanyu,
+                 "_assert_snapshot_factors",
              ):
             duanyu.query(rule, {"gender": "male"})
 

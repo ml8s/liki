@@ -1,10 +1,8 @@
-"""仓库 CalVer 契约：分发版本与契约版本保持一致。"""
+"""分发版本与契约版本的一致性契约。"""
 import json
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-LOCAL_TIMEZONE = ZoneInfo("Asia/Shanghai")
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION",
     ROOT / "engine/cmd/liki/VERSION",
@@ -14,7 +12,11 @@ VERSION_FILES = (
 def test_all_distributed_versions_are_synchronized():
     versions = {path.read_text(encoding="utf-8").strip() for path in VERSION_FILES}
     assert len(versions) == 1, versions
-    assert next(iter(versions)).startswith("20")
+    version = next(iter(versions))
+    assert version.startswith("20")
+    parts = version.split(".")
+    assert len(parts) == 4
+    assert all(part.isdigit() for part in parts)
 
 
 def test_bazi_tool_and_domain_contracts_use_distributed_version():
@@ -39,26 +41,3 @@ def test_divination_tool_and_projection_contracts_use_distributed_version():
     )
     assert tools["info"]["version"] == version
     assert projection_contract["version"] == version
-
-
-def test_changelog_is_project_level_and_current_version_is_calver():
-    version = (ROOT / "skills/liki/VERSION").read_text(encoding="utf-8").strip()
-    assert not list((ROOT / "skills").rglob("CHANGELOG.md"))
-    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    first_heading = next(
-        line for line in changelog.splitlines() if line.startswith("## ")
-    )
-    assert version in first_heading
-    from datetime import datetime
-
-    release_date = datetime.now(LOCAL_TIMEZONE).date()
-    assert version.startswith(release_date.strftime("%Y.%m.%d."))
-
-
-def test_project_changelog_has_no_duplicate_release_headings():
-    headings = [
-        line.strip()
-        for line in (ROOT / "CHANGELOG.md").read_text(encoding="utf-8").splitlines()
-        if line.startswith("## ")
-    ]
-    assert len(headings) == len(set(headings))

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from errors import FactorEvaluateError
 from factor_constants import load_constants
+from factor_tokens import FACTOR_WILDCARD
 from operators_natal import _base_ctx_from_pan
 
 # 流年算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
@@ -17,19 +18,17 @@ _LIU_OP_NAMES = frozenset({
 def _liu_handler_longevity(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
-    year = current_year
     if op == '流年长生':
         cs = (chart.get('full', {}) or {}).get('chang_sheng', []) or []
         nz = ln.get('nian_zhi', '')
         for it in cs:
             if it.get('index') == nz:
-                return it.get('name', '') if args and args[0] == '任意' else 1 if it.get('name') == args[0] else 0
-        return '' if args and args[0] == '任意' else 0
+                return it.get('name', '') if args and args[0] == FACTOR_WILDCARD else 1 if it.get('name') == args[0] else 0
+        return '' if args and args[0] == FACTOR_WILDCARD else 0
 
 def _liu_handler_shensha(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
-    year = current_year
     if op == '流年神煞':
         ss = ln.get('shensha', []) or []
         return 1 if any(((s.get('name') or '') == args[0] for s in ss)) else 0
@@ -37,7 +36,6 @@ def _liu_handler_shensha(op: str, args: list, base: dict, gender: str, chart: di
 def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
-    year = current_year
     if op == '流年透':
         return 1 if ss_year in star_keys else 0
 
@@ -79,7 +77,6 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
 def _liu_handler_yongshen(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
-    year = current_year
     if op == '忌神干':
         return 1 if _atomic_facts(ctx).get('unfavorable_gan') else 0
 
@@ -110,7 +107,6 @@ def _liu_handler_dayun(op: str, args: list, base: dict, gender: str, chart: dict
 def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
-    year = current_year
     if op == '流年宫化':
         # [宫位, 星曜, 四化]——与「宫含」同构的三维 key：星曜是显式维度，
         # 因子值 0/1 自身即构成完整命题（如「廉贞化忌落流年官禄宫」），
@@ -124,9 +120,9 @@ def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict
         si_hua_gong = zw.get('si_hua_gong', {}) or {}
         si_hua = zw.get('si_hua', {}) or {}
         for hit_star, gname in si_hua_gong.items():
-            if gong not in ('任意', gname):
+            if gong not in (FACTOR_WILDCARD, gname):
                 continue
-            if star not in ('任意', hit_star):
+            if star not in (FACTOR_WILDCARD, hit_star):
                 continue
             if si_hua.get(hit_star) == hua:
                 return 1
@@ -140,8 +136,8 @@ def _liu_handler_flow_star(op: str, args: list, base: dict, gender: str, chart: 
                            current_year: int, const: dict, ln: dict, nz: str,
                            nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
     """机械检查流曜是否入指定流年宫位；星曜含义由断语表表达。"""
-    if len(args) < 2:
-        return 0
+    if len(args) != 2:
+        raise FactorEvaluateError(f"流曜入宫需 2 参 [星曜,宫位]，实得 {len(args)}: {args}")
     star, palace = str(args[0]), str(args[1])
     for item in (ctx.get('zw_liunian', {}).get('gong_wei', []) or []):
         if palace != item.get('name'):
@@ -156,7 +152,7 @@ def _liu_handler_banhe(op: str, args: list, base: dict, gender: str, chart: dict
                        nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
     """读取 engine 三合半合原子事实；旺支规则不在 Python 复算。"""
     if len(args) < 2:
-        return 0
+        raise FactorEvaluateError(f"半合需至少 2 参 [来源/地支,...]，实得 {len(args)}: {args}")
     branches = set()
     for value in args:
         if value in const.get('地支', []):
@@ -173,7 +169,6 @@ def _liu_handler_banhe(op: str, args: list, base: dict, gender: str, chart: dict
 def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
-    year = current_year
     if op == '干支相等':
         pair = tuple(args)
         if pair == ("大运", "流年"):
@@ -217,15 +212,16 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
                 f"三刑需 2 参 [来源,刑组]，实得 {len(args)}: {args}"
             )
         source, group = args[0], args[1]
-        spec = load_constants().get("干支来源", {}).get(source)
-        if not spec or spec.get("部分") != "支":
-            raise FactorEvaluateError(f"三刑来源必须是地支来源: {source}")
+        if source != "流年支":
+            raise FactorEvaluateError(f"三刑来源只支持 流年支: {source}")
         members = _xing_members(group)
         if members is None:
             raise FactorEvaluateError(f"三刑刑组无效: {group}")
         source_zhi = _source_zhi(source, ctx)
         for item in _atomic_facts(ctx).get('combinations', []):
             if item.get('kind') != 'xing':
+                continue
+            if not item.get("includes_year"):
                 continue
             branches = item.get('branches') or []
             if source_zhi in branches and set(branches) == members:
@@ -326,10 +322,14 @@ def _xing_members(group: str) -> frozenset | None:
     （丑戌未 / 丑未戌 同组）均无关。
     """
     table = load_constants().get("三刑", {})
+    if not isinstance(group, str):
+        return None
     members = set(group)
     if not members or len(members) > 3:
         return None
     if len(members) == 1 and len(group) != 2:
+        return None
+    if len(members) > 1 and len(group) != len(members):
         return None
     for branch in members:
         partners = table.get(branch)

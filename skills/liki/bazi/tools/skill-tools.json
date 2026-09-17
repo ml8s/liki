@@ -3,7 +3,7 @@
   "info": {
     "title": "Liki bazi 命理工具",
     "description": "liki skill 的 6 个命理工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.16.2"
+    "version": "2026.09.17.0"
   },
   "tools": [
     {
@@ -21,7 +21,32 @@
           },
           "required": [
             "city"
-          ]
+          ],
+          "additionalProperties": false
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "longitude": {
+              "type": "number"
+            },
+            "latitude": {
+              "type": "number"
+            },
+            "country": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "longitude",
+            "latitude",
+            "country"
+          ],
+          "additionalProperties": false
         }
       }
     },
@@ -59,618 +84,51 @@
           "required": [
             "gregorian",
             "gender"
-          ]
+          ],
+          "additionalProperties": false
         },
         "result_schema": {
           "type": "object",
+          "description": "完整本命盘。必须原样传回 query/yearly_range/bond/calibrate，不得裁剪或修改。",
           "properties": {
             "solar": {
               "type": "string",
-              "description": "真太阳时（correct=true 时校正后）"
+              "format": "date-time"
             },
             "lunar": {
-              "type": "object",
-              "description": "农历",
-              "properties": {
-                "year": {
-                  "type": "integer"
-                },
-                "month": {
-                  "type": "integer"
-                },
-                "day": {
-                  "type": "integer"
-                },
-                "shichen": {
-                  "type": "string"
-                }
-              }
+              "type": "object"
             },
             "chart": {
-              "type": "object",
-              "description": "四柱排盘（四柱+大运+性别+出生年）",
-              "properties": {
-                "nian": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "yue": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "ri": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "shi": {
-                  "type": "object",
-                  "properties": {
-                    "gan": {
-                      "type": "string",
-                      "description": "天干"
-                    },
-                    "zhi": {
-                      "type": "string",
-                      "description": "地支"
-                    },
-                    "na_yin": {
-                      "type": "string",
-                      "description": "纳音"
-                    }
-                  }
-                },
-                "da_yun": {
-                  "type": "object",
-                  "properties": {
-                    "start_date": {
-                      "type": "string",
-                      "description": "起运公历日"
-                    },
-                    "direction": {
-                      "type": "string",
-                      "description": "顺排/逆排"
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "gan": {
-                            "type": "string"
-                          },
-                          "zhi": {
-                            "type": "string"
-                          },
-                          "start_date": {
-                            "type": "string",
-                            "description": "本步起始公历日 YYYY-MM-DD"
-                          },
-                          "end_date": {
-                            "type": "string",
-                            "description": "本步末日 YYYY-MM-DD"
-                          },
-                          "start_year": {
-                            "type": "integer",
-                            "description": "本步起始公历年"
-                          },
-                          "end_year": {
-                            "type": "integer",
-                            "description": "本步结束公历年"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "wuxing": {
-                            "type": "string"
-                          },
-                          "shi_shen": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "description": "每步十年（含 start_date/end_date + start_year/end_year）"
-                    },
-                    "current_step_index": {
-                      "type": "integer",
-                      "description": "当前大运索引（-1=未起运/已过完）"
-                    },
-                    "next_step_in_years": {
-                      "type": "integer",
-                      "description": "距下一大运剩余年数"
-                    }
-                  }
-                },
-                "gender": {
-                  "type": "string"
-                },
-                "birth_year": {
-                  "type": "integer"
-                },
-                "zi_shi_rule": {
-                  "type": "string",
-                  "description": "子时换日规则说明"
-                }
-              }
+              "type": "object"
             },
             "full": {
-              "type": "object",
-              "description": "完整命盘扩展（十神/藏干/神煞/空亡/魁罡/三元/合会冲刑）",
-              "properties": {
-                "nian": {
-                  "type": "object",
-                  "description": "含 shi_shens/cang_gan/shen_sha/is_void/is_kui_gang"
-                },
-                "yue": {
-                  "type": "object",
-                  "description": "含 shi_shens/cang_gan（月令本气 main）/shen_sha"
-                },
-                "ri": {
-                  "type": "object"
-                },
-                "shi": {
-                  "type": "object"
-                },
-                "yong_shen": {
-                  "type": "object",
-                  "description": "engine 用神三派只读对象；含扶抑 basis、调候 primary/secondary 显隐与格局 structure。具体结构由 pan_schema fail-closed 校验，工具 schema 不维护第二份内部字段清单"
-                },
-                "lu_roots": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "shi_shen": {
-                        "type": "string"
-                      },
-                      "gan": {
-                        "type": "string"
-                      },
-                      "zhi": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "shi_shen",
-                      "gan",
-                      "zhi"
-                    ]
-                  },
-                  "description": "透干十神得十干禄的 engine 原子事实"
-                },
-                "atomic_facts": {
-                  "type": "object",
-                  "description": "engine 确定性命理原子事实；Python 因子层只读",
-                  "properties": {
-                    "officer_killing_cleaned": {
-                      "type": "boolean"
-                    },
-                    "wealth_tomb_present": {
-                      "type": "boolean"
-                    },
-                    "wealth_star_in_tomb": {
-                      "type": "boolean"
-                    },
-                    "spouse_palace_state": {
-                      "type": "string",
-                      "enum": [
-                        "冲",
-                        "合",
-                        "刑",
-                        "害",
-                        "静"
-                      ]
-                    },
-                    "day_branch_type": {
-                      "type": "string",
-                      "enum": [
-                        "桃花",
-                        "驿马",
-                        "墓库",
-                        ""
-                      ]
-                    },
-                    "year_officer_killing": {
-                      "type": "boolean"
-                    },
-                    "day_master_element": {
-                      "type": "string"
-                    },
-                    "month_longevity": {
-                      "type": "string"
-                    },
-                    "year_stem_ten_god": {
-                      "type": "string"
-                    },
-                    "month_main_ten_god": {
-                      "type": "string"
-                    },
-                    "hour_stem_ten_god": {
-                      "type": "string"
-                    },
-                    "pattern_god_transparent": {
-                      "type": "boolean"
-                    },
-                    "pillar_punishments": {
-                      "type": "object",
-                      "properties": {
-                        "nian": {
-                          "type": "boolean"
-                        },
-                        "yue": {
-                          "type": "boolean"
-                        },
-                        "ri": {
-                          "type": "boolean"
-                        },
-                        "shi": {
-                          "type": "boolean"
-                        }
-                      },
-                      "required": [
-                        "nian",
-                        "yue",
-                        "ri",
-                        "shi"
-                      ]
-                    },
-                    "day_master_stem": {
-                      "type": "string"
-                    },
-                    "day_branch": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "day_master_element",
-                    "day_master_stem",
-                    "day_branch",
-                    "officer_killing_cleaned",
-                    "wealth_tomb_present",
-                    "wealth_star_in_tomb",
-                    "spouse_palace_state",
-                    "day_branch_type",
-                    "year_officer_killing",
-                    "month_longevity",
-                    "year_stem_ten_god",
-                    "month_main_ten_god",
-                    "hour_stem_ten_god",
-                    "pattern_god_transparent",
-                    "pillar_punishments"
-                  ]
-                },
-                "ten_god_states": {
-                  "type": "array",
-                  "description": "engine 十神显隐 / 通根 / 得令 / 旺弱状态",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "shi_shen": {
-                        "type": "string"
-                      },
-                      "wuxing": {
-                        "type": "string"
-                      },
-                      "transparent": {
-                        "type": "boolean"
-                      },
-                      "hidden": {
-                        "type": "boolean"
-                      },
-                      "rooted": {
-                        "type": "boolean"
-                      },
-                      "timely": {
-                        "type": "boolean"
-                      },
-                      "count": {
-                        "type": "integer"
-                      },
-                      "strength": {
-                        "type": "string",
-                        "enum": [
-                          "strong",
-                          "weak",
-                          "neutral"
-                        ]
-                      }
-                    },
-                    "required": [
-                      "shi_shen",
-                      "wuxing",
-                      "transparent",
-                      "hidden",
-                      "rooted",
-                      "timely",
-                      "count",
-                      "strength"
-                    ]
-                  }
-                },
-                "element_states": {
-                  "type": "array",
-                  "description": "engine 五行季节旺弱、组合旺弱与生克方向",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "wuxing": {
-                        "type": "string"
-                      },
-                      "season_strength": {
-                        "type": "string",
-                        "enum": [
-                          "strong",
-                          "weak"
-                        ]
-                      },
-                      "strength": {
-                        "type": "string",
-                        "enum": [
-                          "strong",
-                          "weak",
-                          "neutral"
-                        ]
-                      },
-                      "transparent": {
-                        "type": "boolean"
-                      },
-                      "rooted": {
-                        "type": "boolean"
-                      },
-                      "controls": {
-                        "type": "string"
-                      },
-                      "controlled_by": {
-                        "type": "string"
-                      },
-                      "controller_strength": {
-                        "type": "string",
-                        "enum": [
-                          "strong",
-                          "weak"
-                        ]
-                      },
-                      "reasons": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "required": [
-                      "wuxing",
-                      "season_strength",
-                      "strength",
-                      "transparent",
-                      "rooted",
-                      "controls",
-                      "controlled_by",
-                      "controller_strength",
-                      "reasons"
-                    ]
-                  }
-                },
-                "da_yun": {
-                  "type": "object",
-                  "description": "大运；fullchart 每步补 rooted/root_refs",
-                  "properties": {
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "rooted": {
-                            "type": "boolean"
-                          },
-                          "root_refs": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "source": {
-                                  "type": "string"
-                                },
-                                "pillar": {
-                                  "type": "string"
-                                },
-                                "stem": {
-                                  "type": "string"
-                                },
-                                "branch": {
-                                  "type": "string"
-                                }
-                              },
-                              "required": [
-                                "source",
-                                "stem",
-                                "branch"
-                              ]
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "required": [
-                      "steps"
-                    ]
-                  }
-                },
-                "relation_groups": {
-                  "type": "array",
-                  "description": "完整合会冲刑组；Python 只读",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "field": {
-                        "type": "string"
-                      },
-                      "group": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "field",
-                      "group"
-                    ]
-                  }
-                }
-              },
-              "required": [
-                "yong_shen",
-                "lu_roots",
-                "relation_groups",
-                "atomic_facts",
-                "ten_god_states",
-                "element_states"
-              ]
+              "type": "object"
             },
             "ziwei": {
-              "type": "object",
-              "description": "紫微十二宫",
-              "properties": {
-                "gong_wei": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "zhi": {
-                        "type": "string"
-                      },
-                      "xing_yao": {
-                        "type": "array"
-                      }
-                    }
-                  }
-                },
-                "si_hua": {
-                  "type": "object",
-                  "description": "{星名: 禄/权/科/忌}"
-                },
-                "ju_shu": {
-                  "type": "string"
-                },
-                "ming_gong": {
-                  "type": "string"
-                },
-                "palace_facts": {
-                  "type": "array",
-                  "description": "宫位原子事实；Python 因子层只读",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "palace": {
-                        "type": "string"
-                      },
-                      "kind": {
-                        "type": "string"
-                      },
-                      "target": {
-                        "type": "string"
-                      },
-                      "star": {
-                        "type": "string"
-                      },
-                      "value": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "palace",
-                      "kind",
-                      "target"
-                    ]
-                  }
-                }
-              }
+              "type": "object"
+            },
+            "ziwei_daxian": {
+              "type": "array"
             },
             "gender": {
               "type": "string",
-              "description": "性别"
+              "enum": [
+                "male",
+                "female"
+              ]
             },
-            "ziwei_daxian": {
-              "type": "array",
-              "description": "紫微十年大限：公历年段、起止虚岁、大限宫位与干支",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "start_year": {
-                    "type": "integer"
-                  },
-                  "end_year": {
-                    "type": "integer"
-                  },
-                  "qi_sui": {
-                    "type": "integer"
-                  },
-                  "zhi_sui": {
-                    "type": "integer"
-                  },
-                  "gong": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "gong",
-                  "name",
-                  "start_year",
-                  "end_year",
-                  "qi_sui",
-                  "zhi_sui"
-                ]
-              },
-              "minItems": 12,
-              "maxItems": 12
+            "pan_digest": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64
             },
             "calibration_hint": {
               "type": "object",
-              "description": "出生时间接近时辰交界时的确定性校准提示；自带当前时辰与跨后时辰，调用方无需二次推断",
+              "description": "时辰交界提示；只表达窗口风险，不做换日或吉凶判断。",
               "properties": {
                 "near_boundary": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "const": true
                 },
                 "minutes_to_boundary": {
                   "type": "integer",
@@ -681,10 +139,11 @@
                   "type": "integer",
                   "minimum": -30,
                   "maximum": 30,
-                  "description": "有符号偏移：负数=早于交界，正数=晚于交界；与 direction 一一对应"
+                  "description": "负数=早于交界；正数=晚于交界。"
                 },
                 "boundary_solar": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "date-time"
                 },
                 "threshold_minutes": {
                   "type": "integer",
@@ -693,7 +152,6 @@
                 },
                 "current_shichen": {
                   "type": "object",
-                  "description": "当前所在时辰（纯两小时窗口映射，不表达换日结论）",
                   "properties": {
                     "name": {
                       "type": "string"
@@ -709,11 +167,11 @@
                     "name",
                     "branch",
                     "span"
-                  ]
+                  ],
+                  "additionalProperties": false
                 },
                 "alternate_shichen": {
                   "type": "object",
-                  "description": "跨过最近时辰交界后变成的时辰",
                   "properties": {
                     "name": {
                       "type": "string"
@@ -729,15 +187,15 @@
                     "name",
                     "branch",
                     "span"
-                  ]
+                  ],
+                  "additionalProperties": false
                 },
                 "direction": {
                   "type": "string",
                   "enum": [
                     "earlier",
                     "later"
-                  ],
-                  "description": "往哪边偏会翻成 alternate_shichen"
+                  ]
                 },
                 "message": {
                   "type": "string"
@@ -753,13 +211,8 @@
                 "alternate_shichen",
                 "direction",
                 "message"
-              ]
-            },
-            "pan_digest": {
-              "type": "string",
-              "minLength": 64,
-              "maxLength": 64,
-              "description": "canonical SHA-256 pan digest；query/yearly/bond/calibrate 会校验"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -771,7 +224,8 @@
             "ziwei_daxian",
             "gender",
             "pan_digest"
-          ]
+          ],
+          "additionalProperties": false
         }
       }
     },
@@ -838,7 +292,463 @@
           "required": [
             "rule",
             "pan"
-          ]
+          ],
+          "additionalProperties": false
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "八字": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "领域": {
+                    "type": "string"
+                  },
+                  "事件类型": {
+                    "type": "string"
+                  },
+                  "时间层": {
+                    "type": "string"
+                  },
+                  "事件": {
+                    "type": "string"
+                  },
+                  "约束组": {
+                    "type": "array",
+                    "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                        "not": {
+                          "const": "任意"
+                        },
+                        "oneOf": [
+                          {
+                            "type": "integer",
+                            "enum": [
+                              0,
+                              1
+                            ]
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "结论": {
+                    "type": "string"
+                  },
+                  "依据": {
+                    "type": "string"
+                  },
+                  "经典依据": {
+                    "type": "string"
+                  },
+                  "trace": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "condition_group": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "factors": {
+                          "type": "object",
+                          "description": "因子名 -> 命中证据。",
+                          "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                              "expected": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              "actual": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "expected",
+                              "actual"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "condition_group",
+                        "factors"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "领域",
+                  "事件类型",
+                  "时间层",
+                  "事件",
+                  "约束组",
+                  "结论",
+                  "依据",
+                  "经典依据",
+                  "trace"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "紫微": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "领域": {
+                    "type": "string"
+                  },
+                  "事件类型": {
+                    "type": "string"
+                  },
+                  "时间层": {
+                    "type": "string"
+                  },
+                  "事件": {
+                    "type": "string"
+                  },
+                  "约束组": {
+                    "type": "array",
+                    "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                        "not": {
+                          "const": "任意"
+                        },
+                        "oneOf": [
+                          {
+                            "type": "integer",
+                            "enum": [
+                              0,
+                              1
+                            ]
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "结论": {
+                    "type": "string"
+                  },
+                  "依据": {
+                    "type": "string"
+                  },
+                  "经典依据": {
+                    "type": "string"
+                  },
+                  "trace": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "condition_group": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "factors": {
+                          "type": "object",
+                          "description": "因子名 -> 命中证据。",
+                          "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                              "expected": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              "actual": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "expected",
+                              "actual"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "condition_group",
+                        "factors"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "领域",
+                  "事件类型",
+                  "时间层",
+                  "事件",
+                  "约束组",
+                  "结论",
+                  "依据",
+                  "经典依据",
+                  "trace"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "合参": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "领域": {
+                    "type": "string"
+                  },
+                  "事件类型": {
+                    "type": "string"
+                  },
+                  "时间层": {
+                    "type": "string"
+                  },
+                  "事件": {
+                    "type": "string"
+                  },
+                  "约束组": {
+                    "type": "array",
+                    "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                        "not": {
+                          "const": "任意"
+                        },
+                        "oneOf": [
+                          {
+                            "type": "integer",
+                            "enum": [
+                              0,
+                              1
+                            ]
+                          },
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "结论": {
+                    "type": "string"
+                  },
+                  "依据": {
+                    "type": "string"
+                  },
+                  "经典依据": {
+                    "type": "string"
+                  },
+                  "trace": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "condition_group": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "factors": {
+                          "type": "object",
+                          "description": "因子名 -> 命中证据。",
+                          "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                              "expected": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              "actual": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "expected",
+                              "actual"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "condition_group",
+                        "factors"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "领域",
+                  "事件类型",
+                  "时间层",
+                  "事件",
+                  "约束组",
+                  "结论",
+                  "依据",
+                  "经典依据",
+                  "trace"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "yong_shen_context": {
+              "description": "仅在 rule=用神 时由 runtime 返回。",
+              "type": "object",
+              "properties": {
+                "yong_shen": {
+                  "type": "object"
+                },
+                "element_states": {
+                  "type": "array"
+                },
+                "ten_god_states": {
+                  "type": "array"
+                }
+              },
+              "required": [
+                "yong_shen",
+                "element_states",
+                "ten_god_states"
+              ],
+              "additionalProperties": false
+            },
+            "current_year": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "current_year_source": {
+              "type": "string",
+              "enum": [
+                "specified",
+                "server"
+              ],
+              "description": "仅在 rule=大运 / 大限 时由 runtime 返回。"
+            }
+          },
+          "required": [
+            "八字",
+            "紫微",
+            "合参"
+          ],
+          "additionalProperties": false
         }
       }
     },
@@ -920,7 +830,624 @@
             "start",
             "end",
             "rules"
-          ]
+          ],
+          "additionalProperties": false
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "current_year": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "current_year_source": {
+              "type": "string",
+              "enum": [
+                "specified",
+                "server"
+              ]
+            },
+            "year_basis": {
+              "type": "object",
+              "properties": {
+                "八字": {
+                  "type": "string"
+                },
+                "紫微": {
+                  "type": "string"
+                },
+                "usage": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "八字",
+                "紫微",
+                "usage"
+              ],
+              "additionalProperties": false
+            },
+            "years": {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[0-9]{4}$"
+              },
+              "additionalProperties": {
+                "if": {
+                  "required": [
+                    "error"
+                  ]
+                },
+                "then": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                },
+                "else": {
+                  "type": "object",
+                  "description": "key=命理域或展开后的流年域；value=该域三侧断语结果。",
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "八字": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "领域": {
+                                  "type": "string"
+                                },
+                                "事件类型": {
+                                  "type": "string"
+                                },
+                                "时间层": {
+                                  "type": "string"
+                                },
+                                "事件": {
+                                  "type": "string"
+                                },
+                                "结论": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "领域",
+                                "事件类型",
+                                "时间层",
+                                "事件",
+                                "结论"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "紫微": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "领域": {
+                                  "type": "string"
+                                },
+                                "事件类型": {
+                                  "type": "string"
+                                },
+                                "时间层": {
+                                  "type": "string"
+                                },
+                                "事件": {
+                                  "type": "string"
+                                },
+                                "结论": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "领域",
+                                "事件类型",
+                                "时间层",
+                                "事件",
+                                "结论"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "合参": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "领域": {
+                                  "type": "string"
+                                },
+                                "事件类型": {
+                                  "type": "string"
+                                },
+                                "时间层": {
+                                  "type": "string"
+                                },
+                                "事件": {
+                                  "type": "string"
+                                },
+                                "结论": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "领域",
+                                "事件类型",
+                                "时间层",
+                                "事件",
+                                "结论"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "八字",
+                          "紫微",
+                          "合参"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "八字": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "领域": {
+                                  "type": "string"
+                                },
+                                "事件类型": {
+                                  "type": "string"
+                                },
+                                "时间层": {
+                                  "type": "string"
+                                },
+                                "事件": {
+                                  "type": "string"
+                                },
+                                "约束组": {
+                                  "type": "array",
+                                  "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                      "not": {
+                                        "const": "任意"
+                                      },
+                                      "oneOf": [
+                                        {
+                                          "type": "integer",
+                                          "enum": [
+                                            0,
+                                            1
+                                          ]
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "结论": {
+                                  "type": "string"
+                                },
+                                "依据": {
+                                  "type": "string"
+                                },
+                                "经典依据": {
+                                  "type": "string"
+                                },
+                                "trace": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "condition_group": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      "factors": {
+                                        "type": "object",
+                                        "description": "因子名 -> 命中证据。",
+                                        "additionalProperties": {
+                                          "type": "object",
+                                          "properties": {
+                                            "expected": {
+                                              "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                              "not": {
+                                                "const": "任意"
+                                              },
+                                              "oneOf": [
+                                                {
+                                                  "type": "integer",
+                                                  "enum": [
+                                                    0,
+                                                    1
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "string"
+                                                }
+                                              ]
+                                            },
+                                            "actual": {
+                                              "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                              "not": {
+                                                "const": "任意"
+                                              },
+                                              "oneOf": [
+                                                {
+                                                  "type": "integer",
+                                                  "enum": [
+                                                    0,
+                                                    1
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "string"
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "expected",
+                                            "actual"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "condition_group",
+                                      "factors"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "领域",
+                                "事件类型",
+                                "时间层",
+                                "事件",
+                                "约束组",
+                                "结论",
+                                "依据",
+                                "经典依据",
+                                "trace"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "紫微": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "领域": {
+                                  "type": "string"
+                                },
+                                "事件类型": {
+                                  "type": "string"
+                                },
+                                "时间层": {
+                                  "type": "string"
+                                },
+                                "事件": {
+                                  "type": "string"
+                                },
+                                "约束组": {
+                                  "type": "array",
+                                  "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                      "not": {
+                                        "const": "任意"
+                                      },
+                                      "oneOf": [
+                                        {
+                                          "type": "integer",
+                                          "enum": [
+                                            0,
+                                            1
+                                          ]
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "结论": {
+                                  "type": "string"
+                                },
+                                "依据": {
+                                  "type": "string"
+                                },
+                                "经典依据": {
+                                  "type": "string"
+                                },
+                                "trace": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "condition_group": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      "factors": {
+                                        "type": "object",
+                                        "description": "因子名 -> 命中证据。",
+                                        "additionalProperties": {
+                                          "type": "object",
+                                          "properties": {
+                                            "expected": {
+                                              "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                              "not": {
+                                                "const": "任意"
+                                              },
+                                              "oneOf": [
+                                                {
+                                                  "type": "integer",
+                                                  "enum": [
+                                                    0,
+                                                    1
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "string"
+                                                }
+                                              ]
+                                            },
+                                            "actual": {
+                                              "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                              "not": {
+                                                "const": "任意"
+                                              },
+                                              "oneOf": [
+                                                {
+                                                  "type": "integer",
+                                                  "enum": [
+                                                    0,
+                                                    1
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "string"
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "expected",
+                                            "actual"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "condition_group",
+                                      "factors"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "领域",
+                                "事件类型",
+                                "时间层",
+                                "事件",
+                                "约束组",
+                                "结论",
+                                "依据",
+                                "经典依据",
+                                "trace"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "合参": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "领域": {
+                                  "type": "string"
+                                },
+                                "事件类型": {
+                                  "type": "string"
+                                },
+                                "时间层": {
+                                  "type": "string"
+                                },
+                                "事件": {
+                                  "type": "string"
+                                },
+                                "约束组": {
+                                  "type": "array",
+                                  "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                      "not": {
+                                        "const": "任意"
+                                      },
+                                      "oneOf": [
+                                        {
+                                          "type": "integer",
+                                          "enum": [
+                                            0,
+                                            1
+                                          ]
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "结论": {
+                                  "type": "string"
+                                },
+                                "依据": {
+                                  "type": "string"
+                                },
+                                "经典依据": {
+                                  "type": "string"
+                                },
+                                "trace": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "condition_group": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      "factors": {
+                                        "type": "object",
+                                        "description": "因子名 -> 命中证据。",
+                                        "additionalProperties": {
+                                          "type": "object",
+                                          "properties": {
+                                            "expected": {
+                                              "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                              "not": {
+                                                "const": "任意"
+                                              },
+                                              "oneOf": [
+                                                {
+                                                  "type": "integer",
+                                                  "enum": [
+                                                    0,
+                                                    1
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "string"
+                                                }
+                                              ]
+                                            },
+                                            "actual": {
+                                              "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                              "not": {
+                                                "const": "任意"
+                                              },
+                                              "oneOf": [
+                                                {
+                                                  "type": "integer",
+                                                  "enum": [
+                                                    0,
+                                                    1
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "string"
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "expected",
+                                            "actual"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "condition_group",
+                                      "factors"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "领域",
+                                "事件类型",
+                                "时间层",
+                                "事件",
+                                "约束组",
+                                "结论",
+                                "依据",
+                                "经典依据",
+                                "trace"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "八字",
+                          "紫微",
+                          "合参"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "minProperties": 1
+                }
+              }
+            }
+          },
+          "required": [
+            "current_year",
+            "current_year_source",
+            "year_basis",
+            "years"
+          ],
+          "additionalProperties": false
         }
       }
     },
@@ -1040,7 +1567,559 @@
           "required": [
             "candidates",
             "events"
-          ]
+          ],
+          "additionalProperties": false
+        },
+        "result_schema": {
+          "type": "object",
+          "description": "key=候选 label；value=按事件顺序排列的校准报告。",
+          "minProperties": 2,
+          "maxProperties": 3,
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "year": {
+                  "type": "integer"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "rule": {
+                  "type": "string"
+                },
+                "八字": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "领域": {
+                            "type": "string"
+                          },
+                          "事件类型": {
+                            "type": "string"
+                          },
+                          "时间层": {
+                            "type": "string"
+                          },
+                          "事件": {
+                            "type": "string"
+                          },
+                          "结论": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "领域",
+                          "事件类型",
+                          "时间层",
+                          "事件",
+                          "结论"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "领域": {
+                            "type": "string"
+                          },
+                          "事件类型": {
+                            "type": "string"
+                          },
+                          "时间层": {
+                            "type": "string"
+                          },
+                          "事件": {
+                            "type": "string"
+                          },
+                          "约束组": {
+                            "type": "array",
+                            "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "结论": {
+                            "type": "string"
+                          },
+                          "依据": {
+                            "type": "string"
+                          },
+                          "经典依据": {
+                            "type": "string"
+                          },
+                          "trace": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "condition_group": {
+                                  "type": "integer",
+                                  "minimum": 1
+                                },
+                                "factors": {
+                                  "type": "object",
+                                  "description": "因子名 -> 命中证据。",
+                                  "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                      "expected": {
+                                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                        "not": {
+                                          "const": "任意"
+                                        },
+                                        "oneOf": [
+                                          {
+                                            "type": "integer",
+                                            "enum": [
+                                              0,
+                                              1
+                                            ]
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      },
+                                      "actual": {
+                                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                        "not": {
+                                          "const": "任意"
+                                        },
+                                        "oneOf": [
+                                          {
+                                            "type": "integer",
+                                            "enum": [
+                                              0,
+                                              1
+                                            ]
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "expected",
+                                      "actual"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "condition_group",
+                                "factors"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "领域",
+                          "事件类型",
+                          "时间层",
+                          "事件",
+                          "约束组",
+                          "结论",
+                          "依据",
+                          "经典依据",
+                          "trace"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "紫微": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "领域": {
+                            "type": "string"
+                          },
+                          "事件类型": {
+                            "type": "string"
+                          },
+                          "时间层": {
+                            "type": "string"
+                          },
+                          "事件": {
+                            "type": "string"
+                          },
+                          "结论": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "领域",
+                          "事件类型",
+                          "时间层",
+                          "事件",
+                          "结论"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "领域": {
+                            "type": "string"
+                          },
+                          "事件类型": {
+                            "type": "string"
+                          },
+                          "时间层": {
+                            "type": "string"
+                          },
+                          "事件": {
+                            "type": "string"
+                          },
+                          "约束组": {
+                            "type": "array",
+                            "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "结论": {
+                            "type": "string"
+                          },
+                          "依据": {
+                            "type": "string"
+                          },
+                          "经典依据": {
+                            "type": "string"
+                          },
+                          "trace": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "condition_group": {
+                                  "type": "integer",
+                                  "minimum": 1
+                                },
+                                "factors": {
+                                  "type": "object",
+                                  "description": "因子名 -> 命中证据。",
+                                  "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                      "expected": {
+                                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                        "not": {
+                                          "const": "任意"
+                                        },
+                                        "oneOf": [
+                                          {
+                                            "type": "integer",
+                                            "enum": [
+                                              0,
+                                              1
+                                            ]
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      },
+                                      "actual": {
+                                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                        "not": {
+                                          "const": "任意"
+                                        },
+                                        "oneOf": [
+                                          {
+                                            "type": "integer",
+                                            "enum": [
+                                              0,
+                                              1
+                                            ]
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "expected",
+                                      "actual"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "condition_group",
+                                "factors"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "领域",
+                          "事件类型",
+                          "时间层",
+                          "事件",
+                          "约束组",
+                          "结论",
+                          "依据",
+                          "经典依据",
+                          "trace"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "合参": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "领域": {
+                            "type": "string"
+                          },
+                          "事件类型": {
+                            "type": "string"
+                          },
+                          "时间层": {
+                            "type": "string"
+                          },
+                          "事件": {
+                            "type": "string"
+                          },
+                          "结论": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "领域",
+                          "事件类型",
+                          "时间层",
+                          "事件",
+                          "结论"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "领域": {
+                            "type": "string"
+                          },
+                          "事件类型": {
+                            "type": "string"
+                          },
+                          "时间层": {
+                            "type": "string"
+                          },
+                          "事件": {
+                            "type": "string"
+                          },
+                          "约束组": {
+                            "type": "array",
+                            "description": "不同数组元素为 OR；同一对象内字段为 AND。",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                "not": {
+                                  "const": "任意"
+                                },
+                                "oneOf": [
+                                  {
+                                    "type": "integer",
+                                    "enum": [
+                                      0,
+                                      1
+                                    ]
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "结论": {
+                            "type": "string"
+                          },
+                          "依据": {
+                            "type": "string"
+                          },
+                          "经典依据": {
+                            "type": "string"
+                          },
+                          "trace": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "condition_group": {
+                                  "type": "integer",
+                                  "minimum": 1
+                                },
+                                "factors": {
+                                  "type": "object",
+                                  "description": "因子名 -> 命中证据。",
+                                  "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                      "expected": {
+                                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                        "not": {
+                                          "const": "任意"
+                                        },
+                                        "oneOf": [
+                                          {
+                                            "type": "integer",
+                                            "enum": [
+                                              0,
+                                              1
+                                            ]
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      },
+                                      "actual": {
+                                        "description": "因子值：0/1 命题、受控领域字符串；空字符串表示字符串因子不可用。",
+                                        "not": {
+                                          "const": "任意"
+                                        },
+                                        "oneOf": [
+                                          {
+                                            "type": "integer",
+                                            "enum": [
+                                              0,
+                                              1
+                                            ]
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "expected",
+                                      "actual"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "condition_group",
+                                "factors"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "领域",
+                          "事件类型",
+                          "时间层",
+                          "事件",
+                          "约束组",
+                          "结论",
+                          "依据",
+                          "经典依据",
+                          "trace"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "year",
+                "label",
+                "rule",
+                "八字",
+                "紫微",
+                "合参"
+              ],
+              "additionalProperties": false
+            }
+          }
         }
       }
     },
@@ -1064,7 +2143,102 @@
           "required": [
             "pan_a",
             "pan_b"
-          ]
+          ],
+          "additionalProperties": false
+        },
+        "result_schema": {
+          "type": "object",
+          "properties": {
+            "bazi": {
+              "type": "object",
+              "properties": {
+                "zhu_cross": {
+                  "type": "object"
+                },
+                "shi_shen_cross": {
+                  "type": "object"
+                },
+                "structure": {
+                  "type": "object"
+                },
+                "nayin_cross": {
+                  "type": "object"
+                },
+                "shensha_cross": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "zhu_cross",
+                "shi_shen_cross",
+                "structure",
+                "nayin_cross",
+                "shensha_cross"
+              ],
+              "additionalProperties": false
+            },
+            "ziwei": {
+              "type": "object",
+              "properties": {
+                "jia_gong_name": {
+                  "type": "string"
+                },
+                "yi_gong_name": {
+                  "type": "string"
+                },
+                "ming_gong_hu_ru": {
+                  "type": "object"
+                },
+                "fu_qi_gong": {
+                  "type": "object"
+                },
+                "zi_nv_gong": {
+                  "type": "object"
+                },
+                "ji_xing": {
+                  "type": "array"
+                },
+                "sha_xing": {
+                  "type": "array"
+                },
+                "lu_ma_ru": {
+                  "type": "array"
+                },
+                "kong_wang": {
+                  "type": "array"
+                },
+                "si_hua_ru": {
+                  "type": "array"
+                },
+                "wu_xing_sheng_ke": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "jia_gong_name",
+                "yi_gong_name",
+                "ming_gong_hu_ru",
+                "fu_qi_gong",
+                "zi_nv_gong",
+                "ji_xing",
+                "sha_xing",
+                "lu_ma_ru",
+                "kong_wang",
+                "si_hua_ru",
+                "wu_xing_sheng_ke",
+                "summary"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "bazi",
+            "ziwei"
+          ],
+          "additionalProperties": false
         }
       }
     }

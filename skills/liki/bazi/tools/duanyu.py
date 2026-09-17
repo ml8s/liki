@@ -10,6 +10,7 @@ import time
 
 from assertion_store import load_rule_table
 from factor_constants import load_constants
+from factor_tokens import FACTOR_WILDCARD
 from pan_schema import validate_natal_pan
 from errors import AssertionRuleError, YearRangeError
 from factor_tables import load_factor_rows, load_liunian_rows
@@ -250,6 +251,20 @@ def query(rule: str, pan: dict, year: int | None = None,
         sides=requested_sides,
         factor_names=required_natal_factors(query_tables),
     )
+    side_labels = load_constants()["命理侧"]["标签"]
+    for side_code, table in zip(load_constants()["命理侧"]["断言代码"], query_tables):
+        if not table:
+            continue
+        merged = (
+            {**snapshots[side_labels["bazi"]], **snapshots[side_labels["ziwei"]]}
+            if side_code == load_constants()["命理侧"]["公共代码"]
+            else snapshots[side_labels[side_code]]
+        )
+        _assert_snapshot_factors(
+            rule,
+            table,
+            {**merged, **(snapshots.get("context", {}) or {})},
+        )
     result = dict(filter_domains(match_rule(rule, snapshots), domains))
     if rule == "用神":
         result["yong_shen_context"] = _yong_shen_context(pan)
@@ -326,6 +341,20 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
         raise AssertionRuleError("query_yearly 仅接受流年快照（含 _snapshot_type='liunian'）")
     if rule not in YEARLY_RULES:
         raise AssertionRuleError(f"未知流年命理域 '{rule}'。有效域: {sorted(YEARLY_RULES)}（场景别名请走 yearly_range 展开）")
+    side_labels = load_constants()["命理侧"]["标签"]
+    for side_code, table in load_rule_tables(rule).items():
+        if not table:
+            continue
+        merged = (
+            {**snapshots[side_labels["bazi"]], **snapshots[side_labels["ziwei"]]}
+            if side_code == load_constants()["命理侧"]["公共代码"]
+            else snapshots[side_labels[side_code]]
+        )
+        _assert_snapshot_factors(
+            rule,
+            table,
+            {**merged, **(snapshots.get("context", {}) or {})},
+        )
     return match_rule(rule, snapshots)
 
 
@@ -334,10 +363,38 @@ def _value_matches(cond, actual):
     return actual == cond
 
 
+def _assert_factor_value(assertion_id: str, factor: str, value) -> None:
+    """断语因子必须是稳定 FactorValue；null / boolean / 复合对象 fail closed。"""
+    valid_scalar = (
+        (isinstance(value, int) and not isinstance(value, bool) and value in (0, 1))
+        or isinstance(value, str)
+    )
+    if not valid_scalar:
+        raise AssertionRuleError(
+            f"[{assertion_id}/{factor}] 因子值不是 FactorValue: {value!r}"
+        )
+
+
+def _assert_snapshot_factors(
+    assertion_id: str, table: list[dict], snapshot: dict
+) -> None:
+    """公共 query/yearly 边界：参与断语的因子必须在 snapshot 中存在。"""
+    for item in table:
+        for group_number, conditions in enumerate(item.get("约束组") or [], 1):
+            for factor, expected in conditions.items():
+                if factor not in snapshot:
+                    raise AssertionRuleError(
+                        f"[{assertion_id}/{group_number}] 断语因子缺失: {factor}"
+                    )
+                _assert_factor_value(assertion_id, factor, expected)
+                _assert_factor_value(assertion_id, factor, snapshot[factor])
+
+
 def match_table(table: list, snapshot: dict, exclusive: bool = False) -> list:
-    """真值表匹配：因子快照 × 断言条件组 → 命中条目（按表序）。
+    """真值表匹配：因子快照 × 断语条件组 → 命中条目（按表序）。
 
     同一 condition_group 内的条件为 AND，不同 condition_group 为 OR。
+    公共入口 match_rule 会先校验所需因子完整；本低层函数只做机械匹配。
     """
     hits = []
     for item in table:
@@ -364,6 +421,30 @@ def match_table(table: list, snapshot: dict, exclusive: bool = False) -> list:
         hits.append({**item, "trace": traces})
     return [hits[0]] if exclusive and hits else hits
 
+def _validate_rule_factors(
+    assertion_id: str, table: list[dict], snapshot: dict
+) -> None:
+    """公共断语边界的因子契约：参与条件必须存在且为 FactorValue。"""
+    for item in table:
+        for group_number, conditions in enumerate(item.get("约束组") or [], 1):
+            for factor, expected in conditions.items():
+                if factor not in snapshot:
+                    continue
+                actual = snapshot[factor]
+                for value in (expected, actual):
+                    valid_scalar = (
+                        isinstance(value, int)
+                        and not isinstance(value, bool)
+                        and value in (0, 1)
+                    ) or isinstance(value, str)
+                    if value == FACTOR_WILDCARD:
+                        valid_scalar = False
+                    if not valid_scalar:
+                        raise AssertionRuleError(
+                            f"[{assertion_id}/{group_number}/{factor}] "
+                            f"因子值不是 FactorValue: {value!r}"
+                        )
+
 
 def match_rule(rule: str, snapshots: dict) -> dict:
     """加载断语表 + 匹配。排盘上下文只参与匹配，不计入因子数。
@@ -376,18 +457,30 @@ def match_rule(rule: str, snapshots: dict) -> dict:
     bz_e, zw_e, common_e = (tables[side] for side in side_codes)
     context = snapshots.get("context", {}) or {}
     side_labels = load_constants()["命理侧"]["标签"]
-    return {
-        side_labels["bazi"]: match_table(
-            bz_e, {**snapshots[side_labels["bazi"]], **context}
-        ),
-        side_labels["ziwei"]: match_table(
-            zw_e, {**snapshots[side_labels["ziwei"]], **context}
-        ) if zw_e else [],
-        side_labels["common"]: match_table(common_e, {
+    side_snapshots = {
+        side_labels["bazi"]: {**snapshots[side_labels["bazi"]], **context},
+        side_labels["ziwei"]: {**snapshots[side_labels["ziwei"]], **context},
+        side_labels["common"]: {
             **snapshots[side_labels["bazi"]],
             **snapshots[side_labels["ziwei"]],
             **context,
-        }),
+        },
+    }
+    for side_code, table in zip(side_codes, (bz_e, zw_e, common_e)):
+        for item in table:
+            _validate_rule_factors(
+                item["id"], [item], side_snapshots[side_labels[side_code]]
+            )
+    return {
+        side_labels["bazi"]: match_table(
+            bz_e, side_snapshots[side_labels["bazi"]]
+        ),
+        side_labels["ziwei"]: match_table(
+            zw_e, side_snapshots[side_labels["ziwei"]]
+        ) if zw_e else [],
+        side_labels["common"]: match_table(
+            common_e, side_snapshots[side_labels["common"]]
+        ),
     }
 
 
