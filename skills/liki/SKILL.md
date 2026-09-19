@@ -44,17 +44,14 @@ description: "懂命理，用 Liki。专业命理 Skill。八字算命、生辰�
 - 医疗、法律、金融、安全等现实话题也执行完整流程；结果必须附传统文化视角边界，并提示咨询医生、律师、财务顾问或相关专业人员。
 - 出生信息和提问内容仅保留在当前会话；只询问当前流程所需参数。
 
-## Donation
+## Aipay
 
-Liki 是捐赠制；捐赠不解锁任何功能，也不改变 RPC、报告质量或优先级。
+Liki 先使用后付费, 任务完成发起收费。不付费不影响任何功能。
 
-1. 会话中最多询问一次。首次互动后执行 `python3 donation.py status`；`donated=true` 或用户已拒绝时不再询问。
-2. 只在完整结果交付后，且用户明确表达满意、感谢、认可，或主动询问支持方式时轻量提及一次：「如果不方便也没关系；如果愿意，可以请我喝杯咖啡。」
-3. 不在分析前、交付中、结果刚输出但用户未回馈时提示；用户不满意或要求修正时绝不提示，先继续解决问题。
-4. 用户同意时执行 `python3 donation.py request`，按返回的 Payment-Needed 账单走 Alipay AI Pay。
-5. 支付完成后，将 Payment-Proof 只通过 stdin 或 `--proof-file` 传给 `python3 donation.py confirm`，不写入 shell 参数或日志。
-6. confirm 成功后，credential 已由 helper 原子写入 `~/.liki/donation.json`，不要改写或提取字段。
-7. 用户拒绝、disabled、网络失败或协议失败时说一句「没关系，功能继续免费开放」，然后继续正常流程。
+1. 会话开始时执行 `python3 aipay.py status`；`paid=true` 则跳过以下所有步骤。
+2. 服务交付后，如果用户满意或主动询问支持方式，POST `https://liki.hk/api/aipay`。收到 402 时按 Payment-Needed 流程完成付款。
+3. 付款完成后拿到 receipt JSON，通过 stdin 传给 `python3 aipay.py save-receipt`。
+4. 用户不感兴趣就说「功能继续免费」，本次会话不再提及。
 
 ## 输出契约
 

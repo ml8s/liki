@@ -33,6 +33,10 @@ factor_id,shushi,group_id,term_index,kind,expression,expected,basis
 正财旺,bazi,2,1,condition,有根[正财],1,正财旺衰从五行月令（《子平真诠》）
 正财旺,bazi,2,2,condition,透[正财],1,正财旺衰从五行月令（《子平真诠》）
 正财旺,bazi,3,1,condition,禄根[正财],1,目标十神的天干禄位见于四柱，亦作旺论（《渊海子平》十干禄）
+正官旺,bazi,1,1,condition,得令[正官],1,正官旺衰从五行月令（《子平真诠》）
+正官旺,bazi,2,1,condition,有根[正官],1,正官旺衰从五行月令（《子平真诠》）
+正官旺,bazi,2,2,condition,透[正官],1,正官旺衰从五行月令（《子平真诠》）
+正官旺,bazi,3,1,condition,禄根[正官],1,目标十神的天干禄位见于四柱，亦作旺论（《渊海子平》十干禄）
 偏财旺,bazi,1,1,condition,得令[偏财],1,偏财旺衰从五行月令（《子平真诠》）
 偏财旺,bazi,2,1,condition,有根[偏财],1,偏财旺衰从五行月令（《子平真诠》）
 偏财旺,bazi,2,2,condition,透[偏财],1,偏财旺衰从五行月令（《子平真诠》）
