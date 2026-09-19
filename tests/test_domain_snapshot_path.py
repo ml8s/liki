@@ -15,7 +15,7 @@ def _cmp_bazi_pan() -> dict:
                        "current_step_index": 0},
         },
         "full": {
-            "yong_shen": _helpers.mock_yong_shen(),
+            **_helpers.mock_yongshen_fields(),
             "ten_god_states": [
                 {"shi_shen": "七杀", "wuxing": "金", "transparent": True, "hidden": False,
                  "rooted": True, "timely": False, "count": 2, "strength": "neutral"},
@@ -82,7 +82,9 @@ def test_snap_embeds_stable_domain_facts():
     pan["full"]["shi"]["cang_gan"] = {"main": "丁"}
     pan["full"]["ri"]["na_yin"] = "海中金"
     pan["full"]["san_yuan"] = {"胎元": "丙子", "命宫": "甲午", "身宫": "甲午"}
-    pan["full"]["xun_kong"] = "甲申旬空午未"
+    pan["full"]["tai_xi"] = "辛丑"
+    pan["full"]["day_xun"] = "甲申旬"
+    pan["full"]["day_xun_kong"] = "午未"
     pan["full"]["san_qi_name"] = "天乙贵人"
     pan["chart"]["da_yun"] = {"direction": "顺排", "current_step_index": 0,
         "steps": [{"name": "甲午", "gan": "甲", "zhi": "午", "wuxing": "木", "shi_shen": "偏印",
@@ -103,7 +105,9 @@ def test_snap_embeds_stable_domain_facts():
     assert bz["ri柱藏干"] == {"main": "癸"}
     assert bz["nian柱藏干"] == {"main": "丁", "mid": "己"}
     assert bz["三元"] == {"胎元": "丙子", "命宫": "甲午", "身宫": "甲午"}
-    assert bz["旬空"] == "甲申旬空午未"
+    assert bz["胎息"] == "辛丑"
+    assert bz["日柱所在旬"] == "甲申旬"
+    assert bz["日柱旬空"] == "午未"
     assert bz["三奇贵人"] == "天乙贵人"
     # 大运领域结构完整透传
     assert bz["大运"]["direction"] == "顺排"
@@ -116,7 +120,7 @@ def test_snap_embeds_stable_domain_facts():
     assert zw["身主"] == "天梁"
     assert zw["年干"] == "庚"
     assert zw["紫微星位"] == "命宫"
-    assert zw["空宫"][0]["gong_name"] == "兄弟"
+    assert zw["空宫借星"][0]["gong_name"] == "兄弟"
     # 出生时间进 context
     assert ctx["公历出生"] == "1990-05-20T12:00:00"
     assert ctx["农历出生"] == "1990年四月廿六"

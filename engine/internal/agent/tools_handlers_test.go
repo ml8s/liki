@@ -1515,8 +1515,10 @@ func TestHandler_BaziFullChart_Valid(t *testing.T) {
 			t.Errorf("%s.shi_shens missing in fullchart", pillar)
 		}
 		// 不应有额外字段
-		if _, exists := p["is_void"]; !exists {
-			t.Errorf("%s.is_void missing in fullchart", pillar)
+		for _, field := range []string{"is_void", "day_master_trend", "xun", "xun_kong"} {
+			if _, exists := p[field]; !exists {
+				t.Errorf("%s.%s missing in fullchart", pillar, field)
+			}
 		}
 	}
 }

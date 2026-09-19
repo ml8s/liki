@@ -209,7 +209,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         return 1 if _atomic_facts(chart).get("officer_killing_cleaned") else 0
     if op in ("为用", "为忌"):
         # 为用(十神类)：该十神五行 ∈ {用, 喜}；为忌：== 忌（引擎五神体系 yong/xi/ji）
-        fy = base.get("yongshen", {}).get("fu_yi", {}) or {}
+        fy = base.get("fu_yi", {}) or {}
         favorable_fields = const["用忌映射"][op]
         tens = _resolve_tens(args, gender)
         wx = _ten_to_wx(base, tens)
@@ -281,7 +281,7 @@ def _resolve_wx(base, gender, arg):
     return _ten_to_wx(base, resolved)
 def _path_get(base, chart, path: str):
     """按路径取值：优先 factors（基础因子），其次 chart 原始数据。"""
-    obj = base if path.startswith(("ten_god_states", "element_states", "wuxing", "yongshen", "ri_gan")) else chart
+    obj = base if path.startswith(("ten_god_states", "element_states", "wuxing", "fu_yi", "tiao_hou", "ge_ju", "ri_gan")) else chart
     cur = obj
     for part in path.split("."):
         if isinstance(cur, dict):
@@ -446,7 +446,7 @@ def _base_ctx_from_pan(chart: dict) -> dict:
             if index < len(full_steps) else step
             for index, step in enumerate(chart_da_yun["steps"])
         ]
-    fu_yi = (full.get("yong_shen") or {}).get("fu_yi", {}) or {}
+    fu_yi = full.get("fu_yi") or {}
     atomic = _atomic_facts(chart)
     ctx = {
         "ten_god_states": _ten_god_states_from_pan(chart),
@@ -454,7 +454,9 @@ def _base_ctx_from_pan(chart: dict) -> dict:
         "wuxing": {
             "count": fu_yi.get("wuxing_count", {}) or {},
         },
-        "yongshen": full.get("yong_shen") or {},
+        "fu_yi": full.get("fu_yi") or {},
+        "tiao_hou": full.get("tiao_hou") or {},
+        "ge_ju": full.get("ge_ju") or {},
         "day_master_element": atomic.get("day_master_element", ""),
         "ri_gan": atomic.get("day_master_stem", "") or chart.get("ri_gan", ""),
         "palace_ri": {"zhi": atomic.get("day_branch", "") or chart.get("palace_ri", {}).get("zhi", "")},

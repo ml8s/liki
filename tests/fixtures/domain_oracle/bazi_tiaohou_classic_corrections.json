@@ -1,0 +1,41 @@
+{
+  "source": "《穷通宝鉴》十天干喜用提要及分月原文",
+  "entries": [
+    {
+      "id": "乙亥-水多用戊佐",
+      "ri_yuan": "乙",
+      "month_branch": "亥",
+      "primary": "丙",
+      "secondary": "戊",
+      "basis": "乙木向阳，专取丙火；水多以戊佐。",
+      "secondary_condition": "水多以戊佐"
+    },
+    {
+      "id": "丙寅-庚金发水源",
+      "ri_yuan": "丙",
+      "month_branch": "寅",
+      "primary": "壬",
+      "secondary": "庚",
+      "basis": "壬水为用，庚金发水之源为佐。",
+      "secondary_condition": "庚金发水之源为佐"
+    },
+    {
+      "id": "丙卯-无壬用己",
+      "ri_yuan": "丙",
+      "month_branch": "卯",
+      "primary": "壬",
+      "secondary": "己",
+      "basis": "专用壬水；水多用戊制之，无壬用己。",
+      "secondary_condition": "无壬用己；水多用戊制"
+    },
+    {
+      "id": "丙申-壬多取戊制",
+      "ri_yuan": "丙",
+      "month_branch": "申",
+      "primary": "壬",
+      "secondary": "戊",
+      "basis": "壬水通根申宫，壬多必取戊制。",
+      "secondary_condition": "壬多必取戊制"
+    }
+  ]
+}

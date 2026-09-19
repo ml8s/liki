@@ -41,6 +41,7 @@ type TenGodState struct {
 // weak only when untimely, not transparent and rootless.
 type ElementState struct {
 	Wuxing             string   `json:"wuxing"`
+	Season             string   `json:"season"`
 	SeasonStrength     string   `json:"season_strength"`
 	Strength           string   `json:"strength"`
 	Transparent        bool     `json:"transparent"`
@@ -136,13 +137,14 @@ func computeElementStates(c FullChart, transparent, rooted map[ganzhi.Wuxing]boo
 	for _, element := range all {
 		state := ElementState{
 			Wuxing:       element.String(),
+			Season:       c.FuYi.WangShuai[element.String()],
 			Transparent:  transparent[element],
 			Rooted:       rooted[element],
 			Controls:     controlledElement(element).String(),
 			ControlledBy: controllingElement(element).String(),
 			Reasons:      []string{},
 		}
-		switch c.YongShen.FuYi.WangShuai[element.String()] {
+		switch c.FuYi.WangShuai[element.String()] {
 		case ganzhi.WSWang.String(), ganzhi.WSXiang.String():
 			state.SeasonStrength = "strong"
 		case ganzhi.WSXiu.String(), ganzhi.WSQiu.String(), ganzhi.WSSi.String():
@@ -370,6 +372,15 @@ func computeRelationGroups(c FullChart) []RelationGroup {
 			add(field, group)
 		}
 	}
+	for _, relation := range c.GanChong {
+		if group := ganChongGroupLabel(relation.GanA, relation.GanB); group != "" {
+			field := "gan_chong_candidate"
+			if relation.Position == "adjacent" {
+				field = "gan_chong"
+			}
+			add(field, group)
+		}
+	}
 	for _, relation := range ganzhi.ZhiHes {
 		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
 			add("zhi_liu_he", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
@@ -378,6 +389,18 @@ func computeRelationGroups(c FullChart) []RelationGroup {
 	for _, group := range ganzhi.TripleHeList {
 		if allBranchesPresent(zhiCounts, group.Zhi) {
 			add("san_he", branchGroupLabel(group.Zhi))
+			continue
+		}
+		if zhiCounts[group.Zhi[1]] > 0 {
+			present := []ganzhi.Zhi{}
+			for _, branch := range group.Zhi {
+				if zhiCounts[branch] > 0 {
+					present = append(present, branch)
+				}
+			}
+			if len(present) == 2 {
+				add("san_he_partial", branchGroupLabel(present))
+			}
 		}
 	}
 	for _, group := range ganzhi.TripleHuiList {
@@ -408,6 +431,16 @@ func computeRelationGroups(c FullChart) []RelationGroup {
 			add("liu_xing", xingGroupLabel(group.Zhi))
 		}
 	}
+	for _, relation := range ganzhi.PoPairs {
+		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
+			add("liu_po", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
+		}
+	}
+	for _, relation := range ganzhi.AnHePairs {
+		if zhiCounts[relation.A] > 0 && zhiCounts[relation.B] > 0 {
+			add("an_he", ganzhi.ZhiName(relation.A)+ganzhi.ZhiName(relation.B))
+		}
+	}
 	sort.Slice(groups, func(i, j int) bool {
 		if groups[i].Field != groups[j].Field {
 			return groups[i].Field < groups[j].Field
@@ -426,6 +459,20 @@ func ganHeGroupLabel(first, second string) string {
 		return ""
 	}
 	for _, relation := range ganzhi.GanHes {
+		if (relation.A == a && relation.B == b) || (relation.A == b && relation.B == a) {
+			return ganzhi.GanName(relation.A) + ganzhi.GanName(relation.B)
+		}
+	}
+	return ""
+}
+
+func ganChongGroupLabel(first, second string) string {
+	a, errA := ganzhi.ParseGan(first)
+	b, errB := ganzhi.ParseGan(second)
+	if errA != nil || errB != nil {
+		return ""
+	}
+	for _, relation := range ganzhi.GanChongPairs {
 		if (relation.A == a && relation.B == b) || (relation.A == b && relation.B == a) {
 			return ganzhi.GanName(relation.A) + ganzhi.GanName(relation.B)
 		}
@@ -489,7 +536,7 @@ func hiddenMainTenGod(pillar fullZhuInfo) string {
 }
 
 func patternGodTransparent(c FullChart) bool {
-	target, ok := patternTenGods[c.YongShen.GeJu.Pattern]
+	target, ok := patternTenGods[c.GeJu.Pattern]
 	if !ok {
 		return false
 	}

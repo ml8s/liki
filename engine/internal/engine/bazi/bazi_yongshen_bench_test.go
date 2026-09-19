@@ -8,7 +8,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-func BenchmarkComputeYongShen(b *testing.B) {
+func BenchmarkComputeYongShenSchools(b *testing.B) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, cst),
 		116.4, 8,
@@ -16,6 +16,6 @@ func BenchmarkComputeYongShen(b *testing.B) {
 	chart := ComputeChart(st, ganzhi.Male)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ComputeYongShen(chart)
+		_, _, _ = ComputeYongShenSchools(chart)
 	}
 }

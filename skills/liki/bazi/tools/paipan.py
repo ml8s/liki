@@ -25,8 +25,9 @@ from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
-TIMEOUT = 30
-SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 30
+RPC_TIMEOUT = int(os.environ.get("LIKI_RPC_TIMEOUT", "30"))
+MAX_RETRIES = int(os.environ.get("LIKI_RPC_MAX_RETRIES", "2"))
+SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 5
 SHICHEN_BOUNDARY_START_HOURS = (23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
@@ -42,14 +43,14 @@ class RPCError(LikiToolError):
     pass
 
 
-def call(method: str, params: dict, retries: int = 1) -> dict:
+def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     """调 JSON-RPC；传输类错误和限流可重试，业务错误不重试。"""
     body = json.dumps({"jsonrpc": "2.0", "method": method, "params": params, "id": 1}).encode()
     last_err = None
     for attempt in range(retries + 1):
         try:
             req = urllib.request.Request(RPC_URL, data=body, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=RPC_TIMEOUT) as resp:
                 data = json.loads(resp.read().decode())
             if "error" in data:
                 raise RPCError(f"{method}: {data['error']}")
@@ -227,7 +228,7 @@ def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, 
     correct=False：直接排盘不校正（路 B，用户已定时辰——再校正会二次偏移，日柱/时柱全错）。
 
     返回盘结构：{solar, lunar, chart, full, ziwei, ziwei_daxian, gender,
-    pan_digest[, calibration_hint]}；用神结论位于 full.yong_shen。
+    pan_digest[, calibration_hint]}；用神结论位于 full.fu_yi，调候位于 full.tiao_hou，格局位于 full.ge_ju。
     返回结构是 factors 层的唯一输入；领域快照由 factors 层按 pan 生成。
     """
     if correct and longitude is None:

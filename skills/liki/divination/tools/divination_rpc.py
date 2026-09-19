@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.request
 from urllib.error import HTTPError, URLError
 from pathlib import Path
 
 
-TIMEOUT = 30
+TIMEOUT = int(os.environ.get("LIKI_RPC_TIMEOUT", "30"))
+MAX_RETRIES = int(os.environ.get("LIKI_RPC_MAX_RETRIES", "2"))
 RETRYABLE_HTTP_CODES = {408, 429}
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
 DISCOVER_SCOPES = ("liuyao", "qimen", "huangli", "city", "tianwen", "time")
@@ -22,14 +24,14 @@ class RPCError(RuntimeError):
     """统一 RPC 失败类型。"""
 
 
-def call(method: str, params: dict, retries: int = 1) -> dict:
+def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     endpoint = rpc_endpoint()
     body = json.dumps(
         {"jsonrpc": "2.0", "method": method, "params": params, "id": 1},
         ensure_ascii=False,
     ).encode("utf-8")
     last_error: Exception | None = None
-    for _ in range(retries + 1):
+    for _attempt in range(retries + 1):
         try:
             request = urllib.request.Request(
                 endpoint,
@@ -59,6 +61,8 @@ def call(method: str, params: dict, retries: int = 1) -> dict:
             raise RPCError(f"{method}: HTTP {error.code}: {detail or error.reason}") from error
         except (URLError, ConnectionError, TimeoutError, OSError) as error:
             last_error = error
+        if _attempt < MAX_RETRIES:
+            time.sleep(min(0.25 * (2 ** _attempt), 2.0))
     raise RPCError(f"{method} 失败: {last_error}")
 
 

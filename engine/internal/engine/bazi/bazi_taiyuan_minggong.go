@@ -65,3 +65,31 @@ func computeSanYuan(monthZhu ganzhi.Zhu, nianGan ganzhi.Gan, timeZhi ganzhi.Zhi)
 
 	return SanYuan{TaiYuan: taiYuan, MingGong: mingGong, ShenGong: shenGong}
 }
+
+// computeTaiXi returns the day pillar's 胎息: the stem and branch that combine
+// with the day stem and day branch respectively.
+func computeTaiXi(dayZhu ganzhi.Zhu) ganzhi.Zhu {
+	gan := dayZhu.Gan
+	for _, pair := range ganzhi.GanHes {
+		if dayZhu.Gan == pair.A {
+			gan = pair.B
+			break
+		}
+		if dayZhu.Gan == pair.B {
+			gan = pair.A
+			break
+		}
+	}
+	zhi := dayZhu.Zhi
+	for _, pair := range ganzhi.ZhiHes {
+		if dayZhu.Zhi == pair.A {
+			zhi = pair.B
+			break
+		}
+		if dayZhu.Zhi == pair.B {
+			zhi = pair.A
+			break
+		}
+	}
+	return ganzhi.Zhu{Gan: gan, Zhi: zhi}
+}

@@ -16,7 +16,7 @@ CONST = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
 def _minimal_fac() -> dict:
     base = mock_base_context()
     base["wuxing"] = {"wang_shuai": {}, "count": {}}
-    base["yongshen"] = {}
+    base["fu_yi"] = {}
     return base
 
 
@@ -43,7 +43,7 @@ def test_career_palace_main_star_prosperity_is_not_always_true() -> None:
 
 def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:
     base = _minimal_fac()
-    base["yongshen"] = {"ge_ju": {"ge_ju": "正官格"}}
+    base["ge_ju"] = {"ge_ju": "正官格"}
 
     matching = {
         "full": {
@@ -84,7 +84,7 @@ def test_geju_closures_are_explicit() -> None:
 
 def test_fuyi_congge_is_a_scalar_factor() -> None:
     base = _minimal_fac()
-    base["yongshen"] = {"fu_yi": {"pattern": "从杀格"}}
+    base["fu_yi"] = {"pattern": "从杀格"}
 
     snap = evaluate_factors("male", base, shushi="bazi")
     assert snap["扶抑从格"] == "从杀格"

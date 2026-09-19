@@ -29,7 +29,7 @@ npx skills add ml8s/liki -y
 ## Quick start
 
 | Goal | Ask |
-|---|---|
+| --- | --- |
 | Destiny | `Calculate Bazi for a male born 1990-05-20 12:00 in Beijing.` |
 | Naming | `Name a boy born 2024-06-10 in Guangzhou; family name Chen.` |
 | Divination | `Can this project succeed? When will I know?` |
@@ -41,7 +41,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 ## What you get
 
 | Domain | Coverage |
-|---|---|
+| --- | --- |
 | Destiny | Bazi, Ziwei, luck periods, annual readings, personality, marriage, career, wealth, health, study, family, and compatibility |
 | Naming | Baby naming, adult renaming, Chinese names for foreigners, and self-selected name review |
 | Divination | Liuyao outcomes and timing, QiMen direction and strategy, Huangli date selection |
@@ -76,7 +76,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 ## Documentation
 
 | Document | Purpose |
-|---|---|
+| --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
 | [Skill package](./docs/SKILL_PACKAGE.md) | Unified skill layout, entries, and archive contract |
 | [README style](./docs/README_STYLE.md) | Structure, heading, and formatting contract for both READMEs |
@@ -93,8 +93,8 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 
 ```bash
 make hooks         # install git hooks
-make check         # assertion schema, document contracts, and version consistency
-make test-all      # skills, engine, and end-to-end integration tests
+make check         # all static checks (format + lint + schema + docs)
+make gate          # local push gate (lint + check + test, ~3min)
 make build-archive # pack the unified Liki skill
 ```
 
@@ -120,7 +120,7 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 ### Domain contracts
 
 | Contract | Purpose |
-|---|---|
+| --- | --- |
 | [Bazi tools](./skills/liki/bazi/TOOLS.md) | Complete stdin payloads for six Python tools |
 | [Divination tools](./skills/liki/divination/TOOLS.md) | Liuyao, QiMen, and Huangli tool payloads |
 | [Naming RPC](./skills/liki/naming/RPC.md) | Naming and Bazi helper RPC payloads |
@@ -129,11 +129,12 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 ### Tests and release
 
 ```bash
-make test-functional
-make golden-engine
-make test-integration
-make lint-readme
+make test           # All tests (pytest + Go engine full suite)
+make verify        # end-to-end integration tests
+make golden-engine # full golden suite
 ```
+
+See [Release model](./docs/RELEASE_MODEL.md) for the layered model: `lint → check → test → verify → gate`.
 
 Formal releases use SemVer tags; runtime compatibility uses CalVer. See [Release model](./docs/RELEASE_MODEL.md).
 

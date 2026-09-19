@@ -17,7 +17,7 @@ Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf
 ## 变量绑定
 
 | 变量 | 绑定 |
-|---|---|
+| --- | --- |
 | `$CITY_COORDS` | `city_coords` 响应的 `data` |
 | `$BAZI_PAN` | `full_paipan` 响应的 `data` |
 | `$QUERY_RESULT` | `query` 响应的 `data` |
@@ -30,10 +30,10 @@ Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf
 所有工具都只读 `ok` / `data` / `error`。`data` 的顶层契约如下；字段细节以 `skill-tools.json` 的 `result_schema` 为准。
 
 | 工具 | `data` 契约 |
-|---|---|
+| --- | --- |
 | `city_coords` | `{name, longitude, latitude, country}` |
 | `full_paipan` | 完整 `pan`：`{solar, lunar, chart, full, ziwei, ziwei_daxian, gender, pan_digest[, calibration_hint]}` |
-| `query` | `{八字: [命中断语], 紫微: [命中断语], 合参: [命中断语]}`；`用神` 额外有 `yong_shen_context`，`大运` / `大限` 额外有 `current_year` / `current_year_source` |
+| `query` | `{八字: [命中断语], 紫微: [命中断语], 合参: [命中断语]}`；`用神` 额外返回 `fu_yi` / `tiao_hou` / `ge_ju` / `element_states` / `ten_god_states`，`大运` / `大限` 额外有 `current_year` / `current_year_source` |
 | `yearly_range` | `{current_year, current_year_source, year_basis, years}`；`years` 以年份字符串为 key |
 | `calibrate` | `{候选label: [事件报告]}`；每个事件报告含 `year`、`label`、`rule` 和三侧断语 |
 | `bond` | `{bazi: ..., ziwei: ...}` |
@@ -61,7 +61,7 @@ Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf
 ```
 
 | 参数 | 必填 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `gregorian` | 是 | 公历 RFC3339 时间。 |
 | `gender` | 是 | `male` / `female`。 |
 | `longitude` | `correct=true` 时必填 | 出生经度。 |
@@ -86,7 +86,7 @@ Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf
 ```
 
 | 参数 | 必填 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `rule` | 是 | 只能用 `skill-tools.json` 中 `rule` enum 的值，或 app 卡显式列出的值。 |
 | `pan` | 是 | `$BAZI_PAN` 原样对象。 |
 | `year` | 否 | 仅 `大运` / `大限` 用于指定年限。 |
@@ -411,7 +411,7 @@ Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf
 ```
 
 | 参数 | 必填 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `pan` | 是 | `$BAZI_PAN` 原样对象。 |
 | `start` / `end` | 是 | 含端点；跨度最多 120 年。 |
 | `rules` | 是 | app 卡显式给出的流年规则或场景别名。 |
@@ -464,7 +464,6 @@ Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf
 {"fn":"yearly_range","args":{"pan":$BAZI_PAN,"start":2026,"end":2035,"rules":["年十神","年大运","年神煞"]}}
 ```
 
-
 ## 5. calibrate
 
 ```json
@@ -483,7 +482,7 @@ Windows 使用 `py -3 -X utf8 bazi/tools/agent_cli.py`；fallback `python -X utf
 ```
 
 | 参数 | 必填 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `candidates` | 是 | 2-3 个候选；`label` 唯一。 |
 | `events` | 是 | 3-5 件含年份的人生大事。 |
 | `detail` | 否 | 默认 `false`。 |

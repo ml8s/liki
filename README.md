@@ -29,7 +29,7 @@ npx skills add ml8s/liki -y
 ## 快速开始
 
 | 目标 | 直接这样问 |
-|---|---|
+| --- | --- |
 | 命理 | `算八字，1990-05-20 12:00 北京出生，男` |
 | 起名 | `宝宝起名，2024-06-10 广州出生，男，姓陈` |
 | 问卦 | `这个项目能成吗？什么时候有结果？` |
@@ -41,7 +41,7 @@ npx skills add ml8s/liki -y
 ## 能力概览
 
 | 领域 | 覆盖能力 |
-|---|---|
+| --- | --- |
 | 命理 | 八字、紫微、大运流年、性格、婚姻、事业、财运、健康、学业、六亲、合盘 |
 | 起名 | 新生儿起名、成人改名、外国人中文名、自选名字评估 |
 | 问卦 | 六爻成败与应期、奇门方向与时机、黄历择日 |
@@ -76,7 +76,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 ## 文档
 
 | 文档 | 用途 |
-|---|---|
+| --- | --- |
 | [用户指南](./docs/USER_GUIDE.md) | 完整使用说明、领域流程、FAQ 与输出边界 |
 | [Skill 包结构](./docs/SKILL_PACKAGE.md) | 统一 Skill 的目录、入口和打包契约 |
 | [README 规范](./docs/README_STYLE.md) | 中英文 README 的结构、标题和排版契约 |
@@ -93,8 +93,8 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 
 ```bash
 make hooks         # 安装 git hooks
-make check         # 断语表、文档契约和版本一致性
-make test-all      # skills、engine 和全链路集成测试
+make check         # 所有静态检查（格式 + lint + schema + docs）
+make gate          # 本地推送前门槛（lint + check + test，~3min）
 make build-archive # 打包 unified Liki skill
 ```
 
@@ -120,7 +120,7 @@ skills/liki/
 ### 领域契约
 
 | 契约 | 用途 |
-|---|---|
+| --- | --- |
 | [bazi TOOLS](./skills/liki/bazi/TOOLS.md) | 六个 Python 工具的完整 stdin 报文 |
 | [divination TOOLS](./skills/liki/divination/TOOLS.md) | 六爻、奇门、黄历工具报文 |
 | [naming RPC](./skills/liki/naming/RPC.md) | 起名与八字辅助 RPC 报文 |
@@ -129,11 +129,12 @@ skills/liki/
 ### 测试与发布
 
 ```bash
-make test-functional
-make golden-engine
-make test-integration
-make lint-readme
+make test           # 所有测试（pytest + Go 引擎全量）
+make verify        # 端到端集成测试
+make golden-engine # golden 全量
 ```
+
+分层详见 [Release model](./docs/RELEASE_MODEL.md)：`lint → check → test → verify → gate`。
 
 正式发布使用 SemVer tag，运行兼容版本使用 CalVer。规则见 [Release model](./docs/RELEASE_MODEL.md)。
 

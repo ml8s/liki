@@ -169,7 +169,7 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi))
 
-			if result.Yong == "" {
+			if result.PrimaryWuxing == "" {
 				t.Skip("no tiaohou entry")
 			}
 			if result.Season == "" {
@@ -179,16 +179,16 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 				t.Error("Detail is empty")
 			}
 			// 用神值断言（穷通宝鉴 primary 五行，与 120 条原文参考表一致）。
-			if result.Yong != tt.wantYong {
+			if result.PrimaryWuxing != tt.wantYong {
 				t.Errorf("Yong = %s, want %s（穷通宝鉴 %s日%s月 primary）",
-					result.Yong, tt.wantYong,
+					result.PrimaryWuxing, tt.wantYong,
 					ganzhi.GanName(tt.riYuan), ganzhi.ZhiName(tt.yueZhi))
 			}
 
 			// Verify yong/xi are valid 五行. 穷通宝鉴表只承载用神与辅神，
 			// 忌神须由扶抑/格局另行推导，不能机械反推后冒充原文事实。
 			for _, field := range []struct{ label, val string }{
-				{"Yong", result.Yong}, {"Xi", result.Xi},
+				{"Yong", result.PrimaryWuxing}, {"Xi", result.SecondaryWuxing},
 			} {
 				if field.label == "Xi" && field.val == "" {
 					continue // no 喜神 when no secondary
@@ -697,17 +697,17 @@ func TestTiaoHou_AllEntriesValid(t *testing.T) {
 
 		// Yong must be a valid five element.
 		validWuxing := map[string]bool{"木": true, "火": true, "土": true, "金": true, "水": true}
-		if !validWuxing[result.Yong] {
+		if !validWuxing[result.PrimaryWuxing] {
 			t.Errorf("%s日%s月: Yong = %q, want valid 五行 (primary=%s, secondary=%s)",
 				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
-				result.Yong, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
+				result.PrimaryWuxing, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 		}
-		if !validWuxing[result.Xi] {
+		if !validWuxing[result.SecondaryWuxing] {
 			// Xi may be empty when no secondary (喜神).
-			if result.Xi != "" {
+			if result.SecondaryWuxing != "" {
 				t.Errorf("%s日%s月: Xi = %q, want valid 五行 (primary=%s, secondary=%s)",
 					ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
-					result.Xi, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
+					result.SecondaryWuxing, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 			}
 		}
 		// Detail should contain the day gan and month zhi names.

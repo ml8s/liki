@@ -1,0 +1,90 @@
+{
+  "schema_version": "domain-oracle-bazi-zhi-pair-relations-v1",
+  "basis": "两支不可自成三合 / 三会；三合两支含旺支为半合，生墓二支只作三合拱候选；三会首尾二支只作三会拱候选。",
+  "sources": [
+    "《三命通会》三合三会",
+    "《渊海子平》地支合会",
+    "子平地支半合须含旺支通行口径"
+  ],
+  "cases": [
+    {
+      "id": "shen-chen-is-sanhe-gong-not-sanhe",
+      "a": "申",
+      "b": "辰",
+      "expected_type": "三合拱",
+      "expected_detail_contains": [
+        "拱子",
+        "水局"
+      ]
+    },
+    {
+      "id": "zi-chen-is-banhe",
+      "a": "子",
+      "b": "辰",
+      "expected_type": "半合",
+      "imperial": "子",
+      "expected_detail_contains": [
+        "半合",
+        "水局",
+        "缺申"
+      ]
+    },
+    {
+      "id": "shen-zi-is-banhe",
+      "a": "申",
+      "b": "子",
+      "expected_type": "半合",
+      "imperial": "子",
+      "expected_detail_contains": [
+        "半合",
+        "水局",
+        "缺辰"
+      ]
+    },
+    {
+      "id": "si-chou-is-sanhe-gong",
+      "a": "巳",
+      "b": "丑",
+      "expected_type": "三合拱",
+      "expected_detail_contains": [
+        "拱酉",
+        "金局"
+      ]
+    },
+    {
+      "id": "yin-chen-is-sanhui-gong",
+      "a": "寅",
+      "b": "辰",
+      "expected_type": "三会拱",
+      "expected_detail_contains": [
+        "拱卯",
+        "木方"
+      ]
+    },
+    {
+      "id": "hai-zi-is-not-sanhui",
+      "a": "亥",
+      "b": "子",
+      "expected_type": "无"
+    },
+    {
+      "id": "mao-chen-priority-is-hai-not-sanhui",
+      "a": "卯",
+      "b": "辰",
+      "expected_type": "六害",
+      "expected_detail_contains": [
+        "相害"
+      ]
+    },
+    {
+      "id": "yin-mao-is-not-sanhui",
+      "a": "寅",
+      "b": "卯",
+      "expected_type": "无"
+    }
+  ],
+  "forbid_complete_types_for_pair_only": [
+    "三合",
+    "三会"
+  ]
+}

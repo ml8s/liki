@@ -7,6 +7,7 @@ import (
 // ChartExtra holds supplementary chart data not needed for core analysis.
 type ChartExtra struct {
 	SanYuan    SanYuan             `json:"san_yuan"`
+	TaiXi      ganzhi.Zhu          `json:"tai_xi"`
 	GongJia    []GongJia           `json:"gong_jia,omitempty"`
 	NayinRel   []NayinRelEntry     `json:"nayin_rel"`
 	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
@@ -60,6 +61,7 @@ func ComputeChartExtra(c Chart) ChartExtra {
 
 	return ChartExtra{
 		SanYuan:    computeSanYuan(bz.Yue, bz.Nian.Gan, bz.Shi.Zhi),
+		TaiXi:      computeTaiXi(bz.Ri),
 		GongJia:    computeGongJia(bz),
 		NayinRel:   nayinRels,
 		ChangSheng: stages,

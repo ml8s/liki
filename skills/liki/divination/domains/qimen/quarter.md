@@ -6,7 +6,7 @@ description: 刻家奇门的方法边界
 # 刻家奇门
 
 | 口径 | 参数 | 规则 |
-|---|---|---|
+| --- | --- | --- |
 | 十分钟三元刻家 | `quarter_rule=ten_minute_sanyuan`（默认） | 一时辰 12 刻，每刻 10 分钟；刻柱主盘 |
 | 十二分钟十分局刻家 | `quarter_rule=twelve_minute_ten_division` | 一时辰 10 刻，每刻 12 分钟；初局取时家局，阳顺阴逆；时柱主盘 |
 

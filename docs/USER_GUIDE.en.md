@@ -7,7 +7,7 @@ This guide keeps the full usage instructions. The README is only the quick entry
 Different domains need different inputs. In all cases, provide only what the current question requires and wait for follow-up questions when data is missing.
 
 | Domain | Prepare |
-|---|---|
+| --- | --- |
 | Destiny | Birth date, precise time if available, birth city, gender |
 | Naming | Surname, gender, preferences, and birth data when the exact time is known |
 | Divination | One concrete event, decision, or timing question |
@@ -26,7 +26,7 @@ Missing information is acceptable. If you only know “morning” or do not know
 The Skill works like a professional consultation: one topic at a time, conclusion first, evidence second.
 
 | Goal | Ask |
-|---|---|
+| --- | --- |
 | Evidence | `Why?` / `What is the basis?` |
 | A specific year | `What about 2026?` / `What about the next three years?` |
 | Another topic | `What about wealth?` / `What about health?` |
@@ -78,7 +78,7 @@ Without a complete birth time, the Skill does not default to noon. It uses an ex
 Divination selects one method by question type. It does not automatically combine methods.
 
 | Goal | Default method | Example |
-|---|---|---|
+| --- | --- | --- |
 | Outcome or timing | Liuyao | `Can this project succeed?` |
 | Strategy, direction, or action timing | QiMen | `Should I sign now?` |
 | Date selection | Huangli | `Which day is good for moving?` |
@@ -88,7 +88,7 @@ If outcome and strategy are both requested, the Skill asks you to choose the mai
 Ordinary QiMen questions do not require method parameters. The default is hour scope, rotating plate, and chaibu hour determination. Advanced schools are used only when explicitly requested.
 
 | Preferred method | Ask |
-|---|---|
+| --- | --- |
 | Zhirun determination | `Use the zhirun chart for now.` |
 | Luo Shu flying plate | `Use the Luo Shu flying plate for this matter.` |
 | Ten-minute Kejia | `Use the ten-minute Kejia method.` |
@@ -102,7 +102,7 @@ Each casting keeps an immutable snapshot and evidence references; follow-up ques
 Feng shui covers two orthogonal systems:
 
 | System | Purpose |
-|---|---|
+| --- | --- |
 | Bazhai | Ming gua, four auspicious and inauspicious directions, door / master / stove |
 | Xuankong | period, sitting and facing stars, annual flying stars |
 

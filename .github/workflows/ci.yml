@@ -29,8 +29,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - name: markdownlint-cli2 (README and user guides)
-        run: make lint-readme
+      - name: markdownlint-cli2 (README, user guides and skill markdown)
+        run: make lint-md
 
   # ── Engine: Lint ──
   engine-lint:

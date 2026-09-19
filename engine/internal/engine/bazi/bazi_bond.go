@@ -2,39 +2,61 @@ package bazi
 
 import "liki-engine/internal/engine/ganzhi"
 
-// xunIndex returns the xun index (0-5) for a day pillar.
-func xunIndex(riZhu ganzhi.Zhu) int {
-	return ganzhi.SixtyCycleIndex(riZhu.Gan, riZhu.Zhi) / 10
-}
-
 type zhuPairEntry struct {
-	AZhu   string      `json:"jia_zhu"`
-	BZhu   string      `json:"yi_zhu"`
-	JiaGan string      `json:"jia_gan"`
-	YiGan  string      `json:"yi_gan"`
-	JiaZhi string      `json:"jia_zhi"`
-	YiZhi  string      `json:"yi_zhi"`
+	AZhu   string      `json:"a_zhu"`
+	BZhu   string      `json:"b_zhu"`
+	AGan   string      `json:"a_gan"`
+	BGan   string      `json:"b_gan"`
+	AZhi   string      `json:"a_zhi"`
+	BZhi   string      `json:"b_zhi"`
 	GanRel GanRelation `json:"gan_guan_xi"`
 	ZhiRel ZhiRelation `json:"zhi_guan_xi"`
 }
 type zhuCross struct {
 	Pairs []zhuPairEntry `json:"pairs"`
 }
+type dayMasterCross struct {
+	A      crossGanParty `json:"a"`
+	B      crossGanParty `json:"b"`
+	GanRel GanRelation   `json:"gan_guan_xi"`
+}
+type crossGanParty struct {
+	Gan    string `json:"gan"`
+	Wuxing string `json:"wuxing"`
+	Gender string `json:"gender"`
+}
+type spousePalaceCross struct {
+	AZhi     string      `json:"a_zhi"`
+	BZhi     string      `json:"b_zhi"`
+	Relation ZhiRelation `json:"relation"`
+}
 type shiShenCross struct {
-	AToB map[string]string `json:"jia_dui_yi"`
-	BToA map[string]string `json:"yi_dui_jia"`
+	AToB map[string]string `json:"a_to_b"`
+	BToA map[string]string `json:"b_to_a"`
 }
 type nayinPairEntry struct {
-	AZhu     string `json:"jia_zhu"`
-	BZhu     string `json:"yi_zhu"`
-	ANaYin   string `json:"jia_na_yin"`
-	BNaYin   string `json:"yi_na_yin"`
+	AZhu     string `json:"a_zhu"`
+	BZhu     string `json:"b_zhu"`
+	ANaYin   string `json:"a_na_yin"`
+	BNaYin   string `json:"b_na_yin"`
 	Relation string `json:"relation"`
 }
-type yongShenEntry struct {
+type elementCross struct {
+	A        map[string]int `json:"a"`
+	B        map[string]int `json:"b"`
+	Combined map[string]int `json:"combined"`
+	FuYi     struct {
+		A yongShenFitEntry `json:"a"`
+		B yongShenFitEntry `json:"b"`
+	} `json:"fu_yi_in_other"`
+}
+type yongShenFitEntry struct {
+	Model       string `json:"model"`
 	Yong        string `json:"yong"`
+	Xi          string `json:"xi"`
 	Ji          string `json:"ji"`
 	YongInOther int    `json:"yong_in_other"`
+	XiInOther   int    `json:"xi_in_other"`
 	JiInOther   int    `json:"ji_in_other"`
 }
 type nayinCross struct {
@@ -42,15 +64,31 @@ type nayinCross struct {
 	Elements struct {
 		A map[string]int `json:"a"`
 		B map[string]int `json:"b"`
-	} `json:"wuxings"`
-	YongShen struct {
-		A yongShenEntry `json:"a"`
-		B yongShenEntry `json:"b"`
-	} `json:"yong_shen"`
+	} `json:"wuxing_counts"`
+}
+type spouseStarOccurrence struct {
+	Pillar string `json:"pillar"`
+	Branch string `json:"branch"`
+	Stem   string `json:"stem"`
+	Source string `json:"source"`
+	IsVoid bool   `json:"is_void"`
+}
+type spouseStarGroup struct {
+	TenGod      string                 `json:"ten_god"`
+	Occurrences []spouseStarOccurrence `json:"occurrences"`
+}
+type spouseStarFact struct {
+	Gender    string          `json:"gender"`
+	Primary   spouseStarGroup `json:"primary"`
+	Secondary spouseStarGroup `json:"secondary"`
+}
+type spouseStarCross struct {
+	A spouseStarFact `json:"a"`
+	B spouseStarFact `json:"b"`
 }
 type shenshaMutual struct {
-	AInB bool `json:"jia_ru_yi"`
-	BInA bool `json:"yi_ru_jia"`
+	AInB bool `json:"a_present_in_b"`
+	BInA bool `json:"b_present_in_a"`
 }
 type shenshaCross struct {
 	TianYi   shenshaMutual `json:"tian_yi"`
@@ -62,46 +100,133 @@ type shenshaCross struct {
 	RiDe     shenshaMutual `json:"ri_de"`
 	RiGui    shenshaMutual `json:"ri_gui"`
 }
-type daYunCrossEntry struct {
-	Gan     ganzhi.Gan `json:"gan"`
-	Zhi     ganzhi.Zhi `json:"zhi"`
-	Name    string     `json:"name"`
-	ShiShen string     `json:"shi_shen"`
-}
-type daYunCross struct {
-	ACurrent daYunCrossEntry `json:"a_current"`
-	BCurrent daYunCrossEntry `json:"b_current"`
-	GanRel   GanRelation     `json:"gan_guan_xi"`
-	ZhiRel   ZhiRelation     `json:"zhi_guan_xi"`
-}
 
-// XunGong describes whether two charts share the same xun (旬) or palace (宫).
-type XunGong struct {
-	SameXun  bool `json:"same_xun"`
-	SameGong bool `json:"same_gong"`
-}
-type structureCross struct {
-	DaYun   daYunCross `json:"da_yun"`
-	XunGong XunGong    `json:"xun_gong"`
-}
-
-// Bond holds the compatibility analysis between two bazi charts.
+// Bond holds natal pair facts only. Dynamic DaYun and LiuYun timing remain in
+// each person's own chart and yearly tools; this type does not synthesize a
+// compatibility rhythm or rating.
 type Bond struct {
-	ZhuCross     zhuCross       `json:"zhu_cross"`
-	ShiShenCross shiShenCross   `json:"shi_shen_cross"`
-	NayinCross   nayinCross     `json:"nayin_cross"`
-	ShenshaCross shenshaCross   `json:"shensha_cross"`
-	Structure    structureCross `json:"structure"`
+	DayMaster    dayMasterCross    `json:"day_master"`
+	SpousePalace spousePalaceCross `json:"spouse_palace"`
+	ZhuCross     zhuCross          `json:"zhu_cross"`
+	ShiShenCross shiShenCross      `json:"shi_shen_cross"`
+	ElementCross elementCross      `json:"wuxing_cross"`
+	NayinCross   nayinCross        `json:"nayin_cross"`
+	SpouseStar   spouseStarCross   `json:"spouse_star"`
+	ShenshaCross shenshaCross      `json:"shensha_cross"`
 }
 
 func ComputeBond(aBazi, bBazi Chart) Bond {
+	aFull, bFull := ComputeFullChart(aBazi), ComputeFullChart(bBazi)
 	return Bond{
+		DayMaster:    computeDayMasterCross(aBazi, bBazi),
+		SpousePalace: computeSpousePalaceCross(aFull, bFull),
 		ZhuCross:     computeZhuCross(aBazi, bBazi),
 		ShiShenCross: computeShiShenCross(aBazi, bBazi),
+		ElementCross: computeElementCross(aBazi, bBazi, aFull, bFull),
 		NayinCross:   computeNayinCross(aBazi, bBazi),
+		SpouseStar:   computeSpouseStarCross(aFull, bFull),
 		ShenshaCross: computeShenshaCross(aBazi, bBazi),
-		Structure:    computeStructureCross(aBazi, bBazi),
 	}
+}
+
+func computeDayMasterCross(a, b Chart) dayMasterCross {
+	cross := dayMasterCross{
+		GanRel: analyzeGanRelation(a.Ri.Gan, b.Ri.Gan),
+	}
+	cross.A = crossGanParty{
+		Gan: ganzhi.GanName(a.Ri.Gan), Wuxing: ganzhi.GanWuxing(a.Ri.Gan).String(), Gender: a.Gender.String(),
+	}
+	cross.B = crossGanParty{
+		Gan: ganzhi.GanName(b.Ri.Gan), Wuxing: ganzhi.GanWuxing(b.Ri.Gan).String(), Gender: b.Gender.String(),
+	}
+	return cross
+}
+
+func computeSpousePalaceCross(a, b FullChart) spousePalaceCross {
+	return spousePalaceCross{
+		AZhi: ganzhi.ZhiName(a.Ri.Zhi), BZhi: ganzhi.ZhiName(b.Ri.Zhi),
+		Relation: analyzeZhiRelation(a.Ri.Zhi, b.Ri.Zhi),
+	}
+}
+
+func computeElementCross(a, b Chart, aFull, bFull FullChart) elementCross {
+	aCount := convertWuxingCount(computeElementCount(a.ToBazi(), computeCangGan(a.ToBazi())))
+	bCount := convertWuxingCount(computeElementCount(b.ToBazi(), computeCangGan(b.ToBazi())))
+	combined := convertWuxingCount(map[ganzhi.Wuxing]int{})
+	for _, src := range []map[string]int{aCount, bCount} {
+		for k, v := range src {
+			combined[k] += v
+		}
+	}
+	cross := elementCross{A: aCount, B: bCount, Combined: combined}
+	cross.FuYi.A = yongShenFit(aFull.FuYi, bCount)
+	cross.FuYi.B = yongShenFit(bFull.FuYi, aCount)
+	return cross
+}
+
+func convertWuxingCount(src map[ganzhi.Wuxing]int) map[string]int {
+	out := map[string]int{
+		ganzhi.WxMu.String():   0,
+		ganzhi.WxHuo.String():  0,
+		ganzhi.WxTu.String():   0,
+		ganzhi.WxJin.String():  0,
+		ganzhi.WxShui.String(): 0,
+	}
+	for k, v := range src {
+		out[k.String()] = v
+	}
+	return out
+}
+
+func yongShenFit(f FuYiResult, other map[string]int) yongShenFitEntry {
+	return yongShenFitEntry{
+		Model: f.Model, Yong: f.Yong, Xi: f.Xi, Ji: f.Ji,
+		YongInOther: other[f.Yong], XiInOther: other[f.Xi], JiInOther: other[f.Ji],
+	}
+}
+
+func computeSpouseStarCross(a, b FullChart) spouseStarCross {
+	return spouseStarCross{
+		A: buildSpouseStarFact(a),
+		B: buildSpouseStarFact(b),
+	}
+}
+
+func buildSpouseStarFact(fc FullChart) spouseStarFact {
+	primary, secondary := ganzhi.ShiShenZhengCai, ganzhi.ShiShenPianCai
+	if fc.Gender == ganzhi.Female {
+		primary, secondary = ganzhi.ShiShenZhengGuan, ganzhi.ShiShenQiSha
+	}
+	out := spouseStarFact{
+		Gender: fc.Gender.String(),
+		Primary: spouseStarGroup{
+			TenGod:      primary.String(),
+			Occurrences: []spouseStarOccurrence{},
+		},
+		Secondary: spouseStarGroup{
+			TenGod:      secondary.String(),
+			Occurrences: []spouseStarOccurrence{},
+		},
+	}
+	pillars := []fullZhuInfo{fc.Nian, fc.Yue, fc.Ri, fc.Shi}
+	for i, pillar := range pillars {
+		for _, item := range pillar.ShiShens {
+			occ := spouseStarOccurrence{
+				Pillar: zhuLabels[i],
+				Branch: ganzhi.ZhiName(pillar.Zhi),
+				Stem:   item.Name,
+				Source: item.Source,
+				IsVoid: pillar.IsVoid,
+			}
+			switch item.ShiShen {
+			case primary:
+				out.Primary.Occurrences = append(out.Primary.Occurrences, occ)
+			case secondary:
+				out.Secondary.Occurrences = append(out.Secondary.Occurrences, occ)
+			}
+		}
+	}
+	return out
 }
 
 func computeZhuCross(a, b Chart) zhuCross {
@@ -114,8 +239,8 @@ func computeZhuCross(a, b Chart) zhuCross {
 		for j := 0; j < 4; j++ {
 			pairs = append(pairs, zhuPairEntry{
 				AZhu: zhuLabels[i], BZhu: zhuLabels[j],
-				JiaGan: ganzhi.GanName(aG[i]), YiGan: ganzhi.GanName(bG[j]),
-				JiaZhi: ganzhi.ZhiName(aZ[i]), YiZhi: ganzhi.ZhiName(bZ[j]),
+				AGan: ganzhi.GanName(aG[i]), BGan: ganzhi.GanName(bG[j]),
+				AZhi: ganzhi.ZhiName(aZ[i]), BZhi: ganzhi.ZhiName(bZ[j]),
 				GanRel: analyzeGanRelation(aG[i], bG[j]),
 				ZhiRel: analyzeZhiRelation(aZ[i], bZ[j]),
 			})
@@ -167,28 +292,7 @@ func computeNayinCross(a, b Chart) nayinCross {
 	}
 	nc.Elements.A = countElems(aNy)
 	nc.Elements.B = countElems(bNy)
-
-	// 用神互见（扶抑派）：一方用神/忌神五行在对方四柱纳音五行中的出现次数。
-	// 用神为对方所旺、忌神为对方所旺，皆关系张力来源。
-	aFc, bFc := ComputeFullChart(a), ComputeFullChart(b)
-	nc.YongShen.A = yongShenCrossEntry(bFc, aFc)
-	nc.YongShen.B = yongShenCrossEntry(aFc, bFc)
 	return nc
-}
-
-// yongShenCrossEntry 统计 self 的扶抑用神/忌神五行在 other 纳音五行分布中的计数。
-func yongShenCrossEntry(other, self FullChart) yongShenEntry {
-	oCount := map[string]int{}
-	for _, s := range other.NaYinArray() {
-		oCount[ganzhi.NayinWuxing(s).String()]++
-	}
-	e := yongShenEntry{
-		Yong: self.YongShen.FuYi.Yong,
-		Ji:   self.YongShen.FuYi.Ji,
-	}
-	e.YongInOther = oCount[e.Yong]
-	e.JiInOther = oCount[e.Ji]
-	return e
 }
 
 func computeShenshaCross(a, b Chart) shenshaCross {
@@ -268,29 +372,3 @@ func isRiGui(p ganzhi.Zhu) bool { _, ok := riGuiSet[[2]int{int(p.Gan), int(p.Zhi
 
 var riDeSet map[[2]int]bool
 var riGuiSet map[[2]int]bool
-
-func computeStructureCross(a, b Chart) structureCross {
-	return structureCross{DaYun: computeDaYunCross(a, b), XunGong: computeXunGong(a, b)}
-}
-func computeDaYunCross(a, b Chart) daYunCross {
-	if a.DaYun == nil || b.DaYun == nil {
-		return daYunCross{}
-	}
-	dc := daYunCross{ACurrent: currentDaYunEntry(a.DaYun), BCurrent: currentDaYunEntry(b.DaYun)}
-	dc.GanRel = analyzeGanRelation(dc.ACurrent.Gan, dc.BCurrent.Gan)
-	dc.ZhiRel = analyzeZhiRelation(dc.ACurrent.Zhi, dc.BCurrent.Zhi)
-	return dc
-}
-func currentDaYunEntry(dr *DaYun) daYunCrossEntry {
-	if dr == nil || dr.CurrentStepIndex < 0 || dr.CurrentStepIndex >= len(dr.Steps) {
-		return daYunCrossEntry{}
-	}
-	p := dr.Steps[dr.CurrentStepIndex]
-	return daYunCrossEntry{Gan: p.Gan, Zhi: p.Zhi, Name: p.Name, ShiShen: p.ShiShen}
-}
-func computeXunGong(a, b Chart) XunGong {
-	return XunGong{
-		SameXun:  xunIndex(a.Ri.Zhu) == xunIndex(b.Ri.Zhu),
-		SameGong: a.Ri.Zhi == b.Ri.Zhi,
-	}
-}

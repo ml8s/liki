@@ -272,7 +272,7 @@ def test_query_year_is_rejected_for_pure_natal_rules():
             "gender": "male",
             "chart": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
-            "yongshen": {}, "ziwei": _helpers.mock_ziwei(), "ziwei_daxian": _helpers.valid_daxian(),
+            "fu_yi": {}, "tiao_hou": {}, "ge_ju": {}, "ziwei": _helpers.mock_ziwei(), "ziwei_daxian": _helpers.valid_daxian(),
         }, year=2005)
 
 
@@ -281,8 +281,9 @@ def test_required_natal_factors_include_reference_closure():
         "id": "test",
         "约束组": [{"比劫夺财": 1}],
     }]]
+    # `现[财星]` 是 `比劫夺财` 内部原子条件，不是外层因子引用。
     assert duanyu.required_natal_factors(tables) >= {
-        "比劫夺财", "比劫旺", "财星弱", "财星现"
+        "比劫夺财", "比劫旺"
     }
 
 

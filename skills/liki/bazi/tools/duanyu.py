@@ -175,16 +175,6 @@ def default_scene_domains(rules: list[str]) -> list[str] | None:
     return sorted(domains)
 
 
-def _yong_shen_context(pan: dict) -> dict:
-    """Directly project engine-owned yong-shen evidence; no Python inference."""
-    full = pan["full"]
-    return {
-        "yong_shen": full["yong_shen"],
-        "element_states": full["element_states"],
-        "ten_god_states": full["ten_god_states"],
-    }
-
-
 def query(rule: str, pan: dict, year: int | None = None,
           domains: list[str] | None = None) -> dict:
     """断语查询：域 + 本命盘 → 该域断语 {八字: [...], 紫微: [...], 合参: [...]}。
@@ -267,7 +257,11 @@ def query(rule: str, pan: dict, year: int | None = None,
         )
     result = dict(filter_domains(match_rule(rule, snapshots), domains))
     if rule == "用神":
-        result["yong_shen_context"] = _yong_shen_context(pan)
+        result["fu_yi"] = pan["full"]["fu_yi"]
+        result["tiao_hou"] = pan["full"]["tiao_hou"]
+        result["ge_ju"] = pan["full"]["ge_ju"]
+        result["element_states"] = pan["full"]["element_states"]
+        result["ten_god_states"] = pan["full"]["ten_god_states"]
     if resolved_current_year:
         result["current_year"] = resolved_current_year
         result["current_year_source"] = current_year_source

@@ -8,30 +8,30 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-func TestComputeYongShen_AllSchoolsPresent(t *testing.T) {
+func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
 	st := tianwen.GregorianToSolar(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
 	chart := ComputeChart(st, ganzhi.Male)
-	result := ComputeYongShen(chart)
+	fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
 	validStrengths := map[string]bool{"身强": true, "身弱": true, "中和": true}
-	if !validStrengths[result.FuYi.Strength] {
-		t.Errorf("FuYi.Strength = %q", result.FuYi.Strength)
+	if !validStrengths[fuYi.Strength] {
+		t.Errorf("FuYi.Strength = %q", fuYi.Strength)
 	}
 	// wuxing_count and wang_shuai should be present
-	if len(result.FuYi.WuxingCount) == 0 {
+	if len(fuYi.WuxingCount) == 0 {
 		t.Error("FuYi.WuxingCount is empty")
 	}
-	if len(result.FuYi.WangShuai) != 5 {
-		t.Errorf("FuYi.WangShuai has %d elements, want 5", len(result.FuYi.WangShuai))
+	if len(fuYi.WangShuai) != 5 {
+		t.Errorf("FuYi.WangShuai has %d elements, want 5", len(fuYi.WangShuai))
 	}
-	if result.FuYi.Strength != "中和" {
+	if fuYi.Strength != "中和" {
 		for _, field := range []struct{ name, val string }{
-			{"FuYi.Yong", result.FuYi.Yong},
-			{"FuYi.Xi", result.FuYi.Xi},
-			{"FuYi.Ji", result.FuYi.Ji},
+			{"FuYi.Yong", fuYi.Yong},
+			{"FuYi.Xi", fuYi.Xi},
+			{"FuYi.Ji", fuYi.Ji},
 		} {
 			if field.val == "" {
 				t.Errorf("%s is empty", field.name)
@@ -39,14 +39,11 @@ func TestComputeYongShen_AllSchoolsPresent(t *testing.T) {
 		}
 	}
 	for _, field := range []struct{ name, val string }{
-		{"TiaoHou.Yong", result.TiaoHou.Yong},
-		{"TiaoHou.Xi", result.TiaoHou.Xi},
-		{"TiaoHou.Season", result.TiaoHou.Season},
-		{"GeJu.Yong", result.GeJu.Yong},
-		{"GeJu.Xi", result.GeJu.Xi},
-		{"GeJu.Ji", result.GeJu.Ji},
-		{"GeJu.Pattern", result.GeJu.Pattern},
-		{"GeJu.Usage", result.GeJu.Usage},
+		{"TiaoHou.PrimaryWuxing", tiaoHou.PrimaryWuxing},
+		{"TiaoHou.SecondaryWuxing", tiaoHou.SecondaryWuxing},
+		{"TiaoHou.Season", tiaoHou.Season},
+		{"GeJu.Pattern", geJu.Pattern},
+		{"GeJu.Usage", geJu.Usage},
 	} {
 		if field.val == "" {
 			t.Errorf("%s is empty", field.name)
@@ -54,8 +51,8 @@ func TestComputeYongShen_AllSchoolsPresent(t *testing.T) {
 	}
 
 	validUsages := map[string]bool{"顺用": true, "逆用": true}
-	if !validUsages[result.GeJu.Usage] {
-		t.Errorf("GeJu.Usage = %q, want 顺用 or 逆用", result.GeJu.Usage)
+	if !validUsages[geJu.Usage] {
+		t.Errorf("GeJu.Usage = %q, want 顺用 or 逆用", geJu.Usage)
 	}
 }
 

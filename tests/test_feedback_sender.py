@@ -7,7 +7,7 @@ import urllib.error
 from io import StringIO
 from unittest import mock
 
-from helpers import SKILL_ROOT, skill_dir, skill_version
+from _helpers import SKILL_ROOT, skill_dir, skill_version
 
 
 def load_sender(skill="liki"):

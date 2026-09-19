@@ -1,9 +1,9 @@
 #!/bin/sh
-# pre-push: 门槛测试（与 CI 同集，~30s）
-# 目标：推上去 CI 是绿的。全量测试由 CI 负责，这里只做门槛拦截。
+# gate: 推送前门槛（check + test）
+# 目标：推上去 CI 是绿的。gate 通过 = 可以推送。
 
 set -e
 
-echo "=== pre-push: 门槛测试 ==="
-make pre-push
-echo "=== pre-push: 通过 ✅ ==="
+echo "=== gate: 推送前门槛 ==="
+make gate
+echo "=== gate 通过 ✅ ==="

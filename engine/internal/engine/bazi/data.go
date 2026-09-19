@@ -18,7 +18,13 @@ var shenshaJSON []byte
 //go:embed data/ride_rigui.json
 var rideRiguiJSON []byte
 
-var lookupTiaohou map[tiaohouKey]struct{ primary, secondary ganzhi.Gan }
+type tiaohouEntry struct {
+	primary            ganzhi.Gan
+	secondary          ganzhi.Gan
+	secondaryCondition string
+}
+
+var lookupTiaohou map[tiaohouKey]tiaohouEntry
 
 func init() {
 	if err := loadTiaohou(); err != nil {
@@ -34,15 +40,16 @@ func init() {
 
 func loadTiaohou() error {
 	var entries []struct {
-		RiYuan      string `json:"ri_yuan"`
-		MonthBranch string `json:"month_branch"`
-		Primary     string `json:"primary"`
-		Secondary   string `json:"secondary"`
+		RiYuan             string `json:"ri_yuan"`
+		MonthBranch        string `json:"month_branch"`
+		Primary            string `json:"primary"`
+		Secondary          string `json:"secondary"`
+		SecondaryCondition string `json:"secondary_condition,omitempty"`
 	}
 	if err := json.Unmarshal(tiaohouJSON, &entries); err != nil {
 		return err
 	}
-	lookupTiaohou = make(map[tiaohouKey]struct{ primary, secondary ganzhi.Gan }, len(entries))
+	lookupTiaohou = make(map[tiaohouKey]tiaohouEntry, len(entries))
 	for _, e := range entries {
 		dm, err := ganzhi.ParseGan(e.RiYuan)
 		if err != nil {
@@ -63,18 +70,33 @@ func loadTiaohou() error {
 				return err
 			}
 		}
-		lookupTiaohou[tiaohouKey{int(dm), int(mb)}] = struct{ primary, secondary ganzhi.Gan }{pri, sec}
+		lookupTiaohou[tiaohouKey{int(dm), int(mb)}] = tiaohouEntry{
+			primary:            pri,
+			secondary:          sec,
+			secondaryCondition: e.SecondaryCondition,
+		}
 	}
 	return nil
 }
 
 func loadShensha() error {
 	var data struct {
-		Triad     map[string]map[string]string   `json:"triad"`
-		GanSingle map[string]map[string]string   `json:"stem_single"`
-		GanMulti  map[string]map[string][]string `json:"stem_multi"`
-		ZhiSingle map[string]map[string]string   `json:"branch_single"`
-		YueGan    struct {
+		Triad       map[string]map[string]string   `json:"triad"`
+		GanSingle   map[string]map[string]string   `json:"stem_single"`
+		GanMulti    map[string]map[string][]string `json:"stem_multi"`
+		ZhiSingle   map[string]map[string]string   `json:"branch_single"`
+		MonthGroups map[string]map[string]struct {
+			De  []string `json:"de"`
+			Xiu []string `json:"xiu"`
+		} `json:"month_groups"`
+		DayPillars struct {
+			YinChaYangCuo []string `json:"yin_cha_yang_cuo"`
+		} `json:"day_pillars"`
+		TongZi struct {
+			Season map[string][]string `json:"season"`
+			Nayin  map[string][]string `json:"nayin"`
+		} `json:"tong_zi"`
+		YueGan struct {
 			TianDe map[string][]string `json:"tian_de"`
 			YueDe  map[string]string   `json:"yue_de"`
 			YueEn  map[string][]string `json:"yue_en"`
@@ -155,6 +177,10 @@ func loadShensha() error {
 	if err != nil {
 		return fmt.Errorf("xue_ren: %w", err)
 	}
+	feiRenLookup, err = loadGanSingle(data.GanSingle["fei_ren"])
+	if err != nil {
+		return fmt.Errorf("fei_ren: %w", err)
+	}
 
 	// --- gan → multi zhi ---
 	loadGanMulti := func(src map[string][]string) (map[ganzhi.Gan][]ganzhi.Zhi, error) {
@@ -189,7 +215,22 @@ func loadShensha() error {
 	if err != nil {
 		return fmt.Errorf("jin_yu: %w", err)
 	}
-
+	taiJiLookup, err = loadGanMulti(data.GanMulti["tai_ji"])
+	if err != nil {
+		return fmt.Errorf("tai_ji: %w", err)
+	}
+	tianChuLookup, err = loadGanMulti(data.GanMulti["tian_chu"])
+	if err != nil {
+		return fmt.Errorf("tian_chu: %w", err)
+	}
+	fuXingLookup, err = loadGanMulti(data.GanMulti["fu_xing"])
+	if err != nil {
+		return fmt.Errorf("fu_xing: %w", err)
+	}
+	guoYinLookup, err = loadGanMulti(data.GanMulti["guo_yin"])
+	if err != nil {
+		return fmt.Errorf("guo_yin: %w", err)
+	}
 	// --- zhi → single zhi ---
 	loadZhiSingle := func(src map[string]string) (map[ganzhi.Zhi]ganzhi.Zhi, error) {
 		dst := make(map[ganzhi.Zhi]ganzhi.Zhi, len(src))
@@ -205,6 +246,11 @@ func loadShensha() error {
 			dst[zhi] = target
 		}
 		return dst, nil
+	}
+
+	wangShenZhi, err = loadZhiSingle(data.ZhiSingle["wang_shen"])
+	if err != nil {
+		return fmt.Errorf("wang_shen: %w", err)
 	}
 
 	hongluanLookup, err = loadZhiSingle(data.ZhiSingle["hong_luan"])
@@ -284,6 +330,60 @@ func loadShensha() error {
 		yuedeGan[zhi] = gan
 	}
 
+	deXiuByMonth = make(map[ganzhi.Zhi]deXiuStems, 12)
+	for triadKey, group := range data.MonthGroups["de_xiu"] {
+		de, err := parseGans(group.De)
+		if err != nil {
+			return fmt.Errorf("de_xiu de %q: %w", triadKey, err)
+		}
+		xiu, err := parseGans(group.Xiu)
+		if err != nil {
+			return fmt.Errorf("de_xiu xiu %q: %w", triadKey, err)
+		}
+		for _, r := range triadKey {
+			zhi, err := ganzhi.ParseZhi(string(r))
+			if err != nil {
+				return fmt.Errorf("de_xiu member %q in %q: %w", string(r), triadKey, err)
+			}
+			deXiuByMonth[zhi] = deXiuStems{De: de, Xiu: xiu}
+		}
+	}
+
+	yinChaYangCuo = make(map[int]struct{}, len(data.DayPillars.YinChaYangCuo))
+	for _, pair := range data.DayPillars.YinChaYangCuo {
+		runes := []rune(pair)
+		if len(runes) != 2 {
+			return fmt.Errorf("yin_cha_yang_cuo: invalid pair %q", pair)
+		}
+		gan, err := ganzhi.ParseGan(string(runes[0]))
+		if err != nil {
+			return fmt.Errorf("yin_cha_yang_cuo gan %q: %w", pair, err)
+		}
+		zhi, err := ganzhi.ParseZhi(string(runes[1]))
+		if err != nil {
+			return fmt.Errorf("yin_cha_yang_cuo zhi %q: %w", pair, err)
+		}
+		yinChaYangCuo[ganzhi.SixtyCycleIndex(gan, zhi)] = struct{}{}
+	}
+
+	tongZiSeason = map[int][]ganzhi.Zhi{
+		0: parseZhis(data.TongZi.Season["spring_autumn"]),
+		1: parseZhis(data.TongZi.Season["summer_winter"]),
+		2: parseZhis(data.TongZi.Season["spring_autumn"]),
+		3: parseZhis(data.TongZi.Season["summer_winter"]),
+	}
+	tongZiNayin = make(map[ganzhi.Wuxing][]ganzhi.Zhi)
+	for elements, branches := range data.TongZi.Nayin {
+		zhis := parseZhis(branches)
+		for _, r := range elements {
+			element, err := ganzhi.ParseWuxing(string(r))
+			if err != nil {
+				return fmt.Errorf("tong_zi nayin element %q: %w", elements, err)
+			}
+			tongZiNayin[element] = zhis
+		}
+	}
+
 	// --- tian luo di wang ---
 	tianLuoDiWang = make(map[ganzhi.Zhi]string, len(data.TianLuoDiWang))
 	for zhiStr, label := range data.TianLuoDiWang {
@@ -301,6 +401,30 @@ func loadShensha() error {
 	}
 
 	return nil
+}
+
+func parseGans(values []string) ([]ganzhi.Gan, error) {
+	out := make([]ganzhi.Gan, 0, len(values))
+	for _, value := range values {
+		gan, err := ganzhi.ParseGan(value)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, gan)
+	}
+	return out, nil
+}
+
+func parseZhis(values []string) []ganzhi.Zhi {
+	out := make([]ganzhi.Zhi, 0, len(values))
+	for _, value := range values {
+		zhi, err := ganzhi.ParseZhi(value)
+		if err != nil {
+			panic(fmt.Sprintf("bazi: parse zhi %q: %v", value, err))
+		}
+		out = append(out, zhi)
+	}
+	return out
 }
 
 func loadRideRigui() error {

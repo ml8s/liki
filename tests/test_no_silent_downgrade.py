@@ -15,7 +15,7 @@ def _fac() -> dict:
     return {
         "ten_god_states": {},
         "wuxing": {"wang_shuai": {}, "count": {}},
-        "yongshen": {},
+        "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
         "ri_gan": "甲",
     }
 
@@ -51,7 +51,7 @@ def test_query_rejects_snapshot_input() -> None:
         "lunar": {"year": 1990, "month": 4, "day": 26},
         "chart": {"ri": {"gan": "甲", "zhi": "子"}},
         "full": {"ri": {"gan": "甲", "zhi": "子"}},
-        "yongshen": {},
+        "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
         "ziwei": {},
         "gender": "male",
     },

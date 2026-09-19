@@ -13,6 +13,9 @@ func GanName(g Gan) string { return ganNames[g] }
 // ZhiName returns the Chinese character for an earthly zhi (e.g. "子").
 func ZhiName(z Zhi) string { return zhiNames[z] }
 
+// ZhiAnimal returns the zodiac animal for an earthly zhi (e.g. "鼠" for 子).
+func ZhiAnimal(z Zhi) string { return zhiAnimals[z] }
+
 func (g Gan) String() string { return GanName(g) }
 func (z Zhi) String() string { return ZhiName(z) }
 

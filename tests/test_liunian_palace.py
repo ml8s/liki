@@ -12,7 +12,7 @@ def _pan() -> dict:
             "ri": {"gan": "甲", "zhi": "子", "shi_shens": []},
             "shi": {"gan": "庚", "zhi": "午", "shi_shens": []},
         },
-        "yongshen": {"fu_yi": {}},
+        "fu_yi": {},
         "chart": {
             "nian": {"gan": "庚", "zhi": "午"},
             "yue": {"gan": "壬", "zhi": "午"},

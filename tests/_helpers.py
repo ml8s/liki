@@ -1,11 +1,29 @@
 """测试共用 helper：tools 路径注入 + mock 因子快照。"""
 import os
 import sys
+from pathlib import Path
 
 # 注入 tools 目录到 sys.path（tests 与 tools 平级于 skills/liki/bazi 下）
 TOOLS = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'skills', 'liki', 'bazi', 'tools')
 if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
+
+
+# Repository-level constants (merged from helpers.py)
+ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = Path(__file__).resolve().parents[1] / "skills" / "liki"
+DOMAIN_NAMES = ("bazi", "divination", "fengshui", "naming")
+SLOGAN = "懂命理，用 Liki"
+
+
+def skill_dir(name: str = "liki") -> Path:
+    if name in DOMAIN_NAMES:
+        return SKILL_ROOT / name
+    return SKILL_ROOT
+
+
+def skill_version(name: str = "liki") -> str:
+    return (skill_dir(name) / "VERSION.txt").read_text(encoding="utf-8").strip()
 
 
 def mock_base_context(**ten_god_states):
@@ -58,8 +76,9 @@ def mock_engine_facts() -> dict:
     }
 
 
-def mock_yong_shen() -> dict:
-    """构造 bazi.fullchart 用神三派的最小契约片段。"""
+
+def mock_yongshen_fields() -> dict:
+    """构造 bazi.fullchart 用神三个来源的最小契约片段。"""
     def element(wuxing: str, season: str, strength: str = "strong") -> dict:
         return {
             "wuxing": wuxing, "transparent_pillars": [], "roots": [],
@@ -77,7 +96,7 @@ def mock_yong_shen() -> dict:
             },
         },
         "tiao_hou": {
-            "yong": "火", "xi": "木", "season": "春", "detail": "mock",
+            "primary_wuxing": "火", "secondary_wuxing": "木", "season": "春", "detail": "mock",
             "model": "qiongtong_primary_secondary_table",
             "primary": {
                 "stem": "丙", "transparent": True,
@@ -89,7 +108,7 @@ def mock_yong_shen() -> dict:
             },
         },
         "ge_ju": {
-            "yong": "木", "xi": "水", "ji": "金", "ge_ju": "正印格", "yong_fa": "顺用",
+            "ge_ju": "正印格", "yong_fa": "顺用",
             "pattern_god": "癸", "pattern_god_ten_god": "正印", "pattern_god_source": "main_qi",
             "structure": {
                 "pattern": element("水", "旺"),

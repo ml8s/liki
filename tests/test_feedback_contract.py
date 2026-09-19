@@ -4,7 +4,7 @@ import json
 import re
 import unittest
 
-from helpers import ROOT, SKILL_ROOT, skill_version
+from _helpers import ROOT, SKILL_ROOT, skill_version
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 

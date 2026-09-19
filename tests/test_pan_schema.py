@@ -22,7 +22,7 @@ def _pan(**changes):
         "full": {
             **{p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             **_helpers.mock_engine_facts(),
-            "yong_shen": _helpers.mock_yong_shen(),
+            **_helpers.mock_yongshen_fields(),
         },
         "ziwei": _helpers.mock_ziwei(),
         "ziwei_daxian": _helpers.valid_daxian(),
@@ -42,9 +42,10 @@ def test_pan_digest_rejects_tampering():
         validate_natal_pan(pan, action="test")
 
 
-def test_full_paipan_has_single_yong_shen_path():
+def test_full_paipan_has_flat_yongshen_fields():
     source = (Path(__file__).parents[1] / "skills/liki/bazi/tools/paipan.py").read_text(encoding="utf-8")
     assert '"yongshen":' not in source
+    assert '"yong_shen":' not in source
     assert '"full"' in source
 
 
@@ -161,22 +162,22 @@ def test_consumed_engine_atomic_facts_are_required():
 
 def test_yong_shen_structural_facts_are_required():
     pan = _pan()
-    pan["full"]["yong_shen"]["fu_yi"].pop("basis")
+    pan["full"]["fu_yi"].pop("basis")
     with pytest.raises(ValueError, match="fu_yi.basis"):
         validate_natal_pan(pan, action="test")
 
     pan = _pan()
-    pan["full"]["yong_shen"]["ge_ju"].pop("structure")
+    pan["full"]["ge_ju"].pop("structure")
     with pytest.raises(ValueError, match="ge_ju.structure"):
         validate_natal_pan(pan, action="test")
 
     pan = _pan()
-    pan["full"]["yong_shen"]["tiao_hou"].pop("primary")
+    pan["full"]["tiao_hou"].pop("primary")
     with pytest.raises(ValueError, match="tiao_hou.primary"):
         validate_natal_pan(pan, action="test")
 
     pan = _pan()
-    pan["full"]["yong_shen"]["ge_ju"]["structure"]["relation_facts"] = [{"field": "liu_chong"}]
+    pan["full"]["ge_ju"]["structure"]["relation_facts"] = [{"field": "liu_chong"}]
     with pytest.raises(ValueError, match="relation_facts\\[0\\].*group"):
         validate_natal_pan(pan, action="test")
 
@@ -215,3 +216,30 @@ def test_liunian_and_bond_validate_input():
         paipan.liunian({}, 2026)
     with pytest.raises(ValueError, match="bond pan_a"):
         paipan.bond({}, _pan())
+
+def test_tiaohou_secondary_condition_requires_secondary_object():
+    pan = _pan()
+    pan["full"]["tiao_hou"]["secondary_condition"] = "壬多必取戊制"
+    pan["full"]["tiao_hou"].pop("secondary")
+    with pytest.raises(ValueError, match="tiao_hou.secondary 缺失"):
+        validate_natal_pan(pan, action="test")
+
+
+def test_tiaohou_secondary_condition_must_be_string():
+    pan = _pan()
+    pan["full"]["tiao_hou"]["secondary_condition"] = 1
+    with pytest.raises(ValueError, match="secondary_condition 不是 string"):
+        validate_natal_pan(pan, action="test")
+
+
+def test_tiaohou_conditional_secondary_passes():
+    pan = _pan()
+    pan["full"]["tiao_hou"]["secondary_condition"] = "壬多必取戊制"
+    validate_natal_pan(with_natal_digest(pan), action="test")
+
+
+def test_geju_rejects_legacy_yongxi_columns():
+    pan = _pan()
+    pan["full"]["ge_ju"].update({"yong": "土", "xi": "水", "ji": "火"})
+    with pytest.raises(ValueError, match="旧用神字段"):
+        validate_natal_pan(pan, action="test")

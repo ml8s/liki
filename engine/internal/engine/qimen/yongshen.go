@@ -82,6 +82,7 @@ type SymbolResult struct {
 }
 
 // YongShenResult 奇门用神领域对象（用神符号组合落宫状态 + 年命干）。
+// 奇门用神是问事符号体系，与八字 fu_yi/tiao_hou/ge_ju 三派完全无关。
 // 求测人定位（日干/时干落宫、生克）由排盘固有字段提供，见 Chart 顶层字段。
 type YongShenResult struct {
 	NianGanPalace      *GongIndex      `json:"nian_gan_gong,omitempty"` // 年命干落宫（需 birth_date；甲遁看六仪遁宫）

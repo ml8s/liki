@@ -84,7 +84,7 @@ def test_domain_oracle_datasets_have_expected_coverage() -> None:
     assert len(atomic["cases"]) == 4
     assert len(ten_god_states["cases"]) == 4
     assert len(ten_god_states["dayun_root_cases"]) == 4
-    assert len(relation_groups["cases"]) == 5
+    assert len(relation_groups["cases"]) == 6
     assert len(liunian_atomic["cases"]) == 6
     assert len(lu_roots["cases"]) == 2
     assert len(gender_shen_sha["cases"]) == 4

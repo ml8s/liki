@@ -215,10 +215,10 @@ func TestShiZhi_Boundaries(t *testing.T) {
 // 验证 Lunar 日期跟随太阳时调整（而非原始公历日期）。
 
 func TestComputeTime_MidnightAdjustment(t *testing.T) {
-	// 喀什(75.9°E)用北京时间(UTC+8), 凌晨3点
-	// lonOffset = 4*(75.9-120) = -176.4, EoT(Jan1) ≈ -3.7
-	// raw = 180 - 176.4 - 3.7 = -0.1 → dayOffset=-1, 太阳时在前一天
-	ts := ComputeTimeset(GregorianTime(time.Date(2025, time.Month(1), 1, 3, 0, 0, 0, time.FixedZone("", int(8*3600)))), 75.9)
+	// 喀什(75.9°E)用北京时间(UTC+8), 凌晨2点
+	// lonOffset = 4*(75.9-120) = -176.4, EoT(Jan1) ≈ -3.9 (Meeus)
+	// raw = 120 - 176.4 - 3.9 = -60.3 → dayOffset=-1, 太阳时在前一天
+	ts := ComputeTimeset(GregorianTime(time.Date(2025, time.Month(1), 1, 2, 0, 0, 0, time.FixedZone("", int(8*3600)))), 75.9)
 
 	solarY, solarM, solarD := ts.Solar.Time().Date()
 	if solarY != 2024 || solarM != 12 || solarD != 31 {

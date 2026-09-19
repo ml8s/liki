@@ -204,7 +204,7 @@ func computeLiuQin(lineElem, palaceElem ganzhi.Wuxing) LiuQin {
 	return QinGuanGui
 }
 
-// YongShenResult holds the 用神 analysis result.
+// YongShenResult holds the 六爻用神 analysis result（六爻领域的用神，与八字用神体系无关）。
 type YongShenResult struct {
 	Name             string   `json:"name"`                  // 用神六亲名
 	Position         int      `json:"position"`              // line position 1-6, 0 if not found

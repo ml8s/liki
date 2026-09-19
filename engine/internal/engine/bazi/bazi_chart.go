@@ -29,31 +29,37 @@ func (z zhuInfo) MarshalJSON() ([]byte, error) {
 
 type fullZhuInfo struct {
 	ganzhi.Zhu
-	NaYin      string            `json:"na_yin"`
-	CangGan    cangGanOut        `json:"cang_gan"`
-	ShiShens   []shiShenEntry    `json:"shi_shens"`
-	ChangSheng []changShengEntry `json:"chang_sheng"`
-	ShenSha    []shenShaEntry    `json:"shen_sha"`
-	IsVoid     bool              `json:"is_void"`
-	IsSelfHe   bool              `json:"is_self_he"`
-	IsKuiGang  bool              `json:"is_kui_gang"`
-	SelfHeName string            `json:"self_he_name"`
+	DayMasterTrend string         `json:"day_master_trend"`
+	Xun            string         `json:"xun"`
+	XunKong        string         `json:"xun_kong"`
+	NaYin          string         `json:"na_yin"`
+	CangGan        cangGanOut     `json:"cang_gan"`
+	ShiShens       []shiShenEntry `json:"shi_shens"`
+	SelfSitting    string         `json:"self_sitting"`
+	ShenSha        []shenShaEntry `json:"shen_sha"`
+	IsVoid         bool           `json:"is_void"`
+	IsSelfHe       bool           `json:"is_self_he"`
+	IsKuiGang      bool           `json:"is_kui_gang"`
+	SelfHeName     string         `json:"self_he_name"`
 }
 
 func (z fullZhuInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Gan        string            `json:"gan"`
-		Zhi        string            `json:"zhi"`
-		NaYin      string            `json:"na_yin"`
-		CangGan    cangGanOut        `json:"cang_gan"`
-		ShiShens   []shiShenEntry    `json:"shi_shens"`
-		ChangSheng []changShengEntry `json:"chang_sheng"`
-		ShenSha    []shenShaEntry    `json:"shen_sha"`
-		IsVoid     bool              `json:"is_void"`
-		IsSelfHe   bool              `json:"is_self_he"`
-		IsKuiGang  bool              `json:"is_kui_gang"`
-		SelfHeName string            `json:"self_he_name"`
-	}{Gan: ganzhi.GanName(z.Gan), Zhi: ganzhi.ZhiName(z.Zhi), NaYin: z.NaYin, CangGan: z.CangGan, ShiShens: z.ShiShens, ChangSheng: z.ChangSheng, ShenSha: z.ShenSha, IsVoid: z.IsVoid, IsSelfHe: z.IsSelfHe, IsKuiGang: z.IsKuiGang, SelfHeName: z.SelfHeName})
+		Gan            string         `json:"gan"`
+		Zhi            string         `json:"zhi"`
+		DayMasterTrend string         `json:"day_master_trend"`
+		Xun            string         `json:"xun"`
+		XunKong        string         `json:"xun_kong"`
+		NaYin          string         `json:"na_yin"`
+		CangGan        cangGanOut     `json:"cang_gan"`
+		ShiShens       []shiShenEntry `json:"shi_shens"`
+		SelfSitting    string         `json:"self_sitting"`
+		ShenSha        []shenShaEntry `json:"shen_sha"`
+		IsVoid         bool           `json:"is_void"`
+		IsSelfHe       bool           `json:"is_self_he"`
+		IsKuiGang      bool           `json:"is_kui_gang"`
+		SelfHeName     string         `json:"self_he_name"`
+	}{Gan: ganzhi.GanName(z.Gan), Zhi: ganzhi.ZhiName(z.Zhi), DayMasterTrend: z.DayMasterTrend, Xun: z.Xun, XunKong: z.XunKong, NaYin: z.NaYin, CangGan: z.CangGan, ShiShens: z.ShiShens, SelfSitting: z.SelfSitting, ShenSha: z.ShenSha, IsVoid: z.IsVoid, IsSelfHe: z.IsSelfHe, IsKuiGang: z.IsKuiGang, SelfHeName: z.SelfHeName})
 }
 
 type shiShenEntry struct {
@@ -61,10 +67,6 @@ type shiShenEntry struct {
 	Name    string         `json:"name"`
 	Source  string         `json:"source"`
 	Gan     ganzhi.Gan     `json:"gan"`
-}
-type changShengEntry struct {
-	Stage string     `json:"stage"`
-	Gan   ganzhi.Gan `json:"gan"`
 }
 
 // Ten god source constants.
@@ -94,8 +96,8 @@ type Chart struct {
 	ZiShiRule string `json:"zi_shi_rule,omitempty"`
 }
 
-// Chart（纯排盘）不含用神——用神三派属完整命盘（bazi.fullchart 承载，
-// 见 FullChart.YongShen）。chart 参与的运算（排盘/大运/流年派生）均不依赖用神。
+// Chart（纯排盘）不含用神——扶抑 / 调候 / 格局三派属完整命盘（bazi.fullchart 承载，
+// 见 FullChart.FuYi / TiaoHou / GeJu）。chart 参与的运算（排盘/大运/流年派生）均不依赖用神。
 
 // FullChart is the expanded bazi chart with all fields (十神/藏干/神煞/长生/空亡...).
 // Use bazi.fullchart to obtain it from a lean Chart.
@@ -111,7 +113,11 @@ type FullChart struct {
 	BirthYear int `json:"birth_year"`
 
 	// 用神三派（透传自 lean Chart）。
-	YongShen YongShenResult `json:"yong_shen"`
+	// 三派证据独立输出：fu_yi 是真正的用神（yong/xi/ji），
+	// tiao_hou 是调候候选（非用神），ge_ju 是格神（非用神）。
+	FuYi    FuYiResult    `json:"fu_yi"`
+	TiaoHou TiaoHouResult `json:"tiao_hou"`
+	GeJu    GeJuResult    `json:"ge_ju"`
 	// 神煞双参照流派：年参照与日参照并取，不在解释层隐含二选一。
 	ShenShaSchool ShenShaSchool `json:"shen_sha_school"`
 
@@ -128,22 +134,31 @@ type FullChart struct {
 
 	// 补充信息（原 bazi.chart_extra）
 	SanYuan    SanYuan             `json:"san_yuan"`
+	TaiXi      ganzhi.Zhu          `json:"tai_xi"`
 	GongJia    []GongJia           `json:"gong_jia,omitempty"`
 	NayinRel   []NayinRelEntry     `json:"nayin_rel"`
 	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
 	SanQiName  string              `json:"san_qi_name,omitempty"`
+	// 生肖（年支对应动物，如酉→鸡）。
+	Zodiac string `json:"zodiac"`
 
 	// 合会冲刑（原 bazi.hehui）
-	GanHe    []GanHePair   `json:"gan_he"`
-	ZhiLiuHe []ZhiPairRel  `json:"zhi_liu_he"`
-	SanHe    []TripleGroup `json:"san_he"`
-	SanHui   []TripleGroup `json:"san_hui"`
-	LiuChong []ZhiPairRel  `json:"liu_chong"`
-	LiuHai   []ZhiPairRel  `json:"liu_hai"`
-	LiuXing  []ZhiPairRel  `json:"liu_xing"`
+	GanHe        []GanHePair   `json:"gan_he"`
+	GanChong     []GanPairRel  `json:"gan_chong"`
+	ZhiLiuHe     []ZhiPairRel  `json:"zhi_liu_he"`
+	SanHe        []TripleGroup `json:"san_he"`
+	SanHePartial []TripleGroup `json:"san_he_partial"`
+	SanHui       []TripleGroup `json:"san_hui"`
+	LiuChong     []ZhiPairRel  `json:"liu_chong"`
+	LiuHai       []ZhiPairRel  `json:"liu_hai"`
+	LiuXing      []ZhiPairRel  `json:"liu_xing"`
+	LiuPo        []ZhiPairRel  `json:"liu_po"`
+	AnHe         []ZhiPairRel  `json:"an_he"`
 
-	// 旬空（按日柱所居之旬），如 "午未"（甲申旬空午未）。空亡柱另见各柱 is_void。
-	XunKong string `json:"xun_kong"`
+	// 日柱所在旬与日柱旬空。is_void 语义固定为该柱地支值日柱旬空；
+	// 各柱 xun/xun_kong 是该柱自身所在旬，两者是不同命理事实。
+	DayXun     string `json:"day_xun"`
+	DayXunKong string `json:"day_xun_kong"`
 }
 
 // ShenShaSchool records the union policy used by dual-reference shensha.

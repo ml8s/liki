@@ -42,13 +42,13 @@ func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			result := computeTiaoHou(mkTiaoHouChart(tt.riYuan, tt.yueZhi))
 
-			if result.Yong != tt.wantYong {
+			if result.PrimaryWuxing != tt.wantYong {
 				// Also accept if fire is present as Xi (喜神) for winter entries
-				if tt.wantYong == "火" && result.Xi == "火" {
+				if tt.wantYong == "火" && result.SecondaryWuxing == "火" {
 					return
 				}
 				t.Errorf("调候用神 = %q, want %q (冬季需火调候)\n  detail: %s",
-					result.Yong, tt.wantYong, result.Detail)
+					result.PrimaryWuxing, tt.wantYong, result.Detail)
 			}
 		})
 	}
@@ -60,11 +60,11 @@ func TestTiaoHou_WinterWater_ShouldHaveFire(t *testing.T) {
 
 	// 穷通宝鉴: "壬水生子月, 戊土制水, 丙火调候" — primary=戊(土), secondary=丙(火)
 	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanRen, ganzhi.ZhiZi))
-	if result.Yong != "土" && result.Yong != "火" {
-		t.Errorf("壬日子月调候 = yong=%s, 应为土或火", result.Yong)
+	if result.PrimaryWuxing != "土" && result.PrimaryWuxing != "火" {
+		t.Errorf("壬日子月调候 = yong=%s, 应为土或火", result.PrimaryWuxing)
 	}
 	t.Logf("壬日子月: yong=%s xi=%s detail=%s",
-		result.Yong, result.Xi, result.Detail)
+		result.PrimaryWuxing, result.SecondaryWuxing, result.Detail)
 }
 
 func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
@@ -73,10 +73,10 @@ func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
 	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanBing, ganzhi.ZhiWu))
 
 	t.Logf("丙午月: yong=%s xi=%s detail=%s",
-		result.Yong, result.Xi, result.Detail)
+		result.PrimaryWuxing, result.SecondaryWuxing, result.Detail)
 
-	if result.Yong != "水" {
-		t.Errorf("丙午月调候 = %q, want 水 (穷通宝鉴: 壬水)", result.Yong)
+	if result.PrimaryWuxing != "水" {
+		t.Errorf("丙午月调候 = %q, want 水 (穷通宝鉴: 壬水)", result.PrimaryWuxing)
 	}
 }
 
@@ -98,12 +98,12 @@ func TestTiaoHou_AllWinterEntries_HaveFireWhenNeeded(t *testing.T) {
 	for _, dm := range coldDayMasters {
 		for _, mb := range coldMonths {
 			result := computeTiaoHou(mkTiaoHouChart(dm, mb))
-			hasFire := result.Yong == "火" || result.Xi == "火"
+			hasFire := result.PrimaryWuxing == "火" || result.SecondaryWuxing == "火"
 			if !hasFire {
 				mismatches++
 				t.Logf("冬季无火: %s日%s月: yong=%s xi=%s",
 					ganzhi.GanName(dm), ganzhi.ZhiName(mb),
-					result.Yong, result.Xi)
+					result.PrimaryWuxing, result.SecondaryWuxing)
 			}
 		}
 	}
@@ -120,12 +120,12 @@ func TestTiaoHou_AuthoritativeAnchors(t *testing.T) {
 		// 甲木：寅丙癸 卯庚丙 辰庚丁 巳癸丁 午癸庚 未庚丁 申庚丁(先庚后丁) 戌庚丁 亥庚丁 子丁庚 丑丁庚
 		"甲寅": "丙癸", "甲卯": "庚丙", "甲辰": "庚丁", "甲巳": "癸丁", "甲午": "癸庚",
 		"甲未": "庚丁", "甲申": "庚丁", "甲戌": "庚丁", "甲亥": "庚丁", "甲子": "丁庚", "甲丑": "丁庚",
-		// 乙木：寅丙癸 卯丙癸 巳癸 午癸丙 申丙癸 酉癸丙 戌癸辛(必赖癸水,辛金发源)
+		// 乙木：寅丙癸 卯丙癸 巳癸 午癸丙 申丙癸 酉癸丙 戌癸辛 亥丙戊(水多用戊佐)
 		"乙寅": "丙癸", "乙卯": "丙癸", "乙巳": "癸", "乙午": "癸丙", "乙申": "丙癸",
-		"乙酉": "癸丙", "乙戌": "癸辛",
-		// 丙火：寅壬 卯壬 辰壬甲 巳壬庚 午壬庚 未壬庚 申壬 酉壬癸 戌甲壬(先甲次壬) 亥甲壬(甲为关键) 子壬戊(先壬戊佐) 丑壬甲(先壬,甲佐)
-		"丙寅": "壬", "丙卯": "壬", "丙辰": "壬甲", "丙巳": "壬庚", "丙午": "壬庚", "丙未": "壬庚",
-		"丙申": "壬", "丙酉": "壬癸", "丙戌": "甲壬", "丙亥": "甲壬", "丙子": "壬戊", "丙丑": "壬甲",
+		"乙酉": "癸丙", "乙戌": "癸辛", "乙亥": "丙戊",
+		// 丙火：寅壬庚 卯壬己 辰壬甲 巳壬庚 午壬庚 未壬庚 申壬戊(壬多取戊制) 酉壬癸 戌甲壬(先甲次壬) 亥甲壬(甲为关键) 子壬戊(先壬戊佐) 丑壬甲(先壬,甲佐)
+		"丙寅": "壬庚", "丙卯": "壬己", "丙辰": "壬甲", "丙巳": "壬庚", "丙午": "壬庚", "丙未": "壬庚",
+		"丙申": "壬戊", "丙酉": "壬癸", "丙戌": "甲壬", "丙亥": "甲壬", "丙子": "壬戊", "丙丑": "壬甲",
 		// 癸水：寅辛丙 卯庚辛 辰丙辛(专用丙火,辛甲佐) 巳辛庚 未庚辛 申丁 酉辛丙(辛为用丙佐) 戌辛甲 亥戊丙 子丙戊 丑丙丁(丙解冻,丁雪后灯光)
 		"癸寅": "辛丙", "癸卯": "庚辛", "癸辰": "丙辛", "癸巳": "辛庚", "癸未": "庚辛",
 		"癸申": "丁", "癸酉": "辛丙", "癸戌": "辛甲", "癸亥": "戊丙", "癸子": "丙戊", "癸丑": "丙丁",

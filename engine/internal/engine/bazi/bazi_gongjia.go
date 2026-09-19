@@ -1,70 +1,53 @@
 package bazi
 
 import (
-	"sort"
-
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// GongJia describes a 拱 between two bazi pillars.
+// GongJia describes a recognized 三合拱 / 三会拱 between two bazi pillars.
 type GongJia struct {
-	ZhuA int        `json:"pillar_a"` // index 0-3 of first pillar
-	ZhuB int        `json:"pillar_b"` // index 0-3 of second pillar
-	Type string     `json:"type"`     // "拱"
-	Zhi  ganzhi.Zhi `json:"zhi"`      // the hidden zhi between them
+	ZhuA    int        `json:"pillar_a"` // index 0-3 of first pillar
+	ZhuB    int        `json:"pillar_b"` // index 0-3 of second pillar
+	Type    string     `json:"type"`     // "三合拱" / "三会拱"
+	Element string     `json:"wuxing"`   // 拱局五行
+	Zhi     ganzhi.Zhi `json:"zhi"`      // the hidden zhi between them
 }
 
-// computeGongJia detects 拱 (gap=2) between zhi of bazi pillars.
-// When two pillar zhi differ by 2 (mod 12), the midpoint = 拱.
-// Adjacent zhi (gap=1) have no hidden zhi and are skipped.
+// computeGongJia detects only the classical 八拱：三合局首墓二支拱旺支，
+// 三会方首尾二支拱方中支。任意隔一支的“子寅拱丑”不冒充领域拱局。
 func computeGongJia(bz ganzhi.Bazi) []GongJia {
-	zhus := bz.Slice()
-	bs := make([]int, 0, 4)
-	seen := [13]bool{}
-	for _, p := range zhus {
-		b := int(p.Zhi)
-		if b >= 1 && b <= 12 && !seen[b] {
-			seen[b] = true
-			bs = append(bs, b)
-		}
-	}
-	sort.Ints(bs)
-
 	var results []GongJia
-
-	for i := 0; i < len(bs); i++ {
-		for j := i + 1; j < len(bs); j++ {
-			a, bb := bs[i], bs[j]
-			forward := (bb - a + 12) % 12
-			backward := (a - bb + 12) % 12
-			gap := forward
-			if backward < forward {
-				gap = backward
-			}
-
-			if gap != 2 {
-				continue
-			}
-
-			midB := a%12 + 1
-			if backward < forward {
-				midB = (a+10)%12 + 1
-			}
-			if midB > 12 {
-				midB = 1
-			}
-			pA, pB := zhuIndexForZhi(bz, a), zhuIndexForZhi(bz, bb)
-			if pA >= 0 && pB >= 0 {
-				results = append(results, GongJia{
-					ZhuA: pA,
-					ZhuB: pB,
-					Type: "拱",
-					Zhi:  ganzhi.Zhi(midB),
-				})
-			}
+	classical := map[struct{ a, b, mid ganzhi.Zhi }]struct {
+		kind    string
+		element ganzhi.Wuxing
+	}{}
+	for _, group := range ganzhi.TripleHeList {
+		key := struct{ a, b, mid ganzhi.Zhi }{group.Zhi[0], group.Zhi[2], group.Zhi[1]}
+		classical[key] = struct {
+			kind    string
+			element ganzhi.Wuxing
+		}{"三合拱", group.Element}
+	}
+	for _, group := range ganzhi.TripleHuiList {
+		key := struct{ a, b, mid ganzhi.Zhi }{group.Zhi[0], group.Zhi[2], group.Zhi[1]}
+		classical[key] = struct {
+			kind    string
+			element ganzhi.Wuxing
+		}{"三会拱", group.Element}
+	}
+	bs := zhiSet(bz)
+	for item, meta := range classical {
+		if !bs[item.a] || !bs[item.b] || bs[item.mid] {
+			continue
+		}
+		pA, pB := zhuIndexForZhi(bz, int(item.a)), zhuIndexForZhi(bz, int(item.b))
+		if pA >= 0 && pB >= 0 {
+			results = append(results, GongJia{
+				ZhuA: pA, ZhuB: pB, Type: meta.kind,
+				Element: meta.element.String(), Zhi: item.mid,
+			})
 		}
 	}
-
 	return results
 }
 

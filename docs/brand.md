@@ -16,9 +16,9 @@ Liki is the brand.
 
 中文展示
 
-Liki 命理
+Liki 专业命理 Skill
 
-Liki has no separate Chinese brand name. In Chinese contexts, “Liki 命理” is a brand-plus-category display: “命理” describes the domain, not a translated brand name.
+Liki has no separate Chinese brand name. In Chinese contexts, "Liki 专业命理 Skill" is a brand-plus-category display: "专业命理" describes the domain and product form, not a translated brand name.
 
 ---
 
@@ -205,7 +205,7 @@ Always design products to professional standards.
 
 ---
 
-2. Workflow First
+1. Workflow First
 
 中文
 
@@ -217,7 +217,7 @@ Design around real professional workflows instead of feature lists.
 
 ---
 
-3. Deterministic Before AI
+1. Deterministic Before AI
 
 中文
 
@@ -237,7 +237,7 @@ AI focuses on understanding, reasoning, organization, and communication.
 
 ---
 
-4. Verifiable
+1. Verifiable
 
 中文
 
@@ -249,7 +249,7 @@ Every calculation and conclusion should be as verifiable and traceable as possib
 
 ---
 
-5. Reduce Repetitive Work
+1. Reduce Repetitive Work
 
 中文
 
@@ -450,7 +450,6 @@ This principle guides every product, engineering, design, and operational decisi
 - **2026-09 · 品牌去中文名化**：因「灵机」与广州灵机文化存在行业、语义和搜索心智冲突，品牌不再使用中文核心名，也不采用「理机」等近似替代。正式品牌统一为 **Liki**；中文语境使用 **Liki 命理** 作为品牌 + 品类展示。唯一对外 slogan 改为「懂命理，用 Liki」。旧口径只保留在历史记录中，不再作为活跃品牌语言。
 
 - **2026-08 · 两层结构的误诊与收口**：v3.2 确立两层门面结构后，liki-web 首页 hero 未同步执行（标题仍为北极星句），造成两仓门面分裂。当时误将**执行不一致**诊断为**设计失败**，一度提议回退统一北极星句。复盘确认：两层结构本身正确（标准句是北极星句的无歧义展开式，歧义应消灭而非修补）；分裂根因是执行遗漏。v3.3 收口：标题品类统一「命理 Skill」、收束行（歧义补丁）全面退役、北极星句限定内部与品牌叙事。教训：门面分裂先查执行覆盖，再动设计。
-
 
 品牌治理的关键教训（原 docs/LESSONS.md 品牌条目收编；其余工程教训已收编各仓库 CONTRIBUTING）：
 

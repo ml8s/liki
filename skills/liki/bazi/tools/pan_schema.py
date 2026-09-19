@@ -86,37 +86,67 @@ def _validate_engine_fact_items(action: str, full: dict) -> None:
             )
 
 
-def _validate_yong_shen(action: str, full: dict) -> None:
-    yong_shen = full.get("yong_shen")
-    if not isinstance(yong_shen, dict):
-        raise PanSchemaError(f"{action} pan.full.yong_shen 缺失或不是 object。")
+def _validate_yongshen_schools(action: str, full: dict) -> None:
     for school in ("fu_yi", "tiao_hou", "ge_ju"):
-        if not isinstance(yong_shen.get(school), dict):
-            raise PanSchemaError(f"{action} pan.full.yong_shen.{school} 缺失或不是 object。")
-    fu_yi = yong_shen["fu_yi"]
+        if not isinstance(full.get(school), dict):
+            raise PanSchemaError(f"{action} pan.full.{school} 缺失或不是 object。")
+    fu_yi = full.get("fu_yi")
+    tiao_hou = full.get("tiao_hou")
+    ge_ju = full.get("ge_ju")
+    if not isinstance(fu_yi, dict):
+            raise PanSchemaError(f"{action} pan.full.{school} 缺失或不是 object。")
+    fu_yi = full.get("fu_yi")
     for key in ("wuxing_count", "wang_shuai"):
         if not isinstance(fu_yi.get(key), dict):
-            raise PanSchemaError(f"{action} pan.full.yong_shen.fu_yi.{key} 缺失或不是 object。")
+            raise PanSchemaError(f"{action} pan.full.fu_yi.{key} 缺失或不是 object。")
     for key in ("yong", "xi", "ji"):
         if not isinstance(fu_yi.get(key), str):
             raise PanSchemaError(
-                f"{action} pan.full.yong_shen.fu_yi.{key} 缺失或不是字符串。"
+                f"{action} pan.full.fu_yi.{key} 缺失或不是字符串。"
             )
     if not _require_nonempty_string(fu_yi.get("qiangruo")):
         raise PanSchemaError(
-            f"{action} pan.full.yong_shen.fu_yi.qiangruo 缺失或不是非空字符串。"
+            f"{action} pan.full.fu_yi.qiangruo 缺失或不是非空字符串。"
         )
     _validate_fu_yi_basis(action, fu_yi.get("basis"))
 
-    tiao_hou = yong_shen["tiao_hou"]
+    tiao_hou = full.get("tiao_hou")
+    stale_tiao_hou = [key for key in ("yong", "xi") if key in tiao_hou]
+    if stale_tiao_hou:
+        raise PanSchemaError(
+            f"{action} pan.full.tiao_hou 不应输出旧用神字段: {', '.join(stale_tiao_hou)}"
+        )
+    if not _require_nonempty_string(tiao_hou.get("primary_wuxing")):
+        raise PanSchemaError(
+            f"{action} pan.full.tiao_hou.primary_wuxing 缺失或不是非空字符串。"
+        )
     _validate_tiao_hou_availability(action, tiao_hou.get("primary"), "primary")
-    if tiao_hou.get("xi"):
+    secondary_condition = tiao_hou.get("secondary_condition")
+    if secondary_condition is not None and not isinstance(secondary_condition, str):
+        raise PanSchemaError(
+            f"{action} pan.full.tiao_hou.secondary_condition 不是 string。"
+        )
+    if secondary_condition or tiao_hou.get("secondary_wuxing"):
         _validate_tiao_hou_availability(action, tiao_hou.get("secondary"), "secondary")
+    if secondary_condition and not tiao_hou.get("secondary"):
+        raise PanSchemaError(
+            f"{action} pan.full.tiao_hou.secondary_condition 缺少 secondary。"
+        )
 
-    ge_ju = yong_shen["ge_ju"]
+    ge_ju = full.get("ge_ju")
+    stale = [key for key in ("yong", "xi", "ji") if key in ge_ju]
+    if stale:
+        raise PanSchemaError(
+            f"{action} pan.full.ge_ju 不应输出旧用神字段: {', '.join(stale)}"
+        )
+    for key in ("ge_ju", "yong_fa", "pattern_god_source"):
+        if not _require_nonempty_string(ge_ju.get(key)):
+            raise PanSchemaError(
+                f"{action} pan.full.ge_ju.{key} 缺失或不是非空字符串。"
+            )
     structure = ge_ju.get("structure")
     if not isinstance(structure, dict):
-        raise PanSchemaError(f"{action} pan.full.yong_shen.ge_ju.structure 缺失或不是 object。")
+        raise PanSchemaError(f"{action} pan.full.ge_ju.structure 缺失或不是 object。")
     for element in ("pattern", "controller", "generator"):
         _validate_element_structure(action, structure.get(element), element)
     _validate_relation_facts(action, structure.get("relation_facts"), "ge_ju.structure")
@@ -124,43 +154,43 @@ def _validate_yong_shen(action: str, full: dict) -> None:
 
 def _validate_fu_yi_basis(action: str, basis: object) -> None:
     if not isinstance(basis, dict):
-        raise PanSchemaError(f"{action} pan.full.yong_shen.fu_yi.basis 缺失或不是 object。")
+        raise PanSchemaError(f"{action} pan.full.fu_yi.basis 缺失或不是 object。")
     for key in ("root_type", "season"):
         if not _require_nonempty_string(basis.get(key)):
-            raise PanSchemaError(f"{action} pan.full.yong_shen.fu_yi.basis.{key} 缺失或不是非空字符串。")
+            raise PanSchemaError(f"{action} pan.full.fu_yi.basis.{key} 缺失或不是非空字符串。")
     if not isinstance(basis.get("yin_bi_count"), int):
-        raise PanSchemaError(f"{action} pan.full.yong_shen.fu_yi.basis.yin_bi_count 缺失或不是 integer。")
+        raise PanSchemaError(f"{action} pan.full.fu_yi.basis.yin_bi_count 缺失或不是 integer。")
     _validate_stem_occurrences(action, basis.get("day_master_roots"), "fu_yi.basis.day_master_roots")
     _validate_relation_facts(action, basis.get("relation_facts"), "fu_yi.basis")
 
 
 def _validate_tiao_hou_availability(action: str, value: object, name: str) -> None:
     if not isinstance(value, dict):
-        raise PanSchemaError(f"{action} pan.full.yong_shen.tiao_hou.{name} 缺失或不是 object。")
+        raise PanSchemaError(f"{action} pan.full.tiao_hou.{name} 缺失或不是 object。")
     if not _require_nonempty_string(value.get("stem")):
-        raise PanSchemaError(f"{action} pan.full.yong_shen.tiao_hou.{name}.stem 缺失或不是非空字符串。")
+        raise PanSchemaError(f"{action} pan.full.tiao_hou.{name}.stem 缺失或不是非空字符串。")
     for key in ("transparent", "hidden"):
         if not isinstance(value.get(key), bool):
-            raise PanSchemaError(f"{action} pan.full.yong_shen.tiao_hou.{name}.{key} 缺失或不是 boolean。")
+            raise PanSchemaError(f"{action} pan.full.tiao_hou.{name}.{key} 缺失或不是 boolean。")
     _validate_stem_occurrences(action, value.get("occurrences"), f"tiao_hou.{name}.occurrences")
     _validate_relation_facts(action, value.get("relation_facts"), f"tiao_hou.{name}")
 
 
 def _validate_element_structure(action: str, value: object, name: str) -> None:
     if not isinstance(value, dict):
-        raise PanSchemaError(f"{action} pan.full.yong_shen.ge_ju.structure.{name} 缺失或不是 object。")
+        raise PanSchemaError(f"{action} pan.full.ge_ju.structure.{name} 缺失或不是 object。")
     for key in ("wuxing", "season", "strength"):
         if not _require_nonempty_string(value.get(key)):
             raise PanSchemaError(
-                f"{action} pan.full.yong_shen.ge_ju.structure.{name}.{key} 缺失或不是非空字符串。"
+                f"{action} pan.full.ge_ju.structure.{name}.{key} 缺失或不是非空字符串。"
             )
     if not isinstance(value.get("timely"), bool):
         raise PanSchemaError(
-            f"{action} pan.full.yong_shen.ge_ju.structure.{name}.timely 缺失或不是 boolean。"
+            f"{action} pan.full.ge_ju.structure.{name}.timely 缺失或不是 boolean。"
         )
     if not isinstance(value.get("transparent_pillars"), list):
         raise PanSchemaError(
-            f"{action} pan.full.yong_shen.ge_ju.structure.{name}.transparent_pillars 缺失或不是 array。"
+            f"{action} pan.full.ge_ju.structure.{name}.transparent_pillars 缺失或不是 array。"
         )
     _validate_stem_occurrences(action, value.get("roots"), f"ge_ju.structure.{name}.roots")
 
@@ -273,7 +303,7 @@ def validate_natal_pan(pan: object, action: str = "pan") -> None:
                 f"{action} pan.full.da_yun.steps[{index}].root_refs 缺失或不是 array。"
             )
     _validate_engine_fact_items(action, full)
-    _validate_yong_shen(action, full)
+    _validate_yongshen_schools(action, full)
     if not isinstance(pan["ziwei"].get("gong_wei"), list):
         raise PanSchemaError(f"{action} pan.ziwei.gong_wei 缺失或不是 array。")
     expected_palaces = tuple(_CONSTANTS["紫微宫位"])

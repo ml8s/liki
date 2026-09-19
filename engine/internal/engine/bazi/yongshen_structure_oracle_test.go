@@ -48,7 +48,7 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 	}
 	for _, tc := range doc.GeJuCases {
 		t.Run(tc.ID, func(t *testing.T) {
-			got := ComputeYongShen(atomicChartFromStrings(t, tc.Pillars)).GeJu
+			_, _, got := ComputeYongShenSchools(atomicChartFromStrings(t, tc.Pillars))
 			if got.Pattern != tc.ExpectedPattern || got.PatternGod != tc.ExpectedPatternGod {
 				t.Fatalf("pattern = %s/%s, want %s/%s", got.Pattern, got.PatternGod, tc.ExpectedPattern, tc.ExpectedPatternGod)
 			}
@@ -67,19 +67,19 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 	}
 	for _, tc := range doc.FuYiCases {
 		t.Run(tc.ID, func(t *testing.T) {
-			got := ComputeYongShen(atomicChartFromStrings(t, tc.Pillars)).FuYi.Basis
-			if got.RootType != tc.ExpectedRootType || got.YinBiCount != tc.ExpectedYinBiCount {
-				t.Fatalf("basis = %s/%d, want %s/%d", got.RootType, got.YinBiCount, tc.ExpectedRootType, tc.ExpectedYinBiCount)
+			got, _, _ := ComputeYongShenSchools(atomicChartFromStrings(t, tc.Pillars))
+			if got.Basis.RootType != tc.ExpectedRootType || got.Basis.YinBiCount != tc.ExpectedYinBiCount {
+				t.Fatalf("basis = %s/%d, want %s/%d", got.Basis.RootType, got.Basis.YinBiCount, tc.ExpectedRootType, tc.ExpectedYinBiCount)
 			}
-			if !reflect.DeepEqual(got.DayMasterRoots, tc.ExpectedDayRoots) {
-				t.Fatalf("day roots = %#v, want %#v", got.DayMasterRoots, tc.ExpectedDayRoots)
+			if !reflect.DeepEqual(got.Basis.DayMasterRoots, tc.ExpectedDayRoots) {
+				t.Fatalf("day roots = %#v, want %#v", got.Basis.DayMasterRoots, tc.ExpectedDayRoots)
 			}
-			assertRelationFacts(t, got.RelationFacts, tc.ExpectedRelationFacts)
+			assertRelationFacts(t, got.Basis.RelationFacts, tc.ExpectedRelationFacts)
 		})
 	}
 	for _, tc := range doc.TiaoHouCases {
 		t.Run(tc.ID, func(t *testing.T) {
-			got := ComputeYongShen(atomicChartFromStrings(t, tc.Pillars)).TiaoHou
+			_, got, _ := ComputeYongShenSchools(atomicChartFromStrings(t, tc.Pillars))
 			assertTiaoHouGod(t, got.Primary, tc.ExpectedPrimary)
 			if tc.ExpectedSecondary == nil {
 				if got.Secondary != nil {

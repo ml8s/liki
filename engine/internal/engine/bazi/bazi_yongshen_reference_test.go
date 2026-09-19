@@ -22,24 +22,24 @@ func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(st, ganzhi.Male)
-	result := ComputeYongShen(chart)
+	fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
-	if result.TiaoHou.Yong == "" {
-		t.Error("TiaoHou.Yong 不应为空")
+	if tiaoHou.PrimaryWuxing == "" {
+		t.Error("TiaoHou.PrimaryWuxing 不应为空")
 	}
-	if result.GeJu.Yong == "" {
-		t.Error("GeJu.Yong 不应为空")
+	if geJu.Pattern == "" {
+		t.Error("GeJu.Pattern 不应为空")
 	}
-	if result.FuYi.Strength == "" {
+	if fuYi.Strength == "" {
 		t.Error("FuYi.Strength 不应为空")
 	}
 	// 记录三派结果供人工审核
 	t.Logf("扶抑: yong=%s xi=%s ji=%s (strength=%s)",
-		result.FuYi.Yong, result.FuYi.Xi, result.FuYi.Ji, result.FuYi.Strength)
+		fuYi.Yong, fuYi.Xi, fuYi.Ji, fuYi.Strength)
 	t.Logf("调候: yong=%s xi=%s (detail=%s)",
-		result.TiaoHou.Yong, result.TiaoHou.Xi, result.TiaoHou.Detail)
-	t.Logf("格局: yong=%s xi=%s ji=%s (pattern=%s %s)",
-		result.GeJu.Yong, result.GeJu.Xi, result.GeJu.Ji, result.GeJu.Pattern, result.GeJu.Usage)
+		tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing, tiaoHou.Detail)
+	t.Logf("格局候选: %s %s",
+		geJu.Pattern, geJu.Usage)
 }
 
 // ── 三会局测试 ──
@@ -52,16 +52,16 @@ func TestFuYi_SanHui_HuoJu(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(st, ganzhi.Male)
-	result := ComputeYongShen(chart)
+	fuYi, _, _ := ComputeYongShenSchools(chart)
 
 	t.Logf("三会火方: 八字=%s%s %s%s %s%s %s%s, strength=%s",
 		chart.Nian.Gan, chart.Nian.Zhi,
 		chart.Yue.Gan, chart.Yue.Zhi,
 		chart.Ri.Gan, chart.Ri.Zhi,
 		chart.Shi.Gan, chart.Shi.Zhi,
-		result.FuYi.Strength)
+		fuYi.Strength)
 
-	if result.FuYi.Strength == "身弱" {
+	if fuYi.Strength == "身弱" {
 		t.Error("三会火方的丙火日主不应身弱")
 	}
 }
@@ -77,7 +77,7 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(st, ganzhi.Male)
-	result := ComputeYongShen(chart)
+	fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
 	t.Logf("滴天髓: %s%s %s%s %s%s %s%s",
 		chart.Nian.Gan, chart.Nian.Zhi,
@@ -85,17 +85,16 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 		chart.Ri.Gan, chart.Ri.Zhi,
 		chart.Shi.Gan, chart.Shi.Zhi)
 	t.Logf("  扶抑: strength=%s yong=%s xi=%s ji=%s",
-		result.FuYi.Strength, result.FuYi.Yong, result.FuYi.Xi, result.FuYi.Ji)
-	t.Logf("  格局: %s %s, yong=%s xi=%s ji=%s",
-		result.GeJu.Pattern, result.GeJu.Usage,
-		result.GeJu.Yong, result.GeJu.Xi, result.GeJu.Ji)
+		fuYi.Strength, fuYi.Yong, fuYi.Xi, fuYi.Ji)
+	t.Logf("  格局候选: %s %s",
+		geJu.Pattern, geJu.Usage)
 	t.Logf("  调候: yong=%s xi=%s detail=%s",
-		result.TiaoHou.Yong, result.TiaoHou.Xi, result.TiaoHou.Detail)
+		tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing, tiaoHou.Detail)
 
 	// 滴天髓原文: 乙木秋生, 火旺制杀 → 具体格局取决于透干的火是食神/伤官: 食神→顺用, 伤官→逆用
-	if result.GeJu.Usage != "逆用" {
-		if result.GeJu.Pattern != "七杀格" {
-			t.Errorf("pattern=%q, want 七杀格(滴天髓:乙木秋生火旺制杀)", result.GeJu.Pattern)
+	if geJu.Usage != "逆用" {
+		if geJu.Pattern != "七杀格" {
+			t.Errorf("pattern=%q, want 七杀格(滴天髓:乙木秋生火旺制杀)", geJu.Pattern)
 		}
 	}
 }
@@ -108,17 +107,17 @@ func TestReference_ZiPing_ZhengGuanGe(t *testing.T) {
 		116.4, 8,
 	)
 	chart := ComputeChart(st, ganzhi.Male)
-	result := ComputeYongShen(chart)
+	_, _, geJu := ComputeYongShenSchools(chart)
 
 	t.Logf("子平真诠: %s%s %s%s %s%s %s%s, 格局=%s %s",
 		chart.Nian.Gan, chart.Nian.Zhi,
 		chart.Yue.Gan, chart.Yue.Zhi,
 		chart.Ri.Gan, chart.Ri.Zhi,
 		chart.Shi.Gan, chart.Shi.Zhi,
-		result.GeJu.Pattern, result.GeJu.Usage)
+		geJu.Pattern, geJu.Usage)
 
 	// 甲木日主, 酉月: 酉辛为甲之正官
-	if result.GeJu.Pattern == "" {
+	if geJu.Pattern == "" {
 		t.Error("子平真诠案例: 甲木酉月应有格局")
 	}
 }
@@ -131,16 +130,16 @@ func TestReference_QiongTongBaoJian_SampleEntry(t *testing.T) {
 	if !ok {
 		t.Fatalf("调候表中缺少(丙,午)条目")
 	}
-	if th.Yong != "水" {
-		t.Errorf("穷通宝鉴(丙,午): yong=%s, want 水", th.Yong)
+	if th.PrimaryWuxing != "水" {
+		t.Errorf("穷通宝鉴(丙,午): yong=%s, want 水", th.PrimaryWuxing)
 	}
 	// 穷通宝鉴(甲,酉)用丁(火), 不是庚(金) — 按穷通原文"丁火制金，丙火暖木"
 	th2, ok2 := queryTiaoHou(ganzhi.GanJia, ganzhi.ZhiYou)
 	if !ok2 {
 		t.Fatalf("调候表中缺少(甲,酉)条目")
 	}
-	if th2.Yong != "火" {
-		t.Errorf("穷通宝鉴(甲,酉): yong=%s, want 火(穷通原文丁火)", th2.Yong)
+	if th2.PrimaryWuxing != "火" {
+		t.Errorf("穷通宝鉴(甲,酉): yong=%s, want 火(穷通原文丁火)", th2.PrimaryWuxing)
 	}
 }
 
@@ -164,7 +163,7 @@ func TestTiaoHou_SeasonalConsistency(t *testing.T) {
 				continue
 			}
 			summerTotal++
-			if th.Yong == "火" {
+			if th.PrimaryWuxing == "火" {
 				summerFireCount++
 			}
 		}
@@ -182,7 +181,7 @@ func TestTiaoHou_SeasonalConsistency(t *testing.T) {
 				continue
 			}
 			winterTotal++
-			if th.Yong == "水" {
+			if th.PrimaryWuxing == "水" {
 				winterWaterCount++
 			}
 		}

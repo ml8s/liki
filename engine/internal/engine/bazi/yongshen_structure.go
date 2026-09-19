@@ -275,7 +275,7 @@ func buildRelationFacts(
 	branchTargets func(pillar int) []string,
 ) []RelationFact {
 	relations := ComputeHeHui(c)
-	facts := make([]RelationFact, 0, len(relations.GanHe)+len(relations.ZhiLiuHe)+len(relations.SanHe)+len(relations.SanHui)+len(relations.LiuChong)+len(relations.LiuHai)+len(relations.LiuXing))
+	facts := make([]RelationFact, 0, len(relations.GanHe)+len(relations.GanChong)+len(relations.ZhiLiuHe)+len(relations.SanHe)+len(relations.SanHePartial)+len(relations.SanHui)+len(relations.LiuChong)+len(relations.LiuHai)+len(relations.LiuXing)+len(relations.LiuPo)+len(relations.AnHe))
 	for _, relation := range relations.GanHe {
 		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(c, relation.PillarA)), stemTargets(relation.PillarB, chartStem(c, relation.PillarB))...)
 		if len(targets) == 0 {
@@ -287,6 +287,21 @@ func buildRelationFacts(
 			Pillars:  pillarNames(relation.PillarA, relation.PillarB),
 			Branches: []string{},
 			Targets:  targets,
+		})
+	}
+	for _, relation := range relations.GanChong {
+		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(c, relation.PillarA)), stemTargets(relation.PillarB, chartStem(c, relation.PillarB))...)
+		if len(targets) == 0 {
+			continue
+		}
+		field := "gan_chong_candidate"
+		if relation.Position == "adjacent" {
+			field = "gan_chong"
+		}
+		facts = append(facts, RelationFact{
+			Field: field, Group: relation.GanA + relation.GanB + "冲",
+			Pillars:  pillarNames(relation.PillarA, relation.PillarB),
+			Branches: []string{}, Targets: targets,
 		})
 	}
 	for _, relation := range relations.ZhiLiuHe {
@@ -305,7 +320,15 @@ func buildRelationFacts(
 		appendPairRelationFact(&facts, "liu_xing", relation.ZhiA+relation.ZhiB+"刑",
 			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
 	}
-	for _, relation := range append(append([]TripleGroup{}, relations.SanHe...), relations.SanHui...) {
+	for _, relation := range relations.LiuPo {
+		appendPairRelationFact(&facts, "liu_po", relation.ZhiA+relation.ZhiB+"破",
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+	}
+	for _, relation := range relations.AnHe {
+		appendPairRelationFact(&facts, "an_he", relation.ZhiA+relation.ZhiB+"暗合",
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+	}
+	for _, relation := range append(append(append([]TripleGroup{}, relations.SanHe...), relations.SanHePartial...), relations.SanHui...) {
 		targets := make([]string, 0, 3)
 		for _, pillar := range relation.Pillars {
 			for index := range zhuLabels {
@@ -321,6 +344,8 @@ func buildRelationFacts(
 		switch relation.Type {
 		case relSanHe:
 			field = "san_he"
+		case "半合":
+			field = "san_he_partial"
 		case relSanHui:
 			field = "san_hui"
 		}

@@ -17,7 +17,7 @@ def _mk(ri_gan: str, ri_zhi: str) -> dict:
             "chang_sheng": [],
             "atomic_facts": {"day_master_stem": ri_gan, "day_branch": ri_zhi},
         },
-        "yongshen": {}, "gender": "male",
+        "fu_yi": {}, "gender": "male",
     }
 
 

@@ -74,7 +74,7 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
         atomic_key = const.get('流年克目标', {}).get(role, 'day_master')
         return 1 if _atomic_facts(ctx).get('controls_targets', {}).get(atomic_key) else 0
 
-def _liu_handler_yongshen(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
+def _liu_handler_jishen(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '忌神干':
@@ -255,9 +255,9 @@ _LIU_OP_HANDLERS = {
         "流年冲": _liu_handler_target_star,
         "流年克": _liu_handler_target_star,
         "流年透": _liu_handler_target_star,
-        "忌神干": _liu_handler_yongshen,
-        "忌神支": _liu_handler_yongshen,
-        "财坏印流年": _liu_handler_yongshen,
+        "忌神干": _liu_handler_jishen,
+        "忌神支": _liu_handler_jishen,
+        "财坏印流年": _liu_handler_jishen,
         "大运窗口流年": _liu_handler_dayun,
         "换运流年": _liu_handler_dayun,
         "引用本命": _liu_handler_ziwei,

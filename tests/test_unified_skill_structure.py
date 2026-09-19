@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-from helpers import ROOT, SKILL_ROOT
+from _helpers import ROOT, SKILL_ROOT
 
 OLD_SKILL_NAMES = {"liki-bazi", "liki-divination", "liki-fengshui", "liki-naming"}
 DOMAINS = ("bazi", "divination", "fengshui", "naming")

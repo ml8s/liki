@@ -3,6 +3,7 @@ from unittest import mock
 
 import pytest
 
+from pathlib import Path
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import duanyu
 from yearly_eval import query_year_rules
@@ -24,9 +25,9 @@ def _valid_mock_pan() -> dict:
         "full": {
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in ("nian", "yue", "ri", "shi")},
             **_helpers.mock_engine_facts(),
-            "yong_shen": _helpers.mock_yong_shen(),
+            **_helpers.mock_yongshen_fields(),
         },
-        "yongshen": {},
+        "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
         "ziwei": _helpers.mock_ziwei(),
         "ziwei_daxian": _helpers.valid_daxian(),
     })
@@ -158,6 +159,8 @@ def test_yearly_range_prepares_natal_context_once() -> None:
 
 
 def test_eval_hybrid_builds_one_flow_snapshot_per_pan() -> None:
+    import sys as _sys, os as _os
+    _sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), '..', 'scripts'))
     import eval_hybrid
 
     flow_snapshot = {

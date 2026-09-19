@@ -8,13 +8,17 @@ import (
 
 // HeHuiResult holds the complete 合会冲刑 analysis for a bazi chart.
 type HeHuiResult struct {
-	GanHe    []GanHePair   `json:"gan_he"`
-	ZhiLiuHe []ZhiPairRel  `json:"zhi_liu_he"`
-	SanHe    []TripleGroup `json:"san_he"`
-	SanHui   []TripleGroup `json:"san_hui"`
-	LiuChong []ZhiPairRel  `json:"liu_chong"`
-	LiuHai   []ZhiPairRel  `json:"liu_hai"`
-	LiuXing  []ZhiPairRel  `json:"liu_xing"`
+	GanHe        []GanHePair   `json:"gan_he"`
+	GanChong     []GanPairRel  `json:"gan_chong"`
+	ZhiLiuHe     []ZhiPairRel  `json:"zhi_liu_he"`
+	SanHe        []TripleGroup `json:"san_he"`
+	SanHui       []TripleGroup `json:"san_hui"`
+	LiuChong     []ZhiPairRel  `json:"liu_chong"`
+	LiuHai       []ZhiPairRel  `json:"liu_hai"`
+	LiuXing      []ZhiPairRel  `json:"liu_xing"`
+	LiuPo        []ZhiPairRel  `json:"liu_po"`
+	AnHe         []ZhiPairRel  `json:"an_he"`
+	SanHePartial []TripleGroup `json:"san_he_partial"`
 }
 
 // GanHePair describes a 天干五合 pair. Adjacency is an engine-owned fact;
@@ -27,6 +31,16 @@ type GanHePair struct {
 	Position  string `json:"position"`
 	Contested bool   `json:"contested"`
 	HeElement string `json:"he_element"`
+}
+
+// GanPairRel describes a paired gan relationship (天干相冲). Position is an
+// engine-owned strength hint: tight pairs are adjacent, others are candidates.
+type GanPairRel struct {
+	GanA     string `json:"gan_a"`
+	GanB     string `json:"gan_b"`
+	PillarA  int    `json:"pillar_a"`
+	PillarB  int    `json:"pillar_b"`
+	Position string `json:"position"`
 }
 
 // ZhiPairRel describes a paired zhi relationship (六合/六冲/六害/相刑) between two pillars.
@@ -51,13 +65,17 @@ type TripleGroup struct {
 func ComputeHeHui(c Chart) HeHuiResult {
 	bz := c.ToBazi()
 	return HeHuiResult{
-		GanHe:    detectGanHe(bz),
-		ZhiLiuHe: detectZhiPairs(bz, ganzhi.IsZhiHe, true),
-		SanHe:    detectTriple(bz, ganzhi.TripleHeList, relSanHe, "局"),
-		SanHui:   detectTriple(bz, ganzhi.TripleHuiList, relSanHui, "方"),
-		LiuChong: detectZhiPairs(bz, ganzhi.IsLiuChong, false),
-		LiuHai:   detectZhiPairs(bz, ganzhi.IsHai, false),
-		LiuXing:  detectZhiPairs(bz, ganzhi.IsXing, false),
+		GanHe:        detectGanHe(bz),
+		GanChong:     detectGanChong(bz),
+		ZhiLiuHe:     detectZhiPairs(bz, ganzhi.IsZhiHe, true),
+		SanHe:        detectTriple(bz, ganzhi.TripleHeList, relSanHe, "局"),
+		SanHui:       detectTriple(bz, ganzhi.TripleHuiList, relSanHui, "方"),
+		LiuChong:     detectZhiPairs(bz, ganzhi.IsLiuChong, false),
+		LiuHai:       detectZhiPairs(bz, ganzhi.IsHai, false),
+		LiuXing:      detectZhiPairs(bz, ganzhi.IsXing, false),
+		LiuPo:        detectZhiPairs(bz, ganzhi.IsPo, false),
+		AnHe:         detectZhiPairs(bz, ganzhi.IsAnHe, false),
+		SanHePartial: detectPartialTriple(bz),
 	}
 }
 
@@ -100,6 +118,31 @@ func detectGanHe(bz ganzhi.Bazi) []GanHePair {
 			}
 		}
 		pairs[i].Contested = participations > 1
+	}
+	return pairs
+}
+
+func detectGanChong(bz ganzhi.Bazi) []GanPairRel {
+	zhus := bz.Slice()
+	pairs := make([]GanPairRel, 0, 4)
+	for i := 0; i < 3; i++ {
+		for j := i + 1; j < 4; j++ {
+			a, b := zhus[i].Gan, zhus[j].Gan
+			if !ganzhi.IsGanChong(a, b) {
+				continue
+			}
+			position := "separated"
+			switch j - i {
+			case 1:
+				position = "adjacent"
+			case 3:
+				position = "remote"
+			}
+			pairs = append(pairs, GanPairRel{
+				GanA: ganzhi.GanName(a), GanB: ganzhi.GanName(b),
+				PillarA: i, PillarB: j, Position: position,
+			})
+		}
 	}
 	return pairs
 }
@@ -152,6 +195,42 @@ func detectTriple(bz ganzhi.Bazi, list []ganzhi.SanHeHui, typ, suffix string) []
 				Pillars:  pillarsWithAnyZhi(bz, tr.Zhi...),
 			})
 		}
+	}
+	return results
+}
+
+// detectPartialTriple finds 半合 (partial 三合: any 2 of 3 branches present).
+// Only reports when the complete 三合 is NOT already satisfied.
+func detectPartialTriple(bz ganzhi.Bazi) []TripleGroup {
+	bs := zhiSet(bz)
+	results := make([]TripleGroup, 0, 6)
+	for _, tr := range ganzhi.TripleHeList {
+		matched := countZhi(bs, tr.Zhi...)
+		if matched == len(tr.Zhi) {
+			continue // complete 三合, skip
+		}
+		if matched < 2 {
+			continue
+		}
+		// 半合必须包含旺支（三合表中第二支）。缺旺支的生墓二支是拱合候选，
+		// 不标为半合，避免把 巳丑 误判成 巳酉丑 半合。
+		if !bs[tr.Zhi[1]] {
+			continue
+		}
+		// Find which 2 branches are present
+		var present []ganzhi.Zhi
+		for _, z := range tr.Zhi {
+			if bs[z] {
+				present = append(present, z)
+			}
+		}
+		results = append(results, TripleGroup{
+			Type:     "半合",
+			Name:     tripleName(present, tr.Element, "半合局"),
+			Element:  tr.Element.String(),
+			Branches: zhiNames(present),
+			Pillars:  pillarsWithAnyZhi(bz, present...),
+		})
 	}
 	return results
 }

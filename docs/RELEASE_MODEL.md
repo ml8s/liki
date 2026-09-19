@@ -164,28 +164,36 @@ If breaking work lands on main after `v5.0.0`, the next release must be `v6.0.0`
 
 ## 8. Quality gates
 
-Local fast checks are deterministic:
+Make targets are layered: lint → check → test → verify → gate.
 
 ```bash
-make check
-make test-functional
+# Layer 1: Lint（格式 & 风格，< 30s）
+make lint-md             # markdownlint + skill md structure
+make lint-engine          # golangci-lint + go vet
+make lint                 # both
+
+# Layer 2: Check（结构 / 契约 / 数据质量，< 30s）
+make check                # check_schema + check_docs
+
+# Layer 3: Test（逻辑正确性）
+make test                 # skills pytest（非 integration）
+make test                # all tests（pytest + Go engine full）
+
+# Layer 4: Verify（端到端，需要本地引擎）
+make verify               # integration + eval_hybrid full
+
+# Layer 5: Gate（compose，发布门槛）
+make gate                # check + test（推送前门槛）
 ```
 
-The push gate is the same set used by CI:
+Release checks add golden and package:
 
 ```bash
-make pre-push
-```
-
-Release checks add the full deterministic surface and package:
-
-```bash
-make test-all
 make golden-engine
-make build-archive
+make build
 ```
 
-Model- or local-tool-backed checks are release evidence, not pre-push requirements. `skillup-*` targets require the local `skill-up` CLI:
+Model- or local-tool-backed checks are release evidence, not gate requirements:
 
 ```bash
 make skillup-smoke-validate

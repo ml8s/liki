@@ -17,7 +17,7 @@ Windows 使用 `py -3 -X utf8 divination/tools/agent_cli.py`；fallback `python 
 ## 变量绑定
 
 | 变量 | 绑定 |
-|---|---|
+| --- | --- |
 | `$LIUYAO_SNAPSHOT` | `liuyao_snapshot` 响应的 `data` |
 | `$LIUYAO_ANSWER` | `liuyao_ask` 响应的 `data` |
 | `$QIMEN_SNAPSHOT` | `qimen_snapshot` 响应的 `data` |
@@ -45,7 +45,7 @@ Windows 使用 `py -3 -X utf8 divination/tools/agent_cli.py`；fallback `python 
 ```
 
 | 参数 | 说明 |
-|---|---|
+| --- | --- |
 | `question` | 必填；一个具体目标。 |
 | `mode` | 默认 `auto`。 |
 | `rounds` | 仅 `coins` 模式；六组三枚正/反。 |
@@ -83,7 +83,7 @@ Windows 使用 `py -3 -X utf8 divination/tools/agent_cli.py`；fallback `python 
 ```
 
 | 参数 | 说明 |
-|---|---|
+| --- | --- |
 | `question` | 必填。 |
 | `city` / `longitude` | 二选一。 |
 | `time` | 缺省用服务端当前时间。 |
@@ -108,7 +108,7 @@ Windows 使用 `py -3 -X utf8 divination/tools/agent_cli.py`；fallback `python 
 ```
 
 | 参数 | 说明 |
-|---|---|
+| --- | --- |
 | `question` | 必填。 |
 | `event` | 使用 app 卡事项枚举中的英文值。 |
 | `start_date` | 起始日期。 |

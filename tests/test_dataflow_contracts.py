@@ -63,9 +63,9 @@ def _pan() -> dict:
                 } for pillar in pillars
             },
             **_helpers.mock_engine_facts(),
-            "yong_shen": _helpers.mock_yong_shen(),
+            **_helpers.mock_yongshen_fields(),
         },
-        "yongshen": {},
+        "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
         "ziwei": _helpers.mock_ziwei(),
         "ziwei_daxian": _helpers.valid_daxian(),
     }

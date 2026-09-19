@@ -152,16 +152,16 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 			if hasShenShaName([4][]shenShaEntry{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}, "羊刃") != tc.YangRen {
 				t.Fatalf("羊刃 fact is inconsistent with classic yin-stem boundary")
 			}
-			ge := full.YongShen.GeJu
+			ge := full.GeJu
 			if ge.Pattern != tc.Pattern || ge.PatternGod != tc.PatternGod ||
 				ge.PatternGodSource != tc.PatternGodSource || ge.Usage != tc.Usage ||
-				ge.Yong != tc.Yong || ge.Xi != tc.Xi || ge.Ji != tc.Ji {
+				ge.Structure.Pattern.Wuxing == "" {
 				t.Fatalf("geju = %+v, want %+v", ge, tc)
 			}
-			if full.YongShen.FuYi.Strength != tc.Strength {
-				t.Fatalf("strength = %s, want %s", full.YongShen.FuYi.Strength, tc.Strength)
+			if full.FuYi.Strength != tc.Strength {
+				t.Fatalf("strength = %s, want %s", full.FuYi.Strength, tc.Strength)
 			}
-			th := full.YongShen.TiaoHou
+			th := full.TiaoHou
 			if th.Primary.Stem != tc.TiaoHouPrimary || th.Primary.Hidden != tc.TiaoHouPrimaryHidden ||
 				th.Secondary == nil || th.Secondary.Stem != tc.TiaoHouSecondary ||
 				(th.Secondary.Transparent || th.Secondary.Hidden) != tc.TiaoHouSecondaryPresent {
@@ -189,13 +189,13 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 	if full.ShenShaSchool.Policy != "union_of_year_and_day_references" || len(full.ShenShaSchool.DualReference) != 7 {
 		t.Fatalf("shen sha school = %+v", full.ShenShaSchool)
 	}
-	if full.YongShen.FuYi.Model != "support_control_with_day_master_strength" ||
-		full.YongShen.FuYi.Basis.RootType == "" || len(full.YongShen.FuYi.Basis.DayMasterRoots) == 0 {
-		t.Fatalf("fu yi model = %+v", full.YongShen.FuYi)
+	if full.FuYi.Model != "support_control_with_day_master_strength" ||
+		full.FuYi.Basis.RootType == "" || len(full.FuYi.Basis.DayMasterRoots) == 0 {
+		t.Fatalf("fu yi model = %+v", full.FuYi)
 	}
-	if full.YongShen.TiaoHou.Model != "qiongtong_primary_secondary_table" ||
-		(!full.YongShen.TiaoHou.Primary.Transparent && !full.YongShen.TiaoHou.Primary.Hidden) {
-		t.Fatalf("tiao hou model = %+v", full.YongShen.TiaoHou)
+	if full.TiaoHou.Model != "qiongtong_primary_secondary_table" ||
+		(!full.TiaoHou.Primary.Transparent && !full.TiaoHou.Primary.Hidden) {
+		t.Fatalf("tiao hou model = %+v", full.TiaoHou)
 	}
 }
 

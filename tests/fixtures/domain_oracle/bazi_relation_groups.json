@@ -1,10 +1,11 @@
 {
-  "schema_version": "domain-oracle-bazi-relation-groups-v2",
-  "basis": "天干五合、地支六合、三合、三会、六冲、六害与三刑通行口径；组成立必须成员齐备，自刑须同支成双。紧邻天干五合进 gan_he，隔位 / 远隔只进 gan_he_candidate。",
+  "schema_version": "domain-oracle-bazi-relation-groups-v4",
+  "basis": "天干五合、天干相冲、地支六合、三合、半合、三会、六冲、六害、三刑、六破与暗合通行口径；三合/三会组成立必须成员齐备，半合必须含旺支，自刑须同支成双。紧邻天干五合 / 相冲进 gan_he / gan_chong，隔位 / 远隔只进对应 candidate。",
   "sources": [
     "《三命通会》合会冲刑",
     "《子平真诠》地支关系",
-    "《三命通会》天干五合"
+    "《三命通会》天干五合",
+    "《三命通会》天干相冲"
   ],
   "cases": [
     {
@@ -51,12 +52,20 @@
       ],
       "expected": [
         {
+          "field": "an_he",
+          "group": "子戌"
+        },
+        {
           "field": "liu_chong",
           "group": "丑未"
         },
         {
           "field": "liu_hai",
           "group": "子未"
+        },
+        {
+          "field": "liu_po",
+          "group": "戌未"
         },
         {
           "field": "liu_xing",
@@ -97,6 +106,10 @@
       ],
       "expected": [
         {
+          "field": "gan_chong_candidate",
+          "group": "甲庚"
+        },
+        {
           "field": "gan_he_candidate",
           "group": "甲己"
         },
@@ -107,6 +120,45 @@
         {
           "field": "liu_hai",
           "group": "寅巳"
+        },
+        {
+          "field": "san_he_partial",
+          "group": "寅午"
+        }
+      ]
+    },
+    {
+      "id": "adjacent-and-separated-gan-chong",
+      "pillars": [
+        "甲子",
+        "庚午",
+        "丙寅",
+        "壬申"
+      ],
+      "expected": [
+        {
+          "field": "gan_chong",
+          "group": "丙壬"
+        },
+        {
+          "field": "gan_chong",
+          "group": "甲庚"
+        },
+        {
+          "field": "liu_chong",
+          "group": "子午"
+        },
+        {
+          "field": "liu_chong",
+          "group": "寅申"
+        },
+        {
+          "field": "san_he_partial",
+          "group": "寅午"
+        },
+        {
+          "field": "san_he_partial",
+          "group": "申子"
         }
       ]
     }

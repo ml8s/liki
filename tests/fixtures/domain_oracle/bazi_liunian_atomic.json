@@ -72,7 +72,10 @@
         "dayun_equals_year_pillar": false,
         "year_gan_equals_natal_year_gan": false,
         "dayun_gan_combines": false,
-        "dayun_zhi_clashes_year": false
+        "dayun_zhi_clashes_year": false,
+        "year_branch_relations": {
+          "辰": "half_he"
+        }
       }
     },
     {

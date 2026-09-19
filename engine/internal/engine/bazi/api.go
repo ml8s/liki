@@ -7,7 +7,7 @@
 //	Bond, XunGong,
 //	LiuNian, LiuYue, LiuRi, LiuShi,
 //	XiaoYunZhu, XiaoXian,
-//	YongShenResult, FuYiResult, TiaoHouResult, GeJuResult
+//	FuYiResult, TiaoHouResult, GeJuResult
 package bazi
 
 import (
@@ -30,19 +30,25 @@ func ComputeFullChart(c Chart) FullChart {
 	enrichDaYunRoots(&fc, bz)
 	extra := ComputeChartExtra(c)
 	fc.SanYuan = extra.SanYuan
+	fc.TaiXi = extra.TaiXi
 	fc.GongJia = extra.GongJia
 	fc.NayinRel = extra.NayinRel
 	fc.ChangSheng = extra.ChangSheng
 	fc.SanQiName = extra.SanQiName
+	fc.Zodiac = ganzhi.ZhiAnimal(bz.Nian.Zhi)
 	hehui := ComputeHeHui(c)
 	fc.GanHe = hehui.GanHe
+	fc.GanChong = hehui.GanChong
 	fc.ZhiLiuHe = hehui.ZhiLiuHe
 	fc.SanHe = hehui.SanHe
+	fc.SanHePartial = hehui.SanHePartial
 	fc.SanHui = hehui.SanHui
 	fc.LiuChong = hehui.LiuChong
 	fc.LiuHai = hehui.LiuHai
 	fc.LiuXing = hehui.LiuXing
-	fc.YongShen = ComputeYongShen(c) // 用神三派归完整命盘（chart 纯排盘不含）
+	fc.LiuPo = hehui.LiuPo
+	fc.AnHe = hehui.AnHe
+	fc.FuYi, fc.TiaoHou, fc.GeJu = ComputeYongShenSchools(c)
 	fc.ShenShaSchool = ShenShaSchool{
 		DualReference: []string{"天乙贵人", "桃花", "驿马", "华盖", "将星", "劫煞", "灾煞"},
 		Policy:        "union_of_year_and_day_references",

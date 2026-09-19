@@ -3,7 +3,7 @@
 场景卡默认使用 `bazi/ENTRY.md` 核心流程取得的 `pan`；卡内只写场景查询、裁决与输出。完整工具报文见 `bazi/TOOLS.md`；全局工具契约见根文档，领域硬边界见 `bazi/ENTRY.md`。
 
 | 卡 | 功能 | 依赖域 | 历史验证聚焦 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `mingshu.md` | 快速扫描与深入入口 | bazi,ziwei | 全盘大事 |
 | `mingshu-full.md` | 完整命书 | bazi,ziwei | 全盘大事 |
 | `marriage.md` | 婚姻与感情 | bazi,ziwei | 结婚 / 婚变年 |

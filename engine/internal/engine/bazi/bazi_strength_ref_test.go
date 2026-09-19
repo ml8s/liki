@@ -35,10 +35,10 @@ func TestFuYi_Strength_Reference(t *testing.T) {
 			birth := time.Date(tt.year, time.Month(tt.month), tt.day, tt.hour, 0, 0, 0, loc)
 			st := tianwen.GregorianToSolar(birth, tt.longitude, tt.timezone)
 			chart := ComputeChart(st, tt.gender)
-			result := ComputeYongShen(chart)
-			if result.FuYi.Strength != tt.expectStrength {
+			fuYi, _, _ := ComputeYongShenSchools(chart)
+			if fuYi.Strength != tt.expectStrength {
 				t.Errorf("Strength=%q, want=%q (%s%s %s%s %s%s %s%s)",
-					result.FuYi.Strength, tt.expectStrength,
+					fuYi.Strength, tt.expectStrength,
 					chart.Nian.Gan, chart.Nian.Zhi,
 					chart.Yue.Gan, chart.Yue.Zhi,
 					chart.Ri.Gan, chart.Ri.Zhi,

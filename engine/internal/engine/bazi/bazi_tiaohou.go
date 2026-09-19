@@ -6,10 +6,11 @@ import (
 
 // TiaoHou is the internal 穷通宝鉴 climate-adjustment result.
 type TiaoHou struct {
-	Season string
-	Yong   string
-	Xi     string
-	Detail string
+	Season             string
+	PrimaryWuxing      string
+	SecondaryWuxing    string
+	Detail             string
+	SecondaryCondition string
 }
 
 // tiaohouKey is the internal compound key for the lookup table.
@@ -33,13 +34,14 @@ func computeTiaoHou(c Chart) TiaoHouResult {
 		}
 	}
 	return TiaoHouResult{
-		Yong:      th.Yong,
-		Xi:        th.Xi,
-		Season:    th.Season,
-		Detail:    th.Detail,
-		Model:     "qiongtong_primary_secondary_table",
-		Primary:   buildTiaoHouAvailability(c, entry.primary, "primary"),
-		Secondary: tiaoHouSecondary(c, entry.secondary),
+		PrimaryWuxing:      th.PrimaryWuxing,
+		SecondaryWuxing:    th.SecondaryWuxing,
+		Season:             th.Season,
+		Detail:             th.Detail,
+		Model:              "qiongtong_primary_secondary_table",
+		Primary:            buildTiaoHouAvailability(c, entry.primary, "primary"),
+		Secondary:          tiaoHouSecondary(c, entry.secondary),
+		SecondaryCondition: th.SecondaryCondition,
 	}
 }
 
@@ -60,10 +62,10 @@ func queryTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) (TiaoHou, bool) {
 		return TiaoHou{}, false
 	}
 
-	yongElem := ganzhi.GanWuxing(e.primary)
-	var xiElem ganzhi.Wuxing
+	primaryElem := ganzhi.GanWuxing(e.primary)
+	var secondaryElem ganzhi.Wuxing
 	if e.secondary != 0 {
-		xiElem = ganzhi.GanWuxing(e.secondary)
+		secondaryElem = ganzhi.GanWuxing(e.secondary)
 	}
 
 	season := ganzhi.ZhiSeasonLabel(yueZhi)
@@ -71,18 +73,23 @@ func queryTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) (TiaoHou, bool) {
 	detail := ganzhi.ZhiName(yueZhi) + "月" + ganzhi.GanName(riYuan) + ganzhi.GanWuxing(riYuan).String()
 	detail += "，用" + ganzhi.GanName(e.primary) + "调候"
 	if e.secondary != 0 {
-		detail += "，" + ganzhi.GanName(e.secondary) + "辅之"
+		if e.secondaryCondition != "" {
+			detail += "，" + e.secondaryCondition
+		} else {
+			detail += "，" + ganzhi.GanName(e.secondary) + "辅之"
+		}
 	}
 
-	xiStr := ""
+	secondaryWuxing := ""
 	if e.secondary != 0 {
-		xiStr = xiElem.String()
+		secondaryWuxing = secondaryElem.String()
 	}
 
 	return TiaoHou{
-		Season: season,
-		Yong:   yongElem.String(),
-		Xi:     xiStr,
-		Detail: detail,
+		Season:             season,
+		PrimaryWuxing:      primaryElem.String(),
+		SecondaryWuxing:    secondaryWuxing,
+		Detail:             detail,
+		SecondaryCondition: e.secondaryCondition,
 	}, true
 }

@@ -448,7 +448,7 @@ class TestLiuNianOps(unittest.TestCase):
     def test_忌神干_命中与不命中(self):
         # 忌神=火（fu_yi.ji）——流年干丙（火）→ 1；庚（金）→ 0
         base = self._fac()
-        base["yongshen"] = {"fu_yi": {"ji": "火"}}
+        base["fu_yi"] = {"ji": "火"}
         ctx = {"liunian": {"nian_gan": "丙", "atomic_facts": {"unfavorable_gan": True}}}
         self.assertEqual(_liu_op("忌神干", [], "male", base, ctx), 1)
         ctx2 = {"liunian": {"nian_gan": "庚", "atomic_facts": {"unfavorable_gan": False}}}

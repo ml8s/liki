@@ -511,3 +511,5 @@ func TestComputeBazi_SolarTimeAffectsRiZhu(t *testing.T) {
 		t.Errorf("抚远23:30真太阳时应跨日到6月16日，实际=%d日", st.Time().Day())
 	}
 }
+
+func isLeapYear(y int) bool { return y%4 == 0 && (y%100 != 0 || y%400 != 0) }

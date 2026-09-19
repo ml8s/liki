@@ -1,0 +1,19 @@
+[project]
+name = "liki-skill"
+version = "2026.09.19.0"
+description = "Liki unified mingli skill: bazi, ziwei, liuyao, qimen, huangli, fengshui, naming"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = ["jsonschema>=4,<5"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

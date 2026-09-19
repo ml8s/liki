@@ -88,6 +88,11 @@ type ZhiPair struct {
 	A, B Zhi
 }
 
+// GanPair describes a pair of gan (used for 天干相冲).
+type GanPair struct {
+	A, B Gan
+}
+
 // SanHeHui describes a triple-zhi configuration (三合 or 三会).
 type SanHeHui struct {
 	Zhi     []Zhi

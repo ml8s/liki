@@ -887,12 +887,10 @@
               "wuxing": "土"
             }
           },
-          "yongshen": {
-            "fu_yi": {
-              "yong": "土",
-              "xi": "火",
-              "ji": "木"
-            }
+          "fu_yi": {
+            "yong": "土",
+            "xi": "火",
+            "ji": "木"
           }
         },
         "gender": "male",
@@ -1413,11 +1411,6 @@
       "input": {
         "base": {
           "ri_gan": "甲",
-          "yongshen": {
-            "fu_yi": {
-              "qiangruo": "身强"
-            }
-          },
           "ten_god_states": {
             "食神": {
               "count": 1,
@@ -1425,6 +1418,9 @@
               "rooted": true,
               "transparent": true
             }
+          },
+          "fu_yi": {
+            "qiangruo": "身强"
           }
         },
         "gender": "male",
@@ -1447,11 +1443,6 @@
       "input": {
         "base": {
           "ri_gan": "甲",
-          "yongshen": {
-            "fu_yi": {
-              "qiangruo": "身强"
-            }
-          },
           "ten_god_states": {
             "食神": {
               "count": 1,
@@ -1460,6 +1451,9 @@
               "timely": false,
               "transparent": false
             }
+          },
+          "fu_yi": {
+            "qiangruo": "身强"
           }
         },
         "gender": "male",

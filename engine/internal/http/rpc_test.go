@@ -526,7 +526,7 @@ func TestRPC_Dispatch_ZiweiBond(t *testing.T) {
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "ziwei_bond")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		assertNonNil(t, data, "ming_gong_hu_ru", "ji_xing", "sha_xing")
+		assertNonNil(t, data, "a_ming_gong", "b_ming_gong", "fu_qi_gong", "zi_nv_gong")
 		validateSchema(t, "ziwei.bond", resp.Result)
 	})
 }
@@ -679,18 +679,18 @@ func TestRPC_Dispatch_BaziFullChart(t *testing.T) {
 		assertEnvelope(t, resp, "bazi_fullchart")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
 		// 三元/纳音/长生必有值；gong_jia/san_qi_name 为可选（omitempty——未命中缺席，E1 语义）
-		for _, k := range []string{"san_yuan", "nayin_rel", "chang_sheng"} {
+		for _, k := range []string{"san_yuan", "tai_xi", "nayin_rel", "chang_sheng", "day_xun", "day_xun_kong"} {
 			assertNonNil(t, data, k)
 		}
 		// 合冲刑字段可能为空（如命例无三合/六冲）——检查 key 存在即可
-		for _, k := range []string{"gan_he", "zhi_liu_he", "san_he", "san_hui", "liu_chong", "liu_hai", "liu_xing"} {
+		for _, k := range []string{"gan_he", "zhi_liu_he", "san_he", "san_he_partial", "san_hui", "liu_chong", "liu_hai", "liu_xing", "liu_po", "an_he"} {
 			if _, ok := data[k]; !ok {
 				t.Errorf("missing key %q", k)
 			}
 		}
 		// 四柱含藏干/十神/神煞
 		ri := data["ri"].(map[string]any)
-		for _, k := range []string{"gan", "zhi", "na_yin", "cang_gan", "shi_shens", "chang_sheng", "shen_sha"} {
+		for _, k := range []string{"gan", "zhi", "day_master_trend", "xun", "xun_kong", "na_yin", "cang_gan", "shi_shens", "self_sitting", "shen_sha"} {
 			assertNonNil(t, ri, k)
 		}
 		validateSchema(t, "bazi.fullchart", resp.Result)
@@ -722,7 +722,7 @@ func TestRPC_Dispatch_BaziBond(t *testing.T) {
 	postRPC(t, reg, body, func(resp rpcResponse) {
 		assertEnvelope(t, resp, "bond")
 		data := resp.Result.(map[string]any)["data"].(map[string]any)
-		for _, k := range []string{"zhu_cross", "shi_shen_cross", "structure"} {
+		for _, k := range []string{"zhu_cross", "shi_shen_cross", "spouse_star", "shensha_cross"} {
 			assertNonNil(t, data, k)
 		}
 		validateSchema(t, "bazi.bond", resp.Result)

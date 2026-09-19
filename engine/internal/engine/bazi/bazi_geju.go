@@ -2,7 +2,9 @@ package bazi
 
 import "liki-engine/internal/engine/ganzhi"
 
-// computeGeJu determines yong/xi/ji based on pattern type (顺用/逆用).
+// computeGeJu determines the month-command pattern candidate. It does not
+// derive yong/xi/ji: pattern success, rescue, and final favorable elements
+// require whole-chart review.
 // Pattern is determined by 月令支藏干透干法 (子平正法):
 //   - 建禄/月刃 → 逆用 (prioritized)
 //   - 本气透干 → 用该干十神定格局
@@ -14,12 +16,11 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 	hs := computeCangGan(bz)
 	shiShens := computeShiShensTable(bz, hs)
 	riYuan := c.Ri.Gan
-	dmElem := ganzhi.GanWuxing(riYuan)
 	yueZhi := c.Yue.Zhi
 
 	// 建禄格/月刃格: month zhi is the day master's 临官(禄) or 帝旺(刃).
 	if isLu, isRen := jianLuYueRenZhi(riYuan, yueZhi); isLu || isRen {
-		return computeJianLuYueRen(c, dmElem, isRen)
+		return computeJianLuYueRen(c, isRen)
 	}
 
 	// 月令透干定格局: 本气→中气→余气, 第一个透干者定格.
@@ -63,7 +64,6 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 	patternElem := ganzhi.GanWuxing(patternGan)
 	patternName := shiShenToPatternName(patternShiShen)
 
-	var yong, xi, ji ganzhi.Wuxing
 	var yongFa string
 
 	switch patternShiShen {
@@ -71,28 +71,15 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 		ganzhi.ShiShenPianCai, ganzhi.ShiShenZhengYin,
 		ganzhi.ShiShenPianYin, ganzhi.ShiShenShiShen:
 		yongFa = "顺用"
-		yong = elementThatGenerates(patternElem)
-		ji = elementThatControls(patternElem)
-		xi = elementThatControls(ji) // 制忌神者为喜神
-
 	case ganzhi.ShiShenQiSha, ganzhi.ShiShenShangGuan:
 		yongFa = "逆用"
-		yong = elementThatControls(patternElem)
-		xi = elementThatGenerates(yong)
-		ji = elementThatGenerates(patternElem)
 
 	default:
 		yongFa = "逆用"
 		patternName = "杂格"
-		yong = elementThatControls(dmElem)
-		xi = elementThatGenerates(yong)
-		ji = elementThatGenerates(dmElem)
 	}
 
 	return GeJuResult{
-		Yong:             yong.String(),
-		Xi:               xi.String(),
-		Ji:               ji.String(),
 		Pattern:          patternName,
 		Usage:            yongFa,
 		PatternGod:       ganzhi.GanName(patternGan),
@@ -102,20 +89,15 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 	}
 }
 
-func computeJianLuYueRen(c Chart, dmElem ganzhi.Wuxing, isYueRen bool) GeJuResult {
+func computeJianLuYueRen(c Chart, isYueRen bool) GeJuResult {
+	dmElem := ganzhi.GanWuxing(c.Ri.Gan)
 	var patternName string
 	if isYueRen {
 		patternName = "月刃格"
 	} else {
 		patternName = "建禄格"
 	}
-	yong := elementThatControls(dmElem)
-	xi := elementThatGenerates(yong)
-	ji := elementThatGenerates(dmElem)
 	return GeJuResult{
-		Yong:             yong.String(),
-		Xi:               xi.String(),
-		Ji:               ji.String(),
 		Pattern:          patternName,
 		Usage:            "逆用",
 		PatternGodSource: map[bool]string{true: "month_blade", false: "month_lu"}[isYueRen],

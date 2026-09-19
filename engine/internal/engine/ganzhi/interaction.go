@@ -1,21 +1,30 @@
 package ganzhi
 
-// anHePairs lists 地支暗合 pairs (寅丑, 卯申, 午亥, 子戌).
-var anHePairs = []ZhiPair{
+// AnHePairs lists 地支暗合 pairs (寅丑, 卯申, 午亥, 子戌).
+var AnHePairs = []ZhiPair{
 	{A: 3, B: 2},  // 寅丑
 	{A: 4, B: 9},  // 卯申
 	{A: 7, B: 12}, // 午亥
 	{A: 1, B: 11}, // 子戌
 }
 
-// poPairs lists 地支相破 pairs (子酉, 寅亥, 辰丑, 午卯, 申巳, 戌未).
-var poPairs = []ZhiPair{
+// PoPairs lists 地支相破 pairs (子酉, 寅亥, 辰丑, 午卯, 申巳, 戌未).
+var PoPairs = []ZhiPair{
 	{A: 1, B: 10}, // 子酉
 	{A: 3, B: 12}, // 寅亥
 	{A: 5, B: 2},  // 辰丑
 	{A: 7, B: 4},  // 午卯
 	{A: 9, B: 6},  // 申巳
 	{A: 11, B: 8}, // 戌未
+}
+
+// GanChongPairs lists 天干相冲 pairs (甲庚, 乙辛, 丙壬, 丁癸).
+// 戊己居中无冲。
+var GanChongPairs = []GanPair{
+	{A: GanJia, B: GanGeng}, // 甲庚
+	{A: GanYi, B: GanXin},   // 乙辛
+	{A: GanBing, B: GanRen}, // 丙壬
+	{A: GanDing, B: GanGui}, // 丁癸
 }
 
 func inZhiList(zhi []Zhi, b Zhi) bool {
@@ -32,6 +41,16 @@ func inZhiList(zhi []Zhi, b Zhi) bool {
 // IsGanHe returns true if the two gan form a 天干五合 pair.
 func IsGanHe(a, b Gan) bool {
 	for _, p := range GanHes {
+		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
+			return true
+		}
+	}
+	return false
+}
+
+// IsGanChong returns true if the two gan form a 天干相冲 pair.
+func IsGanChong(a, b Gan) bool {
+	for _, p := range GanChongPairs {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
 			return true
 		}
@@ -112,7 +131,7 @@ func IsHai(a, b Zhi) bool {
 
 // IsAnHe returns true if the two zhi form a 暗合 pair.
 func IsAnHe(a, b Zhi) bool {
-	for _, p := range anHePairs {
+	for _, p := range AnHePairs {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
 			return true
 		}
@@ -122,7 +141,7 @@ func IsAnHe(a, b Zhi) bool {
 
 // IsPo returns true if the two zhi form a 相破 pair.
 func IsPo(a, b Zhi) bool {
-	for _, p := range poPairs {
+	for _, p := range PoPairs {
 		if (a == p.A && b == p.B) || (a == p.B && b == p.A) {
 			return true
 		}

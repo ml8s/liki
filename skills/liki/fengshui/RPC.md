@@ -90,7 +90,7 @@ Content-Type: application/json
 ```
 
 | 参数 | 必填 | 闭集 |
-|---|---|---|
+| --- | --- | --- |
 | `ming_gua` | 是 | 坎、坤、震、巽、乾、兑、艮、离 |
 | `door_gua` | 是 | 同上 |
 | `master_gua` | 是 | 同上 |

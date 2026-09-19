@@ -57,17 +57,62 @@ func (s *SolarTime) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// equationOfTime computes the Equation of Time in minutes using the
+// full Meeus algorithm (Astronomical Algorithms, Ch.28). Accuracy < 0.01 min.
+func equationOfTime(t time.Time) float64 {
+	year, month, day := t.Date()
+	hour, minute, _ := t.Clock()
+
+	// Julian Date at the given UT moment
+	jd := julianDateFromTime(year, int(month), day, hour, minute)
+	T := (jd - 2451545.0) / 36525.0
+
+	// Mean longitude of Sun (degrees)
+	L0 := 280.46646 + 36000.76983*T + 0.0003032*T*T
+	// Mean anomaly of Sun (degrees)
+	M := 357.52911 + 35999.05029*T - 0.0001537*T*T
+	// Eccentricity of Earth's orbit
+	e := 0.016708634 - 0.000042037*T - 0.0000001267*T*T
+	// Mean obliquity of the ecliptic (degrees)
+	eps0 := 23.0 + 26.0/60.0 + 21.448/3600.0 -
+		46.8150/3600.0*T - 0.00059/3600.0*T*T + 0.001813/3600.0*T*T
+
+	// y = tan²(ε/2)
+	y := math.Pow(math.Tan((eps0/2)*(math.Pi/180.0)), 2)
+
+	// Meeus eq. 28.3: result in radians
+	E := y*sinDeg(2*L0) -
+		2*e*sinDeg(M) +
+		4*e*y*sinDeg(M)*cosDegrees(2*L0) -
+		0.5*y*y*sinDeg(4*L0) -
+		1.25*e*e*sinDeg(2*M)
+
+	// Convert radians → degrees, then × 4 → minutes of time
+	return 4 * E * (180.0 / math.Pi)
+}
+
+func cosDegrees(d float64) float64 { return math.Cos(d * math.Pi / 180.0) }
+
+func julianDateFromTime(year, month, day, hour, minute int) float64 {
+	if month <= 2 {
+		year--
+		month += 12
+	}
+	A := year / 100
+	B := 2 - A + A/4
+	jd := float64(int(365.25*float64(year+4716))) +
+		float64(int(30.6001*float64(month+1))) +
+		float64(day) + float64(B) - 1524.5
+	return jd + (float64(hour)+float64(minute)/60.0)/24.0
+}
+
 // computeSolarTime returns true solar time in minutes and day offset.
 // timezone is in hours (e.g. 8 for UTC+8).
 func computeSolarTime(t time.Time, longitude, timezone float64) (float64, int) {
-	year, month, day := t.Date()
 	hour, minute := t.Hour(), t.Minute()
 	lst := float64(hour*60 + minute)
 	lonOffset := 4.0 * (longitude - timezone*15)
-	n := dayOfYear(year, int(month), day)
-	B := 360.0 * float64(n-81) / 365.0
-	BRad := B * math.Pi / 180.0
-	eot := 9.87*math.Sin(2*BRad) - 7.53*math.Cos(BRad) - 1.5*math.Sin(BRad)
+	eot := equationOfTime(t)
 	raw := lst + lonOffset + eot
 	dayOffset := 0
 	if raw < 0 {
@@ -97,14 +142,3 @@ func hourZhiFromSolarTime(astMinutes float64) ganzhi.Zhi {
 	idx := (int(astMinutes+60) / 120) % 12
 	return ganzhi.Zhi(idx + 1)
 }
-
-func dayOfYear(year, month, day int) int {
-	daysBefore := []int{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
-	n := daysBefore[month-1] + day
-	if month > 2 && isLeapYear(year) {
-		n++
-	}
-	return n
-}
-
-func isLeapYear(y int) bool { return y%4 == 0 && (y%100 != 0 || y%400 == 0) }

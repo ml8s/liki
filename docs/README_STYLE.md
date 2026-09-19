@@ -119,7 +119,7 @@ Do not mix commands, examples, and explanations into one dense paragraph.
 Run:
 
 ```bash
-make lint-readme
+make lint-md
 python3 -m pytest tests/test_readme_contract.py -q
 ```
 

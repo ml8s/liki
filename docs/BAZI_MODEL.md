@@ -42,16 +42,25 @@ pan → factors → snap → assertions
 | 字段 | 含义 |
 |---|---|
 | `full.nian/yue/ri/shi.shen_sha` | engine 神煞事实；勾绞、元辰按年干阴阳 × 性别定向，学堂 / 词馆按年命纳音同气正位 |
+| `full.nian/yue/ri/shi.day_master_trend` | 日主在该柱地支上的十二长生；`self_sitting` 是该柱天干坐支，两者不同 |
+| `full.nian/yue/ri/shi.xun / xun_kong` | 该柱自身所在旬与旬空二支；`is_void` 仍固定表示该柱地支值日柱旬空 |
 | `full.shen_sha_school` | 天乙、桃花、驿马、华盖、将星、劫煞、灾煞采用年参照与日参照并集；不隐含单一流派 |
-| `full.yong_shen.tiao_hou` | 《穷通宝鉴》主用 / 辅用表候选；`primary / secondary` 记录表内天干在四柱的透干、藏支与所在柱，并投影其宫支参与的合会冲刑；不机械反推忌神，原文额外条件与扶抑 / 格局上下文另核 |
-| `full.yong_shen.fu_yi.basis` | 扶抑强弱表输入：日主根型、月令旺相、印比数量、日主藏干根，以及日主 / 印比 / 日支 / 日主根相关的关系投影；动态再权衡仍须整体合参 |
-| `full.yong_shen.ge_ju.structure` | 月令格神、克格神与生格神三类原子状态：透干柱、藏干根、季节旺相与组合强弱；同时投影与三类五行相关的天干五合和地支合会冲刑 |
-| `full.yong_shen.ge_ju` | 月令藏干透干格局候选、格神、十神与来源；`structure` 是候选证据，不输出成格 / 败格 / 救应终判，不得冒充完整子平结论 |
-| `full.yong_shen.*.relation_facts[].targets` | 关系投影的角色闭集；同一地支多藏干可命中多个角色，必须全部保留，不得按第一个藏干截断 |
+| `full.tiao_hou` | 《穷通宝鉴》主用 / 辅用表候选；`primary_wuxing / secondary_wuxing` 表达表内主辅五行，`primary / secondary` 记录对应天干在四柱的透干、藏支与所在柱，并投影其宫支参与的合会冲刑；`secondary_condition` 原样保留“水多用戊”等条件，不得当无条件喜神；不机械反推忌神，扶抑 / 格局上下文另核 |
+| `full.fu_yi.basis` | 扶抑强弱表输入：日主根型、月令旺相、印比数量、日主藏干根，以及日主 / 印比 / 日支 / 日主根相关的关系投影；动态再权衡仍须整体合参 |
+| `full.ge_ju.structure` | 月令格神、克格神与生格神三类原子状态：透干柱、藏干根、季节旺相与组合强弱；同时投影与三类五行相关的天干五合和地支合会冲刑 |
+| `full.ge_ju` | 月令藏干透干格局候选、格神、十神、顺逆用与来源；不输出 `yong / xi / ji`，不把格神冒充最终用神；`structure` 是候选证据，不输出成格 / 败格 / 救应终判 |
+| `full.fu_yi.basis.relation_facts[].targets` / `full.ge_ju.structure.relation_facts[].targets` / `full.tiao_hou.primary.relation_facts[].targets` | 关系投影的角色闭集；同一地支多藏干可命中多个角色，必须全部保留，不得按第一个藏干截断 |
 | `full.lu_roots` | 透干十神得十干禄 |
 | `full.gan_he` | 全部两两天干五合事实，含 `adjacent / separated / remote` 柱距与 `contested` 争合候选标记 |
+| `full.gan_chong` | 甲庚、乙辛、丙壬、丁癸四组天干相冲；柱距只作强度证据，紧邻进 `gan_chong`，隔位 / 远隔进 `gan_chong_candidate` |
 | `full.san_he / full.san_hui` | 完整三合局与三会方，含成员支与所在柱；结构投影只消费这些 engine 定位事实 |
-| `full.relation_groups` | 去重后的完整关系组：紧邻天干五合进 `gan_he`，隔位 / 远隔进 `gan_he_candidate`；地支六合 / 三合 / 三会 / 六冲 / 六害 / 三刑按全组或成对规则 |
+| `full.san_he_partial` | 半合证据；三合缺一支时必须包含旺支，缺旺支的生墓二支是拱合候选，不标半合 |
+| `pair relation facts` | 两支交叉（流年对原局、合盘对柱）只允许半合 / 拱候选；完整三合 / 三会由全盘 `ComputeHeHui` 判定 |
+| `full.tai_xi` | 日柱胎息：日干五合配、日支六合配 |
+| `full.gong_jia` | 只输出经典八拱：三合首墓二支拱旺支、三会首尾二支拱中支；任意隔一支不冒充拱局 |
+| `full.day_xun / full.day_xun_kong` | 日柱所在旬与旬空；这是全盘 `is_void` 的判定基准 |
+| `full.relation_groups` | 去重后的稳定关系组：紧邻天干五合 / 相冲进 `gan_he` / `gan_chong`，隔位 / 远隔进对应候选组；地支六合 / 三合 / 半合 / 三会 / 六冲 / 六害 / 三刑 / 六破 / 暗合按全组或成对规则 |
+| `bond` | 双盘原始事实层：八字侧输出日主、夫妻宫、四柱交叉、十神视角、实盘五行 / 扶抑互见、纳音、性别配偶星与神煞出现事实；紫微侧只并排命宫 / 夫妻宫 / 子女宫主星。字段用 `a / b` 或 `a_to_b / b_to_a` 明示方向；不输出合婚评级 |
 | `full.ten_god_states` | 十神透干 / 藏支、数量、通根、得令与组合旺弱 |
 | `full.element_states` | 五行季节旺弱、组合旺弱、生克方向与克者旺弱 |
 | `full.da_yun.steps[].rooted / root_refs` | 大运干通根事实与坐支本气 / 原局藏干证据 |
@@ -110,22 +119,22 @@ pan → factors → snap → assertions
 
 | 口径 | 数量 | 事实源 |
 |---|---:|---|
-| 本命因子 | 475 | `factors.csv` |
-| 本命八字因子 | 198 | `factors.csv` |
-| 本命紫微因子 | 277 | `factors.csv` |
-| 本命定义组 | 515 | `factors.csv` |
-| 本命数据行 | 586 | `factors.csv` |
+| 本命因子 | 504 | `factors.csv` |
+| 本命八字因子 | 213 | `factors.csv` |
+| 本命紫微因子 | 291 | `factors.csv` |
+| 本命定义组 | 557 | `factors.csv` |
+| 本命数据行 | 664 | `factors.csv` |
 | 本命直通原子 | 50 | `factors.csv` |
-| 本命提取原子 | 310 | `factors.csv` |
-| 本命复合因子 | 115 | `factors.csv` |
-| 流年因子 | 107 | `factors_liunian.csv` |
-| 流年八字因子 | 75 | `factors_liunian.csv` |
+| 本命提取原子 | 322 | `factors.csv` |
+| 本命复合因子 | 132 | `factors.csv` |
+| 流年因子 | 111 | `factors_liunian.csv` |
+| 流年八字因子 | 79 | `factors_liunian.csv` |
 | 流年紫微因子 | 32 | `factors_liunian.csv` |
-| 流年定义组 | 111 | `factors_liunian.csv` |
-| 流年数据行 | 117 | `factors_liunian.csv` |
+| 流年定义组 | 114 | `factors_liunian.csv` |
+| 流年数据行 | 121 | `factors_liunian.csv` |
 | 流年直通原子 | 4 | `factors_liunian.csv` |
 | 流年提取原子 | 64 | `factors_liunian.csv` |
-| 流年复合因子 | 39 | `factors_liunian.csv` |
+| 流年复合因子 | 43 | `factors_liunian.csv` |
 
 口径说明：直通因子仅含 direct 表达式；提取因子是单条件组且不引用其他因子；复合因子含多条件组或 factor_ref。
 
@@ -142,7 +151,7 @@ pan → factors → snap → assertions
 考时事件的 `rule` 若是场景别名，同样应用 `场景领域过滤`；例如 `yearly_study` 只保留学业断语，避免用婚姻或财运信号校时。
 
 - `duanyu.query` 只接受本命域；`query_yearly` / `yearly_range` 只接受流年域，`yingqi` 必须通过流年查询。
-- `duanyu.query(rule=用神)` 除断语外返回 `yong_shen_context`，直接投影 engine 的 `yong_shen / element_states / ten_god_states`；Python 不重算三派、不推导最终喜忌。
+- `duanyu.query(rule=用神)` 除断语外返回 `fu_yi / tiao_hou / ge_ju / element_states / ten_god_states`；Python 不重算三源、不推导最终喜忌。
 - `query(year=...)` 只允许 `大运 / 大限` 限运域；省略 year 时由服务端当前时间推导。
 - 限运域结果附带 `current_year / current_year_source`；显式传 year 时 source 为 `specified`。
 - `query` / `yearly_range` 支持可选 `domains` 过滤器；有效领域来自所选 rule 展开后的断语表。未知领域 fail closed，过滤结果只含八字/紫微/合参三侧。
@@ -202,7 +211,7 @@ pan → factors → snap → assertions
 | 十神大类 | 官杀、印星、财星、食伤、比劫 | 十个原子十神的完整不交叉 partition |
 | 六亲角色 | 配偶星、子女星、父星、母星、日主 | 引用十神大类或原子十神，按性别解析 |
 | 事件宫位 | 配偶星、父星、母星、子女星、官杀、财星、日主 | 对应日支、年支或时支 |
-| 关系表 | 天干五合、地支六合、三合、三会、六冲、六害、三刑、旬空 | 稳定关系闭集 |
+| 关系表 | 天干五合、地支六合、三合、三会、六冲、六害、六破、暗合、三刑、旬空 | 稳定关系闭集 |
 | 算子语义 | 旺弱规则、宫位关系、用忌映射、格局十神、紫微四化与亮度分组等 | operator 只做机械查表；DSL token 在 `factor_tokens.py` |
 | 流年机械 | 事件宫位、干支来源、关系类型、三合半合、旬空起点、流年宫名 | 流年 target 与求值由表驱动 |
 | 流年年界 | 八字干支年、紫微农历年 | `yearly_range.year_basis` 领域语义 |
@@ -264,5 +273,6 @@ assertion_id,condition_group_id,factor,expected
 3. 标量因子的断语约束值必须来自对应常量闭集。
 4. 因子求值、断言表读取和 `time.now` 失败不得降级为 0、空表或本地时间。
 5. 生产表不得包含评测 case、迭代阶段或旧内部路径等过程残留。
+6. 断言 DNF 的每个条件组必须通过静态可达性审计；性别等封闭上下文和直通标量的不同取值互斥，因子引用先展开成原子条件再检查冲突。
 
-`python3 tests/check_schema.py` 校验约束键、流年可达性、单侧表边界、条件组完整性、标量闭集与生产纯度。
+`python3 tests/check_schema.py` 校验约束键、流年可达性、单侧表边界、条件组完整性、标量闭集与生产纯度；`tests/test_mingli_assertion_reachability.py` 展开因子 DNF 并拒绝永久不可达条件组。

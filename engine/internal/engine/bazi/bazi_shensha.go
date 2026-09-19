@@ -40,11 +40,26 @@ var (
 	yuedeGan        map[ganzhi.Zhi]ganzhi.Gan
 	jiangxingLookup map[ganzhi.Zhi]ganzhi.Zhi
 	jinyuLookup     map[ganzhi.Gan][]ganzhi.Zhi
+	taiJiLookup     map[ganzhi.Gan][]ganzhi.Zhi
+	tianChuLookup   map[ganzhi.Gan][]ganzhi.Zhi
+	fuXingLookup    map[ganzhi.Gan][]ganzhi.Zhi
+	guoYinLookup    map[ganzhi.Gan][]ganzhi.Zhi
 	yueEnGan        map[ganzhi.Zhi][]ganzhi.Gan
 	xueRenLookup    map[ganzhi.Gan]ganzhi.Zhi
+	feiRenLookup    map[ganzhi.Gan]ganzhi.Zhi
+	wangShenZhi     map[ganzhi.Zhi]ganzhi.Zhi
+	deXiuByMonth    map[ganzhi.Zhi]deXiuStems
+	yinChaYangCuo   map[int]struct{}
+	tongZiSeason    map[int][]ganzhi.Zhi
+	tongZiNayin     map[ganzhi.Wuxing][]ganzhi.Zhi
 	tianLuoDiWang   map[ganzhi.Zhi]string
 	shiEDaBai       map[int]struct{}
 )
+
+type deXiuStems struct {
+	De  []ganzhi.Gan
+	Xiu []ganzhi.Gan
+}
 
 // tianDeTarget 天德贵人的匹配目标：天德可为天干型（如正月见丁）或地支型（如二月见申）。
 type tianDeTarget struct {
@@ -67,10 +82,20 @@ func computeShenSha(bz ganzhi.Bazi, gender ganzhi.Gender) [4][]shenShaEntry {
 	yearSanHuiIdx := ((int(nianZhi) - 3 + 12) % 12) / 3
 
 	addTianYi(&out, bz, riYuan, zhus[0].Gan)
+	addTaiJi(&out, bz, riYuan, zhus[0].Gan)
+	addDeXiu(&out, bz, yueZhi)
+	addTianChu(&out, bz, riYuan, zhus[0].Gan)
+	addFuXing(&out, bz, riYuan)
+	addGuoYin(&out, bz, riYuan)
 	addWenChang(&out, bz, riYuan)
 	addXueTang(&out, bz)
 	addLuShen(&out, bz, riYuan)
 	addYangRen(&out, bz, riYuan)
+	addFeiRen(&out, bz, riYuan)
+	addWangShen(&out, bz, nianZhi)
+	addYinChaYangCuo(&out, bz)
+	addTongZi(&out, bz, seasonIdx)
+	addTianDeHe(&out, bz, yueZhi)
 	addTianDe(&out, bz, yueZhi)
 	addYueDe(&out, bz, yueZhi)
 	addTaoHua(&out, bz, zhi)
@@ -120,6 +145,64 @@ func addTianYi(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Ga
 }
 
 var wenChangLookup map[ganzhi.Gan][]ganzhi.Zhi
+
+func addTaiJi(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Gan) {
+	marked := map[int]bool{}
+	mark := func(gan ganzhi.Gan) {
+		for pi, p := range bz.Slice() {
+			for _, target := range taiJiLookup[gan] {
+				if p.Zhi == target && !marked[pi] {
+					marked[pi] = true
+					(*out)[pi] = append((*out)[pi], shenShaEntry{
+						Name: "太极贵人", Category: catJi, Description: "主聪慧好学，宜研哲理玄学",
+					})
+				}
+			}
+		}
+	}
+	mark(riYuan)
+	mark(nianGan)
+}
+
+func addDeXiu(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	group, ok := deXiuByMonth[yueZhi]
+	if !ok {
+		return
+	}
+	for pi, p := range bz.Slice() {
+		if containsGan(group.De, p.Gan) || containsGan(group.Xiu, p.Gan) {
+			addDeXiuEntry(out, pi)
+		}
+	}
+}
+
+func containsGan(values []ganzhi.Gan, want ganzhi.Gan) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
+}
+
+func addDeXiuEntry(out *[4][]shenShaEntry, pillar int) {
+	(*out)[pillar] = append((*out)[pillar], shenShaEntry{
+		Name: "德秀贵人", Category: catJi, Description: "主禀气清粹，逢凶化吉",
+	})
+}
+
+func addTianChu(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, tianChuLookup, "天厨贵人", catJi, "主食禄福泽")
+	appendShenShaByGanLookup(out, bz, nianGan, tianChuLookup, "天厨贵人", catJi, "主食禄福泽")
+}
+
+func addFuXing(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, fuXingLookup, "福星贵人", catJi, "主一生福气，平安顺遂")
+}
+
+func addGuoYin(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, guoYinLookup, "国印", catJi, "主持印掌信，宜守正职守")
+}
 
 func addWenChang(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
 	appendShenShaByGanLookup(out, bz, riYuan, wenChangLookup, "文昌", catJi, "主学业、文书、才华")
@@ -197,6 +280,93 @@ func addYangRen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
 			(*out)[pi] = append((*out)[pi], shenShaEntry{
 				Name: "羊刃", Category: catXiong, Description: "日干帝旺/刃位，主刚强果断，但易冲动",
 			})
+		}
+	}
+}
+
+func addFeiRen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	zhus := bz.Slice()
+	for pi, p := range zhus {
+		if feiRenLookup[riYuan] == p.Zhi {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "飞刃", Category: catXiong, Description: "羊刃冲位，主动荡急变",
+			})
+		}
+	}
+}
+
+func addWangShen(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi) {
+	target, ok := wangShenZhi[nianZhi]
+	if !ok {
+		return
+	}
+	for pi, p := range bz.Slice() {
+		if p.Zhi == target {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "亡神", Category: catXiong, Description: "主心机深虑，事多暗耗",
+			})
+		}
+	}
+}
+
+func addYinChaYangCuo(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	if _, ok := yinChaYangCuo[ganzhi.SixtyCycleIndex(bz.Ri.Gan, bz.Ri.Zhi)]; ok {
+		(*out)[2] = append((*out)[2], shenShaEntry{
+			Name: "阴差阳错", Category: catXiong, Description: "主婚缘人事阴差阳错，多生错过",
+		})
+	}
+}
+
+func addTongZi(out *[4][]shenShaEntry, bz ganzhi.Bazi, seasonIdx int) {
+	zhus := bz.Slice()
+	checkBranches := func(targets []ganzhi.Zhi) bool {
+		if len(targets) == 0 {
+			return false
+		}
+		for _, p := range zhus[2:] {
+			for _, target := range targets {
+				if p.Zhi == target {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	if checkBranches(tongZiSeason[seasonIdx]) {
+		addTongZiEntry(out, 2)
+		return
+	}
+	yearElement := ganzhi.NayinWuxing(ganzhi.NayinLabel(zhus[0].Gan, zhus[0].Zhi))
+	if checkBranches(tongZiNayin[yearElement]) {
+		addTongZiEntry(out, 2)
+	}
+}
+
+func addTongZiEntry(out *[4][]shenShaEntry, pillar int) {
+	(*out)[pillar] = append((*out)[pillar], shenShaEntry{
+		Name: "童子煞", Category: catZhongXing, Description: "传统取象主幼年多病、姻缘迟滞",
+	})
+}
+
+func addTianDeHe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	targets, ok := tiandeTargets[yueZhi]
+	if !ok {
+		return
+	}
+	zhus := bz.Slice()
+	for _, target := range targets {
+		for pi, p := range zhus {
+			hit := false
+			if target.IsZhi {
+				hit = ganzhi.IsZhiHe(target.Zhi, p.Zhi)
+			} else {
+				hit = ganzhi.IsGanHe(target.Gan, p.Gan)
+			}
+			if hit {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{
+					Name: "天德合", Category: catJi, Description: "天德所合，主贵人助力",
+				})
+			}
 		}
 	}
 }

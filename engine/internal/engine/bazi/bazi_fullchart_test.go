@@ -38,7 +38,7 @@ func TestChart_Lean_NoExtraFields(t *testing.T) {
 			}
 		}
 		// 不应有 cang_gan, shi_shens, shen_sha 等全量字段
-		for _, field := range []string{"cang_gan", "shi_shens", "shen_sha", "chang_sheng", "is_void", "is_self_he", "is_kui_gang", "self_he_name"} {
+		for _, field := range []string{"cang_gan", "shi_shens", "day_master_trend", "xun", "xun_kong", "shen_sha", "self_sitting", "is_void", "is_self_he", "is_kui_gang", "self_he_name"} {
 			if _, exists := zhu[field]; exists {
 				t.Errorf("%s.%s should not be in lean chart (got %v)", key, field, zhu[field])
 			}
@@ -66,8 +66,14 @@ func TestComputeFullChart_HasAllFields(t *testing.T) {
 		if zhu.CangGan.Main == 0 {
 			t.Error("fullZhuInfo.cang_gan.main is empty")
 		}
-		if len(zhu.ChangSheng) == 0 {
-			t.Error("fullZhuInfo.chang_sheng is empty")
+		if zhu.SelfSitting == "" {
+			t.Error("fullZhuInfo.self_sitting is empty")
+		}
+		if zhu.DayMasterTrend == "" {
+			t.Error("fullZhuInfo.day_master_trend is empty")
+		}
+		if zhu.Xun == "" || zhu.XunKong == "" {
+			t.Errorf("fullZhuInfo xun/xun_kong is empty: %q/%q", zhu.Xun, zhu.XunKong)
 		}
 	}
 

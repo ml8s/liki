@@ -1,7 +1,7 @@
 """Contract test: the canonical Liki slogan stays consistent across public windows."""
 import yaml
 
-from helpers import ROOT, SKILL_ROOT, SLOGAN
+from _helpers import ROOT, SKILL_ROOT, SLOGAN
 
 FORBIDDEN_VARIANTS = [
     "Liki 灵机",
@@ -60,7 +60,7 @@ def test_brand_doc_is_the_canonical_truth_source():
     active_text = text.split("## Governance Log（治理记录）", 1)[0]
 
     assert "Liki Canonical Brand Definition (v4.0)" in text
-    assert "Liki 命理" in active_text
+    assert "Liki 专业命理 Skill" in active_text
     assert "Liki has no separate Chinese brand name" in active_text
     assert "Slogan（品牌口号）" in active_text
     assert "«懂命理，用 Liki»" in active_text

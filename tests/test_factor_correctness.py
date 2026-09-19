@@ -34,7 +34,7 @@ def test_ten_god_state_projection_is_readonly() -> None:
 
 def test_ge_shen_uses_engine_gan_source() -> None:
     base = mock_base_context()
-    base["yongshen"] = {"ge_ju": {"ge_ju": "正官格"}}
+    base["ge_ju"] = {"ge_ju": "正官格"}
     chart = {"full": {"atomic_facts": {"pattern_god_transparent": True}, "yue": {"shi_shens": [
         {"source": "gan", "gan": "辛", "shi_shen": "正官"}
     ]}}}
@@ -311,7 +311,7 @@ def test_three_xing_assertions_cover_full_flow_closure() -> None:
     family = {
         "ying_h09": set(),
         "ying_h18": {"本命食伤旺", "性别"},
-        "ying_h19": {"流年配偶星透", "本命食伤旺"},
+        "ying_h19": {"流年配偶星透", "性别", "本命伤官克官", "本命婚姻不稳"},
         "ys_106": set(),
         "yliu_108": set(),
         "ying_h20": {"年柱干伏吟"},

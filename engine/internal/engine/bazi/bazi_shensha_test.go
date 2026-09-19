@@ -1010,17 +1010,17 @@ func TestShenSha_Triad_Dedup(t *testing.T) {
 	}
 }
 
-// ── 旬空（xun_kong）字段 ──
+// ── 日柱旬空（day_xun_kong）字段 ──
 func TestFullChart_XunKong(t *testing.T) {
 	// 1984-02-15 己卯日 → 甲戌旬 → 空申酉
 	cr := makeFullChart(1984, 2, 15, 8, 0, 120, 8, ganzhi.Male)
-	if cr.XunKong != "申酉" {
-		t.Errorf("xun_kong = %q, want 申酉（甲戌旬空申酉）", cr.XunKong)
+	if cr.DayXun != "甲戌旬" || cr.DayXunKong != "申酉" {
+		t.Errorf("day xun = %q/%q, want 甲戌旬/申酉", cr.DayXun, cr.DayXunKong)
 	}
 	// 1990-05-23 戊子日 → 甲申旬 → 空午未
 	cr2 := makeFullChart(1990, 5, 23, 16, 6, 120, 8, ganzhi.Male)
-	if cr2.XunKong != "午未" {
-		t.Errorf("xun_kong = %q, want 午未（甲申旬空午未）", cr2.XunKong)
+	if cr2.DayXun != "甲申旬" || cr2.DayXunKong != "午未" {
+		t.Errorf("day xun = %q/%q, want 甲申旬/午未", cr2.DayXun, cr2.DayXunKong)
 	}
 }
 

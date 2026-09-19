@@ -1,0 +1,26 @@
+#!/bin/sh
+# pre-commit: 快速格式检查（markdownlint，不 --fix）
+# 完整验证由 pre-push 的 make gate 负责。
+
+set -e
+
+# Only run markdownlint on staged .md files
+STAGED_MD=$(git diff --cached --name-only --diff-filter=ACM -- '*.md' 2>/dev/null)
+if [ -z "$STAGED_MD" ]; then
+  exit 0
+fi
+
+echo "=== pre-commit: markdownlint (staged .md files) ==="
+
+MDL=""
+for f in "$HOME"/.npm/_npx/*/node_modules/.bin/markdownlint-cli2; do
+  [ -f "$f" ] && MDL="$f" && break
+done
+
+if [ -n "$MDL" ]; then
+  PATH="$HOME/.nvm/versions/node/v22.19.0/bin:$PATH" $MDL --config .markdownlint-cli2.jsonc $STAGED_MD
+else
+  npx --yes markdownlint-cli2@0.17.2 --config .markdownlint-cli2.jsonc $STAGED_MD
+fi
+
+echo "✓ pre-commit 通过"

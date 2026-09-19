@@ -32,7 +32,7 @@ func TestThreeSchools_Consistency(t *testing.T) {
 			birth := time.Date(tt.year, time.Month(tt.month), tt.day, tt.hour, 0, 0, 0, loc)
 			st := tianwen.GregorianToSolar(birth, 116.4, 8)
 			chart := ComputeChart(st, tt.gender)
-			result := ComputeYongShen(chart)
+			fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
 			t.Logf("%s%s %s%s %s%s %s%s",
 				chart.Nian.Gan, chart.Nian.Zhi,
@@ -41,22 +41,21 @@ func TestThreeSchools_Consistency(t *testing.T) {
 				chart.Shi.Gan, chart.Shi.Zhi)
 
 			t.Logf("  扶抑: strength=%s yong=%s xi=%s ji=%s pattern=%s",
-				result.FuYi.Strength, result.FuYi.Yong, result.FuYi.Xi, result.FuYi.Ji, result.FuYi.Pattern)
+				fuYi.Strength, fuYi.Yong, fuYi.Xi, fuYi.Ji, fuYi.Pattern)
 			t.Logf("  调候: yong=%s xi=%s",
-				result.TiaoHou.Yong, result.TiaoHou.Xi)
-			t.Logf("  格局: %s %s yong=%s xi=%s ji=%s",
-				result.GeJu.Pattern, result.GeJu.Usage,
-				result.GeJu.Yong, result.GeJu.Xi, result.GeJu.Ji)
+				tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing)
+			t.Logf("  格局候选: %s %s",
+				geJu.Pattern, geJu.Usage)
 
 			// 调候/格局必须有返回
-			if result.TiaoHou.Yong == "" {
-				t.Error("TiaoHou.Yong 为空")
+			if tiaoHou.PrimaryWuxing == "" {
+				t.Error("TiaoHou.PrimaryWuxing 为空")
 			}
-			if result.GeJu.Pattern == "" {
+			if geJu.Pattern == "" {
 				t.Error("格局为空")
 			}
-			if !tt.wantFuYiEmpty && result.FuYi.Yong == "" {
-				t.Errorf("FuYi.Yong 不应为空(strength=%s)", result.FuYi.Strength)
+			if !tt.wantFuYiEmpty && fuYi.Yong == "" {
+				t.Errorf("FuYi.Yong 不应为空(strength=%s)", fuYi.Strength)
 			}
 		})
 	}

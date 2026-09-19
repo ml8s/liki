@@ -30,7 +30,8 @@ func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
 	hs := computeCangGan(bz)
 	ny := c.NaYinArray()
 	tgTable := computeShiShensTable(bz, hs)
-	lsTable := computeChangShengTable(bz, hs)
+	selfSitting := computeSelfSitting(bz)
+	dayMasterTrend := computeDayMasterTrend(bz)
 	shensha := computeShenSha(bz, c.Gender)
 	voidHits := computeKongWang(bz)
 	ps := bz.Slice()
@@ -43,7 +44,12 @@ func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
 				break
 			}
 		}
-		pi := fullZhuInfo{Zhu: ps[i], NaYin: ny[i], CangGan: hs[i], ShiShens: tgTable[i], ChangSheng: lsTable[i], ShenSha: shensha[i], IsVoid: isVoid}
+		pi := fullZhuInfo{
+			Zhu: ps[i], DayMasterTrend: dayMasterTrend[i],
+			Xun: ganzhi.XunName(ps[i].Gan, ps[i].Zhi), XunKong: xunKongPairLabel(ps[i].Gan, ps[i].Zhi),
+			NaYin: ny[i], CangGan: hs[i], ShiShens: tgTable[i], SelfSitting: selfSitting[i],
+			ShenSha: shensha[i], IsVoid: isVoid,
+		}
 		pi.IsSelfHe = isSelfHe(ps[i])
 		if pi.IsSelfHe {
 			pi.SelfHeName = selfHeName(ps[i])
@@ -53,21 +59,37 @@ func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
 	}
 
 	return FullChart{
-		BirthYear: c.BirthYear,
-		Nian:      makeFull(0),
-		Yue:       makeFull(1),
-		Ri:        makeFull(2),
-		Shi:       makeFull(3),
-		DaYun:     c.DaYun,
-		Gender:    c.Gender,
-		XunKong:   xunKongLabel(bz),
+		BirthYear:  c.BirthYear,
+		Nian:       makeFull(0),
+		Yue:        makeFull(1),
+		Ri:         makeFull(2),
+		Shi:        makeFull(3),
+		DaYun:      c.DaYun,
+		Gender:     c.Gender,
+		DayXun:     ganzhi.XunName(bz.Ri.Gan, bz.Ri.Zhi),
+		DayXunKong: xunKongPairLabel(bz.Ri.Gan, bz.Ri.Zhi),
 	}
 }
 
-// xunKongLabel 按日柱所居之旬输出旬空两字，如甲申旬 → "午未"。
-func xunKongLabel(bz ganzhi.Bazi) string {
-	v := ganzhi.XunKong(bz.Ri.Gan, bz.Ri.Zhi)
+// xunKongPairLabel 按干支所居之旬输出旬空两字，如甲申旬 → "午未"。
+func xunKongPairLabel(gan ganzhi.Gan, zhi ganzhi.Zhi) string {
+	v := ganzhi.XunKong(gan, zhi)
 	return ganzhi.ZhiName(v[0]) + ganzhi.ZhiName(v[1])
+}
+
+// computeDayMasterTrend returns the day master's twelve-life stage on each pillar branch.
+func computeDayMasterTrend(bz ganzhi.Bazi) [4]string {
+	row := ganzhi.ChangShengTable[bz.Ri.Gan]
+	var out [4]string
+	for i, pillar := range bz.Slice() {
+		for stage, branch := range row {
+			if branch == pillar.Zhi {
+				out[i] = ganzhi.StageNamesZH[stage]
+				break
+			}
+		}
+	}
+	return out
 }
 
 func computeCangGan(bz ganzhi.Bazi) [4]cangGanOut {
@@ -154,8 +176,8 @@ func computeShiShensTable(bz ganzhi.Bazi, hs [4]cangGanOut) [4][]shiShenEntry {
 	return table
 }
 
-func computeChangShengTable(bz ganzhi.Bazi, hs [4]cangGanOut) [4][]changShengEntry {
-	var table [4][]changShengEntry
+func computeSelfSitting(bz ganzhi.Bazi) [4]string {
+	var table [4]string
 	for i, z := range bz.Slice() {
 		stages, ok := ganzhi.ChangShengTable[z.Gan]
 		if !ok {
@@ -163,10 +185,7 @@ func computeChangShengTable(bz ganzhi.Bazi, hs [4]cangGanOut) [4][]changShengEnt
 		}
 		for stageIdx, b := range stages {
 			if b == z.Zhi {
-				table[i] = []changShengEntry{{
-					Stage: ganzhi.StageNamesZH[stageIdx],
-					Gan:   z.Gan,
-				}}
+				table[i] = ganzhi.StageNamesZH[stageIdx]
 				break
 			}
 		}

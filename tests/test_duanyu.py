@@ -6,7 +6,7 @@ from unittest import mock
 from _helpers import (
     mock_base_context,
     mock_engine_facts,
-    mock_yong_shen,
+    mock_yongshen_fields,
     mock_ziwei,
     valid_daxian,
 )
@@ -28,7 +28,7 @@ def _valid_query_pan() -> dict:
         "full": {
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             **mock_engine_facts(),
-            "yong_shen": mock_yong_shen(),
+            **mock_yongshen_fields(),
         },
         "ziwei": mock_ziwei(),
         "ziwei_daxian": valid_daxian(),
@@ -42,7 +42,9 @@ class TestEvaluateFactors(unittest.TestCase):
         f = mock_base_context(**ten_god_states)
         f["wuxing"] = {"wang_shuai": {"木": "旺", "火": "相", "土": "休", "金": "囚", "水": "死"},
                        "count": {"木": 2, "火": 1, "土": 1, "金": 1, "水": 0}}
-        f["yongshen"] = {"fu_yi": {"qiangruo": "身强", "yong": "金", "xi": "土", "ji": "木"}}
+        f["fu_yi"] = {"qiangruo": "身强", "yong": "金", "xi": "土", "ji": "木"}
+        f["tiao_hou"] = {}
+        f["ge_ju"] = {}
         return f
 
     def test_快照含关键因子(self):
@@ -138,7 +140,7 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def test_月令格由引擎权威标量化(self):
         yang = self._fac()
-        yang["yongshen"] = {"ge_ju": {"ge_ju": "月刃格"}}
+        yang["ge_ju"] = {"ge_ju": "月刃格"}
         snap = factors.evaluate_factors("male", yang, shushi="bazi")
         self.assertEqual(snap["月令格"], "月刃格")
 
@@ -170,7 +172,7 @@ class TestYearlyIsolation(unittest.TestCase):
 
 
 class TestYongShenQueryContext(unittest.TestCase):
-    """用神域必须同时给出 engine 三派与强弱证据，不能只剩断语。"""
+    """用神域必须同时给出 engine 用神来源与强弱证据，不能只剩断语。"""
 
     def test_用神查询附带只读engine上下文(self):
         pan = _valid_query_pan()
@@ -199,12 +201,13 @@ class TestYongShenQueryContext(unittest.TestCase):
             result = duanyu.query("用神", pan)
             other = duanyu.query("旺衰", pan)
 
-        self.assertEqual(result["yong_shen_context"], {
-            "yong_shen": pan["full"]["yong_shen"],
-            "element_states": pan["full"]["element_states"],
-            "ten_god_states": pan["full"]["ten_god_states"],
-        })
-        self.assertNotIn("yong_shen_context", other)
+        self.assertEqual(result["fu_yi"], pan["full"]["fu_yi"])
+        self.assertEqual(result["tiao_hou"], pan["full"]["tiao_hou"])
+        self.assertEqual(result["ge_ju"], pan["full"]["ge_ju"])
+        self.assertEqual(result["element_states"], pan["full"]["element_states"])
+        self.assertEqual(result["ten_god_states"], pan["full"]["ten_god_states"])
+        self.assertNotIn("yong_shen_context", result)
+        self.assertNotIn("fu_yi", other)
 
 
 class TestRiZhuWuXing(unittest.TestCase):
@@ -254,14 +257,14 @@ class TestYueLingGe(unittest.TestCase):
 
     def test_月令格因子为格局字符串(self):
         base = mock_base_context()
-        base["yongshen"] = {"ge_ju": {"ge_ju": "正财格"}}
+        base["ge_ju"] = {"ge_ju": "正财格"}
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         self.assertEqual(snap.get("月令格"), "正财格")
 
     def test_月令格断语命中(self):
         # 正财格 + 身弱 → ge_302（正财格身弱分支）
         base = mock_base_context(正财={"wuxing": "土", "timely": True, "count": 3})
-        base["yongshen"] = {"ge_ju": {"ge_ju": "正财格"}}
+        base["ge_ju"] = {"ge_ju": "正财格"}
         from duanyu import load_rule_table
         from duanyu import match_table
         snap = factors.evaluate_factors("male", base, shushi="bazi")

@@ -61,50 +61,62 @@ func computeChartForTest(t *testing.T, year, month, day, hour int, g ganzhi.Gend
 	return ComputeChart(st, g)
 }
 
-// ── bond 纳音五行分布 + 用神互见（数据驱动/自洽校验）──
-func TestComputeBond_NayinElementsYongShen(t *testing.T) {
+// ── bond 实五行 / 用神互见 / 配偶星（数据驱动 / 自洽校验）──
+func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 	ca := computeChartForTest(t, 1984, 2, 15, 8, ganzhi.Male) // 甲子 丙寅 己卯 戊辰
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
 	bond := ComputeBond(ca, cb)
-	nc := bond.NayinCross
+	aFc, bFc := ComputeFullChart(ca), ComputeFullChart(cb)
+	aCount := convertWuxingCount(computeElementCount(ca.ToBazi(), computeCangGan(ca.ToBazi())))
+	bCount := convertWuxingCount(computeElementCount(cb.ToBazi(), computeCangGan(cb.ToBazi())))
 
-	// 五行分布：四柱纳音五行计数，总和=4，且与各自 NaYinArray 一致
-	for _, cc := range []struct {
-		label string
-		ny    [4]string
-		got   map[string]int
-	}{
-		{"A", ca.NaYinArray(), nc.Elements.A},
-		{"B", cb.NaYinArray(), nc.Elements.B},
-	} {
-		want := map[string]int{}
-		for _, s := range cc.ny {
-			want[ganzhi.NayinWuxing(s).String()]++
+	if bond.DayMaster.A.Gan != "己" || bond.DayMaster.B.Gan == "" || bond.DayMaster.GanRel.Relation == "" {
+		t.Fatalf("day master cross = %+v", bond.DayMaster)
+	}
+	if bond.SpousePalace.AZhi != "卯" || bond.SpousePalace.BZhi == "" || bond.SpousePalace.Relation.Detail == "" {
+		t.Fatalf("spouse palace cross = %+v", bond.SpousePalace)
+	}
+
+	combined := map[string]int{}
+	for k, v := range aCount {
+		combined[k] += v
+	}
+	for k, v := range bCount {
+		combined[k] += v
+	}
+	for k, v := range combined {
+		if bond.ElementCross.Combined[k] != v {
+			t.Fatalf("combined wuxing[%s]=%d, want %d", k, bond.ElementCross.Combined[k], v)
 		}
-		if len(cc.got) != len(want) {
-			t.Errorf("%s 五行分布条目数 = %d, want %d", cc.label, len(cc.got), len(want))
+	}
+
+	assertFit := func(label string, got yongShenFitEntry, fc FullChart, other map[string]int) {
+		want := fc.FuYi
+		if got.Yong != want.Yong || got.Xi != want.Xi || got.Ji != want.Ji {
+			t.Fatalf("%s fit = %+v, want yong/xi/ji %s/%s/%s", label, got, want.Yong, want.Xi, want.Ji)
 		}
-		for k, v := range want {
-			if cc.got[k] != v {
-				t.Errorf("%s 五行[%s] = %d, want %d", cc.label, k, cc.got[k], v)
+		if got.YongInOther != other[got.Yong] || got.XiInOther != other[got.Xi] || got.JiInOther != other[got.Ji] {
+			t.Fatalf("%s fit counts = %+v, other=%v", label, got, other)
+		}
+	}
+	assertFit("A", bond.ElementCross.FuYi.A, aFc, bCount)
+	assertFit("B", bond.ElementCross.FuYi.B, bFc, aCount)
+
+	if bond.SpouseStar.A.Gender != "male" ||
+		bond.SpouseStar.A.Primary.TenGod != "正财" || bond.SpouseStar.A.Secondary.TenGod != "偏财" {
+		t.Fatalf("A spouse star = %+v", bond.SpouseStar.A)
+	}
+	if bond.SpouseStar.B.Gender != "female" ||
+		bond.SpouseStar.B.Primary.TenGod != "正官" || bond.SpouseStar.B.Secondary.TenGod != "七杀" {
+		t.Fatalf("B spouse star = %+v", bond.SpouseStar.B)
+	}
+	for _, fact := range []spouseStarFact{bond.SpouseStar.A, bond.SpouseStar.B} {
+		for _, group := range []spouseStarGroup{fact.Primary, fact.Secondary} {
+			for _, occ := range group.Occurrences {
+				if occ.Pillar == "" || occ.Branch == "" || occ.Stem == "" || occ.Source == "" {
+					t.Fatalf("%s spouse occurrence incomplete: %+v", group.TenGod, occ)
+				}
 			}
 		}
 	}
-
-	// 用神互见：Yong/Ji 与各自 fullchart 扶抑用神一致；计数 = 对方纳音五行分布中出现次数
-	aFc, bFc := ComputeFullChart(ca), ComputeFullChart(cb)
-	assertEntry := func(label string, e yongShenEntry, selfYong, selfJi string, other [4]string) {
-		if e.Yong != selfYong || e.Ji != selfJi {
-			t.Errorf("%s 用神/忌神 = %q/%q, want %q/%q", label, e.Yong, e.Ji, selfYong, selfJi)
-		}
-		oCount := map[string]int{}
-		for _, s := range other {
-			oCount[ganzhi.NayinWuxing(s).String()]++
-		}
-		if e.YongInOther != oCount[e.Yong] || e.JiInOther != oCount[e.Ji] {
-			t.Errorf("%s 用神入对方 = %d/%d, want %d/%d", label, e.YongInOther, e.JiInOther, oCount[e.Yong], oCount[e.Ji])
-		}
-	}
-	assertEntry("A", nc.YongShen.A, aFc.YongShen.FuYi.Yong, aFc.YongShen.FuYi.Ji, cb.NaYinArray())
-	assertEntry("B", nc.YongShen.B, bFc.YongShen.FuYi.Yong, bFc.YongShen.FuYi.Ji, ca.NaYinArray())
 }

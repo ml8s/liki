@@ -189,6 +189,15 @@ func XunKong(gan Gan, zhi Zhi) [2]Zhi {
 	return tbl[xun]
 }
 
+var xunNames = [6]string{
+	"甲子旬", "甲戌旬", "甲申旬", "甲午旬", "甲辰旬", "甲寅旬",
+}
+
+// XunName returns the ten-day xun containing a sexagenary pillar.
+func XunName(gan Gan, zhi Zhi) string {
+	return xunNames[SixtyCycleIndex(gan, zhi)/10]
+}
+
 // -- hours --
 
 // HourRanges maps each earthly zhi to its two-hour range.
@@ -204,3 +213,6 @@ var HourRanges = [12]string{
 var ganNames = [11]string{"", "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"}
 
 var zhiNames = [13]string{"", "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"}
+
+// zhiAnimals maps each earthly zhi to its zodiac animal (生肖).
+var zhiAnimals = [13]string{"", "鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"}

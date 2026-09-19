@@ -128,7 +128,7 @@ def test_boundary_hint_wraps_to_previous_window_across_zi_shi() -> None:
 
 def test_boundary_hint_maps_non_zi_shi_window() -> None:
     """非子时场景同样成立（防止只在子时正确）。"""
-    hint = paipan._shichen_boundary_hint("1981-08-26T12:35:00+08:00")
+    hint = paipan._shichen_boundary_hint("1981-08-26T12:57:00+08:00")
 
     assert hint is not None
     assert hint["current_shichen"]["name"] == "午时"

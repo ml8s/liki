@@ -64,10 +64,11 @@ func computeLiuNianAtomicFacts(bz ganzhi.Bazi, yearGan ganzhi.Gan, yearZhi ganzh
 
 	facts.ControlsTargets = controlledTargets(bz, controls)
 
-	// ComputeYongShen is deterministic from the lean chart and keeps the
+	// ComputeYongShenSchools is deterministic from the lean chart and keeps the
 	// unfavorable-element rule in the engine rather than Python factors.
 	chart := Chart{Nian: zhuInfo{Zhu: bz.Nian}, Yue: zhuInfo{Zhu: bz.Yue}, Ri: zhuInfo{Zhu: bz.Ri}, Shi: zhuInfo{Zhu: bz.Shi}}
-	unfavorable := parseWuxingLabel(ComputeYongShen(chart).FuYi.Ji)
+	fuYi, _, _ := ComputeYongShenSchools(chart)
+	unfavorable := parseWuxingLabel(fuYi.Ji)
 	if unfavorable != 0 {
 		facts.UnfavorableGan = ganzhi.GanWuxing(yearGan) == unfavorable
 		facts.UnfavorableBranch = ganzhi.ZhiWuxing(yearZhi) == unfavorable
@@ -224,8 +225,14 @@ func annualBranchRelations(bz ganzhi.Bazi, yearZhi ganzhi.Zhi) map[string]string
 		switch relation.Type {
 		case relLiuHe:
 			label = "liu_he"
+		case relSanHePartial:
+			label = "half_he"
+		case relSanHeGong:
+			label = "san_he_gong"
 		case relSanHe:
 			label = "san_he"
+		case relSanHuiGong:
+			label = "san_hui_gong"
 		case relSanHui:
 			label = "san_hui"
 		case relLiuChong:
@@ -248,7 +255,8 @@ func annualBranchControlledBy(chart Chart, yearZhi ganzhi.Zhi) []string {
 		return []string{}
 	}
 	natalCounts := computeElementCount(chart.ToBazi(), computeCangGan(chart.ToBazi()))
-	states := ComputeYongShen(chart).FuYi.WangShuai
+	fuYiWangShuai, _, _ := ComputeYongShenSchools(chart)
+	states := fuYiWangShuai.WangShuai
 	result := make([]string, 0, 2)
 	for _, element := range []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui} {
 		state := states[element.String()]

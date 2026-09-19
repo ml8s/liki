@@ -11,13 +11,19 @@
     "MD033": {
       "allowed_elements": ["h1", "p", "br", "a", "img"]
     },
-    "MD041": false
+    "MD041": false,
+    "MD036": false,
+    "MD047": false,
+    "MD060": {
+      "style": "leading_and_trailing"
+    }
   },
   "globs": [
     "README.md",
     "README.en.md",
     "docs/README_STYLE.md",
     "docs/USER_GUIDE.md",
-    "docs/USER_GUIDE.en.md"
+    "docs/USER_GUIDE.en.md",
+    "skills/liki/**/*.md"
   ]
 }

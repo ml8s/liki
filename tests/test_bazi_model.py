@@ -48,18 +48,22 @@ def test_constant_closures_are_partitioned_and_complete() -> None:
 def test_relation_closures_are_complete() -> None:
     relation_key_counts = {
         "天干五合": 10, "六合": 12, "三合": 12, "三会": 12,
-        "六冲": 12, "六害": 12,
+        "六冲": 12, "六害": 12, "六破": 12,
     }
     assert all(len(D[name]) == count for name, count in relation_key_counts.items())
+    assert len(D["天干相冲"]) == 8
     assert set(D["三合半合"]) == {"子", "午", "卯", "酉"}
+    assert len(D["暗合"]) == 8
     for imperial_branch, partners in D["三合半合"].items():
         assert len(partners) == 2
         assert set(partners) == set(D["三合"][imperial_branch])
     assert len(D["旬空"]) == 6
     # 关系映射必须是对称闭集。
-    for name in ("六合", "六冲", "六害", "天干五合"):
+    for name in ("六合", "六冲", "六害", "六破", "天干五合", "天干相冲"):
         for a, b in D[name].items():
             assert D[name][b] == a
+    for a, b in D["暗合"].items():
+        assert D["暗合"][b] == a
 
 
 def test_factor_inventory_has_single_source_of_truth() -> None:
@@ -129,8 +133,8 @@ def test_factor_inventory_has_single_source_of_truth() -> None:
         flow_categories[category(rows)] += 1
         flow_sides[side(rows)] += 1
 
-    assert len(groups) == 475
-    assert len(flows) == 107
+    assert len(groups) == len(read_groups(TOOLS / "factors" / "factors.csv"))
+    assert len(flows) == len(read_groups(TOOLS / "factors" / "factors_liunian.csv"))
 
     text = DOC.read_text(encoding="utf-8")
     assert "tools/factors/factors.csv" in text
@@ -144,7 +148,7 @@ def test_factor_inventory_has_single_source_of_truth() -> None:
     assert f"| 本命直通原子 | {natal_categories['direct']} |" in text
     assert f"| 本命提取原子 | {natal_categories['condition']} |" in text
     assert f"| 本命复合因子 | {natal_categories['factor_ref']} |" in text
-    assert "| 流年因子 | 107 |" in text
+    assert f"| 流年因子 | {len(flows)} |" in text
     assert f"| 流年八字因子 | {flow_sides['bazi']} |" in text
     assert f"| 流年紫微因子 | {flow_sides['ziwei']} |" in text
     assert f"| 流年直通原子 | {flow_categories['direct']} |" in text
@@ -177,7 +181,7 @@ def test_yong_shen_guidance_requires_effective_support_not_team_labels() -> None
     assert "若候选五行克用神，不得直接作喜神" in text
 
     model = DOC.read_text(encoding="utf-8")
-    assert "`duanyu.query(rule=用神)` 除断语外返回 `yong_shen_context`" in model
+    assert "`duanyu.query(rule=用神)` 除断语外返回 `fu_yi / tiao_hou / ge_ju / element_states / ten_god_states`" in model
 
 
 def test_stable_factor_names_use_consistent_entities() -> None:

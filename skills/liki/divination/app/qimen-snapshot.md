@@ -6,8 +6,8 @@ description: 奇门问卦 — snapshot 生成、结构化 answer 与追问
 
 # 奇门问卦
 
-
 > 工具报文：只使用 `divination/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
+>
 ## 依赖的领域知识
 
 [必读] `divination/domains/qimen/yongshen.md` + `bamen.md` + `jiuxing.md` + `bashen.md` + `yingqi.md` + `quarter.md`
@@ -16,7 +16,7 @@ description: 奇门问卦 — snapshot 生成、结构化 answer 与追问
 ## 流程
 
 | 步骤 | 动作 | 产物 |
-|---|---|---|
+| --- | --- | --- |
 | 1 | 确认单一目标、地点和事项 | 可起局的问题 |
 | 2 | 发送 `TOOLS.md §3 qimen_snapshot` 报文；普通问事传 `matter`，高级用户可直接传 `yong_shen`，专占传 `rule` | immutable snapshot |
 | 3 | 发送 `TOOLS.md §4 qimen_ask` 报文，`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` | 结构化 answer |
@@ -28,7 +28,7 @@ description: 奇门问卦 — snapshot 生成、结构化 answer 与追问
 用户没有明确要求，不传方法参数；默认 `scope=hour` / `school=zhuanpan` / `dingju_method=chaibu`，不传其他方法参数。不能从“更细”“传统”“准确”推断高级方法。
 
 | 用户问题 | 参数 |
-|---|---|
+| --- | --- |
 | 钥匙丢了，能不能找到 | `rule=lost_property` |
 | 东西被偷 / 逃走的人 / 偷者画像 | `qimen_snapshot(rule=thief_capture/capture_escape/thief_profile)` |
 | 工作能不能升、财能不能求、婚姻如何 | `matter=career/wealth/relationship` |
@@ -58,6 +58,7 @@ description: 奇门问卦 — snapshot 生成、结构化 answer 与追问
 时机：answer 引用的应期候选。
 建议：一个现实动作或核查条件。
 边界：传统奇门视角，不承诺现实结果。
+示例：谈判窗口偏有利。用神：开门落坎宫（旺）。时机：甲申时最优。建议：下午主动约谈。
 ```
 
 金函玉镜改列九宫与十二日神；不输出用神、值符值使和应期。

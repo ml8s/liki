@@ -14,9 +14,11 @@
 2. 创建一个功能分支：`git checkout -b feat/my-change`
 3. 安装 git hooks（一次）：`make hooks`
 4. 升版本用根 Makefile 统一写入当日日期和序号（`skills/liki/VERSION.txt` + engine VERSION 同步；各领域 `skill-tools.json` 会同步 `info.version`）：
+
    ```bash
    make version
    ```
+
 5. 同步更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
 6. README / 用户指南改动需遵循 [README_STYLE.md](./docs/README_STYLE.md)，并运行 `make lint-readme`
 7. 提交 PR，描述清楚改了什么、为什么
@@ -25,9 +27,11 @@
 
 - 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。bazi / divination 的 LLM 只调用对应 `tools/skill-tools.json` 中的 Python 工具；naming / fengshui 当前无 Python 工具层，只能使用 ENTRY 固定 discover 闭集内声明的 RPC
 - 引擎 lint 用 golangci-lint v2（配置 `engine/.golangci.yml`）。本地安装用官方二进制脚本，**不要 `go install`**（golangci-lint 与 Go 版本强耦合，官方明确不推荐该方式）：
+
   ```bash
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
   ```
+
 - 每次升版本必须同步更新：`VERSION.txt`（make 统一 bump）+ `CHANGELOG.md`；需要生成分发包时运行 `make build-archive`
 
 ## 设计原则（为什么这样设计）
@@ -46,6 +50,7 @@
 ## 推送前检查清单
 
 **改方法名/函数名时**（全量搜索所有引用点）：
+
 ```bash
 # 搜代码（含脚本）
 grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
@@ -54,6 +59,7 @@ grep -rn "旧方法名" skills/liki/*/app/*.md skills/liki/*/ENTRY.md skills/lik
 ```
 
 **添加新 RPC 方法时**（同步更新测试）：
+
 ```bash
 # 检查方法计数
 grep -c "Name:" engine/internal/agent/tools_*.go                        # 实际方法数
@@ -64,12 +70,14 @@ grep -A 5 "METHOD_WHITELIST" tests/check_docs.py
 ```
 
 **改 skill 文档后**（需要出包时）：
+
 ```bash
 make build-archive
 ```
 
 **推送前本地 CI**：
+
 ```bash
 # 全量（engine + skills 单测 + 全链路集成，本地自动起引擎）+ schema/文档一致性
-make test-all && make pre-push
+make gate
 ```

@@ -23,8 +23,10 @@
 | `bazi_classic_corrections.json` | 阴干羊刃与月刃格、天赦 / 四废四季边界、天罗地网年命纳音限定、#57 辛日申月真实命例 |
 | `bazi_ten_god_states.json` | 十神显隐 / 通根 / 得令 / 组合旺弱、五行生克方向与大运通根边界 |
 | `bazi_atomic_facts.json` | 官杀取清、财库、夫妻宫、日支神煞、柱位十神 / 长生 / 格神透干 / 柱刑原子事实 |
-| `bazi_relation_groups.json` | 紧邻 / 隔位天干五合、地支六合、三合 / 三会 / 六冲 / 六害 / 三刑完整组与自刑成双边界 |
+| `bazi_relation_groups.json` | 紧邻 / 隔位天干五合与天干相冲、地支六合、三合 / 半合 / 三会 / 六冲 / 六害 / 三刑 / 六破 / 暗合完整组与自刑成双边界 |
 | `bazi_yongshen_structure.json` | 格局格神 / 克格神 / 生格神结构事实、扶抑强弱输入与关系投影、调候主辅神显隐与遭遇 |
+| `bazi_tiaohou_classic_corrections.json` | 《穷通宝鉴》乙亥 / 丙寅 / 丙卯 / 丙申主辅神与条件辅用边界 |
+| `bazi_zhi_pair_relations.json` | 两支关系的合会边界：半合含旺支、生墓 / 三会首尾只作拱候选，两支不成完整三合 / 三会 |
 | `bazi_liunian_atomic.json` | 流年生克、忌神、财坏印、三合 / 三会 / 三刑 / 半合原子事实 |
 | `ziwei_core.json` | 四化 10、天魁 10、天钺 10、命主 12、身主 12、闰月边界 3 |
 | `ziwei_pattern_semantics.json` | 六吉闭集、亮度分组、三方四正多四化与命宫 / 三方格局边界 |
