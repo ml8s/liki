@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026.09.19.2] — Alipay AI Pay donation receipt
+
+### Added
+
+- 新增匿名 agent 捐赠凭证流程：遵循 402 / Payment-Needed / Payment-Proof / 验付 / 履约确认协议。
+- Skill 新增 `donation.py`，凭证整块原子写入 `~/.liki/donation.json`；只在用户确认满意或主动询问支持时提示一次。
+- 捐赠不产生 entitlement、不解锁 RPC、不改变 engine 和业务结果。
+
+### Changed
+
+- SkillHub 包版本升至 `5.1.0`；engine 与 skill 契约版本同步到 `2026.09.19.2`。
+
 ## [2026.09.19.0] — yongshen split, SEO, docs quality, Makefile redesign
 
 ### Breaking
