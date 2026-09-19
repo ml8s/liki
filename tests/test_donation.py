@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import base64
 import importlib.util
 import json
 import pathlib
 import tempfile
 import unittest
-from unittest import mock
 
 
 def _load_donation():
@@ -21,45 +19,20 @@ def _load_donation():
 donation = _load_donation()
 
 
-def encoded_bill() -> str:
-    bill = {
-        "protocol": {
-            "out_trade_no": "order-1",
-            "amount": "1.00",
-            "currency": "CNY",
-            "resource_id": "/api/donations/redeem",
-        }
+def valid_receipt() -> dict:
+    return {
+        "schema_version": "liki-donation-v1",
+        "kind": "donation-receipt",
+        "status": "received",
+        "receipt_id": "r-1",
+        "amount": "19.9",
+        "currency": "CNY",
     }
-    raw = json.dumps(bill, ensure_ascii=False).encode("utf-8")
-    return base64.urlsafe_b64encode(raw).rstrip(b"=").decode("ascii")
-
-
-class FakeResponse:
-    def __init__(self, status: int, body: bytes, headers: dict[str, str] | None = None):
-        self.status = status
-        self.body = body
-        self.headers = {key.lower(): value for key, value in (headers or {}).items()}
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc, traceback):
-        return False
-
-    def read(self):
-        return self.body
 
 
 class DonationReceiptValidationTests(unittest.TestCase):
     def test_valid_receipt_is_recognized(self):
-        receipt = {
-            "schema_version": "liki-donation-v1",
-            "kind": "donation-receipt",
-            "status": "received",
-            "receipt_id": "r-1",
-            "amount": "1.00",
-            "currency": "CNY",
-        }
+        receipt = valid_receipt()
         self.assertEqual(donation.validate_receipt(receipt), receipt)
 
     def test_invalid_receipts_are_rejected(self):
@@ -78,77 +51,62 @@ class DonationReceiptValidationTests(unittest.TestCase):
                     donation.validate_receipt(receipt)
 
 
-class DonationRequestTests(unittest.TestCase):
-    def test_request_returns_payment_needed_without_writing_credential(self):
-        response = FakeResponse(402, b'{"code":"Payment-Needed"}', {"Payment-Needed": encoded_bill()})
-        with mock.patch.object(donation, "_post", return_value=response) as poster:
-            result = donation.request_bill("https://liki.example/api/donations/redeem")
-        poster.assert_called_once_with("https://liki.example/api/donations/redeem", "")
-        self.assertTrue(result["ok"])
-        self.assertEqual(result["stage"], "payment_needed")
-        self.assertEqual(result["payment_needed"]["protocol"]["out_trade_no"], "order-1")
-        self.assertEqual(result["amount"], "1.00")
-        self.assertIn("payment_needed_encoded", result)
-
-    def test_request_rejects_missing_bill_header(self):
-        response = FakeResponse(402, b"{}")
-        with mock.patch.object(donation, "_post", return_value=response):
-            with self.assertRaises(donation.DonationError):
-                donation.request_bill("https://liki.example/api/donations/redeem")
-
-    def test_request_rejects_oversized_bill_header(self):
-        oversized = "x" * (donation.MAX_RESPONSE_BYTES + 1)
-        response = FakeResponse(402, b"{}", {"Payment-Needed": oversized})
-        with mock.patch.object(donation, "_post", return_value=response):
-            with self.assertRaises(donation.DonationError):
-                donation.request_bill("https://liki.example/api/donations/redeem")
-
-
-class DonationConfirmTests(unittest.TestCase):
-    def test_confirm_writes_whole_content_object(self):
-        receipt = {
-            "schema_version": "liki-donation-v1",
-            "kind": "donation-receipt",
-            "status": "received",
-            "receipt_id": "r-1",
-            "amount": "1.00",
-            "currency": "CNY",
-        }
-        body = {
-            "resource_id": "/api/donations/redeem",
-            "content": receipt,
-            "credential_path": "~/.liki/donation.json",
-            "fulfillment_confirmed": True,
-        }
-        response = FakeResponse(200, json.dumps(body).encode("utf-8"))
+class DonationStatusTests(unittest.TestCase):
+    def test_status_returns_not_found_when_no_credential(self):
         with tempfile.TemporaryDirectory() as directory:
             path = pathlib.Path(directory) / "donation.json"
-            with mock.patch.object(donation, "_post", return_value=response) as poster:
-                result = donation.confirm_receipt(
-                    "https://liki.example/api/donations/redeem",
-                    "proof-from-alipay",
-                    path,
-                )
-            poster.assert_called_once_with(
-                "https://liki.example/api/donations/redeem",
-                "proof-from-alipay",
-            )
+            donated, receipt, reason = donation.read_receipt(path)
+            self.assertFalse(donated)
+            self.assertIsNone(receipt)
+            self.assertEqual(reason, "not_found")
+
+    def test_status_returns_valid_for_existing_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "donation.json"
+            path.write_text(json.dumps(valid_receipt()), encoding="utf-8")
+            donated, receipt, reason = donation.read_receipt(path)
+            self.assertTrue(donated)
+            self.assertEqual(receipt, valid_receipt())
+            self.assertEqual(reason, "valid")
+
+
+class DonationSaveReceiptTests(unittest.TestCase):
+    def test_save_receipt_writes_atomically_with_mode_600(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "donation.json"
+            result = donation.save_receipt(json.dumps(valid_receipt()), path)
             self.assertTrue(result["ok"])
-            self.assertTrue(result["fulfillment_confirmed"])
-            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), receipt)
+            self.assertEqual(result["receipt"], valid_receipt())
+            written = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(written, valid_receipt())
 
-    def test_confirm_does_not_write_invalid_receipt(self):
-        body = {"resource_id": "/api/donations/redeem", "content": {"kind": "token"}}
-        response = FakeResponse(200, json.dumps(body).encode("utf-8"))
+    def test_save_receipt_rejects_invalid_json(self):
         with tempfile.TemporaryDirectory() as directory:
             path = pathlib.Path(directory) / "donation.json"
-            with mock.patch.object(donation, "_post", return_value=response):
-                with self.assertRaises(donation.DonationError):
-                    donation.confirm_receipt(
-                        "https://liki.example/api/donations/redeem",
-                        "proof",
-                        path,
-                    )
+            with self.assertRaises(donation.DonationError):
+                donation.save_receipt("not json", path)
+            self.assertFalse(path.exists())
+
+    def test_save_receipt_rejects_invalid_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "donation.json"
+            with self.assertRaises(donation.DonationError):
+                donation.save_receipt(json.dumps({"kind": "token"}), path)
+            self.assertFalse(path.exists())
+
+    def test_save_receipt_rejects_oversized_input(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "donation.json"
+            oversized = json.dumps(valid_receipt()) + " " * (donation.MAX_RECEIPT_BYTES + 1)
+            with self.assertRaises(donation.DonationError):
+                donation.save_receipt(oversized, path)
+            self.assertFalse(path.exists())
+
+    def test_save_receipt_rejects_empty_input(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "donation.json"
+            with self.assertRaises(donation.DonationError):
+                donation.save_receipt("", path)
             self.assertFalse(path.exists())
 
 
