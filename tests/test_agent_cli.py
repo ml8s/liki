@@ -44,13 +44,13 @@ class TestDispatch(unittest.TestCase):
         agent_cli.city_coords.assert_called_once_with("北京")
 
     def test_query_分派(self):
-        agent_cli._dispatch("query", {"rule": "marriage", "pan": {}})
-        agent_cli.query.assert_called_once_with("marriage", {}, year=None, domains=None)
+        agent_cli._dispatch("query", {"rule": "marriage", "pan": {}, "domains": ["婚姻"]})
+        agent_cli.query.assert_called_once_with("marriage", {}, year=None, domains=["婚姻"])
 
     def test_yearly_range_分派(self):
-        agent_cli._dispatch("yearly_range", {"pan": {}, "start": 2025, "end": 2026})
+        agent_cli._dispatch("yearly_range", {"pan": {}, "start": 2025, "end": 2026, "rules": ["yearly_marriage"], "domains": ["婚姻"]})
         agent_cli.yearly_range.assert_called_once_with(
-            {}, 2025, 2026, rules=None, detail=False, domains=None,
+            {}, 2025, 2026, rules=["yearly_marriage"], detail=False, domains=["婚姻"],
         )
 
     def test_calibrate_分派(self):
@@ -97,7 +97,7 @@ class TestMainProtocol(unittest.TestCase):
     def test_成功(self):
         with mock.patch('agent_cli._dispatch', return_value={"ok_data": 1}):
             out = self._run_main(
-                '{"fn":"query","args":{"rule":"十神","pan":{}}}'
+                '{"fn":"query","args":{"rule":"十神","pan":{},"domains":["性格"]}}'
             )
         self.assertTrue(out["ok"])
         self.assertEqual(out["data"], {"ok_data": 1})
@@ -105,7 +105,7 @@ class TestMainProtocol(unittest.TestCase):
     def test_失败_错误包装(self):
         with mock.patch('agent_cli._dispatch', side_effect=ValueError("boom")):
             out = self._run_main(
-                '{"fn":"query","args":{"rule":"十神","pan":{}}}'
+                '{"fn":"query","args":{"rule":"十神","pan":{},"domains":["性格"]}}'
             )
         self.assertFalse(out["ok"])
         self.assertIn("boom", out["error"])
@@ -143,13 +143,13 @@ class TestSchemaConsistency(unittest.TestCase):
                 elif n == "city_coords":
                     agent_cli._dispatch(n, {"city": "北京"})
                 elif n == "yearly_range":
-                    agent_cli._dispatch(n, {"pan": {}, "start": 2025, "end": 2026})
+                    agent_cli._dispatch(n, {"pan": {}, "start": 2025, "end": 2026, "rules": ["yearly_marriage"], "domains": ["婚姻"]})
                 elif n == "calibrate":
                     agent_cli._dispatch(n, {"candidates": [], "events": []})
                 elif n == "bond":
                     agent_cli._dispatch(n, {"pan_a": {}, "pan_b": {}})
                 else:
-                    agent_cli._dispatch(n, {"rule": "marriage", "pan": {}})
+                    agent_cli._dispatch(n, {"rule": "marriage", "pan": {}, "domains": ["婚姻"]})
 
     def test_schema_rule_enums_match_runtime_whitelists(self):
         import json

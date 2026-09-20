@@ -18,6 +18,8 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 [必读] - ziwei: bazi/domains/ziwei/yingqi.md「健康紫微应期」
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["健康"]`**，只保留 健康 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |

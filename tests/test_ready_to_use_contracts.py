@@ -73,8 +73,8 @@ def test_bazi_tools_declare_valid_result_and_closed_args_contracts():
     expected_required = {
         "city_coords": ["city"],
         "full_paipan": ["gregorian", "gender"],
-        "query": ["rule", "pan"],
-        "yearly_range": ["pan", "start", "end", "rules"],
+        "query": ["rule", "pan", "domains"],
+        "yearly_range": ["pan", "start", "end", "rules", "domains"],
         "calibrate": ["candidates", "events"],
         "bond": ["pan_a", "pan_b"],
     }

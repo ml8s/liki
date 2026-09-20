@@ -14,6 +14,8 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 [必读] - bazi: bazi/domains/bazi/shishen.md「十神组合」
 [必读] - 合盘工具：`bond(pan_a, pan_b)`（一次调用返回八字+紫微原始对照）
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["婚姻"]`**，只保留 婚姻 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |

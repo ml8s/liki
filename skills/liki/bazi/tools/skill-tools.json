@@ -127,7 +127,8 @@
           },
           "required": [
             "rule",
-            "pan"
+            "pan",
+            "domains"
           ],
           "additionalProperties": false
         }
@@ -210,7 +211,8 @@
             "pan",
             "start",
             "end",
-            "rules"
+            "rules",
+            "domains"
           ],
           "additionalProperties": false
         }

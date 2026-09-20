@@ -15,6 +15,8 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 
 [必读] - ziwei: bazi/domains/ziwei/yingqi.md「事业紫微应期」
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["事业"]`**，只保留 事业 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |

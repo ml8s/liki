@@ -14,6 +14,8 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 [必读] - ziwei: `bazi/domains/ziwei/yingqi.md`「学业应期」+ `bazi/domains/ziwei/liunian.md`「流年宫位」
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["学业"]`**，只保留 学业 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |

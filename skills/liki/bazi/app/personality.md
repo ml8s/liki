@@ -16,6 +16,8 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 [按需] - ziwei: bazi/domains/ziwei/yingqi.md（仅问特定年份状态时读取）
 [必读] - ziwei: bazi/domains/ziwei/gexing.md「紫微性格分析方法」
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["性格"]`**，只保留 性格 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |

@@ -15,6 +15,8 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 [必读] - ziwei: bazi/domains/ziwei/yingqi.md「财运紫微应期」
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["财运"]`**，只保留 财运 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |

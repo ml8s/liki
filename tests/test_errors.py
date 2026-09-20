@@ -69,7 +69,7 @@ def test_agent_cli_transports_error_as_json():
          mock.patch("sys.stdin") as stdin, \
          mock.patch("builtins.print") as printed:
         stdin.read.return_value = json.dumps(
-            {"fn": "query", "args": {"rule": "十神", "pan": {}}}
+            {"fn": "query", "args": {"rule": "十神", "pan": {}, "domains": ["性格"]}}
         )
         assert agent_cli.main() == 0
         output = json.loads(printed.call_args.args[0])

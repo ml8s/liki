@@ -52,11 +52,11 @@ _DISPATCH = {
                                          longitude=a.get("longitude"),
                                          correct=a.get("correct", True)),
     "query":        lambda a: query(a["rule"], a["pan"], year=a.get("year"),
-                                    domains=a.get("domains")),
+                                    domains=a["domains"]),
     "yearly_range": lambda a: yearly_range(a["pan"], a["start"], a["end"],
-                                           rules=a.get("rules"),
+                                           rules=a["rules"],
                                            detail=a.get("detail", False),
-                                           domains=a.get("domains")),
+                                           domains=a["domains"]),
     "calibrate":    lambda a: calibrate(a["candidates"], a["events"], detail=a.get("detail", False)),
     "bond":         lambda a: bond(a["pan_a"], a["pan_b"]),
 }
@@ -64,8 +64,8 @@ _DISPATCH = {
 _REQUIRED_ARGS = {
     "city_coords": ("city",),
     "full_paipan": ("gregorian", "gender"),
-    "query": ("rule", "pan",),
-    "yearly_range": ("pan", "start", "end", "rules"),
+    "query": ("rule", "pan", "domains"),
+    "yearly_range": ("pan", "start", "end", "rules", "domains"),
     "calibrate": ("candidates", "events"),
     "bond": ("pan_a", "pan_b"),
 }

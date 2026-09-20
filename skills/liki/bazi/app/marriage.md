@@ -18,6 +18,8 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 [必读] - ziwei: bazi/domains/ziwei/yingqi.md「婚姻紫微应期」
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["婚姻"]`**，只保留 婚姻 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |

@@ -18,6 +18,8 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 
 [必读] - ziwei: bazi/domains/ziwei/yingqi.md「家庭紫微应期」
 
+> **本卡所有 query / yearly_range 调用必须传 `domains=["家庭"]`**，只保留 家庭 域断语，排除跨域噪声。
+
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
