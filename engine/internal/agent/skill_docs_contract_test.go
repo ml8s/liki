@@ -187,7 +187,8 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"result.methods[].name", "bazhai.chart.result.data.ming_gua.gua.name",
 		"result.methods.name", "xuankong.chart.result.data", "bazhai",
 		"xuankong", "qiming", "snapshot", "data", "error", "unknown",
-		"true", "false", "skills/liki/VERSION.txt", "full_paipan.data",
+		"true", "false", "skills/liki/VERSION.txt", "create_birth_chart.data",
+		"data.chart_ref", "error.code", "error.message", "code", "message",
 		"safety_advisory", "meta.skill", "info.version", "pan_digest",
 		"pan.ziwei_daxian"} {
 		allow[a] = true
@@ -308,6 +309,21 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 			collectToolVocabulary(tool.Function.Parameters, vocabulary)
 		}
 
+		// Response contracts are not sent to the LLM. Load them only for
+		// documentation vocabulary so output fields stay externally documented.
+		responsePath := filepath.Join(filepath.Dir(path), "response-contract.json")
+		if responseRaw, err := os.ReadFile(responsePath); err == nil {
+			var responseContract struct {
+				Tools map[string]any `json:"tools"`
+			}
+			if err := json.Unmarshal(responseRaw, &responseContract); err != nil {
+				return nil, err
+			}
+			for _, schema := range responseContract.Tools {
+				collectToolVocabulary(schema, vocabulary)
+			}
+		}
+
 		// The unified root owns the feedback contract. Keep its vocabulary under
 		// the product skill so domain tool vocabularies stay scoped.
 		feedbackPath := filepath.Join("..", "..", "..", "skills", "liki", "feedback.schema.json")
@@ -353,13 +369,13 @@ func TestSkillToolVocabularyIsScoped(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bazi := vocabulary["bazi"]
+	natal := vocabulary["natal"]
 	divination := vocabulary["divination"]
-	if !bazi["full_paipan"] || bazi["qimen_chart"] {
-		t.Fatal("bazi tool vocabulary is missing its own tools or leaks qimen tools")
+	if !natal["create_birth_chart"] || !natal["analyze_natal"] || natal["qimen_chart"] {
+		t.Fatal("natal tool vocabulary is missing its own tools or leaks qimen tools")
 	}
-	if !divination["qimen_snapshot"] || divination["full_paipan"] {
-		t.Fatal("divination tool vocabulary is missing its own tools or leaks bazi tools")
+	if !divination["qimen_snapshot"] || divination["create_birth_chart"] {
+		t.Fatal("divination tool vocabulary is missing its own tools or leaks natal tools")
 	}
 }
 

@@ -105,13 +105,13 @@ skills/liki/
 ├── SKILL.md              # single skill entry: routing, safety, feedback
 ├── VERSION.txt           # single distribution version
 ├── FAQ.md                # runtime failure and recovery contract
-├── bazi/                 # Bazi + Ziwei: ENTRY / TOOLS / app / domains / tools
+├── natal/                # Birth-chart composite: Bazi + Ziwei + combined analysis
 ├── divination/           # Liuyao + QiMen + Huangli: ENTRY / TOOLS / app / domains / tools
 ├── fengshui/             # Bazhai + Xuankong: ENTRY / RPC / app / domains
 └── naming/               # naming: ENTRY / RPC / app / domains
 ```
 
-The repository root keeps `engine/`, `tests/`, and `scripts/` for the engine, evaluations, and build scripts; the installable package comes only from `skills/liki`. The call chain is fixed: `SKILL.md` → `ENTRY.md` → app card → Python tools or fixed RPC. Destiny and divination use domain-local Python tools to orchestrate RPC, snapshots, factors, and assertions. Naming and feng shui have no local Python tool layer and use fixed JSON-RPC payloads.
+The repository root keeps `engine/`, `tests/`, and `scripts/` for the engine, evaluations, and build scripts; the installable package comes only from `skills/liki`. The call chain is fixed: `SKILL.md` → `ENTRY.md` → app card → Python tools or fixed RPC. Natal and divination use domain-local Python tools to orchestrate RPC, snapshots, factors, and assertions. Naming and feng shui have no local Python tool layer and use fixed JSON-RPC payloads.
 
 ### Engine image
 
@@ -121,7 +121,7 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 
 | Contract | Purpose |
 | --- | --- |
-| [Bazi tools](./skills/liki/bazi/TOOLS.md) | Complete stdin payloads for six Python tools |
+| [Natal tools](./skills/liki/natal/TOOLS.md) | Complete stdin payloads for five natal analysis tools |
 | [Divination tools](./skills/liki/divination/TOOLS.md) | Liuyao, QiMen, and Huangli tool payloads |
 | [Naming RPC](./skills/liki/naming/RPC.md) | Naming and Bazi helper RPC payloads |
 | [Feng shui RPC](./skills/liki/fengshui/RPC.md) | Bazhai, Xuankong, and annual RPC payloads |
@@ -131,7 +131,7 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 ```bash
 make test           # All tests (pytest + Go engine full suite)
 make verify        # end-to-end integration tests
-make golden-engine # full golden suite
+make golden # full golden suite
 ```
 
 See [Release model](./docs/RELEASE_MODEL.md) for the layered model: `lint → check → test → verify → gate`.

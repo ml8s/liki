@@ -189,7 +189,7 @@ make gate                # check + test（推送前门槛）
 Release checks add golden and package:
 
 ```bash
-make golden-engine
+make golden
 make build
 ```
 

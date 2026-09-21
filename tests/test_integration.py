@@ -16,84 +16,105 @@ import unittest
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                'skills', 'liki', 'bazi', 'tools'))
+                                'skills', 'liki', 'natal', 'tools'))
 
 
 @pytest.mark.integration
-class TestIntegration_FullChain(unittest.TestCase):
-    """全链路集成测试：full_paipan → query（本命） + yearly_range（流年）。"""
+class TestIntegration_NatalTools(unittest.TestCase):
+    """全链路集成测试：create_birth_chart → analyze / periods / compare / calibrate。"""
 
-    def test_full_chain(self):
+    def call_tool(self, fn: str, args: dict):
         url = os.environ.get("LIKI_RPC_URL", "")
         if not url:
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           "skills", "liki", "bazi", "tools", "agent_cli.py")
+                           "skills", "liki", "natal", "tools", "agent_cli.py")
         env = dict(os.environ, LIKI_RPC_URL=url)
-
-        def call(fn, args):
-            p = subprocess.run(["python3", cli], input=json.dumps({"fn": fn, "args": args}).encode(),
-                               capture_output=True, env=env, timeout=60)
-            return json.loads(p.stdout)
-
-        try:
-            pan = call("full_paipan", {"gregorian": "1990-06-01T12:00:00+08:00",
-                                       "gender": "male", "longitude": 116.4, "correct": True})
-        except Exception as e:  # noqa: BLE001
-            self.fail(f"LIKI_RPC_URL={url} 已设置但引擎不可达: {e}")
-        if not pan.get("ok"):
-            self.fail(f"full_paipan 失败: {pan.get('error')}")
-        self.assertIsInstance(pan["data"]["ziwei_daxian"], list)
-
-        q = call("query", {"rule": "十神", "pan": pan["data"], "domains": ["性格"]})
-        self.assertTrue(q["ok"], q.get("error"))
-        self.assertIn("八字", q["data"])
-
-        dx = call("query", {"rule": "大限", "pan": pan["data"], "year": 2000, "domains": ["大限"]})
-        self.assertTrue(dx["ok"], dx.get("error"))
-        self.assertIn("合参", dx["data"])
-        self.assertEqual(dx["data"]["current_year"], 2000)
-        self.assertEqual(dx["data"]["current_year_source"], "specified")
-        self.assertTrue(any(row["id"].startswith("dx_") for row in dx["data"]["紫微"]))
-
-        yr = call("yearly_range", {"pan": pan["data"], "domains": ["婚姻"], "start": 2006, "end": 2006,
-                                   "rules": ["yearly_marriage", "yingqi"]})
-        self.assertTrue(yr["ok"], yr.get("error"))
-        self.assertIn("current_year", yr["data"])
-        self.assertIn("2006", yr["data"]["years"])
-        self.assertTrue(all("合参" in result for result in yr["data"]["years"]["2006"].values()))
-
-    def test_calibrate_full_chain(self):
-        url = os.environ.get("LIKI_RPC_URL", "")
-        if not url:
-            self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
-        cli = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           "skills/liki/bazi/tools/agent_cli.py")
-        env = dict(os.environ, LIKI_RPC_URL=url)
-
-        def call(fn, args):
-            p = subprocess.run(["python3", cli], input=json.dumps({"fn": fn, "args": args}).encode(),
-                               capture_output=True, env=env, timeout=60)
-            return json.loads(p.stdout)
-
-        candidates = [
-            {"label": "11时", "gregorian": "1990-06-01T11:00:00+08:00",
-             "gender": "male", "longitude": 116.4, "correct": True},
-            {"label": "12时", "gregorian": "1990-06-01T12:00:00+08:00",
-             "gender": "male", "longitude": 116.4, "correct": True},
-        ]
-        events = [
-            {"year": 2006, "rule": "yearly_marriage", "label": "婚恋"},
-            {"year": 2006, "rule": "yingqi", "label": "应期"},
-            {"year": 2006, "rule": "yearly_career", "label": "事业"},
-        ]
-        result = call("calibrate", {"candidates": candidates, "events": events, "detail": True})
-        self.assertTrue(result["ok"], result.get("error"))
-        self.assertEqual(set(result["data"]), {"11时", "12时"})
-        self.assertTrue(
-            all(set(event) == {"year", "label", "rule", "八字", "紫微", "合参"}
-                for events in result["data"].values() for event in events)
+        p = subprocess.run(
+            ["python3", cli], input=json.dumps({"fn": fn, "args": args}).encode(),
+            capture_output=True, env=env, timeout=60,
         )
+        return json.loads(p.stdout)
+
+    def test_natal_full_chain(self):
+        created = self.call_tool("create_birth_chart", {
+            "gender": "male",
+            "source": {
+                "type": "timestamp",
+                "timestamp": "1990-06-01T12:00:00+08:00",
+                "location": {"longitude": 116.4},
+                "solar_time_correction": "auto",
+            },
+        })
+        self.assertTrue(created.get("ok"), created.get("error"))
+        chart = created["data"]["chart"]
+        ref = created["data"]["chart_ref"]
+        self.assertEqual(chart["completeness"], "full")
+        self.assertIn("pillars", chart["bazi"])
+        self.assertIsInstance(chart["ziwei"]["ming_gong"], str)
+
+        natal = self.call_tool("analyze_natal", {
+            "chart_ref": ref,
+            "topics": ["personality"],
+        })
+        self.assertTrue(natal.get("ok"), natal.get("error"))
+        self.assertEqual(natal["data"]["query"]["scope"], "natal")
+        self.assertEqual(natal["data"]["query"]["topics"], ["personality"])
+        for row in natal["data"]["assertions"]:
+            self.assertEqual(row["topic"], "personality")
+            self.assertEqual(row["time_scope"], "natal")
+            self.assertIn(row["side"], {"bazi", "ziwei", "combined"})
+
+        periods = self.call_tool("analyze_periods", {
+            "chart_ref": ref,
+            "time_scope": {"type": "year", "year": 2006},
+            "topics": ["marriage"],
+        })
+        self.assertTrue(periods.get("ok"), periods.get("error"))
+        self.assertEqual(periods["data"]["query"]["scope"], "periods")
+        self.assertEqual(periods["data"]["periods"][0]["time_scope"], {"type": "year", "year": 2006})
+        for row in periods["data"]["periods"][0]["assertions"]:
+            self.assertEqual(row["topic"], "marriage")
+            self.assertEqual(row["year"], 2006)
+
+    def test_compare_and_calibrate_full_chain(self):
+        common_source = {
+            "type": "timestamp",
+            "timestamp": "1990-06-01T12:00:00+08:00",
+            "location": {"longitude": 116.4},
+            "solar_time_correction": "auto",
+        }
+        a = self.call_tool("create_birth_chart", {"gender": "male", "source": common_source})
+        b = self.call_tool("create_birth_chart", {"gender": "female", "source": common_source})
+        self.assertTrue(a.get("ok"), a.get("error"))
+        self.assertTrue(b.get("ok"), b.get("error"))
+        compared = self.call_tool("compare_birth_charts", {
+            "chart_ref_a": a["data"]["chart_ref"],
+            "chart_ref_b": b["data"]["chart_ref"],
+        })
+        self.assertTrue(compared.get("ok"), compared.get("error"))
+        self.assertIn("bazi", compared["data"]["comparison"])
+        self.assertIn("ziwei", compared["data"]["comparison"])
+
+        calibrated = self.call_tool("calibrate_birth_time", {
+            "candidates": [
+                {"label": "11时", "gender": "male", "source": common_source},
+                {"label": "12时", "gender": "male", "source": common_source},
+            ],
+            "events": [
+                {"year": 2006, "topic": "marriage", "label": "婚恋"},
+                {"year": 2006, "topic": "career", "label": "事业"},
+                {"year": 2006, "topic": "relocation", "label": "搬迁"},
+            ],
+            "detail": True,
+        })
+        self.assertTrue(calibrated.get("ok"), calibrated.get("error"))
+        self.assertEqual(
+            [item["label"] for item in calibrated["data"]["candidates"]],
+            ["11时", "12时"],
+        )
+        for candidate in calibrated["data"]["candidates"]:
+            self.assertEqual(len(candidate["events"]), 3)
 
 
 @pytest.mark.integration

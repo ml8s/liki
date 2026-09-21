@@ -105,13 +105,13 @@ skills/liki/
 ├── SKILL.md              # 唯一 skill 入口：路由、安全、反馈
 ├── VERSION.txt           # 唯一分发版本
 ├── FAQ.md                # 运行失败与恢复契约
-├── bazi/                 # 八字 + 紫微：ENTRY / TOOLS / app / domains / tools
+├── natal/                # 八紫双盘 / 本命：八字 + 紫微 + 合参
 ├── divination/           # 六爻 + 奇门 + 黄历：ENTRY / TOOLS / app / domains / tools
 ├── fengshui/             # 八宅 + 玄空：ENTRY / RPC / app / domains
 └── naming/               # 起名：ENTRY / RPC / app / domains
 ```
 
-仓库根的 `engine/`、`tests/` 和 `scripts/` 分别承载引擎、评测和构建脚本；可安装包只来自 `skills/liki`。调用链固定为：`SKILL.md` → `ENTRY.md` → app 卡 → Python 工具或固定 RPC。bazi / divination 通过 Python 工具层编排 RPC、snapshot、因子和断语；naming / fengshui 没有本地 Python 工具层，只使用固定 JSON-RPC 报文。
+仓库根的 `engine/`、`tests/` 和 `scripts/` 分别承载引擎、评测和构建脚本；可安装包只来自 `skills/liki`。调用链固定为：`SKILL.md` → `ENTRY.md` → app 卡 → Python 工具或固定 RPC。natal / divination 通过 Python 工具层编排 RPC、snapshot、因子和断语；naming / fengshui 没有本地 Python 工具层，只使用固定 JSON-RPC 报文。
 
 ### 引擎镜像
 
@@ -121,7 +121,7 @@ skills/liki/
 
 | 契约 | 用途 |
 | --- | --- |
-| [bazi TOOLS](./skills/liki/bazi/TOOLS.md) | 六个 Python 工具的完整 stdin 报文 |
+| [natal TOOLS](./skills/liki/natal/TOOLS.md) | 五个本命分析工具的完整 stdin 报文 |
 | [divination TOOLS](./skills/liki/divination/TOOLS.md) | 六爻、奇门、黄历工具报文 |
 | [naming RPC](./skills/liki/naming/RPC.md) | 起名与八字辅助 RPC 报文 |
 | [fengshui RPC](./skills/liki/fengshui/RPC.md) | 八宅、玄空和流年 RPC 报文 |
@@ -131,7 +131,7 @@ skills/liki/
 ```bash
 make test           # 所有测试（pytest + Go 引擎全量）
 make verify        # 端到端集成测试
-make golden-engine # golden 全量
+make golden # golden 全量
 ```
 
 分层详见 [Release model](./docs/RELEASE_MODEL.md)：`lint → check → test → verify → gate`。

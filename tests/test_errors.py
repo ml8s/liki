@@ -69,10 +69,13 @@ def test_agent_cli_transports_error_as_json():
          mock.patch("sys.stdin") as stdin, \
          mock.patch("builtins.print") as printed:
         stdin.read.return_value = json.dumps(
-            {"fn": "query", "args": {"rule": "十神", "pan": {}, "domains": ["性格"]}}
+            {"fn": "analyze_natal", "args": {
+                "chart_ref": {"token": "liki-chart-v1.invalid", "digest": "bad"},
+                "topics": ["marriage"],
+            }}
         )
         assert agent_cli.main() == 0
         output = json.loads(printed.call_args.args[0])
     payload = output
     assert payload["ok"] is False
-    assert "PanSchemaError" in payload["error"]
+    assert payload["error"]["code"] == "CHART_DIGEST_MISMATCH"

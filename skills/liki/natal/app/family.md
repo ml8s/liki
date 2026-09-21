@@ -1,0 +1,53 @@
+---
+name: app-family
+description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、祖上根基
+依赖域: bazi,ziwei
+---
+
+# 家庭六亲分析
+
+> 工具报文：只使用 `natal/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
+>
+## 依赖的领域知识
+
+[必读] - bazi: natal/domains/bazi/family.md「六亲判断」
+
+- bazi: natal/domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
+- bazi: natal/domains/bazi/dayun.md「应期决策表」（按需——问亲人应期时读取）
+[必读] - bazi: natal/domains/bazi/hehui.md「冲宫位表」
+
+[必读] - ziwei: natal/domains/ziwei/yingqi.md「家庭紫微应期」
+
+> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["family"]`**，只保留 家庭 域断语，排除跨域噪声。
+
+## 流程
+
+| 步骤 | 条件 / 目标 | 动作 | 产物 |
+| --- | --- | --- | --- |
+| 1 | 确定六亲 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`；读取 `natal/domains/bazi/family.md` | 目标亲人与对应星 |
+| 2 | 星宫状态 | 按目标调用父母 / 兄弟 / 子女域；读取宫位论 | 透藏、根气、冲合克与宫位 |
+| 3 | 应期 | 分别发送 `TOOLS.md §2` 的 `analyze_periods(time_scope.type="decade")`、`analyze_periods(time_scope.type="decade")`；发送 `§4.1 analyze_periods` | 引动层与候选年 |
+| 4 | 具体细节 | 发送 `TOOLS.md §3 analyze_periods` | 父母宫、子女宫与四化信号 |
+
+六亲重大变动需要星损、宫凶、限运或流年引动形成独立证据闭环；单信号只作倾向或关系质感描述。
+
+## 边界条件
+
+| 异常场景 | 处理方式 |
+| --------- | --------- |
+| 偏财不现看父 | 正财有时代父 + 年柱参照 |
+| 正印不现看母 | 偏印有时代母（但正印为正母，偏印为继母/养母） |
+| 问子女但原局无子女星 | 大运引动时看（大运现子女星也算） |
+| 时柱空亡 | 空亡≠无子女，但子女缘薄或关系疏远 |
+| 年柱冲刑 | 父母关系不和或早年离家 |
+
+## 输出模板
+
+### 示例
+
+```text
+结论：父母缘分中等，父星偏财得地；兄弟两人；子女缘正常。
+父母：偏财（父星）透干得地（fam_120），父缘较深。
+兄弟：比劫一位（fam_106），兄弟感情一般。
+子女：子女宫（时柱）正官为用（fam_108），子女缘较好。
+```

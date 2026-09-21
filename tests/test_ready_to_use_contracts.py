@@ -9,9 +9,9 @@ import pytest
 from _helpers import SKILL_ROOT
 
 TOOL_FILES = {
-    "bazi": {
-        "city_coords", "full_paipan", "query", "yearly_range",
-        "calibrate", "bond",
+    "natal": {
+        "create_birth_chart", "analyze_natal", "analyze_periods",
+        "compare_birth_charts", "calibrate_birth_time",
     },
     "divination": {
         "liuyao_snapshot", "liuyao_ask", "qimen_snapshot",
@@ -68,15 +68,14 @@ def test_python_tool_payload_names_match_manifests():
 
 def test_bazi_tools_declare_valid_result_and_closed_args_contracts():
     manifest = json.loads(
-        (SKILL_ROOT / "bazi" / "tools" / "skill-tools.json").read_text(encoding="utf-8")
+        (SKILL_ROOT / "natal" / "tools" / "skill-tools.json").read_text(encoding="utf-8")
     )
     expected_required = {
-        "city_coords": ["city"],
-        "full_paipan": ["gregorian", "gender"],
-        "query": ["rule", "pan", "domains"],
-        "yearly_range": ["pan", "start", "end", "rules", "domains"],
-        "calibrate": ["candidates", "events"],
-        "bond": ["pan_a", "pan_b"],
+        "create_birth_chart": ["gender", "source"],
+        "analyze_natal": ["chart_ref", "topics"],
+        "analyze_periods": ["chart_ref", "time_scope", "topics"],
+        "compare_birth_charts": ["chart_ref_a", "chart_ref_b"],
+        "calibrate_birth_time": ["candidates", "events"],
     }
     for tool in manifest["tools"]:
         fn = tool["function"]
@@ -96,7 +95,7 @@ def test_direct_rpc_domains_have_a_payload_for_every_method():
 
 def test_app_cards_reference_payload_libraries():
     mapping = {
-        "bazi": "bazi/TOOLS.md",
+        "natal": "natal/TOOLS.md",
         "divination": "divination/TOOLS.md",
         "naming": "naming/RPC.md",
         "fengshui": "fengshui/RPC.md",
@@ -112,7 +111,7 @@ def test_app_cards_reference_payload_libraries():
 
 def test_ambiguous_tool_triggers_are_absent():
     offenders = []
-    for domain in ("bazi", "divination"):
+    for domain in ("natal", "divination"):
         for path in (SKILL_ROOT / domain / "app").glob("*.md"):
             text = path.read_text(encoding="utf-8")
             if "必要时 `" in text or "必要时传" in text:
@@ -129,24 +128,20 @@ def test_root_has_exact_version_and_feedback_commands():
     assert '"skill": "liki"' in text
 
 
-def test_bazi_query_matrix_covers_manifest_rule_enum():
+def test_bazi_manifest_tools_have_payload_examples():
     manifest = json.loads(
-        (SKILL_ROOT / "bazi" / "tools" / "skill-tools.json").read_text(encoding="utf-8")
+        (SKILL_ROOT / "natal" / "tools" / "skill-tools.json").read_text(encoding="utf-8")
     )
-    query = next(
-        tool["function"] for tool in manifest["tools"]
-        if tool["function"]["name"] == "query"
-    )
-    rules = query["parameters"]["properties"]["rule"]["enum"]
-    tools = (SKILL_ROOT / "bazi" / "TOOLS.md").read_text(encoding="utf-8")
-    for rule in rules:
-        assert f'#### query.{rule}' in tools, rule
-        assert f'"rule": "{rule}"' in tools, rule
+    tools = (SKILL_ROOT / "natal" / "TOOLS.md").read_text(encoding="utf-8")
+    for tool in manifest["tools"]:
+        name = tool["function"]["name"]
+        assert re.search(rf'^##\s+\d+\.\s+{re.escape(name)}$', tools, re.M), name
+        assert re.search(rf'"fn":\s*"{name}"', tools), name
 
 
 def test_bazi_app_cards_do_not_require_call_assembly():
-    for path in (SKILL_ROOT / "bazi" / "app").glob("*.md"):
+    for path in (SKILL_ROOT / "natal" / "app").glob("*.md"):
         text = path.read_text(encoding="utf-8")
         assert "query(rule=" not in text, path
         assert "必要时 `" not in text, path
-        assert "bazi/TOOLS.md" in text, path
+        assert "natal/TOOLS.md" in text, path

@@ -1,7 +1,7 @@
 """skill 工具端到端契约测试。
 
 覆盖：
-- skill-tools.json 解析 → 6 工具全部注册
+- skill-tools.json 解析 → 5 工具全部注册
 - agent_cli.py 非法输入 → 错误透传（ValueError 非 crash）
 - query(rule, pan) 传 mock pan → 返回 {八字:[], 紫微:[], 合参:[]}
 """
@@ -15,19 +15,22 @@ from unittest import mock
 import _helpers  # noqa: F401 —— 提供完整 daxian mock
 from pan_integrity import with_natal_digest
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_TOOLS = os.path.join(_ROOT, "skills", "liki", "bazi", "tools")
+_TOOLS = os.path.join(_ROOT, "skills", "liki", "natal", "tools")
 _SCHEMA = os.path.join(_TOOLS, "skill-tools.json")
 
 
 class TestSkillToolsRegister(unittest.TestCase):
-    """skill-tools.json 存在且 6 工具全部定义。"""
+    """skill-tools.json 存在且 5 工具全部定义。"""
 
-    def test_schema_parses_and_has_6_tools(self):
+    def test_schema_parses_and_has_5_tools(self):
         with open(_SCHEMA, encoding="utf-8") as f:
             d = json.load(f)
         names = [t["function"]["name"] for t in d["tools"]]
-        self.assertEqual(len(names), 6)
-        expected = {"city_coords", "full_paipan", "query", "yearly_range", "calibrate", "bond"}
+        self.assertEqual(len(names), 5)
+        expected = {
+            "create_birth_chart", "analyze_natal", "analyze_periods",
+            "compare_birth_charts", "calibrate_birth_time",
+        }
         self.assertEqual(set(names), expected)
 
 
@@ -49,12 +52,14 @@ class TestAgentCliErrorPropagation(unittest.TestCase):
     def test_unknown_tool(self):
         out = self._run('{"fn":"nonexistent","args":{}}')
         self.assertFalse(out["ok"])
-        self.assertIn("unknown tool", out["error"])
+        self.assertEqual(out["error"]["code"], "INVALID_INPUT")
+        self.assertIn("unknown tool", out["error"]["message"])
 
     def test_missing_arg(self):
-        out = self._run('{"fn":"query","args":{"rule":"十神"}}')
+        out = self._run('{"fn":"analyze_natal","args":{"chart_ref":{"token":"x"}}}')
         self.assertFalse(out["ok"])
-        self.assertIn("missing arg", out["error"])
+        self.assertEqual(out["error"]["code"], "INVALID_INPUT")
+        self.assertIn("missing arg", out["error"]["message"])
 
 
 class TestQueryWithMockPan(unittest.TestCase):

@@ -5,7 +5,7 @@ from pathlib import Path
 from _helpers import ROOT, SKILL_ROOT
 
 OLD_SKILL_NAMES = {"liki-bazi", "liki-divination", "liki-fengshui", "liki-naming"}
-DOMAINS = ("bazi", "divination", "fengshui", "naming")
+DOMAINS = ("natal", "divination", "fengshui", "naming")
 DIRECT_RPC_SCOPES = {
     "fengshui": ("bazhai", "xuankong", "time"),
     "naming": ("qiming", "bazi.chart", "bazi.fullchart", "city", "tianwen"),
@@ -118,7 +118,7 @@ def test_direct_rpc_domains_have_fixed_contracts():
 
 
 def test_entry_declares_invocation_model_once():
-    for domain in ("bazi", "divination"):
+    for domain in ("natal", "divination"):
         text = (SKILL_ROOT / domain / "ENTRY.md").read_text(encoding="utf-8")
         assert text.count("工具 schema：") == 1, domain
         assert len([line for line in text.splitlines() if line.startswith("- CLI：")]) == 1, domain
@@ -146,9 +146,9 @@ def test_root_defers_discover_closure_to_domain_entries():
 def test_runtime_discover_closures_match_domain_entries(monkeypatch):
     import sys
 
-    bazi_tools = str(SKILL_ROOT / "bazi" / "tools")
+    natal_tools = str(SKILL_ROOT / "natal" / "tools")
     divination_tools = str(SKILL_ROOT / "divination" / "tools")
-    monkeypatch.syspath_prepend(bazi_tools)
+    monkeypatch.syspath_prepend(natal_tools)
     monkeypatch.syspath_prepend(divination_tools)
     import paipan
     import divination_rpc
@@ -169,7 +169,7 @@ def test_runtime_discover_closures_match_domain_entries(monkeypatch):
 
 
 def test_discover_execution_ownership_is_explicit():
-    for domain in ("bazi", "divination"):
+    for domain in ("natal", "divination"):
         text = (SKILL_ROOT / domain / "ENTRY.md").read_text(encoding="utf-8")
         assert "不直接调用 RPC" in text
         assert "CLI 启动时校验 engine 版本和必需 RPC" in text

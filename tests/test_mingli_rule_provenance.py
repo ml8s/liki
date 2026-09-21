@@ -3,7 +3,7 @@ import csv
 import re
 from pathlib import Path
 
-TABLE = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/assertions/assertions.csv"
+TABLE = Path(__file__).resolve().parents[1] / "skills/liki/natal/tools/assertions/assertions.csv"
 CANONICAL_SOURCES = {
     "渊海子平", "三命通会", "滴天髓", "子平真诠", "穷通宝鉴",
     "紫微斗数全书", "女命赋", "黄帝内经", "协纪辨方书", "麻衣相法",

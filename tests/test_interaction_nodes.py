@@ -16,10 +16,10 @@ EXPECTED_NODES = {
         ("2", "💬 参数收集"),
         ("6a", "⛔ 阻塞确认"),
     ],
-    "liki/bazi/app/mingshu.md": [
+    "liki/natal/app/mingshu.md": [
         ("2a", "⛔ 阻塞确认"),
     ],
-    "liki/bazi/app/mingshu-full.md": [
+    "liki/natal/app/mingshu-full.md": [
         ("2a", "⛔ 阻塞确认"),
         ("6a", "⛔ 阻塞确认"),
     ],
@@ -90,8 +90,8 @@ def test_interaction_templates_have_options_and_boundaries():
     expected_options = {
         "liki/naming/app/foreign.md": 2,
         "liki/naming/app/naming.md": 2,
-        "liki/bazi/app/mingshu.md": 2,
-        "liki/bazi/app/mingshu-full.md": 2,
+        "liki/natal/app/mingshu.md": 2,
+        "liki/natal/app/mingshu-full.md": 2,
         "liki/divination/app/question.md": 2,
         "liki/fengshui/app/fengshui.md": 2,
     }

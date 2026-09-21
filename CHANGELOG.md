@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026.09.21.0] — natal application domain
+
+### Breaking
+
+- 应用域目录 `skills/liki/bazi` 更名为 `skills/liki/natal`；`bazi` 继续表示八字侧 / 八字命理体系，`natal` 表示八紫双盘本命应用域。
+- 本命域公共工具面收敛为 `create_birth_chart` / `analyze_natal` / `analyze_periods` / `compare_birth_charts` / `calibrate_birth_time`；旧 `city_coords` / `full_paipan` / `query` / `yearly_range` / `calibrate` / `bond` 不再暴露给 agent。
+- `query` 的 `rule` 与 `domains` 从公共契约退役，改为受控 `topics` + `time_scope`，由 TopicRouter 选择命理规则和断语领域。
+
+### Added
+
+- 新增不可变 `chart_ref` 资源，分析工具不再让 LLM 回传完整 `pan`。
+- 新增 `topic_routes.json`、结构化错误码、响应契约与证据字段。
+- 新增本命 / 限运 / 流年统一分析和定盘 topic 路由测试。
+
 ## [2026.09.19.2] — Alipay AI Pay donation receipt
 
 ### Added

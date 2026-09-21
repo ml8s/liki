@@ -14,7 +14,7 @@ from pathlib import Path
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "liki")
-DOMAINS = ("bazi", "divination", "fengshui", "naming")
+DOMAINS = ("natal", "divination", "fengshui", "naming")
 
 METHOD_WHITELIST = {
     "rpc.discover",
@@ -29,7 +29,7 @@ METHOD_WHITELIST = {
 }
 _METHOD_PREFIXES = tuple(sorted({m.split(".")[0] for m in METHOD_WHITELIST}))
 _SKIP_DOTTED = {"params.properties", "result.methods", "result.info", "result.info.version"}
-_PATH_PATTERN = r"(?:(?:bazi|divination|fengshui|naming)/(?:tools|app|domains)|webapp)/"
+_PATH_PATTERN = r"(?:(?:natal|divination|fengshui|naming)/(?:tools|app|domains)|webapp)/"
 
 
 def load_duanyu_ids() -> set:
@@ -160,7 +160,7 @@ def main() -> int:
 
     readme = os.path.join(_ROOT, "README.md")
     if os.path.exists(readme):
-        assertion_path = os.path.join(SKILL, "bazi", "tools", "assertions", "assertions.csv")
+        assertion_path = os.path.join(SKILL, "natal", "tools", "assertions", "assertions.csv")
         if os.path.exists(assertion_path):
             actual = sum(1 for row in csv.DictReader(open(assertion_path, encoding="utf-8")) if row.get("assertion_id"))
             match = re.search(r"(\d+)\s*条断语", open(readme, encoding="utf-8").read())

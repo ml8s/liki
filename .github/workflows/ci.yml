@@ -232,11 +232,11 @@ jobs:
           $request = '{"fn":"测试","args":{}}'
           $path = Join-Path $env:TEMP 'liki-windows-smoke.json'
           Set-Content -Path $path -Value $request -Encoding utf8NoBOM
-          $output = Get-Content -Path $path -Raw -Encoding UTF8 | py -3 -X utf8 skills\liki\bazi\tools\agent_cli.py
+          $output = Get-Content -Path $path -Raw -Encoding UTF8 | py -3 -X utf8 skills\liki\natal\tools\agent_cli.py
           Write-Host $output
           $response = $output | ConvertFrom-Json
           if ($response.ok) { exit 1 }
-          if ($response.error -ne 'ValueError: unknown tool: 测试') { exit 1 }
+          if ($response.error.code -ne 'INVALID_INPUT') { exit 1 }
 
   # ── 镜像发布（release 触发——gh release create 后才发；master push 只测试不发）──
   docker-publish:

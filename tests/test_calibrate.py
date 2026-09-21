@@ -128,7 +128,7 @@ def test_calibrate_invalid_rule_error_includes_event_context() -> None:
         else:
             raise AssertionError("invalid rule shape was accepted")
 
-    assert "期望字段为 rule" in message
+    assert "无效: [None]" in message
     assert "'domain': '学业'" in message
     assert "'rules': ['yearly_study']" in message
     paipan_mock.assert_not_called()

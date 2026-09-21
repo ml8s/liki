@@ -13,7 +13,7 @@ from factor_tokens import FACTOR_WILDCARD
 from operators_liunian import _LIU_OP_NAMES
 from operators_natal import _OP_NAMES, _op, _ten_god_states_from_pan
 
-TOOLS = Path(__file__).resolve().parents[1] / "skills" / "liki" / "bazi" / "tools"
+TOOLS = Path(__file__).resolve().parents[1] / "skills" / "liki" / "natal" / "tools"
 
 
 def test_ten_god_state_projection_is_readonly() -> None:
@@ -411,7 +411,7 @@ def test_ziwei_palace_closure_matches_engine_labels() -> None:
 def test_factor_basis_is_present_for_domain_review():
     from pathlib import Path
 
-    root = Path(__file__).resolve().parents[1] / "skills/liki/bazi/tools/factors"
+    root = Path(__file__).resolve().parents[1] / "skills/liki/natal/tools/factors"
     for name in ("factors.csv", "factors_liunian.csv"):
         with (root / name).open(encoding="utf-8-sig", newline="") as source:
             rows = list(csv.DictReader(source))

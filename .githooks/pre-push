@@ -1,5 +1,5 @@
 #!/bin/sh
-# gate: 推送前门槛（check + test）
+# gate: 推送前门槛（静态验证 + test + verify）
 # 目标：推上去 CI 是绿的。gate 通过 = 可以推送。
 
 set -e

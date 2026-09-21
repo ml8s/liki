@@ -3,7 +3,7 @@
 # 只需要记住 2 个命令：
 #   make check          # 所有静态检查（格式 + lint + schema + docs）
 #   make test           # 所有测试（pytest + Go 引擎全量）
-#   make gate           # check + test → 通过 = 可以推送
+#   make gate           # CI 静态检查 + test + verify → 通过 = 可以推送
 #
 # 本地 check 自动修复格式；CI 用 `make ci` 只验证不修改。
 
@@ -11,8 +11,8 @@
 
 # ── 工具路径 ──
 VERSION_FILES := skills/liki/VERSION.txt engine/cmd/liki/VERSION
-VERSION_CONTRACTS := skills/liki/bazi/tools/natal_projection_contract.json skills/liki/divination/tools/qimen_projection_contract.json
-VERSION_MANIFESTS := skills/liki/bazi/tools/skill-tools.json skills/liki/divination/tools/skill-tools.json
+VERSION_CONTRACTS := skills/liki/natal/tools/natal_projection_contract.json skills/liki/divination/tools/qimen_projection_contract.json
+VERSION_MANIFESTS := skills/liki/natal/tools/skill-tools.json skills/liki/divination/tools/skill-tools.json
 MDL := $(shell ls $(HOME)/.npm/_npx/*/node_modules/.bin/markdownlint-cli2 2>/dev/null | tail -1)
 
 export PATH := $(HOME)/go/bin:$(HOME)/app/go/bin:$(PATH)
@@ -35,9 +35,9 @@ test: ## 所有测试（pytest + Go 引擎全量 unit + integration + RPC 冒烟
 	python3 -m pytest tests/ -q --ignore=tests/test_integration.py
 	cd engine && scripts/ci-engine.sh
 
-gate: check test ## 推送前门槛（check + test → 通过 = 可以推送）
+gate: ci test verify ## 推送前门槛（静态验证 + test + verify；不修改文件）
 	@echo ""
-	@echo "✓ gate 通过（check + test）"
+	@echo "✓ gate 通过（静态验证 + test + verify）"
 
 ci: lint-md lint-go check-data ## CI 静态检查（不修复格式）
 	@echo ""
@@ -135,7 +135,7 @@ help: ## 列出所有 target
 	@echo "  make verify         端到端（需本地引擎）"
 	@echo ""
 	@echo "\033[1m推送:\033[0m"
-	@echo "  make gate           推送前门槛（check + test）"
+	@echo "  make gate           推送前门槛（静态验证 + test + verify）"
 	@echo ""
 	@echo "\033[1m构建:\033[0m"
 	@echo "  make build          skill archive + engine binary"

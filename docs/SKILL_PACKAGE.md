@@ -12,8 +12,8 @@ skills/liki/
 ├── requirements.txt      # 唯一 Python 依赖清单
 ├── feedback.py           # 唯一 feedback sender
 ├── feedback.schema.json  # feedback-v1 contract
-├── bazi/ENTRY.md         # 八字 + 紫微领域入口
-├── bazi/TOOLS.md         # Python 工具完整 stdin 报文
+├── natal/ENTRY.md         # 八字 + 紫微领域入口
+├── natal/TOOLS.md         # Python 工具完整 stdin 报文
 ├── divination/ENTRY.md   # 六爻 + 奇门 + 黄历领域入口
 ├── divination/TOOLS.md   # Python 工具完整 stdin 报文
 ├── fengshui/ENTRY.md     # 八宅 + 玄空领域入口

@@ -1,6 +1,6 @@
-# 八字领域模型（八紫双盘）
+# Natal 领域模型（八紫双盘）
 
-`skills/liki/bazi` 的领域名 `bazi` 是八紫双盘同参的稳定领域包名：它覆盖八字四柱、紫微斗数，以及两条体系之间的 `common` 合参边界。狭义“八字”只在 `shushi=bazi`、RPC 名称或具体柱盘上下文中表示四柱子系统。
+`skills/liki/natal` 是八紫双盘同参的应用领域包；`natal` 表示本命分析场景，覆盖八字四柱、紫微斗数，以及两条体系之间的 `common` 合参边界。狭义“八字”只在 `shushi=bazi`、RPC 名称或具体柱盘上下文中表示四柱子系统。
 
 本文记录该领域的稳定对象、分层边界和求值契约。因子与断言是本命断语的条件机制，不是领域模型的顶层名字。
 
@@ -8,7 +8,9 @@
 
 | 对象 | 含义 | 边界 |
 |---|---|---|
-| Pan | 一次排盘得到的只读领域上下文，包含八字、紫微或双盘事实 | 只接受 `full_paipan` 的完整返回；拒绝裁剪盘、手工半截盘和旧快照 |
+| BirthChart | 一次排盘得到的不可变资源，包含八字、紫微和双盘事实 | 公共层只暴露 `chart_ref`；token 解码后校验 digest，拒绝裁剪盘、手工半截盘和旧快照 |
+| Pan | BirthChart 解码后的只读领域上下文 | 仅存在于工具层内部，不再作为 LLM 参数 |
+| Topic | 用户人生问题闭集 | 由 `topic_routes.json` 声明；路由到命理规则和断语领域 |
 | Side | 命理侧别：`bazi` / `ziwei` / `common` | 八字与紫微各自求值；跨体系断言只能在双盘合并上下文命中 |
 | AtomicFact | engine 输出的确定性命理事实 | Python 只读取，不复算十神、五行、关系、宫位和亮度规则 |
 | Factor | 可被断言引用的稳定条件因子 | 因子清单由长表唯一定义，OR / AND 分组与引用关系可校验 |
@@ -18,7 +20,9 @@
 ## 2. 模块分层
 
 ```text
-paipan.py           排盘 RPC 适配
+paipan.py           排盘 RPC 适配与城市解析
+chart_token.py      不可变 BirthChart 资源编解码
+analytics.py        公共分析编排与 TopicRouter
 factor_context.py   只读求值上下文
 factor_tables.py    长表加载与 OR/AND 分组
 operators_natal.py  本命机械算子
@@ -32,7 +36,9 @@ duanyu.py           断言门面
 数据流为：
 
 ```text
-pan → factors → snap → assertions
+BirthInput → BirthChart → chart_ref
+chart_ref → Pan → factors → snap → assertions
+Topic + TimeScope → TopicRouter → assertion domain filter
 ```
 
 ## 3. Engine 原子事实
@@ -111,7 +117,7 @@ pan → factors → snap → assertions
 `三刑` 的二维 key 为 `[来源,刑组]`：`来源` 决定参与判定的地支，`刑组` 决定是哪一组刑，两者都必须显式声明；来源不得使用通配符。刑组闭集取自 `constants.json` 的「三刑」（地支 → 同组其余地支），成员按集合比较，因此与本命侧 `关系[liu_xing,组名]` 的组名书写次序（`丑戌未` / `丑未戌`）无关。刑组字符串必须恰好枚举全部成员，不得重复、缺字或使用通配符；不自洽时 fail closed。`三刑` 因子与断语条件逐组对齐。
 
 跨层因子值契约为 `FactorValue`：只接受 `0 / 1` 或领域字符串；空字符串表示字符串型因子当前不可用。不接受 `null`、boolean、数组或对象。断语 `trace.factors` 中的 `expected / actual` 必须使用同一 `FactorValue` 契约。
-`query` 与 `yearly_range` 的公共边界必须校验参与断语的因子都在 snapshot 中；缺失因子 fail closed，不得静默按 `0` 参与匹配。
+`analytics.analyze_natal` 与 `analytics.analyze_periods` 是公共边界；两者最终调用内部断语门面。公共断语边界必须校验参与断语的因子都在 snapshot 中；缺失因子 fail closed，不得静默按 `0` 参与匹配。
 
 `ten_god_states.transparent / hidden` 只描述该具体十神；`rooted / timely` 按其五行判定。`ten_god_states.strength` 的口径是：得令，或该具体十神透干且五行通根为 `strong`；失令且该十神不透、五行无根为 `weak`；其余为 `neutral`。同五行的另一十神透干，不会把本十神错误升级为透干有根。`element_states.season_strength` 只表达月令旺相休囚死；`element_states.strength` 是五行聚合态；`controller_strength` 表达受克目标的克者是否旺相。Python 只读取这些结论，不再维护五行生克、天干五行、得令状态或十神旺弱规则表。
 
@@ -150,17 +156,16 @@ pan → factors → snap → assertions
 
 考时事件的 `rule` 若是场景别名，同样应用 `场景领域过滤`；例如 `yearly_study` 只保留学业断语，避免用婚姻或财运信号校时。
 
-- `duanyu.query` 只接受本命域；`query_yearly` / `yearly_range` 只接受流年域，`yingqi` 必须通过流年查询。
+- 公共工具闭集是 `create_birth_chart`、`analyze_natal`、`analyze_periods`、`compare_birth_charts`、`calibrate_birth_time`；旧 `full_paipan / query / yearly_range / bond / calibrate / city_coords` 不再是 LLM 公共面。
+- `duanyu.query` 降级为内部本命断语门面；`query_yearly` / `yearly_range` 降级为内部流年求值门面，`yingqi` 仍只能走流年求值。
 - `duanyu.query(rule=用神)` 除断语外返回 `fu_yi / tiao_hou / ge_ju / element_states / ten_god_states`；Python 不重算三源、不推导最终喜忌。
-- `query(year=...)` 只允许 `大运 / 大限` 限运域；省略 year 时由服务端当前时间推导。
-- 限运域结果附带 `current_year / current_year_source`；显式传 year 时 source 为 `specified`。
-- `query` / `yearly_range` 支持可选 `domains` 过滤器；有效领域来自所选 rule 展开后的断语表。未知领域 fail closed，过滤结果只含八字/紫微/合参三侧。
-- `八字专属域 / 紫微专属域` 只限制对应 bazi / ziwei 断言表；若该域还有 common 断言，`query` 必须同时生成双盘快照，否则跨术数条件会变成死规则。
-- 场景别名可在 `constants.json` 的 `场景领域过滤` 中声明主领域。未显式传 `domains` 时，纯场景查询应用默认领域过滤。
-- `query` / `yearly_range` 只接受 `full_paipan` 完整返回的 pan，拒绝快照、裁剪盘和手工半截盘。
-- `yearly_range` 单次起止年含端点跨度最多 120 年。
+- `TopicRouter` 从 `topic_routes.json` 读取 `topic → natal_rules / annual_rules / decade_rules / domains`；LLM 只传受控 topic，不选择断语表。
+- `analyze_natal` 输出 `assertion_id / side / method / topic / time_scope / event / conclusion / evidence`；内部中文标签只保留在 `source` 和展示内容中。
+- `analyze_periods` 把流年、流年区间和大运/大限统一为 `time_scope`；年份区间含端点，最多 120 年。
+- 所有分析只接受 `create_birth_chart` 返回的 `chart_ref`；token 解码后还原完整 pan 并校验摘要，拒绝快照、裁剪盘和手工半截盘。
+- 限运结果附带 `current_year / current_year_source`；显式锚点年 source 为 `specified`，当前限运 source 来自 engine。
 
-`full_paipan` 在真太阳时或既定时辰距时辰交界 ≤30 分钟时，返回可选 `calibration_hint`。该提示只表达“接近交界，建议用人生大事校准”，不修改四柱，也不构成吉凶结论。
+`create_birth_chart` 在真太阳时或既定时辰距时辰交界 ≤30 分钟时，返回可选 `calibration_hint`。该提示只表达“接近交界，建议用人生大事校准”，不修改四柱，也不构成吉凶结论。
 
 除无符号的 `minutes_to_boundary` 外，提示同时给出可核验的机械字段：`boundary_offset_minutes`（有符号，负数=早于交界）、`current_shichen` / `alternate_shichen`（当前时辰与跨过最近交界后的时辰，含 `name` / `branch` / `span`）与 `direction`（`later` / `earlier`）。这些字段直接回答“往哪边偏会翻”，调用方不再自行二次推断。时辰名由 `constants.json` 的「地支」与既有交界表推导，不写死命理成员。**换日口径不在本层表达**——提示只标注两小时窗口，`23:00` 前后同属一个窗口，不区分早晚子时。
 
@@ -168,8 +173,8 @@ pan → factors → snap → assertions
 
 因子清单的唯一事实源是长表：
 
-- `skills/liki/bazi/tools/factors/factors.csv`
-- `skills/liki/bazi/tools/factors/factors_liunian.csv`
+- `skills/liki/natal/tools/factors/factors.csv`
+- `skills/liki/natal/tools/factors/factors_liunian.csv`
 
 本文只记录分层、统计与不可变契约，不复制因子行。CSV 是因子清单唯一事实源，文档、测试或快照不得再维护第二份逐因子清单。
 
@@ -203,7 +208,7 @@ pan → factors → snap → assertions
 
 ## 7. 常量与闭集
 
-十神、五行、干支、十二长生、紫微星曜、宫位、神煞、关系表与命理侧闭集均以 `skills/liki/bazi/tools/constants.json` 为唯一事实源。代码只做机械查表、解析与求值，不内置命理结论。
+十神、五行、干支、十二长生、紫微星曜、宫位、神煞、关系表与命理侧闭集均以 `skills/liki/natal/tools/constants.json` 为唯一事实源。代码只做机械查表、解析与求值，不内置命理结论。
 
 | 层 | 内容 | 说明 |
 |---|---|---|
@@ -214,7 +219,7 @@ pan → factors → snap → assertions
 | 关系表 | 天干五合、地支六合、三合、三会、六冲、六害、六破、暗合、三刑、旬空 | 稳定关系闭集 |
 | 算子语义 | 旺弱规则、宫位关系、用忌映射、格局十神、紫微四化与亮度分组等 | operator 只做机械查表；DSL token 在 `factor_tokens.py` |
 | 流年机械 | 事件宫位、干支来源、关系类型、三合半合、旬空起点、流年宫名 | 流年 target 与求值由表驱动 |
-| 流年年界 | 八字干支年、紫微农历年 | `yearly_range.year_basis` 领域语义 |
+| 流年年界 | 八字干支年、紫微农历年 | `analyze_periods.year_basis` 领域语义 |
 | 结构闭集 | 性别、四柱、大限段数 | pan 校验与考时入参复用 |
 | 命理侧 | bazi / ziwei / common 与输出标签 | 快照、断言与考时聚合复用 |
 
@@ -257,8 +262,8 @@ assertion_id,condition_group_id,factor,expected
 |---|---|---|
 | 性别 | `male` / `female` | 排盘上下文，不算因子；断言匹配时并入对应视图 |
 | 当前年份 | 公历年 | 仅本命「大运」域查询当前大运时使用 |
-| 公历出生 | 字符串 | `full_paipan` 出生事实透传 |
-| 农历出生 | 字符串 | `full_paipan` 出生事实透传 |
+| 公历出生 | 字符串 | `create_birth_chart` 出生事实透传 |
+| 农历出生 | 字符串 | `create_birth_chart` 出生事实透传 |
 
 ## 11. 缓存与复用
 
