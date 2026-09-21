@@ -14,7 +14,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 [必读] - bazi: natal/domains/bazi/shishen.md「十神组合」
 [必读] - 合盘工具：`compare_birth_charts(chart_ref_a, chart_ref_b)`（一次调用返回八字+紫微原始对照）
 
-> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["marriage"]`**，只保留 婚姻 域断语，排除跨域噪声。
+> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["marriage"]`，仅保留婚姻域断语。**
 
 ## 流程
 

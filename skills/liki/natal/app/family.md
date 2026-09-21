@@ -18,7 +18,7 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 
 [必读] - ziwei: natal/domains/ziwei/yingqi.md「家庭紫微应期」
 
-> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["family"]`**，只保留 家庭 域断语，排除跨域噪声。
+> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["family"]`，仅保留家庭域断语。**
 
 ## 流程
 

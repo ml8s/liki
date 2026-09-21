@@ -18,7 +18,7 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 [必读] - ziwei: natal/domains/ziwei/yingqi.md「婚姻紫微应期」
 
-> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["marriage"]`**，只保留 婚姻 域断语，排除跨域噪声。
+> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["marriage"]`，仅保留婚姻域断语。**
 
 ## 流程
 

@@ -16,7 +16,7 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 [按需] - ziwei: natal/domains/ziwei/yingqi.md（仅问特定年份状态时读取）
 [必读] - ziwei: natal/domains/ziwei/gexing.md「紫微性格分析方法」
 
-> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["personality"]`**，只保留 性格 域断语，排除跨域噪声。
+> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["personality"]`，仅保留性格域断语。**
 
 ## 流程
 

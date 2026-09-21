@@ -1,6 +1,6 @@
 ---
 name: app-mingshu
-description: 命盘快速扫描 — 用户无明确问题时陈列核心事实与深入入口
+description: 命盘快速扫描 — 用户无明确问题时列出核心事实与深入入口
 依赖域: bazi,ziwei
 ---
 

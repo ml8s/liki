@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026.09.21.2] — Aipay post-paid contract
+
+### Changed
+
+- Aipay 口径统一为「先使用后付费」：服务完成后主动提示履约，未支付仍可继续使用。
+- `Payment-Needed` 统一交给官方 `alipay-payment-skill`；缺少支付能力时引用官方 `alipay/payment-skills` 安装指南。
+- `aipay.py status` 增加 `mode=postpaid`；`save-receipt` 支持后端完整响应中的 `content` 包装。
+
+### Added
+
+- `aipay.py doctor` 报告本地凭证状态和 `alipay-bot` 可用性。
+
 ## [2026.09.21.1] — metadata SEO optimization
 
 ### Changed

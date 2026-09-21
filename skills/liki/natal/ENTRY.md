@@ -31,7 +31,7 @@ Liki 本命域统一处理八字、紫微、合参、大运/大限、流年、�
 | 4 | 问应期、流年或限运 | `analyze_periods` | 时间层断语 |
 | 5 | 双人关系 | 分别建盘后 `compare_birth_charts` | 合盘结果 |
 
-同一会话复用 `chart_ref`；多领域问题先完成主场景，再用次 topic 佐证。信号冲突读取 `natal/domains/bazi/caijue.md` 裁决；有真实事件时用 3-5 段已发生时段验证。
+同一会话复用 `chart_ref`；多领域问题先处理主场景，再用次 topic 佐证。信号冲突读取 `natal/domains/bazi/caijue.md` 裁决；有真实事件时用 3-5 段已发生时段验证。
 
 ## 边界
 

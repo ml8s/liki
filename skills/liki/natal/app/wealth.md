@@ -15,7 +15,7 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 [必读] - ziwei: natal/domains/ziwei/yingqi.md「财运紫微应期」
 
-> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["wealth"]`**，只保留 财运 域断语，排除跨域噪声。
+> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["wealth"]`，仅保留财运域断语。**
 
 ## 流程
 

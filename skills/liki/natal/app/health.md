@@ -18,7 +18,7 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 [必读] - ziwei: natal/domains/ziwei/yingqi.md「健康紫微应期」
 
-> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["health"]`**，只保留 健康 域断语，排除跨域噪声。
+> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["health"]`，仅保留健康域断语。**
 
 ## 流程
 

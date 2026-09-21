@@ -3,7 +3,7 @@ name: liki
 slug: liki
 displayName: "Liki 专业命理 Skill"
 agent_created: true
-version: 6.0.1
+version: 6.1.0
 summary: "专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。"
 license: MIT
 description: "懂命理，用 Liki。专业命理 Skill，支持八字算命、生辰八字、排八字、四柱命盘、紫微斗数、紫微命盘、命盘分析、大运流年、流年运势、明年运势与运势分析；可看婚姻分析、感情走向、八字合婚、事业分析、职业方向、财运分析、投资时机、学业分析、考试运、健康分析、五行体质、怀孕生育时机、六亲子女。支持六爻占卜、算卦问事、摇卦起卦、问事业、问财运、问感情、问学业与应期分析；支持奇门遁甲、奇门问事、策略分析、谈判时机与进退选择；支持黄历择日、老黄历、选日子、挑吉日、结婚吉日、开业吉日、搬家吉日、入宅择日、装修择日与出行择日；支持家居风水、风水布局、房屋风水、办公室风水、店铺选址、八宅风水、命卦、玄空风水、玄空飞星与流年飞星；支持起名、取名、宝宝起名、宝宝取名、新生儿起名、新生儿取名、成人改名、公司起名、品牌命名、名字测试、八字起名。Also supports BaZi, Chinese astrology, Four Pillars of Destiny, Zi Wei Dou Shu, I Ching divination, Chinese almanac, Feng Shui and Chinese baby naming。引擎排盘加规则表断语，依据可回溯；传统文化视角，仅供参考，不构成专业建议。"
@@ -15,11 +15,11 @@ description: "懂命理，用 Liki。专业命理 Skill，支持八字算命、�
 
 ## 全局启动
 
-1. 外部安装副本先执行版本检查：本地读安装根目录的 `VERSION.txt`（仓库开发副本是 `skills/liki/VERSION.txt`），远程执行 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；二者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达时标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
+1. 外部安装副本先检查版本：读取安装根目录的 `VERSION.txt`（仓库开发副本是 `skills/liki/VERSION.txt`），请求 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；两者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达时标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
 2. JSON-RPC 默认端点是 `https://liki.hk/jsonrpc`；`LIKI_RPC_URL` 优先。
 3. natal / divination 只通过各自 `agent_cli.py` 调用 Python 工具层；CLI 启动时校验引擎版本和内部必需 RPC，agent 不直接 POST RPC。
 4. naming / fengshui 无 Python 工具层；agent 只复制领域 `RPC.md` 中的固定 discover scope 和完整 JSON-RPC 报文。
-5. 直接 discover 返回的 `methods[]` 必须覆盖领域契约要求的完整方法集；按点号整数逐段比较版本，`info.version` 低于本地 `VERSION.txt` 时 fail closed。
+5. discover 直接返回的 `methods[]` 必须覆盖领域契约要求的完整方法集；按点号整数逐段比较版本，`info.version` 低于本地 `VERSION.txt` 时 fail closed。
 6. 工具失败、依赖缺失、版本 / digest / schema 校验失败时读 `FAQ.md`；不得绕过校验或自行降级。
 
 ## 领域路由
@@ -33,7 +33,7 @@ description: "懂命理，用 Liki。专业命理 Skill，支持八字算命、�
 
 意图不清时，先用一个问题确认主目标。例如：「你想看的是八字命盘分析，还是给某个具体事情算卦？」——不要凭猜测直接进某个领域。
 
-多域需求先完成主领域；其他领域只作为显式佐证，并标注证据来源。
+多域需求先处理主领域；其他领域仅作显式佐证，并标注证据来源。
 
 ## 统一硬边界
 
@@ -41,17 +41,18 @@ description: "懂命理，用 Liki。专业命理 Skill，支持八字算命、�
 - 带 digest 的引擎产物原样传递；二次使用前通过工具校验 digest。
 - 输入不足时列出缺失参数并询问；补齐前保持 fail closed。
 - 时间接近时辰交界时先提示校准；结果标注为条件性时辰。
-- 医疗、法律、金融、安全等现实话题也执行完整流程；结果必须附传统文化视角边界，并提示咨询医生、律师、财务顾问或相关专业人员。
+- 医疗、法律、金融、安全等现实话题仍按完整流程处理；结果附传统文化视角说明，并建议咨询相应专业人员。
 - 出生信息和提问内容仅保留在当前会话；只询问当前流程所需参数。
 
 ## Aipay
 
-Liki 先使用后付费, 任务完成发起收费。不付费不影响任何功能。
+Liki 先使用，后付费；服务完成后发起 Aipay，未支付仍可使用。
 
-1. 会话开始时执行 `python3 aipay.py status`；`paid=true` 则跳过以下所有步骤。
-2. 服务交付后，如果用户满意或主动询问支持方式，POST `https://liki.hk/api/aipay`。收到 402 时按 Payment-Needed 流程完成付款。
-3. 付款完成后拿到 receipt JSON，通过 stdin 传给 `python3 aipay.py save-receipt`。
-4. 用户不感兴趣就说「功能继续免费」，本次会话不再提及。
+1. 启动时执行 `python3 aipay.py status`；`paid=true` 时直接提供服务。
+2. `paid=false` 时先说明后付费规则，交付结果后 POST `https://liki.hk/api/aipay`。
+3. 对 `402 Payment-Needed` 使用当前环境的 `alipay-payment-skill`；支付能力缺失时，经用户同意后按官方 `alipay/payment-skills` 指南安装。
+4. 支付完成后，将后端响应通过 stdin 传给 `python3 aipay.py save-receipt`。
+5. 用户暂缓支付时回复确认，并在用户再次发起时继续。
 
 ## 输出契约
 

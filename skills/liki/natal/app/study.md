@@ -14,7 +14,7 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 [必读] - ziwei: `natal/domains/ziwei/yingqi.md`「学业应期」+ `natal/domains/ziwei/liunian.md`「流年宫位」
 
-> **本卡所有 analyze_natal / analyze_periods 调用必须传 `topics=["study"]`**，只保留 学业 域断语，排除跨域噪声。
+> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["study"]`，仅保留学业域断语。**
 
 ## 流程
 

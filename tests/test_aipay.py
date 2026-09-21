@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import pathlib
+from unittest import mock
 import tempfile
 import unittest
 
@@ -52,6 +53,9 @@ class AipayReceiptValidationTests(unittest.TestCase):
 
 
 class AipayStatusTests(unittest.TestCase):
+    def test_status_contract_is_postpaid(self):
+        self.assertEqual(aipay.MODE, "postpaid")
+
     def test_status_returns_not_found_when_no_credential(self):
         with tempfile.TemporaryDirectory() as directory:
             path = pathlib.Path(directory) / "aipay.json"
@@ -71,6 +75,27 @@ class AipayStatusTests(unittest.TestCase):
 
 
 class AipaySaveReceiptTests(unittest.TestCase):
+    def test_save_receipt_accepts_full_response_content(self):
+        envelope = {
+            "resource_id": "/api/aipay",
+            "content": valid_receipt(),
+            "credential_path": "~/.liki/aipay.json",
+            "fulfillment_confirmed": True,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "aipay.json"
+            result = aipay.save_receipt(json.dumps(envelope), path)
+            self.assertEqual(result["receipt"], valid_receipt())
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), valid_receipt())
+
+    def test_save_receipt_rejects_invalid_envelope_content(self):
+        envelope = {"resource_id": "/api/aipay", "content": {"kind": "token"}}
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "aipay.json"
+            with self.assertRaises(aipay.AipayError):
+                aipay.save_receipt(json.dumps(envelope), path)
+            self.assertFalse(path.exists())
+
     def test_save_receipt_writes_atomically_with_mode_600(self):
         with tempfile.TemporaryDirectory() as directory:
             path = pathlib.Path(directory) / "aipay.json"
@@ -108,6 +133,26 @@ class AipaySaveReceiptTests(unittest.TestCase):
             with self.assertRaises(aipay.AipayError):
                 aipay.save_receipt("", path)
             self.assertFalse(path.exists())
+
+
+class AipayDoctorTests(unittest.TestCase):
+    def test_doctor_reports_postpaid_state_and_alipay_bot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "aipay.json"
+            with mock.patch.object(aipay.shutil, "which", return_value="/usr/local/bin/alipay-bot"):
+                result = aipay.doctor(path)
+            self.assertTrue(result["ok"])
+            self.assertEqual(result["mode"], "postpaid")
+            self.assertFalse(result["paid"])
+            self.assertEqual(result["reason"], "not_found")
+            self.assertTrue(result["runtime"]["alipay_bot"])
+
+    def test_doctor_reports_missing_alipay_bot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "aipay.json"
+            with mock.patch.object(aipay.shutil, "which", return_value=None):
+                result = aipay.doctor(path)
+            self.assertFalse(result["runtime"]["alipay_bot"])
 
 
 if __name__ == "__main__":

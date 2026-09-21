@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Aipay credential helper for the Liki skill.
+"""Aipay post-paid contract helper for the Liki skill.
 
-Thin layer: the LLM handles all HTTP communication with the aipay
-endpoint (A2M 402 protocol). This tool only does what the LLM cannot
-do safely: validate receipt structure and atomically persist credentials.
+Thin layer: the LLM handles HTTP communication and routes Payment-Needed
+to the official Alipay payment skill. This tool validates the returned
+receipt and persists it atomically as the local fulfillment record.
 """
 
 from __future__ import annotations
@@ -12,9 +12,11 @@ import argparse
 import json
 import os
 import pathlib
+import shutil
 import sys
 
 SCHEMA_VERSION = "liki-aipay-v1"
+MODE = "postpaid"
 DEFAULT_CREDENTIAL = pathlib.Path("~/.liki/aipay.json").expanduser()
 MAX_RECEIPT_BYTES = 64 * 1024
 
@@ -51,6 +53,13 @@ def read_receipt(path: pathlib.Path) -> tuple[bool, dict | None, str]:
         return False, None, type(exc).__name__
 
 
+def extract_receipt(value) -> dict:
+    """Return the receipt from either a bare receipt or a fulfillment response."""
+    if isinstance(value, dict) and "content" in value:
+        value = value["content"]
+    return validate_receipt(value)
+
+
 def save_receipt(raw: str, credential_path: pathlib.Path) -> dict:
     if not raw or not raw.strip():
         raise AipayError("receipt JSON is required")
@@ -60,7 +69,7 @@ def save_receipt(raw: str, credential_path: pathlib.Path) -> dict:
         body = json.loads(raw)
     except json.JSONDecodeError as exc:
         raise AipayError(f"receipt is not valid JSON: {exc}") from exc
-    receipt = validate_receipt(body)
+    receipt = extract_receipt(body)
     credential_path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = credential_path.with_name(credential_path.name + ".tmp")
     temp_path.write_text(
@@ -79,21 +88,42 @@ def save_receipt(raw: str, credential_path: pathlib.Path) -> dict:
     }
 
 
+def doctor(credential_path: pathlib.Path) -> dict:
+    paid, receipt, reason = read_receipt(credential_path)
+    return {
+        "ok": True,
+        "mode": MODE,
+        "paid": paid,
+        "reason": reason,
+        "receipt": receipt,
+        "runtime": {"alipay_bot": shutil.which("alipay-bot") is not None},
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("status", help="check whether a valid receipt exists")
-    save_parser = commands.add_parser("save-receipt", help="validate and persist a aipay receipt from stdin")
-    save_parser.add_argument("--path", default=None, help="override credential path (for testing)")
+    credential_parser = argparse.ArgumentParser(add_help=False)
+    credential_parser.add_argument("--path", default=None, help="override credential path (for testing)")
+    commands.add_parser("status", parents=[credential_parser], help="check whether a valid receipt exists")
+    save_parser = commands.add_parser(
+        "save-receipt",
+        parents=[credential_parser],
+        help="validate and persist a aipay receipt from stdin",
+    )
+    commands.add_parser("doctor", parents=[credential_parser], help="report receipt state and local payment runtime")
     args = parser.parse_args(argv)
     credential = pathlib.Path(args.path).expanduser() if args.path else DEFAULT_CREDENTIAL
     try:
         if args.command == "status":
             paid, receipt, reason = read_receipt(credential)
-            result = {"ok": True, "paid": paid, "reason": reason}
+            result = {"ok": True, "mode": MODE, "paid": paid, "reason": reason}
             if paid:
                 result["receipt"] = receipt
             print(json.dumps(result, ensure_ascii=True, separators=(",", ":")))
+            return 0
+        if args.command == "doctor":
+            print(json.dumps(doctor(credential), ensure_ascii=True, separators=(",", ":")))
             return 0
         if args.command == "save-receipt":
             raw = sys.stdin.read()
