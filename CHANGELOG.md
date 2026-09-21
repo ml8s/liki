@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026.09.21.1] — metadata SEO optimization
+
+### Changed
+
+- Skill description 从 1007 字符收敛到 554 字符，删除低频长尾词堆叠。
+- `summary` 与 `description` 将“起名 / 取名”改为分隔的独立关键词，并保留宝宝起名、宝宝取名、改名、公司起名等高意图词。
+- SEO 测试从锁定 99 个长尾词改为锁定 P0 高频词、精选长尾、英文词上限和描述长度上限。
+
 ## [2026.09.21.0] — natal application domain
 
 ### Breaking
