@@ -119,14 +119,14 @@ pan → factors → snap → assertions
 
 | 口径 | 数量 | 事实源 |
 |---|---:|---|
-| 本命因子 | 505 | `factors.csv` |
-| 本命八字因子 | 214 | `factors.csv` |
+| 本命因子 | 510 | `factors.csv` |
+| 本命八字因子 | 219 | `factors.csv` |
 | 本命紫微因子 | 291 | `factors.csv` |
-| 本命定义组 | 560 | `factors.csv` |
-| 本命数据行 | 668 | `factors.csv` |
+| 本命定义组 | 565 | `factors.csv` |
+| 本命数据行 | 678 | `factors.csv` |
 | 本命直通原子 | 50 | `factors.csv` |
 | 本命提取原子 | 322 | `factors.csv` |
-| 本命复合因子 | 133 | `factors.csv` |
+| 本命复合因子 | 138 | `factors.csv` |
 | 流年因子 | 111 | `factors_liunian.csv` |
 | 流年八字因子 | 79 | `factors_liunian.csv` |
 | 流年紫微因子 | 32 | `factors_liunian.csv` |
