@@ -45,7 +45,7 @@ class TestIntegration_FullChain(unittest.TestCase):
             self.fail(f"full_paipan 失败: {pan.get('error')}")
         self.assertIsInstance(pan["data"]["ziwei_daxian"], list)
 
-        q = call("query", {"rule": "十神", "pan": pan["data"]})
+        q = call("query", {"rule": "十神", "pan": pan["data"], "domains": ["性格"]})
         self.assertTrue(q["ok"], q.get("error"))
         self.assertIn("八字", q["data"])
 
