@@ -49,14 +49,14 @@ class TestIntegration_FullChain(unittest.TestCase):
         self.assertTrue(q["ok"], q.get("error"))
         self.assertIn("八字", q["data"])
 
-        dx = call("query", {"rule": "大限", "pan": pan["data"], "year": 2000})
+        dx = call("query", {"rule": "大限", "pan": pan["data"], "year": 2000, "domains": ["大限"]})
         self.assertTrue(dx["ok"], dx.get("error"))
         self.assertIn("合参", dx["data"])
         self.assertEqual(dx["data"]["current_year"], 2000)
         self.assertEqual(dx["data"]["current_year_source"], "specified")
         self.assertTrue(any(row["id"].startswith("dx_") for row in dx["data"]["紫微"]))
 
-        yr = call("yearly_range", {"pan": pan["data"], "start": 2006, "end": 2006,
+        yr = call("yearly_range", {"pan": pan["data"], "domains": ["婚姻"], "start": 2006, "end": 2006,
                                    "rules": ["yearly_marriage", "yingqi"]})
         self.assertTrue(yr["ok"], yr.get("error"))
         self.assertIn("current_year", yr["data"])
