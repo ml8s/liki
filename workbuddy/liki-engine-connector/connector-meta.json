@@ -1,0 +1,14 @@
+{
+  "name": "Liki 排盘引擎",
+  "name_zh": "Liki 排盘引擎",
+  "name_en": "Liki Engine",
+  "description": "确定性排盘计算：八字、紫微、奇门、风水与起名工具。",
+  "description_zh": "提供确定性排盘计算：八字、紫微、六爻、奇门、黄历、八宅玄空风水与起名的引擎工具。",
+  "description_en": "Deterministic chart computation: BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, Huang Li, Feng Shui and naming tools.",
+  "source": "liki-engine",
+  "type": "mcp",
+  "version": "1.0.0",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": ["排个八字命盘", "起名取字", "玄空飞星排盘"],
+  "examples_en": ["Cast a BaZi chart", "Pick naming characters", "Compute Xuan Kong flying stars"]
+}

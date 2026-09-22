@@ -16,9 +16,18 @@
 
 ## 安装
 
-```bash
-npx skills add ml8s/liki
-```
+Liki 通过标准 MCP 提供能力，先配置 MCP 再安装 skill：
+
+1. **配置 MCP**（二选一）：
+   - **自动**：客户端支持插件 MCP 声明时，skill 自带 `.mcp.json`，启用即自动连接。
+   - **手动**：在客户端添加两个 MCP server：
+     - `liki-analysis`（判断层）：`https://liki.hk/analysis/mcp`
+     - `liki-engine`（排盘/起名/风水）：`https://liki.hk/mcp`
+2. **安装 skill**：
+
+   ```bash
+   npx skills add ml8s/liki
+   ```
 
 安装后，在支持 Agent Skills 的 AI 客户端中直接提问即可。Skill 启动时会检查版本；提示更新后重新执行：
 
