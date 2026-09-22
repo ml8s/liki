@@ -1,0 +1,195 @@
+"""liki-analysis MCP server.
+
+Reuses the existing skill Python tool layer (skills/liki/{natal,divination}/tools
+agent_cli.py) via subprocess, exposing the same 10 tools over a stateless
+Streamable HTTP MCP endpoint. The engine (bazi/ziwei/liuyao/qimen/huangli
+computation) is called by the tool layer internally; WorkBuddy clients only see
+this server.
+
+Run:
+    .venv/bin/python -m uvicorn liki_analysis.server:app --port 8090
+"""
+from __future__ import annotations
+
+import json
+import pathlib
+import subprocess
+from typing import Literal, Optional
+
+from mcp.server import MCPServer
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
+from mcp.server.streamable_http_manager import StreamableHTTPASGIApp
+from mcp.types import Tool
+from pydantic import BaseModel, Field, create_model
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+NATAL_CLI = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "agent_cli.py"
+DIVINATION_CLI = pathlib.Path(__file__).resolve().parent / "divination" / "tools" / "agent_cli.py"
+VENV_PYTHON = pathlib.Path(__file__).resolve().parents[1] / ".venv" / "bin" / "python"
+
+ANALYSIS_DIR = pathlib.Path(__file__).resolve().parent
+NATAL_TOOLS = ANALYSIS_DIR / "natal" / "tools"
+DIVINATION_TOOLS = ANALYSIS_DIR / "divination" / "tools"
+
+# 每个工具的 {fn 名: (CLI 路径, 参数 schema 文件)}
+TOOL_DEFS: dict[str, tuple[pathlib.Path, str, str]] = {}
+
+_natal_schema = json.loads(
+    (NATAL_TOOLS / "skill-tools.json").read_text("utf-8")
+)
+_div_schema = json.loads(
+    (DIVINATION_TOOLS / "skill-tools.json").read_text("utf-8")
+)
+for _schema, _cli, _kind in (
+    (_natal_schema, NATAL_CLI, "natal"),
+    (_div_schema, DIVINATION_CLI, "divination"),
+):
+    for _t in _schema["tools"]:
+        _fn = _t["function"]
+        TOOL_DEFS[_fn["name"]] = (_cli, _kind, _fn["name"])
+
+
+def _build_model(name: str, schema: dict) -> type[BaseModel]:
+    """从 skill-tools.json 的参数 schema 生成 pydantic 参数模型（顶层字段）。"""
+    fields: dict[str, tuple] = {}
+    required = set(schema.get("required", []))
+    for pname, ps in schema.get("properties", {}).items():
+        ptype = ps.get("type")
+        desc = ps.get("description", "")
+        if "enum" in ps and ptype == "string":
+            field_type: type = Literal[tuple(ps["enum"])]  # type: ignore[valid-type]
+        elif ptype == "string":
+            field_type = str
+        elif ptype == "integer":
+            field_type = int
+        elif ptype == "number":
+            field_type = float
+        elif ptype == "boolean":
+            field_type = bool
+        elif ptype == "array":
+            field_type = list
+        else:
+            field_type = dict
+        if pname in required:
+            fields[pname] = (field_type, Field(description=desc))
+        else:
+            fields[pname] = (Optional[field_type], Field(default=None, description=desc))
+    return create_model(name, __base__=BaseModel, **fields)
+
+
+def _signature_params(schema: dict) -> tuple[str, str]:
+    """从参数 schema 生成 handler 签名与 args 组装代码。
+
+    returns (signature, body) 用于 exec 动态构建工具 handler。
+    """
+    required = set(schema.get("required", []))
+    params: list[str] = []
+    body_items: list[str] = []
+    for pname, ps in schema.get("properties", {}).items():
+        ptype = ps.get("type")
+        if "enum" in ps and ptype == "string":
+            enum_items = ", ".join(repr(e) for e in ps["enum"])
+            type_expr = f"Literal[{enum_items}]"
+        elif ptype == "string":
+            type_expr = "str"
+        elif ptype == "integer":
+            type_expr = "int"
+        elif ptype == "number":
+            type_expr = "float"
+        elif ptype == "boolean":
+            type_expr = "bool"
+        elif ptype == "array":
+            type_expr = "list"
+        else:
+            type_expr = "dict"
+        if pname in required:
+            params.append(f"{pname}: {type_expr}")
+        else:
+            params.append(f"{pname}: Optional[{type_expr}] = None")
+        body_items.append(f"'{pname}': {pname}")
+    sig = ", ".join(params)
+    body = ", ".join(body_items)
+    return sig, body
+
+
+def _run_cli(cli: pathlib.Path, fn: str, args: dict) -> dict:
+    """以 subprocess 调 agent_cli.py（stateless：每次独立进程，天然无状态）。"""
+    payload = json.dumps({"fn": fn, "args": args}, ensure_ascii=False).encode("utf-8")
+    proc = subprocess.run(
+        [str(VENV_PYTHON), str(cli)],
+        input=payload,
+        capture_output=True,
+        timeout=60,
+        cwd=str(cli.parent),
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(f"tool {fn} crashed: {proc.stderr.decode('utf-8', 'replace')[:500]}")
+    try:
+        return json.loads(proc.stdout.decode("utf-8"))
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"tool {fn} bad output: {e}") from e
+
+
+def create_server() -> MCPServer:
+    server = MCPServer(
+        name="liki-analysis",
+        title="Liki Analysis",
+        description="命理判断层：因子/断语/应期/考时，复用 Liki 规则引擎。",
+        version="0.1.0",
+    )
+    for name, (cli, kind, fn) in TOOL_DEFS.items():
+        schema_file = (
+            NATAL_TOOLS / "skill-tools.json"
+            if kind == "natal"
+            else DIVINATION_TOOLS / "skill-tools.json"
+        )
+        params_schema = json.loads(schema_file.read_text("utf-8"))
+        tool_schema = next(
+            t["function"]["parameters"]
+            for t in params_schema["tools"]
+            if t["function"]["name"] == fn
+        )
+        desc = next(
+            t["function"]["description"]
+            for t in params_schema["tools"]
+            if t["function"]["name"] == fn
+        )
+        sig, body = _signature_params(tool_schema)
+        ns: dict = {
+            "_run_cli": _run_cli,
+            "_cli": cli,
+            "_fn": fn,
+            "json": json,
+            "Optional": Optional,
+            "Literal": Literal,
+        }
+        code = (
+            f"async def _handler({sig}) -> str:\n"
+            f"    args = {{{body}}}\n"
+            "    filtered = {k: v for k, v in args.items() if v is not None}\n"
+            "    result = _run_cli(_cli, _fn, filtered)\n"
+            "    if not result.get('ok'):\n"
+            "        err = result.get('error', {})\n"
+            "        raise ValueError(json.dumps(err, ensure_ascii=False))\n"
+            "    return json.dumps(result.get('data'), ensure_ascii=False)\n"
+        )
+        exec(code, ns)  # noqa: S102
+        server.add_tool(ns["_handler"], name=name, description=desc)
+    return server
+
+
+def _make_app():
+    server = create_server()
+    return server.streamable_http_app(
+        streamable_http_path="/mcp",
+        json_response=True,
+        stateless_http=True,
+    )
+
+
+app = _make_app()
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="127.0.0.1", port=8090)

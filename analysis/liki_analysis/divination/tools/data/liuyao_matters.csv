@@ -1,0 +1,15 @@
+matter,name,yong_shen,requires_perspective,male_yong_shen,female_yong_shen,notes
+general,一般问事,世爻,false,,,问题不具体时只作当前状态参考；应先澄清具体目标。
+self,自身状态,世爻,false,,,问自己当前处境、状态或承受能力。
+other,对方或环境,应爻,false,,,问对方、外部环境或合作对象的状态。
+career,事业官运,官鬼,false,,,工作、职务、面试、升迁、事业推进。
+wealth,求财生意,妻财,false,,,收入、交易、投资结果、经营现金流。
+relationship,感情婚姻,,true,妻财,官鬼,必须先确认提问视角；不可把性别视为唯一口径。
+study,学业文书,父母,false,,,考试、录取、证书、合同、文书。
+home,房产住宅,父母,false,,,住宅、搬迁、房产买卖或产权手续。
+travel,出行,父母,false,,,行程成行、途中状态、文书或外部环境；行人归期可结合应爻。
+family,家庭亲属,世爻,false,,,须明确具体亲属关系；不可用性别替代代占关系。
+competition,竞争朋友,兄弟,false,,,朋友、同辈、竞争、合伙分利。
+children,子女晚辈,子孙,false,,,子女、晚辈、宠物、方案或解忧事项。
+lost_item,失物,妻财,false,,,具体失物以妻财为初取，仍须按物品和语境核对。
+legal,争议纠纷,官鬼,false,,,传统文化视角；不得替代法律意见。

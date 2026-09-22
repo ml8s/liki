@@ -1,0 +1,510 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "liki:liuyao-snapshot-v7",
+  "title": "六爻 immutable snapshot 契约",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "question",
+    "casting",
+    "board",
+    "focus",
+    "evidence",
+    "facts",
+    "timing_candidates",
+    "policy",
+    "method",
+    "snapshot_digest",
+    "matter",
+    "topic",
+    "topic_guidance",
+    "timing_plan",
+    "condition_rules",
+    "safety_advisory"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "liuyao-snapshot-v7"
+    },
+    "question": {
+      "type": "object",
+      "required": [
+        "text",
+        "matter",
+        "explicit_yong_shen",
+        "perspective",
+        "solar_time"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 2
+        },
+        "matter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "explicit_yong_shen": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "perspective": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "solar_time": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "casting": {
+      "type": "object",
+      "required": [
+        "mode",
+        "order",
+        "casting_id",
+        "yaos",
+        "dong_yao"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "coins",
+            "yaos"
+          ]
+        },
+        "rounds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "position": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              },
+              "coins": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "正",
+                    "反"
+                  ]
+                }
+              },
+              "value": {
+                "type": "integer",
+                "minimum": 6,
+                "maximum": 9
+              },
+              "label": {
+                "type": "string",
+                "enum": [
+                  "老阴",
+                  "少阳",
+                  "少阴",
+                  "老阳"
+                ]
+              },
+              "changing": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "position",
+              "coins",
+              "value",
+              "label",
+              "changing"
+            ]
+          }
+        },
+        "yaos": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 9
+          }
+        },
+        "dong_yao": {
+          "type": "array"
+        },
+        "casting_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "canonical deterministic casting identity"
+        },
+        "order": {
+          "type": "string",
+          "const": "bottom_up"
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "coins"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "rounds"
+            ],
+            "properties": {
+              "rounds": {
+                "minItems": 6,
+                "maxItems": 6
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "yaos"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "rounds": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "board": {
+      "type": "object",
+      "required": [
+        "name",
+        "ben_gua",
+        "palace",
+        "lines",
+        "bian_lines",
+        "ri_gan",
+        "ri_zhi",
+        "yue_gan",
+        "yue_zhi",
+        "xun_kong"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "ben_gua": {
+          "type": "string"
+        },
+        "bian_gua": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "palace": {
+          "type": "string"
+        },
+        "palace_wuxing": {
+          "type": "string"
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "bian_lines": {
+          "type": "array",
+          "maxItems": 6
+        },
+        "ri_gan": {
+          "type": "string"
+        },
+        "ri_zhi": {
+          "type": "string"
+        },
+        "yue_gan": {
+          "type": "string"
+        },
+        "yue_zhi": {
+          "type": "string"
+        },
+        "xun_kong": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "focus": {
+      "type": "object",
+      "required": [
+        "yong_shen"
+      ],
+      "properties": {
+        "yong_shen": {
+          "type": "object"
+        },
+        "yong_line": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "world": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "other": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "primary",
+        "secondary",
+        "reference",
+        "conflicts",
+        "ignored_scope"
+      ],
+      "properties": {
+        "primary": {
+          "type": "array"
+        },
+        "secondary": {
+          "type": "array"
+        },
+        "reference": {
+          "type": "array"
+        },
+        "conflicts": {
+          "type": "array"
+        },
+        "ignored_scope": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "facts": {
+      "type": "object",
+      "required": [
+        "hidden_lines",
+        "branch_relation_facts",
+        "day_clash_facts",
+        "moving_transformations",
+        "san_he_candidates",
+        "force_chain",
+        "yong_shen_candidates"
+      ]
+    },
+    "timing_candidates": {
+      "type": "array"
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "may_output",
+        "must_cover_conflicts",
+        "forbidden",
+        "immutable",
+        "no_recast_without_new_event"
+      ],
+      "properties": {
+        "may_output": {
+          "type": "array"
+        },
+        "must_cover_conflicts": {
+          "type": "boolean"
+        },
+        "forbidden": {
+          "type": "array"
+        },
+        "immutable": {
+          "const": true
+        },
+        "no_recast_without_new_event": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "method": {
+      "const": "liuyao"
+    },
+    "snapshot_digest": {
+      "type": "string",
+      "minLength": 16
+    },
+    "matter": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "topic": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "topic_guidance": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "timing_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "liuyao-timing-plan-v2"
+        },
+        "blocked": {
+          "const": false
+        },
+        "topic": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "boundary": {
+          "const": "传统六爻应期候选；不构成医疗、法律、财务或其他专业建议。"
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "may_output": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "forbidden": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "advice_scope": {
+              "const": "traditional_reference_not_professional_advice"
+            }
+          },
+          "required": [
+            "may_output",
+            "forbidden",
+            "advice_scope"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "blocked",
+        "topic",
+        "candidates",
+        "boundary",
+        "policy"
+      ]
+    },
+    "condition_rules": {
+      "type": "object"
+    },
+    "safety_advisory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "blocking",
+        "category",
+        "severity",
+        "support_first",
+        "message",
+        "guidance"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "allow",
+            "advisory"
+          ]
+        },
+        "blocking": {
+          "const": false
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "none",
+            "normal",
+            "high"
+          ]
+        },
+        "support_first": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "guidance": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

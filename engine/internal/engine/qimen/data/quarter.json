@@ -1,0 +1,154 @@
+{
+  "hour_boundary": "late_zi_rolls_day_pillar",
+  "yang_branches": [
+    "子",
+    "丑",
+    "寅",
+    "卯",
+    "辰",
+    "巳"
+  ],
+  "yin_branches": [
+    "午",
+    "未",
+    "申",
+    "酉",
+    "戌",
+    "亥"
+  ],
+  "methods": [
+    {
+      "rule": "ten_minute_sanyuan",
+      "quarter_minutes": 10,
+      "quarters_per_shichen": 12,
+      "lead_pillar_mode": "quarter",
+      "yong_ju_jieqi": "刻家三元定局",
+      "pillar_rule": {
+        "source": "hour_stem_five_rat_escape",
+        "starts": [
+          {
+            "hour_gan": "甲",
+            "start": "甲子"
+          },
+          {
+            "hour_gan": "乙",
+            "start": "丙子"
+          },
+          {
+            "hour_gan": "丙",
+            "start": "戊子"
+          },
+          {
+            "hour_gan": "丁",
+            "start": "庚子"
+          },
+          {
+            "hour_gan": "戊",
+            "start": "壬子"
+          },
+          {
+            "hour_gan": "己",
+            "start": "甲子"
+          },
+          {
+            "hour_gan": "庚",
+            "start": "丙子"
+          },
+          {
+            "hour_gan": "辛",
+            "start": "戊子"
+          },
+          {
+            "hour_gan": "壬",
+            "start": "庚子"
+          },
+          {
+            "hour_gan": "癸",
+            "start": "壬子"
+          }
+        ]
+      },
+      "dingju_rule": {
+        "yin_yang_source": "hour_branch",
+        "yuan_source": "hour_five_unit_fu_tou",
+        "fu_tou_units": 5,
+        "groups": [
+          {
+            "branches": [
+              "子",
+              "午",
+              "卯",
+              "酉"
+            ],
+            "yuan": "上元",
+            "yang_ju": 1,
+            "yin_ju": 9
+          },
+          {
+            "branches": [
+              "寅",
+              "申",
+              "巳",
+              "亥"
+            ],
+            "yuan": "中元",
+            "yang_ju": 7,
+            "yin_ju": 3
+          },
+          {
+            "branches": [
+              "辰",
+              "戌",
+              "丑",
+              "未"
+            ],
+            "yuan": "下元",
+            "yang_ju": 4,
+            "yin_ju": 6
+          }
+        ]
+      }
+    },
+    {
+      "rule": "twelve_minute_ten_division",
+      "quarter_minutes": 12,
+      "quarters_per_shichen": 10,
+      "lead_pillar_mode": "hour",
+      "ju_shift": {
+        "cycle": 9,
+        "yang_step": 1,
+        "yin_step": -1
+      },
+      "yong_ju_jieqi": "base_hour",
+      "base_scope": "hour",
+      "base_school": "zhuanpan",
+      "dun_sources": [
+        {
+          "source": "hour_branch",
+          "default": true
+        },
+        {
+          "source": "solar_term",
+          "default": false
+        }
+      ],
+      "hour_boundaries": [
+        {
+          "boundary": "late_zi",
+          "hour_start_shift": 1,
+          "default": true
+        },
+        {
+          "boundary": "zi_zheng",
+          "hour_start_shift": 0,
+          "default": false
+        }
+      ],
+      "base_dingju_methods": [
+        "chaibu",
+        "zhirun",
+        "maoshan"
+      ]
+    }
+  ]
+}

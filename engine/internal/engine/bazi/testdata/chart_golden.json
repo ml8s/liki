@@ -1,0 +1,98 @@
+{
+  "nian": {
+    "gan": "甲",
+    "zhi": "子"
+  },
+  "yue": {
+    "gan": "丙",
+    "zhi": "寅"
+  },
+  "ri": {
+    "gan": "己",
+    "zhi": "卯"
+  },
+  "shi": {
+    "gan": "戊",
+    "zhi": "辰"
+  },
+  "da_yun": {
+    "start_age": 7,
+    "direction": "顺排",
+    "steps": [
+      {
+        "gan": "丁",
+        "zhi": "卯",
+        "age_start": 7,
+        "age_end": 16,
+        "name": "丁卯",
+        "element": "火",
+        "shi_shen": "偏印运"
+      },
+      {
+        "gan": "戊",
+        "zhi": "辰",
+        "age_start": 17,
+        "age_end": 26,
+        "name": "戊辰",
+        "element": "土",
+        "shi_shen": "劫财运"
+      },
+      {
+        "gan": "己",
+        "zhi": "巳",
+        "age_start": 27,
+        "age_end": 36,
+        "name": "己巳",
+        "element": "土",
+        "shi_shen": "比肩运"
+      },
+      {
+        "gan": "庚",
+        "zhi": "午",
+        "age_start": 37,
+        "age_end": 46,
+        "name": "庚午",
+        "element": "金",
+        "shi_shen": "伤官运"
+      },
+      {
+        "gan": "辛",
+        "zhi": "未",
+        "age_start": 47,
+        "age_end": 56,
+        "name": "辛未",
+        "element": "金",
+        "shi_shen": "食神运"
+      },
+      {
+        "gan": "壬",
+        "zhi": "申",
+        "age_start": 57,
+        "age_end": 66,
+        "name": "壬申",
+        "element": "水",
+        "shi_shen": "正财运"
+      },
+      {
+        "gan": "癸",
+        "zhi": "酉",
+        "age_start": 67,
+        "age_end": 76,
+        "name": "癸酉",
+        "element": "水",
+        "shi_shen": "偏财运"
+      },
+      {
+        "gan": "甲",
+        "zhi": "戌",
+        "age_start": 77,
+        "age_end": 86,
+        "name": "甲戌",
+        "element": "木",
+        "shi_shen": "正官运"
+      }
+    ],
+    "current_step_index": 0
+  },
+  "gender": "male"
+}

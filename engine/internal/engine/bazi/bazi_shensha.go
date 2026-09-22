@@ -1,0 +1,769 @@
+package bazi
+
+import "liki-engine/internal/engine/ganzhi"
+
+// Shensha category constants.
+const (
+	catJi        = "吉"
+	catXiong     = "凶"
+	catZhongXing = "中性"
+)
+
+// shenShaEntry describes a single shensha hit on a pillar.
+type shenShaEntry struct {
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
+}
+
+type ganZhiPair struct {
+	gan ganzhi.Gan
+	zhi ganzhi.Zhi
+}
+
+// Package-level lookup maps, populated from data/shensha.json via data.go init().
+var (
+	taohuaZhiMap   map[ganzhi.Zhi]ganzhi.Zhi
+	yimaZhiMap     map[ganzhi.Zhi]ganzhi.Zhi
+	huagaiZhiMap   map[ganzhi.Zhi]ganzhi.Zhi
+	yangRenLookup  map[ganzhi.Gan]ganzhi.Zhi
+	jieshaZhi      map[ganzhi.Zhi]ganzhi.Zhi
+	zaishaZhi      map[ganzhi.Zhi]ganzhi.Zhi
+	hongluanLookup map[ganzhi.Zhi]ganzhi.Zhi
+	tianxiLookup   map[ganzhi.Zhi]ganzhi.Zhi
+)
+
+var tianYiLookup map[ganzhi.Gan][]ganzhi.Zhi
+
+var (
+	tiandeTargets   map[ganzhi.Zhi][]tianDeTarget
+	yuedeGan        map[ganzhi.Zhi]ganzhi.Gan
+	jiangxingLookup map[ganzhi.Zhi]ganzhi.Zhi
+	jinyuLookup     map[ganzhi.Gan][]ganzhi.Zhi
+	taiJiLookup     map[ganzhi.Gan][]ganzhi.Zhi
+	tianChuLookup   map[ganzhi.Gan][]ganzhi.Zhi
+	fuXingLookup    map[ganzhi.Gan][]ganzhi.Zhi
+	guoYinLookup    map[ganzhi.Gan][]ganzhi.Zhi
+	yueEnGan        map[ganzhi.Zhi][]ganzhi.Gan
+	xueRenLookup    map[ganzhi.Gan]ganzhi.Zhi
+	feiRenLookup    map[ganzhi.Gan]ganzhi.Zhi
+	wangShenZhi     map[ganzhi.Zhi]ganzhi.Zhi
+	deXiuByMonth    map[ganzhi.Zhi]deXiuStems
+	yinChaYangCuo   map[int]struct{}
+	tongZiSeason    map[int][]ganzhi.Zhi
+	tongZiNayin     map[ganzhi.Wuxing][]ganzhi.Zhi
+	tianLuoDiWang   map[ganzhi.Zhi]string
+	shiEDaBai       map[int]struct{}
+)
+
+type deXiuStems struct {
+	De  []ganzhi.Gan
+	Xiu []ganzhi.Gan
+}
+
+// tianDeTarget 天德贵人的匹配目标：天德可为天干型（如正月见丁）或地支型（如二月见申）。
+type tianDeTarget struct {
+	IsZhi bool
+	Gan   ganzhi.Gan
+	Zhi   ganzhi.Zhi
+}
+
+// computeShenSha computes all shensha for the bazi chart, grouped by pillar.
+func computeShenSha(bz ganzhi.Bazi, gender ganzhi.Gender) [4][]shenShaEntry {
+	riYuan := bz.Ri.Gan
+	yueZhi := bz.Yue.Zhi
+	zhus := bz.Slice()
+	var out [4][]shenShaEntry
+	zhi := [4]ganzhi.Zhi{zhus[0].Zhi, zhus[1].Zhi, zhus[2].Zhi, zhus[3].Zhi}
+	seasonIdx := sanHuiSeasonIndex(yueZhi)
+	nianZhi := zhus[0].Zhi
+	// yearSanHuiIdx（年支三会组）供孤辰寡宿使用：寅卯辰→0 巳午未→1 申酉戌→2 亥子丑→3。
+	// 孤辰寡宿以年支为准（亥子丑人见寅为孤、见戌为寡），与月支三会组不同。
+	yearSanHuiIdx := ((int(nianZhi) - 3 + 12) % 12) / 3
+
+	addTianYi(&out, bz, riYuan, zhus[0].Gan)
+	addTaiJi(&out, bz, riYuan, zhus[0].Gan)
+	addDeXiu(&out, bz, yueZhi)
+	addTianChu(&out, bz, riYuan, zhus[0].Gan)
+	addFuXing(&out, bz, riYuan)
+	addGuoYin(&out, bz, riYuan)
+	addWenChang(&out, bz, riYuan)
+	addXueTang(&out, bz)
+	addLuShen(&out, bz, riYuan)
+	addYangRen(&out, bz, riYuan)
+	addFeiRen(&out, bz, riYuan)
+	addWangShen(&out, bz, nianZhi)
+	addYinChaYangCuo(&out, bz)
+	addTongZi(&out, bz, seasonIdx)
+	addTianDeHe(&out, bz, yueZhi)
+	addTianDe(&out, bz, yueZhi)
+	addYueDe(&out, bz, yueZhi)
+	addTaoHua(&out, bz, zhi)
+	addYiMa(&out, bz, zhi)
+	addHuaGai(&out, bz, zhi)
+	addJiangXing(&out, bz, zhi)
+	addJieSha(&out, bz, zhi)
+	addZaiSha(&out, bz, zhi)
+	addGuChenGuaSu(&out, bz, yearSanHuiIdx)
+	addHongLuanTianXi(&out, bz, nianZhi)
+	addJinYu(&out, bz, riYuan)
+	addCiGuan(&out, bz)
+	addYueEn(&out, bz, yueZhi)
+	addTianShe(&out, bz, yueZhi)
+	addTianLuoDiWang(&out, bz)
+	addGouJiao(&out, bz, nianZhi, zhus[0].Gan, gender)
+	addYuanChen(&out, bz, nianZhi, zhus[0].Gan, gender)
+	addXueRen(&out, bz, riYuan)
+	addSiFei(&out, bz, seasonIdx)
+	addShiEDaBai(&out, bz)
+
+	return out
+}
+
+// addTianYi 天乙贵人：按日干与年干双查（兼容两种流派），同一柱只标注一次（去重）。
+func addTianYi(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Gan) {
+	marked := map[int]bool{}
+	mark := func(gan ganzhi.Gan) {
+		targets, ok := tianYiLookup[gan]
+		if !ok {
+			return
+		}
+		zhus := bz.Slice()
+		for pi, p := range zhus {
+			for _, t := range targets {
+				if p.Zhi == t && !marked[pi] {
+					marked[pi] = true
+					(*out)[pi] = append((*out)[pi], shenShaEntry{
+						Name: "天乙贵人", Category: catJi, Description: "主贵人相助，逢凶化吉",
+					})
+				}
+			}
+		}
+	}
+	mark(riYuan)
+	mark(nianGan)
+}
+
+var wenChangLookup map[ganzhi.Gan][]ganzhi.Zhi
+
+func addTaiJi(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Gan) {
+	marked := map[int]bool{}
+	mark := func(gan ganzhi.Gan) {
+		for pi, p := range bz.Slice() {
+			for _, target := range taiJiLookup[gan] {
+				if p.Zhi == target && !marked[pi] {
+					marked[pi] = true
+					(*out)[pi] = append((*out)[pi], shenShaEntry{
+						Name: "太极贵人", Category: catJi, Description: "主聪慧好学，宜研哲理玄学",
+					})
+				}
+			}
+		}
+	}
+	mark(riYuan)
+	mark(nianGan)
+}
+
+func addDeXiu(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	group, ok := deXiuByMonth[yueZhi]
+	if !ok {
+		return
+	}
+	for pi, p := range bz.Slice() {
+		if containsGan(group.De, p.Gan) || containsGan(group.Xiu, p.Gan) {
+			addDeXiuEntry(out, pi)
+		}
+	}
+}
+
+func containsGan(values []ganzhi.Gan, want ganzhi.Gan) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
+}
+
+func addDeXiuEntry(out *[4][]shenShaEntry, pillar int) {
+	(*out)[pillar] = append((*out)[pillar], shenShaEntry{
+		Name: "德秀贵人", Category: catJi, Description: "主禀气清粹，逢凶化吉",
+	})
+}
+
+func addTianChu(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan, nianGan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, tianChuLookup, "天厨贵人", catJi, "主食禄福泽")
+	appendShenShaByGanLookup(out, bz, nianGan, tianChuLookup, "天厨贵人", catJi, "主食禄福泽")
+}
+
+func addFuXing(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, fuXingLookup, "福星贵人", catJi, "主一生福气，平安顺遂")
+}
+
+func addGuoYin(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, guoYinLookup, "国印", catJi, "主持印掌信，宜守正职守")
+}
+
+func addWenChang(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, wenChangLookup, "文昌", catJi, "主学业、文书、才华")
+}
+
+// addXueTang 采用《三命通会》学堂正位：年命纳音五行的长生支上，
+// 再见同一纳音五行的干支，方为学堂。
+func addXueTang(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	addNayinStageShenSha(out, bz, "学堂", "主学业聪颖", true)
+}
+
+func addLuShen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	addChangShengShenSha(out, bz, riYuan, 3, "禄神", catJi, "日主临官之位，主福禄安康")
+}
+
+func addChangShengShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan, stageIdx int, name, cat, desc string) {
+	zhus := bz.Slice()
+	stageRow := ganzhi.ChangShengTable[riYuan]
+	if len(stageRow) != 12 {
+		return
+	}
+	for pi, p := range zhus {
+		if bn := p.Zhi; bn >= 1 && bn <= 12 && stageRow[stageIdx] == bn {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{Name: name, Category: cat, Description: desc})
+		}
+	}
+}
+
+// addCiGuan 采用《三命通会》词馆正位：年命纳音五行的临官支上，
+// 再见同一纳音五行的干支，方为词馆。
+func addCiGuan(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	addNayinStageShenSha(out, bz, "词馆", "主文章、口才、文职", false)
+}
+
+func addNayinStageShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, name, desc string, changSheng bool) {
+	zhus := bz.Slice()
+	yearElement := ganzhi.NayinWuxing(ganzhi.NayinLabel(zhus[0].Gan, zhus[0].Zhi))
+	if yearElement == 0 {
+		return
+	}
+	targets := nayinStageBranches(changSheng)
+	for pi, p := range zhus {
+		if ganzhi.NayinWuxing(ganzhi.NayinLabel(p.Gan, p.Zhi)) != yearElement {
+			continue
+		}
+		if p.Zhi == targets[yearElement] {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{Name: name, Category: catJi, Description: desc})
+		}
+	}
+}
+
+func nayinStageBranches(changSheng bool) map[ganzhi.Wuxing]ganzhi.Zhi {
+	if changSheng {
+		return map[ganzhi.Wuxing]ganzhi.Zhi{
+			ganzhi.WxMu:   ganzhi.ZhiHai,
+			ganzhi.WxHuo:  ganzhi.ZhiYin,
+			ganzhi.WxTu:   ganzhi.ZhiShen,
+			ganzhi.WxJin:  ganzhi.ZhiSi,
+			ganzhi.WxShui: ganzhi.ZhiShen,
+		}
+	}
+	return map[ganzhi.Wuxing]ganzhi.Zhi{
+		ganzhi.WxMu:   ganzhi.ZhiYin,
+		ganzhi.WxHuo:  ganzhi.ZhiSi,
+		ganzhi.WxTu:   ganzhi.ZhiHai,
+		ganzhi.WxJin:  ganzhi.ZhiShen,
+		ganzhi.WxShui: ganzhi.ZhiHai,
+	}
+}
+
+func addYangRen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	zhus := bz.Slice()
+	for pi, p := range zhus {
+		if yangRenLookup[riYuan] == p.Zhi {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "羊刃", Category: catXiong, Description: "日干帝旺/刃位，主刚强果断，但易冲动",
+			})
+		}
+	}
+}
+
+func addFeiRen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	zhus := bz.Slice()
+	for pi, p := range zhus {
+		if feiRenLookup[riYuan] == p.Zhi {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "飞刃", Category: catXiong, Description: "羊刃冲位，主动荡急变",
+			})
+		}
+	}
+}
+
+func addWangShen(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi) {
+	target, ok := wangShenZhi[nianZhi]
+	if !ok {
+		return
+	}
+	for pi, p := range bz.Slice() {
+		if p.Zhi == target {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "亡神", Category: catXiong, Description: "主心机深虑，事多暗耗",
+			})
+		}
+	}
+}
+
+func addYinChaYangCuo(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	if _, ok := yinChaYangCuo[ganzhi.SixtyCycleIndex(bz.Ri.Gan, bz.Ri.Zhi)]; ok {
+		(*out)[2] = append((*out)[2], shenShaEntry{
+			Name: "阴差阳错", Category: catXiong, Description: "主婚缘人事阴差阳错，多生错过",
+		})
+	}
+}
+
+func addTongZi(out *[4][]shenShaEntry, bz ganzhi.Bazi, seasonIdx int) {
+	zhus := bz.Slice()
+	checkBranches := func(targets []ganzhi.Zhi) bool {
+		if len(targets) == 0 {
+			return false
+		}
+		for _, p := range zhus[2:] {
+			for _, target := range targets {
+				if p.Zhi == target {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	if checkBranches(tongZiSeason[seasonIdx]) {
+		addTongZiEntry(out, 2)
+		return
+	}
+	yearElement := ganzhi.NayinWuxing(ganzhi.NayinLabel(zhus[0].Gan, zhus[0].Zhi))
+	if checkBranches(tongZiNayin[yearElement]) {
+		addTongZiEntry(out, 2)
+	}
+}
+
+func addTongZiEntry(out *[4][]shenShaEntry, pillar int) {
+	(*out)[pillar] = append((*out)[pillar], shenShaEntry{
+		Name: "童子煞", Category: catZhongXing, Description: "传统取象主幼年多病、姻缘迟滞",
+	})
+}
+
+func addTianDeHe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	targets, ok := tiandeTargets[yueZhi]
+	if !ok {
+		return
+	}
+	zhus := bz.Slice()
+	for _, target := range targets {
+		for pi, p := range zhus {
+			hit := false
+			if target.IsZhi {
+				hit = ganzhi.IsZhiHe(target.Zhi, p.Zhi)
+			} else {
+				hit = ganzhi.IsGanHe(target.Gan, p.Gan)
+			}
+			if hit {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{
+					Name: "天德合", Category: catJi, Description: "天德所合，主贵人助力",
+				})
+			}
+		}
+	}
+}
+
+func addTianDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	zhus := bz.Slice()
+	targets, ok := tiandeTargets[yueZhi]
+	if !ok {
+		return
+	}
+	for _, tgt := range targets {
+		for pi, p := range zhus {
+			hit := false
+			if tgt.IsZhi {
+				hit = p.Zhi == tgt.Zhi
+			} else {
+				hit = p.Gan == tgt.Gan
+			}
+			if hit {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{
+					Name: "天德", Category: catJi, Description: "天德贵人，主福泽深厚，化险为夷",
+				})
+			}
+		}
+	}
+}
+
+func addYueDe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	zhus := bz.Slice()
+	targetStem, ok := yuedeGan[yueZhi]
+	if !ok {
+		return
+	}
+	for pi, p := range zhus {
+		if p.Gan == targetStem {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "月德", Category: catJi, Description: "月德贵人，主月令之德，人缘佳",
+			})
+		}
+	}
+}
+
+// addTriadShenSha 三合类神煞（驿马/桃花/华盖/劫煞/灾煞/将星）：
+// 以年支与日支为参考（兼容两种流派），同一柱同一神煞只标注一次（去重）。
+func addTriadShenSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi, lookup map[ganzhi.Zhi]ganzhi.Zhi, name, cat, desc string) {
+	zhus := bz.Slice()
+	marked := map[int]bool{}
+	for _, refIdx := range []int{0, 2} { // year & day zhi
+		if tb, ok := lookup[zhi[refIdx]]; ok {
+			for pi, p := range zhus {
+				if p.Zhi == tb && !marked[pi] {
+					marked[pi] = true
+					(*out)[pi] = append((*out)[pi], shenShaEntry{Name: name, Category: cat, Description: desc})
+				}
+			}
+		}
+	}
+}
+
+func addTaoHua(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, taohuaZhiMap, "桃花", catZhongXing, "主异性缘佳，浪漫多情")
+}
+
+func addYiMa(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, yimaZhiMap, "驿马", catZhongXing, "主动荡、奔波、迁移")
+}
+
+func addHuaGai(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, huagaiZhiMap, "华盖", catZhongXing, "主孤独清高，聪明好学，有艺术天赋")
+}
+
+func addJiangXing(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, jiangxingLookup, "将星", catJi, "主领导才能，有权威")
+}
+
+func addJieSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, jieshaZhi, "劫煞", catXiong, "主破财、意外、是非")
+}
+
+func addZaiSha(out *[4][]shenShaEntry, bz ganzhi.Bazi, zhi [4]ganzhi.Zhi) {
+	addTriadShenSha(out, bz, zhi, zaishaZhi, "灾煞", catXiong, "主灾祸、疾病、横事")
+}
+
+func addGuChenGuaSu(out *[4][]shenShaEntry, bz ganzhi.Bazi, seasonIdx int) {
+	zhus := bz.Slice()
+	guchenBranches := [4]ganzhi.Zhi{6, 9, 12, 3}
+	guasuBranches := [4]ganzhi.Zhi{2, 5, 8, 11}
+	for pi, p := range zhus {
+		if p.Zhi == guchenBranches[seasonIdx] {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "孤辰", Category: catXiong, Description: "主性格孤僻，晚婚或婚姻不顺",
+			})
+		}
+		if p.Zhi == guasuBranches[seasonIdx] {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "寡宿", Category: catXiong, Description: "主孤独寂寞，夫妻缘薄",
+			})
+		}
+	}
+}
+
+func addHongLuanTianXi(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi) {
+	zhus := bz.Slice()
+	if target, ok := hongluanLookup[nianZhi]; ok {
+		for pi, p := range zhus {
+			if p.Zhi == target {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{
+					Name: "红鸾", Category: catJi, Description: "主婚喜、恋爱、添丁",
+				})
+			}
+		}
+	}
+	if target, ok := tianxiLookup[nianZhi]; ok {
+		for pi, p := range zhus {
+			if p.Zhi == target {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{
+					Name: "天喜", Category: catJi, Description: "主喜庆之事，婚恋吉兆",
+				})
+			}
+		}
+	}
+}
+
+func addJinYu(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	appendShenShaByGanLookup(out, bz, riYuan, jinyuLookup, "金舆", catJi, "主财运、车辆、出行顺利")
+}
+
+func addYueEn(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	zhus := bz.Slice()
+	targets, ok := yueEnGan[yueZhi]
+	if !ok {
+		return
+	}
+	for _, ts := range targets {
+		for pi, p := range zhus {
+			if p.Gan == ts {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{
+					Name: "月恩", Category: catJi, Description: "月令之恩，主福佑加持",
+				})
+			}
+		}
+	}
+}
+
+func addTianShe(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
+	zhus := bz.Slice()
+	season := sanHuiSeasonIndex(yueZhi)
+	tianSheChecks := [4]ganZhiPair{{5, 3}, {1, 7}, {5, 9}, {1, 1}} // 戊寅, 甲午, 戊申, 甲子
+	if season >= 0 && season < 4 {
+		pair := tianSheChecks[season]
+		if zhus[2].Gan == pair.gan && zhus[2].Zhi == pair.zhi {
+			(*out)[2] = append((*out)[2], shenShaEntry{
+				Name: "天赦", Category: catJi, Description: "天赦日出生，主逢凶化吉，宽恕赦免",
+			})
+		}
+	}
+}
+
+func addTianLuoDiWang(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	zhus := bz.Slice()
+	yearElement := ganzhi.NayinWuxing(ganzhi.NayinLabel(zhus[0].Gan, zhus[0].Zhi))
+	for pi, p := range zhus {
+		label, ok := tianLuoDiWang[p.Zhi]
+		if ok && ((label == "天罗" && yearElement == ganzhi.WxHuo) ||
+			(label == "地网" && (yearElement == ganzhi.WxShui || yearElement == ganzhi.WxTu))) {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: label, Category: catXiong, Description: "主运势阻滞，有志难伸",
+			})
+		}
+	}
+}
+
+// sanHuiSeasonIndex returns 寅卯辰→0、巳午未→1、申酉戌→2、亥子丑→3.
+func sanHuiSeasonIndex(zhi ganzhi.Zhi) int {
+	return ((int(zhi) - int(ganzhi.ZhiYin) + 12) % 12) / 3
+}
+
+func addGouJiao(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) {
+	zhus := bz.Slice()
+	ahead := zhiOffset(nianZhi, 3)
+	behind := zhiOffset(nianZhi, -3)
+	gouShen, jiaoShen := ahead, behind
+	if !yangMaleOrYinFemale(nianGan, gender) {
+		gouShen, jiaoShen = behind, ahead
+	}
+	for pi, p := range zhus {
+		if p.Zhi == gouShen {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "勾神", Category: catXiong, Description: "主纠缠牵连，是非官讼",
+			})
+		}
+		if p.Zhi == jiaoShen {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "绞神", Category: catXiong, Description: "主受困被缚，身不由己",
+			})
+		}
+	}
+}
+
+func addYuanChen(out *[4][]shenShaEntry, bz ganzhi.Bazi, nianZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) {
+	zhus := bz.Slice()
+	ycBranch := yuanChenZhi(nianZhi, nianGan, gender)
+	for pi, p := range zhus {
+		if p.Zhi == ycBranch {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "元辰", Category: catXiong, Description: "主波折反复，好事多磨",
+			})
+		}
+	}
+}
+
+func addXueRen(out *[4][]shenShaEntry, bz ganzhi.Bazi, riYuan ganzhi.Gan) {
+	zhus := bz.Slice()
+	for pi, p := range zhus {
+		if xueRenLookup[riYuan] == p.Zhi {
+			(*out)[pi] = append((*out)[pi], shenShaEntry{
+				Name: "血刃", Category: catXiong, Description: "主意外血光，手术外伤",
+			})
+		}
+	}
+}
+
+func addSiFei(out *[4][]shenShaEntry, bz ganzhi.Bazi, seasonIdx int) {
+	zhus := bz.Slice()
+	siFeiZhus := [4][]ganZhiPair{
+		{{7, 9}, {8, 10}}, {{9, 1}, {10, 12}}, {{1, 3}, {2, 4}}, {{3, 7}, {4, 6}},
+	}
+	if seasonIdx < 0 || seasonIdx >= 4 {
+		return
+	}
+	for pi, p := range zhus {
+		for _, pair := range siFeiZhus[seasonIdx] {
+			if p.Gan == pair.gan && p.Zhi == pair.zhi {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{
+					Name: "四废", Category: catXiong, Description: "四季废日，主事业阻滞，有志难伸",
+				})
+			}
+		}
+	}
+}
+
+func addShiEDaBai(out *[4][]shenShaEntry, bz ganzhi.Bazi) {
+	zhus := bz.Slice()
+	if _, ok := shiEDaBai[ganzhi.SixtyCycleIndex(zhus[2].Gan, zhus[2].Zhi)]; ok {
+		(*out)[2] = append((*out)[2], shenShaEntry{
+			Name: "十恶大败", Category: catXiong, Description: "日柱十恶大败日，主财库不聚，须谨慎理财",
+		})
+	}
+}
+
+func appendShenShaByGanLookup(out *[4][]shenShaEntry, bz ganzhi.Bazi, s ganzhi.Gan, lookup map[ganzhi.Gan][]ganzhi.Zhi, name, cat, desc string) {
+	zhus := bz.Slice()
+	targets, ok := lookup[s]
+	if !ok {
+		return
+	}
+	for pi, p := range zhus {
+		for _, t := range targets {
+			if p.Zhi == t {
+				(*out)[pi] = append((*out)[pi], shenShaEntry{Name: name, Category: cat, Description: desc})
+			}
+		}
+	}
+}
+
+// computeKongWang returns pillar indices whose zhi fall in the void (空亡)
+// of the day pillar's 旬.
+func computeKongWang(bz ganzhi.Bazi) []int {
+	sbIdx := ganzhi.SixtyCycleIndex(bz.Ri.Gan, bz.Ri.Zhi)
+	xunIdx := sbIdx / 10
+
+	voidPairs := [6][2]ganzhi.Zhi{
+		{11, 12}, {9, 10}, {7, 8}, {5, 6}, {3, 4}, {1, 2},
+	}
+	v1, v2 := voidPairs[xunIdx][0], voidPairs[xunIdx][1]
+
+	var hits []int
+	for pi, p := range bz.Slice() {
+		b := p.Zhi
+		if b == v1 || b == v2 {
+			hits = append(hits, pi)
+		}
+	}
+	return hits
+}
+
+// computeDynamicShenSha computes shensha triggered by an external zhi against the bazi chart.
+func computeDynamicShenSha(b ganzhi.Zhi, nianZhi, riBranch ganzhi.Zhi, riYuan ganzhi.Gan) []shenShaEntry {
+	var result []shenShaEntry
+	seen := map[string]bool{}
+	add := func(name, cat, desc string) {
+		if !seen[name] {
+			seen[name] = true
+			result = append(result, shenShaEntry{Name: name, Category: cat, Description: desc})
+		}
+	}
+	// 三合局系神煞（桃花/驿马/华盖/劫煞/灾煞）——年支+日支双查（《三命通会》年支/日支桃花驿马）
+	for _, rb := range []ganzhi.Zhi{nianZhi, riBranch} {
+		if tb, ok := taohuaZhiMap[rb]; ok && tb == b {
+			add("桃花", catZhongXing, "流运桃花，异性缘佳")
+		}
+		if tb, ok := yimaZhiMap[rb]; ok && tb == b {
+			add("驿马", catZhongXing, "流运驿马，动象奔波")
+		}
+		if tb, ok := huagaiZhiMap[rb]; ok && tb == b {
+			add("华盖", catZhongXing, "流运华盖，宜静思")
+		}
+		if js, ok := jieshaZhi[rb]; ok && js == b {
+			add("劫煞", catXiong, "流运劫煞，防破财是非")
+		}
+		if zs, ok := zaishaZhi[rb]; ok && zs == b {
+			add("灾煞", catXiong, "流运灾煞，防意外灾祸")
+		}
+	}
+	// 红鸾/天喜——仅年支查（红鸾属年支体系，日支不取）
+	if hl, ok := hongluanLookup[nianZhi]; ok && hl == b {
+		add("红鸾", catJi, "流运红鸾，主婚喜添丁")
+	}
+	if tx, ok := tianxiLookup[nianZhi]; ok && tx == b {
+		add("天喜", catJi, "流运天喜，喜庆之事")
+	}
+	// 天乙贵人/羊刃——按日干
+	if targets, ok := tianYiLookup[riYuan]; ok {
+		for _, t := range targets {
+			if t == b {
+				add("天乙贵人", catJi, "流运天乙贵人，有贵人相助")
+				break
+			}
+		}
+	}
+	if yr, ok := yangRenLookup[riYuan]; ok && yr == b {
+		add("羊刃", catXiong, "流运羊刃，防冲动冲突")
+	}
+
+	if result == nil {
+		return []shenShaEntry{}
+	}
+	return result
+}
+
+// computeAnnualShenSha 值年神煞（《协纪辨方书》——按太岁/流年支查表，命局四柱逢煞支即应）。
+// 病符=太岁后1辰、丧门=前2辰、吊客=后2辰、大耗（岁破）=对冲。白虎查表有版本争议，不做。
+func computeAnnualShenSha(b ganzhi.Zhi, bz ganzhi.Bazi) []shenShaEntry {
+	annual := []struct {
+		name string
+		zhi  ganzhi.Zhi
+		desc string
+	}{
+		{"病符", zhiOffset(b, -1), "流运病符临命，主病灾"},
+		{"丧门", zhiOffset(b, +2), "流运丧门临命，主孝服/丧事"},
+		{"吊客", zhiOffset(b, -2), "流运吊客临命，主吊丧/孝服"},
+		{"大耗", zhiOffset(b, +6), "流运大耗临命，主破财大耗"},
+	}
+	var result []shenShaEntry
+	seen := map[string]bool{}
+	for _, a := range annual {
+		for _, p := range bz.Slice() {
+			if p.Zhi == a.zhi && !seen[a.name] {
+				seen[a.name] = true
+				result = append(result, shenShaEntry{Name: a.name, Category: catXiong, Description: a.desc})
+				break
+			}
+		}
+	}
+	if result == nil {
+		return []shenShaEntry{}
+	}
+	return result
+}
+
+// zhiOffset 地支循环偏移（z 后移 n 位，n 可为负）。
+func zhiOffset(z ganzhi.Zhi, n int) ganzhi.Zhi {
+	return ganzhi.Zhi((int(z)-1+n+120)%12 + 1)
+}
+
+func yuanChenZhi(nianZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) ganzhi.Zhi {
+	for _, p := range ganzhi.ChongPairs {
+		if p.A == nianZhi {
+			return yuanChenOffset(p.B, nianGan, gender)
+		}
+		if p.B == nianZhi {
+			return yuanChenOffset(p.A, nianGan, gender)
+		}
+	}
+	return 0
+}
+
+// yuanChenOffset applies the gender-aware offset to the clash zhi.
+// 阳男阴女取冲前一位；阴男阳女取冲后一位（《三命通会·论元辰》）。
+func yuanChenOffset(chongZhi ganzhi.Zhi, nianGan ganzhi.Gan, gender ganzhi.Gender) ganzhi.Zhi {
+	if yangMaleOrYinFemale(nianGan, gender) {
+		return chongZhi%12 + 1
+	}
+	return (chongZhi-2+12)%12 + 1
+}
+
+func yangMaleOrYinFemale(nianGan ganzhi.Gan, gender ganzhi.Gender) bool {
+	yangYear := ganzhi.GanYinYang(nianGan) == ganzhi.Yang
+	return yangYear == (gender == ganzhi.Male)
+}

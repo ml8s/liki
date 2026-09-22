@@ -1,0 +1,32 @@
+# Conformance baseline for liki-mcp.
+#
+# liki-mcp is a real business server (exposes only its own computation tools),
+# not an "everything server". These scenarios fail because they require
+# conformance-provided test tools/resources/prompts (e.g. test_simple_text) or
+# capabilities we intentionally do not implement (resources/prompts/sampling/
+# elicitation). The protocol responses are standard (e.g. -32602 unknown tool).
+# Core lifecycle scenarios (initialize, ping, tools-list, tools-call on real
+# tools, SSE, dns-rebinding) pass and are NOT listed here.
+server:
+  - completion-complete
+  - tools-call-simple-text
+  - tools-call-image
+  - tools-call-audio
+  - tools-call-embedded-resource
+  - tools-call-mixed-content
+  - tools-call-with-logging
+  - tools-call-error
+  - tools-call-with-progress
+  - tools-call-sampling
+  - tools-call-elicitation
+  - elicitation-sep1034-defaults
+  - elicitation-sep1330-enums
+  - resources-read-text
+  - resources-read-binary
+  - resources-templates-read
+  - resources-subscribe
+  - resources-unsubscribe
+  - prompts-get-simple
+  - prompts-get-with-args
+  - prompts-get-embedded-resource
+  - prompts-get-with-image

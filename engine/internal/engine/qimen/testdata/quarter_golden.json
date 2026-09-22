@@ -1,0 +1,79 @@
+{
+  "source": {
+    "name": "大师奇门官方 Web 排盘",
+    "url": "http://aidashi.net/web/qimen",
+    "artifact": "assets/main/index.8e7d0.js",
+    "sha256": "00341d94bd9b954b8179f1bfa157fd70636d3d78bda2992b7175c1ab8db5e612",
+    "license": "proprietary; execution facts only",
+    "usage": "fixed external vectors; no source code or data table copied",
+    "bureau_rule_source": "https://www.cnblogs.com/YR-zg-yxgs-282615109-jygs/articles/20044071.html",
+    "rule_source": "刻柱由时干五鼠遁起子刻并按十分钟进一；定局用时支分阴阳、时柱五时符头分三元"
+  },
+  "vectors": [
+    {
+      "id": "quarter-yin-middle-public-anchor",
+      "when": "2002-10-08T18:27:00+08:00",
+      "hour": "癸酉",
+      "quarter_index": 9,
+      "lead": "庚申",
+      "yin_dun": true,
+      "ju": 3,
+      "yuan": "中元",
+      "xun_shou": "甲寅",
+      "duty_star": "天柱",
+      "duty_door": "惊门"
+    },
+    {
+      "id": "quarter-yang-upper-late-zi-second-half",
+      "when": "2026-09-07T00:00:00+08:00",
+      "hour": "甲子",
+      "quarter_index": 7,
+      "lead": "庚午",
+      "yin_dun": false,
+      "ju": 1,
+      "yuan": "上元",
+      "xun_shou": "甲子",
+      "duty_star": "天蓬",
+      "duty_door": "休门"
+    },
+    {
+      "id": "quarter-yin-middle-afternoon-first-half",
+      "when": "2026-09-07T15:30:00+08:00",
+      "hour": "壬申",
+      "quarter_index": 4,
+      "lead": "癸卯",
+      "yin_dun": true,
+      "ju": 3,
+      "yuan": "中元",
+      "xun_shou": "甲午",
+      "duty_star": "天英",
+      "duty_door": "景门"
+    },
+    {
+      "id": "quarter-yin-middle-late-afternoon",
+      "when": "2026-09-07T16:30:00+08:00",
+      "hour": "壬申",
+      "quarter_index": 10,
+      "lead": "己酉",
+      "yin_dun": true,
+      "ju": 3,
+      "yuan": "中元",
+      "xun_shou": "甲辰",
+      "duty_star": "天任",
+      "duty_door": "生门"
+    },
+    {
+      "id": "quarter-yin-lower-evening",
+      "when": "2026-09-07T19:30:00+08:00",
+      "hour": "甲戌",
+      "quarter_index": 4,
+      "lead": "丁卯",
+      "yin_dun": true,
+      "ju": 6,
+      "yuan": "下元",
+      "xun_shou": "甲子",
+      "duty_star": "天心",
+      "duty_door": "开门"
+    }
+  ]
+}

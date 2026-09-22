@@ -1,0 +1,465 @@
+{
+  "$schema": "https://json.schemastore.org/tools.json",
+  "info": {
+    "title": "Liki natal analysis tools",
+    "description": "Liki 本命域公共工具闭集：创建盘资源、本命分析、限运/流年分析、合盘、定盘。唯一执行方式：python3 tools/agent_cli.py。",
+    "version": "2026.09.22.3",
+    "contract": "natal-tools-v2"
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "create_birth_chart",
+        "description": "出生输入 → 不可变本命盘资源；内部完成城市解析、真太阳时校正、八字和紫微排盘。返回 chart 摘要与可复用 chart_ref。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gender",
+            "source"
+          ],
+          "properties": {
+            "gender": {
+              "type": "string",
+              "enum": [
+                "male",
+                "female"
+              ]
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "timestamp"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "timestamp",
+                    "hour"
+                  ]
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "公历 RFC3339 时间"
+                },
+                "precision": {
+                  "type": "string",
+                  "enum": [
+                    "minute",
+                    "hour"
+                  ]
+                },
+                "location": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "city": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "longitude": {
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    },
+                    "latitude": {
+                      "type": "number",
+                      "minimum": -90,
+                      "maximum": 90
+                    }
+                  },
+                  "description": "出生地；城市或经度二选一"
+                },
+                "solar_time_correction": {
+                  "type": "string",
+                  "enum": [
+                    "auto",
+                    "off"
+                  ]
+                }
+              },
+              "description": "出生时间来源；minute + auto 校正需要城市或经度，hour 表示既定时辰"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "analyze_natal",
+        "description": "本命盘 + 人生问题 → 结构化本命断语；TopicRouter 自动选择夫妻宫、十神、格局、神煞等命理规则并按领域收敛。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "chart_ref",
+            "topics"
+          ],
+          "properties": {
+            "chart_ref": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "token",
+                "digest"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "create_birth_chart 返回的不可变盘令牌"
+                },
+                "digest": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "配套盘摘要"
+                }
+              }
+            },
+            "topics": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "marriage",
+                  "family",
+                  "children",
+                  "career",
+                  "wealth",
+                  "health",
+                  "mental",
+                  "study",
+                  "personality",
+                  "appearance",
+                  "origin",
+                  "relocation",
+                  "social",
+                  "property",
+                  "adversity",
+                  "chart_structure"
+                ]
+              },
+              "description": "人生问题领域闭集；路由服务自动选择对应命理规则和断语领域"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "analyze_periods",
+        "description": "本命盘 + 时间层 + 人生问题 → 大运/大限或流年结构化断语；支持单年、年份区间和当前或指定十年限运。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "chart_ref",
+            "time_scope",
+            "topics"
+          ],
+          "properties": {
+            "chart_ref": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "token",
+                "digest"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "create_birth_chart 返回的不可变盘令牌"
+                },
+                "digest": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "配套盘摘要"
+                }
+              }
+            },
+            "time_scope": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "current_year",
+                    "year",
+                    "year_range",
+                    "current_decade",
+                    "decade"
+                  ]
+                },
+                "year": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "start_year": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "end_year": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "description": "时间层：流年、流年区间或大运/大限锚点年"
+            },
+            "topics": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "marriage",
+                  "family",
+                  "children",
+                  "career",
+                  "wealth",
+                  "health",
+                  "mental",
+                  "study",
+                  "personality",
+                  "appearance",
+                  "origin",
+                  "relocation",
+                  "social",
+                  "property",
+                  "adversity",
+                  "chart_structure"
+                ]
+              },
+              "description": "人生问题领域闭集；路由服务自动选择对应命理规则和断语领域"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "compare_birth_charts",
+        "description": "两张不可变本命盘资源 → 八字合盘与紫微合盘结构化结果。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "chart_ref_a",
+            "chart_ref_b"
+          ],
+          "properties": {
+            "chart_ref_a": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "token",
+                "digest"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "create_birth_chart 返回的不可变盘令牌"
+                },
+                "digest": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "配套盘摘要"
+                }
+              }
+            },
+            "chart_ref_b": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "token",
+                "digest"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "create_birth_chart 返回的不可变盘令牌"
+                },
+                "digest": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "配套盘摘要"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "calibrate_birth_time",
+        "description": "2-3 个候选出生输入 + 3-5 个带 topic 的人生事件 → 定盘信号；事件路由由受控 topic 配置决定。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "candidates",
+            "events"
+          ],
+          "properties": {
+            "candidates": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "label",
+                  "gender",
+                  "source"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "female"
+                    ]
+                  },
+                  "source": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "timestamp"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "timestamp",
+                          "hour"
+                        ]
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "公历 RFC3339 时间"
+                      },
+                      "precision": {
+                        "type": "string",
+                        "enum": [
+                          "minute",
+                          "hour"
+                        ]
+                      },
+                      "location": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "city": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "longitude": {
+                            "type": "number",
+                            "minimum": -180,
+                            "maximum": 180
+                          },
+                          "latitude": {
+                            "type": "number",
+                            "minimum": -90,
+                            "maximum": 90
+                          }
+                        },
+                        "description": "出生地；城市或经度二选一"
+                      },
+                      "solar_time_correction": {
+                        "type": "string",
+                        "enum": [
+                          "auto",
+                          "off"
+                        ]
+                      }
+                    },
+                    "description": "出生时间来源；minute + auto 校正需要城市或经度，hour 表示既定时辰"
+                  }
+                }
+              }
+            },
+            "events": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 5,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "year",
+                  "topic",
+                  "label"
+                ],
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "topic": {
+                    "type": "string",
+                    "enum": [
+                      "marriage",
+                      "family",
+                      "children",
+                      "career",
+                      "wealth",
+                      "health",
+                      "mental",
+                      "study",
+                      "personality",
+                      "appearance",
+                      "origin",
+                      "relocation",
+                      "social",
+                      "property",
+                      "adversity",
+                      "chart_structure"
+                    ]
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "人生事件展示名"
+                  }
+                }
+              }
+            },
+            "detail": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    }
+  ]
+}

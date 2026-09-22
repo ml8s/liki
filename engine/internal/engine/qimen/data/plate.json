@@ -1,0 +1,454 @@
+{
+  "tian_qin": {
+    "star": "天禽",
+    "home_gong": "中",
+    "lodging_gong": "坤",
+    "follows": "天芮",
+    "carries_center_earth_gan": true,
+    "lodging_rule": "中五寄坤二，随天芮同宫"
+  },
+  "outer_ring": [
+    "坎",
+    "艮",
+    "震",
+    "巽",
+    "离",
+    "坤",
+    "兑",
+    "乾"
+  ],
+  "earth_gan_order": [
+    "戊",
+    "己",
+    "庚",
+    "辛",
+    "壬",
+    "癸",
+    "丁",
+    "丙",
+    "乙"
+  ],
+  "star_order": [
+    "天蓬",
+    "天任",
+    "天冲",
+    "天辅",
+    "天英",
+    "天芮",
+    "天柱",
+    "天心"
+  ],
+  "door_order": [
+    "休门",
+    "生门",
+    "伤门",
+    "杜门",
+    "景门",
+    "死门",
+    "惊门",
+    "开门"
+  ],
+  "spirits": [
+    {
+      "slot": 1,
+      "yang": "值符",
+      "yin": "值符"
+    },
+    {
+      "slot": 2,
+      "yang": "螣蛇",
+      "yin": "螣蛇"
+    },
+    {
+      "slot": 3,
+      "yang": "太阴",
+      "yin": "太阴"
+    },
+    {
+      "slot": 4,
+      "yang": "六合",
+      "yin": "六合"
+    },
+    {
+      "slot": 5,
+      "yang": "勾陈",
+      "yin": "白虎"
+    },
+    {
+      "slot": 6,
+      "yang": "朱雀",
+      "yin": "玄武"
+    },
+    {
+      "slot": 7,
+      "yang": "九地",
+      "yin": "九地"
+    },
+    {
+      "slot": 8,
+      "yang": "九天",
+      "yin": "九天"
+    }
+  ],
+  "fly_spirit_order": [
+    "值符",
+    "螣蛇",
+    "太阴",
+    "六合",
+    "白虎",
+    "太常",
+    "玄武",
+    "九地",
+    "九天"
+  ],
+  "gong_wuxing": [
+    {
+      "gong": "坎",
+      "wuxing": "水"
+    },
+    {
+      "gong": "坤",
+      "wuxing": "土"
+    },
+    {
+      "gong": "震",
+      "wuxing": "木"
+    },
+    {
+      "gong": "巽",
+      "wuxing": "木"
+    },
+    {
+      "gong": "中",
+      "wuxing": "土"
+    },
+    {
+      "gong": "乾",
+      "wuxing": "金"
+    },
+    {
+      "gong": "兑",
+      "wuxing": "金"
+    },
+    {
+      "gong": "艮",
+      "wuxing": "土"
+    },
+    {
+      "gong": "离",
+      "wuxing": "火"
+    }
+  ],
+  "star_wuxing": [
+    {
+      "star": "天蓬",
+      "wuxing": "水"
+    },
+    {
+      "star": "天芮",
+      "wuxing": "土"
+    },
+    {
+      "star": "天冲",
+      "wuxing": "木"
+    },
+    {
+      "star": "天辅",
+      "wuxing": "木"
+    },
+    {
+      "star": "天禽",
+      "wuxing": "土"
+    },
+    {
+      "star": "天心",
+      "wuxing": "金"
+    },
+    {
+      "star": "天柱",
+      "wuxing": "金"
+    },
+    {
+      "star": "天任",
+      "wuxing": "土"
+    },
+    {
+      "star": "天英",
+      "wuxing": "火"
+    }
+  ],
+  "door_wuxing": [
+    {
+      "door": "休门",
+      "wuxing": "水"
+    },
+    {
+      "door": "生门",
+      "wuxing": "土"
+    },
+    {
+      "door": "伤门",
+      "wuxing": "木"
+    },
+    {
+      "door": "杜门",
+      "wuxing": "木"
+    },
+    {
+      "door": "景门",
+      "wuxing": "火"
+    },
+    {
+      "door": "死门",
+      "wuxing": "土"
+    },
+    {
+      "door": "惊门",
+      "wuxing": "金"
+    },
+    {
+      "door": "开门",
+      "wuxing": "金"
+    },
+    {
+      "door": "中门",
+      "wuxing": "土"
+    }
+  ],
+  "wuxing_relations": [
+    {
+      "relation": "same",
+      "name": "比和",
+      "traditional_label": "旺"
+    },
+    {
+      "relation": "gong_generates_xing",
+      "name": "宫生星",
+      "traditional_label": "相"
+    },
+    {
+      "relation": "xing_generates_gong",
+      "name": "星生宫",
+      "traditional_label": "休"
+    },
+    {
+      "relation": "xing_controls_gong",
+      "name": "星克宫",
+      "traditional_label": "囚"
+    },
+    {
+      "relation": "gong_controls_xing",
+      "name": "宫克星",
+      "traditional_label": "废"
+    }
+  ],
+  "ri_shi_relations": [
+    {
+      "relation": "same",
+      "name": "日干宫与时干宫比和"
+    },
+    {
+      "relation": "ri_generates_shi",
+      "name": "日干宫生时干宫"
+    },
+    {
+      "relation": "shi_generates_ri",
+      "name": "时干宫生日干宫"
+    },
+    {
+      "relation": "ri_controls_shi",
+      "name": "日干宫克时干宫"
+    },
+    {
+      "relation": "shi_controls_ri",
+      "name": "时干宫克日干宫"
+    }
+  ],
+  "zhi_gong": {
+    "子": "坎",
+    "丑": "艮",
+    "寅": "艮",
+    "卯": "震",
+    "辰": "巽",
+    "巳": "巽",
+    "午": "离",
+    "未": "坤",
+    "申": "坤",
+    "酉": "兑",
+    "戌": "乾",
+    "亥": "乾"
+  },
+  "ma_xing": [
+    {
+      "branches": [
+        "子",
+        "辰",
+        "申"
+      ],
+      "ma": "寅"
+    },
+    {
+      "branches": [
+        "寅",
+        "午",
+        "戌"
+      ],
+      "ma": "申"
+    },
+    {
+      "branches": [
+        "巳",
+        "酉",
+        "丑"
+      ],
+      "ma": "亥"
+    },
+    {
+      "branches": [
+        "亥",
+        "卯",
+        "未"
+      ],
+      "ma": "巳"
+    }
+  ],
+  "liu_jia_liu_yi": [
+    {
+      "xun": "甲子",
+      "zhi": "子",
+      "liu_yi": "戊"
+    },
+    {
+      "xun": "甲戌",
+      "zhi": "戌",
+      "liu_yi": "己"
+    },
+    {
+      "xun": "甲申",
+      "zhi": "申",
+      "liu_yi": "庚"
+    },
+    {
+      "xun": "甲午",
+      "zhi": "午",
+      "liu_yi": "辛"
+    },
+    {
+      "xun": "甲辰",
+      "zhi": "辰",
+      "liu_yi": "壬"
+    },
+    {
+      "xun": "甲寅",
+      "zhi": "寅",
+      "liu_yi": "癸"
+    }
+  ],
+  "xun_kong": [
+    {
+      "xun": "甲子",
+      "branches": [
+        "戌",
+        "亥"
+      ]
+    },
+    {
+      "xun": "甲戌",
+      "branches": [
+        "申",
+        "酉"
+      ]
+    },
+    {
+      "xun": "甲申",
+      "branches": [
+        "午",
+        "未"
+      ]
+    },
+    {
+      "xun": "甲午",
+      "branches": [
+        "辰",
+        "巳"
+      ]
+    },
+    {
+      "xun": "甲辰",
+      "branches": [
+        "寅",
+        "卯"
+      ]
+    },
+    {
+      "xun": "甲寅",
+      "branches": [
+        "子",
+        "丑"
+      ]
+    }
+  ],
+  "wu_bu_yu_shi": [
+    "甲庚",
+    "乙辛",
+    "丙壬",
+    "丁癸",
+    "戊甲",
+    "己乙",
+    "庚丙",
+    "辛丁",
+    "壬戊",
+    "癸己"
+  ],
+  "fu_tou_yuan": [
+    {
+      "branches": [
+        "子",
+        "午",
+        "卯",
+        "酉"
+      ],
+      "yuan": "上元"
+    },
+    {
+      "branches": [
+        "寅",
+        "申",
+        "巳",
+        "亥"
+      ],
+      "yuan": "中元"
+    },
+    {
+      "branches": [
+        "辰",
+        "戌",
+        "丑",
+        "未"
+      ],
+      "yuan": "下元"
+    }
+  ],
+  "mingfa_door_order": [
+    "休门",
+    "死门",
+    "伤门",
+    "杜门",
+    "中门",
+    "开门",
+    "惊门",
+    "生门",
+    "景门"
+  ],
+  "mingfa_spirit_order": [
+    "值符",
+    "螣蛇",
+    "太阴",
+    "六合",
+    "勾陈",
+    "太常",
+    "朱雀",
+    "九地",
+    "九天"
+  ]
+}

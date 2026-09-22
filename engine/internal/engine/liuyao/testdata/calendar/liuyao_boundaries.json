@@ -1,0 +1,23 @@
+{
+  "schema_version": "liuyao-calendar-boundaries-v1",
+  "conclusion_scope": "calendar_and_month_branch_only_not_interpretation",
+  "cases": [
+    {"id":"lichun-before","solar_time":"2024-02-03T12:00:00+08:00","expected_month_branch":"丑"},
+    {"id":"lichun-after","solar_time":"2024-02-05T12:00:00+08:00","expected_month_branch":"寅"},
+    {"id":"jingzhe-before","solar_time":"2024-03-04T12:00:00+08:00","expected_month_branch":"寅"},
+    {"id":"jingzhe-after","solar_time":"2024-03-06T12:00:00+08:00","expected_month_branch":"卯"},
+    {"id":"qingming-before","solar_time":"2024-04-03T12:00:00+08:00","expected_month_branch":"卯"},
+    {"id":"qingming-after","solar_time":"2024-04-05T12:00:00+08:00","expected_month_branch":"辰"},
+    {"id":"lixia-before","solar_time":"2024-05-04T12:00:00+08:00","expected_month_branch":"辰"},
+    {"id":"lixia-after","solar_time":"2024-05-06T12:00:00+08:00","expected_month_branch":"巳"},
+    {"id":"xiaoshu-before","solar_time":"2024-07-05T12:00:00+08:00","expected_month_branch":"午"},
+    {"id":"xiaoshu-after","solar_time":"2024-07-08T12:00:00+08:00","expected_month_branch":"未"},
+    {"id":"liqiu-after","solar_time":"2024-08-08T12:00:00+08:00","expected_month_branch":"申"},
+    {"id":"bailu-after","solar_time":"2024-09-08T12:00:00+08:00","expected_month_branch":"酉"},
+    {"id":"hanlu-after","solar_time":"2024-10-09T12:00:00+08:00","expected_month_branch":"戌"},
+    {"id":"lidong-after","solar_time":"2024-11-08T12:00:00+08:00","expected_month_branch":"亥"},
+    {"id":"daxue-after","solar_time":"2024-12-08T12:00:00+08:00","expected_month_branch":"子"},
+    {"id":"xiaohan-before","solar_time":"2025-01-04T12:00:00+08:00","expected_month_branch":"子"},
+    {"id":"xiaohan-after","solar_time":"2025-01-06T12:00:00+08:00","expected_month_branch":"丑"}
+  ]
+}

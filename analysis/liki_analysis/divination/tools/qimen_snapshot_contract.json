@@ -1,0 +1,375 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "liki:qimen-snapshot-v5",
+  "title": "奇门 immutable snapshot 契约",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "method",
+    "snapshot_digest",
+    "question",
+    "input",
+    "matter",
+    "method_context",
+    "factors",
+    "special",
+    "policy",
+    "snapshot_kind",
+    "safety_advisory"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "qimen-snapshot-v5"
+    },
+    "method": {
+      "const": "qimen"
+    },
+    "snapshot_digest": {
+      "type": "string",
+      "minLength": 16
+    },
+    "question": {
+      "type": "string",
+      "minLength": 2
+    },
+    "input": {
+      "type": "object",
+      "required": [
+        "city",
+        "longitude",
+        "local_time",
+        "solar_time"
+      ],
+      "properties": {
+        "city": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "longitude": {
+          "type": "number"
+        },
+        "local_time": {
+          "type": "string"
+        },
+        "solar_time": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "matter": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "method_context": {
+      "type": "object",
+      "required": [
+        "scope",
+        "school"
+      ],
+      "properties": {
+        "scope": {
+          "type": "string"
+        },
+        "school": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "factors": {
+      "type": "object"
+    },
+    "special": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "assertions"
+      ],
+      "properties": {
+        "rule": {
+          "enum": [
+            "lost_property",
+            "thief_capture",
+            "missing_person",
+            "capture_escape",
+            "thief_profile"
+          ]
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "conclusion",
+              "basis",
+              "evidence"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "conclusion": {
+                "type": "string"
+              },
+              "basis": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array"
+              }
+            }
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "immutable",
+        "no_rechart_without_new_event"
+      ],
+      "properties": {
+        "immutable": {
+          "const": true
+        },
+        "no_rechart_without_new_event": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "snapshot_kind": {
+      "enum": [
+        "standard",
+        "jinhan"
+      ]
+    },
+    "safety_advisory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "blocking",
+        "category",
+        "severity",
+        "support_first",
+        "message",
+        "guidance"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "allow",
+            "advisory"
+          ]
+        },
+        "blocking": {
+          "const": false
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "none",
+            "normal",
+            "high"
+          ]
+        },
+        "support_first": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "guidance": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "snapshot_kind": {
+            "const": "standard"
+          }
+        },
+        "required": [
+          "snapshot_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "factors": {
+            "type": "object",
+            "required": [
+              "scope",
+              "school",
+              "wu_bu_yu_shi",
+              "pillars",
+              "ri_gan_gong",
+              "ri_gan_palace_facts",
+              "shi_gan_gong",
+              "shi_gan_palace_facts",
+              "ri_shi_relation",
+              "patterns",
+              "stars",
+              "doors",
+              "spirits",
+              "kong_wang",
+              "ma_xing",
+              "palace_wang_shuai",
+              "shi_gan_gong_wang_shuai",
+              "ying_qi",
+              "yong_shen",
+              "zhi_fu_xing_gong",
+              "zhi_shi_men_gong",
+              "gong_domains",
+              "palace_directions",
+              "hour_polarity"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "snapshot_kind": {
+            "const": "jinhan"
+          }
+        },
+        "required": [
+          "snapshot_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "matter": {
+            "const": null
+          },
+          "special": {
+            "const": null
+          },
+          "factors": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "school",
+              "scope",
+              "yin_dun",
+              "ri_gan",
+              "ri_zhi",
+              "palaces",
+              "day_spirits"
+            ],
+            "properties": {
+              "kind": {
+                "const": "jinhan"
+              },
+              "school": {
+                "const": "jinhan_yujing"
+              },
+              "scope": {
+                "const": "day"
+              },
+              "yin_dun": {
+                "type": "boolean"
+              },
+              "ri_gan": {
+                "type": "string"
+              },
+              "ri_zhi": {
+                "type": "string"
+              },
+              "palaces": {
+                "type": "array",
+                "minItems": 9,
+                "maxItems": 9,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "gong",
+                    "luoshu",
+                    "xing",
+                    "men",
+                    "men_present"
+                  ],
+                  "properties": {
+                    "gong": {
+                      "type": "string"
+                    },
+                    "luoshu": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9
+                    },
+                    "xing": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "men": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "men_present": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "day_spirits": {
+                "type": "array",
+                "minItems": 12,
+                "maxItems": 12,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "zhi",
+                    "shen"
+                  ],
+                  "properties": {
+                    "zhi": {
+                      "type": "string"
+                    },
+                    "shen": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

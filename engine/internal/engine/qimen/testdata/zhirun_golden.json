@@ -1,0 +1,40 @@
+{
+  "source": {
+    "name": "atopx/qimen",
+    "url": "https://github.com/atopx/qimen",
+    "commit": "8eb06d007d4a5fcc5352d9054f81469e5f023f45",
+    "source_file": "qimen_golden_test.go",
+    "source_sha256": "fb0f27c58e62152f130a0026c713f985c36c42651d319f5601e32784fed0b026",
+    "license": "MIT"
+  },
+  "dingju_vectors": [
+    {"provenance": "atopx_checked_in", "when": "2026-02-18 22:59", "jie_qi": "立春", "yong_ju_jie_qi": "立春", "yin_dun": false, "ju": 2, "yuan": "下元"},
+    {"provenance": "atopx_checked_in", "when": "2026-02-18 23:00", "jie_qi": "立春", "yong_ju_jie_qi": "雨水", "yin_dun": false, "ju": 9, "yuan": "上元"},
+    {"provenance": "atopx_checked_in", "when": "2026-01-14 18:45", "jie_qi": "小寒", "yong_ju_jie_qi": "小寒", "yin_dun": false, "ju": 8, "yuan": "中元"},
+    {"provenance": "atopx_checked_in", "when": "2026-01-05 13:00", "jie_qi": "冬至", "yong_ju_jie_qi": "小寒", "yin_dun": false, "ju": 2, "yuan": "上元"},
+    {"provenance": "atopx_checked_in", "when": "2026-03-02 18:30", "jie_qi": "雨水", "yong_ju_jie_qi": "雨水", "yin_dun": false, "ju": 3, "yuan": "下元"},
+    {"provenance": "atopx_checked_in", "when": "2026-10-31 12:02", "jie_qi": "霜降", "yong_ju_jie_qi": "霜降", "yin_dun": true, "ju": 2, "yuan": "下元"},
+    {"provenance": "atopx_checked_in", "when": "2024-12-06 12:00", "jie_qi": "小雪", "yong_ju_jie_qi": "大雪", "yin_dun": true, "ju": 1, "yuan": "下元"},
+    {"provenance": "atopx_checked_in", "when": "2026-02-03 23:30", "jie_qi": "大寒", "yong_ju_jie_qi": "立春", "yin_dun": false, "ju": 8, "yuan": "上元"},
+    {"provenance": "atopx_checked_in", "when": "2024-12-31 12:00", "jie_qi": "冬至", "yong_ju_jie_qi": "冬至", "yin_dun": false, "ju": 7, "yuan": "中元"},
+    {"provenance": "atopx_checked_in", "when": "2024-12-21 12:00", "jie_qi": "大雪", "yong_ju_jie_qi": "大雪", "yin_dun": true, "ju": 1, "yuan": "下元"},
+    {"provenance": "atopx_checked_in", "when": "2024-12-28 12:00", "jie_qi": "冬至", "yong_ju_jie_qi": "冬至", "yin_dun": false, "ju": 1, "yuan": "上元"},
+    {"provenance": "atopx_checked_in", "when": "2033-06-14 12:00", "jie_qi": "芒种", "yong_ju_jie_qi": "芒种", "yin_dun": false, "ju": 6, "yuan": "上元"},
+    {"provenance": "atopx_checked_in", "when": "2027-12-18 12:00", "jie_qi": "大雪", "yong_ju_jie_qi": "大雪", "yin_dun": true, "ju": 7, "yuan": "中元"},
+    {"provenance": "atopx_checked_in", "when": "1995-12-15 12:00", "jie_qi": "大雪", "yong_ju_jie_qi": "大雪", "yin_dun": true, "ju": 4, "yuan": "上元"},
+    {"provenance": "atopx_checked_in", "when": "2024-12-10 04:00", "jie_qi": "大雪", "yong_ju_jie_qi": "大雪", "yin_dun": true, "ju": 1, "yuan": "下元"},
+    {"provenance": "atopx_checked_in", "when": "2024-12-25 12:00", "jie_qi": "冬至", "yong_ju_jie_qi": "大雪", "yin_dun": true, "ju": 1, "yuan": "下元"}
+  ],
+  "state_vectors": [
+    {"provenance": "atopx_reference_note", "when": "2026-01-05 13:00", "state": "超神"},
+    {"provenance": "atopx_reference_note", "when": "2026-02-04 12:00", "state": "正授"},
+    {"provenance": "atopx_reference_note", "when": "2024-12-21 12:00", "state": "接气"},
+    {"provenance": "atopx_reference_note", "when": "2033-06-14 12:00", "state": "置闰"},
+    {"provenance": "atopx_reference_note", "when": "2027-12-18 12:00", "state": "置闰"},
+    {"provenance": "atopx_reference_note", "when": "1995-12-15 12:00", "state": "置闰"}
+  ],
+  "day_boundary_vectors": [
+    {"provenance": "atopx_checked_in", "when": "2026-02-18 23:00", "day": "甲子", "fu_tou": "甲子"},
+    {"provenance": "atopx_checked_in", "when": "2026-02-03 23:30", "day": "己酉", "fu_tou": "己酉"}
+  ]
+}

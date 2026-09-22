@@ -1,0 +1,78 @@
+{
+ "bazhai.chart": {
+  "birth_year": 1984,
+  "gender": "male"
+ },
+ "bazi.chart": {
+  "gender": "male",
+  "solar_time": "2000-06-15T12:00:00+08:00"
+ },
+ "city": {
+  "city": "Beijing"
+ },
+ "liuyao.chart": {
+  "solar_time": "2000-06-15T12:00:00+08:00",
+  "casting": {
+   "schema_version": "liuyao-cast-v1",
+   "mode": "yaos",
+   "order": "bottom_up",
+   "yaos": [7, 7, 7, 7, 7, 7],
+   "dong_yao": [],
+   "casting_id": "7496b4e4e1355a561e52cf3892e3603c04a57582156f148a6f76c94bb65774ff"
+  }
+ },
+ "liuyao.qigua": {
+  "mode": "yaos",
+  "yaos": [7, 7, 7, 7, 7, 7]
+ },
+ "qimen.chart": {
+  "solar_time": "2000-06-15T12:00:00+08:00",
+  "yong_shen": [
+   "生门",
+   "戊",
+   "天辅",
+   "六合"
+  ],
+  "birth_date": "1984-02-15",
+  "scope": "hour",
+  "school": "zhuanpan",
+  "dingju_method": "zhirun"
+ },
+ "qiming.char": {
+  "char": "明"
+ },
+ "qiming.check": {
+  "given_names": [
+   "明哲"
+  ],
+  "yongshen": "金"
+ },
+ "tianwen.time": {
+  "longitude": 116.4,
+  "time": "2000-06-15T12:00:00+08:00"
+ },
+ "time.now": {},
+ "xuankong.chart": {
+  "period_date": "2026-07-31",
+  "zuo_shan": 0,
+  "xiang_shan": 12
+ },
+ "ziwei.chart": {
+  "gender": "male",
+  "lunar": {
+   "year": 2000,
+   "month": 6,
+   "day": 15,
+   "shichen": "午"
+  }
+ },
+ "bazhai.layout": {
+  "ming_gua": "兑",
+  "door_gua": "乾",
+  "master_gua": "乾",
+  "stove_gua": "乾"
+ },
+ "xuankong.liunian": {
+  "year": 2026
+ }
+}

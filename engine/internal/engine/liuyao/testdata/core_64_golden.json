@@ -1,0 +1,408 @@
+{
+  "version": 1,
+  "basis": "京房八宫卦序；每宫本宫、一世至五世、游魂、归魂。",
+  "policy": {
+    "palace_sequence": [
+      "乾",
+      "兑",
+      "离",
+      "震",
+      "巽",
+      "坎",
+      "艮",
+      "坤"
+    ],
+    "world_response": "world_plus_two_positions"
+  },
+  "scope": {
+    "palaces": 8,
+    "hexagrams_per_palace": 8,
+    "case_count": 64
+  },
+  "cases": [
+    {
+      "index": 0,
+      "name": "乾为天",
+      "palace": "乾",
+      "shi_pos": 6
+    },
+    {
+      "index": 1,
+      "name": "天风姤",
+      "palace": "乾",
+      "shi_pos": 1
+    },
+    {
+      "index": 2,
+      "name": "天山遁",
+      "palace": "乾",
+      "shi_pos": 2
+    },
+    {
+      "index": 3,
+      "name": "天地否",
+      "palace": "乾",
+      "shi_pos": 3
+    },
+    {
+      "index": 4,
+      "name": "风地观",
+      "palace": "乾",
+      "shi_pos": 4
+    },
+    {
+      "index": 5,
+      "name": "山地剥",
+      "palace": "乾",
+      "shi_pos": 5
+    },
+    {
+      "index": 6,
+      "name": "火地晋",
+      "palace": "乾",
+      "shi_pos": 4
+    },
+    {
+      "index": 7,
+      "name": "火天大有",
+      "palace": "乾",
+      "shi_pos": 3
+    },
+    {
+      "index": 8,
+      "name": "兑为泽",
+      "palace": "兑",
+      "shi_pos": 6
+    },
+    {
+      "index": 9,
+      "name": "泽水困",
+      "palace": "兑",
+      "shi_pos": 1
+    },
+    {
+      "index": 10,
+      "name": "泽地萃",
+      "palace": "兑",
+      "shi_pos": 2
+    },
+    {
+      "index": 11,
+      "name": "泽山咸",
+      "palace": "兑",
+      "shi_pos": 3
+    },
+    {
+      "index": 12,
+      "name": "水山蹇",
+      "palace": "兑",
+      "shi_pos": 4
+    },
+    {
+      "index": 13,
+      "name": "地山谦",
+      "palace": "兑",
+      "shi_pos": 5
+    },
+    {
+      "index": 14,
+      "name": "雷山小过",
+      "palace": "兑",
+      "shi_pos": 4
+    },
+    {
+      "index": 15,
+      "name": "雷泽归妹",
+      "palace": "兑",
+      "shi_pos": 3
+    },
+    {
+      "index": 16,
+      "name": "离为火",
+      "palace": "离",
+      "shi_pos": 6
+    },
+    {
+      "index": 17,
+      "name": "火山旅",
+      "palace": "离",
+      "shi_pos": 1
+    },
+    {
+      "index": 18,
+      "name": "火风鼎",
+      "palace": "离",
+      "shi_pos": 2
+    },
+    {
+      "index": 19,
+      "name": "火水未济",
+      "palace": "离",
+      "shi_pos": 3
+    },
+    {
+      "index": 20,
+      "name": "山水蒙",
+      "palace": "离",
+      "shi_pos": 4
+    },
+    {
+      "index": 21,
+      "name": "风水涣",
+      "palace": "离",
+      "shi_pos": 5
+    },
+    {
+      "index": 22,
+      "name": "天水讼",
+      "palace": "离",
+      "shi_pos": 4
+    },
+    {
+      "index": 23,
+      "name": "天火同人",
+      "palace": "离",
+      "shi_pos": 3
+    },
+    {
+      "index": 24,
+      "name": "震为雷",
+      "palace": "震",
+      "shi_pos": 6
+    },
+    {
+      "index": 25,
+      "name": "雷地豫",
+      "palace": "震",
+      "shi_pos": 1
+    },
+    {
+      "index": 26,
+      "name": "雷水解",
+      "palace": "震",
+      "shi_pos": 2
+    },
+    {
+      "index": 27,
+      "name": "雷风恒",
+      "palace": "震",
+      "shi_pos": 3
+    },
+    {
+      "index": 28,
+      "name": "地风升",
+      "palace": "震",
+      "shi_pos": 4
+    },
+    {
+      "index": 29,
+      "name": "水风井",
+      "palace": "震",
+      "shi_pos": 5
+    },
+    {
+      "index": 30,
+      "name": "泽风大过",
+      "palace": "震",
+      "shi_pos": 4
+    },
+    {
+      "index": 31,
+      "name": "泽雷随",
+      "palace": "震",
+      "shi_pos": 3
+    },
+    {
+      "index": 32,
+      "name": "巽为风",
+      "palace": "巽",
+      "shi_pos": 6
+    },
+    {
+      "index": 33,
+      "name": "风天小畜",
+      "palace": "巽",
+      "shi_pos": 1
+    },
+    {
+      "index": 34,
+      "name": "风火家人",
+      "palace": "巽",
+      "shi_pos": 2
+    },
+    {
+      "index": 35,
+      "name": "风雷益",
+      "palace": "巽",
+      "shi_pos": 3
+    },
+    {
+      "index": 36,
+      "name": "天雷无妄",
+      "palace": "巽",
+      "shi_pos": 4
+    },
+    {
+      "index": 37,
+      "name": "火雷噬嗑",
+      "palace": "巽",
+      "shi_pos": 5
+    },
+    {
+      "index": 38,
+      "name": "山雷颐",
+      "palace": "巽",
+      "shi_pos": 4
+    },
+    {
+      "index": 39,
+      "name": "山风蛊",
+      "palace": "巽",
+      "shi_pos": 3
+    },
+    {
+      "index": 40,
+      "name": "坎为水",
+      "palace": "坎",
+      "shi_pos": 6
+    },
+    {
+      "index": 41,
+      "name": "水泽节",
+      "palace": "坎",
+      "shi_pos": 1
+    },
+    {
+      "index": 42,
+      "name": "水雷屯",
+      "palace": "坎",
+      "shi_pos": 2
+    },
+    {
+      "index": 43,
+      "name": "水火既济",
+      "palace": "坎",
+      "shi_pos": 3
+    },
+    {
+      "index": 44,
+      "name": "泽火革",
+      "palace": "坎",
+      "shi_pos": 4
+    },
+    {
+      "index": 45,
+      "name": "雷火丰",
+      "palace": "坎",
+      "shi_pos": 5
+    },
+    {
+      "index": 46,
+      "name": "地火明夷",
+      "palace": "坎",
+      "shi_pos": 4
+    },
+    {
+      "index": 47,
+      "name": "地水师",
+      "palace": "坎",
+      "shi_pos": 3
+    },
+    {
+      "index": 48,
+      "name": "艮为山",
+      "palace": "艮",
+      "shi_pos": 6
+    },
+    {
+      "index": 49,
+      "name": "山火贲",
+      "palace": "艮",
+      "shi_pos": 1
+    },
+    {
+      "index": 50,
+      "name": "山天大畜",
+      "palace": "艮",
+      "shi_pos": 2
+    },
+    {
+      "index": 51,
+      "name": "山泽损",
+      "palace": "艮",
+      "shi_pos": 3
+    },
+    {
+      "index": 52,
+      "name": "火泽睽",
+      "palace": "艮",
+      "shi_pos": 4
+    },
+    {
+      "index": 53,
+      "name": "天泽履",
+      "palace": "艮",
+      "shi_pos": 5
+    },
+    {
+      "index": 54,
+      "name": "风泽中孚",
+      "palace": "艮",
+      "shi_pos": 4
+    },
+    {
+      "index": 55,
+      "name": "风山渐",
+      "palace": "艮",
+      "shi_pos": 3
+    },
+    {
+      "index": 56,
+      "name": "坤为地",
+      "palace": "坤",
+      "shi_pos": 6
+    },
+    {
+      "index": 57,
+      "name": "地雷复",
+      "palace": "坤",
+      "shi_pos": 1
+    },
+    {
+      "index": 58,
+      "name": "地泽临",
+      "palace": "坤",
+      "shi_pos": 2
+    },
+    {
+      "index": 59,
+      "name": "地天泰",
+      "palace": "坤",
+      "shi_pos": 3
+    },
+    {
+      "index": 60,
+      "name": "雷天大壮",
+      "palace": "坤",
+      "shi_pos": 4
+    },
+    {
+      "index": 61,
+      "name": "泽天夬",
+      "palace": "坤",
+      "shi_pos": 5
+    },
+    {
+      "index": 62,
+      "name": "水天需",
+      "palace": "坤",
+      "shi_pos": 4
+    },
+    {
+      "index": 63,
+      "name": "水地比",
+      "palace": "坤",
+      "shi_pos": 3
+    }
+  ]
+}

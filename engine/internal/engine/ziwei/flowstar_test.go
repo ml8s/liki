@@ -1,0 +1,175 @@
+package ziwei
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tianwen"
+)
+
+type flowGold struct {
+	Lunar     string         `json:"lunar"`
+	Ti        int            `json:"ti"`
+	Gender    string         `json:"gender"`
+	FlowStars map[string]int `json:"flowStars"`
+	FlowLM    int            `json:"flowLM"`
+	FlowLD    int            `json:"flowLD"` // starName → zhiIdx
+}
+
+func TestFlowStarsAgainstIz(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("testdata", "flow_golden.json"))
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	var cases []flowGold
+	if err := json.Unmarshal(data, &cases); err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+
+	flowYear := 2026
+
+	var pass, total int
+	type failT struct {
+		lunar, star string
+		got, want   int
+	}
+	var fails []failT
+
+	for _, tc := range cases {
+		if tc.FlowLM == 0 {
+			continue
+		}
+
+		// 流月天干地支
+		liuYearGan := nianGan(flowYear)
+		monthGan := Gan(((int(yinGan(liuYearGan))-1+tc.FlowLM-1)%10+10)%10 + 1)
+		yueZhi := Zhi((tc.FlowLM+1)%12 + 1) // 正月寅起，不依赖命宫
+
+		// 流日天干地支
+		dayZhu := tianwen.RiZhu(tianwen.LunarToGregorian(tianwen.LunarTime{Year: flowYear, Month: tc.FlowLM, Day: tc.FlowLD}))
+		riGan, riZhi := Gan(dayZhu.Gan), Zhi(dayZhu.Zhi)
+
+		// 流时天干地支(iztro默认用流日时辰=子时)
+		shiZhi := ganzhi.Zhi(1) // 子时
+		shiGan := shiGanCalc(riGan, shiZhi)
+
+		// 计算Liki expected star positions
+		likiStars := starZhiIdxMap(monthGan, yueZhi, riGan, riZhi, shiGan, shiZhi)
+
+		// 对比iztro golden
+		for sName, goldenZhiIdx := range tc.FlowStars {
+			total++
+			engineZhiIdx, ok := likiStars[sName]
+			if !ok {
+				t.Errorf("%s %s: missing in Liki", tc.Lunar, sName)
+				continue
+			}
+			if engineZhiIdx != goldenZhiIdx {
+				fails = append(fails, failT{tc.Lunar, sName, engineZhiIdx, goldenZhiIdx})
+			} else {
+				pass++
+			}
+		}
+	}
+
+	if len(fails) > 0 {
+		for i, f := range fails {
+			if i >= 5 {
+				break
+			}
+			t.Errorf("%s %s: got zhiM1=%d want %d", f.lunar, f.star, f.got, f.want)
+		}
+	}
+	pct := float64(pass) / float64(total) * 100
+	fmt.Printf("流月/日/时星验证: %d/%d (%.1f%%)\n", pass, total, pct)
+	if len(fails) > 0 {
+		fmt.Printf("失败: %d\n", len(fails))
+	}
+}
+
+func starZhiIdxMap(mg Gan, mz Zhi, dg Gan, dz Zhi, sg Gan, sz Zhi) map[string]int {
+	r := make(map[string]int)
+	mchg, mqu := liuChangQuByGan(mg)
+	dchg, dqu := liuChangQuByGan(dg)
+	schg, squ := liuChangQuByGan(sg)
+	// monthly
+	for _, s := range []string{"月禄", "月羊", "月陀", "月魁", "月钺", "月马", "月鸾", "月喜", "月昌", "月曲"} {
+		switch s {
+		case "月禄":
+			r[s] = luCunPos(mg)
+		case "月羊":
+			r[s] = qingYangPos(mg)
+		case "月陀":
+			r[s] = tuoLuoPos(mg)
+		case "月魁":
+			r[s] = tianKuiPos(mg)
+		case "月钺":
+			r[s] = tianYuePos(mg)
+		case "月马":
+			r[s] = tianMaPos(mz)
+		case "月鸾":
+			r[s] = hongLuanPos(mz)
+		case "月喜":
+			r[s] = (hongLuanPos(mz) + 6) % 12
+		case "月昌":
+			r[s] = mchg
+		case "月曲":
+			r[s] = mqu
+		}
+	}
+	// daily
+	for _, s := range []string{"日禄", "日羊", "日陀", "日魁", "日钺", "日马", "日鸾", "日喜", "日昌", "日曲"} {
+		switch s {
+		case "日禄":
+			r[s] = luCunPos(dg)
+		case "日羊":
+			r[s] = qingYangPos(dg)
+		case "日陀":
+			r[s] = tuoLuoPos(dg)
+		case "日魁":
+			r[s] = tianKuiPos(dg)
+		case "日钺":
+			r[s] = tianYuePos(dg)
+		case "日马":
+			r[s] = tianMaPos(dz)
+		case "日鸾":
+			r[s] = hongLuanPos(dz)
+		case "日喜":
+			r[s] = (hongLuanPos(dz) + 6) % 12
+		case "日昌":
+			r[s] = dchg
+		case "日曲":
+			r[s] = dqu
+		}
+	}
+	// hourly
+	for _, s := range []string{"时禄", "时羊", "时陀", "时魁", "时钺", "时马", "时鸾", "时喜", "时昌", "时曲"} {
+		switch s {
+		case "时禄":
+			r[s] = luCunPos(sg)
+		case "时羊":
+			r[s] = qingYangPos(sg)
+		case "时陀":
+			r[s] = tuoLuoPos(sg)
+		case "时魁":
+			r[s] = tianKuiPos(sg)
+		case "时钺":
+			r[s] = tianYuePos(sg)
+		case "时马":
+			r[s] = tianMaPos(sz)
+		case "时鸾":
+			r[s] = hongLuanPos(sz)
+		case "时喜":
+			r[s] = (hongLuanPos(sz) + 6) % 12
+		case "时昌":
+			r[s] = schg
+		case "时曲":
+			r[s] = squ
+		}
+	}
+	return r
+}

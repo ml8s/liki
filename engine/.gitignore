@@ -1,0 +1,43 @@
+# Go binaries
+/server
+/bin/
+/liki
+*.exe
+*.test
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Generated
+data/pdfs/
+node_modules/
+coverage.out
+
+# Test artifacts
+test_write.txt
+testdata/fuzz/
+
+# Reasonix
+.reasonix/
+reasonix.toml
+.DS_Store
+*.out
+liki-engine
+/liki
+cmd/liki/liki-engine

@@ -1,0 +1,16 @@
+{
+  "branches": {
+    "子": {"main": "癸", "mid": null, "minor": null},
+    "丑": {"main": "己", "mid": "癸", "minor": "辛"},
+    "寅": {"main": "甲", "mid": "丙", "minor": "戊"},
+    "卯": {"main": "乙", "mid": null, "minor": null},
+    "辰": {"main": "戊", "mid": "乙", "minor": "癸"},
+    "巳": {"main": "丙", "mid": "庚", "minor": "戊"},
+    "午": {"main": "丁", "mid": "己", "minor": null},
+    "未": {"main": "己", "mid": "乙", "minor": "丁"},
+    "申": {"main": "庚", "mid": "壬", "minor": "戊"},
+    "酉": {"main": "辛", "mid": null, "minor": null},
+    "戌": {"main": "戊", "mid": "辛", "minor": "丁"},
+    "亥": {"main": "壬", "mid": "甲", "minor": null}
+  }
+}
