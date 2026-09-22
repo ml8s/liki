@@ -58,6 +58,10 @@ tar czf "$ARCHIVE" \
     --exclude CHANGELOG.md \
     --exclude '*.tar.gz' \
     --exclude dist \
+    --exclude natal \
+    --exclude divination \
+    --exclude fengshui \
+    --exclude naming \
     .
 
 DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"

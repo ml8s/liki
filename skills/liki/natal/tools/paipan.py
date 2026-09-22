@@ -27,7 +27,7 @@ from pan_schema import validate_natal_pan
 RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
 RPC_TIMEOUT = int(os.environ.get("LIKI_RPC_TIMEOUT", "30"))
 MAX_RETRIES = int(os.environ.get("LIKI_RPC_MAX_RETRIES", "2"))
-SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 5
+SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 8
 SHICHEN_BOUNDARY_START_HOURS = (23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"

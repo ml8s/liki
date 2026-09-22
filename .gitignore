@@ -1,41 +1,9 @@
-# Reasonix agent config
-.git-old/
-.reasonix/
-reasonix.toml
-.agents/
-
-# Local IDE config (any level — root and engine/.claude)
-.claude/
-
-# Engine built binary (top-level make build)
-bin/
-
 # OS
 .DS_Store
 Thumbs.db
 dist/
-
-# 评测产物（agent 输出——可再生）
+# 评测产物
 tests/benchmark/mingli160/workspace/
 tests/skillup/workspace/
-# Python 缓存
-__pycache__/
-*.pyc
-
-# 评测临时配置（runner 生成的临时 yaml）
-.run-eval.*.yaml
-.run-bazi.*.yaml
-.run-divination.*.yaml
-.run-fengshui.*.yaml
-.run-naming.*.yaml
-
-# 本地模型供应商密钥（不提交）
-tests/benchmark/mingli160/evals/*.local.env
-tests/skillup/evals/*.local.env
-
-tests/benchmark/mingli160/evals/*.log
-
-# Coverage artifacts
-.coverage
-coverage.xml
-htmlcov/
+# 本地开发技能（不入库）
+.agents/

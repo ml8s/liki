@@ -1,0 +1,24 @@
+{
+  "name": "Liki 命理",
+  "name_zh": "Liki 命理",
+  "name_en": "Liki Metaphysics",
+  "description": "Deterministic Chinese metaphysics computation: BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, Huang Li, Feng Shui and naming.",
+  "description_zh": "提供八字、紫微斗数、六爻占卜、奇门遁甲、黄历择日、八宅玄空风水与起名的确定性命理计算，排盘与断语依据可回溯。",
+  "description_en": "Deterministic Chinese metaphysics computation: BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, Huang Li, Feng Shui and naming, with traceable rule-based readings.",
+  "source": "liki",
+  "type": "mcp",
+  "version": "1.0.0",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": [
+    "算八字，1990-05-20 12:00 北京出生，男",
+    "这个项目能成吗？什么时候有结果？",
+    "下个月哪天适合搬家？",
+    "宝宝起名，2024-06-10 广州出生，男，姓陈"
+  ],
+  "examples_en": [
+    "Cast a BaZi chart for a male born 1990-05-20 12:00 in Beijing",
+    "Will this project succeed, and when will we know?",
+    "Which day next month is good for moving house?",
+    "Name a baby boy born 2024-06-10 in Guangzhou, surname Chen"
+  ]
+}

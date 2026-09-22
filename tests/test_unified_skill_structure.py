@@ -68,7 +68,7 @@ def test_app_cards_use_standard_contract_sections():
 
 def test_root_entry_is_a_lightweight_router():
     lines = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").splitlines()
-    assert len(lines) <= 120
+    assert len(lines) <= 140
     assert "## 领域路由" in lines
     assert "## 统一硬边界" in lines
 
@@ -135,12 +135,17 @@ def test_direct_rpc_contracts_require_all_business_methods():
             assert f'"method": "{method}"' in text, (domain, method)
 
 
-def test_root_defers_discover_closure_to_domain_entries():
+def test_root_defers_mcp_closure_to_analysis_and_engine():
+    """MCP 化后：SKILL.md 声明两个 MCP 端点，路由到 analysis 与 engine 工具。"""
     text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
-    assert "固定 discover" in text
-    assert "固定 discover scope" in text
-    assert "只复制领域 `RPC.md` 中的固定 discover scope 和完整 JSON-RPC 报文" in text
-    assert "必须覆盖领域契约要求" in text
+    assert "liki-analysis" in text
+    assert "liki-engine" in text
+    assert "create_birth_chart" in text
+    assert "liuyao_snapshot" in text
+    assert "qiming_surname" in text
+    mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
+    assert set(mcp["mcpServers"]) == {"liki-analysis", "liki-engine"}
+
 
 
 def test_runtime_discover_closures_match_domain_entries(monkeypatch):

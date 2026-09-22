@@ -1,5 +1,81 @@
 # Changelog
 
+## [2026.09.22.3] — skill 切换到 MCP + analysis 规则层独立
+
+### Added
+
+- `analysis/` Python MCP 规则层自足：natal/divination 工具层复制进 `analysis/liki_analysis/`，analysis server 调自身副本，不再依赖 skill 目录；`analysis/liki_analysis/VERSION.txt` 纳入版本同步。
+- skill 声明 MCP 依赖（`.mcp.json`：`liki-analysis` + `liki-engine` 双端点）。
+
+### Changed
+
+- `SKILL.md` 改为 MCP 形态：领域路由映射到 analysis/engine MCP 工具，LLM 通过标准 MCP 直接调用；保留 Aipay、硬边界、输出契约、Feedback。
+- `build-archive` 分发包变薄：排除领域目录（natal/divination/fengshui/naming），分发包仅含 SKILL.md + VERSION + FAQ + .mcp.json + aipay/feedback（12K）。
+- 契约测试同步更新（MCP 结构：双 MCP 端点、工具路由断言取代旧 RPC discover 契约）。
+
+## [2026.09.22.2] — analysis MCP 服务 + 引擎杂曜确定性修复
+
+### Fixed
+
+- `ziwei.fullchart` 杂曜（`za_yao`）由 map 遍历生成，顺序每次随机，导致**同一命盘 `pan_digest` 每次不同**（chart_ref 不稳定、缓存/校验失效）——改为 `sort.Strings` 固定顺序，digest 稳定。新增 `TestComputeFullChartDeterministic` 回归锁。
+
+### Added
+
+- `analysis/` Python MCP 服务（stateless Streamable HTTP，2026-07-28）：暴露 10 个工具（natal 5 + divination 5），subprocess 复用现有 `agent_cli.py`，与 skill 结果天然一致。
+- analysis 正确性测试 6 项：工具面/schema 与 skill-tools.json 一致、透传一致性（MCP == agent_cli）、非法参数拒绝。
+
+## [2026.09.22.1] — MCP outputSchema 补全
+
+### Added
+
+- `liki-mcp` 每个 object 返回的工具补充 `outputSchema`：从 RPC Result envelope 提取 data schema，与大模型 OpenRPC 的返回结构知识对齐，工具调用更准确。
+
+### Fixed
+
+- `outputSchema` 非 object 类型违规（`bazi_xiaoyun`/`huangli_days`/`qiming_check`/`ziwei_daxian` 返回数组）：MCP conformance 要求 outputSchema 顶层为 object，array 返回的工具改为省略 outputSchema（description 承担返回说明）。
+- `json.RawMessage(nil)` 导致 `outputSchema: null` 序列化问题：改为条件赋值，nil 时完全省略字段。
+
+### Changed
+
+- MCP 官方 conformance 复跑全绿（core 生命周期 + 业务工具集基线）。
+
+## [2026.09.22.0] — 城市经纬度内置表 + 时辰临界阈值加宽
+
+### Added
+
+- `city.coords` 新增内置城市经纬度表（WGS-84）：中国县级 2958 + 地级市 339 + 海外/港澳台 88，`cities_data.json` 内嵌进引擎。匹配优先级：县级精确 → 地级市代表坐标 → 海外；未命中再走 Nominatim（OSM）兜底，解决了 OSM 国内不可达导致城市查经纬度失败的问题。
+- 匹配支持行政区划后缀回退（「抚远」→「抚远市」、错误后缀「抚远区」→「抚远市」）与地级市兜底（「佳木斯」→ 市区代表坐标）。
+- `country` 字段统一为中文：OSM 英文国家名经 `countryZh` 映射为中文（港澳台统一「中国台湾 / 中国香港 / 中国澳门」），与内置表中文 region 一致。
+
+### Fixed
+
+- 直辖市数据缺失：CSV 中北京/天津/上海/重庆的 City 列为「市辖区/县」，导致地级市索引缺直辖市——生成时用省份名作城市键（cities 337→339）。
+- 错误行政区划后缀输入无法回退命中（如「抚远区」）。
+
+### Changed
+
+- 时辰临界校准阈值 `SHICHEN_BOUNDARY_THRESHOLD_MINUTES` 从 5 加大到 8 分钟：覆盖城市级经纬度误差（市中心 vs 实际出生点经度差可达 3–4 分钟），降低临界时间判错风险。
+- 内置表测试扩展：数据完整性、直辖市、错误后缀回退、OSM 兜底 country 中文、临界阈值 7/8/9 分钟边界。
+
+## [2026.09.21.3] — WorkBuddy MCP 接入
+
+### Added
+
+- 引擎新增独立 MCP Server `engine/cmd/liki-mcp`：标准 Streamable HTTP（`/mcp`）+ stdio，30 个命理方法映射为 MCP 工具，剥离 RPC 私有信封返回纯数据，业务错误返回 `IsError` 结果；`-stdio` 支持本地调试。
+- `RPCRegistry` 新增只读访问器 `Names` / `Method`，供 MCP 层遍历注册方法。
+- WorkBuddy 连接器上架材料 `workbuddy/liki-connector`：`connector-meta.json` / `mcp.json` / `icon.svg` / 配套 Skill（工具使用手册）。
+- WorkBuddy 专家上架材料 `workbuddy/liki-expert`：`plugin.json` / `agents/liki-master.md` / 预加载 Skill / README。
+- `Makefile` 新增 `build-mcp` / `test-mcp`（含官方 conformance 基线验证）；Dockerfile 同一镜像同时产出 `liki-mcp`，compose 增加 `mcp` 服务。
+
+### Changed
+
+- `make version` 同步 `engine/cmd/liki-mcp/VERSION`（VERSION_FILES 扩展）。
+- MCP 工具调用对 `arguments: null` / 缺省参数统一按空对象处理（`engine/cmd/liki-mcp/server.go`）。
+
+### Docs
+
+- 新增 `docs/WORKBUDDY_PLAN.md`：WorkBuddy 接入计划（独立 MCP + Connector + Expert + RPC 退役路径）。
+
 ## [2026.09.21.2] — Aipay post-paid contract
 
 ### Changed

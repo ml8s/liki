@@ -180,3 +180,20 @@ def test_boundary_hint_covers_every_shichen_boundary(index: int) -> None:
     assert hint["alternate_shichen"]["branch"] == zhi[previous]
     assert hint["direction"] == "earlier"
     assert hint["boundary_offset_minutes"] == 1
+
+
+@pytest.mark.parametrize(
+    ("time", "expect_hint"),
+    [
+        ("1981-08-26T00:53:00+08:00", True),   # 距 01:00 边界 7 分钟 < 8 → 提示
+        ("1981-08-26T00:52:00+08:00", True),   # 距边界恰 8 分钟（>8 才沉默）→ 提示
+        ("1981-08-26T00:51:00+08:00", False),  # 距边界 9 分钟 > 8 → 沉默
+    ],
+)
+def test_boundary_hint_threshold_is_eight_minutes(time: str, expect_hint: bool) -> None:
+    """临界阈值 8 分钟：<=8 触发提示，>8 沉默（锁边界防回归）。"""
+    hint = paipan._shichen_boundary_hint(time)
+    if expect_hint:
+        assert hint is not None, f"{time} 应在临界窗口内触发提示"
+    else:
+        assert hint is None, f"{time} 不应触发提示"
