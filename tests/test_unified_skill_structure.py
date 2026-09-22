@@ -203,5 +203,5 @@ def test_docs_describe_domain_specific_rpc_boundaries():
     package = (ROOT / "docs" / "SKILL_PACKAGE.md").read_text(encoding="utf-8")
     assert "RPC 方法对 LLM 不可见" not in zh
     assert "RPC methods remain invisible" not in en
-    assert "无 `tools/` 的领域" in package
-    assert "固定 discover scope" in package
+    assert "liki-analysis" in package
+    assert "liki-engine" in package

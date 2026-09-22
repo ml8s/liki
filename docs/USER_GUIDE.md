@@ -120,7 +120,7 @@ Skill 按命理师的专业习惯组织对话：一次处理一个主题，结�
 
 ### 需要联网吗？
 
-默认需要访问 JSON-RPC 引擎；排盘和规则查询都由引擎完成。高级用户也可以自建 engine，并用 `LIKI_RPC_URL` 指向本地或私有服务。
+需要。Liki 通过标准 MCP 提供服务：`liki-analysis`（判断层）和 `liki-engine`（排盘/起名/风水）。客户端连接 MCP 端点（`https://liki.hk/analysis/mcp` 与 `https://liki.hk/mcp`）后即可调用。
 
 ### 我的出生数据会被存储吗？
 
@@ -138,14 +138,14 @@ Skill 启动时会检查版本。提示更新后重新执行：
 npx skills add ml8s/liki -y
 ```
 
-### 自建引擎怎么升级？
+### 服务端怎么升级？
 
-保持 skill `VERSION.txt` 和 engine discover 返回的 `info.version` 兼容。engine 低于 skill 要求时，工具层会 fail closed，不会降级调用旧 RPC。
+保持 skill `VERSION.txt` 和 MCP 服务端（liki-core）的版本契约兼容。服务端低于 skill 要求时，工具会 fail closed，不会降级调用旧接口。
 
 ## 输出原则
 
 - 首句给明确结论，或明确说明证据不足。
-- 关键结论引用 engine 事实、断语 ID、因子或 RPC 依据。
+- 关键结论引用引擎事实、断语 ID、因子或 MCP 工具依据。
 - 缺失字段输出「不可用」，不猜测。
 - 不把应期写成必然结果。
 - 医疗、法律、金融、安全等现实问题附专业咨询提示。
