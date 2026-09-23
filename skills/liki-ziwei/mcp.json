@@ -1,12 +1,12 @@
 {
   "mcpServers": {
-    "analysis-ziwei": {
+    "engine-pro-ziwei": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/analysis/mcp/ziwei"
+      "url": "https://liki.hk/mcp/engine-pro/ziwei"
     },
     "engine-aux": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/aux"
+      "url": "https://liki.hk/mcp/engine/aux"
     }
   }
 }

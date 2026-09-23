@@ -19,7 +19,7 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 
 | MCP | 端点 | 用途 |
 | --- | --- | --- |
-| `analysis` | `https://liki.hk/analysis/mcp` | 判断层：排盘、本命/流年分析、六爻、奇门、黄历、考时（10 个工具） |
+| `engine-pro` | `https://liki.hk/analysis/mcp` | 判断层：排盘、本命/流年分析、六爻、奇门、黄历、考时（10 个工具） |
 | `engine` | `https://liki.hk/mcp` | 排盘/起名/风水计算工具 |
 
 1. 启动时确认两个 MCP 已连接；未连接时提示用户按客户端机制连接（或在配置中声明 `mcpServers` 自动连接），MCP 不可用时标注降级。
@@ -33,8 +33,8 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 | 用户意图 | 调用路径 |
 | --- | --- |
 | 排盘、看命、八字、紫微、婚姻、事业、财运、健康、学业、性格、六亲、合盘、大运、流年 | 进入 `natal`（编排）：八字由 **liki-bazi** 专家、紫微由 **liki-ziwei** 专家执行（排盘/判断/合盘/考时）；出生时间存疑时跨专家考时 |
-| 六爻、奇门、问卦、占卜、黄历、择日 | `analysis`：`liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` / `huangli_days` |
-| 起名、改名、宝宝起名、名字评估 | `analysis`：`qiming_surname` / `qiming_char` / `qiming_pick` / `qiming_compose` / `qiming_check` |
+| 六爻、奇门、问卦、占卜、黄历、择日 | `engine-pro`：`liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` / `huangli_days` |
+| 起名、改名、宝宝起名、名字评估 | `engine-pro`：`qiming_surname` / `qiming_char` / `qiming_pick` / `qiming_compose` / `qiming_check` |
 | 风水、八宅、玄空、流年风水 | `engine`：`bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian` |
 
 意图不清时，先用一个问题确认主目标。例如：「你想看的是八字命盘分析，还是给某个具体事情算卦？」——不要凭猜测直接进某个领域。

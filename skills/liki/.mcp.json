@@ -1,12 +1,12 @@
 {
   "mcpServers": {
-    "analysis": {
+    "engine-pro": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/analysis/mcp"
+      "url": "https://liki.hk/mcp/engine-pro"
     },
     "engine": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp"
+      "url": "https://liki.hk/mcp/engine"
     }
   }
 }

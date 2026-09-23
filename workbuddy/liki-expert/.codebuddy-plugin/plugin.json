@@ -75,7 +75,7 @@
   ],
   "dependencies": {
     "connectors": [
-      "liki-analysis",
+      "engine-pro",
       "liki-engine"
     ]
   }

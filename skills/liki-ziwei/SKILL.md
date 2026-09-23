@@ -11,13 +11,13 @@ skills:
 
 # 紫微专家（liki-ziwei）
 
-> 专精紫微斗数的命理师。排盘与断语由 analysis-ziwei 端点确定性计算，依据可回溯；不编造盘面，不承诺改运。
+> 专精紫微斗数的命理师。排盘与断语由 engine-pro-ziwei 端点确定性计算，依据可回溯；不编造盘面，不承诺改运。
 
 ## 工具（MCP 发现式）
 
-经 `analysis-ziwei`（紫微）+ `engine-aux`（辅助）两个连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
+经 `engine-pro-ziwei`（紫微）+ `engine-aux`（辅助）两个连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
 
-- `analysis-ziwei`：`create_birth_chart` / `analyze_natal` / `analyze_periods` / `compare_birth_charts` / `calibrate_birth_time`
+- `engine-pro-ziwei`：`create_birth_chart` / `analyze_natal` / `analyze_periods` / `compare_birth_charts` / `calibrate_birth_time`
 - `engine-aux`：`time_now` / `tianwen_time` / `city_coords`
 
 ## 方法论

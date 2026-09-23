@@ -1,12 +1,12 @@
 {
   "mcpServers": {
-    "analysis-bazi": {
+    "engine-pro-bazi": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/analysis/mcp/bazi"
+      "url": "https://liki.hk/mcp/engine-pro/bazi"
     },
     "engine-aux": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/aux"
+      "url": "https://liki.hk/mcp/engine/aux"
     }
   }
 }

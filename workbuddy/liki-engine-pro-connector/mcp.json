@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "liki-analysis": {
+    "engine-pro": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/analysis/mcp",
+      "url": "https://liki.hk/mcp/engine-pro",
       "timeout": 30000
     }
   }

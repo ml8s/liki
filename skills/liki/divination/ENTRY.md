@@ -4,9 +4,9 @@
 
 ## 工具契约
 
-divination 域通过 `analysis` MCP 连接器调用，不直接使用 RPC。
+divination 域通过 `engine-pro` MCP 连接器调用，不直接使用 RPC。
 
-- 工具契约见 `divination/TOOLS.md`（工具参数由 `analysis` MCP 连接器 schema 提供）
+- 工具契约见 `divination/TOOLS.md`（工具参数由 `engine-pro` MCP 连接器 schema 提供）
 - 调用：`liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` / `huangli_days`
 - 响应：成功读 `data`；失败读 `error`
 - 工具层启动时校验 engine 版本和必需 MCP 能力；不满足即 fail closed。

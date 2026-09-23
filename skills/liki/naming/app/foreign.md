@@ -6,7 +6,7 @@ description: 外国人起中文名 — 罗马字姓转受控中文姓候选，�
 
 # 外国人起中文名
 
-> 工具：经 `analysis` MCP 调用 `qiming_surname` / `qiming_pick` / `qiming_compose` / `qiming_check`（参数见工具 schema）。
+> 工具：经 `engine-pro` MCP 调用 `qiming_surname` / `qiming_pick` / `qiming_compose` / `qiming_check`（参数见工具 schema）。
 > 场景：外国人罗马字姓起中文名。通用起名/改名 → `naming.md`；自选名字评估 → `selfcheck.md`。
 
 ## 依赖的领域知识

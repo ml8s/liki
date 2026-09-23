@@ -4,7 +4,7 @@
 
 ## 工具契约
 
-agent 经 `analysis` MCP 使用 `qiming_surname` / `qiming_pick` / `qiming_char` / `qiming_compose` / `qiming_check` 工具（参数见工具 schema）；不得推断其他方法或参数。
+agent 经 `engine-pro` MCP 使用 `qiming_surname` / `qiming_pick` / `qiming_char` / `qiming_compose` / `qiming_check` 工具（参数见工具 schema）；不得推断其他方法或参数。
 
 ## 路由
 
