@@ -35,5 +35,5 @@ liki-ziwei/
 
 ## 待办
 
-- [ ] 生成 `avatars/expert.png`（当前缺失，需 AI 绘图或设计稿）。
+- [ ] `avatars/expert.png` 当前为占位（纯色+文字），上架前替换为正式漫画/插画风头像。
 - [ ] 用官方 `expert-manager` 技能逐项校验后上架。
