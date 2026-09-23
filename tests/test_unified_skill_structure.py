@@ -155,6 +155,9 @@ def test_runtime_discover_closures_match_domain_entries(monkeypatch):
     divination_tools = str(SKILL_ROOT / "divination" / "tools")
     monkeypatch.syspath_prepend(natal_tools)
     monkeypatch.syspath_prepend(divination_tools)
+    # 清理 analysis 副本缓存，强制加载 skill 原版（RPC 契约）
+    sys.modules.pop("paipan", None)
+    sys.modules.pop("divination_rpc", None)
     import paipan
     import divination_rpc
 

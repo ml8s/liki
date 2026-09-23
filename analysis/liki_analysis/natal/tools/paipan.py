@@ -12,9 +12,9 @@ liki 命理 skill 的排盘层：
 from __future__ import annotations
 import json
 import os
+import sys
 import time
 import urllib.request
-from urllib.error import HTTPError, URLError
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
@@ -24,63 +24,18 @@ from factor_constants import load_constants
 from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 
-RPC_URL = os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
-RPC_TIMEOUT = int(os.environ.get("LIKI_RPC_TIMEOUT", "30"))
-MAX_RETRIES = int(os.environ.get("LIKI_RPC_MAX_RETRIES", "2"))
+# MCP 引擎客户端（dev 走 MCP；RPC 仅引擎保留给线上兼容）
+_LIKI_ANALYSIS = Path(__file__).resolve().parents[2]
+if str(_LIKI_ANALYSIS) not in sys.path:
+    sys.path.insert(0, str(_LIKI_ANALYSIS))
+from engine_client import call, engine_version, MCPError  # noqa: E402
+
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 8
 SHICHEN_BOUNDARY_START_HOURS = (23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
-RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
-DISCOVER_SCOPES = ("bazi", "ziwei", "city", "tianwen", "time")
-REQUIRED_METHODS = (
-    "bazi.chart", "bazi.fullchart", "bazi.bond", "bazi.liunian",
-    "ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.bond",
-    "ziwei.liunian", "city.coords", "tianwen.time", "time.now",
-)
 
 
-class RPCError(LikiToolError):
-    pass
-
-
-def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
-    """调 JSON-RPC；传输类错误和限流可重试，业务错误不重试。"""
-    body = json.dumps({"jsonrpc": "2.0", "method": method, "params": params, "id": 1}).encode()
-    last_err = None
-    for attempt in range(retries + 1):
-        try:
-            req = urllib.request.Request(RPC_URL, data=body, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=RPC_TIMEOUT) as resp:
-                data = json.loads(resp.read().decode())
-            if "error" in data:
-                raise RPCError(f"{method}: {data['error']}")
-            return data["result"]
-        except HTTPError as e:
-            last_err = e
-            if e.code not in RETRYABLE_HTTP_CODES:
-                raise RPCError(f"{method}: HTTP {e.code}: {e.reason}") from e
-        except (URLError, ConnectionError, TimeoutError, OSError) as e:
-            last_err = e
-        if attempt < retries:
-            time.sleep(min(0.25 * (2**attempt), 2.0))
-    raise RPCError(f"{method} 失败: {last_err}")
-
-
-def engine_version() -> str:
-    payload = call("rpc.discover", {"methods": ",".join(DISCOVER_SCOPES)}, retries=0)
-    info = payload.get("info") if isinstance(payload, dict) else None
-    version = info.get("version") if isinstance(info, dict) else None
-    if not isinstance(version, str) or not version:
-        raise RPCError("engine rpc.discover response missing version")
-    available = {
-        method.get("name")
-        for method in payload.get("methods", [])
-        if isinstance(method, dict)
-    }
-    missing = [name for name in REQUIRED_METHODS if name not in available]
-    if missing:
-        raise RPCError(f"engine rpc.discover missing methods: {', '.join(missing)}")
-    return version
+RPCError = MCPError
 
 
 def _version_key(version: str) -> tuple[int, ...]:

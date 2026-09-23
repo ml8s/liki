@@ -51,7 +51,7 @@ func main() {
 
 	// MCP Streamable HTTP endpoint
 	mcpServer := newMCPServer(rpcReg, BuildTime, logger)
-	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{})
+	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true})
 
 	rateLimiter := apphttp.NewRateLimiter()
 	defer rateLimiter.Stop()

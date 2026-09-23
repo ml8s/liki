@@ -25,14 +25,14 @@ sys.path.insert(0, str(NATAL_TOOLS_PATH))
 
 from liki_analysis.server import TOOL_DEFS, VENV_PYTHON, create_server  # noqa: E402
 
-LIKI_RPC_URL = os.environ.get("LIKI_RPC_URL", "http://127.0.0.1:18082/jsonrpc")
+LIKI_MCP_URL = os.environ.get("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
 
 
 def _engine_available() -> bool:
     import urllib.request
 
     try:
-        with urllib.request.urlopen(f"{LIKI_RPC_URL.replace('/jsonrpc', '')}/health", timeout=3) as r:
+        with urllib.request.urlopen(LIKI_MCP_URL.replace("/mcp", "") + "/health", timeout=3) as r:
             return r.status == 200
     except Exception:
         return False
@@ -67,7 +67,7 @@ def _direct_cli(cli: Path, fn: str, args: dict) -> dict:
         capture_output=True,
         timeout=60,
         cwd=str(cli.parent),
-        env={**os.environ, "LIKI_RPC_URL": LIKI_RPC_URL},
+        env={**os.environ, "LIKI_MCP_URL": LIKI_MCP_URL},
     )
     return json.loads(proc.stdout.decode("utf-8"))
 

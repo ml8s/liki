@@ -24,12 +24,12 @@ NATAL_TOOLS_PATH = Path(__file__).resolve().parents[1] / "liki_analysis" / "nata
 VENV_PYTHON = REPO_ROOT / "analysis" / ".venv" / "bin" / "python"
 PORT = 8091
 BASE = f"http://127.0.0.1:{PORT}/mcp"
-LIKI_RPC_URL = os.environ.get("LIKI_RPC_URL", "http://127.0.0.1:18082/jsonrpc")
+LIKI_MCP_URL = os.environ.get("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
 
 
 def _engine_available() -> bool:
     try:
-        with urllib.request.urlopen(f"{LIKI_RPC_URL.replace('/jsonrpc', '')}/health", timeout=3) as r:
+        with urllib.request.urlopen(LIKI_MCP_URL.replace("/mcp", "") + "/health", timeout=3) as r:
             return r.status == 200
     except Exception:
         return False
@@ -46,7 +46,7 @@ def http_server():
         [str(VENV_PYTHON), "-m", "uvicorn", "liki_analysis.server:app",
          "--host", "127.0.0.1", "--port", str(PORT)],
         cwd=str(REPO_ROOT / "analysis"),
-        env={**os.environ, "LIKI_RPC_URL": LIKI_RPC_URL},
+        env={**os.environ, "LIKI_MCP_URL": LIKI_MCP_URL},
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -89,7 +89,7 @@ def direct(fn: str, args: dict, cli: Path) -> dict:
         capture_output=True,
         timeout=60,
         cwd=str(cli.parent),
-        env={**os.environ, "LIKI_RPC_URL": LIKI_RPC_URL},
+        env={**os.environ, "LIKI_MCP_URL": LIKI_MCP_URL},
     )
     return json.loads(p.stdout.decode("utf-8"))["data"]
 

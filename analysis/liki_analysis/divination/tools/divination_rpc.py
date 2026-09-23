@@ -1,70 +1,22 @@
-"""问卦 Skill 的统一 JSON-RPC 访问层。"""
+"""问卦层的统一 MCP 引擎访问层。"""
 from __future__ import annotations
 
-import json
 import os
-import time
-import urllib.request
-from urllib.error import HTTPError, URLError
+import sys
 from pathlib import Path
+from urllib.error import HTTPError  # noqa: F401  # 兼容导出（旧 RPC 调用点）
 
+# MCP 引擎客户端（dev 走 MCP；RPC 仅引擎保留给线上兼容）
+_LIKI_ANALYSIS = Path(__file__).resolve().parents[2]
+if str(_LIKI_ANALYSIS) not in sys.path:
+    sys.path.insert(0, str(_LIKI_ANALYSIS))
+from engine_client import call, engine_version, MCPError  # noqa: E402
 
-TIMEOUT = int(os.environ.get("LIKI_RPC_TIMEOUT", "30"))
-MAX_RETRIES = int(os.environ.get("LIKI_RPC_MAX_RETRIES", "2"))
-RETRYABLE_HTTP_CODES = {408, 429}
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
-DISCOVER_SCOPES = ("liuyao", "qimen", "huangli", "city", "tianwen", "time")
-REQUIRED_METHODS = (
-    "liuyao.qigua", "liuyao.chart", "qimen.chart", "huangli.days",
-    "city.coords", "tianwen.time", "time.now",
-)
 
 
-class RPCError(RuntimeError):
-    """统一 RPC 失败类型。"""
-
-
-def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
-    endpoint = rpc_endpoint()
-    body = json.dumps(
-        {"jsonrpc": "2.0", "method": method, "params": params, "id": 1},
-        ensure_ascii=False,
-    ).encode("utf-8")
-    last_error: Exception | None = None
-    for _attempt in range(retries + 1):
-        try:
-            request = urllib.request.Request(
-                endpoint,
-                data=body,
-                headers={"Content-Type": "application/json; charset=utf-8"},
-            )
-            with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
-                try:
-                    result = json.loads(response.read().decode("utf-8"))
-                except (UnicodeDecodeError, json.JSONDecodeError) as error:
-                    raise RPCError(f"{method}: malformed JSON-RPC response: {error}") from error
-            if not isinstance(result, dict):
-                raise RPCError(f"{method}: malformed JSON-RPC response")
-            if "error" in result:
-                raise RPCError(f"{method}: {result['error']}")
-            if "result" not in result:
-                raise RPCError(f"{method}: JSON-RPC response missing result")
-            return result["result"]
-        except HTTPError as error:
-            try:
-                detail = error.read().decode("utf-8", errors="replace")[:500]
-            except Exception:  # noqa: BLE001 - 保留原始 RPC 错误
-                detail = ""
-            if error.code in RETRYABLE_HTTP_CODES or error.code >= 500:
-                last_error = error
-                continue
-            raise RPCError(f"{method}: HTTP {error.code}: {detail or error.reason}") from error
-        except (URLError, ConnectionError, TimeoutError, OSError) as error:
-            last_error = error
-        if _attempt < MAX_RETRIES:
-            time.sleep(min(0.25 * (2 ** _attempt), 2.0))
-    raise RPCError(f"{method} 失败: {last_error}")
-
+class RPCError(MCPError):
+    """统一引擎失败类型（MCP 客户端）。"""
 
 def engine_data(method: str, params: dict) -> dict:
     response = call(method, params)
@@ -74,7 +26,7 @@ def engine_data(method: str, params: dict) -> dict:
 
 
 def engine_items(method: str, params: dict) -> list:
-    """调用返回 data 为数组的 engine RPC。"""
+    """调用返回 data 为数组的 engine 工具。"""
     response = call(method, params)
     data = response.get("data") if isinstance(response, dict) else None
     if not isinstance(data, list):
@@ -89,26 +41,6 @@ def server_time() -> str:
         raise RPCError("time.now: engine response missing cst")
     return cst
 
-
-def rpc_endpoint() -> str:
-    return os.environ.get("LIKI_RPC_URL", "https://liki.hk/jsonrpc")
-
-
-def engine_version() -> str:
-    payload = call("rpc.discover", {"methods": ",".join(DISCOVER_SCOPES)}, retries=0)
-    info = payload.get("info") if isinstance(payload, dict) else None
-    version = info.get("version") if isinstance(info, dict) else None
-    if not isinstance(version, str) or not version:
-        raise RPCError("engine rpc.discover response missing version")
-    available = {
-        method.get("name")
-        for method in payload.get("methods", [])
-        if isinstance(method, dict)
-    }
-    missing = [name for name in REQUIRED_METHODS if name not in available]
-    if missing:
-        raise RPCError(f"engine rpc.discover missing methods: {', '.join(missing)}")
-    return version
 
 
 def _version_key(version: str) -> tuple[int, ...]:
