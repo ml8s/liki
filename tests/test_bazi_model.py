@@ -136,24 +136,6 @@ def test_factor_inventory_has_single_source_of_truth() -> None:
     assert len(groups) == len(read_groups(TOOLS / "factors" / "factors.csv"))
     assert len(flows) == len(read_groups(TOOLS / "factors" / "factors_liunian.csv"))
 
-    text = DOC.read_text(encoding="utf-8")
-    assert "tools/factors/factors.csv" in text
-    assert "tools/factors/factors_liunian.csv" in text
-    assert "CSV 是因子清单唯一事实源" in text
-    assert f"| 本命因子 | {len(groups)} |" in text
-    assert f"| 本命八字因子 | {natal_sides['bazi']} |" in text
-    assert f"| 本命紫微因子 | {natal_sides['ziwei']} |" in text
-    assert f"| 本命定义组 | {sum(map(len, groups.values()))} |" in text
-    assert f"| 本命数据行 | {sum(map(len, raw_groups.values()))} |" in text
-    assert f"| 本命直通原子 | {natal_categories['direct']} |" in text
-    assert f"| 本命提取原子 | {natal_categories['condition']} |" in text
-    assert f"| 本命复合因子 | {natal_categories['factor_ref']} |" in text
-    assert f"| 流年因子 | {len(flows)} |" in text
-    assert f"| 流年八字因子 | {flow_sides['bazi']} |" in text
-    assert f"| 流年紫微因子 | {flow_sides['ziwei']} |" in text
-    assert f"| 流年直通原子 | {flow_categories['direct']} |" in text
-    assert f"| 流年提取原子 | {flow_categories['condition']} |" in text
-    assert f"| 流年复合因子 | {flow_categories['factor_ref']} |" in text
 
 
 def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
@@ -180,8 +162,6 @@ def test_yong_shen_guidance_requires_effective_support_not_team_labels() -> None
         assert required in text
     assert "若候选五行克用神，不得直接作喜神" in text
 
-    model = DOC.read_text(encoding="utf-8")
-    assert "`duanyu.query(rule=用神)` 除断语外返回 `fu_yi / tiao_hou / ge_ju / element_states / ten_god_states`" in model
 
 
 def test_stable_factor_names_use_consistent_entities() -> None:

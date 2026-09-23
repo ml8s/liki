@@ -87,12 +87,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 | 文档 | 用途 |
 | --- | --- |
 | [用户指南](./docs/USER_GUIDE.md) | 完整使用说明、领域流程、FAQ 与输出边界 |
-| [Skill 包结构](./docs/SKILL_PACKAGE.md) | 统一 Skill 的目录、入口和打包契约 |
 | [README 规范](./docs/README_STYLE.md) | 中英文 README 的结构、标题和排版契约 |
-| [八字 / 紫微模型](./docs/BAZI_MODEL.md) | 排盘、因子、断语和查询边界 |
-| [问卦模型](./docs/DIVINATION_MODEL.md) | 六爻、奇门、黄历的 snapshot 与 answer 契约 |
-| [风水模型](./docs/FENGSHUI_MODEL.md) | 八宅、玄空、流年和冲突裁决 |
-| [起名模型](./docs/NAMING_MODEL.md) | 用神策略、字池、候选名和校验边界 |
 | [反馈模型](./docs/FEEDBACK_MODEL.md) | Agent feedback 的隐私和契约 |
 | [版本与发布](./docs/RELEASE_MODEL.md) | CalVer 运行时版本和 SemVer 发行版 |
 

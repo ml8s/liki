@@ -209,7 +209,6 @@ def test_local_links_exist(path: Path):
 def test_readme_links_to_governance_documents(readme: Path, guide: str):
     expected = {
         guide,
-        "docs/SKILL_PACKAGE.md",
         "docs/README_STYLE.md",
         "CONTRIBUTING.md",
         "CHANGELOG.md",

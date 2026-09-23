@@ -105,7 +105,7 @@ Do not mix commands, examples, and explanations into one dense paragraph.
 - Link to a specialized document instead of duplicating its details.
 - Every linked local path must exist.
 - Documentation tables should use document name, purpose, and relative link.
-- Required README links are: the language-matched user guide, `docs/SKILL_PACKAGE.md`, `docs/README_STYLE.md`, `CONTRIBUTING.md`, and `CHANGELOG.md`.
+- Required README links are: the language-matched user guide, `docs/README_STYLE.md`, `CONTRIBUTING.md`, and `CHANGELOG.md`.
 
 ## Length and density
 

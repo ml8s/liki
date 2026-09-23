@@ -78,12 +78,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 | Document | Purpose |
 | --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
-| [Skill package](./docs/SKILL_PACKAGE.md) | Unified skill layout, entries, and archive contract |
 | [README style](./docs/README_STYLE.md) | Structure, heading, and formatting contract for both READMEs |
-| [Bazi model](./docs/BAZI_MODEL.md) | Four Pillars and Ziwei facts, factors, assertions, and query boundaries |
-| [Divination model](./docs/DIVINATION_MODEL.md) | Liuyao, QiMen, and Huangli snapshot and answer contracts |
-| [Feng shui model](./docs/FENGSHUI_MODEL.md) | Bazhai, Xuankong, annual readings, and conflict adjudication |
-| [Naming model](./docs/NAMING_MODEL.md) | Yongshen strategy, character pools, candidates, and validation |
 | [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and contract |
 | [Release model](./docs/RELEASE_MODEL.md) | CalVer runtime versions and SemVer releases |
 
