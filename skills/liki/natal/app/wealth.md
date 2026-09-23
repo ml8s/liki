@@ -21,10 +21,10 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 财星 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal` | 正 / 偏财、透藏、是否为用 |
+| 1 | 财星 | 调 `liki-bazi` 专家 `analyze_natal` + `liki-ziwei` 专家 `analyze_natal` | 正 / 偏财、透藏、是否为用 |
 | 2 | 胜财能力 | 发送 `TOOLS.md §2 analyze_natal`；读取 `liki-bazi/skills/bazi/wealth.md` | 能担 / 不能担 / 中和 |
 | 3 | 风险与运势 | 分别发送 `TOOLS.md §2` 的 `analyze_periods(time_scope.type="decade")`、`analyze_natal` | 当前运与比劫夺财风险 |
-| 4 | 具体细节或流年 | 分别发送 `TOOLS.md §2` 的 `analyze_natal(topics=["wealth"])`、`analyze_natal(topics=["property"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 紫微财库与流年财信号 |
+| 4 | 具体细节或流年 | 调 `liki-bazi` 专家 `analyze_natal(topics=["wealth"])` + `liki-ziwei` 专家 `analyze_natal(topics=["property"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 紫微财库与流年财信号 |
 
 ## 边界条件
 

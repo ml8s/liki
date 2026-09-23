@@ -22,9 +22,9 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 基础性格 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`；读取 `liki-bazi/skills/bazi/wangshuai.md` | 日主、身强弱、基础特征 |
+| 1 | 基础性格 | 调 `liki-bazi` 专家 `analyze_natal` + `liki-ziwei` 专家 `analyze_natal`；读取 `liki-bazi/skills/bazi/wangshuai.md` | 日主、身强弱、基础特征 |
 | 2 | 组合修正 | 发送 `TOOLS.md §2 analyze_natal`；读取 `liki-bazi/skills/bazi/shishen.md` | 十神组合与修正方向 |
-| 3 | 紫微合参 | 分别发送 `TOOLS.md §2` 的 `analyze_natal(topics=["personality"])`、`analyze_natal(topics=["personality"])`、`analyze_natal(topics=["mental"])`；特定年份发送 `§4.1 analyze_periods` 或用户指定场景 | 主星、四化、执念与消耗点 |
+| 3 | 紫微合参 | 调 `liki-bazi` 专家 `analyze_natal(topics=["personality"])` + `liki-ziwei` 专家 `analyze_natal(topics=["personality"])`、`analyze_natal(topics=["mental"])`；特定年份发送 `§4.1 analyze_periods` 或用户指定场景 | 主星、四化、执念与消耗点 |
 | 4 | 外貌 / 体型 | 读取 `liki-ziwei/skills/ziwei/xiangmao.md`，与八字旺衰互证 | 体型倾向与证据强弱 |
 
 ## 边界条件

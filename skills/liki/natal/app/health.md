@@ -24,10 +24,10 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 脏腑倾向 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`、`analyze_natal`、`analyze_natal`；读取 `liki-bazi/skills/bazi/wuxing-health.md` | 过旺 / 过弱五行与易病方向 |
-| 2 | 限运触发 | 分别发送 `TOOLS.md §2` 的 `analyze_periods(time_scope.type="decade")`、`analyze_periods(time_scope.type="decade")`；读取合会冲宫与应期表 | 冲入宫位与触发年份 |
+| 1 | 脏腑倾向 | 调 `liki-bazi` 专家 `analyze_natal`（health）+ `liki-ziwei` 专家 `analyze_natal`（health）；读取 `liki-bazi/skills/bazi/wuxing-health.md` | 过旺 / 过弱五行与易病方向 |
+| 2 | 限运触发 | 调 `liki-bazi` 专家 `analyze_periods(time_scope.type="decade")` + `liki-ziwei` 专家 `analyze_periods(time_scope.type="decade")`；读取合会冲宫与应期表 | 冲入宫位与触发年份 |
 | 3 | 性质与走向 | 读取 `liki-bazi/skills/bazi/hehui.md` | 事件性质、结果走向、严重程度 |
-| 4 | 具体细节 | 分别发送 `TOOLS.md §2` 的 `analyze_natal(topics=["health"])`、`analyze_natal(topics=["mental"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 疾厄宫、福德宫、四化与流年信号 |
+| 4 | 具体细节 | 调 `liki-bazi` 专家 `analyze_natal(topics=["health"])` + `liki-ziwei` 专家 `analyze_natal(topics=["mental"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 疾厄宫、福德宫、四化与流年信号 |
 
 健康输出为倾向和关注方向；重大病灾需不同层证据闭环，并先列较轻替代解释。
 

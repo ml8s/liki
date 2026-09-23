@@ -21,10 +21,10 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 事业层次 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`、`analyze_natal`、`analyze_natal` | 透干组合、事业档、身强弱 |
-| 2 | 职业方向 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal` | 十神取象与职业类型 |
+| 1 | 事业层次 | 调 `liki-bazi` 专家 `analyze_natal` + `liki-ziwei` 专家 `analyze_natal` | 透干组合、事业档、身强弱 |
+| 2 | 职业方向 | 调 `liki-bazi` 专家 `analyze_natal` + `liki-ziwei` 专家 `analyze_natal` | 十神取象与职业类型 |
 | 3 | 事业起伏 | 发送 `TOOLS.md §2 analyze_periods(time_scope.type="decade")` + 读取 `liki-bazi/skills/bazi/dayun.md` | 当前运与窗口年 |
-| 4 | 具体细节或流年 | 分别发送 `TOOLS.md §2` 的 `analyze_natal(topics=["career"])`、`analyze_natal(topics=["relocation"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 紫微事业信号与流年事件 |
+| 4 | 具体细节或流年 | 调 `liki-bazi` 专家 `analyze_natal(topics=["career"])` + `liki-ziwei` 专家 `analyze_natal(topics=["relocation"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 紫微事业信号与流年事件 |
 
 ## 边界条件
 

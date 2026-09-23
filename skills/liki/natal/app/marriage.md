@@ -26,7 +26,7 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 | --- | --- | --- | --- |
 | 1 | 配偶星 | 男看财星、女看官杀；读取 `liki-bazi/skills/bazi/shishen.md` | 星名、清浊、取清状态 |
 | 2 | 夫妻宫 | 发送 `TOOLS.md §2 analyze_natal`；读取 `liki-bazi/skills/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
-| 3 | 婚姻状态 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_periods(time_scope.type="decade")`、`analyze_periods(time_scope.type="decade")` | 已婚 / 单身 / 离异 / 婚缘迟 |
+| 3 | 婚姻状态 | 调 `liki-bazi` 专家 `analyze_natal` + `liki-ziwei` 专家 `analyze_periods(time_scope.type="decade")` | 已婚 / 单身 / 离异 / 婚缘迟 |
 | 4 | 应期 | 读取 `liki-bazi/skills/bazi/dayun.md`；发送 `TOOLS.md §3 analyze_periods` | 首选年、备选年、引动层 |
 | 5 | 具体细节 | 发送 `TOOLS.md §3 analyze_periods` | 紫微夫妻宫、四化、桃花信号 |
 

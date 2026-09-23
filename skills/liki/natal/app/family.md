@@ -24,7 +24,7 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 确定六亲 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`；读取 `liki-bazi/skills/bazi/family.md` | 目标亲人与对应星 |
+| 1 | 确定六亲 | 调 `liki-bazi` 专家 `analyze_natal` + `liki-ziwei` 专家 `analyze_natal`；读取 `liki-bazi/skills/bazi/family.md` | 目标亲人与对应星 |
 | 2 | 星宫状态 | 按目标调用父母 / 兄弟 / 子女域；读取宫位论 | 透藏、根气、冲合克与宫位 |
 | 3 | 应期 | 分别发送 `TOOLS.md §2` 的 `analyze_periods(time_scope.type="decade")`、`analyze_periods(time_scope.type="decade")`；发送 `§4.1 analyze_periods` | 引动层与候选年 |
 | 4 | 具体细节 | 发送 `TOOLS.md §3 analyze_periods` | 父母宫、子女宫与四化信号 |

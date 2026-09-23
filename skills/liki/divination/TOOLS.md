@@ -84,6 +84,11 @@
 | `scope` | 缺省 `hour`。 |
 | `school` | 缺省 `zhuanpan`。 |
 | `dingju_method` | 缺省 `chaibu`。 |
+| `quarter_rule` | `scope=quarter`（分钟刻家）时使用：`ten_minute_sanyuan` 十分钟三元 / `twelve_minute_ten_division` 十二分钟十分局。 |
+| `base_dingju_method` | 基础置闰法（高级）。 |
+| `dun_source` | 遁源（年/时）。 |
+| `hour_boundary` | 时辰边界规则。 |
+| `birth_date` | 出生日期（特定 rule 用）。 |
 
 ## 4. qimen_ask
 
