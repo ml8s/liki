@@ -2,11 +2,18 @@
 import json
 from pathlib import Path
 
+import importlib.util
+
 import pytest
 import _helpers  # noqa: F401 —— 注入 tools 路径
-from agent_cli import _REQUIRED_ARGS
 
 ROOT = Path(__file__).resolve().parents[1]
+_SPEC = importlib.util.spec_from_file_location(
+    "natal_agent_cli", ROOT / "analysis/app/natal/tools/agent_cli.py"
+)
+_NATAL_CLI = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_NATAL_CLI)
+_REQUIRED_ARGS = _NATAL_CLI._REQUIRED_ARGS
 MANIFEST = json.loads(
     (ROOT / "analysis/app/natal/tools/skill-tools.json").read_text(encoding="utf-8")
 )

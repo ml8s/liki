@@ -45,8 +45,7 @@
     ],
     "assertion_sides": [
       "bazi",
-      "ziwei",
-      "common"
+      "ziwei"
     ],
     "assertion_rules": [
       "五行",

@@ -88,7 +88,7 @@ def test_query_explicit_year_does_not_call_time_now() -> None:
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots) as evaluate_snap, \
          mock.patch.object(
              duanyu, "match_rule",
-             side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []},
+             side_effect=lambda *_: {"八字": [], "紫微": []},
          ):
         duanyu.query("大限", pan, year=2005)
 
@@ -102,7 +102,7 @@ def test_query_limit_result_reports_year_source() -> None:
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots), \
          mock.patch.object(
              duanyu, "match_rule",
-             side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []},
+             side_effect=lambda *_: {"八字": [], "紫微": []},
          ):
         current = duanyu.query("大运", pan)
         specified = duanyu.query("大限", pan, year=2005)
@@ -123,7 +123,7 @@ def test_query_evaluates_only_sides_required_by_rule() -> None:
                  "大运", "大限", "格局"
              ),
          ) as evaluate_snap, \
-         mock.patch.object(duanyu, "match_rule", side_effect=lambda *_: {"八字": [], "紫微": [], "合参": []}):
+         mock.patch.object(duanyu, "match_rule", side_effect=lambda *_: {"八字": [], "紫微": []}):
         duanyu.query("大运", pan)
         duanyu.query("大限", pan)
         duanyu.query("格局", pan)
@@ -147,7 +147,6 @@ def test_factor_closure_preserves_all_natal_rule_matches() -> None:
             duanyu.load_rule_table(
                 f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES
             ),
-            duanyu.load_rule_table(f"common_{rule}.csv", required=False),
         ]
         sides = (
             {"bazi"} if rule in duanyu.BAZI_ONLY_RULES
@@ -180,7 +179,6 @@ def test_factor_closure_preserves_all_yearly_rule_matches() -> None:
             duanyu.load_rule_table(
                 f"ziwei_{rule}.csv", required=rule not in duanyu.BAZI_ONLY_RULES
             ),
-            duanyu.load_rule_table(f"common_{rule}.csv", required=False),
         ]
         pruned = evaluate_liunian_snap_from_pan(
             pan,

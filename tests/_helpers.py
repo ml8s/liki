@@ -15,6 +15,7 @@ for _tools in (
 
 # Repository-level constants (merged from helpers.py)
 ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "analysis" / "app" / "natal" / "tools"
 SKILL_ROOT = Path(__file__).resolve().parents[1] / "skills" / "liki"
 DOMAIN_NAMES = ("natal", "divination", "fengshui", "naming")
 SLOGAN = "懂命理，用 Liki"

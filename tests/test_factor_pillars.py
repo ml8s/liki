@@ -137,25 +137,6 @@ def test_flow克_derives_target_wuxing_from_day_master() -> None:
     assert _liu_op("流年克", ["财星"], "male", base, ctx_water) == 0
 
 
-def test_flow_truth_table_consumes_common_factors() -> None:
-    rows = [{
-        "因子": "测试共同因子",
-        "术数": "common",
-        "直通": "直读[gender,male]",
-        "conds": {},
-    }]
-    with mock.patch.object(factors, "load_liunian_rows", return_value=rows):
-        snap = factors.evaluate_liunian_factors(
-            "male",
-            mock_base_context(),
-            {},
-            year=2026,
-            shushi="bazi",
-        )
-
-    assert snap["测试共同因子"] == 1
-
-
 def test_parent_palace_is_year_pillar() -> None:
     base = mock_base_context()
     base["ri_gan"] = "甲"

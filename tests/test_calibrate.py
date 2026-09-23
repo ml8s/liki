@@ -35,14 +35,14 @@ def test_calibrate_accepts_yingqi_and_reuses_same_year_snapshot() -> None:
          mock.patch.object(
              calibrate,
              "query_yearly",
-             return_value={"八字": [], "紫微": [], "合参": []},
+             return_value={"八字": [], "紫微": []},
          ):
         # The assertion below checks snapshot reuse, not rule matching.
         result = calibrate.calibrate([candidate, second_candidate], events)
 
     assert len(result["25日"]) == 3
     assert len(result["26日"]) == 3
-    assert all(set(event) >= {"八字", "紫微", "合参"} for event in result["25日"])
+    assert all(set(event) >= {"八字", "紫微"} for event in result["25日"])
     assert snapshot_mock.call_args_list[0].kwargs["factor_names"]
     assert paipan_mock.call_count == 2
     assert prepare_mock.call_count == 2
@@ -74,7 +74,6 @@ def test_calibrate_applies_scene_domain_filter_to_event_results() -> None:
                  rule: {
                      "八字": [study_row, marriage_row],
                      "紫微": [],
-                     "合参": [],
                  }
                  for rule in calibrate.SCENE_ALIASES["yearly_study"]
              },
@@ -85,7 +84,7 @@ def test_calibrate_applies_scene_domain_filter_to_event_results() -> None:
 
     assert [row["id"] for row in result["子时"][0]["八字"]] == ["yx_101"] * 4
     assert all(row["领域"] == "学业" for row in result["子时"][0]["八字"])
-    assert set(result["子时"][0]) == {"year", "label", "rule", "八字", "紫微", "合参"}
+    assert set(result["子时"][0]) == {"year", "label", "rule", "八字", "紫微"}
 
 
 def test_calibrate_enforces_documented_candidate_and_event_counts() -> None:
@@ -146,7 +145,7 @@ def test_calibrate_allows_fixed_shichen_without_longitude() -> None:
          mock.patch.object(
              calibrate,
              "query_yearly",
-             return_value={"八字": [], "紫微": [], "合参": []},
+             return_value={"八字": [], "紫微": []},
          ):
         calibrate.calibrate(candidates, events)
 

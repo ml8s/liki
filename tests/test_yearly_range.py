@@ -52,7 +52,7 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
          mock.patch.object(
              duanyu,
              "query_yearly",
-            return_value={"八字": [], "紫微": [], "合参": []},
+            return_value={"八字": [], "紫微": []},
          ):
         result = duanyu.yearly_range(
             _valid_mock_pan(),
@@ -61,7 +61,7 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
             rules=["年十神", "年合会"],
         )
 
-    assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": [], "合参": []}
+    assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": []}
     liunian_mock.assert_called_once()
     make_snapshot.assert_called_once()
     assert make_snapshot.call_args.kwargs["factor_names"]
@@ -87,7 +87,7 @@ def test_detail_year_rules_do_not_restore_snapshot_evidence() -> None:
         snapshot,
         ["年合会"],
         detail=True,
-        query_yearly=lambda _rule, _snapshot: {"八字": [detail_row], "紫微": [], "合参": []},
+        query_yearly=lambda _rule, _snapshot: {"八字": [detail_row], "紫微": [], },
         brief=lambda rows: rows,
     )
 

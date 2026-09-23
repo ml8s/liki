@@ -242,7 +242,6 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
             {"id": "cai_110", "领域": "财运"},
         ],
         "紫微": [{"id": "zs_301", "领域": "事业"}],
-        "合参": [],
     }
 
     with mock.patch.object(duanyu, "validate_natal_pan"), \
@@ -260,7 +259,7 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
 
     assert [row["id"] for row in result["八字"]] == ["cai_110"]
     assert result["紫微"] == []
-    assert result["合参"] == []
+    assert "合参" not in result
 
 
 def test_query_domain_filter_rejects_unknown_life_domain() -> None:
@@ -283,12 +282,11 @@ def test_filter_domains_keeps_only_side_keys() -> None:
     result = {
         "八字": [{"id": "yx_101", "领域": "学业"}],
         "紫微": [],
-        "合参": [],
         "context": {"性别": "male"},
     }
     filtered = duanyu.filter_domains(result, ["学业"])
     assert [row["id"] for row in filtered["八字"]] == ["yx_101"]
-    assert set(filtered) == {"八字", "紫微", "合参"}
+    assert set(filtered) == {"八字", "紫微"}
 
 
 def test_query_missing_required_factor_fails_closed() -> None:
@@ -312,12 +310,12 @@ def test_load_rule_tables_respects_side_scope() -> None:
     ziwei_only = load_rule_tables("命宫")
     assert ziwei_only["bazi"] == []
     assert ziwei_only["ziwei"]
-    assert ziwei_only["common"] == []
+    assert "common" not in ziwei_only
 
     yearly = load_rule_tables("年神煞")
     assert yearly["bazi"]
-    assert yearly["ziwei"] == []
-    assert yearly["common"]
+    assert yearly["ziwei"]
+    assert "common" not in yearly
 
 
 def test_assertion_cases_define_positive_and_forbidden_space() -> None:

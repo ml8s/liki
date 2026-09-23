@@ -188,7 +188,6 @@ class TestYongShenQueryContext(unittest.TestCase):
         snapshots = {
             "八字": {factor: 0 for factor in required_factors},
             "紫微": {factor: 0 for factor in required_factors},
-            "合参": [],
             "context": {"性别": "male"},
         }
         with mock.patch.object(
@@ -196,7 +195,7 @@ class TestYongShenQueryContext(unittest.TestCase):
         ), mock.patch.object(
             duanyu,
             "match_rule",
-            return_value={"八字": [], "紫微": [], "合参": []},
+            return_value={"八字": [], "紫微": []},
         ):
             result = duanyu.query("用神", pan)
             other = duanyu.query("旺衰", pan)
