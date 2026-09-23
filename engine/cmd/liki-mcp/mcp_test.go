@@ -34,7 +34,7 @@ func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
-	}, &mcp.StreamableHTTPOptions{}))
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
 	t.Cleanup(ts.Close)
 
 	client := mcp.NewClient(&mcp.Implementation{Name: "liki-mcp-test", Version: "0.0.1"}, &mcp.ClientOptions{Logger: newTestLogger()})
@@ -206,7 +206,7 @@ func TestCallTool_ConsistencyWithRPC(t *testing.T) {
 	srv := newMCPServer(reg, testVersion, newTestLogger())
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
-	}, &mcp.StreamableHTTPOptions{}))
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
 	t.Cleanup(ts.Close)
 
 	client := mcp.NewClient(&mcp.Implementation{Name: "liki-mcp-test", Version: "0.0.1"}, &mcp.ClientOptions{Logger: newTestLogger()})
@@ -344,7 +344,7 @@ func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 				}
 			}
 			srv := newDomainServer(reg, prefixes, testVersion, logger)
-			ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv }, &mcp.StreamableHTTPOptions{Stateless: true}))
+			ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
 			defer ts.Close()
 
 			client := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0.0.1"}, &mcp.ClientOptions{Logger: newTestLogger()})

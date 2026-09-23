@@ -25,7 +25,8 @@
               "enum": [
                 "male",
                 "female"
-              ]
+              ],
+              "description": "性别：male 男 / female 女"
             },
             "source": {
               "type": "object",
@@ -120,7 +121,8 @@
                   "minLength": 1,
                   "description": "配套盘摘要"
                 }
-              }
+              },
+              "description": "create_birth_chart 返回的不可变本命盘引用（token/digest）"
             },
             "topics": {
               "type": "array",
@@ -186,7 +188,8 @@
                   "minLength": 1,
                   "description": "配套盘摘要"
                 }
-              }
+              },
+              "description": "create_birth_chart 返回的不可变本命盘引用（token/digest）"
             },
             "time_scope": {
               "type": "object",
@@ -283,7 +286,8 @@
                   "minLength": 1,
                   "description": "配套盘摘要"
                 }
-              }
+              },
+              "description": "第一位人员的 chart_ref"
             },
             "chart_ref_b": {
               "type": "object",
@@ -303,7 +307,8 @@
                   "minLength": 1,
                   "description": "配套盘摘要"
                 }
-              }
+              },
+              "description": "第二位人员的 chart_ref"
             }
           }
         }
@@ -405,7 +410,8 @@
                     "description": "出生时间来源；minute + auto 校正需要城市或经度，hour 表示既定时辰"
                   }
                 }
-              }
+              },
+              "description": "考时候选盘（2-3 个：label + gender + source）"
             },
             "events": {
               "type": "array",
@@ -451,11 +457,13 @@
                     "description": "人生事件展示名"
                   }
                 }
-              }
+              },
+              "description": "已发生事件（3-5 个：year + topic + label）"
             },
             "detail": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "是否返回各候选的证据明细"
             }
           }
         }

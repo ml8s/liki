@@ -168,7 +168,7 @@ def _ensure_loaded() -> None:
 
 # -- 取字池 -----------------------------------------------------------------
 
-def pick_chars(wuxing1: str, wuxing2: str, count: int) -> dict:
+def pick_chars(wuxing1: str, wuxing2: str = "", count: int = 2) -> dict:
     """按五行取字池（对齐 Go PickChars）。count=1 单名，2 双名。"""
     _ensure_loaded()
     elem1 = wuxing_from_chinese(wuxing1)

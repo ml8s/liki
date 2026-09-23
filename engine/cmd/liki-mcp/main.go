@@ -51,7 +51,7 @@ func main() {
 
 	// MCP Streamable HTTP endpoints — 每术数一个域（排盘工具），aux 为共享辅助
 	mcpServer := newMCPServer(rpcReg, BuildTime, logger)
-	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true})
+	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 
 	rateLimiter := apphttp.NewRateLimiter()
 	defer rateLimiter.Stop()
@@ -62,7 +62,7 @@ func main() {
 	// 分域端点：每术数 + 共享辅助
 	for _, d := range mcpDomains {
 		domainServer := newDomainServer(rpcReg, d.Prefixes, BuildTime, logger)
-		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true})
+		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 		mux.Handle("/mcp/"+d.Suffix, rateLimiter.Wrap(6000.0/60, 200, domainHandler.ServeHTTP))
 	}
 
