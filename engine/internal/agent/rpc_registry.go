@@ -69,9 +69,6 @@ func NewRPCRegistry() *RPCRegistry {
 	for _, m := range ziweiMethods {
 		r.mustRegister(m)
 	}
-	for _, m := range qimingMethods {
-		r.mustRegister(m)
-	}
 	for _, m := range otherMethods {
 		r.mustRegister(m)
 	}

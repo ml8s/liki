@@ -21,18 +21,18 @@
 | 1 | 有完整日期和时间 | `bazi.chart` → `bazi.fullchart` | 用神 / 喜神 / 忌神 |
 | 1 | 时辰缺失或模糊 | 问一次仍不能确认 | 不排八字；改问期望五行或按“不限”处理 |
 | 1 | 无出生信息 | 询问期望五行或按“不限”处理 | 五行策略 |
-| 2 | 生成名字 | 确认偏好 → `qiming.pick` | 字池 |
-| 3 | 生成名字 | 在返回 `chars` 内过滤 → `qiming.compose` | 候选名 |
-| 4 | 生成名字 | `qiming.check(given_names)` | 字库 / 音韵 / 五行校验 |
-| 5 | 自选名评估 | 直接 `qiming.check(given_names)` | 评估事实 |
+| 2 | 生成名字 | 确认偏好 → `qiming_pick` | 字池 |
+| 3 | 生成名字 | 在返回 `chars` 内过滤 → `qiming_compose` | 候选名 |
+| 4 | 生成名字 | `qiming_check(given_names)` | 字库 / 音韵 / 五行校验 |
+| 5 | 自选名评估 | 直接 `qiming_check(given_names)` | 评估事实 |
 | 6 | 输出 | 按 app 模板综合 | 推荐 + 依据 + 可商榷点 |
 
 ## 硬边界
 
-- 外国人的中文姓候选只能来自 `qiming.surname`；无音近候选时说明 fallback，不得自创音译姓。
-- 关键候选是阻塞确认：外国人起名必须先让用户从 `qiming.surname` 候选中确认中国姓；终选前也必须等用户反馈，不得暗定后继续执行。
-- 生成流候选字仅从 `qiming.pick` 返回的 `chars` 过滤；必含字冲突时报告并请用户选择。
-- `qiming.compose` 只传字；`qiming.check` 的 `given_names` 只传不含姓的名。
+- 外国人的中文姓候选只能来自 `qiming_surname`；无音近候选时说明 fallback，不得自创音译姓。
+- 关键候选是阻塞确认：外国人起名必须先让用户从 `qiming_surname` 候选中确认中国姓；终选前也必须等用户反馈，不得暗定后继续执行。
+- 生成流候选字仅从 `qiming_pick` 返回的 `chars` 过滤；必含字冲突时报告并请用户选择。
+- `qiming_compose` 只传字；`qiming_check` 的 `given_names` 只传不含姓的名。
 - 无出生信息时跳过五行匹配，并明确输出未评估用神。
 - 出处分为直接典故、字义联想、现代审美、未确认；直接典故必须给可核书名、篇名与原文。
 - 起名仅使用八字，不引入紫微合参。

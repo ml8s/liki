@@ -31,7 +31,7 @@ VENV_PYTHON = pathlib.Path(__file__).resolve().parents[1] / ".venv" / "bin" / "p
 ANALYSIS_DIR = pathlib.Path(__file__).resolve().parent
 NATAL_TOOLS = ANALYSIS_DIR / "natal" / "tools"
 DIVINATION_TOOLS = ANALYSIS_DIR / "divination" / "tools"
-NAMING_TOOLS = ANALYSIS_DIR / "naming"
+NAMING_TOOLS = ANALYSIS_DIR / "naming" / "tools"
 
 # 每个工具的 {fn 名: (CLI 路径, 参数 schema 文件)}
 TOOL_DEFS: dict[str, tuple[pathlib.Path, str, str]] = {}

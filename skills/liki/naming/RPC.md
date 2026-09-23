@@ -46,13 +46,13 @@ Content-Type: application/json
 2. `result.methods[].name` 至少包含下方业务契约中的全部方法。
 3. 任一缺失即 fail closed。
 
-## 2. qiming.surname
+## 2. qiming_surname
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": "naming-surname",
-  "method": "qiming.surname",
+  "method": "qiming_surname",
   "params": {
     "source_surname": "Wong",
     "max_candidates": 6
@@ -65,13 +65,13 @@ Content-Type: application/json
 | `source_surname` | 是 | 罗马字姓，不含名。 |
 | `max_candidates` | 否 | 1-12，默认 6。 |
 
-## 3. qiming.pick
+## 3. qiming_pick
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": "naming-pick",
-  "method": "qiming.pick",
+  "method": "qiming_pick",
   "params": {
     "wuxing1": "木",
     "wuxing2": "水",
@@ -86,15 +86,15 @@ Content-Type: application/json
 | `wuxing2` | 否 | 第二字五行；双名时使用。 |
 | `count` | 否 | `1` 单名，`2` 双名，默认 `2`。 |
 
-## 4. qiming.compose
+## 4. qiming_compose
 
-`first` / `second` 传 `qiming.pick` 返回字池过滤后的单字。
+`first` / `second` 传 `qiming_pick` 返回字池过滤后的单字。
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": "naming-compose",
-  "method": "qiming.compose",
+  "method": "qiming_compose",
   "params": {
     "first": ["书", "涵"],
     "second": ["宇", "宁"],
@@ -109,13 +109,13 @@ Content-Type: application/json
 | `second` | 双名时必填 | 第二字候选，每项一个汉字。 |
 | `max_names` | 否 | 默认 100。 |
 
-## 5. qiming.check
+## 5. qiming_check
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": "naming-check",
-  "method": "qiming.check",
+  "method": "qiming_check",
   "params": {
     "given_names": ["书宇", "涵宁"],
     "yongshen": "木",
@@ -134,13 +134,13 @@ Content-Type: application/json
 
 无排盘时不调用本方法做五行评估；如需查字库事实，只传 `given_names`。
 
-## 6. qiming.char
+## 6. qiming_char
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": "naming-char",
-  "method": "qiming.char",
+  "method": "qiming_char",
   "params": {
     "char": "书"
   }

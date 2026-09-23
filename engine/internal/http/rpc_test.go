@@ -51,8 +51,8 @@ func TestRPC_Discover(t *testing.T) {
 	}
 
 	methods := doc["methods"].([]any)
-	if len(methods) < 29 {
-		t.Errorf("methods count = %d, want >= 29", len(methods))
+	if len(methods) < 28 {
+		t.Errorf("methods count = %d, want >= 28", len(methods))
 	}
 
 	first := methods[0].(map[string]any)
@@ -289,7 +289,6 @@ func TestRPC_DiscoverContainsAllMethods(t *testing.T) {
 		"bazi.fullchart", "bazi.chart", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun",
 		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.bond",
 		"qimen.chart",
-		"qiming.surname", "qiming.char", "qiming.pick", "qiming.compose", "qiming.check",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",

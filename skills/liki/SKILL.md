@@ -34,7 +34,7 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 | --- | --- |
 | 排盘、看命、八字、紫微、婚姻、事业、财运、健康、学业、性格、六亲、合盘、大运、流年 | `liki-analysis`：先 `create_birth_chart` 建盘，再 `analyze_natal` / `analyze_periods` / `compare_birth_charts`；出生时间存疑用 `calibrate_birth_time` |
 | 六爻、奇门、问卦、占卜、黄历、择日 | `liki-analysis`：`liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` / `huangli_days` |
-| 起名、改名、宝宝起名、名字评估 | `liki-engine`：`qiming_surname` / `qiming_char` / `qiming_pick` / `qiming_compose` / `qiming_check` |
+| 起名、改名、宝宝起名、名字评估 | `liki-analysis`：`qiming_surname` / `qiming_char` / `qiming_pick` / `qiming_compose` / `qiming_check` |
 | 风水、八宅、玄空、流年风水 | `liki-engine`：`bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian` |
 
 意图不清时，先用一个问题确认主目标。例如：「你想看的是八字命盘分析，还是给某个具体事情算卦？」——不要凭猜测直接进某个领域。
@@ -55,10 +55,10 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 - `qimen_snapshot(question, ...)`：奇门排盘+分析。`matter`（career/health/legal/relationship/...）或 `yong_shen` 二选一。
 - `qimen_ask(snapshot, message)`：对奇门盘追问。
 - `huangli_days(question, ...)`：黄历择日，`event` 给定时按建除事项输出 suitability。
-
-### liki-engine（排盘/起名/风水）
-
 - 起名：`qiming_surname`（外国人中文姓）→ `qiming_pick`（按五行取字）→ `qiming_compose`（组名）→ `qiming_check`（评估）。
+
+### liki-engine（排盘/风水）
+
 - 风水：`bazhai_chart`（八宅命卦）→ `bazhai_layout`（门主灶）；`xuankong_chart`（玄空飞星）→ `xuankong_liunian`（流年）。
 - 排盘原始工具：`bazi_chart`/`bazi_fullchart`/`ziwei_chart`/`ziwei_fullchart` 等（判断层已封装，一般无需直接调）。
 

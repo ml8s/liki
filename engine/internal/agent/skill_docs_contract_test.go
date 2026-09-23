@@ -193,7 +193,10 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"true", "false", "skills/liki/VERSION.txt", "create_birth_chart.data",
 		"data.chart_ref", "error.code", "error.message", "code", "message",
 		"safety_advisory", "meta.skill", "info.version", "pan_digest",
-		"pan.ziwei_daxian"} {
+		"pan.ziwei_daxian", "chars", "frequency", "pools", "slot", "given_names",
+		"wuxing1", "wuxing2", "count", "source_surname", "max_candidates",
+		"first", "second", "max_names", "yongshen", "xishen", "jishen",
+		"match_level", "baijiaxing_index", "surname", "pinyin", "tone", "basis"} {
 		allow[a] = true
 	}
 
