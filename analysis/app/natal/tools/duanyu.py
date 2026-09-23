@@ -39,9 +39,7 @@ def load_rule_tables(rule: str) -> dict[str, list[dict]]:
     side_config = load_constants()["命理侧"]
     tables = {}
     for side in side_config["断言代码"]:
-        if side == side_config["公共代码"]:
-            required = False
-        elif side == "bazi":
+        if side == "bazi":
             required = rule not in ZIWEI_ONLY_RULES
         else:
             required = rule not in BAZI_ONLY_RULES
@@ -161,7 +159,7 @@ def filter_domains(result: dict, domains: list[str] | None) -> dict:
             row for row in result.get(side, [])
             if not isinstance(row, dict) or row.get("领域") in wanted
         ]
-        for side in (side_labels["bazi"], side_labels["ziwei"], side_labels["common"])
+        for side in (side_labels["bazi"], side_labels["ziwei"])
     }
 
 
@@ -212,11 +210,8 @@ def query(rule: str, pan: dict, year: int | None = None,
         resolved_current_year, current_year_source = resolve_current_year()
     query_tables_by_side = load_rule_tables(rule)
     query_tables = list(query_tables_by_side.values())
-    # 单侧域只限制 bazi/ziwei 断言表；common 是跨术数边界，
-    # 只要该域存在 common 条件，就必须同时计算双盘快照。
-    if query_tables_by_side["common"]:
-        requested_sides = {"bazi", "ziwei"}
-    elif rule in BAZI_ONLY_RULES:
+    # 单侧域只限制 bazi/ziwei 断言表；bazi/ziwei 各查各表。
+    if rule in BAZI_ONLY_RULES:
         requested_sides = {"bazi"}
     elif rule in ZIWEI_ONLY_RULES:
         requested_sides = {"ziwei"}
@@ -245,11 +240,7 @@ def query(rule: str, pan: dict, year: int | None = None,
     for side_code, table in zip(load_constants()["命理侧"]["断言代码"], query_tables):
         if not table:
             continue
-        merged = (
-            {**snapshots[side_labels["bazi"]], **snapshots[side_labels["ziwei"]]}
-            if side_code == load_constants()["命理侧"]["公共代码"]
-            else snapshots[side_labels[side_code]]
-        )
+        merged = snapshots[side_labels[side_code]]
         _assert_snapshot_factors(
             rule,
             table,
@@ -339,11 +330,7 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
     for side_code, table in load_rule_tables(rule).items():
         if not table:
             continue
-        merged = (
-            {**snapshots[side_labels["bazi"]], **snapshots[side_labels["ziwei"]]}
-            if side_code == load_constants()["命理侧"]["公共代码"]
-            else snapshots[side_labels[side_code]]
-        )
+        merged = snapshots[side_labels[side_code]]
         _assert_snapshot_factors(
             rule,
             table,
@@ -448,19 +435,14 @@ def match_rule(rule: str, snapshots: dict) -> dict:
     """
     tables = load_rule_tables(rule)
     side_codes = load_constants()["命理侧"]["断言代码"]
-    bz_e, zw_e, common_e = (tables[side] for side in side_codes)
+    bz_e, zw_e = (tables[side] for side in side_codes)
     context = snapshots.get("context", {}) or {}
     side_labels = load_constants()["命理侧"]["标签"]
     side_snapshots = {
         side_labels["bazi"]: {**snapshots[side_labels["bazi"]], **context},
         side_labels["ziwei"]: {**snapshots[side_labels["ziwei"]], **context},
-        side_labels["common"]: {
-            **snapshots[side_labels["bazi"]],
-            **snapshots[side_labels["ziwei"]],
-            **context,
-        },
     }
-    for side_code, table in zip(side_codes, (bz_e, zw_e, common_e)):
+    for side_code, table in zip(side_codes, (bz_e, zw_e)):
         for item in table:
             _validate_rule_factors(
                 item["id"], [item], side_snapshots[side_labels[side_code]]
@@ -472,9 +454,6 @@ def match_rule(rule: str, snapshots: dict) -> dict:
         side_labels["ziwei"]: match_table(
             zw_e, side_snapshots[side_labels["ziwei"]]
         ) if zw_e else [],
-        side_labels["common"]: match_table(
-            common_e, side_snapshots[side_labels["common"]]
-        ),
     }
 
 

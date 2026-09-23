@@ -113,8 +113,7 @@ def evaluate_factors(gender: str, chart: dict, shushi: Optional[str] = None,
         side_config = load_constants()["命理侧"]
         if shushi not in side_config["快照代码"]:
             raise FactorEvaluateError(f"evaluate_factors shushi 无效: {shushi}")
-        common_code = side_config["公共代码"]
-        rows = [r for r in rows if r["术数"] in (shushi, common_code)]
+        rows = [r for r in rows if r["术数"] == shushi]
     if factor_names is not None:
         rows = [r for r in rows if r["因子"] in factor_names]
     return _evaluate_truth_table(
@@ -217,8 +216,7 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
         side_config = load_constants()["命理侧"]
         if shushi not in side_config["快照代码"]:
             raise FactorEvaluateError(f"evaluate_liunian_factors shushi 无效: {shushi}")
-        common_code = side_config["公共代码"]
-        rows = [r for r in rows if r["术数"] in (shushi, common_code)]
+        rows = [r for r in rows if r["术数"] == shushi]
     if factor_names is not None:
         rows = [r for r in rows if r["因子"] in factor_names]
     result = _evaluate_truth_table(

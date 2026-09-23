@@ -29,7 +29,7 @@ Topic 是受控人生问题闭集：`adversity`、`appearance`、`career`、`cha
 | `compare_birth_charts` | `{charts, comparison}` |
 | `calibrate_birth_time` | `{candidates}`；每个候选含 `events` |
 
-断语公共字段：`assertion_id`、`side`、`topic`、`method`、`time_scope`、`event_type`、`event`、`conclusion`、`source`、`evidence`。`side` 是 `bazi` / `ziwei` / `combined`。
+断语公共字段：`assertion_id`、`side`、`topic`、`method`、`time_scope`、`event_type`、`event`、`conclusion`、`source`、`evidence`。`side` 是 `bazi` / `ziwei`。
 
 ## 1. create_birth_chart
 
