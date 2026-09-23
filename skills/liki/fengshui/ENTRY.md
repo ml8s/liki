@@ -2,9 +2,9 @@
 
 > 覆盖八宅命卦、门主灶与方位吉凶，以及玄空飞星、元运和流年盘。引擎负责排盘，LLM 负责解读返回因子。
 
-## RPC 契约
+## 工具契约
 
-本域无 Python 工具层。agent 只能使用 `fengshui/RPC.md` 声明的完整 JSON-RPC 报文和固定 discover scope；不得推断其他方法或参数。
+agent 经 `liki-engine` MCP 使用 `bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian` 工具（参数见工具 schema）；不得推断其他方法或参数。
 
 ## 路由
 
@@ -23,7 +23,7 @@
 ## 硬边界
 
 - `xuankong.chart` 返回带 `chart_digest` 的完整宅盘；传给 `xuankong.liunian` 时 digest 必须匹配，不得手工拼装或修改。
-- 命卦、飞星、元运与流年盘全部来自 RPC；LLM 只解释返回字段。
+- 命卦、飞星、元运与流年盘全部来自引擎（liki-engine MCP）；LLM 只解释返回字段。
 - 八宅只需要出生年份和性别；玄空不需要命主出生日期，需要宅运起盘日期与房屋坐向。
 - 玄空坐山与向山必须相对 180°（二十四山相隔 12 位）；同山或任意两山组合不是合法坐向。
 - 二十四山 index 以 engine schema 为准：`0=子,1=癸,2=丑,3=艮,4=寅,5=甲,6=卯,7=乙,8=辰,9=巽,10=巳,11=丙,12=午,13=丁,14=未,15=坤,16=申,17=庚,18=酉,19=辛,20=戌,21=乾,22=亥,23=壬`。优先复述 `zuo_shan_name` / `xiang_shan_name` 让用户确认。

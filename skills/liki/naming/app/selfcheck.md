@@ -6,7 +6,7 @@ description: 自选名字评估 — 用户已选定名字，直接评估字库�
 
 # 自选名字评估
 
-> RPC 报文：使用 `naming/RPC.md` §5；查单字时另用 §6。
+> 工具：经 `liki-analysis` MCP 调用 `qiming_check` / `qiming_char`（参数见工具 schema）。
 > 场景：用户已有候选名字。起名/改名 → `naming.md`；外国人起中文名 → `foreign.md`。
 
 ## 依赖的领域知识
@@ -19,7 +19,7 @@ description: 自选名字评估 — 用户已选定名字，直接评估字库�
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
 | 1 | 收集名字 | 确认姓、名、用户约束；有出生信息才排盘 | 名字、用神或“未评估五行” |
-| 2 | 字库校验 | 发送 `RPC.md §5 qiming_check` 报文；查单字时发送 `§6 qiming_char` | valid / errors / phonetic / wuxing |
+| 2 | 字库校验 | 调 `qiming_check`；查单字时调 `qiming_char` | valid / errors / phonetic / wuxing |
 | 3 | 结论 | 结合字义、出处等级、音韵、五行与约束评估 | 优点、可商榷点、建议 |
 
 ## 边界条件

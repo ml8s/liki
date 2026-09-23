@@ -32,14 +32,14 @@ description: 命理裁决准则（方法层）——主域优先/性格主面/�
 
 query 工具输出断语 id、领域、事件类型、时间层、事件、结论、依据与经典依据；流年精简输出保留 id/领域/事件类型/时间层/事件/结论。
 
-- **确定性结论全部走 query 工具**（内部真值表 `natal/tools/assertions/assertions.csv` + `natal/tools/assertions/assertion_conditions.csv`——因子条件组 + 经典依据列；跨体系结论由 common 表显式合参）
-- **断语规则统一**：query 内部真值表（`natal/tools/assertions/assertions.csv` + `natal/tools/assertions/assertion_conditions.csv` 执行）+ `natal/domains/bazi/*.md`+`natal/domains/ziwei/*.md`（八字/紫微断法细则）+ 其他术数 `natal/domains/*/*.md`（未 csv 化的断语）——**规则就是规则，不存在"参考"弱化**：agent 执行以 query 输出为准，md 细则用于理解规则依据与补充未入表细则（判断链/取象顺序/组合规则）
+- **确定性结论全部走 query 工具**（内部真值表由 analysis 断言层执行——因子条件组 + 经典依据列；跨体系结论由 common 表显式合参）
+- **断语规则统一**：query 内部真值表（analysis 断言层执行）+ `natal/domains/bazi/*.md`+`natal/domains/ziwei/*.md`（八字/紫微断法细则）+ 其他术数 `natal/domains/*/*.md`（未 csv 化的断语）——**规则就是规则，不存在"参考"弱化**：agent 执行以 query 输出为准，md 细则用于理解规则依据与补充未入表细则（判断链/取象顺序/组合规则）
 - **直接采纳输出为最终判断**
 - query/yearly 输出八字、紫微与显式合参断语 → 先按领域/时间层分组，再按独立证据闭环整合；不因表序或术数来源默认压制任一断语
 - query 输出与查表冲突 → 以 query 为准，输出中说明冲突
 - 涉及无子、重大灾变、残疾等重结论时，须宫、星、限运、流年独立闭环；现实已发生事实可作验证，不作命理反推
-- 排盘 RPC 失败 → 提示重试（不降级查表——真值表匹配是精度来源，降级会退化精度）
-- query 工具是 skill 的一部分（`natal/tools/assertions/` 随 skill 分发），容器/本机均可用
+- 排盘失败 → 提示重试（不降级查表——真值表匹配是精度来源，降级会退化精度）
+- query 由 `liki-analysis` 提供，容器/本机经 MCP 均可用
 
 **婚姻应期（何年结婚）**：按决策表取大运配偶星窗口 × 流年引动交集给候选年份，**只在候选内裁决**；验证可推翻须标注理由。
 

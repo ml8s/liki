@@ -1,16 +1,9 @@
-# Natal Python 工具报文
+# Natal 工具契约
 
-本域 agent 只通过 Python 工具层访问引擎。所有调用发送给：
-
-```bash
-python3 natal/tools/agent_cli.py
-```
-
-Windows 使用 `py -3 -X utf8 natal/tools/agent_cli.py`。CLI stdin 是一行 JSON：
-
-```json
-{"fn":"<工具名>","args":{}}
-```
+本域工具由 `liki-analysis` MCP 连接器提供（判断层在 analysis Python 层，
+经 MCP `create_birth_chart` / `analyze_natal` / `analyze_periods` /
+`compare_birth_charts` / `calibrate_birth_time` 工具暴露）。agent 通过 MCP
+调用，不再使用 JSON-RPC。城市解析、真太阳时校正和引擎编排都在 analysis 工具层内部。
 
 成功响应读 `data`；失败响应读 `error.code` 和 `error.message`。`chart_ref` 是 `create_birth_chart` 返回的不可变资源引用；后续调用原样复制 `token` 和 `digest`。
 

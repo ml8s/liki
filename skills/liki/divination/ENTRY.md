@@ -2,17 +2,14 @@
 
 > 覆盖六爻结果与应期、奇门策略与方向、黄历择日。LLM 负责语义路由和解释结构化因子；Python 负责排盘、snapshot、digest 校验和 answer 契约。
 
-## Python 工具契约
+## 工具契约
 
-divination 域只通过 Python 工具层调用，不直接调用 RPC。
+divination 域通过 `liki-analysis` MCP 连接器调用，不直接使用 RPC。
 
-- 工具 schema：`divination/tools/skill-tools.json`
-- CLI：`python3 divination/tools/agent_cli.py`
-- Windows CLI：`py -3 -X utf8 divination/tools/agent_cli.py`；fallback `python -X utf8 divination/tools/agent_cli.py`
-- Python 依赖：缺失时安装 Skill 根目录 `requirements.txt`，不得跳过契约校验。
-- 输入：`{"fn":"<工具名>","args":{...}}`
-- 输出：stdout JSON；`ok=true` 读 `data`，`ok=false` 读 `error`。
-- CLI 启动时校验 engine 版本和必需 RPC；不满足即 fail closed。
+- 工具契约见 `divination/TOOLS.md`（工具参数由 `liki-analysis` MCP 连接器 schema 提供）
+- 调用：`liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` / `huangli_days`
+- 响应：成功读 `data`；失败读 `error`
+- 工具层启动时校验 engine 版本和必需 MCP 能力；不满足即 fail closed。
 
 ## 路由
 

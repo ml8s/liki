@@ -2,9 +2,9 @@
 
 > 覆盖通用起名、外国人起中文名与自选名评估。八字与字库属性由引擎计算，LLM 只在引擎返回范围内做语义、出处、音韵与文化适配筛选。
 
-## RPC 契约
+## 工具契约
 
-本域无 Python 工具层。agent 只能使用 `naming/RPC.md` 声明的完整 JSON-RPC 报文和固定 discover scope；不得推断其他方法或参数。
+agent 经 `liki-analysis` MCP 使用 `qiming_surname` / `qiming_pick` / `qiming_char` / `qiming_compose` / `qiming_check` 工具（参数见工具 schema）；不得推断其他方法或参数。
 
 ## 路由
 

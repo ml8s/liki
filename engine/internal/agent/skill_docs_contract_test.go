@@ -196,7 +196,8 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"pan.ziwei_daxian", "chars", "frequency", "pools", "slot", "given_names",
 		"wuxing1", "wuxing2", "count", "source_surname", "max_candidates",
 		"first", "second", "max_names", "yongshen", "xishen", "jishen",
-		"match_level", "baijiaxing_index", "surname", "pinyin", "tone", "basis"} {
+		"match_level", "baijiaxing_index", "surname", "pinyin", "tone", "basis",
+		"qimen_matters", "male", "female"} {
 		allow[a] = true
 	}
 

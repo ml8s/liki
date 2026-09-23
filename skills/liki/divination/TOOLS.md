@@ -1,16 +1,8 @@
-# Divination Python 工具报文
+# Divination 工具契约
 
-本域 agent 不直接调 RPC。所有调用都发给：
-
-```bash
-python3 divination/tools/agent_cli.py
-```
-
-Windows 使用 `py -3 -X utf8 divination/tools/agent_cli.py`；fallback `python -X utf8 divination/tools/agent_cli.py`。CLI stdin 是一行 JSON：
-
-```json
-{"fn":"<工具名>","args":{...}}
-```
+本域工具由 `liki-analysis` MCP 连接器提供（排盘/装卦/判断在 analysis Python 层，
+经 MCP `liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` /
+`huangli_days` 工具暴露）。agent 通过 MCP 调用，不再使用 JSON-RPC。
 
 成功响应读 `data`；失败响应读 `error`。
 
