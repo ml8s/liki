@@ -3,10 +3,14 @@ import os
 import sys
 from pathlib import Path
 
-# 注入 tools 目录到 sys.path（tests 与 tools 平级于 skills/liki/natal 下）
-TOOLS = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'skills', 'liki', 'natal', 'tools')
-if TOOLS not in sys.path:
-    sys.path.insert(0, TOOLS)
+# 注入 analysis 工具层目录到 sys.path（skill 工具层已下沉 analysis）
+for _tools in (
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis', 'app', 'natal', 'tools'),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis', 'app', 'divination', 'tools'),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis', 'app', 'naming'),
+):
+    if _tools not in sys.path:
+        sys.path.insert(0, _tools)
 
 
 # Repository-level constants (merged from helpers.py)

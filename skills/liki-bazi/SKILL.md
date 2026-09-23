@@ -15,10 +15,9 @@ skills:
 
 ## 工具（MCP 发现式）
 
-经 `engine-pro-bazi`（八字）+ `engine-aux`（辅助）两个连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
+经 `engine-pro-bazi` 连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
 
 - `engine-pro-bazi`：`create_birth_chart` / `analyze_natal` / `analyze_periods` / `compare_birth_charts` / `calibrate_birth_time`
-- `engine-aux`：`time_now` / `tianwen_time` / `city_coords`
 
 ## 方法论
 

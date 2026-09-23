@@ -4,7 +4,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-TOOLS = Path(__file__).resolve().parents[1] / "skills/liki/natal/tools"
+TOOLS = Path(__file__).resolve().parents[1] / "analysis/app/natal/tools"
 
 
 def _rows(path: str) -> list[dict[str, str]]:

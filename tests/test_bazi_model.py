@@ -11,7 +11,7 @@ from factor_tables import load_long_rows
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs" / "BAZI_MODEL.md"
-TOOLS = ROOT / "skills" / "liki" / "natal" / "tools"
+TOOLS = ROOT / "analysis" / "app" / "natal" / "tools"
 D = json.loads((TOOLS / "constants.json").read_text(encoding="utf-8"))
 ATOM_TEN_GODS = set(D["十神"])
 

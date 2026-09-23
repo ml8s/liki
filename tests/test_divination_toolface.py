@@ -10,7 +10,7 @@ from jsonschema.exceptions import ValidationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "skills/liki/divination/tools"
+TOOLS = ROOT / "analysis/app/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 

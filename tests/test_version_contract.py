@@ -21,10 +21,10 @@ def test_all_distributed_versions_are_synchronized():
 def test_bazi_tool_and_domain_contracts_use_distributed_version():
     version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
     tools = json.loads(
-        (ROOT / "skills/liki/natal/tools/skill-tools.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/natal/tools/skill-tools.json").read_text(encoding="utf-8")
     )
     domain_contract = json.loads(
-        (ROOT / "skills/liki/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
     )
     assert tools["info"]["version"] == version
     assert domain_contract["version"] == version
@@ -33,10 +33,10 @@ def test_bazi_tool_and_domain_contracts_use_distributed_version():
 def test_divination_tool_and_projection_contracts_use_distributed_version():
     version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
     tools = json.loads(
-        (ROOT / "skills/liki/divination/tools/skill-tools.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/divination/tools/skill-tools.json").read_text(encoding="utf-8")
     )
     projection_contract = json.loads(
-        (ROOT / "skills/liki/divination/tools/qimen_projection_contract.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/divination/tools/qimen_projection_contract.json").read_text(encoding="utf-8")
     )
     assert tools["info"]["version"] == version
     assert projection_contract["version"] == version

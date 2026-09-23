@@ -411,7 +411,7 @@ def test_ziwei_palace_closure_matches_engine_labels() -> None:
 def test_factor_basis_is_present_for_domain_review():
     from pathlib import Path
 
-    root = Path(__file__).resolve().parents[1] / "skills/liki/natal/tools/factors"
+    root = Path(__file__).resolve().parents[1] / "analysis/app/natal/tools/factors"
     for name in ("factors.csv", "factors_liunian.csv"):
         with (root / name).open(encoding="utf-8-sig", newline="") as source:
             rows = list(csv.DictReader(source))

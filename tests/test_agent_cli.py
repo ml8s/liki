@@ -6,7 +6,7 @@ import unittest
 from unittest import mock
 
 sys.path.insert(0, os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), '..', 'skills', 'liki', 'natal', 'tools'))
+    os.path.dirname(os.path.abspath(__file__)), '..', 'analysis', 'app', 'natal', 'tools'))
 
 import agent_cli
 
@@ -115,7 +115,7 @@ class TestSchemaConsistency(unittest.TestCase):
 
     def test_schema_required_args_match_cli_precheck(self):
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         "skills/liki/natal/tools/skill-tools.json")
+                         "analysis/app/natal/tools/skill-tools.json")
         with open(p, encoding="utf-8") as f:
             schema_required = {
                 item["function"]["name"]: set(item["function"]["parameters"]["required"])

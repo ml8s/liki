@@ -8,7 +8,7 @@ from agent_cli import _REQUIRED_ARGS
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = json.loads(
-    (ROOT / "skills/liki/natal/tools/skill-tools.json").read_text(encoding="utf-8")
+    (ROOT / "analysis/app/natal/tools/skill-tools.json").read_text(encoding="utf-8")
 )
 FUNCTIONS = {tool["function"]["name"]: tool["function"] for tool in MANIFEST["tools"]}
 
@@ -38,7 +38,7 @@ def test_required_args_match_cli_precheck():
 
 def test_topic_enum_is_route_configured():
     routes = json.loads(
-        (ROOT / "skills/liki/natal/tools/topic_routes.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
     )
     enum = FUNCTIONS["analyze_natal"]["parameters"]["properties"]["topics"]["items"]["enum"]
     assert enum == list(routes["topics"])
@@ -46,7 +46,7 @@ def test_topic_enum_is_route_configured():
 
 def test_response_contract_covers_every_tool():
     response = json.loads(
-        (ROOT / "skills/liki/natal/tools/response-contract.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/natal/tools/response-contract.json").read_text(encoding="utf-8")
     )
     assert response["version"] == "natal-response-contract-v1"
     assert set(response["tools"]) == set(FUNCTIONS)
@@ -57,11 +57,11 @@ def test_response_contract_covers_every_tool():
 def test_topic_routes_are_valid_and_unambiguous():
     import sys
 
-    sys.path.insert(0, str(ROOT / "skills/liki/natal/tools"))
+    sys.path.insert(0, str(ROOT / "analysis/app/natal/tools"))
     from factor_constants import load_constants
 
     routes_doc = json.loads(
-        (ROOT / "skills/liki/natal/tools/topic_routes.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
     )
     routes = routes_doc["topics"]
     domain_config = load_constants()["命理域"]
@@ -84,7 +84,7 @@ def test_topic_routes_are_valid_and_unambiguous():
 def test_calibrate_rejects_natal_only_topic_before_engine_call():
     import sys
 
-    sys.path.insert(0, str(ROOT / "skills/liki/natal/tools"))
+    sys.path.insert(0, str(ROOT / "analysis/app/natal/tools"))
     from analytics import calibrate_birth_time
 
     source = {

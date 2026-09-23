@@ -19,8 +19,8 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 
 | MCP | 端点 | 用途 |
 | --- | --- | --- |
-| `engine-pro` | `https://liki.hk/analysis/mcp` | 判断层：排盘、本命/流年分析、六爻、奇门、黄历、考时（10 个工具） |
-| `engine` | `https://liki.hk/mcp` | 排盘/起名/风水计算工具 |
+| `engine-pro` | `https://liki.hk/mcp/engine-pro` | 判断层：六爻/奇门/黄历/起名判断；八字/紫微由专家（liki-bazi/liki-ziwei）执行 |
+| `engine` | `https://liki.hk/mcp/engine` | 排盘/风水计算工具（engine-pro 内部调用） |
 
 1. 启动时确认两个 MCP 已连接；未连接时提示用户按客户端机制连接（或在配置中声明 `mcpServers` 自动连接），MCP 不可用时标注降级。
 2. 版本：读取安装根目录 `VERSION.txt`，请求 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；两者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
@@ -43,7 +43,7 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 
 ## 关键工具用法
 
-### analysis（判断层）
+### engine-pro（判断层）
 
 - `create_birth_chart(gender, source)`：出生信息 → 不可变命盘资源，返回 `chart_ref`（含 token/digest）。`source.type=timestamp|hour`；`timestamp` 时给 `precision=minute` 和 `location.city`（或 longitude/latitude）。后续分析工具都吃 `chart_ref`，原样传递。
 - `analyze_natal(chart_ref, topics)`：本命分析。`topics` 用英文枚举（career/marriage/wealth/health/study/personality/family/children/property/relocation/social/origin/appearance/mental/adversity/chart_structure）。

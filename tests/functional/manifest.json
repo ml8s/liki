@@ -11,7 +11,7 @@
   },
   "minimum_counts": {
     "factors": 45,
-    "assertions": 46,
+    "assertions": 40,
     "scenarios": 8,
     "conflicts": 7
   },

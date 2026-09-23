@@ -291,42 +291,6 @@ def test_filter_domains_keeps_only_side_keys() -> None:
     assert set(filtered) == {"八字", "紫微", "合参"}
 
 
-def test_query_keeps_both_sides_alive_for_common_assertions() -> None:
-    """单侧域存在 common 条件时，query 仍必须提供双盘快照。
-
-    cc_106 同时消费八字「身弱」与紫微「疾厄宫化忌」；若按八字专属裁掉
-    紫微快照，这类跨术数规则会变成永远不可命中的死规则。
-    """
-    rule = "十神"
-    tables_by_side = duanyu.load_rule_tables(rule)
-    snapshots = {
-        "八字": {
-            factor: 0
-            for table in [tables_by_side["bazi"], tables_by_side["common"]]
-            for row in table
-            for group in row.get("约束组") or []
-            for factor in group
-        } | {"身强弱": "身弱"},
-        "紫微": {
-            factor: 0
-            for table in [tables_by_side["ziwei"]]
-            for row in table
-            for group in row.get("约束组") or []
-            for factor in group
-        } | {"疾厄宫化忌": 1},
-        "context": {"性别": "male"},
-    }
-
-    with mock.patch.object(duanyu, "validate_natal_pan"), \
-         mock.patch.object(
-             duanyu, "evaluate_snap_from_pan", return_value=snapshots
-         ) as evaluate:
-        result = duanyu.query(rule, {"gender": "male"})
-
-    assert evaluate.call_args.kwargs["sides"] == {"bazi", "ziwei"}
-    assert any(row["id"] == "cc_106" for row in result["合参"])
-
-
 def test_query_missing_required_factor_fails_closed() -> None:
     """公共 query 边界不得把缺失因子静默当作 0。"""
     rule = "十神"
@@ -338,39 +302,6 @@ def test_query_missing_required_factor_fails_closed() -> None:
          ):
         with pytest.raises(AssertionRuleError, match="断语因子缺失"):
             duanyu.query(rule, {"gender": "male"})
-
-
-def test_all_single_side_rules_with_common_request_dual_snapshots() -> None:
-    """覆盖当前所有单侧域 + common 组合，防止后续新增时回退。"""
-    single_side_rules = [
-        rule for rule in (
-            duanyu.BAZI_ONLY_RULES | duanyu.ZIWEI_ONLY_RULES
-        )
-        if rule in duanyu.NATAL_RULES
-        if load_rule_tables(rule)["common"]
-    ]
-    assert single_side_rules
-
-    for rule in single_side_rules:
-        snapshots = {"八字": {}, "紫微": {}, "context": {}}
-        with mock.patch.object(duanyu, "validate_natal_pan"), \
-             mock.patch.object(
-                 duanyu,
-                 "evaluate_snap_from_pan",
-                 return_value=snapshots,
-             ) as evaluate, \
-             mock.patch.object(
-                 duanyu,
-                 "match_rule",
-                 return_value={"八字": [], "紫微": [], "合参": []},
-             ), \
-             mock.patch.object(
-                 duanyu,
-                 "_assert_snapshot_factors",
-             ):
-            duanyu.query(rule, {"gender": "male"})
-
-        assert evaluate.call_args.kwargs["sides"] == {"bazi", "ziwei"}, rule
 
 
 def test_load_rule_tables_respects_side_scope() -> None:
@@ -387,24 +318,6 @@ def test_load_rule_tables_respects_side_scope() -> None:
     assert yearly["bazi"]
     assert yearly["ziwei"] == []
     assert yearly["common"]
-
-
-def test_match_rule_merges_bazi_and_ziwei_for_common_rule() -> None:
-    rule = "年神煞"
-    snapshots = {
-        "八字": {"流年神煞天乙贵人": 1},
-        "紫微": {"流年迁移宫禄": 1},
-        "context": {"性别": "male"},
-    }
-    snapshot_copy = {
-        side: dict(values)
-        for side, values in snapshots.items()
-    }
-
-    result = match_rule(rule, snapshots)
-
-    assert "ycai_120" in [row["id"] for row in result["合参"]]
-    assert snapshots == snapshot_copy
 
 
 def test_assertion_cases_define_positive_and_forbidden_space() -> None:

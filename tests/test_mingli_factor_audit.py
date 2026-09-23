@@ -2,7 +2,7 @@
 import csv
 from pathlib import Path
 
-TOOLS = Path(__file__).resolve().parents[1] / "skills/liki/natal/tools"
+TOOLS = Path(__file__).resolve().parents[1] / "analysis/app/natal/tools"
 
 def _load(path: str) -> list[dict]:
     with (TOOLS / path).open(encoding="utf-8-sig", newline="") as fh:

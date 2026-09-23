@@ -16,13 +16,13 @@ liki-ziwei/
 │   └── ziwei/
 │       ├── SKILL.md         # 专家人设 + 方法论入口
 │       └── *.md             # 方法论卡（星曜/格局/十二宫/性格/应期/流年等 8 卡）
-├── .mcp.json                # 连接器：engine-pro-ziwei + engine-aux
+├── .mcp.json                # 连接器：engine-pro-ziwei（判断，排盘内部完成辅助）
 └── README.md
 ```
 
 ## 依赖
 
-- `dependencies.mcpServers: "./.mcp.json"` — 声明连接器（engine-pro-ziwei 判断 + engine-aux 辅助），WorkBuddy 引导连接。
+- `dependencies.connectors: ["engine-pro-ziwei"]` — 依赖上架连接器（判断；排盘内部完成城市解析与真太阳时校正）。
 
 ## 校验要点（提交前核对）
 
