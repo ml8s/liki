@@ -56,14 +56,14 @@ def test_yongshen_selection_stays_table_driven() -> None:
 
 def test_yongshen_matter_mapping_is_python_table() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
-    assert "`divination/tools/data/qimen_matters.csv` 是事象到用神的唯一事实源" in text
+    assert "`qimen_matters` 数据表（`qimen_snapshot` 内部维护）是事象到用神的唯一事实源" in text
     assert "本页表格仅作展示" in text
 
 
 def test_qimen_engine_and_python_layers_are_decoupled() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
     assert "engine 只接收 `yong_shen`" in text
-    assert "`matter` 不进入 `qimen.chart`" in text
+    assert "`matter` 不进入 `qimen_snapshot`" in text
 
 
 def test_lost_property_stays_in_interpretation_layer() -> None:

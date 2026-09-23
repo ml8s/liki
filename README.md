@@ -132,8 +132,8 @@ skills/liki/
 | --- | --- |
 | [natal TOOLS](./skills/liki/natal/TOOLS.md) | 五个本命分析工具的完整 stdin 报文 |
 | [divination TOOLS](./skills/liki/divination/TOOLS.md) | 六爻、奇门、黄历工具报文 |
-| [naming RPC](./skills/liki/naming/RPC.md) | 起名与八字辅助 RPC 报文 |
-| [fengshui RPC](./skills/liki/fengshui/RPC.md) | 八宅、玄空和流年 RPC 报文 |
+| [naming ENTRY](./skills/liki/naming/ENTRY.md) | 起名：用神取用 + 五行选字（engine-pro MCP 工具）|
+| [fengshui ENTRY](./skills/liki/fengshui/ENTRY.md) | 风水：八宅、玄空与流年（engine MCP 工具）|
 
 ### 测试与发布
 

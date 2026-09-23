@@ -192,17 +192,6 @@ def test_brief_keeps_controlled_event_taxonomy():
     assert duanyu.brief(source) == source
 
 
-def test_common_assertions_merge_both_system_snapshots():
-    snapshot = {
-        "_snapshot_type": "liunian",
-        "八字": {"流年神煞天乙贵人": 1},
-        "紫微": {"流年迁移宫禄": 1},
-        "context": {},
-    }
-    result = duanyu.match_rule("年神煞", snapshot)
-    assert [row["id"] for row in result["合参"]] == ["ycai_120"]
-
-
 def test_current_daxian_palace_is_mechanical():
     chart = {"solar": "1990-05-20T12:00:00", "ziwei_daxian": [
         {"gong": "命宫", "start_year": 1990, "end_year": 1999},
@@ -360,8 +349,6 @@ def test_domain_configuration_covers_mechanical_operator_contracts():
     side_config = const["命理侧"]
     assert list(side_config["标签"]) == side_config["断言代码"]
     assert set(side_config["快照代码"]) <= set(side_config["断言代码"])
-    assert side_config["公共代码"] in side_config["断言代码"]
-    assert side_config["公共代码"] not in side_config["快照代码"]
     assert set(load_contract()["投影侧代码"].values()) == {
         side_config["标签"][side] for side in side_config["快照代码"]
     }

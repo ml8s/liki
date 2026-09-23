@@ -123,8 +123,8 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 | --- | --- |
 | [Natal tools](./skills/liki/natal/TOOLS.md) | Complete stdin payloads for five natal analysis tools |
 | [Divination tools](./skills/liki/divination/TOOLS.md) | Liuyao, QiMen, and Huangli tool payloads |
-| [Naming RPC](./skills/liki/naming/RPC.md) | Naming and Bazi helper RPC payloads |
-| [Feng shui RPC](./skills/liki/fengshui/RPC.md) | Bazhai, Xuankong, and annual RPC payloads |
+| [Naming ENTRY](./skills/liki/naming/ENTRY.md) | Naming: yongshen-based character selection (engine-pro MCP tools) |
+| [Feng shui ENTRY](./skills/liki/fengshui/ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine MCP tools) |
 
 ### Tests and release
 

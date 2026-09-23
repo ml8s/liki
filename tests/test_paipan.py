@@ -39,7 +39,7 @@ def test_rpc_transport_error_is_retried() -> None:
 
 
 def test_rpc_http_429_is_retried() -> None:
-    success = json.dumps({"result": {"data": {"ok": True}}}).encode()
+    success = json.dumps({"result": {"content": [{"type": "text", "text": json.dumps({"ok": True})}]}}).encode()
     ok_response = mock.MagicMock()
     ok_response.read.return_value = success
     ok_response.__enter__.return_value = ok_response
@@ -54,37 +54,30 @@ def test_rpc_http_429_is_retried() -> None:
     assert urlopen.call_count == 2
 
 
-def test_engine_compatibility_uses_rpc_discover(monkeypatch) -> None:
+def test_engine_compatibility_reads_engine_version(monkeypatch) -> None:
     calls = []
 
-    def fake_call(method, params, retries=1):
-        calls.append((method, params, retries))
-        methods = [{"name": name} for name in paipan.REQUIRED_METHODS]
-        return {"info": {"version": paipan.required_engine_version()}, "methods": methods}
+    def fake_engine_version():
+        calls.append(1)
+        return paipan.required_engine_version()
 
-    monkeypatch.setattr(paipan, "call", fake_call)
+    monkeypatch.setattr(paipan, "engine_version", fake_engine_version)
     paipan.ensure_engine_compatible()
 
-    assert calls == [("rpc.discover", {"methods": ",".join(paipan.DISCOVER_SCOPES)}, 0)]
+    assert calls == [1]
 
 
 def test_engine_compatibility_rejects_old_engine(monkeypatch) -> None:
-    methods = [{"name": name} for name in paipan.REQUIRED_METHODS]
-    monkeypatch.setattr(paipan, "call", lambda *_a, **_k: {
-        "info": {"version": "2026.09.10.9"}, "methods": methods
-    })
+    monkeypatch.setattr(paipan, "engine_version", lambda: "2026.09.10.9")
 
     with pytest.raises(RPCError, match="incompatible"):
         paipan.ensure_engine_compatible()
 
 
 def test_engine_compatibility_requires_installed_skill_version(monkeypatch) -> None:
-    methods = [{"name": name} for name in paipan.REQUIRED_METHODS]
     required = paipan.required_engine_version()
     older = required.split(".")[:-1] + [str(int(required.split(".")[-1]) - 1)]
-    monkeypatch.setattr(paipan, "call", lambda *_a, **_k: {
-        "info": {"version": ".".join(older)}, "methods": methods
-    })
+    monkeypatch.setattr(paipan, "engine_version", lambda: ".".join(older))
 
     with pytest.raises(RPCError, match="skill VERSION.txt requires engine"):
         paipan.ensure_engine_compatible()
