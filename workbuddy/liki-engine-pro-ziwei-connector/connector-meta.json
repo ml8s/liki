@@ -1,0 +1,24 @@
+{
+  "name": "Liki 紫微判断",
+  "name_zh": "Liki 紫微判断",
+  "name_en": "Liki Zi Wei Judgment",
+  "description": "Zi Wei Dou Shu chart casting and rule-based readings: palaces, stars, sihua, daxian, liunian, compatibility and calibration.",
+  "description_zh": "紫微排盘与规则断语：十二宫、星曜四化、大限流年、合盘考时，依据可回溯。排盘内部完成城市解析与真太阳时校正。",
+  "description_en": "Zi Wei chart casting and rule-based readings: palaces, stars, sihua, daxian, liunian, compatibility and calibration. Chart casting handles city resolution and true solar time internally.",
+  "source": "engine-pro-ziwei",
+  "type": "mcp",
+  "version": "1.0.0",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": [
+    "排紫微命盘，1990-05-20 12:00 北京出生，男",
+    "分析我的紫微十二宫和星曜四化",
+    "看2026年我的紫微流年运势",
+    "紫微合盘，看两人是否适配"
+  ],
+  "examples_en": [
+    "Cast a Zi Wei chart for a male born 1990-05-20 12:00 in Beijing",
+    "Analyze my Zi Wei palaces and stars",
+    "Read my 2026 Zi Wei annual fortune",
+    "Compare two Zi Wei charts for compatibility"
+  ]
+}

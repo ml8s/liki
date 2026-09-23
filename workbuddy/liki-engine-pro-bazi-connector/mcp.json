@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "engine-pro-bazi": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/mcp/engine-pro/bazi",
+      "timeout": 30000
+    }
+  }
+}

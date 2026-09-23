@@ -1,0 +1,24 @@
+{
+  "name": "Liki 八字判断",
+  "name_zh": "Liki 八字判断",
+  "name_en": "Liki BaZi Judgment",
+  "description": "BaZi chart casting and rule-based readings: structure, yongshen, ten gods, dayun, liunian, compatibility and calibration.",
+  "description_zh": "八字排盘与规则断语：格局用神、十神六亲、神煞旺衰、大运流年、合盘考时，依据可回溯。排盘内部完成城市解析与真太阳时校正。",
+  "description_en": "BaZi chart casting and rule-based readings: structure, yongshen, ten gods, dayun, liunian, compatibility and calibration. Chart casting handles city resolution and true solar time internally.",
+  "source": "engine-pro-bazi",
+  "type": "mcp",
+  "version": "1.0.0",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": [
+    "算八字，1990-05-20 12:00 北京出生，男",
+    "分析我的八字格局和用神",
+    "看2026年我的事业运势",
+    "八字合盘，看两人是否适配"
+  ],
+  "examples_en": [
+    "Cast a BaZi chart for a male born 1990-05-20 12:00 in Beijing",
+    "Analyze my BaZi structure and yongshen",
+    "Read my 2026 career fortune",
+    "Compare two BaZi charts for compatibility"
+  ]
+}
