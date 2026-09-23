@@ -26,10 +26,41 @@ func toolName(method string) string {
 	return strings.ReplaceAll(method, ".", "_")
 }
 
+// mcpDomains maps an MCP endpoint suffix to the RPC method prefixes it exposes.
+// Each domain is a self-contained tool set (one 术数 or shared aux) so the LLM
+// only sees relevant tools per expert.
+var mcpDomains = []struct {
+	Suffix   string
+	Prefixes []string
+}{
+	{"bazi", []string{"bazi."}},
+	{"ziwei", []string{"ziwei."}},
+	{"qimen", []string{"qimen."}},
+	{"liuyao", []string{"liuyao."}},
+	{"aux", []string{"time.", "tianwen.", "city."}},
+}
+
 // newMCPServer builds a standard MCP server exposing every registered RPC
 // method as an MCP tool. RPC-specific envelopes ({"_product","data"}) are
 // unwrapped: tools return the raw engine data, not the private RPC envelope.
 func newMCPServer(reg *agent.RPCRegistry, version string, logger *slog.Logger) *mcp.Server {
+	return newMCPServerFor(reg, version, logger, func(string) bool { return true })
+}
+
+// newDomainServer builds an MCP server exposing only the methods matching the
+// given RPC method prefixes (one 术数 domain or the shared aux tools).
+func newDomainServer(reg *agent.RPCRegistry, prefixes []string, version string, logger *slog.Logger) *mcp.Server {
+	return newMCPServerFor(reg, version, logger, func(method string) bool {
+		for _, p := range prefixes {
+			if strings.HasPrefix(method, p) {
+				return true
+			}
+		}
+		return false
+	})
+}
+
+func newMCPServerFor(reg *agent.RPCRegistry, version string, logger *slog.Logger, match func(string) bool) *mcp.Server {
 	impl := &mcp.Implementation{
 		Name:        serverName,
 		Title:       "Liki Metaphysics Engine",
@@ -44,6 +75,9 @@ func newMCPServer(reg *agent.RPCRegistry, version string, logger *slog.Logger) *
 	s := mcp.NewServer(impl, opts)
 
 	for _, name := range reg.Names() {
+		if !match(name) {
+			continue
+		}
 		m, ok := reg.Method(name)
 		if !ok {
 			continue

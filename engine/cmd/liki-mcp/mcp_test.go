@@ -317,3 +317,60 @@ func TestTools_OutputSchemaComplete(t *testing.T) {
 		t.Errorf("non-object outputSchema found: %d/%d", withOutput-objectCount, withOutput)
 	}
 }
+
+func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	reg.SetVersion(testVersion)
+	logger := newTestLogger()
+
+	cases := []struct {
+		suffix string
+		has    []string
+		absent []string
+	}{
+		{"bazi", []string{"bazi_chart", "bazi_bond", "bazi_liunian"}, []string{"ziwei_chart", "time_now", "qimen_chart"}},
+		{"ziwei", []string{"ziwei_chart", "ziwei_bond"}, []string{"bazi_chart", "time_now"}},
+		{"qimen", []string{"qimen_chart"}, []string{"bazi_chart", "liuyao_qigua"}},
+		{"liuyao", []string{"liuyao_qigua", "liuyao_chart"}, []string{"bazi_chart", "qimen_chart"}},
+		{"aux", []string{"time_now", "tianwen_time", "city_coords"}, []string{"bazi_chart", "ziwei_chart"}},
+	}
+
+	for _, c := range cases {
+		t.Run(c.suffix, func(t *testing.T) {
+			var prefixes []string
+			for _, d := range mcpDomains {
+				if d.Suffix == c.suffix {
+					prefixes = d.Prefixes
+				}
+			}
+			srv := newDomainServer(reg, prefixes, testVersion, logger)
+			ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv }, &mcp.StreamableHTTPOptions{Stateless: true}))
+			defer ts.Close()
+
+			client := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0.0.1"}, &mcp.ClientOptions{Logger: newTestLogger()})
+			sess, err := client.Connect(context.Background(), &mcp.StreamableClientTransport{Endpoint: ts.URL + "/"}, nil)
+			if err != nil {
+				t.Fatalf("connect: %v", err)
+			}
+			defer func() { _ = sess.Close() }()
+
+			names := map[string]bool{}
+			for tool, err := range sess.Tools(context.Background(), nil) {
+				if err != nil {
+					t.Fatalf("tools/list: %v", err)
+				}
+				names[tool.Name] = true
+			}
+			for _, want := range c.has {
+				if !names[want] {
+					t.Errorf("missing tool %q", want)
+				}
+			}
+			for _, unwanted := range c.absent {
+				if names[unwanted] {
+					t.Errorf("should NOT expose tool %q", unwanted)
+				}
+			}
+		})
+	}
+}

@@ -49,7 +49,7 @@ func main() {
 		return
 	}
 
-	// MCP Streamable HTTP endpoint
+	// MCP Streamable HTTP endpoints — 每术数一个域（排盘工具），aux 为共享辅助
 	mcpServer := newMCPServer(rpcReg, BuildTime, logger)
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true})
 
@@ -57,7 +57,14 @@ func main() {
 	defer rateLimiter.Stop()
 
 	mux := http.NewServeMux()
+	// 全量端点（analysis 内部调用 + 兼容）
 	mux.Handle("/mcp", rateLimiter.Wrap(6000.0/60, 200, mcpHandler.ServeHTTP))
+	// 分域端点：每术数 + 共享辅助
+	for _, d := range mcpDomains {
+		domainServer := newDomainServer(rpcReg, d.Prefixes, BuildTime, logger)
+		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true})
+		mux.Handle("/mcp/"+d.Suffix, rateLimiter.Wrap(6000.0/60, 200, domainHandler.ServeHTTP))
+	}
 
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
