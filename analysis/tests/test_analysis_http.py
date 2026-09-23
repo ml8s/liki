@@ -50,12 +50,37 @@ def http_server():
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    for _ in range(20):
+    # MCP 端点对 GET 挂起、stateless 模式 initialize 返回 404，探测用
+    # POST tools/list（带协议头）确认 server 就绪。
+    body = json.dumps({
+        "jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {"_meta": {
+            "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+            "io.modelcontextprotocol/clientCapabilities": {},
+        }},
+    }).encode("utf-8")
+    probe_headers = {
+        "Content-Type": "application/json",
+        "MCP-Protocol-Version": "2026-07-28",
+        "Mcp-Method": "tools/list",
+        "Accept": "application/json, text/event-stream",
+    }
+    ok = False
+    last = None
+    for _ in range(10):
         try:
-            with urllib.request.urlopen(BASE, timeout=2):
+            with urllib.request.urlopen(
+                urllib.request.Request(BASE, data=body, headers=probe_headers),
+                timeout=2,
+            ):
+                ok = True
                 break
-        except Exception:
-            time.sleep(0.5)
+        except Exception as e:  # noqa: BLE001
+            last = e
+        time.sleep(0.5)
+    if not ok:
+        proc.terminate()
+        proc.wait(timeout=5)
+        raise RuntimeError(f"analysis server 未就绪(PORT={PORT}): {last!r}")
     yield
     proc.terminate()
     proc.wait(timeout=5)
