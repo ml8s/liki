@@ -269,5 +269,5 @@ jobs:
         run: |
           docker run -d --name engine-smoke -p 18082:8080 ghcr.io/${{ github.repository_owner }}/liki-engine:latest
           for i in $(seq 1 15); do curl -sf http://localhost:18082/health && break; sleep 1; done
-          bash engine/scripts/test-rpc.sh http://localhost:18082 || { docker rm -f engine-smoke; exit 1; }
+          bash scripts/test-rpc.sh http://localhost:18082 || { docker rm -f engine-smoke; exit 1; }
           docker rm -f engine-smoke
