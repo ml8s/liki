@@ -1,50 +1,19 @@
-# Naming RPC 契约
+# Naming 工具契约
 
-本域无 Python 工具层。所有调用都使用根 `SKILL.md` 声明的 JSON-RPC endpoint：
+本域工具由 `liki-analysis` MCP 连接器提供（起名是"命理之上的应用"，已在
+analysis Python 层实现，不依赖命理引擎）。agent 通过 MCP 调用以下工具：
 
-```http
-POST /jsonrpc HTTP/1.1
-Content-Type: application/json
-```
+| 工具 | 用途 |
+| --- | --- |
+| `qiming_surname` | 按发音匹配候选中国姓（pinyin_exact / romanization_exact / phonetic_close，无匹配按百家姓回退） |
+| `qiming_pick` | 按五行取字池（count=1 单名 / 2 双名） |
+| `qiming_char` | 查询单字起名字库信息（字频/五行/笔画/部首/拼音/声调） |
+| `qiming_compose` | 将字池字组合为候选名（first × second） |
+| `qiming_check` | 独立评估候选名（长度/收录/禁用字 + 音律声调 + 五行命中） |
 
-所有请求都使用 HTTP `POST`、`Content-Type: application/json`。`id` 可使用各报文中给出的固定值。
+`qiming_check` 的 `yongshen` / `xishen` / `jishen` 传五行中文（木/火/土/金/水）。
 
-成功业务响应读取 `result.data`；discover 响应读取 `result.info` 和 `result.methods`。错误响应读取 `error` 并停止。
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": "example",
-  "result": {"_product": "liki", "data": {}}
-}
-```
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": "example",
-  "error": {"code": -32000, "message": "deterministic engine error"}
-}
-```
-
-## 1. 固定 discover 报文
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": "discover-naming",
-  "method": "rpc.discover",
-  "params": {
-    "methods": "qiming,bazi.chart,bazi.fullchart,city,tianwen"
-  }
-}
-```
-
-`qiming` 会返回全部 `qiming.*` schema。校验：
-
-1. `result.info.version` 按点号整数逐段比较，不低于本地 `VERSION.txt`。
-2. `result.methods[].name` 至少包含下方业务契约中的全部方法。
-3. 任一缺失即 fail closed。
+以下为各工具的参数与语义契约：
 
 ## 2. qiming_surname
 
