@@ -267,6 +267,31 @@
     ]
    },
    {
+    "assertion_id": "shi_901",
+    "side": "bazi",
+    "topic": "career",
+    "method": "ten_god",
+    "time_scope": "natal",
+    "event_type": "状态",
+    "event": "事业",
+    "conclusion": "官杀有力——事业心强，竞争压力与进取并存",
+    "source": {
+     "kind": "assertion_table",
+     "domain": "事业",
+     "rule": "十神",
+     "basis": "官杀为事业星，有力主事业进取与竞争（《渊海子平》十神论）",
+     "classic_basis": "《渊海子平》十神论：官杀主事业权威"
+    },
+    "evidence": [
+     {
+      "condition_group": 1,
+      "factor": "官杀有力",
+      "expected": 1,
+      "actual": 1
+     }
+    ]
+   },
+   {
     "assertion_id": "shi_111",
     "side": "bazi",
     "topic": "career",
@@ -325,7 +350,7 @@
   ],
   "counts": {
    "table_matches": 36,
-   "returned": 9
+   "returned": 10
   }
  },
  "analyze_periods": {
@@ -1100,7 +1125,7 @@
    "matter": "general",
    "explicit_yong_shen": null,
    "perspective": null,
-   "solar_time": "2026-09-23T11:57:37+08:00"
+   "solar_time": "2026-09-23T20:19:08+08:00"
   },
   "matter": "general",
   "topic": "general",
@@ -2393,7 +2418,7 @@
   },
   "schema_version": "liuyao-snapshot-v7",
   "method": "liuyao",
-  "snapshot_digest": "473ede4de698cf922c5c2d400e8930034f4a52b02bb0ffac262a33128ff1ddc4"
+  "snapshot_digest": "d94d7629e7392c3ae937ed5a86f78751a49f6d53f9736c0d888a345faf5d8a4c"
  },
  "liuyao_ask": {
   "safety_advisory": {
@@ -2407,7 +2432,7 @@
   },
   "schema_version": "liuyao-answer-v2",
   "method": "liuyao",
-  "snapshot_digest": "473ede4de698cf922c5c2d400e8930034f4a52b02bb0ffac262a33128ff1ddc4",
+  "snapshot_digest": "d94d7629e7392c3ae937ed5a86f78751a49f6d53f9736c0d888a345faf5d8a4c",
   "message_digest": "01d9d4c269c84b82ffb35fe56922d014ead51d7927e5adc78bc60cf282a5fa65",
   "headline": "六爻 snapshot 条件性解读",
   "verdict": "当前盘面提供 2 项主要因子、4 项辅助因子和 0 个应期候选；只能表达条件性倾向，不构成结果承诺。",
@@ -2450,8 +2475,8 @@
   "input": {
    "city": "北京",
    "longitude": 116.410089,
-   "local_time": "2026-09-23T11:57:37+08:00",
-   "solar_time": "2026-09-23T11:50:00+08:00"
+   "local_time": "2026-09-23T20:19:09+08:00",
+   "solar_time": "2026-09-23T20:12:00+08:00"
   },
   "matter": {
    "matter": "career",
@@ -2488,17 +2513,17 @@
    "yong_ju_jie_qi": "秋分",
    "yuan": "中元",
    "lead_pillar": {
-    "name": "壬午",
-    "gan": "壬",
-    "zhi": "午"
+    "name": "丙戌",
+    "gan": "丙",
+    "zhi": "戌"
    },
    "lead_xun_shou": {
-    "name": "甲戌",
+    "name": "甲申",
     "gan": "甲",
-    "zhi": "戌",
-    "liu_yi": "己"
+    "zhi": "申",
+    "liu_yi": "庚"
    },
-   "lead_xun_shou_gong": "离",
+   "lead_xun_shou_gong": "艮",
    "day_fu_tou": {
     "name": "己亥",
     "gan": "己",
@@ -2510,23 +2535,23 @@
    "school": "zhuanpan",
    "jushu": 1,
    "yin_dun": true,
-   "duty_star": "天英",
-   "duty_door": "景门",
-   "wu_bu_yu_shi": false,
+   "duty_star": "天任",
+   "duty_door": "生门",
+   "wu_bu_yu_shi": true,
    "pillars": {
     "ri_gan": "庚",
     "ri_zhi": "子",
-    "shi_gan": "壬",
-    "shi_zhi": "午",
+    "shi_gan": "丙",
+    "shi_zhi": "戌",
     "nian_gan": "丙",
     "nian_zhi": "午",
     "yue_gan": "丁",
     "yue_zhi": "酉"
    },
-   "ri_gan_gong": "离",
+   "ri_gan_gong": "震",
    "ri_gan_palace_facts": [
     {
-     "palace": "离",
+     "palace": "震",
      "layer": "heaven"
     },
     {
@@ -2534,14 +2559,14 @@
      "layer": "earth"
     }
    ],
-   "shi_gan_gong": "震",
+   "shi_gan_gong": "巽",
    "shi_gan_palace_facts": [
     {
-     "palace": "震",
+     "palace": "巽",
      "layer": "heaven"
     },
     {
-     "palace": "乾",
+     "palace": "震",
      "layer": "earth"
     }
    ],
@@ -2549,54 +2574,58 @@
    "ri_shi_relation": {
     "subject": "ri_gan_gong",
     "object": "shi_gan_gong",
-    "relation": "shi_generates_ri",
-    "name": "时干宫生日干宫"
+    "relation": "same",
+    "name": "日干宫与时干宫比和"
    },
    "nian_gan_gong": null,
-   "patterns": [],
-   "gan_interactions": [
+   "patterns": [
     {
-     "name": "乙+戊",
-     "gong": "坎",
-     "range": "low",
-     "direction": "北",
-     "heaven_gan": "乙",
-     "earth_gan": "戊",
+     "name": "三奇得使",
+     "palaces": [
+      "兑"
+     ],
+     "auspicious": true
+    },
+    {
+     "name": "太白入荧",
+     "palaces": [
+      "震"
+     ],
      "auspicious": false
     },
     {
-     "name": "癸+戊",
+     "name": "六仪击刑",
+     "palaces": [
+      "坤"
+     ],
+     "auspicious": false
+    }
+   ],
+   "gan_interactions": [
+    {
+     "name": "壬+戊",
      "gong": "坎",
      "range": "low",
      "direction": "北",
-     "heaven_gan": "癸",
+     "heaven_gan": "壬",
      "earth_gan": "戊",
      "auspicious": true
     },
     {
-     "name": "丙+乙",
-     "gong": "坤",
-     "range": "low",
-     "direction": "西南",
-     "heaven_gan": "丙",
-     "earth_gan": "乙",
-     "auspicious": true
-    },
-    {
-     "name": "壬+丙",
+     "name": "庚+丙",
      "gong": "震",
      "range": "low",
      "direction": "东",
-     "heaven_gan": "壬",
+     "heaven_gan": "庚",
      "earth_gan": "丙",
      "auspicious": false
     },
     {
-     "name": "戊+丁",
+     "name": "丙+丁",
      "gong": "巽",
      "range": "low",
      "direction": "东南",
-     "heaven_gan": "戊",
+     "heaven_gan": "丙",
      "earth_gan": "丁",
      "auspicious": true
     },
@@ -2610,700 +2639,760 @@
      "auspicious": false
     },
     {
-     "name": "己+壬",
+     "name": "辛+壬",
      "gong": "乾",
      "range": "high",
      "direction": "西北",
-     "heaven_gan": "己",
+     "heaven_gan": "辛",
      "earth_gan": "壬",
      "auspicious": false
     },
     {
-     "name": "丁+辛",
+     "name": "乙+辛",
      "gong": "兑",
      "range": "high",
      "direction": "西",
-     "heaven_gan": "丁",
+     "heaven_gan": "乙",
      "earth_gan": "辛",
      "auspicious": false
     },
     {
-     "name": "辛+庚",
+     "name": "癸+辛",
+     "gong": "兑",
+     "range": "high",
+     "direction": "西",
+     "heaven_gan": "癸",
+     "earth_gan": "辛",
+     "auspicious": false
+    },
+    {
+     "name": "戊+庚",
      "gong": "艮",
      "range": "high",
      "direction": "东北",
-     "heaven_gan": "辛",
+     "heaven_gan": "戊",
      "earth_gan": "庚",
      "auspicious": false
     },
     {
-     "name": "庚+己",
+     "name": "丁+己",
      "gong": "离",
      "range": "high",
      "direction": "南",
-     "heaven_gan": "庚",
+     "heaven_gan": "丁",
      "earth_gan": "己",
      "auspicious": false
     }
    ],
    "men_interactions": [
     {
-     "name": "景门加坎",
-     "door": "景门",
+     "name": "伤门加坎",
+     "door": "伤门",
      "gong": "坎"
     },
     {
-     "name": "生门加坤",
-     "door": "生门",
+     "name": "开门加坤",
+     "door": "开门",
      "gong": "坤"
     },
     {
-     "name": "惊门加震",
-     "door": "惊门",
-     "gong": "震"
-    },
-    {
-     "name": "开门加巽",
-     "door": "开门",
-     "gong": "巽"
-    },
-    {
-     "name": "杜门加乾",
-     "door": "杜门",
+     "name": "生门加乾",
+     "door": "生门",
      "gong": "乾"
-    },
-    {
-     "name": "休门加离",
-     "door": "休门",
-     "gong": "离"
     }
    ],
    "xing_interactions": [
     {
-     "name": "土星入水宫",
-     "star": "天芮",
-     "gong": "坎",
-     "auspicious": false
-    },
-    {
-     "name": "木星入土宫",
-     "star": "天冲",
-     "gong": "坤",
-     "auspicious": false
-    },
-    {
-     "name": "金星入木宫",
-     "star": "天心",
-     "gong": "震",
-     "auspicious": false
-    },
-    {
-     "name": "火星入金宫",
+     "name": "火星入土宫",
      "star": "天英",
-     "gong": "乾",
-     "auspicious": false
+     "gong": "坤",
+     "auspicious": true
+    },
+    {
+     "name": "木星入火宫",
+     "star": "天辅",
+     "gong": "离",
+     "auspicious": true
     }
    ],
    "xing_gong_wuxing": [
     {
-     "star": "天芮",
-     "gong": "坎",
-     "relation": "xing_controls_gong",
-     "relation_name": "星克宫",
-     "traditional_label": "囚"
-    },
-    {
-     "star": "天禽",
-     "gong": "坎",
-     "relation": "xing_controls_gong",
-     "relation_name": "星克宫",
-     "traditional_label": "囚"
-    },
-    {
-     "star": "天冲",
-     "gong": "坤",
-     "relation": "xing_controls_gong",
-     "relation_name": "星克宫",
-     "traditional_label": "囚"
-    },
-    {
      "star": "天心",
-     "gong": "震",
-     "relation": "xing_controls_gong",
-     "relation_name": "星克宫",
-     "traditional_label": "囚"
-    },
-    {
-     "star": "天蓬",
-     "gong": "巽",
+     "gong": "坎",
      "relation": "xing_generates_gong",
      "relation_name": "星生宫",
      "traditional_label": "休"
     },
     {
      "star": "天英",
-     "gong": "乾",
-     "relation": "xing_controls_gong",
-     "relation_name": "星克宫",
-     "traditional_label": "囚"
+     "gong": "坤",
+     "relation": "xing_generates_gong",
+     "relation_name": "星生宫",
+     "traditional_label": "休"
     },
     {
-     "star": "天辅",
-     "gong": "兑",
+     "star": "天任",
+     "gong": "震",
      "relation": "gong_controls_xing",
      "relation_name": "宫克星",
      "traditional_label": "废"
     },
     {
-     "star": "天柱",
-     "gong": "艮",
-     "relation": "gong_generates_xing",
-     "relation_name": "宫生星",
-     "traditional_label": "相"
+     "star": "天冲",
+     "gong": "巽",
+     "relation": "same",
+     "relation_name": "比和",
+     "traditional_label": "旺"
     },
     {
-     "star": "天任",
+     "star": "天柱",
+     "gong": "乾",
+     "relation": "same",
+     "relation_name": "比和",
+     "traditional_label": "旺"
+    },
+    {
+     "star": "天芮",
+     "gong": "兑",
+     "relation": "xing_generates_gong",
+     "relation_name": "星生宫",
+     "traditional_label": "休"
+    },
+    {
+     "star": "天禽",
+     "gong": "兑",
+     "relation": "xing_generates_gong",
+     "relation_name": "星生宫",
+     "traditional_label": "休"
+    },
+    {
+     "star": "天蓬",
+     "gong": "艮",
+     "relation": "gong_controls_xing",
+     "relation_name": "宫克星",
+     "traditional_label": "废"
+    },
+    {
+     "star": "天辅",
      "gong": "离",
-     "relation": "gong_generates_xing",
-     "relation_name": "宫生星",
-     "traditional_label": "相"
+     "relation": "xing_generates_gong",
+     "relation_name": "星生宫",
+     "traditional_label": "休"
     }
    ],
    "men_po": [
-    "震",
+    "艮"
+   ],
+   "men_zhi": [
     "巽",
     "离"
    ],
-   "men_zhi": [
-    "坎",
-    "乾",
-    "兑"
-   ],
    "stars": [
     {
-     "star": "天芮",
+     "star": "天心",
      "gong": "坎",
+     "heaven_gan": "壬"
+    },
+    {
+     "star": "天英",
+     "gong": "坤",
+     "heaven_gan": "己"
+    },
+    {
+     "star": "天任",
+     "gong": "震",
+     "heaven_gan": "庚"
+    },
+    {
+     "star": "天冲",
+     "gong": "巽",
+     "heaven_gan": "丙"
+    },
+    {
+     "star": "天柱",
+     "gong": "乾",
+     "heaven_gan": "辛"
+    },
+    {
+     "star": "天芮",
+     "gong": "兑",
      "heaven_gan": "乙"
     },
     {
      "star": "天禽",
-     "gong": "坎",
+     "gong": "兑",
      "heaven_gan": "癸"
     },
     {
-     "star": "天冲",
-     "gong": "坤",
-     "heaven_gan": "丙"
-    },
-    {
-     "star": "天心",
-     "gong": "震",
-     "heaven_gan": "壬"
-    },
-    {
      "star": "天蓬",
-     "gong": "巽",
+     "gong": "艮",
      "heaven_gan": "戊"
     },
     {
-     "star": "天英",
-     "gong": "乾",
-     "heaven_gan": "己"
-    },
-    {
      "star": "天辅",
-     "gong": "兑",
-     "heaven_gan": "丁"
-    },
-    {
-     "star": "天柱",
-     "gong": "艮",
-     "heaven_gan": "辛"
-    },
-    {
-     "star": "天任",
      "gong": "离",
-     "heaven_gan": "庚"
+     "heaven_gan": "丁"
     }
    ],
    "doors": [
     {
-     "door": "景门",
+     "door": "伤门",
      "gong": "坎"
     },
     {
-     "door": "生门",
+     "door": "开门",
      "gong": "坤"
     },
     {
-     "door": "惊门",
+     "door": "景门",
      "gong": "震"
     },
     {
-     "door": "开门",
+     "door": "死门",
      "gong": "巽"
     },
     {
-     "door": "杜门",
+     "door": "生门",
      "gong": "乾"
     },
     {
-     "door": "伤门",
+     "door": "休门",
      "gong": "兑"
     },
     {
-     "door": "死门",
+     "door": "杜门",
      "gong": "艮"
     },
     {
-     "door": "休门",
+     "door": "惊门",
      "gong": "离"
     }
    ],
    "spirits": [
     {
-     "name": "九天",
-     "archetype": "九天",
-     "gong": "坎"
-    },
-    {
      "name": "太阴",
      "archetype": "太阴",
-     "gong": "坤"
+     "gong": "坎"
     },
     {
      "name": "玄武",
      "archetype": "玄武",
-     "gong": "震"
-    },
-    {
-     "name": "白虎",
-     "archetype": "勾陈",
-     "gong": "巽"
+     "gong": "坤"
     },
     {
      "name": "值符",
      "archetype": "值符",
-     "gong": "乾"
+     "gong": "震"
     },
     {
-     "name": "螣蛇",
-     "archetype": "螣蛇",
-     "gong": "兑"
-    },
-    {
-     "name": "九地",
-     "archetype": "九地",
-     "gong": "艮"
+     "name": "九天",
+     "archetype": "九天",
+     "gong": "巽"
     },
     {
      "name": "六合",
      "archetype": "六合",
+     "gong": "乾"
+    },
+    {
+     "name": "白虎",
+     "archetype": "勾陈",
+     "gong": "兑"
+    },
+    {
+     "name": "螣蛇",
+     "archetype": "螣蛇",
+     "gong": "艮"
+    },
+    {
+     "name": "九地",
+     "archetype": "九地",
      "gong": "离"
     }
    ],
    "spirit_star_relations": [
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天芮",
+     "star": "天心",
      "star_gong": "坎",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "same",
-     "same_gong": true
-    },
-    {
-     "spirit": "九天",
-     "spirit_name": "九天",
-     "spirit_gong": "坎",
-     "star": "天冲",
+     "star": "天英",
      "star_gong": "坤",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天心",
+     "star": "天任",
      "star_gong": "震",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天蓬",
+     "star": "天冲",
      "star_gong": "巽",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天英",
+     "star": "天柱",
      "star_gong": "乾",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天辅",
+     "star": "天芮",
      "star_gong": "兑",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天柱",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "太阴",
+     "spirit_name": "太阴",
+     "spirit_gong": "坎",
+     "star": "天蓬",
      "star_gong": "艮",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "star": "天任",
+     "star": "天辅",
      "star_gong": "离",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天芮",
+     "star": "天心",
      "star_gong": "坎",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
-     "spirit_gong": "坤",
-     "star": "天冲",
+     "star": "天英",
      "star_gong": "坤",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天心",
+     "star": "天任",
      "star_gong": "震",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天蓬",
+     "star": "天冲",
      "star_gong": "巽",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天英",
+     "star": "天柱",
      "star_gong": "乾",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天辅",
+     "star": "天芮",
      "star_gong": "兑",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天柱",
-     "star_gong": "艮",
-     "relation": "same",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
+     "spirit": "玄武",
+     "spirit_name": "玄武",
      "spirit_gong": "坤",
-     "star": "天任",
-     "star_gong": "离",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "star": "天芮",
-     "star_gong": "坎",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "star": "天冲",
-     "star_gong": "坤",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "star": "天心",
-     "star_gong": "震",
-     "relation": "same",
-     "same_gong": true
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
      "star": "天蓬",
-     "star_gong": "巽",
-     "relation": "same",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "star": "天英",
-     "star_gong": "乾",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "star": "天辅",
-     "star_gong": "兑",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "star": "天柱",
      "star_gong": "艮",
-     "relation": "controls",
+     "relation": "same",
      "same_gong": false
     },
     {
      "spirit": "玄武",
      "spirit_name": "玄武",
+     "spirit_gong": "坤",
+     "star": "天辅",
+     "star_gong": "离",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
+     "star": "天心",
+     "star_gong": "坎",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
+     "star": "天英",
+     "star_gong": "坤",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
      "spirit_gong": "震",
      "star": "天任",
-     "star_gong": "离",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天芮",
-     "star_gong": "坎",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天冲",
-     "star_gong": "坤",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天心",
      "star_gong": "震",
-     "relation": "same",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天蓬",
-     "star_gong": "巽",
-     "relation": "same",
-     "same_gong": true
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天英",
-     "star_gong": "乾",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天辅",
-     "star_gong": "兑",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天柱",
-     "star_gong": "艮",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "star": "天任",
-     "star_gong": "离",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "star": "天芮",
-     "star_gong": "坎",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "star": "天冲",
-     "star_gong": "坤",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "star": "天心",
-     "star_gong": "震",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "star": "天蓬",
-     "star_gong": "巽",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "star": "天英",
-     "star_gong": "乾",
      "relation": "same",
      "same_gong": true
     },
     {
      "spirit": "值符",
      "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "star": "天辅",
-     "star_gong": "兑",
+     "spirit_gong": "震",
+     "star": "天冲",
+     "star_gong": "巽",
      "relation": "same",
      "same_gong": false
     },
     {
      "spirit": "值符",
      "spirit_name": "值符",
-     "spirit_gong": "乾",
+     "spirit_gong": "震",
      "star": "天柱",
-     "star_gong": "艮",
-     "relation": "generated_by",
+     "star_gong": "乾",
+     "relation": "controlled_by",
      "same_gong": false
     },
     {
      "spirit": "值符",
      "spirit_name": "值符",
+     "spirit_gong": "震",
+     "star": "天芮",
+     "star_gong": "兑",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
+     "star": "天蓬",
+     "star_gong": "艮",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
+     "star": "天辅",
+     "star_gong": "离",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天心",
+     "star_gong": "坎",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天英",
+     "star_gong": "坤",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天任",
+     "star_gong": "震",
+     "relation": "same",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天冲",
+     "star_gong": "巽",
+     "relation": "same",
+     "same_gong": true
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天柱",
+     "star_gong": "乾",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天芮",
+     "star_gong": "兑",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天蓬",
+     "star_gong": "艮",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "star": "天辅",
+     "star_gong": "离",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天心",
+     "star_gong": "坎",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天英",
+     "star_gong": "坤",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
      "spirit_gong": "乾",
      "star": "天任",
+     "star_gong": "震",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天冲",
+     "star_gong": "巽",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天柱",
+     "star_gong": "乾",
+     "relation": "same",
+     "same_gong": true
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天芮",
+     "star_gong": "兑",
+     "relation": "same",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "same",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天蓬",
+     "star_gong": "艮",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "star": "天辅",
+     "star_gong": "离",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天心",
+     "star_gong": "坎",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天英",
+     "star_gong": "坤",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天任",
+     "star_gong": "震",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天冲",
+     "star_gong": "巽",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天柱",
+     "star_gong": "乾",
+     "relation": "same",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天芮",
+     "star_gong": "兑",
+     "relation": "same",
+     "same_gong": true
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "same",
+     "same_gong": true
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天蓬",
+     "star_gong": "艮",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "star": "天辅",
      "star_gong": "离",
      "relation": "controlled_by",
      "same_gong": false
@@ -3311,242 +3400,161 @@
     {
      "spirit": "螣蛇",
      "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "star": "天芮",
-     "star_gong": "坎",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "star": "天冲",
-     "star_gong": "坤",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
+     "spirit_gong": "艮",
      "star": "天心",
-     "star_gong": "震",
+     "star_gong": "坎",
      "relation": "controls",
      "same_gong": false
     },
     {
      "spirit": "螣蛇",
      "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "star": "天蓬",
-     "star_gong": "巽",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
+     "spirit_gong": "艮",
      "star": "天英",
-     "star_gong": "乾",
+     "star_gong": "坤",
      "relation": "same",
      "same_gong": false
     },
     {
      "spirit": "螣蛇",
      "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "star": "天辅",
+     "spirit_gong": "艮",
+     "star": "天任",
+     "star_gong": "震",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
+     "spirit_gong": "艮",
+     "star": "天冲",
+     "star_gong": "巽",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
+     "spirit_gong": "艮",
+     "star": "天柱",
+     "star_gong": "乾",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
+     "spirit_gong": "艮",
+     "star": "天芮",
      "star_gong": "兑",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
+     "spirit_gong": "艮",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
+     "spirit_gong": "艮",
+     "star": "天蓬",
+     "star_gong": "艮",
      "relation": "same",
      "same_gong": true
     },
     {
      "spirit": "螣蛇",
      "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "star": "天柱",
-     "star_gong": "艮",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "star": "天任",
-     "star_gong": "离",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天芮",
-     "star_gong": "坎",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天冲",
-     "star_gong": "坤",
-     "relation": "same",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天心",
-     "star_gong": "震",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天蓬",
-     "star_gong": "巽",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天英",
-     "star_gong": "乾",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
      "spirit_gong": "艮",
      "star": "天辅",
-     "star_gong": "兑",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天柱",
-     "star_gong": "艮",
-     "relation": "same",
-     "same_gong": true
-    },
-    {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
-     "star": "天任",
      "star_gong": "离",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天芮",
+     "star": "天心",
      "star_gong": "坎",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天禽",
-     "star_gong": "坎",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "六合",
-     "spirit_name": "六合",
-     "spirit_gong": "离",
-     "star": "天冲",
+     "star": "天英",
      "star_gong": "坤",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天心",
+     "star": "天任",
      "star_gong": "震",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天蓬",
+     "star": "天冲",
      "star_gong": "巽",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天英",
+     "star": "天柱",
      "star_gong": "乾",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天辅",
+     "star": "天芮",
      "star_gong": "兑",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天柱",
+     "star": "天禽",
+     "star_gong": "兑",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "九地",
+     "spirit_name": "九地",
+     "spirit_gong": "离",
+     "star": "天蓬",
      "star_gong": "艮",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "star": "天任",
+     "star": "天辅",
      "star_gong": "离",
      "relation": "same",
      "same_gong": true
@@ -3554,561 +3562,561 @@
    ],
    "spirit_spirit_relations": [
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "other": "太阴",
-     "other_name": "太阴",
+     "other": "玄武",
+     "other_name": "玄武",
      "other_gong": "坤",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "other": "玄武",
-     "other_name": "玄武",
+     "other": "值符",
+     "other_name": "值符",
      "other_gong": "震",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "other": "勾陈",
-     "other_name": "白虎",
+     "other": "九天",
+     "other_name": "九天",
      "other_gong": "巽",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
+     "spirit": "太阴",
+     "spirit_name": "太阴",
      "spirit_gong": "坎",
-     "other": "值符",
-     "other_name": "值符",
+     "other": "六合",
+     "other_name": "六合",
      "other_gong": "乾",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
-     "spirit_name": "九天",
-     "spirit_gong": "坎",
-     "other": "螣蛇",
-     "other_name": "螣蛇",
-     "other_gong": "兑",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "九天",
-     "spirit_name": "九天",
-     "spirit_gong": "坎",
-     "other": "九地",
-     "other_name": "九地",
-     "other_gong": "艮",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "九天",
-     "spirit_name": "九天",
-     "spirit_gong": "坎",
-     "other": "六合",
-     "other_name": "六合",
-     "other_gong": "离",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
      "spirit": "太阴",
      "spirit_name": "太阴",
-     "spirit_gong": "坤",
-     "other": "九天",
-     "other_name": "九天",
-     "other_gong": "坎",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
-     "spirit_gong": "坤",
-     "other": "玄武",
-     "other_name": "玄武",
-     "other_gong": "震",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
-     "spirit_gong": "坤",
+     "spirit_gong": "坎",
      "other": "勾陈",
      "other_name": "白虎",
-     "other_gong": "巽",
+     "other_gong": "兑",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "太阴",
+     "spirit_name": "太阴",
+     "spirit_gong": "坎",
+     "other": "螣蛇",
+     "other_name": "螣蛇",
+     "other_gong": "艮",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
      "spirit": "太阴",
      "spirit_name": "太阴",
-     "spirit_gong": "坤",
-     "other": "值符",
-     "other_name": "值符",
-     "other_gong": "乾",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
-     "spirit_gong": "坤",
-     "other": "螣蛇",
-     "other_name": "螣蛇",
-     "other_gong": "兑",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
-     "spirit_gong": "坤",
+     "spirit_gong": "坎",
      "other": "九地",
      "other_name": "九地",
-     "other_gong": "艮",
-     "relation": "same",
-     "same_gong": false
-    },
-    {
-     "spirit": "太阴",
-     "spirit_name": "太阴",
-     "spirit_gong": "坤",
-     "other": "六合",
-     "other_name": "六合",
      "other_gong": "离",
-     "relation": "generated_by",
+     "relation": "controls",
      "same_gong": false
     },
     {
      "spirit": "玄武",
      "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "other": "九天",
-     "other_name": "九天",
-     "other_gong": "坎",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
+     "spirit_gong": "坤",
      "other": "太阴",
      "other_name": "太阴",
-     "other_gong": "坤",
+     "other_gong": "坎",
      "relation": "controls",
      "same_gong": false
     },
     {
      "spirit": "玄武",
      "spirit_name": "玄武",
-     "spirit_gong": "震",
+     "spirit_gong": "坤",
+     "other": "值符",
+     "other_name": "值符",
+     "other_gong": "震",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "玄武",
+     "spirit_name": "玄武",
+     "spirit_gong": "坤",
+     "other": "九天",
+     "other_name": "九天",
+     "other_gong": "巽",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "玄武",
+     "spirit_name": "玄武",
+     "spirit_gong": "坤",
+     "other": "六合",
+     "other_name": "六合",
+     "other_gong": "乾",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "玄武",
+     "spirit_name": "玄武",
+     "spirit_gong": "坤",
      "other": "勾陈",
      "other_name": "白虎",
-     "other_gong": "巽",
+     "other_gong": "兑",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "玄武",
+     "spirit_name": "玄武",
+     "spirit_gong": "坤",
+     "other": "螣蛇",
+     "other_name": "螣蛇",
+     "other_gong": "艮",
      "relation": "same",
      "same_gong": false
     },
     {
      "spirit": "玄武",
      "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "other": "值符",
-     "other_name": "值符",
-     "other_gong": "乾",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "other": "螣蛇",
-     "other_name": "螣蛇",
-     "other_gong": "兑",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
+     "spirit_gong": "坤",
      "other": "九地",
      "other_name": "九地",
-     "other_gong": "艮",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "玄武",
-     "spirit_name": "玄武",
-     "spirit_gong": "震",
-     "other": "六合",
-     "other_name": "六合",
      "other_gong": "离",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "other": "九天",
-     "other_name": "九天",
-     "other_gong": "坎",
-     "relation": "generated_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "other": "太阴",
-     "other_name": "太阴",
-     "other_gong": "坤",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "other": "玄武",
-     "other_name": "玄武",
-     "other_gong": "震",
-     "relation": "same",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "other": "值符",
-     "other_name": "值符",
-     "other_gong": "乾",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "other": "螣蛇",
-     "other_name": "螣蛇",
-     "other_gong": "兑",
-     "relation": "controlled_by",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "other": "九地",
-     "other_name": "九地",
-     "other_gong": "艮",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "勾陈",
-     "spirit_name": "白虎",
-     "spirit_gong": "巽",
-     "other": "六合",
-     "other_name": "六合",
-     "other_gong": "离",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "other": "九天",
-     "other_name": "九天",
-     "other_gong": "坎",
-     "relation": "generates",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "other": "太阴",
-     "other_name": "太阴",
-     "other_gong": "坤",
      "relation": "generated_by",
      "same_gong": false
     },
     {
      "spirit": "值符",
      "spirit_name": "值符",
-     "spirit_gong": "乾",
+     "spirit_gong": "震",
+     "other": "太阴",
+     "other_name": "太阴",
+     "other_gong": "坎",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
      "other": "玄武",
      "other_name": "玄武",
-     "other_gong": "震",
+     "other_gong": "坤",
      "relation": "controls",
      "same_gong": false
     },
     {
      "spirit": "值符",
      "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "other": "勾陈",
-     "other_name": "白虎",
+     "spirit_gong": "震",
+     "other": "九天",
+     "other_name": "九天",
      "other_gong": "巽",
-     "relation": "controls",
-     "same_gong": false
-    },
-    {
-     "spirit": "值符",
-     "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "other": "螣蛇",
-     "other_name": "螣蛇",
-     "other_gong": "兑",
      "relation": "same",
      "same_gong": false
     },
     {
      "spirit": "值符",
      "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "other": "九地",
-     "other_name": "九地",
-     "other_gong": "艮",
-     "relation": "generated_by",
+     "spirit_gong": "震",
+     "other": "六合",
+     "other_name": "六合",
+     "other_gong": "乾",
+     "relation": "controlled_by",
      "same_gong": false
     },
     {
      "spirit": "值符",
      "spirit_name": "值符",
-     "spirit_gong": "乾",
-     "other": "六合",
-     "other_name": "六合",
-     "other_gong": "离",
+     "spirit_gong": "震",
+     "other": "勾陈",
+     "other_name": "白虎",
+     "other_gong": "兑",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "other": "九天",
-     "other_name": "九天",
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
+     "other": "螣蛇",
+     "other_name": "螣蛇",
+     "other_gong": "艮",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "值符",
+     "spirit_name": "值符",
+     "spirit_gong": "震",
+     "other": "九地",
+     "other_name": "九地",
+     "other_gong": "离",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "other": "太阴",
+     "other_name": "太阴",
+     "other_gong": "坎",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "other": "玄武",
+     "other_name": "玄武",
+     "other_gong": "坤",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "other": "值符",
+     "other_name": "值符",
+     "other_gong": "震",
+     "relation": "same",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "other": "六合",
+     "other_name": "六合",
+     "other_gong": "乾",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "other": "勾陈",
+     "other_name": "白虎",
+     "other_gong": "兑",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "other": "螣蛇",
+     "other_name": "螣蛇",
+     "other_gong": "艮",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "九天",
+     "spirit_name": "九天",
+     "spirit_gong": "巽",
+     "other": "九地",
+     "other_name": "九地",
+     "other_gong": "离",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "other": "太阴",
+     "other_name": "太阴",
      "other_gong": "坎",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "other": "太阴",
-     "other_name": "太阴",
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "other": "玄武",
+     "other_name": "玄武",
      "other_gong": "坤",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "other": "玄武",
-     "other_name": "玄武",
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "other": "值符",
+     "other_name": "值符",
      "other_gong": "震",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "other": "勾陈",
-     "other_name": "白虎",
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "other": "九天",
+     "other_name": "九天",
      "other_gong": "巽",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "other": "值符",
-     "other_name": "值符",
-     "other_gong": "乾",
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "other": "勾陈",
+     "other_name": "白虎",
+     "other_gong": "兑",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "other": "九地",
-     "other_name": "九地",
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "other": "螣蛇",
+     "other_name": "螣蛇",
      "other_gong": "艮",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
-     "spirit_name": "螣蛇",
-     "spirit_gong": "兑",
-     "other": "六合",
-     "other_name": "六合",
+     "spirit": "六合",
+     "spirit_name": "六合",
+     "spirit_gong": "乾",
+     "other": "九地",
+     "other_name": "九地",
      "other_gong": "离",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九地",
-     "spirit_name": "九地",
-     "spirit_gong": "艮",
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "other": "太阴",
+     "other_name": "太阴",
+     "other_gong": "坎",
+     "relation": "generates",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "other": "玄武",
+     "other_name": "玄武",
+     "other_gong": "坤",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "other": "值符",
+     "other_name": "值符",
+     "other_gong": "震",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
      "other": "九天",
      "other_name": "九天",
+     "other_gong": "巽",
+     "relation": "controls",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "other": "六合",
+     "other_name": "六合",
+     "other_gong": "乾",
+     "relation": "same",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "other": "螣蛇",
+     "other_name": "螣蛇",
+     "other_gong": "艮",
+     "relation": "generated_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "勾陈",
+     "spirit_name": "白虎",
+     "spirit_gong": "兑",
+     "other": "九地",
+     "other_name": "九地",
+     "other_gong": "离",
+     "relation": "controlled_by",
+     "same_gong": false
+    },
+    {
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
+     "spirit_gong": "艮",
+     "other": "太阴",
+     "other_name": "太阴",
      "other_gong": "坎",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "九地",
-     "spirit_name": "九地",
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
      "spirit_gong": "艮",
-     "other": "太阴",
-     "other_name": "太阴",
+     "other": "玄武",
+     "other_name": "玄武",
      "other_gong": "坤",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "九地",
-     "spirit_name": "九地",
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
      "spirit_gong": "艮",
-     "other": "玄武",
-     "other_name": "玄武",
+     "other": "值符",
+     "other_name": "值符",
      "other_gong": "震",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九地",
-     "spirit_name": "九地",
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
      "spirit_gong": "艮",
-     "other": "勾陈",
-     "other_name": "白虎",
+     "other": "九天",
+     "other_name": "九天",
      "other_gong": "巽",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九地",
-     "spirit_name": "九地",
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
      "spirit_gong": "艮",
-     "other": "值符",
-     "other_name": "值符",
+     "other": "六合",
+     "other_name": "六合",
      "other_gong": "乾",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九地",
-     "spirit_name": "九地",
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
      "spirit_gong": "艮",
-     "other": "螣蛇",
-     "other_name": "螣蛇",
+     "other": "勾陈",
+     "other_name": "白虎",
      "other_gong": "兑",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九地",
-     "spirit_name": "九地",
+     "spirit": "螣蛇",
+     "spirit_name": "螣蛇",
      "spirit_gong": "艮",
-     "other": "六合",
-     "other_name": "六合",
+     "other": "九地",
+     "other_name": "九地",
      "other_gong": "离",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "other": "九天",
-     "other_name": "九天",
+     "other": "太阴",
+     "other_name": "太阴",
      "other_gong": "坎",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "other": "太阴",
-     "other_name": "太阴",
+     "other": "玄武",
+     "other_name": "玄武",
      "other_gong": "坤",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "other": "玄武",
-     "other_name": "玄武",
+     "other": "值符",
+     "other_name": "值符",
      "other_gong": "震",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "other": "勾陈",
-     "other_name": "白虎",
+     "other": "九天",
+     "other_name": "九天",
      "other_gong": "巽",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "other": "值符",
-     "other_name": "值符",
+     "other": "六合",
+     "other_name": "六合",
      "other_gong": "乾",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "other": "螣蛇",
-     "other_name": "螣蛇",
+     "other": "勾陈",
+     "other_name": "白虎",
      "other_gong": "兑",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "六合",
-     "spirit_name": "六合",
+     "spirit": "九地",
+     "spirit_name": "九地",
      "spirit_gong": "离",
-     "other": "九地",
-     "other_name": "九地",
+     "other": "螣蛇",
+     "other_name": "螣蛇",
      "other_gong": "艮",
      "relation": "generates",
      "same_gong": false
@@ -4116,513 +4124,513 @@
    ],
    "spirit_door_relations": [
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九天",
+     "spirit": "太阴",
      "spirit_gong": "坎",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "太阴",
+     "spirit": "玄武",
      "spirit_gong": "坤",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "玄武",
+     "spirit": "值符",
      "spirit_gong": "震",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "勾陈",
+     "spirit": "九天",
      "spirit_gong": "巽",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "值符",
+     "spirit": "六合",
      "spirit_gong": "乾",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "螣蛇",
+     "spirit": "勾陈",
      "spirit_gong": "兑",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "same",
      "same_gong": false
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "same",
      "same_gong": true
     },
     {
-     "spirit": "九地",
+     "spirit": "螣蛇",
      "spirit_gong": "艮",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "景门",
+     "door": "伤门",
      "door_gong": "坎",
      "relation": "controlled_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "生门",
+     "door": "开门",
      "door_gong": "坤",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "惊门",
+     "door": "景门",
      "door_gong": "震",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "开门",
+     "door": "死门",
      "door_gong": "巽",
      "relation": "generated_by",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "杜门",
+     "door": "生门",
      "door_gong": "乾",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "伤门",
+     "door": "休门",
      "door_gong": "兑",
      "relation": "controls",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "死门",
+     "door": "杜门",
      "door_gong": "艮",
      "relation": "generates",
      "same_gong": false
     },
     {
-     "spirit": "六合",
+     "spirit": "九地",
      "spirit_gong": "离",
-     "door": "休门",
+     "door": "惊门",
      "door_gong": "离",
      "relation": "same",
      "same_gong": true
@@ -4687,7 +4695,7 @@
     }
    ],
    "shi_gan_gong_wang_shuai": {
-    "gong": "震",
+    "gong": "巽",
     "wuxing": "木",
     "wang_shuai": "死",
     "wang_shuai_name": "死"
@@ -4697,13 +4705,22 @@
      "type": "ma_xing",
      "branch": "申",
      "gong": "坤",
-     "related_to": []
+     "related_to": [
+      {
+       "symbol": "开门",
+       "role": "yong_shen"
+      }
+     ]
     },
     {
      "type": "duty_star",
-     "branch": "戌",
-     "gong": "乾",
+     "branch": "卯",
+     "gong": "震",
      "related_to": [
+      {
+       "symbol": "日干",
+       "role": "pillar"
+      },
       {
        "symbol": "值符星",
        "role": "duty"
@@ -4712,8 +4729,8 @@
     },
     {
      "type": "duty_door",
-     "branch": "子",
-     "gong": "坎",
+     "branch": "戌",
+     "gong": "乾",
      "related_to": [
       {
        "symbol": "值使门",
@@ -4723,30 +4740,37 @@
     },
     {
      "type": "kong_wang",
-     "branch": "申",
-     "gong": "坤",
+     "branch": "午",
+     "gong": "离",
      "related_to": []
     },
     {
      "type": "kong_wang",
-     "branch": "酉",
-     "gong": "兑",
-     "related_to": []
+     "branch": "未",
+     "gong": "坤",
+     "related_to": [
+      {
+       "symbol": "开门",
+       "role": "yong_shen"
+      }
+     ]
     }
    ],
    "yong_shen": [
     {
      "symbol": "开门",
-     "palace": "巽",
+     "palace": "坤",
      "tian_gan": [
-      "戊"
+      "己"
      ],
-     "kong_wang_branches": [],
-     "ma_xing_branch": null
+     "kong_wang_branches": [
+      "未"
+     ],
+     "ma_xing_branch": "申"
     },
     {
      "symbol": "天心",
-     "palace": "震",
+     "palace": "坎",
      "tian_gan": [
       "壬"
      ],
@@ -4758,29 +4782,29 @@
    "yong_shen_palaces": [
     {
      "symbol": "开门",
-     "palace": "巽",
+     "palace": "坤",
      "domain": "outer",
-     "direction": "东南",
-     "spirit": "白虎",
+     "direction": "西南",
+     "spirit": "玄武",
      "door": "开门",
-     "wang_shuai": "死",
-     "star": "天蓬",
+     "wang_shuai": "休",
+     "star": "天英",
      "star_traditional_label": "休"
     },
     {
      "symbol": "天心",
-     "palace": "震",
+     "palace": "坎",
      "domain": "outer",
-     "direction": "东",
-     "spirit": "玄武",
-     "door": "惊门",
-     "wang_shuai": "死",
+     "direction": "北",
+     "spirit": "太阴",
+     "door": "伤门",
+     "wang_shuai": "相",
      "star": "天心",
-     "star_traditional_label": "囚"
+     "star_traditional_label": "休"
     }
    ],
-   "zhi_fu_xing_gong": "乾",
-   "zhi_shi_men_gong": "坎",
+   "zhi_fu_xing_gong": "震",
+   "zhi_shi_men_gong": "乾",
    "gong_domains": [
     {
      "gong": "坎",
@@ -4852,53 +4876,59 @@
    "hour_polarity": "yang",
    "lost_context": [
     {
-     "gong": "震",
-     "direction": "东",
+     "gong": "巽",
+     "direction": "东南",
      "domain": "outer",
-     "door": "惊门",
+     "door": "死门",
      "wang_shuai": "死"
     }
    ],
-   "geng_ge": [],
-   "geng_ge_levels": [],
-   "geng_ge_status": "absent",
+   "geng_ge": [
+    {
+     "level": "year",
+     "gong": "震",
+     "direction": "东",
+     "door": "景门",
+     "earth_gan": "丙"
+    },
+    {
+     "level": "hour",
+     "gong": "震",
+     "direction": "东",
+     "door": "景门",
+     "earth_gan": "丙"
+    }
+   ],
+   "geng_ge_levels": [
+    "year",
+    "hour"
+   ],
+   "geng_ge_status": "present",
    "thief_context": [
     {
      "role": "小贼",
      "thief_symbol": "玄武",
-     "gong": "震",
-     "direction": "东",
+     "gong": "坤",
+     "direction": "西南",
      "domain": "outer",
-     "person_image": "长男 / 壮男",
-     "wang_shuai_label": "死",
+     "person_image": "老妇",
+     "wang_shuai_label": "休",
      "lucky_pattern": false,
      "lucky_pattern_names": []
     },
     {
      "role": "大贼",
      "thief_symbol": "天蓬",
-     "gong": "巽",
-     "direction": "东南",
-     "domain": "outer",
-     "person_image": "长女",
-     "wang_shuai_label": "休",
+     "gong": "艮",
+     "direction": "东北",
+     "domain": "inner",
+     "person_image": "少男 / 童年",
+     "wang_shuai_label": "废",
      "lucky_pattern": false,
      "lucky_pattern_names": []
     }
    ],
-   "tianwang_context": [
-    {
-     "kind": "地罗遮蔽",
-     "gan": "壬",
-     "gong": "震",
-     "direction": "东",
-     "range": "low",
-     "hour_gong": "震",
-     "hour_direction": "东",
-     "relation_to_hour": "same",
-     "hour_polarity": "yang"
-    }
-   ]
+   "tianwang_context": []
   },
   "special": null,
   "snapshot_kind": "standard",
@@ -4917,7 +4947,7 @@
   },
   "schema_version": "qimen-snapshot-v5",
   "method": "qimen",
-  "snapshot_digest": "c7f992b1ceab28870d37476939a2a78f02837998d9d0d3b690f0af27c235fb5c"
+  "snapshot_digest": "a5af01b289b1eac3c4bbdb5013b6e3666790ac83436913e1f301049cef77a13c"
  },
  "qimen_ask": {
   "safety_advisory": {
@@ -4931,16 +4961,18 @@
   },
   "schema_version": "qimen-answer-v2",
   "method": "qimen",
-  "snapshot_digest": "c7f992b1ceab28870d37476939a2a78f02837998d9d0d3b690f0af27c235fb5c",
+  "snapshot_digest": "a5af01b289b1eac3c4bbdb5013b6e3666790ac83436913e1f301049cef77a13c",
   "message_digest": "9de2403803f0154d8e3eca282568b7782d3926b31886f59766943ebf09afe772",
   "headline": "奇门 snapshot 条件性解读",
-  "verdict": "当前局提供 40 项宫位因子和 5 个应期候选；只能表达态势倾向，不构成结果承诺。",
+  "verdict": "当前局提供 42 项宫位因子和 5 个应期候选；只能表达态势倾向，不构成结果承诺。",
   "confidence": "medium",
   "evidence_refs": [
    "snapshot:doors",
    "snapshot:duty_door",
    "snapshot:duty_star",
    "snapshot:gan_interactions",
+   "snapshot:geng_ge",
+   "snapshot:geng_ge_levels",
    "snapshot:geng_ge_status",
    "snapshot:gong_domains",
    "snapshot:hour_polarity",
@@ -4951,6 +4983,7 @@
    "snapshot:men_zhi",
    "snapshot:palace_directions",
    "snapshot:palace_wang_shuai",
+   "snapshot:patterns",
    "snapshot:pillars",
    "snapshot:ri_gan_gong",
    "snapshot:ri_gan_palace_facts",
@@ -4967,7 +5000,6 @@
    "snapshot:spirits",
    "snapshot:stars",
    "snapshot:thief_context",
-   "snapshot:tianwang_context",
    "snapshot:wu_bu_yu_shi",
    "snapshot:xing_gong_wuxing",
    "snapshot:xing_interactions",
@@ -4980,11 +5012,11 @@
   ],
   "assertion_refs": [],
   "timing_refs": [
-   "timing-48ca348ecae23d9f",
-   "timing-5398148457bbff3d",
-   "timing-998973a96aa7f63a",
-   "timing-d0fa1075c38cbf77",
-   "timing-e7e2a8f9bac9cc40"
+   "timing-05b33eb7211b357b",
+   "timing-5b991eb4ef8c4cd9",
+   "timing-64e0ab473e80f1b3",
+   "timing-7df9dc89845335e4",
+   "timing-a28c3ac6f1cead46"
   ],
   "conflicts": [],
   "action": "先核查现实约束，再结合候选方向或时机推进。",
