@@ -14,15 +14,15 @@ agent 经 `engine` MCP 使用 `bazhai_chart` / `bazhai_layout` / `xuankong_chart
 
 | 步骤 | 条件 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 流年或元运问题 | `time.now` | 当前年基准 |
-| 2 | 八宅问题 | `bazhai.chart` → `bazhai.layout` | 命卦、吉凶方、门主灶 |
-| 2 | 玄空问题 | `xuankong.chart`，当用户问指定年份流年风水时调用 `xuankong.liunian` | 山向盘、元运、流年飞星 |
+| 1 | 流年或元运问题 | `time_now` | 当前年基准 |
+| 2 | 八宅问题 | `bazhai_chart` → `bazhai_layout` | 命卦、吉凶方、门主灶 |
+| 2 | 玄空问题 | `xuankong_chart`，当用户问指定年份流年风水时调用 `xuankong_liunian` | 山向盘、元运、流年飞星 |
 | 3 | 已有数据 | 读取 `fengshui/app/fengshui.md` 与 domain 文档 | 解读规则 |
 | 4 | 输出 | 按模板综合 | 结论 + 方位建议 |
 
 ## 硬边界
 
-- `xuankong.chart` 返回带 `chart_digest` 的完整宅盘；传给 `xuankong.liunian` 时 digest 必须匹配，不得手工拼装或修改。
+- `xuankong_chart` 返回带 `chart_digest` 的完整宅盘；传给 `xuankong_liunian` 时 digest 必须匹配，不得手工拼装或修改。
 - 命卦、飞星、元运与流年盘全部来自引擎（engine MCP）；LLM 只解释返回字段。
 - 八宅只需要出生年份和性别；玄空不需要命主出生日期，需要宅运起盘日期与房屋坐向。
 - 玄空坐山与向山必须相对 180°（二十四山相隔 12 位）；同山或任意两山组合不是合法坐向。

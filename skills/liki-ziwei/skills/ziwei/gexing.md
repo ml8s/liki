@@ -6,7 +6,7 @@
 
 ```text
 ① 紫微命宫主星 → 性格基调
-   读取 `liki-ziwei/skills/ziwei/zhuxing.md` 星曜性格基调表
+   读取 `zhuxing.md` 星曜性格基调表
    例：命宫天府 → 保守稳重型
 
 ② 命宫辅星/煞星 → 修正

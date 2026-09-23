@@ -16,4 +16,4 @@
 | 惊门 | 金 | 凶 | 惊恐、官司 | 忌诉讼出行 | 《烟波钓叟歌》 |
 | 开门 | 金 | 大吉 | 开业、出行 | 宜开创、见贵 | 《烟波钓叟歌》 |
 
-> 注：门的吉凶是其固有属性；某宫临何门由 `qimen.chart` 排盘确定，本表只用于把门翻译成断语。洛书飞盘按 `method.door_mode=eight_doors_real_center_step`：中五可参与值使行宫，但可用八门仍有一个空宫。鸣法飞盘按 `method.door_mode=nine_doors_with_center_forward`：中门参与九门顺飞。金函玉镜复用八门名义，但中宫无门，排布规则见 `jinhan.md`。
+> 注：门的吉凶是其固有属性；某宫临何门由 `qimen_snapshot` 排盘确定，本表只用于把门翻译成断语。洛书飞盘按 `method.door_mode=eight_doors_real_center_step`：中五可参与值使行宫，但可用八门仍有一个空宫。鸣法飞盘按 `method.door_mode=nine_doors_with_center_forward`：中门参与九门顺飞。金函玉镜复用八门名义，但中宫无门，排布规则见 `jinhan.md`。

@@ -18,7 +18,7 @@ agent 经 `engine-pro` MCP 使用 `qiming_surname` / `qiming_pick` / `qiming_cha
 
 | 步骤 | 条件 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 有完整日期和时间 | `bazi.chart` → `bazi.fullchart` | 用神 / 喜神 / 忌神 |
+| 1 | 有完整日期和时间 | `create_birth_chart` → `create_birth_chart` | 用神 / 喜神 / 忌神 |
 | 1 | 时辰缺失或模糊 | 问一次仍不能确认 | 不排八字；改问期望五行或按“不限”处理 |
 | 1 | 无出生信息 | 询问期望五行或按“不限”处理 | 五行策略 |
 | 2 | 生成名字 | 确认偏好 → `qiming_pick` | 字池 |
