@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "Liki naming tools",
+    "description": "起名（命理之上的应用）：配姓、取字池、单字查询、组名、评估。纯函数实现，与 engine Go qiming 逐字段对齐。"
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "qiming_surname",
+        "description": "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_surname"],
+          "properties": {
+            "source_surname": {
+              "type": "string",
+              "description": "源姓氏的拉丁拼音或英文拼写（如 zhang / chan / lee）。"
+            },
+            "max_candidates": {
+              "type": "integer",
+              "description": "返回候选数上限，默认 6，范围 1-12。"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "qiming_pick",
+        "description": "按五行取字池：给出名字位（first/second）的五行要求，返回按字排序的可选字池（含字频）。count=1 单名只取 first 池，count=2 双名取 first+second 池。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["wuxing1"],
+          "properties": {
+            "wuxing1": {
+              "type": "string",
+              "enum": ["木", "火", "土", "金", "水"],
+              "description": "名字第一位字的五行（中英文均可，如 木/wood）。"
+            },
+            "wuxing2": {
+              "type": "string",
+              "enum": ["木", "火", "土", "金", "水"],
+              "description": "名字第二位字的五行（count=2 时；省略则同 wuxing1）。"
+            },
+            "count": {
+              "type": "integer",
+              "enum": [1, 2],
+              "description": "名字字数：1=单名，2=双名（默认 2）。"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "qiming_char",
+        "description": "查询单个汉字的起名字库信息：字频、五行、笔画、部首、拼音、声调；未收录返回空。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["char"],
+          "properties": {
+            "char": {
+              "type": "string",
+              "description": "要查询的单个汉字。"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "qiming_compose",
+        "description": "将取字池中的字组合为候选名：单名=first 单字，双名=first×second 两字组合；按 first 顺序生成，最多 max_names 个。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["first"],
+          "properties": {
+            "first": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "第一位可选字（1-256 个）。"
+            },
+            "second": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "第二位可选字（双名用，1-256 个）；省略=单名。"
+            },
+            "max_names": {
+              "type": "integer",
+              "description": "返回候选名上限，默认 100，范围 1-1000。"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "qiming_check",
+        "description": "独立评估候选名：长度/字库收录/禁用字校验，音律声调序列，五行命中（用神/喜神/忌神）；返回每名的 valid/errors/characters/phonetic/wuxing。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["given_names"],
+          "properties": {
+            "given_names": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "要评估的名字（单名或双名，1-2 字）。"
+            },
+            "yongshen": {
+              "type": "string",
+              "enum": ["木", "火", "土", "金", "水"],
+              "description": "八字用神五行（中英文均可）。"
+            },
+            "xishen": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["木", "火", "土", "金", "水"]},
+              "description": "喜神五行列表。"
+            },
+            "jishen": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["木", "火", "土", "金", "水"]},
+              "description": "忌神五行列表。"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -25,11 +25,13 @@ from pydantic import BaseModel, Field, create_model
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 NATAL_CLI = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "agent_cli.py"
 DIVINATION_CLI = pathlib.Path(__file__).resolve().parent / "divination" / "tools" / "agent_cli.py"
+NAMING_CLI = pathlib.Path(__file__).resolve().parent / "naming" / "agent_cli.py"
 VENV_PYTHON = pathlib.Path(__file__).resolve().parents[1] / ".venv" / "bin" / "python"
 
 ANALYSIS_DIR = pathlib.Path(__file__).resolve().parent
 NATAL_TOOLS = ANALYSIS_DIR / "natal" / "tools"
 DIVINATION_TOOLS = ANALYSIS_DIR / "divination" / "tools"
+NAMING_TOOLS = ANALYSIS_DIR / "naming"
 
 # 每个工具的 {fn 名: (CLI 路径, 参数 schema 文件)}
 TOOL_DEFS: dict[str, tuple[pathlib.Path, str, str]] = {}
@@ -40,9 +42,13 @@ _natal_schema = json.loads(
 _div_schema = json.loads(
     (DIVINATION_TOOLS / "skill-tools.json").read_text("utf-8")
 )
+_naming_schema = json.loads(
+    (NAMING_TOOLS / "skill-tools.json").read_text("utf-8")
+)
 for _schema, _cli, _kind in (
     (_natal_schema, NATAL_CLI, "natal"),
     (_div_schema, DIVINATION_CLI, "divination"),
+    (_naming_schema, NAMING_CLI, "naming"),
 ):
     for _t in _schema["tools"]:
         _fn = _t["function"]
@@ -133,12 +139,13 @@ def _run_cli(cli: pathlib.Path, fn: str, args: dict) -> dict:
 def create_server(domain: str | None = None) -> MCPServer:
     """创建 MCP server；domain 指定时只注册该专家工具（natal 工具注入 domain）。
 
-    domain=None → 全量 10 工具（双术数 + 全占卜）。
+    domain=None → 全量（双术数 + 占卜 + 起名）。
     domain="bazi"/"ziwei" → 5 个 natal 工具，analyze_* 自动注入 domain。
     domain="qimen"/"liuyao" → 对应 2 个占卜工具。
+    domain="naming" → 5 个起名工具。
     """
     natal_domains = ("bazi", "ziwei")
-    if domain is not None and domain not in (*natal_domains, "qimen", "liuyao"):
+    if domain is not None and domain not in (*natal_domains, "qimen", "liuyao", "naming"):
         raise ValueError(f"domain 无效: {domain!r}")
     server = MCPServer(
         name=f"liki-analysis-{domain}" if domain else "liki-analysis",
@@ -156,11 +163,13 @@ def create_server(domain: str | None = None) -> MCPServer:
             continue
         if domain in natal_domains and kind != "natal":
             continue
-        schema_file = (
-            NATAL_TOOLS / "skill-tools.json"
-            if kind == "natal"
-            else DIVINATION_TOOLS / "skill-tools.json"
-        )
+        if domain == "naming" and kind != "naming":
+            continue
+        schema_file = {
+            "natal": NATAL_TOOLS / "skill-tools.json",
+            "divination": DIVINATION_TOOLS / "skill-tools.json",
+            "naming": NAMING_TOOLS / "skill-tools.json",
+        }[kind]
         params_schema = json.loads(schema_file.read_text("utf-8"))
         tool_schema = next(
             t["function"]["parameters"]

@@ -88,9 +88,9 @@ def test_tool_surface_matches_skill(server) -> None:
     tools = asyncio.run(server.list_tools())
     names = {t.name for t in tools}
     assert names == set(TOOL_DEFS.keys())
-    assert len(names) == 10
+    assert len(names) == 15
 
-    # 每个工具必须来自 natal/divination 的 skill-tools.json
+    # 每个工具必须来自 natal/divination/naming 的 skill-tools.json
     for name in names:
         cli, kind, _ = TOOL_DEFS[name]
         assert cli.name == "agent_cli.py"
