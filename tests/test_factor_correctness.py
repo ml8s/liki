@@ -13,7 +13,7 @@ from factor_tokens import FACTOR_WILDCARD
 from operators_liunian import _LIU_OP_NAMES
 from operators_natal import _OP_NAMES, _op, _ten_god_states_from_pan
 
-TOOLS = Path(__file__).resolve().parents[1] / "skills" / "liki" / "natal" / "tools"
+TOOLS = Path(__file__).resolve().parents[1] / "analysis" / "app" / "natal" / "tools"
 
 
 def test_ten_god_state_projection_is_readonly() -> None:

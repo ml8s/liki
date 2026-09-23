@@ -16,7 +16,7 @@ import unittest
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                'skills', 'liki', 'natal', 'tools'))
+                                'analysis', 'app', 'natal', 'tools'))
 
 
 @pytest.mark.integration
@@ -28,7 +28,7 @@ class TestIntegration_NatalTools(unittest.TestCase):
         if not url:
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           "skills", "liki", "natal", "tools", "agent_cli.py")
+                           "analysis", "app", "natal", "tools", "agent_cli.py")
         env = dict(os.environ, LIKI_RPC_URL=url)
         p = subprocess.run(
             ["python3", cli], input=json.dumps({"fn": fn, "args": args}).encode(),
@@ -127,7 +127,7 @@ class TestIntegration_DivinationSnapshotAsk(unittest.TestCase):
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "skills", "liki", "divination", "tools", "agent_cli.py",
+            "analysis", "app", "divination", "tools", "agent_cli.py",
         )
         env = dict(os.environ, LIKI_RPC_URL=url)
         process = subprocess.run(
@@ -302,7 +302,7 @@ class TestIntegration_QimenRules(unittest.TestCase):
             self.skipTest("LIKI_RPC_URL 未设置，跳过全链路集成测试")
         cli = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "skills", "liki", "divination", "tools", "agent_cli.py",
+            "analysis", "app", "divination", "tools", "agent_cli.py",
         )
         env = dict(os.environ, LIKI_RPC_URL=url)
 

@@ -107,7 +107,7 @@ class TestMainProtocol(unittest.TestCase):
 class TestSchemaConsistency(unittest.TestCase):
     def test_schema_tools_match_dispatch(self):
         p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         "skills", "liki", "natal", "tools", "skill-tools.json")
+                         "analysis", "app", "natal", "tools", "skill-tools.json")
         with open(p, encoding="utf-8") as f:
             names = [item["function"]["name"] for item in json.load(f)["tools"]]
         self.assertEqual(set(names), set(agent_cli._DISPATCH))
