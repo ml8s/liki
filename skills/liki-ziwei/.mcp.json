@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "engine-pro-ziwei": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/mcp/engine-pro/ziwei",
+      "x-workbuddy": {
+        "displayName": { "zh": "紫微判断层", "en": "Zi Wei Judgment" },
+        "description": { "zh": "紫微排盘与规则断语：十二宫、星曜四化、大限流年、合盘考时。", "en": "Zi Wei chart casting and rule-based readings: palaces, stars, sihua, daxian, liunian, compatibility and calibration." },
+        "auth": { "type": "none" }
+      }
+    },
+    "engine-aux": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/mcp/engine/aux",
+      "x-workbuddy": {
+        "displayName": { "zh": "天文辅助", "en": "Astronomical Aux" },
+        "description": { "zh": "真太阳时、城市经纬度、当前时间等排盘辅助计算。", "en": "True solar time, city coordinates and current time helpers." },
+        "auth": { "type": "none" }
+      }
+    }
+  }
+}

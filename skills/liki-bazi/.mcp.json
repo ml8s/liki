@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "engine-pro-bazi": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/mcp/engine-pro/bazi",
+      "x-workbuddy": {
+        "displayName": { "zh": "八字判断层", "en": "BaZi Judgment" },
+        "description": { "zh": "八字排盘与规则断语：格局用神、十神六亲、神煞旺衰、大运流年、合盘考时。", "en": "BaZi chart casting and rule-based readings: structure, yongshen, ten gods, dayun, liunian, compatibility and calibration." },
+        "auth": { "type": "none" }
+      }
+    },
+    "engine-aux": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/mcp/engine/aux",
+      "x-workbuddy": {
+        "displayName": { "zh": "天文辅助", "en": "Astronomical Aux" },
+        "description": { "zh": "真太阳时、城市经纬度、当前时间等排盘辅助计算。", "en": "True solar time, city coordinates and current time helpers." },
+        "auth": { "type": "none" }
+      }
+    }
+  }
+}

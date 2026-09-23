@@ -1,0 +1,44 @@
+{
+  "name": "liki-ziwei",
+  "version": "1.0.0",
+  "description": "Chinese Zi Wei Dou Shu expert computing twelve palaces, stars, sihua, daxian and liunian with traceable rule-based readings.",
+  "author": {
+    "name": "Q.Sui",
+    "email": "suiqiang@foxmail.com"
+  },
+  "agents": ["./agents/ziwei-expert.md"],
+  "expertType": "agent",
+  "agentName": "ziwei-expert",
+  "displayName": {
+    "en": "Zi Wei Expert",
+    "zh": "紫微专家"
+  },
+  "profession": {
+    "en": "Zi Wei Dou Shu Consultant",
+    "zh": "紫微命理师"
+  },
+  "displayDescription": {
+    "en": "Deterministic Zi Wei Dou Shu expert: twelve palaces, stars, sihua, daxian and liunian with traceable rule-based readings.",
+    "zh": "专精紫微斗数排盘与判断，涵盖十二宫、星曜四化、格局性格、大限流年与合盘考时，断语保留因子与经典出处，依据可回溯。"
+  },
+  "avatar": "avatars/expert.png",
+  "categoryId": "12-IndustryConsultant",
+  "defaultInitPrompt": {
+    "zh": "帮我排紫微命盘，看看近期运势",
+    "en": "Cast my Zi Wei chart and read my recent fortune"
+  },
+  "plugin": "liki-ziwei",
+  "tags": [
+    { "en": "Zi Wei Dou Shu", "zh": "紫微斗数" },
+    { "en": "Twelve Palaces", "zh": "十二宫" },
+    { "en": "Destiny", "zh": "命理" }
+  ],
+  "quickPrompts": [
+    { "zh": "帮我排紫微命盘，看看近期运势", "en": "Cast my Zi Wei chart and read my recent fortune" },
+    { "zh": "分析我的紫微十二宫和星曜四化", "en": "Analyze my Zi Wei palaces and stars" },
+    { "zh": "紫微合盘，看两人是否适配", "en": "Compare two Zi Wei charts for compatibility" }
+  ],
+  "dependencies": {
+    "mcpServers": "./.mcp.json"
+  }
+}
