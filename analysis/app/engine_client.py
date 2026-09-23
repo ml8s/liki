@@ -30,6 +30,25 @@ def _endpoint() -> str:
     return os.environ.get("LIKI_MCP_URL", "https://liki.hk/mcp")
 
 
+# RPC 方法前缀 → 引擎分域端点后缀（各术数排盘 + 共享 aux）
+_DOMAIN_BY_PREFIX = (
+    ("bazi.", "/bazi"),
+    ("ziwei.", "/ziwei"),
+    ("qimen.", "/qimen"),
+    ("liuyao.", "/liuyao"),
+    ("time.", "/aux"),
+    ("tianwen.", "/aux"),
+    ("city.", "/aux"),
+)
+
+
+def _domain_suffix(method: str) -> str:
+    for prefix, suffix in _DOMAIN_BY_PREFIX:
+        if method.startswith(prefix):
+            return suffix
+    return ""
+
+
 def _meta() -> dict:
     return {
         "io.modelcontextprotocol/protocolVersion": PROTOCOL_VERSION,
@@ -65,7 +84,7 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
     last_err: Exception | None = None
     for attempt in range(retries + 1):
         try:
-            req = urllib.request.Request(_endpoint(), data=body, headers=headers)
+            req = urllib.request.Request(_endpoint() + _domain_suffix(method), data=body, headers=headers)
             with urllib.request.urlopen(req, timeout=MCP_TIMEOUT) as resp:
                 doc = _parse_body(resp.read())
             if "error" in doc:
