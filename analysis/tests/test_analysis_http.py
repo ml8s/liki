@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-NATAL_TOOLS_PATH = Path(__file__).resolve().parents[1] / "liki_analysis" / "natal" / "tools"
+NATAL_TOOLS_PATH = Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"
 VENV_PYTHON = REPO_ROOT / "analysis" / ".venv" / "bin" / "python"
 PORT = 8091
 BASE = f"http://127.0.0.1:{PORT}/mcp"
@@ -43,7 +43,7 @@ requires_engine = pytest.mark.skipif(
 @pytest.fixture(scope="module")
 def http_server():
     proc = subprocess.Popen(
-        [str(VENV_PYTHON), "-m", "uvicorn", "liki_analysis.server:app",
+        [str(VENV_PYTHON), "-m", "uvicorn", "app.server:app",
          "--host", "127.0.0.1", "--port", str(PORT)],
         cwd=str(REPO_ROOT / "analysis"),
         env={**os.environ, "LIKI_MCP_URL": LIKI_MCP_URL},

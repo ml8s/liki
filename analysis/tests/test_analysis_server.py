@@ -18,12 +18,12 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-NATAL_TOOLS_PATH = Path(__file__).resolve().parents[1] / "liki_analysis" / "natal" / "tools"
-DIVINATION_TOOLS_PATH = Path(__file__).resolve().parents[1] / "liki_analysis" / "divination" / "tools"
+NATAL_TOOLS_PATH = Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"
+DIVINATION_TOOLS_PATH = Path(__file__).resolve().parents[1] / "app" / "divination" / "tools"
 sys.path.insert(0, str(REPO_ROOT / "analysis"))
 sys.path.insert(0, str(NATAL_TOOLS_PATH))
 
-from liki_analysis.server import TOOL_DEFS, VENV_PYTHON, create_server  # noqa: E402
+from app.server import TOOL_DEFS, VENV_PYTHON, create_server  # noqa: E402
 
 LIKI_MCP_URL = os.environ.get("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
 

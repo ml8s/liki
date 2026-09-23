@@ -7,7 +7,7 @@ computation) is called by the tool layer internally; WorkBuddy clients only see
 this server.
 
 Run:
-    .venv/bin/python -m uvicorn liki_analysis.server:app --port 8090
+    .venv/bin/python -m uvicorn app.server:app --port 8090
 """
 from __future__ import annotations
 

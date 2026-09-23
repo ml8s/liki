@@ -273,7 +273,7 @@ func skillNameForDoc(path string) string {
 }
 
 func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
-	files, err := filepath.Glob(filepath.Join("..", "..", "..", "analysis", "liki_analysis", "*", "tools", "skill-tools.json"))
+	files, err := filepath.Glob(filepath.Join("..", "..", "..", "analysis", "app", "*", "tools", "skill-tools.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -297,7 +297,7 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 		parts := strings.Split(filepath.ToSlash(path), "/")
 		skill := "liki"
 		for index, part := range parts {
-			if (part == "liki" || part == "liki_analysis") && index+1 < len(parts) {
+			if (part == "liki" || part == "app") && index+1 < len(parts) {
 				skill = parts[index+1]
 				break
 			}

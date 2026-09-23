@@ -26,7 +26,7 @@ def _fullchart_schema() -> dict:
 
 
 def test_projection_contract_covers_engine_fullchart_fields():
-    contract_path = ROOT / "analysis/liki_analysis/natal/tools/natal_projection_contract.json"
+    contract_path = ROOT / "analysis/app/natal/tools/natal_projection_contract.json"
     contract = json.loads(contract_path.read_text(encoding="utf-8"))
     schema = _fullchart_schema()
     top = set(schema["properties"])
@@ -49,7 +49,7 @@ def test_projection_contract_covers_engine_fullchart_fields():
 
 
 def test_projection_contract_has_no_stale_or_duplicate_labels():
-    contract_path = ROOT / "analysis/liki_analysis/natal/tools/natal_projection_contract.json"
+    contract_path = ROOT / "analysis/app/natal/tools/natal_projection_contract.json"
     contract = json.loads(contract_path.read_text(encoding="utf-8"))
     bazi_labels = contract["八字"]
     ziwei_labels = contract["紫微"]
@@ -72,7 +72,7 @@ def _engine_method_schema(go_file: str, method: str) -> dict:
 
 def test_projection_contract_paths_exist_in_engine_schema():
     contract = json.loads(
-        (ROOT / "analysis/liki_analysis/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
     )
     full_schema = _fullchart_schema()["properties"]
     ziwei_schema = _engine_method_schema("tools_ziwei.go", "ziwei.chart")["properties"]
@@ -106,7 +106,7 @@ def test_projection_contract_paths_exist_in_engine_schema():
 
 def test_projection_labels_are_unique_and_generated_from_mappings():
     contract = json.loads(
-        (ROOT / "analysis/liki_analysis/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
+        (ROOT / "analysis/app/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
     )
     bazi_labels = []
     for pillar in contract["四柱"]:
