@@ -6,7 +6,9 @@
     "name": "Q.Sui",
     "email": "suiqiang@foxmail.com"
   },
-  "agents": ["./agents/bazi-expert.md"],
+  "agents": [
+    "./agents/bazi-expert.md"
+  ],
   "expertType": "agent",
   "agentName": "bazi-expert",
   "displayName": {
@@ -29,16 +31,36 @@
   },
   "plugin": "liki-bazi",
   "tags": [
-    { "en": "BaZi", "zh": "八字" },
-    { "en": "Four Pillars", "zh": "四柱" },
-    { "en": "Destiny", "zh": "命理" }
+    {
+      "en": "BaZi",
+      "zh": "八字"
+    },
+    {
+      "en": "Four Pillars",
+      "zh": "四柱"
+    },
+    {
+      "en": "Destiny",
+      "zh": "命理"
+    }
   ],
   "quickPrompts": [
-    { "zh": "帮我排八字，看看近期运势", "en": "Cast my BaZi chart and read my recent fortune" },
-    { "zh": "分析我的八字格局和用神", "en": "Analyze my BaZi structure and yongshen" },
-    { "zh": "八字合盘，看两人是否适配", "en": "Compare two BaZi charts for compatibility" }
+    {
+      "zh": "帮我排八字，看看近期运势",
+      "en": "Cast my BaZi chart and read my recent fortune"
+    },
+    {
+      "zh": "分析我的八字格局和用神",
+      "en": "Analyze my BaZi structure and yongshen"
+    },
+    {
+      "zh": "八字合盘，看两人是否适配",
+      "en": "Compare two BaZi charts for compatibility"
+    }
   ],
   "dependencies": {
-    "mcpServers": "./.mcp.json"
+    "connectors": [
+      "engine-pro-bazi"
+    ]
   }
 }

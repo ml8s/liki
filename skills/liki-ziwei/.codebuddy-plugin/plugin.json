@@ -6,7 +6,9 @@
     "name": "Q.Sui",
     "email": "suiqiang@foxmail.com"
   },
-  "agents": ["./agents/ziwei-expert.md"],
+  "agents": [
+    "./agents/ziwei-expert.md"
+  ],
   "expertType": "agent",
   "agentName": "ziwei-expert",
   "displayName": {
@@ -29,16 +31,36 @@
   },
   "plugin": "liki-ziwei",
   "tags": [
-    { "en": "Zi Wei Dou Shu", "zh": "紫微斗数" },
-    { "en": "Twelve Palaces", "zh": "十二宫" },
-    { "en": "Destiny", "zh": "命理" }
+    {
+      "en": "Zi Wei Dou Shu",
+      "zh": "紫微斗数"
+    },
+    {
+      "en": "Twelve Palaces",
+      "zh": "十二宫"
+    },
+    {
+      "en": "Destiny",
+      "zh": "命理"
+    }
   ],
   "quickPrompts": [
-    { "zh": "帮我排紫微命盘，看看近期运势", "en": "Cast my Zi Wei chart and read my recent fortune" },
-    { "zh": "分析我的紫微十二宫和星曜四化", "en": "Analyze my Zi Wei palaces and stars" },
-    { "zh": "紫微合盘，看两人是否适配", "en": "Compare two Zi Wei charts for compatibility" }
+    {
+      "zh": "帮我排紫微命盘，看看近期运势",
+      "en": "Cast my Zi Wei chart and read my recent fortune"
+    },
+    {
+      "zh": "分析我的紫微十二宫和星曜四化",
+      "en": "Analyze my Zi Wei palaces and stars"
+    },
+    {
+      "zh": "紫微合盘，看两人是否适配",
+      "en": "Compare two Zi Wei charts for compatibility"
+    }
   ],
   "dependencies": {
-    "mcpServers": "./.mcp.json"
+    "connectors": [
+      "engine-pro-ziwei"
+    ]
   }
 }
