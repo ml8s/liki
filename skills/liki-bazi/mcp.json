@@ -3,6 +3,10 @@
     "analysis-bazi": {
       "type": "streamableHttp",
       "url": "https://liki.hk/analysis/mcp/bazi"
+    },
+    "engine-aux": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/mcp/aux"
     }
   }
 }

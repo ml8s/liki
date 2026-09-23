@@ -3,6 +3,10 @@
     "analysis-ziwei": {
       "type": "streamableHttp",
       "url": "https://liki.hk/analysis/mcp/ziwei"
+    },
+    "engine-aux": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/mcp/aux"
     }
   }
 }
