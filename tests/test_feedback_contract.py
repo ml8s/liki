@@ -174,8 +174,7 @@ class TestFeedbackContract(unittest.TestCase):
         text = (SKILLS_DIR / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("https://liki.hk/api/feedback", text)
         self.assertIn("feedback-v1", text)
-        for group in ("meta", "agent", "llm", "problem"):
-            self.assertIn(group, text)
+        self.assertIn("feedback.schema.json", text)
         schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
         for issue_type in schema["properties"]["problem"]["properties"]["type"]["enum"]:
             self.assertIn(issue_type, text)

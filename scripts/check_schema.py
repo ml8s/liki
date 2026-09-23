@@ -9,11 +9,11 @@ import sys
 from collections import defaultdict
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(_ROOT, "skills", "liki", "natal", "tools"))
+sys.path.insert(0, os.path.join(_ROOT, "analysis", "app", "natal", "tools"))
 
 from factor_tables import load_long_rows
 
-TOOLS = os.path.join(_ROOT, "skills", "liki", "natal", "tools")
+TOOLS = os.path.join(_ROOT, "analysis", "app", "natal", "tools")
 ASSERTIONS_PATH = os.path.join(TOOLS, "assertions", "assertions.csv")
 CONDITIONS_PATH = os.path.join(TOOLS, "assertions", "assertion_conditions.csv")
 CONTEXT_KEYS = {"性别"}

@@ -95,29 +95,7 @@ Liki 先使用，后付费；服务完成后发起 Aipay，未支付仍可使用
 
 发现错误、缺字段、口径冲突、流程卡涩或表述歧义时，agent 自主择时提交技术反馈；不向用户请求确认，失败不阻塞；同一会话最多 3 条。提交后在最终收据中加一行 `Feedback: submitted|disabled|failed`。
 
-固定 payload 模板：
-
-```json
-{
-  "schema_version": "feedback-v1",
-  "meta": {
-    "source": "skill-agent",
-    "skill": "liki",
-    "skill_version": "$SKILL_VERSION",
-    "engine_version": "$ENGINE_VERSION"
-  },
-  "agent": {"name": "$AGENT_NAME", "version": "$AGENT_VERSION"},
-  "llm": {"provider": "$LLM_PROVIDER", "model": "$LLM_MODEL"},
-  "problem": {
-    "type": "error",
-    "severity": "medium",
-    "tool": "$TOOL_NAME",
-    "summary": "一句话说明问题",
-    "expected": "期望行为",
-    "observed": "实际行为"
-  }
-}
-```
+固定 payload 模板见 `feedback.schema.json`（schema_version=feedback-v1）。
 
 规则：
 

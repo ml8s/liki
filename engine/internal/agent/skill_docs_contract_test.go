@@ -190,7 +190,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"isError", "mcpServers", "streamableHttp", "tools/call", "tools/list", "Mcp-Method",
 		"result.methods.name", "xuankong.chart.result.data", "bazhai",
 		"xuankong", "qiming", "snapshot", "data", "error", "unknown",
-		"true", "false", "skills/liki/VERSION.txt", "create_birth_chart.data",
+		"true", "false", "skills/liki/VERSION.txt", "engine", "natal", "create_birth_chart", "analyze_natal", "create_birth_chart.data",
 		"data.chart_ref", "error.code", "error.message", "code", "message",
 		"safety_advisory", "meta.skill", "info.version", "pan_digest",
 		"pan.ziwei_daxian", "chars", "frequency", "pools", "slot", "given_names",

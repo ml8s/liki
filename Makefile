@@ -1,14 +1,17 @@
 # liki monorepo — skill 客户端 + 服务端（engine + analysis）
 # 同库：skill（MCP 指令）+ engine（Go 排盘）+ analysis（Python 判断层 MCP）
+# 质量门禁：make check（静态）→ make test（测试）→ make gate（check+test，pre-push）
 
 .DEFAULT_GOAL := help
 
 export PATH := $(HOME)/go/bin:$(HOME)/app/go/bin:$(PATH)
 export GOCACHE ?= /tmp/gocache
+ENGINE_MCP_PORT ?= 18081
 
-.PHONY: help build build-skill build-engine build-mcp test test-engine test-analysis test-contracts verify
+.PHONY: help build build-skill build-engine build-mcp \
+        check test test-contracts test-engine test-analysis verify gate
 
-build-skill: ## 打包 skill archive（分发包变薄：MCP 指令 + Aipay）
+build-skill: ## 打包 skill archive（MCP 指令 + Aipay）
 	scripts/build-archive.sh
 
 build-engine: ## 编译引擎
@@ -19,27 +22,45 @@ build-mcp: ## 编译引擎 MCP server
 
 build: build-skill build-engine ## 构建全部
 
+# ── Check：所有静态检查（格式 / 风格 / 结构 / 契约 / 数据质量）───────────────
+
+check: ## 静态检查：markdownlint + skill md 结构 + go vet + 断言 schema + 文档契约
+	npx markdownlint-cli2 "skills/**/*.md"
+	python3 -m pytest tests/test_skill_markdown_structure.py tests/test_skill_frontmatter.py -q
+	@cd engine && go vet ./...
+	python3 scripts/check_schema.py
+	python3 scripts/check_docs.py
+
+# ── Test：所有测试（逻辑正确性）────────────────────────────────────────────
+
+test-contracts: ## skill 结构契约测试（tests/ 全量）
+	python3 -m pytest tests/ -q
+
 test-engine: ## 引擎 Go 测试
 	@cd engine && go test -count=1 ./...
 
-test-analysis: ## analysis 判断层测试（需本地引擎）
-	@cd analysis && .venv/bin/python -m pytest tests/
+test-analysis: ## analysis 判断层测试（需本地引擎 $(ENGINE_MCP_PORT)）
+	@cd analysis && LIKI_MCP_URL=http://127.0.0.1:$(ENGINE_MCP_PORT)/mcp .venv/bin/python -m pytest tests/ -q
 
-test-contracts: ## 引擎契约测试（qimen/qiming/divination/engine-snapshot）
-	@python3 -m pytest tests/test_qimen_tools.py tests/test_qiming_data.py tests/test_divination_architecture.py tests/test_divination_contracts.py tests/test_divination_snapshot_ask.py tests/test_engine_snapshot_sync.py
+test: test-contracts test-engine ## 所有测试（skill + engine）
 
-test: ## skill 结构契约测试 + 引擎契约
-	python3 -m pytest tests/test_unified_skill_structure.py tests/test_ready_to_use_contracts.py tests/test_root_docs_contract.py
-	@$(MAKE) --no-print-directory test-contracts
+# ── Verify：端到端（需要本地引擎）──────────────────────────────────────────
 
-verify: ## 起本地引擎 + analysis 测试
-	@bash -c 'cd engine && go build -o /tmp/liki-engine ./cmd/liki/ && trap "fuser -k 18082/tcp 2>/dev/null || true" EXIT; setsid /tmp/liki-engine -addr 127.0.0.1:18082 >/tmp/liki-engine.log 2>&1 < /dev/null & sleep 1; cd ../analysis && LIKI_RPC_URL=http://127.0.0.1:18082/jsonrpc .venv/bin/python -m pytest tests/'
+verify: ## 起本地引擎 + analysis 集成测试
+	@bash -c 'cd engine && go build -o /tmp/liki-mcp ./cmd/liki-mcp/ && trap "fuser -k $(ENGINE_MCP_PORT)/tcp 2>/dev/null || true" EXIT; setsid /tmp/liki-mcp -addr 127.0.0.1:$(ENGINE_MCP_PORT) >/tmp/liki-mcp.log 2>&1 < /dev/null & sleep 1; cd ../analysis && LIKI_MCP_URL=http://127.0.0.1:$(ENGINE_MCP_PORT)/mcp .venv/bin/python -m pytest tests/'
+
+# ── Gate：check + test（全面测试，pre-push 门槛）───────────────────────────
+
+gate: check test ## 全面测试：check + test（推送前门槛）
 
 help: ## 列出 target
-	@echo "make build-skill  打包 skill archive（MCP 指令 + Aipay）"
-	@echo "make build-engine  编译引擎"
-	@echo "make build-mcp     编译引擎 MCP server"
-	@echo "make test-engine   引擎 Go 测试"
-	@echo "make test-analysis analysis 测试（需引擎）"
-	@echo "make test-contracts 引擎契约测试"
-	@echo "make verify        起本地引擎 + analysis 测试"
+	@echo "make check          静态检查（markdownlint + go vet + schema + docs）"
+	@echo "make test-contracts skill 结构契约测试（tests/ 全量）"
+	@echo "make test-engine     引擎 Go 测试"
+	@echo "make test-analysis   analysis 测试（需引擎 18081）"
+	@echo "make test            所有测试（skill + engine）"
+	@echo "make verify          起本地引擎 + analysis 集成"
+	@echo "make gate            全面测试（check + test，pre-push）"
+	@echo "make build-skill     打包 skill archive"
+	@echo "make build-engine    编译引擎"
+	@echo "make build-mcp       编译引擎 MCP server"

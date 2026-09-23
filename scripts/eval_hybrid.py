@@ -22,7 +22,7 @@ from pathlib import Path
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the unified Liki bazi domain.
-_TOOLS = os.path.join(_ROOT, "skills", "liki", "natal", "tools")
+_TOOLS = os.path.join(_ROOT, "analysis", "app", "natal", "tools")
 _LOCAL = os.path.dirname(os.path.abspath(__file__))   # tests/（client/birth 排盘工具在此）
 _BENCHMARK = os.path.join(_ROOT, "tests", "benchmark", "mingli160")
 for _p in (_TOOLS, _LOCAL):
