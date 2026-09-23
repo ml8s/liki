@@ -10,8 +10,8 @@ description: 完整命书 — 八字、紫微、双盘交叉与综合建议
 >
 ## 依赖的领域知识
 
-[必读] - bazi: `natal/domains/bazi/dayun.md`、`natal/domains/bazi/wangshuai.md`、`natal/domains/bazi/geju.md`、`natal/domains/bazi/yongshen.md`
-[必读] - ziwei: `natal/domains/ziwei/yingqi.md`
+[必读] - bazi: `liki-bazi/skills/bazi/dayun.md`、`liki-bazi/skills/bazi/wangshuai.md`、`liki-bazi/skills/bazi/geju.md`、`liki-bazi/skills/bazi/yongshen.md`
+[必读] - ziwei: `liki-ziwei/skills/ziwei/yingqi.md`
 [按需] - 用户深入某领域时读取对应 app 卡与 domain 文档。
 
 ## 路由

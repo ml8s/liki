@@ -10,10 +10,10 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 >
 ## 依赖的领域知识
 
-[必读] - bazi: natal/domains/bazi/wealth.md「决策表」
-[必读] - bazi: natal/domains/bazi/shishen.md「十神」
+[必读] - bazi: liki-bazi/skills/bazi/wealth.md「决策表」
+[必读] - bazi: liki-bazi/skills/bazi/shishen.md「十神」
 
-[必读] - ziwei: natal/domains/ziwei/yingqi.md「财运紫微应期」
+[必读] - ziwei: liki-ziwei/skills/ziwei/yingqi.md「财运紫微应期」
 
 > **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["wealth"]`，仅保留财运域断语。**
 
@@ -22,7 +22,7 @@ description: 财运分析 — 财源类型、收入层次、风险提示
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
 | 1 | 财星 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal` | 正 / 偏财、透藏、是否为用 |
-| 2 | 胜财能力 | 发送 `TOOLS.md §2 analyze_natal`；读取 `natal/domains/bazi/wealth.md` | 能担 / 不能担 / 中和 |
+| 2 | 胜财能力 | 发送 `TOOLS.md §2 analyze_natal`；读取 `liki-bazi/skills/bazi/wealth.md` | 能担 / 不能担 / 中和 |
 | 3 | 风险与运势 | 分别发送 `TOOLS.md §2` 的 `analyze_periods(time_scope.type="decade")`、`analyze_natal` | 当前运与比劫夺财风险 |
 | 4 | 具体细节或流年 | 分别发送 `TOOLS.md §2` 的 `analyze_natal(topics=["wealth"])`、`analyze_natal(topics=["property"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 紫微财库与流年财信号 |
 

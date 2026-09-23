@@ -10,9 +10,9 @@ description: 学业判断 — 学历层次、学习能力、考试运
 >
 ## 依赖的领域知识
 
-[必读] - bazi: `natal/domains/bazi/study.md`「学历决策」+ `natal/domains/bazi/shishen.md`「十神组合」
+[必读] - bazi: `liki-bazi/skills/bazi/study.md`「学历决策」+ `liki-bazi/skills/bazi/shishen.md`「十神组合」
 
-[必读] - ziwei: `natal/domains/ziwei/yingqi.md`「学业应期」+ `natal/domains/ziwei/liunian.md`「流年宫位」
+[必读] - ziwei: `liki-ziwei/skills/ziwei/yingqi.md`「学业应期」+ `liki-ziwei/skills/ziwei/liunian.md`「流年宫位」
 
 > **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["study"]`，仅保留学业域断语。**
 

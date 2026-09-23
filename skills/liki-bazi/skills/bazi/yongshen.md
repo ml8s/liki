@@ -20,7 +20,7 @@ engine 的 `fu_yi.basis` 已给出强弱表输入：日主根型、月令旺相�
 
 ### 格局源（定结构与方向）
 
-定格规则见 `natal/domains/bazi/geju.md`。
+定格规则见 `liki-bazi/skills/bazi/geju.md`。
 
 `ge_ju` 只输出月令格局候选：`ge_ju / yong_fa / pattern_god / pattern_god_ten_god / pattern_god_source / structure`。它没有 `yong / xi / ji`，因为格神不等于最终用神；相神、成败和救应必须由完整盘面复核。LLM 可把 `pattern_god_ten_god` 映射为命局主题方向（官杀主约束、财主资源、食伤主表达、印主庇护），但喜忌仍以扶抑、调候和结构共同判定。
 
@@ -151,7 +151,7 @@ engine 的 `fu_yi.basis` 已给出强弱表输入：日主根型、月令旺相�
 
 > 注意：场景②"去凶化吉"虽结果向好，但合去忌神的过程本身是剧烈变动，可能有短暂的痛苦经历（如手术治好了病但过程痛苦）。输出时须区分"事件性质"（变动）与"结果走向"（向好）。
 
-#### 合化应事类型（见 `natal/domains/bazi/hehui.md`「六合」）
+#### 合化应事类型（见 `liki-bazi/skills/bazi/hehui.md`「六合」）
 
 | 类型 | 含义 |
 | ------ | ------ |

@@ -10,13 +10,13 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 >
 ## 依赖的领域知识
 
-[必读] - bazi: natal/domains/bazi/wuxing-health.md「五行所属」
+[必读] - bazi: liki-bazi/skills/bazi/wuxing-health.md「五行所属」
 
-- bazi: natal/domains/bazi/hehui.md「冲宫位表」+「冲吉凶表」（按需——论冲害细节时读取）
-- bazi: natal/domains/bazi/dayun.md「应期决策表」（按需——应期走疾厄宫闭环）
-- bazi: natal/domains/bazi/tiaohou.md「调候用神」（按需——冬夏寒燥失衡时读取）
+- bazi: liki-bazi/skills/bazi/hehui.md「冲宫位表」+「冲吉凶表」（按需——论冲害细节时读取）
+- bazi: liki-bazi/skills/bazi/dayun.md「应期决策表」（按需——应期走疾厄宫闭环）
+- bazi: liki-bazi/skills/bazi/tiaohou.md「调候用神」（按需——冬夏寒燥失衡时读取）
 
-[必读] - ziwei: natal/domains/ziwei/yingqi.md「健康紫微应期」
+[必读] - ziwei: liki-ziwei/skills/ziwei/yingqi.md「健康紫微应期」
 
 > **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["health"]`，仅保留健康域断语。**
 
@@ -24,9 +24,9 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 脏腑倾向 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`、`analyze_natal`、`analyze_natal`；读取 `natal/domains/bazi/wuxing-health.md` | 过旺 / 过弱五行与易病方向 |
+| 1 | 脏腑倾向 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`、`analyze_natal`、`analyze_natal`；读取 `liki-bazi/skills/bazi/wuxing-health.md` | 过旺 / 过弱五行与易病方向 |
 | 2 | 限运触发 | 分别发送 `TOOLS.md §2` 的 `analyze_periods(time_scope.type="decade")`、`analyze_periods(time_scope.type="decade")`；读取合会冲宫与应期表 | 冲入宫位与触发年份 |
-| 3 | 性质与走向 | 读取 `natal/domains/bazi/hehui.md` | 事件性质、结果走向、严重程度 |
+| 3 | 性质与走向 | 读取 `liki-bazi/skills/bazi/hehui.md` | 事件性质、结果走向、严重程度 |
 | 4 | 具体细节 | 分别发送 `TOOLS.md §2` 的 `analyze_natal(topics=["health"])`、`analyze_natal(topics=["mental"])`；用户问具体年份、应期或流年时发送 `§4.1 analyze_periods` | 疾厄宫、福德宫、四化与流年信号 |
 
 健康输出为倾向和关注方向；重大病灾需不同层证据闭环，并先列较轻替代解释。

@@ -33,7 +33,7 @@
 |---|---:|---|---|
 | {事件} | {年份} | 吻合 / 不吻合 / 无法判断 | 同左 |
 
-依据 `analyze_periods` 流年结果与 `natal/domains/bazi/dayun.md` 应期规则判断。吻合数明显领先者直接采用。
+依据 `analyze_periods` 流年结果与 `liki-bazi/skills/bazi/dayun.md` 应期规则判断。吻合数明显领先者直接采用。
 
 ## 第三层：问题方向分界
 

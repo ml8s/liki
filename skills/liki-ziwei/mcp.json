@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "analysis-ziwei": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/analysis/mcp/ziwei"
+    }
+  }
+}

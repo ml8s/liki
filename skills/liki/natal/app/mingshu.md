@@ -10,8 +10,8 @@ description: 命盘快速扫描 — 用户无明确问题时列出核心事实�
 >
 ## 依赖的领域知识
 
-[必读] - bazi: `natal/domains/bazi/wangshuai.md`「旺衰」+ `natal/domains/bazi/geju.md`「格局」+ `natal/domains/bazi/yongshen.md`「用神」
-[按需] - ziwei: `natal/domains/ziwei/yingqi.md`（问当前 / 流年主题时读取）
+[必读] - bazi: `liki-bazi/skills/bazi/wangshuai.md`「旺衰」+ `liki-bazi/skills/bazi/geju.md`「格局」+ `liki-bazi/skills/bazi/yongshen.md`「用神」
+[按需] - ziwei: `liki-ziwei/skills/ziwei/yingqi.md`（问当前 / 流年主题时读取）
 
 ## 路由
 

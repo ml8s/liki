@@ -10,13 +10,13 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 >
 ## 依赖的领域知识
 
-[必读] - bazi: natal/domains/bazi/family.md「六亲判断」
+[必读] - bazi: liki-bazi/skills/bazi/family.md「六亲判断」
 
-- bazi: natal/domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
-- bazi: natal/domains/bazi/dayun.md「应期决策表」（按需——问亲人应期时读取）
-[必读] - bazi: natal/domains/bazi/hehui.md「冲宫位表」
+- bazi: liki-bazi/skills/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
+- bazi: liki-bazi/skills/bazi/dayun.md「应期决策表」（按需——问亲人应期时读取）
+[必读] - bazi: liki-bazi/skills/bazi/hehui.md「冲宫位表」
 
-[必读] - ziwei: natal/domains/ziwei/yingqi.md「家庭紫微应期」
+[必读] - ziwei: liki-ziwei/skills/ziwei/yingqi.md「家庭紫微应期」
 
 > **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["family"]`，仅保留家庭域断语。**
 
@@ -24,7 +24,7 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 确定六亲 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`；读取 `natal/domains/bazi/family.md` | 目标亲人与对应星 |
+| 1 | 确定六亲 | 分别发送 `TOOLS.md §2` 的 `analyze_natal`、`analyze_natal`；读取 `liki-bazi/skills/bazi/family.md` | 目标亲人与对应星 |
 | 2 | 星宫状态 | 按目标调用父母 / 兄弟 / 子女域；读取宫位论 | 透藏、根气、冲合克与宫位 |
 | 3 | 应期 | 分别发送 `TOOLS.md §2` 的 `analyze_periods(time_scope.type="decade")`、`analyze_periods(time_scope.type="decade")`；发送 `§4.1 analyze_periods` | 引动层与候选年 |
 | 4 | 具体细节 | 发送 `TOOLS.md §3 analyze_periods` | 父母宫、子女宫与四化信号 |

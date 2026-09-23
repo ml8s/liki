@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "analysis-bazi": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/analysis/mcp/bazi"
+    }
+  }
+}
