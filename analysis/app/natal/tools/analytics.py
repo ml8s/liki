@@ -270,6 +270,11 @@ def _flatten_side_result(
 def analyze_natal(args: dict) -> dict:
     """本命盘 + 受控人生问题 → 结构化本命断语。"""
     pan = decode_chart_ref(args["chart_ref"])
+    domain = args.get("domain")
+    if domain is not None and domain not in ("bazi", "ziwei"):
+        raise LikiToolError(
+            f"domain 无效: {domain!r}，可选 'bazi'/'ziwei'/省略（省略=双术数全量）"
+        )
     selected_pairs = _require_topics(args["topics"])
     routes = _load_routes()
     rule_order: list[str] = []
@@ -288,6 +293,8 @@ def analyze_natal(args: dict) -> dict:
         )
         matched += count
         for item in part:
+            if domain is not None and item["side"] != domain:
+                continue
             key = (item["assertion_id"], item["side"])
             if key not in seen:
                 seen.add(key)

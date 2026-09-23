@@ -130,14 +130,32 @@ def _run_cli(cli: pathlib.Path, fn: str, args: dict) -> dict:
         raise RuntimeError(f"tool {fn} bad output: {e}") from e
 
 
-def create_server() -> MCPServer:
+def create_server(domain: str | None = None) -> MCPServer:
+    """创建 MCP server；domain 指定时只注册该专家工具（natal 工具注入 domain）。
+
+    domain=None → 全量 10 工具（双术数 + 全占卜）。
+    domain="bazi"/"ziwei" → 5 个 natal 工具，analyze_* 自动注入 domain。
+    domain="qimen"/"liuyao" → 对应 2 个占卜工具。
+    """
+    natal_domains = ("bazi", "ziwei")
+    if domain is not None and domain not in (*natal_domains, "qimen", "liuyao"):
+        raise ValueError(f"domain 无效: {domain!r}")
     server = MCPServer(
-        name="liki-analysis",
-        title="Liki Analysis",
-        description="命理判断层：因子/断语/应期/考时，复用 Liki 规则引擎。",
+        name=f"liki-analysis-{domain}" if domain else "liki-analysis",
+        title=f"Liki {domain} 专家" if domain else "Liki Analysis",
+        description=(
+            f"命理判断层（{domain} 专家）：因子/断语/应期/考时，复用 Liki 规则引擎。"
+            if domain else "命理判断层：因子/断语/应期/考时，复用 Liki 规则引擎。"
+        ),
         version="0.1.0",
     )
     for name, (cli, kind, fn) in TOOL_DEFS.items():
+        if domain == "qimen" and fn not in ("qimen_snapshot", "qimen_ask"):
+            continue
+        if domain == "liuyao" and fn not in ("liuyao_snapshot", "liuyao_ask"):
+            continue
+        if domain in natal_domains and kind != "natal":
+            continue
         schema_file = (
             NATAL_TOOLS / "skill-tools.json"
             if kind == "natal"
@@ -159,6 +177,7 @@ def create_server() -> MCPServer:
             "_run_cli": _run_cli,
             "_cli": cli,
             "_fn": fn,
+            "_domain": domain if domain in natal_domains else None,
             "json": json,
             "Optional": Optional,
             "Literal": Literal,
@@ -166,6 +185,8 @@ def create_server() -> MCPServer:
         code = (
             f"async def _handler({sig}) -> str:\n"
             f"    args = {{{body}}}\n"
+            "    if _domain is not None:\n"
+            "        args['domain'] = _domain\n"
             "    filtered = {k: v for k, v in args.items() if v is not None}\n"
             "    result = _run_cli(_cli, _fn, filtered)\n"
             "    if not result.get('ok'):\n"
@@ -179,12 +200,22 @@ def create_server() -> MCPServer:
 
 
 def _make_app():
-    server = create_server()
-    return server.streamable_http_app(
+    """单 server 端点：LIKI_ANALYSIS_DOMAIN 未设 → 全量 10 工具；设置 → 该专家子集。
+
+    同一进程内挂多个 session_manager 会触发 mcp 库的 anyio 嵌套上限（实测
+    >4 层卡死），故每个专家用独立进程（LIKI_ANALYSIS_DOMAIN）部署，
+    对外由网关按路径路由 /mcp/<专家>。
+    """
+    import os
+
+    domain = os.environ.get("LIKI_ANALYSIS_DOMAIN", "").strip() or None
+    return create_server(domain).streamable_http_app(
         streamable_http_path="/mcp",
         json_response=True,
         stateless_http=True,
     )
+
+    return _Router(children)
 
 
 app = _make_app()
