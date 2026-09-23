@@ -1,6 +1,6 @@
 # Natal 工具契约
 
-本域工具由 `liki-analysis` MCP 连接器提供（判断层在 analysis Python 层，
+本域工具由 `analysis` MCP 连接器提供（判断层在 analysis Python 层，
 经 MCP `create_birth_chart` / `analyze_natal` / `analyze_periods` /
 `compare_birth_charts` / `calibrate_birth_time` 工具暴露）。agent 通过 MCP
 调用，不再使用 JSON-RPC。城市解析、真太阳时校正和引擎编排都在 analysis 工具层内部。

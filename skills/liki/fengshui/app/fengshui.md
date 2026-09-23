@@ -6,7 +6,7 @@ description: 风水分析 — 八宅+玄空，看房屋布局、家宅吉凶
 
 # 风水分析
 
-> 引擎工具：经 `liki-engine` MCP 调用 `bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian`（参数见工具 schema）。
+> 引擎工具：经 `engine` MCP 调用 `bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian`（参数见工具 schema）。
 
 ## 依赖的领域知识
 

@@ -148,7 +148,7 @@ def create_server(domain: str | None = None) -> MCPServer:
     if domain is not None and domain not in (*natal_domains, "qimen", "liuyao", "naming"):
         raise ValueError(f"domain 无效: {domain!r}")
     server = MCPServer(
-        name=f"liki-analysis-{domain}" if domain else "liki-analysis",
+        name=f"analysis-{domain}" if domain else "analysis",
         title=f"Liki {domain} 专家" if domain else "Liki Analysis",
         description=(
             f"命理判断层（{domain} 专家）：因子/断语/应期/考时，复用 Liki 规则引擎。"

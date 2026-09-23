@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	serverName = "liki-mcp"
-	serverDesc = "liki.hk Metaphysics Engine — deterministic Chinese metaphysics computation: bazi, ziwei, liuyao, qimen, huangli, fengshui and naming."
+	serverName = "engine"
+	serverDesc = "liki.hk Metaphysics Engine — deterministic Chinese metaphysics computation: bazi, ziwei, liuyao, qimen, huangli, fengshui."
 )
 
 // toolName converts an RPC method name to a valid MCP tool name.

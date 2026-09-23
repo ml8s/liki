@@ -1,6 +1,6 @@
 # Divination 工具契约
 
-本域工具由 `liki-analysis` MCP 连接器提供（排盘/装卦/判断在 analysis Python 层，
+本域工具由 `analysis` MCP 连接器提供（排盘/装卦/判断在 analysis Python 层，
 经 MCP `liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` /
 `huangli_days` 工具暴露）。agent 通过 MCP 调用，不再使用 JSON-RPC。
 

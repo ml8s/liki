@@ -2,9 +2,9 @@
 
 Liki 本命域统一处理八字、紫微、合参、大运/大限、流年、合盘和定盘。本域 agent 不直接调用 RPC。进入本域后先读取本入口，再按用户场景读取一张 App 卡和当前任务需要的 domain 卡；保持上下文聚焦。
 
-工具契约：`natal/TOOLS.md`（工具参数由 `liki-analysis` MCP 连接器 schema 提供）。
+工具契约：`natal/TOOLS.md`（工具参数由 `analysis` MCP 连接器 schema 提供）。
 
-- 调用：通过 `liki-analysis` MCP 连接器使用 `create_birth_chart` 等工具（参数见 TOOLS.md）
+- 调用：通过 `analysis` MCP 连接器使用 `create_birth_chart` 等工具（参数见 TOOLS.md）
 - 响应：成功读 `data`；失败读 `error.code` / `error.message`
 - 工具层启动时校验 engine 版本和必需 MCP 能力；不满足即 fail closed
 

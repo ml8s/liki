@@ -6,7 +6,7 @@ description: 自选名字评估 — 用户已选定名字，直接评估字库�
 
 # 自选名字评估
 
-> 工具：经 `liki-analysis` MCP 调用 `qiming_check` / `qiming_char`（参数见工具 schema）。
+> 工具：经 `analysis` MCP 调用 `qiming_check` / `qiming_char`（参数见工具 schema）。
 > 场景：用户已有候选名字。起名/改名 → `naming.md`；外国人起中文名 → `foreign.md`。
 
 ## 依赖的领域知识
