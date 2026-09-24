@@ -170,7 +170,7 @@ Liki 负责处理重复、繁琐、可系统化的工作，例如：
 
 English
 
-«Let Liki handle repetitive work, so practitioners can focus on professional judgment.»
+«Let Liki handle repetitive work, so practitioners can focus on professional analysis.»
 
 Liki automates repetitive and systematic tasks, including:
 
@@ -184,7 +184,7 @@ Liki automates repetitive and systematic tasks, including:
 
 Professionals remain responsible for:
 
-- Professional judgment
+- Professional analysis
 - Practical experience
 - Client communication
 - Final decisions
@@ -411,7 +411,7 @@ Product-facing documentation (GitHub README, website, docs) uses a two-layer str
 
 **Layer 1 (Category)**: Chinese title: **Liki — 专业命理 Skill**; English title: **Liki — Professional Skill for Chinese Metaphysics** ("Professional" modifies standards — no genitive ambiguity in English; retained).
 
-**Layer 2 (Positioning)**: "按命理师的专业标准构建 / Built to professional standards" (optionally followed by evidence: engine-computed charts, classically-sourced judgments, verifiable conclusions).
+**Layer 2 (Positioning)**: "按命理师的专业标准构建 / Built to professional standards" (optionally followed by evidence: engine-computed charts, classically-sourced analysiss, verifiable conclusions).
 
 The positioning sentence is used in brand narrative with its standards explanation. Product-facing titles use the compact category form “Liki — 专业命理 Skill”. The former North Star phrase remains retired because of its possessive ambiguity.
 
@@ -439,7 +439,7 @@ Core Principle（最高原则）
 
 English
 
-«Let Liki handle repetitive work, so practitioners can focus on professional judgment.»
+«Let Liki handle repetitive work, so practitioners can focus on professional analysis.»
 
 This principle guides every product, engineering, design, and operational decision at Liki.
 

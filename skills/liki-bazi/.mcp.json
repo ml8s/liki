@@ -9,9 +9,9 @@
         "auth": { "type": "none" }
       }
     },
-    "judgment-bazi": {
+    "analysis-bazi": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/judgment/bazi",
+      "url": "https://liki.hk/mcp/analysis/bazi",
       "x-workbuddy": {
         "displayName": { "zh": "八字判断层", "en": "BaZi Judgment" },
         "description": { "zh": "八字规则判断：compute_factors 因子快照、natal_query 本命断语、period_query 大运流年应期断语。吃 engine 排盘结果（chart），无状态。", "en": "BaZi rule-based judgment: compute_factors, natal_query, period_query. Consumes engine chart, stateless." },

@@ -1,6 +1,6 @@
 """正交化因子解析一致性测试。
 
-组合盘（judgment 输入：engine 排盘 chart）产出的因子必须与完整盘
+组合盘（analysis 输入：engine 排盘 chart）产出的因子必须与完整盘
 （full_paipan，旧分析层）同侧因子完全一致——正交化只改输入来源，
 不改因子求值逻辑。覆盖本命因子与流年因子、八字与紫微、多样本。
 """
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 
-os.environ.setdefault("LIKI_JUDGMENT_DOMAIN", "bazi")
+os.environ.setdefault("LIKI_ANALYSIS_SERVICE_DOMAIN", "bazi")
 
 import json  # noqa: E402
 import sys  # noqa: E402
@@ -75,7 +75,7 @@ def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
 def test_natal_factors_match_full_paipan(sample):
     """本命因子：组合盘（compute_factors）== 完整盘（full_paipan）同侧。"""
     from factors import evaluate_factors
-    from judgment import compute_factors
+    from analysis import compute_factors
 
     solar_time, gender, longitude = sample
     pan = _full_pan(solar_time, gender, longitude)

@@ -16,13 +16,13 @@ liki-bazi/
 │   └── bazi/
 │       ├── SKILL.md         # 专家人设 + 方法论入口
 │       └── *.md             # 方法论卡（旺衰/用神/格局/十神/大运/合盘/考时等 16 卡）
-├── .mcp.json                # 连接器：engine-pro-bazi（判断，排盘内部完成辅助）
+├── .mcp.json                # 连接器：engine-bazi（排盘）+ analysis-bazi（判断）
 └── README.md
 ```
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-bazi", "judgment-bazi"]` — 依赖排盘连接器与判断连接器（排盘 engine-bazi，判断 judgment-bazi）。
+- `dependencies.connectors: ["engine-bazi", "analysis-bazi"]` — 依赖排盘连接器与判断连接器（排盘 engine-bazi，判断 analysis-bazi）。
 
 ## 校验要点（提交前核对）
 
