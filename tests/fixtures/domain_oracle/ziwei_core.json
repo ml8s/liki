@@ -83,7 +83,7 @@
       "transformations": {
         "禄": "天梁",
         "权": "紫微",
-        "科": "天府",
+        "科": "左辅",
         "忌": "武曲"
       }
     },
@@ -198,28 +198,88 @@
     }
   ],
   "tian_kui_all_10": [
-    {"stem": "甲", "branch": "丑"},
-    {"stem": "乙", "branch": "子"},
-    {"stem": "丙", "branch": "亥"},
-    {"stem": "丁", "branch": "亥"},
-    {"stem": "戊", "branch": "丑"},
-    {"stem": "己", "branch": "子"},
-    {"stem": "庚", "branch": "丑"},
-    {"stem": "辛", "branch": "午"},
-    {"stem": "壬", "branch": "卯"},
-    {"stem": "癸", "branch": "卯"}
+    {
+      "stem": "甲",
+      "branch": "丑"
+    },
+    {
+      "stem": "乙",
+      "branch": "子"
+    },
+    {
+      "stem": "丙",
+      "branch": "亥"
+    },
+    {
+      "stem": "丁",
+      "branch": "亥"
+    },
+    {
+      "stem": "戊",
+      "branch": "丑"
+    },
+    {
+      "stem": "己",
+      "branch": "子"
+    },
+    {
+      "stem": "庚",
+      "branch": "丑"
+    },
+    {
+      "stem": "辛",
+      "branch": "午"
+    },
+    {
+      "stem": "壬",
+      "branch": "卯"
+    },
+    {
+      "stem": "癸",
+      "branch": "卯"
+    }
   ],
   "tian_yue_all_10": [
-    {"stem": "甲", "branch": "未"},
-    {"stem": "乙", "branch": "申"},
-    {"stem": "丙", "branch": "酉"},
-    {"stem": "丁", "branch": "酉"},
-    {"stem": "戊", "branch": "未"},
-    {"stem": "己", "branch": "申"},
-    {"stem": "庚", "branch": "未"},
-    {"stem": "辛", "branch": "寅"},
-    {"stem": "壬", "branch": "巳"},
-    {"stem": "癸", "branch": "巳"}
+    {
+      "stem": "甲",
+      "branch": "未"
+    },
+    {
+      "stem": "乙",
+      "branch": "申"
+    },
+    {
+      "stem": "丙",
+      "branch": "酉"
+    },
+    {
+      "stem": "丁",
+      "branch": "酉"
+    },
+    {
+      "stem": "戊",
+      "branch": "未"
+    },
+    {
+      "stem": "己",
+      "branch": "申"
+    },
+    {
+      "stem": "庚",
+      "branch": "未"
+    },
+    {
+      "stem": "辛",
+      "branch": "寅"
+    },
+    {
+      "stem": "壬",
+      "branch": "巳"
+    },
+    {
+      "stem": "癸",
+      "branch": "巳"
+    }
   ],
   "leap_month_boundaries": [
     {
