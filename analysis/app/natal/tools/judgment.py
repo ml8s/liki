@@ -80,9 +80,20 @@ def natal_query(factors: dict, topics: list[str], context: dict | None = None) -
     return {"assertions": all_assertions}
 
 
-def period_query(factors: dict, time_scope: dict, topics: list[str]) -> dict:
-    """因子快照 + 时间层 + topics → 应期断语。
+def period_query(factors: dict, time_scope: dict, topics: list[str], chart: dict) -> dict:
+    """因子快照 + 时间层 + topics → 应期断语（大运/大限/流年）。
 
-    TODO(orthogonal): 断语层从 pan 输入改造为 factors 快照输入后实现。
+    chart 为 engine 排盘结果（bazi_chart/ziwei_chart），内部据此调 engine
+    流年/大限取应期字段，再匹配断语表（本命因子参与匹配）。
+    输出结构与 analyze_periods 一致（periods 数组）。
     """
-    raise NotImplementedError("period_query 待正交化断语层改造后实现")
+    from analytics import _analyze_periods
+
+    gender = chart.get("gender", "")
+    full = _bazi_fullchart(chart) if _is_bazi_chart(chart) else _ziwei_fullchart(chart)
+    pan = {"chart": chart, "full": full, "gender": gender}
+    return _analyze_periods(
+        pan,
+        {"topics": topics, "time_scope": time_scope},
+        validate_pan=False,
+    )

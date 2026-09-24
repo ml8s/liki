@@ -174,7 +174,8 @@ def default_scene_domains(rules: list[str]) -> list[str] | None:
 
 
 def query(rule: str, pan: dict, year: int | None = None,
-          domains: list[str] | None = None) -> dict:
+          domains: list[str] | None = None,
+          validate_pan: bool = True) -> dict:
     """断语查询：域 + 本命盘 → 该域断语 {八字: [...], 紫微: [...], 合参: [...]}。
 
     rule ∈ NATAL_RULES（如 "十神"/"旺衰"/"命宫"/"官禄"；流年域走 yearly_range）。
@@ -198,7 +199,8 @@ def query(rule: str, pan: dict, year: int | None = None,
         )
     # pan 直通——LLM 传 full_paipan 的返回即可，内部从 pan 直读产因子快照。
     # 校验完整排盘结构，杜绝把空 dict/快照/半截盘误当命盘（防兜底断语污染）。
-    validate_natal_pan(pan, action="query")
+    if validate_pan:
+        validate_natal_pan(pan, action="query")
     resolved_current_year = 0
     current_year_source = ""
     if year is not None:
@@ -317,8 +319,11 @@ def _evaluate_year(
 
 
 def _liunian_for_year(pan, year):
-    from paipan import liunian
-    return liunian(pan, year)
+    from paipan import _bazi_liunian, _ziwei_liunian, liunian
+    if pan.get("ziwei"):
+        return liunian(pan, year)
+    # 正交化组合盘（judgment 只八字）：只排八字流年，紫微侧留空（无紫微断语）。
+    return {"bazi": _bazi_liunian(pan["chart"], year), "ziwei": {}}
 
 
 def query_yearly(rule: str, snapshots: dict) -> dict:
@@ -459,7 +464,8 @@ def match_rule(rule: str, snapshots: dict) -> dict:
 
 def yearly_range(pan: dict, start: int, end: int,
                  rules: list, detail: bool = False,
-                 domains: list[str] | None = None) -> dict:
+                 domains: list[str] | None = None,
+                 validate_pan: bool = True) -> dict:
     resolved_rules = _resolve_rules(rules)
     if domains is None:
         domains = default_scene_domains(rules)
@@ -472,7 +478,12 @@ def yearly_range(pan: dict, start: int, end: int,
             f"yearly_range 年份跨度过大：{start}-{end} 共 {end - start + 1} 年，"
             f"单次最多 {MAX_YEARS} 年。"
         )
-    validate_natal_pan(pan, action="yearly_range")
+    if validate_pan:
+        validate_natal_pan(pan, action="yearly_range")
+    else:
+        for key in ("chart", "full", "gender"):
+            if not pan.get(key):
+                raise PanSchemaError(f"yearly_range pan 缺 {key}，无法流年求值。")
     from paipan import RPCError
     cur_year, cur_source = resolve_current_year()
     flow_factors = flow_factor_names(rules)

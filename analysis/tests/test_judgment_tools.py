@@ -82,3 +82,43 @@ def test_natal_query_matches_analyze_natal(bazi_chart):
     want_ids = sorted(a["assertion_id"] for a in data["assertions"] if a["side"] == "bazi")
 
     assert got_ids == want_ids, f"natal_query 八字断语不一致: got={got_ids} want={want_ids}"
+
+def test_period_query_matches_analyze_periods(bazi_chart):
+    """period_query(factors, time_scope, topics, chart) 应期断语 == analyze_periods（八字侧）。"""
+    import asyncio
+
+    from app.server import create_server
+    from judgment import compute_factors, period_query
+
+    out = compute_factors(bazi_chart)
+    got = period_query(
+        out["factors"],
+        {"type": "year_range", "start_year": 2020, "end_year": 2040},
+        ["marriage"],
+        bazi_chart,
+    )
+    got_ids = sorted(
+        a.get("assertion_id") or a["id"]
+        for p in got["periods"]
+        for a in p["assertions"]
+    )
+
+    srv = create_server()
+    r = asyncio.run(srv.call_tool("create_birth_chart", {
+        "gender": "male",
+        "source": {"type": "timestamp", "timestamp": "1990-05-20T11:49:00+08:00",
+                   "precision": "minute", "location": {"city": "北京"}},
+    }))
+    chart = json.loads(r.content[0].text)
+    r = asyncio.run(srv.call_tool("analyze_periods", {
+        "chart_ref": chart["chart_ref"], "topics": ["marriage"],
+        "time_scope": {"type": "year_range", "start_year": 2020, "end_year": 2040},
+    }))
+    want = json.loads(r.content[0].text)
+    want_ids = sorted(
+        a["assertion_id"] for p in want["periods"] for a in p["assertions"]
+    )
+
+    assert got_ids == want_ids, (
+        f"period_query 应期断语不一致: got={got_ids} want={want_ids}"
+    )

@@ -366,6 +366,11 @@ def _deduplicate(items: list[dict]) -> list[dict]:
 def analyze_periods(args: dict) -> dict:
     """本命盘 + 时间范围 + 人生问题 → 大运/大限/流年断语。"""
     pan = decode_chart_ref(args["chart_ref"])
+    return _analyze_periods(pan, args)
+
+
+def _analyze_periods(pan: dict, args: dict, validate_pan: bool = True) -> dict:
+    """analyze_periods 主体：pan 已就绪（完整盘或 judgment 组合盘）。"""
     selected_pairs = _require_topics(args["topics"])
     routes = _load_routes()
     scope_type, start, end = _resolve_time_scope(args["time_scope"])
@@ -382,7 +387,7 @@ def analyze_periods(args: dict) -> dict:
         for rule in rule_order:
             if rule not in CURRENT_LIMIT_RULES:
                 raise TopicRouteError(f"decade route 含非限运规则: {rule}")
-            result = query(rule, pan, year=start)
+            result = query(rule, pan, year=start, validate_pan=validate_pan)
             result["_rule"] = rule
             part, count = _flatten_side_result(
                 result, selected_pairs, routes, "decade", start
@@ -410,7 +415,7 @@ def analyze_periods(args: dict) -> dict:
                     rule_order.append(rule)
         if not rule_order:
             raise TopicRouteError("所选 topic 没有流年规则")
-        raw = yearly_range(pan, start, end, rules=rule_order, detail=True)
+        raw = yearly_range(pan, start, end, rules=rule_order, detail=True, validate_pan=validate_pan)
         years = raw.get("years", {})
         for year in range(start, end + 1):
             result = years.get(str(year), {})
