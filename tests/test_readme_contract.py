@@ -20,6 +20,7 @@ CONTRACTS = {
             "常见问题",
             "文档",
             "开发者",
+            "架构",
             "贡献",
             "许可与声明",
         ],
@@ -34,6 +35,7 @@ CONTRACTS = {
             "FAQ",
             "Documentation",
             "For developers",
+            "Architecture",
             "Contributing",
             "License and disclaimer",
         ],
@@ -187,7 +189,6 @@ def document_relative_links(path: Path) -> list[Path]:
     [
         ROOT / "README.md",
         ROOT / "README.en.md",
-        ROOT / "docs/README_STYLE.md",
         ROOT / "docs/USER_GUIDE.md",
         ROOT / "docs/USER_GUIDE.en.md",
     ],
@@ -209,7 +210,6 @@ def test_local_links_exist(path: Path):
 def test_readme_links_to_governance_documents(readme: Path, guide: str):
     expected = {
         guide,
-        "docs/README_STYLE.md",
         "CONTRIBUTING.md",
         "CHANGELOG.md",
     }

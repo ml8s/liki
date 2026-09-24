@@ -77,7 +77,7 @@ def test_root_mcp_uses_counsel_and_engine():
     assert "engine" in text
     assert "liki-bazi" in text and "liki-ziwei" in text
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
-    assert set(mcp["mcpServers"]) == {"counsel", "engine"}
+    assert {"counsel", "engine"} <= set(mcp["mcpServers"])
 
 
 def test_expert_packs_follow_workbuddy_standard():

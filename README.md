@@ -101,11 +101,11 @@ make gate          # 本地推送前门槛（lint + check + test，~3min）
 make build-archive # 打包 unified Liki skill
 ```
 
-### 架构
+## 架构
 
 Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构，通过标准 MCP 提供能力：
 
-#### 领域模型
+### 领域模型
 
 - **engine（Go）** —— 确定性计算层：天文历算、排盘、历法、黄历、字库。
   输出结构化盘面/卦象/事实（chart / pan / snapshot），不做命理判断。
@@ -113,18 +113,18 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
   消费 engine 的盘面事实，用规则表（真值表 + 引擎规则表）产出断语与候选项，依据可回溯。
 - **黄历** —— 纯 engine（历法 + 建除事项适配），不走 counsel。
 
-#### 服务端点
+### 服务端点
 
 | 层 | MCP 端点 | 领域 |
 | --- | --- | --- |
 | engine | `/mcp/engine/{bazi,ziwei,liuyao,qimen,huangli,...}` | 排盘 / 历法 / 黄历 |
 | counsel | `/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}` | 判断 / 算卦 / 起名 |
 
-#### 调用链
+### 调用链
 
 `SKILL.md` 路由 → engine 排盘 → counsel 判断 → 断语（`assertion_id` + 经典依据，可回溯）
 
-#### 代码结构
+### 代码结构
 
 - `engine/` —— Go 引擎（排盘/历法/黄历），分域 MCP 服务
 - `counsel/` —— Python 判断层（多域 MCP server）

@@ -92,28 +92,28 @@ make gate          # local push gate (lint + check + test, ~3min)
 make build-archive # pack the unified Liki skill
 ```
 
-### Architecture
+## Architecture
 
 Liki follows a two-layer "orthogonal computation vs. judgment" architecture, exposed through standard MCP:
 
-#### Domain model
+### Domain model
 
 - **engine (Go)** — deterministic computation layer: calendrical astronomy, chart casting, calendar, Huangli, character data. Emits structured charts / hexagrams / facts (`chart` / `pan` / `snapshot`); it does not make judgments.
 - **counsel (Python)** — judgment layer: Bazi / Ziwei analysis, Liuyao / QiMen divination, naming evaluation. Consumes engine facts and produces assertions / candidates from rule tables (truth tables + engine rule tables), with traceable evidence.
 - **Huangli** — pure engine (calendar + Jianchu event suitability); not routed through counsel.
 
-#### Service endpoints
+### Service endpoints
 
 | Layer | MCP endpoint | Domain |
 | --- | --- | --- |
 | engine | `/mcp/engine/{bazi,ziwei,liuyao,qimen,huangli,...}` | chart casting / calendar / Huangli |
 | counsel | `/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}` | judgment / divination / naming |
 
-#### Call chain
+### Call chain
 
 `SKILL.md` routing → engine chart casting → counsel judgment → assertions (`assertion_id` + classical source, traceable)
 
-#### Code layout
+### Code layout
 
 - `engine/` — Go engine (chart casting / calendar / Huangli), domain-scoped MCP servers
 - `counsel/` — Python judgment layer (multi-domain MCP server)

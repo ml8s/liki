@@ -4,6 +4,18 @@
       "type": "streamableHttp",
       "url": "https://liki.hk/counsel/mcp"
     },
+    "counsel-liuyao": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/liuyao"
+    },
+    "counsel-qimen": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/qimen"
+    },
+    "counsel-naming": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/naming"
+    },
     "engine": {
       "type": "streamableHttp",
       "url": "https://liki.hk/mcp/engine"
