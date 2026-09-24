@@ -120,7 +120,7 @@ Skill 按命理师的专业习惯组织对话：一次处理一个主题，结�
 
 ### 需要联网吗？
 
-需要。Liki 通过标准 MCP 提供服务：`counsel`（判断层）和 `engine`（排盘/风水）。客户端连接 MCP 端点（`https://liki.hk/counsel/mcp` 与 `https://liki.hk/mcp/engine`）后即可调用。
+需要。Liki 通过标准 MCP 提供服务：`counsel`（判断层）和 `engine`（排盘/风水）。客户端连接 MCP 端点（`https://liki.hk/counsel/mcp` 与 `https://liki.hk/engine/mcp`）后即可调用。
 
 ### 我的出生数据会被存储吗？
 

@@ -2,7 +2,7 @@
   "mcpServers": {
     "engine-aux": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/engine/aux",
+      "url": "https://liki.hk/engine/mcp/aux",
       "x-workbuddy": {
         "displayName": { "zh": "历法辅助", "en": "Calendar Aux" },
         "description": { "zh": "农历转换与时间辅助：tianwen_time（公历时刻 → 真太阳时 + 农历，紫微排盘的 lunar 输入）、city_coords（城市经纬度）、time_now。", "en": "Calendar helpers: tianwen_time (solar → true solar + lunar for Zi Wei), city_coords, time_now." },
@@ -11,7 +11,7 @@
     },
     "engine-ziwei": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/engine/ziwei",
+      "url": "https://liki.hk/engine/mcp/ziwei",
       "x-workbuddy": {
         "displayName": { "zh": "紫微排盘", "en": "Zi Wei Engine" },
         "description": { "zh": "紫微排盘计算：本命盘（ziwei_chart）、详细盘（ziwei_fullchart）、大限（ziwei_daxian）、流年流月（ziwei_liunian/liuri）、合盘、考时。输入出生信息输出确定性盘面。", "en": "Zi Wei chart casting: natal chart, full chart, daxian, liunian/liuri, compatibility, calibration. Deterministic chart output from birth info." },
@@ -20,7 +20,7 @@
     },
     "counsel-ziwei": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/counsel/ziwei",
+      "url": "https://liki.hk/counsel/mcp/ziwei",
       "x-workbuddy": {
         "displayName": { "zh": "紫微判断层", "en": "Zi Wei Judgment" },
         "description": { "zh": "紫微规则分析：compute_factors 因子快照、natal_query 本命断语、period_query 大限流年应期断语。吃 engine 排盘结果（chart），无状态。", "en": "Zi Wei rule-based analysis: compute_factors, natal_query, period_query. Consumes engine chart, stateless." },

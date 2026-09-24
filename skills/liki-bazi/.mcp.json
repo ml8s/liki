@@ -2,7 +2,7 @@
   "mcpServers": {
     "engine-bazi": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/engine/bazi",
+      "url": "https://liki.hk/engine/mcp/bazi",
       "x-workbuddy": {
         "displayName": { "zh": "八字排盘", "en": "BaZi Engine" },
         "description": { "zh": "八字排盘计算：本命盘（bazi_chart）、详细盘（bazi_fullchart）、大运流年流月（bazi_dayun/liunian/liuri）、合盘、考时。输入出生信息输出确定性盘面。", "en": "BaZi chart casting: natal chart, full chart, dayun/liunian/liuri, compatibility, calibration. Deterministic chart output from birth info." },
@@ -11,7 +11,7 @@
     },
     "counsel-bazi": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/counsel/bazi",
+      "url": "https://liki.hk/counsel/mcp/bazi",
       "x-workbuddy": {
         "displayName": { "zh": "八字判断层", "en": "BaZi Judgment" },
         "description": { "zh": "八字规则分析：compute_factors 因子快照、natal_query 本命断语、period_query 大运流年应期断语。吃 engine 排盘结果（chart），无状态。", "en": "BaZi rule-based analysis: compute_factors, natal_query, period_query. Consumes engine chart, stateless." },

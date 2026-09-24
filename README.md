@@ -22,7 +22,7 @@ Liki 通过标准 MCP 提供能力，先配置 MCP 再安装 skill：
    - **自动**：客户端支持插件 MCP 声明时，skill 自带 `.mcp.json`，启用即自动连接。
    - **手动**：在客户端添加两个 MCP server：
      - `counsel`（判断层）：`https://liki.hk/counsel/mcp`
-     - `engine`（排盘/风水）：`https://liki.hk/mcp/engine`
+     - `engine`（排盘/风水）：`https://liki.hk/engine/mcp`
 2. **安装 skill**：
 
    ```bash
@@ -117,7 +117,7 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 | 层 | MCP 端点 | 领域 |
 | --- | --- | --- |
-| engine | `/mcp/engine/{bazi,ziwei,liuyao,qimen,huangli,...}` | 排盘 / 历法 / 黄历 |
+| engine | `/engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,...}` | 排盘 / 历法 / 黄历 |
 | counsel | `/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}` | 判断 / 算卦 / 起名 |
 
 ### 调用链
