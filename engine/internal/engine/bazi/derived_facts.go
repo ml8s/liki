@@ -105,13 +105,22 @@ func computeTenGodStates(c FullChart) ([]TenGodState, map[string]ElementState) {
 			continue
 		}
 		element := elements[accumulator.wuxing.String()]
+		// 十神强度按 ten_god_strength_rules 表判定（《子平真诠》旺衰强弱：
+		// 得令且透/根为强，失令且不透不根为弱；旺而不强判 neutral）。
 		strength := "neutral"
-		if element.SeasonStrength == "strong" {
-			strength = "strong"
-		} else if accumulator.transparent && element.Rooted {
-			strength = "strong"
-		} else if element.SeasonStrength == "weak" && !accumulator.transparent && !element.Rooted {
-			strength = "weak"
+		seasonStrong := element.SeasonStrength == "strong"
+		for _, rule := range tenGodStrengthRules {
+			if rule.Season != nil && *rule.Season != seasonStrong {
+				continue
+			}
+			if rule.Transparent != nil && *rule.Transparent != accumulator.transparent {
+				continue
+			}
+			if rule.Rooted != nil && *rule.Rooted != element.Rooted {
+				continue
+			}
+			strength = rule.Kind
+			break
 		}
 		states = append(states, TenGodState{
 			ShiShen:     shiShen.String(),

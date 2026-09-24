@@ -18,6 +18,9 @@ var shenshaJSON []byte
 //go:embed data/ride_rigui.json
 var rideRiguiJSON []byte
 
+//go:embed data/ten_god_strength_rules.json
+var tenGodStrengthRulesJSON []byte
+
 type tiaohouEntry struct {
 	primary            ganzhi.Gan
 	secondary          ganzhi.Gan
@@ -36,7 +39,52 @@ func init() {
 	if err := loadRideRigui(); err != nil {
 		log.Fatalf("bazi: load ride_rigui: %v", err)
 	}
+	if err := loadTenGodStrengthRules(); err != nil {
+		log.Fatalf("bazi: load ten_god_strength_rules: %v", err)
+	}
 }
+
+// tenGodStrengthRule 十神强度判定规则（《子平真诠》旺衰强弱）。
+// 省略的字段为任意；season 取 element 的季节旺弱（strong/weak）。
+type tenGodStrengthRule struct {
+	Kind        string
+	Season      *bool
+	Transparent *bool
+	Rooted      *bool
+	Source      string
+}
+
+var tenGodStrengthRules []tenGodStrengthRule
+
+func loadTenGodStrengthRules() error {
+	var raw []struct {
+		Rule        int    `json:"rule"`
+		Kind        string `json:"kind"`
+		Season      string `json:"season,omitempty"`
+		Transparent bool   `json:"transparent,omitempty"`
+		Rooted      bool   `json:"rooted,omitempty"`
+		Source      string `json:"source"`
+	}
+	if err := json.Unmarshal(tenGodStrengthRulesJSON, &raw); err != nil {
+		return fmt.Errorf("unmarshal ten_god_strength_rules.json: %w", err)
+	}
+	tenGodStrengthRules = make([]tenGodStrengthRule, 0, len(raw))
+	for _, r := range raw {
+		rule := tenGodStrengthRule{Kind: r.Kind, Source: r.Source}
+		switch r.Season {
+		case "strong":
+			rule.Season = boolPtr(true)
+		case "weak":
+			rule.Season = boolPtr(false)
+		}
+		rule.Transparent = boolPtr(r.Transparent)
+		rule.Rooted = boolPtr(r.Rooted)
+		tenGodStrengthRules = append(tenGodStrengthRules, rule)
+	}
+	return nil
+}
+
+func boolPtr(v bool) *bool { return &v }
 
 func loadTiaohou() error {
 	var entries []struct {

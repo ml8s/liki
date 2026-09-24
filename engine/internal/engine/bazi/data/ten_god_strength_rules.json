@@ -1,0 +1,10 @@
+[
+  {"rule": 1, "kind": "strong", "season": "strong", "transparent": true,
+   "source": "《子平真诠》：得时为旺、党众为强——得令且透干为强"},
+  {"rule": 2, "kind": "strong", "season": "strong", "rooted": true,
+   "source": "《子平真诠》：得令且通根为强（得地）"},
+  {"rule": 3, "kind": "strong", "transparent": true, "rooted": true,
+   "source": "《子平真诠》：透干且通根，失令亦强（得地得势）"},
+  {"rule": 4, "kind": "weak", "season": "weak", "transparent": false, "rooted": false,
+   "source": "《子平真诠》：失令且不透不根为弱（失地失势）"}
+]
