@@ -1,12 +1,14 @@
 {
   "schema_version": "1.0.0",
-  "basis": "《三命通会》论小运：男起丙寅顺行、女起壬申逆行（一定而不可易）",
+  "basis": "《星平会海》起小运：小运之法本由时，阳男阴女顺相宜。阴男阳女随逆转，一位一岁不差移",
   "start": {
     "male": "丙寅",
-    "female": "壬申"
+    "female": "壬申",
+    "note": "engine 已按《星平会海》由时柱起（此字段仅供 schema 兼容）"
   },
   "direction": {
     "male": "forward",
-    "female": "backward"
+    "female": "backward",
+    "note": "engine 已按阳男阴女顺、阴男阳女逆（年干阴阳）"
   }
 }

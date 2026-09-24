@@ -11,18 +11,20 @@ import (
 // 十神按日主对岁运天干。
 func TestXiaoYun_MaleStartAndDirection(t *testing.T) {
 	bz := ganzhi.Bazi{
-		Ri: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}, // 甲日子
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}, // 甲日子
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}, // 甲子时
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi}, // 甲年（阳）
 	}
 	zhus := computeXiaoYun(bz, ganzhi.Male, 3)
 	if len(zhus) != 3 {
 		t.Fatalf("len = %d, want 3", len(zhus))
 	}
-	// 男起丙寅
-	if zhus[0].Gan != ganzhi.GanBing || zhus[0].Zhi != ganzhi.ZhiYin {
-		t.Errorf("首岁 = %s%s, want 丙寅", zhus[0].Gan, zhus[0].Zhi)
+	// 阳男顺行，由时柱甲子起
+	if zhus[0].Gan != ganzhi.GanJia || zhus[0].Zhi != ganzhi.ZhiZi {
+		t.Errorf("首岁 = %s%s, want 甲子", zhus[0].Gan, zhus[0].Zhi)
 	}
-	// 顺行：丙寅→丁卯→戊辰
-	want := []string{"丙寅", "丁卯", "戊辰"}
+	// 顺行：甲子→乙丑→丙寅
+	want := []string{"甲子", "乙丑", "丙寅"}
 	for i, w := range want {
 		got := zhus[i].Gan.String() + zhus[i].Zhi.String()
 		if got != w {
@@ -37,15 +39,17 @@ func TestXiaoYun_MaleStartAndDirection(t *testing.T) {
 
 func TestXiaoYun_FemaleStartAndDirection(t *testing.T) {
 	bz := ganzhi.Bazi{
-		Ri: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 	}
 	zhus := computeXiaoYun(bz, ganzhi.Female, 3)
-	// 女起壬申
-	if zhus[0].Gan != ganzhi.GanRen || zhus[0].Zhi != ganzhi.ZhiShen {
-		t.Errorf("首岁 = %s%s, want 壬申", zhus[0].Gan, zhus[0].Zhi)
+	// 阳女逆行，由时柱甲子起
+	if zhus[0].Gan != ganzhi.GanJia || zhus[0].Zhi != ganzhi.ZhiZi {
+		t.Errorf("首岁 = %s%s, want 甲子", zhus[0].Gan, zhus[0].Zhi)
 	}
-	// 逆行：壬申→辛未→庚午
-	want := []string{"壬申", "辛未", "庚午"}
+	// 逆行：甲子→癸亥→壬戌
+	want := []string{"甲子", "癸亥", "壬戌"}
 	for i, w := range want {
 		got := zhus[i].Gan.String() + zhus[i].Zhi.String()
 		if got != w {
@@ -55,18 +59,20 @@ func TestXiaoYun_FemaleStartAndDirection(t *testing.T) {
 }
 
 func TestXiaoYun_ShiShen(t *testing.T) {
-	// 甲日主，丙寅岁 → 丙=食神
+	// 甲日主，时柱丙寅起（阳男顺）→ 丙=食神
 	bz := ganzhi.Bazi{
-		Ri: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		Shi:  ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiYin},
+		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 	}
 	zhus := computeXiaoYun(bz, ganzhi.Male, 1)
 	if zhus[0].ShiShen != "食神" {
 		t.Errorf("甲日 丙岁 十神 = %s, want 食神", zhus[0].ShiShen)
 	}
-	// 甲日主，壬申岁（女）→ 壬=偏印
+	// 甲日主，时柱丙寅起（阳女逆，首岁仍丙寅）→ 丙=食神
 	zhus2 := computeXiaoYun(bz, ganzhi.Female, 1)
-	if zhus2[0].ShiShen != "偏印" {
-		t.Errorf("甲日 壬岁 十神 = %s, want 偏印", zhus2[0].ShiShen)
+	if zhus2[0].ShiShen != "食神" {
+		t.Errorf("甲日 丙岁 十神 = %s, want 食神", zhus2[0].ShiShen)
 	}
 }
 

@@ -12,8 +12,7 @@ type XiaoYunZhu struct {
 }
 
 // ComputeXiaoYun computes the minor fortune (小运) zhus for each age starting from 1.
-// ganzhi.Male: start from 丙寅 (gan=3, zhi=3) and go forward.
-// ganzhi.Female: start from 壬申 (gan=9, zhi=9) and go backward.
+// 起法（《星平会海》）：小运由时柱起，阳男阴女顺行、阴男阳女逆行，一位一年。
 // Returns up to maxAge zhus (typically up to 12 for childhood).
 func computeXiaoYun(bz ganzhi.Bazi, gender ganzhi.Gender, maxAge int) []XiaoYunZhu {
 	riYuan := bz.Ri.Gan
@@ -21,18 +20,14 @@ func computeXiaoYun(bz ganzhi.Bazi, gender ganzhi.Gender, maxAge int) []XiaoYunZ
 		maxAge = 12
 	}
 
-	key := "female"
-	if gender == ganzhi.Male {
-		key = "male"
-	}
-	rule := xiaoYunRules[key]
-	startIdx := ganzhi.SixtyCycleIndex(ganzhi.Gan(rule.StartGan), ganzhi.Zhi(rule.StartZhi))
-	dir := rule.Direction
+	startIdx := ganzhi.SixtyCycleIndex(bz.Shi.Gan, bz.Shi.Zhi)
+	yearYang := ganzhi.GanYinYang(bz.Nian.Gan) == ganzhi.Yang
+	forward := (gender == ganzhi.Male && yearYang) || (gender == ganzhi.Female && !yearYang)
 
 	zhus := make([]XiaoYunZhu, 0, maxAge)
 	for age := 1; age <= maxAge; age++ {
 		var idx int
-		if dir > 0 {
+		if forward {
 			idx = (startIdx + (age - 1)) % 60
 		} else {
 			idx = (startIdx - (age - 1) + 60) % 60
