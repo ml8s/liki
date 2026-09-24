@@ -14,6 +14,9 @@ var tablesJSON []byte
 //go:embed data/miao_wang.json
 var miaoWangJSON []byte
 
+//go:embed data/xiaoxian_rules.json
+var xiaoxianRulesJSON []byte
+
 var (
 	earthlyIdxTable = [12]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
 	nianStars       = map[string][12]int{
@@ -62,6 +65,40 @@ func init() {
 	if err := loadTables(); err != nil {
 		log.Fatalf("ziwei: load tables: %v", err)
 	}
+	if err := loadXiaoXianRules(); err != nil {
+		log.Fatalf("ziwei: load xiaoxian rules: %v", err)
+	}
+}
+
+// xiaoxianStartByBranch 小限起宫：生年支 → 起宫安星序（xiaoxian_rules.json）。
+var xiaoxianStartByBranch map[ganzhi.Zhi]int
+
+func loadXiaoXianRules() error {
+	var raw struct {
+		StartPalaces []struct {
+			Triad []string `json:"triad"`
+			Start string   `json:"start"`
+		} `json:"start_palaces"`
+	}
+	if err := json.Unmarshal(xiaoxianRulesJSON, &raw); err != nil {
+		return err
+	}
+	xiaoxianStartByBranch = make(map[ganzhi.Zhi]int)
+	for _, p := range raw.StartPalaces {
+		startZhi, err := ganzhi.ParseZhi(p.Start)
+		if err != nil {
+			return err
+		}
+		startIdx := zhiIdxToAnXingIdx(zhiToZhiIdx(startZhi))
+		for _, b := range p.Triad {
+			zhi, err := ganzhi.ParseZhi(b)
+			if err != nil {
+				return err
+			}
+			xiaoxianStartByBranch[zhi] = startIdx
+		}
+	}
+	return nil
 }
 
 func loadTables() error {

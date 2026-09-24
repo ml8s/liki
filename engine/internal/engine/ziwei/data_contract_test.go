@@ -11,8 +11,9 @@ func TestZiweiDataDirectoryContainsOnlyLoadedTables(t *testing.T) {
 		t.Fatal(err)
 	}
 	loaded := map[string]bool{
-		"miao_wang.json": true,
-		"tables.json":    true,
+		"miao_wang.json":      true,
+		"tables.json":         true,
+		"xiaoxian_rules.json": true,
 	}
 	for _, entry := range entries {
 		if entry.IsDir() {
