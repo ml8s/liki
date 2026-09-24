@@ -14,7 +14,7 @@ import json
 
 from duanyu import match_rule, query, yearly_range
 from factors import evaluate_factors
-from paipan import _bazi_fullchart, _ziwei_daxian, _ziwei_fullchart
+from paipan import _bazi_fullchart, _ziwei_daxian, call
 
 
 def _factors_digest(factors: dict) -> str:
@@ -44,7 +44,7 @@ def compute_factors(chart: dict) -> dict:
         pan = {"chart": chart, "full": full, "gender": gender}
         factors = evaluate_factors(gender, pan, shushi="bazi")
     else:
-        zw = _ziwei_fullchart(chart)
+        zw = call("ziwei.fullchart", {"chart": chart})["data"]
         daxian = _ziwei_daxian(zw)
         pan = {"chart": chart, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
         factors = evaluate_factors(gender, pan, shushi="ziwei")
@@ -55,16 +55,20 @@ def compute_factors(chart: dict) -> dict:
     }
 
 
-def natal_query(factors: dict, topics: list[str], context: dict | None = None) -> dict:
+def natal_query(factors: dict, topics: list[str], context: dict | None = None,
+                side: str = "bazi") -> dict:
     """因子快照 + topics → 本命断语（用因子快照匹配断语表，不重算 snapshot）。
 
     与正交化基线一致（context 至少含性别；出生信息影响断语时附带）。
+    side 指定因子所属侧（bazi/ziwei），断语只出该侧。
     """
     from analytics import _flatten_side_result, _load_routes, _require_topics
 
+    if side not in ("bazi", "ziwei"):
+        raise ValueError(f"natal_query side 只支持 bazi/ziwei，收到: {side!r}")
     selected = _require_topics(topics)
     routes = _load_routes()
-    snapshots = {"八字": factors, "紫微": {}, "context": context or {}}
+    snapshots = {"八字": factors if side == "bazi" else {}, "紫微": factors if side == "ziwei" else {}, "context": context or {}}
     all_assertions: list[dict] = []
     seen: set[tuple[str, str]] = set()
     for topic, route in selected:
@@ -80,18 +84,27 @@ def natal_query(factors: dict, topics: list[str], context: dict | None = None) -
     return {"assertions": all_assertions}
 
 
-def period_query(factors: dict, time_scope: dict, topics: list[str], chart: dict) -> dict:
+def period_query(factors: dict, time_scope: dict, topics: list[str], chart: dict,
+                 side: str = "bazi") -> dict:
     """因子快照 + 时间层 + topics → 应期断语（大运/大限/流年）。
 
     chart 为 engine 排盘结果（bazi_chart/ziwei_chart），内部据此调 engine
     流年/大限取应期字段，再匹配断语表（本命因子参与匹配）。
+    side 指定因子所属侧（bazi/ziwei），断语只出该侧。
     输出结构与 analyze_periods 一致（periods 数组）。
     """
     from analytics import _analyze_periods
 
+    if side not in ("bazi", "ziwei"):
+        raise ValueError(f"period_query side 只支持 bazi/ziwei，收到: {side!r}")
     gender = chart.get("gender", "")
-    full = _bazi_fullchart(chart) if _is_bazi_chart(chart) else _ziwei_fullchart(chart)
-    pan = {"chart": chart, "full": full, "gender": gender}
+    if side == "bazi":
+        full = _bazi_fullchart(chart)
+        pan = {"chart": chart, "full": full, "gender": gender}
+    else:
+        zw = call("ziwei.fullchart", {"chart": chart})["data"]
+        daxian = _ziwei_daxian(zw)
+        pan = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
     return _analyze_periods(
         pan,
         {"topics": topics, "time_scope": time_scope},

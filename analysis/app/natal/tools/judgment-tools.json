@@ -1,0 +1,111 @@
+{
+  "version": "1.0.0",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "compute_factors",
+        "description": "engine 排盘结果（chart）→ 因子快照 {factors, factors_digest, context}。内部调 engine fullchart 取因子字段后求值；digest 为 SHA-256 canonical 防篡改校验。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["chart"],
+          "properties": {
+            "chart": {
+              "type": "object",
+              "description": "engine 排盘结果：本域 bazi_chart（八字）或 ziwei_chart（紫微）输出"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "natal_query",
+        "description": "因子快照 + 人生问题 → 本命断语（结构/婚姻/事业/财运等）。用 factors 快照匹配断语表，不重算 snapshot；context 至少含性别。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["factors", "topics"],
+          "properties": {
+            "factors": {
+              "type": "object",
+              "description": "compute_factors 返回的因子快照"
+            },
+            "topics": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "description": "人生问题域：marriage/family/children/career/wealth/health/mental/study/personality/appearance/origin/relocation/social/property/adversity/chart_structure 等"
+            },
+            "context": {
+              "type": "object",
+              "description": "断语上下文（至少含性别 male/female）；通常取 compute_factors 返回的 context"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "period_query",
+        "description": "因子快照 + 时间层 + 人生问题 → 应期断语（大运/大限/流年）。内部据 chart 调 engine 流年/大限取应期字段后匹配断语表。",
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["factors", "time_scope", "topics", "chart"],
+          "properties": {
+            "factors": {
+              "type": "object",
+              "description": "compute_factors 返回的因子快照"
+            },
+            "time_scope": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["year", "year_range", "current_year", "decade", "current_decade"]
+                },
+                "year": {
+                  "type": "integer",
+                  "description": "type=year/decade 时的锚定年份"
+                },
+                "start_year": {
+                  "type": "integer",
+                  "description": "type=year_range 的起始年份"
+                },
+                "end_year": {
+                  "type": "integer",
+                  "description": "type=year_range 的结束年份"
+                }
+              },
+              "description": "时间层：year/year_range/current_year/decade/current_decade"
+            },
+            "topics": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              },
+              "description": "人生问题域（同 natal_query）"
+            },
+            "chart": {
+              "type": "object",
+              "description": "engine 排盘结果（同 compute_factors 输入），内部据此调 engine 流年/大限"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

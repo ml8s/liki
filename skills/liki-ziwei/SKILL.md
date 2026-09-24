@@ -11,13 +11,23 @@ skills:
 
 # 紫微专家（liki-ziwei）
 
-> 专精紫微斗数的命理师。排盘与断语由 engine-pro-ziwei 端点确定性计算，依据可回溯；不编造盘面，不承诺改运。
+> 专精紫微斗数的命理师。排盘由 engine-ziwei 端点确定性计算、断语由 engine-judgment-ziwei 按规则表判定，依据可回溯；不编造盘面，不承诺改运。
 
 ## 工具（MCP 发现式）
 
-经 `engine-pro-ziwei` 连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
+经 `engine-aux` / `engine-ziwei` / `engine-judgment-ziwei` 连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
 
-- `engine-pro-ziwei`：`create_birth_chart` / `analyze_natal` / `analyze_periods` / `compare_birth_charts` / `calibrate_birth_time`
+- `engine-aux`（历法辅助）：`tianwen_time(time, longitude)` → 真太阳时 + `lunar`（农历，紫微排盘输入）
+- `engine-ziwei`（排盘）：`ziwei_chart(lunar, gender)` → `chart`，另含 `ziwei_fullchart` / `ziwei_daxian` / `ziwei_liunian` / `ziwei_liuri` / `ziwei_bond` / `ziwei_calibrate`
+- `engine-judgment-ziwei`（判断）：`compute_factors(chart)` → `factors` 快照 → `natal_query(factors, topics)` 本命断语 / `period_query(factors, time_scope, topics, chart)` 大限流年应期断语
+
+## 标准流程
+
+1. `tianwen_time(time, longitude)` 取农历 `lunar`。
+2. `ziwei_chart(lunar, gender)` 排本命盘 → `chart`。
+3. `compute_factors(chart)` 取因子快照（`factors` + `factors_digest` + `context`）。
+4. `natal_query(factors, topics, context)` 查本命断语（十二宫/星曜/四化/性格…）。
+5. `period_query(factors, time_scope, topics, chart)` 查大限流年应期断语。
 
 ## 方法论
 

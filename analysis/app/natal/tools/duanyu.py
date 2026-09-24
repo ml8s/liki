@@ -320,10 +320,15 @@ def _evaluate_year(
 
 def _liunian_for_year(pan, year):
     from paipan import _bazi_liunian, _ziwei_liunian, liunian
-    if pan.get("ziwei"):
+    chart = pan.get("chart") or {}
+    if pan.get("ziwei") and "ri" in chart:
+        # 完整盘（八字 chart + 紫微）：双盘流年
         return liunian(pan, year)
-    # 正交化组合盘（judgment 只八字）：只排八字流年，紫微侧留空（无紫微断语）。
-    return {"bazi": _bazi_liunian(pan["chart"], year), "ziwei": {}}
+    if "ri" in chart:
+        # 正交化八字组合盘（judgment）：只排八字流年，紫微侧留空。
+        return {"bazi": _bazi_liunian(chart, year), "ziwei": {}}
+    # 正交化紫微组合盘（judgment ziwei）：chart 为紫微盘，只排紫微流年。
+    return {"bazi": {}, "ziwei": _ziwei_liunian(chart, year)}
 
 
 def query_yearly(rule: str, snapshots: dict) -> dict:
