@@ -15,7 +15,7 @@
 
 ## 审查方式
 
-- 调用本命工具（create_birth_chart 等）验证报告中 data 字段与源数据是否一致
+- 调用排盘/判断能力验证报告中 data 字段与源数据是否一致
 - 检查各 section 的 data 字段是否引用了真实的引擎数据
 - 检查 analysis 是否与 engine 源数据一致
 - 检查各 section 之间有无逻辑矛盾
