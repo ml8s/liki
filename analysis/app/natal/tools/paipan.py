@@ -104,6 +104,12 @@ def _ziwei_daxian(ziwei: dict) -> list:
 
 
 def _bazi_liunian(chart: dict, year: int) -> dict:
+    """八字流年盘。
+
+    year = 公历年号。engine 内部用年中（6 月）确定年干支，避开立春边界
+    （公历 year 的干支在立春后即当年号干支）。与紫微流年（_ziwei_liunian
+    按干支年号）在年粒度查询下同号一致；两者年界口径统一为「查询年份号」。
+    """
     return call("bazi.liunian", {"chart": chart, "year": year})["data"]
 
 
@@ -171,6 +177,14 @@ def _shichen_boundary_hint(solar: str) -> dict | None:
 
 
 def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
+    """紫微流年盘。
+
+    lunar_year = 干支年号（农历年号数字，如 2030 → 庚戌）。engine 内部用
+    yearGanZhi(lunar_year) 直接算年干支（年号即干支），不做公历/农历换算。
+    流年查询以年为粒度：公历 year 与农历 year 同号（年号 2030 两边都指庚戌），
+    故调用方直接传查询年份即可；年初（春节前）的日粒度偏差属年界约定，
+    见 yearly_range 的流年年界说明。
+    """
     return call("ziwei.liunian", {"chart": ziwei, "lunar_year": lunar_year})["data"]
 
 

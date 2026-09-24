@@ -441,10 +441,15 @@ def _base_ctx_from_pan(chart: dict) -> dict:
     full_steps = full_da_yun.get("steps", []) or []
     steps = chart.get("dayun_steps") or da_yun.get("steps", [])
     if chart_da_yun.get("steps") and full_steps:
+        # chart.da_yun（engine bazi_chart）steps 缺 rooted，从 fullchart 的 da_yun
+        # 按干支匹配补（不依赖 index 对齐——engine 若调整 steps 顺序也不会错位）。
+        full_rooted = {
+            (s.get("gan"), s.get("zhi")): s.get("rooted", False)
+            for s in full_steps
+        }
         steps = [
-            {**step, "rooted": step.get("rooted", full_steps[index].get("rooted", False))}
-            if index < len(full_steps) else step
-            for index, step in enumerate(chart_da_yun["steps"])
+            {**step, "rooted": step.get("rooted", full_rooted.get((step.get("gan"), step.get("zhi")), False))}
+            for step in chart_da_yun["steps"]
         ]
     fu_yi = full.get("fu_yi") or {}
     atomic = _atomic_facts(chart)
