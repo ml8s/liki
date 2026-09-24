@@ -105,8 +105,17 @@ def period_query(factors: dict, time_scope: dict, topics: list[str], chart: dict
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
         daxian = _ziwei_daxian(zw)
         pan = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
-    return _analyze_periods(
+    # period_query 固定只出本侧断语：组合盘不含另一侧排盘，另一侧数据由
+    # _factor_context_from_pan 从本侧盘误读，会产生假断语，必须过滤。
+    result = _analyze_periods(
         pan,
         {"topics": topics, "time_scope": time_scope},
         validate_pan=False,
     )
+    for scope in result["periods"]:
+        scope["assertions"] = [
+            item for item in scope["assertions"] if item.get("side") == side
+        ]
+        if "counts" in scope:
+            scope["counts"]["returned"] = len(scope["assertions"])
+    return result
