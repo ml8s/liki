@@ -110,3 +110,41 @@ func TestXiaoYun_MaxAgeDefault(t *testing.T) {
 		t.Errorf("三命通会段默认岁数 = %d, want 12", len(sets[0].Zhus))
 	}
 }
+
+// TestXiaoYun_ShiZhuVariation：12 候选时辰——星平会海流派首岁随时辰变化，三命通会固定。
+func TestXiaoYun_ShiZhuVariation(t *testing.T) {
+	shichen := []struct{ gan, zhi ganzhi.Gan; ganzhi.Zhi }{}
+	_ = shichen
+	// 12 个候选时辰（子时→亥时，地支变化）
+	candidates := []struct {
+		gan ganzhi.Gan
+		zhi ganzhi.Zhi
+	}{
+		{ganzhi.GanJia, ganzhi.ZhiZi}, {ganzhi.GanYi, ganzhi.ZhiChou},
+		{ganzhi.GanBing, ganzhi.ZhiYin}, {ganzhi.GanDing, ganzhi.ZhiMao},
+		{ganzhi.GanWu, ganzhi.ZhiChen}, {ganzhi.GanJi, ganzhi.ZhiSi},
+		{ganzhi.GanGeng, ganzhi.ZhiWu}, {ganzhi.GanXin, ganzhi.ZhiWei},
+		{ganzhi.GanRen, ganzhi.ZhiShen}, {ganzhi.GanGui, ganzhi.ZhiYou},
+		{ganzhi.GanJia, ganzhi.ZhiXu}, {ganzhi.GanYi, ganzhi.ZhiHai},
+	}
+	firstXingPing := map[string]bool{}
+	firstSanMing := map[string]bool{}
+	for _, cand := range candidates {
+		bz := ganzhi.Bazi{
+			Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+			Shi:  ganzhi.Zhu{Gan: cand.gan, Zhi: cand.zhi},
+			Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
+		}
+		sets := computeXiaoYun(bz, ganzhi.Male, 1)
+		sanMing := sets[0].Zhus[0].Gan.String() + sets[0].Zhus[0].Zhi.String()
+		xingPing := sets[1].Zhus[0].Gan.String() + sets[1].Zhus[0].Zhi.String()
+		firstSanMing[sanMing] = true
+		firstXingPing[xingPing] = true
+	}
+	if len(firstSanMing) != 1 {
+		t.Errorf("三命通会流派首岁应固定（男起丙寅），实际变化: %v", firstSanMing)
+	}
+	if len(firstXingPing) != len(candidates) {
+		t.Errorf("星平会海流派首岁应随时柱变化（12 时辰各不同），实际 %d 种: %v", len(firstXingPing), firstXingPing)
+	}
+}

@@ -438,3 +438,27 @@ func TestBuiltin_OSMFallbackCountryZh(t *testing.T) {
 		t.Errorf("country = %q, want %q", got, want)
 	}
 }
+
+// TestSearchCoords_AmbiguousSameName：同名行政区跨省歧义——应提示省/市限定，不静默取错省。
+func TestSearchCoords_AmbiguousSameName(t *testing.T) {
+	orig := httpClient
+	httpClient = &http.Client{
+		Transport: &mockSearchTransport{
+			status: 200,
+			body: `[
+				{"lat":"41.56","lon":"120.45","name":"北山县","type":"county",
+				 "address":{"country":"中国","state":"辽宁省","county":"北山县"}},
+				{"lat":"34.25","lon":"119.60","name":"北山县","type":"county",
+				 "address":{"country":"中国","state":"江苏省","county":"北山县"}}
+			]`,
+		},
+	}
+	defer func() { httpClient = orig }()
+	_, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"北山县"}`))
+	if err == nil {
+		t.Fatal("同名行政区歧义应返回错误提示，got nil")
+	}
+	if !strings.Contains(err.Error(), "同名行政区跨省歧义") {
+		t.Errorf("错误应提示同名歧义，got: %v", err)
+	}
+}

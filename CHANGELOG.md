@@ -1,5 +1,26 @@
 # Changelog
 
+## [2026.09.24] — 正交化收敛：端点统一 + issue 修复 + 断语审计
+
+### Changed
+
+- 服务端点统一：engine `/mcp/engine/{域}`、counsel `/counsel/mcp/{域}`（层前缀 + MCP 根 + 域）——skills 连接器/README/文档同步。
+- 目录 `analysis/` → `counsel/`（命名统一）；移除 JSON-RPC 协议层（RPC 删除，`/mcp` 全量 + 分域 MCP）。
+- counsel_server / liki-mcp：统一 app 服务内按域分发（`LIKI_COUNSEL_SERVICE_DOMAIN` 不再需要每域容器）。
+- engine_client 按工具名分域（`_domain_suffix(name)`，前缀去点支持 `tianwen_time`）。
+
+### Fixed
+
+- 小运多流派输出（issue 60）：《三命通会》（男丙寅/女壬申固定）+《星平会海》（由时柱起，阳男阴女顺/阴男阳女逆）分别输出。
+- chart_structure 断语纳入旺衰/用神（issue 63）：断语 3 → 32 条。
+- city.coords 同名行政区跨省消歧（issue 70）：同名无法消歧时提示省/市限定。
+- assertions 数据一致性（issue 68）、paipan 参数/字段（issue 66/61）。
+
+### Added
+
+- 断语经典依据审计：829 条断语全部补具体经典出处（《紫微斗数全书》《黄帝内经》《五行大义》《渊海子平》《协纪辨方书》）。
+- 测试：小运 12 时辰对照、同名消歧、counsel 分域。
+
 ## [2026.09.22.3] — skill 切换到 MCP + analysis 规则层独立
 
 ### Added
