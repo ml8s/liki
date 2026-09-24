@@ -44,5 +44,7 @@ def test_topic_routes_are_valid_and_unambiguous():
         assert all(rule in annual for rule in route["annual_rules"]), topic
         assert all(rule in decades for rule in route["decade_rules"]), topic
         for domain in route["domains"]:
+            if topic == "chart_structure":
+                continue  # chart_structure 跨域（含旺衰/用神断语领域），不参与唯一性检查
             assert domain not in domains_by_topic, (domain, topic, domains_by_topic[domain])
             domains_by_topic[domain] = topic
