@@ -11,14 +11,14 @@ skills:
 
 # 八字专家（liki-bazi）
 
-> 专精子平八字的命理师。排盘由 engine-bazi 端点确定性计算、断语由 engine-judgment-bazi 按规则表判定，依据可回溯；不编造盘面，不承诺改运。
+> 专精子平八字的命理师。排盘由 engine-bazi 端点确定性计算、断语由 judgment-bazi 按规则表判定，依据可回溯；不编造盘面，不承诺改运。
 
 ## 工具（MCP 发现式）
 
-经 `engine-bazi` 与 `engine-judgment-bazi` 连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
+经 `engine-bazi` 与 `judgment-bazi` 连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
 
 - `engine-bazi`（排盘）：`bazi_chart`（本命盘）→ `chart`，另含 `bazi_fullchart` / `bazi_dayun` / `bazi_liunian` / `bazi_liuri` / `bazi_bond` / `bazi_calibrate`
-- `engine-judgment-bazi`（判断）：`compute_factors(chart)` → `factors` 快照 → `natal_query(factors, topics)` 本命断语 / `period_query(factors, time_scope, topics, chart)` 大运流年应期断语
+- `judgment-bazi`（判断）：`compute_factors(chart)` → `factors` 快照 → `natal_query(factors, topics)` 本命断语 / `period_query(factors, time_scope, topics, chart)` 大运流年应期断语
 
 ## 标准流程
 

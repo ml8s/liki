@@ -1,4 +1,4 @@
-"""engine-judgment MCP server（正交化判断层）。
+"""judgment MCP server（正交化判断层）。
 
 暴露 3 个判断工具（compute_factors / natal_query / period_query），按 domain
 分域（bazi/ziwei）：compute_factors 内部调 engine（fullchart/流年/大限）取
@@ -32,9 +32,9 @@ def _require_domain(domain: str, chart: dict) -> None:
     """域校验：bazi 域只收八字盘，ziwei 域只收紫微盘。"""
     is_bazi = "ri" in chart
     if domain == "bazi" and not is_bazi:
-        raise ValueError(f"engine-judgment/bazi 只接收八字盘（chart 含四柱），收到紫微盘。")
+        raise ValueError(f"judgment/bazi 只接收八字盘（chart 含四柱），收到紫微盘。")
     if domain == "ziwei" and is_bazi:
-        raise ValueError(f"engine-judgment/ziwei 只接收紫微盘（chart 为宫位结构），收到八字盘。")
+        raise ValueError(f"judgment/ziwei 只接收紫微盘（chart 为宫位结构），收到八字盘。")
 
 
 def create_judgment_server(domain: str) -> MCPServer:
@@ -43,7 +43,7 @@ def create_judgment_server(domain: str) -> MCPServer:
     if domain not in ("bazi", "ziwei"):
         raise ValueError(f"judgment domain 无效: {domain!r}")
     server = MCPServer(
-        name=f"engine-judgment-{domain}",
+        name=f"judgment-{domain}",
         title=f"Liki 判断层（{domain}）",
         description=(
             f"命理判断层（{domain}）：compute_factors 因子快照 + natal_query 本命断语 + "

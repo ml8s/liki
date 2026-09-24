@@ -1,4 +1,4 @@
-"""engine-judgment 判断层 MCP 端点测试（分域 bazi/ziwei，3 工具）。"""
+"""judgment 判断层 MCP 端点测试（分域 bazi/ziwei，3 工具）。"""
 from __future__ import annotations
 
 import asyncio
