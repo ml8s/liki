@@ -43,14 +43,14 @@ def bazi_chart():
 
 
 def test_compute_factors_returns_factors_and_digest(bazi_chart):
-    from analysis import compute_factors
+    from counsel import compute_factors
     out = compute_factors(bazi_chart)
     assert isinstance(out, dict)
     assert "factors" in out and "factors_digest" in out
 
 
 def test_compute_factors_matches_baseline(bazi_chart, baseline):
-    from analysis import compute_factors
+    from counsel import compute_factors
     factors = compute_factors(bazi_chart)["factors"]
     # 八字因子（bazi side）应与基线一致（逻辑不变，仅接口/输入来源变化）
     want = baseline["factors_bazi"]
@@ -62,7 +62,7 @@ def test_natal_query_matches_analyze_natal(bazi_chart):
     from app.server import create_server
     import asyncio
 
-    from analysis import compute_factors, natal_query
+    from counsel import compute_factors, natal_query
 
     out = compute_factors(bazi_chart)
     result = natal_query(out["factors"], ["chart_structure"], context=out["context"])
@@ -88,7 +88,7 @@ def test_period_query_matches_analyze_periods(bazi_chart):
     import asyncio
 
     from app.server import create_server
-    from analysis import compute_factors, period_query
+    from counsel import compute_factors, period_query
 
     out = compute_factors(bazi_chart)
     got = period_query(

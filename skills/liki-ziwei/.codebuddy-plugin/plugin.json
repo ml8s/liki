@@ -62,7 +62,7 @@
     "connectors": [
       "engine-ziwei",
       "engine-aux",
-      "analysis-ziwei"
+      "counsel-ziwei"
     ]
   }
 }

@@ -61,7 +61,7 @@
   "dependencies": {
     "connectors": [
       "engine-bazi",
-      "analysis-bazi"
+      "counsel-bazi"
     ]
   }
 }

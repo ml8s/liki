@@ -1,6 +1,6 @@
 # Divination 工具契约
 
-本域工具由 `engine-pro` MCP 连接器提供（排盘/装卦/判断在 analysis Python 层，
+本域工具由 `counsel` MCP 连接器提供（排盘/装卦/判断在 analysis Python 层，
 经 MCP 六爻起卦 / 六爻追问 / 奇门排盘 / 奇门追问 /
 黄历择日 工具暴露）。agent 通过 MCP 调用，不再使用 JSON-RPC。
 

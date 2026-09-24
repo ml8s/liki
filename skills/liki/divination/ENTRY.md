@@ -4,9 +4,9 @@
 
 ## 工具契约
 
-divination 域通过 `engine-pro` MCP 连接器调用，不直接使用 RPC。
+divination 域通过 `counsel` MCP 连接器调用，不直接使用 RPC。
 
-- 工具契约见 `divination/TOOLS.md`（工具参数由 `engine-pro` MCP 连接器 schema 提供）
+- 工具契约见 `divination/TOOLS.md`（工具参数由 `counsel` MCP 连接器 schema 提供）
 - 调用：六爻起卦 / 六爻追问 / 奇门排盘 / 奇门追问 / 黄历择日
 - 响应：成功读 `data`；失败读 `error`
 - 工具层启动时校验 engine 版本和必需 MCP 能力；不满足即 fail closed。

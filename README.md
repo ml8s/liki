@@ -119,7 +119,7 @@ skills/liki/
 
 ### 引擎镜像
 
-引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:latest`。源码构建使用 `engine/deploy/docker-compose.yml`。
+引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:latest`。本地源码构建使用 `engine/dev/docker-compose.yml`。
 
 ### 领域契约
 

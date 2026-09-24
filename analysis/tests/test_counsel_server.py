@@ -1,15 +1,15 @@
-"""analysis 判断层 MCP 端点测试（分域 bazi/ziwei，3 工具）。"""
+"""counsel 判断层 MCP 端点测试（分域 bazi/ziwei，3 工具）。"""
 from __future__ import annotations
 
 import asyncio
 import json
 import os
 
-os.environ.setdefault("LIKI_ANALYSIS_SERVICE_DOMAIN", "bazi")
+os.environ.setdefault("LIKI_COUNSEL_SERVICE_DOMAIN", "bazi")
 
 import pytest  # noqa: E402
 
-from app.analysis_server import create_analysis_server  # noqa: E402
+from app.counsel_server import create_counsel_server  # noqa: E402
 
 
 def _engine_bazi_chart():
@@ -44,14 +44,14 @@ def bazi_chart():
     return _engine_bazi_chart()
 
 
-def test_analysis_server_tools():
-    srv = create_analysis_server("bazi")
+def test_counsel_server_tools():
+    srv = create_counsel_server("bazi")
     names = asyncio.run(srv.list_tools())
     assert [t.name for t in names] == ["compute_factors", "natal_query", "period_query"]
 
 
 def test_compute_factors_over_mcp(bazi_chart):
-    srv = create_analysis_server("bazi")
+    srv = create_counsel_server("bazi")
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
     out = json.loads(r.content[0].text)
     assert set(out) == {"factors", "factors_digest", "context"}
@@ -60,7 +60,7 @@ def test_compute_factors_over_mcp(bazi_chart):
 
 
 def test_natal_query_over_mcp(bazi_chart):
-    srv = create_analysis_server("bazi")
+    srv = create_counsel_server("bazi")
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
     factors = json.loads(r.content[0].text)["factors"]
     r = asyncio.run(srv.call_tool(
@@ -72,7 +72,7 @@ def test_natal_query_over_mcp(bazi_chart):
 
 
 def test_period_query_over_mcp(bazi_chart):
-    srv = create_analysis_server("bazi")
+    srv = create_counsel_server("bazi")
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
     factors = json.loads(r.content[0].text)["factors"]
     r = asyncio.run(srv.call_tool(
@@ -92,6 +92,6 @@ def test_period_query_over_mcp(bazi_chart):
 
 
 def test_domain_rejects_wrong_chart():
-    srv = create_analysis_server("bazi")
+    srv = create_counsel_server("bazi")
     with pytest.raises(Exception, match="Error executing tool"):
         asyncio.run(srv.call_tool("compute_factors", {"chart": {"ziwei": {}}}))

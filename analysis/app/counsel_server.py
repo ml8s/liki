@@ -1,11 +1,11 @@
-"""analysis MCP server（正交化判断层）。
+"""counsel MCP server（正交化判断层）。
 
 暴露 3 个判断工具（compute_factors / natal_query / period_query），按 domain
 分域（bazi/ziwei）：compute_factors 内部调 engine（fullchart/流年/大限）取
 判断所需字段，再在进程内求因子快照与断语；无状态、无存储依赖。
 
 Run:
-    LIKI_ANALYSIS_SERVICE_DOMAIN=bazi .venv/bin/python -m uvicorn app.analysis_server:app \
+    LIKI_COUNSEL_SERVICE_DOMAIN=bazi .venv/bin/python -m uvicorn app.counsel_server:app \
         --port 8091
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ from pydantic import BaseModel
 
 from app.server import _build_model, _signature_params
 
-JUDGMENT_SCHEMA = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "analysis-tools.json"
+JUDGMENT_SCHEMA = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "counsel-tools.json"
 
 # natal 工具模块同目录 import（from duanyu / from paipan …），进程内调用需目录在 sys.path。
 sys.path.insert(0, str(JUDGMENT_SCHEMA.parent))
@@ -32,18 +32,18 @@ def _require_domain(domain: str, chart: dict) -> None:
     """域校验：bazi 域只收八字盘，ziwei 域只收紫微盘。"""
     is_bazi = "ri" in chart
     if domain == "bazi" and not is_bazi:
-        raise ValueError(f"analysis/bazi 只接收八字盘（chart 含四柱），收到紫微盘。")
+        raise ValueError(f"counsel/bazi 只接收八字盘（chart 含四柱），收到紫微盘。")
     if domain == "ziwei" and is_bazi:
-        raise ValueError(f"analysis/ziwei 只接收紫微盘（chart 为宫位结构），收到八字盘。")
+        raise ValueError(f"counsel/ziwei 只接收紫微盘（chart 为宫位结构），收到八字盘。")
 
 
-def create_analysis_server(domain: str) -> MCPServer:
-    from app.natal.tools import analysis
+def create_counsel_server(domain: str) -> MCPServer:
+    from app.natal.tools import counsel
 
     if domain not in ("bazi", "ziwei"):
-        raise ValueError(f"analysis domain 无效: {domain!r}")
+        raise ValueError(f"counsel domain 无效: {domain!r}")
     server = MCPServer(
-        name=f"analysis-{domain}",
+        name=f"counsel-{domain}",
         title=f"Liki 判断层（{domain}）",
         description=(
             f"命理判断层（{domain}）：compute_factors 因子快照 + natal_query 本命断语 + "
@@ -61,26 +61,26 @@ def create_analysis_server(domain: str) -> MCPServer:
             "json": json,
             "_domain": domain,
             "_require": _require_domain,
-            "_analysis": analysis,
+            "_counsel": counsel,
             "Optional": Optional,
             "Literal": Literal,
         }
         if name == "compute_factors":
             call = (
                 "_require(_domain, chart)\n"
-                "result = _analysis.compute_factors(chart)"
+                "result = _counsel.compute_factors(chart)"
             )
         elif name == "natal_query":
             call = (
                 "kwargs = {k: v for k, v in "
                 "({'factors': factors, 'topics': topics, 'context': context, "
                 "'side': _domain}).items() if v is not None}\n"
-                "result = _analysis.natal_query(**kwargs)"
+                "result = _counsel.natal_query(**kwargs)"
             )
         else:  # period_query
             call = (
                 "_require(_domain, chart)\n"
-                "result = _analysis.period_query(factors, time_scope, topics, chart, "
+                "result = _counsel.period_query(factors, time_scope, topics, chart, "
                 "side=_domain)"
             )
         code = (
@@ -94,10 +94,10 @@ def create_analysis_server(domain: str) -> MCPServer:
 
 
 def _make_app():
-    domain = os.environ.get("LIKI_ANALYSIS_SERVICE_DOMAIN", "").strip() or None
+    domain = os.environ.get("LIKI_COUNSEL_SERVICE_DOMAIN", "").strip() or None
     if domain is None:
-        raise RuntimeError("LIKI_ANALYSIS_SERVICE_DOMAIN 必须设置（bazi/ziwei）")
-    return create_analysis_server(domain).streamable_http_app(
+        raise RuntimeError("LIKI_COUNSEL_SERVICE_DOMAIN 必须设置（bazi/ziwei）")
+    return create_counsel_server(domain).streamable_http_app(
         streamable_http_path="/mcp",
         json_response=True,
         stateless_http=True,

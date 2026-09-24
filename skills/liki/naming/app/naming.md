@@ -6,7 +6,7 @@ description: 起名分析 — 通用起名/改名，结合八字用神与五行�
 
 # 通用起名/改名
 
-> 工具：经 `engine-pro` MCP 调用 取字 / 组名 / 起名评估 等（参数见工具 schema）。
+> 工具：经 `counsel` MCP 调用 取字 / 组名 / 起名评估 等（参数见工具 schema）。
 > 场景：新生儿起名、成人改名。外国人起中文名 → `foreign.md`；自选名字评估 → `selfcheck.md`。
 
 ## 依赖的领域知识
