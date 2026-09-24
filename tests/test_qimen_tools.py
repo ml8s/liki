@@ -535,4 +535,4 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
     monkeypatch.setenv("LIKI_MCP_URL", "https://dynamic.example/mcp")
     monkeypatch.setattr(engine_client.urllib.request, "urlopen", urlopen)
     assert engine_client.call("qimen.chart", {"solar_time": "x"}) == {"data": {"ok": True}}
-    assert seen == ["https://dynamic.example/mcp"]
+    assert seen == ["https://dynamic.example/mcp/qimen"]
