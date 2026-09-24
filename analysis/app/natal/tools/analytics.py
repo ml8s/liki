@@ -370,7 +370,7 @@ def analyze_periods(args: dict) -> dict:
 
 
 def _analyze_periods(pan: dict, args: dict, validate_pan: bool = True) -> dict:
-    """analyze_periods 主体：pan 已就绪（完整盘或 judgment 组合盘）。"""
+    """analyze_periods 主体：pan 已就绪（完整盘或 analysis 组合盘）。"""
     selected_pairs = _require_topics(args["topics"])
     routes = _load_routes()
     scope_type, start, end = _resolve_time_scope(args["time_scope"])

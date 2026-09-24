@@ -325,9 +325,9 @@ def _liunian_for_year(pan, year):
         # 完整盘（八字 chart + 紫微）：双盘流年
         return liunian(pan, year)
     if "ri" in chart:
-        # 正交化八字组合盘（judgment）：只排八字流年，紫微侧留空。
+        # 正交化八字组合盘（analysis）：只排八字流年，紫微侧留空。
         return {"bazi": _bazi_liunian(chart, year), "ziwei": {}}
-    # 正交化紫微组合盘（judgment ziwei）：chart 为紫微盘，只排紫微流年。
+    # 正交化紫微组合盘（analysis ziwei）：chart 为紫微盘，只排紫微流年。
     return {"bazi": {}, "ziwei": _ziwei_liunian(chart, year)}
 
 
