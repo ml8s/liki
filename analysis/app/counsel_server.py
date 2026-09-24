@@ -22,8 +22,6 @@ from typing import Literal, Optional
 from mcp.server import MCPServer
 from pydantic import BaseModel
 
-from app.server import _build_model, _signature_params
-
 JUDGMENT_SCHEMA = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "counsel-tools.json"
 NAMING_SCHEMA = pathlib.Path(__file__).resolve().parent / "naming" / "tools" / "skill-tools.json"
 NAMING_DIR = pathlib.Path(__file__).resolve().parent / "naming"
@@ -34,6 +32,38 @@ DIVINATION_DIR = pathlib.Path(__file__).resolve().parent / "divination" / "tools
 sys.path.insert(0, str(JUDGMENT_SCHEMA.parent))
 sys.path.insert(0, str(NAMING_DIR))
 sys.path.insert(0, str(DIVINATION_DIR))
+
+
+def _signature_params(schema: dict) -> tuple[str, str]:
+    """从参数 schema 生成 handler 签名与 args 组装代码（exec 动态构建工具 handler）。"""
+    required = set(schema.get("required", []))
+    params: list[str] = []
+    body_items: list[str] = []
+    for pname, ps in schema.get("properties", {}).items():
+        ptype = ps.get("type")
+        if "enum" in ps and ptype == "string":
+            enum_items = ", ".join(repr(e) for e in ps["enum"])
+            type_expr = f"Literal[{enum_items}]"
+        elif ptype == "string":
+            type_expr = "str"
+        elif ptype == "integer":
+            type_expr = "int"
+        elif ptype == "number":
+            type_expr = "float"
+        elif ptype == "boolean":
+            type_expr = "bool"
+        elif ptype == "array":
+            type_expr = "list"
+        else:
+            type_expr = "dict"
+        if pname in required:
+            params.append(f"{pname}: {type_expr}")
+        else:
+            params.append(f"{pname}: Optional[{type_expr}] = None")
+        body_items.append(f"'{pname}': {pname}")
+    sig = ", ".join(params)
+    body = ", ".join(body_items)
+    return sig, body
 
 
 def _require_domain(domain: str, chart: dict) -> None:

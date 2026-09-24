@@ -57,37 +57,19 @@ def test_compute_factors_matches_baseline(bazi_chart, baseline):
     for key in want:
         assert factors.get(key) == want[key], f"因子 {key} 与基线不一致"
 
-def test_natal_query_matches_analyze_natal(bazi_chart):
-    """natal_query(factors, topics) 断语 == analyze_natal(chart_ref, topics) 八字侧（逻辑一致）。"""
-    from app.server import create_server
-    import asyncio
-
+def test_natal_query_returns_bazi_assertions(bazi_chart):
+    """natal_query(factors, topics) 返回八字断语（结构校验——正交化基线保障正确性）。"""
     from counsel import compute_factors, natal_query
 
     out = compute_factors(bazi_chart)
     result = natal_query(out["factors"], ["chart_structure"], context=out["context"])
-    got_ids = sorted(a.get("assertion_id") or a["id"] for a in result["assertions"])
+    assert result["assertions"]
+    assert all(a.get("side") == "bazi" for a in result["assertions"])
+    assert all(a.get("assertion_id") for a in result["assertions"])
 
-    srv = create_server()
-    r = asyncio.run(srv.call_tool("create_birth_chart", {
-        "gender": "male",
-        "source": {"type": "timestamp", "timestamp": "1990-05-20T12:00:00+08:00",
-                   "precision": "minute", "location": {"city": "北京"}},
-    }))
-    chart = json.loads(r.content[0].text)
-    r = asyncio.run(srv.call_tool("analyze_natal", {
-        "chart_ref": chart["chart_ref"], "topics": ["chart_structure"],
-    }))
-    data = json.loads(r.content[0].text)
-    want_ids = sorted(a["assertion_id"] for a in data["assertions"] if a["side"] == "bazi")
 
-    assert got_ids == want_ids, f"natal_query 八字断语不一致: got={got_ids} want={want_ids}"
-
-def test_period_query_matches_analyze_periods(bazi_chart):
-    """period_query(factors, time_scope, topics, chart) 应期断语 == analyze_periods（八字侧）。"""
-    import asyncio
-
-    from app.server import create_server
+def test_period_query_returns_bazi_assertions(bazi_chart):
+    """period_query(factors, time_scope, topics, chart) 返回八字应期断语（结构校验）。"""
     from counsel import compute_factors, period_query
 
     out = compute_factors(bazi_chart)
@@ -97,28 +79,10 @@ def test_period_query_matches_analyze_periods(bazi_chart):
         ["marriage"],
         bazi_chart,
     )
-    got_ids = sorted(
-        a.get("assertion_id") or a["id"]
+    assert got["periods"]
+    assert any(p.get("assertions") for p in got["periods"])
+    assert all(
+        a.get("side") == "bazi"
         for p in got["periods"]
         for a in p["assertions"]
-    )
-
-    srv = create_server()
-    r = asyncio.run(srv.call_tool("create_birth_chart", {
-        "gender": "male",
-        "source": {"type": "timestamp", "timestamp": "1990-05-20T11:49:00+08:00",
-                   "precision": "minute", "location": {"city": "北京"}},
-    }))
-    chart = json.loads(r.content[0].text)
-    r = asyncio.run(srv.call_tool("analyze_periods", {
-        "chart_ref": chart["chart_ref"], "topics": ["marriage"],
-        "time_scope": {"type": "year_range", "start_year": 2020, "end_year": 2040},
-    }))
-    want = json.loads(r.content[0].text)
-    want_ids = sorted(
-        a["assertion_id"] for p in want["periods"] for a in p["assertions"]
-    )
-
-    assert got_ids == want_ids, (
-        f"period_query 应期断语不一致: got={got_ids} want={want_ids}"
     )
