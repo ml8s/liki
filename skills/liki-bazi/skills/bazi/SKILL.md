@@ -25,7 +25,7 @@ author: Liki
 | `period_query`（judgment）| 大运/流年判断 |
 | `bazi_bond`（engine）| 双人合盘（八字）|
 
-考时（`calibrate_birth_time`）正交化迁移中，暂由旧分析层提供。
+考时：见 `calibration.md`（用 `period_query` 编排校验候选时辰，不新增工具）。
 
 ## 方法论（16 卡，详见各卡）
 
@@ -40,7 +40,7 @@ author: Liki
 2. 因子：`compute_factors(chart)` → `factors`
 3. 判断：`natal_query(factors, topics, context)`（中文问题 → 受控 topic；断语依据可回溯）
 4. 应期：`period_query(factors, time_scope, topics, chart)`（大运/流年）
-5. 合盘：`bazi_bond`；考时：旧分析层 `calibrate_birth_time`
+5. 合盘：`bazi_bond`；考时：按 `calibration.md` 用 `period_query` 编排
 6. 输出：结论 + 依据 + 经典出处 + 可商榷点
 
 ## 硬边界

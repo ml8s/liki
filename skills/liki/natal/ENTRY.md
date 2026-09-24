@@ -6,15 +6,15 @@ Liki 本命域：**八字、紫微判断由对应专家执行**，本域负责�
 
 | 用户场景 | 交给 | 说明 |
 | --- | --- | --- |
-| 八字看命/流年/合盘/考时 | **liki-bazi**（八字专家）| engine-bazi 排盘 + judgment-bazi 判断 + bazi_bond 合盘（考时由旧分析层 calibrate_birth_time 提供，迁移中） |
-| 紫微看命/流年/合盘/考时 | **liki-ziwei**（紫微专家）| engine-aux + engine-ziwei 排盘 + judgment-ziwei 判断 + ziwei_bond 合盘（考时由旧分析层 calibrate_birth_time 提供，迁移中） |
+| 八字看命/流年/合盘/考时 | **liki-bazi**（八字专家）| engine-bazi 排盘 + judgment-bazi 判断 + bazi_bond 合盘 + 考时（calibration.md 用 period_query 编排） |
+| 紫微看命/流年/合盘/考时 | **liki-ziwei**（紫微专家）| engine-aux + engine-ziwei 排盘 + judgment-ziwei 判断 + ziwei_bond 合盘 + 考时（calibration.md 用 period_query 编排） |
 | 考时（时辰存疑）| 八字+紫微专家 | 参考两侧（调 liki-bazi + liki-ziwei）|
 | 合参/双盘综合 | 八字+紫微专家 | 两侧断语同向综合（不臆造）|
 | 综合命书 | app/mingshu.md | 综合编排（引用专家方法论）|
 
 ## 跨领域编排
 
-- **考时（编码）**：正交化后考时未迁移，暂由旧分析层 `calibrate_birth_time`（engine-pro）提供；两侧吻合度对比，有真实事件时用 3-5 段已发生时段验证。
+- **考时（编码）**：由 agent 按各专家 `calibration.md` 用 `period_query` 编排（候选排盘 → 流年断语 → 事件对比），不新增工具；两侧吻合度对比，有真实事件时用 3-5 段已发生时段验证。
 - **合参**：八字专家出八字侧断语、紫微专家出紫微侧断语；同向时综合（互证，非臆造），冲突时并列呈现两侧证据。
 - **合盘（双人）**：双方分别调八字专家/紫微专家 `bazi_bond` / `ziwei_bond`。
 

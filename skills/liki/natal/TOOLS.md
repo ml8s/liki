@@ -21,7 +21,7 @@ agent 应路由到对应专家执行；详细工具流程见各专家 `SKILL.md`
 | 八字看命/流年 | `liki-bazi` | engine-bazi 排盘 + judgment-bazi 判断 |
 | 紫微看命/流年 | `liki-ziwei` | engine-aux + engine-ziwei + judgment-ziwei |
 | 合盘（双人）| 双方专家 | engine `bazi_bond` / `ziwei_bond` |
-| 考时（时辰存疑）| 双方专家 | 旧分析层 `calibrate_birth_time`（迁移中）|
+| 考时（时辰存疑）| 双方专家 | 按专家 `calibration.md` 用 `period_query` 编排 |
 | 合参/综合命书 | 双方专家 | 两侧断语同向综合（不臆造）|
 
 ## 响应契约
