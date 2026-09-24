@@ -59,22 +59,26 @@ func computeFuYi(c Chart, wc map[ganzhi.Wuxing]int, ws map[string]string) FuYiRe
 // computeNormalYongJi determines yong/xi/ji by strength (qualitative, no scoring).
 func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiShen, jiShen string) {
 	dmElem := ganzhi.GanWuxing(riYuan)
-
-	switch strengthLabel {
-	case "身强":
-		ctrlElem := elementThatControls(dmElem)
-		yongShen = ctrlElem.String()                     // 官杀克身
-		xiShen = elementThatGenerates(ctrlElem).String() // 财生官杀
-		jiShen = elementThatGenerates(dmElem).String()   // 印生日主(引发过旺)
-
-	case "身弱":
-		genElem := elementThatGenerates(dmElem)
-		yongShen = genElem.String()                   // 印生日主
-		xiShen = dmElem.String()                      // 比劫帮身
-		jiShen = elementThatControls(dmElem).String() // 官杀克身
-
-	case "中和":
-		// 中和者无太过不及, 不应扶抑.
+	rule, ok := yongJiRules[strengthLabel]
+	if !ok {
+		return "", "", ""
 	}
+	// 五行关系 → 具体五行：克我者官杀、生我者印、同我者比劫、生克我者财生官杀。
+	resolve := func(rel string) ganzhi.Wuxing {
+		switch rel {
+		case "克我者":
+			return elementThatControls(dmElem)
+		case "生我者":
+			return elementThatGenerates(dmElem)
+		case "同我者":
+			return dmElem
+		case "生克我者":
+			return elementThatGenerates(elementThatControls(dmElem))
+		}
+		return 0
+	}
+	yongShen = resolve(rule.Yong).String()
+	xiShen = resolve(rule.Xi).String()
+	jiShen = resolve(rule.Ji).String()
 	return
 }

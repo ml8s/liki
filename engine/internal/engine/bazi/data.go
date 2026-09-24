@@ -21,6 +21,9 @@ var rideRiguiJSON []byte
 //go:embed data/ten_god_strength_rules.json
 var tenGodStrengthRulesJSON []byte
 
+//go:embed data/yongji_rules.json
+var yongjiRulesJSON []byte
+
 type tiaohouEntry struct {
 	primary            ganzhi.Gan
 	secondary          ganzhi.Gan
@@ -42,6 +45,36 @@ func init() {
 	if err := loadTenGodStrengthRules(); err != nil {
 		log.Fatalf("bazi: load ten_god_strength_rules: %v", err)
 	}
+	if err := loadYongJiRules(); err != nil {
+		log.Fatalf("bazi: load yongji_rules: %v", err)
+	}
+}
+
+// yongJiRule 扶抑喜忌规则（《子平真诠》）：身强/身弱 → 用/喜/忌的五行关系。
+type yongJiRule struct {
+	Yong string // 克我者 / 生我者
+	Xi   string // 生克我者 / 同我者
+	Ji   string // 生我者 / 克我者
+}
+
+var yongJiRules map[string]yongJiRule
+
+func loadYongJiRules() error {
+	var raw []struct {
+		Strength string `json:"strength"`
+		Yong     string `json:"yong"`
+		Xi       string `json:"xi"`
+		Ji       string `json:"ji"`
+		Basis    string `json:"basis"`
+	}
+	if err := json.Unmarshal(yongjiRulesJSON, &raw); err != nil {
+		return fmt.Errorf("unmarshal yongji_rules.json: %w", err)
+	}
+	yongJiRules = make(map[string]yongJiRule, len(raw))
+	for _, r := range raw {
+		yongJiRules[r.Strength] = yongJiRule{Yong: r.Yong, Xi: r.Xi, Ji: r.Ji}
+	}
+	return nil
 }
 
 // tenGodStrengthRule 十神强度判定规则（《子平真诠》旺衰强弱）。
