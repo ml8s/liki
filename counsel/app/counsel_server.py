@@ -278,7 +278,7 @@ def _make_app():
     """统一 app：挂载全部域的 MCP server（/counsel/mcp/{domain}）。
 
     网关只路由 /counsel 到本服务（一个容器），服务内按域分发——
-    与 engine 对称（/mcp/engine/{domain}）。MCP 服务根路由为 /mcp。
+    与 engine 对称（/engine/mcp/{domain}）。MCP 服务根路由为 /mcp。
     """
     domains = ("bazi", "ziwei", "liuyao", "qimen", "naming")
     domain_apps = {
