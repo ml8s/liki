@@ -27,6 +27,9 @@ var yongjiRulesJSON []byte
 //go:embed data/geju_rules.json
 var gejuRulesJSON []byte
 
+//go:embed data/xiaoyun_rules.json
+var xiaoyunRulesJSON []byte
+
 type tiaohouEntry struct {
 	primary            ganzhi.Gan
 	secondary          ganzhi.Gan
@@ -54,6 +57,49 @@ func init() {
 	if err := loadGeJuRules(); err != nil {
 		log.Fatalf("bazi: load geju_rules: %v", err)
 	}
+	if err := loadXiaoYunRules(); err != nil {
+		log.Fatalf("bazi: load xiaoyun_rules: %v", err)
+	}
+}
+
+// xiaoYunRule 小运起例（《三命通会》）：男女起运干支与顺逆。
+type xiaoYunRule struct {
+	StartGan    int
+	StartZhi    int
+	Direction   int // +1 顺行、-1 逆行
+}
+
+var xiaoYunRules map[string]xiaoYunRule
+
+func loadXiaoYunRules() error {
+	var raw struct {
+		Start     map[string]string `json:"start"`
+		Direction map[string]string `json:"direction"`
+	}
+	if err := json.Unmarshal(xiaoyunRulesJSON, &raw); err != nil {
+		return fmt.Errorf("unmarshal xiaoyun_rules.json: %w", err)
+	}
+	xiaoYunRules = make(map[string]xiaoYunRule, 2)
+	for _, key := range []string{"male", "female"} {
+		ganZhi := raw.Start[key]
+		if len([]rune(ganZhi)) != 2 {
+			return fmt.Errorf("xiaoyun start %q 无效", ganZhi)
+		}
+		gan, err := ganzhi.ParseGan(string([]rune(ganZhi)[0]))
+		if err != nil {
+			return err
+		}
+		zhi, err := ganzhi.ParseZhi(string([]rune(ganZhi)[1]))
+		if err != nil {
+			return err
+		}
+		dir := 1
+		if raw.Direction[key] == "backward" {
+			dir = -1
+		}
+		xiaoYunRules[key] = xiaoYunRule{StartGan: int(gan), StartZhi: int(zhi), Direction: dir}
+	}
+	return nil
 }
 
 // geJuPattern 格局规则（《子平真诠》）：格神十神 → 格名与顺逆用。

@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "basis": "《三命通会》论小运：男起丙寅顺行、女起壬申逆行（一定而不可易）",
+  "start": {
+    "male": "丙寅",
+    "female": "壬申"
+  },
+  "direction": {
+    "male": "forward",
+    "female": "backward"
+  }
+}

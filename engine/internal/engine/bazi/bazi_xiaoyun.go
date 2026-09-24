@@ -21,17 +21,18 @@ func computeXiaoYun(bz ganzhi.Bazi, gender ganzhi.Gender, maxAge int) []XiaoYunZ
 		maxAge = 12
 	}
 
-	var startIdx int
+	key := "female"
 	if gender == ganzhi.Male {
-		startIdx = ganzhi.SixtyCycleIndex(3, 3) // 丙寅
-	} else {
-		startIdx = ganzhi.SixtyCycleIndex(9, 9) // 壬申
+		key = "male"
 	}
+	rule := xiaoYunRules[key]
+	startIdx := ganzhi.SixtyCycleIndex(ganzhi.Gan(rule.StartGan), ganzhi.Zhi(rule.StartZhi))
+	dir := rule.Direction
 
 	zhus := make([]XiaoYunZhu, 0, maxAge)
 	for age := 1; age <= maxAge; age++ {
 		var idx int
-		if gender == ganzhi.Male {
+		if dir > 0 {
 			idx = (startIdx + (age - 1)) % 60
 		} else {
 			idx = (startIdx - (age - 1) + 60) % 60
