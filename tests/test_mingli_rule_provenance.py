@@ -6,7 +6,7 @@ from pathlib import Path
 TABLE = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools/assertions/assertions.csv"
 CANONICAL_SOURCES = {
     "渊海子平", "三命通会", "滴天髓", "子平真诠", "穷通宝鉴",
-    "紫微斗数全书", "女命赋", "黄帝内经", "协纪辨方书", "麻衣相法",
+    "紫微斗数全书", "女命赋", "黄帝内经", "协纪辨方书", "麻衣相法", "五行大义",
 }
 FORBIDDEN_FITTING_MARKERS = {
     "pan01", "pan20", "mingli", "benchmark", "评测", "选项", "题目",
