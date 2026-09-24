@@ -143,7 +143,7 @@ func ComputeCurrentStepIndex(dy *DaYun, currentYear int) int {
 	return -1
 }
 
-// ComputeXiaoYun computes the minor fortune (小运) pillars.
-func ComputeXiaoYun(c Chart, maxAge int) []XiaoYunZhu {
+// ComputeXiaoYun computes the minor fortune (小运) by multiple schools.
+func ComputeXiaoYun(c Chart, maxAge int) []XiaoYunSet {
 	return computeXiaoYun(c.ToBazi(), c.Gender, maxAge)
 }

@@ -302,6 +302,6 @@ var baziMethods = []RPCMethod{
 		Name: "bazi.xiaoyun", Description: "小运。返回小运流年列表。count 默认 12。",
 		Params:  mustSchema(`{"type":"object","properties":{"chart":{"type":"object","description":"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"},"count":{"type":"integer","description":"返回年数，默认 12"}},"required":["chart"]}`),
 		Handler: baziXiaoYunHandler,
-		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"age":{"type":"integer"},"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"name":{"type":"string"}},"required":["age","gan","zhi","name"]}}`),
+		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"method":{"type":"string","description":"流派标识"},"basis":{"type":"string","description":"起法依据"},"zhus":{"type":"array","items":{"type":"object","properties":{"age":{"type":"integer"},"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"name":{"type":"string"},"shi_shen":{"type":"string"}},"required":["age","gan","zhi","name"]}}},"required":["method","basis","zhus"]}}`),
 	},
 }
