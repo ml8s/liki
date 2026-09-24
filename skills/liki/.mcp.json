@@ -2,19 +2,19 @@
   "mcpServers": {
     "counsel": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/counsel/mcp"
+      "url": "https://liki.hk/mcp/counsel"
     },
     "counsel-liuyao": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/counsel/mcp/liuyao"
+      "url": "https://liki.hk/mcp/counsel/liuyao"
     },
     "counsel-qimen": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/counsel/mcp/qimen"
+      "url": "https://liki.hk/mcp/counsel/qimen"
     },
     "counsel-naming": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/counsel/mcp/naming"
+      "url": "https://liki.hk/mcp/counsel/naming"
     },
     "engine": {
       "type": "streamableHttp",

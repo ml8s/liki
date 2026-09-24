@@ -107,7 +107,7 @@ Liki follows a two-layer "orthogonal computation vs. judgment" architecture, exp
 | Layer | MCP endpoint | Domain |
 | --- | --- | --- |
 | engine | `/mcp/engine/{bazi,ziwei,liuyao,qimen,huangli,...}` | chart casting / calendar / Huangli |
-| counsel | `/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}` | judgment / divination / naming |
+| counsel | `/mcp/counsel/{bazi,ziwei,liuyao,qimen,naming}` | judgment / divination / naming |
 
 ### Call chain
 
