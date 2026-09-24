@@ -33,9 +33,9 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 | 用户意图 | 调用路径 |
 | --- | --- |
 | 排盘、看命、八字、紫微、婚姻、事业、财运、健康、学业、性格、六亲、合盘、大运、流年 | 进入 `natal`（编排）：八字由 **liki-bazi** 专家、紫微由 **liki-ziwei** 专家执行（排盘/判断/合盘/考时）；出生时间存疑时跨专家考时 |
-| 六爻、奇门、问卦、占卜、黄历、择日 | `engine-pro`：`liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` / `huangli_days` |
-| 起名、改名、宝宝起名、名字评估 | `engine-pro`：`qiming_surname` / `qiming_char` / `qiming_pick` / `qiming_compose` / `qiming_check` |
-| 风水、八宅、玄空、流年风水 | `engine`：`bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian` |
+| 六爻、奇门、问卦、占卜、黄历、择日 | `engine-pro`：六爻起卦 / 六爻追问 / 奇门排盘 / 奇门追问 / 黄历择日 |
+| 起名、改名、宝宝起名、名字评估 | `engine-pro`：起名姓氏 / 起名用字 / 取字 / 组名 / 起名评估 |
+| 风水、八宅、玄空、流年风水 | `engine`：八宅排盘 / 八宅布局 / 玄空排盘 / 玄空流年 |
 
 意图不清时，先用一个问题确认主目标。例如：「你想看的是八字命盘分析，还是给某个具体事情算卦？」——不要凭猜测直接进某个领域。
 
@@ -45,22 +45,22 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 
 ### engine-pro（判断层）
 
-- `create_birth_chart(gender, source)`：出生信息 → 不可变命盘资源，返回 `chart_ref`（含 token/digest）。`source.type=timestamp|hour`；`timestamp` 时给 `precision=minute` 和 `location.city`（或 longitude/latitude）。后续分析工具都吃 `chart_ref`，原样传递。
-- `analyze_natal(chart_ref, topics)`：本命分析。`topics` 用英文枚举（career/marriage/wealth/health/study/personality/family/children/property/relocation/social/origin/appearance/mental/adversity/chart_structure）。
-- `analyze_periods(chart_ref, time_scope, topics)`：大运/流年。`time_scope.type` 用 `current_year|year|year_range|current_decade|decade`。
-- `compare_birth_charts(chart_ref_a, chart_ref_b)`：合盘，输出双方原始事实，不做评级。
-- `calibrate_birth_time(candidates, events)`：考时。`candidates` 2–3 个候选盘（label+gender+source），`events` 3–5 个已发生事件（year+topic+label）。
-- `liuyao_snapshot(question, ...)`：六爻起卦+装卦+分析。`mode=auto` 自动起卦；`mode=coins|yaos` 传 `rounds`/`yaos`。`matter` 与 `yong_shen` 二选一必填。
-- `liuyao_ask(snapshot, message)`：对六爻快照追问（应期/细节）。
-- `qimen_snapshot(question, ...)`：奇门排盘+分析。`matter`（career/health/legal/relationship/...）或 `yong_shen` 二选一。
-- `qimen_ask(snapshot, message)`：对奇门盘追问。
-- `huangli_days(question, ...)`：黄历择日，`event` 给定时按建除事项输出 suitability。
-- 起名：`qiming_surname`（外国人中文姓）→ `qiming_pick`（按五行取字）→ `qiming_compose`（组名）→ `qiming_check`（评估）。
+- `排盘(gender, source)`：出生信息 → 不可变命盘资源，返回 `chart_ref`（含 token/digest）。`source.type=timestamp|hour`；`timestamp` 时给 `precision=minute` 和 `location.city`（或 longitude/latitude）。后续分析工具都吃 `chart_ref`，原样传递。
+- `本命判断(chart_ref, topics)`：本命分析。`topics` 用英文枚举（career/marriage/wealth/health/study/personality/family/children/property/relocation/social/origin/appearance/mental/adversity/chart_structure）。
+- `应期判断(chart_ref, time_scope, topics)`：大运/流年。`time_scope.type` 用 `current_year|year|year_range|current_decade|decade`。
+- `合盘(chart_ref_a, chart_ref_b)`：合盘，输出双方原始事实，不做评级。
+- `考时(candidates, events)`：考时。`candidates` 2–3 个候选盘（label+gender+source），`events` 3–5 个已发生事件（year+topic+label）。
+- `六爻起卦(question, ...)`：六爻起卦+装卦+分析。`mode=auto` 自动起卦；`mode=coins|yaos` 传 `rounds`/`yaos`。`matter` 与 `yong_shen` 二选一必填。
+- `六爻追问(snapshot, message)`：对六爻快照追问（应期/细节）。
+- `奇门排盘(question, ...)`：奇门排盘+分析。`matter`（career/health/legal/relationship/...）或 `yong_shen` 二选一。
+- `奇门追问(snapshot, message)`：对奇门盘追问。
+- `黄历择日(question, ...)`：黄历择日，`event` 给定时按建除事项输出 suitability。
+- 起名：起名姓氏（外国人中文姓）→ 取字（按五行取字）→ 组名→ 起名评估（评估）。
 
 ### engine（排盘/风水）
 
-- 风水：`bazhai_chart`（八宅命卦）→ `bazhai_layout`（门主灶）；`xuankong_chart`（玄空飞星）→ `xuankong_liunian`（流年）。
-- 排盘原始工具：`bazi_chart`/`bazi_fullchart`/`ziwei_chart`/`ziwei_fullchart` 等（判断层已封装，一般无需直接调）。
+- 风水：八宅排盘（八宅命卦）→ 八宅布局（门主灶）；玄空排盘（玄空飞星）→ 玄空流年（流年）。
+- 排盘原始工具：八字排盘/八字详细盘/紫微排盘/紫微详细盘 等（判断层已封装，一般无需直接调）。
 
 ## 统一硬边界
 

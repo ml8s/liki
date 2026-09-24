@@ -18,8 +18,8 @@ description: 奇门问卦 — snapshot 生成、结构化 answer 与追问
 | 步骤 | 动作 | 产物 |
 | --- | --- | --- |
 | 1 | 确认单一目标、地点和事项 | 可起局的问题 |
-| 2 | 发送 `TOOLS.md §3 qimen_snapshot` 报文；普通问事传 `matter`，高级用户可直接传 `yong_shen`，专占传 `rule` | immutable snapshot |
-| 3 | 发送 `TOOLS.md §4 qimen_ask` 报文，`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` | 结构化 answer |
+| 2 | 发送 `TOOLS.md §3 奇门排盘` 报文；普通问事传 `matter`，高级用户可直接传 `yong_shen`，专占传 `rule` | immutable snapshot |
+| 3 | 发送 `TOOLS.md §4 奇门追问` 报文，`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` | 结构化 answer |
 | 4 | 解释 factors 中的用神落宫、门星神、生克、空亡、马星和应期 | 方向、态势与时机 |
 | 5 | 追问继续传同一 snapshot | 不重排上下文 |
 
@@ -30,9 +30,9 @@ description: 奇门问卦 — snapshot 生成、结构化 answer 与追问
 | 用户问题 | 参数 |
 | --- | --- |
 | 钥匙丢了，能不能找到 | `rule=lost_property` |
-| 东西被偷 / 逃走的人 / 偷者画像 | `qimen_snapshot(rule=thief_capture/capture_escape/thief_profile)` |
+| 东西被偷 / 逃走的人 / 偷者画像 | `奇门排盘(rule=thief_capture/capture_escape/thief_profile)` |
 | 工作能不能升、财能不能求、婚姻如何 | `matter=career/wealth/relationship` |
-| 家人走失 | `qimen_snapshot(matter=missing_person, rule=missing_person)` |
+| 家人走失 | `奇门排盘(matter=missing_person, rule=missing_person)` |
 | 用置闰盘看现在 | `dingju_method=zhirun` |
 | 用洛书飞盘看这件事 | `school=luoshu_feipan` |
 | 用十分钟刻家看看 | `scope=quarter` + `quarter_rule=ten_minute_sanyuan` |

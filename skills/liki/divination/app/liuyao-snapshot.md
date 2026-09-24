@@ -17,8 +17,8 @@ description: 六爻问卦 — snapshot 生成、结构化 answer 与追问
 | 步骤 | 动作 | 产物 |
 | --- | --- | --- |
 | 1 | 确认单一目标、事项和视角 | 可排盘的问题 |
-| 2 | 发送 `TOOLS.md §1 liuyao_snapshot` 报文；按输入规则选择 `mode / rounds / yaos` | immutable snapshot |
-| 3 | 发送 `TOOLS.md §2 liuyao_ask` 报文，`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` | 结构化 answer |
+| 2 | 发送 `TOOLS.md §1 六爻起卦` 报文；按输入规则选择 `mode / rounds / yaos` | immutable snapshot |
+| 3 | 发送 `TOOLS.md §2 六爻追问` 报文，`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` | 结构化 answer |
 | 4 | 解释 focus、evidence、topic_guidance、timing_plan、condition_rules | 结论、阻碍与应期 |
 | 5 | 追问继续传同一 snapshot | 不重排上下文 |
 

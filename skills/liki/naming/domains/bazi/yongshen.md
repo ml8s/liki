@@ -1,6 +1,6 @@
 # 起名用神选择
 
-`create_birth_chart` 的 `fu_yi` / `tiao_hou` / `ge_ju` 提供扶抑 / 调候用神候选和格局结构候选。起名只做选择与复核，不重新推盘，也不把 `ge_ju.pattern_god` 直接当最终用神。
+排盘 的 `fu_yi` / `tiao_hou` / `ge_ju` 提供扶抑 / 调候用神候选和格局结构候选。起名只做选择与复核，不重新推盘，也不把 `ge_ju.pattern_god` 直接当最终用神。
 
 ## 选择顺序
 

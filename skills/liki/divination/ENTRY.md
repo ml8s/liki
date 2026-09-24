@@ -7,7 +7,7 @@
 divination 域通过 `engine-pro` MCP 连接器调用，不直接使用 RPC。
 
 - 工具契约见 `divination/TOOLS.md`（工具参数由 `engine-pro` MCP 连接器 schema 提供）
-- 调用：`liuyao_snapshot` / `liuyao_ask` / `qimen_snapshot` / `qimen_ask` / `huangli_days`
+- 调用：六爻起卦 / 六爻追问 / 奇门排盘 / 奇门追问 / 黄历择日
 - 响应：成功读 `data`；失败读 `error`
 - 工具层启动时校验 engine 版本和必需 MCP 能力；不满足即 fail closed。
 
@@ -17,9 +17,9 @@ LLM 先读取 `divination/app/question.md` 并判断用户目标；不要调用�
 
 | 用户目标 | 工具链 |
 | --- | --- |
-| 事件结果 / 能不能成 / 何时有结果 | `liuyao_snapshot` → `liuyao_ask` |
-| 策略 / 进退 / 方向 / 行动时机 | `qimen_snapshot` → `qimen_ask` |
-| 哪天适合做事 | `huangli_days` |
+| 事件结果 / 能不能成 / 何时有结果 | 六爻起卦 → 六爻追问 |
+| 策略 / 进退 / 方向 / 行动时机 | 奇门排盘 → 奇门追问 |
+| 哪天适合做事 | 黄历择日 |
 | 结果和策略混合 | 先澄清，只保留一个主目标 |
 | 长期命局 | 不临时起卦，改用八字命理技能 |
 | 高风险现实事项 | 继续执行所选问卦流程；结果附 `safety_advisory` |
@@ -29,8 +29,8 @@ LLM 先读取 `divination/app/question.md` 并判断用户目标；不要调用�
 ## 硬边界
 
 - 起卦、排盘、择日、因子投影和应期候选全部来自工具；LLM 只解释返回字段。
-- 六爻原始硬币必须原样传给 `liuyao_snapshot`；LLM/Python 不得自行换算爻值或判断动爻。
-- `liuyao_ask` 只接受 `method=liuyao` 的 snapshot；`qimen_ask` 只接受 `method=qimen` 的 snapshot。
+- 六爻原始硬币必须原样传给 六爻起卦；LLM/Python 不得自行换算爻值或判断动爻。
+- 六爻追问 只接受 `method=liuyao` 的 snapshot；奇门追问 只接受 `method=qimen` 的 snapshot。
 - snapshot 是 immutable 上下文；追问复用同一 snapshot。只有新事件才创建新 snapshot。
 - 不直接向 LLM 暴露 raw chart 编排工具；LLM 不读取、修改或伪造 `snapshot_digest`。
 - 奇门事象路由在 Python 表内完成；engine 只接收显式 `yong_shen`。
