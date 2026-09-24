@@ -219,14 +219,21 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 	}
 
 	// Prefer administrative results over POIs and streets.
-	r := results[0]
-	for _, cand := range results {
+	var admins []int
+	for i, cand := range results {
 		if cand.Address.County != "" || cand.Address.City != "" || cand.Address.State != "" ||
 			cand.Type == "administrative" || cand.Type == "county" || cand.Type == "city" {
-			r = cand
-			break
+			admins = append(admins, i)
 		}
 	}
+	if len(admins) > 1 && results[admins[0]].Name == results[admins[1]].Name {
+		// 同名行政区跨省歧义：无法可靠消歧，明确提示（不静默取错省）。
+		return searchResult{}, fmt.Errorf("同名行政区跨省歧义，请提供省/市限定（如 '辽宁朝阳'）：%s", query)
+	}
+	if len(admins) == 0 {
+		admins = []int{0}
+	}
+	r := results[admins[0]]
 	lon, err := parseFloat(r.Lon)
 	if err != nil {
 		return searchResult{}, fmt.Errorf("search: parse lon: %w", err)
