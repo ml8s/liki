@@ -66,15 +66,10 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 
 	var yongFa string
 
-	switch patternShiShen {
-	case ganzhi.ShiShenZhengGuan, ganzhi.ShiShenZhengCai,
-		ganzhi.ShiShenPianCai, ganzhi.ShiShenZhengYin,
-		ganzhi.ShiShenPianYin, ganzhi.ShiShenShiShen:
-		yongFa = "顺用"
-	case ganzhi.ShiShenQiSha, ganzhi.ShiShenShangGuan:
-		yongFa = "逆用"
-
-	default:
+	// 顺逆用入表 geju_rules.json：吉格顺用（官财印食）、凶格逆用（杀伤）。
+	if p, ok := geJuRules[patternShiShen.String()]; ok {
+		yongFa = p.Usage
+	} else {
 		yongFa = "逆用"
 		patternName = "杂格"
 	}
@@ -129,25 +124,10 @@ func jianLuYueRenZhi(riGan ganzhi.Gan, yueZhi ganzhi.Zhi) (isLu, isYueRen bool) 
 }
 
 // shiShenToPatternName converts a shishen to its pattern name.
+// 格局格名入表 geju_rules.json（《子平真诠》官杀财印食伤各成一格）。
 func shiShenToPatternName(ss ganzhi.ShiShen) string {
-	switch ss {
-	case ganzhi.ShiShenZhengGuan:
-		return "正官格"
-	case ganzhi.ShiShenQiSha:
-		return "七杀格"
-	case ganzhi.ShiShenZhengCai:
-		return "正财格"
-	case ganzhi.ShiShenPianCai:
-		return "偏财格"
-	case ganzhi.ShiShenZhengYin:
-		return "正印格"
-	case ganzhi.ShiShenPianYin:
-		return "偏印格"
-	case ganzhi.ShiShenShiShen:
-		return "食神格"
-	case ganzhi.ShiShenShangGuan:
-		return "伤官格"
-	default:
-		return "杂格"
+	if p, ok := geJuRules[ss.String()]; ok {
+		return p.Name
 	}
+	return "杂格"
 }

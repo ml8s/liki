@@ -24,6 +24,9 @@ var tenGodStrengthRulesJSON []byte
 //go:embed data/yongji_rules.json
 var yongjiRulesJSON []byte
 
+//go:embed data/geju_rules.json
+var gejuRulesJSON []byte
+
 type tiaohouEntry struct {
 	primary            ganzhi.Gan
 	secondary          ganzhi.Gan
@@ -48,6 +51,35 @@ func init() {
 	if err := loadYongJiRules(); err != nil {
 		log.Fatalf("bazi: load yongji_rules: %v", err)
 	}
+	if err := loadGeJuRules(); err != nil {
+		log.Fatalf("bazi: load geju_rules: %v", err)
+	}
+}
+
+// geJuPattern 格局规则（《子平真诠》）：格神十神 → 格名与顺逆用。
+type geJuPattern struct {
+	Name  string
+	Usage string
+}
+
+var geJuRules map[string]geJuPattern
+
+func loadGeJuRules() error {
+	var raw struct {
+		Patterns []struct {
+			ShiShen string `json:"shishen"`
+			Name    string `json:"name"`
+			Usage   string `json:"usage"`
+		} `json:"patterns"`
+	}
+	if err := json.Unmarshal(gejuRulesJSON, &raw); err != nil {
+		return fmt.Errorf("unmarshal geju_rules.json: %w", err)
+	}
+	geJuRules = make(map[string]geJuPattern, len(raw.Patterns))
+	for _, p := range raw.Patterns {
+		geJuRules[p.ShiShen] = geJuPattern{Name: p.Name, Usage: p.Usage}
+	}
+	return nil
 }
 
 // yongJiRule 扶抑喜忌规则（《子平真诠》）：身强/身弱 → 用/喜/忌的五行关系。

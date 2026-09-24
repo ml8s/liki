@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "basis": "《子平真诠》：月令格神定格局——官杀财印食伤各成一格；顺逆用——吉格顺用（官财印食）、凶格逆用（杀伤禄刃）",
+  "patterns": [
+    {"shishen": "正官", "name": "正官格", "usage": "顺用"},
+    {"shishen": "七杀", "name": "七杀格", "usage": "逆用"},
+    {"shishen": "正财", "name": "正财格", "usage": "顺用"},
+    {"shishen": "偏财", "name": "偏财格", "usage": "顺用"},
+    {"shishen": "正印", "name": "正印格", "usage": "顺用"},
+    {"shishen": "偏印", "name": "偏印格", "usage": "顺用"},
+    {"shishen": "食神", "name": "食神格", "usage": "顺用"},
+    {"shishen": "伤官", "name": "伤官格", "usage": "逆用"}
+  ]
+}
