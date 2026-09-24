@@ -166,7 +166,7 @@ func TestCangGanForZhi_All(t *testing.T) {
 		{"辰藏戊乙癸", ZhiChen, GanWu, GanYi, GanGui},
 		{"巳藏丙庚戊", ZhiSi, GanBing, GanGeng, GanWu},
 		{"午藏丁己", ZhiWu, GanDing, GanJi, 0},
-		{"未藏己乙丁", ZhiWei, GanJi, GanYi, GanDing},
+		{"未藏己丁乙", ZhiWei, GanJi, GanDing, GanYi},
 		{"申藏庚壬戊", ZhiShen, GanGeng, GanRen, GanWu},
 		{"酉藏辛", ZhiYou, GanXin, 0, 0},
 		{"戌藏戊辛丁", ZhiXu, GanWu, GanXin, GanDing},

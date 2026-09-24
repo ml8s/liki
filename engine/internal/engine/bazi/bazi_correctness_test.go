@@ -22,7 +22,7 @@ var referenceCangGan = map[ganzhi.Zhi]struct{ main, mid, minor ganzhi.Gan }{
 	ganzhi.ZhiChen: {main: ganzhi.GanWu, mid: ganzhi.GanYi, minor: ganzhi.GanGui},
 	ganzhi.ZhiSi:   {main: ganzhi.GanBing, mid: ganzhi.GanGeng, minor: ganzhi.GanWu},
 	ganzhi.ZhiWu:   {main: ganzhi.GanDing, mid: ganzhi.GanJi},
-	ganzhi.ZhiWei:  {main: ganzhi.GanJi, mid: ganzhi.GanYi, minor: ganzhi.GanDing},
+	ganzhi.ZhiWei:  {main: ganzhi.GanJi, mid: ganzhi.GanDing, minor: ganzhi.GanYi},
 	ganzhi.ZhiShen: {main: ganzhi.GanGeng, mid: ganzhi.GanRen, minor: ganzhi.GanWu},
 	ganzhi.ZhiYou:  {main: ganzhi.GanXin},
 	ganzhi.ZhiXu:   {main: ganzhi.GanWu, mid: ganzhi.GanXin, minor: ganzhi.GanDing},
