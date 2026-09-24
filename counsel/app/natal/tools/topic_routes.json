@@ -3,115 +3,324 @@
   "topics": {
     "marriage": {
       "label": "婚姻",
-      "domains": ["婚姻"],
-      "natal_rules": ["夫妻", "十神", "神煞", "合会", "用神", "格局"],
-      "annual_rules": ["yearly_marriage", "yingqi"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "婚姻"
+      ],
+      "natal_rules": [
+        "夫妻",
+        "十神",
+        "神煞",
+        "合会",
+        "用神",
+        "格局"
+      ],
+      "annual_rules": [
+        "yearly_marriage",
+        "yingqi"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "family": {
       "label": "家庭",
-      "domains": ["家庭"],
-      "natal_rules": ["父母", "兄弟", "十神", "六亲", "合会"],
-      "annual_rules": ["yearly_family"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "家庭"
+      ],
+      "natal_rules": [
+        "父母",
+        "兄弟",
+        "十神",
+        "六亲",
+        "合会"
+      ],
+      "annual_rules": [
+        "yearly_family"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "children": {
       "label": "子女",
-      "domains": ["子女"],
-      "natal_rules": ["子女", "十神", "六亲", "神煞"],
-      "annual_rules": ["yearly_zinv", "yingqi"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "子女"
+      ],
+      "natal_rules": [
+        "子女",
+        "十神",
+        "六亲",
+        "神煞"
+      ],
+      "annual_rules": [
+        "yearly_zinv",
+        "yingqi"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "career": {
       "label": "事业",
-      "domains": ["事业"],
-      "natal_rules": ["官禄", "迁移", "十神", "格局", "用神", "大运"],
-      "annual_rules": ["yearly_career"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "事业"
+      ],
+      "natal_rules": [
+        "官禄",
+        "迁移",
+        "十神",
+        "格局",
+        "用神",
+        "大运"
+      ],
+      "annual_rules": [
+        "yearly_career"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "wealth": {
       "label": "财运",
-      "domains": ["财运"],
-      "natal_rules": ["财帛", "田宅", "十神", "格局", "用神"],
-      "annual_rules": ["yearly_wealth"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "财运"
+      ],
+      "natal_rules": [
+        "财帛",
+        "田宅",
+        "十神",
+        "格局",
+        "用神"
+      ],
+      "annual_rules": [
+        "yearly_wealth"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "health": {
       "label": "健康",
-      "domains": ["健康"],
-      "natal_rules": ["疾厄", "旺衰", "五行", "合会", "神煞"],
-      "annual_rules": ["yearly_health"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "健康"
+      ],
+      "natal_rules": [
+        "疾厄",
+        "旺衰",
+        "五行",
+        "合会",
+        "神煞"
+      ],
+      "annual_rules": [
+        "yearly_health"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "mental": {
       "label": "精神",
-      "domains": ["精神"],
-      "natal_rules": ["福德", "旺衰", "五行", "合会"],
-      "annual_rules": ["yearly_health"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "精神"
+      ],
+      "natal_rules": [
+        "福德",
+        "旺衰",
+        "五行",
+        "合会"
+      ],
+      "annual_rules": [
+        "yearly_health"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "study": {
       "label": "学业",
-      "domains": ["学业"],
-      "natal_rules": ["官禄", "十神", "神煞", "用神"],
-      "annual_rules": ["yearly_study"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "学业"
+      ],
+      "natal_rules": [
+        "官禄",
+        "十神",
+        "神煞",
+        "用神"
+      ],
+      "annual_rules": [
+        "yearly_study"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "personality": {
       "label": "性格",
-      "domains": ["性格"],
-      "natal_rules": ["命宫", "十神", "旺衰", "格局", "用神"],
-      "annual_rules": ["年十神", "年旺衰"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "性格"
+      ],
+      "natal_rules": [
+        "命宫",
+        "十神",
+        "旺衰",
+        "格局",
+        "用神"
+      ],
+      "annual_rules": [
+        "年十神",
+        "年旺衰"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "appearance": {
       "label": "外貌",
-      "domains": ["外貌"],
-      "natal_rules": ["外貌", "命宫", "五行"],
+      "domains": [
+        "外貌"
+      ],
+      "natal_rules": [
+        "外貌",
+        "命宫",
+        "五行"
+      ],
       "annual_rules": [],
       "decade_rules": []
     },
     "origin": {
       "label": "出身",
-      "domains": ["出身"],
-      "natal_rules": ["出身", "父母", "田宅", "六亲"],
+      "domains": [
+        "出身"
+      ],
+      "natal_rules": [
+        "出身",
+        "父母",
+        "田宅",
+        "六亲"
+      ],
       "annual_rules": [],
       "decade_rules": []
     },
     "relocation": {
       "label": "迁移",
-      "domains": ["迁移"],
-      "natal_rules": ["迁移", "十神", "用神"],
-      "annual_rules": ["年迁移", "yingqi"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "迁移"
+      ],
+      "natal_rules": [
+        "迁移",
+        "十神",
+        "用神"
+      ],
+      "annual_rules": [
+        "年迁移",
+        "yingqi"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "social": {
       "label": "人际",
-      "domains": ["人际"],
-      "natal_rules": ["仆役", "兄弟", "十神", "合会"],
-      "annual_rules": ["年仆役", "年兄弟"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "人际"
+      ],
+      "natal_rules": [
+        "仆役",
+        "兄弟",
+        "十神",
+        "合会"
+      ],
+      "annual_rules": [
+        "年仆役",
+        "年兄弟"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "property": {
       "label": "房产",
-      "domains": ["房产"],
-      "natal_rules": ["田宅", "十神", "格局"],
-      "annual_rules": ["年田宅"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "房产"
+      ],
+      "natal_rules": [
+        "田宅",
+        "十神",
+        "格局"
+      ],
+      "annual_rules": [
+        "年田宅"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "adversity": {
       "label": "风险",
-      "domains": ["灾劫", "官非"],
-      "natal_rules": ["疾厄", "官禄", "十神", "神煞", "合会"],
-      "annual_rules": ["年疾厄", "年官禄", "yingqi"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "灾劫",
+        "官非"
+      ],
+      "natal_rules": [
+        "疾厄",
+        "官禄",
+        "十神",
+        "神煞",
+        "合会"
+      ],
+      "annual_rules": [
+        "年疾厄",
+        "年官禄",
+        "yingqi"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     },
     "chart_structure": {
       "label": "盘面结构",
-      "domains": ["结构"],
-      "natal_rules": ["旺衰", "用神", "调候", "格局", "五行", "十神", "合会"],
-      "annual_rules": ["年旺衰", "年用神", "年五行", "年十神", "年合会"],
-      "decade_rules": ["大运", "大限"]
+      "domains": [
+        "结构",
+        "性格",
+        "财运",
+        "健康",
+        "事业",
+        "婚姻",
+        "学业"
+      ],
+      "natal_rules": [
+        "旺衰",
+        "用神",
+        "调候",
+        "格局",
+        "五行",
+        "十神",
+        "合会"
+      ],
+      "annual_rules": [
+        "年旺衰",
+        "年用神",
+        "年五行",
+        "年十神",
+        "年合会"
+      ],
+      "decade_rules": [
+        "大运",
+        "大限"
+      ]
     }
   },
   "method_ids": {
