@@ -35,7 +35,13 @@ func liushiZhiIdx(hour int) int {
 func computeLiuShi(bz ganzhi.Bazi, year, month, day, hour int) (*LiuShi, error) {
 	riYuan := bz.Ri.Gan
 
-	dp := tianwen.RiZhu(tianwen.GregorianTime(time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)))
+	// 流时时干按当日（0 点）日干起五鼠遁；晚子时(23:00-24:00)除外——
+	// 与排盘 zi_shi_rule（lunar 约定）一致：晚子时日柱不变、时柱按次日日干起。
+	dayForShiGan := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	if hour >= 23 {
+		dayForShiGan = dayForShiGan.AddDate(0, 0, 1)
+	}
+	dp := tianwen.RiZhu(tianwen.GregorianTime(dayForShiGan))
 	hbi := liushiZhiIdx(hour)
 	shiZhi := ganzhi.Zhi(hbi + 1)
 	shiGan := ganzhi.Gan(((int(dp.Gan)*2 + int(shiZhi) - 2) % 10))
