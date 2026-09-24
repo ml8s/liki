@@ -120,7 +120,7 @@ Babies and teenagers skip calibration; the provided hour is used as given.
 
 ### Does it need internet?
 
-By default, yes. The JSON-RPC engine performs calendar and chart calculations. Advanced users can run a private engine and set `LIKI_RPC_URL`.
+By default, yes — the engine / counsel MCP services (liki.hk) perform chart casting and judgment. Advanced users can self-host and point `LIKI_MCP_URL` (engine) at local services.
 
 ### Is my birth data stored?
 
