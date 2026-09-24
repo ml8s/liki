@@ -40,7 +40,7 @@ test-engine: ## 引擎 Go 测试
 	@cd engine && go test -count=1 ./...
 
 test-counsel: ## 起本地引擎 + counsel 测试
-	@bash -c 'cd engine && go build -o /tmp/liki-mcp ./cmd/liki-mcp/ && fuser -k $(ENGINE_MCP_PORT)/tcp 2>/dev/null || true; setsid /tmp/liki-mcp -addr 127.0.0.1:$(ENGINE_MCP_PORT) >/tmp/liki-mcp.log 2>&1 < /dev/null & for i in 1 2 3 4 5 6 7 8 9 10; do curl -fsS -m 2 http://127.0.0.1:$(ENGINE_MCP_PORT)/health >/dev/null 2>&1 && break; sleep 1; done; cd ../counsel && LIKI_MCP_URL=http://127.0.0.1:$(ENGINE_MCP_PORT)/mcp .venv/bin/python -m pytest tests/ -q'
+	@bash -c 'cd engine && go build -o /tmp/liki-mcp ./cmd/liki-mcp/ && fuser -k $(ENGINE_MCP_PORT)/tcp 2>/dev/null || true; setsid /tmp/liki-mcp -addr 127.0.0.1:$(ENGINE_MCP_PORT) >/tmp/liki-mcp.log 2>&1 < /dev/null & for i in 1 2 3 4 5 6 7 8 9 10; do curl -fsS -m 2 http://127.0.0.1:$(ENGINE_MCP_PORT)/health >/dev/null 2>&1 && break; sleep 1; done; cd ../counsel && LIKI_MCP_URL=http://127.0.0.1:$(ENGINE_MCP_PORT)/engine/mcp .venv/bin/python -m pytest tests/ -q'
 
 test: test-contracts test-engine test-counsel ## 全部测试（skill + engine + counsel）
 
