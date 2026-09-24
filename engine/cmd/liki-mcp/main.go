@@ -59,11 +59,11 @@ func main() {
 	mux := http.NewServeMux()
 	// 全量端点（counsel 内部调用 + 兼容）
 	mux.Handle("/mcp", rateLimiter.Wrap(6000.0/60, 200, mcpHandler.ServeHTTP))
-	// 分域端点：每术数 + 共享辅助
+	// 分域端点：每术数 + 共享辅助（服务内路由，网关只路由 /mcp/engine）
 	for _, d := range mcpDomains {
 		domainServer := newDomainServer(rpcReg, d.Prefixes, BuildTime, logger)
 		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
-		mux.Handle("/mcp/"+d.Suffix, rateLimiter.Wrap(6000.0/60, 200, domainHandler.ServeHTTP))
+		mux.Handle("/engine/mcp/"+d.Suffix, rateLimiter.Wrap(6000.0/60, 200, domainHandler.ServeHTTP))
 	}
 
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {

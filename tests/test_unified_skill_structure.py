@@ -77,8 +77,11 @@ def test_root_mcp_uses_counsel_and_engine():
     assert "engine" in text
     assert "liki-bazi" in text and "liki-ziwei" in text
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
-    assert {"engine"} <= set(mcp["mcpServers"])
     assert any("counsel" in name for name in mcp["mcpServers"])
+    # engine 域连接器在专家包（liki-bazi / liki-ziwei）
+    for pack in ("liki-bazi", "liki-ziwei"):
+        expert_mcp = json.loads((ROOT / "skills" / pack / ".mcp.json").read_text(encoding="utf-8"))
+        assert any("engine" in name for name in expert_mcp["mcpServers"])
 
 
 def test_expert_packs_follow_workbuddy_standard():

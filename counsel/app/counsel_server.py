@@ -12,10 +12,12 @@ Run:
 """
 from __future__ import annotations
 
+import collections
 import json
 import os
 import pathlib
 import sys
+import time
 
 from typing import Literal, Optional
 
@@ -273,7 +275,7 @@ def _create_naming_server() -> MCPServer:
 
 
 def _make_app():
-    """统一 app：挂载全部域的 MCP server（/mcp/counsel/{domain}）。
+    """统一 app：挂载全部域的 MCP server（/counsel/mcp/{domain}）。
 
     网关只路由 /counsel 到本服务（一个容器），服务内按域分发——
     与 engine 对称（/mcp/engine/{domain}）。MCP 服务根路由为 /mcp。
@@ -294,15 +296,56 @@ def _make_app():
         )
         await response(scope, receive, send)
 
+    class RateLimiter:
+        """Small non-durable limiter; enough for one-process MCP service."""
+
+        def __init__(self, limit: int, window_seconds: float):
+            self.limit = limit
+            self.window_seconds = window_seconds
+            self.hits: dict[str, collections.deque[float]] = {}
+
+        def allow(self, key: str) -> bool:
+            now = time.monotonic()
+            hits = self.hits.setdefault(key, collections.deque())
+            while hits and hits[0] <= now - self.window_seconds:
+                hits.popleft()
+            if len(hits) >= self.limit:
+                return False
+            hits.append(now)
+            return True
+
+    def client_key(scope: dict) -> str:
+        for name, value in scope.get("headers") or []:
+            if name == b"x-forwarded-for":
+                # With a single trusted proxy, the last address is the one
+                # observed by that proxy; earlier entries can be spoofed.
+                return value.decode("latin-1").split(",", 1)[-1].strip()
+        client = scope.get("client") or ("unknown", 0)
+        return str(client[0])
+
     class MultiDomainCounselApp:
+        def __init__(self):
+            self.rate_limiter = RateLimiter(
+                limit=int(os.environ.get("LIKI_COUNSEL_RATE_LIMIT", "240")),
+                window_seconds=float(os.environ.get("LIKI_COUNSEL_RATE_WINDOW_SECONDS", "60")),
+            )
+
         async def __call__(self, scope, receive, send):
             if scope["type"] == "http" and scope.get("path") == "/healthz":
                 await healthz(scope, receive, send)
                 return
 
+            if not self.rate_limiter.allow(client_key(scope)):
+                response = JSONResponse(
+                    {"error": {"code": "rate_limited", "message": "too many requests"}},
+                    status_code=429,
+                )
+                await response(scope, receive, send)
+                return
+
             path = scope.get("path", "").rstrip("/") or "/"
             for domain in domains:
-                if path == f"/mcp/counsel/{domain}" or path == f"/counsel/mcp/{domain}":
+                if path == f"/counsel/mcp/{domain}":
                     target = domain_apps[domain]
                     proxied_scope = dict(scope)
                     proxied_scope["path"] = "/mcp"

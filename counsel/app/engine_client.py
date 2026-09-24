@@ -27,18 +27,18 @@ class MCPError(Exception):
 
 
 def _endpoint() -> str:
-    return os.environ.get("LIKI_MCP_URL", "https://liki.hk/mcp")
+    return os.environ.get("LIKI_MCP_URL", "https://liki.hk/engine/mcp")
 
 
 # RPC 方法前缀 → 引擎分域端点后缀（各术数排盘 + 共享 aux）
 _DOMAIN_BY_PREFIX = (
-    ("bazi.", "/bazi"),
-    ("ziwei.", "/ziwei"),
-    ("qimen.", "/qimen"),
-    ("liuyao.", "/liuyao"),
-    ("time.", "/aux"),
-    ("tianwen.", "/aux"),
-    ("city.", "/aux"),
+    ("bazi", "/bazi"),
+    ("ziwei", "/ziwei"),
+    ("qimen", "/qimen"),
+    ("liuyao", "/liuyao"),
+    ("time", "/aux"),
+    ("tianwen", "/aux"),
+    ("city", "/aux"),
 )
 
 
@@ -84,7 +84,7 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
     last_err: Exception | None = None
     for attempt in range(retries + 1):
         try:
-            req = urllib.request.Request(_endpoint() + _domain_suffix(method), data=body, headers=headers)
+            req = urllib.request.Request(_endpoint() + _domain_suffix(name), data=body, headers=headers)
             with urllib.request.urlopen(req, timeout=MCP_TIMEOUT) as resp:
                 doc = _parse_body(resp.read())
             if "error" in doc:

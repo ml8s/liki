@@ -23,5 +23,5 @@ for _ in range(20):
         time.sleep(0.5)
 PY
 
-cd "$ROOT/analysis"
-LIKI_MCP_URL="http://127.0.0.1:$PORT/mcp" .venv/bin/python -m pytest tests/ -q
+cd "$ROOT/counsel"
+LIKI_MCP_URL="http://127.0.0.1:$PORT/engine/mcp" .venv/bin/python -m pytest tests/ -q
