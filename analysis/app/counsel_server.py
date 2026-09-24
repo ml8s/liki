@@ -27,10 +27,13 @@ from app.server import _build_model, _signature_params
 JUDGMENT_SCHEMA = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "counsel-tools.json"
 NAMING_SCHEMA = pathlib.Path(__file__).resolve().parent / "naming" / "tools" / "skill-tools.json"
 NAMING_DIR = pathlib.Path(__file__).resolve().parent / "naming"
+DIVINATION_SCHEMA = pathlib.Path(__file__).resolve().parent / "divination" / "tools" / "skill-tools.json"
+DIVINATION_DIR = pathlib.Path(__file__).resolve().parent / "divination" / "tools"
 
 # natal 工具模块同目录 import（from duanyu / from paipan …），进程内调用需目录在 sys.path。
 sys.path.insert(0, str(JUDGMENT_SCHEMA.parent))
 sys.path.insert(0, str(NAMING_DIR))
+sys.path.insert(0, str(DIVINATION_DIR))
 
 
 def _require_domain(domain: str, chart: dict) -> None:
@@ -45,6 +48,8 @@ def _require_domain(domain: str, chart: dict) -> None:
 def create_counsel_server(domain: str) -> MCPServer:
     if domain == "naming":
         return _create_naming_server()
+    if domain in ("liuyao", "qimen"):
+        return _create_divination_server(domain)
     from app.natal.tools import counsel
 
     if domain not in ("bazi", "ziwei"):
@@ -97,6 +102,53 @@ def create_counsel_server(domain: str) -> MCPServer:
         )
         exec(code, ns)  # noqa: S102
         server.add_tool(ns["_handler"], name=name, description=fn["description"])
+    return server
+
+
+def _create_divination_server(domain: str) -> MCPServer:
+    """六爻/奇门（liuyao/qimen）：snapshot 创建（排盘+因子）+ query 追问（ask→query）。
+
+    复用 analysis 模块（create/ask——起卦/排盘/断语），engine 完成排盘；
+    counsel 是补集（判断），ask 做成 query（追问出断语）。
+    """
+    if domain == "liuyao":
+        from liuyao_snapshot import create as snapshot_create
+        from liuyao_ask import ask as query_ask
+    else:
+        from qimen_snapshot import create as snapshot_create
+        from qimen_ask import ask as query_ask
+
+    server = MCPServer(
+        name=f"counsel-{domain}",
+        title=f"Liki 顾问（{domain}）",
+        description=(
+            f"{'六爻' if domain == 'liuyao' else '奇门'}顾问：snapshot 创建（起卦/排盘+因子），"
+            f"query 追问（基于 snapshot 出断语，不重排）。排盘由 engine 完成。"
+        ),
+        version="1.0.0",
+    )
+    schema = json.loads(DIVINATION_SCHEMA.read_text("utf-8"))
+    for tool in schema["tools"]:
+        fn = tool["function"]
+        name = fn["name"]
+        if name == f"{domain}_snapshot":
+            impl = snapshot_create
+            out_name = name
+        elif name == f"{domain}_ask":
+            impl = query_ask
+            out_name = f"{domain}_query"  # ask → query（追问出断语）
+        else:
+            continue
+        sig, body = _signature_params(fn["parameters"])
+        ns: dict = {"json": json, "_fn": impl, "Optional": Optional, "Literal": Literal}
+        code = (
+            f"async def _handler({sig}) -> str:\n"
+            f"    kwargs = {{{body}}}\n"
+            "    result = _fn(**{k: v for k, v in kwargs.items() if v is not None})\n"
+            "    return json.dumps(result, ensure_ascii=False)\n"
+        )
+        exec(code, ns)  # noqa: S102
+        server.add_tool(ns["_handler"], name=out_name, description=fn["description"])
     return server
 
 
