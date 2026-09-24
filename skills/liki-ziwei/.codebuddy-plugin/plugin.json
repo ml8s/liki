@@ -60,7 +60,9 @@
   ],
   "dependencies": {
     "connectors": [
-      "engine-pro-ziwei"
+      "engine-ziwei",
+      "engine-aux",
+      "judgment-ziwei"
     ]
   }
 }

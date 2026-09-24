@@ -17,7 +17,7 @@ skills:
 
 经 `engine-bazi` 与 `judgment-bazi` 连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
 
-- `engine-bazi`（排盘）：`bazi_chart`（本命盘）→ `chart`，另含 `bazi_fullchart` / `bazi_dayun` / `bazi_liunian` / `bazi_liuri` / `bazi_bond` / `bazi_calibrate`
+- `engine-bazi`（排盘）：`bazi_chart`（本命盘）→ `chart`，另含 `bazi_fullchart` / `bazi_dayun` / `bazi_liunian` / `bazi_liuri` / `bazi_bond`（合盘）
 - `judgment-bazi`（判断）：`compute_factors(chart)` → `factors` 快照 → `natal_query(factors, topics)` 本命断语 / `period_query(factors, time_scope, topics, chart)` 大运流年应期断语
 
 ## 标准流程

@@ -22,7 +22,7 @@ liki-ziwei/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-pro-ziwei"]` — 依赖上架连接器（判断；排盘内部完成城市解析与真太阳时校正）。
+- `dependencies.connectors: ["engine-ziwei", "engine-aux", "judgment-ziwei"]` — 依赖排盘连接器（engine-ziwei）、历法辅助（engine-aux）与判断连接器（judgment-ziwei）。
 
 ## 校验要点（提交前核对）
 

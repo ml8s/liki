@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "engine-pro-ziwei": {
-      "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/engine-pro/ziwei",
-      "timeout": 30000
-    }
-  }
-}

@@ -66,9 +66,15 @@ def natal_query(factors: dict, topics: list[str], context: dict | None = None,
 
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"natal_query side 只支持 bazi/ziwei，收到: {side!r}")
+    from factor_constants import load_constants
+
+    side_labels = load_constants()["命理侧"]["标签"]
+    bz_label = side_labels["bazi"]
+    zw_label = side_labels["ziwei"]
     selected = _require_topics(topics)
     routes = _load_routes()
-    snapshots = {"八字": factors if side == "bazi" else {}, "紫微": factors if side == "ziwei" else {}, "context": context or {}}
+    snapshots = {bz_label: factors if side == "bazi" else {},
+                 zw_label: factors if side == "ziwei" else {}, "context": context or {}}
     all_assertions: list[dict] = []
     seen: set[tuple[str, str]] = set()
     for topic, route in selected:
@@ -92,6 +98,12 @@ def period_query(factors: dict, time_scope: dict, topics: list[str], chart: dict
     流年/大限取应期字段，再匹配断语表（本命因子参与匹配）。
     side 指定因子所属侧（bazi/ziwei），断语只出该侧。
     输出结构与 analyze_periods 一致（periods 数组）。
+
+    time_scope 的年份参数语义（命理领域模型）：
+    - side=bazi（八字流年）：干支年号（公历立春界，年号级 = 公历年号）
+    - side=ziwei（紫微流年）：农历年号（春节界，年号级与八字一致，如 2030 → 庚戌）
+    年份参数直接作为年号使用，**不做公历/农历日期换算**——换算会引入月份
+    信息（用户只按"年"查询），难以对应；年号级八字与紫微一致。
     """
     from analytics import _analyze_periods
 

@@ -18,7 +18,7 @@ skills:
 经 `engine-aux` / `engine-ziwei` / `judgment-ziwei` 连接器，工具由 `tools/list` 发现（inputSchema 自描述），按 schema 调用。
 
 - `engine-aux`（历法辅助）：`tianwen_time(time, longitude)` → 真太阳时 + `lunar`（农历，紫微排盘输入）
-- `engine-ziwei`（排盘）：`ziwei_chart(lunar, gender)` → `chart`，另含 `ziwei_fullchart` / `ziwei_daxian` / `ziwei_liunian` / `ziwei_liuri` / `ziwei_bond` / `ziwei_calibrate`
+- `engine-ziwei`（排盘）：`ziwei_chart(lunar, gender)` → `chart`，另含 `ziwei_fullchart` / `ziwei_daxian` / `ziwei_liunian` / `ziwei_liuri` / `ziwei_bond`（合盘）
 - `judgment-ziwei`（判断）：`compute_factors(chart)` → `factors` 快照 → `natal_query(factors, topics)` 本命断语 / `period_query(factors, time_scope, topics, chart)` 大限流年应期断语
 
 ## 标准流程

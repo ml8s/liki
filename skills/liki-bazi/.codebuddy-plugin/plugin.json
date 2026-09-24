@@ -60,7 +60,8 @@
   ],
   "dependencies": {
     "connectors": [
-      "engine-pro-bazi"
+      "engine-bazi",
+      "judgment-bazi"
     ]
   }
 }

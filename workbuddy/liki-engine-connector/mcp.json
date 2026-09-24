@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "engine": {
-      "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/engine",
-      "timeout": 30000
-    }
-  }
-}

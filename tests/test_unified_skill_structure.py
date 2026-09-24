@@ -108,9 +108,10 @@ def test_expert_packs_follow_workbuddy_standard():
         head = (root / "agents" / f"{agent_name}.md").read_text(encoding="utf-8")[:400]
         for f in ["name:", "description:", "displayName:", "profession:"]:
             assert f in head, (pack, agent_name, f)
-        # .mcp.json 连专家端点
+        # .mcp.json 连专家端点（正交化：排盘 engine + 判断 judgment 分离）
         mcp = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))
-        assert len(mcp["mcpServers"]) == 1, pack
+        assert len(mcp["mcpServers"]) >= 1, pack
+        assert all("engine" in name or "judgment" in name for name in mcp["mcpServers"]), (pack, mcp["mcpServers"])
 
 
 def test_expert_pack_methodology_matches_index():
@@ -124,7 +125,7 @@ def test_expert_pack_methodology_matches_index():
 
 def test_no_legacy_naming_in_skills():
     legacy = ("liki-analysis", "liki-engine", "liki-master", "liki-usage", "RPC.md",
-              "analysis-bazi", "analysis-ziwei", "engine-aux")
+              "analysis-bazi", "analysis-ziwei")
     for pack in ("liki", *EXPERT_PACKS):
         root = ROOT / "skills" / pack
         for path in root.rglob("*"):

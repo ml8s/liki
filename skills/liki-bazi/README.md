@@ -22,7 +22,7 @@ liki-bazi/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-pro-bazi"]` — 依赖上架连接器（判断；排盘内部完成城市解析与真太阳时校正）。
+- `dependencies.connectors: ["engine-bazi", "judgment-bazi"]` — 依赖排盘连接器与判断连接器（排盘 engine-bazi，判断 judgment-bazi）。
 
 ## 校验要点（提交前核对）
 

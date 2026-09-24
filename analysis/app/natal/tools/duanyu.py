@@ -471,6 +471,14 @@ def yearly_range(pan: dict, start: int, end: int,
                  rules: list, detail: bool = False,
                  domains: list[str] | None = None,
                  validate_pan: bool = True) -> dict:
+    """流年断语（年粒度）。
+
+    start/end 为流年年号（直接作为年号使用，不做公历/农历日期换算）：
+    - 八字流年：干支年号（公历立春界，年中代表 = 公历年号）
+    - 紫微流年：农历年号（春节界，年号级与八字一致，如 2030 → 庚戌）
+    年号级下八字与紫微一致（2024 = 甲辰），故同一年号两边通用；不做换算
+    以免引入月份信息（用户只按"年"查询）。
+    """
     resolved_rules = _resolve_rules(rules)
     if domains is None:
         domains = default_scene_domains(rules)

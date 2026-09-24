@@ -197,7 +197,10 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"wuxing1", "wuxing2", "count", "source_surname", "max_candidates",
 		"first", "second", "max_names", "yongshen", "xishen", "jishen",
 		"match_level", "baijiaxing_index", "surname", "pinyin", "tone", "basis",
-		"qimen_matters", "male", "female"} {
+		"qimen_matters", "male", "female",
+		"compute_factors", "natal_query", "period_query", "factors", "factors_digest",
+		"context", "assertions", "periods", "side",
+		"engine-bazi", "judgment-bazi", "engine-aux", "engine-ziwei", "judgment-ziwei"} {
 		allow[a] = true
 	}
 
