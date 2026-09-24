@@ -63,7 +63,7 @@ The Skill asks follow-up questions or uses real events for calibration. Insuffic
 
 ### Does it need internet?
 
-By default, yes. The JSON-RPC engine performs calendar and chart calculations. Advanced users can run a private engine and set `LIKI_RPC_URL`.
+By default, yes — the engine / counsel MCP services (liki.hk) perform chart casting and judgment. Advanced users can self-host and point `LIKI_MCP_URL` (engine) / `LIKI_COUNSEL_SERVICE_DOMAIN` (counsel) at local services.
 
 ### Is my birth data stored?
 
@@ -71,14 +71,13 @@ No. Birth data remains in the current conversation context. It is not written to
 
 ### How do I update?
 
-Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead of calling incompatible old RPCs.
+Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead of calling incompatible old services.
 
 ## Documentation
 
 | Document | Purpose |
 | --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
-| [README style](./docs/README_STYLE.md) | Structure, heading, and formatting contract for both READMEs |
 | [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and contract |
 | [Release model](./docs/RELEASE_MODEL.md) | CalVer runtime versions and SemVer releases |
 
@@ -95,31 +94,44 @@ make build-archive # pack the unified Liki skill
 
 ### Architecture
 
-```text
-skills/liki/
-├── SKILL.md              # single skill entry: routing, safety, feedback
-├── VERSION.txt           # single distribution version
-├── FAQ.md                # runtime failure and recovery contract
-├── natal/                # Birth-chart composite: Bazi + Ziwei + combined analysis
-├── divination/           # Liuyao + QiMen + Huangli: ENTRY / TOOLS / app / domains / tools
-├── fengshui/             # Bazhai + Xuankong: ENTRY / RPC / app / domains
-└── naming/               # naming: ENTRY / RPC / app / domains
-```
+Liki follows a two-layer "orthogonal computation vs. judgment" architecture, exposed through standard MCP:
 
-The repository root keeps `engine/`, `tests/`, and `scripts/` for the engine, evaluations, and build scripts; the installable package comes only from `skills/liki`. The call chain is fixed: `SKILL.md` → `ENTRY.md` → app card → Python tools or fixed RPC. Natal and divination use domain-local Python tools to orchestrate RPC, snapshots, factors, and assertions. Naming and feng shui have no local Python tool layer and use fixed JSON-RPC payloads.
+#### Domain model
+
+- **engine (Go)** — deterministic computation layer: calendrical astronomy, chart casting, calendar, Huangli, character data. Emits structured charts / hexagrams / facts (`chart` / `pan` / `snapshot`); it does not make judgments.
+- **counsel (Python)** — judgment layer: Bazi / Ziwei analysis, Liuyao / QiMen divination, naming evaluation. Consumes engine facts and produces assertions / candidates from rule tables (truth tables + engine rule tables), with traceable evidence.
+- **Huangli** — pure engine (calendar + Jianchu event suitability); not routed through counsel.
+
+#### Service endpoints
+
+| Layer | MCP endpoint | Domain |
+| --- | --- | --- |
+| engine | `/mcp/engine/{bazi,ziwei,liuyao,qimen,huangli,...}` | chart casting / calendar / Huangli |
+| counsel | `/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}` | judgment / divination / naming |
+
+#### Call chain
+
+`SKILL.md` routing → engine chart casting → counsel judgment → assertions (`assertion_id` + classical source, traceable)
+
+#### Code layout
+
+- `engine/` — Go engine (chart casting / calendar / Huangli), domain-scoped MCP servers
+- `counsel/` — Python judgment layer (multi-domain MCP server)
+- `skills/liki/` — skill capability docs (routing / boundaries / domain knowledge; tools self-describe via `tools/list`)
+- `tests/` — contract & integration tests; `scripts/` — build & evaluation scripts
 
 ### Engine image
 
-The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:latest`. Build from source with `engine/deploy/docker-compose.yml`.
+The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:latest`. Build from source with `engine/dev/docker-compose.yml`.
 
 ### Domain contracts
 
 | Contract | Purpose |
 | --- | --- |
-| [Natal tools](./skills/liki/natal/TOOLS.md) | Complete stdin payloads for five natal analysis tools |
-| [Divination tools](./skills/liki/divination/TOOLS.md) | Liuyao, QiMen, and Huangli tool payloads |
-| [Naming ENTRY](./skills/liki/naming/ENTRY.md) | Naming: yongshen-based character selection (engine-pro MCP tools) |
-| [Feng shui ENTRY](./skills/liki/fengshui/ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine MCP tools) |
+| [Natal tools](./skills/liki/natal/TOOLS.md) | Bazi / Ziwei natal & period analysis orchestration and contract (tools self-describe via `tools/list`) |
+| [Divination tools](./skills/liki/divination/TOOLS.md) | Liuyao, QiMen, and Huangli orchestration and contract |
+| [Naming ENTRY](./skills/liki/naming/ENTRY.md) | Naming: yongshen-based character selection (counsel) |
+| [Feng shui ENTRY](./skills/liki/fengshui/ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine) |
 
 ### Tests and release
 

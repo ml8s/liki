@@ -72,7 +72,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 
 ### 需要联网吗？
 
-默认需要访问 JSON-RPC 引擎。高级用户可以自建 engine，并用 `LIKI_RPC_URL` 指向本地服务。
+默认需要访问 engine / counsel MCP 服务（liki.hk）。高级用户可以自建服务，并用环境变量（`LIKI_MCP_URL` 指向 engine，`LIKI_COUNSEL_SERVICE_DOMAIN` 指向 counsel）指向本地。
 
 ### 出生数据会被存储吗？
 
@@ -87,7 +87,6 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 | 文档 | 用途 |
 | --- | --- |
 | [用户指南](./docs/USER_GUIDE.md) | 完整使用说明、领域流程、FAQ 与输出边界 |
-| [README 规范](./docs/README_STYLE.md) | 中英文 README 的结构、标题和排版契约 |
 | [反馈模型](./docs/FEEDBACK_MODEL.md) | Agent feedback 的隐私和契约 |
 | [版本与发布](./docs/RELEASE_MODEL.md) | CalVer 运行时版本和 SemVer 发行版 |
 
@@ -104,18 +103,33 @@ make build-archive # 打包 unified Liki skill
 
 ### 架构
 
-```text
-skills/liki/
-├── SKILL.md              # 唯一 skill 入口：路由、安全、反馈
-├── VERSION.txt           # 唯一分发版本
-├── FAQ.md                # 运行失败与恢复契约
-├── natal/                # 八紫双盘 / 本命：八字 + 紫微 + 合参
-├── divination/           # 六爻 + 奇门 + 黄历：ENTRY / TOOLS / app / domains / tools
-├── fengshui/             # 八宅 + 玄空：ENTRY / RPC / app / domains
-└── naming/               # 起名：ENTRY / RPC / app / domains
-```
+Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构，通过标准 MCP 提供能力：
 
-仓库根的 `engine/`、`tests/` 和 `scripts/` 分别承载引擎、评测和构建脚本；可安装包只来自 `skills/liki`。调用链固定为：`SKILL.md` → `ENTRY.md` → app 卡 → Python 工具或固定 RPC。natal / divination 通过 Python 工具层编排 RPC、snapshot、因子和断语；naming / fengshui 没有本地 Python 工具层，只使用固定 JSON-RPC 报文。
+#### 领域模型
+
+- **engine（Go）** —— 确定性计算层：天文历算、排盘、历法、黄历、字库。
+  输出结构化盘面/卦象/事实（chart / pan / snapshot），不做命理判断。
+- **counsel（Python）** —— 判断层：八字/紫微判断、六爻/奇门算卦、起名评估。
+  消费 engine 的盘面事实，用规则表（真值表 + 引擎规则表）产出断语与候选项，依据可回溯。
+- **黄历** —— 纯 engine（历法 + 建除事项适配），不走 counsel。
+
+#### 服务端点
+
+| 层 | MCP 端点 | 领域 |
+| --- | --- | --- |
+| engine | `/mcp/engine/{bazi,ziwei,liuyao,qimen,huangli,...}` | 排盘 / 历法 / 黄历 |
+| counsel | `/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}` | 判断 / 算卦 / 起名 |
+
+#### 调用链
+
+`SKILL.md` 路由 → engine 排盘 → counsel 判断 → 断语（`assertion_id` + 经典依据，可回溯）
+
+#### 代码结构
+
+- `engine/` —— Go 引擎（排盘/历法/黄历），分域 MCP 服务
+- `counsel/` —— Python 判断层（多域 MCP server）
+- `skills/liki/` —— skill 能力文档（路由 / 边界 / 领域知识，工具经 `tools/list` 自举）
+- `tests/` —— 契约与集成测试；`scripts/` —— 构建与评测脚本
 
 ### 引擎镜像
 
@@ -125,10 +139,10 @@ skills/liki/
 
 | 契约 | 用途 |
 | --- | --- |
-| [natal TOOLS](./skills/liki/natal/TOOLS.md) | 五个本命分析工具的完整 stdin 报文 |
-| [divination TOOLS](./skills/liki/divination/TOOLS.md) | 六爻、奇门、黄历工具报文 |
-| [naming ENTRY](./skills/liki/naming/ENTRY.md) | 起名：用神取用 + 五行选字（engine-pro MCP 工具）|
-| [fengshui ENTRY](./skills/liki/fengshui/ENTRY.md) | 风水：八宅、玄空与流年（engine MCP 工具）|
+| [natal TOOLS](./skills/liki/natal/TOOLS.md) | 八字/紫微本命与应期判断的编排与契约（工具经 `tools/list` 自举）|
+| [divination TOOLS](./skills/liki/divination/TOOLS.md) | 六爻、奇门、黄历的编排与契约 |
+| [naming ENTRY](./skills/liki/naming/ENTRY.md) | 起名：用神取用 + 五行选字（counsel）|
+| [fengshui ENTRY](./skills/liki/fengshui/ENTRY.md) | 风水：八宅、玄空与流年（engine）|
 
 ### 测试与发布
 
@@ -145,7 +159,7 @@ make golden # golden 全量
 ### 设计原则
 
 - 分层单一职责：根入口、领域入口、App 卡、领域知识和工具层不互相替代。
-- 单一事实源：工具契约来自 `skill-tools.json`，因子和断语来自 CSV 长表。
+- 单一事实源：工具 schema 来自工具清单（skill/counsel-tools.json，经 `tools/list` 自举），因子和断语来自 CSV 长表与引擎规则表。
 - 双体系显式合参：八字和紫微分侧计算，冲突分层列证。
 - 评测驱动：golden、functional、integration、skill-up smoke 和 160 题基准分层运行。
 
