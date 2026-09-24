@@ -19,8 +19,8 @@ description: 问结果 / 能不能成 / 何时有结果 — 默认六爻
 | 步骤 | 动作 |
 | --- | --- |
 | 1 | 按 `divination/app/question.md` 判断为事件结果 |
-| 2 | 按 `divination/app/liuyao-snapshot.md` 发送 `TOOLS.md §1 六爻起卦` 报文 |
-| 3 | 发送 `TOOLS.md §2 六爻追问` 报文，`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` |
+| 2 | 按 `divination/app/liuyao-snapshot.md` 六爻流程（起卦） |
+| 3 | 按 `TOOLS.md` 六爻流程（追问）；`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` |
 | 4 | 按 `divination/app/liuyao-snapshot.md` 输出 |
 
 ## 边界条件

@@ -19,8 +19,8 @@ description: 问该不该做 / 方向 / 策略 / 时机 — 默认奇门
 | 步骤 | 动作 |
 | --- | --- |
 | 1 | 按 `divination/app/question.md` 判断为策略 / 方向 / 时机 |
-| 2 | 按 `divination/app/qimen-snapshot.md` 发送 `TOOLS.md §3 奇门排盘` 报文 |
-| 3 | 发送 `TOOLS.md §4 奇门追问` 报文，`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` |
+| 2 | 按 `divination/app/qimen-snapshot.md` 奇门流程（排盘） |
+| 3 | 按 `TOOLS.md` 奇门流程（追问）；`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` |
 | 4 | 按 `divination/app/qimen-snapshot.md` 输出 |
 
 ## 边界条件

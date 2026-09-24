@@ -19,7 +19,7 @@ description: 问哪天适合做事 — 默认黄历择日
 | 步骤 | 动作 |
 | --- | --- |
 | 1 | 按 `divination/app/question.md` 判断为择日 |
-| 2 | 发送 `TOOLS.md §5 黄历择日` 报文；事项适配由 engine 判定 |
+| 2 | 按 `TOOLS.md` 黄历择日（engine 黄历）；事项适配由 engine 判定 |
 | 3 | 读取 `divination/domains/huangli/jiri.md`、`yiji.md` |
 | 4 | 输出推荐日、排除日和边界 |
 

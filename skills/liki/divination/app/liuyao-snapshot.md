@@ -17,24 +17,24 @@ description: 六爻问卦 — snapshot 生成、结构化 answer 与追问
 | 步骤 | 动作 | 产物 |
 | --- | --- | --- |
 | 1 | 确认单一目标、事项和视角 | 可排盘的问题 |
-| 2 | 发送 `TOOLS.md §1 六爻起卦` 报文；按输入规则选择 `mode / rounds / yaos` | immutable snapshot |
-| 3 | 发送 `TOOLS.md §2 六爻追问` 报文，`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` | 结构化 answer |
+| 2 | 按 `TOOLS.md` 六爻流程（起卦）；起卦方式按输入规则（自动/手摇/爻值复现）自举 | immutable snapshot |
+| 3 | 按 `TOOLS.md` 六爻流程（追问）；`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` | 结构化 answer |
 | 4 | 解释 focus、evidence、topic_guidance、timing_plan、condition_rules | 结论、阻碍与应期 |
 | 5 | 追问继续传同一 snapshot | 不重排上下文 |
 
 ## 输入
 
-- 默认 `mode=auto`。
-- 用户手动摇币时用 `mode=coins`，传六组三枚“正/反”，顺序为初爻到上爻。
-- 高级复现可用 `mode=yaos`，传六个爻值 6-9。
-- 普通问事传 `matter`；高级用户才传 `yong_shen`；两者互斥。
+- 默认自动起卦（线上安全随机数）。
+- 用户手动摇币时传六组三枚“正/反”，顺序为初爻到上爻。
+- 高级复现可传六个爻值 6-9。
+- 普通问事用事项用神；高级用户才传显式用神；两者互斥（schema 枚举）。
 
 ## 边界条件
 
 | 场景 | 处理 |
 | --- | --- |
 | 手动摇币 | 六组三枚“正 / 反”必须按初爻到上爻原样传入 |
-| `matter` / `yong_shen` | 只能传一项；普通问事优先 `matter` |
+| 事项 / 用神 | 只能传一项；普通问事优先事项用神 |
 | 追问与新事件 | 原事件复用 snapshot；新事件、新时间或新决策新建 snapshot |
 | 高风险事项 | 正常执行，附 `safety_advisory` |
 
