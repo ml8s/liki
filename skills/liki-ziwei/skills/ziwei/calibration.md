@@ -2,14 +2,14 @@
 
 用于八字考时后交叉验证候选盘。前提：命主为成人、已有候选紫微盘、候选 ≥2、用户已提供 ≥3 件婚姻 / 子女 / 事业等人生事实。
 
-## 工具流程（agent 编排，复用排盘与判断）
+## 工具流程（agent 编排，复用排盘与应期判断）
 
-考时 = `period_query` 的组合编排，不新增工具：
+考时 = 排盘 + 应期判断的组合编排（工具经 `tools/list` 自举），不新增工具：
 
 1. 收集 2-3 个候选出生时间（同一人，时辰临界 ±）。
-2. 对每候选：`engine-aux.tianwen_time` 取农历 → `engine-ziwei.ziwei_chart` 排盘 → `chart`。
-3. `judgment-ziwei.compute_factors(chart)` → `factors`。
-4. 对每件真实事件 `(year, topic)`：`judgment-ziwei.period_query(factors, {type:year, year}, [topic], chart)`，取该年该领域流年断语。
+2. 对每候选：公历 → 农历 → 排本命盘 → `chart`。
+3. 取因子快照 → `factors`。
+4. 对每件真实事件 `(year, 领域)`：查该年该领域应期断语。
 5. 对比各候选的事件断语——哪个候选在对应年份命中与真实事件一致的信号。
 6. 输出对比矩阵与最吻合候选 + 依据。
 

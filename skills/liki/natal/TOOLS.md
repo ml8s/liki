@@ -1,39 +1,32 @@
-# Natal 工具契约（专家执行）
+# Natal 能力与编排（专家执行）
 
-本域为编排层，实际工具由对应专家执行（排盘与判断分离）：
+本域为编排层，实际能力由对应专家执行（排盘与判断分离）：
 
-- **八字**：`liki-bazi` → `engine-bazi` 排盘 `bazi_chart`（出生信息 → `chart`），`judgment-bazi` 判断 `compute_factors` / `natal_query` / `period_query`
-- **紫微**：`liki-ziwei` → `engine-aux` 历法 `tianwen_time`（公历 → 农历 `lunar`），`engine-ziwei` 排盘 `ziwei_chart(lunar, gender)`，`judgment-ziwei` 判断
+- **八字**：`liki-bazi`（排盘 + 本命判断 + 应期判断 + 合盘 + 考时）
+- **紫微**：`liki-ziwei`（历法换算 + 排盘 + 本命判断 + 应期判断 + 合盘 + 考时）
 
-agent 应路由到对应专家执行；详细工具流程见各专家 `SKILL.md`。成功响应读 `data`；失败响应读 `error.code` 和 `error.message`。
+agent 应路由到对应专家执行；工具经 `tools/list` 自举（schema 自描述），按能力域调用，不依赖具体工具名。成功响应读 `data`；失败响应读 `error.code` 和 `error.message`。
 
-## 标准流程（分域）
+## 标准流程
 
-1. **排盘（engine）**：`bazi_chart`（八字）或 `tianwen_time` + `ziwei_chart`（紫微）→ `chart`
-2. **取因子（judgment）**：`compute_factors(chart)` → `factors` + `factors_digest` + `context`
-3. **本命断语**：`natal_query(factors, topics, context)` → 本命断语
-4. **应期断语**：`period_query(factors, time_scope, topics, chart)` → 大运/大限/流年断语
+1. **排盘**：出生信息 → 本命盘（八字：四柱/大运；紫微：公历 → 农历 → 十二宫/大限）。
+2. **取因子**：本命盘 → 因子快照（含防篡改摘要）。
+3. **本命判断**：因子快照 + 问题域 → 本命断语。
+4. **应期判断**：因子快照 + 时间层 + 问题域 → 大运/大限/流年断语。
 
 ## 跨域编排
 
 | 场景 | 交给 | 说明 |
 | --- | --- | --- |
-| 八字看命/流年 | `liki-bazi` | engine-bazi 排盘 + judgment-bazi 判断 |
-| 紫微看命/流年 | `liki-ziwei` | engine-aux + engine-ziwei + judgment-ziwei |
-| 合盘（双人）| 双方专家 | engine `bazi_bond` / `ziwei_bond` |
-| 考时（时辰存疑）| 双方专家 | 按专家 `calibration.md` 用 `period_query` 编排 |
+| 八字看命/流年 | `liki-bazi` | 排盘 + 本命/应期判断 |
+| 紫微看命/流年 | `liki-ziwei` | 历法换算 + 排盘 + 本命/应期判断 |
+| 合盘（双人）| 双方专家 | 双人合盘 |
+| 考时（时辰存疑）| 双方专家 | 按专家 `calibration.md` 用应期判断编排 |
 | 合参/综合命书 | 双方专家 | 两侧断语同向综合（不臆造）|
 
-## 响应契约
+## 输出契约（断语公共字段）
 
-| 工具 | `data` 契约 |
-| --- | --- |
-| `bazi_chart` / `ziwei_chart` | `{nian/yue/ri/shi 或宫位, da_yun/daxian, gender, ...}`（engine 排盘）|
-| `compute_factors` | `{factors, factors_digest, context}` |
-| `natal_query` | `{assertions}` |
-| `period_query` | `{chart, query, periods}` |
-
-断语公共字段：`assertion_id`、`side`、`topic`、`method`、`time_scope`、`event_type`、`event`、`conclusion`、`source`、`evidence`。`side` 是 `bazi` / `ziwei`。
+`assertion_id`、`side`、`topic`、`method`、`time_scope`、`event_type`、`event`、`conclusion`、`source`、`evidence`。`side` 是 `bazi` / `ziwei`。
 
 Topic 是受控人生问题闭集：`adversity`、`appearance`、`career`、`chart_structure`、`children`、`family`、`health`、`marriage`、`mental`、`origin`、`personality`、`property`、`relocation`、`social`、`study`、`wealth`。
 

@@ -12,16 +12,16 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 [必读] - bazi: liki-bazi/skills/bazi/hepan.md「双人盘事实合参」
 [必读] - bazi: liki-bazi/skills/bazi/shishen.md「十神组合」
-[必读] - 合盘工具：`compare_birth_charts(chart_ref_a, chart_ref_b)`（一次调用返回八字+紫微原始对照）
+[必读] - 合盘工具：`合盘(chart_ref_a, chart_ref_b)`（一次调用返回八字+紫微原始对照）
 
-> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["marriage"]`，仅保留婚姻域断语。**
+> **本卡的 本命判断 / 应期判断 调用均传 `topics=["marriage"]`，仅保留婚姻域断语。**
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 双方出生信息 | 分别 `create_birth_chart` | 双方`chart_ref` |
-| 2 | 原始对照 | `compare_birth_charts(chart_ref_a, chart_ref_b)` | 双方日主、夫妻宫、配偶星、干支关系与紫微宫位事实 |
+| 1 | 双方出生信息 | 分别 排盘 | 双方`chart_ref` |
+| 2 | 原始对照 | `合盘(chart_ref_a, chart_ref_b)` | 双方日主、夫妻宫、配偶星、干支关系与紫微宫位事实 |
 | 3 | 证据整理 | 读取 `liki-bazi/skills/bazi/hepan.md` | 优势证据、摩擦证据、证据缺口 |
 | 4 | 输出 | 按模板列共同点、差异与相处建议 | 参考结论 + 依据链 |
 

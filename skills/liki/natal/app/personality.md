@@ -16,15 +16,15 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 [按需] - ziwei: liki-ziwei/skills/ziwei/yingqi.md（仅问特定年份状态时读取）
 [必读] - ziwei: liki-ziwei/skills/ziwei/gexing.md「紫微性格分析方法」
 
-> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["personality"]`，仅保留性格域断语。**
+> **本卡的 本命判断 / 应期判断 调用均传 `topics=["personality"]`，仅保留性格域断语。**
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 基础性格 | 调 `liki-bazi` 专家 `analyze_natal` + `liki-ziwei` 专家 `analyze_natal`；读取 `liki-bazi/skills/bazi/wangshuai.md` | 日主、身强弱、基础特征 |
-| 2 | 组合修正 | 发送 `TOOLS.md §2 analyze_natal`；读取 `liki-bazi/skills/bazi/shishen.md` | 十神组合与修正方向 |
-| 3 | 紫微合参 | 调 `liki-bazi` 专家 `analyze_natal(topics=["personality"])` + `liki-ziwei` 专家 `analyze_natal(topics=["personality"])`、`analyze_natal(topics=["mental"])`；特定年份发送 `§4.1 analyze_periods` 或用户指定场景 | 主星、四化、执念与消耗点 |
+| 1 | 基础性格 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 本命判断；读取 `liki-bazi/skills/bazi/wangshuai.md` | 日主、身强弱、基础特征 |
+| 2 | 组合修正 | 发送 `TOOLS.md §2 本命判断`；读取 `liki-bazi/skills/bazi/shishen.md` | 十神组合与修正方向 |
+| 3 | 紫微合参 | 调 `liki-bazi` 专家 `本命判断(topics=["personality"])` + `liki-ziwei` 专家 `本命判断(topics=["personality"])`、`本命判断(topics=["mental"])`；特定年份发送 `§4.1 应期判断` 或用户指定场景 | 主星、四化、执念与消耗点 |
 | 4 | 外貌 / 体型 | 读取 `liki-ziwei/skills/ziwei/xiangmao.md`，与八字旺衰互证 | 体型倾向与证据强弱 |
 
 ## 边界条件

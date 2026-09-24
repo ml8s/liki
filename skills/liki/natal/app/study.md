@@ -14,16 +14,16 @@ description: 学业判断 — 学历层次、学习能力、考试运
 
 [必读] - ziwei: `liki-ziwei/skills/ziwei/yingqi.md`「学业应期」+ `liki-ziwei/skills/ziwei/liunian.md`「流年宫位」
 
-> **本卡的 `analyze_natal` / `analyze_periods` 调用均传 `topics=["study"]`，仅保留学业域断语。**
+> **本卡的 本命判断 / 应期判断 调用均传 `topics=["study"]`，仅保留学业域断语。**
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 印星与学习能力 | 发送 `TOOLS.md §2 analyze_natal` | 三关、印星状态、学习特点 |
-| 2 | 求学阶段 | 用户给关键年时发送 `TOOLS.md §2 analyze_periods(time_scope.type="decade")`，并把 `year` 设为关键年 | 青年运、当前运对印星作用 |
-| 3 | 学历倾向 | 发送 `TOOLS.md §2 analyze_natal` | 学历档与依据 |
-| 4 | 具体细节或流年 | 发送 `TOOLS.md §2 analyze_natal(topics=["career"])`；用户问具体年份、考试结果或学业流年时发送 `§4.1 analyze_periods` | 文昌文曲、化科、流年命宫 |
+| 1 | 印星与学习能力 | 发送 `TOOLS.md §2 本命判断` | 三关、印星状态、学习特点 |
+| 2 | 求学阶段 | 用户给关键年时发送 `TOOLS.md §2 应期判断(time_scope.type="decade")`，并把 `year` 设为关键年 | 青年运、当前运对印星作用 |
+| 3 | 学历倾向 | 发送 `TOOLS.md §2 本命判断` | 学历档与依据 |
+| 4 | 具体细节或流年 | 发送 `TOOLS.md §2 本命判断(topics=["career"])`；用户问具体年份、考试结果或学业流年时发送 `§4.1 应期判断` | 文昌文曲、化科、流年命宫 |
 
 ## 边界条件
 
