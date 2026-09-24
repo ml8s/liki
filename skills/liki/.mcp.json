@@ -1,9 +1,5 @@
 {
   "mcpServers": {
-    "counsel": {
-      "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/counsel"
-    },
     "counsel-liuyao": {
       "type": "streamableHttp",
       "url": "https://liki.hk/mcp/counsel/liuyao"

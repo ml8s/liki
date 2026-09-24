@@ -19,8 +19,14 @@ import sys
 
 from typing import Literal, Optional
 
+from starlette.applications import Starlette
+from starlette.routing import Mount
+
 from mcp.server import MCPServer
 from pydantic import BaseModel
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 
 JUDGMENT_SCHEMA = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "counsel-tools.json"
 NAMING_SCHEMA = pathlib.Path(__file__).resolve().parent / "naming" / "tools" / "skill-tools.json"
@@ -135,7 +141,25 @@ def create_counsel_server(domain: str) -> MCPServer:
     return server
 
 
-def _create_divination_server(domain: str) -> MCPServer:
+def create_counsel_root_server() -> MCPServer:
+    """Create the aggregate counsel surface used by the root Liki skill.
+
+    Bazi and Ziwei are intentionally excluded: those are exposed through the
+    expert skills and domain-specific endpoints.
+    """
+    server = MCPServer(
+        name="counsel",
+        title="Liki Counsel",
+        description="命理判断层：起名、六爻与奇门能力聚合。",
+        version="1.0.0",
+    )
+    _add_naming_tools(server)
+    _add_liuyao_tools(server)
+    _add_qimen_tools(server)
+    return server
+
+
+def _add_divination_tools(server: MCPServer, domain: str) -> None:
     """六爻/奇门（liuyao/qimen）：snapshot 创建（排盘+因子）+ query 追问（ask→query）。
 
     复用 analysis 模块（create/ask——起卦/排盘/断语），engine 完成排盘；
@@ -147,16 +171,6 @@ def _create_divination_server(domain: str) -> MCPServer:
     else:
         from qimen_snapshot import create as snapshot_create
         from qimen_ask import ask as query_ask
-
-    server = MCPServer(
-        name=f"counsel-{domain}",
-        title=f"Liki 顾问（{domain}）",
-        description=(
-            f"{'六爻' if domain == 'liuyao' else '奇门'}顾问：snapshot 创建（起卦/排盘+因子），"
-            f"query 追问（基于 snapshot 出断语，不重排）。排盘由 engine 完成。"
-        ),
-        version="1.0.0",
-    )
     schema = json.loads(DIVINATION_SCHEMA.read_text("utf-8"))
     for tool in schema["tools"]:
         fn = tool["function"]
@@ -179,6 +193,19 @@ def _create_divination_server(domain: str) -> MCPServer:
         )
         exec(code, ns)  # noqa: S102
         server.add_tool(ns["_handler"], name=out_name, description=fn["description"])
+
+
+def _create_divination_server(domain: str) -> MCPServer:
+    server = MCPServer(
+        name=f"counsel-{domain}",
+        title=f"Liki 顾问（{domain}）",
+        description=(
+            f"{'六爻' if domain == 'liuyao' else '奇门'}顾问：snapshot 创建（起卦/排盘+因子），"
+            f"query 追问（基于 snapshot 出断语，不重排）。排盘由 engine 完成。"
+        ),
+        version="1.0.0",
+    )
+    _add_divination_tools(server, domain)
     return server
 
 
@@ -191,19 +218,10 @@ def _qiming_check(given_names, yongshen, xishen=None, jishen=None):
     )
 
 
-def _create_naming_server() -> MCPServer:
+def _add_naming_tools(server: MCPServer) -> None:
     """起名（naming）：qiming 工具复用 qiming 逻辑（字库来自 engine）。"""
     from qiming import compose_names, lookup_char, match_surnames, pick_chars
 
-    server = MCPServer(
-        name="counsel-naming",
-        title="Liki 起名顾问",
-        description=(
-            "起名顾问：姓氏匹配、按五行取字、单字查询、组名、候选名评估。"
-            "字库来自 engine（继承），用神/喜忌由调用方传入（八字判断结果）。"
-        ),
-        version="1.0.0",
-    )
     qiming_fns = {
         "qiming_surname": match_surnames,
         "qiming_pick": pick_chars,
@@ -230,18 +248,75 @@ def _create_naming_server() -> MCPServer:
         )
         exec(code, ns)  # noqa: S102
         server.add_tool(ns["_handler"], name=name, description=fn["description"])
+
+
+def _add_liuyao_tools(server: MCPServer) -> None:
+    _add_divination_tools(server, "liuyao")
+
+
+def _add_qimen_tools(server: MCPServer) -> None:
+    _add_divination_tools(server, "qimen")
+
+
+def _create_naming_server() -> MCPServer:
+    server = MCPServer(
+        name="counsel-naming",
+        title="Liki 起名顾问",
+        description=(
+            "起名顾问：姓氏匹配、按五行取字、单字查询、组名、候选名评估。"
+            "字库来自 engine（继承），用神/喜忌由调用方传入（八字判断结果）。"
+        ),
+        version="1.0.0",
+    )
+    _add_naming_tools(server)
     return server
 
 
 def _make_app():
-    domain = os.environ.get("LIKI_COUNSEL_SERVICE_DOMAIN", "").strip() or None
-    if domain is None:
-        raise RuntimeError("LIKI_COUNSEL_SERVICE_DOMAIN 必须设置（bazi/ziwei/naming 等）")
-    return create_counsel_server(domain).streamable_http_app(
-        streamable_http_path="/mcp",
-        json_response=True,
-        stateless_http=True,
-    )
+    """统一 app：挂载全部域的 MCP server（/mcp/counsel/{domain}）。
+
+    网关只路由 /counsel 到本服务（一个容器），服务内按域分发——
+    与 engine 对称（/mcp/engine/{domain}）。MCP 服务根路由为 /mcp。
+    """
+    domains = ("bazi", "ziwei", "liuyao", "qimen", "naming")
+    domain_apps = {
+        domain: create_counsel_server(domain).streamable_http_app(
+            streamable_http_path="/mcp",
+            json_response=True,
+            stateless_http=True,
+        )
+        for domain in domains
+    }
+
+    async def healthz(scope, receive, send):
+        response = JSONResponse(
+            {"status": "ok", "domains": list(domains)},
+        )
+        await response(scope, receive, send)
+
+    class MultiDomainCounselApp:
+        async def __call__(self, scope, receive, send):
+            if scope["type"] == "http" and scope.get("path") == "/healthz":
+                await healthz(scope, receive, send)
+                return
+
+            path = scope.get("path", "").rstrip("/") or "/"
+            for domain in domains:
+                if path == f"/mcp/counsel/{domain}" or path == f"/counsel/mcp/{domain}":
+                    target = domain_apps[domain]
+                    proxied_scope = dict(scope)
+                    proxied_scope["path"] = "/mcp"
+                    proxied_scope["raw_path"] = "/mcp".encode()
+                    await target(proxied_scope, receive, send)
+                    return
+
+            response = JSONResponse(
+                {"error": {"code": "not_found", "message": "unknown counsel endpoint"}},
+                status_code=404,
+            )
+            await response(scope, receive, send)
+
+    return MultiDomainCounselApp()
 
 
 app = _make_app()
