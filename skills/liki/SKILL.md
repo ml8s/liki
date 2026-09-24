@@ -33,7 +33,7 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 | 用户意图 | 调用路径 |
 | --- | --- |
 | 排盘、看命、八字、紫微、婚姻、事业、财运、健康、学业、性格、六亲、合盘、大运、流年 | 进入 `natal`（编排）：八字由 **liki-bazi** 专家、紫微由 **liki-ziwei** 专家执行（排盘/判断/合盘/考时）；出生时间存疑时跨专家考时 |
-| 六爻、奇门、问卦、占卜、黄历、择日 | `counsel`：六爻起卦 / 六爻追问 / 奇门排盘 / 奇门追问 / 黄历择日 |
+| 六爻、奇门、问卦、占卜、黄历、择日 | `counsel`：六爻（起卦/追问）、奇门（排盘/追问）；黄历走 `engine` |
 | 起名、改名、宝宝起名、名字评估 | `counsel`：起名姓氏 / 起名用字 / 取字 / 组名 / 起名评估 |
 | 风水、八宅、玄空、流年风水 | `engine`：八宅排盘 / 八宅布局 / 玄空排盘 / 玄空流年 |
 
@@ -41,26 +41,21 @@ Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
 
 多域需求先处理主领域；其他领域仅作显式佐证，并标注证据来源。
 
-## 关键工具用法
+## 能力与编排
 
 ### counsel（判断层）
 
-- `排盘(gender, source)`：出生信息 → 不可变命盘资源，返回 `chart_ref`（含 token/digest）。`source.type=timestamp|hour`；`timestamp` 时给 `precision=minute` 和 `location.city`（或 longitude/latitude）。后续分析工具都吃 `chart_ref`，原样传递。
-- `本命判断(chart_ref, topics)`：本命分析。`topics` 用英文枚举（career/marriage/wealth/health/study/personality/family/children/property/relocation/social/origin/appearance/mental/adversity/chart_structure）。
-- `应期判断(chart_ref, time_scope, topics)`：大运/流年。`time_scope.type` 用 `current_year|year|year_range|current_decade|decade`。
-- `合盘(chart_ref_a, chart_ref_b)`：合盘，输出双方原始事实，不做评级。
-- `考时(candidates, events)`：考时。`candidates` 2–3 个候选盘（label+gender+source），`events` 3–5 个已发生事件（year+topic+label）。
-- `六爻起卦(question, ...)`：六爻起卦+装卦+分析。`mode=auto` 自动起卦；`mode=coins|yaos` 传 `rounds`/`yaos`。`matter` 与 `yong_shen` 二选一必填。
-- `六爻追问(snapshot, message)`：对六爻快照追问（应期/细节）。
-- `奇门排盘(question, ...)`：奇门排盘+分析。`matter`（career/health/legal/relationship/...）或 `yong_shen` 二选一。
-- `奇门追问(snapshot, message)`：对奇门盘追问。
-- `黄历择日(question, ...)`：黄历择日，`event` 给定时按建除事项输出 suitability。
-- 起名：起名姓氏（外国人中文姓）→ 取字（按五行取字）→ 组名→ 起名评估（评估）。
+- 排盘：出生信息 → 不可变命盘资源（含防篡改摘要）；后续判断都吃命盘引用，原样传递（参数按 schema 自举）。
+- 本命判断 / 应期判断 / 合盘 / 考时：基于命盘引用；应期按时间层（当前年/流年/年代），域断语按 schema 自举（事业/婚姻/财运/健康/学业/性格/六亲/迁移/格局等）。
+- 六爻：起卦（自动/手摇/爻值复现）→ 追问（应期/细节）；事项用神二选一（schema）。
+- 奇门：排盘（普通问事/专占）→ 追问（方向/时机）；事项用神二选一（schema）。
+- 黄历（engine）：按建除事项输出适配推荐（event 按 schema 自举）。
+- 起名：姓氏匹配 → 按五行取字 → 组名 → 候选名评估（能力链）。
 
 ### engine（排盘/风水）
 
-- 风水：八宅排盘（八宅命卦）→ 八宅布局（门主灶）；玄空排盘（玄空飞星）→ 玄空流年（流年）。
-- 排盘原始工具：八字排盘/八字详细盘/紫微排盘/紫微详细盘 等（判断层已封装，一般无需直接调）。
+- 风水：八宅（命卦/门主灶）、玄空（飞星/流年）能力。
+- 排盘原始工具：engine 提供（判断层已封装，一般无需直接调）。
 
 ## 统一硬边界
 

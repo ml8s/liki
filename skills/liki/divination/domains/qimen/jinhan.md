@@ -9,7 +9,7 @@ description: 金函玉镜日家奇门专用星门与十二神解释边界
 
 ## 引擎事实
 
-- 输入：`scope=day`、`school=jinhan_yujing`，不传 `dingju_method`、`quarter_rule`、`yong_shen`、`birth_date`。
+- 输入：仅支持日盘金函玉镜流派；不传定局、刻家、用神、出生日期。
 - 输出：`method.dun_source` 说明二至阴阳；`pan.gong_wei[].xing/men` 说明金函九星与八门；`pan.day_spirits[]` 说明十干十二神。
 - 金函玉镜无常规局数、三奇六仪、天地盘干、值符值使、常规八神、格局与应期因子；这些字段不得从普通奇门盘类推。
 

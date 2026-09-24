@@ -18,17 +18,17 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 [必读] - ziwei: liki-ziwei/skills/ziwei/yingqi.md「婚姻紫微应期」
 
-> **本卡的 本命判断 / 应期判断 调用均传 `topics=["marriage"]`，仅保留婚姻域断语。**
+> **本卡的 本命判断 / 应期判断 调用仅保留婚姻域断语。**
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
 | 1 | 配偶星 | 男看财星、女看官杀；读取 `liki-bazi/skills/bazi/shishen.md` | 星名、清浊、取清状态 |
-| 2 | 夫妻宫 | 发送 `TOOLS.md §2 本命判断`；读取 `liki-bazi/skills/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
-| 3 | 婚姻状态 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 `应期判断(time_scope.type="decade")` | 已婚 / 单身 / 离异 / 婚缘迟 |
-| 4 | 应期 | 读取 `liki-bazi/skills/bazi/dayun.md`；发送 `TOOLS.md §3 应期判断` | 首选年、备选年、引动层 |
-| 5 | 具体细节 | 发送 `TOOLS.md §3 应期判断` | 紫微夫妻宫、四化、桃花信号 |
+| 2 | 夫妻宫 | 发送 `TOOLS.md 本命判断`；读取 `liki-bazi/skills/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
+| 3 | 婚姻状态 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 `十年期应期判断` | 已婚 / 单身 / 离异 / 婚缘迟 |
+| 4 | 应期 | 读取 `liki-bazi/skills/bazi/dayun.md`；发送 `TOOLS.md 应期判断` | 首选年、备选年、引动层 |
+| 5 | 具体细节 | 发送 `TOOLS.md 应期判断` | 紫微夫妻宫、四化、桃花信号 |
 
 ## 边界条件
 
