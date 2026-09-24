@@ -200,7 +200,14 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"qimen_matters", "male", "female",
 		"compute_factors", "natal_query", "period_query", "factors", "factors_digest",
 		"context", "assertions", "periods", "side",
-		"engine-bazi", "judgment-bazi", "engine-aux", "engine-ziwei", "judgment-ziwei"} {
+		"engine-bazi", "judgment-bazi", "engine-aux", "engine-ziwei", "judgment-ziwei",
+		"adversity", "appearance", "assertion_id", "bazi", "bed_install", "build", "career",
+		"chart_structure", "children", "cleaning", "conclusion", "counsel", "current_decade",
+		"days", "decade", "end_date", "engage", "event_type", "evidence", "exam",
+		"family", "funeral", "health", "income", "marriage", "medical", "mental",
+		"move", "opening", "origin", "personality", "property", "relocation", "renovation",
+		"rule", "sacrifice", "sign", "snapshot_digest", "social", "study", "time_scope",
+		"topic", "travel", "wealth", "wedding", "year_range", "ziwei"} {
 		allow[a] = true
 	}
 
@@ -280,10 +287,15 @@ func skillNameForDoc(path string) string {
 }
 
 func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
-	files, err := filepath.Glob(filepath.Join("..", "..", "..", "analysis", "app", "*", "tools", "skill-tools.json"))
+	paths1, err := filepath.Glob(filepath.Join("..", "..", "..", "counsel", "app", "*", "tools", "skill-tools.json"))
 	if err != nil {
 		return nil, err
 	}
+	paths2, err := filepath.Glob(filepath.Join("..", "..", "..", "counsel", "app", "*", "tools", "counsel-tools.json"))
+	if err != nil {
+		return nil, err
+	}
+	files := append(paths1, paths2...)
 	result := make(map[string]map[string]bool)
 	for _, path := range files {
 		raw, err := os.ReadFile(path)
@@ -381,7 +393,7 @@ func TestSkillToolVocabularyIsScoped(t *testing.T) {
 	}
 	natal := vocabulary["natal"]
 	divination := vocabulary["divination"]
-	if !natal["create_birth_chart"] || !natal["analyze_natal"] || natal["qimen_chart"] {
+	if !natal["compute_factors"] || !natal["natal_query"] || !natal["period_query"] || natal["qimen_chart"] {
 		t.Fatal("natal tool vocabulary is missing its own tools or leaks qimen tools")
 	}
 	if !divination["qimen_snapshot"] || divination["create_birth_chart"] {

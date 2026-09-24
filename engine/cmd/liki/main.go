@@ -13,7 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"liki-engine/internal/agent"
 	"liki-engine/internal/engine/bazi"
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
@@ -34,18 +33,11 @@ func main() {
 	// Structured logging
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
 
-	// Setup JSON-RPC registry
-	rpcReg := agent.NewRPCRegistry()
-	rpcReg.SetVersion(BuildTime)
-
 	// Setup HTTP with rate limiter
 	rateLimiter := apphttp.NewRateLimiter()
 	defer rateLimiter.Stop()
 
 	mux := http.NewServeMux()
-
-	// JSON-RPC endpoint
-	mux.HandleFunc("POST /jsonrpc", rateLimiter.Wrap(6000.0/60, 200, apphttp.HandleRPC(rpcReg)))
 
 	// Health check
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
