@@ -4,9 +4,8 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from urllib.error import HTTPError  # noqa: F401  # 兼容导出（旧 RPC 调用点）
 
-# MCP 引擎客户端（dev 走 MCP；RPC 仅引擎保留给线上兼容）
+# MCP 引擎客户端（counsel 统一走 MCP）
 _LIKI_ANALYSIS = Path(__file__).resolve().parents[2]
 if str(_LIKI_ANALYSIS) not in sys.path:
     sys.path.insert(0, str(_LIKI_ANALYSIS))

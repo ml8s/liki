@@ -23,7 +23,8 @@ from qimen_projection import (  # noqa: E402
     project as project_chart,
     validate as validate_standard_factors,
 )
-from divination_rpc import HTTPError, RPCError  # noqa: E402
+from urllib.error import HTTPError
+from divination_rpc import RPCError  # noqa: E402
 from qimen_errors import TableError  # noqa: E402
 from qimen_interpretations import (  # noqa: E402
     load_interpretation_index,
