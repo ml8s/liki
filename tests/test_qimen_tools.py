@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import csv
-import importlib.util
 import sys
 from pathlib import Path
 
@@ -31,20 +30,6 @@ from qimen_interpretations import (  # noqa: E402
     load_rule_table,
 )
 from qimen_matters import load_matter_table as load_routing_matter_table  # noqa: E402
-
-
-
-def _load_agent_cli():
-    spec = importlib.util.spec_from_file_location(
-        "qimen_agent_cli", TOOLS / "agent_cli.py"
-    )
-    module = importlib.util.module_from_spec(spec)
-    assert spec is not None and spec.loader is not None
-    sys.path.insert(0, str(TOOLS))
-    try:
-        spec.loader.exec_module(module)
-    finally:
-            return module
 
 
 def _project(pan):

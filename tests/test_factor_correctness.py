@@ -166,7 +166,8 @@ def test_operator_arguments_use_constant_closures() -> None:
             match = re.match(r"^([^\[]+)\[(.*)\]$", expression)
             if not match:
                 continue
-            op, args = match.group(1), match.group(2).split(",")
+            op = match.group(1)
+            args = [a for x in re.findall(r"\[([^\]]+)\]", expression) for a in x.split(",")]
             if op in ten_arg_ops:
                 assert all(
                     arg in valid_ten or arg in valid_elements for arg in args
@@ -435,10 +436,10 @@ def test_ten_god_target_arguments_use_closed_vocabulary():
         with (TOOLS / "factors" / name).open(encoding="utf-8-sig", newline="") as source:
             rows = list(csv.DictReader(source))
         for row in rows:
-            match = re.match(r"^([^\[]+)\[(.*)\]$", row["expression"])
+            match = re.match(r"^([^\[]+)\[", row["expression"])
             if not match or match.group(1) not in target_ops:
                 continue
-            for argument in match.group(2).split(","):
+            for argument in re.findall(r"\[([^\]]+)\]", row["expression"]):
                 if argument and argument not in allowed:
                     raise AssertionError(
                         f"{name}:{row['factor_id']} 使用未登记十神目标 {argument!r}"

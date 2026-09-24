@@ -1,23 +1,14 @@
-"""错误契约：专用错误可捕获，且保持 agent_cli 的 ValueError 兼容行为。"""
-import json
-import subprocess
-import sys
-from pathlib import Path
-from unittest import mock
-
+"""错误契约：专用错误可捕获，且保持 LikiToolError 的 ValueError 兼容行为。"""
 import pytest
 
 import _helpers  # noqa: F401
 import duanyu
-import agent_cli
 from errors import (
     AssertionRuleError, FactorEvaluateError, FactorTableError,
     LikiToolError, PanSchemaError, YearRangeError,
 )
 from factors import _atomic
 from pan_schema import validate_natal_pan
-
-ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_error_hierarchy_is_valueerror_compatible():
@@ -61,21 +52,3 @@ def test_factor_evaluate_error():
         assert isinstance(exc, FactorEvaluateError)
     else:
         raise AssertionError("unknown operator did not raise")
-
-
-def test_agent_cli_transports_error_as_json():
-    output = {}
-    with mock.patch.object(agent_cli, "ensure_engine_compatible"), \
-         mock.patch("sys.stdin") as stdin, \
-         mock.patch("builtins.print") as printed:
-        stdin.read.return_value = json.dumps(
-            {"fn": "analyze_natal", "args": {
-                "chart_ref": {"token": "liki-chart-v1.invalid", "digest": "bad"},
-                "topics": ["marriage"],
-            }}
-        )
-        assert agent_cli.main() == 0
-        output = json.loads(printed.call_args.args[0])
-    payload = output
-    assert payload["ok"] is False
-    assert payload["error"]["code"] == "CHART_DIGEST_MISMATCH"

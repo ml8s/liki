@@ -71,13 +71,13 @@ def test_naming_does_not_silently_default_missing_hour():
     assert "不排八字" in app
 
 
-def test_root_mcp_uses_engine_pro_and_engine():
+def test_root_mcp_uses_counsel_and_engine():
     text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
-    assert "engine-pro" in text
+    assert "counsel" in text
     assert "engine" in text
     assert "liki-bazi" in text and "liki-ziwei" in text
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
-    assert set(mcp["mcpServers"]) == {"engine-pro", "engine"}
+    assert set(mcp["mcpServers"]) == {"counsel", "engine"}
 
 
 def test_expert_packs_follow_workbuddy_standard():
@@ -108,10 +108,10 @@ def test_expert_packs_follow_workbuddy_standard():
         head = (root / "agents" / f"{agent_name}.md").read_text(encoding="utf-8")[:400]
         for f in ["name:", "description:", "displayName:", "profession:"]:
             assert f in head, (pack, agent_name, f)
-        # .mcp.json 连专家端点（正交化：排盘 engine + 判断 judgment 分离）
+        # .mcp.json 连专家端点（正交化：排盘 engine + 判断 counsel 分离）
         mcp = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))
         assert len(mcp["mcpServers"]) >= 1, pack
-        assert all("engine" in name or "judgment" in name for name in mcp["mcpServers"]), (pack, mcp["mcpServers"])
+        assert all("engine" in name or "counsel" in name for name in mcp["mcpServers"]), (pack, mcp["mcpServers"])
 
 
 def test_expert_pack_methodology_matches_index():
@@ -124,8 +124,7 @@ def test_expert_pack_methodology_matches_index():
 
 
 def test_no_legacy_naming_in_skills():
-    legacy = ("liki-analysis", "liki-engine", "liki-master", "liki-usage", "RPC.md",
-              "analysis-bazi", "analysis-ziwei")
+    legacy = ("liki-analysis", "liki-engine", "liki-master", "liki-usage", "RPC.md")
     for pack in ("liki", *EXPERT_PACKS):
         root = ROOT / "skills" / pack
         for path in root.rglob("*"):

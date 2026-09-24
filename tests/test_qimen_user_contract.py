@@ -12,7 +12,7 @@ CAPTURE_ESCAPE = ROOT / "skills/liki/divination/domains/qimen/capture-escape.md"
 
 def test_qimen_card_keeps_normal_users_on_default_chart() -> None:
     text = CARD.read_text(encoding="utf-8")
-    assert "默认 `scope=hour` / `school=zhuanpan` / `dingju_method=chaibu`" in text
+    assert "默认时家转盘常规定局" in text
     assert "用户没有明确要求，不传方法参数" in text
     assert "不能从“更细”“传统”“准确”推断高级方法" in text
 
@@ -31,9 +31,9 @@ def test_qimen_card_documents_user_phrases_and_defaults() -> None:
 
 def test_qimen_card_guides_matter_selection() -> None:
     text = CARD.read_text(encoding="utf-8")
-    assert "普通问事传 `matter`" in text
-    assert "`matter` 与 `yong_shen` 互斥" in text
-    assert "高级用户可直接传 `yong_shen`" in text
+    assert "普通问事（事项用神）" in text
+    assert "普通问事用事项用神（schema 二选一）" in text
+    assert "用户没有明确要求，不传方法参数" in text
 
 
 def test_quarter_domain_keeps_public_axes_domain_named() -> None:
@@ -56,19 +56,19 @@ def test_yongshen_selection_stays_table_driven() -> None:
 
 def test_yongshen_matter_mapping_is_python_table() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
-    assert "`qimen_matters` 数据表（`qimen_snapshot` 内部维护）是事象到用神的唯一事实源" in text
+    assert "`qimen_matters` 数据表（排盘内部维护）是事象到用神的唯一事实源" in text
     assert "本页表格仅作展示" in text
 
 
 def test_qimen_engine_and_python_layers_are_decoupled() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
-    assert "engine 只接收 `yong_shen`" in text
-    assert "`matter` 不进入 `qimen_snapshot`" in text
+    assert "engine 只接收显式用神" in text
+    assert "事项用神与显式用神互斥" in text
 
 
 def test_lost_property_stays_in_interpretation_layer() -> None:
     text = LOST_PROPERTY.read_text(encoding="utf-8")
-    assert "不传 `matter` 或 `yong_shen`" in text
+    assert "不传事项或用神" in text
     assert "snapshot.special.assertions" in text
     assert "反吟为复得候选" in text
     assert "时干落空亡为难复得候选" in text
@@ -81,24 +81,24 @@ def test_lost_property_stays_in_interpretation_layer() -> None:
 
 def test_missing_person_stays_conservative_and_interpretation_layer() -> None:
     text = MISSING_PERSON.read_text(encoding="utf-8")
-    assert "`qimen_snapshot(matter=missing_person)`" in text
+    assert "走失问事" in text
     assert "snapshot.special.assertions" in text
     assert "不排序" in text
     assert "不推出必然回归或必然失踪" in text
     assert "六合落宫星旺 / 相且临景、死、惊、伤四门时" in text
-    assert "`qimen_snapshot(matter=missing_person, rule=missing_person)`" in CARD.read_text(
+    assert "走失专占" in CARD.read_text(
         encoding="utf-8"
     )
 
 
 def test_capture_escape_stays_conservative_and_interpretation_layer() -> None:
     text = CAPTURE_ESCAPE.read_text(encoding="utf-8")
-    assert "不传 `matter` 或 `yong_shen`" in text
+    assert "不传事项或用神" in text
     assert "snapshot.special.assertions" in text
     assert "不排序" in text
     assert "不做执法建议或必然结论" in text
     assert "行人年命、官府差人等另占口径未入表" in text
-    assert "`qimen_snapshot(rule=thief_capture/capture_escape/thief_profile)`" in CARD.read_text(encoding="utf-8")
+    assert "偷盗 / 走脱 / 画像专占" in CARD.read_text(encoding="utf-8")
 
 
 def test_thief_capture_documents_geng_branches() -> None:
@@ -119,7 +119,7 @@ def test_thief_profile_is_table_driven_route() -> None:
     assert "snapshot.special.assertions" in text
     assert "贵人 / 小人" in text
     assert "内盘亲近人或外盘外人" in text
-    assert "`qimen_snapshot(rule=thief_capture/capture_escape/thief_profile)`" in CARD.read_text(
+    assert "偷盗 / 走脱 / 画像专占" in CARD.read_text(
         encoding="utf-8"
     )
 

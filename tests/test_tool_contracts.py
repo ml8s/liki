@@ -1,32 +1,20 @@
-"""Natal tool parameter contract tests."""
+"""Counsel natal tool 参数契约测试（skill-tools → counsel-tools）。"""
 import json
+import sys
 from pathlib import Path
 
-import importlib.util
-
-import pytest
-import _helpers  # noqa: F401 —— 注入 tools 路径
-
 ROOT = Path(__file__).resolve().parents[1]
-_SPEC = importlib.util.spec_from_file_location(
-    "natal_agent_cli", ROOT / "analysis/app/natal/tools/agent_cli.py"
-)
-_NATAL_CLI = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(_NATAL_CLI)
-_REQUIRED_ARGS = _NATAL_CLI._REQUIRED_ARGS
 MANIFEST = json.loads(
-    (ROOT / "analysis/app/natal/tools/skill-tools.json").read_text(encoding="utf-8")
+    (ROOT / "analysis/app/natal/tools/counsel-tools.json").read_text(encoding="utf-8")
 )
 FUNCTIONS = {tool["function"]["name"]: tool["function"] for tool in MANIFEST["tools"]}
 
 
 def test_all_tools_have_closed_args():
     required = {
-        "create_birth_chart": ["gender", "source"],
-        "analyze_natal": ["chart_ref", "topics"],
-        "analyze_periods": ["chart_ref", "time_scope", "topics"],
-        "compare_birth_charts": ["chart_ref_a", "chart_ref_b"],
-        "calibrate_birth_time": ["candidates", "events"],
+        "compute_factors": ["chart"],
+        "natal_query": ["factors", "topics"],
+        "period_query": ["factors", "time_scope", "topics", "chart"],
     }
     assert set(FUNCTIONS) == set(required)
     for name, fn in FUNCTIONS.items():
@@ -35,35 +23,7 @@ def test_all_tools_have_closed_args():
         assert fn["parameters"]["type"] == "object", name
 
 
-def test_required_args_match_cli_precheck():
-    schema_required = {
-        name: set(fn["parameters"]["required"])
-        for name, fn in FUNCTIONS.items()
-    }
-    assert {name: set(args) for name, args in _REQUIRED_ARGS.items()} == schema_required
-
-
-def test_topic_enum_is_route_configured():
-    routes = json.loads(
-        (ROOT / "analysis/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
-    )
-    enum = FUNCTIONS["analyze_natal"]["parameters"]["properties"]["topics"]["items"]["enum"]
-    assert enum == list(routes["topics"])
-
-
-def test_response_contract_covers_every_tool():
-    response = json.loads(
-        (ROOT / "analysis/app/natal/tools/response-contract.json").read_text(encoding="utf-8")
-    )
-    assert response["version"] == "natal-response-contract-v1"
-    assert set(response["tools"]) == set(FUNCTIONS)
-    for tool in MANIFEST["tools"]:
-        assert "result_schema" not in tool["function"]
-
-
 def test_topic_routes_are_valid_and_unambiguous():
-    import sys
-
     sys.path.insert(0, str(ROOT / "analysis/app/natal/tools"))
     from factor_constants import load_constants
 
@@ -86,23 +46,3 @@ def test_topic_routes_are_valid_and_unambiguous():
         for domain in route["domains"]:
             assert domain not in domains_by_topic, (domain, topic, domains_by_topic[domain])
             domains_by_topic[domain] = topic
-
-
-def test_calibrate_rejects_natal_only_topic_before_engine_call():
-    import sys
-
-    sys.path.insert(0, str(ROOT / "analysis/app/natal/tools"))
-    from analytics import calibrate_birth_time
-
-    source = {
-        "type": "hour",
-        "timestamp": "1990-06-01T12:00:00+08:00",
-        "precision": "hour",
-        "solar_time_correction": "off",
-    }
-    args = {
-        "candidates": [{"label": "A", "gender": "male", "source": source}],
-        "events": [{"year": 2026, "topic": "appearance", "label": "外貌"}],
-    }
-    with pytest.raises(Exception, match="只支持本命分析"):
-        calibrate_birth_time(args)

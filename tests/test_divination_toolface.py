@@ -60,17 +60,6 @@ def test_qimen_snapshot_schema_rejects_ambiguous_location_and_focus():
     }, schema)
 
 
-def test_huangli_schema_rejects_ambiguous_range():
-    schema = _schema("huangli_days")
-    _assert_rejects(schema, {
-        "question": "哪天适合签约？", "event": "sign",
-        "end_date": "2026-10-31", "days": 7,
-    })
-    validate({
-        "question": "哪天适合签约？", "event": "sign", "days": 7,
-    }, schema)
-
-
 def test_qimen_snapshot_schema_rejects_incompatible_methods():
     schema = _schema("qimen_snapshot")
     base = {"question": "该往哪里推进？", "longitude": 121.47, "matter": "wealth"}

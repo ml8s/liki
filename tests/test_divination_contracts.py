@@ -17,7 +17,6 @@ import divination_contracts  # noqa: E402
 import divination_rpc  # noqa: E402
 import divination_snapshot  # noqa: E402
 import divination_safety  # noqa: E402
-import huangli_days  # noqa: E402
 import json  # noqa: E402
 from qimen_interpretations import load_rule_table  # noqa: E402
 import liuyao_ask  # noqa: E402
@@ -124,56 +123,9 @@ def test_qimen_snapshot_rejects_conflicting_location_before_rpc(monkeypatch):
         )
 
 
-def test_huangli_days_rejects_ambiguous_range_before_rpc(monkeypatch):
-    monkeypatch.setattr(huangli_days, "_server_date", lambda: (_ for _ in ()).throw(AssertionError("engine called")))
-    with pytest.raises(ValueError, match="only one"):
-        huangli_days.days(
-            question="哪天适合签约？", event="sign",
-            end_date="2026-10-31", days=7,
-        )
 
 
-def test_huangli_days_rejects_bool_days_before_rpc(monkeypatch):
-    monkeypatch.setattr(huangli_days, "_server_date", lambda: (_ for _ in ()).throw(AssertionError("engine called")))
-    with pytest.raises(ValueError, match="days must be an integer"):
-        huangli_days.days(question="哪天适合签约？", event="sign", days=True)
 
-
-def test_huangli_days_rejects_malformed_engine_day(monkeypatch):
-    monkeypatch.setattr(huangli_days, "_server_date", lambda: __import__("datetime").date(2026, 9, 9))
-    monkeypatch.setattr(huangli_days, "engine_items", lambda *_: [None])
-    with pytest.raises(ValueError, match="non-object day"):
-        huangli_days.days(question="哪天适合签约？", event="sign", days=1)
-
-
-def test_huangli_days_strips_question(monkeypatch):
-    monkeypatch.setattr(huangli_days, "_server_date", lambda: __import__("datetime").date(2026, 9, 9))
-    monkeypatch.setattr(huangli_days, "engine_items", lambda *_: [{"date": "2026-09-10", "jian_chu": "定"}])
-    result = huangli_days.days(question="  哪天适合签约？  ")
-    assert result["question"] == "哪天适合签约？"
-
-
-def test_huangli_days_projects_engine_event_classification(monkeypatch):
-    monkeypatch.setattr(huangli_days, "_server_date", lambda: __import__("datetime").date(2026, 9, 9))
-    monkeypatch.setattr(
-        huangli_days,
-        "engine_items",
-        lambda *_: [{
-            "date": "2026-09-10",
-            "jian_chu": "定",
-            "event": "sign",
-            "event_label": "签约",
-            "suitability": "recommended",
-            "reason": "建除「定」适合签约。",
-            "gan_ji": "甲不开仓",
-            "zhi_ji": "子不问卜",
-        }],
-    )
-    result = huangli_days.days(question="哪天适合签约？", event="sign", days=1)
-    assert result["event"] == "sign"
-    assert result["event_label"] == "签约"
-    assert result["recommended"][0]["suitability"] == "recommended"
-    assert result["recommended"][0]["warnings"] == ["甲不开仓", "子不问卜"]
 
 
 def test_qimen_snapshot_rejects_malformed_factors(monkeypatch):
@@ -411,23 +363,3 @@ def test_qimen_snapshot_accepts_missing_person_focus(monkeypatch):
     )
     assert snapshot["snapshot_kind"] == "standard"
     assert snapshot["special"]["rule"] == "missing_person"
-
-
-def test_huangli_event_enum_covers_engine_event_rules():
-    import json
-    engine_events = set(json.loads(
-        (ROOT / "tests/fixtures/domain_oracle/huangli_core.json").read_text(encoding="utf-8")
-    )["event_rules"])
-    schema_events = set(json.loads(
-        (TOOLS / "skill-tools.json").read_text(encoding="utf-8")
-    )["tools"][4]["function"]["parameters"]["properties"]["event"]["enum"]
-    )
-
-    assert engine_events == schema_events
-    assert {"sacrifice", "cleaning", "renovation", "bed_install", "income"} <= schema_events
-    for event in schema_events:
-        assert huangli_days._normalize_event(event) == event
-    with pytest.raises(ValueError, match="unknown event"):
-        huangli_days._normalize_event("")
-    with pytest.raises(ValueError, match="unknown event"):
-        huangli_days._normalize_event("open")
