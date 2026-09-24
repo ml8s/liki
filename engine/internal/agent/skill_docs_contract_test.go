@@ -200,7 +200,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"qimen_matters", "male", "female",
 		"compute_factors", "natal_query", "period_query", "factors", "factors_digest",
 		"context", "assertions", "periods", "side",
-		"engine-bazi", "judgment-bazi", "engine-aux", "engine-ziwei", "judgment-ziwei",
+		"engine-bazi", "engine-aux", "engine-ziwei",
 		"adversity", "appearance", "assertion_id", "bazi", "bed_install", "build", "career",
 		"chart_structure", "children", "cleaning", "conclusion", "counsel", "current_decade",
 		"days", "decade", "end_date", "engage", "event_type", "evidence", "exam",
@@ -236,7 +236,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 			}
 			for _, bt := range lineToken.FindAllStringSubmatch(line, -1) {
 				tok := strings.TrimSpace(bt[1])
-				if strings.ContainsAny(tok, "{}") || reEnvVar.MatchString(tok) || !reFieldToken.MatchString(tok) { // reEnvVar: 全大写下划线=环境变量（LIKI_RPC_URL），非 schema 字段
+				if strings.ContainsAny(tok, "{}") || reEnvVar.MatchString(tok) || !reFieldToken.MatchString(tok) { // reEnvVar: 全大写下划线=环境变量（LIKI_MCP_URL），非 schema 字段
 					continue
 				}
 				if reExtension.MatchString(tok) || strings.HasPrefix(tok, "tools/") ||

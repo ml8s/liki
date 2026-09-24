@@ -1,6 +1,6 @@
 """analysis 判断层：compute_factors / natal_query / period_query。
 
-正交化后 engine-pro 的补集能力（判断，不排盘）：
+正交化后 engine 的补集能力（判断，不排盘）：
 - compute_factors(chart)    ：engine 排盘结果 → 因子快照（内部调 engine fullchart）
 - natal_query(factors, ...) ：因子快照 → 本命断语
 - period_query(factors, ...)：因子快照 → 应期断语（内部调 engine 流年/大限）

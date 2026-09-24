@@ -1,6 +1,6 @@
 ---
 name: bazi
-description: 八字专家——子平命理：排盘、格局、用神、十神、神煞、旺衰、大运流年、合盘、考时。断语依据可回溯。
+description: 八字方法论卡——子平命理的规则口径（格局/用神/十神/旺衰/应期/合盘），供专家解读引擎盘面时引用。
 display_name: 八字专家
 display_name_en: BaZi Expert
 version: 1.0.0

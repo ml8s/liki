@@ -3,7 +3,7 @@
 覆盖：
 1. liki 综合：根 SKILL.md + 四域（natal/divination/fengshui/naming）+ 共享运行时文件
 2. 专家包（liki-bazi/liki-ziwei）：WorkBuddy 标准（plugin.json/agents/skills/.mcp.json/avatars/README）
-3. MCP 连接器命名（engine-pro/engine 与专家端点）
+3. MCP 连接器命名（engine/counsel 与专家端点）
 """
 import json
 from pathlib import Path

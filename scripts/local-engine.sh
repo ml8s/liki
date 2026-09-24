@@ -2,7 +2,7 @@
 # local-engine.sh —— 本地引擎生命周期（单项目：engine + skills 共用）
 #
 # 供 make test-all / test-integration / run-qwen.sh 等复用：
-#   建立本地引擎，供 skill 工具层（paipan.py，读 LIKI_RPC_URL）与评测连接，
+#   建立本地引擎，供 skill 工具层（paipan.py，读 LIKI_MCP_URL）与评测连接，
 #   完全脱离生产 liki.hk 与 liki-web，本仓独立自测。
 #
 # 用法：
@@ -12,7 +12,7 @@
 #   stop_local_engine                     # 关掉自己起的引擎（已在跑的保留）
 #
 # 环境变量：
-#   LIKI_RPC_URL      显式指定端点（尊重外部设定，跳过探测/起引擎）
+#   LIKI_MCP_URL      显式指定端点（尊重外部设定，跳过探测/起引擎）
 #   LIKI_ENGINE_PORT  引擎端口（默认 8082）
 #   LIKI_RPC_MODE     调用方所在位置：local（默认，本机直连 localhost）| docker
 #                     （调用方在容器内——skill-up 评测，宿主经 docker bridge 网关访问）
@@ -25,8 +25,8 @@ set -euo pipefail
 ENGINE_PORT="${LIKI_ENGINE_PORT:-8082}"
 
 # 节点端点由调用方位置显式决定。
-if [ -n "${LIKI_RPC_URL:-}" ]; then
-  LOCAL_RPC="$LIKI_RPC_URL"
+if [ -n "${LIKI_MCP_URL:-}" ]; then
+  LOCAL_RPC="$LIKI_MCP_URL"
 elif [ "${LIKI_RPC_MODE:-local}" = "docker" ]; then
   GATEWAY_IP="$(docker network inspect bridge --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}' 2>/dev/null || true)"
   [ -n "$GATEWAY_IP" ] || GATEWAY_IP="172.17.0.1"

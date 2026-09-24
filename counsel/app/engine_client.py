@@ -19,7 +19,7 @@ MAX_RETRIES = int(os.environ.get("LIKI_MCP_MAX_RETRIES", "2"))
 PROTOCOL_VERSION = "2026-07-28"
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 
-CLIENT_INFO = {"name": "engine-pro", "version": "0.1.0"}
+CLIENT_INFO = {"name": "counsel", "version": "0.1.0"}
 
 
 class MCPError(Exception):
