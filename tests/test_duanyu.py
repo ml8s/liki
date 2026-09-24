@@ -235,7 +235,7 @@ class TestBiDuoCai(unittest.TestCase):
     def test_比劫旺而财星弱(self):
         base = mock_base_context(
             正财={"wuxing": "土", "count": 1, "transparent": True},
-            比肩={"wuxing": "木", "timely": True, "count": 3},
+            比肩={"wuxing": "木", "timely": True, "transparent": True, "count": 3},
         )
         base["wuxing"] = {"wang_shuai": {"木": "旺", "土": "死"}}
         snap = factors.evaluate_factors("male", base, shushi="bazi")

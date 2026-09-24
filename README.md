@@ -21,8 +21,8 @@ Liki 通过标准 MCP 提供能力，先配置 MCP 再安装 skill：
 1. **配置 MCP**（二选一）：
    - **自动**：客户端支持插件 MCP 声明时，skill 自带 `.mcp.json`，启用即自动连接。
    - **手动**：在客户端添加两个 MCP server：
-     - `liki-analysis`（判断层）：`https://liki.hk/analysis/mcp`
-     - `liki-engine`（排盘/起名/风水）：`https://liki.hk/mcp`
+     - `counsel`（判断层）：`https://liki.hk/counsel/mcp`
+     - `engine`（排盘/风水）：`https://liki.hk/mcp/engine`
 2. **安装 skill**：
 
    ```bash

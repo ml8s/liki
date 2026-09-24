@@ -4,12 +4,12 @@
 
 ### Added
 
-- `analysis/` Python MCP 规则层自足：natal/divination 工具层复制进 `analysis/liki_analysis/`，analysis server 调自身副本，不再依赖 skill 目录；`analysis/liki_analysis/VERSION.txt` 纳入版本同步。
+- `counsel/` Python MCP 规则层自足：natal/divination 工具层复制进 `counsel/liki_counsel/`，analysis server 调自身副本，不再依赖 skill 目录；`counsel/liki_counsel/VERSION.txt` 纳入版本同步。
 - skill 声明 MCP 依赖（`.mcp.json`：`liki-analysis` + `liki-engine` 双端点）。
 
 ### Changed
 
-- `SKILL.md` 改为 MCP 形态：领域路由映射到 analysis/engine MCP 工具，LLM 通过标准 MCP 直接调用；保留 Aipay、硬边界、输出契约、Feedback。
+- `SKILL.md` 改为 MCP 形态：领域路由映射到 counsel/engine MCP 工具，LLM 通过标准 MCP 直接调用；保留 Aipay、硬边界、输出契约、Feedback。
 - `build-archive` 分发包变薄：排除领域目录（natal/divination/fengshui/naming），分发包仅含 SKILL.md + VERSION + FAQ + .mcp.json + aipay/feedback（12K）。
 - 契约测试同步更新（MCP 结构：双 MCP 端点、工具路由断言取代旧 RPC discover 契约）。
 
@@ -21,7 +21,7 @@
 
 ### Added
 
-- `analysis/` Python MCP 服务（stateless Streamable HTTP，2026-07-28）：暴露 10 个工具（natal 5 + divination 5），subprocess 复用现有 `agent_cli.py`，与 skill 结果天然一致。
+- `counsel/` Python MCP 服务（stateless Streamable HTTP，2026-07-28）：暴露 10 个工具（natal 5 + divination 5），subprocess 复用现有 `agent_cli.py`，与 skill 结果天然一致。
 - analysis 正确性测试 6 项：工具面/schema 与 skill-tools.json 一致、透传一致性（MCP == agent_cli）、非法参数拒绝。
 
 ## [2026.09.22.1] — MCP outputSchema 补全

@@ -29,8 +29,29 @@ def _ten_god_states_from_pan(chart: dict) -> dict:
 
 
 def _ten_god_state(base, ten: str) -> Optional[dict]:
-    """取某十神的 engine 状态。"""
-    return (base.get("ten_god_states") or {}).get(ten)
+    """取某十神（支持大类聚合）的 engine 状态。
+
+    大类（比劫/食伤/财星/官杀/印星）聚合成员状态：布尔取任一，count 求和。
+    """
+    states = base.get("ten_god_states") or {}
+    st = states.get(ten)
+    if st is not None:
+        return st
+    members = (load_constants()["十神大类"] or {}).get(ten)
+    if not members:
+        return None
+    items = [states[m] for m in members if states.get(m)]
+    if not items:
+        return None
+    return {
+        "wuxing": items[0].get("wuxing"),
+        "transparent": any(i.get("transparent") for i in items),
+        "hidden": any(i.get("hidden") for i in items),
+        "rooted": any(i.get("rooted") for i in items),
+        "timely": any(i.get("timely") for i in items),
+        "count": sum(i.get("count", 0) or 0 for i in items),
+        "strength": items[0].get("strength"),
+    }
 
 
 def _element_states_from_pan(chart: dict) -> dict:

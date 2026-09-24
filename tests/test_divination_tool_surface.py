@@ -8,7 +8,7 @@ from jsonschema.exceptions import ValidationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "analysis/app/divination/tools"
+TOOLS = ROOT / "counsel/app/divination/tools"
 
 
 def _tool(name: str) -> dict:

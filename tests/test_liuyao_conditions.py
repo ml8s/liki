@@ -8,7 +8,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "analysis/app/divination/tools"
+TOOLS = ROOT / "counsel/app/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -43,7 +43,7 @@ def test_rules_all_have_restoration():
 
 def test_rule_paths_stay_inside_snapshot_contract():
     contract = json.loads(
-        (ROOT / "analysis/app/divination/tools/liuyao_snapshot_contract.json")
+        (ROOT / "counsel/app/divination/tools/liuyao_snapshot_contract.json")
         .read_text(encoding="utf-8")
     )
     allowed_roots = set(contract["properties"]) | {"topic"}

@@ -10,7 +10,7 @@
    - 当前限运查应期判断（大运/大限）
 3. 应期判断：按时间层（大运/大限/流年）查应期断语，并读取返回的当前年份与年界
 4. 读排盘结果的盘面数据（用神/格局/紫微宫位/大限）作为报告 data 的原始数据，禁止编造
-5. 按 liki/natal/domains/bazi/、liki/natal/domains/ziwei/ 的方法论 + 本命判断 / 应期判断 断语，写各节 analysis/advice（LLM 成稿）
+5. 按 liki/natal/domains/bazi/、liki/natal/domains/ziwei/ 的方法论 + 本命判断 / 应期判断 断语，写各节 counsel/advice（LLM 成稿）
 
 ## 输出格式
 

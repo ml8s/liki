@@ -20,7 +20,7 @@
     },
     "counsel-ziwei": {
       "type": "streamableHttp",
-      "url": "https://liki.hk/mcp/counsel/ziwei",
+      "url": "https://liki.hk/counsel/mcp/ziwei",
       "x-workbuddy": {
         "displayName": { "zh": "紫微判断层", "en": "Zi Wei Judgment" },
         "description": { "zh": "紫微规则分析：compute_factors 因子快照、natal_query 本命断语、period_query 大限流年应期断语。吃 engine 排盘结果（chart），无状态。", "en": "Zi Wei rule-based analysis: compute_factors, natal_query, period_query. Consumes engine chart, stateless." },

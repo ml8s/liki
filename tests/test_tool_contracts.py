@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = json.loads(
-    (ROOT / "analysis/app/natal/tools/counsel-tools.json").read_text(encoding="utf-8")
+    (ROOT / "counsel/app/natal/tools/counsel-tools.json").read_text(encoding="utf-8")
 )
 FUNCTIONS = {tool["function"]["name"]: tool["function"] for tool in MANIFEST["tools"]}
 
@@ -24,11 +24,11 @@ def test_all_tools_have_closed_args():
 
 
 def test_topic_routes_are_valid_and_unambiguous():
-    sys.path.insert(0, str(ROOT / "analysis/app/natal/tools"))
+    sys.path.insert(0, str(ROOT / "counsel/app/natal/tools"))
     from factor_constants import load_constants
 
     routes_doc = json.loads(
-        (ROOT / "analysis/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
+        (ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
     )
     routes = routes_doc["topics"]
     domain_config = load_constants()["命理域"]

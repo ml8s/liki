@@ -57,7 +57,7 @@ func main() {
 	defer rateLimiter.Stop()
 
 	mux := http.NewServeMux()
-	// 全量端点（analysis 内部调用 + 兼容）
+	// 全量端点（counsel 内部调用 + 兼容）
 	mux.Handle("/mcp", rateLimiter.Wrap(6000.0/60, 200, mcpHandler.ServeHTTP))
 	// 分域端点：每术数 + 共享辅助
 	for _, d := range mcpDomains {

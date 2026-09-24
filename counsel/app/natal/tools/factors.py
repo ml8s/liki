@@ -47,22 +47,30 @@ def evaluate_operator(op: str, args, gender: str, chart: dict, *,
 
 def _atomic(col: str, gender, chart, ctx: dict = None, current_year: int = 0):
     """原子执行：列名 "op[arg1,arg2]" → 原语（_op 本命 / _liu_op 流年）。
-    字符串值算子：列名参数=期望值——比较返回 1/0。"""
-    m = re.match(r'^([^\[]+)\[(.*)\]$', col)
-    if m:
-        op, argstr = m.group(1), m.group(2)
+
+    逗号分隔的多个原子表达式（如 `得令[比劫],透[比劫]`）按 OR 求值；
+    字符串值算子：列名参数=期望值——比较返回 1/0。
+    """
+    atoms = re.findall(r"([^\[\],]+)\[([^\]]*)\]", col)
+    if not atoms:
+        return evaluate_operator(col, [], gender, chart, ctx=ctx, current_year=current_year)
+    results = []
+    for op, argstr in atoms:
         args = [int(a) if a.lstrip('-').isdigit() else a for a in argstr.split(',')] if argstr else []
-    else:
-        op, args = col, []
-    v = evaluate_operator(op, args, gender, chart, ctx=ctx, current_year=current_year)
-    if isinstance(v, str):
-        # 「任意」= 取值模式（直读[ri_gan_wx,任意] 返回五行字符串、宫含[..,任意] 等）——
-        # 返回字符串原值供断语约束匹配（如 `日主五行: 木`）；否则按期望值比较返回 0/1
-        if args and args[-1] == FACTOR_WILDCARD:
-            return v
-        # args[-1] 是期望值（如 直读[gender,male] 中 male）；与算子返回值 v 比较
-        return 1 if args and str(args[-1]) == v else 0
-    return v
+        v = evaluate_operator(op, args, gender, chart, ctx=ctx, current_year=current_year)
+        if isinstance(v, str):
+            # 「任意」= 取值模式（直读[ri_gan_wx,任意] 返回五行字符串、宫含[..,任意] 等）——
+            # 返回字符串原值供断语约束匹配（如 `日主五行: 木`）；否则按期望值比较返回 0/1
+            if args and args[-1] == FACTOR_WILDCARD:
+                results.append(v)
+            else:
+                results.append(1 if args and str(args[-1]) == v else 0)
+        else:
+            results.append(v)
+    if len(atoms) == 1:
+        return results[0]
+    # 多原子 AND：逗号条件（如 `得令[比劫],透[比劫]`）须全部满足
+    return 1 if results and all(r != 0 for r in results) else 0
 
 def _evaluate_truth_table(rows: list, atomic) -> dict:
     """真值表求值核心：直通行取值，条件行 AND，同因子多行 OR。"""

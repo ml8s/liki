@@ -3,11 +3,11 @@ import os
 import sys
 from pathlib import Path
 
-# 注入 analysis 工具层目录到 sys.path（skill 工具层已下沉 analysis）
+# 注入 counsel 工具层目录到 sys.path（skill 工具层已下沉 counsel）
 for _tools in (
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis', 'app', 'natal', 'tools'),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis', 'app', 'divination', 'tools'),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis', 'app', 'naming'),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'counsel', 'app', 'natal', 'tools'),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'counsel', 'app', 'divination', 'tools'),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'counsel', 'app', 'naming'),
 ):
     if _tools not in sys.path:
         sys.path.insert(0, _tools)
@@ -15,7 +15,7 @@ for _tools in (
 
 # Repository-level constants (merged from helpers.py)
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "analysis" / "app" / "natal" / "tools"
+TOOLS = ROOT / "counsel" / "app" / "natal" / "tools"
 SKILL_ROOT = Path(__file__).resolve().parents[1] / "skills" / "liki"
 DOMAIN_NAMES = ("natal", "divination", "fengshui", "naming")
 SLOGAN = "懂命理，用 Liki"

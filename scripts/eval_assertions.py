@@ -8,7 +8,7 @@ import json, re, sys, os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "analysis/app/natal/tools"
+TOOLS = ROOT / "counsel/app/natal/tools"
 sys.path.insert(0, str(TOOLS))
 
 import yaml

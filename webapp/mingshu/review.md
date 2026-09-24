@@ -19,7 +19,7 @@
 - 检查各 section 的 data 字段是否引用了真实的引擎数据
 - 检查 analysis 是否与 engine 源数据一致
 - 检查各 section 之间有无逻辑矛盾
-- 检查 data/analysis/advice 三段是否齐全且内容充实
+- 检查 data/counsel/advice 三段是否齐全且内容充实
 
 ## 审查清单
 

@@ -7,7 +7,7 @@ import pytest
 import _helpers  # noqa: F401
 from duanyu import load_rule_table
 
-ROOT = Path(__file__).resolve().parents[1] / "analysis/app/natal/tools/assertions"
+ROOT = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools/assertions"
 
 
 def _rows(name):
