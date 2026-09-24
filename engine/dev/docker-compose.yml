@@ -1,0 +1,31 @@
+# Liki engine local/development stack.
+#
+# Production image composition is owned by the liki-deploy repository. This
+# file is only for building and running the engine image from this source tree.
+
+services:
+  engine:
+    image: liki-engine:latest
+    build:
+      context: ..
+      dockerfile: dev/Dockerfile
+    ports:
+      - "${LIKI_ENGINE_HOST_PORT:-8082}:8080"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "1"
+
+  mcp:
+    image: liki-engine:latest
+    entrypoint: ["/usr/local/bin/liki-mcp", "--addr", ":8081"]
+    ports:
+      - "${LIKI_ENGINE_MCP_HOST_PORT:-8083}:8081"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "1"
