@@ -8,7 +8,6 @@ from pathlib import Path
 from qimen_errors import TableError
 from qimen_projection import load_factors_contract
 
-
 TOOLS_DIR = Path(__file__).resolve().parent
 RULES_PATH = TOOLS_DIR / "assertions" / "qimen_rules.csv"
 INTERPRETATIONS_PATH = TOOLS_DIR / "assertions" / "qimen_assertions.csv"

@@ -7,14 +7,10 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 from pathlib import Path
 
-os.environ.setdefault("LIKI_COUNSEL_SERVICE_DOMAIN", "naming")
-
 import pytest  # noqa: E402
-
-from app.counsel_server import create_counsel_server  # noqa: E402
+from app.counsel_mcp import create_counsel_mcp  # noqa: E402
 
 GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden" / "counsel_qiming_baseline.json"
 
@@ -26,7 +22,7 @@ def baseline():
 
 @pytest.fixture(scope="module")
 def srv():
-    return create_counsel_server("naming")
+    return create_counsel_mcp("naming")
 
 
 def test_naming_tools_registered(srv):

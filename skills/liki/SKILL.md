@@ -3,7 +3,7 @@ name: liki
 slug: liki
 displayName: "Liki 专业命理 Skill"
 agent_created: true
-version: 6.1.0
+version: 7.0.0
 summary: "专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。"
 license: MIT
 description: "懂命理，用 Liki。专业命理 Skill，支持八字算命、生辰八字、排八字、四柱命盘、紫微斗数、紫微命盘、命盘分析、大运流年、流年运势、明年运势与运势分析；可看婚姻分析、感情走向、八字合婚、事业分析、职业方向、财运分析、投资时机、学业分析、考试运、健康分析、五行体质、怀孕生育时机、六亲子女。支持六爻占卜、算卦问事、摇卦起卦、问事业、问财运、问感情、问学业与应期分析；支持奇门遁甲、奇门问事、策略分析、谈判时机与进退选择；支持黄历择日、老黄历、选日子、挑吉日、结婚吉日、开业吉日、搬家吉日、入宅择日、装修择日与出行择日；支持家居风水、风水布局、房屋风水、办公室风水、店铺选址、八宅风水、命卦、玄空风水、玄空飞星与流年飞星；支持起名、取名、宝宝起名、宝宝取名、新生儿起名、新生儿取名、成人改名、公司起名、品牌命名、名字测试、八字起名。Also supports BaZi, Chinese astrology, Four Pillars of Destiny, Zi Wei Dou Shu, I Ching divination, Chinese almanac, Feng Shui and Chinese baby naming。规则引擎判断，依据可回溯；传统文化视角，仅供参考，不构成专业建议。"
@@ -15,14 +15,16 @@ description: "懂命理，用 Liki。专业命理 Skill，支持八字算命、�
 
 ## MCP 前置
 
-Liki 通过标准 MCP 提供能力，依赖两个 MCP server：
+Liki 通过标准 MCP 提供能力，依赖四个 MCP server：
 
 | MCP | 端点 | 用途 |
 | --- | --- | --- |
-| `counsel` | `https://liki.hk/counsel/mcp` | 判断层：六爻/奇门/黄历/起名判断；八字/紫微由专家（liki-bazi/liki-ziwei）执行 |
-| `engine` | `https://liki.hk/engine/mcp` | 排盘/风水计算工具（counsel 内部调用） |
+| `counsel-mcp` | `https://liki.hk/counsel/mcp` | 判断层：六爻/奇门/起名；八字/紫微由专家连接器执行 |
+| `counsel-bazi-mcp` | `https://liki.hk/counsel/mcp/bazi` | 八字因子与断语判断 |
+| `counsel-ziwei-mcp` | `https://liki.hk/counsel/mcp/ziwei` | 紫微因子与断语判断 |
+| `engine-mcp` | `https://liki.hk/engine/mcp` | 排盘/风水计算工具（counsel 内部调用） |
 
-1. 启动时确认两个 MCP 已连接；未连接时提示用户按客户端机制连接（或在配置中声明 `mcpServers` 自动连接），MCP 不可用时标注降级。
+1. 启动时确认四个 MCP 已连接；未连接时提示用户按客户端机制连接（或在配置中声明 `mcpServers` 自动连接），MCP 不可用时标注降级。
 2. 版本：读取安装根目录 `VERSION.txt`，请求 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；两者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
 3. 工具失败、依赖缺失、版本 / digest / schema 校验失败时读 `FAQ.md`；不得绕过校验或自行降级。
 

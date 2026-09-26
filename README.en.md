@@ -16,6 +16,17 @@
 
 ## Install
 
+Liki exposes its capabilities through standard MCP servers. Clients that support
+embedded MCP declarations can enable the four servers in the Skill's `.mcp.json`.
+For manual configuration, add:
+
+| Server | Endpoint |
+| --- | --- |
+| `counsel-mcp` | `https://liki.hk/counsel/mcp` |
+| `counsel-bazi-mcp` | `https://liki.hk/counsel/mcp/bazi` |
+| `counsel-ziwei-mcp` | `https://liki.hk/counsel/mcp/ziwei` |
+| `engine-mcp` | `https://liki.hk/engine/mcp` |
+
 ```bash
 npx skills add ml8s/liki
 ```
@@ -53,6 +64,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 - Judgments come from 799 assertion rules and preserve factor evidence and classical sources.
 - 160 professional competition questions provide independent accuracy evaluation with isolated answers.
 - Birth data remains in the current conversation; the Skill does not ask for real names or store data outside the session.
+- If a city is absent from the built-in table, `city_coords` may send the city name to Nominatim (OSM). Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
 - Conclusions are conditional interpretations from a traditional cultural perspective. They are not medical, legal, investment, or major life advice.
 
 ## FAQ
@@ -63,7 +75,7 @@ The Skill asks follow-up questions or uses real events for calibration. Insuffic
 
 ### Does it need internet?
 
-By default, yes — the engine / counsel MCP services (liki.hk) perform chart casting and judgment. Advanced users can self-host and point `LIKI_MCP_URL` (engine) / `LIKI_COUNSEL_SERVICE_DOMAIN` (counsel) at local services.
+By default, yes — the four MCP servers declared in `.mcp.json` provide deterministic computation and rule judgment. For self-hosting, replace their public endpoints; Caddy strips the `/engine/*` and `/counsel/*` service prefixes before proxying to the matching MCP service. Self-hosted services can protect inbound calls with `LIKI_MCP_TOKEN` and counsel-to-engine calls with `LIKI_ENGINE_MCP_TOKEN`; health probes remain public and hosted liki.hk leaves these switches off.
 
 ### Is my birth data stored?
 
@@ -79,6 +91,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 | --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
 | [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and contract |
+| [Runtime model](./docs/RUNTIME.md) | Engine/counsel processes, endpoints, and transition JSON-RPC |
 | [Release model](./docs/RELEASE_MODEL.md) | CalVer runtime versions and SemVer releases |
 
 ## For developers
@@ -88,7 +101,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 ```bash
 make hooks         # install git hooks
 make check         # all static checks (format + lint + schema + docs)
-make gate          # local push gate (lint + check + test, ~3min)
+make gate          # push gate (lint/check/tests/160-question coverage/archive)
 make build-archive # pack the unified Liki skill
 ```
 
@@ -104,10 +117,13 @@ Liki follows a two-layer "orthogonal computation vs. judgment" architecture, exp
 
 ### Service endpoints
 
-| Layer | MCP endpoint | Domain |
-| --- | --- | --- |
-| engine | `/engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,...}` | chart casting / calendar / Huangli |
-| counsel | `/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}` | judgment / divination / naming |
+The gateway owns the public service prefix; each MCP service routes only `/mcp` and `/mcp/{domain}` internally.
+
+| Service | Public endpoint | Forwarded internally | Domain |
+| --- | --- | --- | --- |
+| `engine-mcp` | `/engine/mcp/{domain}` | `/mcp/{domain}` | chart casting / calendar / Huangli / Feng shui |
+| `counsel-mcp` | `/counsel/mcp/{domain}` | `/mcp/{domain}` | judgment / divination / naming |
+| `engine-rpc` | `/jsonrpc` | `/jsonrpc` | transition API for `liki-web` free charts |
 
 ### Call chain
 
@@ -137,7 +153,7 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 
 ```bash
 make test           # All tests (pytest + Go engine full suite)
-make verify        # end-to-end integration tests
+make verify        # engine/counsel MCP integration verification
 make golden # full golden suite
 ```
 
@@ -150,7 +166,7 @@ Formal releases use SemVer tags; runtime compatibility uses CalVer. See [Release
 - Single responsibility: root entry, domain entry, app cards, domain knowledge, and tool layers do not replace each other.
 - Single source of truth: tool contracts come from `skill-tools.json`; factors and assertions come from CSV tables.
 - Explicit dual-system review: Bazi and Ziwei are calculated separately and conflicts are listed by evidence layer.
-- Evaluation-driven: golden, functional, integration, skill-up smoke, and the 160-question benchmark run in separate layers.
+- Evaluation-driven: golden, functional, MCP integration, and the 160-question rule-coverage check run in separate layers; historical model-backed assets are explicitly archived.
 
 ## Contributing
 

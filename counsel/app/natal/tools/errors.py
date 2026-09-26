@@ -1,7 +1,7 @@
 """工具层错误契约。
 
 这些错误都是领域/参数契约错误，同时继承 ValueError，
-保证既有调用方 `except ValueError` 与 agent_cli 的错误透传不变。
+保证既有调用方 `except ValueError` 的错误透传语义不变。
 """
 from __future__ import annotations
 

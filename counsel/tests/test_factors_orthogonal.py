@@ -6,11 +6,8 @@
 """
 from __future__ import annotations
 
-import os
-
-os.environ.setdefault("LIKI_COUNSEL_SERVICE_DOMAIN", "bazi")
-
 import json  # noqa: E402
+import os
 import sys  # noqa: E402
 import urllib.request  # noqa: E402
 from pathlib import Path  # noqa: E402
@@ -75,6 +72,7 @@ def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
 def test_natal_factors_match_full_paipan(sample):
     """本命因子：组合盘（compute_factors）== 完整盘（full_paipan）同侧。"""
     from factors import evaluate_factors
+
     from counsel import compute_factors
 
     solar_time, gender, longitude = sample

@@ -1,5 +1,51 @@
 # Changelog
 
+## [2026.09.25.0] — MCP 服务命名与干净交付收敛（目标 SemVer v7.0.0）
+
+### Changed
+
+- MCP 服务命名统一为 `engine-mcp` / `counsel-mcp`；服务内路由收敛为 `/mcp` 与 `/mcp/{domain}`，公开 `/engine` / `/counsel` 前缀由边缘网关剥离。
+- Skill 手动 MCP 配置补齐四个必需连接器：counsel 聚合、counsel-bazi、counsel-ziwei 与 engine。
+- 退役 `cmd/liki` 与 JSON-RPC 测试/生命周期脚本；engine 镜像默认入口改为 `engine-mcp`。
+- counsel MCP 工具改为 manifest schema 原样暴露，并在工具边界执行 jsonschema 校验，避免 SDK 由弱类型签名推导导致嵌套契约降级。
+- `factors_digest` 成为 `natal_query` / `period_query` 必填输入；因子快照携带 side、chart digest 与 context provenance，来源盘或上下文不匹配时 fail closed。
+- 本地与 CI 质量门禁迁移到当前 MCP 架构：契约、engine、counsel、engine MCP 冒烟、160 题覆盖与 skill archive 分层执行。
+
+### Added
+
+- `counsel-mcp` 恢复轻量 `/healthz`，返回版本与可用域。
+- `counsel-mcp` 新增 `/readyz`，显式检查 engine MCP 版本兼容；工具执行改为 worker-thread 调用，避免同步 urllib 阻挡 ASGI event loop。
+- counsel MCP 请求体增加 1MiB 默认上限（`LIKI_MCP_MAX_BODY_BYTES`），无 Content-Length 的流式请求同样受保护。
+- engine 镜像恢复 `engine-rpc` 过渡二进制，与 `engine-mcp` 同包分发；镜像默认入口保持当前 `/jsonrpc` 部署不变，MCP 显式覆盖 entrypoint，CI 同时 smoke 两种运行时。
+- 新增 `docs/RUNTIME.md` 与 `SECURITY.md`，固化进程边界、环境变量、代理信任、自部署安全与 `engine-rpc` 移除门槛。
+- 统一 skill archive 重新包含四域文档与八字/紫微专家方法论卡，安装包保持自包含。
+- CI 新增 engine/counsel MCP 镜像构建与发布物 smoke，防止依赖锁或入口配置只在源码测试中“假绿”。
+- GitHub Actions 全部改为 exact commit SHA pin，降低浮动 tag 被移动带来的供应链风险。
+- CI 与 engine 镜像工具链升级到 Go 1.26.6，修复 Go 1.26.4 标准库可达漏洞；`govulncheck` 纳入发布前依赖扫描。
+- 所有本地 Go 构建/测试入口增加 `go >= 1.26.6` 检查，防止旧工具链绕过安全基线。
+- engine/counsel Docker 基础镜像与 uv 工具均使用 digest pin，避免基础镜像 tag 漂移。
+- `pip-audit` 纳入 counsel 哈希锁扫描；当前 Go 1.26.6 与 Python 依赖扫描均为 0 可达/已知漏洞。
+- markdownlint-cli2 0.23.3 加入 root npm lock，本地/CI 均通过 `npm ci` 安装并执行 npm audit，锁定并审计传递依赖。
+- counsel Python 依赖使用 Python 3.12 生成的跨平台哈希锁，Docker 通过 pinned `uv` 构建独立虚拟环境，干净环境可复现安装。
+- `engine-mcp` 新增 huangli 与 fengshui 分域工具面，风水与黄历能力不再只存在于文档。
+- engine CORS 预检补齐 MCP 协议头，允许合法同源 Web 客户端执行 `tools/call`。
+- `/health` 的八字启动自检改为进程内一次计算，请求路径不再重复排盘。
+- 引擎城市查询增加外部 Nominatim 成功结果缓存，并限制 city 输入长度。
+- `city.coords` 增加外部地理编码开关：自部署可用 `LIKI_EXTERNAL_GEOCODING=off` 禁止 Nominatim 查询。
+- Go 格式检查纳入 `make check`。
+- Python Ruff（E/F/W/I）纳入 `make lint-python`、`make lint`、`make gate` 与 CI。
+- engine/counsel 进程内限流缓存增加容量上界并支持最旧键淘汰，避免伪造来源键造成内存放大；counsel `/healthz` 不再消耗 MCP 限流额度。
+- 自部署可设置相同的 `LIKI_MCP_TOKEN`，engine-mcp / counsel-mcp 均启用常量时间 Bearer 校验；健康检查与 CORS 预检保持可用。
+- 认证位于限流内层，未授权尝试同样消耗限流额度，降低 token 暴力尝试面。
+
+### Fixed
+
+- `engine-mcp` 参数 schema 编译失败从运行时弱校验改为启动即失败。
+- 默认不信任 `X-Forwarded-For`；仅显式配置可信代理跳数后才用于限流键。
+- counsel-mcp 调用受保护的 engine-mcp 时转发 `LIKI_ENGINE_MCP_TOKEN`（可回退 `LIKI_MCP_TOKEN`），并规范化 engine base URL 尾部斜杠。
+- counsel-mcp 认证先于请求体上限执行；`/readyz` 仅返回稳定的 engine 依赖不可用原因，不再透出内部异常细节。
+- 移除误提交的 17MB 过期 `engine/liki-mcp` 二进制，并忽略根 `bin/` 构建产物。
+
 ## [2026.09.24] — 正交化收敛：端点统一 + issue 修复 + 断语审计
 
 ### Changed

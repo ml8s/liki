@@ -3,6 +3,9 @@
 # 隔离原理：运行前把答案文件移出 skill 目录（agent 容器挂载不到）→ 评测 → 恢复 → 自动判分。
 # 用法：bash tests/benchmark/mingli160/run.sh [--parallelism N] [--resume]
 set -euo pipefail
+echo "MingLi-Bench runner is archived: it still targets the removed JSON-RPC skill surface." >&2
+echo "Use 'make full-data' for current deterministic assertion coverage until the model benchmark is migrated to MCP." >&2
+exit 1
 cd "$(dirname "$0")/../../.."
 
 PARALLELISM=16

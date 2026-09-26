@@ -13,7 +13,6 @@ import csv
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -72,6 +71,11 @@ def _load_naming() -> None:
     columns = ("char", "frequency", "pinyin", "radical", "stroke", "wuxing", "tone")
     with (DATA_DIR / "naming_characters.csv").open(encoding="utf-8", newline="") as fh:
         reader = csv.DictReader(fh)
+        if reader.fieldnames is None or set(reader.fieldnames) != set(columns):
+            raise ValueError(
+                "naming_characters.csv columns mismatch; "
+                f"expected {sorted(columns)}, got {reader.fieldnames}"
+            )
         for i, row in enumerate(reader, start=2):
             word = row["char"]
             if len(word) != 1:

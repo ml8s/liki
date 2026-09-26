@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2026.09.25.0",
   "tools": [
     {
       "type": "function",
@@ -9,7 +9,9 @@
         "parameters": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["chart"],
+          "required": [
+            "chart"
+          ],
           "properties": {
             "chart": {
               "type": "object",
@@ -23,15 +25,25 @@
       "type": "function",
       "function": {
         "name": "natal_query",
-        "description": "因子快照 + 人生问题 → 本命断语（结构/婚姻/事业/财运等）。用 factors 快照匹配断语表，不重算 snapshot；context 至少含性别。",
+        "description": "已绑定来源的因子快照 + 人生问题 → 本命断语。context 必须原样来自 compute_factors，并与因子 provenance 校验。",
         "parameters": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["factors", "topics"],
+          "required": [
+            "factors",
+            "factors_digest",
+            "topics",
+            "context"
+          ],
           "properties": {
             "factors": {
               "type": "object",
               "description": "compute_factors 返回的因子快照"
+            },
+            "factors_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$",
+              "description": "compute_factors 返回的 SHA-256 因子摘要；必须与 factors 原样匹配"
             },
             "topics": {
               "type": "array",
@@ -39,13 +51,32 @@
               "maxItems": 4,
               "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "marriage",
+                  "family",
+                  "children",
+                  "career",
+                  "wealth",
+                  "health",
+                  "mental",
+                  "study",
+                  "personality",
+                  "appearance",
+                  "origin",
+                  "relocation",
+                  "social",
+                  "property",
+                  "adversity",
+                  "chart_structure"
+                ],
+                "description": "受控人生问题领域闭集"
               },
               "description": "人生问题域：marriage/family/children/career/wealth/health/mental/study/personality/appearance/origin/relocation/social/property/adversity/chart_structure 等"
             },
             "context": {
               "type": "object",
-              "description": "断语上下文（至少含性别 male/female）；通常取 compute_factors 返回的 context"
+              "description": "compute_factors 返回的原始 context；会与因子 provenance 绑定校验"
             }
           }
         }
@@ -59,20 +90,39 @@
         "parameters": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["factors", "time_scope", "topics", "chart"],
+          "required": [
+            "factors",
+            "factors_digest",
+            "time_scope",
+            "topics",
+            "chart"
+          ],
           "properties": {
             "factors": {
               "type": "object",
               "description": "compute_factors 返回的因子快照"
             },
+            "factors_digest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$",
+              "description": "compute_factors 返回的 SHA-256 因子摘要；必须与 factors 原样匹配"
+            },
             "time_scope": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type"],
+              "required": [
+                "type"
+              ],
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["year", "year_range", "current_year", "decade", "current_decade"]
+                  "enum": [
+                    "year",
+                    "year_range",
+                    "current_year",
+                    "decade",
+                    "current_decade"
+                  ]
                 },
                 "year": {
                   "type": "integer",
@@ -95,7 +145,26 @@
               "maxItems": 4,
               "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "marriage",
+                  "family",
+                  "children",
+                  "career",
+                  "wealth",
+                  "health",
+                  "mental",
+                  "study",
+                  "personality",
+                  "appearance",
+                  "origin",
+                  "relocation",
+                  "social",
+                  "property",
+                  "adversity",
+                  "chart_structure"
+                ],
+                "description": "受控人生问题领域闭集"
               },
               "description": "人生问题域（同 natal_query）"
             },

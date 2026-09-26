@@ -19,10 +19,9 @@ import re
 import sys
 from pathlib import Path
 
-
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the unified Liki bazi domain.
-_TOOLS = os.path.join(_ROOT, "analysis", "app", "natal", "tools")
+_TOOLS = os.path.join(_ROOT, "counsel", "app", "natal", "tools")
 _LOCAL = os.path.dirname(os.path.abspath(__file__))   # tests/（client/birth 排盘工具在此）
 _BENCHMARK = os.path.join(_ROOT, "tests", "benchmark", "mingli160")
 for _p in (_TOOLS, _LOCAL):
@@ -30,9 +29,9 @@ for _p in (_TOOLS, _LOCAL):
         sys.path.insert(0, _p)
 
 from birth import parse_birth
+from duanyu import NATAL_RULES, YEARLY_RULES, match_rule, query_yearly, resolve_current_year
+from factors import evaluate_liunian_snap_from_pan, evaluate_snap_from_pan
 from paipan import full_paipan, liunian
-from factors import evaluate_snap_from_pan, evaluate_liunian_snap_from_pan
-from duanyu import resolve_current_year, match_rule, query_yearly, NATAL_RULES, YEARLY_RULES
 
 BENCHMARK = _BENCHMARK
 GROUPS = json.load(open(os.path.join(BENCHMARK, "groups.json"), encoding="utf-8"))
@@ -73,7 +72,7 @@ def build_report(total: int, zero: list[str], dom_hits: dict[str, int]) -> str:
     for rule, count in sorted(dom_hits.items(), key=lambda item: -item[1]):
         lines.append(f"- {rule}：{count} 题有断语")
     lines.append("")
-    lines.append("> 判题（题目→skill→答案→对比）请跑准确率基准：`make benchmark-mingli160`")
+    lines.append("> 判题（题目→skill→答案→对比）资产在 `tests/benchmark/mingli160/` 归档；当前未纳入 gate。")
     return "\n".join(lines) + "\n"
 
 

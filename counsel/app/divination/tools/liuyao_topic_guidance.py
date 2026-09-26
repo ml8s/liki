@@ -5,7 +5,6 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-
 PATH = Path(__file__).with_name("liuyao_topic_methods.json")
 _DATA = None
 

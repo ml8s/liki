@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -52,6 +53,19 @@ func TestRateLimiter_GetLimiter_ExistingIP(t *testing.T) {
 	}
 	if diff.Burst() != 20 {
 		t.Errorf("burst = %d, want 20", diff.Burst())
+	}
+}
+
+func TestRateLimiter_GetLimiter_IsBounded(t *testing.T) {
+	rl := NewRateLimiter()
+	defer rl.Stop()
+	rl.maxEntries = 2
+
+	for i := 0; i < 100; i++ {
+		rl.getLimiter(fmt.Sprintf("10.0.%d.%d", i/256, i%256), 1, 5)
+		if len(rl.entries) > 2 {
+			t.Fatalf("entries grew to %d; limiter cache must remain bounded", len(rl.entries))
+		}
 	}
 }
 

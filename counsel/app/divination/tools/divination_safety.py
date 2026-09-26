@@ -7,8 +7,6 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-from divination_contracts import validate_document
-
 RULES_PATH = Path(__file__).with_name("divination_safety_rules.json")
 
 

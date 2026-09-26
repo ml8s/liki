@@ -42,7 +42,6 @@ def available_ids(snapshot: dict) -> set[str]:
 
 def build(snapshot: dict) -> dict:
     method = snapshot.get("method_context") or {}
-    palace_count = len((snapshot.get("factors") or {}).get("palaces", []))
     return {
         "headline": "",
         "verdict": "",

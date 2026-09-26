@@ -58,23 +58,29 @@ def test_compute_factors_matches_baseline(bazi_chart, baseline):
         assert factors.get(key) == want[key], f"因子 {key} 与基线不一致"
 
 def test_natal_query_returns_bazi_assertions(bazi_chart):
-    """natal_query(factors, topics) 返回八字断语（结构校验——正交化基线保障正确性）。"""
+    """natal_query 校验因子摘要后返回八字断语。"""
     from counsel import compute_factors, natal_query
 
     out = compute_factors(bazi_chart)
-    result = natal_query(out["factors"], ["chart_structure"], context=out["context"])
+    result = natal_query(
+        out["factors"],
+        ["chart_structure"],
+        out["factors_digest"],
+        context=out["context"],
+    )
     assert result["assertions"]
     assert all(a.get("side") == "bazi" for a in result["assertions"])
     assert all(a.get("assertion_id") for a in result["assertions"])
 
 
 def test_period_query_returns_bazi_assertions(bazi_chart):
-    """period_query(factors, time_scope, topics, chart) 返回八字应期断语（结构校验）。"""
+    """period_query 校验因子摘要后返回八字应期断语。"""
     from counsel import compute_factors, period_query
 
     out = compute_factors(bazi_chart)
     got = period_query(
         out["factors"],
+        out["factors_digest"],
         {"type": "year_range", "start_year": 2020, "end_year": 2040},
         ["marriage"],
         bazi_chart,
@@ -86,3 +92,46 @@ def test_period_query_returns_bazi_assertions(bazi_chart):
         for p in got["periods"]
         for a in p["assertions"]
     )
+
+
+def test_natal_query_rejects_modified_factors(bazi_chart):
+    from counsel import compute_factors, natal_query
+
+    out = compute_factors(bazi_chart)
+    factors = dict(out["factors"])
+    factors[next(iter(factors))] = "tampered"
+    with pytest.raises(ValueError, match="factors_digest mismatch"):
+        natal_query(
+            factors,
+            ["chart_structure"],
+            out["factors_digest"],
+            context=out["context"],
+        )
+
+
+def test_natal_query_rejects_context_from_another_snapshot(bazi_chart):
+    from counsel import compute_factors, natal_query
+
+    out = compute_factors(bazi_chart)
+    with pytest.raises(ValueError, match="context 与 compute_factors"):
+        natal_query(
+            out["factors"],
+            ["chart_structure"],
+            out["factors_digest"],
+            context={},
+        )
+
+
+def test_period_query_rejects_chart_from_another_snapshot(bazi_chart):
+    from counsel import compute_factors, period_query
+
+    out = compute_factors(bazi_chart)
+    wrong_chart = dict(bazi_chart, gender="female")
+    with pytest.raises(ValueError, match="chart 与 compute_factors"):
+        period_query(
+            out["factors"],
+            out["factors_digest"],
+            {"type": "year", "year": 2026},
+            ["marriage"],
+            wrong_chart,
+        )

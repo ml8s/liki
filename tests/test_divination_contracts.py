@@ -75,7 +75,7 @@ def test_safety_rule_table_is_data_driven():
     assert "divination_safety_rules.json" in source
 
 
-def test_agent_cli_fails_closed_on_incompatible_engine(monkeypatch):
+def test_divination_mcp_fails_closed_on_incompatible_engine(monkeypatch):
     monkeypatch.setattr(
         divination_rpc,
         "engine_version",
@@ -98,7 +98,7 @@ def test_engine_version_gate_requires_installed_skill_version(monkeypatch):
     required = divination_rpc.required_engine_version()
     older = required.split(".")[:-1] + [str(int(required.split(".")[-1]) - 1)]
     monkeypatch.setattr(divination_rpc, "engine_version", lambda: ".".join(older))
-    with pytest.raises(Exception, match="skill VERSION.txt requires engine"):
+    with pytest.raises(Exception, match="VERSION.txt requires engine"):
         divination_rpc.ensure_engine_compatible()
 
 

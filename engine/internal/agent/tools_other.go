@@ -436,8 +436,8 @@ var otherMethods = []RPCMethod{
 		Result:  envelopeSchema(`{"type":"object","properties":{"solar":{"type":"string","format":"date-time"},"gregorian":{"type":"string","format":"date-time"},"lunar":{"type":"object","description":"农历信息: year/month/day/shichen","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"leap":{"type":"boolean"},"shichen":{"type":"string"}}}},"required":["solar","gregorian","lunar"]}`),
 	},
 	{
-		Name: "city.coords", Description: "根据城市名查询经纬度。支持中英文城市名，全球范围搜索。基于 Nominatim 服务。",
-		Params:  mustSchema(`{"type":"object","properties":{"city":{"type":"string","description":"城市名称（中英文均可）"}},"required":["city"]}`),
+		Name: "city.coords", Description: "根据城市名查询经纬度。优先使用内置城市表；未命中时可查询 Nominatim（OSM），部署方可用 LIKI_EXTERNAL_GEOCODING=off 禁用。",
+		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"city":{"type":"string","minLength":1,"maxLength":128,"description":"城市名称（中英文均可）"}},"required":["city"]}`),
 		Handler: cityCoordsHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"longitude":{"type":"number"},"latitude":{"type":"number"},"country":{"type":"string"}},"required":["name","longitude","latitude","country"]}`),
 	},

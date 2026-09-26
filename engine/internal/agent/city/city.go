@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -49,9 +50,60 @@ type geoDB struct {
 }
 
 var (
-	geoOnce sync.Once
-	geo     geoDB
+	geoOnce        sync.Once
+	geo            geoDB
+	nominatimCache = newExternalGeoCache(4096, 24*time.Hour)
 )
+
+type externalGeoEntry struct {
+	result  searchResult
+	expires time.Time
+}
+
+type externalGeoCache struct {
+	mu      sync.Mutex
+	max     int
+	ttl     time.Duration
+	entries map[string]externalGeoEntry
+}
+
+func newExternalGeoCache(max int, ttl time.Duration) *externalGeoCache {
+	return &externalGeoCache{max: max, ttl: ttl, entries: make(map[string]externalGeoEntry)}
+}
+
+func (c *externalGeoCache) get(query string) (searchResult, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	entry, ok := c.entries[query]
+	if !ok || time.Now().After(entry.expires) {
+		if ok {
+			delete(c.entries, query)
+		}
+		return searchResult{}, false
+	}
+	return entry.result, true
+}
+
+func (c *externalGeoCache) set(query string, result searchResult) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if len(c.entries) >= c.max {
+		now := time.Now()
+		for key, item := range c.entries {
+			if now.After(item.expires) {
+				delete(c.entries, key)
+			}
+		}
+		if len(c.entries) >= c.max {
+			c.entries = make(map[string]externalGeoEntry)
+		}
+	}
+	c.entries[query] = externalGeoCacheEntry(result, c.ttl)
+}
+
+func externalGeoCacheEntry(result searchResult, ttl time.Duration) externalGeoEntry {
+	return externalGeoEntry{result: result, expires: time.Now().Add(ttl)}
+}
 
 func loadGeo() {
 	if err := json.Unmarshal(citiesData, &geo); err != nil {
@@ -110,12 +162,32 @@ func SearchCoords(ctx context.Context, raw json.RawMessage) (json.RawMessage, er
 	result, ok := searchBuiltin(args.City)
 	if !ok {
 		var err error
-		result, err = searchNominatim(ctx, args.City)
-		if err != nil {
-			return nil, fmt.Errorf("未找到城市 '%s'，请尝试附近大城市或直接提供经纬度和时区: %w", args.City, err)
+		if cached, hit := nominatimCache.get(args.City); hit {
+			result = cached
+		} else {
+			if !externalGeocodingEnabled() {
+				return nil, fmt.Errorf(
+					"城市 '%s' 不在内置表且外部地理编码已禁用；请提供经纬度或开启 LIKI_EXTERNAL_GEOCODING",
+					args.City,
+				)
+			}
+			result, err = searchNominatim(ctx, args.City)
+			if err != nil {
+				return nil, fmt.Errorf("未找到城市 '%s'，请尝试附近大城市或直接提供经纬度和时区: %w", args.City, err)
+			}
+			nominatimCache.set(args.City, result)
 		}
 	}
 	return json.Marshal(result)
+}
+
+func externalGeocodingEnabled() bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("LIKI_EXTERNAL_GEOCODING"))) {
+	case "0", "false", "off":
+		return false
+	default:
+		return true
+	}
 }
 
 // searchBuiltin resolves a place name against the embedded table.

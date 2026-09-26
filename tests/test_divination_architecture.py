@@ -85,10 +85,10 @@ def test_contract_registry_has_exact_domain_contracts():
 
 
 def test_snapshot_app_cards_replace_chart_cards():
-    assert (ROOT / "counsel/app/divination/app/liuyao-snapshot.md").is_file()
-    assert (ROOT / "counsel/app/divination/app/qimen-snapshot.md").is_file()
-    assert not (ROOT / "counsel/app/divination/app/liuyao-chart.md").exists()
-    assert not (ROOT / "counsel/app/divination/app/qimen-chart.md").exists()
+    assert (ROOT / "skills/liki/divination/app/liuyao-snapshot.md").is_file()
+    assert (ROOT / "skills/liki/divination/app/qimen-snapshot.md").is_file()
+    assert not (ROOT / "skills/liki/divination/app/liuyao-chart.md").exists()
+    assert not (ROOT / "skills/liki/divination/app/qimen-chart.md").exists()
 
 
 def test_primary_entries_use_shared_safety():
@@ -164,7 +164,7 @@ def test_liuyao_timing_boundary_and_target_rules_are_table_driven():
 
 
 def test_liuyao_static_hexagram_doc_separates_fact_from_action():
-    text = (ROOT / "counsel/app/divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
+    text = (ROOT / "skills/liki/divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
     assert "静卦，只说明无明显动爻" in text
     assert "不因静卦直接断顺势吉凶" in text
     assert "顺势/事缓" not in text

@@ -9,15 +9,21 @@
 
 from __future__ import annotations
 
-from errors import AssertionRuleError
-from factors import evaluate_liunian_snap_from_pan, prepare_natal_context
-from factor_constants import load_constants
-from pan_schema import GENDERS
-from paipan import full_paipan, liunian
 from duanyu import (
-    SCENE_ALIASES, YEARLY_RULES, brief, default_scene_domains,
-    filter_domains, flow_factor_names, natal_factors_for_flow, query_yearly,
+    SCENE_ALIASES,
+    YEARLY_RULES,
+    brief,
+    default_scene_domains,
+    filter_domains,
+    flow_factor_names,
+    natal_factors_for_flow,
+    query_yearly,
 )
+from errors import AssertionRuleError
+from factor_constants import load_constants
+from factors import evaluate_liunian_snap_from_pan, prepare_natal_context
+from paipan import full_paipan, liunian
+from pan_schema import GENDERS
 from yearly_eval import query_year_rules, yearly_snapshot
 
 
@@ -36,7 +42,7 @@ def calibrate(candidates: list, events: list, detail: bool = False) -> dict:
             raise ValueError("calibrate events 每项必须含 year、rule、label")
     labels = [c.get("label", "") for c in candidates]
     if len(labels) != len(set(labels)):
-        dupes = [l for l in labels if labels.count(l) > 1]
+        dupes = [label for label in labels if labels.count(label) > 1]
         raise ValueError(
             f"calibrate candidates label 必须唯一，重复: {set(dupes)}。"
             f"重复 label 会静默覆盖前一个候选的结果。")

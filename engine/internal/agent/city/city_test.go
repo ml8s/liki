@@ -79,6 +79,20 @@ func TestSearchCoords_EmptyCityName(t *testing.T) {
 	}
 }
 
+func TestSearchCoords_CanDisableExternalGeocoder(t *testing.T) {
+	t.Setenv("LIKI_EXTERNAL_GEOCODING", "off")
+	_, err := SearchCoords(
+		context.Background(),
+		json.RawMessage(`{"city":"definitely-not-in-the-builtin-table"}`),
+	)
+	if err == nil {
+		t.Fatal("expected external geocoding to be disabled")
+	}
+	if !strings.Contains(err.Error(), "外部地理编码已禁用") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
 func TestSearchCoords_InvalidJSON(t *testing.T) {
 	args := json.RawMessage(`not-json`)
 	_, err := SearchCoords(context.Background(), args)

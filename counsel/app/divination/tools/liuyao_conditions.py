@@ -5,7 +5,6 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-
 PATH = Path(__file__).with_name("liuyao_condition_rules.json")
 
 
@@ -58,7 +57,6 @@ def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, st
         else:
             if _get_path(snapshot, path) != expected:
                 return False, "not_applicable", []
-    yong_line = snapshot.get("focus", {}).get("yong_line", {}) or {}
     state_rules = load_rules()["state_classes"]
     strong = _matches_state_class(snapshot, state_rules["strong"])
     weak = _matches_state_class(snapshot, state_rules["weak"])

@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/tools.json",
   "info": {
     "title": "Liki natal analysis tools",
-    "description": "Liki 本命域公共工具闭集：创建盘资源、本命分析、限运/流年分析、合盘、定盘。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.23.1",
+    "description": "Liki 本命域历史工具面描述；运行时由 counsel-mcp 暴露 compute_factors / natal_query / period_query。",
+    "version": "2026.09.25.0",
     "contract": "natal-tools-v2"
   },
   "tools": [

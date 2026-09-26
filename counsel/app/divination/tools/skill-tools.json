@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/tools.json",
   "info": {
     "title": "Liki divination 奇门 / 六爻 / 黄历工具",
-    "description": "问卦分域 snapshot 与 ask 工具。唯一执行方式：python3 tools/agent_cli.py。",
-    "version": "2026.09.23.1"
+    "description": "问卦分域 snapshot 与 query 工具，由 counsel-mcp 暴露。",
+    "version": "2026.09.25.0"
   },
   "tools": [
     {

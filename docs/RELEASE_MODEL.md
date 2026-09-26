@@ -19,8 +19,10 @@ Example:
 Sources:
 
 - `skills/liki/VERSION.txt`
-- `engine/cmd/liki/VERSION`
-- `rpc.discover.info.version`
+- `engine/cmd/engine-mcp/VERSION`
+- `counsel/app/VERSION.txt`
+- `engine-mcp` / `counsel-mcp` `serverInfo.version`
+- counsel tool/projection manifests
 - skill version self-check
 - compatibility gates
 
@@ -154,7 +156,7 @@ If breaking work lands on main after `v5.0.0`, the next release must be `v6.0.0`
 ## 7. Release process
 
 1. Confirm main is green.
-2. Confirm `skills/liki/VERSION.txt` and `engine/cmd/liki/VERSION` are the intended runtime CalVer.
+2. Confirm `skills/liki/VERSION.txt` and `engine/cmd/engine-mcp/VERSION` are the intended runtime CalVer.
 3. If this commit is also a SkillHub release, confirm `skills/liki/SKILL.md` frontmatter `version` equals the SemVer tag. Do not change it for routine CalVer bumps.
 4. Confirm `CHANGELOG.md` contains the milestone entries.
 5. Create the annotated SemVer tag on the approved commit.
@@ -168,37 +170,33 @@ Make targets are layered: lint → check → test → verify → gate.
 
 ```bash
 # Layer 1: Lint（格式 & 风格，< 30s）
-make lint-md             # markdownlint + skill md structure
-make lint-engine          # golangci-lint + go vet
-make lint                 # both
+make lint                 # markdownlint + golangci-lint + go vet + ruff
+make fmt-check            # Go format check
 
 # Layer 2: Check（结构 / 契约 / 数据质量，< 30s）
-make check                # check_schema + check_docs
+make check                # format/vet + skill structure + schema + docs
 
 # Layer 3: Test（逻辑正确性）
-make test                 # skills pytest（非 integration）
-make test                # all tests（pytest + Go engine full）
+make test                 # contracts + engine + counsel + engine MCP smoke
 
-# Layer 4: Verify（端到端，需要本地引擎）
-make verify               # integration + eval_hybrid full
+# Layer 4: Verify（当前 MCP 协议 / 服务集成）
+make verify               # engine MCP smoke + counsel integration
 
-# Layer 5: Gate（compose，发布门槛）
-make gate                # check + test（推送前门槛）
+# Layer 5: Gate（发布门槛）
+make gate                # engine lint + check + test + 160 题覆盖 + archive
 ```
 
 Release checks add golden and package:
 
 ```bash
 make golden
-make build
+make build-archive
 ```
 
 Model- or local-tool-backed checks are release evidence, not gate requirements:
 
 ```bash
-make skillup-smoke-validate
-make skillup-smoke
-make benchmark-mingli160
+# Legacy model-backed suites are being migrated to the current MCP skill surface.
 ```
 
-TRACE is an external static Skill-quality review. It complements, but does not replace, deterministic golden tests, domain oracles, functional contracts, integration tests, skill-up smoke, or MingLi-Bench.
+TRACE is an external static Skill-quality review. It complements, but does not replace, deterministic golden tests, domain oracles, functional contracts, MCP integration tests, or archived model-backed evaluations.

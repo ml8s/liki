@@ -4,7 +4,9 @@
 用法：
   python3 scripts/eval_assertions.py
 """
-import json, re, sys, os
+import json
+import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,8 +14,8 @@ TOOLS = ROOT / "counsel/app/natal/tools"
 sys.path.insert(0, str(TOOLS))
 
 import yaml
-from paipan import full_paipan, city_coords
-from duanyu import query, yearly_range
+from duanyu import query
+from paipan import city_coords, full_paipan
 
 CASES_DIR = ROOT / "tests/benchmark/mingli160/evals/cases"
 ANSWERS_FILE = ROOT / "tests/benchmark/mingli160/answers.json"
@@ -135,7 +137,7 @@ def extract_birth(prompt):
         try:
             coords = city_coords(location)
             longitude = coords.get("longitude")
-        except:
+        except Exception:
             pass
 
     if hour is not None and minute > 0:
@@ -192,13 +194,12 @@ def main():
     groups = json.load(open(GROUPS_FILE, encoding="utf-8"))
 
     case_files = sorted(CASES_DIR.glob("*.yaml"))
-    print(f"═══ 断语真值表逐题验证 ═══")
+    print("═══ 断语真值表逐题验证 ═══")
     print(f"命盘数: {len(case_files)}, 总题数: {len(answers)}\n")
 
     total_correct = 0
     total_questions = 0
     gap_report = []
-    assertion_noise = []  # Track assertion counts
 
     for cf in case_files:
         case = yaml.safe_load(cf.read_text("utf-8"))
@@ -218,7 +219,7 @@ def main():
                 longitude=birth.get("longitude"),
                 correct=birth["correct"],
             )
-        except Exception as e:
+        except Exception:
             # longitude fallback
             try:
                 pan = full_paipan(birth["gregorian"], birth["gender"], correct=False)
@@ -280,7 +281,7 @@ def main():
                 print(f"    ✗ 题{pr['num']} [{pr['domain']}] fired={pr['fired']} matching={pr['match']}")
 
     # Summary
-    print(f"\n═══ 总体 ═══")
+    print("\n═══ 总体 ═══")
     print(f"总题数: {total_questions}")
     print(f"可能正确: {total_correct}")
     print(f"可能错误: {total_questions - total_correct}")

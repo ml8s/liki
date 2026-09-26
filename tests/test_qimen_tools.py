@@ -7,6 +7,13 @@ import sys
 from pathlib import Path
 
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def skip_shared_engine_compatibility(monkeypatch):
+    import engine_client
+
+    monkeypatch.setattr(engine_client, "_COMPATIBILITY_CHECKED", True)
 from jsonschema import validate
 
 
@@ -544,13 +551,14 @@ def test_engine_client_domain_suffix(monkeypatch):
     def urlopen(request, *_, **__):
         seen.append(request.full_url)
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
-    monkeypatch.setenv("LIKI_MCP_URL", "http://127.0.0.1:18081/engine/mcp")
+    monkeypatch.setattr(engine_client, "_COMPATIBILITY_CHECKED", True)
+    monkeypatch.setenv("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
     monkeypatch.setattr(engine_client.urllib.request, "urlopen", urlopen)
     for name in ["tianwen_time", "ziwei.chart", "bazi_chart", "time.now"]:
         engine_client.call(name, {})
     assert seen == [
-        "http://127.0.0.1:18081/engine/mcp/aux",
-        "http://127.0.0.1:18081/engine/mcp/ziwei",
-        "http://127.0.0.1:18081/engine/mcp/bazi",
-        "http://127.0.0.1:18081/engine/mcp/aux",
+        "http://127.0.0.1:18081/mcp/aux",
+        "http://127.0.0.1:18081/mcp/ziwei",
+        "http://127.0.0.1:18081/mcp/bazi",
+        "http://127.0.0.1:18081/mcp/aux",
     ]

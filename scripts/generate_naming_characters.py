@@ -8,7 +8,6 @@ from pathlib import Path
 
 from qiming_projection import load_runtime_naming_rows
 
-
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = REPO / "engine/internal/engine/qiming/data/gsc_pinyin_with_tone.csv"
 DEFAULT_RADICALS = REPO / "engine/internal/engine/qiming/data/radicals.yaml"

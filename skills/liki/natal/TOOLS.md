@@ -5,7 +5,7 @@
 - **八字**：`liki-bazi`（排盘 + 本命判断 + 应期判断 + 合盘 + 考时）
 - **紫微**：`liki-ziwei`（历法换算 + 排盘 + 本命判断 + 应期判断 + 合盘 + 考时）
 
-agent 应路由到对应专家执行；工具经 `tools/list` 自举（schema 自描述），按能力域调用，不依赖具体工具名。成功响应读 `data`；失败响应读 `error.code` 和 `error.message`。
+agent 优先使用已连接的 `engine-mcp`、`counsel-bazi-mcp` 与 `counsel-ziwei-mcp`；可选 WorkBuddy 专家插件安装后可复用同一方法论执行。工具经 `tools/list` 自举（schema 自描述），按能力域调用，不依赖具体工具名。成功响应读工具内容 JSON；失败响应读 `isError` 与错误文本。
 
 ## 标准流程
 

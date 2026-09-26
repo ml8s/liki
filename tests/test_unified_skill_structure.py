@@ -6,6 +6,7 @@
 3. MCP 连接器命名（engine/counsel 与专家端点）
 """
 import json
+import re
 from pathlib import Path
 
 from _helpers import ROOT, SKILL_ROOT
@@ -27,8 +28,8 @@ def test_shared_runtime_files_are_not_duplicated():
 
 
 def test_python_dependency_has_one_skill_root_manifest():
-    manifests = [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("requirements.txt")]
-    assert manifests == [Path("requirements.txt")]
+    manifests = [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("requirements*.txt")]
+    assert manifests == []
 
 
 def test_faq_is_the_single_runtime_failure_entry():
@@ -82,6 +83,37 @@ def test_root_mcp_uses_counsel_and_engine():
     for pack in ("liki-bazi", "liki-ziwei"):
         expert_mcp = json.loads((ROOT / "skills" / pack / ".mcp.json").read_text(encoding="utf-8"))
         assert any("engine" in name for name in expert_mcp["mcpServers"])
+
+
+def test_root_mcp_declares_complete_manual_install_surface():
+    """Manual and embedded clients must get the same four MCP surfaces."""
+    mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
+    assert mcp["mcpServers"] == {
+        "counsel-mcp": {
+            "type": "streamableHttp",
+            "url": "https://liki.hk/counsel/mcp",
+        },
+        "counsel-bazi-mcp": {
+            "type": "streamableHttp",
+            "url": "https://liki.hk/counsel/mcp/bazi",
+        },
+        "counsel-ziwei-mcp": {
+            "type": "streamableHttp",
+            "url": "https://liki.hk/counsel/mcp/ziwei",
+        },
+        "engine-mcp": {
+            "type": "streamableHttp",
+            "url": "https://liki.hk/engine/mcp",
+        },
+    }
+
+
+def test_natal_cards_reference_packaged_expert_methodology():
+    """Natal orchestration remains self-contained inside the unified archive."""
+    pattern = re.compile(r"(liki-(?:bazi|ziwei)/skills/(?:bazi|ziwei)/[A-Za-z0-9_.-]+\.md)")
+    for card in (SKILL_ROOT / "natal").rglob("*.md"):
+        for reference in pattern.findall(card.read_text(encoding="utf-8")):
+            assert (ROOT / "skills" / reference).is_file(), (card, reference)
 
 
 def test_expert_packs_follow_workbuddy_standard():

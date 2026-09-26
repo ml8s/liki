@@ -1,0 +1,6 @@
+mcp==2.2.0
+anyio==4.15.1
+starlette==1.6.0
+pydantic==2.13.5
+uvicorn==0.53.0
+jsonschema==4.26.0

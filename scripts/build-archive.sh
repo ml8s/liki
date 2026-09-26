@@ -45,8 +45,26 @@ done
 
 ARCHIVE="$DIST_DIR/$SKILL_NAME.tar.gz"
 echo "[build-archive] 打包 $SKILL_NAME..."
+
+# Natal orchestration cards intentionally reference expert methodology paths.
+# Include those read-only cards so the unified archive is self-contained; the
+# optional WorkBuddy expert plugins remain separate interactive agents.
+EXPERT_BAZI_DIR="$PROJECT_DIR/skills/liki-bazi"
+EXPERT_ZIWEI_DIR="$PROJECT_DIR/skills/liki-ziwei"
+for required in "$EXPERT_BAZI_DIR/skills/bazi/career.md" \
+                "$EXPERT_ZIWEI_DIR/skills/ziwei/yingqi.md"; do
+    if [ ! -f "$required" ]; then
+        echo "[build-archive] error: required methodology not found: $required" >&2
+        exit 1
+    fi
+done
+
 tar czf "$ARCHIVE" \
     --transform 's|^\./||' \
+    --transform 's|^skills/bazi/|liki-bazi/skills/bazi/|' \
+    --transform 's|^skills/ziwei/|liki-ziwei/skills/ziwei/|' \
+    --exclude skills/bazi/SKILL.md \
+    --exclude skills/ziwei/SKILL.md \
     -C "$SKILL_DIR" \
     --exclude .git \
     --exclude .github \
@@ -58,11 +76,9 @@ tar czf "$ARCHIVE" \
     --exclude CHANGELOG.md \
     --exclude '*.tar.gz' \
     --exclude dist \
-    --exclude natal \
-    --exclude divination \
-    --exclude fengshui \
-    --exclude naming \
-    .
+    . \
+    -C "$EXPERT_BAZI_DIR" skills/bazi \
+    -C "$EXPERT_ZIWEI_DIR" skills/ziwei
 
 DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
 echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
@@ -79,6 +95,23 @@ if ! grep -Fxq 'VERSION.txt' <<<"$ARCHIVE_LISTING"; then
 fi
 if grep -E '\.(cmd|bat|ps1)$' <<<"$ARCHIVE_LISTING" | grep -q .; then
     echo "[build-archive] error: archive contains platform-specific launcher" >&2
+    exit 1
+fi
+if grep -Fxq 'requirements.txt' <<<"$ARCHIVE_LISTING"; then
+    echo "[build-archive] error: runtime Python dependencies must come from MCP services" >&2
+    exit 1
+fi
+for required_method in \
+    liki-bazi/skills/bazi/career.md \
+    liki-ziwei/skills/ziwei/yingqi.md; do
+    if ! grep -Fxq "$required_method" <<<"$ARCHIVE_LISTING"; then
+        echo "[build-archive] error: archive missing $required_method" >&2
+        exit 1
+    fi
+done
+manifest_count="$(grep -Ec '(^|/)SKILL\.md$' <<<"$ARCHIVE_LISTING")"
+if [ "$manifest_count" -ne 1 ]; then
+    echo "[build-archive] error: expected exactly one SKILL.md, got $manifest_count" >&2
     exit 1
 fi
 

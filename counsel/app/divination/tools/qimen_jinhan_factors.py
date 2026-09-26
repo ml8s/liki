@@ -1,7 +1,6 @@
 """金函玉镜因子投影；不与标准奇门因子混用。"""
 from __future__ import annotations
 
-
 SCHOOL = "jinhan_yujing"
 SCOPE = "day"
 

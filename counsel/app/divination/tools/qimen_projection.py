@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from qimen_projection_common import (  # noqa: F401
-    load_factors_contract,
+    _hour_polarity,
     _load_wuxing_relations,
     _palace_direction,
     _palace_domain,
@@ -15,7 +15,7 @@ from qimen_projection_common import (  # noqa: F401
     _spirit_items,
     _type_matches,
     _validate_value,
-    _hour_polarity,
+    load_factors_contract,
 )
 from qimen_specialized import project as project_specialized_context
 

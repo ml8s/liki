@@ -6,12 +6,11 @@ from divination_rpc import server_time
 from divination_safety import assess
 from divination_snapshot import build_snapshot
 from qimen_duanyu import query
+from qimen_interpretations import assert_rule_compatibility, load_rule_table
+from qimen_jinhan_factors import project as project_jinhan_factors
+from qimen_paipan import city_coords, qimen_chart, solar_time
 from qimen_projection import project as project_standard_factors
 from qimen_projection import validate as validate_standard_factors
-from qimen_jinhan_factors import project as project_jinhan_factors
-from qimen_interpretations import assert_rule_compatibility, load_rule_table
-from qimen_paipan import city_coords, qimen_chart, solar_time
-
 
 SCHEMA_VERSION = "qimen-snapshot-v5"
 

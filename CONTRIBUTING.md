@@ -20,23 +20,40 @@
    ```
 
 5. 同步更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
-6. README / 用户指南改动需遵循 [README_STYLE.md](./docs/README_STYLE.md)，并运行 `make lint-readme`
+6. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
 7. 提交 PR，描述清楚改了什么、为什么
 
 ## 代码规范
 
-- 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。bazi / divination 的 LLM 只调用对应 `tools/skill-tools.json` 中的 Python 工具；naming / fengshui 当前无 Python 工具层，只能使用 ENTRY 固定 discover 闭集内声明的 RPC
+### 本地工具链
+
+- Go **1.26.6**（低于 1.26.6 会命中标准库安全漏洞）
+- Python **3.12**
+- Node **22**
+- 可选：[uv](https://docs.astral.sh/uv/)，用于复现 counsel Python 依赖锁
+
+### 语言和服务边界
+
+- 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。
+- `engine-mcp` 只做确定性排盘/历法/风水计算；`counsel-mcp` 只做因子、断语、起名和问卦判断。
+- 公开 `/engine` 与 `/counsel` 前缀由网关负责；两个服务内部只实现 `/mcp` 与 `/mcp/{domain}`。
+- 不恢复旧 Python CLI 或 JSON-RPC 发现/调用路径；历史评测资产已归档，迁移前不得进入 gate。
+
+### Lint 与安全扫描
+
 - 引擎 lint 用 golangci-lint v2（配置 `engine/.golangci.yml`）。本地安装用官方二进制脚本，**不要 `go install`**（golangci-lint 与 Go 版本强耦合，官方明确不推荐该方式）：
 
   ```bash
   curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
   ```
 
+- Python lint 使用 Ruff 0.16.0：`make lint-python`。
+- Go 漏洞扫描使用 `govulncheck`；counsel 哈希锁使用 `pip-audit`。两者在 CI 分别执行。
 - 每次升版本必须同步更新：`VERSION.txt`（make 统一 bump）+ `CHANGELOG.md`；需要生成分发包时运行 `make build-archive`
 
 ## 设计原则（为什么这样设计）
 
-- **RPC 调用边界分层**：bazi / divination 的领域 `ENTRY.md` / app 卡只引用本领域 Python 工具；RPC 排盘、因子求值和断语匹配由 `agent_cli.py` 白名单编排。naming / fengshui 当前无工具层，只允许固定 discover 闭集内声明的方法。原因：双层工具会让 LLM 混用入口并漏做 Python 层契约校验。防回潮门禁：`tests/check_docs.py` 的方法白名单与根文档契约测试。
+- **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。网关负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp` 与 `/mcp/{domain}`。领域文档描述能力与变量绑定，不手写传输层细节。防回潮门禁：MCP smoke、schema 对照与根文档契约测试。
 - **历史事件只验证整体框架**：校准/结论验证回退的对象是「格局+用神+大运」的综合解读框架，不是单一用神选择——事件是框架的综合结果，无法反推单一变量（v1.23.0 教训）。落地处：`app/mingshu.md` 历史事件校准节、`domains/bazi/calibration.md`。
 - **三派用神必须聚合出唯一结论**：扶抑/调候/格局三派按决策表聚合（`domains/bazi/yongshen.md`），不并列列出让用户选——并列等于把专业判断推给用户（v1.16.0 教训，已落地 yongshen.md 聚合决策表）。
 
@@ -58,15 +75,14 @@ grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
 grep -rn "旧方法名" skills/liki/*/app/*.md skills/liki/*/ENTRY.md skills/liki/SKILL.md
 ```
 
-**添加新 RPC 方法时**（同步更新测试）：
+**添加新 MCP 工具时**（同步更新测试与 manifest）：
 
 ```bash
-# 检查方法计数
-grep -c "Name:" engine/internal/agent/tools_*.go                        # 实际方法数
-grep "expected.*methods" engine/internal/agent/rpc_registry_test.go     # 测试期望值
-grep "want.*methods" engine/internal/http/rpc_test.go                   # 测试期望值
-# 添加到方法白名单
-grep -A 5 "METHOD_WHITELIST" tests/check_docs.py
+# engine：补 handler、InputSchema/OutputSchema、领域路由与 tool schema 测试
+grep -R "bazi_chart" engine/cmd/engine-mcp engine/internal/agent
+
+# counsel：补 manifest schema、业务实现、MCP runtime schema 对照与错误映射测试
+grep -R "compute_factors" counsel/app/natal/tools counsel/tests
 ```
 
 **改 skill 文档后**（需要出包时）：

@@ -120,11 +120,12 @@ Skill 按命理师的专业习惯组织对话：一次处理一个主题，结�
 
 ### 需要联网吗？
 
-需要。Liki 通过标准 MCP 提供服务：`counsel`（判断层）和 `engine`（排盘/风水）。客户端连接 MCP 端点（`https://liki.hk/counsel/mcp` 与 `https://liki.hk/engine/mcp`）后即可调用。
+需要。Liki 通过标准 MCP 提供服务：`counsel-mcp`、`counsel-bazi-mcp`、`counsel-ziwei-mcp` 和 `engine-mcp`。支持内嵌 MCP 声明的客户端会自动读取 `.mcp.json`。
 
 ### 我的出生数据会被存储吗？
 
 不会。Skill 约定不在对话之外存储出生信息，不索要真实姓名；出生数据只在当前会话上下文中使用。
+若城市未命中内置表，引擎可能把该城市名发送到 Nominatim（OSM）查询经纬度；自部署可用 `LIKI_EXTERNAL_GEOCODING=off` 关闭。
 
 ### 结果该怎么理解？
 

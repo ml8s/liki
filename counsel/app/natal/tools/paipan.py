@@ -10,25 +10,29 @@ liki 命理 skill 的排盘层：
 本层只做「读引擎字段 + 编排 RPC + 归并」，零命理判断。
 """
 from __future__ import annotations
-import json
-import os
+
 import sys
-import time
-import urllib.request
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
-from errors import LikiToolError
 from factor_constants import load_constants
 from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 
 # MCP 引擎客户端（dev 走 MCP；RPC 仅引擎保留给线上兼容）
-_LIKI_ANALYSIS = Path(__file__).resolve().parents[2]
-if str(_LIKI_ANALYSIS) not in sys.path:
-    sys.path.insert(0, str(_LIKI_ANALYSIS))
-from engine_client import call, engine_version, MCPError  # noqa: E402
+_COUNSEL_APP = Path(__file__).resolve().parents[2]
+if str(_COUNSEL_APP) not in sys.path:
+    sys.path.insert(0, str(_COUNSEL_APP))
+from engine_client import (  # noqa: E402
+    MCPError,
+    _version_key,
+    call,
+    engine_version,
+)
+from engine_client import (  # noqa: E402
+    ensure_engine_compatible as _ensure_engine_compatible,
+)
 
 SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 8
 SHICHEN_BOUNDARY_START_HOURS = (23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
@@ -36,14 +40,6 @@ VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
 
 
 RPCError = MCPError
-
-
-def _version_key(version: str) -> tuple[int, ...]:
-    try:
-        key = tuple(int(part) for part in version.split("."))
-        return key + (0,) * (4 - len(key))
-    except ValueError as error:
-        raise RPCError(f"engine version is invalid: {version}") from error
 
 
 def skill_version() -> str:
@@ -65,13 +61,10 @@ def required_engine_version() -> str:
 
 def ensure_engine_compatible() -> None:
     """Reject old engines before malformed half pans reach the factor layer."""
-    version = engine_version()
-    required = required_engine_version()
-    if _version_key(version) < _version_key(required):
-        raise RPCError(
-            f"engine version {version} is incompatible; "
-            f"skill VERSION.txt requires engine >= {required}"
-        )
+    _ensure_engine_compatible(
+        version=engine_version(),
+        required=required_engine_version(),
+    )
 
 
 # ── 内部 RPC 封装（full_paipan / liunian 编排用，agent 不直接碰）──

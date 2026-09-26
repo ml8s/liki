@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import json
 
-from qimen_projection import load_factors_contract, validate as validate_factors
 from qimen_interpretations import assert_rule_compatibility, load_interpretation_index
+from qimen_projection import load_factors_contract
+from qimen_projection import validate as validate_factors
 
 
 def query(rule: str, factors: dict) -> dict:

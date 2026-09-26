@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
@@ -89,19 +88,16 @@ func (r *RPCRegistry) mustRegister(m RPCMethod) {
 func compileParamsSchema(name string, raw json.RawMessage) *jsonschema.Schema {
 	var doc any
 	if err := json.Unmarshal(raw, &doc); err != nil {
-		log.Printf("rpc: %s: failed to parse params schema: %v", name, err)
-		return nil
+		panic(fmt.Sprintf("rpc %s: parse params schema: %v", name, err))
 	}
 	c := jsonschema.NewCompiler()
 	url := "https://liki.hk/schemas/" + name + "/params.json"
 	if err := c.AddResource(url, doc); err != nil {
-		log.Printf("rpc: %s: failed to add resource: %v", name, err)
-		return nil
+		panic(fmt.Sprintf("rpc %s: add params schema: %v", name, err))
 	}
 	sch, err := c.Compile(url)
 	if err != nil {
-		log.Printf("rpc: %s: failed to compile params schema: %v", name, err)
-		return nil
+		panic(fmt.Sprintf("rpc %s: compile params schema: %v", name, err))
 	}
 	return sch
 }

@@ -13,14 +13,24 @@ FUNCTIONS = {tool["function"]["name"]: tool["function"] for tool in MANIFEST["to
 def test_all_tools_have_closed_args():
     required = {
         "compute_factors": ["chart"],
-        "natal_query": ["factors", "topics"],
-        "period_query": ["factors", "time_scope", "topics", "chart"],
+        "natal_query": ["factors", "factors_digest", "topics", "context"],
+        "period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],
     }
     assert set(FUNCTIONS) == set(required)
     for name, fn in FUNCTIONS.items():
         assert fn["parameters"]["additionalProperties"] is False, name
         assert fn["parameters"]["required"] == required[name], name
         assert fn["parameters"]["type"] == "object", name
+
+
+def test_topic_enum_is_generated_from_topic_routes():
+    routes = json.loads(
+        (ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
+    )
+    expected = list(routes["topics"])
+    for name in ("natal_query", "period_query"):
+        schema = FUNCTIONS[name]["parameters"]["properties"]["topics"]
+        assert schema["items"]["enum"] == expected, name
 
 
 def test_topic_routes_are_valid_and_unambiguous():

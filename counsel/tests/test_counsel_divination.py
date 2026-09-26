@@ -7,20 +7,19 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import sys
 from pathlib import Path
 
-os.environ.setdefault("LIKI_COUNSEL_SERVICE_DOMAIN", "liuyao")
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "divination" / "tools"))
 
-import pytest  # noqa: E402
 
-from app.counsel_server import create_counsel_server  # noqa: E402
+from app.counsel_mcp import create_counsel_mcp  # noqa: E402
 
 # 动态字段（digest/时间戳）——1v1 对照时归一化
-DYNAMIC = {"snapshot_digest", "_meta", "meta", "timestamp", "created_at", "captured_at"}
+DYNAMIC = {
+    "snapshot_digest", "_meta", "meta", "timestamp", "created_at",
+    "captured_at", "solar_time",
+}
 
 
 def _core(d):
@@ -38,7 +37,7 @@ LIUYAO_ARGS = {"question": "测试这次面试能不能通过", "mode": "yaos",
 def test_liuyao_snapshot_matches_old():
     from liuyao_snapshot import create
 
-    srv = create_counsel_server("liuyao")
+    srv = create_counsel_mcp("liuyao")
     got = json.loads(asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).content[0].text)
     want = create(**LIUYAO_ARGS)
     assert _core(got) == _core(want), "liuyao_snapshot 与老实现不一致"
@@ -48,9 +47,8 @@ def test_liuyao_snapshot_matches_old():
 
 def test_liuyao_query_matches_old_ask():
     from liuyao_ask import ask
-    from liuyao_snapshot import create
 
-    srv = create_counsel_server("liuyao")
+    srv = create_counsel_mcp("liuyao")
     snap = json.loads(asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).content[0].text)
     got = json.loads(asyncio.run(srv.call_tool(
         "liuyao_query", {"snapshot": snap, "message": "什么时候有结果"},
@@ -66,7 +64,7 @@ QIMEN_ARGS = {"question": "测试谈判时机", "city": "北京",
 def test_qimen_snapshot_matches_old():
     from qimen_snapshot import create
 
-    srv = create_counsel_server("qimen")
+    srv = create_counsel_mcp("qimen")
     got = json.loads(asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).content[0].text)
     want = create(**QIMEN_ARGS)
     assert _core(got) == _core(want), "qimen_snapshot 与老实现不一致"
@@ -74,9 +72,8 @@ def test_qimen_snapshot_matches_old():
 
 def test_qimen_query_matches_old_ask():
     from qimen_ask import ask
-    from qimen_snapshot import create
 
-    srv = create_counsel_server("qimen")
+    srv = create_counsel_mcp("qimen")
     snap = json.loads(asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).content[0].text)
     got = json.loads(asyncio.run(srv.call_tool(
         "qimen_query", {"snapshot": snap, "message": "哪个方向有利"},

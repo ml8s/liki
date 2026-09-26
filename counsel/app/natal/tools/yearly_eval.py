@@ -7,8 +7,8 @@ from __future__ import annotations
 from typing import Callable, Iterable
 
 from errors import YearRangeError
-from factor_context import NatalContext
 from factor_constants import load_constants
+from factor_context import NatalContext
 
 MAX_YEARS = 120
 

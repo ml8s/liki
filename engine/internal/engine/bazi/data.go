@@ -64,9 +64,9 @@ func init() {
 
 // xiaoYunRule 小运起例（《三命通会》）：男女起运干支与顺逆。
 type xiaoYunRule struct {
-	StartGan    int
-	StartZhi    int
-	Direction   int // +1 顺行、-1 逆行
+	StartGan  int
+	StartZhi  int
+	Direction int // +1 顺行、-1 逆行
 }
 
 var xiaoYunRules map[string]xiaoYunRule

@@ -108,6 +108,38 @@ func TestCORSMiddleware_OptionsPreflight(t *testing.T) {
 	if w.Code != http.StatusNoContent {
 		t.Errorf("status = %d, want 204", w.Code)
 	}
+	allowedHeaders := w.Header().Get("Access-Control-Allow-Headers")
+	for header := range map[string]struct{}{
+		"Content-Type": {}, "MCP-Protocol-Version": {}, "Mcp-Method": {},
+		"Mcp-Name": {}, "Authorization": {},
+	} {
+		if !strings.Contains(allowedHeaders, header) {
+			t.Errorf("CORS allowed headers missing %s: %q", header, allowedHeaders)
+		}
+	}
+}
+
+func TestCORSMiddleware_ConfiguredOrigins(t *testing.T) {
+	t.Setenv("LIKI_ALLOWED_ORIGINS", "https://mingli.example, https://invalid origin, ftp://invalid.example")
+	handler := CORSMiddleware(false, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Origin", "https://mingli.example")
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+	if w.Header().Get("Access-Control-Allow-Origin") != "https://mingli.example" {
+		t.Fatalf("custom origin was not allowed: %q", w.Header().Get("Access-Control-Allow-Origin"))
+	}
+
+	req = httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Origin", "https://liki.hk")
+	w = httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+	if w.Header().Get("Access-Control-Allow-Origin") != "" {
+		t.Fatal("explicit origin configuration should replace defaults")
+	}
 }
 
 func TestBodyLimit_UnderLimit(t *testing.T) {

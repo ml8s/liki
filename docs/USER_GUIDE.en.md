@@ -120,11 +120,12 @@ Babies and teenagers skip calibration; the provided hour is used as given.
 
 ### Does it need internet?
 
-By default, yes — the engine / counsel MCP services (liki.hk) perform chart casting and judgment. Advanced users can self-host and point `LIKI_MCP_URL` (engine) at local services.
+By default, yes — the four MCP servers declared in `.mcp.json` perform chart casting and judgment. Clients with embedded MCP declaration support connect automatically.
 
 ### Is my birth data stored?
 
 No. The Skill does not store birth data outside the conversation and does not ask for your real name. Birth data remains in the current conversation context.
+If a city is absent from the built-in table, the engine may send that city name to Nominatim (OSM) for coordinates. Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
 
 ### How should I interpret results?
 

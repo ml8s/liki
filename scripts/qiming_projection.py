@@ -7,7 +7,6 @@ from typing import Iterator
 
 import yaml
 
-
 NAMING_ELEMENTS = {"木", "火", "土", "金", "水"}
 SOURCE_FIELDS = {"word", "pinyin", "radical", "stroke_count", "wuxing", "tone"}
 

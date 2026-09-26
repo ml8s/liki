@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+echo "skill-up runner is archived: it still targets the removed JSON-RPC skill surface." >&2
+echo "Use 'make test-counsel' and 'make test-engine-mcp' for the current MCP contracts." >&2
+exit 1
 cd "$(dirname "$0")/../.."
 
 DOMAINS=(bazi divination fengshui naming)

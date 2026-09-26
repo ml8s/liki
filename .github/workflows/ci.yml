@@ -1,263 +1,235 @@
 name: CI
 
 on:
-  push:
-    branches: [master]
   pull_request:
-    branches: [master]
+  push:
+    branches: [master, dev]
   release:
     types: [published]
 
-# ─────────────────────────────────────────────────────────────
-# liki monorepo CI —— engine（Go）+ skills（Python）双栈
-# 所有 job 每次 push/PR 全量跑（未做 path filter——monorepo 双栈常联动，
-# 引擎/skill 契约一致性优先于跳过节省；如需分流再引入 dorny/paths-filter）：
-# - engine-*：lint / unit(race) / integration + RPC 冒烟（build+起服务）
-# - skills-*：单测 + 指纹/文档校验 / 数据检查（本地起引擎，不打生产）/ 打包
-# - readme-lint：README / 用户指南的 Markdown 结构与排版检查
-# - e2e：build+起服务 → skill 全链路集成测试（LIKI_RPC_URL）
-# - windows-cli-smoke：Windows UTF-8 CLI 协议冒烟
-# ─────────────────────────────────────────────────────────────
+permissions:
+  contents: read
 
 jobs:
-  # ── Docs: README Markdown lint ──
-  readme-lint:
-    name: README Markdown Lint
+  check:
+    name: Check contracts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '22'
-      - name: markdownlint-cli2 (README, user guides and skill markdown)
-        run: make lint-md
-
-  # ── Engine: Lint ──
-  engine-lint:
-    name: Engine Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+          node-version: "22"
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
-          go-version: '1.26'
+          go-version: "1.26.6"
           check-latest: true
           cache-dependency-path: engine/go.sum
-      - name: golangci-lint (engine)
-        # 官方 Action + 锁定 v2（勿用 go install：golangci-lint 只支持 ≤ 编译它的 Go 版本，
-        # 且 v1.64.x 对 Go 1.25+ 已停止维护——配 Go 1.26 属未定义行为）
-        uses: golangci/golangci-lint-action@v9.3.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pytest pyyaml jsonschema
+      - run: make check
+
+  engine-lint:
+    name: Engine lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: "1.26.6"
+          check-latest: true
+          cache-dependency-path: engine/go.sum
+      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
           version: v2.13.1
           working-directory: engine
 
-  # ── Engine: Unit Test ──
+  engine-vulnerabilities:
+    name: Engine vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: "1.26.6"
+          check-latest: true
+          cache-dependency-path: engine/go.sum
+      - run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+      - run: "$(go env GOPATH)/bin/govulncheck ./..."
+        working-directory: engine
+
   engine-test:
-    name: Engine Unit Test
+    name: Engine tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
-          go-version: '1.26'
+          go-version: "1.26.6"
           check-latest: true
           cache-dependency-path: engine/go.sum
-      - name: go vet (engine)
+      - run: go test -race -count=1 -short ./...
         working-directory: engine
-        run: go vet ./...
-      - name: go test -race -short (engine)
+      - run: go test -tags integration -count=1 -timeout 60s ./internal/agent/ ./internal/http/ ./internal/engine/bazi/
         working-directory: engine
-        run: go test -race -count=1 -short ./...
 
-  # ── Engine: Integration + RPC Smoke ──
-  engine-integration:
-    name: Engine Integration + Smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
-        with:
-          go-version: '1.26'
-          check-latest: true
-          cache-dependency-path: engine/go.sum
-      - name: integration tests (engine)
-        working-directory: engine
-        run: go test -tags integration -count=1 -timeout 60s ./internal/agent/ ./internal/http/ ./internal/engine/bazi/
-      - name: build engine
-        working-directory: engine
-        run: go build -o /tmp/liki-engine ./cmd/liki/
-      - name: start engine
-        run: |
-          /tmp/liki-engine -addr :8082 &
-          echo "pid=$!" > /tmp/liki-engine.pid
-          cat /tmp/liki-engine.pid
-          for i in $(seq 1 15); do
-            if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
-              echo "engine ready"
-              exit 0
-            fi
-            sleep 1
-          done
-          echo "engine failed to become ready"; exit 1
-      - name: RPC smoke test (engine)
-        working-directory: engine
-        run: |
-          bash -n scripts/test-rpc.sh
-          scripts/test-rpc.sh http://localhost:8082
-      - name: stop engine
-        if: always()
-        run: kill "$(cat /tmp/liki-engine.pid)" 2>/dev/null || true
-
-  # ── Skills: Python tests (rules engine) ──
   skills-test:
-    name: Skills Python tests
+    name: Skill contracts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
-          python-version: '3.12'
-      - name: Install pytest
-        run: python3 -m pip install pytest pyyaml jsonschema
-      - name: Run tests
-        run: python3 -m pytest tests/ -q --ignore=tests/test_integration.py
-      - name: Run check (schema + docs + version)
-        # 快路径自动验证：断语表质量/跨术数/死列（check_schema）+ 文档引用契约（check_docs）
-        # + skill-tools.json 版本与 VERSION 一致——改表/改文档后 CI 即拦
-        run: bash tests/check.sh
+          python-version: "3.12"
+      - run: python -m pip install pytest pyyaml jsonschema
+      - run: python -m pytest tests/ -q
 
-  # ── Skills: Data check (160 题断语覆盖/零命中) ──
-  skills-data-check:
-    name: Skills Data check (160 题断语覆盖/零命中)
+  python-lint:
+    name: Python lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
-          go-version: '1.26'
+          python-version: "3.12"
+      - run: python -m pip install ruff==0.16.0
+      - run: make lint-python
+
+  python-vulnerabilities:
+    name: Python vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pip-audit==2.10.0
+      - run: pip-audit -r counsel/requirements.lock --require-hashes --disable-pip
+
+  node-vulnerabilities:
+    name: Node vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "22"
+      - run: npm audit
+
+  counsel-test:
+    name: Counsel MCP integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: "1.26.6"
           check-latest: true
           cache-dependency-path: engine/go.sum
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
-          python-version: '3.12'
-      - name: build engine
-        working-directory: engine
-        run: go build -o /tmp/liki-engine ./cmd/liki/
-      - name: start engine
+          python-version: "3.12"
+      - run: make test-counsel
+
+  archive:
+    name: Skill archive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - run: make build-archive
+
+  counsel-image:
+    name: Counsel MCP image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - run: docker build -f counsel/Dockerfile -t liki-counsel:ci .
+      - name: Smoke counsel health endpoint
         run: |
-          /tmp/liki-engine -addr :8082 &
-          echo "pid=$!" > /tmp/liki-engine.pid
-          cat /tmp/liki-engine.pid
-          for i in $(seq 1 15); do
-            if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
-              echo "engine ready"
-              exit 0
-            fi
+          trap 'docker rm -f counsel-smoke 2>/dev/null || true' EXIT
+          docker run -d --name counsel-smoke -p 18086:8086 liki-counsel:ci
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18086/healthz && break
             sleep 1
           done
-          echo "engine failed to become ready"; exit 1
-      - name: Run full data check (eval_hybrid)
-        # 慢路径（32 命例全量排盘，数分钟级）：断语覆盖统计 + 零命中题检测——
-        # 防"断语表改动后断语丢失/死行"（外部评审 #18 模式）只在全量数据检查暴露
-        # 连本地引擎（同仓 build），不依赖生产 liki.hk
-        run: bash tests/check.sh --full
-        env:
-          LIKI_RPC_URL: http://localhost:8082/jsonrpc
-      - name: stop engine
-        if: always()
-        run: kill "$(cat /tmp/liki-engine.pid)" 2>/dev/null || true
+          curl -fsS http://127.0.0.1:18086/healthz | grep -q '"status":"ok"'
+          body='{"jsonrpc":"2.0","id":1,"method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}}}}'
+          curl -fsS -X POST http://127.0.0.1:18086/mcp \
+            -H 'Content-Type: application/json' \
+            -H 'MCP-Protocol-Version: 2026-07-28' \
+            -H 'Mcp-Method: server/discover' \
+            -H 'Accept: application/json, text/event-stream' \
+            --data "$body" | grep -q 'io.modelcontextprotocol/serverInfo'
 
-  # ── Skills: Build archive ──
-  skills-archive:
-    name: Skills Build archive
+  engine-image:
+    name: Engine MCP image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - name: Build skill archive
-        run: bash scripts/build-archive.sh
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - run: docker build -f engine/dev/Dockerfile -t liki-engine:ci engine
+      - name: Smoke engine MCP image
+        run: |
+          trap 'docker rm -f engine-image-smoke 2>/dev/null || true' EXIT
+          docker run -d --name engine-image-smoke \
+            --entrypoint /usr/local/bin/engine-mcp \
+            -p 18081:8081 \
+            liki-engine:ci
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18081/health && break
+            sleep 1
+          done
+          python scripts/test_engine_mcp.py http://127.0.0.1:18081
 
-  # ── E2E: 全链路（engine + skills 契约一致性）──
-  e2e:
-    name: E2E (engine + skills integration)
+      - name: Smoke transition JSON-RPC image runtime
+        run: |
+          trap 'docker rm -f engine-rpc-image-smoke 2>/dev/null || true' EXIT
+          docker run -d --name engine-rpc-image-smoke \
+            --entrypoint /usr/local/bin/engine-rpc \
+            -p 18083:8080 \
+            liki-engine:ci
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18083/health && break
+            sleep 1
+          done
+          body='{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{}}'
+          curl -fsS -X POST http://127.0.0.1:18083/jsonrpc \
+            -H 'Content-Type: application/json' \
+            --data "$body" | grep -q 'openrpc'
+
+  full-data:
+    name: Full assertion coverage
     runs-on: ubuntu-latest
-    needs: [engine-lint, engine-test, skills-test]
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
-          go-version: '1.26'
+          go-version: "1.26.6"
           check-latest: true
           cache-dependency-path: engine/go.sum
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
-          python-version: '3.12'
-      - name: Install pytest
-        run: python3 -m pip install pytest pyyaml jsonschema
-      - name: build engine
-        working-directory: engine
-        run: go build -o /tmp/liki-engine ./cmd/liki/
-      - name: start engine
-        run: |
-          /tmp/liki-engine -addr :8082 &
-          echo "pid=$!" > /tmp/liki-engine.pid
-          cat /tmp/liki-engine.pid
-          for i in $(seq 1 15); do
-            if curl -sf -o /dev/null http://localhost:8082/health 2>/dev/null; then
-              echo "engine ready"
-              exit 0
-            fi
-            sleep 1
-          done
-          echo "engine failed to become ready"; exit 1
-      - name: skill full-chain integration test (LIKI_RPC_URL)
-        # 引擎同仓 build，跑 skill 全链路——彻底消除此前"skill 集成测试依赖外部引擎"的跨仓耦合
-        run: |
-          LIKI_RPC_URL=http://localhost:8082/jsonrpc python3 -m pytest tests/test_integration.py -q -s
-      - name: stop engine
-        if: always()
-        run: kill "$(cat /tmp/liki-engine.pid)" 2>/dev/null || true
+          python-version: "3.12"
+      - run: python -m pip install pytest pyyaml jsonschema
+      - run: make full-data
 
-  # ── Windows CLI：验证 py launcher + UTF-8 stdin/stdout 契约 ──
-  windows-cli-smoke:
-    name: Windows CLI UTF-8 smoke
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.12'
-      - name: Run agent_cli.py directly with Chinese JSON
-        shell: pwsh
-        run: |
-          $request = '{"fn":"测试","args":{}}'
-          $path = Join-Path $env:TEMP 'liki-windows-smoke.json'
-          Set-Content -Path $path -Value $request -Encoding utf8NoBOM
-          $output = Get-Content -Path $path -Raw -Encoding UTF8 | py -3 -X utf8 skills\liki\natal\tools\agent_cli.py
-          Write-Host $output
-          $response = $output | ConvertFrom-Json
-          if ($response.ok) { exit 1 }
-          if ($response.error.code -ne 'INVALID_INPUT') { exit 1 }
-
-  # ── 镜像发布（release 触发——gh release create 后才发；master push 只测试不发）──
   docker-publish:
-    name: Publish engine image (ghcr)
+    name: Publish engine image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
     permissions:
       contents: read
       packages: write
-    needs: [engine-test]
     steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v4
-      - name: Login to ghcr
-        uses: docker/login-action@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build & push (latest + sha 锚)
-        uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: ./engine
           file: ./engine/dev/Dockerfile
@@ -265,9 +237,15 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/liki-engine:latest
             ghcr.io/${{ github.repository_owner }}/liki-engine:sha-${{ github.sha }}
-      - name: Smoke test (发布物即测试物)
+      - name: Smoke published image over MCP
         run: |
-          docker run -d --name engine-smoke -p 18082:8080 ghcr.io/${{ github.repository_owner }}/liki-engine:latest
-          for i in $(seq 1 15); do curl -sf http://localhost:18082/health && break; sleep 1; done
-          bash scripts/test-rpc.sh http://localhost:18082 || { docker rm -f engine-smoke; exit 1; }
-          docker rm -f engine-smoke
+          trap 'docker rm -f engine-smoke 2>/dev/null || true' EXIT
+          docker run -d --name engine-smoke \
+            --entrypoint /usr/local/bin/engine-mcp \
+            -p 18082:8081 \
+            ghcr.io/${{ github.repository_owner }}/liki-engine:latest
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18082/health && break
+            sleep 1
+          done
+          python scripts/test_engine_mcp.py http://127.0.0.1:18082

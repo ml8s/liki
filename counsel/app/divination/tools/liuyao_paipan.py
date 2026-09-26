@@ -3,9 +3,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from divination_rpc import engine_data, server_time
 from liuyao_factors import project_factors
 from liuyao_matters import resolve_matter
-from divination_rpc import engine_data, server_time
 
 
 def _resolve_yong_shen(

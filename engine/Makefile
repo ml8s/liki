@@ -1,19 +1,16 @@
-# 语言原语层：单命令入口。编排（全量测试/推送检查）统一走仓库根 Makefile
-# （根 test-engine → scripts/ci-engine.sh）——单一编排入口，不在此重复。
+# 语言原语层：单命令入口。全量测试/推送检查统一走仓库根 Makefile。
 .PHONY: all build build-linux lint vet test clean run
 
-BINARY=liki
-VERSION=$(shell cat cmd/liki/VERSION 2>/dev/null || echo dev)
-BUILD_TIME=$(shell date -u +%Y-%m-%dT%H:%M:%SZ)
-LDFLAGS=-ldflags="-X main.BuildTime=$(VERSION)@$(BUILD_TIME)"
+VERSION=$(shell cat cmd/engine-mcp/VERSION 2>/dev/null || echo dev)
+LDFLAGS=-ldflags="-X main.BuildTime=$(VERSION)"
 
 all: build
 
 build:
-	go build $(LDFLAGS) -o $(BINARY) ./cmd/liki/
+	go build $(LDFLAGS) -o engine-mcp ./cmd/engine-mcp/
 
 build-linux:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(LDFLAGS) -o bin/liki-engine ./cmd/liki/
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build $(LDFLAGS) -o bin/engine-mcp ./cmd/engine-mcp/
 
 lint:
 	golangci-lint run ./...
@@ -25,7 +22,7 @@ test:
 	go test ./internal/... -count=1
 
 clean:
-	rm -f $(BINARY) bin/liki-engine
+	rm -f engine-mcp bin/engine-mcp
 
 run:
-	go run ./cmd/liki/
+	go run ./cmd/engine-mcp/

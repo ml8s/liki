@@ -2,6 +2,8 @@
 .DS_Store
 Thumbs.db
 dist/
+/node_modules/
+/bin/
 # 评测产物
 tests/benchmark/mingli160/workspace/
 tests/skillup/workspace/

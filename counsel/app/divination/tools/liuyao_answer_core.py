@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from divination_answer import validate_common_core
 
-
 ALLOWED_FIELDS = {
     "headline",
     "verdict",

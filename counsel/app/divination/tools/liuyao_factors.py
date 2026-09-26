@@ -1,7 +1,6 @@
 """六爻 snapshot 投影；搬运 engine 事实并做解释层级组织，不新增命理判断。"""
 from __future__ import annotations
 
-
 CONCLUSION_SCOPE = "conditional_candidate_not_outcome"
 
 

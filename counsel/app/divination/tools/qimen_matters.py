@@ -6,7 +6,6 @@ from pathlib import Path
 
 from qimen_errors import TableError
 
-
 MATTERS_PATH = Path(__file__).with_name("data") / "qimen_matters.csv"
 _MATTER_TABLE = None
 

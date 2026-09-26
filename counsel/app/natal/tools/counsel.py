@@ -1,4 +1,4 @@
-"""analysis 判断层：compute_factors / natal_query / period_query。
+"""counsel 判断层：compute_factors / natal_query / period_query。
 
 正交化后 engine 的补集能力（判断，不排盘）：
 - compute_factors(chart)    ：engine 排盘结果 → 因子快照（内部调 engine fullchart）
@@ -12,14 +12,41 @@ from __future__ import annotations
 import hashlib
 import json
 
-from duanyu import match_rule, query, yearly_range
+from duanyu import match_rule
 from factors import evaluate_factors
 from paipan import _bazi_fullchart, _ziwei_daxian, call
 
 
 def _factors_digest(factors: dict) -> str:
-    raw = json.dumps(factors, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    raw = json.dumps(
+        factors, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"), allow_nan=False,
+    )
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _chart_digest(chart: dict) -> str:
+    raw = json.dumps(
+        chart, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"), allow_nan=False,
+    )
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _factor_provenance(factors: dict) -> dict:
+    provenance = factors.get("_provenance")
+    if not isinstance(provenance, dict):
+        raise ValueError("factors 缺少 compute_factors 生成的 _provenance")
+    return provenance
+
+
+def verify_factors_digest(factors: dict, factors_digest: str) -> None:
+    """校验因子快照未被调用方裁剪、拼接或替换。"""
+    if not isinstance(factors_digest, str):
+        raise ValueError("factors_digest 必须是 compute_factors 返回的 SHA-256 字符串")
+    expected = _factors_digest(factors)
+    if factors_digest != expected:
+        raise ValueError("factors_digest mismatch；必须原样传递 compute_factors 返回的 factors")
 
 
 def _is_bazi_chart(chart: dict) -> bool:
@@ -39,7 +66,8 @@ def compute_factors(chart: dict) -> dict:
         context["公历出生"] = chart["solar"]
     if chart.get("lunar"):
         context["农历出生"] = chart["lunar"]
-    if _is_bazi_chart(chart):
+    side = "bazi" if _is_bazi_chart(chart) else "ziwei"
+    if side == "bazi":
         full = _bazi_fullchart(chart)
         pan = {"chart": chart, "full": full, "gender": gender}
         factors = evaluate_factors(gender, pan, shushi="bazi")
@@ -48,6 +76,11 @@ def compute_factors(chart: dict) -> dict:
         daxian = _ziwei_daxian(zw)
         pan = {"chart": chart, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
         factors = evaluate_factors(gender, pan, shushi="ziwei")
+    factors["_provenance"] = {
+        "side": side,
+        "chart_digest": _chart_digest(chart),
+        "context": context,
+    }
     return {
         "factors": factors,
         "factors_digest": _factors_digest(factors),
@@ -55,8 +88,8 @@ def compute_factors(chart: dict) -> dict:
     }
 
 
-def natal_query(factors: dict, topics: list[str], context: dict | None = None,
-                side: str = "bazi") -> dict:
+def natal_query(factors: dict, topics: list[str], factors_digest: str,
+                context: dict | None = None, side: str = "bazi") -> dict:
     """因子快照 + topics → 本命断语（用因子快照匹配断语表，不重算 snapshot）。
 
     与正交化基线一致（context 至少含性别；出生信息影响断语时附带）。
@@ -64,6 +97,16 @@ def natal_query(factors: dict, topics: list[str], context: dict | None = None,
     """
     from analytics import _flatten_side_result, _load_routes, _require_topics
 
+    verify_factors_digest(factors, factors_digest)
+    provenance = _factor_provenance(factors)
+    if provenance.get("side") != side:
+        raise ValueError(
+            f"factors provenance side mismatch: expected {side!r}, "
+            f"got {provenance.get('side')!r}"
+        )
+    expected_context = provenance.get("context")
+    if expected_context != (context or {}):
+        raise ValueError("context 与 compute_factors 因子来源不一致")
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"natal_query side 只支持 bazi/ziwei，收到: {side!r}")
     from factor_constants import load_constants
@@ -90,12 +133,14 @@ def natal_query(factors: dict, topics: list[str], context: dict | None = None,
     return {"assertions": all_assertions}
 
 
-def period_query(factors: dict, time_scope: dict, topics: list[str], chart: dict,
-                 side: str = "bazi") -> dict:
-    """因子快照 + 时间层 + topics → 应期断语（大运/大限/流年）。
+def period_query(factors: dict, factors_digest: str, time_scope: dict,
+                 topics: list[str], chart: dict, side: str = "bazi") -> dict:
+    """已校验因子快照 + 时间层 + topics → 应期断语（大运/大限/流年）。
 
     chart 为 engine 排盘结果（bazi_chart/ziwei_chart），内部据此调 engine
     流年/大限取应期字段，再匹配断语表（本命因子参与匹配）。
+    factors_digest 先验证 factors 未被修改；随后按 chart 重建求值上下文并
+    调 engine 获取流年/大限事实。engine 事实必须以 chart 为源，不能从快照伪造。
     side 指定因子所属侧（bazi/ziwei），断语只出该侧。
     输出结构与 analyze_periods 一致（periods 数组）。
 
@@ -107,6 +152,15 @@ def period_query(factors: dict, time_scope: dict, topics: list[str], chart: dict
     """
     from analytics import _analyze_periods
 
+    verify_factors_digest(factors, factors_digest)
+    provenance = _factor_provenance(factors)
+    if provenance.get("side") != side:
+        raise ValueError(
+            f"factors provenance side mismatch: expected {side!r}, "
+            f"got {provenance.get('side')!r}"
+        )
+    if provenance.get("chart_digest") != _chart_digest(chart):
+        raise ValueError("chart 与 compute_factors 因子来源不一致")
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"period_query side 只支持 bazi/ziwei，收到: {side!r}")
     gender = chart.get("gender", "")

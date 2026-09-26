@@ -17,19 +17,21 @@ type ipLimiter struct {
 
 // RateLimiter provides per-IP token-bucket rate limiting.
 type RateLimiter struct {
-	mu       sync.Mutex
-	entries  map[string]*ipLimiter
-	cleanupT *time.Ticker
-	done     chan struct{}
-	stopOnce sync.Once
+	mu         sync.Mutex
+	entries    map[string]*ipLimiter
+	maxEntries int
+	cleanupT   *time.Ticker
+	done       chan struct{}
+	stopOnce   sync.Once
 }
 
 // NewRateLimiter creates a rate limiter that periodically cleans up idle entries.
 func NewRateLimiter() *RateLimiter {
 	rl := &RateLimiter{
-		entries:  make(map[string]*ipLimiter),
-		cleanupT: time.NewTicker(10 * time.Minute),
-		done:     make(chan struct{}),
+		entries:    make(map[string]*ipLimiter),
+		maxEntries: 65536,
+		cleanupT:   time.NewTicker(10 * time.Minute),
+		done:       make(chan struct{}),
 	}
 	go rl.cleanup()
 	return rl
@@ -82,10 +84,27 @@ func (rl *RateLimiter) getLimiter(ip string, r rate.Limit, burst int) *rate.Limi
 	key := fmt.Sprintf("%s|%.0f|%d", ip, float64(r), burst)
 	e, ok := rl.entries[key]
 	if !ok {
+		if len(rl.entries) >= rl.maxEntries {
+			rl.evictOldestLocked()
+		}
 		limiter := rate.NewLimiter(r, burst)
 		rl.entries[key] = &ipLimiter{limiter: limiter, lastUsed: time.Now()}
 		return limiter
 	}
 	e.lastUsed = time.Now()
 	return e.limiter
+}
+
+func (rl *RateLimiter) evictOldestLocked() {
+	oldestKey := ""
+	var oldest time.Time
+	for key, entry := range rl.entries {
+		if oldestKey == "" || entry.lastUsed.Before(oldest) {
+			oldestKey = key
+			oldest = entry.lastUsed
+		}
+	}
+	if oldestKey != "" {
+		delete(rl.entries, oldestKey)
+	}
 }

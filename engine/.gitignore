@@ -40,4 +40,3 @@ reasonix.toml
 *.out
 liki-engine
 /liki
-cmd/liki/liki-engine

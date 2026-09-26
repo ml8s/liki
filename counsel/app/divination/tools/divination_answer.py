@@ -1,7 +1,6 @@
 """问卦 answer 公共校验：字段、文本、置信度与禁语。"""
 from __future__ import annotations
 
-
 FORBIDDEN_PHRASES = ("必然", "百分百", "100%", "保证", "一定会")
 CONFIDENCE_LEVELS = {"low", "medium", "high"}
 

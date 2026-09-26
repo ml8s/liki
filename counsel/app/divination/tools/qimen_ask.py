@@ -5,12 +5,13 @@ from divination_contracts import validate_document
 from divination_hashing import message_digest
 from divination_safety import assess
 from divination_snapshot import validate_snapshot
-from qimen_answer_core import build as build_standard_core, validate_core as validate_standard_core
-from qimen_projection import validate as validate_standard_factors
-from qimen_jinhan_answer_core import build as build_jinhan_core, validate_core as validate_jinhan_core
+from qimen_answer_core import build as build_standard_core
+from qimen_answer_core import validate_core as validate_standard_core
+from qimen_jinhan_answer_core import build as build_jinhan_core
+from qimen_jinhan_answer_core import validate_core as validate_jinhan_core
 from qimen_jinhan_factors import validate as validate_jinhan_factors
+from qimen_projection import validate as validate_standard_factors
 from qimen_snapshot import SCHEMA_VERSION
-
 
 ANSWER_SCHEMA_VERSION = "qimen-answer-v2"
 

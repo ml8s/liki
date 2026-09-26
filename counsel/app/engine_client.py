@@ -1,7 +1,7 @@
 """统一 MCP 引擎客户端。
 
-analysis 工具层通过标准 MCP（Streamable HTTP，stateless）调用引擎，替代旧的
-JSON-RPC（/jsonrpc）。RPC 仍由引擎保留在线，仅用于线上旧 skill 兼容；dev 全部走 MCP。
+counsel-mcp 通过标准 Streamable HTTP MCP 调用 engine-mcp。公开部署经 Caddy
+剥离 /engine 前缀；容器内直接使用 http://engine-mcp:8081/mcp。
 
 暴露与旧 call 兼容的接口：`call(method, params)` 返回 `{"data": <MCP 工具结果>}`，
 方法名自动做 RPC 点号 → MCP 下划线映射（bazi.chart → bazi_chart）。
@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import json
 import os
+import pathlib
+import threading
 import time
 import urllib.request
 from urllib.error import HTTPError, URLError
@@ -19,7 +21,10 @@ MAX_RETRIES = int(os.environ.get("LIKI_MCP_MAX_RETRIES", "2"))
 PROTOCOL_VERSION = "2026-07-28"
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 
-CLIENT_INFO = {"name": "counsel", "version": "0.1.0"}
+VERSION_PATH = pathlib.Path(__file__).resolve().parent / "VERSION.txt"
+CLIENT_INFO = {"name": "counsel", "version": VERSION_PATH.read_text(encoding="utf-8").strip()}
+_COMPATIBILITY_LOCK = threading.Lock()
+_COMPATIBILITY_CHECKED = False
 
 
 class MCPError(Exception):
@@ -27,7 +32,14 @@ class MCPError(Exception):
 
 
 def _endpoint() -> str:
-    return os.environ.get("LIKI_MCP_URL", "https://liki.hk/engine/mcp")
+    return os.environ.get("LIKI_MCP_URL", "https://liki.hk/engine/mcp").rstrip("/")
+
+
+def _engine_token() -> str:
+    """Return the outbound engine token without coupling inbound/outbound auth."""
+    return os.environ.get("LIKI_ENGINE_MCP_TOKEN", "") or os.environ.get(
+        "LIKI_MCP_TOKEN", ""
+    )
 
 
 # RPC 方法前缀 → 引擎分域端点后缀（各术数排盘 + 共享 aux）
@@ -36,17 +48,41 @@ _DOMAIN_BY_PREFIX = (
     ("ziwei", "/ziwei"),
     ("qimen", "/qimen"),
     ("liuyao", "/liuyao"),
+    ("huangli", "/huangli"),
+    ("bazhai", "/fengshui"),
+    ("xuankong", "/fengshui"),
     ("time", "/aux"),
     ("tianwen", "/aux"),
     ("city", "/aux"),
 )
 
 
-def _domain_suffix(method: str) -> str:
+def _domain_suffix(method: str | None) -> str:
+    if method is None:
+        return ""
     for prefix, suffix in _DOMAIN_BY_PREFIX:
         if method.startswith(prefix):
             return suffix
     return ""
+
+
+def _version_key(version: str) -> tuple[int, ...]:
+    try:
+        key = tuple(int(part) for part in version.split("."))
+        return key + (0,) * (4 - len(key))
+    except ValueError as error:
+        raise MCPError(f"engine version is invalid: {version}") from error
+
+
+def required_engine_version() -> str:
+    try:
+        version = VERSION_PATH.read_text(encoding="utf-8").strip()
+    except OSError as error:
+        raise MCPError(f"counsel VERSION.txt is unavailable: {error}") from error
+    if not version:
+        raise MCPError("counsel VERSION.txt is empty")
+    _version_key(version)
+    return version
 
 
 def _meta() -> dict:
@@ -80,6 +116,8 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
     }
     if name:
         headers["Mcp-Name"] = name
+    if token := _engine_token():
+        headers["Authorization"] = f"Bearer {token}"
 
     last_err: Exception | None = None
     for attempt in range(retries + 1):
@@ -103,6 +141,7 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
 
 def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     """调引擎 MCP 工具；返回 {"data": <工具结果>}，兼容旧 RPC 调用点。"""
+    ensure_engine_compatible()
     tool = method.replace(".", "_")
     result = _post("tools/call", tool, {"name": tool, "arguments": params}, retries)
     content = result.get("content") or []
@@ -125,3 +164,27 @@ def engine_version() -> str:
     if not isinstance(version, str) or not version:
         raise MCPError("engine server.discover response missing version")
     return version
+
+
+def ensure_engine_compatible(
+    version: str | None = None, required: str | None = None
+) -> None:
+    """每个进程做一次 engine/counsel CalVer 兼容检查，失败即 fail closed。"""
+    global _COMPATIBILITY_CHECKED
+    with _COMPATIBILITY_LOCK:
+        if version is None or required is None:
+            if _COMPATIBILITY_CHECKED:
+                return
+            version = engine_version()
+            required = required_engine_version()
+            version_key = _version_key(version)
+            required_key = _version_key(required)
+        else:
+            version_key = _version_key(version)
+            required_key = _version_key(required)
+        if version_key < required_key:
+            raise MCPError(
+                f"engine version {version} is incompatible; "
+                f"counsel VERSION.txt requires engine >= {required}"
+            )
+        _COMPATIBILITY_CHECKED = True

@@ -113,7 +113,10 @@ func TestXiaoYun_MaxAgeDefault(t *testing.T) {
 
 // TestXiaoYun_ShiZhuVariation：12 候选时辰——星平会海流派首岁随时辰变化，三命通会固定。
 func TestXiaoYun_ShiZhuVariation(t *testing.T) {
-	shichen := []struct{ gan, zhi ganzhi.Gan; ganzhi.Zhi }{}
+	shichen := []struct {
+		gan, zhi ganzhi.Gan
+		ganzhi.Zhi
+	}{}
 	_ = shichen
 	// 12 个候选时辰（子时→亥时，地支变化）
 	candidates := []struct {

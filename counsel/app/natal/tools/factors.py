@@ -14,16 +14,16 @@ from typing import Optional
 
 from errors import FactorEvaluateError
 from factor_constants import load_constants
-from factor_tokens import FACTOR_WILDCARD
 from factor_context import FactorContext, NatalContext
+from factor_tables import load_factor_rows, load_liunian_rows
+from factor_tokens import FACTOR_WILDCARD
+from natal_projection import project_natal_facts
 from operators_liunian import _LIU_OP_NAMES, _liu_op
 from operators_natal import (
     _OP_NAMES,
     _base_ctx_from_pan,
     _op,
 )
-from natal_projection import project_natal_facts
-from factor_tables import load_factor_rows, load_liunian_rows
 
 __all__ = [
     "evaluate_operator",

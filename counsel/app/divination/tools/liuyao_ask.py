@@ -2,13 +2,12 @@
 from __future__ import annotations
 
 from divination_contracts import validate_document
-from divination_safety import assess
 from divination_hashing import message_digest
+from divination_safety import assess
 from divination_snapshot import validate_snapshot
 from liuyao_answer_core import build as build_core
 from liuyao_answer_core import validate_core
 from liuyao_snapshot import SCHEMA_VERSION
-
 
 ANSWER_SCHEMA_VERSION = "liuyao-answer-v2"
 

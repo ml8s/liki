@@ -7,7 +7,6 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-
 PATH = Path(__file__).parent
 
 CONTRACT_FILES = {

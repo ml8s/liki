@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import csv
 import json
-from functools import lru_cache
 from pathlib import Path
 
 CONTRACT_PATH = Path(__file__).with_name("qimen_projection_contract.json")

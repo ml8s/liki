@@ -13,6 +13,14 @@ import paipan
 from paipan import RPCError, call
 
 
+@pytest.fixture(autouse=True)
+def skip_shared_engine_compatibility(monkeypatch):
+    """Pure transport tests exercise call(); the shared gate has its own tests."""
+    import engine_client
+
+    monkeypatch.setattr(engine_client, "_COMPATIBILITY_CHECKED", True)
+
+
 def test_rpc_logical_error_is_not_retried() -> None:
     payload = json.dumps({"error": {"message": "bad params"}}).encode()
     response = mock.MagicMock()
@@ -79,7 +87,7 @@ def test_engine_compatibility_requires_installed_skill_version(monkeypatch) -> N
     older = required.split(".")[:-1] + [str(int(required.split(".")[-1]) - 1)]
     monkeypatch.setattr(paipan, "engine_version", lambda: ".".join(older))
 
-    with pytest.raises(RPCError, match="skill VERSION.txt requires engine"):
+    with pytest.raises(RPCError, match="VERSION.txt requires engine"):
         paipan.ensure_engine_compatible()
 
 

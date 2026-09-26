@@ -1,6 +1,6 @@
 [project]
 name = "liki-skill"
-version = "2026.09.19.0"
+version = "2026.09.25.0"
 description = "Liki unified mingli skill: bazi, ziwei, liuyao, qimen, huangli, fengshui, naming"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
@@ -17,3 +17,6 @@ line-length = 120
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["E402"]

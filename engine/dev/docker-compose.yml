@@ -4,23 +4,15 @@
 # file is only for building and running the engine image from this source tree.
 
 services:
-  engine:
+  engine-mcp:
     image: liki-engine:latest
     build:
       context: ..
       dockerfile: dev/Dockerfile
-    ports:
-      - "${LIKI_ENGINE_HOST_PORT:-8082}:8080"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-          cpus: "1"
-
-  mcp:
-    image: liki-engine:latest
-    entrypoint: ["/usr/local/bin/liki-mcp", "--addr", ":8081"]
+    entrypoint: ["/usr/local/bin/engine-mcp", "--addr", ":8081"]
+    entrypoint: ["/usr/local/bin/engine-mcp", "--addr", ":8081"]
+    environment:
+      - LIKI_EXTERNAL_GEOCODING=${LIKI_EXTERNAL_GEOCODING:-on}
     ports:
       - "${LIKI_ENGINE_MCP_HOST_PORT:-8083}:8081"
     restart: unless-stopped

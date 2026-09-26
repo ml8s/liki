@@ -1,0 +1,6 @@
+# Root context is used only by counsel/Dockerfile. Keep it minimal.
+**
+!counsel
+!counsel/app
+!counsel/app/**
+!counsel/requirements.lock
