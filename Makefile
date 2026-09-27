@@ -91,10 +91,11 @@ lint-python: ## Python static analysis
 
 lint: lint-md lint-engine lint-python ## Full lint entry point
 
-check: lint-md fmt-check go-version-check ## 纯静态契约检查（lint + 格式 + schema + docs + 专家方法论一致性）。不跑测试、不生成工件。
+check: lint-md lint-python fmt-check go-version-check ## 纯静态契约检查（lint + Python lint + 格式 + schema + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
 	python3 scripts/check_schema.py
 	python3 scripts/check_docs.py
 	bash scripts/check-expert-methodology.sh
+	bash scripts/check-exec-bits.sh
 
 test-contracts: ## Root skill / rules / documentation contract suite
 	python3 -m pytest tests/ -q

@@ -49,10 +49,12 @@ done < <(
       for (i = 1; i <= n; i++) {
         t = tok[i]
         if (t !~ /scripts\/[A-Za-z_0-9]+\.py"?$/) continue
-        gsub(/^"/, "", t)
+        # normalize: strip "$ROOT/" style prefixes and quotes, keep scripts/...
+        sub(/^"?(\$\{?[A-Z_]+\}?\/)?/, "", t)
         gsub(/"$/, "", t)
         prev = (i > 1) ? tok[i - 1] : ""
-        if (prev ~ /(python[0-9.]*|PY|[Pp]ython)$/) continue
+        gsub(/["()]/, "", prev)
+        if (tolower(prev) ~ /python[0-9.]*$/) continue
         print t
       }
     }
