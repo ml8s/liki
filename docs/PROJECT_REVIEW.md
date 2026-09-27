@@ -58,9 +58,9 @@ Liki 当前的工程成熟度较高。仓库已经形成清晰的「确定性排
 项目在版本和契约治理上明显高于一般 Skill 项目：
 
 - 运行时使用统一 CalVer：`skills/liki/VERSION.txt`、counsel、engine MCP、engine RPC 当前均为 `2026.09.26.0`。
-- AgentDeployment schema 由外部 liki-agents 仓拥有，本仓用 `contracts/agent-definition.version` 同时 pin version 和 SHA-256 digest，CI 还会从 OCI artifact 拉取后校验 digest。
-- MCP 工具目录 `contracts/mcp-tool-catalog.json` 有独立 schema、runtime version 校验，并会在 release 时作为 OCI artifact 发布。
-- GitHub Release 会发布 engine、counsel、experts 镜像、MCP tool catalog 和 web skill bundle；镜像记录 OCI digest。
+- AgentDeployment schema 由外部 liki-agents 仓拥有，本仓用 `contracts/agent-definition.version` 同时 pin version 和 SHA-256 digest，生成工件时校验本地 schema digest 一致。
+- MCP 工具目录 `contracts/mcp-tool-catalog.json` 有独立 schema 和 runtime version 校验，随仓库提交维护。
+- GitHub Release 会发布 engine、counsel、experts 镜像和 web skill bundle；镜像记录 OCI digest。
 
 ### 测试质量
 

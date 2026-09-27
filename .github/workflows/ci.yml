@@ -406,42 +406,6 @@ jobs:
           echo "liki-multi-expert=${{ steps.multi-expert-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
           echo "liki-single-expert=${{ steps.single-expert-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
 
-  publish-tool-catalog:
-    name: Publish MCP tool catalog
-    if: github.event_name == 'release'
-    runs-on: ubuntu-latest
-    needs: [check]
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Install ORAS CLI
-        run: |
-          curl -sSL https://github.com/oras-project/oras/releases/download/v1.2.0/oras_1.2.0_linux_amd64.tar.gz \
-            -o /tmp/oras.tar.gz
-          tar -C /usr/local/bin -xzf /tmp/oras.tar.gz oras
-          oras version
-      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish catalog as OCI artifact
-        env:
-          GHCR_REF: ghcr.io/${{ github.repository_owner }}/mcp-tool-catalog
-        run: |
-          version="$(python3 -c 'import json; print(json.load(open("contracts/mcp-tool-catalog.json"))["version"])')"
-          runtime="$(python3 -c 'import json; print(json.load(open("contracts/mcp-tool-catalog.json"))["runtime_version"])')"
-          oras push --plain-http=false \
-            --annotation org.opencontainers.image.title=mcp-tool-catalog \
-            --annotation org.opencontainers.image.description="Liki MCP tool catalog" \
-            --annotation org.opencontainers.image.version="${version}" \
-            --annotation org.liki.runtime-version="${runtime}" \
-            "${GHCR_REF}:${version}" \
-            contracts/mcp-tool-catalog.json:application/json \
-            contracts/mcp-tool-catalog.schema.json:application/schema+json
-
   publish-web-skill-bundle:
     name: Publish web skill bundle
     if: github.event_name == 'release'
