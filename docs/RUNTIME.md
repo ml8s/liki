@@ -53,6 +53,18 @@ token-protected without exposing those probes.
 a permanent compatibility surface: remove this runtime only after `liki-web`,
 `liki-deploy`, and their E2E suites have moved to engine MCP.
 
+#### Removal gate
+
+`engine-rpc` is removed when **all** of the following are true:
+
+1. `liki-web` free-chart surface calls engine MCP (`/engine/mcp`), not `/jsonrpc`.
+2. `liki-deploy` compose no longer maps the `engine` service's `/jsonrpc` route.
+3. No `/jsonrpc` traffic for 30 consecutive days (observable via engine metrics).
+4. A release note announces the removal one cycle (one CalVer minor) in advance.
+
+On removal: delete `engine/cmd/engine-rpc/`, the `engine-rpc` Dockerfile build
+stage and entrypoint default, and the `docs/RUNTIME.md` `engine-rpc` section.
+
 ### counsel-mcp
 
 | Variable | Default | Purpose |
@@ -71,6 +83,11 @@ a permanent compatibility surface: remove this runtime only after `liki-web`,
 
 `GET /healthz` is liveness. `GET /readyz` checks that counsel and engine runtime
 versions are compatible; use it for orchestration readiness.
+
+`/mcp` is the aggregate surface for the multi-expert runtime. It exposes the
+natal judgment tools (`compute_factors`, `natal_query`, and `period_query`) plus
+naming, Liuyao, and Qimen tools. `/mcp/bazi` and `/mcp/ziwei` remain fixed-domain
+endpoints for clients that need a narrower discovery surface.
 
 ## Deployment rules
 
