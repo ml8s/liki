@@ -30,6 +30,25 @@ def main() -> int:
         if not isinstance(jobs, dict):
             errors.append(f"{path.relative_to(ROOT)}: jobs must be a mapping")
             continue
+        pins: dict[str, str] = {}
+        for job_id, job in jobs.items():
+            if not isinstance(job, dict):
+                continue
+            for step in job.get("steps") or []:
+                if not isinstance(step, dict):
+                    continue
+                uses = step.get("uses")
+                if not isinstance(uses, str) or "@" not in uses:
+                    continue
+                action, _, ref = uses.rpartition("@")
+                if not all(c in "0123456789abcdef" for c in ref) or len(ref) != 40:
+                    continue
+                if action in pins and pins[action] != ref:
+                    errors.append(
+                        f"{path.relative_to(ROOT)}: job {job_id!r} pins {action} "
+                        f"to {ref} but another job uses {pins[action]}"
+                    )
+                pins.setdefault(action, ref)
         for job_id, job in jobs.items():
             if not isinstance(job, dict):
                 continue
