@@ -338,14 +338,18 @@ jobs:
           AGENTS_BASE: ghcr.io/${{ github.repository_owner }}/liki-agents:${{ steps.version.outputs.version }}
         run: |
           for profile in single experts; do
-            digest="$(
+            out="$(
               docker run --rm -v "$PWD/dist/agents:/deployment:ro" \
                 -e LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/${profile}/deployment.json \
                 --entrypoint /liki-agents "$AGENTS_BASE" \
-                validate -deployment /deployment/${profile}/deployment.json 2>&1 |
-                sed -n 's/.*digest=\([^ ]*\).*/\1/p'
-            )"
-            [ -n "$digest" ] || { echo "failed to compute ${profile} deployment digest"; exit 1; }
+                validate -deployment /deployment/${profile}/deployment.json 2>&1
+            )" || true
+            digest="$(printf '%s\n' "$out" | sed -n 's/.*digest=\([^ ]*\).*/\1/p')"
+            if [ -z "$digest" ]; then
+              echo "::error::failed to compute ${profile} deployment digest"
+              printf '%s\n' "$out"
+              exit 1
+            fi
             echo "${profile}=${digest}" >> "$GITHUB_OUTPUT"
           done
           base_ref="$(
@@ -418,6 +422,11 @@ jobs:
             -o /tmp/oras.tar.gz
           tar -C /usr/local/bin -xzf /tmp/oras.tar.gz oras
           oras version
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish catalog as OCI artifact
         env:
           GHCR_REF: ghcr.io/${{ github.repository_owner }}/mcp-tool-catalog
