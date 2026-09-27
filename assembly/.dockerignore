@@ -1,0 +1,5 @@
+# 装配镜像构建上下文：只放行组合工件，绝不带入源码/密钥。
+**
+!dist/agents
+!dist/agents/**
+!Dockerfile

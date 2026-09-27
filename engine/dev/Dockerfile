@@ -2,6 +2,9 @@
 FROM golang:1.26.6-alpine@sha256:3889b425f035be855a72fb4755265311293b6d414521f0a519d819df32222d83 AS build
 WORKDIR /src
 ENV GOPROXY=https://goproxy.cn,direct
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_TIME=unknown
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
@@ -16,6 +19,14 @@ RUN apk add --no-cache ca-certificates
 RUN adduser -D -u 1000 liki
 
 FROM scratch
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_TIME=unknown
+LABEL org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.revision="${COMMIT}" \
+      org.opencontainers.image.created="${BUILD_TIME}" \
+      org.opencontainers.image.title="liki-engine" \
+      org.opencontainers.image.description="Liki deterministic metaphysics engine"
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=certs /etc/passwd /etc/passwd
 COPY --from=build /out/engine-mcp /usr/local/bin/engine-mcp
