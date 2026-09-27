@@ -181,7 +181,7 @@ jobs:
             curl -fsS http://127.0.0.1:18081/health && break
             sleep 1
           done
-          python scripts/test_engine_mcp.py http://127.0.0.1:18081
+          python scripts/test_engine_mcp.py http://127.0.0.1:18081/mcp
 
       - name: Smoke transition JSON-RPC image runtime
         run: |
@@ -261,7 +261,7 @@ jobs:
             curl -fsS http://127.0.0.1:18082/health && break
             sleep 1
           done
-          python scripts/test_engine_mcp.py http://127.0.0.1:18082
+          python scripts/test_engine_mcp.py http://127.0.0.1:18082/mcp
       - name: Record released image digest
         run: echo "liki-engine=${{ steps.engine-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
 

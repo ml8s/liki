@@ -55,7 +55,7 @@ def main() -> int:
         "base_url",
         nargs="?",
         default=os.environ.get("LIKI_MCP_URL", ""),
-        help="engine origin, for example http://127.0.0.1:8081（默认 LIKI_MCP_URL）",
+        help="engine MCP endpoint, for example http://127.0.0.1:8081/mcp（默认 LIKI_MCP_URL）",
     )
     args = parser.parse_args()
     if not args.base_url:
@@ -63,11 +63,11 @@ def main() -> int:
     base = args.base_url.rstrip("/")
 
     expectations = {
-        "/mcp": {"bazi_chart", "ziwei_chart", "huangli_days", "bazhai_chart"},
-        "/mcp/bazi": {"bazi_chart", "bazi_fullchart"},
-        "/mcp/huangli": {"huangli_days"},
-        "/mcp/fengshui": {"bazhai_chart", "xuankong_chart", "time_now"},
-        "/mcp/aux": {"time_now", "tianwen_time", "city_coords"},
+        "": {"bazi_chart", "ziwei_chart", "huangli_days", "bazhai_chart"},
+        "/bazi": {"bazi_chart", "bazi_fullchart"},
+        "/huangli": {"huangli_days"},
+        "/fengshui": {"bazhai_chart", "xuankong_chart", "time_now"},
+        "/aux": {"time_now", "tianwen_time", "city_coords"},
     }
     for path, required in expectations.items():
         endpoint = base + path
@@ -80,9 +80,9 @@ def main() -> int:
         missing = required - names
         if missing:
             raise RuntimeError(f"{endpoint}: missing tools: {sorted(missing)}")
-        print(f"✓ {path}: {len(names)} tools")
+        print(f"✓ {path or '/'}: {len(names)} tools")
 
-    root = base + "/mcp"
+    root = base
     result = post(root, "tools/call", "time_now", {"name": "time_now", "arguments": {}})
     content = result.get("content") or []
     text = content[0].get("text", "") if content else ""
