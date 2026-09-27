@@ -56,6 +56,8 @@ build: build-skill build-engine-mcp build-engine-rpc ## Build local artifacts (s
 
 IMAGE_REGISTRY ?= ghcr.io/ml8s
 IMAGE_TAG ?= dev
+# 装配镜像的 base（本地先 make image 出 liki-agents:dev；CI 用 release pin 覆盖）
+BASE_IMAGE ?= $(IMAGE_REGISTRY)/liki-agents:$(IMAGE_TAG)
 
 image-engine: ## Build liki-engine image locally (debug; production uses CI release)
 	docker build -f engine/dev/Dockerfile -t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
@@ -64,9 +66,9 @@ image-counsel: ## Build liki-counsel image locally (debug; production uses CI re
 	docker build -f counsel/Dockerfile -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
 image-assembly: build-deployment ## Build assembly images locally (multi + single; pulls liki-agents base from GHCR)
-	@rm -rf assembly/dist && cp -r dist/agents assembly/dist
-	@docker build -f assembly/Dockerfile --build-arg PROFILE=experts -t $(IMAGE_REGISTRY)/liki-multi-expert:$(IMAGE_TAG) assembly
-	@docker build -f assembly/Dockerfile --build-arg PROFILE=single -t $(IMAGE_REGISTRY)/liki-single-expert:$(IMAGE_TAG) assembly
+	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
+	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg PROFILE=experts -t $(IMAGE_REGISTRY)/liki-multi-expert:$(IMAGE_TAG) assembly
+	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg PROFILE=single -t $(IMAGE_REGISTRY)/liki-single-expert:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 
 image: image-engine image-counsel ## Build all liki-owned runtime images locally (debug)
