@@ -47,8 +47,8 @@ def resolve_schema(schema_path: str | None) -> tuple[dict, bytes]:
     path = Path(schema_path) if schema_path else SCHEMA_CACHE
     if not path.exists():
         sys.exit(
-            f"schema not found: {path}. 请从 GHCR OCI artifact 拉取 "
-            f"ghcr.io/ml8s/liki-contracts 或用 --schema 指定"
+            f"schema not found: {path}. schema 随仓库提交"
+            f"（contracts/agent-definition.schema.json），或用 --schema 指定"
         )
     raw = path.read_bytes()
     return json.loads(raw), raw
