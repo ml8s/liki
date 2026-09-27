@@ -28,33 +28,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install pytest pyyaml jsonschema
-      - name: Install ORAS CLI
-        run: |
-          curl -sSL https://github.com/oras-project/oras/releases/download/v1.2.0/oras_1.2.0_linux_amd64.tar.gz \
-            -o /tmp/oras.tar.gz
-          tar -C /usr/local/bin -xzf /tmp/oras.tar.gz oras
-          oras version
-      - name: Pull pinned AgentDeployment contract
-        env:
-          GHCR_REF: ghcr.io/ml8s/liki-contracts
-        run: |
-          version="$(sed -n 's/^version:[[:space:]]*//p' contracts/agent-definition.version | tr -d '\r')"
-          expected="$(sed -n 's/^digest:[[:space:]]*//p' contracts/agent-definition.version | tr -d '\r')"
-          mkdir -p "$RUNNER_TEMP/agent-contract"
-          oras pull --output "$RUNNER_TEMP/agent-contract" "${GHCR_REF}:${version}"
-          actual="sha256:$(sha256sum "$RUNNER_TEMP/agent-contract/agent-definition.schema.json" | cut -d' ' -f1)"
-          [ "$actual" = "$expected" ] || {
-            echo "AgentDeployment contract digest mismatch: expected=$expected actual=$actual" >&2
-            exit 1
-          }
       - run: make check
-      - name: Generate deployment artifacts
+      - name: Generate and validate deployment artifacts
         run: make build-deployment
-      - name: Validate generated artifacts against the pinned OCI contract
-        run: |
-          python3 scripts/check_deployment_schema.py \
-            --schema "$RUNNER_TEMP/agent-contract/agent-definition.schema.json" \
-            --profile experts
 
   engine-lint:
     name: Engine lint
