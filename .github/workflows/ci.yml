@@ -208,7 +208,7 @@ jobs:
     name: Publish engine image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
     permissions:
       contents: read
       packages: write
@@ -258,7 +258,7 @@ jobs:
     name: Publish counsel image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
     permissions:
       contents: read
       packages: write
@@ -305,7 +305,7 @@ jobs:
     name: Publish full-capability experts image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, docker-publish]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, docker-publish]
     permissions:
       contents: read
       packages: write
@@ -437,7 +437,7 @@ jobs:
     name: Publish web skill bundle
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
     env:
       LIKI_RELEASE_TAG: ${{ github.ref_name }}
       LIKI_SOURCE_COMMIT: ${{ github.sha }}
