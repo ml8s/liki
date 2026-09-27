@@ -3,7 +3,7 @@
   "info": {
     "title": "Liki natal analysis tools",
     "description": "Liki 本命域历史工具面描述；运行时由 counsel-mcp 暴露 compute_factors / natal_query / period_query。",
-    "version": "2026.09.25.0",
+    "version": "2026.09.26.0",
     "contract": "natal-tools-v2"
   },
   "tools": [

@@ -28,7 +28,33 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install pytest pyyaml jsonschema
+      - name: Install ORAS CLI
+        run: |
+          curl -sSL https://github.com/oras-project/oras/releases/download/v1.2.0/oras_1.2.0_linux_amd64.tar.gz \
+            -o /tmp/oras.tar.gz
+          tar -C /usr/local/bin -xzf /tmp/oras.tar.gz oras
+          oras version
+      - name: Pull pinned AgentDeployment contract
+        env:
+          GHCR_REF: ghcr.io/ml8s/liki-contracts
+        run: |
+          version="$(sed -n 's/^version:[[:space:]]*//p' contracts/agent-definition.version | tr -d '\r')"
+          expected="$(sed -n 's/^digest:[[:space:]]*//p' contracts/agent-definition.version | tr -d '\r')"
+          mkdir -p "$RUNNER_TEMP/agent-contract"
+          oras pull --output "$RUNNER_TEMP/agent-contract" "${GHCR_REF}:${version}"
+          actual="sha256:$(sha256sum "$RUNNER_TEMP/agent-contract/agent-definition.schema.json" | cut -d' ' -f1)"
+          [ "$actual" = "$expected" ] || {
+            echo "AgentDeployment contract digest mismatch: expected=$expected actual=$actual" >&2
+            exit 1
+          }
       - run: make check
+      - name: Generate deployment artifacts
+        run: make build-deployment
+      - name: Validate generated artifacts against the pinned OCI contract
+        run: |
+          python3 scripts/check_deployment_schema.py \
+            --schema "$RUNNER_TEMP/agent-contract/agent-definition.schema.json" \
+            --profile experts
 
   engine-lint:
     name: Engine lint
@@ -229,13 +255,24 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute image versions
+        id: versions
+        run: |
+          echo "runtime=$(cat engine/cmd/engine-mcp/VERSION)" >> "$GITHUB_OUTPUT"
+          echo "release=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: ./engine
           file: ./engine/dev/Dockerfile
           push: true
+          id: engine-image
+          build-args: |
+            VERSION=${{ steps.versions.outputs.runtime }}
+            COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.release.published_at }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/liki-engine:latest
+            ghcr.io/${{ github.repository_owner }}/liki-engine:${{ steps.versions.outputs.runtime }}
+            ghcr.io/${{ github.repository_owner }}/liki-engine:${{ steps.versions.outputs.release }}
             ghcr.io/${{ github.repository_owner }}/liki-engine:sha-${{ github.sha }}
       - name: Smoke published image over MCP
         run: |
@@ -243,9 +280,216 @@ jobs:
           docker run -d --name engine-smoke \
             --entrypoint /usr/local/bin/engine-mcp \
             -p 18082:8081 \
-            ghcr.io/${{ github.repository_owner }}/liki-engine:latest
+            ghcr.io/${{ github.repository_owner }}/liki-engine:${{ steps.versions.outputs.runtime }}
           for i in $(seq 1 30); do
             curl -fsS http://127.0.0.1:18082/health && break
             sleep 1
           done
           python scripts/test_engine_mcp.py http://127.0.0.1:18082
+      - name: Record released image digest
+        run: echo "liki-engine=${{ steps.engine-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+
+  counsel-publish:
+    name: Publish counsel image
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9697bfbc97413f497069 # v4
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute image versions
+        id: versions
+        run: |
+          echo "runtime=$(cat counsel/app/VERSION.txt)" >> "$GITHUB_OUTPUT"
+          echo "release=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: ./counsel/Dockerfile
+          push: true
+          id: counsel-image
+          build-args: |
+            VERSION=${{ steps.versions.outputs.runtime }}
+            COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.release.published_at }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/liki-counsel:${{ steps.versions.outputs.runtime }}
+            ghcr.io/${{ github.repository_owner }}/liki-counsel:${{ steps.versions.outputs.release }}
+      - name: Smoke published counsel image
+        run: |
+          trap 'docker rm -f counsel-published-smoke 2>/dev/null || true' EXIT
+          docker run -d --name counsel-published-smoke -p 18086:8086 \
+            ghcr.io/${{ github.repository_owner }}/liki-counsel:${{ steps.versions.outputs.runtime }}
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18086/healthz && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:18086/healthz | grep -q '"status":"ok"'
+      - name: Record released image digest
+        run: echo "liki-counsel=${{ steps.counsel-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+
+  publish-experts:
+    name: Publish full-capability experts image
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, docker-publish]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pyyaml jsonschema
+      - name: Generate deployment artifacts
+        run: make build-deployment
+      - name: Stage artifacts into image build context
+        run: |
+          rm -rf assembly/dist
+          cp -r dist/agents assembly/dist
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute version
+        id: version
+        run: |
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          echo "runtime=$(cat skills/liki/VERSION.txt)" >> "$GITHUB_OUTPUT"
+      - name: Compute deployment digests
+        id: digests
+        env:
+          AGENTS_BASE: ghcr.io/${{ github.repository_owner }}/liki-agents:${{ steps.version.outputs.version }}
+        run: |
+          for profile in single experts; do
+            digest="$(
+              docker run --rm -v "$PWD/dist/agents:/deployment:ro" \
+                -e LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/${profile}/deployment.json \
+                --entrypoint /liki-agents "$AGENTS_BASE" \
+                validate -deployment /deployment/${profile}/deployment.json 2>&1 |
+                sed -n 's/.*digest=\([^ ]*\).*/\1/p'
+            )"
+            [ -n "$digest" ] || { echo "failed to compute ${profile} deployment digest"; exit 1; }
+            echo "${profile}=${digest}" >> "$GITHUB_OUTPUT"
+          done
+          base_ref="$(
+            docker image inspect --format '{{index .RepoDigests 0}}' "$AGENTS_BASE"
+          )"
+          case "$base_ref" in
+            ghcr.io/*@sha256:*) ;;
+            *) echo "failed to resolve immutable liki-agents base digest" >&2; exit 1 ;;
+          esac
+          echo "base_ref=${base_ref}" >> "$GITHUB_OUTPUT"
+      - name: Build and push multi-experts image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ./assembly
+          file: ./assembly/Dockerfile
+          build-args: |
+            BASE_IMAGE=${{ steps.digests.outputs.base_ref }}
+            PROFILE=experts
+            DEPLOYMENT_DIGEST=${{ steps.digests.outputs.experts }}
+            VERSION=${{ steps.version.outputs.runtime }}
+            COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.release.published_at }}
+          push: true
+          id: multi-expert-image
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/liki-multi-expert:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/liki-multi-expert:${{ steps.version.outputs.runtime }}
+      - name: Build and push single-expert image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: ./assembly
+          file: ./assembly/Dockerfile
+          build-args: |
+            BASE_IMAGE=${{ steps.digests.outputs.base_ref }}
+            PROFILE=single
+            DEPLOYMENT_DIGEST=${{ steps.digests.outputs.single }}
+            VERSION=${{ steps.version.outputs.runtime }}
+            COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.release.published_at }}
+          push: true
+          id: single-expert-image
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.runtime }}
+      - name: Validate published deployments
+        run: |
+          for img in \
+            ghcr.io/${{ github.repository_owner }}/liki-multi-expert:${{ steps.version.outputs.version }} \
+            ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.version }}; do
+            docker run --rm "$img" validate -deployment /deployment/deployment.json
+          done
+      - name: Record released image digests
+        run: |
+          echo "liki-multi-expert=${{ steps.multi-expert-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "liki-single-expert=${{ steps.single-expert-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+
+  publish-tool-catalog:
+    name: Publish MCP tool catalog
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    needs: [check]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Install ORAS CLI
+        run: |
+          curl -sSL https://github.com/oras-project/oras/releases/download/v1.2.0/oras_1.2.0_linux_amd64.tar.gz \
+            -o /tmp/oras.tar.gz
+          tar -C /usr/local/bin -xzf /tmp/oras.tar.gz oras
+          oras version
+      - name: Publish catalog as OCI artifact
+        env:
+          GHCR_REF: ghcr.io/${{ github.repository_owner }}/mcp-tool-catalog
+        run: |
+          version="$(python3 -c 'import json; print(json.load(open("contracts/mcp-tool-catalog.json"))["version"])')"
+          runtime="$(python3 -c 'import json; print(json.load(open("contracts/mcp-tool-catalog.json"))["runtime_version"])')"
+          oras push --plain-http=false \
+            --annotation org.opencontainers.image.title=mcp-tool-catalog \
+            --annotation org.opencontainers.image.description="Liki MCP tool catalog" \
+            --annotation org.opencontainers.image.version="${version}" \
+            --annotation org.liki.runtime-version="${runtime}" \
+            "${GHCR_REF}:${version}" \
+            contracts/mcp-tool-catalog.json:application/json \
+            contracts/mcp-tool-catalog.schema.json:application/schema+json
+
+  publish-web-skill-bundle:
+    name: Publish web skill bundle
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    needs: [check, engine-lint, engine-vulnerabilities, python-lint, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    env:
+      LIKI_RELEASE_TAG: ${{ github.ref_name }}
+      LIKI_SOURCE_COMMIT: ${{ github.sha }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Build skill archive and web bundle
+        run: |
+          make build-web-skill-bundle
+      - name: Upload bundle to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            dist/liki-web-skill-bundle.tar.gz \
+            dist/liki-web-skill-bundle.sha256 \
+            dist/liki-web-skill-bundle.manifest.json \
+            dist/liki.tar.gz \
+            dist/index.json --clobber
