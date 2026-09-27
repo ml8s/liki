@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "name": "single",
+    "version": "2026.09.26.0"
+  },
+  "mcpServers": [
+    { "name": "engine", "endpointEnv": "LIKI_MCP_ENGINE_URL", "tokenEnv": "LIKI_ENGINE_MCP_TOKEN" },
+    { "name": "counsel", "endpointEnv": "LIKI_MCP_COUNSEL_URL", "tokenEnv": "LIKI_COUNSEL_MCP_TOKEN" }
+  ],
+  "agents": [
+    { "name": "single_expert" }
+  ]
+}

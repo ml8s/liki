@@ -10,8 +10,8 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 >
 ## 依赖的领域知识
 
-[必读] - bazi: liki-bazi/skills/bazi/hepan.md「双人盘事实合参」
-[必读] - bazi: liki-bazi/skills/bazi/shishen.md「十神组合」
+[必读] - bazi: natal/domains/bazi/hepan.md「双人盘事实合参」
+[必读] - bazi: natal/domains/bazi/shishen.md「十神组合」
 [必读] - 合盘工具：`合盘(盘引用_a, 盘引用_b)`（一次调用返回八字+紫微原始对照）
 
 > **本卡的 本命判断 / 应期判断 调用仅保留婚姻域断语。**
@@ -22,7 +22,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 | --- | --- | --- | --- |
 | 1 | 双方出生信息 | 分别 排盘 | 双方盘引用 |
 | 2 | 原始对照 | `合盘(盘引用_a, 盘引用_b)` | 双方日主、夫妻宫、配偶星、干支关系与紫微宫位事实 |
-| 3 | 证据整理 | 读取 `liki-bazi/skills/bazi/hepan.md` | 优势证据、摩擦证据、证据缺口 |
+| 3 | 证据整理 | 读取 `natal/domains/bazi/hepan.md` | 优势证据、摩擦证据、证据缺口 |
 | 4 | 输出 | 按模板列共同点、差异与相处建议 | 参考结论 + 依据链 |
 
 ## 边界条件

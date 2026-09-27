@@ -25,7 +25,7 @@ Liki 本命域：**八字、紫微判断由对应专家执行**，本域负责�
 | App 卡 | 场景 |
 | --- | --- |
 | `app/mingshu.md` / `mingshu-full.md` | 综合命书（跨八字紫微，引用专家方法论）|
-| `app/marriage.md` / `wealth.md` / `career.md` / `study.md` / `health.md` / `family.md` / `personality.md` | 各领域综合（引用 `liki-bazi/skills/bazi/*` 与 `liki-ziwei/skills/ziwei/*` 方法论）|
+| `app/marriage.md` / `wealth.md` / `career.md` / `study.md` / `health.md` / `family.md` / `personality.md` | 各领域综合（引用 `natal/domains/bazi/*` 与 `natal/domains/ziwei/*` 方法论）|
 | `app/compatibility.md` | 双人合参 |
 
 ## 边界

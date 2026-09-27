@@ -1,0 +1,67 @@
+{
+  "name": "liki-naming",
+  "version": "1.0.0",
+  "description": "Chinese naming expert covering baby names, adult renaming, foreign Chinese names, and user-selected name evaluation based on BaZi yongshen and character library with traceable rule-based readings.",
+  "author": {
+    "name": "Q.Sui",
+    "email": "suiqiang@foxmail.com"
+  },
+  "agents": [
+    "./agents/naming-expert.md"
+  ],
+  "expertType": "agent",
+  "agentName": "naming-expert",
+  "displayName": {
+    "en": "Naming Expert",
+    "zh": "起名专家"
+  },
+  "profession": {
+    "en": "Chinese Naming Consultant",
+    "zh": "起名师"
+  },
+  "displayDescription": {
+    "en": "Deterministic naming expert: BaZi yongshen character selection, surname/pick/char/compose, foreign Chinese names, and name evaluation with traceable rule-based readings.",
+    "zh": "专精中文起名：八字用神取字、五行选字、音韵文化适配，外国人起名与自选名评估，依据可回溯。"
+  },
+  "avatar": "avatars/expert.png",
+  "categoryId": "12-IndustryConsultant",
+  "defaultInitPrompt": {
+    "zh": "给宝宝起个名字",
+    "en": "Pick a name for my baby"
+  },
+  "plugin": "liki-naming",
+  "tags": [
+    {
+      "en": "Naming",
+      "zh": "起名"
+    },
+    {
+      "en": "BaZi",
+      "zh": "八字"
+    },
+    {
+      "en": "Baby Names",
+      "zh": "取名"
+    }
+  ],
+  "quickPrompts": [
+    {
+      "zh": "给宝宝起个名字",
+      "en": "Pick a name for my baby"
+    },
+    {
+      "zh": "帮我评估一下这个名字",
+      "en": "Evaluate this name for me"
+    },
+    {
+      "zh": "起个公司名/品牌名",
+      "en": "Suggest a company or brand name"
+    }
+  ],
+  "dependencies": {
+    "connectors": [
+      "engine-bazi",
+      "counsel-naming"
+    ]
+  }
+}

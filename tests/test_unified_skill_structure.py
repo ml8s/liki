@@ -12,7 +12,7 @@ from pathlib import Path
 from _helpers import ROOT, SKILL_ROOT
 
 DOMAINS = ("natal", "divination", "fengshui", "naming")
-EXPERT_PACKS = ("liki-bazi", "liki-ziwei")
+EXPERT_PACKS = ("liki-bazi", "liki-ziwei", "liki-liuyao", "liki-qimen", "liki-fengshui", "liki-naming")
 
 
 def test_liki_root_has_one_entry_and_four_domain_entries():
@@ -60,7 +60,9 @@ def test_natal_is_orchestration_layer_routing_to_experts():
     entry = (SKILL_ROOT / "natal" / "ENTRY.md").read_text(encoding="utf-8")
     assert "liki-bazi" in entry and "liki-ziwei" in entry
     assert "编排" in entry
-    assert not (SKILL_ROOT / "natal" / "domains").exists()
+    # 根 liki 是方法论权威源：natal/domains/ 含 bazi/ziwei 方法论卡
+    assert (SKILL_ROOT / "natal" / "domains" / "bazi").is_dir()
+    assert (SKILL_ROOT / "natal" / "domains" / "ziwei").is_dir()
 
 
 def test_naming_does_not_silently_default_missing_hour():
@@ -109,11 +111,15 @@ def test_root_mcp_declares_complete_manual_install_surface():
 
 
 def test_natal_cards_reference_packaged_expert_methodology():
-    """Natal orchestration remains self-contained inside the unified archive."""
-    pattern = re.compile(r"(liki-(?:bazi|ziwei)/skills/(?:bazi|ziwei)/[A-Za-z0-9_.-]+\.md)")
+    """Natal orchestration remains self-contained inside the unified archive.
+
+    根 liki 是方法论权威源：natal 卡引用的方法论卡路径必须解析到根内
+    (natal/domains/)，且该卡真实存在于根 skill。独立专家包由同步脚本保持一致。
+    """
+    pattern = re.compile(r"(natal/domains/(?:bazi|ziwei)/[A-Za-z0-9_.-]+\.md)")
     for card in (SKILL_ROOT / "natal").rglob("*.md"):
         for reference in pattern.findall(card.read_text(encoding="utf-8")):
-            assert (ROOT / "skills" / reference).is_file(), (card, reference)
+            assert (SKILL_ROOT / reference).is_file(), (card, reference)
 
 
 def test_expert_packs_follow_workbuddy_standard():
@@ -151,8 +157,15 @@ def test_expert_packs_follow_workbuddy_standard():
 
 
 def test_expert_pack_methodology_matches_index():
-    for pack, expect in (("liki-bazi", 16), ("liki-ziwei", 8)):
-        skill = "bazi" if "bazi" in pack else "ziwei"
+    # pack -> (skill dir, 方法论卡数)。qimen 额外含 huangli 子功能（不计数）。
+    for pack, skill, expect in (
+        ("liki-bazi", "bazi", 16),
+        ("liki-ziwei", "ziwei", 8),
+        ("liki-liuyao", "liuyao", 6),
+        ("liki-qimen", "qimen", 11),
+        ("liki-fengshui", "fengshui", 5),
+        ("liki-naming", "naming", 7),
+    ):
         cards = [p.name for p in (ROOT / "skills" / pack / "skills" / skill).glob("*.md")]
         assert "SKILL.md" in cards, pack
         # 方法论卡数量（除 SKILL.md）
@@ -171,3 +184,32 @@ def test_no_legacy_naming_in_skills():
             text = path.read_text(encoding="utf-8", errors="ignore")
             for old in legacy:
                 assert old not in text, f"{path}: {old}"
+
+
+def test_root_skill_routes_close_with_archive_sources():
+    """Root SKILL 路由引用的各方法论域，其 domains/ 卡目录必须存在于根 skill。
+
+    根 liki 是方法论权威源（自包含）：路由表引用的每个领域，对应方法论卡目录
+    必须存在于根 skill 内，保证对外归档全能力（评审 P1）。
+    """
+    # root SKILL.md 路由的领域 → 根内方法论卡目录（domains/ 相对 skills/liki/）
+    route_to_domain = {
+        "natal": "natal/domains",
+        "divination": "divination/domains",
+        "fengshui": "fengshui/domains",
+        "naming": "naming/domains",
+    }
+    root_skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    referenced = {domain for domain in route_to_domain if domain in root_skill}
+    assert referenced, "root SKILL.md 未引用任何方法论域"
+
+    for domain in referenced:
+        domain_dir = SKILL_ROOT / route_to_domain[domain]
+        assert domain_dir.is_dir(), f"{domain}: 方法论卡目录缺失 {domain_dir}"
+        cards = [p for p in domain_dir.rglob("*.md") if p.name != "SKILL.md"]
+        assert cards, f"{domain}: 方法论卡为空"
+
+    # 全部四个方法论域必须完整（根自包含全能力）
+    assert referenced == set(route_to_domain), (
+        f"root 引用域与根方法论域清单不一致: {referenced}"
+    )

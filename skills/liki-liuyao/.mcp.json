@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "engine-liuyao": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/engine/mcp/liuyao",
+      "x-workbuddy": {
+        "displayName": { "zh": "六爻排盘", "en": "Liu Yao Engine" },
+        "description": { "zh": "六爻确定性计算：起卦（liuyao_qigua）、装卦（liuyao_chart）。", "en": "Liu Yao deterministic compute: casting (liuyao_qigua), chart (liuyao_chart)." },
+        "auth": { "type": "none" }
+      }
+    },
+    "counsel-liuyao": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/liuyao",
+      "x-workbuddy": {
+        "displayName": { "zh": "六爻判断层", "en": "Liu Yao Judgment" },
+        "description": { "zh": "六爻规则分析：快照（liuyao_snapshot）、追问（liuyao_query）。吃 engine 卦盘，无状态。", "en": "Liu Yao rule-based analysis: snapshot (liuyao_snapshot), query (liuyao_query). Consumes engine chart, stateless." },
+        "auth": { "type": "none" }
+      }
+    }
+  }
+}

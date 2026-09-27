@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "engine-bazi": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/engine/mcp/bazi",
+      "x-workbuddy": {
+        "displayName": { "zh": "八字排盘", "en": "BaZi Engine" },
+        "description": { "zh": "八字排盘计算：本命盘（bazi_chart）、详细盘（bazi_fullchart）。起名用神取字依据八字用神。", "en": "BaZi chart casting: natal chart (bazi_chart), full chart (bazi_fullchart). Naming yongshen derives from BaZi." },
+        "auth": { "type": "none" }
+      }
+    },
+    "counsel-naming": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/naming",
+      "x-workbuddy": {
+        "displayName": { "zh": "起名判断层", "en": "Naming Judgment" },
+        "description": { "zh": "起名规则分析：姓氏（qiming_surname）、取字（qiming_pick）、组名（qiming_compose）、评估（qiming_check）。", "en": "Naming rule-based analysis: surname, pick, compose, check." },
+        "auth": { "type": "none" }
+      }
+    }
+  }
+}

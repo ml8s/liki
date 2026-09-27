@@ -10,10 +10,10 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 >
 ## 依赖的领域知识
 
-[必读] - bazi: liki-bazi/skills/bazi/career.md「决策表」
-[必读] - bazi: liki-bazi/skills/bazi/dayun.md「应期决策表」
+[必读] - bazi: natal/domains/bazi/career.md「决策表」
+[必读] - bazi: natal/domains/bazi/dayun.md「应期决策表」
 
-[必读] - ziwei: liki-ziwei/skills/ziwei/yingqi.md「事业紫微应期」
+[必读] - ziwei: natal/domains/ziwei/yingqi.md「事业紫微应期」
 
 > **本卡的 本命判断 / 应期判断 调用仅保留事业域断语。**
 
@@ -23,7 +23,7 @@ description: 事业分析 — 职业方向、事业起伏、成就层次
 | --- | --- | --- | --- |
 | 1 | 事业层次 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 本命判断 | 透干组合、事业档、身强弱 |
 | 2 | 职业方向 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 本命判断 | 十神取象与职业类型 |
-| 3 | 事业起伏 | 发送 `TOOLS.md 十年期应期判断` + 读取 `liki-bazi/skills/bazi/dayun.md` | 当前运与窗口年 |
+| 3 | 事业起伏 | 发送 `TOOLS.md 十年期应期判断` + 读取 `natal/domains/bazi/dayun.md` | 当前运与窗口年 |
 | 4 | 具体细节或流年 | 调 `liki-bazi` 专家 `本命判断（事业）` + `liki-ziwei` 专家 `本命判断（迁移）`；用户问具体年份、应期或流年时发送 `应期判断` | 紫微事业信号与流年事件 |
 
 ## 边界条件

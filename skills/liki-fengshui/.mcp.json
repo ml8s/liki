@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "engine-fengshui": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/engine/mcp/fengshui",
+      "x-workbuddy": {
+        "displayName": { "zh": "风水排盘", "en": "Feng Shui Engine" },
+        "description": { "zh": "风水确定性计算：八宅（bazhai_chart/bazhai_layout）、玄空（xuankong_chart/xuankong_liunian）、时间（time_now）。", "en": "Feng Shui deterministic compute: Ba Zhai chart/layout, Xuan Kong chart/yearly stars, time." },
+        "auth": { "type": "none" }
+      }
+    }
+  }
+}

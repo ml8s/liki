@@ -10,13 +10,13 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 >
 ## 依赖的领域知识
 
-[必读] - bazi: liki-bazi/skills/bazi/shishen.md「女命婚姻——官杀混杂判断」
+[必读] - bazi: natal/domains/bazi/shishen.md「女命婚姻——官杀混杂判断」
 
-- bazi: liki-bazi/skills/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
-[必读] - bazi: liki-bazi/skills/bazi/dayun.md「应期决策表」
-- bazi: liki-bazi/skills/bazi/family.md「六亲——配偶」（按需——官杀线已覆盖配偶星主线）
+- bazi: natal/domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
+[必读] - bazi: natal/domains/bazi/dayun.md「应期决策表」
+- bazi: natal/domains/bazi/family.md「六亲——配偶」（按需——官杀线已覆盖配偶星主线）
 
-[必读] - ziwei: liki-ziwei/skills/ziwei/yingqi.md「婚姻紫微应期」
+[必读] - ziwei: natal/domains/ziwei/yingqi.md「婚姻紫微应期」
 
 > **本卡的 本命判断 / 应期判断 调用仅保留婚姻域断语。**
 
@@ -24,10 +24,10 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 配偶星 | 男看财星、女看官杀；读取 `liki-bazi/skills/bazi/shishen.md` | 星名、清浊、取清状态 |
-| 2 | 夫妻宫 | 发送 `TOOLS.md 本命判断`；读取 `liki-bazi/skills/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
+| 1 | 配偶星 | 男看财星、女看官杀；读取 `natal/domains/bazi/shishen.md` | 星名、清浊、取清状态 |
+| 2 | 夫妻宫 | 发送 `TOOLS.md 本命判断`；读取 `natal/domains/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
 | 3 | 婚姻状态 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 `十年期应期判断` | 已婚 / 单身 / 离异 / 婚缘迟 |
-| 4 | 应期 | 读取 `liki-bazi/skills/bazi/dayun.md`；发送 `TOOLS.md 应期判断` | 首选年、备选年、引动层 |
+| 4 | 应期 | 读取 `natal/domains/bazi/dayun.md`；发送 `TOOLS.md 应期判断` | 首选年、备选年、引动层 |
 | 5 | 具体细节 | 发送 `TOOLS.md 应期判断` | 紫微夫妻宫、四化、桃花信号 |
 
 ## 边界条件

@@ -1,0 +1,66 @@
+{
+  "name": "liki-fengshui",
+  "version": "1.0.0",
+  "description": "Chinese Feng Shui expert covering Ba Zhai natal trigram, door-kitchen-stove layout, Xuan Kong flying-star charts, period cycles, and yearly stars with traceable rule-based readings.",
+  "author": {
+    "name": "Q.Sui",
+    "email": "suiqiang@foxmail.com"
+  },
+  "agents": [
+    "./agents/fengshui-expert.md"
+  ],
+  "expertType": "agent",
+  "agentName": "fengshui-expert",
+  "displayName": {
+    "en": "Feng Shui Expert",
+    "zh": "风水专家"
+  },
+  "profession": {
+    "en": "Feng Shui (Kan Yu) Consultant",
+    "zh": "风水师"
+  },
+  "displayDescription": {
+    "en": "Deterministic Feng Shui expert: Ba Zhai natal trigram and layout, Xuan Kong flying-star charts, period cycles, and yearly stars with traceable rule-based readings.",
+    "zh": "专精家居风水：八宅命卦门主灶、玄空飞星元运流年，两流派冲突分层裁决，断语依据可回溯。"
+  },
+  "avatar": "avatars/expert.png",
+  "categoryId": "12-IndustryConsultant",
+  "defaultInitPrompt": {
+    "zh": "帮我看下家里风水布局",
+    "en": "Review my home Feng Shui layout"
+  },
+  "plugin": "liki-fengshui",
+  "tags": [
+    {
+      "en": "Feng Shui",
+      "zh": "风水"
+    },
+    {
+      "en": "Ba Zhai",
+      "zh": "八宅"
+    },
+    {
+      "en": "Xuan Kong",
+      "zh": "玄空"
+    }
+  ],
+  "quickPrompts": [
+    {
+      "zh": "帮我看下家里风水布局",
+      "en": "Review my home Feng Shui layout"
+    },
+    {
+      "zh": "算下今年的流年飞星对住宅的影响",
+      "en": "Check this year's flying-star influence on my home"
+    },
+    {
+      "zh": "办公室/店铺选址看哪个方位好",
+      "en": "Which direction is favorable for my office or shop"
+    }
+  ],
+  "dependencies": {
+    "connectors": [
+      "engine-fengshui"
+    ]
+  }
+}

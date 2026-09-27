@@ -46,25 +46,12 @@ done
 ARCHIVE="$DIST_DIR/$SKILL_NAME.tar.gz"
 echo "[build-archive] 打包 $SKILL_NAME..."
 
-# Natal orchestration cards intentionally reference expert methodology paths.
-# Include those read-only cards so the unified archive is self-contained; the
-# optional WorkBuddy expert plugins remain separate interactive agents.
-EXPERT_BAZI_DIR="$PROJECT_DIR/skills/liki-bazi"
-EXPERT_ZIWEI_DIR="$PROJECT_DIR/skills/liki-ziwei"
-for required in "$EXPERT_BAZI_DIR/skills/bazi/career.md" \
-                "$EXPERT_ZIWEI_DIR/skills/ziwei/yingqi.md"; do
-    if [ ! -f "$required" ]; then
-        echo "[build-archive] error: required methodology not found: $required" >&2
-        exit 1
-    fi
-done
+# 根 skill（liki）是方法论卡的唯一权威源，已自包含各域方法论卡（natal/divination/
+# fengshui/naming 的 domains/）。直接打包根 skill 即可，无需合并独立专家包。
+# 独立专家包（liki-bazi 等）由 scripts/sync-expert-methodology.sh 从根同步。
 
 tar czf "$ARCHIVE" \
     --transform 's|^\./||' \
-    --transform 's|^skills/bazi/|liki-bazi/skills/bazi/|' \
-    --transform 's|^skills/ziwei/|liki-ziwei/skills/ziwei/|' \
-    --exclude skills/bazi/SKILL.md \
-    --exclude skills/ziwei/SKILL.md \
     -C "$SKILL_DIR" \
     --exclude .git \
     --exclude .github \
@@ -77,8 +64,7 @@ tar czf "$ARCHIVE" \
     --exclude '*.tar.gz' \
     --exclude dist \
     . \
-    -C "$EXPERT_BAZI_DIR" skills/bazi \
-    -C "$EXPERT_ZIWEI_DIR" skills/ziwei
+    "${EXPERT_TAR_ARGS[@]}"
 
 DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
 echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
@@ -101,17 +87,18 @@ if grep -Fxq 'requirements.txt' <<<"$ARCHIVE_LISTING"; then
     echo "[build-archive] error: runtime Python dependencies must come from MCP services" >&2
     exit 1
 fi
-for required_method in \
-    liki-bazi/skills/bazi/career.md \
-    liki-ziwei/skills/ziwei/yingqi.md; do
-    if ! grep -Fxq "$required_method" <<<"$ARCHIVE_LISTING"; then
-        echo "[build-archive] error: archive missing $required_method" >&2
+
+# 根 skill 自包含各域方法论卡（natal/divination/fengshui/naming 的 domains/），
+# 归档必须包含它们，保证对外全能力。
+for domain in natal/domains divination/domains fengshui/domains naming/domains; do
+    if ! grep -Fq "$domain/" <<<"$ARCHIVE_LISTING"; then
+        echo "[build-archive] error: archive missing root domain methodology $domain/" >&2
         exit 1
     fi
 done
-manifest_count="$(grep -Ec '(^|/)SKILL\.md$' <<<"$ARCHIVE_LISTING")"
-if [ "$manifest_count" -ne 1 ]; then
-    echo "[build-archive] error: expected exactly one SKILL.md, got $manifest_count" >&2
+# 根主 SKILL.md 必须存在（方法论的 SKILL.md 入口是子域文件，不计数）
+if ! grep -Fxq 'SKILL.md' <<<"$ARCHIVE_LISTING"; then
+    echo "[build-archive] error: archive missing root SKILL.md" >&2
     exit 1
 fi
 

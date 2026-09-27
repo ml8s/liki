@@ -1,0 +1,50 @@
+name: single_expert
+version: 2026.09.26.0
+description: >
+  Liki single expert handling all destiny domains directly (BaZi, Zi Wei,
+  Liu Yao, Qi Men, Feng Shui, naming) with the full tool surface and no
+  delegation tree.
+mode: chat
+tools:
+  allow:
+    engine:
+      - bazhai_chart
+      - bazhai_layout
+      - bazi_bond
+      - bazi_chart
+      - bazi_fullchart
+      - bazi_liunian
+      - bazi_liuri
+      - bazi_liushi
+      - bazi_liuyue
+      - bazi_xiaoyun
+      - city_coords
+      - huangli_days
+      - liuyao_chart
+      - liuyao_qigua
+      - qimen_chart
+      - tianwen_time
+      - time_now
+      - xuankong_chart
+      - xuankong_liunian
+      - ziwei_bond
+      - ziwei_chart
+      - ziwei_daxian
+      - ziwei_fullchart
+      - ziwei_liunian
+      - ziwei_liuri
+      - ziwei_liushi
+      - ziwei_liuyue
+    counsel:
+      - compute_factors
+      - liuyao_query
+      - liuyao_snapshot
+      - natal_query
+      - period_query
+      - qimen_query
+      - qimen_snapshot
+      - qiming_char
+      - qiming_check
+      - qiming_compose
+      - qiming_pick
+      - qiming_surname

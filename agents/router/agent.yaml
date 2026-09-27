@@ -1,0 +1,16 @@
+name: router
+version: 2026.09.26.0
+description: >
+  Liki full-capability entrypoint. Routes requests across BaZi, Zi Wei,
+  Liu Yao, Qi Men, Feng Shui, and naming experts, then aggregates deterministic
+  tool-backed conclusions.
+mode: chat
+sub_agents:
+  - name: bazi
+  - name: ziwei
+  - name: liuyao
+  - name: qimen
+  - name: fengshui
+  - name: naming
+tools:
+  allow: {}

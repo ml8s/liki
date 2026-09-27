@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "engine-qimen": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/engine/mcp/qimen",
+      "x-workbuddy": {
+        "displayName": { "zh": "奇门排盘", "en": "Qi Men Engine" },
+        "description": { "zh": "奇门确定性计算：排盘（qimen_chart）。", "en": "Qi Men deterministic compute: chart (qimen_chart)." },
+        "auth": { "type": "none" }
+      }
+    },
+    "engine-huangli": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/engine/mcp/huangli",
+      "x-workbuddy": {
+        "displayName": { "zh": "黄历择日", "en": "Almanac" },
+        "description": { "zh": "黄历确定性计算：查日（huangli_days）。奇门择吉与黄历连用。", "en": "Almanac deterministic compute: days (huangli_days). Used with Qi Men date selection." },
+        "auth": { "type": "none" }
+      }
+    },
+    "counsel-qimen": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/qimen",
+      "x-workbuddy": {
+        "displayName": { "zh": "奇门判断层", "en": "Qi Men Judgment" },
+        "description": { "zh": "奇门规则分析：快照（qimen_snapshot）、追问（qimen_query）。吃 engine 局盘，无状态。", "en": "Qi Men rule-based analysis: snapshot (qimen_snapshot), query (qimen_query). Consumes engine chart, stateless." },
+        "auth": { "type": "none" }
+      }
+    }
+  }
+}

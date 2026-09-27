@@ -1,0 +1,22 @@
+name: naming
+version: 2026.09.26.0
+description: >
+  Chinese naming expert covering baby names, adult renaming, foreign Chinese
+  names, and user-selected name evaluation.
+mode: chat
+tools:
+  allow:
+    engine:
+      - bazi_chart
+      - bazi_fullchart
+      - city_coords
+      - tianwen_time
+    counsel:
+      - compute_factors
+      - natal_query
+      - period_query
+      - qiming_surname
+      - qiming_pick
+      - qiming_char
+      - qiming_compose
+      - qiming_check
