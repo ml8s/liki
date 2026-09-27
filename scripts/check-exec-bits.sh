@@ -38,10 +38,15 @@ while IFS= read -r path; do
 done < <(git ls-files -- 'scripts/*.sh')
 
 # Python scripts referenced bare (previous token is not an interpreter) must be
-# executable; `python3 scripts/x.py` references are exempt.
+# executable and carry a shebang; `python3 scripts/x.py` references are exempt.
 while IFS= read -r path; do
   [ -n "$path" ] || continue
   require_755 "$path"
+  [ -f "$path" ] || continue
+  if [ "$(head -c 2 "$path")" != "#!" ]; then
+    echo "❌ invoked without interpreter but has no shebang: $path" >&2
+    fail=1
+  fi
 done < <(
   awk '
     {

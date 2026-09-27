@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Shared local-engine fixture: start engine-mcp, wait for /health, run a command, clean up.
 
 Usage (from bash):
