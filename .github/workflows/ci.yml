@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.12"
-      - run: python -m pip install pytest pyyaml jsonschema
+      - run: python -m pip install pytest pyyaml jsonschema ruff==0.16.0
       - run: make check
       - name: Generate and validate deployment artifacts
         run: make build-deployment
@@ -86,17 +86,6 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install pytest pyyaml jsonschema
       - run: python -m pytest tests/ -q
-
-  python-lint:
-    name: Python lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with:
-          python-version: "3.12"
-      - run: python -m pip install ruff==0.16.0
-      - run: make lint-python
 
   python-vulnerabilities:
     name: Python vulnerability scan
