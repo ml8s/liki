@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import urllib.request
 
@@ -50,8 +51,15 @@ def tool_names(endpoint: str) -> set[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("base_url", help="engine origin, for example http://127.0.0.1:8081")
+    parser.add_argument(
+        "base_url",
+        nargs="?",
+        default=os.environ.get("LIKI_MCP_URL", ""),
+        help="engine origin, for example http://127.0.0.1:8081（默认 LIKI_MCP_URL）",
+    )
     args = parser.parse_args()
+    if not args.base_url:
+        parser.error("base_url required or LIKI_MCP_URL must be set")
     base = args.base_url.rstrip("/")
 
     expectations = {
