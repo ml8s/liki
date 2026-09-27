@@ -172,6 +172,68 @@ def _require_domain(domain: str, chart: dict) -> None:
         raise ToolError("invalid_arguments: counsel/ziwei 只接收紫微盘（chart 为宫位结构），收到八字盘。")
 
 
+def _chart_domain(chart: dict) -> str:
+    return "bazi" if "ri" in chart else "ziwei"
+
+
+def _factor_side(arguments: dict) -> str:
+    factors = arguments.get("factors")
+    if not isinstance(factors, dict):
+        raise ToolError("invalid_arguments: factors 必须是 compute_factors 返回的对象")
+    provenance = factors.get("_provenance")
+    if not isinstance(provenance, dict):
+        raise ToolError("invalid_arguments: factors 缺少可验证的 side provenance")
+    side = provenance.get("side")
+    if side not in ("bazi", "ziwei"):
+        raise ToolError("invalid_arguments: factors 缺少可验证的 side provenance")
+    return side
+
+
+def _add_natal_tools(server: MCPServer, domain: str | None = None) -> None:
+    """注册本命判断工具。
+
+    domain endpoint 固定 bazi/ziwei；root aggregate 传入 None 时从 chart 和
+    factors provenance 推断领域，避免在同一 MCP server 上重复注册同名工具。
+    """
+    schema = json.loads(JUDGMENT_SCHEMA.read_text("utf-8"))
+    for tool in schema["tools"]:
+        fn = tool["function"]
+        name = fn["name"]
+
+        def invoke_natal(arguments: dict, _name=name):
+            if _name == "compute_factors":
+                side = domain or _chart_domain(arguments["chart"])
+                _require_domain(side, arguments["chart"])
+                return counsel.compute_factors(arguments["chart"])
+            if _name == "natal_query":
+                side = domain or _factor_side(arguments)
+                return counsel.natal_query(
+                    arguments["factors"],
+                    arguments["topics"],
+                    arguments["factors_digest"],
+                    context=arguments.get("context"),
+                    side=side,
+                )
+            side = domain or _factor_side(arguments)
+            _require_domain(side, arguments["chart"])
+            return counsel.period_query(
+                arguments["factors"],
+                arguments["factors_digest"],
+                arguments["time_scope"],
+                arguments["topics"],
+                arguments["chart"],
+                side=side,
+            )
+
+        _add_schema_tool(
+            server,
+            name=name,
+            description=fn["description"],
+            schema=fn["parameters"],
+            invoke=invoke_natal,
+        )
+
+
 def create_counsel_mcp(domain: str) -> MCPServer:
     if domain == "naming":
         return _create_naming_server()
@@ -189,54 +251,24 @@ def create_counsel_mcp(domain: str) -> MCPServer:
         ),
         version=RUNTIME_VERSION,
     )
-    schema = json.loads(JUDGMENT_SCHEMA.read_text("utf-8"))
-    for tool in schema["tools"]:
-        fn = tool["function"]
-        name = fn["name"]
-        def invoke_natal(arguments: dict, _name=name):
-            if _name == "compute_factors":
-                _require_domain(domain, arguments["chart"])
-                return counsel.compute_factors(arguments["chart"])
-            if _name == "natal_query":
-                return counsel.natal_query(
-                    arguments["factors"],
-                    arguments["topics"],
-                    arguments["factors_digest"],
-                    context=arguments.get("context"),
-                    side=domain,
-                )
-            _require_domain(domain, arguments["chart"])
-            return counsel.period_query(
-                arguments["factors"],
-                arguments["factors_digest"],
-                arguments["time_scope"],
-                arguments["topics"],
-                arguments["chart"],
-                side=domain,
-            )
-
-        _add_schema_tool(
-            server,
-            name=name,
-            description=fn["description"],
-            schema=fn["parameters"],
-            invoke=invoke_natal,
-        )
+    _add_natal_tools(server, domain)
     return server
 
 
 def create_counsel_root_mcp() -> MCPServer:
     """Create the aggregate counsel surface used by the root Liki skill.
 
-    Bazi and Ziwei are intentionally excluded: those are exposed through the
-    expert skills and domain-specific endpoints.
+    The root exposes one namespaced-free union used by the Liki Chat expert
+    deployment. Natal tools infer bazi/ziwei from chart shape and verified
+    factor provenance, so both domains can share the standard MCP tool names.
     """
     server = MCPServer(
         name="counsel",
         title="Liki Counsel",
-        description="命理判断层：起名、六爻与奇门能力聚合。",
+        description="命理判断层：八字/紫微本命、起名、六爻与奇门能力聚合。",
         version=RUNTIME_VERSION,
     )
+    _add_natal_tools(server)
     _add_naming_tools(server)
     _add_liuyao_tools(server)
     _add_qimen_tools(server)

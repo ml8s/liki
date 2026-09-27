@@ -197,14 +197,40 @@ def test_counsel_tools_expose_manifest_schema_without_downgrading():
     assert {tool.name: tool.input_schema for tool in tools} == expected
 
 
-def test_counsel_root_aggregate_exposes_non_expert_tools():
+def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
     srv = create_counsel_root_mcp()
     names = {tool.name for tool in asyncio.run(srv.list_tools())}
     assert {
+        "compute_factors", "natal_query", "period_query",
         "qiming_pick", "qiming_compose", "liuyao_snapshot",
         "liuyao_query", "qimen_snapshot", "qimen_query",
     } <= names
-    assert "compute_factors" not in names
+
+
+def test_counsel_root_aggregate_matches_tool_catalog():
+    catalog_path = pathlib.Path(__file__).parents[2] / "contracts" / "mcp-tool-catalog.json"
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    srv = create_counsel_root_mcp()
+    names = {tool.name for tool in asyncio.run(srv.list_tools())}
+    assert names == set(catalog["servers"]["counsel"]["tools"])
+
+
+def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
+    srv = create_counsel_root_mcp()
+    result = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
+    snapshot = json.loads(result.content[0].text)
+    assert snapshot["factors"]["_provenance"]["side"] == "bazi"
+    result = asyncio.run(srv.call_tool(
+        "natal_query",
+        {
+            "factors": snapshot["factors"],
+            "factors_digest": snapshot["factors_digest"],
+            "topics": ["chart_structure"],
+            "context": snapshot["context"],
+        },
+    ))
+    out = json.loads(result.content[0].text)
+    assert out["assertions"] and all(a.get("side") == "bazi" for a in out["assertions"])
 
 
 def test_counsel_tool_rejects_argument_outside_manifest_schema():
