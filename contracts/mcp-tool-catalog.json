@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "runtime_version": "2026.09.26.0",
+  "servers": {
+    "engine": {
+      "tools": [
+        "bazhai_chart",
+        "bazhai_layout",
+        "bazi_bond",
+        "bazi_chart",
+        "bazi_fullchart",
+        "bazi_liunian",
+        "bazi_liuri",
+        "bazi_liushi",
+        "bazi_liuyue",
+        "bazi_xiaoyun",
+        "city_coords",
+        "huangli_days",
+        "liuyao_chart",
+        "liuyao_qigua",
+        "qimen_chart",
+        "tianwen_time",
+        "time_now",
+        "xuankong_chart",
+        "xuankong_liunian",
+        "ziwei_bond",
+        "ziwei_chart",
+        "ziwei_daxian",
+        "ziwei_fullchart",
+        "ziwei_liunian",
+        "ziwei_liuri",
+        "ziwei_liushi",
+        "ziwei_liuyue"
+      ]
+    },
+    "counsel": {
+      "tools": [
+        "compute_factors",
+        "liuyao_query",
+        "liuyao_snapshot",
+        "natal_query",
+        "period_query",
+        "qimen_query",
+        "qimen_snapshot",
+        "qiming_char",
+        "qiming_check",
+        "qiming_compose",
+        "qiming_pick",
+        "qiming_surname"
+      ]
+    }
+  }
+}
