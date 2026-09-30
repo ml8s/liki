@@ -211,11 +211,47 @@ jobs:
       - run: python -m pip install pytest pyyaml jsonschema
       - run: make full-data
 
+  release-integrity:
+    name: Release artifact integrity
+    runs-on: ubuntu-latest
+    needs: [check, skills-test, full-data]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pyyaml jsonschema
+      - name: Build and verify release manifest
+        run: |
+          make build-release-manifest
+          python3 scripts/build_release_manifest.py --check
+          if python3 scripts/build_release_manifest.py --require-images >/tmp/require-images.out 2>&1; then
+            echo "::error::release manifest accepted an unreleased artifact with empty image digests" >&2
+            exit 1
+          fi
+          grep -q "requires image digests" /tmp/require-images.out
+      - name: Package release verification bundle
+        run: |
+          tar -czf /tmp/liki-release-artifacts.tar.gz \
+            -C dist \
+            agents/experts/deployment.json \
+            agents/single/deployment.json \
+            contracts/agent-definition.schema.json \
+            index.json \
+            liki-release-manifest.json \
+            liki-release-manifest.sha256 \
+            liki.tar.gz
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: liki-release-artifacts
+          path: /tmp/liki-release-artifacts.tar.gz
+          retention-days: 30
+
   docker-publish:
     name: Publish engine image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
     permissions:
       contents: read
       packages: write
@@ -259,13 +295,20 @@ jobs:
           done
           python scripts/test_engine_mcp.py http://127.0.0.1:18082/mcp
       - name: Record released image digest
-        run: echo "liki-engine=${{ steps.engine-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "liki-engine=${{ steps.engine-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p image-digest
+          printf 'engine=%s\n' "${{ steps.engine-image.outputs.digest }}" > image-digest/engine.env
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: image-digest-engine
+          path: image-digest/engine.env
 
   counsel-publish:
     name: Publish counsel image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
     permissions:
       contents: read
       packages: write
@@ -306,13 +349,20 @@ jobs:
           done
           curl -fsS http://127.0.0.1:18086/healthz | grep -q '"status":"ok"'
       - name: Record released image digest
-        run: echo "liki-counsel=${{ steps.counsel-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "liki-counsel=${{ steps.counsel-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p image-digest
+          printf 'counsel_mcp=%s\n' "${{ steps.counsel-image.outputs.digest }}" > image-digest/counsel_mcp.env
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: image-digest-counsel_mcp
+          path: image-digest/counsel_mcp.env
 
   publish-experts:
     name: Publish full-capability experts image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, docker-publish]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, docker-publish, release-integrity]
     permissions:
       contents: read
       packages: write
@@ -415,12 +465,68 @@ jobs:
         run: |
           echo "liki-multi-expert=${{ steps.multi-expert-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
           echo "liki-single-expert=${{ steps.single-expert-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p image-digest
+          printf 'experts=%s\n' "${{ steps.multi-expert-image.outputs.digest }}" > image-digest/experts.env
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: image-digest-experts
+          path: image-digest/experts.env
+
+  finalize-release-manifest:
+    name: Finalize release manifest
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    needs: [release-integrity, docker-publish, counsel-publish, publish-experts]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: liki-release-artifacts
+          path: bundle
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: image-digest-*
+          merge-multiple: true
+          path: image-digests
+      - name: Rebuild final digest-pinned manifest
+        env:
+          LIKI_RELEASE_TAG: ${{ github.ref_name }}
+          LIKI_SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          mkdir -p dist
+          tar -xzf bundle/liki-release-artifacts.tar.gz -C dist
+          python3 - "$GITHUB_ENV" <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          images = {}
+          for path in sorted(pathlib.Path("image-digests").glob("*.env")):
+              for raw in path.read_text(encoding="utf-8").splitlines():
+                  if not raw or raw.startswith("#"):
+                      continue
+                  key, value = raw.split("=", 1)
+                  images[key] = value
+          with pathlib.Path(sys.argv[1]).open("a", encoding="utf-8") as fh:
+              fh.write("LIKI_RELEASE_IMAGES=")
+              fh.write(json.dumps(images, sort_keys=True, separators=(",", ":")))
+              fh.write("\n")
+          PY
+          python3 scripts/build_release_manifest.py --require-images
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: liki-final-release-manifest
+          path: |
+            dist/liki-release-manifest.json
+            dist/liki-release-manifest.sha256
 
   publish-web-skill-bundle:
     name: Publish web skill bundle
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, node-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
     env:
       LIKI_RELEASE_TAG: ${{ github.ref_name }}
       LIKI_SOURCE_COMMIT: ${{ github.sha }}

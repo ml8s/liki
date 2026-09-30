@@ -18,7 +18,7 @@ export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 .PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python \
         go-version-check lint lint-md check test test-contracts test-engine test-counsel test-engine-mcp \
         full-data golden gate hooks version build-archive build-deployment \
-        build-web-skill-bundle build-release-manifest check-release-manifest \
+        check-actions build-web-skill-bundle build-release-manifest check-release-manifest \
         agents-validate image image-engine image-counsel image-assembly
 
 build-skill build-archive: ## Build the installable skill archive
@@ -101,7 +101,7 @@ lint-python: ## Python static analysis
 
 lint: lint-md lint-engine lint-python ## Full lint entry point
 
-check: lint-md lint-python fmt-check go-version-check ## 纯静态契约检查（lint + Python lint + 格式 + schema + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
+check: lint-md lint-python fmt-check go-version-check check-actions ## 纯静态契约检查（lint + Python lint + 格式 + schema + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
 	python3 scripts/check_schema.py
 	python3 scripts/check_docs.py
 	python3 scripts/check_workflow.py
@@ -135,6 +135,9 @@ golden: ## Deterministic multi-source golden suites
 		'Golden|External|Matrix|Pattern' ./internal/engine/...
 
 gate: lint-engine lint-python check test full-data build-release-manifest ## Full push gate: lint, static, tests, data coverage, unified release artifacts
+
+check-actions: ## Reject mutable reusable workflow/action references
+	python3 scripts/check_actions_pinned.py
 
 hooks: ## Install repository git hooks
 	git config core.hooksPath .githooks

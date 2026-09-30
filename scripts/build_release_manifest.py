@@ -21,6 +21,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
+REQUIRED_IMAGES = ("counsel_mcp", "engine", "engine_mcp", "experts")
+IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 def digest(path: Path) -> str:
@@ -52,7 +54,7 @@ def agent_versions() -> dict[str, str]:
     return versions
 
 
-def build() -> dict[str, Any]:
+def build(require_images: bool = False) -> dict[str, Any]:
     schema_version, schema_digest = parse_pin(ROOT / "contracts" / "agent-definition.version")
     actual_schema_digest = digest(ROOT / "contracts" / "agent-definition.schema.json")
     if schema_digest != actual_schema_digest:
@@ -98,6 +100,31 @@ def build() -> dict[str, Any]:
             images = json.loads(os.environ["LIKI_RELEASE_IMAGES"])
         except json.JSONDecodeError as error:
             raise SystemExit(f"LIKI_RELEASE_IMAGES is not valid JSON: {error}") from error
+        if not isinstance(images, dict):
+            raise SystemExit("LIKI_RELEASE_IMAGES must be a JSON object")
+
+    if require_images:
+        missing = [name for name in REQUIRED_IMAGES if name not in images]
+        if missing:
+            raise SystemExit(
+                "release manifest requires image digests for: " + ", ".join(missing)
+            )
+        invalid = [
+            name for name, reference in images.items()
+            if not isinstance(reference, str) or not IMAGE_DIGEST_RE.fullmatch(reference)
+        ]
+        if invalid:
+            raise SystemExit(
+                "image references must be digest-only (sha256:<64-hex>): "
+                + ", ".join(sorted(invalid))
+            )
+        unexpected = sorted(set(images) - set(REQUIRED_IMAGES))
+        if unexpected:
+            raise SystemExit(
+                "unexpected image manifest keys: " + ", ".join(unexpected)
+            )
+        if os.environ.get("LIKI_RELEASE_TAG", "unreleased") == "unreleased":
+            raise SystemExit("--require-images requires LIKI_RELEASE_TAG")
 
     return {
         "schema_version": 1,
@@ -121,9 +148,14 @@ def build() -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="verify the existing manifest")
+    parser.add_argument(
+        "--require-images",
+        action="store_true",
+        help="require digest-pinned images and release metadata (release mode)",
+    )
     args = parser.parse_args()
 
-    manifest = build()
+    manifest = build(require_images=args.require_images)
     output = DIST / "liki-release-manifest.json"
     canonical = json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
 

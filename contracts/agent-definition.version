@@ -1,8 +1,8 @@
 # AgentDeployment 契约 pin：liki 生成工件时对照的 schema 版本。
 #
-# schema 由 liki-agents 仓拥有并发布（GHCR OCI artifact：
-# ghcr.io/ml8s/liki-contracts:<version>）。本文件是 liki 侧
-# 消费该契约的单一 pin 源，避免生成器与校验 schema 版本漂移。
+# Schema source of truth lives in the liki-agents repository. This directory
+# tracks an immutable snapshot pinned by semantic version and SHA256 digest.
+# Any schema change must pass the contract compatibility job before release.
 #
 # 更新流程：liki-agents 发布新 schema → 更新 version 与 digest →
 # 重新生成并校验工件。

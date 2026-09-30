@@ -38,6 +38,8 @@
 | 螣蛇 | 虚像、影影绰绰（似在非在） |
 | 勾陈 | 牵缠在场、滞留不脱 |
 
-"玄武=未登场"的组合判断由工具按 `liuyao_condition_rules.json` 的 `xuanwu-presence-needs-compound-conditions` 输出（并列条件齐备才判未登场，单凭玄武不判）；LLM 只解读工具返回的 `statement / restored / conclusion / forbidden`。
+### 玄武未登场的判定边界
+
+“玄武=未登场”的组合判断由工具按 `liuyao_condition_rules.json` 的 `xuanwu-presence-needs-compound-conditions` 输出（并列条件齐备才判未登场，单凭玄武不判）；LLM 只解读工具返回的 `statement / restored / conclusion / forbidden`。
 
 六神不决定吉凶方向，但决定"人/事是否在场"这一事实，两者都要读。
