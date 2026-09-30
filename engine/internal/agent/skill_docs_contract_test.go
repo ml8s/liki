@@ -9,6 +9,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"maps"
 	"os"
 	"path/filepath"
@@ -129,6 +130,9 @@ func pathResolvable(tok string, refs *fieldRefs) bool {
 	}
 	// 路径逐段解析：da_yun.steps → 存在以 "da_yun.steps" 结尾的路径
 	segs := strings.Split(tok, ".")
+	if refs.leaves[segs[len(segs)-1]] {
+		return true
+	}
 	for i := 1; i < len(segs); i++ {
 		prefix := strings.Join(segs[:i+1], ".")
 		for _, p := range refs.paths {
@@ -283,6 +287,15 @@ func skillNameForDoc(path string) string {
 	if len(parts) == 1 || parts[len(parts)-1] == "SKILL.md" {
 		return "liki"
 	}
+	if parts[1] == "references" {
+		if len(parts) < 3 {
+			return "liki"
+		}
+		if len(parts) >= 5 && parts[2] == "divination" && parts[3] == "domains" {
+			return parts[4]
+		}
+		return parts[2]
+	}
 	return parts[1]
 }
 
@@ -331,18 +344,34 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 			collectToolVocabulary(tool.Function.Parameters, vocabulary)
 		}
 
-		// Response contracts are not sent to the LLM. Load them only for
-		// documentation vocabulary so output fields stay externally documented.
-		responsePath := filepath.Join(filepath.Dir(path), "response-contract.json")
-		if responseRaw, err := os.ReadFile(responsePath); err == nil {
-			var responseContract struct {
-				Tools map[string]any `json:"tools"`
-			}
-			if err := json.Unmarshal(responseRaw, &responseContract); err != nil {
+		// Projection, snapshot, and answer contracts are not sent to the LLM.
+		// Load them only for documentation vocabulary so output fields stay
+		// externally documented.
+		contractPaths, contractErr := filepath.Glob(filepath.Join(filepath.Dir(path), "*contract.json"))
+		if contractErr != nil {
+			return nil, contractErr
+		}
+		for _, contractPath := range contractPaths {
+			contractRaw, err := os.ReadFile(contractPath)
+			if err != nil {
 				return nil, err
 			}
-			for _, schema := range responseContract.Tools {
-				collectToolVocabulary(schema, vocabulary)
+			var contract any
+			if err := json.Unmarshal(contractRaw, &contract); err != nil {
+				return nil, fmt.Errorf("decode %s: %w", contractPath, err)
+			}
+			if document, ok := contract.(map[string]any); ok {
+				if tools, ok := document["tools"].(map[string]any); ok {
+					for _, schema := range tools {
+						collectToolVocabulary(schema, vocabulary)
+					}
+					continue
+				}
+			}
+			if strings.Contains(filepath.Base(contractPath), "projection") {
+				collectProjectionVocabulary(contract, vocabulary)
+			} else {
+				collectToolVocabulary(contract, vocabulary)
 			}
 		}
 
@@ -383,6 +412,15 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 		}
 		collectToolVocabulary(schema, vocabulary)
 	}
+
+	// Unified divination contracts contain both domains. Domain skill docs use
+	// the domain-specific vocabulary while preserving snapshot/answer fields.
+	for _, domain := range []string{"liuyao", "qimen"} {
+		combined := make(map[string]bool)
+		maps.Copy(combined, result["divination"])
+		maps.Copy(combined, result[domain])
+		result[domain] = combined
+	}
 	return result, nil
 }
 
@@ -405,6 +443,13 @@ func TestSkillNameForDoc(t *testing.T) {
 	got := skillNameForDoc(filepath.Join("..", "..", "..", "skills", "liki", "divination", "ENTRY.md"))
 	if got != "divination" {
 		t.Fatalf("skill name = %q, want divination", got)
+	}
+}
+
+func TestSkillNameForNestedDivinationDomain(t *testing.T) {
+	path := filepath.Join("..", "..", "..", "skills", "liki", "references", "divination", "domains", "qimen", "bamen.md")
+	if got := skillNameForDoc(path); got != "qimen" {
+		t.Fatalf("skill name = %q, want qimen", got)
 	}
 }
 
@@ -433,6 +478,28 @@ func collectToolVocabulary(value any, allow map[string]bool) {
 	case []any:
 		for _, child := range item {
 			collectToolVocabulary(child, allow)
+		}
+	}
+}
+
+// collectProjectionVocabulary reads the compact projection contract format.
+// Unlike JSON Schema, field names are map keys under "fields" rather than keys
+// of a "properties" object.
+func collectProjectionVocabulary(value any, allow map[string]bool) {
+	switch item := value.(type) {
+	case map[string]any:
+		if fields, ok := item["fields"].(map[string]any); ok {
+			for name, child := range fields {
+				allow[name] = true
+				collectProjectionVocabulary(child, allow)
+			}
+		}
+		for _, child := range item {
+			collectProjectionVocabulary(child, allow)
+		}
+	case []any:
+		for _, child := range item {
+			collectProjectionVocabulary(child, allow)
 		}
 	}
 }
