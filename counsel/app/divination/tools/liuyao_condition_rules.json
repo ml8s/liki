@@ -132,7 +132,7 @@
       "statement": "兄弟动必破财",
       "restored": "兄弟动是克财候选，必须实际作用到妻财且妻财无力。",
       "applies_if": {
-        "evidence.primary[].fact.relation": "克用",
+        "evidence.primary[].fact.relations[]": "克用",
         "topic": "wealth"
       },
       "strong_branch": {
@@ -295,6 +295,146 @@
       "forbidden": [
         "只凭三合结构断成败",
         "把结构候选写成必然事实"
+      ]
+    },
+    {
+      "id": "moving-acts-before-static",
+      "statement": "一动一静，动者得先",
+      "restored": "动爻与静爻并见时动者得先：动爻代表当下正在发生的作用；用神静而入动墓/受制时按静者无作为读，不得因静爻旺相越权成事。",
+      "applies_if": {
+        "evidence.primary[].fact.relations[]": "*"
+      },
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "用神旺相且有动爻关系时，动爻主导当下作用；用神为静爻时仍作储备/待动，不得越权。",
+        "requires": [
+          "动爻是否实际作用到用神",
+          "用神是否静而待动"
+        ]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "用神休囚且动爻关系在时，动者得先；静而入墓/受制的用神按无作为读，不得判其已得势。",
+        "requires": [
+          "动爻与用神的实际生克路径",
+          "静爻是否入墓/空破构成无作为"
+        ]
+      },
+      "forbidden": [
+        "把静爻旺相当作已在行动",
+        "用静爻占位否定动爻的实际作用"
+      ]
+    },
+    {
+      "id": "he-relation-overrides-ke",
+      "statement": "合优先于克",
+      "restored": "动爻与用神之间的合关系（六合/半合/三合）优先级高于克：合成立时先论合（贪合忘克/合住/合化），不得只见克用即断凶。",
+      "applies_if": {
+        "evidence.secondary[].fact.sub_type": "六合"
+      },
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "用神旺相且存在六合/半合/三合时，作聚/稳/助力候选；同局克用信号被合化/合住时降级。",
+        "requires": [
+          "合关系是否完整成立",
+          "是否还有未被合化的克用直击"
+        ]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "用神休囚时，六合/半合/三合只作结构候选，不作成败反转依据；仍须核克用是否被合住。",
+        "requires": [
+          "合是否作用于该动爻",
+          "是否仍有克用直击用神"
+        ]
+      },
+      "forbidden": [
+        "见克用即断凶",
+        "忽略合关系直接取克"
+      ]
+    },
+    {
+      "id": "state-modifier-not-override-relation",
+      "statement": "空墓休不否定实质生克",
+      "restored": "空亡、入墓、休囚等状态修饰只调力量与时效，不改变动爻与用神的实质生克极性；实质关系（生用/克用/生原神/克原神/生忌神/克忌神）优先。",
+      "applies_if": {
+        "evidence.primary[].fact.relations[]": "*"
+      },
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "用神旺相时，动爻实质关系（生用/克用等）为主，空/墓/休修饰只说明迟成/减弱/待时。",
+        "requires": [
+          "引擎标注有发动不为真空",
+          "修饰与关系冲突时以关系为准"
+        ]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "用神休囚时，修饰不把实质关系降为无力；只调整作用力度与时效。",
+        "requires": [
+          "核对动爻实际作用路径",
+          "修饰不覆盖生克极性"
+        ]
+      },
+      "forbidden": [
+        "以空/墓/休否定实质生用",
+        "把生用读成无力"
+      ]
+    },
+    {
+      "id": "relation-over-liuqin-name",
+      "statement": "以关系定极性，不按六亲名相",
+      "restored": "动爻对用神的实际生克关系（生用/克用/生原神/克原神/生忌神/克忌神）是极性主判据，六亲名相（财/官/父/兄/孙）只是名目；名相与关系冲突时以关系为准。",
+      "applies_if": {
+        "evidence.primary[].fact.relations[]": "*"
+      },
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "用神旺相时，任何动爻关系（含克原神/生忌神等抑制信号）按关系定极性；名相为财不按得分读。",
+        "requires": [
+          "关系集合是否含抑制信号",
+          "名相与关系是否冲突"
+        ]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "用神休囚时，抑制关系（克原神/生忌神）按抑制之爻读；实质生用不得被名相否掉。",
+        "requires": [
+          "关系是否真实作用用神",
+          "化出是否与日辰/世应同气"
+        ]
+      },
+      "forbidden": [
+        "只凭六亲名称断得失",
+        "名相与关系冲突时取名相"
+      ]
+    },
+    {
+      "id": "xuanwu-presence-needs-compound-conditions",
+      "statement": "玄武即未登场",
+      "restored": "玄武=未登场须并列条件齐备（静+伏吟+玄武等），单凭玄武不判未登场；玄武可只表暗藏/私下行动而非不现身。",
+      "applies_if": {
+        "focus.yong_line.liu_shou": "玄武"
+      },
+      "strong_branch": {
+        "status": "accepted",
+        "conclusion": "用神旺相且玄武叠加静/伏吟/空亡/入墓等并列条件时，才作未登场强证据候选。",
+        "requires": [
+          "静爻或伏吟等叠加条件",
+          "是否与空亡/入墓同现"
+        ]
+      },
+      "weak_branch": {
+        "status": "accepted",
+        "conclusion": "仅玄武、缺静/伏吟等并列条件时，不判未登场；玄武只表暗藏/私下行动。",
+        "requires": [
+          "是否缺静/伏吟等并列条件",
+          "旺衰与六神叠加复核"
+        ]
+      },
+      "forbidden": [
+        "单凭玄武判未登场",
+        "把玄武一律当藏匿不现身"
       ]
     }
   ]

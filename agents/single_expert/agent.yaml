@@ -1,12 +1,20 @@
 name: single_expert
-version: 2026.09.26.0
+version: 2026.09.29.0
 description: >
   Liki single expert handling all destiny domains directly (BaZi, Zi Wei,
   Liu Yao, Qi Men, Feng Shui, naming) with the full tool surface and no
   delegation tree.
 mode: chat
+
+skills:
+  root: /skills
+
 tools:
   allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
     engine:
       - bazhai_chart
       - bazhai_layout

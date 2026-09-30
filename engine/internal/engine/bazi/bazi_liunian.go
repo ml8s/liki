@@ -83,7 +83,7 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 	r.ShenSha = computeDynamicShenSha(nianZhi, bz.Nian.Zhi, bz.Ri.Zhi, riYuan)
 	r.ShenSha = append(r.ShenSha, computeAnnualShenSha(nianZhi, bz)...)
 	r.FuYinFanYin = computeFuYinFanYin(liuNianZhu, bz)
-	r.AtomicFacts = computeLiuNianAtomicFacts(bz, nianGan, nianZhi, tgName, currentDaYun)
+	r.AtomicFacts = computeLiuNianAtomicFacts(bz, year, nianGan, nianZhi, tgName, currentDaYun)
 
 	return r, nil
 }

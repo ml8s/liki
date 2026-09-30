@@ -9,7 +9,7 @@ import unittest
 
 
 def _load_aipay():
-    path = pathlib.Path(__file__).parents[1] / "skills" / "liki" / "aipay.py"
+    path = pathlib.Path(__file__).parents[1] / "skills" / "liki" / "scripts" / "aipay.py"
     spec = importlib.util.spec_from_file_location("liki_aipay", path)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None

@@ -1,11 +1,19 @@
 name: fengshui
-version: 2026.09.26.0
+version: 2026.09.29.0
 description: >
   Feng Shui expert covering Ba Zhai natal trigram, door-kitchen-stove layout,
   Xuan Kong flying-star charts, period cycles, and yearly stars.
 mode: chat
+
+skills:
+  root: /expert-packs/liki-fengshui/skills
+
 tools:
   allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
     engine:
       - bazhai_chart
       - bazhai_layout

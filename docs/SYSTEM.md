@@ -24,7 +24,7 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 
 本仓是系统**内容与确定性的源头**，产出四类制品：
 
-1. **专家定义**：`agents/<name>/`（唯一 AgentDeployment source of truth；`skills/liki-*` 中的专家包仅是外部客户端兼容资产）
+1. **专家定义**：`agents/<name>/`（唯一 AgentDeployment source of truth；`expert-packs/` 中的专家包仅是外部客户端兼容资产（WorkBuddy 上架 + multi-expert 镜像））
 2. **Engine / Counsel MCP**：`engine/`、`counsel/` 源码 → GHCR 镜像 `liki-engine`、`liki-counsel`
 3. **AgentDeployment 工件**：由 `agents/` 发布结构 + `scripts/generate_deployment.py` 生成 → 烘焙进装配镜像
 4. **Web skill bundle**：`scripts/build-web-skill-bundle.sh` → release asset，供 liki-web 消费
@@ -33,12 +33,12 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 
 ### 3.0 方法论权威源（最高优先规则）
 
-**方法论卡的唯一权威源是根 `skills/liki`（各域 `domains/` 下）**。独立专家包
-（`liki-bazi` 等）是根 skill 的对外发布形态，其方法论卡由
-`scripts/sync-expert-methodology.sh` 从根同步，**不要手改专家包的方法论卡**。
+**方法论卡的唯一权威源是根 `skills/liki/references/`（各域 `domains/` 下）**。独立专家包
+（`expert-packs/liki-*`）是根 skill 的对外发布形态，其方法论卡由
+`make sync-expert-packs` 从根生成并由 CI 漂移检测守护，**不要手改专家包的方法论卡**。
 
-- **优化 skill 只改根 liki**，再运行同步脚本 + 校验。
-- `make check` 会跑 `scripts/check-expert-methodology.sh` 校验根与专家包一致。
+- **优化 skill 只改根 liki**，再运行 `make sync-expert-packs` + 校验。
+- `make check` 会跑 `python3 scripts/sync_expert_packs.py --check` 校验根与专家包一致。
 - 手工双份会漂移：改专家包不被根感知，改根不同步专家包都会破坏一致性校验。
 
 ### 3.1 专家定义结构（`agents/<name>/`）
@@ -90,9 +90,9 @@ contracts/agent-definition.version → scripts/check_deployment_schema.py（sche
 - `make build-deployment` 生成唯一全功能 experts 工件并校验，已接入 `make check` 和 CI
 - 本仓 `contracts/agent-definition.schema.json` 是从 liki-agents 复制的 schema 快照（CI 用其 digest 校验）
 
-### 3.3 装配镜像（liki-experts）
+### 3.3 装配镜像（liki-multi-expert / liki-single-expert）
 
-`assembly/Dockerfile`：
+`assembly/Dockerfile` 按 `PROFILE` 参数构建两套装配镜像：
 
 ```dockerfile
 ARG BASE_IMAGE=ghcr.io/ml8s/liki-agents:<base>   # liki-agents release 显式 pin
@@ -102,13 +102,15 @@ ENV LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/deployment.json
 ENV LIKI_AGENTS_DEPLOYMENT_DIGEST=<digest>       # CI 计算，生产启动校验
 ```
 
+- `PROFILE=experts` → `liki-multi-expert`（全功能，含全部子专家）
+- `PROFILE=single` → `liki-single-expert`（单一 root 专家）
 - **组合在 liki**：专家拓扑/指令/白名单在 CI 生成并烘焙，不在运行时装配
 - 发布时序：**先 liki-agents release，后 liki release**（装配镜像 FROM 依赖）
 - 镜像不含密钥/源码：端点/令牌由部署环境注入
 
 ### 3.4 Web skill bundle（liki-web 消费）
 
-`make build-web-skill-bundle` 产出 `dist/liki-web-skill-bundle.tar.gz`（skills/liki 树 + webapp + liki.tar.gz + index.json），release 时上传为 asset。liki-web 的 `prepare-skills` action 下载解包，不再 checkout 本仓源码。
+`make build-web-skill-bundle` 产出 `dist/liki-web-skill-bundle.tar.gz`（skills/liki 树 + liki.tar.gz + index.json），release 时上传为 asset。liki-web 的 `prepare-skills` action 下载解包，不再 checkout 本仓源码。
 
 ## 四、变更如何传播（负责人须知）
 
@@ -124,7 +126,7 @@ ENV LIKI_AGENTS_DEPLOYMENT_DIGEST=<digest>       # CI 计算，生产启动校�
 
 - `check`：lint + schema + docs + **build-deployment**（工件生成校验）
 - `docker-publish`：push `liki-engine`
-- `publish-experts`：生成唯一全功能工件 → 计算 digest → 构建并 push `liki-experts`
+- `publish-experts`：生成唯一全功能工件 → 计算 digest → 构建并 push `liki-multi-expert` / `liki-single-expert`
 - `publish-web-skill-bundle`：上传 bundle 到 release asset
 
 ## 六、相关文档

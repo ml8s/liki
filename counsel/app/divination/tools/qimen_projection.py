@@ -20,6 +20,28 @@ from qimen_projection_common import (  # noqa: F401
 from qimen_specialized import project as project_specialized_context
 
 
+def _load_ji_xiong_table() -> dict:
+    """门/星吉凶固有属性表（数据源：bamen.md / jiuxing.md 翻译表）。"""
+    import json
+    from functools import lru_cache
+    from pathlib import Path
+
+    @lru_cache
+    def _load():
+        path = Path(__file__).with_name("data") / "qimen_men_star_ji_xiong.json"
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    return _load()
+
+
+def _door_ji_xiong(door: str) -> str:
+    return _load_ji_xiong_table().get("men", {}).get(door, {}).get("ji_xiong", "")
+
+
+def _star_ji_xiong(star: str) -> str:
+    return _load_ji_xiong_table().get("xing", {}).get(star, {}).get("ji_xiong", "")
+
+
 def _project_root_field(chart: dict, name: str, spec: dict):
     root = spec["path"].split(".", 1)[0]
     if not spec.get("required", True) and root not in chart:
@@ -72,10 +94,12 @@ def _project_stable_factors(source, chart: dict, spec: dict):
             for symbol in palace.get("tian_pan") or []:
                 if not isinstance(symbol, dict):
                     raise ValueError("chart source heaven symbol invalid")
+                star = symbol.get("xing")
                 result.append(_project_fields({
-                    "star": symbol.get("xing"),
+                    "star": star,
                     "gong": gong,
                     "heaven_gan": symbol.get("gan"),
+                    "ji_xiong": _star_ji_xiong(star),
                 }, runtime_fields))
         return result
 
@@ -83,6 +107,7 @@ def _project_stable_factors(source, chart: dict, spec: dict):
         return [
             _project_fields({
                 "door": palace.get("men"), "gong": _palace_name(palace),
+                "ji_xiong": _door_ji_xiong(palace.get("men")),
             }, runtime_fields)
             for palace in source if palace.get("men") is not None
         ]

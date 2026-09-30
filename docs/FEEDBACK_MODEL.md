@@ -32,6 +32,7 @@ skills/liki/feedback.schema.json
 | `problem` | 是 | `type`, `severity`, `summary`, `tool?`, `expected?`, `observed?` | 描述问题本体 |
 
 `meta.source` 只能是 `skill-agent` 或 `user`；统一 skill 后 `meta.skill` 固定为 `liki`。
+`meta.skill_version` / `meta.engine_version` 必须是 CalVer（`YYYY.MM.DD` 或 `YYYY.MM.DD.N`，如 `2026.09.26.0`）；`feedback.py` 与 `feedback.schema.json` 用同一格式校验。
 `session_hash` 只能是 SHA-256 摘要，不能是明文 session ID。去重指纹由后端基于会话与问题内容计算。
 
 ## 4. 问题类型
@@ -52,8 +53,8 @@ skills/liki/feedback.schema.json
   "meta": {
     "source": "skill-agent",
     "skill": "liki",
-    "skill_version": "x.y.z",
-    "engine_version": "x.y.z"
+    "skill_version": "2026.09.26.0",
+    "engine_version": "2026.09.26.0"
   },
   "agent": {
     "name": "codex-cli",

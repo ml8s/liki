@@ -1,12 +1,20 @@
 name: qimen
-version: 2026.09.26.0
+version: 2026.09.29.0
 description: >
   Qi Men Dun Jia expert computing nine-palace charts, eight doors, stars, gods,
   structure, strategy, direction, and almanac date selection with traceable
   rule-based readings.
 mode: chat
+
+skills:
+  root: /expert-packs/liki-qimen/skills
+
 tools:
   allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
     engine:
       - qimen_chart
       - huangli_days

@@ -7,26 +7,26 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 
 EXPECTED_NODES = {
-    "liki/naming/app/foreign.md": [
+    "liki/references/naming/app/foreign.md": [
         ("0a", "⛔ 阻塞确认"),
         ("0b", "💬 参数收集"),
         ("5a", "⛔ 阻塞确认"),
     ],
-    "liki/naming/app/naming.md": [
+    "liki/references/naming/app/naming.md": [
         ("2", "💬 参数收集"),
         ("6a", "⛔ 阻塞确认"),
     ],
-    "liki/natal/app/mingshu.md": [
+    "liki/references/natal/app/mingshu.md": [
         ("2a", "⛔ 阻塞确认"),
     ],
-    "liki/natal/app/mingshu-full.md": [
+    "liki/references/natal/app/mingshu-full.md": [
         ("2a", "⛔ 阻塞确认"),
         ("6a", "⛔ 阻塞确认"),
     ],
-    "liki/divination/app/question.md": [
+    "liki/references/divination/app/question.md": [
         ("1a", "⛔ 阻塞确认"),
     ],
-    "liki/fengshui/app/fengshui.md": [
+    "liki/references/fengshui/app/fengshui.md": [
         ("1a", "⛔ 阻塞确认"),
         ("1b", "💬 参数收集"),
         ("5a", "⛔ 阻塞确认"),
@@ -88,12 +88,12 @@ def test_interaction_nodes_are_ordered_and_limited():
 
 def test_interaction_templates_have_options_and_boundaries():
     expected_options = {
-        "liki/naming/app/foreign.md": 2,
-        "liki/naming/app/naming.md": 2,
-        "liki/natal/app/mingshu.md": 2,
-        "liki/natal/app/mingshu-full.md": 2,
-        "liki/divination/app/question.md": 2,
-        "liki/fengshui/app/fengshui.md": 2,
+        "liki/references/naming/app/foreign.md": 2,
+        "liki/references/naming/app/naming.md": 2,
+        "liki/references/natal/app/mingshu.md": 2,
+        "liki/references/natal/app/mingshu-full.md": 2,
+        "liki/references/divination/app/question.md": 2,
+        "liki/references/fengshui/app/fengshui.md": 2,
     }
     for relative, minimum_options in expected_options.items():
         text = (ROOT / "skills" / relative).read_text(encoding="utf-8")

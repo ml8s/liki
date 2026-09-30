@@ -39,7 +39,6 @@ tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
   -cf - \
   --exclude .git --exclude .github --exclude .githooks --exclude .pytest_cache \
   --exclude __pycache__ --exclude CHANGELOG.md \
-  -C "$PROJECT_DIR" webapp \
   -C "$DIST_DIR" liki.tar.gz index.json manifest.json |
   gzip -n > "$BUNDLE"
 

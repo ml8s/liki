@@ -12,10 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
     ROOT / "engine/cmd/engine-mcp/VERSION",
+    ROOT / "engine/cmd/engine-rpc/VERSION",
     ROOT / "counsel/app/VERSION.txt",
 )
 JSON_SURFACES = (
-    (ROOT / "counsel/app/natal/tools/skill-tools.json", ("info", "version")),
     (ROOT / "counsel/app/divination/tools/skill-tools.json", ("info", "version")),
     (ROOT / "counsel/app/naming/tools/skill-tools.json", ("info", "version")),
     (ROOT / "counsel/app/natal/tools/counsel-tools.json", ("version",)),

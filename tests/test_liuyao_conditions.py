@@ -15,16 +15,19 @@ if str(TOOLS) not in sys.path:
 import liuyao_conditions  # noqa: E402
 
 
-def _snapshot(wang="休", yuepo=True, xunkong=False, moving=False, patterns=None, relations=None):
+def _snapshot(wang="休", yuepo=True, xunkong=False, moving=False, patterns=None, relations=None, liu_shou=None):
     return {
         "focus": {
             "yong_shen": {"wang_shuai": wang, "yue_po": yuepo, "xun_kong": xunkong},
-            "yong_line": {"flags": {"moving": moving}},
+            "yong_line": {
+                "flags": {"moving": moving},
+                "liu_shou": liu_shou,
+            },
         },
         "evidence": {
             "primary": [
-                {"id": "moving-relation", "fact": {"relation": relation}}
-                for relation in (relations or [])
+                {"id": f"moving-relation-{index}", "fact": {"position": index, "relations": [relation]}}
+                for index, relation in enumerate(relations or [], 1)
             ],
             "secondary": [
                 {"id": f"pattern-{index}", "fact": pattern}
@@ -145,3 +148,63 @@ def test_complete_sanhe_structure_is_conditioned():
     item = next(rule for rule in result["results"] if rule["id"] == "complete-sanhe-is-candidate-not-verdict")
     assert item["applies"] is True
     assert item["conclusion_scope"] == "conditional_rule_restoration_not_absolute_verdict"
+
+
+def test_moving_acts_before_static_applies_when_moving_relation_exists():
+    result = liuyao_conditions.evaluate(_snapshot(wang="旺", relations=["生用"]), topic="wealth")
+    item = next(rule for rule in result["results"] if rule["id"] == "moving-acts-before-static")
+    assert item["applies"] is True
+    assert item["state"] == "strong"
+    assert "动爻主导当下作用" in item["conclusion"]
+
+
+def test_moving_acts_before_static_weak_branch_when_yong_weak():
+    result = liuyao_conditions.evaluate(_snapshot(wang="休", relations=["克原神"]), topic="wealth")
+    item = next(rule for rule in result["results"] if rule["id"] == "moving-acts-before-static")
+    assert item["applies"] is True
+    assert item["state"] == "weak"
+    assert "无作为" in item["conclusion"]
+
+
+def test_he_relation_overrides_ke():
+    # 六合存在（secondary pattern）时，合优先于克
+    result = liuyao_conditions.evaluate(
+        _snapshot(patterns=[{"type": "冲合", "sub_type": "六合"}], relations=["克用"]),
+        topic="wealth",
+    )
+    item = next(rule for rule in result["results"] if rule["id"] == "he-relation-overrides-ke")
+    assert item["applies"] is True
+    assert "合" in item["restored"]
+
+    # 无六合时规则不适用
+    result = liuyao_conditions.evaluate(_snapshot(relations=["克用"]), topic="wealth")
+    item = next(rule for rule in result["results"] if rule["id"] == "he-relation-overrides-ke")
+    assert item["applies"] is False
+
+
+def test_state_modifier_does_not_override_relation():
+    result = liuyao_conditions.evaluate(_snapshot(relations=["生用"]), topic="wealth")
+    item = next(rule for rule in result["results"] if rule["id"] == "state-modifier-not-override-relation")
+    assert item["applies"] is True
+    assert "实质生克极性" in item["restored"]
+
+
+def test_relation_overrides_liuqin_name():
+    result = liuyao_conditions.evaluate(_snapshot(wang="休", relations=["克原神"]), topic="wealth")
+    item = next(rule for rule in result["results"] if rule["id"] == "relation-over-liuqin-name")
+    assert item["applies"] is True
+    assert "抑制之爻" in item["conclusion"]
+
+
+def test_xuanwu_presence_needs_compound_conditions():
+    result = liuyao_conditions.evaluate(_snapshot(liu_shou="玄武"), topic="wealth")
+    item = next(rule for rule in result["results"] if rule["id"] == "xuanwu-presence-needs-compound-conditions")
+    assert item["applies"] is True
+    assert item["state"] == "weak"
+    assert "不判未登场" in item["conclusion"]
+
+
+def test_rule_paths_use_real_array_fields():
+    for rule in liuyao_conditions.load_rules()["rules"]:
+        for path in rule.get("applies_if", {}):
+            assert "fact.relation]" not in path, f"{rule['id']} uses stale singular relation path: {path}"

@@ -3,7 +3,7 @@
   "info": {
     "title": "Liki divination 奇门 / 六爻 / 黄历工具",
     "description": "问卦分域 snapshot 与 query 工具，由 counsel-mcp 暴露。",
-    "version": "2026.09.26.0"
+    "version": "2026.09.29.0"
   },
   "tools": [
     {
@@ -291,7 +291,7 @@
     {
       "type": "function",
       "function": {
-        "name": "liuyao_ask",
+        "name": "liuyao_query",
         "description": "基于同一个 immutable liuyao snapshot 追问；校验 digest 后返回结构化条件性 answer，不重排。",
         "parameters": {
           "type": "object",
@@ -858,7 +858,7 @@
     {
       "type": "function",
       "function": {
-        "name": "qimen_ask",
+        "name": "qimen_query",
         "description": "基于同一个 immutable qimen snapshot 追问；校验 digest 后返回结构化条件性 answer，不重排。",
         "parameters": {
           "type": "object",

@@ -1,0 +1,46 @@
+{
+  "schema_version": "qimen-judgment-rules-v1",
+  "conclusion_scope": "candidate_not_absolute_verdict",
+  "rules": [
+    {
+      "id": "big-failure-rout",
+      "name": "凶象叠加·溃败级",
+      "statement": "大凶门为值使门且落宫空亡，宫内另有凶星或凶格",
+      "conclusion": "多凶象叠加时按原文量级取足：死门（大凶）为值使门、落宫空亡、宫内另有凶星（天冲/天芮等）或成凶格（如太白入荧）同现，作溃败级候选，不得折成小挫/小负。",
+      "basis": "复盘确认：凶象连续被向下折（把溃败级折成小负一球）；门/星吉凶是固有属性，空亡只作时点修饰。",
+      "forbidden": [
+        "把多凶象同现折成小负一球",
+        "用空亡/马星覆盖门星吉凶本质",
+        "只凭单一凶象断言溃败"
+      ],
+      "conditions": {
+        "all": [
+          {
+            "kind": "door_ji_xiong_duty",
+            "door": "死门",
+            "ji_xiong": "大凶"
+          },
+          {
+            "kind": "duty_door_gong_kong_wang"
+          }
+        ],
+        "any": [
+          {
+            "kind": "gong_has_xing_ji_xiong",
+            "ji_xiong_in": [
+              "平",
+              "凶",
+              "大凶"
+            ]
+          },
+          {
+            "kind": "gong_has_pattern",
+            "pattern_in": [
+              "太白入荧"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

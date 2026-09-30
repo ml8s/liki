@@ -7,5 +7,5 @@
 # 更新流程：liki-agents 发布新 schema → 更新 version 与 digest →
 # 重新生成并校验工件。
 
-version: 1.0.0
-digest: sha256:474817fc863452eaed9c1da0333abaaa8b40d0acd5ab455989fc90e468b5ace0
+version: 1.1.0
+digest: sha256:0f04395dd50ed3d716927bdcefce298eb7d95c4326b38f2d8cb442cc2b66417a

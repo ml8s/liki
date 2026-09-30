@@ -1,7 +1,7 @@
 """Structural contract for the Liki skill system（综合 liki + 专家包）。
 
 覆盖：
-1. liki 综合：根 SKILL.md + 四域（natal/divination/fengshui/naming）+ 共享运行时文件
+1. liki 综合：根 SKILL.md + 四域（references/natal/references/divination/references/fengshui/naming）+ 共享运行时文件
 2. 专家包（liki-bazi/liki-ziwei）：WorkBuddy 标准（plugin.json/agents/skills/.mcp.json/avatars/README）
 3. MCP 连接器命名（engine/counsel 与专家端点）
 """
@@ -18,12 +18,12 @@ EXPERT_PACKS = ("liki-bazi", "liki-ziwei", "liki-liuyao", "liki-qimen", "liki-fe
 def test_liki_root_has_one_entry_and_four_domain_entries():
     assert (SKILL_ROOT / "SKILL.md").is_file()
     for domain in DOMAINS:
-        assert (SKILL_ROOT / domain / "ENTRY.md").is_file(), domain
+        assert (SKILL_ROOT / "references" / domain / "ENTRY.md").is_file(), domain
 
 
 def test_shared_runtime_files_are_not_duplicated():
     assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("VERSION.txt")] == [Path("VERSION.txt")]
-    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.py")] == [Path("feedback.py")]
+    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.py")] == [Path("scripts/feedback.py")]
     assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("feedback.schema.json")] == [Path("feedback.schema.json")]
 
 
@@ -33,17 +33,17 @@ def test_python_dependency_has_one_skill_root_manifest():
 
 
 def test_faq_is_the_single_runtime_failure_entry():
-    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("FAQ.md")] == [Path("FAQ.md")]
-    faq = (SKILL_ROOT / "FAQ.md").read_text(encoding="utf-8")
+    assert [p.relative_to(SKILL_ROOT) for p in SKILL_ROOT.rglob("FAQ.md")] == [Path("references/FAQ.md")]
+    faq = (SKILL_ROOT / "references" / "FAQ.md").read_text(encoding="utf-8")
     assert "不可用" in faq
     assert "⛔" in faq and "💬" in faq
     for entry in DOMAINS:
-        assert "FAQ.md" not in (SKILL_ROOT / entry / "ENTRY.md").read_text(encoding="utf-8")
+        assert "FAQ.md" not in (SKILL_ROOT / "references" / entry / "ENTRY.md").read_text(encoding="utf-8")
 
 
 def test_app_cards_use_standard_contract_sections():
     required = {"## 流程", "## 边界条件", "## 输出模板"}
-    cards = [p for p in SKILL_ROOT.glob("*/app/*.md") if p.name != "README.md"]
+    cards = [p for p in SKILL_ROOT.glob("references/*/app/*.md") if p.name != "README.md"]
     assert len(cards) >= 10
     for path in cards:
         lines = {line.strip() for line in path.read_text(encoding="utf-8").splitlines()}
@@ -57,17 +57,17 @@ def test_root_entry_is_a_lightweight_router():
 
 
 def test_natal_is_orchestration_layer_routing_to_experts():
-    entry = (SKILL_ROOT / "natal" / "ENTRY.md").read_text(encoding="utf-8")
+    entry = (SKILL_ROOT / "references" / "natal" / "ENTRY.md").read_text(encoding="utf-8")
     assert "liki-bazi" in entry and "liki-ziwei" in entry
     assert "编排" in entry
-    # 根 liki 是方法论权威源：natal/domains/ 含 bazi/ziwei 方法论卡
-    assert (SKILL_ROOT / "natal" / "domains" / "bazi").is_dir()
-    assert (SKILL_ROOT / "natal" / "domains" / "ziwei").is_dir()
+    # 根 liki 是方法论权威源：references/natal/domains/ 含 bazi/ziwei 方法论卡
+    assert (SKILL_ROOT / "references" / "natal" / "domains" / "bazi").is_dir()
+    assert (SKILL_ROOT / "references" / "natal" / "domains" / "ziwei").is_dir()
 
 
 def test_naming_does_not_silently_default_missing_hour():
-    app = (SKILL_ROOT / "naming" / "app" / "naming.md").read_text(encoding="utf-8")
-    calibration = (SKILL_ROOT / "naming" / "domains" / "bazi" / "calibration.md").read_text(encoding="utf-8")
+    app = (SKILL_ROOT / "references" / "naming" / "app" / "naming.md").read_text(encoding="utf-8")
+    calibration = (SKILL_ROOT / "references" / "naming" / "domains" / "bazi" / "calibration.md").read_text(encoding="utf-8")
     for text in (app, calibration):
         assert "默认取午时" not in text
         assert "默认时辰" not in text
@@ -83,7 +83,7 @@ def test_root_mcp_uses_counsel_and_engine():
     assert any("counsel" in name for name in mcp["mcpServers"])
     # engine 域连接器在专家包（liki-bazi / liki-ziwei）
     for pack in ("liki-bazi", "liki-ziwei"):
-        expert_mcp = json.loads((ROOT / "skills" / pack / ".mcp.json").read_text(encoding="utf-8"))
+        expert_mcp = json.loads((ROOT / "expert-packs" / pack / ".mcp.json").read_text(encoding="utf-8"))
         assert any("engine" in name for name in expert_mcp["mcpServers"])
 
 
@@ -114,17 +114,17 @@ def test_natal_cards_reference_packaged_expert_methodology():
     """Natal orchestration remains self-contained inside the unified archive.
 
     根 liki 是方法论权威源：natal 卡引用的方法论卡路径必须解析到根内
-    (natal/domains/)，且该卡真实存在于根 skill。独立专家包由同步脚本保持一致。
+    (references/natal/domains/)，且该卡真实存在于根 skill。独立专家包由同步脚本保持一致。
     """
-    pattern = re.compile(r"(natal/domains/(?:bazi|ziwei)/[A-Za-z0-9_.-]+\.md)")
-    for card in (SKILL_ROOT / "natal").rglob("*.md"):
+    pattern = re.compile(r"(references/natal/domains/(?:bazi|ziwei)/[A-Za-z0-9_.-]+\.md)")
+    for card in (SKILL_ROOT / "references" / "natal").rglob("*.md"):
         for reference in pattern.findall(card.read_text(encoding="utf-8")):
             assert (SKILL_ROOT / reference).is_file(), (card, reference)
 
 
 def test_expert_packs_follow_workbuddy_standard():
     for pack in EXPERT_PACKS:
-        root = ROOT / "skills" / pack
+        root = ROOT / "expert-packs" / pack
         assert (root / "SKILL.md").is_file(), pack
         assert (root / ".codebuddy-plugin" / "plugin.json").is_file(), pack
         assert (root / "README.md").is_file(), pack
@@ -166,16 +166,16 @@ def test_expert_pack_methodology_matches_index():
         ("liki-fengshui", "fengshui", 5),
         ("liki-naming", "naming", 7),
     ):
-        cards = [p.name for p in (ROOT / "skills" / pack / "skills" / skill).glob("*.md")]
-        assert "SKILL.md" in cards, pack
-        # 方法论卡数量（除 SKILL.md）
-        assert len(cards) - 1 == expect, (pack, len(cards) - 1, expect)
+        skill_dir = ROOT / "expert-packs" / pack / "skills" / skill
+        assert (skill_dir / "SKILL.md").is_file(), pack
+        cards = [p.name for p in (skill_dir / "references").glob("*.md")]
+        assert len(cards) == expect, (pack, len(cards), expect)
 
 
 def test_no_legacy_naming_in_skills():
     legacy = ("liki-analysis", "liki-engine", "liki-master", "liki-usage", "RPC.md")
-    for pack in ("liki", *EXPERT_PACKS):
-        root = ROOT / "skills" / pack
+    roots = [ROOT / "skills" / "liki"] + [ROOT / "expert-packs" / pack for pack in EXPERT_PACKS]
+    for root in roots:
         for path in root.rglob("*"):
             if not path.is_file() or "__pycache__" in path.parts or path.suffix == ".png":
                 continue
@@ -194,10 +194,10 @@ def test_root_skill_routes_close_with_archive_sources():
     """
     # root SKILL.md 路由的领域 → 根内方法论卡目录（domains/ 相对 skills/liki/）
     route_to_domain = {
-        "natal": "natal/domains",
-        "divination": "divination/domains",
-        "fengshui": "fengshui/domains",
-        "naming": "naming/domains",
+        "natal": "references/natal/domains",
+        "divination": "references/divination/domains",
+        "fengshui": "references/fengshui/domains",
+        "naming": "references/naming/domains",
     }
     root_skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
     referenced = {domain for domain in route_to_domain if domain in root_skill}

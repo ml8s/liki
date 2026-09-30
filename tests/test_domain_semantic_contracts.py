@@ -279,7 +279,7 @@ def test_required_natal_factors_include_reference_closure():
 def test_domain_docs_do_not_expose_legacy_query_tool():
     from pathlib import Path
     import re
-    root = Path(__file__).resolve().parents[1] / "skills/liki/natal"
+    root = Path(__file__).resolve().parents[1] / "skills/liki/references/natal"
     offenders = []
     for path in list((root / "app").glob("*.md")) + list((root / "domains").glob("*/*.md")):
         text = path.read_text(encoding="utf-8")

@@ -22,6 +22,15 @@ def _get_path(source: dict, path: str):
     return current
 
 
+def _flatten(value, depth=0):
+    """递归展开嵌套列表；用于 `evidence.primary[].fact.relations` 这类数组内数组。"""
+    if isinstance(value, list) and depth < 4:
+        for item in value:
+            yield from _flatten(item, depth + 1)
+    else:
+        yield value
+
+
 def _path_has_any(source: dict, path: str, expected) -> bool:
     current: object = [source]
     parts = path.split(".")
@@ -36,13 +45,19 @@ def _path_has_any(source: dict, path: str, expected) -> bool:
                 for sublist in current
                 if isinstance(sublist, dict)
                 for item in sublist.get(field, [])
-                if isinstance(item, dict)
             ]
             continue
         if not isinstance(current, list):
             return False
         current = [item.get(part) for item in current if isinstance(item, dict)]
-    return expected in current
+    flattened = list(_flatten(current))
+    if isinstance(expected, list):
+        # 数组 expected：任一命中即 True
+        return any(item in flattened for item in expected)
+    if expected == "*":
+        # 通配：路径下存在任何非空值
+        return any(item not in (None, "", []) for item in flattened)
+    return expected in flattened
 
 
 def _rule_state(rule: dict, snapshot: dict, topic: str | None) -> tuple[bool, str, list[str]]:

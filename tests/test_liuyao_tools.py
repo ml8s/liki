@@ -232,7 +232,7 @@ def test_factors_projects_hidden_yong_shen_without_flying_line_facts():
 def test_tool_schema_matches_python_surface():
     schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
     names = {item["function"]["name"] for item in schema["tools"]}
-    assert {"liuyao_snapshot", "liuyao_ask"} <= names
+    assert {"liuyao_snapshot", "liuyao_query"} <= names
     assert {"liuyao_chart", "liuyao_qigua", "liuyao_read", "liuyao_report"} .isdisjoint(names)
 
 

@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Build and verify the immutable liki release manifest.
+
+The manifest deliberately contains only values that can be recomputed from the
+release artifacts and repository metadata. Image digests are injected by the
+release workflow after publication, using the LIKI_RELEASE_IMAGES JSON env var.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DIST = ROOT / "dist"
+
+
+def digest(path: Path) -> str:
+    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def parse_pin(path: Path) -> tuple[str, str]:
+    values: dict[str, str] = {}
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        values[key.strip()] = value.strip()
+    return values.get("version", ""), values.get("digest", "")
+
+
+def runtime_version() -> str:
+    return (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
+
+
+def agent_versions() -> dict[str, str]:
+    versions: dict[str, str] = {}
+    for path in sorted((ROOT / "agents").glob("*/agent.yaml")):
+        match = re.search(r"^version:\s*(\S+)", path.read_text(encoding="utf-8"), re.MULTILINE)
+        if not match:
+            raise SystemExit(f"missing version: {path}")
+        versions[path.parent.name] = match.group(1)
+    return versions
+
+
+def build() -> dict[str, Any]:
+    schema_version, schema_digest = parse_pin(ROOT / "contracts" / "agent-definition.version")
+    actual_schema_digest = digest(ROOT / "contracts" / "agent-definition.schema.json")
+    if schema_digest != actual_schema_digest:
+        raise SystemExit(
+            f"contract digest mismatch: pin={schema_digest} actual={actual_schema_digest}"
+        )
+
+    versions = agent_versions()
+    expected_runtime = runtime_version()
+    mismatched = {name: version for name, version in versions.items() if version != expected_runtime}
+    if mismatched:
+        raise SystemExit(f"agent runtime version drift: {mismatched} != {expected_runtime}")
+
+    deployments: dict[str, Any] = {}
+    for profile in ("experts", "single"):
+        path = DIST / "agents" / profile / "deployment.json"
+        if not path.is_file():
+            raise SystemExit(f"missing generated deployment: {path}")
+        document = json.loads(path.read_text(encoding="utf-8"))
+        if document.get("metadata", {}).get("version") != expected_runtime:
+            raise SystemExit(
+                f"deployment version drift for {profile}: "
+                f"{document.get('metadata', {}).get('version')} != {expected_runtime}"
+            )
+        deployments[profile] = {"sha256": digest(path)}
+
+    skill_archive = DIST / "liki.tar.gz"
+    skill_index = DIST / "index.json"
+    if not skill_archive.is_file() or not skill_index.is_file():
+        raise SystemExit("skill archive is missing; run make build-archive")
+
+    skill_bundle: dict[str, str] = {
+        "archive_sha256": digest(skill_archive),
+        "index_sha256": digest(skill_index),
+    }
+    web_bundle = DIST / "liki-web-skill-bundle.tar.gz"
+    if web_bundle.is_file():
+        skill_bundle["web_bundle_sha256"] = digest(web_bundle)
+
+    images: dict[str, Any] = {}
+    if os.environ.get("LIKI_RELEASE_IMAGES"):
+        try:
+            images = json.loads(os.environ["LIKI_RELEASE_IMAGES"])
+        except json.JSONDecodeError as error:
+            raise SystemExit(f"LIKI_RELEASE_IMAGES is not valid JSON: {error}") from error
+
+    return {
+        "schema_version": 1,
+        "artifact": "liki-release-manifest.json",
+        "release_tag": os.environ.get("LIKI_RELEASE_TAG", "unreleased"),
+        "runtime_version": expected_runtime,
+        "source_commit": os.environ.get(
+            "LIKI_SOURCE_COMMIT",
+            subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
+        ),
+        "agent_contract": {
+            "version": schema_version,
+            "schema_sha256": schema_digest,
+        },
+        "agent_deployments": deployments,
+        "skill_bundle": skill_bundle,
+        "images": images,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="verify the existing manifest")
+    args = parser.parse_args()
+
+    manifest = build()
+    output = DIST / "liki-release-manifest.json"
+    canonical = json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+
+    if args.check:
+        if not output.is_file():
+            raise SystemExit(f"missing release manifest: {output}")
+        expected = output.read_text(encoding="utf-8")
+        if expected != canonical:
+            raise SystemExit("release manifest drift detected")
+        print(f"release manifest ok: {output}")
+        return 0
+
+    output.write_text(canonical, encoding="utf-8")
+    checksum = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    (DIST / "liki-release-manifest.sha256").write_text(f"{checksum}  {output.name}\n", encoding="utf-8")
+    print(f"release manifest: {output}")
+    print(f"release manifest digest: sha256:{checksum}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

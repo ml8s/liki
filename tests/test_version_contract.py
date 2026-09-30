@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
     ROOT / "engine/cmd/engine-mcp/VERSION",
+    ROOT / "engine/cmd/engine-rpc/VERSION",
     ROOT / "counsel/app/VERSION.txt",
 )
 
@@ -38,12 +39,12 @@ def test_counsel_manifests_use_distributed_version():
 def test_bazi_tool_and_domain_contracts_use_distributed_version():
     version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
     tools = json.loads(
-        (ROOT / "counsel/app/natal/tools/skill-tools.json").read_text(encoding="utf-8")
+        (ROOT / "counsel/app/natal/tools/counsel-tools.json").read_text(encoding="utf-8")
     )
     domain_contract = json.loads(
         (ROOT / "counsel/app/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
     )
-    assert tools["info"]["version"] == version
+    assert tools["version"] == version
     assert domain_contract["version"] == version
 
 

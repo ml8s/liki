@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026.09.26.0] — 退役产品收敛清理
+
+### Removed
+
+- 退役 webapp 命书/合盘报告流水线 prompt 卡（`webapp/mingshu/*`、`webapp/hepan/*`）：对应产品后端已在 liki-web 删除，skill 命理能力由 `skills/liki/references/` 承担。
+- `engine-rpc` 版本面纳入统一 CalVer bump（`bump_version.py` 与版本契约测试同步覆盖）。
+
+### Changed
+
+- 全仓运行时/契约版本面同步到 `2026.09.26.0`（含 `engine-rpc`、agents 定义）。
+
 ## [2026.09.25.0] — MCP 服务命名与干净交付收敛（目标 SemVer v7.0.0）
 
 ### Changed

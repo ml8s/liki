@@ -11,9 +11,10 @@ deployment 工件（deployment.json + instruction + output schema）。
     dist/agents/<profile>/agents/<name>/instruction.md
     dist/agents/<profile>/agents/<name>/output-schema.json   (若定义)
 
-方法论卡合并: 各 agent 的 instruction.md 为骨架，构建时把对应
-skills/<family>/skills/<skill>/ 下除 SKILL.md 外的方法论 md 追加到末尾，
-使工件自包含、可回溯。
+方法论去重: instruction 只保留骨架（角色/能力/边界/路由）。方法论卡
+的唯一权威源是 skill（liki / expert-packs 域 skill 的 references/），
+由 ADK skilltoolset 按需 load_skill / load_skill_resource 渐进加载，
+不再烘焙进工件（避免双源与 ~245KB/轮 的 prompt 膨胀）。
 """
 from __future__ import annotations
 
@@ -30,18 +31,6 @@ AGENTS_DIR = _ROOT / "agents"
 PROFILES_DIR = _ROOT / "profiles"
 TOOL_CATALOG_PATH = _ROOT / "contracts" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
-
-# agent name -> methodology source directory. 权威源在根 skill（liki）各域
-# domains/ 下；独立专家包由 scripts/sync-expert-methodology.sh 从根同步。
-METHODOLOGY_MAP = {
-    "bazi": _ROOT / "skills" / "liki" / "natal" / "domains" / "bazi",
-    "ziwei": _ROOT / "skills" / "liki" / "natal" / "domains" / "ziwei",
-    "liuyao": _ROOT / "skills" / "liki" / "divination" / "domains" / "liuyao",
-    "qimen": _ROOT / "skills" / "liki" / "divination" / "domains" / "qimen",
-    "fengshui": _ROOT / "skills" / "liki" / "fengshui" / "domains",
-    "naming": _ROOT / "skills" / "liki" / "naming" / "domains",
-}
-
 
 def load_profile(name: str) -> dict:
     path = PROFILES_DIR / f"{name}.json"
@@ -85,6 +74,15 @@ def validate_profile_tool_catalog(profile: dict, catalog: dict) -> None:
         name = profile_agent.get("name", "")
         tools = (profile_agent.get("tools") or {}).get("allow", {})
         for server, allowed in tools.items():
+            if server == "skilltoolset":
+                builtin = {"list_skills", "load_skill", "load_skill_resource"}
+                extra = sorted(set(allowed) - builtin)
+                if extra:
+                    sys.exit(
+                        f"agent {name} allowlists unknown skilltoolset tools: "
+                        + ", ".join(extra)
+                    )
+                continue
             if server not in servers:
                 sys.exit(f"agent {name} references unknown MCP server: {server}")
             catalog_tools = set(servers[server].get("tools", []))
@@ -96,40 +94,24 @@ def validate_profile_tool_catalog(profile: dict, catalog: dict) -> None:
                 )
 
 
-def merge_methodology(agent_name: str, instruction_path: Path) -> str:
-    """把方法论 md 追加到 instruction 骨架后，返回合并后的完整指令文本。"""
-    skeleton = instruction_path.read_text(encoding="utf-8").rstrip()
-
-    # single_expert 是全能力单根 agent：直接合并根 skill（liki）全部 md
-    # （SKILL.md 路由 + 各域 app 编排卡 + 全部方法论卡），自包含全能力。
-    if agent_name == "single_expert":
-        root_skill = _ROOT / "skills" / "liki"
-        cards = sorted(
-            p for p in root_skill.rglob("*.md")
-            if p.name != "SKILL.md" and "__pycache__" not in p.parts
+SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
+# 镜像内合法 skill rootFS（assembly 镜像 COPY：/skills、/expert-packs）。
+# /skills 的直接子目录是 liki/（router、single_expert 绑定后发现 skill "liki"）；
+# /expert-packs/liki-<x>/skills 的直接子目录是域 skill（name==目录名，ADK S2）。
+def validate_skills_binding(agent_name: str, skills: dict) -> None:
+    root = (skills or {}).get("root", "")
+    allowed_roots = {"/skills"} | {
+        f"/expert-packs/liki-{n}/skills"
+        for n in ("bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming")
+    }
+    if root not in allowed_roots:
+        sys.exit(
+            f"agent {agent_name} skills.root {root!r} not in allowed roots: "
+            + ", ".join(sorted(allowed_roots))
         )
-        blocks = [skeleton]
-        for card in cards:
-            blocks.append(
-                f"\n## 方法论卡：{card.relative_to(root_skill)}\n\n"
-                f"{card.read_text(encoding='utf-8').strip()}"
-            )
-        return "\n\n".join(blocks) + "\n"
-
-    source_dir = METHODOLOGY_MAP.get(agent_name)
-    if source_dir is None or not source_dir.is_dir():
-        return skeleton + "\n"
-    cards = sorted(
-        p for p in source_dir.rglob("*.md") if p.name != "SKILL.md"
-    )
-    if not cards:
-        return skeleton + "\n"
-    blocks = [skeleton]
-    for card in cards:
-        blocks.append(
-            f"\n## 方法论卡：{card.stem}\n\n{card.read_text(encoding='utf-8').strip()}"
-        )
-    return "\n\n".join(blocks) + "\n"
+    preload = skills.get("preload", "")
+    if preload not in ("", "frontmatter", "complete"):
+        sys.exit(f"agent {agent_name} skills.preload invalid: {preload!r}")
 
 
 def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> dict:
@@ -138,7 +120,7 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
         sys.exit(f"agent definition name mismatch: profile={name} yaml={definition.get('name')}")
     agent_dir = AGENTS_DIR / name
 
-    instruction_text = merge_methodology(name, agent_dir / "instruction.md")
+    instruction_text = (agent_dir / "instruction.md").read_text(encoding="utf-8").rstrip() + "\n"
     instruction_path = out_dir / "agents" / name / "instruction.md"
     instruction_path.parent.mkdir(parents=True, exist_ok=True)
     instruction_path.write_text(instruction_text, encoding="utf-8")
@@ -152,6 +134,17 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
         "instruction": {"path": f"agents/{name}/instruction.md"},
         "tools": profile_agent.get("tools") or definition.get("tools", {"allow": {}}),
     }
+    skills = profile_agent.get("skills") or definition.get("skills")
+    if not skills:
+        sys.exit(f"agent {name} has no skills binding (agent.yaml skills.root)")
+    validate_skills_binding(name, skills)
+    agent["skills"] = skills
+    allow = agent["tools"].get("allow", {})
+    toolset_tools = allow.get("skilltoolset")
+    if sorted(toolset_tools or []) != sorted(SKILL_TOOLSET_TOOLS):
+        sys.exit(
+            f"agent {name} tools.allow.skilltoolset must be exactly {SKILL_TOOLSET_TOOLS}"
+        )
 
     output_schema = agent_dir / "output-schema.json"
     if output_schema.exists():

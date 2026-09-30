@@ -28,8 +28,8 @@ def test_snapshot_schemas_accept_primary_calls():
 
 
 def test_ask_schemas_accept_primary_calls_and_bind_method():
-    liuyao = _tool("liuyao_ask")["parameters"]["properties"]["snapshot"]
-    qimen = _tool("qimen_ask")["parameters"]["properties"]["snapshot"]
+    liuyao = _tool("liuyao_query")["parameters"]["properties"]["snapshot"]
+    qimen = _tool("qimen_query")["parameters"]["properties"]["snapshot"]
     validate(
         {
             "method": "liuyao",
@@ -58,4 +58,4 @@ def test_ask_schemas_accept_primary_calls_and_bind_method():
     except ValidationError:
         pass
     else:
-        raise AssertionError("liuyao_ask accepted qimen snapshot")
+        raise AssertionError("liuyao_query accepted qimen snapshot")

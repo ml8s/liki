@@ -44,22 +44,24 @@ def _description() -> str:
 
 def test_display_name_contains_brand_and_category():
     meta = _metadata()
-    display = meta.get("displayName") or ""
+    display = meta["metadata"].get("displayName") or ""
     assert "Liki" in display
     assert "命理" in display
 
 
 def test_summary_contains_core_categories_and_naming_pair():
-    summary = _metadata().get("summary") or ""
+    summary = _metadata()["metadata"].get("summary") or ""
     for kw in ("八字", "紫微", "六爻", "奇门", "择日", "风水", "起名", "取名"):
         assert kw in summary, f"summary 缺少核心品类词: {kw}"
     assert "起名、取名" in summary
 
 
 def test_description_has_controlled_length():
+    # ADK skilltoolset 硬限：frontmatter description 1..1024 字节（Go len()）。
+    # 中文 3B/字 → 原 450~1000 字符区间与 1024B 互斥，改为字节上限 + 字符下限。
     desc = _description()
-    assert len(desc) <= 1000, f"description 超长: {len(desc)}"
-    assert len(desc) >= 450, f"description 过短，丢失核心能力: {len(desc)}"
+    assert len(desc.encode("utf-8")) <= 1024, f"description 超 1024 字节: {len(desc.encode('utf-8'))}"
+    assert len(desc) >= 300, f"description 过短，丢失核心能力: {len(desc)}"
 
 
 def test_description_covers_all_p0_phrases():

@@ -39,7 +39,7 @@ type LiuNianAtomicFacts struct {
 	YearGanEqualsNatalYearGan bool                `json:"year_gan_equals_natal_year_gan"`
 }
 
-func computeLiuNianAtomicFacts(bz ganzhi.Bazi, yearGan ganzhi.Gan, yearZhi ganzhi.Zhi, yearShiShen ganzhi.ShiShen, currentDaYun *DaYunStep) LiuNianAtomicFacts {
+func computeLiuNianAtomicFacts(bz ganzhi.Bazi, year int, yearGan ganzhi.Gan, yearZhi ganzhi.Zhi, yearShiShen ganzhi.ShiShen, currentDaYun *DaYunStep) LiuNianAtomicFacts {
 	facts := LiuNianAtomicFacts{
 		ControlsElements:       []string{},
 		Combinations:           []BranchCombination{},
@@ -90,7 +90,12 @@ func computeLiuNianAtomicFacts(bz ganzhi.Bazi, yearGan ganzhi.Gan, yearZhi ganzh
 	facts.DayVoidBranches = dayVoidBranches(bz.Ri)
 	facts.YearEqualsDayPillar = yearGan == bz.Ri.Gan && yearZhi == bz.Ri.Zhi
 	if currentDaYun != nil {
-		facts.DayunEqualsYearPillar = currentDaYun.Gan == yearGan && currentDaYun.Zhi == yearZhi
+		// 岁运并临以「流年干支=大运干支」为整年事实，仅在大运全年在位时成立。
+		// 换运首年大运从交运日才开始在位，交运日前归旧大运，故整年等值不成立——
+		// 该年已由「换运首年」因子表达交接，岁运并临不应重复作为整年断语。
+		facts.DayunEqualsYearPillar = currentDaYun.Gan == yearGan &&
+			currentDaYun.Zhi == yearZhi &&
+			currentDaYun.StartYear != year
 	}
 	facts.YearGanEqualsNatalYearGan = yearGan == bz.Nian.Gan
 

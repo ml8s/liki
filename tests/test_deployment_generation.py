@@ -59,19 +59,20 @@ class TestDeploymentGeneration(unittest.TestCase):
         for expert in ["bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"]:
             self.assertEqual(agents[expert]["sub_agents"], [])
 
-    def test_methodology_cards_are_baked_into_instructions(self):
-        manifest = self._generate("experts")
-        root = manifest.parent
-        bazi_instruction = root / "agents" / "bazi" / "instruction.md"
-        ziwei_instruction = root / "agents" / "ziwei" / "instruction.md"
-        self.assertGreater(bazi_instruction.stat().st_size, 50_000)
-        self.assertGreater(ziwei_instruction.stat().st_size, 10_000)
-        self.assertIn("方法论卡", bazi_instruction.read_text(encoding="utf-8"))
-        self.assertIn("方法论卡", ziwei_instruction.read_text(encoding="utf-8"))
-        for expert in ["liuyao", "qimen", "fengshui", "naming"]:
-            instruction = root / "agents" / expert / "instruction.md"
-            self.assertGreater(instruction.stat().st_size, 2_000)
-            self.assertIn("方法论卡", instruction.read_text(encoding="utf-8"))
+    def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
+        """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""
+        for profile in ("experts", "single"):
+            manifest = self._generate(profile)
+            root = manifest.parent
+            deployment = json.loads(manifest.read_text(encoding="utf-8"))
+            for agent in deployment["spec"]["agents"]:
+                with self.subTest(profile=profile, agent=agent["name"]):
+                    path = root / agent["instruction"]["path"]
+                    text = path.read_text(encoding="utf-8")
+                    self.assertLess(path.stat().st_size, 4_096, f"{path} 超过骨架上限")
+                    self.assertNotIn("方法论卡", text)
+                    # 骨架仍须保留角色与硬边界
+                    self.assertIn("边界", text)
 
     def test_instruction_paths_resolve_within_deployment_dir(self):
         manifest = self._generate("experts")
@@ -103,6 +104,12 @@ class TestDeploymentGeneration(unittest.TestCase):
         for expert in ["bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"]:
             for server, allowed in agents[expert]["tools"]["allow"].items():
                 allowed = set(allowed)
+                if server == "skilltoolset":
+                    # builtin（非 MCP server）：契约由 test_skills_binding.py 断言
+                    self.assertEqual(
+                        allowed, {"list_skills", "load_skill", "load_skill_resource"}
+                    )
+                    continue
                 self.assertTrue(allowed <= catalog_tools[server])
                 exposed[server].update(allowed)
         self.assertEqual(exposed, {server: set(tools) for server, tools in catalog_tools.items()})

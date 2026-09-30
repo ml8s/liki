@@ -276,10 +276,11 @@ def create_counsel_root_mcp() -> MCPServer:
 
 
 def _add_divination_tools(server: MCPServer, domain: str) -> None:
-    """六爻/奇门（liuyao/qimen）：snapshot 创建（排盘+因子）+ query 追问（ask→query）。
+    """六爻/奇门（liuyao/qimen）：snapshot 创建（排盘+因子）+ query 追问。
 
     复用 counsel 模块（create/ask——起卦/排盘/断语），engine 完成排盘；
-    counsel 是补集（判断），ask 做成 query（追问出断语）。
+    counsel 是补集（判断），MCP 暴露名与 skill-tools.json 一致（{domain}_snapshot / {domain}_query），
+    query 基于 snapshot 追问出断语。
     """
     if domain == "liuyao":
         from liuyao_ask import ask as query_ask
@@ -293,15 +294,13 @@ def _add_divination_tools(server: MCPServer, domain: str) -> None:
         name = fn["name"]
         if name == f"{domain}_snapshot":
             impl = snapshot_create
-            out_name = name
-        elif name == f"{domain}_ask":
+        elif name == f"{domain}_query":
             impl = query_ask
-            out_name = f"{domain}_query"  # ask → query（追问出断语）
         else:
             continue
         _add_schema_tool(
             server,
-            name=out_name,
+            name=name,
             description=fn["description"],
             schema=fn["parameters"],
             invoke=lambda arguments, _impl=impl: _impl(**arguments),

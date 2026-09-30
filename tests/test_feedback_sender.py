@@ -11,7 +11,7 @@ from _helpers import SKILL_ROOT, skill_dir, skill_version
 
 
 def load_sender(skill="liki"):
-    return load_sender_from(skill_dir(skill) / "feedback.py", skill)
+    return load_sender_from(skill_dir(skill) / "scripts" / "feedback.py", skill)
 
 
 def load_sender_from(path, name="feedback"):
@@ -41,7 +41,7 @@ def payload() -> dict:
 
 def test_unified_skill_has_one_sender():
     senders = list(SKILL_ROOT.rglob("feedback.py"))
-    assert [p.relative_to(SKILL_ROOT) for p in senders] == [__import__("pathlib").Path("feedback.py")]
+    assert [p.relative_to(SKILL_ROOT) for p in senders] == [__import__("pathlib").Path("scripts/feedback.py")]
 
 
 def test_sender_builds_valid_payload_and_uses_endpoint(monkeypatch):
@@ -62,7 +62,7 @@ def test_sender_builds_valid_payload_and_uses_endpoint(monkeypatch):
     monkeypatch.setattr(sys, "stdin", StringIO(json.dumps(payload())))
     status = sender.main([])
     assert status == 0
-    assert sent["timeout"] == 2
+    assert sent["timeout"] == sender.TIMEOUT_SECONDS
     request = sent["request"]
     assert request.full_url == "https://liki.test/api/feedback"
     body = json.loads(request.data.decode("utf-8"))

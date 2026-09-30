@@ -1,6 +1,6 @@
 {
-  "schema_version": 4,
-  "version": "2026.09.26.0",
+  "schema_version": 5,
+  "version": "2026.09.29.0",
   "fields": {
     "scope": {
       "kind": "scalar",
@@ -355,6 +355,11 @@
           "path": "gan",
           "type": "string",
           "required": true
+        },
+        "ji_xiong": {
+          "path": "ji_xiong",
+          "type": "string",
+          "required": true
         }
       }
     },
@@ -371,6 +376,11 @@
         },
         "gong": {
           "path": "gong.name",
+          "type": "string",
+          "required": true
+        },
+        "ji_xiong": {
+          "path": "ji_xiong",
           "type": "string",
           "required": true
         }

@@ -1,0 +1,24 @@
+{
+  "schema_version": "qimen-men-star-ji-xiong-v1",
+  "men": {
+    "休门": { "wuxing": "水", "ji_xiong": "吉", "yingshi": "休息、修养、求财" },
+    "生门": { "wuxing": "土", "ji_xiong": "大吉", "yingshi": "财运、生产" },
+    "伤门": { "wuxing": "木", "ji_xiong": "凶", "yingshi": "争斗、损失" },
+    "杜门": { "wuxing": "木", "ji_xiong": "平", "yingshi": "隐藏、堵塞" },
+    "景门": { "wuxing": "火", "ji_xiong": "平", "yingshi": "文书、消息" },
+    "死门": { "wuxing": "土", "ji_xiong": "大凶", "yingshi": "死亡、结束" },
+    "惊门": { "wuxing": "金", "ji_xiong": "凶", "yingshi": "惊恐、官司" },
+    "开门": { "wuxing": "金", "ji_xiong": "大吉", "yingshi": "开业、出行" }
+  },
+  "xing": {
+    "天蓬": { "wuxing": "水", "ji_xiong": "凶", "yingshi": "盗贼、争斗" },
+    "天芮": { "wuxing": "土", "ji_xiong": "凶", "yingshi": "疾病、阴私" },
+    "天冲": { "wuxing": "木", "ji_xiong": "平", "yingshi": "变动、冲击" },
+    "天辅": { "wuxing": "木", "ji_xiong": "吉", "yingshi": "文昌、辅佐" },
+    "天禽": { "wuxing": "土", "ji_xiong": "吉", "yingshi": "中正、统御" },
+    "天心": { "wuxing": "金", "ji_xiong": "吉", "yingshi": "医药、谋略" },
+    "天柱": { "wuxing": "金", "ji_xiong": "凶", "yingshi": "口舌、破坏" },
+    "天任": { "wuxing": "土", "ji_xiong": "吉", "yingshi": "田土、踏实" },
+    "天英": { "wuxing": "火", "ji_xiong": "平", "yingshi": "文书、虚华" }
+  }
+}

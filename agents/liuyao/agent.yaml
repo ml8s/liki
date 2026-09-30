@@ -1,11 +1,19 @@
 name: liuyao
-version: 2026.09.26.0
+version: 2026.09.29.0
 description: >
   Liu Yao expert casting hexagrams and judging outcome, timing, yongshen, and
   six relatives with traceable rule-based readings.
 mode: chat
+
+skills:
+  root: /expert-packs/liki-liuyao/skills
+
 tools:
   allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
     engine:
       - liuyao_qigua
       - liuyao_chart

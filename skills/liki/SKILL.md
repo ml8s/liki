@@ -1,12 +1,13 @@
 ---
 name: liki
-slug: liki
-displayName: "Liki 专业命理 Skill"
-agent_created: true
-version: 7.0.0
-summary: "专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。"
 license: MIT
-description: "懂命理，用 Liki。专业命理 Skill，支持八字算命、生辰八字、排八字、四柱命盘、紫微斗数、紫微命盘、命盘分析、大运流年、流年运势、明年运势与运势分析；可看婚姻分析、感情走向、八字合婚、事业分析、职业方向、财运分析、投资时机、学业分析、考试运、健康分析、五行体质、怀孕生育时机、六亲子女。支持六爻占卜、算卦问事、摇卦起卦、问事业、问财运、问感情、问学业与应期分析；支持奇门遁甲、奇门问事、策略分析、谈判时机与进退选择；支持黄历择日、老黄历、选日子、挑吉日、结婚吉日、开业吉日、搬家吉日、入宅择日、装修择日与出行择日；支持家居风水、风水布局、房屋风水、办公室风水、店铺选址、八宅风水、命卦、玄空风水、玄空飞星与流年飞星；支持起名、取名、宝宝起名、宝宝取名、新生儿起名、新生儿取名、成人改名、公司起名、品牌命名、名字测试、八字起名。Also supports BaZi, Chinese astrology, Four Pillars of Destiny, Zi Wei Dou Shu, I Ching divination, Chinese almanac, Feng Shui and Chinese baby naming。规则引擎判断，依据可回溯；传统文化视角，仅供参考，不构成专业建议。"
+description: 懂命理，用 Liki。专业命理 Skill：八字算命、生辰八字、排八字、四柱命盘、紫微斗数、紫微命盘、大运流年、流年运势、运势分析、婚姻分析、感情走向、八字合婚、事业分析、职业方向、财运分析、投资时机、学业分析、考试运、健康分析、五行体质、怀孕生育时机；六爻占卜、算卦问事、问事与应期分析；奇门遁甲、策略分析；黄历择日、老黄历、选日子、结婚吉日、开业吉日、搬家吉日；家居风水、风水布局、办公室风水、店铺选址、八宅风水、玄空风水、玄空飞星；支持起名、取名、宝宝起名、宝宝取名、新生儿起名、成人改名、公司起名、品牌命名、名字测试、八字起名。Also supports BaZi, Chinese astrology, Four Pillars of Destiny, Zi Wei Dou Shu, I Ching divination, Chinese almanac, Feng Shui and Chinese baby naming。规则引擎判断，依据可回溯；传统文化视角，不构成专业建议。
+metadata:
+  slug: liki
+  displayName: Liki 专业命理 Skill
+  agent_created: 'true'
+  version: 7.0.0
+  summary: 专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。
 ---
 
 # Liki — 专业命理 Skill
@@ -25,8 +26,8 @@ Liki 通过标准 MCP 提供能力，依赖四个 MCP server：
 | `engine-mcp` | `https://liki.hk/engine/mcp` | 排盘/风水计算工具（counsel 内部调用） |
 
 1. 启动时确认四个 MCP 已连接；未连接时提示用户按客户端机制连接（或在配置中声明 `mcpServers` 自动连接），MCP 不可用时标注降级。
-2. 版本：读取安装根目录 `VERSION.txt`，请求 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；两者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。
-3. 工具失败、依赖缺失、版本 / digest / schema 校验失败时读 `FAQ.md`；不得绕过校验或自行降级。
+2. 版本：读取安装根目录 `VERSION.txt`，请求 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；两者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。请求远程版本须携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
+3. 工具失败、依赖缺失、版本 / digest / schema 校验失败时读 `references/FAQ.md`；不得绕过校验或自行降级。
 
 ## 领域路由
 
@@ -73,11 +74,19 @@ Liki 通过标准 MCP 提供能力，依赖四个 MCP server：
 
 Liki 先使用，后付费；服务完成后发起 Aipay，未支付仍可使用。
 
-1. 启动时执行 `python3 aipay.py status`；`paid=true` 时直接提供服务。
+1. 启动时执行 `python3 scripts/aipay.py status`；`paid=true` 时直接提供服务。
 2. `paid=false` 时先说明后付费规则，交付结果后 POST `https://liki.hk/api/aipay`。
 3. 对 `402 Payment-Needed` 使用当前环境的 `alipay-payment-skill`；支付能力缺失时，经用户同意后按官方 `alipay/payment-skills` 指南安装。
-4. 支付完成后，将后端响应通过 stdin 传给 `python3 aipay.py save-receipt`。
+4. 支付完成后，将后端响应通过 stdin 传给 `python3 scripts/aipay.py save-receipt`。
 5. 用户暂缓支付时回复确认，并在用户再次发起时继续。
+
+### `/api/aipay` 请求契约
+
+- 方法：`POST`；请求体为空即可，无需 JSON body。
+- 必需请求头：浏览器风格 `User-Agent`（缺省客户端 UA 会命中 Cloudflare 反爬，返回 `403` + error code 1010）。示例：`User-Agent: Mozilla/5.0 ... Safari/537.36`。
+- 不带 `Payment-Proof` 头 → 后端建单，返回 `402 Payment-Needed` + `Payment-Needed` 响应头 + JSON `{code, out_trade_no, amount, currency, goods_name}`。
+- 带 `Payment-Proof` 头（base64url 编码的支付凭证 JSON）→ 核销，返回 `200` + 收据 JSON（`content` 内 `schema_version=liki-aipay-v1`）。
+- 支付环节交给 `alipay-payment-skill` 完成；收据经 `aipay.py save-receipt` 落盘后即以 `paid=true` 提供服务。
 
 ## 输出契约
 
@@ -100,5 +109,5 @@ Liki 先使用，后付费；服务完成后发起 Aipay，未支付仍可使用
 - `type` 闭集：error、gap、conflict、friction、clarity。
 - 未知宿主 / 模型值填 `unknown`。
 - `summary / expected / observed` 只写工具名、字段名、流程阶段或工程问题；禁止用户原文、出生数据、姓名、地址、卦题、命盘和工具全文。
-- 把模板写入临时文件后执行 `python3 feedback.py --payload-file <临时文件>`。
+- 把模板写入临时文件后执行 `python3 scripts/feedback.py --payload-file <临时文件>`。
 - 默认请求地址：`https://liki.hk/api/feedback`；`LIKI_FEEDBACK_URL` 可覆盖，`LIKI_FEEDBACK_DISABLED=1` 可禁用。

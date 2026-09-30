@@ -71,8 +71,15 @@ jobs:
           go-version: "1.26.6"
           check-latest: true
           cache-dependency-path: engine/go.sum
-      - run: go test -race -count=1 -short ./...
+      - name: Unit tests with coverage floor
         working-directory: engine
+        run: |
+          go test -race -count=1 -short -coverprofile=coverage.out ./...
+          COV=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}' | sed 's/%//')
+          echo "Coverage: ${COV}%"
+          if awk -v c="$COV" -v m="85" 'BEGIN {exit !(c < m)}'; then
+            echo "❌ Coverage ${COV}% < 85%"; exit 1
+          fi
       - run: go test -tags integration -count=1 -timeout 60s ./internal/agent/ ./internal/http/ ./internal/engine/bazi/
         working-directory: engine
 
@@ -322,6 +329,8 @@ jobs:
           rm -rf assembly/dist
           mkdir -p assembly/dist/agents
           cp -r dist/agents/. assembly/dist/agents/
+          cp -r skills assembly/dist/skills
+          cp -r expert-packs assembly/dist/expert-packs
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:

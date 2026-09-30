@@ -29,7 +29,7 @@ METHOD_WHITELIST = {
 }
 _METHOD_PREFIXES = tuple(sorted({m.split(".")[0] for m in METHOD_WHITELIST}))
 _SKIP_DOTTED = {"params.properties", "result.methods", "result.info", "result.info.version"}
-_PATH_PATTERN = r"(?:(?:natal|divination|fengshui|naming)/(?:tools|app|domains)|webapp)/"
+_PATH_PATTERN = r"(?:(?:natal|divination|fengshui|naming)/(?:tools|app|domains))/"
 
 
 def load_duanyu_ids() -> set:

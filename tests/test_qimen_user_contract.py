@@ -2,12 +2,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CARD = ROOT / "skills/liki/divination/app/qimen-snapshot.md"
-QUARTER = ROOT / "skills/liki/divination/domains/qimen/quarter.md"
-YONGSHEN = ROOT / "skills/liki/divination/domains/qimen/yongshen.md"
-LOST_PROPERTY = ROOT / "skills/liki/divination/domains/qimen/lost-property.md"
-MISSING_PERSON = ROOT / "skills/liki/divination/domains/qimen/missing-person.md"
-CAPTURE_ESCAPE = ROOT / "skills/liki/divination/domains/qimen/capture-escape.md"
+CARD = ROOT / "skills/liki/references/divination/app/qimen-snapshot.md"
+QUARTER = ROOT / "skills/liki/references/divination/domains/qimen/quarter.md"
+YONGSHEN = ROOT / "skills/liki/references/divination/domains/qimen/yongshen.md"
+LOST_PROPERTY = ROOT / "skills/liki/references/divination/domains/qimen/lost-property.md"
+MISSING_PERSON = ROOT / "skills/liki/references/divination/domains/qimen/missing-person.md"
+CAPTURE_ESCAPE = ROOT / "skills/liki/references/divination/domains/qimen/capture-escape.md"
 
 
 def test_qimen_card_keeps_normal_users_on_default_chart() -> None:
@@ -102,7 +102,7 @@ def test_capture_escape_stays_conservative_and_interpretation_layer() -> None:
 
 
 def test_thief_capture_documents_geng_branches() -> None:
-    text = (ROOT / "skills/liki/divination/domains/qimen/thief-capture.md").read_text(
+    text = (ROOT / "skills/liki/references/divination/domains/qimen/thief-capture.md").read_text(
         encoding="utf-8"
     )
     assert "庚格已入表" in text
@@ -113,7 +113,7 @@ def test_thief_capture_documents_geng_branches() -> None:
 
 
 def test_thief_profile_is_table_driven_route() -> None:
-    text = (ROOT / "skills/liki/divination/domains/qimen/thief-capture.md").read_text(
+    text = (ROOT / "skills/liki/references/divination/domains/qimen/thief-capture.md").read_text(
         encoding="utf-8"
     )
     assert "snapshot.special.assertions" in text
@@ -139,7 +139,7 @@ def test_pattern_interpretation_stays_table_driven() -> None:
 
 
 def test_yingqi_dates_come_from_engine() -> None:
-    text = (ROOT / "skills/liki/divination/domains/qimen/yingqi.md").read_text(
+    text = (ROOT / "skills/liki/references/divination/domains/qimen/yingqi.md").read_text(
         encoding="utf-8"
     )
     assert "`candidates[].dates[]`" in text

@@ -36,6 +36,11 @@ def available_ids(snapshot: dict) -> tuple[set[str], set[str]]:
         for item in (snapshot.get("special") or {}).get("assertions", [])
         if item.get("id")
     }
+    assertion_ids |= {
+        f"assertion:{item['id']}"
+        for item in (snapshot.get("judgments") or {}).get("results", [])
+        if item.get("applies") and item.get("id")
+    }
     evidence_ids |= assertion_ids
     timing_ids = {candidate_id(candidate) for candidate in factors.get("ying_qi", [])}
     return evidence_ids, timing_ids

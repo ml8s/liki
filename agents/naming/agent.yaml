@@ -1,11 +1,19 @@
 name: naming
-version: 2026.09.26.0
+version: 2026.09.29.0
 description: >
   Chinese naming expert covering baby names, adult renaming, foreign Chinese
   names, and user-selected name evaluation.
 mode: chat
+
+skills:
+  root: /expert-packs/liki-naming/skills
+
 tools:
   allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
     engine:
       - bazi_chart
       - bazi_fullchart

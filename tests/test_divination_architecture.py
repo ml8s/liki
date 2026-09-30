@@ -13,9 +13,9 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 EXPECTED_TOOLS = {
     "liuyao_snapshot",
-    "liuyao_ask",
+    "liuyao_query",
     "qimen_snapshot",
-    "qimen_ask",
+    "qimen_query",
 }
 FORBIDDEN_TOOLS = {
     "divination_route",
@@ -85,10 +85,10 @@ def test_contract_registry_has_exact_domain_contracts():
 
 
 def test_snapshot_app_cards_replace_chart_cards():
-    assert (ROOT / "skills/liki/divination/app/liuyao-snapshot.md").is_file()
-    assert (ROOT / "skills/liki/divination/app/qimen-snapshot.md").is_file()
-    assert not (ROOT / "skills/liki/divination/app/liuyao-chart.md").exists()
-    assert not (ROOT / "skills/liki/divination/app/qimen-chart.md").exists()
+    assert (ROOT / "skills/liki/references/divination/app/liuyao-snapshot.md").is_file()
+    assert (ROOT / "skills/liki/references/divination/app/qimen-snapshot.md").is_file()
+    assert not (ROOT / "skills/liki/references/divination/app/liuyao-chart.md").exists()
+    assert not (ROOT / "skills/liki/references/divination/app/qimen-chart.md").exists()
 
 
 def test_primary_entries_use_shared_safety():
@@ -164,7 +164,7 @@ def test_liuyao_timing_boundary_and_target_rules_are_table_driven():
 
 
 def test_liuyao_static_hexagram_doc_separates_fact_from_action():
-    text = (ROOT / "skills/liki/divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
+    text = (ROOT / "skills/liki/references/divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
     assert "静卦，只说明无明显动爻" in text
     assert "不因静卦直接断顺势吉凶" in text
     assert "顺势/事缓" not in text

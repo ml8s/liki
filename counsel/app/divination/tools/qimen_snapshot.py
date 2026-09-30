@@ -126,10 +126,14 @@ def create(
     if effective_school == "jinhan_yujing":
         factors = project_jinhan_factors(chart)
         special = None
+        from qimen_judgment import empty as empty_judgments
+        judgments = empty_judgments()
     else:
         factors = project_standard_factors(chart)
         validate_standard_factors(factors)
         special = query(rule, factors) if rule is not None else None
+        from qimen_judgment import evaluate as evaluate_judgments
+        judgments = evaluate_judgments(factors)
     if (
         method_context.get("scope") != factors.get("scope")
         or method_context.get("school") != factors.get("school")
@@ -151,6 +155,7 @@ def create(
             "method_context": method_context,
             "factors": factors,
             "special": special,
+            "judgments": judgments,
             "snapshot_kind": "jinhan" if effective_school == "jinhan_yujing" else "standard",
             "safety_advisory": safety,
             "policy": {

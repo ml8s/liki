@@ -15,7 +15,6 @@ FORBIDDEN_VARIANTS = [
     "懂命理，用灵机",
 ]
 PUBLIC_WINDOWS = [ROOT / "README.md", ROOT / "README.en.md", SKILL_ROOT / "SKILL.md"]
-WEBAPP_WINDOWS = sorted((ROOT / "webapp").glob("*/**/*.md"))
 STALE_BRAND_CONTRACT = [
     "The canonical slogan is Chinese-only",
     "命理师的 Skill",
@@ -44,14 +43,6 @@ def test_public_windows_do_not_use_retired_variants():
         text = path.read_text(encoding="utf-8")
         for variant in FORBIDDEN_VARIANTS:
             assert variant not in text, f"{path}: retired slogan variant {variant!r}"
-
-
-def test_webapp_report_windows_use_liki_brand():
-    assert WEBAPP_WINDOWS
-    for path in WEBAPP_WINDOWS:
-        text = path.read_text(encoding="utf-8")
-        for variant in FORBIDDEN_VARIANTS:
-            assert variant not in text, f"{path}: retired brand variant {variant!r}"
 
 
 def test_brand_doc_is_the_canonical_truth_source():

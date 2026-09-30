@@ -145,10 +145,10 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 | 契约 | 用途 |
 | --- | --- |
-| [natal TOOLS](./skills/liki/natal/TOOLS.md) | 八字/紫微本命与应期判断的编排与契约（工具经 `tools/list` 自举）|
-| [divination TOOLS](./skills/liki/divination/TOOLS.md) | 六爻、奇门、黄历的编排与契约 |
-| [naming ENTRY](./skills/liki/naming/ENTRY.md) | 起名：用神取用 + 五行选字（counsel）|
-| [fengshui ENTRY](./skills/liki/fengshui/ENTRY.md) | 风水：八宅、玄空与流年（engine）|
+| [natal TOOLS](./skills/liki/references/natal/TOOLS.md) | 八字/紫微本命与应期判断的编排与契约（工具经 `tools/list` 自举）|
+| [divination TOOLS](./skills/liki/references/divination/TOOLS.md) | 六爻、奇门、黄历的编排与契约 |
+| [naming ENTRY](./skills/liki/references/naming/ENTRY.md) | 起名：用神取用 + 五行选字（counsel）|
+| [fengshui ENTRY](./skills/liki/references/fengshui/ENTRY.md) | 风水：八宅、玄空与流年（engine）|
 
 ### 测试与发布
 

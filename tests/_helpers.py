@@ -23,7 +23,7 @@ SLOGAN = "懂命理，用 Liki"
 
 def skill_dir(name: str = "liki") -> Path:
     if name in DOMAIN_NAMES:
-        return SKILL_ROOT / name
+        return SKILL_ROOT / "references" / name
     return SKILL_ROOT
 
 

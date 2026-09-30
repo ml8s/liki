@@ -15,6 +15,7 @@ import divination_snapshot  # noqa: E402
 import liuyao_ask  # noqa: E402
 import liuyao_snapshot  # noqa: E402
 import qimen_ask  # noqa: E402
+import qimen_judgment  # noqa: E402
 import qimen_snapshot  # noqa: E402
 from qimen_projection import project as project_chart  # noqa: E402
 
@@ -282,6 +283,7 @@ def test_qimen_answer_timing_ids_are_collision_resistant(monkeypatch):
             "method_context": {"scope": "hour", "school": "zhuanpan"},
             "factors": factors,
             "special": None,
+            "judgments": qimen_judgment.evaluate(factors),
             "safety_advisory": {
                 "status": "allow", "blocking": False, "category": None,
                 "severity": "none", "support_first": False,

@@ -144,10 +144,10 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 
 | Contract | Purpose |
 | --- | --- |
-| [Natal tools](./skills/liki/natal/TOOLS.md) | Bazi / Ziwei natal & period analysis orchestration and contract (tools self-describe via `tools/list`) |
-| [Divination tools](./skills/liki/divination/TOOLS.md) | Liuyao, QiMen, and Huangli orchestration and contract |
-| [Naming ENTRY](./skills/liki/naming/ENTRY.md) | Naming: yongshen-based character selection (counsel) |
-| [Feng shui ENTRY](./skills/liki/fengshui/ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine) |
+| [Natal tools](./skills/liki/references/natal/TOOLS.md) | Bazi / Ziwei natal & period analysis orchestration and contract (tools self-describe via `tools/list`) |
+| [Divination tools](./skills/liki/references/divination/TOOLS.md) | Liuyao, QiMen, and Huangli orchestration and contract |
+| [Naming ENTRY](./skills/liki/references/naming/ENTRY.md) | Naming: yongshen-based character selection (counsel) |
+| [Feng shui ENTRY](./skills/liki/references/fengshui/ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine) |
 
 ### Tests and release
 
@@ -164,7 +164,7 @@ Formal releases use SemVer tags; runtime compatibility uses CalVer. See [Release
 ### Design principles
 
 - Single responsibility: root entry, domain entry, app cards, domain knowledge, and tool layers do not replace each other.
-- Single source of truth: tool contracts come from `skill-tools.json`; factors and assertions come from CSV tables.
+- Single source of truth: tool contracts come from `counsel-tools.json` (natal) / `skill-tools.json` (divination, naming); factors and assertions come from CSV tables.
 - Explicit dual-system review: Bazi and Ziwei are calculated separately and conflicts are listed by evidence layer.
 - Evaluation-driven: golden, functional, MCP integration, and the 160-question rule-coverage check run in separate layers; historical model-backed assets are explicitly archived.
 

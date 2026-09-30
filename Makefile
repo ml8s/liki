@@ -18,13 +18,20 @@ export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 .PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python \
         go-version-check lint lint-md check test test-contracts test-engine test-counsel test-engine-mcp \
         full-data golden gate hooks version build-archive build-deployment \
-        build-web-skill-bundle agents-validate image image-engine image-counsel image-assembly
+        build-web-skill-bundle build-release-manifest check-release-manifest \
+        agents-validate image image-engine image-counsel image-assembly
 
 build-skill build-archive: ## Build the installable skill archive
 	scripts/build-archive.sh
 
 build-web-skill-bundle: build-archive ## Build the liki-web skill bundle (release asset)
 	scripts/build-web-skill-bundle.sh
+
+build-release-manifest: build-web-skill-bundle build-deployment ## Build the unified liki release manifest
+	python3 scripts/build_release_manifest.py
+
+check-release-manifest: ## Verify an existing unified release manifest without writing
+	python3 scripts/build_release_manifest.py --check
 
 DEPLOYMENT_PROFILES ?= experts single
 
@@ -67,6 +74,7 @@ image-counsel: ## Build liki-counsel image locally (debug; production uses CI re
 
 image-assembly: build-deployment ## Build assembly images locally (multi + single; pulls liki-agents base from GHCR)
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
+	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg PROFILE=experts -t $(IMAGE_REGISTRY)/liki-multi-expert:$(IMAGE_TAG) assembly
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg PROFILE=single -t $(IMAGE_REGISTRY)/liki-single-expert:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
@@ -97,8 +105,11 @@ check: lint-md lint-python fmt-check go-version-check ## 纯静态契约检查�
 	python3 scripts/check_schema.py
 	python3 scripts/check_docs.py
 	python3 scripts/check_workflow.py
-	bash scripts/check-expert-methodology.sh
 	bash scripts/check-exec-bits.sh
+	python3 scripts/sync_expert_packs.py --check
+
+sync-expert-packs: ## 从根 skill 生成 expert-packs 方法论卡（唯一生成入口）
+	python3 scripts/sync_expert_packs.py
 
 test-contracts: ## Root skill / rules / documentation contract suite
 	python3 -m pytest tests/ -q
@@ -123,7 +134,7 @@ golden: ## Deterministic multi-source golden suites
 	@cd engine && go test -count=1 -run \
 		'Golden|External|Matrix|Pattern' ./internal/engine/...
 
-gate: lint-engine lint-python check test full-data build-archive build-deployment ## Full push gate: lint, static, tests, data coverage, archive, deployment 工件
+gate: lint-engine lint-python check test full-data build-release-manifest ## Full push gate: lint, static, tests, data coverage, unified release artifacts
 
 hooks: ## Install repository git hooks
 	git config core.hooksPath .githooks

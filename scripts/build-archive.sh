@@ -27,7 +27,7 @@ fi
 # Every domain manifest stays domain-local, but its distributed version is
 # injected from the single skill distribution VERSION.txt file.
 VERSION="$(tr -d '\r\n' < "$SKILL_DIR/VERSION.txt")"
-find "$SKILL_DIR" -mindepth 3 -maxdepth 3 -type f -name skill-tools.json -print0 |
+find "$SKILL_DIR" -mindepth 4 -maxdepth 4 -type f -name skill-tools.json -print0 |
 while IFS= read -r -d '' manifest; do
     python3 - "$manifest" "$VERSION" <<'PYEOF'
 import json, sys
@@ -46,9 +46,9 @@ done
 ARCHIVE="$DIST_DIR/$SKILL_NAME.tar.gz"
 echo "[build-archive] 打包 $SKILL_NAME..."
 
-# 根 skill（liki）是方法论卡的唯一权威源，已自包含各域方法论卡（natal/divination/
-# fengshui/naming 的 domains/）。直接打包根 skill 即可，无需合并独立专家包。
-# 独立专家包（liki-bazi 等）由 scripts/sync-expert-methodology.sh 从根同步。
+# 根 skill（liki）是方法论卡的唯一权威源，已自包含各域方法论卡（references/natal/references/divination/
+# references/fengshui/naming 的 domains/）。直接打包根 skill 即可，无需合并独立专家包。
+# 独立专家包（expert-packs/，1b 起）由 make sync-expert-packs 从根生成（1c）。
 
 tar czf "$ARCHIVE" \
     --transform 's|^\./||' \
@@ -63,8 +63,7 @@ tar czf "$ARCHIVE" \
     --exclude CHANGELOG.md \
     --exclude '*.tar.gz' \
     --exclude dist \
-    . \
-    "${EXPERT_TAR_ARGS[@]}"
+    .
 
 DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
 echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
@@ -88,9 +87,9 @@ if grep -Fxq 'requirements.txt' <<<"$ARCHIVE_LISTING"; then
     exit 1
 fi
 
-# 根 skill 自包含各域方法论卡（natal/divination/fengshui/naming 的 domains/），
+# 根 skill 自包含各域方法论卡（references/natal/references/divination/references/fengshui/naming 的 domains/），
 # 归档必须包含它们，保证对外全能力。
-for domain in natal/domains divination/domains fengshui/domains naming/domains; do
+for domain in references/natal/domains references/divination/domains references/fengshui/domains references/naming/domains; do
     if ! grep -Fq "$domain/" <<<"$ARCHIVE_LISTING"; then
         echo "[build-archive] error: archive missing root domain methodology $domain/" >&2
         exit 1

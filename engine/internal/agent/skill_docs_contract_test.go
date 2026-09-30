@@ -190,8 +190,8 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"isError", "mcpServers", "streamableHttp", "tools/call", "tools/list", "Mcp-Method",
 		"result.methods.name", "xuankong.chart.result.data", "bazhai",
 		"xuankong", "qiming", "snapshot", "data", "error", "unknown",
-		"true", "false", "skills/liki/VERSION.txt", "engine", "natal", "create_birth_chart", "analyze_natal", "create_birth_chart.data",
-		"data.chart_ref", "error.code", "error.message", "code", "message",
+		"true", "false", "skills/liki/VERSION.txt", "engine", "natal",
+		"error.code", "error.message", "code", "message", "content", "curl",
 		"safety_advisory", "meta.skill", "info.version", "pan_digest",
 		"pan.ziwei_daxian", "chars", "frequency", "pools", "slot", "given_names",
 		"wuxing1", "wuxing2", "count", "source_surname", "max_candidates",
@@ -241,13 +241,13 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 				}
 				if reExtension.MatchString(tok) || strings.HasPrefix(tok, "tools/") ||
 					strings.HasPrefix(tok, "app/") || strings.HasPrefix(tok, "domains/") ||
-					strings.HasPrefix(tok, "webapp/") || strings.HasPrefix(tok, "skills/liki/") {
+					strings.HasPrefix(tok, "skills/liki/") {
 					continue
 				}
 				// 含 '/' 但非已知路径前缀 → HTTP 头/媒体类型等值（如 Content-Type: application/json），非 schema 字段，跳过
 				if strings.Contains(tok, "/") &&
 					!strings.HasPrefix(tok, "tools/") && !strings.HasPrefix(tok, "app/") &&
-					!strings.HasPrefix(tok, "domains/") && !strings.HasPrefix(tok, "webapp/") &&
+					!strings.HasPrefix(tok, "domains/") &&
 					!strings.HasPrefix(tok, "skills/") {
 					continue
 				}
