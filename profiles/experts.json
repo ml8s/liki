@@ -1,19 +1,41 @@
 {
   "metadata": {
     "name": "experts",
-    "version": "2026.09.26.0"
+    "version": "2026.10.08.2"
   },
   "mcpServers": [
-    { "name": "engine", "endpointEnv": "LIKI_MCP_ENGINE_URL", "tokenEnv": "LIKI_ENGINE_MCP_TOKEN" },
-    { "name": "counsel", "endpointEnv": "LIKI_MCP_COUNSEL_URL", "tokenEnv": "LIKI_COUNSEL_MCP_TOKEN" }
+    {
+      "name": "engine",
+      "endpointEnv": "LIKI_MCP_ENGINE_URL",
+      "tokenEnv": "LIKI_ENGINE_MCP_TOKEN"
+    },
+    {
+      "name": "counsel",
+      "endpointEnv": "LIKI_MCP_COUNSEL_URL",
+      "tokenEnv": "LIKI_COUNSEL_MCP_TOKEN"
+    }
   ],
   "agents": [
-    { "name": "router" },
-    { "name": "bazi" },
-    { "name": "ziwei" },
-    { "name": "liuyao" },
-    { "name": "qimen" },
-    { "name": "fengshui" },
-    { "name": "naming" }
+    {
+      "name": "router"
+    },
+    {
+      "name": "bazi"
+    },
+    {
+      "name": "ziwei"
+    },
+    {
+      "name": "liuyao"
+    },
+    {
+      "name": "qimen"
+    },
+    {
+      "name": "fengshui"
+    },
+    {
+      "name": "naming"
+    }
   ]
 }

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -15,6 +16,9 @@ VERSION_FILES = (
     ROOT / "engine/cmd/engine-rpc/VERSION",
     ROOT / "counsel/app/VERSION.txt",
 )
+AGENT_YAML_FILES = tuple((ROOT / "agents").glob("*/agent.yaml"))
+PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))
+CATALOG_FILE = ROOT / "contracts/mcp-tool-catalog.json"
 JSON_SURFACES = (
     (ROOT / "counsel/app/divination/tools/skill-tools.json", ("info", "version")),
     (ROOT / "counsel/app/naming/tools/skill-tools.json", ("info", "version")),
@@ -25,7 +29,10 @@ JSON_SURFACES = (
 
 
 def current_versions() -> list[str]:
-    return [path.read_text(encoding="utf-8").strip() for path in VERSION_FILES]
+    return [
+        path.read_text(encoding="utf-8").strip()
+        for path in (*VERSION_FILES, *AGENT_YAML_FILES, *PROFILE_FILES)
+    ]
 
 
 def next_version() -> str:
@@ -73,6 +80,31 @@ def main() -> None:
     version = next_version()
     for path in VERSION_FILES:
         path.write_text(version + "\n", encoding="utf-8")
+    for path in AGENT_YAML_FILES:
+        text = path.read_text(encoding="utf-8")
+        updated, count = re.subn(
+            r"^(version:\s*).*$",
+            rf"\g<1>{version}",
+            text,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        if count != 1:
+            raise SystemExit(f"missing version in {path}")
+        path.write_text(updated, encoding="utf-8")
+    for path in PROFILE_FILES:
+        document = json.loads(path.read_text(encoding="utf-8"))
+        document.setdefault("metadata", {})["version"] = version
+        path.write_text(
+            json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    catalog = json.loads(CATALOG_FILE.read_text(encoding="utf-8"))
+    catalog["runtime_version"] = version
+    CATALOG_FILE.write_text(
+        json.dumps(catalog, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     for path, keys in JSON_SURFACES:
         set_json(path, keys, version)
     set_pyproject(version)

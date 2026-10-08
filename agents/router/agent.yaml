@@ -1,5 +1,5 @@
 name: router
-version: 2026.09.29.0
+version: 2026.10.08.2
 description: >
   Liki full-capability entrypoint. Routes requests across BaZi, Zi Wei,
   Liu Yao, Qi Men, Feng Shui, and naming experts, then aggregates deterministic

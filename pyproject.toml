@@ -1,6 +1,6 @@
 [project]
 name = "liki-skill"
-version = "2026.09.29.0"
+version = "2026.10.08.2"
 description = "Liki unified mingli skill: bazi, ziwei, liuyao, qimen, huangli, fengshui, naming"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
