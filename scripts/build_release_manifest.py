@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -90,6 +91,16 @@ def build(require_images: bool = False) -> dict[str, Any]:
         "archive_sha256": digest(skill_archive),
         "index_sha256": digest(skill_index),
     }
+    contract_dist = DIST / "contracts"
+    contract_dist.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(
+        ROOT / "contracts/agent-definition.schema.json",
+        contract_dist / "agent-definition.schema.json",
+    )
+    shutil.copy2(
+        ROOT / "contracts/agent-definition.version",
+        contract_dist / "agent-definition.version",
+    )
     web_bundle = DIST / "liki-web-skill-bundle.tar.gz"
     if web_bundle.is_file():
         skill_bundle["web_bundle_sha256"] = digest(web_bundle)
