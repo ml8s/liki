@@ -29,7 +29,7 @@
 
 - Go **1.26.6**（低于 1.26.6 会命中标准库安全漏洞）
 - Python **3.12**
-- Node **22**
+- Node **24.14.1** (see `.nvmrc`)
 - 可选：[uv](https://docs.astral.sh/uv/)，用于复现 counsel Python 依赖锁
 
 ### 语言和服务边界
