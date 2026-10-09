@@ -60,7 +60,8 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 ## Trust and boundaries
 
 - Charts are calculated by the Go astronomical engine, including true solar time, longitude / timezone, and solar terms.
-- Judgments come from 829 assertion rules and preserve factor evidence and classical sources.
+- Judgments come from 829 assertion rules, each citing audited classical sources (《三命通会》《渊海子平》《滴天髓》《紫微斗数全书》《黄帝内经》...) with factor evidence and traceable sources.
+- Mini-luck (小运) is delivered by multiple schools: 《三命通会》(fixed 丙寅 for men / 壬申 for women) and 《星平会海》(from the hour pillar, yang-male yin-female forward / yin-male yang-female backward).
 - 160 professional competition questions provide independent accuracy evaluation with isolated answers.
 - Birth data remains in the current conversation; the Skill does not ask for real names or store data outside the session.
 - If a city is absent from the built-in table, `city_coords` may send the city name to Nominatim (OSM). Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
@@ -110,8 +111,8 @@ Liki follows a two-layer "orthogonal computation vs. judgment" architecture, exp
 
 ### Domain model
 
-- **engine (Go)** — deterministic computation layer: calendrical astronomy, chart casting, calendar, Huangli, character data. Emits structured charts / hexagrams / facts (`chart` / `pan` / `snapshot`); it does not make judgments.
-- **counsel (Python)** — judgment layer: Bazi / Ziwei analysis, Liuyao / QiMen divination, naming evaluation. Consumes engine facts and produces assertions / candidates from rule tables (truth tables + engine rule tables), with traceable evidence.
+- **engine (Go)** — deterministic computation layer: calendrical astronomy, chart casting, calendar, Huangli. Emits structured charts / hexagrams / facts (`chart` / `pan` / `snapshot`); it does not make judgments.
+- **counsel (Python)** — judgment layer: Bazi / Ziwei analysis, Liuyao / QiMen divination, naming evaluation (character library and phonology). Consumes engine facts and produces assertions / candidates from rule tables (truth tables + engine rule tables), with traceable evidence.
 - **Huangli** — pure engine (calendar + Jianchu event suitability); not routed through counsel.
 
 ### Service endpoints

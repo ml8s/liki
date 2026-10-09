@@ -63,7 +63,7 @@ npx skills add ml8s/liki -y
 - 小运按多流派输出：《三命通会》（男丙寅/女壬申固定）与《星平会海》（由时柱起，阳男阴女顺/阴男阳女逆）分别给出。
 - 160 道命理师大赛真题用于独立评测；答案与评测过程隔离。
 - 出生信息只保留在当前会话；Skill 不索要真实姓名，不在对话之外存储数据。
-- 未命中内置城市表时，`city.coords` 可能将城市名发送到 Nominatim（OSM）完成地理编码；自部署可用 `LIKI_EXTERNAL_GEOCODING=off` 关闭。
+- 未命中内置城市表时，`city_coords` 可能将城市名发送到 Nominatim（OSM）完成地理编码；自部署可用 `LIKI_EXTERNAL_GEOCODING=off` 关闭。
 - 命理结论是传统文化视角的条件性解读，不构成医疗、法律、投资或重大人生决策建议。
 
 ## 常见问题
@@ -109,9 +109,9 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 ### 领域模型
 
-- **engine（Go）** —— 确定性计算层：天文历算、排盘、历法、黄历、字库。
+- **engine（Go）** —— 确定性计算层：天文历算、排盘、历法、黄历。
   输出结构化盘面/卦象/事实（chart / pan / snapshot），不做命理判断。
-- **counsel（Python）** —— 判断层：八字/紫微判断、六爻/奇门算卦、起名评估。
+- **counsel（Python）** —— 判断层：八字/紫微判断、六爻/奇门算卦、起名评估（含字库与音韵）。
   消费 engine 的盘面事实，用规则表（真值表 + 引擎规则表）产出断语与候选项，依据可回溯。
 - **黄历** —— 纯 engine（历法 + 建除事项适配），不走 counsel。
 
@@ -162,7 +162,7 @@ make golden # golden 全量
 ### 设计原则
 
 - 分层单一职责：根入口、领域入口、App 卡、领域知识和工具层不互相替代。
-- 单一事实源：工具 schema 来自工具清单（skill/counsel-tools.json，经 `tools/list` 自举），因子和断语来自 CSV 长表与引擎规则表。
+- 单一事实源：工具 schema 来自工具清单（natal 的 `counsel-tools.json`、divination / naming 的 `skill-tools.json`，经 `tools/list` 自举），因子和断语来自 CSV 长表与引擎规则表。
 - 双体系显式合参：八字和紫微分侧计算，冲突分层列证。
 - 评测驱动：golden、functional、MCP integration 与 160 题规则覆盖分层运行；历史 model-backed 评测资产显式归档。
 
