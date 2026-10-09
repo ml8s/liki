@@ -44,16 +44,6 @@ def runtime_version() -> str:
     return (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
 
 
-def agent_versions() -> dict[str, str]:
-    versions: dict[str, str] = {}
-    for path in sorted((ROOT / "agents").glob("*/agent.yaml")):
-        match = re.search(r"^version:\s*(\S+)", path.read_text(encoding="utf-8"), re.MULTILINE)
-        if not match:
-            raise SystemExit(f"missing version: {path}")
-        versions[path.parent.name] = match.group(1)
-    return versions
-
-
 def build(require_images: bool = False) -> dict[str, Any]:
     schema_version, schema_digest = parse_pin(ROOT / "contracts" / "agent-definition.version")
     actual_schema_digest = digest(ROOT / "contracts" / "agent-definition.schema.json")
@@ -62,11 +52,7 @@ def build(require_images: bool = False) -> dict[str, Any]:
             f"contract digest mismatch: pin={schema_digest} actual={actual_schema_digest}"
         )
 
-    versions = agent_versions()
     expected_runtime = runtime_version()
-    mismatched = {name: version for name, version in versions.items() if version != expected_runtime}
-    if mismatched:
-        raise SystemExit(f"agent runtime version drift: {mismatched} != {expected_runtime}")
 
     deployments: dict[str, Any] = {}
     for profile in ("experts", "single"):

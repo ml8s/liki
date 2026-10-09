@@ -1,8 +1,4 @@
 name: ziwei
-version: 2026.10.08.2
-description: >
-  Chinese Zi Wei Dou Shu expert. Computes twelve palaces, stars, sihua,
-  daxian and liunian with traceable rule-based readings.
 mode: chat
 
 skills:

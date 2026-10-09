@@ -16,7 +16,6 @@ VERSION_FILES = (
     ROOT / "engine/cmd/engine-rpc/VERSION",
     ROOT / "counsel/app/VERSION.txt",
 )
-AGENT_YAML_FILES = tuple((ROOT / "agents").glob("*/agent.yaml"))
 PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))
 CATALOG_FILE = ROOT / "contracts/mcp-tool-catalog.json"
 JSON_SURFACES = (
@@ -33,7 +32,7 @@ _IMAGE_TAG_RE = re.compile(r"(liki-engine:)\d{4}\.\d{2}\.\d{2}\.\d+")
 def current_versions() -> list[str]:
     return [
         path.read_text(encoding="utf-8").strip()
-        for path in (*VERSION_FILES, *AGENT_YAML_FILES, *PROFILE_FILES)
+        for path in (*VERSION_FILES, *PROFILE_FILES)
     ]
 
 
@@ -91,18 +90,6 @@ def main() -> None:
     version = next_version()
     for path in VERSION_FILES:
         path.write_text(version + "\n", encoding="utf-8")
-    for path in AGENT_YAML_FILES:
-        text = path.read_text(encoding="utf-8")
-        updated, count = re.subn(
-            r"^(version:\s*).*$",
-            rf"\g<1>{version}",
-            text,
-            count=1,
-            flags=re.MULTILINE,
-        )
-        if count != 1:
-            raise SystemExit(f"missing version in {path}")
-        path.write_text(updated, encoding="utf-8")
     for path in PROFILE_FILES:
         document = json.loads(path.read_text(encoding="utf-8"))
         document.setdefault("metadata", {})["version"] = version

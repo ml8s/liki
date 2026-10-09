@@ -34,8 +34,8 @@ TOOL_CATALOG_PATH = _ROOT / "contracts" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 
 
-def load_persona_body(name: str) -> str:
-    """persona 唯一源 → 部署 instruction 正文（去掉 frontmatter，只留骨架）。"""
+def load_persona(name: str) -> tuple[dict, str]:
+    """persona 单一源 → (frontmatter dict, 部署 instruction 正文)。"""
     path = PERSONAS_DIR / f"{name}.md"
     if not path.is_file():
         sys.exit(f"persona not found: {name} ({path})")
@@ -45,10 +45,11 @@ def load_persona_body(name: str) -> str:
     end = text.find("\n---\n")
     if end < 0:
         sys.exit(f"persona missing frontmatter end: {path.relative_to(_ROOT)}")
+    frontmatter = yaml.safe_load(text[4:end])
     body = text[end + len("\n---\n"):]
     if body.startswith("\n"):
         body = body[1:]
-    return body.rstrip() + "\n"
+    return frontmatter, body.rstrip() + "\n"
 
 def load_profile(name: str) -> dict:
     path = PROFILES_DIR / f"{name}.json"
@@ -138,7 +139,7 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
         sys.exit(f"agent definition name mismatch: profile={name} yaml={definition.get('name')}")
     agent_dir = AGENTS_DIR / name
 
-    instruction_text = load_persona_body(name)
+    persona, instruction_text = load_persona(name)
     instruction_path = out_dir / "agents" / name / "instruction.md"
     instruction_path.parent.mkdir(parents=True, exist_ok=True)
     instruction_path.write_text(instruction_text, encoding="utf-8")
@@ -146,7 +147,7 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
     agent = {
         "name": definition["name"],
         "version": version,
-        "description": definition["description"].strip(),
+        "description": persona.get("description") or definition["name"],
         "mode": definition.get("mode", "chat"),
         "sub_agents": definition.get("sub_agents", []),
         "instruction": {"path": f"agents/{name}/instruction.md"},

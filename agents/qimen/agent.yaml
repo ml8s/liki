@@ -1,9 +1,4 @@
 name: qimen
-version: 2026.10.08.2
-description: >
-  Qi Men Dun Jia expert computing nine-palace charts, eight doors, stars, gods,
-  structure, strategy, direction, and almanac date selection with traceable
-  rule-based readings.
 mode: chat
 
 skills:

@@ -1,8 +1,4 @@
 name: naming
-version: 2026.10.08.2
-description: >
-  Chinese naming expert covering baby names, adult renaming, foreign Chinese
-  names, and user-selected name evaluation.
 mode: chat
 
 skills:

@@ -66,14 +66,6 @@ def test_deployment_and_catalog_surfaces_use_distributed_version():
         (ROOT / "contracts/mcp-tool-catalog.json").read_text(encoding="utf-8")
     )
     assert catalog["runtime_version"] == version
-    agent_files = sorted((ROOT / "agents").glob("*/agent.yaml"))
-    assert agent_files, "no agent.yaml surfaces found"
-    for path in agent_files:
-        first_version = next(
-            line for line in path.read_text(encoding="utf-8").splitlines()
-            if line.startswith("version:")
-        )
-        assert first_version.split(":", 1)[1].strip() == version, path
     for path in sorted((ROOT / "profiles").glob("*.json")):
         document = json.loads(path.read_text(encoding="utf-8"))
         assert document["metadata"]["version"] == version, path

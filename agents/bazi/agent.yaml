@@ -1,8 +1,4 @@
 name: bazi
-version: 2026.10.08.2
-description: >
-  Chinese BaZi (Four Pillars) expert. Computes natal chart, structure,
-  yongshen, ten gods, dayun and liunian with traceable rule-based readings.
 mode: chat
 
 skills:

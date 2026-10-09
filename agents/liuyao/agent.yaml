@@ -1,8 +1,4 @@
 name: liuyao
-version: 2026.10.08.2
-description: >
-  Liu Yao expert casting hexagrams and judging outcome, timing, yongshen, and
-  six relatives with traceable rule-based readings.
 mode: chat
 
 skills:

@@ -53,6 +53,7 @@ agents/bazi/output-schema.json  # 可选：结构化输出
 
 - `agent.yaml` 字段与 **ADK** 对齐（mode: chat/task/single_turn；sub_agents；tools.allow）
 - **`tools.allow` 是权威工具白名单**（替代旧的 env 白名单），每笔 engine/counsel 工具调用必须允许
+- persona frontmatter 提供 `description`（部署 agent 描述）；`version` 单一源为 `skills/liki/VERSION.txt`（agent.yaml 不再携带）
 - persona 正文＝部署 instruction 骨架，同时由 `sync-expert-packs` 复制进专家包 `agents/<name>-expert.md`（frontmatter 提供给包消费方）——**同一字节来源，杜绝漂移**
 - 方法论卡不入 persona：由 ADK skilltoolset 按需 `load_skill` 渐进加载（避免每轮 prompt 膨胀）
 
