@@ -295,3 +295,19 @@ class TestStudySealFactorContract(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+def test_normalize_row_marks_gender_specific_factor_scope():
+    """性别专属因子（女命/男命前缀）在证据里标注 gender_scope，避免异性命盘误读。"""
+    from analytics import _normalize_row
+
+    row = {
+        "id": "shi_102",
+        "领域": "事业",
+        "事件类型": "取象",
+        "事件": "非主妇",
+        "结论": "x",
+        "trace": [{"condition_group": 1, "factors": {"女命官星得地格": {"expected": 0, "actual": 0}}}],
+    }
+    out = _normalize_row(row, side="bazi", topic="career", method="m", time_scope="natal")
+    assert out["evidence"][0]["factor"] == "女命官星得地格"
+    assert out["evidence"][0]["gender_scope"] == "女"

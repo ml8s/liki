@@ -100,12 +100,19 @@ def _normalize_row(
         evidence = []
         for group in trace:
             for factor, value in group.get("factors", {}).items():
-                evidence.append({
+                item = {
                     "condition_group": group.get("condition_group"),
                     "factor": factor,
                     "expected": value.get("expected"),
                     "actual": value.get("actual"),
-                })
+                }
+                # 性别专属因子（如「女命官星得地格」，官=夫，据《女命赋》）：
+                # 在异性命盘里仅作排除条件（恒 0），标注性别归属以免误读。
+                if factor.startswith("女命"):
+                    item["gender_scope"] = "女"
+                elif factor.startswith("男命"):
+                    item["gender_scope"] = "男"
+                evidence.append(item)
         result["evidence"] = evidence
     return {key: value for key, value in result.items() if value not in ("", None)}
 
