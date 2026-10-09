@@ -2,6 +2,7 @@ package huangli
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -121,12 +122,7 @@ func applyEventRule(entry *Day, event string) error {
 }
 
 func containsJianChu(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(values, target)
 }
 
 // QueryMonth returns huangli entries for every day in the given month.

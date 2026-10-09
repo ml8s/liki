@@ -1,5 +1,7 @@
 package ganzhi
 
+import "slices"
+
 // AnHePairs lists 地支暗合 pairs (寅丑, 卯申, 午亥, 子戌).
 var AnHePairs = []ZhiPair{
 	{A: 3, B: 2},  // 寅丑
@@ -28,12 +30,7 @@ var GanChongPairs = []GanPair{
 }
 
 func inZhiList(zhi []Zhi, b Zhi) bool {
-	for _, x := range zhi {
-		if x == b {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(zhi, b)
 }
 
 // -- gan interactions --

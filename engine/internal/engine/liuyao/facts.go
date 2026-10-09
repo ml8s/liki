@@ -2,6 +2,7 @@ package liuyao
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -445,12 +446,7 @@ func namedBranches(branches []ganzhi.Zhi) []string {
 }
 
 func containsZhi(list []ganzhi.Zhi, target ganzhi.Zhi) bool {
-	for _, zhi := range list {
-		if zhi == target {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(list, target)
 }
 
 func computeYongShenCandidates(chart *Chart, typ YongShen) []YongShenCandidate {

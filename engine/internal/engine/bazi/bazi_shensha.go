@@ -1,6 +1,10 @@
 package bazi
 
-import "liki-engine/internal/engine/ganzhi"
+import (
+	"slices"
+
+	"liki-engine/internal/engine/ganzhi"
+)
 
 // Shensha category constants.
 const (
@@ -177,12 +181,7 @@ func addDeXiu(out *[4][]shenShaEntry, bz ganzhi.Bazi, yueZhi ganzhi.Zhi) {
 }
 
 func containsGan(values []ganzhi.Gan, want ganzhi.Gan) bool {
-	for _, value := range values {
-		if value == want {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(values, want)
 }
 
 func addDeXiuEntry(out *[4][]shenShaEntry, pillar int) {

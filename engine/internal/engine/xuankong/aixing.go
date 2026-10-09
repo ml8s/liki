@@ -3,6 +3,7 @@ package xuankong
 import (
 	"liki-engine/internal/engine/fengshui"
 	"liki-engine/internal/engine/luoshu"
+	"slices"
 )
 
 // xuanKongStar holds the three stars (运星, 山星, 向星) for one palace.
@@ -291,12 +292,7 @@ func (p *Chart) facingStars() [9]fengshui.FlyingStar {
 }
 
 func containsLayer(layers []string, target string) bool {
-	for _, layer := range layers {
-		if layer == target {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(layers, target)
 }
 
 // -- 收山出煞 (Mountain Containment & Sha Removal) --------------------
