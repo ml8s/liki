@@ -6,7 +6,7 @@
 
 ## 📥 结论以 engine 判定为准
 
-事项适配由 engine 按**《协纪辨方书》通书口径**逐事项判定，返回 `suitability`（`recommended` / `possible` / `unsuitable`）与 `reason`（命中哪些宜 / 忌规则）。LLM 只解读与渲染这两个字段，**不另行合并判定**；任何自拟的「事项宜忌表」不得覆盖引擎结论。
+事项适配由 engine 按**《协纪辨方书》通书口径**逐事项判定，返回 `suitability`（recommended / possible / unsuitable 三档）与 `reason`（命中哪些宜 / 忌规则）。LLM 只解读与渲染这两个字段，**不另行合并判定**；任何自拟的「事项宜忌表」不得覆盖引擎结论。
 
 | `suitability` | 表达 |
 | ------ | ------ |
