@@ -523,7 +523,7 @@ jobs:
           mkdir -p dist
           tar -xzf bundle/liki-release-artifacts.tar.gz -C dist
           find image-digests -type f -maxdepth 3 -print -exec cat {} \;
-          python3 - "$GITHUB_ENV" <<'PY'
+          python3 - > image-digests/images.json <<'PY'
           import json
           import pathlib
           import sys
@@ -535,11 +535,9 @@ jobs:
                       continue
                   key, value = raw.split("=", 1)
                   images[key] = value
-          with pathlib.Path(sys.argv[1]).open("a", encoding="utf-8") as fh:
-              fh.write("LIKI_RELEASE_IMAGES=")
-              fh.write(json.dumps(images, sort_keys=True, separators=(",", ":")))
-              fh.write("\n")
+          print(json.dumps(images, sort_keys=True, separators=(",", ":")))
           PY
+          LIKI_RELEASE_IMAGES="$(cat image-digests/images.json)" \
           python3 scripts/build_release_manifest.py --require-images
           cosign sign-blob \
             --yes \
