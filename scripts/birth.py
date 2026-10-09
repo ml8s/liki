@@ -1,6 +1,6 @@
 """出生信息解析（单一来源）：题干 → (solar_time, gender, longitude, correct)。
 
-被 predict.py 与全部 eval_*.py 共用，避免多份拷贝漂移。
+被 scripts/eval_hybrid.py（160 题规则覆盖检查）共用，避免多份拷贝漂移。
 
 规则（对应 SKILL.md 路 A/路 B）：
 - 路 A：题干给了具体钟表时刻（无"X时"命理时辰标注）→ 真太阳时校正（correct=True）

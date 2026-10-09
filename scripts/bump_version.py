@@ -26,6 +26,8 @@ JSON_SURFACES = (
     (ROOT / "counsel/app/natal/tools/natal_projection_contract.json", ("version",)),
     (ROOT / "counsel/app/divination/tools/qimen_projection_contract.json", ("version",)),
 )
+DOC_TAG_FILES = (ROOT / "README.md", ROOT / "README.en.md")
+_IMAGE_TAG_RE = re.compile(r"(liki-engine:)\d{4}\.\d{2}\.\d{2}\.\d+")
 
 
 def current_versions() -> list[str]:
@@ -60,6 +62,15 @@ def set_json(path: Path, keys: tuple[str, ...], version: str) -> None:
         json.dumps(document, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+
+
+def set_doc_tags(version: str) -> None:
+    for path in DOC_TAG_FILES:
+        text = path.read_text(encoding="utf-8")
+        updated, count = _IMAGE_TAG_RE.subn(rf"\g<1>{version}", text)
+        if count == 0:
+            raise SystemExit(f"missing liki-engine image tag in {path}")
+        path.write_text(updated, encoding="utf-8")
 
 
 def set_pyproject(version: str) -> None:
@@ -108,6 +119,7 @@ def main() -> None:
     for path, keys in JSON_SURFACES:
         set_json(path, keys, version)
     set_pyproject(version)
+    set_doc_tags(version)
     print(f"✅ version → {version}")
 
 

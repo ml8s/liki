@@ -24,25 +24,6 @@ if [ ! -f "$SKILL_DIR/VERSION.txt" ]; then
     exit 1
 fi
 
-# Every domain manifest stays domain-local, but its distributed version is
-# injected from the single skill distribution VERSION.txt file.
-VERSION="$(tr -d '\r\n' < "$SKILL_DIR/VERSION.txt")"
-find "$SKILL_DIR" -mindepth 4 -maxdepth 4 -type f -name skill-tools.json -print0 |
-while IFS= read -r -d '' manifest; do
-    python3 - "$manifest" "$VERSION" <<'PYEOF'
-import json, sys
-path, version = sys.argv[1:]
-d = json.load(open(path, encoding="utf-8"))
-info = d.setdefault("info", {})
-if info.get("version") != version:
-    info["version"] = version
-    json.dump(d, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"  ✓ {path} info.version → {version}")
-else:
-    print(f"  ✓ {path} info.version 已是最新（{version}）")
-PYEOF
-done
-
 ARCHIVE="$DIST_DIR/$SKILL_NAME.tar.gz"
 echo "[build-archive] 打包 $SKILL_NAME..."
 
@@ -50,7 +31,8 @@ echo "[build-archive] 打包 $SKILL_NAME..."
 # references/fengshui/naming 的 domains/）。直接打包根 skill 即可，无需合并独立专家包。
 # 独立专家包（expert-packs/，1b 起）由 make sync-expert-packs 从根生成（1c）。
 
-tar czf "$ARCHIVE" \
+# 可复现：固定排序/时间戳/属主，gzip -n 去除时间戳。
+tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
     --transform 's|^\./||' \
     -C "$SKILL_DIR" \
     --exclude .git \
@@ -63,7 +45,7 @@ tar czf "$ARCHIVE" \
     --exclude CHANGELOG.md \
     --exclude '*.tar.gz' \
     --exclude dist \
-    .
+    -cf - . | gzip -n > "$ARCHIVE"
 
 DESC="$(sed -n 's/^description: //p' "$SKILL_DIR/SKILL.md" | head -1 | sed 's/^"//;s/"$//')"
 echo "  ✓ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"

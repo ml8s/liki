@@ -9,7 +9,7 @@
    grade-case.py 判分）。
 - 不包含评测标签、族逻辑或紫微铁断；评测标签只存在于测试层。
 
-用法：python3 tests/eval_hybrid.py
+用法：python3 scripts/eval_hybrid.py
 输出：stdout（断语覆盖统计——非正确率）；需要留档时显式传 --output FILE
 """
 import argparse
@@ -22,7 +22,7 @@ from pathlib import Path
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the unified Liki bazi domain.
 _TOOLS = os.path.join(_ROOT, "counsel", "app", "natal", "tools")
-_LOCAL = os.path.dirname(os.path.abspath(__file__))   # tests/（client/birth 排盘工具在此）
+_LOCAL = os.path.dirname(os.path.abspath(__file__))   # scripts/（client/birth 排盘工具在此）
 _BENCHMARK = os.path.join(_ROOT, "tests", "benchmark", "mingli160")
 for _p in (_TOOLS, _LOCAL):
     if _p not in sys.path:
@@ -113,6 +113,14 @@ def main() -> int:
     else:
         args.output.write_text(report, encoding="utf-8")
         print(f"完整统计已写 {args.output}")
+
+    max_zero = int(os.environ.get("LIKI_ZERO_HIT_MAX", "0"))
+    if len(zero) > max_zero:
+        print(
+            f"零命中 {len(zero)} 题 > 阈值 {max_zero}（覆盖门失败；如需放宽设 LIKI_ZERO_HIT_MAX）",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 

@@ -22,4 +22,10 @@ if [ "$(node_major)" -lt 22 ]; then
     exit 1
 fi
 
-exec "${NPM:-npm}" exec --yes markdownlint-cli2@0.23.3 -- "$ROOT/skills/**/*.md"
+if [ "$#" -gt 0 ]; then
+    exec "${NPM:-npm}" exec --yes markdownlint-cli2@0.23.3 -- "$@"
+fi
+
+# No explicit targets: use the globs declared in .markdownlint-cli2.jsonc
+# (README.md, README.en.md, docs/USER_GUIDE*.md, skills/liki/**/*.md).
+exec "${NPM:-npm}" exec --yes markdownlint-cli2@0.23.3

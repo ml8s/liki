@@ -96,8 +96,13 @@ def main() -> int:
         except yaml.YAMLError:
             continue
         for job in (document.get("jobs") or {}).values():
+            if not isinstance(job, dict):
+                continue
             for step in job.get("steps") or []:
-                if not isinstance(step, dict) or not str(step.get("uses", "")).endswith("actions/upload-artifact"):
+                if not isinstance(step, dict):
+                    continue
+                uses = step.get("uses")
+                if not isinstance(uses, str) or uses.rpartition("@")[0] != "actions/upload-artifact":
                     continue
                 with_block = step.get("with") or {}
                 if isinstance(with_block.get("name"), str):
@@ -107,6 +112,10 @@ def main() -> int:
             "missing release image-digest artifacts: "
             + ", ".join(sorted(REQUIRED_IMAGE_DIGEST_ARTIFACTS))
         )
+    if errors:
+        for error in errors:
+            print(f"❌ {error}", file=sys.stderr)
+        return 1
     print("✓ workflow structure")
     return 0
 

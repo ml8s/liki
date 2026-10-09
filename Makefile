@@ -1,5 +1,7 @@
 # liki monorepo — skill client + engine/counsel MCP services
-# Quality gate: make gate == the branch's actual CI contract.
+# Quality gate: make gate 是"本地可执行的推送门槛"（lint + 静态契约 + 测试 + 数据覆盖 + 发布工件）。
+#   CI 另外强制执行：漏洞扫描（govulncheck/pip-audit/npm）、镜像构建与冒烟、cosign 签名与 attestation、-race 与覆盖率门槛
+#   （这些依赖 registry 凭据/签名密钥，不适合本地）。`make vuln` 可在本地手动跑漏洞扫描。
 #
 # 统一语义（四仓一致）：
 #   make lint   静态检查聚合
@@ -8,7 +10,7 @@
 #   make gate   check + test + 发布产物（full-data/archive/deployment 工件）＝推送门槛
 #   make build  本仓产物（skill 归档 + engine 二进制；镜像由 CI release 构建）
 #   make image  本地镜像（调试用，非发布路径）
-#   make e2e    系统 E2E 聚合（liki-deploy 编排）
+#   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
 
 .DEFAULT_GOAL := help
 
@@ -16,8 +18,8 @@ export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 
 .PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python \
-        go-version-check lint lint-md check test test-contracts test-engine test-counsel test-engine-mcp \
-        full-data golden gate hooks version build-archive build-deployment \
+        go-version-check lint vuln lint-md check test test-contracts test-engine test-counsel test-engine-mcp \
+        test-functional verify full-data golden gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest \
         agents-validate image image-engine image-counsel image-assembly
 
@@ -101,6 +103,10 @@ lint-python: ## Python static analysis
 
 lint: lint-md lint-engine lint-python ## Full lint entry point
 
+vuln: ## Vulnerability scan (govulncheck + pip-audit); CI also runs these as required jobs
+	@if command -v govulncheck >/dev/null 2>&1; then (cd engine && govulncheck ./...); else echo "govulncheck 未安装，跳过 engine 扫描（CI 会跑）"; fi
+	@if command -v pip-audit >/dev/null 2>&1; then pip-audit -r counsel/requirements.lock --require-hashes --disable-pip; else echo "pip-audit 未安装，跳过 Python 扫描（CI 会跑）"; fi
+
 check: lint-md lint-python fmt-check go-version-check check-actions ## 纯静态契约检查（lint + Python lint + 格式 + schema + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
 	python3 scripts/check_schema.py
 	python3 scripts/check_docs.py
@@ -125,6 +131,11 @@ test-counsel: ## Counsel MCP integration suite (bootstraps .venv and local engin
 test-engine-mcp: ## Engine MCP root/domain protocol smoke
 	scripts/test-engine-mcp.sh
 
+test-functional: ## Rule engine functional/behavior contract suite
+	python3 -m pytest tests/test_functional.py -q
+
+verify: test-engine-mcp test-counsel ## Engine/counsel MCP integration verification
+
 full-data: ## 160-question assertion coverage and zero-hit check
 	scripts/test-full-data.sh
 
@@ -134,7 +145,7 @@ golden: ## Deterministic multi-source golden suites
 	@cd engine && go test -count=1 -run \
 		'Golden|External|Matrix|Pattern' ./internal/engine/...
 
-gate: lint-engine lint-python check test full-data build-release-manifest ## Full push gate: lint, static, tests, data coverage, unified release artifacts
+gate: lint-engine check test full-data build-release-manifest ## Full push gate: lint, static, tests, data coverage, unified release artifacts
 
 check-actions: ## Reject mutable reusable workflow/action references
 	python3 scripts/check_actions_pinned.py

@@ -41,6 +41,6 @@ The repository uses:
 - exact-commit GitHub Actions pins;
 - digest-pinned base images and tools;
 - hashed Python requirements;
-- npm lockfile auditing;
+- version-pinned dev-only Node tooling (markdownlint-cli2@0.23.3, fetched at invocation; not part of shipped artifacts);
 - Go vulnerability scanning;
 - image smoke tests before release publication.

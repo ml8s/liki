@@ -14,7 +14,9 @@ from pathlib import Path
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "liki")
+REFS = os.path.join(SKILL, "references")
 DOMAINS = ("natal", "divination", "fengshui", "naming")
+ASSERTION_MANIFESTS = os.path.join(_ROOT, "counsel", "app", "*", "tools", "assertions", "assertions.csv")
 
 METHOD_WHITELIST = {
     "rpc.discover",
@@ -34,10 +36,19 @@ _PATH_PATTERN = r"(?:(?:natal|divination|fengshui|naming)/(?:tools|app|domains))
 
 def load_duanyu_ids() -> set:
     ids: set = set()
-    for path in glob.glob(os.path.join(SKILL, "*", "tools", "assertions", "assertions.csv")):
+    for path in glob.glob(ASSERTION_MANIFESTS):
         with open(path, encoding="utf-8") as handle:
             ids.update(row["assertion_id"].strip() for row in csv.DictReader(handle) if row.get("assertion_id", "").strip())
     return ids
+
+
+def _resolve_skill_path(path: str) -> str | None:
+    """Docs live under references/; resolve against that root first, then skill root."""
+    for root in (REFS, SKILL):
+        candidate = os.path.join(root, path)
+        if os.path.exists(candidate):
+            return candidate
+    return None
 
 
 def main() -> int:
@@ -48,14 +59,14 @@ def main() -> int:
     method_re = re.compile(r"\b(" + "|".join(map(re.escape, _METHOD_PREFIXES)) + r")\.[a-z_]+\b")
 
     docs = [os.path.join(SKILL, "SKILL.md")]
-    faq = os.path.join(SKILL, "FAQ.md")
+    faq = os.path.join(REFS, "FAQ.md")
     if os.path.exists(faq):
         docs.append(faq)
-    docs += [os.path.join(SKILL, domain, "ENTRY.md") for domain in DOMAINS]
-    docs += sorted(glob.glob(os.path.join(SKILL, "*", "app", "*.md")))
-    docs += sorted(glob.glob(os.path.join(SKILL, "*", "domains", "**", "*.md"), recursive=True))
+    docs += [os.path.join(REFS, domain, "ENTRY.md") for domain in DOMAINS]
+    docs += sorted(glob.glob(os.path.join(REFS, "*", "app", "*.md")))
+    docs += sorted(glob.glob(os.path.join(REFS, "*", "domains", "**", "*.md"), recursive=True))
     docs = [doc for doc in docs if os.path.exists(doc)]
-    py_docs = sorted(glob.glob(os.path.join(SKILL, "*", "tools", "*.py")))
+    py_docs = sorted(glob.glob(os.path.join(SKILL, "scripts", "*.py")))
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -73,7 +84,7 @@ def main() -> int:
             path = match.group(1) or match.group(2)
             if not path or "*" in path or "xxx" in path or "<" in path:
                 continue
-            if not os.path.exists(os.path.join(SKILL, path)):
+            if _resolve_skill_path(path) is None:
                 errors.append(f"[{rel}] 引用文件不存在: {path}")
         for match in method_re.finditer(text):
             method = match.group(0)
@@ -89,8 +100,8 @@ def main() -> int:
                 errors.append(f"[{rel}] RPC 调用方法 '{match.group(1)}' 不在引擎方法白名单")
 
     domain_files = {
-        os.path.relpath(path, SKILL): Path(path)
-        for path in glob.glob(os.path.join(SKILL, "*", "domains", "**", "*.md"), recursive=True)
+        os.path.relpath(path, REFS): Path(path)
+        for path in glob.glob(os.path.join(REFS, "*", "domains", "**", "*.md"), recursive=True)
     }
     all_doc_text = "\n".join(open(doc, encoding="utf-8").read() for doc in docs)
     for relpath, path in domain_files.items():
@@ -106,7 +117,7 @@ def main() -> int:
 
     required_re = re.compile(r"((?:bazi|divination|fengshui|naming)/(?:domains|app|tools)/[\w./\-]+\.md)")
     for pattern in ("*/app/*.md", "*/ENTRY.md"):
-        for doc in sorted(glob.glob(os.path.join(SKILL, pattern))):
+        for doc in sorted(glob.glob(os.path.join(REFS, pattern))):
             rel = os.path.relpath(doc, _ROOT)
             text = open(doc, encoding="utf-8").read()
             app_readme = pattern == "*/app/*.md" and Path(doc).name == "README.md"
@@ -159,13 +170,12 @@ def main() -> int:
             errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含旧流程步骤编号")
 
     readme = os.path.join(_ROOT, "README.md")
-    if os.path.exists(readme):
-        assertion_path = os.path.join(SKILL, "natal", "tools", "assertions", "assertions.csv")
-        if os.path.exists(assertion_path):
-            actual = sum(1 for row in csv.DictReader(open(assertion_path, encoding="utf-8")) if row.get("assertion_id"))
-            match = re.search(r"(\d+)\s*条断语", open(readme, encoding="utf-8").read())
-            if match and int(match.group(1)) != actual:
-                errors.append(f"[README] 断语统计 {match.group(1)} ≠ 实际 {actual}")
+    assertion_path = os.path.join(_ROOT, "counsel", "app", "natal", "tools", "assertions", "assertions.csv")
+    if os.path.exists(readme) and os.path.exists(assertion_path):
+        actual = sum(1 for row in csv.DictReader(open(assertion_path, encoding="utf-8")) if row.get("assertion_id"))
+        match = re.search(r"(\d+)\s*条断语", open(readme, encoding="utf-8").read())
+        if match and int(match.group(1)) != actual:
+            errors.append(f"[README] 断语统计 {match.group(1)} ≠ 实际 {actual}")
 
     print(f"扫描文档 {len(docs)} 个（断语 id 全集 {len(ids)}）")
     print(f"错误: {len(errors)} 个")

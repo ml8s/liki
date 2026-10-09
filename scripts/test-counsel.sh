@@ -9,7 +9,10 @@ COUNSEL_PYTHON="${COUNSEL_PYTHON:-}"
 "$ROOT/scripts/check-go-version.sh"
 
 cd "$ROOT/engine"
-go build -o /tmp/engine-mcp ./cmd/engine-mcp/
+ENGINE_DIR="$(mktemp -d)"
+trap 'rm -rf "$ENGINE_DIR"' EXIT
+ENGINE_BIN="$ENGINE_DIR/engine-mcp"
+go build -o "$ENGINE_BIN" ./cmd/engine-mcp/
 
 if [ -z "$COUNSEL_PYTHON" ] && [ ! -x "$ROOT/counsel/.venv/bin/python" ]; then
     "$PYTHON" -m venv "$ROOT/counsel/.venv"
@@ -20,5 +23,5 @@ if [ -z "$COUNSEL_PYTHON" ] && [ ! -x "$ROOT/counsel/.venv/bin/python" ]; then
 fi
 
 COUNSEL_PYTHON="${COUNSEL_PYTHON:-$ROOT/counsel/.venv/bin/python}"
-FIXTURE_CWD="$ROOT/counsel" "$ROOT/scripts/_engine_fixture.py" -- \
+LIKI_ENGINE_BIN="$ENGINE_BIN" FIXTURE_CWD="$ROOT/counsel" "$ROOT/scripts/_engine_fixture.py" -- \
     "$COUNSEL_PYTHON" -m pytest tests/ -q

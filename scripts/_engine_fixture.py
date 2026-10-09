@@ -5,7 +5,8 @@ Usage (from bash):
     python3 scripts/_engine_fixture.py -- CMD [ARGS...]
 
 The command receives LIKI_MCP_URL pointing at the private engine MCP endpoint.
-The engine binary must already be built at /tmp/engine-mcp (see test-*.sh callers).
+The engine binary path comes from LIKI_ENGINE_BIN (default /tmp/engine-mcp);
+callers build it there first (see test-*.sh callers).
 """
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ import sys
 import time
 import urllib.request
 
-ENGINE_BIN = "/tmp/engine-mcp"
+ENGINE_BIN = os.environ.get("LIKI_ENGINE_BIN", "/tmp/engine-mcp")
 
 
 def main() -> int:
