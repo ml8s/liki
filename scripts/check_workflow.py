@@ -58,6 +58,13 @@ def main() -> int:
                             "docker/build-push-action step id in `with`; outputs.digest "
                             "will be empty"
                         )
+                if uses.rpartition("@")[0] == "sigstore/cosign-installer":
+                    with_block = step.get("with") or {}
+                    if with_block.get("cosign-release") != "v2.4.1":
+                        errors.append(
+                            f"{path.relative_to(ROOT)}: job {job_id!r} must pin "
+                            "cosign-installer to cosign-release v2.4.1"
+                        )
                 action, _, ref = uses.rpartition("@")
                 if not all(c in "0123456789abcdef" for c in ref) or len(ref) != 40:
                     continue
