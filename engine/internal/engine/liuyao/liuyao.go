@@ -75,7 +75,7 @@ func (l LiuShou) MarshalJSON() ([]byte, error) { return json.Marshal(l.String())
 func (l *LiuShou) UnmarshalJSON(data []byte) error {
 	var name string
 	if err := json.Unmarshal(data, &name); err != nil {
-		return fmt.Errorf("LiuShou must be a string, got %s", string(data))
+		return fmt.Errorf("liu shou must be a string, got %s", string(data))
 	}
 	for i, n := range liuShouNames {
 		if n == name {

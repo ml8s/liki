@@ -93,8 +93,9 @@ func HandleRPC(reg *agent.RPCRegistry) http.HandlerFunc {
 		slog.Info("rpc", "method", req.Method, "dur", time.Since(start).String(), "ok", err == nil)
 		if err != nil {
 			rpcErr := &agent.RPCError{Code: -32000, Message: err.Error()}
-			if e, ok := err.(*agent.RPCError); ok {
-				rpcErr = e
+			var specific *agent.RPCError
+			if errors.As(err, &specific) {
+				rpcErr = specific
 			}
 			slog.Warn("rpc: method error", "method", req.Method, "err", rpcErr.Message)
 			writeRPC(w, rpcResponse{Error: rpcErr, ID: req.ID})

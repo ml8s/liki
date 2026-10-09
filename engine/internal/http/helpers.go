@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 	"strings"
@@ -50,6 +51,8 @@ func clientIP(r *http.Request) string {
 func respondError(w http.ResponseWriter, status int, code, message string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
-	_, err := w.Write([]byte(`{"error":{"code":"` + code + `","message":"` + message + `"}}`))
-	_ = err
+	body, _ := json.Marshal(map[string]any{
+		"error": map[string]string{"code": code, "message": message},
+	})
+	_, _ = w.Write(body)
 }
