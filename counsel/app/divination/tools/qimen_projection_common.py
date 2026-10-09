@@ -1,4 +1,12 @@
-"""奇门投影共享表加载与机械取值 helper。"""
+"""奇门投影共享表加载与机械取值 helper。
+
+本层把 engine `qimen.chart` 的盘面事实投影为稳定字段，数据分三类：
+- 通用术数常识（方位/时干阴阳/五行生克）：非 engine 数据，各层可各自持有，
+  由 `tests/test_qimen_projection_tables.py` 一致性绑定到 luoshu/干支/五行权威源，防漂移。
+- 奇门投影规则（内外盘 `palace_domains` / 宫位高低 `palace_ranges` / 方位呈现）：
+  对 engine 已给事实（`yin_dun`/`gong`/`wuxing`）施加固定布局规则，属投影层职责。
+- 解读性知识（门星吉凶本质/神将原型/宫象人物）：属判断/解读层，保留在 counsel。
+"""
 from __future__ import annotations
 
 import csv

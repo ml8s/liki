@@ -1,15 +1,15 @@
-"""起名（qiming）——函数式实现，移植自 engine Go 的 qiming 域。
+"""起名（qiming）——函数式实现。
 
 起名本质是"命理之上的应用"（字库查找 + 五行匹配 + 组名 + 评估），不依赖
-命理排盘，天然属于 analysis（Python）层。本模块为纯函数 + 模块级只读数据，
-逻辑与 Go 实现逐字段对齐（对照测试保证一致）。
+命理排盘，天然属于 counsel（判断/应用）层。本模块为纯函数 + 模块级只读数据。
 
-数据来源：engine/internal/engine/qiming/data/（naming_characters.csv /
-negative_chars.txt / surnames.csv），与本文件同步维护。
+数据：同目录 data/（naming_characters.csv / negative_chars.txt / surnames.csv），
+随本模块维护——engine 不再包含 qiming 域，本层是唯一字库来源。
 """
 from __future__ import annotations
 
 import csv
+import threading
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -54,6 +54,7 @@ _negative_chars: set[str] = set()
 _char_by_element: dict[str, list[Character]] = {}
 _surname_records: list[SurnameRecord] = []
 _surnames_loaded = False
+_LOAD_LOCK = threading.Lock()
 
 
 def wuxing_from_chinese(name: str) -> str:
@@ -163,11 +164,14 @@ def _load_surnames() -> None:
 
 def _ensure_loaded() -> None:
     global _surnames_loaded
-    if not _char_by_char:
-        _load_naming()
-    if not _surnames_loaded:
-        _load_surnames()
-        _surnames_loaded = True
+    if _char_by_char and _surnames_loaded:
+        return
+    with _LOAD_LOCK:
+        if not _char_by_char:
+            _load_naming()
+        if not _surnames_loaded:
+            _load_surnames()
+            _surnames_loaded = True
 
 
 # -- 取字池 -----------------------------------------------------------------

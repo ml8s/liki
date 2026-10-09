@@ -1,7 +1,8 @@
-"""counsel 六爻/奇门（divination）1v1 对照测试。
+"""counsel 六爻/奇门（divination）MCP wiring 回归测试。
 
-counsel 六爻/奇门复用 analysis 模块（snapshot 创建 + query 追问），
-输出必须与老实现（模块函数）一致——正交化补集只改入口（ask→query），不改逻辑。
+定位：**不是 correctness oracle**。它断言"经 MCP 工具调用 == 直接调用模块函数"，
+即 MCP 装配/透传没有引入差异（正交化只改入口 ask→query，不改逻辑）。
+领域正确性由 engine 的 `*_oracle_test.go` 与 `tests/fixtures/domain_oracle/` 独立承担。
 """
 from __future__ import annotations
 

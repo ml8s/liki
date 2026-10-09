@@ -21,7 +21,8 @@ from qimen_specialized import project as project_specialized_context
 
 
 def _load_ji_xiong_table() -> dict:
-    """门/星吉凶固有属性表（数据源：bamen.md / jiuxing.md 翻译表）。"""
+    """门/星吉凶固有属性表（唯一工具源：data/qimen_men_star_ji_xiong.json；
+    skills 的 bamen.md/jiuxing.md 为领域参考与经典依据说明，不参与投影）。"""
     import json
     from functools import lru_cache
     from pathlib import Path

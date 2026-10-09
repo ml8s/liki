@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import os
 
+from csv_cell import typed_expected
 from errors import AssertionRuleError
 from factor_constants import load_constants
 
@@ -12,14 +13,6 @@ ASSERTIONS_PATH = os.path.join(TOOLS_DIR, "assertions", "assertions.csv")
 CONDITIONS_PATH = os.path.join(TOOLS_DIR, "assertions", "assertion_conditions.csv")
 
 _INDEX = None
-
-
-def _typed_expected(value: str) -> "int | str":
-    value = (value or "").strip()
-    try:
-        return int(value)
-    except ValueError:
-        return value
 
 
 def _load_index() -> dict:
@@ -67,7 +60,7 @@ def _load_index() -> dict:
                     raise AssertionRuleError(
                         f"断语 {assertion_id} 条件组 {group_id} 重复因子: {factor}"
                     )
-                group[factor] = _typed_expected(row.get("expected", ""))
+                group[factor] = typed_expected(row.get("expected", ""))
 
     by_assertion: dict[str, list[tuple[str, dict[str, "int | str"]]]] = {}
     for (_assertion_id, group_id), conditions in condition_groups.items():

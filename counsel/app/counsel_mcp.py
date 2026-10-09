@@ -2,8 +2,8 @@
 
 暴露判断工具，按 domain 分域（bazi/ziwei/liuyao/qimen/naming）：
 - bazi/ziwei：compute_factors / natal_query / period_query（因子快照 + 断语）
-- naming：起名（surname/pick/char/compose/check，复用 qiming 逻辑 + engine 字库）
-内部调 engine（排盘/字库）取判断所需字段，再在进程内求因子/断语/评估；
+- naming：起名（surname/pick/char/compose/check，qiming 本地字库）
+内部调 engine（排盘）取判断所需字段，再在进程内求因子/断语/评估；
 无状态、无存储依赖。counsel 是 engine 的补集（判断），排盘/历法在 engine。
 
 Run:
@@ -673,4 +673,4 @@ app = _make_app()
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8091)
+    uvicorn.run(app, host="127.0.0.1", port=8086)

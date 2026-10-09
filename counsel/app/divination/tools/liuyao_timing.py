@@ -5,18 +5,14 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
+from liuyao_topic_guidance import load_topic_table
+
 RULES_PATH = Path(__file__).with_name("liuyao_timing_rules.json")
-TOPIC_PATH = Path(__file__).with_name("liuyao_topic_methods.json")
 
 
 @lru_cache
 def _rules() -> dict:
     return json.loads(RULES_PATH.read_text(encoding="utf-8"))
-
-
-@lru_cache
-def _topic_methods() -> dict:
-    return json.loads(TOPIC_PATH.read_text(encoding="utf-8"))
 
 
 def _targets_hit(candidate: dict) -> int:
@@ -34,7 +30,7 @@ def _targets_hit(candidate: dict) -> int:
 def _topic_focus(topic: str | None) -> set[str]:
     if not topic:
         return set()
-    return set(_topic_methods().get("topics", {}).get(topic, {}).get("timing_focus", []))
+    return set(load_topic_table().get("topics", {}).get(topic, {}).get("timing_focus", []))
 
 
 def _topic_bonus(mechanism: str, candidate_id: str, topic: str | None) -> int:

@@ -6,6 +6,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
+from csv_cell import typed_expected
 from errors import FactorTableError
 from factor_constants import load_constants
 
@@ -20,13 +21,6 @@ LONG_FIELDS = [
 
 _CACHES: dict[Path, list[dict]] = {}
 
-
-def _expected(value: str):
-    value = (value or "").strip()
-    try:
-        return int(value)
-    except ValueError:
-        return value
 
 
 def _ensure_acyclic(path: str, dependencies: dict[str, set[str]]) -> None:
@@ -141,7 +135,7 @@ def load_long_rows(path: str):
                     raise FactorTableError(f"{path}: {factor_id} group {group_id} term_index 不连续")
                 if expression in conds:
                     raise FactorTableError(f"{path}: {factor_id} group {group_id} 条件重复: {expression}")
-                conds[expression] = _expected(row_expected)
+                conds[expression] = typed_expected(row_expected)
                 expected_index += 1
         rows.append({
             "因子": factor_id, "术数": shushi, "直通": direct,

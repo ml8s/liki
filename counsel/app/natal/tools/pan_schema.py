@@ -371,3 +371,52 @@ def validate_natal_pan(pan: object, action: str = "pan") -> None:
             f"{action} pan.ziwei_daxian 的 {daxian_count} 个大限宫位必须唯一。"
         )
     validate_natal_digest(pan, action=action)
+
+
+def validate_side_pan(pan: object, side: str, action: str = "compute_factors") -> None:
+    """校验正交分侧盘（compute_factors / period_query 的输入）。
+
+    与 validate_natal_pan（完整本命盘）不同：分侧盘只含单侧引擎数据
+    （bazi: chart+full；ziwei: chart+ziwei+ziwei_daxian）。这里对分侧必需结构
+    fail-closed，避免 engine 字段漂移时因子静默算成 0。
+    """
+    if not isinstance(pan, dict):
+        raise PanSchemaError(f"{action} pan 必须是 object。")
+    gender = pan.get("gender")
+    if gender not in GENDERS:
+        raise PanSchemaError(
+            f"{action} pan.gender 必须是 male/female，收到: {gender!r}"
+        )
+    chart = pan.get("chart")
+    if not isinstance(chart, dict) or not chart:
+        raise PanSchemaError(f"{action} pan.chart 必须是非空对象。")
+
+    if side == "bazi":
+        full = pan.get("full")
+        if not isinstance(full, dict) or not full:
+            raise PanSchemaError(f"{action} bazi pan.full 必须是非空对象。")
+        missing_pillars = [
+            key for key in PILLARS
+            if not isinstance(chart.get(key), dict)
+            or not isinstance(full.get(key), dict)
+            or not full[key].get("gan")
+            or not full[key].get("zhi")
+        ]
+        if missing_pillars:
+            raise PanSchemaError(
+                f"{action} bazi 四柱结构不完整，缺少: {', '.join(missing_pillars)}。"
+            )
+    elif side == "ziwei":
+        ziwei = pan.get("ziwei")
+        if not isinstance(ziwei, dict) or not ziwei:
+            raise PanSchemaError(f"{action} ziwei pan.ziwei 必须是非空对象。")
+        gong_wei = ziwei.get("gong_wei")
+        if not isinstance(gong_wei, list) or len(gong_wei) != 12:
+            raise PanSchemaError(
+                f"{action} ziwei pan.ziwei.gong_wei 必须是 12 宫数组。"
+            )
+        daxian = pan.get("ziwei_daxian")
+        if not isinstance(daxian, list) or not daxian:
+            raise PanSchemaError(f"{action} ziwei pan.ziwei_daxian 必须是非空数组。")
+    else:
+        raise PanSchemaError(f"{action} side 只支持 bazi/ziwei，收到: {side!r}")

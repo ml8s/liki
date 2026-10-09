@@ -1,7 +1,7 @@
-"""起名（qiming）对照测试：内联期望值来自 engine Go qiming 实现验证输出。
+"""起名（qiming）契约测试。
 
-起名是"命理之上的应用"，纯函数实现在 Python 层；期望值逐字段取自 Go 引擎
-（engine/internal/engine/qiming）对相同输入的输出，保证移植一致。
+起名是"命理之上的应用"，纯函数实现在 counsel 层；期望值锁定当前字库
+（data/naming_characters.csv）的输出，防止字库或算法漂移。
 """
 from __future__ import annotations
 

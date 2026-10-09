@@ -15,6 +15,7 @@ import json
 from duanyu import match_rule
 from factors import evaluate_factors
 from paipan import _bazi_fullchart, _ziwei_daxian, call
+from pan_schema import validate_side_pan
 
 
 def _factors_digest(factors: dict) -> str:
@@ -70,11 +71,13 @@ def compute_factors(chart: dict) -> dict:
     if side == "bazi":
         full = _bazi_fullchart(chart)
         pan = {"chart": chart, "full": full, "gender": gender}
+        validate_side_pan(pan, "bazi", "compute_factors")
         factors = evaluate_factors(gender, pan, shushi="bazi")
     else:
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
         daxian = _ziwei_daxian(zw)
         pan = {"chart": chart, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
+        validate_side_pan(pan, "ziwei", "compute_factors")
         factors = evaluate_factors(gender, pan, shushi="ziwei")
     factors["_provenance"] = {
         "side": side,
@@ -171,6 +174,7 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
         daxian = _ziwei_daxian(zw)
         pan = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
+    validate_side_pan(pan, side, "period_query")
     # period_query 固定只出本侧断语：组合盘不含另一侧排盘，另一侧数据由
     # _factor_context_from_pan 从本侧盘误读，会产生假断语，必须过滤。
     result = _analyze_periods(

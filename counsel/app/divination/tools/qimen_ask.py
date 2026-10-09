@@ -32,11 +32,9 @@ def ask(snapshot: dict, *, message: str) -> dict:
     if factors.get("school") == "jinhan_yujing":
         validate_jinhan_factors(factors)
         core = build_jinhan_core(snapshot)
-        audit = validate_jinhan_core(core, snapshot)
     else:
         validate_standard_factors(factors)
         core = build_standard_core(snapshot)
-        audit = validate_standard_core(core, snapshot)
 
     timing_count = len(core.get("timing_refs", []))
     core.update({
