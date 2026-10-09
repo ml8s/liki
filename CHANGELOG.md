@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — feedback issue 修复（B 类）
+
+### Fixed
+
+- **#107 / #96**：大运/大限断语带跨切域 `应期`/`大限`，而 topic 只含内容域 → `_topic_for_row` 把它们全部过滤，导致 decade 查询 `returned=0`。现 `topic_routes.json` 声明 `cross_cutting_domains:["应期","大限"]`，`_topic_for_row` 接受跨切域（应期/大限是正交于内容域的"时/触发"层，其触发本质已由 `事件类型=引动`、时层由 `时间层=大限` 表达）——限运层断语随请求了对应 period 规则的 topic 呈现。
+- **#98**：`场景领域过滤[yearly_family]` 列出的 `父母`/`兄弟` 不在受控闭集。将 `年父母`/`年兄弟` 断语改标 `领域=父母`/`兄弟` 并纳入 `check_schema` 闭集，`yearly_range` 家庭场景过滤不再报 `INVALID_INPUT`。
+- **#95**：男命 career 断语证据中出现女命专属格局名（`女命官星得地格`，官=夫，《女命赋》）。保留准确命名（中性改名会使男命语义失真），改为在证据中标注 `gender_scope`。
+
 ## [Unreleased] — 奇门投影收敛 · 测试定位 · 清理
 
 ### Changed
