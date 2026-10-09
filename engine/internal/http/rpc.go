@@ -26,6 +26,7 @@ type rpcResponse struct {
 	ID      any             `json:"id"`
 }
 
+// HandleRPC returns the JSON-RPC 2.0 http.HandlerFunc backed by reg.
 func HandleRPC(reg *agent.RPCRegistry) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// CORS origins are managed by CORSMiddleware.

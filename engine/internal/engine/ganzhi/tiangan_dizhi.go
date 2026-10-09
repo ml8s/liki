@@ -175,6 +175,8 @@ func LuZhi(g Gan) Zhi {
 	}
 }
 
+// XunKong returns the two 旬空（空亡）zhi for the 旬 that the given gan-zhi belongs to.
+//
 // 口诀：甲子旬空戌亥、甲戌旬空申酉、甲申旬空午未、甲午旬空辰巳、甲辰旬空寅卯、甲寅旬空子丑。
 func XunKong(gan Gan, zhi Zhi) [2]Zhi {
 	xun := SixtyCycleIndex(gan, zhi) / 10

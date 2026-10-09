@@ -62,6 +62,8 @@ func angleInRange(lon, cur, next float64) bool {
 	return lon >= cur || lon < next
 }
 
+// SolarTermTime returns the instant the sun's apparent longitude reaches
+// targetLon degrees (a solar term / 节气) in the given year (Beijing time).
 func SolarTermTime(year int, targetLon float64) time.Time {
 	// 初始猜测：按黄经基准（太阳 1月1日黄经≈280°，每天 0.9856°）。
 	// 归一化到当年：先算 1月1日黄经，再推 targetLon 对应日。

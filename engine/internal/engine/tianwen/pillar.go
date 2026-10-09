@@ -72,6 +72,7 @@ func ShiZhu(st SolarTime) ganzhi.Zhu {
 	return ganzhi.Zhu{Gan: gan, Zhi: zhi}
 }
 
+// ComputeBazi derives the 四柱 (year/month/day/hour ganzhi) from a true-solar time.
 func ComputeBazi(st SolarTime) ganzhi.Bazi {
 	t := st.Time()
 	yp := NianZhu(GregorianTime(t))
