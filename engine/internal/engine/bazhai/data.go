@@ -3,7 +3,8 @@ package bazhai
 import (
 	_ "embed"
 	"encoding/json"
-	"log"
+	"fmt"
+	"sync"
 
 	"liki-engine/internal/engine/luoshu"
 )
@@ -16,10 +17,26 @@ var (
 	westGroup            map[int]bool
 )
 
-func init() {
-	if err := loadBazhai(); err != nil {
-		log.Fatalf("bazhai: load bazhai: %v", err)
-	}
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded bazhai table and builds the 命卦 table (which reads
+// luoshu). Idempotent; call from main/TestMain.
+func Load() error {
+	loadOnce.Do(func() {
+		if err := luoshu.Load(); err != nil {
+			loadErr = err
+			return
+		}
+		buildGuaTable()
+		if err := loadBazhai(); err != nil {
+			loadErr = fmt.Errorf("bazhai: load bazhai: %w", err)
+			return
+		}
+	})
+	return loadErr
 }
 
 func loadBazhai() error {
@@ -44,7 +61,7 @@ func loadBazhai() error {
 	for name, p := range data.Patterns {
 		num := luoshu.TrigramNumber(name)
 		if num == 0 {
-			log.Fatalf("bazhai: unknown gua name %q", name)
+			return fmt.Errorf("bazhai: unknown gua name %q", name)
 		}
 		eightMansionPatterns[num] = dirPattern{
 			shengQi: p.ShengQi, tianYi: p.TianYi, yanNian: p.YanNian, fuWei: p.FuWei,

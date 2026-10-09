@@ -4,10 +4,11 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"log"
 	"slices"
+	"sync"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/luoshu"
 )
 
 //go:embed data/gan_interaction.json
@@ -326,17 +327,35 @@ var (
 	quarterSanyuanByBranch map[ganzhi.Zhi]quarterSanyuanEntry
 )
 
-func init() {
-	loaders := []func() error{
-		loadGanInteractions, loadJushu, loadMenInteractions,
-		loadXingInteractions, loadCatalog, loadQuarter, loadPlate, loadPatterns,
-		loadYingQi, loadZhiRun, loadMaoShan, loadJinhan,
-	}
-	for _, load := range loaders {
-		if err := load(); err != nil {
-			log.Fatalf("qimen: %v", err)
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded qimen tables. Idempotent; call from main/TestMain.
+func Load() error {
+	loadOnce.Do(func() {
+		if err := ganzhi.Load(); err != nil {
+			loadErr = err
+			return
 		}
-	}
+		if err := luoshu.Load(); err != nil {
+			loadErr = err
+			return
+		}
+		loaders := []func() error{
+			loadGanInteractions, loadJushu, loadMenInteractions,
+			loadXingInteractions, loadCatalog, loadQuarter, loadPlate, loadPatterns,
+			loadYingQi, loadZhiRun, loadMaoShan, loadJinhan,
+		}
+		for _, load := range loaders {
+			if err := load(); err != nil {
+				loadErr = fmt.Errorf("qimen: %w", err)
+				return
+			}
+		}
+	})
+	return loadErr
 }
 
 type interactionTableDocument[T any] struct {

@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"log"
+	"sync"
 
 	"liki-engine/internal/engine/ganzhi"
 )
@@ -38,29 +38,39 @@ type tiaohouEntry struct {
 
 var lookupTiaohou map[tiaohouKey]tiaohouEntry
 
-func init() {
-	if err := loadTiaohou(); err != nil {
-		log.Fatalf("bazi: load tiaohou: %v", err)
-	}
-	if err := loadShensha(); err != nil {
-		log.Fatalf("bazi: load shensha: %v", err)
-	}
-	if err := loadRideRigui(); err != nil {
-		log.Fatalf("bazi: load ride_rigui: %v", err)
-	}
-	if err := loadTenGodStrengthRules(); err != nil {
-		log.Fatalf("bazi: load ten_god_strength_rules: %v", err)
-	}
-	if err := loadYongJiRules(); err != nil {
-		log.Fatalf("bazi: load yongji_rules: %v", err)
-	}
-	if err := loadGeJuRules(); err != nil {
-		log.Fatalf("bazi: load geju_rules: %v", err)
-	}
-	if err := loadXiaoYunRules(); err != nil {
-		log.Fatalf("bazi: load xiaoyun_rules: %v", err)
-	}
+func Load() error {
+	loadOnce.Do(func() {
+		if err := ganzhi.Load(); err != nil {
+			loadErr = err
+			return
+		}
+		for _, load := range []struct {
+			name string
+			fn   func() error
+		}{
+			{"tiaohou", loadTiaohou},
+			{"shensha", loadShensha},
+			{"ride_rigui", loadRideRigui},
+			{"ten_god_strength_rules", loadTenGodStrengthRules},
+			{"yongji_rules", loadYongJiRules},
+			{"geju_rules", loadGeJuRules},
+			{"xiaoyun_rules", loadXiaoYunRules},
+			{"strength_rules", loadStrengthRules},
+			{"congge_rules", loadCongGeRules},
+		} {
+			if err := load.fn(); err != nil {
+				loadErr = fmt.Errorf("bazi: load %s: %w", load.name, err)
+				return
+			}
+		}
+	})
+	return loadErr
 }
+
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
 
 // xiaoYunRule 小运起例（《三命通会》）：男女起运干支与顺逆。
 type xiaoYunRule struct {

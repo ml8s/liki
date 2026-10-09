@@ -1,6 +1,8 @@
 package fengshui
 
 import (
+	"liki-engine/internal/engine/luoshu"
+
 	"testing"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -235,19 +237,19 @@ func Test24Mountains_DiTianRenYinYang(t *testing.T) {
 func TestPalaceByNumber_Range(t *testing.T) {
 	// Valid range
 	for i := 1; i <= 9; i++ {
-		p := PalaceByNumber(i)
+		p := luoshu.ByNumber(i)
 		if p.Number != i {
-			t.Errorf("PalaceByNumber(%d).Number = %d", i, p.Number)
+			t.Errorf("luoshu.ByNumber(%d).Number = %d", i, p.Number)
 		}
 		if p.Name == "" {
-			t.Errorf("PalaceByNumber(%d): empty name", i)
+			t.Errorf("luoshu.ByNumber(%d): empty name", i)
 		}
 	}
 	// Out of range
 	for _, n := range []int{0, 10, -1, 100} {
-		p := PalaceByNumber(n)
+		p := luoshu.ByNumber(n)
 		if p.Number != 0 {
-			t.Errorf("PalaceByNumber(%d) should return zero value, got number=%d", n, p.Number)
+			t.Errorf("luoshu.ByNumber(%d) should return zero value, got number=%d", n, p.Number)
 		}
 	}
 }
@@ -258,9 +260,9 @@ func TestPalaceTable_Directions(t *testing.T) {
 		6: "西北", 7: "西", 8: "东北", 9: "南",
 	}
 	for i := 1; i <= 9; i++ {
-		if PalaceTable[i].Direction != expected[i] {
+		if luoshu.PalaceTable[i].Direction != expected[i] {
 			t.Errorf("palace %d(%s): direction=%s, want %s",
-				i, PalaceTable[i].Name, PalaceTable[i].Direction, expected[i])
+				i, luoshu.PalaceTable[i].Name, luoshu.PalaceTable[i].Direction, expected[i])
 		}
 	}
 }
@@ -273,9 +275,9 @@ func TestPalaceTable_Wuxing(t *testing.T) {
 		7: ganzhi.WxJin, 8: ganzhi.WxTu, 9: ganzhi.WxHuo,
 	}
 	for i := 1; i <= 9; i++ {
-		if PalaceTable[i].Element != expected[i] {
+		if luoshu.PalaceTable[i].Element != expected[i] {
 			t.Errorf("palace %d(%s): wuxing=%s, want %s",
-				i, PalaceTable[i].Name, PalaceTable[i].Element, expected[i])
+				i, luoshu.PalaceTable[i].Name, luoshu.PalaceTable[i].Element, expected[i])
 		}
 	}
 }

@@ -5,7 +5,6 @@ import _ "embed"
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"liki-engine/internal/engine/ganzhi"
 )
@@ -63,15 +62,6 @@ var (
 	strengthRules []strengthRule
 	congGeRules   []congGeRule
 )
-
-func init() {
-	if err := loadStrengthRules(); err != nil {
-		log.Fatalf("bazi: load strength rules: %v", err)
-	}
-	if err := loadCongGeRules(); err != nil {
-		log.Fatalf("bazi: load congge rules: %v", err)
-	}
-}
 
 func loadStrengthRules() error {
 	if err := json.Unmarshal(strengthRulesJSON, &strengthRules); err != nil {

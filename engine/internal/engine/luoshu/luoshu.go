@@ -9,7 +9,8 @@ package luoshu
 import (
 	_ "embed"
 	"encoding/json"
-	"log"
+	"fmt"
+	"sync"
 
 	"liki-engine/internal/engine/ganzhi"
 )
@@ -30,41 +31,55 @@ type Palace struct {
 // PalaceTable holds all nine palaces indexed by palace number (1-9).
 var PalaceTable [10]Palace
 
-func init() {
-	var rows []struct {
-		Number    int    `json:"number"`
-		Name      string `json:"name"`
-		Direction string `json:"direction"`
-		Wuxing    string `json:"wuxing"`
-		YinYang   string `json:"yin_yang"`
-	}
-	if err := json.Unmarshal(luoshuJSON, &rows); err != nil {
-		log.Fatalf("luoshu: parse data/luoshu.json: %v", err)
-	}
-	for _, row := range rows {
-		if row.Number < 1 || row.Number > 9 {
-			log.Fatalf("luoshu: palace number out of range: %d", row.Number)
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded luoshu table. Idempotent; call from main/TestMain.
+func Load() error {
+	loadOnce.Do(func() {
+		var rows []struct {
+			Number    int    `json:"number"`
+			Name      string `json:"name"`
+			Direction string `json:"direction"`
+			Wuxing    string `json:"wuxing"`
+			YinYang   string `json:"yin_yang"`
 		}
-		if PalaceTable[row.Number].Number != 0 {
-			log.Fatalf("luoshu: duplicate palace number: %d", row.Number)
+		if err := json.Unmarshal(luoshuJSON, &rows); err != nil {
+			loadErr = fmt.Errorf("luoshu: parse data/luoshu.json: %w", err)
+			return
 		}
-		element, err := ganzhi.ParseWuxing(row.Wuxing)
-		if err != nil {
-			log.Fatalf("luoshu: palace %d: %v", row.Number, err)
+		for _, row := range rows {
+			if row.Number < 1 || row.Number > 9 {
+				loadErr = fmt.Errorf("luoshu: palace number out of range: %d", row.Number)
+				return
+			}
+			if PalaceTable[row.Number].Number != 0 {
+				loadErr = fmt.Errorf("luoshu: duplicate palace number: %d", row.Number)
+				return
+			}
+			element, err := ganzhi.ParseWuxing(row.Wuxing)
+			if err != nil {
+				loadErr = fmt.Errorf("luoshu: palace %d: %w", row.Number, err)
+				return
+			}
+			PalaceTable[row.Number] = Palace{
+				Number:    row.Number,
+				Name:      row.Name,
+				Direction: row.Direction,
+				Element:   element,
+				YinYang:   row.YinYang,
+			}
 		}
-		PalaceTable[row.Number] = Palace{
-			Number:    row.Number,
-			Name:      row.Name,
-			Direction: row.Direction,
-			Element:   element,
-			YinYang:   row.YinYang,
+		for n := 1; n <= 9; n++ {
+			if PalaceTable[n].Name == "" {
+				loadErr = fmt.Errorf("luoshu: missing palace %d", n)
+				return
+			}
 		}
-	}
-	for n := 1; n <= 9; n++ {
-		if PalaceTable[n].Name == "" {
-			log.Fatalf("luoshu: missing palace %d", n)
-		}
-	}
+	})
+	return loadErr
 }
 
 // ByNumber returns the palace for a given number (1-9), or the zero value.

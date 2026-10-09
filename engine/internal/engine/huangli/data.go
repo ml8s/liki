@@ -3,7 +3,8 @@ package huangli
 import (
 	_ "embed"
 	"encoding/json"
-	"log"
+	"fmt"
+	"sync"
 
 	"liki-engine/internal/engine/ganzhi"
 
@@ -21,13 +22,32 @@ var huangdaoJSON []byte
 
 var jianChuCfg jianchuConfig
 
-func init() {
-	if err := loadJianchu(); err != nil {
-		log.Fatalf("huangli: load jianchu: %v", err)
-	}
-	if err := loadHuangdao(); err != nil {
-		log.Fatalf("huangli: load huangdao: %v", err)
-	}
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded huangli tables. Idempotent; call from main/TestMain.
+func Load() error {
+	loadOnce.Do(func() {
+		if err := ganzhi.Load(); err != nil {
+			loadErr = err
+			return
+		}
+		for _, load := range []struct {
+			name string
+			fn   func() error
+		}{
+			{"jianchu", loadJianchu},
+			{"huangdao", loadHuangdao},
+		} {
+			if err := load.fn(); err != nil {
+				loadErr = fmt.Errorf("huangli: load %s: %w", load.name, err)
+				return
+			}
+		}
+	})
+	return loadErr
 }
 
 func loadJianchu() error {

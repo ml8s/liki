@@ -3,7 +3,10 @@ package xuankong
 import (
 	_ "embed"
 	"encoding/json"
-	"log"
+	"fmt"
+	"sync"
+
+	"liki-engine/internal/engine/luoshu"
 )
 
 //go:embed data/xing_jiahui.json
@@ -11,10 +14,24 @@ var xingJiaHuiJSON []byte
 
 var xingJiaHuiTable map[[2]int]xingJiaHui
 
-func init() {
-	if err := loadXingJiaHui(); err != nil {
-		log.Fatalf("xuankong: load xing_jiahui: %v", err)
-	}
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded xuankong tables. Idempotent; call from main/TestMain.
+func Load() error {
+	loadOnce.Do(func() {
+		if err := luoshu.Load(); err != nil {
+			loadErr = err
+			return
+		}
+		if err := loadXingJiaHui(); err != nil {
+			loadErr = fmt.Errorf("xuankong: load xing_jiahui: %w", err)
+			return
+		}
+	})
+	return loadErr
 }
 
 func loadXingJiaHui() error {

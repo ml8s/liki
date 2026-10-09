@@ -1,6 +1,10 @@
 package fengshui
 
-import "testing"
+import (
+	"testing"
+
+	"liki-engine/internal/engine/luoshu"
+)
 
 func Test24MountainsYinYang(t *testing.T) {
 	// Build index of天元龙 by trigram.
@@ -85,7 +89,7 @@ func TestPalaceTable(t *testing.T) {
 		6: "乾", 7: "兑", 8: "艮", 9: "离",
 	}
 	for i := 1; i <= 9; i++ {
-		p := PalaceTable[i]
+		p := luoshu.PalaceTable[i]
 		if p.Number != i {
 			t.Errorf("palace %d: number = %d", i, p.Number)
 		}

@@ -34,6 +34,11 @@ func main() {
 	// Structured logging
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
 
+	if err := agent.Load(); err != nil {
+		slog.Error("engine: load data tables", "err", err)
+		os.Exit(1)
+	}
+
 	// Setup JSON-RPC registry
 	rpcReg := agent.NewRPCRegistry()
 	rpcReg.SetVersion(BuildTime)

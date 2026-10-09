@@ -37,6 +37,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
+	if err := agent.Load(); err != nil {
+		slog.Error("engine: load data tables", "err", err)
+		os.Exit(1)
+	}
+
 	rpcReg := agent.NewRPCRegistry()
 	rpcReg.SetVersion(BuildTime)
 

@@ -3,7 +3,8 @@ package ziwei
 import (
 	_ "embed"
 	"encoding/json"
-	"log"
+	"fmt"
+	"sync"
 
 	"liki-engine/internal/engine/ganzhi"
 )
@@ -61,13 +62,32 @@ var (
 	tianMaTable   [12]int
 )
 
-func init() {
-	if err := loadTables(); err != nil {
-		log.Fatalf("ziwei: load tables: %v", err)
-	}
-	if err := loadXiaoXianRules(); err != nil {
-		log.Fatalf("ziwei: load xiaoxian rules: %v", err)
-	}
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded ziwei tables. Idempotent; call from main/TestMain.
+func Load() error {
+	loadOnce.Do(func() {
+		if err := ganzhi.Load(); err != nil {
+			loadErr = err
+			return
+		}
+		for _, load := range []struct {
+			name string
+			fn   func() error
+		}{
+			{"tables", loadTables},
+			{"xiaoxian rules", loadXiaoXianRules},
+		} {
+			if err := load.fn(); err != nil {
+				loadErr = fmt.Errorf("ziwei: load %s: %w", load.name, err)
+				return
+			}
+		}
+	})
+	return loadErr
 }
 
 // xiaoxianStartByBranch 小限起宫：生年支 → 起宫安星序（xiaoxian_rules.json）。
@@ -137,7 +157,7 @@ func loadTables() error {
 	for name, pos := range data.ZiweiStart {
 		js, ok := juNameToJuShu[name]
 		if !ok {
-			log.Fatalf("ziwei: unknown juShu name %q", name)
+			return fmt.Errorf("ziwei: unknown juShu name %q", name)
 		}
 		ziweiStartPos[js] = pos
 	}

@@ -3,7 +3,8 @@ package ganzhi
 import (
 	_ "embed"
 	"encoding/json"
-	"log"
+	"fmt"
+	"sync"
 )
 
 //go:embed data/he_hua.json
@@ -105,31 +106,40 @@ type Xing struct {
 	Zhi  []Zhi
 }
 
-func init() {
-	if err := loadHeHua(); err != nil {
-		log.Fatalf("ganzhi: load he_hua: %v", err)
-	}
-	if err := loadChongXingHai(); err != nil {
-		log.Fatalf("ganzhi: load chong_xing_hai: %v", err)
-	}
-	if err := loadNayin(); err != nil {
-		log.Fatalf("ganzhi: load nayin: %v", err)
-	}
-	if err := loadCangGan(); err != nil {
-		log.Fatalf("ganzhi: load cang_gan: %v", err)
-	}
-	if err := loadLifeStages(); err != nil {
-		log.Fatalf("ganzhi: load life_stages: %v", err)
-	}
-	if err := loadRenYuan(); err != nil {
-		log.Fatalf("ganzhi: load ren_yuan: %v", err)
-	}
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded ganzhi data tables. It is idempotent; call it from
+// main (or a test's TestMain) before using the package. It does not call
+// os.Exit: the caller decides how to report a failure.
+func Load() error {
+	loadOnce.Do(func() {
+		for _, load := range []struct {
+			name string
+			fn   func() error
+		}{
+			{"he_hua", loadHeHua},
+			{"chong_xing_hai", loadChongXingHai},
+			{"nayin", loadNayin},
+			{"cang_gan", loadCangGan},
+			{"life_stages", loadLifeStages},
+			{"ren_yuan", loadRenYuan},
+		} {
+			if err := load.fn(); err != nil {
+				loadErr = fmt.Errorf("ganzhi: load %s: %w", load.name, err)
+				return
+			}
+		}
+	})
+	return loadErr
 }
 
 func parseGan(s string) Gan {
 	g, err := ParseGan(s)
 	if err != nil {
-		log.Fatalf("ganzhi: embedded data has invalid gan %q: %v", s, err)
+		panic(fmt.Sprintf("ganzhi: embedded data has invalid gan %q: %v", s, err))
 	}
 	return g
 }
@@ -137,7 +147,7 @@ func parseGan(s string) Gan {
 func parseZhi(s string) Zhi {
 	z, err := ParseZhi(s)
 	if err != nil {
-		log.Fatalf("ganzhi: embedded data has invalid zhi %q: %v", s, err)
+		panic(fmt.Sprintf("ganzhi: embedded data has invalid zhi %q: %v", s, err))
 	}
 	return z
 }
@@ -145,7 +155,7 @@ func parseZhi(s string) Zhi {
 func parseWuxing(s string) Wuxing {
 	w, err := ParseWuxing(s)
 	if err != nil {
-		log.Fatalf("ganzhi: embedded data has invalid wuxing %q: %v", s, err)
+		panic(fmt.Sprintf("ganzhi: embedded data has invalid wuxing %q: %v", s, err))
 	}
 	return w
 }

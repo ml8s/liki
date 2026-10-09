@@ -18,7 +18,7 @@ type gua struct {
 // 由 ComputeMingGua 显式重映射（男寄坤/女寄艮），此处不再重复。
 var guaTable [10]gua
 
-func init() {
+func buildGuaTable() {
 	for n := 1; n <= 9; n++ {
 		p := luoshu.PalaceTable[n]
 		guaTable[n] = gua{Index: n, Name: p.Name, Wuxing: p.Element.String(), YinYang: p.YinYang}

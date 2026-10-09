@@ -4,7 +4,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 // ── 周易卦爻辞 (卦名、卦辞、爻辞) ──
@@ -21,13 +20,14 @@ var zhouyiJSON []byte
 
 var zhouyiTable []GuaCi
 
-func init() {
+func loadZhouyi() error {
 	if err := json.Unmarshal(zhouyiJSON, &zhouyiTable); err != nil {
-		log.Fatalf("liuyao: load zhouyi: %v", err)
+		return fmt.Errorf("load zhouyi: %w", err)
 	}
 	if len(zhouyiTable) != 64 {
-		log.Fatalf("liuyao: zhouyi table has %d entries, want 64", len(zhouyiTable))
+		return fmt.Errorf("zhouyi table has %d entries, want 64", len(zhouyiTable))
 	}
+	return nil
 }
 
 // GetGuaCi returns the hexagram text for a given gua index (0-63).

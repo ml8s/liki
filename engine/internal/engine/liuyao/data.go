@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"log"
+	"sync"
 
 	"liki-engine/internal/engine/ganzhi"
 )
@@ -18,10 +18,32 @@ var (
 	naZhiTable [8][6]ganzhi.Zhi
 )
 
-func init() {
-	if err := loadHexagrams(); err != nil {
-		log.Fatalf("liuyao: load hexagrams: %v", err)
-	}
+var (
+	loadOnce sync.Once
+	loadErr  error
+)
+
+// Load parses the embedded liuyao tables. Idempotent; call from main/TestMain.
+func Load() error {
+	loadOnce.Do(func() {
+		if err := ganzhi.Load(); err != nil {
+			loadErr = err
+			return
+		}
+		for _, load := range []struct {
+			name string
+			fn   func() error
+		}{
+			{"hexagrams", loadHexagrams},
+			{"zhouyi", loadZhouyi},
+		} {
+			if err := load.fn(); err != nil {
+				loadErr = fmt.Errorf("liuyao: load %s: %w", load.name, err)
+				return
+			}
+		}
+	})
+	return loadErr
 }
 
 func loadHexagrams() error {
@@ -47,7 +69,7 @@ func loadHexagrams() error {
 	for i, h := range data.Hexagrams {
 		pi, ok := palaceIdx[h.Palace]
 		if !ok {
-			log.Fatalf("liuyao: unknown palace %q in hexagram %q", h.Palace, h.Name)
+			return fmt.Errorf("liuyao: unknown palace %q in hexagram %q", h.Palace, h.Name)
 		}
 		guaTable[i] = guaMeta{Name: h.Name, PalaceIdx: pi, ShiPos: h.ShiPos}
 	}
@@ -55,7 +77,7 @@ func loadHexagrams() error {
 	for palaceName, ganVal := range data.NaGan {
 		pi, ok := palaceIdx[palaceName]
 		if !ok {
-			log.Fatalf("liuyao: unknown palace %q in na_gan", palaceName)
+			return fmt.Errorf("liuyao: unknown palace %q in na_gan", palaceName)
 		}
 		ganPair, err := parseGanPair(ganVal)
 		if err != nil {
@@ -67,7 +89,7 @@ func loadHexagrams() error {
 	for palaceName, zhiNames := range data.NaZhi {
 		pi, ok := palaceIdx[palaceName]
 		if !ok {
-			log.Fatalf("liuyao: unknown palace %q in na_zhi", palaceName)
+			return fmt.Errorf("liuyao: unknown palace %q in na_zhi", palaceName)
 		}
 		for j, zn := range zhiNames {
 			z, err := ganzhi.ParseZhi(zn)
