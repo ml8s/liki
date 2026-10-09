@@ -30,7 +30,11 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 	riYuan := bz.Ri.Gan
 	bazi := bz.Slice()
 
-	dp := tianwen.RiZhu(tianwen.GregorianTime(time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)))
+	date := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	if date.Year() != year || int(date.Month()) != month || date.Day() != day {
+		return nil, fmt.Errorf("invalid date: %04d-%02d-%02d", year, month, day)
+	}
+	dp := tianwen.RiZhu(tianwen.GregorianTime(date))
 	tgName := ganzhi.ShiShenFromGan(riYuan, dp.Gan)
 
 	dayName := ganzhi.GanName(dp.Gan) + ganzhi.ZhiName(dp.Zhi)

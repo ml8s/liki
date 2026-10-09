@@ -207,8 +207,7 @@
       "type": "冲合",
       "sub_type": "六冲",
       "position": 0,
-      "is_true": true,
-      "assessment": "六冲卦，事多反复"
+      "is_true": true
     }
   ],
   "branch_relation_facts": [

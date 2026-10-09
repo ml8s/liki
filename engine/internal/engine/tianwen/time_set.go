@@ -8,11 +8,12 @@ type Timeset struct {
 }
 
 // ComputeTimeset converts a Gregorian time into a full Timeset
-// (Gregorian → Solar → Lunar). Longitude is in degrees.
+// (Gregorian → Solar → Lunar). Longitude is in degrees and is taken as given:
+// 0° is a legitimate longitude (Greenwich) and is never silently replaced with
+// a default city's longitude.
 func ComputeTimeset(gt GregorianTime, lon float64) Timeset {
 	_, offset := gt.Time().Zone()
 	tz := float64(offset) / 3600
-	lon, _ = normGeo(lon, 0) // only normalize lon; tz from timestamp
 
 	st := GregorianToSolar(gt.Time(), lon, tz)
 	lt := SolarToLunar(GregorianTime(st.Time()))
@@ -23,16 +24,4 @@ func ComputeTimeset(gt GregorianTime, lon float64) Timeset {
 		Solar:     st,
 		Lunar:     lt,
 	}
-}
-
-// normGeo normalizes longitude and timezone defaults.
-// Defaults: longitude 120 (Beijing), timezone UTC+8.
-func normGeo(lon, tz float64) (float64, float64) {
-	if lon == 0 {
-		lon = 120
-	}
-	if tz == 0 {
-		tz = 8
-	}
-	return lon, tz
 }

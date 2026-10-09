@@ -3,7 +3,7 @@ package ziwei
 import "sort"
 
 // ComputeFullChart computes a full chart with all extended info.
-func ComputeFullChart(chart Chart, riGan, riZhi int) Chart {
+func ComputeFullChart(chart Chart) Chart {
 	mingZhi := chart.GongWei[chart.MingGong].Zhi
 	nianZhi := chart.NianZhi
 	shiZhi := chart.ShiZhi
@@ -31,7 +31,7 @@ func ComputeFullChart(chart Chart, riGan, riZhi int) Chart {
 	}
 
 	// 4. Adjective stars
-	adjMap := computeAdjectiveStars(nianZhi, shiZhi, mingZhi, lunarMonth, lunarDay, nianGan, gender, riGan, riZhi, 0, 0)
+	adjMap := computeAdjectiveStars(nianZhi, shiZhi, lunarMonth, lunarDay, nianGan)
 	for palaceIdx := 0; palaceIdx < 12; palaceIdx++ {
 		gongZhi := chart.GongWei[palaceIdx].Zhi
 		var stars []string

@@ -1,4 +1,4 @@
-# 多阶段构建：镜像只包含当前业务入口 engine-mcp。
+# 多阶段构建：镜像含 engine-rpc（默认入口，liki-web 过渡，见 docs/RUNTIME.md）与 engine-mcp 两个入口。
 FROM golang:1.26.9-alpine@sha256:cdfd4fe2da6b225d8b40c6b7a105736e548e83ff56d5d8f9394446eeb5eb84e0 AS build
 WORKDIR /src
 ENV GOPROXY=https://goproxy.cn,direct

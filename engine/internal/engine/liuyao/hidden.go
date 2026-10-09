@@ -53,7 +53,7 @@ func computeHiddenLines(p *Chart) []HiddenLine {
 		}
 		flying := p.Lines[i]
 		relation := feiFuRelation(flying.Wuxing, base.Wuxing)
-		tombTypes := fuTombSources(p, base.Wuxing, base.Zhi)
+		tombTypes := fuTombSources(p, base.Wuxing)
 		facts = append(facts, HiddenLine{
 			Position:       i + 1,
 			LiuQin:         base.LiuQin.String(),
@@ -75,8 +75,7 @@ func computeHiddenLines(p *Chart) []HiddenLine {
 	return facts
 }
 
-func fuTombSources(p *Chart, element ganzhi.Wuxing, branch ganzhi.Zhi) []string {
-	_ = branch
+func fuTombSources(p *Chart, element ganzhi.Wuxing) []string {
 	tomb := tombOf(element)
 	if tomb == 0 {
 		return nil

@@ -93,7 +93,7 @@ func TestComplete(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ComputeChart: %v", err)
 			}
-			fc := ComputeFullChart(chart, 0, 0)
+			fc := ComputeFullChart(chart)
 
 			// 五行局
 			if fc.JuShuName != tc.Ju {
@@ -332,7 +332,7 @@ func TestComputeFullChartPatternsMatchFinalPalaces(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ComputeChart: %v", err)
 			}
-			full := ComputeFullChart(chart, 0, 0)
+			full := ComputeFullChart(chart)
 			want := findPatterns(full.GongWei)
 			if len(full.Patterns) != len(want) {
 				t.Fatalf("patterns = %#v, want recomputed %#v", full.Patterns, want)

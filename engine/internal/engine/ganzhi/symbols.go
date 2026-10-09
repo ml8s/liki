@@ -239,10 +239,6 @@ func (z Zhu) MarshalJSON() ([]byte, error) {
 
 // -- Labels ------------------------------------------------------------------
 
-var zodiacNames = [13]string{
-	"", "鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪",
-}
-
 func zhiLabel(s string, ok bool) string {
 	if !ok {
 		return "未知"
@@ -252,7 +248,7 @@ func zhiLabel(s string, ok bool) string {
 
 func zodiac(z Zhi) (string, bool) {
 	if int(z) >= 1 && int(z) <= 12 {
-		return zodiacNames[z], true
+		return zhiAnimals[z], true
 	}
 	return "", false
 }

@@ -37,3 +37,13 @@ func GetGuaCi(idx int) (GuaCi, error) {
 	}
 	return zhouyiTable[idx], nil
 }
+
+// HexagramNames returns the 64 卦名 in zhouyi-table order (single source of
+// truth for the liuyao.chart `ben_gua` enum).
+func HexagramNames() []string {
+	names := make([]string, len(zhouyiTable))
+	for i, gc := range zhouyiTable {
+		names[i] = gc.Name
+	}
+	return names
+}

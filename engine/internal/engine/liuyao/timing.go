@@ -15,7 +15,6 @@ type TimingCandidate struct {
 	TriggerBranch string   `json:"trigger_branch,omitempty"`
 	Window        string   `json:"window,omitempty"`
 	Basis         []string `json:"basis,omitempty"`
-	Condition     string   `json:"condition,omitempty"`
 	Confidence    string   `json:"confidence"`
 }
 
@@ -44,7 +43,7 @@ func appendCandidate(candidates []TimingCandidate, candidate TimingCandidate) []
 
 func appendBranchTrigger(
 	candidates []TimingCandidate, idPrefix, mechanism string, position int,
-	branch ganzhi.Zhi, basis []string, condition string,
+	branch ganzhi.Zhi, basis []string,
 ) []TimingCandidate {
 	if branch < 1 || branch > 12 {
 		return candidates
@@ -56,7 +55,6 @@ func appendBranchTrigger(
 		TriggerBranch: ganzhi.ZhiName(branch),
 		Window:        "day_or_month",
 		Basis:         basis,
-		Condition:     condition,
 	})
 }
 
@@ -76,7 +74,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 				fs.Position,
 				chongZhi(flying.Zhi),
 				[]string{"yong_shen.is_hidden=true", fmt.Sprintf("flying.position=%d", flying.Position)},
-				"飞神受冲且伏神有气时，方可作为出伏候选",
 			)
 		}
 		return candidates
@@ -95,7 +92,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 			yongPos,
 			yao.Zhi,
 			[]string{fmt.Sprintf("%s_yao.type=%d", layer, int(yao.Type)), "yong_shen.position=" + fmt.Sprint(yongPos)},
-			"动爻逢值仅为候选，须先确认动变未失用",
 		)
 		if partner := zhiHePartner(yao.Zhi); partner != 0 {
 			candidates = appendBranchTrigger(
@@ -105,7 +101,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 				yongPos,
 				partner,
 				[]string{fmt.Sprintf("%s_yao.type=%d", layer, int(yao.Type)), "branch_relation=六合"},
-				"旺相之动可作应期候选；休囚被合须先辨合绊",
 			)
 		}
 	}
@@ -118,7 +113,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 			yongPos,
 			yao.Zhi,
 			[]string{"yong_shen.xun_kong=true"},
-			"真假空须先判定；真空不作成事候选",
 		)
 		candidates = appendBranchTrigger(
 			candidates,
@@ -127,7 +121,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 			yongPos,
 			chongZhi(yao.Zhi),
 			[]string{"yong_shen.xun_kong=true"},
-			"旺相动空可冲实；休囚静空则多为冲脱",
 		)
 	}
 
@@ -139,7 +132,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 			yongPos,
 			yao.Zhi,
 			[]string{"yong_shen.yue_po=true"},
-			"真破不作成事候选；假破可作出月后候选",
 		)
 		if partner := zhiHePartner(yao.Zhi); partner != 0 {
 			candidates = appendBranchTrigger(
@@ -149,7 +141,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 				yongPos,
 				partner,
 				[]string{"yong_shen.yue_po=true"},
-				"假破有合可为补救候选；真破不单凭逢合论成",
 			)
 		}
 		candidates = appendBranchTrigger(
@@ -159,7 +150,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 			yongPos,
 			chongZhi(p.YueZhi),
 			[]string{"yong_shen.yue_po=true", "month_branch=" + ganzhi.ZhiName(p.YueZhi)},
-			"以离开当前月令作为解除月破的环境候选",
 		)
 	}
 
@@ -171,7 +161,6 @@ func computeTimingCandidates(p *Chart, typ YongShen) []TimingCandidate {
 			yongPos,
 			chongZhi(yao.Zhi),
 			[]string{"yong_shen.position=" + fmt.Sprint(yongPos), "line.dong_self=false"},
-			"旺相静爻可为暗动候选；休囚则须辨日破",
 		)
 	}
 

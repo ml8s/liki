@@ -25,8 +25,8 @@ func TestComputeFullChartDeterministic(t *testing.T) {
 		b, _ := json.Marshal(c)
 		return string(b)
 	}
-	first := dump(ComputeFullChart(base, 0, 0))
-	second := dump(ComputeFullChart(base, 0, 0))
+	first := dump(ComputeFullChart(base))
+	second := dump(ComputeFullChart(base))
 	if first != second {
 		t.Fatalf("ComputeFullChart not deterministic: za_yao order unstable")
 	}

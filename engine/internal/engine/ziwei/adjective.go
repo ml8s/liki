@@ -1,10 +1,8 @@
 package ziwei
 
-import "liki-engine/internal/engine/ganzhi"
-
 type adjStarResult map[string]int
 
-func computeAdjectiveStars(nianZhi, shiZhi Zhi, mingZhi Zhi, lunarMonth, lunarDay int, nianGan Gan, gender ganzhi.Gender, riGan, riZhi, soulIzTroIdx, shenGongIdx int) adjStarResult {
+func computeAdjectiveStars(nianZhi, shiZhi Zhi, lunarMonth, lunarDay int, nianGan Gan) adjStarResult {
 	r := make(adjStarResult)
 	add := func(name string, zhiIdx int) { r[name] = zhiIdx }
 

@@ -270,7 +270,7 @@ func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
 		chart.YongShen.WangShuai = ganzhi.WangShuaiOf(fuElement, chart.YueZhi).String()
 		chart.YongShen.YuePo = ganzhi.IsLiuChong(fuZhi, chart.YueZhi)
 		chart.YongShen.XunKong = fuZhi == chart.XunKong[0] || fuZhi == chart.XunKong[1]
-		chart.YongShen.MuKu = len(fuTombSources(&chart, fuElement, fuZhi)) > 0
+		chart.YongShen.MuKu = len(fuTombSources(&chart, fuElement)) > 0
 		chart.YongShen.ChangSheng = lifeStageOf(fuElement, chart.YueZhi)
 	}
 

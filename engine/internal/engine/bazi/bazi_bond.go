@@ -337,7 +337,7 @@ func luZhi(c Chart) []ganzhi.Zhi {
 	if c.Ri.Gan < 1 || c.Ri.Gan > 10 {
 		return nil
 	}
-	return []ganzhi.Zhi{ganzhi.ChangShengTable[c.Ri.Gan][3]}
+	return []ganzhi.Zhi{ganzhi.LuZhi(c.Ri.Gan)}
 }
 func zhiLookup(c Chart, m map[ganzhi.Zhi]ganzhi.Zhi) []ganzhi.Zhi {
 	var bs []ganzhi.Zhi

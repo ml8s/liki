@@ -2,11 +2,11 @@
 //
 // Types
 //
-//	Chart, Chart,
+//	Chart,
 //	DaYunStep, DaYun,
-//	Bond, XunGong,
+//	Bond,
 //	LiuNian, LiuYue, LiuRi, LiuShi,
-//	XiaoYunZhu, XiaoXian,
+//	XiaoYunZhu,
 //	FuYiResult, TiaoHouResult, GeJuResult
 package bazi
 

@@ -513,3 +513,14 @@ func TestComputeBazi_SolarTimeAffectsRiZhu(t *testing.T) {
 }
 
 func isLeapYear(y int) bool { return y%4 == 0 && (y%100 != 0 || y%400 != 0) }
+
+func TestComputeTimeset_ZeroLongitudeIsNotReplaced(t *testing.T) {
+	// 0° 是合法经度（格林尼治），不得被静默替换为默认城市经度（120/北京）。
+	cst := time.FixedZone("", 8*3600)
+	gt := GregorianTime(time.Date(2025, 1, 1, 12, 0, 0, 0, cst))
+	greenwich := ComputeTimeset(gt, 0)
+	beijing := ComputeTimeset(gt, 120)
+	if greenwich.Solar.Time().Equal(beijing.Solar.Time()) {
+		t.Error("lon=0 must not be treated as Beijing (120)")
+	}
+}

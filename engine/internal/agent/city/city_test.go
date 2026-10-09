@@ -476,3 +476,11 @@ func TestSearchCoords_AmbiguousSameName(t *testing.T) {
 		t.Errorf("错误应提示同名歧义，got: %v", err)
 	}
 }
+
+func TestSearchCoords_AmbiguousNameFailsClosed(t *testing.T) {
+	// "朝阳" 在内置表中同时对应 朝阳区 与 朝阳县：必须报歧义，不得猜一个。
+	_, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"朝阳"}`))
+	if err == nil || !strings.Contains(err.Error(), "歧义") {
+		t.Fatalf("expected ambiguity error, got %v", err)
+	}
+}

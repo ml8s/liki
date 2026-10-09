@@ -127,15 +127,26 @@ func init() {
 }
 
 func parseGan(s string) Gan {
-	g, _ := ParseGan(s) //nolint:errcheck
+	g, err := ParseGan(s)
+	if err != nil {
+		log.Fatalf("ganzhi: embedded data has invalid gan %q: %v", s, err)
+	}
 	return g
 }
+
 func parseZhi(s string) Zhi {
-	z, _ := ParseZhi(s) //nolint:errcheck
+	z, err := ParseZhi(s)
+	if err != nil {
+		log.Fatalf("ganzhi: embedded data has invalid zhi %q: %v", s, err)
+	}
 	return z
 }
+
 func parseWuxing(s string) Wuxing {
-	w, _ := ParseWuxing(s) //nolint:errcheck
+	w, err := ParseWuxing(s)
+	if err != nil {
+		log.Fatalf("ganzhi: embedded data has invalid wuxing %q: %v", s, err)
+	}
 	return w
 }
 

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -159,7 +161,10 @@ func SearchCoords(ctx context.Context, raw json.RawMessage) (json.RawMessage, er
 		return nil, fmt.Errorf("city is required")
 	}
 
-	result, ok := searchBuiltin(args.City)
+	result, ok, err := searchBuiltin(args.City)
+	if err != nil {
+		return nil, err
+	}
 	if !ok {
 		var err error
 		if cached, hit := nominatimCache.get(args.City); hit {
@@ -191,43 +196,57 @@ func externalGeocodingEnabled() bool {
 }
 
 // searchBuiltin resolves a place name against the embedded table.
-func searchBuiltin(name string) (searchResult, bool) {
+//
+// Exact key match wins. Otherwise all suffix / suffix-stripped candidates are
+// collected: a single candidate resolves, zero falls through to external
+// geocoding, and multiple distinct candidates fail closed (never guess a
+// default city for an ambiguous name).
+func searchBuiltin(name string) (searchResult, bool, error) {
 	geoOnce.Do(loadGeo)
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return searchResult{}, false
+		return searchResult{}, false, nil
 	}
-	for _, m := range []map[string]geoEntry{geo.Counties, geo.Cities, geo.World} {
+	maps := []map[string]geoEntry{geo.Counties, geo.Cities, geo.World}
+	for _, m := range maps {
 		if e, ok := m[name]; ok {
-			return resultFrom(name, e), true
+			return resultFrom(name, e), true, nil
 		}
 	}
-	for _, s := range regionSuffixes {
-		for _, m := range []map[string]geoEntry{geo.Counties, geo.Cities, geo.World} {
-			if e, ok := m[name+s]; ok {
-				return resultFrom(name+s, e), true
-			}
-		}
-	}
-	if r, ok := matchByStrippedSuffix(name); ok {
-		return r, true
-	}
-	return searchResult{}, false
-}
 
-func matchByStrippedSuffix(name string) (searchResult, bool) {
-	base := stripRegionSuffix(name)
-	if base == "" {
-		return searchResult{}, false
-	}
-	for _, m := range []map[string]geoEntry{geo.Counties, geo.Cities, geo.World} {
-		for key, e := range m {
-			if stripRegionSuffix(key) == base {
-				return resultFrom(key, e), true
+	candidates := map[string]geoEntry{}
+	for _, s := range regionSuffixes {
+		for _, m := range maps {
+			if e, ok := m[name+s]; ok {
+				candidates[name+s] = e
 			}
 		}
 	}
-	return searchResult{}, false
+	if base := stripRegionSuffix(name); base != "" {
+		for _, m := range maps {
+			for key, e := range m {
+				if stripRegionSuffix(key) == base {
+					candidates[key] = e
+				}
+			}
+		}
+	}
+
+	if len(candidates) == 0 {
+		return searchResult{}, false, nil
+	}
+	keys := make([]string, 0, len(candidates))
+	for key := range candidates {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	if len(keys) > 1 {
+		return searchResult{}, false, fmt.Errorf(
+			"城市名 '%s' 存在歧义：%s；请提供更完整的名称或直接提供经纬度",
+			name, strings.Join(keys, "、"),
+		)
+	}
+	return resultFrom(keys[0], candidates[keys[0]]), true, nil
 }
 
 // stripRegionSuffix removes trailing administrative-division suffixes.
@@ -256,7 +275,7 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 	if err != nil {
 		return searchResult{}, fmt.Errorf("search: new request: %w", err)
 	}
-	req.Header.Set("User-Agent", "Liki-Engine/2026.08 (https://liki.hk; contact: api@liki.hk)")
+	req.Header.Set("User-Agent", "Liki-Engine (https://liki.hk; contact: api@liki.hk)")
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -323,8 +342,8 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 }
 
 func parseFloat(s string) (float64, error) {
-	var f float64
-	if n, err := fmt.Sscanf(s, "%f", &f); n != 1 || err != nil {
+	f, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
+	if err != nil {
 		return 0, fmt.Errorf("parseFloat: %q: %w", s, err)
 	}
 	return f, nil

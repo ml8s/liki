@@ -123,11 +123,7 @@ func dtT(t float64) float64 {
 // solarLongitudeShouXing 给定儒略日偏移（JD-2451545，天），返回太阳视黄经（度）。
 // 含 ΔT 修正（对齐 lunar qiHigh：saLonT*36525 - dtT + 1/3）。
 func solarLongitudeShouXing(jdOffset float64) float64 {
-	// 反解：求视黄经=目标 的儒略日
-	t := (jdOffset + 2451545.0) / 36525.0 // 初始猜测（百年）
-	_ = t
-	// 直接算黄经：saLonT 是反解，这里用迭代
-	// 简化：直接用 saLon（t=jdOffset/36525 百年）
+	// 直接算黄经（t=jdOffset/36525 百年）。
 	tt := jdOffset / 36525.0
 	lon := saLon(tt, -1)*180.0/math.Pi - dtT(tt)*360.0/365.25
 	lon = math.Mod(lon, 360)

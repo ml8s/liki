@@ -34,9 +34,6 @@ func TestComputeChart_PatternsStructure(t *testing.T) {
 		if p.Type == "" {
 			t.Error("Pattern.Type should not be empty")
 		}
-		if p.Assessment == "" {
-			t.Error("Pattern.Assessment should not be empty")
-		}
 	}
 }
 
