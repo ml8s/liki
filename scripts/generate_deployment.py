@@ -28,9 +28,27 @@ import yaml
 
 _ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = _ROOT / "agents"
+PERSONAS_DIR = _ROOT / "agents" / "personas"
 PROFILES_DIR = _ROOT / "profiles"
 TOOL_CATALOG_PATH = _ROOT / "contracts" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
+
+
+def load_persona_body(name: str) -> str:
+    """persona 唯一源 → 部署 instruction 正文（去掉 frontmatter，只留骨架）。"""
+    path = PERSONAS_DIR / f"{name}.md"
+    if not path.is_file():
+        sys.exit(f"persona not found: {name} ({path})")
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---\n"):
+        sys.exit(f"persona missing frontmatter start: {path.relative_to(_ROOT)}")
+    end = text.find("\n---\n")
+    if end < 0:
+        sys.exit(f"persona missing frontmatter end: {path.relative_to(_ROOT)}")
+    body = text[end + len("\n---\n"):]
+    if body.startswith("\n"):
+        body = body[1:]
+    return body.rstrip() + "\n"
 
 def load_profile(name: str) -> dict:
     path = PROFILES_DIR / f"{name}.json"
@@ -120,7 +138,7 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
         sys.exit(f"agent definition name mismatch: profile={name} yaml={definition.get('name')}")
     agent_dir = AGENTS_DIR / name
 
-    instruction_text = (agent_dir / "instruction.md").read_text(encoding="utf-8").rstrip() + "\n"
+    instruction_text = load_persona_body(name)
     instruction_path = out_dir / "agents" / name / "instruction.md"
     instruction_path.parent.mkdir(parents=True, exist_ok=True)
     instruction_path.write_text(instruction_text, encoding="utf-8")

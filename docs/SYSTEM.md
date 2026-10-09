@@ -41,21 +41,20 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 - `make check` 会跑 `python3 scripts/sync_expert_packs.py --check` 校验根与专家包一致。
 - 手工双份会漂移：改专家包不被根感知，改根不同步专家包都会破坏一致性校验。
 
-### 3.1 专家定义结构（`agents/<name>/`）
+### 3.1 专家定义结构
 
-每个专家一个目录：
+每个专家由两层组成：**persona 单一源**（角色骨架）＋ **agent.yaml**（部署配置）。
 
 ```text
-agents/router/agent.yaml        # name/description/mode/sub_agents/tools.allow
-agents/router/instruction.md    # 指令骨架（方法论卡构建时自动追加）
-agents/bazi/agent.yaml
-agents/bazi/instruction.md
+agents/personas/bazi.md         # persona 单一源：frontmatter + 角色/能力/边界/路由正文
+agents/bazi/agent.yaml          # 部署配置：name/mode/sub_agents/tools.allow/skills.root
 agents/bazi/output-schema.json  # 可选：结构化输出
 ```
 
 - `agent.yaml` 字段与 **ADK** 对齐（mode: chat/task/single_turn；sub_agents；tools.allow）
 - **`tools.allow` 是权威工具白名单**（替代旧的 env 白名单），每笔 engine/counsel 工具调用必须允许
-- `instruction.md` 构建时自动合并对应领域的方法论卡（除 SKILL.md），要求**自包含**（<2MB）
+- persona 正文＝部署 instruction 骨架，同时由 `sync-expert-packs` 复制进专家包 `agents/<name>-expert.md`（frontmatter 提供给包消费方）——**同一字节来源，杜绝漂移**
+- 方法论卡不入 persona：由 ADK skilltoolset 按需 `load_skill` 渐进加载（避免每轮 prompt 膨胀）
 
 ### 3.1.1 MCP 连接器模型（客户端分域）
 

@@ -23,7 +23,11 @@ def _repo_path(root: str) -> Path:
 
 class TestAgentYamlSkillsBindings(unittest.TestCase):
     def test_every_agent_yaml_binds_skilltoolset(self):
-        agent_dirs = sorted(path for path in (ROOT / "agents").iterdir() if path.is_dir())
+        agent_dirs = sorted(
+            path
+            for path in (ROOT / "agents").iterdir()
+            if path.is_dir() and (path / "agent.yaml").is_file()
+        )
         self.assertEqual(len(agent_dirs), 8)
         for agent_dir in agent_dirs:
             with self.subTest(agent=agent_dir.name):

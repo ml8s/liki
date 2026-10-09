@@ -42,6 +42,60 @@ MAPPINGS: tuple[tuple[str, str, str, str | None], ...] = (
 # references/assets/scripts 前缀）；根 skill 的子树布局 token 由 sync rebase。
 _REF_PATTERN = re.compile(r"references/[A-Za-z0-9_./-]+\.md")
 
+# 专家 persona 单一源（agents/personas/<name>.md）→ 包内角色文件 <name>-expert.md。
+# persona 正文＝部署 instruction 骨架（运营契约）；frontmatter 提供给包消费方。
+PERSONAS_DIR = ROOT / "agents" / "personas"
+PERSONA_PACKS: dict[str, str] = {
+    "bazi": "liki-bazi",
+    "ziwei": "liki-ziwei",
+    "liuyao": "liki-liuyao",
+    "qimen": "liki-qimen",
+    "fengshui": "liki-fengshui",
+    "naming": "liki-naming",
+}
+
+
+def split_persona(path: Path) -> tuple[list[str], str] | list[str]:
+    """解析 persona：返回 (frontmatter 行, 正文)；损坏时返回错误行列表。"""
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---\n"):
+        return [f"persona 缺少 frontmatter 起始标记: {path.relative_to(ROOT)}"]
+    end = text.find("\n---\n")
+    if end < 0:
+        return [f"persona 缺少 frontmatter 结束标记: {path.relative_to(ROOT)}"]
+    front = text[4:end].splitlines()
+    body = text[end + len("\n---\n"):]
+    if body.startswith("\n"):
+        body = body[1:]
+    return front, body
+
+
+def persona_targets() -> tuple[dict[str, dict[str, bytes]], list[str]]:
+    """persona 单一源 → {包: {角色文件名: 字节}}；错误累积返回。"""
+    targets: dict[str, dict[str, bytes]] = {}
+    errors: list[str] = []
+    for name, pack in PERSONA_PACKS.items():
+        src = PERSONAS_DIR / f"{name}.md"
+        if not src.is_file():
+            errors.append(f"persona 源缺失: {src.relative_to(ROOT)}")
+            continue
+        parsed = split_persona(src)
+        if isinstance(parsed, list):
+            errors.extend(parsed)
+            continue
+        front, body = parsed
+        name_lines = [ln for ln in front if ln.startswith("name:")]
+        if len(name_lines) != 1 or name_lines[0].strip() != f"name: {name}":
+            errors.append(f"persona frontmatter name 与目录不符: {name}")
+            continue
+        renamed = [
+            f"name: {name}-expert" if ln.startswith("name:") else ln for ln in front
+        ]
+        payload = "---\n" + "\n".join(renamed) + "\n---\n\n" + body
+        payload = payload.rstrip() + "\n"
+        targets.setdefault(pack, {})[f"{name}-expert.md"] = payload.encode("utf-8")
+    return targets, errors
+
 
 def _source_names(srcs: list[Path]) -> set[str]:
     names: set[str] = set()
@@ -141,6 +195,23 @@ def sync() -> int:
                 orphan.unlink()
         src_rel = ", ".join(str(s.relative_to(SKILL)) for s in srcs)
         print(f"[sync-expert-packs] ✓ {src_rel} → {dest.relative_to(ROOT)}")
+
+    personas, persona_errors = persona_targets()
+    for line in persona_errors:
+        print(f"[sync-expert-packs] ✗ {line}", file=sys.stderr)
+    failed = failed or bool(persona_errors)
+    for pack, files in personas.items():
+        agents_dir = PACKS / pack / "agents"
+        agents_dir.mkdir(parents=True, exist_ok=True)
+        for filename, payload in files.items():
+            target = agents_dir / filename
+            if not target.exists() or target.read_bytes() != payload:
+                target.write_bytes(payload)
+        for orphan in agents_dir.glob("*.md"):
+            if orphan.name not in files:
+                orphan.unlink()
+        print(f"[sync-expert-packs] ✓ personas → {agents_dir.relative_to(ROOT)}")
+
     if failed:
         return 1
     print("[sync-expert-packs] 完成。")
@@ -169,6 +240,23 @@ def check() -> int:
         for name in sorted(set(result) & set(actual)):
             if result[name] != actual[name]:
                 drift.append(f"内容漂移: {dest.relative_to(ROOT)}/{name}")
+
+    personas, persona_errors = persona_targets()
+    drift.extend(persona_errors)
+    for pack, files in personas.items():
+        agents_dir = PACKS / pack / "agents"
+        if not agents_dir.is_dir():
+            drift.append(f"目标不存在: {agents_dir.relative_to(ROOT)}")
+            continue
+        actual = {c.name: c.read_bytes() for c in agents_dir.glob("*.md")}
+        for name in sorted(set(files) - set(actual)):
+            drift.append(f"缺失: {agents_dir.relative_to(ROOT)}/{name}")
+        for name in sorted(set(actual) - set(files)):
+            drift.append(f"多余（孤儿卡，双向漂移）: {agents_dir.relative_to(ROOT)}/{name}")
+        for name in sorted(set(files) & set(actual)):
+            if files[name] != actual[name]:
+                drift.append(f"内容漂移: {agents_dir.relative_to(ROOT)}/{name}")
+
     if drift:
         print("[sync-expert-packs] ✗ expert-packs 与根 skill 存在漂移：", file=sys.stderr)
         for line in drift:
