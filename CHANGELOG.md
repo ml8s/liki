@@ -1,28 +1,56 @@
 # Changelog
 
-## [Unreleased] — feedback issue 修复（B 类）
+## [Unreleased]
 
-### Fixed
+## [2026.10.10.0] — v7.0.0（MCP 版正式发布）
+
+Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamable MCP**（engine-mcp / counsel-mcp），engine-rpc 仅保留为 `liki-web` 过渡（removal gate 见 `docs/RUNTIME.md`）。按 `docs/RELEASE_MODEL.md` 属 **major**（公共入口契约变更）。
+
+### 修复：reference 方法论卡与确定性层对齐（P1–P3）
+
+- **调候（tiaohou）**：卡内 120 格《穷通宝鉴》变体表与 engine 通行表多格冲突（如乙戌、丙子、癸丑），删除复制表，改读 `bazi_fullchart.tiao_hou`（主/辅用神 + 经典条件），注明通行口径。
+- **黄历宜忌（yiji）**：卡内事项宜忌与 engine `jianchu.yaml` event_rules 相反（满/执/定：嫁娶宜满/定 vs 通书忌满、搬家宜执 vs 忌执等），删除事项宜忌表与建除宜忌列，改读 `suitability / reason`（《协纪辨方书》通书口径）。
+- **旺衰（wangshuai）**：卡用十干十二长生表（三命系）判身强弱，与主流子平「月令五行旺相休囚死 + 通根 + 印比」口径不合；删除长生表与决策表，改读 `fu_yi.qiangruo / pattern / wang_shuai / basis`（从格读 `fu_yi.pattern`，十二长生仅作地势修饰）。
+- **六爻（jixiong）**：「旺相不畏衰克」与 `condition_rules` 的 `state-modifier-not-override-relation` 统一（实质关系不变、只调力量与时序；旺相耐克 = 阻而不败）。
+- **natal 去第二断语源**：ziwei `geju/gexing/liunian/yingqi/gong12` 与 bazi `geju/shishen/hehui/yongshen/wuxing-health` 改为「解释工具返回的 `patterns` / `assertions`（`zg_*`/`xg_*`/`ge_*`/`zh_*`/`y*`/`jk_*`）」，删除并列断语表与「自行判格局/吉凶/合化」指令；`dayun.md` 保留（工作流方法论、工具优先）。
+- 中低项：naming 字库归属改 counsel、合盘改 engine `bazi_bond/ziwei_bond`、黄历工具参数文档、悬空断言 id（`fam_106`/`xue_101/105`/`hun_303/305`）、仆役/交友命名统一、「年干父年支母」口径协调、`城市 coords` 工具名。
+
+### 修复：专家 persona 单一源
+
+- 新增 `agents/personas/<name>.md` 为专家角色**唯一源**（frontmatter + 角色/能力/边界/路由）；`sync_expert_packs` 由它生成 `expert-packs/*/agents/*-expert.md`（含 `--check` 防漂移）；`generate_deployment` 从 persona 派生部署 instruction（与旧字节一致）。删除手写 `agents/*/instruction.md`（8 份）。
+- `agent.yaml` 去除冗余 `description` / `version`：描述收进 persona frontmatter，版本单一源 `skills/liki/VERSION.txt`；`bump_version` / `build_release_manifest` 同步。
+
+### Changed：根 skill MCP 收敛为两聚合端点
+
+- `skills/liki/.mcp.json` 由 4 server（混挂 bazi/ziwei 子域）收敛为 **engine-mcp + counsel-mcp 两个聚合端点**（root aggregate，全领域工具）；子域 `/engine/mcp/{domain}`、`/counsel/mcp/{domain}` 明确为**多专家分域部署**专用（各专家包自带 `expert-packs/*/.mcp.json`，专家只见自己领域工具）。README（zh/en）、SKILL.md、FAQ、natal ENTRY/TOOLS、USER_GUIDE 与契约测试同步。
+
+### Changed：README（zh/en）
+
+- 门面标题收敛为「Liki — 专业命理 Skill / Liki — Professional Skill for Chinese Metaphysics」；修正字库归属、`city_coords`、工具清单路径与「四个 MCP」残留；en 版补「经典依据审计 / 小运多流派」与 zh 对齐。
+
+### 修复：feedback issue（B 类）
+
+### Fixed：feedback B 类
 
 - **#107 / #96**：大运/大限断语带跨切域 `应期`/`大限`，而 topic 只含内容域 → `_topic_for_row` 把它们全部过滤，导致 decade 查询 `returned=0`。现 `topic_routes.json` 声明 `cross_cutting_domains:["应期","大限"]`，`_topic_for_row` 接受跨切域（应期/大限是正交于内容域的"时/触发"层，其触发本质已由 `事件类型=引动`、时层由 `时间层=大限` 表达）——限运层断语随请求了对应 period 规则的 topic 呈现。
 - **#98**：`场景领域过滤[yearly_family]` 列出的 `父母`/`兄弟` 不在受控闭集。将 `年父母`/`年兄弟` 断语改标 `领域=父母`/`兄弟` 并纳入 `check_schema` 闭集，`yearly_range` 家庭场景过滤不再报 `INVALID_INPUT`。
 - **#95**：男命 career 断语证据中出现女命专属格局名（`女命官星得地格`，官=夫，《女命赋》）。保留准确命名（中性改名会使男命语义失真），改为在证据中标注 `gender_scope`。
 
-## [Unreleased] — 奇门投影收敛 · 测试定位 · 清理
+### 奇门投影收敛 · 测试定位 · 清理
 
-### Changed
+### Changed：奇门投影 / 测试 / CI
 
 - 新增 `tests/test_qimen_projection_tables.py`：把 counsel 奇门投影表的**通用术数常识**绑定权威源（方位↔`luoshu`、时干阴阳↔干支、五行生克↔通用、门/星五行↔engine `plate.json`），防跨 MCP 服务边界静默漂移；`qimen_projection_common.py` 头注明确三类数据定位（通用常识 / 投影规则 / 解读性知识）。
 - **奇门 counsel 保留**：其 answer 契约、禁语安全、金函玉镜属判断层价值；经核查"内外盘/远近/方位"为**投影层规则**（engine 已给 `yin_dun`/宫/五行），故**不改 `qimen.chart` 输出契约**，改用一致性绑定。
 - 测试分层定位：`tests/README.md` 新增 "Oracle & golden policy"（golden=回归守卫、`fixtures/domain_oracle`=独立真值、`benchmark/mingli160`=八字/紫微**调参基准、非 held-out**）；`counsel/tests/test_counsel_divination.py` 标注为 MCP wiring 回归；`tests/benchmark/mingli160/run.sh` 注明非 held-out。
 
-### Removed
+### Removed：CI node-vulnerabilities
 
 - CI 空转的 `node-vulnerabilities` job（零依赖 `npm audit` 恒空跑）；`SECURITY.md` 相应改为"固定版本、运行期拉取的 dev-only Node 工具"。
 
-## [Unreleased] — 专家组全面评审修复（P1 / P2）
+### 专家组全面评审修复（P1 / P2）
 
-### Fixed
+### Fixed：P1 / P2
 
 - counsel 正交分侧盘新增 `pan_schema.validate_side_pan`，`compute_factors`/`period_query` 对 engine 分侧数据结构 fail-closed（engine 字段漂移不再静默把因子算成 0）。
 - 城市解析**不猜**：同名多候选（如"朝阳"→朝阳区/朝阳县）显式报歧义，精确匹配优先；不再按 map 随机序取一个。
@@ -34,13 +62,13 @@
 - `build-archive.sh` 改可复现打包（`--sort=name --mtime=@0 --owner=0 --group=0` + `gzip -n`），并删除指向不存在 manifest 的死循环。
 - 三个本地测试脚本改用 `mktemp`（避免 `make -j` 互相覆盖 `/tmp/engine-mcp`）；`_engine_fixture.py` 支持 `LIKI_ENGINE_BIN`。
 
-### Changed
+### Changed：P1 / P2
 
 - `luoshu` 增 `yin_yang`（后天八卦阴阳，共同基础）；`bazhai` 命卦表由 luoshu 生成，删除包内影子副本。
 
-## [Unreleased] — 专家组全面评审修复（P0）
+### 专家组全面评审修复（P0）
 
-### Fixed
+### Fixed：P0
 
 - `liuyao.chart` 的 `ben_gua` 枚举由 63 项/38 唯一（缺 26 卦）修正为 `zhouyi` 表 64 卦逐项一致；新增 `TestLiuyaoChartBenGuaSchemaMatchesTable` 防漂移。
 - `make full-data`（160 题覆盖门）不再恒真：`eval_hybrid` 零命中数超过阈值（默认 0，可 `LIKI_ZERO_HIT_MAX` 放宽）时返回非零。
@@ -49,13 +77,13 @@
 - 文档漂移修正：`README.en.md` 断语数 799→829、反馈 timeout 2s→10s、六爻 `patterns.md` 的 `type` 枚举、起名 `ENTRY.md` 字库归属、黄历 `jiri.md` 改用 engine 实际返回字段（原引用未返回的日神煞）、`SKILL.md` 行数上限统一为 120、counsel `__main__` 端口 8091→8086。
 - `lint-md.sh` 默认改为使用 `.markdownlint-cli2.jsonc` 的 globs，README/docs 纳入 markdownlint（此前只 lint skills）。
 
-### Changed
+### Changed：P0
 
 - `Makefile` 澄清 `make gate` 为"本地可执行门槛"，镜像/签名/漏洞扫描由 CI 承担；新增 `make vuln` 目标（govulncheck + pip-audit，可选）。
 
-## [Unreleased] — 代码健康度评审修复（正交性 / 冗余 / 过期代码）
+### 代码健康度评审修复（正交性 / 冗余 / 过期代码）
 
-### Fixed
+### Fixed：代码健康度
 
 - `scripts/check_docs.py` 适配 `skills/liki/references/` 布局并改读 counsel 断语表（此前只扫描 1 个文档、断语 id 全集为 0）。
 - `scripts/check_workflow.py` 修正 `upload-artifact` SHA pin 匹配，并在校验失败时返回非零（此前 release image-digest 校验恒通过）。
@@ -63,7 +91,7 @@
 - CI `engine-lint` 补齐 `go vet`；`check` job 去掉无用的 pytest 安装；pre-commit 复用 `scripts/lint-md.sh`（统一 markdownlint/Node 版本）。
 - `bump_version.py` 同步 README 镜像 tag；engine 城市 User-Agent 去掉过期日期。
 
-### Removed
+### Removed：代码健康度
 
 - `counsel/app/natal/tools/analytics.py` 中 5 个未被任何 MCP 工具引用的公共入口（`create_birth_chart`/`analyze_natal`/`analyze_periods`/`compare_birth_charts`/`calibrate_birth_time`）及其专用 helper。
 - `chart_token.py`（`chart_ref` 令牌编解码已无调用方，保留 `chart_id` 并改名 `chart_id.py`）。
@@ -71,7 +99,7 @@
 - 无人引用的 `tests/golden/analysis/`。
 - 恒真测试 `bazi_tiaohou_ref_test.go` 与逐字节镜像的 `tiaohou_reference.json`。
 
-### Changed
+### Changed：代码健康度
 
 - 去重：`zodiacNames`（并入 `zhiAnimals`）、`ziwei.starInSF`（并入 `anyInSF`）、`assertion_store`/`factor_tables` 的 expected 解析（并入新 `csv_cell`）、`liuyao_timing` 重复 topic 表 loader。
 - `ziwei.pattern.add` 移除被丢弃的严重度参数；`bazi_bond.luZhi` 复用 `ganzhi.LuZhi`。
