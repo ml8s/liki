@@ -41,13 +41,6 @@ type Day struct {
 }
 
 // Month holds monthly huangli data.
-type Month struct {
-	Month string `json:"month"`
-	Gan   string `json:"gan"`
-	Zhi   string `json:"zhi"`
-	Days  []Day  `json:"days"`
-}
-
 func renYuanName(ry renYuanSiLing) string {
 	if ry.Current == nil {
 		return ""
@@ -123,32 +116,4 @@ func applyEventRule(entry *Day, event string) error {
 
 func containsJianChu(values []string, target string) bool {
 	return slices.Contains(values, target)
-}
-
-// QueryMonth returns huangli entries for every day in the given month.
-func QueryMonth(yearMonth string) (Month, error) {
-	t, err := time.Parse("2006-01", yearMonth)
-	if err != nil {
-		return Month{}, fmt.Errorf("huangli: parse year-month %s: %w", yearMonth, err)
-	}
-
-	year, month := t.Year(), int(t.Month())
-	daysInMonth := time.Date(year, time.Month(month+1), 0, 0, 0, 0, 0, time.UTC).Day()
-
-	var days []Day
-	for d := 1; d <= daysInMonth; d++ {
-		dateStr := fmt.Sprintf("%04d-%02d-%02d", year, month, d)
-		entry, err := QueryDate(dateStr)
-		if err != nil {
-			return Month{}, err
-		}
-		days = append(days, entry)
-	}
-	mp := yueZhuForDate(t)
-	return Month{
-		Month: yearMonth,
-		Gan:   ganzhi.GanName(mp.Gan),
-		Zhi:   ganzhi.ZhiName(mp.Zhi),
-		Days:  days,
-	}, nil
 }

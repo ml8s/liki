@@ -37,18 +37,6 @@ type jianchuConfig struct {
 
 // --- Engine Functions ---
 
-// taiSui returns the year's presiding zhi (太岁).
-func taiSui(year int) ganzhi.Zhi {
-	// Year pillar zhi = (year - 3) % 12, with 1=子 through 12=亥.
-	// The formula already produces 1-based results after the <=0 guard;
-	// do NOT add +1 or the result shifts by one zhi.
-	b := (year - 3) % 12
-	if b <= 0 {
-		b += 12
-	}
-	return ganzhi.Zhi(b)
-}
-
 // lookupRiZhu returns the gan-zhi and na-yin for a given date.
 func lookupRiZhu(t time.Time) riZhuInfo {
 	p := tianwen.RiZhu(tianwen.GregorianTime(t))
@@ -67,25 +55,6 @@ func lookupJianChu(t time.Time) string {
 
 	offset := (dayIdx - jianIdx + 12) % 12
 	return jianChuCfg.Sequence[offset]
-}
-
-// evaluateZhi checks the zhi relationship and returns marks/warnings.
-func evaluateZhi(riZhi, refZhi ganzhi.Zhi, label string) (relation string, marks []string, warnings []string) {
-	switch {
-	case ganzhi.IsZhiHe(riZhi, refZhi):
-		return "六合", []string{label + "六合日"}, nil
-	case ganzhi.IsTripleHe(riZhi, refZhi):
-		return "三合半", []string{label + "三合"}, nil
-	case ganzhi.IsTripleHui(riZhi, refZhi):
-		return "三会半", []string{label + "三会"}, nil
-	case ganzhi.IsLiuChong(riZhi, refZhi):
-		return "六冲", nil, []string{"冲" + label}
-	case ganzhi.IsXing(riZhi, refZhi):
-		return "相刑", nil, []string{"刑" + label}
-	case ganzhi.IsHai(riZhi, refZhi):
-		return "六害", nil, []string{"害" + label}
-	}
-	return "无", nil, nil
 }
 
 // yueZhuForDate returns the month pillar for a given date.
