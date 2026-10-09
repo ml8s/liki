@@ -58,10 +58,17 @@ def _require_topics(topics: list[str]) -> list[tuple[str, dict]]:
     return [(topic, configured[topic]) for topic in topics]
 
 
-def _topic_for_row(row: dict, selected: list[tuple[str, dict]]) -> str | None:
+def _topic_for_row(row: dict, selected: list[tuple[str, dict]],
+                   cross_cutting: frozenset[str] = frozenset()) -> str | None:
+    """把断语行路由到 topic：命中 topic 的内容域，或行属跨切域（应期/大限）。
+
+    跨切域（应期=触发、大限=时层）正交于内容域；topic 已显式请求对应 period
+    规则，故其断语随该 topic 呈现，归给首个被选中的 topic。
+    """
     domain = row.get("领域")
+    is_cross = domain in cross_cutting
     for topic_id, route in selected:
-        if domain in route["domains"]:
+        if is_cross or domain in route["domains"]:
             return topic_id
     return None
 
@@ -109,12 +116,13 @@ def _flatten_side_result(
 ) -> tuple[list[dict], int]:
     assertions: list[dict] = []
     matched = 0
+    cross_cutting = frozenset(routes.get("cross_cutting_domains") or ())
     for label, side in _side_pairs():
         for row in result.get(label, []):
             if not isinstance(row, dict):
                 continue
             matched += 1
-            topic = _topic_for_row(row, selected)
+            topic = _topic_for_row(row, selected, cross_cutting)
             if topic is None:
                 continue
             source_rule = row.get("rule") or result.get("_rule", "")
