@@ -167,8 +167,11 @@ def test_period_query_over_mcp(bazi_chart):
     out = json.loads(r.content[0].text)
     periods = out["periods"]
     assert len(periods) == 21  # 2020-2040 每年一段
-    assert sum(len(p["assertions"]) for p in periods) == 20
-    assert all(a.get("side") == "bazi" for p in periods for a in p["assertions"])
+    assertions = [a for p in periods for a in p["assertions"]]
+    # marriage 的 annual_rules 含 yingqi（应期触发）；跨切域 应期 随 topic 呈现。
+    assert any(a["assertion_id"].startswith(("ying_", "ysz_")) for a in assertions)
+    assert sum(len(p["assertions"]) for p in periods) == 31
+    assert all(a.get("side") == "bazi" for a in assertions)
 
 
 def test_domain_rejects_wrong_chart():
