@@ -1,6 +1,9 @@
 package bazhai
 
-import "liki-engine/internal/engine/fengshui"
+import (
+	"liki-engine/internal/engine/fengshui"
+	"liki-engine/internal/engine/luoshu"
+)
 
 // -- 紫白年飞星 (Annual Purple-White Flying Stars) -------------------------------
 
@@ -57,15 +60,15 @@ type baZhaiDirections struct {
 
 func baZhaiDirectionsForGua(guaNum int) baZhaiDirections {
 	aus, inaus := eightMansionDirs(guaNum)
-	dirs := palaceDirs
+	dir := func(n int) string { return luoshu.PalaceTable[n].Direction }
 	return baZhaiDirections{
-		ShengQi: []string{dirs[aus[0]]},
-		TianYi:  []string{dirs[aus[1]]},
-		YanNian: []string{dirs[aus[2]]},
-		FuWei:   []string{dirs[aus[3]]},
-		HuoHai:  []string{dirs[inaus[0]]},
-		WuGui:   []string{dirs[inaus[1]]},
-		LiuSha:  []string{dirs[inaus[2]]},
-		JueMing: []string{dirs[inaus[3]]},
+		ShengQi: []string{dir(aus[0])},
+		TianYi:  []string{dir(aus[1])},
+		YanNian: []string{dir(aus[2])},
+		FuWei:   []string{dir(aus[3])},
+		HuoHai:  []string{dir(inaus[0])},
+		WuGui:   []string{dir(inaus[1])},
+		LiuSha:  []string{dir(inaus[2])},
+		JueMing: []string{dir(inaus[3])},
 	}
 }

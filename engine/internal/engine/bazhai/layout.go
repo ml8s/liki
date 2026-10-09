@@ -1,6 +1,10 @@
 package bazhai
 
-import "fmt"
+import (
+	"fmt"
+
+	"liki-engine/internal/engine/luoshu"
+)
 
 // ── 门主灶判断 ──
 
@@ -22,25 +26,12 @@ type doorStoveInfo struct {
 	Match     string `json:"match"` // 吉/凶(与命卦同组不同组)
 }
 
-var guaNames = [10]string{"", "坎", "坤", "震", "巽", "中", "乾", "兑", "艮", "离"}
-
-// guaNameToNum maps 卦名 to 洛书数 (1-9).
-func guaNameToNum(name string) int {
-	for i, n := range guaNames {
-		if n == name {
-			return i
-		}
-	}
-	return 0
-}
-
-var guaWuxing = [10]string{"", "水", "土", "木", "木", "土", "金", "金", "土", "火"}
 var dongSiGua = map[int]bool{1: true, 3: true, 4: true, 9: true} // 坎震巽离
 var xiSiGua = map[int]bool{2: true, 6: true, 7: true, 8: true}   // 坤乾兑艮
 
 // ComputeLayout analyzes 门主灶 in八宅风水.
 func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) (LayoutResult, error) {
-	mg := guaNameToNum(mingGua)
+	mg := luoshu.TrigramNumber(mingGua)
 	if mg == 0 {
 		return LayoutResult{}, fmt.Errorf("invalid ming_gua %q", mingGua)
 	}
@@ -49,7 +40,7 @@ func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) (LayoutResult, 
 		"master_gua": masterGua,
 		"stove_gua":  stoveGua,
 	} {
-		if guaNameToNum(gua) == 0 {
+		if luoshu.TrigramNumber(gua) == 0 {
 			return LayoutResult{}, fmt.Errorf("invalid %s %q", slot, gua)
 		}
 	}
@@ -58,13 +49,13 @@ func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) (LayoutResult, 
 		mgGroup = "西四命"
 	}
 
-	door := evalPosition(guaNameToNum(doorGua), mg)
-	master := evalPosition(guaNameToNum(masterGua), mg)
-	stove := evalPosition(guaNameToNum(stoveGua), mg)
+	door := evalPosition(luoshu.TrigramNumber(doorGua), mg)
+	master := evalPosition(luoshu.TrigramNumber(masterGua), mg)
+	stove := evalPosition(luoshu.TrigramNumber(stoveGua), mg)
 
 	return LayoutResult{
 		Group:   mgGroup,
-		MingGua: guaNames[mg],
+		MingGua: luoshu.PalaceTable[mg].Name,
 		Door:    door,
 		Master:  master,
 		Stove:   stove,
@@ -83,9 +74,9 @@ func evalPosition(guaNum, mingGua int) doorStoveInfo {
 	}
 	youxing, rating := youxingForGua(mingGua, guaNum)
 	return doorStoveInfo{
-		Direction: palaceDirs[guaNum],
-		GuaName:   guaNames[guaNum],
-		Wuxing:    guaWuxing[guaNum],
+		Direction: luoshu.PalaceTable[guaNum].Direction,
+		GuaName:   luoshu.PalaceTable[guaNum].Name,
+		Wuxing:    luoshu.PalaceTable[guaNum].Element.String(),
 		YouXing:   youxing,
 		Rating:    rating,
 		Group:     group,

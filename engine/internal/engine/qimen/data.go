@@ -279,7 +279,6 @@ var (
 	spiritYinNames         [10]string
 	palaceStar             [9]StarIndex
 	palaceDoor             [9]DoorIndex
-	gongWuxingTable        [9]ganzhi.Wuxing
 	starWuxingTable        [9]ganzhi.Wuxing
 	doorWuxingTable        [9]ganzhi.Wuxing
 	wuxingRelations        map[string]wuxingRelationEntry
@@ -1046,11 +1045,7 @@ func loadPlate() error {
 		FlySpiritOrder    []string `json:"fly_spirit_order"`
 		MingFaDoorOrder   []string `json:"mingfa_door_order"`
 		MingFaSpiritOrder []string `json:"mingfa_spirit_order"`
-		GongWuxing        []struct {
-			Gong   string `json:"gong"`
-			Wuxing string `json:"wuxing"`
-		} `json:"gong_wuxing"`
-		StarWuxing []struct {
+		StarWuxing        []struct {
 			Star   string `json:"star"`
 			Wuxing string `json:"wuxing"`
 		} `json:"star_wuxing"`
@@ -1092,7 +1087,7 @@ func loadPlate() error {
 	}
 	if len(table.OuterRing) != 8 || len(table.EarthGanOrder) != 9 ||
 		len(table.StarOrder) != 8 || len(table.DoorOrder) != 8 ||
-		len(table.Spirits) != 8 || len(table.GongWuxing) != 9 ||
+		len(table.Spirits) != 8 ||
 		len(table.StarWuxing) != 9 || len(table.DoorWuxing) != 9 ||
 		len(table.WuxingRelations) != 5 || len(table.RiShiRelations) != 5 ||
 		len(table.ZhiGong) != 12 || len(table.LiuJiaLiuYi) != 6 ||
@@ -1175,20 +1170,6 @@ func loadPlate() error {
 		spirit = parsed
 		mingfaSpiritOrder[i] = spirit
 		mingfaSpiritNames[int(spirit)] = name
-	}
-	for _, entry := range table.GongWuxing {
-		palace, err := ParsePalaceIndex(entry.Gong)
-		if err != nil {
-			return err
-		}
-		if gongWuxingTable[int(palace)-1] != 0 {
-			return fmt.Errorf("load plate: duplicate gong wuxing %q", entry.Gong)
-		}
-		element, err := ganzhi.ParseWuxing(entry.Wuxing)
-		if err != nil {
-			return err
-		}
-		gongWuxingTable[int(palace)-1] = element
 	}
 	for _, entry := range table.StarWuxing {
 		star, err := ParseStarIndex(entry.Star)
@@ -1432,11 +1413,6 @@ func validatePlateTables() error {
 	for i, palace := range outerRing {
 		if palace == GongZhong {
 			return fmt.Errorf("load plate: outer ring contains 中 at %d", i)
-		}
-	}
-	for palace, element := range gongWuxingTable {
-		if element == 0 {
-			return fmt.Errorf("load plate: gong %d has no five-element", palace+1)
 		}
 	}
 	for star, element := range starWuxingTable {

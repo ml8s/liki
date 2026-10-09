@@ -2,6 +2,7 @@ package xuankong
 
 import (
 	"liki-engine/internal/engine/fengshui"
+	"liki-engine/internal/engine/luoshu"
 )
 
 // xuanKongStar holds the three stars (运星, 山星, 向星) for one palace.
@@ -107,7 +108,7 @@ func shanXiangForward(centerNum int, mountainIdx int) bool {
 	if centerNum == 5 {
 		return fengshui.Mountains24Table[mountainIdx].YinYang == "阳"
 	}
-	trigram := luoshuPalaceName[centerNum]
+	trigram := luoshu.PalaceTable[centerNum].Name
 	target := fengshui.Mountains24Table[mountainIdx]
 	for i := 0; i < 24; i++ {
 		m := fengshui.Mountains24Table[i]
@@ -117,9 +118,6 @@ func shanXiangForward(centerNum int, mountainIdx int) bool {
 	}
 	return false
 }
-
-// luoshuPalaceName maps a flying-star number to its 洛书（元旦盘）palace trigram.
-var luoshuPalaceName = [10]string{"", "坎", "坤", "震", "巽", "中", "乾", "兑", "艮", "离"}
 
 // flyStars distributes num stars following luoshu fly order.
 func flyStars(centerNum int, forward bool) [9]fengshui.FlyingStar {

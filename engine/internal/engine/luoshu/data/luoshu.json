@@ -1,0 +1,11 @@
+[
+  {"number": 1, "name": "坎", "direction": "北", "wuxing": "水", "yin_yang": "阳"},
+  {"number": 2, "name": "坤", "direction": "西南", "wuxing": "土", "yin_yang": "阴"},
+  {"number": 3, "name": "震", "direction": "东", "wuxing": "木", "yin_yang": "阳"},
+  {"number": 4, "name": "巽", "direction": "东南", "wuxing": "木", "yin_yang": "阴"},
+  {"number": 5, "name": "中", "direction": "中", "wuxing": "土", "yin_yang": ""},
+  {"number": 6, "name": "乾", "direction": "西北", "wuxing": "金", "yin_yang": "阳"},
+  {"number": 7, "name": "兑", "direction": "西", "wuxing": "金", "yin_yang": "阴"},
+  {"number": 8, "name": "艮", "direction": "东北", "wuxing": "土", "yin_yang": "阳"},
+  {"number": 9, "name": "离", "direction": "南", "wuxing": "火", "yin_yang": "阴"}
+]

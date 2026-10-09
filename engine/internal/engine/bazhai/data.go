@@ -4,7 +4,8 @@ import (
 	_ "embed"
 	"encoding/json"
 	"log"
-	"strconv"
+
+	"liki-engine/internal/engine/luoshu"
 )
 
 //go:embed data/bazhai.json
@@ -13,7 +14,6 @@ var bazhaiJSON []byte
 var (
 	eightMansionPatterns map[int]dirPattern
 	westGroup            map[int]bool
-	palaceDirs           [10]string
 )
 
 func init() {
@@ -34,21 +34,16 @@ func loadBazhai() error {
 			LiuSha  int `json:"liu_sha"`
 			JueMing int `json:"jue_ming"`
 		} `json:"eight_mansion_patterns"`
-		WestGroup  []int             `json:"west_group"`
-		PalaceDirs map[string]string `json:"palace_dirs"`
+		WestGroup []int `json:"west_group"`
 	}
 	if err := json.Unmarshal(bazhaiJSON, &data); err != nil {
 		return err
 	}
 
-	guaNameToNum := map[string]int{
-		"坎": 1, "坤": 2, "震": 3, "巽": 4, "乾": 6, "兑": 7, "艮": 8, "离": 9,
-	}
-
 	eightMansionPatterns = make(map[int]dirPattern, 8)
 	for name, p := range data.Patterns {
-		num, ok := guaNameToNum[name]
-		if !ok {
+		num := luoshu.TrigramNumber(name)
+		if num == 0 {
 			log.Fatalf("bazhai: unknown gua name %q", name)
 		}
 		eightMansionPatterns[num] = dirPattern{
@@ -60,19 +55,6 @@ func loadBazhai() error {
 	westGroup = make(map[int]bool, len(data.WestGroup))
 	for _, v := range data.WestGroup {
 		westGroup[v] = true
-	}
-
-	for k, v := range data.PalaceDirs {
-		if k == "" {
-			continue
-		}
-		idx, err := strconv.Atoi(k)
-		if err != nil {
-			continue
-		}
-		if idx >= 0 && idx < 10 {
-			palaceDirs[idx] = v
-		}
 	}
 
 	return nil

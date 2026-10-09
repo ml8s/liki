@@ -101,44 +101,6 @@
     "九地",
     "九天"
   ],
-  "gong_wuxing": [
-    {
-      "gong": "坎",
-      "wuxing": "水"
-    },
-    {
-      "gong": "坤",
-      "wuxing": "土"
-    },
-    {
-      "gong": "震",
-      "wuxing": "木"
-    },
-    {
-      "gong": "巽",
-      "wuxing": "木"
-    },
-    {
-      "gong": "中",
-      "wuxing": "土"
-    },
-    {
-      "gong": "乾",
-      "wuxing": "金"
-    },
-    {
-      "gong": "兑",
-      "wuxing": "金"
-    },
-    {
-      "gong": "艮",
-      "wuxing": "土"
-    },
-    {
-      "gong": "离",
-      "wuxing": "火"
-    }
-  ],
   "star_wuxing": [
     {
       "star": "天蓬",

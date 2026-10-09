@@ -1,6 +1,9 @@
 package qimen
 
-import "liki-engine/internal/engine/ganzhi"
+import (
+	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/luoshu"
+)
 
 func zhiPalace(z ganzhi.Zhi) GongIndex {
 	if z >= 1 && int(z) <= len(zhiPalaceTable) {
@@ -18,11 +21,9 @@ func palaceZhi(p GongIndex) ganzhi.Zhi {
 	return 0
 }
 
+// palaceWuxing returns the 洛书九宫 palace five-element (shared luoshu table).
 func palaceWuxing(p GongIndex) ganzhi.Wuxing {
-	if p >= 1 && int(p) <= len(gongWuxingTable) {
-		return gongWuxingTable[int(p)-1]
-	}
-	return 0
+	return luoshu.ByNumber(int(p)).Element
 }
 
 func palaceIdentity(p GongIndex) PalaceIdentity {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/luoshu"
 )
 
 // Chart bundles a complete奇门盘 with all analysis layers.
@@ -224,7 +225,7 @@ func focusSymbols(dayPalace, hourPalace, leadPalace GongIndex) []focusSymbol {
 func palaceWangShuai(p pan, yueZhi ganzhi.Zhi) []PalaceWangShuai {
 	result := []PalaceWangShuai{}
 	for i := range p.GongWei {
-		wuxing := gongWuxingTable[i]
+		wuxing := luoshu.PalaceTable[i+1].Element
 		wangShuai := ganzhi.WangShuaiOf(wuxing, yueZhi)
 		result = append(result, PalaceWangShuai{
 			Gong:          GongIndex(i + 1),

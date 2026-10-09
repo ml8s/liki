@@ -9,6 +9,5 @@
     "艮": {"sheng_qi":2,"tian_yi":6,"yan_nian":7,"fu_wei":8,"huo_hai":9,"wu_gui":1,"liu_sha":3,"jue_ming":4},
     "离": {"sheng_qi":3,"tian_yi":4,"yan_nian":1,"fu_wei":9,"huo_hai":8,"wu_gui":7,"liu_sha":2,"jue_ming":6}
   },
-  "west_group": [2, 6, 7, 8],
-  "palace_dirs": {"": "", "1": "北", "2": "西南", "3": "东", "4": "东南", "5": "中", "6": "西北", "7": "西", "8": "东北", "9": "南"}
+  "west_group": [2, 6, 7, 8]
 }

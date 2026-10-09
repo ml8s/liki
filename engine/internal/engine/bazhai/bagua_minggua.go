@@ -2,9 +2,10 @@ package bazhai
 
 import (
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/luoshu"
 )
 
-// gua is a bagua trigram.
+// gua is a bagua trigram (bazhai wire contract: index/name/wuxing/yin_yang).
 type gua struct {
 	Index   int    `json:"index"`
 	Name    string `json:"name"`
@@ -12,19 +13,16 @@ type gua struct {
 	YinYang string `json:"yin_yang"`
 }
 
-// guaTable maps 洛书数 (1-9) to trigrams.
-// 洛书: 1=坎 2=坤 3=震 4=巽 5=中宫(男寄坤女寄艮) 6=乾 7=兑 8=艮 9=离
-var guaTable = [10]gua{
-	{},
-	{1, "坎", "水", "阳"}, // 洛书 1 = 坎
-	{2, "坤", "土", "阴"}, // 洛书 2 = 坤
-	{3, "震", "木", "阳"}, // 洛书 3 = 震
-	{4, "巽", "木", "阴"}, // 洛书 4 = 巽
-	{5, "坤", "土", "阴"}, // 洛书 5 = 中宫(男寄坤)
-	{6, "乾", "金", "阳"}, // 洛书 6 = 乾
-	{7, "兑", "金", "阴"}, // 洛书 7 = 兑
-	{8, "艮", "土", "阳"}, // 洛书 8 = 艮
-	{9, "离", "火", "阴"}, // 洛书 9 = 离
+// guaTable maps 洛书数 (1-9) to trigrams, sourced from the shared luoshu table
+// (names/wuxing/yin_yang) so there is a single 洛书九宫 truth. 中宫 (5) 的寄宫
+// 由 ComputeMingGua 显式重映射（男寄坤/女寄艮），此处不再重复。
+var guaTable [10]gua
+
+func init() {
+	for n := 1; n <= 9; n++ {
+		p := luoshu.PalaceTable[n]
+		guaTable[n] = gua{Index: n, Name: p.Name, Wuxing: p.Element.String(), YinYang: p.YinYang}
+	}
 }
 
 // MingGua is the 命卦 result.
