@@ -40,6 +40,18 @@ def main() -> int:
                 uses = step.get("uses")
                 if not isinstance(uses, str) or "@" not in uses:
                     continue
+                if uses.rpartition("@")[0] == "docker/build-push-action":
+                    if "id" not in step:
+                        errors.append(
+                            f"{path.relative_to(ROOT)}: job {job_id!r} uses "
+                            "docker/build-push-action without a step id"
+                        )
+                    elif "id" in (step.get("with") or {}):
+                        errors.append(
+                            f"{path.relative_to(ROOT)}: job {job_id!r} puts "
+                            "docker/build-push-action step id in `with`; outputs.digest "
+                            "will be empty"
+                        )
                 action, _, ref = uses.rpartition("@")
                 if not all(c in "0123456789abcdef" for c in ref) or len(ref) != 40:
                     continue
