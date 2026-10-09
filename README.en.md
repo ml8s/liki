@@ -1,9 +1,8 @@
-<h1 align="center">Liki</h1>
+<h1 align="center">Liki — Professional Skill for Chinese Metaphysics</h1>
 
 <p align="center">
-  A professional Skill for Chinese Metaphysics<br>
   懂命理，用 Liki。 For Chinese Metaphysics, use Liki.<br>
-  Charts are calculated by a Go engine; analysiss are explained from rule tables with traceable sources.<br>
+  Charts are calculated by a Go engine; analyses are explained from rule tables with traceable sources.<br>
   Bazi · Ziwei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
 </p>
 

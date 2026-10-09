@@ -1,7 +1,6 @@
-<h1 align="center">Liki</h1>
+<h1 align="center">Liki — 专业命理 Skill</h1>
 
 <p align="center">
-  专业命理 Skill<br>
   懂命理，用 Liki。<br>
   排盘由 Go 引擎计算，判断由规则表解释，依据可回溯。<br>
   八字 · 紫微 · 六爻 · 奇门 · 黄历择日 · 风水 · 起名

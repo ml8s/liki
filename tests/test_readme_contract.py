@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 CONTRACTS = {
     ROOT / "README.md": {
-        "h1": "Liki",
+        "h1": "Liki — 专业命理 Skill",
         "h2": [
             "安装",
             "快速开始",
@@ -26,7 +26,7 @@ CONTRACTS = {
         ],
     },
     ROOT / "README.en.md": {
-        "h1": "Liki",
+        "h1": "Liki — Professional Skill for Chinese Metaphysics",
         "h2": [
             "Install",
             "Quick start",
