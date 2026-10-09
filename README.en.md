@@ -73,7 +73,7 @@ The Skill asks follow-up questions or uses real events for calibration. Insuffic
 
 ### Does it need internet?
 
-By default, yes — the four MCP servers declared in `.mcp.json` provide deterministic computation and rule judgment. For self-hosting, replace their public endpoints; Caddy strips the `/engine/*` and `/counsel/*` service prefixes before proxying to the matching MCP service. Self-hosted services can protect inbound calls with `LIKI_MCP_TOKEN` and counsel-to-engine calls with `LIKI_ENGINE_MCP_TOKEN`; health probes remain public and hosted liki.hk leaves these switches off.
+By default, yes — the two aggregate MCP servers declared in `.mcp.json` provide deterministic computation and rule judgment. For self-hosting, replace their public endpoints; Caddy strips the `/engine/*` and `/counsel/*` service prefixes before proxying to the matching MCP service. Self-hosted services can protect inbound calls with `LIKI_MCP_TOKEN` and counsel-to-engine calls with `LIKI_ENGINE_MCP_TOKEN`; health probes remain public and hosted liki.hk leaves these switches off.
 
 ### Is my birth data stored?
 
