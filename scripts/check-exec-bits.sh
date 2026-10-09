@@ -66,6 +66,20 @@ done < <(
   ' scripts/*.sh Makefile | sort -u
 )
 
+# Non-script files must NOT be executable: the 100755 bit on sources, data,
+# config, and lockfiles is noise and breaks `git diff` mode consistency.
+# Allowlist mirrors the intentional executables above.
+while IFS= read -r path; do
+  [ -n "$path" ] || continue
+  case "$path" in
+    scripts/*|.githooks/*|skills/liki/scripts/*.py|tests/*.py|tests/*.sh|tests/*/*.py|tests/*/*/*.py|tests/*/*/*/*.py) ;;
+    *)
+      echo "❌ non-script tracked as executable (want 100644): $path" >&2
+      fail=1
+      ;;
+  esac
+done < <(git ls-files -s | awk '$1 == "100755" {print $4}')
+
 if [ "$fail" -ne 0 ]; then
   echo "exec-bit check failed" >&2
   exit 1
