@@ -214,7 +214,6 @@ type gong struct {
 	IsBodyPalace bool       `json:"is_shen_gong"`
 	IsYuanGong   bool       `json:"is_yuan_gong,omitempty"`
 	Stars        []starInfo `json:"xing_yao"`
-	ZiweiStar    *starIndex `json:"zi_wei,omitempty"`
 	Ages         []int      `json:"ages,omitempty"`
 	ChangSheng   string     `json:"chang_sheng,omitempty"`
 	BoShi        string     `json:"bo_shi,omitempty"`

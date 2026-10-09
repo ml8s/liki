@@ -12,9 +12,6 @@ import (
 	"liki-engine/internal/agent"
 )
 
-// RPCError is an alias for agent.RPCError for external use.
-type RPCError = agent.RPCError
-
 type rpcRequest struct {
 	JSONRPC string          `json:"jsonrpc"`
 	Method  string          `json:"method"`

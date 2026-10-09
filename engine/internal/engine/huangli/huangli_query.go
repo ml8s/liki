@@ -37,7 +37,6 @@ type Day struct {
 	EventLabel  string           `json:"event_label,omitempty"`
 	Suitability string           `json:"suitability,omitempty"`
 	Reason      string           `json:"reason,omitempty"`
-	Warnings    []string         `json:"warnings,omitempty"`
 }
 
 // Month holds monthly huangli data.

@@ -60,7 +60,7 @@ func arrangePalaceGans(nianGan Gan, mingZhi Zhi, soulIzTroIdx int) (mingGan Gan,
 	return
 }
 
-// yinGan still needed by liuyue.go
+// yinGan computes the 寅月天干 (五虎遁) from the year gan; used by flowstar_test.
 func yinGan(nianGan Gan) Gan {
 	g := ((int(nianGan)-1)%5)*2 + 3
 	return Gan(((g-1)%10+10)%10 + 1)

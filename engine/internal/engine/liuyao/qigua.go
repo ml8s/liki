@@ -1,26 +1,8 @@
 package liuyao
 
 import (
-	"math/rand"
-
 	"liki-engine/internal/engine/ganzhi"
 )
-
-func shakeCoins(rng *rand.Rand) [6]YaoType {
-	var yaos [6]YaoType
-	for i := 0; i < 6; i++ {
-		sum := 0
-		for j := 0; j < 3; j++ {
-			if rng.Intn(2) == 0 {
-				sum += 2
-			} else {
-				sum += 3
-			}
-		}
-		yaos[i] = YaoType(sum)
-	}
-	return yaos
-}
 
 func shakeCoinsFixed(results [6]int) [6]YaoType {
 	var y [6]YaoType

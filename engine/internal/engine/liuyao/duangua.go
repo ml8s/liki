@@ -54,14 +54,6 @@ func (r DayRelation) String() string {
 	return strings.Join(r.Relations, "兼")
 }
 
-func ordinal(n int) string {
-	names := [7]string{"", "初", "二", "三", "四", "五", "上"}
-	if n >= 1 && n <= 6 {
-		return names[n]
-	}
-	return "?"
-}
-
 func chongZhi(z ganzhi.Zhi) ganzhi.Zhi {
 	return ganzhi.ChongZhi(z)
 }

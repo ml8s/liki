@@ -825,3 +825,29 @@ func TestComputeChart_FullAnalysis(t *testing.T) {
 		}
 	}
 }
+
+// shakeCoins is a test-only coin helper (production uses the crypto/rand based
+// SecureQigua); kept here so math/rand stays out of the engine.
+func shakeCoins(rng *rand.Rand) [6]YaoType {
+	var yaos [6]YaoType
+	for i := 0; i < 6; i++ {
+		sum := 0
+		for j := 0; j < 3; j++ {
+			if rng.Intn(2) == 0 {
+				sum += 2
+			} else {
+				sum += 3
+			}
+		}
+		yaos[i] = YaoType(sum)
+	}
+	return yaos
+}
+
+func ordinal(n int) string {
+	names := [7]string{"", "初", "二", "三", "四", "五", "上"}
+	if n >= 1 && n <= 6 {
+		return names[n]
+	}
+	return "?"
+}
