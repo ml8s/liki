@@ -309,6 +309,10 @@ jobs:
         with:
           name: image-digest-engine
           path: image-digest/engine.env
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: image-digest-engine_mcp
+          path: image-digest/engine_mcp.env
 
   counsel-publish:
     name: Publish counsel image

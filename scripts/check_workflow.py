@@ -12,6 +12,12 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+REQUIRED_IMAGE_DIGEST_ARTIFACTS = {
+    "image-digest-counsel_mcp",
+    "image-digest-engine",
+    "image-digest-engine_mcp",
+    "image-digest-experts",
+}
 
 
 def main() -> int:
@@ -76,7 +82,24 @@ def main() -> int:
     if errors:
         for error in errors:
             print(f"❌ {error}", file=sys.stderr)
-        return 1
+            return 1
+    for workflow in sorted(ROOT.glob(".github/workflows/*.yml")):
+        try:
+            document = yaml.safe_load(workflow.read_text(encoding="utf-8"))
+        except yaml.YAMLError:
+            continue
+        for job in (document.get("jobs") or {}).values():
+            for step in job.get("steps") or []:
+                if not isinstance(step, dict) or not str(step.get("uses", "")).endswith("actions/upload-artifact"):
+                    continue
+                with_block = step.get("with") or {}
+                if isinstance(with_block.get("name"), str):
+                    REQUIRED_IMAGE_DIGEST_ARTIFACTS.discard(with_block["name"])
+    if REQUIRED_IMAGE_DIGEST_ARTIFACTS:
+        errors.append(
+            "missing release image-digest artifacts: "
+            + ", ".join(sorted(REQUIRED_IMAGE_DIGEST_ARTIFACTS))
+        )
     print("✓ workflow structure")
     return 0
 
