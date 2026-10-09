@@ -120,7 +120,7 @@ Skill 按命理师的专业习惯组织对话：一次处理一个主题，结�
 
 ### 需要联网吗？
 
-需要。Liki 通过标准 MCP 提供服务：`counsel-mcp`、`counsel-bazi-mcp`、`counsel-ziwei-mcp` 和 `engine-mcp`。支持内嵌 MCP 声明的客户端会自动读取 `.mcp.json`。
+需要。Liki 通过标准 MCP 提供服务：`counsel-mcp`（判断层）与 `engine-mcp`（排盘 / 风水）两个**聚合端点**。支持内嵌 MCP 声明的客户端会自动读取 `.mcp.json`。分领域专家插件（八字 / 紫微 / 六爻 / 奇门 / 起名独立包）则各自挂自己的**子域端点**（`/counsel/mcp/{domain}`、`/engine/mcp/{domain}`），实现专家只见自己领域工具；普通整体安装只需上面两个聚合端点。
 
 ### 我的出生数据会被存储吗？
 

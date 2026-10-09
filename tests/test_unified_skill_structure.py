@@ -87,21 +87,18 @@ def test_root_mcp_uses_counsel_and_engine():
         assert any("engine" in name for name in expert_mcp["mcpServers"])
 
 
-def test_root_mcp_declares_complete_manual_install_surface():
-    """Manual and embedded clients must get the same four MCP surfaces."""
+def test_root_mcp_declares_manual_install_surface():
+    """Embedded and manual clients get the two aggregate MCP surfaces.
+
+    Sub-domain endpoints (/engine/mcp/{domain}, /counsel/mcp/{domain}) are
+    shipped per expert pack (expert-packs/*/.mcp.json) for multi-expert
+    per-domain deployment, not in the root skill.
+    """
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert mcp["mcpServers"] == {
         "counsel-mcp": {
             "type": "streamableHttp",
             "url": "https://liki.hk/counsel/mcp",
-        },
-        "counsel-bazi-mcp": {
-            "type": "streamableHttp",
-            "url": "https://liki.hk/counsel/mcp/bazi",
-        },
-        "counsel-ziwei-mcp": {
-            "type": "streamableHttp",
-            "url": "https://liki.hk/counsel/mcp/ziwei",
         },
         "engine-mcp": {
             "type": "streamableHttp",

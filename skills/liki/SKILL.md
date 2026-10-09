@@ -16,16 +16,16 @@ metadata:
 
 ## MCP 前置
 
-Liki 通过标准 MCP 提供能力，依赖四个 MCP server：
+Liki 通过标准 MCP 提供能力，依赖两个聚合 MCP server：
 
 | MCP | 端点 | 用途 |
 | --- | --- | --- |
-| `counsel-mcp` | `https://liki.hk/counsel/mcp` | 判断层：六爻/奇门/起名；八字/紫微由专家连接器执行 |
-| `counsel-bazi-mcp` | `https://liki.hk/counsel/mcp/bazi` | 八字因子与断语判断 |
-| `counsel-ziwei-mcp` | `https://liki.hk/counsel/mcp/ziwei` | 紫微因子与断语判断 |
-| `engine-mcp` | `https://liki.hk/engine/mcp` | 排盘/风水计算工具（counsel 内部调用） |
+| `counsel-mcp` | `https://liki.hk/counsel/mcp` | 判断层：八字/紫微/六爻/奇门/起名（全领域断语与因子） |
+| `engine-mcp` | `https://liki.hk/engine/mcp` | 排盘/风水/历法计算（全领域盘面与事实；counsel 内部调用） |
 
-1. 启动时确认四个 MCP 已连接；未连接时提示用户按客户端机制连接（或在配置中声明 `mcpServers` 自动连接），MCP 不可用时标注降级。
+> 子域端点 `/engine/mcp/{domain}`、`/counsel/mcp/{domain}` 供**分领域专家插件**（`expert-packs/*/.mcp.json`）与多专家部署使用，整体安装无需连接；启动时只校验上面两个聚合连接即可。
+
+1. 启动时确认两个聚合 MCP 已连接；未连接时提示用户按客户端机制连接（或在配置中声明 `mcpServers` 自动连接），MCP 不可用时标注降级。
 2. 版本：读取安装根目录 `VERSION.txt`，请求 `curl -fsS https://liki.hk/skills/liki/VERSION.txt`；两者按点号整数逐段比较，不一致时提示 `npx skills add ml8s/liki -y` 并等待确认。远程 10 秒不可达标注“版本未校验”后继续；`LIKI_HOSTED=1` 时跳过。请求远程版本须携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
 3. 工具失败、依赖缺失、版本 / digest / schema 校验失败时读 `references/FAQ.md`；不得绕过校验或自行降级。
 

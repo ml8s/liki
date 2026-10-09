@@ -4,7 +4,7 @@
 
 ## MCP 前置
 
-- Liki 通过标准 MCP 提供能力：`counsel-mcp`、`counsel-bazi-mcp`、`counsel-ziwei-mcp` 与 `engine-mcp`。
+- Liki 通过标准 MCP 提供能力：`counsel-mcp` 与 `engine-mcp` 两个聚合端点（子域 `/mcp/{domain}` 仅供分领域专家插件 / 多专家部署）。
 - MCP 未连接或端点不可达时，明确说明「MCP 不可用」；不自行降级到模型记忆或本地猜测。
 - MCP 工具返回 `isError` 时按错误消息修正参数重试；确定性校验错误必须先修参数，不得绕过。
 - 引擎版本低于本地 `VERSION.txt` 时停止；不得用旧结果、缓存或模型知识补齐引擎事实。

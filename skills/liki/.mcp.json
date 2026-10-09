@@ -4,14 +4,6 @@
       "type": "streamableHttp",
       "url": "https://liki.hk/counsel/mcp"
     },
-    "counsel-bazi-mcp": {
-      "type": "streamableHttp",
-      "url": "https://liki.hk/counsel/mcp/bazi"
-    },
-    "counsel-ziwei-mcp": {
-      "type": "streamableHttp",
-      "url": "https://liki.hk/counsel/mcp/ziwei"
-    },
     "engine-mcp": {
       "type": "streamableHttp",
       "url": "https://liki.hk/engine/mcp"

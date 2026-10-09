@@ -17,11 +17,11 @@
 
 1. **配置 MCP**（二选一）：
    - **自动**：客户端支持插件 MCP 声明时，skill 自带 `.mcp.json`，启用即自动连接。
-   - **手动**：在客户端添加四个 MCP server：
+   - **手动**：在客户端添加两个 MCP server：
      - `counsel-mcp`（判断层）：`https://liki.hk/counsel/mcp`
-     - `counsel-bazi-mcp`（八字判断）：`https://liki.hk/counsel/mcp/bazi`
-     - `counsel-ziwei-mcp`（紫微判断）：`https://liki.hk/counsel/mcp/ziwei`
      - `engine-mcp`（排盘/风水）：`https://liki.hk/engine/mcp`
+
+   > 子域端点 `/engine/mcp/{domain}`、`/counsel/mcp/{domain}`（bazi / ziwei / liuyao / qimen / naming 等）仅供**多专家分域部署**使用——每个领域专家包各自挂自己的子域（见 `expert-packs/*/.mcp.json`），实现"专家只见自己领域工具"；普通整体安装用上面的**两个聚合端点**即可。
 2. **安装 skill**：
 
    ```bash

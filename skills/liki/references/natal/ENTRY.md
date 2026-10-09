@@ -2,7 +2,7 @@
 
 Liki 本命域：**八字、紫微判断由对应专家执行**，本域负责编排（跨领域：考时/合参/合盘、综合命书）与路由。
 
-统一分发包内置两套专家方法论卡；未安装可选 WorkBuddy 专家插件时，agent 直接使用 `engine-mcp`、`counsel-bazi-mcp` 与 `counsel-ziwei-mcp` 完成同一条工具链。
+统一分发包内置两套专家方法论卡；未安装可选 WorkBuddy 专家插件时，agent 直接使用 `engine-mcp` 与 `counsel-mcp` 两个聚合端点完成同一条工具链（八字/紫微由聚合判断层按盘面形态路由）。
 
 ## 路由
 

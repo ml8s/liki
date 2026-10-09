@@ -15,16 +15,14 @@
 
 ## Install
 
-Liki exposes its capabilities through standard MCP servers. Clients that support
-embedded MCP declarations can enable the four servers in the Skill's `.mcp.json`.
-For manual configuration, add:
+Liki exposes its capabilities through standard MCP servers; embedded MCP declarations auto-enable the two aggregate servers in the Skill's `.mcp.json`. For manual configuration, add:
 
 | Server | Endpoint |
 | --- | --- |
 | `counsel-mcp` | `https://liki.hk/counsel/mcp` |
-| `counsel-bazi-mcp` | `https://liki.hk/counsel/mcp/bazi` |
-| `counsel-ziwei-mcp` | `https://liki.hk/counsel/mcp/ziwei` |
 | `engine-mcp` | `https://liki.hk/engine/mcp` |
+
+Sub-domain `/engine/mcp/{domain}` and `/counsel/mcp/{domain}` are for **multi-expert per-domain deployment** (each pack ships its own sub-domain server, `expert-packs/*/.mcp.json`); a unified install only needs the two aggregate endpoints above.
 
 ```bash
 npx skills add ml8s/liki
