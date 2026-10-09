@@ -304,6 +304,7 @@ jobs:
           cosign sign --yes "ghcr.io/${{ github.repository_owner }}/liki-engine@${{ steps.engine-image.outputs.digest }}"
           mkdir -p image-digest
           printf 'engine=%s\n' "${{ steps.engine-image.outputs.digest }}" > image-digest/engine.env
+          printf 'engine_mcp=%s\n' "${{ steps.engine-image.outputs.digest }}" > image-digest/engine_mcp.env
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: image-digest-engine
