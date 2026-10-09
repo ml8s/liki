@@ -1,5 +1,8 @@
 # Liki 本地项目评审
 
+> 历史快照：评审时间为 2026-09-26，版本号、目录结构与工具计数可能已过时；
+> 现行发布契约以 `docs/RELEASE_MODEL.md` 与 `VERSION.txt` 为准。
+
 ## 评审结论
 
 Liki 当前的工程成熟度较高。仓库已经形成清晰的「确定性排盘引擎 + 规则判断层 + Agent 部署工件 + 兼容 Skill 包」分层结构，契约测试、黄金数据、MCP 集成、Docker 冒烟、依赖扫描和发布流水线都比较完整。总体适合按「修复少量发布阻断项后进入 release」处理。
@@ -49,7 +52,7 @@ Liki 当前的工程成熟度较高。仓库已经形成清晰的「确定性排
 2. `counsel/`：Python MCP 负责因子快照、断语、起名、六爻 / 奇门追问。工具目录统计为 12 个 counsel tools。工具边界有 manifest JSON Schema 校验，factor snapshot 带 digest、side、chart digest 和 context provenance。
 3. `agents/` + `profiles/`：AgentDeployment 的 source of truth。当前专家拓扑为 router、bazi、ziwei、liuyao、qimen、fengshui、naming 共 7 个节点。`tools.allow` 与 `contracts/mcp-tool-catalog.json` 做交叉校验。
 4. `skills/`：root skill 和六类领域专家包承担外部客户端兼容入口；构建时方法论文档会合入 AgentDeployment instruction。
-5. `agents-image/`：只把 generated deployment 烘焙进 pinned liki-agents 基础镜像，构建上下文通过 `.dockerignore` 限制到工件和 Dockerfile，边界干净。
+5. `assembly/`：只把 generated deployment 烘焙进 pinned liki-agents 基础镜像，构建上下文通过 `.dockerignore` 限制到工件和 Dockerfile，边界干净。
 
 这个设计对命理系统尤其合适：排盘和规则命中可回归、可回溯，LLM 只负责流程组织与语言表达，不能凭空生成盘面或评分。
 
@@ -57,7 +60,7 @@ Liki 当前的工程成熟度较高。仓库已经形成清晰的「确定性排
 
 项目在版本和契约治理上明显高于一般 Skill 项目：
 
-- 运行时使用统一 CalVer：`skills/liki/VERSION.txt`、counsel、engine MCP、engine RPC 当前均为 `2026.09.26.0`。
+- 运行时使用统一 CalVer：`skills/liki/VERSION.txt`、counsel、engine MCP、engine RPC 评审时（2026-09-26）均为 `2026.09.26.0`，此后随每次发布滚动。
 - AgentDeployment schema 由外部 liki-agents 仓拥有，本仓用 `contracts/agent-definition.version` 同时 pin version 和 SHA-256 digest，生成工件时校验本地 schema digest 一致。
 - MCP 工具目录 `contracts/mcp-tool-catalog.json` 有独立 schema 和 runtime version 校验，随仓库提交维护。
 - GitHub Release 会发布 engine、counsel、experts 镜像和 web skill bundle；镜像记录 OCI digest。

@@ -103,7 +103,7 @@ agent 可通过 stdin 传入 problem / meta / agent / llm payload。sender 会�
 - 默认 endpoint：`https://liki.hk/api/feedback`
 - 覆盖 endpoint：`LIKI_FEEDBACK_URL=https://your-host.example/api/feedback`
 - 禁用：`LIKI_FEEDBACK_DISABLED=1`
-- timeout：2 秒；失败不重试、不阻塞
+- timeout：10 秒；失败不重试、不阻塞
 - 同一会话最多 3 条
 - 宿主可信覆盖：`LIKI_FEEDBACK_SKILL`、`LIKI_FEEDBACK_SKILL_VERSION`、`LIKI_ENGINE_VERSION`、`LIKI_FEEDBACK_SESSION_HASH`
 - 上下文只来自显式 payload 和宿主覆盖变量；sender 不读取额外本地文件

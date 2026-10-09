@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# MingLi-Bench 160 题准确率基准运行器。不要用于领域功能 smoke。
+# MingLi-Bench 160 题（八字/紫微）准确率基准运行器。不要用于领域功能 smoke。
 # 隔离原理：运行前把答案文件移出 skill 目录（agent 容器挂载不到）→ 评测 → 恢复 → 自动判分。
+# 注意：该题集在开发中用于迭代断语表，**非 held-out**；准确率声明需冻结断言版本 + 另一套未调参题集。
 # 用法：bash tests/benchmark/mingli160/run.sh [--parallelism N] [--resume]
 set -euo pipefail
 echo "MingLi-Bench runner is archived: it still targets the removed JSON-RPC skill surface." >&2

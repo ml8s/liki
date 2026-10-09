@@ -118,7 +118,7 @@ Breaking scope included:
 - removal of the four old skill entry points;
 - consolidation into one installable `liki` skill;
 - unified `ENTRY.md` routing;
-- `TOOLS.md` / `RPC.md` payload contracts;
+- `TOOLS.md` payload contracts;
 - replacement of divination hard blocking with `safety_advisory`;
 - explicit fail-closed discover scope and required-method checks.
 

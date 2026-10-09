@@ -6,7 +6,7 @@ import pytest
 import _helpers  # noqa: F401
 
 from pan_integrity import with_natal_digest
-from pan_schema import validate_natal_pan
+from pan_schema import validate_natal_pan, validate_side_pan
 import paipan
 
 
@@ -243,3 +243,44 @@ def test_geju_rejects_legacy_yongxi_columns():
     pan["full"]["ge_ju"].update({"yong": "土", "xi": "水", "ji": "火"})
     with pytest.raises(ValueError, match="旧用神字段"):
         validate_natal_pan(pan, action="test")
+
+
+def _side_pan(side):
+    base = _pan()
+    if side == "bazi":
+        return {"chart": base["chart"], "full": base["full"], "gender": "male"}
+    return {
+        "chart": base["chart"],
+        "ziwei": base["ziwei"],
+        "ziwei_daxian": base["ziwei_daxian"],
+        "gender": "male",
+    }
+
+
+def test_side_pan_bazi_valid():
+    validate_side_pan(_side_pan("bazi"), "bazi", action="test")
+
+
+def test_side_pan_bazi_missing_pillar_fails_closed():
+    pan = _side_pan("bazi")
+    del pan["full"]["ri"]
+    with pytest.raises(ValueError, match="四柱结构不完整"):
+        validate_side_pan(pan, "bazi", action="test")
+
+
+def test_side_pan_bazi_bad_gender_fails_closed():
+    pan = _side_pan("bazi")
+    pan["gender"] = "other"
+    with pytest.raises(ValueError, match="gender"):
+        validate_side_pan(pan, "bazi", action="test")
+
+
+def test_side_pan_ziwei_valid():
+    validate_side_pan(_side_pan("ziwei"), "ziwei", action="test")
+
+
+def test_side_pan_ziwei_wrong_gong_count_fails_closed():
+    pan = _side_pan("ziwei")
+    pan["ziwei"] = dict(pan["ziwei"], gong_wei=pan["ziwei"]["gong_wei"][:11])
+    with pytest.raises(ValueError, match="12 宫"):
+        validate_side_pan(pan, "ziwei", action="test")

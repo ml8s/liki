@@ -35,6 +35,12 @@ class TestSkillFrontmatter(unittest.TestCase):
         self.assertGreater(n, 0)
         self.assertLessEqual(n, 1024, f"description {n}B > ADK 1024B")
 
+    def test_frontmatter_version_is_semver(self):
+        """SKILL.md metadata.version 是宿主技能版本（SemVer），须与运行时 CalVer 分开维护。"""
+        meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
+        version = meta["metadata"]["version"]
+        self.assertRegex(str(version), r"^\d+\.\d+\.\d+$", version)
+
     def test_skill_readable_markdown_lives_in_references(self):
         """ADK LoadResource 只认 references/assets/scripts：references 外不得有可读 md。"""
         outside = [

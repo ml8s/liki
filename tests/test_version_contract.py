@@ -58,3 +58,50 @@ def test_divination_tool_and_projection_contracts_use_distributed_version():
     )
     assert tools["info"]["version"] == version
     assert projection_contract["version"] == version
+
+
+def test_deployment_and_catalog_surfaces_use_distributed_version():
+    version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
+    catalog = json.loads(
+        (ROOT / "contracts/mcp-tool-catalog.json").read_text(encoding="utf-8")
+    )
+    assert catalog["runtime_version"] == version
+    agent_files = sorted((ROOT / "agents").glob("*/agent.yaml"))
+    assert agent_files, "no agent.yaml surfaces found"
+    for path in agent_files:
+        first_version = next(
+            line for line in path.read_text(encoding="utf-8").splitlines()
+            if line.startswith("version:")
+        )
+        assert first_version.split(":", 1)[1].strip() == version, path
+    for path in sorted((ROOT / "profiles").glob("*.json")):
+        document = json.loads(path.read_text(encoding="utf-8"))
+        assert document["metadata"]["version"] == version, path
+
+
+def test_readme_image_tags_use_distributed_version():
+    version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
+    for relative in ("README.md", "README.en.md"):
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        assert f"liki-engine:{version}" in text, relative
+
+
+def test_expert_pack_plugin_versions_internally_consistent():
+    for plugin in sorted((ROOT / "expert-packs").glob("*/.codebuddy-plugin/plugin.json")):
+        pack = plugin.parents[1]
+        plugin_version = json.loads(plugin.read_text(encoding="utf-8"))["version"]
+        skill_text = (pack / "SKILL.md").read_text(encoding="utf-8")
+        skill_version = next(
+            line.split(":", 1)[1].strip()
+            for line in skill_text.splitlines()
+            if line.startswith("version:")
+        )
+        assert plugin_version == skill_version, pack
+        for domain_skill in sorted((pack / "skills").glob("*/SKILL.md")):
+            text = domain_skill.read_text(encoding="utf-8")
+            domain_version = next(
+                line.split(":", 1)[1].strip()
+                for line in text.splitlines()
+                if line.strip().startswith("version:")
+            )
+            assert domain_version == plugin_version, domain_skill

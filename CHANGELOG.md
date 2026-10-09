@@ -1,5 +1,78 @@
 # Changelog
 
+## [Unreleased] — 奇门投影收敛 · 测试定位 · 清理
+
+### Changed
+
+- 新增 `tests/test_qimen_projection_tables.py`：把 counsel 奇门投影表的**通用术数常识**绑定权威源（方位↔`luoshu`、时干阴阳↔干支、五行生克↔通用、门/星五行↔engine `plate.json`），防跨 MCP 服务边界静默漂移；`qimen_projection_common.py` 头注明确三类数据定位（通用常识 / 投影规则 / 解读性知识）。
+- **奇门 counsel 保留**：其 answer 契约、禁语安全、金函玉镜属判断层价值；经核查"内外盘/远近/方位"为**投影层规则**（engine 已给 `yin_dun`/宫/五行），故**不改 `qimen.chart` 输出契约**，改用一致性绑定。
+- 测试分层定位：`tests/README.md` 新增 "Oracle & golden policy"（golden=回归守卫、`fixtures/domain_oracle`=独立真值、`benchmark/mingli160`=八字/紫微**调参基准、非 held-out**）；`counsel/tests/test_counsel_divination.py` 标注为 MCP wiring 回归；`tests/benchmark/mingli160/run.sh` 注明非 held-out。
+
+### Removed
+
+- CI 空转的 `node-vulnerabilities` job（零依赖 `npm audit` 恒空跑）；`SECURITY.md` 相应改为"固定版本、运行期拉取的 dev-only Node 工具"。
+
+## [Unreleased] — 专家组全面评审修复（P1 / P2）
+
+### Fixed
+
+- counsel 正交分侧盘新增 `pan_schema.validate_side_pan`，`compute_factors`/`period_query` 对 engine 分侧数据结构 fail-closed（engine 字段漂移不再静默把因子算成 0）。
+- 城市解析**不猜**：同名多候选（如"朝阳"→朝阳区/朝阳县）显式报歧义，精确匹配优先；不再按 map 随机序取一个。
+- 经度 **0° 不再被替换**为默认城市经度（120/北京）；`tianwen.time` 的 longitude 本就必填，0° 为合法格林尼治经度。
+- `bazi.liuri` 对不存在日期（如 2026-02-30）fail-closed，不再被 `time.Date` 静默归一化。
+- `qiming` 字库惰性加载加锁，消除并发下"半加载/误报重复字符"竞态。
+- `engine-rpc` `/health` 计算自检改为启动期一次（与 engine-mcp 一致，防 CPU 放大）。
+- 清理死代码/死参：`ziwei.ComputeFullChart` 去掉未用的 `ri_gan/ri_zhi`（及 `computeAdjectiveStars` 6 个未用参数）、`liuyao.fuTombSources` 去未用 `branch`、`shouxing.solarLongitudeShouXing` 去无用赋值、`city.parseFloat` 改 `strconv.ParseFloat`（拒绝尾随垃圾）。
+- `build-archive.sh` 改可复现打包（`--sort=name --mtime=@0 --owner=0 --group=0` + `gzip -n`），并删除指向不存在 manifest 的死循环。
+- 三个本地测试脚本改用 `mktemp`（避免 `make -j` 互相覆盖 `/tmp/engine-mcp`）；`_engine_fixture.py` 支持 `LIKI_ENGINE_BIN`。
+
+### Changed
+
+- `luoshu` 增 `yin_yang`（后天八卦阴阳，共同基础）；`bazhai` 命卦表由 luoshu 生成，删除包内影子副本。
+
+## [Unreleased] — 专家组全面评审修复（P0）
+
+### Fixed
+
+- `liuyao.chart` 的 `ben_gua` 枚举由 63 项/38 唯一（缺 26 卦）修正为 `zhouyi` 表 64 卦逐项一致；新增 `TestLiuyaoChartBenGuaSchemaMatchesTable` 防漂移。
+- `make full-data`（160 题覆盖门）不再恒真：`eval_hybrid` 零命中数超过阈值（默认 0，可 `LIKI_ZERO_HIT_MAX` 放宽）时返回非零。
+- CI `release-integrity` 打包补 `contracts/agent-definition.version` 与 `liki-web-skill-bundle.tar.gz`；finalize 重建的签名 manifest 不再丢失 `web_bundle_sha256`；新增测试校验 CI tar 清单与契约一致。
+- `ganzhi` 嵌入数据解析改为 fail-fast（此前 `parseGan/parseZhi/parseWuxing` 吞错误，脏数据静默变零值）。
+- 文档漂移修正：`README.en.md` 断语数 799→829、反馈 timeout 2s→10s、六爻 `patterns.md` 的 `type` 枚举、起名 `ENTRY.md` 字库归属、黄历 `jiri.md` 改用 engine 实际返回字段（原引用未返回的日神煞）、`SKILL.md` 行数上限统一为 120、counsel `__main__` 端口 8091→8086。
+- `lint-md.sh` 默认改为使用 `.markdownlint-cli2.jsonc` 的 globs，README/docs 纳入 markdownlint（此前只 lint skills）。
+
+### Changed
+
+- `Makefile` 澄清 `make gate` 为"本地可执行门槛"，镜像/签名/漏洞扫描由 CI 承担；新增 `make vuln` 目标（govulncheck + pip-audit，可选）。
+
+## [Unreleased] — 代码健康度评审修复（正交性 / 冗余 / 过期代码）
+
+### Fixed
+
+- `scripts/check_docs.py` 适配 `skills/liki/references/` 布局并改读 counsel 断语表（此前只扫描 1 个文档、断语 id 全集为 0）。
+- `scripts/check_workflow.py` 修正 `upload-artifact` SHA pin 匹配，并在校验失败时返回非零（此前 release image-digest 校验恒通过）。
+- 新增 `make verify` 与 `make test-functional` 目标；修正 Makefile `make e2e` 与 `tests/functional/README` 的悬空引用。
+- CI `engine-lint` 补齐 `go vet`；`check` job 去掉无用的 pytest 安装；pre-commit 复用 `scripts/lint-md.sh`（统一 markdownlint/Node 版本）。
+- `bump_version.py` 同步 README 镜像 tag；engine 城市 User-Agent 去掉过期日期。
+
+### Removed
+
+- `counsel/app/natal/tools/analytics.py` 中 5 个未被任何 MCP 工具引用的公共入口（`create_birth_chart`/`analyze_natal`/`analyze_periods`/`compare_birth_charts`/`calibrate_birth_time`）及其专用 helper。
+- `chart_token.py`（`chart_ref` 令牌编解码已无调用方，保留 `chart_id` 并改名 `chart_id.py`）。
+- 孤儿脚本 `scripts/generate_naming_characters.py`、`scripts/qiming_projection.py`。
+- 无人引用的 `tests/golden/analysis/`。
+- 恒真测试 `bazi_tiaohou_ref_test.go` 与逐字节镜像的 `tiaohou_reference.json`。
+
+### Changed
+
+- 去重：`zodiacNames`（并入 `zhiAnimals`）、`ziwei.starInSF`（并入 `anyInSF`）、`assertion_store`/`factor_tables` 的 expected 解析（并入新 `csv_cell`）、`liuyao_timing` 重复 topic 表 loader。
+- `ziwei.pattern.add` 移除被丢弃的严重度参数；`bazi_bond.luZhi` 复用 `ganzhi.LuZhi`。
+- 版本契约测试扩展到 agent/profile/catalog/README 与专家包内部一致性。
+- 清理 207 个非脚本文件的 100755 执行位；`check-exec-bits.sh` 增加反向校验。
+- 修正过期文档引用：`RPC.md`、Go `1.26.6→1.26.9`、`agents-image/→assembly/`、markdownlint 悬空 glob、domain_oracle 路径、`docs/PROJECT_REVIEW.md` 标注为历史快照。
+- **洛书九宫抽为中立共享知识表** `engine/internal/engine/luoshu/`（`data/luoshu.json` + loader）；`fengshui` 别名化，`bazhai`/`xuankong`/`qimen` 改读 luoshu，删除 4 份副本（含 `bazhai.json` 的 `palace_dirs`、`qimen/plate.json` 的 `gong_wuxing`）。
+- **engine 只输出结构化因子（注解留、断语删）**：删除 `liuyao.Pattern.assessment` 与 `liuyao.TimingCandidate.condition` 两类纯断语/指引（对应断语在 counsel `factors.csv`、`liuyao_condition_rules.json` 及 skills 文档已有）；`ziwei.pattern.description` 与 `liuyao.Conflict.reason` 属因子**注解**，保留——前者重写为去除吉凶结论后的**结构注解**，后者是 conflict id 的唯一文字释义（同步 MCP 输出 schema、golden、字段文档）。无 counsel 的领域（fengshui/xuankong、huangli）文字不动。
+
 ## [2026.09.26.0] — 退役产品收敛清理
 
 ### Removed

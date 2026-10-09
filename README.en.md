@@ -61,7 +61,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 ## Trust and boundaries
 
 - Charts are calculated by the Go astronomical engine, including true solar time, longitude / timezone, and solar terms.
-- Judgments come from 799 assertion rules and preserve factor evidence and classical sources.
+- Judgments come from 829 assertion rules and preserve factor evidence and classical sources.
 - 160 professional competition questions provide independent accuracy evaluation with isolated answers.
 - Birth data remains in the current conversation; the Skill does not ask for real names or store data outside the session.
 - If a city is absent from the built-in table, `city_coords` may send the city name to Nominatim (OSM). Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
@@ -138,7 +138,7 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 
 ### Engine image
 
-The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.09.26.0`. Build from source with `engine/dev/docker-compose.yml`.
+The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.10.08.2`. Build from source with `engine/dev/docker-compose.yml`.
 
 ### Domain contracts
 

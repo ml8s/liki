@@ -27,7 +27,7 @@
 
 ### 本地工具链
 
-- Go **1.26.6**（低于 1.26.6 会命中标准库安全漏洞）
+- Go **1.26.9**（低于 1.26.9 会命中标准库安全漏洞）
 - Python **3.12**
 - Node **24.14.1** (see `.nvmrc`)
 - 可选：[uv](https://docs.astral.sh/uv/)，用于复现 counsel Python 依赖锁
@@ -72,7 +72,7 @@
 # 搜代码（含脚本）
 grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
 # 搜 skill 文档
-grep -rn "旧方法名" skills/liki/*/app/*.md skills/liki/*/ENTRY.md skills/liki/SKILL.md
+grep -rn "旧方法名" skills/liki/references/*/app/*.md skills/liki/references/*/ENTRY.md skills/liki/SKILL.md
 ```
 
 **添加新 MCP 工具时**（同步更新测试与 manifest）：

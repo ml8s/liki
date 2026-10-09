@@ -18,8 +18,26 @@ REQUIRED_BUNDLE_FILES = {
     "index.json",
     "liki-release-manifest.json",
     "liki-release-manifest.sha256",
+    "liki-web-skill-bundle.tar.gz",
     "liki.tar.gz",
 }
+
+
+def test_ci_release_bundle_list_matches_contract() -> None:
+    """CI 的 release-integrity tar 清单必须与契约 REQUIRED_BUNDLE_FILES 一致（防漏包）。"""
+    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    document = yaml.safe_load(workflow)
+    listed: set[str] = set()
+    for job in document["jobs"].values():
+        for step in job.get("steps", []):
+            script = step.get("run") or ""
+            if "liki-release-artifacts.tar.gz" not in script:
+                continue
+            for line in script.splitlines():
+                token = line.strip().rstrip("\\").strip()
+                if token in REQUIRED_BUNDLE_FILES:
+                    listed.add(token)
+    assert listed == REQUIRED_BUNDLE_FILES, f"CI tar 清单与契约不一致: {listed ^ REQUIRED_BUNDLE_FILES}"
 
 
 def run(command: list[str]) -> None:

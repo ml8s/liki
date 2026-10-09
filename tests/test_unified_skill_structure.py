@@ -52,7 +52,7 @@ def test_app_cards_use_standard_contract_sections():
 
 def test_root_entry_is_a_lightweight_router():
     lines = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").splitlines()
-    assert len(lines) <= 160
+    assert len(lines) <= 120
     assert "## 统一硬边界" in lines
 
 

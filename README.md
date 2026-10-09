@@ -139,7 +139,7 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 ### 引擎镜像
 
-引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:2026.09.26.0`。本地源码构建使用 `engine/dev/docker-compose.yml`。
+引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:2026.10.08.2`。本地源码构建使用 `engine/dev/docker-compose.yml`。
 
 ### 领域契约
 
