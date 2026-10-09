@@ -2,7 +2,7 @@
 # Reject Go toolchains older than the security-supported engine toolchain.
 set -eo pipefail
 
-REQUIRED="${LIKI_REQUIRED_GO_VERSION:-1.26.6}"
+REQUIRED="${LIKI_REQUIRED_GO_VERSION:-1.26.9}"
 command -v go >/dev/null 2>&1 || {
     echo "Go >= ${REQUIRED} is required (install it and put it on PATH)." >&2
     exit 1

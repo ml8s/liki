@@ -89,6 +89,7 @@ def empty() -> dict:
     }
 
 
+
 def evaluate(factors: dict) -> dict:
     """输入 qimen 标准 factors，输出命中的通用判断候选。"""
     results = []

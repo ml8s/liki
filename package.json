@@ -2,9 +2,6 @@
   "name": "liki-development",
   "private": true,
   "type": "module",
-  "devDependencies": {
-    "markdownlint-cli2": "0.23.3"
-  },
   "engines": {
     "node": ">=24.14.1 <25"
   }

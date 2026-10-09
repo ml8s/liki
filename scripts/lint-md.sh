@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Install the locked Markdown linter and run it without floating npx resolution.
+# Run the pinned Markdown linter without coupling a development-only CLI
+# vulnerability surface into every application dependency lockfile.
 set -eo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-MDL="$ROOT/node_modules/.bin/markdownlint-cli2"
 
 node_major() {
     "${NODE:-node}" --version | sed 's/^v\([0-9][0-9]*\).*/\1/'
@@ -22,8 +22,4 @@ if [ "$(node_major)" -lt 22 ]; then
     exit 1
 fi
 
-if [ ! -x "$MDL" ]; then
-    (cd "$ROOT" && npm ci --ignore-scripts --no-audit --no-fund)
-fi
-
-exec "$MDL" "$ROOT/skills/**/*.md"
+exec "${NPM:-npm}" exec --yes markdownlint-cli2@0.23.3 -- "$ROOT/skills/**/*.md"

@@ -19,7 +19,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
 REQUIRED_IMAGES = ("counsel_mcp", "engine", "engine_mcp", "experts")
