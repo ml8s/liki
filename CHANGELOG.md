@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2026.10.11.0] — 2026-10-11
 
 ### Changed：跟进 liki-agents v2026.10.10.1（配置面收敛，breaking）
 
