@@ -12,15 +12,14 @@ Run:
 """
 from __future__ import annotations
 
-import collections
 import copy
 import hmac
 import inspect
 import json
+import logging
 import os
 import pathlib
 import sys
-import time
 from contextlib import AsyncExitStack, asynccontextmanager
 from typing import Any
 
@@ -429,7 +428,17 @@ def _make_app():
 
     @asynccontextmanager
     async def lifespan(app: Starlette):
-        """Run each official MCP domain app's lifespan exactly once."""
+        """Fail fast on misconfiguration; run each domain app's lifespan once."""
+        if not os.environ.get("LIKI_MCP_URL", "").strip():
+            raise RuntimeError(
+                "LIKI_MCP_URL is required "
+                "(engine-mcp endpoint, e.g. http://engine-mcp:8081/mcp)"
+            )
+        if not os.environ.get("LIKI_MCP_TOKEN", ""):
+            logging.getLogger(__name__).warning(
+                "counsel-mcp: LIKI_MCP_TOKEN is empty; set a token unless a "
+                "trusted edge already gates access"
+            )
         async with AsyncExitStack() as stack:
             await stack.enter_async_context(root_app.router.lifespan_context(root_app))
             for domain in domains:
@@ -438,52 +447,6 @@ def _make_app():
                     domain_app.router.lifespan_context(domain_app)
                 )
             yield
-
-    class RateLimiter:
-        """Small non-durable limiter; enough for one-process MCP service."""
-
-        def __init__(self, limit: int, window_seconds: float, max_keys: int = 65536):
-            self.limit = limit
-            self.window_seconds = window_seconds
-            self.max_keys = max_keys
-            self.hits: dict[str, collections.deque[float]] = {}
-            self._last_cleanup = 0.0
-
-        def allow(self, key: str) -> bool:
-            now = time.monotonic()
-            if now - self._last_cleanup >= self.window_seconds:
-                self._cleanup(now)
-            hits = self.hits.get(key)
-            if hits is None:
-                if len(self.hits) >= self.max_keys:
-                    self._evict_oldest()
-                hits = collections.deque()
-                self.hits[key] = hits
-            while hits and hits[0] <= now - self.window_seconds:
-                hits.popleft()
-            if len(hits) >= self.limit:
-                return False
-            hits.append(now)
-            return True
-
-        def _cleanup(self, now: float) -> None:
-            self._last_cleanup = now
-            for key, hits in list(self.hits.items()):
-                while hits and hits[0] <= now - self.window_seconds:
-                    hits.popleft()
-                if not hits:
-                    self.hits.pop(key, None)
-
-        def _evict_oldest(self) -> None:
-            oldest_key = None
-            oldest_timestamp = None
-            for key, hits in self.hits.items():
-                timestamp = hits[0] if hits else float("-inf")
-                if oldest_timestamp is None or timestamp < oldest_timestamp:
-                    oldest_key = key
-                    oldest_timestamp = timestamp
-            if oldest_key is not None:
-                self.hits.pop(oldest_key, None)
 
     class AuthMiddleware:
         """Optional bearer-token gate for self-hosted MCP deployments."""
@@ -525,51 +488,6 @@ def _make_app():
                 headers={"WWW-Authenticate": "Bearer"},
             )
             await response(scope, receive, send)
-
-    class RateLimitMiddleware:
-        """Transparent ASGI middleware for this single-process service."""
-
-        def __init__(
-            self,
-            app,
-            limit: int,
-            window_seconds: float,
-            max_keys: int,
-        ):
-            self.app = app
-            self.rate_limiter = RateLimiter(limit, window_seconds, max_keys)
-
-        def client_key(self, scope: dict) -> str:
-            try:
-                trusted_hops = int(os.environ.get("LIKI_TRUSTED_PROXY_HOPS", "0"))
-            except ValueError:
-                trusted_hops = 0
-            if trusted_hops > 0:
-                for name, value in scope.get("headers") or []:
-                    if name == b"x-forwarded-for":
-                        parts = [item.strip() for item in value.decode("latin-1").split(",")]
-                        if not parts or parts[-1] == "":
-                            break
-                        index = max(len(parts) - trusted_hops, 0)
-                        return parts[index]
-            client = scope.get("client") or ("unknown", 0)
-            return str(client[0])
-
-        async def __call__(self, scope, receive, send):
-            if scope["type"] != "http":
-                await self.app(scope, receive, send)
-                return
-            if scope.get("path") in ("/healthz", "/readyz"):
-                await self.app(scope, receive, send)
-                return
-            if not self.rate_limiter.allow(self.client_key(scope)):
-                response = JSONResponse(
-                    {"error": {"code": "rate_limited", "message": "too many requests"}},
-                    status_code=429,
-                )
-                await response(scope, receive, send)
-                return
-            await self.app(scope, receive, send)
 
     class BodyLimitMiddleware:
         """Reject oversized MCP JSON payloads before business logic runs."""
@@ -647,16 +565,6 @@ def _make_app():
         routes=routes,
         lifespan=lifespan,
         middleware=[
-            Middleware(
-                RateLimitMiddleware,
-                limit=int(os.environ.get("LIKI_COUNSEL_RATE_LIMIT", "240")),
-                window_seconds=float(
-                    os.environ.get("LIKI_COUNSEL_RATE_WINDOW_SECONDS", "60")
-                ),
-                max_keys=int(
-                    os.environ.get("LIKI_COUNSEL_RATE_MAX_KEYS", "65536")
-                ),
-            ),
             Middleware(
                 AuthMiddleware,
                 token=os.environ.get("LIKI_MCP_TOKEN", ""),

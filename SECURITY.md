@@ -32,7 +32,9 @@ downstream consumer.
   HTTPS at the edge, and explicit `LIKI_ALLOWED_ORIGINS` when browser clients
   are used. counsel uses `LIKI_ENGINE_MCP_TOKEN` for engine calls and
   `LIKI_MCP_TOKEN` for its own inbound gate.
-- Deployments behind a proxy must set the exact `LIKI_TRUSTED_PROXY_HOPS`.
+- Rate limiting and X-Forwarded-For trust are owned by the edge (cloud LB /
+  WAF / Caddy); engine and counsel do not rate-limit or parse forwarded
+  headers.
 
 ## Supply chain
 

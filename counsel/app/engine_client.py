@@ -32,7 +32,13 @@ class MCPError(Exception):
 
 
 def _endpoint() -> str:
-    return os.environ.get("LIKI_MCP_URL", "https://liki.hk/engine/mcp").rstrip("/")
+    url = os.environ.get("LIKI_MCP_URL", "").strip()
+    if not url:
+        raise MCPError(
+            "LIKI_MCP_URL is required (engine-mcp endpoint, "
+            "e.g. http://engine-mcp:8081/mcp)"
+        )
+    return url.rstrip("/")
 
 
 def _engine_token() -> str:

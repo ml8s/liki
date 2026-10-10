@@ -58,8 +58,6 @@ func main() {
 	mcpServer := newMCPServer(rpcReg, BuildTime, logger)
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 
-	rateLimiter := apphttp.NewRateLimiter()
-	defer rateLimiter.Stop()
 	mcpToken := os.Getenv("LIKI_MCP_TOKEN")
 
 	// 计算自检只做一次：排一个固定八字（1984-02-04 06:00 男），验证日柱=戊辰。
@@ -73,19 +71,13 @@ func main() {
 
 	mux := http.NewServeMux()
 	// 全量端点（counsel 内部调用 + 兼容）
-	mux.Handle("/mcp", rateLimiter.Wrap(
-		6000.0/60, 200,
-		apphttp.MCPAuthMiddleware(mcpToken, mcpHandler).ServeHTTP,
-	))
+	mux.Handle("/mcp", apphttp.MCPAuthMiddleware(mcpToken, mcpHandler))
 	// 分域端点：每术数 + 共享辅助。`/engine` 外部前缀由网关剥离，
 	// 本服务只负责 MCP 根路径和 MCP 域路径。
 	for _, d := range mcpDomains {
 		domainServer := newDomainServer(rpcReg, d.Prefixes, BuildTime, logger)
 		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
-		mux.Handle("/mcp/"+d.Suffix, rateLimiter.Wrap(
-			6000.0/60, 200,
-			apphttp.MCPAuthMiddleware(mcpToken, domainHandler).ServeHTTP,
-		))
+		mux.Handle("/mcp/"+d.Suffix, apphttp.MCPAuthMiddleware(mcpToken, domainHandler))
 	}
 
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
@@ -113,8 +105,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	listenAddr := envOr("LISTEN_ADDR", *addr)
+	if mcpToken == "" && !apphttp.IsLoopbackAddr(listenAddr) {
+		slog.Warn("engine-mcp: LIKI_MCP_TOKEN is empty on a non-loopback address; set a token unless a trusted edge already gates access")
+	}
+
 	srv := &http.Server{
-		Addr:         envOr("LISTEN_ADDR", *addr),
+		Addr:         listenAddr,
 		Handler:      handler,
 		BaseContext:  func(_ net.Listener) context.Context { return ctx },
 		ReadTimeout:  10 * time.Second,

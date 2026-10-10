@@ -345,13 +345,6 @@ def test_counsel_mcp_http_surface():
     assert status == 404
 
 
-def test_counsel_health_is_not_consumed_by_mcp_rate_limit():
-    """Liveness must remain available even when MCP clients exhaust quota."""
-    for _ in range(260):
-        status, _raw = _http_request("/healthz")
-        assert status == 200
-
-
 def test_readyz_reports_engine_dependency(monkeypatch):
     monkeypatch.setattr(engine_client, "engine_version", lambda: "2026.09.26.0")
     monkeypatch.setattr(engine_client, "required_engine_version", lambda: "2026.09.26.0")
@@ -475,18 +468,33 @@ def test_optional_bearer_auth_protects_counsel_mcp_without_locking_health(monkey
     assert status == 200
 
 
-def test_unauthorized_attempts_consume_rate_limit(monkeypatch):
+def test_unauthorized_attempts_are_not_rate_limited(monkeypatch):
+    """Rate limiting is owned by the edge; the app must never answer 429."""
     monkeypatch.setenv("LIKI_MCP_TOKEN", "test-secret")
-    monkeypatch.setenv("LIKI_COUNSEL_RATE_LIMIT", "1")
     guarded_app = _make_app()
     payload = {"jsonrpc": "2.0", "id": 1, "method": "server/discover", "params": {}}
 
-    first = _http_request(
-        "/mcp", method="POST", payload=payload, asgi_app=guarded_app
-    )
-    second = _http_request(
-        "/mcp", method="POST", payload=payload, asgi_app=guarded_app
-    )
+    for _ in range(5):
+        status, _raw = _http_request(
+            "/mcp", method="POST", payload=payload, asgi_app=guarded_app
+        )
+        assert status == 401
 
-    assert first[0] == 401
-    assert second[0] == 429
+
+def test_engine_endpoint_requires_explicit_url(monkeypatch):
+    monkeypatch.delenv("LIKI_MCP_URL", raising=False)
+    with pytest.raises(EngineMCPError, match="LIKI_MCP_URL"):
+        engine_client._endpoint()
+
+
+def test_lifespan_fails_fast_without_engine_url(monkeypatch):
+    """Startup must reject an empty LIKI_MCP_URL before touching any domain."""
+    monkeypatch.delenv("LIKI_MCP_URL", raising=False)
+    test_app = _make_app()
+
+    async def enter_lifespan():
+        async with test_app.router.lifespan_context(test_app):
+            pass
+
+    with pytest.raises(RuntimeError, match="LIKI_MCP_URL"):
+        asyncio.run(enter_lifespan())

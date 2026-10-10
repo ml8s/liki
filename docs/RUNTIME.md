@@ -34,19 +34,19 @@ MCP only at the `engine-rpc` removal gate below.
 | --- | --- | --- |
 | `LISTEN_ADDR` | `:8081` | Internal listen address |
 | `LIKI_MCP_TOKEN` | empty | Optional Bearer gate for private deployments |
-| `LIKI_TRUSTED_PROXY_HOPS` | `0` | Number of trusted reverse proxies |
 | `LIKI_ALLOWED_ORIGINS` | hosted default | Comma-separated browser CORS origins |
 | `LIKI_EXTERNAL_GEOCODING` | `on` | Allow Nominatim fallback for unknown cities |
 
 `GET /health` and `GET /version` are public process probes. MCP requests can be
-token-protected without exposing those probes.
+token-protected without exposing those probes. Rate limiting and X-Forwarded-For
+trust are owned by the edge (cloud LB / WAF / Caddy); the service itself does
+not rate-limit.
 
 ### engine-rpc
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `LISTEN_ADDR` | `:8080` | Transition JSON-RPC listen address |
-| `LIKI_TRUSTED_PROXY_HOPS` | `0` | Rate-limiter proxy trust |
 | `LIKI_ALLOWED_ORIGINS` | hosted default | Browser CORS origins |
 
 `POST /jsonrpc` is the active contract used by `liki-web` free charts. It is not
@@ -70,19 +70,17 @@ stage and entrypoint default, and the `docs/RUNTIME.md` `engine-rpc` section.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `LISTEN_ADDR` / uvicorn port | `:8086` | Internal listen address |
-| `LIKI_MCP_URL` | local engine URL | Engine MCP base URL |
+| `LIKI_MCP_URL` | *(required)* | Engine MCP base URL (fail-fast at startup when empty) |
 | `LIKI_MCP_TOKEN` | empty | Optional inbound Bearer gate |
 | `LIKI_ENGINE_MCP_TOKEN` | falls back to `LIKI_MCP_TOKEN` | Optional outbound Bearer token for engine-mcp |
 | `LIKI_MCP_TIMEOUT` | `30` | Engine call timeout in seconds |
 | `LIKI_MCP_MAX_RETRIES` | `2` | Engine retry count |
-| `LIKI_TRUSTED_PROXY_HOPS` | `0` | Number of trusted reverse proxies |
-| `LIKI_COUNSEL_RATE_LIMIT` | `240` | Requests per rate window |
-| `LIKI_COUNSEL_RATE_WINDOW_SECONDS` | `60` | Rate window |
-| `LIKI_COUNSEL_RATE_MAX_KEYS` | `65536` | Bounded in-memory limiter keys |
 | `LIKI_MCP_MAX_BODY_BYTES` | `1048576` | Maximum MCP JSON request body |
 
 `GET /healthz` is liveness. `GET /readyz` checks that counsel and engine runtime
-versions are compatible; use it for orchestration readiness.
+versions are compatible; use it for orchestration readiness. Rate limiting is
+owned by the edge (cloud LB / WAF / Caddy); the service itself does not
+rate-limit.
 
 `/mcp` is the aggregate surface for the multi-expert runtime. It exposes the
 natal judgment tools (`compute_factors`, `natal_query`, and `period_query`) plus

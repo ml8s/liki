@@ -43,10 +43,6 @@ func main() {
 	rpcReg := agent.NewRPCRegistry()
 	rpcReg.SetVersion(BuildTime)
 
-	// Setup HTTP with rate limiter
-	rateLimiter := apphttp.NewRateLimiter()
-	defer rateLimiter.Stop()
-
 	// 计算自检只在启动时算一次：排一个固定八字（1984-02-04 06:00 男），验证日柱=戊辰。
 	// /health 必须轻量，不能成为 CPU 放大器（与 engine-mcp 一致）。
 	selfTestCst := time.FixedZone("CST", 8*3600)
@@ -56,7 +52,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// JSON-RPC endpoint
-	mux.HandleFunc("POST /jsonrpc", rateLimiter.Wrap(6000.0/60, 200, apphttp.HandleRPC(rpcReg)))
+	mux.HandleFunc("POST /jsonrpc", apphttp.HandleRPC(rpcReg))
 
 	// Health check
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {

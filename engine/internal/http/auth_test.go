@@ -62,27 +62,18 @@ func TestMCPAuthMiddlewareAcceptsBearerAndPublicProbes(t *testing.T) {
 	}
 }
 
-func TestMCPAuthMiddlewareCanSitInsideRateLimiter(t *testing.T) {
-	rl := NewRateLimiter()
-	defer rl.Stop()
-
-	handler := rl.Wrap(0, 1, MCPAuthMiddleware(
+func TestMCPAuthMiddlewareRejectsMissingToken(t *testing.T) {
+	handler := MCPAuthMiddleware(
 		"secret",
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}),
-	).ServeHTTP)
+	)
 
 	request := httptest.NewRequest("POST", "/mcp", nil)
-	first := httptest.NewRecorder()
-	handler.ServeHTTP(first, request)
-	if first.Code != http.StatusUnauthorized {
-		t.Fatalf("first status = %d, want 401", first.Code)
-	}
-
-	second := httptest.NewRecorder()
-	handler.ServeHTTP(second, request)
-	if second.Code != http.StatusTooManyRequests {
-		t.Fatalf("second status = %d, want 429", second.Code)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusUnauthorized {
+		t.Fatalf("status = %d, want 401", recorder.Code)
 	}
 }
