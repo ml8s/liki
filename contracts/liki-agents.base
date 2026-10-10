@@ -8,5 +8,5 @@
 # 更新时机：仅当 liki-agents 发布新版、且本仓用它通过校验后，才更新 version 与 digest。
 # 更新方式：确定要采用的新版本 → docker buildx imagetools inspect 解析其 digest →
 #   更新下面两行 → 重新跑 make agents-validate / gate。
-version: 2026.10.10.1
-digest: sha256:10c026f6de525928eb4c2f62939133d2aca4512ef9b968c7e43c7c9f332127a6
+version: 2026.10.10.2
+digest: sha256:29d2cc2be90bc88bbe170645574889218f570a3df8cb8bd448cd7f1ebb4af832
