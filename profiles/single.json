@@ -7,12 +7,12 @@
     {
       "name": "engine",
       "endpointEnv": "LIKI_MCP_ENGINE_URL",
-      "tokenEnv": "LIKI_ENGINE_MCP_TOKEN"
+      "tokenEnv": "LIKI_MCP_ENGINE_TOKEN"
     },
     {
       "name": "counsel",
       "endpointEnv": "LIKI_MCP_COUNSEL_URL",
-      "tokenEnv": "LIKI_COUNSEL_MCP_TOKEN"
+      "tokenEnv": "LIKI_MCP_COUNSEL_TOKEN"
     }
   ],
   "agents": [
