@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Changed：跟进 liki-agents v2026.10.10.1（配置面收敛，breaking）
+
+- 运行时 pin `contracts/liki-agents.base` → **2026.10.10.1** @ `sha256:10c026f6…`；AgentDeployment 契约 `contracts/agent-definition.*` → **1.2.0** @ `sha256:b4400d2d…`（diff 验证纯 additive：per-Agent `model`/`temperature`/`maxOutputTokens`，旧工件兼容）。
+- `profiles/{experts,single}.json` 的 `tokenEnv` 按运行时新词序改为 `LIKI_MCP_ENGINE_TOKEN` / `LIKI_MCP_COUNSEL_TOKEN`；deployment 工件已按新 pin 重新生成并通过 schema 校验。
+- counsel 自身的出站 env `LIKI_ENGINE_MCP_TOKEN` **不随运行时改名**（属 liki 产品公共 API，见 RUNTIME.md）。
+- 部署侧迁移（审计库路径合并 `LIKI_AGENTS_DB_PATH`、LLM 接线必填、`LIKI_ENV` 枚举）由 liki-deploy 同窗口跟进。
+
+### Changed：平台性流量治理下沉边缘（限流移除）
+
+- engine（`internal/http/ratelimit.go` 及两二进制接线）与 counsel（`RateLimitMiddleware`/`RateLimiter`）的**应用内 per-IP 限流全部移除**——两份重复的进程内限流器（含 `max_keys` 内存护栏）属平台性流量治理，归边缘（Caddy/云 WAF）；应用只保留业务正确性底线（body 上限、依赖超时、token 门）。随之删除两侧 `LIKI_TRUSTED_PROXY_HOPS`（唯一消费者是限流器的 XFF 解析）与 counsel 三个 `LIKI_COUNSEL_RATE_*` 配置；`docs/RUNTIME.md`、`.env.example` 同步。边缘已有限流（云端 LB/WAF），liki-deploy 跟踪 compose 死配置清理与可选的 Caddy 纵深防御（liki-deploy#2）。
+- **counsel `LIKI_MCP_URL` 改为必填**：删除代码内硬编码默认 `https://liki.hk/engine/mcp`（产品域名不进代码），启动时为空 fail-fast（lifespan + `_endpoint` 双重校验）。
+- **token 空值守卫日志**：engine-mcp 监听非 loopback 且 `LIKI_MCP_TOKEN` 为空时启动 warn；counsel-mcp token 为空时 warn（提示由可信边缘把关时可忽略）。
+
+### Changed：品牌口号英文面规则
+
+- 英文面（README.en.md 等）只使用英文解释句 «For Chinese Metaphysics, use Liki.»，不再并排中文原句«懂命理，用 Liki»；中文原句仅用于中文面。`docs/brand.md` English 规则同步更新。
+- `docs/FEEDBACK_MODEL.md` 示例 CalVer 更新为 `2026.10.10.0`；`engine/.env.example` 默认端口对齐 engine-mcp（`:8081`）。
+
 ## [2026.10.10.0] — v7.0.0（MCP 版正式发布）
 
 Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamable MCP**（engine-mcp / counsel-mcp），engine-rpc 仅保留为 `liki-web` 过渡（removal gate 见 `docs/RUNTIME.md`）。按 `docs/RELEASE_MODEL.md` 属 **major**（公共入口契约变更）。

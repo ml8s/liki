@@ -19,6 +19,7 @@ TOOLS = ROOT / "counsel" / "app" / "natal" / "tools"
 SKILL_ROOT = Path(__file__).resolve().parents[1] / "skills" / "liki"
 DOMAIN_NAMES = ("natal", "divination", "fengshui", "naming")
 SLOGAN = "懂命理，用 Liki"
+SLOGAN_EN = "For Chinese Metaphysics, use Liki."
 
 
 def skill_dir(name: str = "liki") -> Path:

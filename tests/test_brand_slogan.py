@@ -1,7 +1,7 @@
 """Contract test: the canonical Liki slogan stays consistent across public windows."""
 import yaml
 
-from _helpers import ROOT, SKILL_ROOT, SLOGAN
+from _helpers import ROOT, SKILL_ROOT, SLOGAN, SLOGAN_EN
 
 FORBIDDEN_VARIANTS = [
     "Liki 灵机",
@@ -22,12 +22,13 @@ STALE_BRAND_CONTRACT = [
 
 
 def test_root_readmes_repeat_canonical_slogan():
-    for path in [ROOT / "README.md", ROOT / "README.en.md"]:
-        text = path.read_text(encoding="utf-8")
-        assert text.count(SLOGAN) >= 2
+    zh_text = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert zh_text.count(SLOGAN) >= 2
 
+    # Brand rule B: English surfaces use the English explanation only.
     en_text = (ROOT / "README.en.md").read_text(encoding="utf-8")
-    assert "For Chinese Metaphysics, use Liki." in en_text
+    assert en_text.count(SLOGAN_EN) >= 2
+    assert SLOGAN not in en_text
 
 
 def test_skill_repeats_canonical_slogan_in_description_and_intro():
