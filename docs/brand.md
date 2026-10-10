@@ -113,9 +113,9 @@ Slogan（品牌口号）
 
 English
 
-The canonical slogan is a Chinese sentence that uses the Latin brand name “Liki”; it is not translated into an alternative slogan.
+The canonical slogan «懂命理，用 Liki» is used on Chinese-language surfaces only.
 
-English explanatory rendering:
+On English-language surfaces (e.g. README.en.md), use the English explanatory rendering only — never the Chinese original:
 
 «For Chinese Metaphysics, use Liki.»
 
