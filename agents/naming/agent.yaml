@@ -16,9 +16,6 @@ tools:
       - city_coords
       - tianwen_time
     counsel:
-      - compute_factors
-      - natal_query
-      - period_query
       - qiming_surname
       - qiming_pick
       - qiming_char

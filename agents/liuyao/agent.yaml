@@ -16,7 +16,6 @@ tools:
       - time_now
       - tianwen_time
       - city_coords
-      - huangli_days
     counsel:
       - liuyao_snapshot
       - liuyao_query

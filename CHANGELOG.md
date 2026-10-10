@@ -34,6 +34,13 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 - CI 装配 `AGENTS_BASE` 改由 pin 提供（解析 immutable digest 并校验 == pin.digest，防上游 tag 移动）；`make agents-validate` 默认用 pinned 镜像（`LIKI_AGENTS_VALIDATOR` 可覆盖为本地二进制）——**测试用哪个版本，部署就用哪个**。
 - `make check` 增 `liki_agents_pin.py --check`；新增 `tests/test_liki_agents_pin.py`；`docs/SYSTEM.md`、`docs/RELEASE_MODEL.md` 记跨仓依赖 pin 模型（各镜像独立发布更新）。
 
+### 修复：专家工具白名单最小权限（专家装配评审）
+
+- `naming` 移除未使用的 counsel natal 断语工具（`compute_factors` / `natal_query` / `period_query`；起名用神走 engine `bazi_fullchart`，其余走 `qiming_*`）。
+- `liuyao` 移除未使用的 `huangli_days`（黄历择日归属于 qimen 域）。
+- `fengshui` 移除未使用的 `city_coords`（八宅/玄空流程不涉城市定位）。
+- 白名单以各域 TOOLS / ENTRY 契约流程为准，最小权限。
+
 ### 修复：feedback issue（B 类）
 
 ### Fixed：feedback B 类
