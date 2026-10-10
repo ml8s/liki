@@ -67,6 +67,20 @@ Semantics:
 | Backward-compatible new domain, tool, RPC, report, or product capability | minor |
 | Bug fix, docs, small correction without breaking contracts | patch |
 
+## 2.1 跨仓依赖 pin（独立发版）
+
+各仓（liki / liki-agents / liki-deploy / liki-web）**独立发版、独立更新**，互不要求版本同名对齐。liki 通过显式 pin 锁定其跨仓依赖：
+
+| 依赖 | pin 文件 | 锁定内容 | 更新时机 |
+|---|---|---|---|
+| AgentDeployment schema | `contracts/agent-definition.version` | schema version + sha256 | liki-agents 发布新 schema 后 |
+| 装配运行时 base | `contracts/liki-agents.base` | liki-agents version + immutable digest | liki-agents 发布新版且本仓验证通过后 |
+
+- 原则：**测试用哪个版本，部署就用哪个**——`make agents-validate`（本地 / CI）与 CI 装配 `FROM` 共用同一 pin（`python3 scripts/liki_agents_pin.py`）。
+- liki-agents 稳定后很少更新；**未发新版则 pin 保持不变**，不随 liki 自己的版本自动对齐。
+- CI 装配从 pin 取 `liki-agents:<version>` 并校验解析出的 immutable digest == pin.digest（防上游 tag 移动），不再依赖发布 tag 名。
+- 校验已接入 `make check`（`python3 scripts/liki_agents_pin.py --check`）。
+
 ## 3. Historical SemVer baselines
 
 Before `v5.0.0`, major architecture milestones were retro-tagged so public history has stable SemVer anchors:

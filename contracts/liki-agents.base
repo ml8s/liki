@@ -1,0 +1,12 @@
+# liki-agents 纯运行时镜像 pin（依赖锁定，非版本对齐）。
+#
+# liki-agents 是独立仓库、按自己的节奏发版（CalVer，稳定后很少动）。
+# liki 只锁定「验证与部署所共同依赖的那一个 liki-agents 发布版本」——
+# 测试（make agents-validate / gate）与部署（CI 装配 FROM）必须用同一 pin，
+# 不要求与 liki 自身的版本号同名。
+#
+# 更新时机：仅当 liki-agents 发布新版、且本仓用它通过校验后，才更新 version 与 digest。
+# 更新方式：确定要采用的新版本 → docker buildx imagetools inspect 解析其 digest →
+#   更新下面两行 → 重新跑 make agents-validate / gate。
+version: 2026.10.10.0
+digest: sha256:afc28bdf0074b98bfef2b0fdf04b9e5c758ce314ffe2c23e371533a48d340213

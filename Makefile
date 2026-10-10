@@ -45,12 +45,25 @@ build-deployment: ## Generate AgentDeployment artifacts for all profiles
 		python3 scripts/check_deployment_schema.py --profile "$$p"; \
 	done
 
-LIKI_AGENTS_VALIDATOR ?= liki-agents
+LIKI_AGENTS_VERSION ?= $(shell python3 scripts/liki_agents_pin.py --version)
+LIKI_AGENTS_IMAGE ?= $(shell python3 scripts/liki_agents_pin.py --ref)
+# 覆盖为本地二进制时，跳过容器内 pinned 运行时（仅用于离线开发）
+LIKI_AGENTS_VALIDATOR ?=
 
-agents-validate: build-deployment ## Validate generated artifacts with the liki-agents runtime
-	@set -eu; for p in $(DEPLOYMENT_PROFILES); do \
-		$(LIKI_AGENTS_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
-	done
+agents-validate: build-deployment ## Validate generated artifacts with the pinned liki-agents runtime (override LIKI_AGENTS_VALIDATOR=<bin>)
+	@set -eu; \
+	if [ -n "$(LIKI_AGENTS_VALIDATOR)" ]; then \
+		for p in $(DEPLOYMENT_PROFILES); do \
+			$(LIKI_AGENTS_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
+		done; \
+	else \
+		for p in $(DEPLOYMENT_PROFILES); do \
+			docker run --rm -v "$$PWD/dist/agents:/deployment:ro" \
+				-e LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/$$p/deployment.json \
+				--entrypoint /liki-agents $(LIKI_AGENTS_IMAGE) \
+				validate -deployment /deployment/$$p/deployment.json; \
+		done; \
+	fi
 
 build-engine-mcp: ## Build the engine MCP server
 	@cd engine && go build -o ../bin/engine-mcp ./cmd/engine-mcp/
@@ -111,6 +124,7 @@ check: lint-md lint-python fmt-check go-version-check check-actions ## 纯静态
 	python3 scripts/check_schema.py
 	python3 scripts/check_docs.py
 	python3 scripts/check_workflow.py
+	python3 scripts/liki_agents_pin.py --check
 	bash scripts/check-exec-bits.sh
 	python3 scripts/sync_expert_packs.py --check
 

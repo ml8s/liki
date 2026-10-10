@@ -405,6 +405,9 @@ jobs:
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: v2.4.1
+      - name: Validate liki-agents runtime base pin
+        run: |
+          python3 scripts/liki_agents_pin.py --check
       - name: Compute version
         id: version
         run: |
@@ -412,9 +415,10 @@ jobs:
           echo "runtime=$(cat skills/liki/VERSION.txt)" >> "$GITHUB_OUTPUT"
       - name: Compute deployment digests
         id: digests
-        env:
-          AGENTS_BASE: ghcr.io/${{ github.repository_owner }}/liki-agents:${{ steps.version.outputs.version }}
         run: |
+          AGENTS_VERSION="$(python3 scripts/liki_agents_pin.py --version)"
+          AGENTS_DIGEST="$(python3 scripts/liki_agents_pin.py --digest)"
+          AGENTS_BASE="ghcr.io/${{ github.repository_owner }}/liki-agents:${AGENTS_VERSION}"
           for profile in single experts; do
             out="$(
               docker run --rm -v "$PWD/dist/agents:/deployment:ro" \
@@ -430,12 +434,17 @@ jobs:
             fi
             echo "${profile}=${digest}" >> "$GITHUB_OUTPUT"
           done
+          # 装配 base 用 pinned 版本；解析 immutable digest 且必须等于 pin.digest
+          # （防 tag 被上游移动导致夹具漂移）。base_ref 形如 ghcr.io/x/liki-agents@sha256:...
           base_ref="$(
             docker image inspect --format '{{index .RepoDigests 0}}' "$AGENTS_BASE"
           )"
           case "$base_ref" in
-            ghcr.io/*@sha256:*) ;;
-            *) echo "failed to resolve immutable liki-agents base digest" >&2; exit 1 ;;
+            "ghcr.io/${{ github.repository_owner }}/liki-agents@${AGENTS_DIGEST}") ;;
+            *)
+              echo "::error::liki-agents base digest mismatch: $base_ref != ${AGENTS_DIGEST}"
+              exit 1
+              ;;
           esac
           echo "base_ref=${base_ref}" >> "$GITHUB_OUTPUT"
       - name: Build and push multi-experts image

@@ -87,6 +87,7 @@ contracts/agent-definition.version → scripts/check_deployment_schema.py（sche
 ```
 
 - **schema 契约由 liki-agents 拥有**：本仓通过 `contracts/agent-definition.version`（version+digest）pin 具体 schema，生成器校验对齐，避免漂移
+- **运行时 base 由本仓 pin**：`contracts/liki-agents.base`（version+immutable digest）锁定 liki-agents 发布版本；测试（`make agents-validate`）与部署（CI 装配 `FROM`）共用该 pin，**不与 liki 版本同名对齐**（各仓独立发版）
 - `make build-deployment` 生成唯一全功能 experts 工件并校验，已接入 `make check` 和 CI
 - 本仓 `contracts/agent-definition.schema.json` 是从 liki-agents 复制的 schema 快照（CI 用其 digest 校验）
 
@@ -95,7 +96,7 @@ contracts/agent-definition.version → scripts/check_deployment_schema.py（sche
 `assembly/Dockerfile` 按 `PROFILE` 参数构建两套装配镜像：
 
 ```dockerfile
-ARG BASE_IMAGE=ghcr.io/ml8s/liki-agents:<base>   # liki-agents release 显式 pin
+ARG BASE_IMAGE=ghcr.io/ml8s/liki-agents:<version>@<digest>  # 来源 contracts/liki-agents.base
 FROM ${BASE_IMAGE}
 COPY dist/agents/${PROFILE}/ /deployment/        # 组合工件烘焙进镜像
 ENV LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/deployment.json
@@ -105,7 +106,7 @@ ENV LIKI_AGENTS_DEPLOYMENT_DIGEST=<digest>       # CI 计算，生产启动校�
 - `PROFILE=experts` → `liki-multi-expert`（全功能，含全部子专家）
 - `PROFILE=single` → `liki-single-expert`（单一 root 专家）
 - **组合在 liki**：专家拓扑/指令/白名单在 CI 生成并烘焙，不在运行时装配
-- 发布时序：**先 liki-agents release，后 liki release**（装配镜像 FROM 依赖）
+- **依赖模型**：liki 通过 `contracts/liki-agents.base` 锁定 liki-agents 版本；测试与部署共用该 pin。**liki-agents 未发新版则 pin 不变**（两者独立发版，不要求版本同名）；采用新 liki-agents 时先更新 pin（`python3 scripts/liki_agents_pin.py --check` 在 `make check` 中校验）
 - 镜像不含密钥/源码：端点/令牌由部署环境注入
 
 ### 3.4 Web skill bundle（liki-web 消费）

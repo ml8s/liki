@@ -28,6 +28,12 @@ Liki 公共入口由 JSON-RPC（v6.x 系，最近 v6.1.0）切换为 **Streamabl
 
 - 门面标题收敛为「Liki — 专业命理 Skill / Liki — Professional Skill for Chinese Metaphysics」；修正字库归属、`city_coords`、工具清单路径与「四个 MCP」残留；en 版补「经典依据审计 / 小运多流派」与 zh 对齐。
 
+### Changed：跨仓依赖 pin（独立发版）
+
+- 新增 `contracts/liki-agents.base`（version + immutable digest）与 `scripts/liki_agents_pin.py`：liki 对 liki-agents **依赖锁定**，不再与 liki 发布 tag 同名对齐。
+- CI 装配 `AGENTS_BASE` 改由 pin 提供（解析 immutable digest 并校验 == pin.digest，防上游 tag 移动）；`make agents-validate` 默认用 pinned 镜像（`LIKI_AGENTS_VALIDATOR` 可覆盖为本地二进制）——**测试用哪个版本，部署就用哪个**。
+- `make check` 增 `liki_agents_pin.py --check`；新增 `tests/test_liki_agents_pin.py`；`docs/SYSTEM.md`、`docs/RELEASE_MODEL.md` 记跨仓依赖 pin 模型（各镜像独立发布更新）。
+
 ### 修复：feedback issue（B 类）
 
 ### Fixed：feedback B 类
