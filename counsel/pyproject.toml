@@ -1,6 +1,6 @@
 [project]
 name = "liki-counsel"
-version = "2026.10.10.0"
+version = "2026.10.11.0"
 description = "Liki 命理判断层（因子/断语/应期/考时）MCP 服务"
 requires-python = ">=3.11"
 dependencies = [

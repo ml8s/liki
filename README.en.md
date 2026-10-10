@@ -136,7 +136,7 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 
 ### Engine image
 
-The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.10.10.0`. Build from source with `engine/dev/docker-compose.yml`.
+The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.10.11.0`. Build from source with `engine/dev/docker-compose.yml`.
 
 ### Domain contracts
 
