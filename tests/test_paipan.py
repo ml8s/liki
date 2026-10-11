@@ -16,9 +16,9 @@ from paipan import RPCError, call
 @pytest.fixture(autouse=True)
 def skip_shared_engine_compatibility(monkeypatch):
     """Pure transport tests exercise call(); the shared gate has its own tests."""
-    import engine_client
+    import engine_mcp_client
 
-    monkeypatch.setattr(engine_client, "_COMPATIBILITY_CHECKED", True)
+    monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
 
 
 def test_rpc_logical_error_is_not_retried() -> None:

@@ -7,7 +7,7 @@ import os
 import pathlib
 
 import pytest  # noqa: E402
-from app import engine_client  # noqa: E402
+from app import engine_mcp_client  # noqa: E402
 from app.counsel_mcp import (  # noqa: E402
     _add_schema_tool,
     _make_app,
@@ -15,7 +15,7 @@ from app.counsel_mcp import (  # noqa: E402
     create_counsel_mcp,
     create_counsel_root_mcp,
 )
-from app.engine_client import MCPError as EngineMCPError  # noqa: E402
+from app.engine_mcp_client import MCPError as EngineMCPError  # noqa: E402
 from mcp import Client  # noqa: E402
 from mcp.server import MCPServer  # noqa: E402
 from starlette.applications import Starlette  # noqa: E402
@@ -346,8 +346,8 @@ def test_counsel_mcp_http_surface():
 
 
 def test_readyz_reports_engine_dependency(monkeypatch):
-    monkeypatch.setattr(engine_client, "engine_version", lambda: "2026.09.26.0")
-    monkeypatch.setattr(engine_client, "required_engine_version", lambda: "2026.09.26.0")
+    monkeypatch.setattr(engine_mcp_client, "engine_version", lambda: "2026.09.26.0")
+    monkeypatch.setattr(engine_mcp_client, "required_engine_version", lambda: "2026.09.26.0")
     status, raw = _http_request("/readyz")
     assert status == 200
     assert json.loads(raw)["status"] == "ready"
@@ -355,7 +355,7 @@ def test_readyz_reports_engine_dependency(monkeypatch):
     def unavailable():
         raise EngineMCPError("engine unavailable")
 
-    monkeypatch.setattr(engine_client, "engine_version", unavailable)
+    monkeypatch.setattr(engine_mcp_client, "engine_version", unavailable)
     status, raw = _http_request("/readyz")
     assert status == 503
     assert json.loads(raw)["status"] == "unready"
@@ -389,7 +389,7 @@ def test_authentication_runs_before_request_body_limit(monkeypatch):
     assert "unauthorized" in json.loads(raw)["error"]["code"]
 
 
-def test_engine_client_forwards_private_engine_token(monkeypatch):
+def test_engine_mcp_client_forwards_private_engine_token(monkeypatch):
     requests = []
 
     class response:
@@ -410,9 +410,9 @@ def test_engine_client_forwards_private_engine_token(monkeypatch):
     monkeypatch.setenv("LIKI_MCP_URL", "http://engine-mcp:8085/mcp/")
     monkeypatch.setenv("LIKI_ENGINE_MCP_TOKEN", "engine-secret")
     monkeypatch.setenv("LIKI_MCP_TOKEN", "counsel-secret")
-    monkeypatch.setattr(engine_client.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
 
-    engine_client.server_info(retries=0)
+    engine_mcp_client.server_info(retries=0)
 
     assert len(requests) == 1
     request = requests[0]["request"]
@@ -420,7 +420,7 @@ def test_engine_client_forwards_private_engine_token(monkeypatch):
     assert request.get_header("Authorization") == "Bearer engine-secret"
 
     monkeypatch.setenv("LIKI_ENGINE_MCP_TOKEN", "")
-    engine_client.server_info(retries=0)
+    engine_mcp_client.server_info(retries=0)
     fallback = requests[1]["request"]
     assert fallback.get_header("Authorization") == "Bearer counsel-secret"
 
@@ -484,7 +484,7 @@ def test_unauthorized_attempts_are_not_rate_limited(monkeypatch):
 def test_engine_endpoint_requires_explicit_url(monkeypatch):
     monkeypatch.delenv("LIKI_MCP_URL", raising=False)
     with pytest.raises(EngineMCPError, match="LIKI_MCP_URL"):
-        engine_client._endpoint()
+        engine_mcp_client._endpoint()
 
 
 def test_lifespan_fails_fast_without_engine_url(monkeypatch):

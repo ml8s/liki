@@ -8,13 +8,13 @@ from pathlib import Path
 _COUNSEL_APP = Path(__file__).resolve().parents[2]
 if str(_COUNSEL_APP) not in sys.path:
     sys.path.insert(0, str(_COUNSEL_APP))
-from engine_client import (  # noqa: E402
+from engine_mcp_client import (  # noqa: E402
     MCPError,
     _version_key,
     call,
     engine_version,
 )
-from engine_client import (  # noqa: E402
+from engine_mcp_client import (  # noqa: E402
     ensure_engine_compatible as _ensure_engine_compatible,
 )
 

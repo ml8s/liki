@@ -7,7 +7,7 @@ liki 命理 skill 的排盘层：
 - bond：合盘（八字合盘 + 紫微合盘）
 
 命理逻辑不在本层（见 factors.py / duanyu.py）。
-本层只做「读引擎字段 + 编排 RPC + 归并」，零命理判断。
+本层只做「读引擎字段 + 编排 MCP 工具调用 + 归并」，零命理判断。
 """
 from __future__ import annotations
 
@@ -20,17 +20,17 @@ from factor_constants import load_constants
 from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 
-# MCP 引擎客户端（dev 走 MCP；RPC 仅引擎保留给线上兼容）
+# Engine MCP 客户端（counsel 统一走 MCP）
 _COUNSEL_APP = Path(__file__).resolve().parents[2]
 if str(_COUNSEL_APP) not in sys.path:
     sys.path.insert(0, str(_COUNSEL_APP))
-from engine_client import (  # noqa: E402
+from engine_mcp_client import (  # noqa: E402
     MCPError,
     _version_key,
     call,
     engine_version,
 )
-from engine_client import (  # noqa: E402
+from engine_mcp_client import (  # noqa: E402
     ensure_engine_compatible as _ensure_engine_compatible,
 )
 

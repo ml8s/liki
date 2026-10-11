@@ -1,10 +1,10 @@
 """统一 MCP 引擎客户端。
 
 counsel-mcp 通过标准 Streamable HTTP MCP 调用 engine-mcp。公开部署经 Caddy
-剥离 /engine 前缀；容器内直接使用 http://engine-mcp:8081/mcp。
+剥离 /engine 前缀；容器内直接使用 engine-mcp 的 MCP endpoint。
 
-暴露与旧 call 兼容的接口：`call(method, params)` 返回 `{"data": <MCP 工具结果>}`，
-方法名自动做 RPC 点号 → MCP 下划线映射（bazi.chart → bazi_chart）。
+暴露统一工具调用接口：`call(method, params)` 返回 `{"data": <MCP 工具结果>}`，
+方法名自动做点号 → MCP 工具名映射（bazi.chart → bazi_chart）。
 """
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ def _engine_token() -> str:
     )
 
 
-# RPC 方法前缀 → 引擎分域端点后缀（各术数排盘 + 共享 aux）
+# MCP 工具名前缀 → 引擎分域端点后缀（各术数排盘 + 共享 aux）
 _DOMAIN_BY_PREFIX = (
     ("bazi", "/bazi"),
     ("ziwei", "/ziwei"),
@@ -146,7 +146,7 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
 
 
 def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
-    """调引擎 MCP 工具；返回 {"data": <工具结果>}，兼容旧 RPC 调用点。"""
+    """调用 engine MCP 工具；返回 {"data": <工具结果>}。"""
     ensure_engine_compatible()
     tool = method.replace(".", "_")
     result = _post("tools/call", tool, {"name": tool, "arguments": params}, retries)

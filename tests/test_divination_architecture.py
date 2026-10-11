@@ -67,8 +67,8 @@ def test_only_common_rpc_module_touches_urllib():
         text = path.read_text(encoding="utf-8")
         if "urllib.request" in text or "urlopen(" in text:
             rpc_files.append(path.name)
-    # MCP 化后：只有公共引擎客户端（engine_client）直接触网；divination_rpc 复用它
-    assert rpc_files == ["divination_rpc.py"] or "engine_client.py" not in TOOLS.name
+    # MCP 化后：只有公共引擎客户端（engine_mcp_client）直接触网；divination_rpc 复用它
+    assert rpc_files == ["divination_rpc.py"] or "engine_mcp_client.py" not in TOOLS.name
 
 
 def test_contract_registry_has_exact_domain_contracts():

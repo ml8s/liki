@@ -33,8 +33,8 @@ from starlette.middleware import Middleware
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from app import engine_client
-from app.engine_client import MCPError as EngineMCPError
+from app import engine_mcp_client
+from app.engine_mcp_client import MCPError as EngineMCPError
 from app.natal.tools.errors import LikiToolError
 
 JUDGMENT_SCHEMA = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "counsel-tools.json"
@@ -409,11 +409,11 @@ def _make_app():
 
     async def readyz(_request):
         try:
-            engine_version = await anyio.to_thread.run_sync(engine_client.engine_version)
+            engine_version = await anyio.to_thread.run_sync(engine_mcp_client.engine_version)
             await anyio.to_thread.run_sync(
-                engine_client.ensure_engine_compatible,
+                engine_mcp_client.ensure_engine_compatible,
                 engine_version,
-                engine_client.required_engine_version(),
+                engine_mcp_client.required_engine_version(),
             )
         except Exception:
             return JSONResponse(

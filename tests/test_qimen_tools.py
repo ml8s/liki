@@ -11,9 +11,9 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def skip_shared_engine_compatibility(monkeypatch):
-    import engine_client
+    import engine_mcp_client
 
-    monkeypatch.setattr(engine_client, "_COMPATIBILITY_CHECKED", True)
+    monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
 from jsonschema import validate
 
 
@@ -485,29 +485,29 @@ class _FakeResp:
 
 
 def test_mcp_call_reports_malformed_engine_payload(monkeypatch) -> None:
-    import engine_client
-    from engine_client import MCPError
+    import engine_mcp_client
+    from engine_mcp_client import MCPError
 
-    monkeypatch.setattr(engine_client.urllib.request, "urlopen",
+    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
                         lambda *_, **__: _FakeResp(b"not-json"))
     with pytest.raises(MCPError, match="无法解析 MCP 响应"):
-        engine_client.call("qimen.chart", {"solar_time": "x"})
+        engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
 
 
 def test_mcp_call_reports_missing_result(monkeypatch) -> None:
-    import engine_client
-    from engine_client import MCPError
+    import engine_mcp_client
+    from engine_mcp_client import MCPError
 
     # tools/call 返回空 content → call 报错
-    monkeypatch.setattr(engine_client.urllib.request, "urlopen",
+    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
                         lambda *_, **__: _FakeResp(_mcp_response('{"jsonrpc":"2.0","id":1,"result":{"content":[]}}')))
     with pytest.raises(MCPError):
-        engine_client.call("qimen.chart", {"solar_time": "x"})
+        engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
 
 
 def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
-    import engine_client
-    from engine_client import MCPError
+    import engine_mcp_client
+    from engine_mcp_client import MCPError
 
     calls = []
 
@@ -518,20 +518,20 @@ def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
         calls.append("ok")
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
 
-    monkeypatch.setattr(engine_client.urllib.request, "urlopen", urlopen)
-    result = engine_client.call("qimen.chart", {"solar_time": "x"})
+    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
+    result = engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
     assert result == {"data": {"ok": True}}
     assert calls == ["server-error", "ok"]
 
     client_error = HTTPError("https://example.test", 403, "forbidden", {}, None)
-    monkeypatch.setattr(engine_client.urllib.request, "urlopen",
+    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
                         lambda *_, **__: (_ for _ in ()).throw(client_error))
     with pytest.raises(MCPError, match="HTTP 403"):
-        engine_client.call("qimen.chart", {"solar_time": "x"})
+        engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
 
 
 def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
-    import engine_client
+    import engine_mcp_client
 
     seen = []
 
@@ -540,22 +540,22 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
 
     monkeypatch.setenv("LIKI_MCP_URL", "https://dynamic.example/mcp")
-    monkeypatch.setattr(engine_client.urllib.request, "urlopen", urlopen)
-    assert engine_client.call("qimen.chart", {"solar_time": "x"}) == {"data": {"ok": True}}
+    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
+    assert engine_mcp_client.call("qimen.chart", {"solar_time": "x"}) == {"data": {"ok": True}}
     assert seen == ["https://dynamic.example/mcp/qimen"]
 
-def test_engine_client_domain_suffix(monkeypatch):
-    """engine_client 按工具名分域：tianwen_time→/aux、ziwei_chart→/ziwei、bazi_chart→/bazi。"""
-    import engine_client
+def test_engine_mcp_client_domain_suffix(monkeypatch):
+    """engine_mcp_client 按工具名分域：tianwen_time→/aux、ziwei_chart→/ziwei、bazi_chart→/bazi。"""
+    import engine_mcp_client
     seen = []
     def urlopen(request, *_, **__):
         seen.append(request.full_url)
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
-    monkeypatch.setattr(engine_client, "_COMPATIBILITY_CHECKED", True)
+    monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
     monkeypatch.setenv("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
-    monkeypatch.setattr(engine_client.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
     for name in ["tianwen_time", "ziwei.chart", "bazi_chart", "time.now"]:
-        engine_client.call(name, {})
+        engine_mcp_client.call(name, {})
     assert seen == [
         "http://127.0.0.1:18081/mcp/aux",
         "http://127.0.0.1:18081/mcp/ziwei",
