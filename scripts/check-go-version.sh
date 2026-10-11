@@ -8,9 +8,8 @@ command -v go >/dev/null 2>&1 || {
     exit 1
 }
 
-ACTUAL="$(go env GOVERSION | sed 's/^go//')"
-LOWEST="$(printf '%s\n%s\n' "$REQUIRED" "$ACTUAL" | sort -V | head -1)"
-if [ "$LOWEST" != "$REQUIRED" ]; then
-    echo "Go >= ${REQUIRED} is required; found ${ACTUAL} at $(command -v go)." >&2
+ACTUAL="$(GOTOOLCHAIN=go$REQUIRED go env GOVERSION | sed 's/^go//')"
+if [ "$ACTUAL" != "$REQUIRED" ]; then
+    echo "Go ${REQUIRED} is required; found ${ACTUAL} at $(command -v go)." >&2
     exit 1
 fi

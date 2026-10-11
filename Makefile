@@ -16,8 +16,12 @@
 
 export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
+NODE_BIN := $(HOME)/.nvm/versions/node/v$(shell cat .nvmrc)/bin
+PYTHON_BIN := $(HOME)/app/python3.12.14/bin
+export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
+export GOTOOLCHAIN ?= go1.26.9
 
-.PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python \
+.PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check lint vuln lint-md check test test-contracts test-engine test-counsel test-engine-mcp \
         test-functional verify full-data golden gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest \
@@ -96,6 +100,9 @@ image-assembly: build-deployment ## Build assembly images locally (multi + singl
 
 image: image-engine image-counsel ## Build all liki-owned runtime images locally (debug)
 
+smoke: image ## Smoke engine RPC/MCP and counsel MCP images
+	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-images.sh
+
 fmt: ## Format Go sources
 	@cd engine && gofmt -w .
 
@@ -159,7 +166,7 @@ golden: ## Deterministic multi-source golden suites
 	@cd engine && go test -count=1 -run \
 		'Golden|External|Matrix|Pattern' ./internal/engine/...
 
-gate: lint-engine check test full-data build-release-manifest ## Full push gate: lint, static, tests, data coverage, unified release artifacts
+gate: lint-engine check test full-data build-release-manifest smoke ## Full push gate: static, tests, coverage, release artifacts, image smoke
 
 check-actions: ## Reject mutable reusable workflow/action references
 	python3 scripts/check_actions_pinned.py
