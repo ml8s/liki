@@ -6,7 +6,7 @@ metadata:
   slug: liki
   displayName: Liki 专业命理 Skill
   agent_created: 'true'
-  version: 2026.10.12.1
+  version: 2026.10.12.2
   summary: 专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。
   keywords:
     - 八字合婚

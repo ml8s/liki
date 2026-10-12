@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.10.12.2] — 2026-10-12
+
+### Fixed
+
+- Keep release attestations and SBOMs for assembly images, and pull the published images before post-push provenance/runtime validation. This avoids buildx `load` rejecting manifest lists while still validating the exact GHCR images.
+
 ## [2026.10.12.1] — 2026-10-12
 
 ### Fixed

@@ -2,7 +2,7 @@
 name: liki-naming
 description: 起名专家——八字用神取字、五行选字、音韵文化适配、外国人起中文名与自选名评估。依据可回溯。
 display_name: 起名专家
-version: 2026.10.12.1
+version: 2026.10.12.2
 author: Liki
 keywords:
   - 起名

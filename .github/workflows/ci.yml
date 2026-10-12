@@ -481,7 +481,6 @@ jobs:
             COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.event.release.published_at }}
           push: true
-          load: true
           provenance: mode=max
           sbom: true
           tags: |
@@ -500,12 +499,15 @@ jobs:
             COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.event.release.published_at }}
           push: true
-          load: true
           provenance: mode=max
           sbom: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.version }}
             ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.runtime }}
+      - name: Pull published assembly images
+        run: |
+          docker pull "ghcr.io/${{ github.repository_owner }}/liki-multi-expert:${{ steps.version.outputs.runtime }}"
+          docker pull "ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.runtime }}"
       - name: Verify assembly image version label
         run: |
           for image in \
