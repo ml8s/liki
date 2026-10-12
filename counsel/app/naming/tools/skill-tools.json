@@ -3,7 +3,7 @@
   "info": {
     "title": "Liki naming tools",
     "description": "起名（命理之上的应用）：配姓、取字池、单字查询、组名、评估。纯函数实现，与 engine Go qiming 逐字段对齐。",
-    "version": "2026.10.11.0"
+    "version": "2026.10.12.0"
   },
   "tools": [
     {
@@ -25,6 +25,63 @@
             "max_candidates": {
               "type": "integer",
               "description": "返回候选数上限，默认 6，范围 1-12。"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Ranked Chinese surname candidates for a Latin source surname.",
+          "additionalProperties": true,
+          "required": [
+            "source_surname",
+            "strategy",
+            "candidates"
+          ],
+          "properties": {
+            "source_surname": {
+              "description": "Normalized Latin source surname.",
+              "type": "string"
+            },
+            "strategy": {
+              "description": "Matching strategy.",
+              "type": "string",
+              "enum": [
+                "phonetic",
+                "baijiaxing_fallback"
+              ]
+            },
+            "candidates": {
+              "description": "Ordered surname candidates.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "surname",
+                  "pinyin",
+                  "match_level"
+                ],
+                "properties": {
+                  "surname": {
+                    "description": "Chinese surname candidate.",
+                    "type": "string"
+                  },
+                  "pinyin": {
+                    "description": "Candidate pinyin.",
+                    "type": "string"
+                  },
+                  "match_level": {
+                    "description": "Match strategy or fallback level.",
+                    "type": "string"
+                  },
+                  "basis": {
+                    "description": "Match basis tokens.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -73,6 +130,86 @@
               "description": "名字字数：1=单名，2=双名（默认 2）。"
             }
           }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Character pools selected for requested five-element slots.",
+          "additionalProperties": true,
+          "required": [
+            "wuxing1",
+            "pools"
+          ],
+          "properties": {
+            "wuxing1": {
+              "description": "Normalized first-slot element.",
+              "type": "string",
+              "enum": [
+                "木",
+                "火",
+                "土",
+                "金",
+                "水"
+              ]
+            },
+            "wuxing2": {
+              "description": "Normalized second-slot element, when a double name was requested.",
+              "type": "string",
+              "enum": [
+                "木",
+                "火",
+                "土",
+                "金",
+                "水"
+              ]
+            },
+            "pools": {
+              "description": "Character pools by name slot.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "slot",
+                  "chars"
+                ],
+                "properties": {
+                  "slot": {
+                    "description": "Name slot.",
+                    "type": "string",
+                    "enum": [
+                      "first",
+                      "second"
+                    ]
+                  },
+                  "chars": {
+                    "description": "Available characters and frequency.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "char",
+                        "frequency"
+                      ],
+                      "properties": {
+                        "char": {
+                          "description": "Candidate Chinese character.",
+                          "type": "string"
+                        },
+                        "frequency": {
+                          "description": "Character usage tier: common, standard, or rare.",
+                          "type": "string",
+                          "enum": [
+                            "common",
+                            "standard",
+                            "rare"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -93,6 +230,60 @@
               "description": "要查询的单个汉字。"
             }
           }
+        },
+        "output_schema": {
+          "description": "A single Chinese character, or null when it is not in the naming database.",
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "char",
+                "frequency",
+                "wuxing",
+                "stroke",
+                "pinyin",
+                "tone"
+              ],
+              "properties": {
+                "char": {
+                  "description": "The character.",
+                  "type": "string"
+                },
+                "frequency": {
+                  "description": "Character usage tier: common, standard, or rare.",
+                  "type": "string",
+                  "enum": [
+                    "common",
+                    "standard",
+                    "rare"
+                  ]
+                },
+                "wuxing": {
+                  "description": "Five element.",
+                  "type": "string"
+                },
+                "stroke": {
+                  "description": "Stroke count.",
+                  "type": "integer"
+                },
+                "pinyin": {
+                  "description": "Pinyin.",
+                  "type": "string"
+                },
+                "tone": {
+                  "description": "Tone number.",
+                  "type": "integer"
+                },
+                "radical": {
+                  "description": "Radical, when known.",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -125,6 +316,28 @@
             "max_names": {
               "type": "integer",
               "description": "返回候选名上限，默认 100，范围 1-1000。"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Candidate given names composed from validated character pools.",
+          "additionalProperties": true,
+          "required": [
+            "total_possible",
+            "names"
+          ],
+          "properties": {
+            "total_possible": {
+              "description": "Total combinations before max_names truncation.",
+              "type": "integer"
+            },
+            "names": {
+              "description": "Generated given-name candidates.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
@@ -187,6 +400,49 @@
                 ]
               },
               "description": "忌神五行列表。"
+            }
+          }
+        },
+        "output_schema": {
+          "description": "Naming database, phonetic, and five-element evaluations.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "given_name",
+              "valid"
+            ],
+            "properties": {
+              "given_name": {
+                "description": "Evaluated given name.",
+                "type": "string"
+              },
+              "valid": {
+                "description": "Whether the name passed all checks.",
+                "type": "boolean"
+              },
+              "errors": {
+                "description": "Validation errors, if any.",
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "characters": {
+                "description": "Resolved character facts, when valid.",
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "phonetic": {
+                "description": "Tone sequence, when valid.",
+                "type": "object"
+              },
+              "wuxing": {
+                "description": "Five-element matches, when requested.",
+                "type": "object"
+              }
             }
           }
         }

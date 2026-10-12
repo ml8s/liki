@@ -12,7 +12,7 @@ P0_PHRASES = [
     "风水布局", "起名", "取名", "宝宝起名", "宝宝取名",
 ]
 
-P1_PHRASES = [
+KEYWORD_PHRASES = [
     "八字合婚", "婚姻分析", "感情走向", "事业分析", "职业方向",
     "财运分析", "投资时机", "学业分析", "考试运", "健康分析",
     "五行体质", "怀孕生育时机", "新生儿起名", "成人改名", "公司起名",
@@ -33,6 +33,13 @@ def _metadata() -> dict:
     meta = yaml.safe_load(txt.split("---\n")[1])
     assert isinstance(meta, dict)
     return meta
+
+
+def _keywords() -> list[str]:
+    keywords = _metadata()["metadata"].get("keywords") or []
+    assert isinstance(keywords, list)
+    assert all(isinstance(keyword, str) and keyword.strip() for keyword in keywords)
+    return keywords
 
 
 def _description() -> str:
@@ -61,7 +68,7 @@ def test_description_has_controlled_length():
     # 中文 3B/字 → 原 450~1000 字符区间与 1024B 互斥，改为字节上限 + 字符下限。
     desc = _description()
     assert len(desc.encode("utf-8")) <= 1024, f"description 超 1024 字节: {len(desc.encode('utf-8'))}"
-    assert len(desc) >= 300, f"description 过短，丢失核心能力: {len(desc)}"
+    assert len(desc) >= 240, f"description 过短，丢失核心能力: {len(desc)}"
 
 
 def test_description_covers_all_p0_phrases():
@@ -70,10 +77,20 @@ def test_description_covers_all_p0_phrases():
     assert not missing, f"description 缺少 P0 搜索词: {missing}"
 
 
-def test_description_covers_selected_p1_phrases():
-    desc = _description()
-    missing = [p for p in P1_PHRASES if p not in desc]
-    assert not missing, f"description 缺少精选搜索词: {missing}"
+def test_keywords_cover_selected_long_tail_phrases():
+    keywords = _keywords()
+    missing = [p for p in KEYWORD_PHRASES if p not in keywords]
+    assert not missing, f"metadata.keywords 缺少精选搜索词: {missing}"
+
+
+def test_keywords_are_flat_safe_strings():
+    keywords = _keywords()
+    assert keywords == list(dict.fromkeys(keywords)), "keywords 不能重复"
+    assert len(keywords) <= 32, "keywords 过多，应保留精选长尾词"
+    for keyword in keywords:
+        assert 1 <= len(keyword) <= 64, keyword
+        assert keyword == keyword.strip(), keyword
+        assert not any(char.isspace() and char != " " for char in keyword), keyword
 
 
 def test_naming_keywords_are_delimited_pair():

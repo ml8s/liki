@@ -25,11 +25,11 @@ liki-qimen/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-mcp", "counsel-mcp"]` — 排盘/黄历走 engine-mcp（qimen_chart/huangli_days），断语走 counsel-mcp（qimen_snapshot/qimen_query）。
+- `dependencies.connectors: ["engine-mcp", "counsel-mcp"]` — 奇门排盘与黄历查日能力由 engine-mcp 提供；不可变局盘快照与追问能力由 counsel-mcp 提供。
 
 ## 说明
 
-- 黄历择日（`huangli_days`）是简单 aux 工具，LLM 自举使用；择日卡就近放在本专家，与奇门择吉连用。
+- 黄历查日是简单辅助能力，LLM 自举使用；择日卡就近放在本专家，与奇门择吉连用。
 - 校验要点与 `liki-bazi` 一致（expertType/agentName/tags/quickPrompts/displayDescription/categoryId/头像）。
 
 ## 待办

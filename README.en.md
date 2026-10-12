@@ -60,7 +60,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 - Charts are calculated by the Go astronomical engine, including true solar time, longitude / timezone, and solar terms.
 - Judgments come from 829 assertion rules, each citing audited classical sources (《三命通会》《渊海子平》《滴天髓》《紫微斗数全书》《黄帝内经》...) with factor evidence and traceable sources.
 - Mini-luck (小运) is delivered by multiple schools: 《三命通会》(fixed 丙寅 for men / 壬申 for women) and 《星平会海》(from the hour pillar, yang-male yin-female forward / yin-male yang-female backward).
-- 160 professional competition questions provide independent accuracy evaluation with isolated answers.
+- The 160 professional competition questions provide rule-chain coverage and zero-hit checks; they are not an independent accuracy benchmark or proof of correctness.
 - Birth data remains in the current conversation; the Skill does not ask for real names or store data outside the session.
 - If a city is absent from the built-in table, `city_coords` may send the city name to Nominatim (OSM). Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
 - Conclusions are conditional interpretations from a traditional cultural perspective. They are not medical, legal, investment, or major life advice.
@@ -89,8 +89,8 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 | --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
 | [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and payload format |
-| [Runtime model](./docs/RUNTIME.md) | Engine/counsel processes, endpoints, and transition JSON-RPC |
-| [Release model](./docs/RELEASE_MODEL.md) | CalVer runtime versions and SemVer releases |
+| [Runtime model](./docs/RUNTIME.md) | Engine/counsel processes, endpoints, and retained JSON-RPC compatibility |
+| [Release model](./docs/RELEASE_MODEL.md) | Date-based runtime and release versions |
 
 ## For developers
 
@@ -99,7 +99,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 ```bash
 make hooks         # install git hooks
 make check         # all static checks (format + lint + schema + docs)
-make gate          # push gate (lint/check/tests/160-question coverage/archive)
+make gate          # push gate (lint/check/tests/160-question coverage/runtime validation/release artifacts/image smoke)
 make build-archive # pack the unified Liki skill
 ```
 
@@ -136,7 +136,7 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 
 ### Engine image
 
-The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.10.11.0`. Build from source with `engine/dev/docker-compose.yml`.
+The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.10.12.0`. Build from source with `engine/dev/docker-compose.yml`.
 
 ### Domain tool interfaces
 
@@ -150,21 +150,20 @@ The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/li
 ### Tests and release
 
 ```bash
-make test           # All tests (pytest + Go engine full suite)
-make verify        # engine/counsel MCP integration verification
-make golden # full golden suite
+make test           # All tests (pytest + Go engine full suite, including MCP integration)
+make golden         # Full golden suite (focused diagnostic entry)
 ```
 
-See [Release model](./docs/RELEASE_MODEL.md) for the layered model: `lint → check → test → verify → gate`.
+See [Release model](./docs/RELEASE_MODEL.md) for the layered model: `lint → check → test → gate`.
 
-Formal releases use SemVer tags; runtime compatibility uses CalVer. See [Release model](./docs/RELEASE_MODEL.md).
+Formal releases use date-based CalVer tags. See [Release model](./docs/RELEASE_MODEL.md).
 
 ### Design principles
 
 - Single responsibility: root entry, domain entry, app cards, domain knowledge, and tool layers do not replace each other.
 - Single source of truth: tool contracts come from `counsel-tools.json` (natal) / `skill-tools.json` (divination, naming); factors and assertions come from CSV tables.
 - Explicit dual-system review: Bazi and Ziwei are calculated separately and conflicts are listed by evidence layer.
-- Evaluation-driven: golden, functional, MCP integration, and the 160-question rule-coverage check run in separate layers; historical model-backed assets are explicitly archived.
+- Test layers: golden, functional, MCP integration, and the 160-question rule-coverage / zero-hit check run separately; historical model-backed assets are explicitly archived.
 
 ## Contributing
 

@@ -17,6 +17,7 @@ REQUIRED_IMAGE_DIGEST_ARTIFACTS = {
     "image-digest-engine",
     "image-digest-engine_mcp",
     "image-digest-experts",
+    "image-digest-single_expert",
 }
 
 
@@ -36,10 +37,28 @@ def main() -> int:
         if not isinstance(jobs, dict):
             errors.append(f"{path.relative_to(ROOT)}: jobs must be a mapping")
             continue
+        concurrency = document.get("concurrency")
+        if not isinstance(concurrency, dict):
+            errors.append(f"{path.relative_to(ROOT)}: missing concurrency group")
+        else:
+            group = concurrency.get("group")
+            cancel = concurrency.get("cancel-in-progress")
+            if not isinstance(group, str) or "github.workflow" not in group:
+                errors.append(f"{path.relative_to(ROOT)}: concurrency.group must include github.workflow")
+            if cancel != "${{ github.event_name == 'pull_request' }}":
+                errors.append(
+                    f"{path.relative_to(ROOT)}: concurrency.cancel-in-progress must be "
+                    "true only for pull_request"
+                )
         pins: dict[str, str] = {}
         for job_id, job in jobs.items():
             if not isinstance(job, dict):
                 continue
+            timeout = job.get("timeout-minutes")
+            if isinstance(timeout, bool) or not isinstance(timeout, int) or not 1 <= timeout <= 60:
+                errors.append(
+                    f"{path.relative_to(ROOT)}: job {job_id!r} needs timeout-minutes in 1..60"
+                )
             for step in job.get("steps") or []:
                 if not isinstance(step, dict):
                     continue

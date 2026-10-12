@@ -23,7 +23,7 @@ liki-fengshui/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-mcp"]` — 八宅/玄空排盘走 engine-mcp（bazhai_chart/bazhai_layout/xuankong_chart/xuankong_liunian），无独立判断层。
+- `dependencies.connectors: ["engine-mcp"]` — 八宅排盘与布局、玄空排盘与流年能力由 engine-mcp 提供，无独立判断层。
 
 ## 说明
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "Liki divination 奇门 / 六爻 / 黄历工具",
     "description": "问卦分域 snapshot 与 query 工具，由 counsel-mcp 暴露。",
-    "version": "2026.10.11.0"
+    "version": "2026.10.12.0"
   },
   "tools": [
     {
@@ -285,6 +285,532 @@
               }
             }
           ]
+        },
+        "output_schema": {
+          "$id": "liki:liuyao-snapshot-v7",
+          "title": "六爻 immutable snapshot 契约",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "question",
+            "casting",
+            "board",
+            "focus",
+            "evidence",
+            "facts",
+            "timing_candidates",
+            "policy",
+            "method",
+            "snapshot_digest",
+            "matter",
+            "topic",
+            "topic_guidance",
+            "timing_plan",
+            "condition_rules",
+            "safety_advisory"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "liuyao-snapshot-v7",
+              "description": "Schema version returned by this tool."
+            },
+            "question": {
+              "type": "object",
+              "required": [
+                "text",
+                "matter",
+                "explicit_yong_shen",
+                "perspective",
+                "solar_time"
+              ],
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 2
+                },
+                "matter": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "explicit_yong_shen": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "perspective": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "solar_time": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Question returned by this tool."
+            },
+            "casting": {
+              "type": "object",
+              "required": [
+                "mode",
+                "order",
+                "casting_id",
+                "yaos",
+                "dong_yao"
+              ],
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "coins",
+                    "yaos"
+                  ]
+                },
+                "rounds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "position": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 6
+                      },
+                      "coins": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "正",
+                            "反"
+                          ]
+                        }
+                      },
+                      "value": {
+                        "type": "integer",
+                        "minimum": 6,
+                        "maximum": 9
+                      },
+                      "label": {
+                        "type": "string",
+                        "enum": [
+                          "老阴",
+                          "少阳",
+                          "少阴",
+                          "老阳"
+                        ]
+                      },
+                      "changing": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "position",
+                      "coins",
+                      "value",
+                      "label",
+                      "changing"
+                    ]
+                  }
+                },
+                "yaos": {
+                  "type": "array",
+                  "minItems": 6,
+                  "maxItems": 6,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 6,
+                    "maximum": 9
+                  }
+                },
+                "dong_yao": {
+                  "type": "array"
+                },
+                "casting_id": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$",
+                  "description": "canonical deterministic casting identity"
+                },
+                "order": {
+                  "type": "string",
+                  "const": "bottom_up"
+                }
+              },
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "const": "coins"
+                      }
+                    },
+                    "required": [
+                      "mode"
+                    ]
+                  },
+                  "then": {
+                    "required": [
+                      "rounds"
+                    ],
+                    "properties": {
+                      "rounds": {
+                        "minItems": 6,
+                        "maxItems": 6
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "mode": {
+                        "const": "yaos"
+                      }
+                    },
+                    "required": [
+                      "mode"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "rounds": {
+                        "maxItems": 0
+                      }
+                    }
+                  }
+                }
+              ],
+              "description": "Casting returned by this tool."
+            },
+            "board": {
+              "type": "object",
+              "required": [
+                "name",
+                "ben_gua",
+                "palace",
+                "lines",
+                "bian_lines",
+                "ri_gan",
+                "ri_zhi",
+                "yue_gan",
+                "yue_zhi",
+                "xun_kong"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "ben_gua": {
+                  "type": "string"
+                },
+                "bian_gua": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "palace": {
+                  "type": "string"
+                },
+                "palace_wuxing": {
+                  "type": "string"
+                },
+                "lines": {
+                  "type": "array",
+                  "minItems": 6,
+                  "maxItems": 6
+                },
+                "bian_lines": {
+                  "type": "array",
+                  "maxItems": 6
+                },
+                "ri_gan": {
+                  "type": "string"
+                },
+                "ri_zhi": {
+                  "type": "string"
+                },
+                "yue_gan": {
+                  "type": "string"
+                },
+                "yue_zhi": {
+                  "type": "string"
+                },
+                "xun_kong": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "additionalProperties": false,
+              "description": "Board returned by this tool."
+            },
+            "focus": {
+              "type": "object",
+              "required": [
+                "yong_shen"
+              ],
+              "properties": {
+                "yong_shen": {
+                  "type": "object"
+                },
+                "yong_line": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "world": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "other": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Focus returned by this tool."
+            },
+            "evidence": {
+              "type": "object",
+              "required": [
+                "primary",
+                "secondary",
+                "reference",
+                "conflicts",
+                "ignored_scope"
+              ],
+              "properties": {
+                "primary": {
+                  "type": "array"
+                },
+                "secondary": {
+                  "type": "array"
+                },
+                "reference": {
+                  "type": "array"
+                },
+                "conflicts": {
+                  "type": "array"
+                },
+                "ignored_scope": {
+                  "type": "array"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Evidence returned by this tool."
+            },
+            "facts": {
+              "type": "object",
+              "required": [
+                "hidden_lines",
+                "branch_relation_facts",
+                "day_clash_facts",
+                "moving_transformations",
+                "san_he_candidates",
+                "force_chain",
+                "yong_shen_candidates"
+              ],
+              "description": "Facts returned by this tool."
+            },
+            "timing_candidates": {
+              "type": "array",
+              "description": "Timing candidates returned by this tool."
+            },
+            "policy": {
+              "type": "object",
+              "required": [
+                "may_output",
+                "must_cover_conflicts",
+                "forbidden",
+                "immutable",
+                "no_recast_without_new_event"
+              ],
+              "properties": {
+                "may_output": {
+                  "type": "array"
+                },
+                "must_cover_conflicts": {
+                  "type": "boolean"
+                },
+                "forbidden": {
+                  "type": "array"
+                },
+                "immutable": {
+                  "const": true
+                },
+                "no_recast_without_new_event": {
+                  "const": true
+                }
+              },
+              "additionalProperties": false,
+              "description": "Policy returned by this tool."
+            },
+            "method": {
+              "const": "liuyao",
+              "description": "Method returned by this tool."
+            },
+            "snapshot_digest": {
+              "type": "string",
+              "minLength": 16,
+              "description": "Snapshot digest returned by this tool."
+            },
+            "matter": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Matter returned by this tool."
+            },
+            "topic": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Topic returned by this tool."
+            },
+            "topic_guidance": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "Topic guidance returned by this tool."
+            },
+            "timing_plan": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "schema_version": {
+                  "const": "liuyao-timing-plan-v2"
+                },
+                "blocked": {
+                  "const": false
+                },
+                "topic": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "candidates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": true
+                  }
+                },
+                "boundary": {
+                  "const": "传统六爻应期候选；不构成医疗、法律、财务或其他专业建议。"
+                },
+                "policy": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "may_output": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "forbidden": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "advice_scope": {
+                      "const": "traditional_reference_not_professional_advice"
+                    }
+                  },
+                  "required": [
+                    "may_output",
+                    "forbidden",
+                    "advice_scope"
+                  ]
+                }
+              },
+              "required": [
+                "schema_version",
+                "blocked",
+                "topic",
+                "candidates",
+                "boundary",
+                "policy"
+              ],
+              "description": "Timing plan returned by this tool."
+            },
+            "condition_rules": {
+              "type": "object",
+              "description": "Condition rules returned by this tool."
+            },
+            "safety_advisory": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "blocking",
+                "category",
+                "severity",
+                "support_first",
+                "message",
+                "guidance"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "allow",
+                    "advisory"
+                  ]
+                },
+                "blocking": {
+                  "const": false
+                },
+                "category": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "severity": {
+                  "enum": [
+                    "none",
+                    "normal",
+                    "high"
+                  ]
+                },
+                "support_first": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "guidance": {
+                  "type": "string"
+                }
+              },
+              "description": "Safety advisory returned by this tool."
+            }
+          },
+          "additionalProperties": false
         }
       }
     },
@@ -327,6 +853,191 @@
             "message"
           ],
           "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "method",
+            "snapshot_digest",
+            "message_digest",
+            "headline",
+            "verdict",
+            "confidence",
+            "conflicts",
+            "timing_refs",
+            "action",
+            "boundary",
+            "disclaimer",
+            "audit",
+            "primary_evidence_refs",
+            "secondary_evidence_refs",
+            "safety_advisory"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "liuyao-answer-v2",
+              "description": "Schema version returned by this tool."
+            },
+            "method": {
+              "const": "liuyao",
+              "description": "Method returned by this tool."
+            },
+            "snapshot_digest": {
+              "type": "string",
+              "minLength": 16,
+              "description": "Snapshot digest returned by this tool."
+            },
+            "message_digest": {
+              "type": "string",
+              "minLength": 16,
+              "description": "Message digest returned by this tool."
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 160,
+              "description": "Headline returned by this tool."
+            },
+            "verdict": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Verdict returned by this tool."
+            },
+            "confidence": {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "description": "Confidence returned by this tool."
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Conflicts returned by this tool."
+            },
+            "timing_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Timing refs returned by this tool."
+            },
+            "action": {
+              "type": "string",
+              "minLength": 4,
+              "description": "Action returned by this tool."
+            },
+            "boundary": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Boundary returned by this tool."
+            },
+            "disclaimer": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Disclaimer returned by this tool."
+            },
+            "audit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "accepted",
+                "errors",
+                "checked",
+                "unchecked"
+              ],
+              "properties": {
+                "accepted": {
+                  "const": true
+                },
+                "errors": {
+                  "type": "array"
+                },
+                "checked": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "unchecked": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Audit returned by this tool."
+            },
+            "primary_evidence_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Primary evidence refs returned by this tool."
+            },
+            "secondary_evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Secondary evidence refs returned by this tool."
+            },
+            "safety_advisory": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "blocking",
+                "category",
+                "severity",
+                "support_first",
+                "message",
+                "guidance"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "allow",
+                    "advisory"
+                  ]
+                },
+                "blocking": {
+                  "const": false
+                },
+                "category": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "severity": {
+                  "enum": [
+                    "none",
+                    "normal",
+                    "high"
+                  ]
+                },
+                "support_first": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "guidance": {
+                  "type": "string"
+                }
+              },
+              "description": "Safety advisory returned by this tool."
+            }
+          },
+          "$id": "liki:liuyao-answer-v2",
+          "title": "六爻结构化 answer 契约"
         }
       }
     },
@@ -852,6 +1563,457 @@
               }
             }
           ]
+        },
+        "output_schema": {
+          "$id": "liki:qimen-snapshot-v5",
+          "title": "奇门 immutable snapshot 契约",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "method",
+            "snapshot_digest",
+            "question",
+            "input",
+            "matter",
+            "method_context",
+            "factors",
+            "special",
+            "policy",
+            "snapshot_kind",
+            "safety_advisory",
+            "judgments"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "qimen-snapshot-v5",
+              "description": "Schema version returned by this tool."
+            },
+            "method": {
+              "const": "qimen",
+              "description": "Method returned by this tool."
+            },
+            "snapshot_digest": {
+              "type": "string",
+              "minLength": 16,
+              "description": "Snapshot digest returned by this tool."
+            },
+            "question": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Question returned by this tool."
+            },
+            "input": {
+              "type": "object",
+              "required": [
+                "city",
+                "longitude",
+                "local_time",
+                "solar_time"
+              ],
+              "properties": {
+                "city": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "longitude": {
+                  "type": "number"
+                },
+                "local_time": {
+                  "type": "string"
+                },
+                "solar_time": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Input returned by this tool."
+            },
+            "matter": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "Matter returned by this tool."
+            },
+            "method_context": {
+              "type": "object",
+              "required": [
+                "scope",
+                "school"
+              ],
+              "properties": {
+                "scope": {
+                  "type": "string"
+                },
+                "school": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true,
+              "description": "Method context returned by this tool."
+            },
+            "factors": {
+              "type": "object",
+              "description": "Factors returned by this tool."
+            },
+            "special": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "required": [
+                "rule",
+                "assertions"
+              ],
+              "properties": {
+                "rule": {
+                  "enum": [
+                    "lost_property",
+                    "thief_capture",
+                    "missing_person",
+                    "capture_escape",
+                    "thief_profile"
+                  ]
+                },
+                "assertions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "name",
+                      "conclusion",
+                      "basis",
+                      "evidence"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "conclusion": {
+                        "type": "string"
+                      },
+                      "basis": {
+                        "type": "string"
+                      },
+                      "evidence": {
+                        "type": "array"
+                      }
+                    }
+                  }
+                }
+              },
+              "description": "Special returned by this tool."
+            },
+            "policy": {
+              "type": "object",
+              "required": [
+                "immutable",
+                "no_rechart_without_new_event"
+              ],
+              "properties": {
+                "immutable": {
+                  "const": true
+                },
+                "no_rechart_without_new_event": {
+                  "const": true
+                }
+              },
+              "additionalProperties": false,
+              "description": "Policy returned by this tool."
+            },
+            "snapshot_kind": {
+              "enum": [
+                "standard",
+                "jinhan"
+              ],
+              "description": "Snapshot kind returned by this tool."
+            },
+            "safety_advisory": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "blocking",
+                "category",
+                "severity",
+                "support_first",
+                "message",
+                "guidance"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "allow",
+                    "advisory"
+                  ]
+                },
+                "blocking": {
+                  "const": false
+                },
+                "category": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "severity": {
+                  "enum": [
+                    "none",
+                    "normal",
+                    "high"
+                  ]
+                },
+                "support_first": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "guidance": {
+                  "type": "string"
+                }
+              },
+              "description": "Safety advisory returned by this tool."
+            },
+            "judgments": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "schema_version",
+                "results",
+                "policy"
+              ],
+              "properties": {
+                "schema_version": {
+                  "type": "string"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "name",
+                      "statement",
+                      "conclusion",
+                      "basis",
+                      "applies",
+                      "forbidden",
+                      "conclusion_scope"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "statement": {
+                        "type": "string"
+                      },
+                      "conclusion": {
+                        "type": "string"
+                      },
+                      "basis": {
+                        "type": "string"
+                      },
+                      "applies": {
+                        "type": "boolean"
+                      },
+                      "forbidden": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "conclusion_scope": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "policy": {
+                  "type": "object"
+                }
+              },
+              "description": "Judgments returned by this tool."
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "snapshot_kind": {
+                    "const": "standard"
+                  }
+                },
+                "required": [
+                  "snapshot_kind"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "factors": {
+                    "type": "object",
+                    "required": [
+                      "scope",
+                      "school",
+                      "wu_bu_yu_shi",
+                      "pillars",
+                      "ri_gan_gong",
+                      "ri_gan_palace_facts",
+                      "shi_gan_gong",
+                      "shi_gan_palace_facts",
+                      "ri_shi_relation",
+                      "patterns",
+                      "stars",
+                      "doors",
+                      "spirits",
+                      "kong_wang",
+                      "ma_xing",
+                      "palace_wang_shuai",
+                      "shi_gan_gong_wang_shuai",
+                      "ying_qi",
+                      "yong_shen",
+                      "zhi_fu_xing_gong",
+                      "zhi_shi_men_gong",
+                      "gong_domains",
+                      "palace_directions",
+                      "hour_polarity"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "snapshot_kind": {
+                    "const": "jinhan"
+                  }
+                },
+                "required": [
+                  "snapshot_kind"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "matter": {
+                    "const": null
+                  },
+                  "special": {
+                    "const": null
+                  },
+                  "factors": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind",
+                      "school",
+                      "scope",
+                      "yin_dun",
+                      "ri_gan",
+                      "ri_zhi",
+                      "palaces",
+                      "day_spirits"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "const": "jinhan"
+                      },
+                      "school": {
+                        "const": "jinhan_yujing"
+                      },
+                      "scope": {
+                        "const": "day"
+                      },
+                      "yin_dun": {
+                        "type": "boolean"
+                      },
+                      "ri_gan": {
+                        "type": "string"
+                      },
+                      "ri_zhi": {
+                        "type": "string"
+                      },
+                      "palaces": {
+                        "type": "array",
+                        "minItems": 9,
+                        "maxItems": 9,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "gong",
+                            "luoshu",
+                            "xing",
+                            "men",
+                            "men_present"
+                          ],
+                          "properties": {
+                            "gong": {
+                              "type": "string"
+                            },
+                            "luoshu": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9
+                            },
+                            "xing": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "men": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "men_present": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "day_spirits": {
+                        "type": "array",
+                        "minItems": 12,
+                        "maxItems": 12,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "zhi",
+                            "shen"
+                          ],
+                          "properties": {
+                            "zhi": {
+                              "type": "string"
+                            },
+                            "shen": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
         }
       }
     },
@@ -894,6 +2056,194 @@
             "message"
           ],
           "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "method",
+            "snapshot_digest",
+            "message_digest",
+            "headline",
+            "verdict",
+            "confidence",
+            "conflicts",
+            "timing_refs",
+            "action",
+            "boundary",
+            "disclaimer",
+            "audit",
+            "evidence_refs",
+            "assertion_refs",
+            "safety_advisory"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "qimen-answer-v2",
+              "description": "Schema version returned by this tool."
+            },
+            "method": {
+              "const": "qimen",
+              "description": "Method returned by this tool."
+            },
+            "snapshot_digest": {
+              "type": "string",
+              "minLength": 16,
+              "description": "Snapshot digest returned by this tool."
+            },
+            "message_digest": {
+              "type": "string",
+              "minLength": 16,
+              "description": "Message digest returned by this tool."
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 160,
+              "description": "Headline returned by this tool."
+            },
+            "verdict": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Verdict returned by this tool."
+            },
+            "confidence": {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "description": "Confidence returned by this tool."
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Conflicts returned by this tool."
+            },
+            "timing_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^timing-"
+              },
+              "description": "Timing refs returned by this tool."
+            },
+            "action": {
+              "type": "string",
+              "minLength": 4,
+              "description": "Action returned by this tool."
+            },
+            "boundary": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Boundary returned by this tool."
+            },
+            "disclaimer": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Disclaimer returned by this tool."
+            },
+            "audit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "accepted",
+                "errors",
+                "checked",
+                "unchecked"
+              ],
+              "properties": {
+                "accepted": {
+                  "const": true
+                },
+                "errors": {
+                  "type": "array"
+                },
+                "checked": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "unchecked": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Audit returned by this tool."
+            },
+            "evidence_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "pattern": "^snapshot:"
+              },
+              "description": "Evidence refs returned by this tool."
+            },
+            "assertion_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^assertion:"
+              },
+              "description": "Assertion refs returned by this tool."
+            },
+            "safety_advisory": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "blocking",
+                "category",
+                "severity",
+                "support_first",
+                "message",
+                "guidance"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "allow",
+                    "advisory"
+                  ]
+                },
+                "blocking": {
+                  "const": false
+                },
+                "category": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "severity": {
+                  "enum": [
+                    "none",
+                    "normal",
+                    "high"
+                  ]
+                },
+                "support_first": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "guidance": {
+                  "type": "string"
+                }
+              },
+              "description": "Safety advisory returned by this tool."
+            }
+          },
+          "$id": "liki:qimen-answer-v2",
+          "title": "奇门结构化 answer 契约"
         }
       }
     }

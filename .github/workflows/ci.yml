@@ -10,10 +10,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -34,6 +39,7 @@ jobs:
   engine-lint:
     name: Engine lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
@@ -51,6 +57,7 @@ jobs:
   engine-vulnerabilities:
     name: Engine vulnerability scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
@@ -64,6 +71,7 @@ jobs:
   engine-test:
     name: Engine tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
@@ -85,6 +93,7 @@ jobs:
   skills-test:
     name: Skill tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
@@ -96,6 +105,7 @@ jobs:
   python-vulnerabilities:
     name: Python vulnerability scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
@@ -107,6 +117,7 @@ jobs:
   counsel-test:
     name: Counsel MCP integration
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
@@ -121,6 +132,7 @@ jobs:
   archive:
     name: Skill archive
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - run: make build-archive
@@ -128,6 +140,7 @@ jobs:
   counsel-image:
     name: Counsel MCP image
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - run: docker build -f counsel/Dockerfile -t liki-counsel:ci .
@@ -159,6 +172,7 @@ jobs:
   engine-image:
     name: Engine MCP image
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - run: docker build -f engine/dev/Dockerfile -t liki-engine:ci engine
@@ -175,7 +189,7 @@ jobs:
           done
           python scripts/test_engine_mcp.py http://127.0.0.1:18081/mcp
 
-      - name: Smoke transition JSON-RPC image runtime
+      - name: Smoke retained engine-rpc compatibility image runtime
         run: |
           trap 'docker rm -f engine-rpc-image-smoke 2>/dev/null || true' EXIT
           docker run -d --name engine-rpc-image-smoke \
@@ -194,6 +208,7 @@ jobs:
   full-data:
     name: Full assertion coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
@@ -209,13 +224,24 @@ jobs:
   release-integrity:
     name: Release artifact integrity
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [check, skills-test, full-data]
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version-file: .python-version
       - run: python -m pip install pyyaml
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Validate deployment artifacts with pinned runtime
+        run: make agents-validate
       - name: Build and verify release manifest
         run: |
           make build-release-manifest
@@ -246,6 +272,7 @@ jobs:
     name: Publish engine image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
     permissions:
       contents: read
@@ -315,6 +342,7 @@ jobs:
     name: Publish counsel image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
     permissions:
       contents: read
@@ -377,6 +405,7 @@ jobs:
     name: Publish full-capability experts image
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, docker-publish, release-integrity]
     permissions:
       contents: read
@@ -414,26 +443,17 @@ jobs:
         run: |
           echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
           echo "runtime=$(cat skills/liki/VERSION.txt)" >> "$GITHUB_OUTPUT"
-      - name: Compute deployment digests
+      - name: Validate deployment artifacts and base pin
         id: digests
         run: |
           AGENTS_VERSION="$(python3 scripts/liki_agents_pin.py --version)"
           AGENTS_DIGEST="$(python3 scripts/liki_agents_pin.py --digest)"
           AGENTS_BASE="ghcr.io/${{ github.repository_owner }}/liki-agents:${AGENTS_VERSION}"
           for profile in single experts; do
-            out="$(
-              docker run --rm -v "$PWD/dist/agents:/deployment:ro" \
-                -e LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/${profile}/deployment.json \
-                --entrypoint /liki-agents "$AGENTS_BASE" \
-                validate -deployment /deployment/${profile}/deployment.json 2>&1
-            )" || true
-            digest="$(printf '%s\n' "$out" | sed -n 's/.*digest=\([^ ]*\).*/\1/p')"
-            if [ -z "$digest" ]; then
-              echo "::error::failed to compute ${profile} deployment digest"
-              printf '%s\n' "$out"
-              exit 1
-            fi
-            echo "${profile}=${digest}" >> "$GITHUB_OUTPUT"
+            docker run --rm -v "$PWD/dist/agents:/deployment:ro" \
+              -e LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/${profile}/deployment.json \
+              --entrypoint /liki-agents "$AGENTS_BASE" \
+              validate -deployment /deployment/${profile}/deployment.json
           done
           # 装配 base 用 pinned 版本；解析 immutable digest 且必须等于 pin.digest
           # （防 tag 被上游移动导致夹具漂移）。base_ref 形如 ghcr.io/x/liki-agents@sha256:...
@@ -457,7 +477,6 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ steps.digests.outputs.base_ref }}
             PROFILE=experts
-            DEPLOYMENT_DIGEST=${{ steps.digests.outputs.experts }}
             VERSION=${{ steps.version.outputs.runtime }}
             COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.event.release.published_at }}
@@ -476,7 +495,6 @@ jobs:
           build-args: |
             BASE_IMAGE=${{ steps.digests.outputs.base_ref }}
             PROFILE=single
-            DEPLOYMENT_DIGEST=${{ steps.digests.outputs.single }}
             VERSION=${{ steps.version.outputs.runtime }}
             COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.event.release.published_at }}
@@ -512,15 +530,21 @@ jobs:
           cosign sign --yes "ghcr.io/${{ github.repository_owner }}/liki-single-expert@${{ steps.single-expert-image.outputs.digest }}"
           mkdir -p image-digest
           printf 'experts=%s\n' "${{ steps.multi-expert-image.outputs.digest }}" > image-digest/experts.env
+          printf 'single_expert=%s\n' "${{ steps.single-expert-image.outputs.digest }}" > image-digest/single_expert.env
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: image-digest-experts
           path: image-digest/experts.env
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: image-digest-single_expert
+          path: image-digest/single_expert.env
 
   finalize-release-manifest:
     name: Finalize release manifest
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [release-integrity, docker-publish, counsel-publish, publish-experts]
     permissions:
       contents: write
@@ -591,6 +615,7 @@ jobs:
     name: Publish web skill bundle
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
     env:
       LIKI_RELEASE_TAG: ${{ github.ref_name }}

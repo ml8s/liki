@@ -1,6 +1,6 @@
 # 宜忌规则
 
-用于理解 engine `huangli_days` 返回的宜忌结论。
+用于理解 engine 黄历查日能力返回的宜忌结论。
 
 > **字段契约**：本表只引用 engine 黄历实际返回字段（`jian_chu` 建除 / `huangdao` 黄黑道十二神 / `gan_ji`+`zhi_ji` 日忌干支 / `mansion` 二十八宿 / `xi_shen` `cai_shen` `fu_shen` / `suitability`+`reason`）。天德贵人/月德/三煞/四离/四绝/杨公忌/大耗/鸣吠日等**日神煞不在返回字段中，不得臆造**——涉及此类表述时以黄黑道/建除/日忌干支近似判定。
 

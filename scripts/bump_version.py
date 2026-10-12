@@ -26,6 +26,8 @@ JSON_SURFACES = (
 )
 DOC_TAG_FILES = (ROOT / "README.md", ROOT / "README.en.md")
 _IMAGE_TAG_RE = re.compile(r"(liki-engine:)\d{4}\.\d{2}\.\d{2}\.\d+")
+SKILL_FRONTMATTER = ROOT / "skills/liki/SKILL.md"
+EXPERT_PACKS = ROOT / "expert-packs"
 
 
 def current_versions() -> list[str]:
@@ -71,6 +73,37 @@ def set_doc_tags(version: str) -> None:
         path.write_text(updated, encoding="utf-8")
 
 
+def replace_frontmatter_version(path: Path, version: str) -> None:
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    if not lines or lines[0].rstrip("\r\n") != "---":
+        raise SystemExit(f"missing frontmatter in {path.relative_to(ROOT)}")
+    for index in range(1, len(lines)):
+        if lines[index].rstrip("\r\n") == "---":
+            raise SystemExit(
+                f"frontmatter version missing in {path.relative_to(ROOT)}"
+            )
+        stripped = lines[index].lstrip()
+        indent = lines[index][: len(lines[index]) - len(stripped)]
+        if stripped.startswith("version:"):
+            lines[index] = f"{indent}version: {version}\n"
+            path.write_text("".join(lines), encoding="utf-8")
+            return
+
+
+def set_expert_pack_versions(version: str) -> None:
+    for skill_path in sorted(EXPERT_PACKS.glob("*/SKILL.md")):
+        replace_frontmatter_version(skill_path, version)
+    for skill_path in sorted(EXPERT_PACKS.glob("*/skills/*/SKILL.md")):
+        replace_frontmatter_version(skill_path, version)
+    for plugin_path in sorted(EXPERT_PACKS.glob("*/.codebuddy-plugin/plugin.json")):
+        document = json.loads(plugin_path.read_text(encoding="utf-8"))
+        document["version"] = version
+        plugin_path.write_text(
+            json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+
 def set_pyproject(version: str) -> None:
     for relative in ("pyproject.toml", "counsel/pyproject.toml"):
         path = ROOT / relative
@@ -98,6 +131,8 @@ def main() -> None:
         )
     for path, keys in JSON_SURFACES:
         set_json(path, keys, version)
+    replace_frontmatter_version(SKILL_FRONTMATTER, version)
+    set_expert_pack_versions(version)
     set_pyproject(version)
     set_doc_tags(version)
     print(f"✅ version → {version}")

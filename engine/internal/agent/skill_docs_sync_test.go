@@ -31,6 +31,12 @@ var (
 	reExtension  = regexp.MustCompile(`\.(md|py|json|csv|sh|yaml|yml|toml|txt)$`)
 )
 
+// protocolFieldTokens are MCP protocol schema keywords, not engine result fields.
+var protocolFieldTokens = map[string]bool{
+	"inputSchema":  true,
+	"outputSchema": true,
+}
+
 // fieldRefs 收集方法 schema 属性路径：type=object→properties 递归；type=array→items 递归（路径记 []）。
 type fieldRefs struct {
 	paths  []string        // 完整属性路径（相对 schema 根，如 "gong_wei[].xing_yao"）
@@ -153,6 +159,12 @@ func loadSkillDocs() ([]string, error) {
 				return err
 			}
 			if info.IsDir() {
+				rel, relErr := filepath.Rel(filepath.Join("..", "..", "..", "skills", "liki"), path)
+				if relErr == nil && (rel == "references/ops" || rel == "references/payment" ||
+					strings.HasPrefix(rel, "references/ops"+string(filepath.Separator)) ||
+					strings.HasPrefix(rel, "references/payment"+string(filepath.Separator))) {
+					return filepath.SkipDir
+				}
 				return nil
 			}
 			if strings.HasSuffix(path, ".md") {
@@ -241,6 +253,17 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 			for _, bt := range lineToken.FindAllStringSubmatch(line, -1) {
 				tok := strings.TrimSpace(bt[1])
 				if strings.ContainsAny(tok, "{}") || reEnvVar.MatchString(tok) || !reFieldToken.MatchString(tok) { // reEnvVar: 全大写下划线=环境变量（LIKI_MCP_URL），非 schema 字段
+					continue
+				}
+				segments := normalizeFieldToken(tok)
+				protocolOnly := false
+				for _, seg := range segments {
+					if protocolFieldTokens[seg] {
+						protocolOnly = true
+						break
+					}
+				}
+				if protocolOnly {
 					continue
 				}
 				if reExtension.MatchString(tok) || strings.HasPrefix(tok, "tools/") ||

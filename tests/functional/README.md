@@ -35,6 +35,6 @@ conflicts/cases.json       多断语共存 / 互斥行为样本
 ## 运行
 
 ```bash
-make test-functional
-# 等价于 python3 -m pytest tests/test_functional.py -q
+make test-content
+# 等价于 python3 -m pytest tests/ -q，包含本功能测试
 ```

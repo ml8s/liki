@@ -71,7 +71,7 @@ func newMCPServerFor(reg *agent.RPCRegistry, version string, logger *slog.Logger
 		WebsiteURL:  "https://liki.hk",
 	}
 	opts := &mcp.ServerOptions{
-		Instructions: "Deterministic Chinese metaphysics computation. Gather birth info (solar time, gender, birth place) via tianwen_time/city_coords first, then compute charts (bazi_chart, ziwei_chart, liuyao_qigua, qimen_chart, bazhai_chart, xuankong_chart, huangli_days) and interpret their results. Conclusions are conditioned readings from a traditional culture perspective, not medical, legal or investment advice.",
+		Instructions: "Deterministic Chinese metaphysics computation. Discover available capabilities with tools/list before use. When required, first resolve time, location, or calendar facts; then use the discovered chart, calendar, divination, or fengshui capability. Pass returned artifacts unchanged, interpret only returned facts, and do not invent missing fields. Conclusions are conditioned readings from a traditional culture perspective, not medical, legal or investment advice.",
 		Logger:       logger,
 		// 干净设计：只支持新协议（2026-07-28，server/discover 协商），不做旧协议向后兼容。
 		SupportedProtocolVersions: []string{"2026-07-28"},

@@ -5,7 +5,7 @@ Liki currently ships one deterministic Go engine with two HTTP runtimes:
 | Runtime | Interface | Purpose | Lifecycle |
 | --- | --- | --- | --- |
 | `engine-mcp` | Streamable MCP | Skill, counsel, and agent-facing compute API | Current architecture |
-| `engine-rpc` | JSON-RPC 2.0 | Compatibility API for installed legacy skills | Transition only |
+| `engine-rpc` | JSON-RPC 2.0 | Compatibility API for installed legacy skills | Retained |
 | `counsel-mcp` | Streamable MCP | Factor, assertion, divination, and naming judgment | Current architecture |
 
 The edge owns public service prefixes:
@@ -45,24 +45,17 @@ not rate-limit.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `LISTEN_ADDR` | `:8080` | Transition JSON-RPC listen address |
+| `LISTEN_ADDR` | `:8080` | JSON-RPC compatibility listen address |
 | `LIKI_ALLOWED_ORIGINS` | hosted default | Browser CORS origins |
 
-`POST /jsonrpc` is not used by the web BFF. It remains a temporary compatibility
-surface for installed legacy skills and can be removed after public traffic
-reaches zero.
+`POST /jsonrpc` is not used by the web BFF. It is a retained compatibility
+surface for installed legacy skills. Traffic data may inform product owners,
+but it does not automatically trigger removal.
 
-#### Removal gate
-
-`engine-rpc` is removed when **all** of the following are true:
-
-1. `liki-web` free-chart surface calls engine MCP (`/engine/mcp`), not `/jsonrpc`.
-2. `liki-deploy` compose no longer maps the `engine` service's `/jsonrpc` route.
-3. No `/jsonrpc` traffic for 30 consecutive days (observable via engine metrics).
-4. A release note announces the removal one cycle (one CalVer minor) in advance.
-
-On removal: delete `engine/cmd/engine-rpc/`, the `engine-rpc` Dockerfile build
-stage and entrypoint default, and the `docs/RUNTIME.md` `engine-rpc` section.
+Removing `engine-rpc` requires an explicit product decision and follows the
+public-entry-removal release policy. Until that decision is made, the binary,
+the `/jsonrpc` entry point, and image smoke coverage remain part of the
+supported runtime surface.
 
 ### counsel-mcp
 

@@ -9,13 +9,13 @@ import pathlib
 import pytest  # noqa: E402
 from app import engine_mcp_client  # noqa: E402
 from app.counsel_mcp import (  # noqa: E402
-    _add_schema_tool,
     _make_app,
     app,
     create_counsel_mcp,
     create_counsel_root_mcp,
 )
 from app.engine_mcp_client import MCPError as EngineMCPError  # noqa: E402
+from app.mcp_tool_adapter import add_schema_tool  # noqa: E402
 from mcp import Client  # noqa: E402
 from mcp.server import MCPServer  # noqa: E402
 from starlette.applications import Starlette  # noqa: E402
@@ -57,9 +57,19 @@ def _call_tool_over_mcp(server, name, arguments):
     return asyncio.run(call())
 
 
-async def _asgi_request(path, method="GET", payload=None, asgi_app=app, authorization=None):
+async def _asgi_request(
+    path,
+    method="GET",
+    payload=None,
+    asgi_app=app,
+    authorization=None,
+    extra_headers=None,
+):
     """Invoke the composed ASGI app directly without a TestClient portal."""
-    body = json.dumps(payload).encode("utf-8") if payload is not None else b""
+    if isinstance(payload, bytes):
+        body = payload
+    else:
+        body = json.dumps(payload).encode("utf-8") if payload is not None else b""
     headers = []
     if payload is not None:
         headers.extend(
@@ -72,6 +82,7 @@ async def _asgi_request(path, method="GET", payload=None, asgi_app=app, authoriz
         )
     if authorization is not None:
         headers.append((b"authorization", authorization.encode("latin-1")))
+    headers.extend(extra_headers or [])
 
     messages = []
 
@@ -109,6 +120,18 @@ def _http_request(path, method="GET", payload=None, asgi_app=app, authorization=
             payload=payload,
             asgi_app=asgi_app,
             authorization=authorization,
+        )
+    )
+
+
+def _http_raw_request(path, body, asgi_app, extra_headers):
+    return asyncio.run(
+        _asgi_request(
+            path,
+            method="POST",
+            payload=body,
+            asgi_app=asgi_app,
+            extra_headers=extra_headers,
         )
     )
 
@@ -196,8 +219,13 @@ def test_counsel_tools_expose_manifest_schema_without_downgrading():
         fn["function"]["name"]: fn["function"]["parameters"]
         for fn in manifest["tools"]
     }
+    expected_output = {
+        fn["function"]["name"]: fn["function"]["output_schema"]
+        for fn in manifest["tools"]
+    }
     tools = asyncio.run(srv.list_tools())
     assert {tool.name: tool.input_schema for tool in tools} == expected
+    assert {tool.name: tool.output_schema for tool in tools} == expected_output
 
 
 def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
@@ -218,6 +246,25 @@ def test_counsel_root_aggregate_matches_tool_catalog():
     assert names == set(catalog["servers"]["counsel"]["tools"])
 
 
+def test_counsel_root_aggregate_exposes_all_manifest_schemas():
+    manifests = [
+        pathlib.Path(__file__).parents[1] / "app/natal/tools/counsel-tools.json",
+        pathlib.Path(__file__).parents[1] / "app/naming/tools/skill-tools.json",
+        pathlib.Path(__file__).parents[1] / "app/divination/tools/skill-tools.json",
+    ]
+    expected = {}
+    for path in manifests:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        for item in doc["tools"]:
+            fn = item["function"]
+            expected[fn["name"]] = (fn["parameters"], fn["output_schema"])
+
+    srv = create_counsel_root_mcp()
+    tools = asyncio.run(srv.list_tools())
+    actual = {tool.name: (tool.input_schema, tool.output_schema) for tool in tools}
+    assert actual == expected
+
+
 def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
     srv = create_counsel_root_mcp()
     result = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
@@ -234,6 +281,7 @@ def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
     ))
     out = json.loads(result.content[0].text)
     assert out["assertions"] and all(a.get("side") == "bazi" for a in out["assertions"])
+    assert result.structured_content == out
 
 
 def test_counsel_tool_rejects_argument_outside_manifest_schema():
@@ -262,7 +310,7 @@ def test_known_tool_failures_preserve_reason_over_mcp_protocol(exception, code):
     def invoke(_arguments):
         raise exception
 
-    _add_schema_tool(
+    add_schema_tool(
         server,
         name="known_failure",
         description="test known failure mapping",
@@ -282,7 +330,7 @@ def test_unexpected_tool_exception_is_not_leaked_over_mcp_protocol():
     def invoke(_arguments):
         raise RuntimeError("internal secret")
 
-    _add_schema_tool(
+    add_schema_tool(
         server,
         name="boom",
         description="test unknown exception handling",
@@ -370,6 +418,19 @@ def test_counsel_mcp_rejects_oversized_request_body(monkeypatch):
         method="POST",
         payload={"jsonrpc": "2.0", "id": 1, "method": "server/discover", "params": {}},
         asgi_app=limited_app,
+    )
+    assert status == 413
+    assert json.loads(raw)["error"]["code"] == "payload_too_large"
+
+
+def test_counsel_mcp_counts_actual_request_bytes_even_with_small_content_length(monkeypatch):
+    monkeypatch.setenv("LIKI_MCP_MAX_BODY_BYTES", "16")
+    limited_app = _make_app()
+    status, raw = _http_raw_request(
+        "/mcp",
+        b"x" * 17,
+        limited_app,
+        [(b"content-length", b"1")],
     )
     assert status == 413
     assert json.loads(raw)["error"]["code"] == "payload_too_large"

@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
@@ -75,21 +77,16 @@ def test_readme_image_tags_use_distributed_version():
 
 
 def test_expert_pack_plugin_versions_internally_consistent():
+    runtime_version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
     for plugin in sorted((ROOT / "expert-packs").glob("*/.codebuddy-plugin/plugin.json")):
         pack = plugin.parents[1]
         plugin_version = json.loads(plugin.read_text(encoding="utf-8"))["version"]
         skill_text = (pack / "SKILL.md").read_text(encoding="utf-8")
-        skill_version = next(
-            line.split(":", 1)[1].strip()
-            for line in skill_text.splitlines()
-            if line.startswith("version:")
-        )
+        skill_version = yaml.safe_load(skill_text.split("---")[1])["version"]
+        assert skill_version == runtime_version, pack
         assert plugin_version == skill_version, pack
         for domain_skill in sorted((pack / "skills").glob("*/SKILL.md")):
             text = domain_skill.read_text(encoding="utf-8")
-            domain_version = next(
-                line.split(":", 1)[1].strip()
-                for line in text.splitlines()
-                if line.strip().startswith("version:")
-            )
+            domain_version = yaml.safe_load(text.split("---")[1])["metadata"]["version"]
             assert domain_version == plugin_version, domain_skill
+            assert domain_version == runtime_version, domain_skill

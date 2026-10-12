@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import os
 import subprocess
 import tarfile
 from pathlib import Path
@@ -37,6 +39,37 @@ def test_ci_release_bundle_list_matches_contract() -> None:
     assert listed == REQUIRED_BUNDLE_FILES, f"CI tar 清单不一致: {listed ^ REQUIRED_BUNDLE_FILES}"
 
 
+def test_release_integrity_validates_before_packaging_manifest() -> None:
+    """Release artifacts cannot bypass the pinned liki-agents validator."""
+    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    document = yaml.safe_load(workflow)
+    steps = document["jobs"]["release-integrity"]["steps"]
+    commands = [step.get("run", "") for step in steps]
+    validate_index = next(index for index, command in enumerate(commands) if "make agents-validate" in command)
+    manifest_index = next(
+        index for index, command in enumerate(commands) if "make build-release-manifest" in command
+    )
+    assert validate_index < manifest_index
+
+
+def test_ci_records_single_expert_image_digest() -> None:
+    """The independent single-expert product surface enters the signed manifest."""
+    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    document = yaml.safe_load(workflow)
+    steps = document["jobs"]["publish-experts"]["steps"]
+    scripts = [step.get("run", "") for step in steps]
+    assert any(
+        "single_expert=%s" in script
+        and "steps.single-expert-image.outputs.digest" in script
+        for script in scripts
+    )
+    assert any(
+        step.get("uses", "").rpartition("@")[0] == "actions/upload-artifact"
+        and (step.get("with") or {}).get("name") == "image-digest-single_expert"
+        for step in steps
+    )
+
+
 def run(command: list[str]) -> None:
     subprocess.run(command, cwd=ROOT, check=True)
 
@@ -67,6 +100,22 @@ def test_release_bundle_contains_all_verified_artifacts() -> None:
 
     manifest = (DIST / "liki-release-manifest.json").read_text(encoding="utf-8")
     assert '"runtime_version"' in manifest
+
+    complete_images = {
+        "counsel_mcp": "sha256:" + "1" * 64,
+        "engine": "sha256:" + "2" * 64,
+        "engine_mcp": "sha256:" + "3" * 64,
+        "experts": "sha256:" + "4" * 64,
+    }
+    result = subprocess.run(
+        ["python3", "scripts/build_release_manifest.py", "--require-images"],
+        cwd=ROOT,
+        env={**os.environ, "LIKI_RELEASE_IMAGES": json.dumps(complete_images), "LIKI_RELEASE_TAG": "vtest"},
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "single_expert" in result.stderr
 
 
 def test_release_profiles_match_runtime() -> None:

@@ -4,7 +4,7 @@ description: 风水方法论卡——八宅与玄空的规则口径（游星/门
 metadata:
   display_name: 风水专家
   display_name_en: Feng Shui Expert
-  version: 1.0.0
+  version: 2026.10.12.0
   author: Liki
 ---
 
@@ -20,8 +20,8 @@ metadata:
 
 | 流派 | 主体 | 判断什么 | 工具 |
 |---|---|---|---|
-| 八宅 | 人（命卦） | 命卦与宅配合、门主灶、四吉四凶 | `bazhai_chart`/`bazhai_layout` |
-| 玄空 | 宅（时空盘） | 宅运、山向飞星、元运、流年引动 | `xuankong_chart`/`xuankong_liunian` |
+| 八宅 | 人（命卦） | 命卦与宅配合、门主灶、四吉四凶 | 八宅排盘与八宅布局能力 |
+| 玄空 | 宅（时空盘） | 宅运、山向飞星、元运、流年引动 | 玄空排盘与玄空流年能力 |
 
 ## 流派裁决
 

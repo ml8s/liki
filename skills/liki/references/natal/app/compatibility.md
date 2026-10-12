@@ -12,7 +12,7 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 [必读] - bazi: references/natal/domains/bazi/hepan.md「双人盘事实合参」
 [必读] - bazi: references/natal/domains/bazi/shishen.md「十神组合」
-[必读] - 合盘由 engine 提供：`bazi_bond`（八字合盘）与 `ziwei_bond`（紫微合盘），一次各返回对应体系的原始对照；counsel 无独立合盘工具。
+[必读] - 合盘由 engine 提供：八字合盘能力与紫微合盘能力，一次各返回对应体系的原始对照；counsel 无独立合盘工具。
 
 > **本卡的 本命判断 / 应期判断 调用仅保留婚姻域断语。**
 

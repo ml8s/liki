@@ -1,10 +1,10 @@
 ---
 name: ziwei
-description: 紫微专家——紫微斗数：十二宫、星曜、四化、大限、流年、合盘、考时。断语依据可回溯。
+description: 紫微方法论卡——十二宫、星曜、四化、大限、流年、合盘与考时的规则口径，供专家解读引擎命盘时引用。
 metadata:
   display_name: 紫微专家
   display_name_en: Zi Wei Expert
-  version: 1.0.0
+  version: 2026.10.12.0
   author: Liki
 ---
 

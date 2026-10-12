@@ -23,7 +23,7 @@ export GOTOOLCHAIN ?= go1.26.9
 
 .PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check lint vuln lint-md check test test-content test-engine test-counsel test-engine-mcp \
-        test-functional verify full-data golden gate hooks version build-archive build-deployment \
+        full-data golden gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest \
         agents-validate image image-engine image-counsel image-assembly
 
@@ -69,7 +69,7 @@ agents-validate: build-deployment ## Validate generated artifacts with the pinne
 build-engine-mcp: ## Build the engine MCP server
 	@cd engine && go build -o ../bin/engine-mcp ./cmd/engine-mcp/
 
-build-engine-rpc: ## Build the transition JSON-RPC server used by liki-web
+build-engine-rpc: ## Build the retained JSON-RPC compatibility server for installed legacy skills
 	@cd engine && go build -o ../bin/engine-rpc ./cmd/engine-rpc/
 
 build: build-skill build-engine-mcp build-engine-rpc ## Build local artifacts (skill archive + engine binaries). 镜像由 CI release 构建，非本地。
@@ -129,6 +129,8 @@ check: lint-md lint-python fmt-check go-version-check check-actions ## 纯静态
 	python3 scripts/check_factor_data.py
 	python3 scripts/check_docs.py
 	python3 scripts/check_workflow.py
+	python3 scripts/check_mcp_schema.py
+	python3 scripts/check_expert_docs.py
 	python3 scripts/liki_agents_pin.py --check
 	bash scripts/check-exec-bits.sh
 	python3 scripts/sync_expert_packs.py --check
@@ -149,11 +151,6 @@ test-counsel: ## Counsel MCP integration suite (bootstraps .venv and local engin
 
 test-engine-mcp: ## Engine MCP root/domain protocol smoke
 	scripts/test-engine-mcp.sh
-
-test-functional: ## Rule engine functional and behavior suite
-	python3 -m pytest tests/test_functional.py -q
-
-verify: test-engine-mcp test-counsel ## Engine/counsel MCP integration verification
 
 full-data: ## 160-question assertion coverage and zero-hit check
 	scripts/test-full-data.sh

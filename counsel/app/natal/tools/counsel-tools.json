@@ -1,5 +1,5 @@
 {
-  "version": "2026.10.11.0",
+  "version": "2026.10.12.0",
   "tools": [
     {
       "type": "function",
@@ -16,6 +16,31 @@
             "chart": {
               "type": "object",
               "description": "engine 排盘结果：本域 bazi_chart（八字）或 ziwei_chart（紫微）输出"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Immutable factor snapshot derived from an engine chart.",
+          "additionalProperties": true,
+          "required": [
+            "factors",
+            "factors_digest",
+            "context"
+          ],
+          "properties": {
+            "factors": {
+              "description": "Canonical factor snapshot; includes _provenance with side, chart digest, and context.",
+              "type": "object"
+            },
+            "factors_digest": {
+              "description": "SHA-256 hex digest of the canonical factor snapshot.",
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "context": {
+              "description": "Minimal source context bound to the factor snapshot.",
+              "type": "object"
             }
           }
         }
@@ -79,6 +104,73 @@
               "description": "compute_factors 返回的原始 context；会与因子 provenance 绑定校验"
             }
           }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Deterministic natal assertions for requested topics.",
+          "additionalProperties": true,
+          "required": [
+            "assertions"
+          ],
+          "properties": {
+            "assertions": {
+              "description": "Traceable natal assertions matching the requested topics.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "assertion_id",
+                  "side",
+                  "topic",
+                  "conclusion"
+                ],
+                "properties": {
+                  "assertion_id": {
+                    "description": "Stable assertion id.",
+                    "type": "string"
+                  },
+                  "side": {
+                    "description": "Factor side: bazi or ziwei.",
+                    "type": "string",
+                    "enum": [
+                      "bazi",
+                      "ziwei"
+                    ]
+                  },
+                  "topic": {
+                    "description": "Requested life-topic key.",
+                    "type": "string"
+                  },
+                  "method": {
+                    "description": "Judgment method id.",
+                    "type": "string"
+                  },
+                  "conclusion": {
+                    "description": "Deterministic assertion conclusion.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "description": "Classical/rule source. May be a text citation or structured source object.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "evidence": {
+                    "description": "Factor evidence used by the rule.",
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -137,7 +229,52 @@
                   "description": "type=year_range 的结束年份"
                 }
               },
-              "description": "时间层：year/year_range/current_year/decade/current_decade"
+              "description": "时间层：year/year_range/current_year/decade/current_decade",
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "year"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "year"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "year_range"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "start_year",
+                      "end_year"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "decade"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "year"
+                    ]
+                  }
+                }
+              ]
             },
             "topics": {
               "type": "array",
@@ -171,6 +308,100 @@
             "chart": {
               "type": "object",
               "description": "engine 排盘结果（同 compute_factors 输入），内部据此调 engine 流年/大限"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Deterministic period assertions grouped by requested time scopes.",
+          "additionalProperties": true,
+          "required": [
+            "chart",
+            "query",
+            "periods"
+          ],
+          "properties": {
+            "chart": {
+              "description": "Chart identity and digest used for period computation.",
+              "type": "object",
+              "required": [
+                "id",
+                "digest",
+                "completeness"
+              ],
+              "properties": {
+                "id": {
+                  "description": "Chart id.",
+                  "type": "string"
+                },
+                "digest": {
+                  "description": "Chart canonical digest.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "completeness": {
+                  "description": "Chart completeness.",
+                  "type": "string"
+                }
+              }
+            },
+            "query": {
+              "description": "Echo of period query scope, topics, and rules.",
+              "type": "object"
+            },
+            "year_basis": {
+              "description": "Engine year basis, when available.",
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "current_year": {
+              "description": "Engine current year, when available.",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "current_year_source": {
+              "description": "Source of current year.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "periods": {
+              "description": "Per-year or per-decade assertion scopes.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "time_scope"
+                ],
+                "properties": {
+                  "time_scope": {
+                    "description": "Resolved output scope.",
+                    "type": "object"
+                  },
+                  "assertions": {
+                    "description": "Assertions for this scope.",
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "counts": {
+                    "description": "Table match and returned counts.",
+                    "type": "object"
+                  },
+                  "error": {
+                    "description": "Engine error for this scope, if any.",
+                    "type": "object"
+                  }
+                }
+              }
             }
           }
         }

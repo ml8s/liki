@@ -20,7 +20,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
-REQUIRED_IMAGES = ("counsel_mcp", "engine", "engine_mcp", "experts")
+REQUIRED_IMAGES = ("counsel_mcp", "engine", "engine_mcp", "experts", "single_expert")
 IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 

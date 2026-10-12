@@ -4,7 +4,7 @@ description: 奇门方法论卡——时家奇门的规则口径（八门/八神
 metadata:
   display_name: 奇门专家
   display_name_en: Qi Men Expert
-  version: 1.0.0
+  version: 2026.10.12.0
   author: Liki
 ---
 
@@ -22,7 +22,7 @@ metadata:
 |---|---|
 | 排盘 | 普通策略 / 专占 → 九宫八门局盘快照 |
 | 断局 | 门/星/神/格局 → 吉凶、策略、方位、时机 |
-| 择日 | 黄历择日（`huangli_days`），与奇门择吉连用 |
+| 择日 | 黄历查日能力，与奇门择吉连用 |
 | 追问 | 基于 `$QIMEN_SNAPSHOT` 原样快照继续 |
 
 ## 边界

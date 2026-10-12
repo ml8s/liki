@@ -13,9 +13,12 @@ dest 的 *.md 必须与源并集逐名逐字节一致——缺失、多余（孤
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "liki" / "references"
@@ -53,6 +56,8 @@ PERSONA_PACKS: dict[str, str] = {
     "fengshui": "liki-fengshui",
     "naming": "liki-naming",
 }
+
+RUNTIME_VERSION_PATH = ROOT / "skills" / "liki" / "VERSION.txt"
 
 
 def split_persona(path: Path) -> tuple[list[str], str] | list[str]:
@@ -95,6 +100,61 @@ def persona_targets() -> tuple[dict[str, dict[str, bytes]], list[str]]:
         payload = payload.rstrip() + "\n"
         targets.setdefault(pack, {})[f"{name}-expert.md"] = payload.encode("utf-8")
     return targets, errors
+
+
+def _persona_metadata(name: str) -> tuple[dict, list[str]]:
+    src = PERSONAS_DIR / f"{name}.md"
+    parsed = split_persona(src)
+    if isinstance(parsed, list):
+        return {}, parsed
+    front, _body = parsed
+    try:
+        metadata = yaml.safe_load("\n".join(front))
+    except Exception as exc:
+        return {}, [f"persona frontmatter YAML 无效: {src.relative_to(ROOT)}: {exc}"]
+    if not isinstance(metadata, dict):
+        return {}, [f"persona frontmatter必须是对象: {src.relative_to(ROOT)}"]
+    return metadata, []
+
+
+def plugin_metadata_updates() -> tuple[list[tuple[Path, dict, dict]], list[str]]:
+    """Return plugin manifests and the persona-derived fields that must match."""
+    runtime_version = RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip()
+    updates: list[tuple[Path, dict, dict]] = []
+    errors: list[str] = []
+    for name, pack in PERSONA_PACKS.items():
+        metadata, metadata_errors = _persona_metadata(name)
+        errors.extend(metadata_errors)
+        if metadata_errors:
+            continue
+        plugin_path = PACKS / pack / ".codebuddy-plugin" / "plugin.json"
+        try:
+            doc = json.loads(plugin_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append(f"plugin manifest读取失败: {plugin_path.relative_to(ROOT)}: {exc}")
+            continue
+        expected = {
+            "description": metadata.get("description"),
+            "profession": metadata.get("profession"),
+            "version": runtime_version,
+        }
+        updates.append((plugin_path, doc, expected))
+    return updates, errors
+
+
+def _plugin_metadata_drift(
+    updates: list[tuple[Path, dict, dict]]
+) -> list[tuple[Path, dict, dict]]:
+    drift: list[tuple[Path, dict, dict]] = []
+    for path, doc, expected in updates:
+        mismatched = {
+            key: expected[key]
+            for key, value in expected.items()
+            if doc.get(key) != value
+        }
+        if mismatched:
+            drift.append((path, doc, mismatched))
+    return drift
 
 
 def _source_names(srcs: list[Path]) -> set[str]:
@@ -212,6 +272,20 @@ def sync() -> int:
                 orphan.unlink()
         print(f"[sync-expert-packs] ✓ personas → {agents_dir.relative_to(ROOT)}")
 
+    updates, plugin_errors = plugin_metadata_updates()
+    for line in plugin_errors:
+        print(f"[sync-expert-packs] ✗ {line}", file=sys.stderr)
+    failed = failed or bool(plugin_errors)
+    for path, doc, expected in updates:
+        changed = any(doc.get(key) != value for key, value in expected.items())
+        if changed:
+            doc.update(expected)
+            path.write_text(
+                json.dumps(doc, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            print(f"[sync-expert-packs] ✓ plugin metadata → {path.relative_to(ROOT)}")
+
     if failed:
         return 1
     print("[sync-expert-packs] 完成。")
@@ -257,8 +331,14 @@ def check() -> int:
             if files[name] != actual[name]:
                 drift.append(f"内容漂移: {agents_dir.relative_to(ROOT)}/{name}")
 
+    updates, plugin_errors = plugin_metadata_updates()
+    drift.extend(plugin_errors)
+    for path, _doc, expected in _plugin_metadata_drift(updates):
+        for key, value in expected.items():
+            drift.append(f"plugin metadata漂移: {path.relative_to(ROOT)}/{key}")
+
     if drift:
-        print("[sync-expert-packs] ✗ expert-packs 与根 skill 存在漂移：", file=sys.stderr)
+        print("[sync-expert-packs] ✗ expert-packs 与权威源存在漂移：", file=sys.stderr)
         for line in drift:
             print(f"  {line}", file=sys.stderr)
         print("运行 `make sync-expert-packs` 重新生成。", file=sys.stderr)

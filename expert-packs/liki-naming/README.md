@@ -23,7 +23,7 @@ liki-naming/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-mcp", "counsel-mcp"]` — 用神取字走 engine-mcp（bazi_chart/fullchart），起名走 counsel-mcp（qiming_surname/pick/char/compose/check）。
+- `dependencies.connectors: ["engine-mcp", "counsel-mcp"]` — 八字排盘能力由 engine-mcp 提供；姓氏匹配、取字、组名和评估能力由 counsel-mcp 提供。
 
 ## 说明
 

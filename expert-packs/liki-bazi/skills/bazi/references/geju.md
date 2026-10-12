@@ -9,7 +9,7 @@
 ### 📥 数据来源（引擎 + 断言）
 
 - **定格**：engine `bazi_fullchart.ge_ju` 输出 `pattern_god` / `pattern_god_ten_god` / `pattern_god_source`（透干来源：本气/中气/余气/不透），`structure` 给出格神、克格神、生格神的透干柱、藏干根、季节旺相与合会冲刑证据；四柱藏干读各柱 `cang_gan`。LLM 读字段，不自行查藏干表定格。
-- **成 / 破格与救应断语**：由 counsel 格局断言（`ge_*` 系列）经 `natal_query` 返回（如"正官格成（官印相生）""官杀混杂破格"等）。LLM 只解读返回的 `conclusion`。
+- **成 / 破格与救应断语**：由 counsel 本命断语能力返回的格局断言（`ge_*` 系列）（如"正官格成（官印相生）""官杀混杂破格"等）。LLM 只解读返回的 `conclusion`。
 
 ### 📖 理解背景：顺逆用成破条件（结论以 `ge_*` 断言为准）
 

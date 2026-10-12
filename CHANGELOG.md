@@ -1,5 +1,28 @@
 # Changelog
 
+## [2026.10.12.0] — 2026-10-12
+
+### Changed
+
+- 统一版本模型：移除并行 SemVer 产品版本，根 Skill 和 6 个专家包元数据都使用运行时 CalVer；正式 release tag 使用 `vYYYY.MM.DD.SERIAL` 形式。
+- 跟进 liki-agents `2026.10.12.0` 正式发布：AgentDeployment 使用无 `apiVersion` / `kind` 信封的简化格式，`deps/liki-agents.base` 更新到 immutable digest `sha256:30eb5d33…`。
+- 停止烘焙 `LIKI_AGENTS_DEPLOYMENT_DIGEST`；AgentDeployment digest 仅保留为审计 provenance，部署完整性由 final assembly image digest 承担。
+- `release-integrity` 在构建 release manifest 前显式执行 `make agents-validate`，`experts` / `single` 两个 AgentDeployment 工件必须先通过同一个 pinned liki-agents runtime；本地入口继续收敛为 `lint / check / test / gate`，删除重复的 `verify` 与 `test-functional`。
+- `liki-single-expert` 作为独立产品发布面进入 final signed release manifest；release workflow 记录并上传其 immutable digest。
+- 160 题资产在 README 中明确为规则链覆盖与零命中检查，不作为独立准确率评测或命理正确性证明；`engine-rpc` 文档明确为保留的兼容接口，不再描述自动退役条件。
+- CI 增加 workflow 级 concurrency 和全部 job timeout；PR 重复推送取消旧 run，release 不取消。静态 workflow 检查会守护这两项配置。
+- MCP schema 自省闭环：Counsel 12 个工具新增 output schema 并返回 structured content；新增 MCP schema lint；Skill 文档去除具体 MCP 方法名，改为语义能力语言和 `tools/list` 自省规则。
+
+### Fixed
+
+- counsel `BodyLimitMiddleware` 同时使用 `Content-Length` 快速检查和实际 ASGI body 字节累计；伪造较小的 `Content-Length` 不再绕过请求体上限。
+
+### Refactored
+
+- Agents 与 expert-packs 描述统一治理：persona 改用工具自省、语义能力和隐私合规边界；expert-pack 根 Skill 移除方法枚举并统一结构；nested Ziwei / Qimen 描述规范化；connector 描述不再枚举 MCP 方法名。新增 expert-docs lint 与 persona / plugin metadata 漂移检查。
+- 精简根 Skill 入口：压缩 description 长尾词、新增 keywords 承载检索词、合并执行循环，并把 Aipay / Feedback 完整协议拆到 `references/payment/AIPAY.md` 与 `references/ops/FEEDBACK.md`；脚本信任边界保持不变。
+- counsel 按边界拆分 HTTP middleware、JSON Schema 工具适配与领域 MCP server 构建；`app.counsel_mcp:app` 入口、路由、环境变量和外部行为保持不变。
+
 ## [2026.10.11.0] — 2026-10-11
 
 ### Changed：跟进 liki-agents v2026.10.10.1（配置面收敛，breaking）

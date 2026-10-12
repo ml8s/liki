@@ -13,7 +13,7 @@
 1. Fork 本仓库
 2. 从 `main` 创建一个功能分支：`git checkout -b feat/my-change main`
 3. 安装 git hooks（一次）：`make hooks`
-4. 升版本用根 Makefile 统一写入当日日期和序号（`skills/liki/VERSION.txt` + engine VERSION 同步；natal 的 `counsel-tools.json`、divination/naming 的 `skill-tools.json` 及各投影 schema 会同步 `version` / `info.version`）：
+4. 升版本用根 Makefile 统一写入当日日期和序号（`VERSION.txt`、engine/counsel VERSION、根与专家包 SKILL 元数据、插件版本、profiles、counsel 工具清单和投影契约同步）：
 
    ```bash
    make version
@@ -60,8 +60,8 @@
 ## 发布版本模型
 
 - 日常开发 / 兼容性版本使用 CalVer，由 `make version` 统一 bump。
-- 正式产品发行版使用 SemVer Git tag（如 `v5.0.0`），与 CalVer 并行。
-- 不要把 `VERSION` 改成 SemVer；CalVer 是运行时和兼容性版本面。
+- 正式产品发行版使用日期版本 Git tag（如 `v2026.10.12.0`），与运行时 CalVer 同源。
+- 不要恢复并行 SemVer 版本面；CalVer 是唯一版本标识。
 - 完整规则见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)。
 
 ## 推送前检查清单

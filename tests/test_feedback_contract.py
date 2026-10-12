@@ -139,14 +139,25 @@ class TestFeedbackContract(unittest.TestCase):
 
     def test_unified_skill_documents_feedback_runtime_governance(self):
         text = (SKILLS_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("LIKI_FEEDBACK_URL", text)
-        self.assertIn("LIKI_FEEDBACK_DISABLED=1", text)
         self.assertIn("同一会话最多 3 条", text)
         self.assertIn("Feedback: submitted|disabled|failed", text)
         self.assertIn("不向用户请求确认", text)
-        self.assertIn("禁止用户原文", text)
+        self.assertIn("用户原文", text)
         self.assertIn("出生数据", text)
+        self.assertIn("references/ops/FEEDBACK.md", text)
         self.assertNotIn("LIKI_FEEDBACK_CONTEXT", text)
+
+    def test_reference_documents_feedback_runtime_governance(self):
+        text = (SKILLS_DIR / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
+        self.assertIn("LIKI_FEEDBACK_URL", text)
+        self.assertIn("LIKI_FEEDBACK_DISABLED=1", text)
+        self.assertIn("https://liki.hk/api/feedback", text)
+        self.assertIn("feedback.schema.json", text)
+        self.assertIn("feedback-v1", text)
+        self.assertIn("python3 scripts/feedback.py --payload-file", text)
+        self.assertIn("未知宿主 / 模型值填 `unknown`", text)
+        for issue_type in ("error", "gap", "conflict", "friction", "clarity"):
+            self.assertIn(issue_type, text)
 
     def test_schema_rejects_unknown_and_oversized_content(self):
         schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
@@ -171,7 +182,7 @@ class TestFeedbackContract(unittest.TestCase):
             })
 
     def test_unified_skill_publishes_feedback_v1_policy(self):
-        text = (SKILLS_DIR / "SKILL.md").read_text(encoding="utf-8")
+        text = (SKILLS_DIR / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
         self.assertIn("https://liki.hk/api/feedback", text)
         self.assertIn("feedback-v1", text)
         self.assertIn("feedback.schema.json", text)

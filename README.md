@@ -61,7 +61,7 @@ npx skills add ml8s/liki -y
 - 断语来自 829 条规则真值表，命中结果保留因子依据和经典出处。
 - 断语经典依据经审计：每条均标注具体经典（《三命通会》《渊海子平》《滴天髓》《紫微斗数全书》《黄帝内经》《五行大义》等），可回溯。
 - 小运按多流派输出：《三命通会》（男丙寅/女壬申固定）与《星平会海》（由时柱起，阳男阴女顺/阴男阳女逆）分别给出。
-- 160 道命理师大赛真题用于独立评测；答案与评测过程隔离。
+- 160 道命理师大赛真题用于规则链覆盖与零命中检查；它不是独立准确率评测，也不构成命理正确性证明。
 - 出生信息只保留在当前会话；Skill 不索要真实姓名，不在对话之外存储数据。
 - 未命中内置城市表时，`city_coords` 可能将城市名发送到 Nominatim（OSM）完成地理编码；自部署可用 `LIKI_EXTERNAL_GEOCODING=off` 关闭。
 - 命理结论是传统文化视角的条件性解读，不构成医疗、法律、投资或重大人生决策建议。
@@ -90,7 +90,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 | --- | --- |
 | [用户指南](./docs/USER_GUIDE.md) | 完整使用说明、领域流程、FAQ 与输出边界 |
 | [反馈模型](./docs/FEEDBACK_MODEL.md) | Agent feedback 的隐私和数据格式 |
-| [运行时模型](./docs/RUNTIME.md) / [版本与发布](./docs/RELEASE_MODEL.md) | 进程、端点、环境变量、CalVer 与 SemVer |
+| [运行时模型](./docs/RUNTIME.md) / [版本与发布](./docs/RELEASE_MODEL.md) | 进程、端点、环境变量与日期版本 |
 
 ## 开发者
 
@@ -99,7 +99,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 ```bash
 make hooks         # 安装 git hooks
 make check         # 所有静态检查（格式 + lint + schema + docs）
-make gate          # 推送门槛（lint/check/test/160 题覆盖/archive）
+make gate          # 推送门槛（lint/check/test/160 题覆盖/runtime validate/发布工件/image smoke）
 make build-archive # 打包 unified Liki skill
 ```
 
@@ -138,7 +138,7 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 ### 引擎镜像
 
-引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:2026.10.11.0`。本地源码构建使用 `engine/dev/docker-compose.yml`。
+引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:2026.10.12.0`。本地源码构建使用 `engine/dev/docker-compose.yml`。
 
 ### 领域工具接口
 
@@ -152,19 +152,18 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 ### 测试与发布
 
 ```bash
-make test           # 所有测试（pytest + Go 引擎全量）
-make verify        # engine/counsel MCP 集成验证
-make golden # golden 全量
+make test           # 所有测试（pytest + Go 引擎全量，含 MCP 集成）
+make golden         # golden 全量（局部诊断入口）
 ```
 
-分层详见 [Release model](./docs/RELEASE_MODEL.md)：`lint → check → test → verify → gate`。
+分层详见 [Release model](./docs/RELEASE_MODEL.md)：`lint → check → test → gate`。
 
 ### 设计原则
 
 - 分层单一职责：根入口、领域入口、App 卡、领域知识和工具层不互相替代。
 - 单一事实源：工具 schema 来自工具清单（natal 的 `counsel-tools.json`、divination / naming 的 `skill-tools.json`，经 `tools/list` 自举），因子和断语来自 CSV 长表与引擎规则表。
 - 双体系显式合参：八字和紫微分侧计算，冲突分层列证。
-- 评测驱动：golden、functional、MCP integration 与 160 题规则覆盖分层运行；历史 model-backed 评测资产显式归档。
+- 测试分层：golden、functional、MCP integration 与 160 题规则覆盖/零命中检查分层运行；历史 model-backed 评测资产显式归档。
 
 ## 贡献
 

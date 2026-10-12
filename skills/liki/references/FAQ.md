@@ -26,6 +26,7 @@
 
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
 - 远程版本 10 秒不可达：标注「版本未校验」后继续，不视为错误；`LIKI_HOSTED=1` 跳过远程校验。
+- 请求远程版本时携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
 
 ## 离线与依赖
 

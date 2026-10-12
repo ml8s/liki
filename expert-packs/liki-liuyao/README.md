@@ -23,7 +23,7 @@ liki-liuyao/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-mcp", "counsel-mcp"]` — 起卦走 engine-mcp（liuyao_qigua/liuyao_chart），断语走 counsel-mcp（liuyao_snapshot/liuyao_query）。
+- `dependencies.connectors: ["engine-mcp", "counsel-mcp"]` — 起卦与装卦能力由 engine-mcp 提供；不可变快照与追问能力由 counsel-mcp 提供。
 
 ## 校验要点（提交前核对）
 
