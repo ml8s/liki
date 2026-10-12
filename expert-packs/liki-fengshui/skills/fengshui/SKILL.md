@@ -4,7 +4,7 @@ description: 风水方法论卡——八宅与玄空的规则口径（游星/门
 metadata:
   display_name: 风水专家
   display_name_en: Feng Shui Expert
-  version: 2026.10.12.0
+  version: 2026.10.12.1
   author: Liki
 ---
 

@@ -481,6 +481,7 @@ jobs:
             COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.event.release.published_at }}
           push: true
+          load: true
           provenance: mode=max
           sbom: true
           tags: |
@@ -499,6 +500,7 @@ jobs:
             COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.event.release.published_at }}
           push: true
+          load: true
           provenance: mode=max
           sbom: true
           tags: |

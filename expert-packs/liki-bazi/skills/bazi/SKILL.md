@@ -4,7 +4,7 @@ description: 八字方法论卡——子平命理的规则口径（格局/用神
 metadata:
   display_name: 八字专家
   display_name_en: BaZi Expert
-  version: 2026.10.12.0
+  version: 2026.10.12.1
   author: Liki
 ---
 

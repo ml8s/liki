@@ -2,7 +2,7 @@
 name: liki-ziwei
 description: 紫微专家——十二宫、星曜、四化、大限流年、合盘与考时。断语依据可回溯，为传统文化条件性解读。
 display_name: 紫微专家
-version: 2026.10.12.0
+version: 2026.10.12.1
 author: Liki
 keywords:
   - 紫微斗数

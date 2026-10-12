@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.10.12.1] — 2026-10-12
+
+### Fixed
+
+- Assembly release images are loaded onto the release runner after push, so post-push provenance/label validation and runtime validation operate on the published images instead of failing with “No such image”.
+
 ## [2026.10.12.0] — 2026-10-12
 
 ### Changed
