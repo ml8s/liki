@@ -2,7 +2,7 @@
 name: liki-fengshui
 description: 风水专家——八宅命卦、门主灶、玄空飞星、元运流年与家居布局分析。依据可回溯，为传统文化条件性解读。
 display_name: 风水专家
-version: 2026.10.12.2
+version: 2026.10.13.0
 author: Liki
 keywords:
   - 风水

@@ -4,7 +4,7 @@ description: 起名方法论卡——八字用神与字库的规则口径（取�
 metadata:
   display_name: 起名专家
   display_name_en: Naming Expert
-  version: 2026.10.12.2
+  version: 2026.10.13.0
   author: Liki
 ---
 

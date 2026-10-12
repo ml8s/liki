@@ -36,10 +36,23 @@ def _metadata() -> dict:
 
 
 def _keywords() -> list[str]:
-    keywords = _metadata()["metadata"].get("keywords") or []
-    assert isinstance(keywords, list)
-    assert all(isinstance(keyword, str) and keyword.strip() for keyword in keywords)
+    # ADK frontmatter metadata 是 map[string]string；SEO keywords 用逗号列表。
+    raw = _metadata()["metadata"].get("keywords") or ""
+    assert isinstance(raw, str)
+    keywords = [keyword.strip() for keyword in raw.split(",") if keyword.strip()]
+    assert all(keyword for keyword in keywords)
     return keywords
+
+
+def test_metadata_values_are_adk_compatible_scalars():
+    # ADK skilltoolset parses metadata as map[string]string. A YAML sequence
+    # or mapping here fails at runtime before any MCP tool is exposed.
+    metadata = _metadata()["metadata"]
+    assert isinstance(metadata, dict)
+    assert metadata
+    for key, value in metadata.items():
+        assert isinstance(key, str) and key.strip(), key
+        assert isinstance(value, str), f"metadata.{key} must be a string, got {type(value).__name__}"
 
 
 def _description() -> str:

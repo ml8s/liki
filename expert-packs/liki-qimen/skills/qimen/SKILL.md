@@ -4,7 +4,7 @@ description: 奇门方法论卡——时家奇门的规则口径（八门/八神
 metadata:
   display_name: 奇门专家
   display_name_en: Qi Men Expert
-  version: 2026.10.12.2
+  version: 2026.10.13.0
   author: Liki
 ---
 

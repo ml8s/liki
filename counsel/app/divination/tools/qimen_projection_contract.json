@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "version": "2026.10.12.2",
+  "version": "2026.10.13.0",
   "fields": {
     "scope": {
       "kind": "scalar",

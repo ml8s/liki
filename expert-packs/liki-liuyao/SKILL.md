@@ -2,7 +2,7 @@
 name: liki-liuyao
 description: 六爻专家——纳甲筮法起卦、用神取用、六亲六神、应期与条件性吉凶分析。依据可回溯。
 display_name: 六爻专家
-version: 2026.10.12.2
+version: 2026.10.13.0
 author: Liki
 keywords:
   - 六爻

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.10.13.0] — 2026-10-13
+
+### Fixed
+
+- Skill frontmatter `metadata.keywords` 改为逗号分隔字符串；ADK skilltoolset 的 metadata schema 要求 `map[string]string`，YAML sequence 会让 runtime 初始化失败。
+
 ## [2026.10.12.2] — 2026-10-12
 
 ### Fixed
