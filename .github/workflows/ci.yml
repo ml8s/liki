@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [master, dev]
+    branches: [main]
   release:
     types: [published]
 
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   check:
-    name: Check contracts
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -28,7 +28,7 @@ jobs:
           python-version-file: .python-version
       - run: python -m pip install pyyaml jsonschema ruff==0.16.0
       - run: make check
-      - name: Generate and validate deployment artifacts
+      - name: Generate deployment artifacts
         run: make build-deployment
 
   engine-lint:
@@ -83,7 +83,7 @@ jobs:
         working-directory: engine
 
   skills-test:
-    name: Skill contracts
+    name: Skill tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -131,10 +131,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - run: docker build -f counsel/Dockerfile -t liki-counsel:ci .
+      - name: Verify counsel image is deployment-topology-free
+        run: |
+          if docker image inspect liki-counsel:ci --format '{{json .Config.Env}}' | grep -q 'LIKI_MCP_URL='; then
+            echo "::error::counsel image must not bake LIKI_MCP_URL" >&2
+            exit 1
+          fi
       - name: Smoke counsel health endpoint
         run: |
           trap 'docker rm -f counsel-smoke 2>/dev/null || true' EXIT
-          docker run -d --name counsel-smoke -p 18086:8086 liki-counsel:ci
+          docker run -d --name counsel-smoke \
+            -e LIKI_MCP_URL=http://127.0.0.1:9/mcp \
+            -p 18086:8086 liki-counsel:ci
           for i in $(seq 1 30); do
             curl -fsS http://127.0.0.1:18086/healthz && break
             sleep 1
@@ -207,7 +215,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version-file: .python-version
-      - run: python -m pip install pyyaml jsonschema
+      - run: python -m pip install pyyaml
       - name: Build and verify release manifest
         run: |
           make build-release-manifest
@@ -223,8 +231,6 @@ jobs:
             -C dist \
             agents/experts/deployment.json \
             agents/single/deployment.json \
-            contracts/agent-definition.schema.json \
-            contracts/agent-definition.version \
             index.json \
             liki-release-manifest.json \
             liki-release-manifest.sha256 \
@@ -349,6 +355,7 @@ jobs:
         run: |
           trap 'docker rm -f counsel-published-smoke 2>/dev/null || true' EXIT
           docker run -d --name counsel-published-smoke -p 18086:8086 \
+            -e LIKI_MCP_URL=http://127.0.0.1:9/mcp \
             ghcr.io/${{ github.repository_owner }}/liki-counsel:${{ steps.versions.outputs.runtime }}
           for _ in $(seq 1 30); do
             curl -fsS http://127.0.0.1:18086/healthz && break
@@ -380,7 +387,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version-file: .python-version
-      - run: python -m pip install pyyaml jsonschema
+      - run: python -m pip install pyyaml
       - name: Generate deployment artifacts
         run: make build-deployment
       - name: Stage artifacts into image build context
@@ -479,6 +486,17 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.version }}
             ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.runtime }}
+      - name: Verify assembly image version label
+        run: |
+          for image in \
+            ghcr.io/${{ github.repository_owner }}/liki-multi-expert:${{ steps.version.outputs.runtime }} \
+            ghcr.io/${{ github.repository_owner }}/liki-single-expert:${{ steps.version.outputs.runtime }}; do
+            actual="$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')"
+            if [ "$actual" != "${{ steps.version.outputs.runtime }}" ]; then
+              echo "::error::$image version label is $actual, expected ${{ steps.version.outputs.runtime }}" >&2
+              exit 1
+            fi
+          done
       - name: Validate published deployments
         run: |
           for img in \

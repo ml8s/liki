@@ -141,7 +141,7 @@ npx skills add ml8s/liki -y
 
 ### 服务端怎么升级？
 
-保持 skill `VERSION.txt` 和 MCP 服务端（liki-core）的版本契约兼容。服务端低于 skill 要求时，工具会 fail closed，不会降级调用旧接口。
+保持 skill `VERSION.txt` 和 MCP 服务端（liki-core）的版本兼容。服务端低于 skill 要求时，工具会 fail closed，不会降级调用旧接口。
 
 ## 输出原则
 

@@ -25,7 +25,6 @@ ARCHIVE_SHA256="sha256:$(sha256sum "$DIST_DIR/liki.tar.gz" | cut -d' ' -f1)"
 
 cat > "$DIST_DIR/manifest.json" <<JSON
 {
-  "schema_version": "1",
   "artifact": "liki-web-skill-bundle.tar.gz",
   "release_tag": "$RELEASE_TAG",
   "runtime_version": "$VERSION",

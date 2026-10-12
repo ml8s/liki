@@ -17,7 +17,6 @@ VERSION_FILES = (
     ROOT / "counsel/app/VERSION.txt",
 )
 PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))
-CATALOG_FILE = ROOT / "contracts/mcp-tool-catalog.json"
 JSON_SURFACES = (
     (ROOT / "counsel/app/divination/tools/skill-tools.json", ("info", "version")),
     (ROOT / "counsel/app/naming/tools/skill-tools.json", ("info", "version")),
@@ -97,12 +96,6 @@ def main() -> None:
             json.dumps(document, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
-    catalog = json.loads(CATALOG_FILE.read_text(encoding="utf-8"))
-    catalog["runtime_version"] = version
-    CATALOG_FILE.write_text(
-        json.dumps(catalog, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
     for path, keys in JSON_SURFACES:
         set_json(path, keys, version)
     set_pyproject(version)

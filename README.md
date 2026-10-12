@@ -89,7 +89,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 | 文档 | 用途 |
 | --- | --- |
 | [用户指南](./docs/USER_GUIDE.md) | 完整使用说明、领域流程、FAQ 与输出边界 |
-| [反馈模型](./docs/FEEDBACK_MODEL.md) | Agent feedback 的隐私和契约 |
+| [反馈模型](./docs/FEEDBACK_MODEL.md) | Agent feedback 的隐私和数据格式 |
 | [运行时模型](./docs/RUNTIME.md) / [版本与发布](./docs/RELEASE_MODEL.md) | 进程、端点、环境变量、CalVer 与 SemVer |
 
 ## 开发者
@@ -123,7 +123,7 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 | --- | --- | --- | --- |
 | `engine-mcp` | `/engine/mcp/{domain}` | `/mcp/{domain}` | 排盘 / 历法 / 黄历 / 风水 |
 | `counsel-mcp` | `/counsel/mcp/{domain}` | `/mcp/{domain}` | 判断 / 算卦 / 起名 |
-| `engine-rpc` | `/jsonrpc` | `/jsonrpc` | `liki-web` 免费排盘过渡接口 |
+| `engine-rpc` | `/jsonrpc` | `/jsonrpc` | 旧安装 skill 的 JSON-RPC 兼容接口 |
 
 ### 调用链
 
@@ -134,18 +134,18 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 - `engine/` —— Go 引擎（排盘/历法/黄历），分域 MCP 服务
 - `counsel/` —— Python 判断层（多域 MCP server）
 - `skills/liki/` —— skill 能力文档（路由 / 边界 / 领域知识，工具经 `tools/list` 自举）
-- `tests/` —— 契约与集成测试；`scripts/` —— 构建与评测脚本
+- `tests/` —— 内容与集成测试；`scripts/` —— 构建与评测脚本
 
 ### 引擎镜像
 
 引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:2026.10.11.0`。本地源码构建使用 `engine/dev/docker-compose.yml`。
 
-### 领域契约
+### 领域工具接口
 
-| 契约 | 用途 |
+| 接口 | 用途 |
 | --- | --- |
-| [natal TOOLS](./skills/liki/references/natal/TOOLS.md) | 八字/紫微本命与应期判断的编排与契约（工具经 `tools/list` 自举）|
-| [divination TOOLS](./skills/liki/references/divination/TOOLS.md) | 六爻、奇门、黄历的编排与契约 |
+| [natal TOOLS](./skills/liki/references/natal/TOOLS.md) | 八字/紫微本命与应期判断的编排与接口（工具经 `tools/list` 自举）|
+| [divination TOOLS](./skills/liki/references/divination/TOOLS.md) | 六爻、奇门、黄历的编排与接口 |
 | [naming ENTRY](./skills/liki/references/naming/ENTRY.md) | 起名：用神取用 + 五行选字（counsel）|
 | [fengshui ENTRY](./skills/liki/references/fengshui/ENTRY.md) | 风水：八宅、玄空与流年（engine）|
 
@@ -168,7 +168,7 @@ make golden # golden 全量
 
 ## 贡献
 
-阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)，提交 PR 前同步更新 `CHANGELOG.md` 和版本契约。版本历史见 [CHANGELOG.md](./CHANGELOG.md)。
+阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)，提交 PR 前同步更新 `CHANGELOG.md` 和版本面。版本历史见 [CHANGELOG.md](./CHANGELOG.md)。
 
 > 懂命理，用 Liki。
 

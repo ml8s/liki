@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the 160-question assertion coverage check against a private engine-mcp.
+# Run the 160-question assertion coverage check against a local engine-mcp.
 set -eo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

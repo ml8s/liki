@@ -1,4 +1,4 @@
-"""Unified Liki skill document contract checker.
+"""Unified Liki skill document checker.
 
 Checks assertion ids, resolvable skill-relative paths, whitelisted RPC names,
 lazy-loading budgets, and reachability of domain knowledge docs.

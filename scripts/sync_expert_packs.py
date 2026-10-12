@@ -43,7 +43,7 @@ MAPPINGS: tuple[tuple[str, str, str, str | None], ...] = (
 _REF_PATTERN = re.compile(r"references/[A-Za-z0-9_./-]+\.md")
 
 # 专家 persona 单一源（agents/personas/<name>.md）→ 包内角色文件 <name>-expert.md。
-# persona 正文＝部署 instruction 骨架（运营契约）；frontmatter 提供给包消费方。
+# persona 正文＝部署 instruction 骨架（运营内容）；frontmatter 提供给包消费方。
 PERSONAS_DIR = ROOT / "agents" / "personas"
 PERSONA_PACKS: dict[str, str] = {
     "bazi": "liki-bazi",

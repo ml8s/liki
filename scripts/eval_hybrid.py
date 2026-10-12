@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""【规则表数据检查】（非判题——评测唯一走 skill-up agent）
+"""【规则表数据检查】
 
 角色：
-- 本脚本只做【规则层数据检查】：对 160 题跑 skill 断语（排盘(client) → 因子生成(evaluate_factors) → 断语查询(match_rule)——全调 skill API）——统计断语覆盖（各域命中数/零命中题）——
-  验证规则表改动不崩、断语覆盖正常。
-- 【不判题】——判题（题目→skill→答案→对比）唯一走 skill-up agent 评测
-  （tests/benchmark/mingli160/run.sh：agent 读 SKILL.md → 排盘(RPC)+因子生成+断语查询 → 综合判题 →
-   grade-case.py 判分）。
+- 对 160 个命盘样本执行本地规则链：出生解析 → 排盘 → 因子生成 → 断语查询，
+  统计各域覆盖与零命中题，验证规则表改动不崩、断语覆盖正常。
+- 【不判题】——本脚本不输出准确率，也不消费模型结论。
 - 不包含评测标签、族逻辑或紫微铁断；评测标签只存在于测试层。
 
 用法：python3 scripts/eval_hybrid.py
@@ -15,15 +13,14 @@
 import argparse
 import json
 import os
-import re
 import sys
 from pathlib import Path
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the unified Liki bazi domain.
 _TOOLS = os.path.join(_ROOT, "counsel", "app", "natal", "tools")
-_LOCAL = os.path.dirname(os.path.abspath(__file__))   # scripts/（client/birth 排盘工具在此）
-_BENCHMARK = os.path.join(_ROOT, "tests", "benchmark", "mingli160")
+_LOCAL = os.path.dirname(os.path.abspath(__file__))   # scripts/birth.py 在此
+_BENCHMARK = os.path.join(_ROOT, "tests", "mingli160")
 for _p in (_TOOLS, _LOCAL):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -34,7 +31,10 @@ from factors import evaluate_liunian_snap_from_pan, evaluate_snap_from_pan
 from paipan import full_paipan, liunian
 
 BENCHMARK = _BENCHMARK
-GROUPS = json.load(open(os.path.join(BENCHMARK, "groups.json"), encoding="utf-8"))
+with open(os.path.join(BENCHMARK, "groups.json"), encoding="utf-8") as _file:
+    GROUPS = json.load(_file)
+with open(os.path.join(BENCHMARK, "births.json"), encoding="utf-8") as _file:
+    BIRTHS = json.load(_file)
 
 
 def query_all(pan: dict) -> dict:
@@ -54,14 +54,12 @@ def query_all(pan: dict) -> dict:
 
 
 def load_case_birth(case_id: str) -> str:
-    s = open(os.path.join(BENCHMARK, "evals/cases", f"{case_id}.yaml"), encoding="utf-8").read()
-    m = re.search(r"出生信息：([^\n]+)", s)
-    return m.group(1) if m else ""
+    return BIRTHS[case_id]
 
 
 def build_report(total: int, zero: list[str], dom_hits: dict[str, int]) -> str:
     lines = []
-    lines.append("# 规则表数据检查（非判题——评测唯一走 skill-up agent）")
+    lines.append("# 规则表数据检查（非判题）")
     lines.append("")
     lines.append(f"- 总题数：{total}")
     lines.append(f"- 零命中（全断语域无覆盖）：{len(zero)}")
@@ -72,7 +70,7 @@ def build_report(total: int, zero: list[str], dom_hits: dict[str, int]) -> str:
     for rule, count in sorted(dom_hits.items(), key=lambda item: -item[1]):
         lines.append(f"- {rule}：{count} 题有断语")
     lines.append("")
-    lines.append("> 判题（题目→skill→答案→对比）资产在 `tests/benchmark/mingli160/` 归档；当前未纳入 gate。")
+    lines.append("> 本报告只度量断语覆盖，不作为准确率评测。")
     return "\n".join(lines) + "\n"
 
 

@@ -5,7 +5,7 @@
 
 services:
   engine-mcp:
-    image: liki-engine:latest
+    image: liki-engine:local
     build:
       context: ..
       dockerfile: dev/Dockerfile

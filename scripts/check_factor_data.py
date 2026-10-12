@@ -1,4 +1,4 @@
-"""断言库 schema 校验（长表、条件组、术数/作用域与生产数据纯度）。"""
+"""校验断语长表、条件组、术数作用域与生产数据纯度。"""
 from __future__ import annotations
 
 import csv

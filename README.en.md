@@ -88,7 +88,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 | Document | Purpose |
 | --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
-| [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and contract |
+| [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and payload format |
 | [Runtime model](./docs/RUNTIME.md) | Engine/counsel processes, endpoints, and transition JSON-RPC |
 | [Release model](./docs/RELEASE_MODEL.md) | CalVer runtime versions and SemVer releases |
 
@@ -121,7 +121,7 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 | --- | --- | --- | --- |
 | `engine-mcp` | `/engine/mcp/{domain}` | `/mcp/{domain}` | chart casting / calendar / Huangli / Feng shui |
 | `counsel-mcp` | `/counsel/mcp/{domain}` | `/mcp/{domain}` | judgment / divination / naming |
-| `engine-rpc` | `/jsonrpc` | `/jsonrpc` | transition API for `liki-web` free charts |
+| `engine-rpc` | `/jsonrpc` | `/jsonrpc` | JSON-RPC compatibility API for installed legacy skills |
 
 ### Call chain
 
@@ -132,18 +132,18 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 - `engine/` — Go engine (chart casting / calendar / Huangli), domain-scoped MCP servers
 - `counsel/` — Python judgment layer (multi-domain MCP server)
 - `skills/liki/` — skill capability docs (routing / boundaries / domain knowledge; tools self-describe via `tools/list`)
-- `tests/` — contract & integration tests; `scripts/` — build & evaluation scripts
+- `tests/` — content & integration tests; `scripts/` — build & evaluation scripts
 
 ### Engine image
 
 The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.10.11.0`. Build from source with `engine/dev/docker-compose.yml`.
 
-### Domain contracts
+### Domain tool interfaces
 
-| Contract | Purpose |
+| Interface | Purpose |
 | --- | --- |
-| [Natal tools](./skills/liki/references/natal/TOOLS.md) | Bazi / Ziwei natal & period analysis orchestration and contract (tools self-describe via `tools/list`) |
-| [Divination tools](./skills/liki/references/divination/TOOLS.md) | Liuyao, QiMen, and Huangli orchestration and contract |
+| [Natal tools](./skills/liki/references/natal/TOOLS.md) | Bazi / ZiWei natal and period analysis orchestration (tools self-describe via `tools/list`) |
+| [Divination tools](./skills/liki/references/divination/TOOLS.md) | Liuyao, QiMen, and Huangli orchestration |
 | [Naming ENTRY](./skills/liki/references/naming/ENTRY.md) | Naming: yongshen-based character selection (counsel) |
 | [Feng shui ENTRY](./skills/liki/references/fengshui/ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine) |
 
@@ -168,7 +168,7 @@ Formal releases use SemVer tags; runtime compatibility uses CalVer. See [Release
 
 ## Contributing
 
-Read [CONTRIBUTING.md](./CONTRIBUTING.md). Update `CHANGELOG.md` and version contracts before submitting a PR. Release history is available in [CHANGELOG.md](./CHANGELOG.md).
+Read [CONTRIBUTING.md](./CONTRIBUTING.md). Update `CHANGELOG.md` and version surfaces before submitting a PR. Release history is available in [CHANGELOG.md](./CHANGELOG.md).
 
 > For Chinese Metaphysics, use Liki.
 

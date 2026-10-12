@@ -4,7 +4,7 @@ Liki uses two coordinated version dimensions. They serve different purposes and 
 
 ## 1. Runtime / engineering version: CalVer
 
-The executable contract uses a date-stamped version:
+The executable release uses a date-stamped version:
 
 ```text
 YYYY.MM.DD.SERIAL
@@ -63,7 +63,7 @@ Semantics:
 
 | Change | Version |
 |---|---|
-| Breaking product, skill layout, RPC contract, output contract, or removal of public entry points | major |
+| Breaking product, skill layout, public RPC/output interface, or removal of public entry points | major |
 | Backward-compatible new domain, tool, RPC, report, or product capability | minor |
 | Bug fix, docs, small correction without breaking contracts | patch |
 
@@ -73,8 +73,7 @@ Semantics:
 
 | 依赖 | pin 文件 | 锁定内容 | 更新时机 |
 |---|---|---|---|
-| AgentDeployment schema | `contracts/agent-definition.version` | schema version + sha256 | liki-agents 发布新 schema 后 |
-| 装配运行时 base | `contracts/liki-agents.base` | liki-agents version + immutable digest | liki-agents 发布新版且本仓验证通过后 |
+| 装配运行时 base | `deps/liki-agents.base` | liki-agents version + immutable digest | liki-agents 发布新版且本仓验证通过后 |
 
 - 原则：**测试用哪个版本，部署就用哪个**——`make agents-validate`（本地 / CI）与 CI 装配 `FROM` 共用同一 pin（`python3 scripts/liki_agents_pin.py`）。
 - liki-agents 稳定后很少更新；**未发新版则 pin 保持不变**，不随 liki 自己的版本自动对齐。
@@ -161,7 +160,7 @@ A normal documentation or bug-fix push does not automatically create a SemVer re
 
 Create `vX.Y.Z` only when the main branch is green and the milestone is intentionally released.
 
-- Breaking public behaviour, payload contract, skill layout, RPC removal, or old-entry removal → major.
+- Breaking public behaviour, public payload interface, skill layout, RPC removal, or old-entry removal → major.
 - New domain, tool, RPC, report, or backward-compatible capability → minor.
 - Fixes or corrections without breaking contracts → patch.
 
@@ -187,17 +186,17 @@ Make targets are layered: lint → check → test → verify → gate.
 make lint                 # markdownlint + golangci-lint + go vet + ruff
 make fmt-check            # Go format check
 
-# Layer 2: Check（结构 / 契约 / 数据质量，< 30s）
+# Layer 2: Check（结构 / 数据质量，< 30s）
 make check                # format/vet + skill structure + schema + docs
 
 # Layer 3: Test（逻辑正确性）
-make test                 # contracts + engine + counsel + engine MCP smoke
+make test                 # repository suite + engine + counsel + engine MCP smoke
 
 # Layer 4: Verify（当前 MCP 协议 / 服务集成）
 make verify               # engine MCP smoke + counsel integration
 
 # Layer 5: Gate（发布门槛）
-make gate                # engine lint + check + test + 160 题覆盖 + archive
+make gate                # engine lint + check + test + 160 题覆盖 + runtime-validated release artifacts + image smoke
 ```
 
 Release checks add golden and package:

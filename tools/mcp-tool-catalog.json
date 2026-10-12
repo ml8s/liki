@@ -1,6 +1,4 @@
 {
-  "version": "1.0.0",
-  "runtime_version": "2026.10.11.0",
   "servers": {
     "engine": {
       "tools": [

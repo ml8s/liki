@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PIN = ROOT / "contracts" / "liki-agents.base"
+PIN = ROOT / "deps" / "liki-agents.base"
 SCRIPT = ROOT / "scripts" / "liki_agents_pin.py"
 WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
 MAKEFILE = ROOT / "Makefile"

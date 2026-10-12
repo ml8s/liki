@@ -13,7 +13,6 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -29,29 +28,11 @@ def digest(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def parse_pin(path: Path) -> tuple[str, str]:
-    values: dict[str, str] = {}
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or ":" not in line:
-            continue
-        key, value = line.split(":", 1)
-        values[key.strip()] = value.strip()
-    return values.get("version", ""), values.get("digest", "")
-
-
 def runtime_version() -> str:
     return (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
 
 
 def build(require_images: bool = False) -> dict[str, Any]:
-    schema_version, schema_digest = parse_pin(ROOT / "contracts" / "agent-definition.version")
-    actual_schema_digest = digest(ROOT / "contracts" / "agent-definition.schema.json")
-    if schema_digest != actual_schema_digest:
-        raise SystemExit(
-            f"contract digest mismatch: pin={schema_digest} actual={actual_schema_digest}"
-        )
-
     expected_runtime = runtime_version()
 
     deployments: dict[str, Any] = {}
@@ -76,16 +57,6 @@ def build(require_images: bool = False) -> dict[str, Any]:
         "archive_sha256": digest(skill_archive),
         "index_sha256": digest(skill_index),
     }
-    contract_dist = DIST / "contracts"
-    contract_dist.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(
-        ROOT / "contracts/agent-definition.schema.json",
-        contract_dist / "agent-definition.schema.json",
-    )
-    shutil.copy2(
-        ROOT / "contracts/agent-definition.version",
-        contract_dist / "agent-definition.version",
-    )
     web_bundle = DIST / "liki-web-skill-bundle.tar.gz"
     if web_bundle.is_file():
         skill_bundle["web_bundle_sha256"] = digest(web_bundle)
@@ -123,7 +94,6 @@ def build(require_images: bool = False) -> dict[str, Any]:
             raise SystemExit("--require-images requires LIKI_RELEASE_TAG")
 
     return {
-        "schema_version": 1,
         "artifact": "liki-release-manifest.json",
         "release_tag": os.environ.get("LIKI_RELEASE_TAG", "unreleased"),
         "runtime_version": expected_runtime,
@@ -131,10 +101,6 @@ def build(require_images: bool = False) -> dict[str, Any]:
             "LIKI_SOURCE_COMMIT",
             subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
         ),
-        "agent_contract": {
-            "version": schema_version,
-            "schema_sha256": schema_digest,
-        },
         "agent_deployments": deployments,
         "skill_bundle": skill_bundle,
         "images": images,

@@ -5,7 +5,7 @@ Liki currently ships one deterministic Go engine with two HTTP runtimes:
 | Runtime | Interface | Purpose | Lifecycle |
 | --- | --- | --- | --- |
 | `engine-mcp` | Streamable MCP | Skill, counsel, and agent-facing compute API | Current architecture |
-| `engine-rpc` | JSON-RPC 2.0 | The active `liki-web` free-chart API | Transition only |
+| `engine-rpc` | JSON-RPC 2.0 | Compatibility API for installed legacy skills | Transition only |
 | `counsel-mcp` | Streamable MCP | Factor, assertion, divination, and naming judgment | Current architecture |
 
 The edge owns public service prefixes:
@@ -21,10 +21,9 @@ https://<host>/jsonrpc          → engine-rpc /jsonrpc
 Services must not depend on the public prefix. The gateway strips `/engine` or
 `/counsel` before proxying.
 
-The published engine image defaults to `engine-rpc` because the active
-`liki-web` deployment still owns public `/jsonrpc`. MCP deployments override the
-image entrypoint to `/usr/local/bin/engine-mcp`. This default changes back to
-MCP only at the `engine-rpc` removal gate below.
+The published engine image defaults to `engine-rpc` because public `/jsonrpc`
+remains available for installed legacy skills. MCP deployments override the
+image entrypoint to `/usr/local/bin/engine-mcp`.
 
 ## Process configuration
 
@@ -49,9 +48,9 @@ not rate-limit.
 | `LISTEN_ADDR` | `:8080` | Transition JSON-RPC listen address |
 | `LIKI_ALLOWED_ORIGINS` | hosted default | Browser CORS origins |
 
-`POST /jsonrpc` is the active contract used by `liki-web` free charts. It is not
-a permanent compatibility surface: remove this runtime only after `liki-web`,
-`liki-deploy`, and their E2E suites have moved to engine MCP.
+`POST /jsonrpc` is not used by the web BFF. It remains a temporary compatibility
+surface for installed legacy skills and can be removed after public traffic
+reaches zero.
 
 #### Removal gate
 
@@ -96,13 +95,3 @@ endpoints for clients that need a narrower discovery surface.
 5. Protect private engine calls with `LIKI_ENGINE_MCP_TOKEN`; using the same
    value as counsel's `LIKI_MCP_TOKEN` remains supported.
 6. Monitor `/readyz`, tool error rates, rate-limit rejections, and engine latency.
-
-## Removal gate for engine-rpc
-
-The JSON-RPC runtime may be deleted only when all of these are true:
-
-1. `liki-web` consumes engine MCP for free charts.
-2. `liki-deploy` no longer routes public `/jsonrpc`.
-3. Local and CI E2E cover the MCP path.
-4. A release note documents the endpoint removal.
-5. No active deployment still reports `engine-rpc` traffic.

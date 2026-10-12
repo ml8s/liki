@@ -211,7 +211,7 @@ def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
 
 
 def test_counsel_root_aggregate_matches_tool_catalog():
-    catalog_path = pathlib.Path(__file__).parents[2] / "contracts" / "mcp-tool-catalog.json"
+    catalog_path = pathlib.Path(__file__).parents[2] / "tools" / "mcp-tool-catalog.json"
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
     srv = create_counsel_root_mcp()
     names = {tool.name for tool in asyncio.run(srv.list_tools())}

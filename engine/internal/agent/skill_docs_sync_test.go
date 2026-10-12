@@ -1,6 +1,6 @@
 package agent
 
-// skill 文档 ↔ 引擎 schema 契约测试：
+// skill 文档与引擎 schema 同步测试：
 //  1. liki-skills 文档（SKILL.md/app/domains）反引号引用的字段名必须存在于某方法
 //     Params/Result 的 JSON Schema 属性集合。
 //  2. skill 侧 check_docs.py 的方法白名单 == 引擎注册方法集。

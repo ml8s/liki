@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Read and validate the liki-agents runtime base pin.
 
-`contracts/liki-agents.base` 锁定 liki 依赖的 liki-agents 发布版本
+`deps/liki-agents.base` 锁定 liki 依赖的 liki-agents 发布版本
 （version + immutable digest）。测试与部署共用该 pin，不做与 liki 版本的
 同名对齐。CI 装配与本地 `make agents-validate` 都从这里取版本。
 
@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PIN_PATH = ROOT / "contracts" / "liki-agents.base"
+PIN_PATH = ROOT / "deps" / "liki-agents.base"
 DEFAULT_REGISTRY = "ghcr.io/ml8s"
 
 _CALVER_RE = re.compile(r"^\d{4}\.\d{2}\.\d{2}\.\d+$")

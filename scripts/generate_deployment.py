@@ -1,6 +1,6 @@
 """AgentDeployment 工件生成器。
 
-读 agents/ 发布结构 + profiles/ 定义，组装符合 agent.liki/v1 契约的
+读 agents/ 发布结构 + profiles/ 定义，组装 liki-agents 直接消费的
 deployment 工件（deployment.json + instruction + output schema）。
 
 用法:
@@ -30,7 +30,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = _ROOT / "agents"
 PERSONAS_DIR = _ROOT / "agents" / "personas"
 PROFILES_DIR = _ROOT / "profiles"
-TOOL_CATALOG_PATH = _ROOT / "contracts" / "mcp-tool-catalog.json"
+TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 
 
@@ -71,13 +71,13 @@ def runtime_version() -> str:
     return RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip()
 
 
-def validate_profile_tool_catalog(profile: dict, catalog: dict) -> None:
+def validate_profile_tool_catalog(profile: dict, catalog: dict, version: str) -> None:
     """Fail closed when a profile references a tool outside the MCP catalog."""
-    runtime_version = profile.get("metadata", {}).get("version", "")
-    if runtime_version != catalog.get("runtime_version"):
+    profile_version = profile.get("metadata", {}).get("version", "")
+    if profile_version != version:
         sys.exit(
-            "profile/runtime tool catalog mismatch: "
-            f"profile={runtime_version} catalog={catalog.get('runtime_version')}"
+            "profile/runtime version mismatch: "
+            f"profile={profile_version} runtime={version}"
         )
     servers = catalog.get("servers", {})
     declared_servers: set[str] = set()
@@ -190,7 +190,7 @@ def main() -> int:
     profile = load_profile(args.profile)
     with open(TOOL_CATALOG_PATH, encoding="utf-8") as fh:
         tool_catalog = json.load(fh)
-    validate_profile_tool_catalog(profile, tool_catalog)
+    validate_profile_tool_catalog(profile, tool_catalog, args.version)
     metadata = profile["metadata"]
     metadata["version"] = args.version
     out_dir = Path(args.out) / args.profile
@@ -202,8 +202,6 @@ def main() -> int:
         for profile_agent in profile["agents"]
     ]
     deployment = {
-        "apiVersion": "agent.liki/v1",
-        "kind": "AgentDeployment",
         "metadata": metadata,
         "spec": {
             "mcpServers": profile["mcpServers"],

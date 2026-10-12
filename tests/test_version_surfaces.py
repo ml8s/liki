@@ -1,4 +1,4 @@
-"""分发版本与契约版本的一致性契约。"""
+"""校验分发版本面保持一致。"""
 import json
 from pathlib import Path
 
@@ -60,12 +60,8 @@ def test_divination_tool_and_projection_contracts_use_distributed_version():
     assert projection_contract["version"] == version
 
 
-def test_deployment_and_catalog_surfaces_use_distributed_version():
+def test_deployment_surfaces_use_distributed_version():
     version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
-    catalog = json.loads(
-        (ROOT / "contracts/mcp-tool-catalog.json").read_text(encoding="utf-8")
-    )
-    assert catalog["runtime_version"] == version
     for path in sorted((ROOT / "profiles").glob("*.json")):
         document = json.loads(path.read_text(encoding="utf-8"))
         assert document["metadata"]["version"] == version, path

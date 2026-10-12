@@ -2,7 +2,7 @@
 FROM golang:1.26.9-alpine@sha256:cdfd4fe2da6b225d8b40c6b7a105736e548e83ff56d5d8f9394446eeb5eb84e0 AS build
 WORKDIR /src
 ENV GOPROXY=https://goproxy.cn,direct
-ARG VERSION=dev
+ARG VERSION=local
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 COPY go.mod go.sum ./
@@ -19,7 +19,7 @@ RUN apk add --no-cache ca-certificates
 RUN adduser -D -u 1000 liki
 
 FROM scratch
-ARG VERSION=dev
+ARG VERSION=local
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 LABEL org.opencontainers.image.version="${VERSION}" \

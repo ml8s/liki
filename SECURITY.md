@@ -2,7 +2,7 @@
 
 ## Supported runtime
 
-Security fixes are supported on the current `master` release and the newest
+Security fixes are supported on the current `main` release and the newest
 runtime CalVer on active release branches.
 
 ## Reporting a vulnerability

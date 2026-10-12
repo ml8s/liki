@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import subprocess
 import tarfile
 from pathlib import Path
@@ -13,8 +12,6 @@ DIST = ROOT / "dist"
 REQUIRED_BUNDLE_FILES = {
     "agents/experts/deployment.json",
     "agents/single/deployment.json",
-    "contracts/agent-definition.schema.json",
-    "contracts/agent-definition.version",
     "index.json",
     "liki-release-manifest.json",
     "liki-release-manifest.sha256",
@@ -24,7 +21,7 @@ REQUIRED_BUNDLE_FILES = {
 
 
 def test_ci_release_bundle_list_matches_contract() -> None:
-    """CI 的 release-integrity tar 清单必须与契约 REQUIRED_BUNDLE_FILES 一致（防漏包）。"""
+    """CI 的 release-integrity tar 清单必须与 REQUIRED_BUNDLE_FILES 一致。"""
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     document = yaml.safe_load(workflow)
     listed: set[str] = set()
@@ -37,7 +34,7 @@ def test_ci_release_bundle_list_matches_contract() -> None:
                 token = line.strip().rstrip("\\").strip()
                 if token in REQUIRED_BUNDLE_FILES:
                     listed.add(token)
-    assert listed == REQUIRED_BUNDLE_FILES, f"CI tar 清单与契约不一致: {listed ^ REQUIRED_BUNDLE_FILES}"
+    assert listed == REQUIRED_BUNDLE_FILES, f"CI tar 清单不一致: {listed ^ REQUIRED_BUNDLE_FILES}"
 
 
 def run(command: list[str]) -> None:
@@ -45,21 +42,12 @@ def run(command: list[str]) -> None:
 
 
 def test_release_bundle_contains_all_verified_artifacts() -> None:
-    run(["make", "build-release-manifest"])
+    run(["make", "build-web-skill-bundle"])
+    run(["make", "build-deployment"])
+    run(["python3", "scripts/build_release_manifest.py"])
 
-    schema = DIST / "contracts/agent-definition.schema.json"
-    pin = DIST / "contracts/agent-definition.version"
-    assert schema.is_file(), "release bundle schema was not staged"
-    assert pin.is_file(), "release bundle contract pin was not staged"
-
-    pin_values = {}
-    for line in pin.read_text(encoding="utf-8").splitlines():
-        if ":" in line and not line.lstrip().startswith("#"):
-            key, value = line.split(":", 1)
-            pin_values[key.strip()] = value.strip()
-
-    actual_schema_digest = hashlib.sha256(schema.read_bytes()).hexdigest()
-    assert pin_values["digest"] == f"sha256:{actual_schema_digest}"
+    for profile in ("experts", "single"):
+        assert (DIST / "agents" / profile / "deployment.json").is_file()
 
     bundle = DIST / "liki-release-artifacts.tar.gz"
     subprocess.run(
@@ -78,15 +66,11 @@ def test_release_bundle_contains_all_verified_artifacts() -> None:
     assert members == REQUIRED_BUNDLE_FILES
 
     manifest = (DIST / "liki-release-manifest.json").read_text(encoding="utf-8")
-    assert actual_schema_digest in manifest
+    assert '"runtime_version"' in manifest
 
 
-def test_release_profiles_match_runtime_and_catalog() -> None:
+def test_release_profiles_match_runtime() -> None:
     runtime = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
-    catalog = (
-        ROOT / "contracts/mcp-tool-catalog.json"
-    ).read_text(encoding="utf-8")
-    assert f'"runtime_version": "{runtime}"' in catalog
 
     for profile in (ROOT / "profiles").glob("*.json"):
         document = yaml.safe_load(profile.read_text(encoding="utf-8"))

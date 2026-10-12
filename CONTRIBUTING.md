@@ -11,9 +11,9 @@
 ## 提交 PR
 
 1. Fork 本仓库
-2. 创建一个功能分支：`git checkout -b feat/my-change`
+2. 从 `main` 创建一个功能分支：`git checkout -b feat/my-change main`
 3. 安装 git hooks（一次）：`make hooks`
-4. 升版本用根 Makefile 统一写入当日日期和序号（`skills/liki/VERSION.txt` + engine VERSION 同步；natal 的 `counsel-tools.json`、divination/naming 的 `skill-tools.json` 及各投影契约会同步 `version` / `info.version`）：
+4. 升版本用根 Makefile 统一写入当日日期和序号（`skills/liki/VERSION.txt` + engine VERSION 同步；natal 的 `counsel-tools.json`、divination/naming 的 `skill-tools.json` 及各投影 schema 会同步 `version` / `info.version`）：
 
    ```bash
    make version
@@ -53,7 +53,7 @@
 
 ## 设计原则（为什么这样设计）
 
-- **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。网关负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp` 与 `/mcp/{domain}`。领域文档描述能力与变量绑定，不手写传输层细节。防回潮门禁：MCP smoke、schema 对照与根文档契约测试。
+- **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。网关负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp` 与 `/mcp/{domain}`。领域文档描述能力与变量绑定，不手写传输层细节。
 - **历史事件只验证整体框架**：校准/结论验证回退的对象是「格局+用神+大运」的综合解读框架，不是单一用神选择——事件是框架的综合结果，无法反推单一变量（v1.23.0 教训）。落地处：`app/mingshu.md` 历史事件校准节、`domains/bazi/calibration.md`。
 - **三派用神必须聚合出唯一结论**：扶抑/调候/格局三派按决策表聚合（`domains/bazi/yongshen.md`），不并列列出让用户选——并列等于把专业判断推给用户（v1.16.0 教训，已落地 yongshen.md 聚合决策表）。
 
@@ -61,7 +61,7 @@
 
 - 日常开发 / 兼容性版本使用 CalVer，由 `make version` 统一 bump。
 - 正式产品发行版使用 SemVer Git tag（如 `v5.0.0`），与 CalVer 并行。
-- 不要把 `VERSION` 改成 SemVer；CalVer 是运行时和兼容性契约。
+- 不要把 `VERSION` 改成 SemVer；CalVer 是运行时和兼容性版本面。
 - 完整规则见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)。
 
 ## 推送前检查清单

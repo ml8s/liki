@@ -1,5 +1,5 @@
 FROM python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9 AS deps
-ARG VERSION=dev
+ARG VERSION=local
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 
@@ -11,7 +11,7 @@ RUN uv venv /opt/venv && \
       --require-hashes --requirement /tmp/requirements.lock
 
 FROM python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9
-ARG VERSION=dev
+ARG VERSION=local
 ARG COMMIT=unknown
 ARG BUILD_TIME=unknown
 
@@ -28,8 +28,7 @@ LABEL org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.description="Liki deterministic counsel MCP service"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    LIKI_MCP_URL=http://engine-mcp:8081/mcp
+    PYTHONUNBUFFERED=1
 
 USER 65534:65534
 

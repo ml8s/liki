@@ -1,4 +1,4 @@
-"""Contract: AgentDeployment artifacts are generated, validated, and complete."""
+"""Generate and inspect AgentDeployment artifacts."""
 import json
 import shutil
 import subprocess
@@ -30,8 +30,8 @@ class TestDeploymentGeneration(unittest.TestCase):
         ).strip()
         manifest = self._generate("experts")
         deployment = json.loads(manifest.read_text(encoding="utf-8"))
-        self.assertEqual(deployment["apiVersion"], "agent.liki/v1")
-        self.assertEqual(deployment["kind"], "AgentDeployment")
+        self.assertNotIn("apiVersion", deployment)
+        self.assertNotIn("kind", deployment)
         self.assertEqual(deployment["metadata"]["name"], "experts")
         self.assertEqual(deployment["metadata"]["version"], runtime_version)
         agents = deployment["spec"]["agents"]
@@ -92,7 +92,7 @@ class TestDeploymentGeneration(unittest.TestCase):
 
     def test_single_profile_exposes_complete_catalogued_tool_surface(self):
         catalog = json.loads(
-            (ROOT / "contracts" / "mcp-tool-catalog.json").read_text(encoding="utf-8")
+            (ROOT / "tools" / "mcp-tool-catalog.json").read_text(encoding="utf-8")
         )
         catalog_tools = {
             server: set(definition["tools"])
@@ -105,7 +105,7 @@ class TestDeploymentGeneration(unittest.TestCase):
             for server, allowed in agents[expert]["tools"]["allow"].items():
                 allowed = set(allowed)
                 if server == "skilltoolset":
-                    # builtin（非 MCP server）：契约由 test_skills_binding.py 断言
+                    # builtin（非 MCP server）：绑定由 test_skills_binding.py 断言
                     self.assertEqual(
                         allowed, {"list_skills", "load_skill", "load_skill_resource"}
                     )
