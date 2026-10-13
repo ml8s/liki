@@ -13,8 +13,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: sign-existing-images-${{ github.sha }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-sign-existing-images-${{ github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   sign:
