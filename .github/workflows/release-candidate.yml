@@ -212,8 +212,8 @@ jobs:
           python3 scripts/liki_agents_pin.py --check
           AGENTS_VERSION="$(python3 scripts/liki_agents_pin.py --version)"
           AGENTS_DIGEST="$(python3 scripts/liki_agents_pin.py --digest)"
-          docker pull "ghcr.io/${{ github.repository_owner }}/liki-agents:${AGENTS_VERSION}@${AGENTS_DIGEST}"
-          base_ref="$(docker image inspect --format '{{index .RepoDigests 0}}' "ghcr.io/${{ github.repository_owner }}/liki-agents:${AGENTS_VERSION}")"
+          base_ref="ghcr.io/${{ github.repository_owner }}/liki-agents@${AGENTS_DIGEST}"
+          docker pull "$base_ref"
           case "$base_ref" in
             "ghcr.io/${{ github.repository_owner }}/liki-agents@${AGENTS_DIGEST}") ;;
             *) echo "::error::runtime base digest mismatch" >&2; exit 1 ;;
