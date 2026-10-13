@@ -8,7 +8,7 @@
 #   make check  纯静态检查（lint+格式+数据结构+docs+专家一致性；不跑测试、不写盘）
 #   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
 #   make gate   check + test + 160题 + runtime validate + 发布工件 ＝推送门槛
-#   make candidate RELEASE_VERSION=... 本地构建、推送、冒烟并记录 digest ＝发版准备
+#   make candidate RELEASE_VERSION=... 本地构建、冒烟、推送并记录 digest ＝发版准备
 #   make build  本仓产物（skill 归档 + engine 二进制；镜像仅本地候选构建）
 #   make image  本地开发镜像（local tag；candidate 由 make candidate 发布）
 #   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
@@ -102,8 +102,11 @@ image-assembly: build-deployment ## Build assembly images locally (multi + singl
 
 image: image-engine image-counsel ## Build all liki-owned local candidate images
 
-candidate: ## Build, push, smoke, and digest candidate images (requires RELEASE_VERSION)
+candidate: ## Build, smoke, and record candidate images in the local registry (requires RELEASE_VERSION)
 	scripts/build-candidate.sh
+
+candidate-publish: ## Publish a system-tested local candidate to GHCR
+	scripts/publish-candidate.sh
 
 smoke: image ## Smoke engine RPC/MCP and counsel MCP images
 	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-image.sh

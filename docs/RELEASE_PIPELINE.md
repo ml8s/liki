@@ -8,7 +8,7 @@ Liki uses a small, standards-aligned implementation of the common
 | Stage | Owns | Never does |
 |---|---|---|
 | Commit / PR CI | source lint, checks, tests, audits | build or publish images |
-| Local release candidate | build, smoke locally, publish the same image, and record digests | build on ordinary commits |
+| Local release candidate | build, smoke, and record image digests in the local registry | publish to GHCR before system test |
 | Promotion workflow | retag, smoke, sign, and release digests | build images |
 | `liki-deploy` | verify signed digest lock, assembly e2e, deploy | build product images |
 
@@ -37,6 +37,23 @@ Testing is shifted as far left as possible:
 Never defer a check to the registry or deployment stage when the same
 deterministic check can run earlier from source.
 
+## Candidate test layers
+
+Candidate quality is layered. Product repositories own their image, while
+`liki-deploy` owns the assembled system. Do not duplicate every full-system
+journey in every product repository.
+
+| Layer | Owner | Runs before | Verifies |
+| --- | --- | --- | --- |
+| Source gate | product repo | commit / PR / candidate | lint, unit/integration, configuration, schema, supply-chain checks |
+| Image gate | product repo | `docker push` | local build, startup, health/readiness, product entry point, deployment artifact validation |
+| Assembly gate | `liki-deploy` | release promotion | exact candidate digests, Compose topology, network boundaries, cross-service journeys |
+| Promotion gate | product repo | GitHub Release / tag | same digest starts again, quick smoke, signature and digest verification |
+| Post-deploy gate | `liki-deploy` | regional deploy | real edge/public URL, readiness, public and authenticated paths |
+
+`make candidate` may publish only after the product image gate passes. The
+system-level `candidate-test` runs after candidate manifests exist.
+
 ## Candidate / promotion gate
 
 Select the release version and update all version surfaces before creating the
@@ -50,9 +67,10 @@ source commit
   → local source gate
   → local buildx build candidate images
   → local image smoke
-  → publish the same image tags and record digests
-  → assembly / e2e on exact digests
-  → all gates pass
+  → record the exact digest manifest
+  → assembly / e2e from the local registry
+  → all system gates pass
+  → publish the same image digests to GHCR
   → create the release tag on the same source commit
   → promotion retags, smokes, signs, and creates the GitHub Release
   → update the deployment lock only from the signed digest matrix
@@ -66,9 +84,10 @@ release identity.
 | You say | Pipeline does | Image side effect |
 | --- | --- | --- |
 | “commit and push” | run source checks/tests only | none |
-| “build candidate” | build and smoke locally, then publish the same images and record digests | creates candidate-tagged images |
+| “build candidate” | build, smoke, and record images in the local registry | creates local candidate-tagged images, no GHCR push |
 | “test candidate” | run smoke/assembly/e2e against the candidate digests | none |
-| “promote candidate” | allocate version, retag/promote exact digests, sign, create release | creates release-tag aliases to the same digests |
+| “publish candidate” | copy system-tested local digests to GHCR | creates GHCR candidate aliases to the same digests |
+| “promote candidate” | tag, retag/promote exact digests, sign, create release | creates release-tag aliases to the same digests |
 | “update lock / deploy” | verify signatures and run digest-pinned assembly | none |
 
 If a candidate fails, fix the source and build a new candidate. Do not reuse the
@@ -115,11 +134,16 @@ cd liki-web && RELEASE_VERSION=... make candidate          # web-only change
 cd liki && RELEASE_VERSION=... make candidate              # liki-only change
 cd liki-agents && RELEASE_VERSION=... make candidate       # agents-only change
 
-# 3. Run local assembly e2e with manifests for changed repositories; unchanged
-#    application images fall back to the approved base lock.
+# 3. Run local-registry assembly e2e with manifests for changed repositories;
+#    unchanged application images fall back to the approved base lock.
 cd liki-deploy && CANDIDATE_MANIFESTS=... make candidate-test
 
-# 4. After e2e passes, tag and promote only the tested candidates. The
+# 4. After e2e passes, copy only the tested local digests to GHCR.
+cd liki-web && make candidate-publish       # if web changed
+cd liki && make candidate-publish           # if liki changed
+cd liki-agents && make candidate-publish    # if agents changed
+
+# 5. Tag and promote only the tested candidates. The
 #    promotion command follows the same repository/manifest pair as above.
 git -C liki-web tag v2026.10.14.0 <full-sha>       # if web changed
 git -C liki tag v2026.10.14.0 <full-sha>           # if liki changed
@@ -171,9 +195,9 @@ For each product image:
 ```text
 local candidate build
   → local smoke and validation
-  → publish the same image tag
   → record candidate digest
-  → assembly/e2e on that digest
+  → local-registry assembly/e2e on that digest
+  → publish the same digest to GHCR
   → promotion retags the same digest as a release version
   → promotion smokes and cosign signs that digest
 ```

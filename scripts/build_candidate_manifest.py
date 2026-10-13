@@ -39,6 +39,7 @@ def manifest(
     source_commit: str,
     candidate_tag: str,
     metadata_dir: Path,
+    registry: str,
     repository: str = "ml8s/liki",
 ) -> dict[str, object]:
     if not SHA_RE.fullmatch(source_commit):
@@ -47,11 +48,14 @@ def manifest(
         raise SystemExit(f"invalid candidate tag: {candidate_tag!r}")
     if not metadata_dir.is_dir():
         raise SystemExit(f"missing metadata directory: {metadata_dir}")
+    if not registry or registry.startswith(("http://", "https://")):
+        raise SystemExit(f"invalid candidate registry: {registry!r}")
     images = {
         name: digest_from_metadata(metadata_dir / f"{name}.json")
         for name in IMAGE_NAMES
     }
     return {
+        "registry": registry,
         "repository": repository,
         "source_commit": source_commit,
         "candidate_tag": candidate_tag,
@@ -63,11 +67,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-commit")
     parser.add_argument("--candidate-tag", required=True)
+    parser.add_argument("--registry", required=True)
     parser.add_argument("--metadata-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=ROOT / "build/candidate/candidate-digests.json")
     args = parser.parse_args()
     document = manifest(
-        source_commit(args.source_commit), args.candidate_tag, args.metadata_dir
+        source_commit(args.source_commit), args.candidate_tag, args.metadata_dir,
+        args.registry,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(

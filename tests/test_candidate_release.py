@@ -24,8 +24,11 @@ def test_candidate_manifest_has_exact_required_shape(tmp_path):
     metadata = tmp_path / "metadata"
     metadata.mkdir()
     _metadata(metadata)
-    result = bcm.manifest("a" * 40, "candidate-abcdef0-20260101010101", metadata)
+    result = bcm.manifest(
+        "a" * 40, "candidate-abcdef0-20260101010101", metadata, "127.0.0.1:5000"
+    )
     assert result == {
+        "registry": "127.0.0.1:5000",
         "repository": "ml8s/liki",
         "source_commit": "a" * 40,
         "candidate_tag": "candidate-abcdef0-20260101010101",
@@ -43,13 +46,13 @@ def test_candidate_manifest_rejects_malformed_identity(tmp_path):
     metadata.mkdir()
     _metadata(metadata)
     try:
-        bcm.manifest("short", "candidate-abcdef0-20260101010101", metadata)
+        bcm.manifest("short", "candidate-abcdef0-20260101010101", metadata, "127.0.0.1:5000")
     except SystemExit as error:
         assert "invalid source commit" in str(error)
     else:
         raise AssertionError("malformed source SHA accepted")
     try:
-        bcm.manifest("a" * 40, "latest", metadata)
+        bcm.manifest("a" * 40, "latest", metadata, "127.0.0.1:5000")
     except SystemExit as error:
         assert "invalid candidate tag" in str(error)
     else:

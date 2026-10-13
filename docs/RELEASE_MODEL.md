@@ -68,10 +68,13 @@ bump the pin to an unreleased or dirty build.
 1. Confirm `main` is green and ordinary commit CI did not build images.
 2. Select the next CalVer, run `make version`, update `CHANGELOG.md`, and update
    any released dependency pins. Commit and push this release-preparation change.
-3. Build and publish the candidate image set from that clean source commit.
-4. Run smoke, assembly, security, and e2e gates against the candidate digests.
-5. If every candidate gate passes, create the release tag on the same source
-   commit and dispatch promotion for those exact digests; do not rebuild them.
+3. Build the candidate image set from that clean source commit into the local
+   registry and run image smoke.
+4. Run assembly, security, and e2e gates against the exact local candidate
+   digests.
+5. If every candidate gate passes, publish the same digests to GHCR, create the
+   release tag on the same source commit, and dispatch promotion for those exact
+   digests; do not rebuild them.
 6. The promotion workflow publishes the GitHub Release, signs the exact digests,
    and verifies those signatures.
 7. Verify release CI, image signatures, signed release manifest, and artifacts.
