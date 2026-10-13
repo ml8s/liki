@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build and publish a complete local release candidate from a clean tree.
+# Build and validate a complete release candidate locally, then publish it.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -48,13 +48,12 @@ trap 'rm -rf "$METADATA_DIR"' EXIT
 build_image() {
   local metadata_name="$1" image_name="$2" context="$3" dockerfile="$4"; shift 4
   local tag="$REGISTRY/$image_name:$CANDIDATE_TAG"
-  echo "── building and pushing $tag ──"
+  echo "── building local $tag ──"
   docker buildx build \
     --file "$dockerfile" \
     --metadata-file "$METADATA_DIR/$metadata_name.json" \
     --provenance=mode=max \
     --sbom=true \
-    --push \
     --tag "$tag" \
     "$@" \
     "$context"
@@ -96,7 +95,8 @@ print(data["containerimage.digest"])
 PY
 }
 
-# Existing smoke support accepts image references via these variables.
+# Validate every image locally before any registry publication. Smoke support
+# accepts immutable digest references and works with locally built images.
 ENGINE_IMAGE="$REGISTRY/liki-engine@$(metadata_digest engine)" \
   COUNSEL_IMAGE="$REGISTRY/liki-counsel@$(metadata_digest counsel)" \
   IMAGE_TAG=unused scripts/smoke-image.sh
@@ -108,11 +108,15 @@ for profile in experts single_expert; do
     validate -deployment /deployment/deployment.json
 done
 
+for image_name in engine counsel liki-multi-expert liki-single-expert; do
+  docker push "$REGISTRY/$image_name:$CANDIDATE_TAG"
+done
+
 python3 scripts/build_candidate_manifest.py \
   --source-commit "$SOURCE_SHA" \
   --candidate-tag "$CANDIDATE_TAG" \
   --metadata-dir "$METADATA_DIR" \
   --output build/candidate/candidate-digests.json
 
-echo "✅ candidate published: $CANDIDATE_TAG"
+echo "✅ candidate validated and published: $CANDIDATE_TAG"
 cat build/candidate/candidate-digests.json

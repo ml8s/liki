@@ -71,3 +71,12 @@ def test_candidate_smokes_both_engine_runtimes():
     assert "--entrypoint /usr/local/bin/engine-mcp" in smoke
     assert "/usr/local/bin/engine-rpc" in smoke
     assert "/jsonrpc" in smoke
+
+
+def test_candidate_builds_and_smokes_locally_before_publish():
+    script = (ROOT / "scripts/build-candidate.sh").read_text(encoding="utf-8")
+    first_build = script.index("docker buildx build")
+    first_smoke = script.index("scripts/smoke-image.sh")
+    first_push = script.index("docker push")
+    assert first_build < first_smoke < first_push
+    assert "--push \\" not in script

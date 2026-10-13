@@ -8,7 +8,7 @@ Liki uses a small, standards-aligned implementation of the common
 | Stage | Owns | Never does |
 |---|---|---|
 | Commit / PR CI | source lint, checks, tests, audits | build or publish images |
-| Local release candidate | build, smoke, and record image digests | build on ordinary commits |
+| Local release candidate | build, smoke locally, publish the same image, and record digests | build on ordinary commits |
 | Promotion workflow | retag, smoke, sign, and release digests | build images |
 | `liki-deploy` | verify signed digest lock, assembly e2e, deploy | build product images |
 
@@ -48,9 +48,10 @@ same commit.
 ```text
 source commit
   → local source gate
-  → local buildx build/push candidate images
-  → publish candidate digest manifest
-  → local smoke / assembly / e2e on exact digests
+  → local buildx build candidate images
+  → local image smoke
+  → publish the same image tags and record digests
+  → assembly / e2e on exact digests
   → all gates pass
   → create the release tag on the same source commit
   → promotion retags, smokes, signs, and creates the GitHub Release
@@ -65,7 +66,7 @@ release identity.
 | You say | Pipeline does | Image side effect |
 | --- | --- | --- |
 | “commit and push” | run source checks/tests only | none |
-| “build candidate” | build/push candidate images and record digests | creates candidate-tagged images |
+| “build candidate” | build and smoke locally, then publish the same images and record digests | creates candidate-tagged images |
 | “test candidate” | run smoke/assembly/e2e against the candidate digests | none |
 | “promote candidate” | allocate version, retag/promote exact digests, sign, create release | creates release-tag aliases to the same digests |
 | “update lock / deploy” | verify signatures and run digest-pinned assembly | none |
@@ -168,9 +169,11 @@ promotion never builds images.
 For each product image:
 
 ```text
-local candidate build/push
+local candidate build
+  → local smoke and validation
+  → publish the same image tag
   → record candidate digest
-  → local smoke/assembly on that digest
+  → assembly/e2e on that digest
   → promotion retags the same digest as a release version
   → promotion smokes and cosign signs that digest
 ```

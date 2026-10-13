@@ -5,7 +5,7 @@ product releases. There is no parallel SemVer version.
 
 The operational release pipeline is documented in
 [Release pipeline](./RELEASE_PIPELINE.md). Neither ordinary commits nor GitHub
-Actions build `liki` images; build and test candidates locally with `make
+Actions build `liki` images; build, locally validate, and publish candidates with `make
 candidate`, then use the promotion workflow to publish, smoke, and sign the
 immutable image digests.
 
