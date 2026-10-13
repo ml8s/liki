@@ -2,7 +2,7 @@
 name: liki-bazi
 description: 八字专家——子平命理排盘、格局用神、十神六亲、大运流年、合盘与考时。断语依据可回溯，为传统文化条件性解读。
 display_name: 八字专家
-version: 2026.10.13.0
+version: 2026.10.14.0
 author: Liki
 keywords:
   - 八字算命
