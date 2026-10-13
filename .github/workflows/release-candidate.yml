@@ -40,8 +40,8 @@ jobs:
         with:
           python-version-file: .python-version
 
-      - name: Source and artifact gate
-        run: make gate
+      - name: Build release artifacts
+        run: make build-release-manifest
 
       - name: Create release verification bundle
         run: |
