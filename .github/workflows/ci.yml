@@ -137,74 +137,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - run: make build-archive
 
-  counsel-image:
-    name: Counsel MCP image
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - run: docker build -f counsel/Dockerfile -t liki-counsel:ci .
-      - name: Verify counsel image is deployment-topology-free
-        run: |
-          if docker image inspect liki-counsel:ci --format '{{json .Config.Env}}' | grep -q 'LIKI_MCP_URL='; then
-            echo "::error::counsel image must not bake LIKI_MCP_URL" >&2
-            exit 1
-          fi
-      - name: Smoke counsel health endpoint
-        run: |
-          trap 'docker rm -f counsel-smoke 2>/dev/null || true' EXIT
-          docker run -d --name counsel-smoke \
-            -e LIKI_MCP_URL=http://127.0.0.1:9/mcp \
-            -p 18086:8086 liki-counsel:ci
-          for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:18086/healthz && break
-            sleep 1
-          done
-          curl -fsS http://127.0.0.1:18086/healthz | grep -q '"status":"ok"'
-          body='{"jsonrpc":"2.0","id":1,"method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}}}}'
-          curl -fsS -X POST http://127.0.0.1:18086/mcp \
-            -H 'Content-Type: application/json' \
-            -H 'MCP-Protocol-Version: 2026-07-28' \
-            -H 'Mcp-Method: server/discover' \
-            -H 'Accept: application/json, text/event-stream' \
-            --data "$body" | grep -q 'io.modelcontextprotocol/serverInfo'
-
-  engine-image:
-    name: Engine MCP image
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - run: docker build -f engine/dev/Dockerfile -t liki-engine:ci engine
-      - name: Smoke engine MCP image
-        run: |
-          trap 'docker rm -f engine-image-smoke 2>/dev/null || true' EXIT
-          docker run -d --name engine-image-smoke \
-            --entrypoint /usr/local/bin/engine-mcp \
-            -p 18081:8081 \
-            liki-engine:ci
-          for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:18081/health && break
-            sleep 1
-          done
-          python scripts/test_engine_mcp.py http://127.0.0.1:18081/mcp
-
-      - name: Smoke retained engine-rpc compatibility image runtime
-        run: |
-          trap 'docker rm -f engine-rpc-image-smoke 2>/dev/null || true' EXIT
-          docker run -d --name engine-rpc-image-smoke \
-            --entrypoint /usr/local/bin/engine-rpc \
-            -p 18083:8080 \
-            liki-engine:ci
-          for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:18083/health && break
-            sleep 1
-          done
-          body='{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{}}'
-          curl -fsS -X POST http://127.0.0.1:18083/jsonrpc \
-            -H 'Content-Type: application/json' \
-            --data "$body" | grep -q 'openrpc'
-
   full-data:
     name: Full assertion coverage
     runs-on: ubuntu-latest
@@ -273,7 +205,7 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, full-data, release-integrity]
     permissions:
       contents: read
       packages: write
@@ -322,6 +254,21 @@ jobs:
             sleep 1
           done
           python scripts/test_engine_mcp.py http://127.0.0.1:18082/mcp
+      - name: Smoke retained engine-rpc compatibility image runtime
+        run: |
+          trap 'docker rm -f engine-rpc-smoke 2>/dev/null || true' EXIT
+          docker run -d --name engine-rpc-smoke \
+            --entrypoint /usr/local/bin/engine-rpc \
+            -p 18083:8080 \
+            ghcr.io/${{ github.repository_owner }}/liki-engine:${{ steps.versions.outputs.runtime }}
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18083/health && break
+            sleep 1
+          done
+          body='{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{}}'
+          curl -fsS -X POST http://127.0.0.1:18083/jsonrpc \
+            -H 'Content-Type: application/json' \
+            --data "$body" | grep -q 'openrpc'
       - name: Record released image digest
         run: |
           echo "liki-engine=${{ steps.engine-image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
@@ -343,7 +290,7 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, full-data, release-integrity]
     permissions:
       contents: read
       packages: write
@@ -406,7 +353,7 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 35
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, docker-publish, release-integrity]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, full-data, docker-publish, release-integrity]
     permissions:
       contents: read
       packages: write
@@ -620,7 +567,7 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, counsel-image, engine-image, full-data, release-integrity]
+    needs: [check, engine-lint, engine-vulnerabilities, python-vulnerabilities, engine-test, skills-test, counsel-test, archive, full-data, release-integrity]
     env:
       LIKI_RELEASE_TAG: ${{ github.ref_name }}
       LIKI_SOURCE_COMMIT: ${{ github.sha }}

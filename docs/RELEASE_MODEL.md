@@ -3,6 +3,10 @@
 Liki uses **one date-based version** for runtime, contracts, skill metadata, and
 product releases. There is no parallel SemVer version.
 
+The operational release pipeline is documented in
+[Release pipeline](./RELEASE_PIPELINE.md). Ordinary commits do not build images;
+release workflows build, test, sign, and publish immutable image digests.
+
 ## Version format
 
 ```text
