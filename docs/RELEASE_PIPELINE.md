@@ -78,6 +78,42 @@ Every candidate produces a digest manifest containing at least:
 Candidate tags are temporary aliases and may be cleaned by retention policy.
 The digest manifest is the candidate identity.
 
+## Operational workflows
+
+| Repository | Build candidate | Promote release |
+| --- | --- | --- |
+| `liki-agents` | `release-candidate.yml` | `promote-release.yml` |
+| `liki` | `release-candidate.yml` | `promote-release.yml` |
+| `liki-web` | `release-candidate.yml` | `promote-release.yml` |
+| `liki-deploy` | `candidate-e2e.yml` | lock update + release gate |
+
+Typical dispatch order:
+
+```bash
+# 1. Build all candidates from green source refs.
+gh workflow run release-candidate.yml --repo ml8s/liki --ref main -f ref=main
+gh workflow run release-candidate.yml --repo ml8s/liki-agents --ref main -f ref=main
+gh workflow run release-candidate.yml --repo ml8s/liki-web --ref main -f ref=main
+
+# 2. Run assembly e2e with the candidate digest manifest values.
+gh workflow run candidate-e2e.yml --repo ml8s/liki-deploy \
+  -f engine_image='ghcr.io/ml8s/liki-engine@sha256:...' \
+  -f counsel_image='ghcr.io/ml8s/liki-counsel@sha256:...' \
+  -f experts_image='ghcr.io/ml8s/liki-multi-expert@sha256:...' \
+  -f web_image='ghcr.io/ml8s/liki-web@sha256:...'
+
+# 3. After e2e passes, promote each repository from its selected tag.
+gh workflow run promote-release.yml --repo ml8s/liki-agents \
+  --ref v2026.10.14.0 -f version=2026.10.14.0 -f candidate_run_id=<id>
+gh workflow run promote-release.yml --repo ml8s/liki \
+  --ref v2026.10.14.0 -f version=2026.10.14.0 -f candidate_run_id=<id>
+gh workflow run promote-release.yml --repo ml8s/liki-web \
+  --ref v2026.10.14.0 -f version=2026.10.14.0 -f candidate_run_id=<id>
+```
+
+The `liki-deploy` lock change is merged only after all promotions and signature
+verifications succeed.
+
 ## Release gate
 
 A release workflow is the only place that builds publishable images.
