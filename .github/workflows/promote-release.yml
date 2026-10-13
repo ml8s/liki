@@ -153,32 +153,27 @@ jobs:
         with:
           cosign-release: v2.4.1
 
-      - name: Request Sigstore OIDC token
+      - name: Sign promoted image digests with Sigstore OIDC identity
         env:
           OIDC_AUDIENCE: sigstore
+          ENGINE_DIGEST: ${{ needs.promote.outputs.engine_digest }}
+          COUNSEL_DIGEST: ${{ needs.promote.outputs.counsel_digest }}
+          EXPERTS_DIGEST: ${{ needs.promote.outputs.experts_digest }}
+          SINGLE_DIGEST: ${{ needs.promote.outputs.single_digest }}
         run: |
           set -euo pipefail
           response="$(mktemp)"
           curl -fsSL \
             -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
             -H 'Accept: application/json' \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${OIDC_AUDIENCE}" > "$response"
-          python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["value"])' "$response" > "$RUNNER_TEMP/oidc-token"
-          chmod 600 "$RUNNER_TEMP/oidc-token"
-
-      - name: Sign promoted image digests
-        env:
-          ENGINE_DIGEST: ${{ needs.promote.outputs.engine_digest }}
-          COUNSEL_DIGEST: ${{ needs.promote.outputs.counsel_digest }}
-          EXPERTS_DIGEST: ${{ needs.promote.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ needs.promote.outputs.single_digest }}
-        run: |
+          "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${OIDC_AUDIENCE}" > "$response"
+          oidc_token="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["value"])' "$response")"
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
             "liki-multi-expert@$EXPERTS_DIGEST" \
             "liki-single-expert@$SINGLE_DIGEST"; do
-            cosign sign --yes --identity-token "$RUNNER_TEMP/oidc-token" "ghcr.io/${{ github.repository_owner }}/$spec"
+            cosign sign --yes --identity-token "$oidc_token" "ghcr.io/${{ github.repository_owner }}/$spec"
           done
 
       - name: Verify promoted image signatures

@@ -6,6 +6,7 @@ reported), which is silent locally. Run as part of `make check`.
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -62,6 +63,20 @@ def main() -> int:
             for step in job.get("steps") or []:
                 if not isinstance(step, dict):
                     continue
+                run_script = step.get("run")
+                if isinstance(run_script, str):
+                    if re.search(r"--identity-token\s+[\"']?\$RUNNER_TEMP/", run_script):
+                        errors.append(
+                            f"{path.relative_to(ROOT)}: job {job_id!r} passes an OIDC token "
+                            "file path to cosign; consume the token string in the same step"
+                        )
+                    if '--identity-token "$oidc_token"' in run_script and not re.search(
+                        r"oidc_token=\"\$\(.*\)\"", run_script, flags=re.DOTALL
+                    ):
+                        errors.append(
+                            f"{path.relative_to(ROOT)}: job {job_id!r} uses oidc_token "
+                            "without fetching it in the same shell step"
+                        )
                 uses = step.get("uses")
                 if not isinstance(uses, str) or "@" not in uses:
                     continue
