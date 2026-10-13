@@ -45,7 +45,7 @@ jobs:
       - name: Verify exact image digests
         env:
           DIGESTS_JSON: ${{ inputs.digests_json }}
-          COSIGN_IDENTITY_REGEX: ^https://github\\.com/ml8s/liki/\\.github/workflows/sign-existing-images\\.yml@refs/heads/main$
+          COSIGN_IDENTITY_REGEX: ^https://github.com/ml8s/liki/.github/workflows/sign-existing-images\\.yml@refs/heads/main$
           COSIGN_OIDC_ISSUER: https://token.actions.githubusercontent.com
         run: |
           python3 -c 'import os,json; data=json.loads(os.environ["DIGESTS_JSON"]); print("\n".join(f"{name} {digest}" for name,digest in data.items()))' > images.txt
