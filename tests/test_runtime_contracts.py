@@ -64,7 +64,7 @@ def test_engine_image_carries_both_active_runtimes():
 
 
 def test_ci_smokes_both_engine_runtimes():
-    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github/workflows/release-candidate.yml").read_text(encoding="utf-8")
     assert "scripts/test_engine_mcp.py" in workflow
     assert "--entrypoint /usr/local/bin/engine-mcp" in workflow
     assert "/usr/local/bin/engine-rpc" in workflow

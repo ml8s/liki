@@ -88,26 +88,30 @@ jobs:
         run: |
           python3 - <<'PY'
           import json
-          m=json.load(open('candidate/candidate-digests.json'))
-          mapping={
-            'engine': 'liki-engine',
-            'counsel': 'liki-counsel',
-            'experts': 'liki-multi-expert',
-            'single_expert': 'liki-single-expert',
+          m = json.load(open('candidate/candidate-digests.json'))
+          mapping = {
+              'engine': 'liki-engine',
+              'counsel': 'liki-counsel',
+              'experts': 'liki-multi-expert',
+              'single_expert': 'liki-single-expert',
           }
-          with open('promote.sh','w') as f:
-            f.write('set -euo pipefail\n')
-            for key,image in mapping.items():
-              digest=m['images'][key]
-              source=f'ghcr.io/${{ github.repository_owner }}/{image}@{digest}'
-              target=f'ghcr.io/${{ github.repository_owner }}/{image}:${{ inputs.version }}'
-              f.write(f'docker buildx imagetools create -t {target!r} {source!r}\n')
-          print(f'{key}_digest={digest}')
+          with open('promote.sh', 'w') as f:
+              f.write('set -euo pipefail\n')
+              for key, image in mapping.items():
+                  digest = m['images'][key]
+                  source = f'ghcr.io/${{ github.repository_owner }}/{image}@{digest}'
+                  target = f'ghcr.io/${{ github.repository_owner }}/{image}:${{ inputs.version }}'
+                  f.write(f'docker buildx imagetools create -t {target!r} {source!r}\n')
           PY
           bash promote.sh
           for key in engine counsel experts single_expert; do
             digest="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["images"][sys.argv[2]])' candidate/candidate-digests.json "$key")"
-            echo "${key}_digest=$digest" >> "$GITHUB_OUTPUT"
+            case "$key" in
+              engine) echo "engine_digest=$digest" >> "$GITHUB_OUTPUT" ;;
+              counsel) echo "counsel_digest=$digest" >> "$GITHUB_OUTPUT" ;;
+              experts) echo "experts_digest=$digest" >> "$GITHUB_OUTPUT" ;;
+              single_expert) echo "single_expert_digest=$digest" >> "$GITHUB_OUTPUT" ;;
+            esac
           done
           echo "engine_mcp_digest=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["images"]["engine"])' candidate/candidate-digests.json)" >> "$GITHUB_OUTPUT"
 

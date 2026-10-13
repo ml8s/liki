@@ -24,6 +24,17 @@ make test
 This validates source, configuration, schemas, and tests. It must not produce a
 GHCR image.
 
+Testing is shifted as far left as possible:
+
+1. run the fastest local static checks before committing;
+2. run local `make check` and `make test` before push;
+3. run CI source gates on push/PR;
+4. build a candidate only for release;
+5. run image and assembly tests against the candidate digest.
+
+Never defer a check to the registry or deployment stage when the same
+deterministic check can run earlier from source.
+
 ## Candidate / promotion gate
 
 A formal release version is allocated only after a candidate has passed all

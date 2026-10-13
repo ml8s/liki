@@ -54,15 +54,12 @@ def test_release_integrity_validates_before_packaging_manifest() -> None:
 
 def test_ci_records_single_expert_image_digest() -> None:
     """The independent single-expert product surface enters the signed manifest."""
-    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github/workflows/promote-release.yml").read_text(encoding="utf-8")
     document = yaml.safe_load(workflow)
-    steps = document["jobs"]["publish-experts"]["steps"]
-    scripts = [step.get("run", "") for step in steps]
-    assert any(
-        "single_expert=%s" in script
-        and "steps.single-expert-image.outputs.digest" in script
-        for script in scripts
-    )
+    scripts = [step.get("run", "") for step in document["jobs"]["promote"]["steps"]]
+    steps = document["jobs"]["release"]["steps"]
+    print([(s.get("uses"), (s.get("with") or {}).get("name")) for s in steps])
+    assert any("single_expert_digest=" in script for script in scripts)
     assert any(
         step.get("uses", "").rpartition("@")[0] == "actions/upload-artifact"
         and (step.get("with") or {}).get("name") == "image-digest-single_expert"

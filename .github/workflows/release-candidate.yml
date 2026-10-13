@@ -111,6 +111,22 @@ jobs:
           done
           python scripts/test_engine_mcp.py http://127.0.0.1:18081/mcp
 
+      - name: Smoke retained engine-rpc compatibility image runtime
+        run: |
+          trap 'docker rm -f engine-rpc-candidate-smoke 2>/dev/null || true' EXIT
+          docker run -d --name engine-rpc-candidate-smoke \
+            --entrypoint /usr/local/bin/engine-rpc \
+            -p 18083:8080 \
+            ghcr.io/${{ github.repository_owner }}/liki-engine:${{ steps.meta.outputs.tag }}
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18083/health && break
+            sleep 1
+          done
+          body='{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{}}'
+          curl -fsS -X POST http://127.0.0.1:18083/jsonrpc \
+            -H 'Content-Type: application/json' \
+            --data "$body" | grep -q 'openrpc'
+
   counsel-candidate:
     name: Counsel candidate image
     runs-on: ubuntu-latest

@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PIN = ROOT / "deps" / "liki-agents.base"
 SCRIPT = ROOT / "scripts" / "liki_agents_pin.py"
-WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
+WORKFLOW = ROOT / ".github" / "workflows" / "release-candidate.yml"
 MAKEFILE = ROOT / "Makefile"
 
 CALVER_RE = re.compile(r"^\d{4}\.\d{2}\.\d{2}\.\d+$")
