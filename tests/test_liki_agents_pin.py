@@ -1,7 +1,7 @@
 """liki-agents runtime base 依赖 pin 契约。
 
 liki 对 liki-agents 做依赖锁定（version + immutable digest），不做与 liki
-自身版本的同名对齐；测试（agents-validate）与部署（CI 装配）必须共用该 pin。
+自身版本的同名对齐；测试（agents-validate）与本地 candidate 装配必须共用该 pin。
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PIN = ROOT / "deps" / "liki-agents.base"
 SCRIPT = ROOT / "scripts" / "liki_agents_pin.py"
-WORKFLOW = ROOT / ".github" / "workflows" / "release-candidate.yml"
+BUILD_CANDIDATE = ROOT / "scripts" / "build-candidate.sh"
 MAKEFILE = ROOT / "Makefile"
 
 CALVER_RE = re.compile(r"^\d{4}\.\d{2}\.\d{2}\.\d+$")
@@ -66,12 +66,11 @@ def test_pin_script_outputs_match_file():
     assert digest == values["digest"]
 
 
-def test_ci_assembly_uses_pin_not_release_ref():
-    text = WORKFLOW.read_text(encoding="utf-8")
-    # 装配 base 必须来自 pin 脚本，而不是 GITHUB_REF_NAME
-    assert "scripts/liki_agents_pin.py --check" in text
-    assert "scripts/liki_agents_pin.py --version" in text
-    assert "AGENTS_BASE: ghcr.io/${{ github.repository_owner }}/liki-agents:${{ steps.version.outputs.version }}" not in text
+def test_candidate_assembly_uses_pin_not_release_ref():
+    text = BUILD_CANDIDATE.read_text(encoding="utf-8")
+    # 装配 base 必须来自 pin 脚本，而不是本地 mutable tag
+    assert "scripts/liki_agents_pin.py --ref" in text
+    assert "BASE_IMAGE=\"$(IMAGE_REGISTRY)/liki-agents:$(IMAGE_TAG)\"" not in text
 
 
 def test_makefile_agents_validate_uses_pin():

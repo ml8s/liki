@@ -8,11 +8,13 @@ Liki uses a small, standards-aligned implementation of the common
 | Stage | Owns | Never does |
 |---|---|---|
 | Commit / PR CI | source lint, checks, tests, audits | build or publish images |
-| Release workflow | build, publish, smoke, sign images | build on ordinary commits |
+| Local release candidate | build, smoke, and record image digests | build on ordinary commits |
+| Promotion workflow | retag, smoke, sign, and release digests | build images |
 | `liki-deploy` | verify signed digest lock, assembly e2e, deploy | build product images |
 
-Local `make image` / `make smoke` targets remain available for manual release
-preparation, but they are not part of ordinary commit CI.
+`make candidate` is the release preparation target. It is explicit and is never
+part of ordinary commit CI. `make image` and `make smoke` remain available for
+development.
 
 ## Commit / PR gate
 
@@ -37,19 +39,22 @@ deterministic check can run earlier from source.
 
 ## Candidate / promotion gate
 
-A formal release version is allocated only after a candidate has passed all
-gates. A candidate is an immutable set of image digests built from one source
-commit. It is not a new source branch or a second build of the same commit.
+Select the release version and update all version surfaces before creating the
+release-preparation commit. A release tag is created only after a candidate has
+passed all gates. A candidate is an immutable set of image digests built from
+one clean source commit. It is not a new source branch or a second build of the
+same commit.
 
 ```text
 source commit
-  → build candidate images with candidate tags
+  → local source gate
+  → local buildx build/push candidate images
   → publish candidate digest manifest
-  → smoke / assembly / e2e the exact candidate digests
+  → local smoke / assembly / e2e on exact digests
   → all gates pass
-  → promote the same digests to release tags
-  → sign the same release digests
-  → create tag / GitHub Release / deployment lock change
+  → create the release tag on the same source commit
+  → promotion retags, smokes, signs, and creates the GitHub Release
+  → update the deployment lock only from the signed digest matrix
 ```
 
 Promotion never rebuilds images. It only gives the already tested digest set a
@@ -80,8 +85,7 @@ Every candidate produces a digest manifest containing at least:
     "engine": "sha256:...",
     "counsel": "sha256:...",
     "experts": "sha256:...",
-    "single_expert": "sha256:...",
-    "web": "sha256:..."
+    "single_expert": "sha256:..."
   }
 }
 ```
@@ -93,54 +97,87 @@ The digest manifest is the candidate identity.
 
 | Repository | Build candidate | Promote release |
 | --- | --- | --- |
-| `liki-agents` | `release-candidate.yml` | `promote-release.yml` |
-| `liki` | `release-candidate.yml` | `promote-release.yml` |
-| `liki-web` | `release-candidate.yml` | `promote-release.yml` |
-| `liki-deploy` | `candidate-e2e.yml` | lock update + release gate |
+| `liki` | local `make candidate` | `promote-release.yml` |
+| `liki-agents` | local `make candidate` | `promote-release.yml` |
+| `liki-web` | local `make candidate` | `promote-release.yml` |
+| `liki-deploy` | local `make candidate-test` | lock update + release gate |
 
 Typical dispatch order:
 
 ```bash
-# 1. Build all candidates from green source refs.
-gh workflow run release-candidate.yml --repo ml8s/liki --ref main -f ref=main
-gh workflow run release-candidate.yml --repo ml8s/liki-agents --ref main -f ref=main
-gh workflow run release-candidate.yml --repo ml8s/liki-web --ref main -f ref=main
+# 1. Create and push the release-preparation commit: selected CalVer, version
+#    surfaces, changelog, and any released dependency pins.
 
-# 2. Run assembly e2e with the candidate digest manifest values.
-gh workflow run candidate-e2e.yml --repo ml8s/liki-deploy \
-  -f engine_image='ghcr.io/ml8s/liki-engine@sha256:...' \
-  -f counsel_image='ghcr.io/ml8s/liki-counsel@sha256:...' \
-  -f experts_image='ghcr.io/ml8s/liki-multi-expert@sha256:...' \
-  -f web_image='ghcr.io/ml8s/liki-web@sha256:...'
+# 2. Build candidates only for changed repositories and their dependency
+#    updates. Use RELEASE_VERSION matching the release-preparation surfaces.
+cd liki-web && RELEASE_VERSION=... make candidate          # web-only change
+cd liki && RELEASE_VERSION=... make candidate              # liki-only change
+cd liki-agents && RELEASE_VERSION=... make candidate       # agents-only change
 
-# 3. After e2e passes, promote each repository from its selected tag.
-gh workflow run promote-release.yml --repo ml8s/liki-agents \
-  --ref v2026.10.14.0 -f version=2026.10.14.0 -f candidate_run_id=<id>
+# 3. Run local assembly e2e with manifests for changed repositories; unchanged
+#    application images fall back to the approved base lock.
+cd liki-deploy && CANDIDATE_MANIFESTS=... make candidate-test
+
+# 4. After e2e passes, tag and promote only the tested candidates. The
+#    promotion command follows the same repository/manifest pair as above.
+git -C liki-web tag v2026.10.14.0 <full-sha>       # if web changed
+git -C liki tag v2026.10.14.0 <full-sha>           # if liki changed
+git -C liki-agents tag v2026.10.14.0 <full-sha>    # if agents changed
 gh workflow run promote-release.yml --repo ml8s/liki \
-  --ref v2026.10.14.0 -f version=2026.10.14.0 -f candidate_run_id=<id>
+  --ref v2026.10.14.0 \
+  -f version=2026.10.14.0 -f source_commit=<full-sha> \
+  -f digests_json="$(cat ../liki/build/candidate/candidate-digests.json)"
+gh workflow run promote-release.yml --repo ml8s/liki-agents \
+  --ref v2026.10.14.0 \
+  -f version=2026.10.14.0 -f source_commit=<full-sha> \
+  -f digests_json="$(cat ../liki-agents/build/candidate/candidate-digests.json)"
 gh workflow run promote-release.yml --repo ml8s/liki-web \
-  --ref v2026.10.14.0 -f version=2026.10.14.0 -f candidate_run_id=<id>
+  --ref v2026.10.14.0 \
+  -f version=2026.10.14.0 -f source_commit=<full-sha> \
+  -f digests_json="$(cat ../liki-web/build/candidate/candidate-digests.json)"
 ```
 
 The `liki-deploy` lock change is merged only after all promotions and signature
 verifications succeed.
 
+### Dependency changes
+
+```text
+liki-agents changed
+  → run its candidate smoke, promote, and release it
+  → update deps/liki-agents.base in liki to the new released digest
+  → build, test, and promote the liki expert images
+
+liki skill/domain content changed
+  → candidate-test/promote liki
+  → republish liki-web only if it consumes a changed skill bundle
+
+liki-web changed alone
+  → candidate-test web against the approved base lock
+  → promote web and update only its deployment digest
+```
+
+Never point a production assembly build at an unreleased or dirty
+`liki-agents` candidate.
+
 ## Release gate
 
-A release workflow is the only place that builds publishable images.
+For `liki`, local `make candidate` is the only image build path; Actions
+promotion never builds images.
 
 For each product image:
 
 ```text
-build once
-  → push immutable release tags
-  → run smoke against the published artifact
-  → record digest
-  → cosign sign the digest
+local candidate build/push
+  → record candidate digest
+  → local smoke/assembly on that digest
+  → promotion retags the same digest as a release version
+  → promotion smokes and cosign signs that digest
 ```
 
-Assembly images are then built from the same release inputs and pinned runtime
-base. They are validated with the published deployment before signing.
+Assembly images are built locally from the pinned runtime base before promotion.
+They are validated with the deployment manifest and local assembly E2E before
+signing.
 
 ## Immutable identity
 

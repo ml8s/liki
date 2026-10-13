@@ -7,8 +7,12 @@ on:
         description: 'Release version without v prefix'
         required: true
         type: string
-      candidate_run_id:
-        description: 'Successful candidate run id'
+      source_commit:
+        description: 'Full Git commit SHA containing the tag and tested source'
+        required: true
+        type: string
+      digests_json:
+        description: 'Local candidate-digests.json contents'
         required: true
         type: string
 
@@ -22,59 +26,62 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  validate:
-    name: Validate candidate evidence
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: v${{ inputs.version }}
-          persist-credentials: false
-
-      - name: Validate release ref
-        run: |
-          set -euo pipefail
-          expected="v${{ inputs.version }}"
-          if [ "${GITHUB_REF_NAME}" != "$expected" ]; then
-            echo "::error::workflow must be dispatched on tag $expected" >&2
-            exit 1
-          fi
-
-      - name: Download candidate evidence
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download '${{ inputs.candidate_run_id }}' -n candidate-digests -D candidate
-          gh run download '${{ inputs.candidate_run_id }}' -n liki-release-artifacts -D candidate-artifacts
-
-      - name: Validate digest manifest
-        run: |
-          python3 - <<'PY'
-          import json
-          m=json.load(open('candidate/candidate-digests.json'))
-          required={'engine','counsel','experts','single_expert'}
-          assert set(m['images']) == required
-          assert all(v.startswith('sha256:') for v in m['images'].values())
-          assert m['candidate_run_id'] == '${{ inputs.candidate_run_id }}'
-          PY
-
   promote:
     name: Promote tested image digests
     runs-on: ubuntu-latest
     timeout-minutes: 35
-    needs: validate
-    outputs:
-      engine_digest: ${{ steps.promote.outputs.engine_digest }}
-      engine_mcp_digest: ${{ steps.promote.outputs.engine_digest }}
-      counsel_digest: ${{ steps.promote.outputs.counsel_digest }}
-      experts_digest: ${{ steps.promote.outputs.experts_digest }}
-      single_digest: ${{ steps.promote.outputs.single_digest }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: v${{ inputs.version }}
           persist-credentials: false
+
+      - name: Validate tag, source, and digest evidence
+        id: evidence
+        env:
+          VERSION: ${{ inputs.version }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+          DIGESTS_JSON: ${{ inputs.digests_json }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$VERSION" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$ ]]; then
+            echo "::error::version must use date-based CalVer (YYYY.MM.DD.N)" >&2
+            exit 1
+          fi
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ] || [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            echo "::error::workflow must be dispatched from tag v$VERSION" >&2
+            exit 1
+          fi
+          if ! [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::source_commit must be a full lowercase Git SHA" >&2
+            exit 1
+          fi
+          actual_commit="$(git rev-parse HEAD^{commit})"
+          if [ "$actual_commit" != "$SOURCE_COMMIT" ]; then
+            echo "::error::tag v$VERSION points to $actual_commit, not $SOURCE_COMMIT" >&2
+            exit 1
+          fi
+          if ! jq -e \
+            --arg source_commit "$SOURCE_COMMIT" \
+            '.type_check = (
+              type == "object" and
+              .repository == "ml8s/liki" and
+              .source_commit == $source_commit and
+              (.images | type == "object" and keys == ["counsel","engine","experts","single_expert"])
+            ) | .type_check' <<<"$DIGESTS_JSON" >/dev/null; then
+            echo "::error::digests_json is invalid or does not match the release identity" >&2
+            exit 1
+          fi
+          for key in engine counsel experts single_expert; do
+            digest="$(jq -er --arg key "$key" '.images[$key]' <<<"$DIGESTS_JSON")"
+            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "::error::$key digest must be sha256: plus 64 lowercase hex characters" >&2
+              exit 1
+            fi
+            output_key="$key"
+            if [ "$key" = single_expert ]; then output_key=single; fi
+            echo "${output_key}_digest=$digest" >> "$GITHUB_OUTPUT"
+          done
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
@@ -84,90 +91,67 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: promote
-        name: Retag tested candidate digests
+        name: Promote exact candidate digests
+        env:
+          VERSION: ${{ inputs.version }}
+          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
+          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
+          EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
+          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
         run: |
-          python3 - <<'PY'
-          import json
-          m = json.load(open('candidate/candidate-digests.json'))
-          mapping = {
-              'engine': 'liki-engine',
-              'counsel': 'liki-counsel',
-              'experts': 'liki-multi-expert',
-              'single_expert': 'liki-single-expert',
+          set -euo pipefail
+          promote() {
+            docker buildx imagetools create \
+              -t "ghcr.io/${{ github.repository_owner }}/$1:$VERSION" \
+              "ghcr.io/${{ github.repository_owner }}/$1@$2"
           }
-          with open('promote.sh', 'w') as f:
-              f.write('set -euo pipefail\n')
-              for key, image in mapping.items():
-                  digest = m['images'][key]
-                  source = f'ghcr.io/${{ github.repository_owner }}/{image}@{digest}'
-                  target = f'ghcr.io/${{ github.repository_owner }}/{image}:${{ inputs.version }}'
-                  f.write(f'docker buildx imagetools create -t {target!r} {source!r}\n')
-          PY
-          bash promote.sh
-          for key in engine counsel experts single_expert; do
-            digest="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["images"][sys.argv[2]])' candidate/candidate-digests.json "$key")"
-            case "$key" in
-              engine) echo "engine_digest=$digest" >> "$GITHUB_OUTPUT" ;;
-              counsel) echo "counsel_digest=$digest" >> "$GITHUB_OUTPUT" ;;
-              experts) echo "experts_digest=$digest" >> "$GITHUB_OUTPUT" ;;
-              single_expert) echo "single_expert_digest=$digest" >> "$GITHUB_OUTPUT" ;;
-            esac
-          done
-          echo "engine_mcp_digest=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["images"]["engine"])' candidate/candidate-digests.json)" >> "$GITHUB_OUTPUT"
+          promote liki-engine "$ENGINE_DIGEST"
+          promote liki-counsel "$COUNSEL_DIGEST"
+          promote liki-multi-expert "$EXPERTS_DIGEST"
+          promote liki-single-expert "$SINGLE_DIGEST"
 
-      - name: Smoke promoted images
+      - name: Smoke promoted engine and counsel digests
+        env:
+          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
+          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
         run: |
+          set -euo pipefail
           trap 'docker rm -f engine-smoke counsel-smoke 2>/dev/null || true' EXIT
           docker run -d --name engine-smoke --entrypoint /usr/local/bin/engine-mcp -p 18081:8081 \
-            ghcr.io/${{ github.repository_owner }}/liki-engine:${{ inputs.version }}
-          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:18081/health && break; sleep 1; done
+            "ghcr.io/${{ github.repository_owner }}/liki-engine@$ENGINE_DIGEST"
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:18081/health; then break; fi
+            sleep 1
+          done
           python scripts/test_engine_mcp.py http://127.0.0.1:18081/mcp
           docker run -d --name counsel-smoke -p 18086:8086 -e LIKI_MCP_URL=http://127.0.0.1:9/mcp \
-            ghcr.io/${{ github.repository_owner }}/liki-counsel:${{ inputs.version }}
-          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:18086/healthz && break; sleep 1; done
+            "ghcr.io/${{ github.repository_owner }}/liki-counsel@$COUNSEL_DIGEST"
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:18086/healthz; then break; fi
+            sleep 1
+          done
           curl -fsS http://127.0.0.1:18086/healthz | grep -q '"status":"ok"'
-
-  release:
-    name: Sign and create release
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: [validate, promote]
-    permissions:
-      contents: write
-      packages: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: v${{ inputs.version }}
-          persist-credentials: false
-
-      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
-      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: v2.4.1
 
-      - name: Sign promoted image digests with Sigstore OIDC identity
+      - name: Sign and verify promoted image digests
+        id: sign
         env:
           OIDC_AUDIENCE: sigstore
-          ENGINE_DIGEST: ${{ needs.promote.outputs.engine_digest }}
-          COUNSEL_DIGEST: ${{ needs.promote.outputs.counsel_digest }}
-          EXPERTS_DIGEST: ${{ needs.promote.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ needs.promote.outputs.single_digest }}
+          VERSION: ${{ inputs.version }}
+          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
+          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
+          EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
+          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
         run: |
           set -euo pipefail
-          response="$(mktemp)"
-          curl -fsSL \
+          oidc_token="$(curl -fsSL \
             -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
             -H 'Accept: application/json' \
-          "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${OIDC_AUDIENCE}" > "$response"
-          oidc_token="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["value"])' "$response")"
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${OIDC_AUDIENCE}" \
+            | jq -er '.value')"
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
@@ -175,30 +159,25 @@ jobs:
             "liki-single-expert@$SINGLE_DIGEST"; do
             cosign sign --yes --identity-token "$oidc_token" "ghcr.io/${{ github.repository_owner }}/$spec"
           done
-
-      - name: Verify promoted image signatures
-        env:
-          ENGINE_DIGEST: ${{ needs.promote.outputs.engine_digest }}
-          COUNSEL_DIGEST: ${{ needs.promote.outputs.counsel_digest }}
-          EXPERTS_DIGEST: ${{ needs.promote.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ needs.promote.outputs.single_digest }}
-        run: |
-          identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/tags/v${{ inputs.version }}$"
+          identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/tags/v${VERSION}$"
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
             "liki-multi-expert@$EXPERTS_DIGEST" \
             "liki-single-expert@$SINGLE_DIGEST"; do
-            cosign verify --certificate-identity-regexp "$identity" --certificate-oidc-issuer https://token.actions.githubusercontent.com "ghcr.io/${{ github.repository_owner }}/$spec"
+            cosign verify --certificate-identity-regexp "$identity" \
+              --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+              "ghcr.io/${{ github.repository_owner }}/$spec"
           done
 
       - name: Record promoted image digests
         env:
-          ENGINE_DIGEST: ${{ needs.promote.outputs.engine_digest }}
-          COUNSEL_DIGEST: ${{ needs.promote.outputs.counsel_digest }}
-          EXPERTS_DIGEST: ${{ needs.promote.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ needs.promote.outputs.single_digest }}
+          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
+          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
+          EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
+          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
         run: |
+          set -euo pipefail
           mkdir -p image-digest
           printf 'engine=%s\n' "$ENGINE_DIGEST" > image-digest/engine.env
           printf 'engine_mcp=%s\n' "$ENGINE_DIGEST" > image-digest/engine_mcp.env
@@ -233,11 +212,12 @@ jobs:
 
       - name: Build signed release manifest
         env:
-          PROMOTE_OUTPUTS: ${{ toJSON(needs.promote.outputs) }}
+          LIKI_RELEASE_IMAGES: ${{ toJSON(steps.evidence.outputs) }}
           LIKI_RELEASE_TAG: v${{ inputs.version }}
-          LIKI_SOURCE_COMMIT: ${{ github.sha }}
+          LIKI_SOURCE_COMMIT: ${{ inputs.source_commit }}
         run: |
-          LIKI_RELEASE_IMAGES="$(python3 -c 'import json,sys; o=json.loads(sys.argv[1]); print(json.dumps({"engine":o["engine_digest"],"engine_mcp":o["engine_mcp_digest"],"counsel":o["counsel_digest"],"experts":o["experts_digest"],"single_expert":o["single_digest"]},sort_keys=True))' "$PROMOTE_OUTPUTS")"
+          set -euo pipefail
+          LIKI_RELEASE_IMAGES="$(python3 -c 'import json,sys; o=json.loads(sys.argv[1]); print(json.dumps({"engine":o["engine_digest"],"engine_mcp":o["engine_digest"],"counsel":o["counsel_digest"],"experts":o["experts_digest"],"single_expert":o["single_digest"]},sort_keys=True))' "$LIKI_RELEASE_IMAGES")"
           export LIKI_RELEASE_IMAGES
           make build-release-manifest
           python3 scripts/build_release_manifest.py --require-images
@@ -248,8 +228,15 @@ jobs:
 
       - name: Create GitHub Release
         env:
+          VERSION: ${{ inputs.version }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
+          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
+          EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
+          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           tar -czf liki-release-artifacts.tar.gz -C dist \
             agents/experts/deployment.json \
             agents/single/deployment.json \
@@ -258,10 +245,21 @@ jobs:
             liki-release-manifest.sha256 \
             liki-web-skill-bundle.tar.gz \
             liki.tar.gz
-          gh release create "v${{ inputs.version }}" \
+          notes="$(mktemp)"
+          cat > "$notes" <<EOF
+          Promoted the locally built and tested candidate for source commit \`$SOURCE_COMMIT\`. Image digests were retagged, smoked, signed, and verified without rebuilding.
+
+          | Image | Digest |
+          | --- | --- |
+          | engine | \`$ENGINE_DIGEST\` |
+          | counsel | \`$COUNSEL_DIGEST\` |
+          | experts | \`$EXPERTS_DIGEST\` |
+          | single_expert | \`$SINGLE_DIGEST\` |
+          EOF
+          gh release create "v$VERSION" \
             --verify-tag \
-            --title "Liki ${{ inputs.version }}" \
-            --notes "Promoted tested candidate ${{ inputs.candidate_run_id }}. All image digests were retagged, signed, and verified without rebuilding." \
+            --title "Liki $VERSION" \
+            --notes-file "$notes" \
             dist/liki-release-manifest.json \
             dist/liki-release-manifest.sha256 \
             dist/liki-release-manifest.sig \

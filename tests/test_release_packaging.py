@@ -57,9 +57,8 @@ def test_ci_records_single_expert_image_digest() -> None:
     workflow = (ROOT / ".github/workflows/promote-release.yml").read_text(encoding="utf-8")
     document = yaml.safe_load(workflow)
     scripts = [step.get("run", "") for step in document["jobs"]["promote"]["steps"]]
-    steps = document["jobs"]["release"]["steps"]
-    print([(s.get("uses"), (s.get("with") or {}).get("name")) for s in steps])
-    assert any("single_expert_digest=" in script for script in scripts)
+    steps = document["jobs"]["promote"]["steps"]
+    assert any("single_expert" in script for script in scripts)
     assert any(
         step.get("uses", "").rpartition("@")[0] == "actions/upload-artifact"
         and (step.get("with") or {}).get("name") == "image-digest-single_expert"

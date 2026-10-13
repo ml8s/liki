@@ -1,17 +1,20 @@
 # liki monorepo — skill client + engine/counsel MCP services
 # Quality gate: make gate 是"本地可执行的推送门槛"（lint + 静态检查 + 测试 + 数据覆盖 + 发布工件）。
-#   CI 另外强制执行：漏洞扫描（govulncheck/pip-audit/npm）、发版镜像构建与冒烟、cosign 签名与 attestation、-race 与覆盖率门槛
-#   （这些依赖 registry 凭据/签名密钥，不适合本地）。`make vuln` 可在本地手动跑漏洞扫描。
+#   CI 另外强制执行：漏洞扫描（govulncheck/pip-audit/npm）、-race 与覆盖率门槛。
+#   发版镜像由 `make candidate` 本地构建；promotion 只做 digest 转发、冒烟和签名。
 #
 # 统一语义（四仓一致）：
 #   make lint   静态检查聚合
 #   make check  纯静态检查（lint+格式+数据结构+docs+专家一致性；不跑测试、不写盘）
 #   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
 #   make gate   check + test + 160题 + runtime validate + 发布工件 ＝推送门槛
-#   make release-gate gate + image smoke ＝发版门槛
-#   make build  本仓产物（skill 归档 + engine 二进制；镜像由 CI release 构建）
-#   make image  本地候选镜像（local tag；正式镜像由 CI release 发布）
+#   make candidate RELEASE_VERSION=... 本地构建、推送、冒烟并记录 digest ＝发版准备
+#   make build  本仓产物（skill 归档 + engine 二进制；镜像仅本地候选构建）
+#   make image  本地开发镜像（local tag；candidate 由 make candidate 发布）
 #   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
+
+RELEASE_VERSION ?=
+export RELEASE_VERSION
 
 .DEFAULT_GOAL := help
 
@@ -25,7 +28,7 @@ export GOTOOLCHAIN ?= go1.26.9
 .PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check lint vuln lint-md check test test-content test-engine test-counsel test-engine-mcp \
         full-data golden gate hooks version build-archive build-deployment \
-        check-actions build-web-skill-bundle build-release-manifest check-release-manifest \
+        check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
         agents-validate image image-engine image-counsel image-assembly
 
 build-skill build-archive: ## Build the installable skill archive
@@ -73,10 +76,10 @@ build-engine-mcp: ## Build the engine MCP server
 build-engine-rpc: ## Build the retained JSON-RPC compatibility server for installed legacy skills
 	@cd engine && go build -o ../bin/engine-rpc ./cmd/engine-rpc/
 
-build: build-skill build-engine-mcp build-engine-rpc ## Build local artifacts (skill archive + engine binaries). 镜像由 CI release 构建，非本地。
+build: build-skill build-engine-mcp build-engine-rpc ## Build local artifacts (skill archive + engine binaries). 镜像仅由本地 candidate 构建。
 
 # ── 镜像（本地候选，非发布路径）──
-# 生产镜像由 CI release 构建并推送 GHCR；以下目标使用明确的 local 候选 tag。
+# 生产镜像由本地 `make candidate` 构建并推送 GHCR；CI promotion 只转发已验证 digest。
 
 IMAGE_REGISTRY ?= ghcr.io/ml8s
 IMAGE_TAG ?= local
@@ -84,10 +87,10 @@ RUNTIME_VERSION ?= $(shell cat skills/liki/VERSION.txt)
 # 装配镜像的 base（本地候选可用 liki-agents:local；CI 用 release pin 覆盖）
 BASE_IMAGE ?= $(IMAGE_REGISTRY)/liki-agents:$(IMAGE_TAG)
 
-image-engine: ## Build the local engine candidate image (production uses CI release)
+image-engine: ## Build the local engine development image
 	docker build -f engine/dev/Dockerfile -t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
 
-image-counsel: ## Build the local counsel candidate image (production uses CI release)
+image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
 image-assembly: build-deployment ## Build assembly images locally (multi + single; pulls liki-agents base from GHCR)
@@ -99,8 +102,11 @@ image-assembly: build-deployment ## Build assembly images locally (multi + singl
 
 image: image-engine image-counsel ## Build all liki-owned local candidate images
 
+candidate: ## Build, push, smoke, and digest candidate images (requires RELEASE_VERSION)
+	scripts/build-candidate.sh
+
 smoke: image ## Smoke engine RPC/MCP and counsel MCP images
-	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-images.sh
+	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-image.sh
 
 fmt: ## Format Go sources
 	@cd engine && gofmt -w .
@@ -157,13 +163,19 @@ full-data: ## 160-question assertion coverage and zero-hit check
 	scripts/test-full-data.sh
 
 test: test-content test-engine test-counsel test-engine-mcp ## All deterministic tests
+test-python-coverage: ## Run root Python domain suite with coverage
+	coverage erase
+	coverage run --source=counsel/app -m pytest tests -q
+	coverage report --fail-under=65
+	coverage xml
+	coverage html
+
 
 golden: ## Deterministic multi-source golden suites
 	@cd engine && go test -count=1 -run \
 		'Golden|External|Matrix|Pattern' ./internal/engine/...
 
 gate: lint-engine check test full-data agents-validate build-release-manifest ## Full push gate: static, tests, coverage, runtime validation, release artifacts
-release-gate: gate smoke ## Release gate: full push gate plus image smoke
 
 check-actions: ## Reject mutable reusable workflow/action references
 	python3 scripts/check_actions_pinned.py

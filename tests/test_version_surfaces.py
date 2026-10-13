@@ -69,11 +69,11 @@ def test_deployment_surfaces_use_distributed_version():
         assert document["metadata"]["version"] == version, path
 
 
-def test_readme_image_tags_use_distributed_version():
-    version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
+def test_readme_image_identity_uses_immutable_digest():
     for relative in ("README.md", "README.en.md"):
         text = (ROOT / relative).read_text(encoding="utf-8")
-        assert f"liki-engine:{version}" in text, relative
+        assert "liki-engine@sha256:" in text, relative
+        assert "liki-engine:2026." not in text, relative
 
 
 def test_expert_pack_plugin_versions_internally_consistent():

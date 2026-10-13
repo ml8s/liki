@@ -99,7 +99,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 ```bash
 make hooks         # 安装 git hooks
 make check         # 所有静态检查（格式 + lint + schema + docs）
-make gate          # 推送门槛（lint/check/test/160 题覆盖/runtime validate/发布工件/image smoke）
+make gate          # 推送门槛（lint/check/test/160 题覆盖/runtime validate/发布工件）
 make build-archive # 打包 unified Liki skill
 ```
 
@@ -138,7 +138,8 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 ### 引擎镜像
 
-引擎镜像随 GitHub Release 自动发布：`docker pull ghcr.io/ml8s/liki-engine:2026.10.13.0`。本地源码构建使用 `engine/dev/docker-compose.yml`。
+发布镜像由本地 `make candidate` 构建并推送，promotion 后按 digest 部署：
+`ghcr.io/ml8s/liki-engine@sha256:...`。本地源码开发使用 `engine/dev/docker-compose.yml`。
 
 ### 领域工具接口
 
@@ -156,7 +157,7 @@ make test           # 所有测试（pytest + Go 引擎全量，含 MCP 集成�
 make golden         # golden 全量（局部诊断入口）
 ```
 
-分层详见 [Release model](./docs/RELEASE_MODEL.md)：`lint → check → test → gate`。
+发布流程详见 [Release pipeline](./docs/RELEASE_PIPELINE.md)：`gate → candidate → candidate-test → promotion`。
 
 ### 设计原则
 

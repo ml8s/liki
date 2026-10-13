@@ -63,9 +63,11 @@ def test_engine_image_carries_both_active_runtimes():
     assert "rm -f bin/engine-mcp bin/engine-rpc" in makefile
 
 
-def test_ci_smokes_both_engine_runtimes():
-    workflow = (ROOT / ".github/workflows/release-candidate.yml").read_text(encoding="utf-8")
-    assert "scripts/test_engine_mcp.py" in workflow
-    assert "--entrypoint /usr/local/bin/engine-mcp" in workflow
-    assert "/usr/local/bin/engine-rpc" in workflow
-    assert "/jsonrpc" in workflow
+def test_candidate_smokes_both_engine_runtimes():
+    script = (ROOT / "scripts/build-candidate.sh").read_text(encoding="utf-8")
+    smoke = (ROOT / "scripts/smoke-image.sh").read_text(encoding="utf-8")
+    assert "scripts/smoke-image.sh" in script
+    assert "scripts/test_engine_mcp.py" in smoke
+    assert "--entrypoint /usr/local/bin/engine-mcp" in smoke
+    assert "/usr/local/bin/engine-rpc" in smoke
+    assert "/jsonrpc" in smoke

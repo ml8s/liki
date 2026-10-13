@@ -118,7 +118,7 @@ ENV LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/deployment.json
 
 | 本仓变更 | 影响 | 传播路径 |
 |---|---|---|
-| 改专家 instruction/方法论卡 | 装配镜像内容变 | 重新生成工件 → 重发装配镜像 → deploy 换 tag |
+| 改专家 instruction/方法论卡 | 装配镜像内容变 | 重新生成工件 → 重发装配镜像 → 更新 signed digest lock |
 | 改 `tools.allow` 白名单 | 专家可用工具变 | 同上 |
 | 新增专家 | profile/工件/装配镜像 | 加 `agents/<name>/` → profile 加 agent → 重发 |
 | 改 engine/counsel 工具语义 | 白名单需对齐 | 更新 agents/*/agent.yaml → 重发 |

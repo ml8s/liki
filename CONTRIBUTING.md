@@ -8,20 +8,26 @@
 - SKILL 行为异常 → 请说明触发了什么流程、期望什么、实际发生了什么
 - 建议新技能 → 请描述用户场景，越具体越好
 
-## 提交 PR
+## 分支模型
 
-1. Fork 本仓库
-2. 从 `main` 创建一个功能分支：`git checkout -b feat/my-change main`
-3. 安装 git hooks（一次）：`make hooks`
-4. 升版本用根 Makefile 统一写入当日日期和序号（`VERSION.txt`、engine/counsel VERSION、根与专家包 SKILL 元数据、插件版本、profiles、counsel 工具清单和投影契约同步）：
+`main` 是唯一的长期分支；不要使用 `dev`、`master` 或长期发布分支。维护者在 `main`
+上做小而聚焦的提交。外部贡献者可以 fork 后创建短生命周期分支，PR 目标仍然是 `main`。
+
+发布永远从已通过 `candidate-test` 和 promotion 的 `main` commit 打 `v<CalVer>` tag。
+
+## 提交变更
+
+1. 同步最新 `main`：`git pull --ff-only`
+2. 安装 git hooks（一次）：`make hooks`
+3. 升版本用根 Makefile 统一写入当日日期和序号（`VERSION.txt`、engine/counsel VERSION、根与专家包 SKILL 元数据、插件版本、profiles、counsel 工具清单和投影契约同步）：
 
    ```bash
    make version
    ```
 
-5. 同步更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
-6. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
-7. 提交 PR，描述清楚改了什么、为什么
+4. 同步更新 `CHANGELOG.md`（README 统计数字有变时一并更新）
+5. README / 用户指南改动需保持现有标题结构和双语一致性，并运行 `make check`
+6. 提交时描述清楚改了什么、为什么；不相关的变更保持独立提交
 
 ## 代码规范
 

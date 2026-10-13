@@ -99,7 +99,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 ```bash
 make hooks         # install git hooks
 make check         # all static checks (format + lint + schema + docs)
-make gate          # push gate (lint/check/tests/160-question coverage/runtime validation/release artifacts/image smoke)
+make gate          # push gate (lint/check/tests/160-question coverage/runtime validation/release artifacts)
 make build-archive # pack the unified Liki skill
 ```
 
@@ -136,7 +136,9 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 
 ### Engine image
 
-The engine image is published with GitHub Releases: `docker pull ghcr.io/ml8s/liki-engine:2026.10.13.0`. Build from source with `engine/dev/docker-compose.yml`.
+Release images are built locally with `make candidate` and deployed by immutable
+digest after promotion: `ghcr.io/ml8s/liki-engine@sha256:...`. For source-based
+development, use `engine/dev/docker-compose.yml`.
 
 ### Domain tool interfaces
 
@@ -154,7 +156,8 @@ make test           # All tests (pytest + Go engine full suite, including MCP in
 make golden         # Full golden suite (focused diagnostic entry)
 ```
 
-See [Release model](./docs/RELEASE_MODEL.md) for the layered model: `lint → check → test → gate`.
+See [Release pipeline](./docs/RELEASE_PIPELINE.md) for the layered flow:
+`gate → candidate → candidate-test → promotion`.
 
 Formal releases use date-based CalVer tags. See [Release model](./docs/RELEASE_MODEL.md).
 
