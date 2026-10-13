@@ -4,7 +4,7 @@ description: 六爻方法论卡——纳甲筮法的规则口径（用神/六亲
 metadata:
   display_name: 六爻专家
   display_name_en: Liu Yao Expert
-  version: 2026.10.14.0
+  version: 2026.10.13.0
   author: Liki
 ---
 

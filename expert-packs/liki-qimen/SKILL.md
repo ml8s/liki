@@ -2,7 +2,7 @@
 name: liki-qimen
 description: 奇门专家——九宫八门、三奇六仪、格局、策略方位、择时择日与黄历查日。断语依据可回溯，为传统文化条件性解读。
 display_name: 奇门专家
-version: 2026.10.14.0
+version: 2026.10.13.0
 author: Liki
 keywords:
   - 奇门
