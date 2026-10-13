@@ -24,6 +24,60 @@ make test
 This validates source, configuration, schemas, and tests. It must not produce a
 GHCR image.
 
+## Candidate / promotion gate
+
+A formal release version is allocated only after a candidate has passed all
+gates. A candidate is an immutable set of image digests built from one source
+commit. It is not a new source branch or a second build of the same commit.
+
+```text
+source commit
+  → build candidate images with candidate tags
+  → publish candidate digest manifest
+  → smoke / assembly / e2e the exact candidate digests
+  → all gates pass
+  → promote the same digests to release tags
+  → sign the same release digests
+  → create tag / GitHub Release / deployment lock change
+```
+
+Promotion never rebuilds images. It only gives the already tested digest set a
+release identity.
+
+### Human interaction
+
+| You say | Pipeline does | Image side effect |
+| --- | --- | --- |
+| “commit and push” | run source checks/tests only | none |
+| “build candidate” | build/push candidate images and record digests | creates candidate-tagged images |
+| “test candidate” | run smoke/assembly/e2e against the candidate digests | none |
+| “promote candidate” | allocate version, retag/promote exact digests, sign, create release | creates release-tag aliases to the same digests |
+| “update lock / deploy” | verify signatures and run digest-pinned assembly | none |
+
+If a candidate fails, fix the source and build a new candidate. Do not reuse the
+formal version number and do not rebuild the failed source into the same release
+tag.
+
+### Candidate metadata
+
+Every candidate produces a digest manifest containing at least:
+
+```json
+{
+  "source_commit": "...",
+  "images": {
+    "engine": "sha256:...",
+    "counsel": "sha256:...",
+    "experts": "sha256:...",
+    "single_expert": "sha256:...",
+    "web": "sha256:..."
+  }
+}
+```
+
+Candidate tags are temporary aliases and may be cleaned by retention policy.
+The digest manifest is the candidate identity.
+
 ## Release gate
 
 A release workflow is the only place that builds publishable images.

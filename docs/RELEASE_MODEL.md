@@ -63,15 +63,19 @@ bump the pin to an unreleased or dirty build.
 
 ## Release process
 
-1. Confirm `main` is green.
-2. Run `make version` so every date-version surface is updated together.
-3. Confirm `CHANGELOG.md` contains the milestone changes.
-4. Create an annotated tag on the approved commit:
+1. Confirm `main` is green and ordinary commit CI did not build images.
+2. Build and publish a candidate image set from the approved source commit.
+3. Run smoke, assembly, security, and e2e gates against the candidate digests.
+4. If every candidate gate passes, promote the same digests to release tags;
+   do not rebuild them.
+5. Run `make version` so every date-version surface is updated together.
+6. Confirm `CHANGELOG.md` contains the milestone changes.
+7. Create an annotated tag on the approved commit:
 
    ```bash
    git tag -a v2026.10.12.0 <commit> -m "Liki 2026.10.12.0"
    git push origin v2026.10.12.0
    ```
 
-5. Publish the GitHub Release with that tag.
-6. Verify release CI, images, signed release manifest, and artifacts.
+8. Publish the GitHub Release with that tag.
+9. Verify release CI, images, signatures, signed release manifest, and artifacts.
