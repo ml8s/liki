@@ -22,6 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: v2.4.1
@@ -30,12 +36,7 @@ jobs:
         env:
           DIGESTS_JSON: ${{ inputs.digests_json }}
         run: |
-          python3 - <<'PY' > images.txt
-          import json, sys
-          data = json.loads("""$DIGESTS_JSON""")
-          for name, digest in data.items():
-              print(name, digest)
-          PY
+          python3 -c 'import os,json; data=json.loads(os.environ["DIGESTS_JSON"]); print("\n".join(f"{name} {digest}" for name,digest in data.items()))' > images.txt
           while read -r name digest; do
             echo "Signing ghcr.io/ml8s/liki-$name@$digest"
             cosign sign --yes "ghcr.io/ml8s/liki-$name@$digest"
@@ -47,12 +48,7 @@ jobs:
           COSIGN_IDENTITY_REGEX: ^https://github\\.com/ml8s/liki/\\.github/workflows/sign-existing-images\\.yml@refs/heads/main$
           COSIGN_OIDC_ISSUER: https://token.actions.githubusercontent.com
         run: |
-          python3 - <<'PY' > images.txt
-          import json
-          data = json.loads("""$DIGESTS_JSON""")
-          for name, digest in data.items():
-              print(name, digest)
-          PY
+          python3 -c 'import os,json; data=json.loads(os.environ["DIGESTS_JSON"]); print("\n".join(f"{name} {digest}" for name,digest in data.items()))' > images.txt
           while read -r name digest; do
             cosign verify \
               --certificate-identity-regexp "$COSIGN_IDENTITY_REGEX" \
