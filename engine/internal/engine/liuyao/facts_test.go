@@ -87,6 +87,26 @@ func TestFacts_DayClashClassifiesStrongAndWeak(t *testing.T) {
 	}
 }
 
+func TestFacts_ForceChainUsesCompleteChouShenDefinition(t *testing.T) {
+	chart := factsChart(t, [6]int{7, 7, 7, 7, 7, 7})
+	if chart.ForceChain == nil {
+		t.Fatal("force chain is nil")
+	}
+	found := false
+	for _, entry := range chart.ForceChain.Entries {
+		if entry.Role != RoleChouShen {
+			continue
+		}
+		found = true
+		if entry.Note != "克原神且生忌神者" {
+			t.Fatalf("chou shen note = %q, want complete classical definition", entry.Note)
+		}
+	}
+	if !found {
+		t.Fatalf("chou shen entry missing: %+v", chart.ForceChain)
+	}
+}
+
 func TestFacts_SanHeRequiresThreeDistinctBranchesForComplete(t *testing.T) {
 	for i := 0; i < 4096; i++ {
 		yaos := [6]int{}

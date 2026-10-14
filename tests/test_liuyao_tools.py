@@ -24,6 +24,8 @@ def test_matter_table_maps_explicit_yong_shen():
     assert matters.resolve_matter("career")["yong_shen"] == "官鬼"
     assert matters.resolve_matter("wealth")["yong_shen"] == "妻财"
     assert matters.resolve_matter("study")["yong_shen"] == "父母"
+    assert matters.resolve_matter("self")["yong_shen"] == "世爻"
+    assert matters.resolve_matter("other")["yong_shen"] == "应爻"
     assert matters.resolve_matter("relationship", perspective="male")["yong_shen"] == "妻财"
     assert matters.resolve_matter("relationship", perspective="female")["yong_shen"] == "官鬼"
 

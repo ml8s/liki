@@ -54,6 +54,25 @@ def _is_bazi_chart(chart: dict) -> bool:
     return "ri" in chart  # 八字盘含日柱；紫微盘为宫位结构
 
 
+def _hour_calibration_facts(chart: dict, full: dict) -> dict:
+    """提取考时所需的时柱敏感事实；候选盘即使断语相同也可结构区分。"""
+    hour = chart.get("shi") or {}
+    atomic = (full.get("atomic_facts") or {}) if isinstance(full, dict) else {}
+    shen_sha = ((full.get("shi") or {}).get("shen_sha") or []) if isinstance(full, dict) else []
+    return {
+        "hour_pillar": {
+            "gan": hour.get("gan", ""),
+            "zhi": hour.get("zhi", ""),
+        },
+        "hour_stem_ten_god": atomic.get("hour_stem_ten_god", ""),
+        "hour_shen_sha": [
+            item.get("name") or item.get("xing") or ""
+            for item in shen_sha
+            if isinstance(item, dict)
+        ],
+    }
+
+
 def compute_factors(chart: dict) -> dict:
     """engine 排盘结果 → { factors, factors_digest, context }。
 
@@ -137,7 +156,8 @@ def natal_query(factors: dict, topics: list[str], factors_digest: str,
 
 
 def period_query(factors: dict, factors_digest: str, time_scope: dict,
-                 topics: list[str], chart: dict, side: str = "bazi") -> dict:
+                 topics: list[str], chart: dict, side: str = "bazi",
+                 context: dict | None = None) -> dict:
     """已校验因子快照 + 时间层 + topics → 应期断语（大运/大限/流年）。
 
     chart 为 engine 排盘结果（bazi_chart/ziwei_chart），内部据此调 engine
@@ -164,6 +184,8 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         )
     if provenance.get("chart_digest") != _chart_digest(chart):
         raise ValueError("chart 与 compute_factors 因子来源不一致")
+    if context is not None and context != (provenance.get("context") or {}):
+        raise ValueError("context 与 compute_factors 因子来源不一致")
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"period_query side 只支持 bazi/ziwei，收到: {side!r}")
     gender = chart.get("gender", "")
@@ -188,4 +210,6 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         ]
         if "counts" in scope:
             scope["counts"]["returned"] = len(scope["assertions"])
+    if side == "bazi":
+        result["calibration_facts"] = _hour_calibration_facts(chart, full)
     return result

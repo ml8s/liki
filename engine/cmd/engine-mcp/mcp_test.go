@@ -318,6 +318,42 @@ func TestTools_OutputSchemaComplete(t *testing.T) {
 	}
 }
 
+// Tools that declare an outputSchema must also return structuredContent.
+// Returning JSON only in text blocks violates MCP structured-output promises.
+func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
+	sess, _ := startMCPServer(t)
+	ctx := context.Background()
+
+	tools := make(map[string]*mcp.Tool)
+	for tool, err := range sess.Tools(ctx, nil) {
+		if err != nil {
+			t.Fatalf("tools/list: %v", err)
+		}
+		if tool.OutputSchema != nil {
+			tools[tool.Name] = tool
+		}
+	}
+	if len(tools) == 0 {
+		t.Fatal("no tools declare outputSchema")
+	}
+
+	// time_now is deterministic enough for transport-shape validation and
+	// does not require engine-specific fixture data.
+	res, err := sess.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "time_now",
+		Arguments: map[string]any{},
+	})
+	if err != nil {
+		t.Fatalf("tools/call time_now: %v", err)
+	}
+	if res.IsError {
+		t.Fatalf("tools/call time_now returned IsError")
+	}
+	if res.StructuredContent == nil {
+		t.Fatalf("tool with outputSchema returned no structuredContent")
+	}
+}
+
 func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	reg.SetVersion(testVersion)

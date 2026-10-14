@@ -433,7 +433,7 @@ var otherMethods = []RPCMethod{
 		Name: "tianwen.time", Description: "根据时间和经度计算真太阳时，返回公历、真太阳时、农历三套时间。",
 		Params:  schemaTimePointParams(),
 		Handler: tianwenTimeHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"solar":{"type":"string","format":"date-time"},"gregorian":{"type":"string","format":"date-time"},"lunar":{"type":"object","description":"农历信息: year/month/day/shichen","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"leap":{"type":"boolean"},"shichen":{"type":"string"}}}},"required":["solar","gregorian","lunar"]}`),
+		Result:  envelopeSchema(`{"type":"object","properties":{"solar":{"type":"string","format":"date-time"},"gregorian":{"type":"string","format":"date-time"},"lunar":{"type":"object","description":"农历信息: year/month/day/shichen","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"leap":{"type":"boolean"},"shichen":{"type":"string"}}},"historical_time_hints":{"type":"array","description":"历史时制歧义提示（如 1986-1991 中国夏令时）","items":{"type":"object","properties":{"kind":{"type":"string"},"year":{"type":"integer"},"recorded_time":{"type":"string"},"standard_time":{"type":"string"},"daylight_time":{"type":"string"},"requires_confirm":{"type":"boolean"}}}}},"required":["solar","gregorian","lunar"]}`),
 	},
 	{
 		Name: "city.coords", Description: "根据城市名查询经纬度。优先使用内置城市表；未命中时可查询 Nominatim（OSM），部署方可用 LIKI_EXTERNAL_GEOCODING=off 禁用。",

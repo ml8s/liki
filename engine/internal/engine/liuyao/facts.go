@@ -189,7 +189,7 @@ func computeForceChain(chart *Chart, typ YongShen) *ForceChain {
 		forceEntry(chart, RoleJiShen, ji, "克用神者"),
 	)
 	if chou != 0 {
-		chain.Entries = append(chain.Entries, forceEntry(chart, RoleChouShen, chou, "克原神者"))
+		chain.Entries = append(chain.Entries, forceEntry(chart, RoleChouShen, chou, "克原神且生忌神者"))
 	}
 	return chain
 }
@@ -236,7 +236,7 @@ func computeHiddenForceChain(chart *Chart, typ YongShen, fuShen *FuShen) *ForceC
 		forceEntry(chart, RoleJiShen, ji, "克用神者"),
 	)
 	if chou != 0 {
-		chain.Entries = append(chain.Entries, forceEntry(chart, RoleChouShen, chou, "克原神者"))
+		chain.Entries = append(chain.Entries, forceEntry(chart, RoleChouShen, chou, "克原神且生忌神者"))
 	}
 	return chain
 }

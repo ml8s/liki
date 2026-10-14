@@ -73,7 +73,7 @@
             "topics": {
               "type": "array",
               "minItems": 1,
-              "maxItems": 4,
+              "maxItems": 16,
               "uniqueItems": true,
               "items": {
                 "type": "string",
@@ -279,7 +279,7 @@
             "topics": {
               "type": "array",
               "minItems": 1,
-              "maxItems": 4,
+              "maxItems": 16,
               "uniqueItems": true,
               "items": {
                 "type": "string",
@@ -308,6 +308,10 @@
             "chart": {
               "type": "object",
               "description": "engine 排盘结果（同 compute_factors 输入），内部据此调 engine 流年/大限"
+            },
+            "context": {
+              "type": "object",
+              "description": "compute_factors 返回的原始 context；提供时必须与因子 provenance 校验一致"
             }
           }
         },
@@ -399,6 +403,44 @@
                   "error": {
                     "description": "Engine error for this scope, if any.",
                     "type": "object"
+                  }
+                }
+              }
+            },
+            "calibration_facts": {
+              "description": "Hour-pillar-sensitive facts for birth-time calibration. Present for bazi period queries.",
+              "type": "object",
+              "required": [
+                "hour_pillar",
+                "hour_stem_ten_god",
+                "hour_shen_sha"
+              ],
+              "properties": {
+                "hour_pillar": {
+                  "description": "Hour stem and branch.",
+                  "type": "object",
+                  "required": [
+                    "gan",
+                    "zhi"
+                  ],
+                  "properties": {
+                    "gan": {
+                      "type": "string"
+                    },
+                    "zhi": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "hour_stem_ten_god": {
+                  "description": "Ten-god name of the hour stem.",
+                  "type": "string"
+                },
+                "hour_shen_sha": {
+                  "description": "Shen sha attached to the hour pillar.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
                   }
                 }
               }

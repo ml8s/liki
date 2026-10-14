@@ -308,6 +308,6 @@ def test_normalize_row_marks_gender_specific_factor_scope():
         "结论": "x",
         "trace": [{"condition_group": 1, "factors": {"女命官星得地格": {"expected": 0, "actual": 0}}}],
     }
-    out = _normalize_row(row, side="bazi", topic="career", method="m", time_scope="natal")
+    out = _normalize_row(row, side="bazi", topics=["career"], method="m", time_scope="natal")
     assert out["evidence"][0]["factor"] == "女命官星得地格"
     assert out["evidence"][0]["gender_scope"] == "女"
