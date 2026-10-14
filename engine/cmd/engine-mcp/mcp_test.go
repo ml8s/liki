@@ -354,6 +354,85 @@ func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
 	}
 }
 
+// Standard clients negotiate through initialize. Even though this server is
+// configured around the stateless 2026 protocol, it must not advertise a
+// version it will subsequently reject in the required protocol header.
+func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
+	reg := agent.NewRPCRegistry()
+	reg.SetVersion(testVersion)
+	srv := newMCPServer(reg, testVersion, newTestLogger())
+	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+		return srv
+	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
+	defer ts.Close()
+
+	initialize := `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}`
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/mcp", strings.NewReader(initialize))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	res, err := ts.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = res.Body.Close() }()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("initialize status=%d body=%s", res.StatusCode, body)
+	}
+	var document struct {
+		Result struct {
+			ProtocolVersion string `json:"protocolVersion"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(body, &document); err != nil {
+		t.Fatalf("decode initialize response %q: %v", body, err)
+	}
+	negotiated := document.Result.ProtocolVersion
+	if negotiated == "" {
+		t.Fatalf("initialize returned no protocol version: %s", body)
+	}
+
+	list := `{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`
+	req, err = http.NewRequest(http.MethodPost, ts.URL+"/mcp", strings.NewReader(list))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	req.Header.Set("MCP-Protocol-Version", negotiated)
+	res, err = ts.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = res.Body.Close() }()
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("tools/list status=%d negotiated=%q body=%s", res.StatusCode, negotiated, body)
+	}
+	var listDocument struct {
+		Result struct {
+			Tools []struct {
+				Name string `json:"name"`
+			} `json:"tools"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(body, &listDocument); err != nil {
+		t.Fatalf("decode tools/list response %q: %v", body, err)
+	}
+	if len(listDocument.Result.Tools) == 0 {
+		t.Fatalf("tools/list returned no tools: %s", body)
+	}
+}
+
 func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	reg.SetVersion(testVersion)

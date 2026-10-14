@@ -73,8 +73,11 @@ func newMCPServerFor(reg *agent.RPCRegistry, version string, logger *slog.Logger
 	opts := &mcp.ServerOptions{
 		Instructions: "Deterministic Chinese metaphysics computation. Discover available capabilities with tools/list before use. When required, first resolve time, location, or calendar facts; then use the discovered chart, calendar, divination, or fengshui capability. Pass returned artifacts unchanged, interpret only returned facts, and do not invent missing fields. Conclusions are conditioned readings from a traditional culture perspective, not medical, legal or investment advice.",
 		Logger:       logger,
-		// 干净设计：只支持新协议（2026-07-28，server/discover 协商），不做旧协议向后兼容。
-		SupportedProtocolVersions: []string{"2026-07-28"},
+		// 2026-07-28 is the preferred stateless surface. Standard clients still
+		// discover this endpoint through the initialize handshake, whose newest
+		// era is 2025-11-25; advertising only 2026 made the SDK return that
+		// handshake fallback and then reject its required header on the next call.
+		SupportedProtocolVersions: []string{"2025-11-25", "2026-07-28"},
 	}
 	s := mcp.NewServer(impl, opts)
 
