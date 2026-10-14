@@ -66,20 +66,17 @@ jobs:
             '.type_check = (
               type == "object" and
               .repository == "ml8s/liki" and
-              .source_commit == $source_commit and
-              (.images | type == "object" and keys == ["counsel","engine","experts","single_expert"])
+              .source_commit == $source_commit and .schema_version == "liki.candidate-manifest.v1" and
             ) | .type_check' <<<"$DIGESTS_JSON" >/dev/null; then
             echo "::error::digests_json is invalid or does not match the release identity" >&2
             exit 1
           fi
-          for key in engine counsel experts single_expert; do
             digest="$(jq -er --arg key "$key" '.images[$key]' <<<"$DIGESTS_JSON")"
             if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
               echo "::error::$key digest must be sha256: plus 64 lowercase hex characters" >&2
               exit 1
             fi
             output_key="$key"
-            if [ "$key" = single_expert ]; then output_key=single; fi
             echo "${output_key}_digest=$digest" >> "$GITHUB_OUTPUT"
           done
 
@@ -97,7 +94,6 @@ jobs:
           ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
           COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
           EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
         run: |
           set -euo pipefail
           promote() {
@@ -107,8 +103,7 @@ jobs:
           }
           promote liki-engine "$ENGINE_DIGEST"
           promote liki-counsel "$COUNSEL_DIGEST"
-          promote liki-multi-expert "$EXPERTS_DIGEST"
-          promote liki-single-expert "$SINGLE_DIGEST"
+          promote liki-experts "$EXPERTS_DIGEST"
 
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
@@ -122,7 +117,6 @@ jobs:
           ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
           COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
           EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
         run: |
           set -euo pipefail
           oidc_token="$(curl -fsSL \
@@ -133,16 +127,14 @@ jobs:
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
-            "liki-multi-expert@$EXPERTS_DIGEST" \
-            "liki-single-expert@$SINGLE_DIGEST"; do
+            "liki-experts@$EXPERTS_DIGEST" \
             cosign sign --yes --identity-token "$oidc_token" "ghcr.io/${{ github.repository_owner }}/$spec"
           done
           identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/tags/v${VERSION}$"
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
-            "liki-multi-expert@$EXPERTS_DIGEST" \
-            "liki-single-expert@$SINGLE_DIGEST"; do
+            "liki-experts@$EXPERTS_DIGEST" \
             cosign verify --certificate-identity-regexp "$identity" \
               --certificate-oidc-issuer https://token.actions.githubusercontent.com \
               "ghcr.io/${{ github.repository_owner }}/$spec"
@@ -153,7 +145,6 @@ jobs:
           ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
           COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
           EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
         run: |
           set -euo pipefail
           mkdir -p image-digest
@@ -161,7 +152,6 @@ jobs:
           printf 'engine_mcp=%s\n' "$ENGINE_DIGEST" > image-digest/engine_mcp.env
           printf 'counsel_mcp=%s\n' "$COUNSEL_DIGEST" > image-digest/counsel_mcp.env
           printf 'experts=%s\n' "$EXPERTS_DIGEST" > image-digest/experts.env
-          printf 'single_expert=%s\n' "$SINGLE_DIGEST" > image-digest/single_expert.env
 
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
@@ -185,8 +175,6 @@ jobs:
 
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
-          name: image-digest-single_expert
-          path: image-digest/single_expert.env
 
       - name: Build signed release manifest
         env:
@@ -195,7 +183,6 @@ jobs:
           LIKI_SOURCE_COMMIT: ${{ inputs.source_commit }}
         run: |
           set -euo pipefail
-          LIKI_RELEASE_IMAGES="$(python3 -c 'import json,sys; o=json.loads(sys.argv[1]); print(json.dumps({"engine":o["engine_digest"],"engine_mcp":o["engine_digest"],"counsel":o["counsel_digest"],"experts":o["experts_digest"],"single_expert":o["single_digest"]},sort_keys=True))' "$LIKI_RELEASE_IMAGES")"
           export LIKI_RELEASE_IMAGES
           make build-release-manifest
           python3 scripts/build_release_manifest.py --require-images
@@ -211,7 +198,6 @@ jobs:
           set -euo pipefail
           tar -czf liki-release-artifacts.tar.gz -C dist \
             agents/experts/deployment.json \
-            agents/single/deployment.json \
             index.json \
             liki-release-manifest.json \
             liki-release-manifest.sha256 \

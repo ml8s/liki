@@ -18,7 +18,6 @@ REQUIRED_IMAGE_DIGEST_ARTIFACTS = {
     "image-digest-engine",
     "image-digest-engine_mcp",
     "image-digest-experts",
-    "image-digest-single_expert",
 }
 
 

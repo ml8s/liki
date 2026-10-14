@@ -1,7 +1,7 @@
 # Liki 八字专家包
 
 > **兼容提示**：生产系统的唯一 AgentDeployment source of truth 是仓库根目录
-> `agents/`，运行时只发布全功能 `liki-multi-expert` 装配镜像。本目录仅保留给
+> `agents/`，运行时只发布全功能 `liki-experts` 装配镜像。本目录仅保留给
 > CodeBuddy 旧市场包兼容，不再作为生产专家定义或发布分身。
 
 **`liki-bazi`** — 八字专家。排盘由 Go 天文历算引擎确定性计算，断语来自规则真值表，依据可回溯。

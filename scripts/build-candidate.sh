@@ -67,7 +67,7 @@ ensure_candidate_registry() {
 
 ensure_candidate_registry
 REGISTRY="$CANDIDATE_REGISTRY/ml8s"
-AGENTS_BASE="$(python3 scripts/liki_agents_pin.py --ref)"
+AGENTS_BASE="$(python3 scripts/agent_runtime_pin.py --ref)"
 METADATA_DIR="$(mktemp -d)"
 trap 'rm -rf "$METADATA_DIR"' EXIT
 
@@ -99,15 +99,9 @@ mkdir -p assembly/dist/agents
 cp -r dist/agents/. assembly/dist/agents/
 cp -r skills assembly/dist/skills
 cp -r expert-packs assembly/dist/expert-packs
-build_image experts liki-multi-expert assembly assembly/Dockerfile \
+build_image experts liki-experts assembly assembly/Dockerfile \
   --build-arg BASE_IMAGE="$AGENTS_BASE" \
   --build-arg PROFILE=experts \
-  --build-arg VERSION="$RELEASE_VERSION" \
-  --build-arg COMMIT="$SOURCE_SHA" \
-  --build-arg BUILD_TIME="$BUILD_TIME"
-build_image single_expert liki-single-expert assembly assembly/Dockerfile \
-  --build-arg BASE_IMAGE="$AGENTS_BASE" \
-  --build-arg PROFILE=single \
   --build-arg VERSION="$RELEASE_VERSION" \
   --build-arg COMMIT="$SOURCE_SHA" \
   --build-arg BUILD_TIME="$BUILD_TIME"
@@ -127,10 +121,9 @@ ENGINE_IMAGE="$REGISTRY/liki-engine@$(metadata_digest engine)" \
   COUNSEL_IMAGE="$REGISTRY/liki-counsel@$(metadata_digest counsel)" \
   IMAGE_TAG=unused scripts/smoke-image.sh
 
-for profile in experts single_expert; do
-  image_name="$([ "$profile" = experts ] && echo liki-multi-expert || echo liki-single-expert)"
+for profile in experts; do
   docker run --rm \
-    "$REGISTRY/$image_name@$(metadata_digest "$profile")" \
+    "$REGISTRY/liki-experts@$(metadata_digest "$profile")" \
     validate -deployment /deployment/deployment.json
 done
 

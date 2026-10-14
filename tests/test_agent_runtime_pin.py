@@ -1,7 +1,7 @@
-"""liki-agents runtime base 依赖 pin 契约。
+"""liki-agent-runtime runtime base 依赖 pin 契约。
 
-liki 对 liki-agents 做依赖锁定（version + immutable digest），不做与 liki
-自身版本的同名对齐；测试（agents-validate）与本地 candidate 装配必须共用该 pin。
+liki 对 liki-agent-runtime 做依赖锁定（version + immutable digest），不做与 liki
+自身版本的同名对齐；测试（runtime-validate）与本地 candidate 装配必须共用该 pin。
 """
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PIN = ROOT / "deps" / "liki-agents.base"
-SCRIPT = ROOT / "scripts" / "liki_agents_pin.py"
+PIN = ROOT / "deps" / "liki-agent-runtime.base"
+SCRIPT = ROOT / "scripts" / "agent_runtime_pin.py"
 BUILD_CANDIDATE = ROOT / "scripts" / "build-candidate.sh"
 MAKEFILE = ROOT / "Makefile"
 
@@ -69,11 +69,11 @@ def test_pin_script_outputs_match_file():
 def test_candidate_assembly_uses_pin_not_release_ref():
     text = BUILD_CANDIDATE.read_text(encoding="utf-8")
     # 装配 base 必须来自 pin 脚本，而不是本地 mutable tag
-    assert "scripts/liki_agents_pin.py --ref" in text
-    assert "BASE_IMAGE=\"$(IMAGE_REGISTRY)/liki-agents:$(IMAGE_TAG)\"" not in text
+    assert "scripts/agent_runtime_pin.py --ref" in text
+    assert "BASE_IMAGE=\"$(IMAGE_REGISTRY)/liki-agent-runtime:$(IMAGE_TAG)\"" not in text
 
 
 def test_makefile_agents_validate_uses_pin():
     text = MAKEFILE.read_text(encoding="utf-8")
-    assert "scripts/liki_agents_pin.py --version" in text
-    assert "scripts/liki_agents_pin.py --ref" in text
+    assert "scripts/agent_runtime_pin.py --version" in text
+    assert "scripts/agent_runtime_pin.py --ref" in text

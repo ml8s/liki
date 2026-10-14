@@ -20,7 +20,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
-REQUIRED_IMAGES = ("counsel_mcp", "engine", "engine_mcp", "experts", "single_expert")
+REQUIRED_IMAGES = ("counsel_mcp", "engine", "engine_mcp", "experts")
 IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
@@ -36,7 +36,7 @@ def build(require_images: bool = False) -> dict[str, Any]:
     expected_runtime = runtime_version()
 
     deployments: dict[str, Any] = {}
-    for profile in ("experts", "single"):
+    for profile in ("experts",):
         path = DIST / "agents" / profile / "deployment.json"
         if not path.is_file():
             raise SystemExit(f"missing generated deployment: {path}")
@@ -94,6 +94,7 @@ def build(require_images: bool = False) -> dict[str, Any]:
             raise SystemExit("--require-images requires LIKI_RELEASE_TAG")
 
     return {
+        "schema_version": "liki.release-manifest.v1",
         "artifact": "liki-release-manifest.json",
         "release_tag": os.environ.get("LIKI_RELEASE_TAG", "unreleased"),
         "runtime_version": expected_runtime,

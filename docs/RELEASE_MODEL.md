@@ -58,7 +58,7 @@ Repositories version independently. Liki pins external runtimes explicitly:
 
 | Dependency | Pin file | Locked content |
 | --- | --- | --- |
-| Agent runtime base | `deps/liki-agents.base` | liki-agents version + immutable digest |
+| Agent runtime base | `deps/liki-agent-runtime.base` | liki-agent-runtime version + immutable digest |
 
 The validation and assembly image must use the same pinned runtime. Do not
 bump the pin to an unreleased or dirty build.

@@ -30,7 +30,7 @@ export GOTOOLCHAIN ?= go1.26.9
         go-version-check lint vuln lint-md check test test-content test-engine test-counsel test-engine-mcp \
         full-data golden gate release-gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
-        agents-validate image image-engine image-counsel image-assembly
+        runtime-validate image image-engine image-counsel image-assembly
 
 build-skill build-archive: ## Build the installable skill archive
 	scripts/build-archive.sh
@@ -44,29 +44,29 @@ build-release-manifest: build-web-skill-bundle build-deployment ## Build the uni
 check-release-manifest: ## Verify an existing unified release manifest without writing
 	python3 scripts/build_release_manifest.py --check
 
-DEPLOYMENT_PROFILES ?= experts single
+DEPLOYMENT_PROFILES ?= experts
 
 build-deployment: ## Generate AgentDeployment artifacts for all profiles
 	@set -eu; for p in $(DEPLOYMENT_PROFILES); do \
 		python3 scripts/generate_deployment.py --profile "$$p" --out dist/agents; \
 	done
 
-LIKI_AGENTS_VERSION ?= $(shell python3 scripts/liki_agents_pin.py --version)
-LIKI_AGENTS_IMAGE ?= $(shell python3 scripts/liki_agents_pin.py --ref)
+LIKI_AGENT_RUNTIME_VERSION ?= $(shell python3 scripts/agent_runtime_pin.py --version)
+LIKI_AGENT_RUNTIME_IMAGE ?= $(shell python3 scripts/agent_runtime_pin.py --ref)
 # 覆盖为本地二进制时，跳过容器内 pinned 运行时（仅用于离线开发）
-LIKI_AGENTS_VALIDATOR ?=
+LIKI_AGENT_RUNTIME_VALIDATOR ?=
 
-agents-validate: build-deployment ## Validate generated artifacts with the pinned liki-agents runtime (override LIKI_AGENTS_VALIDATOR=<bin>)
+runtime-validate: build-deployment ## Validate generated artifacts with the pinned liki-agent-runtime runtime (override LIKI_AGENT_RUNTIME_VALIDATOR=<bin>)
 	@set -eu; \
-	if [ -n "$(LIKI_AGENTS_VALIDATOR)" ]; then \
+	if [ -n "$(LIKI_AGENT_RUNTIME_VALIDATOR)" ]; then \
 		for p in $(DEPLOYMENT_PROFILES); do \
-			$(LIKI_AGENTS_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
+			$(LIKI_AGENT_RUNTIME_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
 		done; \
 	else \
 		for p in $(DEPLOYMENT_PROFILES); do \
 			docker run --rm -v "$$PWD/dist/agents:/deployment:ro" \
-				-e LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/$$p/deployment.json \
-				--entrypoint /liki-agents $(LIKI_AGENTS_IMAGE) \
+				-e LIKI_AGENT_RUNTIME_DEPLOYMENT_FILE=/deployment/$$p/deployment.json \
+				--entrypoint /liki-agent-runtime $(LIKI_AGENT_RUNTIME_IMAGE) \
 				validate -deployment /deployment/$$p/deployment.json; \
 		done; \
 	fi
@@ -85,8 +85,8 @@ build: build-skill build-engine-mcp build-engine-rpc ## Build local artifacts (s
 IMAGE_REGISTRY ?= ghcr.io/ml8s
 IMAGE_TAG ?= local
 RUNTIME_VERSION ?= $(shell cat skills/liki/VERSION.txt)
-# 装配镜像的 base（本地候选可用 liki-agents:local；CI 用 release pin 覆盖）
-BASE_IMAGE ?= $(IMAGE_REGISTRY)/liki-agents:$(IMAGE_TAG)
+# 装配镜像的 base（本地候选可用 liki-agent-runtime:local；CI 用 release pin 覆盖）
+BASE_IMAGE ?= $(IMAGE_REGISTRY)/liki-agent-runtime:$(IMAGE_TAG)
 
 image-engine: ## Build the local engine development image
 	docker build -f engine/dev/Dockerfile -t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
@@ -94,11 +94,10 @@ image-engine: ## Build the local engine development image
 image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
-image-assembly: build-deployment ## Build assembly images locally (multi + single; pulls liki-agents base from GHCR)
+image-assembly: build-deployment ## Build the production experts assembly image (pulls liki-agent-runtime base from GHCR)
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
 	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
-	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) --build-arg PROFILE=experts -t $(IMAGE_REGISTRY)/liki-multi-expert:$(IMAGE_TAG) assembly
-	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) --build-arg PROFILE=single -t $(IMAGE_REGISTRY)/liki-single-expert:$(IMAGE_TAG) assembly
+	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) --build-arg PROFILE=experts -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 
 image: image-engine image-counsel ## Build all liki-owned local candidate images
@@ -142,7 +141,7 @@ check: lint-md lint-python fmt-check go-version-check check-actions ## 纯静态
 	python3 scripts/check_workflow.py
 	python3 scripts/check_mcp_schema.py
 	python3 scripts/check_expert_docs.py
-	python3 scripts/liki_agents_pin.py --check
+	python3 scripts/agent_runtime_pin.py --check
 	bash scripts/check-exec-bits.sh
 	python3 scripts/sync_expert_packs.py --check
 
@@ -181,7 +180,7 @@ golden: ## Deterministic multi-source golden suites
 
 gate: lint-engine check test ## Full source push gate: lint, static checks, and tests
 
-release-gate: gate full-data agents-validate build-release-manifest ## Release preparation gate: source gate plus release artifacts
+release-gate: gate full-data runtime-validate build-release-manifest ## Release preparation gate: source gate plus release artifacts
 
 check-actions: ## Reject mutable reusable workflow/action references
 	python3 scripts/check_actions_pinned.py

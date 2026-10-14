@@ -9,7 +9,7 @@
     {
       "type": "function",
       "function": {
-        "name": "qiming_surname",
+        "name": "naming_surname",
         "description": "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。",
         "parameters": {
           "type": "object",
@@ -90,7 +90,7 @@
     {
       "type": "function",
       "function": {
-        "name": "qiming_pick",
+        "name": "naming_pick",
         "description": "按五行取字池：给出名字位（first/second）的五行要求，返回按字排序的可选字池（含字频）。count=1 单名只取 first 池，count=2 双名取 first+second 池。",
         "parameters": {
           "type": "object",
@@ -216,7 +216,7 @@
     {
       "type": "function",
       "function": {
-        "name": "qiming_char",
+        "name": "naming_char",
         "description": "查询单个汉字的起名字库信息：字频、五行、笔画、部首、拼音、声调；未收录返回空。",
         "parameters": {
           "type": "object",
@@ -290,7 +290,7 @@
     {
       "type": "function",
       "function": {
-        "name": "qiming_compose",
+        "name": "naming_compose",
         "description": "将取字池中的字组合为候选名：单名=first 单字，双名=first×second 两字组合；按 first 顺序生成，最多 max_names 个。",
         "parameters": {
           "type": "object",
@@ -346,7 +346,7 @@
     {
       "type": "function",
       "function": {
-        "name": "qiming_check",
+        "name": "naming_check",
         "description": "独立评估候选名：长度/字库收录/禁用字校验，音律声调序列，五行命中（用神/喜神/忌神）；返回每名的 valid/errors/characters/phonetic/wuxing。",
         "parameters": {
           "type": "object",

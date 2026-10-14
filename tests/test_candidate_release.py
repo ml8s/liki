@@ -32,11 +32,11 @@ def test_candidate_manifest_has_exact_required_shape(tmp_path):
         "repository": "ml8s/liki",
         "source_commit": "a" * 40,
         "candidate_tag": "candidate-abcdef0-20260101010101",
+        "schema_version": "liki.candidate-manifest.v1",
         "images": {
             "engine": "sha256:" + "0" * 64,
             "counsel": "sha256:" + "0" * 64,
             "experts": "sha256:" + "0" * 64,
-            "single_expert": "sha256:" + "0" * 64,
         },
     }
 

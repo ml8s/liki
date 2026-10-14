@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Read and validate the liki-agents runtime base pin.
+"""Read and validate the liki-agent-runtime runtime base pin.
 
-`deps/liki-agents.base` 锁定 liki 依赖的 liki-agents 发布版本
+`deps/liki-agent-runtime.base` 锁定 liki 依赖的 liki-agent-runtime 发布版本
 （version + immutable digest）。测试与部署共用该 pin，不做与 liki 版本的
-同名对齐。CI 装配与本地 `make agents-validate` 都从这里取版本。
+同名对齐。CI 装配与本地 `make runtime-validate` 都从这里取版本。
 
 用法:
-    python3 scripts/liki_agents_pin.py --version   # 打印 pin 版本
-    python3 scripts/liki_agents_pin.py --digest    # 打印 pin digest
-    python3 scripts/liki_agents_pin.py --ref       # 打印 image:version@digest
-    python3 scripts/liki_agents_pin.py --check      # 校验（失败返回非零）
+    python3 scripts/agent_runtime_pin.py --version   # 打印 pin 版本
+    python3 scripts/agent_runtime_pin.py --digest    # 打印 pin digest
+    python3 scripts/agent_runtime_pin.py --ref       # 打印 image:version@digest
+    python3 scripts/agent_runtime_pin.py --check      # 校验（失败返回非零）
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PIN_PATH = ROOT / "deps" / "liki-agents.base"
+PIN_PATH = ROOT / "deps" / "liki-agent-runtime.base"
 DEFAULT_REGISTRY = "ghcr.io/ml8s"
 
 _CALVER_RE = re.compile(r"^\d{4}\.\d{2}\.\d{2}\.\d+$")
@@ -42,9 +42,9 @@ def validate(values: dict[str, str]) -> list[str]:
     version = values.get("version", "")
     digest = values.get("digest", "")
     if not _CALVER_RE.fullmatch(version):
-        errors.append(f"liki-agents.base version 非法: {version!r}")
+        errors.append(f"liki-agent-runtime.base version 非法: {version!r}")
     if not _DIGEST_RE.fullmatch(digest):
-        errors.append(f"liki-agents.base digest 非法: {digest!r}")
+        errors.append(f"liki-agent-runtime.base digest 非法: {digest!r}")
     return errors
 
 
@@ -66,24 +66,24 @@ def main() -> int:
     if args.check:
         errors = validate(values)
         for line in errors:
-            print(f"[liki-agents-pin] ✗ {line}", file=sys.stderr)
+            print(f"[liki-agent-runtime-pin] ✗ {line}", file=sys.stderr)
         if errors:
             return 1
         print(
-            f"[liki-agents-pin] ✓ {values['version']} @ {values['digest']}"
+            f"[liki-agent-runtime-pin] ✓ {values['version']} @ {values['digest']}"
         )
         return 0
 
     errors = validate(values)
     if errors:
         for line in errors:
-            print(f"[liki-agents-pin] ✗ {line}", file=sys.stderr)
+            print(f"[liki-agent-runtime-pin] ✗ {line}", file=sys.stderr)
         return 1
 
     if args.digest:
         print(values["digest"])
     elif args.ref:
-        print(f"{args.registry}/liki-agents:{values['version']}@{values['digest']}")
+        print(f"{args.registry}/liki-agent-runtime:{values['version']}@{values['digest']}")
     else:  # --version（默认）
         print(values["version"])
     return 0

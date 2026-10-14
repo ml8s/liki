@@ -1,6 +1,6 @@
 """AgentDeployment 工件生成器。
 
-读 agents/ 发布结构 + profiles/ 定义，组装 liki-agents 直接消费的
+读 agents/ 发布结构 + profiles/ 定义，组装 liki-agent-runtime 直接消费的
 deployment 工件（deployment.json + instruction + output schema）。
 
 用法:
@@ -115,7 +115,7 @@ def validate_profile_tool_catalog(profile: dict, catalog: dict, version: str) ->
 
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
 # 镜像内合法 skill rootFS（assembly 镜像 COPY：/skills、/expert-packs）。
-# /skills 的直接子目录是 liki/（router、single_expert 绑定后发现 skill "liki"）；
+# /skills 的直接子目录是 liki/（router 绑定后发现 skill "liki"）；
 # /expert-packs/liki-<x>/skills 的直接子目录是域 skill（name==目录名，ADK S2）。
 def validate_skills_binding(agent_name: str, skills: dict) -> None:
     root = (skills or {}).get("root", "")
@@ -202,6 +202,7 @@ def main() -> int:
         for profile_agent in profile["agents"]
     ]
     deployment = {
+        "schema_version": "liki.agent-deployment.v1",
         "metadata": metadata,
         "spec": {
             "mcpServers": profile["mcpServers"],

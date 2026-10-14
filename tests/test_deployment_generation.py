@@ -12,7 +12,7 @@ from _helpers import ROOT
 
 class TestDeploymentGeneration(unittest.TestCase):
     def setUp(self):
-        self._tmp = tempfile.mkdtemp(prefix="liki-agents-")
+        self._tmp = tempfile.mkdtemp(prefix="liki-agent-runtime-")
         self.out = Path(self._tmp) / "out"
         self.addCleanup(shutil.rmtree, self._tmp, ignore_errors=True)
 
@@ -31,6 +31,7 @@ class TestDeploymentGeneration(unittest.TestCase):
         manifest = self._generate("experts")
         deployment = json.loads(manifest.read_text(encoding="utf-8"))
         self.assertNotIn("apiVersion", deployment)
+        self.assertEqual(deployment["schema_version"], "liki.agent-deployment.v1")
         self.assertNotIn("kind", deployment)
         self.assertEqual(deployment["metadata"]["name"], "experts")
         self.assertEqual(deployment["metadata"]["version"], runtime_version)
@@ -61,7 +62,7 @@ class TestDeploymentGeneration(unittest.TestCase):
 
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
         """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""
-        for profile in ("experts", "single"):
+        for profile in ("experts",):
             manifest = self._generate(profile)
             root = manifest.parent
             deployment = json.loads(manifest.read_text(encoding="utf-8"))
@@ -114,21 +115,11 @@ class TestDeploymentGeneration(unittest.TestCase):
                 exposed[server].update(allowed)
         self.assertEqual(exposed, {server: set(tools) for server, tools in catalog_tools.items()})
 
-    def test_expected_profiles_exist(self):
+    def test_expert_profile_is_the_only_release_profile(self):
         self.assertEqual(
             sorted(path.stem for path in (ROOT / "profiles").glob("*.json")),
-            ["experts", "single"],
+            ["experts"],
         )
-
-    def test_single_profile_is_one_root_agent_with_full_tools(self):
-        manifest = self._generate("single")
-        deployment = json.loads(manifest.read_text(encoding="utf-8"))
-        agents = deployment["spec"]["agents"]
-        self.assertEqual([a["name"] for a in agents], ["single_expert"])
-        self.assertEqual(agents[0]["sub_agents"], [])
-        # 全能力：工具覆盖 engine + counsel 全部领域
-        self.assertGreater(len(agents[0]["tools"]["allow"]["engine"]), 20)
-        self.assertGreater(len(agents[0]["tools"]["allow"]["counsel"]), 8)
 
 
 if __name__ == "__main__":

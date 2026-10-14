@@ -233,7 +233,7 @@ def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
     names = {tool.name for tool in asyncio.run(srv.list_tools())}
     assert {
         "compute_factors", "natal_query", "period_query",
-        "qiming_pick", "qiming_compose", "liuyao_snapshot",
+        "naming_pick", "naming_compose", "liuyao_snapshot",
         "liuyao_query", "qimen_snapshot", "qimen_query",
     } <= names
 

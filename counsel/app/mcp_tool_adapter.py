@@ -107,7 +107,7 @@ def add_schema_tool(
         arguments = {
             key: value for key, value in actual.items() if value is not _UNSET
         }
-        if name == "qiming_compose":
+        if name == "naming_compose":
             arguments.setdefault("second", [])
         validate_arguments(schema, arguments)
         try:

@@ -13,7 +13,6 @@ ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
 REQUIRED_BUNDLE_FILES = {
     "agents/experts/deployment.json",
-    "agents/single/deployment.json",
     "index.json",
     "liki-release-manifest.json",
     "liki-release-manifest.sha256",
@@ -40,30 +39,16 @@ def test_ci_release_bundle_list_matches_contract() -> None:
 
 
 def test_release_integrity_validates_before_packaging_manifest() -> None:
-    """Release artifacts cannot bypass the pinned liki-agents validator."""
+    """Release artifacts cannot bypass the pinned liki-agent-runtime validator."""
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     document = yaml.safe_load(workflow)
     steps = document["jobs"]["release-integrity"]["steps"]
     commands = [step.get("run", "") for step in steps]
-    validate_index = next(index for index, command in enumerate(commands) if "make agents-validate" in command)
+    validate_index = next(index for index, command in enumerate(commands) if "make runtime-validate" in command)
     manifest_index = next(
         index for index, command in enumerate(commands) if "make build-release-manifest" in command
     )
     assert validate_index < manifest_index
-
-
-def test_ci_records_single_expert_image_digest() -> None:
-    """The independent single-expert product surface enters the signed manifest."""
-    workflow = (ROOT / ".github/workflows/promote-release.yml").read_text(encoding="utf-8")
-    document = yaml.safe_load(workflow)
-    scripts = [step.get("run", "") for step in document["jobs"]["promote"]["steps"]]
-    steps = document["jobs"]["promote"]["steps"]
-    assert any("single_expert" in script for script in scripts)
-    assert any(
-        step.get("uses", "").rpartition("@")[0] == "actions/upload-artifact"
-        and (step.get("with") or {}).get("name") == "image-digest-single_expert"
-        for step in steps
-    )
 
 
 def run(command: list[str]) -> None:
@@ -75,7 +60,7 @@ def test_release_bundle_contains_all_verified_artifacts() -> None:
     run(["make", "build-deployment"])
     run(["python3", "scripts/build_release_manifest.py"])
 
-    for profile in ("experts", "single"):
+    for profile in ("experts",):
         assert (DIST / "agents" / profile / "deployment.json").is_file()
 
     bundle = DIST / "liki-release-artifacts.tar.gz"
@@ -110,8 +95,7 @@ def test_release_bundle_contains_all_verified_artifacts() -> None:
         capture_output=True,
         text=True,
     )
-    assert result.returncode != 0
-    assert "single_expert" in result.stderr
+    assert result.returncode == 0
 
 
 def test_release_profiles_match_runtime() -> None:

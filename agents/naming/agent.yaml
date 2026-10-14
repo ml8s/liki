@@ -16,8 +16,8 @@ tools:
       - city_coords
       - tianwen_time
     counsel:
-      - qiming_surname
-      - qiming_pick
-      - qiming_char
-      - qiming_compose
-      - qiming_check
+      - naming_surname
+      - naming_pick
+      - naming_char
+      - naming_compose
+      - naming_check

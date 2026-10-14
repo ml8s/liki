@@ -180,7 +180,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
       - name: Validate deployment artifacts with pinned runtime
-        run: make agents-validate
+        run: make runtime-validate
       - name: Build and verify release manifest
         run: |
           make build-release-manifest
@@ -195,7 +195,6 @@ jobs:
           tar -czf /tmp/liki-release-artifacts.tar.gz \
             -C dist \
             agents/experts/deployment.json \
-            agents/single/deployment.json \
             index.json \
             liki-release-manifest.json \
             liki-release-manifest.sha256 \

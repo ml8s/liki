@@ -9,14 +9,14 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 
 ```text
 浏览器 → Caddy → liki-web (BFF)
-                   └─AG-UI→ liki-agents (装配镜像: 运行时+组合工件) ──MCP──> engine-mcp / counsel-mcp
+                   └─AG-UI→ liki-agent-runtime (装配镜像: 运行时+组合工件) ──MCP──> engine-mcp / counsel-mcp
                               router → 全功能领域专家委派，审计留痕
 ```
 
 | 仓 | 角色 | 产物 |
 |---|---|---|
 | **liki（本仓）** | 内容/领域仓 | 专家内容、engine/counsel MCP、**deployment 工件**、**装配镜像**、web skill bundle |
-| liki-agents | 通用运行时仓 | 纯运行时镜像、AgentDeployment 运行时校验 |
+| liki-agent-runtime | 通用运行时仓 | 纯运行时镜像、AgentDeployment 运行时校验 |
 | liki-web | 产品 BFF 仓 | liki-web 镜像（BFF + 前端） |
 | liki-deploy | 发布编排仓 | 纯清单：compose + env + Caddyfile，只 pin 版本 |
 
@@ -83,31 +83,27 @@ agents/bazi/output-schema.json  # 可选：结构化输出
 profiles/experts.json ─┐
 agents/*/agent.yaml ─────┴→ scripts/generate_deployment.py → dist/agents/experts/
                                       ↓
-deps/liki-agents.base → pinned liki-agents runtime（validate）
+deps/liki-agent-runtime.base → pinned liki-agent-runtime runtime（validate）
 ```
 
-- **运行时 base 由本仓 pin**：`deps/liki-agents.base`（version+immutable digest）锁定 liki-agents 发布版本；测试（`make agents-validate`）与部署（CI 装配 `FROM`）共用该 pin，**不与 liki 版本同名对齐**（各仓独立发版）
-- `make build-deployment` 只生成工件；`make agents-validate` 用 pinned liki-agents runtime 执行真实校验
+- **运行时 base 由本仓 pin**：`deps/liki-agent-runtime.base`（version+immutable digest）锁定 liki-agent-runtime 发布版本；测试（`make runtime-validate`）与部署（CI 装配 `FROM`）共用该 pin，**不与 liki 版本同名对齐**（各仓独立发版）
+- `make build-deployment` 只生成工件；`make runtime-validate` 用 pinned liki-agent-runtime runtime 执行真实校验
 - `make build-release-manifest` 只打包当前 `dist` 工件，不隐式运行测试
-- `make gate` 与 CI `release-integrity` 都先执行 `agents-validate`，再构建 release manifest；发布工件不能绕过 pinned runtime validate
-
-### 3.3 装配镜像（liki-multi-expert / liki-single-expert）
+- `make gate` 与 CI `release-integrity` 都先执行 `runtime-validate`，再构建 release manifest；发布工件不能绕过 pinned runtime validate
 
 `assembly/Dockerfile` 按 `PROFILE` 参数构建两套装配镜像：
 
 ```dockerfile
-ARG BASE_IMAGE=ghcr.io/ml8s/liki-agents:<version>@<digest>  # 来源 deps/liki-agents.base
+ARG BASE_IMAGE=ghcr.io/ml8s/liki-agent-runtime:<version>@<digest>  # 来源 deps/liki-agent-runtime.base
 FROM ${BASE_IMAGE}
 COPY dist/agents/${PROFILE}/ /deployment/        # 组合工件烘焙进镜像
-ENV LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/deployment.json
+ENV LIKI_AGENT_RUNTIME_DEPLOYMENT_FILE=/deployment/deployment.json
 ```
 
-- `PROFILE=experts` → `liki-multi-expert`（全功能，含全部子专家）
-- `PROFILE=single` → `liki-single-expert`（单一 root 专家）
-- `liki-multi-expert` 与 `liki-single-expert` 都是独立产品发布面；final signed manifest 必须记录两者 digest
+- `PROFILE=experts` → `liki-experts`（全功能，含全部子专家）
 - AgentDeployment digest 只作为审计 provenance；部署完整性由 final assembly image digest 承担
 - **组合在 liki**：专家拓扑/指令/白名单在 CI 生成并烘焙，不在运行时装配
-- **依赖模型**：liki 通过 `deps/liki-agents.base` 锁定 liki-agents 版本；测试与部署共用该 pin。**liki-agents 未发新版则 pin 不变**（两者独立发版，不要求版本同名）；采用新 liki-agents 时先更新 pin（`python3 scripts/liki_agents_pin.py --check` 在 `make check` 中校验）
+- **依赖模型**：liki 通过 `deps/liki-agent-runtime.base` 锁定 liki-agent-runtime 版本；测试与部署共用该 pin。**liki-agent-runtime 未发新版则 pin 不变**（两者独立发版，不要求版本同名）；采用新 liki-agent-runtime 时先更新 pin（`python3 scripts/agent_runtime_pin.py --check` 在 `make check` 中校验）
 - 镜像不含密钥/源码：端点/令牌由部署环境注入
 
 ### 3.4 Web skill bundle（liki-web 消费）
@@ -122,7 +118,7 @@ ENV LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/deployment.json
 | 改 `tools.allow` 白名单 | 专家可用工具变 | 同上 |
 | 新增专家 | profile/工件/装配镜像 | 加 `agents/<name>/` → profile 加 agent → 重发 |
 | 改 engine/counsel 工具语义 | 白名单需对齐 | 更新 agents/*/agent.yaml → 重发 |
-| 工件格式变化 | 生成器/装配镜像 | 先发布 liki-agents runtime → 更新 base pin → 重新生成并 validate |
+| 工件格式变化 | 生成器/装配镜像 | 先发布 liki-agent-runtime runtime → 更新 base pin → 重新生成并 validate |
 
 ## 五、本仓 CI 发布链（release 触发）
 
@@ -130,11 +126,12 @@ ENV LIKI_AGENTS_DEPLOYMENT_FILE=/deployment/deployment.json
 - `test`：仓库/引擎/counsel 测试（不做跨仓 runtime validate）
 - `gate`：追加 160 题覆盖、pinned runtime validate、发布工件与镜像 smoke
 - `docker-publish`：push `liki-engine`
-- `publish-experts`：生成工件 → 计算 digest → 构建并 push `liki-multi-expert` / `liki-single-expert`，两者 digest 都进入 final signed manifest
 - `publish-web-skill-bundle`：上传 bundle 到 release asset
 
 ## 六、相关文档
 
-- `liki-agents/docs/ARCHITECTURE.md`：运行时与 AgentDeployment 工件详解
+- `liki-agent-runtime/docs/ARCHITECTURE.md`：运行时与 AgentDeployment 工件详解
 - `liki-deploy/docs/ARCHITECTURE.md`：系统架构与发布时序
 - `liki-deploy/docs/OPERATIONS.md`：生产发布流程
+
+- [Domain naming matrix](DOMAIN_NAMING.md): canonical repository/image/service names.

@@ -1,4 +1,5 @@
 {
+  "schema_version": "liki.mcp-tool-catalog.v1",
   "servers": {
     "engine": {
       "tools": [
@@ -40,11 +41,11 @@
         "period_query",
         "qimen_query",
         "qimen_snapshot",
-        "qiming_char",
-        "qiming_check",
-        "qiming_compose",
-        "qiming_pick",
-        "qiming_surname"
+        "naming_char",
+        "naming_check",
+        "naming_compose",
+        "naming_pick",
+        "naming_surname"
       ]
     }
   }

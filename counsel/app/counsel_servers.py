@@ -185,7 +185,7 @@ def _create_divination_server(domain: str) -> MCPServer:
     return server
 
 
-def _qiming_check(given_names, yongshen, xishen=None, jishen=None):
+def _naming_check(given_names, yongshen, xishen=None, jishen=None):
     """适配 schema 参数名（yongshen/xishen/jishen）→ evaluate_names（yong_shen 等）。"""
     from qiming import evaluate_names
 
@@ -198,12 +198,12 @@ def _add_naming_tools(server: MCPServer) -> None:
     """起名（naming）：qiming 工具复用 qiming 逻辑（字库来自 engine）。"""
     from qiming import compose_names, lookup_char, match_surnames, pick_chars
 
-    qiming_fns = {
-        "qiming_surname": match_surnames,
-        "qiming_pick": pick_chars,
-        "qiming_char": lookup_char,
-        "qiming_compose": compose_names,
-        "qiming_check": _qiming_check,
+    naming_fns = {
+        "naming_surname": match_surnames,
+        "naming_pick": pick_chars,
+        "naming_char": lookup_char,
+        "naming_compose": compose_names,
+        "naming_check": _naming_check,
     }
     schema = json.loads(NAMING_SCHEMA.read_text("utf-8"))
     for tool in schema["tools"]:
@@ -215,7 +215,7 @@ def _add_naming_tools(server: MCPServer) -> None:
             description=fn["description"],
             schema=fn["parameters"],
             output_schema=fn.get("output_schema"),
-            invoke=lambda arguments, _name=name: qiming_fns[_name](**arguments),
+            invoke=lambda arguments, _name=name: naming_fns[_name](**arguments),
         )
 
 

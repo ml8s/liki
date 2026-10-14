@@ -108,7 +108,6 @@ Every candidate produces a digest manifest containing at least:
     "engine": "sha256:...",
     "counsel": "sha256:...",
     "experts": "sha256:...",
-    "single_expert": "sha256:..."
   }
 }
 ```
@@ -125,7 +124,7 @@ product repository must verify that evidence before `candidate-publish`.
 | Repository | Build candidate | Promote release |
 | --- | --- | --- |
 | `liki` | local `make candidate` | `promote-release.yml` |
-| `liki-agents` | local `make candidate` | `promote-release.yml` |
+| `liki-agent-runtime` | local `make candidate` | `promote-release.yml` |
 | `liki-web` | local `make candidate` | `promote-release.yml` |
 | `liki-deploy` | local `make candidate-test` | lock update + release gate |
 
@@ -139,7 +138,7 @@ Typical dispatch order:
 #    updates. Use RELEASE_VERSION matching the release-preparation surfaces.
 cd liki-web && RELEASE_VERSION=... make candidate          # web-only change
 cd liki && RELEASE_VERSION=... make candidate              # liki-only change
-cd liki-agents && RELEASE_VERSION=... make candidate       # agents-only change
+cd liki-agent-runtime && RELEASE_VERSION=... make candidate       # agents-only change
 
 # 3. Run local-registry assembly e2e with manifests for changed repositories;
 #    unchanged application images fall back to the approved base lock.
@@ -148,21 +147,21 @@ cd liki-deploy && CANDIDATE_MANIFESTS=... make candidate-test
 # 4. After e2e passes, copy only the tested local digests to GHCR.
 cd liki-web && make candidate-publish       # if web changed
 cd liki && make candidate-publish           # if liki changed
-cd liki-agents && make candidate-publish    # if agents changed
+cd liki-agent-runtime && make candidate-publish    # if agents changed
 
 # 5. Tag and promote only the tested candidates. The
 #    promotion command follows the same repository/manifest pair as above.
 git -C liki-web tag v2026.10.14.0 <full-sha>       # if web changed
 git -C liki tag v2026.10.14.0 <full-sha>           # if liki changed
-git -C liki-agents tag v2026.10.14.0 <full-sha>    # if agents changed
+git -C liki-agent-runtime tag v2026.10.14.0 <full-sha>    # if agents changed
 gh workflow run promote-release.yml --repo ml8s/liki \
   --ref v2026.10.14.0 \
   -f version=2026.10.14.0 -f source_commit=<full-sha> \
   -f digests_json="$(cat ../liki/build/candidate/candidate-digests.json)"
-gh workflow run promote-release.yml --repo ml8s/liki-agents \
+gh workflow run promote-release.yml --repo ml8s/liki-agent-runtime \
   --ref v2026.10.14.0 \
   -f version=2026.10.14.0 -f source_commit=<full-sha> \
-  -f digests_json="$(cat ../liki-agents/build/candidate/candidate-digests.json)"
+  -f digests_json="$(cat ../liki-agent-runtime/build/candidate/candidate-digests.json)"
 gh workflow run promote-release.yml --repo ml8s/liki-web \
   --ref v2026.10.14.0 \
   -f version=2026.10.14.0 -f source_commit=<full-sha> \
@@ -175,9 +174,9 @@ verifications succeed.
 ### Dependency changes
 
 ```text
-liki-agents changed
+liki-agent-runtime changed
   → run its candidate smoke, assembly-test, publish, promote, and sign it
-  → update deps/liki-agents.base in liki to the new released digest
+  → update deps/liki-agent-runtime.base in liki to the new released digest
   → build, test, and promote the liki expert images
 
 liki skill/domain content changed
@@ -190,7 +189,7 @@ liki-web changed alone
 ```
 
 Never point a production assembly build at an unreleased or dirty
-`liki-agents` candidate.
+`liki-agent-runtime` candidate.
 
 ## Release gate
 

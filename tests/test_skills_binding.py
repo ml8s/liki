@@ -69,7 +69,7 @@ class TestGeneratedDeploymentSkillsBinding(unittest.TestCase):
         return json.loads(manifest.read_text(encoding="utf-8"))
 
     def test_profiles_bind_skilltoolset_for_every_agent(self):
-        for profile in ("experts", "single"):
+        for profile in ("experts",):
             with self.subTest(profile=profile):
                 deployment = self._generate(profile)
                 agents = deployment["spec"]["agents"]
