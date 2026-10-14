@@ -22,16 +22,16 @@ Liki exposes its capabilities through standard MCP servers; embedded MCP declara
 | `counsel-mcp` | `https://liki.hk/counsel/mcp` |
 | `engine-mcp` | `https://liki.hk/engine/mcp` |
 
-Sub-domain `/engine/mcp/{domain}` and `/counsel/mcp/{domain}` are for **multi-expert per-domain deployment** (each pack ships its own sub-domain server, `expert-packs/*/.mcp.json`); a unified install only needs the two aggregate endpoints above.
+Sub-domain `/engine/mcp/{domain}` and `/counsel/mcp/{domain}` are for **multi-expert per-domain deployment** (each pack ships its own sub-domain server, `expert-packs/*/.mcp.json`); a unified install only needs the two aggregate endpoints above. Install the Skill from the official hosted source:
 
 ```bash
-npx skills add ml8s/liki
+npx skills add https://liki.hk
 ```
 
 After installation, ask questions directly in an AI client that supports Agent Skills. The Skill checks its version at startup. When prompted, update with:
 
 ```bash
-npx skills add ml8s/liki -y
+npx skills add https://liki.hk -y
 ```
 
 ## Quick start

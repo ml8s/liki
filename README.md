@@ -22,16 +22,16 @@
      - `engine-mcp`（排盘/风水）：`https://liki.hk/engine/mcp`
 
    > 子域端点 `/engine/mcp/{domain}`、`/counsel/mcp/{domain}`（bazi / ziwei / liuyao / qimen / naming 等）仅供**多专家分域部署**使用——每个领域专家包各自挂自己的子域（见 `expert-packs/*/.mcp.json`），实现"专家只见自己领域工具"；普通整体安装用上面的**两个聚合端点**即可。
-2. **安装 skill**：
+2. **安装 skill（官方托管源）**：
 
    ```bash
-   npx skills add ml8s/liki
+   npx skills add https://liki.hk
    ```
 
 安装后，在支持 Agent Skills 的 AI 客户端中直接提问即可。Skill 启动时会检查版本；提示更新后重新执行：
 
 ```bash
-npx skills add ml8s/liki -y
+npx skills add https://liki.hk -y
 ```
 
 ## 快速开始

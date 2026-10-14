@@ -136,7 +136,7 @@ Skill 按命理师的专业习惯组织对话：一次处理一个主题，结�
 Skill 启动时会检查版本。提示更新后重新执行：
 
 ```bash
-npx skills add ml8s/liki -y
+npx skills add https://liki.hk -y
 ```
 
 ### 服务端怎么升级？
