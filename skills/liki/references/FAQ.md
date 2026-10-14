@@ -27,7 +27,7 @@
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
 - 远程版本 10 秒不可达：标注「版本未校验」后继续，不视为错误；`LIKI_HOSTED=1` 跳过远程校验。
 - 请求远程版本时携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
-- GitHub 直连受限时，`npx skills add ml8s/liki -y` 可能因内部 git clone 超时失败。可在可用网络 / 代理环境重试；不要手改本地 Skill 文件。安装成功后，客户端生成的副本与官方 archive 的差异由安装器管理。
+- GitHub 直连受限（国内网络常见）时，`npx skills add ml8s/liki -y` 可能因内部 git clone 超时失败。优先改用官方托管源：`npx skills add https://liki.hk -y`。它通过 liki.hk 的 well-known 清单下载 archive 并校验 digest，不依赖 GitHub clone。仍需保证 npx / npm registry 可用；不要手改本地 Skill 文件。
 
 ## 离线与依赖
 
