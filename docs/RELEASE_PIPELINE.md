@@ -3,6 +3,9 @@
 Liki uses a small, standards-aligned implementation of the common
 **build once, test once, sign once, deploy the same digest** model.
 
+The ordered operator runbook lives in
+[`liki-deploy/docs/RELEASE_RUNBOOK.md`](https://github.com/ml8s/liki-deploy/blob/main/docs/RELEASE_RUNBOOK.md).
+
 ## Boundaries
 
 | Stage | Owns | Never does |
