@@ -30,6 +30,8 @@ if evidence.get("gate") != "liki-deploy/candidate-assembly":
     raise SystemExit("❌ assembly evidence is not from the candidate assembly gate")
 if evidence.get("manifest_sha256") != manifest_sha256:
     raise SystemExit("❌ assembly evidence does not match this candidate manifest")
+if evidence.get("schema_version") != "liki.assembly-evidence.v1":
+    raise SystemExit("❌ assembly evidence contract version is not liki.assembly-evidence.v1")
 print("✓ candidate assembly evidence verified")
 PY
 

@@ -61,24 +61,10 @@ jobs:
             echo "::error::tag v$VERSION points to $actual_commit, not $SOURCE_COMMIT" >&2
             exit 1
           fi
-          if ! jq -e \
-            --arg source_commit "$SOURCE_COMMIT" \
-            '.type_check = (
-              type == "object" and
-              .repository == "ml8s/liki" and
-              .source_commit == $source_commit and .schema_version == "liki.candidate-manifest.v1" and
-            ) | .type_check' <<<"$DIGESTS_JSON" >/dev/null; then
-            echo "::error::digests_json is invalid or does not match the release identity" >&2
-            exit 1
-          fi
-            digest="$(jq -er --arg key "$key" '.images[$key]' <<<"$DIGESTS_JSON")"
-            if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-              echo "::error::$key digest must be sha256: plus 64 lowercase hex characters" >&2
-              exit 1
-            fi
-            output_key="$key"
-            echo "${output_key}_digest=$digest" >> "$GITHUB_OUTPUT"
-          done
+          export DIGESTS_JSON
+          python3 scripts/validate_candidate_manifest.py \
+            --source-commit "$SOURCE_COMMIT" \
+            --output "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
@@ -127,14 +113,14 @@ jobs:
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
-            "liki-experts@$EXPERTS_DIGEST" \
+            "liki-experts@$EXPERTS_DIGEST"; do
             cosign sign --yes --identity-token "$oidc_token" "ghcr.io/${{ github.repository_owner }}/$spec"
           done
           identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/tags/v${VERSION}$"
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
-            "liki-experts@$EXPERTS_DIGEST" \
+            "liki-experts@$EXPERTS_DIGEST"; do
             cosign verify --certificate-identity-regexp "$identity" \
               --certificate-oidc-issuer https://token.actions.githubusercontent.com \
               "ghcr.io/${{ github.repository_owner }}/$spec"
@@ -172,9 +158,6 @@ jobs:
         with:
           name: image-digest-experts
           path: image-digest/experts.env
-
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
-        with:
 
       - name: Build signed release manifest
         env:

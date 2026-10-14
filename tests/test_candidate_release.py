@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import subprocess
 import sys
 from pathlib import Path
 
@@ -10,6 +12,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import build_candidate_manifest as bcm
+import validate_candidate_manifest as vcm
 
 
 def _metadata(directory: Path) -> None:
@@ -57,3 +60,65 @@ def test_candidate_manifest_rejects_malformed_identity(tmp_path):
         assert "invalid candidate tag" in str(error)
     else:
         raise AssertionError("malformed candidate tag accepted")
+
+
+def test_publish_candidate_rejects_wrong_evidence_contract(tmp_path):
+    manifest = tmp_path / "candidate-digests.json"
+    manifest.write_text(
+        json.dumps({"registry": "127.0.0.1:5000"}),
+        encoding="utf-8",
+    )
+    manifest_sha256 = hashlib.sha256(manifest.read_bytes()).hexdigest()
+    manifest.with_name("assembly-evidence.json").write_text(
+        json.dumps(
+            {
+                "status": "pass",
+                "gate": "liki-deploy/candidate-assembly",
+                "manifest_sha256": manifest_sha256,
+                "schema_version": "legacy",
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [str(ROOT / "scripts/publish-candidate.sh")],
+        env={"MANIFEST": str(manifest), "PATH": "/usr/bin:/bin"},
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "liki.assembly-evidence.v1" in result.stderr
+
+
+def test_candidate_manifest_validator_unpacks_exact_digest_set():
+    digest = "sha256:" + "0" * 64
+    manifest = {
+        "registry": "127.0.0.1:5000",
+        "repository": "ml8s/liki",
+        "source_commit": "a" * 40,
+        "candidate_tag": "candidate-abcdef0-20260101010101",
+        "schema_version": "liki.candidate-manifest.v1",
+        "images": {name: digest for name in bcm.IMAGE_NAMES},
+    }
+    assert vcm.unpack(manifest, "a" * 40) == {
+        name: digest for name in bcm.IMAGE_NAMES
+    }
+
+
+def test_candidate_manifest_validator_rejects_contract_drift():
+    digest = "sha256:" + "0" * 64
+    manifest = {
+        "registry": "127.0.0.1:5000",
+        "repository": "ml8s/liki",
+        "source_commit": "a" * 40,
+        "candidate_tag": "candidate-abcdef0-20260101010101",
+        "schema_version": "legacy",
+        "images": {name: digest for name in bcm.IMAGE_NAMES},
+    }
+    try:
+        vcm.unpack(manifest, "a" * 40)
+    except ValueError as error:
+        assert "liki.candidate-manifest.v1" in str(error)
+    else:
+        raise AssertionError("legacy candidate contract accepted")
