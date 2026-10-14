@@ -29,7 +29,7 @@ if [ "$version_file" != "$RELEASE_VERSION" ]; then
 fi
 
 
-make gate
+make release-gate
 
 
 if [ -n "$(git status --porcelain)" ]; then

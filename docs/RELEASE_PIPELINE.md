@@ -9,8 +9,8 @@ Liki uses a small, standards-aligned implementation of the common
 |---|---|---|
 | Commit / PR CI | source lint, checks, tests, audits | build or publish images |
 | Local release candidate | build, smoke, and record image digests in the local registry | publish to GHCR before system test |
-| Promotion workflow | retag, smoke, sign, and release digests | build images |
-| `liki-deploy` | verify signed digest lock, assembly e2e, deploy | build product images |
+| Promotion workflow | retag the same digest, sign, and verify its release identity | build, smoke, or create a GitHub Release |
+| `liki-deploy` | verify a signed digest lock, run the assembly harness, deploy | build product images or orchestrate product releases |
 
 `make candidate` is the release preparation target. It is explicit and is never
 part of ordinary commit CI. `make image` and `make smoke` remain available for
@@ -47,8 +47,8 @@ journey in every product repository.
 | --- | --- | --- | --- |
 | Source gate | product repo | commit / PR / candidate | lint, unit/integration, configuration, schema, supply-chain checks |
 | Image gate | product repo | `docker push` | local build, startup, health/readiness, product entry point, deployment artifact validation |
-| Assembly gate | `liki-deploy` | release promotion | exact candidate digests, Compose topology, network boundaries, cross-service journeys |
-| Promotion gate | product repo | GitHub Release / tag | same digest starts again, quick smoke, signature and digest verification |
+| Assembly gate | `liki-deploy` | candidate publication | exact candidate digests, Compose topology, network boundaries, cross-service journeys |
+| Promotion gate | product repo | release tag | same digest, source commit, signature, and digest verification |
 | Post-deploy gate | `liki-deploy` | regional deploy | real edge/public URL, readiness, public and authenticated paths |
 
 `make candidate` may publish only after the product image gate passes. The
@@ -68,11 +68,11 @@ source commit
   → local buildx build candidate images
   → local image smoke
   → record the exact digest manifest
-  → assembly / e2e from the local registry
+  → assembly / e2e from the local registry; write assembly evidence
   → all system gates pass
   → publish the same image digests to GHCR
   → create the release tag on the same source commit
-  → promotion retags, smokes, signs, and creates the GitHub Release
+  → promotion retags, signs, and verifies the same digest
   → update the deployment lock only from the signed digest matrix
 ```
 
@@ -87,8 +87,8 @@ release identity.
 | “build candidate” | build, smoke, and record images in the local registry | creates local candidate-tagged images, no GHCR push |
 | “test candidate” | run smoke/assembly/e2e against the candidate digests | none |
 | “publish candidate” | copy system-tested local digests to GHCR | creates GHCR candidate aliases to the same digests |
-| “promote candidate” | tag, retag/promote exact digests, sign, create release | creates release-tag aliases to the same digests |
-| “update lock / deploy” | verify signatures and run digest-pinned assembly | none |
+| “promote candidate” | tag, retag/promote exact digests, sign, verify signature | creates release-tag aliases to the same digests |
+| “update lock / deploy” | verify signatures and deploy the digest-pinned matrix | none |
 
 If a candidate fails, fix the source and build a new candidate. Do not reuse the
 formal version number and do not rebuild the failed source into the same release
@@ -112,6 +112,10 @@ Every candidate produces a digest manifest containing at least:
 
 Candidate tags are temporary aliases and may be cleaned by retention policy.
 The digest manifest is the candidate identity.
+
+Assembly writes an `assembly-evidence.json` next to each manifest. The evidence
+records the manifest SHA-256, source commit, candidate tag, and pass status. A
+product repository must verify that evidence before `candidate-publish`.
 
 ## Operational workflows
 
@@ -169,7 +173,7 @@ verifications succeed.
 
 ```text
 liki-agents changed
-  → run its candidate smoke, promote, and release it
+  → run its candidate smoke, assembly-test, publish, promote, and sign it
   → update deps/liki-agents.base in liki to the new released digest
   → build, test, and promote the liki expert images
 
@@ -199,7 +203,7 @@ local candidate build
   → local-registry assembly/e2e on that digest
   → publish the same digest to GHCR
   → promotion retags the same digest as a release version
-  → promotion smokes and cosign signs that digest
+  → promotion cosign signs and verifies that digest
 ```
 
 Assembly images are built locally from the pinned runtime base before promotion.
@@ -224,7 +228,8 @@ The digest tested, signed, released, and deployed must be identical.
 1. validate lock fields and digest policy;
 2. ensure rendered Compose uses the locked digest;
 3. verify registry manifest and cosign signature;
-4. run digest-pinned assembly e2e;
-5. deploy and run post-deploy smoke.
+4. deploy;
+5. verify live containers use the locked digests and run post-deploy smoke.
 
-A failed release gate must not update the lock and must not be deployed.
+Assembly runs before publication. A failed release gate must not update the
+lock and must not be deployed.

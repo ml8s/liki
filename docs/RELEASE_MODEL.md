@@ -6,7 +6,7 @@ product releases. There is no parallel SemVer version.
 The operational release pipeline is documented in
 [Release pipeline](./RELEASE_PIPELINE.md). Neither ordinary commits nor GitHub
 Actions build `liki` images; build, locally validate, and publish candidates with `make
-candidate`, then use the promotion workflow to publish, smoke, and sign the
+candidate`, then use the promotion workflow to retag, sign, and verify the
 immutable image digests.
 
 ## Version format
@@ -75,9 +75,9 @@ bump the pin to an unreleased or dirty build.
 5. If every candidate gate passes, publish the same digests to GHCR, create the
    release tag on the same source commit, and dispatch promotion for those exact
    digests; do not rebuild them.
-6. The promotion workflow publishes the GitHub Release, signs the exact digests,
-   and verifies those signatures.
-7. Verify release CI, image signatures, signed release manifest, and artifacts.
+6. The promotion workflow retags the exact digests, signs them, and verifies
+   those signatures.
+7. Verify release CI, image signatures, and signed release artifacts.
 
    For example, create an annotated tag on the approved commit:
 

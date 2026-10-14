@@ -110,28 +110,6 @@ jobs:
           promote liki-multi-expert "$EXPERTS_DIGEST"
           promote liki-single-expert "$SINGLE_DIGEST"
 
-      - name: Smoke promoted engine and counsel digests
-        env:
-          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
-          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
-        run: |
-          set -euo pipefail
-          trap 'docker rm -f engine-smoke counsel-smoke 2>/dev/null || true' EXIT
-          docker run -d --name engine-smoke --entrypoint /usr/local/bin/engine-mcp -p 18081:8081 \
-            "ghcr.io/${{ github.repository_owner }}/liki-engine@$ENGINE_DIGEST"
-          for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:18081/health; then break; fi
-            sleep 1
-          done
-          python scripts/test_engine_mcp.py http://127.0.0.1:18081/mcp
-          docker run -d --name counsel-smoke -p 18086:8086 -e LIKI_MCP_URL=http://127.0.0.1:9/mcp \
-            "ghcr.io/${{ github.repository_owner }}/liki-counsel@$COUNSEL_DIGEST"
-          for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:18086/healthz; then break; fi
-            sleep 1
-          done
-          curl -fsS http://127.0.0.1:18086/healthz | grep -q '"status":"ok"'
-
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: v2.4.1
@@ -226,15 +204,9 @@ jobs:
             --output-certificate dist/liki-release-manifest.crt \
             dist/liki-release-manifest.json
 
-      - name: Create GitHub Release
+      - name: Package release evidence
         env:
           VERSION: ${{ inputs.version }}
-          SOURCE_COMMIT: ${{ inputs.source_commit }}
-          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
-          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
-          EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
-          SINGLE_DIGEST: ${{ steps.evidence.outputs.single_digest }}
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           tar -czf liki-release-artifacts.tar.gz -C dist \
@@ -245,23 +217,10 @@ jobs:
             liki-release-manifest.sha256 \
             liki-web-skill-bundle.tar.gz \
             liki.tar.gz
-          notes="$(mktemp)"
-          cat > "$notes" <<EOF
-          Promoted the locally built and tested candidate for source commit \`$SOURCE_COMMIT\`. Image digests were retagged, smoked, signed, and verified without rebuilding.
 
-          | Image | Digest |
-          | --- | --- |
-          | engine | \`$ENGINE_DIGEST\` |
-          | counsel | \`$COUNSEL_DIGEST\` |
-          | experts | \`$EXPERTS_DIGEST\` |
-          | single_expert | \`$SINGLE_DIGEST\` |
-          EOF
-          gh release create "v$VERSION" \
-            --verify-tag \
-            --title "Liki $VERSION" \
-            --notes-file "$notes" \
-            dist/liki-release-manifest.json \
-            dist/liki-release-manifest.sha256 \
-            dist/liki-release-manifest.sig \
-            dist/liki-release-manifest.crt \
-            liki-release-artifacts.tar.gz
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: liki-release-artifacts-v${{ inputs.version }}
+          path: liki-release-artifacts.tar.gz
+          retention-days: 30
+          if-no-files-found: error

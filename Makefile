@@ -1,14 +1,15 @@
 # liki monorepo — skill client + engine/counsel MCP services
-# Quality gate: make gate 是"本地可执行的推送门槛"（lint + 静态检查 + 测试 + 数据覆盖 + 发布工件）。
+# Quality gate: make gate 是"本地可执行的源码门槛"（lint + 静态检查 + 测试）。
 #   CI 另外强制执行：漏洞扫描（govulncheck/pip-audit/npm）、-race 与覆盖率门槛。
-#   发版镜像由 `make candidate` 本地构建；promotion 只做 digest 转发、冒烟和签名。
+#   发版镜像由 `make candidate` 本地构建；promotion 只做同 digest 转发和签名。
 #
 # 统一语义（四仓一致）：
 #   make lint   静态检查聚合
 #   make check  纯静态检查（lint+格式+数据结构+docs+专家一致性；不跑测试、不写盘）
 #   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
-#   make gate   check + test + 160题 + runtime validate + 发布工件 ＝推送门槛
-#   make candidate RELEASE_VERSION=... 本地构建、冒烟、推送并记录 digest ＝发版准备
+#   make gate   check + test ＝推送门槛
+#   make release-gate gate + 160题 + runtime validate + 发布工件 ＝发版准备
+#   make candidate RELEASE_VERSION=... 本地构建、冒烟并记录 digest ＝发版准备
 #   make build  本仓产物（skill 归档 + engine 二进制；镜像仅本地候选构建）
 #   make image  本地开发镜像（local tag；candidate 由 make candidate 发布）
 #   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
@@ -27,7 +28,7 @@ export GOTOOLCHAIN ?= go1.26.9
 
 .PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check lint vuln lint-md check test test-content test-engine test-counsel test-engine-mcp \
-        full-data golden gate hooks version build-archive build-deployment \
+        full-data golden gate release-gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
         agents-validate image image-engine image-counsel image-assembly
 
@@ -178,7 +179,9 @@ golden: ## Deterministic multi-source golden suites
 	@cd engine && go test -count=1 -run \
 		'Golden|External|Matrix|Pattern' ./internal/engine/...
 
-gate: lint-engine check test full-data agents-validate build-release-manifest ## Full push gate: static, tests, coverage, runtime validation, release artifacts
+gate: lint-engine check test ## Full source push gate: lint, static checks, and tests
+
+release-gate: gate full-data agents-validate build-release-manifest ## Release preparation gate: source gate plus release artifacts
 
 check-actions: ## Reject mutable reusable workflow/action references
 	python3 scripts/check_actions_pinned.py
