@@ -187,7 +187,7 @@ def _create_divination_server(domain: str) -> MCPServer:
 
 def _naming_check(given_names, yongshen, xishen=None, jishen=None):
     """适配 schema 参数名（yongshen/xishen/jishen）→ evaluate_names（yong_shen 等）。"""
-    from qiming import evaluate_names
+    from naming import evaluate_names
 
     return evaluate_names(
         given_names, yongshen, xishen or [], jishen or []
@@ -196,7 +196,7 @@ def _naming_check(given_names, yongshen, xishen=None, jishen=None):
 
 def _add_naming_tools(server: MCPServer) -> None:
     """起名（naming）：qiming 工具复用 qiming 逻辑（字库来自 engine）。"""
-    from qiming import compose_names, lookup_char, match_surnames, pick_chars
+    from naming import compose_names, lookup_char, match_surnames, pick_chars
 
     naming_fns = {
         "naming_surname": match_surnames,

@@ -28,7 +28,7 @@ class TestAgentYamlSkillsBindings(unittest.TestCase):
             for path in (ROOT / "agents").iterdir()
             if path.is_dir() and (path / "agent.yaml").is_file()
         )
-        self.assertEqual(len(agent_dirs), 8)
+        self.assertEqual(len(agent_dirs), 7)
         for agent_dir in agent_dirs:
             with self.subTest(agent=agent_dir.name):
                 document = yaml.safe_load(

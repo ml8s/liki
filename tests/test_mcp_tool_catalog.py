@@ -17,7 +17,7 @@ def test_catalog_matches_registered_engine_rpc_methods():
         for name in re.findall(r'Name:\s*"([a-z]+(?:\.[a-z_]+)+)"', source)
     )
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-    assert set(catalog) == {"servers"}
+    assert set(catalog) == {"schema_version", "servers"}
     assert set(catalog["servers"]) == {"engine", "counsel"}
     assert sorted(catalog["servers"]["engine"]["tools"]) == methods
 
