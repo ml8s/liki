@@ -55,7 +55,7 @@
 
 - `moving_transformations[].return_relation` 只标记回头生 / 回头克 / 比和；是否成立仍须看变爻空破、月日支持和用神方向。
 - `moving_transformations[].advance_retreat` 只认同五行顺逆进退；其他变化不得写成进神或退神。
-- `force_chain` 列出用神、原神、忌神、仇神的位置与状态；不要把不在作用路径上的同向符号升级为主结论。
+- `force_chain` 列出用神、原神、忌神、仇神的位置与状态；传统口径为：生用神者=原神，克用神者=忌神，克原神且生忌神者=仇神。不要把不在作用路径上的同向符号升级为主结论。
 - `yong_shen_candidates` 列出用神多现候选；只解释 `selected=true` 的主线，其他候选用于复核取舍。
 
 ## 伏神层

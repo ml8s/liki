@@ -25,6 +25,7 @@ def create(
     mode: str = "auto",
     rounds: list[list[str]] | None = None,
     yaos: list[int] | None = None,
+    solar_time: str | None = None,
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
@@ -59,6 +60,7 @@ def create(
         yong_shen=yong_shen,
         perspective=perspective,
         question=question,
+        solar_time=solar_time,
     )
     projected = result["factors"]
     resolved_topic = topic or MATTER_TO_TOPIC.get(matter or "")

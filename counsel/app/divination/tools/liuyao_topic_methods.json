@@ -119,7 +119,7 @@
       "yong_shen": "父母或应爻；按问题目标确认",
       "yuan_shen": "生用神之六亲",
       "ji_shen": "克用神之六亲",
-      "chou_shen": "克原神之六亲",
+      "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "world-state",
         "yong_shen.wang_shuai",
@@ -167,7 +167,7 @@
       "yong_shen": "按提问者视角确认；男占传统取妻财，女占传统取官鬼，同性或不按性别口径须显式确认",
       "yuan_shen": "生用神之六亲",
       "ji_shen": "克用神之六亲",
-      "chou_shen": "克原神之六亲",
+      "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "yong_shen.candidate-selection",
         "world-other-relation",
@@ -194,7 +194,7 @@
       "yong_shen": "按立场确认；通常官鬼、父母、世应并审",
       "yuan_shen": "生用神之六亲",
       "ji_shen": "克用神之六亲",
-      "chou_shen": "克原神之六亲",
+      "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "world-other-relation",
         "force_chain",
@@ -221,7 +221,7 @@
       "yong_shen": "世爻",
       "yuan_shen": "生世爻之六亲",
       "ji_shen": "克世爻之六亲",
-      "chou_shen": "克原神之六亲",
+      "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "yong_shen.wang_shuai",
         "force_chain",
@@ -249,7 +249,7 @@
       "yong_shen": "世爻",
       "yuan_shen": "生世爻之六亲",
       "ji_shen": "克世爻之六亲",
-      "chou_shen": "克原神之六亲",
+      "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "yong_shen.wang_shuai",
         "force_chain",
@@ -277,7 +277,7 @@
       "yong_shen": "应爻",
       "yuan_shen": "生应爻之六亲",
       "ji_shen": "克应爻之六亲",
-      "chou_shen": "克原神之六亲",
+      "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "world-other-relation",
         "yong_shen.wang_shuai",
@@ -334,7 +334,7 @@
       "yong_shen": "按具体亲属确认；未明确前以世爻参考",
       "yuan_shen": "生用神之六亲",
       "ji_shen": "克用神之六亲",
-      "chou_shen": "克原神之六亲",
+      "chou_shen": "克原神且生忌神之六亲",
       "primary_factors": [
         "yong_shen.candidate-selection",
         "world-other-relation",

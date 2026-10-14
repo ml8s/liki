@@ -18,6 +18,11 @@
               "type": "string",
               "description": "本次要判断的一个具体目标"
             },
+            "solar_time": {
+              "type": "string",
+              "format": "date-time",
+              "description": "原始起卦时间（RFC3339）。省略表示当前起卦；复现历史卦时必须传入。"
+            },
             "mode": {
               "type": "string",
               "enum": [
@@ -56,6 +61,11 @@
                 "minimum": 6,
                 "maximum": 9
               }
+            },
+            "solar_time": {
+              "type": "string",
+              "format": "date-time",
+              "description": "原始起卦时间（RFC3339）。省略表示当前起卦；复现历史卦时必须传入。"
             },
             "matter": {
               "type": "string",

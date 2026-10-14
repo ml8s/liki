@@ -188,6 +188,11 @@ def test_period_query_over_mcp(bazi_chart):
         },
     ))
     out = json.loads(r.content[0].text)
+    assert out["calibration_facts"]["hour_pillar"] == {
+        "gan": bazi_chart["shi"]["gan"],
+        "zhi": bazi_chart["shi"]["zhi"],
+    }
+    assert out["calibration_facts"]["hour_stem_ten_god"]
     periods = out["periods"]
     assert len(periods) == 21  # 2020-2040 每年一段
     assertions = [a for p in periods for a in p["assertions"]]
@@ -263,6 +268,66 @@ def test_counsel_root_aggregate_exposes_all_manifest_schemas():
     tools = asyncio.run(srv.list_tools())
     actual = {tool.name: (tool.input_schema, tool.output_schema) for tool in tools}
     assert actual == expected
+
+
+def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_chart):
+    snapshot = json.loads(asyncio.run(create_counsel_root_mcp().call_tool(
+        "compute_factors", {"chart": bazi_chart}
+    )).content[0].text)
+    all_topics = [
+        "marriage", "family", "children", "career", "wealth", "health",
+        "mental", "study", "personality", "appearance", "origin",
+        "relocation", "social", "property", "adversity", "chart_structure",
+    ]
+    result = asyncio.run(create_counsel_root_mcp().call_tool(
+        "natal_query",
+        {
+            "factors": snapshot["factors"],
+            "factors_digest": snapshot["factors_digest"],
+            "topics": all_topics,
+            "context": snapshot["context"],
+        },
+    ))
+    out = json.loads(result.content[0].text)
+    assert out["assertions"]
+    for assertion in out["assertions"]:
+        assert isinstance(assertion.get("topics"), list)
+        assert assertion["topics"]
+        assert set(assertion["topics"]) <= set(all_topics)
+    ids = [assertion["assertion_id"] for assertion in out["assertions"]]
+    assert len(ids) == len(set(ids))
+
+
+def test_period_query_accepts_compute_factors_context(bazi_chart):
+    srv = create_counsel_mcp("bazi")
+    snapshot = json.loads(asyncio.run(srv.call_tool(
+        "compute_factors", {"chart": bazi_chart}
+    )).content[0].text)
+    result = asyncio.run(srv.call_tool(
+        "period_query",
+        {
+            "factors": snapshot["factors"],
+            "factors_digest": snapshot["factors_digest"],
+            "time_scope": {"type": "current_year"},
+            "topics": ["career"],
+            "chart": bazi_chart,
+            "context": snapshot["context"],
+        },
+    ))
+    out = json.loads(result.content[0].text)
+    assert "periods" in out
+
+
+def test_period_query_manifest_allows_full_topic_set():
+    manifest = json.loads(
+        (pathlib.Path(__file__).parents[1] / "app/natal/tools/counsel-tools.json")
+        .read_text(encoding="utf-8")
+    )
+    period = next(
+        item["function"] for item in manifest["tools"]
+        if item["function"]["name"] == "period_query"
+    )
+    assert period["parameters"]["properties"]["topics"]["maxItems"] == 16
 
 
 def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):

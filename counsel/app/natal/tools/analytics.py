@@ -58,29 +58,26 @@ def _require_topics(topics: list[str]) -> list[tuple[str, dict]]:
     return [(topic, configured[topic]) for topic in topics]
 
 
-def _topic_for_row(row: dict, selected: list[tuple[str, dict]],
-                   cross_cutting: frozenset[str] = frozenset()) -> str | None:
-    """把断语行路由到 topic：命中 topic 的内容域，或行属跨切域（应期/大限）。
-
-    跨切域（应期=触发、大限=时层）正交于内容域；topic 已显式请求对应 period
-    规则，故其断语随该 topic 呈现，归给首个被选中的 topic。
-    """
+def _topics_for_row(row: dict, selected: list[tuple[str, dict]],
+                    cross_cutting: frozenset[str] = frozenset()) -> list[str]:
+    """把断语行路由到所有命中的 topic；跨切域可同时归属多个已选 topic。"""
     domain = row.get("领域")
     is_cross = domain in cross_cutting
-    for topic_id, route in selected:
-        if is_cross or domain in route["domains"]:
-            return topic_id
-    return None
+    return [
+        topic_id for topic_id, route in selected
+        if is_cross or domain in route["domains"]
+    ]
 
 
 def _normalize_row(
-    row: dict, *, side: str, topic: str, method: str, time_scope: str,
+    row: dict, *, side: str, topics: list[str], method: str, time_scope: str,
     year: int | None = None, source_rule: str | None = None,
 ) -> dict:
     result = {
         "assertion_id": row.get("id"),
         "side": side,
-        "topic": topic,
+        "topics": topics,
+        "topic": topics[0] if topics else "",
         "method": method,
         "time_scope": time_scope,
         "event_type": row.get("事件类型", ""),
@@ -129,12 +126,12 @@ def _flatten_side_result(
             if not isinstance(row, dict):
                 continue
             matched += 1
-            topic = _topic_for_row(row, selected, cross_cutting)
-            if topic is None:
+            topics = _topics_for_row(row, selected, cross_cutting)
+            if not topics:
                 continue
             source_rule = row.get("rule") or result.get("_rule", "")
             assertions.append(_normalize_row(
-                row, side=side, topic=topic,
+                row, side=side, topics=topics,
                 method=routes["method_ids"].get(source_rule, source_rule),
                 time_scope=time_scope, year=year, source_rule=source_rule,
             ))

@@ -153,7 +153,8 @@ func toolHandler(reg *agent.RPCRegistry, method string) mcp.ToolHandler {
 			return nil, err
 		}
 		return &mcp.CallToolResult{
-			Content: []mcp.Content{&mcp.TextContent{Text: string(data)}},
+			Content:           []mcp.Content{&mcp.TextContent{Text: string(data)}},
+			StructuredContent: json.RawMessage(data),
 		}, nil
 	}
 }

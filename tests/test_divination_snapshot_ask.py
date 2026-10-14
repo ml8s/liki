@@ -119,6 +119,25 @@ def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
     assert result["snapshot_digest"] == divination_snapshot.canonical_digest(result)
 
 
+def test_liuyao_snapshot_accepts_historical_casting_time(monkeypatch):
+    captured = {}
+    monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
+
+    def capture_factors(**kwargs):
+        captured["solar_time"] = kwargs["solar_time"]
+        return _liuyao_factors(**kwargs)
+
+    monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", capture_factors)
+    historical_time = "1990-06-01T14:00:00+08:00"
+    result = liuyao_snapshot.create(
+        question="复现 1990 年的一次卦",
+        mode="coins",
+        matter="general",
+        solar_time=historical_time,
+    )
+    assert captured["solar_time"] == historical_time
+
+
 def test_liuyao_health_snapshot_keeps_timing_plan(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
