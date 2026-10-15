@@ -14,23 +14,21 @@ func TestSchemaShenShaEnum(t *testing.T) {
 	})
 	b := executeAndDecode(t, reg, "bazi.chart", bc)["data"].(map[string]any)
 
-	var document struct {
-		Methods []struct {
-			Name   string `json:"name"`
-			Result struct {
-				Properties struct {
-					Data struct {
-						Properties map[string]any `json:"properties"`
-					} `json:"data"`
-				} `json:"properties"`
-			} `json:"result"`
-		} `json:"methods"`
-	}
-	decodeJSON(t, reg.OpenRPCDocument(), &document)
-
 	enums := map[string][]string{}
-	for _, method := range document.Methods {
-		shenSha, ok := method.Result.Properties.Data.Properties["shensha"].(map[string]any)
+	for _, name := range reg.Names() {
+		method, ok := reg.Method(name)
+		if !ok {
+			continue
+		}
+		var result struct {
+			Properties struct {
+				Data struct {
+					Properties map[string]any `json:"properties"`
+				} `json:"data"`
+			} `json:"properties"`
+		}
+		decodeJSON(t, method.Result, &result)
+		shenSha, ok := result.Properties.Data.Properties["shensha"].(map[string]any)
 		if !ok {
 			continue
 		}
@@ -39,7 +37,7 @@ func TestSchemaShenShaEnum(t *testing.T) {
 		nameSchema, _ := properties["name"].(map[string]any)
 		values, _ := nameSchema["enum"].([]any)
 		for _, value := range values {
-			enums[method.Name] = append(enums[method.Name], value.(string))
+			enums[name] = append(enums[name], value.(string))
 		}
 	}
 

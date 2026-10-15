@@ -29,7 +29,6 @@ func newTestLogger() *slog.Logger {
 func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 	t.Helper()
 	reg := agent.NewRPCRegistry()
-	reg.SetVersion(testVersion)
 	srv := newMCPServer(reg, testVersion, newTestLogger())
 
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
@@ -202,7 +201,6 @@ func TestCallTool_UnknownTool(t *testing.T) {
 // data payload of the same RPC call (envelope stripped, nothing else changed).
 func TestCallTool_ConsistencyWithRPC(t *testing.T) {
 	reg := agent.NewRPCRegistry()
-	reg.SetVersion(testVersion)
 	srv := newMCPServer(reg, testVersion, newTestLogger())
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
@@ -359,7 +357,6 @@ func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
 // version it will subsequently reject in the required protocol header.
 func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
 	reg := agent.NewRPCRegistry()
-	reg.SetVersion(testVersion)
 	srv := newMCPServer(reg, testVersion, newTestLogger())
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
@@ -435,7 +432,6 @@ func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
 
 func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 	reg := agent.NewRPCRegistry()
-	reg.SetVersion(testVersion)
 	logger := newTestLogger()
 
 	cases := []struct {

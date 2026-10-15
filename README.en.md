@@ -121,7 +121,6 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 | --- | --- | --- | --- |
 | `engine-mcp` | `/engine/mcp/{domain}` | `/mcp/{domain}` | chart casting / calendar / Huangli / Feng shui |
 | `counsel-mcp` | `/counsel/mcp/{domain}` | `/mcp/{domain}` | judgment / divination / naming |
-| `engine-rpc` | `/jsonrpc` | `/jsonrpc` | JSON-RPC compatibility API for installed legacy skills |
 
 ### Call chain
 

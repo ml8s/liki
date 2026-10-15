@@ -8,7 +8,6 @@ IMAGE_TAG="${IMAGE_TAG:-local}"
 ENGINE_IMAGE="${ENGINE_IMAGE:-ghcr.io/ml8s/liki-engine:$IMAGE_TAG}"
 COUNSEL_IMAGE="${COUNSEL_IMAGE:-ghcr.io/ml8s/liki-counsel:$IMAGE_TAG}"
 ENGINE_MCP_PORT="${ENGINE_MCP_SMOKE_PORT:-18081}"
-ENGINE_RPC_PORT="${ENGINE_RPC_SMOKE_PORT:-18083}"
 COUNSEL_PORT="${COUNSEL_SMOKE_PORT:-18086}"
 
 containers=()
@@ -54,19 +53,6 @@ start_container "$name" \
 wait_url "$name" "http://127.0.0.1:$ENGINE_MCP_PORT/health"
 python3 "$ROOT/scripts/test_engine_mcp.py" "http://127.0.0.1:$ENGINE_MCP_PORT/mcp"
 echo "✓ engine MCP"
-
-echo "── engine RPC smoke ($ENGINE_IMAGE) ──"
-name="liki-smoke-engine-rpc-$$"
-start_container "$name" \
-  --entrypoint /usr/local/bin/engine-rpc \
-  -p "$ENGINE_RPC_PORT:8080" \
-  "$ENGINE_IMAGE"
-wait_url "$name" "http://127.0.0.1:$ENGINE_RPC_PORT/health"
-curl -fsS -X POST "http://127.0.0.1:$ENGINE_RPC_PORT/jsonrpc" \
-  -H 'Content-Type: application/json' \
-  --data '{"jsonrpc":"2.0","id":1,"method":"rpc.discover","params":{}}' \
-  | grep -q 'openrpc'
-echo "✓ engine RPC"
 
 echo "── counsel MCP smoke ($COUNSEL_IMAGE) ──"
 name="liki-smoke-counsel-$$"

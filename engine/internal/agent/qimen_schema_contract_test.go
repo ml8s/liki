@@ -939,42 +939,34 @@ type qimenObjectContract struct {
 	Required   []string       `json:"required"`
 }
 
-func qimenMethodSchema(t *testing.T) map[string]any {
+func qimenMethod(t *testing.T) *RPCMethod {
 	t.Helper()
-	var document struct {
-		Methods []map[string]any `json:"methods"`
+	method, ok := NewRPCRegistry().Method("qimen.chart")
+	if !ok {
+		t.Fatal("qimen.chart missing")
 	}
-	decodeJSON(t, NewRPCRegistry().OpenRPCDocument(), &document)
-	for _, method := range document.Methods {
-		if method["name"] == "qimen.chart" {
-			return method
-		}
-	}
-	t.Fatal("qimen.chart missing")
-	return nil
+	return method
 }
 
 func qimenParamsSchema(t *testing.T) qimenParamsContract {
 	t.Helper()
 	var params qimenParamsContract
-	decodeAny(t, qimenMethodSchema(t)["params"], &params)
+	decodeAny(t, qimenMethod(t).Params, &params)
 	return params
 }
 
 func qimenDataSchema(t *testing.T) qimenObjectContract {
 	t.Helper()
 	var result struct {
-		Result struct {
-			Properties struct {
-				Data json.RawMessage `json:"data"`
-			} `json:"properties"`
-		} `json:"result"`
+		Properties struct {
+			Data json.RawMessage `json:"data"`
+		} `json:"properties"`
 	}
-	decodeAny(t, qimenMethodSchema(t), &result)
+	decodeAny(t, qimenMethod(t).Result, &result)
 	var union struct {
 		OneOf []json.RawMessage `json:"oneOf"`
 	}
-	if err := json.Unmarshal(result.Result.Properties.Data, &union); err != nil {
+	if err := json.Unmarshal(result.Properties.Data, &union); err != nil {
 		t.Fatal(err)
 	}
 	if len(union.OneOf) == 0 {
@@ -988,7 +980,9 @@ func qimenDataSchema(t *testing.T) qimenObjectContract {
 func compileQimenParamsSchema(t *testing.T) *jsonschema.Schema {
 	t.Helper()
 	compiler := jsonschema.NewCompiler()
-	if err := compiler.AddResource("schema.json", qimenMethodSchema(t)["params"]); err != nil {
+	var params any
+	decodeJSON(t, qimenMethod(t).Params, &params)
+	if err := compiler.AddResource("schema.json", params); err != nil {
 		t.Fatal(err)
 	}
 	schema, err := compiler.Compile("schema.json")
@@ -1001,7 +995,9 @@ func compileQimenParamsSchema(t *testing.T) *jsonschema.Schema {
 func compileQimenResultSchema(t *testing.T) *jsonschema.Schema {
 	t.Helper()
 	compiler := jsonschema.NewCompiler()
-	if err := compiler.AddResource("schema.json", qimenMethodSchema(t)["result"]); err != nil {
+	var result any
+	decodeJSON(t, qimenMethod(t).Result, &result)
+	if err := compiler.AddResource("schema.json", result); err != nil {
 		t.Fatal(err)
 	}
 	schema, err := compiler.Compile("schema.json")

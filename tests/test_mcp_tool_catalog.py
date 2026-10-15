@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "tools" / "mcp-tool-catalog.json"
 
 
-def test_catalog_matches_registered_engine_rpc_methods():
+def test_catalog_matches_registered_engine_tool_methods():
     source = "\n".join(
         path.read_text(encoding="utf-8")
         for path in (ROOT / "engine" / "internal" / "agent").glob("tools_*.go")

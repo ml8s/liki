@@ -186,7 +186,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	}
 	reg := NewRPCRegistry()
 	refs := registryFieldRefs(reg)
-	// 放行集合：引擎方法名 + 当前 skill 工具 schema 词表 + OpenRPC 文档字段 + skill 根文件
+	// 放行集合：引擎工具名 + 当前 skill 工具 schema 词表 + skill 根文件
 	allow := map[string]bool{}
 	for name := range reg.methods {
 		allow[name] = true
@@ -197,7 +197,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, a := range []string{"rpc.discover", "skill-tools.json", "VERSION.txt", "content.sha256",
+	for _, a := range []string{"skill-tools.json", "VERSION.txt", "content.sha256",
 		"liki-memory.json", "RPCError", "ValueError", "error", "methods", "parameters",
 		"required", "params.properties", "params.methods", "result.methods",
 		"data", "result.data", "result.info", "result.info.version", "result_schema",
@@ -546,8 +546,6 @@ func TestSkillDocsMethodListSync(t *testing.T) {
 	for _, m := range regexp.MustCompile(`"([a-z]+(?:\.[a-z_]+)?)"`).FindAllStringSubmatch(seg, -1) {
 		whitelist[m[1]] = true
 	}
-	delete(whitelist, "rpc.discover") // OpenRPC 文档方法，引擎 registry 不注册
-
 	var regNames []string
 	for name := range NewRPCRegistry().methods {
 		regNames = append(regNames, name)

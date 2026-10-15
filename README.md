@@ -123,7 +123,6 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 | --- | --- | --- | --- |
 | `engine-mcp` | `/engine/mcp/{domain}` | `/mcp/{domain}` | 排盘 / 历法 / 黄历 / 风水 |
 | `counsel-mcp` | `/counsel/mcp/{domain}` | `/mcp/{domain}` | 判断 / 算卦 / 起名 |
-| `engine-rpc` | `/jsonrpc` | `/jsonrpc` | 旧安装 skill 的 JSON-RPC 兼容接口 |
 
 ### 调用链
 

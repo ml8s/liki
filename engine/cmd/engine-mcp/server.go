@@ -105,7 +105,7 @@ func newMCPServerFor(reg *agent.RPCRegistry, version string, logger *slog.Logger
 // outputSchemaFromResult extracts the engine data schema from the RPC result
 // envelope ({"_product":...,"data":<schema>}). MCP tools return the unwrapped
 // data, so the data sub-schema becomes the tool's outputSchema, giving the
-// LLM the same structural knowledge the OpenRPC document provides. Only
+// LLM the same structural knowledge the registry provides. Only
 // object-typed schemas are exposed: MCP conformance requires outputSchema to
 // be an object schema, so array/primitive-typed returns omit it (the tool
 // description carries their shape). Returns nil when absent or unsuitable.
