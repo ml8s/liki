@@ -113,7 +113,11 @@ jobs:
             "liki-experts@$EXPERTS_DIGEST"; do
             cosign sign --yes --identity-token "$oidc_token" "ghcr.io/${{ github.repository_owner }}/$spec"
           done
-          identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/tags/v${VERSION}$"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/heads/main$"
+          else
+            identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/tags/v${VERSION}$"
+          fi
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
