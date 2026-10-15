@@ -63,6 +63,16 @@ func NewEngine() *Registry {
 		Description: "八宅门主灶配合。命卦 + 门/主/灶卦 → 方向、游年九星、吉凶。确定性计算。",
 		Handler:     BazhaiLayout,
 	})
+	mustRegister(registry, Tool[XuankongChartInput, XuankongChart]{
+		Name:        "xuankong.chart",
+		Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",
+		Handler:     XuankongChartCompute,
+	})
+	mustRegister(registry, Tool[XuankongLiunianInput, XuankongLiunianOutput]{
+		Name:        "xuankong.liunian",
+		Description: "玄空流年飞星。chart（可选）+ year → 流年飞星盘 + 宅盘凶星落宫对照（确定性计算）。",
+		Handler:     XuankongLiunian,
+	})
 	return registry
 }
 

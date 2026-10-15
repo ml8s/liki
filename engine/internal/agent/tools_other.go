@@ -5,12 +5,8 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"time"
-
 	"liki-engine/internal/engine/liuyao"
 	"liki-engine/internal/engine/qimen"
-	"liki-engine/internal/engine/tianwen"
-	"liki-engine/internal/engine/xuankong"
 )
 
 // ── qimen ──
@@ -75,70 +71,6 @@ func qimenChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
 	return wrapResult("qimen", result)
-}
-
-// ── xuankong ──
-
-func xuankongChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		PeriodDate   string `json:"period_date"`
-		SitMountain  *int   `json:"zuo_shan"`
-		FaceMountain *int   `json:"xiang_shan"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("xuankong.chart: %w", err)
-	}
-	if p.SitMountain == nil {
-		return nil, fmt.Errorf("xuankong.chart: zuo_shan is required")
-	}
-	if p.FaceMountain == nil {
-		return nil, fmt.Errorf("xuankong.chart: xiang_shan is required")
-	}
-	if *p.SitMountain < 0 || *p.SitMountain > 23 {
-		return nil, fmt.Errorf("xuankong.chart: zuo_shan must be 0-23, got %d", *p.SitMountain)
-	}
-	if *p.FaceMountain < 0 || *p.FaceMountain > 23 {
-		return nil, fmt.Errorf("xuankong.chart: xiang_shan must be 0-23, got %d", *p.FaceMountain)
-	}
-	if (*p.SitMountain+12)%24 != *p.FaceMountain {
-		return nil, fmt.Errorf("xuankong.chart: xiang_shan must be opposite zuo_shan by 12 mountains, got %d/%d",
-			*p.SitMountain, *p.FaceMountain)
-	}
-	periodDate, err := time.Parse("2006-01-02", p.PeriodDate)
-	if err != nil {
-		return nil, fmt.Errorf("xuankong.chart: invalid period_date %q: %w", p.PeriodDate, err)
-	}
-	if periodDate.Year() < 1864 || periodDate.Year() > 2200 {
-		return nil, fmt.Errorf("xuankong.chart: period_date year %d out of range (1864-2200)", periodDate.Year())
-	}
-	result := xuankong.ComputeChart(tianwen.SolarTime(periodDate), *p.SitMountain, *p.FaceMountain)
-	return wrapResult("xuankong", result)
-}
-
-func xuankongLiunianHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Chart json.RawMessage `json:"chart"` // 可选：宅盘
-		Year  int             `json:"year"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("xuankong.liunian: %w", err)
-	}
-	if p.Year < 1864 || p.Year > 2200 {
-		return nil, fmt.Errorf("xuankong.liunian: year %d out of range (1864-2200)", p.Year)
-	}
-	var chart *xuankong.Chart
-	if len(p.Chart) > 0 && string(p.Chart) != "null" {
-		var c xuankong.Chart
-		if err := json.Unmarshal(p.Chart, &c); err != nil {
-			return nil, fmt.Errorf("xuankong.liunian: parse chart: %w", err)
-		}
-		if err := c.ValidateChartDigest(); err != nil {
-			return nil, fmt.Errorf("xuankong.liunian: %w", err)
-		}
-		chart = &c
-	}
-	result := xuankong.ComputeLiuNian(p.Year, chart)
-	return wrapResult("xuankong_liunian", result)
 }
 
 // ── liuyao ──
@@ -253,40 +185,12 @@ func mustLoadQimenSchemas() qimenSchemaDocument {
 	return doc
 }
 
-const schemaFlyingStarNameEnum = `{"type":"string","enum":["一白贪狼","二黑巨门","三碧禄存","四绿文曲","五黄廉贞","六白武曲","七赤破军","八白左辅","九紫右弼"]}`
-
-const schemaChartDigest = `{"type":"string","pattern":"^[a-f0-9]{64}$","description":"canonical SHA-256 chart digest"}`
-
-const schemaMountainName = `{"type":"string","enum":["子","癸","丑","艮","寅","甲","卯","乙","辰","巽","巳","丙","午","丁","未","坤","申","庚","酉","辛","戌","乾","亥","壬"]}`
-
-const schemaShouShanAssessment = `{"type":"string","enum":["收山得宜、拨水入零堂，理气合局（完整收山出煞须验实际砂水）","收山得宜（坐宫山星当令）；拨水入零堂未得，向首零神不见水","拨水入零堂得宜（向宫向星零神）；收山未得，坐宫山星不当令","收山、拨水入零堂俱未得，宜择时改向并验实际砂水"]}`
-
-const schemaFlyingStar = `{"type":"object","additionalProperties":false,"properties":{"number":{"type":"integer","minimum":1,"maximum":9},"color":{"type":"string","enum":["白","黑","碧","绿","黄","赤","紫"]},"name":{"type":"string","enum":["一白贪狼","二黑巨门","三碧禄存","四绿文曲","五黄廉贞","六白武曲","七赤破军","八白左辅","九紫右弼"]},"wuxing":{"type":"string","enum":["金","木","水","火","土"]}},"required":["number","color","name","wuxing"]}`
-
-const schemaAnnualFlyingStar = `{"type":"object","additionalProperties":false,"properties":{"gong_num":{"type":"integer","minimum":1,"maximum":9},"xing":{"type":"integer","minimum":1,"maximum":9},"xing_name":{"type":"string","enum":["一白贪狼","二黑巨门","三碧禄存","四绿文曲","五黄廉贞","六白武曲","七赤破军","八白左辅","九紫右弼"]},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"ru_zhong":{"type":"boolean"}},"required":["gong_num","xing","xing_name","wuxing","ru_zhong"]}`
-
-const schemaXuankongPalace = `{"type":"object","additionalProperties":false,"properties":{"gong_num":{"type":"integer","minimum":1,"maximum":9},"yun_xing":` + schemaFlyingStar + `,"shan_xing":` + schemaFlyingStar + `,"xiang_xing":` + schemaFlyingStar + `},"required":["gong_num","yun_xing","shan_xing","xiang_xing"]}`
-
-const schemaXuankongChartData = `{"type":"object","description":"xuankong.chart 返回的完整宅盘；传回 xuankong.liunian 时 digest 必须匹配","additionalProperties":false,"properties":{"yun":{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer","minimum":1864,"maximum":2200},"year_boundary":{"type":"string","enum":["gregorian_calendar_year"],"description":"当前实现按公历日历年换运；立春年界属另一流派，不在本盘隐含"},"yuan":{"type":"string","enum":["上元","中元","下元"]},"yun_number":{"type":"integer","minimum":1,"maximum":9},"yun_name":{"type":"string","enum":["一运","二运","三运","四运","五运","六运","七运","八运","九运"]},"start_year":{"type":"integer"},"end_year":{"type":"integer"}},"required":["year","year_boundary","yuan","yun_number","yun_name","start_year","end_year"]},"gong_wei":{"type":"array","minItems":9,"maxItems":9,"items":` + schemaXuankongPalace + `},"four_situation":{"type":"object","additionalProperties":false,"properties":{"name":{"type":"string","enum":["旺山旺向","双星会坐","双星会向","上山下水","未入四大局"]},"sit_mountain_timely":{"type":"boolean"},"face_facing_timely":{"type":"boolean"},"sit_facing_timely":{"type":"boolean"},"face_mountain_timely":{"type":"boolean"}},"required":["name","sit_mountain_timely","face_facing_timely","sit_facing_timely","face_mountain_timely"]},"fu_yin_layers":{"type":"array","items":{"type":"string","enum":["运盘伏吟","山星伏吟","向星伏吟","全盘伏吟"]}},"fan_yin_layers":{"type":"array","items":{"type":"string","enum":["运盘反吟","山星反吟","向星反吟"]}},"xing_jia_hui":{"type":"array","minItems":9,"maxItems":9,"description":"星加会","items":{"type":"object","additionalProperties":false,"properties":{"shan_num":{"type":"integer","minimum":1,"maximum":9},"xiang_num":{"type":"integer","minimum":1,"maximum":9},"name":{"type":"string"},"meaning":{"type":"string"}},"required":["shan_num","xiang_num","name","meaning"]}},"chart_digest":` + schemaChartDigest + `,"zuo_shan":{"type":"integer","minimum":0,"maximum":23,"description":"坐山(0-23)"},"zuo_shan_name":` + schemaMountainName + `,"xiang_shan":{"type":"integer","minimum":0,"maximum":23,"description":"向山(0-23)"},"xiang_shan_name":` + schemaMountainName + `,"shou_shan_chu_sha":{"type":"object","additionalProperties":false,"properties":{"zheng_shen":{"type":"integer","minimum":1,"maximum":9},"ling_shen":{"type":"integer","minimum":1,"maximum":9},"shou_shan":{"type":"boolean"},"chu_sha":{"type":"boolean"},"assessment":` + schemaShouShanAssessment + `},"required":["zheng_shen","ling_shen","shou_shan","chu_sha","assessment"]}},"required":["yun","gong_wei","four_situation","fu_yin_layers","fan_yin_layers","xing_jia_hui","chart_digest","zuo_shan","zuo_shan_name","xiang_shan","xiang_shan_name","shou_shan_chu_sha"]}`
-
 var otherMethods = []RPCMethod{
 	{
 		Name: "qimen.chart", Description: "奇门排盘：时/刻/日/月/年家 × 转盘/飞盘/鸣法；时家与日家支持拆补/置闰；刻家包含十分钟三元与十二分钟十分局；金函玉镜为 day 专用盘。yong_shen 可显式定位用神，事象路由由上层 skill 完成；ying_qi 返回日期窗口。solar_time 必须来自 tianwen.time 的真太阳时。",
 		Params:  qimenSchemas.Params,
 		Handler: qimenChartHandler,
 		Result:  envelopeSchema(string(qimenSchemas.Result)),
-	},
-	{
-		Name: "xuankong.chart", Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",
-		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"period_date":{"type":"string","format":"date","description":"宅运起盘日期，YYYY-MM-DD；年份 1864-2200"},"zuo_shan":{"type":"integer","minimum":0,"maximum":23,"description":"坐山，二十四山 index：0=子,1=癸,2=丑,3=艮,4=寅,5=甲,6=卯,7=乙,8=辰,9=巽,10=巳,11=丙,12=午,13=丁,14=未,15=坤,16=申,17=庚,18=酉,19=辛,20=戌,21=乾,22=亥,23=壬"},"xiang_shan":{"type":"integer","minimum":0,"maximum":23,"description":"朝向；必须等于坐山后 12 山（180°相对）"}},"required":["period_date","zuo_shan","xiang_shan"]}`),
-		Handler: xuankongChartHandler,
-		Result:  envelopeSchema(schemaXuankongChartData),
-	},
-	{
-		Name: "xuankong.liunian", Description: "玄空流年飞星。chart（可选）+ year → 流年飞星盘 + 宅盘凶星落宫对照（确定性计算）。",
-		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"chart":` + schemaXuankongChartData + `,"year":{"type":"integer","minimum":1864,"maximum":2200,"description":"目标年份"}},"required":["year"]}`),
-		Handler: xuankongLiunianHandler,
-		Result:  envelopeSchema(`{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer","minimum":1864,"maximum":2200},"year_boundary":{"type":"string","enum":["gregorian_calendar_year"]},"ru_zhong":` + schemaFlyingStarNameEnum + `,"gong_wei":{"type":"array","minItems":9,"maxItems":9,"items":` + schemaAnnualFlyingStar + `},"house_overlay":{"type":"array","minItems":9,"maxItems":9,"description":"全部流年星落宫对照宅盘该宫三星；不预设星曜固有吉凶","items":{"type":"object","additionalProperties":false,"properties":{"gong_num":{"type":"integer","minimum":1,"maximum":9},"star":` + schemaFlyingStarNameEnum + `,"palace_stars":{"type":"string","description":"运星/山星/向星"}},"required":["gong_num","star","palace_stars"]}}},"required":["year","ru_zhong","gong_wei"]}`),
 	},
 
 	{

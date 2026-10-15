@@ -128,7 +128,6 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
-		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
 	}
 	badJSON := json.RawMessage(`{bad`)
@@ -175,7 +174,6 @@ func TestHandler_MissingRequiredFields(t *testing.T) {
 		params string
 	}{
 		{"ziwei.daxian", `{}`},
-		{"xuankong.chart", `{"period_date":"2026-07-31"}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -205,12 +203,6 @@ func TestHandler_RangeValidation(t *testing.T) {
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"yong_shen":["甲"]}`, btOK)},
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"scope":"ke"}`, btOK)},
 		{"qimen.chart", fmt.Sprintf(`{"solar_time":%s,"birth_year":1984}`, btOK)},
-		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":-1,"xiang_shan":0}`},
-		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":24}`},
-		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":0}`},
-		{"xuankong.chart", `{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":1}`},
-		{"xuankong.chart", `{"period_date":"1863-07-31","zuo_shan":0,"xiang_shan":12}`},
-		{"xuankong.chart", `{"period_date":"2201-07-31","zuo_shan":0,"xiang_shan":12}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -390,21 +382,6 @@ func TestHandler_ComputeZiwei_Valid(t *testing.T) {
 	}
 	if getStr(result, "_product") != "ziwei" {
 		t.Errorf("_product = %q, want ziwei", getStr(result, "_product"))
-	}
-}
-
-func TestHandler_ComputeXuankongChart_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"period_date":"2026-07-31","zuo_shan":0,"xiang_shan":12}`)
-	result, err := r.Execute(context.Background(), "xuankong.chart", params)
-	if err != nil {
-		t.Fatalf("xuankong.chart: %v", err)
-	}
-	if getStr(result, "_product") != "xuankong" {
-		t.Errorf("_product = %q, want xuankong", getStr(result, "_product"))
-	}
-	if !hasKey(result, "data") {
-		t.Error("missing data")
 	}
 }
 
@@ -827,70 +804,6 @@ func TestHandler_ZiweiLiuri_Valid(t *testing.T) {
 	}
 	if !hasKey(result, "data") {
 		t.Error("missing data")
-	}
-}
-
-// ── Judgment / Annual handler tests ──
-
-func TestHandler_XuankongLiunian_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	chartResult, err := r.Execute(context.Background(), "xuankong.chart",
-		json.RawMessage(`{"period_date":"2026-07-31","zuo_shan":20,"xiang_shan":8}`))
-	if err != nil {
-		t.Fatalf("xuankong.chart: %v", err)
-	}
-	var env struct {
-		Data json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(chartResult, &env); err != nil {
-		t.Fatal(err)
-	}
-	result, err := r.Execute(context.Background(), "xuankong.liunian",
-		json.RawMessage(fmt.Sprintf(`{"chart":%s,"year":2026}`, env.Data)))
-	if err != nil {
-		t.Fatalf("xuankong.liunian: %v", err)
-	}
-	if getStr(result, "_product") != "xuankong_liunian" {
-		t.Errorf("_product = %q, want xuankong_liunian", getStr(result, "_product"))
-	}
-}
-
-func TestHandler_XuankongLiunian_RejectsTamperedChart(t *testing.T) {
-	r := NewRPCRegistry()
-	chartResult, err := r.Execute(context.Background(), "xuankong.chart",
-		json.RawMessage(`{"period_date":"2026-07-31","zuo_shan":20,"xiang_shan":8}`))
-	if err != nil {
-		t.Fatalf("xuankong.chart: %v", err)
-	}
-	var env struct {
-		Data map[string]any `json:"data"`
-	}
-	if err := json.Unmarshal(chartResult, &env); err != nil {
-		t.Fatal(err)
-	}
-	env.Data["zuo_shan"] = 0
-	tampered, err := json.Marshal(env.Data)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = r.Execute(context.Background(), "xuankong.liunian", json.RawMessage(
-		fmt.Sprintf(`{"chart":%s,"year":2026}`, tampered),
-	))
-	if err == nil || !strings.Contains(err.Error(), "digest mismatch") {
-		t.Fatalf("error = %v, want chart digest mismatch", err)
-	}
-}
-
-func TestHandler_XuankongLiunian_RejectsDigestOnlyChart(t *testing.T) {
-	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "xuankong.liunian", json.RawMessage(
-		`{"chart":{"chart_digest":"0000000000000000000000000000000000000000000000000000000000000000"},"year":2026}`,
-	))
-	if err == nil {
-		t.Fatal("expected digest-only chart to fail schema validation")
-	}
-	if !strings.Contains(err.Error(), "missing properties") {
-		t.Fatalf("error = %v, want full-chart schema validation", err)
 	}
 }
 

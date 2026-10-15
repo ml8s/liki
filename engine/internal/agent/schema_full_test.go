@@ -24,33 +24,26 @@ func TestAllMethodsSchema(t *testing.T) {
 	z, b := zr["data"].(map[string]any), br["data"].(map[string]any)
 	qr := executeAndDecode(t, reg, "liuyao.qigua", []byte(`{"mode":"yaos","yaos":[7,7,7,7,7,7]}`))
 	casting := mustJSON(t, qr["data"].(map[string]any)["casting"])
-	xr := executeAndDecode(t, reg, "xuankong.chart", []byte(
-		`{"period_date":"2026-07-31","zuo_shan":2,"xiang_shan":14}`,
-	))
-	x := xr["data"].(map[string]any)
-
 	calls := map[string]json.RawMessage{
-		"bazi.chart":       bc,
-		"bazi.fullchart":   mustJSON(t, map[string]any{"chart": b}),
-		"bazi.liunian":     mustJSON(t, map[string]any{"chart": b, "year": 2026}),
-		"bazi.liuyue":      mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6}),
-		"bazi.liuri":       mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4}),
-		"bazi.liushi":      mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4, "hour": 12}),
-		"bazi.xiaoyun":     mustJSON(t, map[string]any{"chart": b, "max_age": 12}),
-		"bazi.bond":        mustJSON(t, map[string]any{"a": map[string]any{"chart": b}, "b": map[string]any{"chart": b}}),
-		"ziwei.chart":      zc,
-		"ziwei.fullchart":  mustJSON(t, map[string]any{"chart": z}),
-		"ziwei.daxian":     mustJSON(t, map[string]any{"chart": z}),
-		"ziwei.liunian":    mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026}),
-		"ziwei.liuyue":     mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 10, "leap": false}}),
-		"ziwei.liuri":      mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}}),
-		"ziwei.liushi":     mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}, "shi_zhi": "午"}),
-		"ziwei.bond":       mustJSON(t, map[string]any{"a": z, "b": z}),
-		"liuyao.qigua":     mustJSON(t, map[string]any{"mode": "yaos", "yaos": []int{7, 7, 7, 7, 7, 7}}),
-		"liuyao.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","casting":` + string(casting) + `}`),
-		"qimen.chart":      []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
-		"xuankong.chart":   mustJSON(t, map[string]any{"period_date": "2026-07-31", "zuo_shan": 2, "xiang_shan": 14}),
-		"xuankong.liunian": mustJSON(t, map[string]any{"chart": x, "year": 2026}),
+		"bazi.chart":      bc,
+		"bazi.fullchart":  mustJSON(t, map[string]any{"chart": b}),
+		"bazi.liunian":    mustJSON(t, map[string]any{"chart": b, "year": 2026}),
+		"bazi.liuyue":     mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6}),
+		"bazi.liuri":      mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4}),
+		"bazi.liushi":     mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4, "hour": 12}),
+		"bazi.xiaoyun":    mustJSON(t, map[string]any{"chart": b, "max_age": 12}),
+		"bazi.bond":       mustJSON(t, map[string]any{"a": map[string]any{"chart": b}, "b": map[string]any{"chart": b}}),
+		"ziwei.chart":     zc,
+		"ziwei.fullchart": mustJSON(t, map[string]any{"chart": z}),
+		"ziwei.daxian":    mustJSON(t, map[string]any{"chart": z}),
+		"ziwei.liunian":   mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026}),
+		"ziwei.liuyue":    mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 10, "leap": false}}),
+		"ziwei.liuri":     mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}}),
+		"ziwei.liushi":    mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}, "shi_zhi": "午"}),
+		"ziwei.bond":      mustJSON(t, map[string]any{"a": z, "b": z}),
+		"liuyao.qigua":    mustJSON(t, map[string]any{"mode": "yaos", "yaos": []int{7, 7, 7, 7, 7, 7}}),
+		"liuyao.chart":    []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","casting":` + string(casting) + `}`),
+		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
 	}
 
 	schemas := resultDataSchemas(t, reg)
@@ -79,77 +72,6 @@ func validateResultJSONSchema(t *testing.T, name string, schemaDocument any, out
 	}
 	if err := schema.Validate(output); err != nil {
 		t.Errorf("%s: result schema validation: %v", name, err)
-	}
-}
-
-func TestFengshuiResultSchemasAreExplicit(t *testing.T) {
-	reg := NewRPCRegistry()
-	schemas := resultDataSchemas(t, reg)
-	for _, name := range []string{"xuankong.chart", "xuankong.liunian"} {
-		assertClosedObjectSchema(t, name, schemas[name], "$")
-	}
-}
-
-func TestFengshuiFixedOutputClosures(t *testing.T) {
-	reg := NewRPCRegistry()
-	schemas := resultDataSchemas(t, reg)
-	chart, ok := schemas["xuankong.chart"].(map[string]any)
-	if !ok {
-		t.Fatal("xuankong.chart result schema is not an object")
-	}
-	properties := chart["properties"].(map[string]any)
-	if got := properties["chart_digest"].(map[string]any)["pattern"]; got != "^[a-f0-9]{64}$" {
-		t.Fatalf("chart_digest pattern = %#v, want canonical SHA-256 pattern", got)
-	}
-	for _, field := range []string{"zuo_shan_name", "xiang_shan_name"} {
-		enum, ok := properties[field].(map[string]any)["enum"].([]any)
-		if !ok || len(enum) != 24 {
-			t.Fatalf("%s enum = %#v, want 24 mountains", field, properties[field])
-		}
-	}
-
-	shou := properties["shou_shan_chu_sha"].(map[string]any)["properties"].(map[string]any)["assessment"].(map[string]any)
-	if _, ok := shou["enum"].([]any); !ok {
-		t.Fatal("shou_shan_chu_sha.assessment lacks fixed enum")
-	}
-
-	annual := schemas["xuankong.liunian"].(map[string]any)["properties"].(map[string]any)["ru_zhong"].(map[string]any)
-	if _, ok := annual["enum"].([]any); !ok {
-		t.Fatal("xuankong.liunian.ru_zhong lacks flying-star enum")
-	}
-}
-
-func assertClosedObjectSchema(t *testing.T, method string, schema any, path string) {
-	t.Helper()
-	objectSchema, ok := schema.(map[string]any)
-	if !ok {
-		t.Fatalf("%s %s: expected object schema", method, path)
-	}
-	properties, _ := objectSchema["properties"].(map[string]any)
-	if len(properties) == 0 {
-		t.Fatalf("%s %s: object schema has no properties", method, path)
-	}
-	if objectSchema["additionalProperties"] != false {
-		t.Fatalf("%s %s: object schema is not closed", method, path)
-	}
-	for key, child := range properties {
-		childSchema, ok := child.(map[string]any)
-		if !ok {
-			continue
-		}
-		if childSchema["type"] == "object" {
-			assertClosedObjectSchema(t, method, childSchema, path+"."+key)
-			continue
-		}
-		if childSchema["type"] == "array" {
-			items, ok := childSchema["items"].(map[string]any)
-			if !ok {
-				t.Fatalf("%s %s: array schema lacks object items", method, path+"."+key)
-			}
-			if items["type"] == "object" {
-				assertClosedObjectSchema(t, method, items, path+"."+key+"[]")
-			}
-		}
 	}
 }
 

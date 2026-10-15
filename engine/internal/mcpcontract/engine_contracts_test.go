@@ -4,14 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 
 	"liki-engine/internal/engine/bazhai"
 	"liki-engine/internal/engine/huangli"
+	"liki-engine/internal/engine/xuankong"
 )
 
 func TestMain(m *testing.M) {
-	loaders := []func() error{huangli.Load, bazhai.Load}
+	loaders := []func() error{huangli.Load, bazhai.Load, xuankong.Load}
 	for _, load := range loaders {
 		if err := load(); err != nil {
 			panic(err)
@@ -25,6 +27,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 	want := []string{
 		"time.now", "huangli.days", "tianwen.time", "city.coords",
 		"bazhai.chart", "bazhai.layout",
+		"xuankong.chart", "xuankong.liunian",
 	}
 	got := registry.Names()
 	if len(got) != len(want) {
@@ -51,7 +54,10 @@ func TestEngineContractDefinitions(t *testing.T) {
 
 	// Object roots expose output schemas. The existing huangli wire root is an
 	// array, so it remains runtime-validated but intentionally undeclared.
-	for _, name := range []string{"time.now", "tianwen.time", "city.coords", "bazhai.chart", "bazhai.layout"} {
+	for _, name := range []string{
+		"time.now", "tianwen.time", "city.coords",
+		"bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian",
+	} {
 		definition, _ := registry.Definition(name)
 		if len(definition.OutputSchema) == 0 {
 			t.Errorf("%s should declare an object output schema", name)
@@ -249,6 +255,46 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 	if layoutOutput.Group != "西四命" || layoutOutput.Door.GuaName != "坤" || layoutOutput.Door.Match != "吉" {
 		t.Fatalf("unexpected bazhai layout: %#v", layoutOutput)
+	}
+
+	chartRaw, err := registry.Call(context.Background(), "xuankong.chart", mustJSON(t, XuankongChartInput{
+		PeriodDate: "2026-07-31",
+		ZuoShan:    2,
+		XiangShan:  14,
+	}))
+	if err != nil {
+		t.Fatalf("xuankong.chart: %v", err)
+	}
+	var chart XuankongChart
+	if err := json.Unmarshal(chartRaw, &chart); err != nil {
+		t.Fatal(err)
+	}
+	if chart.ChartDigest == "" || len(chart.GongWei) != 9 || chart.ZuoShanName == "" || chart.XiangShanName == "" {
+		t.Fatalf("incomplete xuankong chart: %#v", chart)
+	}
+
+	liunianRaw, err := registry.Call(context.Background(), "xuankong.liunian", mustJSON(t, XuankongLiunianInput{
+		Chart: &chart,
+		Year:  2026,
+	}))
+	if err != nil {
+		t.Fatalf("xuankong.liunian: %v", err)
+	}
+	var liunian XuankongLiunianOutput
+	if err := json.Unmarshal(liunianRaw, &liunian); err != nil {
+		t.Fatal(err)
+	}
+	if len(liunian.GongWei) != 9 || len(liunian.HouseOverlay) != 9 {
+		t.Fatalf("incomplete xuankong overlay: %#v", liunian)
+	}
+
+	tampered := chart
+	tampered.ZuoShanName = "壬"
+	if _, err := registry.Call(context.Background(), "xuankong.liunian", mustJSON(t, XuankongLiunianInput{
+		Chart: &tampered,
+		Year:  2026,
+	})); err == nil || !strings.Contains(err.Error(), "digest mismatch") {
+		t.Fatalf("expected digest mismatch, got %v", err)
 	}
 }
 
