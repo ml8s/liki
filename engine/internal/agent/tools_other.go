@@ -7,10 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"liki-engine/internal/agent/city"
 	"liki-engine/internal/engine/bazhai"
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/huangli"
 	"liki-engine/internal/engine/liuyao"
 	"liki-engine/internal/engine/qimen"
 	"liki-engine/internal/engine/tianwen"
@@ -271,52 +269,7 @@ func liuyaoChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessa
 	return wrapResult("liuyao", result)
 }
 
-// ── huangli ──
-
-func huangliDaysHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		StartDate string `json:"start_date"`
-		Count     int    `json:"count"`
-		Event     string `json:"event"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("huangli.days: %w", err)
-	}
-	start, err := time.Parse("2006-01-02", p.StartDate)
-	if err != nil {
-		return nil, fmt.Errorf("huangli.days: parse date: %w", err)
-	}
-	if p.Count < 1 {
-		p.Count = 3
-	}
-	if p.Count > 30 {
-		p.Count = 30
-	}
-	days := make([]huangli.Day, 0, p.Count)
-	for i := 0; i < p.Count; i++ {
-		dateStr := start.AddDate(0, 0, i).Format("2006-01-02")
-		entry, err := huangli.QueryDate(dateStr, p.Event)
-		if err != nil {
-			return nil, fmt.Errorf("huangli.days: %w", err)
-		}
-		days = append(days, entry)
-	}
-	return wrapResult("huangli_days", days)
-}
-
 // ── time / infra ──
-
-func cityCoordsHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	result, err := city.SearchCoords(ctx, raw)
-	if err != nil {
-		return nil, err
-	}
-	return wrapResult("city_coords", result)
-}
-
-func schemaTimePointParams() json.RawMessage {
-	return mustSchema(`{"type":"object","properties":{"time":{"type":"string","format":"date-time","description":"出生时间（RFC3339），如 1984-02-04T06:00:00+08:00"},"longitude":{"type":"number","description":"出生地经度，用于真太阳时校正。北京≈116.4"}},"required":["time","longitude"]}`)
-}
 
 //go:embed qimen_schema.json
 var qimenSchemaJSON []byte
@@ -402,23 +355,5 @@ var otherMethods = []RPCMethod{
 		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"solar_time":` + schemaSolarTime + `,"yong_shen":{"type":"string","enum":["父母","兄弟","官鬼","妻财","子孙","世爻","应爻"],"description":"用神；默认世爻"},"casting":` + schemaLiuyaoCasting + `},"required":["solar_time","casting"]}`),
 		Handler: liuyaoChartHandler,
 		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"ben_gua":{"type":"string","enum":["乾","姤","遁","否","观","剥","晋","大有","兑","困","萃","咸","蹇","谦","小过","归妹","离","旅","鼎","未济","蒙","涣","讼","同人","震","豫","解","恒","升","井","大过","随","巽","小畜","家人","益","无妄","噬嗑","颐","蛊","坎","节","屯","既济","革","丰","明夷","师","艮","贲","大畜","损","睽","履","中孚","渐","坤","复","临","泰","大壮","夬","需","比"]},"lines":{"type":"array","description":"每爻：六亲/六神/世应 + 确定性状态（yue_po 月破/dong_self 发动/dong_sheng 动爻生/dong_ke 动爻克）","items":{"type":"object","properties":{"position":{"type":"integer"},"type":{"type":"integer"},"gan":{"type":"string"},"zhi":{"type":"string"},"wuxing":{"type":"string"},"liu_qin":{"type":"string","enum":["父母","兄弟","官鬼","妻财","子孙"]},"shi_ying":{"type":"string","description":"世/应"},"liu_shou":{"type":"string","enum":["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]},"yue_po":{"type":"boolean","description":"月破"},"dong_self":{"type":"boolean","description":"本爻发动"},"dong_sheng":{"type":"boolean","description":"有动爻生此爻"},"dong_ke":{"type":"boolean","description":"有动爻克此爻"},"xun_kong":{"type":"boolean","description":"该爻地支值日柱旬空"},"mu_ku_branch":{"type":"string"},"mu_ku_element":{"type":"string"},"mu_ku_types":{"type":"array","items":{"type":"string","enum":["day","moving","transformed"]}},"chang_sheng_yue":{"type":"string"}},"required":["position","type","gan","zhi","wuxing","liu_qin","shi_ying","liu_shou"]}},"yong_shen":{"type":"object","description":"用神结果","properties":{"name":{"type":"string","description":"用神六亲"},"position":{"type":"integer","description":"爻位1-6（0=本卦不现）"},"is_hidden":{"type":"boolean","description":"本卦不现，取本宫伏神"},"wang_shuai":{"type":"string","description":"用神旺衰"},"yue_po":{"type":"boolean","description":"用神月破"},"xun_kong":{"type":"boolean","description":"用神旬空"},"mu_ku":{"type":"boolean","description":"用神入墓"},"liu_shou":{"type":"string","description":"用神临的六神","enum":["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]},"fu_shen":{"type":"object","description":"飞伏（用神不现时）","properties":{"position":{"type":"integer","description":"爻位"},"liu_qin":{"type":"string","description":"伏神六亲"},"zhi":{"type":"string","description":"伏神地支"}},"required":["position","liu_qin","zhi"]},"fu_shen_candidates":{"type":"array","description":"本宫全部同六亲伏神候选","items":{"type":"object","properties":{"position":{"type":"integer"},"liu_qin":{"type":"string"},"zhi":{"type":"string"}},"required":["position","liu_qin","zhi"]}},"chang_sheng":{"type":"string"}},"required":["name","position"]},"wang_shuai":{"type":"array"},"yue_jian_zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"yue_jian_gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"bian_gua":{"type":"string","description":"变卦名"},"bian_yao":{"type":"array","description":"变爻"},"gong":{"type":"string","description":"八宫"},"gua_ci":{"type":"object","description":"卦辞爻辞"},"gong_wuxing":{"type":"string","description":"宫五行"},"ri_chen_gan":{"type":"string","description":"日辰天干"},"ri_chen_zhi":{"type":"string","description":"日辰地支"},"ri_chen_relations":{"type":"array","description":"日辰与爻关系集合；冲合可与生扶克并存","items":{"type":"object","additionalProperties":false,"properties":{"relations":{"type":"array","items":{"type":"string","enum":["冲","合","生","扶","克","平"]}}},"required":["relations"]}},"xun_kong":{"type":"array","items":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"description":"日柱旬空地支（甲子旬空戌亥…）"},"dong_yao_relations":{"type":"array","description":"动爻与用神的关系集合；直接与间接作用可并列，静卦为空数组","items":{"type":"object","properties":{"position":{"type":"integer","description":"动爻位置"},"relations":{"type":"array","items":{"type":"string","enum":["生用","克用","比和","冲用","生原神","克原神","生忌神","克忌神"]}}},"required":["position","relations"]}},"patterns":{"type":"array","description":"特殊格局","items":{"type":"object","properties":{"type":{"type":"string","description":"格局类型"},"sub_type":{"type":"string","description":"子类型"},"position":{"type":"integer"},"is_true":{"type":"boolean","description":"结构是否有实质效力；空亡/月破中 true=真空/真破，false=假空/假破"}},"required":["type"]}},"casting":{"type":"object","description":"完整起卦收据"},"timing_candidates":{"type":"array","description":"应期触发机制候选；非确定日期","items":{"type":"object","properties":{"id":{"type":"string"},"mechanism":{"type":"string"},"position":{"type":"integer"},"trigger_branch":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"window":{"type":"string"},"basis":{"type":"array","items":{"type":"string"}},"confidence":{"type":"string"}},"required":["id","mechanism","confidence"]}},"day_clash_facts":{"type":"array","description":"日冲细分事实","items":{"type":"object","properties":{"position":{"type":"integer"},"kind":{"type":"string"},"basis":{"type":"array","items":{"type":"string"}},"condition":{"type":"string"}},"required":["position","kind"]}},"moving_transformations":{"type":"array","description":"动爻到变爻的机械变化","items":{"type":"object","properties":{"position":{"type":"integer"},"from_branch":{"type":"string"},"to_branch":{"type":"string"},"return_relation":{"type":"string"},"advance_retreat":{"type":"string"},"changed_void":{"type":"boolean"},"changed_break":{"type":"boolean"},"basis":{"type":"array","items":{"type":"string"}}},"required":["position","from_branch","to_branch"]}},"force_chain":{"type":"object","properties":{"yong_shen":{"type":"string"},"yong_element":{"type":"string"},"position":{"type":"integer"},"is_hidden":{"type":"boolean"},"entries":{"type":"array","items":{"type":"object","properties":{"role":{"type":"string"},"element":{"type":"string"},"positions":{"type":"array","items":{"type":"integer"}},"branches":{"type":"array","items":{"type":"string"}},"relations":{"type":"array","items":{"type":"string"}},"states":{"type":"array","items":{"type":"string"}},"note":{"type":"string"}},"required":["role","element"]}}},"required":["yong_shen","yong_element","position","entries"]},"yong_shen_candidates":{"type":"array","description":"用神候选与当前确定性选择","items":{"type":"object","properties":{"position":{"type":"integer"},"branch":{"type":"string"},"is_hidden":{"type":"boolean"},"selected":{"type":"boolean"},"wang_shuai":{"type":"string"},"reason":{"type":"string"},"basis":{"type":"array","items":{"type":"string"}}},"required":["position","branch","is_hidden","selected","reason"]}},"san_he_candidates":{"type":"array","properties":{"moving_count":{"type":"integer"},"static_count":{"type":"integer"},"void_count":{"type":"integer"},"break_count":{"type":"integer"},"positions":{"type":"array","items":{"type":"integer"}},"branches":{"type":"array","items":{"type":"string"}},"element":{"type":"string"},"complete":{"type":"boolean"},"qualification":{"type":"string"},"line_complete":{"type":"boolean"},"day_present":{"type":"boolean"},"month_present":{"type":"boolean"},"missing":{"type":"array","items":{"type":"string"}},"activated":{"type":"boolean"},"targets":{"type":"array","items":{"type":"string"}},"conclusion_scope":{"type":"string"}},"required":["positions","branches","element","complete","moving_count","qualification","line_complete","activated","conclusion_scope"],"description":"三合候选；complete=true 只是三支齐，成局仍须按发动与空破月日复核","items":{"type":"object","properties":{"moving_count":{"type":"integer"},"static_count":{"type":"integer"},"void_count":{"type":"integer"},"break_count":{"type":"integer"},"positions":{"type":"array","items":{"type":"integer"}},"branches":{"type":"array","items":{"type":"string"}},"element":{"type":"string"},"complete":{"type":"boolean"},"qualification":{"type":"string"},"line_complete":{"type":"boolean"},"day_present":{"type":"boolean"},"month_present":{"type":"boolean"},"missing":{"type":"array","items":{"type":"string"}},"activated":{"type":"boolean"},"targets":{"type":"array","items":{"type":"string"}},"conclusion_scope":{"type":"string"}},"required":["positions","branches","element","complete","moving_count","qualification","line_complete","activated","conclusion_scope"]}},"tomb_school":{"type":"object","additionalProperties":false,"properties":{"earth_branch":{"type":"string","enum":["辰"]},"school":{"type":"string","enum":["engine_default_chen"]}},"required":["earth_branch","school"]},"hidden_lines":{"type":"array","description":"本宫全部伏神","items":{"type":"object","properties":{"position":{"type":"integer"},"liu_qin":{"type":"string"},"gan":{"type":"string"},"zhi":{"type":"string"},"wuxing":{"type":"string"},"flying_position":{"type":"integer"},"flying_liu_qin":{"type":"string"},"flying_gan":{"type":"string"},"flying_zhi":{"type":"string"},"flying_wuxing":{"type":"string"},"fei_fu_relation":{"type":"string"},"xun_kong":{"type":"boolean"},"yue_po":{"type":"boolean"},"mu_ku":{"type":"boolean"},"exit_condition":{"type":"string"}},"required":["position","liu_qin","gan","zhi","wuxing","flying_position","flying_liu_qin","fei_fu_relation"]}},"branch_relation_facts":{"type":"array","description":"爻间地支关系","items":{"type":"object","properties":{"left_position":{"type":"integer"},"right_position":{"type":"integer"},"relations":{"type":"array","items":{"type":"string"}},"targets":{"type":"array","items":{"type":"string"}},"basis":{"type":"array","items":{"type":"string"}}},"required":["left_position","right_position","relations"]}},"conflicts":{"type":"array","description":"engine 已判定的并列/矛盾信号；解释必须覆盖","items":{"type":"object","properties":{"id":{"type":"string","enum":["moving-support-opposition","yuanshen-support-opposition","strong-but-void","strong-but-break"]},"reason":{"type":"string"},"facts":{"type":"array","items":{"type":"string"}}},"required":["id","reason"]}}},"required":["name","ben_gua","lines","yong_shen","tomb_school","casting"]}`),
-	},
-	{
-		Name: "huangli.days", Description: "黄历查日。返回连续N天的黄历信息；event 给定时按建除事项规则输出 suitability。",
-		Params:  mustSchema(`{"type":"object","properties":{"start_date":{"type":"string","format":"date","description":"起始日期 YYYY-MM-DD"},"count":{"type":"integer","minimum":1,"maximum":30,"description":"查几天，默认3，最多30"},"event":{"type":"string","enum":["wedding","engage","opening","sign","move","travel","build","exam","medical","sacrifice","cleaning","renovation","bed_install","income","funeral"],"description":"事项类型；缺省仅列黄历事实"}},"required":["start_date"]}`),
-		Handler: huangliDaysHandler,
-		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"date":{"type":"string"},"ri_zhu":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"nayin":{"type":"string"}},"required":["gan","zhi"]},"nayin":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"jian_chu":{"type":"string","enum":["建","除","满","平","定","执","破","危","成","收","开","闭"]},"event":{"type":"string"},"event_label":{"type":"string"},"suitability":{"type":"string","enum":["unspecified","recommended","unsuitable","possible"]},"reason":{"type":"string"},"huangdao":{"type":"object","properties":{"name":{"type":"string"},"path":{"type":"string"}},"required":["name","path"]},"xi_shen":{"type":"string"},"cai_shen":{"type":"string"},"fu_shen":{"type":"string"},"gan_ji":{"type":"string"},"zhi_ji":{"type":"string"},"mansion":{"type":"object","properties":{"name":{"type":"string"},"index":{"type":"integer"},"animal":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土","日","月"]},"group":{"type":"string"}},"required":["name","index"]}},"required":["date","ri_zhu"]}}`),
-	},
-	{
-		Name: "tianwen.time", Description: "根据时间和经度计算真太阳时，返回公历、真太阳时、农历三套时间。",
-		Params:  schemaTimePointParams(),
-		Handler: tianwenTimeHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"solar":{"type":"string","format":"date-time"},"gregorian":{"type":"string","format":"date-time"},"lunar":{"type":"object","description":"农历信息: year/month/day/shichen","properties":{"year":{"type":"integer"},"month":{"type":"integer"},"day":{"type":"integer"},"leap":{"type":"boolean"},"shichen":{"type":"string"}}},"historical_time_hints":{"type":"array","description":"历史时制歧义提示（如 1986-1991 中国夏令时）","items":{"type":"object","properties":{"kind":{"type":"string"},"year":{"type":"integer"},"recorded_time":{"type":"string"},"standard_time":{"type":"string"},"daylight_time":{"type":"string"},"requires_confirm":{"type":"boolean"}}}}},"required":["solar","gregorian","lunar"]}`),
-	},
-	{
-		Name: "city.coords", Description: "根据城市名查询经纬度。优先使用内置城市表；未命中时可查询 Nominatim（OSM），部署方可用 LIKI_EXTERNAL_GEOCODING=off 禁用。",
-		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"city":{"type":"string","minLength":1,"maxLength":128,"description":"城市名称（中英文均可）"}},"required":["city"]}`),
-		Handler: cityCoordsHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"name":{"type":"string"},"longitude":{"type":"number"},"latitude":{"type":"number"},"country":{"type":"string"}},"required":["name","longitude","latitude","country"]}`),
 	},
 }

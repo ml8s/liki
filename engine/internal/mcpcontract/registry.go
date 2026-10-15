@@ -6,13 +6,31 @@
 package mcpcontract
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/google/jsonschema-go/jsonschema"
 )
+
+// forOptions adds reusable wire-level constraints that Go struct tags cannot
+// express through this library. Field-level descriptions still come from the
+// DTO's `jsonschema` tags.
+var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschema.Schema{
+	reflect.TypeFor[RFC3339Time](): {Type: "string", Format: "date-time"},
+	reflect.TypeFor[DateString]():  {Type: "string", Format: "date"},
+	reflect.TypeFor[CityName]():    {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
+	reflect.TypeFor[HuangliEvent](): {
+		Type: "string",
+		Enum: []any{
+			"wedding", "engage", "opening", "sign", "move", "travel", "build",
+			"exam", "medical", "sacrifice", "cleaning", "renovation",
+			"bed_install", "income", "funeral",
+		},
+	},
+	reflect.TypeFor[HuangliCount](): {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(30))},
+}}
 
 // Tool describes a typed MCP tool. Name uses the legacy registry convention
 // when replacing an existing tool (for example "time.now"); the MCP surface
@@ -55,20 +73,28 @@ func register[In, Out any](r *Registry, tool Tool[In, Out]) error {
 		return fmt.Errorf("mcp tool %s: handler is nil", tool.Name)
 	}
 
-	inputSchema, inputResolved, err := schemaFor[In]()
+	_, inputResolved, inputSchema, err := schemaFor[In]()
 	if err != nil {
 		return fmt.Errorf("mcp tool %s: input schema: %w", tool.Name, err)
 	}
-	outputSchema, outputResolved, err := schemaFor[Out]()
+	outputSchemaDocument, outputResolved, outputSchema, err := schemaFor[Out]()
 	if err != nil {
 		return fmt.Errorf("mcp tool %s: output schema: %w", tool.Name, err)
+	}
+
+	// MCP conformance in this service exposes object roots only. Array and
+	// scalar outputs keep runtime DTO validation but preserve the existing
+	// wire shape without a declared outputSchema.
+	exposedOutputSchema := json.RawMessage(nil)
+	if outputSchemaDocument.Type == "object" {
+		exposedOutputSchema = outputSchema
 	}
 
 	r.tools[tool.Name] = &registration{
 		name:         tool.Name,
 		description:  tool.Description,
 		inputSchema:  inputSchema,
-		outputSchema: outputSchema,
+		outputSchema: exposedOutputSchema,
 		call: func(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 			input, err := decodeInput[In](inputResolved, raw)
 			if err != nil {
@@ -128,20 +154,20 @@ func (r *Registry) Call(ctx context.Context, name string, arguments json.RawMess
 	return tool.call(ctx, arguments)
 }
 
-func schemaFor[T any]() (json.RawMessage, *jsonschema.Resolved, error) {
-	schema, err := jsonschema.For[T](nil)
+func schemaFor[T any]() (*jsonschema.Schema, *jsonschema.Resolved, json.RawMessage, error) {
+	schema, err := jsonschema.For[T](forOptions)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	resolved, err := schema.Resolve(nil)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	raw, err := schema.MarshalJSON()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return json.RawMessage(raw), resolved, nil
+	return schema, resolved, json.RawMessage(raw), nil
 }
 
 func decodeInput[In any](resolved *jsonschema.Resolved, raw json.RawMessage) (In, error) {
@@ -150,9 +176,7 @@ func decodeInput[In any](resolved *jsonschema.Resolved, raw json.RawMessage) (In
 		raw = json.RawMessage(`{}`)
 	}
 	var document any
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.UseNumber()
-	if err := decoder.Decode(&document); err != nil {
+	if err := json.Unmarshal(raw, &document); err != nil {
 		return input, err
 	}
 	if err := resolved.Validate(document); err != nil {
@@ -170,9 +194,7 @@ func encodeOutput[Out any](resolved *jsonschema.Resolved, output Out) (json.RawM
 		return nil, err
 	}
 	var document any
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.UseNumber()
-	if err := decoder.Decode(&document); err != nil {
+	if err := json.Unmarshal(raw, &document); err != nil {
 		return nil, err
 	}
 	if err := resolved.Validate(document); err != nil {

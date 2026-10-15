@@ -4,38 +4,29 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
+
+	"liki-engine/internal/mcpcontract"
 )
 
 func TestBaziChart_ExternalOracle_TrueSolarChain(t *testing.T) {
 	r := NewRPCRegistry()
 
-	timeResult, err := r.Execute(context.Background(), "tianwen.time", json.RawMessage(`{
-		"time":"1981-08-26T00:20:00+08:00",
-		"longitude":132.044137
-	}`))
+	timeOutput, err := mcpcontract.TianwenTime(context.Background(), mcpcontract.TianwenTimeInput{
+		Time:      "1981-08-26T00:20:00+08:00",
+		Longitude: 132.044137,
+	})
 	if err != nil {
 		t.Fatalf("tianwen.time: %v", err)
 	}
-	var timeEnvelope struct {
-		Data struct {
-			Solar string `json:"solar"`
-			Lunar struct {
-				Shichen string `json:"shichen"`
-			} `json:"lunar"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(timeResult, &timeEnvelope); err != nil {
-		t.Fatal(err)
-	}
-	if got, want := timeEnvelope.Data.Solar, "1981-08-26T01:06:00+08:00"; got != want {
+	if got, want := string(timeOutput.Solar), "1981-08-26T01:06:00+08:00"; got != want {
 		t.Fatalf("solar time = %s, want %s", got, want)
 	}
-	if got, want := timeEnvelope.Data.Lunar.Shichen, "丑"; got != want {
+	if got, want := timeOutput.Lunar.Shichen, "丑"; got != want {
 		t.Fatalf("shichen = %s, want %s", got, want)
 	}
 
 	params, err := json.Marshal(map[string]any{
-		"solar_time": timeEnvelope.Data.Solar,
+		"solar_time": timeOutput.Solar,
 		"gender":     "male",
 	})
 	if err != nil {

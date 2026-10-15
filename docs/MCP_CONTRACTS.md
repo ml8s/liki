@@ -43,10 +43,15 @@ Rules:
 
 ## Migration
 
-`time_now` is the reference implementation. Existing tools continue through
-the compatibility registry until they are migrated one by one. A tool is
-migrated only when its explicit wire DTOs cover the real MCP output and its
-schema, description, validation, and `structuredContent` contract tests pass.
+`time_now`, `huangli_days`, `tianwen_time`, and `city_coords` are reference
+implementations. Existing tools continue through the compatibility registry
+until they are migrated one by one. A tool is migrated only when its explicit
+wire DTOs cover the real MCP output and its schema, description, validation,
+and `structuredContent` contract tests pass.
+
+Array-root outputs preserve their wire shape. The typed registry still
+validates every element, but MCP `outputSchema` remains omitted for non-object
+roots, matching the current engine MCP conformance surface.
 
 Python MCP services will use Pydantic v2 models for the same role: schema
 generation, input validation, output validation, and JSON serialization.

@@ -184,7 +184,7 @@ def test_divination_safety_boundary_is_table_driven():
 def test_liuyao_chart_rpc_has_no_legacy_yaos_input():
     source = (ROOT / "engine/internal/agent/tools_other.go").read_text(encoding="utf-8")
     chart_start = source.index('Name: "liuyao.chart"')
-    chart_end = source.index('Name: "huangli.days"', chart_start)
+    chart_end = len(source)
     chart_source = source[chart_start:chart_end]
     assert '"required":["solar_time","casting"]' in chart_source
     assert '"additionalProperties":false' in chart_source

@@ -17,6 +17,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"liki-engine/internal/mcpcontract"
 )
 
 // 校验范围：unified Liki skill（根入口 + 四个领域包）
@@ -186,6 +188,17 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 	}
 	reg := NewRPCRegistry()
 	refs := registryFieldRefs(reg)
+	contracts := mcpcontract.NewEngine()
+	for _, name := range contracts.Names() {
+		definition, ok := contracts.Definition(name)
+		if !ok {
+			continue
+		}
+		collectFieldRefs(definition.InputSchema, "params.", refs)
+		if len(definition.OutputSchema) > 0 {
+			collectFieldRefs(definition.OutputSchema, name+".", refs)
+		}
+	}
 	// 放行集合：引擎工具名 + 当前 skill 工具 schema 词表 + skill 根文件
 	allow := map[string]bool{}
 	for name := range reg.methods {
@@ -211,6 +224,8 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"safety_advisory", "meta.skill", "info.version", "pan_digest",
 		"pan.ziwei_daxian", "chars", "frequency", "pools", "slot", "given_names",
 		"wuxing1", "wuxing2", "count", "source_surname", "max_candidates",
+		"start_date", "event", "jian_chu", "huangdao", "gan_ji", "zhi_ji",
+		"mansion", "xi_shen", "cai_shen", "fu_shen", "suitability",
 		"first", "second", "max_names", "yongshen", "xishen", "jishen",
 		"match_level", "baijiaxing_index", "surname", "pinyin", "tone", "basis",
 		"qimen_matters", "male", "female",

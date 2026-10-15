@@ -14,7 +14,7 @@ def test_catalog_matches_registered_engine_tool_methods():
     )
     source += "\n".join(
         path.read_text(encoding="utf-8")
-        for path in (ROOT / "engine" / "internal" / "mcpcontract").glob("*.go")
+        for path in sorted((ROOT / "engine" / "internal" / "mcpcontract").glob("*.go"))
     )
     methods = sorted(
         name.replace(".", "_")

@@ -32,12 +32,17 @@ func SetHTTPClient(c httpDoer) { httpClient = c }
 // HttpClient returns the current HTTP client. Useful for save/restore in tests.
 func HttpClient() httpDoer { return httpClient }
 
-type searchResult struct {
+// Coords is the resolved geocoding result. It is the typed domain boundary;
+// MCP applies its own public DTO on top of it.
+type Coords struct {
 	Name      string  `json:"name"`
 	Longitude float64 `json:"longitude"`
 	Latitude  float64 `json:"latitude"`
 	Country   string  `json:"country"`
 }
+
+// searchResult is retained as the internal spelling used by geocoding helpers.
+type searchResult = Coords
 
 type geoEntry struct {
 	Lng    float64 `json:"lng"`
@@ -58,7 +63,7 @@ var (
 )
 
 type externalGeoEntry struct {
-	result  searchResult
+	result  Coords
 	expires time.Time
 }
 
@@ -73,7 +78,7 @@ func newExternalGeoCache(max int, ttl time.Duration) *externalGeoCache {
 	return &externalGeoCache{max: max, ttl: ttl, entries: make(map[string]externalGeoEntry)}
 }
 
-func (c *externalGeoCache) get(query string) (searchResult, bool) {
+func (c *externalGeoCache) get(query string) (Coords, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	entry, ok := c.entries[query]
@@ -81,12 +86,12 @@ func (c *externalGeoCache) get(query string) (searchResult, bool) {
 		if ok {
 			delete(c.entries, query)
 		}
-		return searchResult{}, false
+		return Coords{}, false
 	}
 	return entry.result, true
 }
 
-func (c *externalGeoCache) set(query string, result searchResult) {
+func (c *externalGeoCache) set(query string, result Coords) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if len(c.entries) >= c.max {
@@ -103,7 +108,7 @@ func (c *externalGeoCache) set(query string, result searchResult) {
 	c.entries[query] = externalGeoCacheEntry(result, c.ttl)
 }
 
-func externalGeoCacheEntry(result searchResult, ttl time.Duration) externalGeoEntry {
+func externalGeoCacheEntry(result Coords, ttl time.Duration) externalGeoEntry {
 	return externalGeoEntry{result: result, expires: time.Now().Add(ttl)}
 }
 
@@ -157,33 +162,42 @@ func SearchCoords(ctx context.Context, raw json.RawMessage) (json.RawMessage, er
 	if err := json.Unmarshal(raw, &args); err != nil {
 		return nil, fmt.Errorf("city: search: %w", err)
 	}
-	if args.City == "" {
-		return nil, fmt.Errorf("city is required")
-	}
-
-	result, ok, err := searchBuiltin(args.City)
+	result, err := ResolveCoords(ctx, args.City)
 	if err != nil {
 		return nil, err
 	}
-	if !ok {
-		var err error
-		if cached, hit := nominatimCache.get(args.City); hit {
-			result = cached
-		} else {
-			if !externalGeocodingEnabled() {
-				return nil, fmt.Errorf(
-					"城市 '%s' 不在内置表且外部地理编码已禁用；请提供经纬度或开启 LIKI_EXTERNAL_GEOCODING",
-					args.City,
-				)
-			}
-			result, err = searchNominatim(ctx, args.City)
-			if err != nil {
-				return nil, fmt.Errorf("未找到城市 '%s'，请尝试附近大城市或直接提供经纬度和时区: %w", args.City, err)
-			}
-			nominatimCache.set(args.City, result)
-		}
-	}
 	return json.Marshal(result)
+}
+
+// ResolveCoords resolves a city name to typed coordinates. The embedded table
+// (counties/cities/world, WGS-84) is checked first; Nominatim (OSM) is used
+// as a fallback for long-tail places.
+func ResolveCoords(ctx context.Context, query string) (Coords, error) {
+	if query == "" {
+		return Coords{}, fmt.Errorf("city is required")
+	}
+	result, ok, err := searchBuiltin(query)
+	if err != nil {
+		return Coords{}, err
+	}
+	if ok {
+		return result, nil
+	}
+	if cached, hit := nominatimCache.get(query); hit {
+		return cached, nil
+	}
+	if !externalGeocodingEnabled() {
+		return Coords{}, fmt.Errorf(
+			"城市 '%s' 不在内置表且外部地理编码已禁用；请提供经纬度或开启 LIKI_EXTERNAL_GEOCODING",
+			query,
+		)
+	}
+	result, err = searchNominatim(ctx, query)
+	if err != nil {
+		return Coords{}, fmt.Errorf("未找到城市 '%s'，请尝试附近大城市或直接提供经纬度和时区: %w", query, err)
+	}
+	nominatimCache.set(query, result)
+	return result, nil
 }
 
 func externalGeocodingEnabled() bool {
@@ -201,11 +215,11 @@ func externalGeocodingEnabled() bool {
 // collected: a single candidate resolves, zero falls through to external
 // geocoding, and multiple distinct candidates fail closed (never guess a
 // default city for an ambiguous name).
-func searchBuiltin(name string) (searchResult, bool, error) {
+func searchBuiltin(name string) (Coords, bool, error) {
 	geoOnce.Do(loadGeo)
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return searchResult{}, false, nil
+		return Coords{}, false, nil
 	}
 	maps := []map[string]geoEntry{geo.Counties, geo.Cities, geo.World}
 	for _, m := range maps {
@@ -233,7 +247,7 @@ func searchBuiltin(name string) (searchResult, bool, error) {
 	}
 
 	if len(candidates) == 0 {
-		return searchResult{}, false, nil
+		return Coords{}, false, nil
 	}
 	keys := make([]string, 0, len(candidates))
 	for key := range candidates {
@@ -241,7 +255,7 @@ func searchBuiltin(name string) (searchResult, bool, error) {
 	}
 	sort.Strings(keys)
 	if len(keys) > 1 {
-		return searchResult{}, false, fmt.Errorf(
+		return Coords{}, false, fmt.Errorf(
 			"城市名 '%s' 存在歧义：%s；请提供更完整的名称或直接提供经纬度",
 			name, strings.Join(keys, "、"),
 		)
@@ -257,11 +271,11 @@ func stripRegionSuffix(s string) string {
 	return s
 }
 
-func resultFrom(name string, e geoEntry) searchResult {
+func resultFrom(name string, e geoEntry) Coords {
 	return searchResult{Name: name, Longitude: e.Lng, Latitude: e.Lat, Country: e.Region}
 }
 
-func searchNominatim(ctx context.Context, query string) (searchResult, error) {
+func searchNominatim(ctx context.Context, query string) (Coords, error) {
 	vals := url.Values{
 		"q":               {query},
 		"format":          {"json"},
@@ -273,18 +287,18 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 
 	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
-		return searchResult{}, fmt.Errorf("search: new request: %w", err)
+		return Coords{}, fmt.Errorf("search: new request: %w", err)
 	}
 	req.Header.Set("User-Agent", "Liki-Engine (https://liki.hk; contact: api@liki.hk)")
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return searchResult{}, fmt.Errorf("search: get: %w", err)
+		return Coords{}, fmt.Errorf("search: get: %w", err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		return searchResult{}, fmt.Errorf("search: status %d", resp.StatusCode)
+		return Coords{}, fmt.Errorf("search: status %d", resp.StatusCode)
 	}
 
 	var results []struct {
@@ -303,10 +317,10 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 		} `json:"address"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
-		return searchResult{}, fmt.Errorf("search: decode: %w", err)
+		return Coords{}, fmt.Errorf("search: decode: %w", err)
 	}
 	if len(results) == 0 {
-		return searchResult{}, fmt.Errorf("search: no results for %s", query)
+		return Coords{}, fmt.Errorf("search: no results for %s", query)
 	}
 
 	// Prefer administrative results over POIs and streets.
@@ -319,7 +333,7 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 	}
 	if len(admins) > 1 && results[admins[0]].Name == results[admins[1]].Name {
 		// 同名行政区跨省歧义：无法可靠消歧，明确提示（不静默取错省）。
-		return searchResult{}, fmt.Errorf("同名行政区跨省歧义，请提供省/市限定（如 '辽宁朝阳'）：%s", query)
+		return Coords{}, fmt.Errorf("同名行政区跨省歧义，请提供省/市限定（如 '辽宁朝阳'）：%s", query)
 	}
 	if len(admins) == 0 {
 		admins = []int{0}
@@ -327,13 +341,13 @@ func searchNominatim(ctx context.Context, query string) (searchResult, error) {
 	r := results[admins[0]]
 	lon, err := parseFloat(r.Lon)
 	if err != nil {
-		return searchResult{}, fmt.Errorf("search: parse lon: %w", err)
+		return Coords{}, fmt.Errorf("search: parse lon: %w", err)
 	}
 	lat, err := parseFloat(r.Lat)
 	if err != nil {
-		return searchResult{}, fmt.Errorf("search: parse lat: %w", err)
+		return Coords{}, fmt.Errorf("search: parse lat: %w", err)
 	}
-	return searchResult{
+	return Coords{
 		Name:      r.Name,
 		Longitude: lon,
 		Latitude:  lat,

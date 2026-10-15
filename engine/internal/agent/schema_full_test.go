@@ -58,8 +58,6 @@ func TestAllMethodsSchema(t *testing.T) {
 		}),
 		"xuankong.chart":   mustJSON(t, map[string]any{"period_date": "2026-07-31", "zuo_shan": 2, "xiang_shan": 14}),
 		"xuankong.liunian": mustJSON(t, map[string]any{"chart": x, "year": 2026}),
-		"huangli.days":     mustJSON(t, map[string]any{"start_date": "2026-08-01", "count": 2}),
-		"tianwen.time":     mustJSON(t, map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "latitude": 39.9}),
 	}
 
 	schemas := resultDataSchemas(t, reg)

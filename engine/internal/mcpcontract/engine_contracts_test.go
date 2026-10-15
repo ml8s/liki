@@ -1,0 +1,177 @@
+package mcpcontract
+
+import (
+	"context"
+	"encoding/json"
+	"os"
+	"testing"
+
+	"liki-engine/internal/engine/huangli"
+)
+
+func TestMain(m *testing.M) {
+	if err := huangli.Load(); err != nil {
+		panic(err)
+	}
+	os.Exit(m.Run())
+}
+
+func TestEngineContractDefinitions(t *testing.T) {
+	registry := NewEngine()
+	want := []string{"time.now", "huangli.days", "tianwen.time", "city.coords"}
+	got := registry.Names()
+	if len(got) != len(want) {
+		t.Fatalf("contracts = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("contracts = %v, want %v", got, want)
+		}
+	}
+
+	for _, name := range want {
+		definition, ok := registry.Definition(name)
+		if !ok {
+			t.Fatalf("%s is not registered", name)
+		}
+		if definition.Description == "" {
+			t.Errorf("%s has no description", name)
+		}
+		if len(definition.InputSchema) == 0 {
+			t.Errorf("%s has no input schema", name)
+		}
+	}
+
+	// Object roots expose output schemas. The existing huangli wire root is an
+	// array, so it remains runtime-validated but intentionally undeclared.
+	for _, name := range []string{"time.now", "tianwen.time", "city.coords"} {
+		definition, _ := registry.Definition(name)
+		if len(definition.OutputSchema) == 0 {
+			t.Errorf("%s should declare an object output schema", name)
+		}
+	}
+	if definition, _ := registry.Definition("huangli.days"); len(definition.OutputSchema) != 0 {
+		t.Errorf("huangli.days should not declare a non-object output schema")
+	}
+}
+
+func TestEngineContractInputConstraints(t *testing.T) {
+	registry := NewEngine()
+
+	var cityInput struct {
+		Type                 string   `json:"type"`
+		AdditionalProperties *bool    `json:"additionalProperties"`
+		Required             []string `json:"required"`
+		Properties           map[string]struct {
+			Type      string `json:"type"`
+			MinLength int    `json:"minLength"`
+			MaxLength int    `json:"maxLength"`
+		} `json:"properties"`
+	}
+	decode(t, mustDefinition(t, registry, "city.coords").InputSchema, &cityInput)
+	if cityInput.Type != "object" || cityInput.AdditionalProperties == nil || *cityInput.AdditionalProperties {
+		t.Fatalf("city input is not a closed object: %#v", cityInput)
+	}
+	if len(cityInput.Required) != 1 || cityInput.Required[0] != "city" {
+		t.Fatalf("city required = %#v", cityInput.Required)
+	}
+	if city, ok := cityInput.Properties["city"]; !ok || city.Type != "string" || city.MinLength != 1 || city.MaxLength != 128 {
+		t.Fatalf("city schema = %#v", city)
+	}
+
+	var tianwenInput struct {
+		Properties map[string]struct {
+			Type   string `json:"type"`
+			Format string `json:"format"`
+		} `json:"properties"`
+	}
+	decode(t, mustDefinition(t, registry, "tianwen.time").InputSchema, &tianwenInput)
+	if timeSchema, ok := tianwenInput.Properties["time"]; !ok || timeSchema.Type != "string" || timeSchema.Format != "date-time" {
+		t.Fatalf("tianwen time schema = %#v", timeSchema)
+	}
+
+	var huangliInput struct {
+		Required   []string `json:"required"`
+		Properties map[string]struct {
+			Format  string   `json:"format"`
+			Minimum *float64 `json:"minimum"`
+			Maximum *float64 `json:"maximum"`
+			Enum    []any    `json:"enum"`
+		} `json:"properties"`
+	}
+	decode(t, mustDefinition(t, registry, "huangli.days").InputSchema, &huangliInput)
+	if len(huangliInput.Required) != 1 || huangliInput.Required[0] != "start_date" {
+		t.Fatalf("huangli required = %#v", huangliInput.Required)
+	}
+	if start := huangliInput.Properties["start_date"]; start.Format != "date" {
+		t.Fatalf("huangli start_date schema = %#v", start)
+	}
+	if count := huangliInput.Properties["count"]; count.Minimum == nil || *count.Minimum != 1 || count.Maximum == nil || *count.Maximum != 30 {
+		t.Fatalf("huangli count schema = %#v", count)
+	}
+	if event := huangliInput.Properties["event"]; len(event.Enum) != 15 {
+		t.Fatalf("huangli event enum = %#v", event.Enum)
+	}
+}
+
+func mustDefinition(t *testing.T, registry *Registry, name string) Definition {
+	t.Helper()
+	definition, ok := registry.Definition(name)
+	if !ok {
+		t.Fatalf("%s is not registered", name)
+	}
+	return definition
+}
+
+func TestEngineContractCalls(t *testing.T) {
+	registry := NewEngine()
+
+	cityRaw, err := registry.Call(context.Background(), "city.coords", mustJSON(t, CityCoordsInput{City: "北京"}))
+	if err != nil {
+		t.Fatalf("city.coords: %v", err)
+	}
+	var cityOutput CityCoordsOutput
+	if err := json.Unmarshal(cityRaw, &cityOutput); err != nil {
+		t.Fatal(err)
+	}
+	if cityOutput.Name == "" || cityOutput.Longitude == 0 || cityOutput.Latitude == 0 || cityOutput.Country == "" {
+		t.Fatalf("incomplete city output: %#v", cityOutput)
+	}
+
+	huangliRaw, err := registry.Call(context.Background(), "huangli.days", mustJSON(t, HuangliDaysInput{
+		StartDate: "2024-06-15",
+		Count:     huangliCountPtr(1),
+		Event:     "sign",
+	}))
+	if err != nil {
+		t.Fatalf("huangli.days: %v", err)
+	}
+	var huangliOutput []HuangliDayOutput
+	if err := json.Unmarshal(huangliRaw, &huangliOutput); err != nil {
+		t.Fatal(err)
+	}
+	if len(huangliOutput) != 1 {
+		t.Fatalf("huangli days = %d, want 1", len(huangliOutput))
+	}
+	day := huangliOutput[0]
+	if day.Event != "sign" || day.EventLabel != "签约" || day.Suitability != "recommended" {
+		t.Fatalf("huangli classification = %#v", day)
+	}
+	if len(day.ShiChen) == 0 || day.Mansion.Name == "" || day.RiZhu.Gan == "" {
+		t.Fatalf("huangli wire DTO lost nested facts: %#v", day)
+	}
+}
+
+func huangliCountPtr(value int) *HuangliCount {
+	count := HuangliCount(value)
+	return &count
+}
+
+func mustJSON(t *testing.T, value any) json.RawMessage {
+	t.Helper()
+	raw, err := json.Marshal(value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return raw
+}

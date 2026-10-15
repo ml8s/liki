@@ -207,7 +207,7 @@ func TestCallTool_UnknownTool(t *testing.T) {
 
 // TestCallTool_ConsistencyWithLegacyRegistry verifies that unmigrated MCP tool
 // output equals the compatibility registry data payload after envelope removal.
-func TestCallTool_ConsistencyWithRPC(t *testing.T) {
+func TestCallTool_ConsistencyWithLegacyRegistry(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	srv := newMCPServer(reg, testVersion, newTestLogger())
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
@@ -229,7 +229,6 @@ func TestCallTool_ConsistencyWithRPC(t *testing.T) {
 	}{
 		{"bazi.chart", map[string]any{"solar_time": "1984-02-04T06:00:00+08:00", "gender": "male"}},
 		{"bazhai.chart", map[string]any{"birth_year": 1990, "gender": "male"}},
-		{"tianwen.time", map[string]any{"time": "1984-02-04T06:00:00+08:00", "longitude": 116.4}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.method, func(t *testing.T) {

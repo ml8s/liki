@@ -4,12 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 	"testing"
 
-	"liki-engine/internal/agent/city"
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/qimen"
 )
@@ -120,30 +117,6 @@ func TestValidateGender(t *testing.T) {
 	}
 }
 
-// ── TimePoint.Timeset ──
-
-func TestTimePoint_Timeset(t *testing.T) {
-	tests := []struct {
-		name    string
-		time    string
-		wantErr bool
-	}{
-		{"有效时间", "1984-02-15T08:00:00+08:00", false},
-		{"无效格式", "1984-02-15", true},
-		{"空字符串", "", true},
-		{"无时区", "1984-02-15T08:00:00", true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tp := TimePoint{Time: tt.time, Longitude: 116.4}
-			_, err := tp.Timeset()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Timeset(%q) err=%v, wantErr=%v", tt.time, err, tt.wantErr)
-			}
-		})
-	}
-}
-
 // ── handler error paths ──
 
 func TestHandler_InvalidJSON(t *testing.T) {
@@ -158,8 +131,6 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua", "liuyao.chart",
-		"huangli.days",
-		"city.coords",
 	}
 	badJSON := json.RawMessage(`{bad`)
 	for _, name := range handlers {
@@ -455,25 +426,6 @@ func TestHandler_ComputeXuankongChart_Valid(t *testing.T) {
 	}
 }
 
-func TestHandler_HuangliDays_Valid(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "huangli.days", json.RawMessage(`{"start_date":"2026-06-26","count":3}`))
-	if err != nil {
-		t.Fatalf("huangli.days: %v", err)
-	}
-	if getStr(result, "_product") != "huangli_days" {
-		t.Errorf("_product = %q, want huangli_days", getStr(result, "_product"))
-	}
-}
-
-func TestHandler_HuangliDays_InvalidDate(t *testing.T) {
-	r := NewRPCRegistry()
-	_, err := r.Execute(context.Background(), "huangli.days", json.RawMessage(`{"start_date":"not-a-date"}`))
-	if err == nil {
-		t.Error("expected error for invalid date format")
-	}
-}
-
 func TestHandler_ComputeXiaoYun_Valid(t *testing.T) {
 	r := NewRPCRegistry()
 	chart := getBaziChart(t, r, btOK, "male")
@@ -702,33 +654,6 @@ func TestHandler_LiuyaoQigua(t *testing.T) {
 	}
 }
 
-func TestHandler_HuangliDays_EventClassification(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "huangli.days", json.RawMessage(
-		`{"start_date":"2024-06-15","count":1,"event":"sign"}`,
-	))
-	if err != nil {
-		t.Fatalf("huangli.days: %v", err)
-	}
-	var env struct {
-		Data []struct {
-			Event       string `json:"event"`
-			EventLabel  string `json:"event_label"`
-			Suitability string `json:"suitability"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	if len(env.Data) != 1 {
-		t.Fatalf("days = %d, want 1", len(env.Data))
-	}
-	got := env.Data[0]
-	if got.Event != "sign" || got.EventLabel != "签约" || got.Suitability != "recommended" {
-		t.Fatalf("classification = %+v, want sign/签约/recommended", got)
-	}
-}
-
 func TestHandler_LiuyaoQigua_ManualCoins(t *testing.T) {
 	r := NewRPCRegistry()
 	rounds := []string{
@@ -790,72 +715,6 @@ func TestHandler_LiuyaoChart_MissingInput(t *testing.T) {
 	if !strings.Contains(err.Error(), "casting") {
 		t.Errorf("error = %q, want 'casting is required'", err.Error())
 	}
-}
-
-func TestHandler_City_Valid(t *testing.T) {
-	orig := city.HttpClient()
-	city.SetHTTPClient(&http.Client{
-		Transport: &mockNominatimTransport{body: `[{"lat":"39.9042","lon":"116.4074","name":"Beijing","address":{"country":"China","country_code":"CN"}}]`},
-	})
-	defer city.SetHTTPClient(orig)
-
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "city.coords", json.RawMessage(`{"city":"Beijing"}`))
-	if err != nil {
-		t.Fatalf("city.coords: %v", err)
-	}
-	if getStr(result, "_product") != "city_coords" {
-		t.Errorf("_product = %q, want city_coords", getStr(result, "_product"))
-	}
-	if !hasKey(result, "data") {
-		t.Error("missing data")
-	}
-}
-
-// =============================================================================
-// tianwen.time
-// =============================================================================
-
-func TestHandler_TianwenTime(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"time":"2000-06-15T12:00:00+08:00","longitude":116.4}`)
-	result, err := r.Execute(context.Background(), "tianwen.time", params)
-	if err != nil {
-		t.Fatalf("tianwen.time: %v", err)
-	}
-	var env struct {
-		Data json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatalf("unmarshal envelope: %v", err)
-	}
-	var ts struct {
-		Solar     string `json:"solar"`
-		Gregorian string `json:"gregorian"`
-		Lunar     struct {
-			Year  int `json:"year"`
-			Month int `json:"month"`
-			Day   int `json:"day"`
-		} `json:"lunar"`
-	}
-	if err := json.Unmarshal(env.Data, &ts); err != nil {
-		t.Fatalf("unmarshal: %v", err)
-	}
-	if ts.Solar == "" {
-		t.Error("solar is empty")
-	}
-	if ts.Gregorian == "" {
-		t.Error("gregorian is empty")
-	}
-	if ts.Lunar.Year == 0 {
-		t.Error("lunar year is zero")
-	}
-}
-
-func TestHandler_TianwenTime_InvalidTime(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(`{"time":"","longitude":116.4}`)
-	assertError(t, r, "tianwen.time", params)
 }
 
 // =============================================================================
@@ -987,19 +846,6 @@ func TestHandler_ZiweiLiuri_Valid(t *testing.T) {
 	if !hasKey(result, "data") {
 		t.Error("missing data")
 	}
-}
-
-// mockNominatimTransport simulates a Nominatim API response for city handler tests.
-type mockNominatimTransport struct {
-	body string
-}
-
-func (m *mockNominatimTransport) RoundTrip(_ *http.Request) (*http.Response, error) {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(strings.NewReader(m.body)),
-		Header:     http.Header{"Content-Type": []string{"application/json"}},
-	}, nil
 }
 
 // ── Judgment / Annual handler tests ──

@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
+
+	"liki-engine/internal/mcpcontract"
 )
 
 func TestQimenPatternSchemaMatchesTable(t *testing.T) {
@@ -865,12 +867,16 @@ func TestQimenJinhanHandlerAndResultContract(t *testing.T) {
 
 func TestQimenConsumesTianwenSolarTime(t *testing.T) {
 	reg := NewRPCRegistry()
-	timeResult := executeAndDecode(t, reg, "tianwen.time", mustJSON(t, map[string]any{
-		"time": "2026-03-02T18:30:00+08:00", "longitude": 116.4,
-	}))
-	solar, ok := timeResult["data"].(map[string]any)["solar"].(string)
-	if !ok || solar == "" {
-		t.Fatalf("tianwen.time solar = %#v", timeResult["data"])
+	timeOutput, err := mcpcontract.TianwenTime(context.Background(), mcpcontract.TianwenTimeInput{
+		Time:      "2026-03-02T18:30:00+08:00",
+		Longitude: 116.4,
+	})
+	if err != nil {
+		t.Fatalf("tianwen.time: %v", err)
+	}
+	solar := timeOutput.Solar
+	if solar == "" {
+		t.Fatal("tianwen.time solar is empty")
 	}
 	params := mustJSON(t, map[string]any{"solar_time": solar})
 	result := executeAndDecode(t, reg, "qimen.chart", params)
