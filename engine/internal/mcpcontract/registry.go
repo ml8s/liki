@@ -105,7 +105,60 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 	},
 	reflect.TypeFor[TrigramGroupName](): {Type: "string", Enum: []any{"东四卦", "西四卦"}},
 	reflect.TypeFor[BazhaiMatchName]():  {Type: "string", Enum: []any{"吉", "凶"}},
+	reflect.TypeFor[LiuyaoQiguaMode]():  {Type: "string", Enum: []any{"auto", "coins", "yaos"}},
+	reflect.TypeFor[LiuyaoCastMode]():   {Type: "string", Enum: []any{"coins", "yaos"}},
+	reflect.TypeFor[LiuyaoOrderName]():  {Type: "string", Enum: []any{"bottom_up"}},
+	reflect.TypeFor[LiuyaoCoinSymbol](): {
+		Type: "string", Enum: []any{"正", "反"},
+	},
+	reflect.TypeFor[LiuyaoHeadsValue](): {Type: "integer", Enum: []any{3}},
+	reflect.TypeFor[LiuyaoTailsValue](): {Type: "integer", Enum: []any{2}},
+	reflect.TypeFor[LiuyaoYaoValue](): {
+		Type: "integer", Minimum: jsonschema.Ptr(float64(6)), Maximum: jsonschema.Ptr(float64(9)),
+	},
+	reflect.TypeFor[LiuyaoPosition](): {
+		Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(6)),
+	},
+	reflect.TypeFor[LiuyaoYaoLabel](): {
+		Type: "string", Enum: []any{"老阴", "少阳", "少阴", "老阳"},
+	},
+	reflect.TypeFor[LiuyaoSchemaVersion](): {Type: "string", Enum: []any{"liuyao-cast-v1"}},
+	reflect.TypeFor[LiuyaoCastingID]():     {Type: "string", Pattern: "^[a-f0-9]{64}$"},
 }}
+
+// Fixed-length six-coin and six-line arrays cannot be represented directly by
+// Go slices. Derive their item schemas from the DTOs, then attach JSON Schema
+// length constraints. This keeps the item contract DTO-owned.
+func init() {
+	inputRound, err := jsonschema.For[LiuyaoCoinRoundInput](forOptions)
+	if err != nil {
+		panic(fmt.Sprintf("derive liuyao input coin round schema: %v", err))
+	}
+	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoCoinRoundsInput]()] = &jsonschema.Schema{
+		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: inputRound,
+	}
+	inputValues, err := jsonschema.For[LiuyaoYaoValue](forOptions)
+	if err != nil {
+		panic(fmt.Sprintf("derive liuyao input yao values schema: %v", err))
+	}
+	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoYaoValuesInput]()] = &jsonschema.Schema{
+		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: inputValues,
+	}
+	outputRound, err := jsonschema.For[LiuyaoCoinRoundOutput](forOptions)
+	if err != nil {
+		panic(fmt.Sprintf("derive liuyao output coin round schema: %v", err))
+	}
+	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoCoinRoundsOutput]()] = &jsonschema.Schema{
+		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: outputRound,
+	}
+	outputValues, err := jsonschema.For[LiuyaoYaoValue](forOptions)
+	if err != nil {
+		panic(fmt.Sprintf("derive liuyao output yao values schema: %v", err))
+	}
+	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoYaoValuesOutput]()] = &jsonschema.Schema{
+		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: outputValues,
+	}
+}
 
 // Tool describes a typed MCP tool. Name uses the legacy registry convention
 // when replacing an existing tool (for example "time.now"); the MCP surface

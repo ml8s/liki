@@ -4,7 +4,7 @@
 
 ### Changed
 
-- 启动 MCP-native typed contract registry，先迁移 `time_now` / `huangli_days` / `tianwen_time` / `city_coords` / `bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian`：input/output schema、描述、参数校验、输出校验和 `structuredContent` 均由显式 wire DTO 生成。这些工具从 legacy raw-JSON registry 移除；输出契约明确 `local` 为必填字段，并补齐字段级描述。数组根的黄历输出保持原 wire shape，运行时 DTO 校验但不声明 MCP `outputSchema`。
+- 启动 MCP-native typed contract registry，先迁移 `time_now` / `huangli_days` / `tianwen_time` / `city_coords` / `bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian` / `liuyao_qigua`：input/output schema、描述、参数校验、输出校验和 `structuredContent` 均由显式 wire DTO 生成。这些工具从 legacy raw-JSON registry 移除；输出契约明确 `local` 为必填字段，并补齐字段级描述。数组根的黄历输出保持原 wire shape，运行时 DTO 校验但不声明 MCP `outputSchema`。
 
 ### Removed
 

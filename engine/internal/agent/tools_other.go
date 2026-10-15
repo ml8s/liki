@@ -75,61 +75,9 @@ func qimenChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 
 // ── liuyao ──
 
-// schemaLiuyaoCasting is the complete receipt contract shared by qigua output
-// and chart input. Keeping it self-contained avoids a loose generic object.
+// schemaLiuyaoCasting is the complete receipt contract for chart input. It is
+// retained only until liuyao.chart migrates to the typed MCP registry.
 const schemaLiuyaoCasting = `{"type":"object","additionalProperties":false,"properties":{"schema_version":{"type":"string","const":"liuyao-cast-v1"},"mode":{"type":"string","enum":["coins","yaos"]},"order":{"type":"string","const":"bottom_up"},"coin_convention":{"type":"object","additionalProperties":false,"properties":{"正":{"type":"integer","const":3},"反":{"type":"integer","const":2}},"required":["正","反"]},"rounds":{"type":"array","minItems":6,"maxItems":6,"items":{"type":"object","additionalProperties":false,"properties":{"position":{"type":"integer","minimum":1,"maximum":6},"coins":{"type":"array","minItems":3,"maxItems":3,"items":{"type":"string","enum":["正","反"]}},"value":{"type":"integer","minimum":6,"maximum":9},"label":{"type":"string","enum":["老阴","少阳","少阴","老阳"]},"changing":{"type":"boolean"}},"required":["position","coins","value","label","changing"]}},"yaos":{"type":"array","minItems":6,"maxItems":6,"items":{"type":"integer","minimum":6,"maximum":9}},"dong_yao":{"type":"array","items":{"type":"integer","minimum":1,"maximum":6}},"casting_id":{"type":"string","pattern":"^[a-f0-9]{64}$"}},"required":["schema_version","mode","order","yaos","dong_yao","casting_id"]}`
-
-func liuyaoQiguaHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		Mode   string     `json:"mode,omitempty"`
-		Rounds [][]string `json:"rounds,omitempty"`
-		Yaos   []int      `json:"yaos,omitempty"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("liuyao.qigua: %w", err)
-	}
-
-	var casting liuyao.Casting
-	var err error
-	mode := p.Mode
-	if mode == "" {
-		mode = "auto"
-	}
-	switch mode {
-	case "auto":
-		if p.Rounds != nil || p.Yaos != nil {
-			return nil, fmt.Errorf("liuyao.qigua: auto mode does not accept rounds or yaos")
-		}
-		casting, err = liuyao.SecureQigua()
-		if err != nil {
-			return nil, fmt.Errorf("liuyao.qigua: %w", err)
-		}
-	case "coins":
-		if p.Yaos != nil {
-			return nil, fmt.Errorf("liuyao.qigua: coins mode accepts rounds only")
-		}
-		casting, err = liuyao.NewCoinsCasting(p.Rounds)
-		if err != nil {
-			return nil, fmt.Errorf("liuyao.qigua: %w", err)
-		}
-	case "yaos":
-		if p.Rounds != nil {
-			return nil, fmt.Errorf("liuyao.qigua: yaos mode accepts yaos only")
-		}
-		var values [6]int
-		copy(values[:], p.Yaos)
-		casting, err = liuyao.NewValuesCasting(values)
-		if err != nil {
-			return nil, fmt.Errorf("liuyao.qigua: %w", err)
-		}
-	default:
-		return nil, fmt.Errorf("liuyao.qigua: unsupported mode %q", mode)
-	}
-
-	return wrapResult("liuyao_qigua", struct {
-		Casting liuyao.Casting `json:"casting"`
-	}{Casting: casting})
-}
 
 func liuyaoChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
 	var p struct {
@@ -193,12 +141,6 @@ var otherMethods = []RPCMethod{
 		Result:  envelopeSchema(string(qimenSchemas.Result)),
 	},
 
-	{
-		Name: "liuyao.qigua", Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次；mode=coins 时传入六组正/反记录；mode=yaos 时传入六个爻值。返回可审计起卦收据。",
-		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"mode":{"type":"string","enum":["auto","coins","yaos"],"default":"auto"},"rounds":{"type":"array","minItems":6,"maxItems":6,"description":"coins 模式：六组三枚硬币，初爻到上爻","items":{"type":"array","minItems":3,"maxItems":3,"items":{"type":"string","enum":["正","反"]}}},"yaos":{"type":"array","minItems":6,"maxItems":6,"items":{"type":"integer","minimum":6,"maximum":9},"description":"yaos 模式：六爻值，初爻到上爻"}},"required":[]}`),
-		Handler: liuyaoQiguaHandler,
-		Result:  envelopeSchema(`{"type":"object","additionalProperties":false,"properties":{"casting":` + schemaLiuyaoCasting + `},"required":["casting"]}`),
-	},
 	{
 		Name: "liuyao.chart", Description: "六爻装卦。只接受 liuyao.qigua 返回的完整 casting 收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。lines.liu_qin: 0=父母 1=兄弟 2=官鬼 3=妻财 4=子孙；lines.liu_shou: 0=青龙 1=朱雀 2=勾陈 3=螣蛇 4=白虎 5=玄武；wang_shuai: 0=旺 1=相 2=休 3=囚 4=死",
 		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"solar_time":` + schemaSolarTime + `,"yong_shen":{"type":"string","enum":["父母","兄弟","官鬼","妻财","子孙","世爻","应爻"],"description":"用神；默认世爻"},"casting":` + schemaLiuyaoCasting + `},"required":["solar_time","casting"]}`),

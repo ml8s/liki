@@ -73,6 +73,11 @@ func NewEngine() *Registry {
 		Description: "玄空流年飞星。chart（可选）+ year → 流年飞星盘 + 宅盘凶星落宫对照（确定性计算）。",
 		Handler:     XuankongLiunian,
 	})
+	mustRegister(registry, Tool[LiuyaoQiguaInput, LiuyaoQiguaOutput]{
+		Name:        "liuyao.qigua",
+		Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次；mode=coins 时传入六组正/反记录；mode=yaos 时传入六个爻值。返回可审计起卦收据。",
+		Handler:     LiuyaoQigua,
+	})
 	return registry
 }
 

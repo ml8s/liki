@@ -194,15 +194,13 @@ def test_liuyao_chart_rpc_has_no_legacy_yaos_input():
 
 
 def test_liuyao_qigua_rpc_returns_single_casting_receipt():
-    source = (ROOT / "engine/internal/agent/tools_other.go").read_text(encoding="utf-8")
-    qigua_start = source.index('Name: "liuyao.qigua"')
-    qigua_end = source.index('Name: "liuyao.chart"', qigua_start)
-    qigua_source = source[qigua_start:qigua_end]
-    assert '"required":["casting"]' in qigua_source
-    assert '"additionalProperties":false' in qigua_source
-    assert '"required":["yaos","dong_yao","casting"]' not in qigua_source
+    source = (ROOT / "engine/internal/mcpcontract/liuyao.go").read_text(encoding="utf-8")
+    assert "type LiuyaoQiguaOutput struct" in source
+    assert "Casting LiuyaoCastingOutput" in source
+    assert "LiuyaoCoinRoundsInput" in source
+    assert "LiuyaoYaoValuesInput" in source
     assert '"casting_mode"' not in source
-    assert "Seed" not in qigua_source
+    assert "Seed" not in source
     assert "QiguaWithSeed" not in source
 
 

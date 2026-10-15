@@ -32,6 +32,7 @@ ENGINE_TOOL_FILES = (
     ROOT / "engine/internal/mcpcontract/city.go",
     ROOT / "engine/internal/mcpcontract/bazhai.go",
     ROOT / "engine/internal/mcpcontract/xuankong.go",
+    ROOT / "engine/internal/mcpcontract/liuyao.go",
 )
 
 

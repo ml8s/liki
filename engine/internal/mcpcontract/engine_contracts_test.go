@@ -9,11 +9,12 @@ import (
 
 	"liki-engine/internal/engine/bazhai"
 	"liki-engine/internal/engine/huangli"
+	"liki-engine/internal/engine/liuyao"
 	"liki-engine/internal/engine/xuankong"
 )
 
 func TestMain(m *testing.M) {
-	loaders := []func() error{huangli.Load, bazhai.Load, xuankong.Load}
+	loaders := []func() error{huangli.Load, bazhai.Load, xuankong.Load, liuyao.Load}
 	for _, load := range loaders {
 		if err := load(); err != nil {
 			panic(err)
@@ -28,6 +29,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 		"time.now", "huangli.days", "tianwen.time", "city.coords",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
+		"liuyao.qigua",
 	}
 	got := registry.Names()
 	if len(got) != len(want) {
@@ -57,6 +59,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 	for _, name := range []string{
 		"time.now", "tianwen.time", "city.coords",
 		"bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian",
+		"liuyao.qigua",
 	} {
 		definition, _ := registry.Definition(name)
 		if len(definition.OutputSchema) == 0 {
@@ -295,6 +298,31 @@ func TestEngineContractCalls(t *testing.T) {
 		Year:  2026,
 	})); err == nil || !strings.Contains(err.Error(), "digest mismatch") {
 		t.Fatalf("expected digest mismatch, got %v", err)
+	}
+
+	qiguaRaw, err := registry.Call(context.Background(), "liuyao.qigua", mustJSON(t, LiuyaoQiguaInput{
+		Mode: "yaos",
+		Yaos: LiuyaoYaoValuesInput{7, 7, 7, 7, 7, 7},
+	}))
+	if err != nil {
+		t.Fatalf("liuyao.qigua: %v", err)
+	}
+	var qigua LiuyaoQiguaOutput
+	if err := json.Unmarshal(qiguaRaw, &qigua); err != nil {
+		t.Fatal(err)
+	}
+	if qigua.Casting.Mode != "yaos" || len(qigua.Casting.Yaos) != 6 ||
+		len(qigua.Casting.DongYao) != 0 || qigua.Casting.CastingID == "" {
+		t.Fatalf("incomplete liuyao casting: %#v", qigua.Casting)
+	}
+	if qigua.Casting.CoinConvention != nil || qigua.Casting.Rounds != nil {
+		t.Fatalf("yaos casting should omit coin-only audit fields: %#v", qigua.Casting)
+	}
+
+	if _, err := registry.Call(context.Background(), "liuyao.qigua", mustJSON(t, LiuyaoQiguaInput{
+		Yaos: LiuyaoYaoValuesInput{7, 7, 7, 7, 7, 7},
+	})); err == nil || !strings.Contains(err.Error(), "auto mode does not accept") {
+		t.Fatalf("expected auto-mode extra input rejection, got %v", err)
 	}
 }
 

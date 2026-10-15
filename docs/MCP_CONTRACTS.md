@@ -44,11 +44,11 @@ Rules:
 ## Migration
 
 `time_now`, `huangli_days`, `tianwen_time`, `city_coords`, `bazhai_chart`,
-`bazhai_layout`, `xuankong_chart`, and `xuankong_liunian` are reference
-implementations. Existing tools continue through the compatibility registry
-until they are migrated one by one. A tool is migrated only when its explicit
-wire DTOs cover the real MCP output and its schema, description, validation,
-and `structuredContent` contract tests pass.
+`bazhai_layout`, `xuankong_chart`, `xuankong_liunian`, and `liuyao_qigua` are
+reference implementations. Existing tools continue through the compatibility
+registry until they are migrated one by one. A tool is migrated only when its
+explicit wire DTOs cover the real MCP output and its schema, description,
+validation, and `structuredContent` contract tests pass.
 
 Array-root outputs preserve their wire shape. The typed registry still
 validates every element, but MCP `outputSchema` remains omitted for non-object

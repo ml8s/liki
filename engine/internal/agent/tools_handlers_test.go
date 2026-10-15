@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/liuyao"
 	"liki-engine/internal/engine/qimen"
 )
 
@@ -128,7 +129,7 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
-		"liuyao.qigua", "liuyao.chart",
+		"liuyao.chart",
 	}
 	badJSON := json.RawMessage(`{bad`)
 	for _, name := range handlers {
@@ -293,28 +294,15 @@ func TestHandler_QimenBirthDateBoundary(t *testing.T) {
 
 func liuyaoCastingJSON(t *testing.T, r *RPCRegistry, values [6]int) json.RawMessage {
 	t.Helper()
-	valuesJSON, err := json.Marshal(values)
+	receipt, err := liuyao.NewValuesCasting(values)
 	if err != nil {
 		t.Fatal(err)
 	}
-	result, err := r.Execute(context.Background(), "liuyao.qigua", json.RawMessage(
-		[]byte(`{"mode":"yaos","yaos":`+string(valuesJSON)+`}`),
-	))
+	casting, err := json.Marshal(receipt)
 	if err != nil {
-		t.Fatalf("liuyao.qigua yaos: %v", err)
-	}
-	var env struct {
-		Data struct {
-			Casting json.RawMessage `json:"casting"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
 		t.Fatal(err)
 	}
-	if len(env.Data.Casting) == 0 {
-		t.Fatal("liuyao.qigua returned no casting")
-	}
-	return env.Data.Casting
+	return casting
 }
 
 func TestHandler_LiuyaoYongShenDefault(t *testing.T) {
@@ -584,60 +572,6 @@ func TestWrapResult(t *testing.T) {
 	}
 	if !hasKey(result, "data") {
 		t.Error("missing data field")
-	}
-}
-
-// ── liuyao.qigua ──
-
-func TestHandler_LiuyaoQigua(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "liuyao.qigua", json.RawMessage(`{}`))
-	if err != nil {
-		t.Fatalf("liuyao.qigua: %v", err)
-	}
-	if getStr(result, "_product") != "liuyao_qigua" {
-		t.Errorf("_product = %q, want liuyao_qigua", getStr(result, "_product"))
-	}
-	var env struct {
-		Data map[string]any `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	if len(env.Data) != 1 {
-		t.Fatalf("qigua data keys = %v, want only casting", env.Data)
-	}
-	casting, ok := env.Data["casting"].(map[string]any)
-	if !ok || casting["schema_version"] != "liuyao-cast-v1" {
-		t.Fatalf("casting receipt = %#v, want liuyao-cast-v1", env.Data["casting"])
-	}
-}
-
-func TestHandler_LiuyaoQigua_ManualCoins(t *testing.T) {
-	r := NewRPCRegistry()
-	rounds := []string{
-		`["正","反","反"]`, `["正","正","反"]`, `["正","正","正"]`,
-		`["反","反","反"]`, `["正","正","反"]`, `["正","反","反"]`,
-	}
-	params := `{"mode":"coins","rounds":[` + strings.Join(rounds, ",") + `]}`
-	result, err := r.Execute(context.Background(), "liuyao.qigua", json.RawMessage(params))
-	if err != nil {
-		t.Fatalf("liuyao.qigua coins: %v", err)
-	}
-	var env struct {
-		Data struct {
-			Casting struct {
-				Mode string `json:"mode"`
-				Yaos [6]int `json:"yaos"`
-			} `json:"casting"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	want := [6]int{7, 8, 9, 6, 8, 7}
-	if env.Data.Casting.Yaos != want || env.Data.Casting.Mode != "coins" {
-		t.Fatalf("got=%+v, want casting yaos=%v mode=coins", env.Data.Casting, want)
 	}
 }
 

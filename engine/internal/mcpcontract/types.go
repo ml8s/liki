@@ -35,4 +35,18 @@ type (
 	TrigramGroupName      string
 	BazhaiMatchName       string
 	BazhaiBirthYear       int
+
+	LiuyaoQiguaMode     string
+	LiuyaoCastMode      string
+	LiuyaoOrderName     string
+	LiuyaoCoinSymbol    string
+	LiuyaoCoinValue     int
+	LiuyaoYaoValue      int
+	LiuyaoPosition      int
+	LiuyaoYaoLabel      string
+	LiuyaoCastingID     string
+	LiuyaoSchemaVersion string
+
+	LiuyaoHeadsValue int
+	LiuyaoTailsValue int
 )
