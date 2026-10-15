@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- 启动 MCP-native typed contract registry，`time_now` 作为参考实现：input/output schema、描述、参数校验、输出校验和 `structuredContent` 均由显式 wire DTO 生成。该工具从 legacy raw-JSON registry 移除；输出契约明确 `local` 为必填字段，并补齐字段级描述。
+
 ### Removed
 
 - 退役 `engine-rpc` 公共 JSON-RPC 运行时：删除兼容二进制、`/jsonrpc` HTTP 入口、OpenRPC discover 文档与镜像 smoke；engine 镜像默认入口改为 `engine-mcp`。MCP 是唯一 engine 对外服务协议；现有 raw-JSON registry 仅作为 MCP DTO registry 迁移前的内部调度实现保留。

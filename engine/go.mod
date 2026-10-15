@@ -4,14 +4,14 @@ go 1.26.9
 
 require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
-	golang.org/x/time v0.15.0
+	golang.org/x/time v0.15.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require golang.org/x/text v0.39.0
+require golang.org/x/text v0.39.0 // indirect
 
 require (
-	github.com/google/jsonschema-go v0.4.3 // indirect
+	github.com/google/jsonschema-go v0.4.3
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/segmentio/asm v1.1.3 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect

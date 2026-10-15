@@ -26,6 +26,7 @@ ENGINE_TOOL_FILES = (
     ROOT / "engine/internal/agent/tools_bazi.go",
     ROOT / "engine/internal/agent/tools_ziwei.go",
     ROOT / "engine/internal/agent/tools_other.go",
+    ROOT / "engine/internal/mcpcontract/time.go",
 )
 
 

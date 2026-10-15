@@ -792,35 +792,6 @@ func TestHandler_LiuyaoChart_MissingInput(t *testing.T) {
 	}
 }
 
-// ── time.now ──
-
-func TestHandler_TimeNow(t *testing.T) {
-	r := NewRPCRegistry()
-	result, err := r.Execute(context.Background(), "time.now", json.RawMessage(`{}`))
-	if err != nil {
-		t.Fatalf("time.now: %v", err)
-	}
-	if getStr(result, "_product") != "time_now" {
-		t.Errorf("_product = %q, want time_now", getStr(result, "_product"))
-	}
-	// Check CST contains "+08:00" or "CST"
-	var env struct {
-		Data struct {
-			UTC string `json:"utc"`
-			CST string `json:"cst"`
-		} `json:"data"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil {
-		t.Fatal(err)
-	}
-	if env.Data.UTC == "" {
-		t.Error("utc is empty")
-	}
-	if env.Data.CST == "" {
-		t.Error("cst is empty")
-	}
-}
-
 func TestHandler_City_Valid(t *testing.T) {
 	orig := city.HttpClient()
 	city.SetHTTPClient(&http.Client{

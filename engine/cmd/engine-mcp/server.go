@@ -12,6 +12,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"liki-engine/internal/agent"
+	"liki-engine/internal/mcpcontract"
 )
 
 const (
@@ -42,17 +43,20 @@ var mcpDomains = []struct {
 	{"aux", []string{"time.", "tianwen.", "city."}},
 }
 
+// engineContracts owns tools that have completed the typed MCP migration.
+var engineContracts = mcpcontract.NewEngine()
+
 // newMCPServer builds a standard MCP server exposing every registered RPC
 // method as an MCP tool. RPC-specific envelopes ({"_product","data"}) are
 // unwrapped: tools return the raw engine data, not the private RPC envelope.
 func newMCPServer(reg *agent.RPCRegistry, version string, logger *slog.Logger) *mcp.Server {
-	return newMCPServerFor(reg, version, logger, func(string) bool { return true })
+	return newMCPServerFor(reg, engineContracts, version, logger, func(string) bool { return true })
 }
 
 // newDomainServer builds an MCP server exposing only the methods matching the
 // given RPC method prefixes (one 术数 domain or the shared aux tools).
 func newDomainServer(reg *agent.RPCRegistry, prefixes []string, version string, logger *slog.Logger) *mcp.Server {
-	return newMCPServerFor(reg, version, logger, func(method string) bool {
+	return newMCPServerFor(reg, engineContracts, version, logger, func(method string) bool {
 		for _, p := range prefixes {
 			if strings.HasPrefix(method, p) {
 				return true
@@ -62,7 +66,7 @@ func newDomainServer(reg *agent.RPCRegistry, prefixes []string, version string, 
 	})
 }
 
-func newMCPServerFor(reg *agent.RPCRegistry, version string, logger *slog.Logger, match func(string) bool) *mcp.Server {
+func newMCPServerFor(reg *agent.RPCRegistry, contracts *mcpcontract.Registry, version string, logger *slog.Logger, match func(string) bool) *mcp.Server {
 	impl := &mcp.Implementation{
 		Name:        serverName,
 		Title:       "Liki Metaphysics Engine",
@@ -85,6 +89,9 @@ func newMCPServerFor(reg *agent.RPCRegistry, version string, logger *slog.Logger
 		if !match(name) {
 			continue
 		}
+		if contracts.Has(name) {
+			continue
+		}
 		m, ok := reg.Method(name)
 		if !ok {
 			continue
@@ -98,6 +105,23 @@ func newMCPServerFor(reg *agent.RPCRegistry, version string, logger *slog.Logger
 			tool.OutputSchema = os
 		}
 		s.AddTool(tool, toolHandler(reg, name))
+	}
+
+	for _, name := range contracts.Names() {
+		if !match(name) {
+			continue
+		}
+		definition, ok := contracts.Definition(name)
+		if !ok {
+			continue
+		}
+		tool := &mcp.Tool{
+			Name:         toolName(definition.Name),
+			Description:  definition.Description,
+			InputSchema:  definition.InputSchema,
+			OutputSchema: definition.OutputSchema,
+		}
+		s.AddTool(tool, contractToolHandler(contracts, name))
 	}
 	return s
 }
@@ -176,6 +200,28 @@ func unwrapResult(raw json.RawMessage) (json.RawMessage, error) {
 		return nil, fmt.Errorf("engine result missing data")
 	}
 	return env.Data, nil
+}
+
+// contractToolHandler invokes a typed MCP contract. Validation and business
+// failures are visible to the model as tool errors.
+func contractToolHandler(contracts *mcpcontract.Registry, name string) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		args := req.Params.Arguments
+		if len(args) == 0 || string(args) == "null" {
+			args = json.RawMessage(`{}`)
+		}
+		result, err := contracts.Call(ctx, name, args)
+		if err != nil {
+			return &mcp.CallToolResult{
+				IsError: true,
+				Content: []mcp.Content{&mcp.TextContent{Text: err.Error()}},
+			}, nil
+		}
+		return &mcp.CallToolResult{
+			Content:           []mcp.Content{&mcp.TextContent{Text: string(result)}},
+			StructuredContent: result,
+		}, nil
+	}
 }
 
 func runStdio(reg *agent.RPCRegistry, version string, logger *slog.Logger) error {

@@ -62,7 +62,7 @@ func TestMCPServer_Initialize(t *testing.T) {
 
 func TestTools_ListAllRegisteredMethods(t *testing.T) {
 	reg := agent.NewRPCRegistry()
-	want := len(reg.Names())
+	want := len(reg.Names()) + len(engineContracts.Names())
 
 	sess, _ := startMCPServer(t)
 	tools := make(map[string]*mcp.Tool)
@@ -78,8 +78,16 @@ func TestTools_ListAllRegisteredMethods(t *testing.T) {
 		t.Fatalf("tool count = %d, want %d", got, want)
 	}
 	for _, name := range reg.Names() {
+		if engineContracts.Has(name) {
+			continue
+		}
 		if _, ok := tools[strings.ReplaceAll(name, ".", "_")]; !ok {
 			t.Errorf("missing tool for RPC method %q", name)
+		}
+	}
+	for _, name := range engineContracts.Names() {
+		if _, ok := tools[strings.ReplaceAll(name, ".", "_")]; !ok {
+			t.Errorf("missing typed contract tool %q", name)
 		}
 	}
 }
@@ -197,8 +205,8 @@ func TestCallTool_UnknownTool(t *testing.T) {
 	}
 }
 
-// TestCallTool_ConsistencyWithRPC verifies that MCP tool output equals the
-// data payload of the same RPC call (envelope stripped, nothing else changed).
+// TestCallTool_ConsistencyWithLegacyRegistry verifies that unmigrated MCP tool
+// output equals the compatibility registry data payload after envelope removal.
 func TestCallTool_ConsistencyWithRPC(t *testing.T) {
 	reg := agent.NewRPCRegistry()
 	srv := newMCPServer(reg, testVersion, newTestLogger())
@@ -220,7 +228,6 @@ func TestCallTool_ConsistencyWithRPC(t *testing.T) {
 		args   any
 	}{
 		{"bazi.chart", map[string]any{"solar_time": "1984-02-04T06:00:00+08:00", "gender": "male"}},
-		{"time.now", map[string]any{}},
 		{"bazhai.chart", map[string]any{"birth_year": 1990, "gender": "male"}},
 		{"tianwen.time", map[string]any{"time": "1984-02-04T06:00:00+08:00", "longitude": 116.4}},
 	}

@@ -207,11 +207,9 @@ def test_liuyao_qigua_rpc_returns_single_casting_receipt():
 
 
 def test_time_now_has_no_test_only_seed_input():
-    source = (ROOT / "engine/internal/agent/tools_other.go").read_text(encoding="utf-8")
-    start = source.index('Name: "time.now"')
-    end = source.index('Name: "tianwen.time"', start)
-    assert '"seed"' not in source[start:end]
-    assert '"additionalProperties":false' in source[start:end]
+    source = (ROOT / "engine/internal/mcpcontract/time.go").read_text(encoding="utf-8")
+    assert "type TimeNowInput struct{}" in source
+    assert '"seed"' not in source
 
 
 def test_qimen_standard_and_specialized_projections_are_split():

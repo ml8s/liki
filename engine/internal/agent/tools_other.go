@@ -314,20 +314,6 @@ func cityCoordsHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 	return wrapResult("city_coords", result)
 }
 
-func timeNowHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	now := time.Now()
-	result := struct {
-		UTC   string `json:"utc"`
-		Local string `json:"local"`
-		CST   string `json:"cst"`
-	}{
-		UTC:   now.UTC().Format(time.RFC3339),
-		Local: now.Format(time.RFC3339),
-		CST:   now.In(time.FixedZone("CST", 8*3600)).Format(time.RFC3339),
-	}
-	return wrapResult("time_now", result)
-}
-
 func schemaTimePointParams() json.RawMessage {
 	return mustSchema(`{"type":"object","properties":{"time":{"type":"string","format":"date-time","description":"出生时间（RFC3339），如 1984-02-04T06:00:00+08:00"},"longitude":{"type":"number","description":"出生地经度，用于真太阳时校正。北京≈116.4"}},"required":["time","longitude"]}`)
 }
@@ -422,12 +408,6 @@ var otherMethods = []RPCMethod{
 		Params:  mustSchema(`{"type":"object","properties":{"start_date":{"type":"string","format":"date","description":"起始日期 YYYY-MM-DD"},"count":{"type":"integer","minimum":1,"maximum":30,"description":"查几天，默认3，最多30"},"event":{"type":"string","enum":["wedding","engage","opening","sign","move","travel","build","exam","medical","sacrifice","cleaning","renovation","bed_install","income","funeral"],"description":"事项类型；缺省仅列黄历事实"}},"required":["start_date"]}`),
 		Handler: huangliDaysHandler,
 		Result:  envelopeSchema(`{"type":"array","items":{"type":"object","properties":{"date":{"type":"string"},"ri_zhu":{"type":"object","properties":{"gan":{"type":"string","enum":["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},"zhi":{"type":"string","enum":["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]},"nayin":{"type":"string"}},"required":["gan","zhi"]},"nayin":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土"]},"jian_chu":{"type":"string","enum":["建","除","满","平","定","执","破","危","成","收","开","闭"]},"event":{"type":"string"},"event_label":{"type":"string"},"suitability":{"type":"string","enum":["unspecified","recommended","unsuitable","possible"]},"reason":{"type":"string"},"huangdao":{"type":"object","properties":{"name":{"type":"string"},"path":{"type":"string"}},"required":["name","path"]},"xi_shen":{"type":"string"},"cai_shen":{"type":"string"},"fu_shen":{"type":"string"},"gan_ji":{"type":"string"},"zhi_ji":{"type":"string"},"mansion":{"type":"object","properties":{"name":{"type":"string"},"index":{"type":"integer"},"animal":{"type":"string"},"wuxing":{"type":"string","enum":["金","木","水","火","土","日","月"]},"group":{"type":"string"}},"required":["name","index"]}},"required":["date","ri_zhu"]}}`),
-	},
-	{
-		Name: "time.now", Description: "获取服务端当前时间。返回 UTC、本地、北京时间，用于 AI agent 获取准确时间避免幻觉。",
-		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{},"required":[]}`),
-		Handler: timeNowHandler,
-		Result:  envelopeSchema(`{"type":"object","properties":{"utc":{"type":"string"},"local":{"type":"string"},"cst":{"type":"string"}},"required":["utc","cst"]}`),
 	},
 	{
 		Name: "tianwen.time", Description: "根据时间和经度计算真太阳时，返回公历、真太阳时、农历三套时间。",

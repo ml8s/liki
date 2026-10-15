@@ -12,6 +12,10 @@ def test_catalog_matches_registered_engine_tool_methods():
         path.read_text(encoding="utf-8")
         for path in (ROOT / "engine" / "internal" / "agent").glob("tools_*.go")
     )
+    source += "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (ROOT / "engine" / "internal" / "mcpcontract").glob("*.go")
+    )
     methods = sorted(
         name.replace(".", "_")
         for name in re.findall(r'Name:\s*"([a-z]+(?:\.[a-z_]+)+)"', source)
