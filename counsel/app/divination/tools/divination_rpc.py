@@ -31,22 +31,12 @@ def engine_data(method: str, params: dict) -> dict:
     return response["data"]
 
 
-def engine_items(method: str, params: dict) -> list:
-    """调用返回 data 为数组的 engine 工具。"""
-    response = call(method, params)
-    data = response.get("data") if isinstance(response, dict) else None
-    if not isinstance(data, list):
-        raise RPCError(f"{method}: engine response missing data array")
-    return data
-
-
 def server_time() -> str:
     data = engine_data("time.now", {})
     cst = data.get("cst")
     if not isinstance(cst, str) or not cst:
         raise RPCError("time.now: engine response missing cst")
     return cst
-
 
 
 def skill_version() -> str:

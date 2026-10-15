@@ -14,197 +14,6 @@ import (
 	"github.com/google/jsonschema-go/jsonschema"
 )
 
-// forOptions adds reusable wire-level constraints that Go struct tags cannot
-// express through this library. Field-level descriptions still come from the
-// DTO's `jsonschema` tags.
-var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschema.Schema{
-	reflect.TypeFor[RFC3339Time](): {Type: "string", Format: "date-time"},
-	reflect.TypeFor[DateString]():  {Type: "string", Format: "date"},
-	reflect.TypeFor[GenderName]():  {Type: "string", Enum: []any{"male", "female"}},
-	reflect.TypeFor[CityName]():    {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
-	reflect.TypeFor[HuangliEvent](): {
-		Type: "string",
-		Enum: []any{
-			"wedding", "engage", "opening", "sign", "move", "travel", "build",
-			"exam", "medical", "sacrifice", "cleaning", "renovation",
-			"bed_install", "income", "funeral",
-		},
-	},
-	reflect.TypeFor[HuangliCount](): {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(30))},
-	reflect.TypeFor[GuaNumber]():    {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(9))},
-	reflect.TypeFor[MountainIndex](): {
-		Type: "integer", Minimum: jsonschema.Ptr(float64(0)), Maximum: jsonschema.Ptr(float64(23)),
-	},
-	reflect.TypeFor[XuankongYear](): {
-		Type: "integer", Minimum: jsonschema.Ptr(float64(1864)), Maximum: jsonschema.Ptr(float64(2200)),
-	},
-	reflect.TypeFor[FlyingStarNumber](): {
-		Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(9)),
-	},
-	reflect.TypeFor[BazhaiBirthYear](): {
-		Type: "integer", Minimum: jsonschema.Ptr(float64(1900)), Maximum: jsonschema.Ptr(float64(2100)),
-	},
-	reflect.TypeFor[EightGuaName](): {
-		Type: "string", Enum: []any{"坎", "坤", "震", "巽", "乾", "兑", "艮", "离"},
-	},
-	reflect.TypeFor[ElementName](): {
-		Type: "string", Enum: []any{"水", "土", "木", "金", "火"},
-	},
-	reflect.TypeFor[StarColorName](): {
-		Type: "string", Enum: []any{"白", "黑", "碧", "绿", "黄", "赤", "紫"},
-	},
-	reflect.TypeFor[MountainName](): {
-		Type: "string", Enum: []any{
-			"子", "癸", "丑", "艮", "寅", "甲", "卯", "乙", "辰", "巽", "巳", "丙",
-			"午", "丁", "未", "坤", "申", "庚", "酉", "辛", "戌", "乾", "亥", "壬",
-		},
-	},
-	reflect.TypeFor[XuankongYuanName](): {Type: "string", Enum: []any{"上元", "中元", "下元"}},
-	reflect.TypeFor[YunName](): {
-		Type: "string", Enum: []any{
-			"一运", "二运", "三运", "四运", "五运", "六运", "七运", "八运", "九运",
-		},
-	},
-	reflect.TypeFor[XuankongSituationName](): {
-		Type: "string", Enum: []any{
-			"旺山旺向", "双星会坐", "双星会向", "上山下水", "未入四大局",
-		},
-	},
-	reflect.TypeFor[XuankongFuYinLayer](): {
-		Type: "string", Enum: []any{"运盘伏吟", "山星伏吟", "向星伏吟", "全盘伏吟"},
-	},
-	reflect.TypeFor[XuankongFanYinLayer](): {
-		Type: "string", Enum: []any{"运盘反吟", "山星反吟", "向星反吟"},
-	},
-	reflect.TypeFor[XuankongAssessment](): {
-		Type: "string", Enum: []any{
-			"收山得宜、拨水入零堂，理气合局（完整收山出煞须验实际砂水）",
-			"收山得宜（坐宫山星当令）；拨水入零堂未得，向首零神不见水",
-			"拨水入零堂得宜（向宫向星零神）；收山未得，坐宫山星不当令",
-			"收山、拨水入零堂俱未得，宜择时改向并验实际砂水",
-		},
-	},
-	reflect.TypeFor[ChartDigest](): {Type: "string", Pattern: "^[a-f0-9]{64}$"},
-	reflect.TypeFor[YinYangName](): {Type: "string", Enum: []any{"阳", "阴"}},
-	reflect.TypeFor[DirectionName](): {
-		Type: "string", Enum: []any{"北", "东北", "东", "东南", "南", "西南", "西", "西北"},
-	},
-	reflect.TypeFor[LifeGroupName]():    {Type: "string", Enum: []any{"东四命", "西四命"}},
-	reflect.TypeFor[YearBoundaryName](): {Type: "string", Enum: []any{"gregorian_calendar_year"}},
-	reflect.TypeFor[FlyingStarName](): {
-		Type: "string", Enum: []any{
-			"一白贪狼", "二黑巨门", "三碧禄存", "四绿文曲", "五黄廉贞",
-			"六白武曲", "七赤破军", "八白左辅", "九紫右弼",
-		},
-	},
-	reflect.TypeFor[YouxingName](): {
-		Type: "string", Enum: []any{"生气", "天医", "延年", "伏位", "祸害", "五鬼", "六煞", "绝命"},
-	},
-	reflect.TypeFor[BazhaiRatingName](): {
-		Type: "string", Enum: []any{"大吉", "吉", "平", "凶", "大凶"},
-	},
-	reflect.TypeFor[TrigramGroupName](): {Type: "string", Enum: []any{"东四卦", "西四卦"}},
-	reflect.TypeFor[BazhaiMatchName]():  {Type: "string", Enum: []any{"吉", "凶"}},
-	reflect.TypeFor[LiuyaoQiguaMode]():  {Type: "string", Enum: []any{"auto", "coins", "yaos"}},
-	reflect.TypeFor[LiuyaoCastMode]():   {Type: "string", Enum: []any{"coins", "yaos"}},
-	reflect.TypeFor[LiuyaoOrderName]():  {Type: "string", Enum: []any{"bottom_up"}},
-	reflect.TypeFor[LiuyaoCoinSymbol](): {
-		Type: "string", Enum: []any{"正", "反"},
-	},
-	reflect.TypeFor[LiuyaoHeadsValue](): {Type: "integer", Enum: []any{3}},
-	reflect.TypeFor[LiuyaoTailsValue](): {Type: "integer", Enum: []any{2}},
-	reflect.TypeFor[LiuyaoYaoValue](): {
-		Type: "integer", Minimum: jsonschema.Ptr(float64(6)), Maximum: jsonschema.Ptr(float64(9)),
-	},
-	reflect.TypeFor[LiuyaoPosition](): {
-		Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(6)),
-	},
-	reflect.TypeFor[LiuyaoOptionalPosition](): {
-		Type: "integer", Minimum: jsonschema.Ptr(float64(0)), Maximum: jsonschema.Ptr(float64(6)),
-	},
-	reflect.TypeFor[LiuyaoDongRelationType](): {
-		Type: "string", Enum: []any{
-			"生用", "克用", "比和", "冲用", "生原神", "克原神", "生忌神", "克忌神",
-		},
-	},
-	reflect.TypeFor[LiuyaoYaoLabel](): {
-		Type: "string", Enum: []any{"老阴", "少阳", "少阴", "老阳"},
-	},
-	reflect.TypeFor[LiuyaoSchemaVersion](): {Type: "string", Enum: []any{"liuyao-cast-v1"}},
-	reflect.TypeFor[LiuyaoCastingID]():     {Type: "string", Pattern: "^[a-f0-9]{64}$"},
-	reflect.TypeFor[LiuyaoGanName](): {
-		Type: "string", Enum: []any{"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"},
-	},
-	reflect.TypeFor[LiuyaoZhiName](): {
-		Type: "string", Enum: []any{"子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"},
-	},
-	reflect.TypeFor[LiuyaoWangShuai](): {
-		Type: "string", Enum: []any{"旺", "相", "休", "囚", "死"},
-	},
-	reflect.TypeFor[LiuyaoShiYing](): {Type: "string", Enum: []any{"世", "应", ""}},
-	reflect.TypeFor[LiuyaoLiuQinName](): {
-		Type: "string", Enum: []any{"父母", "兄弟", "官鬼", "妻财", "子孙"},
-	},
-	reflect.TypeFor[LiuyaoLiuShouName](): {
-		Type: "string", Enum: []any{"青龙", "朱雀", "勾陈", "螣蛇", "白虎", "玄武"},
-	},
-	reflect.TypeFor[LiuyaoMuKuType](): {
-		Type: "string", Enum: []any{"day", "moving", "transformed"},
-	},
-	reflect.TypeFor[LiuyaoPatternType](): {
-		Type: "string", Enum: []any{
-			"旬空", "月破", "飞伏", "进退", "冲合", "反吟", "随鬼入墓", "独发", "独静", "两现",
-		},
-	},
-	reflect.TypeFor[LiuyaoForceRole](): {
-		Type: "string", Enum: []any{"用神", "原神", "忌神", "仇神"},
-	},
-	reflect.TypeFor[LiuyaoConflictID](): {
-		Type: "string", Enum: []any{
-			"moving-support-opposition", "yuanshen-support-opposition", "strong-but-void", "strong-but-break",
-		},
-	},
-	reflect.TypeFor[LiuyaoTombBranch](): {Type: "string", Enum: []any{"辰"}},
-	reflect.TypeFor[LiuyaoTombSchool](): {Type: "string", Enum: []any{"engine_default_chen"}},
-	reflect.TypeFor[LiuyaoYongShenName](): {
-		Type: "string", Enum: []any{"父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"},
-	},
-}}
-
-// Fixed-length six-coin and six-line arrays cannot be represented directly by
-// Go slices. Derive their item schemas from the DTOs, then attach JSON Schema
-// length constraints. This keeps the item contract DTO-owned.
-func init() {
-	inputRound, err := jsonschema.For[LiuyaoCoinRoundInput](forOptions)
-	if err != nil {
-		panic(fmt.Sprintf("derive liuyao input coin round schema: %v", err))
-	}
-	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoCoinRoundsInput]()] = &jsonschema.Schema{
-		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: inputRound,
-	}
-	inputValues, err := jsonschema.For[LiuyaoYaoValue](forOptions)
-	if err != nil {
-		panic(fmt.Sprintf("derive liuyao input yao values schema: %v", err))
-	}
-	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoYaoValuesInput]()] = &jsonschema.Schema{
-		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: inputValues,
-	}
-	outputRound, err := jsonschema.For[LiuyaoCoinRoundOutput](forOptions)
-	if err != nil {
-		panic(fmt.Sprintf("derive liuyao output coin round schema: %v", err))
-	}
-	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoCoinRoundsOutput]()] = &jsonschema.Schema{
-		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: outputRound,
-	}
-	outputValues, err := jsonschema.For[LiuyaoYaoValue](forOptions)
-	if err != nil {
-		panic(fmt.Sprintf("derive liuyao output yao values schema: %v", err))
-	}
-	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoYaoValuesOutput]()] = &jsonschema.Schema{
-		Type: "array", MinItems: jsonschema.Ptr(6), MaxItems: jsonschema.Ptr(6), Items: outputValues,
-	}
-}
-
 // Tool describes a typed MCP tool. Name uses the legacy registry convention
 // when replacing an existing tool (for example "time.now"); the MCP surface
 // converts it to a valid MCP name.
@@ -212,6 +21,20 @@ type Tool[In, Out any] struct {
 	Name        string
 	Description string
 	Handler     func(context.Context, In) (Out, error)
+	// TolerateUnknownArgs relaxes input validation for tools that replaced a
+	// legacy raw-JSON method. The legacy registry validated params against the
+	// raw JSON Schemas, which left `additionalProperties` unset and therefore
+	// ignored unknown arguments: counsel passes tianwen.time's longitude to
+	// bazi.chart and chains a ziwei.fullchart payload into ziwei.daxian. Tools
+	// that were written directly against this typed registry keep rejecting
+	// unknown arguments.
+	TolerateUnknownArgs bool
+	// KeepClosedInputPaths keeps individual input objects closed even when
+	// TolerateUnknownArgs is set, because the legacy params schema declared
+	// `additionalProperties: false` there (qimen.chart's root, and the flow
+	// tools' target_lunar). Paths are JSON Pointers into the input schema:
+	// "" is the root object.
+	KeepClosedInputPaths []string
 }
 
 type registration struct {
@@ -246,7 +69,7 @@ func register[In, Out any](r *Registry, tool Tool[In, Out]) error {
 		return fmt.Errorf("mcp tool %s: handler is nil", tool.Name)
 	}
 
-	_, inputResolved, inputSchema, err := schemaFor[In]()
+	inputResolved, inputSchema, err := inputSchemaFor[In](tool.TolerateUnknownArgs, tool.KeepClosedInputPaths)
 	if err != nil {
 		return fmt.Errorf("mcp tool %s: input schema: %w", tool.Name, err)
 	}
@@ -289,12 +112,6 @@ func (r *Registry) Names() []string {
 	return append([]string(nil), r.names...)
 }
 
-// Has reports whether a typed replacement exists for the named registry tool.
-func (r *Registry) Has(name string) bool {
-	_, ok := r.tools[name]
-	return ok
-}
-
 // Definition exposes metadata and generated schemas for an MCP server.
 type Definition struct {
 	Name         string
@@ -325,6 +142,99 @@ func (r *Registry) Call(ctx context.Context, name string, arguments json.RawMess
 		return nil, fmt.Errorf("unknown tool: %s", name)
 	}
 	return tool.call(ctx, arguments)
+}
+
+// inputSchemaFor derives a tool's documented input schema and the schema used
+// to validate incoming arguments.
+//
+// The documented schema always keeps the typed, closed shape of the DTO. When
+// tolerateUnknownArgs is set - for tools that replaced a legacy raw-JSON method
+// - validation additionally ignores unknown properties, because the legacy
+// schemas left `additionalProperties` unset (see Tool.TolerateUnknownArgs).
+func inputSchemaFor[T any](tolerateUnknownArgs bool, keepClosed []string) (*jsonschema.Resolved, json.RawMessage, error) {
+	schema, err := jsonschema.For[T](forOptions)
+	if err != nil {
+		return nil, nil, err
+	}
+	documented, err := schema.MarshalJSON()
+	if err != nil {
+		return nil, nil, err
+	}
+	if tolerateUnknownArgs {
+		openObjectProperties(schema, keepClosed)
+	}
+	resolved, err := schema.Resolve(nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resolved, json.RawMessage(documented), nil
+}
+
+// openObjectProperties drops the `additionalProperties: false` constraint that
+// jsonschema-go derives from Go structs, leaving objects open to extra
+// properties. Objects at one of the keepClosed JSON Pointer paths, and
+// struct-valued map entries, keep their schema: only the false schema (the "no
+// extra property is valid" form) is removed.
+func openObjectProperties(schema *jsonschema.Schema, keepClosed []string) {
+	closed := make(map[string]bool, len(keepClosed))
+	for _, path := range keepClosed {
+		closed[path] = true
+	}
+	seen := map[*jsonschema.Schema]bool{}
+	var walk func(*jsonschema.Schema, string)
+	walk = func(node *jsonschema.Schema, path string) {
+		if node == nil || seen[node] {
+			return
+		}
+		seen[node] = true
+		if !closed[path] {
+			if isFalseSchema(node.AdditionalProperties) {
+				node.AdditionalProperties = nil
+			}
+			if isFalseSchema(node.UnevaluatedProperties) {
+				node.UnevaluatedProperties = nil
+			}
+		}
+		for name, sub := range node.Properties {
+			walk(sub, path+"/properties/"+name)
+		}
+		for name, sub := range node.PatternProperties {
+			walk(sub, path+"/patternProperties/"+name)
+		}
+		for name, sub := range node.Defs {
+			walk(sub, path+"/$defs/"+name)
+		}
+		for name, sub := range node.Definitions {
+			walk(sub, path+"/definitions/"+name)
+		}
+		for index, sub := range node.PrefixItems {
+			walk(sub, fmt.Sprintf("%s/prefixItems/%d", path, index))
+		}
+		for index, sub := range node.ItemsArray {
+			walk(sub, fmt.Sprintf("%s/items/%d", path, index))
+		}
+		for index, sub := range node.AllOf {
+			walk(sub, fmt.Sprintf("%s/allOf/%d", path, index))
+		}
+		for index, sub := range node.AnyOf {
+			walk(sub, fmt.Sprintf("%s/anyOf/%d", path, index))
+		}
+		for index, sub := range node.OneOf {
+			walk(sub, fmt.Sprintf("%s/oneOf/%d", path, index))
+		}
+		walk(node.Items, path+"/items")
+		walk(node.AdditionalItems, path+"/additionalItems")
+		walk(node.Contains, path+"/contains")
+		walk(node.PropertyNames, path+"/propertyNames")
+		walk(node.Not, path+"/not")
+	}
+	walk(schema, "")
+}
+
+// isFalseSchema reports whether the schema is the JSON Schema `false`
+// subschema (the form jsonschema-go uses to close an object).
+func isFalseSchema(schema *jsonschema.Schema) bool {
+	return schema != nil && schema.Not != nil && reflect.DeepEqual(*schema.Not, jsonschema.Schema{})
 }
 
 func schemaFor[T any]() (*jsonschema.Schema, *jsonschema.Resolved, json.RawMessage, error) {

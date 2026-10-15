@@ -1,13 +1,11 @@
 """禁止静默降级契约：计算错误必须传播，不得转成因子 0。"""
 from unittest import mock
 
-import pytest
-
 import _helpers  # noqa: F401 —— 注入 tools 路径
-import factors
 import duanyu
-from duanyu import resolve_current_year, query
-from duanyu import load_rule_table
+import factors
+import pytest
+from duanyu import load_rule_table, query, resolve_current_year
 from paipan import RPCError
 
 

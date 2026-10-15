@@ -1,7 +1,10 @@
-"""流年宫位算子必须消费 operators_natal._base_ctx_from_pan(pan) 产出的上下文。"""
+"""流年宫位算子必须基于命盘解析出的本命宫位上下文取值。
+
+该 base 上下文由 `_liu_op` 内部经 operators_natal._base_ctx_from_pan 构建，
+调用方只需给出命盘与流年上下文。
+"""
 import _helpers  # noqa: F401 —— 注入 tools 路径
 from operators_liunian import _liu_op
-from operators_natal import _base_ctx_from_pan
 
 
 def _pan() -> dict:
@@ -47,7 +50,6 @@ def _ctx(nian_zhi: str, relation_type: str | None = None) -> dict:
 
 def test_flow_value_uses_extracted_day_palace() -> None:
     pan = _pan()
-    base = _base_ctx_from_pan(pan)
 
     assert _liu_op("流年值", ["配偶星"], "male", pan, _ctx("子")) == 1
     assert _liu_op("流年值", ["配偶星"], "male", pan, _ctx("丑")) == 0
@@ -55,7 +57,6 @@ def test_flow_value_uses_extracted_day_palace() -> None:
 
 def test_flow_clash_uses_extracted_day_palace() -> None:
     pan = _pan()
-    base = _base_ctx_from_pan(pan)
 
     assert _liu_op("流年冲", ["配偶星"], "male", pan, _ctx("午", "六冲")) == 1
     assert _liu_op("流年合", ["配偶星"], "male", pan, _ctx("午", "六冲")) == 0
@@ -63,7 +64,6 @@ def test_flow_clash_uses_extracted_day_palace() -> None:
 
 def test_flow_combination_uses_extracted_day_palace() -> None:
     pan = _pan()
-    base = _base_ctx_from_pan(pan)
 
     assert _liu_op("流年合", ["配偶星"], "male", pan, _ctx("丑", "六合")) == 1
     assert _liu_op("流年冲", ["配偶星"], "male", pan, _ctx("丑", "六合")) == 0

@@ -8,8 +8,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 ORACLE = ROOT / "tests" / "fixtures" / "domain_oracle"
 
@@ -113,11 +111,11 @@ def test_domain_oracle_datasets_have_expected_coverage() -> None:
 
 
 def test_lu_root_operator_uses_ten_stem_lu_not_any_same_element() -> None:
-    from _helpers import TOOLS  # noqa: F402? helper is module under tests
     import sys
+
+    from _helpers import TOOLS
     if str(TOOLS) not in sys.path:
         sys.path.insert(0, str(TOOLS))
-    from factor_constants import load_constants
     from operators_natal import _op
 
     oracle = _load("bazi_operator_lu_root.json")

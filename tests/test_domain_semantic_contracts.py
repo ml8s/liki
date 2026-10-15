@@ -5,12 +5,11 @@ from pathlib import Path
 
 import _helpers  # noqa: F401
 import duanyu
+import factors
 import operators_liunian
 import operators_natal
+from factor_tables import load_factor_rows, load_liunian_rows
 from natal_projection import load_contract
-import factors
-from factor_tables import load_factor_rows
-from factor_tables import load_liunian_rows
 
 
 def test_financial_star_damages_resource_requires_real_target():
@@ -277,8 +276,8 @@ def test_required_natal_factors_include_reference_closure():
 
 
 def test_domain_docs_do_not_expose_legacy_query_tool():
-    from pathlib import Path
     import re
+    from pathlib import Path
     root = Path(__file__).resolve().parents[1] / "skills/liki/references/natal"
     offenders = []
     for path in list((root / "app").glob("*.md")) + list((root / "domains").glob("*/*.md")):

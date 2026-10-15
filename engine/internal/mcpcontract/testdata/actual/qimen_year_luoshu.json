@@ -1,0 +1,940 @@
+{
+  "input": {
+    "school": "luoshu_feipan",
+    "scope": "year",
+    "solar_time": "2026-03-02T18:30:00+08:00"
+  },
+  "output": {
+    "gan_interaction": [
+      {
+        "auspicious": true,
+        "di_pan_gan": "丁",
+        "gong": "坎",
+        "meaning": "狱神得奇：经商获倍利，囚人逢赦",
+        "name": "辛+丁",
+        "tian_pan_gan": "辛"
+      },
+      {
+        "auspicious": false,
+        "di_pan_gan": "癸",
+        "gong": "坤",
+        "meaning": "大格：行人不至，官事不止",
+        "name": "庚+癸",
+        "tian_pan_gan": "庚"
+      },
+      {
+        "auspicious": false,
+        "di_pan_gan": "壬",
+        "gong": "震",
+        "meaning": "地网高张：狡童佚女，奸情杀伤",
+        "name": "己+壬",
+        "tian_pan_gan": "己"
+      },
+      {
+        "auspicious": false,
+        "di_pan_gan": "辛",
+        "gong": "巽",
+        "meaning": "青龙折足：招灾失财，需防破败",
+        "name": "戊+辛",
+        "tian_pan_gan": "戊"
+      },
+      {
+        "auspicious": false,
+        "di_pan_gan": "庚",
+        "gong": "中",
+        "meaning": "日奇被刑：争讼财产，夫妻不和",
+        "name": "乙+庚",
+        "tian_pan_gan": "乙"
+      },
+      {
+        "auspicious": false,
+        "di_pan_gan": "己",
+        "gong": "乾",
+        "meaning": "火悖入刑：囚人刑杖，文书不行",
+        "name": "丙+己",
+        "tian_pan_gan": "丙"
+      },
+      {
+        "auspicious": true,
+        "di_pan_gan": "戊",
+        "gong": "兑",
+        "meaning": "青龙转光：官人升迁，常人威昌",
+        "name": "丁+戊",
+        "tian_pan_gan": "丁"
+      },
+      {
+        "auspicious": true,
+        "di_pan_gan": "乙",
+        "gong": "艮",
+        "meaning": "华盖逢星：贵人禄位，常人平安",
+        "name": "癸+乙",
+        "tian_pan_gan": "癸"
+      },
+      {
+        "auspicious": false,
+        "di_pan_gan": "丙",
+        "gong": "离",
+        "meaning": "水蛇入火：官灾刑禁，络绎不绝",
+        "name": "壬+丙",
+        "tian_pan_gan": "壬"
+      }
+    ],
+    "kong_wang_affected": [],
+    "ma_xing_affected": [],
+    "men_interaction": [
+      {
+        "door": "伤门",
+        "gong": "坎",
+        "meaning": "道路之伤，水厄之灾",
+        "name": "伤门加坎"
+      },
+      {
+        "door": "杜门",
+        "gong": "坤",
+        "meaning": "土木之阻，田宅有损",
+        "name": "杜门加坤"
+      },
+      {
+        "door": "开门",
+        "gong": "巽",
+        "meaning": "长女之利，入仕之吉",
+        "name": "开门加巽"
+      },
+      {
+        "door": "生门",
+        "gong": "乾",
+        "meaning": "公门之利，谒贵之行",
+        "name": "生门加乾"
+      },
+      {
+        "door": "休门",
+        "gong": "艮",
+        "meaning": "求财有财，出行有喜",
+        "name": "休门加艮"
+      },
+      {
+        "door": "死门",
+        "gong": "离",
+        "meaning": "炎上之灾，文书不利",
+        "name": "死门加离"
+      }
+    ],
+    "men_po": [
+      "坤",
+      "巽",
+      "兑"
+    ],
+    "men_zhi": [
+      "艮"
+    ],
+    "method": {
+      "day_boundary": "late_zi_rolls_day_pillar",
+      "day_fu_tou": {
+        "gan": "甲",
+        "name": "甲戌",
+        "zhi": "戌"
+      },
+      "door_mode": "eight_doors_real_center_step",
+      "geometry": "palace_number_shift",
+      "jie_qi": "雨水",
+      "lead_pillar": {
+        "gan": "丙",
+        "name": "丙午",
+        "zhi": "午"
+      },
+      "lead_xun_shou": {
+        "gan": "甲",
+        "liu_yi": "壬",
+        "name": "甲辰",
+        "zhi": "辰"
+      },
+      "lead_xun_shou_gong": "震",
+      "method_source": "year_cycle",
+      "school": "luoshu_feipan",
+      "school_name": "洛书飞盘法",
+      "scope": "year",
+      "scope_name": "年家周期奇门",
+      "spirit_flight": "yang_forward_yin_reverse",
+      "spirit_mode": "nine_spirits_baihu_taichang_xuanwu",
+      "star_mode": "star_gan_shift_together",
+      "yong_ju_jie_qi": "年家定局",
+      "yuan": "下元"
+    },
+    "palace_wang_shuai": [
+      {
+        "gong": "坎",
+        "wang_shuai": "休",
+        "wang_shuai_name": "休",
+        "wuxing": "水"
+      },
+      {
+        "gong": "坤",
+        "wang_shuai": "死",
+        "wang_shuai_name": "死",
+        "wuxing": "土"
+      },
+      {
+        "gong": "震",
+        "wang_shuai": "旺",
+        "wang_shuai_name": "旺",
+        "wuxing": "木"
+      },
+      {
+        "gong": "巽",
+        "wang_shuai": "旺",
+        "wang_shuai_name": "旺",
+        "wuxing": "木"
+      },
+      {
+        "gong": "中",
+        "wang_shuai": "死",
+        "wang_shuai_name": "死",
+        "wuxing": "土"
+      },
+      {
+        "gong": "乾",
+        "wang_shuai": "囚",
+        "wang_shuai_name": "囚",
+        "wuxing": "金"
+      },
+      {
+        "gong": "兑",
+        "wang_shuai": "囚",
+        "wang_shuai_name": "囚",
+        "wuxing": "金"
+      },
+      {
+        "gong": "艮",
+        "wang_shuai": "死",
+        "wang_shuai_name": "死",
+        "wuxing": "土"
+      },
+      {
+        "gong": "离",
+        "wang_shuai": "相",
+        "wang_shuai_name": "相",
+        "wuxing": "火"
+      }
+    ],
+    "pan": {
+      "gong_wei": [
+        {
+          "an_gan": "壬",
+          "di_pan_gan": "丁",
+          "gong": {
+            "luoshu": 1,
+            "name": "坎",
+            "ring_index": 0
+          },
+          "men": "伤门",
+          "men_present": true,
+          "shen": "九天",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "辛",
+              "xing": "天辅"
+            }
+          ]
+        },
+        {
+          "an_gan": "辛",
+          "di_pan_gan": "癸",
+          "gong": {
+            "luoshu": 2,
+            "name": "坤",
+            "ring_index": 5
+          },
+          "men": "杜门",
+          "men_present": true,
+          "shen": "九地",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "庚",
+              "xing": "天禽"
+            }
+          ]
+        },
+        {
+          "an_gan": "庚",
+          "di_pan_gan": "壬",
+          "gong": {
+            "luoshu": 3,
+            "name": "震",
+            "ring_index": 2
+          },
+          "men_present": false,
+          "shen": "玄武",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "己",
+              "xing": "天心"
+            }
+          ]
+        },
+        {
+          "an_gan": "己",
+          "di_pan_gan": "辛",
+          "gong": {
+            "luoshu": 4,
+            "name": "巽",
+            "ring_index": 3
+          },
+          "men": "开门",
+          "men_present": true,
+          "shen": "太常",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "戊",
+              "xing": "天柱"
+            }
+          ]
+        },
+        {
+          "an_gan": "戊",
+          "di_pan_gan": "庚",
+          "gong": {
+            "luoshu": 5,
+            "name": "中"
+          },
+          "men": "惊门",
+          "men_present": true,
+          "shen": "白虎",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "乙",
+              "xing": "天任"
+            }
+          ]
+        },
+        {
+          "an_gan": "乙",
+          "di_pan_gan": "己",
+          "gong": {
+            "luoshu": 6,
+            "name": "乾",
+            "ring_index": 7
+          },
+          "men": "生门",
+          "men_present": true,
+          "shen": "六合",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "丙",
+              "xing": "天英"
+            }
+          ]
+        },
+        {
+          "an_gan": "丙",
+          "di_pan_gan": "戊",
+          "gong": {
+            "luoshu": 7,
+            "name": "兑",
+            "ring_index": 6
+          },
+          "men": "景门",
+          "men_present": true,
+          "shen": "太阴",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "丁",
+              "xing": "天蓬"
+            }
+          ]
+        },
+        {
+          "an_gan": "丁",
+          "di_pan_gan": "乙",
+          "gong": {
+            "luoshu": 8,
+            "name": "艮",
+            "ring_index": 1
+          },
+          "men": "休门",
+          "men_present": true,
+          "shen": "螣蛇",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "癸",
+              "xing": "天芮"
+            }
+          ]
+        },
+        {
+          "an_gan": "癸",
+          "di_pan_gan": "丙",
+          "gong": {
+            "luoshu": 9,
+            "name": "离",
+            "ring_index": 4
+          },
+          "men": "死门",
+          "men_present": true,
+          "shen": "值符",
+          "shen_present": true,
+          "tian_pan": [
+            {
+              "gan": "壬",
+              "xing": "天冲"
+            }
+          ]
+        }
+      ],
+      "jushu": 7,
+      "kong_wang": [
+        {
+          "branch": "寅",
+          "gong": "艮"
+        },
+        {
+          "branch": "卯",
+          "gong": "震"
+        }
+      ],
+      "ma_xing": {
+        "branch": "申",
+        "gong": "坤"
+      },
+      "nian_gan": "丙",
+      "nian_zhi": "午",
+      "ri_gan": "乙",
+      "ri_zhi": "亥",
+      "shi_gan": "乙",
+      "shi_zhi": "酉",
+      "wu_bu_yu_shi": false,
+      "yin_dun": true,
+      "yue_gan": "庚",
+      "yue_zhi": "寅",
+      "zhi_fu_xing": "天冲",
+      "zhi_shi_men": "伤门"
+    },
+    "patterns": [
+      {
+        "auspicious": true,
+        "basis": "门盘值使加临地盘丁奇",
+        "description": "值使门临地盘丁奇，宜宴会喜乐、阴私和合之事",
+        "gong_wei": [
+          "坎"
+        ],
+        "name": "玉女守门"
+      },
+      {
+        "auspicious": false,
+        "basis": "《奇门遁甲统宗·奇门四十格》：三奇入墓，乙奇坤宫，丙奇乾宫，丁奇艮宫",
+        "description": "乙奇入坤、丙奇入乾、丁奇入艮，光明收藏，诸事不宜轻进",
+        "gong_wei": [
+          "乾"
+        ],
+        "name": "三奇入墓"
+      }
+    ],
+    "ri_gan_gong": "中",
+    "ri_gan_palace_facts": [
+      {
+        "layer": "heaven",
+        "palace": "中"
+      },
+      {
+        "layer": "earth",
+        "palace": "艮"
+      }
+    ],
+    "ri_shi_relation": {
+      "name": "日干宫与时干宫比和",
+      "object": "shi_gan_gong",
+      "relation": "same",
+      "subject": "ri_gan_gong"
+    },
+    "shi_gan_gong": "中",
+    "shi_gan_gong_wang_shuai": {
+      "gong": "中",
+      "wang_shuai": "死",
+      "wang_shuai_name": "死",
+      "wuxing": "土"
+    },
+    "shi_gan_palace_facts": [
+      {
+        "layer": "heaven",
+        "palace": "中"
+      },
+      {
+        "layer": "earth",
+        "palace": "艮"
+      }
+    ],
+    "specialized": {
+      "geng_ge": [],
+      "lost_context": [
+        {
+          "door": "惊门",
+          "gong": "中",
+          "wang_shuai": "死"
+        }
+      ],
+      "thief_context": [
+        {
+          "gong": "震",
+          "lucky_pattern_names": [],
+          "role": "小贼",
+          "symbol": "玄武",
+          "wang_shuai_label": "旺"
+        },
+        {
+          "gong": "兑",
+          "lucky_pattern_names": [],
+          "role": "大贼",
+          "symbol": "天蓬",
+          "wang_shuai_label": "相"
+        }
+      ],
+      "tianwang_context": []
+    },
+    "xing_gong_wu_xing": [
+      {
+        "gong": "坎",
+        "relation": "gong_generates_xing",
+        "relation_name": "宫生星",
+        "traditional_label": "相",
+        "xing": "天辅"
+      },
+      {
+        "gong": "坤",
+        "relation": "same",
+        "relation_name": "比和",
+        "traditional_label": "旺",
+        "xing": "天禽"
+      },
+      {
+        "gong": "震",
+        "relation": "xing_controls_gong",
+        "relation_name": "星克宫",
+        "traditional_label": "囚",
+        "xing": "天心"
+      },
+      {
+        "gong": "巽",
+        "relation": "xing_controls_gong",
+        "relation_name": "星克宫",
+        "traditional_label": "囚",
+        "xing": "天柱"
+      },
+      {
+        "gong": "中",
+        "relation": "same",
+        "relation_name": "比和",
+        "traditional_label": "旺",
+        "xing": "天任"
+      },
+      {
+        "gong": "乾",
+        "relation": "xing_controls_gong",
+        "relation_name": "星克宫",
+        "traditional_label": "囚",
+        "xing": "天英"
+      },
+      {
+        "gong": "兑",
+        "relation": "gong_generates_xing",
+        "relation_name": "宫生星",
+        "traditional_label": "相",
+        "xing": "天蓬"
+      },
+      {
+        "gong": "艮",
+        "relation": "same",
+        "relation_name": "比和",
+        "traditional_label": "旺",
+        "xing": "天芮"
+      },
+      {
+        "gong": "离",
+        "relation": "xing_generates_gong",
+        "relation_name": "星生宫",
+        "traditional_label": "休",
+        "xing": "天冲"
+      }
+    ],
+    "xing_interaction": [
+      {
+        "auspicious": true,
+        "gong": "坤",
+        "meaning": "比和之象，百事皆宜",
+        "name": "土星入土宫",
+        "xing": "天禽"
+      },
+      {
+        "auspicious": false,
+        "gong": "震",
+        "meaning": "金能克木，宜征战讨伐",
+        "name": "金星入木宫",
+        "xing": "天心"
+      },
+      {
+        "auspicious": false,
+        "gong": "巽",
+        "meaning": "金克木象，宜隐蔽行事",
+        "name": "金星入木宫",
+        "xing": "天柱"
+      },
+      {
+        "auspicious": false,
+        "gong": "乾",
+        "meaning": "火能克金，出行有碍",
+        "name": "火星入金宫",
+        "xing": "天英"
+      },
+      {
+        "auspicious": true,
+        "gong": "离",
+        "meaning": "木能生火，文书有成",
+        "name": "木星入火宫",
+        "xing": "天冲"
+      }
+    ],
+    "ying_qi": {
+      "candidates": [
+        {
+          "branch": "申",
+          "dates": [
+            {
+              "branch": "寅",
+              "date": "2026-03-05",
+              "match": "opposite",
+              "reason": "寅日冲申"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-03-17",
+              "match": "opposite",
+              "reason": "寅日冲申"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-03-29",
+              "match": "opposite",
+              "reason": "寅日冲申"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-04-10",
+              "match": "opposite",
+              "reason": "寅日冲申"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-04-22",
+              "match": "opposite",
+              "reason": "寅日冲申"
+            }
+          ],
+          "description": "马星逢冲为动期候选",
+          "gong": "坤",
+          "mechanism": "冲",
+          "related_to": [],
+          "type": "ma_xing"
+        },
+        {
+          "branch": "午",
+          "dates": [
+            {
+              "branch": "子",
+              "date": "2026-03-03",
+              "match": "opposite",
+              "reason": "子日冲值符宫午"
+            },
+            {
+              "branch": "午",
+              "date": "2026-03-09",
+              "match": "same",
+              "reason": "午日值符宫引动"
+            },
+            {
+              "branch": "子",
+              "date": "2026-03-15",
+              "match": "opposite",
+              "reason": "子日冲值符宫午"
+            },
+            {
+              "branch": "午",
+              "date": "2026-03-21",
+              "match": "same",
+              "reason": "午日值符宫引动"
+            },
+            {
+              "branch": "子",
+              "date": "2026-03-27",
+              "match": "opposite",
+              "reason": "子日冲值符宫午"
+            },
+            {
+              "branch": "午",
+              "date": "2026-04-02",
+              "match": "same",
+              "reason": "午日值符宫引动"
+            },
+            {
+              "branch": "子",
+              "date": "2026-04-08",
+              "match": "opposite",
+              "reason": "子日冲值符宫午"
+            },
+            {
+              "branch": "午",
+              "date": "2026-04-14",
+              "match": "same",
+              "reason": "午日值符宫引动"
+            },
+            {
+              "branch": "子",
+              "date": "2026-04-20",
+              "match": "opposite",
+              "reason": "子日冲值符宫午"
+            },
+            {
+              "branch": "午",
+              "date": "2026-04-26",
+              "match": "same",
+              "reason": "午日值符宫引动"
+            }
+          ],
+          "description": "值符宫支逢值或逢冲为引动候选",
+          "gong": "离",
+          "mechanism": "值冲",
+          "related_to": [
+            {
+              "role": "duty",
+              "symbol": "值符星"
+            }
+          ],
+          "type": "duty_star"
+        },
+        {
+          "branch": "子",
+          "dates": [
+            {
+              "branch": "子",
+              "date": "2026-03-03",
+              "match": "same",
+              "reason": "子日值使宫引动"
+            },
+            {
+              "branch": "午",
+              "date": "2026-03-09",
+              "match": "opposite",
+              "reason": "午日冲值使宫子"
+            },
+            {
+              "branch": "子",
+              "date": "2026-03-15",
+              "match": "same",
+              "reason": "子日值使宫引动"
+            },
+            {
+              "branch": "午",
+              "date": "2026-03-21",
+              "match": "opposite",
+              "reason": "午日冲值使宫子"
+            },
+            {
+              "branch": "子",
+              "date": "2026-03-27",
+              "match": "same",
+              "reason": "子日值使宫引动"
+            },
+            {
+              "branch": "午",
+              "date": "2026-04-02",
+              "match": "opposite",
+              "reason": "午日冲值使宫子"
+            },
+            {
+              "branch": "子",
+              "date": "2026-04-08",
+              "match": "same",
+              "reason": "子日值使宫引动"
+            },
+            {
+              "branch": "午",
+              "date": "2026-04-14",
+              "match": "opposite",
+              "reason": "午日冲值使宫子"
+            },
+            {
+              "branch": "子",
+              "date": "2026-04-20",
+              "match": "same",
+              "reason": "子日值使宫引动"
+            },
+            {
+              "branch": "午",
+              "date": "2026-04-26",
+              "match": "opposite",
+              "reason": "午日冲值使宫子"
+            }
+          ],
+          "description": "值使宫支逢值或逢冲为引动候选",
+          "gong": "坎",
+          "mechanism": "值冲",
+          "related_to": [
+            {
+              "role": "duty",
+              "symbol": "值使门"
+            }
+          ],
+          "type": "duty_door"
+        },
+        {
+          "branch": "寅",
+          "dates": [
+            {
+              "branch": "寅",
+              "date": "2026-03-05",
+              "match": "same",
+              "reason": "寅日填实"
+            },
+            {
+              "branch": "申",
+              "date": "2026-03-11",
+              "match": "opposite",
+              "reason": "申日冲寅"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-03-17",
+              "match": "same",
+              "reason": "寅日填实"
+            },
+            {
+              "branch": "申",
+              "date": "2026-03-23",
+              "match": "opposite",
+              "reason": "申日冲寅"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-03-29",
+              "match": "same",
+              "reason": "寅日填实"
+            },
+            {
+              "branch": "申",
+              "date": "2026-04-04",
+              "match": "opposite",
+              "reason": "申日冲寅"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-04-10",
+              "match": "same",
+              "reason": "寅日填实"
+            },
+            {
+              "branch": "申",
+              "date": "2026-04-16",
+              "match": "opposite",
+              "reason": "申日冲寅"
+            },
+            {
+              "branch": "寅",
+              "date": "2026-04-22",
+              "match": "same",
+              "reason": "寅日填实"
+            },
+            {
+              "branch": "申",
+              "date": "2026-04-28",
+              "match": "opposite",
+              "reason": "申日冲寅"
+            }
+          ],
+          "description": "空亡逢值或逢冲为填实候选",
+          "gong": "艮",
+          "mechanism": "值冲",
+          "related_to": [],
+          "type": "kong_wang"
+        },
+        {
+          "branch": "卯",
+          "dates": [
+            {
+              "branch": "卯",
+              "date": "2026-03-06",
+              "match": "same",
+              "reason": "卯日填实"
+            },
+            {
+              "branch": "酉",
+              "date": "2026-03-12",
+              "match": "opposite",
+              "reason": "酉日冲卯"
+            },
+            {
+              "branch": "卯",
+              "date": "2026-03-18",
+              "match": "same",
+              "reason": "卯日填实"
+            },
+            {
+              "branch": "酉",
+              "date": "2026-03-24",
+              "match": "opposite",
+              "reason": "酉日冲卯"
+            },
+            {
+              "branch": "卯",
+              "date": "2026-03-30",
+              "match": "same",
+              "reason": "卯日填实"
+            },
+            {
+              "branch": "酉",
+              "date": "2026-04-05",
+              "match": "opposite",
+              "reason": "酉日冲卯"
+            },
+            {
+              "branch": "卯",
+              "date": "2026-04-11",
+              "match": "same",
+              "reason": "卯日填实"
+            },
+            {
+              "branch": "酉",
+              "date": "2026-04-17",
+              "match": "opposite",
+              "reason": "酉日冲卯"
+            },
+            {
+              "branch": "卯",
+              "date": "2026-04-23",
+              "match": "same",
+              "reason": "卯日填实"
+            },
+            {
+              "branch": "酉",
+              "date": "2026-04-29",
+              "match": "opposite",
+              "reason": "酉日冲卯"
+            }
+          ],
+          "description": "空亡逢值或逢冲为填实候选",
+          "gong": "震",
+          "mechanism": "值冲",
+          "related_to": [],
+          "type": "kong_wang"
+        }
+      ],
+      "summary": "应期候选由马星、空亡、值符宫与值使宫给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论"
+    },
+    "zhi_fu_xing_gong": "离",
+    "zhi_shi_men_gong": "坎"
+  }
+}

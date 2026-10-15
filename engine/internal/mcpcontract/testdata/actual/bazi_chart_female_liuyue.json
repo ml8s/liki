@@ -1,0 +1,221 @@
+{
+  "input": {
+    "chart": {
+      "birth_year": 2000,
+      "da_yun": {
+        "current_step_index": 2,
+        "direction": "逆排",
+        "next_step_in_years": 8,
+        "start_date": "2004-12-10",
+        "start_day_after": 20,
+        "start_month_after": 2,
+        "start_year_after": 4,
+        "steps": [
+          {
+            "end_date": "2014-12-09",
+            "end_year": 2014,
+            "gan": "甲",
+            "name": "甲申",
+            "shi_shen": "正财运",
+            "start_date": "2004-12-10",
+            "start_year": 2004,
+            "wuxing": "木",
+            "zhi": "申"
+          },
+          {
+            "end_date": "2024-12-09",
+            "end_year": 2024,
+            "gan": "癸",
+            "name": "癸未",
+            "shi_shen": "食神运",
+            "start_date": "2014-12-10",
+            "start_year": 2014,
+            "wuxing": "水",
+            "zhi": "未"
+          },
+          {
+            "end_date": "2034-12-09",
+            "end_year": 2034,
+            "gan": "壬",
+            "name": "壬午",
+            "shi_shen": "伤官运",
+            "start_date": "2024-12-10",
+            "start_year": 2024,
+            "wuxing": "水",
+            "zhi": "午"
+          },
+          {
+            "end_date": "2044-12-09",
+            "end_year": 2044,
+            "gan": "辛",
+            "name": "辛巳",
+            "shi_shen": "比肩运",
+            "start_date": "2034-12-10",
+            "start_year": 2034,
+            "wuxing": "金",
+            "zhi": "巳"
+          },
+          {
+            "end_date": "2054-12-09",
+            "end_year": 2054,
+            "gan": "庚",
+            "name": "庚辰",
+            "shi_shen": "劫财运",
+            "start_date": "2044-12-10",
+            "start_year": 2044,
+            "wuxing": "金",
+            "zhi": "辰"
+          },
+          {
+            "end_date": "2064-12-09",
+            "end_year": 2064,
+            "gan": "己",
+            "name": "己卯",
+            "shi_shen": "偏印运",
+            "start_date": "2054-12-10",
+            "start_year": 2054,
+            "wuxing": "土",
+            "zhi": "卯"
+          },
+          {
+            "end_date": "2074-12-09",
+            "end_year": 2074,
+            "gan": "戊",
+            "name": "戊寅",
+            "shi_shen": "正印运",
+            "start_date": "2064-12-10",
+            "start_year": 2064,
+            "wuxing": "土",
+            "zhi": "寅"
+          },
+          {
+            "end_date": "2084-12-09",
+            "end_year": 2084,
+            "gan": "丁",
+            "name": "丁丑",
+            "shi_shen": "七杀运",
+            "start_date": "2074-12-10",
+            "start_year": 2074,
+            "wuxing": "火",
+            "zhi": "丑"
+          },
+          {
+            "end_date": "2094-12-09",
+            "end_year": 2094,
+            "gan": "丙",
+            "name": "丙子",
+            "shi_shen": "正官运",
+            "start_date": "2084-12-10",
+            "start_year": 2084,
+            "wuxing": "火",
+            "zhi": "子"
+          }
+        ]
+      },
+      "gender": "female",
+      "nian": {
+        "gan": "庚",
+        "na_yin": "白蜡金",
+        "zhi": "辰"
+      },
+      "ri": {
+        "gan": "辛",
+        "na_yin": "白蜡金",
+        "zhi": "巳"
+      },
+      "shi": {
+        "gan": "壬",
+        "na_yin": "长流水",
+        "zhi": "辰"
+      },
+      "yue": {
+        "gan": "乙",
+        "na_yin": "泉中水",
+        "zhi": "酉"
+      },
+      "zi_shi_rule": "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
+    },
+    "month": 6,
+    "year": 2026
+  },
+  "output": {
+    "gan_rels": [
+      {
+        "gan_a": "甲",
+        "gan_b": "庚",
+        "relation": "庚克甲",
+        "type": "相克"
+      },
+      {
+        "gan_a": "甲",
+        "gan_b": "乙",
+        "relation": "甲乙同气",
+        "type": "相同"
+      },
+      {
+        "gan_a": "甲",
+        "gan_b": "辛",
+        "relation": "辛克甲",
+        "type": "相克"
+      },
+      {
+        "gan_a": "甲",
+        "gan_b": "壬",
+        "relation": "壬生甲",
+        "type": "相生"
+      }
+    ],
+    "ke": 0,
+    "month": 6,
+    "month_name": "午月",
+    "sheng": 1,
+    "shensha": [
+      {
+        "category": "凶",
+        "description": "流运灾煞，防意外灾祸",
+        "name": "灾煞"
+      },
+      {
+        "category": "中性",
+        "description": "流运桃花，异性缘佳",
+        "name": "桃花"
+      },
+      {
+        "category": "吉",
+        "description": "流运天乙贵人，有贵人相助",
+        "name": "天乙贵人"
+      }
+    ],
+    "shi_shen": "正财",
+    "wuxing": "木",
+    "year": 2026,
+    "yue_gan": "甲",
+    "yue_zhi": "午",
+    "zhi_rels": [
+      {
+        "detail": "无特殊关系",
+        "type": "无",
+        "zhi_a": "午",
+        "zhi_b": "辰"
+      },
+      {
+        "detail": "无特殊关系",
+        "type": "无",
+        "zhi_a": "午",
+        "zhi_b": "酉"
+      },
+      {
+        "detail": "无特殊关系",
+        "type": "无",
+        "zhi_a": "午",
+        "zhi_b": "巳"
+      },
+      {
+        "detail": "无特殊关系",
+        "type": "无",
+        "zhi_a": "午",
+        "zhi_b": "辰"
+      }
+    ]
+  }
+}

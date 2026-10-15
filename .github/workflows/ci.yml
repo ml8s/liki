@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version-file: .python-version
-      - run: python -m pip install pyyaml jsonschema ruff==0.16.0
+      - run: python -m pip install pyyaml jsonschema pydantic==2.13.5 ruff==0.16.0
       - run: make check
       - name: Generate deployment artifacts
         run: make build-deployment
@@ -46,7 +46,7 @@ jobs:
           cache-dependency-path: engine/go.sum
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
-          version: v2.13.1
+          version: v2.13.2
           working-directory: engine
       - name: go vet
         run: go vet ./...
@@ -76,16 +76,16 @@ jobs:
         with:
           go-version-file: engine/go.mod
           cache-dependency-path: engine/go.sum
+      # The skill-document contract tests resolve counsel field references
+      # through scripts/counsel_tool_vocabulary.py, which imports the Pydantic
+      # contracts in counsel/app/contracts.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version-file: .python-version
+      - run: python -m pip install pydantic==2.13.5
       - name: Unit tests with coverage floor
-        working-directory: engine
-        run: |
-          go test -race -count=1 -short -coverprofile=coverage.out ./...
-          COV=$(go tool cover -func=coverage.out | tail -1 | awk '{print $3}' | sed 's/%//')
-          echo "Coverage: ${COV}%"
-          if awk -v c="$COV" -v m="85" 'BEGIN {exit !(c < m)}'; then
-            echo "❌ Coverage ${COV}% < 85%"; exit 1
-          fi
-      - run: go test -tags integration -count=1 -timeout 60s ./internal/agent/ ./internal/http/ ./internal/engine/bazi/
+        run: make test-engine-coverage
+      - run: go test -tags integration -count=1 -timeout 60s ./internal/mcpcontract/ ./internal/http/ ./internal/engine/bazi/
         working-directory: engine
 
   skills-test:
@@ -97,7 +97,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version-file: .python-version
-      - run: python -m pip install coverage pytest pyyaml jsonschema
+      - run: python -m pip install coverage pytest pyyaml jsonschema pydantic==2.13.5
       - run: make test-python-coverage
       - name: Upload Python coverage reports
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5

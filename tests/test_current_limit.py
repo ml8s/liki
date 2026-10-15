@@ -3,8 +3,8 @@ from unittest import mock
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import duanyu
-from pan_integrity import with_natal_digest
 import factors
+from pan_integrity import with_natal_digest
 
 
 def _full_mock_rule_snapshot(*rules: str) -> dict:
@@ -208,7 +208,6 @@ def test_current_limit_rule_set_matches_table_consumers() -> None:
 
     assert consumers == duanyu.CURRENT_LIMIT_RULES
 
-    from factors import evaluate_liunian_snap_from_pan
 
 
 

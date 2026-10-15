@@ -16,9 +16,8 @@ VERSION_FILES = (
 )
 PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))
 JSON_SURFACES = (
-    (ROOT / "counsel/app/divination/tools/skill-tools.json", ("info", "version")),
-    (ROOT / "counsel/app/naming/tools/skill-tools.json", ("info", "version")),
-    (ROOT / "counsel/app/natal/tools/counsel-tools.json", ("version",)),
+    # Counsel tool schemas carry no version: counsel/app/VERSION.txt is the
+    # surface, and the MCP servers advertise it in the initialize result.
     (ROOT / "counsel/app/natal/tools/natal_projection_contract.json", ("version",)),
     (ROOT / "counsel/app/divination/tools/qimen_projection_contract.json", ("version",)),
 )

@@ -1,6 +1,6 @@
 [project]
 name = "liki-skill"
-version = "2026.10.13.0"
+version = "2026.10.15.0"
 description = "Liki unified mingli skill: bazi, ziwei, liuyao, qimen, huangli, fengshui, naming"
 license = { file = "LICENSE" }
 requires-python = ">=3.12,<3.13"
@@ -11,7 +11,7 @@ testpaths = ["tests"]
 addopts = "-q"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 line-length = 120
 
 [tool.ruff.lint]
@@ -20,3 +20,5 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "scripts/*.py" = ["E402"]
+# Prepends scripts/ to sys.path before importing repo tooling.
+"tests/test_candidate_release.py" = ["E402"]

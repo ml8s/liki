@@ -1,0 +1,172 @@
+{
+  "input": {
+    "school": "jinhan_yujing",
+    "scope": "day",
+    "solar_time": "2024-06-29T12:00:00+08:00"
+  },
+  "output": {
+    "method": {
+      "basis": "冬至后阳遁、夏至后阴遁；九星按日飞九宫，八门三日一换，十干各配十二神。",
+      "day_boundary": "late_zi_rolls_day_pillar",
+      "dingju_method": "none",
+      "dingju_method_name": "无定局",
+      "door_mode": "three_day_eight_door_rotation",
+      "dun_source": "winter_solstice_yang_summer_solstice_yin",
+      "geometry": "solstice_day_star_flight",
+      "jie_qi": "夏至",
+      "method_source": "solstice_day_cycle",
+      "school": "jinhan_yujing",
+      "school_name": "金函玉镜",
+      "scope": "day",
+      "scope_name": "日家奇门",
+      "spirit_flight": "solstice_yang_forward_yin_reverse",
+      "spirit_mode": "day_gan_twelve_spirits",
+      "star_mode": "taiyi_nine_stars_day_flight"
+    },
+    "pan": {
+      "day_spirits": [
+        {
+          "shen": "地钥",
+          "zhi": "子"
+        },
+        {
+          "shen": "六贼",
+          "zhi": "丑"
+        },
+        {
+          "shen": "五符",
+          "zhi": "寅"
+        },
+        {
+          "shen": "天曹",
+          "zhi": "卯"
+        },
+        {
+          "shen": "地符",
+          "zhi": "辰"
+        },
+        {
+          "shen": "风伯",
+          "zhi": "巳"
+        },
+        {
+          "shen": "雷公",
+          "zhi": "午"
+        },
+        {
+          "shen": "雨师",
+          "zhi": "未"
+        },
+        {
+          "shen": "风云",
+          "zhi": "申"
+        },
+        {
+          "shen": "唐符",
+          "zhi": "酉"
+        },
+        {
+          "shen": "国印",
+          "zhi": "戌"
+        },
+        {
+          "shen": "天关",
+          "zhi": "亥"
+        }
+      ],
+      "gong_wei": [
+        {
+          "gong": {
+            "luoshu": 1,
+            "name": "坎",
+            "ring_index": 0
+          },
+          "men": "景门",
+          "men_present": true,
+          "xing": "摄提"
+        },
+        {
+          "gong": {
+            "luoshu": 2,
+            "name": "坤",
+            "ring_index": 5
+          },
+          "men": "开门",
+          "men_present": true,
+          "xing": "太乙"
+        },
+        {
+          "gong": {
+            "luoshu": 3,
+            "name": "震",
+            "ring_index": 2
+          },
+          "men": "伤门",
+          "men_present": true,
+          "xing": "天乙"
+        },
+        {
+          "gong": {
+            "luoshu": 4,
+            "name": "巽",
+            "ring_index": 3
+          },
+          "men": "生门",
+          "men_present": true,
+          "xing": "太阴"
+        },
+        {
+          "gong": {
+            "luoshu": 5,
+            "name": "中"
+          },
+          "men_present": false,
+          "xing": "咸池"
+        },
+        {
+          "gong": {
+            "luoshu": 6,
+            "name": "乾",
+            "ring_index": 7
+          },
+          "men": "死门",
+          "men_present": true,
+          "xing": "青龙"
+        },
+        {
+          "gong": {
+            "luoshu": 7,
+            "name": "兑",
+            "ring_index": 6
+          },
+          "men": "惊门",
+          "men_present": true,
+          "xing": "天符"
+        },
+        {
+          "gong": {
+            "luoshu": 8,
+            "name": "艮",
+            "ring_index": 1
+          },
+          "men": "杜门",
+          "men_present": true,
+          "xing": "招摇"
+        },
+        {
+          "gong": {
+            "luoshu": 9,
+            "name": "离",
+            "ring_index": 4
+          },
+          "men": "休门",
+          "men_present": true,
+          "xing": "轩辕"
+        }
+      ],
+      "ri_gan": "甲",
+      "ri_zhi": "子",
+      "yin_dun": true
+    }
+  }
+}

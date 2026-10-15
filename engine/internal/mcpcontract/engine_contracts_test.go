@@ -7,18 +7,14 @@ import (
 	"strings"
 	"testing"
 
-	"liki-engine/internal/engine/bazhai"
-	"liki-engine/internal/engine/huangli"
-	"liki-engine/internal/engine/liuyao"
-	"liki-engine/internal/engine/xuankong"
+	"github.com/google/jsonschema-go/jsonschema"
+
+	"liki-engine/internal/engine/tables"
 )
 
 func TestMain(m *testing.M) {
-	loaders := []func() error{huangli.Load, bazhai.Load, xuankong.Load, liuyao.Load}
-	for _, load := range loaders {
-		if err := load(); err != nil {
-			panic(err)
-		}
+	if err := tables.Load(); err != nil {
+		panic(err)
 	}
 	os.Exit(m.Run())
 }
@@ -27,10 +23,16 @@ func TestEngineContractDefinitions(t *testing.T) {
 	registry := NewEngine()
 	want := []string{
 		"time.now", "huangli.days", "tianwen.time", "city.coords",
+		"bazi.chart",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua",
 		"liuyao.chart",
+		"bazi.fullchart", "bazi.bond",
+		"bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi", "bazi.xiaoyun",
+		"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian",
+		"ziwei.liuyue", "ziwei.liuri", "ziwei.liushi", "ziwei.bond",
+		"qimen.chart",
 	}
 	got := registry.Names()
 	if len(got) != len(want) {
@@ -55,21 +57,23 @@ func TestEngineContractDefinitions(t *testing.T) {
 		}
 	}
 
-	// Object roots expose output schemas. The existing huangli wire root is an
-	// array, so it remains runtime-validated but intentionally undeclared.
-	for _, name := range []string{
-		"time.now", "tianwen.time", "city.coords",
-		"bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian",
-		"liuyao.qigua",
-		"liuyao.chart",
-	} {
+	// Object roots expose output schemas; array roots (huangli.days,
+	// bazi.xiaoyun, ziwei.daxian) stay runtime-validated but are intentionally
+	// undeclared, matching the MCP object-only outputSchema rule.
+	arrayRoots := map[string]bool{
+		"huangli.days": true, "bazi.xiaoyun": true, "ziwei.daxian": true,
+	}
+	for _, name := range want {
 		definition, _ := registry.Definition(name)
+		if arrayRoots[name] {
+			if len(definition.OutputSchema) != 0 {
+				t.Errorf("%s should not declare a non-object output schema", name)
+			}
+			continue
+		}
 		if len(definition.OutputSchema) == 0 {
 			t.Errorf("%s should declare an object output schema", name)
 		}
-	}
-	if definition, _ := registry.Definition("huangli.days"); len(definition.OutputSchema) != 0 {
-		t.Errorf("huangli.days should not declare a non-object output schema")
 	}
 }
 
@@ -191,6 +195,35 @@ func mustDefinition(t *testing.T, registry *Registry, name string) Definition {
 	return definition
 }
 
+func TestEngineContractBaziTiaoHouAllowsEmptySecondaryWuxing(t *testing.T) {
+	registry := NewEngine()
+
+	// 1990-05-20 11:49 CST at 116.4E (the counsel baseline birth) has a 调候
+	// primary element but no 辅 element, so the engine emits
+	// tiao_hou.secondary_wuxing = "" - the domain allows exactly that empty
+	// value (engine/internal/engine/bazi/bazi_correctness_test.go). Output
+	// validation must accept the Go zero value, otherwise real charts fail with
+	// an output contract violation.
+	timeDoc := callToolDocument(t, registry, "tianwen.time", map[string]any{
+		"time": "1990-05-20T11:49:00+08:00", "longitude": 116.4,
+	})
+	solar, _ := timeDoc["solar"].(string)
+	if solar == "" {
+		t.Fatalf("tianwen.time output = %#v", timeDoc)
+	}
+	chart := callToolDocument(t, registry, "bazi.chart", map[string]any{
+		"solar_time": solar, "gender": "male",
+	})
+	full := callToolDocument(t, registry, "bazi.fullchart", map[string]any{"chart": chart})
+	tiaoHou, _ := full["tiao_hou"].(map[string]any)
+	if tiaoHou == nil {
+		t.Fatalf("bazi.fullchart output has no tiao_hou: %#v", full)
+	}
+	if secondary, _ := tiaoHou["secondary_wuxing"].(string); secondary != "" {
+		t.Fatalf("expected an empty secondary_wuxing for the baseline birth, got %q", secondary)
+	}
+}
+
 func TestEngineContractCalls(t *testing.T) {
 	registry := NewEngine()
 
@@ -208,7 +241,7 @@ func TestEngineContractCalls(t *testing.T) {
 
 	huangliRaw, err := registry.Call(context.Background(), "huangli.days", mustJSON(t, HuangliDaysInput{
 		StartDate: "2024-06-15",
-		Count:     huangliCountPtr(1),
+		Count:     jsonschema.Ptr(HuangliCount(1)),
 		Event:     "sign",
 	}))
 	if err != nil {
@@ -352,11 +385,6 @@ func TestEngineContractCalls(t *testing.T) {
 		!strings.Contains(err.Error(), "dong_yao mismatch")) {
 		t.Fatalf("expected tampered casting rejection, got %v", err)
 	}
-}
-
-func huangliCountPtr(value int) *HuangliCount {
-	count := HuangliCount(value)
-	return &count
 }
 
 func mustJSON(t *testing.T, value any) json.RawMessage {

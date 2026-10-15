@@ -40,15 +40,15 @@ npm --prefix /tmp/bazi-calculator install
 npm --prefix /tmp/bazi-calculator run build
 ```
 
-生成：
+生成（默认写入 `engine/internal/engine/bazi/testdata/multi_oracle_golden.json`）：
 
 ```bash
 BAZI_CALCULATOR_DIR=/tmp/bazi-calculator \
-  make golden-bazi-generate
+  python3 tests/golden/bazi/generate.py
 ```
 
 只跑 checked-in 数据：
 
 ```bash
-make golden-bazi
+make golden
 ```

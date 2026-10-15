@@ -15,9 +15,9 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"liki-engine/internal/agent"
 	"liki-engine/internal/engine/bazi"
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tables"
 	"liki-engine/internal/engine/tianwen"
 	apphttp "liki-engine/internal/http"
 )
@@ -37,16 +37,14 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
-	if err := agent.Load(); err != nil {
+	if err := tables.Load(); err != nil {
 		slog.Error("engine: load data tables", "err", err)
 		os.Exit(1)
 	}
 
-	rpcReg := agent.NewRPCRegistry()
-
 	if *stdio {
 		slog.Info("engine-mcp stdio mode")
-		if err := runStdio(rpcReg, BuildTime, logger); err != nil {
+		if err := runStdio(BuildTime, logger); err != nil {
 			slog.Error("stdio", "err", err)
 			os.Exit(1)
 		}
@@ -54,7 +52,7 @@ func main() {
 	}
 
 	// MCP Streamable HTTP endpoints — 每术数一个域（排盘工具），aux 为共享辅助
-	mcpServer := newMCPServer(rpcReg, BuildTime, logger)
+	mcpServer := newMCPServer(BuildTime, logger)
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 
 	mcpToken := os.Getenv("LIKI_MCP_TOKEN")
@@ -74,7 +72,7 @@ func main() {
 	// 分域端点：每术数 + 共享辅助。`/engine` 外部前缀由网关剥离，
 	// 本服务只负责 MCP 根路径和 MCP 域路径。
 	for _, d := range mcpDomains {
-		domainServer := newDomainServer(rpcReg, d.Prefixes, BuildTime, logger)
+		domainServer := newDomainServer(d.Prefixes, BuildTime, logger)
 		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 		mux.Handle("/mcp/"+d.Suffix, apphttp.MCPAuthMiddleware(mcpToken, domainHandler))
 	}

@@ -3,7 +3,7 @@ package mcpcontract
 import (
 	"context"
 
-	"liki-engine/internal/agent/city"
+	"liki-engine/internal/engine/city"
 )
 
 // CityCoordsInput requests coordinates for one place name.

@@ -1,5 +1,4 @@
 """本命事实投影契约：reserved domain facts 的结构与只读投影。"""
-import pytest
 
 import _helpers  # noqa: F401
 from natal_projection import load_contract, project_natal_facts
@@ -26,7 +25,6 @@ def _rich_pan() -> dict:
                 "ge_ju": {"model": "ziping_month_command_candidate"},
             },
             "chang_sheng": [{"pillar": "nian", "stage": "长生"}],
-            "zodiac": "鼠",
             "zodiac": "鼠",
             "san_yuan": {"胎元": "丙子"}, "tai_xi": "辛丑",
             "gan_chong": [{"gan_a": "甲", "gan_b": "庚", "pillar_a": 0, "pillar_b": 1, "position": "adjacent"}],

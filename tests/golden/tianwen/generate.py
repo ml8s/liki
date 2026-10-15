@@ -9,9 +9,10 @@ import os
 import sys
 from pathlib import Path
 
-from lunar_python import Solar
 import sxtwl
+from lunar_python import Solar
 
+ROOT = Path(__file__).resolve().parents[3]
 
 YEARS = (2024, 2025, 2026, 2027)
 SOURCES = {
@@ -115,7 +116,7 @@ def main() -> int:
     output = Path(
         os.environ.get(
             "OUTPUT",
-            "engine/internal/engine/tianwen/testdata/multi_oracle_golden.json",
+            str(ROOT / "engine/internal/engine/tianwen/testdata/multi_oracle_golden.json"),
         )
     )
     output.parent.mkdir(parents=True, exist_ok=True)

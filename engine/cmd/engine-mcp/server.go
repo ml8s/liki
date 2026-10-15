@@ -3,15 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"liki-engine/internal/agent"
 	"liki-engine/internal/mcpcontract"
 )
 
@@ -43,20 +40,19 @@ var mcpDomains = []struct {
 	{"aux", []string{"time.", "tianwen.", "city."}},
 }
 
-// engineContracts owns tools that have completed the typed MCP migration.
+// engineContracts owns every engine tool contract; the legacy raw-JSON
+// registry has been fully retired.
 var engineContracts = mcpcontract.NewEngine()
 
-// newMCPServer builds a standard MCP server exposing every registered RPC
-// method as an MCP tool. RPC-specific envelopes ({"_product","data"}) are
-// unwrapped: tools return the raw engine data, not the private RPC envelope.
-func newMCPServer(reg *agent.RPCRegistry, version string, logger *slog.Logger) *mcp.Server {
-	return newMCPServerFor(reg, engineContracts, version, logger, func(string) bool { return true })
+// newMCPServer builds a standard MCP server exposing every engine tool.
+func newMCPServer(version string, logger *slog.Logger) *mcp.Server {
+	return newMCPServerFor(version, logger, func(string) bool { return true })
 }
 
 // newDomainServer builds an MCP server exposing only the methods matching the
 // given RPC method prefixes (one 术数 domain or the shared aux tools).
-func newDomainServer(reg *agent.RPCRegistry, prefixes []string, version string, logger *slog.Logger) *mcp.Server {
-	return newMCPServerFor(reg, engineContracts, version, logger, func(method string) bool {
+func newDomainServer(prefixes []string, version string, logger *slog.Logger) *mcp.Server {
+	return newMCPServerFor(version, logger, func(method string) bool {
 		for _, p := range prefixes {
 			if strings.HasPrefix(method, p) {
 				return true
@@ -66,7 +62,7 @@ func newDomainServer(reg *agent.RPCRegistry, prefixes []string, version string, 
 	})
 }
 
-func newMCPServerFor(reg *agent.RPCRegistry, contracts *mcpcontract.Registry, version string, logger *slog.Logger, match func(string) bool) *mcp.Server {
+func newMCPServerFor(version string, logger *slog.Logger, match func(string) bool) *mcp.Server {
 	impl := &mcp.Implementation{
 		Name:        serverName,
 		Title:       "Liki Metaphysics Engine",
@@ -85,33 +81,11 @@ func newMCPServerFor(reg *agent.RPCRegistry, contracts *mcpcontract.Registry, ve
 	}
 	s := mcp.NewServer(impl, opts)
 
-	for _, name := range reg.Names() {
+	for _, name := range engineContracts.Names() {
 		if !match(name) {
 			continue
 		}
-		if contracts.Has(name) {
-			continue
-		}
-		m, ok := reg.Method(name)
-		if !ok {
-			continue
-		}
-		tool := &mcp.Tool{
-			Name:        toolName(name),
-			Description: m.Description,
-			InputSchema: m.Params,
-		}
-		if os := outputSchemaFromResult(m.Result); len(os) > 0 {
-			tool.OutputSchema = os
-		}
-		s.AddTool(tool, toolHandler(reg, name))
-	}
-
-	for _, name := range contracts.Names() {
-		if !match(name) {
-			continue
-		}
-		definition, ok := contracts.Definition(name)
+		definition, ok := engineContracts.Definition(name)
 		if !ok {
 			continue
 		}
@@ -121,85 +95,9 @@ func newMCPServerFor(reg *agent.RPCRegistry, contracts *mcpcontract.Registry, ve
 			InputSchema:  definition.InputSchema,
 			OutputSchema: definition.OutputSchema,
 		}
-		s.AddTool(tool, contractToolHandler(contracts, name))
+		s.AddTool(tool, contractToolHandler(engineContracts, name))
 	}
 	return s
-}
-
-// outputSchemaFromResult extracts the engine data schema from the RPC result
-// envelope ({"_product":...,"data":<schema>}). MCP tools return the unwrapped
-// data, so the data sub-schema becomes the tool's outputSchema, giving the
-// LLM the same structural knowledge the registry provides. Only
-// object-typed schemas are exposed: MCP conformance requires outputSchema to
-// be an object schema, so array/primitive-typed returns omit it (the tool
-// description carries their shape). Returns nil when absent or unsuitable.
-func outputSchemaFromResult(result json.RawMessage) json.RawMessage {
-	if len(result) == 0 {
-		return nil
-	}
-	var env struct {
-		Properties struct {
-			Data json.RawMessage `json:"data"`
-		} `json:"properties"`
-	}
-	if err := json.Unmarshal(result, &env); err != nil || len(env.Properties.Data) == 0 {
-		return nil
-	}
-	var doc struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(env.Properties.Data, &doc); err != nil || doc.Type != "object" {
-		return nil
-	}
-	return env.Properties.Data
-}
-
-// toolHandler maps a registered RPC method to an MCP tool handler. Business
-// errors surface as IsError results (visible to the LLM); only internal
-// failures become protocol-level errors.
-func toolHandler(reg *agent.RPCRegistry, method string) mcp.ToolHandler {
-	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		args := req.Params.Arguments
-		if len(args) == 0 || string(args) == "null" {
-			args = json.RawMessage(`{}`)
-		}
-		result, err := reg.Execute(ctx, method, args)
-		if err != nil {
-			msg := err.Error()
-			var rpcErr *agent.RPCError
-			if errors.As(err, &rpcErr) {
-				msg = rpcErr.Message
-			}
-			return &mcp.CallToolResult{
-				IsError: true,
-				Content: []mcp.Content{&mcp.TextContent{Text: msg}},
-			}, nil
-		}
-		data, err := unwrapResult(result)
-		if err != nil {
-			return nil, err
-		}
-		return &mcp.CallToolResult{
-			Content:           []mcp.Content{&mcp.TextContent{Text: string(data)}},
-			StructuredContent: json.RawMessage(data),
-		}, nil
-	}
-}
-
-// unwrapResult strips the RPC {"_product":...,"data":...} envelope and returns
-// the engine data alone. The envelope is a private JSON-RPC design; standard
-// MCP tools expose the raw result.
-func unwrapResult(raw json.RawMessage) (json.RawMessage, error) {
-	var env struct {
-		Data json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(raw, &env); err != nil {
-		return nil, fmt.Errorf("decode engine result: %w", err)
-	}
-	if len(env.Data) == 0 || string(env.Data) == "null" {
-		return nil, fmt.Errorf("engine result missing data")
-	}
-	return env.Data, nil
 }
 
 // contractToolHandler invokes a typed MCP contract. Validation and business
@@ -224,8 +122,8 @@ func contractToolHandler(contracts *mcpcontract.Registry, name string) mcp.ToolH
 	}
 }
 
-func runStdio(reg *agent.RPCRegistry, version string, logger *slog.Logger) error {
-	s := newMCPServer(reg, version, logger)
+func runStdio(version string, logger *slog.Logger) error {
+	s := newMCPServer(version, logger)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	return s.Run(ctx, &mcp.StdioTransport{})

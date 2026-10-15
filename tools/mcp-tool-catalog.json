@@ -35,17 +35,17 @@
     "counsel": {
       "tools": [
         "compute_factors",
-        "liuyao_query",
-        "liuyao_snapshot",
         "natal_query",
         "period_query",
-        "qimen_query",
-        "qimen_snapshot",
-        "naming_char",
-        "naming_check",
-        "naming_compose",
+        "naming_surname",
         "naming_pick",
-        "naming_surname"
+        "naming_char",
+        "naming_compose",
+        "naming_check",
+        "liuyao_snapshot",
+        "liuyao_query",
+        "qimen_snapshot",
+        "qimen_query"
       ]
     }
   }

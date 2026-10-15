@@ -1,0 +1,3 @@
+# golangci-lint 版本 pin：本地 `make lint-engine` 与 CI `engine-lint` job 共用。
+# 本仓要求两边完全一致，对账测试见 tests/test_toolchain_parity.py。
+version: v2.13.2

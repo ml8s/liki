@@ -62,9 +62,15 @@ def main() -> int:
         parser.error("base_url required or LIKI_MCP_URL must be set")
     base = args.base_url.rstrip("/")
 
+    # Every domain the counsel engine client routes to must exist and expose
+    # its own tool set: counsel maps bazi/ziwei/qimen/liuyao/huangli/fengshui/
+    # aux prefixes onto these endpoints (counsel/app/engine_mcp_client.py).
     expectations = {
         "": {"bazi_chart", "ziwei_chart", "huangli_days", "bazhai_chart"},
         "/bazi": {"bazi_chart", "bazi_fullchart"},
+        "/ziwei": {"ziwei_chart", "ziwei_fullchart"},
+        "/qimen": {"qimen_chart"},
+        "/liuyao": {"liuyao_qigua", "liuyao_chart"},
         "/huangli": {"huangli_days"},
         "/fengshui": {"bazhai_chart", "xuankong_chart", "time_now"},
         "/aux": {"time_now", "tianwen_time", "city_coords"},
@@ -81,6 +87,21 @@ def main() -> int:
         if missing:
             raise RuntimeError(f"{endpoint}: missing tools: {sorted(missing)}")
         print(f"✓ {path or '/'}: {len(names)} tools")
+
+    # Domain isolation: the single-domain endpoints must not leak tools from
+    # another 术数, otherwise a skill's `tools.allow` boundary is meaningless.
+    isolation = {
+        "/bazi": "bazi_",
+        "/ziwei": "ziwei_",
+        "/qimen": "qimen_",
+        "/liuyao": "liuyao_",
+        "/huangli": "huangli_",
+    }
+    for path, prefix in isolation.items():
+        names = tool_names(base + path)
+        foreign = {name for name in names if not name.startswith(prefix)}
+        if foreign:
+            raise RuntimeError(f"{path}: leaked tools from another domain: {sorted(foreign)}")
 
     root = base
     result = post(root, "tools/call", "time_now", {"name": "time_now", "arguments": {}})

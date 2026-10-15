@@ -161,7 +161,7 @@ make golden         # golden 全量（局部诊断入口）
 ### 设计原则
 
 - 分层单一职责：根入口、领域入口、App 卡、领域知识和工具层不互相替代。
-- 单一事实源：工具 schema 来自工具清单（natal 的 `counsel-tools.json`、divination / naming 的 `skill-tools.json`，经 `tools/list` 自举），因子和断语来自 CSV 长表与引擎规则表。
+- 单一事实源：工具 schema 由 `counsel/app/contracts` 的 Pydantic 模型生成（引擎侧为 `engine/internal/mcpcontract` 的 typed registry，经 `tools/list` 自举），因子和断语来自 CSV 长表与引擎规则表。
 - 双体系显式合参：八字和紫微分侧计算，冲突分层列证。
 - 测试分层：golden、functional、MCP integration 与 160 题规则覆盖/零命中检查分层运行；历史 model-backed 评测资产显式归档。
 

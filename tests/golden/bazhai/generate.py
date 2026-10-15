@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[3]
 
 GAN_ZHI = {1:"坎",2:"坤",3:"震",4:"巽",6:"乾",7:"兑",8:"艮",9:"离"}
 WEST = {"乾","兑","艮","坤"}
@@ -31,5 +34,7 @@ doc={
  "scope":{"case_count":len(cases)},
  "cases":cases,
 }
-open("engine/internal/engine/bazhai/testdata/minggua_cycle_golden.json","w",encoding="utf-8").write(json.dumps(doc,ensure_ascii=False,indent=2)+"\n")
+(ROOT / "engine/internal/engine/bazhai/testdata/minggua_cycle_golden.json").write_text(
+    json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+)
 print(f"wrote {len(cases)} cases")

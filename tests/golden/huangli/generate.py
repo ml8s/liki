@@ -5,10 +5,9 @@ from __future__ import annotations
 import datetime as dt
 import json
 from pathlib import Path
-import sys
 
-from lunar_python import Solar
 import sxtwl
+from lunar_python import Solar
 
 ROOT=Path(__file__).resolve().parents[3]
 CORE=json.loads((ROOT/"tests/fixtures/domain_oracle/huangli_core.json").read_text())
@@ -26,7 +25,8 @@ def consensus(date):
     sx=sxtwl.fromSolar(date.year,date.month,date.day)
     day=(lp.getDayGan(),lp.getDayZhi())
     sxday=(GAN[sx.getDayGZ().tg],ZHI[sx.getDayGZ().dz])
-    yue=lp.getMonthZhiExact(); sxyue=ZHI[sx.getMonthGZ().dz]
+    yue=lp.getMonthZhiExact()
+    sxyue=ZHI[sx.getMonthGZ().dz]
     if day!=sxday or yue!=sxyue:
         return None
     return day,yue
@@ -54,7 +54,8 @@ date=dt.date(2024,1,1)
 while date<=dt.date(2027,12,31):
     event=EVENT_NAMES[len(cases)%len(EVENT_NAMES)]
     case=make_case(date,event)
-    if case: cases.append(case)
+    if case:
+        cases.append(case)
     date += dt.timedelta(days=16)
 
 doc={

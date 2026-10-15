@@ -3,10 +3,10 @@ import json
 from pathlib import Path
 
 import _helpers  # noqa: F401
-import natal_projection
 import assertion_store
 import errors
 import factor_tables
+import natal_projection
 import operators_liunian
 import operators_natal
 import pan_schema

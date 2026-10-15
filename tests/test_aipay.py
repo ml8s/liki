@@ -3,9 +3,9 @@ from __future__ import annotations
 import importlib.util
 import json
 import pathlib
-from unittest import mock
 import tempfile
 import unittest
+from unittest import mock
 
 
 def _load_aipay():

@@ -40,7 +40,7 @@ The tag is a release name only; the version stored in files has no `v` prefix.
 | Counsel runtime | `counsel/app/VERSION.txt` |
 | Skill package metadata | `skills/liki/SKILL.md` frontmatter `metadata.version` |
 | Expert package metadata | `expert-packs/*/SKILL.md`, nested domain `SKILL.md`, and `.codebuddy-plugin/plugin.json` |
-| Counsel tool / projection contracts | manifests updated by `make version` |
+| Counsel projection contracts | `counsel/app/*/tools/*_projection_contract.json` |
 | Deployment profiles | `profiles/*.json` |
 | Root and counsel package metadata | `pyproject.toml`, `counsel/pyproject.toml` |
 | Published engine image reference in README | `README.md`, `README.en.md` |

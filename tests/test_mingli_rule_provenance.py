@@ -1,6 +1,5 @@
 """命理规则出处契约：断语必须可溯源到经典，不得按评测选项反向拟合。"""
 import csv
-import re
 from pathlib import Path
 
 TABLE = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools/assertions/assertions.csv"

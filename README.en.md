@@ -163,7 +163,7 @@ Formal releases use date-based CalVer tags. See [Release model](./docs/RELEASE_M
 ### Design principles
 
 - Single responsibility: root entry, domain entry, app cards, domain knowledge, and tool layers do not replace each other.
-- Single source of truth: tool contracts come from `counsel-tools.json` (natal) / `skill-tools.json` (divination, naming); factors and assertions come from CSV tables.
+- Single source of truth: tool contracts are generated from the Pydantic models in `counsel/app/contracts` (the engine side uses the typed `engine/internal/mcpcontract` registry); factors and assertions come from CSV tables.
 - Explicit dual-system review: Bazi and Ziwei are calculated separately and conflicts are listed by evidence layer.
 - Test layers: golden, functional, MCP integration, and the 160-question rule-coverage / zero-hit check run separately; historical model-backed assets are explicitly archived.
 

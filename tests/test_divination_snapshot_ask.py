@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "counsel/app/divination/tools"
 if str(TOOLS) not in sys.path:
@@ -129,7 +128,7 @@ def test_liuyao_snapshot_accepts_historical_casting_time(monkeypatch):
 
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", capture_factors)
     historical_time = "1990-06-01T14:00:00+08:00"
-    result = liuyao_snapshot.create(
+    liuyao_snapshot.create(
         question="复现 1990 年的一次卦",
         mode="coins",
         matter="general",
@@ -235,6 +234,7 @@ def test_qimen_ask_returns_structured_answer(monkeypatch):
 
 def test_liuyao_snapshot_matches_contract(monkeypatch):
     import json
+
     from jsonschema import validate
 
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: {
@@ -256,6 +256,7 @@ def test_liuyao_snapshot_matches_contract(monkeypatch):
 
 def test_qimen_snapshot_matches_contract(monkeypatch):
     import json
+
     from jsonschema import validate
 
     monkeypatch.setattr(qimen_snapshot, "server_time", lambda: "2026-09-08T12:00:00+08:00")

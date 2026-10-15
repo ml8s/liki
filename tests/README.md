@@ -7,26 +7,77 @@ This repository has deterministic tests and curated data assets. Do not treat fu
 | Layer | Entry | Scope |
 | --- | --- | --- |
 | Content suite | `make test-content` | README, skill layout, tool manifests, factors, assertions, schemas, data flow |
-| Python lint | `make lint-python` | Ruff E/F/W/I over counsel and active scripts |
+| Python lint | `make lint-python` | Ruff E/F/W/I over `counsel/`, `scripts/`, and root `tests/` |
 | Python vulnerabilities | CI `pip-audit` | Known CVEs in the hashed counsel dependency lock |
-| Engine units/integration | `make test-engine` | Go domain packages, agent registry, HTTP middleware, integration tags |
+| Engine units/integration | `make test-engine` | Go domain packages, MCP contract registry (`internal/mcpcontract`), HTTP middleware, integration tags |
 | Toolchain gate | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.9 |
 | Engine vulnerabilities | CI `govulncheck ./...` | Reachable Go standard-library/module vulnerabilities |
 | Engine MCP smoke | `make test-engine-mcp` | Internal `/mcp` root and `/mcp/{domain}` surfaces, `server/discover`, `tools/list`, `tools/call` |
 | Counsel MCP integration | `make test-counsel` | Bootstraps a locked Python environment and local engine, then tests all counsel tools |
 | Assertion data check | `python3 scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
 | Documentation check | `python3 scripts/check_docs.py skills/liki` | Distributed skill documentation references |
+| Documentation path check | `python3 scripts/check_doc_paths.py` | Every Markdown link target and top-level code-span path in the repository resolves |
 | Markdown lint | `make lint-md` | Locked `markdownlint-cli2` over all skill markdown |
 | Full 160-question data check | `make full-data` | Rule coverage and zero-hit detection; not answer grading (starts a local engine-mcp) |
 | Golden suites | `make golden` | Deterministic multi-source calibration fixtures already consumed by engine tests |
 | Distribution build | `make build-archive` | Self-contained skill archive and expert methodology cards |
 
-Regenerate the counsel dependency lock after changing `counsel/requirements.txt`:
+## Test placement
+
+Put a test where its contract lives; the suite that owns the contract also owns the test.
+
+| Contract under test | Location | Entry |
+| --- | --- | --- |
+| Engine tool schema, DTO, wire fidelity | `engine/internal/mcpcontract/*_test.go` | `make test-engine` |
+| Engine domain algorithm or data table | `engine/internal/engine/<domain>/*_test.go` | `make test-engine` |
+| Counsel tool models, factors, assertions | `counsel/tests/` | `make test-counsel` |
+| Cross-language surface (skill docs, both registries) | `engine/internal/mcpcontract/skill_docs_sync_test.go` | `make test-engine` |
+| Repository surface (README, skill layout, deployment, versions, CI contracts) | root `tests/` | `make test-content` |
+| Independent domain truth (data only, never implementation-derived) | `tests/fixtures/domain_oracle/` | oracle tests |
+| Characterization snapshot (drift detector) | `tests/golden/<domain>/` | `make golden` |
+
+Notes:
+
+- Root `tests/` is a package (`tests/__init__.py`), so its modules cannot collide with
+  same-named modules under `counsel/tests/`; the counsel suite has its own rootdir.
+- Golden generators write into `engine/internal/engine/*/testdata/` and resolve that path
+  from the repository root, so they run from any cwd. Never hand-edit a golden; change the
+  generator and regenerate. See `tests/golden/README.md`.
+
+## Static check scripts
+
+`make check` runs no tests and writes nothing: it is the static half of the push gate. Its
+script set is pinned by `tests/test_check_scripts_contract.py`, so adding a script to the
+`check` recipe without listing it here (or leaving a listed script unwired) fails.
+
+| Script | Contract |
+| --- | --- |
+| `scripts/lint-md.sh` | Locked `markdownlint-cli2` over the declared Markdown globs |
+| `scripts/lint-python.sh` | Locked Ruff over `counsel/`, `scripts/`, and root `tests/` |
+| `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.9 |
+| `scripts/check_actions_pinned.py` | Rejects mutable workflow/action references |
+| `scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
+| `scripts/check_docs.py` | Distributed skill documentation: assertions, paths, budgets, method whitelist |
+| `scripts/check_doc_paths.py` | Markdown link targets and top-level code-span paths resolve |
+| `scripts/check_workflow.py` | CI workflow structure and job wiring |
+| `scripts/check_mcp_schema.py` | MCP tool schemas, context budgets, and `tools/mcp-tool-catalog.json` drift (`--emit` regenerates it) |
+| `scripts/check_expert_docs.py` | Expert-pack methodology cards against the root skill |
+| `scripts/agent_runtime_pin.py` | Agent runtime image pin is internally consistent |
+| `scripts/check-exec-bits.sh` | Git executable bits for scripts invoked without an interpreter |
+| `scripts/sync_expert_packs.py` | Expert methodology cards are in sync with the root skill |
+
+The counsel direct dependencies are declared twice on purpose --
+`counsel/pyproject.toml [project.dependencies]` is the metadata surface and
+`counsel/requirements.txt` is the lock input -- so change both and let
+`tests/test_counsel_dependency_parity.py` confirm they agree, then regenerate the lock:
 
 ```bash
 uv pip compile --universal --python 3.12 --generate-hashes \
   counsel/requirements.txt -o counsel/requirements.lock
 ```
+
+The lock is frozen between deliberate upgrades; the same command today would also bump
+transitive pins, so regenerating it is its own reviewed change.
 
 The full push gate is:
 

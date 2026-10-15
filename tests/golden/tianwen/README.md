@@ -10,9 +10,9 @@ CI 只运行 fixture，不联网、不安装参考库。
 - `LunarToGregorian` 往返
 - `JianYue` 节气月支
 
-重新生成需要：
+重新生成需要（默认写入 `engine/internal/engine/tianwen/testdata/multi_oracle_golden.json`）：
 
 ```bash
 python3 -m pip install lunar-python==1.4.8 sxtwl==2.0.7
-PYTHONPATH="$PYTHONPATH" make golden-tianwen-generate
+python3 tests/golden/tianwen/generate.py
 ```

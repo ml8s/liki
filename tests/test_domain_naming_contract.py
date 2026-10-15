@@ -1,8 +1,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -52,15 +50,12 @@ def test_deployment_generator_emits_contract_version():
 
 def test_candidate_manifest_is_self_describing():
     import sys
+    import tempfile
 
     sys.path.insert(0, str(ROOT / "scripts"))
     import build_candidate_manifest as bcm
 
-    metadata = ROOT / "build/nonexistent"
-    manifest = bcm.manifest.__wrapped__ if hasattr(bcm.manifest, "__wrapped__") else bcm.manifest
     # Test the pure dictionary shape with temporary metadata files.
-    import tempfile
-
     with tempfile.TemporaryDirectory() as directory:
         metadata_dir = Path(directory)
         for name in bcm.IMAGE_NAMES:

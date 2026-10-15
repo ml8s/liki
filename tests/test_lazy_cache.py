@@ -1,11 +1,10 @@
 """求值上下文契约：单次求值复用基础聚合，且不写回公共 pan。"""
 from unittest import mock
 
-import pytest
-
 import _helpers  # noqa: F401
 import factors
 import operators_natal
+import pytest
 
 
 def _mk(ri_gan: str, ri_zhi: str) -> dict:

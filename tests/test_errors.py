@@ -1,11 +1,14 @@
 """错误契约：专用错误可捕获，且保持 LikiToolError 的 ValueError 兼容行为。"""
-import pytest
 
 import _helpers  # noqa: F401
 import duanyu
 from errors import (
-    AssertionRuleError, FactorEvaluateError, FactorTableError,
-    LikiToolError, PanSchemaError, YearRangeError,
+    AssertionRuleError,
+    FactorEvaluateError,
+    FactorTableError,
+    LikiToolError,
+    PanSchemaError,
+    YearRangeError,
 )
 from factors import _atomic
 from pan_schema import validate_natal_pan

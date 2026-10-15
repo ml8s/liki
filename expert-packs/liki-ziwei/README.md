@@ -40,5 +40,5 @@ liki-ziwei/
 
 ## 待办
 
-- [ ] `avatars/expert.png` 当前为占位（纯色+文字），上架前替换为正式漫画/插画风头像。
+- [ ] `avatars/expert.png` 当前为占位（纯色+文字）；上架前替换为正式漫画/插画风头像（素材授权要求见 `expert-packs/README.md`）。
 - [ ] 用官方 `expert-manager` 技能逐项校验后上架。

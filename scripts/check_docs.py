@@ -25,7 +25,6 @@ METHOD_WHITELIST = {
     "ziwei.liushi", "ziwei.daxian", "ziwei.bond",
     "liuyao.qigua", "liuyao.chart", "qimen.chart", "huangli.days",
     "bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian",
-    "qiming.surname", "qiming.pick", "qiming.compose", "qiming.check", "qiming.char",
     "time.now", "city.coords", "tianwen.time",
 }
 _METHOD_PREFIXES = tuple(sorted({m.split(".")[0] for m in METHOD_WHITELIST}))

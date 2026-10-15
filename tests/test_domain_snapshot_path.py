@@ -99,7 +99,9 @@ def test_snap_embeds_stable_domain_facts():
     pan["lunar"] = "1990年四月廿六"
 
     snap = factors.evaluate_snap_from_pan(pan)
-    bz = snap["八字"]; zw = snap["紫微"]; ctx = snap["context"]
+    bz = snap["八字"]
+    zw = snap["紫微"]
+    ctx = snap["context"]
     assert bz["日主"]
     assert bz["ri柱纳音"] == "海中金"
     assert bz["ri柱藏干"] == {"main": "癸"}

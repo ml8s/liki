@@ -1,8 +1,9 @@
 """单元测试：factors 因子求值 + duanyu 断语查询 / yearly 隔离。"""
 import unittest
-
 from unittest import mock
 
+import duanyu
+import factors
 from _helpers import (
     mock_base_context,
     mock_engine_facts,
@@ -10,8 +11,6 @@ from _helpers import (
     mock_ziwei,
     valid_daxian,
 )
-import duanyu
-import factors
 from pan_integrity import with_natal_digest
 
 
@@ -264,8 +263,7 @@ class TestYueLingGe(unittest.TestCase):
         # 正财格 + 身弱 → ge_302（正财格身弱分支）
         base = mock_base_context(正财={"wuxing": "土", "timely": True, "count": 3})
         base["ge_ju"] = {"ge_ju": "正财格"}
-        from duanyu import load_rule_table
-        from duanyu import match_table
+        from duanyu import load_rule_table, match_table
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         # 手动构造断语表查询依赖的最小快照（身弱/从杀格）
         snap["身强弱"] = "身弱"

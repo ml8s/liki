@@ -1,13 +1,11 @@
 """pan 契约：快照、裁剪盘、半截盘全部显式报错。"""
 from pathlib import Path
 
-import pytest
-
 import _helpers  # noqa: F401
-
+import paipan
+import pytest
 from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan, validate_side_pan
-import paipan
 
 
 def _pan(**changes):
@@ -51,7 +49,8 @@ def test_full_paipan_has_flat_yongshen_fields():
 
 @pytest.mark.parametrize("key", ["solar", "lunar", "chart", "full", "ziwei", "ziwei_daxian", "gender"])
 def test_missing_required_field_rejected(key):
-    pan = _pan(); pan.pop(key)
+    pan = _pan()
+    pan.pop(key)
     with pytest.raises(ValueError, match=key):
         validate_natal_pan(pan, action="test")
 
@@ -77,7 +76,8 @@ def test_incomplete_pillar_rejected(pillar, mode):
 
 
 def test_da_yun_and_gong_wei_required():
-    pan = _pan(); pan["chart"].pop("da_yun")
+    pan = _pan()
+    pan["chart"].pop("da_yun")
     with pytest.raises(ValueError, match="da_yun"):
         validate_natal_pan(pan, action="test")
 
@@ -101,7 +101,8 @@ def test_daxian_must_have_twelve_complete_steps():
     duplicate_palaces[1]["gong"] = duplicate_palaces[0]["gong"]
     with pytest.raises(ValueError, match="12 个大限宫位必须唯一"):
         validate_natal_pan(_pan(ziwei_daxian=duplicate_palaces), action="test")
-    pan = _pan(); pan["ziwei"].pop("gong_wei")
+    pan = _pan()
+    pan["ziwei"].pop("gong_wei")
     with pytest.raises(ValueError, match="gong_wei"):
         validate_natal_pan(pan, action="test")
 
@@ -122,23 +123,28 @@ def test_ziwei_gong_wei_must_use_engine_palace_closure():
 
 
 def test_engine_fact_fields_required():
-    pan = _pan(); pan["full"].pop("ten_god_states")
+    pan = _pan()
+    pan["full"].pop("ten_god_states")
     with pytest.raises(ValueError, match="ten_god_states"):
         validate_natal_pan(pan, action="test")
 
-    pan = _pan(); pan["full"].pop("relation_groups")
+    pan = _pan()
+    pan["full"].pop("relation_groups")
     with pytest.raises(ValueError, match="relation_groups"):
         validate_natal_pan(pan, action="test")
 
-    pan = _pan(); pan["full"]["atomic_facts"].pop("day_master_element")
+    pan = _pan()
+    pan["full"]["atomic_facts"].pop("day_master_element")
     with pytest.raises(ValueError, match="day_master_element"):
         validate_natal_pan(pan, action="test")
 
-    pan = _pan(); pan["full"]["atomic_facts"].pop("month_main_ten_god")
+    pan = _pan()
+    pan["full"]["atomic_facts"].pop("month_main_ten_god")
     with pytest.raises(ValueError, match="month_main_ten_god"):
         validate_natal_pan(pan, action="test")
 
-    pan = _pan(); pan["full"]["da_yun"]["steps"][0].pop("rooted")
+    pan = _pan()
+    pan["full"]["da_yun"]["steps"][0].pop("rooted")
     with pytest.raises(ValueError, match="rooted engine"):
         validate_natal_pan(pan, action="test")
 

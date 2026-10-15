@@ -16,9 +16,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lunar_python import Solar
 import sxtwl
+from lunar_python import Solar
 
+ROOT = Path(__file__).resolve().parents[3]
 
 GAN = "甲乙丙丁戊己庚辛壬癸"
 ZHI = "子丑寅卯辰巳午未申酉戌亥"
@@ -39,7 +40,8 @@ def sxtwl_pillars(moment: dt.datetime) -> list[str]:
     day = sxtwl.fromSolar(moment.year, moment.month, moment.day)
     # False keeps 23:00 on the current day, matching liki / lunar-python.
     hour = day.getHourGZ(moment.hour, False)
-    gz = lambda item: GAN[item.tg] + ZHI[item.dz]
+    def gz(item):
+        return GAN[item.tg] + ZHI[item.dz]
     return [
         gz(day.getYearGZ()),
         gz(day.getMonthGZ()),
@@ -186,7 +188,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--output",
-        default="engine/internal/engine/bazi/testdata/multi_oracle_golden.json",
+        default=str(ROOT / "engine/internal/engine/bazi/testdata/multi_oracle_golden.json"),
     )
     args = parser.parse_args()
     document = generate()

@@ -1,0 +1,224 @@
+{
+  "input": {
+    "chart": {
+      "birth_year": 2000,
+      "da_yun": {
+        "current_step_index": 1,
+        "direction": "顺排",
+        "next_step_in_years": 1,
+        "start_date": "2007-09-04",
+        "start_day_after": 20,
+        "start_month_after": 2,
+        "start_year_after": 7,
+        "steps": [
+          {
+            "end_date": "2017-09-03",
+            "end_year": 2017,
+            "gan": "癸",
+            "name": "癸未",
+            "shi_shen": "正印运",
+            "start_date": "2007-09-04",
+            "start_year": 2007,
+            "wuxing": "水",
+            "zhi": "未"
+          },
+          {
+            "end_date": "2027-09-03",
+            "end_year": 2027,
+            "gan": "甲",
+            "name": "甲申",
+            "shi_shen": "比肩运",
+            "start_date": "2017-09-04",
+            "start_year": 2017,
+            "wuxing": "木",
+            "zhi": "申"
+          },
+          {
+            "end_date": "2037-09-03",
+            "end_year": 2037,
+            "gan": "乙",
+            "name": "乙酉",
+            "shi_shen": "劫财运",
+            "start_date": "2027-09-04",
+            "start_year": 2027,
+            "wuxing": "木",
+            "zhi": "酉"
+          },
+          {
+            "end_date": "2047-09-03",
+            "end_year": 2047,
+            "gan": "丙",
+            "name": "丙戌",
+            "shi_shen": "食神运",
+            "start_date": "2037-09-04",
+            "start_year": 2037,
+            "wuxing": "火",
+            "zhi": "戌"
+          },
+          {
+            "end_date": "2057-09-03",
+            "end_year": 2057,
+            "gan": "丁",
+            "name": "丁亥",
+            "shi_shen": "伤官运",
+            "start_date": "2047-09-04",
+            "start_year": 2047,
+            "wuxing": "火",
+            "zhi": "亥"
+          },
+          {
+            "end_date": "2067-09-03",
+            "end_year": 2067,
+            "gan": "戊",
+            "name": "戊子",
+            "shi_shen": "偏财运",
+            "start_date": "2057-09-04",
+            "start_year": 2057,
+            "wuxing": "土",
+            "zhi": "子"
+          },
+          {
+            "end_date": "2077-09-03",
+            "end_year": 2077,
+            "gan": "己",
+            "name": "己丑",
+            "shi_shen": "正财运",
+            "start_date": "2067-09-04",
+            "start_year": 2067,
+            "wuxing": "土",
+            "zhi": "丑"
+          },
+          {
+            "end_date": "2087-09-03",
+            "end_year": 2087,
+            "gan": "庚",
+            "name": "庚寅",
+            "shi_shen": "七杀运",
+            "start_date": "2077-09-04",
+            "start_year": 2077,
+            "wuxing": "金",
+            "zhi": "寅"
+          },
+          {
+            "end_date": "2097-09-03",
+            "end_year": 2097,
+            "gan": "辛",
+            "name": "辛卯",
+            "shi_shen": "正官运",
+            "start_date": "2087-09-04",
+            "start_year": 2087,
+            "wuxing": "金",
+            "zhi": "卯"
+          }
+        ]
+      },
+      "gender": "male",
+      "nian": {
+        "gan": "庚",
+        "na_yin": "白蜡金",
+        "zhi": "辰"
+      },
+      "ri": {
+        "gan": "甲",
+        "na_yin": "覆灯火",
+        "zhi": "辰"
+      },
+      "shi": {
+        "gan": "庚",
+        "na_yin": "路旁土",
+        "zhi": "午"
+      },
+      "yue": {
+        "gan": "壬",
+        "na_yin": "杨柳木",
+        "zhi": "午"
+      },
+      "zi_shi_rule": "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
+    },
+    "count": 5
+  },
+  "output": [
+    {
+      "basis": "《三命通会》：男起丙寅顺行、女起壬申逆行",
+      "method": "san_ming_tong_hui",
+      "zhus": [
+        {
+          "age": 1,
+          "gan": "丙",
+          "name": "丙寅",
+          "shi_shen": "食神",
+          "zhi": "寅"
+        },
+        {
+          "age": 2,
+          "gan": "丁",
+          "name": "丁卯",
+          "shi_shen": "伤官",
+          "zhi": "卯"
+        },
+        {
+          "age": 3,
+          "gan": "戊",
+          "name": "戊辰",
+          "shi_shen": "偏财",
+          "zhi": "辰"
+        },
+        {
+          "age": 4,
+          "gan": "己",
+          "name": "己巳",
+          "shi_shen": "正财",
+          "zhi": "巳"
+        },
+        {
+          "age": 5,
+          "gan": "庚",
+          "name": "庚午",
+          "shi_shen": "七杀",
+          "zhi": "午"
+        }
+      ]
+    },
+    {
+      "basis": "《星平会海》：由时柱起，阳男阴女顺、阴男阳女逆",
+      "method": "xing_ping_hui_hai",
+      "zhus": [
+        {
+          "age": 1,
+          "gan": "庚",
+          "name": "庚午",
+          "shi_shen": "七杀",
+          "zhi": "午"
+        },
+        {
+          "age": 2,
+          "gan": "辛",
+          "name": "辛未",
+          "shi_shen": "正官",
+          "zhi": "未"
+        },
+        {
+          "age": 3,
+          "gan": "壬",
+          "name": "壬申",
+          "shi_shen": "偏印",
+          "zhi": "申"
+        },
+        {
+          "age": 4,
+          "gan": "癸",
+          "name": "癸酉",
+          "shi_shen": "正印",
+          "zhi": "酉"
+        },
+        {
+          "age": 5,
+          "gan": "甲",
+          "name": "甲戌",
+          "shi_shen": "比肩",
+          "zhi": "戌"
+        }
+      ]
+    }
+  ]
+}

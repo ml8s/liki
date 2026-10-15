@@ -68,7 +68,8 @@ def test_direct_group_must_not_mix_conditions(tmp_path):
     with path.open("w", encoding="utf-8", newline="") as f:
         import csv
         writer = csv.DictWriter(f, fieldnames=fields)
-        writer.writeheader(); writer.writerows(rows)
+        writer.writeheader()
+        writer.writerows(rows)
     with pytest.raises(Exception, match="混用 direct/condition"):
         load_long_rows(str(path))
 

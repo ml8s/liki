@@ -1,13 +1,12 @@
 """liuyao Python 编排层契约：不换算硬币，不把 matter 传给 engine。"""
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
 import pytest
-from jsonschema import validate
-
+from app.contracts import DIVINATION_TOOLS
+from app.contracts.divination import LiuyaoSnapshotInput
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "counsel/app/divination/tools"
@@ -232,8 +231,7 @@ def test_factors_projects_hidden_yong_shen_without_flying_line_facts():
 
 
 def test_tool_schema_matches_python_surface():
-    schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
-    names = {item["function"]["name"] for item in schema["tools"]}
+    names = {contract.name for contract in DIVINATION_TOOLS}
     assert {"liuyao_snapshot", "liuyao_query"} <= names
     assert {"liuyao_chart", "liuyao_qigua", "liuyao_read", "liuyao_report"} .isdisjoint(names)
 
@@ -242,13 +240,8 @@ def test_matter_topics_and_tool_schema_use_one_closed_set():
     import liuyao_snapshot
     from liuyao_topic_guidance import load_topic_table
 
-    schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
-    tool = next(
-        item["function"]
-        for item in schema["tools"]
-        if item["function"]["name"] == "liuyao_snapshot"
-    )
-    schema_topics = set(tool["parameters"]["properties"]["topic"]["enum"])
+    contract = next(c for c in DIVINATION_TOOLS if c.name == "liuyao_snapshot")
+    schema_topics = set(contract.input_schema["properties"]["topic"]["enum"])
     topics = set(load_topic_table()["topics"])
     mapped = set(liuyao_snapshot.MATTER_TO_TOPIC.values())
 
@@ -258,19 +251,12 @@ def test_matter_topics_and_tool_schema_use_one_closed_set():
     assert {"relationship", "legal"} <= schema_topics
 
 
-def test_liuyao_snapshot_input_against_tool_schema():
-    schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
-    tool = next(
-        item["function"]
-        for item in schema["tools"]
-        if item["function"]["name"] == "liuyao_snapshot"
-    )
-    validate(
+def test_liuyao_snapshot_input_accepts_primary_call():
+    LiuyaoSnapshotInput.model_validate(
         {
             "question": "这次面试能不能通过",
             "mode": "yaos",
             "yaos": [7, 7, 7, 7, 7, 7],
             "matter": "career",
-        },
-        tool["parameters"],
+        }
     )

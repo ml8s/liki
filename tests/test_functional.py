@@ -5,15 +5,12 @@
 from __future__ import annotations
 
 import json
-from unittest import mock
 from pathlib import Path
-
-import pytest
+from unittest import mock
 
 import _helpers  # noqa: F401 —— 注入 unified Liki bazi tools 路径
 import duanyu
-from errors import FactorEvaluateError
-from errors import AssertionRuleError
+import pytest
 from duanyu import (
     SCENE_ALIASES,
     YEARLY_RULES,
@@ -21,9 +18,9 @@ from duanyu import (
     load_rule_table,
     load_rule_tables,
     match_table,
-    match_rule,
     resolve_rules,
 )
+from errors import AssertionRuleError, FactorEvaluateError
 from factors import evaluate_factors, evaluate_operator
 
 ROOT = Path(__file__).resolve().parents[1]

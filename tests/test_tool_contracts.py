@@ -1,13 +1,12 @@
-"""Counsel natal tool 参数契约测试（skill-tools → counsel-tools）。"""
+"""Counsel natal tool 参数契约测试（Pydantic contracts 是唯一事实源）。"""
 import json
 import sys
 from pathlib import Path
 
+from app.contracts import NATAL_TOOLS
+
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = json.loads(
-    (ROOT / "counsel/app/natal/tools/counsel-tools.json").read_text(encoding="utf-8")
-)
-FUNCTIONS = {tool["function"]["name"]: tool["function"] for tool in MANIFEST["tools"]}
+FUNCTIONS = {contract.name: contract.input_schema for contract in NATAL_TOOLS}
 
 
 def test_all_tools_have_closed_args():
@@ -17,10 +16,10 @@ def test_all_tools_have_closed_args():
         "period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],
     }
     assert set(FUNCTIONS) == set(required)
-    for name, fn in FUNCTIONS.items():
-        assert fn["parameters"]["additionalProperties"] is False, name
-        assert fn["parameters"]["required"] == required[name], name
-        assert fn["parameters"]["type"] == "object", name
+    for name, schema in FUNCTIONS.items():
+        assert schema["additionalProperties"] is False, name
+        assert schema["required"] == required[name], name
+        assert schema["type"] == "object", name
 
 
 def test_topic_enum_is_generated_from_topic_routes():
@@ -29,7 +28,7 @@ def test_topic_enum_is_generated_from_topic_routes():
     )
     expected = list(routes["topics"])
     for name in ("natal_query", "period_query"):
-        schema = FUNCTIONS[name]["parameters"]["properties"]["topics"]
+        schema = FUNCTIONS[name]["properties"]["topics"]
         assert schema["items"]["enum"] == expected, name
 
 

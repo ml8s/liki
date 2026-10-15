@@ -9,17 +9,9 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 
-SKILLS_DIR = SKILL_ROOT
-
-
 class TestFeedbackContract(unittest.TestCase):
-    def test_all_skill_schemas_are_identical(self):
-        digests = set()
-        raw = (SKILLS_DIR / "feedback.schema.json").read_bytes()
-        self.assertEqual(len({raw}), 1)
-
     def test_schema_compiles_and_accepts_minimal_payload(self):
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         validator = Draft202012Validator(schema)
         payload = {
             "schema_version": "feedback-v1",
@@ -43,7 +35,7 @@ class TestFeedbackContract(unittest.TestCase):
         validator.validate(payload)
 
     def test_schema_pins_meta_skill_to_unified_product(self):
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         self.assertEqual(schema["properties"]["meta"]["properties"]["skill"], {"const": "liki"})
 
         validator = Draft202012Validator(schema)
@@ -67,7 +59,7 @@ class TestFeedbackContract(unittest.TestCase):
                 validator.validate(invalid)
 
     def test_schema_keeps_v1_minimal(self):
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         self.assertEqual(set(schema["required"]), {"schema_version", "meta", "agent", "llm", "problem"})
         self.assertEqual(set(schema["properties"]), {"schema_version", "meta", "agent", "llm", "problem"})
         for group, allowed in {
@@ -79,7 +71,7 @@ class TestFeedbackContract(unittest.TestCase):
             self.assertEqual(set(schema["properties"][group]["properties"]), allowed)
 
     def test_schema_rejects_unneeded_diagnostic_groups(self):
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         validator = Draft202012Validator(schema)
         payload = {
             "schema_version": "feedback-v1",
@@ -98,7 +90,7 @@ class TestFeedbackContract(unittest.TestCase):
             validator.validate(payload)
 
     def test_schema_enforces_text_boundaries(self):
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         validator = Draft202012Validator(schema)
         payload = {
             "schema_version": "feedback-v1",
@@ -129,7 +121,7 @@ class TestFeedbackContract(unittest.TestCase):
                 validator.validate(invalid)
 
     def test_docs_example_matches_feedback_schema(self):
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         text = (ROOT / "docs" / "FEEDBACK_MODEL.md").read_text(encoding="utf-8")
         blocks = re.findall(r"```json\n(.*?)\n```", text, flags=re.DOTALL)
         self.assertTrue(blocks)
@@ -138,7 +130,7 @@ class TestFeedbackContract(unittest.TestCase):
             Draft202012Validator(schema).validate(payload)
 
     def test_unified_skill_documents_feedback_runtime_governance(self):
-        text = (SKILLS_DIR / "SKILL.md").read_text(encoding="utf-8")
+        text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("同一会话最多 3 条", text)
         self.assertIn("Feedback: submitted|disabled|failed", text)
         self.assertIn("不向用户请求确认", text)
@@ -148,7 +140,7 @@ class TestFeedbackContract(unittest.TestCase):
         self.assertNotIn("LIKI_FEEDBACK_CONTEXT", text)
 
     def test_reference_documents_feedback_runtime_governance(self):
-        text = (SKILLS_DIR / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
+        text = (SKILL_ROOT / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
         self.assertIn("LIKI_FEEDBACK_URL", text)
         self.assertIn("LIKI_FEEDBACK_DISABLED=1", text)
         self.assertIn("https://liki.hk/api/feedback", text)
@@ -160,7 +152,7 @@ class TestFeedbackContract(unittest.TestCase):
             self.assertIn(issue_type, text)
 
     def test_schema_rejects_unknown_and_oversized_content(self):
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         validator = Draft202012Validator(schema)
         with self.assertRaises(ValidationError):
             validator.validate({
@@ -182,11 +174,11 @@ class TestFeedbackContract(unittest.TestCase):
             })
 
     def test_unified_skill_publishes_feedback_v1_policy(self):
-        text = (SKILLS_DIR / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
+        text = (SKILL_ROOT / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
         self.assertIn("https://liki.hk/api/feedback", text)
         self.assertIn("feedback-v1", text)
         self.assertIn("feedback.schema.json", text)
-        schema = json.loads((SKILLS_DIR / "feedback.schema.json").read_text(encoding="utf-8"))
+        schema = json.loads((SKILL_ROOT / "feedback.schema.json").read_text(encoding="utf-8"))
         for issue_type in schema["properties"]["problem"]["properties"]["type"]["enum"]:
             self.assertIn(issue_type, text)
 

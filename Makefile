@@ -27,7 +27,7 @@ export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go/bin:$(HOME)/app/go-tools
 export GOTOOLCHAIN ?= go1.26.9
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
-        go-version-check lint vuln lint-md check test test-content test-engine test-counsel test-engine-mcp \
+        go-version-check lint vuln lint-md check test test-content test-engine test-engine-coverage test-counsel test-engine-mcp \
         full-data golden gate release-gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
         runtime-validate image image-engine image-counsel image-assembly
@@ -120,8 +120,8 @@ go-version-check: ## Require the security-supported Go toolchain
 lint-md: ## Markdown structure and style check
 	scripts/lint-md.sh
 
-lint-engine: go-version-check ## Engine static analysis
-	@cd engine && golangci-lint run ./... && go vet ./...
+lint-engine: go-version-check ## Engine static analysis (pinned golangci-lint)
+	scripts/lint-engine.sh
 
 lint-python: ## Python static analysis
 	scripts/lint-python.sh
@@ -135,8 +135,9 @@ vuln: ## Vulnerability scan (govulncheck + pip-audit); CI also runs these as req
 check: lint-md lint-python fmt-check go-version-check check-actions ## 纯静态检查（lint + Python lint + 格式 + 数据结构 + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
 	python3 scripts/check_factor_data.py
 	python3 scripts/check_docs.py
+	python3 scripts/check_doc_paths.py
 	python3 scripts/check_workflow.py
-	python3 scripts/check_mcp_schema.py
+	python3 scripts/check_mcp_schema.py --check
 	python3 scripts/check_expert_docs.py
 	python3 scripts/agent_runtime_pin.py --check
 	bash scripts/check-exec-bits.sh
@@ -151,7 +152,10 @@ test-content: ## Root skill / rules / documentation suite
 test-engine: go-version-check ## Engine unit and integration suites
 	@cd engine && go test -count=1 ./...
 	@cd engine && go test -tags integration -count=1 -timeout 60s \
-		./internal/agent/ ./internal/http/ ./internal/engine/bazi/
+		./internal/mcpcontract/ ./internal/http/ ./internal/engine/bazi/
+
+test-engine-coverage: go-version-check ## Engine unit coverage floor (shared with CI)
+	scripts/test-engine-coverage.sh
 
 test-counsel: ## Counsel MCP integration suite (bootstraps .venv and local engine)
 	scripts/test-counsel.sh

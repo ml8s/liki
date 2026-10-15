@@ -12,8 +12,6 @@ import (
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-
-	"liki-engine/internal/agent"
 )
 
 const testVersion = "test-version"
@@ -28,8 +26,7 @@ func newTestLogger() *slog.Logger {
 // Streamable HTTP endpoint and returns a connected client session.
 func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 	t.Helper()
-	reg := agent.NewRPCRegistry()
-	srv := newMCPServer(reg, testVersion, newTestLogger())
+	srv := newMCPServer(testVersion, newTestLogger())
 
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
@@ -61,8 +58,7 @@ func TestMCPServer_Initialize(t *testing.T) {
 }
 
 func TestTools_ListAllRegisteredMethods(t *testing.T) {
-	reg := agent.NewRPCRegistry()
-	want := len(reg.Names()) + len(engineContracts.Names())
+	want := len(engineContracts.Names())
 
 	sess, _ := startMCPServer(t)
 	tools := make(map[string]*mcp.Tool)
@@ -76,14 +72,6 @@ func TestTools_ListAllRegisteredMethods(t *testing.T) {
 
 	if got := len(tools); got != want {
 		t.Fatalf("tool count = %d, want %d", got, want)
-	}
-	for _, name := range reg.Names() {
-		if engineContracts.Has(name) {
-			continue
-		}
-		if _, ok := tools[strings.ReplaceAll(name, ".", "_")]; !ok {
-			t.Errorf("missing tool for RPC method %q", name)
-		}
 	}
 	for _, name := range engineContracts.Names() {
 		if _, ok := tools[strings.ReplaceAll(name, ".", "_")]; !ok {
@@ -205,92 +193,6 @@ func TestCallTool_UnknownTool(t *testing.T) {
 	}
 }
 
-// TestCallTool_ConsistencyWithLegacyRegistry verifies that unmigrated MCP tool
-// output equals the compatibility registry data payload after envelope removal.
-func TestCallTool_ConsistencyWithLegacyRegistry(t *testing.T) {
-	reg := agent.NewRPCRegistry()
-	srv := newMCPServer(reg, testVersion, newTestLogger())
-	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
-		return srv
-	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
-	t.Cleanup(ts.Close)
-
-	client := mcp.NewClient(&mcp.Implementation{Name: "engine-mcp-test", Version: "0.0.1"}, &mcp.ClientOptions{Logger: newTestLogger()})
-	ctx := context.Background()
-	sess, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: ts.URL + "/"}, nil)
-	if err != nil {
-		t.Fatalf("connect: %v", err)
-	}
-	t.Cleanup(func() { _ = sess.Close() })
-
-	cases := []struct {
-		method string
-		args   any
-	}{
-		{"bazi.chart", map[string]any{"solar_time": "1984-02-04T06:00:00+08:00", "gender": "male"}},
-	}
-	for _, tc := range cases {
-		t.Run(tc.method, func(t *testing.T) {
-			rpcRaw, err := reg.Execute(ctx, tc.method, mustMarshal(tc.args))
-			if err != nil {
-				t.Fatalf("rpc %s: %v", tc.method, err)
-			}
-			wantData, err := unwrapResult(rpcRaw)
-			if err != nil {
-				t.Fatalf("unwrap rpc %s: %v", tc.method, err)
-			}
-			var want any
-			if err := json.Unmarshal(wantData, &want); err != nil {
-				t.Fatalf("rpc %s data is not JSON: %v", tc.method, err)
-			}
-
-			text, isErr := callToolText(t, sess, toolName(tc.method), tc.args)
-			if isErr {
-				t.Fatalf("mcp %s returned IsError: %s", tc.method, text)
-			}
-			var got any
-			if err := json.Unmarshal([]byte(text), &got); err != nil {
-				t.Fatalf("mcp %s result not JSON: %v", tc.method, err)
-			}
-			if !jsonEqual(got, want) {
-				t.Errorf("mcp %s result != rpc %s data", tc.method, tc.method)
-			}
-		})
-	}
-}
-
-func TestUnwrapResult(t *testing.T) {
-	raw := json.RawMessage(`{"_product":"chart","data":{"ri":{"gan":"戊"}}}`)
-	got, err := unwrapResult(raw)
-	if err != nil {
-		t.Fatalf("unwrap: %v", err)
-	}
-	if string(got) != `{"ri":{"gan":"戊"}}` {
-		t.Errorf("unwrap = %s", got)
-	}
-
-	if _, err := unwrapResult(json.RawMessage(`{"data":null}`)); err == nil {
-		t.Errorf("expected error for null data")
-	}
-	if _, err := unwrapResult(json.RawMessage(`{}`)); err == nil {
-		t.Errorf("expected error for missing data")
-	}
-}
-
-func mustMarshal(v any) json.RawMessage {
-	b, err := json.Marshal(v)
-	if err != nil {
-		panic(err)
-	}
-	return b
-}
-
-func jsonEqual(a, b any) bool {
-	ab, _ := json.Marshal(a)
-	bb, _ := json.Marshal(b)
-	return string(ab) == string(bb)
-}
-
 func TestTools_OutputSchemaComplete(t *testing.T) {
 	// object 结构的工具必须有 outputSchema（从 RPC Result envelope 提取）；
 	// array/primitive 返回的工具按 MCP 规范省略（description 承担返回说明）。
@@ -361,8 +263,7 @@ func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
 // configured around the stateless 2026 protocol, it must not advertise a
 // version it will subsequently reject in the required protocol header.
 func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
-	reg := agent.NewRPCRegistry()
-	srv := newMCPServer(reg, testVersion, newTestLogger())
+	srv := newMCPServer(testVersion, newTestLogger())
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
 	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
@@ -436,7 +337,6 @@ func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
 }
 
 func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
-	reg := agent.NewRPCRegistry()
 	logger := newTestLogger()
 
 	cases := []struct {
@@ -461,7 +361,7 @@ func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 					prefixes = d.Prefixes
 				}
 			}
-			srv := newDomainServer(reg, prefixes, testVersion, logger)
+			srv := newDomainServer(prefixes, testVersion, logger)
 			ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
 			defer ts.Close()
 

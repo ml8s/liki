@@ -1,14 +1,42 @@
 # Changelog
 
-## [Unreleased]
+## [2026.10.15.0] — 2026-10-15
 
 ### Changed
 
-- 启动 MCP-native typed contract registry，先迁移 `time_now` / `huangli_days` / `tianwen_time` / `city_coords` / `bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian` / `liuyao_qigua` / `liuyao_chart`：input/output schema、描述、参数校验、输出校验和 `structuredContent` 均由显式 wire DTO 生成。这些工具从 legacy raw-JSON registry 移除；输出契约明确 `local` 为必填字段，并补齐字段级描述。数组根的黄历输出保持原 wire shape，运行时 DTO 校验但不声明 MCP `outputSchema`。
+- 完成 MCP-native typed contract registry 迁移：`bazi_fullchart` / `bazi_bond` / `bazi_liunian` / `bazi_liuyue` / `bazi_liuri` / `bazi_liushi` / `bazi_xiaoyun` / `ziwei_chart` / `ziwei_fullchart` / `ziwei_daxian` / `ziwei_liunian` / `ziwei_liuyue` / `ziwei_liuri` / `ziwei_liushi` / `ziwei_bond` / `qimen_chart` 与已迁移的 `time_now` / `huangli_days` / `tianwen_time` / `city_coords` / `bazi_chart` / `bazhai_chart` / `bazhai_layout` / `xuankong_chart` / `xuankong_liunian` / `liuyao_qigua` / `liuyao_chart` 一起构成全部 27 个引擎工具：input/output schema、描述、参数校验、输出校验和 `structuredContent` 均由显式 wire DTO 生成。数组根的黄历/小运/大限输出保持原 wire shape，运行时 DTO 校验但不声明 MCP `outputSchema`。
+- 新增 wire DTO 的保真证明：`TestEngineContractWireFidelity` 把 67 份真实 engine 输入/输出重放进 typed registry 并深度比对 JSON，确保迁移没有丢字段、改名或改形状。bazi/ziwei/qimen 的 DTO 由 legacy schema + 这些 payload 一次性推导，生成器未入库，DTO 自此按普通源码维护。
+- 迁移后的契约跟随 legacy 校验语义补齐两处保真：`ElementName` 接受空串（bazi 调候辅五行为空是引擎既有行为，严格枚举会拒绝真实命盘），迁移的 legacy 工具容忍未知入参（legacy params schema 未设 `additionalProperties`，调用方会传 `longitude` 或把 `ziwei.fullchart` 结果直接交给 `ziwei.daxian`），仅在 legacy schema 明确关闭处保持严格（`qimen.chart` 根对象、ziwei 流工具的根/`target_lunar`）。发布入参 schema 仍是封闭的类型化形状。
+- 审查扫盘修复一处迁移回归：`ShenshaName` 枚举原先只覆盖流年/流月/流日神煞的历史文案值，漏了 `bazi.liuri` 会真实产出的「文昌」（流日日干查表，十干周期约每十天出现一次），typed registry 的输出校验会让这些日期整日失败。枚举补入「文昌」并修正流日 shensha 字段描述；`TestMigratedShenShaEnumCoversRealOutput` 从单一样本日期改为扫全月流日/十二月流月/多年流年，防止同类漏值再次逃过样本。
+- 审查补齐三处：`qimen.chart` 的 `yong_shen` 恢复 legacy 的 `minItems:1`/`uniqueItems:true`（新增 `QimenYongShenSymbols`），空数组或重复符号不再被静默忽略；engine MCP 冒烟测试补齐 `/ziwei`、`/qimen`、`/liuyao` 并断言单术数端点不串工具；`docs/MCP_CONTRACTS.md` 记录 qimen 入参 `allOf` 条件约束改由 handler 承担（`TestMigratedQimenMethodMatrix` 覆盖）。
+- 完成 counsel 12 个工具的 typed contract 迁移：`compute_factors` / `natal_query` / `period_query` / `naming_surname` / `naming_pick` / `naming_char` / `naming_compose` / `naming_check` / `liuyao_snapshot` / `liuyao_query` / `qimen_snapshot` / `qimen_query` 的 input/output schema、参数校验、输出校验与 `structuredContent` 全部由 `counsel/app/contracts` 的 Pydantic v2 模型生成（`GenerateJsonSchema` 子类投影），运行时不再读取任何 JSON 清单；`app/mcp_tool_adapter` 只注册契约，校验和序列化都由模型驱动。
+- 新增 counsel 契约保真证明：手写清单一次性冻结到 `counsel/tests/testdata/legacy-tool-manifests/`，`counsel/tests/test_contract_fidelity.py` 断言发布 schema 与冻结清单在 canonical 化后完全一致、且模型接受的入参集合不超过 legacy schema（逐条走遍条件分支的语料）；发现并修正 legacy qimen 清单两处漏写 `properties` 导致 JSON Schema 静默失效的条件子句（`scope=quarter` / `scope=month|year` 配小时法字段），模型改为按文档意图（也是 engine catalog 的判定）拒绝，测试显式标注为「有意更严格」。
+- counsel 不再保留任何 schema 文件副本：`scripts/check_mcp_schema.py` 与根测试直接 import `app.contracts` 投影 schema（schema 预算改为按 natal/naming/divination 分组的 compact JSON 字节数），客户端要 schema 走 `tools/list`。为此 CI 的 `check` 与 `skills-test` job 增加 `pydantic==2.13.5`（与 counsel 锁定版本一致）。
+- 删除 counsel 清单后补齐 skill 文档契约测试的跨语言取词：`app.contracts.tool_vocabulary()` 发布每个 skill 分组（natal/naming/divination）的工具名、字段名与枚举值，`engine/internal/mcpcontract/skill_docs_sync_test.go` 通过 `scripts/counsel_tool_vocabulary.py` 读取，不再依赖已下线的手写清单；`COUNSEL_PYTHON` 可指定解释器，bridge 跑不通时测试直接失败而非跳过。CI 的 `engine-test` job 因此增加 `pydantic==2.13.5`。
+- 契约迁移后的四角度复查（正交性/过期/死码/精减）：退役死码（`divination_rpc.engine_items`、`mcpcontract.Registry.Has`、`check_mcp_schema.py` 空 `pass` 分支、`collectFieldRefs` 的 `_product` 信封分支）；恢复长期静默跳过的 `TestSkillDocsMethodListSync`（它读的还是 `tests/check_docs.py`，脚本早已移到 `scripts/`），并据此清掉 `scripts/check_docs.py` 里 5 个已退役的 `qiming.*` 方法名；引擎工具名发现收敛为 `scripts/mcp_engine_tools.py` 单一实现（原先三处各自正则/硬编码）；引擎工具目录从 `time.go` 拆到 `engine.go`，`registry.go` 只留机制；测试里的手写搜索/指针 helper 换回 `strings.Contains`、`slices.Contains`、`jsonschema.Ptr`。
+- 迁移后的结构收口：`engine/internal/agent` 只剩 `Load()` 一层对 `engine/tables.Load()` 的空转发，其唯一实质内容是早已与 typed registry 同源的 skill 文档契约测试——该测试移入 `engine/internal/mcpcontract/skill_docs_sync_test.go`（包深度相同，相对路径不变），删除空壳包并去掉重复 Load 入口（`main.go`、`internal/http` 改为直接调 `tables.Load()`）；`Makefile` 与 CI 的集成测试清单同步从 `./internal/agent/` 改为 `./internal/mcpcontract/`（否则 `go test` 直接 setup failed，已实测）。同文件的手写 `contains()` 换回 `slices.Contains`；其字段契约的宽松词元表按实证收敛 152→32：清空后由测试自身报出真正被文档反引号引用的 32 条，其余 118 条是已退役 RPC 信封/已删清单的残留与已被 counsel/engine 词表覆盖的重复项，删除后测试更严（该表不参与 expert-packs 生成，只作用于 `skills/liki` 的反引号字段校验）。
+- 顺带清掉两处测试腐化：`test_feedback_contract` 的 `test_all_skill_schemas_are_identical` 是「多 skill 时代」遗留（全仓只剩 `skills/liki/feedback.schema.json` 一份，断言 `len({raw}) == 1` 恒真），连同已无意义的 `SKILLS_DIR` 别名一并删除；`test_liunian_palace` 的模块 docstring 曾声称测试要消费 `_base_ctx_from_pan(pan)` 的结果，但该上下文由 `_liu_op` 内部构建，docstring 已按实际断言面改写。
+- Ruff 扫描面扩到根 `tests/`（此前只有 `counsel/app`、`counsel/tests`、`scripts`）：清理 73 处自动可修（I001/F401/W292/E401）与 45 处手工项，均为不改变行为的最小改动——删死变量/死赋值、把 one-line `if/for` 拆行、去掉重复字典键与遮蔽模块名的循环变量、tabs→spaces，并清掉 `test_domain_oracle` 一处失效 `# noqa`；`test_candidate_release.py` 因先插 `sys.path` 再导入，沿用 `scripts/*.py` 的 E402 例外。门禁与 CI 无需改动：`make check`→`lint-python` 自动带上新范围。
+- 精减 counsel 契约声明：每个字段的描述/约束原先重复 2-3 份（实测赋值侧 `Field` 最后生效，注解侧副本对发布 schema 完全无效），共简化 181 处声明，字段内重复描述 238 → 0、`Annotated[Annotated[...]]` 嵌套 37 → 0；改前后 12 个工具的 input/output schema 逐字节相同（fidelity 测试同步覆盖）。
+- 清理 `engine/internal/agent` 残留：`city` 包移入 `engine/internal/engine/city`（`mcpcontract/city.go` 改引新路径），该目录随之彻底消失，engine 包布局回到单一域根。
+- 删除 `pytest.ini`：其唯一内容是仓库中没有任何引用的 `integration` marker，却让 `pyproject.toml` 的 `[tool.pytest.ini_options]` 被静默忽略（pytest 报 `ignoring pytest config in pyproject.toml`）；现在 `pytest --collect-only` 报告 `configfile: pyproject.toml`。
+- 工具链 pin 收敛为单源：新增 `deps/golangci-lint.version` 与 `scripts/lint-engine.sh`，本地 `make lint-engine` 与 CI `engine-lint` 共用同一版本，PATH 上是别的版本时直接报错而不是静默回退；安装提示改用官方 `install.sh`（`CONTRIBUTING.md` 明确禁止 `go install`，因为其二进制与 Go 工具链强耦合）。
+- engine 覆盖率门槛单源：新增 `scripts/test-engine-coverage.sh`（`COVERAGE_FLOOR`，默认 85%）与 `make test-engine-coverage`，CI 的 coverage 步骤改为调用该 target 而非内联 bash（本地实测 89.2%）；`engine/coverage.out` 加入 `.gitignore`。
+- 新增 `tests/test_toolchain_parity.py`：把 golangci-lint pin 的 CalVer 形状、CI action 版本、`make lint-engine` 必须经脚本、ruff pin 与 CI 一致、覆盖率门槛只存在于脚本里逐条钉住（改 `deps/golangci-lint.version` 会让 CI 对账测试失败）。
+- 新增 `scripts/check_doc_paths.py` 并接入 `make check`：全仓 Markdown 的链接目标与「以顶层目录开头的反引号路径」必须可解析（`CHANGELOG.md` 作为历史日志显式豁免），补上此前只有 `skills/liki` 受检的盲区。
+- `tools/mcp-tool-catalog.json` 改为生成物：`python3 scripts/check_mcp_schema.py --emit` 生成、`--check`（默认行为）做漂移检测，counsel 工具按契约注册表分组输出，不再手改。
+- counsel 依赖三面一致性补齐：`anyio==4.15.1` 被 `app/counsel_mcp.py` 直接 import 且只在 `requirements.txt` 声明，现补进 `counsel/pyproject.toml`；新增 `tests/test_counsel_dependency_parity.py` 断言 pyproject ↔ `requirements.txt` ↔ 哈希锁三面一致、锁必须由 uv 生成、第三方 import 必须已声明。
+- 文档补完并纠正旧表述：`tests/README.md` 新增「Test placement」「Static check scripts」两节（脚本集由 `tests/test_check_scripts_contract.py` 与 `make check` recipe 双向钉住），新增 `tests/golden/README.md`（goldens 与 oracle 的分工、生成方式）与 `expert-packs/README.md`（兼容层定位、包内文件来源、头像素材授权口径）；`CONTRIBUTING.md` 新增「有意保留的重复（不要合并）」表并修掉 counsel「工具清单」等旧表述；`docs/RELEASE_MODEL.md` 版本面表同步。
+- golden 生成器与说明去 cwd 依赖：`tests/golden/{bazi,tianwen,bazhai}/generate.py` 统一按仓库根解析输出路径（从任意 cwd 运行结果逐字节相同），两份 README 里不存在的 `make golden-*-generate` 改为直接调用对应脚本；`scripts/check_mcp_schema.py` 的 counsel 依赖提示改为指向哈希锁与 `scripts/test-counsel.sh`。
 
 ### Removed
 
-- 退役 `engine-rpc` 公共 JSON-RPC 运行时：删除兼容二进制、`/jsonrpc` HTTP 入口、OpenRPC discover 文档与镜像 smoke；engine 镜像默认入口改为 `engine-mcp`。MCP 是唯一 engine 对外服务协议；现有 raw-JSON registry 仅作为 MCP DTO registry 迁移前的内部调度实现保留。
+- 退役 `engine-rpc` 公共 JSON-RPC 运行时：删除兼容二进制、`/jsonrpc` HTTP 入口、OpenRPC discover 文档与镜像 smoke；engine 镜像默认入口改为 `engine-mcp`。MCP 是唯一 engine 对外服务协议。
+- 删除 counsel 三个手写工具清单（`counsel/app/natal/tools/counsel-tools.json`、`counsel/app/naming/tools/skill-tools.json`、`counsel/app/divination/tools/skill-tools.json`）：工具契约只存在于 `counsel/app/contracts` 的模型里，工具清单版本面随之下线（服务在 `initialize` 里广告 `counsel/app/VERSION.txt`），`scripts/bump_version.py` 与版本面测试相应收敛。根测试中的 `tests/test_divination_toolface.py` 条件约束用例迁到 `counsel/tests/test_divination_toolface.py`，直接对模型断言。
+- 退役 legacy raw-JSON registry：删除 `engine/internal/agent` 的 `RPCRegistry`、`tools_*.go`、`qimen_schema.json` 与 `{"_product","data"}` 信封及对应 schema/handler 测试；`engine-mcp` 的 stdio/HTTP/分域服务改为只读取 typed registry。
+- 删除 `pytest.ini`（内容为无人引用的 marker，且遮蔽 `pyproject.toml` 的 pytest 配置）。
+- 删除无人消费的 golden `tests/golden/counsel_qimen_baseline.json`（58KB，仓库内零引用）。
+- 删除 `expert-packs/liki-bazi/avatars/.gitkeep`、`expert-packs/liki-ziwei/avatars/.gitkeep`：同目录已有 `expert.png`，占位文件没有作用。
 
 ## [2026.10.13.0] — 2026-10-13
 

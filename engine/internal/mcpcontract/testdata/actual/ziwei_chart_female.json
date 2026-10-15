@@ -1,0 +1,1059 @@
+{
+  "input": {
+    "gender": "female",
+    "lunar": {
+      "day": 23,
+      "month": 8,
+      "shichen": "辰",
+      "year": 2000
+    }
+  },
+  "output": {
+    "birth_lunar_month": 8,
+    "birth_year": 2000,
+    "gender": "female",
+    "gong_wei": [
+      {
+        "gan": "辛",
+        "index": "命宫",
+        "is_shen_gong": false,
+        "name": "命宫",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "平",
+            "name": "天机",
+            "xing": "天机"
+          }
+        ],
+        "zhi": "巳"
+      },
+      {
+        "gan": "庚",
+        "index": "兄弟",
+        "is_shen_gong": false,
+        "is_yuan_gong": true,
+        "name": "兄弟",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "庙",
+            "name": "七杀",
+            "xing": "七杀"
+          }
+        ],
+        "zhi": "辰"
+      },
+      {
+        "gan": "己",
+        "index": "夫妻",
+        "is_shen_gong": false,
+        "name": "夫妻",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "庙",
+            "name": "太阳",
+            "si_hua": "禄",
+            "xing": "太阳"
+          },
+          {
+            "is_zhu_xing": true,
+            "liang_du": "庙",
+            "name": "天梁",
+            "xing": "天梁"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "右弼",
+            "xing": "右弼"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "地劫",
+            "xing": "地劫"
+          }
+        ],
+        "zhi": "卯"
+      },
+      {
+        "gan": "戊",
+        "index": "子女",
+        "is_shen_gong": false,
+        "name": "子女",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "得",
+            "name": "武曲",
+            "si_hua": "权",
+            "xing": "武曲"
+          },
+          {
+            "is_zhu_xing": true,
+            "liang_du": "庙",
+            "name": "天相",
+            "xing": "天相"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "天马",
+            "xing": "天马"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "铃星",
+            "xing": "铃星"
+          }
+        ],
+        "zhi": "寅"
+      },
+      {
+        "gan": "己",
+        "index": "财帛",
+        "is_shen_gong": true,
+        "name": "财帛",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "不",
+            "name": "天同",
+            "si_hua": "忌",
+            "xing": "天同"
+          },
+          {
+            "is_zhu_xing": true,
+            "liang_du": "不",
+            "name": "巨门",
+            "xing": "巨门"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "天魁",
+            "xing": "天魁"
+          }
+        ],
+        "zhi": "丑"
+      },
+      {
+        "gan": "戊",
+        "index": "疾厄",
+        "is_shen_gong": false,
+        "name": "疾厄",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "旺",
+            "name": "贪狼",
+            "xing": "贪狼"
+          }
+        ],
+        "zhi": "子"
+      },
+      {
+        "gan": "丁",
+        "index": "迁移",
+        "is_shen_gong": false,
+        "name": "迁移",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "庙",
+            "name": "太阴",
+            "si_hua": "科",
+            "xing": "太阴"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "左辅",
+            "xing": "左辅"
+          }
+        ],
+        "zhi": "亥"
+      },
+      {
+        "gan": "丙",
+        "index": "仆役",
+        "is_shen_gong": false,
+        "name": "仆役",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "利",
+            "name": "廉贞",
+            "xing": "廉贞"
+          },
+          {
+            "is_zhu_xing": true,
+            "liang_du": "庙",
+            "name": "天府",
+            "xing": "天府"
+          }
+        ],
+        "zhi": "戌"
+      },
+      {
+        "gan": "乙",
+        "index": "官禄",
+        "is_shen_gong": false,
+        "name": "官禄",
+        "xing_yao": [
+          {
+            "is_zhu_xing": false,
+            "name": "擎羊",
+            "xing": "擎羊"
+          }
+        ],
+        "zhi": "酉"
+      },
+      {
+        "gan": "甲",
+        "index": "田宅",
+        "is_shen_gong": false,
+        "name": "田宅",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "得",
+            "name": "破军",
+            "xing": "破军"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "禄存",
+            "xing": "禄存"
+          },
+          {
+            "is_zhu_xing": false,
+            "liang_du": "得",
+            "name": "文曲",
+            "xing": "文曲"
+          }
+        ],
+        "zhi": "申"
+      },
+      {
+        "gan": "癸",
+        "index": "福德",
+        "is_shen_gong": false,
+        "name": "福德",
+        "xing_yao": [
+          {
+            "is_zhu_xing": false,
+            "name": "天钺",
+            "xing": "天钺"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "陀罗",
+            "xing": "陀罗"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "地空",
+            "xing": "地空"
+          }
+        ],
+        "zhi": "未"
+      },
+      {
+        "gan": "壬",
+        "index": "父母",
+        "is_shen_gong": false,
+        "name": "父母",
+        "xing_yao": [
+          {
+            "is_zhu_xing": true,
+            "liang_du": "庙",
+            "name": "紫微",
+            "xing": "紫微"
+          },
+          {
+            "is_zhu_xing": false,
+            "liang_du": "陷",
+            "name": "文昌",
+            "xing": "文昌"
+          },
+          {
+            "is_zhu_xing": false,
+            "name": "火星",
+            "xing": "火星"
+          }
+        ],
+        "zhi": "午"
+      }
+    ],
+    "ju_shu": "金四局",
+    "ju_shu_name": "金四局",
+    "kong_gong": [
+      {
+        "dui_gong": "夫妻",
+        "gong_name": "官禄",
+        "jie_xing": [
+          "太阳",
+          "天梁"
+        ]
+      },
+      {
+        "dui_gong": "财帛",
+        "gong_name": "福德",
+        "jie_xing": [
+          "天同",
+          "巨门"
+        ]
+      }
+    ],
+    "lunar_day": 23,
+    "lunar_month": 8,
+    "ming_gong": "命宫",
+    "ming_zhu": "武曲",
+    "nian_gan": "庚",
+    "nian_zhi": "辰",
+    "palace_facts": [
+      {
+        "kind": "star",
+        "palace": "命宫",
+        "star": "天机",
+        "target": "天机"
+      },
+      {
+        "kind": "star",
+        "palace": "命宫",
+        "star": "天机",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "命宫",
+        "star": "天机",
+        "target": "平",
+        "value": "平"
+      },
+      {
+        "kind": "brightness",
+        "palace": "命宫",
+        "star": "天机",
+        "target": "紫微主星",
+        "value": "平"
+      },
+      {
+        "kind": "special",
+        "palace": "命宫",
+        "star": "天机",
+        "target": "唯一主星",
+        "value": "true"
+      },
+      {
+        "kind": "star",
+        "palace": "兄弟",
+        "star": "七杀",
+        "target": "七杀"
+      },
+      {
+        "kind": "star",
+        "palace": "兄弟",
+        "star": "七杀",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "兄弟",
+        "star": "七杀",
+        "target": "庙",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "兄弟",
+        "star": "七杀",
+        "target": "紫微主星",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "兄弟",
+        "star": "七杀",
+        "target": "庙旺",
+        "value": "庙"
+      },
+      {
+        "kind": "special",
+        "palace": "兄弟",
+        "star": "七杀",
+        "target": "唯一主星",
+        "value": "true"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "太阳",
+        "target": "太阳"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "太阳",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "si_hua",
+        "palace": "夫妻",
+        "star": "太阳",
+        "target": "禄"
+      },
+      {
+        "kind": "brightness",
+        "palace": "夫妻",
+        "star": "太阳",
+        "target": "庙",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "夫妻",
+        "star": "太阳",
+        "target": "紫微主星",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "夫妻",
+        "star": "太阳",
+        "target": "庙旺",
+        "value": "庙"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "天梁",
+        "target": "天梁"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "天梁",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "夫妻",
+        "star": "天梁",
+        "target": "庙",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "夫妻",
+        "star": "天梁",
+        "target": "紫微主星",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "夫妻",
+        "star": "天梁",
+        "target": "庙旺",
+        "value": "庙"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "右弼",
+        "target": "右弼"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "右弼",
+        "target": "紫微六吉星"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "地劫",
+        "target": "地劫"
+      },
+      {
+        "kind": "star",
+        "palace": "夫妻",
+        "star": "地劫",
+        "target": "煞星"
+      },
+      {
+        "kind": "star",
+        "palace": "子女",
+        "star": "武曲",
+        "target": "武曲"
+      },
+      {
+        "kind": "star",
+        "palace": "子女",
+        "star": "武曲",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "si_hua",
+        "palace": "子女",
+        "star": "武曲",
+        "target": "权"
+      },
+      {
+        "kind": "brightness",
+        "palace": "子女",
+        "star": "武曲",
+        "target": "得",
+        "value": "得"
+      },
+      {
+        "kind": "brightness",
+        "palace": "子女",
+        "star": "武曲",
+        "target": "紫微主星",
+        "value": "得"
+      },
+      {
+        "kind": "star",
+        "palace": "子女",
+        "star": "天相",
+        "target": "天相"
+      },
+      {
+        "kind": "star",
+        "palace": "子女",
+        "star": "天相",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "子女",
+        "star": "天相",
+        "target": "庙",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "子女",
+        "star": "天相",
+        "target": "紫微主星",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "子女",
+        "star": "天相",
+        "target": "庙旺",
+        "value": "庙"
+      },
+      {
+        "kind": "star",
+        "palace": "子女",
+        "star": "天马",
+        "target": "天马"
+      },
+      {
+        "kind": "star",
+        "palace": "子女",
+        "star": "铃星",
+        "target": "铃星"
+      },
+      {
+        "kind": "star",
+        "palace": "子女",
+        "star": "铃星",
+        "target": "煞星"
+      },
+      {
+        "kind": "star",
+        "palace": "财帛",
+        "star": "天同",
+        "target": "天同"
+      },
+      {
+        "kind": "star",
+        "palace": "财帛",
+        "star": "天同",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "si_hua",
+        "palace": "财帛",
+        "star": "天同",
+        "target": "忌"
+      },
+      {
+        "kind": "brightness",
+        "palace": "财帛",
+        "star": "天同",
+        "target": "不",
+        "value": "不"
+      },
+      {
+        "kind": "brightness",
+        "palace": "财帛",
+        "star": "天同",
+        "target": "紫微主星",
+        "value": "不"
+      },
+      {
+        "kind": "star",
+        "palace": "财帛",
+        "star": "巨门",
+        "target": "巨门"
+      },
+      {
+        "kind": "star",
+        "palace": "财帛",
+        "star": "巨门",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "财帛",
+        "star": "巨门",
+        "target": "不",
+        "value": "不"
+      },
+      {
+        "kind": "brightness",
+        "palace": "财帛",
+        "star": "巨门",
+        "target": "紫微主星",
+        "value": "不"
+      },
+      {
+        "kind": "star",
+        "palace": "财帛",
+        "star": "天魁",
+        "target": "天魁"
+      },
+      {
+        "kind": "star",
+        "palace": "财帛",
+        "star": "天魁",
+        "target": "紫微六吉星"
+      },
+      {
+        "kind": "star",
+        "palace": "疾厄",
+        "star": "贪狼",
+        "target": "贪狼"
+      },
+      {
+        "kind": "star",
+        "palace": "疾厄",
+        "star": "贪狼",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "疾厄",
+        "star": "贪狼",
+        "target": "旺",
+        "value": "旺"
+      },
+      {
+        "kind": "brightness",
+        "palace": "疾厄",
+        "star": "贪狼",
+        "target": "紫微主星",
+        "value": "旺"
+      },
+      {
+        "kind": "brightness",
+        "palace": "疾厄",
+        "star": "贪狼",
+        "target": "庙旺",
+        "value": "旺"
+      },
+      {
+        "kind": "special",
+        "palace": "疾厄",
+        "star": "贪狼",
+        "target": "唯一主星",
+        "value": "true"
+      },
+      {
+        "kind": "star",
+        "palace": "迁移",
+        "star": "太阴",
+        "target": "太阴"
+      },
+      {
+        "kind": "star",
+        "palace": "迁移",
+        "star": "太阴",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "si_hua",
+        "palace": "迁移",
+        "star": "太阴",
+        "target": "科"
+      },
+      {
+        "kind": "brightness",
+        "palace": "迁移",
+        "star": "太阴",
+        "target": "庙",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "迁移",
+        "star": "太阴",
+        "target": "紫微主星",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "迁移",
+        "star": "太阴",
+        "target": "庙旺",
+        "value": "庙"
+      },
+      {
+        "kind": "star",
+        "palace": "迁移",
+        "star": "左辅",
+        "target": "左辅"
+      },
+      {
+        "kind": "star",
+        "palace": "迁移",
+        "star": "左辅",
+        "target": "紫微六吉星"
+      },
+      {
+        "kind": "special",
+        "palace": "迁移",
+        "star": "太阴",
+        "target": "唯一主星",
+        "value": "true"
+      },
+      {
+        "kind": "star",
+        "palace": "仆役",
+        "star": "廉贞",
+        "target": "廉贞"
+      },
+      {
+        "kind": "star",
+        "palace": "仆役",
+        "star": "廉贞",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "仆役",
+        "star": "廉贞",
+        "target": "利",
+        "value": "利"
+      },
+      {
+        "kind": "brightness",
+        "palace": "仆役",
+        "star": "廉贞",
+        "target": "紫微主星",
+        "value": "利"
+      },
+      {
+        "kind": "star",
+        "palace": "仆役",
+        "star": "天府",
+        "target": "天府"
+      },
+      {
+        "kind": "star",
+        "palace": "仆役",
+        "star": "天府",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "仆役",
+        "star": "天府",
+        "target": "庙",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "仆役",
+        "star": "天府",
+        "target": "紫微主星",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "仆役",
+        "star": "天府",
+        "target": "庙旺",
+        "value": "庙"
+      },
+      {
+        "kind": "star",
+        "palace": "官禄",
+        "star": "擎羊",
+        "target": "擎羊"
+      },
+      {
+        "kind": "star",
+        "palace": "官禄",
+        "star": "擎羊",
+        "target": "煞星"
+      },
+      {
+        "kind": "special",
+        "palace": "官禄",
+        "target": "无主星",
+        "value": "true"
+      },
+      {
+        "kind": "star",
+        "palace": "田宅",
+        "star": "破军",
+        "target": "破军"
+      },
+      {
+        "kind": "star",
+        "palace": "田宅",
+        "star": "破军",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "田宅",
+        "star": "破军",
+        "target": "得",
+        "value": "得"
+      },
+      {
+        "kind": "brightness",
+        "palace": "田宅",
+        "star": "破军",
+        "target": "紫微主星",
+        "value": "得"
+      },
+      {
+        "kind": "star",
+        "palace": "田宅",
+        "star": "禄存",
+        "target": "禄存"
+      },
+      {
+        "kind": "star",
+        "palace": "田宅",
+        "star": "文曲",
+        "target": "文曲"
+      },
+      {
+        "kind": "star",
+        "palace": "田宅",
+        "star": "文曲",
+        "target": "紫微六吉星"
+      },
+      {
+        "kind": "star",
+        "palace": "田宅",
+        "star": "文曲",
+        "target": "紫微文星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "田宅",
+        "star": "文曲",
+        "target": "得",
+        "value": "得"
+      },
+      {
+        "kind": "special",
+        "palace": "田宅",
+        "star": "破军",
+        "target": "唯一主星",
+        "value": "true"
+      },
+      {
+        "kind": "star",
+        "palace": "福德",
+        "star": "天钺",
+        "target": "天钺"
+      },
+      {
+        "kind": "star",
+        "palace": "福德",
+        "star": "天钺",
+        "target": "紫微六吉星"
+      },
+      {
+        "kind": "star",
+        "palace": "福德",
+        "star": "陀罗",
+        "target": "陀罗"
+      },
+      {
+        "kind": "star",
+        "palace": "福德",
+        "star": "陀罗",
+        "target": "煞星"
+      },
+      {
+        "kind": "star",
+        "palace": "福德",
+        "star": "地空",
+        "target": "地空"
+      },
+      {
+        "kind": "star",
+        "palace": "福德",
+        "star": "地空",
+        "target": "煞星"
+      },
+      {
+        "kind": "special",
+        "palace": "福德",
+        "target": "无主星",
+        "value": "true"
+      },
+      {
+        "kind": "star",
+        "palace": "父母",
+        "star": "紫微",
+        "target": "紫微"
+      },
+      {
+        "kind": "star",
+        "palace": "父母",
+        "star": "紫微",
+        "target": "紫微主星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "父母",
+        "star": "紫微",
+        "target": "庙",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "父母",
+        "star": "紫微",
+        "target": "紫微主星",
+        "value": "庙"
+      },
+      {
+        "kind": "brightness",
+        "palace": "父母",
+        "star": "紫微",
+        "target": "庙旺",
+        "value": "庙"
+      },
+      {
+        "kind": "star",
+        "palace": "父母",
+        "star": "文昌",
+        "target": "文昌"
+      },
+      {
+        "kind": "star",
+        "palace": "父母",
+        "star": "文昌",
+        "target": "紫微六吉星"
+      },
+      {
+        "kind": "star",
+        "palace": "父母",
+        "star": "文昌",
+        "target": "紫微文星"
+      },
+      {
+        "kind": "brightness",
+        "palace": "父母",
+        "star": "文昌",
+        "target": "陷",
+        "value": "陷"
+      },
+      {
+        "kind": "brightness",
+        "palace": "父母",
+        "star": "文昌",
+        "target": "落陷",
+        "value": "陷"
+      },
+      {
+        "kind": "star",
+        "palace": "父母",
+        "star": "火星",
+        "target": "火星"
+      },
+      {
+        "kind": "star",
+        "palace": "父母",
+        "star": "火星",
+        "target": "煞星"
+      },
+      {
+        "kind": "special",
+        "palace": "父母",
+        "star": "紫微",
+        "target": "唯一主星",
+        "value": "true"
+      }
+    ],
+    "san_fang": [
+      {
+        "fu_xing": [],
+        "name": "命宫",
+        "si_hua": [],
+        "zhu_xing": [
+          "天机"
+        ]
+      },
+      {
+        "fu_xing": [
+          "天魁"
+        ],
+        "name": "财帛",
+        "si_hua": [
+          "忌"
+        ],
+        "zhu_xing": [
+          "天同",
+          "巨门"
+        ]
+      },
+      {
+        "fu_xing": [
+          "擎羊"
+        ],
+        "name": "官禄",
+        "si_hua": [],
+        "zhu_xing": []
+      },
+      {
+        "fu_xing": [
+          "左辅"
+        ],
+        "name": "迁移",
+        "si_hua": [
+          "科"
+        ],
+        "zhu_xing": [
+          "太阴"
+        ]
+      }
+    ],
+    "school": {
+      "leap_month": "first_fifteen_days_current_month_next_fifteen_days_following_month",
+      "source": "iztro_compatible"
+    },
+    "shen_gong": "财帛",
+    "shen_zhu": "文昌",
+    "shi_zhi": "辰",
+    "si_hua": {
+      "天同": "忌",
+      "太阳": "禄",
+      "太阴": "科",
+      "武曲": "权"
+    },
+    "ziwei_pos": "父母"
+  }
+}

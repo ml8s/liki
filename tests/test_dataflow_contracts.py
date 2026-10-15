@@ -1,9 +1,6 @@
 """数据流契约：算子正交、求值复用、快照隔离与表结构闭包。"""
 import copy
-
 from unittest import mock
-
-import pytest
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import duanyu

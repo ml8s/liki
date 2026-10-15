@@ -11,13 +11,20 @@ FLY=[6,7,8,9,1,2,3,4]
 PALACE_TRIGRAM={1:"坎",2:"坤",3:"震",4:"巽",5:"中",6:"乾",7:"兑",8:"艮",9:"离"}
 
 def palace(idx):
-    if idx<=1 or idx==23:return 1
-    if 2<=idx<=4:return 8
-    if 5<=idx<=7:return 3
-    if 8<=idx<=10:return 4
-    if 11<=idx<=13:return 9
-    if 14<=idx<=16:return 2
-    if 17<=idx<=19:return 7
+    if idx <= 1 or idx == 23:
+        return 1
+    if 2 <= idx <= 4:
+        return 8
+    if 5 <= idx <= 7:
+        return 3
+    if 8 <= idx <= 10:
+        return 4
+    if 11 <= idx <= 13:
+        return 9
+    if 14 <= idx <= 16:
+        return 2
+    if 17 <= idx <= 19:
+        return 7
     return 6
 
 def fly(center,forward):
@@ -28,7 +35,8 @@ def fly(center,forward):
     return out
 
 def forward(center, mountain_idx):
-    if center==5:return MOUNTAINS[mountain_idx]["yin_yang"]=="阳"
+    if center == 5:
+        return MOUNTAINS[mountain_idx]["yin_yang"] == "阳"
     target=MOUNTAINS[mountain_idx]
     for m in MOUNTAINS:
         if m["trigram"]==PALACE_TRIGRAM[center] and m["yuan_long"]==target["yuan_long"]:
@@ -36,13 +44,20 @@ def forward(center, mountain_idx):
     raise AssertionError((center,mountain_idx))
 
 def situation(yun,sit,face,period,mountain,facing):
-    sp=palace(sit);fp=palace(face)
-    sit_m=mountain[sp-1]==yun;face_f=facing[fp-1]==yun
-    sit_f=facing[sp-1]==yun;face_m=mountain[fp-1]==yun
-    if sit_m and face_f:return "旺山旺向"
-    if sit_m and sit_f:return "双星会坐"
-    if face_m and face_f:return "双星会向"
-    if face_m and sit_f:return "上山下水"
+    sp = palace(sit)
+    fp = palace(face)
+    sit_m = mountain[sp - 1] == yun
+    face_f = facing[fp - 1] == yun
+    sit_f = facing[sp - 1] == yun
+    face_m = mountain[fp - 1] == yun
+    if sit_m and face_f:
+        return "旺山旺向"
+    if sit_m and sit_f:
+        return "双星会坐"
+    if face_m and face_f:
+        return "双星会向"
+    if face_m and sit_f:
+        return "上山下水"
     return "未成四大局"
 
 def start_year(yun):return 1864+(yun-1)*20

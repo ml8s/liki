@@ -1,10 +1,12 @@
 # Ensure contract-test helpers are importable under pytest.
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+# The counsel contract tests read the Pydantic models that own the tool schemas.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "counsel"))
 
 
 @pytest.fixture(autouse=True)

@@ -5,9 +5,12 @@ import asyncio
 import json
 import os
 import pathlib
+from typing import Any
 
 import pytest  # noqa: E402
 from app import engine_mcp_client  # noqa: E402
+from app.contracts import COUNSEL_TOOLS, NATAL_TOOLS  # noqa: E402
+from app.contracts.schema import ToolContract  # noqa: E402
 from app.counsel_mcp import (  # noqa: E402
     _make_app,
     app,
@@ -15,9 +18,10 @@ from app.counsel_mcp import (  # noqa: E402
     create_counsel_root_mcp,
 )
 from app.engine_mcp_client import MCPError as EngineMCPError  # noqa: E402
-from app.mcp_tool_adapter import add_schema_tool  # noqa: E402
+from app.mcp_tool_adapter import add_contract_tool  # noqa: E402
 from mcp import Client  # noqa: E402
 from mcp.server import MCPServer  # noqa: E402
+from pydantic import ConfigDict, create_model  # noqa: E402
 from starlette.applications import Starlette  # noqa: E402
 from starlette.routing import Mount, Route  # noqa: E402
 
@@ -214,23 +218,24 @@ def test_domain_rejects_wrong_chart():
     assert "counsel/bazi 只接收八字盘" in text
 
 
-def test_counsel_tools_expose_manifest_schema_without_downgrading():
-    srv = create_counsel_mcp("bazi")
-    manifest = json.loads(
-        (pathlib.Path(__file__).parents[1] / "app/natal/tools/counsel-tools.json")
-        .read_text(encoding="utf-8")
-    )
-    expected = {
-        fn["function"]["name"]: fn["function"]["parameters"]
-        for fn in manifest["tools"]
+def test_counsel_tools_publish_the_contract_schemas_without_downgrading():
+    expected = {contract.name: contract for contract in NATAL_TOOLS}
+    tools = asyncio.run(create_counsel_mcp("bazi").list_tools())
+    assert {tool.name: tool.input_schema for tool in tools} == {
+        name: contract.input_schema for name, contract in expected.items()
     }
-    expected_output = {
-        fn["function"]["name"]: fn["function"]["output_schema"]
-        for fn in manifest["tools"]
+    assert {tool.name: tool.output_schema for tool in tools} == {
+        name: contract.output_schema for name, contract in expected.items()
     }
-    tools = asyncio.run(srv.list_tools())
-    assert {tool.name: tool.input_schema for tool in tools} == expected
-    assert {tool.name: tool.output_schema for tool in tools} == expected_output
+
+
+def test_counsel_servers_advertise_the_distributed_version():
+    version = (
+        pathlib.Path(__file__).parents[1] / "app" / "VERSION.txt"
+    ).read_text(encoding="utf-8").strip()
+    for domain in ("bazi", "ziwei", "liuyao", "qimen", "naming"):
+        assert create_counsel_mcp(domain).version == version
+    assert create_counsel_root_mcp().version == version
 
 
 def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
@@ -251,18 +256,11 @@ def test_counsel_root_aggregate_matches_tool_catalog():
     assert names == set(catalog["servers"]["counsel"]["tools"])
 
 
-def test_counsel_root_aggregate_exposes_all_manifest_schemas():
-    manifests = [
-        pathlib.Path(__file__).parents[1] / "app/natal/tools/counsel-tools.json",
-        pathlib.Path(__file__).parents[1] / "app/naming/tools/skill-tools.json",
-        pathlib.Path(__file__).parents[1] / "app/divination/tools/skill-tools.json",
-    ]
-    expected = {}
-    for path in manifests:
-        doc = json.loads(path.read_text(encoding="utf-8"))
-        for item in doc["tools"]:
-            fn = item["function"]
-            expected[fn["name"]] = (fn["parameters"], fn["output_schema"])
+def test_counsel_root_aggregate_exposes_every_contract_schema():
+    expected = {
+        contract.name: (contract.input_schema, contract.output_schema)
+        for contract in COUNSEL_TOOLS
+    }
 
     srv = create_counsel_root_mcp()
     tools = asyncio.run(srv.list_tools())
@@ -318,16 +316,9 @@ def test_period_query_accepts_compute_factors_context(bazi_chart):
     assert "periods" in out
 
 
-def test_period_query_manifest_allows_full_topic_set():
-    manifest = json.loads(
-        (pathlib.Path(__file__).parents[1] / "app/natal/tools/counsel-tools.json")
-        .read_text(encoding="utf-8")
-    )
-    period = next(
-        item["function"] for item in manifest["tools"]
-        if item["function"]["name"] == "period_query"
-    )
-    assert period["parameters"]["properties"]["topics"]["maxItems"] == 16
+def test_period_query_contract_allows_full_topic_set():
+    contract = next(c for c in NATAL_TOOLS if c.name == "period_query")
+    assert contract.input_schema["properties"]["topics"]["maxItems"] == 16
 
 
 def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
@@ -359,7 +350,13 @@ def test_counsel_tool_rejects_argument_outside_manifest_schema():
     text = result.content[0].text
     assert "invalid_arguments" in text
     assert "unexpected" in text
-    assert "Additional properties are not allowed" in text
+    assert "Extra inputs are not permitted" in text
+
+
+def _probe_contract(name: str, description: str = "test known failure mapping") -> ToolContract:
+    """A throwaway no-argument contract for exercising the registration adapter."""
+    empty = create_model(f"{name}_input", __config__=ConfigDict(extra="forbid"))
+    return ToolContract(name=name, description=description, input=empty, output=dict[str, Any])
 
 
 @pytest.mark.parametrize(
@@ -375,13 +372,7 @@ def test_known_tool_failures_preserve_reason_over_mcp_protocol(exception, code):
     def invoke(_arguments):
         raise exception
 
-    add_schema_tool(
-        server,
-        name="known_failure",
-        description="test known failure mapping",
-        schema={"type": "object", "properties": {}, "additionalProperties": False},
-        invoke=invoke,
-    )
+    add_contract_tool(server, _probe_contract("known_failure"), invoke)
     result = _call_tool_over_mcp(server, "known_failure", {})
     assert result.is_error is True
     text = result.content[0].text
@@ -395,13 +386,7 @@ def test_unexpected_tool_exception_is_not_leaked_over_mcp_protocol():
     def invoke(_arguments):
         raise RuntimeError("internal secret")
 
-    add_schema_tool(
-        server,
-        name="boom",
-        description="test unknown exception handling",
-        schema={"type": "object", "properties": {}, "additionalProperties": False},
-        invoke=invoke,
-    )
+    add_contract_tool(server, _probe_contract("boom", "test unknown exception handling"), invoke)
     result = _call_tool_over_mcp(server, "boom", {})
     assert result.is_error is True
     assert result.content[0].text == "Error executing tool boom"

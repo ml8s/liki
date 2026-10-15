@@ -1,6 +1,5 @@
 """Contract test: the canonical Liki slogan stays consistent across public windows."""
 import yaml
-
 from _helpers import ROOT, SKILL_ROOT, SLOGAN, SLOGAN_EN
 
 FORBIDDEN_VARIANTS = [

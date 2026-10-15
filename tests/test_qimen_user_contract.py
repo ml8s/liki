@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 CARD = ROOT / "skills/liki/references/divination/app/qimen-snapshot.md"
 QUARTER = ROOT / "skills/liki/references/divination/domains/qimen/quarter.md"

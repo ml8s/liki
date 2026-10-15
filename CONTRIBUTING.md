@@ -19,7 +19,7 @@
 
 1. 同步最新 `main`：`git pull --ff-only`
 2. 安装 git hooks（一次）：`make hooks`
-3. 升版本用根 Makefile 统一写入当日日期和序号（`VERSION.txt`、engine/counsel VERSION、根与专家包 SKILL 元数据、插件版本、profiles、counsel 工具清单和投影契约同步）：
+3. 升版本用根 Makefile 统一写入当日日期和序号（`VERSION.txt`、engine/counsel VERSION、根与专家包 SKILL 元数据、插件版本、profiles、counsel 投影契约同步）：
 
    ```bash
    make version
@@ -57,6 +57,18 @@
 - Go 漏洞扫描使用 `govulncheck`；counsel 哈希锁使用 `pip-audit`。两者在 CI 分别执行。
 - 每次升版本必须同步更新：`VERSION.txt`（make 统一 bump）+ `CHANGELOG.md`；需要生成分发包时运行 `make build-archive`
 
+## 有意保留的重复（不要合并）
+
+评审时下面这些看起来可以合并或去重，但每一项都是刻意的；动手之前先确认理由仍然成立。
+
+| 重复 | 为什么保留 |
+| --- | --- |
+| `engine/**/zz_load_test.go`（13 个，除 `package` 行外逐字节相同） | Go 不能跨包共享 `TestMain`；抽成公共包会把 `testing` 带进非测试构建依赖。每个测试包各自 `Load()` 一次数据表。 |
+| 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
+| 版本面 `skills/liki/VERSION.txt`、`engine/cmd/engine-mcp/VERSION`、`counsel/app/VERSION.txt` | 三个工件可独立分发，各自需要运行时版本面；同步由 `tests/test_version_surfaces.py` 钉住。 |
+| 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |
+| 单文件目录 `tools/` | 目录里只有生成物 `mcp-tool-catalog.json`：保持 `scripts/check_mcp_schema.py --emit` 生成、`make check` 漂移检测，而不是合并目录或手改。 |
+
 ## 设计原则（为什么这样设计）
 
 - **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。网关负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp` 与 `/mcp/{domain}`。领域文档描述能力与变量绑定，不手写传输层细节。
@@ -81,14 +93,14 @@ grep -rn "旧方法名" --include="*.go" --include="*.sh" --include="*.py"
 grep -rn "旧方法名" skills/liki/references/*/app/*.md skills/liki/references/*/ENTRY.md skills/liki/SKILL.md
 ```
 
-**添加新 MCP 工具时**（同步更新测试与 manifest）：
+**添加新 MCP 工具时**（Pydantic / typed registry 契约是唯一事实源，同步补契约与测试）：
 
 ```bash
 # engine：补 handler、InputSchema/OutputSchema、领域路由与 tool schema 测试
-grep -R "bazi_chart" engine/cmd/engine-mcp engine/internal/agent
+grep -R "bazi_chart" engine/cmd/engine-mcp engine/internal/mcpcontract
 
-# counsel：补 manifest schema、业务实现、MCP runtime schema 对照与错误映射测试
-grep -R "compute_factors" counsel/app/natal/tools counsel/tests
+# counsel：在 app/contracts 补 Pydantic 契约，再补业务实现与错误映射测试
+grep -R "compute_factors" counsel/app counsel/tests
 ```
 
 **改 skill 文档后**（需要出包时）：

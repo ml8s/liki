@@ -1,35 +1,31 @@
+"""Divination tool-surface schema acceptance (schemas come from the contracts)."""
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
+from app.contracts import DIVINATION_TOOLS
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
-
-ROOT = Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "counsel/app/divination/tools"
+_SCHEMAS = {contract.name: contract.input_schema for contract in DIVINATION_TOOLS}
 
 
-def _tool(name: str) -> dict:
-    schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
-    return next(item["function"] for item in schema["tools"] if item["function"]["name"] == name)
+def _parameters(name: str) -> dict:
+    return _SCHEMAS[name]
 
 
 def test_snapshot_schemas_accept_primary_calls():
     validate(
         {"question": "这次面试能不能通过？", "matter": "career", "mode": "auto"},
-        _tool("liuyao_snapshot")["parameters"],
+        _parameters("liuyao_snapshot"),
     )
     validate(
         {"question": "该往哪里推进？", "longitude": 121.47, "matter": "wealth"},
-        _tool("qimen_snapshot")["parameters"],
+        _parameters("qimen_snapshot"),
     )
 
 
 def test_ask_schemas_accept_primary_calls_and_bind_method():
-    liuyao = _tool("liuyao_query")["parameters"]["properties"]["snapshot"]
-    qimen = _tool("qimen_query")["parameters"]["properties"]["snapshot"]
+    liuyao = _parameters("liuyao_query")["properties"]["snapshot"]
+    qimen = _parameters("qimen_query")["properties"]["snapshot"]
     validate(
         {
             "method": "liuyao",

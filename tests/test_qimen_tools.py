@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import json
-import csv
 import sys
 from pathlib import Path
+from urllib.error import HTTPError
 
 import pytest
+from app.contracts import DIVINATION_TOOLS
+from jsonschema import validate
 
 
 @pytest.fixture(autouse=True)
@@ -14,7 +16,6 @@ def skip_shared_engine_compatibility(monkeypatch):
     import engine_mcp_client
 
     monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
-from jsonschema import validate
 
 
 TOOLS = Path(__file__).resolve().parents[1] / "counsel/app/divination/tools"
@@ -22,22 +23,10 @@ SKILL_ROOT = TOOLS.parent.parent
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-import divination_rpc  # noqa: E402
 import qimen_paipan as paipan  # noqa: E402
-from qimen_duanyu import query  # noqa: E402
-from qimen_projection import (  # noqa: E402
-    load_factors_contract,
-    project as project_chart,
-    validate as validate_standard_factors,
-)
-from urllib.error import HTTPError
-from divination_rpc import RPCError  # noqa: E402
 from qimen_errors import TableError  # noqa: E402
-from qimen_interpretations import (  # noqa: E402
-    load_interpretation_index,
-    load_rule_table,
-)
 from qimen_matters import load_matter_table as load_routing_matter_table  # noqa: E402
+from qimen_projection import project as project_chart  # noqa: E402
 
 
 def _project(pan):
@@ -340,11 +329,14 @@ def test_matter_table_is_the_python_routing_fact(monkeypatch) -> None:
 
 
 def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
+    # The engine boundary is the typed mcpcontract registry; the schema is
+    # committed as a golden file guarded by TestEngineQimenInputSchemaGolden.
     schema = json.loads(
-        (Path(__file__).resolve().parents[1] / "engine/internal/agent/qimen_schema.json").read_text(
-            encoding="utf-8"
-        )
-    )["params"]
+        (
+            Path(__file__).resolve().parents[1]
+            / "engine/internal/mcpcontract/testdata/qimen-input-schema.json"
+        ).read_text(encoding="utf-8")
+    )
     requests = []
 
     def fake_engine_data(method: str, params: dict) -> dict:
@@ -408,14 +400,10 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
 
 
 def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
-    schema = json.loads((TOOLS / "skill-tools.json").read_text(encoding="utf-8"))
-    qimen_snapshot = next(
-        item["function"]["parameters"]
-        for item in schema["tools"]
-        if item["function"]["name"] == "qimen_snapshot"
-    )["properties"]["yong_shen"]
-    assert qimen_snapshot["minItems"] == 1
-    assert qimen_snapshot["uniqueItems"] is True
+    contract = next(c for c in DIVINATION_TOOLS if c.name == "qimen_snapshot")
+    yong_shen = contract.input_schema["properties"]["yong_shen"]
+    assert yong_shen["minItems"] == 1
+    assert yong_shen["uniqueItems"] is True
 
 
 def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
@@ -455,9 +443,6 @@ def test_matter_table_rejects_duplicate_symbols(tmp_path, monkeypatch) -> None:
         qimen_matters.load_matter_table()
 
 
-import json as _json
-
-
 def _mcp_response(payload: str) -> bytes:
     return f"event: message\ndata: {payload}\n\n".encode()
 
@@ -465,9 +450,9 @@ def _mcp_response(payload: str) -> bytes:
 def _mcp_tools_call_result(obj) -> bytes:
     """构造 tools/call 的 SSE 响应，text 为序列化 JSON。"""
     result = {"jsonrpc": "2.0", "id": 1, "result": {
-        "content": [{"type": "text", "text": _json.dumps(obj, ensure_ascii=False)}],
+        "content": [{"type": "text", "text": json.dumps(obj, ensure_ascii=False)}],
     }}
-    return _mcp_response(_json.dumps(result, ensure_ascii=False))
+    return _mcp_response(json.dumps(result, ensure_ascii=False))
 
 
 class _FakeResp:

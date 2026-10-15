@@ -1,29 +1,29 @@
 from __future__ import annotations
 
-import sys
 import csv
+import sys
 from pathlib import Path
 
 import pytest
 from jsonschema.exceptions import ValidationError
-
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "counsel/app/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
+import json  # noqa: E402
+
 import divination_contracts  # noqa: E402
 import divination_rpc  # noqa: E402
-import divination_snapshot  # noqa: E402
 import divination_safety  # noqa: E402
-import json  # noqa: E402
-from qimen_interpretations import load_rule_table  # noqa: E402
+import divination_snapshot  # noqa: E402
 import liuyao_ask  # noqa: E402
 import liuyao_snapshot  # noqa: E402
 import qimen_ask  # noqa: E402
 import qimen_paipan  # noqa: E402
 import qimen_snapshot  # noqa: E402
+from qimen_interpretations import load_rule_table  # noqa: E402
 from qimen_projection import validate as validate_standard_factors  # noqa: E402
 from qimen_projection_common import _hour_polarity  # noqa: E402
 
@@ -268,8 +268,7 @@ def test_qimen_snapshot_rejects_jinhan_missing_day_before_rpc(monkeypatch):
 
 
 def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
-    import json
-    from jsonschema import validate
+
 
     def fake_engine_data(method, params):
         assert method in {"city.coords", "tianwen.time", "qimen.chart"}

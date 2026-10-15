@@ -7,8 +7,8 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-from _helpers import mock_base_context
 import factors
+from _helpers import mock_base_context
 from factor_tokens import FACTOR_WILDCARD
 from operators_liunian import _LIU_OP_NAMES
 from operators_natal import _OP_NAMES, _op, _ten_god_states_from_pan
@@ -53,7 +53,6 @@ def test_relation_operator_reads_engine_results() -> None:
             {"field": "liu_xing", "group": "寅巳申"},
         ]},
     }
-    base = mock_base_context()
     assert _op("关系", ["gan_he", "甲己"], "male", chart) == 1
     assert _op("关系", ["gan_he", "乙庚"], "male", chart) == 0
     assert _op("关系", ["zhi_liu_he", "子丑"], "male", chart) == 1
@@ -333,12 +332,12 @@ def test_three_xing_assertions_cover_full_flow_closure() -> None:
         groups = grouped[assertion_id]
         assert set(groups) == set(range(1, 8)), (assertion_id, groups)
         seen_xings: set[str] = set()
-        for group_id, factors in groups.items():
-            hit_xings = factors & flow_xings
-            assert len(hit_xings) == 1, (assertion_id, group_id, factors)
+        for group_id, group_factors in groups.items():
+            hit_xings = group_factors & flow_xings
+            assert len(hit_xings) == 1, (assertion_id, group_id, group_factors)
             hit_xing = next(iter(hit_xings))
-            assert factors == {hit_xing, *additional}, (
-                assertion_id, group_id, factors
+            assert group_factors == {hit_xing, *additional}, (
+                assertion_id, group_id, group_factors
             )
             seen_xings.add(next(iter(hit_xings)))
         assert seen_xings == flow_xings, (assertion_id, seen_xings)

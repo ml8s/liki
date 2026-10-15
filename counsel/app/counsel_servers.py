@@ -1,28 +1,28 @@
 """Counsel domain MCP server construction and tool registration."""
 from __future__ import annotations
 
-import json
 import pathlib
 import sys
 
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 
-JUDGMENT_SCHEMA = pathlib.Path(__file__).resolve().parent / "natal" / "tools" / "counsel-tools.json"
-NAMING_SCHEMA = pathlib.Path(__file__).resolve().parent / "naming" / "tools" / "skill-tools.json"
-NAMING_DIR = pathlib.Path(__file__).resolve().parent / "naming"
-DIVINATION_SCHEMA = pathlib.Path(__file__).resolve().parent / "divination" / "tools" / "skill-tools.json"
-DIVINATION_DIR = pathlib.Path(__file__).resolve().parent / "divination" / "tools"
-VERSION_PATH = pathlib.Path(__file__).resolve().parent / "VERSION.txt"
-RUNTIME_VERSION = VERSION_PATH.read_text("utf-8").strip()
+APP_DIR = pathlib.Path(__file__).resolve().parent
+NATAL_DIR = APP_DIR / "natal" / "tools"
+NAMING_DIR = APP_DIR / "naming"
+DIVINATION_DIR = APP_DIR / "divination" / "tools"
 
 # natal 工具模块同目录 import（from duanyu / from paipan …），进程内调用需目录在 sys.path。
-sys.path.insert(0, str(JUDGMENT_SCHEMA.parent))
+sys.path.insert(0, str(NATAL_DIR))
 sys.path.insert(0, str(NAMING_DIR))
 sys.path.insert(0, str(DIVINATION_DIR))
 
-from app.mcp_tool_adapter import add_schema_tool as _add_schema_tool  # noqa: E402
+from app.contracts import COUNSEL_TOOLS  # noqa: E402
+from app.contracts import VERSION as RUNTIME_VERSION  # noqa: E402
+from app.mcp_tool_adapter import add_contract_tool as _add_contract_tool  # noqa: E402
 from app.natal.tools import counsel  # noqa: E402
+
+_CONTRACTS = {contract.name: contract for contract in COUNSEL_TOOLS}
 
 
 def _require_domain(domain: str, chart: dict) -> None:
@@ -57,10 +57,8 @@ def _add_natal_tools(server: MCPServer, domain: str | None = None) -> None:
     domain endpoint 固定 bazi/ziwei；root aggregate 传入 None 时从 chart 和
     factors provenance 推断领域，避免在同一 MCP server 上重复注册同名工具。
     """
-    schema = json.loads(JUDGMENT_SCHEMA.read_text("utf-8"))
-    for tool in schema["tools"]:
-        fn = tool["function"]
-        name = fn["name"]
+    for name in ("compute_factors", "natal_query", "period_query"):
+        contract = _CONTRACTS[name]
 
         def invoke_natal(arguments: dict, _name=name):
             if _name == "compute_factors":
@@ -87,14 +85,7 @@ def _add_natal_tools(server: MCPServer, domain: str | None = None) -> None:
                 side=side,
             )
 
-        _add_schema_tool(
-            server,
-            name=name,
-            description=fn["description"],
-            schema=fn["parameters"],
-            output_schema=fn.get("output_schema"),
-            invoke=invoke_natal,
-        )
+        _add_contract_tool(server, contract, invoke_natal)
 
 
 def create_counsel_mcp(domain: str) -> MCPServer:
@@ -142,7 +133,7 @@ def _add_divination_tools(server: MCPServer, domain: str) -> None:
     """六爻/奇门（liuyao/qimen）：snapshot 创建（排盘+因子）+ query 追问。
 
     复用 counsel 模块（create/ask——起卦/排盘/断语），engine 完成排盘；
-    counsel 是补集（判断），MCP 暴露名与 skill-tools.json 一致（{domain}_snapshot / {domain}_query），
+    counsel 是补集（判断），MCP 暴露 {domain}_snapshot / {domain}_query，
     query 基于 snapshot 追问出断语。
     """
     if domain == "liuyao":
@@ -151,23 +142,12 @@ def _add_divination_tools(server: MCPServer, domain: str) -> None:
     else:
         from qimen_ask import ask as query_ask
         from qimen_snapshot import create as snapshot_create
-    schema = json.loads(DIVINATION_SCHEMA.read_text("utf-8"))
-    for tool in schema["tools"]:
-        fn = tool["function"]
-        name = fn["name"]
-        if name == f"{domain}_snapshot":
-            impl = snapshot_create
-        elif name == f"{domain}_query":
-            impl = query_ask
-        else:
-            continue
-        _add_schema_tool(
+    for suffix, impl in (("snapshot", snapshot_create), ("query", query_ask)):
+        contract = _CONTRACTS[f"{domain}_{suffix}"]
+        _add_contract_tool(
             server,
-            name=name,
-            description=fn["description"],
-            schema=fn["parameters"],
-            output_schema=fn.get("output_schema"),
-            invoke=lambda arguments, _impl=impl: _impl(**arguments),
+            contract,
+            lambda arguments, _impl=impl: _impl(**arguments),
         )
 
 
@@ -205,18 +185,15 @@ def _add_naming_tools(server: MCPServer) -> None:
         "naming_compose": compose_names,
         "naming_check": _naming_check,
     }
-    schema = json.loads(NAMING_SCHEMA.read_text("utf-8"))
-    for tool in schema["tools"]:
-        fn = tool["function"]
-        name = fn["name"]
-        _add_schema_tool(
-            server,
-            name=name,
-            description=fn["description"],
-            schema=fn["parameters"],
-            output_schema=fn.get("output_schema"),
-            invoke=lambda arguments, _name=name: naming_fns[_name](**arguments),
-        )
+    for name in naming_fns:
+
+        def invoke_naming(arguments: dict, _name=name):
+            if _name == "naming_compose":
+                # compose_names 的 second 是必填位置参数，而契约里可省略表示单名。
+                arguments = {"second": [], **arguments}
+            return naming_fns[_name](**arguments)
+
+        _add_contract_tool(server, _CONTRACTS[name], invoke_naming)
 
 
 def _add_liuyao_tools(server: MCPServer) -> None:

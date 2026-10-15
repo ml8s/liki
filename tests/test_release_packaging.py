@@ -8,7 +8,6 @@ from pathlib import Path
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
 REQUIRED_BUNDLE_FILES = {

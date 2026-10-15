@@ -1,0 +1,92 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "base_dingju_method": {
+      "description": "十二分钟十分局刻家的基准时家定局法；默认 chaibu；仅 quarter_rule：twelve_minute_ten_division 可传",
+      "enum": [
+        "chaibu",
+        "maoshan",
+        "none",
+        "zhirun"
+      ],
+      "type": "string"
+    },
+    "birth_date": {
+      "description": "出生日期 YYYY-MM-DD 或 RFC3339；按精确立春取年命干，跨立春日必须给时刻",
+      "type": "string"
+    },
+    "dingju_method": {
+      "description": "定局法；默认 hour/day：chaibu；仅 hour/day 可传",
+      "enum": [
+        "chaibu",
+        "maoshan",
+        "none",
+        "zhirun"
+      ],
+      "type": "string"
+    },
+    "dun_source": {
+      "description": "十二分钟十分局刻家的分遁口径；默认 hour_branch；仅 quarter_rule：twelve_minute_ten_division 可传",
+      "enum": [
+        "hour_branch",
+        "solar_term"
+      ],
+      "type": "string"
+    },
+    "hour_boundary": {
+      "description": "十二分钟十分局刻家的时辰界；默认 late_zi；仅 quarter_rule：twelve_minute_ten_division 可传",
+      "enum": [
+        "late_zi",
+        "zi_zheng"
+      ],
+      "type": "string"
+    },
+    "quarter_rule": {
+      "description": "刻家规则；默认 ten_minute_sanyuan；仅 scope：quarter 可传",
+      "enum": [
+        "ten_minute_sanyuan",
+        "twelve_minute_ten_division"
+      ],
+      "type": "string"
+    },
+    "school": {
+      "description": "盘式流派；默认 zhuanpan；金函玉镜为独立日家专用盘型",
+      "enum": [
+        "jinhan_yujing",
+        "luoshu_feipan",
+        "mingfa_feipan",
+        "zhuanpan"
+      ],
+      "type": "string"
+    },
+    "scope": {
+      "description": "时间层级；默认 hour；quarter 为刻家奇门；month/year 为固定周期定局",
+      "enum": [
+        "day",
+        "hour",
+        "month",
+        "quarter",
+        "year"
+      ],
+      "type": "string"
+    },
+    "solar_time": {
+      "description": "真太阳时（RFC3339），从 tianwen.time 返回的 solar 字段",
+      "format": "date-time",
+      "type": "string"
+    },
+    "yong_shen": {
+      "description": "用神符号组合；甲不露盘，不能作为独立符号",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "solar_time"
+  ],
+  "type": "object"
+}

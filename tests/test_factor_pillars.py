@@ -1,8 +1,6 @@
 """柱位、取清前提与流年目标五行因子正确性。"""
-from unittest import mock
 
 from _helpers import mock_base_context
-import factors
 from factor_constants import load_constants
 from operators_liunian import _liu_op, _target_stars
 from operators_natal import _op

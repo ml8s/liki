@@ -1,6 +1,7 @@
 """Skill 元数据 SEO 契约：高频词独立命中、长尾精选、长度受控。"""
-from pathlib import Path
 import re
+from pathlib import Path
+
 import yaml
 
 SKILL_MD = Path(__file__).resolve().parents[1] / "skills/liki/SKILL.md"

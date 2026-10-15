@@ -1,13 +1,11 @@
 """yearly_range 编排契约：同一年份的流年快照只生成一次。"""
 from unittest import mock
 
-import pytest
-
-from pathlib import Path
 import _helpers  # noqa: F401 —— 注入 tools 路径
 import duanyu
-from yearly_eval import query_year_rules
+import pytest
 from pan_integrity import with_natal_digest
+from yearly_eval import query_year_rules
 
 
 def _valid_mock_pan() -> dict:
@@ -159,7 +157,8 @@ def test_yearly_range_prepares_natal_context_once() -> None:
 
 
 def test_eval_hybrid_builds_one_flow_snapshot_per_pan() -> None:
-    import sys as _sys, os as _os
+    import os as _os
+    import sys as _sys
     _sys.path.insert(0, _os.path.join(_os.path.dirname(__file__), '..', 'scripts'))
     import eval_hybrid
 

@@ -2,6 +2,7 @@
 """Generate the full Jing Fang eight-palace 64-hexagram core fixture."""
 import json
 from pathlib import Path
+
 ROOT=Path(__file__).resolve().parents[3]
 source=json.loads((ROOT/"engine/internal/engine/liuyao/data/hexagrams.json").read_text())
 palaces=source["palaces"]

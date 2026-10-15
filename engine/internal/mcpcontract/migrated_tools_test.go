@@ -1,0 +1,487 @@
+package mcpcontract
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"reflect"
+	"slices"
+	"sort"
+	"strings"
+	"testing"
+
+	"liki-engine/internal/engine/qimen"
+)
+
+// These tests replace the legacy raw-JSON handler tests for the tools that
+// moved to the typed registry. They cover behaviour that the wire DTOs cannot
+// express: handler-level validation, engine defaults, and enum closure against
+// the engine's own tables.
+
+const (
+	testSolarTimeA = "2000-06-15T12:00:00+08:00"
+	testSolarTimeB = "2000-09-20T08:30:00+08:00"
+)
+
+// callToolDocument calls a tool and returns the decoded JSON document.
+func callToolDocument(t *testing.T, registry *Registry, name string, input any) map[string]any {
+	t.Helper()
+	raw, err := registry.Call(context.Background(), name, mustJSON(t, input))
+	if err != nil {
+		t.Fatalf("%s: %v", name, err)
+	}
+	var document map[string]any
+	decode(t, raw, &document)
+	return document
+}
+
+// assertToolError asserts a tool rejects the input, optionally with a message
+// fragment.
+func assertToolError(t *testing.T, registry *Registry, name string, input any, contains string) {
+	t.Helper()
+	_, err := registry.Call(context.Background(), name, mustJSON(t, input))
+	if err == nil {
+		t.Errorf("%s: expected error for %v", name, input)
+		return
+	}
+	if contains != "" && !strings.Contains(err.Error(), contains) {
+		t.Errorf("%s: error %q does not mention %q", name, err, contains)
+	}
+}
+
+// testBaziChart returns a bazi.chart result document for the migrated handlers.
+func testBaziChart(t *testing.T, registry *Registry, solarTime, gender string) map[string]any {
+	t.Helper()
+	return callToolDocument(t, registry, "bazi.chart", map[string]any{
+		"solar_time": solarTime, "gender": gender,
+	})
+}
+
+func TestMigratedLegacyToolsTolerateUnknownArguments(t *testing.T) {
+	registry := NewEngine()
+	solarTime := testSolarTimeA
+
+	// The legacy params schemas left additionalProperties unset, so the legacy
+	// registry ignored unknown arguments: clients send extra context (counsel
+	// sends tianwen.time's longitude to bazi.chart) and chain richer payloads
+	// (counsel feeds a ziwei.fullchart object into ziwei.daxian). The migrated
+	// tools must keep accepting those calls.
+	callToolDocument(t, registry, "bazi.chart", map[string]any{
+		"solar_time": solarTime, "gender": "male", "longitude": 116.4,
+	})
+
+	// ziwei.fullchart returns a superset of the ziwei.chart object, and clients
+	// chain it straight into the flow tools.
+	ziweiChart := callToolDocument(t, registry, "ziwei.chart", map[string]any{
+		"lunar": map[string]any{"year": 1984, "month": 1, "day": 15, "shichen": "午"}, "gender": "male",
+	})
+	ziweiFull := callToolDocument(t, registry, "ziwei.fullchart", map[string]any{"chart": ziweiChart})
+	callToolDocument(t, registry, "ziwei.liunian", map[string]any{"chart": ziweiFull, "lunar_year": 2030})
+	if _, err := registry.Call(context.Background(), "ziwei.daxian", mustJSON(t, map[string]any{"chart": ziweiFull})); err != nil {
+		t.Fatalf("ziwei.daxian: %v", err)
+	}
+
+	// qimen.chart's legacy schema did close the root object, so unknown root
+	// arguments stay rejected there.
+	assertToolError(t, registry, "qimen.chart", map[string]any{
+		"solar_time": solarTime, "kind": "hour",
+	}, "")
+}
+
+func TestMigratedBaziFullChartRejectsMissingOrWrongNaYin(t *testing.T) {
+	registry := NewEngine()
+	chart := testBaziChart(t, registry, testSolarTimeA, "male")
+	nian, ok := chart["nian"].(map[string]any)
+	if !ok {
+		t.Fatalf("chart.nian = %#v", chart["nian"])
+	}
+	original, _ := nian["na_yin"].(string)
+	if original == "" {
+		t.Fatal("bazi.chart returned empty nian.na_yin")
+	}
+
+	nian["na_yin"] = ""
+	assertToolError(t, registry, "bazi.fullchart", map[string]any{"chart": chart}, "chart.nian.na_yin is required")
+
+	nian["na_yin"] = "错误纳音"
+	assertToolError(t, registry, "bazi.fullchart", map[string]any{"chart": chart}, original)
+
+	nian["na_yin"] = original
+	full := callToolDocument(t, registry, "bazi.fullchart", map[string]any{"chart": chart})
+	if len(full["nian"].(map[string]any)) == 0 {
+		t.Fatalf("bazi.fullchart returned an empty nian pillar: %#v", full["nian"])
+	}
+}
+
+func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
+	registry := NewEngine()
+	chart := testBaziChart(t, registry, testSolarTimeA, "male")
+
+	// bazi.xiaoyun returns one entry per 小运 school; every entry carries the
+	// same number of 柱 as the requested count (12 by default).
+	raw, err := registry.Call(context.Background(), "bazi.xiaoyun", mustJSON(t, map[string]any{"chart": chart}))
+	if err != nil {
+		t.Fatalf("bazi.xiaoyun: %v", err)
+	}
+	var sets []any
+	decode(t, raw, &sets)
+	if len(sets) == 0 {
+		t.Fatal("bazi.xiaoyun returned no schools")
+	}
+	for i, entry := range sets {
+		set, _ := entry.(map[string]any)
+		zhus, _ := set["zhus"].([]any)
+		if len(zhus) != 12 {
+			t.Fatalf("school %d default xiaoyun count = %d, want 12", i, len(zhus))
+		}
+	}
+
+	raw, err = registry.Call(context.Background(), "bazi.xiaoyun", mustJSON(t, map[string]any{"chart": chart, "count": 5}))
+	if err != nil {
+		t.Fatalf("bazi.xiaoyun(count=5): %v", err)
+	}
+	decode(t, raw, &sets)
+	for i, entry := range sets {
+		set, _ := entry.(map[string]any)
+		zhus, _ := set["zhus"].([]any)
+		if len(zhus) != 5 {
+			t.Fatalf("school %d xiaoyun count = %d, want 5", i, len(zhus))
+		}
+	}
+}
+
+func TestMigratedQimenDefaultsAndDingju(t *testing.T) {
+	registry := NewEngine()
+
+	method := callToolDocument(t, registry, "qimen.chart", map[string]any{
+		"solar_time": testSolarTimeA,
+	})["method"].(map[string]any)
+	if method["scope"] != "hour" || method["school"] != "zhuanpan" || method["dingju_method"] != "chaibu" {
+		t.Fatalf("default method = %v/%v/%v, want hour/zhuanpan/chaibu",
+			method["scope"], method["school"], method["dingju_method"])
+	}
+
+	method = callToolDocument(t, registry, "qimen.chart", map[string]any{
+		"solar_time": "2026-01-05T13:00:00+08:00", "dingju_method": "zhirun",
+	})["method"].(map[string]any)
+	if method["dingju_method"] != "zhirun" || method["dingju_method_name"] != "置闰定局" {
+		t.Fatalf("dingju method = %v/%v, want zhirun/置闰定局",
+			method["dingju_method"], method["dingju_method_name"])
+	}
+	if method["jie_qi"] != "冬至" || method["yong_ju_jie_qi"] != "小寒" {
+		t.Fatalf("terms = %v/%v, want 冬至/小寒", method["jie_qi"], method["yong_ju_jie_qi"])
+	}
+
+	assertToolError(t, registry, "qimen.chart", map[string]any{
+		"solar_time": "2026-01-05T13:00:00+08:00", "dingju_method": "luoshu_feipan",
+	}, "")
+}
+
+func TestMigratedQimenMethodMatrix(t *testing.T) {
+	registry := NewEngine()
+	const solarTime = "2026-01-14T01:03:00+08:00"
+
+	document := callToolDocument(t, registry, "qimen.chart", map[string]any{
+		"solar_time": solarTime, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
+	})
+	method := document["method"].(map[string]any)
+	if method["scope"] != "hour" || method["school"] != "luoshu_feipan" || method["dingju_method"] != "zhirun" {
+		t.Fatalf("method = %v/%v/%v", method["scope"], method["school"], method["dingju_method"])
+	}
+	if _, exists := document["pan"].(map[string]any)["school"]; exists {
+		t.Fatal("pan school duplicates method.school")
+	}
+
+	invalid := []map[string]any{
+		{"scope": "ke"},
+		{"school": "yinpan"},
+		{"scope": "year", "dingju_method": "chaibu"},
+		{"scope": "day", "school": "mingfa_feipan"},
+		{"scope": "hour", "school": "mingfa_feipan", "dingju_method": "zhirun"},
+		{"kind": "hour"},
+		{"plate": "zhuanpan"},
+		{"ju_method": "chaibu"},
+		{"yong_shen": []string{"甲"}},
+		{"yong_shen": []string{}},
+		{"yong_shen": []string{"生门", "生门"}},
+		{"birth_year": 1984},
+	}
+	for _, params := range invalid {
+		params["solar_time"] = solarTime
+		assertToolError(t, registry, "qimen.chart", params, "")
+	}
+}
+
+func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
+	if _, err := qimen.ParseBirthDate("2024-02-04"); err == nil {
+		t.Error("date-only Lichun boundary should require a time")
+	}
+	if _, err := qimen.ParseBirthDate("2024-02-04T02:00:00Z"); err != nil {
+		t.Fatalf("RFC3339 Lichun boundary should parse: %v", err)
+	}
+
+	registry := NewEngine()
+	document := callToolDocument(t, registry, "qimen.chart", map[string]any{
+		"solar_time": testSolarTimeA, "yong_shen": []string{"生门", "戊"}, "birth_date": "1984-02-15",
+	})
+	if document["yong_shen"] == nil {
+		t.Fatal("explicit yong_shen was not resolved")
+	}
+	assertJiaStaysHidden(t, document)
+
+	assertToolError(t, registry, "qimen.chart", map[string]any{
+		"solar_time": testSolarTimeA, "yong_shen": []string{"不存在的符号"},
+	}, "")
+}
+
+// assertJiaStaysHidden keeps 甲 off the chart: 甲 never exposes itself as a
+// 天盘/地盘/暗干 symbol, it only appears through its 值符 role.
+func assertJiaStaysHidden(t *testing.T, data map[string]any) {
+	t.Helper()
+	pan, ok := data["pan"].(map[string]any)
+	if !ok {
+		t.Fatalf("pan = %#v", data["pan"])
+	}
+	for _, raw := range pan["gong_wei"].([]any) {
+		palace := raw.(map[string]any)
+		for _, field := range []string{"di_pan_gan", "an_gan", "tian_pan_gan"} {
+			if palace[field] == "甲" {
+				t.Fatalf("%s exposes 甲", field)
+			}
+		}
+		if tianPan, ok := palace["tian_pan"].([]any); ok {
+			for _, raw := range tianPan {
+				if raw.(map[string]any)["gan"] == "甲" {
+					t.Fatal("tian_pan exposes 甲")
+				}
+			}
+		}
+	}
+	if interactions, ok := data["gan_interaction"].([]any); ok {
+		for _, raw := range interactions {
+			interaction := raw.(map[string]any)
+			if interaction["di_pan_gan"] == "甲" || interaction["tian_pan_gan"] == "甲" {
+				t.Fatal("gan_interaction exposes 甲")
+			}
+		}
+	}
+	if yongShen, ok := data["yong_shen"].(map[string]any); ok {
+		for _, raw := range yongShen["symbols"].([]any) {
+			for _, gan := range raw.(map[string]any)["tian_gan"].([]any) {
+				if gan == "甲" {
+					t.Fatal("yong_shen tian_gan exposes 甲")
+				}
+			}
+		}
+	}
+}
+
+// TestMigratedShenShaEnumCoversRealOutput pins the declared shensha enum to
+// the engine's own lookup tables. The 流日/流月/流年 shensha names depend on the
+// flow pillar's ganzhi (流日 文昌/天乙贵人 are 日干 lookups), so a single sample
+// date is not enough: the sweep below walks a full 十干 cycle of days and every
+// month, which is the smallest input set that reaches every producer.
+func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
+	registry := NewEngine()
+	chart := testBaziChart(t, registry, testSolarTimeA, "male")
+
+	type call struct {
+		name   string
+		params map[string]any
+	}
+	calls := []call{}
+	for _, year := range []int{2025, 2026, 2027} {
+		calls = append(calls, call{"bazi.liunian", map[string]any{"chart": chart, "year": year}})
+	}
+	for month := 1; month <= 12; month++ {
+		calls = append(calls, call{"bazi.liuyue", map[string]any{"chart": chart, "year": 2026, "month": month}})
+	}
+	for day := 1; day <= 30; day++ {
+		calls = append(calls, call{"bazi.liuri", map[string]any{"chart": chart, "year": 2026, "month": 6, "day": day}})
+	}
+
+	for _, item := range calls {
+		allowed := enumAt(t, outputProperties(t, registry, item.name), "shensha", "[]", "name")
+		document := callToolDocument(t, registry, item.name, item.params)
+		items, _ := document["shensha"].([]any)
+		for _, raw := range items {
+			entry, ok := raw.(map[string]any)
+			if !ok {
+				continue
+			}
+			shenSha, _ := entry["name"].(string)
+			if !slices.Contains(allowed, shenSha) {
+				t.Errorf("%s %v returned shensha %q outside the declared enum %v",
+					item.name, item.params, shenSha, allowed)
+			}
+		}
+	}
+}
+
+func TestMigratedShiShenEnumMatchesTenGodClosure(t *testing.T) {
+	registry := NewEngine()
+	want := []string{
+		"比肩", "劫财", "食神", "伤官", "正财",
+		"偏财", "七杀", "正官", "偏印", "正印",
+	}
+	for _, name := range []string{"bazi.liunian", "bazi.liuyue", "bazi.liuri", "bazi.liushi"} {
+		allowed := enumAt(t, outputProperties(t, registry, name), "shi_shen")
+		if len(allowed) != len(want) {
+			t.Fatalf("%s: shi_shen enum = %v, want the %d-value 十神 closure", name, allowed, len(want))
+		}
+		for _, value := range want {
+			if !slices.Contains(allowed, value) {
+				t.Errorf("%s: shi_shen enum is missing %q (%v)", name, value, allowed)
+			}
+		}
+	}
+}
+
+func TestMigratedQimenPatternEnumMatchesTable(t *testing.T) {
+	rawTable, err := os.ReadFile(filepath.Join(
+		"..", "engine", "qimen", "data", "patterns.json",
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var table []struct {
+		Name string `json:"name"`
+	}
+	if err := json.Unmarshal(rawTable, &table); err != nil {
+		t.Fatal(err)
+	}
+	want := make([]string, 0, len(table))
+	for _, rule := range table {
+		want = append(want, rule.Name)
+	}
+	sort.Strings(want)
+
+	registry := NewEngine()
+	got := enumAt(t, outputProperties(t, registry, "qimen.chart"), "patterns", "[]", "name")
+	sort.Strings(got)
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("patterns name enum = %v, want engine table %v", got, want)
+	}
+}
+
+func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
+	registry := NewEngine()
+	chart := callToolDocument(t, registry, "ziwei.chart", map[string]any{
+		"lunar":  map[string]any{"year": 2000, "month": 8, "day": 23, "shichen": "辰"},
+		"gender": "male",
+	})
+
+	document := callToolDocument(t, registry, "ziwei.liuyue", map[string]any{
+		"chart": chart, "target_lunar": map[string]any{"year": 2025, "month": 6, "day": 16, "leap": true},
+	})
+	period, ok := document["resolved_period"].(map[string]any)
+	if !ok {
+		t.Fatalf("resolved_period = %#v", document["resolved_period"])
+	}
+	flowMonth := period["flow_month"].(map[string]any)
+	if flowMonth["year"] != float64(2025) || flowMonth["month"] != float64(7) || flowMonth["leap"] != false {
+		t.Fatalf("flow_month = %#v, want 2025 month 7 non-leap", flowMonth)
+	}
+
+	rejected := []map[string]any{
+		// The old bare month input is gone: the exact lunar day is required.
+		{"chart": chart, "lunar_year": 2025, "lunar_month": 6},
+		{"chart": chart, "target_lunar": map[string]any{"year": 2025, "month": 6, "leap": true}},
+		{"chart": chart, "target_lunar": map[string]any{"year": 2024, "month": 6, "day": 10, "leap": true}},
+		{"chart": chart, "target_lunar": map[string]any{"year": 2025, "month": 6, "day": 31, "leap": true}},
+	}
+	for _, params := range rejected {
+		assertToolError(t, registry, "ziwei.liuyue", params, "")
+	}
+}
+
+func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
+	registry := NewEngine()
+	timeOutput, err := TianwenTime(context.Background(), TianwenTimeInput{
+		Time:      "1981-08-26T00:20:00+08:00",
+		Longitude: 132.044137,
+	})
+	if err != nil {
+		t.Fatalf("tianwen.time: %v", err)
+	}
+	if got, want := string(timeOutput.Solar), "1981-08-26T01:06:00+08:00"; got != want {
+		t.Fatalf("solar time = %s, want %s", got, want)
+	}
+	if got, want := timeOutput.Lunar.Shichen, "丑"; got != want {
+		t.Fatalf("shichen = %s, want %s", got, want)
+	}
+
+	chart := callToolDocument(t, registry, "bazi.chart", map[string]any{
+		"solar_time": string(timeOutput.Solar), "gender": "male",
+	})
+	want := []string{"辛酉", "丙申", "丙子", "己丑"}
+	for index, pillar := range []string{"nian", "yue", "ri", "shi"} {
+		entry := chart[pillar].(map[string]any)
+		if got := fmt.Sprintf("%v%v", entry["gan"], entry["zhi"]); got != want[index] {
+			t.Fatalf("%s = %s, want %s", pillar, got, want[index])
+		}
+	}
+}
+
+// outputProperties returns a tool's declared output schema properties.
+func outputProperties(t *testing.T, registry *Registry, name string) map[string]any {
+	t.Helper()
+	definition, ok := registry.Definition(name)
+	if !ok {
+		t.Fatalf("%s is not registered", name)
+	}
+	if len(definition.OutputSchema) == 0 {
+		t.Fatalf("%s declares no output schema", name)
+	}
+	var schema map[string]any
+	decode(t, definition.OutputSchema, &schema)
+	properties, _ := schema["properties"].(map[string]any)
+	if properties == nil {
+		t.Fatalf("%s output schema has no properties", name)
+	}
+	return properties
+}
+
+// enumAt walks a property path and returns the declared enum values. The "[ ]"
+// segment descends into array items.
+func enumAt(t *testing.T, properties map[string]any, path ...string) []string {
+	t.Helper()
+	var node any = properties
+	for _, segment := range path {
+		current, ok := node.(map[string]any)
+		if !ok {
+			t.Fatalf("enumAt(%v): %q parent is not an object", path, segment)
+		}
+		if segment == "[]" {
+			node = current["items"]
+			continue
+		}
+		// The first segment indexes the caller-supplied properties map; nested
+		// segments must descend through the schema's own "properties".
+		if child, ok := current[segment]; ok {
+			node = child
+			continue
+		}
+		nested, _ := current["properties"].(map[string]any)
+		node = nested[segment]
+	}
+	schema, ok := node.(map[string]any)
+	if !ok {
+		t.Fatalf("enumAt(%v): path does not resolve to a schema", path)
+	}
+	values, _ := schema["enum"].([]any)
+	if len(values) == 0 {
+		t.Fatalf("enumAt(%v): no enum declared", path)
+	}
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		text, ok := value.(string)
+		if !ok {
+			t.Fatalf("enumAt(%v): non-string enum value %#v", path, value)
+		}
+		out = append(out, text)
+	}
+	return out
+}

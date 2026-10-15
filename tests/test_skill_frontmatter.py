@@ -2,8 +2,7 @@
 import unittest
 
 import yaml
-
-from _helpers import SKILL_ROOT, ROOT
+from _helpers import ROOT, SKILL_ROOT
 
 
 class TestSkillFrontmatter(unittest.TestCase):

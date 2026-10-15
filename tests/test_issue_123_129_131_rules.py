@@ -1,9 +1,8 @@
 """回归测试：#123 透干口径、#129 七杀制化、#131 性别门控。"""
 
-from _helpers import mock_base_context
-
 import duanyu
 import factors
+from _helpers import mock_base_context
 
 
 def _hidden_shangguan_ke_guan_snapshot():

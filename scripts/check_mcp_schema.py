@@ -1,44 +1,64 @@
 #!/usr/bin/env python3
-"""Validate static MCP tool schemas and their cross-repository catalog."""
+"""Validate MCP tool schemas and generate their cross-repository catalog.
+
+The counsel schemas are projected from the Pydantic contracts in
+``counsel/app/contracts`` (the single source of truth); the engine names are read
+from the typed Go registry. Nothing here validates a duplicated artifact --
+``tools/mcp-tool-catalog.json`` is *generated* here, never hand-edited:
+
+    python3 scripts/check_mcp_schema.py           # validate + drift check (read-only)
+    python3 scripts/check_mcp_schema.py --emit    # regenerate the catalog
+"""
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 import jsonschema
+from mcp_engine_tools import engine_tool_names
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "tools/mcp-tool-catalog.json"
-COUNSEL_MANIFESTS = (
-    ROOT / "counsel/app/natal/tools/counsel-tools.json",
-    ROOT / "counsel/app/naming/tools/skill-tools.json",
-    ROOT / "counsel/app/divination/tools/skill-tools.json",
-)
-SCHEMA_BUDGETS = {
-    ROOT / "counsel/app/natal/tools/counsel-tools.json": 32 * 1024,
-    ROOT / "counsel/app/naming/tools/skill-tools.json": 32 * 1024,
-    ROOT / "counsel/app/divination/tools/skill-tools.json": 128 * 1024,
-    CATALOG_PATH: 16 * 1024,
-}
-ENGINE_TOOL_FILES = (
-    ROOT / "engine/internal/agent/tools_bazi.go",
-    ROOT / "engine/internal/agent/tools_ziwei.go",
-    ROOT / "engine/internal/agent/tools_other.go",
-    ROOT / "engine/internal/mcpcontract/time.go",
-    ROOT / "engine/internal/mcpcontract/huangli.go",
-    ROOT / "engine/internal/mcpcontract/tianwen.go",
-    ROOT / "engine/internal/mcpcontract/city.go",
-    ROOT / "engine/internal/mcpcontract/bazhai.go",
-    ROOT / "engine/internal/mcpcontract/xuankong.go",
-    ROOT / "engine/internal/mcpcontract/liuyao.go",
-)
+SCHEMA_VERSION = "liki.mcp-tool-catalog.v1"
+#: Context budget per counsel group, measured on the compact JSON a client pays for.
+COUNSEL_BUDGETS = {"natal": 24 * 1024, "naming": 24 * 1024, "divination": 64 * 1024}
+COUNSEL_GROUPS = tuple(COUNSEL_BUDGETS)
+SCHEMA_BUDGETS = {CATALOG_PATH: 16 * 1024}
 
 
-def _tool_functions(path: Path) -> list[dict]:
-    doc = json.loads(path.read_text(encoding="utf-8"))
-    return [item["function"] for item in doc["tools"]]
+def _counsel_groups(errors: list[str]) -> list[tuple[str, Any]]:
+    """(group, contract) pairs from the Pydantic contract registry."""
+    sys.path.insert(0, str(ROOT / "counsel"))
+    try:
+        from app.contracts import TOOL_GROUPS  # noqa: PLC0415 - deferred so the error is reported
+    except Exception as exc:  # noqa: BLE001
+        errors.append(
+            f"counsel contracts: {exc} "
+            "(install the hashed counsel dependencies: "
+            "pip install --require-hashes -r counsel/requirements.lock, "
+            "or run scripts/test-counsel.sh which bootstraps counsel/.venv)"
+        )
+        return []
+    return [(group, tool) for group, tools in TOOL_GROUPS.items() for tool in tools]
+
+
+def _catalog_document(engine_names: set[str], counsel_names: list[str]) -> dict[str, Any]:
+    """The generated catalog: a sorted engine list and an ordered counsel list."""
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "servers": {
+            "engine": {"tools": sorted(engine_names)},
+            "counsel": {"tools": list(counsel_names)},
+        },
+    }
+
+
+def _render(document: dict[str, Any]) -> str:
+    return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
 
 
 def _check_schema(schema: dict, *, where: str, errors: list[str], is_output: bool = False) -> None:
@@ -49,11 +69,9 @@ def _check_schema(schema: dict, *, where: str, errors: list[str], is_output: boo
         errors.append(f"{where}: invalid JSON Schema: {exc}")
         return
 
-    if is_output and schema.get("type") == "array":
-        pass
-    elif schema.get("type") != "object":
+    if schema.get("type") != "object":
         # Nullable scalar/object unions and top-level arrays are allowed only for outputs.
-        if not (is_output and ("anyOf" in schema or "items" in schema)):
+        if not (is_output and (schema.get("type") == "array" or "anyOf" in schema or "items" in schema)):
             errors.append(f"{where}: schema type must be object")
             return
 
@@ -85,7 +103,16 @@ def _check_schema(schema: dict, *, where: str, errors: list[str], is_output: boo
             _check_schema(nested, where=f"{where}.items", errors=errors, is_output=True)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate and generate the MCP tool catalog")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--check", action="store_true", help="read-only drift check (the default when no mode is given)"
+    )
+    mode.add_argument(
+        "--emit", action="store_true", help="regenerate tools/mcp-tool-catalog.json"
+    )
+    args = parser.parse_args(argv)
     errors: list[str] = []
 
     try:
@@ -96,53 +123,57 @@ def main() -> int:
         }
         if set(catalog_tools) != {"engine", "counsel"}:
             errors.append("catalog: servers must be exactly engine and counsel")
+        if catalog.get("schema_version") != SCHEMA_VERSION:
+            errors.append(
+                f"catalog: schema_version must be {SCHEMA_VERSION}, got {catalog.get('schema_version')!r}"
+            )
     except Exception as exc:
         errors.append(f"catalog: {exc}")
         catalog_tools = {"engine": set(), "counsel": set()}
 
-    counsel_tools: dict[str, dict] = {}
-    for path in COUNSEL_MANIFESTS:
-        try:
-            functions = _tool_functions(path)
-        except Exception as exc:
-            errors.append(f"{path.relative_to(ROOT)}: {exc}")
+    counsel_tools: dict[str, Any] = {}
+    counsel_bytes: dict[str, int] = {group: 0 for group in COUNSEL_GROUPS}
+    for group, contract in _counsel_groups(errors):
+        name = contract.name
+        where = f"counsel:{name}"
+        if name in counsel_tools:
+            errors.append(f"{where}: duplicate tool")
+        counsel_tools[name] = contract
+        if not contract.description:
+            errors.append(f"{where}: missing description")
+
+        params = contract.input_schema
+        if not isinstance(params, dict):
+            errors.append(f"{where}: missing parameters schema")
             continue
-        for fn in functions:
-            name = fn.get("name")
-            where = f"{path.relative_to(ROOT)}:{name}"
-            if not name:
-                errors.append(f"{where}: missing tool name")
-                continue
-            if name in counsel_tools:
-                errors.append(f"{where}: duplicate tool")
-            counsel_tools[name] = fn
-            if not fn.get("description"):
-                errors.append(f"{where}: missing description")
+        _check_schema(params, where=f"{where}:parameters", errors=errors)
 
-            params = fn.get("parameters")
-            if not isinstance(params, dict):
-                errors.append(f"{where}: missing parameters schema")
-                continue
-            _check_schema(params, where=f"{where}:parameters", errors=errors)
+        output = contract.output_schema
+        if not isinstance(output, dict):
+            errors.append(f"{where}: missing output_schema")
+        else:
+            _check_schema(
+                output,
+                where=f"{where}:output_schema",
+                errors=errors,
+                is_output=True,
+            )
+        counsel_bytes[group] += len(
+            json.dumps(
+                {
+                    "name": name,
+                    "description": contract.description,
+                    "parameters": params,
+                    "output_schema": output,
+                },
+                ensure_ascii=False,
+            ).encode()
+        )
 
-            output = fn.get("output_schema")
-            if not isinstance(output, dict):
-                errors.append(f"{where}: missing output_schema")
-            else:
-                _check_schema(
-                    output,
-                    where=f"{where}:output_schema",
-                    errors=errors,
-                    is_output=True,
-                )
-
-    engine_names: set[str] = set()
-    for path in ENGINE_TOOL_FILES:
-        text = path.read_text(encoding="utf-8")
-        for match in re.finditer(r'Name:\s*"([a-z]+(?:\.[a-z_]+)+)"', text):
-            engine_names.add(match.group(1).replace(".", "_"))
+    engine_names = engine_tool_names()
     if not engine_names:
         errors.append("engine: no tool declarations found")
+    expected_catalog = _render(_catalog_document(engine_names, list(counsel_tools)))
     missing_engine = engine_names - catalog_tools.get("engine", set())
     extra_engine = catalog_tools.get("engine", set()) - engine_names
     if missing_engine:
@@ -157,11 +188,26 @@ def main() -> int:
     if extra_counsel:
         errors.append(f"catalog.counsel unknown: {sorted(extra_counsel)}")
 
+    drift = missing_engine or extra_engine or missing_counsel or extra_counsel
+    if not drift and CATALOG_PATH.read_text(encoding="utf-8") != expected_catalog:
+        # Tool sets agree, so this is hand-edited ordering, formatting, or metadata.
+        drift = True
+    if drift:
+        errors.append("catalog: regenerate with `python3 scripts/check_mcp_schema.py --emit`")
+
     for path, budget in SCHEMA_BUDGETS.items():
         size = path.stat().st_size
         if size > budget:
             errors.append(
                 f"{path.relative_to(ROOT)}: schema context budget exceeded "
+                f"({size} > {budget} bytes)"
+            )
+
+    for group, budget in COUNSEL_BUDGETS.items():
+        size = counsel_bytes[group]
+        if size > budget:
+            errors.append(
+                f"counsel/{group}: schema context budget exceeded "
                 f"({size} > {budget} bytes)"
             )
 
@@ -177,6 +223,17 @@ def main() -> int:
                 f"name {match.group()}; use semantic capability language and tools/list introspection"
             )
 
+    if args.emit:
+        if errors:
+            # The inputs did not resolve; writing now would publish a truncated catalog.
+            for error in errors:
+                print(f"✗ {error}", file=sys.stderr)
+            print("refusing to write the catalog while validation fails", file=sys.stderr)
+            return 1
+        CATALOG_PATH.write_text(expected_catalog, encoding="utf-8")
+        print(f"✓ wrote {CATALOG_PATH.relative_to(ROOT)}")
+        return 0
+
     if errors:
         for error in errors:
             print(f"✗ {error}", file=sys.stderr)
@@ -184,8 +241,8 @@ def main() -> int:
 
     counts = ", ".join(f"{server}={len(tools)}" for server, tools in sorted(catalog_tools.items()))
     sizes = ", ".join(
-        f"{path.relative_to(ROOT)}={path.stat().st_size / 1024:.1f}KiB"
-        for path in sorted(SCHEMA_BUDGETS)
+        [f"{path.relative_to(ROOT)}={path.stat().st_size / 1024:.1f}KiB" for path in sorted(SCHEMA_BUDGETS)]
+        + [f"counsel/{group}={counsel_bytes[group] / 1024:.1f}KiB" for group in COUNSEL_GROUPS]
     )
     print(f"✓ MCP tool schemas ({counts}; counsel output schemas validated)")
     print(f"✓ MCP schema context budget ({sizes})")

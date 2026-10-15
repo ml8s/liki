@@ -1,15 +1,14 @@
 """排盘层 RPC 重试契约：传输错误可重试，逻辑错误不重试。"""
 import json
 from datetime import datetime
-from zoneinfo import ZoneInfo
 from unittest import mock
 from urllib.error import HTTPError, URLError
-
-import pytest
+from zoneinfo import ZoneInfo
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
-from factor_constants import load_constants
 import paipan
+import pytest
+from factor_constants import load_constants
 from paipan import RPCError, call
 
 

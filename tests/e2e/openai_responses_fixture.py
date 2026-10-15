@@ -90,7 +90,6 @@ def final_output() -> list[dict[str, Any]]:
 
 def choose_response(document: dict[str, Any]) -> tuple[list[dict[str, Any]], str | None, str | None]:
     names = tool_names(document)
-    serialized = json.dumps(document, ensure_ascii=False)
 
     if "bazi_chart" in names and not has_function_output(document, "bazi_chart"):
         return (
