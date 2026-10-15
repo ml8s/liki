@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/liuyao"
 	"liki-engine/internal/engine/qimen"
 )
 
@@ -129,7 +128,6 @@ func TestHandler_InvalidJSON(t *testing.T) {
 		"ziwei.chart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
 		"ziwei.liuri", "ziwei.bond",
 		"qimen.chart",
-		"liuyao.chart",
 	}
 	badJSON := json.RawMessage(`{bad`)
 	for _, name := range handlers {
@@ -289,31 +287,6 @@ func TestHandler_QimenBirthDateBoundary(t *testing.T) {
 	}
 	if _, err := qimen.ParseBirthDate("2024-02-04T02:00:00Z"); err != nil {
 		t.Fatalf("RFC3339 Lichun boundary should parse: %v", err)
-	}
-}
-
-func liuyaoCastingJSON(t *testing.T, r *RPCRegistry, values [6]int) json.RawMessage {
-	t.Helper()
-	receipt, err := liuyao.NewValuesCasting(values)
-	if err != nil {
-		t.Fatal(err)
-	}
-	casting, err := json.Marshal(receipt)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return casting
-}
-
-func TestHandler_LiuyaoYongShenDefault(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s,"casting":%s}`, btOK, liuyaoCastingJSON(t, r, [6]int{7, 7, 7, 7, 7, 7})))
-	result, err := r.Execute(context.Background(), "liuyao.chart", params)
-	if err != nil {
-		t.Fatalf("liuyao.chart (default yong_shen): %v", err)
-	}
-	if getStr(result, "_product") != "liuyao" {
-		t.Errorf("_product = %q, want liuyao", getStr(result, "_product"))
 	}
 }
 
@@ -572,41 +545,6 @@ func TestWrapResult(t *testing.T) {
 	}
 	if !hasKey(result, "data") {
 		t.Error("missing data field")
-	}
-}
-
-func TestHandler_LiuyaoChart_RejectsLegacyYaosInput(t *testing.T) {
-	r := NewRPCRegistry()
-	params := fmt.Sprintf(`{"solar_time":%s,"yaos":[7,7,7,7,7,7]}`, btOK)
-	_, err := r.Execute(context.Background(), "liuyao.chart", json.RawMessage(params))
-	if err == nil || !strings.Contains(err.Error(), "yaos") {
-		t.Fatalf("error = %v, want legacy yaos rejected", err)
-	}
-}
-
-// ── liuyao.chart — casting required ──
-
-func TestHandler_LiuyaoChart_InvalidYongShen(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(
-		`{"solar_time":%s,"yong_shen":"invalid","casting":%s}`,
-		btOK, liuyaoCastingJSON(t, r, [6]int{7, 7, 7, 7, 7, 7}),
-	))
-	_, err := r.Execute(context.Background(), "liuyao.chart", params)
-	if err == nil {
-		t.Error("expected error for invalid yong_shen")
-	}
-}
-
-func TestHandler_LiuyaoChart_MissingInput(t *testing.T) {
-	r := NewRPCRegistry()
-	params := json.RawMessage(fmt.Sprintf(`{"solar_time":%s}`, btOK))
-	_, err := r.Execute(context.Background(), "liuyao.chart", params)
-	if err == nil {
-		t.Fatal("expected error for missing casting")
-	}
-	if !strings.Contains(err.Error(), "casting") {
-		t.Errorf("error = %q, want 'casting is required'", err.Error())
 	}
 }
 

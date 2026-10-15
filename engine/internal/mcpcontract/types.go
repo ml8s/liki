@@ -36,16 +36,33 @@ type (
 	BazhaiMatchName       string
 	BazhaiBirthYear       int
 
-	LiuyaoQiguaMode     string
-	LiuyaoCastMode      string
-	LiuyaoOrderName     string
-	LiuyaoCoinSymbol    string
-	LiuyaoCoinValue     int
-	LiuyaoYaoValue      int
-	LiuyaoPosition      int
-	LiuyaoYaoLabel      string
-	LiuyaoCastingID     string
-	LiuyaoSchemaVersion string
+	LiuyaoQiguaMode        string
+	LiuyaoCastMode         string
+	LiuyaoOrderName        string
+	LiuyaoCoinSymbol       string
+	LiuyaoCoinValue        int
+	LiuyaoYaoValue         int
+	LiuyaoPosition         int
+	LiuyaoYaoLabel         string
+	LiuyaoCastingID        string
+	LiuyaoSchemaVersion    string
+	LiuyaoOptionalPosition int
+	LiuyaoDongRelationType string
+	LiuyaoHexagramName     string
+	LiuyaoGanName          string
+	LiuyaoZhiName          string
+	LiuyaoWangShuai        string
+	LiuyaoShiYing          string
+	LiuyaoLiuQinName       string
+	LiuyaoLiuShouName      string
+	LiuyaoMuKuType         string
+	LiuyaoPatternType      string
+	LiuyaoForceRole        string
+	LiuyaoConflictID       string
+	LiuyaoTombBranch       string
+	LiuyaoTombSchool       string
+	LiuyaoYongShenName     string
+	LiuyaoTimingID         string
 
 	LiuyaoHeadsValue int
 	LiuyaoTailsValue int

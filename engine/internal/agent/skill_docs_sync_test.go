@@ -86,7 +86,12 @@ func collectFieldRefs(schema json.RawMessage, root string, out *fieldRefs) {
 							out.paths = append(out.paths, p+"[]")
 						}
 					default:
-						out.paths = append(out.paths, p)
+						if items, ok := subMap["items"].(map[string]any); ok {
+							out.paths = append(out.paths, p+"[]")
+							walk(items, p+"[].")
+						} else {
+							out.paths = append(out.paths, p)
+						}
 					}
 				} else {
 					out.paths = append(out.paths, p)
@@ -96,6 +101,11 @@ func collectFieldRefs(schema json.RawMessage, root string, out *fieldRefs) {
 	}
 	// 跳过 envelope（_product/data）——字段引用指 data 内层
 	if obj, ok := doc.(map[string]any); ok {
+		if defs, ok := obj["$defs"].(map[string]any); ok {
+			for _, def := range defs {
+				walk(def, "")
+			}
+		}
 		if props, ok := obj["properties"].(map[string]any); ok {
 			if data, ok := props["data"]; ok {
 				walk(data, root)

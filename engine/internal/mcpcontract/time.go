@@ -3,7 +3,11 @@ package mcpcontract
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
+
+	"github.com/google/jsonschema-go/jsonschema"
+	"liki-engine/internal/engine/liuyao"
 )
 
 // TimeNowInput is deliberately empty: the server owns the clock. The generated
@@ -33,6 +37,17 @@ func TimeNow(ctx context.Context, _ TimeNowInput) (TimeNowOutput, error) {
 // NewEngine returns the engine's typed MCP contract registry.
 func NewEngine() *Registry {
 	registry := New()
+	if err := liuyao.Load(); err != nil {
+		panic(fmt.Sprintf("load liuyao tables for MCP contracts: %v", err))
+	}
+	hexagramNames := liuyao.HexagramNames()
+	hexagramEnum := make([]any, 0, len(hexagramNames))
+	for _, name := range hexagramNames {
+		hexagramEnum = append(hexagramEnum, name)
+	}
+	forOptions.TypeSchemas[reflect.TypeFor[LiuyaoHexagramName]()] = &jsonschema.Schema{
+		Type: "string", Enum: hexagramEnum,
+	}
 	mustRegister(registry, Tool[TimeNowInput, TimeNowOutput]{
 		Name:        "time.now",
 		Description: "获取服务端当前时间。返回 UTC、本地、北京时间，用于 AI agent 获取准确时间避免幻觉。",
@@ -77,6 +92,11 @@ func NewEngine() *Registry {
 		Name:        "liuyao.qigua",
 		Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次；mode=coins 时传入六组正/反记录；mode=yaos 时传入六个爻值。返回可审计起卦收据。",
 		Handler:     LiuyaoQigua,
+	})
+	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartOutput]{
+		Name:        "liuyao.chart",
+		Description: "六爻装卦。只接受 liuyao.qigua 返回的完整 casting 收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
+		Handler:     LiuyaoChart,
 	})
 	return registry
 }

@@ -182,15 +182,14 @@ def test_divination_safety_boundary_is_table_driven():
 
 
 def test_liuyao_chart_rpc_has_no_legacy_yaos_input():
-    source = (ROOT / "engine/internal/agent/tools_other.go").read_text(encoding="utf-8")
-    chart_start = source.index('Name: "liuyao.chart"')
-    chart_end = len(source)
-    chart_source = source[chart_start:chart_end]
-    assert '"required":["solar_time","casting"]' in chart_source
-    assert '"additionalProperties":false' in chart_source
-    assert "兼容旧" not in chart_source
-    assert "NewValuesCasting" not in chart_source
-    assert "CastingMode" not in source
+    source = (ROOT / "engine/internal/mcpcontract/liuyao.go").read_text(encoding="utf-8")
+    assert "type LiuyaoChartInput struct" in source
+    assert "Casting   *LiuyaoCastingOutput" in source
+    assert "type LiuyaoChartOutput struct" in source
+    assert "casting.Validate()" in source
+    assert "兼容旧" not in source
+    assert "Seed" not in source
+    assert "QiguaWithSeed" not in source
 
 
 def test_liuyao_qigua_rpc_returns_single_casting_receipt():

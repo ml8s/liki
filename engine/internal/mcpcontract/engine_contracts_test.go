@@ -30,6 +30,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua",
+		"liuyao.chart",
 	}
 	got := registry.Names()
 	if len(got) != len(want) {
@@ -60,6 +61,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 		"time.now", "tianwen.time", "city.coords",
 		"bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian",
 		"liuyao.qigua",
+		"liuyao.chart",
 	} {
 		definition, _ := registry.Definition(name)
 		if len(definition.OutputSchema) == 0 {
@@ -302,7 +304,7 @@ func TestEngineContractCalls(t *testing.T) {
 
 	qiguaRaw, err := registry.Call(context.Background(), "liuyao.qigua", mustJSON(t, LiuyaoQiguaInput{
 		Mode: "yaos",
-		Yaos: LiuyaoYaoValuesInput{7, 7, 7, 7, 7, 7},
+		Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.qigua: %v", err)
@@ -323,6 +325,32 @@ func TestEngineContractCalls(t *testing.T) {
 		Yaos: LiuyaoYaoValuesInput{7, 7, 7, 7, 7, 7},
 	})); err == nil || !strings.Contains(err.Error(), "auto mode does not accept") {
 		t.Fatalf("expected auto-mode extra input rejection, got %v", err)
+	}
+
+	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao.chart", mustJSON(t, LiuyaoChartInput{
+		SolarTime: "2026-07-31T10:00:00+08:00",
+		Casting:   &qigua.Casting,
+	}))
+	if err != nil {
+		t.Fatalf("liuyao.chart: %v", err)
+	}
+	var liuyaoChart LiuyaoChartOutput
+	if err := json.Unmarshal(liuyaoChartRaw, &liuyaoChart); err != nil {
+		t.Fatal(err)
+	}
+	if liuyaoChart.Name == "" || len(liuyaoChart.Lines) != 6 || len(liuyaoChart.BianLines) != 6 ||
+		liuyaoChart.Casting.CastingID == "" || liuyaoChart.TombSchool.School == "" {
+		t.Fatalf("incomplete liuyao chart: %#v", liuyaoChart)
+	}
+
+	tamperedQigua := qigua
+	tamperedQigua.Casting.Yaos[0] = 8
+	if _, err := registry.Call(context.Background(), "liuyao.chart", mustJSON(t, LiuyaoChartInput{
+		SolarTime: "2026-07-31T10:00:00+08:00",
+		Casting:   &tamperedQigua.Casting,
+	})); err == nil || (!strings.Contains(err.Error(), "casting_id mismatch") &&
+		!strings.Contains(err.Error(), "dong_yao mismatch")) {
+		t.Fatalf("expected tampered casting rejection, got %v", err)
 	}
 }
 

@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
-
-	"liki-engine/internal/engine/liuyao"
 )
 
 func TestAllMethodsSchema(t *testing.T) {
@@ -24,11 +22,6 @@ func TestAllMethodsSchema(t *testing.T) {
 	zr := executeAndDecode(t, reg, "ziwei.chart", zc)
 	br := executeAndDecode(t, reg, "bazi.chart", bc)
 	z, b := zr["data"].(map[string]any), br["data"].(map[string]any)
-	receipt, err := liuyao.NewValuesCasting([6]int{7, 7, 7, 7, 7, 7})
-	if err != nil {
-		t.Fatal(err)
-	}
-	casting := mustJSON(t, receipt)
 	calls := map[string]json.RawMessage{
 		"bazi.chart":      bc,
 		"bazi.fullchart":  mustJSON(t, map[string]any{"chart": b}),
@@ -46,7 +39,6 @@ func TestAllMethodsSchema(t *testing.T) {
 		"ziwei.liuri":     mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}}),
 		"ziwei.liushi":    mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}, "shi_zhi": "午"}),
 		"ziwei.bond":      mustJSON(t, map[string]any{"a": z, "b": z}),
-		"liuyao.chart":    []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","casting":` + string(casting) + `}`),
 		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
 	}
 
