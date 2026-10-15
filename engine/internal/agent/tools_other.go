@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"liki-engine/internal/engine/bazhai"
-	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/liuyao"
 	"liki-engine/internal/engine/qimen"
 	"liki-engine/internal/engine/tianwen"
@@ -77,43 +75,6 @@ func qimenChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessag
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
 	return wrapResult("qimen", result)
-}
-
-// ── bazhai ──
-
-func bazhaiLayoutHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		MingGua   string `json:"ming_gua"`
-		DoorGua   string `json:"door_gua"`
-		MasterGua string `json:"master_gua"`
-		StoveGua  string `json:"stove_gua"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("bazhai.layout: %w", err)
-	}
-	result, err := bazhai.ComputeLayout(p.MingGua, p.DoorGua, p.MasterGua, p.StoveGua)
-	if err != nil {
-		return nil, fmt.Errorf("bazhai.layout: %w", err)
-	}
-	return wrapResult("bazhai_layout", result)
-}
-
-func bazhaiChartHandler(ctx context.Context, raw json.RawMessage) (json.RawMessage, error) {
-	var p struct {
-		BirthYear int           `json:"birth_year"`
-		Gender    ganzhi.Gender `json:"gender"`
-	}
-	if err := json.Unmarshal(raw, &p); err != nil {
-		return nil, fmt.Errorf("bazhai.chart: %w", err)
-	}
-	if err := validateGender(p.Gender); err != nil {
-		return nil, fmt.Errorf("bazhai.chart: %w", err)
-	}
-	if p.BirthYear < 1900 || p.BirthYear > 2100 {
-		return nil, fmt.Errorf("bazhai.chart: birth_year must be 1900-2100, got %d", p.BirthYear)
-	}
-	result := bazhai.ComputeChart(p.Gender, p.BirthYear)
-	return wrapResult("bazhai", result)
 }
 
 // ── xuankong ──
@@ -292,10 +253,6 @@ func mustLoadQimenSchemas() qimenSchemaDocument {
 	return doc
 }
 
-const schemaDoorStoveItem = `{"type":"object","additionalProperties":false,"properties":{"direction":{"type":"string","enum":["北","东北","东","东南","南","西南","西","西北"],"description":"方位"},"gua_name":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"]},"wuxing":{"type":"string","enum":["水","土","木","金","火"]},"youxing":{"type":"string","enum":["生气","天医","延年","伏位","祸害","五鬼","六煞","绝命"]},"rating":{"type":"string","enum":["大吉","吉","平","凶","大凶"]},"group":{"type":"string","enum":["东四卦","西四卦"]},"match":{"type":"string","enum":["吉","凶"]}},"required":["direction","gua_name","wuxing","youxing","rating","group","match"]}`
-
-const schemaDirectionArray = `{"type":"array","minItems":1,"maxItems":1,"uniqueItems":true,"items":{"type":"string","enum":["北","东北","东","东南","南","西南","西","西北"]}}`
-
 const schemaFlyingStarNameEnum = `{"type":"string","enum":["一白贪狼","二黑巨门","三碧禄存","四绿文曲","五黄廉贞","六白武曲","七赤破军","八白左辅","九紫右弼"]}`
 
 const schemaChartDigest = `{"type":"string","pattern":"^[a-f0-9]{64}$","description":"canonical SHA-256 chart digest"}`
@@ -318,18 +275,6 @@ var otherMethods = []RPCMethod{
 		Params:  qimenSchemas.Params,
 		Handler: qimenChartHandler,
 		Result:  envelopeSchema(string(qimenSchemas.Result)),
-	},
-	{
-		Name: "bazhai.chart", Description: "八宅排盘。按出生年份与性别排命卦 + 四吉四凶方 + 出生年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
-		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"birth_year":{"type":"integer","minimum":1900,"maximum":2100,"description":"出生公历年份"},"gender":{"type":"string","enum":["male","female"]}},"required":["birth_year","gender"]}`),
-		Handler: bazhaiChartHandler,
-		Result:  envelopeSchema(`{"type":"object","additionalProperties":false,"properties":{"ming_gua":{"type":"object","additionalProperties":false,"properties":{"gua":{"type":"object","additionalProperties":false,"properties":{"index":{"type":"integer","minimum":1,"maximum":9},"name":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"]},"wuxing":{"type":"string","enum":["水","土","木","金","火"]},"yin_yang":{"type":"string","enum":["阳","阴"]}},"required":["index","name","wuxing","yin_yang"]},"group":{"type":"string","enum":["东四命","西四命"]},"year_boundary":{"type":"string","enum":["gregorian_calendar_year"]}},"required":["gua","group","year_boundary"]},"ba_zhai_dirs":{"type":"object","additionalProperties":false,"properties":{"sheng_qi":` + schemaDirectionArray + `,"tian_yi":` + schemaDirectionArray + `,"yan_nian":` + schemaDirectionArray + `,"fu_wei":` + schemaDirectionArray + `,"huo_hai":` + schemaDirectionArray + `,"wu_gui":` + schemaDirectionArray + `,"liu_sha":` + schemaDirectionArray + `,"jue_ming":` + schemaDirectionArray + `},"required":["sheng_qi","tian_yi","yan_nian","fu_wei","huo_hai","wu_gui","liu_sha","jue_ming"]},"liu_nian_xing":{"type":"object","additionalProperties":false,"properties":{"year":{"type":"integer","minimum":1900,"maximum":2100},"year_boundary":{"type":"string","enum":["gregorian_calendar_year"]},"ru_zhong":` + schemaFlyingStarNameEnum + `,"gong_wei":{"type":"array","minItems":9,"maxItems":9,"items":` + schemaAnnualFlyingStar + `}},"required":["year","year_boundary","ru_zhong","gong_wei"]}},"required":["ming_gua","ba_zhai_dirs","liu_nian_xing"]}`),
-	},
-	{
-		Name: "bazhai.layout", Description: "八宅门主灶配合。命卦 + 门/主/灶卦 → 方向、游年九星、吉凶。确定性计算。",
-		Params:  mustSchema(`{"type":"object","additionalProperties":false,"properties":{"ming_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"命卦"},"door_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"门卦"},"master_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"主卧卦"},"stove_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"],"description":"灶卦"}},"required":["ming_gua","door_gua","master_gua","stove_gua"]}`),
-		Handler: bazhaiLayoutHandler,
-		Result:  envelopeSchema(`{"type":"object","additionalProperties":false,"properties":{"group":{"type":"string","enum":["东四命","西四命"]},"ming_gua":{"type":"string","enum":["坎","坤","震","巽","乾","兑","艮","离"]},"door":` + schemaDoorStoveItem + `,"master":` + schemaDoorStoveItem + `,"stove":` + schemaDoorStoveItem + `},"required":["group","ming_gua","door","master","stove"]}`),
 	},
 	{
 		Name: "xuankong.chart", Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",

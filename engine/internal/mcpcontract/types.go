@@ -5,7 +5,23 @@ package mcpcontract
 type (
 	RFC3339Time  string
 	DateString   string
+	GenderName   string
 	CityName     string
 	HuangliEvent string
 	HuangliCount int
+
+	GuaNumber        int
+	EightGuaName     string
+	ElementName      string
+	YinYangName      string
+	DirectionName    string
+	LifeGroupName    string
+	YearBoundaryName string
+	FlyingStarNumber int
+	FlyingStarName   string
+	YouxingName      string
+	BazhaiRatingName string
+	TrigramGroupName string
+	BazhaiMatchName  string
+	BazhaiBirthYear  int
 )

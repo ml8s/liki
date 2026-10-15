@@ -53,6 +53,16 @@ func NewEngine() *Registry {
 		Description: "根据城市名查询经纬度。优先使用内置城市表；未命中时可查询 Nominatim（OSM），部署方可用 LIKI_EXTERNAL_GEOCODING=off 禁用。",
 		Handler:     CityCoords,
 	})
+	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
+		Name:        "bazhai.chart",
+		Description: "八宅排盘。按出生年份与性别排命卦 + 四吉四凶方 + 出生年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
+		Handler:     BazhaiChart,
+	})
+	mustRegister(registry, Tool[BazhaiLayoutInput, BazhaiLayoutOutput]{
+		Name:        "bazhai.layout",
+		Description: "八宅门主灶配合。命卦 + 门/主/灶卦 → 方向、游年九星、吉凶。确定性计算。",
+		Handler:     BazhaiLayout,
+	})
 	return registry
 }
 

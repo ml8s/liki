@@ -20,6 +20,7 @@ import (
 var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschema.Schema{
 	reflect.TypeFor[RFC3339Time](): {Type: "string", Format: "date-time"},
 	reflect.TypeFor[DateString]():  {Type: "string", Format: "date"},
+	reflect.TypeFor[GenderName]():  {Type: "string", Enum: []any{"male", "female"}},
 	reflect.TypeFor[CityName]():    {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
 	reflect.TypeFor[HuangliEvent](): {
 		Type: "string",
@@ -30,6 +31,39 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 		},
 	},
 	reflect.TypeFor[HuangliCount](): {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(30))},
+	reflect.TypeFor[GuaNumber]():    {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(9))},
+	reflect.TypeFor[FlyingStarNumber](): {
+		Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(9)),
+	},
+	reflect.TypeFor[BazhaiBirthYear](): {
+		Type: "integer", Minimum: jsonschema.Ptr(float64(1900)), Maximum: jsonschema.Ptr(float64(2100)),
+	},
+	reflect.TypeFor[EightGuaName](): {
+		Type: "string", Enum: []any{"坎", "坤", "震", "巽", "乾", "兑", "艮", "离"},
+	},
+	reflect.TypeFor[ElementName](): {
+		Type: "string", Enum: []any{"水", "土", "木", "金", "火"},
+	},
+	reflect.TypeFor[YinYangName](): {Type: "string", Enum: []any{"阳", "阴"}},
+	reflect.TypeFor[DirectionName](): {
+		Type: "string", Enum: []any{"北", "东北", "东", "东南", "南", "西南", "西", "西北"},
+	},
+	reflect.TypeFor[LifeGroupName]():    {Type: "string", Enum: []any{"东四命", "西四命"}},
+	reflect.TypeFor[YearBoundaryName](): {Type: "string", Enum: []any{"gregorian_calendar_year"}},
+	reflect.TypeFor[FlyingStarName](): {
+		Type: "string", Enum: []any{
+			"一白贪狼", "二黑巨门", "三碧禄存", "四绿文曲", "五黄廉贞",
+			"六白武曲", "七赤破军", "八白左辅", "九紫右弼",
+		},
+	},
+	reflect.TypeFor[YouxingName](): {
+		Type: "string", Enum: []any{"生气", "天医", "延年", "伏位", "祸害", "五鬼", "六煞", "绝命"},
+	},
+	reflect.TypeFor[BazhaiRatingName](): {
+		Type: "string", Enum: []any{"大吉", "吉", "平", "凶", "大凶"},
+	},
+	reflect.TypeFor[TrigramGroupName](): {Type: "string", Enum: []any{"东四卦", "西四卦"}},
+	reflect.TypeFor[BazhaiMatchName]():  {Type: "string", Enum: []any{"吉", "凶"}},
 }}
 
 // Tool describes a typed MCP tool. Name uses the legacy registry convention

@@ -30,32 +30,25 @@ func TestAllMethodsSchema(t *testing.T) {
 	x := xr["data"].(map[string]any)
 
 	calls := map[string]json.RawMessage{
-		"bazi.chart":      bc,
-		"bazi.fullchart":  mustJSON(t, map[string]any{"chart": b}),
-		"bazi.liunian":    mustJSON(t, map[string]any{"chart": b, "year": 2026}),
-		"bazi.liuyue":     mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6}),
-		"bazi.liuri":      mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4}),
-		"bazi.liushi":     mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4, "hour": 12}),
-		"bazi.xiaoyun":    mustJSON(t, map[string]any{"chart": b, "max_age": 12}),
-		"bazi.bond":       mustJSON(t, map[string]any{"a": map[string]any{"chart": b}, "b": map[string]any{"chart": b}}),
-		"ziwei.chart":     zc,
-		"ziwei.fullchart": mustJSON(t, map[string]any{"chart": z}),
-		"ziwei.daxian":    mustJSON(t, map[string]any{"chart": z}),
-		"ziwei.liunian":   mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026}),
-		"ziwei.liuyue":    mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 10, "leap": false}}),
-		"ziwei.liuri":     mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}}),
-		"ziwei.liushi":    mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}, "shi_zhi": "午"}),
-		"ziwei.bond":      mustJSON(t, map[string]any{"a": z, "b": z}),
-		"liuyao.qigua":    mustJSON(t, map[string]any{"mode": "yaos", "yaos": []int{7, 7, 7, 7, 7, 7}}),
-		"liuyao.chart":    []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","casting":` + string(casting) + `}`),
-		"qimen.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
-		"bazhai.chart":    mustJSON(t, map[string]any{"birth_year": 1984, "gender": "male"}),
-		"bazhai.layout": mustJSON(t, map[string]any{
-			"ming_gua":   "兑",
-			"door_gua":   "乾",
-			"master_gua": "乾",
-			"stove_gua":  "乾",
-		}),
+		"bazi.chart":       bc,
+		"bazi.fullchart":   mustJSON(t, map[string]any{"chart": b}),
+		"bazi.liunian":     mustJSON(t, map[string]any{"chart": b, "year": 2026}),
+		"bazi.liuyue":      mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6}),
+		"bazi.liuri":       mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4}),
+		"bazi.liushi":      mustJSON(t, map[string]any{"chart": b, "year": 2026, "month": 6, "day": 4, "hour": 12}),
+		"bazi.xiaoyun":     mustJSON(t, map[string]any{"chart": b, "max_age": 12}),
+		"bazi.bond":        mustJSON(t, map[string]any{"a": map[string]any{"chart": b}, "b": map[string]any{"chart": b}}),
+		"ziwei.chart":      zc,
+		"ziwei.fullchart":  mustJSON(t, map[string]any{"chart": z}),
+		"ziwei.daxian":     mustJSON(t, map[string]any{"chart": z}),
+		"ziwei.liunian":    mustJSON(t, map[string]any{"chart": z, "lunar_year": 2026}),
+		"ziwei.liuyue":     mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 10, "leap": false}}),
+		"ziwei.liuri":      mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}}),
+		"ziwei.liushi":     mustJSON(t, map[string]any{"chart": z, "target_lunar": map[string]any{"year": 2026, "month": 6, "day": 4, "leap": false}, "shi_zhi": "午"}),
+		"ziwei.bond":       mustJSON(t, map[string]any{"a": z, "b": z}),
+		"liuyao.qigua":     mustJSON(t, map[string]any{"mode": "yaos", "yaos": []int{7, 7, 7, 7, 7, 7}}),
+		"liuyao.chart":     []byte(`{"solar_time":"2026-07-31T10:00:00+08:00","casting":` + string(casting) + `}`),
+		"qimen.chart":      []byte(`{"solar_time":"2026-07-31T10:00:00+08:00"}`),
 		"xuankong.chart":   mustJSON(t, map[string]any{"period_date": "2026-07-31", "zuo_shan": 2, "xiang_shan": 14}),
 		"xuankong.liunian": mustJSON(t, map[string]any{"chart": x, "year": 2026}),
 	}
@@ -92,7 +85,7 @@ func validateResultJSONSchema(t *testing.T, name string, schemaDocument any, out
 func TestFengshuiResultSchemasAreExplicit(t *testing.T) {
 	reg := NewRPCRegistry()
 	schemas := resultDataSchemas(t, reg)
-	for _, name := range []string{"bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian"} {
+	for _, name := range []string{"xuankong.chart", "xuankong.liunian"} {
 		assertClosedObjectSchema(t, name, schemas[name], "$")
 	}
 }

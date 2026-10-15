@@ -228,7 +228,6 @@ func TestCallTool_ConsistencyWithLegacyRegistry(t *testing.T) {
 		args   any
 	}{
 		{"bazi.chart", map[string]any{"solar_time": "1984-02-04T06:00:00+08:00", "gender": "male"}},
-		{"bazhai.chart", map[string]any{"birth_year": 1990, "gender": "male"}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.method, func(t *testing.T) {

@@ -11,12 +11,13 @@ import (
 type LayoutResult struct {
 	Group   string        `json:"group"` // 东四命/西四命
 	MingGua string        `json:"ming_gua"`
-	Door    doorStoveInfo `json:"door"`
-	Master  doorStoveInfo `json:"master"`
-	Stove   doorStoveInfo `json:"stove"`
+	Door    DoorStoveInfo `json:"door"`
+	Master  DoorStoveInfo `json:"master"`
+	Stove   DoorStoveInfo `json:"stove"`
 }
 
-type doorStoveInfo struct {
+// DoorStoveInfo is one door/master/stove position assessment.
+type DoorStoveInfo struct {
 	Direction string `json:"direction"`
 	GuaName   string `json:"gua_name"`
 	Wuxing    string `json:"wuxing"`
@@ -62,7 +63,7 @@ func ComputeLayout(mingGua, doorGua, masterGua, stoveGua string) (LayoutResult, 
 	}, nil
 }
 
-func evalPosition(guaNum, mingGua int) doorStoveInfo {
+func evalPosition(guaNum, mingGua int) DoorStoveInfo {
 	group := "东四卦"
 	if xiSiGua[guaNum] {
 		group = "西四卦"
@@ -73,7 +74,7 @@ func evalPosition(guaNum, mingGua int) doorStoveInfo {
 		match = "吉"
 	}
 	youxing, rating := youxingForGua(mingGua, guaNum)
-	return doorStoveInfo{
+	return DoorStoveInfo{
 		Direction: luoshu.PalaceTable[guaNum].Direction,
 		GuaName:   luoshu.PalaceTable[guaNum].Name,
 		Wuxing:    luoshu.PalaceTable[guaNum].Element.String(),

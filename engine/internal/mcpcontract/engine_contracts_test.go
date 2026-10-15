@@ -6,19 +6,26 @@ import (
 	"os"
 	"testing"
 
+	"liki-engine/internal/engine/bazhai"
 	"liki-engine/internal/engine/huangli"
 )
 
 func TestMain(m *testing.M) {
-	if err := huangli.Load(); err != nil {
-		panic(err)
+	loaders := []func() error{huangli.Load, bazhai.Load}
+	for _, load := range loaders {
+		if err := load(); err != nil {
+			panic(err)
+		}
 	}
 	os.Exit(m.Run())
 }
 
 func TestEngineContractDefinitions(t *testing.T) {
 	registry := NewEngine()
-	want := []string{"time.now", "huangli.days", "tianwen.time", "city.coords"}
+	want := []string{
+		"time.now", "huangli.days", "tianwen.time", "city.coords",
+		"bazhai.chart", "bazhai.layout",
+	}
 	got := registry.Names()
 	if len(got) != len(want) {
 		t.Fatalf("contracts = %v, want %v", got, want)
@@ -44,7 +51,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 
 	// Object roots expose output schemas. The existing huangli wire root is an
 	// array, so it remains runtime-validated but intentionally undeclared.
-	for _, name := range []string{"time.now", "tianwen.time", "city.coords"} {
+	for _, name := range []string{"time.now", "tianwen.time", "city.coords", "bazhai.chart", "bazhai.layout"} {
 		definition, _ := registry.Definition(name)
 		if len(definition.OutputSchema) == 0 {
 			t.Errorf("%s should declare an object output schema", name)
@@ -114,6 +121,56 @@ func TestEngineContractInputConstraints(t *testing.T) {
 	}
 }
 
+func TestEngineContractSchemasSelfDescribe(t *testing.T) {
+	registry := NewEngine()
+	for _, name := range registry.Names() {
+		definition := mustDefinition(t, registry, name)
+		for _, raw := range []json.RawMessage{definition.InputSchema, definition.OutputSchema} {
+			if len(raw) == 0 {
+				continue
+			}
+			var schema map[string]any
+			decode(t, raw, &schema)
+			assertSchemaPropertiesSelfDescribe(t, name, schema)
+		}
+	}
+}
+
+func assertSchemaPropertiesSelfDescribe(t *testing.T, name string, schema map[string]any) {
+	t.Helper()
+	properties, _ := schema["properties"].(map[string]any)
+	if properties == nil {
+		return
+	}
+	if schema["additionalProperties"] != false {
+		t.Errorf("%s object schema does not close properties", name)
+	}
+	for field, raw := range properties {
+		property, ok := raw.(map[string]any)
+		if !ok {
+			t.Fatalf("%s.%s: property is not an object", name, field)
+		}
+		if property["description"] == "" {
+			t.Errorf("%s.%s: missing description", name, field)
+		}
+		assertSchemaPropertiesSelfDescribe(t, name+"."+field, property)
+		if items, ok := property["items"].(map[string]any); ok {
+			assertSchemaPropertiesSelfDescribe(t, name+"."+field+"[]", items)
+		}
+	}
+	definitions, hasDefinitions := schema["$defs"].(map[string]any)
+	if !hasDefinitions {
+		return
+	}
+	for _, raw := range definitions {
+		definition, ok := raw.(map[string]any)
+		if !ok {
+			t.Fatalf("%s $defs contains a non-object schema", name)
+		}
+		assertSchemaPropertiesSelfDescribe(t, name+".$defs", definition)
+	}
+}
+
 func mustDefinition(t *testing.T, registry *Registry, name string) Definition {
 	t.Helper()
 	definition, ok := registry.Definition(name)
@@ -159,6 +216,39 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 	if len(day.ShiChen) == 0 || day.Mansion.Name == "" || day.RiZhu.Gan == "" {
 		t.Fatalf("huangli wire DTO lost nested facts: %#v", day)
+	}
+
+	bazhaiRaw, err := registry.Call(context.Background(), "bazhai.chart", mustJSON(t, BazhaiChartInput{
+		BirthYear: 1984,
+		Gender:    "male",
+	}))
+	if err != nil {
+		t.Fatalf("bazhai.chart: %v", err)
+	}
+	var bazhaiOutput BazhaiChartOutput
+	if err := json.Unmarshal(bazhaiRaw, &bazhaiOutput); err != nil {
+		t.Fatal(err)
+	}
+	if bazhaiOutput.MingGua.Gua.Name == "" || bazhaiOutput.MingGua.Group == "" ||
+		len(bazhaiOutput.BaZhaiDirs.ShengQi) != 1 || len(bazhaiOutput.YearStars.Palaces) != 9 {
+		t.Fatalf("incomplete bazhai chart: %#v", bazhaiOutput)
+	}
+
+	layoutRaw, err := registry.Call(context.Background(), "bazhai.layout", mustJSON(t, BazhaiLayoutInput{
+		MingGua:   "乾",
+		DoorGua:   "坤",
+		MasterGua: "艮",
+		StoveGua:  "兑",
+	}))
+	if err != nil {
+		t.Fatalf("bazhai.layout: %v", err)
+	}
+	var layoutOutput BazhaiLayoutOutput
+	if err := json.Unmarshal(layoutRaw, &layoutOutput); err != nil {
+		t.Fatal(err)
+	}
+	if layoutOutput.Group != "西四命" || layoutOutput.Door.GuaName != "坤" || layoutOutput.Door.Match != "吉" {
+		t.Fatalf("unexpected bazhai layout: %#v", layoutOutput)
 	}
 }
 

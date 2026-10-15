@@ -48,7 +48,7 @@ func TestBazhaiJudgment_EastWestGroups(t *testing.T) {
 			if result.Group != tt.wantGroup {
 				t.Errorf("group=%q, want %q", result.Group, tt.wantGroup)
 			}
-			for _, item := range []doorStoveInfo{result.Door, result.Master, result.Stove} {
+			for _, item := range []DoorStoveInfo{result.Door, result.Master, result.Stove} {
 				if item.Group != "东四卦" && item.Group != "西四卦" {
 					t.Fatalf("item group=%q, want East/Four trigram group", item.Group)
 				}
@@ -81,7 +81,7 @@ func TestBazhaiJudgment_YouXing(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ComputeLayout() error = %v", err)
 		}
-		for _, item := range []doorStoveInfo{result.Door, result.Master, result.Stove} {
+		for _, item := range []DoorStoveInfo{result.Door, result.Master, result.Stove} {
 			if item.YouXing != tt.youxing || item.Rating != tt.rating {
 				t.Fatalf("%s命见%s: got %s(%s), want %s(%s)", tt.mingGua, tt.target, item.YouXing, item.Rating, tt.youxing, tt.rating)
 			}
