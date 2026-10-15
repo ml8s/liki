@@ -15,9 +15,6 @@ on:
         description: 'Local candidate-digests.json contents'
         required: true
         type: string
-  push:
-    tags:
-      - 'v*'
 
 permissions:
   contents: write
@@ -25,7 +22,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: ${{ github.workflow }}-promote-release-liki-${{ github.event.inputs.version || github.ref_name }}
+  group: ${{ github.workflow }}-promote-release-liki-${{ inputs.version }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -36,31 +33,20 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ github.event_name == 'push' && github.ref_name || format('v{0}', github.event.inputs.version) }}
+          ref: v${{ inputs.version }}
           persist-credentials: false
 
       - name: Validate tag, source, and digest evidence
         id: evidence
         env:
-          VERSION: ${{ github.event_name == 'push' && github.ref_name || format('v{0}', github.event.inputs.version) }}
-          SOURCE_COMMIT: ${{ github.event.inputs.source_commit || github.sha }}
-          DIGESTS_JSON: ${{ github.event.inputs.digests_json }}
+          VERSION: ${{ inputs.version }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+          DIGESTS_JSON: ${{ inputs.digests_json }}
         run: |
           set -euo pipefail
-          if [[ "$VERSION" == v* ]]; then
-            VERSION_NO_V="${VERSION#v}"
-          else
-            VERSION_NO_V="$VERSION"
-          fi
-          if ! [[ "$VERSION_NO_V" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$ ]]; then
+          if ! [[ "$VERSION" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$ ]]; then
             echo "::error::version must use date-based CalVer (YYYY.MM.DD.N)" >&2
             exit 1
-          fi
-          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
-            if [ "$GITHUB_REF_NAME" != "$VERSION" ] || [ "$GITHUB_REF_TYPE" != "tag" ]; then
-              echo "::error::workflow must be triggered from tag $VERSION" >&2
-              exit 1
-            fi
           fi
           if ! [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::source_commit must be a full lowercase Git SHA" >&2
@@ -68,14 +54,14 @@ jobs:
           fi
           actual_commit="$(git rev-parse HEAD^{commit})"
           if [ "$actual_commit" != "$SOURCE_COMMIT" ]; then
-            echo "::error::tag $VERSION points to $actual_commit, not $SOURCE_COMMIT" >&2
+            echo "::error::tag v$VERSION points to $actual_commit, not $SOURCE_COMMIT" >&2
             exit 1
           fi
           export DIGESTS_JSON
           python3 scripts/validate_candidate_manifest.py \
             --source-commit "$SOURCE_COMMIT" \
             --output "$GITHUB_OUTPUT"
-          echo "version_no_v=$VERSION_NO_V" >> "$GITHUB_OUTPUT"
+          echo "version_no_v=$VERSION" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
