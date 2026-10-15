@@ -85,7 +85,7 @@ build_image() {
     "$context"
 }
 
-build_image engine liki-engine engine/dev/Dockerfile \
+build_image engine liki-engine engine engine/dev/Dockerfile \
   --build-arg VERSION="$RELEASE_VERSION" \
   --build-arg COMMIT="$SOURCE_SHA" \
   --build-arg BUILD_TIME="$BUILD_TIME"
