@@ -113,11 +113,8 @@ jobs:
             "liki-experts@$EXPERTS_DIGEST"; do
             cosign sign --yes --identity-token "$oidc_token" "ghcr.io/${{ github.repository_owner }}/$spec"
           done
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/heads/main$"
-          else
-            identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@refs/tags/v${VERSION}$"
-          fi
+          ref="$(printf '%s' "$GITHUB_REF" | sed 's/[][.*^$+?(){}|]/\\&/g')"
+          identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@${ref}$"
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
             "liki-counsel@$COUNSEL_DIGEST" \
@@ -162,11 +159,18 @@ jobs:
 
       - name: Build signed release manifest
         env:
-          LIKI_RELEASE_IMAGES: ${{ toJSON(steps.evidence.outputs) }}
+          ENGINE_DIGEST: ${{ steps.evidence.outputs.engine_digest }}
+          COUNSEL_DIGEST: ${{ steps.evidence.outputs.counsel_digest }}
+          EXPERTS_DIGEST: ${{ steps.evidence.outputs.experts_digest }}
           LIKI_RELEASE_TAG: v${{ steps.evidence.outputs.version_no_v }}
           LIKI_SOURCE_COMMIT: ${{ github.event.inputs.source_commit || github.sha }}
         run: |
           set -euo pipefail
+          LIKI_RELEASE_IMAGES="$(jq -n \
+            --arg engine "$ENGINE_DIGEST" \
+            --arg counsel "$COUNSEL_DIGEST" \
+            --arg experts "$EXPERTS_DIGEST" \
+            '{engine: $engine, engine_mcp: $engine, counsel_mcp: $counsel, experts: $experts}')"
           export LIKI_RELEASE_IMAGES
           make build-release-manifest
           python3 scripts/build_release_manifest.py --require-images
