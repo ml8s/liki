@@ -1,12 +1,13 @@
 # Runtime model
 
-Liki currently ships one deterministic Go engine with two HTTP runtimes:
+Liki currently ships one deterministic Go engine with an MCP runtime:
 
 | Runtime | Interface | Purpose | Lifecycle |
 | --- | --- | --- | --- |
 | `engine-mcp` | Streamable MCP | Skill, counsel, and agent-facing compute API | Current architecture |
-| `engine-rpc` | JSON-RPC 2.0 | Compatibility API for installed legacy skills | Retained |
 | `counsel-mcp` | Streamable MCP | Factor, assertion, divination, and naming judgment | Current architecture |
+
+`engine-rpc` and its public JSON-RPC endpoint are retired.
 
 The edge owns public service prefixes:
 
@@ -15,15 +16,12 @@ https://<host>/engine/mcp       → engine-mcp /mcp
 https://<host>/engine/mcp/{domain} → engine-mcp /mcp/{domain}
 https://<host>/counsel/mcp      → counsel-mcp /mcp
 https://<host>/counsel/mcp/{domain} → counsel-mcp /mcp/{domain}
-https://<host>/jsonrpc          → engine-rpc /jsonrpc
 ```
 
 Services must not depend on the public prefix. The gateway strips `/engine` or
 `/counsel` before proxying.
 
-The published engine image defaults to `engine-rpc` because public `/jsonrpc`
-remains available for installed legacy skills. MCP deployments override the
-image entrypoint to `/usr/local/bin/engine-mcp`.
+The published engine image defaults to `engine-mcp`.
 
 ## Process configuration
 
@@ -40,22 +38,6 @@ image entrypoint to `/usr/local/bin/engine-mcp`.
 token-protected without exposing those probes. Rate limiting and X-Forwarded-For
 trust are owned by the edge (cloud LB / WAF / Caddy); the service itself does
 not rate-limit.
-
-### engine-rpc
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `LISTEN_ADDR` | `:8080` | JSON-RPC compatibility listen address |
-| `LIKI_ALLOWED_ORIGINS` | hosted default | Browser CORS origins |
-
-`POST /jsonrpc` is not used by the web BFF. It is a retained compatibility
-surface for installed legacy skills. Traffic data may inform product owners,
-but it does not automatically trigger removal.
-
-Removing `engine-rpc` requires an explicit product decision and follows the
-public-entry-removal release policy. Until that decision is made, the binary,
-the `/jsonrpc` entry point, and image smoke coverage remain part of the
-supported runtime surface.
 
 ### counsel-mcp
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Removed
+
+- 退役 `engine-rpc` 公共 JSON-RPC 运行时：删除兼容二进制、`/jsonrpc` HTTP 入口、OpenRPC discover 文档与镜像 smoke；engine 镜像默认入口改为 `engine-mcp`。MCP 是唯一 engine 对外服务协议；现有 raw-JSON registry 仅作为 MCP DTO registry 迁移前的内部调度实现保留。
+
 ## [2026.10.13.0] — 2026-10-13
 
 ### Fixed

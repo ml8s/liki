@@ -1,6 +1,6 @@
 """Unified Liki skill document checker.
 
-Checks assertion ids, resolvable skill-relative paths, whitelisted RPC names,
+Checks assertion ids, resolvable skill-relative paths, whitelisted engine method names,
 lazy-loading budgets, and reachability of domain knowledge docs.
 """
 from __future__ import annotations
@@ -19,7 +19,6 @@ DOMAINS = ("natal", "divination", "fengshui", "naming")
 ASSERTION_MANIFESTS = os.path.join(_ROOT, "counsel", "app", "*", "tools", "assertions", "assertions.csv")
 
 METHOD_WHITELIST = {
-    "rpc.discover",
     "bazi.chart", "bazi.fullchart", "bazi.liunian", "bazi.liuyue", "bazi.liuri",
     "bazi.liushi", "bazi.xiaoyun", "bazi.bond",
     "ziwei.chart", "ziwei.fullchart", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri",

@@ -9,7 +9,6 @@ names.
 | --- | --- | --- |
 | Engine compute | `liki-engine` | Deterministic computation image. |
 | Engine MCP service | `engine-mcp` | Streamable MCP compute service. |
-| Engine compatibility runtime | `engine-rpc` | Retained JSON-RPC compatibility server. |
 | Counsel judgment | `liki-counsel` | Judgment image. |
 | Counsel MCP service | `counsel-mcp` | Streamable MCP judgment service. |
 | Agent runtime | `liki-agent-runtime` | Generic ADK runtime base image. |

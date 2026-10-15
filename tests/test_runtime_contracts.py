@@ -49,28 +49,27 @@ def test_counsel_runtime_environment_is_documented():
         assert f"`{name}`" in runtime_doc
 
 
-def test_engine_image_carries_both_active_runtimes():
+def test_engine_image_carries_mcp_runtime_only():
     dockerfile = (ROOT / "engine/dev/Dockerfile").read_text(encoding="utf-8")
     assert "./cmd/engine-mcp/" in dockerfile
-    assert "./cmd/engine-rpc/" in dockerfile
     assert "COPY --from=build /out/engine-mcp /usr/local/bin/engine-mcp" in dockerfile
-    assert "COPY --from=build /out/engine-rpc /usr/local/bin/engine-rpc" in dockerfile
-    assert 'ENTRYPOINT ["/usr/local/bin/engine-rpc", "--addr", ":8080"]' in dockerfile
+    assert 'ENTRYPOINT ["/usr/local/bin/engine-mcp", "--addr", ":8081"]' in dockerfile
+    assert "engine-rpc" not in dockerfile
 
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
-    assert "build-engine-rpc:" in makefile
-    assert "build: build-skill build-engine-mcp build-engine-rpc" in makefile
-    assert "rm -f bin/engine-mcp bin/engine-rpc" in makefile
+    assert "build-engine-rpc:" not in makefile
+    assert "build: build-skill build-engine-mcp" in makefile
+    assert "rm -f bin/engine-mcp" in makefile
 
 
-def test_candidate_smokes_both_engine_runtimes():
+def test_candidate_smokes_engine_mcp_runtime():
     script = (ROOT / "scripts/build-candidate.sh").read_text(encoding="utf-8")
     smoke = (ROOT / "scripts/smoke-image.sh").read_text(encoding="utf-8")
     assert "scripts/smoke-image.sh" in script
     assert "scripts/test_engine_mcp.py" in smoke
     assert "--entrypoint /usr/local/bin/engine-mcp" in smoke
-    assert "/usr/local/bin/engine-rpc" in smoke
-    assert "/jsonrpc" in smoke
+    assert "engine-rpc" not in smoke
+    assert "/jsonrpc" not in smoke
 
 
 def test_candidate_builds_and_smokes_in_local_registry():

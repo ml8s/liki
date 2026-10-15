@@ -165,25 +165,24 @@ func assertClosedObjectSchema(t *testing.T, method string, schema any, path stri
 
 func resultDataSchemas(t *testing.T, reg *RPCRegistry) map[string]any {
 	t.Helper()
-	var document struct {
-		Methods []struct {
-			Name   string `json:"name"`
-			Result struct {
-				Properties struct {
-					Data json.RawMessage `json:"data"`
-				} `json:"properties"`
-			} `json:"result"`
-		} `json:"methods"`
-	}
-	decodeJSON(t, reg.OpenRPCDocument(), &document)
-	schemas := make(map[string]any, len(document.Methods))
-	for _, method := range document.Methods {
-		if len(method.Result.Properties.Data) == 0 {
+	schemas := make(map[string]any, len(reg.Names()))
+	for _, name := range reg.Names() {
+		method, ok := reg.Method(name)
+		if !ok {
+			continue
+		}
+		var envelope struct {
+			Properties struct {
+				Data json.RawMessage `json:"data"`
+			} `json:"properties"`
+		}
+		decodeJSON(t, method.Result, &envelope)
+		if len(envelope.Properties.Data) == 0 {
 			continue
 		}
 		var schema any
-		decodeJSON(t, method.Result.Properties.Data, &schema)
-		schemas[method.Name] = schema
+		decodeJSON(t, envelope.Properties.Data, &schema)
+		schemas[name] = schema
 	}
 	return schemas
 }

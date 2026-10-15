@@ -4,13 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sync"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-// RPC method schemas are defined as inline Go strings. They drive the OpenRPC
-// document and parameter validation while remaining adjacent to their handlers.
+// Legacy tool schemas are defined as inline Go strings. They drive MCP tool
+// schemas and parameter validation while remaining adjacent to their handlers.
 
 // Common JSON Schema fragments (inline, no $ref — self-contained for AI agents).
 const (
@@ -30,7 +29,7 @@ func envelopeSchema(dataSchema string) json.RawMessage {
 	return mustSchema(`{"type":"object","properties":{"_product":{"type":"string"},"data":` + dataSchema + `},"required":["_product","data"]}`)
 }
 
-// RPCMethod describes a single JSON-RPC method.
+// RPCMethod describes one raw-JSON engine tool during the MCP migration.
 type RPCMethod struct {
 	Name        string
 	Description string
@@ -41,21 +40,11 @@ type RPCMethod struct {
 	paramsSchema *jsonschema.Schema // compiled params schema for validation
 }
 
-// RPCRegistry holds all registered JSON-RPC methods.
+// RPCRegistry is the legacy raw-JSON tool registry used by MCP during the
+// MCP-native DTO migration. It is not a public RPC surface.
 type RPCRegistry struct {
 	methods map[string]*RPCMethod
 	names   []string // registration order preserved for deterministic output
-
-	version     string
-	openrpcOnce sync.Once
-	openrpcDoc  json.RawMessage
-}
-
-// SetVersion sets the engine version reported in the OpenRPC document.
-// Called once at startup from the main package (BuildTime / VERSION file).
-func (r *RPCRegistry) SetVersion(v string) {
-	r.version = v
-	r.openrpcOnce = sync.Once{} // reset cache so the doc is rebuilt with the new version
 }
 
 // NewRPCRegistry creates a registry with all external compute methods

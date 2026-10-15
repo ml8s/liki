@@ -43,7 +43,6 @@ func main() {
 	}
 
 	rpcReg := agent.NewRPCRegistry()
-	rpcReg.SetVersion(BuildTime)
 
 	if *stdio {
 		slog.Info("engine-mcp stdio mode")

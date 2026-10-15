@@ -12,7 +12,6 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
     ROOT / "engine/cmd/engine-mcp/VERSION",
-    ROOT / "engine/cmd/engine-rpc/VERSION",
     ROOT / "counsel/app/VERSION.txt",
 )
 PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))

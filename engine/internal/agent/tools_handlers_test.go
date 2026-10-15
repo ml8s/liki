@@ -661,28 +661,6 @@ func TestHandler_ComputeLiuNian_ShiShen_Correct(t *testing.T) {
 	}
 }
 
-// ── OpenRPC document ──
-
-func TestOpenRPCDocument(t *testing.T) {
-	r := NewRPCRegistry()
-	doc := r.OpenRPCDocument()
-
-	var raw map[string]any
-	if err := json.Unmarshal(doc, &raw); err != nil {
-		t.Fatalf("OpenRPCDocument is not valid JSON: %v", err)
-	}
-	if raw["openrpc"] != "1.4.1" {
-		t.Errorf("openrpc version = %v, want 1.4.1", raw["openrpc"])
-	}
-	methods, ok := raw["methods"].([]any)
-	if !ok {
-		t.Fatal("missing methods array")
-	}
-	if len(methods) != 28 {
-		t.Errorf("method count = %d, want 28 (27 + rpc.discover)", len(methods))
-	}
-}
-
 // ── wrapResult ──
 
 func TestWrapResult(t *testing.T) {

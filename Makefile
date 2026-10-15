@@ -26,7 +26,7 @@ PYTHON_BIN := $(HOME)/app/python3.12.14/bin
 export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
 export GOTOOLCHAIN ?= go1.26.9
 
-.PHONY: help build build-skill build-engine-mcp build-engine-rpc clean fmt fmt-check lint-engine lint-python smoke \
+.PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check lint vuln lint-md check test test-content test-engine test-counsel test-engine-mcp \
         full-data golden gate release-gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
@@ -74,10 +74,7 @@ runtime-validate: build-deployment ## Validate generated artifacts with the pinn
 build-engine-mcp: ## Build the engine MCP server
 	@cd engine && go build -o ../bin/engine-mcp ./cmd/engine-mcp/
 
-build-engine-rpc: ## Build the retained JSON-RPC compatibility server for installed legacy skills
-	@cd engine && go build -o ../bin/engine-rpc ./cmd/engine-rpc/
-
-build: build-skill build-engine-mcp build-engine-rpc ## Build local artifacts (skill archive + engine binaries). 镜像仅由本地 candidate 构建。
+build: build-skill build-engine-mcp ## Build local artifacts (skill archive + engine binary). 镜像仅由本地 candidate 构建。
 
 # ── 镜像（本地候选，非发布路径）──
 # 生产镜像由本地 `make candidate` 构建并推送 GHCR；CI promotion 只转发已验证 digest。
@@ -192,7 +189,7 @@ version: ## Bump all runtime CalVer surfaces together
 	@python3 scripts/bump_version.py
 
 clean: ## Remove generated root binaries
-	rm -f bin/engine-mcp bin/engine-rpc
+	rm -f bin/engine-mcp
 
 help: ## List primary targets
 	@grep -h '^[a-z][a-z0-9_.-]*:.*##' $(firstword $(MAKEFILE_LIST)) | \
