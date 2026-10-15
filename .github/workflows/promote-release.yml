@@ -113,7 +113,7 @@ jobs:
             "liki-experts@$EXPERTS_DIGEST"; do
             cosign sign --yes --identity-token "$oidc_token" "ghcr.io/${{ github.repository_owner }}/$spec"
           done
-          ref="$(printf '%s' "$GITHUB_REF" | sed 's/[][.*^$+?(){}|]/\\&/g')"
+          ref="${GITHUB_REF//./\\.}"
           identity="^https://github\\.com/ml8s/liki/\\.github/workflows/promote-release\\.yml@${ref}$"
           for spec in \
             "liki-engine@$ENGINE_DIGEST" \
