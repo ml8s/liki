@@ -1,51 +1,65 @@
 ---
 name: app-decision
-description: 问该不该做 / 方向 / 策略 / 时机 — 默认奇门
+description: 问策略、方向、行动时机 — 默认奇门：排盘快照与追问
 依赖域: qimen
 ---
 
-# 问决策与方向
+# 问决策
 
-> 工具报文：只使用 `references/divination/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
->
-## 路由规则
+> 场景：用户核心目标是策略、方向或行动时机。
 
-- 用户核心目标是策略、方向或行动时机。
-- 默认进入奇门；不自动加排六爻。
-- 医疗、法律、重大财务和人身安全问题正常执行奇门流程；输出前附 `safety_advisory`。
+## 依赖的领域知识
+
+[必读] `references/divination/domains/qimen/yongshen.md` + `references/divination/domains/qimen/bamen.md` + `references/divination/domains/qimen/jiuxing.md` + `references/divination/domains/qimen/bashen.md` + `references/divination/domains/qimen/yingqi.md` + `references/divination/domains/qimen/quarter.md`
+[专占] `references/divination/domains/qimen/lost-property.md` + `references/divination/domains/qimen/thief-capture.md` + `references/divination/domains/qimen/missing-person.md` + `references/divination/domains/qimen/capture-escape.md`
 
 ## 流程
 
-| 步骤 | 动作 |
+| 步骤 | 动作 | 产物 |
+| --- | --- | --- |
+| 1 | 确认地点与事项 | 排盘参数 |
+| 2 | 调奇门排盘工具创建快照；参数按 schema 自举（普通问事事项 / 显式用神 / 专占） | immutable snapshot |
+| 3 | 调奇门追问工具出断语；`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` | 结构化 answer |
+| 4 | 解释 factors 中的用神落宫、门星神、生克、空亡、马星和应期 | 方向、态势与时机 |
+| 5 | 追问继续传同一 snapshot | 不重排上下文 |
+
+## 常用参数
+
+用户没有明确要求，不传方法参数；默认时家转盘常规定局；刻家 / 流派 / 定局只在用户明确要求时传对应高级参数。不能从“更细”“传统”“准确”推断高级方法。
+
+| 用户问题 | 排盘意图 |
 | --- | --- |
-| 1 | 按 `references/divination/app/question.md` 判断为策略 / 方向 / 时机 |
-| 2 | 按 `references/divination/app/qimen-snapshot.md` 奇门流程（排盘） |
-| 3 | 按 `TOOLS.md` 奇门流程（追问）；`snapshot` 原样绑定 `$QIMEN_SNAPSHOT` |
-| 4 | 按 `references/divination/app/qimen-snapshot.md` 输出 |
+| 钥匙丢了，能不能找到 | 失物专占 |
+| 东西被偷 / 逃走的人 / 偷者画像 | 偷盗 / 走脱 / 画像专占 |
+| 工作能不能升、财能不能求、婚姻如何 | 普通问事（事项用神） |
+| 家人走失 | 走失专占 |
+| 用置闰盘看现在 | 置闰定局 |
+| 用洛书飞盘看这件事 | 飞盘流派 |
+| 用十分钟刻家看看 | 十分钟三元刻家 |
+| 用十二分钟十分局看看 | 十二分钟十分局刻家 |
+| 看今天整体 / 用金函玉镜看今天 | 日盘金函玉镜 |
 
 ## 边界条件
 
-| 场景 | 处理 |
-| --- | --- |
-| 缺地点 / 时间 | 按 `qimen-snapshot.md` 补城市、经度或使用服务端当前时间 |
-| 高风险事项 | 正常执行，附 `safety_advisory` |
-| 长期命局问题 | 转八字域，不用奇门替代终身命局 |
+- 普通问事用事项用神（schema 二选一）。
+- 缺地点时先要城市或经度。
+- 失物 / 偷盗 / 走脱 / 画像专占不接受事项或用神。
+- 走失专占必须用走失问事。
+- 金函玉镜改列九宫与十二日神，不输出局数、用神、值符值使与应期。
 
 ## 输出模板
 
 ```text
-结论：可行 / 需调整 / 暂缓 / 时机未明。
-依据：用神落宫、门星神和关键生克。
+结论：一句话方向 / 时机 / 决策倾向。
+用神：符号、落宫、旺衰、空亡 / 马星。
+态势：支持与阻碍来源。
 时机：answer 引用的应期候选。
+建议：一个现实动作或核查条件。
 边界：传统奇门视角，不承诺现实结果。
 ```
 
 ### 示例
 
 ```text
-结论：不宜立即推进，等待下旬时机更稳。
-用神：开门落震宫（囚），天芮（病星）同宫。
-态势：开门囚为通道不畅；天芮为内部隐患。
-时机：answer 引用下旬甲申日，开门转旺。
-建议：本周内不签约；下旬重新评估。
+谈判窗口偏有利。用神：开门落坎宫（旺）。时机：甲申时最优。建议：下午主动约谈。
 ```

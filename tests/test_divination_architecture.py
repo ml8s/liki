@@ -81,11 +81,16 @@ def test_contract_registry_has_exact_domain_contracts():
         assert (TOOLS / filename).is_file()
 
 
-def test_snapshot_app_cards_replace_chart_cards():
-    assert (ROOT / "skills/liki/references/divination/app/liuyao-snapshot.md").is_file()
-    assert (ROOT / "skills/liki/references/divination/app/qimen-snapshot.md").is_file()
-    assert not (ROOT / "skills/liki/references/divination/app/liuyao-chart.md").exists()
-    assert not (ROOT / "skills/liki/references/divination/app/qimen-chart.md").exists()
+def test_intent_app_cards_use_snapshot_flow():
+    """app 卡按用户目标命名（outcome/decision/date），流程走 snapshot，不再有 chart 卡。"""
+    app = ROOT / "skills/liki/references/divination/app"
+    for name in ("outcome.md", "decision.md", "date.md", "question.md"):
+        assert (app / name).is_file(), name
+    for gone in ("liuyao-chart.md", "qimen-chart.md", "liuyao-snapshot.md", "qimen-snapshot.md"):
+        assert not (app / gone).exists(), gone
+    for name in ("outcome.md", "decision.md"):
+        text = (app / name).read_text(encoding="utf-8")
+        assert "immutable snapshot" in text and "结构化 answer" in text, name
 
 
 def test_primary_entries_use_shared_safety():

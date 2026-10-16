@@ -1,20 +1,23 @@
 # Liki 六爻专家包
 
+> **兼容提示**：生产系统只发布全功能 `liki-experts` 装配镜像（部署配置在仓库根
+> `agents/`）。本目录的 `SKILL.md` 是本专家身份的唯一手写源（内部部署与市场包共用），
+> 同时作为 CodeBuddy 市场包兼容层。
+
 **`liki-liuyao`** — 六爻专家。起卦由 Go 引擎确定性计算，断语来自规则真值表，依据可回溯。
 
 ## 结构
 
 ```text
 liki-liuyao/
+├── SKILL.md                 # 手写：专家身份唯一源（元数据 + 角色正文）
 ├── .codebuddy-plugin/
 │   └── plugin.json          # 专家核心配置与市场展示
 ├── avatars/
 │   └── expert.png           # 头像：512×512 PNG ≤500KB，漫画/插画风格
-├── agents/
-│   └── liuyao-expert.md     # Agent 定义（frontmatter + 系统提示词）
 ├── skills/
 │   └── liuyao/
-│       ├── SKILL.md         # 专家人设 + 方法论入口
+│       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引（ADK skill 入口）
 │       └── references/
 │           └── *.md             # 方法论卡（吉凶/应期/用神/六亲/模式 等 6 卡）
 ├── .mcp.json                # 连接器：engine-mcp（起卦）+ counsel-mcp（判断）

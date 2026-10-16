@@ -7,10 +7,10 @@
     "email": "suiqiang@foxmail.com"
   },
   "agents": [
-    "./agents/qimen-expert.md"
+    "./SKILL.md"
   ],
   "expertType": "agent",
-  "agentName": "qimen-expert",
+  "agentName": "liki-qimen",
   "displayName": {
     "en": "Qi Men Expert",
     "zh": "奇门专家"

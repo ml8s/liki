@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Guard agent and expert-pack descriptions against MCP implementation leakage."""
+"""Guard the expert identity cards and their generated expert-pack surfaces.
+
+身份文件 `expert-packs/liki-<domain>/SKILL.md` 是专家身份的唯一手写源（正文＝部署
+instruction 骨架，也是包内域 SKILL.md 的正文）。包内生成物的字节一致性与
+版本面由 `scripts/sync_expert_packs.py --check`（`make check` 漂移门）与
+`tests/test_version_surfaces.py` 守护；本脚本只守护那些门看不见的东西：手写身份文件的
+契约与边界语义、手写连接器/市场描述的有效性，以及**全部描述面不得硬编码 MCP 方法名**。
+"""
 from __future__ import annotations
 
 import json
@@ -10,11 +17,14 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+import sync_expert_packs as packs  # noqa: E402  身份文件契约的唯一来源
+
 CATALOG_PATH = ROOT / "tools" / "mcp-tool-catalog.json"
-PERSONAS_DIR = ROOT / "agents" / "personas"
 PACKS_DIR = ROOT / "expert-packs"
-RUNTIME_VERSION_PATH = ROOT / "skills" / "liki" / "VERSION.txt"
-DOMAINS = ("bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming")
+ROUTER_IDENTITY = ROOT / "agents" / "router" / "router.md"
+IDENTITY_SECTIONS = ("## 工具自省", "## 硬边界", "## 隐私与合规")
+IDENTITY_PHRASES = ("条件性解读", "仅保留在当前会话")
 
 
 def _frontmatter(path: Path) -> dict:
@@ -48,128 +58,75 @@ def _method_hits(text: str, method_names: set[str]) -> list[str]:
     return hits
 
 
-def _check_persona(path: Path, method_names: set[str], errors: list[str]) -> dict:
-    rel = path.relative_to(ROOT)
-    try:
-        metadata = _frontmatter(path)
-    except Exception as exc:
-        errors.append(str(exc))
+def _check_no_methods(path: Path, method_names: set[str], errors: list[str]) -> None:
+    if not path.is_file():
+        return
+    for hit in _method_hits(path.read_text(encoding="utf-8"), method_names):
+        errors.append(f"{path.relative_to(ROOT)}: hard-coded MCP method name `{hit}`")
+
+
+def _check_sections(path: Path, sections: tuple[str, ...], errors: list[str]) -> str:
+    text = path.read_text(encoding="utf-8") if path.is_file() else ""
+    for section in sections:
+        if section not in text:
+            errors.append(f"{path.relative_to(ROOT)}: missing {section}")
+    return text
+
+
+def _check_identity(domain: str, method_names: set[str], errors: list[str]) -> dict:
+    """身份文件＝专家身份唯一手写源：契约（生成器）+ 边界语义（本脚本）。"""
+    loaded = packs.load_identity(domain)
+    if isinstance(loaded, list):
+        errors.extend(loaded)
         return {}
-    for key in ("name", "description", "displayName", "profession"):
-        if key not in metadata:
-            errors.append(f"{rel}: persona frontmatter missing {key}")
-    text = path.read_text(encoding="utf-8")
-    if "## 工具自省" not in text:
-        errors.append(f"{rel}: missing 工具自省 section")
-    if "## 隐私与合规" not in text:
-        errors.append(f"{rel}: missing 隐私与合规 section")
-    for hit in _method_hits(text, method_names):
-        errors.append(f"{rel}: hard-coded MCP method name `{hit}`")
+    metadata, _body = loaded
+    path = packs.identity_path(domain)
+    text = _check_sections(path, IDENTITY_SECTIONS, errors)
+    for phrase in IDENTITY_PHRASES:
+        if phrase not in text:
+            errors.append(f"{path.relative_to(ROOT)}: missing boundary phrase «{phrase}»")
+    _check_no_methods(path, method_names, errors)
     return metadata
 
 
-def _expected_agent_metadata(name: str) -> dict:
-    return {
-        "name": f"{name}-expert",
-        "skills": [name],
-    }
+def _check_router(method_names: set[str], errors: list[str]) -> None:
+    """router 无专家包，身份文件就在 agents/router（部署 instruction 来源）。"""
+    if not ROUTER_IDENTITY.is_file():
+        errors.append(f"missing router identity: {ROUTER_IDENTITY.relative_to(ROOT)}")
+        return
+    try:
+        metadata = _frontmatter(ROUTER_IDENTITY)
+    except Exception as exc:
+        errors.append(str(exc))
+        return
+    for key in ("name", "description"):
+        if key not in metadata:
+            errors.append(f"{ROUTER_IDENTITY.relative_to(ROOT)}: router frontmatter missing {key}")
+    _check_sections(ROUTER_IDENTITY, ("## 专家路由", "## 隐私与合规"), errors)
+    _check_no_methods(ROUTER_IDENTITY, method_names, errors)
 
 
-def _check_pack(pack: str, method_names: set[str], errors: list[str]) -> None:
+def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
+    """包内全部描述面（生成的 SKILL 入口 + 手写 plugin/.mcp.json）都不得泄漏 MCP 方法名。"""
+    pack = packs.DOMAIN_PACKS[domain]
     pack_dir = PACKS_DIR / pack
-    root_skill = pack_dir / "SKILL.md"
-    nested_skill = pack_dir / "skills" / pack.removeprefix("liki-") / "SKILL.md"
-    agent_copy = pack_dir / "agents" / f"{pack.removeprefix('liki-')}-expert.md"
+    identity_doc = pack_dir / "SKILL.md"
+    nested_skill = pack_dir / "skills" / domain / "SKILL.md"
     plugin = pack_dir / ".codebuddy-plugin" / "plugin.json"
     mcp_manifest = pack_dir / ".mcp.json"
-    rel = lambda path: str(path.relative_to(ROOT))  # noqa: E731
 
-    for path in (root_skill, nested_skill, agent_copy, plugin, mcp_manifest):
+    for path in (identity_doc, nested_skill, plugin, mcp_manifest):
         if not path.is_file():
-            errors.append(f"missing expert-pack file: {rel(path)}")
+            errors.append(f"missing expert-pack file: {path.relative_to(ROOT)}")
+        _check_no_methods(path, method_names, errors)
 
-    runtime_version = RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip()
-    root_metadata: dict = {}
-    nested_metadata: dict = {}
-    persona_path = PERSONAS_DIR / f"{pack.removeprefix('liki-')}.md"
-    persona_metadata: dict = {}
-
-    try:
-        root_metadata = _frontmatter(root_skill)
-    except Exception as exc:
-        errors.append(str(exc))
-    try:
-        nested_metadata = _frontmatter(nested_skill)
-    except Exception as exc:
-        errors.append(str(exc))
-    try:
-        persona_metadata = _frontmatter(persona_path)
-    except Exception as exc:
-        errors.append(str(exc))
-
-    for label, metadata in (("pack root", root_metadata), ("nested", nested_metadata)):
-        version = metadata.get("version")
-        if label == "nested":
-            version = metadata.get("metadata", {}).get("version")
-        if version != runtime_version:
-            errors.append(
-                f"{label} skill version is {version!r}, expected {runtime_version}"
-            )
-
-    root_text = root_skill.read_text(encoding="utf-8") if root_skill.is_file() else ""
-    nested_text = nested_skill.read_text(encoding="utf-8") if nested_skill.is_file() else ""
-    for path, text in ((root_skill, root_text), (nested_skill, nested_text)):
-        for hit in _method_hits(text, method_names):
-            errors.append(f"{rel(path)}: hard-coded MCP method name `{hit}`")
-
-    if root_skill.is_file():
-        for section in ("## 工具自举", "## 定位与边界"):
-            if section not in root_text:
-                errors.append(f"{rel(root_skill)}: missing {section}")
-        if "出生信息仅保留在当前会话" not in root_text:
-            errors.append(f"{rel(root_skill)}: missing privacy/session boundary")
-        if "条件性解读" not in root_text:
-            errors.append(f"{rel(root_skill)}: missing conditional-interpretation boundary")
-
-    expected_prefixes = {
-            "bazi": "八字方法论卡——",
-            "ziwei": "紫微方法论卡——",
-            "liuyao": "六爻方法论卡——",
-            "qimen": "奇门方法论卡——",
-            "fengshui": "风水方法论卡——",
-            "naming": "起名方法论卡——",
-        }
-    if nested_metadata:
-        domain = pack.removeprefix("liki-")
-        if not nested_metadata.get("description", "").startswith(expected_prefixes[domain]):
-            errors.append(f"{rel(nested_skill)}: nested description is not a methodology card")
-
-    plugin_doc = {}
-    try:
-        plugin_doc = json.loads(plugin.read_text(encoding="utf-8"))
-    except Exception as exc:
-        errors.append(f"{rel(plugin)}: invalid JSON: {exc}")
-
-    if plugin_doc.get("version") != runtime_version:
-        errors.append(f"{rel(plugin)}: plugin version must be {runtime_version}")
-    if persona_metadata:
-        for key in ("description", "profession"):
-            if plugin_doc.get(key) != persona_metadata.get(key):
-                errors.append(
-                    f"{rel(plugin)}: plugin {key} does not match persona {key}"
-                )
-
-    for path in (agent_copy, plugin, nested_skill):
-        if path.is_file():
-            for hit in _method_hits(path.read_text(encoding="utf-8"), method_names):
-                errors.append(f"{rel(path)}: hard-coded MCP method name `{hit}`")
-
+    if not mcp_manifest.is_file():
+        return
     try:
         mcp = json.loads(mcp_manifest.read_text(encoding="utf-8"))
     except Exception as exc:
-        errors.append(f"{rel(mcp_manifest)}: invalid JSON: {exc}")
+        errors.append(f"{mcp_manifest.relative_to(ROOT)}: invalid JSON: {exc}")
         return
-
     descriptions: list[str] = []
     for server in mcp.get("mcpServers", {}).values():
         metadata = server.get("x-workbuddy", {}).get("description", {})
@@ -178,25 +135,24 @@ def _check_pack(pack: str, method_names: set[str], errors: list[str]) -> None:
         )
     for text in descriptions:
         for hit in _method_hits(text, method_names):
-            errors.append(f"{rel(mcp_manifest)}: connector description hard-codes `{hit}`")
+            errors.append(f"{mcp_manifest.relative_to(ROOT)}: connector description hard-codes `{hit}`")
 
 
 def main() -> int:
     errors: list[str] = []
     method_names = _method_names()
 
-    for domain in DOMAINS:
-        _check_persona(PERSONAS_DIR / f"{domain}.md", method_names, errors)
-
-    for domain in DOMAINS:
-        _check_pack(f"liki-{domain}", method_names, errors)
+    _check_router(method_names, errors)
+    for domain in packs.DOMAIN_PACKS:
+        _check_identity(domain, method_names, errors)
+        _check_pack(domain, method_names, errors)
 
     if errors:
         for error in errors:
             print(f"✗ {error}", file=sys.stderr)
         return 1
 
-    print("✓ agent / expert-pack descriptions follow the MCP introspection boundary")
+    print("✓ 专家身份文件、expert-pack 描述与连接器契约符合 MCP 自省边界")
     return 0
 
 

@@ -7,10 +7,10 @@
     "email": "suiqiang@foxmail.com"
   },
   "agents": [
-    "./agents/liuyao-expert.md"
+    "./SKILL.md"
   ],
   "expertType": "agent",
-  "agentName": "liuyao-expert",
+  "agentName": "liki-liuyao",
   "displayName": {
     "en": "Liu Yao Expert",
     "zh": "六爻专家"

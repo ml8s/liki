@@ -6,28 +6,23 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 # 健康分析
 
-> 工具报文：只使用 `references/natal/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
->
 ## 依赖的领域知识
 
-[必读] - bazi: references/natal/domains/bazi/wuxing-health.md「五行所属」
+[必读] - bazi: `references/natal/domains/bazi/wuxing-health.md`「五行所属」
+[按需] - bazi: `references/natal/domains/bazi/hehui.md`「冲宫位表」+「冲吉凶表」（论冲害细节时读取）
+[按需] - bazi: `references/natal/domains/bazi/dayun.md`「应期决策表」（应期走疾厄宫闭环）
+[按需] - bazi: `references/natal/domains/bazi/tiaohou.md`「调候用神」（冬夏寒燥失衡时读取）
 
-- bazi: references/natal/domains/bazi/hehui.md「冲宫位表」+「冲吉凶表」（按需——论冲害细节时读取）
-- bazi: references/natal/domains/bazi/dayun.md「应期决策表」（按需——应期走疾厄宫闭环）
-- bazi: references/natal/domains/bazi/tiaohou.md「调候用神」（按需——冬夏寒燥失衡时读取）
-
-[必读] - ziwei: references/natal/domains/ziwei/yingqi.md「健康紫微应期」
-
-> **本卡的 本命判断 / 应期判断 调用仅保留健康域断语。**
+[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「健康紫微应期」
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 脏腑倾向 | 调 `liki-bazi` 专家 本命判断（health）+ `liki-ziwei` 专家 本命判断（health）；读取 `references/natal/domains/bazi/wuxing-health.md` | 过旺 / 过弱五行与易病方向 |
-| 2 | 限运触发 | 调 `liki-bazi` 专家 `十年期应期判断` + `liki-ziwei` 专家 `十年期应期判断`；读取合会冲宫与应期表 | 冲入宫位与触发年份 |
+| 1 | 脏腑倾向 | 发送 八字侧 `本命判断（健康）` + 紫微侧 `本命判断（健康）`；读取 `references/natal/domains/bazi/wuxing-health.md` | 过旺 / 过弱五行与易病方向 |
+| 2 | 限运触发 | 发送 八字侧 `应期判断（十年期）` + 紫微侧 `应期判断（十年期）`；读取合会冲宫与应期表 | 冲入宫位与触发年份 |
 | 3 | 性质与走向 | 读取 `references/natal/domains/bazi/hehui.md` | 事件性质、结果走向、严重程度 |
-| 4 | 具体细节 | 调 `liki-bazi` 专家 `本命判断（健康）` + `liki-ziwei` 专家 `本命判断（心理）`；用户问具体年份、应期或流年时发送 `应期判断` | 疾厄宫、福德宫、四化与流年信号 |
+| 4 | 具体细节 | 发送 八字侧 `本命判断（健康）` + 紫微侧 `本命判断（精神）`；用户问具体年份、应期或流年时发送 八字侧 + 紫微侧 `应期判断` | 疾厄宫、福德宫、四化与流年信号 |
 
 健康输出为倾向和关注方向；重大病灾需不同层证据闭环，并先列较轻替代解释。
 

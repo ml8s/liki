@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -108,3 +109,116 @@ def test_pack_name_maps_rejects_ambiguous_basename(tmp_path, monkeypatch):
     maps, errors = gen._pack_name_maps(groups)
     assert any("歧义" in e for e in errors), errors
     assert maps["liki-x"]["a.md"] == "references/a.md"
+
+def test_identity_file_is_the_only_authored_expert_identity():
+    """专家身份唯一手写源＝包根 SKILL.md；仓库根不再保留 persona 目录。"""
+    assert not (ROOT / "agents" / "personas").exists()
+    assert (ROOT / "agents" / "router" / "router.md").is_file()
+    for domain, pack in gen.DOMAIN_PACKS.items():
+        identity = gen.identity_path(domain)
+        assert identity == gen.PACKS / pack / "SKILL.md", identity
+        assert identity.is_file(), identity
+
+
+def test_pack_has_no_second_identity_copy():
+    """包内只有一处身份文件：不再有 agents/<domain>-expert.md 之类的副本。"""
+    documents, errors = gen.generated_documents()
+    assert not errors, errors
+    for domain, pack in gen.DOMAIN_PACKS.items():
+        pack_dir = gen.PACKS / pack
+        assert not (pack_dir / "agents").exists(), pack_dir / "agents"
+        assert (pack_dir / "SKILL.md").is_file(), pack_dir
+
+
+def test_skill_entry_is_rendered_from_identity_file():
+    """域 SKILL.md 由身份文件渲染：skill 元数据映射 + 同源正文 + 自动卡索引。"""
+    documents, errors = gen.generated_documents()
+    assert not errors, errors
+    expected: set[Path] = set()
+    for domain, pack in gen.DOMAIN_PACKS.items():
+        loaded = gen.load_identity(domain)
+        assert isinstance(loaded, tuple), loaded
+        metadata, body = loaded
+        target = gen.PACKS / pack / "skills" / domain / "SKILL.md"
+        expected.add(target)
+        assert target.read_bytes() == documents[target], target
+        payload = documents[target].decode("utf-8")
+        head, rendered = payload.split("\n---\n\n", 1)
+        assert f"name: {domain}" in head
+        assert f"description: {metadata['description']}" in head
+        assert f"display_name: {metadata['display_name']}" in head
+        assert f"display_name_en: {metadata['display_name_en']}" in head
+        assert body.strip() in rendered, target
+    assert set(documents) == expected, set(documents) ^ expected
+
+
+def test_nested_skill_index_tracks_mirrored_cards():
+    """域 SKILL.md 的方法论索引随镜像自动生成，不得手维护卡名清单。"""
+    documents, errors = gen.generated_documents()
+    assert not errors, errors
+    for domain, pack in gen.DOMAIN_PACKS.items():
+        target = gen.PACKS / pack / "skills" / domain / "SKILL.md"
+        assert target.read_bytes() == documents[target], target
+        payload = documents[target].decode("utf-8")
+        _, rendered = payload.split("\n---\n\n", 1)
+        indexed = {
+            line.split("`")[1]
+            for line in rendered.splitlines()
+            if line.startswith("- `references/")
+        }
+        cards = {
+            card.relative_to(target.parent).as_posix()
+            for card in (target.parent / "references").rglob("*.md")
+            if card.name != "SKILL.md"
+        }
+        assert indexed == cards, (domain, sorted(cards - indexed), sorted(indexed - cards))
+
+
+def test_plugin_metadata_is_identity_derived():
+    updates, errors = gen.plugin_metadata_updates()
+    assert not errors, errors
+    assert len(updates) == len(gen.DOMAIN_PACKS)
+    version = (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
+    for path, doc, expected in updates:
+        assert expected["version"] == version, path
+        for key, value in expected.items():
+            assert doc.get(key) == value, (path, key)
+
+
+def test_version_bump_keeps_generated_pack_entries_in_sync(tmp_path, monkeypatch):
+    """bump_version 直接改写包内生成物：改写后的字节必须仍等于生成器输出。
+
+    否则每次发版 bump 都会立刻让 `sync_expert_packs.py --check` 报漂移。
+    """
+    fake_version = "2999.01.01.0"
+    version_file = tmp_path / "VERSION.txt"
+    version_file.write_text(fake_version + "\n", encoding="utf-8")
+    monkeypatch.setattr(gen, "RUNTIME_VERSION_PATH", version_file)
+    documents, errors = gen.generated_documents()
+    assert not errors, errors
+
+    import bump_version  # noqa: E402  （scripts/ 已在文件头插入 sys.path）
+
+    versioned = {path: payload for path, payload in documents.items() if path.name == "SKILL.md"}
+    assert len(versioned) == len(gen.DOMAIN_PACKS)
+    for index, (target, payload) in enumerate(sorted(versioned.items())):
+        copy = tmp_path / str(index) / target.name
+        copy.parent.mkdir(parents=True, exist_ok=True)
+        copy.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+        bump_version.replace_frontmatter_version(copy, fake_version)
+        assert copy.read_text(encoding="utf-8") == payload.decode("utf-8"), target
+
+def test_plugin_agent_pointer_resolves_to_identity_file():
+    """plugin.json 的 agents/agentName 指向身份文件本身，包内不再有单独 agent 定义。"""
+    for domain, pack in gen.DOMAIN_PACKS.items():
+        plugin = json.loads(
+            (gen.PACKS / pack / ".codebuddy-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        assert plugin["agents"] == ["./SKILL.md"], pack
+        assert plugin["agentName"] == pack, pack
+        identity = gen.PACKS / pack / "SKILL.md"
+        assert identity.is_file(), identity
+        for declared in plugin["agents"]:
+            assert (gen.PACKS / pack / declared.removeprefix("./")).is_file(), pack
+        metadata, _body = gen.load_identity(domain)
+        assert metadata["name"] == plugin["agentName"], pack

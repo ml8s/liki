@@ -6,22 +6,17 @@ description: 合盘分析 — 感情匹配、婚姻合婚、关系评估
 
 # 合盘分析
 
-> 工具报文：只使用 `references/natal/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
->
 ## 依赖的领域知识
 
-[必读] - bazi: references/natal/domains/bazi/hepan.md「双人盘事实合参」
-[必读] - bazi: references/natal/domains/bazi/shishen.md「十神组合」
-[必读] - 合盘由 engine 提供：八字合盘能力与紫微合盘能力，一次各返回对应体系的原始对照；counsel 无独立合盘工具。
-
-> **本卡的 本命判断 / 应期判断 调用仅保留婚姻域断语。**
+[必读] - bazi: `references/natal/domains/bazi/hepan.md`「双人盘事实合参」
+[必读] - bazi: `references/natal/domains/bazi/shishen.md`「十神组合」
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 双方出生信息 | 分别 排盘 | 双方盘引用 |
-| 2 | 原始对照 | `合盘(盘引用_a, 盘引用_b)` | 双方日主、夫妻宫、配偶星、干支关系与紫微宫位事实 |
+| 1 | 双方出生信息 | 分别排盘 | 双方命盘 |
+| 2 | 原始对照 | 调 engine 合盘（八字合盘 + 紫微合盘，双方命盘原样传入） | 双方日主、夫妻宫、配偶星、干支关系与紫微宫位事实 |
 | 3 | 证据整理 | 读取 `references/natal/domains/bazi/hepan.md` | 优势证据、摩擦证据、证据缺口 |
 | 4 | 输出 | 按模板列共同点、差异与相处建议 | 参考结论 + 依据链 |
 

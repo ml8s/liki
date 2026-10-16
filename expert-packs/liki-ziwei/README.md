@@ -1,8 +1,8 @@
 # Liki 紫微专家包
 
-> **兼容提示**：生产系统的唯一 AgentDeployment source of truth 是仓库根目录
-> `agents/`，运行时只发布全功能 `liki-experts` 装配镜像。本目录仅保留给
-> CodeBuddy 旧市场包兼容，不再作为生产专家定义或发布分身。
+> **兼容提示**：生产系统只发布全功能 `liki-experts` 装配镜像（部署配置在仓库根
+> `agents/`）。本目录的 `SKILL.md` 是本专家身份的唯一手写源（内部部署与市场包共用），
+> 同时作为 CodeBuddy 市场包兼容层。
 
 **`liki-ziwei`** — 紫微专家。排盘由 Go 天文历算引擎确定性计算，断语来自规则真值表，依据可回溯。
 
@@ -10,15 +10,14 @@
 
 ```text
 liki-ziwei/
+├── SKILL.md                 # 手写：专家身份唯一源（元数据 + 角色正文）
 ├── .codebuddy-plugin/
 │   └── plugin.json          # 专家核心配置与市场展示
 ├── avatars/
 │   └── expert.png           # 头像：512×512 PNG ≤500KB，漫画/插画风格
-├── agents/
-│   └── ziwei-expert.md      # Agent 定义（frontmatter + 系统提示词）
 ├── skills/
 │   └── ziwei/
-│       ├── SKILL.md         # 专家人设 + 方法论入口
+│       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引（ADK skill 入口）
 │       └── references/
 │           └── *.md             # 方法论卡（星曜/格局/十二宫/性格/应期/流年等 8 卡）
 ├── .mcp.json                # 连接器：engine-aux + engine-ziwei（排盘）+ counsel-ziwei（判断）

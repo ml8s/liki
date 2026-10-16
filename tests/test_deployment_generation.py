@@ -115,6 +115,23 @@ class TestDeploymentGeneration(unittest.TestCase):
                 exposed[server].update(allowed)
         self.assertEqual(exposed, {server: set(tools) for server, tools in catalog_tools.items()})
 
+    def test_expert_instructions_come_from_pack_identity_files(self):
+        """域专家 instruction＝包根 SKILL.md 正文（唯一手写源）；router 取 agents/router。"""
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import generate_deployment as gen  # noqa: E402
+
+        self._generate("experts")
+        for domain in ("bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"):
+            identity = ROOT / "expert-packs" / f"liki-{domain}" / "SKILL.md"
+            self.assertEqual(gen.identity_path(domain), identity)
+            body = identity.read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
+            instruction = (
+                self.out / "experts" / "agents" / domain / "instruction.md"
+            ).read_text(encoding="utf-8")
+            self.assertEqual(instruction, body, domain)
+            self.assertNotIn("references/", instruction, domain)
+        self.assertEqual(gen.identity_path("router"), ROOT / "agents" / "router" / "router.md")
+
     def test_expert_profile_is_the_only_release_profile(self):
         self.assertEqual(
             sorted(path.stem for path in (ROOT / "profiles").glob("*.json")),

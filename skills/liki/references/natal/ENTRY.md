@@ -1,35 +1,22 @@
-# Natal 领域入口（编排层）
+# Liki 本命八字紫微 — 八字命盘 / 紫微斗数 / 合参合盘 / 考时
 
-Liki 本命域：**八字、紫微判断由对应专家执行**，本域负责编排（跨领域：考时/合参/合盘、综合命书）与路由。
+Liki 本命域：**八字侧与紫微侧都在本域内自举**——各自排盘、取因子、出断语，再由本域完成合参、合盘、考时与综合命书编排。
 
-统一分发包内置两套专家方法论卡；未安装可选 WorkBuddy 专家插件时，agent 直接使用 `engine-mcp` 与 `counsel-mcp` 两个聚合端点完成同一条工具链（八字/紫微由聚合判断层按盘面形态路由）。
+## 工具契约
+
+agent 经 `engine` MCP（排盘）与 `counsel` MCP（判断）使用两侧工具；工具、链路与输出契约见 `references/natal/TOOLS.md`。
 
 ## 路由
 
-| 用户场景 | 交给 | 说明 |
-| --- | --- | --- |
-| 八字看命/流年/合盘/考时 | **liki-bazi**（八字专家）| 排盘 + 本命/应期判断 + 合盘 + 考时 |
-| 紫微看命/流年/合盘/考时 | **liki-ziwei**（紫微专家）| 历法换算 + 排盘 + 本命/应期判断 + 合盘 + 考时 |
-| 考时（时辰存疑）| 八字+紫微专家 | 参考两侧（调 liki-bazi + liki-ziwei）|
-| 合参/双盘综合 | 八字+紫微专家 | 两侧断语同向综合（不臆造）|
-| 综合命书 | app/mingshu.md | 综合编排（引用专家方法论）|
+执行侧按用户点名的体系选择：点名八字只跑八字侧，点名紫微只跑紫微侧，未点名时两侧都跑并合参（同向时综合，冲突时并列两侧证据）。
 
-## 跨领域编排
-
-- **考时（编码）**：由 agent 按各专家 `calibration.md` 用应期判断编排（候选排盘 → 流年断语 → 事件对比），不新增工具；两侧吻合度对比，有真实事件时用 3-5 段已发生时段验证。
-- **合参**：八字专家出八字侧断语、紫微专家出紫微侧断语；同向时综合（互证，非臆造），冲突时并列呈现两侧证据。
-- **合盘（双人）**：双方分别由八字专家/紫微专家做合盘。
-
-## App 卡（综合编排，保留）
-
-| App 卡 | 场景 |
+| 用户场景 | 入口卡 |
 | --- | --- |
-| `app/mingshu.md` / `mingshu-full.md` | 综合命书（跨八字紫微，引用专家方法论）|
-| `app/marriage.md` / `wealth.md` / `career.md` / `study.md` / `health.md` / `family.md` / `personality.md` | 各领域综合（引用 `references/natal/domains/bazi/*` 与 `references/natal/domains/ziwei/*` 方法论）|
-| `app/compatibility.md` | 双人合参 |
+| 主题分析（婚姻、事业、财运、健康、学业、性格、六亲、流年）| `references/natal/app/README.md` 中的对应主题卡 |
+| 快速扫描 / 综合命书 | `references/natal/app/mingshu.md`、`references/natal/app/mingshu-full.md` |
+| 合盘（双人）| `references/natal/app/compatibility.md` |
+| 考时（时辰存疑）| 八字侧 `references/natal/domains/bazi/calibration.md` 编排，紫微侧 `references/natal/domains/ziwei/calibration.md` 交叉验证 |
 
-## 边界
+## 硬边界
 
-- 八字/紫微的**实际判断**由专家执行（排盘 + 判断 + 合盘 + 考时），本域只编排路由，不直接调用。
-- 断语以专家工具输出为准（规则真值表），方法论卡用于理解依据；不自行编造。
-- 命理是传统文化视角的条件性解读，不构成医疗、法律或投资建议。
+- 断语以工具输出为准（规则真值表）；方法论卡只用于解释依据，不自行编造。

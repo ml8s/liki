@@ -2,13 +2,14 @@
 
 覆盖：
 1. liki 综合：根 SKILL.md + 四域（references/natal/references/divination/references/fengshui/naming）+ 共享运行时文件
-2. 专家包（liki-bazi/liki-ziwei）：WorkBuddy 标准（plugin.json/agents/skills/.mcp.json/avatars/README）
+2. 专家包（六个域）：WorkBuddy 标准（SKILL.md 身份源 / plugin.json / skills / .mcp.json / avatars / README）
 3. MCP 连接器命名（engine/counsel 与专家端点）
 """
 import json
 import re
 from pathlib import Path
 
+import yaml
 from _helpers import ROOT, SKILL_ROOT
 
 DOMAINS = ("natal", "divination", "fengshui", "naming")
@@ -56,13 +57,40 @@ def test_root_entry_is_a_lightweight_router():
     assert "## 统一硬边界" in lines
 
 
-def test_natal_is_orchestration_layer_routing_to_experts():
+def test_natal_is_self_contained_orchestration_layer():
+    """natal 自举八字侧/紫微侧：域内路由只按侧编排。"""
     entry = (SKILL_ROOT / "references" / "natal" / "ENTRY.md").read_text(encoding="utf-8")
-    assert "liki-bazi" in entry and "liki-ziwei" in entry
+    assert "八字侧" in entry and "紫微侧" in entry
     assert "编排" in entry
+    assert "专家" not in entry
+    tools = (SKILL_ROOT / "references" / "natal" / "TOOLS.md").read_text(encoding="utf-8")
+    assert "## 输出契约（断语公共字段）" in tools
+    # 域内路由只由 ENTRY.md 定义一次（TOOLS.md 不重复编排表）
+    assert "## 路由" in entry and "合盘（双人）" not in tools
     # 根 liki 是方法论权威源：references/natal/domains/ 含 bazi/ziwei 方法论卡
     assert (SKILL_ROOT / "references" / "natal" / "domains" / "bazi").is_dir()
     assert (SKILL_ROOT / "references" / "natal" / "domains" / "ziwei").is_dir()
+
+
+def test_natal_tools_declares_assertion_output_contract():
+    """natal 断语公共字段、side 取值与受控闭集是硬契约，不得回退。"""
+    tools = (SKILL_ROOT / "references" / "natal" / "TOOLS.md").read_text(encoding="utf-8")
+    for field in (
+        "assertion_id", "side", "topic", "method", "time_scope",
+        "event_type", "event", "conclusion", "source", "evidence",
+    ):
+        assert f"`{field}`" in tools, field
+    assert "`side` 是 `bazi` / `ziwei`" in tools
+    for value in ("career", "marriage", "study", "wealth", "chart_structure", "relocation"):
+        assert f"`{value}`" in tools, value
+    for scope in ("current_year", "year_range", "current_decade", "decade"):
+        assert f"`{scope}`" in tools, scope
+    # topic 键＝标签与服务器路由表单一源一致（卡内 `本命判断（事业）` 靠它对上 topic）
+    routes = json.loads(
+        (ROOT / "counsel" / "app" / "natal" / "tools" / "topic_routes.json").read_text(encoding="utf-8")
+    )
+    for key, spec in routes["topics"].items():
+        assert f"`{key}`＝{spec['label']}" in tools, (key, spec["label"])
 
 
 def test_naming_does_not_silently_default_missing_hour():
@@ -74,17 +102,75 @@ def test_naming_does_not_silently_default_missing_hour():
     assert "不排八字" in app
 
 
+def test_natal_card_qualifiers_are_topic_labels():
+    """卡内 `本命判断（X）` / `应期判断（X）` 的 X 必须是受控 topic 标签或十年期层。"""
+    routes = json.loads(
+        (ROOT / "counsel" / "app" / "natal" / "tools" / "topic_routes.json").read_text(encoding="utf-8")
+    )
+    labels = {spec["label"] for spec in routes["topics"].values()} | {"十年期"}
+    qualifier = re.compile(r"`(?:本命判断|应期判断)（([^）]+)）`")
+    offenders = []
+    for card in sorted((SKILL_ROOT / "references" / "natal" / "app").glob("*.md")):
+        for token in qualifier.findall(card.read_text(encoding="utf-8")):
+            if token not in labels:
+                offenders.append(f"{card.name}: {token}")
+    assert offenders == []
+
+
+def test_natal_card_actions_name_the_side():
+    """卡内动作的每个能力调用都要显式带侧（counsel side 默认 bazi，省略即静默降级）。"""
+    capability = re.compile(r"`(?:本命判断|应期判断)")
+    offenders = []
+    for card in sorted((SKILL_ROOT / "references" / "natal" / "app").glob("*.md")):
+        for number, line in enumerate(card.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.startswith("|") or line.startswith("| ---"):
+                continue
+            for cell in line.split("|")[1:-1]:
+                for clause in cell.split("；"):
+                    if capability.search(clause) and "八字侧" not in clause and "紫微侧" not in clause:
+                        offenders.append(f"{card.name}:{number}")
+    assert offenders == []
+
+
+def test_skill_docs_use_mcp_result_shape():
+    """MCP 结果形态：成功读工具内容 JSON、失败读 isError；不得回退到已退役的 data/error 信封。"""
+    offenders = []
+    for path in sorted((SKILL_ROOT / "references").rglob("*.md")):
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if "响应的 `data`" in line or "成功读 `data`" in line or "失败读 `error`" in line:
+                offenders.append(f"{path.relative_to(SKILL_ROOT)}:{number}")
+    assert offenders == []
+
+
 def test_root_mcp_uses_counsel_and_engine():
     text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
     assert "counsel" in text
     assert "engine" in text
-    assert "liki-bazi" in text and "liki-ziwei" in text
+    # 路由按领域（natal/divination/naming/fengshui），不按专家包 id
+    for domain in DOMAINS:
+        assert domain in text
+    assert "liki-bazi" not in text and "liki-ziwei" not in text
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert any("counsel" in name for name in mcp["mcpServers"])
     # engine 域连接器在专家包（liki-bazi / liki-ziwei）
     for pack in ("liki-bazi", "liki-ziwei"):
         expert_mcp = json.loads((ROOT / "expert-packs" / pack / ".mcp.json").read_text(encoding="utf-8"))
         assert any("engine" in name for name in expert_mcp["mcpServers"])
+
+
+def test_root_skill_references_no_expert_pack_ids():
+    """自包含契约：根 skill 文本不得引用专家包 id（路由只按领域 + 侧）。"""
+    pack_id = re.compile(r"liki-(?:bazi|ziwei|liuyao|qimen|fengshui|naming)")
+    offenders = []
+    for path in sorted(SKILL_ROOT.rglob("*")):
+        if not path.is_file() or "__pycache__" in path.parts:
+            continue
+        if path.suffix not in {".py", ".md", ".json", ".yaml", ".yml", ".txt"}:
+            continue
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if pack_id.search(line):
+                offenders.append(f"{path.relative_to(SKILL_ROOT)}:{number}")
+    assert offenders == []
 
 
 def test_root_mcp_declares_manual_install_surface():
@@ -133,8 +219,10 @@ def test_expert_packs_follow_workbuddy_standard():
                   "avatar", "categoryId", "defaultInitPrompt", "plugin", "tags", "quickPrompts"]:
             assert f in d, (pack, f)
         assert d["expertType"] == "agent", pack
-        agent_name = d["agentName"]
-        assert (root / "agents" / f"{agent_name}.md").is_file(), pack
+        assert not (root / "agents").exists(), f"{pack}: 身份唯一源是包根 SKILL.md"
+        assert d["agentName"] == d["name"], pack
+        for declared in d["agents"]:
+            assert (root / declared.removeprefix("./")).is_file(), (pack, declared)
         assert d["plugin"] == d["name"], pack
         assert len(d["tags"]) == 3 and len(d["quickPrompts"]) == 3, pack
         assert d["quickPrompts"][0]["zh"] == d["defaultInitPrompt"]["zh"], pack
@@ -143,10 +231,12 @@ def test_expert_packs_follow_workbuddy_standard():
         # 连接器依赖
         deps = d.get("dependencies", {})
         assert deps.get("connectors"), (pack, deps)
-        # agent frontmatter
-        head = (root / "agents" / f"{agent_name}.md").read_text(encoding="utf-8")[:400]
-        for f in ["name:", "description:", "displayName:", "profession:"]:
-            assert f in head, (pack, agent_name, f)
+        # 身份文件 frontmatter（内部部署与市场包共用同一份）
+        identity_text = (root / "SKILL.md").read_text(encoding="utf-8")
+        identity_meta = yaml.safe_load(identity_text.split("---\n", 2)[1])
+        for f in ["name", "description", "description_en", "display_name",
+                  "display_name_en", "profession", "max_turns", "keywords", "skills"]:
+            assert f in identity_meta, (pack, f)
         # .mcp.json 连专家端点（正交化：排盘 engine + 判断 counsel 分离）
         mcp = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))
         assert len(mcp["mcpServers"]) >= 1, pack
@@ -210,3 +300,63 @@ def test_root_skill_routes_close_with_archive_sources():
     assert referenced == set(route_to_domain), (
         f"root 引用域与根方法论域清单不一致: {referenced}"
     )
+
+
+CARD_TOKEN = re.compile(r"`([A-Za-z0-9_./-]+\.md)`")
+
+
+def _resolve_card_token(skill_root: Path, doc: Path, token: str) -> Path | None:
+    """把卡内 `.md` 引用解析成根 skill 内的唯一文件；解析不出或多义返回 None。
+
+    规范形态：完整 `references/...` 路径；或相对本卡目录 / 本领域根的唯一短名。
+    """
+    if token.startswith("references/"):
+        candidate = skill_root / token
+        return candidate if candidate.is_file() else None
+    if token == "SKILL.md":
+        return skill_root / "SKILL.md"
+    try:
+        domain_root = skill_root / doc.relative_to(skill_root).parts[0] / doc.relative_to(skill_root).parts[1]
+    except IndexError:  # pragma: no cover - 防御
+        return None
+    candidates = [doc.parent / token, domain_root / token]
+    hits = sorted({c.resolve() for c in candidates if c.is_file()})
+    return hits[0] if len(hits) == 1 else None
+
+
+def test_domain_app_cards_are_reachable_from_entry():
+    """每个领域 ENTRY 都能到达该域全部 app 卡（无孤儿卡、无重复路由表）。"""
+    for domain in DOMAINS:
+        domain_dir = SKILL_ROOT / "references" / domain
+        cards = sorted((domain_dir / "app").glob("*.md"))
+        assert cards, domain
+        entry = domain_dir / "ENTRY.md"
+        seeds = [entry] + [c for c in cards if c.name == "README.md"]
+        seen: set[Path] = set()
+        queue = list(seeds)
+        while queue:
+            doc = queue.pop()
+            if doc in seen:
+                continue
+            seen.add(doc)
+            for token in CARD_TOKEN.findall(doc.read_text(encoding="utf-8")):
+                target = _resolve_card_token(SKILL_ROOT, doc, token)
+                if target is not None and target not in seen:
+                    queue.append(target)
+        orphans = [c.relative_to(SKILL_ROOT) for c in cards if c not in seen]
+        assert orphans == [], f"{domain}: app 卡未被 ENTRY 路由（孤儿）: {orphans}"
+
+
+def test_card_references_are_unambiguous_paths():
+    """卡内 `.md` 引用必须能唯一解析：完整 `references/` 路径，或本目录 / 本域唯一短名。"""
+    offenders = []
+    docs = [SKILL_ROOT / "SKILL.md", SKILL_ROOT / "references" / "FAQ.md"]
+    for domain in DOMAINS:
+        docs += [SKILL_ROOT / "references" / domain / "ENTRY.md"]
+        docs += sorted((SKILL_ROOT / "references" / domain).rglob("*.md"))
+    for doc in docs:
+        for number, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
+            for token in CARD_TOKEN.findall(line):
+                if _resolve_card_token(SKILL_ROOT, doc, token) is None:
+                    offenders.append(f"{doc.relative_to(SKILL_ROOT)}:{number}: {token}")
+    assert offenders == [], offenders

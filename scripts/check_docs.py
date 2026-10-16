@@ -61,6 +61,7 @@ def main() -> int:
     if os.path.exists(faq):
         docs.append(faq)
     docs += [os.path.join(REFS, domain, "ENTRY.md") for domain in DOMAINS]
+    docs += sorted(glob.glob(os.path.join(REFS, "*", "TOOLS.md")))
     docs += sorted(glob.glob(os.path.join(REFS, "*", "app", "*.md")))
     docs += sorted(glob.glob(os.path.join(REFS, "*", "domains", "**", "*.md"), recursive=True))
     docs = [doc for doc in docs if os.path.exists(doc)]

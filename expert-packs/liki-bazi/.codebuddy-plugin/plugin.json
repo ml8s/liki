@@ -7,10 +7,10 @@
     "email": "suiqiang@foxmail.com"
   },
   "agents": [
-    "./agents/bazi-expert.md"
+    "./SKILL.md"
   ],
   "expertType": "agent",
-  "agentName": "bazi-expert",
+  "agentName": "liki-bazi",
   "displayName": {
     "en": "BaZi Expert",
     "zh": "八字专家"

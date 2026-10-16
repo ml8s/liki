@@ -1,7 +1,10 @@
 """AgentDeployment 工件生成器。
 
-读 agents/ 发布结构 + profiles/ 定义，组装 liki-agent-runtime 直接消费的
-deployment 工件（deployment.json + instruction + output schema）。
+读专家身份文件 + agents/ 发布结构 + profiles/ 定义，组装 liki-agent-runtime 直接
+消费的 deployment 工件（deployment.json + instruction + output schema）。
+
+身份单一源：域专家 = `expert-packs/liki-<name>/SKILL.md`（包内 skill 入口与插件
+agent 入口都由它生成），router = `agents/router/router.md`（无专家包）。
 
 用法:
     python3 scripts/generate_deployment.py --profile experts --out dist/agents
@@ -28,23 +31,31 @@ import yaml
 
 _ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = _ROOT / "agents"
-PERSONAS_DIR = _ROOT / "agents" / "personas"
+PACKS_DIR = _ROOT / "expert-packs"
 PROFILES_DIR = _ROOT / "profiles"
+EXPERT_DOMAINS = ("bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming")
 TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 
 
-def load_persona(name: str) -> tuple[dict, str]:
-    """persona 单一源 → (frontmatter dict, 部署 instruction 正文)。"""
-    path = PERSONAS_DIR / f"{name}.md"
+def identity_path(name: str) -> Path:
+    """身份文件：域专家＝包根 SKILL.md，router＝agents/router/router.md。"""
+    if name in EXPERT_DOMAINS:
+        return PACKS_DIR / f"liki-{name}" / "SKILL.md"
+    return AGENTS_DIR / "router" / "router.md"
+
+
+def load_identity(name: str) -> tuple[dict, str]:
+    """身份文件单一源 → (frontmatter dict, 部署 instruction 正文)。"""
+    path = identity_path(name)
     if not path.is_file():
-        sys.exit(f"persona not found: {name} ({path})")
+        sys.exit(f"identity source not found: {name} ({path})")
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---\n"):
-        sys.exit(f"persona missing frontmatter start: {path.relative_to(_ROOT)}")
+        sys.exit(f"identity source missing frontmatter start: {path.relative_to(_ROOT)}")
     end = text.find("\n---\n")
     if end < 0:
-        sys.exit(f"persona missing frontmatter end: {path.relative_to(_ROOT)}")
+        sys.exit(f"identity source missing frontmatter end: {path.relative_to(_ROOT)}")
     frontmatter = yaml.safe_load(text[4:end])
     body = text[end + len("\n---\n"):]
     if body.startswith("\n"):
@@ -139,7 +150,7 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
         sys.exit(f"agent definition name mismatch: profile={name} yaml={definition.get('name')}")
     agent_dir = AGENTS_DIR / name
 
-    persona, instruction_text = load_persona(name)
+    identity, instruction_text = load_identity(name)
     instruction_path = out_dir / "agents" / name / "instruction.md"
     instruction_path.parent.mkdir(parents=True, exist_ok=True)
     instruction_path.write_text(instruction_text, encoding="utf-8")
@@ -147,7 +158,8 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
     agent = {
         "name": definition["name"],
         "version": version,
-        "description": persona.get("description") or definition["name"],
+        # 部署 agent 描述用英文面（plugin.json.description 同源）；缺省回落中文描述
+        "description": identity.get("description_en") or identity.get("description") or definition["name"],
         "mode": definition.get("mode", "chat"),
         "sub_agents": definition.get("sub_agents", []),
         "instruction": {"path": f"agents/{name}/instruction.md"},

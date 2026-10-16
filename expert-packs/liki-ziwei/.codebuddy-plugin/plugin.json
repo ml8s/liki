@@ -7,10 +7,10 @@
     "email": "suiqiang@foxmail.com"
   },
   "agents": [
-    "./agents/ziwei-expert.md"
+    "./SKILL.md"
   ],
   "expertType": "agent",
-  "agentName": "ziwei-expert",
+  "agentName": "liki-ziwei",
   "displayName": {
     "en": "Zi Wei Expert",
     "zh": "紫微专家"

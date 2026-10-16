@@ -7,10 +7,10 @@
     "email": "suiqiang@foxmail.com"
   },
   "agents": [
-    "./agents/naming-expert.md"
+    "./SKILL.md"
   ],
   "expertType": "agent",
-  "agentName": "naming-expert",
+  "agentName": "liki-naming",
   "displayName": {
     "en": "Naming Expert",
     "zh": "起名专家"

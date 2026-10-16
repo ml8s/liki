@@ -41,6 +41,8 @@
 ### 语言和服务边界
 
 - 根 `skills/liki/SKILL.md` 只做产品路由；每个领域用 `ENTRY.md` 进入。SKILL.md 以中文为主，术语保持原文。
+- 领域 `ENTRY.md` 只做域内路由、工具契约与硬边界；`app` 卡按用户目标命名（`outcome.md`、`marriage.md`…）并承载流程、交互闸口与输出模板，方法论卡按体系命名（`bazi/`、`ziwei/`、`liuyao/`…）；一份信息只在一处定义（`tests/test_unified_skill_structure.py` 钉住路由可达与引用形态）。
+- 专家身份的唯一手写源是包根 `expert-packs/liki-<domain>/SKILL.md`（元数据 + 角色正文，内部部署与市场包共用；`plugin.json` 的 `agents`/`agentName` 指向它本身）；域 `skills/<domain>/SKILL.md`（含方法论卡索引）与 `plugin.json` 元数据由 `scripts/sync_expert_packs.py` 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本；无专家包的 router 身份文件是 `agents/router/router.md`。
 - `engine-mcp` 只做确定性排盘/历法/风水计算；`counsel-mcp` 只做因子、断语、起名和问卦判断。
 - 公开 `/engine` 与 `/counsel` 前缀由网关负责；两个服务内部只实现 `/mcp` 与 `/mcp/{domain}`。
 - 不恢复旧 Python CLI 或 JSON-RPC 发现/调用路径；历史评测资产已归档，迁移前不得进入 gate。
@@ -67,6 +69,9 @@
 | 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
 | 版本面 `skills/liki/VERSION.txt`、`engine/cmd/engine-mcp/VERSION`、`counsel/app/VERSION.txt` | 三个工件可独立分发，各自需要运行时版本面；同步由 `tests/test_version_surfaces.py` 钉住。 |
 | 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |
+| 镜像卡之间逐卡重复的边界 / 参数句（如 `divination/domains/qimen/*` 专占卡的公共排盘步、`naming/app/*` 卡的公共 `[必读]` 声明） | 每张卡随专家包独立分发，必须在包内自包含；合并会引入跨包引用或包内死链。 |
+| `skills/liki/references/natal/domains/{bazi,ziwei}/calibration.md` 的考时六步 | 两张卡会被 `sync_expert_packs.py` 分别镜像进单侧专家包，包内只有一侧，卡片必须自包含；差异仅“公历 → 农历”与年号界两处，合并即产生跨侧死链。 |
+| 包根 `SKILL.md` 与 `skills/*/SKILL.md` 正文同源 | 包根 `SKILL.md` 是唯一手写身份源，域 `SKILL.md` 由生成器按 ADK skill 格式渲染（另加自动方法论卡索引）；同源保证市场入口、ADK skill 与部署 instruction 三面不漂移（`make check` 漂移门）。 |
 | 单文件目录 `tools/` | 目录里只有生成物 `mcp-tool-catalog.json`：保持 `scripts/check_mcp_schema.py --emit` 生成、`make check` 漂移检测，而不是合并目录或手改。 |
 
 ## 设计原则（为什么这样设计）

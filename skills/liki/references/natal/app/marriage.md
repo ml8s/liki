@@ -6,29 +6,24 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 
 # 婚姻分析
 
-> 工具报文：只使用 `references/natal/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
->
 ## 依赖的领域知识
 
-[必读] - bazi: references/natal/domains/bazi/shishen.md「女命婚姻——官杀混杂判断」
+[必读] - bazi: `references/natal/domains/bazi/shishen.md`「女命婚姻——官杀混杂判断」
+[必读] - bazi: `references/natal/domains/bazi/dayun.md`「应期决策表」
+[按需] - bazi: `references/natal/domains/bazi/gongwei.md`「宫位论」（论宫位细节时读取）
+[按需] - bazi: `references/natal/domains/bazi/family.md`「六亲——配偶」（官杀线已覆盖配偶星主线）
 
-- bazi: references/natal/domains/bazi/gongwei.md「宫位论」（按需——论宫位细节时读取）
-[必读] - bazi: references/natal/domains/bazi/dayun.md「应期决策表」
-- bazi: references/natal/domains/bazi/family.md「六亲——配偶」（按需——官杀线已覆盖配偶星主线）
-
-[必读] - ziwei: references/natal/domains/ziwei/yingqi.md「婚姻紫微应期」
-
-> **本卡的 本命判断 / 应期判断 调用仅保留婚姻域断语。**
+[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「婚姻紫微应期」
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
 | 1 | 配偶星 | 男看财星、女看官杀；读取 `references/natal/domains/bazi/shishen.md` | 星名、清浊、取清状态 |
-| 2 | 夫妻宫 | 发送 `TOOLS.md 本命判断`；读取 `references/natal/domains/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
-| 3 | 婚姻状态 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 `十年期应期判断` | 已婚 / 单身 / 离异 / 婚缘迟 |
-| 4 | 应期 | 读取 `references/natal/domains/bazi/dayun.md`；发送 `TOOLS.md 应期判断` | 首选年、备选年、引动层 |
-| 5 | 具体细节 | 发送 `TOOLS.md 应期判断` | 紫微夫妻宫、四化、桃花信号 |
+| 2 | 夫妻宫 | 发送 八字侧 + 紫微侧 `本命判断`；读取 `references/natal/domains/bazi/gongwei.md` | 日支冲刑合害与化用 / 化忌 |
+| 3 | 婚姻状态 | 发送 八字侧 `本命判断` + 紫微侧 `应期判断（十年期）` | 已婚 / 单身 / 离异 / 婚缘迟 |
+| 4 | 应期 | 读取 `references/natal/domains/bazi/dayun.md`；发送 八字侧 + 紫微侧 `应期判断` | 首选年、备选年、引动层 |
+| 5 | 具体细节 | 发送 八字侧 + 紫微侧 `应期判断` | 紫微夫妻宫、四化、桃花信号 |
 
 ## 边界条件
 
@@ -38,7 +33,7 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 | 男命问感情但原局无财星 | 食伤为财源，查食伤状态（食伤生财为隐性妻星） |
 | 女命问婚姻但原局无官杀 | 查财星（财生官杀为隐性夫星），或大运引动 |
 | 已离婚问再婚 | 查七杀是否清透，大运有无正官/正财出现 |
-| 用户只提供了一个人的八字但想看合盘 | 提示需要双方出生信息，引导到 references/natal/app/compatibility.md |
+| 用户只提供了一个人的八字但想看合盘 | 提示需要双方出生信息，引导到 `references/natal/app/compatibility.md` |
 
 ## 输出模板
 

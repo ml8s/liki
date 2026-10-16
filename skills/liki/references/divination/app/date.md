@@ -6,22 +6,15 @@ description: 问哪天适合做事 — 默认黄历择日
 
 # 问日期
 
-> 工具报文：只使用 `references/divination/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
->
-## 路由规则
-
-- 用户核心目标是选择日期，而非判断事件成败。
-- 默认进入黄历；不自动加排六爻或奇门。
-- 高风险事项正常执行黄历择日；输出附现实边界提示。
+> 场景：用户核心目标是选择日期，而非判断事件成败。
 
 ## 流程
 
 | 步骤 | 动作 |
 | --- | --- |
-| 1 | 按 `references/divination/app/question.md` 判断为择日 |
-| 2 | 按 `TOOLS.md` 黄历择日（engine 黄历）；事项适配由 engine 判定 |
-| 3 | 读取 `references/divination/domains/huangli/jiri.md`、`yiji.md` |
-| 4 | 输出推荐日、排除日和边界 |
+| 1 | 按 `references/divination/TOOLS.md` 黄历择日（engine 黄历）；事项适配由 engine 判定 |
+| 2 | 读取 `references/divination/domains/huangli/jiri.md`、`references/divination/domains/huangli/yiji.md` |
+| 3 | 输出推荐日、排除日和边界 |
 
 ## 事项枚举
 
@@ -59,5 +52,10 @@ description: 问哪天适合做事 — 默认黄历择日
 宜忌：推荐日关键宜忌、建除与吉凶来源。
 排除：需避开的日子和原因。
 边界：传统黄历视角，不承诺现实结果。
-示例：推荐 10 月 3 日（宜嫁娶，「开」）、10 月 6 日备选；排除 10 月 4 日（月破）。
+```
+
+### 示例
+
+```text
+推荐 10 月 3 日（宜嫁娶，「开」）、10 月 6 日备选；排除 10 月 4 日（月破）。
 ```

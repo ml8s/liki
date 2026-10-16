@@ -6,25 +6,21 @@ description: 性格描写 — 五行基础性格、十神修正、身强/身弱�
 
 # 性格分析
 
-> 工具报文：只使用 `references/natal/TOOLS.md`；`pan` / `snapshot` 等动态对象按“变量绑定”原样传回。
->
 ## 依赖的领域知识
 
-[必读] - bazi: references/natal/domains/bazi/wangshuai.md「身弱五行属性降级表」
-[必读] - bazi: references/natal/domains/bazi/shishen.md「十神组合场景化」
+[必读] - bazi: `references/natal/domains/bazi/wangshuai.md`「身弱五行属性降级表」
+[必读] - bazi: `references/natal/domains/bazi/shishen.md`「十神组合场景化」
 
-[按需] - ziwei: references/natal/domains/ziwei/yingqi.md（仅问特定年份状态时读取）
-[必读] - ziwei: references/natal/domains/ziwei/gexing.md「紫微性格分析方法」
-
-> **本卡的 本命判断 / 应期判断 调用仅保留性格域断语。**
+[按需] - ziwei: `references/natal/domains/ziwei/yingqi.md`（仅问特定年份状态时读取）
+[必读] - ziwei: `references/natal/domains/ziwei/gexing.md`「紫微性格分析方法」
 
 ## 流程
 
 | 步骤 | 条件 / 目标 | 动作 | 产物 |
 | --- | --- | --- | --- |
-| 1 | 基础性格 | 调 `liki-bazi` 专家 本命判断 + `liki-ziwei` 专家 本命判断；读取 `references/natal/domains/bazi/wangshuai.md` | 日主、身强弱、基础特征 |
-| 2 | 组合修正 | 发送 `TOOLS.md 本命判断`；读取 `references/natal/domains/bazi/shishen.md` | 十神组合与修正方向 |
-| 3 | 紫微合参 | 调 `liki-bazi` 专家 `本命判断（性格）` + `liki-ziwei` 专家 `本命判断（性格）`、`本命判断（心理）`；特定年份发送 `应期判断` 或用户指定场景 | 主星、四化、执念与消耗点 |
+| 1 | 基础性格 | 发送 八字侧 `本命判断` + 紫微侧 `本命判断`；读取 `references/natal/domains/bazi/wangshuai.md` | 日主、身强弱、基础特征 |
+| 2 | 组合修正 | 发送 八字侧 + 紫微侧 `本命判断`；读取 `references/natal/domains/bazi/shishen.md` | 十神组合与修正方向 |
+| 3 | 紫微合参 | 发送 八字侧 `本命判断（性格）` + 紫微侧 `本命判断（性格）`、`本命判断（精神）`；特定年份发送 八字侧 + 紫微侧 `应期判断` 或用户指定场景 | 主星、四化、执念与消耗点 |
 | 4 | 外貌 / 体型 | 读取 `references/natal/domains/ziwei/xiangmao.md`，与八字旺衰互证 | 体型倾向与证据强弱 |
 
 ## 边界条件

@@ -1,39 +1,24 @@
 # Liki FAQ
 
-运行失败、依赖缺失、版本 / digest / schema 校验失败、输出不确定时先读本文件；不得绕过校验，不得自行降级。
+> 运行失败、依赖缺失、版本 / digest / schema 校验失败、输出不确定时先读本文件；不得绕过校验，不得自行降级。
+
+支付与反馈失败分别见 `references/payment/AIPAY.md`、`references/ops/FEEDBACK.md`。
 
 ## MCP 前置
 
-- Liki 通过标准 MCP 提供能力：`counsel-mcp` 与 `engine-mcp` 两个聚合端点（子域 `/mcp/{domain}` 仅供分领域专家插件 / 多专家部署）。
-- MCP 未连接或端点不可达时，明确说明「MCP 不可用」；不自行降级到模型记忆或本地猜测。
+- MCP 未连接或端点不可达时，明确说明「MCP 不可用」；不用模型记忆补齐，不虚构盘面或断语。
 - MCP 工具返回 `isError` 时按错误消息修正参数重试；确定性校验错误必须先修参数，不得绕过。
 - 引擎版本低于本地 `VERSION.txt` 时停止；不得用旧结果、缓存或模型知识补齐引擎事实。
 
 ## 缺输入与失败
 
-- 缺出生时间、时辰、城市、坐向、命卦参数时列出缺失项并询问；补齐前 fail closed。
 - 时辰模糊、接近交界或用户不确定时先校准；不得默认时辰。
 - 城市未收录时请求附近较大城市；仍缺经度时相关校正输出「不可用」。
-- 只有网络超时可重试；校验 / 版本 / digest 错误必须先修参数。
+- 只有网络超时可重试。
 - 流程中断后恢复时，从当前 ⛔ / 💬 步骤继续；不跳过阻塞确认。
-
-## 支付（Aipay）
-
-- 返回 `402 Payment-Needed` 属正常后付费流程：将请求摘要交给 `alipay-payment-skill` 完成支付；该 skill 未安装时，经用户同意后按官方 `alipay/payment-skills` 指南安装再继续。
-- 用户暂缓支付时确认即可；再次发起时从核销续走（`Payment-Proof` → `save-receipt`），不重复建单。
 
 ## 版本与升级
 
 - 提示升级时执行 `npx skills add ml8s/liki -y`；升级中断或网络失败时重跑同一命令，不手改本地文件。
-- 远程版本 10 秒不可达：标注「版本未校验」后继续，不视为错误；`LIKI_HOSTED=1` 跳过远程校验。
 - 请求远程版本时携带浏览器 / curl 风格 `User-Agent`（Cloudflare 会拦截默认脚本 UA，返回 `403` + error code 1010）；`curl` 默认 UA 即可。
 - GitHub 直连受限（国内网络常见）时，`npx skills add ml8s/liki -y` 可能因内部 git clone 超时失败。优先改用官方托管源：`npx skills add https://liki.hk -y`。它通过 liki.hk 的 well-known 清单下载 archive 并校验 digest，不依赖 GitHub clone。仍需保证 npx / npm registry 可用；不要手改本地 Skill 文件。
-
-## 离线与依赖
-
-- 引擎事实依赖在线 MCP；断网或连接失败时明确说明「MCP 不可用」，不用模型记忆补齐，不虚构盘面或断语。
-
-## Feedback
-
-- 只提交机制、契约、口径或流程问题；不提交出生信息、提问原文、用户标识或可识别细节。
-- feedback 失败静默，不阻塞主流程。
