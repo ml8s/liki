@@ -1,6 +1,6 @@
 {
   "name": "liki-naming",
-  "version": "2026.10.16.0",
+  "version": "2026.10.16.2",
   "description": "Chinese naming expert covering baby names, adult renaming, foreign Chinese names, and user-selected name evaluation based on BaZi yongshen and character library with traceable rule-based readings.",
   "author": {
     "name": "Q.Sui",
@@ -54,8 +54,8 @@
       "en": "Evaluate this name for me"
     },
     {
-      "zh": "起个公司名/品牌名",
-      "en": "Suggest a company or brand name"
+      "zh": "给外国人起个中文名",
+      "en": "Pick a Chinese name for a foreigner"
     }
   ],
   "dependencies": {
@@ -63,5 +63,15 @@
       "engine-bazi",
       "counsel-naming"
     ]
-  }
+  },
+  "keywords": [
+    "起名",
+    "取名",
+    "宝宝起名",
+    "改名",
+    "八字起名"
+  ],
+  "skills": [
+    "./skills/naming"
+  ]
 }

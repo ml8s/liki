@@ -7,6 +7,14 @@ YONGSHEN = ROOT / "skills/liki/references/divination/domains/qimen/yongshen.md"
 LOST_PROPERTY = ROOT / "skills/liki/references/divination/domains/qimen/lost-property.md"
 MISSING_PERSON = ROOT / "skills/liki/references/divination/domains/qimen/missing-person.md"
 CAPTURE_ESCAPE = ROOT / "skills/liki/references/divination/domains/qimen/capture-escape.md"
+TOOLS = ROOT / "skills/liki/references/divination/TOOLS.md"
+
+
+def _zhuanzhan_shared_boundary() -> str:
+    """专占公共口径的唯一手写源（各专占卡只留各自差异）。"""
+    text = TOOLS.read_text(encoding="utf-8")
+    start = text.index("## 专占公共边界")
+    return text[start:]
 
 
 def test_qimen_card_keeps_normal_users_on_default_chart() -> None:
@@ -56,7 +64,7 @@ def test_yongshen_selection_stays_table_driven() -> None:
 def test_yongshen_matter_mapping_is_python_table() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
     assert "`qimen_matters` 数据表（排盘内部维护）是事象到用神的唯一事实源" in text
-    assert "本页表格仅作展示" in text
+    assert "本页不复制该表" in text
 
 
 def test_qimen_engine_and_python_layers_are_decoupled() -> None:
@@ -67,24 +75,25 @@ def test_qimen_engine_and_python_layers_are_decoupled() -> None:
 
 def test_lost_property_stays_in_interpretation_layer() -> None:
     text = LOST_PROPERTY.read_text(encoding="utf-8")
-    assert "不传事项或用神" in text
-    assert "snapshot.special.assertions" in text
     assert "反吟为复得候选" in text
     assert "时干落空亡为难复得候选" in text
     assert "乘旺相气为复得候选" in text
     assert "`palace_wang_shuai` / `shi_gan_gong_wang_shuai` 输出" in text
     assert "墓、绝未入表" in text
     assert "《奇门遁甲元灵经·卷十八·占失物》补方向与内外远近" in text
-    assert "中宫无内外 / 方向" in text
+    assert "公共边界见 `references/divination/TOOLS.md`「专占公共边界」" in text
+    shared = _zhuanzhan_shared_boundary()
+    assert "不传事项或用神" in shared
+    assert "snapshot.special.assertions" in shared
+    assert "中宫无方向 / 内外" in shared
 
 
 def test_missing_person_stays_conservative_and_interpretation_layer() -> None:
     text = MISSING_PERSON.read_text(encoding="utf-8")
     assert "走失问事" in text
-    assert "snapshot.special.assertions" in text
-    assert "不排序" in text
-    assert "不推出必然回归或必然失踪" in text
     assert "六合落宫星旺 / 相且临景、死、惊、伤四门时" in text
+    assert "公共边界见 `references/divination/TOOLS.md`「专占公共边界」" in text
+    assert "不合并成单一必然结论" in _zhuanzhan_shared_boundary()
     assert "走失专占" in CARD.read_text(
         encoding="utf-8"
     )
@@ -92,11 +101,8 @@ def test_missing_person_stays_conservative_and_interpretation_layer() -> None:
 
 def test_capture_escape_stays_conservative_and_interpretation_layer() -> None:
     text = CAPTURE_ESCAPE.read_text(encoding="utf-8")
-    assert "不传事项或用神" in text
-    assert "snapshot.special.assertions" in text
-    assert "不排序" in text
-    assert "不做执法建议或必然结论" in text
     assert "行人年命、官府差人等另占口径未入表" in text
+    assert "公共边界见 `references/divination/TOOLS.md`「专占公共边界」" in text
     assert "偷盗 / 走脱 / 画像专占" in CARD.read_text(encoding="utf-8")
 
 
@@ -115,7 +121,7 @@ def test_thief_profile_is_table_driven_route() -> None:
     text = (ROOT / "skills/liki/references/divination/domains/qimen/thief-capture.md").read_text(
         encoding="utf-8"
     )
-    assert "snapshot.special.assertions" in text
+    assert "snapshot.special.assertions" in _zhuanzhan_shared_boundary()
     assert "贵人 / 小人" in text
     assert "内盘亲近人或外盘外人" in text
     assert "偷盗 / 走脱 / 画像专占" in CARD.read_text(
@@ -125,7 +131,7 @@ def test_thief_profile_is_table_driven_route() -> None:
 
 def test_yongshen_documents_missing_person_mapping() -> None:
     text = YONGSHEN.read_text(encoding="utf-8")
-    assert "| 走失人口 | 六合 |" in text
+    assert "| 问事 | 用神符号 |" not in text
     assert "《奇门遁甲元灵经·占走失》" in text
     assert "时干宫为失主，六合宫为走失者" in text
 

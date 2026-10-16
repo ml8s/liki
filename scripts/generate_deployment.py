@@ -33,7 +33,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = _ROOT / "agents"
 PACKS_DIR = _ROOT / "expert-packs"
 PROFILES_DIR = _ROOT / "profiles"
-EXPERT_DOMAINS = ("bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming")
+EXPERT_DOMAINS = ("natal", "divination", "fengshui", "naming")
 TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 
@@ -132,7 +132,7 @@ def validate_skills_binding(agent_name: str, skills: dict) -> None:
     root = (skills or {}).get("root", "")
     allowed_roots = {"/skills"} | {
         f"/expert-packs/liki-{n}/skills"
-        for n in ("bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming")
+        for n in EXPERT_DOMAINS
     }
     if root not in allowed_roots:
         sys.exit(

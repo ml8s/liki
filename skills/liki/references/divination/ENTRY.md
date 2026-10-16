@@ -15,7 +15,7 @@ agent 经 `counsel` MCP（六爻/奇门）与 `engine` MCP（黄历）使用本�
 | 事件结果 / 能不能成 / 何时有结果 | 六爻 | `references/divination/app/outcome.md` |
 | 策略 / 进退 / 方向 / 行动时机 | 奇门 | `references/divination/app/decision.md` |
 | 哪天适合做事 | 黄历 | `references/divination/app/date.md` |
-| 长期命局 | — | `references/natal/ENTRY.md`，不临时起卦 |
+| 长期命局 | — | 转本命域（natal），不临时起卦 |
 
 ## 硬边界
 

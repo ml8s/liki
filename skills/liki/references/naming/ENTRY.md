@@ -8,11 +8,13 @@ agent 经 `counsel` MCP 使用 起名姓氏 / 取字 / 起名用字 / 组名 / �
 
 ## 路由
 
-| 用户问题 | 入口 |
-| --- | --- |
-| 起名 / 改名 | `references/naming/app/naming.md` |
-| 外国人起中文名 | `references/naming/app/foreign.md` |
-| 评估自选名字 | `references/naming/app/selfcheck.md` |
+三张场景卡共享「输入 → 排盘 / 五行策略 → 取字 → 组名 → 校验 → 输出」领域链，差异见各卡流程表。
+
+| 用户问题 | 入口卡 | 功能 |
+| --- | --- | --- |
+| 起名 / 改名 | `references/naming/app/naming.md` | 通用起名与改名 |
+| 外国人起中文名 | `references/naming/app/foreign.md` | 罗马字姓转受控中文姓候选并起中文名 |
+| 评估自选名字 | `references/naming/app/selfcheck.md` | 自选名字评估 |
 
 ## 硬边界
 
@@ -22,7 +24,7 @@ agent 经 `counsel` MCP 使用 起名姓氏 / 取字 / 起名用字 / 组名 / �
 - 组名 只传字；起名评估 的 `given_names` 只传不含姓的名。
 - 无出生信息时跳过五行匹配，并明确输出未评估用神。
 - 出处分为直接典故、字义联想、现代审美、未确认；直接典故必须给可核书名、篇名与原文。
-- 起名仅使用八字，不引入紫微合参。
+- 起名的五行依据只取八字排盘与用神（见 `references/naming/domains/bazi/`）。
 
 ## 输出契约
 

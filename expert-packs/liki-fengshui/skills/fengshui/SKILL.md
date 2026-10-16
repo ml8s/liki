@@ -4,7 +4,7 @@ description: 风水专家——八宅命卦、门主灶、玄空飞星、元运�
 metadata:
   display_name: 风水专家
   display_name_en: Feng Shui Expert
-  version: 2026.10.16.0
+  version: 2026.10.16.2
   author: Liki
 ---
 
@@ -46,8 +46,8 @@ metadata:
 
 ## 方法论（5 卡）
 
-- `references/caijue.md` 八宅 / 玄空冲突裁决
-- `references/feixing.md` 飞星吉凶（玄空九星）
-- `references/fengshui.md` 风水分析
-- `references/youxing.md` 游年九星与门主灶
-- `references/yuanyun.md` 三元九运
+- `references/ENTRY.md` Liki 家居风水 — 八宅命卦 / 玄空飞星 / 风水布局
+- `references/app/fengshui.md` 风水分析
+- `references/domains/bazhai/youxing.md` 游年九星与门主灶
+- `references/domains/xuankong/feixing.md` 飞星吉凶（玄空九星）
+- `references/domains/xuankong/yuanyun.md` 三元九运

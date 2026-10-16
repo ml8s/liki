@@ -22,7 +22,7 @@ Liki exposes its capabilities through standard MCP servers; embedded MCP declara
 | `counsel-mcp` | `https://liki.hk/counsel/mcp` |
 | `engine-mcp` | `https://liki.hk/engine/mcp` |
 
-Sub-domain `/engine/mcp/{domain}` and `/counsel/mcp/{domain}` are for **multi-expert per-domain deployment** (each pack ships its own sub-domain server, `expert-packs/*/.mcp.json`); a unified install only needs the two aggregate endpoints above. Install the Skill from the official hosted source:
+Sub-domain `/engine/mcp/{domain}` and `/counsel/mcp/{domain}` are for **multi-expert per-domain deployment** (each pack targets a top-level domain — natal / divination / fengshui / naming — and ships the sub-domain servers it needs, `expert-packs/*/.mcp.json`); a unified install only needs the two aggregate endpoints above. Install the Skill from the official hosted source:
 
 ```bash
 npx skills add https://liki.hk
@@ -89,7 +89,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 | --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
 | [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and payload format |
-| [Runtime model](./docs/RUNTIME.md) | Engine/counsel processes, endpoints, and retained JSON-RPC compatibility |
+| [Runtime model](./docs/RUNTIME.md) | Engine/counsel processes, endpoints, and environment variables |
 | [Release model](./docs/RELEASE_MODEL.md) | Date-based runtime and release versions |
 
 ## For developers

@@ -154,10 +154,13 @@ def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
 
 
 def test_yong_shen_guidance_requires_effective_support_not_team_labels() -> None:
-    text = (ROOT / "expert-packs/liki-bazi/skills/bazi/references/yongshen.md").read_text(encoding="utf-8")
+    text = (
+        ROOT
+        / "expert-packs/liki-natal/skills/natal/references/domains/bazi/yongshen.md"
+    ).read_text(encoding="utf-8")
     assert "数量不等于有效力量" in text
     assert "禁止用 `wuxing_count` 做加总评分" in text
-    assert "喜神不是“同党标签”" in text
+    assert "喜神由实际作用决定" in text
     for required in ("生克方向", "力量反转", "通关条件", "合冲牵制", "调候辅证"):
         assert required in text
     assert "若候选五行克用神，不得直接作喜神" in text

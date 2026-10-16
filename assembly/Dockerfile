@@ -21,7 +21,7 @@ ARG BUILD_TIME=unknown
 COPY dist/agents/${PROFILE}/ ${DEPLOYMENT_DIR}/
 
 # Skill 文件（阶段2 skilltoolset source rootFS）：
-#   /expert-packs/<pack>/   6 专家包（multi 各专家绑 pack/skills 为 rootFS）
+#   /expert-packs/<pack>/   4 专家包（= 四个顶层领域；各专家绑 pack/skills 为 rootFS）
 COPY dist/skills/ /skills/
 COPY dist/expert-packs/ /expert-packs/
 

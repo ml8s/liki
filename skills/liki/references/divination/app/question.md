@@ -1,9 +1,3 @@
----
-name: app-question
-description: 问卦澄清 — 目标锁定、方法确认与交互闸口
-依赖域: liuyao,qimen,huangli
----
-
 # 问卦澄清与确认
 
 > 场景：每个占问在起卦、排盘或择日前先经本卡锁定目标、确认方法。

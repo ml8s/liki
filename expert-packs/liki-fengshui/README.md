@@ -18,22 +18,22 @@ liki-fengshui/
 ├── skills/
 │   └── fengshui/
 │       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引（ADK skill 入口）
-│       └── references/
-│           └── *.md             # 方法论卡（八宅游星/门主灶、玄空飞星/元运、流派裁决 等 5 卡）
+│       └── references/      # 生成：根 references/fengshui/ 子树的逐字节镜像
+│           ├── ENTRY.md     # 域内路由
+│           ├── app/         # 场景卡（家居风水，含八宅 / 玄空合参与裁决）
+│           └── domains/
+│               ├── bazhai/  # 八宅方法论卡（游星 / 门主灶）
+│               └── xuankong/ # 玄空方法论卡（飞星 / 元运）
 ├── .mcp.json                # 连接器：engine-mcp（八宅+玄空排盘）
 └── README.md
 ```
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-mcp"]` — 八宅排盘与布局、玄空排盘与流年能力由 engine-mcp 提供，无独立判断层。
+- `dependencies.connectors: ["engine-fengshui"]` — 八宅排盘与布局、玄空排盘与流年能力由 `engine-fengshui` 提供，无独立判断层。
 
 ## 说明
 
-- **八宅与玄空是同一风水的两个流派**（《八宅明镜》《沈氏玄空》），合并在本专家内跨流派裁决，不拆成两个专家。
-- 校验要点与 `liki-bazi` 一致。
-
-## 待办
-
-- [ ] `avatars/expert.png` 当前为占位（纯色+文字）；上架前替换为正式漫画/插画风头像（素材授权要求见 `expert-packs/README.md`）。
-- [ ] 用官方 `expert-manager` 技能逐项校验后上架。
+- **八宅与玄空是同一风水的两个流派**（《八宅明镜》《沈氏玄空》），合并在本专家内跨流派裁决，不拆成两个专家；
+  领域卡只写本流派方法，跨流派裁决落在 `references/app/fengshui.md`「八宅 / 玄空合参与裁决」节。
+- 校验要点与上架前待办见 `expert-packs/README.md`（expertType / agentName / tags / quickPrompts / displayDescription / categoryId / 头像）。

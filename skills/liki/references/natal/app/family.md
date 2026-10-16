@@ -1,19 +1,13 @@
----
-name: app-family
-description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、祖上根基
-依赖域: bazi,ziwei
----
-
 # 家庭六亲分析
 
 ## 依赖的领域知识
 
 [必读] - bazi: `references/natal/domains/bazi/family.md`「六亲判断」
-[必读] - bazi: `references/natal/domains/bazi/hehui.md`「冲宫位表」
+[必读] - bazi: `references/natal/domains/bazi/hehui.md`「① 宫位应事表」
 [按需] - bazi: `references/natal/domains/bazi/gongwei.md`「宫位论」（论宫位细节时读取）
-[按需] - bazi: `references/natal/domains/bazi/dayun.md`「应期决策表」（问亲人应期时读取）
+[按需] - bazi: `references/natal/domains/bazi/dayun.md`「应期推断」（问亲人应期时读取）
 
-[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「家庭紫微应期」
+[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「翻译表：各领域紫微看盘抓手」
 
 ## 流程
 
@@ -26,6 +20,12 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 
 六亲重大变动需要星损、宫凶、限运或流年引动形成独立证据闭环；单信号只作倾向或关系质感描述。
 
+## 📖 双盘六亲合参
+
+- **父母宫**：紫微父母宫凶象（化忌 / 煞聚）与八字年柱宫引动、财印受制覆盖不同层时，才可论父母离异或重大变故；单项不单独定论。
+- **子女宫**：紫微子女宫化忌 / 流羊入子女宫 + 八字食伤受冲 / 入墓 → 孕产损失候选；流年吉化入子女宫只作生育应期。
+- **出身**：紫微父母宫主星庙陷（天梁祖荫 / 禄存家底）与八字年柱宫成败、财星实虚同参定贫富档。
+
 ## 边界条件
 
 | 异常场景 | 处理方式 |
@@ -37,6 +37,13 @@ description: 家庭六亲分析 — 父母状况、兄弟姐妹、子女运、�
 | 年柱冲刑 | 父母关系不和或早年离家 |
 
 ## 输出模板
+
+```text
+结论：一句话六亲缘份与关注点。
+父母：星宫状态与引动（列断语 id）。
+兄弟 / 子女：各自星宫状态与引动。
+建议：一个核查或沟通动作。
+```
 
 ### 示例
 

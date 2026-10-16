@@ -1,0 +1,25 @@
+name: divination
+mode: chat
+
+skills:
+  root: /expert-packs/liki-divination/skills
+
+tools:
+  allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
+    engine:
+      - city_coords
+      - huangli_days
+      - liuyao_chart
+      - liuyao_qigua
+      - qimen_chart
+      - tianwen_time
+      - time_now
+    counsel:
+      - liuyao_query
+      - liuyao_snapshot
+      - qimen_query
+      - qimen_snapshot

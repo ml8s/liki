@@ -4,9 +4,11 @@
 两类生成（唯一生成入口）：
 
 1. 方法论卡镜像：权威源 `skills/liki/references/`（domains 真值卡 + app 编排卡）
-   → `expert-packs/<pack>/skills/<skill>/references/`。多对一聚合（如
-   naming ← qiming+bazi+app），目标目录的 `*.md` 必须与源并集逐名逐字节一致
-   ——缺失、多余（孤儿）、内容差异均判漂移。
+   → `expert-packs/<pack>/skills/<domain>/references/`。顶层领域即专家包
+   （1:1），包内 references/ 是根 `references/<domain>/` 子树的逐字节镜像
+   （保留 `app/`、`domains/<体系>/` 布局），只把卡内互引的
+   `references/<domain>/…` 前缀改写成包内相对路径——缺失、多余（孤儿）、内容
+   差异均判漂移；引用别的领域子树（跨域 token）判死链，包必须自包含。
 2. 专家身份派生物：权威源身份文件 `expert-packs/<pack>/SKILL.md`（frontmatter 元数据
    + 身份正文）→ 域 `skills/<domain>/SKILL.md`（ADK skill 入口）与 `.codebuddy-plugin/plugin.json`
    的 agent 指针/description/profession/version（插件声明的 agent 定义文件就是 `./SKILL.md`
@@ -30,44 +32,34 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "liki" / "references"
 PACKS = ROOT / "expert-packs"
 
-# <根相对路径>:<包名>:<skill 目录>[:<子目录>]（domains 全集 + app 编排卡副本）
-MAPPINGS: tuple[tuple[str, str, str, str | None], ...] = (
-    ("natal/domains/bazi", "liki-bazi", "bazi", None),
-    ("natal/domains/ziwei", "liki-ziwei", "ziwei", None),
-    ("divination/domains/liuyao", "liki-liuyao", "liuyao", None),
-    ("divination/domains/qimen", "liki-qimen", "qimen", None),
-    ("divination/domains/huangli", "liki-qimen", "qimen", "huangli"),
-    ("fengshui/domains/bazhai", "liki-fengshui", "fengshui", None),
-    ("fengshui/domains/xuankong", "liki-fengshui", "fengshui", None),
-    ("fengshui/domains/fengshui", "liki-fengshui", "fengshui", None),
-    ("fengshui/app", "liki-fengshui", "fengshui", None),
-    ("naming/domains/qiming", "liki-naming", "naming", None),
-    ("naming/domains/bazi", "liki-naming", "naming", None),
-    ("naming/app", "liki-naming", "naming", None),
+# <根 skill 子目录>:<包名>:<包内 skill 目录>。顶层领域 = 专家包（1:1）：
+# `skills/liki/references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains）镜像进
+# 包内 `skills/<domain>/references/`，保留子目录布局。
+MAPPINGS: tuple[tuple[str, str, str], ...] = (
+    ("natal", "liki-natal", "natal"),
+    ("divination", "liki-divination", "divination"),
+    ("fengshui", "liki-fengshui", "fengshui"),
+    ("naming", "liki-naming", "naming"),
 )
 
 # 域 → 包名。身份文件固定是包根 expert-packs/<pack>/SKILL.md；
 # 包内域 skills/<domain>/SKILL.md 由它派生（包内不再有第二份身份副本）。
-DOMAIN_PACKS: dict[str, str] = {
-    "bazi": "liki-bazi",
-    "ziwei": "liki-ziwei",
-    "liuyao": "liki-liuyao",
-    "qimen": "liki-qimen",
-    "fengshui": "liki-fengshui",
-    "naming": "liki-naming",
-}
+DOMAIN_PACKS: dict[str, str] = {domain: pack for domain, pack, _skill in MAPPINGS}
 
-# 包内卡片互引统一形如 references/<name>.md（ADK load_skill_resource 只认
-# references/assets/scripts 前缀）；根 skill 的子树布局 token 由 sync rebase。
-_REF_PATTERN = re.compile(r"references/[A-Za-z0-9_./-]+\.md")
+# 包内卡片互引统一形如 references/<path>.md（ADK load_skill_resource 只认
+# references/assets/scripts 前缀）：包内路径 = 根路径去掉 `references/<domain>/`。
+_REF_PATTERN = re.compile(r"references/([A-Za-z0-9_./-]+\.md)")
 
 RUNTIME_VERSION_PATH = ROOT / "skills" / "liki" / "VERSION.txt"
 PACK_AUTHOR = "Liki"
 
-# 身份文件 frontmatter 契约：每个键都有明确消费方（生成器/校验器/客户端）。
-# name → 插件/skill 名；description → 域 skill 描述；description_en → plugin.json.description
-# 与部署 agent 描述；display_name(_en) → 市场展示名；profession → plugin.json.profession；
-# keywords/skills → 插件入口检索词与 skill 标签；max_turns → agent 回合上限；
+# 身份文件 frontmatter 契约：每个键都有明确消费方，无一「写而无用」。
+# 消费方一＝生成器（本文件）：description → 域 skill 描述；description_en →
+# plugin.json.description 与部署 agent 描述；display_name(_en) → 域 skill metadata；
+# profession → plugin.json.profession；keywords → plugin.json.keywords（市场检索词）；
+# skills → plugin.json.skills（预加载 skill 路径，由 skill 名 rebase 成 ./skills/<name>）。
+# 消费方二＝WorkBuddy agent md 本身（plugin.json 的 agents 指向本文件）：maxTurns 是其
+# 回合上限字段（camelCase，旧 snake 写法不会被读取）；profession/description 同为其字段。
 # plugin.json 的 agents/agentName 固定指向本文件（包内不再有单独 agent 定义）。
 # 正文＝身份骨架：既是包内两处入口的正文，也是内部 AgentDeployment 的 instruction。
 IDENTITY_KEYS = (
@@ -79,7 +71,7 @@ IDENTITY_KEYS = (
     "profession",
     "keywords",
     "skills",
-    "max_turns",
+    "maxTurns",
 )
 IDENTITY_LOCALES = ("en", "zh")
 
@@ -135,8 +127,8 @@ def load_identity(domain: str) -> tuple[dict, str] | list[str]:
         value = metadata.get(key)
         if not isinstance(value, list) or not value:
             errors.append(f"{rel}: 身份文件 {key} 必须是非空列表")
-    if not isinstance(metadata.get("max_turns"), int):
-        errors.append(f"{rel}: 身份文件 max_turns 必须是整数")
+    if not isinstance(metadata.get("maxTurns"), int):
+        errors.append(f"{rel}: 身份文件 maxTurns 必须是整数")
     return errors if errors else (metadata, body)
 
 
@@ -236,6 +228,9 @@ def plugin_metadata_updates() -> tuple[list[tuple[Path, dict, dict]], list[str]]
             "description": metadata["description_en"],
             "profession": metadata["profession"],
             "version": version,
+            # 市场检索词与预加载 skill 路径：单一源是身份文件，plugin.json 只做投影。
+            "keywords": list(metadata["keywords"]),
+            "skills": [f"./skills/{name}" for name in metadata["skills"]],
         }
         updates.append((plugin_path, doc, expected))
     return updates, errors
@@ -256,89 +251,74 @@ def _plugin_metadata_drift(
     return drift
 
 
-def _source_names(srcs: list[Path]) -> set[str]:
-    names: set[str] = set()
-    for src in srcs:
-        if not src.is_dir():
-            continue
-        for card in src.glob("*.md"):
-            if card.name != "SKILL.md":
-                names.add(card.name)
-    return names
-
-
-def _pack_name_maps(groups: dict[Path, list[Path]]) -> tuple[dict[str, dict[str, str]], list[str]]:
-    """pack → {basename: 包内 references 路径}。同包同名异位 = 歧义，fail-closed。"""
-    maps: dict[str, dict[str, str]] = {}
-    errors: list[str] = []
-    for dest, srcs in groups.items():
-        pack = dest.relative_to(PACKS).parts[0]
-        rel = dest.relative_to(PACKS).parts
-        prefix = "references" if len(rel) <= 4 else f"references/{rel[4]}"
-        name_map = maps.setdefault(pack, {})
-        for name in _source_names(srcs):
-            target = f"{prefix}/{name}"
-            if name in name_map and name_map[name] != target:
-                errors.append(f"包内同名卡歧义: {pack} {name} → {name_map[name]} vs {target}")
-            else:
-                name_map[name] = target
-    return maps, errors
-
-
 def _dest_groups() -> dict[Path, list[Path]]:
     groups: dict[Path, list[Path]] = {}
-    for src_rel, pack, skill, sub in MAPPINGS:
+    for src_rel, pack, skill in MAPPINGS:
         dest = PACKS / pack / "skills" / skill / "references"
-        if sub:
-            dest = dest / sub
         groups.setdefault(dest, []).append(SKILL / src_rel)
     return groups
 
 
-def _rebase(payload: bytes, name_map: dict[str, str], errors: list[str], where: str) -> bytes:
+def _domain_of(dest: Path) -> str:
+    """包内 references 目录 → 领域名（= 包内 skill 目录名）。"""
+    return dest.relative_to(PACKS).parts[2]
+
+
+def _rebase(payload: bytes, domain: str, valid: set[str], errors: list[str], where: str) -> bytes:
+    """根 skill 互引 → 包内路径：去掉 `references/<domain>/` 前缀。
+
+    引用别的领域子树的 token 在包内必然死链（域专家包只镜像本域），fail-closed。
+    """
     text = payload.decode("utf-8")
 
     def replace(match: re.Match[str]) -> str:
         token = match.group(0)
-        target = name_map.get(Path(token).name)
-        if target is None:
-            errors.append(f"包内死链（该包不存在此卡）: {where}: {token}")
+        parts = match.group(1).split("/")
+        if len(parts) >= 2 and parts[0] == domain:
+            target = "references/" + "/".join(parts[1:])
+            if target in valid:
+                return target
+            errors.append(f"包内死链: {where}: {token} → {target}")
             return token
-        return target
+        errors.append(f"跨域引用（包必须自包含）: {where}: {token}")
+        return token
 
     return _REF_PATTERN.sub(replace, text).encode("utf-8")
 
 
-def _expected(dest: Path, srcs: list[Path], name_map: dict[str, str]) -> dict[str, bytes] | list[str]:
+def _expected(dest: Path, srcs: list[Path]) -> dict[str, bytes] | list[str]:
+    """根 `references/<domain>/` 子树 → 包内 references/ 相对路径映射（已 rebase）。
+
+    键是相对包内 `references/` 的路径（`ENTRY.md`、`domains/bazi/dayun.md`），
+    正文里的互引 token 是相对 skill 根的 `references/<键>`（ADK load_skill_resource）。
+    """
     merged: dict[str, bytes] = {}
     errors: list[str] = []
+    domain = _domain_of(dest)
     for src in srcs:
         if not src.is_dir():
             errors.append(f"源不存在: {src.relative_to(ROOT)}")
             continue
-        for card in src.glob("*.md"):
+        for card in sorted(src.rglob("*.md")):
             if card.name == "SKILL.md":
                 continue
-            payload = card.read_bytes()
-            if card.name in merged and merged[card.name] != payload:
-                errors.append(f"多源同名卡内容冲突: {card.name} ← {src.relative_to(ROOT)}")
-            merged[card.name] = payload
+            merged[card.relative_to(src).as_posix()] = card.read_bytes()
+    valid = {f"references/{name}" for name in merged}
     rebased: dict[str, bytes] = {}
     for name, payload in merged.items():
-        rebased[name] = _rebase(payload, name_map, errors, f"{dest.relative_to(ROOT)}/{name}")
+        rebased[name] = _rebase(payload, domain, valid, errors, f"{dest.relative_to(ROOT)}/{name}")
     return errors if errors else rebased
+
+
+def _actual_cards(dest: Path) -> dict[str, bytes]:
+    return {card.relative_to(dest).as_posix(): card.read_bytes() for card in dest.rglob("*.md")}
 
 
 def _mirror_cards() -> int:
     failed = False
     groups = _dest_groups()
-    pack_maps, map_errors = _pack_name_maps(groups)
-    for line in map_errors:
-        print(f"[sync-expert-packs] ✗ {line}", file=sys.stderr)
-    failed = bool(map_errors)
     for dest, srcs in groups.items():
-        pack = dest.relative_to(PACKS).parts[0]
-        result = _expected(dest, srcs, pack_maps.get(pack, {}))
+        result = _expected(dest, srcs)
         if isinstance(result, list):
             for line in result:
                 print(f"[sync-expert-packs] ✗ {line}", file=sys.stderr)
@@ -348,10 +328,14 @@ def _mirror_cards() -> int:
         for name, payload in result.items():
             target = dest / name
             if not target.exists() or target.read_bytes() != payload:
+                target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(payload)
-        for orphan in dest.glob("*.md"):
-            if orphan.name not in result:
-                orphan.unlink()
+        for name, _payload in _actual_cards(dest).items():
+            if name not in result:
+                (dest / name).unlink()
+        for directory in sorted((d for d in dest.rglob("*") if d.is_dir()), reverse=True):
+            if not any(directory.iterdir()):
+                directory.rmdir()
         src_rel = ", ".join(str(s.relative_to(SKILL)) for s in srcs)
         print(f"[sync-expert-packs] ✓ {src_rel} → {dest.relative_to(ROOT)}")
     return 1 if failed else 0
@@ -396,18 +380,15 @@ def sync() -> int:
 def check() -> int:
     drift: list[str] = []
     groups = _dest_groups()
-    pack_maps, map_errors = _pack_name_maps(groups)
-    drift.extend(map_errors)
     for dest, srcs in groups.items():
-        pack = dest.relative_to(PACKS).parts[0]
-        result = _expected(dest, srcs, pack_maps.get(pack, {}))
+        result = _expected(dest, srcs)
         if isinstance(result, list):
             drift.extend(result)
             continue
         if not dest.is_dir():
             drift.append(f"目标不存在: {dest.relative_to(ROOT)}")
             continue
-        actual = {c.name: c.read_bytes() for c in dest.glob("*.md")}
+        actual = _actual_cards(dest)
         for name in sorted(set(result) - set(actual)):
             drift.append(f"缺失: {dest.relative_to(ROOT)}/{name}")
         for name in sorted(set(actual) - set(result)):

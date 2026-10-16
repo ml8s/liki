@@ -2,7 +2,7 @@
 
 覆盖：
 1. liki 综合：根 SKILL.md + 四域（references/natal/references/divination/references/fengshui/naming）+ 共享运行时文件
-2. 专家包（六个域）：WorkBuddy 标准（SKILL.md 身份源 / plugin.json / skills / .mcp.json / avatars / README）
+2. 专家包（四个顶层领域）：WorkBuddy 标准（SKILL.md 身份源 / plugin.json / skills / .mcp.json / avatars / README）
 3. MCP 连接器命名（engine/counsel 与专家端点）
 """
 import json
@@ -13,7 +13,8 @@ import yaml
 from _helpers import ROOT, SKILL_ROOT
 
 DOMAINS = ("natal", "divination", "fengshui", "naming")
-EXPERT_PACKS = ("liki-bazi", "liki-ziwei", "liki-liuyao", "liki-qimen", "liki-fengshui", "liki-naming")
+# 顶层领域 = 专家包（1:1）：包内 references/ 是本域根子树（ENTRY/TOOLS/app/domains）的镜像。
+EXPERT_PACKS = ("liki-natal", "liki-divination", "liki-fengshui", "liki-naming")
 
 
 def test_liki_root_has_one_entry_and_four_domain_entries():
@@ -44,11 +45,35 @@ def test_faq_is_the_single_runtime_failure_entry():
 
 def test_app_cards_use_standard_contract_sections():
     required = {"## 流程", "## 边界条件", "## 输出模板"}
-    cards = [p for p in SKILL_ROOT.glob("references/*/app/*.md") if p.name != "README.md"]
+    cards = list(SKILL_ROOT.glob("references/*/app/*.md"))
     assert len(cards) >= 10
     for path in cards:
         lines = {line.strip() for line in path.read_text(encoding="utf-8").splitlines()}
         assert required <= lines, (path, required - lines)
+
+
+def test_shared_yongshen_priority_order_matches():
+    """用神取舍优先序在 natal / naming 两域同源：专家包自包含 → 双份必须同字。"""
+    line = "顺序：从格 → 调候 → 格局清透 → 普通命局 → 合并。"
+    for rel in (
+        "references/natal/domains/bazi/yongshen.md",
+        "references/naming/domains/bazi/yongshen.md",
+    ):
+        assert line in (SKILL_ROOT / rel).read_text(encoding="utf-8"), rel
+
+
+def test_app_cards_declare_output_template_body():
+    """`## 输出模板` 必须给出模板体（代码块 / 表 / 列表），不能只有示例。"""
+    for card in sorted(SKILL_ROOT.glob("references/*/app/*.md")):
+        text = card.read_text(encoding="utf-8")
+        match = re.search(r"^## 输出模板\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
+        assert match, card
+        before = match.group(1).split("### 示例")[0]
+        assert (
+            "```" in before
+            or re.search(r"^\| ?", before, re.M)
+            or re.search(r"^- ", before, re.M)
+        ), card
 
 
 def test_root_entry_is_a_lightweight_router():
@@ -149,11 +174,12 @@ def test_root_mcp_uses_counsel_and_engine():
     # 路由按领域（natal/divination/naming/fengshui），不按专家包 id
     for domain in DOMAINS:
         assert domain in text
-    assert "liki-bazi" not in text and "liki-ziwei" not in text
+    # 路由按领域（natal/divination/fengshui/naming），不按专家包 id
+    assert not re.search(r"liki-(?:natal|divination|fengshui|naming)", text)
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert any("counsel" in name for name in mcp["mcpServers"])
-    # engine 域连接器在专家包（liki-bazi / liki-ziwei）
-    for pack in ("liki-bazi", "liki-ziwei"):
+    # engine 域连接器在专家包（本命包同时挂八字侧与紫微侧排盘端点）
+    for pack in ("liki-natal",):
         expert_mcp = json.loads((ROOT / "expert-packs" / pack / ".mcp.json").read_text(encoding="utf-8"))
         assert any("engine" in name for name in expert_mcp["mcpServers"])
 
@@ -216,7 +242,8 @@ def test_expert_packs_follow_workbuddy_standard():
         d = json.loads((root / ".codebuddy-plugin" / "plugin.json").read_text(encoding="utf-8"))
         for f in ["name", "expertType", "version", "description", "author", "agents",
                   "agentName", "displayName", "profession", "displayDescription",
-                  "avatar", "categoryId", "defaultInitPrompt", "plugin", "tags", "quickPrompts"]:
+                  "avatar", "categoryId", "defaultInitPrompt", "plugin", "tags", "quickPrompts",
+                  "keywords", "skills"]:
             assert f in d, (pack, f)
         assert d["expertType"] == "agent", pack
         assert not (root / "agents").exists(), f"{pack}: 身份唯一源是包根 SKILL.md"
@@ -235,8 +262,11 @@ def test_expert_packs_follow_workbuddy_standard():
         identity_text = (root / "SKILL.md").read_text(encoding="utf-8")
         identity_meta = yaml.safe_load(identity_text.split("---\n", 2)[1])
         for f in ["name", "description", "description_en", "display_name",
-                  "display_name_en", "profession", "max_turns", "keywords", "skills"]:
+                  "display_name_en", "profession", "maxTurns", "keywords", "skills"]:
             assert f in identity_meta, (pack, f)
+        # 身份文件是单一源：plugin.json 的 keywords/skills 由它投影而来
+        assert d["keywords"] == identity_meta["keywords"], pack
+        assert d["skills"] == [f"./skills/{name}" for name in identity_meta["skills"]], pack
         # .mcp.json 连专家端点（正交化：排盘 engine + 判断 counsel 分离）
         mcp = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))
         assert len(mcp["mcpServers"]) >= 1, pack
@@ -244,18 +274,16 @@ def test_expert_packs_follow_workbuddy_standard():
 
 
 def test_expert_pack_methodology_matches_index():
-    # pack -> (skill dir, 方法论卡数)。qimen 额外含 huangli 子功能（不计数）。
+    # pack -> (skill dir, 镜像卡总数)。包内 references/ 是根子树逐字节镜像（含 ENTRY/TOOLS）。
     for pack, skill, expect in (
-        ("liki-bazi", "bazi", 16),
-        ("liki-ziwei", "ziwei", 8),
-        ("liki-liuyao", "liuyao", 6),
-        ("liki-qimen", "qimen", 11),
+        ("liki-natal", "natal", 34),
+        ("liki-divination", "divination", 25),
         ("liki-fengshui", "fengshui", 5),
         ("liki-naming", "naming", 7),
     ):
         skill_dir = ROOT / "expert-packs" / pack / "skills" / skill
         assert (skill_dir / "SKILL.md").is_file(), pack
-        cards = [p.name for p in (skill_dir / "references").glob("*.md")]
+        cards = [p for p in (skill_dir / "references").rglob("*.md") if p.name != "SKILL.md"]
         assert len(cards) == expect, (pack, len(cards), expect)
 
 
@@ -331,7 +359,7 @@ def test_domain_app_cards_are_reachable_from_entry():
         cards = sorted((domain_dir / "app").glob("*.md"))
         assert cards, domain
         entry = domain_dir / "ENTRY.md"
-        seeds = [entry] + [c for c in cards if c.name == "README.md"]
+        seeds = [entry]
         seen: set[Path] = set()
         queue = list(seeds)
         while queue:

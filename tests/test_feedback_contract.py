@@ -52,7 +52,8 @@ class TestFeedbackContract(unittest.TestCase):
             "problem": {"type": "clarity", "severity": "low", "summary": "valid problem"},
         }
         validator.validate(valid)
-        for old_skill in ("liki-bazi", "liki-divination", "liki-fengshui", "liki-naming"):
+        # 上报面只允许统一产品 `liki`；按专家包名上报一律拒绝。
+        for old_skill in ("liki-natal", "liki-divination", "liki-fengshui", "liki-naming"):
             invalid = dict(valid)
             invalid["meta"] = valid["meta"] | {"skill": old_skill}
             with self.assertRaises(ValidationError):

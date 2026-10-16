@@ -1,16 +1,10 @@
----
-name: app-naming
-description: 起名分析 — 通用起名/改名，结合八字用神与五行选字
-依赖域: bazi,qiming
----
-
 # 通用起名/改名
 
 > 场景：新生儿起名、成人改名。外国人起中文名 → `foreign.md`；自选名字评估 → `selfcheck.md`。
 
 ## 依赖的领域知识
 
-[必读] - bazi: `references/naming/domains/bazi/yongshen.md`「用神方法论」+ `references/naming/domains/bazi/calibration.md`「时辰判定」
+[必读] - bazi: `references/naming/domains/bazi/yongshen.md`「起名用神选择」+ `references/naming/domains/bazi/calibration.md`「出生时辰判定（起名精简版）」
 [必读] - qiming: `references/naming/domains/qiming/ziku.md`「字库与选字」
 
 ## 流程
@@ -46,6 +40,13 @@ description: 起名分析 — 通用起名/改名，结合八字用神与五行�
 | 起名评估 标记 invalid | 丢弃该候选并保留 invalid 原因 |
 
 ## 输出模板
+
+```text
+结论：首选名与五行依据。
+候选：5-8 个候选（名 + 拼音 + 五行 + 出处等级）。
+推荐理由：用神 / 喜神匹配、音韵与字形。
+淘汰代表：不推荐名与具体原因。
+```
 
 ### 示例
 

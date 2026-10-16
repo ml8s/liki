@@ -1,16 +1,10 @@
----
-name: app-selfcheck
-description: 自选名字评估 — 用户已选定名字，直接评估字库合法性、五行匹配与音韵
-依赖域: qiming
----
-
 # 自选名字评估
 
 > 场景：用户已有候选名字。起名/改名 → `naming.md`；外国人起中文名 → `foreign.md`。
 
 ## 依赖的领域知识
 
-[必读] - bazi: `references/naming/domains/bazi/yongshen.md`「用神方法论」（有用神信息时）
+[必读] - bazi: `references/naming/domains/bazi/yongshen.md`「起名用神选择」（有用神信息时）
 [必读] - qiming: `references/naming/domains/qiming/ziku.md`「字库与选字」
 
 ## 流程
@@ -30,6 +24,14 @@ description: 自选名字评估 — 用户已选定名字，直接评估字库�
 | 评估字段缺失 | 跳过该维度并标注缺失 |
 
 ## 输出模板
+
+```text
+结论：名字可用性结论。
+字库：valid / errors 与字义、出处等级。
+五行：有排盘时给匹配结论，无排盘时标「未评估五行」。
+音韵：声调与谐音核查。
+建议：一个取舍建议。
+```
 
 ### 示例
 

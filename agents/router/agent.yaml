@@ -5,10 +5,8 @@ skills:
   root: /skills
 
 sub_agents:
-  - name: bazi
-  - name: ziwei
-  - name: liuyao
-  - name: qimen
+  - name: natal
+  - name: divination
   - name: fengshui
   - name: naming
 tools:

@@ -1,19 +1,14 @@
----
-name: app-health
-description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
-依赖域: bazi,ziwei
----
-
 # 健康分析
 
 ## 依赖的领域知识
 
-[必读] - bazi: `references/natal/domains/bazi/wuxing-health.md`「五行所属」
-[按需] - bazi: `references/natal/domains/bazi/hehui.md`「冲宫位表」+「冲吉凶表」（论冲害细节时读取）
-[按需] - bazi: `references/natal/domains/bazi/dayun.md`「应期决策表」（应期走疾厄宫闭环）
+[必读] - bazi: `references/natal/domains/bazi/wuxing-health.md`「翻译表：五行健康」
+[按需] - bazi: `references/natal/domains/bazi/hehui.md`「① 宫位应事表」+「② 吉凶决策表」（论冲害细节时读取）
+[按需] - bazi: `references/natal/domains/bazi/dayun.md`「应期推断」（应期走疾厄宫闭环）
 [按需] - bazi: `references/natal/domains/bazi/tiaohou.md`「调候用神」（冬夏寒燥失衡时读取）
 
-[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「健康紫微应期」
+[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「健康应期（重病 / 手术类）」
+[必读] - ziwei: `references/natal/domains/ziwei/gong12.md`「宫位与四化」（疾厄宫）
 
 ## 流程
 
@@ -26,6 +21,13 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 
 健康输出为倾向和关注方向；重大病灾需不同层证据闭环，并先列较轻替代解释。
 
+## 📖 双盘健康合参
+
+- **疾病细节三层闭环**（缺一层不断细节）：① 本命疾厄宫主星定先天薄弱系统 → ② 大限疾厄宫定当限主题 → ③ 流年干支定应期（流年五行冲克薄弱五行 / 引动疾厄宫）。
+- **“谁得病”判准**：紫微流年疾厄宫化忌 / 凶化 = **自己**（一级信号）；日主受忌神攻身 + 紫微疾厄宫化忌 → 断**自身病**；印星受克 + 伏吟 / 冲年柱母宫 → 断**母灾**。八字与紫微同结论才定案，冲突时并列说明。
+- **好体质路径**：命宫天府 / 天相 + 迁移紫微七杀 + 疾厄宫无煞忌 → 运动健康型；童年流年冲刑只作当年小病，不作“终身暗疾”。
+- **星曜不单义**：廉贞（火）主心亦主血、破军主血水、天机主肝、太阳主心/头/目——须按命局五行主次裁定，禁止星曜标签化定脏腑。
+
 ## 边界条件
 
 | 异常场景 | 处理方式 |
@@ -35,6 +37,13 @@ description: 健康诊断 — 脏腑薄弱、易感疾病、健康建议
 | 冲刑入多个宫位 | 按年>月>日>时优先级处理 |
 
 ## 输出模板
+
+```text
+结论：一句话健康倾向与关注方向。
+依据：五行失衡方向、十神为忌攻身、流年引动（列断语 id）。
+时间线：关注年与检查窗口。
+建议：一个现实动作。
+```
 
 ### 示例
 

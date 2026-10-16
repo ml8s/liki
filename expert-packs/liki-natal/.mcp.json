@@ -1,0 +1,72 @@
+{
+  "mcpServers": {
+    "engine-bazi": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/engine/mcp/bazi",
+      "x-workbuddy": {
+        "displayName": {
+          "zh": "八字排盘",
+          "en": "BaZi Engine"
+        },
+        "description": {
+          "zh": "八字确定性计算：排盘、完整命盘、大运流年与相关时间事实。",
+          "en": "Deterministic BaZi computation: natal/full charts, cycles, and related time facts."
+        },
+        "auth": {
+          "type": "none"
+        }
+      }
+    },
+    "engine-ziwei": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/engine/mcp/ziwei",
+      "x-workbuddy": {
+        "displayName": {
+          "zh": "紫微排盘",
+          "en": "Zi Wei Engine"
+        },
+        "description": {
+          "zh": "紫微确定性计算：十二宫、大限流年与相关时间事实。",
+          "en": "Deterministic Zi Wei computation: twelve palaces, daxian/liunian, and related time facts."
+        },
+        "auth": {
+          "type": "none"
+        }
+      }
+    },
+    "counsel-bazi": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/bazi",
+      "x-workbuddy": {
+        "displayName": {
+          "zh": "八字判断层",
+          "en": "BaZi Judgment"
+        },
+        "description": {
+          "zh": "八字规则分析：因子快照、本命断语与应期断语能力。",
+          "en": "Rule-based BaZi analysis: factor snapshot, natal assertions, and period assertions."
+        },
+        "auth": {
+          "type": "none"
+        }
+      }
+    },
+    "counsel-ziwei": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp/ziwei",
+      "x-workbuddy": {
+        "displayName": {
+          "zh": "紫微判断层",
+          "en": "Zi Wei Judgment"
+        },
+        "description": {
+          "zh": "紫微规则分析：因子快照、本命断语与应期断语能力。",
+          "en": "Rule-based Zi Wei analysis: factor snapshot, natal assertions, and period assertions."
+        },
+        "auth": {
+          "type": "none"
+        }
+      }
+    }
+  }
+}

@@ -7,20 +7,17 @@ display_name_en: Naming Expert
 profession:
   en: Chinese Naming Consultant
   zh: 起名师
-version: 2026.10.16.0
+version: 2026.10.16.2
 author: Liki
 keywords:
   - 起名
   - 取名
   - 宝宝起名
   - 改名
-  - 公司起名
-  - 品牌命名
-  - 名字测试
   - 八字起名
 skills:
   - naming
-max_turns: 30
+maxTurns: 30
 ---
 
 # 起名专家

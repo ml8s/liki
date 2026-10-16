@@ -17,9 +17,6 @@ EXPECTED_NODES = {
     ],
     "liki/references/natal/app/mingshu.md": [
         ("2a", "⛔ 阻塞确认"),
-    ],
-    "liki/references/natal/app/mingshu-full.md": [
-        ("2a", "⛔ 阻塞确认"),
         ("6a", "⛔ 阻塞确认"),
     ],
     "liki/references/divination/app/question.md": [
@@ -90,7 +87,6 @@ def test_interaction_templates_have_options_and_boundaries():
         "liki/references/naming/app/foreign.md": 2,
         "liki/references/naming/app/naming.md": 2,
         "liki/references/natal/app/mingshu.md": 2,
-        "liki/references/natal/app/mingshu-full.md": 2,
         "liki/references/divination/app/question.md": 2,
         "liki/references/fengshui/app/fengshui.md": 2,
     }

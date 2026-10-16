@@ -1,7 +1,8 @@
 """Unified Liki skill document checker.
 
-Checks assertion ids, resolvable skill-relative paths, whitelisted engine method names,
-lazy-loading budgets, and reachability of domain knowledge docs.
+Checks assertion ids, resolvable skill-relative paths, resolvable section anchors,
+whitelisted engine method names, lazy-loading budgets, and reachability of domain
+knowledge docs.
 """
 from __future__ import annotations
 
@@ -28,6 +29,9 @@ METHOD_WHITELIST = {
     "time.now", "city.coords", "tianwen.time",
 }
 _METHOD_PREFIXES = tuple(sorted({m.split(".")[0] for m in METHOD_WHITELIST}))
+
+# 场景卡行数上限；命书卡承载全卷输出模板（章节表）、居家风水卡承载八宅×玄空合参，结构固定，单独放宽。
+APP_CARD_LINE_BUDGET = {"mingshu.md": 75, "fengshui.md": 75}
 _SKIP_DOTTED = {"params.properties", "result.methods", "result.info", "result.info.version"}
 _PATH_PATTERN = r"(?:(?:natal|divination|fengshui|naming)/(?:tools|app|domains))/"
 
@@ -54,7 +58,9 @@ def main() -> int:
     prefixes = sorted({item.split("_")[0] + "_" for item in ids if "_" in ids})
     prefix_re = re.compile(r"\b(" + "|".join(map(re.escape, prefixes)) + r")(\d+[a-z]*|x+)\b") if prefixes else None
     path_re = re.compile(r"`(" + _PATH_PATTERN + r"[^`]+)`|(" + _PATH_PATTERN + r"[\w./\-]+\.(?:md|py|json|csv|sh|cmd))")
+    anchor_path_re = re.compile(r"`(" + _PATH_PATTERN + r"[\w./\-]+\.md)`")
     method_re = re.compile(r"\b(" + "|".join(map(re.escape, _METHOD_PREFIXES)) + r")\.[a-z_]+\b")
+    anchor_cache: dict[str, str] = {}
 
     docs = [os.path.join(SKILL, "SKILL.md")]
     faq = os.path.join(REFS, "FAQ.md")
@@ -85,6 +91,22 @@ def main() -> int:
                 continue
             if _resolve_skill_path(path) is None:
                 errors.append(f"[{rel}] 引用文件不存在: {path}")
+        # 小节锚点：`x.md`「小节名」中的小节名必须出现在目标文件里（标题或正文）。
+        for line in text.splitlines():
+            hits = list(anchor_path_re.finditer(line))
+            for index, hit in enumerate(hits):
+                rel_target = hit.group(1)
+                resolved = _resolve_skill_path(rel_target)
+                if resolved is None:
+                    continue  # 文件缺失已由上面的 path 检查报错
+                body = anchor_cache.get(resolved)
+                if body is None:
+                    body = open(resolved, encoding="utf-8").read()
+                    anchor_cache[resolved] = body
+                stop = hits[index + 1].start() if index + 1 < len(hits) else len(line)
+                for anchor in re.findall(r"「([^」]+)」", line[hit.end():stop]):
+                    if anchor not in body:
+                        errors.append(f"[{rel}] 引用小节不存在: {rel_target}「{anchor}」")
         for match in method_re.finditer(text):
             method = match.group(0)
             if method in _SKIP_DOTTED or method not in METHOD_WHITELIST:
@@ -119,10 +141,9 @@ def main() -> int:
         for doc in sorted(glob.glob(os.path.join(REFS, pattern))):
             rel = os.path.relpath(doc, _ROOT)
             text = open(doc, encoding="utf-8").read()
-            app_readme = pattern == "*/app/*.md" and Path(doc).name == "README.md"
             if "□" in text:
                 errors.append(f"[{rel}] 文档含过程检查框；用条件/动作/产物表代替")
-            if pattern == "*/app/*.md" and not app_readme:
+            if pattern == "*/app/*.md":
                 required_sections = {"## 流程", "## 边界条件", "## 输出模板"}
                 actual_sections = {line.strip() for line in text.splitlines()}
                 missing_sections = sorted(required_sections - actual_sections)
@@ -145,7 +166,7 @@ def main() -> int:
                     flow_lines = len(text[start:end if end >= 0 else len(text)].splitlines())
                     if flow_lines > 20:
                         errors.append(f"[{rel}] 流程区 {flow_lines} 行，超过 20 行精简上限")
-                max_lines = 75 if Path(doc).name == "mingshu-full.md" else 65
+                max_lines = APP_CARD_LINE_BUDGET.get(Path(doc).name, 65)
                 if len(text.splitlines()) > max_lines:
                     errors.append(f"[{rel}] app 卡 {len(text.splitlines())} 行，超过 {max_lines} 行精简上限")
             required_paths = []
@@ -167,6 +188,11 @@ def main() -> int:
             errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含过程检查框")
         if re.search(r"\bStep\s+\d+(?:\.\d+)?\b", text):
             errors.append(f"[{os.path.relpath(doc, _ROOT)}] 文档含旧流程步骤编号")
+        rel = os.path.relpath(doc, _ROOT)
+        if rel != os.path.join("skills", "liki", "SKILL.md") and text.startswith("---\n"):
+            errors.append(f"[{rel}] 方法论卡带 frontmatter（无消费方）：元数据改放正文或 ENTRY 路由表")
+        for match in re.finditer(r"`data/[A-Za-z0-9_./-]+\.(?:json|csv)`", text):
+            errors.append(f"[{rel}] 引用实现内部数据文件 {match.group(0)}：改引工具字段名")
 
     readme = os.path.join(_ROOT, "README.md")
     assertion_path = os.path.join(_ROOT, "counsel", "app", "natal", "tools", "assertions", "assertions.csv")

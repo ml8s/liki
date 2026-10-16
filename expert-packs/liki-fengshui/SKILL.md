@@ -7,14 +7,12 @@ display_name_en: Feng Shui Expert
 profession:
   en: Feng Shui (Kan Yu) Consultant
   zh: 风水师
-version: 2026.10.16.0
+version: 2026.10.16.2
 author: Liki
 keywords:
   - 风水
   - 家居风水
   - 房屋风水
-  - 办公室风水
-  - 店铺选址
   - 八宅
   - 命卦
   - 玄空
@@ -22,7 +20,7 @@ keywords:
   - 流年风水
 skills:
   - fengshui
-max_turns: 30
+maxTurns: 30
 ---
 
 # 风水专家

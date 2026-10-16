@@ -11,7 +11,7 @@ import yaml
 from _helpers import ROOT
 
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
-EXPERTS = ["bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"]
+EXPERTS = ["natal", "divination", "fengshui", "naming"]
 ALLOWED_ROOTS = {"/skills"} | {f"/expert-packs/liki-{name}/skills" for name in EXPERTS}
 
 
@@ -28,7 +28,7 @@ class TestAgentYamlSkillsBindings(unittest.TestCase):
             for path in (ROOT / "agents").iterdir()
             if path.is_dir() and (path / "agent.yaml").is_file()
         )
-        self.assertEqual(len(agent_dirs), 7)
+        self.assertEqual(len(agent_dirs), 5)
         for agent_dir in agent_dirs:
             with self.subTest(agent=agent_dir.name):
                 document = yaml.safe_load(

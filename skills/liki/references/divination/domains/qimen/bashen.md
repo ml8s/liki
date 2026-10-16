@@ -22,6 +22,6 @@
 
 - **用神宫所临神煞**定所问之事的性质（问婚姻而用神宫临六合=和合成局、临玄武=有隐情）
 - 神煞与门/星/生克叠加：神煞定"人事色彩"，门星定"吉凶本质"，生克定"双方关系"
-- 门/星吉凶本质由工具投影（`factors.doors[].ji_xiong` / `factors.stars[].ji_xiong`，数据源 `data/qimen_men_star_ji_xiong.json`），LLM 只读投影字段，不自行背表
-- 凶象叠加量级由工具按 `qimen_judgment_rules.json` 输出候选（snapshot `judgments` 字段，如 `big-failure-rout`），LLM 只解读命中的 `statement / conclusion / forbidden`，不自行推导量级
+- 门/星吉凶读工具投影（`factors.doors[].ji_xiong` / `factors.stars[].ji_xiong`）
+- 凶象叠加量级由工具输出候选（snapshot `judgments` 字段，如 `big-failure-rout`）；解读命中的 `statement / conclusion / forbidden`
 - 转盘阳遁用勾陈/朱雀，阴遁用白虎/玄武；洛书飞盘九神序列为值符→螣蛇→太阴→六合→白虎→太常→玄武→九地→九天；鸣法飞盘为值符→螣蛇→太阴→六合→勾陈→太常→朱雀→九地→九天，须按 `method.spirit_mode` 解释；三种盘式均按 `method.spirit_flight=yang_forward_yin_reverse` 起飞

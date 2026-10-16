@@ -2,7 +2,8 @@
 
 生成器语义（唯一生成入口）：
 - 权威源 = skills/liki/references/（domains 真值卡 + app 编排卡副本）
-- expert-packs/*/skills/<skill>/references/ 全部由生成器镜像产出（手改=漂移）
+- 顶层领域 = 专家包（1:1）：expert-packs/liki-<domain>/skills/<domain>/references/
+  是根 references/<domain>/ 子树的逐字节镜像（手改=漂移）
 - make check 跑 --check 双向检测（缺失/孤儿/内容差异）
 """
 from __future__ import annotations
@@ -29,86 +30,81 @@ def test_check_reports_no_drift():
 
 
 def test_mappings_cover_every_root_domain_dir():
-    """根 references/*/domains/* 全集必须被 MAPPINGS 覆盖（新增域防漏映射）。"""
-    root_dirs = {
-        str(p.relative_to(SKILL))
-        for p in SKILL.glob("*/domains/*")
-        if p.is_dir()
-    }
+    """根 references/*/domains/* 全集必须被 MAPPINGS 覆盖（新增体系防漏镜像）。"""
+    root_dirs = [p.relative_to(SKILL) for p in SKILL.glob("*/domains/*") if p.is_dir()]
+    assert root_dirs
     mapped = {m[0] for m in gen.MAPPINGS}
-    missing = root_dirs - mapped
-    assert not missing, f"根域目录未进 MAPPINGS（生成器会漏卡）: {sorted(missing)}"
+    missing = [str(d) for d in root_dirs if str(d).split("/")[0] not in mapped]
+    assert not missing, f"根域目录未进 MAPPINGS（生成器会漏卡）: {missing}"
 
 
-def test_app_orchestration_cards_are_mapped():
-    """app 编排卡副本（WorkBuddy 运行时需要）必须由生成器管，禁止手维护。"""
-    mapped = {m[0] for m in gen.MAPPINGS}
-    assert "naming/app" in mapped
-    assert "fengshui/app" in mapped
+def test_every_root_domain_is_one_pack():
+    """顶层领域 = 专家包（1:1）：每个 references/<domain>/ 都有对应包与身份文件。"""
+    mapped = {m[0]: (m[1], m[2]) for m in gen.MAPPINGS}
+    # 领域目录 = 带 ENTRY.md 的顶层目录（references/ 下还有共享的 ops/、payment/）。
+    domains = {p.name for p in SKILL.iterdir() if p.is_dir() and (p / "ENTRY.md").is_file()}
+    assert domains == set(mapped), (domains, set(mapped))
+    for domain, (pack, skill) in mapped.items():
+        assert pack == gen.DOMAIN_PACKS[domain], domain
+        assert skill == domain, domain
+        assert (SKILL / domain / "ENTRY.md").is_file(), domain
+        assert (gen.PACKS / pack / "SKILL.md").is_file(), pack
+        assert (gen.PACKS / pack / "skills" / domain).is_dir(), pack
 
 
 def test_every_mapped_source_exists_and_dest_inside_expert_packs():
-    for src_rel, pack, skill, sub in gen.MAPPINGS:
+    for src_rel, pack, skill in gen.MAPPINGS:
         assert (SKILL / src_rel).is_dir(), f"源缺失: {src_rel}"
         dest = gen.PACKS / pack / "skills" / skill / "references"
-        if sub:
-            dest = dest / sub
         assert str(dest).startswith(str(gen.PACKS)), dest
         assert (gen.PACKS / pack / "SKILL.md").is_file(), pack
 
 
-def test_dest_groups_aggregate_multi_source():
-    """多对一聚合：naming ← qiming+bazi+app；fengshui ← bazhai+xuankong+domains+fengshui/app。"""
+def test_dest_groups_mirror_one_subtree_per_pack():
+    """1:1 镜像：每个目标 references/ 只由一个根子树喂入（不再多对一聚合）。"""
     groups = gen._dest_groups()
-    naming_dest = gen.PACKS / "liki-naming" / "skills" / "naming" / "references"
-    fengshui_dest = gen.PACKS / "liki-fengshui" / "skills" / "fengshui" / "references"
-    assert len(groups[naming_dest]) == 3, groups[naming_dest]
-    assert len(groups[fengshui_dest]) == 4, groups[fengshui_dest]
+    assert len(groups) == len(gen.MAPPINGS)
+    for dest, srcs in groups.items():
+        assert len(srcs) == 1, (dest, srcs)
 
 
 def test_expected_rebases_root_layout_refs_into_pack_paths():
-    """包内互引必须 rebase：根子树 token（references/<x>/domains/<y>/<name>.md）
-    → 包平铺路径（references/<name>.md），否则 ADK load_skill_resource 死链。"""
+    """包内互引必须 rebase：`references/<domain>/…` → `references/…`（相对 skill 根），
+    否则 ADK load_skill_resource 死链；除此之外镜像逐字节保真。"""
     groups = gen._dest_groups()
-    maps, errors = gen._pack_name_maps(groups)
-    assert not errors, errors
-    dest = gen.PACKS / "liki-fengshui" / "skills" / "fengshui" / "references"
-    result = gen._expected(dest, groups[dest], maps["liki-fengshui"])
+    dest = gen.PACKS / "liki-natal" / "skills" / "natal" / "references"
+    result = gen._expected(dest, groups[dest])
     assert isinstance(result, dict), result
-    text = result["fengshui.md"].decode("utf-8")
-    assert "references/fengshui/domains/" not in text, "根子树 token 未 rebase"
-    assert "references/youxing.md" in text
-    assert "references/caijue.md" in text
+    text = result["app/marriage.md"].decode("utf-8")
+    assert "references/natal/" not in text, "根子树 token 未 rebase"
+    assert "references/domains/bazi/shishen.md" in text
+    assert "references/domains/ziwei/yingqi.md" in text
+    root_card = (SKILL / "natal" / "app" / "marriage.md").read_text(encoding="utf-8")
+    assert text == root_card.replace("references/natal/", "references/")
+    # 子树布局保留（app/ 与 domains/<体系>/ 分目录，不再平铺）
+    assert "domains/bazi/geju.md" in result and "domains/ziwei/geju.md" in result
 
 
-def test_rebase_reports_cross_pack_dead_link():
-    """引用本包不存在的卡 = 包必须自包含，fail-closed 报错且不改写。"""
+def test_rebase_reports_cross_domain_dead_link():
+    """引用别的领域子树 = 包必须自包含，fail-closed 报错且不改写。"""
     errors: list[str] = []
     payload = gen._rebase(
-        b"read `references/elsewhere.md`",
-        {"youxing.md": "references/youxing.md"},
+        b"read `references/naming/app/naming.md`",
+        "natal",
+        {"references/app/marriage.md"},
         errors,
         "pack/references/x.md",
     )
+    assert len(errors) == 1 and "跨域引用" in errors[0], errors
+    assert payload == b"read `references/naming/app/naming.md`"
+
+
+def test_rebase_reports_intra_domain_dead_link():
+    """本域 token 指向包内不存在的卡（如根子树漏镜像）同样 fail-closed。"""
+    errors: list[str] = []
+    gen._rebase(b"read `references/natal/app/nope.md`", "natal", set(), errors, "pack/x.md")
     assert len(errors) == 1 and "死链" in errors[0], errors
-    assert payload == b"read `references/elsewhere.md`"
-
-
-def test_pack_name_maps_rejects_ambiguous_basename(tmp_path, monkeypatch):
-    """同包同名异位（references/a.md 与 references/sub/a.md）必须报歧义。"""
-    monkeypatch.setattr(gen, "PACKS", tmp_path / "packs")
-    src1, src2 = tmp_path / "src1", tmp_path / "src2"
-    src1.mkdir()
-    src2.mkdir()
-    (src1 / "a.md").write_text("main", encoding="utf-8")
-    (src2 / "a.md").write_text("sub", encoding="utf-8")
-    groups = {
-        tmp_path / "packs" / "liki-x" / "skills" / "x" / "references": [src1],
-        tmp_path / "packs" / "liki-x" / "skills" / "x" / "references" / "sub": [src2],
-    }
-    maps, errors = gen._pack_name_maps(groups)
-    assert any("歧义" in e for e in errors), errors
-    assert maps["liki-x"]["a.md"] == "references/a.md"
+    assert "references/app/nope.md" in errors[0], errors
 
 def test_identity_file_is_the_only_authored_expert_identity():
     """专家身份唯一手写源＝包根 SKILL.md；仓库根不再保留 persona 目录。"""

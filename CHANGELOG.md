@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026.10.16.2] — 2026-10-16
+
+### Changed
+
+- 专家身份文件 frontmatter 按 **WorkBuddy/CodeBuddy 标准对齐**，消除「写而无用」字段：`max_turns` → `maxTurns`（WorkBuddy agent md 的回合上限字段是 camelCase，snake 写法不会被读取；本文件即 `plugin.json.agents` 指向的 agent 定义）；`keywords` / `skills` 本就是 `plugin.json` 字段、此前误置于 agent md 且 `plugin.json` 漏写，现由 `scripts/sync_expert_packs.py` 从身份文件单一源投影进 `plugin.json`（`keywords` → `plugin.json.keywords`；`skills` 名列表 → `plugin.json.skills` 的 `./skills/<name>` 预加载路径），`--check` 与 `tests/test_unified_skill_structure.py` 双向钉住。同时澄清运行范围：根 `skills/liki/SKILL.md` 是独立单 skill（不委派），`agents/`＋`router` 才是多专家调度与委派（`docs/SYSTEM.md`、`expert-packs/README.md`）。
+- 技能内容按**信息熵**清理（评审：零信息表达 / 同一规则多处定义 / 无消费方元数据 / 实现细节泄漏）：删除 24 张卡上无消费方的 frontmatter（`name` / `description` / `依赖域`，全仓无读取方，`check_docs.py` 新增拒绝规则）；`## 输出模板` 只有示例的 12 张 app 卡补上模板体（`tests/test_unified_skill_structure.py` 新增 `test_app_cards_declare_output_template_body`）；奇门四张专占卡的公共样板抽到 `references/divination/TOOLS.md`「专占公共边界」（卡内只留各自差异，`tests/test_qimen_user_contract.py` 改为断言单一源）；考时六步流程只在 `bazi/calibration.md` 定义、紫微侧改为指针；冲合语义与宫位应事归 `hehui.md`（dayun 只留应期强度）、`合绊/合化/合动` 只留 `hehui.md` 一处、空宫归 `gong12.md`、体型归 `xiangmao.md` 表列、六亲星宫归 `family.md`、`yongshen.md` 内部五处从格复述合并为一节；natal 与 naming 的用神取舍优先序钉成同字（`test_shared_yongshen_priority_order_matches`）。删除实现内部数据文件名引用（`data/*.json`，改为工具字段名，`check_docs.py` 新增拒绝规则）、`命理域断语查询`的 CSV 重组历史说明 5 处、每卡重复的「下表仅供解读参考」免责句 7 处、6 处空小节与 `【强制】` / `⚠️` 元标注。纯否定句从 20 条降到 8 条（其余 131 条否定句都带正向动作，属真实失败模式，保留）。`skills/liki` 净减 281 行（67 个文件，+547 / −828），全部闸门（`check_docs` / `check_doc_paths` / `check_mcp_schema` / `sync-expert-packs --check` / `pytest` / `lint-python`）通过。
+- 专家包收敛为**四个顶层领域（1:1）**：`liki-bazi` / `liki-ziwei` 合并为 `liki-natal`，`liki-liuyao` / `liki-qimen` 合并为 `liki-divination`（`liki-fengshui` / `liki-naming` 不变）；包内 `skills/<domain>/references/` 由平铺卡改为根 `references/<domain>/` 整棵子树的逐字节镜像（保留 `app/`、`domains/<体系>/` 布局，仅 rebase 卡内互引路径，跨域引用 fail-closed），`app/` 承载场景与跨体系合参、`domains/` 只放本体系知识。`agents/` 域专家、router `sub_agents`、`profiles/experts.json` 与部署生成器白名单同步为 natal / divination / fengshui / naming；`.mcp.json` 按领域挂所需子域连接器（natal 双体系、divination 三 engine 连接器）。文档（`expert-packs/README.md`、`docs/SYSTEM.md`、`docs/DOMAIN_NAMING.md`、`CONTRIBUTING.md`、README）与 `TODO.md` §2/§4 同步。
+- 领域文档清理（评审：领域模型 / 正交性 / 冗余 / 过期 / 负面约束）：跨体系**否定式元话语**改成正向口径或改成指向真实归属——八宅与玄空领域卡不再用「不以八字日主/用神解释」，改述本卡自己的口径与九星命名归属；`ziwei/gong12.md`、`ziwei/xiangmao.md`、`ziwei/yingqi.md` 去掉「不套八字用神」「不混用其他体系旺衰」「一般吉象不否决」式表述（后者留在本卡主信号口径内、以正向写法保留语义）；`naming/ENTRY.md` 改「起名的五行依据只取八字排盘与用神」；`natal/ENTRY.md` 删掉写进 agent 文档的**仓库结构政策**（「领域划分：bazi/ 只放八字方法…」）与悬空的「根 `SKILL.md`」指代，只留正向的合参/裁决指路。删除 `natal/app/mingshu.md`、`natal/app/compatibility.md` 中复述 `TOOLS.md`「合参与裁决」的通用证据强度公式，改为指向单一出处。市场面删掉方法论未覆盖的过度承诺词（见 TODO §1）。
+
+- 收尾清理：删除 `TODO.md`（未决项「专家包是否独立携带 Aipay / Feedback」落为 `expert-packs/README.md`「运行时边界」声明，信息未丢）；四份专家包 README 里逐字重复的「待办」与不一致的「校验要点」指针收敛到 `expert-packs/README.md` 单一源；修正 `README.en.md` 文档表里 RUNTIME 的过时描述（原写「retained JSON-RPC compatibility」，JSON-RPC 早已退役）为环境变量口径；`CONTRIBUTING.md` 新增「相关文档」链到此前无人引用的 `docs/SYSTEM.md` 与 `docs/MCP_CONTRACTS.md`。
+
 ## [2026.10.16.0] — 2026-10-16
 
 ### Added

@@ -15,14 +15,7 @@ SKILL_ROOT = Path(__file__).resolve().parents[1] / "skills/liki"
 ALL_MD = sorted(p for p in SKILL_ROOT.rglob("*.md") if "README" not in p.name)
 
 # App 卡有 frontmatter，不需要 H1；其余文件应有且仅有 1 个 H1
-APP_CARDS = {
-    p for p in ALL_MD
-    if p.parent.name == "app" and p.name != "README.md"
-}
-INDEX_FILES = {
-    p for p in ALL_MD
-    if p.name in ("README.md",) and p.parent.name == "app"
-}
+APP_CARDS = {p for p in ALL_MD if p.parent.name == "app"}
 
 # 最大 heading 层级
 MAX_HEADING_LEVEL = 4
@@ -78,8 +71,6 @@ def test_h1_count(path: Path):
     if path in APP_CARDS and _has_frontmatter(path):
         # App 卡 frontmatter 的 description 顶替 H1，不要求 body 有 H1
         return
-    if path in INDEX_FILES:
-        return  # index 文件允许 0 个 H1
     assert len(h1s) == 1, f"{_rel(path)}: H1 count = {len(h1s)}, expected 1"
 
 

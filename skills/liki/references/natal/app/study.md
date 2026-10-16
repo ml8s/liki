@@ -1,16 +1,10 @@
----
-name: app-study
-description: 学业判断 — 学历层次、学习能力、考试运
-依赖域: bazi,ziwei
----
-
 # 学业分析
 
 ## 依赖的领域知识
 
-[必读] - bazi: `references/natal/domains/bazi/study.md`「学历决策」+ `references/natal/domains/bazi/shishen.md`「十神组合」
+[必读] - bazi: `references/natal/domains/bazi/study.md`「翻译表：学历判断」+ `references/natal/domains/bazi/shishen.md`「十神组合」
 
-[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「学业应期」+ `references/natal/domains/ziwei/liunian.md`「流年宫位」
+[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「翻译表：各领域紫微看盘抓手」+ `references/natal/domains/ziwei/liunian.md`「翻译表：流年命宫落12宫」
 
 ## 流程
 
@@ -21,6 +15,11 @@ description: 学业判断 — 学历层次、学习能力、考试运
 | 3 | 学历倾向 | 发送 八字侧 + 紫微侧 `本命判断` | 学历档与依据 |
 | 4 | 具体细节或流年 | 发送 八字侧 + 紫微侧 `本命判断（学业）`；用户问具体年份、考试结果或学业流年时发送 八字侧 + 紫微侧 `应期判断` | 文昌文曲、化科、流年命宫 |
 
+## 📖 双盘学业合参
+
+- **入学能力**：紫微文昌 / 文曲化科入官禄或命宫 + 八字官杀生印 / 食伤泄秀 → 入学能力在；毕业档按 `references/natal/domains/bazi/study.md`「学历档护栏」判。
+- **流年应期**：紫微流年命宫 / 福德宫昌曲化科与八字印星引动同参，定考试有利窗口。
+
 ## 边界条件
 
 | 异常场景 | 处理方式 |
@@ -29,6 +28,13 @@ description: 学业判断 — 学历层次、学习能力、考试运
 | 原局无印星 | 查食伤（技术学习能力）+ 官杀（压力中学业） |
 
 ## 输出模板
+
+```text
+结论：一句话学历层次与学习特点。
+依据：印星状态与格局、文星引动（列断语 id）。
+应期：考试 / 升学有利年。
+建议：一个可行的学业动作。
+```
 
 ### 示例
 

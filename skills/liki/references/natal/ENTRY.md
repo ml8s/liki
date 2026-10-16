@@ -10,13 +10,22 @@ agent 经 `engine` MCP（排盘）与 `counsel` MCP（判断）使用两侧工�
 
 执行侧按用户点名的体系选择：点名八字只跑八字侧，点名紫微只跑紫微侧，未点名时两侧都跑并合参（同向时综合，冲突时并列两侧证据）。
 
-| 用户场景 | 入口卡 |
-| --- | --- |
-| 主题分析（婚姻、事业、财运、健康、学业、性格、六亲、流年）| `references/natal/app/README.md` 中的对应主题卡 |
-| 快速扫描 / 综合命书 | `references/natal/app/mingshu.md`、`references/natal/app/mingshu-full.md` |
-| 合盘（双人）| `references/natal/app/compatibility.md` |
-| 考时（时辰存疑）| 八字侧 `references/natal/domains/bazi/calibration.md` 编排，紫微侧 `references/natal/domains/ziwei/calibration.md` 交叉验证 |
+| 用户场景 | 入口卡 | 历史验证聚焦 |
+| --- | --- | --- |
+| 无明确问题 / 要看命书 | `references/natal/app/mingshu.md` | 全盘大事 |
+| 婚姻与感情 | `references/natal/app/marriage.md` | 结婚 / 婚变年 |
+| 事业方向与起伏 | `references/natal/app/career.md` | 升职 / 离职 / 创业年 |
+| 财源与风险 | `references/natal/app/wealth.md` | 得财 / 破财年 |
+| 健康倾向 | `references/natal/app/health.md` | 大病 / 手术年 |
+| 学业与考试 | `references/natal/app/study.md` | 升学 / 毕业 / 中断年 |
+| 性格与体型 | `references/natal/app/personality.md` | 状态题可免验证 |
+| 父母六亲与子女 | `references/natal/app/family.md` | 父母灾 / 子女出生年 |
+| 合盘（双人）| `references/natal/app/compatibility.md` | 婚运窗口 |
+| 考时（时辰存疑）| 八字侧 `references/natal/domains/bazi/calibration.md` 编排，紫微侧 `references/natal/domains/ziwei/calibration.md` 交叉验证 | — |
+
+场景卡只写场景查询、裁决与输出；工具链与断语字段见 `references/natal/TOOLS.md`，全局硬边界见 `SKILL.md` 的硬边界一节。
 
 ## 硬边界
 
 - 断语以工具输出为准（规则真值表）；方法论卡只用于解释依据，不自行编造。
+- 跨体系合参与断语取舍按 `references/natal/TOOLS.md`「合参与裁决」执行；各场景的取值见对应场景卡的「双盘合参」节。

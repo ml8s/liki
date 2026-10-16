@@ -1,16 +1,10 @@
----
-name: app-foreign
-description: 外国人起中文名 — 罗马字姓转受控中文姓候选，并按八字用神与五行选字
-依赖域: bazi,qiming
----
-
 # 外国人起中文名
 
 > 场景：外国人罗马字姓起中文名。通用起名/改名 → `naming.md`；自选名字评估 → `selfcheck.md`。
 
 ## 依赖的领域知识
 
-[必读] - bazi: `references/naming/domains/bazi/yongshen.md`「用神方法论」+ `references/naming/domains/bazi/calibration.md`「时辰判定」
+[必读] - bazi: `references/naming/domains/bazi/yongshen.md`「起名用神选择」+ `references/naming/domains/bazi/calibration.md`「出生时辰判定（起名精简版）」
 [必读] - qiming: `references/naming/domains/qiming/ziku.md`「字库与选字」
 
 ## 流程
@@ -35,6 +29,12 @@ description: 外国人起中文名 — 罗马字姓转受控中文姓候选，�
 5a ⛔ 只输出：首选推荐「{名}」({拼音})、一个优点 / 可商榷点、其他候选；选项 1.确认首选 2.看其他候选详情 3.换方向。停在这里，等用户回复后继续。
 
 ## 输出模板
+
+```text
+结论：推荐中文名与姓来源（罗马字姓 → 候选 + match_level）。
+候选：5-8 个候选（名 + 拼音 + 五行 + 音近关系）。
+理由：用神 / 喜神匹配、跨语言音韵。
+```
 
 ### 示例
 

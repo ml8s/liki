@@ -38,7 +38,7 @@ class TestDeploymentGeneration(unittest.TestCase):
         agents = deployment["spec"]["agents"]
         self.assertEqual(
             [a["name"] for a in agents],
-            ["router", "bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"],
+            ["router", "natal", "divination", "fengshui", "naming"],
         )
         self.assertTrue(all(agent["version"] == runtime_version for agent in agents))
 
@@ -49,15 +49,13 @@ class TestDeploymentGeneration(unittest.TestCase):
         self.assertEqual(
             agents["router"]["sub_agents"],
             [
-                {"name": "bazi"},
-                {"name": "ziwei"},
-                {"name": "liuyao"},
-                {"name": "qimen"},
+                {"name": "natal"},
+                {"name": "divination"},
                 {"name": "fengshui"},
                 {"name": "naming"},
             ],
         )
-        for expert in ["bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"]:
+        for expert in ["natal", "divination", "fengshui", "naming"]:
             self.assertEqual(agents[expert]["sub_agents"], [])
 
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
@@ -102,7 +100,7 @@ class TestDeploymentGeneration(unittest.TestCase):
         deployment = json.loads(self._generate("experts").read_text(encoding="utf-8"))
         agents = {agent["name"]: agent for agent in deployment["spec"]["agents"]}
         exposed = {server: set() for server in catalog_tools}
-        for expert in ["bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"]:
+        for expert in ["natal", "divination", "fengshui", "naming"]:
             for server, allowed in agents[expert]["tools"]["allow"].items():
                 allowed = set(allowed)
                 if server == "skilltoolset":
@@ -121,7 +119,7 @@ class TestDeploymentGeneration(unittest.TestCase):
         import generate_deployment as gen  # noqa: E402
 
         self._generate("experts")
-        for domain in ("bazi", "ziwei", "liuyao", "qimen", "fengshui", "naming"):
+        for domain in ("natal", "divination", "fengshui", "naming"):
             identity = ROOT / "expert-packs" / f"liki-{domain}" / "SKILL.md"
             self.assertEqual(gen.identity_path(domain), identity)
             body = identity.read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"

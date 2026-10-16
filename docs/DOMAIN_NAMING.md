@@ -14,6 +14,7 @@ names.
 | Agent runtime | `liki-agent-runtime` | Generic ADK runtime base image. |
 | Expert assembly | `liki-experts` | Production expert assembly image. |
 | Expert service | `experts` | Compose service running `liki-experts`. |
+| Expert pack | `liki-<domain>` | One per top-level domain: `liki-natal`, `liki-divination`, `liki-fengshui`, `liki-naming` (domain cards under `references/<domain>/`). |
 | Web BFF | `liki-web` / `web` | Commerce, identity, chat BFF, and public site. |
 
 Do not call `liki-agent-runtime` the production expert image. Do not call

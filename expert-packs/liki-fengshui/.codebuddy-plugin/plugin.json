@@ -1,6 +1,6 @@
 {
   "name": "liki-fengshui",
-  "version": "2026.10.16.0",
+  "version": "2026.10.16.2",
   "description": "Chinese Feng Shui expert covering Ba Zhai natal trigram, door-kitchen-stove layout, Xuan Kong flying-star charts, period cycles, and yearly stars with traceable rule-based readings.",
   "author": {
     "name": "Q.Sui",
@@ -54,13 +54,26 @@
       "en": "Check this year's flying-star influence on my home"
     },
     {
-      "zh": "办公室/店铺选址看哪个方位好",
-      "en": "Which direction is favorable for my office or shop"
+      "zh": "按我的命卦看家里哪几个方位吉",
+      "en": "Show my Ba Zhai trigram and my home's favorable directions"
     }
   ],
   "dependencies": {
     "connectors": [
       "engine-fengshui"
     ]
-  }
+  },
+  "keywords": [
+    "风水",
+    "家居风水",
+    "房屋风水",
+    "八宅",
+    "命卦",
+    "玄空",
+    "飞星",
+    "流年风水"
+  ],
+  "skills": [
+    "./skills/fengshui"
+  ]
 }

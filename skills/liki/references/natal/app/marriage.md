@@ -1,19 +1,13 @@
----
-name: app-marriage
-description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
-依赖域: bazi,ziwei
----
-
 # 婚姻分析
 
 ## 依赖的领域知识
 
 [必读] - bazi: `references/natal/domains/bazi/shishen.md`「女命婚姻——官杀混杂判断」
-[必读] - bazi: `references/natal/domains/bazi/dayun.md`「应期决策表」
+[必读] - bazi: `references/natal/domains/bazi/dayun.md`「应期推断」
 [按需] - bazi: `references/natal/domains/bazi/gongwei.md`「宫位论」（论宫位细节时读取）
-[按需] - bazi: `references/natal/domains/bazi/family.md`「六亲——配偶」（官杀线已覆盖配偶星主线）
+[按需] - bazi: `references/natal/domains/bazi/family.md`「六亲星宫」（官杀线已覆盖配偶星主线）
 
-[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「婚姻紫微应期」
+[必读] - ziwei: `references/natal/domains/ziwei/yingqi.md`「翻译表：各领域紫微看盘抓手」
 
 ## 流程
 
@@ -24,6 +18,13 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 | 3 | 婚姻状态 | 发送 八字侧 `本命判断` + 紫微侧 `应期判断（十年期）` | 已婚 / 单身 / 离异 / 婚缘迟 |
 | 4 | 应期 | 读取 `references/natal/domains/bazi/dayun.md`；发送 八字侧 + 紫微侧 `应期判断` | 首选年、备选年、引动层 |
 | 5 | 具体细节 | 发送 八字侧 + 紫微侧 `应期判断` | 紫微夫妻宫、四化、桃花信号 |
+
+## 📖 双盘婚姻合参
+
+- **同域助证**：紫微流年夫妻宫化忌可作离异年份的同域助证，但不是必要条件；冲忌次数不等于婚变段数。
+- **婚缘迟**：八字配偶星极弱且大运无透 叠 紫微夫妻宫落陷 / 空宫 → 先走婚缘迟路径。
+- **同向加强**：八字「婚可成」与紫微夫妻宫专指象并见时，分别列十神总体象与夫妻宫专指象，再说明适用层面。
+- **紫微宫位应期**：红鸾坐流年夫妻宫、流年命宫落目标领域宫并吉化，为同域主信号，与八字星宫引动并列参看。
 
 ## 边界条件
 
@@ -36,6 +37,13 @@ description: 婚姻分析 — 何时结婚、婚姻质量、感情走向
 | 用户只提供了一个人的八字但想看合盘 | 提示需要双方出生信息，引导到 `references/natal/app/compatibility.md` |
 
 ## 输出模板
+
+```text
+结论：一句话婚缘状态与质量。
+依据：配偶星状态、夫妻宫冲合、紫微夫妻宫（列断语 id）。
+应期：首选年 / 备选年与引动层。
+建议：一个现实动作。
+```
 
 ### 示例
 

@@ -47,18 +47,25 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 每个专家由两层组成：**身份文件**（角色骨架，唯一手写源）＋ **agent.yaml**（部署配置）。
 
 ```text
-expert-packs/liki-bazi/SKILL.md     # 身份单一源：frontmatter 元数据 + 角色/能力/边界正文（市场入口）
-agents/bazi/agent.yaml              # 部署配置：name/mode/sub_agents/tools.allow/skills.root
-agents/bazi/output-schema.json      # 可选：结构化输出
+expert-packs/liki-natal/SKILL.md    # 身份单一源：frontmatter 元数据 + 角色/能力/边界正文（市场入口）
+agents/natal/agent.yaml             # 部署配置：name/mode/sub_agents/tools.allow/skills.root
+agents/natal/output-schema.json     # 可选：结构化输出
 agents/router/router.md             # router 例外：无专家包，身份文件就在其部署目录
 ```
+
+**专家与顶层领域一一对应**（`natal` / `divination` / `fengshui` / `naming`，与根
+`skills/liki/references/<domain>/` 同名）：包内 `skills/<domain>/references/` 是根
+`references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains）的镜像，领域卡只写本体系知识、
+`app/` 承载场景与跨体系合参，因此不做多对一聚合、也不产生跨包死链。
 
 - `agent.yaml` 字段与 **ADK** 对齐（mode: chat/task/single_turn；sub_agents；tools.allow）
 - **`tools.allow` 是权威工具白名单**（替代旧的 env 白名单），每笔 engine/counsel 工具调用必须允许
 - 身份文件 frontmatter 映射到各消费方：`description_en` → 部署 agent 描述 + `plugin.json.description`；
-  `description` / `display_name(_en)` / `profession` / `keywords` / `skills` / `max_turns` → 域
-  `skills/<domain>/SKILL.md` 与 `plugin.json`；`plugin.json` 的 `agents` / `agentName` 固定指向
-  该身份文件本身；`version` 单一源为 `skills/liki/VERSION.txt`（agent.yaml 不再携带）
+  `description` → 域 `skills/<domain>/SKILL.md` 描述；`display_name(_en)` → 域 skill `metadata`；
+  `profession` → `plugin.json.profession`；`keywords` → `plugin.json.keywords`（市场检索词）；
+  `skills`（skill 名列表）→ `plugin.json.skills`（预加载路径 `./skills/<name>`）；`maxTurns` 是
+  WorkBuddy agent md 字段（本文件即该 agent 定义，`plugin.json.agents` 指向它）；`version` 单一源为
+  `skills/liki/VERSION.txt`（agent.yaml 不再携带）
 - 身份正文＝部署 instruction 骨架，同时是包内域 `SKILL.md` 的正文：两处同源渲染，包内不再有
   第二份身份副本，**杜绝漂移**（`expert-packs/README.md`：包结构来源表）
 - 域 `SKILL.md` 的方法论卡索引由生成器按镜像卡自动生成，禁止手维护卡名清单
@@ -70,17 +77,16 @@ agents/router/router.md             # router 例外：无专家包，身份文�
 
 | 专家 | engine 连接器 | counsel 连接器 |
 |---|---|---|
-| bazi | `engine-bazi` → `/engine/mcp/bazi` | `counsel-bazi` → `/counsel/mcp/bazi` |
-| ziwei | `engine-ziwei` → `/engine/mcp/ziwei` | `counsel-ziwei` → `/counsel/mcp/ziwei` |
-| liuyao | `engine-liuyao` → `/engine/mcp/liuyao` | `counsel-liuyao` → `/counsel/mcp/liuyao` |
-| qimen | `engine-qimen` → `/engine/mcp/qimen` **+** `engine-huangli` → `/engine/mcp/huangli` | `counsel-qimen` → `/counsel/mcp/qimen` |
+| natal | `engine-bazi` → `/engine/mcp/bazi` **+** `engine-ziwei` → `/engine/mcp/ziwei` | `counsel-bazi` → `/counsel/mcp/bazi` **+** `counsel-ziwei` → `/counsel/mcp/ziwei` |
+| divination | `engine-liuyao` → `/engine/mcp/liuyao` **+** `engine-qimen` → `/engine/mcp/qimen` **+** `engine-huangli` → `/engine/mcp/huangli` | `counsel-liuyao` → `/counsel/mcp/liuyao` **+** `counsel-qimen` → `/counsel/mcp/qimen` |
 | fengshui | `engine-fengshui` → `/engine/mcp/fengshui` | — |
 | naming | `engine-bazi` → `/engine/mcp/bazi`（取用神） | `counsel-naming` → `/counsel/mcp/naming` |
 
 要点：
 
 - **黄历是 engine 独立 `huangli` 子域**（`huangli.*` 前缀），不是 aux——aux 是 `time./tianwen./city.`（`/engine/mcp/aux`）。
-- **奇门连双 engine 连接器**（`engine-qimen` + `engine-huangli`）：分域端点下 `engine-qimen` 不含黄历，择日额外连 `engine-huangli`。
+- **占卜专家连三 engine 连接器**（`engine-liuyao` + `engine-qimen` + `engine-huangli`）：分域端点下 `engine-qimen` 不含黄历，择日额外连 `engine-huangli`。
+- **本命专家连双体系连接器**（`engine-bazi` + `engine-ziwei`、`counsel-bazi` + `counsel-ziwei`）：八字侧与紫微侧在同一个专家内各自排盘、各自判断，再在包内合参与裁决。
 - **命名连 `engine-bazi`**：起名用神取字依赖八字排盘，故复用 bazi 排盘连接器（排盘能力，非专家协作）。
 - 运行时（装配镜像）agent 连**全量 `/mcp`**（compose `LIKI_MCP_ENGINE_URL`），工具可见性由 `tools.allow` 白名单控制；分域连接器仅用于客户端安装独立 skill 时的隔离。
 
