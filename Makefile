@@ -30,6 +30,7 @@ export GOTOOLCHAIN ?= go1.26.9
         go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine test-engine-coverage test-counsel test-engine-mcp \
         full-data golden gate release-gate hooks version build-archive build-deployment \
         workbuddy-package \
+        workbuddy-avatars \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
         runtime-validate image image-engine image-counsel image-assembly
 
@@ -79,6 +80,9 @@ build: build-skill build-engine-mcp ## Build local artifacts (skill archive + en
 
 workbuddy-package: ## 打包 WorkBuddy 连接器提交包到 dist/workbuddy/（上传用）
 	scripts/package-workbuddy-connectors.sh
+
+workbuddy-avatars: ## 从包内 avatars/expert.svg 重新栅格化专家头像（512×512 PNG）
+	scripts/build-workbuddy-avatars.sh
 
 # ── 镜像（本地候选，非发布路径）──
 # 生产镜像由本地 `make candidate` 构建并推送 GHCR；CI promotion 只转发已验证 digest。

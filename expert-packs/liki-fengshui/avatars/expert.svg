@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="72" fill="#0C1A2E"/>
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#FFBF00" stroke-width="12" opacity="0.9"/>
+  <g stroke="#FFBF00" stroke-width="10" stroke-linecap="round" opacity="0.7">
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(0 256 256)"/>
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(45 256 256)"/>
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(90 256 256)"/>
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(135 256 256)"/>
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(180 256 256)"/>
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(225 256 256)"/>
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(270 256 256)"/>
+    <line x1="256" y1="52" x2="256" y2="78" transform="rotate(315 256 256)"/>
+  </g>
+  <circle cx="256" cy="256" r="152" fill="none" stroke="#FFBF00" stroke-width="7" opacity="0.45" stroke-dasharray="16 14"/>
+  <circle cx="256" cy="256" r="106" fill="none" stroke="#FFBF00" stroke-width="7" opacity="0.75"/>
+  <circle cx="256" cy="256" r="64" fill="#FFBF00"/>
+  <path d="M256 192 A32 32 0 0 1 256 256 A32 32 0 0 0 256 320 A64 64 0 0 1 256 192 Z" fill="#0C1A2E"/>
+  <circle cx="256" cy="224" r="9" fill="#FFBF00"/>
+  <circle cx="256" cy="288" r="9" fill="#0C1A2E"/>
+  <circle cx="256" cy="256" r="62.5" fill="none" stroke="#FFBF00" stroke-width="3"/>
+</svg>

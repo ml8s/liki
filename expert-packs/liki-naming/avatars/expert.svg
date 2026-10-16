@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="72" fill="#0C1A2E"/>
+  <rect x="126" y="126" width="260" height="260" rx="18" fill="none" stroke="#FFBF00" stroke-width="12" opacity="0.8"/>
+  <g stroke="#FFBF00" stroke-width="6" opacity="0.3" stroke-dasharray="14 12">
+    <line x1="256" y1="126" x2="256" y2="386"/>
+    <line x1="126" y1="256" x2="386" y2="256"/>
+  </g>
+  <text x="256" y="258" font-family="AR PL UKai CN" font-size="196" fill="#FFBF00" text-anchor="middle" dominant-baseline="central">名</text>
+</svg>
