@@ -23,8 +23,22 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "dist" / "workbuddy"
 EXCLUDED_NAMES = {".DS_Store"}
 EXCLUDED_PREFIXES = ("__MACOSX/",)
+EXCLUDED_PARTS = ("__pycache__", ".venv", ".pytest_cache", ".ruff_cache")
+EXCLUDED_SUFFIXES = (".pyc", ".pyo")
 ICON_NAMES = ("icon.svg", "icon.png", "icon.jpg")
 CONFIG_NAMES = ("mcp.json", "cli.json")
+
+
+def ignored(relative: str) -> bool:
+    """打包装箱规则（与 `scripts/package-workbuddy.sh` 的 -x 一致）。"""
+    if relative.startswith(EXCLUDED_PREFIXES):
+        return True
+    parts = relative.split("/")
+    if Path(relative).name in EXCLUDED_NAMES or parts[0] == "__MACOSX":
+        return True
+    if any(part in EXCLUDED_PARTS for part in parts[:-1]):
+        return True
+    return relative.endswith(EXCLUDED_SUFFIXES)
 
 
 def source_files(root: Path, skip: frozenset[str] = frozenset()) -> dict[str, bytes]:
@@ -33,8 +47,7 @@ def source_files(root: Path, skip: frozenset[str] = frozenset()) -> dict[str, by
         for path in sorted(root.rglob("*"))
         if path.is_file()
         and path.relative_to(root).as_posix() not in skip
-        and path.name not in EXCLUDED_NAMES
-        and not path.relative_to(root).as_posix().startswith(EXCLUDED_PREFIXES)
+        and not ignored(path.relative_to(root).as_posix())
     }
 
 
@@ -48,8 +61,8 @@ def zip_files(path: Path, top: str, errors: list[str]) -> dict[str, bytes]:
             if not name.startswith(f"{top}/") or ".." in name.split("/") or name.startswith("/"):
                 errors.append(f"{path.name}: 条目 `{name}` 不在顶层目录 `{top}/` 内")
                 continue
-            if "__MACOSX" in name or Path(name).name in EXCLUDED_NAMES:
-                errors.append(f"{path.name}: 条目 `{name}` 是不该入包的系统文件")
+            if ignored(name) or ignored(name[len(top) + 1:]):
+                errors.append(f"{path.name}: 条目 `{name}` 是不该入包的本地残渣")
                 continue
             payload[name[len(top) + 1:]] = archive.read(name)
     return payload

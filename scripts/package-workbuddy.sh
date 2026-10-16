@@ -18,7 +18,9 @@ SRC_DIR="$ROOT/workbuddy"
 SKILL_DIR="$ROOT/skills/liki"
 PACKS_DIR="$ROOT/expert-packs"
 OUT_DIR="$ROOT/dist/workbuddy"
-EXCLUDES=(-x '*.DS_Store' -x '__MACOSX/*')
+# 只入包提交源：系统垃圾与本地运行残渣（字节码、虚拟环境、缓存）一律排除。
+EXCLUDES=(-x '*.DS_Store' -x '__MACOSX/*' -x '*/__pycache__/*' -x '*.pyc' -x '*.pyo'
+          -x '*/.venv/*' -x '*/.pytest_cache/*' -x '*/.ruff_cache/*' -x '*.egg-info/*')
 
 if [ ! -d "$SRC_DIR" ] || [ ! -d "$PACKS_DIR" ]; then
     echo "[workbuddy-package] error: $SRC_DIR 或 $PACKS_DIR 不存在" >&2
