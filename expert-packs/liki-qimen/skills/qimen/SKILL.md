@@ -4,7 +4,7 @@ description: 奇门专家——九宫八门、三奇六仪、格局、策略方�
 metadata:
   display_name: 奇门专家
   display_name_en: Qi Men Expert
-  version: 2026.10.15.0
+  version: 2026.10.16.0
   author: Liki
 ---
 

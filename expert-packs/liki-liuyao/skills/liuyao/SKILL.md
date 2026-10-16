@@ -4,7 +4,7 @@ description: 六爻专家——纳甲筮法起卦、用神取用、六亲六神�
 metadata:
   display_name: 六爻专家
   display_name_en: Liu Yao Expert
-  version: 2026.10.15.0
+  version: 2026.10.16.0
   author: Liki
 ---
 

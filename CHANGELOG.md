@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026.10.16.0] — 2026-10-16
+
+### Added
+
+- 新增 tag 驱动的发布流水线 `.github/workflows/release.yml`：`vYYYY.MM.DD.N` tag 触发守卫（CalVer 格式、必须指向 main、`ghcr.io/ml8s/liki-{engine,counsel,experts}` 与 GitHub Release 均未存在）后构建并 cosign 签名三个 release 镜像（provenance + SBOM + OCI labels），签名 identity 为 `release.yml@refs/tags/<tag>`。
+- 发布流水线把本 tag 的 GitHub Release 作为唯一发布面：上传 `candidate-digests.json`（liki-deploy 部署流水线消费的跨仓合同）、`release-manifest.{json,sha256,sig,crt}` 与 web skill bundle 套件；`scripts/release-images.sh` 统一三镜像 buildx 双 tag push、镜像冒烟与 manifest 生成。
+- 候选 manifest 合同（`scripts/build_candidate_manifest.py` / `scripts/validate_candidate_manifest.py`）的 `candidate_tag` 接受 CalVer 发布 tag（此前仅 `candidate-<sha>-<ts>`），使 release 资产与候选流程共用同一校验面。
+
+### Changed
+
+- 技能内容完成单一真相源重构：expert-pack 身份收敛到包根 `SKILL.md`（删除包内 `agents/` 副本），router 身份迁至 `agents/router/router.md`，方法论卡由 `skills/liki/references/` 经 `scripts/sync_expert_packs.py` 单向生成并把双向漂移检查并入 `make check`；删除已被 references 覆盖的六爻/奇门交接快照。`TODO.md` 记录待办的关键词过度承诺等收尾项。
+- 版本面统一 bump 到 2026.10.16.0（VERSION 面、SKILL frontmatter、plugin.json、profiles、pyproject）。
+
 ## [2026.10.15.0] — 2026-10-15
 
 ### Changed

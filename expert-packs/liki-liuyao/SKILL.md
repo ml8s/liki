@@ -7,7 +7,7 @@ display_name_en: Liu Yao Expert
 profession:
   en: Liu Yao (Six Lines) Diviner
   zh: 六爻占卜师
-version: 2026.10.15.0
+version: 2026.10.16.0
 author: Liki
 keywords:
   - 六爻

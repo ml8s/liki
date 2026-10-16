@@ -7,7 +7,7 @@ display_name_en: BaZi Expert
 profession:
   en: BaZi (Four Pillars) Consultant
   zh: 八字命理师
-version: 2026.10.15.0
+version: 2026.10.16.0
 author: Liki
 keywords:
   - 八字算命

@@ -7,7 +7,7 @@ display_name_en: Feng Shui Expert
 profession:
   en: Feng Shui (Kan Yu) Consultant
   zh: 风水师
-version: 2026.10.15.0
+version: 2026.10.16.0
 author: Liki
 keywords:
   - 风水

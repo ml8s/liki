@@ -4,7 +4,7 @@ description: 紫微专家——十二宫、星曜、四化、大限流年、合�
 metadata:
   display_name: 紫微专家
   display_name_en: Zi Wei Expert
-  version: 2026.10.15.0
+  version: 2026.10.16.0
   author: Liki
 ---
 

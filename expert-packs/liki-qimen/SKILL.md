@@ -7,7 +7,7 @@ display_name_en: Qi Men Expert
 profession:
   en: Qi Men (Strange Door) Strategist
   zh: 奇门遁甲师
-version: 2026.10.15.0
+version: 2026.10.16.0
 author: Liki
 keywords:
   - 奇门

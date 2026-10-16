@@ -4,7 +4,7 @@ description: 八字专家——子平命理排盘、格局用神、十神六亲�
 metadata:
   display_name: 八字专家
   display_name_en: BaZi Expert
-  version: 2026.10.15.0
+  version: 2026.10.16.0
   author: Liki
 ---
 

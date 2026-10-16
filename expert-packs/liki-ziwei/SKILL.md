@@ -7,7 +7,7 @@ display_name_en: Zi Wei Expert
 profession:
   en: Zi Wei Dou Shu Consultant
   zh: 紫微命理师
-version: 2026.10.15.0
+version: 2026.10.16.0
 author: Liki
 keywords:
   - 紫微斗数

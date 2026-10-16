@@ -4,7 +4,7 @@ description: 风水专家——八宅命卦、门主灶、玄空飞星、元运�
 metadata:
   display_name: 风水专家
   display_name_en: Feng Shui Expert
-  version: 2026.10.15.0
+  version: 2026.10.16.0
   author: Liki
 ---
 

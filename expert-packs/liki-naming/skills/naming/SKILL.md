@@ -4,7 +4,7 @@ description: 起名专家——八字用神取字、五行选字、音韵文化�
 metadata:
   display_name: 起名专家
   display_name_en: Naming Expert
-  version: 2026.10.15.0
+  version: 2026.10.16.0
   author: Liki
 ---
 
