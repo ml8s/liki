@@ -40,13 +40,18 @@
 ## 头像
 
 每个包的头像由同目录矢量源 `avatars/expert.svg` 生成（`make workbuddy-avatars` → 512×512
-PNG，8-bit RGBA，单张 ≤500KB，符合 WorkBuddy 头像规范），四个包各自一张、按域区分：
-命盘（本命）、卦象（占卜）、罗盘与太极（风水）、田字格与「名」（起名）。全部为项目自绘矢量，
-不含第三方素材，因此不附带额外许可义务。字形一律在源里转成路径，源内不出现 `<text>`、
-`font-family`、`dominant-baseline`——市场宿主的渲染字体不可控，靠系统字体取字会静默换字形或错位；
-`make workbuddy-avatars` 与 `make check`（`scripts/check_expert_docs.py`）都会拒绝带文本依赖的源。
-矢量源不参与 `sync-expert-packs` 生成；
-若换成人物插画，同样必须使用自有或已获授权的素材，并在包 `README.md` 记录来源。
+PNG，8-bit RGBA，单张 ≤500KB，符合 WorkBuddy 头像规范）。四张是同一套设计：深蓝圆角底 +
+金色田字格 + 一个本域汉字——**命**（本命）、**卦**（占卜）、**宅**（风水）、**名**（起名）。
+设计常量（底色、田字格几何、字高、字面表）集中在 `scripts/gen_expert_avatar_svgs.py`，
+`make expert-avatars` 据此重建四份矢量源并栅格化；换字、改配色只改该脚本顶部。
+
+汉字取自阿里妈妈刀隶体（`Alimama DaoLiTi`，阿里巴巴免费商用字体；本仓不附带字体文件）：
+生成时用 `inkscape -T` 把字转成轮廓路径，源里只留路径——不出现 `<text>`、`font-family`、
+`dominant-baseline`。市场宿主的渲染字体不可控，靠系统字体取字会静默换字形或错位，
+因此 `make workbuddy-avatars` 与 `make check`（`scripts/check_expert_docs.py`）都会拒绝
+带文本依赖的源。田字格与配色为项目自绘、无第三方素材；字形轮廓的字体来源记录在此，
+矢量源不参与 `sync-expert-packs` 生成。若换成人物插画，同样必须使用自有或已获授权的素材，
+并在包 `README.md` 记录来源。
 
 ## 校验
 
