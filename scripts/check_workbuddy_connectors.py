@@ -24,6 +24,8 @@ WORKBUDDY = ROOT / "workbuddy"
 META_NAME = "connector-meta.json"
 CONFIG_NAMES = ("mcp.json", "cli.json")
 ICON_NAMES = ("icon.svg", "icon.png", "icon.jpg")
+# 图标与专家头像同族：字形必须转路径（宿主字体与 dominant-baseline 都不可控）。
+ICON_TEXT_MARKERS = ("<text", "font-family", "dominant-baseline")
 TOKEN_SCHEMA_NAME = "token-schema.json"
 
 NAME_REQUIRED = ("name", "name_en")
@@ -282,8 +284,13 @@ def check_connector(directory: Path, sources: dict[str, Path]) -> list[str]:
     if icon is not None:
         if icon.stat().st_size == 0:
             errors.append(f"{rel}: 图标文件为空")
-        elif icon.suffix == ".svg" and "<svg" not in icon.read_text(encoding="utf-8"):
-            errors.append(f"{rel}: {icon.name} 不含 <svg> 根元素")
+        elif icon.suffix == ".svg":
+            svg = icon.read_text(encoding="utf-8")
+            if "<svg" not in svg:
+                errors.append(f"{rel}: {icon.name} 不含 <svg> 根元素")
+            for marker in ICON_TEXT_MARKERS:
+                if marker in svg:
+                    errors.append(f"{rel}: {icon.name} 图标只允许路径字形，出现 `{marker}`")
 
     if "mcp.json" in configs:
         config = load_json(directory / "mcp.json", errors)

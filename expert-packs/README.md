@@ -42,8 +42,9 @@
 每个包的头像由同目录矢量源 `avatars/expert.svg` 生成（`make workbuddy-avatars` → 512×512
 PNG，8-bit RGBA，单张 ≤500KB，符合 WorkBuddy 头像规范）。四张是同一套设计：深蓝圆角底 +
 金色田字格 + 一个本域汉字——**命**（本命）、**卦**（占卜）、**宅**（风水）、**名**（起名）。
-设计常量（底色、田字格几何、字高、字面表）集中在 `scripts/gen_expert_avatar_svgs.py`，
-`make expert-avatars` 据此重建四份矢量源并栅格化；换字、改配色只改该脚本顶部。
+设计常量（底色、田字格几何、字高、字面表）集中在 `scripts/gen_brand_marks.py`
+（连接器图标用的是同一脚本、同一母题），`make brand-marks` 据此重建四份矢量源并栅格化；
+换字、改配色只改该脚本顶部。
 
 汉字取自阿里妈妈刀隶体（`Alimama DaoLiTi`，阿里巴巴免费商用字体；本仓不附带字体文件）：
 生成时用 `inkscape -T` 把字转成轮廓路径，源里只留路径——不出现 `<text>`、`font-family`、

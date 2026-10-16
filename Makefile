@@ -31,7 +31,7 @@ export GOTOOLCHAIN ?= go1.26.9
         full-data golden gate release-gate hooks version build-archive build-deployment \
         workbuddy-package \
         workbuddy-avatars \
-        expert-avatars \
+        brand-marks \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
         runtime-validate image image-engine image-counsel image-assembly
 
@@ -85,8 +85,8 @@ workbuddy-package: ## 打包 WorkBuddy 连接器提交包到 dist/workbuddy/（�
 workbuddy-avatars: ## 从包内 avatars/expert.svg 重新栅格化专家头像（512×512 PNG）
 	scripts/build-workbuddy-avatars.sh
 
-expert-avatars: ## 从本域汉字 + 阿里妈妈刀隶体重建头像矢量源，并栅格化（需要该字体）
-	python3 scripts/gen_expert_avatar_svgs.py
+brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（4 张头像矢量源 + 2 个连接器图标），并栅格化头像
+	python3 scripts/gen_brand_marks.py
 	scripts/build-workbuddy-avatars.sh
 
 # ── 镜像（本地候选，非发布路径）──
