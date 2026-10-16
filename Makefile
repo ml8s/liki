@@ -27,7 +27,7 @@ export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go/bin:$(HOME)/app/go-tools
 export GOTOOLCHAIN ?= go1.26.9
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
-        go-version-check lint vuln lint-md check test test-content test-engine test-engine-coverage test-counsel test-engine-mcp \
+        go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine test-engine-coverage test-counsel test-engine-mcp \
         full-data golden gate release-gate hooks version build-archive build-deployment \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
         runtime-validate image image-engine image-counsel image-assembly
@@ -117,6 +117,9 @@ fmt-check: ## Reject unformatted Go sources
 go-version-check: ## Require the security-supported Go toolchain
 	scripts/check-go-version.sh
 
+runtime-version-check: ## 本地 node/python 必须等于 .nvmrc/.python-version（与 CI 同源）
+	scripts/check-runtime-versions.sh
+
 lint-md: ## Markdown structure and style check
 	scripts/lint-md.sh
 
@@ -132,7 +135,7 @@ vuln: ## Vulnerability scan (govulncheck + pip-audit); CI also runs these as req
 	@if command -v govulncheck >/dev/null 2>&1; then (cd engine && govulncheck ./...); else echo "govulncheck 未安装，跳过 engine 扫描（CI 会跑）"; fi
 	@if command -v pip-audit >/dev/null 2>&1; then pip-audit -r counsel/requirements.lock --require-hashes --disable-pip; else echo "pip-audit 未安装，跳过 Python 扫描（CI 会跑）"; fi
 
-check: lint-md lint-python fmt-check go-version-check check-actions ## 纯静态检查（lint + Python lint + 格式 + 数据结构 + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
+check: lint-md lint-python fmt-check go-version-check runtime-version-check check-actions ## 纯静态检查（lint + Python lint + 格式 + 数据结构 + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
 	python3 scripts/check_factor_data.py
 	python3 scripts/check_docs.py
 	python3 scripts/check_doc_paths.py

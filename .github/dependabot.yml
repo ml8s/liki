@@ -1,0 +1,12 @@
+# 跟官方：GitHub action 出新版自动开 PR 升级（SHA pin 由 PR 一起改）。
+# 所有 action 归一组，每周一个汇总 PR，不刷屏。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"

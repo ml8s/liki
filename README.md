@@ -96,6 +96,9 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 
 ### 开发环境
 
+工具版本以仓内声明文件为准（CI 与本地同源，`make check` 校验本地一致）：
+Node 见 `.nvmrc`、Python 见 `.python-version`、Go 见 `go.mod` + `GOTOOLCHAIN`、golangci-lint 见 `deps/golangci-lint.version`。
+
 ```bash
 make hooks         # 安装 git hooks
 make check         # 所有静态检查（格式 + lint + schema + docs）
