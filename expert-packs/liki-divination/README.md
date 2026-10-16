@@ -32,8 +32,9 @@ liki-divination/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-liuyao", "engine-qimen", "engine-huangli", "counsel-liuyao", "counsel-qimen"]` —
-  六爻起卦、奇门排局与黄历查日由 engine 提供；不可变快照与追问能力由 counsel 提供。
+- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：六爻起卦、奇门排局与
+  黄历查日由 `engine-liuyao` / `engine-qimen` / `engine-huangli` 提供，不可变快照与追问能力由
+  `counsel-liuyao` / `counsel-qimen` 提供。
 
 ## 说明
 

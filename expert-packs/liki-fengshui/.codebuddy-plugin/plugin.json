@@ -59,9 +59,7 @@
     }
   ],
   "dependencies": {
-    "connectors": [
-      "engine-fengshui"
-    ]
+    "mcpServers": "./.mcp.json"
   },
   "keywords": [
     "风水",

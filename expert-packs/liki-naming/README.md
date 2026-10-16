@@ -30,7 +30,7 @@ liki-naming/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-bazi", "counsel-naming"]` — 八字排盘能力由 `engine-bazi` 提供（取用神）；姓氏匹配、取字、组名和评估能力由 `counsel-naming` 提供。
+- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：八字排盘能力由 `engine-bazi` 提供（取用神）；姓氏匹配、取字、组名和评估能力由 `counsel-naming` 提供。
 
 ## 说明
 

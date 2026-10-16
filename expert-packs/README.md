@@ -40,7 +40,7 @@
 ## 头像
 
 `avatars/expert.png` 是 512×512、16-bit RGBA 的项目自有占位图：不含任何第三方素材，
-因此不附带额外许可义务。它不参与 `sync-expert-packs` 生成，也无需在包之间统一——
+因此不附带额外许可义务。它不参与 `sync-expert-packs` 生成，四个包各自持有一份——
 替换为正式漫画/插画风头像时，同样必须使用自有或已获授权的素材，并在包 `README.md`
 记录来源。
 
@@ -60,5 +60,12 @@ skill 提供，包内不重复携带。若将来要独立售卖 / 独立运行�
 
 ## 上架前待办
 
-- `avatars/expert.png` 当前为项目自有占位图（纯色 + 文字）；上架前替换为正式漫画/插画风头像。
+- 头像：四个包的 `avatars/expert.png` 目前是同一张项目自有占位图（纯色 + 文字）；上架前按域各出一张正式漫画/插画风头像，市场侧才认得出是四个不同专家。
+- agent 定义：平台约定 `plugin.json.agents` 指向 `./agents/<agentName>.md` 且 `agentName` 等于该文件名（不含 `.md`），包内现指向包根 `./SKILL.md`；改法待定——由 `sync_expert_packs.py` 从身份文件投影出 `agents/<pack>.md`（身份仍是单一源），或维持现状并实测平台解析。
+- agent 定义 frontmatter：平台必填 `displayName: {en, zh}`，包内现为 `display_name` / `display_name_en` 两个平铺字符串；与上一条一并处理。
+- `version`：平台字段表写的是语义化版本，包内现为 4 段 CalVer（如 `2026.10.16.2`）；市场面版本的映射策略待定。
 - 用官方 `expert-manager` 技能逐项校验后上架。
+
+已定：运行时依赖用 `dependencies.mcpServers: "./.mcp.json"`（平台「方式一」的推荐写法），端点保持域级
+（`engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,fengshui}`、`counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}`），
+让每个专家只看到本域工具；`dependencies.connectors` 留给已上架连接器 ID，专家包不再用它声明自带端点。

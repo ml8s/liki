@@ -59,10 +59,7 @@
     }
   ],
   "dependencies": {
-    "connectors": [
-      "engine-bazi",
-      "counsel-naming"
-    ]
+    "mcpServers": "./.mcp.json"
   },
   "keywords": [
     "起名",

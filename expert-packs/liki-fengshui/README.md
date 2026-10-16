@@ -30,7 +30,7 @@ liki-fengshui/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-fengshui"]` — 八宅排盘与布局、玄空排盘与流年能力由 `engine-fengshui` 提供，无独立判断层。
+- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：八宅排盘与布局、玄空排盘与流年能力由 `engine-fengshui` 提供，无独立判断层。
 
 ## 说明
 

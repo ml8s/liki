@@ -31,8 +31,8 @@ liki-natal/
 
 ## 依赖
 
-- `dependencies.connectors: ["engine-bazi", "engine-ziwei", "counsel-bazi", "counsel-ziwei"]` —
-  排盘走 `engine-bazi` / `engine-ziwei`，判断走 `counsel-bazi` / `counsel-ziwei`。
+- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：排盘走
+  `engine-bazi` / `engine-ziwei`，判断走 `counsel-bazi` / `counsel-ziwei`。
 
 ## 说明
 

@@ -255,9 +255,9 @@ def test_expert_packs_follow_workbuddy_standard():
         assert d["quickPrompts"][0]["zh"] == d["defaultInitPrompt"]["zh"], pack
         n = len([c for c in d["displayDescription"]["zh"] if not c.isspace()])
         assert 40 <= n <= 50, (pack, n)
-        # 连接器依赖
+        # 运行时依赖：声明包内 .mcp.json（域级端点），不由 connectors 重复声明端点
         deps = d.get("dependencies", {})
-        assert deps.get("connectors"), (pack, deps)
+        assert deps.get("mcpServers") == "./.mcp.json", (pack, deps)
         # 身份文件 frontmatter（内部部署与市场包共用同一份）
         identity_text = (root / "SKILL.md").read_text(encoding="utf-8")
         identity_meta = yaml.safe_load(identity_text.split("---\n", 2)[1])

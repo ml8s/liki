@@ -59,13 +59,7 @@
     }
   ],
   "dependencies": {
-    "connectors": [
-      "engine-liuyao",
-      "engine-qimen",
-      "engine-huangli",
-      "counsel-liuyao",
-      "counsel-qimen"
-    ]
+    "mcpServers": "./.mcp.json"
   },
   "keywords": [
     "六爻",

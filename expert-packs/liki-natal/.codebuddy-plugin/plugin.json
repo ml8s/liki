@@ -59,12 +59,7 @@
     }
   ],
   "dependencies": {
-    "connectors": [
-      "engine-bazi",
-      "engine-ziwei",
-      "counsel-bazi",
-      "counsel-ziwei"
-    ]
+    "mcpServers": "./.mcp.json"
   },
   "keywords": [
     "八字算命",
