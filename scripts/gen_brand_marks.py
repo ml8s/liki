@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """重建 Liki 的品牌图形：专家头像与连接器图标。
 
-两族图形同一套母题——深蓝圆角底 + 金色田字格 + 一个汉字：
+两族图形同一套母题——金色田字格 + 一个汉字，只是底不同：
 
-    专家头像 512×512  `expert-packs/liki-*/avatars/expert.svg`   命 / 卦 / 宅 / 名
-    连接器图标 64×64  `workbuddy/liki-*-connector/icon.svg`      盘 / 断
+    专家头像 512×512  深色圆角底 + 金字   `expert-packs/liki-*/avatars/expert.svg`  命 / 卦 / 宅 / 名
+    连接器图标 64×64  透明底 + 单色深蓝   `workbuddy/liki-*-connector/icon.svg`     盘 / 断
+
+头像在列表里按图片渲染，深色圆角牌自带底色、亮暗主题都成立；图标按平台规范
+（「背景建议透明」）不铺底，改用品牌深蓝单色，压在亮底卡片上可辨。
 
 汉字取自阿里妈妈刀隶体（`Alimama DaoLiTi`，阿里巴巴免费商用字体，本仓不附带字体
 文件）：先用 `inkscape -T` 把字转成正体轮廓路径，再按目标字高归一化居中，于是矢量源
@@ -31,16 +34,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 FONT_FAMILY = "Alimama DaoLiTi"
 FONT_SIZE = 360  # 转路径时的字号；只影响中间精度，最终按 glyph_height 归一化
-BACKDROP = "#0C1A2E"
-INK = "#FFBF00"
+BACKDROP = "#0C1A2E"  # 头像的深色圆角底
+INK = "#FFBF00"  # 深底上的品牌金
+MARK_INK = "#0C1A2E"  # 透明底上的品牌深蓝
 
 
 @dataclass(frozen=True)
 class Preset:
-    """一族图形的几何：尺寸、田字格占比、字高。"""
+    """一族图形的几何：底、用色、田字格占比、字高。"""
 
     canvas: float
+    backdrop: str | None  # None = 透明底
     backdrop_rx: float
+    ink: str
     frame_size: float  # 田字格边长
     frame_rx: float
     frame_stroke: float
@@ -52,13 +58,13 @@ class Preset:
 
 
 # 头像按 40~96px 展示：田字格占画布 75%，汉字占田字格内框约 80%（再大就顶格线）。
-AVATAR = Preset(canvas=512, backdrop_rx=72, frame_size=384, frame_rx=28, frame_stroke=18,
-                frame_opacity=0.8, grid_stroke=8, grid_dash="20 16", grid_opacity=0.3,
-                glyph_height=290)
-# 图标按 16~64px 展示：比例同上，但十字改实线——64px 上的虚线会糊成一团。
-ICON = Preset(canvas=64, backdrop_rx=14, frame_size=48, frame_rx=5, frame_stroke=3,
-              frame_opacity=0.85, grid_stroke=1.5, grid_dash=None, grid_opacity=0.35,
-              glyph_height=36)
+AVATAR = Preset(canvas=512, backdrop=BACKDROP, backdrop_rx=72, ink=INK, frame_size=384,
+                frame_rx=28, frame_stroke=18, frame_opacity=0.8, grid_stroke=8,
+                grid_dash="20 16", grid_opacity=0.3, glyph_height=290)
+# 图标按 16~64px 展示：比例同头像档位，但透明底、单色深蓝，十字改实线（64px 上的虚线会糊）。
+ICON = Preset(canvas=64, backdrop=None, backdrop_rx=14, ink=MARK_INK, frame_size=48,
+              frame_rx=5, frame_stroke=3, frame_opacity=1.0, grid_stroke=1.5,
+              grid_dash=None, grid_opacity=0.3, glyph_height=36)
 
 # 顶层领域 → 头像用字（见 expert-packs/README.md「头像」）。
 AVATARS: tuple[tuple[str, str], ...] = (
@@ -142,15 +148,20 @@ def _mark_svg(preset: Preset, glyph: str, path: str, box: tuple[float, ...]) -> 
     tx = _num(center - scale * (x0 + width / 2))
     ty = _num(center - scale * (y0 + height / 2))
     dash = f' stroke-dasharray="{preset.grid_dash}"' if preset.grid_dash else ""
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{_num(preset.canvas)}" height="{_num(preset.canvas)}" viewBox="0 0 {_num(preset.canvas)} {_num(preset.canvas)}">
-  <rect width="{_num(preset.canvas)}" height="{_num(preset.canvas)}" rx="{_num(preset.backdrop_rx)}" fill="{BACKDROP}"/>
-  <rect x="{_num(near)}" y="{_num(near)}" width="{_num(preset.frame_size)}" height="{_num(preset.frame_size)}" rx="{_num(preset.frame_rx)}" fill="none" stroke="{INK}" stroke-width="{_num(preset.frame_stroke)}" opacity="{_num(preset.frame_opacity)}"/>
-  <g stroke="{INK}" stroke-width="{_num(preset.grid_stroke)}" opacity="{_num(preset.grid_opacity)}"{dash}>
+    backdrop = ""
+    if preset.backdrop:
+        backdrop = (
+            f'\n  <rect width="{_num(preset.canvas)}" height="{_num(preset.canvas)}"'
+            f' rx="{_num(preset.backdrop_rx)}" fill="{preset.backdrop}"/>'
+        )
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{_num(preset.canvas)}" height="{_num(preset.canvas)}" viewBox="0 0 {_num(preset.canvas)} {_num(preset.canvas)}">{backdrop}
+  <rect x="{_num(near)}" y="{_num(near)}" width="{_num(preset.frame_size)}" height="{_num(preset.frame_size)}" rx="{_num(preset.frame_rx)}" fill="none" stroke="{preset.ink}" stroke-width="{_num(preset.frame_stroke)}" opacity="{_num(preset.frame_opacity)}"/>
+  <g stroke="{preset.ink}" stroke-width="{_num(preset.grid_stroke)}" opacity="{_num(preset.grid_opacity)}"{dash}>
     <line x1="{_num(center)}" y1="{_num(near)}" x2="{_num(center)}" y2="{_num(far)}"/>
     <line x1="{_num(near)}" y1="{_num(center)}" x2="{_num(far)}" y2="{_num(center)}"/>
   </g>
   <!-- 田字格与「{glyph}」（{FONT_FAMILY}轮廓） -->
-  <g aria-label="{glyph}" fill="{INK}" transform="translate({tx},{ty}) scale({_num(scale)})">
+  <g aria-label="{glyph}" fill="{preset.ink}" transform="translate({tx},{ty}) scale({_num(scale)})">
     <path d="{path}"/>
   </g>
 </svg>
