@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """重建 Liki 的品牌图形：专家头像与连接器图标。
 
-两族图形同一套母题——金色田字格 + 一个汉字，只是底不同：
+两族图形同一套母题：深色圆角底 + 金色田字格 + 一个汉字，只差尺寸、用字与十字线：
 
     专家头像 512×512  深色圆角底 + 金字   `expert-packs/liki-*/avatars/expert.svg`  命 / 卦 / 宅 / 名
-    连接器图标 64×64  透明底 + 单色深蓝   `workbuddy/liki-*-connector/icon.svg`     盘 / 断
+    连接器图标 64×64   深色圆角底 + 金字   `workbuddy/liki-*-connector/icon.svg`    盘 / 断
 
-头像在列表里按图片渲染，深色圆角牌自带底色、亮暗主题都成立；图标按平台规范
-（「背景建议透明」）不铺底，改用品牌深蓝单色，压在亮底卡片上可辨。
+深色圆角牌自带底色，亮暗主题下都立得住（平台图标规范只是「建议」透明底，我们选了
+与专家头像统一）；图标小，十字线用实线（64px 上的虚线会糊）。
 
 汉字取自阿里妈妈刀隶体（`Alimama DaoLiTi`，阿里巴巴免费商用字体，本仓不附带字体
 文件）：先用 `inkscape -T` 把字转成正体轮廓路径，再按目标字高归一化居中，于是矢量源
@@ -34,9 +34,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 FONT_FAMILY = "Alimama DaoLiTi"
 FONT_SIZE = 360  # 转路径时的字号；只影响中间精度，最终按 glyph_height 归一化
-BACKDROP = "#0C1A2E"  # 头像的深色圆角底
-INK = "#FFBF00"  # 深底上的品牌金
-MARK_INK = "#0C1A2E"  # 透明底上的品牌深蓝
+BACKDROP = "#0C1A2E"  # 深色圆角底
+INK = "#FFBF00"  # 底上的品牌金
 
 
 @dataclass(frozen=True)
@@ -61,10 +60,10 @@ class Preset:
 AVATAR = Preset(canvas=512, backdrop=BACKDROP, backdrop_rx=72, ink=INK, frame_size=384,
                 frame_rx=28, frame_stroke=18, frame_opacity=0.8, grid_stroke=8,
                 grid_dash="20 16", grid_opacity=0.3, glyph_height=290)
-# 图标按 16~64px 展示：比例同头像档位，但透明底、单色深蓝，十字改实线（64px 上的虚线会糊）。
-ICON = Preset(canvas=64, backdrop=None, backdrop_rx=14, ink=MARK_INK, frame_size=48,
-              frame_rx=5, frame_stroke=3, frame_opacity=1.0, grid_stroke=1.5,
-              grid_dash=None, grid_opacity=0.3, glyph_height=36)
+# 图标按 16~64px 展示：比例同头像档位，底与字色也同头像，只把十字线改成实线。
+ICON = Preset(canvas=64, backdrop=BACKDROP, backdrop_rx=14, ink=INK, frame_size=48,
+              frame_rx=5, frame_stroke=3, frame_opacity=0.85, grid_stroke=1.5,
+              grid_dash=None, grid_opacity=0.35, glyph_height=36)
 
 # 顶层领域 → 头像用字（见 expert-packs/README.md「头像」）。
 AVATARS: tuple[tuple[str, str], ...] = (
