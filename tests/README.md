@@ -55,6 +55,7 @@ script set is pinned by `tests/test_check_scripts_contract.py`, so adding a scri
 | `scripts/lint-md.sh` | Locked `markdownlint-cli2` over the declared Markdown globs |
 | `scripts/lint-python.sh` | Locked Ruff over `counsel/`, `scripts/`, and root `tests/` |
 | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.9 |
+| `scripts/check-runtime-versions.sh` | Local node/python must equal `.nvmrc`/`.python-version` |
 | `scripts/check_actions_pinned.py` | Rejects mutable workflow/action references |
 | `scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
 | `scripts/check_docs.py` | Distributed skill documentation: assertions, paths, budgets, method whitelist |
