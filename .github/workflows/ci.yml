@@ -162,6 +162,9 @@ jobs:
 
   release-integrity:
     name: Release artifact integrity
+    # 验证要拉私有 ghcr 包（liki-agent-runtime）：PR run（含 Dependabot）拿不到
+    # custom secrets、也没有 packages 权限，所以只在 main push 用 GHCR_TOKEN 跑。
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [check, skills-test, full-data]
