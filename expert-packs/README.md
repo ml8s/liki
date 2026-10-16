@@ -73,7 +73,10 @@ skill 提供，包内不重复携带。若将来要独立售卖 / 独立运行�
 运行时依赖用 `dependencies.mcpServers: "./.mcp.json"`（平台「方式一」的推荐写法），端点保持域级
 （`engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,fengshui}`、`counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}`），
 让每个专家只看到本域工具（`engine/cmd/engine-mcp/server.go` 的 `mcpDomains` 即为此设计）；
-连接器是聚合端点、专家包是域级端点，各自服务不同场景。`dependencies.connectors` 留给已上架连接器 ID，
+连接器是聚合端点、专家包是域级端点，各自服务不同场景。
+引导卡片的 `x-workbuddy.icon` 指向包内 `./avatars/expert.svg`：平台设置 icon 后不再画
+「展示名首字符 + 散列底色」占位，卡片直接用本域头像那一份图形（与专家头像同源，不再多一份素材）；
+`check_expert_docs.py` 校验它落在包内且真实存在。`dependencies.connectors` 留给已上架连接器 ID，
 专家包不用它声明自带端点。
 
 ## 上架前待办

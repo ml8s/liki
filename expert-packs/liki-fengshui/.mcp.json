@@ -12,6 +12,7 @@
           "zh": "风水确定性计算：八宅排盘与布局、玄空排盘与流年、当前时间事实。",
           "en": "Deterministic Feng Shui computation: BaZhai chart/layout, XuanKong chart/year, and current time."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }

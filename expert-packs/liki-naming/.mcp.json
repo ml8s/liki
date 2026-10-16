@@ -12,6 +12,7 @@
           "zh": "八字确定性计算：排盘与完整命盘事实，用于起名用神分析。",
           "en": "Deterministic BaZi computation: chart facts used for naming yongshen analysis."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }
@@ -29,6 +30,7 @@
           "zh": "起名规则分析：姓氏匹配、取字、组名与候选名评估能力。",
           "en": "Rule-based naming analysis: surname matching, character picking, composition, and evaluation."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }

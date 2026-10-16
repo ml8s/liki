@@ -12,6 +12,7 @@
           "zh": "六爻确定性计算：起卦与装卦事实。",
           "en": "Deterministic Liu Yao computation: casting and chart facts."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }
@@ -29,6 +30,7 @@
           "zh": "奇门确定性计算：九宫局盘排布与相关事实。",
           "en": "Deterministic Qi Men computation: nine-palace chart facts."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }
@@ -46,6 +48,7 @@
           "zh": "黄历确定性计算：日期适配事实查询。",
           "en": "Deterministic almanac computation: date suitability facts."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }
@@ -63,6 +66,7 @@
           "zh": "六爻规则分析：不可变快照创建与基于快照的追问能力。",
           "en": "Rule-based Liu Yao analysis: immutable snapshot creation and snapshot-based follow-up."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }
@@ -80,6 +84,7 @@
           "zh": "奇门规则分析：不可变局盘快照创建与基于快照的追问能力。",
           "en": "Rule-based Qi Men analysis: immutable chart snapshot creation and snapshot-based follow-up."
         },
+        "icon": "./avatars/expert.svg",
         "auth": {
           "type": "none"
         }

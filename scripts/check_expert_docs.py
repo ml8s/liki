@@ -109,6 +109,23 @@ def _check_router(method_names: set[str], errors: list[str]) -> None:
     _check_no_methods(ROUTER_IDENTITY, method_names, errors)
 
 
+def _check_card_icon(
+    pack_dir: Path, icon: object, mcp_manifest: Path, errors: list[str]
+) -> None:
+    """引导卡片的 `x-workbuddy.icon` 必须落在包内且真实存在（相对 .mcp.json 所在目录解析）。"""
+    if icon is None:
+        return
+    rel = mcp_manifest.relative_to(ROOT)
+    if not isinstance(icon, str) or not icon.startswith("./"):
+        errors.append(f"{rel}: x-workbuddy.icon 须为包内相对路径（如 ./avatars/expert.svg）")
+        return
+    target = (pack_dir / icon[2:]).resolve()
+    if pack_dir.resolve() not in target.parents:
+        errors.append(f"{rel}: x-workbuddy.icon `{icon}` 逃出包目录")
+    elif not target.is_file():
+        errors.append(f"{rel}: x-workbuddy.icon `{icon}` 不存在")
+
+
 def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
     """包内全部描述面（生成的 SKILL 入口 + 手写 plugin/.mcp.json）都不得泄漏 MCP 方法名。"""
     pack = packs.DOMAIN_PACKS[domain]
@@ -136,6 +153,7 @@ def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
         descriptions.extend(
             value for key, value in metadata.items() if key in ("zh", "en") and isinstance(value, str)
         )
+        _check_card_icon(pack_dir, server.get("x-workbuddy", {}).get("icon"), mcp_manifest, errors)
     for text in descriptions:
         for hit in _method_hits(text, method_names):
             errors.append(f"{mcp_manifest.relative_to(ROOT)}: connector description hard-codes `{hit}`")
