@@ -29,6 +29,7 @@ export GOTOOLCHAIN ?= go1.26.9
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine test-engine-coverage test-counsel test-engine-mcp \
         full-data golden gate release-gate hooks version build-archive build-deployment \
+        workbuddy-package \
         check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
         runtime-validate image image-engine image-counsel image-assembly
 
@@ -75,6 +76,9 @@ build-engine-mcp: ## Build the engine MCP server
 	@cd engine && go build -o ../bin/engine-mcp ./cmd/engine-mcp/
 
 build: build-skill build-engine-mcp ## Build local artifacts (skill archive + engine binary). 镜像仅由本地 candidate 构建。
+
+workbuddy-package: ## 打包 WorkBuddy 连接器提交包到 dist/workbuddy/（上传用）
+	scripts/package-workbuddy-connectors.sh
 
 # ── 镜像（本地候选，非发布路径）──
 # 生产镜像由本地 `make candidate` 构建并推送 GHCR；CI promotion 只转发已验证 digest。
@@ -145,6 +149,7 @@ check: lint-md lint-python fmt-check go-version-check runtime-version-check chec
 	python3 scripts/agent_runtime_pin.py --check
 	bash scripts/check-exec-bits.sh
 	python3 scripts/sync_expert_packs.py --check
+	python3 scripts/check_workbuddy_connectors.py
 
 sync-expert-packs: ## 从根 skill 生成 expert-packs 方法论卡（唯一生成入口）
 	python3 scripts/sync_expert_packs.py

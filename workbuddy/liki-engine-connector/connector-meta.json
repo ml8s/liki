@@ -1,0 +1,24 @@
+{
+  "name": "Liki 排盘引擎",
+  "name_zh": "Liki 排盘引擎",
+  "name_en": "Liki Engine",
+  "description": "Deterministic Chinese metaphysics charts: BaZi, Zi Wei, Liu Yao, Qi Men, almanac and Feng Shui.",
+  "description_zh": "确定性排盘与历法计算：八字、紫微、六爻、奇门、黄历、风水布局，盘面与事实可回溯。",
+  "description_en": "Deterministic Chinese metaphysics charts: BaZi, Zi Wei, Liu Yao, Qi Men, almanac and Feng Shui.",
+  "source": "liki-engine",
+  "type": "mcp",
+  "version": "1.0.0",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": [
+    "排个八字命盘，1990-05-20 12:00 北京出生，男",
+    "起个紫微命盘，看看十二宫和大限",
+    "下个月哪天适合搬家",
+    "玄空飞星排盘，坐向 180 度"
+  ],
+  "examples_en": [
+    "Cast a BaZi chart for a male born 1990-05-20 12:00 in Beijing",
+    "Cast a Zi Wei chart and show the twelve palaces and daxian",
+    "Which day next month is good for moving house",
+    "Compute Xuan Kong flying stars for a 180-degree facing"
+  ]
+}

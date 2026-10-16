@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "liki-counsel": {
+      "type": "streamableHttp",
+      "url": "https://liki.hk/counsel/mcp",
+      "timeout": 30000
+    }
+  }
+}

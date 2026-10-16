@@ -97,6 +97,7 @@ GitHub Action 版本一律 40 位 SHA pin；升级由 Dependabot 每周分组一
 
 - [docs/SYSTEM.md](./docs/SYSTEM.md)：系统全况与本仓对齐——四仓分工、权威源、专家定义结构、MCP 连接器模型、生成/校验链、变更传播。
 - [docs/MCP_CONTRACTS.md](./docs/MCP_CONTRACTS.md)：MCP 契约模型——typed wire DTO → JSON Schema → 运行时校验，engine / counsel 两侧模式。
+- [workbuddy/README.md](./workbuddy/README.md)：WorkBuddy 四类上架物与本仓目录的对应关系、连接器提交包结构与提审流程。
 
 ## 发布版本模型
 

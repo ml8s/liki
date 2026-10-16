@@ -22,12 +22,13 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 
 ## 二、本仓角色（liki 内容仓）
 
-本仓是系统**内容与确定性的源头**，产出四类制品：
+本仓是系统**内容与确定性的源头**，产出五类制品：
 
 1. **专家定义**：`agents/<name>/agent.yaml`（部署配置）+ 身份文件 `expert-packs/liki-<domain>/SKILL.md`（角色/指令骨架唯一手写源，内部部署与市场包共用）；`expert-packs/` 同时是 CodeBuddy/WorkBuddy 市场包兼容层（上架 + multi-expert 镜像）
 2. **Engine / Counsel MCP**：`engine/`、`counsel/` 源码 → GHCR 镜像 `liki-engine`、`liki-counsel`
 3. **AgentDeployment 工件**：由身份文件 + `agents/` 发布结构 + `profiles/` 经 `scripts/generate_deployment.py` 生成 → 烘焙进装配镜像
 4. **Web skill bundle**：`scripts/build-web-skill-bundle.sh` → release asset，供 liki-web 消费
+5. **WorkBuddy 上架交付物**：`workbuddy/` 下的连接器提交包（`connector-meta.json` + `mcp.json` + `icon.svg`；一个连接器只声明一个 MCP Server，免鉴权故不写 `auth_mode`），技能与专家包分别是 `skills/liki/` 与 `expert-packs/liki-*`；四类上架物与提交流程见 `workbuddy/README.md`，提交前检查由 `python3 scripts/check_workbuddy_connectors.py` 守卫
 
 ## 三、关键对齐点（负责人必读）
 

@@ -1,0 +1,24 @@
+{
+  "name": "Liki 判断层",
+  "name_zh": "Liki 判断层",
+  "name_en": "Liki Judgment",
+  "description": "Rule-based Chinese metaphysics judgment: factor snapshots, natal and timing assertions.",
+  "description_zh": "规则断语与因子快照：八字、紫微、六爻、奇门的本命与应期判断，含合盘与起名。",
+  "description_en": "Rule-based Chinese metaphysics judgment: factor snapshots, natal and timing assertions.",
+  "source": "liki-counsel",
+  "type": "mcp",
+  "version": "1.0.0",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": [
+    "分析我的八字格局和用神",
+    "看 2026 年我的事业运势怎么样",
+    "这件事能成吗，什么时候有结果",
+    "宝宝起名，姓陈，2024-06-10 广州出生，男"
+  ],
+  "examples_en": [
+    "Analyze my BaZi structure and yongshen",
+    "Read my 2026 career fortune",
+    "Will this deal succeed, and when will I know",
+    "Name a baby boy born 2024-06-10 in Guangzhou, surname Chen"
+  ]
+}
