@@ -82,7 +82,8 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          # 镜像包已 link 到本仓（promote 用 job token 推过）；job token 可推可拉。
+          password: ${{ github.token }}
 
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
