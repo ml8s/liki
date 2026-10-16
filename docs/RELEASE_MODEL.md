@@ -38,7 +38,7 @@ The tag is a release name only; the version stored in files has no `v` prefix.
 | Runtime skill version | `skills/liki/VERSION.txt` |
 | Engine MCP runtime | `engine/cmd/engine-mcp/VERSION` |
 | Counsel runtime | `counsel/app/VERSION.txt` |
-| Skill package metadata | `skills/liki/SKILL.md` frontmatter `metadata.version` |
+| Skill package metadata | `skills/liki/SKILL.md` frontmatter `version`（平台必填字段，顶层） |
 | Expert package metadata | `expert-packs/*/SKILL.md`, nested domain `SKILL.md`, and `.codebuddy-plugin/plugin.json` |
 | Counsel projection contracts | `counsel/app/*/tools/*_projection_contract.json` |
 | Deployment profiles | `profiles/*.json` |

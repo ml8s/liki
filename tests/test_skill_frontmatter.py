@@ -34,10 +34,19 @@ class TestSkillFrontmatter(unittest.TestCase):
         self.assertGreater(n, 0)
         self.assertLessEqual(n, 1024, f"description {n}B > ADK 1024B")
 
-    def test_frontmatter_version_is_unified_calver(self):
-        """SKILL.md metadata.version 与运行时使用同一个 CalVer。"""
+    def test_frontmatter_declares_platform_required_fields(self):
+        """WorkBuddy 技能规范必填：description / description_zh / description_en / version / author。"""
         meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
-        version = meta["metadata"]["version"]
+        for key in ("description", "description_zh", "description_en", "version", "author"):
+            value = meta.get(key)
+            self.assertIsInstance(value, str, key)
+            self.assertTrue(value.strip(), key)
+        self.assertNotIn("version", meta.get("metadata", {}), "version 单一源在顶层")
+
+    def test_frontmatter_version_is_unified_calver(self):
+        """SKILL.md 顶层 version（平台必填字段）与运行时使用同一个 CalVer。"""
+        meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
+        version = meta["version"]
         runtime_version = (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
         self.assertEqual(str(version), runtime_version)
         self.assertRegex(str(version), r"^\d{4}\.\d{2}\.\d{2}\.\d+$", version)

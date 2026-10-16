@@ -34,7 +34,7 @@
 
 `skills/liki/` 按技能规范直接打包提交：`{skill-name}/SKILL.md` + `references/`。
 
-技能 zip 的结构（`liki/SKILL.md` + 子资源）已经对了，但 frontmatter 还缺平台必填的 `description_zh`、`description_en`、`author` 与顶层 `version`（现为 `metadata.version`）：补进真相源、还是由打包步骤生成一份提交视图，待定——顶层 `version` 与 `metadata.version` 并存即形成双源，需二选一。
+frontmatter 已按平台必填补齐：顶层 `description` / `description_zh` / `description_en` / `version` / `author`（`version` 单一源仍是 `skills/liki/VERSION.txt`，`metadata` 只留 ADK 侧字段）。仍待实探的两点：包根附加文件（`.mcp.json` / `VERSION.txt` / `feedback.schema.json`）平台是否认，以及文档的 `@references/xxx.md` 引用写法是否为必需。
 
 ## 提交
 

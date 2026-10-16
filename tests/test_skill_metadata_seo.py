@@ -69,10 +69,10 @@ def test_display_name_contains_brand_and_category():
     assert "命理" in display
 
 
-def test_summary_contains_core_categories_and_naming_pair():
-    summary = _metadata()["metadata"].get("summary") or ""
+def test_description_zh_contains_core_categories_and_naming_pair():
+    summary = _metadata().get("description_zh") or ""
     for kw in ("八字", "紫微", "六爻", "奇门", "择日", "风水", "起名", "取名"):
-        assert kw in summary, f"summary 缺少核心品类词: {kw}"
+        assert kw in summary, f"description_zh 缺少核心品类词: {kw}"
     assert "起名、取名" in summary
 
 
