@@ -7,7 +7,7 @@
     "email": "suiqiang@foxmail.com"
   },
   "agents": [
-    "./SKILL.md"
+    "./agents/liki-fengshui.md"
   ],
   "expertType": "agent",
   "agentName": "liki-fengshui",

@@ -126,6 +126,45 @@ def _check_card_icon(
         errors.append(f"{rel}: x-workbuddy.icon `{icon}` 不存在")
 
 
+AGENT_FRONTMATTER_KEYS = ("name", "description", "displayName", "profession", "maxTurns")
+
+
+def _check_agent_doc(pack: str, pack_dir: Path, plugin: dict, errors: list[str]) -> None:
+    """WorkBuddy agent md（`agents/<pack>.md`）的路径约定与 frontmatter 契约。"""
+    agents_dir = pack_dir / "agents"
+    agent_doc = agents_dir / f"{pack}.md"
+    if not agent_doc.is_file():
+        errors.append(f"missing agent definition: {agent_doc.relative_to(ROOT)}")
+        return
+    extras = sorted(path for path in agents_dir.glob("*.md") if path != agent_doc)
+    if extras:
+        errors.append(
+            f"{agents_dir.relative_to(ROOT)}: agents/ 只放身份文件投影的 {agent_doc.name}，"
+            f"多出 {', '.join(path.name for path in extras)}"
+        )
+    if plugin.get("agents") != [f"./agents/{pack}.md"] or plugin.get("agentName") != pack:
+        errors.append(
+            f"{agent_doc.relative_to(ROOT)}: plugin.json 的 agents/agentName 须为 "
+            f'["./agents/{pack}.md"] / {pack}'
+        )
+    try:
+        metadata = _frontmatter(agent_doc)
+    except ValueError as exc:
+        errors.append(str(exc))
+        return
+    missing = [key for key in AGENT_FRONTMATTER_KEYS if key not in metadata]
+    if missing:
+        errors.append(f"{agent_doc.relative_to(ROOT)}: frontmatter 缺少 {', '.join(missing)}")
+    if metadata.get("name") != pack:
+        errors.append(f"{agent_doc.relative_to(ROOT)}: name 须与文件名一致（{pack}）")
+    for key in ("displayName", "profession"):
+        value = metadata.get(key)
+        if not isinstance(value, dict) or set(value) != {"en", "zh"}:
+            errors.append(f"{agent_doc.relative_to(ROOT)}: {key} 须为 en/zh 双语映射")
+    if not isinstance(metadata.get("maxTurns"), int):
+        errors.append(f"{agent_doc.relative_to(ROOT)}: maxTurns 须为整数")
+
+
 def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
     """包内全部描述面（生成的 SKILL 入口 + 手写 plugin/.mcp.json）都不得泄漏 MCP 方法名。"""
     pack = packs.DOMAIN_PACKS[domain]
@@ -135,10 +174,20 @@ def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
     plugin = pack_dir / ".codebuddy-plugin" / "plugin.json"
     mcp_manifest = pack_dir / ".mcp.json"
 
-    for path in (identity_doc, nested_skill, plugin, mcp_manifest):
+    agent_doc = pack_dir / "agents" / f"{pack}.md"
+    for path in (identity_doc, agent_doc, nested_skill, plugin, mcp_manifest):
         if not path.is_file():
             errors.append(f"missing expert-pack file: {path.relative_to(ROOT)}")
         _check_no_methods(path, method_names, errors)
+
+    if not plugin.is_file() or not agent_doc.is_file():
+        return
+    try:
+        plugin_doc = json.loads(plugin.read_text(encoding="utf-8"))
+    except Exception as exc:
+        errors.append(f"{plugin.relative_to(ROOT)}: invalid JSON: {exc}")
+        return
+    _check_agent_doc(pack, pack_dir, plugin_doc, errors)
 
     if not mcp_manifest.is_file():
         return

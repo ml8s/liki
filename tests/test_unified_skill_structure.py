@@ -246,8 +246,10 @@ def test_expert_packs_follow_workbuddy_standard():
                   "keywords", "skills"]:
             assert f in d, (pack, f)
         assert d["expertType"] == "agent", pack
-        assert not (root / "agents").exists(), f"{pack}: 身份唯一源是包根 SKILL.md"
+        agent_docs = sorted((root / "agents").glob("*.md"))
+        assert agent_docs == [root / "agents" / f"{pack}.md"], f"{pack}: agents/ 只有身份文件投影的那一份"
         assert d["agentName"] == d["name"], pack
+        assert d["agents"] == [f"./agents/{pack}.md"], pack
         for declared in d["agents"]:
             assert (root / declared.removeprefix("./")).is_file(), (pack, declared)
         assert d["plugin"] == d["name"], pack
@@ -258,6 +260,13 @@ def test_expert_packs_follow_workbuddy_standard():
         # 运行时依赖：声明包内 .mcp.json（域级端点），不由 connectors 重复声明端点
         deps = d.get("dependencies", {})
         assert deps.get("mcpServers") == "./.mcp.json", (pack, deps)
+        # agent md（平台入口）frontmatter：平台字段名 + 与文件名一致的 name
+        agent_meta = yaml.safe_load(agent_docs[0].read_text(encoding="utf-8").split("---\n", 2)[1])
+        assert agent_meta["name"] == pack, (pack, agent_meta)
+        assert set(agent_meta) >= {"name", "description", "displayName", "profession", "maxTurns"}, pack
+        assert set(agent_meta["displayName"]) == {"en", "zh"}, pack
+        assert set(agent_meta["profession"]) == {"en", "zh"}, pack
+        assert isinstance(agent_meta["maxTurns"], int), pack
         # 身份文件 frontmatter（内部部署与市场包共用同一份）
         identity_text = (root / "SKILL.md").read_text(encoding="utf-8")
         identity_meta = yaml.safe_load(identity_text.split("---\n", 2)[1])

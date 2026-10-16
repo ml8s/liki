@@ -116,18 +116,20 @@ def test_identity_file_is_the_only_authored_expert_identity():
         assert identity.is_file(), identity
 
 
-def test_pack_has_no_second_identity_copy():
-    """包内只有一处身份文件：不再有 agents/<domain>-expert.md 之类的副本。"""
+def test_pack_agents_dir_holds_only_the_projected_agent_doc():
+    """`agents/` 只放身份文件投影出的 agent md（平台入口），不出现手写副本。"""
     documents, errors = gen.generated_documents()
     assert not errors, errors
+    assert not gen._agent_orphans(documents), gen._agent_orphans(documents)
     for domain, pack in gen.DOMAIN_PACKS.items():
         pack_dir = gen.PACKS / pack
-        assert not (pack_dir / "agents").exists(), pack_dir / "agents"
         assert (pack_dir / "SKILL.md").is_file(), pack_dir
+        assert sorted((pack_dir / "agents").glob("*.md")) == [pack_dir / "agents" / f"{pack}.md"]
 
 
 def test_skill_entry_is_rendered_from_identity_file():
-    """域 SKILL.md 由身份文件渲染：skill 元数据映射 + 同源正文 + 自动卡索引。"""
+    """两处入口都由身份文件渲染：域 SKILL.md（ADK，skill 元数据 + 卡索引）与
+    `agents/<pack>.md`（WorkBuddy agent md，平台 camelCase 字段 + 同源正文）。"""
     documents, errors = gen.generated_documents()
     assert not errors, errors
     expected: set[Path] = set()
@@ -135,6 +137,16 @@ def test_skill_entry_is_rendered_from_identity_file():
         loaded = gen.load_identity(domain)
         assert isinstance(loaded, tuple), loaded
         metadata, body = loaded
+        agent_doc = gen.PACKS / pack / "agents" / f"{pack}.md"
+        expected.add(agent_doc)
+        agent_payload = documents[agent_doc].decode("utf-8")
+        agent_head, agent_body = agent_payload.split("\n---\n\n", 1)
+        assert f"name: {pack}" in agent_head, pack
+        assert f"description: {metadata['description_en']}" in agent_head, pack
+        assert f"en: {metadata['display_name_en']}" in agent_head, pack
+        assert f"zh: {metadata['display_name']}" in agent_head, pack
+        assert f"maxTurns: {metadata['maxTurns']}" in agent_head, pack
+        assert agent_body == body.rstrip() + "\n", pack
         target = gen.PACKS / pack / "skills" / domain / "SKILL.md"
         expected.add(target)
         assert target.read_bytes() == documents[target], target
@@ -204,13 +216,13 @@ def test_version_bump_keeps_generated_pack_entries_in_sync(tmp_path, monkeypatch
         bump_version.replace_frontmatter_version(copy, fake_version)
         assert copy.read_text(encoding="utf-8") == payload.decode("utf-8"), target
 
-def test_plugin_agent_pointer_resolves_to_identity_file():
-    """plugin.json 的 agents/agentName 指向身份文件本身，包内不再有单独 agent 定义。"""
+def test_plugin_agent_pointer_resolves_to_projected_agent_doc():
+    """plugin.json 的 agents/agentName 指向兜内 `agents/<pack>.md`（由身份文件投影）。"""
     for domain, pack in gen.DOMAIN_PACKS.items():
         plugin = json.loads(
             (gen.PACKS / pack / ".codebuddy-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
-        assert plugin["agents"] == ["./SKILL.md"], pack
+        assert plugin["agents"] == [f"./agents/{pack}.md"], pack
         assert plugin["agentName"] == pack, pack
         identity = gen.PACKS / pack / "SKILL.md"
         assert identity.is_file(), identity

@@ -11,8 +11,9 @@
 
 | 路径 | 来源 |
 | --- | --- |
-| `SKILL.md` | **手写：专家身份唯一源**（frontmatter 元数据 + 角色/指令正文，市场入口，也是插件声明的 agent 定义文件） |
+| `SKILL.md` | **手写：专家身份唯一源**（frontmatter 元数据 + 角色/指令正文；包内其余入口都由它投影） |
 | `skills/<domain>/SKILL.md` | 生成，源为身份文件（正文 + 自动方法论卡索引；ADK skill 入口） |
+| `agents/<pack>.md` | 生成，源为身份文件（WorkBuddy agent md：平台字段名 `displayName`/`maxTurns` + 身份正文；`plugin.json` 的 `agents`/`agentName` 指向它） |
 | `skills/<domain>/references/**` | 生成，源为 `skills/liki/references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains，逐字节镜像 + 路径 rebase） |
 | `.codebuddy-plugin/plugin.json` | `agents`/`agentName`/description/profession/version 由身份文件生成，其余字段手写 |
 | `.mcp.json` | 手写连接器契约 |
@@ -23,8 +24,9 @@
 因此单领域包天然自包含，不做多对一聚合，也不会产生跨包死链（`sync_expert_packs.py` 对
 跨域引用 fail-closed）。
 
-包内**只有一处身份文件**（包根 `SKILL.md`）：`plugin.json` 的 `agents: ["./SKILL.md"]`、
-`agentName` 都指向它本身，`make check` 会拒绝重新出现 `agents/` 之类的身份副本。
+包内**只有一处身份文件**（包根 `SKILL.md`，手写）；平台入口 `agents/<pack>.md` 由它投影
+（平台字段名与文件名约定见该文件 frontmatter），`agents/` 只允许这一个文件——多出来的即身份副本
+回流，`sync_expert_packs.py --check` 与 `check_expert_docs.py` 都会拦。
 
 身份文件 frontmatter 契约（生成器与校验器共同消费）：`name`（插件/skill 名，= `agentName`）、
 `description`（域 skill 描述）、`description_en`（`plugin.json.description` + 部署 agent
@@ -81,7 +83,6 @@ skill 提供，包内不重复携带。若将来要独立售卖 / 独立运行�
 
 ## 上架前待办
 
-- agent 定义：平台约定 `plugin.json.agents` 指向 `./agents/<agentName>.md` 且 `agentName` 等于该文件名（不含 `.md`），包内现指向包根 `./SKILL.md`；改法待定——由 `sync_expert_packs.py` 从身份文件投影出 `agents/<pack>.md`（身份仍是单一源），或维持现状并实测平台解析。
-- agent 定义 frontmatter：平台必填 `displayName: {en, zh}`，包内现为 `display_name` / `display_name_en` 两个平铺字符串；与上一条一并处理。
-- `version`：平台字段表写的是语义化版本，包内现为 4 段 CalVer（如 `2026.10.16.2`）；市场面版本的映射策略待定。
-- 用官方 `expert-manager` 技能逐项校验后上架。
+- `version`：平台字段表写「语义化版本」，包内现为 4 段 CalVer（如 `2026.10.16.2`，单一源是
+  `skills/liki/VERSION.txt`）；市场面映射策略待定（若被判非法，改派生 `YYYY.MMDD.N` 形式）。
+- 用官方 `expert-manager` 技能逐项校验后用 `make workbuddy-package` 出的 zip 上架。

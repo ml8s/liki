@@ -7,7 +7,7 @@
     "email": "suiqiang@foxmail.com"
   },
   "agents": [
-    "./SKILL.md"
+    "./agents/liki-naming.md"
   ],
   "expertType": "agent",
   "agentName": "liki-naming",

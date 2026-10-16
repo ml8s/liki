@@ -64,8 +64,9 @@ agents/router/router.md             # router 例外：无专家包，身份文�
 - 身份文件 frontmatter 映射到各消费方：`description_en` → 部署 agent 描述 + `plugin.json.description`；
   `description` → 域 `skills/<domain>/SKILL.md` 描述；`display_name(_en)` → 域 skill `metadata`；
   `profession` → `plugin.json.profession`；`keywords` → `plugin.json.keywords`（市场检索词）；
-  `skills`（skill 名列表）→ `plugin.json.skills`（预加载路径 `./skills/<name>`）；`maxTurns` 是
-  WorkBuddy agent md 字段（本文件即该 agent 定义，`plugin.json.agents` 指向它）；`version` 单一源为
+  `skills`（skill 名列表）→ `plugin.json.skills`（预加载路径 `./skills/<name>`）；`maxTurns` /
+  `displayName` 是 WorkBuddy agent md 字段（`plugin.json.agents` 指向生成物
+  `agents/<pack>.md`，它由身份文件投影、平台字段名用 camelCase）；`version` 单一源为
   `skills/liki/VERSION.txt`（agent.yaml 不再携带）
 - 身份正文＝部署 instruction 骨架，同时是包内域 `SKILL.md` 的正文：两处同源渲染，包内不再有
   第二份身份副本，**杜绝漂移**（`expert-packs/README.md`：包结构来源表）

@@ -58,9 +58,9 @@ PACK_AUTHOR = "Liki"
 # plugin.json.description 与部署 agent 描述；display_name(_en) → 域 skill metadata；
 # profession → plugin.json.profession；keywords → plugin.json.keywords（市场检索词）；
 # skills → plugin.json.skills（预加载 skill 路径，由 skill 名 rebase 成 ./skills/<name>）。
-# 消费方二＝WorkBuddy agent md 本身（plugin.json 的 agents 指向本文件）：maxTurns 是其
-# 回合上限字段（camelCase，旧 snake 写法不会被读取）；profession/description 同为其字段。
-# plugin.json 的 agents/agentName 固定指向本文件（包内不再有单独 agent 定义）。
+# 消费方二＝WorkBuddy agent md（`agents/<pack>.md`，平台按 `agents/` 目录约定取文件）：
+# 该文件由身份文件投影，frontmatter 用平台字段名（camelCase：`displayName` / `maxTurns`），
+# `name` 与文件名一致（不含 `.md`），正文即身份正文；身份仍是包根 SKILL.md 一处手写。
 # 正文＝身份骨架：既是包内两处入口的正文，也是内部 AgentDeployment 的 instruction。
 IDENTITY_KEYS = (
     "name",
@@ -182,6 +182,19 @@ def generated_documents() -> tuple[dict[Path, bytes], list[str]]:
         identity_body = body.rstrip() + "\n"
         pack_dir = PACKS / pack
         index = methodology_index(pack_dir / "skills" / domain)
+        agent_doc = _frontmatter_block(
+            {
+                "name": pack,
+                "description": metadata["description_en"],
+                "displayName": {
+                    "en": metadata["display_name_en"],
+                    "zh": metadata["display_name"],
+                },
+                "profession": metadata["profession"],
+                "maxTurns": metadata["maxTurns"],
+            }
+        ) + identity_body
+        documents[pack_dir / "agents" / f"{pack}.md"] = agent_doc.encode("utf-8")
         skill_doc = _frontmatter_block(
             {
                 "name": domain,
@@ -196,11 +209,6 @@ def generated_documents() -> tuple[dict[Path, bytes], list[str]]:
         ) + identity_body + (
             f"\n## 方法论（{len(index)} 卡）\n\n" + "\n".join(index) + "\n"
         )
-        if (pack_dir / "agents").exists():
-            errors.append(
-                f"包内不得再有身份副本（唯一源是 {identity_path(domain).relative_to(ROOT)}）: "
-                f"{(pack_dir / 'agents').relative_to(ROOT)}"
-            )
         documents[pack_dir / "skills" / domain / "SKILL.md"] = skill_doc.encode("utf-8")
     return documents, errors
 
@@ -223,7 +231,7 @@ def plugin_metadata_updates() -> tuple[list[tuple[Path, dict, dict]], list[str]]
             errors.append(f"plugin manifest读取失败: {plugin_path.relative_to(ROOT)}: {exc}")
             continue
         expected = {
-            "agents": [f"./{identity_path(domain).name}"],
+            "agents": [f"./agents/{pack}.md"],
             "agentName": pack,
             "description": metadata["description_en"],
             "profession": metadata["profession"],
@@ -341,6 +349,19 @@ def _mirror_cards() -> int:
     return 1 if failed else 0
 
 
+def _agent_orphans(documents: dict[Path, bytes]) -> list[Path]:
+    """`agents/` 只允许身份文件投影出的那一个 md；其余都是身份副本回流。"""
+    allowed = {path for path in documents if path.parent.name == "agents"}
+    packs_dirs = {path.parent for path in allowed}
+    found = {
+        extra
+        for packs_dir in packs_dirs
+        if packs_dir.is_dir()
+        for extra in packs_dir.glob("*.md")
+    }
+    return sorted(found - allowed)
+
+
 def _write_documents(documents: dict[Path, bytes]) -> None:
     for path, payload in documents.items():
         if not path.exists() or path.read_bytes() != payload:
@@ -357,6 +378,9 @@ def sync() -> int:
         print(f"[sync-expert-packs] ✗ {line}", file=sys.stderr)
     failed = failed or bool(doc_errors)
     _write_documents(documents)
+    for orphan in _agent_orphans(documents):
+        orphan.unlink()
+        print(f"[sync-expert-packs] ✓ 清理身份副本: {orphan.relative_to(ROOT)}")
 
     updates, plugin_errors = plugin_metadata_updates()
     for line in plugin_errors:
@@ -404,6 +428,8 @@ def check() -> int:
             drift.append(f"缺失: {path.relative_to(ROOT)}")
         elif path.read_bytes() != payload:
             drift.append(f"内容漂移: {path.relative_to(ROOT)}")
+    for orphan in _agent_orphans(documents):
+        drift.append(f"多余（身份副本，唯一源是包根 SKILL.md）: {orphan.relative_to(ROOT)}")
 
     updates, plugin_errors = plugin_metadata_updates()
     drift.extend(plugin_errors)
@@ -420,7 +446,7 @@ def check() -> int:
     total = len(_dest_groups())
     print(
         f"[sync-expert-packs] ✓ 无漂移（{total} 目标 × 集合+内容双向一致；"
-        f"{len(documents)} 份包入口由身份文件生成）。"
+        f"{len(documents)} 份入口（域 skill + agent md）由身份文件生成）。"
     )
     return 0
 
