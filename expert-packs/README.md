@@ -83,6 +83,11 @@ skill 提供，包内不重复携带。若将来要独立售卖 / 独立运行�
 
 ## 上架前待办
 
-- `version`：平台字段表写「语义化版本」，包内现为 4 段 CalVer（如 `2026.10.16.2`，单一源是
-  `skills/liki/VERSION.txt`）；市场面映射策略待定（若被判非法，改派生 `YYYY.MMDD.N` 形式）。
 - 用官方 `expert-manager` 技能逐项校验后用 `make workbuddy-package` 出的 zip 上架。
+
+## 版本面
+
+平台按 semver 解析制品版本（实测 4 段 CalVer 被判「格式不合法」），所以包内版本面（包根
+`SKILL.md`、域 `SKILL.md`、`.codebuddy-plugin/plugin.json`）统一写发行 CalVer 的平台投影：
+`2026.10.16.2` → `2026.1016.2`，规则定义在 `scripts/version_projection.py`，单一源仍是
+`skills/liki/VERSION.txt`，由 `make version` 更新、`tests/test_version_surfaces.py` 守护。

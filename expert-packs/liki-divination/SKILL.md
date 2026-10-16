@@ -7,7 +7,7 @@ display_name_en: Divination Expert
 profession:
   en: Chinese Divination Consultant
   zh: 占卜师
-version: 2026.10.16.2
+version: 2026.1016.2
 author: Liki
 keywords:
   - 六爻

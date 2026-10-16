@@ -4,7 +4,7 @@ description: 本命专家——八字与紫微排盘、格局用神、十神六�
 metadata:
   display_name: 本命专家
   display_name_en: Natal Chart Expert
-  version: 2026.10.16.2
+  version: 2026.1016.2
   author: Liki
 ---
 

@@ -7,7 +7,7 @@ display_name_en: Naming Expert
 profession:
   en: Chinese Naming Consultant
   zh: 起名师
-version: 2026.10.16.2
+version: 2026.1016.2
 author: Liki
 keywords:
   - 起名

@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from version_projection import workbuddy_version  # noqa: E402  制品版本的唯一投影
 
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
@@ -23,6 +26,7 @@ JSON_SURFACES = (
 )
 SKILL_FRONTMATTER = ROOT / "skills/liki/SKILL.md"
 EXPERT_PACKS = ROOT / "expert-packs"
+CONNECTOR_METAS = tuple(sorted((ROOT / "workbuddy").glob("*-connector/connector-meta.json")))
 
 
 def current_versions() -> list[str]:
@@ -90,6 +94,17 @@ def set_expert_pack_versions(version: str) -> None:
         )
 
 
+def set_connector_meta_versions(version: str) -> None:
+    """连接器元信息的 `version` 同样是制品面：与技能/专家同源，不手写。"""
+    for meta_path in CONNECTOR_METAS:
+        document = json.loads(meta_path.read_text(encoding="utf-8"))
+        document["version"] = version
+        meta_path.write_text(
+            json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+
 def set_pyproject(version: str) -> None:
     for relative in ("pyproject.toml", "counsel/pyproject.toml"):
         path = ROOT / relative
@@ -117,10 +132,13 @@ def main() -> None:
         )
     for path, keys in JSON_SURFACES:
         set_json(path, keys, version)
-    replace_frontmatter_version(SKILL_FRONTMATTER, version)
-    set_expert_pack_versions(version)
+    # 平台按 semver 解析制品版本：技能/专家/连接器统一写投影值。
+    artifact_version = workbuddy_version(version)
+    replace_frontmatter_version(SKILL_FRONTMATTER, artifact_version)
+    set_expert_pack_versions(artifact_version)
+    set_connector_meta_versions(artifact_version)
     set_pyproject(version)
-    print(f"✅ version → {version}")
+    print(f"✅ version → {version}（WorkBuddy 制品 {artifact_version}）")
 
 
 if __name__ == "__main__":

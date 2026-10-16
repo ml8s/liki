@@ -43,13 +43,18 @@ class TestSkillFrontmatter(unittest.TestCase):
             self.assertTrue(value.strip(), key)
         self.assertNotIn("version", meta.get("metadata", {}), "version 单一源在顶层")
 
-    def test_frontmatter_version_is_unified_calver(self):
-        """SKILL.md 顶层 version（平台必填字段）与运行时使用同一个 CalVer。"""
+    def test_frontmatter_version_is_platform_semver_projection(self):
+        """SKILL.md 顶层 version 是平台必填字段：取发行 CalVer 的 semver 投影（平台拒 4 段）。"""
+        import sys
+
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from version_projection import workbuddy_version
+
         meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
         version = meta["version"]
         runtime_version = (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
-        self.assertEqual(str(version), runtime_version)
-        self.assertRegex(str(version), r"^\d{4}\.\d{2}\.\d{2}\.\d+$", version)
+        self.assertEqual(str(version), workbuddy_version(runtime_version))
+        self.assertRegex(str(version), r"^\d+\.\d+\.\d+$", version)
 
     def test_skill_readable_markdown_lives_in_references(self):
         """ADK LoadResource 只认 references/assets/scripts：references 外不得有可读 md。"""

@@ -19,7 +19,16 @@
 
 两个 Server 都是免鉴权远程服务，因此不写 `auth_mode`，`mcp.json` 中不出现任何凭证。
 
-连接器只承担「接入」：AI 侧的使用说明与领域方法论由独立技能 `skills/liki/` 承担（工具契约见各域的 `TOOLS.md`），连接器包内不复制第二份，同一事实只维护一处。
+两个连接器的 `version` 与技能/专家同源：写发行版本 `skills/liki/VERSION.txt` 的平台投影
+（`scripts/version_projection.py`，`2026.10.16.2` → `2026.1016.2`），由 `make version` 统一更新，
+`check_workbuddy_connectors.py` 比对投影值，禁止手写。
+
+连接器只承担「接入」：AI 侧的使用说明与领域方法论由独立技能 `skills/liki/` 承担（工具契约见各域的 `TOOLS.md`），连接器包内不复制第二份，同一事实只维护一处。平台侧同样自洽——连接器规范把
+MCP 方案的 `skills/` 列为可选（「MCP 已提供标准工具描述时可选」），而本仓工具层是契约强制的：
+`engine/internal/mcpcontract` 测试要求每个工具的描述与输出字段描述非空，`check_mcp_schema.py`
+要求每个工具、必需输出字段与枚举字段的描述非空，全量契约列在 `tools/mcp-tool-catalog.json`；
+工具链顺序也由契约决定（判断工具吃排盘工具的输出）。这里不再放第二份工具说明，避免同一事实
+两处维护。
 
 连接器图标与专家头像同族（同一母题、同一脚本）：深色圆角底 + 金色田字格 + 本域汉字——
 排盘引擎取「盘」、规则判断取「断」，与专家头像的 命/卦/宅/名 成一系列。平台图标规范对背景
@@ -34,7 +43,7 @@
 
 `skills/liki/` 按技能规范直接打包提交：`{skill-name}/SKILL.md` + `references/`。
 
-frontmatter 已按平台必填补齐：顶层 `description` / `description_zh` / `description_en` / `version` / `author`（`version` 单一源仍是 `skills/liki/VERSION.txt`，`metadata` 只留 ADK 侧字段）。仍待实探的两点：包根附加文件（`.mcp.json` / `VERSION.txt` / `feedback.schema.json`）平台是否认，以及文档的 `@references/xxx.md` 引用写法是否为必需。
+frontmatter 已按平台必填补齐：顶层 `description` / `description_zh` / `description_en` / `version` / `author`（`version` 写 `skills/liki/VERSION.txt` 的平台投影：平台按 semver 解析，4 段 CalVer 会被判非法；`metadata` 只留 ADK 侧字段）。仍待实探的两点：包根附加文件（`.mcp.json` / `VERSION.txt` / `feedback.schema.json`）平台是否认，以及文档的 `@references/xxx.md` 引用写法是否为必需。
 
 ## 提交
 
@@ -70,4 +79,5 @@ Server、远程地址 HTTPS、`minWorkbuddyVersion` 与所用字段的最低版�
 
 - 在控制台确认 `liki-engine`、`liki-counsel` 两个 `source` 的占用情况；历史用过的 `source` 有 `liki-engine`、`engine-pro`、`engine-pro-bazi`、`engine-pro-ziwei`。
 - `minWorkbuddyVersion` 为 `4.24.0`：用到 `name_zh`/`name_en` 与 `examples_zh`/`examples_en` 这两个 4.24.0 字段。
-- 专家包的待补项（`version` 语义化）见 `expert-packs/README.md`「上架前待办」；agent 定义路径与字段形态、端点归属、按域头像已按平台文档落地。
+- 版本面已定：技能/专家/连接器三类制品统一写发行 CalVer 的平台投影（`scripts/version_projection.py`）。
+- agent 定义路径与字段形态、端点归属、按域头像已按平台文档落地（见 `expert-packs/README.md`）。

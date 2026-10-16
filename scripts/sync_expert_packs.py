@@ -29,6 +29,9 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from version_projection import workbuddy_version  # noqa: E402  制品版本的唯一投影
+
 SKILL = ROOT / "skills" / "liki" / "references"
 PACKS = ROOT / "expert-packs"
 
@@ -50,6 +53,7 @@ DOMAIN_PACKS: dict[str, str] = {domain: pack for domain, pack, _skill in MAPPING
 # references/assets/scripts 前缀）：包内路径 = 根路径去掉 `references/<domain>/`。
 _REF_PATTERN = re.compile(r"references/([A-Za-z0-9_./-]+\.md)")
 
+# 制品版本 = 发行 CalVer 的平台投影（见 scripts/version_projection.py）。
 RUNTIME_VERSION_PATH = ROOT / "skills" / "liki" / "VERSION.txt"
 PACK_AUTHOR = "Liki"
 
@@ -170,7 +174,7 @@ def methodology_index(skill_dir: Path) -> list[str]:
 
 def generated_documents() -> tuple[dict[Path, bytes], list[str]]:
     """身份文件 → 域 SKILL.md 的目标字节（包内不再有其他身份副本）。"""
-    version = RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip()
+    version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
     documents: dict[Path, bytes] = {}
     errors: list[str] = []
     for domain, pack in DOMAIN_PACKS.items():
@@ -215,7 +219,7 @@ def generated_documents() -> tuple[dict[Path, bytes], list[str]]:
 
 def plugin_metadata_updates() -> tuple[list[tuple[Path, dict, dict]], list[str]]:
     """Return plugin manifests and the identity-derived fields that must match."""
-    version = RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip()
+    version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
     updates: list[tuple[Path, dict, dict]] = []
     errors: list[str] = []
     for domain, pack in DOMAIN_PACKS.items():

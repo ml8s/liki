@@ -7,7 +7,7 @@ display_name_en: Natal Chart Expert
 profession:
   en: BaZi & Zi Wei Dou Shu Consultant
   zh: 八字紫微命理师
-version: 2026.10.16.2
+version: 2026.1016.2
 author: Liki
 keywords:
   - 八字算命

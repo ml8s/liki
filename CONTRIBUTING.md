@@ -103,7 +103,8 @@ GitHub Action 版本一律 40 位 SHA pin；升级由 Dependabot 每周分组一
 
 - 日常开发 / 兼容性版本使用 CalVer，由 `make version` 统一 bump。
 - 正式产品发行版使用日期版本 Git tag（如 `v2026.10.12.0`），与运行时 CalVer 同源。
-- 不要恢复并行 SemVer 版本面；CalVer 是唯一版本标识。
+- 不要恢复手写的 semver 版本面；CalVer 是唯一版本源，WorkBuddy 制品版本由
+  `scripts/version_projection.py` 从它派生（平台按 semver 解析，拒 4 段）。
 - 完整规则见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)。
 
 ## 推送前检查清单

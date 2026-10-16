@@ -20,6 +20,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from version_projection import runtime_calver, workbuddy_version  # noqa: E402
+
 WORKBUDDY = ROOT / "workbuddy"
 META_NAME = "connector-meta.json"
 CONFIG_NAMES = ("mcp.json", "cli.json")
@@ -214,8 +217,16 @@ def check_meta(meta: dict, directory: Path, icon: Path | None, configs: list[str
         errors.append(f"{rel}: type 为 `{meta_type}` 时配置应为 {expected}，当前 {configs}")
 
     version = meta.get("version")
-    if version is not None and parse_version(str(version)) is None:
+    expected_version = workbuddy_version(runtime_calver())
+    if version is None:
+        errors.append(f"{rel}: 缺少 `version`（制品面字段，取值见 scripts/version_projection.py）")
+    elif parse_version(str(version)) is None:
         errors.append(f"{rel}: `version` 必须是语义化版本号，当前 `{version}`")
+    elif str(version) != expected_version:
+        errors.append(
+            f"{rel}: `version` 必须是发行版本 {runtime_calver()} 的平台投影 `{expected_version}`，"
+            f"当前 `{version}`；由 scripts/bump_version.py 更新，不手写"
+        )
 
     declared = parse_version(str(meta.get("minWorkbuddyVersion", "")))
     if "minWorkbuddyVersion" in meta and declared is None:

@@ -186,7 +186,11 @@ def test_plugin_metadata_is_identity_derived():
     updates, errors = gen.plugin_metadata_updates()
     assert not errors, errors
     assert len(updates) == len(gen.DOMAIN_PACKS)
-    version = (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
+    from version_projection import workbuddy_version
+
+    version = workbuddy_version(
+        (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
+    )
     for path, doc, expected in updates:
         assert expected["version"] == version, path
         for key, value in expected.items():
@@ -213,7 +217,7 @@ def test_version_bump_keeps_generated_pack_entries_in_sync(tmp_path, monkeypatch
         copy = tmp_path / str(index) / target.name
         copy.parent.mkdir(parents=True, exist_ok=True)
         copy.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
-        bump_version.replace_frontmatter_version(copy, fake_version)
+        bump_version.replace_frontmatter_version(copy, gen.workbuddy_version(fake_version))
         assert copy.read_text(encoding="utf-8") == payload.decode("utf-8"), target
 
 def test_plugin_agent_pointer_resolves_to_projected_agent_doc():

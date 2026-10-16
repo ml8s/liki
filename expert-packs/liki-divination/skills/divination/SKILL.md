@@ -4,7 +4,7 @@ description: 占卜专家——六爻起卦问事与应期、奇门遁甲策略�
 metadata:
   display_name: 占卜专家
   display_name_en: Divination Expert
-  version: 2026.10.16.2
+  version: 2026.1016.2
   author: Liki
 ---
 
