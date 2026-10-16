@@ -178,7 +178,8 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          # Dependabot PR runs receive no custom secrets; fall back to the job token.
+          password: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
       - name: Validate deployment artifacts with pinned runtime
         run: make runtime-validate
       - name: Build and verify release manifest
