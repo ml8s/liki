@@ -6,6 +6,8 @@ instruction 骨架，也是包内域 SKILL.md 的正文）。包内生成物的�
 版本面由 `scripts/sync_expert_packs.py --check`（`make check` 漂移门）与
 `tests/test_version_surfaces.py` 守护；本脚本只守护那些门看不见的东西：手写身份文件的
 契约与边界语义、手写连接器/市场描述的有效性，以及**全部描述面不得硬编码 MCP 方法名**。
+另外守护头像矢量源不得夹带文本节点（字形一律转路径，市场宿主的字体与
+`dominant-baseline` 支持都不可控）。
 """
 from __future__ import annotations
 
@@ -25,6 +27,7 @@ PACKS_DIR = ROOT / "expert-packs"
 ROUTER_IDENTITY = ROOT / "agents" / "router" / "router.md"
 IDENTITY_SECTIONS = ("## 工具自省", "## 硬边界", "## 隐私与合规")
 IDENTITY_PHRASES = ("条件性解读", "仅保留在当前会话")
+AVATAR_TEXT_MARKERS = ("<text", "font-family", "dominant-baseline")
 
 
 def _frontmatter(path: Path) -> dict:
@@ -138,6 +141,24 @@ def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
             errors.append(f"{mcp_manifest.relative_to(ROOT)}: connector description hard-codes `{hit}`")
 
 
+def _check_avatar(domain: str, errors: list[str]) -> None:
+    """头像矢量源只允许纯图形：带字形的源由 `scripts/build-workbuddy-avatars.sh` 转路径后再提交。"""
+    pack_dir = PACKS_DIR / packs.DOMAIN_PACKS[domain]
+    svg = pack_dir / "avatars" / "expert.svg"
+    png = pack_dir / "avatars" / "expert.png"
+    for path in (svg, png):
+        if not path.is_file():
+            errors.append(f"missing expert-pack avatar: {path.relative_to(ROOT)}")
+    if not svg.is_file():
+        return
+    text = svg.read_text(encoding="utf-8")
+    if "<svg" not in text:
+        errors.append(f"{svg.relative_to(ROOT)}: missing <svg> root element")
+    for marker in AVATAR_TEXT_MARKERS:
+        if marker in text:
+            errors.append(f"{svg.relative_to(ROOT)}: avatar 矢量源只允许路径字形，出现 `{marker}`")
+
+
 def main() -> int:
     errors: list[str] = []
     method_names = _method_names()
@@ -146,6 +167,7 @@ def main() -> int:
     for domain in packs.DOMAIN_PACKS:
         _check_identity(domain, method_names, errors)
         _check_pack(domain, method_names, errors)
+        _check_avatar(domain, errors)
 
     if errors:
         for error in errors:
