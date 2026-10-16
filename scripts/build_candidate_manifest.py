@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-TAG_RE = re.compile(r"^candidate-[0-9a-f]{7}-\d{14}$")
+TAG_RE = re.compile(r"^(?:candidate-[0-9a-f]{7}-\d{14}|v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+)$")
 IMAGE_NAMES = ("engine", "counsel", "experts")
 
 

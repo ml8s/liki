@@ -17,7 +17,7 @@ from build_candidate_manifest import IMAGE_NAMES  # noqa: E402
 
 SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-TAG_RE = re.compile(r"^candidate-[0-9a-f]{7}-\d{14}$")
+TAG_RE = re.compile(r"^(?:candidate-[0-9a-f]{7}-\d{14}|v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+)$")
 
 
 def unpack(document: Any, source_commit: str) -> dict[str, str]:

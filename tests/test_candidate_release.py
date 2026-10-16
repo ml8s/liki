@@ -44,6 +44,17 @@ def test_candidate_manifest_has_exact_required_shape(tmp_path):
     }
 
 
+def test_candidate_manifest_accepts_release_tag(tmp_path):
+    metadata = tmp_path / "metadata"
+    metadata.mkdir()
+    _metadata(metadata)
+    result = bcm.manifest(
+        "a" * 40, "v2026.10.16.0", metadata, "ghcr.io"
+    )
+    assert result["candidate_tag"] == "v2026.10.16.0"
+    assert result["repository"] == "ml8s/liki"
+
+
 def test_candidate_manifest_rejects_malformed_identity(tmp_path):
     metadata = tmp_path / "metadata"
     metadata.mkdir()
