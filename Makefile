@@ -79,8 +79,8 @@ build-engine-mcp: ## Build the engine MCP server
 
 build: build-skill build-engine-mcp ## Build local artifacts (skill archive + engine binary). 镜像仅由本地 candidate 构建。
 
-workbuddy-package: ## 打包 WorkBuddy 连接器提交包到 dist/workbuddy/（上传用）
-	scripts/package-workbuddy-connectors.sh
+workbuddy-package: ## 打包全部 WorkBuddy 提交包（连接器 / 技能 / 专家）到 dist/workbuddy/ 并校验
+	scripts/package-workbuddy.sh
 
 workbuddy-avatars: ## 从包内 avatars/expert.svg 重新栅格化专家头像（512×512 PNG）
 	scripts/build-workbuddy-avatars.sh
@@ -159,6 +159,7 @@ check: lint-md lint-python fmt-check go-version-check runtime-version-check chec
 	bash scripts/check-exec-bits.sh
 	python3 scripts/sync_expert_packs.py --check
 	python3 scripts/check_workbuddy_connectors.py
+	python3 scripts/check_workbuddy_zips.py
 
 sync-expert-packs: ## 从根 skill 生成 expert-packs 方法论卡（唯一生成入口）
 	python3 scripts/sync_expert_packs.py

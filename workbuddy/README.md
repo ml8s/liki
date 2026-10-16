@@ -34,24 +34,40 @@
 
 `skills/liki/` 按技能规范直接打包提交：`{skill-name}/SKILL.md` + `references/`。
 
-提交前需补齐平台必填的 frontmatter 字段：`description_zh`、`description_en`、`author`，以及顶层 `version`（现为 `metadata.version`）。补进真相源、还是由打包步骤生成一份提交视图，待定——顶层 `version` 与 `metadata.version` 并存即形成双源，需二选一。
+技能 zip 的结构（`liki/SKILL.md` + 子资源）已经对了，但 frontmatter 还缺平台必填的 `description_zh`、`description_en`、`author` 与顶层 `version`（现为 `metadata.version`）：补进真相源、还是由打包步骤生成一份提交视图，待定——顶层 `version` 与 `metadata.version` 并存即形成双源，需二选一。
 
 ## 提交
 
+官网只收 zip，三类提交物统一由 `make workbuddy-package` 打包到 `dist/workbuddy/`（`dist/` 不入库），
+zip 顶层就是提交单元目录本身：
+
+| zip | 顶层目录 | 内容 |
+| --- | --- | --- |
+| `liki-engine-connector.zip`、`liki-counsel-connector.zip` | `<source>-connector/` | `connector-meta.json` + `mcp.json` + `icon.svg` |
+| `liki.zip` | `liki/` | `SKILL.md` + `references/`、`scripts/` 等子资源 |
+| `liki-natal.zip`、`liki-divination.zip`、`liki-fengshui.zip`、`liki-naming.zip` | `<pack>/` | `.codebuddy-plugin/` + `agents/` + `avatars/` + `skills/` + `.mcp.json` + `README.md` |
+
+打包脚本自带逐字节校验（`scripts/check_workbuddy_zips.py`：与源码目录比对、顶层目录名与
+`plugin.json.name` 一致、专家包不带包根身份手写源 `SKILL.md`）。
+
 1. 登录 <https://open.workbuddy.cn/console>，完成入驻与资质认证。
-2. `make workbuddy-package` 产出 `dist/workbuddy/<source>-connector.zip`（zip 顶层就是连接器目录，内含 `connector-meta.json`、`mcp.json`、`icon.svg`）。
-3. 在控制台创建连接器并提交该 zip，交 WorkBuddy 团队审核；审核通过后进入连接器市场，后续更新重新提交，通常 10～15 分钟同步生效。
+2. 在控制台创建对应业务类型（连接器 / 技能 / 专家），提交上表里的 zip，交 WorkBuddy 团队审核；
+   审核通过后进入市场，后续更新重新提交，通常 10～15 分钟同步生效。
 
 ## 校验
 
 ```sh
-python3 scripts/check_workbuddy_connectors.py
+python3 scripts/check_workbuddy_connectors.py   # 连接器源码目录
+python3 scripts/check_workbuddy_zips.py         # dist/workbuddy/ 下的提交 zip
 ```
 
-已包含在 `make check` 中，校验内容：元信息必填字段与描述字数、`source` 唯一性与命名、单一 MCP Server、远程地址 HTTPS、`minWorkbuddyVersion` 与所用字段的最低版本匹配、示例条数、图标存在、包内无真实凭证。
+两条都在 `make check` 里。前者校验元信息必填字段与描述字数、`source` 唯一性与命名、单一 MCP
+Server、远程地址 HTTPS、`minWorkbuddyVersion` 与所用字段的最低版本匹配、示例条数、图标存在
+（字形须落成路径）、包内无真实凭证；后者把 zip 与源码逐字节比对并校验平台解析要求的目录约定
+（干净 checkout 没打包时自动跳过）。
 
 ## 上架前核对
 
 - 在控制台确认 `liki-engine`、`liki-counsel` 两个 `source` 的占用情况；历史用过的 `source` 有 `liki-engine`、`engine-pro`、`engine-pro-bazi`、`engine-pro-ziwei`。
 - `minWorkbuddyVersion` 为 `4.24.0`：用到 `name_zh`/`name_en` 与 `examples_zh`/`examples_en` 这两个 4.24.0 字段。
-- 专家包的待补项（agent 定义路径与字段形态、`version` 语义化、端点归属、按域头像）见 `expert-packs/README.md`「上架前待办」。
+- 专家包的待补项（`version` 语义化）见 `expert-packs/README.md`「上架前待办」；agent 定义路径与字段形态、端点归属、按域头像已按平台文档落地。

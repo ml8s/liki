@@ -67,6 +67,7 @@ script set is pinned by `tests/test_check_scripts_contract.py`, so adding a scri
 | `scripts/check-exec-bits.sh` | Git executable bits for scripts invoked without an interpreter |
 | `scripts/sync_expert_packs.py` | Expert methodology cards are in sync with the root skill |
 | `scripts/check_workbuddy_connectors.py` | WorkBuddy connector packages: metadata, single MCP server, HTTPS, version gate, credentials, path-only icon glyphs |
+| `scripts/check_workbuddy_zips.py` | WorkBuddy submission zips in `dist/workbuddy/`: byte-parity with sources, top-level dir, expert-pack layout |
 
 The counsel direct dependencies are declared twice on purpose --
 `counsel/pyproject.toml [project.dependencies]` is the metadata surface and
