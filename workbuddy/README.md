@@ -17,23 +17,7 @@
 | `workbuddy/liki-engine-connector/` | `liki-engine` | `https://liki.hk/engine/mcp` | 排盘与历法计算：八字、紫微、六爻、奇门、黄历、风水 |
 | `workbuddy/liki-counsel-connector/` | `liki-counsel` | `https://liki.hk/counsel/mcp` | 规则判断：因子快照、本命断语、应期断语、合盘、起名 |
 
-两个 Server 都是免鉴权远程服务，因此不写 `auth_mode`，`mcp.json` 中不出现任何凭证。这是平台
-文档明列的路径（「MCP Server 自带 OAuth 或**无需认证**」→ `auth_mode` 省略，按标准 MCP 流程连接），
-不是遗漏：服务只做本次确定性计算，无账号、无用户档案、无请求内容日志，`mcp.json` 里也就没有可写
-的凭证位。
-
-同一个端点还是开源侧的共同依赖面：`skills/liki/.mcp.json` 与四个专家包的 `.mcp.json`（12 处
-`auth.type = none`）默认直连 `https://liki.hk/{engine,counsel}/mcp`，`npx skills add https://liki.hk`
-装出来的 skill 也走它。给这个公开端点加鉴权会当场打断所有自装用户，所以它是**契约面**：只能保持
-免鉴权。
-
-平台侧要鉴权也不必动我们的后端：`auth_mode: server-side` / `gateway` 是 WorkBuddy 云端托管 OAuth，
-用户授权与计量发生在平台侧，我们的公开端点仍是下游无状态计算（接入方式需与 WorkBuddy 团队确认，
-属配置/商务动作）。需要动后端的只有「我们校验凭证 / 自己实现 OAuth 端点」这一种形态，而它对一个
-免费公开计算接口没有意义；`token` 模式还要我们先有凭证发放流程。
-
-配额与限流归部署侧（云 / 边缘网关），不进业务代码：应用内限流会误伤同出口 IP 的并发用户，也与
-边缘职责重复。代价是端点侧看不到「谁在用」，用量只能从平台后台看。
+两个 Server 都是免鉴权远程服务，因此不写 `auth_mode`，`mcp.json` 中不出现任何凭证。
 
 两个连接器的 `version` 与技能/专家同源：写发行版本 `skills/liki/VERSION.txt` 的平台投影
 （`scripts/version_projection.py`，`2026.10.16.2` → `2026.1016.2`），由 `make version` 统一更新，
