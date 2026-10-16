@@ -22,10 +22,15 @@
 不是遗漏：服务只做本次确定性计算，无账号、无用户档案、无请求内容日志，`mcp.json` 里也就没有可写
 的凭证位。
 
-配额与限流归部署侧（云 / 边缘网关），不进业务代码：应用内限流会误伤同出口 IP 的并发用户，
-也与边缘职责重复。需要按用户计量或授权时走平台的托管鉴权——`auth_mode: server-side` 或 `gateway` 由 WorkBuddy 云端托管 OAuth，
-接入前与 WorkBuddy 团队确认；`auth_mode: token` 需要我们先有凭证发放流程。两者都还没到落地条件，
-落地前不改 `mcp.json`。
+同一个端点还是开源侧的共同依赖面：`skills/liki/.mcp.json` 与四个专家包的 `.mcp.json`（12 处
+`auth.type = none`）默认直连 `https://liki.hk/{engine,counsel}/mcp`，`npx skills add https://liki.hk`
+装出来的 skill 也走它。给这个公开端点加鉴权会当场打断所有自装用户，所以它是**契约面**：只能保持
+免鉴权。
+
+要按用户计量或授权，只能在平台托管侧另开一条链路——`auth_mode: server-side` / `gateway` 由
+WorkBuddy 云端托管 OAuth（接入前与 WorkBuddy 团队确认），`token` 需我们先有凭证发放流程；两者都
+还没到落地条件。配额与限流归部署侧（云 / 边缘网关），不进业务代码：应用内限流会误伤同出口 IP 的
+并发用户，也与边缘职责重复。
 
 两个连接器的 `version` 与技能/专家同源：写发行版本 `skills/liki/VERSION.txt` 的平台投影
 （`scripts/version_projection.py`，`2026.10.16.2` → `2026.1016.2`），由 `make version` 统一更新，
