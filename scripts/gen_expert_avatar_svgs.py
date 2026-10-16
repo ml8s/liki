@@ -10,7 +10,7 @@
     python3 scripts/gen_expert_avatar_svgs.py    # 重写四份矢量源（幂等）
     make expert-avatars                          # 再跑一遍栅格化出 expert.png
 
-改字面（换字）只改 `GLYPHS`；改配色/尺寸改本文件顶部的设计常量，然后重跑。
+改字面（换字）只改 `GLYPHS`；改配色/占比改本文件顶部的设计常量，然后重跑。
 """
 from __future__ import annotations
 
@@ -33,18 +33,31 @@ GLYPHS: tuple[tuple[str, str], ...] = (
 )
 
 FONT_FAMILY = "Alimama DaoLiTi"
-FONT_SIZE = 360  # 转路径时的字号；只影响中间精度，最终按 TARGET_HEIGHT 归一化
-TARGET_HEIGHT = 190  # 汉字在 512×512 画布上的目标字高
-CENTER = 256.0
+FONT_SIZE = 360  # 转路径时的字号；只影响中间精度，最终按 GLYPH_HEIGHT 归一化
+CANVAS = 512.0
+CENTER = CANVAS / 2
 BACKDROP = "#0C1A2E"
 INK = "#FFBF00"
 
+# 田字格与汉字的占比：头像按 40~96px 展示，画布几乎铺满——田字格占 75%，
+# 汉字占田字格内框的 ~80%（字再大就会顶到格线）。
+BACKDROP_RX = 72.0
+FRAME_SIZE = 384.0  # 田字格边长
+FRAME_RX = 28.0
+FRAME_STROKE = 18.0
+GRID_STROKE = 8.0
+GRID_DASH = "20 16"
+GLYPH_HEIGHT = 290.0  # 汉字目标字高
+
+FRAME = CENTER - FRAME_SIZE / 2
+FRAME_FAR = CENTER + FRAME_SIZE / 2
+
 TEMPLATE = """<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="72" fill="{backdrop}"/>
-  <rect x="126" y="126" width="260" height="260" rx="18" fill="none" stroke="{ink}" stroke-width="12" opacity="0.8"/>
-  <g stroke="{ink}" stroke-width="6" opacity="0.3" stroke-dasharray="14 12">
-    <line x1="256" y1="126" x2="256" y2="386"/>
-    <line x1="126" y1="256" x2="386" y2="256"/>
+  <rect width="512" height="512" rx="{backdrop_rx}" fill="{backdrop}"/>
+  <rect x="{frame}" y="{frame}" width="{frame_size}" height="{frame_size}" rx="{frame_rx}" fill="none" stroke="{ink}" stroke-width="{frame_stroke}" opacity="0.85"/>
+  <g stroke="{ink}" stroke-width="{grid_stroke}" opacity="0.3" stroke-dasharray="{grid_dash}">
+    <line x1="{center}" y1="{frame}" x2="{center}" y2="{frame_far}"/>
+    <line x1="{frame}" y1="{center}" x2="{frame_far}" y2="{center}"/>
   </g>
   <!-- 田字格与「{glyph}」（{font}轮廓） -->
   <g aria-label="{glyph}" fill="{ink}" transform="translate({tx},{ty}) scale({scale})">
@@ -117,11 +130,20 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         for domain, glyph in GLYPHS:
             path, (x0, y0, width, height) = _glyph_outline(inkscape, glyph, Path(tmp))
-            scale = TARGET_HEIGHT / height
+            scale = GLYPH_HEIGHT / height
             tx = round(CENTER - scale * (x0 + width / 2), 4)
             ty = round(CENTER - scale * (y0 + height / 2), 4)
             svg = TEMPLATE.format(
                 backdrop=BACKDROP,
+                backdrop_rx=BACKDROP_RX,
+                frame=FRAME,
+                frame_size=FRAME_SIZE,
+                frame_rx=FRAME_RX,
+                frame_stroke=FRAME_STROKE,
+                frame_far=FRAME_FAR,
+                grid_stroke=GRID_STROKE,
+                grid_dash=GRID_DASH,
+                center=CENTER,
                 ink=INK,
                 glyph=glyph,
                 font=FONT_FAMILY,
@@ -134,7 +156,7 @@ def main() -> int:
             if not target.parent.is_dir():
                 raise SystemExit(f"[expert-avatars] error: {target.parent} 不存在")
             target.write_text(svg, encoding="utf-8")
-            print(f"  ✓ {target.relative_to(ROOT)} 「{glyph}」 字高 {height:.1f} → {TARGET_HEIGHT} (×{scale:.4f})")
+            print(f"  ✓ {target.relative_to(ROOT)} 「{glyph}」 字高 {height:.1f} → {GLYPH_HEIGHT:.0f} (×{scale:.4f})")
     return 0
 
 
