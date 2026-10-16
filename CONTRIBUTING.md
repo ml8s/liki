@@ -33,10 +33,17 @@
 
 ### 本地工具链
 
-- Go **1.26.9**（低于 1.26.9 会命中标准库安全漏洞）
-- Python **3.12**
-- Node **24.14.1** (see `.nvmrc`)
-- 可选：[uv](https://docs.astral.sh/uv/)，用于复现 counsel Python 依赖锁
+版本只在一处声明，CI 与本地读同一份，`make check` 校验本地一致：
+
+- Go 1.26.9：`go.mod` + `GOTOOLCHAIN`（`make go-version-check`）
+- Python 3.12.14：`.python-version`（`make runtime-version-check`）
+- Node 24.14.1：`.nvmrc`（`make runtime-version-check`）
+- golangci-lint v2.13.2：`deps/golangci-lint.version`（本地与 CI 共用，对账测试锁定）
+- ruff 0.16.0：`lint-python.sh` 的 `RUFF_VERSION`
+
+GitHub Action 版本一律 40 位 SHA pin；升级由 Dependabot 每周分组一个 PR 跟进。
+合并前看 release notes——大版本常有 breaking（如 docker/login-action v4）。
+可选：[uv](https://docs.astral.sh/uv/)，用于复现 counsel Python 依赖锁
 
 ### 语言和服务边界
 
