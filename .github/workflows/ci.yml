@@ -162,8 +162,8 @@ jobs:
 
   release-integrity:
     name: Release artifact integrity
-    # 验证要拉私有 ghcr 包（liki-agent-runtime）：PR run（含 Dependabot）拿不到
-    # custom secrets、也没有 packages 权限，所以只在 main push 用 GHCR_TOKEN 跑。
+    # 镜像包已 link 到本仓，job token 即可拉取；PR run（含 Dependabot）token 权限
+    # 受限，所以只在 main push 跑。
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -181,8 +181,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          # Dependabot PR runs receive no custom secrets; fall back to the job token.
-          password: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
+          password: ${{ github.token }}
       - name: Validate deployment artifacts with pinned runtime
         run: make runtime-validate
       - name: Build and verify release manifest
