@@ -17,7 +17,15 @@
 | `workbuddy/liki-engine-connector/` | `liki-engine` | `https://liki.hk/engine/mcp` | 排盘与历法计算：八字、紫微、六爻、奇门、黄历、风水 |
 | `workbuddy/liki-counsel-connector/` | `liki-counsel` | `https://liki.hk/counsel/mcp` | 规则判断：因子快照、本命断语、应期断语、合盘、起名 |
 
-两个 Server 都是免鉴权远程服务，因此不写 `auth_mode`，`mcp.json` 中不出现任何凭证。
+两个 Server 都是免鉴权远程服务，因此不写 `auth_mode`，`mcp.json` 中不出现任何凭证。这是平台
+文档明列的路径（「MCP Server 自带 OAuth 或**无需认证**」→ `auth_mode` 省略，按标准 MCP 流程连接），
+不是遗漏：服务只做本次确定性计算，无账号、无用户档案、无请求内容日志，`mcp.json` 里也就没有可写
+的凭证位。
+
+配额与限流归部署侧（云 / 边缘网关），不进业务代码：应用内限流会误伤同出口 IP 的并发用户，
+也与边缘职责重复。需要按用户计量或授权时走平台的托管鉴权——`auth_mode: server-side` 或 `gateway` 由 WorkBuddy 云端托管 OAuth，
+接入前与 WorkBuddy 团队确认；`auth_mode: token` 需要我们先有凭证发放流程。两者都还没到落地条件，
+落地前不改 `mcp.json`。
 
 两个连接器的 `version` 与技能/专家同源：写发行版本 `skills/liki/VERSION.txt` 的平台投影
 （`scripts/version_projection.py`，`2026.10.16.2` → `2026.1016.2`），由 `make version` 统一更新，
