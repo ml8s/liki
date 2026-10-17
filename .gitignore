@@ -2,7 +2,7 @@
 .DS_Store
 Thumbs.db
 dist/
-/build/candidate/
+/build/release/
 /node_modules/
 /bin/
 # 本地开发技能（不入库）

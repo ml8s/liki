@@ -64,9 +64,9 @@ def test_candidate_manifest_is_self_describing():
             )
         result = bcm.manifest(
             "a" * 40,
-            "candidate-abcdef0-20260101010101",
+            "v2026.10.16.0",
             metadata_dir,
-            "127.0.0.1:5000",
+            "ghcr.io",
         )
     assert result["schema_version"] == "liki.candidate-manifest.v1"
     assert set(result["images"]) == {"engine", "counsel", "experts"}
