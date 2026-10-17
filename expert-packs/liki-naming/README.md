@@ -24,13 +24,14 @@ liki-naming/
 │           └── domains/
 │               ├── bazi/    # 起名用神与考时精简卡
 │               └── qiming/  # 字库与选字卡
-├── .mcp.json                # 连接器：engine-mcp（八字排盘）+ counsel-mcp（起名判断）
 └── README.md
 ```
 
 ## 依赖
 
-- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：八字排盘能力由 `engine-bazi` 提供（取用神）；姓氏匹配、取字、组名和评估能力由 `counsel-naming` 提供。
+- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 判断层，
+  ID 单一源 `workbuddy/connector-ids.json`），包内不自带 MCP；取用神用排盘引擎、取字与评估
+  用判断层，引导卡片与其余三个专家共用同一次连接。
 
 ## 说明
 

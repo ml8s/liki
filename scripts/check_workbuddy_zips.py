@@ -114,9 +114,16 @@ def check_expert(zip_path: Path, name: str, errors: list[str]) -> None:
         errors.append(f"{zip_path.name}: plugin.json.name `{plugin.get('name')}` 与顶层目录 `{name}` 不一致")
     if plugin.get("agents") != [f"./agents/{name}.md"]:
         errors.append(f"{zip_path.name}: plugin.json.agents 须指向 [\"./agents/{name}.md\"]")
-    for required in (f"agents/{name}.md", "avatars/expert.png", "README.md", ".mcp.json"):
+    for required in (f"agents/{name}.md", "avatars/expert.png", "README.md"):
         if required not in files:
             errors.append(f"{zip_path.name}: 缺 {required}")
+    if ".mcp.json" in files:
+        errors.append(
+            f"{zip_path.name}: 专家依赖连接器（plugin.json.dependencies.connectors），不带 .mcp.json"
+        )
+    deps = plugin.get("dependencies", {})
+    if not deps.get("connectors"):
+        errors.append(f"{zip_path.name}: plugin.json.dependencies.connectors 缺连接器 ID")
 
 
 def main() -> int:

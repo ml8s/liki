@@ -73,24 +73,27 @@ agents/router/router.md             # router 例外：无专家包，身份文�
 - 域 `SKILL.md` 的方法论卡索引由生成器按镜像卡自动生成，禁止手维护卡名清单
 - 方法论卡不入身份文件：由 ADK skilltoolset 按需 `load_skill` 渐进加载（避免每轮 prompt 膨胀）
 
-### 3.1.1 MCP 连接器模型（客户端分域）
+### 3.1.1 MCP 连接器模型（专家依赖已上架连接器）
 
-客户端（CodeBuddy 等）通过 `.mcp.json` 连接**分域端点**，每个专家只见自己领域工具。engine 分域 = 一个术数或共享 aux；counsel 分域 = 一个判断域。
+WorkBuddy 专家不声明自带 MCP：四个 `plugin.json` 只有 `dependencies.connectors`（两个聚合连接器的
+平台 ID，单一源 `workbuddy/connector-ids.json`），包内不带 `.mcp.json`。用户在召唤专家前按连接器
+自身的引导卡片完成一次连接，四个专家共用；引导卡片的名称、描述、图标由连接器提供。
 
-| 专家 | engine 连接器 | counsel 连接器 |
+| 专家 | 依赖的连接器 | 工具面 |
 |---|---|---|
-| natal | `engine-bazi` → `/engine/mcp/bazi` **+** `engine-ziwei` → `/engine/mcp/ziwei` | `counsel-bazi` → `/counsel/mcp/bazi` **+** `counsel-ziwei` → `/counsel/mcp/ziwei` |
-| divination | `engine-liuyao` → `/engine/mcp/liuyao` **+** `engine-qimen` → `/engine/mcp/qimen` **+** `engine-huangli` → `/engine/mcp/huangli` | `counsel-liuyao` → `/counsel/mcp/liuyao` **+** `counsel-qimen` → `/counsel/mcp/qimen` |
-| fengshui | `engine-fengshui` → `/engine/mcp/fengshui` | — |
-| naming | `engine-bazi` → `/engine/mcp/bazi`（取用神） | `counsel-naming` → `/counsel/mcp/naming` |
+| natal | 排盘引擎 `liki-engine` + 判断层 `liki-counsel` | 全领域（领域边界由身份正文「硬边界」承担） |
+| divination | 同上 | 同上 |
+| fengshui | 同上 | 同上 |
+| naming | 同上 | 同上 |
+
+域级端点（`/engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,fengshui}`、`/counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}`）
+仍由服务暴露，供自建分域部署使用，不参与 WorkBuddy 上架。
 
 要点：
 
-- **黄历是 engine 独立 `huangli` 子域**（`huangli.*` 前缀），不是 aux——aux 是 `time./tianwen./city.`（`/engine/mcp/aux`）。
-- **占卜专家连三 engine 连接器**（`engine-liuyao` + `engine-qimen` + `engine-huangli`）：分域端点下 `engine-qimen` 不含黄历，择日额外连 `engine-huangli`。
-- **本命专家连双体系连接器**（`engine-bazi` + `engine-ziwei`、`counsel-bazi` + `counsel-ziwei`）：八字侧与紫微侧在同一个专家内各自排盘、各自判断，再在包内合参与裁决。
-- **命名连 `engine-bazi`**：起名用神取字依赖八字排盘，故复用 bazi 排盘连接器（排盘能力，非专家协作）。
-- 运行时（装配镜像）agent 连**全量 `/mcp`**（compose `LIKI_MCP_ENGINE_URL`），工具可见性由 `tools.allow` 白名单控制；分域连接器仅用于客户端安装独立 skill 时的隔离。
+- **黄历是 engine 独立 `huangli` 子域**（`huangli.*` 前缀），不是 aux——aux 是 `time./tianwen./city.`（`/engine/mcp/aux`）；聚合连接器下择日工具随排盘引擎一并可见，占卜专家因此不必额外连第三个服务。
+- 专家工具面变宽后，**领域边界由身份正文「硬边界」给出**（如本命专家：六爻、奇门、黄历择日、起名、风水属其他专家），工具名本身带领域前缀。
+- 运行时（装配镜像）agent 连**全量 `/mcp`**（compose `LIKI_MCP_ENGINE_URL`），工具可见性由 `tools.allow` 白名单控制（`agent.yaml`）；WorkBuddy 侧没有白名单机制，靠上面的「硬边界」。
 
 ### 3.2 生成与校验链（`make build-deployment`）
 

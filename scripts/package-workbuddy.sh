@@ -7,7 +7,7 @@
 #   技能    skills/liki/                   → liki.zip
 #           （内含 SKILL.md + references/、scripts/ 等子资源）
 #   专家    expert-packs/liki-<domain>/    → liki-<domain>.zip
-#           （内含 .codebuddy-plugin/、agents/、avatars/、skills/、.mcp.json、README.md）
+#           （内含 .codebuddy-plugin/、agents/、avatars/、skills/、README.md）
 #
 # 产物写进 dist/workbuddy/（dist/ 不入库），源码目录只保留提交源。
 # 专家包的包根 SKILL.md 是仓库里的身份手写源，平台侧入口是 agents/<pack>.md，故不随包提交。

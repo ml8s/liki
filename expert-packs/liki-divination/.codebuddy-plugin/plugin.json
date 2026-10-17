@@ -59,7 +59,10 @@
     }
   ],
   "dependencies": {
-    "mcpServers": "./.mcp.json"
+    "connectors": [
+      "oc_9af58cd723529afc",
+      "oc_f31cd1614c314762"
+    ]
   },
   "keywords": [
     "六爻",

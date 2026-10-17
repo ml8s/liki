@@ -120,7 +120,7 @@ Babies and teenagers skip calibration; the provided hour is used as given.
 
 ### Does it need internet?
 
-By default, yes — the two aggregate MCP servers (`counsel-mcp` and `engine-mcp`) declared in `.mcp.json` perform judgment and chart casting. Clients with embedded MCP declaration support connect automatically. Domain experts (Bazi / Ziwei / Liuyao / QiMen / Naming packs) mount their own sub-domain endpoints (`/counsel/mcp/{domain}`, `/engine/mcp/{domain}`); a unified install only needs the two aggregates.
+By default, yes — the two aggregate MCP servers (`counsel-mcp` and `engine-mcp`) declared in `.mcp.json` perform judgment and chart casting. Clients with embedded MCP declaration support connect automatically. The four top-level domain experts (Natal / Divination / Feng Shui / Naming) do not mount their own endpoints; they declare a dependency on those two aggregate connectors, so connecting once on summon covers all four.
 
 ### Is my birth data stored?
 

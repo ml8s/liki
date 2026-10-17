@@ -30,6 +30,8 @@ ICON_NAMES = ("icon.svg", "icon.png", "icon.jpg")
 # 图标与专家头像同族：字形必须转路径（宿主字体与 dominant-baseline 都不可控）。
 ICON_TEXT_MARKERS = ("<text", "font-family", "dominant-baseline")
 TOKEN_SCHEMA_NAME = "token-schema.json"
+# 目录根下允许的非提交文件：说明文档 + 已上架连接器 ID 映射（专家包依赖声明的单一源）。
+ROOT_FILES = ("README.md", "connector-ids.json")
 
 NAME_REQUIRED = ("name", "name_en")
 DESC_FIELDS = ("description", "description_zh", "description_en")
@@ -254,11 +256,11 @@ def iter_connectors() -> tuple[list[Path], list[str]]:
         return [], [f"缺少 {WORKBUDDY.relative_to(ROOT)} 目录"]
     connectors: list[Path] = []
     for entry in sorted(WORKBUDDY.iterdir()):
-        if entry.name == "README.md":
+        if entry.name in ROOT_FILES:
             continue
         if not entry.is_dir():
             errors.append(
-                f"{WORKBUDDY.relative_to(ROOT)}/{entry.name}: 只允许 README.md 与连接器目录"
+                f"{WORKBUDDY.relative_to(ROOT)}/{entry.name}: 只允许 {'、'.join(sorted(ROOT_FILES))} 与连接器目录"
                 "（提交用 zip 属产物，用 `make workbuddy-package` 生成到 dist/workbuddy/）"
             )
             continue

@@ -19,6 +19,12 @@
 
 两个 Server 都是免鉴权远程服务，因此不写 `auth_mode`，`mcp.json` 中不出现任何凭证。
 
+连接器上架后平台会分配连接器 ID，专家包靠它运行：四个专家包的 `plugin.json` 只声明
+`dependencies.connectors`（不写 `dependencies.mcpServers`、包内不带 `.mcp.json`），不引用连接器的
+`source`。ID 的单一源是本目录的 `connector-ids.json`（`source` → 平台 connector id），由
+`sync_expert_packs.py` 投影进四个 `plugin.json`，`check_expert_docs.py` 比对投影值并禁止包内出现
+`.mcp.json`（平台会把它当兜底自动加载，与连接器依赖并用会形成双重工具面）。
+
 两个连接器的 `version` 与技能/专家同源：写发行版本 `skills/liki/VERSION.txt` 的平台投影
 （`scripts/version_projection.py`，`2026.10.16.2` → `2026.1016.2`），由 `make version` 统一更新，
 `check_workbuddy_connectors.py` 比对投影值，禁止手写。
@@ -54,7 +60,7 @@ zip 顶层就是提交单元目录本身：
 | --- | --- | --- |
 | `liki-engine-connector.zip`、`liki-counsel-connector.zip` | `<source>-connector/` | `connector-meta.json` + `mcp.json` + `icon.svg` |
 | `liki.zip` | `liki/` | `SKILL.md` + `references/`、`scripts/` 等子资源 |
-| `liki-natal.zip`、`liki-divination.zip`、`liki-fengshui.zip`、`liki-naming.zip` | `<pack>/` | `.codebuddy-plugin/` + `agents/` + `avatars/` + `skills/` + `.mcp.json` + `README.md` |
+| `liki-natal.zip`、`liki-divination.zip`、`liki-fengshui.zip`、`liki-naming.zip` | `<pack>/` | `.codebuddy-plugin/` + `agents/` + `avatars/` + `skills/` + `README.md` |
 
 打包脚本自带逐字节校验（`scripts/check_workbuddy_zips.py`：与源码目录比对、顶层目录名与
 `plugin.json.name` 一致、专家包不带包根身份手写源 `SKILL.md`）。

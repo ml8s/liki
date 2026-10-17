@@ -24,13 +24,14 @@ liki-fengshui/
 │           └── domains/
 │               ├── bazhai/  # 八宅方法论卡（游星 / 门主灶）
 │               └── xuankong/ # 玄空方法论卡（飞星 / 元运）
-├── .mcp.json                # 连接器：engine-mcp（八宅+玄空排盘）
 └── README.md
 ```
 
 ## 依赖
 
-- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：八宅排盘与布局、玄空排盘与流年能力由 `engine-fengshui` 提供，无独立判断层。
+- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 判断层，
+  ID 单一源 `workbuddy/connector-ids.json`），包内不自带 MCP。本专家只用排盘引擎的工具，
+  判断层工具不参与，故规则卡须写明结论由本域卡给出。
 
 ## 说明
 

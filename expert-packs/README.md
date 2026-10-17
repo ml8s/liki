@@ -15,8 +15,7 @@
 | `skills/<domain>/SKILL.md` | 生成，源为身份文件（正文 + 自动方法论卡索引；ADK skill 入口） |
 | `agents/<pack>.md` | 生成，源为身份文件（WorkBuddy agent md：平台字段名 `displayName`/`maxTurns` + 身份正文；`plugin.json` 的 `agents`/`agentName` 指向它） |
 | `skills/<domain>/references/**` | 生成，源为 `skills/liki/references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains，逐字节镜像 + 路径 rebase） |
-| `.codebuddy-plugin/plugin.json` | `agents`/`agentName`/description/profession/version 由身份文件生成，其余字段手写 |
-| `.mcp.json` | 手写连接器契约 |
+| `.codebuddy-plugin/plugin.json` | `agents`/`agentName`/description/profession/version/keywords/skills/dependencies 生成（含连接器依赖），其余字段手写 |
 | `avatars/expert.png` | 手写占位资源，见下 |
 | `README.md` | 手写包说明 |
 
@@ -33,7 +32,8 @@
 描述）、`display_name` / `display_name_en`（市场展示名）、`profession`（en/zh）、
 `keywords`（→ `plugin.json.keywords` 市场检索词）、`skills`（skill 名列表 → `plugin.json.skills`
 预加载路径 `./skills/<name>`）、`maxTurns`（WorkBuddy agent 回合上限，本文件即 agent 定义）、
-`version` / `author`；正文即部署 instruction 骨架。
+`version` / `author`；正文即部署 instruction 骨架。连接器依赖不在身份文件里，它的单一源是
+`workbuddy/connector-ids.json`（→ `plugin.json.dependencies.connectors`）。
 
 生成物不要手改：`make sync-expert-packs` 覆盖并清理孤儿文件，`make check` 通过
 `python3 scripts/sync_expert_packs.py --check` 做双向漂移检测（含域 `SKILL.md` 与
@@ -59,9 +59,9 @@ PNG，8-bit RGBA，单张 ≤500KB，符合 WorkBuddy 头像规范）。四张�
 ## 校验
 
 `python3 scripts/check_expert_docs.py`（`make check`）校验身份文件的 frontmatter 契约与
-边界语义、手写连接器（`.mcp.json`）与市场描述的有效性，并禁止全部描述面硬编码 MCP
-方法名；生成物的字节一致性与版本面由 `sync_expert_packs.py --check` 与
-`tests/test_version_surfaces.py` 守护。
+边界语义、`plugin.json.dependencies` 的连接器依赖（且包内不得带 `.mcp.json`）与市场描述
+的有效性，并禁止全部描述面硬编码 MCP 方法名；生成物的字节一致性与版本面由
+`sync_expert_packs.py --check` 与 `tests/test_version_surfaces.py` 守护。
 
 ## 运行时边界
 
@@ -72,14 +72,25 @@ skill 提供，包内不重复携带。若将来要独立售卖 / 独立运行�
 
 ## 端点归属
 
-运行时依赖用 `dependencies.mcpServers: "./.mcp.json"`（平台「方式一」的推荐写法），端点保持域级
-（`engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,fengshui}`、`counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}`），
-让每个专家只看到本域工具（`engine/cmd/engine-mcp/server.go` 的 `mcpDomains` 即为此设计）；
-连接器是聚合端点、专家包是域级端点，各自服务不同场景。
-引导卡片的 `x-workbuddy.icon` 指向包内 `./avatars/expert.svg`：平台设置 icon 后不再画
-「展示名首字符 + 散列底色」占位，卡片直接用本域头像那一份图形（与专家头像同源，不再多一份素材）；
-`check_expert_docs.py` 校验它落在包内且真实存在。`dependencies.connectors` 留给已上架连接器 ID，
-专家包不用它声明自带端点。
+专家**不自带 MCP**，只声明对已上架连接器的依赖：
+
+```json
+"dependencies": { "connectors": ["oc_9af58cd723529afc", "oc_f31cd1614c314762"] }
+```
+
+两个 ID 的单一源是 `workbuddy/connector-ids.json`（`source` = `liki-engine` / `liki-counsel`），
+由 `sync_expert_packs.py` 投影进四个 `plugin.json`；`check_expert_docs.py` 比对投影值，并禁止包内
+出现 `.mcp.json`——平台在 `plugin.json` 未声明 `dependencies.mcpServers` 时会自动读取插件根
+`.mcp.json` 作为兜底，两个来源并存会让同一次召唤出现两套工具面与两组引导卡片。
+
+选择连接器聚合端点而不是自带域级端点，是为了让一次连接在四个专家间复用（引导卡片 2 张而非
+12 张）、让连接器成为工具面的唯一来源（专家包不再重复声明端点），引导卡片也用连接器自己的图标。
+代价是专家看到的工具面是全领域：领域边界由身份文件正文的「硬边界」承担（如本命专家：六爻、
+奇门、黄历择日、起名、风水属其他专家），工具名本身也带领域前缀。
+
+子域端点（`engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,fengshui}`、
+`counsel/mcp/{bazi,ziwei,liuyao,qimen,naming}`，见 `engine/cmd/engine-mcp/server.go` 的
+`mcpDomains`）保留给自建分域部署，不参与 WorkBuddy 上架。
 
 ## 上架前待办
 

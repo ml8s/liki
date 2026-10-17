@@ -25,14 +25,14 @@ liki-natal/
 │           └── domains/
 │               ├── bazi/    # 八字方法论卡（旺衰/用神/格局/十神/大运/合盘/考时等）
 │               └── ziwei/   # 紫微方法论卡（主星/格局/十二宫/性格/应期/流年等）
-├── .mcp.json                # 连接器：engine-bazi + engine-ziwei（排盘）+ counsel-bazi + counsel-ziwei（判断）
 └── README.md
 ```
 
 ## 依赖
 
-- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：排盘走
-  `engine-bazi` / `engine-ziwei`，判断走 `counsel-bazi` / `counsel-ziwei`。
+- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 判断层，
+  ID 单一源 `workbuddy/connector-ids.json`），包内不自带 MCP；引导卡片由连接器提供，
+  与其余三个专家共用同一次连接。
 
 ## 说明
 

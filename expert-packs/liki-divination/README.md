@@ -26,15 +26,14 @@ liki-divination/
 │               ├── liuyao/  # 六爻方法论卡（用神/吉凶/应期/月建/六兽等）
 │               ├── qimen/   # 奇门方法论卡（八门/九星/八神/格局/专占等）
 │               └── huangli/ # 黄历择日卡
-├── .mcp.json                # 连接器：engine-liuyao + engine-qimen + engine-huangli（排盘/历法）+ counsel-liuyao + counsel-qimen（判断）
 └── README.md
 ```
 
 ## 依赖
 
-- 运行依赖由包内 `.mcp.json` 声明（`dependencies.mcpServers: "./.mcp.json"`）：六爻起卦、奇门排局与
-  黄历查日由 `engine-liuyao` / `engine-qimen` / `engine-huangli` 提供，不可变快照与追问能力由
-  `counsel-liuyao` / `counsel-qimen` 提供。
+- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 判断层，
+  ID 单一源 `workbuddy/connector-ids.json`），包内不自带 MCP；六爻/奇门/黄历的工具都在
+  这两个聚合连接器内，引导卡片与其余三个专家共用同一次连接。
 
 ## 说明
 

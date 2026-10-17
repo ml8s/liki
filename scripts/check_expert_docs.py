@@ -5,7 +5,8 @@
 instruction 骨架，也是包内域 SKILL.md 的正文）。包内生成物的字节一致性与
 版本面由 `scripts/sync_expert_packs.py --check`（`make check` 漂移门）与
 `tests/test_version_surfaces.py` 守护；本脚本只守护那些门看不见的东西：手写身份文件的
-契约与边界语义、手写连接器/市场描述的有效性，以及**全部描述面不得硬编码 MCP 方法名**。
+契约与边界语义、`plugin.json.dependencies` 的连接器依赖（专家不自带 MCP）、
+以及**全部描述面不得硬编码 MCP 方法名**。
 另外守护头像矢量源不得夹带文本节点（字形一律转路径，市场宿主的字体与
 `dominant-baseline` 支持都不可控）。
 """
@@ -109,23 +110,6 @@ def _check_router(method_names: set[str], errors: list[str]) -> None:
     _check_no_methods(ROUTER_IDENTITY, method_names, errors)
 
 
-def _check_card_icon(
-    pack_dir: Path, icon: object, mcp_manifest: Path, errors: list[str]
-) -> None:
-    """引导卡片的 `x-workbuddy.icon` 必须落在包内且真实存在（相对 .mcp.json 所在目录解析）。"""
-    if icon is None:
-        return
-    rel = mcp_manifest.relative_to(ROOT)
-    if not isinstance(icon, str) or not icon.startswith("./"):
-        errors.append(f"{rel}: x-workbuddy.icon 须为包内相对路径（如 ./avatars/expert.svg）")
-        return
-    target = (pack_dir / icon[2:]).resolve()
-    if pack_dir.resolve() not in target.parents:
-        errors.append(f"{rel}: x-workbuddy.icon `{icon}` 逃出包目录")
-    elif not target.is_file():
-        errors.append(f"{rel}: x-workbuddy.icon `{icon}` 不存在")
-
-
 AGENT_FRONTMATTER_KEYS = ("name", "description", "displayName", "profession", "maxTurns")
 
 
@@ -165,17 +149,40 @@ def _check_agent_doc(pack: str, pack_dir: Path, plugin: dict, errors: list[str])
         errors.append(f"{agent_doc.relative_to(ROOT)}: maxTurns 须为整数")
 
 
+def _check_dependencies(pack: str, pack_dir: Path, plugin_doc: dict, errors: list[str]) -> None:
+    """专家依赖已上架连接器：`dependencies.connectors` 是投影值，且包内不得自带 MCP。
+
+    平台在 `plugin.json` 未声明 `dependencies.mcpServers` 时会自动读取插件根 `.mcp.json`
+    作为兜底；两个来源同时存在会让同一次召唤出现两套工具面与两组引导卡片，故 `.mcp.json`
+    必须缺席。
+    """
+    rel = (pack_dir / ".codebuddy-plugin" / "plugin.json").relative_to(ROOT)
+    ids, id_errors = packs.connector_ids()
+    errors.extend(id_errors)
+    dependencies = plugin_doc.get("dependencies")
+    if not isinstance(dependencies, dict):
+        errors.append(f'{rel}: 缺 `dependencies`（须为 {{"connectors": [...]}}）')
+    else:
+        if "mcpServers" in dependencies:
+            errors.append(f"{rel}: `dependencies.mcpServers` 与连接器依赖互斥，专家不自带 MCP")
+        if dependencies.get("connectors") != ids:
+            errors.append(
+                f"{rel}: `dependencies.connectors` 须等于 {ids}（单一源 workbuddy/connector-ids.json）"
+            )
+    if (pack_dir / ".mcp.json").is_file():
+        errors.append(f"{pack}: 专家依赖连接器时不得带 `.mcp.json`（平台会作为兜底自动加载）")
+
+
 def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
-    """包内全部描述面（生成的 SKILL 入口 + 手写 plugin/.mcp.json）都不得泄漏 MCP 方法名。"""
+    """包内全部描述面（生成的 SKILL 入口 + 手写 plugin.json）都不得泄漏 MCP 方法名。"""
     pack = packs.DOMAIN_PACKS[domain]
     pack_dir = PACKS_DIR / pack
     identity_doc = pack_dir / "SKILL.md"
     nested_skill = pack_dir / "skills" / domain / "SKILL.md"
     plugin = pack_dir / ".codebuddy-plugin" / "plugin.json"
-    mcp_manifest = pack_dir / ".mcp.json"
 
     agent_doc = pack_dir / "agents" / f"{pack}.md"
-    for path in (identity_doc, agent_doc, nested_skill, plugin, mcp_manifest):
+    for path in (identity_doc, agent_doc, nested_skill, plugin):
         if not path.is_file():
             errors.append(f"missing expert-pack file: {path.relative_to(ROOT)}")
         _check_no_methods(path, method_names, errors)
@@ -188,28 +195,14 @@ def _check_pack(domain: str, method_names: set[str], errors: list[str]) -> None:
         errors.append(f"{plugin.relative_to(ROOT)}: invalid JSON: {exc}")
         return
     _check_agent_doc(pack, pack_dir, plugin_doc, errors)
-
-    if not mcp_manifest.is_file():
-        return
-    try:
-        mcp = json.loads(mcp_manifest.read_text(encoding="utf-8"))
-    except Exception as exc:
-        errors.append(f"{mcp_manifest.relative_to(ROOT)}: invalid JSON: {exc}")
-        return
-    descriptions: list[str] = []
-    for server in mcp.get("mcpServers", {}).values():
-        metadata = server.get("x-workbuddy", {}).get("description", {})
-        descriptions.extend(
-            value for key, value in metadata.items() if key in ("zh", "en") and isinstance(value, str)
-        )
-        _check_card_icon(pack_dir, server.get("x-workbuddy", {}).get("icon"), mcp_manifest, errors)
-    for text in descriptions:
-        for hit in _method_hits(text, method_names):
-            errors.append(f"{mcp_manifest.relative_to(ROOT)}: connector description hard-codes `{hit}`")
+    _check_dependencies(pack, pack_dir, plugin_doc, errors)
 
 
 def _check_avatar(domain: str, errors: list[str]) -> None:
-    """头像矢量源只允许纯图形：带字形的源由 `scripts/build-workbuddy-avatars.sh` 转路径后再提交。"""
+    """头像：`expert.svg` 是 `expert.png` 的栅格化源（`make workbuddy-avatars`），只允许纯图形。
+
+    带字形的源由 `scripts/gen_brand_marks.py` 直接写出路径字形，不允许 `<text>` / 字体依赖。
+    """
     pack_dir = PACKS_DIR / packs.DOMAIN_PACKS[domain]
     svg = pack_dir / "avatars" / "expert.svg"
     png = pack_dir / "avatars" / "expert.png"

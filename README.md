@@ -21,7 +21,7 @@
      - `counsel-mcp`（判断层）：`https://liki.hk/counsel/mcp`
      - `engine-mcp`（排盘/风水）：`https://liki.hk/engine/mcp`
 
-   > 子域端点 `/engine/mcp/{domain}`、`/counsel/mcp/{domain}`（bazi / ziwei / liuyao / qimen / huangli / naming 等）仅供**多专家分域部署**使用——专家包按顶层领域（natal / divination / fengshui / naming）各挂自己需要的子域（见 `expert-packs/*/.mcp.json`），实现"专家只见自己领域工具"；普通整体安装用上面的**两个聚合端点**即可。
+   > 子域端点 `/engine/mcp/{domain}`、`/counsel/mcp/{domain}`（bazi / ziwei / liuyao / qimen / huangli / naming 等）供**自建分域部署**使用；WorkBuddy 四个顶层领域专家（natal / divination / fengshui / naming）不挂子域端点，而是声明依赖上面两个**聚合连接器**。普通整体安装用**两个聚合端点**即可。
 2. **安装 skill（官方托管源）**：
 
    ```bash

@@ -55,6 +55,10 @@ _REF_PATTERN = re.compile(r"references/([A-Za-z0-9_./-]+\.md)")
 
 # 制品版本 = 发行 CalVer 的平台投影（见 scripts/version_projection.py）。
 RUNTIME_VERSION_PATH = ROOT / "skills" / "liki" / "VERSION.txt"
+# 已上架连接器：平台分配 ID 的唯一源（source → connector id）。专家不声明自带 MCP，
+# 只依赖这两个聚合连接器，见 workbuddy/README.md。
+CONNECTOR_IDS_PATH = ROOT / "workbuddy" / "connector-ids.json"
+CONNECTOR_SOURCES_DIR = ROOT / "workbuddy"
 PACK_AUTHOR = "Liki"
 
 # 身份文件 frontmatter 契约：每个键都有明确消费方，无一「写而无用」。
@@ -172,6 +176,49 @@ def methodology_index(skill_dir: Path) -> list[str]:
     ]
 
 
+def connector_ids() -> tuple[list[str], list[str]]:
+    """返回 (按 source 排序的已上架连接器 ID 列表, 错误列表)。
+
+    与 `workbuddy/*-connector/connector-meta.json` 的 `source` 双向对齐：少一个 ID 或
+    多一个 ID 都是漂移，fail-closed。
+    """
+    errors: list[str] = []
+    try:
+        declared = json.loads(CONNECTOR_IDS_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001 - 单一源读不出来就不能生成制品
+        return [], [f"{CONNECTOR_IDS_PATH.relative_to(ROOT)}: 读取失败: {exc}"]
+    if not isinstance(declared, dict):
+        return [], [f"{CONNECTOR_IDS_PATH.relative_to(ROOT)}: 须为 source → connector id 映射"]
+
+    sources: list[str] = []
+    for meta_path in sorted(CONNECTOR_SOURCES_DIR.glob("*-connector/connector-meta.json")):
+        try:
+            source = json.loads(meta_path.read_text(encoding="utf-8")).get("source")
+        except Exception as exc:  # noqa: BLE001 - 同上
+            errors.append(f"{meta_path.relative_to(ROOT)}: 读取失败: {exc}")
+            continue
+        if not isinstance(source, str) or not source:
+            errors.append(f"{meta_path.relative_to(ROOT)}: 缺 source")
+            continue
+        sources.append(source)
+    for source in sources:
+        if source not in declared:
+            errors.append(f"{CONNECTOR_IDS_PATH.relative_to(ROOT)}: 缺已上架连接器 `{source}` 的平台 ID")
+    for source in declared:
+        if source not in sources:
+            errors.append(f"{CONNECTOR_IDS_PATH.relative_to(ROOT)}: `{source}` 不在 workbuddy/*-connector 提交源里")
+
+    # 顺序取声明文件里的书写顺序（engine → counsel），不重排，保持可读。
+    ids: list[str] = []
+    for source in declared:
+        value = declared.get(source)
+        if isinstance(value, str) and value.strip():
+            ids.append(value.strip())
+        elif value is not None:
+            errors.append(f"{CONNECTOR_IDS_PATH.relative_to(ROOT)}: `{source}` 的 ID 须为非空字符串")
+    return ids, errors
+
+
 def generated_documents() -> tuple[dict[Path, bytes], list[str]]:
     """身份文件 → 域 SKILL.md 的目标字节（包内不再有其他身份副本）。"""
     version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
@@ -220,8 +267,8 @@ def generated_documents() -> tuple[dict[Path, bytes], list[str]]:
 def plugin_metadata_updates() -> tuple[list[tuple[Path, dict, dict]], list[str]]:
     """Return plugin manifests and the identity-derived fields that must match."""
     version = workbuddy_version(RUNTIME_VERSION_PATH.read_text(encoding="utf-8").strip())
+    connectors, errors = connector_ids()
     updates: list[tuple[Path, dict, dict]] = []
-    errors: list[str] = []
     for domain, pack in DOMAIN_PACKS.items():
         loaded = load_identity(domain)
         if isinstance(loaded, list):
@@ -243,6 +290,8 @@ def plugin_metadata_updates() -> tuple[list[tuple[Path, dict, dict]], list[str]]
             # 市场检索词与预加载 skill 路径：单一源是身份文件，plugin.json 只做投影。
             "keywords": list(metadata["keywords"]),
             "skills": [f"./skills/{name}" for name in metadata["skills"]],
+            # 运行时依赖：连接器 ID 的单一源是 workbuddy/connector-ids.json，专家不自带 MCP。
+            "dependencies": {"connectors": list(connectors)},
         }
         updates.append((plugin_path, doc, expected))
     return updates, errors

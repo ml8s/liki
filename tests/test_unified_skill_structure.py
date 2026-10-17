@@ -2,15 +2,19 @@
 
 覆盖：
 1. liki 综合：根 SKILL.md + 四域（references/natal/references/divination/references/fengshui/naming）+ 共享运行时文件
-2. 专家包（四个顶层领域）：WorkBuddy 标准（SKILL.md 身份源 / plugin.json / skills / .mcp.json / avatars / README）
+2. 专家包（四个顶层领域）：WorkBuddy 标准（SKILL.md 身份源 / plugin.json（含连接器依赖）/ skills / avatars / README）
 3. MCP 连接器命名（engine/counsel 与专家端点）
 """
 import json
 import re
+import sys
 from pathlib import Path
 
 import yaml
 from _helpers import ROOT, SKILL_ROOT
+
+sys.path.insert(0, str(ROOT / "scripts"))
+import sync_expert_packs as gen  # noqa: E402
 
 DOMAINS = ("natal", "divination", "fengshui", "naming")
 # 顶层领域 = 专家包（1:1）：包内 references/ 是本域根子树（ENTRY/TOOLS/app/domains）的镜像。
@@ -178,10 +182,6 @@ def test_root_mcp_uses_counsel_and_engine():
     assert not re.search(r"liki-(?:natal|divination|fengshui|naming)", text)
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert any("counsel" in name for name in mcp["mcpServers"])
-    # engine 域连接器在专家包（本命包同时挂八字侧与紫微侧排盘端点）
-    for pack in ("liki-natal",):
-        expert_mcp = json.loads((ROOT / "expert-packs" / pack / ".mcp.json").read_text(encoding="utf-8"))
-        assert any("engine" in name for name in expert_mcp["mcpServers"])
 
 
 def test_root_skill_references_no_expert_pack_ids():
@@ -202,9 +202,10 @@ def test_root_skill_references_no_expert_pack_ids():
 def test_root_mcp_declares_manual_install_surface():
     """Embedded and manual clients get the two aggregate MCP surfaces.
 
-    Sub-domain endpoints (/engine/mcp/{domain}, /counsel/mcp/{domain}) are
-    shipped per expert pack (expert-packs/*/.mcp.json) for multi-expert
-    per-domain deployment, not in the root skill.
+    Expert packs do not ship their own MCP manifest: they depend on the two
+    published WorkBuddy connectors (plugin.json.dependencies.connectors). The
+    sub-domain endpoints (/engine/mcp/{domain}, /counsel/mcp/{domain}) stay a
+    self-hosted per-domain deployment knob, not a submission artifact.
     """
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert mcp["mcpServers"] == {
@@ -232,6 +233,8 @@ def test_natal_cards_reference_packaged_expert_methodology():
 
 
 def test_expert_packs_follow_workbuddy_standard():
+    connector_ids, id_errors = gen.connector_ids()
+    assert not id_errors, id_errors
     for pack in EXPERT_PACKS:
         root = ROOT / "expert-packs" / pack
         assert (root / "SKILL.md").is_file(), pack
@@ -257,9 +260,11 @@ def test_expert_packs_follow_workbuddy_standard():
         assert d["quickPrompts"][0]["zh"] == d["defaultInitPrompt"]["zh"], pack
         n = len([c for c in d["displayDescription"]["zh"] if not c.isspace()])
         assert 40 <= n <= 50, (pack, n)
-        # 运行时依赖：声明包内 .mcp.json（域级端点），不由 connectors 重复声明端点
+        # 运行时依赖：只依赖已上架连接器（ID 单一源 workbuddy/connector-ids.json），
+        # 专家不自带 MCP —— 自带会让同一次召唤出现两套工具面与两组引导卡片。
         deps = d.get("dependencies", {})
-        assert deps.get("mcpServers") == "./.mcp.json", (pack, deps)
+        assert "mcpServers" not in deps, (pack, deps)
+        assert deps.get("connectors") == connector_ids, (pack, deps)
         # agent md（平台入口）frontmatter：平台字段名 + 与文件名一致的 name
         agent_meta = yaml.safe_load(agent_docs[0].read_text(encoding="utf-8").split("---\n", 2)[1])
         assert agent_meta["name"] == pack, (pack, agent_meta)
@@ -276,10 +281,8 @@ def test_expert_packs_follow_workbuddy_standard():
         # 身份文件是单一源：plugin.json 的 keywords/skills 由它投影而来
         assert d["keywords"] == identity_meta["keywords"], pack
         assert d["skills"] == [f"./skills/{name}" for name in identity_meta["skills"]], pack
-        # .mcp.json 连专家端点（正交化：排盘 engine + 判断 counsel 分离）
-        mcp = json.loads((root / ".mcp.json").read_text(encoding="utf-8"))
-        assert len(mcp["mcpServers"]) >= 1, pack
-        assert all("engine" in name or "counsel" in name for name in mcp["mcpServers"]), (pack, mcp["mcpServers"])
+        # 依赖连接器时包内不得有 .mcp.json（平台会作为兜底自动加载，形成双重工具面）
+        assert not (root / ".mcp.json").exists(), pack
 
 
 def test_expert_pack_methodology_matches_index():

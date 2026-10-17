@@ -22,7 +22,7 @@ Liki exposes its capabilities through standard MCP servers; embedded MCP declara
 | `counsel-mcp` | `https://liki.hk/counsel/mcp` |
 | `engine-mcp` | `https://liki.hk/engine/mcp` |
 
-Sub-domain `/engine/mcp/{domain}` and `/counsel/mcp/{domain}` are for **multi-expert per-domain deployment** (each pack targets a top-level domain — natal / divination / fengshui / naming — and ships the sub-domain servers it needs, `expert-packs/*/.mcp.json`); a unified install only needs the two aggregate endpoints above. Install the Skill from the official hosted source:
+Sub-domain `/engine/mcp/{domain}` and `/counsel/mcp/{domain}` are for **self-hosted per-domain deployment**; the four WorkBuddy top-level domain experts (natal / divination / fengshui / naming) do not mount sub-domain endpoints — they declare a dependency on the two aggregate connectors above. A unified install only needs those two. Install the Skill from the official hosted source:
 
 ```bash
 npx skills add https://liki.hk
