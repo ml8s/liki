@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PIN = ROOT / "deps" / "liki-agent-runtime.base"
 SCRIPT = ROOT / "scripts" / "agent_runtime_pin.py"
-BUILD_CANDIDATE = ROOT / "scripts" / "build-candidate.sh"
+RELEASE_IMAGES = ROOT / "scripts" / "release-images.sh"
 MAKEFILE = ROOT / "Makefile"
 
 CALVER_RE = re.compile(r"^\d{4}\.\d{2}\.\d{2}\.\d+$")
@@ -66,8 +66,8 @@ def test_pin_script_outputs_match_file():
     assert digest == values["digest"]
 
 
-def test_candidate_assembly_uses_pin_not_release_ref():
-    text = BUILD_CANDIDATE.read_text(encoding="utf-8")
+def test_release_assembly_uses_pin_not_release_ref():
+    text = RELEASE_IMAGES.read_text(encoding="utf-8")
     # 装配 base 必须来自 pin 脚本，而不是本地 mutable tag
     assert "scripts/agent_runtime_pin.py --ref" in text
     assert "BASE_IMAGE=\"$(IMAGE_REGISTRY)/liki-agent-runtime:$(IMAGE_TAG)\"" not in text

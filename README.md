@@ -140,7 +140,7 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 ### 引擎镜像
 
-发布镜像由本地 `make candidate` 构建并推送，promotion 后按 digest 部署：
+发布镜像由 `release.yml` 在 `vYYYY.MM.DD.N` tag 上构建、签名并推送，按 digest 部署：
 `ghcr.io/ml8s/liki-engine@sha256:...`。本地源码开发使用 `engine/dev/docker-compose.yml`。
 
 ### 领域工具接口
@@ -159,7 +159,7 @@ make test           # 所有测试（pytest + Go 引擎全量，含 MCP 集成�
 make golden         # golden 全量（局部诊断入口）
 ```
 
-发布流程详见 [Release pipeline](./docs/RELEASE_PIPELINE.md)：`gate → candidate → candidate-test → promotion`。
+发布流程详见 [Release pipeline](./docs/RELEASE_PIPELINE.md)：`绿色 main → 打 tag → release.yml（gate/构建/签名/Release）→ 更新 lock 部署`。
 
 ### 设计原则
 

@@ -6,10 +6,9 @@ runtime, contracts, and product releases. WorkBuddy marketplace artifacts carry 
 rather than hand-maintained, there is still no parallel version.
 
 The operational release pipeline is documented in
-[Release pipeline](./RELEASE_PIPELINE.md). Neither ordinary commits nor GitHub
-Actions build `liki` images; build, locally validate, and publish candidates with `make
-candidate`, then use the promotion workflow to retag, sign, and verify the
-immutable image digests.
+[Release pipeline](./RELEASE_PIPELINE.md). Neither ordinary commits nor CI
+build `liki` images; `release.yml` builds, smokes, signs, and publishes them
+when a `vYYYY.MM.DD.N` tag is pushed.
 
 ## Version format
 
@@ -92,16 +91,12 @@ bump the pin to an unreleased or dirty build.
 1. Confirm `main` is green and ordinary commit CI did not build images.
 2. Select the next CalVer, run `make version`, update `CHANGELOG.md`, and update
    any released dependency pins. Commit and push this release-preparation change.
-3. Build the candidate image set from that clean source commit into the local
-   registry and run image smoke.
-4. Run assembly, security, and e2e gates against the exact local candidate
-   digests.
-5. If every candidate gate passes, publish the same digests to GHCR, create the
-   release tag on the same source commit, and dispatch promotion for those exact
-   digests; do not rebuild them.
-6. The promotion workflow retags the exact digests, signs them, and verifies
-   those signatures.
-7. Verify release CI, image signatures, and signed release artifacts.
+3. Push the `v<CalVer>` tag on that commit; `release.yml` runs the release
+   gate, builds and pushes the release images, smokes them, and signs the
+   exact digests with cosign.
+4. The workflow publishes the GitHub Release with `candidate-digests.json`
+   and the signed artifacts.
+5. Verify release CI, image signatures, and signed release artifacts.
 
    For example, create an annotated tag on the approved commit:
 

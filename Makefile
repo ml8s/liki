@@ -1,7 +1,7 @@
 # liki monorepo — skill client + engine/counsel MCP services
 # Quality gate: make gate 是"本地可执行的源码门槛"（lint + 静态检查 + 测试）。
 #   CI 另外强制执行：漏洞扫描（govulncheck/pip-audit/npm）、-race 与覆盖率门槛。
-#   发版镜像由 `make candidate` 本地构建；promotion 只做同 digest 转发和签名。
+#   发版镜像由 release.yml 在 vCalVer tag 上构建推送并签名（本地 make image 仅调试）。
 #
 # 统一语义（四仓一致）：
 #   make lint   静态检查聚合
@@ -9,9 +9,8 @@
 #   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
 #   make gate   check + test ＝推送门槛
 #   make release-gate gate + 160题 + runtime validate + 发布工件 ＝发版准备
-#   make candidate RELEASE_VERSION=... 本地构建、冒烟并记录 digest ＝发版准备
-#   make build  本仓产物（skill 归档 + engine 二进制；镜像仅本地候选构建）
-#   make image  本地开发镜像（local tag；candidate 由 make candidate 发布）
+#   make build  本仓产物（skill 归档 + engine 二进制）
+#   make image  本地开发镜像（local tag；发布镜像由 release.yml 构建）
 #   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
 
 RELEASE_VERSION ?=
@@ -32,7 +31,7 @@ export GOTOOLCHAIN ?= go1.26.9
         workbuddy-package \
         workbuddy-avatars \
         brand-marks \
-        check-actions build-web-skill-bundle build-release-manifest check-release-manifest candidate \
+        check-actions build-web-skill-bundle build-release-manifest check-release-manifest \
         runtime-validate image image-engine image-counsel image-assembly
 
 build-skill build-archive: ## Build the installable skill archive
@@ -77,7 +76,7 @@ runtime-validate: build-deployment ## Validate generated artifacts with the pinn
 build-engine-mcp: ## Build the engine MCP server
 	@cd engine && go build -o ../bin/engine-mcp ./cmd/engine-mcp/
 
-build: build-skill build-engine-mcp ## Build local artifacts (skill archive + engine binary). 镜像仅由本地 candidate 构建。
+build: build-skill build-engine-mcp ## Build local artifacts (skill archive + engine binary).
 
 workbuddy-package: ## 打包全部 WorkBuddy 提交包（连接器 / 技能 / 专家）到 dist/workbuddy/ 并校验
 	scripts/package-workbuddy.sh
@@ -89,8 +88,8 @@ brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（4 张头像矢量�
 	python3 scripts/gen_brand_marks.py
 	scripts/build-workbuddy-avatars.sh
 
-# ── 镜像（本地候选，非发布路径）──
-# 生产镜像由本地 `make candidate` 构建并推送 GHCR；CI promotion 只转发已验证 digest。
+# ── 镜像（本地调试；发布由 release.yml 驱动）──
+# 本地 make image 只打 local tag；发布镜像由 release.yml 在 vCalVer tag 上构建推送并签名。
 
 IMAGE_REGISTRY ?= ghcr.io/ml8s
 IMAGE_TAG ?= local
@@ -110,13 +109,7 @@ image-assembly: build-deployment ## Build the production experts assembly image 
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) --build-arg PROFILE=experts -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 
-image: image-engine image-counsel ## Build all liki-owned local candidate images
-
-candidate: ## Build, smoke, and record candidate images in the local registry (requires RELEASE_VERSION)
-	scripts/build-candidate.sh
-
-candidate-publish: ## Publish a system-tested local candidate to GHCR
-	scripts/publish-candidate.sh
+image: image-engine image-counsel ## Build all liki-owned local images
 
 smoke: image ## Smoke engine RPC/MCP and counsel MCP images
 	IMAGE_TAG=$(IMAGE_TAG) scripts/smoke-image.sh

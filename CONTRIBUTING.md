@@ -13,7 +13,7 @@
 `main` 是唯一的长期分支；不要使用 `dev`、`master` 或长期发布分支。维护者在 `main`
 上做小而聚焦的提交。外部贡献者可以 fork 后创建短生命周期分支，PR 目标仍然是 `main`。
 
-发布永远从已通过 `candidate-test` 和 promotion 的 `main` commit 打 `v<CalVer>` tag。
+发布 = 在绿色 `main` commit 上打 `v<CalVer>` tag，`release.yml` 自动完成 gate、构建、签名与发布；tag 不可移动、镜像不可重建。
 
 ## 提交变更
 

@@ -135,9 +135,9 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 
 ### Engine image
 
-Release images are built locally with `make candidate` and deployed by immutable
-digest after promotion: `ghcr.io/ml8s/liki-engine@sha256:...`. For source-based
-development, use `engine/dev/docker-compose.yml`.
+Release images are built and signed by `release.yml` on a `vYYYY.MM.DD.N` tag
+and deployed by immutable digest: `ghcr.io/ml8s/liki-engine@sha256:...`. For
+source-based development, use `engine/dev/docker-compose.yml`.
 
 ### Domain tool interfaces
 
@@ -156,7 +156,7 @@ make golden         # Full golden suite (focused diagnostic entry)
 ```
 
 See [Release pipeline](./docs/RELEASE_PIPELINE.md) for the layered flow:
-`gate → candidate → candidate-test → promotion`.
+`green main → tag → release.yml (gate/build/sign/release) → lock update + deploy`.
 
 Formal releases use date-based CalVer tags. See [Release model](./docs/RELEASE_MODEL.md).
 

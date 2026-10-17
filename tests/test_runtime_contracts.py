@@ -61,21 +61,11 @@ def test_engine_image_carries_mcp_runtime_only():
     assert "rm -f bin/engine-mcp" in makefile
 
 
-def test_candidate_smokes_engine_mcp_runtime():
-    script = (ROOT / "scripts/build-candidate.sh").read_text(encoding="utf-8")
+def test_release_smokes_engine_mcp_runtime():
+    script = (ROOT / "scripts/release-images.sh").read_text(encoding="utf-8")
     smoke = (ROOT / "scripts/smoke-image.sh").read_text(encoding="utf-8")
     assert "scripts/smoke-image.sh" in script
     assert "scripts/test_engine_mcp.py" in smoke
     assert "--entrypoint /usr/local/bin/engine-mcp" in smoke
     assert "engine-rpc" not in smoke
     assert "/jsonrpc" not in smoke
-
-
-def test_candidate_builds_and_smokes_in_local_registry():
-    script = (ROOT / "scripts/build-candidate.sh").read_text(encoding="utf-8")
-    first_build = script.index("docker buildx build")
-    first_smoke = script.index("scripts/smoke-image.sh")
-    assert first_build < first_smoke
-    assert "ensure_candidate_registry" in script
-    assert "docker push" not in script
-    assert "--push \\" not in script
