@@ -85,22 +85,3 @@ Repositories version independently. Liki pins external runtimes explicitly:
 
 The validation and assembly image must use the same pinned runtime. Do not
 bump the pin to an unreleased or dirty build.
-
-## Release process
-
-1. Confirm `main` is green and ordinary commit CI did not build images.
-2. Select the next CalVer, run `make version`, update `CHANGELOG.md`, and update
-   any released dependency pins. Commit and push this release-preparation change.
-3. Push the `v<CalVer>` tag on that commit; `release.yml` runs the release
-   gate, builds and pushes the release images, smokes them, and signs the
-   exact digests with cosign.
-4. The workflow publishes the GitHub Release with `candidate-digests.json`
-   and the signed artifacts.
-5. Verify release CI, image signatures, and signed release artifacts.
-
-   For example, create an annotated tag on the approved commit:
-
-   ```bash
-   git tag -a v2026.10.12.0 <commit> -m "Liki 2026.10.12.0"
-   git push origin v2026.10.12.0
-   ```

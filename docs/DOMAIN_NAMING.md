@@ -26,8 +26,7 @@ Do not call `liki-agent-runtime` the production expert image. Do not call
 | --- | --- |
 | Runtime base pin | `deps/liki-agent-runtime.base` |
 | AgentDeployment | `deployment.json` |
-| Candidate manifest | `build/candidate/candidate-digests.json` |
-| Assembly evidence | `assembly-evidence.json` |
+| Candidate manifest | `build/release/candidate-digests.json` |
 | Release manifest | `liki-release-manifest.json` |
 | Deployment lock | `env/<region>.lock` |
 
@@ -44,7 +43,6 @@ Examples:
 ```text
 liki.agent-deployment.v1
 liki.candidate-manifest.v1
-liki.assembly-evidence.v1
 liki.release-manifest.v1
 liki.feedback.v1
 liki.aipay.v1
