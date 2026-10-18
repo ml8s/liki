@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026.10.18.0] — 2026-10-18
+
+### Changed
+
+- **去 router：四专家改为四个独立 AgentDeployment profile**（`profiles/{natal,divination,fengshui,naming}.json`，各为单根委派树），`profiles/experts.json` 与 `agents/router/` 删除。产品层按用户所选专家直连对应部署（endpoint/DNS 名即专家身份，ADK 生产实践"一 agent 一服务"），消除 LLM 路由跳带来的首响延迟。
+- **natal 拆三 agent**：`natal`（chat 根，聚合与合参编排）＋ `bazi` / `ziwei`（`mode: task` 子代理，ADK agent-as-tool：结果作为工具结果返回父代理）。子代理身份在 `agents/<name>/<name>.md`，不进市场包；工具白名单按侧拆分（四 profile 并集与工具目录保持相等）；生成器对带 `sub_agents` 的 agent 自动追加「协作委派」节（部署形态投影，不写入共享身份源）。
+- **生成器**（`scripts/generate_deployment.py`）：身份解析支持部署子代理；新增 profile 单根树 / sub_agents 引用闭包 / 多父校验；改两遍构建（子代理 description 驱动委派节）。
+- **装配镜像**：单镜像 `liki-experts` 烘焙四份 profile 工件（`/deployment/<profile>/deployment.json`），运行时进程用 `LIKI_AGENT_RUNTIME_DEPLOYMENT_FILE` 各选一份；`assembly/Dockerfile` 去掉 `PROFILE` 参数与默认 ENV（fail-closed）；发布链（`release-images.sh` 冒烟逐 profile validate、`release.yml` release asset、`build_release_manifest.py`、CI release bundle 清单）同步四 profile。
+- **校验与测试**：`check_expert_docs.py` 移除 router 检查、新增部署子代理身份契约；`test_deployment_generation` / `test_skills_binding` / `test_domain_naming_contract` / `test_release_packaging` 改为四 profile 口径。
+- 配合 liki-agent-runtime 的 task 委派修复（框架委派工具审计豁免、task 完成审计从合成 FR 补记、AG-UI 下 task 子代理按 author 归因），`deps/liki-agent-runtime.base` 待运行时发版后更新。
+
 ## [2026.10.16.2] — 2026-10-16
 
 ### Changed
