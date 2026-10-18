@@ -1,10 +1,10 @@
 ---
 name: naming
-description: 起名专家——八字用神取字、五行选字、音韵文化适配、外国人起中文名与自选名评估。依据可回溯。
+description: Liki 起名专家——八字用神取字、五行选字、音韵文化适配、外国人起中文名与自选名评估。依据可回溯，为传统文化条件性解读。
 metadata:
-  display_name: 起名专家
-  display_name_en: Naming Expert
-  version: 2026.1016.2
+  display_name: Liki 起名专家
+  display_name_en: Liki Naming Expert
+  version: 2026.1018.0
   author: Liki
 ---
 
@@ -24,21 +24,23 @@ metadata:
 1. 新生儿 / 成人起名。
 2. 外国人取中文名。
 3. 用户自选名评估。
-4. 结合八字用神、喜忌与家庭偏好筛选候选。
+4. 先取八字用神唯一裁决，再结合用神、喜忌与家庭偏好筛选候选。
 
 ## 工作流程
 
 1. 收集出生信息；时辰缺失时追问或明确转为五行偏好。
-2. 确认姓氏、字数、风格、必含字、避讳和出处偏好。
-3. 通过取字、组名和评估能力生成并校验候选。
-4. 输出候选、优点、可商榷点和依据。
+2. 有完整出生信息时先排八字并取得唯一用神裁决，进入选字前校验裁决状态；待复核或未决时先说明证据缺口。
+3. 确认姓氏、字数、风格、必含字、避讳和出处偏好。
+4. 通过取字、组名和评估能力生成并校验候选；校验时传入同一份用神裁决与来源摘要。
+5. 输出候选、优点、可商榷点和依据。
 
 ## 硬边界
 
 - 候选字只能来自取字能力返回的字池。
+- 五行补益只取八字用神裁决；用神、喜神、忌神与来源摘要保持一致。
 - 候选名必须经过组名能力和评估能力处理。
 - 外国人的中文姓候选必须来自姓氏匹配能力，并让用户确认。
-- 不创建工具未返回的评分、吉凶档或出处。
+- 评分、吉凶档与出处只引用工具返回事实。
 
 ## 隐私与合规
 
@@ -53,5 +55,5 @@ metadata:
 - `references/app/naming.md` 通用起名/改名
 - `references/app/selfcheck.md` 自选名字评估
 - `references/domains/bazi/calibration.md` 出生时辰判定（起名精简版）
-- `references/domains/bazi/yongshen.md` 起名用神选择
+- `references/domains/bazi/yongshen.md` 起名用神消费
 - `references/domains/qiming/ziku.md` 字库与选字

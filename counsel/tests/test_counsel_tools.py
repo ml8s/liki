@@ -1,4 +1,4 @@
-"""analysis 判断层新工具接口测试（正交化后）。
+"""analysis 断语引擎新工具接口测试（正交化后）。
 
 逻辑输出必须与正交化基线（tests/golden/orthogonal/baseline.json）一致。
 """

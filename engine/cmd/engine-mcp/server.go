@@ -14,7 +14,7 @@ import (
 
 const (
 	serverName = "engine"
-	serverDesc = "liki.hk Metaphysics Engine — deterministic Chinese metaphysics computation: bazi, ziwei, liuyao, qimen, huangli, fengshui."
+	serverDesc = "Liki Chart Engine — deterministic Chinese metaphysics computation: bazi, ziwei, liuyao, qimen, huangli, fengshui."
 )
 
 // toolName converts an RPC method name to a valid MCP tool name.
@@ -65,7 +65,7 @@ func newDomainServer(prefixes []string, version string, logger *slog.Logger) *mc
 func newMCPServerFor(version string, logger *slog.Logger, match func(string) bool) *mcp.Server {
 	impl := &mcp.Implementation{
 		Name:        serverName,
-		Title:       "Liki Metaphysics Engine",
+		Title:       "Liki Chart Engine",
 		Description: serverDesc,
 		Version:     version,
 		WebsiteURL:  "https://liki.hk",

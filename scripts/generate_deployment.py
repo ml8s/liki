@@ -4,10 +4,12 @@
 消费的 deployment 工件（deployment.json + instruction + output schema）。
 
 身份单一源：域专家 = `expert-packs/liki-<name>/SKILL.md`（包内 skill 入口与插件
-agent 入口都由它生成），router = `agents/router/router.md`（无专家包）。
+agent 入口都由它生成）；部署内子代理（如 natal 的 bazi/ziwei）= `agents/<name>/<name>.md`，
+不进市场包。带 sub_agents 的 agent 由生成器追加「协作委派」节（部署形态专属，
+不写入共享身份源）。
 
 用法:
-    python3 scripts/generate_deployment.py --profile experts --out dist/agents
+    python3 scripts/generate_deployment.py --profile natal --out dist/agents
 
 产物:
     dist/agents/<profile>/deployment.json
@@ -39,10 +41,10 @@ RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 
 
 def identity_path(name: str) -> Path:
-    """身份文件：域专家＝包根 SKILL.md，router＝agents/router/router.md。"""
+    """身份文件：域专家＝包根 SKILL.md；部署内子代理＝agents/<name>/<name>.md。"""
     if name in EXPERT_DOMAINS:
         return PACKS_DIR / f"liki-{name}" / "SKILL.md"
-    return AGENTS_DIR / "router" / "router.md"
+    return AGENTS_DIR / name / f"{name}.md"
 
 
 def load_identity(name: str) -> tuple[dict, str]:
@@ -61,6 +63,7 @@ def load_identity(name: str) -> tuple[dict, str]:
     if body.startswith("\n"):
         body = body[1:]
     return frontmatter, body.rstrip() + "\n"
+
 
 def load_profile(name: str) -> dict:
     path = PROFILES_DIR / f"{name}.json"
@@ -124,10 +127,64 @@ def validate_profile_tool_catalog(profile: dict, catalog: dict, version: str) ->
                 )
 
 
+def validate_profile_graph(profile: dict, definitions: dict[str, dict]) -> None:
+    """每个 profile 必须构成单根委派树（与运行时契约一致，先于生成 fail-closed）。"""
+    names = [entry.get("name", "") for entry in profile.get("agents", [])]
+    if any(not name for name in names) or len(set(names)) != len(names):
+        sys.exit("profile agents must have unique non-empty names")
+    declared = set(names)
+    incoming = {name: 0 for name in names}
+    callers: dict[str, str] = {}
+    for name in names:
+        seen: set[str] = set()
+        for reference in definitions[name].get("sub_agents", []):
+            target = reference.get("name", "")
+            if target not in declared:
+                sys.exit(
+                    f"agent {name} references sub-agent {target!r} outside profile {profile['metadata'].get('name')}"
+                )
+            if target in seen:
+                sys.exit(f"agent {name} declares duplicate sub-agent {target}")
+            seen.add(target)
+            if target in callers:
+                sys.exit(
+                    f"agent {target} has multiple parents ({callers[target]} and {name})"
+                )
+            callers[target] = name
+            incoming[target] += 1
+    roots = [name for name, count in incoming.items() if count == 0]
+    if len(roots) != 1:
+        sys.exit(f"profile must declare exactly one root agent, got {roots}")
+
+
+def delegation_section(
+    references: list[dict], identities: dict[str, tuple[dict, str]]
+) -> str:
+    """「协作委派」节：只进部署 instruction，不进市场身份源。"""
+    lines = [
+        "## 协作委派（部署形态）",
+        "",
+        "你负责编排与最终答复；执行流程由以下子专家完成（工具名即名称，串行调用，同一轮只调用一个）：",
+        "",
+    ]
+    for reference in references:
+        name = reference.get("name", "")
+        description = identities.get(name, ({}, ""))[0].get("description", "")
+        lines.append(f"- `{name}`：{description}")
+    lines += [
+        "",
+        "1. 子专家职责内的工作一律委派，自己不代做。",
+        "2. 单侧任务只调对应子专家；取回结论后直接整理输出。",
+        "3. 需多侧证据（含合盘、考时交叉验证）时依次调用，按各域合参口径给出结论。",
+        "4. 出生信息等前置条件不完整时，先与用户确认再委派。",
+    ]
+    return "\n".join(lines)
+
+
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
 # 镜像内合法 skill rootFS（assembly 镜像 COPY：/skills、/expert-packs）。
-# /skills 的直接子目录是 liki/（router 绑定后发现 skill "liki"）；
-# /expert-packs/liki-<x>/skills 的直接子目录是域 skill（name==目录名，ADK S2）。
+# /skills 是根 skill 树；/expert-packs/liki-<x>/skills 的直接子目录是域
+# skill（name==目录名，ADK S2）。部署 agent 绑定各自域包根。
 def validate_skills_binding(agent_name: str, skills: dict) -> None:
     root = (skills or {}).get("root", "")
     allowed_roots = {"/skills"} | {
@@ -144,13 +201,28 @@ def validate_skills_binding(agent_name: str, skills: dict) -> None:
         sys.exit(f"agent {agent_name} skills.preload invalid: {preload!r}")
 
 
-def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> dict:
-    definition = load_agent_yaml(name)
+def build_agent(
+    name: str,
+    profile_agent: dict,
+    version: str,
+    out_dir: Path,
+    definitions: dict[str, dict],
+    identities: dict[str, tuple[dict, str]],
+) -> dict:
+    definition = definitions[name]
     if definition.get("name") != name:
         sys.exit(f"agent definition name mismatch: profile={name} yaml={definition.get('name')}")
     agent_dir = AGENTS_DIR / name
 
-    identity, instruction_text = load_identity(name)
+    identity, instruction_text = identities[name]
+    sub_agents = definition.get("sub_agents", [])
+    if sub_agents:
+        instruction_text = (
+            instruction_text.rstrip()
+            + "\n\n"
+            + delegation_section(sub_agents, identities)
+            + "\n"
+        )
     instruction_path = out_dir / "agents" / name / "instruction.md"
     instruction_path.parent.mkdir(parents=True, exist_ok=True)
     instruction_path.write_text(instruction_text, encoding="utf-8")
@@ -161,7 +233,7 @@ def build_agent(name: str, profile_agent: dict, version: str, out_dir: Path) -> 
         # 部署 agent 描述用英文面（plugin.json.description 同源）；缺省回落中文描述
         "description": identity.get("description_en") or identity.get("description") or definition["name"],
         "mode": definition.get("mode", "chat"),
-        "sub_agents": definition.get("sub_agents", []),
+        "sub_agents": sub_agents,
         "instruction": {"path": f"agents/{name}/instruction.md"},
         "tools": profile_agent.get("tools") or definition.get("tools", {"allow": {}}),
     }
@@ -203,6 +275,15 @@ def main() -> int:
     with open(TOOL_CATALOG_PATH, encoding="utf-8") as fh:
         tool_catalog = json.load(fh)
     validate_profile_tool_catalog(profile, tool_catalog, args.version)
+    definitions = {
+        entry["name"]: load_agent_yaml(entry["name"])
+        for entry in profile["agents"]
+    }
+    identities = {
+        entry["name"]: load_identity(entry["name"])
+        for entry in profile["agents"]
+    }
+    validate_profile_graph(profile, definitions)
     metadata = profile["metadata"]
     metadata["version"] = args.version
     out_dir = Path(args.out) / args.profile
@@ -210,7 +291,10 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     agents = [
-        build_agent(profile_agent["name"], profile_agent, args.version, out_dir)
+        build_agent(
+            profile_agent["name"], profile_agent, args.version, out_dir,
+            definitions, identities,
+        )
         for profile_agent in profile["agents"]
     ]
     deployment = {

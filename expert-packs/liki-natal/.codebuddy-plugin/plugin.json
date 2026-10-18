@@ -1,7 +1,7 @@
 {
   "name": "liki-natal",
-  "version": "2026.1016.2",
-  "description": "Chinese natal-chart expert covering BaZi (Four Pillars) and Zi Wei Dou Shu charts, structure, yongshen, ten gods, stars and palaces, dayun/daxian and liunian with cross-system traceable rule-based readings.",
+  "version": "2026.1018.0",
+  "description": "Liki natal-chart expert covering BaZi (Four Pillars) and Zi Wei Dou Shu charts, structure, yongshen, ten gods, stars and palaces, dayun/daxian and liunian with cross-system traceable rule-based readings.",
   "author": {
     "name": "Q.Sui",
     "email": "suiqiang@foxmail.com"
@@ -12,16 +12,16 @@
   "expertType": "agent",
   "agentName": "liki-natal",
   "displayName": {
-    "en": "Natal Chart Expert",
-    "zh": "本命专家"
+    "en": "Liki Natal Chart Expert",
+    "zh": "Liki 本命专家"
   },
   "profession": {
     "en": "BaZi & Zi Wei Dou Shu Consultant",
     "zh": "八字紫微命理师"
   },
   "displayDescription": {
-    "en": "Deterministic natal-chart expert: BaZi and Zi Wei Dou Shu charts, structure, yongshen, ten gods, stars and palaces, dayun/daxian and liunian with cross-system traceable rule-based readings.",
-    "zh": "专精八字与紫微命盘：格局用神、十神六亲、星曜宫位、大运大限流年，双侧合参与合盘考时，依据可回溯。"
+    "en": "Liki's deterministic natal-chart expert: BaZi and Zi Wei Dou Shu charts, structure, yongshen, ten gods, stars and palaces, dayun/daxian and liunian with cross-system traceable rule-based readings.",
+    "zh": "Liki 专精八字与紫微：格局用神、十神六亲、星曜宫位、大运大限流年，双侧合参与合盘考时，依据可回溯。"
   },
   "avatar": "avatars/expert.png",
   "categoryId": "12-IndustryConsultant",

@@ -1,13 +1,15 @@
 """Unified Liki skill document checker.
 
 Checks assertion ids, resolvable skill-relative paths, resolvable section anchors,
-whitelisted engine method names, lazy-loading budgets, and reachability of domain
+MCP method/tool-name prohibition (capabilities are discovered via introspection,
+never hard-coded in skill docs), lazy-loading budgets, and reachability of domain
 knowledge docs.
 """
 from __future__ import annotations
 
 import csv
 import glob
+import json
 import os
 import re
 import sys
@@ -18,6 +20,7 @@ SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "lik
 REFS = os.path.join(SKILL, "references")
 DOMAINS = ("natal", "divination", "fengshui", "naming")
 ASSERTION_MANIFESTS = os.path.join(_ROOT, "counsel", "app", "*", "tools", "assertions", "assertions.csv")
+CATALOG_PATH = os.path.join(_ROOT, "tools", "mcp-tool-catalog.json")
 
 METHOD_WHITELIST = {
     "bazi.chart", "bazi.fullchart", "bazi.liunian", "bazi.liuyue", "bazi.liuri",
@@ -44,6 +47,16 @@ def load_duanyu_ids() -> set:
     return ids
 
 
+def catalog_tool_names() -> set:
+    with open(CATALOG_PATH, encoding="utf-8") as handle:
+        catalog = json.load(handle)
+    return {
+        name
+        for server in catalog.get("servers", {}).values()
+        for name in server.get("tools", [])
+    }
+
+
 def _resolve_skill_path(path: str) -> str | None:
     """Docs live under references/; resolve against that root first, then skill root."""
     for root in (REFS, SKILL):
@@ -60,6 +73,10 @@ def main() -> int:
     path_re = re.compile(r"`(" + _PATH_PATTERN + r"[^`]+)`|(" + _PATH_PATTERN + r"[\w./\-]+\.(?:md|py|json|csv|sh|cmd))")
     anchor_path_re = re.compile(r"`(" + _PATH_PATTERN + r"[\w./\-]+\.md)`")
     method_re = re.compile(r"\b(" + "|".join(map(re.escape, _METHOD_PREFIXES)) + r")\.[a-z_]+\b")
+    catalog_names = catalog_tool_names()
+    catalog_re = re.compile(
+        r"(?<![A-Za-z0-9_])(" + "|".join(map(re.escape, sorted(catalog_names))) + r")(?![A-Za-z0-9_])"
+    ) if catalog_names else None
     anchor_cache: dict[str, str] = {}
 
     docs = [os.path.join(SKILL, "SKILL.md")]
@@ -111,6 +128,11 @@ def main() -> int:
             method = match.group(0)
             if method in _SKIP_DOTTED or method not in METHOD_WHITELIST:
                 warnings.append(f"[{rel}] 引用的方法 '{method}' 不在方法白名单")
+                continue
+            errors.append(f"[{rel}] 硬编码引擎方法名 '{method}'（能力应由 tools/list 自举发现）")
+        if catalog_re:
+            for match in catalog_re.finditer(text):
+                errors.append(f"[{rel}] 硬编码 MCP 工具名 '{match.group(0)}'（能力应由 tools/list 自举发现）")
 
     rpc_call_re = re.compile(r'\bcall\(\s*["\']([a-z]+\.[a-z_]+)["\']')
     for filename in py_docs:

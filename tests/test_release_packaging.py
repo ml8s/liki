@@ -10,8 +10,9 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
+PROFILES = ("natal", "divination", "fengshui", "naming")
 REQUIRED_BUNDLE_FILES = {
-    "agents/experts/deployment.json",
+    *(f"agents/{profile}/deployment.json" for profile in PROFILES),
     "index.json",
     "liki-release-manifest.json",
     "liki-release-manifest.sha256",
@@ -59,7 +60,7 @@ def test_release_bundle_contains_all_verified_artifacts() -> None:
     run(["make", "build-deployment"])
     run(["python3", "scripts/build_release_manifest.py"])
 
-    for profile in ("experts",):
+    for profile in PROFILES:
         assert (DIST / "agents" / profile / "deployment.json").is_file()
 
     bundle = DIST / "liki-release-artifacts.tar.gz"

@@ -56,14 +56,32 @@ def test_app_cards_use_standard_contract_sections():
         assert required <= lines, (path, required - lines)
 
 
-def test_shared_yongshen_priority_order_matches():
-    """用神取舍优先序在 natal / naming 两域同源：专家包自包含 → 双份必须同字。"""
-    line = "顺序：从格 → 调候 → 格局清透 → 普通命局 → 合并。"
-    for rel in (
-        "references/natal/domains/bazi/yongshen.md",
-        "references/naming/domains/bazi/yongshen.md",
-    ):
-        assert line in (SKILL_ROOT / rel).read_text(encoding="utf-8"), rel
+def test_yongshen_decision_has_one_domain_authority():
+    """用神裁决只写在八字域；起名域只消费结果。"""
+    natal = (SKILL_ROOT / "references/natal/domains/bazi/yongshen.md").read_text(encoding="utf-8")
+    naming = (SKILL_ROOT / "references/naming/domains/bazi/yongshen.md").read_text(encoding="utf-8")
+    assert "## 裁决规则" in natal
+    assert "YS-CG-FAKE" in natal
+    assert "## 裁决规则" not in naming
+    assert "八字域" in naming
+
+
+def test_skill_docs_do_not_duplicate_mcp_method_signatures():
+    """工具与参数由 MCP 自省；技能文档只保留领域能力与判断口径。"""
+    forbidden = (
+        "compute_factors",
+        "naming_check",
+        "period_query",
+        "bazi_yongshen",
+        "selected_yongshen",
+        "bazi_chart",
+    )
+    offenders = []
+    for path in SKILL_ROOT.rglob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        if any(name in text for name in forbidden):
+            offenders.append(path.relative_to(SKILL_ROOT).as_posix())
+    assert offenders == []
 
 
 def test_app_cards_declare_output_template_body():

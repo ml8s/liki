@@ -178,8 +178,6 @@
       "dayun_gan_combines": false,
       "dayun_zhi_clashes_year": false,
       "gan_combines": true,
-      "unfavorable_branch": false,
-      "unfavorable_gan": false,
       "wealth_breaks_seal": false,
       "year_branch_controlled_by": [
         "水"

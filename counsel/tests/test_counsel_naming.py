@@ -1,6 +1,6 @@
 """counsel 起名域（naming）1v1 对照测试。
 
-counsel naming 工具（naming_*）复用 qiming 逻辑（字库来自 engine），
+counsel naming 工具（naming_*）在本地字库上完成匹配/取字/组名/评估；
 输出必须与老实现（基线）完全一致——正交化补集只改入口，不改逻辑。
 """
 from __future__ import annotations
@@ -11,6 +11,8 @@ from pathlib import Path
 
 import pytest  # noqa: E402
 from app.counsel_mcp import create_counsel_mcp  # noqa: E402
+from mcp import Client  # noqa: E402
+from pydantic import ValidationError  # noqa: E402
 
 GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden" / "counsel_naming_baseline.json"
 
@@ -53,6 +55,85 @@ def test_naming_check_matches_baseline(srv, baseline):
         "given_names": ["伟"], "yongshen": "木", "xishen": ["水"], "jishen": ["金"],
     }))
     assert json.loads(r.content[0].text) == baseline["check"]
+
+
+def _selected_yongshen() -> dict:
+    return {
+        "status": "resolved",
+        "selected": {
+            "yong": "木",
+            "xi": ["水"],
+            "ji": ["金"],
+            "source": "fu_yi",
+            "confidence": "high",
+            "known_fields": ["yong", "xi", "ji"],
+        },
+        "conflicts": [],
+        "factors": {},
+        "alternatives": {},
+        "ge_ju_context": {},
+        "evidence": [],
+        "policy_id": "liki.bazi.yongshen.v1",
+        "rule_version": "1.0.0",
+        "rule_id": "YS-FUYI",
+        "chart_digest": "a" * 64,
+        "yongshen_digest": "b" * 64,
+    }
+
+
+def _error_call(srv, name: str, arguments: dict):
+    async def call():
+        async with Client(srv, mode="legacy") as client:
+            return await client.call_tool(name, arguments)
+
+    return asyncio.run(call())
+
+
+def test_naming_check_consumes_selected_yongshen(srv, baseline):
+    r = asyncio.run(srv.call_tool("naming_check", {
+        "given_names": ["伟"], "selected_yongshen": _selected_yongshen(),
+    }))
+    out = json.loads(r.content[0].text)
+    assert out[0]["wuxing"] == baseline["check"][0]["wuxing"]
+    assert out[0]["yongshen_source"] == {
+        "policy_id": "liki.bazi.yongshen.v1",
+        "rule_version": "1.0.0",
+        "rule_id": "YS-FUYI",
+        "status": "resolved",
+        "chart_digest": "a" * 64,
+        "yongshen_digest": "b" * 64,
+    }
+
+
+@pytest.mark.parametrize("status", ["needs_review", "unresolved"])
+def test_naming_check_rejects_unresolved_selected_yongshen(srv, status):
+    selected = {**_selected_yongshen(), "status": status}
+    r = _error_call(srv, "naming_check", {
+        "given_names": ["伟"], "selected_yongshen": selected,
+    })
+    assert r.is_error is True
+    assert "未形成可消费结论" in r.content[0].text
+
+
+def test_naming_check_requires_selected_yongshen_provenance(srv):
+    selected = _selected_yongshen()
+    selected.pop("yongshen_digest")
+    r = _error_call(srv, "naming_check", {
+        "given_names": ["伟"], "selected_yongshen": selected,
+    })
+    assert r.is_error is True
+    assert "yongshen_digest" in r.content[0].text
+
+
+def test_naming_check_rejects_two_yongshen_sources():
+    from app.contracts.naming import NamingCheckInput
+
+    with pytest.raises(ValidationError):
+        NamingCheckInput(
+            given_names=["伟"],
+            yongshen="木",
+            selected_yongshen=_selected_yongshen(),
+        )
 
 
 def test_naming_surname_matches_baseline(srv, baseline):

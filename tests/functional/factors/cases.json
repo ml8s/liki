@@ -891,6 +891,14 @@
             "yong": "土",
             "xi": "火",
             "ji": "木"
+          },
+          "_selected_yongshen": {
+            "status": "resolved",
+            "selected": {
+              "yong": "土",
+              "xi": ["火"],
+              "ji": ["木"]
+            }
           }
         },
         "gender": "male",

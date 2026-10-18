@@ -13,11 +13,15 @@ from factor_constants import load_constants
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 NATAL_PATH = os.path.join(TOOLS_DIR, "factors", "factors.csv")
 LIUNIAN_PATH = os.path.join(TOOLS_DIR, "factors", "factors_liunian.csv")
-META = {"factor_id", "shushi", "group_id", "term_index", "kind", "expression", "expected", "basis"}
+META = {
+    "factor_id", "shushi", "phase", "group_id", "term_index",
+    "kind", "expression", "expected", "basis",
+}
 LONG_FIELDS = [
-    "factor_id", "shushi", "group_id", "term_index", "kind",
-    "expression", "expected", "basis",
+    "factor_id", "shushi", "phase", "group_id", "term_index",
+    "kind", "expression", "expected", "basis",
 ]
+VALID_PHASES = frozenset({"pre_yongshen", "post_yongshen", "domain"})
 
 _CACHES: dict[Path, list[dict]] = {}
 
@@ -59,6 +63,7 @@ def load_long_rows(path: str):
     raw_groups = defaultdict(list)
     factor_meta = {}
     factor_sides: dict[str, str] = {}
+    factor_phases: dict[str, str] = {}
     valid_sides = set(load_constants()["命理侧"]["断言代码"])
     with open(path, encoding="utf-8-sig", newline="") as fh:
         for r in csv.DictReader(fh):
@@ -89,8 +94,18 @@ def load_long_rows(path: str):
                 raise FactorTableError(
                     f"{path}: {factor_id} 混用术数: {previous_side}/{side}"
                 )
+            phase = (r.get("phase") or "").strip()
+            if phase not in VALID_PHASES:
+                raise FactorTableError(f"{path}: {factor_id} phase 无效: {phase}")
+            previous_phase = factor_phases.setdefault(factor_id, phase)
+            if previous_phase != phase:
+                raise FactorTableError(
+                    f"{path}: {factor_id} 混用阶段: {previous_phase}/{phase}"
+                )
             raw_groups[(factor_id, group_id)].append((term_index, kind, expression, r.get("expected") or ""))
-            factor_meta.setdefault((factor_id, group_id), (side, r.get("basis") or ""))
+            factor_meta.setdefault(
+                (factor_id, group_id), (side, phase, r.get("basis") or "")
+            )
 
     dependencies: dict[str, set[str]] = defaultdict(set)
     for (factor_id, _group_id), terms in raw_groups.items():
@@ -106,12 +121,23 @@ def load_long_rows(path: str):
     if missing:
         factor_id, dependency = missing[0]
         raise FactorTableError(f"{path}: {factor_id} 引用不存在因子: {dependency}")
+    for factor_id, targets in dependencies.items():
+        if factor_phases[factor_id] != "pre_yongshen":
+            continue
+        post_target = next(
+            (target for target in sorted(targets) if factor_phases[target] == "post_yongshen"),
+            "",
+        )
+        if post_target:
+            raise FactorTableError(
+                f"{path}: {factor_id} 属于 pre_yongshen，不能引用 post_yongshen 因子 {post_target}"
+            )
     _ensure_acyclic(path, dependencies)
 
     rows = []
     for (factor_id, group_id), terms in raw_groups.items():
         terms.sort(key=lambda x: x[0])
-        shushi, basis = factor_meta[(factor_id, group_id)]
+        shushi, phase, basis = factor_meta[(factor_id, group_id)]
         kinds = {kind for _, kind, _, _ in terms}
         if "direct" in kinds and kinds - {"direct"}:
             raise FactorTableError(f"{path}: {factor_id} group {group_id} 混用 direct/condition")
@@ -138,7 +164,7 @@ def load_long_rows(path: str):
                 conds[expression] = typed_expected(row_expected)
                 expected_index += 1
         rows.append({
-            "因子": factor_id, "术数": shushi, "直通": direct,
+            "因子": factor_id, "术数": shushi, "阶段": phase, "直通": direct,
             "conds": conds, "依据": basis,
         })
     # defaultdict/raw_groups 已保持首次出现顺序；不要隐式排序，保证断语/因子 diff 稳定。

@@ -4,7 +4,7 @@
 
 ## 工具契约
 
-agent 经 `counsel` MCP（六爻/奇门）与 `engine` MCP（黄历）使用本域工具，参数见工具 schema；变量绑定与领域边界见 `references/TOOLS.md`。
+agent 经 `counsel` MCP（六爻/奇门）与 `engine` MCP（黄历）使用本域能力；工具与参数由 MCP 自省和 schema 提供，流程产物与领域边界见 `references/TOOLS.md`。
 
 ## 路由
 

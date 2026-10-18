@@ -47,8 +47,11 @@ def _engine_call(domain, name, args):
 
 def _full_pan(solar_time, gender, longitude):
     from paipan import full_paipan
+    from yongshen import resolve_yongshen
 
-    return full_paipan(solar_time, gender, longitude=longitude)
+    pan = full_paipan(solar_time, gender, longitude=longitude)
+    pan["_selected_yongshen"] = resolve_yongshen(pan["full"])
+    return pan
 
 
 def _bazi_combo_chart(solar_time, gender, longitude):
@@ -82,7 +85,9 @@ def test_natal_factors_match_full_paipan(sample):
         ("ziwei", "ziwei", _ziwei_combo_chart(solar_time, gender, longitude)),
     ):
         full = evaluate_factors(gender, pan, shushi=shushi)
-        combo = compute_factors(chart)["factors"]
+        combo = dict(compute_factors(chart)["factors"])
+        # 八字快照额外携带用神裁决元素；本测试只比较真值表因子。
+        combo.pop("selected_yongshen", None)
         diff, missing = _diff_fields(full, combo)
         assert not diff and not missing, (
             f"{side} 本命因子组合盘与完整盘不一致: diff={diff[:5]} missing={missing[:5]}"

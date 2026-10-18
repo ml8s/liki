@@ -36,7 +36,10 @@ def pan():
 
 
 def test_factors_bazi_matches_baseline(pan, baseline):
-    got = evaluate_factors("male", pan, shushi="bazi")
+    from yongshen import resolve_yongshen
+
+    evaluated = {**pan, "_selected_yongshen": resolve_yongshen(pan["full"])}
+    got = evaluate_factors("male", evaluated, shushi="bazi")
     want = baseline["factors_bazi"]
     assert got == want
 

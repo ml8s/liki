@@ -446,12 +446,12 @@ class TestLiuNianOps(unittest.TestCase):
         self.assertEqual(_liu_op("年柱干伏吟", [], "male", chart, ctx2), 0)
 
     def test_忌神干_命中与不命中(self):
-        # 忌神=火（fu_yi.ji）——流年干丙（火）→ 1；庚（金）→ 0
+        # 忌神只读 selected_yongshen——流年干丙（火）→ 1；庚（金）→ 0
         base = self._fac()
-        base["fu_yi"] = {"ji": "火"}
-        ctx = {"liunian": {"nian_gan": "丙", "atomic_facts": {"unfavorable_gan": True}}}
+        base["selected_yongshen"] = {"status": "resolved", "selected": {"ji": ["火"]}}
+        ctx = {"liunian": {"nian_gan": "丙"}}
         self.assertEqual(_liu_op("忌神干", [], "male", base, ctx), 1)
-        ctx2 = {"liunian": {"nian_gan": "庚", "atomic_facts": {"unfavorable_gan": False}}}
+        ctx2 = {"liunian": {"nian_gan": "庚"}}
         self.assertEqual(_liu_op("忌神干", [], "male", base, ctx2), 0)
 
     def test_财坏印流年_印年被克(self):

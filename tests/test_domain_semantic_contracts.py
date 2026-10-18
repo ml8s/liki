@@ -119,8 +119,8 @@ def test_factor_rows_require_declared_side(tmp_path):
 
     path = tmp_path / "factors.csv"
     path.write_text(
-        "factor_id,shushi,group_id,term_index,kind,expression,expected,basis\n"
-        "test,,1,1,condition,现[印星],1,\n",
+        "factor_id,shushi,phase,group_id,term_index,kind,expression,expected,basis\n"
+        "test,,pre_yongshen,1,1,condition,现[印星],1,\n",
         encoding="utf-8",
     )
     with pytest.raises(FactorTableError, match="shushi 不能为空"):

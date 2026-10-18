@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from errors import FactorEvaluateError
 from factor_constants import load_constants
-from factor_tokens import FACTOR_WILDCARD
+from factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
 from operators_natal import _base_ctx_from_pan
 
 # 流年算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
@@ -78,13 +78,31 @@ def _liu_handler_jishen(op: str, args: list, base: dict, gender: str, chart: dic
                          current_year: int, const: dict, ln: dict, nz: str,
                          nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '忌神干':
-        return 1 if _atomic_facts(ctx).get('unfavorable_gan') else 0
+        return _flow_element_in_selected(base, ln.get('nian_gan', ''), 'gan', const)
 
     if op == '忌神支':
-        return 1 if _atomic_facts(ctx).get('unfavorable_branch') else 0
+        return _flow_element_in_selected(base, ln.get('nian_zhi', ''), 'zhi', const)
 
     if op == '财坏印流年':
         return 1 if _atomic_facts(ctx).get('wealth_breaks_seal') else 0
+
+
+def _flow_element_in_selected(base: dict, value: str, kind: str, const: dict) -> "int | str":
+    """流年干/支五行是否命中 selected 忌神；未决时返回 unknown。"""
+    selected = base.get('selected_yongshen') or {}
+    if selected.get('status') in ('needs_review', 'unresolved'):
+        return FACTOR_UNKNOWN
+    ji = (selected.get('selected') or {}).get('ji') or []
+    if not isinstance(ji, list):
+        ji = [ji]
+    ji = [item for item in ji if item]
+    if not ji:
+        return FACTOR_UNKNOWN
+    mapping = const.get('天干五行' if kind == 'gan' else '地支五行') or {}
+    element = mapping.get(value, '')
+    if not element:
+        return FACTOR_UNKNOWN
+    return 1 if element in ji else 0
 
 def _liu_handler_dayun(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str,

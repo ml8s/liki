@@ -43,8 +43,8 @@ type GeJuResult struct {
 }
 
 // ComputeYongShenSchools computes the three yongshen schools from a Chart.
-// fu_yi is the actual yongshen (yong/xi/ji); tiao_hou and ge_ju are
-// independent evidence sources that are NOT yongshen.
+// fu_yi is the FuYi candidate (yong/xi/ji); tiao_hou and ge_ju are
+// independent evidence sources. The final yongshen is adjudicated by counsel.
 func ComputeYongShenSchools(c Chart) (FuYiResult, TiaoHouResult, GeJuResult) {
 	wc := computeElementCount(c.ToBazi(), computeCangGan(c.ToBazi()))
 	ws := computeWangShuaiMap(c)

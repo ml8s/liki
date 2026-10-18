@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pathlib
 import sys
+from typing import Any
 
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
@@ -19,6 +20,7 @@ sys.path.insert(0, str(DIVINATION_DIR))
 
 from app.contracts import COUNSEL_TOOLS  # noqa: E402
 from app.contracts import VERSION as RUNTIME_VERSION  # noqa: E402
+from app.contracts.yongshen import SelectedYongShenCore, YongShenSource  # noqa: E402
 from app.mcp_tool_adapter import add_contract_tool as _add_contract_tool  # noqa: E402
 from app.natal.tools import counsel  # noqa: E402
 
@@ -57,10 +59,16 @@ def _add_natal_tools(server: MCPServer, domain: str | None = None) -> None:
     domain endpoint 固定 bazi/ziwei；root aggregate 传入 None 时从 chart 和
     factors provenance 推断领域，避免在同一 MCP server 上重复注册同名工具。
     """
-    for name in ("compute_factors", "natal_query", "period_query"):
+    names = ["compute_factors", "natal_query", "period_query"]
+    if domain in (None, "bazi"):
+        names.insert(0, "bazi_yongshen")
+    for name in names:
         contract = _CONTRACTS[name]
 
         def invoke_natal(arguments: dict, _name=name):
+            if _name == "bazi_yongshen":
+                _require_domain("bazi", arguments["chart"])
+                return counsel.bazi_yongshen(arguments["chart"])
             if _name == "compute_factors":
                 side = domain or _chart_domain(arguments["chart"])
                 _require_domain(side, arguments["chart"])
@@ -98,10 +106,14 @@ def create_counsel_mcp(domain: str) -> MCPServer:
         raise ValueError(f"counsel domain 无效: {domain!r}")
     server = MCPServer(
         name=f"counsel-{domain}",
-        title=f"Liki 判断层（{domain}）",
+        title=f"Liki 断语引擎（{domain}）",
         description=(
-            f"命理判断层（{domain}）：compute_factors 因子快照 + natal_query 本命断语 + "
-            f"period_query 应期断语。排盘由 engine 完成（chart 为输入）。"
+            f"断语引擎（{domain}）："
+            + (
+                "用神裁决 + "
+                if domain == "bazi" else ""
+            )
+            + "因子快照、本命断语、应期断语；排盘由排盘引擎完成（盘面为输入）。"
         ),
         version=RUNTIME_VERSION,
     )
@@ -118,8 +130,8 @@ def create_counsel_root_mcp() -> MCPServer:
     """
     server = MCPServer(
         name="counsel",
-        title="Liki Counsel",
-        description="命理判断层：八字/紫微本命、起名、六爻与奇门能力聚合。",
+        title="Liki Reading Engine",
+        description="断语引擎：八字/紫微本命、起名、六爻与奇门能力聚合。",
         version=RUNTIME_VERSION,
     )
     _add_natal_tools(server)
@@ -154,10 +166,10 @@ def _add_divination_tools(server: MCPServer, domain: str) -> None:
 def _create_divination_server(domain: str) -> MCPServer:
     server = MCPServer(
         name=f"counsel-{domain}",
-        title=f"Liki 顾问（{domain}）",
+        title=f"Liki 断语引擎（{domain}）",
         description=(
-            f"{'六爻' if domain == 'liuyao' else '奇门'}顾问：snapshot 创建（起卦/排盘+因子），"
-            f"query 追问（基于 snapshot 出断语，不重排）。排盘由 engine 完成。"
+            f"{'六爻' if domain == 'liuyao' else '奇门'}：快照（起卦/排盘 + 因子）与追问断语，"
+            f"基于快照不重排；排盘由排盘引擎完成。"
         ),
         version=RUNTIME_VERSION,
     )
@@ -165,17 +177,60 @@ def _create_divination_server(domain: str) -> MCPServer:
     return server
 
 
-def _naming_check(given_names, yongshen, xishen=None, jishen=None):
-    """适配 schema 参数名（yongshen/xishen/jishen）→ evaluate_names（yong_shen 等）。"""
+def _naming_check(given_names, yongshen=None, xishen=None, jishen=None,
+                  selected_yongshen=None):
+    """评估候选名；selected_yongshen 是唯一八字用神来源。"""
     from naming import evaluate_names
 
-    return evaluate_names(
-        given_names, yongshen, xishen or [], jishen or []
+    provenance: dict[str, Any] | None = None
+    if selected_yongshen is not None:
+        if isinstance(selected_yongshen, SelectedYongShenCore):
+            selected_yongshen = selected_yongshen.model_dump()
+        if not isinstance(selected_yongshen, dict):
+            raise ToolError("invalid_arguments: selected_yongshen 必须是用神裁决返回的对象")
+        status = selected_yongshen.get("status")
+        if status in ("needs_review", "unresolved"):
+            raise ToolError(
+                "invalid_arguments: selected_yongshen 未形成可消费结论；"
+                "请先复核用神，不得静默降级"
+            )
+        selected = selected_yongshen.get("selected")
+        if not isinstance(selected, dict):
+            raise ToolError("invalid_arguments: selected_yongshen.selected 缺失")
+        yongshen = selected.get("yong") or ""
+        xishen = selected.get("xi") or []
+        jishen = selected.get("ji") or []
+        if not yongshen:
+            raise ToolError("invalid_arguments: selected_yongshen.selected.yong 为空")
+        missing = [
+            field for field in ("policy_id", "rule_version", "yongshen_digest", "chart_digest")
+            if not selected_yongshen.get(field)
+        ]
+        if missing:
+            raise ToolError(
+                "invalid_arguments: selected_yongshen 缺少来源字段: "
+                + ", ".join(missing)
+            )
+        provenance = YongShenSource(
+            **{
+                field: selected_yongshen.get(field)
+                for field in (
+                    "policy_id", "rule_version", "rule_id", "status",
+                    "chart_digest", "yongshen_digest",
+                )
+            }
+        ).model_dump()
+    evaluations = evaluate_names(
+        given_names, yongshen or "", xishen or [], jishen or []
     )
+    if provenance is not None:
+        for item in evaluations:
+            item["yongshen_source"] = dict(provenance)
+    return evaluations
 
 
 def _add_naming_tools(server: MCPServer) -> None:
-    """起名（naming）：qiming 工具复用 qiming 逻辑（字库来自 engine）。"""
+    """起名（naming）：姓氏匹配、取字、单字查询、组名与候选评估（字库与音韵在 counsel 本地）。"""
     from naming import compose_names, lookup_char, match_surnames, pick_chars
 
     naming_fns = {
@@ -207,10 +262,10 @@ def _add_qimen_tools(server: MCPServer) -> None:
 def _create_naming_server() -> MCPServer:
     server = MCPServer(
         name="counsel-naming",
-        title="Liki 起名顾问",
+        title="Liki 断语引擎（naming）",
         description=(
-            "起名顾问：姓氏匹配、按五行取字、单字查询、组名、候选名评估。"
-            "字库来自 engine（继承），用神/喜忌由调用方传入（八字判断结果）。"
+            "起名评估：姓氏匹配、按五行取字、单字查询、组名、候选名评估。"
+            "字库与音韵在 counsel 本地，用神/喜忌由调用方传入（八字判断结果）。"
         ),
         version=RUNTIME_VERSION,
     )

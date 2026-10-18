@@ -64,8 +64,7 @@ cp -r dist/agents/. assembly/dist/agents/
 cp -r skills assembly/dist/skills
 cp -r expert-packs assembly/dist/expert-packs
 build_image experts liki-experts assembly assembly/Dockerfile \
-  --build-arg "BASE_IMAGE=$AGENTS_BASE" \
-  --build-arg "PROFILE=experts"
+  --build-arg "BASE_IMAGE=$AGENTS_BASE"
 rm -rf assembly/dist
 
 digest_of() {
@@ -83,8 +82,10 @@ COUNSEL_IMAGE="$REGISTRY/liki-counsel@$COUNSEL_DIGEST" \
 IMAGE_TAG=unused \
   scripts/smoke-image.sh
 
-docker run --rm "$REGISTRY/liki-experts@$EXPERTS_DIGEST" \
-  validate -deployment /deployment/deployment.json
+for profile in natal divination fengshui naming; do
+  docker run --rm "$REGISTRY/liki-experts@$EXPERTS_DIGEST" \
+    validate -deployment "/deployment/$profile/deployment.json"
+done
 
 python3 scripts/build_candidate_manifest.py \
   --source-commit "$SOURCE_SHA" \

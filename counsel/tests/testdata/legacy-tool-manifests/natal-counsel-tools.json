@@ -30,7 +30,7 @@
           ],
           "properties": {
             "factors": {
-              "description": "Canonical factor snapshot; includes _provenance with side, chart digest, and context.",
+              "description": "Canonical factor snapshot; includes _provenance with side, chart digest, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
               "type": "object"
             },
             "factors_digest": {
@@ -41,6 +41,13 @@
             "context": {
               "description": "Minimal source context bound to the factor snapshot.",
               "type": "object"
+            },
+            "selected_yongshen": {
+              "description": "八字侧唯一用神裁决结果（含 selected/status/conflicts/policy_id/rule_version/yongshen_digest）；紫微侧为 null。下游起名与断语只消费此字段，不自行重选。",
+              "type": [
+                "object",
+                "null"
+              ]
             }
           }
         }

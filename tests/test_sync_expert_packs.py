@@ -109,7 +109,6 @@ def test_rebase_reports_intra_domain_dead_link():
 def test_identity_file_is_the_only_authored_expert_identity():
     """专家身份唯一手写源＝包根 SKILL.md；仓库根不再保留 persona 目录。"""
     assert not (ROOT / "agents" / "personas").exists()
-    assert (ROOT / "agents" / "router" / "router.md").is_file()
     for domain, pack in gen.DOMAIN_PACKS.items():
         identity = gen.identity_path(domain)
         assert identity == gen.PACKS / pack / "SKILL.md", identity

@@ -155,4 +155,7 @@ jobs:
             dist/liki-web-skill-bundle.tar.gz \
             dist/liki-web-skill-bundle.manifest.json \
             dist/liki-web-skill-bundle.sha256 \
-            dist/agents/experts/deployment.json
+            dist/agents/natal/deployment.json \
+            dist/agents/divination/deployment.json \
+            dist/agents/fengshui/deployment.json \
+            dist/agents/naming/deployment.json

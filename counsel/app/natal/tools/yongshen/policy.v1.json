@@ -1,0 +1,2105 @@
+{
+  "policy_id": "liki.bazi.yongshen.v1",
+  "rule_version": "1.0.0",
+  "match": "first",
+  "tables": {
+    "wuxing_relations": {
+      "木": {
+        "generates": "火",
+        "generated_by": "水",
+        "controls": "土",
+        "controlled_by": "金"
+      },
+      "火": {
+        "generates": "土",
+        "generated_by": "木",
+        "controls": "金",
+        "controlled_by": "水"
+      },
+      "土": {
+        "generates": "金",
+        "generated_by": "火",
+        "controls": "水",
+        "controlled_by": "木"
+      },
+      "金": {
+        "generates": "水",
+        "generated_by": "土",
+        "controls": "木",
+        "controlled_by": "火"
+      },
+      "水": {
+        "generates": "木",
+        "generated_by": "金",
+        "controls": "火",
+        "controlled_by": "土"
+      }
+    },
+    "ge_ju_themes": {
+      "正官": "约束、责任、压力、制度",
+      "七杀": "约束、责任、压力、制度",
+      "正印": "庇护、学习、转化",
+      "偏印": "庇护、学习、转化",
+      "正财": "资源、执行、现实事务",
+      "偏财": "资源、执行、现实事务",
+      "食神": "表达、技艺、流通",
+      "伤官": "表达、技艺、流通",
+      "比肩": "结构候选",
+      "劫财": "结构候选",
+      "杂格": "结构候选"
+    },
+    "ten_god_classes": {
+      "官杀": [
+        "正官",
+        "七杀"
+      ],
+      "印星": [
+        "正印",
+        "偏印"
+      ],
+      "比劫": [
+        "比肩",
+        "劫财"
+      ],
+      "财星": [
+        "正财",
+        "偏财"
+      ],
+      "食伤": [
+        "食神",
+        "伤官"
+      ]
+    },
+    "extreme_months": [
+      "亥",
+      "子",
+      "丑",
+      "巳",
+      "午",
+      "未"
+    ]
+  },
+  "defaults": {
+    "season_is_extreme": false,
+    "ge_ju_clear": false,
+    "congge_pattern_present": false,
+    "congge_fake": false,
+    "congge_verified": false,
+    "tiaohou_primary_present": false,
+    "tiaohou_primary_visible": false,
+    "tiaohou_secondary_present": false,
+    "tiaohou_secondary_visible": false,
+    "tiaohou_secondary_condition_ok": false,
+    "tiaohou_secondary_usable": false,
+    "tiaohou_yong_source": "none",
+    "tiaohou_yong_present": false,
+    "tiaohou_yong_visible": false,
+    "tiaohou_yong": "",
+    "tiaohou_control_wuxing": "",
+    "tiaohou_xi": [],
+    "neutral_overstrong": {
+      "count": 0,
+      "values": [],
+      "value": null,
+      "unique": false
+    },
+    "neutral_overstrong_yong": "",
+    "neutral_weak": {
+      "count": 0,
+      "values": [],
+      "value": null,
+      "unique": false
+    },
+    "neutral_weak_yong": "",
+    "neutral_yong": "",
+    "neutral_xi": [],
+    "neutral_ji": [],
+    "neutral_status": "unresolved",
+    "tiaohou_conflict": false,
+    "guan_sha_effective_count": 0,
+    "yin_effective_count": 0,
+    "bi_jie_effective_count": 0,
+    "cai_effective_count": 0,
+    "shi_shang_effective_count": 0,
+    "guan_sha_rooted_count": 0,
+    "yin_rooted_count": 0,
+    "bi_jie_rooted_count": 0,
+    "cai_rooted_count": 0,
+    "shi_shang_rooted_count": 0
+  },
+  "pre_factors": [
+    {
+      "id": "season_is_extreme",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "season_is_extreme": {
+          "$if": {
+            "when": {
+              "path": "month_zhi",
+              "op": "in",
+              "value": {
+                "$table": "extreme_months"
+              }
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "ge_ju_clear",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "ge_ju_clear": {
+          "$if": {
+            "when": {
+              "path": "ge_ju.pattern_god_source",
+              "op": "eq",
+              "value": "main_qi"
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_primary_present",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_primary_present": {
+          "$if": {
+            "when": {
+              "path": "tiao_hou.primary.occurrences",
+              "op": "length_gt",
+              "value": 0
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_primary_visible",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_primary_visible": {
+          "$if": {
+            "when": {
+              "path": "tiao_hou.primary.transparent",
+              "op": "eq",
+              "value": true
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_secondary_present",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_secondary_present": {
+          "$if": {
+            "when": {
+              "all": [
+                {
+                  "path": "tiao_hou.secondary_wuxing",
+                  "op": "exists"
+                },
+                {
+                  "path": "tiao_hou.secondary.occurrences",
+                  "op": "length_gt",
+                  "value": 0
+                }
+              ]
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_secondary_visible",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_secondary_visible": {
+          "$if": {
+            "when": {
+              "path": "tiao_hou.secondary.transparent",
+              "op": "eq",
+              "value": true
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "ten_god_transparent_counts",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "guan_sha_transparent_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.transparent",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "官杀"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "yin_transparent_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.transparent",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "印星"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "bi_jie_transparent_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.transparent",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "比劫"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "cai_transparent_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.transparent",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "财星"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "shi_shang_transparent_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.transparent",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "食伤"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "ten_god_active_counts",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "guan_sha_effective_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "官杀"
+                    }
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "path": "item.transparent",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "all": [
+                        {
+                          "path": "item.rooted",
+                          "op": "eq",
+                          "value": true
+                        },
+                        {
+                          "path": "item.strength",
+                          "op": "eq",
+                          "value": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "guan_sha_rooted_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "官杀"
+                    }
+                  }
+                },
+                {
+                  "path": "item.rooted",
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        "yin_effective_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "印星"
+                    }
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "path": "item.transparent",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "all": [
+                        {
+                          "path": "item.rooted",
+                          "op": "eq",
+                          "value": true
+                        },
+                        {
+                          "path": "item.strength",
+                          "op": "eq",
+                          "value": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "yin_rooted_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "印星"
+                    }
+                  }
+                },
+                {
+                  "path": "item.rooted",
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        "bi_jie_effective_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "比劫"
+                    }
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "path": "item.transparent",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "all": [
+                        {
+                          "path": "item.rooted",
+                          "op": "eq",
+                          "value": true
+                        },
+                        {
+                          "path": "item.strength",
+                          "op": "eq",
+                          "value": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "bi_jie_rooted_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "比劫"
+                    }
+                  }
+                },
+                {
+                  "path": "item.rooted",
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        "cai_effective_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "财星"
+                    }
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "path": "item.transparent",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "all": [
+                        {
+                          "path": "item.rooted",
+                          "op": "eq",
+                          "value": true
+                        },
+                        {
+                          "path": "item.strength",
+                          "op": "eq",
+                          "value": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "cai_rooted_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "财星"
+                    }
+                  }
+                },
+                {
+                  "path": "item.rooted",
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        "shi_shang_effective_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "食伤"
+                    }
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "path": "item.transparent",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "all": [
+                        {
+                          "path": "item.rooted",
+                          "op": "eq",
+                          "value": true
+                        },
+                        {
+                          "path": "item.strength",
+                          "op": "eq",
+                          "value": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "shi_shang_rooted_count": {
+          "$select_count": {
+            "from": "ten_god_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.shi_shen",
+                  "op": "in",
+                  "value": {
+                    "$lookup": {
+                      "table": "ten_god_classes",
+                      "key": "食伤"
+                    }
+                  }
+                },
+                {
+                  "path": "item.rooted",
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "congge_pattern_present",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "congge_pattern_present": {
+          "$if": {
+            "when": {
+              "path": "fu_yi.pattern",
+              "op": "contains",
+              "value": "从"
+            },
+            "then": true,
+            "else": false
+          }
+        },
+        "congge_fake": {
+          "$if": {
+            "when": {
+              "path": "fu_yi.pattern",
+              "op": "contains",
+              "value": "假从"
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "congge_verified_cong_wang",
+      "when": {
+        "all": [
+          {
+            "path": "fu_yi.pattern",
+            "op": "eq",
+            "value": "从旺格"
+          },
+          {
+            "path": "fu_yi.basis.season",
+            "op": "in",
+            "value": [
+              "旺",
+              "相"
+            ]
+          },
+          {
+            "path": "fu_yi.basis.yin_bi_count",
+            "op": "gte",
+            "value": 3
+          },
+          {
+            "path": "guan_sha_effective_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "path": "cai_effective_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "path": "shi_shang_effective_count",
+            "op": "eq",
+            "value": 0
+          }
+        ]
+      },
+      "set": {
+        "congge_verified": true
+      }
+    },
+    {
+      "id": "congge_verified_cong_sha",
+      "when": {
+        "all": [
+          {
+            "path": "fu_yi.pattern",
+            "op": "eq",
+            "value": "从杀格"
+          },
+          {
+            "path": "fu_yi.basis.root_type",
+            "op": "eq",
+            "value": "none"
+          },
+          {
+            "path": "fu_yi.basis.season",
+            "op": "eq",
+            "value": "死"
+          },
+          {
+            "path": "yin_rooted_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "path": "bi_jie_rooted_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "any": [
+              {
+                "path": "guan_sha_effective_count",
+                "op": "gte",
+                "value": 2
+              },
+              {
+                "all": [
+                  {
+                    "path": "guan_sha_effective_count",
+                    "op": "gte",
+                    "value": 1
+                  },
+                  {
+                    "path": "cai_effective_count",
+                    "op": "gte",
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "set": {
+        "congge_verified": true
+      }
+    },
+    {
+      "id": "congge_verified_cong_cai",
+      "when": {
+        "all": [
+          {
+            "path": "fu_yi.pattern",
+            "op": "eq",
+            "value": "从财格"
+          },
+          {
+            "path": "fu_yi.basis.root_type",
+            "op": "eq",
+            "value": "none"
+          },
+          {
+            "path": "fu_yi.basis.season",
+            "op": "eq",
+            "value": "囚"
+          },
+          {
+            "path": "yin_rooted_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "path": "bi_jie_rooted_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "path": "cai_effective_count",
+            "op": "gte",
+            "value": 2
+          }
+        ]
+      },
+      "set": {
+        "congge_verified": true
+      }
+    },
+    {
+      "id": "congge_verified_cong_er",
+      "when": {
+        "all": [
+          {
+            "path": "fu_yi.pattern",
+            "op": "eq",
+            "value": "从儿格"
+          },
+          {
+            "path": "fu_yi.basis.root_type",
+            "op": "eq",
+            "value": "none"
+          },
+          {
+            "path": "fu_yi.basis.season",
+            "op": "eq",
+            "value": "休"
+          },
+          {
+            "path": "yin_rooted_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "path": "bi_jie_rooted_count",
+            "op": "eq",
+            "value": 0
+          },
+          {
+            "path": "shi_shang_effective_count",
+            "op": "gte",
+            "value": 2
+          }
+        ]
+      },
+      "set": {
+        "congge_verified": true
+      }
+    },
+    {
+      "id": "tiaohou_condition_none",
+      "when": {
+        "all": [
+          {
+            "path": "tiao_hou.secondary_wuxing",
+            "op": "exists"
+          },
+          {
+            "path": "tiao_hou.secondary_condition",
+            "op": "empty"
+          }
+        ]
+      },
+      "set": {
+        "tiaohou_secondary_condition_ok": true
+      }
+    },
+    {
+      "id": "tiaohou_condition_shui_duo_wu_zuo",
+      "when": {
+        "all": [
+          {
+            "path": "tiao_hou.secondary_condition",
+            "op": "eq",
+            "value": "水多以戊佐"
+          },
+          {
+            "path": "tiaohou_secondary_present",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "path": "wuxing_count.水",
+            "op": "gte",
+            "value": 3
+          }
+        ]
+      },
+      "set": {
+        "tiaohou_secondary_condition_ok": true
+      }
+    },
+    {
+      "id": "tiaohou_condition_geng_source",
+      "when": {
+        "all": [
+          {
+            "path": "tiao_hou.secondary_condition",
+            "op": "eq",
+            "value": "庚金发水之源为佐"
+          },
+          {
+            "path": "tiaohou_secondary_present",
+            "op": "eq",
+            "value": true
+          }
+        ]
+      },
+      "set": {
+        "tiaohou_secondary_condition_ok": true
+      }
+    },
+    {
+      "id": "tiaohou_condition_wu_ren_yong_ji",
+      "when": {
+        "all": [
+          {
+            "path": "tiao_hou.secondary_condition",
+            "op": "eq",
+            "value": "无壬用己；水多用戊制"
+          },
+          {
+            "path": "tiaohou_secondary_present",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "path": "tiaohou_primary_present",
+            "op": "eq",
+            "value": false
+          }
+        ]
+      },
+      "set": {
+        "tiaohou_secondary_condition_ok": true
+      }
+    },
+    {
+      "id": "tiaohou_condition_ren_duo_wu_zhi",
+      "when": {
+        "all": [
+          {
+            "path": "tiao_hou.secondary_condition",
+            "op": "eq",
+            "value": "壬多必取戊制"
+          },
+          {
+            "path": "tiaohou_secondary_present",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "path": "wuxing_count.水",
+            "op": "gte",
+            "value": 3
+          }
+        ]
+      },
+      "set": {
+        "tiaohou_secondary_condition_ok": true
+      }
+    },
+    {
+      "id": "tiaohou_yong",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_yong_source": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_primary_present",
+              "op": "eq",
+              "value": true
+            },
+            "then": {
+              "$if": {
+                "when": {
+                  "path": "tiaohou_primary_visible",
+                  "op": "eq",
+                  "value": true
+                },
+                "then": "primary",
+                "else": "primary_hidden"
+              }
+            },
+            "else": {
+              "$if": {
+                "when": {
+                  "all": [
+                    {
+                      "path": "tiaohou_secondary_present",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "path": "tiaohou_secondary_condition_ok",
+                      "op": "eq",
+                      "value": true
+                    }
+                  ]
+                },
+                "then": {
+                  "$if": {
+                    "when": {
+                      "path": "tiaohou_secondary_visible",
+                      "op": "eq",
+                      "value": true
+                    },
+                    "then": "secondary",
+                    "else": "secondary_hidden"
+                  }
+                },
+                "else": {
+                  "$if": {
+                    "when": {
+                      "path": "tiao_hou.primary_wuxing",
+                      "op": "exists"
+                    },
+                    "then": "needed_primary",
+                    "else": "none"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tiaohou_yong_present": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_primary_present",
+              "op": "eq",
+              "value": true
+            },
+            "then": true,
+            "else": {
+              "$if": {
+                "when": {
+                  "all": [
+                    {
+                      "path": "tiaohou_secondary_present",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "path": "tiaohou_secondary_condition_ok",
+                      "op": "eq",
+                      "value": true
+                    }
+                  ]
+                },
+                "then": true,
+                "else": false
+              }
+            }
+          }
+        },
+        "tiaohou_yong_visible": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_primary_present",
+              "op": "eq",
+              "value": true
+            },
+            "then": {
+              "$path": "tiaohou_primary_visible"
+            },
+            "else": {
+              "$if": {
+                "when": {
+                  "all": [
+                    {
+                      "path": "tiaohou_secondary_present",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "path": "tiaohou_secondary_condition_ok",
+                      "op": "eq",
+                      "value": true
+                    }
+                  ]
+                },
+                "then": {
+                  "$path": "tiaohou_secondary_visible"
+                },
+                "else": false
+              }
+            }
+          }
+        },
+        "tiaohou_yong": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_primary_present",
+              "op": "eq",
+              "value": true
+            },
+            "then": {
+              "$path": "tiao_hou.primary_wuxing"
+            },
+            "else": {
+              "$if": {
+                "when": {
+                  "all": [
+                    {
+                      "path": "tiaohou_secondary_present",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "path": "tiaohou_secondary_condition_ok",
+                      "op": "eq",
+                      "value": true
+                    }
+                  ]
+                },
+                "then": {
+                  "$path": "tiao_hou.secondary_wuxing"
+                },
+                "else": {
+                  "$path": "tiao_hou.primary_wuxing"
+                }
+              }
+            }
+          }
+        },
+        "tiaohou_control_wuxing": {
+          "$if": {
+            "when": {
+              "all": [
+                {
+                  "path": "tiao_hou.secondary_condition",
+                  "op": "eq",
+                  "value": "无壬用己；水多用戊制"
+                },
+                {
+                  "path": "tiaohou_primary_present",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "wuxing_count.水",
+                  "op": "gte",
+                  "value": 3
+                }
+              ]
+            },
+            "then": "土",
+            "else": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_secondary_usable",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_secondary_usable": {
+          "$if": {
+            "when": {
+              "all": [
+                {
+                  "path": "tiaohou_secondary_present",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "tiaohou_secondary_visible",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "tiaohou_secondary_condition_ok",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "tiaohou_secondary_supports_yong",
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_secondary_supports_yong",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_secondary_generates_yong": {
+          "$eq_paths": [
+            {
+              "$lookup": {
+                "table": "wuxing_relations",
+                "key": {
+                  "$path": "tiao_hou.secondary_wuxing"
+                },
+                "field": "generates"
+              }
+            },
+            {
+              "$path": "tiaohou_yong"
+            }
+          ]
+        },
+        "tiaohou_secondary_same_yong": {
+          "$eq_paths": [
+            {
+              "$path": "tiao_hou.secondary_wuxing"
+            },
+            {
+              "$path": "tiaohou_yong"
+            }
+          ]
+        },
+        "tiaohou_secondary_controls_yong": {
+          "$eq_paths": [
+            {
+              "$lookup": {
+                "table": "wuxing_relations",
+                "key": {
+                  "$path": "tiao_hou.secondary_wuxing"
+                },
+                "field": "controls"
+              }
+            },
+            {
+              "$path": "tiaohou_yong"
+            }
+          ]
+        },
+        "tiaohou_secondary_overstrong": {
+          "$select_exists": {
+            "from": "element_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.wuxing",
+                  "op": "eq",
+                  "value": {
+                    "$path": "global.tiao_hou.secondary_wuxing"
+                  }
+                },
+                {
+                  "path": "item.strength",
+                  "op": "eq",
+                  "value": "strong"
+                },
+                {
+                  "path": "item.season",
+                  "op": "eq",
+                  "value": "旺"
+                }
+              ]
+            }
+          }
+        },
+        "tiaohou_secondary_supports_yong": {
+          "$if": {
+            "when": {
+              "all": [
+                {
+                  "path": "tiaohou_secondary_present",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "path": "tiaohou_yong",
+                  "op": "exists"
+                },
+                {
+                  "any": [
+                    {
+                      "path": "tiaohou_secondary_generates_yong",
+                      "op": "eq",
+                      "value": true
+                    },
+                    {
+                      "path": "tiaohou_secondary_same_yong",
+                      "op": "eq",
+                      "value": true
+                    }
+                  ]
+                },
+                {
+                  "path": "tiaohou_secondary_controls_yong",
+                  "op": "eq",
+                  "value": false
+                },
+                {
+                  "path": "tiaohou_secondary_overstrong",
+                  "op": "eq",
+                  "value": false
+                }
+              ]
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_xi",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_xi": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_secondary_usable",
+              "op": "eq",
+              "value": true
+            },
+            "then": {
+              "$as_list": {
+                "$path": "tiao_hou.secondary_wuxing"
+              }
+            },
+            "else": []
+          }
+        }
+      }
+    },
+    {
+      "id": "neutral_overstrong",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "neutral_overstrong": {
+          "$select": {
+            "from": "element_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.strength",
+                  "op": "eq",
+                  "value": "strong"
+                },
+                {
+                  "path": "item.season",
+                  "op": "eq",
+                  "value": "旺"
+                }
+              ]
+            },
+            "order_by": "item.count",
+            "direction": "desc",
+            "field": "item.wuxing"
+          }
+        }
+      }
+    },
+    {
+      "id": "neutral_overstrong_yong",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "neutral_overstrong_yong": {
+          "$if": {
+            "when": {
+              "path": "neutral_overstrong.unique",
+              "op": "eq",
+              "value": true
+            },
+            "then": {
+              "$lookup": {
+                "table": "wuxing_relations",
+                "key": {
+                  "$path": "neutral_overstrong.value"
+                },
+                "field": "generates"
+              }
+            },
+            "else": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "neutral_weak",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "neutral_weak": {
+          "$select": {
+            "from": "element_states",
+            "where": {
+              "all": [
+                {
+                  "path": "item.strength",
+                  "op": "in",
+                  "value": [
+                    "weak",
+                    "neutral"
+                  ]
+                },
+                {
+                  "path": "item.controller_strength",
+                  "op": "ne",
+                  "value": "strong"
+                }
+              ]
+            },
+            "order_by": "item.count",
+            "direction": "asc",
+            "field": "item.wuxing"
+          }
+        }
+      }
+    },
+    {
+      "id": "neutral_weak_yong",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "neutral_weak_yong": {
+          "$if": {
+            "when": {
+              "path": "neutral_weak.unique",
+              "op": "eq",
+              "value": true
+            },
+            "then": {
+              "$path": "neutral_weak.value"
+            },
+            "else": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "neutral_yong",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "neutral_yong": {
+          "$if": {
+            "when": {
+              "path": "neutral_overstrong_yong",
+              "op": "exists"
+            },
+            "then": {
+              "$path": "neutral_overstrong_yong"
+            },
+            "else": {
+              "$path": "neutral_weak_yong"
+            }
+          }
+        },
+        "neutral_status": {
+          "$if": {
+            "when": {
+              "any": [
+                {
+                  "path": "neutral_overstrong_yong",
+                  "op": "exists"
+                },
+                {
+                  "path": "neutral_weak_yong",
+                  "op": "exists"
+                }
+              ]
+            },
+            "then": "resolved",
+            "else": {
+              "$if": {
+                "when": {
+                  "any": [
+                    {
+                      "path": "neutral_overstrong.count",
+                      "op": "gt",
+                      "value": 0
+                    },
+                    {
+                      "path": "neutral_weak.count",
+                      "op": "gt",
+                      "value": 0
+                    }
+                  ]
+                },
+                "then": "needs_review",
+                "else": "unresolved"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "neutral_xi_ji",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "neutral_xi": {
+          "$if": {
+            "when": {
+              "path": "neutral_yong",
+              "op": "exists"
+            },
+            "then": {
+              "$list": [
+                {
+                  "$lookup": {
+                    "table": "wuxing_relations",
+                    "key": {
+                      "$path": "neutral_yong"
+                    },
+                    "field": "generated_by"
+                  }
+                },
+                {
+                  "$path": "neutral_yong"
+                }
+              ]
+            },
+            "else": []
+          }
+        },
+        "neutral_ji": {
+          "$if": {
+            "when": {
+              "path": "neutral_yong",
+              "op": "exists"
+            },
+            "then": {
+              "$list": [
+                {
+                  "$lookup": {
+                    "table": "wuxing_relations",
+                    "key": {
+                      "$path": "neutral_yong"
+                    },
+                    "field": "controlled_by"
+                  }
+                },
+                {
+                  "$lookup": {
+                    "table": "wuxing_relations",
+                    "key": {
+                      "$path": "neutral_yong"
+                    },
+                    "field": "generates"
+                  }
+                }
+              ]
+            },
+            "else": []
+          }
+        }
+      }
+    },
+    {
+      "id": "tiaohou_conflict",
+      "when": {
+        "const": true
+      },
+      "set": {
+        "tiaohou_conflict": {
+          "$if": {
+            "when": {
+              "all": [
+                {
+                  "path": "tiaohou_yong",
+                  "op": "exists"
+                },
+                {
+                  "path": "fu_yi.ji",
+                  "op": "exists"
+                },
+                {
+                  "$eq_paths": [
+                    {
+                      "$path": "tiaohou_yong"
+                    },
+                    {
+                      "$path": "fu_yi.ji"
+                    }
+                  ]
+                }
+              ]
+            },
+            "then": true,
+            "else": false
+          }
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "YS-CG-FAKE",
+      "priority": 10,
+      "when": {
+        "path": "congge_fake",
+        "op": "eq",
+        "value": true
+      },
+      "then": {
+        "selected.yong": "",
+        "selected.xi": [],
+        "selected.ji": [],
+        "source": "cong_ge",
+        "confidence": "low",
+        "status": "needs_review",
+        "conflicts": [
+          {
+            "code": "fake_cong",
+            "message": "假从格须结合大运与三得复核，静态盘不强行选定"
+          }
+        ]
+      }
+    },
+    {
+      "id": "YS-CG-VERIFIED",
+      "priority": 11,
+      "when": {
+        "all": [
+          {
+            "path": "congge_pattern_present",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "path": "congge_verified",
+            "op": "eq",
+            "value": true
+          }
+        ]
+      },
+      "then": {
+        "selected.yong": {
+          "$path": "fu_yi.yong"
+        },
+        "selected.xi": {
+          "$as_list": {
+            "$path": "fu_yi.xi"
+          }
+        },
+        "selected.ji": {
+          "$as_list": {
+            "$path": "fu_yi.ji"
+          }
+        },
+        "source": "cong_ge",
+        "confidence": "high",
+        "status": "resolved",
+        "conflicts": []
+      }
+    },
+    {
+      "id": "YS-CG-UNVERIFIED",
+      "priority": 12,
+      "when": {
+        "all": [
+          {
+            "path": "congge_pattern_present",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "path": "congge_verified",
+            "op": "eq",
+            "value": false
+          }
+        ]
+      },
+      "then": {
+        "selected.yong": "",
+        "selected.xi": [],
+        "selected.ji": [],
+        "source": "cong_ge",
+        "confidence": "low",
+        "status": "needs_review",
+        "conflicts": [
+          {
+            "code": "congge_unverified",
+            "message": "从格标签未通过表内双证复核"
+          }
+        ]
+      }
+    },
+    {
+      "id": "YS-TH-CONFLICT",
+      "priority": 20,
+      "when": {
+        "all": [
+          {
+            "path": "season_is_extreme",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "path": "tiaohou_yong",
+            "op": "exists"
+          },
+          {
+            "path": "tiaohou_conflict",
+            "op": "eq",
+            "value": true
+          }
+        ]
+      },
+      "then": {
+        "selected.yong": "",
+        "selected.xi": [],
+        "selected.ji": [],
+        "source": "tiao_hou",
+        "confidence": "low",
+        "status": "needs_review",
+        "conflicts": [
+          {
+            "code": "tiaohou_fuyi_conflict",
+            "message": "调候用神与扶抑忌神直接相反，不硬判"
+          }
+        ]
+      }
+    },
+    {
+      "id": "YS-TH",
+      "priority": 21,
+      "when": {
+        "all": [
+          {
+            "path": "season_is_extreme",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "path": "tiaohou_yong",
+            "op": "exists"
+          }
+        ]
+      },
+      "then": {
+        "selected.yong": {
+          "$path": "tiaohou_yong"
+        },
+        "selected.xi": {
+          "$path": "tiaohou_xi"
+        },
+        "selected.ji": {
+          "$as_list": {
+            "$path": "fu_yi.ji"
+          }
+        },
+        "source": "tiao_hou",
+        "confidence": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_yong_source",
+              "op": "eq",
+              "value": "primary"
+            },
+            "then": "high",
+            "else": {
+              "$if": {
+                "when": {
+                  "path": "tiaohou_yong_source",
+                  "op": "eq",
+                  "value": "secondary"
+                },
+                "then": "medium",
+                "else": "low"
+              }
+            }
+          }
+        },
+        "status": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_yong_visible",
+              "op": "eq",
+              "value": true
+            },
+            "then": "resolved",
+            "else": "partial"
+          }
+        },
+        "conflicts": {
+          "$if": {
+            "when": {
+              "path": "tiaohou_yong_present",
+              "op": "eq",
+              "value": false
+            },
+            "then": [
+              {
+                "code": "tiaohou_evidence_missing",
+                "message": "调候主辅神均未在原局落实，仅保留所需五行，不作强断"
+              }
+            ],
+            "else": {
+              "$if": {
+                "when": {
+                  "path": "tiaohou_yong_visible",
+                  "op": "eq",
+                  "value": false
+                },
+                "then": [
+                  {
+                    "code": "tiaohou_evidence_hidden",
+                    "message": "调候用神仅在藏支出现，未透干，按部分落实处理"
+                  }
+                ],
+                "else": []
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "YS-FUYI",
+      "priority": 32,
+      "when": {
+        "path": "fu_yi.yong",
+        "op": "exists"
+      },
+      "then": {
+        "selected.yong": {
+          "$path": "fu_yi.yong"
+        },
+        "selected.xi": {
+          "$as_list": {
+            "$path": "fu_yi.xi"
+          }
+        },
+        "selected.ji": {
+          "$as_list": {
+            "$path": "fu_yi.ji"
+          }
+        },
+        "source": "fu_yi",
+        "confidence": {
+          "$if": {
+            "when": {
+              "path": "ge_ju_clear",
+              "op": "eq",
+              "value": true
+            },
+            "then": "high",
+            "else": "medium"
+          }
+        },
+        "status": "resolved"
+      }
+    },
+    {
+      "id": "YS-NEUTRAL-TH",
+      "priority": 39,
+      "when": {
+        "all": [
+          {
+            "path": "neutral_yong",
+            "op": "exists"
+          },
+          {
+            "path": "tiaohou_yong",
+            "op": "exists"
+          },
+          {
+            "path": "tiaohou_yong_present",
+            "op": "eq",
+            "value": true
+          },
+          {
+            "$eq_paths": [
+              {
+                "$path": "neutral_yong"
+              },
+              {
+                "$path": "tiaohou_yong"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "selected.yong": {
+          "$path": "neutral_yong"
+        },
+        "selected.xi": {
+          "$union": [
+            {
+              "$path": "neutral_xi"
+            },
+            {
+              "$path": "tiaohou_xi"
+            }
+          ]
+        },
+        "selected.ji": {
+          "$path": "neutral_ji"
+        },
+        "source": "neutral_fallback+tiao_hou",
+        "confidence": "medium",
+        "status": {
+          "$path": "neutral_status"
+        }
+      }
+    },
+    {
+      "id": "YS-NEUTRAL",
+      "priority": 40,
+      "when": {
+        "path": "neutral_yong",
+        "op": "exists"
+      },
+      "then": {
+        "selected.yong": {
+          "$path": "neutral_yong"
+        },
+        "selected.xi": {
+          "$path": "neutral_xi"
+        },
+        "selected.ji": {
+          "$path": "neutral_ji"
+        },
+        "source": "neutral_fallback",
+        "confidence": "medium",
+        "status": {
+          "$path": "neutral_status"
+        }
+      }
+    },
+    {
+      "id": "YS-NEUTRAL-REVIEW",
+      "priority": 41,
+      "when": {
+        "path": "neutral_status",
+        "op": "eq",
+        "value": "needs_review"
+      },
+      "then": {
+        "selected.yong": "",
+        "selected.xi": [],
+        "selected.ji": [],
+        "source": "neutral_fallback",
+        "confidence": "low",
+        "status": "needs_review",
+        "conflicts": [
+          {
+            "code": "neutral_tie",
+            "message": "中和取用存在多个同权候选，需人工复核"
+          }
+        ]
+      }
+    },
+    {
+      "id": "YS-UNRESOLVED",
+      "priority": 50,
+      "when": {
+        "const": true
+      },
+      "then": {
+        "selected.yong": "",
+        "selected.xi": [],
+        "selected.ji": [],
+        "source": "none",
+        "confidence": "low",
+        "status": "unresolved",
+        "conflicts": [
+          {
+            "code": "no_candidate",
+            "message": "扶抑、调候、从格均未给出可用候选"
+          }
+        ]
+      }
+    }
+  ],
+  "finalize": {
+    "disjoint": {
+      "yong_vs_xi_ji": {
+        "on_overlap": {
+          "remove_from": [
+            "xi",
+            "ji"
+          ],
+          "status": "needs_review",
+          "conflict": {
+            "code": "yong_overlap",
+            "message": "用神同时出现在喜神/忌神，候选冲突"
+          }
+        }
+      },
+      "xi_vs_ji": {
+        "on_overlap": {
+          "remove_from": [
+            "xi",
+            "ji"
+          ],
+          "status": "needs_review",
+          "conflict": {
+            "code": "xi_ji_overlap",
+            "message": "喜神与忌神重叠，不能硬套喜忌"
+          }
+        }
+      }
+    },
+    "missing_fields": {
+      "on_missing": {
+        "status": "partial"
+      }
+    }
+  }
+}

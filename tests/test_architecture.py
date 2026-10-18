@@ -72,7 +72,7 @@ def test_python_does_not_recompute_engine_ten_god_and_element_states():
     assert 'full.get("element_states"' in operators
     assert 'full.get("da_yun"' in operators
     assert 'selected.get("rooted"' in operators
-    for forbidden in ("天干五行", "地支五行", "五行生克", "得令状态", "十神旺弱规则"):
+    for forbidden in ("得令状态", "十神旺弱规则"):
         assert forbidden not in constants
         assert f'const["{forbidden}"]' not in operators
     for forbidden in ("算子柱位", "柱刑关系字段", "格局十神"):
@@ -99,8 +99,6 @@ def test_python_does_not_recompute_engine_liunian_atomic_facts():
     assert "atomic_facts" in operators
     for fact in (
         "controls_targets",
-        "unfavorable_gan",
-        "unfavorable_branch",
         "wealth_breaks_seal",
         "combinations",
         "year_branch_relations",
@@ -116,6 +114,8 @@ def test_python_does_not_recompute_engine_liunian_atomic_facts():
         "year_gan_equals_natal_year_gan",
     ):
         assert fact in operators
+    assert "unfavorable_gan" not in operators
+    assert "unfavorable_branch" not in operators
     for forbidden_lookup in (
         "const['五行生克']",
         "const['天干五合']",

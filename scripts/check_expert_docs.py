@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Guard the expert identity cards and their generated expert-pack surfaces.
 
-身份文件 `expert-packs/liki-<domain>/SKILL.md` 是专家身份的唯一手写源（正文＝部署
-instruction 骨架，也是包内域 SKILL.md 的正文）。包内生成物的字节一致性与
-版本面由 `scripts/sync_expert_packs.py --check`（`make check` 漂移门）与
+身份文件 `expert-packs/liki-<domain>/SKILL.md` 是顶层专家身份的唯一手写源（正文＝部署
+instruction 骨架，也是包内域 SKILL.md 的正文）；部署内子代理（如 natal 的
+bazi/ziwei）身份在 `agents/<name>/<name>.md`，不进市场包。包内生成物的字节一致性
+与版本面由 `scripts/sync_expert_packs.py --check`（`make check` 漂移门）与
 `tests/test_version_surfaces.py` 守护；本脚本只守护那些门看不见的东西：手写身份文件的
 契约与边界语义、`plugin.json.dependencies` 的连接器依赖（专家不自带 MCP）、
 以及**全部描述面不得硬编码 MCP 方法名**。
@@ -25,10 +26,14 @@ import sync_expert_packs as packs  # noqa: E402  身份文件契约的唯一来�
 
 CATALOG_PATH = ROOT / "tools" / "mcp-tool-catalog.json"
 PACKS_DIR = ROOT / "expert-packs"
-ROUTER_IDENTITY = ROOT / "agents" / "router" / "router.md"
 IDENTITY_SECTIONS = ("## 工具自省", "## 硬边界", "## 隐私与合规")
 IDENTITY_PHRASES = ("条件性解读", "仅保留在当前会话")
 AVATAR_TEXT_MARKERS = ("<text", "font-family", "dominant-baseline")
+# 引擎方法名（点号形式，如 bazi.fullchart）：身份面与部署子代理身份同样不得硬编码；
+# 能力发现一律走 tools/list 自举（字段名不在此列，另由 schema 同步测试守护）。
+ENGINE_METHOD_RE = re.compile(
+    r"(?<![A-Za-z0-9_])(?:bazi|ziwei|liuyao|qimen|huangli|bazhai|xuankong|time|city|tianwen)\.[a-z_]+"
+)
 
 
 def _frontmatter(path: Path) -> dict:
@@ -65,8 +70,11 @@ def _method_hits(text: str, method_names: set[str]) -> list[str]:
 def _check_no_methods(path: Path, method_names: set[str], errors: list[str]) -> None:
     if not path.is_file():
         return
-    for hit in _method_hits(path.read_text(encoding="utf-8"), method_names):
+    text = path.read_text(encoding="utf-8")
+    for hit in _method_hits(text, method_names):
         errors.append(f"{path.relative_to(ROOT)}: hard-coded MCP method name `{hit}`")
+    for hit in ENGINE_METHOD_RE.findall(text):
+        errors.append(f"{path.relative_to(ROOT)}: hard-coded engine method name `{hit}`")
 
 
 def _check_sections(path: Path, sections: tuple[str, ...], errors: list[str]) -> str:
@@ -93,21 +101,41 @@ def _check_identity(domain: str, method_names: set[str], errors: list[str]) -> d
     return metadata
 
 
-def _check_router(method_names: set[str], errors: list[str]) -> None:
-    """router 无专家包，身份文件就在 agents/router（部署 instruction 来源）。"""
-    if not ROUTER_IDENTITY.is_file():
-        errors.append(f"missing router identity: {ROUTER_IDENTITY.relative_to(ROOT)}")
+def _check_deployment_sub_agents(method_names: set[str], errors: list[str]) -> None:
+    """部署内子代理（非顶层领域）的身份文件在 agents/<name>/<name>.md。
+
+    子代理不进市场包：身份契约（name==目录名、description 驱动委派决策、
+    边界语义、不得硬编码 MCP 方法名）由本脚本守护，与域专家同标准。
+    """
+    agents_dir = ROOT / "agents"
+    if not agents_dir.is_dir():
         return
-    try:
-        metadata = _frontmatter(ROUTER_IDENTITY)
-    except Exception as exc:
-        errors.append(str(exc))
-        return
-    for key in ("name", "description"):
-        if key not in metadata:
-            errors.append(f"{ROUTER_IDENTITY.relative_to(ROOT)}: router frontmatter missing {key}")
-    _check_sections(ROUTER_IDENTITY, ("## 专家路由", "## 隐私与合规"), errors)
-    _check_no_methods(ROUTER_IDENTITY, method_names, errors)
+    for agent_dir in sorted(path for path in agents_dir.iterdir() if path.is_dir()):
+        if agent_dir.name in packs.DOMAIN_PACKS:
+            continue
+        if not (agent_dir / "agent.yaml").is_file():
+            continue
+        identity = agent_dir / f"{agent_dir.name}.md"
+        if not identity.is_file():
+            errors.append(f"missing sub-agent identity: {identity.relative_to(ROOT)}")
+            continue
+        try:
+            metadata = _frontmatter(identity)
+        except Exception as exc:
+            errors.append(str(exc))
+            continue
+        if metadata.get("name") != agent_dir.name:
+            errors.append(
+                f"{identity.relative_to(ROOT)}: name 须与目录名一致（{agent_dir.name}）"
+            )
+        description = metadata.get("description")
+        if not isinstance(description, str) or not description.strip():
+            errors.append(f"{identity.relative_to(ROOT)}: description 必填（驱动委派决策）")
+        text = _check_sections(identity, IDENTITY_SECTIONS, errors)
+        for phrase in IDENTITY_PHRASES:
+            if phrase not in text:
+                errors.append(f"{identity.relative_to(ROOT)}: missing boundary phrase «{phrase}»")
+        _check_no_methods(identity, method_names, errors)
 
 
 AGENT_FRONTMATTER_KEYS = ("name", "description", "displayName", "profession", "maxTurns")
@@ -223,7 +251,7 @@ def main() -> int:
     errors: list[str] = []
     method_names = _method_names()
 
-    _check_router(method_names, errors)
+    _check_deployment_sub_agents(method_names, errors)
     for domain in packs.DOMAIN_PACKS:
         _check_identity(domain, method_names, errors)
         _check_pack(domain, method_names, errors)

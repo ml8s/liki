@@ -172,10 +172,34 @@ a silent pass.
 
 ## Counsel migration
 
-All 12 counsel tools (`compute_factors`, `natal_query`, `period_query`,
-`naming_surname`, `naming_pick`, `naming_char`, `naming_compose`, `naming_check`,
-`liuyao_snapshot`, `liuyao_query`, `qimen_snapshot`, `qimen_query`) are typed
-contracts; the runtime no longer reads a JSON manifest.
+All 13 counsel tools (`bazi_yongshen`, `compute_factors`, `natal_query`,
+`period_query`, `naming_surname`, `naming_pick`, `naming_char`, `naming_compose`,
+`naming_check`, `liuyao_snapshot`, `liuyao_query`, `qimen_snapshot`,
+`qimen_query`) are typed contracts; the runtime no longer reads a JSON manifest.
+`bazi_yongshen` is published by the bazi server and the aggregate server; the
+ziwei server does not advertise a bazi-only capability.
+
+The yongshen decision has one typed wire model shared by every tool that carries
+it. `bazi_yongshen(chart)` takes a typed engine `bazi_chart` object and returns a
+`SelectedYongShen`: `selected` (`yong/xi/ji/source/confidence/known_fields`),
+resolution `status`, conflicts, `rule_id`, policy and rule provenance, the
+`ge_ju_context`, branch `evidence`, and the two SHA-256 digests. `evidence`
+includes the 从格 effective/rooted counts used to verify or reject the candidate,
+so a `needs_review` result is auditable over MCP. The complete pre-factor snapshot
+and alternatives stay in the `compute_factors` envelope, not inside the decision
+object. The decision digest binds the source chart, the published decision, and
+its evidence; it is not a digest of the internal pre-factor snapshot. For a bazi
+chart, `compute_factors` embeds the same decision at
+`factors.selected_yongshen`, produced by the same resolver; a ziwei factor
+snapshot does not contain that element. `naming_check` accepts the
+`ConsumedYongShen` subset of that object and returns the `YongShenSource` subset
+it consumed. `SelectedYongShen`, `ConsumedYongShen`, and `YongShenSource` keep
+`additionalProperties` open so a policy can add fields without breaking older
+clients; the stable decision fields themselves are enums, required fields, or
+digest patterns.
+The `naming_check` fields `yongshen`/`xishen`/`jishen` remain an explicit
+five-element strategy for callers without a full birth chart, and are mutually
+exclusive with `selected_yongshen`.
 
 The hand-written manifests are gone from the runtime; they were frozen once
 under `counsel/tests/testdata/legacy-tool-manifests/` as the migration golden, and
@@ -183,7 +207,10 @@ under `counsel/tests/testdata/legacy-tool-manifests/` as the migration golden, a
 
 - the published `inputSchema`/`outputSchema` are equal to the frozen manifest
   schemas after canonicalisation (nullable spelling, implicit
-  `additionalProperties`, empty `items`, annotation-only `title`/`default`);
+  `additionalProperties`, empty `items`, annotation-only `title`/`default`).
+  The frozen manifests predate `bazi_yongshen`, which is a new tool rather than
+  a migrated one, and the yongshen fields upgraded from free-form objects. Both
+  exclusions are asserted against the typed schemas separately;
 - every clause the models dropped from the schema is enforced at runtime by a
   model validator: on a corpus that walks each conditional branch, no call the
   contract accepts was rejected by the legacy schema;

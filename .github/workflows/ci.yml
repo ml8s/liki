@@ -197,7 +197,10 @@ jobs:
         run: |
           tar -czf /tmp/liki-release-artifacts.tar.gz \
             -C dist \
-            agents/experts/deployment.json \
+            agents/natal/deployment.json \
+            agents/divination/deployment.json \
+            agents/fengshui/deployment.json \
+            agents/naming/deployment.json \
             index.json \
             liki-release-manifest.json \
             liki-release-manifest.sha256 \

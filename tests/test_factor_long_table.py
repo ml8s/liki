@@ -10,7 +10,7 @@ from factor_tables import load_long_rows
 
 ROOT = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools/factors"
 CASES = {"factors.csv": "natal", "factors_liunian.csv": "flow"}
-FIELDS = {"factor_id", "shushi", "group_id", "term_index", "kind", "expression", "expected", "basis"}
+FIELDS = {"factor_id", "shushi", "phase", "group_id", "term_index", "kind", "expression", "expected", "basis"}
 
 
 def _raw(path):
@@ -60,10 +60,10 @@ def test_factor_refs_do_not_self_reference():
 
 def test_direct_group_must_not_mix_conditions(tmp_path):
     path = tmp_path / "factors.csv"
-    fields = ["factor_id", "shushi", "group_id", "term_index", "kind", "expression", "expected", "basis"]
+    fields = ["factor_id", "shushi", "phase", "group_id", "term_index", "kind", "expression", "expected", "basis"]
     rows = [
-        {"factor_id": "直读因子", "shushi": "bazi", "group_id": "1", "term_index": "1", "kind": "direct", "expression": "直读[gender,male]", "expected": "", "basis": ""},
-        {"factor_id": "直读因子", "shushi": "bazi", "group_id": "1", "term_index": "2", "kind": "condition", "expression": "现[印星]", "expected": "1", "basis": ""},
+        {"factor_id": "直读因子", "shushi": "bazi", "phase": "pre_yongshen", "group_id": "1", "term_index": "1", "kind": "direct", "expression": "直读[gender,male]", "expected": "", "basis": ""},
+        {"factor_id": "直读因子", "shushi": "bazi", "phase": "pre_yongshen", "group_id": "1", "term_index": "2", "kind": "condition", "expression": "现[印星]", "expected": "1", "basis": ""},
     ]
     with path.open("w", encoding="utf-8", newline="") as f:
         import csv
@@ -76,9 +76,9 @@ def test_direct_group_must_not_mix_conditions(tmp_path):
 
 def _write(tmp_path, rows):
     path = tmp_path / "factors.csv"
-    fields = ["factor_id", "shushi", "group_id", "term_index", "kind", "expression", "expected", "basis"]
+    fields = ["factor_id", "shushi", "phase", "group_id", "term_index", "kind", "expression", "expected", "basis"]
     defaults = {
-        "factor_id": "", "shushi": "bazi", "group_id": "1",
+        "factor_id": "", "shushi": "bazi", "phase": "pre_yongshen", "group_id": "1",
         "term_index": "1", "kind": "condition", "expression": "现[印星]",
         "expected": "1", "basis": "",
     }
@@ -95,6 +95,24 @@ def test_factor_must_belong_to_one_side(tmp_path):
         {"factor_id": "同一因子", "shushi": "ziwei"},
     ])
     with pytest.raises(FactorTableError, match="混用术数"):
+        load_long_rows(path)
+
+
+def test_factor_must_belong_to_one_phase(tmp_path):
+    path = _write(tmp_path, [
+        {"factor_id": "同一因子", "phase": "pre_yongshen"},
+        {"factor_id": "同一因子", "group_id": "2", "phase": "post_yongshen"},
+    ])
+    with pytest.raises(FactorTableError, match="混用阶段"):
+        load_long_rows(path)
+
+
+def test_pre_yongshen_factor_cannot_reference_post_yongshen(tmp_path):
+    path = _write(tmp_path, [
+        {"factor_id": "前段因子", "expression": "后段因子", "kind": "factor_ref"},
+        {"factor_id": "后段因子", "group_id": "2", "phase": "post_yongshen"},
+    ])
+    with pytest.raises(FactorTableError, match="不能引用 post_yongshen"):
         load_long_rows(path)
 
 

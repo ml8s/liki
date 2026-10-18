@@ -1,10 +1,9 @@
 # Liki 占卜专家包
 
-> **兼容提示**：生产系统只发布全功能 `liki-experts` 装配镜像（部署配置在仓库根
-> `agents/`）。本目录的 `SKILL.md` 是本专家身份的唯一手写源（内部部署与市场包共用），
-> 同时作为 CodeBuddy 市场包兼容层。
+> **兼容提示**：本目录是专家的 CodeBuddy/WorkBuddy 市场发布形态；包根 `SKILL.md` 为身份唯一
+> 手写源，`skills/divination/`（域 skill 与 references）由身份与方法论卡生成、逐字节一致，勿手改。
 
-**`liki-divination`** — 占卜专家（六爻 + 奇门 + 黄历择日）。起卦、排局与择日事实由确定性工具计算，断语来自规则真值表，依据可回溯。
+**`liki-divination`** — **Liki 占卜专家**（六爻 + 奇门 + 黄历择日）。起卦、排局与择日事实由确定性工具计算，断语来自规则真值表，依据可回溯。
 
 ## 结构
 
@@ -17,8 +16,8 @@ liki-divination/
 │   └── expert.png           # 头像：512×512 PNG ≤500KB，漫画/插画风格
 ├── skills/
 │   └── divination/
-│       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引（ADK skill 入口）
-│       └── references/      # 生成：根 references/divination/ 子树的逐字节镜像
+│       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引
+│       └── references/      # 生成：方法论文卡镜像（逐字节一致）
 │           ├── ENTRY.md     # 域内路由（锁定所问 → 方法卡）
 │           ├── TOOLS.md     # 工具链、变量绑定与输出契约
 │           ├── app/         # 场景卡（锁定问题 / 问结果 / 问策略 / 问日期）
@@ -31,7 +30,7 @@ liki-divination/
 
 ## 依赖
 
-- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 判断层，
+- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 断语引擎，
   ID 单一源 `workbuddy/connector-ids.json`），包内不自带 MCP；六爻/奇门/黄历的工具都在
   这两个聚合连接器内，引导卡片与其余三个专家共用同一次连接。
 

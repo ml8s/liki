@@ -87,7 +87,13 @@ def test_declared_pins_cover_every_third_party_import():
     file stem anywhere under `counsel/app`, which leaves only real distributions.
     """
     declared = set(_declared())
-    local = {path.stem for path in (COUNSEL / "app").rglob("*.py")} | {"app"}
+    local = {path.stem for path in (COUNSEL / "app").rglob("*.py")}
+    local |= {
+        path.parent.name
+        for path in (COUNSEL / "app").rglob("__init__.py")
+        if path.parent != COUNSEL / "app"
+    }
+    local |= {"app"}
     imports: set[str] = set()
     for path in (COUNSEL / "app").rglob("*.py"):
         imports |= set(

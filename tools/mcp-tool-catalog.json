@@ -34,6 +34,7 @@
     },
     "counsel": {
       "tools": [
+        "bazi_yongshen",
         "compute_factors",
         "natal_query",
         "period_query",

@@ -12,6 +12,7 @@ from _helpers import ROOT
 
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
 EXPERTS = ["natal", "divination", "fengshui", "naming"]
+PROFILES = ("natal", "divination", "fengshui", "naming")
 ALLOWED_ROOTS = {"/skills"} | {f"/expert-packs/liki-{name}/skills" for name in EXPERTS}
 
 
@@ -28,7 +29,7 @@ class TestAgentYamlSkillsBindings(unittest.TestCase):
             for path in (ROOT / "agents").iterdir()
             if path.is_dir() and (path / "agent.yaml").is_file()
         )
-        self.assertEqual(len(agent_dirs), 5)
+        self.assertEqual(len(agent_dirs), 6)
         for agent_dir in agent_dirs:
             with self.subTest(agent=agent_dir.name):
                 document = yaml.safe_load(
@@ -69,7 +70,7 @@ class TestGeneratedDeploymentSkillsBinding(unittest.TestCase):
         return json.loads(manifest.read_text(encoding="utf-8"))
 
     def test_profiles_bind_skilltoolset_for_every_agent(self):
-        for profile in ("experts",):
+        for profile in PROFILES:
             with self.subTest(profile=profile):
                 deployment = self._generate(profile)
                 agents = deployment["spec"]["agents"]

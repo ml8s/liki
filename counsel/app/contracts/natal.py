@@ -11,10 +11,40 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.contracts.bazi import BaziChart
 from app.contracts.schema import ToolContract, unique_list
+from app.contracts.yongshen import BaziYongshenOutput
+
+# ── bazi_yongshen ──
+TOOL_BAZI_YONGSHEN_DESCRIPTION = "engine 八字排盘结果（chart）→ 唯一用神裁决。只接受八字盘；返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要。起名与断语消费同一份裁决，不重新裁决。"
+
+class BaziYongshenInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    chart: BaziChart = Field(
+        description="engine bazi_chart 输出（含四柱与性别）；只接受八字盘。",
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _require_bazi_chart(cls, data):
+        if isinstance(data, dict):
+            chart = data.get("chart")
+            if isinstance(chart, dict) and "ri" not in chart:
+                raise ValueError("counsel/bazi 只接收八字盘（chart 含四柱），收到紫微盘。")
+        return data
+
+
+TOOL_BAZI_YONGSHEN = ToolContract(
+    name="bazi_yongshen",
+    description=TOOL_BAZI_YONGSHEN_DESCRIPTION,
+    input=BaziYongshenInput,
+    output=BaziYongshenOutput,
+    output_description="唯一用神裁决结果。",
+)
+
 
 # ── compute_factors ──
-TOOL_COMPUTE_FACTORS_DESCRIPTION = "engine 排盘结果（chart）→ 因子快照 {factors, factors_digest, context}。内部调 engine fullchart 取因子字段后求值；digest 为 SHA-256 canonical 防篡改校验。"
+TOOL_COMPUTE_FACTORS_DESCRIPTION = "engine 排盘结果（chart）→ {factors, factors_digest, context}。八字侧内部调 engine fullchart 后按表裁决唯一用神，并将同一份裁决写入 factors.selected_yongshen；digest 为 SHA-256 canonical 防篡改校验。"
 
 class ComputeFactorsInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -27,7 +57,7 @@ class ComputeFactorsOutput(BaseModel):
     """Immutable factor snapshot derived from an engine chart."""
     model_config = ConfigDict(extra="allow")
     factors: dict[str, Any] = Field(
-        description="Canonical factor snapshot; includes _provenance with side, chart digest, and context.",
+        description="Canonical factor snapshot; includes _provenance with side, chart digest, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
     )
     factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
         description="SHA-256 hex digest of the canonical factor snapshot.",
@@ -35,7 +65,6 @@ class ComputeFactorsOutput(BaseModel):
     context: dict[str, Any] = Field(
         description="Minimal source context bound to the factor snapshot.",
     )
-
 TOOL_COMPUTE_FACTORS = ToolContract(
     name="compute_factors",
     description=TOOL_COMPUTE_FACTORS_DESCRIPTION,
@@ -256,6 +285,7 @@ TOOL_PERIOD_QUERY = ToolContract(
 
 
 NATAL_TOOLS = (
+    TOOL_BAZI_YONGSHEN,
     TOOL_COMPUTE_FACTORS,
     TOOL_NATAL_QUERY,
     TOOL_PERIOD_QUERY,

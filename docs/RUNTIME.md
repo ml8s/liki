@@ -57,9 +57,11 @@ owned by the edge (cloud LB / WAF / Caddy); the service itself does not
 rate-limit.
 
 `/mcp` is the aggregate surface for the multi-expert runtime. It exposes the
-natal judgment tools (`compute_factors`, `natal_query`, and `period_query`) plus
-naming, Liuyao, and Qimen tools. `/mcp/bazi` and `/mcp/ziwei` remain fixed-domain
-endpoints for clients that need a narrower discovery surface.
+natal judgment tools (`bazi_yongshen`, `compute_factors`, `natal_query`, and
+`period_query`) plus naming, Liuyao, and Qimen tools. `/mcp/bazi` and
+`/mcp/ziwei` remain fixed-domain endpoints for clients that need a narrower
+discovery surface; `bazi_yongshen` is published only on the bazi and aggregate
+surfaces.
 
 ## Deployment rules
 

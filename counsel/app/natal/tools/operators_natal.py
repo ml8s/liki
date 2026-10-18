@@ -6,7 +6,7 @@ from typing import Optional
 from errors import FactorEvaluateError
 from factor_constants import load_constants
 from factor_context import FactorContext
-from factor_tokens import FACTOR_WILDCARD
+from factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
 
 # 本命算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _OP_NAMES = frozenset({
@@ -75,16 +75,47 @@ def _class_wuxing(base, ten_class: str) -> str:
     """十神大类的五行（取该类第一个出现的十神之五行）。"""
     classes = load_constants()["十神大类"]
     for ten in classes.get(ten_class, []):
-        st = _ten_god_state(base, ten)
-        if st and st.get("wuxing"):
-            return st["wuxing"]
+        wuxing = _ten_god_element(base, ten)
+        if wuxing:
+            return wuxing
+    return ""
+
+
+def _ten_god_element(base, ten: str) -> str:
+    """十神 → 五行；无状态时按日主关系表机械求值。"""
+    st = _ten_god_state(base, ten)
+    if st and st.get("wuxing"):
+        return st["wuxing"]
+    const = load_constants()
+    ten_class = next((
+        name for name, members in const["十神大类"].items()
+        if ten in members
+    ), "")
+    relation = (const.get("十神大类日主关系") or {}).get(ten_class) or {}
+    dm = base.get("day_master_element", "")
+    if not dm:
+        return ""
+    relation_name = relation.get("关系", "")
+    direction = relation.get("方向", "")
+    if relation_name == "同":
+        return dm
+    if relation_name == "生":
+        mapping = const.get("五行相生") or {}
+        return mapping.get(dm, "") if direction == "出" else next(
+            (key for key, value in mapping.items() if value == dm), ""
+        )
+    if relation_name == "克":
+        mapping = const.get("五行相克") or {}
+        return mapping.get(dm, "") if direction == "出" else next(
+            (key for key, value in mapping.items() if value == dm), ""
+        )
     return ""
 def _ten_to_wx(base, tens: list) -> str:
     """十神列表的五行（聚合）。"""
     for t in tens:
-        st = _ten_god_state(base, t)
-        if st and st.get("wuxing"):
-            return st["wuxing"]
+        wuxing = _ten_god_element(base, t)
+        if wuxing:
+            return wuxing
     return ""
 
 def _element_state(base, wuxing: str) -> dict:
@@ -229,14 +260,26 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         # Engine atomic fact: 官杀混杂且七杀柱被合/冲后取清。
         return 1 if _atomic_facts(chart).get("officer_killing_cleaned") else 0
     if op in ("为用", "为忌"):
-        # 为用(十神类)：该十神五行 ∈ {用, 喜}；为忌：== 忌（引擎五神体系 yong/xi/ji）
-        fy = base.get("fu_yi", {}) or {}
+        # 为用(十神类)：该十神五行 ∈ selected {用, 喜}；为忌：∈ selected 忌。
+        # selected 是唯一裁决出口；fu_yi 只保留为候选与证据。
+        selected = base.get("selected_yongshen") or {}
+        if selected.get("status") in ("needs_review", "unresolved"):
+            return FACTOR_UNKNOWN
+        values = selected.get("selected") or {}
         favorable_fields = const["用忌映射"][op]
         tens = _resolve_tens(args, gender)
         wx = _ten_to_wx(base, tens)
         if not wx:
-            return 0
-        favorable = {fy.get(field, "") for field in favorable_fields}
+            return FACTOR_UNKNOWN
+        favorable: set[str] = set()
+        for field in favorable_fields:
+            value = values.get(field, "")
+            if isinstance(value, list):
+                favorable.update(item for item in value if item)
+            elif value:
+                favorable.add(value)
+        if not favorable:
+            return FACTOR_UNKNOWN
         return 1 if wx in favorable else 0
     if op == "月支长生":
         value = _atomic_facts(chart).get("month_longevity", "")
@@ -452,6 +495,9 @@ def _base_ctx_from_pan(chart: dict) -> dict:
     if isinstance(chart, FactorContext):
         return chart.base
     if chart and "ten_god_states" in chart:
+        selected = chart.get("_selected_yongshen")
+        if isinstance(selected, dict) and "selected_yongshen" not in chart:
+            return {**chart, "selected_yongshen": selected}
         return chart
     chart = chart or {}
     full = chart.get("full", {}) or {}
@@ -473,6 +519,9 @@ def _base_ctx_from_pan(chart: dict) -> dict:
             for step in chart_da_yun["steps"]
         ]
     fu_yi = full.get("fu_yi") or {}
+    selected_yongshen = chart.get("_selected_yongshen")
+    if not isinstance(selected_yongshen, dict):
+        selected_yongshen = {}
     atomic = _atomic_facts(chart)
     ctx = {
         "ten_god_states": _ten_god_states_from_pan(chart),
@@ -483,6 +532,7 @@ def _base_ctx_from_pan(chart: dict) -> dict:
         "fu_yi": full.get("fu_yi") or {},
         "tiao_hou": full.get("tiao_hou") or {},
         "ge_ju": full.get("ge_ju") or {},
+        "selected_yongshen": selected_yongshen,
         "day_master_element": atomic.get("day_master_element", ""),
         "ri_gan": atomic.get("day_master_stem", "") or chart.get("ri_gan", ""),
         "palace_ri": {"zhi": atomic.get("day_branch", "") or chart.get("palace_ri", {}).get("zhi", "")},

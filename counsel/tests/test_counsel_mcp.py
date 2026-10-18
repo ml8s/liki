@@ -1,4 +1,4 @@
-"""counsel 判断层 MCP 端点测试（分域 bazi/ziwei，3 工具）。"""
+"""counsel 断语引擎 MCP 端点测试（bazi 4 工具，ziwei 3 工具）。"""
 from __future__ import annotations
 
 import asyncio
@@ -148,7 +148,31 @@ def bazi_chart():
 def test_counsel_mcp_tools():
     srv = create_counsel_mcp("bazi")
     names = asyncio.run(srv.list_tools())
+    assert [t.name for t in names] == [
+        "bazi_yongshen", "compute_factors", "natal_query", "period_query",
+    ]
+
+
+def test_ziwei_mcp_does_not_expose_bazi_yongshen():
+    srv = create_counsel_mcp("ziwei")
+    names = asyncio.run(srv.list_tools())
     assert [t.name for t in names] == ["compute_factors", "natal_query", "period_query"]
+
+
+def test_bazi_yongshen_over_mcp(bazi_chart):
+    srv = create_counsel_mcp("bazi")
+    r = asyncio.run(srv.call_tool("bazi_yongshen", {"chart": bazi_chart}))
+    out = json.loads(r.content[0].text)
+    assert out["selected"]["yong"]
+    assert out["status"] in ("resolved", "partial", "needs_review", "unresolved")
+    assert len(out["yongshen_digest"]) == 64
+    assert "factors" not in out
+    assert "alternatives" not in out
+    assert out["ge_ju_context"]["ge_ju"]
+    assert {item["source"] for item in out["evidence"]} == {
+        "facts", "fu_yi", "tiao_hou", "ge_ju", "cong_ge",
+    }
+    assert r.structured_content == out
 
 
 def test_compute_factors_over_mcp(bazi_chart):
@@ -156,8 +180,29 @@ def test_compute_factors_over_mcp(bazi_chart):
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
     out = json.loads(r.content[0].text)
     assert set(out) == {"factors", "factors_digest", "context"}
+    assert "selected_yongshen" in out["factors"]
     assert out["context"]["性别"] == "male"
     assert len(out["factors_digest"]) == 64  # sha256 hex
+
+
+def test_compute_factors_has_one_yongshen_source(bazi_chart):
+    srv = create_counsel_mcp("bazi")
+    out = json.loads(asyncio.run(srv.call_tool(
+        "compute_factors", {"chart": bazi_chart}
+    )).content[0].text)
+    selected = out["factors"]["selected_yongshen"]
+    provenance = out["factors"]["_provenance"]
+    direct = json.loads(asyncio.run(srv.call_tool(
+        "bazi_yongshen", {"chart": bazi_chart}
+    )).content[0].text)
+    assert selected == direct
+    assert selected["policy_id"] == "liki.bazi.yongshen.v1"
+    assert selected["rule_version"]
+    assert selected["yongshen_digest"]
+    assert "yongshen" not in provenance
+    assert provenance["yongshen_digest"] == selected["yongshen_digest"]
+    assert provenance["policy_id"] == selected["policy_id"]
+    assert provenance["rule_version"] == selected["rule_version"]
 
 
 def test_natal_query_over_mcp(bazi_chart):
@@ -218,6 +263,16 @@ def test_domain_rejects_wrong_chart():
     assert "counsel/bazi 只接收八字盘" in text
 
 
+def test_bazi_yongshen_rejects_ziwei_chart():
+    result = _call_tool_over_mcp(
+        create_counsel_mcp("bazi"),
+        "bazi_yongshen",
+        {"chart": {"ziwei": {}}},
+    )
+    assert result.is_error is True
+    assert "counsel/bazi 只接收八字盘" in result.content[0].text
+
+
 def test_counsel_tools_publish_the_contract_schemas_without_downgrading():
     expected = {contract.name: contract for contract in NATAL_TOOLS}
     tools = asyncio.run(create_counsel_mcp("bazi").list_tools())
@@ -242,7 +297,7 @@ def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
     srv = create_counsel_root_mcp()
     names = {tool.name for tool in asyncio.run(srv.list_tools())}
     assert {
-        "compute_factors", "natal_query", "period_query",
+        "bazi_yongshen", "compute_factors", "natal_query", "period_query",
         "naming_pick", "naming_compose", "liuyao_snapshot",
         "liuyao_query", "qimen_snapshot", "qimen_query",
     } <= names

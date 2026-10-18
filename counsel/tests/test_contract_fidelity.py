@@ -9,6 +9,7 @@ project (``if``/``then``) are still enforced at runtime.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -34,6 +35,15 @@ LEGACY = {
     for item in json.loads(path.read_text(encoding="utf-8"))["tools"]
 }
 CONDITIONALS = ("allOf", "oneOf", "not", "if", "then")
+
+#: These fields were intentionally upgraded from free-form objects during the
+#: yongshen migration. The frozen manifests remain the golden for every other
+#: part of the contract; the typed shape is asserted separately below.
+MIGRATED_TYPED_FIELDS = {
+    ("compute_factors", "output"): (("properties", "selected_yongshen"),),
+    ("naming_check", "input"): (("properties", "selected_yongshen"),),
+    ("naming_check", "output"): (("items", "properties", "yongshen_source"),),
+}
 
 
 # ── JSON Schema normalisation ────────────────────────────────────────────────
@@ -145,6 +155,28 @@ def _project(document):
     return _normalise(json.loads(json.dumps(document)))
 
 
+def _drop_path(document, path):
+    node = document
+    owner = None
+    for part in path[:-1]:
+        if part == "properties":
+            owner = node
+        node = node.get(part, {})
+    if isinstance(node, dict):
+        key = path[-1]
+        node.pop(key, None)
+        if isinstance(owner, dict):
+            required = owner.get("required")
+            if isinstance(required, list) and key in required:
+                required.remove(key)
+
+
+def _drop_migrated_typed_fields(name, direction, document):
+    for path in MIGRATED_TYPED_FIELDS.get((name, direction), ()):
+        _drop_path(document, path)
+    return document
+
+
 def _schema_deltas(contract, legacy_function):
     legacy_input = _strip_conditionals(
         json.loads(json.dumps(legacy_function["parameters"]))
@@ -152,16 +184,29 @@ def _schema_deltas(contract, legacy_function):
     legacy_output = _strip_conditionals(
         json.loads(json.dumps(legacy_function.get("output_schema") or {}))
     )
-    deltas = _diff(_project(contract.input_schema), _project(legacy_input), "input")
-    deltas += _diff(_project(contract.output_schema or {}), _project(legacy_output), "output")
+    got_input = _drop_migrated_typed_fields(
+        contract.name, "input", _project(contract.input_schema)
+    )
+    got_output = _drop_migrated_typed_fields(
+        contract.name, "output", _project(contract.output_schema or {})
+    )
+    want_input = _drop_migrated_typed_fields(
+        contract.name, "input", _project(legacy_input)
+    )
+    want_output = _drop_migrated_typed_fields(
+        contract.name, "output", _project(legacy_output)
+    )
+    deltas = _diff(got_input, want_input, "input")
+    deltas += _diff(got_output, want_output, "output")
     return deltas
 
 
 # ── published schema fidelity ────────────────────────────────────────────────
 
 def test_contracts_cover_every_legacy_tool():
-    assert set(CONTRACTS) == set(LEGACY)
-    assert len(CONTRACTS) == 12
+    assert set(LEGACY) <= set(CONTRACTS)
+    assert set(CONTRACTS) - set(LEGACY) == {"bazi_yongshen"}
+    assert len(CONTRACTS) == 13
 
 
 @pytest.mark.parametrize("name", sorted(LEGACY))
@@ -191,6 +236,118 @@ def test_unique_items_is_projected_and_enforced():
         CONTRACTS["qimen_snapshot"].input.model_validate(
             {"question": "该往哪里推进？", "longitude": 121.47, "yong_shen": ["生门", "生门"]}
         )
+
+
+def _yongshen_object_schema(property_schema):
+    return next(
+        arm for arm in property_schema["anyOf"]
+        if arm.get("type") == "object"
+    )
+
+
+def test_yongshen_contracts_publish_the_typed_core():
+    from app.contracts.yongshen import ConsumedYongShen, SelectedYongShen
+
+    selected_schema = CONTRACTS["bazi_yongshen"].output_schema
+    assert set(selected_schema["required"]) == set(SelectedYongShen.model_fields)
+    choice = selected_schema["properties"]["selected"]
+    assert choice["properties"]["yong"]["enum"] == ["", "木", "火", "土", "金", "水"]
+    assert set(choice["required"]) == {"yong", "xi", "ji", "source", "confidence", "known_fields"}
+
+    compute_schema = CONTRACTS["compute_factors"].output_schema
+    assert "selected_yongshen" not in compute_schema["properties"]
+    assert "selected_yongshen" in compute_schema["properties"]["factors"]["description"]
+
+    naming_schema = CONTRACTS["naming_check"].input_schema
+    naming_selected = _yongshen_object_schema(
+        naming_schema["properties"]["selected_yongshen"]
+    )
+    assert set(naming_selected["required"]) == set(ConsumedYongShen.model_fields)
+
+    source_schema = _yongshen_object_schema(
+        CONTRACTS["naming_check"].output_schema["items"]["properties"]["yongshen_source"]
+    )
+    assert set(source_schema["required"]) == {
+        "policy_id", "rule_version", "rule_id", "status",
+        "chart_digest", "yongshen_digest",
+    }
+
+    assert "factors" not in selected_schema["properties"]
+    assert "alternatives" not in selected_schema["properties"]
+    evidence_items = selected_schema["properties"]["evidence"]["items"]
+    assert {branch["properties"]["source"]["const"] for branch in evidence_items["anyOf"]} == {
+        "facts", "fu_yi", "tiao_hou", "ge_ju", "cong_ge",
+    }
+    assert "#/$defs" not in json.dumps(selected_schema)
+
+
+def test_bazi_yongshen_chart_input_is_fully_typed():
+    chart = CONTRACTS["bazi_yongshen"].input_schema["properties"]["chart"]
+    assert set(chart["required"]) == {
+        "nian", "yue", "ri", "shi", "gender", "birth_year",
+    }
+    assert set(chart["properties"]) == {
+        "nian", "yue", "ri", "shi", "da_yun", "gender", "birth_year", "zi_shi_rule",
+    }
+    assert chart["properties"]["gender"]["enum"] == ["male", "female"]
+    assert chart["properties"]["birth_year"]["minimum"] == 1
+    for pillar in ("nian", "yue", "ri", "shi"):
+        assert set(chart["properties"][pillar]["required"]) == {"gan", "zhi", "na_yin"}
+        assert len(chart["properties"][pillar]["properties"]["gan"]["enum"]) == 10
+        assert len(chart["properties"][pillar]["properties"]["zhi"]["enum"]) == 12
+
+
+def _resolved_yongshen():
+    from app.natal.tools.yongshen import resolve_yongshen
+
+    path = (
+        REPO_ROOT / "engine" / "internal" / "mcpcontract" / "testdata"
+        / "actual" / "bazi_chart_1990_fullchart.json"
+    )
+    return resolve_yongshen(json.loads(path.read_text(encoding="utf-8"))["output"])
+
+
+def test_real_yongshen_output_conforms_to_the_shared_contract():
+    from app.contracts.yongshen import SelectedYongShen
+    from app.natal.tools.yongshen import published_yongshen
+
+    result = _resolved_yongshen()
+    published = published_yongshen(result)
+    typed = SelectedYongShen.model_validate(published)
+    assert typed.selected.yong == published["selected"]["yong"]
+    assert typed.status == published["status"]
+    assert typed.yongshen_digest == published["yongshen_digest"]
+    assert "source" not in published
+    assert "confidence" not in published
+    assert "known_fields" not in published
+    assert "factors" not in published
+    assert "alternatives" not in published
+    digest_input = {
+        key: value for key, value in published.items() if key != "yongshen_digest"
+    }
+    digest = hashlib.sha256(
+        json.dumps(
+            digest_input, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+    ).hexdigest()
+    assert digest == published["yongshen_digest"]
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda result: result.update(status="maybe"),
+        lambda result: result.pop("yongshen_digest"),
+        lambda result: result["selected"].update(yong="风"),
+    ],
+)
+def test_yongshen_contract_rejects_invalid_core_values(mutation):
+    from app.contracts.yongshen import SelectedYongShen
+
+    result = _resolved_yongshen()
+    mutation(result)
+    with pytest.raises(ValidationError):
+        SelectedYongShen.model_validate(result)
 
 
 def test_fidelity_comparator_detects_drift():

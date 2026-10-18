@@ -14,8 +14,8 @@
 
 | 目录 | source | MCP Server | 能力 |
 | --- | --- | --- | --- |
-| `workbuddy/liki-engine-connector/` | `liki-engine` | `https://liki.hk/engine/mcp` | 排盘与历法计算：八字、紫微、六爻、奇门、黄历、风水 |
-| `workbuddy/liki-counsel-connector/` | `liki-counsel` | `https://liki.hk/counsel/mcp` | 规则判断：因子快照、本命断语、应期断语、合盘、起名 |
+| `workbuddy/liki-engine-connector/` | `liki-engine` | `https://liki.hk/engine/mcp` | 排盘引擎：确定性排盘与历法计算（八字、紫微、六爻、奇门、黄历、风水） |
+| `workbuddy/liki-counsel-connector/` | `liki-counsel` | `https://liki.hk/counsel/mcp` | 断语引擎：断语与应期、合盘、起名评估（八字、紫微、六爻、奇门） |
 
 两个 Server 都是免鉴权远程服务，因此不写 `auth_mode`，`mcp.json` 中不出现任何凭证。
 
@@ -37,7 +37,7 @@ MCP 方案的 `skills/` 列为可选（「MCP 已提供标准工具描述时可�
 两处维护。
 
 连接器图标与专家头像同族（同一母题、同一脚本）：深色圆角底 + 金色田字格 + 本域汉字——
-排盘引擎取「盘」、规则判断取「断」，与专家头像的 命/卦/宅/名 成一系列。平台图标规范对背景
+排盘引擎取「盘」、断语引擎取「断」，与专家头像的 命/卦/宅/名 成一系列。平台图标规范对背景
 只写「背景 建议透明」，这里选统一与耐看：深色圆角牌自带底色，亮暗主题下都立得住，金字始终
 有对比度（透明底配深色字在深色主题下会整个消失）。
 

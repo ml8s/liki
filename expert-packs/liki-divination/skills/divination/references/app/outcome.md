@@ -11,8 +11,8 @@
 | 步骤 | 动作 | 产物 |
 | --- | --- | --- |
 | 1 | 确认事项与视角 | 起卦参数 |
-| 2 | 调六爻起卦工具创建快照；起卦方式按输入规则自举（参数见工具 schema） | immutable snapshot |
-| 3 | 调六爻追问工具出断语；`snapshot` 原样绑定 `$LIUYAO_SNAPSHOT` | 结构化 answer |
+| 2 | 使用六爻起卦能力创建快照；起卦方式按输入规则自举，参数以 schema 为准 | 不可变快照 |
+| 3 | 使用六爻追问能力出断语；快照对象原样传递 | 结构化断语 |
 | 4 | 解释 focus、evidence、topic_guidance、timing_plan、condition_rules | 结论、阻碍与应期 |
 | 5 | 追问继续传同一 snapshot | 不重排上下文 |
 

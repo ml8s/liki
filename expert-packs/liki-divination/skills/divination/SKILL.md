@@ -1,10 +1,10 @@
 ---
 name: divination
-description: 占卜专家——六爻起卦问事与应期、奇门遁甲策略方位与行动时机，以及黄历择日。断语与择日事实来自确定性工具，依据可回溯，为传统文化条件性解读。
+description: Liki 占卜专家——六爻起卦问事与应期、奇门遁甲策略方位与行动时机、黄历择日。依据可回溯，为传统文化条件性解读。
 metadata:
-  display_name: 占卜专家
-  display_name_en: Divination Expert
-  version: 2026.1016.2
+  display_name: Liki 占卜专家
+  display_name_en: Liki Divination Expert
+  version: 2026.1018.0
   author: Liki
 ---
 
@@ -39,6 +39,7 @@ metadata:
 - 起卦输入、硬币记录或爻值必须原样传给工具，不得自行换算。
 - 快照是不可变上下文；追问必须复用工具返回的完整快照和摘要。
 - 黄历只输出日期适配事实，不预测现实结果。
+- 六爻与奇门的用神按所问事项和本域取用方法确定；八字用神与命盘判断属于本命专家。
 - 只解释工具返回字段；不编造卦象或局盘。
 
 ## 隐私与合规

@@ -6,11 +6,13 @@
 
 身强弱、从格与旺衰状态均由 engine 八字完整命盘能力计算，LLM **只读字段、不重算**：
 
-- `fu_yi.qiangruo`：身强 / 身弱 / 中和（最终定性）。
+- `fu_yi.qiangruo`：身强 / 身弱 / 中和（扶抑与旺衰证据）。
 - `fu_yi.pattern`：从格标签（如从旺格 / 从弱格 / 假从格）。
 - `fu_yi.wang_shuai`：五行旺相休囚死。
 - `fu_yi.basis`：三得输入——`season`（月令旺相休囚死，得令）、`root_type` + `day_master_roots`（得地，强根/弱根/无根）、`yin_bi_count`（印比数量，得势）、`relation_facts`（相关关系投影）。
 - `ten_god_states` / `element_states`：十神与五行显隐、通根、得令、旺弱。
+
+`fu_yi.yong / xi / ji` 保留为扶抑候选与证据。最终用神、喜神、忌神读取用神裁决结果；裁决状态为 `needs_review / unresolved` 时，旺衰解释保留候选并提示复核。
 
 三得是**概念口径**：得令（月令旺相）、得地（通根）、得势（印比帮身），三者综合定性，得令最重。数值已由引擎算好，组织断语时引用上述字段作为证据，不得用任何自建表重新推导。
 

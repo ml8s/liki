@@ -1,13 +1,13 @@
 {
   "name": "Liki 排盘引擎",
   "name_zh": "Liki 排盘引擎",
-  "name_en": "Liki Engine",
-  "description": "Deterministic Chinese metaphysics charts: BaZi, Zi Wei, Liu Yao, Qi Men, almanac and Feng Shui.",
-  "description_zh": "确定性排盘与历法计算：八字、紫微、六爻、奇门、黄历、风水布局，盘面与事实可回溯。",
-  "description_en": "Deterministic Chinese metaphysics charts: BaZi, Zi Wei, Liu Yao, Qi Men, almanac and Feng Shui.",
+  "name_en": "Liki Chart Engine",
+  "description": "BaZi, Zi Wei, Liu Yao, Qi Men, almanac and Feng Shui charts, computed deterministically.",
+  "description_zh": "八字、紫微、六爻、奇门、黄历、风水：确定性排盘与历法计算，盘面可回溯。",
+  "description_en": "BaZi, Zi Wei, Liu Yao, Qi Men, almanac and Feng Shui charts, computed deterministically.",
   "source": "liki-engine",
   "type": "mcp",
-  "version": "2026.1016.2",
+  "version": "2026.1018.0",
   "minWorkbuddyVersion": "4.24.0",
   "examples_zh": [
     "排个八字命盘，1990-05-20 12:00 北京出生，男",

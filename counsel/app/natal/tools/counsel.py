@@ -1,6 +1,7 @@
-"""counsel 判断层：compute_factors / natal_query / period_query。
+"""counsel 断语引擎：bazi_yongshen / compute_factors / natal_query / period_query。
 
 正交化后 engine 的补集能力（判断，不排盘）：
+- bazi_yongshen(chart)       ：engine 八字排盘 → 唯一用神裁决（不计算因子）
 - compute_factors(chart)    ：engine 排盘结果 → 因子快照（内部调 engine fullchart）
 - natal_query(factors, ...) ：因子快照 → 本命断语
 - period_query(factors, ...)：因子快照 → 应期断语（内部调 engine 流年/大限）
@@ -16,6 +17,7 @@ from duanyu import match_rule
 from factors import evaluate_factors
 from paipan import _bazi_fullchart, _ziwei_daxian, call
 from pan_schema import validate_side_pan
+from yongshen import published_yongshen, resolve_yongshen
 
 
 def _factors_digest(factors: dict) -> str:
@@ -73,12 +75,27 @@ def _hour_calibration_facts(chart: dict, full: dict) -> dict:
     }
 
 
+def bazi_yongshen(chart: dict) -> dict:
+    """engine 八字排盘结果 → 唯一用神裁决。
+
+    这是起名等跨域消费者使用的聚焦能力；与 compute_factors 内部调用同一个
+    resolve_yongshen，保证全系统只有一份裁决实现。
+    """
+    if not isinstance(chart, dict) or not _is_bazi_chart(chart):
+        raise ValueError("bazi_yongshen 只接受八字盘（chart 含四柱）；紫微盘请走紫微领域")
+    full = _bazi_fullchart(chart)
+    pan = {"chart": chart, "full": full, "gender": chart.get("gender", "")}
+    validate_side_pan(pan, "bazi", "bazi_yongshen")
+    return published_yongshen(resolve_yongshen(full))
+
+
 def compute_factors(chart: dict) -> dict:
     """engine 排盘结果 → { factors, factors_digest, context }。
 
     chart 为 bazi_chart（八字）或 ziwei_chart（紫微）输出。内部调 engine
     fullchart 取因子所需详细字段，再求因子快照（与正交化基线一致）。
     context 携带断语所需的最小领域事实（性别；出生信息如有则附带）。
+    八字快照把唯一用神裁决写入 factors.selected_yongshen，与独立用神能力同源。
     """
     gender = chart.get("gender", "")
     context: dict = {"性别": gender}
@@ -87,11 +104,17 @@ def compute_factors(chart: dict) -> dict:
     if chart.get("lunar"):
         context["农历出生"] = chart["lunar"]
     side = "bazi" if _is_bazi_chart(chart) else "ziwei"
+    selected_yongshen: dict | None = None
     if side == "bazi":
         full = _bazi_fullchart(chart)
-        pan = {"chart": chart, "full": full, "gender": gender}
+        selected_yongshen = published_yongshen(resolve_yongshen(full))
+        pan = {
+            "chart": chart, "full": full, "gender": gender,
+            "_selected_yongshen": selected_yongshen,
+        }
         validate_side_pan(pan, "bazi", "compute_factors")
         factors = evaluate_factors(gender, pan, shushi="bazi")
+        factors["selected_yongshen"] = selected_yongshen
     else:
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
         daxian = _ziwei_daxian(zw)
@@ -103,6 +126,12 @@ def compute_factors(chart: dict) -> dict:
         "chart_digest": _chart_digest(chart),
         "context": context,
     }
+    if side == "bazi":
+        factors["_provenance"].update({
+            "yongshen_digest": selected_yongshen["yongshen_digest"],
+            "policy_id": selected_yongshen["policy_id"],
+            "rule_version": selected_yongshen["rule_version"],
+        })
     return {
         "factors": factors,
         "factors_digest": _factors_digest(factors),
@@ -190,8 +219,19 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         raise ValueError(f"period_query side 只支持 bazi/ziwei，收到: {side!r}")
     gender = chart.get("gender", "")
     if side == "bazi":
+        selected_yongshen = factors.get("selected_yongshen")
+        if not isinstance(selected_yongshen, dict):
+            raise ValueError(
+                "factors 缺少 compute_factors 写入的 selected_yongshen；"
+                "必须原样传递 compute_factors 返回的 factors，不得重新裁决"
+            )
+        if provenance.get("yongshen_digest") != selected_yongshen.get("yongshen_digest"):
+            raise ValueError("factors _provenance 的用神来源与 selected_yongshen 不一致")
         full = _bazi_fullchart(chart)
-        pan = {"chart": chart, "full": full, "gender": gender}
+        pan = {
+            "chart": chart, "full": full, "gender": gender,
+            "_selected_yongshen": selected_yongshen,
+        }
     else:
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
         daxian = _ziwei_daxian(zw)

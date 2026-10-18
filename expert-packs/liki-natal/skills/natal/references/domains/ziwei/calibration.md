@@ -4,7 +4,7 @@
 
 ## 工具流程（agent 编排）
 
-工具流程同 `references/domains/bazi/calibration.md`「工具流程（agent 编排，复用排盘与应期判断）」；紫微侧第 2 步为 公历 → 农历 → 排本命盘 `chart`。
+工具流程同 `references/domains/bazi/calibration.md`「工具流程（agent 编排，复用排盘与应期判断）」；紫微侧第 2 步为 公历 → 农历 → 排本命盘。
 
 事件年份为年号（紫微农历春节界），不做日期换算。
 

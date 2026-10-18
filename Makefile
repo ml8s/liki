@@ -46,7 +46,7 @@ build-release-manifest: build-web-skill-bundle build-deployment ## Build the uni
 check-release-manifest: ## Verify an existing unified release manifest without writing
 	python3 scripts/build_release_manifest.py --check
 
-DEPLOYMENT_PROFILES ?= experts
+DEPLOYMENT_PROFILES ?= natal divination fengshui naming
 
 build-deployment: ## Generate AgentDeployment artifacts for all profiles
 	@set -eu; for p in $(DEPLOYMENT_PROFILES); do \
@@ -106,7 +106,7 @@ image-counsel: ## Build the local counsel development image
 image-assembly: build-deployment ## Build the production experts assembly image (pulls liki-agent-runtime base from GHCR)
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
 	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
-	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) --build-arg PROFILE=experts -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly
+	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 
 image: image-engine image-counsel ## Build all liki-owned local images

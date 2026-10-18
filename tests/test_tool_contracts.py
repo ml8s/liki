@@ -11,6 +11,7 @@ FUNCTIONS = {contract.name: contract.input_schema for contract in NATAL_TOOLS}
 
 def test_all_tools_have_closed_args():
     required = {
+        "bazi_yongshen": ["chart"],
         "compute_factors": ["chart"],
         "natal_query": ["factors", "factors_digest", "topics", "context"],
         "period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],

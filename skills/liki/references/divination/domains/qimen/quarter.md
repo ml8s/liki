@@ -7,6 +7,6 @@
 
 - 仅支持 `scope=quarter` + `school=zhuanpan`。
 - `method.lead_pillar` 是唯一主柱干支事实源；`method.quarter.lead_pillar_mode` 说明 `quarter=刻柱` 或 `hour=时柱`。
-- 十二分钟十分局可传 `base_dingju_method` / `dun_source` / `hour_boundary`；三者可选值与默认值以 engine 工具 schema（`method.quarter.*`）为准，本卡不复制。
+- 十二分钟十分局的可选方法与边界参数以 engine MCP schema 为准，本卡不复制。
 - 局数、刻序与主柱口径读引擎输出。
 - 十二分钟十分局是具名时间切分规则，不冒充通用传统标准。

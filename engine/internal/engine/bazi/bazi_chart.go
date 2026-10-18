@@ -113,8 +113,8 @@ type FullChart struct {
 	BirthYear int `json:"birth_year"`
 
 	// 用神三派（透传自 lean Chart）。
-	// 三派证据独立输出：fu_yi 是真正的用神（yong/xi/ji），
-	// tiao_hou 是调候候选（非用神），ge_ju 是格神（非用神）。
+	// 三派证据独立输出：fu_yi 是扶抑候选（yong/xi/ji），
+	// tiao_hou 是调候候选，ge_ju 是格神；最终用神由 counsel 裁决。
 	FuYi    FuYiResult    `json:"fu_yi"`
 	TiaoHou TiaoHouResult `json:"tiao_hou"`
 	GeJu    GeJuResult    `json:"ge_ju"`

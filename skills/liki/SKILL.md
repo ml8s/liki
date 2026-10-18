@@ -4,7 +4,7 @@ license: MIT
 description: 懂命理，用 Liki。专业命理 Skill：八字算命、生辰八字、排八字、四柱命盘、紫微斗数、紫微命盘、大运、流年、流年运势、六爻、占卜、算卦、奇门遁甲、黄历、老黄历、择日、选日子、风水、家居风水、风水布局；支持起名、取名、宝宝起名、宝宝取名，覆盖婚姻、事业、财运、健康、学业、六亲、合盘与择时分析。Also supports BaZi, Chinese astrology, Four Pillars of Destiny, Zi Wei Dou Shu, I Ching divination, Chinese almanac, Feng Shui, Chinese baby naming。规则引擎判断，依据可回溯；传统文化视角，不构成专业建议。
 description_zh: 专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。
 description_en: Chinese metaphysics skill covering BaZi (Four Pillars), Zi Wei Dou Shu, I Ching divination, Qi Men Dun Jia, almanac and Feng Shui charts, plus naming — every chart is computed by deterministic engines and every reading comes from rule-based judgments with traceable evidence.
-version: 2026.1016.2
+version: 2026.1018.0
 author: Liki
 metadata:
   slug: liki
@@ -23,7 +23,7 @@ Liki 通过标准 MCP 提供能力，依赖两个聚合 MCP server：
 
 | MCP | 端点 | 用途 |
 | --- | --- | --- |
-| `counsel-mcp` | `https://liki.hk/counsel/mcp` | 判断层：八字/紫微/六爻/奇门/起名（全领域断语与因子） |
+| `counsel-mcp` | `https://liki.hk/counsel/mcp` | 断语引擎：八字/紫微/六爻/奇门/起名（全领域断语与因子） |
 | `engine-mcp` | `https://liki.hk/engine/mcp` | 排盘/风水/历法计算（全领域盘面与事实；counsel 内部调用） |
 
 > 本 skill 只挂 `counsel-mcp` 与 `engine-mcp` 两个聚合连接，两者就是全部能力来源。启动确认连接、比较本地 / 远程 `VERSION.txt`；远程 10 秒不可达时标注“版本未校验”后继续，`LIKI_HOSTED=1` 跳过。工具、版本、digest 或 schema 校验失败读 `references/FAQ.md`，不得绕过或自行降级。

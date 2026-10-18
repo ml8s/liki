@@ -25,7 +25,7 @@ type BaziFullChartOutput struct {
 	DaYun          BaziFullChartDaYun                `json:"da_yun" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。"`
 	Gender         GenderName                        `json:"gender" jsonschema:"性别。"`
 	BirthYear      *int                              `json:"birth_year,omitempty" jsonschema:"出生公历年份"`
-	FuYi           BaziFullChartFuYi                 `json:"fu_yi" jsonschema:"扶抑派用神：真正的用/喜/忌 + 身强弱"`
+	FuYi           BaziFullChartFuYi                 `json:"fu_yi" jsonschema:"扶抑候选：用/喜/忌与身强弱；最终用神由 counsel 裁决"`
 	SanYuan        *BaziFullChartSanYuan             `json:"san_yuan,omitempty" jsonschema:"三元: 胎元/命宫/身宫"`
 	TaiXi          *BaziFullChartTaiXi               `json:"tai_xi,omitempty" jsonschema:"胎息（日干五合配、日支六合配）"`
 	GongJia        *[]BaziFullChartGongJiaItem       `json:"gong_jia,omitempty" jsonschema:"经典拱局：三合拱 / 三会拱"`
@@ -235,12 +235,12 @@ type BaziFullChartDaYunStepsItemRootRefsItem struct {
 type BaziFullChartFuYi struct {
 	WuxingCount map[string]int             `json:"wuxing_count" jsonschema:"五行数量"`
 	WangShuai   map[string]LiuyaoWangShuai `json:"wang_shuai" jsonschema:"五行旺相休囚死"`
-	Yong        string                     `json:"yong" jsonschema:"用神五行"`
-	Xi          string                     `json:"xi" jsonschema:"喜神五行"`
-	Ji          string                     `json:"ji" jsonschema:"忌神五行"`
+	Yong        string                     `json:"yong" jsonschema:"扶抑候选用神五行"`
+	Xi          string                     `json:"xi" jsonschema:"扶抑候选喜神五行"`
+	Ji          string                     `json:"ji" jsonschema:"扶抑候选忌神五行"`
 	Qiangruo    string                     `json:"qiangruo" jsonschema:"身强弱"`
 	Pattern     *string                    `json:"pattern,omitempty" jsonschema:"从格标签"`
-	Model       string                     `json:"model" jsonschema:"扶抑派用神：真正的用/喜/忌 + 身强弱 中的 model。"`
+	Model       string                     `json:"model" jsonschema:"扶抑候选模型标识。"`
 	Basis       BaziFullChartFuYiBasis     `json:"basis" jsonschema:"强弱表输入"`
 }
 
@@ -983,8 +983,6 @@ type BaziLiuNianNatalInteractionsItemZhiRelsItem struct {
 type BaziLiuNianAtomicFacts struct {
 	ControlsTargets           BaziLiuNianAtomicFactsControlsTargets    `json:"controls_targets" jsonschema:"engine 流年原子事实 中的 controls_targets。"`
 	ControlsElements          []ElementName                            `json:"controls_elements" jsonschema:"engine 流年原子事实列表。"`
-	UnfavorableGan            bool                                     `json:"unfavorable_gan" jsonschema:"engine 流年原子事实 中的 unfavorable_gan。"`
-	UnfavorableBranch         bool                                     `json:"unfavorable_branch" jsonschema:"engine 流年原子事实 中的 unfavorable_branch。"`
 	WealthBreaksSeal          bool                                     `json:"wealth_breaks_seal" jsonschema:"engine 流年原子事实 中的 wealth_breaks_seal。"`
 	YearBranchRelations       map[string]YearBranchRelationsName       `json:"year_branch_relations" jsonschema:"engine 流年原子事实 映射表。"`
 	YearBranchControlledBy    []ElementName                            `json:"year_branch_controlled_by" jsonschema:"engine 流年原子事实列表。"`

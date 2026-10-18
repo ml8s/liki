@@ -1,0 +1,27 @@
+name: ziwei
+mode: task
+
+skills:
+  root: /expert-packs/liki-natal/skills
+
+tools:
+  allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
+    engine:
+      - ziwei_bond
+      - ziwei_chart
+      - ziwei_daxian
+      - ziwei_fullchart
+      - ziwei_liunian
+      - ziwei_liuri
+      - ziwei_liushi
+      - ziwei_liuyue
+      - city_coords
+      - tianwen_time
+    counsel:
+      - compute_factors
+      - natal_query
+      - period_query

@@ -109,8 +109,8 @@ Liki follows a two-layer "orthogonal computation vs. judgment" architecture, exp
 
 ### Domain model
 
-- **engine (Go)** — deterministic computation layer: calendrical astronomy, chart casting, calendar, Huangli. Emits structured charts / hexagrams / facts (`chart` / `pan` / `snapshot`); it does not make judgments.
-- **counsel (Python)** — judgment layer: Bazi / Ziwei analysis, Liuyao / QiMen divination, naming evaluation (character library and phonology). Consumes engine facts and produces assertions / candidates from rule tables (truth tables + engine rule tables), with traceable evidence.
+- **engine (Go)** — chart engine: calendrical astronomy, chart casting, calendar, Huangli. Emits structured charts / hexagrams / facts (`chart` / `pan` / `snapshot`); it does not make judgments.
+- **counsel (Python)** — reading engine: Bazi / Ziwei analysis, Liuyao / QiMen divination, naming evaluation (character library and phonology). Consumes engine facts and produces assertions / candidates from rule tables (truth tables + engine rule tables), with traceable evidence.
 - **Huangli** — pure engine (calendar + Jianchu event suitability); not routed through counsel.
 
 ### Service endpoints
@@ -129,7 +129,7 @@ The gateway owns the public service prefix; each MCP service routes only `/mcp` 
 ### Code layout
 
 - `engine/` — Go engine (chart casting / calendar / Huangli), domain-scoped MCP servers
-- `counsel/` — Python judgment layer (multi-domain MCP server)
+- `counsel/` — Python reading engine (multi-domain MCP server)
 - `skills/liki/` — skill capability docs (routing / boundaries / domain knowledge; tools self-describe via `tools/list`)
 - `tests/` — content & integration tests; `scripts/` — build & evaluation scripts
 

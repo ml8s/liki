@@ -114,21 +114,24 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     errors: list[str] = []
+    catalog_errors: list[str] = []
+    catalog_text: str | None = None
 
     try:
-        catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+        catalog_text = CATALOG_PATH.read_text(encoding="utf-8")
+        catalog = json.loads(catalog_text)
         catalog_tools = {
             server: set(definition.get("tools", []))
             for server, definition in catalog.get("servers", {}).items()
         }
         if set(catalog_tools) != {"engine", "counsel"}:
-            errors.append("catalog: servers must be exactly engine and counsel")
+            catalog_errors.append("catalog: servers must be exactly engine and counsel")
         if catalog.get("schema_version") != SCHEMA_VERSION:
-            errors.append(
+            catalog_errors.append(
                 f"catalog: schema_version must be {SCHEMA_VERSION}, got {catalog.get('schema_version')!r}"
             )
     except Exception as exc:
-        errors.append(f"catalog: {exc}")
+        catalog_errors.append(f"catalog: {exc}")
         catalog_tools = {"engine": set(), "counsel": set()}
 
     counsel_tools: dict[str, Any] = {}
@@ -177,23 +180,23 @@ def main(argv: list[str] | None = None) -> int:
     missing_engine = engine_names - catalog_tools.get("engine", set())
     extra_engine = catalog_tools.get("engine", set()) - engine_names
     if missing_engine:
-        errors.append(f"catalog.engine missing: {sorted(missing_engine)}")
+        catalog_errors.append(f"catalog.engine missing: {sorted(missing_engine)}")
     if extra_engine:
-        errors.append(f"catalog.engine unknown: {sorted(extra_engine)}")
+        catalog_errors.append(f"catalog.engine unknown: {sorted(extra_engine)}")
 
     missing_counsel = set(counsel_tools) - catalog_tools.get("counsel", set())
     extra_counsel = catalog_tools.get("counsel", set()) - set(counsel_tools)
     if missing_counsel:
-        errors.append(f"catalog.counsel missing: {sorted(missing_counsel)}")
+        catalog_errors.append(f"catalog.counsel missing: {sorted(missing_counsel)}")
     if extra_counsel:
-        errors.append(f"catalog.counsel unknown: {sorted(extra_counsel)}")
+        catalog_errors.append(f"catalog.counsel unknown: {sorted(extra_counsel)}")
 
     drift = missing_engine or extra_engine or missing_counsel or extra_counsel
-    if not drift and CATALOG_PATH.read_text(encoding="utf-8") != expected_catalog:
+    if not drift and catalog_text != expected_catalog:
         # Tool sets agree, so this is hand-edited ordering, formatting, or metadata.
         drift = True
     if drift:
-        errors.append("catalog: regenerate with `python3 scripts/check_mcp_schema.py --emit`")
+        catalog_errors.append("catalog: regenerate with `python3 scripts/check_mcp_schema.py --emit`")
 
     for path, budget in SCHEMA_BUDGETS.items():
         size = path.stat().st_size
@@ -231,11 +234,12 @@ def main(argv: list[str] | None = None) -> int:
             print("refusing to write the catalog while validation fails", file=sys.stderr)
             return 1
         CATALOG_PATH.write_text(expected_catalog, encoding="utf-8")
-        print(f"✓ wrote {CATALOG_PATH.relative_to(ROOT)}")
+        note = " (replaced drifted catalog)" if catalog_errors else ""
+        print(f"✓ wrote {CATALOG_PATH.relative_to(ROOT)}{note}")
         return 0
 
-    if errors:
-        for error in errors:
+    if errors or catalog_errors:
+        for error in [*errors, *catalog_errors]:
             print(f"✗ {error}", file=sys.stderr)
         return 1
 

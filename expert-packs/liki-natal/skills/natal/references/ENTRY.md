@@ -4,7 +4,7 @@ Liki 本命域：**八字侧与紫微侧都在本域内自举**——各自排�
 
 ## 工具契约
 
-agent 经 `engine` MCP（排盘）与 `counsel` MCP（判断）使用两侧工具；工具、链路与输出契约见 `references/TOOLS.md`。
+agent 经 `engine` MCP（排盘）与 `counsel` MCP（判断）使用两侧能力；工具与参数由 MCP 自省和 schema 提供，链路与输出契约见 `references/TOOLS.md`。
 
 ## 路由
 

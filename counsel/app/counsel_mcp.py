@@ -1,8 +1,9 @@
-"""counsel MCP server（正交化判断层）。
+"""counsel MCP server（正交化断语引擎）。
 
 暴露判断工具，按 domain 分域（bazi/ziwei/liuyao/qimen/naming）：
-- bazi/ziwei：compute_factors / natal_query / period_query（因子快照 + 断语）
-- naming：起名（surname/pick/char/compose/check，qiming 本地字库）
+- bazi：bazi_yongshen / compute_factors / natal_query / period_query
+- ziwei：compute_factors / natal_query / period_query（因子快照 + 断语）
+- naming：起名（surname/pick/char/compose/check；字库与音韵在本地）
 内部调 engine（排盘）取判断所需字段，再在进程内求因子/断语/评估；
 无状态、无存储依赖。counsel 是 engine 的补集（判断），排盘/历法在 engine。
 

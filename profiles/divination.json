@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "name": "divination",
+    "version": "2026.10.18.0"
+  },
+  "mcpServers": [
+    {
+      "name": "engine",
+      "endpointEnv": "LIKI_MCP_ENGINE_URL",
+      "tokenEnv": "LIKI_MCP_ENGINE_TOKEN"
+    },
+    {
+      "name": "counsel",
+      "endpointEnv": "LIKI_MCP_COUNSEL_URL",
+      "tokenEnv": "LIKI_MCP_COUNSEL_TOKEN"
+    }
+  ],
+  "agents": [
+    {
+      "name": "divination"
+    }
+  ]
+}

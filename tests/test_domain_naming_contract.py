@@ -22,9 +22,9 @@ def test_naming_tools_use_domain_prefix():
     assert not any(name.startswith("qiming_") for name in tools)
 
 
-def test_only_production_expert_profile_is_released():
+def test_only_production_expert_profiles_are_released():
     profiles = {path.stem for path in (ROOT / "profiles").glob("*.json")}
-    assert profiles == {"experts"}
+    assert profiles == {"natal", "divination", "fengshui", "naming"}
     assert not (ROOT / "agents/single_expert").exists()
 
 
@@ -32,13 +32,13 @@ def test_deployment_generator_emits_contract_version():
     import subprocess
     import tempfile
 
-    output = Path(tempfile.mkdtemp(prefix="liki-deployment-")) / "experts"
+    output = Path(tempfile.mkdtemp(prefix="liki-deployment-")) / "natal"
     subprocess.run(
         [
             "python3",
             str(ROOT / "scripts/generate_deployment.py"),
             "--profile",
-            "experts",
+            "natal",
             "--out",
             str(output.parent),
         ],

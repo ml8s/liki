@@ -18,7 +18,7 @@
 1. **配置 MCP**（二选一）：
    - **自动**：客户端支持插件 MCP 声明时，skill 自带 `.mcp.json`，启用即自动连接。
    - **手动**：在客户端添加两个 MCP server：
-     - `counsel-mcp`（判断层）：`https://liki.hk/counsel/mcp`
+     - `counsel-mcp`（断语引擎）：`https://liki.hk/counsel/mcp`
      - `engine-mcp`（排盘/风水）：`https://liki.hk/engine/mcp`
 
    > 子域端点 `/engine/mcp/{domain}`、`/counsel/mcp/{domain}`（bazi / ziwei / liuyao / qimen / huangli / naming 等）供**自建分域部署**使用；WorkBuddy 四个顶层领域专家（natal / divination / fengshui / naming）不挂子域端点，而是声明依赖上面两个**聚合连接器**。普通整体安装用**两个聚合端点**即可。
@@ -114,7 +114,7 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 - **engine（Go）** —— 确定性计算层：天文历算、排盘、历法、黄历。
   输出结构化盘面/卦象/事实（chart / pan / snapshot），不做命理判断。
-- **counsel（Python）** —— 判断层：八字/紫微判断、六爻/奇门算卦、起名评估（含字库与音韵）。
+- **counsel（Python）** —— 断语引擎：八字/紫微断语、六爻/奇门算卦、起名评估（含字库与音韵）。
   消费 engine 的盘面事实，用规则表（真值表 + 引擎规则表）产出断语与候选项，依据可回溯。
 - **黄历** —— 纯 engine（历法 + 建除事项适配），不走 counsel。
 
@@ -134,7 +134,7 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 ### 代码结构
 
 - `engine/` —— Go 引擎（排盘/历法/黄历），分域 MCP 服务
-- `counsel/` —— Python 判断层（多域 MCP server）
+- `counsel/` —— Python 断语引擎（多域 MCP server）
 - `skills/liki/` —— skill 能力文档（路由 / 边界 / 领域知识，工具经 `tools/list` 自举）
 - `tests/` —— 内容与集成测试；`scripts/` —— 构建与评测脚本
 

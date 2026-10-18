@@ -1,10 +1,9 @@
 # Liki 风水专家包
 
-> **兼容提示**：生产系统只发布全功能 `liki-experts` 装配镜像（部署配置在仓库根
-> `agents/`）。本目录的 `SKILL.md` 是本专家身份的唯一手写源（内部部署与市场包共用），
-> 同时作为 CodeBuddy 市场包兼容层。
+> **兼容提示**：本目录是专家的 CodeBuddy/WorkBuddy 市场发布形态；包根 `SKILL.md` 为身份唯一
+> 手写源，`skills/fengshui/`（域 skill 与 references）由身份与方法论卡生成、逐字节一致，勿手改。
 
-**`liki-fengshui`** — 风水专家（八宅 + 玄空两流派）。排盘由 Go 引擎确定性计算，断语来自规则真值表，依据可回溯。
+**`liki-fengshui`** — **Liki 风水专家**（八宅 + 玄空两流派）。排盘由确定性引擎计算，断语来自规则真值表，依据可回溯。
 
 ## 结构
 
@@ -17,8 +16,8 @@ liki-fengshui/
 │   └── expert.png           # 头像：512×512 PNG ≤500KB，漫画/插画风格
 ├── skills/
 │   └── fengshui/
-│       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引（ADK skill 入口）
-│       └── references/      # 生成：根 references/fengshui/ 子树的逐字节镜像
+│       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引
+│       └── references/      # 生成：方法论文卡镜像（逐字节一致）
 │           ├── ENTRY.md     # 域内路由
 │           ├── app/         # 场景卡（家居风水，含八宅 / 玄空合参与裁决）
 │           └── domains/
@@ -29,9 +28,9 @@ liki-fengshui/
 
 ## 依赖
 
-- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 判断层，
+- 运行依赖是对已上架连接器的声明（`plugin.json.dependencies.connectors`：排盘引擎 + 断语引擎，
   ID 单一源 `workbuddy/connector-ids.json`），包内不自带 MCP。本专家只用排盘引擎的工具，
-  判断层工具不参与，故规则卡须写明结论由本域卡给出。
+  断语引擎工具不参与，故规则卡须写明结论由本域卡给出。
 
 ## 说明
 

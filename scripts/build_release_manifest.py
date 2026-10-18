@@ -36,7 +36,7 @@ def build(require_images: bool = False) -> dict[str, Any]:
     expected_runtime = runtime_version()
 
     deployments: dict[str, Any] = {}
-    for profile in ("experts",):
+    for profile in ("natal", "divination", "fengshui", "naming"):
         path = DIST / "agents" / profile / "deployment.json"
         if not path.is_file():
             raise SystemExit(f"missing generated deployment: {path}")

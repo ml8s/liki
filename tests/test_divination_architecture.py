@@ -90,7 +90,7 @@ def test_intent_app_cards_use_snapshot_flow():
         assert not (app / gone).exists(), gone
     for name in ("outcome.md", "decision.md"):
         text = (app / name).read_text(encoding="utf-8")
-        assert "immutable snapshot" in text and "结构化 answer" in text, name
+        assert "不可变快照" in text and "结构化断语" in text, name
 
 
 def test_primary_entries_use_shared_safety():

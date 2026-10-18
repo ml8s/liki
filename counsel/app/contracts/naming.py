@@ -9,9 +9,10 @@ from __future__ import annotations
 
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.contracts.schema import ToolContract
+from app.contracts.yongshen import ConsumedYongShen, YongShenSource
 
 # ── naming_surname ──
 TOOL_NAMING_SURNAME_DESCRIPTION = "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。"
@@ -206,7 +207,7 @@ TOOL_NAMING_COMPOSE = ToolContract(
 
 
 # ── naming_check ──
-TOOL_NAMING_CHECK_DESCRIPTION = "独立评估候选名：长度/字库收录/禁用字校验，音律声调序列，五行命中（用神/喜神/忌神）；返回每名的 valid/errors/characters/phonetic/wuxing。"
+TOOL_NAMING_CHECK_DESCRIPTION = "独立评估候选名：长度/字库收录/禁用字校验，音律声调序列，五行命中（用神/喜神/忌神）；返回每名的 valid/errors/characters/phonetic/wuxing。用神优先消费八字用神裁决（专用能力或因子快照中的同一对象），不自行重选。"
 
 class NamingCheckInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -215,16 +216,27 @@ class NamingCheckInput(BaseModel):
     )
     yongshen: Literal["木", "火", "土", "金", "水"] = Field(
         default=None,
-        description="八字用神五行（中英文均可）。",
+        description="无完整出生信息时的显式用神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。",
     )
     xishen: list[Literal["木", "火", "土", "金", "水"]] = Field(
         default=None,
-        description="喜神五行列表。",
+        description="无完整出生信息时的显式喜神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。",
     )
     jishen: list[Literal["木", "火", "土", "金", "水"]] = Field(
         default=None,
-        description="忌神五行列表。",
+        description="无完整出生信息时的显式忌神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。",
     )
+    selected_yongshen: ConsumedYongShen | None = Field(
+        default=None,
+        description="八字用神裁决返回对象（专用用神能力或 compute_factors 快照中的同一对象）；传入时只消费其 selected/status，不重新裁决。",
+    )
+
+    @model_validator(mode="after")
+    def _one_yongshen_source(self):
+        manual = self.yongshen is not None or bool(self.xishen) or bool(self.jishen)
+        if self.selected_yongshen is not None and manual:
+            raise ValueError("selected_yongshen 与 yongshen/xishen/jishen 不能同时传入")
+        return self
 
 
 class NamingCheckOutputItem(BaseModel):
@@ -250,6 +262,10 @@ class NamingCheckOutputItem(BaseModel):
     wuxing: dict[str, Any] = Field(
         default=None,
         description="Five-element matches, when requested.",
+    )
+    yongshen_source: YongShenSource | None = Field(
+        default=None,
+        description="消费 selected_yongshen 时回传的用神来源：policy_id/rule_version/rule_id/status/chart_digest/yongshen_digest。",
     )
 
 TOOL_NAMING_CHECK = ToolContract(

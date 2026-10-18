@@ -371,7 +371,7 @@
                 "金",
                 "水"
               ],
-              "description": "八字用神五行（中英文均可）。"
+              "description": "无完整出生信息时的显式用神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。"
             },
             "xishen": {
               "type": "array",
@@ -385,7 +385,7 @@
                   "水"
                 ]
               },
-              "description": "喜神五行列表。"
+              "description": "无完整出生信息时的显式喜神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。"
             },
             "jishen": {
               "type": "array",
@@ -399,7 +399,14 @@
                   "水"
                 ]
               },
-              "description": "忌神五行列表。"
+              "description": "无完整出生信息时的显式忌神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。"
+            },
+            "selected_yongshen": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "compute_factors 返回的八字 selected_yongshen；传入时只消费其 selected/status，不重新裁决。"
             }
           }
         },
@@ -442,6 +449,13 @@
               "wuxing": {
                 "description": "Five-element matches, when requested.",
                 "type": "object"
+              },
+              "yongshen_source": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "消费 selected_yongshen 时回传的用神来源：policy_id/rule_version/rule_id/status/chart_digest/yongshen_digest。"
               }
             }
           }

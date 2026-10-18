@@ -13,7 +13,7 @@ from assertion_store import load_rule_table
 from errors import AssertionRuleError, YearRangeError
 from factor_constants import load_constants
 from factor_tables import load_factor_rows, load_liunian_rows
-from factor_tokens import FACTOR_WILDCARD
+from factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
 from factors import (
     evaluate_liunian_snap_from_pan,
     evaluate_snap_from_pan,
@@ -349,7 +349,7 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
 
 def _value_matches(cond, actual):
     """单约束匹配：条件值与因子实际值相等即命中。"""
-    return actual == cond
+    return actual != FACTOR_UNKNOWN and actual == cond
 
 
 def _assert_factor_value(assertion_id: str, factor: str, value) -> None:

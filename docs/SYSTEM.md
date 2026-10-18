@@ -10,7 +10,7 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 ```text
 浏览器 → Caddy → liki-web (BFF)
                    └─AG-UI→ liki-agent-runtime (装配镜像: 运行时+组合工件) ──MCP──> engine-mcp / counsel-mcp
-                              router → 全功能领域专家委派，审计留痕
+                              四专家各自独立部署（endpoint 即专家身份）；natal 内 bazi/ziwei 子专家 task 委派，审计留痕
 ```
 
 | 仓 | 角色 | 产物 |
@@ -51,7 +51,7 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 expert-packs/liki-natal/SKILL.md    # 身份单一源：frontmatter 元数据 + 角色/能力/边界正文（市场入口）
 agents/natal/agent.yaml             # 部署配置：name/mode/sub_agents/tools.allow/skills.root
 agents/natal/output-schema.json     # 可选：结构化输出
-agents/router/router.md             # router 例外：无专家包，身份文件就在其部署目录
+agents/bazi/bazi.md                 # 部署内子代理身份：不进市场包（如 natal 的 bazi/ziwei）
 ```
 
 **专家与顶层领域一一对应**（`natal` / `divination` / `fengshui` / `naming`，与根
@@ -59,7 +59,14 @@ agents/router/router.md             # router 例外：无专家包，身份文�
 `references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains）的镜像，领域卡只写本体系知识、
 `app/` 承载场景与跨体系合参，因此不做多对一聚合、也不产生跨包死链。
 
-- `agent.yaml` 字段与 **ADK** 对齐（mode: chat/task/single_turn；sub_agents；tools.allow）
+- `agent.yaml` 字段与 **ADK** 对齐（mode: chat/task/single_turn；sub_agents；tools.allow）；
+  每个 profile 必须构成单根委派树（一 app 一服务，endpoint/DNS 名即专家身份）
+- natal 拆三 agent：`natal`（chat 根，聚合与合参编排）＋ `bazi` / `ziwei`（`mode: task`
+  子代理）。task 是 ADK 的 agent-as-tool 委派：子代理以同名工具暴露给父代理，完成后
+  结果作为工具结果返回父代理继续处理（合参由此成立）；子代理身份在
+  `agents/<name>/<name>.md`，不进市场包
+- 带 `sub_agents` 的 agent，生成器在 instruction 末尾自动追加「协作委派」节（部署形态
+  专属投影，不写入共享身份源）
 - **`tools.allow` 是权威工具白名单**（替代旧的 env 白名单），每笔 engine/counsel 工具调用必须允许
 - 身份文件 frontmatter 映射到各消费方：`description_en` → 部署 agent 描述 + `plugin.json.description`；
   `description` → 域 `skills/<domain>/SKILL.md` 描述；`display_name(_en)` → 域 skill `metadata`；
@@ -81,7 +88,7 @@ WorkBuddy 专家不声明自带 MCP：四个 `plugin.json` 只有 `dependencies.
 
 | 专家 | 依赖的连接器 | 工具面 |
 |---|---|---|
-| natal | 排盘引擎 `liki-engine` + 判断层 `liki-counsel` | 全领域（领域边界由身份正文「硬边界」承担） |
+| natal | 排盘引擎 `liki-engine` + 断语引擎 `liki-counsel` | 全领域（领域边界由身份正文「硬边界」承担） |
 | divination | 同上 | 同上 |
 | fengshui | 同上 | 同上 |
 | naming | 同上 | 同上 |
@@ -99,10 +106,10 @@ WorkBuddy 专家不声明自带 MCP：四个 `plugin.json` 只有 `dependencies.
 
 ```text
 expert-packs/liki-*/SKILL.md ───────────┐   （域专家身份文件）
-agents/router/router.md ────────────────┤   （router 身份文件）
-agents/*/agent.yaml ────────────────────┼→ scripts/generate_deployment.py → dist/agents/experts/
-profiles/experts.json ──────────────────┘                ↓
-deps/liki-agent-runtime.base → pinned liki-agent-runtime runtime（validate）
+agents/<name>/<name>.md ────────────────┤   （部署子代理身份文件：bazi/ziwei）
+agents/*/agent.yaml ────────────────────┼→ scripts/generate_deployment.py → dist/agents/<profile>/
+profiles/*.json ────────────────────────┘                ↓
+deps/liki-agent-runtime.base → pinned liki-agent-runtime runtime（逐 profile validate）
 ```
 
 - **运行时 base 由本仓 pin**：`deps/liki-agent-runtime.base`（version+immutable digest）锁定 liki-agent-runtime 发布版本；测试（`make runtime-validate`）与部署（CI 装配 `FROM`）共用该 pin，**不与 liki 版本同名对齐**（各仓独立发版）
@@ -110,16 +117,18 @@ deps/liki-agent-runtime.base → pinned liki-agent-runtime runtime（validate）
 - `make build-release-manifest` 只打包当前 `dist` 工件，不隐式运行测试
 - `make gate` 与 CI `release-integrity` 都先执行 `runtime-validate`，再构建 release manifest；发布工件不能绕过 pinned runtime validate
 
-`assembly/Dockerfile` 按 `PROFILE` 参数构建两套装配镜像：
+`assembly/Dockerfile` 构建单套装配镜像 `liki-experts`，四份 profile 工件一并烘焙：
 
 ```dockerfile
 ARG BASE_IMAGE=ghcr.io/ml8s/liki-agent-runtime:<version>@<digest>  # 来源 deps/liki-agent-runtime.base
 FROM ${BASE_IMAGE}
-COPY dist/agents/${PROFILE}/ /deployment/        # 组合工件烘焙进镜像
-ENV LIKI_AGENT_RUNTIME_DEPLOYMENT_FILE=/deployment/deployment.json
+COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙进镜像
 ```
 
-- `PROFILE=experts` → `liki-experts`（全功能，含全部子专家）
+- 一个镜像承载四条部署：`/deployment/{natal,divination,fengshui,naming}/deployment.json`；
+  每个运行时进程加载一份（ADK 生产实践：一 app 一服务），服务用 env
+  `LIKI_AGENT_RUNTIME_DEPLOYMENT_FILE` 选择自己的工件；识别靠 endpoint/DNS 名与
+  Agent Card 名，不靠端口
 - AgentDeployment digest 只作为审计 provenance；部署完整性由 final assembly image digest 承担
 - **组合在 liki**：专家拓扑/指令/白名单在 CI 生成并烘焙，不在运行时装配
 - **依赖模型**：liki 通过 `deps/liki-agent-runtime.base` 锁定 liki-agent-runtime 版本；测试与部署共用该 pin。**liki-agent-runtime 未发新版则 pin 不变**（两者独立发版，不要求版本同名）；采用新 liki-agent-runtime 时先更新 pin（`python3 scripts/agent_runtime_pin.py --check` 在 `make check` 中校验）

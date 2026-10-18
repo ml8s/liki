@@ -22,8 +22,6 @@ type BranchCombination struct {
 type LiuNianAtomicFacts struct {
 	ControlsElements          []string            `json:"controls_elements"`
 	ControlsTargets           map[string]bool     `json:"controls_targets"`
-	UnfavorableGan            bool                `json:"unfavorable_gan"`
-	UnfavorableBranch         bool                `json:"unfavorable_branch"`
 	WealthBreaksSeal          bool                `json:"wealth_breaks_seal"`
 	Combinations              []BranchCombination `json:"combinations"`
 	YearBranchRelations       map[string]string   `json:"year_branch_relations"`
@@ -64,15 +62,7 @@ func computeLiuNianAtomicFacts(bz ganzhi.Bazi, year int, yearGan ganzhi.Gan, yea
 
 	facts.ControlsTargets = controlledTargets(bz, controls)
 
-	// ComputeYongShenSchools is deterministic from the lean chart and keeps the
-	// unfavorable-element rule in the engine rather than Python factors.
 	chart := Chart{Nian: zhuInfo{Zhu: bz.Nian}, Yue: zhuInfo{Zhu: bz.Yue}, Ri: zhuInfo{Zhu: bz.Ri}, Shi: zhuInfo{Zhu: bz.Shi}}
-	fuYi, _, _ := ComputeYongShenSchools(chart)
-	unfavorable := parseWuxingLabel(fuYi.Ji)
-	if unfavorable != 0 {
-		facts.UnfavorableGan = ganzhi.GanWuxing(yearGan) == unfavorable
-		facts.UnfavorableBranch = ganzhi.ZhiWuxing(yearZhi) == unfavorable
-	}
 
 	if yearShiShen == ganzhi.ShiShenZhengYin || yearShiShen == ganzhi.ShiShenPianYin {
 		facts.WealthBreaksSeal = ganzhi.Ke(ganzhi.ZhiWuxing(yearZhi), ganzhi.GanWuxing(yearGan))
@@ -103,15 +93,6 @@ func computeLiuNianAtomicFacts(bz ganzhi.Bazi, year int, yearGan ganzhi.Gan, yea
 	facts.YearBranchRelations = annualBranchRelations(bz, yearZhi)
 	facts.YearBranchControlledBy = annualBranchControlledBy(chart, yearZhi)
 	return facts
-}
-
-func parseWuxingLabel(label string) ganzhi.Wuxing {
-	for _, element := range []ganzhi.Wuxing{ganzhi.WxMu, ganzhi.WxHuo, ganzhi.WxTu, ganzhi.WxJin, ganzhi.WxShui} {
-		if element.String() == label {
-			return element
-		}
-	}
-	return 0
 }
 
 func computeAnnualBranchCombinations(bz ganzhi.Bazi, yearZhi ganzhi.Zhi) []BranchCombination {

@@ -37,7 +37,13 @@ def test_constant_closures_are_partitioned_and_complete() -> None:
     assert len(members) == len(set(members))
     assert set(members) == ATOM_TEN_GODS
     assert set(D["五行"]) == {"木", "火", "土", "金", "水"}
-    assert {"天干五行", "地支五行", "五行生克", "得令状态", "十神旺弱规则", "旺衰"}.isdisjoint(D)
+    assert set(D["天干五行"]) == set(D["天干"])
+    assert set(D["地支五行"]) == set(D["地支"])
+    assert set(D["天干五行"].values()) == set(D["五行"])
+    assert set(D["地支五行"].values()) == set(D["五行"])
+    for source, target in D["五行相生"].items():
+        assert D["五行相克"][source] != target
+    assert {"五行生克", "得令状态", "十神旺弱规则", "旺衰"}.isdisjoint(D)
     assert len(D["十二长生"]) == 12
     assert set(D["旺衰状态"]) == {"旺", "相", "休", "囚", "死"}
     assert len(D["紫微主星"]) == len(set(D["紫微主星"])) == 14
@@ -204,7 +210,7 @@ def test_stable_factor_names_use_consistent_entities() -> None:
 
 def test_factor_long_table_schema_and_unique_signatures() -> None:
     expected_fields = [
-        "factor_id", "shushi", "group_id", "term_index", "kind",
+        "factor_id", "shushi", "phase", "group_id", "term_index", "kind",
         "expression", "expected", "basis",
     ]
     for filename in ("factors.csv", "factors_liunian.csv"):
