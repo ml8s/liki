@@ -7,7 +7,7 @@
   "description_en": "BaZi, Zi Wei, Liu Yao, Qi Men, almanac and Feng Shui charts, computed deterministically.",
   "source": "liki-engine",
   "type": "mcp",
-  "version": "2026.1018.0",
+  "version": "2026.1018.1",
   "minWorkbuddyVersion": "4.24.0",
   "examples_zh": [
     "排个八字命盘，1990-05-20 12:00 北京出生，男",

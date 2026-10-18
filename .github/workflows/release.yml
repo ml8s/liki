@@ -140,6 +140,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # 四份 deployment.json 同名会在 gh 资产上传时冲突：先改名再上传。
+          for profile in natal divination fengshui naming; do
+            cp "dist/agents/$profile/deployment.json" "build/release/deployment-$profile.json"
+          done
           gh release create "$GITHUB_REF_NAME" \
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
@@ -155,7 +159,7 @@ jobs:
             dist/liki-web-skill-bundle.tar.gz \
             dist/liki-web-skill-bundle.manifest.json \
             dist/liki-web-skill-bundle.sha256 \
-            dist/agents/natal/deployment.json \
-            dist/agents/divination/deployment.json \
-            dist/agents/fengshui/deployment.json \
-            dist/agents/naming/deployment.json
+            build/release/deployment-natal.json \
+            build/release/deployment-divination.json \
+            build/release/deployment-fengshui.json \
+            build/release/deployment-naming.json

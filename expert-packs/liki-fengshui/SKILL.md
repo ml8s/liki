@@ -7,7 +7,7 @@ display_name_en: Liki Feng Shui Expert
 profession:
   en: Feng Shui (Kan Yu) Consultant
   zh: 风水师
-version: 2026.1018.0
+version: 2026.1018.1
 author: Liki
 keywords:
   - 风水

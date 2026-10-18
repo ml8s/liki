@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.10.18.1] — 2026-10-18
+
+### Fixed
+
+- release.yml 创建 GitHub Release 时四份 `deployment.json` 资产同名冲突（gh 上传首份后失败并回收草案）；资产改名 `deployment-<profile>.json`。v2026.10.18.0 的镜像未随 release 产出，不作部署采用，生产以本版为准。
+
 ## [2026.10.18.0] — 2026-10-18
 
 ### Changed

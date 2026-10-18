@@ -4,7 +4,7 @@ description: Liki 本命专家——八字与紫微排盘、格局用神、十�
 metadata:
   display_name: Liki 本命专家
   display_name_en: Liki Natal Chart Expert
-  version: 2026.1018.0
+  version: 2026.1018.1
   author: Liki
 ---
 
