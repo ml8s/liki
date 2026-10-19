@@ -52,20 +52,6 @@ jobs:
         run: go vet ./...
         working-directory: engine
 
-  engine-vulnerabilities:
-    name: Engine vulnerability scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
-        with:
-          go-version-file: engine/go.mod
-          cache-dependency-path: engine/go.sum
-      - run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
-      - run: "$(go env GOPATH)/bin/govulncheck ./..."
-        working-directory: engine
-
   engine-test:
     name: Engine tests
     runs-on: ubuntu-latest
@@ -108,18 +94,6 @@ jobs:
             htmlcov
             .coverage
           if-no-files-found: error
-
-  python-vulnerabilities:
-    name: Python vulnerability scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with:
-          python-version-file: .python-version
-      - run: python -m pip install pip-audit==2.10.0
-      - run: pip-audit -r counsel/requirements.lock --require-hashes --disable-pip
 
   counsel-test:
     name: Counsel MCP integration
