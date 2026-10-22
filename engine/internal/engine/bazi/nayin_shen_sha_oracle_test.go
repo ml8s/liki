@@ -33,7 +33,7 @@ func TestDomainOracle_NayinShenSha(t *testing.T) {
 			chart := atomicChartFromStrings(t, tc.Pillars)
 			chart.Gender = ganzhi.Male
 			full := ComputeFullChart(chart)
-			pillars := [4][]shenShaEntry{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}
+			pillars := [4][]ShenShaProjection{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}
 			got := map[string][]string{"学堂": {}, "词馆": {}}
 			for name := range got {
 				for pi, entries := range pillars {

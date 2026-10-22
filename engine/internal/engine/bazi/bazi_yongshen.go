@@ -46,14 +46,20 @@ type GeJuResult struct {
 // fu_yi is the FuYi candidate (yong/xi/ji); tiao_hou and ge_ju are
 // independent evidence sources. The final yongshen is adjudicated by counsel.
 func ComputeYongShenSchools(c Chart) (FuYiResult, TiaoHouResult, GeJuResult) {
-	wc := computeElementCount(c.ToBazi(), computeCangGan(c.ToBazi()))
-	ws := computeWangShuaiMap(c)
+	analysis := AnalyzePillars(c.ToBazi(), c.Gender)
+	counts := WuxingCountsAt(c, analysis.HiddenStems)
+	seasonStrength := SeasonStrengthAt(c)
+	strength := AnalyzeDayMasterStrength(c, analysis.HiddenStems)
 
-	return computeFuYi(c, wc, ws), computeTiaoHou(c), computeGeJu(c, wc)
+	return FuYi(c, counts, seasonStrength, strength),
+		TiaoHouAt(c),
+		GeJuAt(c, analysis)
 }
 
 // computeWangShuaiMap returns the 旺相休囚死 for all five elements.
-func computeWangShuaiMap(c Chart) map[string]string {
+type SeasonStrength map[string]string
+
+func SeasonStrengthAt(c Chart) SeasonStrength {
 	return map[string]string{
 		ganzhi.WxMu.String():   ganzhi.WangShuaiOf(ganzhi.WxMu, c.Yue.Zhi).String(),
 		ganzhi.WxHuo.String():  ganzhi.WangShuaiOf(ganzhi.WxHuo, c.Yue.Zhi).String(),

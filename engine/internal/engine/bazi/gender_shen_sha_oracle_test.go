@@ -44,7 +44,7 @@ func TestDomainOracle_GenderShenSha(t *testing.T) {
 			}
 			full := ComputeFullChart(chart)
 			got := map[string][]string{}
-			pillars := [4][]shenShaEntry{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}
+			pillars := [4][]ShenShaProjection{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}
 			for name := range tc.Expected {
 				got[name] = []string{}
 				for pi, entries := range pillars {

@@ -7,7 +7,6 @@ import (
 
 	"liki-engine/internal/engine/fengshui"
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 	"liki-engine/internal/engine/xuankong"
 )
 
@@ -122,7 +121,7 @@ func XuankongChartCompute(_ context.Context, input XuankongChartInput) (Xuankong
 		)
 	}
 	chart := xuankong.ComputeChart(
-		tianwen.SolarTime(periodDate), int(input.ZuoShan), int(input.XiangShan),
+		time.Time(periodDate), int(input.ZuoShan), int(input.XiangShan),
 	)
 	return xuankongChartWire(chart), nil
 }

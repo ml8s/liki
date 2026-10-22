@@ -41,6 +41,15 @@
       ],
       "type": "string"
     },
+    "instant": {
+      "description": "占问瞬间 UTC（RFC3339，Z）；节气换局/置闰按此时刻判定",
+      "format": "date-time",
+      "type": "string"
+    },
+    "longitude": {
+      "description": "占问地经度（-180..180）；真太阳时校正用于时柱与分钟分法",
+      "type": "number"
+    },
     "quarter_rule": {
       "description": "刻家规则；默认 ten_minute_sanyuan；仅 scope：quarter 可传",
       "enum": [
@@ -70,9 +79,8 @@
       ],
       "type": "string"
     },
-    "solar_time": {
-      "description": "真太阳时（RFC3339），从 tianwen.time 返回的 solar 字段",
-      "format": "date-time",
+    "timezone": {
+      "description": "占问地 IANA 时区",
       "type": "string"
     },
     "yong_shen": {
@@ -86,7 +94,9 @@
     }
   },
   "required": [
-    "solar_time"
+    "instant",
+    "timezone",
+    "longitude"
   ],
   "type": "object"
 }

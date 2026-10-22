@@ -94,8 +94,9 @@ func TestJushu_EndToEnd_Dates(t *testing.T) {
 				t.Fatal(err)
 			}
 			bt = bt.Add(12 * time.Hour)
-			st := tianwen.GregorianToSolar(bt, 116.4, 8)
-			chart := ComputeChart(st)
+			stgt := time.Time(bt)
+			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
+			chart := ComputeChart(stgt, st)
 			if chart.Pan.Jushu != c.wantJu || chart.Pan.YinDun != c.wantYin {
 				t.Errorf("%s: ju=%d yin=%v, want ju=%d yin=%v（拆补法）",
 					c.date, chart.Pan.Jushu, chart.Pan.YinDun, c.wantJu, c.wantYin)

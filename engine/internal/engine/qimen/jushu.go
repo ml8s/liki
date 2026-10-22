@@ -14,16 +14,18 @@ type solarTermInfo struct {
 	Time  time.Time
 }
 
-func determineJuShu(t time.Time, bz ganzhi.Bazi, method Method) juShu {
-	actual := currentSolarTermInfo(t)
+// DetermineJuShu 用 termTime（Gregorian time）判定节气边界，用 chartTime（真太阳时壁钟）
+// 做时辰内的分钟分法，两者与 bz 的时柱口径保持一致。
+func DetermineJuShu(termTime, chartTime time.Time, bz ganzhi.Bazi, method Method) juShu {
+	actual := currentSolarTermInfo(termTime)
 	switch scopeMethods[method.Scope].MethodSource {
 	case "quarter_rule":
 		variant := quarterRules[method.QuarterRule]
 		if method.QuarterRule == QuarterTwelveMinuteTenDivision {
-			base := determineJuShu(t, bz, Method{
+			base := DetermineJuShu(termTime, chartTime, bz, Method{
 				Scope: variant.BaseScope, School: variant.BaseSchool, Dingju: method.BaseDingju,
 			})
-			quarter := newTwelveMinuteQuarterInfo(t, bz.Shi, !base.YinDun, method)
+			quarter := newTwelveMinuteQuarterInfo(chartTime, bz.Shi, !base.YinDun, method)
 			ju := twelveMinuteShiftJu(base.Number, quarter.Index, quarter.HourYangDun)
 			return juShu{
 				Method: method, Number: ju, YinDun: !quarter.HourYangDun,
@@ -31,7 +33,7 @@ func determineJuShu(t time.Time, bz ganzhi.Bazi, method Method) juShu {
 				Quarter: &quarter,
 			}
 		}
-		quarter := newTenMinuteQuarterInfo(t, bz.Shi)
+		quarter := newTenMinuteQuarterInfo(chartTime, bz.Shi)
 		ju := quarter.Sanyuan.YangJu
 		if !quarter.HourYangDun {
 			ju = quarter.Sanyuan.YinJu
@@ -65,11 +67,11 @@ func determineJuShu(t time.Time, bz ganzhi.Bazi, method Method) juShu {
 		yongJu := actual.Name
 		state := ""
 		if method.Dingju == DingjuZhiRun {
-			yongJu, state = determineZhiRunTerm(t, actual)
+			yongJu, state = determineZhiRunTerm(termTime, actual)
 		}
 		yuan := determineYuan(bz.Ri)
 		if method.Dingju == DingjuMaoShan {
-			yuan = determineMaoShanYuan(t, actual)
+			yuan = determineMaoShanYuan(termTime, actual)
 		}
 		entry := solarTermJuTable[yongJu]
 		return juShu{

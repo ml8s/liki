@@ -22,7 +22,7 @@ func parseOracleZhu(t *testing.T, name string) ganzhi.Zhu {
 	return ganzhi.Zhu{Gan: gan, Zhi: zhi}
 }
 
-func hasShenShaName(rows [4][]shenShaEntry, name string) bool {
+func hasShenShaName(rows [4][]ShenShaProjection, name string) bool {
 	for _, pillar := range rows {
 		for _, item := range pillar {
 			if item.Name == name {
@@ -103,7 +103,7 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			if got := hasShenShaName(computeShenSha(bz, ganzhi.Male), "羊刃"); got != tc.Hit {
+			if got := hasShenShaName(ShenShaProjections(bz, ganzhi.Male), "羊刃"); got != tc.Hit {
 				t.Fatalf("羊刃 = %v, want %v", got, tc.Hit)
 			}
 		})
@@ -116,7 +116,7 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 				Ri:   parseOracleZhu(t, tc.Day),
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			if got := hasShenShaName(computeShenSha(bz, ganzhi.Male), tc.Name); got != tc.Hit {
+			if got := hasShenShaName(ShenShaProjections(bz, ganzhi.Male), tc.Name); got != tc.Hit {
 				t.Fatalf("%s = %v, want %v", tc.Name, got, tc.Hit)
 			}
 		})
@@ -149,7 +149,7 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 		t.Run(tc.ID, func(t *testing.T) {
 			chart := atomicChartFromStrings(t, tc.Pillars)
 			full := ComputeFullChart(chart)
-			if hasShenShaName([4][]shenShaEntry{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}, "羊刃") != tc.YangRen {
+			if hasShenShaName([4][]ShenShaProjection{full.Nian.ShenSha, full.Yue.ShenSha, full.Ri.ShenSha, full.Shi.ShenSha}, "羊刃") != tc.YangRen {
 				t.Fatalf("羊刃 fact is inconsistent with classic yin-stem boundary")
 			}
 			ge := full.GeJu
@@ -177,7 +177,7 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiShen},
 			}
-			if got := hasShenShaName(computeShenSha(bz, ganzhi.Male), tc.Name); got != (tc.Name != "") {
+			if got := hasShenShaName(ShenShaProjections(bz, ganzhi.Male), tc.Name); got != (tc.Name != "") {
 				t.Fatalf("hit=%v, want %v", got, tc.Name != "")
 			}
 		})

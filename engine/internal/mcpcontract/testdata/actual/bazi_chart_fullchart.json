@@ -3,9 +3,7 @@
     "chart": {
       "birth_year": 2000,
       "da_yun": {
-        "current_step_index": 1,
         "direction": "顺排",
-        "next_step_in_years": 1,
         "start_date": "2007-09-04",
         "start_day_after": 20,
         "start_month_after": 2,
@@ -212,9 +210,7 @@
       }
     ],
     "da_yun": {
-      "current_step_index": 1,
       "direction": "顺排",
-      "next_step_in_years": 1,
       "start_date": "2007-09-04",
       "start_day_after": 20,
       "start_month_after": 2,

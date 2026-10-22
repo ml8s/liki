@@ -57,8 +57,9 @@ func TestComputeBond_GoldenValues(t *testing.T) {
 
 func computeChartForTest(t *testing.T, year, month, day, hour int, g ganzhi.Gender) Chart {
 	t.Helper()
-	st := tianwen.GregorianToSolar(time.Date(year, time.Month(month), day, hour, 0, 0, 0, time.FixedZone("", int(8*3600))), 116.4, 8)
-	return ComputeChart(st, g)
+	stgt := time.Time(time.Date(year, time.Month(month), day, hour, 0, 0, 0, time.FixedZone("", int(8*3600))))
+	st := tianwen.ApparentSolarFromCivil(time.Date(year, time.Month(month), day, hour, 0, 0, 0, time.FixedZone("", int(8*3600))), 116.4, 8)
+	return ComputeChart(stgt, st, g)
 }
 
 // ── bond 实五行 / 用神互见 / 配偶星（数据驱动 / 自洽校验）──
@@ -67,8 +68,8 @@ func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
 	bond := ComputeBond(ca, cb)
 	aFc, bFc := ComputeFullChart(ca), ComputeFullChart(cb)
-	aCount := convertWuxingCount(computeElementCount(ca.ToBazi(), computeCangGan(ca.ToBazi())))
-	bCount := convertWuxingCount(computeElementCount(cb.ToBazi(), computeCangGan(cb.ToBazi())))
+	aCount := convertWuxingCount(computeElementCount(ca.ToBazi(), HiddenStemFacts(ca.ToBazi())))
+	bCount := convertWuxingCount(computeElementCount(cb.ToBazi(), HiddenStemFacts(cb.ToBazi())))
 
 	if bond.DayMaster.A.Gan != "己" || bond.DayMaster.B.Gan == "" || bond.DayMaster.GanRel.Relation == "" {
 		t.Fatalf("day master cross = %+v", bond.DayMaster)

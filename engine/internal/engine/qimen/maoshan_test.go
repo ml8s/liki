@@ -3,8 +3,6 @@ package qimen
 import (
 	"testing"
 	"time"
-
-	"liki-engine/internal/engine/tianwen"
 )
 
 func TestMaoShanCatalogAndResolver(t *testing.T) {
@@ -67,8 +65,7 @@ func TestMaoShanDingjuAnchors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart, err := ComputeChartWithMethod(
-				tianwen.SolarTime(when),
+			chart, err := ComputeChartWithMethod(time.Time(when), time.Time(when),
 				Method{Scope: ScopeHour, School: SchoolZhuanPan, Dingju: DingjuMaoShan},
 			)
 			if err != nil {

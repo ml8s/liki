@@ -1,8 +1,10 @@
 {
   "input": {
+    "longitude": 121,
     "school": "jinhan_yujing",
     "scope": "day",
-    "solar_time": "2024-06-29T12:00:00+08:00"
+    "instant": "2024-06-29T04:00:00Z",
+    "timezone": "Asia/Shanghai"
   },
   "output": {
     "method": {

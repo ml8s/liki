@@ -10,7 +10,7 @@ import (
 
 var updateGolden = os.Getenv("UPDATE_GOLDEN") == "1"
 
-func TestGoldenGregorianToSolar(t *testing.T) {
+func TestGoldenApparentSolarFromCivil(t *testing.T) {
 	tests := []struct {
 		name string
 		t    time.Time
@@ -24,7 +24,7 @@ func TestGoldenGregorianToSolar(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			st := GregorianToSolar(tt.t, tt.lon, tt.tz)
+			st := ApparentSolarFromCivil(tt.t, tt.lon, tt.tz)
 			got, err := json.MarshalIndent(st, "", "  ")
 			if err != nil {
 				t.Fatalf("marshal: %v", err)

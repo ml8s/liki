@@ -11,9 +11,9 @@ import (
 // 四化一致性：主星和辅星在宫位明细与汇总 chart.SiHua 中的标注须一致。
 func TestSiHua_Consistency_StarLevel(t *testing.T) {
 	// 辛年：化科=文曲、化忌=文昌（四化表）——宫位里的文曲/文昌必须带科/忌。
-	st := tianwen.GregorianToSolar(
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1991, 3, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8) // 立春后=辛年
-	lt := tianwen.SolarToLunar(tianwen.GregorianTime(st.Time()))
+	lt := lunarTimeFromSolar(st)
 	chart, err := ComputeChart(lt, ganzhi.Male)
 	if err != nil {
 		t.Fatalf("ComputeChart: %v", err)

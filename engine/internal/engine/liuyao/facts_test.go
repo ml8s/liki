@@ -10,11 +10,12 @@ import (
 
 func factsChart(t *testing.T, yaos [6]int) Chart {
 	t.Helper()
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(2026, 9, 8, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2026, 9, 8, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	return ComputeChart(st, YongShiYao, yaos)
+	return ComputeChart(stgt, st, YongShiYao, yaos)
 }
 
 func TestFacts_AllMovingLinesHaveTransformations(t *testing.T) {

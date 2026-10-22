@@ -10,11 +10,12 @@ import (
 
 func fixedChart(t *testing.T, yong YongShen, yaos [6]int) Chart {
 	t.Helper()
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	return ComputeChart(st, yong, yaos)
+	return ComputeChart(stgt, st, yong, yaos)
 }
 
 func TestTimingCandidates_MovingLine(t *testing.T) {

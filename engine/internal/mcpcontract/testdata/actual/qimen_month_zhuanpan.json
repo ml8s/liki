@@ -1,8 +1,10 @@
 {
   "input": {
+    "longitude": 123.25,
     "school": "zhuanpan",
     "scope": "month",
-    "solar_time": "2026-03-02T18:30:00+08:00"
+    "instant": "2026-03-02T10:30:00Z",
+    "timezone": "Asia/Shanghai"
   },
   "output": {
     "gan_interaction": [

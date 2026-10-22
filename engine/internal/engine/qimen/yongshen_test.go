@@ -8,11 +8,12 @@ import (
 )
 
 func chartForTest() Chart {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	return ComputeChart(st)
+	return ComputeChart(stgt, st)
 }
 
 func TestParseYongShen(t *testing.T) {
@@ -54,7 +55,7 @@ func TestYongShenSpiritNameMatchesCurrentChart(t *testing.T) {
 	if yangChart.Pan.YinDun {
 		t.Fatal("first fixture must be an Yang Dun chart")
 	}
-	yinChart := ComputeChart(tianwen.GregorianToSolar(
+	yinChart := ComputeChart(time.Time(time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600))), tianwen.ApparentSolarFromCivil(
 		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	))

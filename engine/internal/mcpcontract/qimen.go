@@ -18,9 +18,16 @@ type QimenYongShenSymbols []string
 // QimenChart computes a qimen chart for the requested scope and school.
 // scope/school/dingju knobs keep the legacy defaults when they are omitted.
 func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, error) {
-	st, err := parseWireSolarTime(input.SolarTime)
+	at, err := parseInstant(string(input.Instant))
 	if err != nil {
 		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+	}
+	loc, err := loadTimezone(input.Timezone)
+	if err != nil {
+		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+	}
+	if input.Longitude < -180 || input.Longitude > 180 {
+		return QimenChartOutput{}, fmt.Errorf("qimen.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
 	method, err := qimen.ResolveMethodWithOptions(
 		string(input.Scope), string(input.School), string(input.DingjuMethod),
@@ -34,7 +41,7 @@ func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, err
 		if len(input.YongShen) > 0 || input.BirthDate != "" {
 			return QimenChartOutput{}, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_date")
 		}
-		return wireFromDomain[QimenChartOutput](qimen.ComputeJinhanChart(st))
+		return wireFromDomain[QimenChartOutput](qimen.ComputeJinhanChartAt(at, loc, input.Longitude))
 	}
 	var birthDate qimen.BirthDate
 	if input.BirthDate != "" {
@@ -52,13 +59,13 @@ func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, err
 			}
 			symbols = append(symbols, symbol)
 		}
-		result, err := qimen.ComputeChartWithYongShenAndMethod(st, symbols, birthDate, method)
+		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, loc, input.Longitude, symbols, birthDate, method)
 		if err != nil {
 			return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
 		}
 		return wireFromDomain[QimenChartOutput](result)
 	}
-	result, err := qimen.ComputeChartWithMethod(st, method)
+	result, err := qimen.ComputeChartWithMethodAt(at, loc, input.Longitude, method)
 	if err != nil {
 		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
 	}

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // ── 神煞准确性测试 ──
@@ -13,8 +12,9 @@ import (
 
 func makeChart(year, month, day, hour, minute int, lon, tz float64, gender ganzhi.Gender) Chart {
 	// 公历直接排盘（对齐生产链路，不做真太阳时经度校正）
-	st := tianwen.SolarTime(time.Date(year, time.Month(month), day, hour, minute, 0, 0, time.FixedZone("", int(tz*3600))))
-	return ComputeChart(st, gender)
+	when := time.Date(year, time.Month(month), day, hour, minute, 0, 0, time.FixedZone("", int(tz*3600)))
+	st := time.Time(when)
+	return ComputeChart(time.Time(when), st, gender)
 }
 
 func makeFullChart(year, month, day, hour, minute int, lon, tz float64, gender ganzhi.Gender) FullChart {
@@ -104,7 +104,7 @@ func TestShenSha_TianYi(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: tt.pillarZhi[2]},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: tt.pillarZhi[3]},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 
 			gotSet := make(map[int]bool)
 			for i, pillar := range ss {
@@ -168,7 +168,7 @@ func TestShenSha_WenChang(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 
 			// 检查所有柱是否有文昌
 			hasWenChang := false
@@ -221,7 +221,7 @@ func TestShenSha_TaoHua(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -261,7 +261,7 @@ func TestShenSha_YiMa(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -303,7 +303,7 @@ func TestShenSha_HuaGai(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: tt.riZhi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -351,7 +351,7 @@ func TestShenSha_YangRen(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -392,7 +392,7 @@ func TestShenSha_JieSha(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -430,7 +430,7 @@ func TestShenSha_ZaiSha(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -474,7 +474,7 @@ func TestShenSha_YueDe(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, s := range ss[1] {
 				if s.Name == "月德" {
@@ -536,7 +536,7 @@ func TestShenSha_KongWang(t *testing.T) {
 				t.Fatalf("test data: six cycle index=%d, xun=%d, expected %d", idx, xun, tt.inXun)
 			}
 
-			voidHits := computeKongWang(bz)
+			voidHits := VoidPalaces(bz)
 			hasVoid := false
 			for _, found := range voidHits {
 				if found == 0 { // 年柱
@@ -576,7 +576,7 @@ func TestShenSha_TianLuoDiWang(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiWu},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiShen},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			if tt.wantName == "" {
 				for _, pillar := range ss {
 					for _, e := range pillar {
@@ -633,7 +633,7 @@ func TestShenSha_LuShen(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: tt.riGan, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiXu},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for _, pillar := range ss {
 				for _, e := range pillar {
@@ -680,7 +680,7 @@ func TestShenSha_HongLuanTianXi(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiChen},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiZi},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			hasHL := false
 			hasTX := false
 			for _, pillar := range ss {
@@ -841,7 +841,7 @@ func TestShenSha_JinYu_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiZi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			if !hasShenSha(ss[0], "金舆") {
 				t.Errorf("%s日主: 金舆应在 %s，年柱未见", ganzhi.GanName(gan), ganzhi.ZhiName(zhi))
 			}
@@ -890,7 +890,7 @@ func TestShenSha_TianDe_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: riGan, Zhi: ganzhi.ZhiZi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			found := false
 			for i := 0; i < 4; i++ {
 				if hasShenSha(ss[i], "天德") {
@@ -929,7 +929,7 @@ func TestShenSha_YueEn_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			if !hasShenSha(ss[0], "月恩") {
 				t.Errorf("%s: 月恩应在 %s（年干），未见", ganzhi.ZhiName(month), ganzhi.GanName(gan))
 			}
@@ -960,7 +960,7 @@ func TestShenSha_XueRen_Authoritative(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: gan, Zhi: ganzhi.ZhiZi},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			if !hasShenSha(ss[0], "血刃") {
 				t.Errorf("%s日主: 血刃应在 %s，年柱未见", ganzhi.GanName(gan), ganzhi.ZhiName(zhi))
 			}
@@ -977,7 +977,7 @@ func TestShenSha_TianYi_Dedup(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 	}
-	ss := computeShenSha(bz, ganzhi.Male)
+	ss := ShenShaProjections(bz, ganzhi.Male)
 	var count int
 	for _, e := range ss[0] {
 		if e.Name == "天乙贵人" {
@@ -998,7 +998,7 @@ func TestShenSha_Triad_Dedup(t *testing.T) {
 		Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiZi},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 	}
-	ss := computeShenSha(bz, ganzhi.Male)
+	ss := ShenShaProjections(bz, ganzhi.Male)
 	var count int
 	for _, e := range ss[1] {
 		if e.Name == "驿马" {
@@ -1024,7 +1024,7 @@ func TestFullChart_XunKong(t *testing.T) {
 	}
 }
 
-func hasShenSha(pillar []shenShaEntry, name string) bool {
+func hasShenSha(pillar []ShenShaProjection, name string) bool {
 	for _, e := range pillar {
 		if e.Name == name {
 			return true
@@ -1128,7 +1128,7 @@ func TestGuChenGuaSu_AllYearZhi(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanJi, Zhi: ganzhi.ZhiMao},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: w.gua}, // 时支=寡宿位
 			}
-			ss := computeShenSha(bz, ganzhi.Male)
+			ss := ShenShaProjections(bz, ganzhi.Male)
 			if !hasShenSha(ss[1], "孤辰") {
 				t.Errorf("%s年: 孤辰应在月支%s", ganzhi.ZhiName(nianZhi), ganzhi.ZhiName(w.gu))
 			}

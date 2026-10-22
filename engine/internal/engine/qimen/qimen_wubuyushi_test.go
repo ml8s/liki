@@ -105,8 +105,9 @@ func TestWuBuYuShi_ChartField_Present(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				st := tianwen.GregorianToSolar(bt, 116.4, 8)
-				chart := ComputeChart(st)
+				stgt := time.Time(bt)
+				st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
+				chart := ComputeChart(stgt, st)
 				// 验证isWuBuYuShi与chart字段一致
 				riGan := chart.Pan.RiGan
 				shiGan := chart.Pan.HourGan

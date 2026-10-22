@@ -8,7 +8,7 @@ import (
 )
 
 func BenchmarkComputeChart(b *testing.B) {
-	st := tianwen.GregorianToSolar(
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2020, 6, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8)
 	b.ResetTimer()
@@ -18,7 +18,7 @@ func BenchmarkComputeChart(b *testing.B) {
 }
 
 func BenchmarkComputeLiuNian(b *testing.B) {
-	st := tianwen.GregorianToSolar(
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2020, 6, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8)
 	chart := ComputeChart(st, 0, 12)

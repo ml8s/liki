@@ -33,7 +33,7 @@ func TestShouShanChuSha_LiQi_Anchors(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			st := tianwen.GregorianToSolar(
+			st := tianwen.ApparentSolarFromCivil(
 				time.Date(c.year, 6, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 				116.4, 8)
 			chart := ComputeChart(st, c.sit, c.face)
@@ -54,7 +54,7 @@ func TestShouShanChuSha_LiQi_Anchors(t *testing.T) {
 }
 
 func TestXingJiaHuiUnknownCombinationIsUnlisted(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
@@ -68,6 +68,22 @@ func TestXingJiaHuiUnknownCombinationIsUnlisted(t *testing.T) {
 	}
 	if strings.Contains(string(encoded), `"classification"`) || strings.Contains(string(encoded), `"auspicious"`) {
 		t.Fatal("xing_jia_hui must not expose fixed auspiciousness")
+	}
+}
+
+// 双星加会表完整性：9×9 组合必须全部收录（不得再走兜底）。
+func TestXingJiaHui_CompleteMatrix(t *testing.T) {
+	for shan := 1; shan <= 9; shan++ {
+		for xiang := 1; xiang <= 9; xiang++ {
+			entry, ok := xingJiaHuiTable[[2]int{shan, xiang}]
+			if !ok {
+				t.Errorf("xingJiaHuiTable 缺 [%d,%d]", shan, xiang)
+				continue
+			}
+			if entry.Name == "" || entry.Meaning == "" {
+				t.Errorf("[%d,%d] name/meaning 不能为空", shan, xiang)
+			}
+		}
 	}
 }
 
@@ -86,6 +102,14 @@ func TestXingJiaHui_Content_Anchors(t *testing.T) {
 		{5, 9}: {"五九交加"},
 		{6, 9}: {"六九同宫"},
 		{1, 6}: {"一六共宗"},
+		{1, 1}: {"一白同宫"},
+		{1, 2}: {"一二同宫"},
+		{4, 5}: {"四五同宫"},
+		{6, 6}: {"六六同宫"},
+		{7, 7}: {"七七同宫"},
+		{9, 9}: {"九九同宫"},
+		{3, 8}: {"三八相克"},
+		{8, 3}: {"八三相克"},
 	}
 	for key, w := range cases {
 		got, ok := xingJiaHuiTable[key]

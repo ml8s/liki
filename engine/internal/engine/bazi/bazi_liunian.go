@@ -10,20 +10,20 @@ import (
 
 // LiuNian holds the annual (流年) analysis output.
 type LiuNian struct {
-	Year              int                `json:"year"`
-	NianGan           ganzhi.Gan         `json:"nian_gan"`
-	NianZhi           ganzhi.Zhi         `json:"nian_zhi"`
-	YearName          string             `json:"nian_name"`
-	Element           string             `json:"wuxing"`
-	NaYin             string             `json:"na_yin"`
-	ShiShen           string             `json:"shi_shen"`
-	Generates         int                `json:"sheng"`
-	Restrains         int                `json:"ke"`
-	NatalInteractions []zhuInteraction   `json:"natal_interactions"`
-	DaYunInteractions []zhuInteraction   `json:"dayun_interactions"`
-	ShenSha           []shenShaEntry     `json:"shensha"`
-	FuYinFanYin       []FuYinFanYin      `json:"fuyin_fanyin"`
-	AtomicFacts       LiuNianAtomicFacts `json:"atomic_facts"`
+	Year              int                 `json:"year"`
+	NianGan           ganzhi.Gan          `json:"nian_gan"`
+	NianZhi           ganzhi.Zhi          `json:"nian_zhi"`
+	YearName          string              `json:"nian_name"`
+	Element           string              `json:"wuxing"`
+	NaYin             string              `json:"na_yin"`
+	ShiShen           string              `json:"shi_shen"`
+	Generates         int                 `json:"sheng"`
+	Restrains         int                 `json:"ke"`
+	NatalInteractions []zhuInteraction    `json:"natal_interactions"`
+	DaYunInteractions []zhuInteraction    `json:"dayun_interactions"`
+	ShenSha           []ShenShaProjection `json:"shensha"`
+	FuYinFanYin       []FuYinFanYin       `json:"fuyin_fanyin"`
+	AtomicFacts       LiuNianAtomicFacts  `json:"atomic_facts"`
 }
 
 // ComputeLiuNian computes the year pillar for a given year and analyzes its
@@ -34,7 +34,7 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 		return nil, fmt.Errorf("compute liunian: invalid year %d", year)
 	}
 	riYuan := bz.Ri.Gan
-	yp := tianwen.NianZhu(tianwen.GregorianTime(time.Date(year, 6, 15, 0, 0, 0, 0, time.UTC))) // mid-year avoids LiChun edge
+	yp := tianwen.NianZhu(time.Time(time.Date(year, 6, 15, 0, 0, 0, 0, time.UTC))) // mid-year avoids LiChun edge
 	nianGan, nianZhi := yp.Gan, yp.Zhi
 
 	dmElem := ganzhi.GanWuxing(riYuan)

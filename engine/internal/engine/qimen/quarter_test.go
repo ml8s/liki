@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 type quarterGoldenVector struct {
@@ -201,7 +200,7 @@ func TestTwelveMinuteTenDivisionDunSourceOptions(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		chart, err := ComputeChartWithMethod(tianwen.SolarTime(when), method)
+		chart, err := ComputeChartWithMethod(time.Time(when), time.Time(when), method)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -306,7 +305,7 @@ func TestTenMinuteQuarterGoldenVectors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart, err := ComputeChartWithMethod(tianwen.SolarTime(when), Method{
+			chart, err := ComputeChartWithMethod(time.Time(when), time.Time(when), Method{
 				Scope: ScopeQuarter, School: SchoolZhuanPan, QuarterRule: QuarterTenMinuteSanYuan,
 			})
 			if err != nil {
@@ -359,7 +358,7 @@ func TestTwelveMinuteTenDivisionQuarterGoldenVectors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			base, err := ComputeChartWithMethod(tianwen.SolarTime(when), Method{
+			base, err := ComputeChartWithMethod(time.Time(when), time.Time(when), Method{
 				Scope: ScopeHour, School: SchoolZhuanPan,
 				Dingju: mustDingjuForTest(t, want.BaseDingju),
 			})
@@ -369,7 +368,7 @@ func TestTwelveMinuteTenDivisionQuarterGoldenVectors(t *testing.T) {
 			if base.Pan.Jushu != want.BaseJu {
 				t.Fatalf("base hour ju = %d, want %d", base.Pan.Jushu, want.BaseJu)
 			}
-			chart, err := ComputeChartWithMethod(tianwen.SolarTime(when), Method{
+			chart, err := ComputeChartWithMethod(time.Time(when), time.Time(when), Method{
 				Scope: ScopeQuarter, School: SchoolZhuanPan,
 				QuarterRule: QuarterTwelveMinuteTenDivision, BaseDingju: mustDingjuForTest(t, want.BaseDingju),
 				DunSource: want.DunSource, HourBoundary: want.HourBoundary,

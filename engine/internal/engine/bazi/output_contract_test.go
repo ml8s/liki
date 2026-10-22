@@ -12,9 +12,10 @@ import (
 
 // chart 输出子时换日规则说明。
 func TestZiShiRule(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1981, 8, 26, 23, 30, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1981, 8, 26, 23, 30, 0, 0, time.FixedZone("CST", 8*3600)), 130.7, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	if !strings.Contains(chart.ZiShiRule, "晚子时") {
 		t.Errorf("zi_shi_rule = %q, want 含'晚子时'", chart.ZiShiRule)
 	}
@@ -25,9 +26,10 @@ func TestZiShiRule(t *testing.T) {
 
 // 起运公历日与首步日期段。
 func TestDaYun_StartDate_Anchor(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	if chart.DaYun.StartDate != "1990-08-04" {
 		t.Errorf("起运 start_date = %q, want 1990-08-04（lunar 6年5月20日）", chart.DaYun.StartDate)
 	}
@@ -42,9 +44,10 @@ func TestDaYun_StartDate_Anchor(t *testing.T) {
 
 // 可选字段未命中时 JSON 必须缺键而不是输出 null。
 func TestOmitEmpty_Optional(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 130.7, 8)
-	full := ComputeFullChart(ComputeChart(st, ganzhi.Male))
+	full := ComputeFullChart(ComputeChart(stgt, st, ganzhi.Male))
 	b, _ := json.Marshal(full)
 	// Optional output values must never be null.
 	if strings.Contains(string(b), `"gong_jia":null`) {

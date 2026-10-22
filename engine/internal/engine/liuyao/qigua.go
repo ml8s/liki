@@ -203,79 +203,15 @@ type YongShenResult struct {
 
 // computeChart computes a complete 六爻 chart from bazi, question type, and yaos (required).
 func computeChart(bz ganzhi.Bazi, yongShen YongShen, yaos [6]int) Chart {
-	// 防御：爻数非法（非 6-9）返回空盘，避免产出错卦。
-	for _, y := range yaos {
-		if y < 6 || y > 9 {
-			return Chart{}
-		}
-	}
-	yts := shakeCoinsFixed(yaos)
-	chart := computeGuaPan(yts, bz.Ri)
-	chart.TombSchool = TombSchool{EarthBranch: "辰", School: "engine_default_chen"}
-
-	// Month building from bazi.
-	chart.YueZhi = bz.Yue.Zhi
-	chart.YueGan = bz.Yue.Gan
-
-	// 日柱旬空（甲子旬空戌亥…）.
-	chart.XunKong = ganzhi.XunKong(bz.Ri.Gan, bz.Ri.Zhi)
-
-	// 旺衰 + 日建关系.
-	for i := 0; i < 6; i++ {
-		chart.WangShuai[i] = ganzhi.WangShuaiOf(ganzhi.ZhiWuxing(chart.Lines[i].Zhi), chart.YueZhi)
-		chart.DayRelations[i] = dayInteraction(chart.Lines[i].Zhi, chart.RiZhi)
+	if !validateYaoValues(yaos) {
+		return Chart{}
 	}
 
-	// 每爻确定性派生状态（月破/发动/动爻生克）.
-	computeLineDerived(&chart)
-
-	// 用神多现必须在空破墓、旺衰、动静与世应都算出后再取舍。
-	pos := chart.findYongShen(yongShen)
-	chart.YongShen = YongShenResult{Name: yongShen.String(), Position: pos}
-	if pos == 0 {
-		chart.YongShen.FuShen = chart.findFuShen(yongShen)
-		chart.YongShen.FuShenCandidates = chart.findFuShenAll(yongShen)
-	}
-
-	// 聚合用神状态（旺衰/月破/旬空/入墓/六神）.
-	if pos > 0 {
-		chart.YongShen.WangShuai = chart.WangShuai[pos-1].String()
-		chart.YongShen.YuePo = chart.Lines[pos-1].YuePo
-		chart.YongShen.XunKong = chart.Lines[pos-1].XunKong
-		chart.YongShen.MuKu = chart.Lines[pos-1].MuKu
-		chart.YongShen.LiuShou = chart.Lines[pos-1].LiuShou
-		chart.YongShen.ChangSheng = chart.Lines[pos-1].ChangShengYue
-	} else if fuShen := chart.YongShen.FuShen; fuShen != nil {
-		fuZhi := fuShenZhi(fuShen)
-		fuElement := ganzhi.ZhiWuxing(fuZhi)
-		chart.YongShen.IsHidden = true
-		chart.YongShen.WangShuai = ganzhi.WangShuaiOf(fuElement, chart.YueZhi).String()
-		chart.YongShen.YuePo = ganzhi.IsLiuChong(fuZhi, chart.YueZhi)
-		chart.YongShen.XunKong = fuZhi == chart.XunKong[0] || fuZhi == chart.XunKong[1]
-		chart.YongShen.MuKu = len(fuTombSources(&chart, fuElement)) > 0
-		chart.YongShen.ChangSheng = lifeStageOf(fuElement, chart.YueZhi)
-	}
-
-	// 动爻关系（与用神的关系）.
-	chart.DongYaoRelations = computeDongYaoRelations(&chart, yongShen)
-
-	// 特殊格局计算.
-	chart.Patterns = ComputePatterns(&chart, yongShen)
-
-	chart.TimingCandidates = computeTimingCandidates(&chart, yongShen)
-	chart.DayClashFacts = computeDayClashFacts(&chart)
-	chart.MovingTransformations = computeMovingTransformations(&chart)
-	chart.SanHeCandidates = computeSanHeCandidates(&chart)
-	chart.ForceChain = computeForceChain(&chart, yongShen)
-	chart.YongShenCandidates = computeYongShenCandidates(&chart, yongShen)
-	chart.HiddenLines = computeHiddenLines(&chart)
-	chart.BranchRelationFacts = computeBranchRelationFacts(&chart)
-	chart.Conflicts = computeConflicts(&chart)
-
-	gc, err := GetGuaCi(int(chart.BenGua))
-	if err == nil {
-		chart.GuaCi = gc
-	}
+	chart := newBaseChart(yaos, bz)
+	applyYaoStrength(&chart)
+	resolveYongshen(&chart, yongShen)
+	deriveAdvancedFacts(&chart, yongShen)
+	attachGuaCi(&chart)
 	return chart
 }
 

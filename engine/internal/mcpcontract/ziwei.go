@@ -10,31 +10,12 @@ import (
 	"liki-engine/internal/engine/ziwei"
 )
 
-// ZiweiLunarInput is the lunar birth time used by ziwei.chart.
-type ZiweiLunarInput struct {
-	Year    int           `json:"year" jsonschema:"农历年（1900-2100）。"`
-	Month   int           `json:"month" jsonschema:"农历月（1-12）。"`
-	Day     int           `json:"day" jsonschema:"农历日（1-30）。"`
-	Leap    bool          `json:"leap,omitempty" jsonschema:"是否农历闰月。"`
-	Shichen LiuyaoZhiName `json:"shichen" jsonschema:"时辰地支（子丑寅卯辰巳午未申酉戌亥）。"`
-}
-
 // ZiweiTargetLunarInput is the resolved lunar date used by the flow tools.
 type ZiweiTargetLunarInput struct {
 	Year  int  `json:"year" jsonschema:"农历年份（1900-2100）。"`
 	Month int  `json:"month" jsonschema:"农历月份（1-12）。"`
 	Day   int  `json:"day" jsonschema:"农历日期（1-30）。"`
 	Leap  bool `json:"leap" jsonschema:"是否闰月。"`
-}
-
-func (in ZiweiLunarInput) domain() (tianwen.LunarTime, error) {
-	shichen, err := ganzhi.ParseZhi(string(in.Shichen))
-	if err != nil {
-		return tianwen.LunarTime{}, fmt.Errorf("shichen must be one of 子丑寅卯辰巳午未申酉戌亥: %w", err)
-	}
-	return tianwen.LunarTime{
-		Year: in.Year, Month: in.Month, Day: in.Day, Leap: in.Leap, Shichen: shichen,
-	}, nil
 }
 
 func (in ZiweiTargetLunarInput) domain() tianwen.LunarDate {
@@ -64,14 +45,21 @@ func (chart ZiweiChartOutput) domain() (ziwei.Chart, error) {
 
 // ZiweiChart computes the twelve-palace chart from lunar birth data.
 func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (ZiweiChartOutput, error) {
-	lunar, err := input.Lunar.domain()
+	at, err := parseInstant(string(input.Instant))
 	if err != nil {
 		return ZiweiChartOutput{}, fmt.Errorf("ziwei.chart: %w", err)
+	}
+	loc, err := loadTimezone(input.Timezone)
+	if err != nil {
+		return ZiweiChartOutput{}, fmt.Errorf("ziwei.chart: %w", err)
+	}
+	if input.Longitude < -180 || input.Longitude > 180 {
+		return ZiweiChartOutput{}, fmt.Errorf("ziwei.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
 	if _, err := ganzhi.ParseGender(string(input.Gender)); err != nil {
 		return ZiweiChartOutput{}, fmt.Errorf("ziwei.chart: gender must be male or female, got %q", input.Gender)
 	}
-	chart, err := ziwei.ComputeChart(lunar, ganzhi.Gender(input.Gender))
+	chart, err := ziwei.ComputeChartAt(at, loc, input.Longitude, ganzhi.Gender(input.Gender))
 	if err != nil {
 		return ZiweiChartOutput{}, fmt.Errorf("ziwei.chart: %w", err)
 	}
@@ -150,11 +138,11 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (ZiweiLiuShiOutput, 
 
 // ZiweiBond returns raw cross-chart facts for two charts.
 func ZiweiBond(_ context.Context, input ZiweiBondInput) (ZiweiBondOutput, error) {
-	chartA, err := input.A.domain()
+	chartA, err := input.A.Chart.domain()
 	if err != nil {
 		return ZiweiBondOutput{}, fmt.Errorf("ziwei.bond: chart a: %w", err)
 	}
-	chartB, err := input.B.domain()
+	chartB, err := input.B.Chart.domain()
 	if err != nil {
 		return ZiweiBondOutput{}, fmt.Errorf("ziwei.bond: chart b: %w", err)
 	}

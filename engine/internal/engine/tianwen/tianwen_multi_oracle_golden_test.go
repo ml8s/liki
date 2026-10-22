@@ -81,8 +81,8 @@ func TestTianwenMultiOracleGolden_LunarMonthBoundaries(t *testing.T) {
 		seenYears[parsed.Year()] = true
 
 		t.Run(golden.Name, func(t *testing.T) {
-			gregorian := GregorianTime(parsed)
-			gotLunar := SolarToLunar(gregorian)
+			gregorian := time.Time(parsed)
+			gotLunar := LunarDateAt(gregorian)
 			wantLunar := LunarTime{
 				Year:  golden.Expected.Lunar.Year,
 				Month: golden.Expected.Lunar.Month,
@@ -94,13 +94,13 @@ func TestTianwenMultiOracleGolden_LunarMonthBoundaries(t *testing.T) {
 				t.Fatalf("lunar = %+v, want two-oracle %+v", gotLunar, wantLunar)
 			}
 
-			gotGregorian := LunarToGregorian(LunarTime{
+			gotGregorian := CivilTimeFromLunarDate(LunarDate{
 				Year:  wantLunar.Year,
 				Month: wantLunar.Month,
 				Day:   wantLunar.Day,
 				Leap:  wantLunar.Leap,
 			})
-			if gotDate := gotGregorian.Time().In(parsed.Location()).Format("2006-01-02"); gotDate != parsed.Format("2006-01-02") {
+			if gotDate := gotGregorian.In(parsed.Location()).Format("2006-01-02"); gotDate != parsed.Format("2006-01-02") {
 				t.Fatalf("round trip = %s, want %s", gotDate, parsed.Format("2006-01-02"))
 			}
 

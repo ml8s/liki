@@ -142,7 +142,7 @@ func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAv
 		{zhuRi, c.Ri.Gan, c.Ri.Zhi},
 		{zhuShi, c.Shi.Gan, c.Shi.Zhi},
 	}
-	cangGan := computeCangGan(c.ToBazi())
+	cangGan := HiddenStemFacts(c.ToBazi())
 	targetPillars := map[int]bool{}
 	for _, pillar := range pillars {
 		if pillar.gan == stem {
@@ -238,7 +238,7 @@ func transparentPillars(c Chart, elem ganzhi.Wuxing, exact *ganzhi.Gan) []string
 
 func hiddenStemOccurrences(c Chart, elem ganzhi.Wuxing) []StemOccurrence {
 	result := make([]StemOccurrence, 0, 8)
-	cangGan := computeCangGan(c.ToBazi())
+	cangGan := HiddenStemFacts(c.ToBazi())
 	branches := []ganzhi.Zhi{c.Nian.Zhi, c.Yue.Zhi, c.Ri.Zhi, c.Shi.Zhi}
 	for index, hidden := range cangGan {
 		items := []struct {
@@ -390,7 +390,7 @@ func branchElementTargets(c Chart, pillar int, labels map[string]string) []strin
 	if branch == 0 {
 		return nil
 	}
-	hidden := computeCangGan(c.ToBazi())[pillar]
+	hidden := HiddenStemFacts(c.ToBazi())[pillar]
 	stems := []ganzhi.Gan{hidden.Main}
 	if hidden.Mid != nil {
 		stems = append(stems, *hidden.Mid)

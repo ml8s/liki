@@ -1,14 +1,14 @@
 {
   "input": {
     "gender": "female",
-    "solar_time": "2000-09-20T08:30:00+08:00"
+    "longitude": 118.5,
+    "instant": "2000-09-20T00:30:00Z",
+    "timezone": "Asia/Shanghai"
   },
   "output": {
     "birth_year": 2000,
     "da_yun": {
-      "current_step_index": 2,
       "direction": "逆排",
-      "next_step_in_years": 8,
       "start_date": "2004-12-10",
       "start_day_after": 20,
       "start_month_after": 2,

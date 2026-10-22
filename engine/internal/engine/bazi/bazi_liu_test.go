@@ -122,9 +122,10 @@ func TestComputeLiuRi_DayPillar(t *testing.T) {
 
 // TestComputeLiuRi_HasRequiredFields verifies all LiuRi fields are populated.
 func TestComputeLiuRi_HasRequiredFields(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1982, 10, 13, 6, 45, 0, 0, time.FixedZone("", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1982, 10, 13, 6, 45, 0, 0, time.FixedZone("", 8*3600)), 114.134, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	lr, err := ComputeLiuRi(chart, 2024, 6, 15)
 	if err != nil {

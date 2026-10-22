@@ -8,7 +8,8 @@ import (
 )
 
 func TestComputeChart_All4096YaoCombinations(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(2026, 9, 8, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2026, 9, 8, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
@@ -20,7 +21,7 @@ func TestComputeChart_All4096YaoCombinations(t *testing.T) {
 					for e := 6; e <= 9; e++ {
 						for f := 6; f <= 9; f++ {
 							yaos := [6]int{a, b, c, d, e, f}
-							chart := ComputeChart(st, YongShiYao, yaos)
+							chart := ComputeChart(stgt, st, YongShiYao, yaos)
 							count++
 
 							if chart.Name == "" || chart.Palace == "" {

@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"slices"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/google/jsonschema-go/jsonschema"
@@ -19,10 +21,15 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// testEngine derives the full typed registry once. Registry is read-only after
+// construction, and deriving every JSON Schema in every test dominates the
+// package's race/coverage runtime.
+var testEngine = sync.OnceValue(NewEngine)
+
 func TestEngineContractDefinitions(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 	want := []string{
-		"time.now", "huangli.days", "tianwen.time", "city.coords",
+		"time.now", "huangli.days", "tianwen.resolve", "city.coords",
 		"bazi.chart",
 		"bazhai.chart", "bazhai.layout",
 		"xuankong.chart", "xuankong.liunian",
@@ -78,7 +85,7 @@ func TestEngineContractDefinitions(t *testing.T) {
 }
 
 func TestEngineContractInputConstraints(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 
 	var cityInput struct {
 		Type                 string   `json:"type"`
@@ -101,15 +108,37 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		t.Fatalf("city schema = %#v", city)
 	}
 
-	var tianwenInput struct {
-		Properties map[string]struct {
-			Type   string `json:"type"`
-			Format string `json:"format"`
-		} `json:"properties"`
+	var resolveInput struct {
+		OneOf []struct {
+			Required             []string `json:"required"`
+			AdditionalProperties *bool    `json:"additionalProperties"`
+			Properties           map[string]struct {
+				Type   any    `json:"type"`
+				Format string `json:"format"`
+			} `json:"properties"`
+		} `json:"oneOf"`
 	}
-	decode(t, mustDefinition(t, registry, "tianwen.time").InputSchema, &tianwenInput)
-	if timeSchema, ok := tianwenInput.Properties["time"]; !ok || timeSchema.Type != "string" || timeSchema.Format != "date-time" {
-		t.Fatalf("tianwen time schema = %#v", timeSchema)
+	decode(t, mustDefinition(t, registry, "tianwen.resolve").InputSchema, &resolveInput)
+	if len(resolveInput.OneOf) != 5 {
+		t.Fatalf("tianwen.resolve oneOf forms = %d, want 5", len(resolveInput.OneOf))
+	}
+	gregorian := false
+	for _, form := range resolveInput.OneOf {
+		if !slices.Contains(form.Required, "longitude") {
+			t.Fatalf("tianwen.resolve form must require longitude: %#v", form.Required)
+		}
+		if form.AdditionalProperties == nil || *form.AdditionalProperties {
+			t.Fatalf("tianwen.resolve form must be closed: %#v", form.Required)
+		}
+		if greg, ok := form.Properties["instant"]; ok {
+			gregorian = true
+			if greg.Type != "string" || greg.Format != "date-time" {
+				t.Fatalf("tianwen.resolve utc schema = %#v", greg)
+			}
+		}
+	}
+	if !gregorian {
+		t.Fatal("tianwen.resolve is missing the utc form")
 	}
 
 	var huangliInput struct {
@@ -137,7 +166,7 @@ func TestEngineContractInputConstraints(t *testing.T) {
 }
 
 func TestEngineContractSchemasSelfDescribe(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 	for _, name := range registry.Names() {
 		definition := mustDefinition(t, registry, name)
 		for _, raw := range []json.RawMessage{definition.InputSchema, definition.OutputSchema} {
@@ -196,7 +225,7 @@ func mustDefinition(t *testing.T, registry *Registry, name string) Definition {
 }
 
 func TestEngineContractBaziTiaoHouAllowsEmptySecondaryWuxing(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 
 	// 1990-05-20 11:49 CST at 116.4E (the counsel baseline birth) has a 调候
 	// primary element but no 辅 element, so the engine emits
@@ -204,15 +233,8 @@ func TestEngineContractBaziTiaoHouAllowsEmptySecondaryWuxing(t *testing.T) {
 	// value (engine/internal/engine/bazi/bazi_correctness_test.go). Output
 	// validation must accept the Go zero value, otherwise real charts fail with
 	// an output contract violation.
-	timeDoc := callToolDocument(t, registry, "tianwen.time", map[string]any{
-		"time": "1990-05-20T11:49:00+08:00", "longitude": 116.4,
-	})
-	solar, _ := timeDoc["solar"].(string)
-	if solar == "" {
-		t.Fatalf("tianwen.time output = %#v", timeDoc)
-	}
 	chart := callToolDocument(t, registry, "bazi.chart", map[string]any{
-		"solar_time": solar, "gender": "male",
+		"instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male",
 	})
 	full := callToolDocument(t, registry, "bazi.fullchart", map[string]any{"chart": chart})
 	tiaoHou, _ := full["tiao_hou"].(map[string]any)
@@ -225,7 +247,7 @@ func TestEngineContractBaziTiaoHouAllowsEmptySecondaryWuxing(t *testing.T) {
 }
 
 func TestEngineContractCalls(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 
 	cityRaw, err := registry.Call(context.Background(), "city.coords", mustJSON(t, CityCoordsInput{City: "北京"}))
 	if err != nil {
@@ -235,8 +257,12 @@ func TestEngineContractCalls(t *testing.T) {
 	if err := json.Unmarshal(cityRaw, &cityOutput); err != nil {
 		t.Fatal(err)
 	}
-	if cityOutput.Name == "" || cityOutput.Longitude == 0 || cityOutput.Latitude == 0 || cityOutput.Country == "" {
-		t.Fatalf("incomplete city output: %#v", cityOutput)
+	if len(cityOutput.Candidates) == 0 {
+		t.Fatalf("city output has no candidates: %#v", cityOutput)
+	}
+	best := cityOutput.Candidates[0]
+	if best.Name == "" || best.Longitude == 0 || best.Latitude == 0 || best.Country == "" || best.Timezone == "" {
+		t.Fatalf("incomplete city candidate: %#v", best)
 	}
 
 	huangliRaw, err := registry.Call(context.Background(), "huangli.days", mustJSON(t, HuangliDaysInput{
@@ -361,7 +387,8 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao.chart", mustJSON(t, LiuyaoChartInput{
-		SolarTime: "2026-07-31T10:00:00+08:00",
+		Instant: "2026-07-31T02:00:00Z", Timezone: "Asia/Shanghai",
+		Longitude: 116.4,
 		Casting:   &qigua.Casting,
 	}))
 	if err != nil {
@@ -379,7 +406,8 @@ func TestEngineContractCalls(t *testing.T) {
 	tamperedQigua := qigua
 	tamperedQigua.Casting.Yaos[0] = 8
 	if _, err := registry.Call(context.Background(), "liuyao.chart", mustJSON(t, LiuyaoChartInput{
-		SolarTime: "2026-07-31T10:00:00+08:00",
+		Instant: "2026-07-31T02:00:00Z", Timezone: "Asia/Shanghai",
+		Longitude: 116.4,
 		Casting:   &tamperedQigua.Casting,
 	})); err == nil || (!strings.Contains(err.Error(), "casting_id mismatch") &&
 		!strings.Contains(err.Error(), "dong_yao mismatch")) {

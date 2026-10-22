@@ -7,17 +7,17 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-func TestLunarToGregorian_BaseDate(t *testing.T) {
+func TestCivilTimeFromLunarDate_BaseDate(t *testing.T) {
 	// 代码内置基准: 农历 1900-01-01 = 公历 1900-01-31
-	gt := LunarToGregorian(LunarTime{Year: 1900, Month: 1, Day: 1, Leap: false})
-	y, m, d := gt.Time().Year(), int(gt.Time().Month()), gt.Time().Day()
+	gt := CivilTimeFromLunarDate(LunarDate{Year: 1900, Month: 1, Day: 1, Leap: false})
+	y, m, d := gt.Year(), int(gt.Month()), gt.Day()
 	if y != 1900 || m != 1 || d != 31 {
-		t.Errorf("LunarToGregorian(1900,1,1) = (%d,%d,%d), want (1900,1,31)", y, m, d)
+		t.Errorf("CivilTimeFromLunarDate(1900,1,1) = (%d,%d,%d), want (1900,1,31)", y, m, d)
 	}
 }
 
 func TestLunarRoundTrip(t *testing.T) {
-	// 往返: LunarToSolar → SolarToLunar 应回到原值
+	// 往返: CivilTimeFromLunarDate → LunarDateAt 应回到原值
 	tests := []struct {
 		name   string
 		lunarY int
@@ -35,12 +35,12 @@ func TestLunarRoundTrip(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gt := LunarToGregorian(LunarTime{Year: tt.lunarY, Month: tt.lunarM, Day: tt.lunarD, Leap: tt.leap})
-			gy, gm, gd := gt.Time().Year(), int(gt.Time().Month()), gt.Time().Day()
-			if gt.Time().IsZero() {
-				t.Fatal("LunarToGregorian returned zero time")
+			gt := CivilTimeFromLunarDate(LunarDate{Year: tt.lunarY, Month: tt.lunarM, Day: tt.lunarD, Leap: tt.leap})
+			gy, gm, gd := gt.Year(), int(gt.Month()), gt.Day()
+			if gt.IsZero() {
+				t.Fatal("CivilTimeFromLunarDate returned zero time")
 			}
-			lt := SolarToLunar(GregorianTime(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
+			lt := LunarDateAt(time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
 			if lt.Year != tt.lunarY || lt.Month != tt.lunarM || lt.Day != tt.lunarD || lt.Leap != tt.leap {
 				t.Errorf("round-trip broken: (%d,%d,%d,%v) → solar(%d,%d,%d) → lunar(%d,%d,%d,%v)",
 					tt.lunarY, tt.lunarM, tt.lunarD, tt.leap,
@@ -52,7 +52,7 @@ func TestLunarRoundTrip(t *testing.T) {
 }
 
 func TestSolarRoundTrip(t *testing.T) {
-	// 反向往返: SolarToLunar → LunarToSolar 应回到原值
+	// 反向往返: LunarDateAt → CivilTimeFromLunarDate 应回到原值
 	tests := []struct {
 		name   string
 		solarY int
@@ -68,9 +68,9 @@ func TestSolarRoundTrip(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lt := SolarToLunar(GregorianTime(time.Date(tt.solarY, time.Month(tt.solarM), tt.solarD, 0, 0, 0, 0, time.UTC)))
-			gt := LunarToGregorian(LunarTime{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
-			gy, gm, gd := gt.Time().Year(), int(gt.Time().Month()), gt.Time().Day()
+			lt := LunarDateAt(time.Time(time.Date(tt.solarY, time.Month(tt.solarM), tt.solarD, 0, 0, 0, 0, time.UTC)))
+			gt := CivilTimeFromLunarDate(LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
+			gy, gm, gd := gt.Year(), int(gt.Month()), gt.Day()
 			if gy != tt.solarY || gm != tt.solarM || gd != tt.solarD {
 				t.Errorf("reverse round-trip broken: solar(%d,%d,%d) → lunar(%d,%d,%d,%v) → solar(%d,%d,%d)",
 					tt.solarY, tt.solarM, tt.solarD,
@@ -81,7 +81,7 @@ func TestSolarRoundTrip(t *testing.T) {
 	}
 }
 
-func TestLunarToSolar_LeapMonthRoundTrip(t *testing.T) {
+func TestCivilTimeFromLunarDate_LeapMonthRoundTrip(t *testing.T) {
 	// 验证闰月 round-trip 也保持一致性
 	// 扫描 1900-2100 中所有带闰月的年份
 	for gy := 1900; gy <= 2100; gy++ {
@@ -94,7 +94,7 @@ func TestLunarToSolar_LeapMonthRoundTrip(t *testing.T) {
 
 		// Walk from Month 11 to the leap month, tracking both month
 		// number and year (year increments when month wraps from 12 to 1,
-		// matching the SolarToLunar convention).
+		// matching the LunarDateAt convention).
 		lunarMonth := 11
 		lunarYear := gy
 		for k := m11 + 1; k < leapK; k++ {
@@ -106,14 +106,14 @@ func TestLunarToSolar_LeapMonthRoundTrip(t *testing.T) {
 		}
 
 		// 测试闰月第一天
-		gt := LunarToGregorian(LunarTime{Year: lunarYear, Month: lunarMonth, Day: 1, Leap: true})
-		sy, sm, sd := gt.Time().Year(), int(gt.Time().Month()), gt.Time().Day()
-		if gt.Time().IsZero() {
-			t.Errorf("LunarToGregorian(%d,%d,1,true) returned zero for leap month (gy=%d, leapK=%.0f)",
+		gt := CivilTimeFromLunarDate(LunarDate{Year: lunarYear, Month: lunarMonth, Day: 1, Leap: true})
+		sy, sm, sd := gt.Year(), int(gt.Month()), gt.Day()
+		if gt.IsZero() {
+			t.Errorf("CivilTimeFromLunarDate(%d,%d,1,true) returned zero for leap month (gy=%d, leapK=%.0f)",
 				lunarYear, lunarMonth, gy, leapK)
 			continue
 		}
-		lt := SolarToLunar(GregorianTime(time.Date(sy, time.Month(sm), sd, 0, 0, 0, 0, time.UTC)))
+		lt := LunarDateAt(time.Time(time.Date(sy, time.Month(sm), sd, 0, 0, 0, 0, time.UTC)))
 		if lt.Year != lunarYear || lt.Month != lunarMonth || !lt.Leap {
 			t.Errorf("leap round-trip: (%d,%d,leap=true) → solar(%d,%d,%d) → lunar(%d,%d,leap=%v)",
 				lunarYear, lunarMonth, sy, sm, sd, lt.Year, lt.Month, lt.Leap)
@@ -141,7 +141,7 @@ func TestEoT_KnownValues(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ast, _ := computeSolarTime(time.Date(tt.date[0], time.Month(tt.date[1]), tt.date[2], 12, 0, 0, 0, time.FixedZone("", 8*3600)), 120, 8)
+			ast, _ := apparentSolarOffsetMinutes(time.Date(tt.date[0], time.Month(tt.date[1]), tt.date[2], 12, 0, 0, 0, time.FixedZone("", 8*3600)), 120, 8)
 			eot := ast - 720
 			if eot > 720 {
 				eot -= 1440
@@ -163,10 +163,10 @@ func TestEoT_KnownValues(t *testing.T) {
 
 // ── 经度修正测试 ──
 
-func TestSolarTime_LongitudeOffset(t *testing.T) {
+func TestApparentSolarProjection_LongitudeOffset(t *testing.T) {
 	// 经度修正: 4*(116.4-120) = -14.4 min
-	ast120, _ := computeSolarTime(time.Date(2024, 6, 21, 12, 0, 0, 0, time.FixedZone("", 8*3600)), 120, 8)
-	ast116, _ := computeSolarTime(time.Date(2024, 6, 21, 12, 0, 0, 0, time.FixedZone("", 8*3600)), 116.4, 8)
+	ast120, _ := apparentSolarOffsetMinutes(time.Date(2024, 6, 21, 12, 0, 0, 0, time.FixedZone("", 8*3600)), 120, 8)
+	ast116, _ := apparentSolarOffsetMinutes(time.Date(2024, 6, 21, 12, 0, 0, 0, time.FixedZone("", 8*3600)), 116.4, 8)
 	diff := ast116 - ast120
 	if diff > 720 {
 		diff -= 1440
@@ -203,36 +203,26 @@ func TestShiZhi_Boundaries(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := hourZhiFromSolarTime(tt.minutes)
+			got := shichenFromApparentSolarMinutes(tt.minutes)
 			if int(got) != tt.want {
-				t.Errorf("hourZhiFromSolarTime(%.0f) = %d, want %d", tt.minutes, int(got), tt.want)
+				t.Errorf("shichenFromApparentSolarMinutes(%.0f) = %d, want %d", tt.minutes, int(got), tt.want)
 			}
 		})
 	}
 }
 
-// ── ComputeTime 太阳时跨日测试 ──
-// 验证 Lunar 日期跟随太阳时调整（而非原始公历日期）。
+// ── 太阳时跨日测试 ──
 
 func TestComputeTime_MidnightAdjustment(t *testing.T) {
 	// 喀什(75.9°E)用北京时间(UTC+8), 凌晨2点
 	// lonOffset = 4*(75.9-120) = -176.4, EoT(Jan1) ≈ -3.9 (Meeus)
 	// raw = 120 - 176.4 - 3.9 = -60.3 → dayOffset=-1, 太阳时在前一天
-	ts := ComputeTimeset(GregorianTime(time.Date(2025, time.Month(1), 1, 2, 0, 0, 0, time.FixedZone("", int(8*3600)))), 75.9)
+	solar := ApparentSolarFromCivil(
+		time.Date(2025, time.Month(1), 1, 2, 0, 0, 0, time.FixedZone("", int(8*3600))), 75.9, 8)
 
-	solarY, solarM, solarD := ts.Solar.Time().Date()
+	solarY, solarM, solarD := solar.Date()
 	if solarY != 2024 || solarM != 12 || solarD != 31 {
 		t.Errorf("Solar date = (%d,%d,%d), want (2024,12,31)", solarY, solarM, solarD)
-	}
-
-	// Lunar 应该跟随太阳时调整后的日期
-	lunarFromPrevDay := SolarToLunar(GregorianTime(time.Date(2024, 12, 31, 0, 0, 0, 0, time.UTC)))
-	if ts.Lunar.Year != lunarFromPrevDay.Year ||
-		ts.Lunar.Month != lunarFromPrevDay.Month ||
-		ts.Lunar.Day != lunarFromPrevDay.Day {
-		t.Errorf("Lunar=(%d,%d,%d), want (%d,%d,%d) from solar-adjusted date",
-			ts.Lunar.Year, ts.Lunar.Month, ts.Lunar.Day,
-			lunarFromPrevDay.Year, lunarFromPrevDay.Month, lunarFromPrevDay.Day)
 	}
 }
 
@@ -256,7 +246,7 @@ func TestNianZhu_GanZhi(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NianZhu(GregorianTime(time.Date(tt.year, 6, 15, 0, 0, 0, 0, time.UTC)))
+			got := NianZhu(time.Time(time.Date(tt.year, 6, 15, 0, 0, 0, 0, time.UTC)))
 			if int(got.Gan) != tt.wantGan || int(got.Zhi) != tt.wantZhi {
 				t.Errorf("NianZhu(%d) = (%d,%d), want (%d,%d)",
 					tt.year, int(got.Gan), int(got.Zhi), tt.wantGan, tt.wantZhi)
@@ -299,7 +289,7 @@ func TestYueZhu_WuHuDun(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gt := GregorianTime(time.Date(tt.year, 2, 10, 12, 0, 0, 0, time.UTC))
+			gt := time.Time(time.Date(tt.year, 2, 10, 12, 0, 0, 0, time.UTC))
 			mp := YueZhu(gt)
 			if int(mp.Gan) != tt.wantGan {
 				t.Errorf("YueZhu(%d).Gan = %d, want %d", tt.year, int(mp.Gan), tt.wantGan)
@@ -329,7 +319,7 @@ func TestShiZhu_WuShuDun(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// 子时: minutes 0
-			hp := ShiZhu(SolarTime(time.Date(1900, 1, tt.riGan, 0, 0, 0, 0, time.UTC)))
+			hp := ShiZhu(time.Time(time.Date(1900, 1, tt.riGan, 0, 0, 0, 0, time.UTC)))
 			if int(hp.Gan) != tt.wantGan {
 				t.Errorf("ShiZhu(子时,riGan=%d).Gan = %d, want %d", tt.riGan, int(hp.Gan), tt.wantGan)
 			}
@@ -374,7 +364,7 @@ func TestRiZhu_ModernDates(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			zhu := RiZhu(GregorianTime(time.Date(tt.y, time.Month(tt.m), tt.d, 0, 0, 0, 0, time.UTC)))
+			zhu := RiZhu(time.Time(time.Date(tt.y, time.Month(tt.m), tt.d, 0, 0, 0, 0, time.UTC)))
 			if zhu.Gan != tt.wantGan || zhu.Zhi != tt.wantZhi {
 				gotName := ganzhi.GanName(zhu.Gan) + ganzhi.ZhiName(zhu.Zhi)
 				wantName := ganzhi.GanName(tt.wantGan) + ganzhi.ZhiName(tt.wantZhi)
@@ -429,8 +419,9 @@ func TestYueZhu_JieQiBoundaries(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			st := GregorianToSolar(time.Date(tt.y, time.Month(tt.m), tt.d, 12, 0, 0, 0, time.FixedZone("", int(8*3600))), 120, 8)
-			bz := ComputeBazi(st)
+			stgt := time.Time(time.Date(tt.y, time.Month(tt.m), tt.d, 12, 0, 0, 0, time.FixedZone("", int(8*3600))))
+			st := ApparentSolarFromCivil(time.Date(tt.y, time.Month(tt.m), tt.d, 12, 0, 0, 0, time.FixedZone("", int(8*3600))), 120, 8)
+			bz := ComputeBazi(stgt, st)
 			if bz.Yue.Zhi != tt.wantZhi {
 				t.Errorf("YueZhi = %s(%d), want %s(%d)",
 					ganzhi.ZhiName(bz.Yue.Zhi), bz.Yue.Zhi,
@@ -470,8 +461,9 @@ func TestComputeBazi_ComplexBoundaries(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			st := SolarTime(time.Date(tt.y, time.Month(tt.m), tt.d, tt.hour, tt.min, 0, 0, time.FixedZone("", int(tt.tz*3600))))
-			bz := ComputeBazi(st)
+			when := time.Date(tt.y, time.Month(tt.m), tt.d, tt.hour, tt.min, 0, 0, time.FixedZone("", int(tt.tz*3600)))
+			st := time.Time(when)
+			bz := ComputeBazi(time.Time(when), st)
 
 			if bz.Ri.Gan != tt.wantDayGan || bz.Ri.Zhi != tt.wantDayZhi {
 				t.Errorf("RiZhu = %s%s, want %s%s",
@@ -526,7 +518,7 @@ func TestEoT_AnnualVariation(t *testing.T) {
 	// EoT 在一年中在约 -14min 到 +16min 之间变化
 	// 每月15号在120°E, UTC+8的正午测量
 	for m := 1; m <= 12; m++ {
-		ast, _ := computeSolarTime(time.Date(2024, time.Month(m), 15, 12, 0, 0, 0, time.FixedZone("", 8*3600)), 120, 8)
+		ast, _ := apparentSolarOffsetMinutes(time.Date(2024, time.Month(m), 15, 12, 0, 0, 0, time.FixedZone("", 8*3600)), 120, 8)
 		eot := ast - 720 // 与平太阳时12:00的偏差
 		if eot > 720 {
 			eot -= 1440
@@ -547,9 +539,9 @@ func TestLunarLeapMonth_Consistency(t *testing.T) {
 	for gy := 1901; gy <= 2099; gy++ {
 		for gm := 1; gm <= 12; gm++ {
 			for gd := 1; gd <= 28; gd += 7 { // 每周取样
-				lt := SolarToLunar(GregorianTime(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
-				gt := LunarToGregorian(LunarTime{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
-				sy, sm, sd := gt.Time().Year(), int(gt.Time().Month()), gt.Time().Day()
+				lt := LunarDateAt(time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.UTC)))
+				gt := CivilTimeFromLunarDate(LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap})
+				sy, sm, sd := gt.Year(), int(gt.Month()), gt.Day()
 				if sy != gy || sm != gm || sd != gd {
 					t.Errorf("round-trip failed: solar(%d,%d,%d) → lunar(%d,%d,%d,%v) → solar(%d,%d,%d)",
 						gy, gm, gd, lt.Year, lt.Month, lt.Day, lt.Leap, sy, sm, sd)
@@ -565,11 +557,12 @@ func TestLunarLeapMonth_Consistency(t *testing.T) {
 func TestComputeBazi_ZiShiAdjustment(t *testing.T) {
 	// 晚子时（23:30）对齐 lunar：日柱不变（当日），时柱=子时
 	loc := time.FixedZone("test", 8*3600)
-	st := SolarTime(time.Date(2024, 6, 15, 23, 30, 0, 0, loc))
-	bz := ComputeBazi(st)
+	when := time.Date(2024, 6, 15, 23, 30, 0, 0, loc)
+	st := time.Time(when)
+	bz := ComputeBazi(time.Time(when), st)
 
 	// 日柱基于 6月15日（当日，不提前换日）
-	dp15 := RiZhu(GregorianTime(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)))
+	dp15 := RiZhu(time.Time(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC)))
 	if bz.Ri != dp15 {
 		t.Errorf("ZiShi: day pillar = %v, want %v (当日，晚子时不提前换日)", bz.Ri, dp15)
 	}
@@ -632,41 +625,7 @@ func TestAllSolarTerms_Monotonic(t *testing.T) {
 }
 
 // =============================================================================
-// SolarTime — Time/MarshalJSON/UnmarshalJSON
-// =============================================================================
-
-func TestSolarTime_Time(t *testing.T) {
-	loc := time.FixedZone("test", 8*3600)
-	orig := time.Date(2024, 6, 15, 12, 0, 0, 0, loc)
-	st := SolarTime(orig)
-	got := st.Time()
-	if !got.Equal(orig) {
-		t.Errorf("Time()=%v, want %v", got, orig)
-	}
-}
-
-func TestSolarTime_JSONRoundtrip(t *testing.T) {
-	loc := time.FixedZone("test", 8*3600)
-	orig := time.Date(2024, 6, 15, 12, 0, 0, 0, loc)
-	st := SolarTime(orig)
-
-	data, err := st.MarshalJSON()
-	if err != nil {
-		t.Fatalf("MarshalJSON: %v", err)
-	}
-
-	var st2 SolarTime
-	if err := st2.UnmarshalJSON(data); err != nil {
-		t.Fatalf("UnmarshalJSON: %v", err)
-	}
-
-	if !st2.Time().Equal(orig) {
-		t.Errorf("roundtrip: got %v, want %v", st2.Time(), orig)
-	}
-}
-
-// =============================================================================
-// SolarTermIndex — 节气索引
+// time.Time — Time/MarshalJSON/UnmarshalJSON
 // =============================================================================
 
 func TestSolarTermIndex_KnownDates(t *testing.T) {

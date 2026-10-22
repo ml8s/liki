@@ -260,8 +260,9 @@ func TestGeJu_RealCharts(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			st := tianwen.GregorianToSolar(tt.birthTime, 116.4, 8)
-			chart := ComputeChart(st, tt.gender)
+			stgt := time.Time(tt.birthTime)
+			st := tianwen.ApparentSolarFromCivil(tt.birthTime, 116.4, 8)
+			chart := ComputeChart(stgt, st, tt.gender)
 			_, _, geJu := ComputeYongShenSchools(chart)
 			if geJu.Pattern != tt.wantPattern {
 				t.Errorf("Pattern = %q, want %q\n  note: %s", geJu.Pattern, tt.wantPattern, tt.note)
@@ -323,4 +324,12 @@ func TestGeJu_StructuralContract(t *testing.T) {
 			t.Fatalf("%s%s: source=%q", ganzhi.GanName(tt.riGan), ganzhi.ZhiName(tt.yueZhi), result.PatternGodSource)
 		}
 	}
+}
+
+func computeGeJu(c Chart, _ map[ganzhi.Wuxing]int) GeJuResult {
+	gender := c.Gender
+	if gender == "" {
+		gender = ganzhi.Male
+	}
+	return GeJuAt(c, AnalyzePillars(c.ToBazi(), gender))
 }

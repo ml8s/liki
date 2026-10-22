@@ -4,32 +4,25 @@ import "liki-engine/internal/engine/ganzhi"
 
 // computeFuYi computes the FuYi (扶抑) yongshen analysis from a Chart.
 // Uses data-driven lookup tables for strength, congGe, and yong/xi/ji.
-func computeFuYi(c Chart, wc map[ganzhi.Wuxing]int, ws map[string]string) FuYiResult {
+func FuYi(
+	c Chart,
+	counts WuxingCounts,
+	seasonStrength SeasonStrength,
+	strength DayMasterStrength,
+) FuYiResult {
 	riYuan := c.Ri.Gan
-	cangGan := computeCangGan(c.ToBazi())
-	yueZhi := c.Yue.Zhi
-
-	// Use lookup-based strength (qualitative root+season+印比, not scoring).
-	rootType := classifyRoot(riYuan, yueZhi, cangGan)
-	season := classifySeason(riYuan, yueZhi)
-	yinBi := countYinBi(c)
-	strengthLabel := lookupStrength(rootType, season, yinBi)
-	basis := buildFuYiBasis(c, rootType, season, yinBi)
+	basis := buildFuYiBasis(c, strength.RootType, strength.Season, strength.YinBiCount)
 
 	// Try congGe rules first (qualitative rule chain, not percentages).
 	pat, yong, xi, ji := lookupCongGe(c)
 	if pat != "" {
-		wcStr := make(map[string]int, len(wc))
-		for k, v := range wc {
-			wcStr[k.String()] = v
-		}
 		return FuYiResult{
-			WuxingCount: wcStr,
-			WangShuai:   ws,
+			WuxingCount: counts.StringCount(),
+			WangShuai:   seasonStrength,
 			Yong:        yong,
 			Xi:          xi,
 			Ji:          ji,
-			Strength:    strengthLabel,
+			Strength:    strength.Label,
 			Pattern:     pat,
 			Model:       "support_control_with_day_master_strength",
 			Basis:       basis,
@@ -37,20 +30,15 @@ func computeFuYi(c Chart, wc map[ganzhi.Wuxing]int, ws map[string]string) FuYiRe
 	}
 
 	// Normal扶抑 (qualitative, no element count comparison).
-	yong, xi, ji = computeNormalYongJi(riYuan, strengthLabel)
-
-	wcStr := make(map[string]int, len(wc))
-	for k, v := range wc {
-		wcStr[k.String()] = v
-	}
+	yong, xi, ji = computeNormalYongJi(riYuan, strength.Label)
 
 	return FuYiResult{
-		WuxingCount: wcStr,
-		WangShuai:   ws,
+		WuxingCount: counts.StringCount(),
+		WangShuai:   seasonStrength,
 		Yong:        yong,
 		Xi:          xi,
 		Ji:          ji,
-		Strength:    strengthLabel,
+		Strength:    strength.Label,
 		Model:       "support_control_with_day_master_strength",
 		Basis:       basis,
 	}

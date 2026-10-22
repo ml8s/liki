@@ -22,6 +22,11 @@ type tiaohouKey struct {
 // computeTiaoHou returns the TiaoHou (调候) yongshen analysis for a natal
 // chart. The table is keyed by day-master and month-zhi; the availability
 // projection is computed against all four palaces.
+// TiaoHouAt is the explicit domain entry for climate-adjustment evidence.
+func TiaoHouAt(c Chart) TiaoHouResult {
+	return computeTiaoHou(c)
+}
+
 func computeTiaoHou(c Chart) TiaoHouResult {
 	riYuan, yueZhi := c.Ri.Gan, c.Yue.Zhi
 	th, _ := queryTiaoHou(riYuan, yueZhi)

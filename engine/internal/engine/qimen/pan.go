@@ -2,8 +2,8 @@ package qimen
 
 import "liki-engine/internal/engine/ganzhi"
 
-// computePan builds a chart from its table-driven plates and method geometry.
-func computePan(ju juShu, bz ganzhi.Bazi) pan {
+// ArrangePan builds a chart from its table-driven plates and method geometry.
+func ArrangePan(ju juShu, bz ganzhi.Bazi) pan {
 	dipan := placeDiPan(ju.Number, ju.YinDun)
 	leadZhu := leadPillar(bz, ju)
 	duty := findDuty(leadZhu, dipan)

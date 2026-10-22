@@ -54,7 +54,7 @@ func TestParseMethodMatrix(t *testing.T) {
 		}
 	}
 	if _, err := ComputeChartWithMethod(
-		tianwen.SolarTime{}, Method{Scope: ScopeYear, School: SchoolZhuanPan, Dingju: DingjuChaiBu},
+		time.Time{}, time.Time{}, Method{Scope: ScopeYear, School: SchoolZhuanPan, Dingju: DingjuChaiBu},
 	); err == nil {
 		t.Error("ComputeChartWithMethod should reject an unsupported method combination")
 	}
@@ -615,8 +615,8 @@ func TestMethodMatrixCombinationInvariants(t *testing.T) {
 	} {
 		t.Run(method.Scope.String()+"/"+method.School.String()+"/"+method.Dingju.String(), func(t *testing.T) {
 			chart := computeMethodChartForTest(t, "2026-03-02 18:30", method)
-			st := methodSolarTimeForTest(t, "2026-03-02 18:30")
-			bz := tianwen.ComputeBazi(st)
+			gt, st := methodTimesForTest(t, "2026-03-02 18:30")
+			bz := tianwen.ComputeBazi(gt, st)
 			wantLead := map[Scope]ganzhi.Zhu{
 				ScopeHour: bz.Shi, ScopeDay: bz.Ri, ScopeMonth: bz.Yue, ScopeYear: bz.Nian,
 			}[method.Scope]
@@ -749,18 +749,18 @@ func computeMethodChartForTest(t *testing.T, when string, method Method) Chart {
 	if err != nil {
 		t.Fatal(err)
 	}
-	chart, err := ComputeChartWithMethod(tianwen.SolarTime(civil), method)
+	chart, err := ComputeChartWithMethod(time.Time(civil), time.Time(civil), method)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return chart
 }
 
-func methodSolarTimeForTest(t *testing.T, when string) tianwen.SolarTime {
+func methodTimesForTest(t *testing.T, when string) (time.Time, time.Time) {
 	t.Helper()
 	civil, err := time.ParseInLocation("2006-01-02 15:04", when, time.FixedZone("CST", 8*3600))
 	if err != nil {
 		t.Fatal(err)
 	}
-	return tianwen.SolarTime(civil)
+	return time.Time(civil), time.Time(civil)
 }

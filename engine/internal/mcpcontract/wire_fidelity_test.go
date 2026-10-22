@@ -57,7 +57,7 @@ func TestEngineContractWireFidelity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	registry := NewEngine()
+	registry := testEngine()
 	checked := map[string]int{}
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {

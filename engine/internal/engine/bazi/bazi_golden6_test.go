@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // TestBaziGolden6_QiyunPrecision verifies 起运精确值密集覆盖（bazi_golden6.json，20 例）：
@@ -33,7 +32,7 @@ func TestBaziGolden6_QiyunPrecision(t *testing.T) {
 			if gc.Gender == "female" {
 				g = ganzhi.Female
 			}
-			c := ComputeChart(tianwen.SolarTime(tt), g)
+			c := ComputeChart(time.Time(tt), time.Time(tt), g)
 			// 四柱
 			p := fmt.Sprintf("%s%s %s%s %s%s %s%s",
 				c.Nian.Gan, c.Nian.Zhi, c.Yue.Gan, c.Yue.Zhi, c.Ri.Gan, c.Ri.Zhi, c.Shi.Gan, c.Shi.Zhi)

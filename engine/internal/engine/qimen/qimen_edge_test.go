@@ -28,8 +28,9 @@ func TestEdgeDates(t *testing.T) {
 		}
 		// 测两个时辰（子时/午时）
 		for _, h := range []int{0, 12} {
-			st := tianwen.GregorianToSolar(bt.Add(time.Duration(h)*time.Hour), 116.4, 8)
-			ch := ComputeChart(st)
+			stgt := time.Time(bt.Add(time.Duration(h) * time.Hour))
+			st := tianwen.ApparentSolarFromCivil(bt.Add(time.Duration(h)*time.Hour), 116.4, 8)
+			ch := ComputeChart(stgt, st)
 			if ch.Pan.Jushu < 1 || ch.Pan.Jushu > 9 {
 				t.Errorf("%s %d时: 局数越界 %d", d, h, ch.Pan.Jushu)
 			}

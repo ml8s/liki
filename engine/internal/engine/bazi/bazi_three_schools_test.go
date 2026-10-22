@@ -30,8 +30,9 @@ func TestThreeSchools_Consistency(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			loc := time.FixedZone("CST", 8*3600)
 			birth := time.Date(tt.year, time.Month(tt.month), tt.day, tt.hour, 0, 0, 0, loc)
-			st := tianwen.GregorianToSolar(birth, 116.4, 8)
-			chart := ComputeChart(st, tt.gender)
+			stgt := time.Time(birth)
+			st := tianwen.ApparentSolarFromCivil(birth, 116.4, 8)
+			chart := ComputeChart(stgt, st, tt.gender)
 			fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
 			t.Logf("%s%s %s%s %s%s %s%s",

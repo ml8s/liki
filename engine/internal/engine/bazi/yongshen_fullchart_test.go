@@ -12,9 +12,10 @@ import (
 
 // 用神三派归完整命盘（bazi.fullchart 承载）；chart 纯排盘不含 yong_shen。
 func TestFullChart_YongShen(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 6, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 1, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	if b, _ := json.Marshal(chart); strings.Contains(string(b), "yong_shen") {
 		t.Error("chart 不应含用神（纯排盘，yong_shen 归 fullchart）")
 	}

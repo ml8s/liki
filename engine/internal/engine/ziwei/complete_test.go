@@ -144,7 +144,7 @@ func TestComplete(t *testing.T) {
 			ln := ComputeLiuNian(fc, 2026)
 			assertFlowPalaces(t, "流年", ln.GongWei, tc.YFlow, &pass, &fail)
 			// 流月/日/时盘共用目标农历日。
-			tgtM := tianwen.SolarToLunar(tianwen.GregorianTime(time.Date(2026, 6, 4, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
+			tgtM := tianwen.LunarDateAt(time.Time(time.Date(2026, 6, 4, 0, 0, 0, 0, time.FixedZone("CST", 8*3600))))
 			lyTarget := tianwen.LunarDate{Year: tgtM.Year, Month: tgtM.Month, Day: tgtM.Day, Leap: tgtM.Leap}
 			ly2, err := ComputeLiuYue(fc, lyTarget)
 			if err != nil {

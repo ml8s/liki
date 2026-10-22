@@ -3,7 +3,7 @@ package mcpcontract
 // Wire-level scalar types carry JSON Schema constraints through TypeSchemas.
 // Their runtime JSON representations remain ordinary strings and integers.
 type (
-	RFC3339Time  string
+	Instant      string
 	DateString   string
 	GenderName   string
 	CityName     string

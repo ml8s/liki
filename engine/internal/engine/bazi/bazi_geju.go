@@ -11,16 +11,17 @@ import "liki-engine/internal/engine/ganzhi"
 //   - 中气透干 → 用该干十神定格局
 //   - 余气透干 → 用该干十神定格局
 //   - 都不透 → 月令本气虚格
-func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
-	bz := c.ToBazi()
-	hs := computeCangGan(bz)
-	shiShens := computeShiShensTable(bz, hs)
+func GeJuAt(
+	c Chart,
+	analysis PillarAnalysis,
+) GeJuResult {
+	shiShens := analysis.TenGods
 	riYuan := c.Ri.Gan
 	yueZhi := c.Yue.Zhi
 
 	// 建禄格/月刃格: month zhi is the day master's 临官(禄) or 帝旺(刃).
 	if isLu, isRen := jianLuYueRenZhi(riYuan, yueZhi); isLu || isRen {
-		return computeJianLuYueRen(c, isRen)
+		return JianLuYueRen(c, isRen)
 	}
 
 	// 月令透干定格局: 本气→中气→余气, 第一个透干者定格.
@@ -84,7 +85,7 @@ func computeGeJu(c Chart, wc map[ganzhi.Wuxing]int) GeJuResult {
 	}
 }
 
-func computeJianLuYueRen(c Chart, isYueRen bool) GeJuResult {
+func JianLuYueRen(c Chart, isYueRen bool) GeJuResult {
 	dmElem := ganzhi.GanWuxing(c.Ri.Gan)
 	var patternName string
 	if isYueRen {

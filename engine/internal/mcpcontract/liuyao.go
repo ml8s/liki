@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"liki-engine/internal/engine/liuyao"
-	"liki-engine/internal/engine/tianwen"
 )
 
 type LiuyaoCoinRoundsInput []LiuyaoCoinRoundInput
@@ -337,8 +335,13 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 	return LiuyaoQiguaOutput{Casting: liuyaoCastingWire(casting)}, nil
 }
 
+// LiuyaoChartInput takes the canonical {instant, timezone} pair (Zone is IANA) and the
+// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
+// chart domain consumes those domain scales (day/month jian use LAST/solar terms; boundary converts once).
 type LiuyaoChartInput struct {
-	SolarTime RFC3339Time          `json:"solar_time" jsonschema:"占问时间（RFC3339），从 tianwen.time 返回的 solar 字段。"`
+	Instant   Instant              `json:"instant" jsonschema:"占问瞬间 UTC（RFC3339，Z）。"`
+	Timezone  string               `json:"timezone" jsonschema:"占问地 IANA 时区。"`
+	Longitude float64              `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时辰。"`
 	YongShen  LiuyaoYongShenName   `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
 	Casting   *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao.qigua 返回的完整可审计起卦收据。"`
 }
@@ -351,9 +354,16 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, 
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
 	}
-	st, err := time.Parse(time.RFC3339, string(input.SolarTime))
+	at, err := parseInstant(string(input.Instant))
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
+	}
+	loc, err := loadTimezone(input.Timezone)
+	if err != nil {
+		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
+	}
+	if input.Longitude < -180 || input.Longitude > 180 {
+		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
 	yongShen := string(input.YongShen)
 	if yongShen == "" {
@@ -363,7 +373,7 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, 
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	chart := liuyao.ComputeChart(tianwen.SolarTime(st), ys, casting.Yaos)
+	chart := liuyao.ComputeChartAt(at, loc, input.Longitude, ys, casting.Yaos)
 	chart.Casting = &casting
 	return liuyaoChartWire(chart), nil
 }

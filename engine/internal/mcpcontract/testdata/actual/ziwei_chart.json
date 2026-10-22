@@ -1,12 +1,9 @@
 {
   "input": {
     "gender": "male",
-    "lunar": {
-      "day": 15,
-      "month": 6,
-      "shichen": "午",
-      "year": 2000
-    }
+    "longitude": 116.4,
+    "instant": "2000-07-16T04:00:00Z",
+    "timezone": "Asia/Shanghai"
   },
   "output": {
     "birth_lunar_month": 6,

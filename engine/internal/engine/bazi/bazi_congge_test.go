@@ -36,8 +36,9 @@ func TestCongGe_LookupRules(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			st := tianwen.GregorianToSolar(bt, 116.4, 8)
-			chart := ComputeChart(st, tt.gender)
+			stgt := time.Time(bt)
+			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
+			chart := ComputeChart(stgt, st, tt.gender)
 			pat, _, _, _ := lookupCongGe(chart)
 			if tt.wantPattern != "" && pat != tt.wantPattern {
 				t.Errorf("chart: %s%s %s%s %s%s %s%s | pattern=%q, want=%q",

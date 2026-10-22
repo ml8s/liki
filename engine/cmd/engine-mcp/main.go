@@ -18,7 +18,6 @@ import (
 	"liki-engine/internal/engine/bazi"
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tables"
-	"liki-engine/internal/engine/tianwen"
 	apphttp "liki-engine/internal/http"
 )
 
@@ -60,8 +59,10 @@ func main() {
 	// 计算自检只做一次：排一个固定八字（1984-02-04 06:00 男），验证日柱=戊辰。
 	// /health 必须保持轻量，不能成为 CPU 放大器。
 	selfTestCst := time.FixedZone("CST", 8*3600)
+	selfTestWhen := time.Date(1984, 2, 4, 6, 0, 0, 0, selfTestCst)
 	selfTestChart := bazi.ComputeChart(
-		tianwen.SolarTime(time.Date(1984, 2, 4, 6, 0, 0, 0, selfTestCst)),
+		time.Time(selfTestWhen),
+		time.Time(selfTestWhen),
 		ganzhi.Male,
 	)
 	selfTestOK := selfTestChart.Ri.Gan == ganzhi.GanWu

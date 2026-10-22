@@ -274,15 +274,15 @@ func ResolveMethodWithOptions(
 }
 
 // ComputeChart computes the default hour-scope rotating chai-bu chart.
-func ComputeChart(st tianwen.SolarTime) Chart {
+func ComputeChart(gt time.Time, st time.Time) Chart {
 	method, _ := ResolveMethod("", "", "", "")
-	chart, _ := ComputeChartWithMethod(st, method)
+	chart, _ := ComputeChartWithMethod(gt, st, method)
 	return chart
 }
 
 // ComputeChartWithMethod computes a chart for a catalog method and rejects
 // combinations absent from the catalog.
-func ComputeChartWithMethod(st tianwen.SolarTime, method Method) (Chart, error) {
+func ComputeChartWithMethod(gt time.Time, st time.Time, method Method) (Chart, error) {
 	parsed, err := ParseMethodWithOptions(
 		method.Scope.String(), method.School.String(), method.Dingju.String(),
 		method.QuarterRule.String(), method.BaseDingju.String(), method.DunSource, method.HourBoundary,
@@ -293,23 +293,26 @@ func ComputeChartWithMethod(st tianwen.SolarTime, method Method) (Chart, error) 
 	if parsed.School == SchoolJinhanYuJing {
 		return Chart{}, fmt.Errorf("jinhan_yujing has a distinct result model; use ComputeJinhanChart")
 	}
-	bz, chartTime := chartInputs(st)
-	return computeChart(bz, chartTime, parsed), nil
+	bz, termTime, chartTime := chartInputs(gt, st)
+	return computeChart(bz, termTime, chartTime, parsed), nil
 }
 
-func chartInputs(st tianwen.SolarTime) (ganzhi.Bazi, time.Time) {
-	bz := tianwen.ComputeBazi(st)
-	if qimenDayBoundary == "late_zi_rolls_day_pillar" && st.Time().Hour() >= 23 {
+// chartInputs 返回 (四柱, 节气判定时刻, 盘面时刻)：
+//   - 节气判定用 Gregorian time（节气是绝对瞬时，换局/置闰/茅山元与出生 Gregorian time同帧比较）；
+//   - 盘面分钟分法（十二分钟/十分钟）用真太阳时壁钟，与 bz.Shi（真太阳时辰）一致。
+func chartInputs(gt time.Time, st time.Time) (ganzhi.Bazi, time.Time, time.Time) {
+	bz := tianwen.ComputeBazi(gt, st)
+	if qimenDayBoundary == "late_zi_rolls_day_pillar" && st.Hour() >= 23 {
 		dayIndex := ganzhi.SixtyCycleIndex(bz.Ri.Gan, bz.Ri.Zhi) + 1
 		bz.Ri = ganzhi.SixtyToZhu(dayIndex)
 	}
-	return bz, st.Time()
+	return bz, gt, st
 }
 
 // ComputeChartWithYongShenAndMethod aggregates selected Yong Shen under a
 // catalog method and rejects combinations absent from the catalog.
 func ComputeChartWithYongShenAndMethod(
-	st tianwen.SolarTime, syms []YongShenSymbol, birthDate BirthDate, method Method,
+	gt time.Time, st time.Time, syms []YongShenSymbol, birthDate BirthDate, method Method,
 ) (Chart, error) {
 	parsed, err := ParseMethodWithOptions(
 		method.Scope.String(), method.School.String(), method.Dingju.String(),
@@ -321,6 +324,6 @@ func ComputeChartWithYongShenAndMethod(
 	if parsed.School == SchoolJinhanYuJing {
 		return Chart{}, fmt.Errorf("jinhan_yujing has a distinct result model; use ComputeJinhanChart")
 	}
-	bz, chartTime := chartInputs(st)
-	return computeChartWithYongShen(bz, chartTime, parsed, syms, birthDate), nil
+	bz, termTime, chartTime := chartInputs(gt, st)
+	return computeChartWithYongShen(bz, termTime, chartTime, parsed, syms, birthDate), nil
 }

@@ -2,6 +2,7 @@ package qimen
 
 import (
 	"fmt"
+	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
@@ -113,7 +114,7 @@ func resolveJiaDunGan(gan ganzhi.Gan, zhi ganzhi.Zhi) ganzhi.Gan {
 
 // resolveNianGan 出生年份 → 年命干落宫（甲年命遁六仪）。
 func resolveNianGan(chart Chart, birthDate BirthDate) *GongIndex {
-	nian := tianwen.NianZhu(tianwen.GregorianTime(birthDate.Time))
+	nian := tianwen.NianZhu(time.Time(birthDate.Time))
 	if nian.Gan == 0 {
 		return nil
 	}
@@ -126,7 +127,7 @@ func resolveNianGan(chart Chart, birthDate BirthDate) *GongIndex {
 }
 
 func resolveNianGanFacts(chart Chart, birthDate BirthDate) []GanPalaceFact {
-	nian := tianwen.NianZhu(tianwen.GregorianTime(birthDate.Time))
+	nian := tianwen.NianZhu(time.Time(birthDate.Time))
 	if nian.Gan == 0 {
 		return nil
 	}

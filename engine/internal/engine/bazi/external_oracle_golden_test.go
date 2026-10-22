@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 //go:embed testdata/external_8char_uniapp_19810826.json
@@ -21,8 +20,8 @@ type external8CharCase struct {
 		Longitude float64 `json:"longitude"`
 		Gender    string  `json:"gender"`
 	} `json:"input"`
-	ExpectedTrueSolarTime string `json:"expected_true_solar_time"`
-	Oracle                struct {
+	ExpectedApparentSolarRead string `json:"expected_true_solar_time"`
+	Oracle                    struct {
 		Pillars   []string   `json:"pillars"`
 		TaiXi     string     `json:"tai_xi"`
 		Gods      [][]string `json:"gods"`
@@ -92,7 +91,7 @@ func TestExternalOracle_8CharUniApp_DaYunStart(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	chart := ComputeChart(tianwen.SolarTime(birth), ganzhi.Male)
+	chart := ComputeChart(time.Time(birth), time.Time(birth), ganzhi.Male)
 	dy := chart.DaYun
 	if dy == nil || len(dy.Steps) == 0 {
 		t.Fatal("dayun is empty")
@@ -203,7 +202,7 @@ func externalCanonicalChart(bz ganzhi.Bazi, gender ganzhi.Gender, birthYear int)
 	}
 }
 
-func hiddenLabels(h cangGanOut) []string {
+func hiddenLabels(h HiddenStemProjection) []string {
 	out := []string{ganzhi.GanName(h.Main)}
 	if h.Mid != nil {
 		out = append(out, ganzhi.GanName(*h.Mid))
@@ -214,7 +213,7 @@ func hiddenLabels(h cangGanOut) []string {
 	return out
 }
 
-func hiddenTenGodLabels(entries []shiShenEntry) []string {
+func hiddenTenGodLabels(entries []TenGodProjection) []string {
 	out := make([]string, 0, len(entries))
 	for _, entry := range entries {
 		if entry.Source != sourceGan {
@@ -239,7 +238,7 @@ func ganzhiZhuLabel(pillar ganzhi.Zhu) string {
 	return ganzhi.GanName(pillar.Gan) + ganzhi.ZhiName(pillar.Zhi)
 }
 
-func shenshaNames(entries []shenShaEntry) []string {
+func shenshaNames(entries []ShenShaProjection) []string {
 	out := make([]string, 0, len(entries))
 	for _, entry := range entries {
 		out = append(out, entry.Name)

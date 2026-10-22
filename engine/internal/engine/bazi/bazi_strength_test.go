@@ -16,7 +16,7 @@ func TestStrength_AllRules_FirstHit(t *testing.T) {
 	// 规则 1: month_main + 任何季节 → 身强
 	t.Run("rule1_month_main_any_season", func(t *testing.T) {
 		for _, s := range []ganzhi.Zhi{ganzhi.ZhiYin, ganzhi.ZhiWu, ganzhi.ZhiShen} {
-			cg := [4]cangGanOut{
+			cg := [4]HiddenStemProjection{
 				{Main: ganzhi.GanWu},
 				{Main: ganzhi.GanJia}, // 寅中甲 → month_main for 甲木
 				{Main: ganzhi.GanWu},
@@ -34,7 +34,7 @@ func TestStrength_AllRules_FirstHit(t *testing.T) {
 	// 规则 2: month_mid + 旺/相 → 身强
 	t.Run("rule2_month_mid_wang_xiang", func(t *testing.T) {
 		// 甲木日主, 月支亥(壬水), 中气甲 → month_mid
-		cg := [4]cangGanOut{
+		cg := [4]HiddenStemProjection{
 			{Main: ganzhi.GanWu},
 			{Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, // 亥: 壬(本气)甲(中气)
 			{Main: ganzhi.GanWu},
@@ -54,7 +54,7 @@ func TestStrength_AllRules_FirstHit(t *testing.T) {
 	// 规则 4: month_mid + 死 → 身弱
 	t.Run("rule4_month_mid_si", func(t *testing.T) {
 		// 甲木日主, 申月(庚), 中气壬 → 甲木month_mid
-		cg := [4]cangGanOut{
+		cg := [4]HiddenStemProjection{
 			{Main: ganzhi.GanWu},
 			{Main: ganzhi.GanGeng, Mid: ptr(ganzhi.GanRen)}, // 申: 庚(本气)壬(中气)
 			{Main: ganzhi.GanWu},
@@ -148,37 +148,37 @@ func TestClassifyRoot_AllTypes(t *testing.T) {
 		name   string
 		riGan  ganzhi.Gan
 		yueZhi ganzhi.Zhi
-		cg     [4]cangGanOut
+		cg     [4]HiddenStemProjection
 		want   string
 	}{
 		{
 			name:  "month_main_寅中甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiYin,
-			cg:   [4]cangGanOut{{}, {Main: ganzhi.GanJia}, {}, {}},
+			cg:   [4]HiddenStemProjection{{}, {Main: ganzhi.GanJia}, {}, {}},
 			want: "month_main",
 		},
 		{
 			name:  "month_mid_亥中甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiHai,
-			cg:   [4]cangGanOut{{}, {Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, {}, {}},
+			cg:   [4]HiddenStemProjection{{}, {Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, {}, {}},
 			want: "month_mid",
 		},
 		{
 			name:  "zhi_main_年支寅甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
-			cg:   [4]cangGanOut{{Main: ganzhi.GanJia}, {Main: ganzhi.GanWu}, {}, {}},
+			cg:   [4]HiddenStemProjection{{Main: ganzhi.GanJia}, {Main: ganzhi.GanWu}, {}, {}},
 			want: "zhi_main",
 		},
 		{
 			name:  "zhi_mid_年支亥中甲",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
-			cg:   [4]cangGanOut{{Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, {Main: ganzhi.GanWu}, {}, {}},
+			cg:   [4]HiddenStemProjection{{Main: ganzhi.GanRen, Mid: ptr(ganzhi.GanJia)}, {Main: ganzhi.GanWu}, {}, {}},
 			want: "zhi_mid",
 		},
 		{
 			name:  "none_无根",
 			riGan: ganzhi.GanJia, yueZhi: ganzhi.ZhiWu,
-			cg:   [4]cangGanOut{{Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}},
+			cg:   [4]HiddenStemProjection{{Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}, {Main: ganzhi.GanWu}},
 			want: "none",
 		},
 	}

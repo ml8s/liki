@@ -21,7 +21,11 @@
 //	ComputeChart(st, yongShen, yaos) → Chart  装卦 + 用神 + 旺衰 + 应期
 package liuyao
 
-import "liki-engine/internal/engine/tianwen"
+import (
+	"time"
+
+	"liki-engine/internal/engine/tianwen"
+)
 
 func yaosToInts(y [6]YaoType) [6]int {
 	var out [6]int
@@ -31,7 +35,27 @@ func yaosToInts(y [6]YaoType) [6]int {
 	return out
 }
 
-// ComputeChart builds a full 六爻 chart from solar time, question type, and yaos.
-func ComputeChart(st tianwen.SolarTime, yongShen YongShen, yaos [6]int) Chart {
-	return computeChart(tianwen.ComputeBazi(st), yongShen, yaos)
+// ComputeChart builds a full 六爻 chart from civil time (年/月柱),
+// true-solar time (日/时柱), question type, and yaos.
+func ComputeChart(gt time.Time, st time.Time, yongShen YongShen, yaos [6]int) Chart {
+	return computeChart(tianwen.ComputeBazi(gt, st), yongShen, yaos)
+}
+
+// ComputeChartAt is the explicit-time entry for new callers. at must already
+// be normalized to UTC; loc is the explicit IANA location.
+func ComputeChartAt(
+	at time.Time,
+	loc *time.Location,
+	longitude float64,
+	yongShen YongShen,
+	yaos [6]int,
+) Chart {
+	civil := at.In(loc)
+	solar := tianwen.ApparentSolarCivil(at, loc, longitude)
+	return ComputeChart(
+		time.Time(civil),
+		time.Time(solar),
+		yongShen,
+		yaos,
+	)
 }

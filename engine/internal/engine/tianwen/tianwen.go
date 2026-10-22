@@ -2,6 +2,7 @@ package tianwen
 
 import (
 	"math"
+	"sync"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -19,8 +20,8 @@ var solarTermLongitudes = func() [12]float64 {
 
 // JianYue returns the solar-term month zhi (建月) for a given date.
 // 寅=立春..丑=小寒.
-func JianYue(gt GregorianTime) ganzhi.Zhi {
-	t := gt.Time()
+func JianYue(gt time.Time) ganzhi.Zhi {
+	t := gt
 	lon := solarLongitude(t)
 	for i := 0; i < 12; i++ {
 		if angleInRange(lon, solarTermLongitudes[i], solarTermLongitudes[(i+1)%12]) {
@@ -64,7 +65,26 @@ func angleInRange(lon, cur, next float64) bool {
 
 // SolarTermTime returns the instant the sun's apparent longitude reaches
 // targetLon degrees (a solar term / 节气) in the given year (Beijing time).
+var solarTermCache sync.Map
+
+type solarTermKey struct {
+	year int
+	lon  float64
+}
+
+// SolarTermTime returns the cached instant the sun's apparent longitude
+// reaches targetLon degrees. targetLon 为固定枚举（节气黄经），缓存有界。
 func SolarTermTime(year int, targetLon float64) time.Time {
+	key := solarTermKey{year: year, lon: targetLon}
+	if cached, ok := solarTermCache.Load(key); ok {
+		return cached.(time.Time)
+	}
+	t := computeSolarTermTime(year, targetLon)
+	solarTermCache.Store(key, t)
+	return t
+}
+
+func computeSolarTermTime(year int, targetLon float64) time.Time {
 	// 初始猜测：按黄经基准（太阳 1月1日黄经≈280°，每天 0.9856°）。
 	// 归一化到当年：先算 1月1日黄经，再推 targetLon 对应日。
 	jan1Lon := solarLongitude(time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC))
@@ -75,7 +95,7 @@ func SolarTermTime(year int, targetLon float64) time.Time {
 		diff0 += 360
 	}
 	t := time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC).AddDate(0, 0, int(diff0/0.9856))
-	for iter := 0; iter < 30; iter++ {
+	for iter := 0; iter < 60; iter++ {
 		lon := solarLongitude(t)
 		diff := targetLon - lon
 		if diff > 180 {
@@ -83,7 +103,7 @@ func SolarTermTime(year int, targetLon float64) time.Time {
 		} else if diff < -180 {
 			diff += 360
 		}
-		if math.Abs(diff) < 0.01 {
+		if math.Abs(diff) < 1e-5 {
 			break
 		}
 		step := diff / 0.9856

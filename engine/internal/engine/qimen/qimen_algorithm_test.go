@@ -130,7 +130,7 @@ func TestStandardRotatingPlateAnchor(t *testing.T) {
 	hour := ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: ganzhi.ZhiChen}
 	ju.Method = Method{Scope: ScopeHour, School: SchoolZhuanPan, Dingju: DingjuChaiBu}
 	bz := ganzhi.Bazi{Ri: ganzhi.Zhu{Gan: ganzhi.GanYi}, Shi: hour}
-	chart := computePan(ju, bz)
+	chart := ArrangePan(ju, bz)
 
 	wantEarth := [9]ganzhi.Gan{
 		ganzhi.GanRen, ganzhi.GanGui, ganzhi.GanDing, ganzhi.GanBing,
@@ -192,7 +192,7 @@ func TestHourJiaUsesCycleHeadLiuYi(t *testing.T) {
 	hour := ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiXu}
 	ju.Method = Method{Scope: ScopeHour, School: SchoolZhuanPan, Dingju: DingjuChaiBu}
 	bz := ganzhi.Bazi{Ri: ganzhi.Zhu{Gan: ganzhi.GanWu}, Shi: hour}
-	chart := computePan(ju, bz)
+	chart := ArrangePan(ju, bz)
 	if chart.DutyStar != StarTianRui {
 		t.Fatalf("duty star = %s, want 天芮 by Jia-Xu→Ji", chart.DutyStar)
 	}

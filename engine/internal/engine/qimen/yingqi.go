@@ -79,7 +79,7 @@ func yingQiDayWindow(chart Chart, chartTime time.Time) []yingQiDay {
 		date := anchor.AddDate(0, 0, offset)
 		result = append(result, yingQiDay{
 			Date:   date,
-			Branch: tianwen.RiZhu(tianwen.GregorianTime(date)).Zhi,
+			Branch: tianwen.RiZhu(time.Time(date)).Zhi,
 		})
 	}
 	return result
@@ -116,7 +116,7 @@ func yingQiAnchorDate(chart Chart, chartTime time.Time) time.Time {
 	base := civilDate(chartTime)
 	for _, offset := range []int{0, 1, -1} {
 		date := base.AddDate(0, 0, offset)
-		pillar := tianwen.RiZhu(tianwen.GregorianTime(date))
+		pillar := tianwen.RiZhu(time.Time(date))
 		if pillar.Gan == chart.Pan.RiGan && pillar.Zhi == chart.Pan.RiZhi {
 			return date
 		}

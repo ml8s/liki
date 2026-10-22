@@ -8,26 +8,43 @@ import (
 	"time"
 )
 
-// time.now's CST field must represent the same instant as UTC, with the
-// real Beijing offset.
-func TestTimeNowCSTIsRealBeijingTime(t *testing.T) {
-	raw, err := NewEngine().Call(context.Background(), "time.now", nil)
+func TestTimeNowRequiresTimezone(t *testing.T) {
+	if _, err := testEngine().Call(context.Background(), "time.now", nil); err == nil {
+		t.Fatal("time.now without timezone must fail")
+	}
+}
+
+func TestTimeNowCST(t *testing.T) {
+	raw, err := testEngine().Call(context.Background(), "time.now", json.RawMessage(`{"timezone":"Asia/Shanghai"}`))
 	if err != nil {
 		t.Fatalf("call: %v", err)
 	}
-	var output TimeNowOutput
-	if err := json.Unmarshal(raw, &output); err != nil {
-		t.Fatalf("unmarshal: %v", err)
+	var out TimeNowOutput
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatal(err)
 	}
-	if !strings.HasSuffix(output.CST, "+08:00") {
-		t.Fatalf("cst offset should be +08:00, got %q", output.CST)
+	if out.Timezone != "Asia/Shanghai" {
+		t.Fatalf("unexpected output: %+v", out)
 	}
-	cst, err := time.Parse(time.RFC3339, output.CST)
+	instant, err := time.Parse(time.RFC3339, out.Instant)
+	if err != nil || !strings.HasSuffix(out.Instant, "Z") {
+		t.Fatalf("instant: %q %v", out.Instant, err)
+	}
+	if time.Since(instant).Abs() > 2*time.Second {
+		t.Fatalf("instant %s is too far from now", out.Instant)
+	}
+}
+
+func TestTimeNowNewYork(t *testing.T) {
+	raw, err := testEngine().Call(context.Background(), "time.now", json.RawMessage(`{"timezone":"America/New_York"}`))
 	if err != nil {
-		t.Fatalf("parse cst: %v", err)
+		t.Fatalf("call: %v", err)
 	}
-	want := time.Now().In(time.FixedZone("CST", 8*3600))
-	if diff := cst.Sub(want); diff < -2*time.Second || diff > 2*time.Second {
-		t.Fatalf("cst %s differs from real Beijing time by %v (>2s)", output.CST, diff)
+	var out TimeNowOutput
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatal(err)
+	}
+	if out.Timezone != "America/New_York" {
+		t.Fatalf("unexpected output: %+v", out)
 	}
 }

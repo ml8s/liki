@@ -21,8 +21,8 @@ import (
 // the engine's own tables.
 
 const (
-	testSolarTimeA = "2000-06-15T12:00:00+08:00"
-	testSolarTimeB = "2000-09-20T08:30:00+08:00"
+	canonicalInstantA = "2000-06-15T04:00:00Z"
+	canonicalInstantB = "2000-09-20T00:30:00Z"
 )
 
 // callToolDocument calls a tool and returns the decoded JSON document.
@@ -52,30 +52,29 @@ func assertToolError(t *testing.T, registry *Registry, name string, input any, c
 }
 
 // testBaziChart returns a bazi.chart result document for the migrated handlers.
-func testBaziChart(t *testing.T, registry *Registry, solarTime, gender string) map[string]any {
+func testBaziChart(t *testing.T, registry *Registry, utc, timezone string, longitude float64, gender string) map[string]any {
 	t.Helper()
 	return callToolDocument(t, registry, "bazi.chart", map[string]any{
-		"solar_time": solarTime, "gender": gender,
+		"instant": utc, "timezone": timezone, "longitude": longitude, "gender": gender,
 	})
 }
 
 func TestMigratedLegacyToolsTolerateUnknownArguments(t *testing.T) {
-	registry := NewEngine()
-	solarTime := testSolarTimeA
+	registry := testEngine()
+	solarTime := canonicalInstantA
 
 	// The legacy params schemas left additionalProperties unset, so the legacy
-	// registry ignored unknown arguments: clients send extra context (counsel
-	// sends tianwen.time's longitude to bazi.chart) and chain richer payloads
-	// (counsel feeds a ziwei.fullchart object into ziwei.daxian). The migrated
-	// tools must keep accepting those calls.
+	// registry ignored unknown arguments (e.g. callers sent extra context), and
+	// richer payloads are chained (counsel feeds a ziwei.fullchart object into
+	// ziwei.daxian). The migrated tools must keep accepting those calls.
 	callToolDocument(t, registry, "bazi.chart", map[string]any{
-		"solar_time": solarTime, "gender": "male", "longitude": 116.4,
+		"instant": solarTime, "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male", "legacy_extra": true,
 	})
 
 	// ziwei.fullchart returns a superset of the ziwei.chart object, and clients
 	// chain it straight into the flow tools.
 	ziweiChart := callToolDocument(t, registry, "ziwei.chart", map[string]any{
-		"lunar": map[string]any{"year": 1984, "month": 1, "day": 15, "shichen": "午"}, "gender": "male",
+		"instant": "1984-02-16T04:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male",
 	})
 	ziweiFull := callToolDocument(t, registry, "ziwei.fullchart", map[string]any{"chart": ziweiChart})
 	callToolDocument(t, registry, "ziwei.liunian", map[string]any{"chart": ziweiFull, "lunar_year": 2030})
@@ -86,13 +85,13 @@ func TestMigratedLegacyToolsTolerateUnknownArguments(t *testing.T) {
 	// qimen.chart's legacy schema did close the root object, so unknown root
 	// arguments stay rejected there.
 	assertToolError(t, registry, "qimen.chart", map[string]any{
-		"solar_time": solarTime, "kind": "hour",
+		"instant": solarTime, "timezone": "Asia/Shanghai", "longitude": 116.4, "kind": "hour",
 	}, "")
 }
 
 func TestMigratedBaziFullChartRejectsMissingOrWrongNaYin(t *testing.T) {
-	registry := NewEngine()
-	chart := testBaziChart(t, registry, testSolarTimeA, "male")
+	registry := testEngine()
+	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 	nian, ok := chart["nian"].(map[string]any)
 	if !ok {
 		t.Fatalf("chart.nian = %#v", chart["nian"])
@@ -116,8 +115,8 @@ func TestMigratedBaziFullChartRejectsMissingOrWrongNaYin(t *testing.T) {
 }
 
 func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
-	registry := NewEngine()
-	chart := testBaziChart(t, registry, testSolarTimeA, "male")
+	registry := testEngine()
+	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 
 	// bazi.xiaoyun returns one entry per 小运 school; every entry carries the
 	// same number of 柱 as the requested count (12 by default).
@@ -153,10 +152,10 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 }
 
 func TestMigratedQimenDefaultsAndDingju(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 
 	method := callToolDocument(t, registry, "qimen.chart", map[string]any{
-		"solar_time": testSolarTimeA,
+		"instant": "1984-02-15T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4,
 	})["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "zhuanpan" || method["dingju_method"] != "chaibu" {
 		t.Fatalf("default method = %v/%v/%v, want hour/zhuanpan/chaibu",
@@ -164,7 +163,7 @@ func TestMigratedQimenDefaultsAndDingju(t *testing.T) {
 	}
 
 	method = callToolDocument(t, registry, "qimen.chart", map[string]any{
-		"solar_time": "2026-01-05T13:00:00+08:00", "dingju_method": "zhirun",
+		"instant": "2026-01-05T05:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "dingju_method": "zhirun",
 	})["method"].(map[string]any)
 	if method["dingju_method"] != "zhirun" || method["dingju_method_name"] != "置闰定局" {
 		t.Fatalf("dingju method = %v/%v, want zhirun/置闰定局",
@@ -175,16 +174,16 @@ func TestMigratedQimenDefaultsAndDingju(t *testing.T) {
 	}
 
 	assertToolError(t, registry, "qimen.chart", map[string]any{
-		"solar_time": "2026-01-05T13:00:00+08:00", "dingju_method": "luoshu_feipan",
+		"instant": "2026-01-05T05:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "dingju_method": "luoshu_feipan",
 	}, "")
 }
 
 func TestMigratedQimenMethodMatrix(t *testing.T) {
-	registry := NewEngine()
-	const solarTime = "2026-01-14T01:03:00+08:00"
+	registry := testEngine()
+	const solarTime = "2026-01-13T17:03:00Z"
 
 	document := callToolDocument(t, registry, "qimen.chart", map[string]any{
-		"solar_time": solarTime, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
+		"instant": solarTime, "timezone": "Asia/Shanghai", "longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
 	})
 	method := document["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "luoshu_feipan" || method["dingju_method"] != "zhirun" {
@@ -209,7 +208,9 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 		{"birth_year": 1984},
 	}
 	for _, params := range invalid {
-		params["solar_time"] = solarTime
+		params["instant"] = "2024-06-15T04:00:00Z"
+		params["timezone"] = "Asia/Shanghai"
+		params["longitude"] = 116.4
 		assertToolError(t, registry, "qimen.chart", params, "")
 	}
 }
@@ -222,9 +223,9 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 		t.Fatalf("RFC3339 Lichun boundary should parse: %v", err)
 	}
 
-	registry := NewEngine()
+	registry := testEngine()
 	document := callToolDocument(t, registry, "qimen.chart", map[string]any{
-		"solar_time": testSolarTimeA, "yong_shen": []string{"生门", "戊"}, "birth_date": "1984-02-15",
+		"instant": "1984-02-15T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "yong_shen": []string{"生门", "戊"}, "birth_date": "1984-02-15",
 	})
 	if document["yong_shen"] == nil {
 		t.Fatal("explicit yong_shen was not resolved")
@@ -232,7 +233,7 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	assertJiaStaysHidden(t, document)
 
 	assertToolError(t, registry, "qimen.chart", map[string]any{
-		"solar_time": testSolarTimeA, "yong_shen": []string{"不存在的符号"},
+		"instant": "1984-02-15T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "yong_shen": []string{"不存在的符号"},
 	}, "")
 }
 
@@ -284,8 +285,8 @@ func assertJiaStaysHidden(t *testing.T, data map[string]any) {
 // date is not enough: the sweep below walks a full 十干 cycle of days and every
 // month, which is the smallest input set that reaches every producer.
 func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
-	registry := NewEngine()
-	chart := testBaziChart(t, registry, testSolarTimeA, "male")
+	registry := testEngine()
+	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 
 	type call struct {
 		name   string
@@ -321,7 +322,7 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 }
 
 func TestMigratedShiShenEnumMatchesTenGodClosure(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 	want := []string{
 		"比肩", "劫财", "食神", "伤官", "正财",
 		"偏财", "七杀", "正官", "偏印", "正印",
@@ -358,7 +359,7 @@ func TestMigratedQimenPatternEnumMatchesTable(t *testing.T) {
 	}
 	sort.Strings(want)
 
-	registry := NewEngine()
+	registry := testEngine()
 	got := enumAt(t, outputProperties(t, registry, "qimen.chart"), "patterns", "[]", "name")
 	sort.Strings(got)
 	if !reflect.DeepEqual(got, want) {
@@ -367,9 +368,9 @@ func TestMigratedQimenPatternEnumMatchesTable(t *testing.T) {
 }
 
 func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 	chart := callToolDocument(t, registry, "ziwei.chart", map[string]any{
-		"lunar":  map[string]any{"year": 2000, "month": 8, "day": 23, "shichen": "辰"},
+		"instant": "2000-09-20T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4,
 		"gender": "male",
 	})
 
@@ -397,24 +398,84 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 	}
 }
 
-func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
+func TestBondInputsShareShape(t *testing.T) {
 	registry := NewEngine()
-	timeOutput, err := TianwenTime(context.Background(), TianwenTimeInput{
-		Time:      "1981-08-26T00:20:00+08:00",
+	for _, tool := range []string{"bazi.bond", "ziwei.bond"} {
+		definition, ok := registry.Definition(tool)
+		if !ok {
+			t.Fatalf("%s: missing", tool)
+		}
+		var schema struct {
+			Properties map[string]struct {
+				Properties map[string]any `json:"properties"`
+				Required   []string       `json:"required"`
+			} `json:"properties"`
+			Required []string `json:"required"`
+		}
+		if err := json.Unmarshal(definition.InputSchema, &schema); err != nil {
+			t.Fatalf("%s: decode schema: %v", tool, err)
+		}
+		for _, side := range []string{"a", "b"} {
+			entry, ok := schema.Properties[side]
+			if !ok {
+				t.Fatalf("%s: missing side %s", tool, side)
+			}
+			if _, ok := entry.Properties["chart"]; !ok {
+				t.Errorf("%s.%s: must wrap the chart as {chart}", tool, side)
+			}
+			if len(entry.Required) != 1 || entry.Required[0] != "chart" {
+				t.Errorf("%s.%s required = %v, want [chart]", tool, side, entry.Required)
+			}
+		}
+	}
+}
+
+func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
+	registry := testEngine()
+	for _, tool := range []string{"bazi.chart", "ziwei.chart"} {
+		assertToolError(t, registry, tool, map[string]any{
+			"instant": "2024-06-15T04:00:00Z", "timezone": "Asia/Shanghai",
+			"longitude": 500,
+			"gender":    "male",
+		}, "longitude")
+	}
+	assertToolError(t, registry, "qimen.chart", map[string]any{
+		"instant": "2024-06-15T04:00:00Z", "timezone": "Asia/Shanghai",
+		"longitude": 500,
+	}, "longitude")
+}
+
+func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {
+	registry := testEngine()
+	canonical := testBaziChart(t, registry, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137, "male")
+	offset := testBaziChart(t, registry, "1981-08-26T00:20:00+08:00", "Asia/Shanghai", 132.044137, "male")
+
+	// The two wire forms identify the same instant. Offset is a serialization
+	// detail, never a timezone, so the full domain documents must be identical.
+	if !reflect.DeepEqual(canonical, offset) {
+		t.Fatalf("offset form changed chart result: canonical=%#v offset=%#v", canonical, offset)
+	}
+}
+
+func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
+	registry := testEngine()
+	resolved, err := TianwenResolve(context.Background(), TianwenResolveInput{
+		Instant: "1981-08-25T16:20:00Z", Timezone: "Asia/Shanghai",
 		Longitude: 132.044137,
 	})
 	if err != nil {
-		t.Fatalf("tianwen.time: %v", err)
+		t.Fatalf("tianwen.resolve: %v", err)
 	}
-	if got, want := string(timeOutput.Solar), "1981-08-26T01:06:00+08:00"; got != want {
-		t.Fatalf("solar time = %s, want %s", got, want)
+	if len(resolved.Candidates) == 0 {
+		t.Fatal("tianwen.resolve returned no candidates")
 	}
-	if got, want := timeOutput.Lunar.Shichen, "丑"; got != want {
-		t.Fatalf("shichen = %s, want %s", got, want)
+	candidate := resolved.Candidates[0]
+	if len(candidate.Reasons) != 1 || candidate.Reasons[0].Domain != "input" {
+		t.Fatalf("input candidate reasons = %+v", candidate.Reasons)
 	}
 
 	chart := callToolDocument(t, registry, "bazi.chart", map[string]any{
-		"solar_time": string(timeOutput.Solar), "gender": "male",
+		"instant": string(candidate.Instant), "timezone": candidate.Timezone, "longitude": 132.044137, "gender": "male",
 	})
 	want := []string{"辛酉", "丙申", "丙子", "己丑"}
 	for index, pillar := range []string{"nian", "yue", "ri", "shi"} {

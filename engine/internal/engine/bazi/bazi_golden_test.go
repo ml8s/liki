@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // baziGoldenCase is one case from testdata/bazi_golden.json,
@@ -63,12 +62,13 @@ func TestBaziGolden_AllLayers(t *testing.T) {
 				t.Fatalf("parse solar %q: %v", gc.Solar, err)
 			}
 			// 对齐 lunar：公历时间直接排盘（不校经度），晚子时不提前换日
-			st := tianwen.SolarTime(tt)
+			when := tt
+			st := time.Time(when)
 			g := ganzhi.Male
 			if gc.Gender == "female" {
 				g = ganzhi.Female
 			}
-			c := ComputeChart(st, g)
+			c := ComputeChart(time.Time(tt), st, g)
 			fc := ComputeFullChart(c)
 
 			// 四柱

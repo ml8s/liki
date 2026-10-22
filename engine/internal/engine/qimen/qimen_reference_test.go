@@ -26,8 +26,9 @@ func TestQimen_YinYangDun_Seasonal(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			st := tianwen.GregorianToSolar(bt, 116.4, 8)
-			chart := ComputeChart(st)
+			stgt := time.Time(bt)
+			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
+			chart := ComputeChart(stgt, st)
 			if chart.Pan.YinDun != tt.wantYin {
 				t.Errorf("%s: yin=%v, want %v", tt.date, chart.Pan.YinDun, tt.wantYin)
 			}
@@ -44,8 +45,9 @@ func TestQimen_JieQiDingJu_YangDun(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			st := tianwen.GregorianToSolar(bt, 116.4, 8)
-			chart := ComputeChart(st)
+			stgt := time.Time(bt)
+			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
+			chart := ComputeChart(stgt, st)
 			if chart.Pan.YinDun {
 				t.Errorf("%s: 冬至后应为阳遁, got yin=%v", d, chart.Pan.YinDun)
 			}
@@ -64,8 +66,9 @@ func TestQimen_ZhiFuZhiShi_NonEmpty(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			st := tianwen.GregorianToSolar(bt, 116.4, 8)
-			chart := ComputeChart(st)
+			stgt := time.Time(bt)
+			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
+			chart := ComputeChart(stgt, st)
 			if chart.Pan.DutyStar < 1 || chart.Pan.DutyStar > 9 {
 				t.Errorf("%s: dutyStar=%d(out of range)", d, chart.Pan.DutyStar)
 			}

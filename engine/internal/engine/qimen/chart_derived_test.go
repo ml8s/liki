@@ -14,8 +14,9 @@ func chartAt(t *testing.T, date string, hour int) Chart {
 	if err != nil {
 		t.Fatal(err)
 	}
-	st := tianwen.GregorianToSolar(bt.Add(time.Duration(hour)*time.Hour), 116.4, 8)
-	return ComputeChart(st)
+	stgt := time.Time(bt.Add(time.Duration(hour) * time.Hour))
+	st := tianwen.ApparentSolarFromCivil(bt.Add(time.Duration(hour)*time.Hour), 116.4, 8)
+	return ComputeChart(stgt, st)
 }
 
 func TestChartDerived_Anchors(t *testing.T) {

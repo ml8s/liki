@@ -11,17 +11,17 @@ import (
 // LiuRi holds the daily flow (流日) analysis: today's pillar
 // and its interactions with the bazi chart, dayun, and liunian pillars.
 type LiuRi struct {
-	Date        string         `json:"date"`
-	RiGan       ganzhi.Gan     `json:"ri_gan"`
-	RiZhi       ganzhi.Zhi     `json:"ri_zhi"`
-	DayName     string         `json:"day_name"`
-	DayNaYin    string         `json:"day_nayin"`
-	ShiShen     string         `json:"shi_shen"`
-	GanRels     []GanRelation  `json:"gan_rels"`
-	ZhiRels     []ZhiRelation  `json:"zhi_rels"`
-	DaYunRels   []ZhiRelation  `json:"dayun_rels"`
-	LiuNianRels []ZhiRelation  `json:"liunian_rels"`
-	ShenSha     []shenShaEntry `json:"shensha"`
+	Date        string              `json:"date"`
+	RiGan       ganzhi.Gan          `json:"ri_gan"`
+	RiZhi       ganzhi.Zhi          `json:"ri_zhi"`
+	DayName     string              `json:"day_name"`
+	DayNaYin    string              `json:"day_nayin"`
+	ShiShen     string              `json:"shi_shen"`
+	GanRels     []GanRelation       `json:"gan_rels"`
+	ZhiRels     []ZhiRelation       `json:"zhi_rels"`
+	DaYunRels   []ZhiRelation       `json:"dayun_rels"`
+	LiuNianRels []ZhiRelation       `json:"liunian_rels"`
+	ShenSha     []ShenShaProjection `json:"shensha"`
 }
 
 // ComputeLiuRi computes the day pillar for the given date and its full
@@ -34,7 +34,7 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 	if date.Year() != year || int(date.Month()) != month || date.Day() != day {
 		return nil, fmt.Errorf("invalid date: %04d-%02d-%02d", year, month, day)
 	}
-	dp := tianwen.RiZhu(tianwen.GregorianTime(date))
+	dp := tianwen.RiZhu(time.Time(date))
 	tgName := ganzhi.ShiShenFromGan(riYuan, dp.Gan)
 
 	dayName := ganzhi.GanName(dp.Gan) + ganzhi.ZhiName(dp.Zhi)
@@ -58,13 +58,13 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 	naYin := ganzhi.NayinLabel(dp.Gan, dp.Zhi)
 
 	// Daily shensha: day gan/zhi vs bazi.
-	var shensha []shenShaEntry
+	var shensha []ShenShaProjection
 	// 天乙贵人 on day gan.
 	if targets, ok := tianYiLookup[dp.Gan]; ok {
 		for _, tb := range targets {
 			for _, np := range bazi {
 				if np.Zhi == tb {
-					shensha = append(shensha, shenShaEntry{Name: "天乙贵人", Category: catJi, Description: "流日天乙贵人日"})
+					shensha = append(shensha, ShenShaProjection{Name: "天乙贵人", Category: catJi, Description: "流日天乙贵人日"})
 				}
 			}
 		}
@@ -74,7 +74,7 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 		for _, tb := range targets {
 			for _, np := range bazi {
 				if np.Zhi == tb {
-					shensha = append(shensha, shenShaEntry{Name: "文昌", Category: catJi, Description: "流日文昌日，利学业文书"})
+					shensha = append(shensha, ShenShaProjection{Name: "文昌", Category: catJi, Description: "流日文昌日，利学业文书"})
 				}
 			}
 		}
@@ -93,12 +93,12 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 	}
 	for _, tm := range triadMaps {
 		if tb, ok := tm.m[yBranch]; ok && dp.Zhi == tb {
-			shensha = append(shensha, shenShaEntry{Name: tm.name, Category: tm.cat, Description: tm.desc})
+			shensha = append(shensha, ShenShaProjection{Name: tm.name, Category: tm.cat, Description: tm.desc})
 		}
 	}
 
 	if shensha == nil {
-		shensha = []shenShaEntry{}
+		shensha = []ShenShaProjection{}
 	}
 	return &LiuRi{
 		Date:        fmt.Sprintf("%04d-%02d-%02d", year, month, day),

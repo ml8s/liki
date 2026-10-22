@@ -57,7 +57,8 @@ func TestYingQiUsesYongShenFocus(t *testing.T) {
 }
 
 func TestComputeChartWithYongShenProjectsTiming(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
@@ -66,7 +67,7 @@ func TestComputeChartWithYongShenProjectsTiming(t *testing.T) {
 		t.Fatal(err)
 	}
 	projected, err := ComputeChartWithYongShenAndMethod(
-		st, []YongShenSymbol{symbol}, BirthDate{},
+		stgt, st, []YongShenSymbol{symbol}, BirthDate{},
 		Method{Scope: ScopeHour, School: SchoolZhuanPan, Dingju: DingjuChaiBu},
 	)
 	if err != nil {

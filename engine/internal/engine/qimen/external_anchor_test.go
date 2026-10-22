@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 type goldenMethod struct {
@@ -110,7 +109,7 @@ func TestExternalRotatingPlateAnchors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart := ComputeChart(tianwen.SolarTime(civil))
+			chart := ComputeChart(time.Time(civil), time.Time(civil))
 			assertExternalChart(t, chart, anchor)
 			assertExternalPalaces(t, chart, anchor.Palaces)
 		})

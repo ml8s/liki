@@ -2,7 +2,7 @@ package qimen
 
 import (
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
+	"time"
 )
 
 // JinhanChartMethod projects the closed method and the domain rules that are
@@ -57,12 +57,12 @@ type JinhanChart struct {
 	Pan    JinhanPan         `json:"pan"`
 }
 
-// ComputeJinhanChart computes the Golden Mirror daily chart from true solar
-// time. The method dimensions are closed by the catalog and do not need a
-// dingju selection.
-func ComputeJinhanChart(st tianwen.SolarTime) JinhanChart {
-	bz, chartTime := chartInputs(st)
-	term := currentSolarTermInfo(chartTime)
+// ComputeJinhanChart computes the Golden Mirror daily chart from civil time
+// (节气判定) and true solar time (日柱). The method dimensions are closed by
+// the catalog and do not need a dingju selection.
+func ComputeJinhanChart(gt time.Time, st time.Time) JinhanChart {
+	bz, termTime, _ := chartInputs(gt, st)
+	term := currentSolarTermInfo(termTime)
 	yinDun := term.Index >= 12
 	chart := JinhanChart{Method: buildJinhanMethod(term)}
 	chart.Pan.YinDun = yinDun

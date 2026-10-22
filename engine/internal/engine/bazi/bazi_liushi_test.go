@@ -14,11 +14,12 @@ import (
 
 func TestLiuShi_WanZiShi_UsesNextDayGan(t *testing.T) {
 	// 1990-05-20 12:00 CST → 庚午 辛巳 乙酉（日干乙）。
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 5, 20, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 5, 20, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	bz := chart.ToBazi()
 	if bz.Ri.Gan != ganzhi.GanYi {
 		t.Fatalf("期望 5/20 日干乙（庚午 辛巳 乙酉），got %d", bz.Ri.Gan)
@@ -53,11 +54,12 @@ func TestLiuShi_WanZiShi_UsesNextDayGan(t *testing.T) {
 }
 
 func TestLiuShi_OtherHours_UseSameDayGan(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 5, 20, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 5, 20, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	bz := chart.ToBazi()
 
 	// 卯时（6:00）用当天日干乙 → 乙日卯时 己卯。

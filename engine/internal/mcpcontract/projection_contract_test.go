@@ -45,7 +45,7 @@ func loadProjectionContract(t *testing.T) projectionContract {
 // toolProperties returns the declared properties of a tool's output schema.
 func toolProperties(t *testing.T, tool string) map[string]any {
 	t.Helper()
-	return outputProperties(t, NewEngine(), tool)
+	return outputProperties(t, testEngine(), tool)
 }
 
 func TestProjectionContractCoversEngineFullChartFields(t *testing.T) {

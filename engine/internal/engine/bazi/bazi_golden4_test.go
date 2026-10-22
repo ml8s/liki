@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // TestBaziGolden4_AllLayers verifies 第四轮 golden（bazi_golden4.json，24 例）：
@@ -29,12 +28,13 @@ func TestBaziGolden4_AllLayers(t *testing.T) {
 			if err != nil {
 				t.Fatalf("parse solar: %v", err)
 			}
-			st := tianwen.SolarTime(tt)
+			when := tt
+			st := time.Time(when)
 			g := ganzhi.Male
 			if gc.Gender == "female" {
 				g = ganzhi.Female
 			}
-			c := ComputeChart(st, g)
+			c := ComputeChart(time.Time(tt), st, g)
 			p := fmt.Sprintf("%s%s %s%s %s%s %s%s",
 				c.Nian.Gan, c.Nian.Zhi, c.Yue.Gan, c.Yue.Zhi, c.Ri.Gan, c.Ri.Zhi, c.Shi.Gan, c.Shi.Zhi)
 			want := fmt.Sprintf("%s %s %s %s", gc.Pillars.Nian, gc.Pillars.Yue, gc.Pillars.Ri, gc.Pillars.Shi)

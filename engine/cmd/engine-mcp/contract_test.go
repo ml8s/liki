@@ -52,7 +52,7 @@ func TestTypedContract_TimeNowSelfDescribing(t *testing.T) {
 	if output.Type != "object" {
 		t.Fatalf("time_now output type = %q", output.Type)
 	}
-	for _, name := range []string{"utc", "local", "cst"} {
+	for _, name := range []string{"instant", "timezone"} {
 		property, ok := output.Properties[name]
 		if !ok {
 			t.Fatalf("time_now output lacks %q", name)
@@ -67,7 +67,7 @@ func TestTypedContract_TimeNowStructuredOutput(t *testing.T) {
 	sess, _ := startMCPServer(t)
 	res, err := sess.CallTool(context.Background(), &mcp.CallToolParams{
 		Name:      "time_now",
-		Arguments: map[string]any{},
+		Arguments: map[string]any{"timezone": "Asia/Shanghai"},
 	})
 	if err != nil {
 		t.Fatalf("call: %v", err)
@@ -80,18 +80,18 @@ func TestTypedContract_TimeNowStructuredOutput(t *testing.T) {
 		t.Fatalf("marshal structured content: %v", err)
 	}
 	var output struct {
-		UTC   string `json:"utc"`
-		Local string `json:"local"`
-		CST   string `json:"cst"`
+		Instant  string `json:"instant"`
+		Timezone string `json:"timezone"`
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatalf("decode structured content %s: %v", raw, err)
 	}
 	rfc3339 := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$`)
-	for name, value := range map[string]string{"utc": output.UTC, "local": output.Local, "cst": output.CST} {
-		if !rfc3339.MatchString(value) {
-			t.Errorf("%s = %q, want RFC3339", name, value)
-		}
+	if !rfc3339.MatchString(output.Instant) {
+		t.Errorf("instant = %q, want RFC3339", output.Instant)
+	}
+	if output.Timezone != "Asia/Shanghai" {
+		t.Errorf("timezone = %q", output.Timezone)
 	}
 }
 

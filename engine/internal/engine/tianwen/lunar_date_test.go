@@ -38,12 +38,12 @@ func TestLunarMonthMeta_MissingLeapMonth(t *testing.T) {
 	}
 }
 
-func TestLunarToGregorian_MissingLeapMonthDoesNotFallThrough(t *testing.T) {
+func TestCivilTimeFromLunarDate_MissingLeapMonthDoesNotFallThrough(t *testing.T) {
 	// Regression: a fallback search previously mapped 2024 leap 6 to the
 	// real 2025 leap 6. A nonexistent lunar month must stay unresolved.
-	got := LunarToGregorian(LunarTime{Year: 2024, Month: 6, Day: 1, Leap: true})
-	if !got.Time().IsZero() {
-		t.Fatalf("LunarToGregorian(2024 leap 6) = %s, want zero time", got.Time().Format(time.RFC3339))
+	got := CivilTimeFromLunarDate(LunarDate{Year: 2024, Month: 6, Day: 1, Leap: true})
+	if !got.IsZero() {
+		t.Fatalf("CivilTimeFromLunarDate(2024 leap 6) = %s, want zero time", got.Format(time.RFC3339))
 	}
 }
 

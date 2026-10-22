@@ -15,11 +15,12 @@ import (
 func TestLiuNian_DaYunInteraction(t *testing.T) {
 	// 1984-02-15 08:00 甲子年 丙寅月 甲子日 戊辰时, male (顺排, 6岁起运)
 	// steps: 丁卯(6-15) 戊辰(16-25) 己巳(26-35) 庚午(36-45) 辛未(46-55) 壬申(56-65) 癸酉(66-75) 甲戌(76-85) 乙亥(86-95)
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	if chart.DaYun == nil {
 		t.Fatal("DaYun is nil")
@@ -120,19 +121,17 @@ func TestDayunStepForYear(t *testing.T) {
 }
 
 func TestLiuNian_DaYunInteraction_NegativeIndex(t *testing.T) {
-	// When current_step_index is -1 (not in 大运), dayun_interactions should be nil.
-	st := tianwen.GregorianToSolar(
+	// Not yet in 大运 -> dayun_interactions should be empty.
+	stgt := time.Time(time.Date(2023, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2023, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	if chart.DaYun == nil {
 		t.Fatal("DaYun is nil")
 	}
-
-	// Not yet in 大运: 2023年生, age 0.
-	chart.DaYun.CurrentStepIndex = -1
 
 	ln, err := ComputeLiuNian(chart, 2023)
 	if err != nil {
@@ -140,17 +139,18 @@ func TestLiuNian_DaYunInteraction_NegativeIndex(t *testing.T) {
 	}
 
 	if len(ln.DaYunInteractions) != 0 {
-		t.Error("DaYunInteractions should be empty when current_step_index = -1")
+		t.Error("DaYunInteractions should be empty when not in 大运")
 	}
 }
 
 func TestLiuNian_ShenSha(t *testing.T) {
 	// 1984-02-15 甲子年 male
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	ln, err := ComputeLiuNian(chart, 2026) // 丙午年
 	if err != nil {
@@ -196,11 +196,12 @@ func TestLiuNian_FuYinFanYin_Exists(t *testing.T) {
 	// 甲子日: 2020 庚子年 has 子 matching 甲子日's 子 → it's 反吟 for 子.
 	// Actually, 甲子日: 流年庚子 = 甲 vs 庚 (different) + 子 vs 子 (same zhi)
 	// → same zhi = 反吟 for 地支部分 but NOT full 伏吟 (need both gan+zhi same).
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	// 甲子日 → 2044 甲子年 should have 伏吟 on 日柱
 	ln, err := ComputeLiuNian(chart, 2044)
@@ -216,11 +217,12 @@ func TestLiuNian_FuYinFanYin_Exists(t *testing.T) {
 func TestLiuNian_FuYinFanYin_Nil(t *testing.T) {
 	// A year with NO matching pillars should have nil fuyin_fanyin.
 	// 甲子日 → 流年 丙午 has nothing in common with 甲子 → nil is valid.
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	ln, err := ComputeLiuNian(chart, 2026) // 丙午, no relation to 甲子
 	if err != nil {
@@ -234,11 +236,12 @@ func TestLiuNian_FuYinFanYin_Nil(t *testing.T) {
 
 func TestLiuNian_YearFields(t *testing.T) {
 	// Validate basic liunian fields for a known chart and year.
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	ln, err := ComputeLiuNian(chart, 2026)
 	if err != nil {

@@ -1,61 +1,11 @@
 package tianwen
 
 import (
-	"encoding/json"
 	"math"
-	"strings"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 )
-
-// GregorianTime is the Gregorian calendar time.
-type GregorianTime time.Time
-
-func (g GregorianTime) Time() time.Time { return time.Time(g) }
-
-// MarshalJSON marshals GregorianTime as RFC3339 string.
-func (g GregorianTime) MarshalJSON() ([]byte, error) {
-	return json.Marshal(time.Time(g))
-}
-
-// UnmarshalJSON unmarshals GregorianTime from YYYY-MM-DD or RFC3339 string.
-func (g *GregorianTime) UnmarshalJSON(b []byte) error {
-	s := strings.Trim(string(b), `"`)
-	if len(s) == 10 {
-		if t, err := time.Parse("2006-01-02", s); err == nil {
-			*g = GregorianTime(t)
-			return nil
-		}
-	}
-	var t time.Time
-	if err := json.Unmarshal(b, &t); err != nil {
-		return err
-	}
-	*g = GregorianTime(t)
-	return nil
-}
-
-// SolarTime is the absolute true-solar time for a birth moment.
-type SolarTime time.Time
-
-func (s SolarTime) Time() time.Time  { return time.Time(s) }
-func (s SolarTime) Minutes() float64 { return float64(s.Time().Hour()*60 + s.Time().Minute()) }
-
-// MarshalJSON marshals SolarTime as RFC3339 string.
-func (s SolarTime) MarshalJSON() ([]byte, error) {
-	return json.Marshal(time.Time(s))
-}
-
-// UnmarshalJSON unmarshals SolarTime from RFC3339 string.
-func (s *SolarTime) UnmarshalJSON(b []byte) error {
-	var t time.Time
-	if err := json.Unmarshal(b, &t); err != nil {
-		return err
-	}
-	*s = SolarTime(t)
-	return nil
-}
 
 // equationOfTime computes the Equation of Time in minutes using the
 // full Meeus algorithm (Astronomical Algorithms, Ch.28). Accuracy < 0.01 min.
@@ -106,9 +56,9 @@ func julianDateFromTime(year, month, day, hour, minute int) float64 {
 	return jd + (float64(hour)+float64(minute)/60.0)/24.0
 }
 
-// computeSolarTime returns true solar time in minutes and day offset.
+// apparentSolarOffsetMinutes returns true solar time in minutes and day offset.
 // timezone is in hours (e.g. 8 for UTC+8).
-func computeSolarTime(t time.Time, longitude, timezone float64) (float64, int) {
+func apparentSolarOffsetMinutes(t time.Time, longitude, timezone float64) (float64, int) {
 	hour, minute := t.Hour(), t.Minute()
 	lst := float64(hour*60 + minute)
 	lonOffset := 4.0 * (longitude - timezone*15)
@@ -127,18 +77,18 @@ func computeSolarTime(t time.Time, longitude, timezone float64) (float64, int) {
 	return ast, dayOffset
 }
 
-// GregorianToSolar returns the absolute true solar time as SolarTime.
+// ApparentSolarFromCivil returns the absolute true solar time as time.Time.
 // timezone is in hours (e.g. 8 for UTC+8), longitude is in degrees.
-func GregorianToSolar(t time.Time, longitude, timezone float64) SolarTime {
-	ast, dayOffset := computeSolarTime(t, longitude, timezone)
+func ApparentSolarFromCivil(t time.Time, longitude, timezone float64) time.Time {
+	ast, dayOffset := apparentSolarOffsetMinutes(t, longitude, timezone)
 	loc := time.FixedZone("birth", int(timezone*3600))
 	astHour := int(ast) / 60
 	astMin := int(ast) % 60
-	return SolarTime(time.Date(t.Year(), t.Month(), t.Day()+dayOffset, astHour, astMin, 0, 0, loc))
+	return time.Time(time.Date(t.Year(), t.Month(), t.Day()+dayOffset, astHour, astMin, 0, 0, loc))
 }
 
-// HourBranchFromSolarTime converts solar time (minutes) to the earthly zhi of the hour.
-func hourZhiFromSolarTime(astMinutes float64) ganzhi.Zhi {
+// HourBranchFromApparentSolarMinutes converts solar time (minutes) to the earthly zhi of the hour.
+func shichenFromApparentSolarMinutes(astMinutes float64) ganzhi.Zhi {
 	idx := (int(astMinutes+60) / 120) % 12
 	return ganzhi.Zhi(idx + 1)
 }

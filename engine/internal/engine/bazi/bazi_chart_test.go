@@ -1,5 +1,3 @@
-//go:build integration
-
 package bazi
 
 import (
@@ -26,11 +24,13 @@ type chartSnapshot struct {
 }
 
 func computeFullChart(g chartSnapshot) FullChart {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(g.Year, time.Month(g.Month), g.Day, g.Hour, g.Minute, 0, 0,
+		time.FixedZone("", int(g.TZ*3600))))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(g.Year, time.Month(g.Month), g.Day, g.Hour, g.Minute, 0, 0,
 			time.FixedZone("", int(g.TZ*3600))),
 		g.Lon, g.TZ)
-	return ComputeFullChart(ComputeChart(st, g.Gender))
+	return ComputeFullChart(ComputeChart(stgt, st, g.Gender))
 }
 
 var goldenCharts = []chartSnapshot{
@@ -109,7 +109,7 @@ func TestGoldenChart_CangGan(t *testing.T) {
 		t.Run(g.Name, func(t *testing.T) {
 			cr := computeFullChart(g)
 			names := [4]string{"nian", "yue", "ri", "shi"}
-			pillars := [4]cangGanOut{cr.Nian.CangGan, cr.Yue.CangGan, cr.Ri.CangGan, cr.Shi.CangGan}
+			pillars := [4]HiddenStemProjection{cr.Nian.CangGan, cr.Yue.CangGan, cr.Ri.CangGan, cr.Shi.CangGan}
 			for i, pillar := range pillars {
 				if pillar.Main == 0 {
 					t.Errorf("%s pillar hidden gan main qi is zero", names[i])
@@ -161,7 +161,7 @@ func TestGoldenChart_ShenSha(t *testing.T) {
 			validCats := map[string]bool{"吉": true, "凶": true, "中性": true}
 			pillars := []struct {
 				name string
-				ss   []shenShaEntry
+				ss   []ShenShaProjection
 			}{
 				{"Nian", cr.Nian.ShenSha},
 				{"Yue", cr.Yue.ShenSha},

@@ -51,9 +51,10 @@ func TestLiuNian_ShenSha_Multi(t *testing.T) {
 
 // T4: 值年病符临命（太岁后1辰）——1984 甲子命（月支寅），2021 辛丑太岁，病符=丑后1=寅（月支）→ 应返回病符
 func TestLiuNian_AnnualBingFu(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	ln, err := ComputeLiuNian(chart, 2021) // 辛丑
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2021): %v", err)
@@ -70,9 +71,10 @@ func TestLiuNian_AnnualBingFu(t *testing.T) {
 // T5: 值年丧门、吊客同临命——2022 壬寅太岁，丧门=寅前2辰、吊客=寅后2辰。
 // 1984 甲子命含子与辰，二煞均应返回；该盘同时覆盖方向反转边界。
 func TestLiuNian_AnnualSangMen(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	ln, err := ComputeLiuNian(chart, 2022) // 壬寅
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2022): %v", err)
@@ -88,9 +90,10 @@ func TestLiuNian_AnnualSangMen(t *testing.T) {
 
 // T5b: 值年吊客方向反例——2006 丙戌太岁，吊客=戌后2辰申；命局无申，不应误取前2辰子。
 func TestLiuNian_AnnualDiaoKe(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	ln, err := ComputeLiuNian(chart, 2006) // 丙戌
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2020): %v", err)
@@ -106,9 +109,10 @@ func TestLiuNian_AnnualDiaoKe(t *testing.T) {
 
 // T5c: 值年大耗临命（太岁对冲）——2026 丙午太岁，大耗=午对冲子（命局年/日支子）→ 应返回大耗
 func TestLiuNian_AnnualDaHao(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	ln, err := ComputeLiuNian(chart, 2026) // 丙午
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2026): %v", err)
@@ -139,9 +143,10 @@ func TestLiuNian_AnnualNoHit(t *testing.T) {
 
 // T7: 值年煞与年支型神煞并存 → 都输出（2022：丧门辰 + 吊客子；验证至少含二者且整体非空）
 func TestLiuNian_AnnualAndDynamicCoexist(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	ln, err := ComputeLiuNian(chart, 2022)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2022): %v", err)
@@ -175,9 +180,10 @@ func TestLiuNian_ShenSha_HongLuanYearOnly(t *testing.T) {
 func TestLiuNian_ShenSha_DynamicEmpty(t *testing.T) {
 	// beijing-1984（子寅卯辰）流年 2006 戌：年支子/日支卯的动态神煞位（酉午巳寅辰未申）均非戌 → 动态空
 	// 值年 2006 戌：吊客=戌后2辰申（命局无申）、大耗=戌冲辰（月支辰✓）→ 只返回大耗
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	ln, err := ComputeLiuNian(chart, 2006)
 	if err != nil {
 		t.Fatalf("ComputeLiuNian(2006): %v", err)

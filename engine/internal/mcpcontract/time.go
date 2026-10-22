@@ -2,29 +2,38 @@ package mcpcontract
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
-// TimeNowInput is deliberately empty: the server owns the clock. The generated
-// schema still closes the object so unknown arguments fail validation.
-type TimeNowInput struct{}
-
-// TimeNowOutput is the MCP wire shape for the server clock.
-type TimeNowOutput struct {
-	UTC   string `json:"utc" jsonschema:"Current UTC timestamp in RFC3339 format."`
-	Local string `json:"local" jsonschema:"Server-local timestamp in RFC3339 format."`
-	CST   string `json:"cst" jsonschema:"Current China Standard Time (UTC+8) timestamp in RFC3339 format."`
+// TimeNowInput requires an IANA timezone; the tool layer never guesses.
+type TimeNowInput struct {
+	Timezone string `json:"timezone" jsonschema:"IANA timezone, e.g. Asia/Shanghai. Required."`
 }
 
-// TimeNow returns the server clock in UTC, server-local time, and CST.
-func TimeNow(ctx context.Context, _ TimeNowInput) (TimeNowOutput, error) {
+// TimeNowOutput is the canonical clock fact: UTC instant + IANA zone.
+// Display local time/offset is the frontend's concern (Intl.DateTimeFormat).
+type TimeNowOutput struct {
+	Instant  string `json:"instant" jsonschema:"Current instant in UTC (RFC3339, Z)."`
+	Timezone string `json:"timezone" jsonschema:"Effective IANA timezone."`
+}
+
+// TimeNow returns the current instant plus its representation in the required
+// IANA timezone. The wall clock is never used as an implicit source.
+func TimeNow(ctx context.Context, input TimeNowInput) (TimeNowOutput, error) {
 	if err := ctx.Err(); err != nil {
 		return TimeNowOutput{}, err
 	}
-	now := time.Now()
+	if input.Timezone == "" {
+		return TimeNowOutput{}, fmt.Errorf("time.now: timezone is required")
+	}
+	zone, err := loadTimezone(input.Timezone)
+	if err != nil {
+		return TimeNowOutput{}, fmt.Errorf("time.now: %w", err)
+	}
+	now := time.Now().Round(0).UTC()
 	return TimeNowOutput{
-		UTC:   now.UTC().Format(time.RFC3339),
-		Local: now.Format(time.RFC3339),
-		CST:   now.In(time.FixedZone("CST", 8*3600)).Format(time.RFC3339),
+		Instant:  now.Format(time.RFC3339Nano),
+		Timezone: zone.String(),
 	}, nil
 }

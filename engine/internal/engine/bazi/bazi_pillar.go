@@ -2,10 +2,10 @@ package bazi
 
 import (
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
+	"time"
 )
 
-func computeChartCore(bz ganzhi.Bazi, st tianwen.SolarTime, gender ganzhi.Gender) Chart {
+func computeChartCore(gt time.Time, st time.Time, bz ganzhi.Bazi, gender ganzhi.Gender) Chart {
 	ny := computeNaYin(bz)
 	ps := bz.Slice()
 
@@ -20,20 +20,52 @@ func computeChartCore(bz ganzhi.Bazi, st tianwen.SolarTime, gender ganzhi.Gender
 		Shi:    makePI(3),
 		Gender: gender,
 	}
-	cr.DaYun = computeDaYun(st, bz, gender)
-	cr.BirthYear = st.Time().Year()
+	cr.DaYun = computeDaYun(gt, bz, gender)
+	cr.BirthYear = gt.Year()
 	cr.ZiShiRule = "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
 	return cr
 }
 
+// PillarAnalysis holds the structural projections derived directly from the
+// four pillars. It is a concrete Bazi-domain value, not a generic fact bag.
+type PillarAnalysis struct {
+	HiddenStems [4]HiddenStemProjection
+	TenGods     [4][]TenGodProjection
+	LifeStages  [4]string
+	SelfSitting [4]string
+	NaYin       [4]string
+	ShenSha     [4][]ShenShaProjection
+	VoidPalaces []int
+}
+
+// AnalyzePillars derives the structural facts shared by the full-chart view
+// and downstream rule evaluators.
+func AnalyzePillars(bz ganzhi.Bazi, gender ganzhi.Gender) PillarAnalysis {
+	return PillarAnalysis{
+		HiddenStems: HiddenStemFacts(bz),
+		NaYin:       computeNaYin(bz),
+		TenGods:     TenGodProjections(bz, HiddenStemFacts(bz)),
+		SelfSitting: computeSelfSitting(bz),
+		LifeStages:  computeDayMasterTrend(bz),
+		ShenSha:     ShenShaProjections(bz, gender),
+		VoidPalaces: VoidPalaces(bz),
+	}
+}
+
 func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
-	hs := computeCangGan(bz)
-	ny := c.NaYinArray()
-	tgTable := computeShiShensTable(bz, hs)
-	selfSitting := computeSelfSitting(bz)
-	dayMasterTrend := computeDayMasterTrend(bz)
-	shensha := computeShenSha(bz, c.Gender)
-	voidHits := computeKongWang(bz)
+	analysis := AnalyzePillars(bz, c.Gender)
+	return assembleFullChart(c, bz, analysis)
+}
+
+// assembleFullChart projects the pillar analysis into the published FullChart.
+func assembleFullChart(c Chart, bz ganzhi.Bazi, analysis PillarAnalysis) FullChart {
+	hs := analysis.HiddenStems
+	ny := analysis.NaYin
+	tgTable := analysis.TenGods
+	selfSitting := analysis.SelfSitting
+	dayMasterTrend := analysis.LifeStages
+	shensha := analysis.ShenSha
+	voidHits := analysis.VoidPalaces
 	ps := bz.Slice()
 
 	makeFull := func(i int) fullZhuInfo {
@@ -92,14 +124,14 @@ func computeDayMasterTrend(bz ganzhi.Bazi) [4]string {
 	return out
 }
 
-func computeCangGan(bz ganzhi.Bazi) [4]cangGanOut {
-	var hs [4]cangGanOut
+func HiddenStemFacts(bz ganzhi.Bazi) [4]HiddenStemProjection {
+	var hs [4]HiddenStemProjection
 	for i, z := range bz.Slice() {
 		if z.Zhi == 0 {
 			continue
 		}
 		qi := ganzhi.CangGanForZhi(z.Zhi)
-		hs[i] = cangGanOut{Main: *qi.Main}
+		hs[i] = HiddenStemProjection{Main: *qi.Main}
 		if qi.Mid != nil {
 			mid := *qi.Mid
 			hs[i].Mid = &mid
@@ -120,7 +152,7 @@ func computeNaYin(bz ganzhi.Bazi) [4]string {
 	return ny
 }
 
-func computeElementCount(bz ganzhi.Bazi, hs [4]cangGanOut) map[ganzhi.Wuxing]int {
+func computeElementCount(bz ganzhi.Bazi, hs [4]HiddenStemProjection) map[ganzhi.Wuxing]int {
 	wc := make(map[ganzhi.Wuxing]int, 5)
 	for _, z := range bz.Slice() {
 		wc[ganzhi.GanWuxing(z.Gan)]++
@@ -137,26 +169,26 @@ func computeElementCount(bz ganzhi.Bazi, hs [4]cangGanOut) map[ganzhi.Wuxing]int
 	return wc
 }
 
-func computeShiShensTable(bz ganzhi.Bazi, hs [4]cangGanOut) [4][]shiShenEntry {
+func TenGodProjections(bz ganzhi.Bazi, hs [4]HiddenStemProjection) [4][]TenGodProjection {
 	dm := bz.Ri.Gan
-	var table [4][]shiShenEntry
+	var table [4][]TenGodProjection
 	ps := bz.Slice()
 	for i := range ps {
-		var entries []shiShenEntry
-		entries = append(entries, shiShenEntry{
+		var entries []TenGodProjection
+		entries = append(entries, TenGodProjection{
 			ShiShen: ganzhi.ShiShenFromGan(dm, ps[i].Gan),
 			Name:    ganzhi.GanName(ps[i].Gan),
 			Source:  sourceGan,
 			Gan:     ps[i].Gan,
 		})
-		entries = append(entries, shiShenEntry{
+		entries = append(entries, TenGodProjection{
 			ShiShen: ganzhi.ShiShenFromGan(dm, hs[i].Main),
 			Name:    ganzhi.GanName(hs[i].Main),
 			Source:  sourceMainQi,
 			Gan:     hs[i].Main,
 		})
 		if hs[i].Mid != nil {
-			entries = append(entries, shiShenEntry{
+			entries = append(entries, TenGodProjection{
 				ShiShen: ganzhi.ShiShenFromGan(dm, *hs[i].Mid),
 				Name:    ganzhi.GanName(*hs[i].Mid),
 				Source:  sourceMidQi,
@@ -164,7 +196,7 @@ func computeShiShensTable(bz ganzhi.Bazi, hs [4]cangGanOut) [4][]shiShenEntry {
 			})
 		}
 		if hs[i].Minor != nil {
-			entries = append(entries, shiShenEntry{
+			entries = append(entries, TenGodProjection{
 				ShiShen: ganzhi.ShiShenFromGan(dm, *hs[i].Minor),
 				Name:    ganzhi.GanName(*hs[i].Minor),
 				Source:  sourceMinQi,

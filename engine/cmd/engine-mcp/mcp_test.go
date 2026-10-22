@@ -122,8 +122,8 @@ func callToolText(t *testing.T, sess *mcp.ClientSession, name string, args any) 
 func TestCallTool_BaziChart(t *testing.T) {
 	sess, _ := startMCPServer(t)
 	text, isErr := callToolText(t, sess, "bazi_chart", map[string]any{
-		"solar_time": "1984-02-04T06:00:00+08:00",
-		"gender":     "male",
+		"instant": "1984-02-03T22:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4,
+		"gender": "male",
 	})
 	if isErr {
 		t.Fatalf("bazi_chart returned IsError: %s", text)
@@ -145,7 +145,7 @@ func TestCallTool_BaziChart(t *testing.T) {
 
 func TestCallTool_InvalidParamsIsError(t *testing.T) {
 	sess, _ := startMCPServer(t)
-	// bazi_chart requires solar_time + gender; missing args must surface as
+	// bazi_chart requires gregorian_time + longitude + gender; missing args must surface as
 	// an IsError result (visible to the LLM), not a protocol-level error.
 	res, err := sess.CallTool(context.Background(), &mcp.CallToolParams{
 		Name:      "bazi_chart",
@@ -178,8 +178,8 @@ func TestCallTool_NullArguments(t *testing.T) {
 			if err != nil {
 				t.Fatalf("call: %v", err)
 			}
-			if res.IsError {
-				t.Errorf("%s: null/omitted arguments should not be an error: %v", name, res.Content)
+			if !res.IsError {
+				t.Errorf("%s: strict time_now must reject missing timezone", name)
 			}
 		})
 	}
@@ -246,7 +246,7 @@ func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
 	// does not require engine-specific fixture data.
 	res, err := sess.CallTool(ctx, &mcp.CallToolParams{
 		Name:      "time_now",
-		Arguments: map[string]any{},
+		Arguments: map[string]any{"timezone": "Asia/Shanghai"},
 	})
 	if err != nil {
 		t.Fatalf("tools/call time_now: %v", err)
@@ -350,7 +350,7 @@ func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 		{"liuyao", []string{"liuyao_qigua", "liuyao_chart"}, []string{"bazi_chart", "qimen_chart"}},
 		{"huangli", []string{"huangli_days"}, []string{"bazi_chart", "bazhai_chart"}},
 		{"fengshui", []string{"bazhai_chart", "bazhai_layout", "xuankong_chart", "time_now"}, []string{"bazi_chart", "huangli_days"}},
-		{"aux", []string{"time_now", "tianwen_time", "city_coords"}, []string{"bazi_chart", "ziwei_chart"}},
+		{"aux", []string{"time_now", "tianwen_resolve", "city_coords"}, []string{"bazi_chart", "ziwei_chart"}},
 	}
 
 	for _, c := range cases {

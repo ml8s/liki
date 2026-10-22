@@ -9,8 +9,13 @@ package mcpcontract
 
 // ── qimen.chart input ──
 
+// QimenChartInput takes the canonical {utc, timezone} pair (Zone is IANA) and the
+// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
+// chart domain consumes those domain scales (solar term + LAST shichen; boundary converts once).
 type QimenChartInput struct {
-	SolarTime        RFC3339Time            `json:"solar_time" jsonschema:"真太阳时（RFC3339），从 tianwen.time 返回的 solar 字段"`
+	Instant          Instant                `json:"instant" jsonschema:"占问瞬间 UTC（RFC3339，Z）；节气换局/置闰按此时刻判定"`
+	Timezone         string                 `json:"timezone" jsonschema:"占问地 IANA 时区"`
+	Longitude        float64                `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时柱与分钟分法"`
 	Scope            MethodScopeName        `json:"scope,omitempty" jsonschema:"时间层级；默认 hour；quarter 为刻家奇门；month/year 为固定周期定局"`
 	School           MethodSchoolName       `json:"school,omitempty" jsonschema:"盘式流派；默认 zhuanpan；金函玉镜为独立日家专用盘型"`
 	DingjuMethod     MethodDingjuMethodName `json:"dingju_method,omitempty" jsonschema:"定局法；默认 hour/day：chaibu；仅 hour/day 可传"`

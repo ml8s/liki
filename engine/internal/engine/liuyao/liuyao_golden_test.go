@@ -14,11 +14,12 @@ var updateGolden = os.Getenv("UPDATE_GOLDEN") == "1"
 
 func TestGoldenComputeChart(t *testing.T) {
 	// Use fixed [6]int for deterministic output.
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, YongGuanGui, [6]int{7, 7, 7, 7, 7, 7})
+	chart := ComputeChart(stgt, st, YongGuanGui, [6]int{7, 7, 7, 7, 7, 7})
 
 	// 命理锚点断言（独立于 golden 文件——UPDATE_GOLDEN=1 时同样执行）。
 	assertChartAnchors(t, chart)

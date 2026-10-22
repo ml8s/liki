@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 func TestParseDingjuMethod(t *testing.T) {
@@ -195,8 +194,9 @@ func TestComputeChartWithYongShenAndMethod(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	gt, st := zhiRunTimesForTest(t, "2026-01-05 13:00")
 	chart, err := ComputeChartWithYongShenAndMethod(
-		zhiRunTimeForTest(t, "2026-01-05 13:00"), []YongShenSymbol{symbol},
+		gt, st, []YongShenSymbol{symbol},
 		BirthDate{}, Method{Scope: ScopeHour, School: SchoolZhuanPan, Dingju: DingjuZhiRun},
 	)
 	if err != nil {
@@ -213,8 +213,7 @@ func zhiRunChartForTest(t *testing.T, when string, method DingjuMethod) Chart {
 	if err != nil {
 		t.Fatal(err)
 	}
-	chart, err := ComputeChartWithMethod(
-		tianwen.SolarTime(civil),
+	chart, err := ComputeChartWithMethod(time.Time(civil), time.Time(civil),
 		Method{Scope: ScopeHour, School: SchoolZhuanPan, Dingju: method},
 	)
 	if err != nil {
@@ -223,11 +222,11 @@ func zhiRunChartForTest(t *testing.T, when string, method DingjuMethod) Chart {
 	return chart
 }
 
-func zhiRunTimeForTest(t *testing.T, when string) (st tianwen.SolarTime) {
+func zhiRunTimesForTest(t *testing.T, when string) (time.Time, time.Time) {
 	t.Helper()
 	civil, err := time.ParseInLocation("2006-01-02 15:04", when, time.FixedZone("CST", 8*3600))
 	if err != nil {
 		t.Fatal(err)
 	}
-	return tianwen.SolarTime(civil)
+	return time.Time(civil), time.Time(civil)
 }

@@ -150,8 +150,8 @@ func computeSpousePalaceCross(a, b FullChart) spousePalaceCross {
 }
 
 func computeElementCross(a, b Chart, aFull, bFull FullChart) elementCross {
-	aCount := convertWuxingCount(computeElementCount(a.ToBazi(), computeCangGan(a.ToBazi())))
-	bCount := convertWuxingCount(computeElementCount(b.ToBazi(), computeCangGan(b.ToBazi())))
+	aCount := convertWuxingCount(computeElementCount(a.ToBazi(), HiddenStemFacts(a.ToBazi())))
+	bCount := convertWuxingCount(computeElementCount(b.ToBazi(), HiddenStemFacts(b.ToBazi())))
 	combined := convertWuxingCount(map[ganzhi.Wuxing]int{})
 	for _, src := range []map[string]int{aCount, bCount} {
 		for k, v := range src {
@@ -351,7 +351,7 @@ func zhiLookup(c Chart, m map[ganzhi.Zhi]ganzhi.Zhi) []ganzhi.Zhi {
 }
 func kongwangZhi(bz ganzhi.Bazi) []ganzhi.Zhi {
 	ps := bz.Slice()
-	vh := computeKongWang(bz)
+	vh := VoidPalaces(bz)
 	bs := make([]ganzhi.Zhi, 0, len(vh))
 	for _, idx := range vh {
 		bs = append(bs, ps[idx].Zhi)

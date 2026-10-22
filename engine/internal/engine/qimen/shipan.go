@@ -65,8 +65,8 @@ type PalaceWangShuai struct {
 }
 
 // computeChart computes a qimen chart with the base timing focus.
-func computeChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
-	chart := buildChart(bz, chartTime, method)
+func computeChart(bz ganzhi.Bazi, termTime, chartTime time.Time, method Method) Chart {
+	chart := buildChart(bz, termTime, chartTime, method)
 	chart.YingQi = computeYingQi(chart, chartTime, baseYingQiFocuses(chart))
 	return chart
 }
@@ -74,10 +74,10 @@ func computeChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
 // computeChartWithYongShen computes the chart and projects timing through the
 // selected symbols without first building and discarding a base timing result.
 func computeChartWithYongShen(
-	bz ganzhi.Bazi, chartTime time.Time, method Method,
+	bz ganzhi.Bazi, termTime, chartTime time.Time, method Method,
 	syms []YongShenSymbol, birthDate BirthDate,
 ) Chart {
-	chart := buildChart(bz, chartTime, method)
+	chart := buildChart(bz, termTime, chartTime, method)
 	var yongShen YongShenResult
 	if birthDate.Has {
 		yongShen = computeYongShenWithBirth(chart, syms, birthDate)
@@ -89,9 +89,9 @@ func computeChartWithYongShen(
 	return chart
 }
 
-func buildChart(bz ganzhi.Bazi, chartTime time.Time, method Method) Chart {
-	ju := determineJuShu(chartTime, bz, method)
-	p := computePan(ju, bz)
+func buildChart(bz ganzhi.Bazi, termTime, chartTime time.Time, method Method) Chart {
+	ju := DetermineJuShu(termTime, chartTime, bz, method)
+	p := ArrangePan(ju, bz)
 
 	riGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Ri.Gan, bz.Ri.Zhi))
 	shiGanP := findGanPalaceIdx(p, resolveJiaDunGan(bz.Shi.Gan, bz.Shi.Zhi))

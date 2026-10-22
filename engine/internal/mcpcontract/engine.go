@@ -22,10 +22,13 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 	// reference is a name in some charts and an index in others). Those fields
 	// keep their exact JSON value instead of being reshaped by a Go type.
 	reflect.TypeFor[json.RawMessage](): {},
-	reflect.TypeFor[RFC3339Time]():     {Type: "string", Format: "date-time"},
-	reflect.TypeFor[DateString]():      {Type: "string", Format: "date"},
-	reflect.TypeFor[GenderName]():      {Type: "string", Enum: []any{"male", "female"}},
-	reflect.TypeFor[CityName]():        {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
+	// RFC3339 allows canonical UTC Z and equivalent numeric offsets. Handlers
+	// normalize every accepted form before domain calculations.
+	reflect.TypeFor[Instant]():       {Type: "string", Format: "date-time"},
+	reflect.TypeFor[DateString]():    {Type: "string", Format: "date"},
+	reflect.TypeFor[GenderName]():    {Type: "string", Enum: []any{"male", "female"}},
+	reflect.TypeFor[CityName]():      {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
+	reflect.TypeFor[CityLevelName](): {Type: "string", Enum: []any{"city", "county", "world"}},
 	reflect.TypeFor[HuangliEvent](): {
 		Type: "string",
 		Enum: []any{
@@ -238,14 +241,19 @@ func NewEngine() *Registry {
 		Description: "黄历查日。返回连续N天的黄历信息；event 给定时按建除事项规则输出 suitability。",
 		Handler:     HuangliDays,
 	})
-	mustRegister(registry, Tool[TianwenTimeInput, TianwenTimeOutput]{
-		Name:        "tianwen.time",
-		Description: "根据时间和经度计算真太阳时，返回公历、真太阳时、农历三套时间。",
-		Handler:     TianwenTime,
+	resolveSchema, err := tianwenResolveFormsSchema()
+	if err != nil {
+		panic("tianwen.resolve input schema: " + err.Error())
+	}
+	mustRegister(registry, Tool[TianwenResolveInput, TianwenResolveOutput]{
+		Name:        "tianwen.resolve",
+		InputSchema: resolveSchema,
+		Description: "把时间事实归一化为考时候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。输出永远包含一个 input 候选（输入的直接换算）；若时间/地点不确定性触及时辰、日界、交节或夏令时边界，追加候选并标注原因领域（时辰/日界/交节/时制）。chart 用候选的 gregorian_time + 经度排盘。",
+		Handler:     TianwenResolve,
 	})
 	mustRegister(registry, Tool[CityCoordsInput, CityCoordsOutput]{
 		Name:        "city.coords",
-		Description: "根据城市名查询经纬度。优先使用内置城市表；未命中时可查询 Nominatim（OSM），部署方可用 LIKI_EXTERNAL_GEOCODING=off 禁用。",
+		Description: "根据城市名返回地点候选（内置表，不访问外链）：每项含经纬度、IANA 时区、地点东西经度范围。长度 1 可直接使用；多于 1（同名区县等）必须由用户确认，不得静默取第一个。未命中时请询问附近大城市，或让用户直接提供经纬度和时区。",
 		Handler:     CityCoords,
 	})
 	mustRegister(registry, Tool[BaziChartInput, BaziChart]{
@@ -379,7 +387,7 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[QimenChartInput, QimenChartOutput]{
 		Name:                 "qimen.chart",
-		Description:          "奇门排盘：时/刻/日/月/年家 × 转盘/飞盘/鸣法；时家与日家支持拆补/置闰；刻家包含十分钟三元与十二分钟十分局；金函玉镜为 day 专用盘。yong_shen 可显式定位用神，事象路由由上层 skill 完成；ying_qi 返回日期窗口。solar_time 必须来自 tianwen.time 的真太阳时。",
+		Description:          "奇门排盘：时/刻/日/月/年家 × 转盘/飞盘/鸣法；时家与日家支持拆补/置闰；刻家包含十分钟三元与十二分钟十分局；金函玉镜为 day 专用盘。yong_shen 可显式定位用神，事象路由由上层 skill 完成；ying_qi 返回日期窗口。gregorian_time 与 longitude 由调用方给出（经度用于真太阳时换算）。",
 		Handler:              QimenChart,
 		TolerateUnknownArgs:  true,
 		KeepClosedInputPaths: []string{""},

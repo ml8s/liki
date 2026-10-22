@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // chartFromGanZhi builds a full Chart from explicit 4 pillars + dummy time.
@@ -17,8 +16,9 @@ func chartFromGanZhi(nianGan, nianZhi, yueGan, yueZhi, riGan, riZhi, shiGan, shi
 		Ri:   ganzhi.Zhu{Gan: ganzhi.Gan(riGan), Zhi: ganzhi.Zhi(riZhi)},
 		Shi:  ganzhi.Zhu{Gan: ganzhi.Gan(shiGan), Zhi: ganzhi.Zhi(shiZhi)},
 	}
-	st := tianwen.SolarTime(time.Date(2000, 1, 1, 12, 0, 0, 0, time.UTC))
-	return computeChartCore(bz, st, g)
+	when := time.Date(2000, 1, 1, 12, 0, 0, 0, time.UTC)
+	st := time.Time(when)
+	return computeChartCore(time.Time(when), st, bz, g)
 }
 
 // ── 透干法格局测试 ──────────────────────────────────────────────

@@ -21,13 +21,16 @@ type Tool[In, Out any] struct {
 	Name        string
 	Description string
 	Handler     func(context.Context, In) (Out, error)
+	// InputSchema overrides the schema derived from In when the public input is
+	// a union of forms (e.g. tianwen.resolve's five input variants). The derived
+	// schema is still used for boundary validation.
+	InputSchema json.RawMessage
 	// TolerateUnknownArgs relaxes input validation for tools that replaced a
 	// legacy raw-JSON method. The legacy registry validated params against the
 	// raw JSON Schemas, which left `additionalProperties` unset and therefore
-	// ignored unknown arguments: counsel passes tianwen.time's longitude to
-	// bazi.chart and chains a ziwei.fullchart payload into ziwei.daxian. Tools
-	// that were written directly against this typed registry keep rejecting
-	// unknown arguments.
+	// ignored unknown arguments (and richer payloads are chained, e.g. counsel
+	// feeds a ziwei.fullchart object into ziwei.daxian). Tools that were written
+	// directly against this typed registry keep rejecting unknown arguments.
 	TolerateUnknownArgs bool
 	// KeepClosedInputPaths keeps individual input objects closed even when
 	// TolerateUnknownArgs is set, because the legacy params schema declared
@@ -72,6 +75,9 @@ func register[In, Out any](r *Registry, tool Tool[In, Out]) error {
 	inputResolved, inputSchema, err := inputSchemaFor[In](tool.TolerateUnknownArgs, tool.KeepClosedInputPaths)
 	if err != nil {
 		return fmt.Errorf("mcp tool %s: input schema: %w", tool.Name, err)
+	}
+	if len(tool.InputSchema) > 0 {
+		inputSchema = tool.InputSchema
 	}
 	outputSchemaDocument, outputResolved, outputSchema, err := schemaFor[Out]()
 	if err != nil {

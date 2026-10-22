@@ -10,9 +10,9 @@ import (
 
 // 大限公历年段使用 start_year = birthYear + QiSui − 1。
 func TestDaXian_StartYear(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	lt := tianwen.SolarToLunar(tianwen.GregorianTime(st.Time()))
+	lt := lunarTimeFromSolar(st)
 	chart, err := ComputeChart(lt, ganzhi.Male)
 	if err != nil {
 		t.Fatalf("ComputeChart: %v", err)

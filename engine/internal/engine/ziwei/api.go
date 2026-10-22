@@ -2,13 +2,14 @@ package ziwei
 
 import (
 	"fmt"
+	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
 
 // ComputeChart computes a complete紫微命盘 from lunar time and gender.
-// The LunarTime should come from tianwen.time's "lunar" field.
+// The LunarTime should come from tianwen.resolve's "lunar" field.
 func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) (Chart, error) {
 	date := tianwen.LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap}
 	if _, err := tianwen.ValidateLunarDate(date); err != nil {
@@ -39,4 +40,25 @@ func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) (Chart, error) {
 	chart.ShenZhu = bodyStar(nianZhi)
 	chart.PalaceFacts = computePalaceFacts(chart)
 	return chart, nil
+}
+
+// ComputeChartAt is the explicit-time entry for new callers. at must already
+// be normalized to UTC; loc is the explicit IANA location. Ziwei lunar
+// projection currently follows the tianwen UTC+8 convention.
+func ComputeChartAt(
+	at time.Time,
+	loc *time.Location,
+	longitude float64,
+	gender ganzhi.Gender,
+) (Chart, error) {
+	lunarDate := tianwen.LunarDateAt(at)
+	shichen := tianwen.ShichenAt(at, loc, longitude)
+	lunar := tianwen.LunarTime{
+		Year:    lunarDate.Year,
+		Month:   lunarDate.Month,
+		Day:     lunarDate.Day,
+		Leap:    lunarDate.Leap,
+		Shichen: shichen,
+	}
+	return ComputeChart(lunar, gender)
 }

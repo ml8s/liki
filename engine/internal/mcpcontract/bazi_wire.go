@@ -201,14 +201,12 @@ type BaziFullChartShiShenShaItem struct {
 }
 
 type BaziFullChartDaYun struct {
-	Steps            []BaziFullChartDaYunStepsItem `json:"steps" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。列表。"`
-	CurrentStepIndex int                           `json:"current_step_index" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 current_step_index。"`
-	Direction        *string                       `json:"direction,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 direction。"`
-	NextStepInYears  *int                          `json:"next_step_in_years,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 next_step_in_years。"`
-	StartDate        *string                       `json:"start_date,omitempty" jsonschema:"起始公历日 YYYY-MM-DD。"`
-	StartDayAfter    *int                          `json:"start_day_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_day_after。"`
-	StartMonthAfter  *int                          `json:"start_month_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_month_after。"`
-	StartYearAfter   *int                          `json:"start_year_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_year_after。"`
+	Steps           []BaziFullChartDaYunStepsItem `json:"steps" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。列表。"`
+	Direction       *string                       `json:"direction,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 direction。"`
+	StartDate       *string                       `json:"start_date,omitempty" jsonschema:"起始公历日 YYYY-MM-DD。"`
+	StartDayAfter   *int                          `json:"start_day_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_day_after。"`
+	StartMonthAfter *int                          `json:"start_month_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_month_after。"`
+	StartYearAfter  *int                          `json:"start_year_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_year_after。"`
 }
 
 type BaziFullChartDaYunStepsItem struct {

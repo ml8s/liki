@@ -9,9 +9,14 @@ package mcpcontract
 
 // ── ziwei.chart input ──
 
+// ZiweiChartInput takes the canonical {utc, timezone} pair (Zone is IANA) and the
+// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
+// chart domain consumes those domain scales (ChineseCalendarDate (basis configured by the caller) + LAST shichen; no separate time.Time).
 type ZiweiChartInput struct {
-	Lunar  ZiweiLunarInput `json:"lunar" jsonschema:"lunar。"`
-	Gender GenderName      `json:"gender" jsonschema:"性别"`
+	Instant   Instant    `json:"instant" jsonschema:"出生瞬间 UTC（RFC3339，Z）。"`
+	Timezone  string     `json:"timezone" jsonschema:"出生地 IANA 时区。"`
+	Longitude float64    `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于时辰。"`
+	Gender    GenderName `json:"gender" jsonschema:"性别"`
 }
 
 // ── ziwei.chart output ──
@@ -244,9 +249,13 @@ type ZiweiLiuShiGongWeiItem struct {
 
 // ── ziwei.bond input ──
 
+type ZiweiBondSide struct {
+	Chart ZiweiChartOutput `json:"chart" jsonschema:"紫微盘（ziwei.chart 返回的完整对象）"`
+}
+
 type ZiweiBondInput struct {
-	A ZiweiChartOutput `json:"a" jsonschema:"甲方紫微盘（ziwei.chart 返回的完整对象）"`
-	B ZiweiChartOutput `json:"b" jsonschema:"乙方紫微盘（ziwei.chart 返回的完整对象）"`
+	A ZiweiBondSide `json:"a" jsonschema:"甲方：{ chart: 紫微盘 }，与 bazi.bond 同形"`
+	B ZiweiBondSide `json:"b" jsonschema:"乙方：{ chart: 紫微盘 }，与 bazi.bond 同形"`
 }
 
 // ── ziwei.bond output ──

@@ -1,14 +1,14 @@
 {
   "input": {
     "gender": "male",
-    "solar_time": "1984-02-15T08:00:00+08:00"
+    "longitude": 123.75,
+    "instant": "1984-02-15T00:00:00Z",
+    "timezone": "Asia/Shanghai"
   },
   "output": {
     "birth_year": 1984,
     "da_yun": {
-      "current_step_index": 3,
       "direction": "顺排",
-      "next_step_in_years": 4,
       "start_date": "1990-08-04",
       "start_day_after": 20,
       "start_month_after": 5,

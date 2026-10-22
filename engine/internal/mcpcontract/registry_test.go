@@ -8,7 +8,7 @@ import (
 )
 
 func TestEngineRegistry_TimeNowContract(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 	definition, ok := registry.Definition("time.now")
 	if !ok {
 		t.Fatal("time.now contract is not registered")
@@ -38,7 +38,7 @@ func TestEngineRegistry_TimeNowContract(t *testing.T) {
 	if output.Type != "object" {
 		t.Fatalf("output schema type = %q", output.Type)
 	}
-	for _, name := range []string{"utc", "local", "cst"} {
+	for _, name := range []string{"instant", "timezone"} {
 		property, ok := output.Properties[name]
 		if !ok {
 			t.Fatalf("output schema lacks %q: %s", name, definition.OutputSchema)
@@ -55,7 +55,7 @@ func TestEngineRegistry_TimeNowContract(t *testing.T) {
 }
 
 func TestEngineRegistry_TimeNowCall(t *testing.T) {
-	registry := NewEngine()
+	registry := testEngine()
 	_, err := registry.Call(context.Background(), "time.now", json.RawMessage(`{"ignored":true}`))
 	if err == nil {
 		t.Fatal("unknown input field was accepted")
@@ -64,7 +64,7 @@ func TestEngineRegistry_TimeNowCall(t *testing.T) {
 		t.Fatalf("unexpected input error: %v", err)
 	}
 
-	raw, err := registry.Call(context.Background(), "time.now", nil)
+	raw, err := registry.Call(context.Background(), "time.now", json.RawMessage(`{"timezone":"Asia/Shanghai"}`))
 	if err != nil {
 		t.Fatalf("call: %v", err)
 	}
@@ -72,7 +72,7 @@ func TestEngineRegistry_TimeNowCall(t *testing.T) {
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatalf("decode output: %v", err)
 	}
-	if output.UTC == "" || output.Local == "" || output.CST == "" {
+	if output.Instant == "" || output.Timezone != "Asia/Shanghai" {
 		t.Fatalf("incomplete output: %#v", output)
 	}
 }

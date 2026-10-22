@@ -7,7 +7,15 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// LunarTime is a Chinese lunar calendar date with shichen.
+// LunarTime is a Chinese lunisolar calendar date plus a shichen. The date is
+// a calendar date (not a time scale); the shichen is a separate fact on the
+// local apparent solar time (LAST) scale and must not be conflated with it.
+//
+// Date basis is a domain convention and must be explicit at the boundary:
+//   - GB/T 33661 defines the Chinese calendar in UTC+8 civil dates;
+//   - the ziwei path uses the apparent-solar date before converting (a school
+//     convention), then the standard month sequence + leap rule, with the
+//     LAST shichen.
 type LunarTime struct {
 	Year    int        `json:"year"`
 	Month   int        `json:"month"`
@@ -270,14 +278,19 @@ func newMoonMidnightJD(k, tz float64) float64 {
 
 // ── Public API ──
 
-// SolarToLunar converts a Gregorian date to Chinese lunar date.
-// The date is interpreted at local midnight in UTC+8.
-func SolarToLunar(gt GregorianTime) LunarTime {
-	t := gt.Time()
-	solarYear, solarMonth, solarDay := t.Date()
+// LunarDateAt converts a Gregorian instant to the Chinese lunar date,
+// interpreting its civil date in UTC+8.
+func LunarDateAt(gt time.Time) LunarDate {
+	t := gt.In(time.FixedZone("CST", int(defaultTZ*3600)))
+	return SolarDateToLunar(t.Year(), int(t.Month()), t.Day())
+}
+
+// SolarDateToLunar converts a civil solar date to the Chinese lunar date.
+// The date is taken as given; month/leap boundaries follow the UTC+8 reference.
+func SolarDateToLunar(solarYear, solarMonth, solarDay int) LunarDate {
 	tz := defaultTZ
 
-	gDayJD := gregorianToJD(solarYear, int(solarMonth), solarDay, tz)
+	gDayJD := gregorianToJD(solarYear, solarMonth, solarDay, tz)
 	targetK := math.Round(approximateK(solarYear, int(solarMonth), solarDay, tz))
 
 	dayOneJD := newMoonMidnightJD(targetK, tz)
@@ -324,17 +337,17 @@ func SolarToLunar(gt GregorianTime) LunarTime {
 	}
 
 	day := int(gDayJD - dayOneJD + 1)
-	return LunarTime{Year: lunarYear, Month: lunarMonth, Day: day, Leap: leap}
+	return LunarDate{Year: lunarYear, Month: lunarMonth, Day: day, Leap: leap}
 }
 
-// LunarToGregorian converts a Chinese lunar date to Gregorian date.
+// CivilTimeFromLunarDate converts a Chinese lunar date to Gregorian date.
 // The result is in UTC+8 local time.
-func LunarToGregorian(lt LunarTime) GregorianTime {
+func CivilTimeFromLunarDate(ld LunarDate) time.Time {
 	tz := defaultTZ
 
-	targetK, ok := findLunarMonthInLunarYear(lt.Year, lt.Month, lt.Leap)
+	targetK, ok := findLunarMonthInLunarYear(ld.Year, ld.Month, ld.Leap)
 	if !ok {
-		return GregorianTime(time.Time{})
+		return time.Time(time.Time{})
 	}
 
 	// Validate day is within the month.
@@ -348,13 +361,13 @@ func LunarToGregorian(lt LunarTime) GregorianTime {
 	nextMidnightJD := gregorianToJD(ny, nm, nd, tz)
 	monthSize := int(nextMidnightJD - midnightJD)
 
-	if lt.Day < 1 || lt.Day > monthSize {
-		return GregorianTime(time.Time{})
+	if ld.Day < 1 || ld.Day > monthSize {
+		return time.Time(time.Time{})
 	}
 
-	targetJD := midnightJD + float64(lt.Day-1)
+	targetJD := midnightJD + float64(ld.Day-1)
 	gy, gm, gd := jdToGregorian(targetJD, tz)
-	return GregorianTime(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.FixedZone("CST", int(defaultTZ*3600))))
+	return time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.FixedZone("CST", int(defaultTZ*3600))))
 }
 
 func searchMonthKInRange(anchorYear, lunarMonth int, leap bool, tz float64) (float64, bool) {

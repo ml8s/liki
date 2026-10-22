@@ -240,7 +240,7 @@ func annualBranchControlledBy(chart Chart, yearZhi ganzhi.Zhi) []string {
 	if target == 0 {
 		return []string{}
 	}
-	natalCounts := computeElementCount(chart.ToBazi(), computeCangGan(chart.ToBazi()))
+	natalCounts := computeElementCount(chart.ToBazi(), HiddenStemFacts(chart.ToBazi()))
 	fuYiWangShuai, _, _ := ComputeYongShenSchools(chart)
 	states := fuYiWangShuai.WangShuai
 	result := make([]string, 0, 2)

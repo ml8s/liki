@@ -4,11 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"liki-engine/internal/engine/bazi"
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 type BaziPillar struct {
@@ -39,19 +37,22 @@ type BaziDaYunStep struct {
 }
 
 type BaziDaYun struct {
-	StartDate        DateString      `json:"start_date" jsonschema:"起运公历日 YYYY-MM-DD。"`
-	StartYearAfter   int             `json:"start_year_after" jsonschema:"出生后整年数。"`
-	StartMonthAfter  int             `json:"start_month_after" jsonschema:"出生后余月数。"`
-	StartDayAfter    int             `json:"start_day_after" jsonschema:"出生后余日数。"`
-	Direction        string          `json:"direction" jsonschema:"顺排或逆排。"`
-	Steps            []BaziDaYunStep `json:"steps" jsonschema:"大运步骤。"`
-	CurrentStepIndex int             `json:"current_step_index" jsonschema:"当前大运序号。"`
-	NextStepInYears  *int            `json:"next_step_in_years,omitempty" jsonschema:"距下一大运年数。"`
+	StartDate       DateString      `json:"start_date" jsonschema:"起运公历日 YYYY-MM-DD。"`
+	StartYearAfter  int             `json:"start_year_after" jsonschema:"出生后整年数。"`
+	StartMonthAfter int             `json:"start_month_after" jsonschema:"出生后余月数。"`
+	StartDayAfter   int             `json:"start_day_after" jsonschema:"出生后余日数。"`
+	Direction       string          `json:"direction" jsonschema:"顺排或逆排。"`
+	Steps           []BaziDaYunStep `json:"steps" jsonschema:"大运步骤。"`
 }
 
+// BaziChartInput takes the canonical {instant, timezone} pair (Zone is IANA) and the
+// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
+// chart domain consumes those domain scales (year/month = solar terms (civil/instant); day/hour = LAST + 子时; no Gregorian/offset transit).
 type BaziChartInput struct {
-	SolarTime RFC3339Time `json:"solar_time" jsonschema:"真太阳时（RFC3339）。"`
-	Gender    GenderName  `json:"gender" jsonschema:"性别。"`
+	Instant   Instant    `json:"instant" jsonschema:"出生瞬间 UTC（RFC3339，Z）。"`
+	Timezone  string     `json:"timezone" jsonschema:"出生地 IANA 时区，如 Asia/Shanghai。"`
+	Longitude float64    `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
+	Gender    GenderName `json:"gender" jsonschema:"性别。"`
 }
 
 type BaziChart struct {
@@ -66,21 +67,21 @@ type BaziChart struct {
 }
 
 func BaziChartCompute(_ context.Context, input BaziChartInput) (BaziChart, error) {
-	t, err := time.Parse(time.RFC3339, string(input.SolarTime))
+	at, err := parseInstant(string(input.Instant))
 	if err != nil {
 		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
 	}
-	chart := bazi.ComputeChart(tianwen.SolarTime(t), ganzhi.Gender(input.Gender))
-	now := time.Now()
-	if chart.DaYun != nil {
-		chart.DaYun.CurrentStepIndex = bazi.ComputeCurrentStepIndex(chart.DaYun, now.Year())
-		if idx := chart.DaYun.CurrentStepIndex; idx >= 0 && idx < len(chart.DaYun.Steps) {
-			if end := chart.DaYun.Steps[idx].EndYear; now.Year() <= end {
-				next := end - now.Year()
-				chart.DaYun.NextStepInYears = &next
-			}
-		}
+
+	loc, err := loadTimezone(input.Timezone)
+	if err != nil {
+		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
 	}
+
+	if input.Longitude < -180 || input.Longitude > 180 {
+		return BaziChart{}, fmt.Errorf("bazi.chart: longitude must be within [-180,180], got %v", input.Longitude)
+	}
+
+	chart := bazi.ComputeChartAt(at, loc, input.Longitude, ganzhi.Gender(input.Gender))
 	return baziChartWire(chart), nil
 }
 
@@ -121,8 +122,7 @@ func baziDaYunWire(dayun bazi.DaYun) *BaziDaYun {
 	out := &BaziDaYun{
 		StartDate: DateString(dayun.StartDate), StartYearAfter: dayun.StartYearAfter,
 		StartMonthAfter: dayun.StartMonthAfter, StartDayAfter: dayun.StartDayAfter,
-		Direction: dayun.Direction, CurrentStepIndex: dayun.CurrentStepIndex,
-		NextStepInYears: dayun.NextStepInYears,
+		Direction: dayun.Direction,
 	}
 	for _, step := range dayun.Steps {
 		wire := BaziDaYunStep{

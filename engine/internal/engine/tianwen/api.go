@@ -3,32 +3,32 @@
 //
 // Public API:
 //
-// Types
+// # Types
 //
-//	Timeset       — 三套日历输出（公历/太阳时/农历）
-//	SolarTime     — 真太阳时
-//	GregorianTime — 公历时间
-//	LunarTime     — 农历时间（含时辰地支）
+// //	time.Time     — 真太阳时
+//
+//	time.Time — IANA 时区下的法定日期时间（非真太阳时）
+//	LunarDate     — 农历日期（不含时辰）
 //
 // Core functions
 //
-//	ComputeTimeset(gt GregorianTime, lon) → Timeset
-//	GregorianToSolar(t time.Time, lon, tz) → SolarTime
-//	SolarToLunar(gt GregorianTime) → LunarTime
-//	LunarToGregorian(lt LunarTime) → GregorianTime
+//	ComputeTimeset(gt time.Time, lon) → Timeset
+//	ApparentSolarFromCivil(t time.Time, lon, tz) → time.Time
+//	LunarDateAt(gt time.Time) → LunarDate
+//	CivilTimeFromLunarDate(ld LunarDate) → time.Time
 //
 // Zhu computations
 //
-//	ComputeBazi(st SolarTime) → ganzhi.Bazi
-//	RiZhu(gt GregorianTime) → Zhu
-//	NianZhu(gt GregorianTime) → Zhu
-//	YueZhu(gt GregorianTime) → Zhu
-//	ShiZhu(st SolarTime) → Zhu
+//	ComputeBazi(gt time.Time, st time.Time) → ganzhi.Bazi
+//	RiZhu(gt time.Time) → Zhu
+//	NianZhu(gt time.Time) → Zhu
+//	YueZhu(gt time.Time) → Zhu
+//	ShiZhu(st time.Time) → Zhu
 //
 // Solar terms
 //
 //	SolarTermTime(year, targetLon) → time.Time
 //	SolarTermIndex(year, month, day) → int
-//	JianYue(gt GregorianTime) → ganzhi.Zhi
+//	JianYue(gt time.Time) → ganzhi.Zhi
 //	JieQiLongitudes — [24]float64
 package tianwen

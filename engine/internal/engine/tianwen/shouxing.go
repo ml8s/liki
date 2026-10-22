@@ -132,6 +132,3 @@ func solarLongitudeShouXing(jdOffset float64) float64 {
 	}
 	return lon
 }
-
-// jieQiTimeShouXing 用寿星历反解（对齐 lunar qiAccurate2）求节气时刻。
-// 返回儒略日偏移（JD-2451545）。targetLon 为黄经（度）。

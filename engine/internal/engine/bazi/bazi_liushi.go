@@ -41,7 +41,7 @@ func computeLiuShi(bz ganzhi.Bazi, year, month, day, hour int) (*LiuShi, error) 
 	if hour >= 23 {
 		dayForShiGan = dayForShiGan.AddDate(0, 0, 1)
 	}
-	dp := tianwen.RiZhu(tianwen.GregorianTime(dayForShiGan))
+	dp := tianwen.RiZhu(time.Time(dayForShiGan))
 	hbi := liushiZhiIdx(hour)
 	shiZhi := ganzhi.Zhi(hbi + 1)
 	shiGan := ganzhi.Gan(((int(dp.Gan)*2 + int(shiZhi) - 2) % 10))

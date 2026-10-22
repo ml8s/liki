@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 func parseOracleLiuQin(t *testing.T, name string) LiuQin {
@@ -305,7 +304,7 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart := ComputeChart(tianwen.SolarTime(value), typ, tc.Yaos)
+			chart := ComputeChart(time.Time(value), time.Time(value), typ, tc.Yaos)
 			found := false
 			for _, pattern := range chart.Patterns {
 				if string(pattern.Type) == tc.ExpectedPattern.Type &&
@@ -325,7 +324,7 @@ func TestDomainOracle_LiuyaoPatternSemantics(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart := ComputeChart(tianwen.SolarTime(value), YongGuanGui, tc.Yaos)
+			chart := ComputeChart(time.Time(value), time.Time(value), YongGuanGui, tc.Yaos)
 			if chart.Name != tc.ExpectedName {
 				t.Fatalf("name = %q, want %q", chart.Name, tc.ExpectedName)
 			}

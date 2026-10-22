@@ -86,7 +86,7 @@ func loadCongGeRules() error {
 // ── Root type classification ──
 
 // classifyRoot determines the root type for the day master.
-func classifyRoot(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi, cangGan [4]cangGanOut) string {
+func classifyRoot(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi, cangGan [4]HiddenStemProjection) string {
 	dmElem := ganzhi.GanWuxing(riYuan)
 
 	monthCG := cangGan[1]
@@ -132,6 +132,60 @@ func classifySeason(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) string {
 	default:
 		return "休"
 	}
+}
+
+// DayMasterStrength is the qualitative strength verdict used by 扶抑 and 从格.
+type DayMasterStrength struct {
+	RootType   string
+	Season     string
+	Label      string
+	YinBiCount int
+}
+
+// AnalyzeDayMasterStrength derives the data-driven day-master strength facts.
+func AnalyzeDayMasterStrength(
+	chart Chart,
+	hiddenStems [4]HiddenStemProjection,
+) DayMasterStrength {
+	strength := DayMasterStrength{
+		RootType:   classifyRoot(chart.Ri.Gan, chart.Yue.Zhi, hiddenStems),
+		Season:     classifySeason(chart.Ri.Gan, chart.Yue.Zhi),
+		YinBiCount: countYinBi(chart),
+	}
+	strength.Label = lookupStrength(strength.RootType, strength.Season, strength.YinBiCount)
+	return strength
+}
+
+// WuxingCounts are transparent and hidden-branch element counts.
+type WuxingCounts map[ganzhi.Wuxing]int
+
+// StringCount projects the typed counts into the published wire shape.
+func (counts WuxingCounts) StringCount() map[string]int {
+	stringCount := make(map[string]int, len(counts))
+	for element, count := range counts {
+		stringCount[element.String()] = count
+	}
+	return stringCount
+}
+
+func WuxingCountsAt(
+	chart Chart,
+	hiddenStems [4]HiddenStemProjection,
+) WuxingCounts {
+	counts := make(WuxingCounts, 5)
+	for _, pillar := range chart.ToBazi().Slice() {
+		counts[ganzhi.GanWuxing(pillar.Gan)]++
+	}
+	for _, stems := range hiddenStems {
+		counts[ganzhi.GanWuxing(stems.Main)]++
+		if stems.Mid != nil {
+			counts[ganzhi.GanWuxing(*stems.Mid)]++
+		}
+		if stems.Minor != nil {
+			counts[ganzhi.GanWuxing(*stems.Minor)]++
+		}
+	}
+	return counts
 }
 
 // countYinBi returns印比 count (比劫同五行+印生我) from the 4 gan.
@@ -182,7 +236,7 @@ func lookupStrength(rootType, season string, yinBiCount int) string {
 func lookupCongGe(c Chart) (string, string, string, string) {
 	riYuan := c.Ri.Gan
 	dmElem := ganzhi.GanWuxing(riYuan)
-	rootType := classifyRoot(riYuan, c.Yue.Zhi, computeCangGan(c.ToBazi()))
+	rootType := classifyRoot(riYuan, c.Yue.Zhi, HiddenStemFacts(c.ToBazi()))
 	season := classifySeason(riYuan, c.Yue.Zhi)
 	gan := countGan(c)
 

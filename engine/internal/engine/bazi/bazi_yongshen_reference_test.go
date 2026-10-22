@@ -17,11 +17,12 @@ func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
 	// 庚日主, 午月(死), 地支午午申午, 天干庚壬壬
 	// 调候: 穷通宝鉴(庚,午)=壬(水)
 	// 格局: 午月不透干 → 虚格
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
 	if tiaoHou.PrimaryWuxing == "" {
@@ -47,11 +48,12 @@ func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
 func TestFuYi_SanHui_HuoJu(t *testing.T) {
 	// 丙火日主, 午月, 地支巳午未 → 三会火方
 	// 即使无其他火根, 三会火方本身应使日主不弱
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(2025, 7, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2025, 7, 15, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	fuYi, _, _ := ComputeYongShenSchools(chart)
 
 	t.Logf("三会火方: 八字=%s%s %s%s %s%s %s%s, strength=%s",
@@ -72,11 +74,12 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 	// 滴天髓案例: 乙木秋生, 火旺制杀
 	// 乙木日主, 酉月(七杀辛本气), 年/月干丁火透 → 火旺制杀
 	// 正确日期: 2001-09-19 12:00 = 辛巳 丁酉 乙未 壬午
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(2001, 9, 19, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2001, 9, 19, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
 	t.Logf("滴天髓: %s%s %s%s %s%s %s%s",
@@ -102,11 +105,12 @@ func TestReference_DiTianSui_WeakWoodWithFire(t *testing.T) {
 func TestReference_ZiPing_ZhengGuanGe(t *testing.T) {
 	// 子平真诠: 甲木酉月正官格
 	// 2004-09-22 10:00 → 甲申 癸酉 甲辰 己巳
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(2004, 9, 22, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2004, 9, 22, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	_, _, geJu := ComputeYongShenSchools(chart)
 
 	t.Logf("子平真诠: %s%s %s%s %s%s %s%s, 格局=%s %s",

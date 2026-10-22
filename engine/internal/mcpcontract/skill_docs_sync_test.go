@@ -1,7 +1,7 @@
 package mcpcontract
 
 // skill 文档与引擎 schema 同步测试：
-//  1. liki-skills 文档（SKILL.md/app/domains）反引号引用的字段名必须存在于某方法
+//  1. liki-skills 文档（SKILL.md + references 平铺卡）反引号引用的字段名必须存在于某方法
 //     Params/Result 的 JSON Schema 属性集合。
 //  2. skill 侧 check_docs.py 的方法白名单 == 引擎注册方法集。
 //
@@ -9,6 +9,7 @@ package mcpcontract
 
 import (
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -175,18 +176,16 @@ func loadSkillDocs() ([]string, error) {
 			if err != nil {
 				return err
 			}
-			if info.IsDir() {
-				rel, relErr := filepath.Rel(filepath.Join("..", "..", "..", "skills", "liki"), path)
-				if relErr == nil && (rel == "references/ops" || rel == "references/payment" ||
-					strings.HasPrefix(rel, "references/ops"+string(filepath.Separator)) ||
-					strings.HasPrefix(rel, "references/payment"+string(filepath.Separator))) {
-					return filepath.SkipDir
-				}
+			if !strings.HasSuffix(path, ".md") {
 				return nil
 			}
-			if strings.HasSuffix(path, ".md") {
-				files = append(files, path)
+			// 运行时治理文档（支付 / 反馈）不属于引擎 schema 字段文档面。
+			rel, relErr := filepath.Rel(filepath.Join("..", "..", "..", "skills", "liki"), path)
+			if relErr == nil && (rel == filepath.Join("references", "ops-FEEDBACK.md") ||
+				rel == filepath.Join("references", "payment-AIPAY.md")) {
+				return nil
 			}
+			files = append(files, path)
 			return nil
 		})
 		if err != nil {
@@ -196,13 +195,73 @@ func loadSkillDocs() ([]string, error) {
 	return files, nil
 }
 
+// loadAssertionIDs 读取 counsel 断言表的 assertion_id 集合。
+// skill 卡以 `cai_104` 形式引用跨层断言（counsel 数据，而非引擎 schema 字段）；
+// 精确匹配可防拼写漂移，末尾 x 的通配（jk_10x）按前缀匹配。
+func loadAssertionIDs() map[string]bool {
+	ids := map[string]bool{}
+	paths, err := filepath.Glob(
+		filepath.Join("..", "..", "..", "counsel", "app", "*", "tools", "assertions", "*assertions.csv"),
+	)
+	if err != nil {
+		return ids
+	}
+	for _, path := range paths {
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		rows, err := csv.NewReader(strings.NewReader(string(raw))).ReadAll()
+		if err != nil || len(rows) < 2 {
+			continue
+		}
+		column := -1
+		for index, header := range rows[0] {
+			if strings.TrimSpace(header) == "assertion_id" {
+				column = index
+				break
+			}
+		}
+		if column < 0 {
+			continue
+		}
+		for _, row := range rows[1:] {
+			if column >= len(row) {
+				continue
+			}
+			if id := strings.TrimSpace(row[column]); id != "" {
+				ids[id] = true
+			}
+		}
+	}
+	return ids
+}
+
+// assertionIDAllowed 允许精确断言 id 或末尾 x 的通配前缀（jk_10x → 前缀 jk_10）。
+func assertionIDAllowed(tok string, ids map[string]bool) bool {
+	if ids[tok] {
+		return true
+	}
+	prefix := strings.TrimRight(tok, "x")
+	if prefix == tok {
+		return false
+	}
+	for id := range ids {
+		if strings.HasPrefix(id, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
 func TestSkillDocsFieldRefs(t *testing.T) {
 	files, err := loadSkillDocs()
 	if err != nil || len(files) == 0 {
 		t.Skip("skills/ 目录不存在，跳过 skill 文档契约测试")
 	}
-	contracts := NewEngine()
+	contracts := testEngine()
 	refs := contractFieldRefs(contracts)
+	assertionIDs := loadAssertionIDs()
 	// 放行集合：引擎工具名 + 当前 skill 工具 schema 词表（上方）
 	// 加上字面量列出的宽松词元——即文档中合法但不属于任何 schema 的少量散文词。
 	allow := map[string]bool{}
@@ -220,6 +279,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		"zhi_ji", "mansion", "xi_shen", "cai_shen", "suitability", "qimen_matters", "bed_install", "build",
 		"cleaning", "counsel", "engage", "event_type", "exam", "funeral", "income", "medical", "move",
 		"opening", "renovation", "sacrifice", "sign", "wedding",
+		"finish_task", // 运行时任务提交工具（框架注入，非引擎工具）
 	} {
 		allow[a] = true
 	}
@@ -264,19 +324,15 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 					continue
 				}
 				if reExtension.MatchString(tok) || strings.HasPrefix(tok, "tools/") ||
-					strings.HasPrefix(tok, "app/") || strings.HasPrefix(tok, "domains/") ||
-					strings.HasPrefix(tok, "skills/liki/") {
+					strings.HasPrefix(tok, "skills/") {
 					continue
 				}
-				// 含 '/' 但非已知路径前缀 → HTTP 头/媒体类型等值（如 Content-Type: application/json），非 schema 字段，跳过
-				if strings.Contains(tok, "/") &&
-					!strings.HasPrefix(tok, "tools/") && !strings.HasPrefix(tok, "app/") &&
-					!strings.HasPrefix(tok, "domains/") &&
-					!strings.HasPrefix(tok, "skills/") {
+				// 含 '/' 但不是已知导航前缀（tools/、skills/）→ HTTP 头/媒体类型等值（如 Content-Type: application/json），非 schema 字段，跳过
+				if strings.Contains(tok, "/") {
 					continue
 				}
 				for _, seg := range normalizeFieldToken(tok) {
-					if fieldAllowed(seg, docAllow, refs) {
+					if fieldAllowed(seg, docAllow, refs) || assertionIDAllowed(seg, assertionIDs) {
 						continue
 					}
 					rel, _ := filepath.Rel(filepath.Join("..", "..", ".."), f)
@@ -328,12 +384,28 @@ func skillNameForDoc(path string) string {
 		if len(parts) < 3 {
 			return "liki"
 		}
-		if len(parts) >= 5 && parts[2] == "divination" && parts[3] == "domains" {
-			return parts[4]
-		}
-		return parts[2]
+		return skillNameForFlatCard(parts[len(parts)-1])
 	}
 	return parts[1]
+}
+
+// skillNameForFlatCard 把平铺卡名映射到所属词表面：
+// `references/<域>-<app|体系>-<卡>.md`；`divination-liuyao-*` / `divination-qimen-*`
+// 用体系级词表，其余按域级；根共享卡（FAQ / ops- / payment-）归 liki。
+func skillNameForFlatCard(name string) string {
+	base := strings.TrimSuffix(filepath.Base(name), ".md")
+	if base == "FAQ" || strings.HasPrefix(base, "ops-") || strings.HasPrefix(base, "payment-") {
+		return "liki"
+	}
+	for _, method := range []string{"liuyao", "qimen"} {
+		if strings.HasPrefix(base, "divination-"+method+"-") {
+			return method
+		}
+	}
+	if idx := strings.Index(base, "-"); idx > 0 {
+		return base[:idx]
+	}
+	return "liki"
 }
 
 // counselToolVocabulary returns the per-skill vocabulary published by the
@@ -493,14 +565,14 @@ func TestSkillToolVocabularyIsScoped(t *testing.T) {
 }
 
 func TestSkillNameForDoc(t *testing.T) {
-	got := skillNameForDoc(filepath.Join("..", "..", "..", "skills", "liki", "divination", "ENTRY.md"))
-	if got != "divination" {
-		t.Fatalf("skill name = %q, want divination", got)
+	got := skillNameForDoc(filepath.Join("..", "..", "..", "skills", "liki", "references", "natal-ENTRY.md"))
+	if got != "natal" {
+		t.Fatalf("skill name = %q, want natal", got)
 	}
 }
 
-func TestSkillNameForNestedDivinationDomain(t *testing.T) {
-	path := filepath.Join("..", "..", "..", "skills", "liki", "references", "divination", "domains", "qimen", "bamen.md")
+func TestSkillNameForFlatDivinationDomain(t *testing.T) {
+	path := filepath.Join("..", "..", "..", "skills", "liki", "references", "divination-qimen-bamen.md")
 	if got := skillNameForDoc(path); got != "qimen" {
 		t.Fatalf("skill name = %q, want qimen", got)
 	}
@@ -572,7 +644,7 @@ func TestSkillDocsMethodListSync(t *testing.T) {
 		t.Fatalf("%s: %v", path, err)
 	}
 	whitelist := map[string]bool{}
-	// 只提取 METHOD_WHITELIST = {...} 块内的字符串（避免 _SKIP_DOTTED 混入），允许无点单名
+	// 只提取 METHOD_WHITELIST = {...} 块内的字符串，允许无点单名
 	seg := string(raw)
 	if idx := strings.Index(seg, "METHOD_WHITELIST = {"); idx >= 0 {
 		seg = seg[idx:]
@@ -583,7 +655,7 @@ func TestSkillDocsMethodListSync(t *testing.T) {
 	for _, m := range regexp.MustCompile(`"([a-z]+(?:\.[a-z_]+)?)"`).FindAllStringSubmatch(seg, -1) {
 		whitelist[m[1]] = true
 	}
-	regNames := NewEngine().Names()
+	regNames := testEngine().Names()
 	var missingFromSkill, missingFromEngine []string
 	for _, n := range regNames {
 		if !whitelist[n] {

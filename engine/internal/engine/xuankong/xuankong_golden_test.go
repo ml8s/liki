@@ -13,7 +13,7 @@ import (
 var updateGolden = os.Getenv("UPDATE_GOLDEN") == "1"
 
 func TestGoldenComputeChart(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)

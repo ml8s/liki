@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // ============================================================================
@@ -48,12 +47,13 @@ func TestLiuNian_Golden(t *testing.T) {
 			if err != nil {
 				t.Fatalf("parse solar: %v", err)
 			}
-			st := tianwen.SolarTime(tt)
+			when := tt
+			st := time.Time(when)
 			g := ganzhi.Male
 			if gc.Gender == "female" {
 				g = ganzhi.Female
 			}
-			chart := ComputeChart(st, g)
+			chart := ComputeChart(time.Time(when), st, g)
 
 			ln, err := ComputeLiuNian(chart, gc.Year)
 			if err != nil {

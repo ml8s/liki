@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 type baziMultiOracleFixture struct {
@@ -112,7 +111,7 @@ func TestBaziMultiOracleGolden_AllTermBoundaries(t *testing.T) {
 			if i%2 == 1 {
 				gender = ganzhi.Female
 			}
-			chart := ComputeChart(tianwen.SolarTime(birth), gender)
+			chart := ComputeChart(time.Time(birth), time.Time(birth), gender)
 
 			got := fmt.Sprintf(
 				"%s%s %s%s %s%s %s%s",

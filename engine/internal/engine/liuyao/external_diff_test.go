@@ -14,9 +14,9 @@ type externalDiffCases struct {
 	Cases         []struct {
 		CaseID string `json:"case_id"`
 		Input  struct {
-			SolarTime string `json:"solar_time"`
-			Yaos      [6]int `json:"yaos"`
-			YongShen  string `json:"yong_shen"`
+			ApparentSolarInput string `json:"solar_time"`
+			Yaos               [6]int `json:"yaos"`
+			YongShen           string `json:"yong_shen"`
 		} `json:"input"`
 		Expected struct {
 			Name         string   `json:"name"`
@@ -50,16 +50,16 @@ func TestExternalDiffFixtures_HardFacts(t *testing.T) {
 	}
 	for _, tc := range cases.Cases {
 		t.Run(tc.CaseID, func(t *testing.T) {
-			local, err := time.Parse(time.RFC3339, tc.Input.SolarTime)
+			local, err := time.Parse(time.RFC3339, tc.Input.ApparentSolarInput)
 			if err != nil {
 				t.Fatal(err)
 			}
-			st := tianwen.GregorianToSolar(local, 116.4, 8)
+			st := tianwen.ApparentSolarFromCivil(local, 116.4, 8)
 			yong, err := ParseYongShen(tc.Input.YongShen)
 			if err != nil {
 				t.Fatal(err)
 			}
-			got := ComputeChart(st, yong, tc.Input.Yaos)
+			got := ComputeChart(local, st, yong, tc.Input.Yaos)
 
 			if got.Name != tc.Expected.Name ||
 				got.Palace != tc.Expected.Palace ||

@@ -23,8 +23,9 @@ func TestTombOfUsesElementSpecificBranch(t *testing.T) {
 }
 
 func TestTombSchoolIsExplicit(t *testing.T) {
-	st := tianwen.GregorianToSolar(time.Date(2026, 9, 12, 12, 0, 0, 0, time.FixedZone("CST", 8)), 116.4, 8)
-	chart := ComputeChart(st, YongGuanGui, [6]int{7, 7, 7, 7, 7, 7})
+	stgt := time.Time(time.Date(2026, 9, 12, 12, 0, 0, 0, time.FixedZone("CST", 8)))
+	st := tianwen.ApparentSolarFromCivil(time.Date(2026, 9, 12, 12, 0, 0, 0, time.FixedZone("CST", 8)), 116.4, 8)
+	chart := ComputeChart(stgt, st, YongGuanGui, [6]int{7, 7, 7, 7, 7, 7})
 	if chart.TombSchool != (TombSchool{EarthBranch: "辰", School: "engine_default_chen"}) {
 		t.Fatalf("tomb school = %+v", chart.TombSchool)
 	}

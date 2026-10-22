@@ -8,7 +8,7 @@ import (
 
 // --- per-pillar data ---
 
-type cangGanOut struct {
+type HiddenStemProjection struct {
 	Main  ganzhi.Gan  `json:"main"`
 	Mid   *ganzhi.Gan `json:"mid"`
 	Minor *ganzhi.Gan `json:"minor"`
@@ -29,40 +29,40 @@ func (z zhuInfo) MarshalJSON() ([]byte, error) {
 
 type fullZhuInfo struct {
 	ganzhi.Zhu
-	DayMasterTrend string         `json:"day_master_trend"`
-	Xun            string         `json:"xun"`
-	XunKong        string         `json:"xun_kong"`
-	NaYin          string         `json:"na_yin"`
-	CangGan        cangGanOut     `json:"cang_gan"`
-	ShiShens       []shiShenEntry `json:"shi_shens"`
-	SelfSitting    string         `json:"self_sitting"`
-	ShenSha        []shenShaEntry `json:"shen_sha"`
-	IsVoid         bool           `json:"is_void"`
-	IsSelfHe       bool           `json:"is_self_he"`
-	IsKuiGang      bool           `json:"is_kui_gang"`
-	SelfHeName     string         `json:"self_he_name"`
+	DayMasterTrend string               `json:"day_master_trend"`
+	Xun            string               `json:"xun"`
+	XunKong        string               `json:"xun_kong"`
+	NaYin          string               `json:"na_yin"`
+	CangGan        HiddenStemProjection `json:"cang_gan"`
+	ShiShens       []TenGodProjection   `json:"shi_shens"`
+	SelfSitting    string               `json:"self_sitting"`
+	ShenSha        []ShenShaProjection  `json:"shen_sha"`
+	IsVoid         bool                 `json:"is_void"`
+	IsSelfHe       bool                 `json:"is_self_he"`
+	IsKuiGang      bool                 `json:"is_kui_gang"`
+	SelfHeName     string               `json:"self_he_name"`
 }
 
 func (z fullZhuInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Gan            string         `json:"gan"`
-		Zhi            string         `json:"zhi"`
-		DayMasterTrend string         `json:"day_master_trend"`
-		Xun            string         `json:"xun"`
-		XunKong        string         `json:"xun_kong"`
-		NaYin          string         `json:"na_yin"`
-		CangGan        cangGanOut     `json:"cang_gan"`
-		ShiShens       []shiShenEntry `json:"shi_shens"`
-		SelfSitting    string         `json:"self_sitting"`
-		ShenSha        []shenShaEntry `json:"shen_sha"`
-		IsVoid         bool           `json:"is_void"`
-		IsSelfHe       bool           `json:"is_self_he"`
-		IsKuiGang      bool           `json:"is_kui_gang"`
-		SelfHeName     string         `json:"self_he_name"`
+		Gan            string               `json:"gan"`
+		Zhi            string               `json:"zhi"`
+		DayMasterTrend string               `json:"day_master_trend"`
+		Xun            string               `json:"xun"`
+		XunKong        string               `json:"xun_kong"`
+		NaYin          string               `json:"na_yin"`
+		CangGan        HiddenStemProjection `json:"cang_gan"`
+		ShiShens       []TenGodProjection   `json:"shi_shens"`
+		SelfSitting    string               `json:"self_sitting"`
+		ShenSha        []ShenShaProjection  `json:"shen_sha"`
+		IsVoid         bool                 `json:"is_void"`
+		IsSelfHe       bool                 `json:"is_self_he"`
+		IsKuiGang      bool                 `json:"is_kui_gang"`
+		SelfHeName     string               `json:"self_he_name"`
 	}{Gan: ganzhi.GanName(z.Gan), Zhi: ganzhi.ZhiName(z.Zhi), DayMasterTrend: z.DayMasterTrend, Xun: z.Xun, XunKong: z.XunKong, NaYin: z.NaYin, CangGan: z.CangGan, ShiShens: z.ShiShens, SelfSitting: z.SelfSitting, ShenSha: z.ShenSha, IsVoid: z.IsVoid, IsSelfHe: z.IsSelfHe, IsKuiGang: z.IsKuiGang, SelfHeName: z.SelfHeName})
 }
 
-type shiShenEntry struct {
+type TenGodProjection struct {
 	ShiShen ganzhi.ShiShen `json:"shi_shen"`
 	Name    string         `json:"name"`
 	Source  string         `json:"source"`

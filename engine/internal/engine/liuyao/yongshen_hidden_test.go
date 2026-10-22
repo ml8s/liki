@@ -3,8 +3,6 @@ package liuyao
 import (
 	"testing"
 	"time"
-
-	"liki-engine/internal/engine/tianwen"
 )
 
 // Regression for feedback: 天风姤 has no visible 妻财. A 妻财 appearing in the
@@ -12,8 +10,9 @@ import (
 // the first visible line's state.
 func TestComputeChart_HiddenYongShenDoesNotUseBianOrFlyingLine(t *testing.T) {
 	cst := time.FixedZone("CST", 8*3600)
-	st := tianwen.SolarTime(time.Date(2026, 9, 9, 17, 28, 0, 0, cst))
-	chart := ComputeChart(st, YongQiCai, [6]int{8, 7, 9, 9, 7, 7})
+	when := time.Date(2026, 9, 9, 17, 28, 0, 0, cst)
+	st := time.Time(when)
+	chart := ComputeChart(time.Time(when), st, YongQiCai, [6]int{8, 7, 9, 9, 7, 7})
 
 	if chart.Name != "天风姤" || chart.Palace != "乾" {
 		t.Fatalf("chart = %s/%s, want 天风姤/乾", chart.Name, chart.Palace)

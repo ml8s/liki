@@ -38,10 +38,11 @@ func TestDongYao_BianGua_Anchors(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			st := tianwen.GregorianToSolar(
+			stgt := time.Time(time.Date(2024, 2, 2, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+			st := tianwen.ApparentSolarFromCivil(
 				time.Date(2024, 2, 2, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 				116.4, 8)
-			chart := ComputeChart(st, YongShiYao, c.yaos)
+			chart := ComputeChart(stgt, st, YongShiYao, c.yaos)
 			if chart.Name != c.wantBen {
 				t.Errorf("ben_gua = %s, want %s", chart.Name, c.wantBen)
 			}
@@ -71,7 +72,8 @@ func TestDongYao_BianGua_Anchors(t *testing.T) {
 
 // 引擎层防御：非法爻数（非 6-9）返回空盘，不产出错卦。
 func TestComputeChart_InvalidYaos_EmptyChart(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(2024, 2, 2, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(2024, 2, 2, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
 	for _, yaos := range [][6]int{
 		{0, 0, 0, 0, 0, 0},
@@ -79,7 +81,7 @@ func TestComputeChart_InvalidYaos_EmptyChart(t *testing.T) {
 		{6, 7, 7, 7, 7, 10},
 		{7, 7, 7, 7, 7, 99},
 	} {
-		chart := ComputeChart(st, YongShiYao, yaos)
+		chart := ComputeChart(stgt, st, YongShiYao, yaos)
 		if chart.Name != "" {
 			t.Errorf("非法爻数 %v → 卦名 %q, want 空盘", yaos, chart.Name)
 		}

@@ -9,11 +9,12 @@ import (
 )
 
 func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	fuYi, tiaoHou, geJu := ComputeYongShenSchools(chart)
 
 	validStrengths := map[string]bool{"身强": true, "身弱": true, "中和": true}

@@ -20,7 +20,7 @@ var updateEngineInputGolden = os.Getenv("UPDATE_GOLDEN") == "1"
 const qimenInputSchemaGolden = "testdata/qimen-input-schema.json"
 
 func TestEngineQimenInputSchemaGolden(t *testing.T) {
-	definition, ok := NewEngine().Definition("qimen.chart")
+	definition, ok := testEngine().Definition("qimen.chart")
 	if !ok {
 		t.Fatal("qimen.chart is not registered")
 	}

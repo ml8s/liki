@@ -1,12 +1,9 @@
 {
   "input": {
     "gender": "female",
-    "lunar": {
-      "day": 23,
-      "month": 8,
-      "shichen": "辰",
-      "year": 2000
-    }
+    "longitude": 116.4,
+    "instant": "2000-09-20T00:00:00Z",
+    "timezone": "Asia/Shanghai"
   },
   "output": {
     "birth_lunar_month": 8,

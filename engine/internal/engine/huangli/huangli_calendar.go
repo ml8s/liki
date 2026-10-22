@@ -39,7 +39,7 @@ type jianchuConfig struct {
 
 // lookupRiZhu returns the gan-zhi and na-yin for a given date.
 func lookupRiZhu(t time.Time) riZhuInfo {
-	p := tianwen.RiZhu(tianwen.GregorianTime(t))
+	p := tianwen.RiZhu(time.Time(t))
 	return riZhuInfo{Gan: p.Gan, Zhi: p.Zhi, NaYin: ganzhi.NayinLabel(p.Gan, p.Zhi)}
 }
 
@@ -48,7 +48,7 @@ func lookupJianChu(t time.Time) string {
 	mp := yueZhuForDate(t)
 	yueZhi := mp.Zhi
 
-	dp := tianwen.RiZhu(tianwen.GregorianTime(t))
+	dp := tianwen.RiZhu(time.Time(t))
 
 	jianIdx := int(yueZhi) - 1
 	dayIdx := int(dp.Zhi) - 1
@@ -59,5 +59,5 @@ func lookupJianChu(t time.Time) string {
 
 // yueZhuForDate returns the month pillar for a given date.
 func yueZhuForDate(t time.Time) ganzhi.Zhu {
-	return tianwen.YueZhu(tianwen.GregorianTime(t))
+	return tianwen.YueZhu(time.Time(t))
 }

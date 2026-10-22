@@ -151,7 +151,7 @@ type LiuRi struct {
 
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native). Day pillar requires Gregorian:
-// internally converts lunar→solar via search on SolarToLunar (the inverse).
+// internally converts lunar→solar via search on LunarDateAt (the inverse).
 func ComputeLiuRi(chart Chart, target tianwen.LunarDate) (LiuRi, error) {
 	if _, err := tianwen.ValidateLunarDate(target); err != nil {
 		return LiuRi{}, fmt.Errorf("validate flow day: %w", err)
@@ -165,7 +165,7 @@ func ComputeLiuRi(chart Chart, target tianwen.LunarDate) (LiuRi, error) {
 		IsLeapMonth: target.Leap,
 	})
 	// 流日干支 = 目标日干支（需公历——农历转公历）
-	gt := tianwen.LunarToGregorian(tianwen.LunarTime{
+	gt := tianwen.CivilTimeFromLunarDate(tianwen.LunarDate{
 		Year:  target.Year,
 		Month: target.Month,
 		Day:   target.Day,
@@ -234,7 +234,7 @@ func ComputeLiuShi(chart Chart, target tianwen.LunarDate, shiZhi Zhi) (LiuShi, e
 		ShiZhi:      shiZhi,
 	})
 	// 流时干支：日干 + 五鼠遁（需公历——农历转公历）
-	gt := tianwen.LunarToGregorian(tianwen.LunarTime{
+	gt := tianwen.CivilTimeFromLunarDate(tianwen.LunarDate{
 		Year:  target.Year,
 		Month: target.Month,
 		Day:   target.Day,

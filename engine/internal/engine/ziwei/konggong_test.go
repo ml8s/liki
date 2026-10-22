@@ -9,11 +9,11 @@ import (
 )
 
 // 无主星宫位借对宫主星。
-// 1981-08-26T12:00 男命（SolarToLunar 路径实测）：命宫空宫 → 借对宫主星（紫微/贪狼）。
+// 1981-08-26T12:00 男命（LunarDateAt 路径实测）：命宫空宫 → 借对宫主星（紫微/贪狼）。
 func TestKongGong_BorrowFromDuiGong(t *testing.T) {
-	st := tianwen.GregorianToSolar(
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1981, 8, 26, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)), 116.4, 8)
-	lt := tianwen.SolarToLunar(tianwen.GregorianTime(st.Time()))
+	lt := lunarTimeFromSolar(st)
 	chart, err := ComputeChart(lt, ganzhi.Male)
 	if err != nil {
 		t.Fatalf("ComputeChart: %v", err)

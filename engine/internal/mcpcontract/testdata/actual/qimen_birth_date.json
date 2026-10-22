@@ -1,7 +1,9 @@
 {
   "input": {
     "birth_date": "1990-01-01T00:00:00+08:00",
-    "solar_time": "2026-03-02T18:30:00+08:00"
+    "longitude": 123.25,
+    "instant": "2026-03-02T10:30:00Z",
+    "timezone": "Asia/Shanghai"
   },
   "output": {
     "gan_interaction": [

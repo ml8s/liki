@@ -11,11 +11,12 @@ import (
 
 func TestChart_Lean_NoExtraFields(t *testing.T) {
 	// 验证 bazi.chart（computeChartCore）返回的 zhuInfo 只含 Zhu + NaYin
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	got, err := json.Marshal(chart)
 	if err != nil {
@@ -48,11 +49,12 @@ func TestChart_Lean_NoExtraFields(t *testing.T) {
 
 func TestComputeFullChart_HasAllFields(t *testing.T) {
 	// 验证 fullchart 补全了所有字段
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	full := ComputeFullChart(chart)
 
 	// 每柱应有全量字段
@@ -85,11 +87,12 @@ func TestComputeFullChart_HasAllFields(t *testing.T) {
 
 func TestComputeFullChart_SiHuaFromChart(t *testing.T) {
 	// 验证 fullchart 的十神计算正确
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	full := ComputeFullChart(chart)
 
 	// 日柱应有十神（对日主的关系）
@@ -105,11 +108,12 @@ func TestComputeFullChart_SiHuaFromChart(t *testing.T) {
 
 func TestComputeFullChart_ShenShaNotEmpty(t *testing.T) {
 	// 验证 fullchart 有神煞
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 	full := ComputeFullChart(chart)
 
 	// 至少某一柱有神煞
@@ -128,11 +132,12 @@ func TestComputeFullChart_ShenShaNotEmpty(t *testing.T) {
 func TestComputeFullChart_InputIsLeanChart(t *testing.T) {
 	// 验证 ComputeFullChart 接受 lean chart（不含藏干）
 	// 即使 chart 是瘦的，fullchart 也能正确补全
-	st := tianwen.GregorianToSolar(
+	stgt := time.Time(time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)))
+	st := tianwen.ApparentSolarFromCivil(
 		time.Date(1990, 6, 15, 10, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	)
-	chart := ComputeChart(st, ganzhi.Male)
+	chart := ComputeChart(stgt, st, ganzhi.Male)
 
 	// 验证 chart 是瘦的
 	// chart is lean: can't access CangGan directly

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 func TestMingFaCatalogAndResolver(t *testing.T) {
@@ -121,8 +120,7 @@ func TestMingFaReferenceAnchors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			chart, err := ComputeChartWithMethod(
-				tianwen.SolarTime(when),
+			chart, err := ComputeChartWithMethod(time.Time(when), time.Time(when),
 				Method{Scope: ScopeHour, School: SchoolMingFaFeiPan, Dingju: DingjuChaiBu},
 			)
 			if err != nil {
@@ -189,7 +187,7 @@ func TestMingFaCheckedInAnchor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	chart, err := ComputeChartWithMethod(tianwen.SolarTime(when), method)
+	chart, err := ComputeChartWithMethod(time.Time(when), time.Time(when), method)
 	if err != nil {
 		t.Fatal(err)
 	}
