@@ -23,7 +23,26 @@ Services must not depend on the public prefix. The gateway strips `/engine` or
 
 The published engine image defaults to `engine-mcp`.
 
+## Time facts contract
+
+All engine tools that accept a precise time use the same two wire fields:
+
+| Field | Rule |
+| --- | --- |
+| `instant` | RFC3339 absolute instant. Canonical output is UTC and ends with `Z`. Numeric offsets such as `+08:00` are accepted and normalized. |
+| `timezone` | Explicit IANA timezone (for example `Asia/Shanghai`). `Local`, fixed offsets, and abbreviations are rejected. |
+
+The offset in the input is a serialization detail; the engine normalizes it to
+UTC immediately. The explicit `timezone` remains authoritative for local civil
+time and offset. Tools that need true-solar time also accept `longitude`.
+
+Do not infer `timezone` from an input offset. Do not default a missing
+timezone to `Asia/Shanghai`. Missing timezone or longitude is fail-closed for
+any capability that needs it.
+
 ## Process configuration
+
+## Runtime settings
 
 ### engine-mcp
 

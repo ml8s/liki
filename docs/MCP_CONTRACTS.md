@@ -13,6 +13,23 @@ contract. Internal domain structs are not exposed directly: each tool defines
 an explicit wire input and output. This prevents accidental leakage of private
 runtime shapes and keeps generated schemas stable.
 
+### Time fields
+
+Tools that consume a precise time use `instant` plus an explicit `timezone`:
+
+```json
+{
+  "instant": "1990-05-20T12:00:00+08:00",
+  "timezone": "Asia/Shanghai"
+}
+```
+
+`instant` is an absolute RFC3339 instant. Canonical output is UTC and ends
+with `Z`; numeric input offsets are accepted and normalized immediately.
+`timezone` must be an explicit IANA identifier. Offset is never used to infer
+timezone, and missing timezone or longitude fails closed when the tool needs
+them.
+
 ## Go pattern
 
 `engine/internal/mcpcontract` owns the typed MCP registry. A tool registers:

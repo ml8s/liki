@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://liki.hk/schemas/liki.domain-language.v1.json",
+  "title": "Liki canonical domain language",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "concepts"],
+  "properties": {
+    "schema_version": {
+      "const": "liki.domain-language.v1"
+    },
+    "concepts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner",
+          "definition",
+          "surfaces",
+          "status",
+          "forbidden",
+          "compatibility"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaces": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["go", "python", "json", "zh_cn"],
+            "properties": {
+              "go": {
+                "type": "string",
+                "minLength": 1
+              },
+              "python": {
+                "type": "string",
+                "minLength": 1
+              },
+              "json": {
+                "type": "string",
+                "minLength": 1
+              },
+              "zh_cn": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "representation": {
+            "type": "string"
+          },
+          "verbs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          },
+          "related": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "uniqueItems": true
+          },
+          "status": {
+            "enum": ["canonical", "planned"]
+          },
+          "forbidden": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "compatibility": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "scope", "reason", "remove_in"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "introduced_by": {
+                  "type": "string"
+                },
+                "remove_in": {
+                  "type": "string",
+                  "pattern": "^v[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]+$"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

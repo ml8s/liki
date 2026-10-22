@@ -90,7 +90,7 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 | --- | --- |
 | [用户指南](./docs/USER_GUIDE.md) | 完整使用说明、领域流程、FAQ 与输出边界 |
 | [反馈模型](./docs/FEEDBACK_MODEL.md) | Agent feedback 的隐私和数据格式 |
-| [运行时模型](./docs/RUNTIME.md) / [版本与发布](./docs/RELEASE_MODEL.md) | 进程、端点、环境变量与日期版本 |
+| [运行时模型](./docs/RUNTIME.md) / [版本与发布](./docs/RELEASE_MODEL.md) | 进程、端点、环境变量、日期版本与领域语言 |
 
 ## 开发者
 
@@ -100,10 +100,11 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 Node 见 `.nvmrc`、Python 见 `.python-version`、Go 见 `go.mod` + `GOTOOLCHAIN`、golangci-lint 见 `deps/golangci-lint.version`。
 
 ```bash
+npm ci             # 一次性安装本地开发 lint 工具
 make hooks         # 安装 git hooks
 make check         # 所有静态检查（格式 + lint + schema + docs）
-make gate          # 推送门槛（lint/check/test/160 题覆盖/runtime validate/发布工件）
-make build-archive # 打包 unified Liki skill
+make gate          # 推送门槛（lint/check/test）
+make release-gate  # 发版准备（gate + pinned runtime validate + 发布工件）
 ```
 
 ## 架构
@@ -147,16 +148,15 @@ Liki 采用「排盘（计算）与判断（规则）正交化」的两层架构
 
 | 接口 | 用途 |
 | --- | --- |
-| [natal TOOLS](./skills/liki/references/natal/TOOLS.md) | 八字/紫微本命与应期判断的编排与接口（工具经 `tools/list` 自举）|
-| [divination TOOLS](./skills/liki/references/divination/TOOLS.md) | 六爻、奇门、黄历的编排与接口 |
-| [naming ENTRY](./skills/liki/references/naming/ENTRY.md) | 起名：用神取用 + 五行选字（counsel）|
-| [fengshui ENTRY](./skills/liki/references/fengshui/ENTRY.md) | 风水：八宅、玄空与流年（engine）|
+| [natal ENTRY](./skills/liki/references/natal-ENTRY.md) · [bazi ENTRY](./skills/liki/references/natal-bazi-ENTRY.md) · [ziwei ENTRY](./skills/liki/references/natal-ziwei-ENTRY.md) | 本命：场景路由与合参 + 八字/紫微侧入口（任务路由与断语契约；工具经 `tools/list` 自举）|
+| [divination ENTRY](./skills/liki/references/divination-ENTRY.md) | 六爻、奇门、黄历：路由、流程产物与边界 |
+| [naming ENTRY](./skills/liki/references/naming-ENTRY.md) | 起名：用神取用 + 五行选字（counsel）|
+| [fengshui ENTRY](./skills/liki/references/fengshui-ENTRY.md) | 风水：八宅、玄空与流年（engine）|
 
 ### 测试与发布
 
 ```bash
-make test           # 所有测试（pytest + Go 引擎全量，含 MCP 集成）
-make golden         # golden 全量（局部诊断入口）
+make test           # 所有测试（pytest + Go 引擎全量，含 MCP 集成；手动校准用 make eval-mingli160）
 ```
 
 发布流程详见 [Release pipeline](./docs/RELEASE_PIPELINE.md)：`绿色 main → 打 tag → release.yml（gate/构建/签名/Release）→ 更新 lock 部署`。
@@ -166,7 +166,7 @@ make golden         # golden 全量（局部诊断入口）
 - 分层单一职责：根入口、领域入口、App 卡、领域知识和工具层不互相替代。
 - 单一事实源：工具 schema 由 `counsel/app/contracts` 的 Pydantic 模型生成（引擎侧为 `engine/internal/mcpcontract` 的 typed registry，经 `tools/list` 自举），因子和断语来自 CSV 长表与引擎规则表。
 - 双体系显式合参：八字和紫微分侧计算，冲突分层列证。
-- 测试分层：golden、functional、MCP integration 与 160 题规则覆盖/零命中检查分层运行；历史 model-backed 评测资产显式归档。
+- 测试与评估分离：golden、functional 与 MCP integration 属于源码门禁；Mingli160 仅作为手动 skill 校准/评估集。
 
 ## 贡献
 

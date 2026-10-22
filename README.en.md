@@ -1,7 +1,7 @@
-<h1 align="center">Liki — Professional Skill for Chinese Metaphysics</h1>
+<h1 align="center">Liki — Professional Astrology Skill</h1>
 
 <p align="center">
-  For Chinese Metaphysics, use Liki.<br>
+  For Astrology, use Liki.<br>
   Charts are calculated by a Go engine; analyses are explained from rule tables with traceable sources.<br>
   Bazi · Ziwei · Liuyao · QiMen · Date Selection · Feng Shui · Naming
 </p>
@@ -60,7 +60,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 - Charts are calculated by the Go astronomical engine, including true solar time, longitude / timezone, and solar terms.
 - Judgments come from 829 assertion rules, each citing audited classical sources (《三命通会》《渊海子平》《滴天髓》《紫微斗数全书》《黄帝内经》...) with factor evidence and traceable sources.
 - Mini-luck (小运) is delivered by multiple schools: 《三命通会》(fixed 丙寅 for men / 壬申 for women) and 《星平会海》(from the hour pillar, yang-male yin-female forward / yin-male yang-female backward).
-- The 160 professional competition questions provide rule-chain coverage and zero-hit checks; they are not an independent accuracy benchmark or proof of correctness.
+- Mingli160 is a manual calibration/evaluation set, not an independent accuracy benchmark or proof of correctness.
 - Birth data remains in the current conversation; the Skill does not ask for real names or store data outside the session.
 - If a city is absent from the built-in table, `city_coords` may send the city name to Nominatim (OSM). Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
 - Conclusions are conditional interpretations from a traditional cultural perspective. They are not medical, legal, investment, or major life advice.
@@ -89,8 +89,7 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 | --- | --- |
 | [User guide](./docs/USER_GUIDE.en.md) | Full usage, domain flows, FAQ, and output boundaries |
 | [Feedback model](./docs/FEEDBACK_MODEL.md) | Agent feedback privacy and payload format |
-| [Runtime model](./docs/RUNTIME.md) | Engine/counsel processes, endpoints, and environment variables |
-| [Release model](./docs/RELEASE_MODEL.md) | Date-based runtime and release versions |
+| [Runtime model](./docs/RUNTIME.md) / [Release model](./docs/RELEASE_MODEL.md) / [Domain language](./docs/DOMAIN_LANGUAGE.md) | Processes, endpoints, date versions, and canonical concept names |
 
 ## For developers
 
@@ -98,9 +97,10 @@ Run `npx skills add ml8s/liki -y` when prompted. The Skill fails closed instead 
 
 ```bash
 make hooks         # install git hooks
+npm ci             # install locked local development lint tools once
 make check         # all static checks (format + lint + schema + docs)
-make gate          # push gate (lint/check/tests/160-question coverage/runtime validation/release artifacts)
-make build-archive # pack the unified Liki skill
+make gate          # push gate (lint/check/tests)
+make release-gate  # release preparation (gate + pinned-runtime validation + artifacts)
 ```
 
 ## Architecture
@@ -143,16 +143,15 @@ source-based development, use `engine/dev/docker-compose.yml`.
 
 | Interface | Purpose |
 | --- | --- |
-| [Natal tools](./skills/liki/references/natal/TOOLS.md) | Bazi / ZiWei natal and period analysis orchestration (tools self-describe via `tools/list`) |
-| [Divination tools](./skills/liki/references/divination/TOOLS.md) | Liuyao, QiMen, and Huangli orchestration |
-| [Naming ENTRY](./skills/liki/references/naming/ENTRY.md) | Naming: yongshen-based character selection (counsel) |
-| [Feng shui ENTRY](./skills/liki/references/fengshui/ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine) |
+| [Natal ENTRY](./skills/liki/references/natal-ENTRY.md) · [Bazi ENTRY](./skills/liki/references/natal-bazi-ENTRY.md) · [ZiWei ENTRY](./skills/liki/references/natal-ziwei-ENTRY.md) | Natal: scenario routing and synthesis + Bazi / ZiWei side entries (task routing and assertion contract; tools self-describe via `tools/list`) |
+| [Divination ENTRY](./skills/liki/references/divination-ENTRY.md) | Liuyao, QiMen, Huangli: routing, flow artifacts, and boundaries |
+| [Naming ENTRY](./skills/liki/references/naming-ENTRY.md) | Naming: yongshen-based character selection (counsel) |
+| [Feng shui ENTRY](./skills/liki/references/fengshui-ENTRY.md) | Feng shui: Bazhai, Xuankong and annual (engine) |
 
 ### Tests and release
 
 ```bash
-make test           # All tests (pytest + Go engine full suite, including MCP integration)
-make golden         # Full golden suite (focused diagnostic entry)
+make test           # All tests (pytest + Go engine suite, including MCP integration; manual calibration: make eval-mingli160)
 ```
 
 See [Release pipeline](./docs/RELEASE_PIPELINE.md) for the layered flow:
@@ -165,13 +164,13 @@ Formal releases use date-based CalVer tags. See [Release model](./docs/RELEASE_M
 - Single responsibility: root entry, domain entry, app cards, domain knowledge, and tool layers do not replace each other.
 - Single source of truth: tool contracts are generated from the Pydantic models in `counsel/app/contracts` (the engine side uses the typed `engine/internal/mcpcontract` registry); factors and assertions come from CSV tables.
 - Explicit dual-system review: Bazi and Ziwei are calculated separately and conflicts are listed by evidence layer.
-- Test layers: golden, functional, MCP integration, and the 160-question rule-coverage / zero-hit check run separately; historical model-backed assets are explicitly archived.
+- Tests and evaluation are separate: golden, functional, and MCP integration belong to source gates; Mingli160 is manual calibration/evaluation.
 
 ## Contributing
 
 Read [CONTRIBUTING.md](./CONTRIBUTING.md). Update `CHANGELOG.md` and version surfaces before submitting a PR. Release history is available in [CHANGELOG.md](./CHANGELOG.md).
 
-> For Chinese Metaphysics, use Liki.
+> For Astrology, use Liki.
 
 ## License and disclaimer
 

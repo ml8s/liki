@@ -34,7 +34,7 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 
 ### 3.0 权威源（最高优先规则）
 
-**方法论卡的唯一权威源是根 `skills/liki/references/`（各域 `domains/` 下）；专家身份的唯一手写源是包根 `expert-packs/liki-<domain>/SKILL.md`**。
+**方法论卡的唯一权威源是根 `skills/liki/references/`（平铺 `references/<域>-<体系>-*.md`）；专家身份的唯一手写源是包根 `expert-packs/liki-<domain>/SKILL.md`**。
 独立专家包（`expert-packs/liki-*`）是根 skill 的对外发布形态，其方法论卡与包内 `SKILL.md` /
 `plugin.json` 元数据由 `make sync-expert-packs` 生成并由 CI 漂移检测守护，
 **不要手改专家包的方法论卡与生成物**。
@@ -54,10 +54,11 @@ agents/natal/output-schema.json     # 可选：结构化输出
 agents/bazi/bazi.md                 # 部署内子代理身份：不进市场包（如 natal 的 bazi/ziwei）
 ```
 
-**专家与顶层领域一一对应**（`natal` / `divination` / `fengshui` / `naming`，与根
-`skills/liki/references/<domain>/` 同名）：包内 `skills/<domain>/references/` 是根
-`references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains）的镜像，领域卡只写本体系知识、
-`app/` 承载场景与跨体系合参，因此不做多对一聚合、也不产生跨包死链。
+**专家与顶层领域一一对应**（`natal` / `divination` / `fengshui` / `naming`，按根平铺卡
+`skills/liki/references/<domain>-*.md` 的前缀过滤）：包内 `skills/<domain>/references/` 是
+根卡片的**按域前缀逐字节视图**（保留平铺名、引用不改写；非平铺/跨域引用在生成器
+fail-closed），领域卡只写本体系知识、`app/` 承载场景与跨体系合参，因此不做多对一聚合、
+也不产生跨包死链。
 
 - `agent.yaml` 字段与 **ADK** 对齐（mode: chat/task/single_turn；sub_agents；tools.allow）；
   每个 profile 必须构成单根委派树（一 app 一服务，endpoint/DNS 名即专家身份）
@@ -115,7 +116,7 @@ deps/liki-agent-runtime.base → pinned liki-agent-runtime runtime（逐 profile
 - **运行时 base 由本仓 pin**：`deps/liki-agent-runtime.base`（version+immutable digest）锁定 liki-agent-runtime 发布版本；测试（`make runtime-validate`）与部署（CI 装配 `FROM`）共用该 pin，**不与 liki 版本同名对齐**（各仓独立发版）
 - `make build-deployment` 只生成工件；`make runtime-validate` 用 pinned liki-agent-runtime runtime 执行真实校验
 - `make build-release-manifest` 只打包当前 `dist` 工件，不隐式运行测试
-- `make gate` 与 CI `release-integrity` 都先执行 `runtime-validate`，再构建 release manifest；发布工件不能绕过 pinned runtime validate
+- `make release-gate` 与 CI `release-integrity` 都先执行 `runtime-validate`，再构建 release manifest；发布工件不能绕过 pinned runtime validate
 
 `assembly/Dockerfile` 构建单套装配镜像 `liki-experts`，四份 profile 工件一并烘焙：
 
@@ -152,7 +153,7 @@ COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙�
 
 - `check`：lint + 数据结构 + docs（不生成工件）
 - `test`：仓库/引擎/counsel 测试（不做跨仓 runtime validate）
-- `gate`：追加 160 题覆盖、pinned runtime validate、发布工件与镜像 smoke
+- `release-gate`：在 `gate` 后追加 pinned runtime validate 与发布工件校验
 - `docker-publish`：push `liki-engine`
 - `publish-web-skill-bundle`：上传 bundle 到 release asset
 
@@ -163,3 +164,5 @@ COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙�
 - `liki-deploy/docs/OPERATIONS.md`：生产发布流程
 
 - [Domain naming matrix](DOMAIN_NAMING.md): canonical repository/image/service names.
+- [Domain language matrix](DOMAIN_LANGUAGE.md): canonical domain concepts, projections, and compatibility aliases.
+- [Function-first refactor plan](FUNCTION_FIRST_REFACTOR_PLAN.md): current time, astronomy, ganzhi, and domain function-first migration status.
