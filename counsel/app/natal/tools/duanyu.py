@@ -28,7 +28,7 @@ __all__ = [
     "load_rule_table", "load_rule_tables", "required_natal_factors",
     "required_flow_factors", "natal_factors_for_flow", "flow_factor_names",
     "filter_domains", "default_scene_domains", "query", "brief",
-    "resolve_current_year", "reset_current_year_cache", "query_yearly",
+    "resolve_current_year", "resolve_current_years", "reset_current_year_cache", "query_yearly",
     "match_table", "match_rule", "yearly_range",
 ]
 
@@ -173,7 +173,7 @@ def default_scene_domains(rules: list[str]) -> list[str] | None:
 
 def query(rule: str, pan: dict, year: int | None = None,
           domains: list[str] | None = None,
-          validate_pan: bool = True) -> dict:
+          validate_pan: bool = True, timezone: str = "") -> dict:
     """断语查询：域 + 本命盘 → 该域断语 {八字: [...], 紫微: [...], 合参: [...]}。
 
     rule ∈ NATAL_RULES（如 "十神"/"旺衰"/"命宫"/"官禄"；流年域走 yearly_range）。
@@ -200,14 +200,18 @@ def query(rule: str, pan: dict, year: int | None = None,
     if validate_pan:
         validate_natal_pan(pan, action="query")
     resolved_current_year = 0
+    resolved_lunar_year = 0
     current_year_source = ""
     if year is not None:
         if year <= 0:
             raise ValueError(f"query(year) 必须为正整数，收到: {year}")
         resolved_current_year = year
+        resolved_lunar_year = year
         current_year_source = "specified"
     elif rule in CURRENT_LIMIT_RULES:
-        resolved_current_year, current_year_source = resolve_current_year()
+        if not timezone:
+            raise ValueError("query 当前限运域必须提供 timezone（IANA）")
+        resolved_current_year, resolved_lunar_year, current_year_source = resolve_current_years(timezone)
     query_tables_by_side = load_rule_tables(rule)
     query_tables = list(query_tables_by_side.values())
     # 单侧域只限制 bazi/ziwei 断言表；bazi/ziwei 各查各表。
@@ -233,6 +237,7 @@ def query(rule: str, pan: dict, year: int | None = None,
     snapshots = evaluate_snap_from_pan(
         pan,
         current_year=resolved_current_year,
+        current_year_ziwei=resolved_lunar_year or resolved_current_year,
         sides=requested_sides,
         factor_names=required_natal_factors(query_tables),
     )
@@ -256,7 +261,39 @@ def query(rule: str, pan: dict, year: int | None = None,
     if resolved_current_year:
         result["current_year"] = resolved_current_year
         result["current_year_source"] = current_year_source
+        if resolved_lunar_year and resolved_lunar_year != resolved_current_year:
+            result["current_lunar_year"] = resolved_lunar_year
+        dayun = _current_step((pan.get("chart") or {}).get("da_yun", {}).get("steps"),
+                              resolved_current_year)
+        if dayun:
+            result["current_dayun"] = dayun
+        daxian = _current_step(pan.get("ziwei_daxian"),
+                               resolved_lunar_year or resolved_current_year)
+        if daxian:
+            result["current_daxian"] = daxian
     return result
+
+
+def _current_step(steps, year: int):
+    """当前大运/大限步骤：按公历年段匹配；无年份或不在任何步骤内返回 None。"""
+    if not year or not isinstance(steps, list):
+        return None
+    for index, step in enumerate(steps):
+        if not isinstance(step, dict):
+            continue
+        start, end = step.get("start_year"), step.get("end_year")
+        if isinstance(start, int) and isinstance(end, int) and start <= year <= end:
+            item = {
+                "index": index,
+                "name": step.get("name", ""),
+                "start_year": start,
+                "end_year": end,
+                "next_step_in_years": end - year,
+            }
+            if step.get("gong"):
+                item["gong"] = step["gong"]
+            return item
+    return None
 
 _BRIEF_FIELDS = ("id", "领域", "事件类型", "时间层", "事件", "结论")
 
@@ -268,35 +305,41 @@ def brief(conclusions: list) -> list:
 
 
 
-# time.now RPC 结果 TTL 缓存（秒）——当前限运精度到年，单会话内重复查询不必反复发起 RPC。
+# 当前年份事实（time.now + 年界盘）TTL 缓存（秒）——当前限运精度到年，单会话内不重复发起 RPC。
 # RPC 失败仍抛错（fail-fast，绝不回退本地时钟）；仅成功结果被缓存。
 _CURRENT_YEAR_TTL = 60
-_current_year_cached = None
-_current_year_cached_at = None
+_current_years_cached = None
+_current_years_cached_at = None
 
 
-def resolve_current_year():
-    global _current_year_cached, _current_year_cached_at
-    from paipan import call
+def resolve_current_years(timezone: str):
+    """返回 (八字年号[立春界], 农历年号[春节界], source)。timezone 必填。"""
+    global _current_years_cached, _current_years_cached_at
+    from paipan import current_years
 
+    if not timezone:
+        raise ValueError("timezone is required")
     now = time.monotonic()
-    if (_current_year_cached_at is not None
-            and now - _current_year_cached_at < _CURRENT_YEAR_TTL):
-        return _current_year_cached
-    payload = call("time.now", {})
-    cst = (payload.get("data") or {}).get("cst")
-    if not cst:
-        raise ValueError("time.now 返回缺少 cst")
-    result = (int(cst[:4]), "server")
-    _current_year_cached = result
-    _current_year_cached_at = now
-    return result
+    if (_current_years_cached_at is not None
+            and now - _current_years_cached_at < _CURRENT_YEAR_TTL
+            and _current_years_cached and _current_years_cached[3] == timezone):
+        return _current_years_cached[:3]
+    bazi_year, lunar_year = current_years(timezone)
+    _current_years_cached = (bazi_year, lunar_year, "server", timezone)
+    _current_years_cached_at = now
+    return bazi_year, lunar_year, "server"
+
+
+def resolve_current_year(timezone: str):
+    """兼容入口：返回 (八字年号, source)。timezone 必填。"""
+    bazi_year, _lunar_year, source = resolve_current_years(timezone)
+    return bazi_year, source
 
 
 def reset_current_year_cache():
-    global _current_year_cached, _current_year_cached_at
-    _current_year_cached = None
-    _current_year_cached_at = None
+    global _current_years_cached, _current_years_cached_at
+    _current_years_cached = None
+    _current_years_cached_at = None
 
 
 def _resolve_rules(rules):
@@ -468,7 +511,7 @@ def match_rule(rule: str, snapshots: dict) -> dict:
 def yearly_range(pan: dict, start: int, end: int,
                  rules: list, detail: bool = False,
                  domains: list[str] | None = None,
-                 validate_pan: bool = True) -> dict:
+                 validate_pan: bool = True, timezone: str = "") -> dict:
     """流年断语（年粒度）。
 
     start/end 为流年年号（直接作为年号使用，不做公历/农历日期换算）：
@@ -496,7 +539,11 @@ def yearly_range(pan: dict, start: int, end: int,
             if not pan.get(key):
                 raise PanSchemaError(f"yearly_range pan 缺 {key}，无法流年求值。")
     from paipan import RPCError
-    cur_year, cur_source = resolve_current_year()
+    if not timezone:
+        timezone = str(pan.get("timezone") or "")
+    if not timezone:
+        raise ValueError("yearly_range 必须提供 timezone（IANA）")
+    cur_year, cur_source = resolve_current_year(timezone)
     flow_factors = flow_factor_names(rules)
     yearly_tables = [
         table

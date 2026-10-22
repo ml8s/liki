@@ -31,12 +31,16 @@ def engine_data(method: str, params: dict) -> dict:
     return response["data"]
 
 
-def server_time() -> str:
-    data = engine_data("time.now", {})
-    cst = data.get("cst")
-    if not isinstance(cst, str) or not cst:
-        raise RPCError("time.now: engine response missing cst")
-    return cst
+def server_time(timezone: str) -> dict:
+    """返回 {instant, timezone, local_time}；timezone 必填（IANA）。"""
+    if not timezone:
+        raise RPCError("time.now: timezone is required")
+    data = engine_data("time.now", {"timezone": timezone})
+    instant = data.get("instant")
+    local = data.get("local_time")
+    if not isinstance(instant, str) or not instant:
+        raise RPCError("time.now: engine response missing instant")
+    return {"instant": instant, "timezone": timezone, "local_time": local}
 
 
 def skill_version() -> str:

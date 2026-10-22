@@ -21,9 +21,15 @@ class LiuyaoSnapshotInput(BaseModel):
     question: str = Field(
         description="本次要判断的一个具体目标",
     )
-    solar_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
+        description="问卦地点经度（-180..180）；必须显式传入，不做默认（精度要求）。",
+    )
+    timezone: str = Field(
+        description="起卦地 IANA 时区。",
+    )
+    instant: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         default=None,
-        description="原始起卦时间（RFC3339）。省略表示当前起卦；复现历史卦时必须传入。",
+        description="起卦瞬间 UTC（RFC3339，Z）。省略表示当前起卦；复现历史卦时传入。",
     )
     mode: Literal["auto", "coins", "yaos"] = Field(
         default="auto",
@@ -85,7 +91,10 @@ class LiuyaoSnapshotOutputQuestion(BaseModel):
     matter: str | None
     explicit_yong_shen: str | None
     perspective: str | None
-    solar_time: str | None
+    solar_time: str | None = Field(
+        default=None,
+        description="历史字段：旧快照记录的真太阳时；新快照不再生成。",
+    )
 
 
 class LiuyaoSnapshotOutputCastingRoundsItem(BaseModel):
@@ -386,17 +395,20 @@ class QimenSnapshotInput(BaseModel):
     question: str = Field(
         description="本次要判断的一个具体目标",
     )
-    city: Annotated[str, Field(min_length=1)] = Field(
+    timezone: str = Field(
+        description="起局地 IANA 时区。",
+    )
+    city: Annotated[str | None, Field(min_length=1)] = Field(
         default=None,
         description="起局地点；与 longitude 二选一",
     )
-    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
+    longitude: Annotated[float | None, Field(ge=-180, le=180)] = Field(
         default=None,
         description="起局经度；与 city 二选一",
     )
-    time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    instant: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         default=None,
-        description="起局钟表时间 RFC3339；缺省使用服务端当前时间",
+        description="起局瞬间 UTC（RFC3339，Z）；缺省使用服务端当前时间",
     )
     matter: Literal["career", "health", "hiding", "legal", "missing_person", "relationship", "study", "travel", "wealth"] = Field(
         default=None,
@@ -523,8 +535,8 @@ class QimenSnapshotOutputInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     city: str | None
     longitude: float
-    local_time: str
-    solar_time: str
+    instant: str
+    timezone: str
 
 
 class QimenSnapshotOutputMethodContext(BaseModel):

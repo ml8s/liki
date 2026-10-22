@@ -8,15 +8,22 @@ from qimen_matters import resolve_matter
 
 
 def city_coords(city: str) -> dict:
-    return engine_data("city.coords", {"city": city})
-
-
-def solar_time(time: str, longitude: float) -> dict:
-    return engine_data("tianwen.time", {"time": time, "longitude": longitude})
+    data = engine_data("city.coords", {"city": city})
+    candidates = data.get("candidates") or []
+    if len(candidates) != 1:
+        labels = "、".join(
+            f"{item.get('region', '')}{item.get('name', '')}" for item in candidates
+        ) or "无候选"
+        raise ValueError(
+            f"city '{city}' 存在歧义或未找到（{labels}）；请让用户确认城市"
+        )
+    return candidates[0]
 
 
 def qimen_chart(
-    solar_time: str,
+    instant: str,
+    timezone: str,
+    longitude: float,
     *,
     matter: str | None = None,
     yong_shen: list[str] | None = None,
@@ -50,7 +57,7 @@ def qimen_chart(
         matter_fact = {"matter": matter, **matter_fact}
         symbols = list(matter_fact["symbols"])
 
-    params: dict[str, Any] = {"solar_time": solar_time}
+    params: dict[str, Any] = {"instant": instant, "timezone": timezone, "longitude": longitude}
     optional = {
         "scope": scope,
         "school": school,

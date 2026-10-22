@@ -99,10 +99,6 @@ def compute_factors(chart: dict) -> dict:
     """
     gender = chart.get("gender", "")
     context: dict = {"性别": gender}
-    if chart.get("solar"):
-        context["公历出生"] = chart["solar"]
-    if chart.get("lunar"):
-        context["农历出生"] = chart["lunar"]
     side = "bazi" if _is_bazi_chart(chart) else "ziwei"
     selected_yongshen: dict | None = None
     if side == "bazi":
@@ -186,7 +182,7 @@ def natal_query(factors: dict, topics: list[str], factors_digest: str,
 
 def period_query(factors: dict, factors_digest: str, time_scope: dict,
                  topics: list[str], chart: dict, side: str = "bazi",
-                 context: dict | None = None) -> dict:
+                 context: dict | None = None, timezone: str = "") -> dict:
     """已校验因子快照 + 时间层 + topics → 应期断语（大运/大限/流年）。
 
     chart 为 engine 排盘结果（bazi_chart/ziwei_chart），内部据此调 engine
@@ -230,12 +226,13 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         full = _bazi_fullchart(chart)
         pan = {
             "chart": chart, "full": full, "gender": gender,
-            "_selected_yongshen": selected_yongshen,
+            "timezone": timezone, "_selected_yongshen": selected_yongshen,
         }
     else:
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
         daxian = _ziwei_daxian(zw)
-        pan = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
+        pan = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian,
+               "gender": gender, "timezone": timezone}
     validate_side_pan(pan, side, "period_query")
     # period_query 固定只出本侧断语：组合盘不含另一侧排盘，另一侧数据由
     # _factor_context_from_pan 从本侧盘误读，会产生假断语，必须过滤。

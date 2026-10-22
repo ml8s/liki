@@ -91,6 +91,7 @@ def _add_natal_tools(server: MCPServer, domain: str | None = None) -> None:
                 arguments["topics"],
                 arguments["chart"],
                 side=side,
+                timezone=arguments.get("timezone") or "",
             )
 
         _add_contract_tool(server, contract, invoke_natal)

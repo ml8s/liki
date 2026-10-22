@@ -20,7 +20,7 @@ from paipan import full_paipan  # noqa: E402
 
 GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden" / "orthogonal" / "baseline.json"
 
-BIRTH = ("1990-05-20T11:49:00+08:00", "male", 116.4, 39.9)
+BIRTH = ("1990-05-20T03:49:00Z", "Asia/Shanghai", "male", 116.4)
 
 
 @pytest.fixture(scope="module")

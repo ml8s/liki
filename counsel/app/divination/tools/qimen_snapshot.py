@@ -8,7 +8,7 @@ from divination_snapshot import build_snapshot
 from qimen_duanyu import query
 from qimen_interpretations import assert_rule_compatibility, load_rule_table
 from qimen_jinhan_factors import project as project_jinhan_factors
-from qimen_paipan import city_coords, qimen_chart, solar_time
+from qimen_paipan import city_coords, qimen_chart
 from qimen_projection import project as project_standard_factors
 from qimen_projection import validate as validate_standard_factors
 
@@ -45,7 +45,8 @@ def create(
     question: str,
     city: str | None = None,
     longitude: float | None = None,
-    time: str | None = None,
+    instant: str | None = None,
+    timezone: str = "",
     matter: str | None = None,
     yong_shen: list[str] | None = None,
     rule: str | None = None,
@@ -98,15 +99,15 @@ def create(
             if matter != required_matter:
                 raise ValueError(f"qimen rule {rule} requires matter={required_matter}")
     resolved_city, resolved_longitude = _resolve_location(city, longitude)
-    if not time:
-        time = server_time()
-    local = solar_time(time, resolved_longitude)
-    solar = local.get("solar")
-    if not isinstance(solar, str) or not solar:
-        raise ValueError("tianwen.time returned no solar")
+    if not timezone:
+        raise ValueError("timezone is required (IANA)")
+    if not instant:
+        instant = server_time(timezone)["instant"]
 
     chart_result = qimen_chart(
-        solar,
+        instant,
+        timezone,
+        resolved_longitude,
         matter=matter,
         yong_shen=yong_shen,
         birth_date=birth_date,
@@ -148,8 +149,7 @@ def create(
             "input": {
                 "city": resolved_city,
                 "longitude": resolved_longitude,
-                "local_time": time,
-                "solar_time": solar,
+                "instant": instant, "timezone": timezone,
             },
             "matter": chart_result.get("matter"),
             "method_context": method_context,

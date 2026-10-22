@@ -16,9 +16,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "divination
 
 from app.counsel_mcp import create_counsel_mcp  # noqa: E402
 
-# 动态字段（digest/时间戳）——1v1 对照时归一化
+# 动态字段（digest/快照元数据）——1v1 对照时归一化
 DYNAMIC = {
-    "snapshot_digest", "_meta", "meta", "timestamp", "created_at",
+    "snapshot_digest", "_meta", "meta", "created_at",
     "captured_at", "solar_time",
 }
 
@@ -31,8 +31,9 @@ def _core(d):
     return d
 
 
-LIUYAO_ARGS = {"question": "测试这次面试能不能通过", "mode": "yaos",
-               "yaos": [7, 8, 7, 8, 7, 8], "matter": "general"}
+LIUYAO_ARGS = {"question": "测试这次面试能不能通过", "mode": "yaos", "longitude": 116.4,
+               "yaos": [7, 8, 7, 8, 7, 8], "matter": "general",
+               "timezone": "Asia/Shanghai"}
 
 
 def test_liuyao_snapshot_matches_old():
@@ -59,7 +60,8 @@ def test_liuyao_query_matches_old_ask():
 
 
 QIMEN_ARGS = {"question": "测试谈判时机", "city": "北京",
-              "time": "2026-10-01T10:00:00+08:00", "matter": "career"}
+              "instant": "2026-10-01T02:00:00Z", "timezone": "Asia/Shanghai",
+              "matter": "career"}
 
 
 def test_qimen_snapshot_matches_old():

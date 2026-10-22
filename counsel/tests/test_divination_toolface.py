@@ -23,47 +23,45 @@ def _accepts(model: type[BaseModel], instance: dict) -> None:
 
 
 def test_liuyao_snapshot_input_rejects_ambiguous_sources_and_modes():
-    base = {"question": "这次面试能不能通过？", "matter": "career"}
+    base = {"question": "这次面试能不能通过？", "matter": "career", "longitude": 116.4, "timezone": "Asia/Shanghai"}
     _rejects(LiuyaoSnapshotInput, {**base, "yong_shen": "官鬼"})
-    _rejects(LiuyaoSnapshotInput, {"question": "这次面试能不能通过？", "mode": "coins"})
-    _rejects(LiuyaoSnapshotInput, {"question": "这次面试能不能通过？", "mode": "yaos"})
+    _rejects(LiuyaoSnapshotInput, {**base, "mode": "coins"})
+    _rejects(LiuyaoSnapshotInput, {**base, "mode": "yaos"})
     _rejects(LiuyaoSnapshotInput, {
-        "question": "这次面试能不能通过？", "mode": "auto",
+        **base, "mode": "auto",
         "rounds": [["正", "反", "反"]] * 6,
     })
-    _rejects(LiuyaoSnapshotInput, {
-        "question": "这次面试能不能通过？", "matter": "career", "perspective": "male",
-    })
+    _rejects(LiuyaoSnapshotInput, {**base, "perspective": "male"})
     _accepts(LiuyaoSnapshotInput, {
-        "question": "这次面试能不能通过？", "mode": "coins",
-        "rounds": [["正", "反", "反"]] * 6, "matter": "career",
+        **base, "mode": "coins",
+        "rounds": [["正", "反", "反"]] * 6,
     })
 
 
 def test_qimen_snapshot_input_rejects_ambiguous_location_and_focus():
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "city": "上海", "longitude": 121.47,
+        "question": "该往哪里推进？", "city": "上海", "longitude": 121.47, "timezone": "Asia/Shanghai",
     })
     _rejects(QimenSnapshotInput, {
         "question": "该往哪里推进？", "matter": "wealth", "yong_shen": ["生门"],
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "quarter_rule": "ten_minute_sanyuan",
+        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai", "quarter_rule": "ten_minute_sanyuan",
     })
     _accepts(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "matter": "wealth",
+        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai", "matter": "wealth",
     })
 
 
 def test_qimen_snapshot_input_rejects_incompatible_methods():
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "matter": "wealth",
+        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai", "matter": "wealth",
         "school": "jinhan_yujing",
         "scope": "hour",
         "rule": "lost_property",
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47,
+        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai",
         "school": "mingfa_feipan", "scope": "day", "dingju_method": "chaibu",
     })
     _rejects(QimenSnapshotInput, {
@@ -83,24 +81,24 @@ def test_qimen_snapshot_input_rejects_incompatible_methods():
     })
 
     _accepts(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47,
+        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai",
         "scope": "quarter", "school": "zhuanpan",
         "quarter_rule": "twelve_minute_ten_division",
         "base_dingju_method": "zhirun", "dun_source": "solar_term",
         "hour_boundary": "zi_zheng",
     })
     _accepts(QimenSnapshotInput, {
-        "question": "今天整体态势如何？", "longitude": 121.47,
+        "question": "今天整体态势如何？", "longitude": 121.47, "timezone": "Asia/Shanghai",
         "scope": "day", "school": "jinhan_yujing",
     })
     _accepts(QimenSnapshotInput, {
-        "question": "钥匙丢了还能找到吗？", "longitude": 121.47,
+        "question": "钥匙丢了还能找到吗？", "longitude": 121.47, "timezone": "Asia/Shanghai",
         "scope": "hour", "school": "zhuanpan", "rule": "lost_property",
     })
 
 
 def test_qimen_snapshot_input_rejects_invalid_special_focus_policy():
-    location = {"longitude": 121.47}
+    location = {"longitude": 121.47, "timezone": "Asia/Shanghai"}
 
     _rejects(QimenSnapshotInput, {
         "question": "钥匙丢了还能找到吗？", "scope": "hour", "school": "zhuanpan",

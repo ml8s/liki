@@ -7,7 +7,7 @@ from pan_integrity import DIGEST_FIELD, validate_natal_digest
 
 _CONSTANTS = load_constants()
 REQUIRED_FIELDS = (
-    "solar", "lunar", "chart", "full", "ziwei",
+    "instant", "timezone", "chart", "full", "ziwei",
     "ziwei_daxian", "gender", DIGEST_FIELD,
 )
 PILLARS = tuple(_CONSTANTS["四柱"])
@@ -235,15 +235,16 @@ def validate_natal_pan(pan: object, action: str = "pan") -> None:
         )
     wrong = [
         key for key in REQUIRED_FIELDS
-        if key not in ("solar", "gender", "ziwei_daxian", DIGEST_FIELD)
+        if key not in ("instant", "timezone", "gender", "ziwei_daxian", DIGEST_FIELD)
         and not isinstance(pan[key], dict)
     ]
     if wrong:
         raise PanSchemaError(
             f"{action} pan 字段类型不完整: {', '.join(wrong)} 必须是 object。"
         )
-    if not isinstance(pan["solar"], str) or not pan["solar"]:
-        raise PanSchemaError(f"{action} pan.solar 必须是非空字符串。")
+    for key in ("instant", "timezone"):
+        if not isinstance(pan.get(key), str) or not pan.get(key):
+            raise PanSchemaError(f"{action} pan.{key} 必须是非空字符串。")
     if pan["gender"] not in GENDERS:
         raise PanSchemaError(
             f"{action} pan.gender 必须是 male/female，收到: {pan['gender']}"

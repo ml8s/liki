@@ -40,6 +40,36 @@ CONDITIONALS = ("allOf", "oneOf", "not", "if", "then")
 #: yongshen migration. The frozen manifests remain the golden for every other
 #: part of the contract; the typed shape is asserted separately below.
 MIGRATED_TYPED_FIELDS = {
+    # 时间基成对契约：gregorian_time 为年/月柱判定所需的 Gregorian time；
+    # 时间字段契约演进（solar_time → gregorian_time + longitude）随工具输入同步。
+    ("liuyao_snapshot", "input"): (
+        ("properties", "instant"),
+        ("properties", "timezone"),
+        ("properties", "solar_time"),
+        ("properties", "longitude"),
+    ),
+    # 快照不再生成 solar_time（历史字段，保留可空以兼容旧快照）。
+    ("liuyao_snapshot", "output"): (
+        ("properties", "question", "properties", "solar_time"),
+        ("properties", "question", "required"),
+    ),
+    ("qimen_snapshot", "output"): (
+        ("properties", "input", "properties", "solar_time"),
+        ("properties", "input", "properties", "local_time"),
+        ("properties", "input", "properties", "gregorian_time"),
+        ("properties", "input", "properties", "instant"),
+        ("properties", "input", "properties", "timezone"),
+        ("properties", "input", "required"),
+    ),
+    # 起局地点二选一：city/longitude 改为可空类型，运行时强校验互斥。
+    ("qimen_snapshot", "input"): (
+        ("properties", "city"),
+        ("properties", "longitude"),
+        ("properties", "instant"),
+        ("properties", "timezone"),
+        ("properties", "time"),
+    ),
+    ("period_query", "input"): (("properties", "timezone"),),
     ("compute_factors", "output"): (("properties", "selected_yongshen"),),
     ("naming_check", "input"): (("properties", "selected_yongshen"),),
     ("naming_check", "output"): (("items", "properties", "yongshen_source"),),

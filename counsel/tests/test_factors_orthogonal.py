@@ -17,9 +17,9 @@ import pytest  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"))
 
 SAMPLES = [
-    ("1990-05-20T11:49:00+08:00", "male", 116.4),
-    ("1985-11-03T08:15:00+08:00", "female", 104.07),
-    ("2000-01-01T00:30:00+08:00", "male", 121.47),
+    ("1990-05-20T03:49:00Z", "Asia/Shanghai", "male", 116.4),
+    ("1985-11-03T00:15:00Z", "Asia/Shanghai", "female", 104.07),
+    ("1999-12-31T16:30:00Z", "Asia/Shanghai", "male", 121.47),
 ]
 
 
@@ -45,24 +45,25 @@ def _engine_call(domain, name, args):
         return json.loads(json.loads(r.read())["result"]["content"][0]["text"])
 
 
-def _full_pan(solar_time, gender, longitude):
+def _full_pan(instant, timezone, gender, longitude):
     from paipan import full_paipan
     from yongshen import resolve_yongshen
 
-    pan = full_paipan(solar_time, gender, longitude=longitude)
+    pan = full_paipan(instant, timezone, gender, longitude=longitude)
     pan["_selected_yongshen"] = resolve_yongshen(pan["full"])
     return pan
 
 
-def _bazi_combo_chart(solar_time, gender, longitude):
+def _bazi_combo_chart(instant, timezone, gender, longitude):
     return _engine_call("bazi", "bazi_chart", {
-        "solar_time": solar_time, "gender": gender, "longitude": longitude,
+        "instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender,
     })
 
 
-def _ziwei_combo_chart(solar_time, gender, longitude):
-    t = _engine_call("aux", "tianwen_time", {"time": solar_time, "longitude": longitude})
-    return _engine_call("ziwei", "ziwei_chart", {"lunar": t["lunar"], "gender": gender})
+def _ziwei_combo_chart(instant, timezone, gender, longitude):
+    return _engine_call("ziwei", "ziwei_chart", {
+        "instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender,
+    })
 
 
 def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
@@ -78,11 +79,11 @@ def test_natal_factors_match_full_paipan(sample):
 
     from counsel import compute_factors
 
-    solar_time, gender, longitude = sample
-    pan = _full_pan(solar_time, gender, longitude)
+    instant, timezone, gender, longitude = sample
+    pan = _full_pan(instant, timezone, gender, longitude)
     for side, shushi, chart in (
-        ("bazi", "bazi", _bazi_combo_chart(solar_time, gender, longitude)),
-        ("ziwei", "ziwei", _ziwei_combo_chart(solar_time, gender, longitude)),
+        ("bazi", "bazi", _bazi_combo_chart(instant, timezone, gender, longitude)),
+        ("ziwei", "ziwei", _ziwei_combo_chart(instant, timezone, gender, longitude)),
     ):
         full = evaluate_factors(gender, pan, shushi=shushi)
         combo = dict(compute_factors(chart)["factors"])
@@ -101,8 +102,8 @@ def test_liunian_factors_match_full_paipan(sample):
     from factors import evaluate_liunian_snap_from_pan
     from paipan import _bazi_liunian, _ziwei_liunian, call
 
-    solar_time, gender, longitude = sample
-    pan = _full_pan(solar_time, gender, longitude)
+    instant, timezone, gender, longitude = sample
+    pan = _full_pan(instant, timezone, gender, longitude)
     nc = prepare_natal_context(pan)
     full_snap = evaluate_liunian_snap_from_pan(
         pan,
@@ -110,7 +111,7 @@ def test_liunian_factors_match_full_paipan(sample):
         year=2030, natal_context=nc,
     )
     # 八字组合盘
-    bc = _bazi_combo_chart(solar_time, gender, longitude)
+    bc = _bazi_combo_chart(instant, timezone, gender, longitude)
     full = call("bazi.fullchart", {"chart": bc})["data"]
     comp_bazi = {"chart": bc, "full": full, "gender": gender}
     nc_b = prepare_natal_context(comp_bazi)
@@ -123,7 +124,7 @@ def test_liunian_factors_match_full_paipan(sample):
         f"八字流年因子组合盘与完整盘不一致: diff={diff[:5]} missing={missing[:5]}"
     )
     # 紫微组合盘
-    zwc = _ziwei_combo_chart(solar_time, gender, longitude)
+    zwc = _ziwei_combo_chart(instant, timezone, gender, longitude)
     zw = call("ziwei.fullchart", {"chart": zwc})["data"]
     daxian = call("ziwei.daxian", {"chart": zw})["data"]
     comp_zw = {"chart": zwc, "full": zw, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}

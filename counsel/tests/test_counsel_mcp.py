@@ -33,8 +33,8 @@ def _engine_bazi_chart():
     body = json.dumps({
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
         "params": {"name": "bazi_chart", "arguments": {
-            "solar_time": "1990-05-20T11:49:00+08:00", "gender": "male",
-            "longitude": 116.4,
+            "instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai",
+            "longitude": 116.4, "gender": "male",
         }, "_meta": {
             "io.modelcontextprotocol/protocolVersion": "2026-07-28",
             "io.modelcontextprotocol/clientCapabilities": {},
@@ -234,6 +234,7 @@ def test_period_query_over_mcp(bazi_chart):
             "time_scope": {"type": "year_range", "start_year": 2020, "end_year": 2040},
             "topics": ["marriage"],
             "chart": bazi_chart,
+            "timezone": "Asia/Shanghai",
         },
     ))
     out = json.loads(r.content[0].text)
@@ -365,6 +366,7 @@ def test_period_query_accepts_compute_factors_context(bazi_chart):
             "topics": ["career"],
             "chart": bazi_chart,
             "context": snapshot["context"],
+            "timezone": "Asia/Shanghai",
         },
     ))
     out = json.loads(result.content[0].text)

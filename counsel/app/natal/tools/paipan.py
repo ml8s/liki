@@ -12,11 +12,9 @@ liki 命理 skill 的排盘层：
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
-from factor_constants import load_constants
 from pan_integrity import with_natal_digest
 from pan_schema import validate_natal_pan
 
@@ -34,8 +32,6 @@ from engine_mcp_client import (  # noqa: E402
     ensure_engine_compatible as _ensure_engine_compatible,
 )
 
-SHICHEN_BOUNDARY_THRESHOLD_MINUTES = 8
-SHICHEN_BOUNDARY_START_HOURS = (23, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21)
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
 
 
@@ -69,13 +65,21 @@ def ensure_engine_compatible() -> None:
 
 # ── 内部 RPC 封装（full_paipan / liunian 编排用，agent 不直接碰）──
 
-def _solar_time(gregorian: str, longitude: float) -> dict:
-    r = call("tianwen.time", {"time": gregorian, "longitude": longitude})
+def _resolve_utc(instant: str, timezone: str, longitude: float) -> dict:
+    """Canonical time facts: {instant, timezone} -> candidates {instant, timezone, local_time, offset, reasons}."""
+    r = call("tianwen.resolve", {"instant": instant, "timezone": timezone, "longitude": longitude})
     return r["data"]
 
 
-def _bazi_chart(solar: str, gender: str) -> dict:
-    params = {"solar_time": solar, "gender": gender}
+def _resolve_local(date: str, clock: str, timezone: str, longitude: float) -> dict:
+    """Wall-clock input (used where only the local calendar date is known)."""
+    r = call("tianwen.resolve", {"calendar": "solar", "date": date, "time": clock, "timezone": timezone, "longitude": longitude})
+    return r["data"]
+
+
+def _bazi_chart(instant: str, timezone: str, longitude: float, gender: str) -> dict:
+    # Year/month come from solar terms (instant); day/hour from LAST (longitude).
+    params = {"instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender}
     return call("bazi.chart", params)["data"]
 
 
@@ -83,17 +87,57 @@ def _bazi_fullchart(chart: dict) -> dict:
     return call("bazi.fullchart", {"chart": chart})["data"]
 
 
-def _ziwei_chart(lunar: dict, gender: str) -> dict:
-    return call("ziwei.chart", {"lunar": lunar, "gender": gender})["data"]
+def _ziwei_chart(instant: str, timezone: str, longitude: float, gender: str) -> dict:
+    params = {"instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender}
+    return call("ziwei.chart", params)["data"]
 
 
-def _ziwei_fullchart(lunar: dict, gender: str) -> dict:
-    chart = _ziwei_chart(lunar, gender)
+def _ziwei_fullchart(instant: str, timezone: str, longitude: float, gender: str) -> dict:
+    chart = _ziwei_chart(instant, timezone, longitude, gender)
     return call("ziwei.fullchart", {"chart": chart})["data"]
 
 
 def _ziwei_daxian(ziwei: dict) -> list:
     return call("ziwei.daxian", {"chart": ziwei})["data"]
+
+
+# 当前年份的时点事实只用于年界判定；经度取标准时 120°，性别只需满足 chart 输入契约。
+_CURRENT_YEAR_LONGITUDE = 120.0
+_CURRENT_YEAR_GENDER = "male"
+
+
+def time_now(timezone: str) -> dict:
+    """引擎当前时间（不回落本地时钟）；时区必填，调用方负责缓存。"""
+    if not timezone:
+        raise ValueError("timezone is required")
+    return call("time.now", {"timezone": timezone})["data"]
+
+
+def _nian_gz(chart: dict) -> str:
+    nian = chart.get("nian") or {}
+    return f"{nian.get('gan', '')}{nian.get('zhi', '')}"
+
+
+def current_years(timezone: str) -> tuple[int, int]:
+    """引擎时点事实 → (八字年号[立春界], 农历年号[春节界])；不做缓存。"""
+    payload = time_now(timezone)
+    instant = payload.get("instant")
+    if not instant:
+        raise ValueError("time.now 返回缺少 instant")
+    current = _bazi_chart(instant, timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
+    gregorian_year = int(current.get("birth_year") or 0)
+    if not gregorian_year:
+        raise ValueError("bazi.chart 返回缺少 birth_year")
+    mid_candidate = _resolve_local(
+        f"{gregorian_year}-07-01", "12:00", timezone, _CURRENT_YEAR_LONGITUDE,
+    )["candidates"][0]
+    mid = _bazi_chart(mid_candidate["instant"], timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
+    bazi_year = gregorian_year if _nian_gz(current) == _nian_gz(mid) else gregorian_year - 1
+    ziwei = _ziwei_chart(instant, timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
+    lunar_year = ziwei.get("birth_year")
+    if not lunar_year:
+        raise ValueError("ziwei.chart 返回缺少 birth_year")
+    return bazi_year, int(lunar_year)
 
 
 def _bazi_liunian(chart: dict, year: int) -> dict:
@@ -104,69 +148,6 @@ def _bazi_liunian(chart: dict, year: int) -> dict:
     按干支年号）在年粒度查询下同号一致；两者年界口径统一为「查询年份号」。
     """
     return call("bazi.liunian", {"chart": chart, "year": year})["data"]
-
-
-def _shichen_window(index: int, boundaries: list, zhi: list) -> dict:
-    """交界索引 → 时辰窗口（纯机械映射，不涉及换日口径，不做吉凶判断）。
-
-    名称与起始小时均由 boundaries 与 constants.json 的「地支」推导，不写死
-    命理成员字面量（见 tests/test_domain_semantic_contracts.py）。
-    """
-    start = boundaries[index]
-    return {
-        "name": zhi[index] + "时",
-        "branch": zhi[index],
-        "span": f"{start:02d}:00-{(start + 2) % 24:02d}:00",
-    }
-
-
-def _shichen_boundary_hint(solar: str) -> dict | None:
-    """返回距时辰交界的确定性提示；不做吉凶判断。
-
-    同时给出当前时辰与跨过最近交界后的时辰，调用方无需自行二次推断
-    「往哪边偏会翻」。boundary_offset_minutes 有符号：负数=早于交界，
-    正数=晚于交界，与 direction 一一对应。
-
-    晚子时 / 早子时的换日口径仍由 engine 与 skill 文档决定；这里只提示
-    输入分钟接近传统两小时交界，建议用户用事件校准。
-    """
-    try:
-        moment = datetime.fromisoformat(solar.replace("Z", "+00:00"))
-    except (TypeError, ValueError):
-        return None
-
-    boundaries = SHICHEN_BOUNDARY_START_HOURS
-    candidates = []
-    for day_offset in (-1, 0, 1):
-        for index, hour in enumerate(boundaries):
-            candidate = moment.replace(
-                hour=hour, minute=0, second=0, microsecond=0
-            ) + timedelta(days=day_offset)
-            candidates.append((index, candidate))
-
-    index, nearest = min(
-        candidates, key=lambda item: abs((moment - item[1]).total_seconds())
-    )
-    delta = moment - nearest
-    minutes = int(abs(delta.total_seconds()) // 60)
-    if minutes > SHICHEN_BOUNDARY_THRESHOLD_MINUTES:
-        return None
-    before_boundary = delta.total_seconds() < 0
-    zhi = load_constants()["地支"]
-    # 交界 index 是「跨过去之后」那个时辰的起点：未跨=前一窗，已跨=本窗。
-    current_index = (index - 1) % len(boundaries) if before_boundary else index
-    alternate_index = index if before_boundary else (index - 1) % len(boundaries)
-    return {
-        "near_boundary": True,
-        "minutes_to_boundary": minutes,
-        "boundary_offset_minutes": -minutes if before_boundary else minutes,
-        "boundary_solar": nearest.isoformat(),
-        "threshold_minutes": SHICHEN_BOUNDARY_THRESHOLD_MINUTES,
-        "current_shichen": _shichen_window(current_index, boundaries, zhi),
-        "alternate_shichen": _shichen_window(alternate_index, boundaries, zhi),
-        "direction": "later" if before_boundary else "earlier",
-        "message": "出生时间接近时辰交界；建议提供 3-5 件已发生大事校准时辰。",
-    }
 
 
 def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
@@ -183,48 +164,65 @@ def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
 
 # ── agent 工具（排盘 2 个）──
 
-def full_paipan(gregorian: str, gender: str, longitude: Optional[float] = None, correct: bool = True) -> dict:
+def full_paipan(instant: str, timezone: str, gender: str, longitude: Optional[float] = None) -> dict:
     """本命盘（八字 + 紫微一次排全）。
 
-    correct=True：真太阳时校正（路 A，用户给具体时刻）；
-    correct=False：直接排盘不校正（路 B，用户已定时辰——再校正会二次偏移，日柱/时柱全错）。
+    instant/timezone：规范时间事实（UTC + IANA）；longitude：出生地经度（必填）。
+    时间归一化走 tianwen.resolve（返回候选与原因）；本盘以 input 候选为基准，
+    多候选时把候选与原因写入 time_candidates / calibration_hint（考时由上层按候选编排）。
 
-    返回盘结构：{solar, lunar, chart, full, ziwei, ziwei_daxian, gender,
-    pan_digest[, calibration_hint]}；用神结论位于 full.fu_yi，调候位于 full.tiao_hou，格局位于 full.ge_ju。
+    返回盘结构：{instant, timezone, gregorian_time, chart, full, ziwei, ziwei_daxian, gender,
+    pan_digest[, time_candidates][, calibration_hint]}；gregorian_time 是 local_time 展示值。
     返回结构是 factors 层的唯一输入；领域快照由 factors 层按 pan 生成。
     """
-    if correct and longitude is None:
+    if longitude is None:
         raise ValueError(
-            "correct=true 时 longitude 必填——真太阳时校正需要出生地经度。"
-            "请先通过 city_coords 查询城市经度，或改用 correct=false（按给定时辰直接排）。"
+            "longitude 必填——真太阳时校正需要出生地经度。请先通过 city_coords 查询城市经度。"
         )
-    if correct:
-        t = _solar_time(gregorian, longitude)
-        solar = t["solar"]
-        lunar = t["lunar"]
-        chart = _bazi_chart(solar, gender)   # 校正后时间直接排盘，不传 longitude（防二次校正）
-    else:
-        # 路 B：用户已定时辰，直接排盘不做真太阳时校正；农历换算使用
-        # 东八区中央经线 120°，仅作历法转换，不引入出生地偏移。
-        solar = gregorian
-        chart = _bazi_chart(gregorian, gender)
-        t = _solar_time(gregorian, 120.0)
-        lunar = t["lunar"]
+    if not instant or not timezone:
+        raise ValueError("instant 和 timezone 必填（IANA）")
+    resolved = _resolve_utc(instant, timezone, longitude)
+    candidates = resolved.get("candidates") or []
+    if not candidates:
+        raise ValueError("tianwen.resolve returned no candidates")
+    candidate = next(
+        (item for item in candidates
+         if any(reason.get("domain") == "input" for reason in item.get("reasons", []))),
+        candidates[0],
+    )
+    instant = candidate["instant"]
+
+    chart = _bazi_chart(instant, timezone, longitude, gender)
     full = _bazi_fullchart(chart)
     # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
-    zw = _ziwei_fullchart(lunar, gender)
+    zw = _ziwei_fullchart(instant, timezone, longitude, gender)
     daxian = _ziwei_daxian(zw)
     result = {
-        "solar": solar,
-        "lunar": lunar,
+        "instant": instant,
+        "timezone": timezone,
         "chart": chart,      # 含 birth_year / da_yun
         "full": full,        # 十神/藏干/神煞/合会冲刑/三元
         "ziwei": zw,         # 十二宫/四化/杂曜/格局
         "ziwei_daxian": daxian,  # 十年大限（公历年段与宫位）
         "gender": gender,
     }
-    if hint := _shichen_boundary_hint(solar):
-        result["calibration_hint"] = hint
+    if len(candidates) > 1:
+        domains = sorted({
+            reason.get("domain", "")
+            for item in candidates
+            for reason in item.get("reasons", [])
+            if reason.get("domain") not in (None, "", "input")
+        })
+        suffix = f"（{ '/'.join(domains) }）" if domains else ""
+        result["time_candidates"] = candidates
+        result["calibration_hint"] = (
+            f"出生时间落在历法边界上{suffix}：存在多个候选（见 time_candidates），"
+            "本盘以 input 候选为基准；请按原因领域用事件校准。"
+        )
+    else:
+        detail = (candidate.get("reasons") or [{}])[0].get("detail", "")
+        if "距" in detail or "恰在" in detail:
+            result["calibration_hint"] = f"输入时间接近历法边界：{detail}；时辰敏感结论须确认。"
     result = with_natal_digest(result)
     validate_natal_pan(result, action="full_paipan result")
     return result

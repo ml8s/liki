@@ -70,11 +70,6 @@ class BaziDaYun(BaseModel):
     start_day_after: int = Field(description="出生后余日数。")
     direction: str = Field(description="顺排或逆排。")
     steps: list[BaziDaYunStep] = Field(description="大运步骤。")
-    current_step_index: int = Field(description="当前大运序号。")
-    next_step_in_years: int | None = Field(
-        default=None,
-        description="距下一大运年数。",
-    )
 
 
 class BaziChart(BaseModel):

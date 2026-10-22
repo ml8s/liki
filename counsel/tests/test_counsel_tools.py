@@ -29,7 +29,7 @@ def bazi_chart():
     url = os.environ.get("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp") + "/bazi"
     body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {
         "name": "bazi_chart",
-        "arguments": {"solar_time": "1990-05-20T11:49:00+08:00", "gender": "male", "longitude": 116.4},
+        "arguments": {"instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male"},
         "_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28",
                   "io.modelcontextprotocol/clientCapabilities": {}},
     }}).encode()
@@ -84,6 +84,7 @@ def test_period_query_returns_bazi_assertions(bazi_chart):
         {"type": "year_range", "start_year": 2020, "end_year": 2040},
         ["marriage"],
         bazi_chart,
+        timezone="Asia/Shanghai",
     )
     assert got["periods"]
     assert any(p.get("assertions") for p in got["periods"])

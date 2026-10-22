@@ -190,6 +190,10 @@ class PeriodQueryInput(BaseModel):
         default=None,
         description="compute_factors 返回的原始 context；提供时必须与因子 provenance 校验一致",
     )
+    timezone: str = Field(
+        default="",
+        description="IANA 时区；time_scope 为 current_year/current_decade 时必填。",
+    )
 
 
 class PeriodQueryOutputChart(BaseModel):

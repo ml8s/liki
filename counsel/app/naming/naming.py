@@ -294,20 +294,34 @@ def evaluate_names(given_names: list, yong_shen: str, xi_shen: list, ji_shen: li
     _ensure_loaded()
     if not given_names:
         raise ValueError("given_names must contain at least one name")
+
+    yong_elem, xi_elems, ji_elems = _validate_wuxing_request(
+        yong_shen,
+        xi_shen,
+        ji_shen,
+    )
+    return [_evaluate_name(name, yong_elem, xi_elems, ji_elems) for name in given_names]
+
+
+def _validate_wuxing_request(
+    yong_shen: str,
+    xi_shen: list,
+    ji_shen: list,
+) -> tuple[str, list[str], list[str]]:
     yong_elem = wuxing_from_chinese(yong_shen)
     if yong_shen and not yong_elem:
         raise ValueError(f"invalid yongshen {yong_shen!r}")
+
     xi_elems = _parse_wuxing_list("xishen", xi_shen)
     ji_elems = _parse_wuxing_list("jishen", ji_shen)
     _reject_conflicting_wuxing(yong_elem, xi_elems, ji_elems)
-    return [_evaluate_name(n, yong_elem, xi_elems, ji_elems) for n in given_names]
+    return yong_elem, xi_elems, ji_elems
 
 
-def _evaluate_name(given_name: str, yong_elem: str, xi_elems: list, ji_elems: list) -> dict:
-    evaluation: dict = {"given_name": given_name, "valid": False}
-    if not 1 <= len(given_name) <= 2:
-        evaluation["errors"] = [{"code": "invalid_name_length"}]
-        return evaluation
+def _named_characters(
+    given_name: str,
+    evaluation: dict,
+) -> list[Character]:
     characters: list[Character] = []
     for char in given_name:
         if char not in _char_by_char:
@@ -317,21 +331,43 @@ def _evaluate_name(given_name: str, yong_elem: str, xi_elems: list, ji_elems: li
             _append_error(evaluation, "negative_character_forbidden", char)
             continue
         characters.append(_char_by_char[char])
+    return characters
+
+
+def _wuxing_assessment(
+    characters: list[Character],
+    yong_elem: str,
+    xi_elems: list[str],
+    ji_elems: list[str],
+) -> dict | None:
+    if not (yong_elem or xi_elems or ji_elems):
+        return None
+
+    assessment: dict = {}
+    if yong_elem:
+        assessment["yong"] = _contains_element(characters, yong_elem)
+    if xi_elems:
+        assessment["xi"] = _contains_any_element(characters, xi_elems)
+    if ji_elems:
+        assessment["ji"] = _contains_any_element(characters, ji_elems)
+    return assessment
+
+
+def _evaluate_name(given_name: str, yong_elem: str, xi_elems: list, ji_elems: list) -> dict:
+    evaluation: dict = {"given_name": given_name, "valid": False}
+    if not 1 <= len(given_name) <= 2:
+        evaluation["errors"] = [{"code": "invalid_name_length"}]
+        return evaluation
+
+    characters = _named_characters(given_name, evaluation)
     if evaluation.get("errors"):
         return evaluation
 
     evaluation["valid"] = True
     evaluation["characters"] = [_character_json(c) for c in characters]
     evaluation["phonetic"] = {"tones": "-".join(str(c.tone) for c in characters)}
-    if yong_elem or xi_elems or ji_elems:
-        wuxing: dict = {}
-        if yong_elem:
-            wuxing["yong"] = _contains_element(characters, yong_elem)
-        if xi_elems:
-            wuxing["xi"] = _contains_any_element(characters, xi_elems)
-        if ji_elems:
-            wuxing["ji"] = _contains_any_element(characters, ji_elems)
-        evaluation["wuxing"] = wuxing
+    if assessment := _wuxing_assessment(characters, yong_elem, xi_elems, ji_elems):
+        evaluation["wuxing"] = assessment
     return evaluation
 
 

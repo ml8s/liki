@@ -208,7 +208,7 @@ def prepare_natal_context(
 
 def evaluate_snap_from_pan(
     pan: dict, current_year: int = 0, sides: Optional[set[str]] = None,
-    factor_names: Optional[set[str]] = None
+    factor_names: Optional[set[str]] = None, current_year_ziwei: Optional[int] = None
 ) -> dict:
     """从完整 pan 直接产出领域快照。
 
@@ -221,13 +221,14 @@ def evaluate_snap_from_pan(
     同一 pan 的多域查询在进程内可复用外部传入的 NatalContext。
     """
     gender = pan.get("gender", "")
+    ziwei_year = current_year if current_year_ziwei is None else current_year_ziwei
     context = {"性别": gender}
-    if pan.get("solar"):
-        context["公历出生"] = pan["solar"]
-    if pan.get("lunar"):
-        context["农历出生"] = pan["lunar"]
+    if pan.get("instant") and pan.get("timezone"):
+        context["时间事实"] = {"instant": pan["instant"], "timezone": pan["timezone"]}
     if current_year:
         context["当前年份"] = current_year
+    if ziwei_year and ziwei_year != current_year:
+        context["当前农历年"] = ziwei_year
     side_config = load_constants()["命理侧"]
     side_labels = side_config["标签"]
     requested = set(side_config["快照代码"]) if sides is None else set(sides)
@@ -242,7 +243,7 @@ def evaluate_snap_from_pan(
         **{
             side_labels[code]: evaluate_factors(
                 gender, evaluation, shushi=code,
-                current_year=current_year,
+                current_year=(ziwei_year if code == "ziwei" else current_year),
                 factor_names=requested_factors,
             ) if code in requested else {}
             for code in side_config["快照代码"]

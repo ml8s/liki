@@ -22,10 +22,12 @@ MATTER_TO_TOPIC = {
 def create(
     *,
     question: str,
+    longitude: float,
     mode: str = "auto",
     rounds: list[list[str]] | None = None,
     yaos: list[int] | None = None,
-    solar_time: str | None = None,
+    instant: str | None = None,
+    timezone: str = "",
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
@@ -60,7 +62,9 @@ def create(
         yong_shen=yong_shen,
         perspective=perspective,
         question=question,
-        solar_time=solar_time,
+        instant=instant,
+        timezone=timezone,
+        longitude=longitude,
     )
     projected = result["factors"]
     resolved_topic = topic or MATTER_TO_TOPIC.get(matter or "")

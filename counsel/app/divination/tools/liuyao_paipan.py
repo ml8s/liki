@@ -30,10 +30,13 @@ def _resolve_yong_shen(
 
 
 
+
 def factors(
     *,
     casting: dict,
-    solar_time: str | None = None,
+    longitude: float,
+    instant: str | None = None,
+    timezone: str = "",
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
@@ -45,11 +48,18 @@ def factors(
     )
     if not isinstance(casting, dict):
         raise ValueError("casting must be an object")
-    if solar_time is None:
-        solar_time = server_time()
+    if not timezone:
+        raise ValueError("timezone is required (IANA)")
+    if instant is None:
+        instant = server_time(timezone)["instant"]
+    if longitude < -180 or longitude > 180:
+        raise ValueError("longitude must be within [-180,180]")
+    resolved_longitude = longitude
 
     params: dict[str, Any] = {
-        "solar_time": solar_time,
+        "instant": instant,
+        "timezone": timezone,
+        "longitude": resolved_longitude,
         "yong_shen": resolved_yong_shen,
     }
     params["casting"] = casting
@@ -59,7 +69,6 @@ def factors(
         "matter": matter,
         "explicit_yong_shen": None if matter else resolved_yong_shen,
         "perspective": perspective,
-        "solar_time": solar_time,
     }
     factors = project_factors(casting, raw, question_fact)
     return {

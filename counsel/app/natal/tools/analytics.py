@@ -147,7 +147,7 @@ def _resolve_time_scope(time_scope: dict) -> tuple[str, int, int]:
         raise TopicRouteError(f"time_scope 含无效字段: {sorted(unknown)}")
     scope_type = time_scope.get("type")
     if scope_type == "current_year":
-        year, _ = resolve_current_year()
+        year, _ = resolve_current_year("Asia/Shanghai")
         return "year", year, year
     if scope_type == "year":
         year = time_scope.get("year")
@@ -164,7 +164,7 @@ def _resolve_time_scope(time_scope: dict) -> tuple[str, int, int]:
             raise TopicRouteError("time_scope.start_year 不能大于 end_year")
         return "year_range", start, end
     if scope_type == "current_decade":
-        year, _ = resolve_current_year()
+        year, _ = resolve_current_year("Asia/Shanghai")
         return "decade", year, year
     if scope_type == "decade":
         year = time_scope.get("year")

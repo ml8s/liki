@@ -420,8 +420,7 @@ def _selected_dayun_step(base, current_year: int = 0):
             step for step in steps
             if step.get("start_year", 0) <= current_year <= step.get("end_year", 0)
         ), None)
-    idx = base.get("dayun_current_index", -1)
-    return steps[idx] if 0 <= idx < len(steps) else None
+    return None
 
 
 def _dayun_op(base, chart, args, current_year: int = 0, gender: str = ""):
@@ -542,9 +541,6 @@ def _base_ctx_from_pan(chart: dict) -> dict:
              "rooted": s.get("rooted", False)}
             for s in steps
         ],
-        "dayun_current_index": chart_da_yun.get(
-            "current_step_index", da_yun.get("current_step_index", -1)
-        ),
     }
     return ctx
 
