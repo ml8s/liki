@@ -4,7 +4,7 @@ description: Liki 风水专家——八宅命卦、门主灶、玄空飞星、�
 metadata:
   display_name: Liki 风水专家
   display_name_en: Liki Feng Shui Expert
-  version: 2026.1022.1
+  version: 2026.1022.2
   author: Liki
 ---
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026.10.22.2] — 2026-10-22
+
+### Changed
+
+- **Bazi 候选空串 → nullable 全链路迁移**：`fu_yi.yong/xi/ji`、`tiao_hou.secondary_wuxing`、四柱 `self_he_name`（及合婚 cross 副本）缺省时统一发布 JSON `null`，空串哨兵从 wire 枚举删除；engine 域层改 `*string`/nil，counsel `YongWuxing = 五行闭集 | None`，selected yong 缺省语义同步 `null`（契约测试与 fixtures 全量更新）。
+- **divination conflicts 类型化 + fail-closed**：新增 `DivinationConflict`（`id`/`reason`/`facts`）统一约束 liuyao snapshot evidence 与 liuyao/qimen query 输出；`liuyao_factors` 对 engine chart conflicts 改为按契约校验，坏形状显式报错，不再静默过滤。
+- **工具链升级 Go 1.26.10**：engine `go.mod`、本地工具链与 CI（`go-version-file`）统一到 1.26.10；liki-agent-runtime 以新 Go 重建并发版 `v2026.10.22.0`（cosign 签名），`deps/liki-agent-runtime.base` 更新为该 pin。
+
+### Fixed
+
+- **check_mcp_schema 门禁修复**：支持顶层 `anyOf` closed-object 输入分支（`naming_check` 显式/selected 双分支既有契约）；natal schema 预算按 2026.10.22.1 契约强化后的实际规模校准（24→64 KiB），门禁恢复有效。
+- **lint-engine 修复**：删除 city 域无引用的 `countryZh` 死代码。
+- **README 重定位**：中英双版重写为 skill 用户价值视角（三个证据专项 + 安装即用 + 大模型对比表 + 信任边界），自部署与开发者内容交由 RUNTIME/SYSTEM/CONTRIBUTING 承接；README 结构契约测试同步到新 h2 序列。
+- **仓库清理**：删除过程/计划文档（`TODO.md`、`FUNCTION_FIRST_REFACTOR_PLAN.md`、`MCP_REFACTOR_FOLLOWUPS.md`，队列全部关闭，内容可自历史恢复）并清理本地未跟踪产物。
+
 ## [2026.10.22.1] — 2026-10-22
 
 ### Changed
