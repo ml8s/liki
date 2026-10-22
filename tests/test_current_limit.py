@@ -25,8 +25,9 @@ def _full_mock_rule_snapshot(*rules: str) -> dict:
 def _saved_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return with_natal_digest({
-        "solar": "1990-05-20T12:00:00",
-        "lunar": {"year": 1990, "month": 4, "day": 26},
+        "instant": "1990-05-20T04:00:00Z",
+        "timezone": "Asia/Shanghai",
+        "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
             **{
@@ -67,14 +68,14 @@ def test_query_passes_server_year_for_current_limit_rules() -> None:
     pan = _saved_pan()
     snapshots = _full_mock_rule_snapshot("大运", "六亲", "大限")
 
-    with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
+    with mock.patch.object(duanyu, "resolve_current_years", return_value=(2015, 2015, "server")), \
          mock.patch.object(
              duanyu,
              "evaluate_snap_from_pan",
              return_value=snapshots,
          ) as evaluate_snap, \
          mock.patch.object(duanyu, "match_rule", return_value={"八字": [], "紫微": []}):
-        duanyu.query("大运", pan)
+        duanyu.query("大运", pan, timezone="Asia/Shanghai")
         duanyu.query("六亲", pan)
 
     assert evaluate_snap.call_args_list[0].kwargs["current_year"] == 2015
@@ -84,7 +85,7 @@ def test_query_passes_server_year_for_current_limit_rules() -> None:
 def test_query_explicit_year_does_not_call_time_now() -> None:
     pan = _saved_pan()
     snapshots = _full_mock_rule_snapshot("大限")
-    with mock.patch.object(duanyu, "resolve_current_year", side_effect=AssertionError("should not call time.now")), \
+    with mock.patch.object(duanyu, "resolve_current_years", side_effect=AssertionError("should not call time.now")), \
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots) as evaluate_snap, \
          mock.patch.object(
              duanyu, "match_rule",
@@ -98,24 +99,55 @@ def test_query_explicit_year_does_not_call_time_now() -> None:
 def test_query_limit_result_reports_year_source() -> None:
     pan = _saved_pan()
     snapshots = _full_mock_rule_snapshot("大运", "六亲", "大限")
-    with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
+    with mock.patch.object(duanyu, "resolve_current_years", return_value=(2015, 2015, "server")), \
          mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots), \
          mock.patch.object(
              duanyu, "match_rule",
              side_effect=lambda *_: {"八字": [], "紫微": []},
          ):
-        current = duanyu.query("大运", pan)
+        current = duanyu.query("大运", pan, timezone="Asia/Shanghai")
         specified = duanyu.query("大限", pan, year=2005)
 
     assert current["current_year"] == 2015
     assert current["current_year_source"] == "server"
     assert specified["current_year"] == 2005
     assert specified["current_year_source"] == "specified"
+    assert current["current_dayun"] == {
+        "index": 1, "name": "己巳", "start_year": 2011, "end_year": 2020,
+        "next_step_in_years": 5,
+    }
+    assert 2015 >= current["current_daxian"]["start_year"]
+    assert 2015 <= current["current_daxian"]["end_year"]
+
+
+def test_query_reports_lunar_year_when_different_from_bazi() -> None:
+    pan = _saved_pan()
+    snapshots = _full_mock_rule_snapshot("大运")
+    with mock.patch.object(duanyu, "resolve_current_years", return_value=(2025, 2026, "server")), \
+         mock.patch.object(duanyu, "evaluate_snap_from_pan", return_value=snapshots), \
+         mock.patch.object(duanyu, "match_rule", return_value={"八字": [], "紫微": []}):
+        result = duanyu.query("大运", pan, timezone="Asia/Shanghai")
+
+    assert result["current_year"] == 2025
+    assert result["current_lunar_year"] == 2026
+    assert result["current_year_source"] == "server"
+    assert "current_dayun" not in result
+    assert 2026 >= result["current_daxian"]["start_year"]
+    assert 2026 <= result["current_daxian"]["end_year"]
+
+
+def test_snap_sides_use_respective_current_years() -> None:
+    pan = _saved_pan()
+    snap = factors.evaluate_snap_from_pan(
+        pan, current_year=2015, current_year_ziwei=2016,
+    )
+    assert snap["context"]["当前年份"] == 2015
+    assert snap["context"]["当前农历年"] == 2016
 
 
 def test_query_evaluates_only_sides_required_by_rule() -> None:
     pan = _saved_pan()
-    with mock.patch.object(duanyu, "resolve_current_year", return_value=(2015, "server")), \
+    with mock.patch.object(duanyu, "resolve_current_years", return_value=(2015, 2015, "server")), \
          mock.patch.object(
              duanyu,
              "evaluate_snap_from_pan",
@@ -124,8 +156,8 @@ def test_query_evaluates_only_sides_required_by_rule() -> None:
              ),
          ) as evaluate_snap, \
          mock.patch.object(duanyu, "match_rule", side_effect=lambda *_: {"八字": [], "紫微": []}):
-        duanyu.query("大运", pan)
-        duanyu.query("大限", pan)
+        duanyu.query("大运", pan, timezone="Asia/Shanghai")
+        duanyu.query("大限", pan, timezone="Asia/Shanghai")
         duanyu.query("格局", pan)
 
     assert evaluate_snap.call_args_list[0].kwargs["sides"] == {"bazi"}

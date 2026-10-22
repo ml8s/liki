@@ -9,7 +9,7 @@ This repository has deterministic tests and curated data assets. Do not treat fu
 | Content suite | `make test-content` | README, skill layout, tool manifests, factors, assertions, schemas, data flow |
 | Python lint | `make lint-python` | Ruff E/F/W/I over `counsel/`, `scripts/`, and root `tests/` |
 | Python vulnerabilities | CI `pip-audit` | Known CVEs in the hashed counsel dependency lock |
-| Engine units/integration | `make test-engine` | Go domain packages, MCP contract registry (`internal/mcpcontract`), HTTP middleware, integration tags |
+| Engine tests | `make test-engine` | Go domain packages, MCP contract registry (`internal/mcpcontract`), and HTTP middleware |
 | Toolchain gate | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.9 |
 | Engine vulnerabilities | CI `govulncheck ./...` | Reachable Go standard-library/module vulnerabilities |
 | Engine MCP smoke | `make test-engine-mcp` | Internal `/mcp` root and `/mcp/{domain}` surfaces, `server/discover`, `tools/list`, `tools/call` |
@@ -17,9 +17,9 @@ This repository has deterministic tests and curated data assets. Do not treat fu
 | Assertion data check | `python3 scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
 | Documentation check | `python3 scripts/check_docs.py skills/liki` | Distributed skill documentation references |
 | Documentation path check | `python3 scripts/check_doc_paths.py` | Every Markdown link target and top-level code-span path in the repository resolves |
+| Domain language check | `python3 scripts/check_domain_language.py` | Canonical concepts, generated vocabulary doc, forbidden aliases, and scoped compatibility names |
 | Markdown lint | `make lint-md` | Locked `markdownlint-cli2` over all skill markdown |
-| Full 160-question data check | `make full-data` | Rule coverage and zero-hit detection; not answer grading (starts a local engine-mcp) |
-| Golden suites | `make golden` | Deterministic multi-source calibration fixtures already consumed by engine tests |
+| Focused golden selector | `make golden` | The `Golden\|External\|Matrix\|Pattern` subset already consumed by `make test-engine` |
 | Distribution build | `make build-archive` | Self-contained skill archive and expert methodology cards |
 
 ## Test placement
@@ -60,14 +60,13 @@ script set is pinned by `tests/test_check_scripts_contract.py`, so adding a scri
 | `scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
 | `scripts/check_docs.py` | Distributed skill documentation: assertions, paths, budgets, method whitelist |
 | `scripts/check_doc_paths.py` | Markdown link targets and top-level code-span paths resolve |
+| `scripts/sync_domain_language.py` | `docs/DOMAIN_LANGUAGE.md` is generated from the canonical concept registry |
+| `scripts/check_domain_language.py` | Concept/alias uniqueness and forbidden-alias drift across code, contracts, docs, and tests |
 | `scripts/check_workflow.py` | CI workflow structure and job wiring |
 | `scripts/check_mcp_schema.py` | MCP tool schemas, context budgets, and `tools/mcp-tool-catalog.json` drift (`--emit` regenerates it) |
-| `scripts/check_expert_docs.py` | Expert-pack methodology cards against the root skill |
+
 | `scripts/agent_runtime_pin.py` | Agent runtime image pin is internally consistent |
 | `scripts/check-exec-bits.sh` | Git executable bits for scripts invoked without an interpreter |
-| `scripts/sync_expert_packs.py` | Expert methodology cards are in sync with the root skill |
-| `scripts/check_workbuddy_connectors.py` | WorkBuddy connector packages: metadata, single MCP server, HTTPS, version gate, credentials, path-only icon glyphs |
-| `scripts/check_workbuddy_zips.py` | WorkBuddy submission zips in `dist/workbuddy/`: byte-parity with sources, top-level dir, expert-pack layout |
 
 The counsel direct dependencies are declared twice on purpose --
 `counsel/pyproject.toml [project.dependencies]` is the metadata surface and
@@ -90,11 +89,22 @@ make gate
 
 ## Route boundary
 
+The skill and WorkBuddy checks below are run by `check-content`, which `make check`
+invokes only when the content fingerprint under `skills/liki`, `expert-packs`,
+`workbuddy`, `agents`, or the packaging scripts changes:
+
+| Script | Contract |
+| --- | --- |
+| `scripts/check_expert_docs.py` | Expert-pack methodology cards against the root skill |
+| `scripts/sync_expert_packs.py` | Expert methodology cards are in sync with the root skill |
+| `scripts/check_workbuddy_connectors.py` | WorkBuddy connector packages: metadata, single MCP server, HTTPS, version gate, credentials, path-only icon glyphs |
+| `scripts/check_workbuddy_zips.py` | WorkBuddy submission zips in `dist/workbuddy/`: byte-parity with sources, top-level dir, expert-pack layout |
+
 The public paths are `/engine/mcp/{domain}` and `/counsel/mcp/{domain}`. Caddy strips `/engine` or `/counsel`; the services themselves see `/mcp/{domain}`. Tests must not document or assert service-level public prefixes.
 
 ## Oracle & golden policy
 
-Independence matters more than volume. Keep the three tiers distinct:
+Independence matters more than volume. Keep the deterministic test tiers distinct:
 
 - **Independent truth** — `tests/fixtures/domain_oracle/*.json`: hand-curated hard facts with
   `basis` / `sources`, explicitly **not** generated from the implementation. Go/Python oracle
@@ -105,8 +115,5 @@ Independence matters more than volume. Keep the three tiers distinct:
   *drift*, not correctness; a golden that is regenerated after a change proves nothing on its own.
   Where an external source exists (e.g. bazi/黄历 multi-oracle consensus), bind the golden to it;
   otherwise treat it as a change-detector only.
-- **Coverage dataset** — `tests/mingli160/`: 32 birth records and their question
-  grouping. The set informed the natal assertion table during development, so it
-  is not held out and must not be reported as independent accuracy. A real
-  accuracy claim needs a frozen assertion version and a second, tuning-untouched
-  question set.
+Mingli160 is not a test tier. It is a manual calibration/evaluation dataset under
+`evals/mingli160/`; see that directory's README before using its report.

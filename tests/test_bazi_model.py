@@ -162,7 +162,7 @@ def test_context_is_not_factor_and_flow_targets_are_explicit() -> None:
 def test_yong_shen_guidance_requires_effective_support_not_team_labels() -> None:
     text = (
         ROOT
-        / "expert-packs/liki-natal/skills/natal/references/domains/bazi/yongshen.md"
+        / "expert-packs/liki-natal/skills/natal/references/natal-bazi-yongshen.md"
     ).read_text(encoding="utf-8")
     assert "数量不等于有效力量" in text
     assert "禁止用 `wuxing_count` 做加总评分" in text

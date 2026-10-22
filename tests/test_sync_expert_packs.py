@@ -1,9 +1,10 @@
 """生成器契约：sync_expert_packs 的映射完整性与无漂移状态。
 
 生成器语义（唯一生成入口）：
-- 权威源 = skills/liki/references/（domains 真值卡 + app 编排卡副本）
+- 权威源 = skills/liki/references/（平铺命名 `<域>-<app|体系>-<卡>.md`）
 - 顶层领域 = 专家包（1:1）：expert-packs/liki-<domain>/skills/<domain>/references/
-  是根 references/<domain>/ 子树的逐字节镜像（手改=漂移）
+  是根"按域前缀过滤的逐字节视图"（保留平铺名、引用不改写；手改=漂移）
+- 根级共享卡（`FAQ.md` / `ops-*` / `payment-*`）只存在于根，不进任何包
 - make check 跑 --check 双向检测（缺失/孤儿/内容差异）
 """
 from __future__ import annotations
@@ -29,82 +30,78 @@ def test_check_reports_no_drift():
     assert proc.returncode == 0, proc.stderr
 
 
-def test_mappings_cover_every_root_domain_dir():
-    """根 references/*/domains/* 全集必须被 MAPPINGS 覆盖（新增体系防漏镜像）。"""
-    root_dirs = [p.relative_to(SKILL) for p in SKILL.glob("*/domains/*") if p.is_dir()]
-    assert root_dirs
-    mapped = {m[0] for m in gen.MAPPINGS}
-    missing = [str(d) for d in root_dirs if str(d).split("/")[0] not in mapped]
-    assert not missing, f"根域目录未进 MAPPINGS（生成器会漏卡）: {missing}"
+def test_every_root_card_is_classified_and_flat():
+    """根 references/ 必须平铺；每个卡要么归域（有包）、要么在根级共享白名单。"""
+    assert not [p for p in SKILL.iterdir() if p.is_dir()], "references 必须平铺（无子目录）"
+    assert not [p for p in SKILL.iterdir() if p.is_file() and p.suffix != ".md"], "只允许 .md 卡"
+    unclassified = [
+        name
+        for name in sorted(p.name for p in SKILL.glob("*.md"))
+        if name not in gen.ROOT_SHARED_FILES
+        and not any(name.startswith(d + "-") for d, _pack in gen.MAPPINGS)
+    ]
+    assert not unclassified, f"未分类卡（须归域或进根级共享白名单）: {unclassified}"
 
 
 def test_every_root_domain_is_one_pack():
-    """顶层领域 = 专家包（1:1）：每个 references/<domain>/ 都有对应包与身份文件。"""
-    mapped = {m[0]: (m[1], m[2]) for m in gen.MAPPINGS}
-    # 领域目录 = 带 ENTRY.md 的顶层目录（references/ 下还有共享的 ops/、payment/）。
-    domains = {p.name for p in SKILL.iterdir() if p.is_dir() and (p / "ENTRY.md").is_file()}
-    assert domains == set(mapped), (domains, set(mapped))
-    for domain, (pack, skill) in mapped.items():
-        assert pack == gen.DOMAIN_PACKS[domain], domain
-        assert skill == domain, domain
-        assert (SKILL / domain / "ENTRY.md").is_file(), domain
+    """顶层领域 = 专家包（1:1）：每个域有平铺 ENTRY 与对应包/身份文件。"""
+    for domain, pack in gen.MAPPINGS:
+        assert (SKILL / f"{domain}-ENTRY.md").is_file(), domain
+        assert list(SKILL.glob(f"{domain}-*.md")), domain
         assert (gen.PACKS / pack / "SKILL.md").is_file(), pack
         assert (gen.PACKS / pack / "skills" / domain).is_dir(), pack
+    assert gen.DOMAIN_PACKS == dict(gen.MAPPINGS)
 
 
-def test_every_mapped_source_exists_and_dest_inside_expert_packs():
-    for src_rel, pack, skill in gen.MAPPINGS:
-        assert (SKILL / src_rel).is_dir(), f"源缺失: {src_rel}"
-        dest = gen.PACKS / pack / "skills" / skill / "references"
-        assert str(dest).startswith(str(gen.PACKS)), dest
-        assert (gen.PACKS / pack / "SKILL.md").is_file(), pack
-
-
-def test_dest_groups_mirror_one_subtree_per_pack():
-    """1:1 镜像：每个目标 references/ 只由一个根子树喂入（不再多对一聚合）。"""
-    groups = gen._dest_groups()
+def test_dest_groups_filter_by_domain_prefix():
+    """dest 分组 = 按域前缀过滤；全量覆盖（共享卡除外）、且各组只含本域前缀卡。"""
+    groups, errors = gen._dest_groups()
+    assert not errors, errors
     assert len(groups) == len(gen.MAPPINGS)
+    total = 0
     for dest, srcs in groups.items():
-        assert len(srcs) == 1, (dest, srcs)
+        domain = gen._domain_of(dest)
+        assert srcs and all(src.name.startswith(domain + "-") for src in srcs), (dest, srcs)
+        total += len(srcs)
+    all_cards = [p.name for p in SKILL.glob("*.md") if p.name not in gen.ROOT_SHARED_FILES]
+    assert total == len(all_cards)
 
 
-def test_expected_rebases_root_layout_refs_into_pack_paths():
-    """包内互引必须 rebase：`references/<domain>/…` → `references/…`（相对 skill 根），
-    否则 ADK load_skill_resource 死链；除此之外镜像逐字节保真。"""
-    groups = gen._dest_groups()
+def test_expected_is_byte_identical_domain_view():
+    """包内 = 源卡的逐字节视图：字节相等、引用不改写、无旧嵌套 token、无路径改写。"""
+    groups, errors = gen._dest_groups()
+    assert not errors, errors
     dest = gen.PACKS / "liki-natal" / "skills" / "natal" / "references"
     result = gen._expected(dest, groups[dest])
     assert isinstance(result, dict), result
-    text = result["app/marriage.md"].decode("utf-8")
-    assert "references/natal/" not in text, "根子树 token 未 rebase"
-    assert "references/domains/bazi/shishen.md" in text
-    assert "references/domains/ziwei/yingqi.md" in text
-    root_card = (SKILL / "natal" / "app" / "marriage.md").read_text(encoding="utf-8")
-    assert text == root_card.replace("references/natal/", "references/")
-    # 子树布局保留（app/ 与 domains/<体系>/ 分目录，不再平铺）
-    assert "domains/bazi/geju.md" in result and "domains/ziwei/geju.md" in result
+    sample = "natal-app-marriage.md"
+    assert sample in result
+    assert result[sample] == (SKILL / sample).read_bytes()
+    text = result[sample].decode("utf-8")
+    assert f"references/{sample}" not in text  # 卡不自引
+    # 跨层索引禁止：app 卡不得引用域卡（场景到卡的映射在侧入口）
+    assert "references/natal-bazi-" not in text
+    assert "references/natal-ziwei-" not in text
+    assert "references/natal/" not in text, "包内不得出现旧嵌套前缀 token"
 
 
-def test_rebase_reports_cross_domain_dead_link():
-    """引用别的领域子树 = 包必须自包含，fail-closed 报错且不改写。"""
-    errors: list[str] = []
-    payload = gen._rebase(
-        b"read `references/naming/app/naming.md`",
-        "natal",
-        {"references/app/marriage.md"},
-        errors,
-        "pack/references/x.md",
-    )
-    assert len(errors) == 1 and "跨域引用" in errors[0], errors
-    assert payload == b"read `references/naming/app/naming.md`"
+def test_expected_fail_closed_on_invalid_refs(tmp_path):
+    """非平铺 / 裸名 / 跨域 / 根级共享卡 / scripts 依赖 / 死链一律 fail-closed。"""
+    dest = gen.PACKS / "liki-natal" / "skills" / "natal" / "references"
+    cases = [
+        ("references/divination-qimen-yongshen.md", "跨域引用"),
+        ("references/natal-nope.md", "死链"),
+        ("references/natal/app/x.md", "非平铺引用"),
+        ("references/FAQ.md", "根级共享卡"),
+        ("geju.md", "裸名引用"),
+        ("python3 scripts/aipay.py status", "包内无 scripts/ 运行时"),
+    ]
+    for token, want in cases:
+        src = tmp_path / "natal-app-probe.md"
+        src.write_text(f"see `{token}`\n", encoding="utf-8")
+        result = gen._expected(dest, [src])
+        assert isinstance(result, list) and any(want in error for error in result), (token, result)
 
-
-def test_rebase_reports_intra_domain_dead_link():
-    """本域 token 指向包内不存在的卡（如根子树漏镜像）同样 fail-closed。"""
-    errors: list[str] = []
-    gen._rebase(b"read `references/natal/app/nope.md`", "natal", set(), errors, "pack/x.md")
-    assert len(errors) == 1 and "死链" in errors[0], errors
-    assert "references/app/nope.md" in errors[0], errors
 
 def test_identity_file_is_the_only_authored_expert_identity():
     """专家身份唯一手写源＝包根 SKILL.md；仓库根不再保留 persona 目录。"""
@@ -159,7 +156,7 @@ def test_skill_entry_is_rendered_from_identity_file():
     assert set(documents) == expected, set(documents) ^ expected
 
 
-def test_nested_skill_index_tracks_mirrored_cards():
+def test_skill_index_tracks_mirrored_cards():
     """域 SKILL.md 的方法论索引随镜像自动生成，不得手维护卡名清单。"""
     documents, errors = gen.generated_documents()
     assert not errors, errors
@@ -219,8 +216,9 @@ def test_version_bump_keeps_generated_pack_entries_in_sync(tmp_path, monkeypatch
         bump_version.replace_frontmatter_version(copy, gen.workbuddy_version(fake_version))
         assert copy.read_text(encoding="utf-8") == payload.decode("utf-8"), target
 
+
 def test_plugin_agent_pointer_resolves_to_projected_agent_doc():
-    """plugin.json 的 agents/agentName 指向兜内 `agents/<pack>.md`（由身份文件投影）。"""
+    """plugin.json 的 agents/agentName 指向包内 `agents/<pack>.md`（由身份文件投影）。"""
     for domain, pack in gen.DOMAIN_PACKS.items():
         plugin = json.loads(
             (gen.PACKS / pack / ".codebuddy-plugin" / "plugin.json").read_text(encoding="utf-8")

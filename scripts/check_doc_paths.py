@@ -10,10 +10,9 @@ Two reference forms are checked across every Markdown file outside
   (``docs/RELEASE_MODEL.md``), which is the form this repository uses to point
   at live files.
 
-A bare relative span such as ``TOOLS.md`` or ``app/mingshu.md`` is prose, not a
-pointer, so it is left alone: those short names resolve against several
-different roots (skill root, references root) and cannot be checked without a
-per-file rule. Targets are accepted if they resolve against the Markdown file's
+A bare relative span such as ``TOOLS.md`` or ``natal-app-mingshu.md`` is prose,
+not a pointer, so it is left alone: short names resolve against several roots
+(skill root, references root) and cannot be checked without a per-file rule. Targets are accepted if they resolve against the Markdown file's
 own directory or against the repository root.
 
 Division of labour with ``check_docs.py``: that checker owns skill-document

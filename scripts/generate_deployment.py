@@ -5,8 +5,9 @@
 
 身份单一源：域专家 = `expert-packs/liki-<name>/SKILL.md`（包内 skill 入口与插件
 agent 入口都由它生成）；部署内子代理（如 natal 的 bazi/ziwei）= `agents/<name>/<name>.md`，
-不进市场包。带 sub_agents 的 agent 由生成器追加「协作委派」节（部署形态专属，
-不写入共享身份源）。
+不进市场包。instruction 就是身份正文本身，不做拓扑增补：子代理经 tools/list 自省
+（task 工具携带子代理描述，框架同时下发「不要并行调用」），单侧/双侧路由由域卡
+（natal-ENTRY）承载，委派义务由能力边界（根无排盘工具）强制。
 
 用法:
     python3 scripts/generate_deployment.py --profile natal --out dist/agents
@@ -157,30 +158,6 @@ def validate_profile_graph(profile: dict, definitions: dict[str, dict]) -> None:
         sys.exit(f"profile must declare exactly one root agent, got {roots}")
 
 
-def delegation_section(
-    references: list[dict], identities: dict[str, tuple[dict, str]]
-) -> str:
-    """「协作委派」节：只进部署 instruction，不进市场身份源。"""
-    lines = [
-        "## 协作委派（部署形态）",
-        "",
-        "你负责编排与最终答复；执行流程由以下子专家完成（工具名即名称，串行调用，同一轮只调用一个）：",
-        "",
-    ]
-    for reference in references:
-        name = reference.get("name", "")
-        description = identities.get(name, ({}, ""))[0].get("description", "")
-        lines.append(f"- `{name}`：{description}")
-    lines += [
-        "",
-        "1. 子专家职责内的工作一律委派，自己不代做。",
-        "2. 单侧任务只调对应子专家；取回结论后直接整理输出。",
-        "3. 需多侧证据（含合盘、考时交叉验证）时依次调用，按各域合参口径给出结论。",
-        "4. 出生信息等前置条件不完整时，先与用户确认再委派。",
-    ]
-    return "\n".join(lines)
-
-
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
 # 镜像内合法 skill rootFS（assembly 镜像 COPY：/skills、/expert-packs）。
 # /skills 是根 skill 树；/expert-packs/liki-<x>/skills 的直接子目录是域
@@ -216,13 +193,6 @@ def build_agent(
 
     identity, instruction_text = identities[name]
     sub_agents = definition.get("sub_agents", [])
-    if sub_agents:
-        instruction_text = (
-            instruction_text.rstrip()
-            + "\n\n"
-            + delegation_section(sub_agents, identities)
-            + "\n"
-        )
     instruction_path = out_dir / "agents" / name / "instruction.md"
     instruction_path.parent.mkdir(parents=True, exist_ok=True)
     instruction_path.write_text(instruction_text, encoding="utf-8")

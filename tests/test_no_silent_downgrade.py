@@ -45,8 +45,7 @@ def test_query_rejects_snapshot_input() -> None:
     {"full": {"ri": {"gan": "甲", "zhi": "子"}}},
     {"chart": {"ri": {"gan": "甲", "zhi": "子"}}},
     {
-        "solar": "1990-05-20T12:00:00",
-        "lunar": {"year": 1990, "month": 4, "day": 26},
+        "gregorian_time": "1990-05-20T12:00:00",
         "chart": {"ri": {"gan": "甲", "zhi": "子"}},
         "full": {"ri": {"gan": "甲", "zhi": "子"}},
         "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
@@ -62,34 +61,60 @@ def test_query_rejects_partial_pan(pan) -> None:
 def test_current_year_does_not_fall_back_to_local_time() -> None:
     with mock.patch("paipan.call", side_effect=RPCError("time.now failed")):
         with pytest.raises(RPCError, match="time.now failed"):
-            resolve_current_year()
+            resolve_current_year("Asia/Shanghai")
 
 
 def _reset_year_cache() -> None:
     duanyu.reset_current_year_cache()
 
 
+def _year_call(cst: str):
+    def fake(name, params):
+        if name == "time.now":
+            return {"data": {
+                "instant": cst[:10] + "T04:00:00Z", "timezone": "Asia/Shanghai",
+                "local_time": cst + "T12:00:00+08:00", "offset": 28800,
+            }}
+        if name == "tianwen.resolve":
+            date, clock = params["date"], params["time"]
+            return {"data": {"candidates": [{
+                "instant": f"{date}T{int(clock.split(':')[0]) - 8:02d}:{clock.split(':')[1]}:00Z",
+                "timezone": params["timezone"],
+                "local_time": f"{date}T{clock}:00+08:00",
+                "offset": 28800,
+                "reasons": [{"domain": "input", "detail": "输入时间"}],
+            }]}}
+        if name == "bazi.chart":
+            return {"data": {"nian": {"gan": "丙", "zhi": "午"}, "birth_year": 2026}}
+        if name == "ziwei.chart":
+            return {"data": {"birth_year": 2026}}
+        raise AssertionError(f"unexpected tool {name}")
+    return fake
+
+
+def _time_now_calls(call_mock) -> int:
+    return sum(1 for c in call_mock.call_args_list if c.args and c.args[0] == "time.now")
+
+
 def test_current_year_caches_success_within_ttl() -> None:
     _reset_year_cache()
-    payload = {"data": {"cst": "2026-03-15T12:00:00"}}
-    with mock.patch("paipan.call", return_value=payload) as call_mock:
-        assert resolve_current_year() == (2026, "server")
-        assert resolve_current_year() == (2026, "server")
-        # TTL 内第二次调用命中缓存
-        call_mock.assert_called_once_with("time.now", {})
+    with mock.patch("paipan.call", side_effect=_year_call("2026-03-15T12:00:00")) as call_mock:
+        assert resolve_current_year("Asia/Shanghai") == (2026, "server")
+        assert resolve_current_year("Asia/Shanghai") == (2026, "server")
+        # TTL 内第二次调用命中缓存（时间事实 RPC 只发一次）
+        assert _time_now_calls(call_mock) == 1
     _reset_year_cache()
 
 
 def test_current_year_cache_expires_and_refetches() -> None:
     _reset_year_cache()
-    payload = {"data": {"cst": "2026-12-31T23:00:00"}}
-    with mock.patch("paipan.call", return_value=payload) as call_mock, \
+    with mock.patch("paipan.call", side_effect=_year_call("2026-12-31T23:00:00")) as call_mock, \
          mock.patch("duanyu.time.monotonic", side_effect=[0.0, 30.0, 61.0]):
-        resolve_current_year()          # 首次：发 RPC
-        resolve_current_year()          # +30s：仍命中
-        assert call_mock.call_count == 1
-        resolve_current_year()          # +61s：过期，重发 RPC
-        assert call_mock.call_count == 2
+        resolve_current_year("Asia/Shanghai")          # 首次：发 RPC
+        resolve_current_year("Asia/Shanghai")          # +30s：仍命中
+        assert _time_now_calls(call_mock) == 1
+        resolve_current_year("Asia/Shanghai")          # +61s：过期，重发 RPC
+        assert _time_now_calls(call_mock) == 2
     _reset_year_cache()
 
 
@@ -98,18 +123,18 @@ def test_current_year_failure_not_cached() -> None:
     with mock.patch("paipan.call", side_effect=RPCError("time.now failed")), \
          mock.patch("duanyu.time.monotonic", return_value=0.0):
         with pytest.raises(RPCError):
-            resolve_current_year()
+            resolve_current_year("Asia/Shanghai")
         # 失败不写入缓存——下一次仍会再试（不把错误当时间基准缓存）
-        assert duanyu._current_year_cached is None
+        assert duanyu._current_years_cached is None
     _reset_year_cache()
 
 
 def test_current_year_rejects_missing_cst_and_does_not_cache() -> None:
     _reset_year_cache()
     with mock.patch("paipan.call", return_value={"data": {}}):
-        with pytest.raises(ValueError, match="cst"):
-            resolve_current_year()
-    assert duanyu._current_year_cached is None
+        with pytest.raises(ValueError, match="local_time|instant"):
+            resolve_current_year("Asia/Shanghai")
+    assert duanyu._current_years_cached is None
 
 
 def test_load_rule_table_missing_required_file_raises() -> None:
@@ -121,7 +146,7 @@ def test_load_rule_table_missing_required_file_raises() -> None:
 def test_skill_does_not_silently_default_birth_hour() -> None:
     from pathlib import Path
 
-    skill = Path(__file__).resolve().parents[1] / "skills" / "liki" / "references" / "natal" / "ENTRY.md"
+    skill = Path(__file__).resolve().parents[1] / "skills" / "liki" / "references" / "natal-ENTRY.md"
     text = skill.read_text(encoding="utf-8")
 
     assert "默认午时" not in text
@@ -135,7 +160,7 @@ def test_calibration_docs_do_not_silently_default_birth_hour() -> None:
     path = (
         Path(__file__).resolve().parents[1]
         / "expert-packs" / "liki-natal" / "skills" / "natal"
-        / "references" / "domains" / "bazi" / "calibration.md"
+        / "references" / "natal-bazi-calibration.md"
     )
     text = path.read_text(encoding="utf-8")
     assert "直接走默认时辰" not in text
@@ -145,10 +170,8 @@ def test_calibration_docs_do_not_silently_default_birth_hour() -> None:
 def test_skill_has_no_local_pan_archive_contract() -> None:
     from pathlib import Path
 
-    skill_dir = Path(__file__).resolve().parents[1] / "skills" / "liki" / "references" / "natal"
-    for path in skill_dir.rglob("*"):
-        if not path.is_file() or "__pycache__" in path.parts:
-            continue
+    skill_dir = Path(__file__).resolve().parents[1] / "skills" / "liki" / "references"
+    for path in sorted(skill_dir.glob("natal-*.md")):
         text = path.read_text(encoding="utf-8", errors="ignore")
         assert "liki-memory" not in text, path
         assert "$file" not in text, path

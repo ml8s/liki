@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.10.18.2] — 2026-10-18
+
+### Changed
+
+- **品牌真相源迁出**：`docs/BRAND.md`（v4.0）扩展为 v5.0 并迁至 liki-web 仓库 `BRAND.md`（新增 Delivery/Storefront/Copy Rules/SEO & GEO 章节）；本仓文件改为迁移指针，契约测试同步改为指针校验，并修复 `docs/brand.md` 与实际文件名 `BRAND.md` 的大小写漂移（该测试此前在大小写敏感文件系统上失败）。本仓公开门面（README/SKILL）的 slogan 契约不变。
+
 ## [2026.10.18.1] — 2026-10-18
 
 ### Fixed

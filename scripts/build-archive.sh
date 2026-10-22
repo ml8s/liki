@@ -27,9 +27,10 @@ fi
 ARCHIVE="$DIST_DIR/$SKILL_NAME.tar.gz"
 echo "[build-archive] 打包 $SKILL_NAME..."
 
-# 根 skill（liki）是方法论卡的唯一权威源，已自包含各域方法论卡（references/natal/references/divination/
-# references/fengshui/naming 的 domains/）。直接打包根 skill 即可，无需合并独立专家包。
-# 独立专家包（expert-packs/，1b 起）由 make sync-expert-packs 从根生成（1c）。
+# 根 skill（liki）是方法论卡的唯一权威源，已自包含各域平铺方法论卡
+# （references/<域>-…；ENTRY/TOOLS/app/体系卡全平铺）。直接打包根 skill 即可，
+# 无需合并独立专家包。
+# 独立专家包（expert-packs/）由 make sync-expert-packs 从根生成。
 
 # 可复现：固定排序/时间戳/属主，gzip -n 去除时间戳。
 tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
@@ -69,11 +70,10 @@ if grep -Fxq 'requirements.txt' <<<"$ARCHIVE_LISTING"; then
     exit 1
 fi
 
-# 根 skill 自包含各域方法论卡（references/natal/references/divination/references/fengshui/naming 的 domains/），
-# 归档必须包含它们，保证对外全能力。
-for domain in references/natal/domains references/divination/domains references/fengshui/domains references/naming/domains; do
-    if ! grep -Fq "$domain/" <<<"$ARCHIVE_LISTING"; then
-        echo "[build-archive] error: archive missing root domain methodology $domain/" >&2
+# 根 skill 自包含各域平铺方法论卡（references/<域>-…），归档必须包含它们，保证对外全能力。
+for domain in natal divination fengshui naming; do
+    if ! grep -Fq "references/${domain}-" <<<"$ARCHIVE_LISTING"; then
+        echo "[build-archive] error: archive missing root domain methodology references/${domain}-*" >&2
         exit 1
     fi
 done

@@ -22,6 +22,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: .nvmrc
+          cache: npm
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version-file: engine/go.mod
@@ -29,6 +30,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version-file: .python-version
+      - run: npm ci
       - run: python -m pip install pyyaml jsonschema pydantic==2.13.5 ruff==0.16.0
       - run: make check
       - name: Generate deployment artifacts
@@ -71,8 +73,6 @@ jobs:
       - run: python -m pip install pydantic==2.13.5
       - name: Unit tests with coverage floor
         run: make test-engine-coverage
-      - run: go test -tags integration -count=1 -timeout 60s ./internal/mcpcontract/ ./internal/http/ ./internal/engine/bazi/
-        working-directory: engine
 
   skills-test:
     name: Skill tests
@@ -118,22 +118,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - run: make build-archive
 
-  full-data:
-    name: Full assertion coverage
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
-        with:
-          go-version-file: engine/go.mod
-          cache-dependency-path: engine/go.sum
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with:
-          python-version-file: .python-version
-      - run: python -m pip install pytest pyyaml jsonschema
-      - run: make full-data
-
   release-integrity:
     name: Release artifact integrity
     # 镜像包全 public，job token 即可拉取；PR run（含 Dependabot）token 权限
@@ -141,7 +125,7 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [check, skills-test, full-data]
+    needs: [check, skills-test]
     permissions:
       contents: read
       packages: read

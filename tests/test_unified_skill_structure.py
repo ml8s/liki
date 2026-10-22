@@ -1,7 +1,7 @@
 """Structural contract for the Liki skill system（综合 liki + 专家包）。
 
 覆盖：
-1. liki 综合：根 SKILL.md + 四域（references/natal/references/divination/references/fengshui/naming）+ 共享运行时文件
+1. liki 综合：根 SKILL.md + 平铺四域卡（references/<域>-ENTRY.md 等）+ 共享运行时文件
 2. 专家包（四个顶层领域）：WorkBuddy 标准（SKILL.md 身份源 / plugin.json（含连接器依赖）/ skills / avatars / README）
 3. MCP 连接器命名（engine/counsel 与专家端点）
 """
@@ -17,14 +17,14 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import sync_expert_packs as gen  # noqa: E402
 
 DOMAINS = ("natal", "divination", "fengshui", "naming")
-# 顶层领域 = 专家包（1:1）：包内 references/ 是本域根子树（ENTRY/TOOLS/app/domains）的镜像。
-EXPERT_PACKS = ("liki-natal", "liki-divination", "liki-fengshui", "liki-naming")
+# 顶层领域 = 专家包（1:1）：由生成器 MAPPINGS 派生，杜绝第二份包名清单。
+EXPERT_PACKS = tuple(pack for _domain, pack in gen.MAPPINGS)
 
 
 def test_liki_root_has_one_entry_and_four_domain_entries():
     assert (SKILL_ROOT / "SKILL.md").is_file()
     for domain in DOMAINS:
-        assert (SKILL_ROOT / "references" / domain / "ENTRY.md").is_file(), domain
+        assert (SKILL_ROOT / "references" / f"{domain}-ENTRY.md").is_file(), domain
 
 
 def test_shared_runtime_files_are_not_duplicated():
@@ -44,12 +44,12 @@ def test_faq_is_the_single_runtime_failure_entry():
     assert "不可用" in faq
     assert "⛔" in faq and "💬" in faq
     for entry in DOMAINS:
-        assert "FAQ.md" not in (SKILL_ROOT / "references" / entry / "ENTRY.md").read_text(encoding="utf-8")
+        assert "FAQ.md" not in (SKILL_ROOT / "references" / f"{entry}-ENTRY.md").read_text(encoding="utf-8")
 
 
 def test_app_cards_use_standard_contract_sections():
     required = {"## 流程", "## 边界条件", "## 输出模板"}
-    cards = list(SKILL_ROOT.glob("references/*/app/*.md"))
+    cards = list(SKILL_ROOT.glob("references/*-app-*.md"))
     assert len(cards) >= 10
     for path in cards:
         lines = {line.strip() for line in path.read_text(encoding="utf-8").splitlines()}
@@ -58,8 +58,8 @@ def test_app_cards_use_standard_contract_sections():
 
 def test_yongshen_decision_has_one_domain_authority():
     """用神裁决只写在八字域；起名域只消费结果。"""
-    natal = (SKILL_ROOT / "references/natal/domains/bazi/yongshen.md").read_text(encoding="utf-8")
-    naming = (SKILL_ROOT / "references/naming/domains/bazi/yongshen.md").read_text(encoding="utf-8")
+    natal = (SKILL_ROOT / "references/natal-bazi-yongshen.md").read_text(encoding="utf-8")
+    naming = (SKILL_ROOT / "references/naming-bazi-yongshen.md").read_text(encoding="utf-8")
     assert "## 裁决规则" in natal
     assert "YS-CG-FAKE" in natal
     assert "## 裁决规则" not in naming
@@ -86,7 +86,7 @@ def test_skill_docs_do_not_duplicate_mcp_method_signatures():
 
 def test_app_cards_declare_output_template_body():
     """`## 输出模板` 必须给出模板体（代码块 / 表 / 列表），不能只有示例。"""
-    for card in sorted(SKILL_ROOT.glob("references/*/app/*.md")):
+    for card in sorted(SKILL_ROOT.glob("references/*-app-*.md")):
         text = card.read_text(encoding="utf-8")
         match = re.search(r"^## 输出模板\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
         assert match, card
@@ -104,45 +104,49 @@ def test_root_entry_is_a_lightweight_router():
     assert "## 统一硬边界" in lines
 
 
-def test_natal_is_self_contained_orchestration_layer():
-    """natal 自举八字侧/紫微侧：域内路由只按侧编排。"""
-    entry = (SKILL_ROOT / "references" / "natal" / "ENTRY.md").read_text(encoding="utf-8")
-    assert "八字侧" in entry and "紫微侧" in entry
-    assert "编排" in entry
-    assert "专家" not in entry
-    tools = (SKILL_ROOT / "references" / "natal" / "TOOLS.md").read_text(encoding="utf-8")
-    assert "## 输出契约（断语公共字段）" in tools
-    # 域内路由只由 ENTRY.md 定义一次（TOOLS.md 不重复编排表）
-    assert "## 路由" in entry and "合盘（双人）" not in tools
-    # 根 liki 是方法论权威源：references/natal/domains/ 含 bazi/ziwei 方法论卡
-    assert (SKILL_ROOT / "references" / "natal" / "domains" / "bazi").is_dir()
-    assert (SKILL_ROOT / "references" / "natal" / "domains" / "ziwei").is_dir()
+def test_natal_layers_are_orthogonal():
+    """三层正交：根入口不索引侧层文件；侧入口只索引本层卡，且本层卡齐备。"""
+    root_entry = (SKILL_ROOT / "references" / "natal-ENTRY.md").read_text(encoding="utf-8")
+    assert "八字侧" in root_entry and "紫微侧" in root_entry
+    assert "编排" in root_entry
+    assert "专家" not in root_entry
+    # 跨层索引禁止：根入口不得出现侧层文件名
+    assert "natal-bazi-" not in root_entry and "natal-ziwei-" not in root_entry
+    for side, other in (("bazi", "ziwei"), ("ziwei", "bazi")):
+        entry = (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
+        assert "## 任务路由" in entry, side
+        assert f"natal-{other}-" not in entry, side
+        cards = {
+            card.name
+            for card in (SKILL_ROOT / "references").glob(f"natal-{side}-*.md")
+            if card.name != f"natal-{side}-ENTRY.md"
+        }
+        routed = set(re.findall(rf"references/(natal-{side}-[A-Za-z0-9_-]+\.md)", entry))
+        assert cards == routed, (side, sorted(cards - routed), sorted(routed - cards))
 
 
-def test_natal_tools_declares_assertion_output_contract():
-    """natal 断语公共字段、side 取值与受控闭集是硬契约，不得回退。"""
-    tools = (SKILL_ROOT / "references" / "natal" / "TOOLS.md").read_text(encoding="utf-8")
-    for field in (
-        "assertion_id", "side", "topic", "method", "time_scope",
-        "event_type", "event", "conclusion", "source", "evidence",
-    ):
-        assert f"`{field}`" in tools, field
-    assert "`side` 是 `bazi` / `ziwei`" in tools
-    for value in ("career", "marriage", "study", "wealth", "chart_structure", "relocation"):
-        assert f"`{value}`" in tools, value
-    for scope in ("current_year", "year_range", "current_decade", "decade"):
-        assert f"`{scope}`" in tools, scope
-    # topic 键＝标签与服务器路由表单一源一致（卡内 `本命判断（事业）` 靠它对上 topic）
+def test_natal_side_entries_declare_assertion_contract():
+    """断语公共字段、side 取值与受控闭集是硬契约，落在两侧入口（侧是断言消费者）。"""
     routes = json.loads(
         (ROOT / "counsel" / "app" / "natal" / "tools" / "topic_routes.json").read_text(encoding="utf-8")
     )
-    for key, spec in routes["topics"].items():
-        assert f"`{key}`＝{spec['label']}" in tools, (key, spec["label"])
+    for side in ("bazi", "ziwei"):
+        text = (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
+        for field in ("side", "topic", "time_scope"):
+            assert f"`{field}`" in text, (side, field)
+        assert "`side` 是 `bazi` / `ziwei`" in text, side
+        for value in ("career", "marriage", "study", "wealth", "chart_structure", "relocation"):
+            assert f"`{value}`" in text, (side, value)
+        for scope in ("current_year", "year_range", "current_decade", "decade"):
+            assert f"`{scope}`" in text, (side, scope)
+        # topic 键＝标签与服务器路由表单一源一致（卡内 `本命判断（事业）` 靠它对上 topic）
+        for key, spec in routes["topics"].items():
+            assert f"`{key}`＝{spec['label']}" in text, (side, key, spec["label"])
 
 
 def test_naming_does_not_silently_default_missing_hour():
-    app = (SKILL_ROOT / "references" / "naming" / "app" / "naming.md").read_text(encoding="utf-8")
-    calibration = (SKILL_ROOT / "references" / "naming" / "domains" / "bazi" / "calibration.md").read_text(encoding="utf-8")
+    app = (SKILL_ROOT / "references" / "naming-app-naming.md").read_text(encoding="utf-8")
+    calibration = (SKILL_ROOT / "references" / "naming-bazi-calibration.md").read_text(encoding="utf-8")
     for text in (app, calibration):
         assert "默认取午时" not in text
         assert "默认时辰" not in text
@@ -157,7 +161,7 @@ def test_natal_card_qualifiers_are_topic_labels():
     labels = {spec["label"] for spec in routes["topics"].values()} | {"十年期"}
     qualifier = re.compile(r"`(?:本命判断|应期判断)（([^）]+)）`")
     offenders = []
-    for card in sorted((SKILL_ROOT / "references" / "natal" / "app").glob("*.md")):
+    for card in sorted((SKILL_ROOT / "references").glob("natal-app-*.md")):
         for token in qualifier.findall(card.read_text(encoding="utf-8")):
             if token not in labels:
                 offenders.append(f"{card.name}: {token}")
@@ -168,7 +172,7 @@ def test_natal_card_actions_name_the_side():
     """卡内动作的每个能力调用都要显式带侧（counsel side 默认 bazi，省略即静默降级）。"""
     capability = re.compile(r"`(?:本命判断|应期判断)")
     offenders = []
-    for card in sorted((SKILL_ROOT / "references" / "natal" / "app").glob("*.md")):
+    for card in sorted((SKILL_ROOT / "references").glob("natal-app-*.md")):
         for number, line in enumerate(card.read_text(encoding="utf-8").splitlines(), 1):
             if not line.startswith("|") or line.startswith("| ---"):
                 continue
@@ -242,10 +246,11 @@ def test_natal_cards_reference_packaged_expert_methodology():
     """Natal orchestration remains self-contained inside the unified archive.
 
     根 liki 是方法论权威源：natal 卡引用的方法论卡路径必须解析到根内
-    (references/natal/domains/)，且该卡真实存在于根 skill。独立专家包由同步脚本保持一致。
+    (references/natal-{bazi,ziwei}-*.md 平铺卡)，且该卡真实存在于根 skill。
+    独立专家包由同步脚本保持一致。
     """
-    pattern = re.compile(r"(references/natal/domains/(?:bazi|ziwei)/[A-Za-z0-9_.-]+\.md)")
-    for card in (SKILL_ROOT / "references" / "natal").rglob("*.md"):
+    pattern = re.compile(r"(references/natal-(?:bazi|ziwei)-[A-Za-z0-9_.-]+\.md)")
+    for card in sorted((SKILL_ROOT / "references").glob("natal-*.md")):
         for reference in pattern.findall(card.read_text(encoding="utf-8")):
             assert (SKILL_ROOT / reference).is_file(), (card, reference)
 
@@ -304,10 +309,10 @@ def test_expert_packs_follow_workbuddy_standard():
 
 
 def test_expert_pack_methodology_matches_index():
-    # pack -> (skill dir, 镜像卡总数)。包内 references/ 是根子树逐字节镜像（含 ENTRY/TOOLS）。
+    # pack -> (skill dir, 镜像卡总数)。包内 references/ 是根平铺卡的按域前缀逐字节视图。
     for pack, skill, expect in (
-        ("liki-natal", "natal", 34),
-        ("liki-divination", "divination", 25),
+        ("liki-natal", "natal", 36),
+        ("liki-divination", "divination", 24),
         ("liki-fengshui", "fengshui", 5),
         ("liki-naming", "naming", 7),
     ):
@@ -332,30 +337,21 @@ def test_no_legacy_naming_in_skills():
 
 
 def test_root_skill_routes_close_with_archive_sources():
-    """Root SKILL 路由引用的各方法论域，其 domains/ 卡目录必须存在于根 skill。
+    """Root SKILL 路由引用的各方法论域，其平铺卡必须存在于根 skill。
 
-    根 liki 是方法论权威源（自包含）：路由表引用的每个领域，对应方法论卡目录
+    根 liki 是方法论权威源（自包含）：路由表引用的每个领域，对应方法论卡
     必须存在于根 skill 内，保证对外归档全能力（评审 P1）。
     """
-    # root SKILL.md 路由的领域 → 根内方法论卡目录（domains/ 相对 skills/liki/）
-    route_to_domain = {
-        "natal": "references/natal/domains",
-        "divination": "references/divination/domains",
-        "fengshui": "references/fengshui/domains",
-        "naming": "references/naming/domains",
-    }
     root_skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
-    referenced = {domain for domain in route_to_domain if domain in root_skill}
+    referenced = {domain for domain in DOMAINS if domain in root_skill}
     assert referenced, "root SKILL.md 未引用任何方法论域"
 
     for domain in referenced:
-        domain_dir = SKILL_ROOT / route_to_domain[domain]
-        assert domain_dir.is_dir(), f"{domain}: 方法论卡目录缺失 {domain_dir}"
-        cards = [p for p in domain_dir.rglob("*.md") if p.name != "SKILL.md"]
+        cards = sorted((SKILL_ROOT / "references").glob(f"{domain}-*.md"))
         assert cards, f"{domain}: 方法论卡为空"
 
     # 全部四个方法论域必须完整（根自包含全能力）
-    assert referenced == set(route_to_domain), (
+    assert referenced == set(DOMAINS), (
         f"root 引用域与根方法论域清单不一致: {referenced}"
     )
 
@@ -363,32 +359,53 @@ def test_root_skill_routes_close_with_archive_sources():
 CARD_TOKEN = re.compile(r"`([A-Za-z0-9_./-]+\.md)`")
 
 
-def _resolve_card_token(skill_root: Path, doc: Path, token: str) -> Path | None:
-    """把卡内 `.md` 引用解析成根 skill 内的唯一文件；解析不出或多义返回 None。
+def _resolve_card_token(skill_root: Path, token: str) -> Path | None:
+    """把卡内 `.md` 引用解析成根 skill 内的唯一文件；解析不出返回 None。
 
-    规范形态：完整 `references/...` 路径；或相对本卡目录 / 本领域根的唯一短名。
+    规范形态只有一种：完整 `references/...` 平铺全路径（另允许 `SKILL.md` 入口自述）。
     """
     if token.startswith("references/"):
         candidate = skill_root / token
         return candidate if candidate.is_file() else None
     if token == "SKILL.md":
         return skill_root / "SKILL.md"
-    try:
-        domain_root = skill_root / doc.relative_to(skill_root).parts[0] / doc.relative_to(skill_root).parts[1]
-    except IndexError:  # pragma: no cover - 防御
-        return None
-    candidates = [doc.parent / token, domain_root / token]
-    hits = sorted({c.resolve() for c in candidates if c.is_file()})
-    return hits[0] if len(hits) == 1 else None
+    return None
+
+
+def test_side_entry_contract_sections_match():
+    """两侧入口的断语契约段逐字一致（仅年号界按体系不同）。"""
+    normalized = {}
+    for side, boundary in (("bazi", "八字公历立春界"), ("ziwei", "紫微农历春节界")):
+        text = (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
+        start = text.index("## 断语契约")
+        end = text.find("\n## ", start + 1)
+        section = text[start:end if end >= 0 else len(text)]
+        normalized[side] = section.replace(boundary, "<BOUNDARY>")
+    assert normalized["bazi"] == normalized["ziwei"]
+
+
+def test_app_info_words_are_routable_by_side_entries():
+    """app 卡的信息需求词必须被两侧入口的任务路由覆盖（拓扑透明的前提）。"""
+    info = re.compile(r"(?:八字 \+ 紫微|八字|紫微)：([\u4e00-\u9fff\s/]+?)(?:本命|应期)")
+    side_text = "\n".join(
+        (SKILL_ROOT / "references" / f"natal-{side}-ENTRY.md").read_text(encoding="utf-8")
+        for side in ("bazi", "ziwei")
+    )
+    missing = []
+    for card in sorted((SKILL_ROOT / "references").glob("natal-app-*.md")):
+        for captured in info.findall(card.read_text(encoding="utf-8")):
+            for word in re.split(r"[\s/]+", captured):
+                if word and word not in side_text:
+                    missing.append(f"{card.name}: {word}")
+    assert missing == [], f"app 信息词未被侧入口路由覆盖: {missing}"
 
 
 def test_domain_app_cards_are_reachable_from_entry():
     """每个领域 ENTRY 都能到达该域全部 app 卡（无孤儿卡、无重复路由表）。"""
     for domain in DOMAINS:
-        domain_dir = SKILL_ROOT / "references" / domain
-        cards = sorted((domain_dir / "app").glob("*.md"))
+        cards = sorted((SKILL_ROOT / "references").glob(f"{domain}-app-*.md"))
         assert cards, domain
-        entry = domain_dir / "ENTRY.md"
+        entry = SKILL_ROOT / "references" / f"{domain}-ENTRY.md"
         seeds = [entry]
         seen: set[Path] = set()
         queue = list(seeds)
@@ -398,7 +415,7 @@ def test_domain_app_cards_are_reachable_from_entry():
                 continue
             seen.add(doc)
             for token in CARD_TOKEN.findall(doc.read_text(encoding="utf-8")):
-                target = _resolve_card_token(SKILL_ROOT, doc, token)
+                target = _resolve_card_token(SKILL_ROOT, token)
                 if target is not None and target not in seen:
                     queue.append(target)
         orphans = [c.relative_to(SKILL_ROOT) for c in cards if c not in seen]
@@ -406,15 +423,20 @@ def test_domain_app_cards_are_reachable_from_entry():
 
 
 def test_card_references_are_unambiguous_paths():
-    """卡内 `.md` 引用必须能唯一解析：完整 `references/` 路径，或本目录 / 本域唯一短名。"""
+    """卡内 `.md` 引用必须使用完整 `references/` 平铺路径（或 `SKILL.md` 自述）。"""
     offenders = []
     docs = [SKILL_ROOT / "SKILL.md", SKILL_ROOT / "references" / "FAQ.md"]
-    for domain in DOMAINS:
-        docs += [SKILL_ROOT / "references" / domain / "ENTRY.md"]
-        docs += sorted((SKILL_ROOT / "references" / domain).rglob("*.md"))
+    docs += sorted((SKILL_ROOT / "references").glob("*.md"))
     for doc in docs:
         for number, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
             for token in CARD_TOKEN.findall(line):
-                if _resolve_card_token(SKILL_ROOT, doc, token) is None:
+                if _resolve_card_token(SKILL_ROOT, token) is None:
                     offenders.append(f"{doc.relative_to(SKILL_ROOT)}:{number}: {token}")
     assert offenders == [], offenders
+
+
+def test_domain_lists_stay_in_sync():
+    """域清单三处定义（check_docs / 生成器 MAPPINGS / 本测试）必须一致。"""
+    import check_docs
+
+    assert set(check_docs.DOMAINS) == {domain for domain, _pack in gen.MAPPINGS} == set(DOMAINS)

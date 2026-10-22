@@ -1,19 +1,19 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CARD = ROOT / "skills/liki/references/divination/app/decision.md"
-QUARTER = ROOT / "skills/liki/references/divination/domains/qimen/quarter.md"
-YONGSHEN = ROOT / "skills/liki/references/divination/domains/qimen/yongshen.md"
-LOST_PROPERTY = ROOT / "skills/liki/references/divination/domains/qimen/lost-property.md"
-MISSING_PERSON = ROOT / "skills/liki/references/divination/domains/qimen/missing-person.md"
-CAPTURE_ESCAPE = ROOT / "skills/liki/references/divination/domains/qimen/capture-escape.md"
-TOOLS = ROOT / "skills/liki/references/divination/TOOLS.md"
+CARD = ROOT / "skills/liki/references/divination-app-decision.md"
+QUARTER = ROOT / "skills/liki/references/divination-qimen-quarter.md"
+YONGSHEN = ROOT / "skills/liki/references/divination-qimen-yongshen.md"
+LOST_PROPERTY = ROOT / "skills/liki/references/divination-qimen-lost-property.md"
+MISSING_PERSON = ROOT / "skills/liki/references/divination-qimen-missing-person.md"
+CAPTURE_ESCAPE = ROOT / "skills/liki/references/divination-qimen-capture-escape.md"
+ENTRY = ROOT / "skills/liki/references/divination-ENTRY.md"
 
 
 def _zhuanzhan_shared_boundary() -> str:
     """专占公共口径的唯一手写源（各专占卡只留各自差异）。"""
-    text = TOOLS.read_text(encoding="utf-8")
-    start = text.index("## 专占公共边界")
+    text = ENTRY.read_text(encoding="utf-8")
+    start = text.index("## 流程产物与边界")
     return text[start:]
 
 
@@ -79,7 +79,7 @@ def test_lost_property_stays_in_interpretation_layer() -> None:
     assert "`palace_wang_shuai` / `shi_gan_gong_wang_shuai` 输出" in text
     assert "墓、绝未入表" in text
     assert "《奇门遁甲元灵经·卷十八·占失物》补方向与内外远近" in text
-    assert "公共边界见 `references/divination/TOOLS.md`「专占公共边界」" in text
+    assert "公共边界见 `references/divination-ENTRY.md`「流程产物与边界」" in text
     shared = _zhuanzhan_shared_boundary()
     assert "不传事项或用神" in shared
     assert "快照中的专占断言" in shared
@@ -90,7 +90,7 @@ def test_missing_person_stays_conservative_and_interpretation_layer() -> None:
     text = MISSING_PERSON.read_text(encoding="utf-8")
     assert "走失问事" in text
     assert "六合落宫星旺 / 相且临景、死、惊、伤四门时" in text
-    assert "公共边界见 `references/divination/TOOLS.md`「专占公共边界」" in text
+    assert "公共边界见 `references/divination-ENTRY.md`「流程产物与边界」" in text
     assert "不合并成单一必然结论" in _zhuanzhan_shared_boundary()
     assert "走失专占" in CARD.read_text(
         encoding="utf-8"
@@ -100,12 +100,12 @@ def test_missing_person_stays_conservative_and_interpretation_layer() -> None:
 def test_capture_escape_stays_conservative_and_interpretation_layer() -> None:
     text = CAPTURE_ESCAPE.read_text(encoding="utf-8")
     assert "行人年命、官府差人等另占口径未入表" in text
-    assert "公共边界见 `references/divination/TOOLS.md`「专占公共边界」" in text
+    assert "公共边界见 `references/divination-ENTRY.md`「流程产物与边界」" in text
     assert "偷盗 / 走脱 / 画像专占" in CARD.read_text(encoding="utf-8")
 
 
 def test_thief_capture_documents_geng_branches() -> None:
-    text = (ROOT / "skills/liki/references/divination/domains/qimen/thief-capture.md").read_text(
+    text = (ROOT / "skills/liki/references/divination-qimen-thief-capture.md").read_text(
         encoding="utf-8"
     )
     assert "庚格已入表" in text
@@ -116,7 +116,7 @@ def test_thief_capture_documents_geng_branches() -> None:
 
 
 def test_thief_profile_is_table_driven_route() -> None:
-    text = (ROOT / "skills/liki/references/divination/domains/qimen/thief-capture.md").read_text(
+    text = (ROOT / "skills/liki/references/divination-qimen-thief-capture.md").read_text(
         encoding="utf-8"
     )
     assert "快照中的专占断言" in _zhuanzhan_shared_boundary()
@@ -142,7 +142,7 @@ def test_pattern_interpretation_stays_table_driven() -> None:
 
 
 def test_yingqi_dates_come_from_engine() -> None:
-    text = (ROOT / "skills/liki/references/divination/domains/qimen/yingqi.md").read_text(
+    text = (ROOT / "skills/liki/references/divination-qimen-yingqi.md").read_text(
         encoding="utf-8"
     )
     assert "`candidates[].dates[]`" in text

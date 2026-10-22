@@ -84,12 +84,15 @@ class TestDeploymentGeneration(unittest.TestCase):
                     # 骨架仍须保留角色与硬边界
                     self.assertIn("边界", text)
 
-    def test_natal_instruction_appends_deployment_delegation_section(self):
+    def test_instructions_carry_no_delegation_section(self):
+        """三分拓扑不写进任何 instruction：根靠 task 工具自省（描述含
+        「不要并行调用」，由 ADK 注入）、路由靠 natal-ENTRY 卡、委派义务由
+        根的能力边界（无排盘工具）强制。"""
         deployment = self._deployment("natal")
         root = self.out / "natal" / "agents"
         natal = (root / "natal" / "instruction.md").read_text(encoding="utf-8")
-        for marker in ("## 协作委派（部署形态）", "`bazi`", "`ziwei`", "子专家职责内的工作一律委派"):
-            self.assertIn(marker, natal)
+        for marker in ("协作委派", "子专家职责内的工作一律委派", "同一轮只调用一个"):
+            self.assertNotIn(marker, natal)
         for sub_agent in SUB_AGENTS:
             body = (root / sub_agent / "instruction.md").read_text(encoding="utf-8")
             self.assertNotIn("协作委派", body, sub_agent)
@@ -153,7 +156,9 @@ class TestDeploymentGeneration(unittest.TestCase):
             instruction = (
                 self.out / domain / "agents" / domain / "instruction.md"
             ).read_text(encoding="utf-8")
-            self.assertTrue(instruction.startswith(body), domain)
+            # instruction 就是身份正文本身：不做拓扑增补（子代理靠 tools/list
+            # 自省、路由在域卡、委派义务由能力边界强制）。
+            self.assertEqual(instruction, body, domain)
             self.assertNotIn("references/", instruction, domain)
         for sub_agent in SUB_AGENTS:
             identity = ROOT / "agents" / sub_agent / f"{sub_agent}.md"

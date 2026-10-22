@@ -3,12 +3,12 @@
 
 两类生成（唯一生成入口）：
 
-1. 方法论卡镜像：权威源 `skills/liki/references/`（domains 真值卡 + app 编排卡）
-   → `expert-packs/<pack>/skills/<domain>/references/`。顶层领域即专家包
-   （1:1），包内 references/ 是根 `references/<domain>/` 子树的逐字节镜像
-   （保留 `app/`、`domains/<体系>/` 布局），只把卡内互引的
-   `references/<domain>/…` 前缀改写成包内相对路径——缺失、多余（孤儿）、内容
-   差异均判漂移；引用别的领域子树（跨域 token）判死链，包必须自包含。
+1. 方法论卡镜像：权威源 `skills/liki/references/`（平铺命名
+   `<域>-<app|体系>-<卡>.md`）→ `expert-packs/liki-<域>/skills/<域>/references/`。
+   顶层领域即专家包（1:1）；包内 references/ 是"按域前缀过滤的逐字节视图"
+   （与源卡字节一致、引用不改写），根级共享卡（`FAQ.md` / `ops-*` / `payment-*`）
+   只存在于根、不进任何包。归域、平铺、裸名、跨域、共享卡、脚本依赖与死链
+   全部 fail-closed：缺失、多余（孤儿）、内容差异均判漂移。
 2. 专家身份派生物：权威源身份文件 `expert-packs/<pack>/SKILL.md`（frontmatter 元数据
    + 身份正文）→ 域 `skills/<domain>/SKILL.md`（ADK skill 入口）与 `.codebuddy-plugin/plugin.json`
    的 agent 指针/description/profession/version（插件声明的 agent 定义文件就是 `./SKILL.md`
@@ -35,23 +35,30 @@ from version_projection import workbuddy_version  # noqa: E402  制品版本的�
 SKILL = ROOT / "skills" / "liki" / "references"
 PACKS = ROOT / "expert-packs"
 
-# <根 skill 子目录>:<包名>:<包内 skill 目录>。顶层领域 = 专家包（1:1）：
-# `skills/liki/references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains）镜像进
-# 包内 `skills/<domain>/references/`，保留子目录布局。
-MAPPINGS: tuple[tuple[str, str, str], ...] = (
-    ("natal", "liki-natal", "natal"),
-    ("divination", "liki-divination", "divination"),
-    ("fengshui", "liki-fengshui", "fengshui"),
-    ("naming", "liki-naming", "naming"),
+# <域>:<包名>。顶层领域 = 专家包（1:1）：根 `references/<域>-…` 平铺卡按前缀过滤，
+# 逐字节镜像进包内 `skills/<域>/references/`（保留完整平铺名，卡内引用不改写）。
+MAPPINGS: tuple[tuple[str, str], ...] = (
+    ("natal", "liki-natal"),
+    ("divination", "liki-divination"),
+    ("fengshui", "liki-fengshui"),
+    ("naming", "liki-naming"),
 )
 
 # 域 → 包名。身份文件固定是包根 expert-packs/<pack>/SKILL.md；
 # 包内域 skills/<domain>/SKILL.md 由它派生（包内不再有第二份身份副本）。
-DOMAIN_PACKS: dict[str, str] = {domain: pack for domain, pack, _skill in MAPPINGS}
+DOMAIN_PACKS: dict[str, str] = dict(MAPPINGS)
 
-# 包内卡片互引统一形如 references/<path>.md（ADK load_skill_resource 只认
-# references/assets/scripts 前缀）：包内路径 = 根路径去掉 `references/<domain>/`。
+# 根级共享卡：只存在于根，不按域前缀归域、不进任何专家包。
+ROOT_SHARED_FILES = frozenset({"FAQ.md", "ops-FEEDBACK.md", "payment-AIPAY.md"})
+
+# 卡内互引统一为平铺全路径 `references/<平铺名>.md`（ADK load_skill_resource
+# 只认 references/assets/scripts 前缀）；校验：非平铺 / 裸名 / 跨域 / 共享卡 / 死链均 fail-closed。
 _REF_PATTERN = re.compile(r"references/([A-Za-z0-9_./-]+\.md)")
+# 仅入口自述允许裸名 .md；其余裸 token 判"裸名引用"。
+_BARE_REF_ALLOWED = frozenset({"SKILL.md", "README.md"})
+_BARE_REF_PATTERN = re.compile(r"`([A-Za-z0-9_-]+\.md)`")
+# 专家包不自带 scripts/ 运行时（只随根 skill）：包卡引用 scripts/ 即死链。
+_SCRIPTS_REF_PATTERN = re.compile(r"scripts/[A-Za-z0-9_./-]+")
 
 # 制品版本 = 发行 CalVer 的平台投影（见 scripts/version_projection.py）。
 RUNTIME_VERSION_PATH = ROOT / "skills" / "liki" / "VERSION.txt"
@@ -65,7 +72,7 @@ PACK_AUTHOR = "Liki"
 # 消费方一＝生成器（本文件）：description → 域 skill 描述；description_en →
 # plugin.json.description 与部署 agent 描述；display_name(_en) → 域 skill metadata；
 # profession → plugin.json.profession；keywords → plugin.json.keywords（市场检索词）；
-# skills → plugin.json.skills（预加载 skill 路径，由 skill 名 rebase 成 ./skills/<name>）。
+# skills → plugin.json.skills（预加载 skill 路径，由 skill 名映射为 ./skills/<name>）。
 # 消费方二＝WorkBuddy agent md（`agents/<pack>.md`，平台按 `agents/` 目录约定取文件）：
 # 该文件由身份文件投影，frontmatter 用平台字段名（camelCase：`displayName` / `maxTurns`），
 # `name` 与文件名一致（不含 `.md`），正文即身份正文；身份仍是包根 SKILL.md 一处手写。
@@ -285,6 +292,11 @@ def plugin_metadata_updates() -> tuple[list[tuple[Path, dict, dict]], list[str]]
             "agents": [f"./agents/{pack}.md"],
             "agentName": pack,
             "description": metadata["description_en"],
+            # 市场显示名：单一源是身份文件的 display_name(_en)，plugin.json 只做投影。
+            "displayName": {
+                "en": metadata["display_name_en"],
+                "zh": metadata["display_name"],
+            },
             "profession": metadata["profession"],
             "version": version,
             # 市场检索词与预加载 skill 路径：单一源是身份文件，plugin.json 只做投影。
@@ -312,12 +324,31 @@ def _plugin_metadata_drift(
     return drift
 
 
-def _dest_groups() -> dict[Path, list[Path]]:
+def _dest_groups() -> tuple[dict[Path, list[Path]], list[str]]:
+    """根平铺卡 → 包内 references/ 源文件分组（按域前缀过滤）。
+
+    fail-closed：references 下出现子目录/非 md 文件、或文件既不归域也不在
+    根级共享白名单，均判错误（新文件必须显式分类）。
+    """
     groups: dict[Path, list[Path]] = {}
-    for src_rel, pack, skill in MAPPINGS:
-        dest = PACKS / pack / "skills" / skill / "references"
-        groups.setdefault(dest, []).append(SKILL / src_rel)
-    return groups
+    errors: list[str] = []
+    nested = sorted(p.relative_to(SKILL).as_posix() for p in SKILL.rglob("*") if p.is_dir())
+    errors.extend(f"根 references 必须平铺，出现子目录: references/{name}" for name in nested)
+    stray = sorted(p.name for p in SKILL.iterdir() if p.is_file() and p.suffix != ".md")
+    errors.extend(f"根 references 只允许 .md 卡: references/{name}" for name in stray)
+    for card in sorted(SKILL.glob("*.md")):
+        name = card.name
+        if name in ROOT_SHARED_FILES:
+            continue
+        domain = next((d for d, _pack in MAPPINGS if name.startswith(d + "-")), None)
+        if domain is None:
+            errors.append(
+                f"根 references/{name} 未归域：命名须为 <域>-…，或加入根级共享白名单"
+            )
+            continue
+        dest = PACKS / DOMAIN_PACKS[domain] / "skills" / domain / "references"
+        groups.setdefault(dest, []).append(card)
+    return groups, errors
 
 
 def _domain_of(dest: Path) -> str:
@@ -325,59 +356,58 @@ def _domain_of(dest: Path) -> str:
     return dest.relative_to(PACKS).parts[2]
 
 
-def _rebase(payload: bytes, domain: str, valid: set[str], errors: list[str], where: str) -> bytes:
-    """根 skill 互引 → 包内路径：去掉 `references/<domain>/` 前缀。
-
-    引用别的领域子树的 token 在包内必然死链（域专家包只镜像本域），fail-closed。
-    """
-    text = payload.decode("utf-8")
-
-    def replace(match: re.Match[str]) -> str:
-        token = match.group(0)
-        parts = match.group(1).split("/")
-        if len(parts) >= 2 and parts[0] == domain:
-            target = "references/" + "/".join(parts[1:])
-            if target in valid:
-                return target
-            errors.append(f"包内死链: {where}: {token} → {target}")
-            return token
-        errors.append(f"跨域引用（包必须自包含）: {where}: {token}")
-        return token
-
-    return _REF_PATTERN.sub(replace, text).encode("utf-8")
-
-
 def _expected(dest: Path, srcs: list[Path]) -> dict[str, bytes] | list[str]:
-    """根 `references/<domain>/` 子树 → 包内 references/ 相对路径映射（已 rebase）。
+    """包内 references/：源平铺卡的逐字节视图（保留完整平铺名，引用不改写）。
 
-    键是相对包内 `references/` 的路径（`ENTRY.md`、`domains/bazi/dayun.md`），
-    正文里的互引 token 是相对 skill 根的 `references/<键>`（ADK load_skill_resource）。
+    键 = 包内 `references/` 相对路径（= 源平铺名）；卡内互引为
+    `references/<平铺名>.md`。校验 fail-closed：非平铺 / 裸名 / 跨域 /
+    根级共享卡 / 包内无 scripts/ 运行时 / 死链。
     """
+    domain = _domain_of(dest)
     merged: dict[str, bytes] = {}
     errors: list[str] = []
-    domain = _domain_of(dest)
     for src in srcs:
-        if not src.is_dir():
+        if not src.is_file():
             errors.append(f"源不存在: {src.relative_to(ROOT)}")
             continue
-        for card in sorted(src.rglob("*.md")):
-            if card.name == "SKILL.md":
-                continue
-            merged[card.relative_to(src).as_posix()] = card.read_bytes()
+        merged[src.name] = src.read_bytes()
     valid = {f"references/{name}" for name in merged}
-    rebased: dict[str, bytes] = {}
-    for name, payload in merged.items():
-        rebased[name] = _rebase(payload, domain, valid, errors, f"{dest.relative_to(ROOT)}/{name}")
-    return errors if errors else rebased
+    for name, payload in sorted(merged.items()):
+        where = f"{dest.relative_to(ROOT)}/{name}"
+        text = payload.decode("utf-8")
+        for match in _REF_PATTERN.finditer(text):
+            token = match.group(1)
+            if "/" in token:
+                errors.append(
+                    f"非平铺引用（须 references/<平铺名>.md）: {where}: references/{token}"
+                )
+                continue
+            if token in ROOT_SHARED_FILES:
+                errors.append(
+                    f"根级共享卡不进包（包内不可引用）: {where}: references/{token}"
+                )
+                continue
+            if not token.startswith(domain + "-"):
+                errors.append(f"跨域引用（包必须自包含）: {where}: references/{token}")
+                continue
+            if f"references/{token}" not in valid:
+                errors.append(f"包内死链: {where}: references/{token}")
+        for match in _BARE_REF_PATTERN.finditer(text):
+            token = match.group(1)
+            if token in _BARE_REF_ALLOWED:
+                continue
+            errors.append(f"裸名引用（须全路径 references/<平铺名>.md）: {where}: `{token}`")
+        for match in _SCRIPTS_REF_PATTERN.finditer(text):
+            errors.append(f"包内无 scripts/ 运行时（只随根 skill）: {where}: {match.group(0)}")
+    return errors if errors else merged
 
 
 def _actual_cards(dest: Path) -> dict[str, bytes]:
     return {card.relative_to(dest).as_posix(): card.read_bytes() for card in dest.rglob("*.md")}
 
 
-def _mirror_cards() -> int:
+def _mirror_cards(groups: dict[Path, list[Path]]) -> int:
     failed = False
-    groups = _dest_groups()
     for dest, srcs in groups.items():
         result = _expected(dest, srcs)
         if isinstance(result, list):
@@ -424,7 +454,11 @@ def _write_documents(documents: dict[Path, bytes]) -> None:
 
 
 def sync() -> int:
-    failed = _mirror_cards() != 0
+    groups, group_errors = _dest_groups()
+    for line in group_errors:
+        print(f"[sync-expert-packs] ✗ {line}", file=sys.stderr)
+    failed = bool(group_errors)
+    failed = _mirror_cards(groups) != 0 or failed
 
     documents, doc_errors = generated_documents()
     for line in doc_errors:
@@ -456,7 +490,8 @@ def sync() -> int:
 
 def check() -> int:
     drift: list[str] = []
-    groups = _dest_groups()
+    groups, group_errors = _dest_groups()
+    drift.extend(group_errors)
     for dest, srcs in groups.items():
         result = _expected(dest, srcs)
         if isinstance(result, list):
@@ -496,7 +531,7 @@ def check() -> int:
             print(f"  {line}", file=sys.stderr)
         print("运行 `make sync-expert-packs` 重新生成。", file=sys.stderr)
         return 1
-    total = len(_dest_groups())
+    total = len(groups)
     print(
         f"[sync-expert-packs] ✓ 无漂移（{total} 目标 × 集合+内容双向一致；"
         f"{len(documents)} 份入口（域 skill + agent md）由身份文件生成）。"

@@ -19,7 +19,7 @@ CONDITIONS_PATH = os.path.join(TOOLS, "assertions", "assertion_conditions.csv")
 CONTEXT_KEYS = {"性别"}
 
 PROCESS_RE = re.compile(
-    r"(mingli-skills|phase\d+|step\d+|硬标注|fangfa/|app/|domains/|[A-Za-z_-]+\.md|factors\.csv|"
+    r"(mingli-skills|phase\d+|step\d+|硬标注|fangfa/|references/|[A-Za-z_-]+\.md|factors\.csv|"
     r"dayun\.md|hehui\.md|(?<!\d)0\d{3}(?!\d)|\bpan\d+\b|\b[a-z]+(?:_[a-z0-9]+)+\b|MingLi(?:-| )?Bench|benchmark|考时|回填|选项|题目|评测|合并原|根因|用户\s*\d{4}|"
     r"\b[MFSH]\d+[A-Za-z]?\b)", re.I
 )

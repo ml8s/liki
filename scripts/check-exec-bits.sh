@@ -49,6 +49,15 @@ while IFS= read -r path; do
   fi
 done < <(
   awk '
+    # Makefile variable assignments enumerate inputs; they are not executable
+    # invocations. This prevents a list such as CONTENT_PATHS from turning a
+    # python3-invoked checker into a false bare-reference requirement.
+    FILENAME ~ /Makefile$/ && $0 ~ /^[[:space:]]*[A-Za-z0-9_]+[[:space:]]*[:+]?=/ {
+      inMakeVariable = 1
+      next
+    }
+    FILENAME ~ /Makefile$/ && /^[[:space:]]*scripts\// && inMakeVariable { next }
+    FILENAME ~ /Makefile$/ && !/^[[:space:]]*scripts\// { inMakeVariable = 0 }
     {
       n = split($0, tok, /[[:space:]=]+"?/)
       for (i = 1; i <= n; i++) {

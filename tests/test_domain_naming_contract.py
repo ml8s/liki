@@ -32,19 +32,21 @@ def test_deployment_generator_emits_contract_version():
     import subprocess
     import tempfile
 
-    output = Path(tempfile.mkdtemp(prefix="liki-deployment-")) / "natal"
-    subprocess.run(
-        [
-            "python3",
-            str(ROOT / "scripts/generate_deployment.py"),
-            "--profile",
-            "natal",
-            "--out",
-            str(output.parent),
-        ],
-        check=True,
-    )
-    deployment = json.loads((output / "deployment.json").read_text())
+    # TemporaryDirectory：mkdtemp 不清理，历史上在 /tmp 泄漏过成百个目录。
+    with tempfile.TemporaryDirectory(prefix="liki-deployment-") as tmp:
+        output = Path(tmp) / "natal"
+        subprocess.run(
+            [
+                "python3",
+                str(ROOT / "scripts/generate_deployment.py"),
+                "--profile",
+                "natal",
+                "--out",
+                str(output.parent),
+            ],
+            check=True,
+        )
+        deployment = json.loads((output / "deployment.json").read_text())
     assert deployment["schema_version"] == "liki.agent-deployment.v1"
 
 

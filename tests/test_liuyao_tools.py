@@ -113,7 +113,7 @@ def test_factors_maps_matter_and_projection(monkeypatch):
         }],
     }
 
-    monkeypatch.setattr(paipan, "server_time", lambda: "2026-09-08T12:00:00+08:00")
+    monkeypatch.setattr(paipan, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
 
     def fake_engine_data(method, params):
         calls.append((method, params))
@@ -125,11 +125,15 @@ def test_factors_maps_matter_and_projection(monkeypatch):
         casting=casting,
         matter="career",
         question="这次面试能不能通过",
+        longitude=116.4,
+        timezone="Asia/Shanghai",
     )
     assert len(calls) == 1
     assert calls[0][0] == "liuyao.chart"
     assert calls[0][1] == {
-        "solar_time": "2026-09-08T12:00:00+08:00",
+        "instant": "2026-09-08T04:00:00Z",
+        "timezone": "Asia/Shanghai",
+        "longitude": 116.4,
         "yong_shen": "官鬼",
         "casting": casting,
     }
@@ -188,7 +192,7 @@ def test_projected_board_preserves_core_time_and_line_states():
 
 def test_factors_requires_exclusive_yong_shen_source():
     with pytest.raises(ValueError, match="互斥"):
-        paipan.factors(matter="career", yong_shen="官鬼", casting={"yaos": [7] * 6})
+        paipan.factors(matter="career", yong_shen="官鬼", casting={"yaos": [7] * 6}, longitude=116.4)
 
 
 def test_factors_projects_hidden_yong_shen_without_flying_line_facts():
@@ -258,5 +262,7 @@ def test_liuyao_snapshot_input_accepts_primary_call():
             "mode": "yaos",
             "yaos": [7, 7, 7, 7, 7, 7],
             "matter": "career",
+            "longitude": 116.4,
+            "timezone": "Asia/Shanghai",
         }
     )

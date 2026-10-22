@@ -2,6 +2,7 @@
 import unittest
 from unittest import mock
 
+import _helpers  # noqa: F401
 import duanyu
 import factors
 from _helpers import (
@@ -17,8 +18,9 @@ from pan_integrity import with_natal_digest
 def _valid_query_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return with_natal_digest({
-        "solar": "1990-05-20T12:00:00",
-        "lunar": {"year": 1990, "month": 4, "day": 26},
+        "instant": "1990-05-20T04:00:00Z",
+        "timezone": "Asia/Shanghai",
+        "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},

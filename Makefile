@@ -8,7 +8,8 @@
 #   make check  纯静态检查（lint+格式+数据结构+docs+专家一致性；不跑测试、不写盘）
 #   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
 #   make gate   check + test ＝推送门槛
-#   make release-gate gate + 160题 + runtime validate + 发布工件 ＝发版准备
+#   make release-gate gate + runtime validate + 发布工件 ＝发版准备
+#   make eval-mingli160 手动 skill 校准/评估报告；不属于测试或发布门禁
 #   make build  本仓产物（skill 归档 + engine 二进制）
 #   make image  本地开发镜像（local tag；发布镜像由 release.yml 构建）
 #   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
@@ -26,12 +27,15 @@ export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go/bin:$(HOME)/app/go-tools
 export GOTOOLCHAIN ?= go1.26.9
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
-        go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine test-engine-coverage test-counsel test-engine-mcp \
-        full-data golden gate release-gate hooks version build-archive build-deployment \
+        go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine \
+        test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp \
+        test-python-coverage \
+        eval-mingli160 golden gate release-gate hooks version build-archive build-deployment \
         workbuddy-package \
         workbuddy-avatars \
         brand-marks \
-        check-actions build-web-skill-bundle build-release-manifest check-release-manifest \
+        sync-expert-packs sync-domain-language check-domain-language check-actions check-content \
+        build-web-skill-bundle build-release-manifest check-release-manifest \
         runtime-validate image image-engine image-counsel image-assembly
 
 build-skill build-archive: ## Build the installable skill archive
@@ -141,29 +145,54 @@ vuln: ## Vulnerability scan (govulncheck + pip-audit); CI also runs these as req
 	@if command -v govulncheck >/dev/null 2>&1; then (cd engine && govulncheck ./...); else echo "govulncheck 未安装，跳过 engine 扫描（CI 会跑）"; fi
 	@if command -v pip-audit >/dev/null 2>&1; then pip-audit -r counsel/requirements.lock --require-hashes --disable-pip; else echo "pip-audit 未安装，跳过 Python 扫描（CI 会跑）"; fi
 
-check: lint-md lint-python fmt-check go-version-check runtime-version-check check-actions ## 纯静态检查（lint + Python lint + 格式 + 数据结构 + docs + 专家方法论一致性 + 脚本可执行位）。不跑测试、不生成工件。
+check: lint-md lint-python fmt-check go-version-check runtime-version-check check-actions check-content ## 纯静态检查（lint + Python lint + 格式 + 数据结构 + docs + 领域语言；skill/packaging 校验按内容指纹执行）。不跑测试、不提交工件。
 	python3 scripts/check_factor_data.py
 	python3 scripts/check_docs.py
 	python3 scripts/check_doc_paths.py
+	python3 scripts/sync_domain_language.py --check
+	python3 scripts/check_domain_language.py
 	python3 scripts/check_workflow.py
 	python3 scripts/check_mcp_schema.py --check
-	python3 scripts/check_expert_docs.py
 	python3 scripts/agent_runtime_pin.py --check
 	bash scripts/check-exec-bits.sh
+
+
+CONTENT_PATHS := skills/liki expert-packs workbuddy agents tools/mcp-tool-catalog.json \
+	scripts/sync_expert_packs.py scripts/check_expert_docs.py \
+	scripts/check_workbuddy_connectors.py scripts/check_workbuddy_zips.py
+CONTENT_FILES := $(shell find $(CONTENT_PATHS) -type f 2>/dev/null | LC_ALL=C sort)
+CONTENT_FINGERPRINT := $(shell printf '%s\n' $(CONTENT_FILES) | xargs sha256sum 2>/dev/null | sha256sum | cut -d' ' -f1)
+CONTENT_STAMP := .cache/content-check.$(CONTENT_FINGERPRINT)
+
+$(CONTENT_STAMP):
+	@mkdir -p $(@D)
+	@echo "[check-content] content fingerprint $(CONTENT_FINGERPRINT); running skill and package checks"
+	@python3 scripts/check_expert_docs.py
 	python3 scripts/sync_expert_packs.py --check
 	python3 scripts/check_workbuddy_connectors.py
 	python3 scripts/check_workbuddy_zips.py
+	@touch $@
+
+check-content: $(CONTENT_STAMP) ## Run skill and WorkBuddy checks only when related content changes.
+	@echo "[check-content] content fingerprint unchanged; skipped"
 
 sync-expert-packs: ## 从根 skill 生成 expert-packs 方法论卡（唯一生成入口）
 	python3 scripts/sync_expert_packs.py
 
+sync-domain-language: ## 从 tools/domain-language.json 生成 docs/DOMAIN_LANGUAGE.md
+	python3 scripts/sync_domain_language.py
+
+PYTEST_TARGETS ?= tests/
+P ?= ./...
+
 test-content: ## Root skill / rules / documentation suite
-	python3 -m pytest tests/ -q
+	python3 -m pytest $(PYTEST_TARGETS) -q
+
+test-engine-package: go-version-check ## Run one engine package, e.g. P=./internal/engine/bazi
+	@cd engine && go test -count=1 $(P)
 
 test-engine: go-version-check ## Engine unit and integration suites
 	@cd engine && go test -count=1 ./...
-	@cd engine && go test -tags integration -count=1 -timeout 60s \
-		./internal/mcpcontract/ ./internal/http/ ./internal/engine/bazi/
 
 test-engine-coverage: go-version-check ## Engine unit coverage floor (shared with CI)
 	scripts/test-engine-coverage.sh
@@ -174,8 +203,8 @@ test-counsel: ## Counsel MCP integration suite (bootstraps .venv and local engin
 test-engine-mcp: ## Engine MCP root/domain protocol smoke
 	scripts/test-engine-mcp.sh
 
-full-data: ## 160-question assertion coverage and zero-hit check
-	scripts/test-full-data.sh
+eval-mingli160: ## Manual Mingli160 skill calibration/evaluation report (not a gate)
+	scripts/eval-mingli160.sh
 
 test: test-content test-engine test-counsel test-engine-mcp ## All deterministic tests
 test-python-coverage: ## Run root Python domain suite with coverage
@@ -186,13 +215,15 @@ test-python-coverage: ## Run root Python domain suite with coverage
 	coverage html
 
 
-golden: ## Deterministic multi-source golden suites
+test-engine-golden: ## Focused engine golden/oracle/matrix subset
 	@cd engine && go test -count=1 -run \
 		'Golden|External|Matrix|Pattern' ./internal/engine/...
 
+golden: test-engine-golden ## Backward-compatible alias for the focused golden suite
+
 gate: lint-engine check test ## Full source push gate: lint, static checks, and tests
 
-release-gate: gate full-data runtime-validate build-release-manifest ## Release preparation gate: source gate plus release artifacts
+release-gate: gate runtime-validate build-release-manifest ## Release preparation gate: source gate plus pinned runtime and release artifacts
 
 check-actions: ## Reject mutable reusable workflow/action references
 	python3 scripts/check_actions_pinned.py

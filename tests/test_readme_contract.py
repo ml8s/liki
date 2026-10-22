@@ -26,7 +26,7 @@ CONTRACTS = {
         ],
     },
     ROOT / "README.en.md": {
-        "h1": "Liki — Professional Skill for Chinese Metaphysics",
+        "h1": "Liki — Professional Astrology Skill",
         "h2": [
             "Install",
             "Quick start",

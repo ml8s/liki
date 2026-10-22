@@ -45,21 +45,9 @@ def test_public_windows_do_not_use_retired_variants():
             assert variant not in text, f"{path}: retired slogan variant {variant!r}"
 
 
-def test_brand_doc_is_the_canonical_truth_source():
-    path = ROOT / "docs" / "brand.md"
+def test_brand_doc_points_to_canonical_truth_source():
+    """真相源已迁至 liki-web 仓库 BRAND.md（v5.0）；本仓 docs/BRAND.md 仅作指针。"""
+    path = ROOT / "docs" / "BRAND.md"
     text = path.read_text(encoding="utf-8")
-    active_text = text.split("## Governance Log（治理记录）", 1)[0]
-
-    assert "Liki Canonical Brand Definition (v4.0)" in text
-    assert "Liki 专业命理 Skill" in active_text
-    assert "Liki has no separate Chinese brand name" in active_text
-    assert "Slogan（品牌口号）" in active_text
-    assert "«懂命理，用 Liki»" in active_text
-    assert "「懂命理的人，都在用 Liki」" in active_text
-    assert "这是 Liki 唯一对外 slogan" in active_text
-    assert "Liki — 专业命理 Skill" in active_text
-
-    for variant in FORBIDDEN_VARIANTS:
-        assert variant not in active_text, f"{path}: retired brand variant {variant!r}"
-    for phrase in STALE_BRAND_CONTRACT:
-        assert phrase not in active_text, f"{path}: stale v3 brand contract {phrase!r}"
+    assert "liki-web" in text, "docs/BRAND.md must point to the canonical brand source in the liki-web repository"
+    assert "BRAND.md" in text

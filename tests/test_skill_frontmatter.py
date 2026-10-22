@@ -66,7 +66,7 @@ class TestSkillFrontmatter(unittest.TestCase):
         self.assertEqual(outside, [__import__("pathlib").Path("SKILL.md")], outside)
 
     def test_app_cards_frontmatter_is_valid_yaml(self):
-        cards = sorted((SKILL_ROOT / "references" / "natal" / "app").glob("*.md"))
+        cards = sorted(SKILL_ROOT.glob("references/natal-app-*.md"))
         self.assertGreater(len(cards), 0)
         for card in cards:
             with self.subTest(card=card.name):
@@ -77,7 +77,7 @@ class TestSkillFrontmatter(unittest.TestCase):
                 self.assertIsInstance(meta, dict)
 
     def test_bazi_app_cards_keep_required_reading_bounded(self):
-        cards = sorted((SKILL_ROOT / "references" / "natal" / "app").glob("*.md"))
+        cards = sorted(SKILL_ROOT.glob("references/natal-app-*.md"))
         for card in cards:
             with self.subTest(card=card.name):
                 count = card.read_text(encoding="utf-8").count("[必读]")

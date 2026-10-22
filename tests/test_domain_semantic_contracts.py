@@ -192,7 +192,7 @@ def test_brief_keeps_controlled_event_taxonomy():
 
 
 def test_current_daxian_palace_is_mechanical():
-    chart = {"solar": "1990-05-20T12:00:00", "ziwei_daxian": [
+    chart = {"gregorian_time": "1990-05-20T12:00:00", "ziwei_daxian": [
         {"gong": "命宫", "start_year": 1990, "end_year": 1999},
         {"gong": "兄弟", "start_year": 2000, "end_year": 2009},
     ]}
@@ -255,9 +255,8 @@ def test_query_year_is_rejected_for_pure_natal_rules():
     import pytest
     with pytest.raises(ValueError, match="纯本命域"):
         duanyu.query("十神", {
-            "solar": "1990-05-20T12:00:00",
-            "lunar": {"year": 1990, "month": 4, "day": 26},
-            "gender": "male",
+            "gregorian_time": "1990-05-20T12:00:00",
+                "gender": "male",
             "chart": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             "fu_yi": {}, "tiao_hou": {}, "ge_ju": {}, "ziwei": _helpers.mock_ziwei(), "ziwei_daxian": _helpers.valid_daxian(),
@@ -278,9 +277,9 @@ def test_required_natal_factors_include_reference_closure():
 def test_domain_docs_do_not_expose_legacy_query_tool():
     import re
     from pathlib import Path
-    root = Path(__file__).resolve().parents[1] / "skills/liki/references/natal"
+    root = Path(__file__).resolve().parents[1] / "skills/liki/references"
     offenders = []
-    for path in list((root / "app").glob("*.md")) + list((root / "domains").glob("*/*.md")):
+    for path in sorted(root.glob("natal-*.md")):
         text = path.read_text(encoding="utf-8")
         if re.search(r"\bquery\s*\(\s*rule\s*=", text):
             offenders.append(path)

@@ -346,7 +346,7 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
 
     monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
     for matter in load_routing_matter_table():
-        paipan.qimen_chart("2026-09-07T12:00:00+08:00", matter=matter)
+        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, matter=matter)
     assert len(requests) == len(load_routing_matter_table())
     for params in requests:
         validate(params, schema)
@@ -361,7 +361,8 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 
     monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
     result = paipan.qimen_chart(
-        "2026-09-07T12:00:00+08:00",
+        "2026-09-07T04:00:00Z", "Asia/Shanghai",
+        116.4,
         matter="wealth",
         birth_date="1984-02-15",
         scope="hour",
@@ -382,7 +383,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
     monkeypatch.setattr(paipan, "engine_data", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     try:
-        paipan.qimen_chart("2026-09-07T12:00:00+08:00", matter="wealth", yong_shen=["生门"])
+        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, matter="wealth", yong_shen=["生门"])
     except ValueError as exc:
         assert "互斥" in str(exc)
     else:
@@ -396,7 +397,7 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 不能为空"):
-        paipan.qimen_chart("2026-09-07T12:00:00+08:00", yong_shen=[])
+        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, yong_shen=[])
 
 
 def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
@@ -414,7 +415,7 @@ def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
     )
     with pytest.raises(ValueError, match="yong_shen 符号重复"):
         paipan.qimen_chart(
-            "2026-09-07T12:00:00+08:00", yong_shen=["生门", "生门"]
+            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, yong_shen=["生门", "生门"]
         )
 
 
@@ -425,7 +426,7 @@ def test_qimen_chart_rejects_string_yong_shen(monkeypatch) -> None:
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 必须是字符串数组"):
-        paipan.qimen_chart("2026-09-07T12:00:00+08:00", yong_shen="生门")
+        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, yong_shen="生门")
 
 
 def test_matter_table_rejects_duplicate_symbols(tmp_path, monkeypatch) -> None:
@@ -526,11 +527,11 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
 
     monkeypatch.setenv("LIKI_MCP_URL", "https://dynamic.example/mcp")
     monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
-    assert engine_mcp_client.call("qimen.chart", {"solar_time": "x"}) == {"data": {"ok": True}}
+    assert engine_mcp_client.call("qimen.chart", {"instant": "2026-01-01T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4}) == {"data": {"ok": True}}
     assert seen == ["https://dynamic.example/mcp/qimen"]
 
 def test_engine_mcp_client_domain_suffix(monkeypatch):
-    """engine_mcp_client 按工具名分域：tianwen_time→/aux、ziwei_chart→/ziwei、bazi_chart→/bazi。"""
+    """engine_mcp_client 按工具名分域：tianwen_resolve→/aux、ziwei_chart→/ziwei、bazi_chart→/bazi。"""
     import engine_mcp_client
     seen = []
     def urlopen(request, *_, **__):
@@ -539,7 +540,7 @@ def test_engine_mcp_client_domain_suffix(monkeypatch):
     monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
     monkeypatch.setenv("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
     monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
-    for name in ["tianwen_time", "ziwei.chart", "bazi_chart", "time.now"]:
+    for name in ["tianwen_resolve", "ziwei.chart", "bazi_chart", "time.now"]:
         engine_mcp_client.call(name, {})
     assert seen == [
         "http://127.0.0.1:18081/mcp/aux",

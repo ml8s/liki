@@ -73,7 +73,7 @@ def main() -> int:
         "/liuyao": {"liuyao_qigua", "liuyao_chart"},
         "/huangli": {"huangli_days"},
         "/fengshui": {"bazhai_chart", "xuankong_chart", "time_now"},
-        "/aux": {"time_now", "tianwen_time", "city_coords"},
+        "/aux": {"time_now", "tianwen_resolve", "city_coords"},
     }
     for path, required in expectations.items():
         endpoint = base + path
@@ -104,12 +104,22 @@ def main() -> int:
             raise RuntimeError(f"{path}: leaked tools from another domain: {sorted(foreign)}")
 
     root = base
-    result = post(root, "tools/call", "time_now", {"name": "time_now", "arguments": {}})
-    content = result.get("content") or []
-    text = content[0].get("text", "") if content else ""
-    payload = json.loads(text)
-    if not payload.get("cst"):
-        raise RuntimeError("time_now returned no CST timestamp")
+    result = post(
+        root,
+        "tools/call",
+        "time_now",
+        {"name": "time_now", "arguments": {"timezone": "Asia/Shanghai"}},
+    )
+    payload = result.get("structuredContent")
+    if payload is None:
+        content = result.get("content") or []
+        text = content[0].get("text", "") if content else ""
+        try:
+            payload = json.loads(text)
+        except json.JSONDecodeError as error:
+            raise RuntimeError(f"time_now returned invalid JSON content: {text[:200]!r}") from error
+    if not payload.get("instant") or not payload.get("timezone"):
+        raise RuntimeError("time_now returned no canonical {instant, timezone} instant")
     print("✓ tools/call time_now")
     return 0
 

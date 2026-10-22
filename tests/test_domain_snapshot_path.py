@@ -74,7 +74,7 @@ def test_evaluate_snap_from_pan_produces_complete_snap():
 
 
 def test_snap_embeds_stable_domain_facts():
-    """pan 的领域事实应完整透传进 snap（藏干/大运/宫位/solar lunar 等）。"""
+    """pan 的领域事实应完整透传进 snap（藏干/大运/宫位/instant/timezone 等）。"""
     pan = _cmp_bazi_pan()
     pan["full"]["nian"]["cang_gan"] = {"main": "丁", "mid": "己"}
     pan["full"]["yue"]["cang_gan"] = {"main": "丁", "mid": "己"}
@@ -95,8 +95,8 @@ def test_snap_embeds_stable_domain_facts():
     pan["ziwei"]["kong_gong"] = [{"gong_name": "兄弟", "jie_xing": ["天机"]}]
     pan["ziwei"]["nian_gan"] = "庚"
     pan["ziwei"]["ziwei_pos"] = "命宫"
-    pan["solar"] = "1990-05-20T12:00:00"
-    pan["lunar"] = "1990年四月廿六"
+    pan["instant"] = "1990-05-20T04:00:00Z"
+    pan["timezone"] = "Asia/Shanghai"
 
     snap = factors.evaluate_snap_from_pan(pan)
     bz = snap["八字"]
@@ -124,5 +124,4 @@ def test_snap_embeds_stable_domain_facts():
     assert zw["紫微星位"] == "命宫"
     assert zw["空宫借星"][0]["gong_name"] == "兄弟"
     # 出生时间进 context
-    assert ctx["公历出生"] == "1990-05-20T12:00:00"
-    assert ctx["农历出生"] == "1990年四月廿六"
+    assert ctx["时间事实"] == {"instant": "1990-05-20T04:00:00Z", "timezone": "Asia/Shanghai"}

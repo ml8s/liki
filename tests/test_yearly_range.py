@@ -10,8 +10,9 @@ from yearly_eval import query_year_rules
 
 def _valid_mock_pan() -> dict:
     return with_natal_digest({
-        "solar": "1990-05-20T12:00:00",
-        "lunar": {"year": 1990, "month": 4, "day": 26},
+        "instant": "1990-05-20T04:00:00Z",
+        "timezone": "Asia/Shanghai",
+        "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
             **{

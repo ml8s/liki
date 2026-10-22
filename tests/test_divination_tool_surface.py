@@ -14,11 +14,11 @@ def _parameters(name: str) -> dict:
 
 def test_snapshot_schemas_accept_primary_calls():
     validate(
-        {"question": "这次面试能不能通过？", "matter": "career", "mode": "auto"},
+        {"question": "这次面试能不能通过？", "matter": "career", "mode": "auto", "longitude": 116.4, "timezone": "Asia/Shanghai"},
         _parameters("liuyao_snapshot"),
     )
     validate(
-        {"question": "该往哪里推进？", "longitude": 121.47, "matter": "wealth"},
+        {"question": "该往哪里推进？", "longitude": 121.47, "matter": "wealth", "timezone": "Asia/Shanghai"},
         _parameters("qimen_snapshot"),
     )
 

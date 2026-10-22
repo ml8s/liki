@@ -10,8 +10,9 @@ from pan_schema import validate_natal_pan, validate_side_pan
 
 def _pan(**changes):
     pan = {
-        "solar": "1990-05-20T12:00:00",
-        "lunar": {"year": 1990, "month": 4, "day": 26},
+        "instant": "1990-05-20T04:00:00Z",
+        "timezone": "Asia/Shanghai",
+        "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
             **{p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
@@ -35,7 +36,7 @@ def test_valid_pan_passes():
 
 def test_pan_digest_rejects_tampering():
     pan = _pan()
-    pan["solar"] = "2000-01-01T00:00:00"
+    pan["gregorian_time"] = "2000-01-01T00:00:00"
     with pytest.raises(ValueError, match="digest mismatch"):
         validate_natal_pan(pan, action="test")
 
@@ -47,7 +48,7 @@ def test_full_paipan_has_flat_yongshen_fields():
     assert '"full"' in source
 
 
-@pytest.mark.parametrize("key", ["solar", "lunar", "chart", "full", "ziwei", "ziwei_daxian", "gender"])
+@pytest.mark.parametrize("key", ["instant", "timezone", "chart", "full", "ziwei", "ziwei_daxian", "gender"])
 def test_missing_required_field_rejected(key):
     pan = _pan()
     pan.pop(key)

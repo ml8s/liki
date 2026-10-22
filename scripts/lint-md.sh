@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Run the pinned Markdown linter without coupling a development-only CLI
-# vulnerability surface into every application dependency lockfile.
+# Run the Markdown linter from the repository lockfile. Gate commands must not
+# implicitly download tools: a missing local dependency fails fast instead.
 set -eo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -22,10 +22,12 @@ if [ "$(node_major)" -lt 22 ]; then
     exit 1
 fi
 
-if [ "$#" -gt 0 ]; then
-    exec "${NPM:-npm}" exec --yes markdownlint-cli2@0.23.3 -- "$@"
+MARKDOWNLINT="$ROOT/node_modules/.bin/markdownlint-cli2"
+if [ ! -x "$MARKDOWNLINT" ]; then
+    echo "markdownlint-cli2 is not installed; run npm ci once, then retry" >&2
+    exit 127
 fi
 
 # No explicit targets: use the globs declared in .markdownlint-cli2.jsonc
 # (README.md, README.en.md, docs/USER_GUIDE*.md, skills/liki/**/*.md).
-exec "${NPM:-npm}" exec --yes markdownlint-cli2@0.23.3
+exec "$MARKDOWNLINT" "$@"

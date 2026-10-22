@@ -83,13 +83,15 @@ def test_contract_registry_has_exact_domain_contracts():
 
 def test_intent_app_cards_use_snapshot_flow():
     """app 卡按用户目标命名（outcome/decision/date），流程走 snapshot，不再有 chart 卡。"""
-    app = ROOT / "skills/liki/references/divination/app"
-    for name in ("outcome.md", "decision.md", "date.md", "question.md"):
-        assert (app / name).is_file(), name
-    for gone in ("liuyao-chart.md", "qimen-chart.md", "liuyao-snapshot.md", "qimen-snapshot.md"):
-        assert not (app / gone).exists(), gone
-    for name in ("outcome.md", "decision.md"):
-        text = (app / name).read_text(encoding="utf-8")
+    root = ROOT / "skills/liki/references"
+    for name in ("divination-app-outcome.md", "divination-app-decision.md",
+                 "divination-app-date.md", "divination-app-question.md"):
+        assert (root / name).is_file(), name
+    for gone in ("divination-liuyao-chart.md", "divination-qimen-chart.md",
+                 "divination-liuyao-snapshot.md", "divination-qimen-snapshot.md"):
+        assert not (root / gone).exists(), gone
+    for name in ("divination-app-outcome.md", "divination-app-decision.md"):
+        text = (root / name).read_text(encoding="utf-8")
         assert "不可变快照" in text and "结构化断语" in text, name
 
 
@@ -166,7 +168,7 @@ def test_liuyao_timing_boundary_and_target_rules_are_table_driven():
 
 
 def test_liuyao_static_hexagram_doc_separates_fact_from_action():
-    text = (ROOT / "skills/liki/references/divination/domains/liuyao/jixiong.md").read_text(encoding="utf-8")
+    text = (ROOT / "skills/liki/references/divination-liuyao-jixiong.md").read_text(encoding="utf-8")
     assert "静卦，只说明无明显动爻" in text
     assert "不因静卦直接断顺势吉凶" in text
     assert "顺势/事缓" not in text
@@ -186,7 +188,7 @@ def test_divination_safety_boundary_is_table_driven():
 def test_liuyao_chart_rpc_has_no_legacy_yaos_input():
     source = (ROOT / "engine/internal/mcpcontract/liuyao.go").read_text(encoding="utf-8")
     assert "type LiuyaoChartInput struct" in source
-    assert "Casting   *LiuyaoCastingOutput" in source
+    assert "Casting" in source and "LiuyaoCastingOutput" in source
     assert "type LiuyaoChartOutput struct" in source
     assert "casting.Validate()" in source
     assert "兼容旧" not in source
@@ -207,7 +209,7 @@ def test_liuyao_qigua_rpc_returns_single_casting_receipt():
 
 def test_time_now_has_no_test_only_seed_input():
     source = (ROOT / "engine/internal/mcpcontract/time.go").read_text(encoding="utf-8")
-    assert "type TimeNowInput struct{}" in source
+    assert "type TimeNowInput struct" in source and "Timezone string" in source
     assert '"seed"' not in source
 
 

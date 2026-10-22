@@ -137,11 +137,11 @@ class TestFeedbackContract(unittest.TestCase):
         self.assertIn("不向用户请求确认", text)
         self.assertIn("用户原文", text)
         self.assertIn("出生数据", text)
-        self.assertIn("references/ops/FEEDBACK.md", text)
+        self.assertIn("references/ops-FEEDBACK.md", text)
         self.assertNotIn("LIKI_FEEDBACK_CONTEXT", text)
 
     def test_reference_documents_feedback_runtime_governance(self):
-        text = (SKILL_ROOT / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
+        text = (SKILL_ROOT / "references" / "ops-FEEDBACK.md").read_text(encoding="utf-8")
         self.assertIn("LIKI_FEEDBACK_URL", text)
         self.assertIn("LIKI_FEEDBACK_DISABLED=1", text)
         self.assertIn("https://liki.hk/api/feedback", text)
@@ -175,7 +175,7 @@ class TestFeedbackContract(unittest.TestCase):
             })
 
     def test_unified_skill_publishes_feedback_v1_policy(self):
-        text = (SKILL_ROOT / "references" / "ops" / "FEEDBACK.md").read_text(encoding="utf-8")
+        text = (SKILL_ROOT / "references" / "ops-FEEDBACK.md").read_text(encoding="utf-8")
         self.assertIn("https://liki.hk/api/feedback", text)
         self.assertIn("feedback-v1", text)
         self.assertIn("feedback.schema.json", text)

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""【规则表数据检查】
+"""【Mingli160 校准 / 评估报告】
 
 角色：
 - 对 160 个命盘样本执行本地规则链：出生解析 → 排盘 → 因子生成 → 断语查询，
-  统计各域覆盖与零命中题，验证规则表改动不崩、断语覆盖正常。
+  统计各域覆盖与零命中题，供人工校准 skill 或比较改版前后表现。
 - 【不判题】——本脚本不输出准确率，也不消费模型结论。
-- 不包含评测标签、族逻辑或紫微铁断；评测标签只存在于测试层。
+- 不包含评测标签、族逻辑或紫微铁断；它是手动评估入口，不属于测试门禁。
 
 用法：python3 scripts/eval_hybrid.py
 输出：stdout（断语覆盖统计——非正确率）；需要留档时显式传 --output FILE
@@ -20,7 +20,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the unified Liki bazi domain.
 _TOOLS = os.path.join(_ROOT, "counsel", "app", "natal", "tools")
 _LOCAL = os.path.dirname(os.path.abspath(__file__))   # scripts/birth.py 在此
-_BENCHMARK = os.path.join(_ROOT, "tests", "mingli160")
+_BENCHMARK = os.path.join(_ROOT, "evals", "mingli160")
 for _p in (_TOOLS, _LOCAL):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -59,7 +59,7 @@ def load_case_birth(case_id: str) -> str:
 
 def build_report(total: int, zero: list[str], dom_hits: dict[str, int]) -> str:
     lines = []
-    lines.append("# 规则表数据检查（非判题）")
+    lines.append("# Mingli160 校准 / 评估报告（非判题）")
     lines.append("")
     lines.append(f"- 总题数：{total}")
     lines.append(f"- 零命中（全断语域无覆盖）：{len(zero)}")
@@ -70,7 +70,7 @@ def build_report(total: int, zero: list[str], dom_hits: dict[str, int]) -> str:
     for rule, count in sorted(dom_hits.items(), key=lambda item: -item[1]):
         lines.append(f"- {rule}：{count} 题有断语")
     lines.append("")
-    lines.append("> 本报告只度量断语覆盖，不作为准确率评测。")
+    lines.append("> 本报告只度量断语覆盖，供人工校准参考，不作为准确率评测。")
     return "\n".join(lines) + "\n"
 
 
@@ -88,10 +88,9 @@ def main() -> int:
         if not birth:
             continue
         if case_id not in cache:
-            solar, gender, lon, corr = parse_birth(birth)
-            # longitude 未知时降级为 correct=False（无经度无法校正——宁可不校正也不用错误经度）
-            eff_corr = corr and lon is not None
-            pan = full_paipan(solar, gender, lon, correct=eff_corr)
+            solar, gender, lon, _corr = parse_birth(birth)
+            # 经度未知时用北京默认（与产品默认一致）；题干时间即 Gregorian time事实。
+            pan = full_paipan(solar, gender, lon if lon is not None else 116.4)
             cache[case_id] = query_all(pan)
         r = cache[case_id]
         for qid in qids:
@@ -112,13 +111,6 @@ def main() -> int:
         args.output.write_text(report, encoding="utf-8")
         print(f"完整统计已写 {args.output}")
 
-    max_zero = int(os.environ.get("LIKI_ZERO_HIT_MAX", "0"))
-    if len(zero) > max_zero:
-        print(
-            f"零命中 {len(zero)} 题 > 阈值 {max_zero}（覆盖门失败；如需放宽设 LIKI_ZERO_HIT_MAX）",
-            file=sys.stderr,
-        )
-        return 1
     return 0
 
 

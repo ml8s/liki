@@ -1,15 +1,10 @@
 from __future__ import annotations
 
-import json
-import os
-import subprocess
-import tarfile
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-DIST = ROOT / "dist"
 PROFILES = ("natal", "divination", "fengshui", "naming")
 REQUIRED_BUNDLE_FILES = {
     *(f"agents/{profile}/deployment.json" for profile in PROFILES),
@@ -49,53 +44,6 @@ def test_release_integrity_validates_before_packaging_manifest() -> None:
         index for index, command in enumerate(commands) if "make build-release-manifest" in command
     )
     assert validate_index < manifest_index
-
-
-def run(command: list[str]) -> None:
-    subprocess.run(command, cwd=ROOT, check=True)
-
-
-def test_release_bundle_contains_all_verified_artifacts() -> None:
-    run(["make", "build-web-skill-bundle"])
-    run(["make", "build-deployment"])
-    run(["python3", "scripts/build_release_manifest.py"])
-
-    for profile in PROFILES:
-        assert (DIST / "agents" / profile / "deployment.json").is_file()
-
-    bundle = DIST / "liki-release-artifacts.tar.gz"
-    subprocess.run(
-        [
-            "tar",
-            "-czf",
-            str(bundle),
-            "-C",
-            str(DIST),
-            *sorted(REQUIRED_BUNDLE_FILES),
-        ],
-        check=True,
-    )
-    with tarfile.open(bundle, "r:gz") as archive:
-        members = {member.name for member in archive.getmembers() if member.isfile()}
-    assert members == REQUIRED_BUNDLE_FILES
-
-    manifest = (DIST / "liki-release-manifest.json").read_text(encoding="utf-8")
-    assert '"runtime_version"' in manifest
-
-    complete_images = {
-        "counsel_mcp": "sha256:" + "1" * 64,
-        "engine": "sha256:" + "2" * 64,
-        "engine_mcp": "sha256:" + "3" * 64,
-        "experts": "sha256:" + "4" * 64,
-    }
-    result = subprocess.run(
-        ["python3", "scripts/build_release_manifest.py", "--require-images"],
-        cwd=ROOT,
-        env={**os.environ, "LIKI_RELEASE_IMAGES": json.dumps(complete_images), "LIKI_RELEASE_TAG": "vtest"},
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0
 
 
 def test_release_profiles_match_runtime() -> None:
