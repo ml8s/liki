@@ -5,55 +5,38 @@
 > ② `scripts/test-counsel.sh`；③ 根目录 `python3 -m pytest tests/`；
 > ④ 读本文档"队列"节，按设计执行；⑤ 每层跑回归，绝不带病推进。
 
-## 队列 1（下一个执行）：ElementName 空串 → nullable 迁移
+## 队列 2（已关闭，按内聚收口）
 
-**动机**：调候辅五行无候选时输出 `""`，消费方无法区分"领域事实无候选"与
-"链路错误空值穿透"（歧义哨兵）。正确建模：缺失 = null。
+原计划的 liuyao `board.lines` / qimen `conflicts` 全量强类型迁移不做。保证链已经
+内聚：engine Go registry 对输出 DTO 做 schema 校验（`LiuyaoLineOutput` 本身强类型），
+counsel 侧 `validate_document` 是唯一 Python 校验出口。`board.lines` 按"engine
+强类型 + counsel opaque 事实"处理，与 `factors` opaque + digest 的既有约定同类。
 
-### L1 域层（engine/internal/engine/bazi/）
+实际加固（已完成）：
 
-- `TiaoHou.SecondaryWuxing string` → `*string`（nil = 无辅调候）
-- `FuYi.Yong/Xi/Ji string` → `*string`（nil = 无候选）
-- `Pillar.SelfHeName string` → `*string`（nil = 无自合）
-- 构造点：`bazi_tiaohou.go:96` 无辅调候时 nil；`bazi_pillar.go:87 selfHeName()` 返回 nil
-- 域内消费者：nil 判断替代 `""` 判断
-
-### L2 wire（engine/internal/mcpcontract/bazi_wire.go）
-
-- 对应字段 → `*ElementName` / `*string`（仓库既有指针惯例）
-- JSON roundtrip 自动贯通：域 nil marshal → null → wire nil → null
-- 验证点：跑 output schema 检查，确认字段渲染 nullable
-
-### L3 counsel
-
-- `contracts/yongshen.py`：`YongWuxing = Literal["木","火","土","金","水"] | None`
-
-  （None = 无候选；**空串从枚举中删除**）
-
-- `yongshen/evaluator.py:67` 的空值判断改 None 语义
-- `factors.py` 消费点 `== ""` → `is None`
-
-### L4 fixtures/baselines
-
-- `engine/internal/mcpcontract/testdata/actual/bazi_chart_*_fullchart.json`：
-
-  `fu_yi.yong/xi/ji`、`*.self_he_name`、tiaohou secondary 的 `""` → `null`
-
-- counsel orthogonal baseline 同步（fu_yi 证据内 `""` → null）
-
-### 回归
-
-`go test ./...`、`scripts/test-counsel.sh`、根 `pytest tests/`、`make check`。
-
-## 队列 2（队列 1 之后）：防御纵深类型化
-
-- liuyao `board.lines`、qimen snapshot `conflicts` 从弱类型移植强类型
-
-  （形状源自 engine liuyao.go Line 结构与 qimen_projection_contract）
-
-- 现状有 `divination_contracts.validate_document` JSON 契约兜底，属加固非纠错
+- 新增 `DivinationConflict`（`id`/`reason`/`facts`，engine liuyao Conflict 同形），
+  统一约束 liuyao snapshot `evidence.conflicts`、`liuyao_query` 与 `qimen_query` 输出。
+- `liuyao_factors` 对 engine chart `conflicts` 从静默 `isinstance` 过滤改为按契约
+  fail-closed 校验，坏形状显式报错，不再静默丢弃。
+- 澄清：qimen snapshot 本身没有 `conflicts` 字段，原队列描述有误；弱类型实际位于
+  两个 query 输出，已随本项收口。
 
 ## 已关闭项（勿重复处理）
+
+- 残留门禁修复：`check_mcp_schema` 支持顶层 `anyOf` closed-object 输入分支
+
+  （`naming_check` 显式五行 / selected_yongshen 两分支是既有发布契约）；
+
+  natal schema 预算 24 KiB → 64 KiB（2026.10.22.1 契约强化使该组从 8 KiB 增至
+
+  ~51 KiB，旧预算在基线上已失效）；删除 city 死代码 `countryZh`。
+
+- 队列 1：Bazi 候选空串已迁移为 nullable。engine 域层用 nil；wire 用
+
+  `*ElementNameNullable` / `*string`；counsel `YongWuxing` 为五行闭集 `| None`。
+
+  覆盖 `fu_yi.yong/xi/ji`、`tiao_hou.secondary_wuxing`、柱位 `self_he_name`，
+  并同步 selected yong 缺省语义与 fixtures。
 
 - qimen bench：已论证 bench 测的 `ComputeChart` 包装 = `ResolveMethod` +
 

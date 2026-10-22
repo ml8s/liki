@@ -187,8 +187,10 @@ tool description 与字段 description 只描述**当前领域语义与用法**�
 
 当前刻意约定（非差距）：counsel `factors` / qimen `factors` 输出保持 opaque
 object + SHA-256 digest —— 因子快照是链式防篡改载体，形状由 provenance 与
-digest 绑定表达；两侧 `ElementName` 枚举含空串是 bazi 调候"无候选"的既有
-wire 词汇（engine 与 counsel 对称、oracle 全覆盖，见 CHANGELOG 2026.10.15.0）。
+digest 绑定表达。bazi 候选五行缺省时两侧统一发布 `null`：engine wire 使用
+nullable element enum，counsel `YongWuxing` 允许 `None` 但不接受空串。
+divination `board.lines` 同理按 engine 强类型 + counsel opaque 事实处理；
+engine `conflicts` 形状由 `DivinationConflict` 在 counsel 边界 fail-closed 校验。
 
 ## 6. 输出设计
 

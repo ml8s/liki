@@ -98,11 +98,11 @@ Four contract limits to keep in mind when reviewing the migrated tools:
   the captured payloads. A field the engine omits through `omitempty` is
   therefore modelled as optional even when the legacy schema declared it
   required;
-- `ElementName` also accepts the empty string. The engine documents the empty
-  value for bazi 调候 `TiaoHouResult.SecondaryWuxing` (喜神 may be absent,
-  `engine/internal/engine/bazi/bazi_correctness_test.go`), and a strict enum
-  would reject real charts. `TestEngineContractBaziTiaoHouAllowsEmptySecondaryWuxing`
-  pins that case;
+- bazi candidate fields publish absence as JSON `null`, not an empty string.
+  `TiaoHouResult.SecondaryWuxing` and `FuYiResult.Yong/Xi/Ji` use nullable
+  element enums, and pillar `SelfHeName` is nullable too.
+  `TestEngineContractBaziTiaoHouAllowsNullSecondaryWuxing` pins both the real
+  chart payload and the generated nullable schema;
 - migrated legacy tools accept unknown arguments, because the legacy registry
   validated params against schemas that left `additionalProperties` unset
   (`bazi.chart` tolerates `tianwen.time`'s `longitude`, and `ziwei.daxian`
