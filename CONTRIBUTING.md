@@ -35,7 +35,7 @@
 
 版本只在一处声明，CI 与本地读同一份，`make check` 校验本地一致：
 
-- Go 1.26.9：`go.mod` + `GOTOOLCHAIN`（`make go-version-check`）
+- Go 1.26.10：`go.mod` + `GOTOOLCHAIN`（`make go-version-check`）
 - Python 3.12.14：`.python-version`（`make runtime-version-check`）
 - Node 24.14.1：`.nvmrc`（`make runtime-version-check`）
 - golangci-lint v2.13.2：`deps/golangci-lint.version`（本地与 CI 共用，对账测试锁定）

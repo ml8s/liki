@@ -33,7 +33,6 @@ SKIP_DIRECTORIES = {
 }
 SKIP_FILES = {"CHANGELOG.md"}
 SOURCE_FILES = {REGISTRY.resolve(), (ROOT / "docs/DOMAIN_LANGUAGE.md").resolve()}
-SOURCE_FILES.add((ROOT / "docs/FUNCTION_FIRST_REFACTOR_PLAN.md").resolve())
 
 
 def _candidate_files() -> list[Path]:

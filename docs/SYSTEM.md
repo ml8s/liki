@@ -166,4 +166,3 @@ COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙�
 - [Domain naming matrix](DOMAIN_NAMING.md): canonical repository/image/service names.
 - [Domain language matrix](DOMAIN_LANGUAGE.md): canonical domain concepts, projections, and compatibility aliases.
 - [MCP contract design](MCP_CONTRACT_DESIGN.md): working MCP naming, schema, input/output, error, and LLM-bootstrap standards.
-- [Function-first refactor plan](FUNCTION_FIRST_REFACTOR_PLAN.md): current time, astronomy, ganzhi, and domain function-first migration status.

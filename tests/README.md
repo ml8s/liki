@@ -10,7 +10,7 @@ This repository has deterministic tests and curated data assets. Do not treat fu
 | Python lint | `make lint-python` | Ruff E/F/W/I over `counsel/`, `scripts/`, and root `tests/` |
 | Python vulnerabilities | CI `pip-audit` | Known CVEs in the hashed counsel dependency lock |
 | Engine tests | `make test-engine` | Go domain packages, MCP contract registry (`internal/mcpcontract`), and HTTP middleware |
-| Toolchain gate | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.9 |
+| Toolchain gate | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.10 |
 | Engine vulnerabilities | CI `govulncheck ./...` | Reachable Go standard-library/module vulnerabilities |
 | Engine MCP smoke | `make test-engine-mcp` | Internal `/mcp` root and `/mcp/{domain}` surfaces, `server/discover`, `tools/list`, `tools/call` |
 | Counsel MCP integration | `make test-counsel` | Bootstraps a locked Python environment and local engine, then tests all counsel tools |
@@ -54,7 +54,7 @@ script set is pinned by `tests/test_check_scripts_contract.py`, so adding a scri
 | --- | --- |
 | `scripts/lint-md.sh` | Locked `markdownlint-cli2` over the declared Markdown globs |
 | `scripts/lint-python.sh` | Locked Ruff over `counsel/`, `scripts/`, and root `tests/` |
-| `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.9 |
+| `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.10 |
 | `scripts/check-runtime-versions.sh` | Local node/python must equal `.nvmrc`/`.python-version` |
 | `scripts/check_actions_pinned.py` | Rejects mutable workflow/action references |
 | `scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
