@@ -8,7 +8,8 @@ import sys
 from collections import defaultdict
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(_ROOT, "counsel", "app", "natal", "tools"))
+# The app package lives in counsel/app; the tools directory is its package child.
+sys.path.insert(0, os.path.join(_ROOT, "counsel"))
 
 from app.natal.tools.factor_tables import load_long_rows
 
