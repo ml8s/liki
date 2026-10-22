@@ -16,11 +16,15 @@ ENGINE_BIN="$ENGINE_DIR/engine-mcp"
 go build -o "$ENGINE_BIN" ./cmd/engine-mcp/
 
 if [ -z "$COUNSEL_PYTHON" ] && [ ! -x "$ROOT/counsel/.venv/bin/python" ]; then
-    "$PYTHON" -m venv "$ROOT/counsel/.venv"
-    "$ROOT/counsel/.venv/bin/python" -m pip install \
-        --retries 10 --timeout 60 \
-        --require-hashes --requirement "$ROOT/counsel/requirements.lock"
-    "$ROOT/counsel/.venv/bin/python" -m pip install pytest
+    if command -v uv >/dev/null 2>&1; then
+        make --no-print-directory -C "$ROOT" python-env
+    else
+        "$PYTHON" -m venv "$ROOT/counsel/.venv"
+        "$ROOT/counsel/.venv/bin/python" -m pip install \
+            --retries 10 --timeout 60 \
+            --require-hashes --requirement "$ROOT/counsel/requirements.lock"
+        "$ROOT/counsel/.venv/bin/python" -m pip install pytest
+    fi
 fi
 
 COUNSEL_PYTHON="${COUNSEL_PYTHON:-$ROOT/counsel/.venv/bin/python}"

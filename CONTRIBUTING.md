@@ -43,7 +43,7 @@
 
 GitHub Action 版本一律 40 位 SHA pin；升级由 Dependabot 每周分组一个 PR 跟进。
 合并前看 release notes——大版本常有 breaking（如 docker/login-action v4）。
-可选：[uv](https://docs.astral.sh/uv/)，用于复现 counsel Python 依赖锁
+Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 一次性安装 `.python-version` 精确解释器并重建 counsel venv（锁定依赖 + 测试工具，与 CI 同源）。国内网络可 `export UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple` 加速。
 
 ### 语言和服务边界
 

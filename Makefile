@@ -22,8 +22,8 @@ export RELEASE_VERSION
 export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 NODE_BIN := $(HOME)/.nvm/versions/node/v$(shell cat .nvmrc)/bin
-PYTHON_BIN := $(HOME)/app/python3.12.14/bin
-export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go1.26.10/bin:$(HOME)/go/bin:$(PATH)
+PYTHON_BIN := $(CURDIR)/counsel/.venv/bin
+export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go1.26.10/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
 export GOTOOLCHAIN ?= go1.26.10
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
@@ -233,6 +233,13 @@ hooks: ## Install repository git hooks
 
 version: ## Bump all runtime CalVer surfaces together
 	@python3 scripts/bump_version.py
+
+python-env: ## Provision the exact CI Python (.python-version) via uv + counsel venv
+	uv python install $$(cat .python-version)
+	rm -rf counsel/.venv
+	uv venv counsel/.venv --python $$(cat .python-version)
+	uv pip install --python counsel/.venv/bin/python -r counsel/requirements.lock --require-hashes
+	uv pip install --python counsel/.venv/bin/python pytest pyyaml jsonschema coverage
 
 clean: ## Remove generated root binaries
 	rm -f bin/engine-mcp
