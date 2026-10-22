@@ -4,19 +4,14 @@
 （compute_factors / natal_query / period_query）必须与基线一致——
 接口变化，逻辑输出不变。golden 存 tests/golden/orthogonal/baseline.json。
 """
-from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"))
-
-from duanyu import query, yearly_range  # noqa: E402
-from factors import evaluate_factors  # noqa: E402
-from paipan import full_paipan  # noqa: E402
+from app.natal.tools.charts import build_natal_chart  # noqa: E402
+from app.natal.tools.duanyu import query, yearly_range  # noqa: E402
+from app.natal.tools.factors import evaluate_factors  # noqa: E402
 
 GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden" / "orthogonal" / "baseline.json"
 
@@ -31,38 +26,38 @@ def baseline() -> dict:
 
 
 @pytest.fixture(scope="module")
-def pan():
-    return full_paipan(*BIRTH)
+def natal_chart():
+    return build_natal_chart(*BIRTH)
 
 
-def test_factors_bazi_matches_baseline(pan, baseline):
-    from yongshen import resolve_yongshen
+def test_factors_bazi_matches_baseline(natal_chart, baseline):
+    from app.natal.tools.yongshen import resolve_yongshen
 
-    evaluated = {**pan, "_selected_yongshen": resolve_yongshen(pan["full"])}
+    evaluated = {**natal_chart, "_selected_yongshen": resolve_yongshen(natal_chart["full"])}
     got = evaluate_factors("male", evaluated, shushi="bazi")
     want = baseline["factors_bazi"]
     assert got == want
 
 
-def test_factors_ziwei_matches_baseline(pan, baseline):
-    got = evaluate_factors("male", pan, shushi="ziwei")
+def test_factors_ziwei_matches_baseline(natal_chart, baseline):
+    got = evaluate_factors("male", natal_chart, shushi="ziwei")
     want = baseline["factors_ziwei"]
     assert got == want
 
 
-def test_natal_shishen_matches_baseline(pan, baseline):
-    got = query("十神", pan)
+def test_natal_shishen_matches_baseline(natal_chart, baseline):
+    got = query("十神", natal_chart)
     want = baseline["natal_十神"]
     assert got == want
 
 
-def test_natal_mingong_matches_baseline(pan, baseline):
-    got = query("命宫", pan)
+def test_natal_mingong_matches_baseline(natal_chart, baseline):
+    got = query("命宫", natal_chart)
     want = baseline["natal_命宫"]
     assert got == want
 
 
-def test_period_2026_matches_baseline(pan, baseline):
-    got = yearly_range(pan, 2026, 2026, rules=["年十神"])
+def test_period_2026_matches_baseline(natal_chart, baseline):
+    got = yearly_range(natal_chart, 2026, 2026, rules=["年十神"])
     want = baseline["period_2026"]
     assert got == want

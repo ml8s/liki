@@ -47,7 +47,7 @@ func TestYingQiComputesCivilDateWindow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	chart := Chart{Pan: pan{
+	chart := Chart{Board: board{
 		RiGan:  riGan,
 		RiZhi:  you,
 		MaXing: BranchPalace{Branch: you, Gong: GongDui},

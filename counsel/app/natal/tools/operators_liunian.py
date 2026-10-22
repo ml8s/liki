@@ -1,10 +1,9 @@
 """流年因子算子：目标星、宫位、干支、神煞、大运与紫微四化判定。"""
-from __future__ import annotations
 
-from errors import FactorEvaluateError
-from factor_constants import load_constants
-from factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
-from operators_natal import _base_ctx_from_pan
+from app.natal.tools.errors import FactorEvaluateError
+from app.natal.tools.factor_constants import load_constants
+from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
+from app.natal.tools.operators_natal import _base_ctx_from_natal_chart
 
 # 流年算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _LIU_OP_NAMES = frozenset({
@@ -297,7 +296,7 @@ def _liu_op(op: str, args, gender: str, chart: dict, ctx=None) -> int:
     """执行流年算子；具体语义由领域分组 handler 分派。"""
     ctx = ctx or {}
     ln = ctx.get("liunian", {})
-    base = _base_ctx_from_pan(chart) or {}
+    base = _base_ctx_from_natal_chart(chart) or {}
     target_ops = ("流年透", "流年值", "流年合", "流年冲", "流年克", "大运窗口流年", "换运流年")
     target = args[0] if op in target_ops else ""
     if op in target_ops and not target:

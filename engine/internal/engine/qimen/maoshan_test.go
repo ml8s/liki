@@ -73,10 +73,10 @@ func TestMaoShanDingjuAnchors(t *testing.T) {
 			}
 			if chart.Method.DingjuMethod != "maoshan" || chart.Method.DingjuMethodName != "茅山定局" ||
 				chart.Method.JieQi != anchor.ActualJieQi || chart.Method.YongJuJieQi != anchor.YongJuJieQi ||
-				chart.Pan.YinDun != anchor.YinDun || chart.Pan.Jushu != anchor.Ju || chart.Method.Yuan != anchor.Yuan {
+				chart.Board.YinDun != anchor.YinDun || chart.Board.Jushu != anchor.Ju || chart.Method.Yuan != anchor.Yuan {
 				t.Fatalf("dingju = %s/%s %s/%s %v/%d/%s; want %+v",
 					chart.Method.DingjuMethod, chart.Method.DingjuMethodName, chart.Method.JieQi,
-					chart.Method.YongJuJieQi, chart.Pan.YinDun, chart.Pan.Jushu, chart.Method.Yuan, anchor)
+					chart.Method.YongJuJieQi, chart.Board.YinDun, chart.Board.Jushu, chart.Method.Yuan, anchor)
 			}
 		})
 	}

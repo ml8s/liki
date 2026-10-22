@@ -3,7 +3,6 @@
 解释器只认识通用表达式：path / eq / in / all / any / select / lookup。
 从格、调候、格局、中和、喜忌冲突等命理规则全部在 policy.json。
 """
-from __future__ import annotations
 
 import hashlib
 import json

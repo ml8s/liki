@@ -20,7 +20,6 @@
 
 换字改 `AVATARS` / `ICONS`；改配色与占比改下面的几何预设，然后重跑。
 """
-from __future__ import annotations
 
 import hashlib
 import re

@@ -1,35 +1,34 @@
-"""因子层 — pan 原语算子 + 真值表求值 + 本命/流年因子快照。
+"""因子层 — natal_chart 原语算子 + 真值表求值 + 本命/流年因子快照。
 
 分层：
-paipan.py 排盘
-factors.py pan → snap（本命/流年因子快照：直读 pan + 真值表复合求值）
+charts.py 引擎排盘调用
+factors.py natal_chart → snap（本命/流年因子快照：直读 natal_chart + 真值表复合求值）
 duanyu.py snap + 断语表 → 断语
 
 本文件只做机械求值；命理成员关系与分组在 constants.json，因子组合在 CSV。
 """
-from __future__ import annotations
 
 import re
 from typing import Optional
 
-from errors import FactorEvaluateError
-from factor_constants import load_constants
-from factor_context import FactorContext, NatalContext
-from factor_tables import load_factor_rows, load_liunian_rows
-from factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
-from natal_projection import project_natal_facts
-from operators_liunian import _LIU_OP_NAMES, _liu_op
-from operators_natal import (
+from app.natal.tools.errors import FactorEvaluateError
+from app.natal.tools.factor_constants import load_constants
+from app.natal.tools.factor_context import FactorContext, NatalContext
+from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
+from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
+from app.natal.tools.natal_projection import project_natal_facts
+from app.natal.tools.operators_liunian import _LIU_OP_NAMES, _liu_op
+from app.natal.tools.operators_natal import (
     _OP_NAMES,
-    _base_ctx_from_pan,
+    _base_ctx_from_natal_chart,
     _op,
 )
-from yongshen import resolve_yongshen
+from app.natal.tools.yongshen import resolve_yongshen
 
 __all__ = [
     "evaluate_operator",
     "evaluate_factors", "evaluate_liunian_factors",
-    "evaluate_snap_from_pan", "evaluate_liunian_snap_from_pan",
+    "evaluate_snap_from_natal_chart", "evaluate_liunian_snap_from_natal_chart",
     "prepare_natal_context",
 ]
 
@@ -149,7 +148,7 @@ def evaluate_factors(gender: str, chart: dict, shushi: Optional[str] = None,
     shushi="bazi"/"ziwei"：只算本术数因子（八字/紫微真分开——各自快照）；None=全算。
     factor_names 可限定因子闭包；None=该侧全量。调用方仍须自行保证引用闭包完整。
     条件列：带 [] = 原子事实（原语执行）；不带 [] = 因子引用（读快照——多遍稳定）。
-    chart=排盘 pan，算子从其直读。"""
+    chart=排盘 natal_chart，算子从其直读。"""
     rows = load_factor_rows()
     if shushi:
         side_config = load_constants()["命理侧"]
@@ -158,38 +157,38 @@ def evaluate_factors(gender: str, chart: dict, shushi: Optional[str] = None,
         rows = [r for r in rows if r["术数"] == shushi]
     if factor_names is not None:
         rows = [r for r in rows if r["因子"] in factor_names]
-    evaluation = chart if isinstance(chart, FactorContext) else _factor_context_from_pan(chart)
+    evaluation = chart if isinstance(chart, FactorContext) else _factor_context_from_natal_chart(chart)
     return _evaluate_truth_table(
         rows,
         lambda expression: _atomic(expression, gender, evaluation, current_year=current_year),
     )
 
 
-def _factor_context_from_pan(
-    pan: dict, selected_yongshen: Optional[dict] = None
+def _factor_context_from_natal_chart(
+    natal_chart: dict, selected_yongshen: Optional[dict] = None
 ) -> FactorContext:
-    """构建一次求值复用的只读 pan 视图；不修改调用方 pan。"""
-    if isinstance(pan, FactorContext):
-        return pan
-    evaluated_pan = pan
+    """构建一次求值复用的只读 natal_chart 视图；不修改调用方 natal_chart。"""
+    if isinstance(natal_chart, FactorContext):
+        return natal_chart
+    evaluated_pan = natal_chart
     if selected_yongshen is not None:
-        evaluated_pan = {**pan, "_selected_yongshen": selected_yongshen}
-    return FactorContext(pan, _base_ctx_from_pan(evaluated_pan))
+        evaluated_pan = {**natal_chart, "_selected_yongshen": selected_yongshen}
+    return FactorContext(natal_chart, _base_ctx_from_natal_chart(evaluated_pan))
 
 
-def _selected_for_pan(pan: dict) -> dict:
+def _selected_for_pan(natal_chart: dict) -> dict:
     """入口处完成唯一一次用神裁决；下游只消费显式 selected。"""
-    if isinstance(pan, FactorContext):
-        return pan.base.get("selected_yongshen") or {}
-    pan = pan or {}
-    selected = pan.get("_selected_yongshen")
+    if isinstance(natal_chart, FactorContext):
+        return natal_chart.base.get("selected_yongshen") or {}
+    natal_chart = natal_chart or {}
+    selected = natal_chart.get("_selected_yongshen")
     if isinstance(selected, dict):
         return selected
-    return resolve_yongshen(pan.get("full") or {})
+    return resolve_yongshen(natal_chart.get("full") or {})
 
 
 def prepare_natal_context(
-    pan: dict, factor_names: Optional[set[str]] = None
+    natal_chart: dict, factor_names: Optional[set[str]] = None
 ) -> NatalContext:
     """准备本命求值上下文与八字快照，供多年流年求值复用。
 
@@ -197,34 +196,34 @@ def prepare_natal_context(
     只需算一次。返回值仅作为内部编排句柄，不进入工具输出。
     factor_names 可按流年引用闭包裁剪本命八字因子；None=全量。
     """
-    selected = _selected_for_pan(pan)
-    evaluation = _factor_context_from_pan(pan, selected)
+    selected = _selected_for_pan(natal_chart)
+    evaluation = _factor_context_from_natal_chart(natal_chart, selected)
     snapshot = evaluate_factors(
-        pan.get("gender", ""), evaluation, shushi="bazi",
+        natal_chart.get("gender", ""), evaluation, shushi="bazi",
         factor_names=factor_names,
     )
     return NatalContext(evaluation=evaluation, snapshot=snapshot)
 
 
-def evaluate_snap_from_pan(
-    pan: dict, current_year: int = 0, sides: Optional[set[str]] = None,
+def evaluate_snap_from_natal_chart(
+    natal_chart: dict, current_year: int = 0, sides: Optional[set[str]] = None,
     factor_names: Optional[set[str]] = None, current_year_ziwei: Optional[int] = None
 ) -> dict:
-    """从完整 pan 直接产出领域快照。
+    """从完整 natal_chart 直接产出领域快照。
 
     返回 {八字: {...}, 紫微: {...}, context: {...}}；
     sides 可内部限定 bazi/ziwei，未请求侧保留空对象；默认双侧求值。
-    内部用 _base_ctx_from_pan 从 pan 构建求值上下文，算子仍经 _op 从 pan 直读求值。
-    并透传 pan 的稳定领域事实（纳音/三元/旬空/局数/命身主/空宫 等）进对应盘 snap，供断语消费。
+    内部用 _base_ctx_from_natal_chart 从 natal_chart 构建求值上下文，算子仍经 _op 从 natal_chart 直读求值。
+    并透传 natal_chart 的稳定领域事实（纳音/三元/旬空/局数/命身主/空宫 等）进对应盘 snap，供断语消费。
 
     不做全局内容缓存：agent CLI 一次调用只求值一次，长驻场景由调用方决定生命周期。
-    同一 pan 的多域查询在进程内可复用外部传入的 NatalContext。
+    同一 natal_chart 的多域查询在进程内可复用外部传入的 NatalContext。
     """
-    gender = pan.get("gender", "")
+    gender = natal_chart.get("gender", "")
     ziwei_year = current_year if current_year_ziwei is None else current_year_ziwei
     context = {"性别": gender}
-    if pan.get("instant") and pan.get("timezone"):
-        context["时间事实"] = {"instant": pan["instant"], "timezone": pan["timezone"]}
+    if natal_chart.get("instant") and natal_chart.get("timezone"):
+        context["时间事实"] = {"instant": natal_chart["instant"], "timezone": natal_chart["timezone"]}
     if current_year:
         context["当前年份"] = current_year
     if ziwei_year and ziwei_year != current_year:
@@ -234,10 +233,10 @@ def evaluate_snap_from_pan(
     requested = set(side_config["快照代码"]) if sides is None else set(sides)
     if not requested <= set(side_config["快照代码"]):
         raise FactorEvaluateError(
-            f"evaluate_snap_from_pan sides 只支持 {side_config['快照代码']}，收到: {sorted(requested)}"
+            f"evaluate_snap_from_natal_chart sides 只支持 {side_config['快照代码']}，收到: {sorted(requested)}"
         )
-    selected = _selected_for_pan(pan) if "bazi" in requested else None
-    evaluation = _factor_context_from_pan(pan, selected)
+    selected = _selected_for_pan(natal_chart) if "bazi" in requested else None
+    evaluation = _factor_context_from_natal_chart(natal_chart, selected)
     requested_factors = None if factor_names is None else set(factor_names)
     snap = {
         **{
@@ -250,7 +249,7 @@ def evaluate_snap_from_pan(
         },
         "context": context,
     }
-    facts = project_natal_facts(pan)
+    facts = project_natal_facts(natal_chart)
     for code in side_config["快照代码"]:
         snap[side_labels[code]].update(facts[side_labels[code]])
     return snap
@@ -265,14 +264,14 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
     与 evaluate_factors 同构——流年因子定义在表，本函数只做机械求值。
     factor_names 可限定流年因子闭包；None=该侧全量。
     liunian_data: bazi.liunian 返回（调用方预取）；zw_liunian_data: 紫微流年四化。
-    chart=排盘 pan 或内部 FactorContext；基础上下文不写回调用方 chart。
+    chart=排盘 natal_chart 或内部 FactorContext；基础上下文不写回调用方 chart。
     """
     ctx = {
         "liunian": liunian_data or {},
         "zw_liunian": zw_liunian_data or {},
         "year": year,
         "chart": chart,
-        "base": _base_ctx_from_pan(chart),
+        "base": _base_ctx_from_natal_chart(chart),
         "snapshot": natal_snapshot or {},  # 本命因子快照（流年支受克等算子读本命五行旺衰）
     }
     rows = load_liunian_rows()
@@ -292,18 +291,18 @@ def evaluate_liunian_factors(gender: str, chart: dict, liunian_data: dict,
 
 # ══════════════ 快照生成入口 ══════════════
 
-def evaluate_liunian_snap_from_pan(pan: dict, liunian_pan: dict, year: int = 0,
+def evaluate_liunian_snap_from_natal_chart(natal_chart: dict, liunian_pan: dict, year: int = 0,
                                    natal_context: Optional[NatalContext] = None,
                                    factor_names: Optional[set[str]] = None) -> dict:
-    """流年因子快照（从 pan 直读，无中间层）。
+    """流年因子快照（从 natal_chart 直读，无中间层）。
 
     与直读式流年快照同构；可传入 prepare_natal_context 的结果，在多年扫描中复用
-    本命基础聚合与本命八字因子。函数只读 pan，不向其写入私有缓存。
+    本命基础聚合与本命八字因子。函数只读 natal_chart，不向其写入私有缓存。
     factor_names 可限定流年因子闭包；None=双侧全量。
     """
-    gender = pan.get("gender", "")
+    gender = natal_chart.get("gender", "")
     if natal_context is None:
-        evaluation = _factor_context_from_pan(pan, _selected_for_pan(pan))
+        evaluation = _factor_context_from_natal_chart(natal_chart, _selected_for_pan(natal_chart))
         bz = evaluate_factors(gender, evaluation, shushi="bazi")
     else:
         evaluation = natal_context.evaluation

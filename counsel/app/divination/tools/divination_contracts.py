@@ -1,5 +1,6 @@
 """问卦文档运行时校验；公开契约唯一源是 Pydantic model。"""
-from __future__ import annotations
+
+from pydantic import ValidationError
 
 from app.contracts.divination import (
     DIVINATION_TOOLS,
@@ -8,7 +9,6 @@ from app.contracts.divination import (
     QimenQueryOutput,
     QimenSnapshotOutput,
 )
-from pydantic import ValidationError
 
 DOCUMENT_MODELS = {
     "liuyao_snapshot": LiuyaoSnapshotOutput,

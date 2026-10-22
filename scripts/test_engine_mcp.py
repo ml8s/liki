@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Smoke-test engine-mcp's internal root and domain endpoints."""
-from __future__ import annotations
 
 import argparse
 import json

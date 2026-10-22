@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Fail CI when a reusable GitHub Action is referenced by a mutable ref."""
 
-from __future__ import annotations
 
 import re
 import sys

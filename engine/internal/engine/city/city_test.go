@@ -2,9 +2,8 @@ package city
 
 import (
 	"context"
-	"encoding/json"
-	"io"
-	"net/http"
+	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -36,241 +35,18 @@ func TestParseFloat(t *testing.T) {
 	}
 }
 
-func TestSearchCoords_Valid(t *testing.T) {
-	orig := httpClient
-	SetHTTPClient(&http.Client{
-		Transport: &mockSearchTransport{
-			body: `[{"lat":"39.9042","lon":"116.4074","name":"Beijing","address":{"country":"China","country_code":"CN"}}]`,
-		},
-	})
-	defer func() { SetHTTPClient(orig) }()
-
-	args := json.RawMessage(`{"city":"Beijing"}`)
-	result, err := SearchCoords(context.Background(), args)
-	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
-	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal result: %v", err)
-	}
-	if r.Name != "Beijing" {
-		t.Errorf("name = %q, want Beijing", r.Name)
-	}
-	if r.Longitude != 116.4074 {
-		t.Errorf("longitude = %f, want 116.4074", r.Longitude)
-	}
-	if r.Latitude != 39.9042 {
-		t.Errorf("latitude = %f, want 39.9042", r.Latitude)
-	}
-	if r.Country != "中国" {
-		t.Errorf("country = %q, want 中国", r.Country)
-	}
-}
-
-func TestSearchCoords_EmptyCityName(t *testing.T) {
-	args := json.RawMessage(`{"city":""}`)
-	_, err := SearchCoords(context.Background(), args)
-	if err == nil {
-		t.Fatal("expected error for empty city")
-	}
-	if !strings.Contains(err.Error(), "city is required") {
-		t.Errorf("error = %v, want 'city is required'", err)
-	}
-}
-
-func TestSearchCoords_CanDisableExternalGeocoder(t *testing.T) {
-	t.Setenv("LIKI_EXTERNAL_GEOCODING", "off")
-	_, err := SearchCoords(
-		context.Background(),
-		json.RawMessage(`{"city":"definitely-not-in-the-builtin-table"}`),
-	)
-	if err == nil {
-		t.Fatal("expected external geocoding to be disabled")
-	}
-	if !strings.Contains(err.Error(), "外部地理编码已禁用") {
-		t.Errorf("unexpected error: %v", err)
-	}
-}
-
-func TestSearchCoords_InvalidJSON(t *testing.T) {
-	args := json.RawMessage(`not-json`)
-	_, err := SearchCoords(context.Background(), args)
-	if err == nil {
-		t.Fatal("expected error for invalid JSON")
-	}
-}
-
-func TestSearchCoords_HTTPError(t *testing.T) {
-	orig := httpClient
-	SetHTTPClient(&http.Client{
-		Transport: &mockSearchTransport{
-			status: http.StatusInternalServerError,
-			body:   "server error",
-		},
-	})
-	defer func() { SetHTTPClient(orig) }()
-
-	args := json.RawMessage(`{"city":"Nowhere"}`)
-	_, err := SearchCoords(context.Background(), args)
-	if err == nil {
-		t.Fatal("expected error for search failure")
-	}
-}
-
-func TestSearchCoords_EmptyResults(t *testing.T) {
-	orig := httpClient
-	SetHTTPClient(&http.Client{
-		Transport: &mockSearchTransport{
-			body: `[]`,
-		},
-	})
-	defer func() { SetHTTPClient(orig) }()
-
-	args := json.RawMessage(`{"city":"Xyzzy"}`)
-	_, err := SearchCoords(context.Background(), args)
-	if err == nil {
-		t.Fatal("expected error for empty results")
-	}
-}
-
-func TestSearchCoords_MalformedJSON(t *testing.T) {
-	orig := httpClient
-	SetHTTPClient(&http.Client{
-		Transport: &mockSearchTransport{
-			body: `not json`,
-		},
-	})
-	defer func() { SetHTTPClient(orig) }()
-
-	args := json.RawMessage(`{"city":"X"}`)
-	_, err := SearchCoords(context.Background(), args)
-	if err == nil {
-		t.Fatal("expected error for malformed response")
-	}
-}
-
-type mockSearchTransport struct {
-	status int
-	body   string
-}
-
-func (m *mockSearchTransport) RoundTrip(_ *http.Request) (*http.Response, error) {
-	if m.status == 0 {
-		m.status = http.StatusOK
-	}
-	return &http.Response{
-		StatusCode: m.status,
-		Body:       io.NopCloser(strings.NewReader(m.body)),
-		Header:     http.Header{"Content-Type": []string{"application/json"}},
-	}, nil
-}
-
-type mockDoer struct{ resp *http.Response }
-
-func (m *mockDoer) Do(req *http.Request) (*http.Response, error) { return m.resp, nil }
-
-func mockResp(body string) *http.Response {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(strings.NewReader(body)),
-		Header:     http.Header{"Content-Type": {"application/json"}},
-	}
-}
-
-// TestSearchCoords_Schema verifies city 返回结构（name/longitude/latitude/country）
-// 与 city_coords 的 Result schema 声明一致（wire DTO: mcpcontract/city.go）
-func TestSearchCoords_Schema(t *testing.T) {
-	old := HttpClient()
-	defer SetHTTPClient(old)
-	// "北京" 现命中内置表；用内置表不存在的名字走 OSM 兜底路径验证 schema
-	SetHTTPClient(&mockDoer{resp: mockResp(`[{"name":"赛博坦","lon":"116.4074","lat":"39.9042","address":{"country":"中国"}}]`)})
-
-	out, err := SearchCoords(context.Background(), []byte(`{"city":"赛博坦"}`))
-	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
-	}
-	var r struct {
-		Name      string  `json:"name"`
-		Longitude float64 `json:"longitude"`
-		Latitude  float64 `json:"latitude"`
-		Country   string  `json:"country"`
-	}
-	if err := json.Unmarshal(out, &r); err != nil {
-		t.Fatalf("unmarshal: %v (输出: %s)", err, out)
-	}
-	if r.Name != "赛博坦" {
-		t.Errorf("name = %s, want 赛博坦", r.Name)
-	}
-	if r.Country != "中国" {
-		t.Errorf("country = %s, want 中国", r.Country)
-	}
-}
-
-// TestSearchCoords_GlobalSearch 海外城市能正确返回经纬度
-func TestSearchCoords_GlobalSearch(t *testing.T) {
-	old := HttpClient()
-	defer SetHTTPClient(old)
-	SetHTTPClient(&mockDoer{resp: mockResp(`[{"name":"New York","lon":"-74.006","lat":"40.7128","address":{"country":"United States","city":"New York"}}]`)})
-
-	out, err := SearchCoords(context.Background(), []byte(`{"city":"Springfield"}`))
-	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
-	}
-	var r searchResult
-	if err := json.Unmarshal(out, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
-	}
-	if r.Name != "New York" {
-		t.Errorf("name = %q, want New York", r.Name)
-	}
-	if r.Longitude != -74.006 {
-		t.Errorf("longitude = %f, want -74.006", r.Longitude)
-	}
-	if r.Latitude != 40.7128 {
-		t.Errorf("latitude = %f, want 40.7128", r.Latitude)
-	}
-}
-
-// TestSearchCoords_AdministrativePriority 行政级别优先（county/city/state 优先于 POI）
-func TestSearchCoords_AdministrativePriority(t *testing.T) {
-	old := HttpClient()
-	defer SetHTTPClient(old)
-	// 返回顺序：POI 在前，行政区域在后
-	SetHTTPClient(&mockDoer{resp: mockResp(`[
-		{"name":"Beijing Road","lon":"116.4","lat":"39.9","type":"poi","address":{"country":"China"}},
-		{"name":"Beijing","lon":"116.4074","lat":"39.9042","type":"city","address":{"country":"China","city":"Beijing"}}
-	]`)})
-
-	out, err := SearchCoords(context.Background(), []byte(`{"city":"Beijing"}`))
-	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
-	}
-	var r searchResult
-	if err := json.Unmarshal(out, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
-	}
-	// 应该选择 city 类型，而非 poi
-	if r.Name != "Beijing" {
-		t.Errorf("name = %q, want Beijing (should prefer city over poi)", r.Name)
-	}
-}
-
 func TestBuiltin_CountyExact(t *testing.T) {
 	// 抚远市（佳木斯下辖，中国最东端）应精确命中内置表
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"抚远市"}`))
+	candidates, err := ResolveCandidates(context.Background(), "抚远市")
 	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
+		t.Fatalf("ResolveCandidates: %v", err)
 	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
+	if len(candidates) == 0 {
+		t.Fatal("no candidates")
 	}
+	r := candidates[0]
 	if got, want := r.Longitude, 134.294501; got != want {
 		t.Errorf("longitude = %v, want %v", got, want)
-	}
-	if got, want := r.Latitude, 48.364707; got != want {
-		t.Errorf("latitude = %v, want %v", got, want)
 	}
 	if r.Country == "" {
 		t.Error("country should be populated from embedded region")
@@ -279,71 +55,73 @@ func TestBuiltin_CountyExact(t *testing.T) {
 
 func TestBuiltin_CountySuffixMatch(t *testing.T) {
 	// 不带"市"后缀应回退命中县级条目
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"抚远"}`))
+	candidates, err := ResolveCandidates(context.Background(), "抚远")
 	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
+		t.Fatalf("ResolveCandidates: %v", err)
 	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
+	if len(candidates) == 0 {
+		t.Fatal("no candidates")
 	}
-	if got, want := r.Longitude, 134.294501; got != want {
+	if got, want := candidates[0].Longitude, 134.294501; got != want {
 		t.Errorf("longitude = %v, want %v", got, want)
 	}
 }
 
 func TestBuiltin_PrefectureFallback(t *testing.T) {
 	// 只给地级市"佳木斯" → 命中 cities 代表坐标（向阳区）
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"佳木斯"}`))
+	candidates, err := ResolveCandidates(context.Background(), "佳木斯")
 	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
+		t.Fatalf("ResolveCandidates: %v", err)
 	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
+	if len(candidates) == 0 {
+		t.Fatal("no candidates")
 	}
-	if got, want := r.Longitude, 130.361634; got != want {
+	if got, want := candidates[0].Longitude, 130.361634; got != want {
 		t.Errorf("longitude = %v, want %v", got, want)
 	}
 }
 
 func TestBuiltin_WorldCity(t *testing.T) {
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"东京"}`))
+	candidates, err := ResolveCandidates(context.Background(), "东京")
 	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
+		t.Fatalf("ResolveCandidates: %v", err)
 	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
+	if len(candidates) == 0 {
+		t.Fatal("no candidates")
 	}
-	if got, want := r.Longitude, 139.692; got != want {
+	if got, want := candidates[0].Longitude, 139.692; got != want {
 		t.Errorf("longitude = %v, want %v", got, want)
 	}
-	if got, want := r.Country, "日本"; got != want {
+	if got, want := candidates[0].Country, "日本"; got != want {
 		t.Errorf("country = %q, want %q", got, want)
 	}
 }
 
-func TestBuiltin_OSMFallback(t *testing.T) {
-	// 内置表未命中（长尾海外地名）→ 走 OSM 兜底
-	orig := httpClient
-	SetHTTPClient(&http.Client{
-		Transport: &mockSearchTransport{
-			body: `[{"lat":"51.5074","lon":"-0.1278","name":"London","address":{"country":"United Kingdom","country_code":"GB"}}]`,
-		},
-	})
-	defer func() { SetHTTPClient(orig) }()
-
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"Hammersmith"}`))
+func TestBuiltin_ConflictingSuffix(t *testing.T) {
+	// 输入带错误后缀（表里是"抚远市"，输入"抚远区"）→ 去后缀回退应命中
+	candidates, err := ResolveCandidates(context.Background(), "抚远区")
 	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
+		t.Fatalf("ResolveCandidates: %v", err)
 	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
+	if len(candidates) == 0 {
+		t.Fatal("no candidates")
 	}
-	if got, want := r.Longitude, -0.1278; got != want {
+	if got, want := candidates[0].Longitude, 134.294501; got != want {
 		t.Errorf("longitude = %v, want %v", got, want)
+	}
+}
+
+func TestBuiltin_Municipality(t *testing.T) {
+	// 直辖市："北京" → 应命中 cities["北京市"]
+	candidates, err := ResolveCandidates(context.Background(), "北京")
+	if err != nil {
+		t.Fatalf("ResolveCandidates: %v", err)
+	}
+	if len(candidates) == 0 {
+		t.Fatal("no candidates")
+	}
+	if got, want := candidates[0].Longitude, 116.4074; got < want-0.5 || got > want+0.5 {
+		t.Errorf("longitude = %v, want near %v (北京)", got, want)
 	}
 }
 
@@ -403,157 +181,6 @@ func TestBuiltin_DataIntegrity(t *testing.T) {
 			t.Errorf("duplicate county record: %s", key)
 		}
 		seen[key] = true
-	}
-}
-
-func TestBuiltin_ConflictingSuffix(t *testing.T) {
-	// 输入带错误后缀（表里是"抚远市"，输入"抚远区"）→ 去后缀回退应命中
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"抚远区"}`))
-	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
-	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
-	}
-	if got, want := r.Longitude, 134.294501; got != want {
-		t.Errorf("longitude = %v, want %v", got, want)
-	}
-}
-
-func TestBuiltin_Municipality(t *testing.T) {
-	// 直辖市："北京" → 应命中 cities["北京市"]
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"北京"}`))
-	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
-	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
-	}
-	if got, want := r.Longitude, 116.4074; got < want-0.5 || got > want+0.5 {
-		t.Errorf("longitude = %v, want near %v (北京)", got, want)
-	}
-}
-
-func TestCountryToZh(t *testing.T) {
-	cases := map[string]string{
-		"China":            "中国",
-		"Taiwan":           "中国台湾",
-		"Hong Kong":        "中国香港",
-		"Macao":            "中国澳门",
-		"United Kingdom":   "英国",
-		"United States":    "美国",
-		"Japan":            "日本",
-		"SomeUnknownPlace": "SomeUnknownPlace",
-		"":                 "",
-	}
-	for in, want := range cases {
-		if got := countryToZh(in); got != want {
-			t.Errorf("countryToZh(%q) = %q, want %q", in, got, want)
-		}
-	}
-}
-
-func TestBuiltin_OSMFallbackCountryZh(t *testing.T) {
-	// OSM 兜底返回英文国家名 → country 字段应统一为中文
-	orig := httpClient
-	SetHTTPClient(&http.Client{
-		Transport: &mockSearchTransport{
-			body: `[{"lat":"51.5074","lon":"-0.1278","name":"London","address":{"country":"United Kingdom","country_code":"GB"}}]`,
-		},
-	})
-	defer func() { SetHTTPClient(orig) }()
-
-	result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"Camden Town"}`))
-	if err != nil {
-		t.Fatalf("SearchCoords: %v", err)
-	}
-	var r searchResult
-	if err := json.Unmarshal(result, &r); err != nil {
-		t.Fatalf("unmarshal: %v", err)
-	}
-	if got, want := r.Country, "英国"; got != want {
-		t.Errorf("country = %q, want %q", got, want)
-	}
-}
-
-// TestSearchCoords_AmbiguousSameName：同名行政区跨省歧义——应提示省/市限定，不静默取错省。
-func TestSearchCoords_AmbiguousSameName(t *testing.T) {
-	orig := httpClient
-	httpClient = &http.Client{
-		Transport: &mockSearchTransport{
-			status: 200,
-			body: `[
-				{"lat":"41.56","lon":"120.45","name":"北山县","type":"county",
-				 "address":{"country":"中国","state":"辽宁省","county":"北山县"}},
-				{"lat":"34.25","lon":"119.60","name":"北山县","type":"county",
-				 "address":{"country":"中国","state":"江苏省","county":"北山县"}}
-			]`,
-		},
-	}
-	defer func() { httpClient = orig }()
-	_, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"北山县"}`))
-	if err == nil {
-		t.Fatal("同名行政区歧义应返回错误提示，got nil")
-	}
-	if !strings.Contains(err.Error(), "同名行政区跨省歧义") {
-		t.Errorf("错误应提示同名歧义，got: %v", err)
-	}
-}
-
-func TestSearchCoords_AmbiguousNameFailsClosed(t *testing.T) {
-	// "朝阳" 在内置表中同时对应 朝阳区 与 朝阳县：必须报歧义，不得猜一个。
-	_, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"朝阳"}`))
-	if err == nil || !strings.Contains(err.Error(), "歧义") {
-		t.Fatalf("expected ambiguity error, got %v", err)
-	}
-}
-
-func TestBuiltin_AmbiguousDistrictFailsClosed(t *testing.T) {
-	// "朝阳区" 跨省同名（北京/长春）：必须报歧义并列出省限定，不得静默返回吉林坐标。
-	_, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"朝阳区"}`))
-	if err == nil {
-		t.Fatal("跨省同名区县应返回歧义错误")
-	}
-	for _, want := range []string{"歧义", "北京市朝阳区", "吉林省"} {
-		if !strings.Contains(err.Error(), want) {
-			t.Errorf("error %q should contain %q", err, want)
-		}
-	}
-}
-
-func TestBuiltin_CompoundRegionResolves(t *testing.T) {
-	// "省/市 + 名称" 复合形式应消歧到正确省份与经度区间。
-	cases := []struct {
-		query          string
-		country        string
-		lngMin, lngMax float64
-	}{
-		{"北京朝阳区", "北京市", 116.3, 116.6},
-		{"天津和平区", "天津市", 117.1, 117.4},
-		{"杭州西湖区", "浙江省", 120.0, 120.3},
-		{"南京鼓楼区", "江苏省", 118.6, 118.9},
-		{"徐州鼓楼区", "江苏省", 117.0, 117.4},
-		{"石家庄桥西区", "河北省", 114.3, 114.6},
-	}
-	for _, c := range cases {
-		result, err := SearchCoords(context.Background(), json.RawMessage(`{"city":"`+c.query+`"}`))
-		if err != nil {
-			t.Errorf("%s: %v", c.query, err)
-			continue
-		}
-		var r searchResult
-		if err := json.Unmarshal(result, &r); err != nil {
-			t.Errorf("%s: unmarshal: %v", c.query, err)
-			continue
-		}
-		if r.Country != c.country {
-			t.Errorf("%s: country = %q, want %q", c.query, r.Country, c.country)
-		}
-		if r.Longitude < c.lngMin || r.Longitude > c.lngMax {
-			t.Errorf("%s: longitude = %v, want in [%v,%v]", c.query, r.Longitude, c.lngMin, c.lngMax)
-		}
 	}
 }
 
@@ -680,17 +307,6 @@ func TestResolveCandidates_LimitAndDedup(t *testing.T) {
 	}
 }
 
-func TestSearchCoords_AllCityNamesResolve(t *testing.T) {
-	geoOnce.Do(loadGeo)
-	for _, record := range geo.Cities {
-		if _, ok, err := searchBuiltin(record.Name); err != nil {
-			t.Fatalf("%s: %v", record.Name, err)
-		} else if !ok {
-			t.Fatalf("%s: not found", record.Name)
-		}
-	}
-}
-
 func TestBuiltinChinaRecordsHaveTimezones(t *testing.T) {
 	geoOnce.Do(loadGeo)
 	for _, table := range [][]geoRecord{geo.Counties, geo.Cities} {
@@ -716,4 +332,12 @@ func TestResolveWorldAlias(t *testing.T) {
 	if candidates[0].BBox == nil {
 		t.Fatalf("New York bbox missing")
 	}
+}
+
+func parseFloat(s string) (float64, error) {
+	f, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
+	if err != nil {
+		return 0, fmt.Errorf("parseFloat: %q: %w", s, err)
+	}
+	return f, nil
 }

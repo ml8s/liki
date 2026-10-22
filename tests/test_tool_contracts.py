@@ -1,6 +1,5 @@
 """Counsel natal tool 参数契约测试（Pydantic contracts 是唯一事实源）。"""
 import json
-import sys
 from pathlib import Path
 
 from app.contracts import NATAL_TOOLS
@@ -13,7 +12,7 @@ def test_all_tools_have_closed_args():
     required = {
         "bazi_yongshen": ["chart"],
         "compute_factors": ["chart"],
-        "natal_query": ["factors", "factors_digest", "topics", "context"],
+        "natal_query": ["factors", "factors_digest", "topics"],
         "period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],
     }
     assert set(FUNCTIONS) == set(required)
@@ -34,8 +33,7 @@ def test_topic_enum_is_generated_from_topic_routes():
 
 
 def test_topic_routes_are_valid_and_unambiguous():
-    sys.path.insert(0, str(ROOT / "counsel/app/natal/tools"))
-    from factor_constants import load_constants
+    from app.natal.tools.factor_constants import load_constants
 
     routes_doc = json.loads(
         (ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")

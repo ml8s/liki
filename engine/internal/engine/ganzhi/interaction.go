@@ -66,25 +66,7 @@ func IsZhiHe(a, b Zhi) bool {
 }
 
 // IsTripleHe returns true if the two zhi belong to the same 三合 group.
-func IsTripleHe(a, b Zhi) bool {
-	for _, tr := range TripleHeList {
-		if inZhiList(tr.Zhi, a) && inZhiList(tr.Zhi, b) {
-			return true
-		}
-	}
-	return false
-}
-
 // IsTripleHui returns true if the two zhi belong to the same 三会 group.
-func IsTripleHui(a, b Zhi) bool {
-	for _, tr := range TripleHuiList {
-		if inZhiList(tr.Zhi, a) && inZhiList(tr.Zhi, b) {
-			return true
-		}
-	}
-	return false
-}
-
 // ChongZhi returns the zhi that forms a 六冲 pair with z (子↔午, 丑↔未, ...).
 func ChongZhi(z Zhi) Zhi {
 	return Zhi((int(z)+5)%12 + 1)

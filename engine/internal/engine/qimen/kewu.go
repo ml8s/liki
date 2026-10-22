@@ -10,10 +10,10 @@ type ganEntry struct {
 }
 
 // computeGanInteractions returns the 十干克应 for each gong.
-func computeGanInteractions(pan pan) []GanInteraction {
+func computeGanInteractions(board board) []GanInteraction {
 	result := []GanInteraction{}
 	for i := 0; i < 9; i++ {
-		p := pan.GongWei[i]
+		p := board.GongWei[i]
 		for _, heavenGan := range heavenGans(p) {
 			key := [2]ganzhi.Gan{p.DiPanGan, heavenGan}
 			if entry, ok := ganInteractionTable[key]; ok {

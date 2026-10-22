@@ -126,50 +126,50 @@ func TestMingFaReferenceAnchors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if anchor.YinDun != nil && chart.Pan.YinDun != *anchor.YinDun {
-				t.Fatalf("yin dun = %v, want %v", chart.Pan.YinDun, *anchor.YinDun)
+			if anchor.YinDun != nil && chart.Board.YinDun != *anchor.YinDun {
+				t.Fatalf("yin dun = %v, want %v", chart.Board.YinDun, *anchor.YinDun)
 			}
-			if anchor.Ju != nil && chart.Pan.Jushu != *anchor.Ju {
-				t.Fatalf("ju = %d, want %d", chart.Pan.Jushu, *anchor.Ju)
+			if anchor.Ju != nil && chart.Board.Jushu != *anchor.Ju {
+				t.Fatalf("ju = %d, want %d", chart.Board.Jushu, *anchor.Ju)
 			}
 			if anchor.XunShou != nil && chart.Method.LeadXunShou.LiuYi != *anchor.XunShou {
 				t.Fatalf("xun shou = %s, want %s", chart.Method.LeadXunShou.LiuYi, *anchor.XunShou)
 			}
 			if anchor.KongWang != nil {
-				got := ganzhi.ZhiName(chart.Pan.KongWang[0].Branch) + ganzhi.ZhiName(chart.Pan.KongWang[1].Branch)
+				got := ganzhi.ZhiName(chart.Board.KongWang[0].Branch) + ganzhi.ZhiName(chart.Board.KongWang[1].Branch)
 				if got != *anchor.KongWang {
 					t.Fatalf("kong wang = %s, want %s", got, *anchor.KongWang)
 				}
 			}
-			if anchor.DutyStar != nil && chart.Pan.DutyStar.String() != *anchor.DutyStar {
-				t.Fatalf("duty star = %s, want %s", chart.Pan.DutyStar, *anchor.DutyStar)
+			if anchor.DutyStar != nil && chart.Board.DutyStar.String() != *anchor.DutyStar {
+				t.Fatalf("duty star = %s, want %s", chart.Board.DutyStar, *anchor.DutyStar)
 			}
 			if anchor.DutySource != nil && int(chart.Method.LeadXunShouGong) != *anchor.DutySource {
 				t.Fatalf("duty source = %d, want %d", chart.Method.LeadXunShouGong, *anchor.DutySource)
 			}
-			if anchor.DutyLand != nil && int(chart.Pan.DutyStarPalace) != *anchor.DutyLand {
-				t.Fatalf("duty land = %d, want %d", chart.Pan.DutyStarPalace, *anchor.DutyLand)
+			if anchor.DutyLand != nil && int(chart.Board.DutyStarPalace) != *anchor.DutyLand {
+				t.Fatalf("duty land = %d, want %d", chart.Board.DutyStarPalace, *anchor.DutyLand)
 			}
-			if anchor.DutyDoor != nil && chart.Pan.DutyDoor.String() != *anchor.DutyDoor {
-				t.Fatalf("duty door = %s, want %s", chart.Pan.DutyDoor, *anchor.DutyDoor)
+			if anchor.DutyDoor != nil && chart.Board.DutyDoor.String() != *anchor.DutyDoor {
+				t.Fatalf("duty door = %s, want %s", chart.Board.DutyDoor, *anchor.DutyDoor)
 			}
-			if anchor.DoorLand != nil && int(chart.Pan.DutyDoorPalace) != *anchor.DoorLand {
-				t.Fatalf("door land = %d, want %d", chart.Pan.DutyDoorPalace, *anchor.DoorLand)
+			if anchor.DoorLand != nil && int(chart.Board.DutyDoorPalace) != *anchor.DoorLand {
+				t.Fatalf("door land = %d, want %d", chart.Board.DutyDoorPalace, *anchor.DoorLand)
 			}
 			if anchor.CenterStarPalace != nil {
-				palace := chart.Pan.GongWei[*anchor.CenterStarPalace-1]
+				palace := chart.Board.GongWei[*anchor.CenterStarPalace-1]
 				if len(palace.TianPan) != 1 || palace.TianPan[0].Star != StarTianQin {
 					t.Fatalf("center star palace %d = %+v", *anchor.CenterStarPalace, palace)
 				}
 			}
 			if anchor.CenterDoorPalace != nil {
-				palace := chart.Pan.GongWei[*anchor.CenterDoorPalace-1]
+				palace := chart.Board.GongWei[*anchor.CenterDoorPalace-1]
 				if !palace.DoorSet || palace.Door != DoorZhong {
 					t.Fatalf("center door palace %d = %+v", *anchor.CenterDoorPalace, palace)
 				}
 			}
 			for i, want := range anchor.HiddenPillars {
-				if got := chart.Pan.GongWei[i].HiddenPillar; got != want {
+				if got := chart.Board.GongWei[i].HiddenPillar; got != want {
 					t.Fatalf("hidden pillar %d = %q, want %q", i+1, got, want)
 				}
 			}
@@ -195,27 +195,27 @@ func TestMingFaCheckedInAnchor(t *testing.T) {
 		chart.Method.DingjuMethod != "chaibu" || chart.Method.SchoolName != "鸣法飞盘" {
 		t.Fatalf("method = %+v", chart.Method)
 	}
-	if !chart.Pan.YinDun || chart.Pan.Jushu != 8 || chart.Method.Yuan != "下元" {
-		t.Fatalf("dingju = %v/%d/%s", chart.Pan.YinDun, chart.Pan.Jushu, chart.Method.Yuan)
+	if !chart.Board.YinDun || chart.Board.Jushu != 8 || chart.Method.Yuan != "下元" {
+		t.Fatalf("dingju = %v/%d/%s", chart.Board.YinDun, chart.Board.Jushu, chart.Method.Yuan)
 	}
-	if got := ganzhi.GanName(chart.Pan.LeadGan) + ganzhi.ZhiName(chart.Pan.LeadZhi); got != "癸亥" {
+	if got := ganzhi.GanName(chart.Board.LeadGan) + ganzhi.ZhiName(chart.Board.LeadZhi); got != "癸亥" {
 		t.Fatalf("lead pillar = %s", got)
 	}
-	if chart.Method.LeadXunShou.LiuYi != "癸" || chart.Pan.KongWang[0].Branch == 0 ||
-		chart.Pan.KongWang[1].Branch == 0 {
-		t.Fatalf("xun/void = %+v/%+v", chart.Method.LeadXunShou, chart.Pan.KongWang)
+	if chart.Method.LeadXunShou.LiuYi != "癸" || chart.Board.KongWang[0].Branch == 0 ||
+		chart.Board.KongWang[1].Branch == 0 {
+		t.Fatalf("xun/void = %+v/%+v", chart.Method.LeadXunShou, chart.Board.KongWang)
 	}
-	if chart.Pan.DutyStar != StarTianChong || chart.Method.LeadXunShouGong != GongZhen ||
-		chart.Pan.DutyStarPalace != GongZhen || chart.Pan.DutyDoor != DoorShang ||
-		chart.Pan.DutyDoorPalace != GongZhen {
-		t.Fatalf("duty = %s/%d %s/%d", chart.Pan.DutyStar, chart.Pan.DutyStarPalace,
-			chart.Pan.DutyDoor, chart.Pan.DutyDoorPalace)
+	if chart.Board.DutyStar != StarTianChong || chart.Method.LeadXunShouGong != GongZhen ||
+		chart.Board.DutyStarPalace != GongZhen || chart.Board.DutyDoor != DoorShang ||
+		chart.Board.DutyDoorPalace != GongZhen {
+		t.Fatalf("duty = %s/%d %s/%d", chart.Board.DutyStar, chart.Board.DutyStarPalace,
+			chart.Board.DutyDoor, chart.Board.DutyDoorPalace)
 	}
 
 	wants := [9]mingfaPalaceWant(anchor.Palaces)
 	stars, doors, spirits := 0, 0, 0
 	for i, want := range wants {
-		palace := chart.Pan.GongWei[i]
+		palace := chart.Board.GongWei[i]
 		stars += len(palace.TianPan)
 		if palace.DoorSet {
 			doors++

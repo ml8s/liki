@@ -1,9 +1,8 @@
 """六爻起卦编排；原始硬币一律交给 engine 归一化。"""
-from __future__ import annotations
 
 from typing import Any
 
-from divination_rpc import engine_data
+from app.divination.tools.divination_rpc import engine_data
 
 
 def qigua(

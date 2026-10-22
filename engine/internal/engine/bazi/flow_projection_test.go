@@ -8,6 +8,8 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
+// 生产入口按 chart 消费流年/流月/流日/流时/小运；
+// 本测试锁定"offset 序列化不改变结果"的性质。
 func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 	atZ, err := time.Parse(time.RFC3339Nano, "1990-05-20T04:00:00Z")
 	if err != nil {
@@ -22,69 +24,52 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	dayunZ, err := ComputeDaYunAt(atZ.UTC(), loc, 116.407526, ganzhi.Male)
-	if err != nil {
-		t.Fatal(err)
-	}
-	dayunOffset, err := ComputeDaYunAt(atOffset.UTC(), loc, 116.407526, ganzhi.Male)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(dayunZ, dayunOffset) {
-		t.Fatal("offset serialization changed dayun")
+	chartZ := ComputeChartAt(atZ.UTC(), loc, 116.407526, ganzhi.Male)
+	chartOffset := ComputeChartAt(atOffset.UTC(), loc, 116.407526, ganzhi.Male)
+	if !reflect.DeepEqual(chartZ, chartOffset) {
+		t.Fatal("offset serialization changed chart")
 	}
 
-	liunianZ, err := ComputeLiuNianAt(atZ.UTC(), loc, 116.407526, 2026)
-	if err != nil {
-		t.Fatal(err)
+	cases := []struct {
+		name string
+		run  func(chart Chart) any
+	}{
+		{"liunian", func(c Chart) any {
+			v, err := ComputeLiuNian(c, 2026)
+			if err != nil {
+				t.Fatal(err)
+			}
+			return v
+		}},
+		{"liuyue", func(c Chart) any {
+			v, err := ComputeLiuYue(c, 2026, 5)
+			if err != nil {
+				t.Fatal(err)
+			}
+			return v
+		}},
+		{"liuri", func(c Chart) any {
+			v, err := ComputeLiuRi(c, 2026, 5, 20)
+			if err != nil {
+				t.Fatal(err)
+			}
+			return v
+		}},
+		{"liushi", func(c Chart) any {
+			v, err := ComputeLiuShi(c, 2026, 5, 20, 12)
+			if err != nil {
+				t.Fatal(err)
+			}
+			return v
+		}},
+		{"xiaoyun", func(c Chart) any {
+			return ComputeXiaoYun(c, 3)
+		}},
 	}
-	liunianOffset, err := ComputeLiuNianAt(atOffset.UTC(), loc, 116.407526, 2026)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(liunianZ, liunianOffset) {
-		t.Fatal("offset serialization changed liunian")
-	}
-
-	liuyueZ, err := ComputeLiuYueAt(atZ.UTC(), loc, 116.407526, 2026, 5)
-	if err != nil {
-		t.Fatal(err)
-	}
-	liuyueOffset, err := ComputeLiuYueAt(atOffset.UTC(), loc, 116.407526, 2026, 5)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(liuyueZ, liuyueOffset) {
-		t.Fatal("offset serialization changed liuyue")
-	}
-
-	liuriZ, err := ComputeLiuRiAt(atZ.UTC(), loc, 116.407526, 2026, 5, 20)
-	if err != nil {
-		t.Fatal(err)
-	}
-	liuriOffset, err := ComputeLiuRiAt(atOffset.UTC(), loc, 116.407526, 2026, 5, 20)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(liuriZ, liuriOffset) {
-		t.Fatal("offset serialization changed liuri")
-	}
-
-	liushiZ, err := ComputeLiuShiAt(atZ.UTC(), loc, 116.407526, 2026, 5, 20, 12)
-	if err != nil {
-		t.Fatal(err)
-	}
-	liushiOffset, err := ComputeLiuShiAt(atOffset.UTC(), loc, 116.407526, 2026, 5, 20, 12)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(liushiZ, liushiOffset) {
-		t.Fatal("offset serialization changed liushi")
-	}
-
-	xiaoyunZ := ComputeXiaoYunAt(atZ.UTC(), loc, 116.407526, 3)
-	xiaoyunOffset := ComputeXiaoYunAt(atOffset.UTC(), loc, 116.407526, 3)
-	if !reflect.DeepEqual(xiaoyunZ, xiaoyunOffset) {
-		t.Fatal("offset serialization changed xiaoyun")
+	for _, tc := range cases {
+		z, o := tc.run(chartZ), tc.run(chartOffset)
+		if !reflect.DeepEqual(z, o) {
+			t.Fatalf("offset serialization changed %s", tc.name)
+		}
 	}
 }

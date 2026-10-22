@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Generate the digest manifest for release images pushed by release.yml."""
-from __future__ import annotations
 
 import argparse
 import json

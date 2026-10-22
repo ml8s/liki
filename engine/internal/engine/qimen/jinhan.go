@@ -42,8 +42,8 @@ type JinhanDaySpirit struct {
 	Shen string     `json:"shen"`
 }
 
-// JinhanPan is the complete Golden Mirror daily plate.
-type JinhanPan struct {
+// JinhanBoard is the complete Golden Mirror daily plate.
+type JinhanBoard struct {
 	YinDun     bool                `json:"yin_dun"`
 	RiGan      ganzhi.Gan          `json:"ri_gan"`
 	RiZhi      ganzhi.Zhi          `json:"ri_zhi"`
@@ -54,7 +54,7 @@ type JinhanPan struct {
 // JinhanChart is the public result of qimen.chart for school=jinhan_yujing.
 type JinhanChart struct {
 	Method JinhanChartMethod `json:"method"`
-	Pan    JinhanPan         `json:"pan"`
+	Board  JinhanBoard       `json:"board"`
 }
 
 // ComputeJinhanChart computes the Golden Mirror daily chart from civil time
@@ -65,16 +65,16 @@ func ComputeJinhanChart(gt time.Time, st time.Time) JinhanChart {
 	term := currentSolarTermInfo(termTime)
 	yinDun := term.Index >= 12
 	chart := JinhanChart{Method: buildJinhanMethod(term)}
-	chart.Pan.YinDun = yinDun
-	chart.Pan.RiGan, chart.Pan.RiZhi = bz.Ri.Gan, bz.Ri.Zhi
+	chart.Board.YinDun = yinDun
+	chart.Board.RiGan, chart.Board.RiZhi = bz.Ri.Gan, bz.Ri.Zhi
 	for palace := GongKan; palace <= GongLi; palace++ {
-		chart.Pan.GongWei[int(palace)-1] = JinhanPalace{
+		chart.Board.GongWei[int(palace)-1] = JinhanPalace{
 			Gong: palaceIdentity(palace), MenPresent: false,
 		}
 	}
-	layoutJinhanStars(&chart.Pan, bz.Ri, yinDun)
-	layoutJinhanDoors(&chart.Pan, bz.Ri, yinDun)
-	layoutJinhanDaySpirits(&chart.Pan, bz.Ri)
+	layoutJinhanStars(&chart.Board, bz.Ri, yinDun)
+	layoutJinhanDoors(&chart.Board, bz.Ri, yinDun)
+	layoutJinhanDaySpirits(&chart.Board, bz.Ri)
 	return chart
 }
 
@@ -93,7 +93,7 @@ func buildJinhanMethod(term solarTermInfo) JinhanChartMethod {
 	}
 }
 
-func layoutJinhanStars(plate *JinhanPan, dayZhu ganzhi.Zhu, yinDun bool) {
+func layoutJinhanStars(plate *JinhanBoard, dayZhu ganzhi.Zhu, yinDun bool) {
 	dayIndex := ganzhi.SixtyCycleIndex(dayZhu.Gan, dayZhu.Zhi)
 	anchors := jinhanYangStarStarts
 	flight := jinhanYangStarFlight
@@ -107,7 +107,7 @@ func layoutJinhanStars(plate *JinhanPan, dayZhu ganzhi.Zhu, yinDun bool) {
 	}
 }
 
-func layoutJinhanDoors(plate *JinhanPan, dayZhu ganzhi.Zhu, yinDun bool) {
+func layoutJinhanDoors(plate *JinhanBoard, dayZhu ganzhi.Zhu, yinDun bool) {
 	dayIndex := ganzhi.SixtyCycleIndex(dayZhu.Gan, dayZhu.Zhi)
 	group := floorMod(dayIndex/jinhanDoorDays, len(jinhanDoorStarts))
 	startIndex := group
@@ -127,7 +127,7 @@ func layoutJinhanDoors(plate *JinhanPan, dayZhu ganzhi.Zhu, yinDun bool) {
 	}
 }
 
-func layoutJinhanDaySpirits(plate *JinhanPan, dayZhu ganzhi.Zhu) {
+func layoutJinhanDaySpirits(plate *JinhanBoard, dayZhu ganzhi.Zhu) {
 	spirits := jinhanDaySpirits[dayZhu.Gan]
 	for branch := ganzhi.ZhiZi; branch <= ganzhi.ZhiHai; branch++ {
 		plate.DaySpirits[int(branch)-1] = JinhanDaySpirit{

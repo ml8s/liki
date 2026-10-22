@@ -1,6 +1,5 @@
 """问卦 / 择日统一安全边界；规则与指导语来自数据表。"""
 
-from __future__ import annotations
 
 import json
 import re

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Generate two-oracle calendar consensus cases for HuangLi QueryDate."""
-from __future__ import annotations
 
 import datetime as dt
 import json

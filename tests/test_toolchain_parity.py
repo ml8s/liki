@@ -3,7 +3,6 @@
 一个工具两个版本 = 本地过、CI 挂。这里把每个 pin 与其消费者（本地脚本、CI job）
 钉在一起，任一处漂移都会失败。覆盖 golangci-lint、ruff 和 engine 覆盖率门槛。
 """
-from __future__ import annotations
 
 import re
 from pathlib import Path

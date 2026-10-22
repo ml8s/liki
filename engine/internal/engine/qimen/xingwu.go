@@ -12,10 +12,10 @@ type XingInteraction struct {
 }
 
 // computeXingInteractions returns star-gong 克应 for each gong.
-func computeXingInteractions(pan pan) []XingInteraction {
+func computeXingInteractions(board board) []XingInteraction {
 	result := []XingInteraction{}
 	for i := 0; i < 9; i++ {
-		p := pan.GongWei[i]
+		p := board.GongWei[i]
 		for _, item := range p.TianPan {
 			key := [2]int{int(item.Star), i}
 			if entry, ok := xingGongTable[key]; ok {
@@ -43,10 +43,10 @@ type XingGongWuXing struct {
 	TraditionalLabel string    `json:"traditional_label"`
 }
 
-// computeXingGongWuXing computes the 五行关系 for each star in the pan.
-func computeXingGongWuXing(pan pan) []XingGongWuXing {
+// computeXingGongWuXing computes the 五行关系 for each star in the board.
+func computeXingGongWuXing(board board) []XingGongWuXing {
 	result := []XingGongWuXing{}
-	for i, p := range pan.GongWei {
+	for i, p := range board.GongWei {
 		for _, item := range p.TianPan {
 			relation := xingGongRelation(item.Star, GongIndex(i+1))
 			result = append(result, XingGongWuXing{

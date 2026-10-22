@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026.10.22.1] — 2026-10-22
+
+### Changed
+
+- **领域命名收敛（排盘 → chart/board）**：qimen wire 盘面字段 `pan` → `board`（与 liuyao `board` 对齐——"排布结果"一个概念一个名字；宫内 `tian_pan`/`di_pan` 是层级术语保留，`zhuanpan`/`feipan` 是流派保留）。engine 域层 `qimen.Chart.Pan` → `.Board`（含金函 `JinhanBoard`）与 2 份域 golden 同步；counsel 投影契约路径 `pan.*` → `board.*`。counsel natal 组合盘 `paipan.py`/`full_paipan`/`pan`/`validate_*_pan`/`pan_digest` → `charts.py`/`build_natal_chart`/`natal_chart`/`validate_*_chart`/`natal_chart_digest`（`tools/domain-language.json` 中 `chart` canonical、`paipan_result`/`pan_result` forbidden 自此代码归零）。
+- **counsel 工具层包化**：`app/natal/tools`、`app/divination/tools`、`app/naming` 转正为包（补 `__init__.py`，91 处平铺导入改绝对导入），删除 counsel_servers 与 9 个测试文件的全部 `sys.path.insert` 注入。
+- **engine 封闭 schema 收官**：`TolerateUnknownArgs` / `KeepClosedInputPaths` 宽容机制从 typed registry 整体删除（2026.10.15.0 迁移期措施的终点）。全部 27 个工具的入参校验严格按 DTO 封闭形状执行，未知参数显式报错（`TestMigratedToolsRejectUnknownArguments` 反转原容忍断言）。counsel 侧同步修正三处把 `ziwei.fullchart` 超集传给只收 `ziwei.chart` 的 flow 工具的调用（`paipan.py` / `counsel.py` / 正交性测试），改传 `ziwei.chart` 契约对象——消费者行为与发布契约一致，不再依赖宽容蒙混；pan 新增 `ziwei_chart` 字段承载该契约对象。
+- **注册名统一 snake_case**：engine registry 注册名去掉 legacy 点号（`bazi.chart` → `bazi_chart`），MCP surface 转换层（`toolName`）删除；`check_docs.py` 白名单与 wire fidelity 文件名映射同步。MCP 工具名对外不变（本就投影为 snake_case）。
+- **bazhai 四吉四凶方向改单值**：`[1]DirectionName` 固定单元素数组改为 `DirectionName`（域保证每类恰一方向，数组是过度建模）。MCP wire 形状变更（`"sheng_qi": ["西北"]` → `"西北"`）。
+- **全部 engine 工具标注 `readOnlyHint` + `idempotentHint`**（确定性计算，无副作用）；`huangli.days` 的 count 静默修正死代码删除，边界完全由 schema 约束保证。
+
+### Fixed
+
+- **counsel 契约与实现对齐**（描述- schema 分歧清零）：`naming_pick` 五行描述收回中文闭集、实现删除英文别名死代码；`max_candidates`（1-12）/`max_names`（1-1000）范围编码进 schema；`naming_pick` 入参 `{wuxing1, wuxing2?, count?}` → `{first, second?}`（编号参数消除，count 由 second 推导，输出 pools 带回 wuxing 对齐输入输出）；`qimen.yong_shen` 描述如实声明开放符号集语义。
+- **交叉约束编译进发布 schema**：`liuyao_snapshot` 起卦方式改 `casting` 判别联合（mode 为判别字段，coins/yaos 必备字段入变体必填；auto 仍为缺省）；`period_query` 的 `time_scope` 改五变体判别联合，`timezone` 编译进全部变体必填（`duanyu.yearly_range` 对所有 scope 都要求时区是既有实现事实，旧描述"仅 current_* 必填"失实）。
+- **`analytics._resolve_time_scope` 硬编码 Asia/Shanghai 修复**：timezone 从 pan 穿透，current_year/current_decade 按 调用方时区解析。
+- **context 三件套数据结消除**：`compute_factors` 输出与 `natal_query`/`period_query` 输入的独立 `context` 字段/参数删除，来源事实并入 `factors._provenance.context` 随 SHA-256 digest 防篡改，校验不再可绕过。
+- **chart 强类型**：新增 `contracts/ziwei.py`（`ZiweiChart` 1:1 移植 engine 输出），`compute_factors`/`period_query` 的 `chart` 从裸 `dict[str, Any]` 改为 `BaziChart | ZiweiChart` 强类型联合。
+- **松散输出结构化**：naming_check 的 errors（三码闭集）/characters/phonetic/wuxing、liuyao/qimen audit errors、dong_yao（1-6）、policy 词表、timing candidates 全部建模型；死字段 `solar_time` 删除（实现层零引用）。
+- **readOnly/idempotent 注解**：counsel 全部 13 工具由契约默认声明，adapter 统一传递。
+- **描述只讲现状**：工具描述中的历史叙述（"旧快照…"、"原顶层字段…"）与 schema 术语（"变体"、"判别联合"）清出，只保留领域语义与用法；`perspective` 补"问卦人性别视角（非命主性别）"消歧。
+- **文档- schema 同步器对称升级**：counsel 词汇收集器与 engine 检查器均支持 `const` 判别值（判别联合的 type 值是合法文档引用）。
+- 版本面 bump 至 2026.10.22.0（counsel VERSION.txt 即 engine 兼容门禁，旧 engine fail-closed）。
+
 ## [2026.10.18.2] — 2026-10-18
 
 ### Changed

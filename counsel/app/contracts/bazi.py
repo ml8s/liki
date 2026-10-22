@@ -1,6 +1,5 @@
 """Typed wire model for the engine ``bazi_chart`` output used as tool input."""
 
-from __future__ import annotations
 
 from typing import Annotated, Literal
 

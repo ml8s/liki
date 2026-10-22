@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Validate the canonical domain language and reject unregistered alias drift."""
 
-from __future__ import annotations
 
 import argparse
 import fnmatch

@@ -52,14 +52,14 @@ func TestComputeYongShenSymbols(t *testing.T) {
 
 func TestYongShenSpiritNameMatchesCurrentChart(t *testing.T) {
 	yangChart := chartForTest()
-	if yangChart.Pan.YinDun {
+	if yangChart.Board.YinDun {
 		t.Fatal("first fixture must be an Yang Dun chart")
 	}
 	yinChart := ComputeChart(time.Time(time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600))), tianwen.ApparentSolarFromCivil(
 		time.Date(2026, 6, 28, 12, 0, 0, 0, time.FixedZone("CST", 8*3600)),
 		116.4, 8,
 	))
-	if !yinChart.Pan.YinDun {
+	if !yinChart.Board.YinDun {
 		t.Fatal("second fixture must be a Yin Dun chart")
 	}
 
@@ -67,7 +67,7 @@ func TestYongShenSpiritNameMatchesCurrentChart(t *testing.T) {
 		for _, spirit := range []SpiritIndex{SpiritGouChen, SpiritZhuQue} {
 			inputName := spirit.YinName()
 			displayName := spirit.YangName()
-			if chart.Pan.YinDun {
+			if chart.Board.YinDun {
 				inputName, displayName = spirit.YangName(), spirit.YinName()
 			}
 			symbol, err := ParseYongShen(inputName)

@@ -1,9 +1,8 @@
-"""本命事实投影层 — pan 中稳定命理事实的只读投影。
+"""本命事实投影层 — natal_chart 中稳定命理事实的只读投影。
 
 snap 不是只为当前断语表服务的中间结构：这些 reserved domain facts 是领域模型
 的一部分，当前未消费不代表可删。本层只做结构投影，不做因子判定。
 """
-from __future__ import annotations
 
 import json
 import os
@@ -39,10 +38,10 @@ def _pillar_extras(full: dict, pillar: str) -> dict:
     return extras
 
 
-def _project_bazi_facts(pan: dict) -> dict:
+def _project_bazi_facts(natal_chart: dict) -> dict:
     contract = load_contract()
-    full = pan.get("full", {}) or {}
-    chart = pan.get("chart", {}) or {}
+    full = natal_chart.get("full", {}) or {}
+    chart = natal_chart.get("chart", {}) or {}
     facts = {}
     for pillar in contract["四柱"]:
         facts.update(_pillar_extras(full, pillar))
@@ -55,23 +54,23 @@ def _project_bazi_facts(pan: dict) -> dict:
     return facts
 
 
-def _project_ziwei_facts(pan: dict) -> dict:
+def _project_ziwei_facts(natal_chart: dict) -> dict:
     contract = load_contract()
-    zw = pan.get("ziwei", {}) or {}
+    zw = natal_chart.get("ziwei", {}) or {}
     facts = {}
     for source_key, fact_key in contract["紫微字段映射"]["ziwei"].items():
         if source_key in zw:
             facts[fact_key] = zw[source_key]
-    for source_key, fact_key in contract["紫微字段映射"]["pan"].items():
-        if source_key in pan:
-            facts[fact_key] = pan[source_key]
+    for source_key, fact_key in contract["紫微字段映射"]["natal_chart"].items():
+        if source_key in natal_chart:
+            facts[fact_key] = natal_chart[source_key]
     return facts
 
 
-def project_natal_facts(pan: dict) -> dict:
-    """从 pan 投影稳定领域事实；只读 pan，不写任何私有缓存。"""
+def project_natal_facts(natal_chart: dict) -> dict:
+    """从 natal_chart 投影稳定领域事实；只读 natal_chart，不写任何私有缓存。"""
     projectors = {"bazi": _project_bazi_facts, "ziwei": _project_ziwei_facts}
     return {
-        label: projectors[code](pan)
+        label: projectors[code](natal_chart)
         for code, label in load_contract()["投影侧代码"].items()
     }

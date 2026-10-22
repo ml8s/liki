@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import sys
 from pathlib import Path
@@ -17,7 +16,7 @@ import liuyao_snapshot  # noqa: E402
 import qimen_ask  # noqa: E402
 import qimen_judgment  # noqa: E402
 import qimen_snapshot  # noqa: E402
-from qimen_projection import project as project_chart  # noqa: E402
+from app.divination.tools.qimen_projection import project as project_chart  # noqa: E402
 
 HOUR_METHOD = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
 DAY_METHOD = {"scope": "day", "school": "zhuanpan", "dingju_method": "chaibu"}
@@ -46,7 +45,7 @@ def _coin_casting():
 
 def _liuyao_projected():
     return {
-        "question": {"text": "这次面试能不能通过？", "matter": "career", "explicit_yong_shen": None, "perspective": None, "solar_time": "2026-09-08T12:00:00+08:00"},
+        "question": {"text": "这次面试能不能通过？", "matter": "career", "explicit_yong_shen": None, "perspective": None},
         "casting": _coin_casting(),
         "board": {
             "name": "乾为天", "ben_gua": "乾", "palace": "乾", "palace_wuxing": "金",
@@ -74,7 +73,7 @@ def _liuyao_projected():
             "yong_shen_candidates": [],
         },
         "timing_candidates": [{"id": "timing-1", "mechanism": "动爻逢值"}],
-        "policy": {"may_output": [], "must_cover_conflicts": True, "forbidden": []},
+        "policy": {"may_output": ["tendency"], "must_cover_conflicts": True, "forbidden": []},
     }
 
 
@@ -110,7 +109,7 @@ def test_liuyao_snapshot_is_immutable_envelope(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
     result = liuyao_snapshot.create(
-        question="这次面试能不能通过？", mode="coins", matter="career",
+        question="这次面试能不能通过？", casting={"mode": "coins"}, matter="career",
         longitude=116.4,
     )
     assert result["method"] == "liuyao"
@@ -135,7 +134,7 @@ def test_liuyao_snapshot_accepts_historical_casting_time(monkeypatch):
     historical_time = "1990-06-01T06:00:00Z"
     liuyao_snapshot.create(
         question="复现 1990 年的一次卦",
-        mode="coins",
+        casting={"mode": "coins"},
         matter="general",
         instant=historical_time,
         timezone="Asia/Shanghai",
@@ -150,7 +149,7 @@ def test_liuyao_health_snapshot_keeps_timing_plan(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
     result = liuyao_snapshot.create(
         question="最近身体状态何时需要关注？",
-        mode="coins",
+        casting={"mode": "coins"},
         matter="career",
         topic="health_context",
         longitude=116.4,

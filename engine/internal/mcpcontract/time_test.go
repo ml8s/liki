@@ -9,13 +9,13 @@ import (
 )
 
 func TestTimeNowRequiresTimezone(t *testing.T) {
-	if _, err := testEngine().Call(context.Background(), "time.now", nil); err == nil {
+	if _, err := testEngine().Call(context.Background(), "time_now", nil); err == nil {
 		t.Fatal("time.now without timezone must fail")
 	}
 }
 
 func TestTimeNowCST(t *testing.T) {
-	raw, err := testEngine().Call(context.Background(), "time.now", json.RawMessage(`{"timezone":"Asia/Shanghai"}`))
+	raw, err := testEngine().Call(context.Background(), "time_now", json.RawMessage(`{"timezone":"Asia/Shanghai"}`))
 	if err != nil {
 		t.Fatalf("call: %v", err)
 	}
@@ -36,7 +36,7 @@ func TestTimeNowCST(t *testing.T) {
 }
 
 func TestTimeNowNewYork(t *testing.T) {
-	raw, err := testEngine().Call(context.Background(), "time.now", json.RawMessage(`{"timezone":"America/New_York"}`))
+	raw, err := testEngine().Call(context.Background(), "time_now", json.RawMessage(`{"timezone":"America/New_York"}`))
 	if err != nil {
 		t.Fatalf("call: %v", err)
 	}

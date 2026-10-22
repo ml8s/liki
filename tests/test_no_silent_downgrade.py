@@ -1,12 +1,11 @@
 """禁止静默降级契约：计算错误必须传播，不得转成因子 0。"""
 from unittest import mock
 
-import _helpers  # noqa: F401 —— 注入 tools 路径
-import duanyu
-import factors
+import app.natal.tools.duanyu as duanyu
+import app.natal.tools.factors as factors
 import pytest
-from duanyu import load_rule_table, query, resolve_current_year
-from paipan import RPCError
+from app.natal.tools.charts import RPCError
+from app.natal.tools.duanyu import load_rule_table, query, resolve_current_year
 
 
 def _fac() -> dict:
@@ -37,11 +36,11 @@ def test_evaluate_flow_factors_propagates_operator_errors() -> None:
 
 
 def test_query_rejects_snapshot_input() -> None:
-    with pytest.raises(ValueError, match="pan 必须是 full_paipan"):
+    with pytest.raises(ValueError, match="natal_chart 必须是 build_natal_chart"):
         query("十神", {"八字": {}, "紫微": {}})
 
 
-@pytest.mark.parametrize("pan", [
+@pytest.mark.parametrize("natal_chart", [
     {"full": {"ri": {"gan": "甲", "zhi": "子"}}},
     {"chart": {"ri": {"gan": "甲", "zhi": "子"}}},
     {
@@ -53,13 +52,13 @@ def test_query_rejects_snapshot_input() -> None:
         "gender": "male",
     },
 ])
-def test_query_rejects_partial_pan(pan) -> None:
-    with pytest.raises(ValueError, match="full_paipan|完整本命盘|四柱结构|缺失"):
-        query("十神", pan)
+def test_query_rejects_partial_pan(natal_chart) -> None:
+    with pytest.raises(ValueError, match="build_natal_chart|完整本命盘|四柱结构|缺失"):
+        query("十神", natal_chart)
 
 
 def test_current_year_does_not_fall_back_to_local_time() -> None:
-    with mock.patch("paipan.call", side_effect=RPCError("time.now failed")):
+    with mock.patch("app.natal.tools.charts.call", side_effect=RPCError("time.now failed")):
         with pytest.raises(RPCError, match="time.now failed"):
             resolve_current_year("Asia/Shanghai")
 
@@ -98,7 +97,7 @@ def _time_now_calls(call_mock) -> int:
 
 def test_current_year_caches_success_within_ttl() -> None:
     _reset_year_cache()
-    with mock.patch("paipan.call", side_effect=_year_call("2026-03-15T12:00:00")) as call_mock:
+    with mock.patch("app.natal.tools.charts.call", side_effect=_year_call("2026-03-15T12:00:00")) as call_mock:
         assert resolve_current_year("Asia/Shanghai") == (2026, "server")
         assert resolve_current_year("Asia/Shanghai") == (2026, "server")
         # TTL 内第二次调用命中缓存（时间事实 RPC 只发一次）
@@ -108,8 +107,8 @@ def test_current_year_caches_success_within_ttl() -> None:
 
 def test_current_year_cache_expires_and_refetches() -> None:
     _reset_year_cache()
-    with mock.patch("paipan.call", side_effect=_year_call("2026-12-31T23:00:00")) as call_mock, \
-         mock.patch("duanyu.time.monotonic", side_effect=[0.0, 30.0, 61.0]):
+    with mock.patch("app.natal.tools.charts.call", side_effect=_year_call("2026-12-31T23:00:00")) as call_mock, \
+         mock.patch("app.natal.tools.duanyu.time.monotonic", side_effect=[0.0, 30.0, 61.0]):
         resolve_current_year("Asia/Shanghai")          # 首次：发 RPC
         resolve_current_year("Asia/Shanghai")          # +30s：仍命中
         assert _time_now_calls(call_mock) == 1
@@ -120,8 +119,8 @@ def test_current_year_cache_expires_and_refetches() -> None:
 
 def test_current_year_failure_not_cached() -> None:
     _reset_year_cache()
-    with mock.patch("paipan.call", side_effect=RPCError("time.now failed")), \
-         mock.patch("duanyu.time.monotonic", return_value=0.0):
+    with mock.patch("app.natal.tools.charts.call", side_effect=RPCError("time.now failed")), \
+         mock.patch("app.natal.tools.duanyu.time.monotonic", return_value=0.0):
         with pytest.raises(RPCError):
             resolve_current_year("Asia/Shanghai")
         # 失败不写入缓存——下一次仍会再试（不把错误当时间基准缓存）
@@ -131,7 +130,7 @@ def test_current_year_failure_not_cached() -> None:
 
 def test_current_year_rejects_missing_cst_and_does_not_cache() -> None:
     _reset_year_cache()
-    with mock.patch("paipan.call", return_value={"data": {}}):
+    with mock.patch("app.natal.tools.charts.call", return_value={"data": {}}):
         with pytest.raises(ValueError, match="local_time|instant"):
             resolve_current_year("Asia/Shanghai")
     assert duanyu._current_years_cached is None

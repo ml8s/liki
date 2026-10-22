@@ -1,5 +1,4 @@
 """六爻专题断法库；返回规则引导，不产生吉凶结论。"""
-from __future__ import annotations
 
 import json
 from functools import lru_cache

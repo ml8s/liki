@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import json
 import sys
@@ -72,7 +71,7 @@ def test_only_common_rpc_module_touches_urllib():
 
 
 def test_contract_registry_has_exact_domain_contracts():
-    from divination_contracts import DOCUMENT_MODELS
+    from app.divination.tools.divination_contracts import DOCUMENT_MODELS
 
     assert set(DOCUMENT_MODELS) == {
         "liuyao_snapshot",

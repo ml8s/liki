@@ -8,7 +8,6 @@ The command receives LIKI_MCP_URL pointing at the private engine MCP endpoint.
 The engine binary path comes from LIKI_ENGINE_BIN (default /tmp/engine-mcp);
 callers build it there first (see test-*.sh callers).
 """
-from __future__ import annotations
 
 import os
 import socket

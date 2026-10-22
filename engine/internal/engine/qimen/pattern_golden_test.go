@@ -33,7 +33,7 @@ type patternGoldenVector struct {
 	ExpectedPattern string               `json:"expected_pattern"`
 	ExpectedPalaces []string             `json:"expected_palaces"`
 	SourceBasis     string               `json:"source_basis"`
-	Pan             patternGoldenPanSpec `json:"pan"`
+	Board           patternGoldenPanSpec `json:"board"`
 }
 
 type patternGoldenFixture struct {
@@ -69,9 +69,9 @@ func TestPatternGoldenVectors(t *testing.T) {
 		seen[vector.ID] = true
 		covered[vector.ExpectedPattern] = true
 		vectorCounts[vector.ExpectedPattern]++
-		if vector.ExpectedPattern == "三奇得使" && len(vector.Pan.Palaces) == 1 &&
-			len(vector.Pan.Palaces[0].TianPan) == 1 {
-			sanQiDeShiPairs[vector.Pan.Palaces[0].TianPan[0].Gan+"|"+vector.Pan.Palaces[0].DiPanGan] = true
+		if vector.ExpectedPattern == "三奇得使" && len(vector.Board.Palaces) == 1 &&
+			len(vector.Board.Palaces[0].TianPan) == 1 {
+			sanQiDeShiPairs[vector.Board.Palaces[0].TianPan[0].Gan+"|"+vector.Board.Palaces[0].DiPanGan] = true
 		}
 		assertPatternGoldenVector(t, vector)
 	}
@@ -193,7 +193,7 @@ func TestSanQiRuMuUsesPalaceBoundConditions(t *testing.T) {
 }
 
 func TestSanQiRuMuRejectsUnboundPalace(t *testing.T) {
-	chart := pan{School: SchoolZhuanPan}
+	chart := board{School: SchoolZhuanPan}
 	chart.GongWei[int(GongLi)-1].TianPan = []TianPanSymbol{
 		{Gan: ganzhi.GanYi, Star: StarTianRui},
 	}
@@ -206,7 +206,7 @@ func TestSanQiRuMuRejectsUnboundPalace(t *testing.T) {
 
 func assertPatternGoldenVector(t *testing.T, vector patternGoldenVector) {
 	t.Helper()
-	chart := patternGoldenPan(t, vector.Pan)
+	chart := patternGoldenPan(t, vector.Board)
 	patterns := findPatterns(chart)
 	found := false
 	for _, pattern := range patterns {
@@ -228,7 +228,7 @@ func assertPatternGoldenVector(t *testing.T, vector patternGoldenVector) {
 	}
 }
 
-func patternGoldenPan(t *testing.T, golden patternGoldenPanSpec) pan {
+func patternGoldenPan(t *testing.T, golden patternGoldenPanSpec) board {
 	t.Helper()
 	school, err := ParseSchool(golden.School)
 	if err != nil {
@@ -242,7 +242,7 @@ func patternGoldenPan(t *testing.T, golden patternGoldenPanSpec) pan {
 	if err != nil {
 		t.Fatal(err)
 	}
-	result := pan{School: school, YinDun: golden.YinDun, DutyStar: dutyStar, DutyDoor: dutyDoor}
+	result := board{School: school, YinDun: golden.YinDun, DutyStar: dutyStar, DutyDoor: dutyDoor}
 	for _, goldenPalace := range golden.Palaces {
 		palace, err := ParsePalaceIndex(goldenPalace.Gong)
 		if err != nil {

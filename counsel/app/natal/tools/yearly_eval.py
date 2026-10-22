@@ -2,13 +2,12 @@
 
 依赖通过参数显式注入，避免 calibrate -> duanyu 私有 API 的反向耦合。
 """
-from __future__ import annotations
 
 from typing import Callable, Iterable
 
-from errors import YearRangeError
-from factor_constants import load_constants
-from factor_context import NatalContext
+from app.natal.tools.errors import YearRangeError
+from app.natal.tools.factor_constants import load_constants
+from app.natal.tools.factor_context import NatalContext
 
 MAX_YEARS = 120
 
@@ -64,23 +63,23 @@ def query_year_rules(
 
 
 def yearly_snapshot(
-    pan: dict,
+    natal_chart: dict,
     year: int,
     natal_context: NatalContext | None,
     *,
     liunian: Callable[[dict, int], dict],
-    evaluate_liunian_snap_from_pan: Callable[..., dict],
+    evaluate_liunian_snap_from_natal_chart: Callable[..., dict],
     factor_names: set[str] | None = None,
 ) -> dict:
     """排单年流年盘并生成流年快照。"""
-    return evaluate_liunian_snap_from_pan(
-        pan, liunian(pan, year), year=year, natal_context=natal_context,
+    return evaluate_liunian_snap_from_natal_chart(
+        natal_chart, liunian(natal_chart, year), year=year, natal_context=natal_context,
         factor_names=factor_names,
     )
 
 
 def evaluate_year(
-    pan: dict,
+    natal_chart: dict,
     year: int,
     rules: list[str],
     detail: bool,
@@ -89,14 +88,14 @@ def evaluate_year(
     query_yearly: Callable[[str, dict], dict],
     brief: Callable[[list], list],
     liunian: Callable[[dict, int], dict],
-    evaluate_liunian_snap_from_pan: Callable[..., dict],
+    evaluate_liunian_snap_from_natal_chart: Callable[..., dict],
     factor_names: set[str] | None = None,
 ) -> dict[str, dict]:
     """统一 yearly_range 的年度求值流程。"""
     snapshot = yearly_snapshot(
-        pan, year, natal_context,
+        natal_chart, year, natal_context,
         liunian=liunian,
-        evaluate_liunian_snap_from_pan=evaluate_liunian_snap_from_pan,
+        evaluate_liunian_snap_from_natal_chart=evaluate_liunian_snap_from_natal_chart,
         factor_names=factor_names,
     )
     return query_year_rules(

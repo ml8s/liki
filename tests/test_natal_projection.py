@@ -1,7 +1,6 @@
 """本命事实投影契约：reserved domain facts 的结构与只读投影。"""
 
-import _helpers  # noqa: F401
-from natal_projection import load_contract, project_natal_facts
+from app.natal.tools.natal_projection import load_contract, project_natal_facts
 
 
 def _rich_pan() -> dict:
@@ -89,9 +88,9 @@ def test_empty_pan_projects_empty_domain_facts():
 
 
 def test_domain_projection_does_not_mutate_pan():
-    pan = _rich_pan()
-    project_natal_facts(pan)
-    assert "_snap" not in pan and "_ctx" not in pan
+    natal_chart = _rich_pan()
+    project_natal_facts(natal_chart)
+    assert "_snap" not in natal_chart and "_ctx" not in natal_chart
 
 
 def test_fields_are_declared_when_present():

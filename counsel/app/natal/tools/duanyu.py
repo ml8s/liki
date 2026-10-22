@@ -4,23 +4,22 @@
 输出：{八字: [...], 紫微: [...], 合参: [...]}。
 本文件不生成因子；性别作为排盘上下文只参与匹配，不计入因子数。
 """
-from __future__ import annotations
 
 import time
 
-import yearly_eval
-from assertion_store import load_rule_table
-from errors import AssertionRuleError, YearRangeError
-from factor_constants import load_constants
-from factor_tables import load_factor_rows, load_liunian_rows
-from factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
-from factors import (
-    evaluate_liunian_snap_from_pan,
-    evaluate_snap_from_pan,
+import app.natal.tools.yearly_eval as yearly_eval
+from app.natal.tools.assertion_store import load_rule_table
+from app.natal.tools.chart_schema import ChartSchemaError, validate_natal_chart
+from app.natal.tools.errors import AssertionRuleError, YearRangeError
+from app.natal.tools.factor_constants import load_constants
+from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
+from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
+from app.natal.tools.factors import (
+    evaluate_liunian_snap_from_natal_chart,
+    evaluate_snap_from_natal_chart,
     prepare_natal_context,
 )
-from pan_schema import PanSchemaError, validate_natal_pan
-from yearly_eval import MAX_YEARS, resolve_rules
+from app.natal.tools.yearly_eval import MAX_YEARS, resolve_rules
 
 __all__ = [
     "NATAL_RULES", "YEARLY_RULES", "SCENE_ALIASES", "SCENE_DOMAIN_FILTERS",
@@ -171,13 +170,13 @@ def default_scene_domains(rules: list[str]) -> list[str] | None:
     return sorted(domains)
 
 
-def query(rule: str, pan: dict, year: int | None = None,
+def query(rule: str, natal_chart: dict, year: int | None = None,
           domains: list[str] | None = None,
           validate_pan: bool = True, timezone: str = "") -> dict:
     """断语查询：域 + 本命盘 → 该域断语 {八字: [...], 紫微: [...], 合参: [...]}。
 
     rule ∈ NATAL_RULES（如 "十神"/"旺衰"/"命宫"/"官禄"；流年域走 yearly_range）。
-    pan = full_paipan 返回的完整本命盘；内部从 pan 生成领域快照。
+    natal_chart = build_natal_chart 返回的完整本命盘；内部从 natal_chart 生成领域快照。
     year 仅用于「大运/大限」这类限运域：省略用服务端当前年，显式传入则取该年限运。
     流年查询走 yearly_range，本函数不处理流年快照。
     数据层真分开（各查各表）、调用层一次查双盘——内部 load_rule_table + match_table 内嵌。
@@ -186,7 +185,7 @@ def query(rule: str, pan: dict, year: int | None = None,
     if rule in YEARLY_RULES:
         raise ValueError(
             f"query() 仅支持本命域，收到流年域 '{rule}'。"
-            f"流年查询请走 yearly_range(pan, start, end, rules)。"
+            f"流年查询请走 yearly_range(natal_chart, start, end, rules)。"
         )
     if rule not in NATAL_RULES:
         raise AssertionRuleError(f"未知本命域 '{rule}'。有效域: {sorted(NATAL_RULES)}")
@@ -195,10 +194,10 @@ def query(rule: str, pan: dict, year: int | None = None,
             f"query(year=...) 仅支持限运域 {sorted(CURRENT_LIMIT_RULES)}；"
             f"纯本命域 '{rule}' 不依赖年份。"
         )
-    # pan 直通——LLM 传 full_paipan 的返回即可，内部从 pan 直读产因子快照。
+    # natal_chart 直通——LLM 传 build_natal_chart 的返回即可，内部从 natal_chart 直读产因子快照。
     # 校验完整排盘结构，杜绝把空 dict/快照/半截盘误当命盘（防兜底断语污染）。
     if validate_pan:
-        validate_natal_pan(pan, action="query")
+        validate_natal_chart(natal_chart, action="query")
     resolved_current_year = 0
     resolved_lunar_year = 0
     current_year_source = ""
@@ -234,8 +233,8 @@ def query(rule: str, pan: dict, year: int | None = None,
                 f"domains 含无效领域: {unknown}。"
                 f"rule={rule} 有效领域: {sorted(allowed_domains)}"
             )
-    snapshots = evaluate_snap_from_pan(
-        pan,
+    snapshots = evaluate_snap_from_natal_chart(
+        natal_chart,
         current_year=resolved_current_year,
         current_year_ziwei=resolved_lunar_year or resolved_current_year,
         sides=requested_sides,
@@ -253,21 +252,21 @@ def query(rule: str, pan: dict, year: int | None = None,
         )
     result = dict(filter_domains(match_rule(rule, snapshots), domains))
     if rule == "用神":
-        result["fu_yi"] = pan["full"]["fu_yi"]
-        result["tiao_hou"] = pan["full"]["tiao_hou"]
-        result["ge_ju"] = pan["full"]["ge_ju"]
-        result["element_states"] = pan["full"]["element_states"]
-        result["ten_god_states"] = pan["full"]["ten_god_states"]
+        result["fu_yi"] = natal_chart["full"]["fu_yi"]
+        result["tiao_hou"] = natal_chart["full"]["tiao_hou"]
+        result["ge_ju"] = natal_chart["full"]["ge_ju"]
+        result["element_states"] = natal_chart["full"]["element_states"]
+        result["ten_god_states"] = natal_chart["full"]["ten_god_states"]
     if resolved_current_year:
         result["current_year"] = resolved_current_year
         result["current_year_source"] = current_year_source
         if resolved_lunar_year and resolved_lunar_year != resolved_current_year:
             result["current_lunar_year"] = resolved_lunar_year
-        dayun = _current_step((pan.get("chart") or {}).get("da_yun", {}).get("steps"),
+        dayun = _current_step((natal_chart.get("chart") or {}).get("da_yun", {}).get("steps"),
                               resolved_current_year)
         if dayun:
             result["current_dayun"] = dayun
-        daxian = _current_step(pan.get("ziwei_daxian"),
+        daxian = _current_step(natal_chart.get("ziwei_daxian"),
                                resolved_lunar_year or resolved_current_year)
         if daxian:
             result["current_daxian"] = daxian
@@ -315,7 +314,7 @@ _current_years_cached_at = None
 def resolve_current_years(timezone: str):
     """返回 (八字年号[立春界], 农历年号[春节界], source)。timezone 必填。"""
     global _current_years_cached, _current_years_cached_at
-    from paipan import current_years
+    from app.natal.tools.charts import current_years
 
     if not timezone:
         raise ValueError("timezone is required")
@@ -347,24 +346,24 @@ def _resolve_rules(rules):
 
 
 def _evaluate_year(
-    pan, year, rules, detail=False, natal_context=None, factor_names=None
+    natal_chart, year, rules, detail=False, natal_context=None, factor_names=None
 ):
     return yearly_eval.evaluate_year(
-        pan, year, rules, detail, natal_context,
+        natal_chart, year, rules, detail, natal_context,
         query_yearly=query_yearly,
         brief=brief,
         liunian=_liunian_for_year,
-        evaluate_liunian_snap_from_pan=evaluate_liunian_snap_from_pan,
+        evaluate_liunian_snap_from_natal_chart=evaluate_liunian_snap_from_natal_chart,
         factor_names=factor_names,
     )
 
 
-def _liunian_for_year(pan, year):
-    from paipan import _bazi_liunian, _ziwei_liunian, liunian
-    chart = pan.get("chart") or {}
-    if pan.get("ziwei") and "ri" in chart:
+def _liunian_for_year(natal_chart, year):
+    from app.natal.tools.charts import _bazi_liunian, _ziwei_liunian, liunian
+    chart = natal_chart.get("chart") or {}
+    if natal_chart.get("ziwei") and "ri" in chart:
         # 完整盘（八字 chart + 紫微）：双盘流年
-        return liunian(pan, year)
+        return liunian(natal_chart, year)
     if "ri" in chart:
         # 正交化八字组合盘（analysis）：只排八字流年，紫微侧留空。
         return {"bazi": _bazi_liunian(chart, year), "ziwei": {}}
@@ -508,7 +507,7 @@ def match_rule(rule: str, snapshots: dict) -> dict:
     }
 
 
-def yearly_range(pan: dict, start: int, end: int,
+def yearly_range(natal_chart: dict, start: int, end: int,
                  rules: list, detail: bool = False,
                  domains: list[str] | None = None,
                  validate_pan: bool = True, timezone: str = "") -> dict:
@@ -533,14 +532,14 @@ def yearly_range(pan: dict, start: int, end: int,
             f"单次最多 {MAX_YEARS} 年。"
         )
     if validate_pan:
-        validate_natal_pan(pan, action="yearly_range")
+        validate_natal_chart(natal_chart, action="yearly_range")
     else:
         for key in ("chart", "full", "gender"):
-            if not pan.get(key):
-                raise PanSchemaError(f"yearly_range pan 缺 {key}，无法流年求值。")
-    from paipan import RPCError
+            if not natal_chart.get(key):
+                raise ChartSchemaError(f"yearly_range natal_chart 缺 {key}，无法流年求值。")
+    from app.natal.tools.charts import RPCError
     if not timezone:
-        timezone = str(pan.get("timezone") or "")
+        timezone = str(natal_chart.get("timezone") or "")
     if not timezone:
         raise ValueError("yearly_range 必须提供 timezone（IANA）")
     cur_year, cur_source = resolve_current_year(timezone)
@@ -564,13 +563,13 @@ def yearly_range(pan: dict, start: int, end: int,
                 f"有效领域: {sorted(allowed_domains)}"
             )
     natal_context = prepare_natal_context(
-        pan, factor_names=natal_factors_for_flow(flow_factors)
+        natal_chart, factor_names=natal_factors_for_flow(flow_factors)
     )
     years = {}
     for year in range(start, end + 1):
         try:
             years[str(year)] = _evaluate_year(
-                pan, year, resolved_rules, detail, natal_context,
+                natal_chart, year, resolved_rules, detail, natal_context,
                 factor_names=flow_factors,
             )
             if domains is not None and "error" not in years[str(year)]:

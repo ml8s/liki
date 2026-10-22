@@ -2,9 +2,8 @@
 import unittest
 from unittest import mock
 
-import _helpers  # noqa: F401
-import duanyu
-import factors
+import app.natal.tools.duanyu as duanyu
+import app.natal.tools.factors as factors
 from _helpers import (
     mock_base_context,
     mock_engine_facts,
@@ -12,12 +11,12 @@ from _helpers import (
     mock_ziwei,
     valid_daxian,
 )
-from pan_integrity import with_natal_digest
+from app.natal.tools.chart_integrity import with_natal_chart_digest
 
 
 def _valid_query_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
-    return with_natal_digest({
+    return with_natal_chart_digest({
         "instant": "1990-05-20T04:00:00Z",
         "timezone": "Asia/Shanghai",
         "gregorian_time": "1990-05-20T12:00:00+08:00",
@@ -32,6 +31,7 @@ def _valid_query_pan() -> dict:
             **mock_yongshen_fields(),
         },
         "ziwei": mock_ziwei(),
+        "ziwei_chart": {},
         "ziwei_daxian": valid_daxian(),
     })
 
@@ -102,8 +102,8 @@ class TestFactorMatchingContract(unittest.TestCase):
 
     def test_性别是排盘上下文而非因子(self):
         base = self._fac()
-        pan = {"base": base, "gender": "female", "full": {}, "chart": {}, "ziwei": {}}
-        result = factors.evaluate_snap_from_pan(pan)
+        natal_chart = {"base": base, "gender": "female", "full": {}, "chart": {}, "ziwei": {}}
+        result = factors.evaluate_snap_from_natal_chart(natal_chart)
         self.assertEqual(result["context"], {"性别": "female"})
         self.assertNotIn("性别", result["八字"])
         self.assertNotIn("性别", result["紫微"])
@@ -150,14 +150,14 @@ class TestYearlyIsolation(unittest.TestCase):
     """query() 拒绝流年域；流年查询走 query_yearly（yearly_range 内部调用）。"""
 
     def test_本命快照查yearly_拒绝(self):
-        pan = {"factor_snapshot": {}}  # pan 直通
+        natal_chart = {"factor_snapshot": {}}  # natal_chart 直通
         with self.assertRaises(ValueError):
-            duanyu.query("yearly_family", pan)
+            duanyu.query("yearly_family", natal_chart)
 
     def test_本命快照查yingqi_拒绝(self):
-        pan = {"factor_snapshot": {}}
+        natal_chart = {"factor_snapshot": {}}
         with self.assertRaises(ValueError):
-            duanyu.query("yingqi", pan)
+            duanyu.query("yingqi", natal_chart)
 
     def test_流年快照查命理域_正常命中(self):
         tables = list(duanyu.load_rule_tables("年十神").values())
@@ -176,7 +176,7 @@ class TestYongShenQueryContext(unittest.TestCase):
     """用神域必须同时给出 engine 用神来源与强弱证据，不能只剩断语。"""
 
     def test_用神查询附带只读engine上下文(self):
-        pan = _valid_query_pan()
+        natal_chart = _valid_query_pan()
         rules = ("用神", "旺衰")
         required_factors = {
             factor
@@ -192,20 +192,20 @@ class TestYongShenQueryContext(unittest.TestCase):
             "context": {"性别": "male"},
         }
         with mock.patch.object(
-            duanyu, "evaluate_snap_from_pan", return_value=snapshots,
+            duanyu, "evaluate_snap_from_natal_chart", return_value=snapshots,
         ), mock.patch.object(
             duanyu,
             "match_rule",
             return_value={"八字": [], "紫微": []},
         ):
-            result = duanyu.query("用神", pan)
-            other = duanyu.query("旺衰", pan)
+            result = duanyu.query("用神", natal_chart)
+            other = duanyu.query("旺衰", natal_chart)
 
-        self.assertEqual(result["fu_yi"], pan["full"]["fu_yi"])
-        self.assertEqual(result["tiao_hou"], pan["full"]["tiao_hou"])
-        self.assertEqual(result["ge_ju"], pan["full"]["ge_ju"])
-        self.assertEqual(result["element_states"], pan["full"]["element_states"])
-        self.assertEqual(result["ten_god_states"], pan["full"]["ten_god_states"])
+        self.assertEqual(result["fu_yi"], natal_chart["full"]["fu_yi"])
+        self.assertEqual(result["tiao_hou"], natal_chart["full"]["tiao_hou"])
+        self.assertEqual(result["ge_ju"], natal_chart["full"]["ge_ju"])
+        self.assertEqual(result["element_states"], natal_chart["full"]["element_states"])
+        self.assertEqual(result["ten_god_states"], natal_chart["full"]["ten_god_states"])
         self.assertNotIn("yong_shen_context", result)
         self.assertNotIn("fu_yi", other)
 
@@ -265,7 +265,7 @@ class TestYueLingGe(unittest.TestCase):
         # 正财格 + 身弱 → ge_302（正财格身弱分支）
         base = mock_base_context(正财={"wuxing": "土", "timely": True, "count": 3})
         base["ge_ju"] = {"ge_ju": "正财格"}
-        from duanyu import load_rule_table, match_table
+        from app.natal.tools.duanyu import load_rule_table, match_table
         snap = factors.evaluate_factors("male", base, shushi="bazi")
         # 手动构造断语表查询依赖的最小快照（身弱/从杀格）
         snap["身强弱"] = "身弱"
@@ -298,7 +298,7 @@ if __name__ == "__main__":
 
 def test_normalize_row_marks_gender_specific_factor_scope():
     """性别专属因子（女命/男命前缀）在证据里标注 gender_scope，避免异性命盘误读。"""
-    from analytics import _normalize_row
+    from app.natal.tools.analytics import _normalize_row
 
     row = {
         "id": "shi_102",

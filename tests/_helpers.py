@@ -3,14 +3,8 @@ import os
 import sys
 from pathlib import Path
 
-# 注入 counsel 工具层目录到 sys.path（skill 工具层已下沉 counsel）
-for _tools in (
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'counsel', 'app', 'natal', 'tools'),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'counsel', 'app', 'divination', 'tools'),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'counsel', 'app', 'naming'),
-):
-    if _tools not in sys.path:
-        sys.path.insert(0, _tools)
+# 注入 counsel 根（工具层为 app.* 绝对导入包，不再平铺注入子目录）
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'counsel'))
 
 
 # Repository-level constants (merged from helpers.py)

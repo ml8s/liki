@@ -12,7 +12,6 @@
 
 只读，不生成工件；由 `make check` 调用。
 """
-from __future__ import annotations
 
 import json
 import re

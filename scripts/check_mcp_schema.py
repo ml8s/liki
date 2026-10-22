@@ -9,7 +9,6 @@ from the typed Go registry. Nothing here validates a duplicated artifact --
     python3 scripts/check_mcp_schema.py           # validate + drift check (read-only)
     python3 scripts/check_mcp_schema.py --emit    # regenerate the catalog
 """
-from __future__ import annotations
 
 import argparse
 import json

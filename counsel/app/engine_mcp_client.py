@@ -6,7 +6,6 @@ counsel-mcp 通过标准 Streamable HTTP MCP 调用 engine-mcp。公开部署经
 暴露统一工具调用接口：`call(method, params)` 返回 `{"data": <MCP 工具结果>}`，
 方法名自动做点号 → MCP 工具名映射（bazi.chart → bazi_chart）。
 """
-from __future__ import annotations
 
 import json
 import os

@@ -17,15 +17,6 @@ func civilSolar(
 }
 
 // ComputeChartAt is the explicit-time entry for the default chart.
-func ComputeChartAt(
-	at time.Time,
-	loc *time.Location,
-	longitude float64,
-) Chart {
-	gt, st := civilSolar(at, loc, longitude)
-	return ComputeChart(gt, st)
-}
-
 // ComputeChartWithMethodAt is the explicit-time entry for a catalog method.
 func ComputeChartWithMethodAt(
 	at time.Time,

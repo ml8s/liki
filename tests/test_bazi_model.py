@@ -1,13 +1,11 @@
 """因子实现、constants 闭集与 BAZI_MODEL.md 的一致性测试。"""
-from __future__ import annotations
 
 import csv
 import json
 from collections import defaultdict, deque
 from pathlib import Path
 
-import _helpers  # noqa: F401
-from factor_tables import load_long_rows
+from app.natal.tools.factor_tables import load_long_rows
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs" / "BAZI_MODEL.md"

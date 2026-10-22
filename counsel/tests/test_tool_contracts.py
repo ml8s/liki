@@ -4,7 +4,6 @@ The Pydantic models are the only counsel contract source. These tests inspect
 the schemas they publish and validate the same values consumed by MCP.
 """
 
-from __future__ import annotations
 
 import hashlib
 import json
@@ -90,7 +89,12 @@ def test_yongshen_contracts_publish_the_typed_core():
 
     naming_schema = CONTRACTS["naming_check"].input_schema
     naming_selected = _yongshen_object_schema(
-        naming_schema["properties"]["selected_yongshen"]
+        # input 是 anyOf 两分支（显式五行 / selected_yongshen），
+        # selected_yongshen 属性住在第二分支里。
+        next(
+            branch for branch in naming_schema["anyOf"]
+            if "selected_yongshen" in branch.get("properties", {})
+        )["properties"]["selected_yongshen"]
     )
     assert set(naming_selected["required"]) == set(ConsumedYongShen.model_fields)
 

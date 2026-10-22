@@ -1,5 +1,4 @@
 """counsel 断语引擎 MCP 端点测试（bazi 4 工具，ziwei 3 工具）。"""
-from __future__ import annotations
 
 import asyncio
 import json
@@ -179,9 +178,9 @@ def test_compute_factors_over_mcp(bazi_chart):
     srv = create_counsel_mcp("bazi")
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
     out = json.loads(r.content[0].text)
-    assert set(out) == {"factors", "factors_digest", "context"}
+    assert set(out) == {"factors", "factors_digest"}
     assert "selected_yongshen" in out["factors"]
-    assert out["context"]["性别"] == "male"
+    assert out["factors"]["_provenance"]["context"]["性别"] == "male"
     assert len(out["factors_digest"]) == 64  # sha256 hex
 
 
@@ -213,7 +212,6 @@ def test_natal_query_over_mcp(bazi_chart):
             "factors": snapshot["factors"],
             "factors_digest": snapshot["factors_digest"],
             "topics": ["chart_structure"],
-            "context": {"性别": "male"},
         },
     ))
     out = json.loads(r.content[0].text)
@@ -229,10 +227,9 @@ def test_period_query_over_mcp(bazi_chart):
         {
             "factors": snapshot["factors"],
             "factors_digest": snapshot["factors_digest"],
-            "time_scope": {"type": "year_range", "start_year": 2020, "end_year": 2040},
+            "time_scope": {"type": "year_range", "start_year": 2020, "end_year": 2040, "timezone": "Asia/Shanghai"},
             "topics": ["marriage"],
             "chart": bazi_chart,
-            "timezone": "Asia/Shanghai",
         },
     ))
     out = json.loads(r.content[0].text)
@@ -251,6 +248,7 @@ def test_period_query_over_mcp(bazi_chart):
 
 
 def test_domain_rejects_wrong_chart():
+    """结构上既不是八字盘也不是紫微盘：在 schema 边界即拒。"""
     result = _call_tool_over_mcp(
         create_counsel_mcp("bazi"),
         "compute_factors",
@@ -259,17 +257,20 @@ def test_domain_rejects_wrong_chart():
     assert result.is_error is True
     text = result.content[0].text
     assert "invalid_arguments" in text
-    assert "counsel/bazi 只接收八字盘" in text
+    # 联合两支的必填字段缺失都会出现在校验错误里（八字缺四柱，紫微缺 school/gong_wei）。
+    assert "nian" in text and "school" in text
 
 
 def test_bazi_yongshen_rejects_ziwei_chart():
+    """bazi_yongshen 的 chart 是强类型 BaziChart：紫微盘缺四柱必填字段，边界即拒。"""
     result = _call_tool_over_mcp(
         create_counsel_mcp("bazi"),
         "bazi_yongshen",
         {"chart": {"ziwei": {}}},
     )
     assert result.is_error is True
-    assert "counsel/bazi 只接收八字盘" in result.content[0].text
+    assert "invalid_arguments" in result.content[0].text
+    assert "nian" in result.content[0].text
 
 
 def test_counsel_tools_publish_the_contract_schemas_without_downgrading():
@@ -337,7 +338,6 @@ def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_ch
             "factors": snapshot["factors"],
             "factors_digest": snapshot["factors_digest"],
             "topics": all_topics,
-            "context": snapshot["context"],
         },
     ))
     out = json.loads(result.content[0].text)
@@ -360,11 +360,9 @@ def test_period_query_accepts_compute_factors_context(bazi_chart):
         {
             "factors": snapshot["factors"],
             "factors_digest": snapshot["factors_digest"],
-            "time_scope": {"type": "current_year"},
+            "time_scope": {"type": "current_year", "timezone": "Asia/Shanghai"},
             "topics": ["career"],
             "chart": bazi_chart,
-            "context": snapshot["context"],
-            "timezone": "Asia/Shanghai",
         },
     ))
     out = json.loads(result.content[0].text)
@@ -387,7 +385,6 @@ def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
             "factors": snapshot["factors"],
             "factors_digest": snapshot["factors_digest"],
             "topics": ["chart_structure"],
-            "context": snapshot["context"],
         },
     ))
     out = json.loads(result.content[0].text)
@@ -424,7 +421,7 @@ def _probe_contract(name: str, description: str = "test known failure mapping") 
 def test_known_tool_failures_preserve_reason_over_mcp_protocol(exception, code):
     server = MCPServer(name="counsel-test", version="test")
 
-    def invoke(_arguments):
+    def invoke(**_arguments):
         raise exception
 
     add_contract_tool(server, _probe_contract("known_failure"), invoke)
@@ -438,7 +435,7 @@ def test_known_tool_failures_preserve_reason_over_mcp_protocol(exception, code):
 def test_unexpected_tool_exception_is_not_leaked_over_mcp_protocol():
     server = MCPServer(name="counsel-test", version="test")
 
-    def invoke(_arguments):
+    def invoke(**_arguments):
         raise RuntimeError("internal secret")
 
     add_contract_tool(server, _probe_contract("boom", "test unknown exception handling"), invoke)

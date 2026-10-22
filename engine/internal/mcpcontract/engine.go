@@ -231,12 +231,12 @@ func NewEngine() *Registry {
 		Type: "string", Enum: hexagramEnum,
 	}
 	mustRegister(registry, Tool[TimeNowInput, TimeNowOutput]{
-		Name:        "time.now",
+		Name:        "time_now",
 		Description: "获取服务端当前时间。返回 UTC、本地、北京时间，用于 AI agent 获取准确时间避免幻觉。",
 		Handler:     TimeNow,
 	})
 	mustRegister(registry, Tool[HuangliDaysInput, []HuangliDayOutput]{
-		Name:        "huangli.days",
+		Name:        "huangli_days",
 		Description: "黄历查日。返回连续N天的黄历信息；event 给定时按建除事项规则输出 suitability。",
 		Handler:     HuangliDays,
 	})
@@ -245,39 +245,38 @@ func NewEngine() *Registry {
 		panic("tianwen.resolve input schema: " + err.Error())
 	}
 	mustRegister(registry, Tool[TianwenResolveInput, TianwenResolveOutput]{
-		Name:        "tianwen.resolve",
+		Name:        "tianwen_resolve",
 		InputSchema: resolveSchema,
 		Description: "把时间事实归一化为考时候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。输出永远包含一个 input 候选（输入的直接换算）；若时间/地点不确定性触及时辰、日界、交节或夏令时边界，追加候选并标注原因领域（时辰/日界/交节/时制）。chart 用候选的 gregorian_time + 经度排盘。",
 		Handler:     TianwenResolve,
 	})
 	mustRegister(registry, Tool[CityCoordsInput, CityCoordsOutput]{
-		Name:        "city.coords",
+		Name:        "city_coords",
 		Description: "根据城市名返回地点候选（内置表，不访问外链）：每项含经纬度、IANA 时区、地点东西经度范围。长度 1 可直接使用；多于 1（同名区县等）必须由用户确认，不得静默取第一个。未命中时请询问附近大城市，或让用户直接提供经纬度和时区。",
 		Handler:     CityCoords,
 	})
 	mustRegister(registry, Tool[BaziChartInput, BaziChart]{
-		Name:                "bazi.chart",
-		Description:         "排八字命盘。返回最小命盘（四柱+纳音+大运+性别）。",
-		Handler:             BaziChartCompute,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_chart",
+		Description: "排八字命盘。返回最小命盘（四柱+纳音+大运+性别）。",
+		Handler:     BaziChartCompute,
 	})
 	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
-		Name:        "bazhai.chart",
+		Name:        "bazhai_chart",
 		Description: "八宅排盘。按出生年份与性别排命卦 + 四吉四凶方 + 出生年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
 		Handler:     BazhaiChart,
 	})
 	mustRegister(registry, Tool[BazhaiLayoutInput, BazhaiLayoutOutput]{
-		Name:        "bazhai.layout",
+		Name:        "bazhai_layout",
 		Description: "八宅门主灶配合。命卦 + 门/主/灶卦 → 方向、游年九星、吉凶。确定性计算。",
 		Handler:     BazhaiLayout,
 	})
 	mustRegister(registry, Tool[XuankongChartInput, XuankongChart]{
-		Name:        "xuankong.chart",
+		Name:        "xuankong_chart",
 		Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",
 		Handler:     XuankongChartCompute,
 	})
 	mustRegister(registry, Tool[XuankongLiunianInput, XuankongLiunianOutput]{
-		Name:        "xuankong.liunian",
+		Name:        "xuankong_liunian",
 		Description: "玄空流年飞星。chart（可选）+ year → 流年飞星盘 + 宅盘凶星落宫对照（确定性计算）。",
 		Handler:     XuankongLiunian,
 	})
@@ -286,115 +285,97 @@ func NewEngine() *Registry {
 		panic("liuyao.qigua input schema: " + err.Error())
 	}
 	mustRegister(registry, Tool[LiuyaoQiguaInput, LiuyaoQiguaOutput]{
-		Name:        "liuyao.qigua",
+		Name:        "liuyao_qigua",
 		Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次；mode=coins 时传入六组正/反记录；mode=yaos 时传入六个爻值。返回可审计起卦收据。",
 		InputSchema: qiguaSchema,
 		Handler:     LiuyaoQigua,
 	})
 	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartOutput]{
-		Name:        "liuyao.chart",
+		Name:        "liuyao_chart",
 		Description: "六爻装卦。只接受 liuyao.qigua 返回的完整 casting 收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
 		Handler:     LiuyaoChart,
 	})
 	mustRegister(registry, Tool[BaziFullChartInput, BaziFullChartOutput]{
-		Name:                "bazi.fullchart",
-		Description:         "完整命盘。传入 bazi.chart 返回的最小命盘，补全十神/藏干/神煞/自坐/空亡/自合/魁罡/三元/拱夹/纳音生克/长生十二宫/三奇贵人/合会冲刑/十干禄/命理原子事实。",
-		Handler:             BaziFullChart,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_fullchart",
+		Description: "完整命盘。传入 bazi.chart 返回的最小命盘，补全十神/藏干/神煞/自坐/空亡/自合/魁罡/三元/拱夹/纳音生克/长生十二宫/三奇贵人/合会冲刑/十干禄/命理原子事实。",
+		Handler:     BaziFullChart,
 	})
 	mustRegister(registry, Tool[BaziBondInput, BaziBondOutput]{
-		Name:                "bazi.bond",
-		Description:         "八字合盘原始事实。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
-		Handler:             BaziBond,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_bond",
+		Description: "八字合盘原始事实。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
+		Handler:     BaziBond,
 	})
 	mustRegister(registry, Tool[BaziLiuNianInput, BaziLiuNianOutput]{
-		Name:                "bazi.liunian",
-		Description:         "八字流年运势。返回流年干支与命局的十神、神煞、伏吟反吟。",
-		Handler:             BaziLiuNian,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_liunian",
+		Description: "八字流年运势。返回流年干支与命局的十神、神煞、伏吟反吟。",
+		Handler:     BaziLiuNian,
 	})
 	mustRegister(registry, Tool[BaziLiuYueInput, BaziLiuYueOutput]{
-		Name:                "bazi.liuyue",
-		Description:         "流月运势。返回流月干支与命局的十神、神煞。",
-		Handler:             BaziLiuYue,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_liuyue",
+		Description: "流月运势。返回流月干支与命局的十神、神煞。",
+		Handler:     BaziLiuYue,
 	})
 	mustRegister(registry, Tool[BaziLiuRiInput, BaziLiuRiOutput]{
-		Name:                "bazi.liuri",
-		Description:         "流日运势。返回流日干支、十神、纳音。",
-		Handler:             BaziLiuRi,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_liuri",
+		Description: "流日运势。返回流日干支、十神、纳音。",
+		Handler:     BaziLiuRi,
 	})
 	mustRegister(registry, Tool[BaziLiuShiInput, BaziLiuShiOutput]{
-		Name:                "bazi.liushi",
-		Description:         "流时运势。返回流时干支、十神。hour 为时辰（0-23）。",
-		Handler:             BaziLiuShi,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_liushi",
+		Description: "流时运势。返回流时干支、十神。hour 为时辰（0-23）。",
+		Handler:     BaziLiuShi,
 	})
 	mustRegister(registry, Tool[BaziXiaoYunInput, BaziXiaoYunOutput]{
-		Name:                "bazi.xiaoyun",
-		Description:         "小运。返回小运流年列表。count 默认 12。",
-		Handler:             BaziXiaoYun,
-		TolerateUnknownArgs: true,
+		Name:        "bazi_xiaoyun",
+		Description: "小运。返回小运流年列表。count 默认 12。",
+		Handler:     BaziXiaoYun,
 	})
 	mustRegister(registry, Tool[ZiweiChartInput, ZiweiChartOutput]{
-		Name:                "ziwei.chart",
-		Description:         "紫微斗数排盘。返回十二宫星曜分布、亮度、四化。",
-		Handler:             ZiweiChartCompute,
-		TolerateUnknownArgs: true,
+		Name:        "ziwei_chart",
+		Description: "紫微斗数排盘。返回十二宫星曜分布、亮度、四化。",
+		Handler:     ZiweiChartCompute,
 	})
 	mustRegister(registry, Tool[ZiweiFullChartInput, ZiweiFullChartOutput]{
-		Name:                "ziwei.fullchart",
-		Description:         "紫微全盘。扩展杂曜、长生、博士、小限、将前、岁前。",
-		Handler:             ZiweiFullChart,
-		TolerateUnknownArgs: true,
+		Name:        "ziwei_fullchart",
+		Description: "紫微全盘。扩展杂曜、长生、博士、小限、将前、岁前。",
+		Handler:     ZiweiFullChart,
 	})
 	mustRegister(registry, Tool[ZiweiDaXianInput, ZiweiDaXianOutput]{
-		Name:                "ziwei.daxian",
-		Description:         "紫微斗数大限。返回十年大限各宫吉凶。chart 为 ziwei.chart 返回的完整 chart 对象。",
-		Handler:             ZiweiDaXian,
-		TolerateUnknownArgs: true,
+		Name:        "ziwei_daxian",
+		Description: "紫微斗数大限。返回十年大限各宫吉凶。chart 为 ziwei.chart 返回的完整 chart 对象。",
+		Handler:     ZiweiDaXian,
 	})
 	mustRegister(registry, Tool[ZiweiLiuNianInput, ZiweiLiuNianOutput]{
-		Name:                "ziwei.liunian",
-		Description:         "紫微流年。返回流年命盘及各宫变化。",
-		Handler:             ZiweiLiuNian,
-		TolerateUnknownArgs: true,
+		Name:        "ziwei_liunian",
+		Description: "紫微流年。返回流年命盘及各宫变化。",
+		Handler:     ZiweiLiuNian,
 	})
 	mustRegister(registry, Tool[ZiweiLiuYueInput, ZiweiLiuYueOutput]{
-		Name:                 "ziwei.liuyue",
-		Description:          "紫微流月。target_lunar 必须是已解析的完整农历日期；闰月十六日起按下一流月。",
-		Handler:              ZiweiLiuYue,
-		TolerateUnknownArgs:  true,
-		KeepClosedInputPaths: []string{"", "/properties/target_lunar"},
+		Name:        "ziwei_liuyue",
+		Description: "紫微流月。target_lunar 必须是已解析的完整农历日期；闰月十六日起按下一流月。",
+		Handler:     ZiweiLiuYue,
 	})
 	mustRegister(registry, Tool[ZiweiLiuRiInput, ZiweiLiuRiOutput]{
-		Name:                 "ziwei.liuri",
-		Description:          "紫微流日。target_lunar 必须是已解析的完整农历日期。",
-		Handler:              ZiweiLiuRi,
-		TolerateUnknownArgs:  true,
-		KeepClosedInputPaths: []string{"", "/properties/target_lunar"},
+		Name:        "ziwei_liuri",
+		Description: "紫微流日。target_lunar 必须是已解析的完整农历日期。",
+		Handler:     ZiweiLiuRi,
 	})
 	mustRegister(registry, Tool[ZiweiLiuShiInput, ZiweiLiuShiOutput]{
-		Name:                 "ziwei.liushi",
-		Description:          "紫微流时。返回流时命宫及四化。",
-		Handler:              ZiweiLiuShi,
-		TolerateUnknownArgs:  true,
-		KeepClosedInputPaths: []string{"", "/properties/target_lunar"},
+		Name:        "ziwei_liushi",
+		Description: "紫微流时。返回流时命宫及四化。",
+		Handler:     ZiweiLiuShi,
 	})
 	mustRegister(registry, Tool[ZiweiBondInput, ZiweiBondOutput]{
-		Name:                "ziwei.bond",
-		Description:         "紫微合盘原始事实。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
-		Handler:             ZiweiBond,
-		TolerateUnknownArgs: true,
+		Name:        "ziwei_bond",
+		Description: "紫微合盘原始事实。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
+		Handler:     ZiweiBond,
 	})
 	qimenSchema, err := qimenChartFormsSchema()
 	if err != nil {
 		panic("qimen.chart input schema: " + err.Error())
 	}
 	mustRegister(registry, Tool[QimenChartInput, QimenChartOutput]{
-		Name:        "qimen.chart",
+		Name:        "qimen_chart",
 		Description: "奇门排盘。method 显式选择时/刻/日/月/年家与转盘/飞盘/鸣法/金函玉镜的合法组合；时间、地点、用神保持直接参数。",
 		InputSchema: qimenSchema,
 		Handler:     QimenChart,

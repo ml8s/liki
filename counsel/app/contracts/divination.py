@@ -1,11 +1,9 @@
 """Divination tool contracts.
 
-Generated once from the legacy hand-written manifests, then maintained as
-ordinary source: this module is the single source of truth for these tool
-contracts (input schema, output schema, descriptions, enums, constraints).
+本模块是 divination 域工具契约的单一事实源：input/output schema、描述、枚举
+与约束全部由此投影。
 """
 
-from __future__ import annotations
 
 from typing import Annotated, Any, Literal
 
@@ -13,12 +11,50 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.contracts.schema import ToolContract, unique_list
 
+
+class AuditError(BaseModel):
+    """One structured answer-validation error."""
+
+    model_config = ConfigDict(extra="forbid")
+    field: Annotated[str, Field(min_length=1)] = Field(description="未通过校验的字段。")
+    reason: Annotated[str, Field(min_length=1)] = Field(description="失败原因。")
+    ref: str | None = Field(default=None, description="涉及的具体引用（如 snapshot:…）。")
+
+
 # ── liuyao_snapshot ──
-TOOL_LIUYAO_SNAPSHOT_DESCRIPTION = "创建六爻 immutable snapshot：auto/coins/yaos 起卦、排盘、用神因子、专题、应期候选一次完成。后续追问必须复用该 snapshot。"
+TOOL_LIUYAO_SNAPSHOT_DESCRIPTION = "创建六爻 immutable snapshot：起卦（casting.mode 选 auto 随机起卦 / coins 传六组铜钱记录 / yaos 传六个爻值）、排盘、用神因子、专题、应期候选一次完成。后续追问必须复用该 snapshot。"
+
+class LiuyaoAutoCasting(BaseModel):
+    """auto：服务端安全随机三枚铜钱起六次。"""
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["auto"] = Field(description="安全随机起卦。")
+
+
+class LiuyaoCoinsCasting(BaseModel):
+    """coins：复现历史卦时传入六组三枚正/反记录。"""
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["coins"] = Field(description="铜钱记录起卦。")
+    rounds: Annotated[
+        list[Annotated[list[Literal["正", "反"]], Field(min_length=3, max_length=3)]],
+        Field(min_length=6, max_length=6),
+    ] = Field(description="六组三枚正/反，顺序为初爻到上爻。")
+
+
+class LiuyaoYaosCasting(BaseModel):
+    """yaos：直接传入六个爻值（复现已知卦）。"""
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["yaos"] = Field(description="爻值起卦。")
+    yaos: Annotated[
+        list[Annotated[int, Field(ge=6, le=9)]],
+        Field(min_length=6, max_length=6),
+    ] = Field(description="六个爻值 6-9，初爻到上爻。")
+
+
+LiuyaoCastingInput = LiuyaoAutoCasting | LiuyaoCoinsCasting | LiuyaoYaosCasting
 
 class LiuyaoSnapshotInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    question: str = Field(
+    question: Annotated[str, Field(min_length=2)] = Field(
         description="本次要判断的一个具体目标",
     )
     longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
@@ -31,21 +67,13 @@ class LiuyaoSnapshotInput(BaseModel):
         default=None,
         description="起卦瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC。省略表示当前起卦；复现历史卦时传入。",
     )
-    mode: Literal["auto", "coins", "yaos"] = Field(
-        default="auto",
-        description="起卦方式",
-    )
-    rounds: Annotated[list[Annotated[list[Literal["正", "反"]], Field(min_length=3, max_length=3)]], Field(min_length=6, max_length=6)] = Field(
-        default=None,
-        description="coins 模式必填；六组三枚正/反，顺序为初爻到上爻",
-    )
-    yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(
-        default=None,
-        description="yaos 模式必填；六个爻值 6-9，初爻到上爻",
+    casting: LiuyaoCastingInput = Field(
+        description="起卦方式：auto=服务端安全随机起卦（缺省）；coins=传入六组三枚正/反铜钱记录；yaos=直接传入六个爻值。",
+        default={"mode": "auto"},
     )
     matter: Literal["general", "self", "other", "career", "wealth", "relationship", "study", "home", "travel", "family", "competition", "children", "lost_item", "legal"] = Field(
         default=None,
-        description="普通问事类别；必须与 yong_shen 二选一",
+        description="普通问事类别（决定用神）；必须与 yong_shen 二选一。与 topic 的关系：topic 省略时按 matter 推导，显式传入仅用于偏离 matter 的专题视角。",
     )
     yong_shen: Literal["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"] = Field(
         default=None,
@@ -53,30 +81,19 @@ class LiuyaoSnapshotInput(BaseModel):
     )
     perspective: Literal["male", "female"] = Field(
         default=None,
-        description="relationship 必填；男问取妻财，女问取官鬼",
+        description="问卦人性别视角（非命主性别，不参与排盘）；matter=relationship 必填，决定感情类用神：男问取妻财，女问取官鬼。",
     )
     topic: Literal["career", "children", "competition", "family", "general", "health_context", "home", "legal", "lost_item", "other", "relationship", "self", "study", "travel", "wealth"] = Field(
         default=None,
-        description="可选专题；省略时按 matter 推导",
+        description="可选专题视角；省略时与 matter 相同。",
     )
 
     @model_validator(mode="after")
-    def _enforce_casting_matrix(self) -> "LiuyaoSnapshotInput":
-        """Cross-field rules the legacy schema expressed as ``allOf``."""
+    def _enforce_matter_matrix(self) -> "LiuyaoSnapshotInput":
+        """matter/yong_shen 二选一与 perspective 条件是领域规则，发布 schema
+        由 casting 联合与文档表达；此处保留运行时闭环。"""
         if (self.matter is None) == (self.yong_shen is None):
             raise ValueError("provide exactly one of matter or yong_shen")
-        if self.mode == "coins":
-            if self.rounds is None:
-                raise ValueError("coins mode requires rounds")
-            if self.yaos is not None:
-                raise ValueError("coins mode accepts rounds only")
-        elif self.mode == "yaos":
-            if self.yaos is None:
-                raise ValueError("yaos mode requires yaos")
-            if self.rounds is not None:
-                raise ValueError("yaos mode accepts yaos only")
-        elif self.rounds is not None or self.yaos is not None:
-            raise ValueError("auto mode does not accept rounds or yaos")
         if self.perspective is not None and self.matter != "relationship":
             raise ValueError("perspective is only valid with matter=relationship")
         if self.matter == "relationship" and self.perspective is None:
@@ -91,10 +108,6 @@ class LiuyaoSnapshotOutputQuestion(BaseModel):
     matter: str | None
     explicit_yong_shen: str | None
     perspective: str | None
-    solar_time: str | None = Field(
-        default=None,
-        description="历史字段：旧快照记录的真太阳时；新快照不再生成。",
-    )
 
 
 class LiuyaoSnapshotOutputCastingRoundsItem(BaseModel):
@@ -106,6 +119,12 @@ class LiuyaoSnapshotOutputCastingRoundsItem(BaseModel):
     changing: bool
 
 
+DongYaoPositions = Annotated[
+    list[Annotated[int, Field(ge=1, le=6)]],
+    Field(min_length=0, max_length=6),
+]
+
+
 class LiuyaoSnapshotOutputCoinsCasting(BaseModel):
     """Coins casting returned by this tool."""
     model_config = ConfigDict(extra="forbid")
@@ -113,7 +132,7 @@ class LiuyaoSnapshotOutputCoinsCasting(BaseModel):
     order: Literal["bottom_up"] = Field(description="爻序。")
     rounds: list[LiuyaoSnapshotOutputCastingRoundsItem] = Field(description="六组铜钱记录。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
-    dong_yao: list[Any] = Field(description="动爻位置。")
+    dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
     casting_id: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
 
 
@@ -123,7 +142,7 @@ class LiuyaoSnapshotOutputYaosCasting(BaseModel):
     mode: Literal["yaos"] = Field(description="起卦方式。")
     order: Literal["bottom_up"] = Field(description="爻序。")
     yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
-    dong_yao: list[Any] = Field(description="动爻位置。")
+    dong_yao: DongYaoPositions = Field(description="动爻位置列表，1-6。")
     casting_id: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
 
 
@@ -191,16 +210,26 @@ class LiuyaoSnapshotOutputFacts(BaseModel):
 class LiuyaoSnapshotOutputPolicy(BaseModel):
     """Policy returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    may_output: list[Any]
+    may_output: Annotated[list[str], Field(min_length=1)] = Field(description="允许输出的结论字段。")
     must_cover_conflicts: bool
-    forbidden: list[Any]
+    forbidden: Annotated[list[str], Field(min_length=0)] = Field(description="禁止输出的结论类型。")
     immutable: Literal[True]
     no_recast_without_new_event: Literal[True]
 
 
 class LiuyaoSnapshotOutputTimingPlanCandidatesItem(BaseModel):
+    """One ranked timing candidate; engine fact fields flow through extra."""
     model_config = ConfigDict(extra="allow")
-    id: Any
+    id: Annotated[str, Field(min_length=1)] = Field(description="应期候选 id（timing 前缀引用）。")
+    mechanism: str | None = Field(default=None, description="应期机制。")
+    priority: Literal["high", "medium", "low"] = Field(description="上下文优先级，不是概率。")
+    rank_score: int = Field(description="排序得分。")
+    rank: int = Field(ge=1, description="排序序号。")
+    horizon: str = Field(description="适用时间尺度。")
+    conclusion_scope: Literal["conditional_timing_candidate_not_date"] = Field(
+        description="结论边界：条件性应期候选，不是确定日期。",
+    )
+    required_check: str = Field(description="采信前必须复核的条件。")
 
 
 class LiuyaoSnapshotOutputTimingPlanPolicy(BaseModel):
@@ -218,6 +247,14 @@ class LiuyaoSnapshotOutputTimingPlan(BaseModel):
     candidates: list[LiuyaoSnapshotOutputTimingPlanCandidatesItem]
     boundary: Literal["传统六爻应期候选；不构成医疗、法律、财务或其他专业建议。"]
     policy: LiuyaoSnapshotOutputTimingPlanPolicy
+
+
+class LiuyaoSnapshotTimingCandidate(BaseModel):
+    """One engine timing candidate reference; engine fact fields flow through extra."""
+
+    model_config = ConfigDict(extra="allow")
+    id: Annotated[str, Field(min_length=1)] = Field(description="应期候选 id（timing 前缀引用）。")
+    mechanism: str | None = Field(default=None, description="应期机制。")
 
 
 class LiuyaoSnapshotOutputSafetyAdvisory(BaseModel):
@@ -252,7 +289,7 @@ class LiuyaoSnapshotOutput(BaseModel):
     facts: LiuyaoSnapshotOutputFacts = Field(
         description="Facts returned by this tool.",
     )
-    timing_candidates: list[Any] = Field(
+    timing_candidates: list[LiuyaoSnapshotTimingCandidate] = Field(
         description="Timing candidates returned by this tool.",
     )
     policy: LiuyaoSnapshotOutputPolicy = Field(
@@ -308,7 +345,7 @@ class LiuyaoQueryOutputAudit(BaseModel):
     """Audit returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     accepted: Literal[True]
-    errors: list[Any]
+    errors: list[AuditError]
     checked: list[str]
     unchecked: list[str]
 
@@ -496,7 +533,7 @@ class QimenSnapshotInput(BaseModel):
     )
     yong_shen: Annotated[unique_list[str], Field(min_length=1)] = Field(
         default=None,
-        description="高级显式用神；必须与 matter 二选一",
+        description="高级显式用神符号列表（盘面符号：九星/八门/八神/天干等，如 天芮、开门）。奇门用神是开放符号集，与六爻的六亲闭集不同；必须与 matter 二选一。",
     )
     rule: Literal["lost_property", "thief_capture", "missing_person", "capture_escape", "thief_profile"] = Field(
         default=None,
@@ -671,7 +708,7 @@ class QimenQueryOutputAudit(BaseModel):
     """Audit returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     accepted: Literal[True]
-    errors: list[Any]
+    errors: list[AuditError]
     checked: list[str]
     unchecked: list[str]
 

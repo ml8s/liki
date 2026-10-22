@@ -1,7 +1,7 @@
 """排盘工具（数据准备——非命理逻辑，零命理判定）。
 
 liki 命理 skill 的排盘层：
-- full_paipan：本命盘（八字 + 紫微一次排全）
+- build_natal_chart：本命盘（八字 + 紫微一次排全）
 - liunian：流年盘（八字 + 紫微单年合并——应期按候选年逐调）
 - city_coords：城市名→经纬度（交互式查询）
 - bond：合盘（八字合盘 + 紫微合盘）
@@ -9,28 +9,22 @@ liki 命理 skill 的排盘层：
 命理逻辑不在本层（见 factors.py / duanyu.py）。
 本层只做「读引擎字段 + 编排 MCP 工具调用 + 归并」，零命理判断。
 """
-from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Optional
 
-from pan_integrity import with_natal_digest
-from pan_schema import validate_natal_pan
-
 # Engine MCP 客户端（counsel 统一走 MCP）
-_COUNSEL_APP = Path(__file__).resolve().parents[2]
-if str(_COUNSEL_APP) not in sys.path:
-    sys.path.insert(0, str(_COUNSEL_APP))
-from engine_mcp_client import (  # noqa: E402
+from app.engine_mcp_client import (  # noqa: E402
     MCPError,
     _version_key,
     call,
     engine_version,
 )
-from engine_mcp_client import (  # noqa: E402
+from app.engine_mcp_client import (  # noqa: E402
     ensure_engine_compatible as _ensure_engine_compatible,
 )
+from app.natal.tools.chart_integrity import with_natal_chart_digest
+from app.natal.tools.chart_schema import validate_natal_chart
 
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
 
@@ -63,7 +57,7 @@ def ensure_engine_compatible() -> None:
     )
 
 
-# ── 内部 RPC 封装（full_paipan / liunian 编排用，agent 不直接碰）──
+# ── 内部 RPC 封装（build_natal_chart / liunian 编排用，agent 不直接碰）──
 
 def _resolve_utc(instant: str, timezone: str, longitude: float) -> dict:
     """Canonical time facts: {instant, timezone} -> candidates {instant, timezone, local_time, offset, reasons}."""
@@ -92,9 +86,13 @@ def _ziwei_chart(instant: str, timezone: str, longitude: float, gender: str) -> 
     return call("ziwei.chart", params)["data"]
 
 
-def _ziwei_fullchart(instant: str, timezone: str, longitude: float, gender: str) -> dict:
+def _ziwei_fullchart(
+    instant: str, timezone: str, longitude: float, gender: str,
+) -> tuple[dict, dict]:
+    """返回 (chart, fullchart)：chart 是 ziwei.chart 契约对象，flow 工具复用。"""
     chart = _ziwei_chart(instant, timezone, longitude, gender)
-    return call("ziwei.fullchart", {"chart": chart})["data"]
+    full = call("ziwei.fullchart", {"chart": chart})["data"]
+    return chart, full
 
 
 def _ziwei_daxian(ziwei: dict) -> list:
@@ -164,7 +162,7 @@ def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
 
 # ── agent 工具（排盘 2 个）──
 
-def full_paipan(instant: str, timezone: str, gender: str, longitude: Optional[float] = None) -> dict:
+def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optional[float] = None) -> dict:
     """本命盘（八字 + 紫微一次排全）。
 
     instant/timezone：规范时间事实（UTC + IANA）；longitude：出生地经度（必填）。
@@ -173,7 +171,7 @@ def full_paipan(instant: str, timezone: str, gender: str, longitude: Optional[fl
 
     返回盘结构：{instant, timezone, gregorian_time, chart, full, ziwei, ziwei_daxian, gender,
     pan_digest[, time_candidates][, calibration_hint]}；gregorian_time 是 local_time 展示值。
-    返回结构是 factors 层的唯一输入；领域快照由 factors 层按 pan 生成。
+    返回结构是 factors 层的唯一输入；领域快照由 factors 层按 natal_chart 生成。
     """
     if longitude is None:
         raise ValueError(
@@ -195,13 +193,15 @@ def full_paipan(instant: str, timezone: str, gender: str, longitude: Optional[fl
     chart = _bazi_chart(instant, timezone, longitude, gender)
     full = _bazi_fullchart(chart)
     # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
-    zw = _ziwei_fullchart(instant, timezone, longitude, gender)
-    daxian = _ziwei_daxian(zw)
+    zw_chart, zw = _ziwei_fullchart(instant, timezone, longitude, gender)
+    # ziwei.daxian 契约收 ziwei.chart 输出；fullchart 增量字段属因子层。
+    daxian = _ziwei_daxian(zw_chart)
     result = {
         "instant": instant,
         "timezone": timezone,
         "chart": chart,      # 含 birth_year / da_yun
         "full": full,        # 十神/藏干/神煞/合会冲刑/三元
+        "ziwei_chart": zw_chart,  # ziwei.chart 契约对象；flow 工具输入
         "ziwei": zw,         # 十二宫/四化/杂曜/格局
         "ziwei_daxian": daxian,  # 十年大限（公历年段与宫位）
         "gender": gender,
@@ -223,23 +223,23 @@ def full_paipan(instant: str, timezone: str, gender: str, longitude: Optional[fl
         detail = (candidate.get("reasons") or [{}])[0].get("detail", "")
         if "距" in detail or "恰在" in detail:
             result["calibration_hint"] = f"输入时间接近历法边界：{detail}；时辰敏感结论须确认。"
-    result = with_natal_digest(result)
-    validate_natal_pan(result, action="full_paipan result")
+    result = with_natal_chart_digest(result)
+    validate_natal_chart(result, action="build_natal_chart result")
     return result
 
 
-def liunian(pan: dict, year: int) -> dict:
+def liunian(natal_chart: dict, year: int) -> dict:
     """流年盘（八字 + 紫微单年合并）。
 
-    pan：full_paipan 返回的本命盘（只取其中 chart / ziwei 两个字段，agent 传整个盘即可）。
+    natal_chart：build_natal_chart 返回的本命盘（只取其中 chart / ziwei 两个字段，agent 传整个盘即可）。
     year：要排的流年年份（应期按候选年逐个调——本命静态一次、流年动态按需）。
 
     返回：{bazi: 八字流年, ziwei: 紫微流年}。
     """
-    validate_natal_pan(pan, action="liunian")
+    validate_natal_chart(natal_chart, action="liunian")
     return {
-        "bazi": _bazi_liunian(pan["chart"], year),
-        "ziwei": _ziwei_liunian(pan["ziwei"], year),
+        "bazi": _bazi_liunian(natal_chart["chart"], year),
+        "ziwei": _ziwei_liunian(natal_chart["ziwei_chart"], year),
     }
 
 
@@ -257,11 +257,11 @@ def city_coords(city: str) -> dict:
 def bond(pan_a: dict, pan_b: dict) -> dict:
     """合盘：两张本命盘 → 八字合盘 + 紫微合盘。
 
-    pan_a / pan_b 为 full_paipan 返回的完整盘。
+    pan_a / pan_b 为 build_natal_chart 返回的完整盘。
     返回: {"bazi": {...}, "ziwei": {...}}
     """
-    validate_natal_pan(pan_a, action="bond pan_a")
-    validate_natal_pan(pan_b, action="bond pan_b")
+    validate_natal_chart(pan_a, action="bond pan_a")
+    validate_natal_chart(pan_b, action="bond pan_b")
     bazi_r = call("bazi.bond", {
         "a": {"chart": pan_a["chart"]},
         "b": {"chart": pan_b["chart"]},

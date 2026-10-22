@@ -1,11 +1,10 @@
 """六爻因子投影编排：调用 engine 排盘并投影 snapshot 内部因子。"""
-from __future__ import annotations
 
 from typing import Any
 
-from divination_rpc import engine_data, server_time
-from liuyao_factors import project_factors
-from liuyao_matters import resolve_matter
+from app.divination.tools.divination_rpc import engine_data, server_time
+from app.divination.tools.liuyao_factors import project_factors
+from app.divination.tools.liuyao_matters import resolve_matter
 
 
 def _resolve_yong_shen(

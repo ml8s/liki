@@ -2,11 +2,11 @@
 import unittest
 
 from _helpers import mock_base_context
-from errors import FactorEvaluateError
-from factor_tokens import FACTOR_WILDCARD
-from factors import evaluate_liunian_factors
-from operators_liunian import _liu_op
-from operators_natal import _op
+from app.natal.tools.errors import FactorEvaluateError
+from app.natal.tools.factor_tokens import FACTOR_WILDCARD
+from app.natal.tools.factors import evaluate_liunian_factors
+from app.natal.tools.operators_liunian import _liu_op
+from app.natal.tools.operators_natal import _op
 
 
 class TestOperators(unittest.TestCase):
@@ -288,7 +288,7 @@ class TestTianKeDiChongFactor(unittest.TestCase):
     """天克地冲必须同时满足干克与支冲。"""
 
     def _evaluate(self, nian_gan, nian_zhi):
-        pan = {
+        natal_chart = {
             "full": {"ri": {"gan": "庚", "zhi": "午"}},
             "chart": {"ri": {"gan": "庚", "zhi": "午"}},
         }
@@ -297,7 +297,7 @@ class TestTianKeDiChongFactor(unittest.TestCase):
             "year_branch_relations": {"午": "liu_chong"} if nian_zhi == "子" else {},
         }}
         snap = evaluate_liunian_factors(
-            "male", pan, liunian,
+            "male", natal_chart, liunian,
             shushi="bazi", factor_names={"天克地冲日柱"},
         )
         return snap["天克地冲日柱"]

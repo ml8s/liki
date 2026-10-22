@@ -9,7 +9,7 @@ import (
 
 func TestEngineRegistry_TimeNowContract(t *testing.T) {
 	registry := testEngine()
-	definition, ok := registry.Definition("time.now")
+	definition, ok := registry.Definition("time_now")
 	if !ok {
 		t.Fatal("time.now contract is not registered")
 	}
@@ -56,7 +56,7 @@ func TestEngineRegistry_TimeNowContract(t *testing.T) {
 
 func TestEngineRegistry_TimeNowCall(t *testing.T) {
 	registry := testEngine()
-	_, err := registry.Call(context.Background(), "time.now", json.RawMessage(`{"ignored":true}`))
+	_, err := registry.Call(context.Background(), "time_now", json.RawMessage(`{"ignored":true}`))
 	if err == nil {
 		t.Fatal("unknown input field was accepted")
 	}
@@ -64,7 +64,7 @@ func TestEngineRegistry_TimeNowCall(t *testing.T) {
 		t.Fatalf("unexpected input error: %v", err)
 	}
 
-	raw, err := registry.Call(context.Background(), "time.now", json.RawMessage(`{"timezone":"Asia/Shanghai"}`))
+	raw, err := registry.Call(context.Background(), "time_now", json.RawMessage(`{"timezone":"Asia/Shanghai"}`))
 	if err != nil {
 		t.Fatalf("call: %v", err)
 	}

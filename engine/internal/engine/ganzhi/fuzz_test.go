@@ -1,6 +1,9 @@
 package ganzhi
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func FuzzParseGender(f *testing.F) {
 	f.Add("male")
@@ -231,4 +234,14 @@ func FuzzZhiUnmarshalJSON(f *testing.F) {
 			}
 		}
 	})
+}
+
+func ParseYinYang(s string) (YinYang, error) {
+	switch s {
+	case "阳":
+		return Yang, nil
+	case "阴":
+		return Yin, nil
+	}
+	return false, fmt.Errorf("unknown yin yang: %q", s)
 }

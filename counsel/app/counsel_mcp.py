@@ -11,7 +11,6 @@ Run:
     LIKI_MCP_URL=http://engine-mcp:8081/mcp \
         .venv/bin/python -m uvicorn app.counsel_mcp:app --host 127.0.0.1 --port 8086
 """
-from __future__ import annotations
 
 import logging
 import os

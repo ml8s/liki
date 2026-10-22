@@ -6,21 +6,20 @@ TopicRouter 只做受控配置投影：topic → 命理规则 + 断语领域。�
 counsel MCP 的 natal_query / period_query 复用本模块的路由与展平逻辑
 （`_require_topics` / `_load_routes` / `_flatten_side_result` / `_analyze_periods`）。
 """
-from __future__ import annotations
 
 import json
 import os
 from functools import lru_cache
 
-from chart_id import chart_id
-from duanyu import (
+from app.natal.tools.chart_id import chart_id
+from app.natal.tools.duanyu import (
     CURRENT_LIMIT_RULES,
     query,
     resolve_current_year,
     yearly_range,
 )
-from errors import LikiToolError
-from factor_constants import load_constants
+from app.natal.tools.errors import LikiToolError
+from app.natal.tools.factor_constants import load_constants
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROUTE_PATH = os.path.join(TOOLS_DIR, "topic_routes.json")
@@ -138,7 +137,7 @@ def _flatten_side_result(
     return assertions, matched
 
 
-def _resolve_time_scope(time_scope: dict) -> tuple[str, int, int]:
+def _resolve_time_scope(time_scope: dict, timezone: str) -> tuple[str, int, int]:
     if not isinstance(time_scope, dict):
         raise TopicRouteError("time_scope 必须是对象")
     allowed = {"type", "year", "start_year", "end_year"}
@@ -147,7 +146,7 @@ def _resolve_time_scope(time_scope: dict) -> tuple[str, int, int]:
         raise TopicRouteError(f"time_scope 含无效字段: {sorted(unknown)}")
     scope_type = time_scope.get("type")
     if scope_type == "current_year":
-        year, _ = resolve_current_year("Asia/Shanghai")
+        year, _ = resolve_current_year(timezone)
         return "year", year, year
     if scope_type == "year":
         year = time_scope.get("year")
@@ -164,7 +163,7 @@ def _resolve_time_scope(time_scope: dict) -> tuple[str, int, int]:
             raise TopicRouteError("time_scope.start_year 不能大于 end_year")
         return "year_range", start, end
     if scope_type == "current_decade":
-        year, _ = resolve_current_year("Asia/Shanghai")
+        year, _ = resolve_current_year(timezone)
         return "decade", year, year
     if scope_type == "decade":
         year = time_scope.get("year")
@@ -186,11 +185,12 @@ def _deduplicate(items: list[dict]) -> list[dict]:
     return output
 
 
-def _analyze_periods(pan: dict, args: dict, validate_pan: bool = True) -> dict:
-    """period_query 主体：pan 已就绪（完整盘或分侧盘）。"""
+def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -> dict:
+    """period_query 主体：natal_chart 已就绪（完整盘或分侧盘）。"""
     selected_pairs = _require_topics(args["topics"])
     routes = _load_routes()
-    scope_type, start, end = _resolve_time_scope(args["time_scope"])
+    timezone = str(natal_chart.get("timezone") or "")
+    scope_type, start, end = _resolve_time_scope(args["time_scope"], timezone)
     output_scopes: list[dict] = []
 
     if scope_type == "decade":
@@ -204,7 +204,7 @@ def _analyze_periods(pan: dict, args: dict, validate_pan: bool = True) -> dict:
         for rule in rule_order:
             if rule not in CURRENT_LIMIT_RULES:
                 raise TopicRouteError(f"decade route 含非限运规则: {rule}")
-            result = query(rule, pan, year=start, validate_pan=validate_pan)
+            result = query(rule, natal_chart, year=start, validate_pan=validate_pan)
             result["_rule"] = rule
             part, count = _flatten_side_result(
                 result, selected_pairs, routes, "decade", start
@@ -232,7 +232,7 @@ def _analyze_periods(pan: dict, args: dict, validate_pan: bool = True) -> dict:
                     rule_order.append(rule)
         if not rule_order:
             raise TopicRouteError("所选 topic 没有流年规则")
-        raw = yearly_range(pan, start, end, rules=rule_order, detail=True, validate_pan=validate_pan)
+        raw = yearly_range(natal_chart, start, end, rules=rule_order, detail=True, validate_pan=validate_pan)
         years = raw.get("years", {})
         for year in range(start, end + 1):
             result = years.get(str(year), {})
@@ -264,8 +264,8 @@ def _analyze_periods(pan: dict, args: dict, validate_pan: bool = True) -> dict:
 
     return {
         "chart": {
-            "id": chart_id(pan),
-            "digest": pan.get("pan_digest"),
+            "id": chart_id(natal_chart),
+            "digest": natal_chart.get("natal_chart_digest"),
             "completeness": "full",
         },
         "query": {

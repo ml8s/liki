@@ -11,7 +11,6 @@
     python3 scripts/agent_runtime_pin.py --ref       # 打印 image:version@digest
     python3 scripts/agent_runtime_pin.py --check      # 校验（失败返回非零）
 """
-from __future__ import annotations
 
 import argparse
 import re

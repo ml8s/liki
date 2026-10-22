@@ -3,11 +3,11 @@ import copy
 from unittest import mock
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
-import duanyu
-import factors
-import operators_liunian
-import operators_natal
-from factor_tables import load_factor_rows, load_liunian_rows
+import app.natal.tools.duanyu as duanyu
+import app.natal.tools.factors as factors
+import app.natal.tools.operators_liunian as operators_liunian
+import app.natal.tools.operators_natal as operators_natal
+from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
 
 
 def test_natal_and_liunian_operator_registries_are_orthogonal():
@@ -68,14 +68,14 @@ def _pan() -> dict:
 
 
 def test_flow_evaluation_reuses_prepared_natal_base():
-    pan = _pan()
-    natal = factors.prepare_natal_context(pan)
+    natal_chart = _pan()
+    natal = factors.prepare_natal_context(natal_chart)
     with mock.patch.object(
-        operators_natal, "_base_ctx_from_pan", wraps=operators_natal._base_ctx_from_pan
+        operators_natal, "_base_ctx_from_natal_chart", wraps=operators_natal._base_ctx_from_natal_chart
     ) as build_base:
         for side in ("bazi", "ziwei"):
             result = factors.evaluate_liunian_factors(
-                pan["gender"], natal.evaluation, {}, year=2026, shushi=side,
+                natal_chart["gender"], natal.evaluation, {}, year=2026, shushi=side,
                 natal_snapshot=natal.snapshot,
             )
             assert result
@@ -83,19 +83,19 @@ def test_flow_evaluation_reuses_prepared_natal_base():
 
 
 def test_flow_snapshot_is_readonly_and_typed():
-    pan = _pan()
+    natal_chart = _pan()
     liunian_pan = {"bazi": {"nian_gan": "丙"}, "ziwei": {"nian_gan": "丙"}}
-    pan_copy = copy.deepcopy(pan)
+    pan_copy = copy.deepcopy(natal_chart)
     flow_copy = copy.deepcopy(liunian_pan)
-    snap = factors.evaluate_liunian_snap_from_pan(pan, liunian_pan, year=2026)
+    snap = factors.evaluate_liunian_snap_from_natal_chart(natal_chart, liunian_pan, year=2026)
     assert snap["_snapshot_type"] == "liunian"
-    assert pan == pan_copy
+    assert natal_chart == pan_copy
     assert liunian_pan == flow_copy
 
 
 def test_natal_snapshot_has_no_flow_runtime_marker():
-    pan = _pan()
-    snap = factors.evaluate_snap_from_pan(pan)
+    natal_chart = _pan()
+    snap = factors.evaluate_snap_from_natal_chart(natal_chart)
     assert "_snapshot_type" not in snap
     assert set(snap) == {"八字", "紫微", "context"}
 

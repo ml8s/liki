@@ -1,7 +1,6 @@
 """金函玉镜 answer core；只解释星、门与十二神事实。"""
-from __future__ import annotations
 
-from divination_answer import validate_common_core
+from app.divination.tools.divination_answer import validate_common_core
 
 ALLOWED_FIELDS = {
     "headline",

@@ -248,7 +248,7 @@ func TestExactSolarTermBoundary(t *testing.T) {
 }
 
 func TestPatternConditionsRequireSamePalace(t *testing.T) {
-	scattered := pan{
+	scattered := board{
 		DutyDoor: DoorSheng,
 		GongWei: [9]Gong{
 			0: {DiPanGan: ganzhi.GanWu, TianPan: []TianPanSymbol{{Gan: ganzhi.GanBing}}},
@@ -278,8 +278,8 @@ func TestTianQinSpecialPositionFollowsPlateGeometry(t *testing.T) {
 		t, "2024-12-25 12:00",
 		Method{Scope: ScopeDay, School: SchoolLuoShuFeiPan, Dingju: DingjuZhiRun},
 	)
-	if rotate.Pan.DutyStar != StarTianQin || fly.Pan.DutyStar != StarTianQin {
-		t.Fatalf("duty stars = %s/%s, want 天禽/天禽", rotate.Pan.DutyStar, fly.Pan.DutyStar)
+	if rotate.Board.DutyStar != StarTianQin || fly.Board.DutyStar != StarTianQin {
+		t.Fatalf("duty stars = %s/%s, want 天禽/天禽", rotate.Board.DutyStar, fly.Board.DutyStar)
 	}
 	if got := patternPalaceByName(rotate.Patterns, "伏吟"); got != GongKun {
 		t.Fatalf("rotate TianQin FuYin palace = %s, want effective 坤", got)
@@ -294,7 +294,7 @@ func TestRotatingCenterHeavenGanJoinsGanInteraction(t *testing.T) {
 		t, "2024-12-26 12:00",
 		Method{Scope: ScopeDay, School: SchoolZhuanPan, Dingju: DingjuChaiBu},
 	)
-	center := chart.Pan.GongWei[int(GongZhong)-1]
+	center := chart.Board.GongWei[int(GongZhong)-1]
 	if center.TianPanGan == nil {
 		t.Fatal("rotating center lacks its heaven-stem fact")
 	}

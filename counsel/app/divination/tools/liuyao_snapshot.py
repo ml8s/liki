@@ -1,15 +1,14 @@
 """六爻 snapshot 创建：起卦、排盘、因子投影一次完成。"""
-from __future__ import annotations
 
-from divination_contracts import validate_document
-from divination_safety import assess
-from divination_snapshot import build_snapshot
-from liuyao_casting import qigua
-from liuyao_conditions import evaluate as evaluate_conditions
-from liuyao_matters import load_matter_table, resolve_matter
-from liuyao_paipan import factors as build_liuyao_factors
-from liuyao_timing import rank_timing_candidates as plan_timing
-from liuyao_topic_guidance import load_topic_table, project_topic_guidance
+from app.divination.tools.divination_contracts import validate_document
+from app.divination.tools.divination_safety import assess
+from app.divination.tools.divination_snapshot import build_snapshot
+from app.divination.tools.liuyao_board import factors as build_liuyao_factors
+from app.divination.tools.liuyao_casting import qigua
+from app.divination.tools.liuyao_conditions import evaluate as evaluate_conditions
+from app.divination.tools.liuyao_matters import load_matter_table, resolve_matter
+from app.divination.tools.liuyao_timing import rank_timing_candidates as plan_timing
+from app.divination.tools.liuyao_topic_guidance import load_topic_table, project_topic_guidance
 
 ALLOWED_MATTERS = set(load_matter_table())
 ALLOWED_TOPICS = set(load_topic_table()["topics"])
@@ -22,9 +21,7 @@ def create(
     *,
     question: str,
     longitude: float,
-    mode: str = "auto",
-    rounds: list[list[str]] | None = None,
-    yaos: list[int] | None = None,
+    casting: dict | None = None,
     instant: str | None = None,
     timezone: str = "",
     matter: str | None = None,
@@ -32,7 +29,11 @@ def create(
     perspective: str | None = None,
     topic: str | None = None,
 ) -> dict:
-    """创建 immutable liuyao snapshot；LLM 后续只依赖该对象。"""
+    """创建 immutable liuyao snapshot；LLM 后续只依赖该对象。
+
+    casting 是 MCP 契约的判别联合字典：{mode: "auto"} /
+    {mode: "coins", rounds: [...]} / {mode: "yaos", yaos: [...]}。
+    """
     if not isinstance(question, str):
         raise ValueError("question must be non-empty text")
     question = question.strip()
@@ -41,8 +42,16 @@ def create(
     safety = assess(question)
     if len(question) < 2:
         raise ValueError("question must be at least 2 characters")
+    if casting is None:
+        casting = {"mode": "auto"}
+    if not isinstance(casting, dict) or "mode" not in casting:
+        raise ValueError("casting must be an object with a mode discriminator")
+    mode = casting["mode"]
+    rounds = casting.get("rounds")
+    yaos = casting.get("yaos")
     if mode not in {"auto", "coins", "yaos"}:
         raise ValueError("mode must be auto, coins, or yaos")
+    # coins→rounds / yaos→yaos 由 casting 判别联合在 schema 边界保证，不重复校验。
     if (matter is None) == (yong_shen is None):
         raise ValueError("provide exactly one of matter or yong_shen")
     if matter is not None and matter not in ALLOWED_MATTERS:

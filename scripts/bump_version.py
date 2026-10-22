@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Bump every Liki runtime/compatibility CalVer surface atomically."""
-from __future__ import annotations
 
 import json
 import sys

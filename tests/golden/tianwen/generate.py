@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Generate two-oracle calendar consensus fixtures for the tianwen domain."""
 
-from __future__ import annotations
 
 import datetime as dt
 import json

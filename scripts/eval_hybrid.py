@@ -18,17 +18,17 @@ from pathlib import Path
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Rule-engine tools live with the unified Liki bazi domain.
-_TOOLS = os.path.join(_ROOT, "counsel", "app", "natal", "tools")
+_COUNSEL = os.path.join(_ROOT, "counsel")
 _LOCAL = os.path.dirname(os.path.abspath(__file__))   # scripts/birth.py 在此
 _BENCHMARK = os.path.join(_ROOT, "evals", "mingli160")
-for _p in (_TOOLS, _LOCAL):
+for _p in (_COUNSEL, _LOCAL):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from app.natal.tools.charts import build_natal_chart, liunian
+from app.natal.tools.duanyu import NATAL_RULES, YEARLY_RULES, match_rule, query_yearly, resolve_current_year
+from app.natal.tools.factors import evaluate_liunian_snap_from_natal_chart, evaluate_snap_from_natal_chart
 from birth import parse_birth
-from duanyu import NATAL_RULES, YEARLY_RULES, match_rule, query_yearly, resolve_current_year
-from factors import evaluate_liunian_snap_from_pan, evaluate_snap_from_pan
-from paipan import full_paipan, liunian
 
 BENCHMARK = _BENCHMARK
 with open(os.path.join(BENCHMARK, "groups.json"), encoding="utf-8") as _file:
@@ -37,17 +37,17 @@ with open(os.path.join(BENCHMARK, "births.json"), encoding="utf-8") as _file:
     BIRTHS = json.load(_file)
 
 
-def query_all(pan: dict) -> dict:
+def query_all(natal_chart: dict) -> dict:
     """断语查询（数据检查用）——本命域查本命快照，流年域用当前年流年盘采样。"""
-    snap = evaluate_snap_from_pan(pan)
+    snap = evaluate_snap_from_natal_chart(natal_chart)
     domains = {}
     # 本命域
     for rule in sorted(NATAL_RULES):
         domains[rule] = match_rule(rule, snap)
     # 流年域——用当前年采样（完整流年覆盖需多年扫描，此处仅验证规则表不崩/有产出）
     cur_year, _ = resolve_current_year()
-    lnp = liunian(pan, cur_year)
-    snap_y = evaluate_liunian_snap_from_pan(pan, lnp, year=cur_year)
+    lnp = liunian(natal_chart, cur_year)
+    snap_y = evaluate_liunian_snap_from_natal_chart(natal_chart, lnp, year=cur_year)
     for rule in sorted(YEARLY_RULES):
         domains[rule] = query_yearly(rule, snap_y)
     return {"domains": domains}
@@ -90,8 +90,8 @@ def main() -> int:
         if case_id not in cache:
             solar, gender, lon, _corr = parse_birth(birth)
             # 经度未知时用北京默认（与产品默认一致）；题干时间即 Gregorian time事实。
-            pan = full_paipan(solar, gender, lon if lon is not None else 116.4)
-            cache[case_id] = query_all(pan)
+            natal_chart = build_natal_chart(solar, gender, lon if lon is not None else 116.4)
+            cache[case_id] = query_all(natal_chart)
         r = cache[case_id]
         for qid in qids:
             total += 1

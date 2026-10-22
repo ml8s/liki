@@ -58,8 +58,8 @@ func TestComputeChartDefaultIsChaiBu(t *testing.T) {
 	if chart.Method.DingjuMethod != "chaibu" || chart.Method.DingjuMethodName != "拆补定局" {
 		t.Fatalf("default method = %s/%s, want chaibu/拆补定局", chart.Method.DingjuMethod, chart.Method.DingjuMethodName)
 	}
-	if chart.Method.JieQi != "冬至" || chart.Method.YongJuJieQi != "冬至" || chart.Pan.Jushu != 1 {
-		t.Fatalf("chai bu method = %s/%s/%d, want 冬至/冬至/1", chart.Method.JieQi, chart.Method.YongJuJieQi, chart.Pan.Jushu)
+	if chart.Method.JieQi != "冬至" || chart.Method.YongJuJieQi != "冬至" || chart.Board.Jushu != 1 {
+		t.Fatalf("chai bu method = %s/%s/%d, want 冬至/冬至/1", chart.Method.JieQi, chart.Method.YongJuJieQi, chart.Board.Jushu)
 	}
 	if chart.Method.ZhiRunState != "" {
 		t.Fatalf("chai bu zhi_run_state = %q, want empty", chart.Method.ZhiRunState)
@@ -136,9 +136,9 @@ func TestZhiRunExternalDingjuAnchors(t *testing.T) {
 			if chart.Method.YongJuJieQi != anchor.YongJuJieQi {
 				t.Errorf("dingju term = %s, want %s", chart.Method.YongJuJieQi, anchor.YongJuJieQi)
 			}
-			if chart.Pan.YinDun != anchor.YinDun || chart.Pan.Jushu != anchor.Ju || chart.Method.Yuan != anchor.Yuan {
+			if chart.Board.YinDun != anchor.YinDun || chart.Board.Jushu != anchor.Ju || chart.Method.Yuan != anchor.Yuan {
 				t.Errorf("dun/ju/yuan = %v/%d/%s, want %v/%d/%s",
-					chart.Pan.YinDun, chart.Pan.Jushu, chart.Method.Yuan,
+					chart.Board.YinDun, chart.Board.Jushu, chart.Method.Yuan,
 					anchor.YinDun, anchor.Ju, anchor.Yuan)
 			}
 		})
@@ -160,7 +160,7 @@ func TestLateZiRollsQimenDayPillar(t *testing.T) {
 	for _, anchor := range loadZhiRunGoldenFixture(t).DayBoundaryVectors {
 		t.Run(anchor.When, func(t *testing.T) {
 			chart := zhiRunChartForTest(t, anchor.When, DingjuZhiRun)
-			day := ganzhi.GanName(chart.Pan.RiGan) + ganzhi.ZhiName(chart.Pan.RiZhi)
+			day := ganzhi.GanName(chart.Board.RiGan) + ganzhi.ZhiName(chart.Board.RiZhi)
 			if day != anchor.Day {
 				t.Fatalf("day pillar = %s, want %s", day, anchor.Day)
 			}
@@ -176,8 +176,8 @@ func TestLateZiRollsQimenDayPillar(t *testing.T) {
 
 func TestZhiRunExternalRotatingPlateAnchor(t *testing.T) {
 	chart := zhiRunChartForTest(t, "2026-01-05 13:00", DingjuZhiRun)
-	if chart.Pan.DutyStar != StarTianRui || chart.Pan.DutyDoor != DoorSi {
-		t.Fatalf("duty = %s/%s, want 天芮/死门", chart.Pan.DutyStar, chart.Pan.DutyDoor)
+	if chart.Board.DutyStar != StarTianRui || chart.Board.DutyDoor != DoorSi {
+		t.Fatalf("duty = %s/%s, want 天芮/死门", chart.Board.DutyStar, chart.Board.DutyDoor)
 	}
 	if chart.DutyStarPalace != GongKun || chart.DutyDoorPalace != GongLi {
 		t.Fatalf("duty palaces = %s/%s, want 坤/离", chart.DutyStarPalace, chart.DutyDoorPalace)

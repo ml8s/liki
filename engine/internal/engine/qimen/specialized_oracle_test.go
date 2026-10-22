@@ -129,8 +129,8 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 			chart.ShiGanGongWangShuai.WangShuaiName = tc.WangShuai
 			palace := oracleGong(t, tc.ShiGanGong)
 			chart.ShiGanGongWangShuai.WangShuai = oracleWangShuai(t, tc.WangShuai)
-			chart.Pan.GongWei[palace-1].DoorSet = true
-			chart.Pan.GongWei[palace-1].Door = oracleDoor(t, tc.Door)
+			chart.Board.GongWei[palace-1].DoorSet = true
+			chart.Board.GongWei[palace-1].Door = oracleDoor(t, tc.Door)
 			got := computeSpecializedContext(chart, ganzhi.Bazi{}).LostContext
 			if len(got) != 1 || got[0].Gong.String() != tc.Expected[0].Gong ||
 				got[0].Door != tc.Expected[0].Door || got[0].WangShuai != tc.Expected[0].WangShuai {
@@ -143,18 +143,18 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 		t.Run("thief/"+tc.ID, func(t *testing.T) {
 			gong := oracleGong(t, tc.Gong)
 			chart := Chart{}
-			chart.Pan.GongWei[gong-1].Gong = PalaceIdentity{Name: gong.String()}
+			chart.Board.GongWei[gong-1].Gong = PalaceIdentity{Name: gong.String()}
 			if tc.Star != nil && *tc.Star == "天蓬" {
-				chart.Pan.GongWei[gong-1].TianPan = append(chart.Pan.GongWei[gong-1].TianPan, TianPanSymbol{Star: StarTianPeng})
+				chart.Board.GongWei[gong-1].TianPan = append(chart.Board.GongWei[gong-1].TianPan, TianPanSymbol{Star: StarTianPeng})
 				chart.XingGongWuXing = append(chart.XingGongWuXing, XingGongWuXing{
 					Star: StarTianPeng, Gong: gong, TraditionalLabel: tc.TraditionalLabel,
 				})
 			}
 			if tc.Spirit != nil && *tc.Spirit == "朱雀" {
-				chart.Pan.GongWei[gong-1].SpiritSet = true
-				chart.Pan.GongWei[gong-1].Spirit = SpiritZhuQue
+				chart.Board.GongWei[gong-1].SpiritSet = true
+				chart.Board.GongWei[gong-1].Spirit = SpiritZhuQue
 			}
-			chart.Pan.YinDun = tc.YinDun
+			chart.Board.YinDun = tc.YinDun
 			for _, pattern := range tc.Patterns {
 				chart.Patterns = append(chart.Patterns, Pattern{
 					Name: pattern.Name, Auspicious: pattern.Auspicious,

@@ -1,5 +1,4 @@
 """qimen 通用吉凶判断（qimen_judgment）单元测试：不依赖外部服务。"""
-from __future__ import annotations
 
 import sys
 from pathlib import Path

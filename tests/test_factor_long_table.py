@@ -3,10 +3,9 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 
-import _helpers  # noqa: F401
 import pytest
-from errors import FactorTableError
-from factor_tables import load_long_rows
+from app.natal.tools.errors import FactorTableError
+from app.natal.tools.factor_tables import load_long_rows
 
 ROOT = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools/factors"
 CASES = {"factors.csv": "natal", "factors_liunian.csv": "flow"}

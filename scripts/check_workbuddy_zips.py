@@ -12,7 +12,6 @@
 
 由 `scripts/package-workbuddy.sh` 打包后调用；`dist/workbuddy/` 不存在（干净 checkout）时跳过。
 """
-from __future__ import annotations
 
 import json
 import sys

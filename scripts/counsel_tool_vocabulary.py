@@ -7,7 +7,6 @@ The counsel tool surface is owned by the Pydantic models in
 instead of reading a committed copy of the schemas: the models stay the single
 source of truth for the fields the skill documents may reference.
 """
-from __future__ import annotations
 
 import json
 import sys

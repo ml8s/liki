@@ -1,10 +1,9 @@
 """奇门事象路由表；本层只做 matter → 显式用神查表。"""
-from __future__ import annotations
 
 import csv
 from pathlib import Path
 
-from qimen_errors import TableError
+from app.divination.tools.qimen_errors import TableError
 
 MATTERS_PATH = Path(__file__).with_name("data") / "qimen_matters.csv"
 _MATTER_TABLE = None

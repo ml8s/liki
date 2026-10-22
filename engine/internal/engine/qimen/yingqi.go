@@ -48,8 +48,8 @@ func computeYingQi(chart Chart, chartTime time.Time, focuses map[GongIndex][]Rel
 			Description: rule.Description,
 		})
 	}
-	if chart.Pan.MaXing.Branch != 0 {
-		appendCandidate("ma_xing", chart.Pan.MaXing)
+	if chart.Board.MaXing.Branch != 0 {
+		appendCandidate("ma_xing", chart.Board.MaXing)
 	}
 	if branch := palaceZhi(chart.DutyStarPalace); branch != 0 {
 		appendCandidate("duty_star", BranchPalace{Branch: branch, Gong: chart.DutyStarPalace})
@@ -57,7 +57,7 @@ func computeYingQi(chart Chart, chartTime time.Time, focuses map[GongIndex][]Rel
 	if branch := palaceZhi(chart.DutyDoorPalace); branch != 0 {
 		appendCandidate("duty_door", BranchPalace{Branch: branch, Gong: chart.DutyDoorPalace})
 	}
-	for _, voidBranch := range chart.Pan.KongWang {
+	for _, voidBranch := range chart.Board.KongWang {
 		if voidBranch.Branch == 0 {
 			continue
 		}
@@ -117,7 +117,7 @@ func yingQiAnchorDate(chart Chart, chartTime time.Time) time.Time {
 	for _, offset := range []int{0, 1, -1} {
 		date := base.AddDate(0, 0, offset)
 		pillar := tianwen.RiZhu(time.Time(date))
-		if pillar.Gan == chart.Pan.RiGan && pillar.Zhi == chart.Pan.RiZhi {
+		if pillar.Gan == chart.Board.RiGan && pillar.Zhi == chart.Board.RiZhi {
 			return date
 		}
 	}
@@ -141,7 +141,7 @@ func baseYingQiFocuses(chart Chart) map[GongIndex][]RelatedSymbol {
 	result := map[GongIndex][]RelatedSymbol{}
 	addFocus(result, chart.RiGanPalace, RelatedSymbol{Symbol: "日干", Role: "pillar"})
 	addFocus(result, chart.ShiGanPalace, RelatedSymbol{Symbol: "时干", Role: "pillar"})
-	addFocus(result, leadPillarPalace(chart.Pan), RelatedSymbol{Symbol: "主柱", Role: "lead"})
+	addFocus(result, leadPillarPalace(chart.Board), RelatedSymbol{Symbol: "主柱", Role: "lead"})
 	if chart.DutyStarPalace != 0 {
 		addFocus(result, chart.DutyStarPalace, RelatedSymbol{Symbol: "值符星", Role: "duty"})
 	}

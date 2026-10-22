@@ -11,7 +11,6 @@ dependencies produced a broken environment. The lock is intentionally frozen (it
 not regenerated on every change, which would bump transitive pins), so this pins the
 declared pins instead.
 """
-from __future__ import annotations
 
 import re
 import sys

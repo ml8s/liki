@@ -3,7 +3,6 @@
 这些用例先由经典规则写成 JSON fixture，再打到实现边界上；fixture 与实现
 表分开维护，任何一侧行为变化都必须显式核对领域口径。
 """
-from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -116,7 +115,7 @@ def test_lu_root_operator_uses_ten_stem_lu_not_any_same_element() -> None:
     from _helpers import TOOLS
     if str(TOOLS) not in sys.path:
         sys.path.insert(0, str(TOOLS))
-    from operators_natal import _op
+    from app.natal.tools.operators_natal import _op
 
     oracle = _load("bazi_operator_lu_root.json")
     for case in oracle["cases"]:

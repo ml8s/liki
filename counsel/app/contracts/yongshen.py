@@ -7,7 +7,6 @@ decision; ``ConsumedYongShen`` is the narrower surface a consumer such as naming
 needs, while still accepting the full object because extra fields are allowed.
 """
 
-from __future__ import annotations
 
 from typing import Annotated, Literal
 

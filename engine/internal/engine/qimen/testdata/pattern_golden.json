@@ -11,7 +11,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲秘笈大全》：生门六丙合六丁，此为天遁自分明",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -38,7 +38,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲秘笈大全》：开门六乙合六己，地遁如斯而已矣",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -65,7 +65,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲秘笈大全》：休门六丁共太阴，欲求人遁无差忒",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -93,7 +93,7 @@
         "离"
       ],
       "source_basis": "三奇得使：乙加甲戌己/甲午辛，丙加甲子戊/甲申庚，丁加甲辰壬/甲寅癸",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -119,7 +119,7 @@
         "离"
       ],
       "source_basis": "三奇得使：乙加甲戌己/甲午辛，丙加甲子戊/甲申庚，丁加甲辰壬/甲寅癸",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -145,7 +145,7 @@
         "离"
       ],
       "source_basis": "三奇得使：乙加甲戌己/甲午辛，丙加甲子戊/甲申庚，丁加甲辰壬/甲寅癸",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -171,7 +171,7 @@
         "离"
       ],
       "source_basis": "三奇得使：乙加甲戌己/甲午辛，丙加甲子戊/甲申庚，丁加甲辰壬/甲寅癸",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -197,7 +197,7 @@
         "离"
       ],
       "source_basis": "三奇得使：乙加甲戌己/甲午辛，丙加甲子戊/甲申庚，丁加甲辰壬/甲寅癸",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -223,7 +223,7 @@
         "离"
       ],
       "source_basis": "三奇得使：乙加甲戌己/甲午辛，丙加甲子戊/甲申庚，丁加甲辰壬/甲寅癸",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -249,7 +249,7 @@
         "离"
       ],
       "source_basis": "门盘值使加临地盘丁奇",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -276,7 +276,7 @@
         "坎"
       ],
       "source_basis": "值符星还本宫",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天蓬",
         "duty_door": "休门",
@@ -302,7 +302,7 @@
         "离"
       ],
       "source_basis": "值符星临本宫对冲之宫",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天蓬",
         "duty_door": "休门",
@@ -328,7 +328,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：戊加丙为「青龙返首」，动作大吉，若逢迫、墓、击、刑，吉事成凶",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -354,7 +354,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲秘笈大全·卷二·十干克应诀》：丙加戊名「飞鸟跌穴」，谋为百事洞澈",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -380,7 +380,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲统宗·奇门秘诀总赋》：六丙加庚荧入白；荧入白兮贼欲隔",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -406,7 +406,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲统宗·奇门秘诀总赋》：六庚加丙白入荧；白入荧兮贼即来",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -432,7 +432,7 @@
         "坤"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：三奇入墓，乙奇坤宫，丙奇乾宫，丁奇艮宫",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -458,7 +458,7 @@
         "乾"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：三奇入墓，乙奇坤宫，丙奇乾宫，丁奇艮宫",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -484,7 +484,7 @@
         "艮"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：三奇入墓，乙奇坤宫，丙奇乾宫，丁奇艮宫",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -510,7 +510,7 @@
         "震"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -536,7 +536,7 @@
         "坤"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -562,7 +562,7 @@
         "艮"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -588,7 +588,7 @@
         "离"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -614,7 +614,7 @@
         "巽"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",
@@ -640,7 +640,7 @@
         "巽"
       ],
       "source_basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
-      "pan": {
+      "board": {
         "yin_dun": false,
         "duty_star": "天芮",
         "duty_door": "休门",

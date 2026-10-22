@@ -1,5 +1,4 @@
 """因子常量加载：基础闭集、关系表、大类角色与紫微词表。"""
-from __future__ import annotations
 
 import json
 import os

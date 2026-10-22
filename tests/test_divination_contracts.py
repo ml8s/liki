@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import csv
 import sys
@@ -14,21 +13,21 @@ if str(TOOLS) not in sys.path:
 
 import json  # noqa: E402
 
+import app.divination.tools.qimen_charts as qimen_charts  # noqa: E402
 import divination_contracts  # noqa: E402
 import divination_rpc  # noqa: E402
 import divination_safety  # noqa: E402
 import divination_snapshot  # noqa: E402
 import liuyao_snapshot  # noqa: E402
 import qimen_ask  # noqa: E402
-import qimen_paipan  # noqa: E402
 import qimen_snapshot  # noqa: E402
-from qimen_interpretations import load_rule_table  # noqa: E402
-from qimen_projection import validate as validate_standard_factors  # noqa: E402
+from app.divination.tools.qimen_interpretations import load_rule_table  # noqa: E402
+from app.divination.tools.qimen_projection import validate as validate_standard_factors  # noqa: E402
 
 HOUR_METHOD = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
 DAY_METHOD = {"scope": "day", "school": "zhuanpan", "dingju_method": "chaibu"}
 JINHAN_METHOD = {"scope": "day", "school": "jinhan_yujing"}
-from qimen_projection_common import _hour_polarity  # noqa: E402
+from app.divination.tools.qimen_projection_common import _hour_polarity  # noqa: E402
 
 
 def test_qimen_hour_polarity_follows_stem_parity():
@@ -44,7 +43,7 @@ def test_qimen_hour_polarity_follows_stem_parity():
     assert actual == expected
 
     for stem, polarity in expected.items():
-        assert _hour_polarity({"pan": {"shi_gan": stem}}) == polarity
+        assert _hour_polarity({"board": {"shi_gan": stem}}) == polarity
 
 
 def test_safety_advisory_does_not_block_flow():
@@ -109,12 +108,14 @@ def test_liuyao_snapshot_rejects_conflicting_arguments_before_rpc(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: (_ for _ in ()).throw(AssertionError("engine called")))
     with pytest.raises(ValueError, match="exactly one"):
         liuyao_snapshot.create(
-            question="测试", matter="career", yong_shen="官鬼", mode="yaos", yaos=[7] * 6,
+            question="测试", matter="career", yong_shen="官鬼",
+            casting={"mode": "yaos", "yaos": [7] * 6},
             longitude=116.4,
         )
     with pytest.raises(ValueError, match="perspective"):
         liuyao_snapshot.create(
-            question="测试", matter="career", perspective="male", mode="yaos", yaos=[7] * 6,
+            question="测试", matter="career", perspective="male",
+            casting={"mode": "yaos", "yaos": [7] * 6},
             longitude=116.4,
         )
 
@@ -157,7 +158,7 @@ def test_qimen_snapshot_rejects_method_context_mismatch(monkeypatch):
     valid_chart = _pan()["chart"]
     mismatch_chart = json.loads(json.dumps(valid_chart))
     mismatch_chart["method"]["scope"] = "day"
-    from qimen_projection import project as project_chart
+    from app.divination.tools.qimen_projection import project as project_chart
 
     monkeypatch.setattr(qimen_snapshot, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
     monkeypatch.setattr(qimen_snapshot, "_resolve_location", lambda city, longitude: (city, 121.47))
@@ -168,13 +169,13 @@ def test_qimen_snapshot_rejects_method_context_mismatch(monkeypatch):
 
 
 def test_qimen_snapshot_rejects_whitespace_city_before_rpc(monkeypatch):
-    monkeypatch.setattr(qimen_paipan, "city_coords", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
+    monkeypatch.setattr(qimen_charts, "city_coords", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     with pytest.raises(ValueError, match="city must be non-empty"):
         qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="   ", matter="wealth", timezone="Asia/Shanghai")
 
 
 def test_qimen_snapshot_rejects_empty_yong_shen_before_rpc(monkeypatch):
-    monkeypatch.setattr(qimen_paipan, "city_coords", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
+    monkeypatch.setattr(qimen_charts, "city_coords", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     with pytest.raises(ValueError, match="yong_shen cannot be empty"):
         qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", longitude=121.47, yong_shen=[], timezone="Asia/Shanghai")
 
@@ -283,7 +284,7 @@ def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
                 "scope": "day", "school": "jinhan_yujing",
                 "dingju_method": "none", "dun_source": "winter_solstice_yang_summer_solstice_yin",
             },
-            "pan": {
+            "board": {
                 "yin_dun": False, "ri_gan": "甲", "ri_zhi": "子",
                 "gong_wei": [
                     {"gong": {"name": gong, "luoshu": index}, "xing": "太乙", "men": "休门", "men_present": True}
@@ -295,7 +296,7 @@ def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
             },
         }
 
-    monkeypatch.setattr(qimen_paipan, "engine_data", fake_engine_data)
+    monkeypatch.setattr(qimen_charts, "engine_data", fake_engine_data)
     snapshot = qimen_snapshot.create(method=JINHAN_METHOD,
         question="今天整体如何？", longitude=121.47, instant="2026-09-08T04:00:00Z", timezone="Asia/Shanghai"
     )

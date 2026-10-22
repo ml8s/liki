@@ -1,35 +1,34 @@
 """错误契约：专用错误可捕获，且保持 LikiToolError 的 ValueError 兼容行为。"""
 
-import _helpers  # noqa: F401
-import duanyu
-from errors import (
+import app.natal.tools.duanyu as duanyu
+from app.natal.tools.chart_schema import validate_natal_chart
+from app.natal.tools.errors import (
     AssertionRuleError,
+    ChartSchemaError,
     FactorEvaluateError,
     FactorTableError,
     LikiToolError,
-    PanSchemaError,
     YearRangeError,
 )
-from factors import _atomic
-from pan_schema import validate_natal_pan
+from app.natal.tools.factors import _atomic
 
 
 def test_error_hierarchy_is_valueerror_compatible():
     for error_type in (
-        PanSchemaError, AssertionRuleError, YearRangeError,
+        ChartSchemaError, AssertionRuleError, YearRangeError,
         FactorEvaluateError, FactorTableError,
     ):
         assert issubclass(error_type, LikiToolError)
         assert issubclass(error_type, ValueError)
 
 
-def test_pan_schema_error():
+def test_chart_schema_error():
     try:
-        validate_natal_pan({}, action="test")
+        validate_natal_chart({}, action="test")
     except ValueError as exc:
-        assert isinstance(exc, PanSchemaError)
+        assert isinstance(exc, ChartSchemaError)
     else:
-        raise AssertionError("missing pan did not raise")
+        raise AssertionError("missing natal_chart did not raise")
 
 
 def test_year_range_error():

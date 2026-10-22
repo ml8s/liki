@@ -1,16 +1,15 @@
 """奇门 ask：校验 immutable snapshot 并生成结构化 answer。"""
-from __future__ import annotations
 
-from divination_contracts import validate_document
-from divination_hashing import message_digest
-from divination_safety import assess
-from divination_snapshot import validate_snapshot
-from qimen_answer_core import build as build_standard_core
-from qimen_answer_core import validate_core as validate_standard_core
-from qimen_jinhan_answer_core import build as build_jinhan_core
-from qimen_jinhan_answer_core import validate_core as validate_jinhan_core
-from qimen_jinhan_factors import validate as validate_jinhan_factors
-from qimen_projection import validate as validate_standard_factors
+from app.divination.tools.divination_contracts import validate_document
+from app.divination.tools.divination_hashing import message_digest
+from app.divination.tools.divination_safety import assess
+from app.divination.tools.divination_snapshot import validate_snapshot
+from app.divination.tools.qimen_answer_core import build as build_standard_core
+from app.divination.tools.qimen_answer_core import validate_core as validate_standard_core
+from app.divination.tools.qimen_jinhan_answer_core import build as build_jinhan_core
+from app.divination.tools.qimen_jinhan_answer_core import validate_core as validate_jinhan_core
+from app.divination.tools.qimen_jinhan_factors import validate as validate_jinhan_factors
+from app.divination.tools.qimen_projection import validate as validate_standard_factors
 
 
 def ask(snapshot: dict, *, message: str) -> dict:

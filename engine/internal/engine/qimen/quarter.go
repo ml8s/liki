@@ -60,16 +60,6 @@ func newTwelveMinuteQuarterInfo(t time.Time, hourPillar ganzhi.Zhu, baseYangDun 
 	}
 }
 
-func quarterIndex(t time.Time) int {
-	return quarterIndexFor(t, quarterRules[QuarterTenMinuteSanYuan], 1)
-}
-
-func twelveMinuteQuarterIndex(t time.Time) int {
-	return twelveMinuteQuarterIndexWithBoundary(
-		t, quarterRules[QuarterTwelveMinuteTenDivision].DefaultHourBoundary,
-	)
-}
-
 func twelveMinuteQuarterIndexWithBoundary(t time.Time, boundary string) int {
 	rule := quarterRules[QuarterTwelveMinuteTenDivision]
 	return quarterIndexFor(t, rule, rule.HourBoundaries[boundary])

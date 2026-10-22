@@ -79,6 +79,19 @@ func collectFieldRefs(schema json.RawMessage, root string, out *fieldRefs) {
 				p := path + name
 				out.leaves[name] = true
 				if subMap, ok := sub.(map[string]any); ok {
+					// 受控字段的取值（const/enum）也是合法的文档引用——
+					// 判别联合的 type 值（如 time_scope 的 year_range/decade）
+					// 与枚举字段的值（如 gender 的 male/female）都算"存在"。
+					if c, ok := subMap["const"].(string); ok {
+						out.leaves[c] = true
+					}
+					if enums, ok := subMap["enum"].([]any); ok {
+						for _, e := range enums {
+							if s, ok := e.(string); ok {
+								out.leaves[s] = true
+							}
+						}
+					}
 					switch schemaKind(subMap) {
 					case "object":
 						walk(subMap, p+".")
@@ -652,7 +665,7 @@ func TestSkillDocsMethodListSync(t *testing.T) {
 			seg = seg[:end]
 		}
 	}
-	for _, m := range regexp.MustCompile(`"([a-z]+(?:\.[a-z_]+)?)"`).FindAllStringSubmatch(seg, -1) {
+	for _, m := range regexp.MustCompile(`"([a-z]+(?:[._][a-z_]+)?)"`).FindAllStringSubmatch(seg, -1) {
 		whitelist[m[1]] = true
 	}
 	regNames := testEngine().Names()

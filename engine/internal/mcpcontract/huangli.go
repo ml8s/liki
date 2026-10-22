@@ -79,12 +79,7 @@ func HuangliDays(_ context.Context, input HuangliDaysInput) ([]HuangliDayOutput,
 	if input.Count != nil {
 		count = int(*input.Count)
 	}
-	if count < 1 {
-		count = 3
-	}
-	if count > 30 {
-		count = 30
-	}
+	// 边界由 HuangliCount 的 schema 约束保证（1-30）；此处不再静默修正。
 
 	days := make([]HuangliDayOutput, 0, count)
 	for i := 0; i < count; i++ {

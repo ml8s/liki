@@ -77,8 +77,8 @@ func computeGengGeFacts(chart Chart, bz ganzhi.Bazi) []GengGeFact {
 				continue
 			}
 			door := ""
-			if int(interaction.Gong) >= 1 && int(interaction.Gong) <= len(chart.Pan.GongWei) {
-				palace := chart.Pan.GongWei[int(interaction.Gong)-1]
+			if int(interaction.Gong) >= 1 && int(interaction.Gong) <= len(chart.Board.GongWei) {
+				palace := chart.Board.GongWei[int(interaction.Gong)-1]
 				if palace.DoorSet && palace.Door != 0 {
 					door = palace.Door.String()
 				}
@@ -116,8 +116,8 @@ func computeLostContextFacts(chart Chart) []LostContextFact {
 	}
 	palace := chart.ShiGanPalace
 	door := ""
-	if int(palace) >= 1 && int(palace) <= len(chart.Pan.GongWei) {
-		item := chart.Pan.GongWei[int(palace)-1]
+	if int(palace) >= 1 && int(palace) <= len(chart.Board.GongWei) {
+		item := chart.Board.GongWei[int(palace)-1]
 		if item.DoorSet && item.Door != 0 {
 			door = item.Door.String()
 		}
@@ -168,7 +168,7 @@ func computeThiefFacts(chart Chart) []ThiefFact {
 		})
 	}
 
-	for index, palace := range chart.Pan.GongWei {
+	for index, palace := range chart.Board.GongWei {
 		gong := GongIndex(index + 1)
 		if gong == GongZhong {
 			continue
@@ -188,7 +188,7 @@ func computeThiefFacts(chart Chart) []ThiefFact {
 			add("大贼", "天蓬", gong, label)
 		}
 		if palace.SpiritSet && palace.Spirit == SpiritZhuQue &&
-			spiritDisplayName(palace.Spirit, chart.Pan.YinDun, chart.Pan.School) == "玄武" {
+			spiritDisplayName(palace.Spirit, chart.Board.YinDun, chart.Board.School) == "玄武" {
 			label := palaceWang[gong]
 			if label == "" {
 				label = "未知"

@@ -3,17 +3,15 @@ import json
 from unittest import mock
 from urllib.error import HTTPError, URLError
 
-import _helpers  # noqa: F401 —— 注入 tools 路径
-import paipan
+import app.natal.tools.charts as charts
 import pytest
-from paipan import RPCError, call
+from app.natal.tools.charts import RPCError, call
 
 
 @pytest.fixture(autouse=True)
 def skip_shared_engine_compatibility(monkeypatch):
     """Pure transport tests exercise call(); the shared gate has its own tests."""
-    import engine_mcp_client
-
+    import app.engine_mcp_client as engine_mcp_client
     monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
 
 
@@ -63,25 +61,25 @@ def test_engine_compatibility_reads_engine_version(monkeypatch) -> None:
 
     def fake_engine_version():
         calls.append(1)
-        return paipan.required_engine_version()
+        return charts.required_engine_version()
 
-    monkeypatch.setattr(paipan, "engine_version", fake_engine_version)
-    paipan.ensure_engine_compatible()
+    monkeypatch.setattr(charts, "engine_version", fake_engine_version)
+    charts.ensure_engine_compatible()
 
     assert calls == [1]
 
 
 def test_engine_compatibility_rejects_old_engine(monkeypatch) -> None:
-    monkeypatch.setattr(paipan, "engine_version", lambda: "2026.09.10.9")
+    monkeypatch.setattr(charts, "engine_version", lambda: "2026.09.10.9")
 
     with pytest.raises(RPCError, match="incompatible"):
-        paipan.ensure_engine_compatible()
+        charts.ensure_engine_compatible()
 
 
 def test_engine_compatibility_requires_installed_skill_version(monkeypatch) -> None:
-    required = paipan.required_engine_version()
+    required = charts.required_engine_version()
     older = required.split(".")[:-1] + [str(int(required.split(".")[-1]) - 1)]
-    monkeypatch.setattr(paipan, "engine_version", lambda: ".".join(older))
+    monkeypatch.setattr(charts, "engine_version", lambda: ".".join(older))
 
     with pytest.raises(RPCError, match="VERSION.txt requires engine"):
-        paipan.ensure_engine_compatible()
+        charts.ensure_engine_compatible()

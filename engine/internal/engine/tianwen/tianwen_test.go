@@ -7,6 +7,16 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
+func SolarTermIndex(year, month, day int) int {
+	lon := solarLongitude(time.Date(year, time.Month(month), day, 12, 0, 0, 0, time.UTC))
+	for i := 0; i < 24; i++ {
+		if angleInRange(lon, JieQiLongitudes[(i+21)%24], JieQiLongitudes[(i+22)%24]) {
+			return i
+		}
+	}
+	return 23
+}
+
 func TestCivilTimeFromLunarDate_BaseDate(t *testing.T) {
 	// 代码内置基准: 农历 1900-01-01 = 公历 1900-01-31
 	gt := CivilTimeFromLunarDate(LunarDate{Year: 1900, Month: 1, Day: 1, Leap: false})

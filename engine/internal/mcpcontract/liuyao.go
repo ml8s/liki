@@ -48,11 +48,11 @@ func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
 		var err error
 		switch mode {
 		case "auto":
-			_, raw, err = inputSchemaFor[LiuyaoQiguaAutoForm](false, nil)
+			_, raw, err = inputSchemaFor[LiuyaoQiguaAutoForm]()
 		case "coins":
-			_, raw, err = inputSchemaFor[LiuyaoQiguaCoinsForm](false, nil)
+			_, raw, err = inputSchemaFor[LiuyaoQiguaCoinsForm]()
 		case "yaos":
-			_, raw, err = inputSchemaFor[LiuyaoQiguaYaosForm](false, nil)
+			_, raw, err = inputSchemaFor[LiuyaoQiguaYaosForm]()
 		}
 		if err != nil {
 			return nil, err

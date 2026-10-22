@@ -1,7 +1,6 @@
 """标准奇门稳定因子投影；专占上下文由 qimen_specialized.py 提供。"""
-from __future__ import annotations
 
-from qimen_projection_common import (  # noqa: F401
+from app.divination.tools.qimen_projection_common import (  # noqa: F401
     _hour_polarity,
     _load_wuxing_relations,
     _palace_direction,
@@ -17,7 +16,7 @@ from qimen_projection_common import (  # noqa: F401
     _validate_value,
     load_factors_contract,
 )
-from qimen_specialized import project as project_specialized_context
+from app.divination.tools.qimen_specialized import project as project_specialized_context
 
 
 def _load_ji_xiong_table() -> dict:
@@ -200,7 +199,7 @@ def _project_stable_factors(source, chart: dict, spec: dict):
     if projection == "symbol_palaces":
         if not isinstance(source, list):
             raise ValueError("chart source symbol array invalid")
-        source_palaces = chart.get("pan", {}).get("gong_wei", [])
+        source_palaces = chart.get("board", {}).get("gong_wei", [])
         star_states = {
             row.get("xing"): row.get("traditional_label")
             for row in chart.get("xing_gong_wu_xing", [])

@@ -54,10 +54,10 @@ func assertChartAnchors(t *testing.T, chart Chart) {
 	t.Helper()
 	// 2026-06-28 午时：夏至中元（癸酉日）→ 阴遁3局。日干癸天盘落震、时干戊天盘落兑（用神落宫以天盘为核心）；
 	// 时柱戊午（甲寅旬）空子丑（坎艮）；午→寅午戌马在申（坤）。
-	if chart.Pan.Jushu != 3 {
-		t.Errorf("jushu = %d, want 3（夏至中元 阴遁3局）", chart.Pan.Jushu)
+	if chart.Board.Jushu != 3 {
+		t.Errorf("jushu = %d, want 3（夏至中元 阴遁3局）", chart.Board.Jushu)
 	}
-	if !chart.Pan.YinDun {
+	if !chart.Board.YinDun {
 		t.Error("yin_dun = false, want true（夏至后阴遁）")
 	}
 	if chart.RiGanPalace != GongZhen {

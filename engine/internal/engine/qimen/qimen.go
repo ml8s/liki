@@ -221,8 +221,8 @@ type Gong struct {
 	SpiritSet    bool
 }
 
-// pan is the complete 奇门遁甲排盘。
-type pan struct {
+// board is the complete 奇门遁甲排盘。
+type board struct {
 	Jushu          int
 	School         School
 	YinDun         bool
@@ -248,7 +248,7 @@ type pan struct {
 
 // MarshalJSON projects the API fields and renders spirit names for the current
 // 阴阳遁 and plate style.
-func (p pan) MarshalJSON() ([]byte, error) {
+func (p board) MarshalJSON() ([]byte, error) {
 	m := map[string]any{
 		"jushu": p.Jushu, "yin_dun": p.YinDun,
 		"ri_gan": p.RiGan, "ri_zhi": p.RiZhi,
@@ -368,7 +368,7 @@ type MenInteraction struct {
 	Meaning string    `json:"meaning"`
 }
 
-// Pattern represents a detected 格局 in the pan.
+// Pattern represents a detected 格局 in the board.
 type Pattern struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`

@@ -3,7 +3,6 @@
 counsel naming 工具（naming_*）在本地字库上完成匹配/取字/组名/评估；
 输出必须与老实现（基线）完全一致——正交化补集只改入口，不改逻辑。
 """
-from __future__ import annotations
 
 import asyncio
 import json
@@ -36,7 +35,7 @@ def test_naming_tools_registered(srv):
 
 
 def test_naming_pick_matches_baseline(srv, baseline):
-    r = asyncio.run(srv.call_tool("naming_pick", {"wuxing1": "木"}))
+    r = asyncio.run(srv.call_tool("naming_pick", {"first": "木"}))
     assert json.loads(r.content[0].text) == baseline["pick"]
 
 
@@ -125,13 +124,15 @@ def test_naming_check_requires_selected_yongshen_provenance(srv):
 
 def test_naming_check_rejects_two_yongshen_sources():
     from app.contracts.naming import NamingCheckInput
+    from pydantic import TypeAdapter
 
     with pytest.raises(ValidationError):
-        NamingCheckInput(
-            given_names=["伟"],
-            yongshen="木",
-            selected_yongshen=_selected_yongshen(),
-        )
+        # 互斥由 anyOf 两分支的 extra=forbid 表达：混传时两支都拒绝。
+        TypeAdapter(NamingCheckInput).validate_python({
+            "given_names": ["伟"],
+            "yongshen": "木",
+            "selected_yongshen": _selected_yongshen(),
+        })
 
 
 def test_naming_surname_matches_baseline(srv, baseline):

@@ -1,23 +1,19 @@
-from __future__ import annotations
 
 import copy
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"
-sys.path.insert(0, str(TOOLS))
 
-from factor_tokens import FACTOR_UNKNOWN  # noqa: E402
-from factors import evaluate_factors  # noqa: E402
-from operators_liunian import _flow_element_in_selected  # noqa: E402
-from yongshen import load_policy, resolve_yongshen, validate_policy  # noqa: E402
-from yongshen.evaluator import _MISSING  # noqa: E402
-
-from counsel import _chart_digest, _factors_digest, period_query  # noqa: E402
+from app.natal.tools.counsel import _chart_digest, _factors_digest, period_query  # noqa: E402
+from app.natal.tools.factor_tokens import FACTOR_UNKNOWN  # noqa: E402
+from app.natal.tools.factors import evaluate_factors  # noqa: E402
+from app.natal.tools.operators_liunian import _flow_element_in_selected  # noqa: E402
+from app.natal.tools.yongshen import load_policy, resolve_yongshen, validate_policy  # noqa: E402
+from app.natal.tools.yongshen.evaluator import _MISSING  # noqa: E402
 
 ACTUAL = ROOT / "engine" / "internal" / "mcpcontract" / "testdata" / "actual"
 
@@ -349,9 +345,9 @@ def test_unknown_yongshen_blocks_positive_and_negative_assertions():
 
 def test_known_yongshen_still_evaluates_factors():
     full = _fullchart("bazi_chart_1990_fullchart.json")
-    pan = _pan(full)
-    pan["_selected_yongshen"] = resolve_yongshen(full)
-    factors = evaluate_factors("male", pan, shushi="bazi")
+    natal_chart = _pan(full)
+    natal_chart["_selected_yongshen"] = resolve_yongshen(full)
+    factors = evaluate_factors("male", natal_chart, shushi="bazi")
     assert factors["官杀为用"] == 1
     assert factors["印为忌"] == 1
     assert factors["食伤为用"] == 0
@@ -400,8 +396,7 @@ def test_period_query_requires_precomputed_selected_yongshen():
         period_query(
             factors,
             _factors_digest(factors),
-            {"type": "year", "year": 2026},
+            {"type": "year", "year": 2026, "timezone": "Asia/Shanghai"},
             ["career"],
             chart,
-            context=context,
         )

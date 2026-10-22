@@ -1,17 +1,15 @@
 """Naming tool contracts.
 
-Generated once from the legacy hand-written manifests, then maintained as
-ordinary source: this module is the single source of truth for these tool
-contracts (input schema, output schema, descriptions, enums, constraints).
+本模块是 naming 域工具契约的单一事实源：input/output schema、描述、枚举与
+约束全部由此投影。
 """
 
-from __future__ import annotations
 
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.contracts.schema import ToolContract
+from app.contracts.schema import ToolContract, unique_list
 from app.contracts.yongshen import ConsumedYongShen, YongShenSource
 
 # ── naming_surname ──
@@ -22,9 +20,9 @@ class NamingSurnameInput(BaseModel):
     source_surname: str = Field(
         description="源姓氏的拉丁拼音或英文拼写（如 zhang / chan / lee）。",
     )
-    max_candidates: int = Field(
-        default=None,
-        description="返回候选数上限，默认 6，范围 1-12。",
+    max_candidates: Annotated[int, Field(ge=1, le=12)] = Field(
+        default=6,
+        description="返回候选数上限。",
     )
 
 
@@ -67,20 +65,18 @@ TOOL_NAMING_SURNAME = ToolContract(
 
 
 # ── naming_pick ──
-TOOL_NAMING_PICK_DESCRIPTION = "按五行取字池：给出名字位（first/second）的五行要求，返回按字排序的可选字池（含字频）。count=1 单名只取 first 池，count=2 双名取 first+second 池。"
+TOOL_NAMING_PICK_DESCRIPTION = "按五行取字池：给出名字位（first/second）的五行要求，返回按字排序的可选字池（含字频）。second 省略=单名只取 first 池；second 传入=双名取 first+second 池。五行只接受中文闭集（木/火/土/金/水）。"
+
+PickWuxing = Literal["木", "火", "土", "金", "水"]
 
 class NamingPickInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    wuxing1: Literal["木", "火", "土", "金", "水"] = Field(
-        description="名字第一位字的五行（中英文均可，如 木/wood）。",
+    first: PickWuxing = Field(
+        description="名字第一位字的五行。",
     )
-    wuxing2: Literal["木", "火", "土", "金", "水"] = Field(
+    second: PickWuxing | None = Field(
         default=None,
-        description="名字第二位字的五行（count=2 时；省略则同 wuxing1）。",
-    )
-    count: Literal[1, 2] = Field(
-        default=None,
-        description="名字字数：1=单名，2=双名（默认 2）。",
+        description="名字第二位字的五行；省略=单名。",
     )
 
 
@@ -96,6 +92,9 @@ class NamingPickOutputPoolsItemCharsItem(BaseModel):
 
 class NamingPickOutputPoolsItem(BaseModel):
     model_config = ConfigDict(extra="allow")
+    wuxing: PickWuxing = Field(
+        description="该字位的五行。",
+    )
     slot: Literal["first", "second"] = Field(
         description="Name slot.",
     )
@@ -107,13 +106,6 @@ class NamingPickOutputPoolsItem(BaseModel):
 class NamingPickOutput(BaseModel):
     """Character pools selected for requested five-element slots."""
     model_config = ConfigDict(extra="allow")
-    wuxing1: Literal["木", "火", "土", "金", "水"] = Field(
-        description="Normalized first-slot element.",
-    )
-    wuxing2: Literal["木", "火", "土", "金", "水"] = Field(
-        default=None,
-        description="Normalized second-slot element, when a double name was requested.",
-    )
     pools: list[NamingPickOutputPoolsItem] = Field(
         description="Character pools by name slot.",
     )
@@ -175,16 +167,16 @@ TOOL_NAMING_COMPOSE_DESCRIPTION = "将取字池中的字组合为候选名：单
 
 class NamingComposeInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    first: list[str] = Field(
+    first: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=4)]], Field(min_length=1, max_length=256)] = Field(
         description="第一位可选字（1-256 个）。",
     )
-    second: list[str] = Field(
+    second: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=4)]], Field(min_length=1, max_length=256)] = Field(
         default=None,
         description="第二位可选字（双名用，1-256 个）；省略=单名。",
     )
-    max_names: int = Field(
-        default=None,
-        description="返回候选名上限，默认 100，范围 1-1000。",
+    max_names: Annotated[int, Field(ge=1, le=1000)] = Field(
+        default=100,
+        description="返回候选名上限。",
     )
 
 
@@ -209,34 +201,86 @@ TOOL_NAMING_COMPOSE = ToolContract(
 # ── naming_check ──
 TOOL_NAMING_CHECK_DESCRIPTION = "独立评估候选名：长度/字库收录/禁用字校验，音律声调序列，五行命中（用神/喜神/忌神）；返回每名的 valid/errors/characters/phonetic/wuxing。用神优先消费八字用神裁决（专用能力或因子快照中的同一对象），不自行重选。"
 
-class NamingCheckInput(BaseModel):
+class _NamingCheckNames(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    given_names: list[str] = Field(
+    given_names: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=2)]], Field(min_length=1, max_length=200)] = Field(
         description="要评估的名字（单名或双名，1-2 字）。",
     )
+
+
+class NamingCheckManualWuxing(_NamingCheckNames):
+    """无完整出生信息时的显式五行策略：直接给出用神/喜神/忌神。"""
+
+    model_config = ConfigDict(extra="forbid")
     yongshen: Literal["木", "火", "土", "金", "水"] = Field(
         default=None,
-        description="无完整出生信息时的显式用神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。",
+        description="显式用神五行策略，不是八字裁决结果。",
     )
     xishen: list[Literal["木", "火", "土", "金", "水"]] = Field(
         default=None,
-        description="无完整出生信息时的显式喜神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。",
+        description="显式喜神五行策略，不是八字裁决结果。",
     )
     jishen: list[Literal["木", "火", "土", "金", "水"]] = Field(
         default=None,
-        description="无完整出生信息时的显式忌神五行策略，不是八字裁决结果；传入 selected_yongshen 时省略。",
-    )
-    selected_yongshen: ConsumedYongShen | None = Field(
-        default=None,
-        description="八字用神裁决返回对象（专用用神能力或 compute_factors 快照中的同一对象）；传入时只消费其 selected/status，不重新裁决。",
+        description="显式忌神五行策略，不是八字裁决结果。",
     )
 
-    @model_validator(mode="after")
-    def _one_yongshen_source(self):
-        manual = self.yongshen is not None or bool(self.xishen) or bool(self.jishen)
-        if self.selected_yongshen is not None and manual:
-            raise ValueError("selected_yongshen 与 yongshen/xishen/jishen 不能同时传入")
-        return self
+
+class NamingCheckSelectedYongshen(_NamingCheckNames):
+    """消费八字用神裁决：只消费 selected/status，不重新裁决。"""
+
+    model_config = ConfigDict(extra="forbid")
+    selected_yongshen: ConsumedYongShen | None = Field(
+        default=None,
+        description="八字用神裁决返回对象（专用用神能力或 compute_factors 快照中的同一对象）。",
+    )
+
+
+NamingCheckInput = NamingCheckManualWuxing | NamingCheckSelectedYongshen
+
+
+class NamingCheckError(BaseModel):
+    """One structured naming-validation error."""
+
+    model_config = ConfigDict(extra="forbid")
+    code: Literal["invalid_name_length", "character_not_found", "negative_character_forbidden"] = Field(
+        description="机器可读错误码。",
+    )
+    char: Annotated[str, Field(min_length=1, max_length=1)] | None = Field(
+        default=None,
+        description="出错的单字；长度错误时为 null。",
+    )
+
+
+class NamingCheckCharFacts(BaseModel):
+    """Resolved character facts for one evaluated character."""
+
+    model_config = ConfigDict(extra="forbid")
+    char: Annotated[str, Field(min_length=1, max_length=1)] = Field(description="The character.")
+    frequency: Literal["common", "standard", "rare"] = Field(description="Character usage tier.")
+    wuxing: Literal["木", "火", "土", "金", "水"] = Field(description="Character 五行。")
+    stroke: int = Field(ge=1, description="Stroke count.")
+    pinyin: str = Field(min_length=1, description="Pinyin.")
+    tone: int = Field(ge=0, le=5, description="Tone number.")
+    radical: str | None = Field(default=None, description="Radical, when known.")
+
+
+class NamingCheckPhonetic(BaseModel):
+    """Tone sequence of a valid name."""
+
+    model_config = ConfigDict(extra="forbid")
+    tones: Annotated[str, Field(pattern=r"^\d(-\d)?$")] = Field(
+        description="声调序列，按字序以 - 连接（如 2-3）。",
+    )
+
+
+class NamingCheckWuxingAssessment(BaseModel):
+    """Five-element hits of a name against the requested 用神/喜神/忌神."""
+
+    model_config = ConfigDict(extra="forbid")
+    yong: bool | None = Field(default=None, description="名字是否命中用神五行。")
+    xi: bool | None = Field(default=None, description="名字是否命中任一喜神五行。")
+    ji: bool | None = Field(default=None, description="名字是否命中任一忌神五行。")
 
 
 class NamingCheckOutputItem(BaseModel):
@@ -247,19 +291,19 @@ class NamingCheckOutputItem(BaseModel):
     valid: bool = Field(
         description="Whether the name passed all checks.",
     )
-    errors: list[dict[str, Any]] = Field(
+    errors: list[NamingCheckError] | None = Field(
         default=None,
         description="Validation errors, if any.",
     )
-    characters: list[dict[str, Any]] = Field(
+    characters: list[NamingCheckCharFacts] | None = Field(
         default=None,
         description="Resolved character facts, when valid.",
     )
-    phonetic: dict[str, Any] = Field(
+    phonetic: NamingCheckPhonetic | None = Field(
         default=None,
         description="Tone sequence, when valid.",
     )
-    wuxing: dict[str, Any] = Field(
+    wuxing: NamingCheckWuxingAssessment | None = Field(
         default=None,
         description="Five-element matches, when requested.",
     )

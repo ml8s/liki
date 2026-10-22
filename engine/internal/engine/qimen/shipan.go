@@ -10,7 +10,7 @@ import (
 // Chart bundles a complete奇门盘 with all analysis layers.
 type Chart struct {
 	Method              ChartMethod        `json:"method"`
-	Pan                 pan                `json:"pan"`
+	Board               board              `json:"board"`
 	GanInteractions     []GanInteraction   `json:"gan_interaction"`
 	MenInteractions     []MenInteraction   `json:"men_interaction"`
 	XingInteractions    []XingInteraction  `json:"xing_interaction"`
@@ -101,7 +101,7 @@ func buildChart(bz ganzhi.Bazi, termTime, chartTime time.Time, method Method) Ch
 
 	chart := Chart{
 		Method:              buildChartMethod(ju, bz),
-		Pan:                 p,
+		Board:               p,
 		GanInteractions:     computeGanInteractions(p),
 		MenInteractions:     computeMenInteractions(p),
 		XingInteractions:    computeXingInteractions(p),
@@ -182,7 +182,7 @@ func newPillarInfo(zhu ganzhi.Zhu) PillarInfo {
 	}
 }
 
-func affectedVoidSymbols(p pan, dayPalace, hourPalace, leadPalace GongIndex) []AffectedSymbol {
+func affectedVoidSymbols(p board, dayPalace, hourPalace, leadPalace GongIndex) []AffectedSymbol {
 	result := []AffectedSymbol{}
 	for _, void := range p.KongWang {
 		for _, focus := range focusSymbols(dayPalace, hourPalace, leadPalace) {
@@ -196,7 +196,7 @@ func affectedVoidSymbols(p pan, dayPalace, hourPalace, leadPalace GongIndex) []A
 	return result
 }
 
-func affectedHorseSymbols(p pan, dayPalace, hourPalace, leadPalace GongIndex) []AffectedSymbol {
+func affectedHorseSymbols(p board, dayPalace, hourPalace, leadPalace GongIndex) []AffectedSymbol {
 	result := []AffectedSymbol{}
 	for _, focus := range focusSymbols(dayPalace, hourPalace, leadPalace) {
 		if p.MaXing.Gong == focus.palace {
@@ -222,7 +222,7 @@ func focusSymbols(dayPalace, hourPalace, leadPalace GongIndex) []focusSymbol {
 	}
 }
 
-func palaceWangShuai(p pan, yueZhi ganzhi.Zhi) []PalaceWangShuai {
+func palaceWangShuai(p board, yueZhi ganzhi.Zhi) []PalaceWangShuai {
 	result := []PalaceWangShuai{}
 	for i := range p.GongWei {
 		wuxing := luoshu.PalaceTable[i+1].Element
@@ -237,7 +237,7 @@ func palaceWangShuai(p pan, yueZhi ganzhi.Zhi) []PalaceWangShuai {
 	return result
 }
 
-func palaceWangShuaiForPalace(p pan, yueZhi ganzhi.Zhi, palace GongIndex) PalaceWangShuai {
+func palaceWangShuaiForPalace(p board, yueZhi ganzhi.Zhi, palace GongIndex) PalaceWangShuai {
 	if palace < GongKan || palace > GongLi {
 		return PalaceWangShuai{}
 	}
@@ -249,7 +249,7 @@ func palaceWangShuaiForPalace(p pan, yueZhi ganzhi.Zhi, palace GongIndex) Palace
 	return PalaceWangShuai{}
 }
 
-func leadPillarPalace(p pan) GongIndex {
+func leadPillarPalace(p board) GongIndex {
 	return findGanPalaceIdx(p, resolveJiaDunGan(p.LeadGan, p.LeadZhi))
 }
 
@@ -257,7 +257,7 @@ func leadPillarPalace(p pan) GongIndex {
 // 奇门领域规则：用神落宫以天盘为核心判断依据（天盘主求测人/所问事之当下状态，
 // 地盘反映过去/潜藏）。故优先取天盘干所在宫；无天盘则取地盘干所在宫。
 // 甲遁：甲不露，遁于六仪（由 resolveJiaDunGan 先转成六仪）。
-func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
+func findGanPalaceIdx(p board, g ganzhi.Gan) GongIndex {
 	for i := range p.GongWei {
 		for _, item := range p.GongWei[i].TianPan {
 			if item.Gan == g {
@@ -273,7 +273,7 @@ func findGanPalaceIdx(p pan, g ganzhi.Gan) GongIndex {
 	return 0
 }
 
-func findGanPalaceFacts(p pan, g ganzhi.Gan) []GanPalaceFact {
+func findGanPalaceFacts(p board, g ganzhi.Gan) []GanPalaceFact {
 	facts := []GanPalaceFact{}
 	for i := range p.GongWei {
 		for _, item := range p.GongWei[i].TianPan {
@@ -290,7 +290,7 @@ func findGanPalaceFacts(p pan, g ganzhi.Gan) []GanPalaceFact {
 	return facts
 }
 
-func findStarPalace(p pan, star StarIndex) GongIndex {
+func findStarPalace(p board, star StarIndex) GongIndex {
 	for i, palace := range p.GongWei {
 		for _, item := range palace.TianPan {
 			if item.Star == star {
@@ -325,7 +325,7 @@ func analyzeRiShiRelation(dayPalace, hourPalace GongIndex) RiShiRelation {
 }
 
 // findDoorPalaceIdx finds which gong a door resides in.
-func findDoorPalaceIdx(p pan, d DoorIndex) GongIndex {
+func findDoorPalaceIdx(p board, d DoorIndex) GongIndex {
 	for i, pg := range p.GongWei {
 		if pg.Door == d {
 			return GongIndex(i + 1)

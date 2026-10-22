@@ -1,11 +1,10 @@
 """奇门解释层：稳定因子投影 × 结构化条件表 → 结构化候选；不做最终裁决。"""
-from __future__ import annotations
 
 import json
 
-from qimen_interpretations import assert_rule_compatibility, load_interpretation_index
-from qimen_projection import load_factors_contract
-from qimen_projection import validate as validate_factors
+from app.divination.tools.qimen_interpretations import assert_rule_compatibility, load_interpretation_index
+from app.divination.tools.qimen_projection import load_factors_contract
+from app.divination.tools.qimen_projection import validate as validate_factors
 
 
 def query(rule: str, factors: dict) -> dict:

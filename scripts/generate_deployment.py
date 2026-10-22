@@ -22,7 +22,6 @@ agent 入口都由它生成）；部署内子代理（如 natal 的 bazi/ziwei�
 由 ADK skilltoolset 按需 load_skill / load_skill_resource 渐进加载，
 不再烘焙进工件（避免双源与 ~245KB/轮 的 prompt 膨胀）。
 """
-from __future__ import annotations
 
 import argparse
 import json

@@ -426,7 +426,7 @@
           "name": "explicit_yong_shen",
           "scope": [
             "counsel/app/contracts/divination.py",
-            "counsel/app/divination/tools/liuyao_paipan.py",
+            "counsel/app/divination/tools/liuyao_board.py",
             "tests/test_divination_architecture.py",
             "tests/test_divination_snapshot_ask.py",
             "tests/test_liuyao_tools.py",

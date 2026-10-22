@@ -101,8 +101,8 @@ func TestJinhanGolden(t *testing.T) {
 				chart.Method.DingjuMethod != DingjuNone {
 				t.Fatalf("method = %+v", chart.Method)
 			}
-			if chart.Pan.YinDun != vector.YinDun {
-				t.Fatalf("yin dun = %v, want %v", chart.Pan.YinDun, vector.YinDun)
+			if chart.Board.YinDun != vector.YinDun {
+				t.Fatalf("yin dun = %v, want %v", chart.Board.YinDun, vector.YinDun)
 			}
 			wantGan, err := ganzhi.ParseGan(vector.DayGan)
 			if err != nil {
@@ -112,8 +112,8 @@ func TestJinhanGolden(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if chart.Pan.RiGan != wantGan || chart.Pan.RiZhi != wantZhi {
-				t.Fatalf("day pillar = %s%s, want %s%s", chart.Pan.RiGan, chart.Pan.RiZhi, vector.DayGan, vector.DayZhi)
+			if chart.Board.RiGan != wantGan || chart.Board.RiZhi != wantZhi {
+				t.Fatalf("day pillar = %s%s, want %s%s", chart.Board.RiGan, chart.Board.RiZhi, vector.DayGan, vector.DayZhi)
 			}
 			if vector.ID == "jinhan-08" &&
 				(vector.Stars["艮"] != "太乙" || vector.Stars["离"] != "摄提" || vector.Doors["坎"] != "休门") {
@@ -123,7 +123,7 @@ func TestJinhanGolden(t *testing.T) {
 				(vector.Stars["坤"] != "太乙" || vector.Stars["坎"] != "摄提" || vector.Doors["离"] != "休门") {
 				t.Fatalf("classical yin Jia Zi anchor = %+v", vector)
 			}
-			for _, palace := range chart.Pan.GongWei {
+			for _, palace := range chart.Board.GongWei {
 				gong := palace.Gong.Name
 				if got := palace.Xing; got != vector.Stars[gong] {
 					t.Fatalf("star %s = %q, want %q", gong, got, vector.Stars[gong])
@@ -133,7 +133,7 @@ func TestJinhanGolden(t *testing.T) {
 					t.Fatalf("door %s = %q/%v, want %q", gong, got, palace.MenPresent, wantDoor)
 				}
 			}
-			for _, spirit := range chart.Pan.DaySpirits {
+			for _, spirit := range chart.Board.DaySpirits {
 				branch := spirit.Zhi.String()
 				if got := spirit.Shen; got != vector.DaySpirits[branch] {
 					t.Fatalf("day spirit %s = %q, want %q", branch, got, vector.DaySpirits[branch])
@@ -153,17 +153,17 @@ func TestJinhanChartDoesNotExposeStandardPlate(t *testing.T) {
 	if err := json.Unmarshal(data, &output); err != nil {
 		t.Fatal(err)
 	}
-	pan, _ := output["pan"].(map[string]any)
-	if pan == nil {
-		t.Fatalf("missing pan: %v", output)
+	board, _ := output["board"].(map[string]any)
+	if board == nil {
+		t.Fatalf("missing board: %v", output)
 	}
 	for _, field := range []string{"jushu", "zhi_fu_xing", "zhi_shi_men", "tian_pan", "di_pan_gan", "shen"} {
-		if _, exists := pan[field]; exists {
-			t.Fatalf("Jin Han pan must not expose standard-plate field %q", field)
+		if _, exists := board[field]; exists {
+			t.Fatalf("Jin Han board must not expose standard-plate field %q", field)
 		}
 	}
-	if _, exists := pan["day_spirits"]; !exists {
-		t.Fatal("Jin Han pan lacks day_spirits")
+	if _, exists := board["day_spirits"]; !exists {
+		t.Fatal("Jin Han board lacks day_spirits")
 	}
 }
 

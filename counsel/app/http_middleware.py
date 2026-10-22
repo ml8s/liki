@@ -1,6 +1,5 @@
 """HTTP middleware shared by the Counsel MCP application."""
 
-from __future__ import annotations
 
 import hmac
 

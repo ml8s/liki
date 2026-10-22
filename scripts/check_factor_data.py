@@ -1,5 +1,4 @@
 """校验断语长表、条件组、术数作用域与生产数据纯度。"""
-from __future__ import annotations
 
 import csv
 import json
@@ -11,7 +10,7 @@ from collections import defaultdict
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(_ROOT, "counsel", "app", "natal", "tools"))
 
-from factor_tables import load_long_rows
+from app.natal.tools.factor_tables import load_long_rows
 
 TOOLS = os.path.join(_ROOT, "counsel", "app", "natal", "tools")
 ASSERTIONS_PATH = os.path.join(TOOLS, "assertions", "assertions.csv")

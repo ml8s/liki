@@ -1,5 +1,4 @@
 """因子层契约：引擎字段、关系算子、性别解析与表定义唯一性。"""
-from __future__ import annotations
 
 import csv
 import json
@@ -7,23 +6,23 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-import factors
+import app.natal.tools.factors as factors
 from _helpers import mock_base_context
-from factor_tokens import FACTOR_WILDCARD
-from operators_liunian import _LIU_OP_NAMES
-from operators_natal import _OP_NAMES, _op, _ten_god_states_from_pan
+from app.natal.tools.factor_tokens import FACTOR_WILDCARD
+from app.natal.tools.operators_liunian import _LIU_OP_NAMES
+from app.natal.tools.operators_natal import _OP_NAMES, _op, _ten_god_states_from_natal_chart
 
 TOOLS = Path(__file__).resolve().parents[1] / "counsel" / "app" / "natal" / "tools"
 
 
 def test_ten_god_state_projection_is_readonly() -> None:
-    pan = {"full": {
+    natal_chart = {"full": {
         "ten_god_states": [
             {"shi_shen": "正官", "wuxing": "金", "transparent": True, "hidden": False, "count": 1},
             {"shi_shen": "正印", "wuxing": "水", "transparent": False, "hidden": True, "count": 1},
         ]
     }}
-    states = _ten_god_states_from_pan(pan)
+    states = _ten_god_states_from_natal_chart(natal_chart)
     assert states["正官"]["transparent"] is True
     assert states["正官"]["hidden"] is False
     assert states["正官"]["count"] == 1

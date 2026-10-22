@@ -1,16 +1,15 @@
-"""模块边界：本命事实投影、pan 契约、表加载层不得反向依赖断语层。"""
+"""模块边界：本命事实投影、natal_chart 契约、表加载层不得反向依赖断语层。"""
 import json
 from pathlib import Path
 
-import _helpers  # noqa: F401
-import assertion_store
-import errors
-import factor_tables
-import natal_projection
-import operators_liunian
-import operators_natal
-import pan_schema
-import yearly_eval
+import app.natal.tools.assertion_store as assertion_store
+import app.natal.tools.chart_schema as chart_schema
+import app.natal.tools.errors as errors
+import app.natal.tools.factor_tables as factor_tables
+import app.natal.tools.natal_projection as natal_projection
+import app.natal.tools.operators_liunian as operators_liunian
+import app.natal.tools.operators_natal as operators_natal
+import app.natal.tools.yearly_eval as yearly_eval
 
 ROOT = Path(natal_projection.__file__).parent
 
@@ -81,8 +80,8 @@ def test_python_does_not_recompute_engine_ten_god_and_element_states():
 
 def test_natal_python_layer_does_not_aggregate_pillar_ten_gods():
     operators = _source(operators_natal)
-    assert "_ten_god_states_from_pan" in operators
-    assert "_shishen_from_pan" not in operators
+    assert "_ten_god_states_from_natal_chart" in operators
+    assert "_shishen_from_natal_chart" not in operators
     projection_end = operators.index("def _pillar_key")
     assert 'get("shi_shens", [])' not in operators[:projection_end]
 
@@ -143,8 +142,8 @@ def test_error_module_is_standalone():
     assert "import operators" not in src
 
 
-def test_pan_schema_has_no_factor_or_duanyu_dependency():
-    src = _source(pan_schema)
+def test_chart_schema_has_no_factor_or_duanyu_dependency():
+    src = _source(chart_schema)
     assert "import factors" not in src and "from factors" not in src
     assert "import duanyu" not in src and "from duanyu" not in src
 

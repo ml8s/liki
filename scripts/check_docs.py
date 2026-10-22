@@ -6,7 +6,6 @@ method/tool-name prohibition (capabilities are discovered via introspection,
 never hard-coded in skill docs), lazy-loading budgets, and reachability of
 domain knowledge docs.
 """
-from __future__ import annotations
 
 import csv
 import glob
@@ -31,15 +30,15 @@ ASSERTION_MANIFESTS = os.path.join(_ROOT, "counsel", "app", "*", "tools", "asser
 CATALOG_PATH = os.path.join(_ROOT, "tools", "mcp-tool-catalog.json")
 
 METHOD_WHITELIST = {
-    "bazi.chart", "bazi.fullchart", "bazi.liunian", "bazi.liuyue", "bazi.liuri",
-    "bazi.liushi", "bazi.xiaoyun", "bazi.bond",
-    "ziwei.chart", "ziwei.fullchart", "ziwei.liunian", "ziwei.liuyue", "ziwei.liuri",
-    "ziwei.liushi", "ziwei.daxian", "ziwei.bond",
-    "liuyao.qigua", "liuyao.chart", "qimen.chart", "huangli.days",
-    "bazhai.chart", "bazhai.layout", "xuankong.chart", "xuankong.liunian",
-    "time.now", "city.coords", "tianwen.resolve",
+    "bazi_chart", "bazi_fullchart", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
+    "bazi_liushi", "bazi_xiaoyun", "bazi_bond",
+    "ziwei_chart", "ziwei_fullchart", "ziwei_liunian", "ziwei_liuyue", "ziwei_liuri",
+    "ziwei_liushi", "ziwei_daxian", "ziwei_bond",
+    "liuyao_qigua", "liuyao_chart", "qimen_chart", "huangli_days",
+    "bazhai_chart", "bazhai_layout", "xuankong_chart", "xuankong_liunian",
+    "time_now", "city_coords", "tianwen_resolve",
 }
-_METHOD_PREFIXES = tuple(sorted({m.split(".")[0] for m in METHOD_WHITELIST}))
+_METHOD_PREFIXES = tuple(sorted({m.split("_")[0] for m in METHOD_WHITELIST}))
 
 # 场景卡行数上限；命书卡承载全卷输出模板（章节表）、居家风水卡承载八宅×玄空合参，结构固定，单独放宽。
 APP_CARD_LINE_BUDGET = {"natal-app-mingshu.md": 75, "fengshui-app-fengshui.md": 75}

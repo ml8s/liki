@@ -1,9 +1,9 @@
 """柱位、取清前提与流年目标五行因子正确性。"""
 
 from _helpers import mock_base_context
-from factor_constants import load_constants
-from operators_liunian import _liu_op, _target_stars
-from operators_natal import _op
+from app.natal.tools.factor_constants import load_constants
+from app.natal.tools.operators_liunian import _liu_op, _target_stars
+from app.natal.tools.operators_natal import _op
 
 
 def _chart(pillars: dict) -> dict:

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Generate a complete lower-plate XuanKong flying-star matrix fixture."""
-from __future__ import annotations
 
 import json
 from pathlib import Path

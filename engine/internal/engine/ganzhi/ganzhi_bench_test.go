@@ -37,9 +37,3 @@ func BenchmarkIsLiuChong(b *testing.B) {
 		IsLiuChong(ZhiZi, ZhiWu)
 	}
 }
-
-func BenchmarkIsTripleHe(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		IsTripleHe(ZhiZi, ZhiChou)
-	}
-}

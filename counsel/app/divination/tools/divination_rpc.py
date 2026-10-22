@@ -1,20 +1,15 @@
 """问卦层的统一 MCP 引擎访问层。"""
-from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 # MCP 引擎客户端（counsel 统一走 MCP）
-_COUNSEL_APP = Path(__file__).resolve().parents[2]
-if str(_COUNSEL_APP) not in sys.path:
-    sys.path.insert(0, str(_COUNSEL_APP))
-from engine_mcp_client import (  # noqa: E402
+from app.engine_mcp_client import (  # noqa: E402
     MCPError,
     _version_key,
     call,
     engine_version,
 )
-from engine_mcp_client import (  # noqa: E402
+from app.engine_mcp_client import (  # noqa: E402
     ensure_engine_compatible as _ensure_engine_compatible,
 )
 

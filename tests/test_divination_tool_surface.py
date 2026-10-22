@@ -1,5 +1,4 @@
 """Divination tool-surface schema acceptance (schemas come from the contracts)."""
-from __future__ import annotations
 
 from app.contracts import DIVINATION_TOOLS
 from jsonschema import validate
@@ -13,7 +12,7 @@ def _parameters(name: str) -> dict:
 
 def test_snapshot_schemas_accept_primary_calls():
     validate(
-        {"question": "这次面试能不能通过？", "matter": "career", "mode": "auto", "longitude": 116.4, "timezone": "Asia/Shanghai"},
+        {"question": "这次面试能不能通过？", "matter": "career", "casting": {"mode": "auto"}, "longitude": 116.4, "timezone": "Asia/Shanghai"},
         _parameters("liuyao_snapshot"),
     )
     validate(

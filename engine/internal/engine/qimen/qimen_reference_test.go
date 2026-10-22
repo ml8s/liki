@@ -29,8 +29,8 @@ func TestQimen_YinYangDun_Seasonal(t *testing.T) {
 			stgt := time.Time(bt)
 			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
 			chart := ComputeChart(stgt, st)
-			if chart.Pan.YinDun != tt.wantYin {
-				t.Errorf("%s: yin=%v, want %v", tt.date, chart.Pan.YinDun, tt.wantYin)
+			if chart.Board.YinDun != tt.wantYin {
+				t.Errorf("%s: yin=%v, want %v", tt.date, chart.Board.YinDun, tt.wantYin)
 			}
 		})
 	}
@@ -48,11 +48,11 @@ func TestQimen_JieQiDingJu_YangDun(t *testing.T) {
 			stgt := time.Time(bt)
 			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
 			chart := ComputeChart(stgt, st)
-			if chart.Pan.YinDun {
-				t.Errorf("%s: 冬至后应为阳遁, got yin=%v", d, chart.Pan.YinDun)
+			if chart.Board.YinDun {
+				t.Errorf("%s: 冬至后应为阳遁, got yin=%v", d, chart.Board.YinDun)
 			}
-			if chart.Pan.Jushu < 1 || chart.Pan.Jushu > 9 {
-				t.Errorf("%s: ju=%d out of range(1-9)", d, chart.Pan.Jushu)
+			if chart.Board.Jushu < 1 || chart.Board.Jushu > 9 {
+				t.Errorf("%s: ju=%d out of range(1-9)", d, chart.Board.Jushu)
 			}
 		})
 	}
@@ -69,11 +69,11 @@ func TestQimen_ZhiFuZhiShi_NonEmpty(t *testing.T) {
 			stgt := time.Time(bt)
 			st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
 			chart := ComputeChart(stgt, st)
-			if chart.Pan.DutyStar < 1 || chart.Pan.DutyStar > 9 {
-				t.Errorf("%s: dutyStar=%d(out of range)", d, chart.Pan.DutyStar)
+			if chart.Board.DutyStar < 1 || chart.Board.DutyStar > 9 {
+				t.Errorf("%s: dutyStar=%d(out of range)", d, chart.Board.DutyStar)
 			}
-			if chart.Pan.DutyDoor < 1 || chart.Pan.DutyDoor > 8 {
-				t.Errorf("%s: dutyDoor=%d(out of range)", d, chart.Pan.DutyDoor)
+			if chart.Board.DutyDoor < 1 || chart.Board.DutyDoor > 8 {
+				t.Errorf("%s: dutyDoor=%d(out of range)", d, chart.Board.DutyDoor)
 			}
 		})
 	}

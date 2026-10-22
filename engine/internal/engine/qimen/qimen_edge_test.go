@@ -31,10 +31,10 @@ func TestEdgeDates(t *testing.T) {
 			stgt := time.Time(bt.Add(time.Duration(h) * time.Hour))
 			st := tianwen.ApparentSolarFromCivil(bt.Add(time.Duration(h)*time.Hour), 116.4, 8)
 			ch := ComputeChart(stgt, st)
-			if ch.Pan.Jushu < 1 || ch.Pan.Jushu > 9 {
-				t.Errorf("%s %d时: 局数越界 %d", d, h, ch.Pan.Jushu)
+			if ch.Board.Jushu < 1 || ch.Board.Jushu > 9 {
+				t.Errorf("%s %d时: 局数越界 %d", d, h, ch.Board.Jushu)
 			}
-			if ch.Pan.RiGan == 0 || ch.Pan.RiZhi == 0 {
+			if ch.Board.RiGan == 0 || ch.Board.RiZhi == 0 {
 				t.Errorf("%s %d时: 干支缺失", d, h)
 			}
 			// 用神符号冒烟

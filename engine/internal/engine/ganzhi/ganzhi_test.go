@@ -9,6 +9,52 @@ import (
 // IsAnHe — 暗合
 // =============================================================================
 
+func IsTripleHe(a, b Zhi) bool {
+	for _, tr := range TripleHeList {
+		if inZhiList(tr.Zhi, a) && inZhiList(tr.Zhi, b) {
+			return true
+		}
+	}
+	return false
+}
+
+func IsTripleHui(a, b Zhi) bool {
+	for _, tr := range TripleHuiList {
+		if inZhiList(tr.Zhi, a) && inZhiList(tr.Zhi, b) {
+			return true
+		}
+	}
+	return false
+}
+
+func zodiac(z Zhi) (string, bool) {
+	if int(z) >= 1 && int(z) <= 12 {
+		return zhiAnimals[z], true
+	}
+	return "", false
+}
+
+func ZodiacLabel(z Zhi) string { s, ok := zodiac(z); return zhiLabel(s, ok) }
+
+// ZhiSeasonLabel returns the season label ("春"/"夏"/"秋"/"冬") for a zhi.
+func zhiLunarMonth(z Zhi) (string, bool) {
+	if int(z) >= 1 && int(z) <= 12 {
+		return lunarMonths[z], true
+	}
+	return "", false
+}
+
+func zhiLunarMonthLabel(z Zhi) string { s, ok := zhiLunarMonth(z); return zhiLabel(s, ok) }
+func zhiHourRange(z Zhi) (string, bool) {
+	if int(z) >= 1 && int(z) <= 12 {
+		return HourRanges[z-1], true
+	}
+	return "", false
+}
+
+// ZhiHourRangeLabel returns the two-hour range for a zhi, or "未知" if invalid.
+func ZhiHourRangeLabel(z Zhi) string { s, ok := zhiHourRange(z); return zhiLabel(s, ok) }
+
 func TestIsAnHe_AllPairs(t *testing.T) {
 	// 地支暗合: 寅丑, 卯申, 午亥, 子戌
 	pairs := []ZhiPair{

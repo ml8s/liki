@@ -50,8 +50,8 @@ func TestChartDerived_Anchors(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			chart := chartAt(t, c.date, c.hour)
-			if chart.Pan.Jushu != c.ju || chart.Pan.YinDun != c.yin {
-				t.Fatalf("ju=%d yin=%v, want %d/%v", chart.Pan.Jushu, chart.Pan.YinDun, c.ju, c.yin)
+			if chart.Board.Jushu != c.ju || chart.Board.YinDun != c.yin {
+				t.Fatalf("ju=%d yin=%v, want %d/%v", chart.Board.Jushu, chart.Board.YinDun, c.ju, c.yin)
 			}
 			if chart.RiGanPalace.String() != c.dayGong || chart.ShiGanPalace.String() != c.hourGong {
 				t.Fatalf("day/hour palaces = %s/%s, want %s/%s",
@@ -61,13 +61,13 @@ func TestChartDerived_Anchors(t *testing.T) {
 				t.Fatalf("ri_shi_relation = %+v, want %s", chart.RiShiRelation, c.riShi)
 			}
 			for i, want := range c.voidBranch {
-				got := chart.Pan.KongWang[i]
+				got := chart.Board.KongWang[i]
 				if got.Branch.String() != want || got.Gong.String() != c.voidGong[i] {
 					t.Errorf("void[%d] = %s@%s, want %s@%s", i, got.Branch, got.Gong, want, c.voidGong[i])
 				}
 			}
-			if chart.Pan.MaXing.Branch.String() != c.horse || chart.Pan.MaXing.Gong.String() != c.horseGong {
-				t.Errorf("horse = %s@%s, want %s@%s", chart.Pan.MaXing.Branch, chart.Pan.MaXing.Gong, c.horse, c.horseGong)
+			if chart.Board.MaXing.Branch.String() != c.horse || chart.Board.MaXing.Gong.String() != c.horseGong {
+				t.Errorf("horse = %s@%s, want %s@%s", chart.Board.MaXing.Branch, chart.Board.MaXing.Gong, c.horse, c.horseGong)
 			}
 		})
 	}

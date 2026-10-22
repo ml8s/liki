@@ -6,7 +6,6 @@ release artifacts and repository metadata. Image digests are injected by the
 release workflow after publication, using the LIKI_RELEASE_IMAGES JSON env var.
 """
 
-from __future__ import annotations
 
 import argparse
 import hashlib

@@ -1,7 +1,6 @@
 """六爻 answer core：从 snapshot 投影证据并校验引用与禁语。"""
-from __future__ import annotations
 
-from divination_answer import validate_common_core
+from app.divination.tools.divination_answer import validate_common_core
 
 ALLOWED_FIELDS = {
     "headline",

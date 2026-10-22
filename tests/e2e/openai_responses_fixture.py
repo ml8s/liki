@@ -5,7 +5,6 @@ This is a test adapter for the official ADK OpenAI-compatible model client. It
 is deliberately small and standards-shaped: production still uses the official
 AG-UI, MCP, ADK, and OpenAI Responses protocol implementations.
 """
-from __future__ import annotations
 
 import json
 import os

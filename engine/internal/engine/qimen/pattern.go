@@ -3,8 +3,8 @@ package qimen
 import "liki-engine/internal/engine/ganzhi"
 
 // findPatterns evaluates the table-driven pattern rules. All symbol conditions
-// are evaluated within one palace; pan-wide scattered symbols never combine.
-func findPatterns(chart pan) []Pattern {
+// are evaluated within one palace; board-wide scattered symbols never combine.
+func findPatterns(chart board) []Pattern {
 	patterns := []Pattern{}
 	for _, rule := range patternRules {
 		switch rule.DutyStarPosition {
@@ -115,7 +115,7 @@ func containsPalace(expected []GongIndex, actual GongIndex) bool {
 	return false
 }
 
-func dutyDoorPalace(chart pan) GongIndex {
+func dutyDoorPalace(chart board) GongIndex {
 	for i, palace := range chart.GongWei {
 		if palace.Door == chart.DutyDoor {
 			return GongIndex(i + 1)
@@ -124,7 +124,7 @@ func dutyDoorPalace(chart pan) GongIndex {
 	return 0
 }
 
-func dutyStarSpecialPosition(chart pan, position string) GongIndex {
+func dutyStarSpecialPosition(chart board, position string) GongIndex {
 	duty := chart.DutyStar
 	if chart.School == SchoolZhuanPan && duty == tianQinStar {
 		duty = tianQinFollows

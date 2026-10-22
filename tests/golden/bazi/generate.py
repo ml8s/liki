@@ -6,7 +6,6 @@ dependency: lunar-python and sxtwl must be installed in the development Python
 environment, and bazi-calculator is loaded through a separate Node process.
 """
 
-from __future__ import annotations
 
 import argparse
 import datetime as dt

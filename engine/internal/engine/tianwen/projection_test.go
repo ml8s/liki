@@ -1,9 +1,30 @@
 package tianwen
 
 import (
+	"sort"
 	"testing"
 	"time"
+
+	"liki-engine/internal/engine/ganzhi"
 )
+
+func ApparentSolarOffset(at time.Time, longitude float64) time.Duration {
+	_, offsetSeconds := at.Zone()
+	solar := ApparentSolarFromCivil(at, longitude, float64(offsetSeconds)/3600)
+	return solar.Sub(at)
+}
+
+func ApparentSolarDate(
+	at time.Time,
+	loc *time.Location,
+	longitude float64,
+) (year int, month time.Month, day int) {
+	return ApparentSolarCivil(at, loc, longitude).Date()
+}
+
+func MonthBranchAt(at time.Time) ganzhi.Zhi {
+	return JianYue(time.Time(at))
+}
 
 func TestApparentSolarOffsetIsDeterministic(t *testing.T) {
 	at := time.Date(1990, 5, 20, 4, 0, 0, 0, time.UTC)
@@ -15,20 +36,6 @@ func TestApparentSolarOffsetIsDeterministic(t *testing.T) {
 	}
 	if offset != again {
 		t.Fatalf("offset changed: %s != %s", offset, again)
-	}
-}
-
-func TestApparentSolarCivilCanCrossDay(t *testing.T) {
-	// Early morning in far-west China can fall on the prior apparent-solar day.
-	at := time.Date(1990, 5, 20, 18, 10, 0, 0, time.UTC)
-	loc, err := time.LoadLocation("Asia/Shanghai")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	year, month, day := ApparentSolarDate(at, loc, 75.0)
-	if year != 1990 || month != time.May || day != 20 {
-		t.Fatalf("apparent solar date = %d-%d-%d, want 1990-05-20", year, month, day)
 	}
 }
 
@@ -78,6 +85,36 @@ func TestLunarDateAtKnownDate(t *testing.T) {
 	}
 }
 
+func SolarTermStateAt(at time.Time) SolarTermState {
+	terms := make([]SolarTerm, 0, 24*3)
+	for year := at.Year() - 1; year <= at.Year()+1; year++ {
+		for index, longitude := range JieQiLongitudes {
+			terms = append(terms, SolarTerm{
+				Index: index,
+				Name:  JieQiNames[index],
+				At:    SolarTermTime(year, longitude),
+			})
+		}
+	}
+
+	sort.Slice(terms, func(i, j int) bool {
+		return terms[i].At.Before(terms[j].At)
+	})
+
+	current := sort.Search(len(terms), func(i int) bool {
+		return terms[i].At.After(at)
+	})
+	if current > 0 {
+		current--
+	}
+
+	return SolarTermState{
+		Previous: terms[current-1],
+		Current:  terms[current],
+		Next:     terms[min(current+1, len(terms)-1)],
+	}
+}
+
 func TestSolarTermStateAtLichun(t *testing.T) {
 	at := time.Date(2024, 2, 10, 0, 0, 0, 0, time.UTC)
 	state := SolarTermStateAt(at)
@@ -93,5 +130,19 @@ func TestSolarTermStateAtLichun(t *testing.T) {
 	}
 	if got := MonthBranchAt(at); got.String() != "寅" {
 		t.Fatalf("month branch at 立春 = %s, want 寅", got.String())
+	}
+}
+
+func TestApparentSolarCivilCanCrossDay(t *testing.T) {
+	// Early morning in far-west China can fall on the prior apparent-solar day.
+	at := time.Date(1990, 5, 20, 18, 10, 0, 0, time.UTC)
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	year, month, day := ApparentSolarDate(at, loc, 75.0)
+	if year != 1990 || month != time.May || day != 20 {
+		t.Fatalf("apparent solar date = %d-%d-%d, want 1990-05-20", year, month, day)
 	}
 }

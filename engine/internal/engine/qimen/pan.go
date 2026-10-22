@@ -3,7 +3,7 @@ package qimen
 import "liki-engine/internal/engine/ganzhi"
 
 // ArrangePan builds a chart from its table-driven plates and method geometry.
-func ArrangePan(ju juShu, bz ganzhi.Bazi) pan {
+func ArrangePan(ju juShu, bz ganzhi.Bazi) board {
 	dipan := placeDiPan(ju.Number, ju.YinDun)
 	leadZhu := leadPillar(bz, ju)
 	duty := findDuty(leadZhu, dipan)
@@ -28,11 +28,11 @@ func ArrangePan(ju juShu, bz ganzhi.Bazi) pan {
 	default:
 		tianPan, dutyStarLanding = placeTianPan(leadZhu, duty.Star, dipan)
 		renDoors, dutyDoorLanding = placeRenPan(leadZhu, duty.Door, ju.YinDun, dipan)
-		visibleDutyStar := findStarPalace(pan{GongWei: palacesFromTianPan(tianPan)}, duty.Star)
+		visibleDutyStar := findStarPalace(board{GongWei: palacesFromTianPan(tianPan)}, duty.Star)
 		shenSpirits = placeShenPan(ju.YinDun, visibleDutyStar)
 		hidden = placeHiddenPan(dipan, duty.Palace, dutyDoorLanding)
 	}
-	result := pan{
+	result := board{
 		Jushu:          ju.Number,
 		School:         ju.Method.School,
 		YinDun:         ju.YinDun,

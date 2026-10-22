@@ -1,9 +1,9 @@
-"""领域快照测试：完整 pan 生成 snap，并保留基础因子与领域事实。
+"""领域快照测试：完整 natal_chart 生成 snap，并保留基础因子与领域事实。
 
-断言快照结构自洽（{八字, 紫微, context} + 因子产生），并经 _base_ctx_from_pan 保证 ten_god_states/wuxing 直读。
+断言快照结构自洽（{八字, 紫微, context} + 因子产生），并经 _base_ctx_from_natal_chart 保证 ten_god_states/wuxing 直读。
 """
 import _helpers  # noqa: F401 —— 注入 tools 路径
-import factors
+import app.natal.tools.factors as factors
 
 
 def _cmp_bazi_pan() -> dict:
@@ -57,9 +57,9 @@ def _cmp_bazi_pan() -> dict:
     }
 
 
-def test_evaluate_snap_from_pan_produces_complete_snap():
-    pan = _cmp_bazi_pan()
-    new = factors.evaluate_snap_from_pan(pan)
+def test_evaluate_snap_from_natal_chart_produces_complete_snap():
+    natal_chart = _cmp_bazi_pan()
+    new = factors.evaluate_snap_from_natal_chart(natal_chart)
     # 结构：八字/紫微 双盘因子快照 + context
     assert "八字" in new and "紫微" in new and "context" in new
     assert new["context"] == {"性别": "male"}
@@ -67,38 +67,38 @@ def test_evaluate_snap_from_pan_produces_complete_snap():
     assert len(new["八字"]) > 0
     assert len(new["紫微"]) > 0
     # 基础字段已直读：宫含命宫(=含紫微) 应在 snap 被解释为具体因子，此处验证 ten_god_states 直读正常
-    ctx = factors._base_ctx_from_pan(pan)
+    ctx = factors._base_ctx_from_natal_chart(natal_chart)
     assert ctx["ri_gan"] == "甲"
     assert ctx["palace_ri"] == {"zhi": "子"}
     assert "七杀" in ctx["ten_god_states"]  # 年干庚=甲日主之七杀(金克木)，应聚合出该十神键
 
 
 def test_snap_embeds_stable_domain_facts():
-    """pan 的领域事实应完整透传进 snap（藏干/大运/宫位/instant/timezone 等）。"""
-    pan = _cmp_bazi_pan()
-    pan["full"]["nian"]["cang_gan"] = {"main": "丁", "mid": "己"}
-    pan["full"]["yue"]["cang_gan"] = {"main": "丁", "mid": "己"}
-    pan["full"]["ri"]["cang_gan"] = {"main": "癸"}
-    pan["full"]["shi"]["cang_gan"] = {"main": "丁"}
-    pan["full"]["ri"]["na_yin"] = "海中金"
-    pan["full"]["san_yuan"] = {"胎元": "丙子", "命宫": "甲午", "身宫": "甲午"}
-    pan["full"]["tai_xi"] = "辛丑"
-    pan["full"]["day_xun"] = "甲申旬"
-    pan["full"]["day_xun_kong"] = "午未"
-    pan["full"]["san_qi_name"] = "天乙贵人"
-    pan["chart"]["da_yun"] = {"direction": "顺排", "current_step_index": 0,
+    """natal_chart 的领域事实应完整透传进 snap（藏干/大运/宫位/instant/timezone 等）。"""
+    natal_chart = _cmp_bazi_pan()
+    natal_chart["full"]["nian"]["cang_gan"] = {"main": "丁", "mid": "己"}
+    natal_chart["full"]["yue"]["cang_gan"] = {"main": "丁", "mid": "己"}
+    natal_chart["full"]["ri"]["cang_gan"] = {"main": "癸"}
+    natal_chart["full"]["shi"]["cang_gan"] = {"main": "丁"}
+    natal_chart["full"]["ri"]["na_yin"] = "海中金"
+    natal_chart["full"]["san_yuan"] = {"胎元": "丙子", "命宫": "甲午", "身宫": "甲午"}
+    natal_chart["full"]["tai_xi"] = "辛丑"
+    natal_chart["full"]["day_xun"] = "甲申旬"
+    natal_chart["full"]["day_xun_kong"] = "午未"
+    natal_chart["full"]["san_qi_name"] = "天乙贵人"
+    natal_chart["chart"]["da_yun"] = {"direction": "顺排", "current_step_index": 0,
         "steps": [{"name": "甲午", "gan": "甲", "zhi": "午", "wuxing": "木", "shi_shen": "偏印",
                    "start_year": 2000, "end_year": 2010}]}
-    pan["ziwei"]["ju_shu"] = "火六局"
-    pan["ziwei"]["ming_zhu"] = "贪狼"
-    pan["ziwei"]["shen_zhu"] = "天梁"
-    pan["ziwei"]["kong_gong"] = [{"gong_name": "兄弟", "jie_xing": ["天机"]}]
-    pan["ziwei"]["nian_gan"] = "庚"
-    pan["ziwei"]["ziwei_pos"] = "命宫"
-    pan["instant"] = "1990-05-20T04:00:00Z"
-    pan["timezone"] = "Asia/Shanghai"
+    natal_chart["ziwei"]["ju_shu"] = "火六局"
+    natal_chart["ziwei"]["ming_zhu"] = "贪狼"
+    natal_chart["ziwei"]["shen_zhu"] = "天梁"
+    natal_chart["ziwei"]["kong_gong"] = [{"gong_name": "兄弟", "jie_xing": ["天机"]}]
+    natal_chart["ziwei"]["nian_gan"] = "庚"
+    natal_chart["ziwei"]["ziwei_pos"] = "命宫"
+    natal_chart["instant"] = "1990-05-20T04:00:00Z"
+    natal_chart["timezone"] = "Asia/Shanghai"
 
-    snap = factors.evaluate_snap_from_pan(pan)
+    snap = factors.evaluate_snap_from_natal_chart(natal_chart)
     bz = snap["八字"]
     zw = snap["紫微"]
     ctx = snap["context"]

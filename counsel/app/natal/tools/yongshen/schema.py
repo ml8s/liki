@@ -2,7 +2,6 @@
 
 只校验表结构，不解释命理条件。命理规则全部位于 policy.json。
 """
-from __future__ import annotations
 
 from typing import Any
 

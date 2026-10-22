@@ -3,9 +3,9 @@ import json
 from pathlib import Path
 
 from _helpers import mock_base_context
-from duanyu import load_rule_table
-from factors import evaluate_factors
-from operators_natal import _op
+from app.natal.tools.duanyu import load_rule_table
+from app.natal.tools.factors import evaluate_factors
+from app.natal.tools.operators_natal import _op
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "counsel" / "app" / "natal" / "tools"

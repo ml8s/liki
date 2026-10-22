@@ -25,7 +25,7 @@ type projectionContract struct {
 	} `json:"八字字段映射"`
 	Ziwei struct {
 		Ziwei map[string]string `json:"ziwei"`
-		Pan   map[string]string `json:"pan"`
+		Board map[string]string `json:"board"`
 	} `json:"紫微字段映射"`
 }
 
@@ -50,7 +50,7 @@ func toolProperties(t *testing.T, tool string) map[string]any {
 
 func TestProjectionContractCoversEngineFullChartFields(t *testing.T) {
 	contract := loadProjectionContract(t)
-	full := toolProperties(t, "bazi.fullchart")
+	full := toolProperties(t, "bazi_fullchart")
 
 	pillarFields := map[string]bool{}
 	for name := range contract.ValueFields {
@@ -99,9 +99,9 @@ func TestProjectionContractCoversEngineFullChartFields(t *testing.T) {
 
 func TestProjectionContractPathsExistInEngineSchema(t *testing.T) {
 	contract := loadProjectionContract(t)
-	full := toolProperties(t, "bazi.fullchart")
-	chart := toolProperties(t, "bazi.chart")
-	ziwei := toolProperties(t, "ziwei.chart")
+	full := toolProperties(t, "bazi_fullchart")
+	chart := toolProperties(t, "bazi_chart")
+	ziwei := toolProperties(t, "ziwei_chart")
 
 	var missing []string
 	for _, pillar := range contract.Pillars {

@@ -2,9 +2,8 @@
 import csv
 from pathlib import Path
 
-import _helpers  # noqa: F401
 import pytest
-from duanyu import load_rule_table
+from app.natal.tools.duanyu import load_rule_table
 
 ROOT = Path(__file__).resolve().parents[1] / "counsel/app/natal/tools/assertions"
 

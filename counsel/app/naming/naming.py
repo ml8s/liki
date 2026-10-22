@@ -4,9 +4,8 @@
 命理排盘，天然属于 counsel（判断/应用）层。本模块为纯函数 + 模块级只读数据。
 
 数据：同目录 data/（naming_characters.csv / negative_chars.txt / surnames.csv），
-随本模块维护——engine 不再包含 qiming 域，本层是唯一字库来源。
+字库与音韵随本模块维护，本层是唯一来源。
 """
-from __future__ import annotations
 
 import csv
 import threading
@@ -58,13 +57,16 @@ _LOAD_LOCK = threading.Lock()
 
 
 def wuxing_from_chinese(name: str) -> str:
-    """五行名（中/英）→ 五行中文；无效返回 ''（对齐 Go ParseWuxing→0）。"""
+    """五行中文 → 五行中文；无效返回 ''（对齐 Go ParseWuxing→0）。
+
+    线上契约只接受中文五行闭集；英文名别名已随契约收窄删除。
+    """
     return {
-        "木": "木", "wood": "木",
-        "火": "火", "fire": "火",
-        "土": "土", "earth": "土",
-        "金": "金", "metal": "金",
-        "水": "水", "water": "水",
+        "木": "木",
+        "火": "火",
+        "土": "土",
+        "金": "金",
+        "水": "水",
     }.get(name, "")
 
 
@@ -195,8 +197,8 @@ def pick_chars(wuxing1: str, wuxing2: str = "", count: int = 2) -> dict:
     first = _char_by_element.get(elem1, [])
     if not first:
         raise ValueError(f"no characters available for wuxing {wuxing1!r}")
-    result: dict = {"wuxing1": elem1, "pools": [{
-        "slot": "first", "chars": [_picked(c) for c in first],
+    result: dict = {"pools": [{
+        "wuxing": elem1, "slot": "first", "chars": [_picked(c) for c in first],
     }]}
     if count == 1:
         return result
@@ -204,9 +206,9 @@ def pick_chars(wuxing1: str, wuxing2: str = "", count: int = 2) -> dict:
     second = _char_by_element.get(elem2, [])
     if not second:
         raise ValueError(f"no characters available for wuxing {wuxing2!r}")
-    if elem2 != elem1:
-        result["wuxing2"] = elem2
-    result["pools"].append({"slot": "second", "chars": [_picked(c) for c in second]})
+    result["pools"].append({
+        "wuxing": elem2, "slot": "second", "chars": [_picked(c) for c in second],
+    })
     return result
 
 

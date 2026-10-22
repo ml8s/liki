@@ -37,13 +37,6 @@ func (w Wuxing) String() string {
 
 func (g Gender) String() string { return string(g) }
 
-func (y YinYang) String() string {
-	if bool(y) {
-		return "阳"
-	}
-	return "阴"
-}
-
 // -- Text → Symbol -----------------------------------------------------------
 
 // ParseGan converts a Chinese gan name (e.g. "甲") to a Gan value.
@@ -95,16 +88,6 @@ func ParseGender(s string) (Gender, error) {
 }
 
 // ParseYinYang converts a Chinese yin/yang name to a YinYang value.
-func ParseYinYang(s string) (YinYang, error) {
-	switch s {
-	case "阳":
-		return Yang, nil
-	case "阴":
-		return Yin, nil
-	}
-	return false, fmt.Errorf("unknown yin yang: %q", s)
-}
-
 // -- WangShuai (五行旺衰) ------------------------------------------------------
 
 // WangShuai classifies the five-phase prosperity state.
@@ -144,15 +127,6 @@ func (ws *WangShuai) UnmarshalJSON(data []byte) error {
 }
 
 // ParseWangShuai converts a Chinese prosperity name to a WangShuai value.
-func ParseWangShuai(s string) (WangShuai, error) {
-	for i, name := range wangShuaiNames {
-		if name == s {
-			return WangShuai(i), nil
-		}
-	}
-	return 0, fmt.Errorf("unknown wangshuai: %q", s)
-}
-
 // WangShuaiOf returns the five-phase prosperity state for a given element
 // in a given solar month (zhi 1-12).
 //
@@ -246,16 +220,7 @@ func zhiLabel(s string, ok bool) string {
 	return s
 }
 
-func zodiac(z Zhi) (string, bool) {
-	if int(z) >= 1 && int(z) <= 12 {
-		return zhiAnimals[z], true
-	}
-	return "", false
-}
-
 // ZodiacLabel returns the Chinese zodiac animal name, or "未知" if invalid.
-func ZodiacLabel(z Zhi) string { s, ok := zodiac(z); return zhiLabel(s, ok) }
-
 func zhiSeason(z Zhi) (string, bool) {
 	switch int(z) {
 	case 3, 4, 5:
@@ -278,20 +243,13 @@ var lunarMonths = [13]string{
 	"五月", "六月", "七月", "八月", "九月", "十月",
 }
 
-func zhiLunarMonth(z Zhi) (string, bool) {
-	if int(z) >= 1 && int(z) <= 12 {
-		return lunarMonths[z], true
-	}
-	return "", false
-}
-
-func zhiLunarMonthLabel(z Zhi) string { s, ok := zhiLunarMonth(z); return zhiLabel(s, ok) }
-func zhiHourRange(z Zhi) (string, bool) {
-	if int(z) >= 1 && int(z) <= 12 {
-		return HourRanges[z-1], true
-	}
-	return "", false
-}
-
 // ZhiHourRangeLabel returns the two-hour range for a zhi, or "未知" if invalid.
-func ZhiHourRangeLabel(z Zhi) string { s, ok := zhiHourRange(z); return zhiLabel(s, ok) }
+
+func ParseWangShuai(s string) (WangShuai, error) {
+	for i, name := range wangShuaiNames {
+		if name == s {
+			return WangShuai(i), nil
+		}
+	}
+	return 0, fmt.Errorf("unknown wangshuai: %q", s)
+}

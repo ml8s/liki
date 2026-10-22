@@ -1,12 +1,11 @@
 """奇门解释表加载器；条件与适用范围均由表驱动。"""
-from __future__ import annotations
 
 import csv
 from collections import defaultdict
 from pathlib import Path
 
-from qimen_errors import TableError
-from qimen_projection import load_factors_contract
+from app.divination.tools.qimen_errors import TableError
+from app.divination.tools.qimen_projection import load_factors_contract
 
 TOOLS_DIR = Path(__file__).resolve().parent
 RULES_PATH = TOOLS_DIR / "assertions" / "qimen_rules.csv"

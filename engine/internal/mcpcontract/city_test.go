@@ -12,7 +12,7 @@ import (
 
 func TestCityCoordsInputRequiresCity(t *testing.T) {
 	registry := testEngine()
-	definition := mustDefinition(t, registry, "city.coords")
+	definition := mustDefinition(t, registry, "city_coords")
 	var schema struct {
 		Properties map[string]json.RawMessage `json:"properties"`
 		Required   []string                   `json:"required"`
@@ -30,7 +30,7 @@ func TestCityCoordsInputRequiresCity(t *testing.T) {
 
 func TestCityCoordsOutputSchema(t *testing.T) {
 	registry := testEngine()
-	definition := mustDefinition(t, registry, "city.coords")
+	definition := mustDefinition(t, registry, "city_coords")
 	var doc map[string]any
 	if err := json.Unmarshal(definition.OutputSchema, &doc); err != nil {
 		t.Fatalf("unmarshal output schema: %v", err)
@@ -88,7 +88,7 @@ func TestCityCandidateOutputLongitudeRange(t *testing.T) {
 
 func TestCityCoordsRejectsUnknownPlace(t *testing.T) {
 	registry := testEngine()
-	_, err := registry.Call(context.Background(), "city.coords",
+	_, err := registry.Call(context.Background(), "city_coords",
 		mustJSON(t, map[string]any{"city": "不存在的城市xyz"}))
 	if err == nil || !strings.Contains(err.Error(), "未找到") {
 		t.Fatalf("err=%v, want not-found error", err)

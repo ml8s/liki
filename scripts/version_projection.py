@@ -17,7 +17,6 @@
 `connector-meta.json`）一律由 `workbuddy_version()` 从 `skills/liki/VERSION.txt`
 派生：不手写、不新增计数源，bump 与校验走同一条规则，所以不会漂移。
 """
-from __future__ import annotations
 
 import re
 import sys

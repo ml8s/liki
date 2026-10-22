@@ -5,7 +5,6 @@
 防止跨服务边界静默漂移。奇门盘面事实（内外盘/远近）与解读性表（门星吉凶/神将/宫象）
 不在本测试范围。
 """
-from __future__ import annotations
 
 import csv
 import json

@@ -173,3 +173,10 @@ func starZhiIdxMap(mg Gan, mz Zhi, dg Gan, dz Zhi, sg Gan, sz Zhi) map[string]in
 	}
 	return r
 }
+
+func yinGan(nianGan Gan) Gan {
+	g := ((int(nianGan)-1)%5)*2 + 3
+	return Gan(((g-1)%10+10)%10 + 1)
+}
+
+func nianGan(year int) Gan { return Gan(((year-4)%10+10)%10 + 1) }

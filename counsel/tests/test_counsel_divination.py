@@ -4,22 +4,16 @@
 即 MCP 装配/透传没有引入差异（正交化只改入口 ask→query，不改逻辑）。
 领域正确性由 engine 的 `*_oracle_test.go` 与 `tests/fixtures/domain_oracle/` 独立承担。
 """
-from __future__ import annotations
 
 import asyncio
 import json
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "divination" / "tools"))
-
 
 from app.counsel_mcp import create_counsel_mcp  # noqa: E402
 
 # 动态字段（digest/快照元数据）——1v1 对照时归一化
 DYNAMIC = {
     "snapshot_digest", "_meta", "meta", "created_at",
-    "captured_at", "solar_time",
+    "captured_at",
 }
 
 
@@ -31,13 +25,13 @@ def _core(d):
     return d
 
 
-LIUYAO_ARGS = {"question": "测试这次面试能不能通过", "mode": "yaos", "longitude": 116.4,
-               "yaos": [7, 8, 7, 8, 7, 8], "matter": "general",
+LIUYAO_ARGS = {"question": "测试这次面试能不能通过", "casting": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
+               "longitude": 116.4, "matter": "general",
                "timezone": "Asia/Shanghai"}
 
 
 def test_liuyao_snapshot_matches_old():
-    from liuyao_snapshot import create
+    from app.divination.tools.liuyao_snapshot import create
 
     srv = create_counsel_mcp("liuyao")
     got = json.loads(asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).content[0].text)
@@ -48,7 +42,7 @@ def test_liuyao_snapshot_matches_old():
 
 
 def test_liuyao_query_matches_old_ask():
-    from liuyao_ask import ask
+    from app.divination.tools.liuyao_ask import ask
 
     srv = create_counsel_mcp("liuyao")
     snap = json.loads(asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).content[0].text)
@@ -66,7 +60,7 @@ QIMEN_ARGS = {"question": "测试谈判时机", "city": "北京",
 
 
 def test_qimen_snapshot_matches_old():
-    from qimen_snapshot import create
+    from app.divination.tools.qimen_snapshot import create
 
     srv = create_counsel_mcp("qimen")
     got = json.loads(asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).content[0].text)
@@ -75,7 +69,7 @@ def test_qimen_snapshot_matches_old():
 
 
 def test_qimen_query_matches_old_ask():
-    from qimen_ask import ask
+    from app.divination.tools.qimen_ask import ask
 
     srv = create_counsel_mcp("qimen")
     snap = json.loads(asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).content[0].text)

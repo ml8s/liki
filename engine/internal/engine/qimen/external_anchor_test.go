@@ -118,14 +118,14 @@ func TestExternalRotatingPlateAnchors(t *testing.T) {
 
 func assertExternalChart(t *testing.T, chart Chart, anchor externalAnchor) {
 	t.Helper()
-	if got := ganzhi.GanName(chart.Pan.RiGan) + ganzhi.ZhiName(chart.Pan.RiZhi); got != anchor.DayPillar {
+	if got := ganzhi.GanName(chart.Board.RiGan) + ganzhi.ZhiName(chart.Board.RiZhi); got != anchor.DayPillar {
 		t.Errorf("day pillar = %s, want %s", got, anchor.DayPillar)
 	}
-	if got := ganzhi.GanName(chart.Pan.HourGan) + ganzhi.ZhiName(chart.Pan.HourZhi); got != anchor.HourPillar {
+	if got := ganzhi.GanName(chart.Board.HourGan) + ganzhi.ZhiName(chart.Board.HourZhi); got != anchor.HourPillar {
 		t.Errorf("hour pillar = %s, want %s", got, anchor.HourPillar)
 	}
-	if chart.Pan.YinDun != anchor.YinDun || chart.Pan.Jushu != anchor.Ju {
-		t.Errorf("dun/ju = %v/%d, want %v/%d", chart.Pan.YinDun, chart.Pan.Jushu, anchor.YinDun, anchor.Ju)
+	if chart.Board.YinDun != anchor.YinDun || chart.Board.Jushu != anchor.Ju {
+		t.Errorf("dun/ju = %v/%d, want %v/%d", chart.Board.YinDun, chart.Board.Jushu, anchor.YinDun, anchor.Ju)
 	}
 	if chart.Method.JieQi != anchor.JieQi || chart.Method.Yuan != anchor.Yuan {
 		t.Errorf("jieqi/yuan = %s/%s, want %s/%s", chart.Method.JieQi, chart.Method.Yuan, anchor.JieQi, anchor.Yuan)
@@ -133,26 +133,26 @@ func assertExternalChart(t *testing.T, chart Chart, anchor externalAnchor) {
 	if chart.Method.LeadXunShou.LiuYi != anchor.XunShou {
 		t.Errorf("xun shou = %s, want %s", chart.Method.LeadXunShou.LiuYi, anchor.XunShou)
 	}
-	if got := chart.Pan.DutyStar.String(); got != anchor.DutyStar {
+	if got := chart.Board.DutyStar.String(); got != anchor.DutyStar {
 		t.Errorf("duty star = %s, want %s", got, anchor.DutyStar)
 	}
 	if got := int(chart.Method.LeadXunShouGong); got != anchor.XunShouGong {
 		t.Errorf("xun shou palace = %d, want %d", got, anchor.XunShouGong)
 	}
-	if got := ganzhi.ZhiName(chart.Pan.KongWang[0].Branch) + ganzhi.ZhiName(chart.Pan.KongWang[1].Branch); got != anchor.KongWang {
+	if got := ganzhi.ZhiName(chart.Board.KongWang[0].Branch) + ganzhi.ZhiName(chart.Board.KongWang[1].Branch); got != anchor.KongWang {
 		t.Errorf("kong wang = %s, want %s", got, anchor.KongWang)
 	}
 }
 
 func assertExternalPalaces(t *testing.T, chart Chart, specs [9]string) {
 	t.Helper()
-	centerEarthGan := chart.Pan.GongWei[int(GongZhong)-1].DiPanGan
+	centerEarthGan := chart.Board.GongWei[int(GongZhong)-1].DiPanGan
 	for i, spec := range specs {
 		runes := []rune(spec)
 		if len(runes) != 6 {
 			t.Fatalf("palace %d spec %q must contain six runes", i+1, spec)
 		}
-		palace := chart.Pan.GongWei[i]
+		palace := chart.Board.GongWei[i]
 		if i == int(GongZhong)-1 {
 			if palace.TianPanGan == nil || palace.TianPanGan.String() != string(runes[0]) {
 				t.Errorf("palace %d heaven gan = %v, want %s", i+1, palace.TianPanGan, string(runes[0]))

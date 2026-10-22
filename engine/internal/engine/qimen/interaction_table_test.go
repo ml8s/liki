@@ -89,7 +89,7 @@ func TestGanInteractionDisplayNameIsMechanical(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p := pan{GongWei: [9]Gong{{
+	p := board{GongWei: [9]Gong{{
 		DiPanGan: earth,
 		TianPan:  []TianPanSymbol{{Gan: heaven, Star: StarTianPeng}},
 	}}}
@@ -104,7 +104,7 @@ func TestGanPalaceFactsPreserveHeavenAndEarthLayers(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p := pan{GongWei: [9]Gong{
+	p := board{GongWei: [9]Gong{
 		{DiPanGan: heavenMoving},
 		{TianPan: []TianPanSymbol{{Gan: heavenMoving, Star: StarTianPeng}}},
 	}}
@@ -128,7 +128,7 @@ func TestGanInteractionDoesNotInventMissingRule(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p := pan{GongWei: [9]Gong{{
+	p := board{GongWei: [9]Gong{{
 		DiPanGan: earth,
 		TianPan:  []TianPanSymbol{{Gan: heaven, Star: StarTianPeng}},
 	}}}
@@ -166,7 +166,7 @@ func TestMenInteractionTableContract(t *testing.T) {
 }
 
 func TestMenInteractionDoesNotInventMissingRule(t *testing.T) {
-	p := pan{GongWei: [9]Gong{}}
+	p := board{GongWei: [9]Gong{}}
 	p.GongWei[int(GongZhen)-1].Door = DoorXiu
 	if got := computeMenInteractions(p); len(got) != 0 {
 		t.Fatalf("missing men rule invented output %+v", got)
@@ -207,7 +207,7 @@ func TestXingInteractionTableContract(t *testing.T) {
 }
 
 func TestXingInteractionDisplayNameIsMechanical(t *testing.T) {
-	p := pan{GongWei: [9]Gong{}}
+	p := board{GongWei: [9]Gong{}}
 	p.GongWei[int(GongLi)-1].TianPan = []TianPanSymbol{{Gan: ganzhi.GanWu, Star: StarTianPeng}}
 	got := computeXingInteractions(p)
 	if len(got) != 1 || got[0].Name != "水星入火宫" {
@@ -216,7 +216,7 @@ func TestXingInteractionDisplayNameIsMechanical(t *testing.T) {
 }
 
 func TestXingInteractionDoesNotInventMissingRule(t *testing.T) {
-	p := pan{GongWei: [9]Gong{}}
+	p := board{GongWei: [9]Gong{}}
 	p.GongWei[int(GongXun)-1].TianPan = []TianPanSymbol{{Gan: ganzhi.GanWu, Star: StarTianPeng}}
 	if got := computeXingInteractions(p); len(got) != 0 {
 		t.Fatalf("missing xing rule invented output %+v", got)

@@ -1,11 +1,10 @@
 """六爻应期候选排序；策略来自 JSON 表，只整理 engine 事实。"""
-from __future__ import annotations
 
 import json
 from functools import lru_cache
 from pathlib import Path
 
-from liuyao_topic_guidance import load_topic_table
+from app.divination.tools.liuyao_topic_guidance import load_topic_table
 
 RULES_PATH = Path(__file__).with_name("liuyao_timing_rules.json")
 

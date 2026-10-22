@@ -10,7 +10,7 @@ import (
 
 func TestPalaceIdentityAndBranchFacts(t *testing.T) {
 	chart := chartForTest()
-	for i, palace := range chart.Pan.GongWei {
+	for i, palace := range chart.Board.GongWei {
 		expected := GongIndex(i + 1)
 		if palace.Gong.Name != expected.String() || palace.Gong.Luoshu != int(expected) {
 			t.Fatalf("palace[%d] identity = %+v", i, palace.Gong)
@@ -22,27 +22,27 @@ func TestPalaceIdentityAndBranchFacts(t *testing.T) {
 			t.Fatalf("%s lacks ring index", expected)
 		}
 	}
-	for _, void := range chart.Pan.KongWang {
+	for _, void := range chart.Board.KongWang {
 		if void.Branch == 0 || void.Gong == 0 || void.Gong == GongZhong {
 			t.Fatalf("invalid void branch fact %+v", void)
 		}
 	}
-	if chart.Pan.MaXing.Branch == 0 || chart.Pan.MaXing.Gong == 0 {
-		t.Fatalf("invalid horse fact %+v", chart.Pan.MaXing)
+	if chart.Board.MaXing.Branch == 0 || chart.Board.MaXing.Gong == 0 {
+		t.Fatalf("invalid horse fact %+v", chart.Board.MaXing)
 	}
 }
 
 func TestYingQiUsesYongShenFocus(t *testing.T) {
 	chart := chartForTest()
 	focuses := map[GongIndex][]RelatedSymbol{
-		chart.Pan.KongWang[0].Gong: {{Symbol: "生门", Role: "yong_shen"}},
+		chart.Board.KongWang[0].Gong: {{Symbol: "生门", Role: "yong_shen"}},
 	}
 	result := computeYingQi(chart, time.Date(
 		1984, 2, 15, 8, 0, 0, 0, time.FixedZone("CST", 8*3600),
 	), focuses)
 	found := false
 	for _, candidate := range result.Candidates {
-		if candidate.Gong != chart.Pan.KongWang[0].Gong {
+		if candidate.Gong != chart.Board.KongWang[0].Gong {
 			continue
 		}
 		for _, related := range candidate.RelatedTo {

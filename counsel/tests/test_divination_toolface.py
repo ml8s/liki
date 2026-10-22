@@ -6,7 +6,6 @@ own the contract, so the cross-field clauses the legacy schema declared as
 ``allOf`` are exercised at runtime instead of statically.
 """
 
-from __future__ import annotations
 
 import pytest
 from app.contracts.divination import LiuyaoSnapshotInput, QimenSnapshotInput
@@ -25,17 +24,16 @@ def _accepts(model: type[BaseModel], instance: dict) -> None:
 def test_liuyao_snapshot_input_rejects_ambiguous_sources_and_modes():
     base = {"question": "这次面试能不能通过？", "matter": "career", "longitude": 116.4, "timezone": "Asia/Shanghai"}
     _rejects(LiuyaoSnapshotInput, {**base, "yong_shen": "官鬼"})
-    _rejects(LiuyaoSnapshotInput, {**base, "mode": "coins"})
-    _rejects(LiuyaoSnapshotInput, {**base, "mode": "yaos"})
+    _rejects(LiuyaoSnapshotInput, {**base, "casting": {"mode": "coins"}})
+    _rejects(LiuyaoSnapshotInput, {**base, "casting": {"mode": "yaos"}})
     _rejects(LiuyaoSnapshotInput, {
-        **base, "mode": "auto",
-        "rounds": [["正", "反", "反"]] * 6,
+        **base, "casting": {"mode": "auto", "rounds": [["正", "反", "反"]] * 6},
     })
     _rejects(LiuyaoSnapshotInput, {**base, "perspective": "male"})
     _accepts(LiuyaoSnapshotInput, {
-        **base, "mode": "coins",
-        "rounds": [["正", "反", "反"]] * 6,
+        **base, "casting": {"mode": "coins", "rounds": [["正", "反", "反"]] * 6},
     })
+    _accepts(LiuyaoSnapshotInput, base)
 
 
 def test_qimen_snapshot_input_rejects_ambiguous_location_and_focus():

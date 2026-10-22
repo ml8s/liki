@@ -1,9 +1,8 @@
 """问卦 snapshot 公共契约：canonical digest 与类型校验。"""
-from __future__ import annotations
 
 from typing import Any
 
-from divination_hashing import sha256_json
+from app.divination.tools.divination_hashing import sha256_json
 
 
 def canonical_digest(snapshot: dict) -> str:

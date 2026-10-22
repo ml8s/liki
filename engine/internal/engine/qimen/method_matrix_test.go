@@ -410,11 +410,11 @@ func TestMethodMatrixExternalAnchors(t *testing.T) {
 				t.Fatalf("method = %s/%s", chart.Method.Scope, chart.Method.School)
 			}
 			if chart.Method.JieQi != anchor.ActualJieQi || chart.Method.YongJuJieQi != anchor.YongJuJieQi ||
-				chart.Pan.YinDun != anchor.YinDun || chart.Pan.Jushu != anchor.Ju || chart.Method.Yuan != anchor.Yuan ||
+				chart.Board.YinDun != anchor.YinDun || chart.Board.Jushu != anchor.Ju || chart.Method.Yuan != anchor.Yuan ||
 				chart.Method.ZhiRunState != anchor.ZhiRunState || chart.Method.DayFuTou.Name != anchor.DayFuTou {
 				t.Fatalf("dingju metadata = %+v, want %+v", chart.Method, anchor)
 			}
-			if got := ganzhi.GanName(chart.Pan.LeadGan) + ganzhi.ZhiName(chart.Pan.LeadZhi); got != anchor.Lead {
+			if got := ganzhi.GanName(chart.Board.LeadGan) + ganzhi.ZhiName(chart.Board.LeadZhi); got != anchor.Lead {
 				t.Fatalf("lead pillar = %s, want %s", got, anchor.Lead)
 			}
 			if got := chart.Method.LeadPillar.Name; got != anchor.Lead {
@@ -423,22 +423,22 @@ func TestMethodMatrixExternalAnchors(t *testing.T) {
 			if chart.Method.LeadXunShou.LiuYi != anchor.XunShou {
 				t.Fatalf("xun shou = %s, want %s", chart.Method.LeadXunShou.LiuYi, anchor.XunShou)
 			}
-			if got := ganzhi.ZhiName(chart.Pan.KongWang[0].Branch) + ganzhi.ZhiName(chart.Pan.KongWang[1].Branch); got != anchor.KongWang {
+			if got := ganzhi.ZhiName(chart.Board.KongWang[0].Branch) + ganzhi.ZhiName(chart.Board.KongWang[1].Branch); got != anchor.KongWang {
 				t.Fatalf("kong wang = %s, want %s", got, anchor.KongWang)
 			}
-			if got := chart.Pan.DutyStar.String(); got != anchor.DutyStar {
+			if got := chart.Board.DutyStar.String(); got != anchor.DutyStar {
 				t.Fatalf("duty star = %s, want %s", got, anchor.DutyStar)
 			}
 			if got := int(chart.Method.LeadXunShouGong); got != anchor.DutySource {
 				t.Fatalf("duty source = %d, want %d", got, anchor.DutySource)
 			}
-			if got := int(chart.Pan.DutyStarPalace); got != anchor.DutyLand {
+			if got := int(chart.Board.DutyStarPalace); got != anchor.DutyLand {
 				t.Fatalf("duty landing = %d, want %d", got, anchor.DutyLand)
 			}
-			if got := chart.Pan.DutyDoor.String(); got != anchor.DutyDoor {
+			if got := chart.Board.DutyDoor.String(); got != anchor.DutyDoor {
 				t.Fatalf("duty door = %s, want %s", got, anchor.DutyDoor)
 			}
-			if got := int(chart.Pan.DutyDoorPalace); got != anchor.DoorLand {
+			if got := int(chart.Board.DutyDoorPalace); got != anchor.DoorLand {
 				t.Fatalf("duty door landing = %d, want %d", got, anchor.DoorLand)
 			}
 			assertMethodPalaces(t, chart, anchor.Palaces)
@@ -518,9 +518,9 @@ func assertMethodCrossValidation(
 		t.Fatal("spirits cannot be present when spirit is excluded")
 	}
 
-	if chart.Pan.YinDun != validation.YinDun || chart.Pan.Jushu != validation.Ju {
+	if chart.Board.YinDun != validation.YinDun || chart.Board.Jushu != validation.Ju {
 		t.Fatalf("cross-checked dun/ju = %v/%d, want %v/%d",
-			chart.Pan.YinDun, chart.Pan.Jushu, validation.YinDun, validation.Ju)
+			chart.Board.YinDun, chart.Board.Jushu, validation.YinDun, validation.Ju)
 	}
 	if anchor.Lead != validation.Lead || anchor.XunShou != validation.XunShou ||
 		anchor.KongWang != validation.KongWang || anchor.DutyStar != validation.DutyStar ||
@@ -547,7 +547,7 @@ func assertMethodCrossValidation(
 			t.Fatalf("cross core palace %d %q must have three runes", i+1, want)
 		}
 		nonEmptyCore++
-		palace := chart.Pan.GongWei[i]
+		palace := chart.Board.GongWei[i]
 		if len(palace.TianPan) == 0 {
 			t.Fatalf("cross core palace %d has no heaven layer", i+1)
 		}
@@ -563,7 +563,7 @@ func assertMethodCrossValidation(
 
 	if seenFacts["outer_door"] {
 		doorIndex := 0
-		for i, palace := range chart.Pan.GongWei {
+		for i, palace := range chart.Board.GongWei {
 			if !palace.DoorSet {
 				continue
 			}
@@ -582,7 +582,7 @@ func assertMethodCrossValidation(
 
 	if len(validation.Spirits) != 0 {
 		spiritIndex := 0
-		for i, palace := range chart.Pan.GongWei {
+		for i, palace := range chart.Board.GongWei {
 			got := spiritNameForChart(chart, palace.Spirit)
 			if !palace.SpiritSet {
 				continue
@@ -620,11 +620,11 @@ func TestMethodMatrixCombinationInvariants(t *testing.T) {
 			wantLead := map[Scope]ganzhi.Zhu{
 				ScopeHour: bz.Shi, ScopeDay: bz.Ri, ScopeMonth: bz.Yue, ScopeYear: bz.Nian,
 			}[method.Scope]
-			if chart.Pan.LeadGan != wantLead.Gan || chart.Pan.LeadZhi != wantLead.Zhi {
-				t.Fatalf("lead pillar = %s%s, want %s%s", chart.Pan.LeadGan, chart.Pan.LeadZhi, wantLead.Gan, wantLead.Zhi)
+			if chart.Board.LeadGan != wantLead.Gan || chart.Board.LeadZhi != wantLead.Zhi {
+				t.Fatalf("lead pillar = %s%s, want %s%s", chart.Board.LeadGan, chart.Board.LeadZhi, wantLead.Gan, wantLead.Zhi)
 			}
 			stars, doors, spirits := 0, 0, 0
-			for _, palace := range chart.Pan.GongWei {
+			for _, palace := range chart.Board.GongWei {
 				if palace.AnGan == 0 {
 					t.Fatal("hidden stem missing")
 				}
@@ -657,7 +657,7 @@ func assertMethodPalaces(t *testing.T, chart Chart, specs [9]string) {
 		if len(runes) != 6 {
 			t.Fatalf("palace %d spec %q must have six runes", i+1, spec)
 		}
-		palace := chart.Pan.GongWei[i]
+		palace := chart.Board.GongWei[i]
 		if got := palace.DiPanGan.String(); got != string(runes[1]) {
 			t.Errorf("palace %d earth = %s, want %s", i+1, got, string(runes[1]))
 		}
@@ -720,21 +720,21 @@ func assertMethodLayer(t *testing.T, palace int, layer string, wantRune rune, pr
 }
 
 func spiritNameForChart(chart Chart, spirit SpiritIndex) string {
-	return spiritDisplayName(spirit, chart.Pan.YinDun, chart.Pan.School)
+	return spiritDisplayName(spirit, chart.Board.YinDun, chart.Board.School)
 }
 
 func spiritExpectedNameForChart(chart Chart, wantRune rune) string {
-	if chart.Pan.School == SchoolLuoShuFeiPan {
+	if chart.Board.School == SchoolLuoShuFeiPan {
 		return spiritRuneNames[wantRune]
 	}
 	switch wantRune {
 	case '虎':
-		if chart.Pan.YinDun {
+		if chart.Board.YinDun {
 			return SpiritGouChen.YinName()
 		}
 		return SpiritGouChen.YangName()
 	case '玄':
-		if chart.Pan.YinDun {
+		if chart.Board.YinDun {
 			return SpiritZhuQue.YinName()
 		}
 		return SpiritZhuQue.YangName()

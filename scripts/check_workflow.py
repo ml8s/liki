@@ -4,7 +4,6 @@
 A dangling `needs:` entry makes the whole workflow fail to start (zero jobs
 reported), which is silent locally. Run as part of `make check`.
 """
-from __future__ import annotations
 
 import re
 import sys

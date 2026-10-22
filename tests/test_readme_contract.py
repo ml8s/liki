@@ -1,5 +1,4 @@
 """README structure contract: one entry document per language, fixed headings, no pseudo headings."""
-from __future__ import annotations
 
 import re
 from pathlib import Path

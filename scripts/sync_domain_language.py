@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Generate the canonical domain-language document from its registry."""
 
-from __future__ import annotations
 
 import argparse
 import json

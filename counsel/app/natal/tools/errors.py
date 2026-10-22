@@ -3,10 +3,9 @@
 这些错误都是领域/参数契约错误，同时继承 ValueError，
 保证既有调用方 `except ValueError` 的错误透传语义不变。
 """
-from __future__ import annotations
 
 __all__ = [
-    "LikiToolError", "PanSchemaError", "AssertionRuleError",
+    "LikiToolError", "ChartSchemaError", "AssertionRuleError",
     "YearRangeError", "FactorEvaluateError", "FactorTableError",
 ]
 
@@ -15,8 +14,8 @@ class LikiToolError(Exception):
     """liki 工具层错误的公共基类。"""
 
 
-class PanSchemaError(LikiToolError, ValueError):
-    """pan 不是 full_paipan 返回的完整结构。"""
+class ChartSchemaError(LikiToolError, ValueError):
+    """natal_chart 不是 build_natal_chart 返回的完整结构。"""
 
 
 class AssertionRuleError(LikiToolError, ValueError):

@@ -1,7 +1,6 @@
 """流年健康表条件契约：禁止无条件恒命中。"""
-import _helpers  # noqa: F401 —— 注入 tools 路径
-import duanyu
-from duanyu import query_yearly
+import app.natal.tools.duanyu as duanyu
+from app.natal.tools.duanyu import query_yearly
 
 
 def _flow(rule: str, bazi: dict | None = None) -> dict:

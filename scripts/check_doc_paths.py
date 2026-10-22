@@ -19,7 +19,6 @@ Division of labour with ``check_docs.py``: that checker owns skill-document
 semantics (assertion ids, section budgets, method whitelist) inside ``skills/liki``;
 this one owns the path surface of every other Markdown file.
 """
-from __future__ import annotations
 
 import re
 import sys

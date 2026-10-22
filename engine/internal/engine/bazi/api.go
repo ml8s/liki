@@ -171,70 +171,8 @@ func ComputeXiaoYun(c Chart, maxAge int) []XiaoYunSet {
 }
 
 // ComputeDaYunAt is the explicit-time entry for the big-fortune cycle.
-func ComputeDaYunAt(
-	at time.Time,
-	loc *time.Location,
-	longitude float64,
-	gender ganzhi.Gender,
-) (*DaYun, error) {
-	chart := ComputeChartAt(at, loc, longitude, gender)
-	if chart.DaYun == nil {
-		return nil, fmt.Errorf("dayun is unavailable")
-	}
-	return chart.DaYun, nil
-}
-
 // ComputeLiuNianAt is the explicit-time entry for a year's flow analysis.
-func ComputeLiuNianAt(
-	at time.Time,
-	loc *time.Location,
-	longitude float64,
-	year int,
-) (*LiuNian, error) {
-	chart := ComputeChartAt(at, loc, longitude, ganzhi.Gender(""))
-	return ComputeLiuNian(chart, year)
-}
-
 // ComputeLiuYueAt is the explicit-time entry for a month's flow analysis.
-func ComputeLiuYueAt(
-	at time.Time,
-	loc *time.Location,
-	longitude float64,
-	year, month int,
-) (*LiuYue, error) {
-	chart := ComputeChartAt(at, loc, longitude, ganzhi.Gender(""))
-	return ComputeLiuYue(chart, year, month)
-}
-
 // ComputeLiuRiAt is the explicit-time entry for a day's flow analysis.
-func ComputeLiuRiAt(
-	at time.Time,
-	loc *time.Location,
-	longitude float64,
-	year, month, day int,
-) (*LiuRi, error) {
-	chart := ComputeChartAt(at, loc, longitude, ganzhi.Gender(""))
-	return ComputeLiuRi(chart, year, month, day)
-}
-
 // ComputeLiuShiAt is the explicit-time entry for an hour's flow analysis.
-func ComputeLiuShiAt(
-	at time.Time,
-	loc *time.Location,
-	longitude float64,
-	year, month, day, hour int,
-) (*LiuShi, error) {
-	chart := ComputeChartAt(at, loc, longitude, ganzhi.Gender(""))
-	return ComputeLiuShi(chart, year, month, day, hour)
-}
-
 // ComputeXiaoYunAt is the explicit-time entry for minor-fortune analysis.
-func ComputeXiaoYunAt(
-	at time.Time,
-	loc *time.Location,
-	longitude float64,
-	maxAge int,
-) []XiaoYunSet {
-	chart := ComputeChartAt(at, loc, longitude, ganzhi.Male)
-	return ComputeXiaoYun(chart, maxAge)
-}

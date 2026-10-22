@@ -33,3 +33,19 @@ func TestComputeBaziUsesExplicitPillarFunctions(t *testing.T) {
 		})
 	}
 }
+
+func ShiZhu(st time.Time) ganzhi.Zhu {
+	solarMinutes := apparentSolarMinutes(st)
+	zhi := shichenFromApparentSolarMinutes(solarMinutes)
+	// 晚子时（23:00 后）：日柱不变，但时柱按次日日干起（lunar 约定）
+	dayT := st
+	if solarMinutes >= 1380 {
+		dayT = dayT.AddDate(0, 0, 1)
+	}
+	dp := RiZhu(time.Time(dayT))
+	gan := ganzhi.Gan(((int(dp.Gan)*2 + int(zhi) - 2) % 10))
+	if gan == 0 {
+		gan = 10
+	}
+	return ganzhi.Zhu{Gan: gan, Zhi: zhi}
+}

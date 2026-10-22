@@ -18,7 +18,6 @@
     python3 scripts/sync_expert_packs.py            # 镜像生成（覆盖 + 清孤儿）
     python3 scripts/sync_expert_packs.py --check    # 双向漂移检测（make check / CI）
 """
-from __future__ import annotations
 
 import argparse
 import json

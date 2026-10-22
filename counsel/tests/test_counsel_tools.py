@@ -2,15 +2,11 @@
 
 逻辑输出必须与正交化基线（tests/golden/orthogonal/baseline.json）一致。
 """
-from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"))
 
 GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden" / "orthogonal" / "baseline.json"
 
@@ -43,14 +39,14 @@ def bazi_chart():
 
 
 def test_compute_factors_returns_factors_and_digest(bazi_chart):
-    from counsel import compute_factors
+    from app.natal.tools.counsel import compute_factors
     out = compute_factors(bazi_chart)
     assert isinstance(out, dict)
     assert "factors" in out and "factors_digest" in out
 
 
 def test_compute_factors_matches_baseline(bazi_chart, baseline):
-    from counsel import compute_factors
+    from app.natal.tools.counsel import compute_factors
     factors = compute_factors(bazi_chart)["factors"]
     # 八字因子（bazi side）应与基线一致（逻辑不变，仅接口/输入来源变化）
     want = baseline["factors_bazi"]
@@ -59,14 +55,13 @@ def test_compute_factors_matches_baseline(bazi_chart, baseline):
 
 def test_natal_query_returns_bazi_assertions(bazi_chart):
     """natal_query 校验因子摘要后返回八字断语。"""
-    from counsel import compute_factors, natal_query
+    from app.natal.tools.counsel import compute_factors, natal_query
 
     out = compute_factors(bazi_chart)
     result = natal_query(
         out["factors"],
         ["chart_structure"],
         out["factors_digest"],
-        context=out["context"],
     )
     assert result["assertions"]
     assert all(a.get("side") == "bazi" for a in result["assertions"])
@@ -75,16 +70,15 @@ def test_natal_query_returns_bazi_assertions(bazi_chart):
 
 def test_period_query_returns_bazi_assertions(bazi_chart):
     """period_query 校验因子摘要后返回八字应期断语。"""
-    from counsel import compute_factors, period_query
+    from app.natal.tools.counsel import compute_factors, period_query
 
     out = compute_factors(bazi_chart)
     got = period_query(
         out["factors"],
         out["factors_digest"],
-        {"type": "year_range", "start_year": 2020, "end_year": 2040},
+        {"type": "year_range", "start_year": 2020, "end_year": 2040, "timezone": "Asia/Shanghai"},
         ["marriage"],
         bazi_chart,
-        timezone="Asia/Shanghai",
     )
     assert got["periods"]
     assert any(p.get("assertions") for p in got["periods"])
@@ -96,7 +90,7 @@ def test_period_query_returns_bazi_assertions(bazi_chart):
 
 
 def test_natal_query_rejects_modified_factors(bazi_chart):
-    from counsel import compute_factors, natal_query
+    from app.natal.tools.counsel import compute_factors, natal_query
 
     out = compute_factors(bazi_chart)
     factors = dict(out["factors"])
@@ -106,33 +100,23 @@ def test_natal_query_rejects_modified_factors(bazi_chart):
             factors,
             ["chart_structure"],
             out["factors_digest"],
-            context=out["context"],
-        )
-
-
-def test_natal_query_rejects_context_from_another_snapshot(bazi_chart):
-    from counsel import compute_factors, natal_query
-
-    out = compute_factors(bazi_chart)
-    with pytest.raises(ValueError, match="context 与 compute_factors"):
-        natal_query(
-            out["factors"],
-            ["chart_structure"],
-            out["factors_digest"],
-            context={},
         )
 
 
 def test_period_query_rejects_chart_from_another_snapshot(bazi_chart):
-    from counsel import compute_factors, period_query
+    """chart 与 factors 经 _provenance.chart_digest 绑定，换盘即拒。"""
+    from app.natal.tools.counsel import compute_factors, period_query
 
     out = compute_factors(bazi_chart)
-    wrong_chart = dict(bazi_chart, gender="female")
-    with pytest.raises(ValueError, match="chart 与 compute_factors"):
+    other = dict(bazi_chart)
+    other["shi"] = {"gan": "甲", "zhi": "子", "na_yin": "海中金"}
+    with pytest.raises(ValueError, match="chart 与 compute_factors 因子来源不一致"):
         period_query(
             out["factors"],
             out["factors_digest"],
-            {"type": "year", "year": 2026},
+            {"type": "year_range", "start_year": 2020, "end_year": 2040},
             ["marriage"],
-            wrong_chart,
+            other,
         )
+
+

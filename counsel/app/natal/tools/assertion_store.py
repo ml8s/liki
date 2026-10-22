@@ -1,12 +1,11 @@
 """断语长表索引：一次性加载元数据与条件，并按命理域聚合。"""
-from __future__ import annotations
 
 import csv
 import os
 
-from csv_cell import typed_expected
-from errors import AssertionRuleError
-from factor_constants import load_constants
+from app.natal.tools.csv_cell import typed_expected
+from app.natal.tools.errors import AssertionRuleError
+from app.natal.tools.factor_constants import load_constants
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSERTIONS_PATH = os.path.join(TOOLS_DIR, "assertions", "assertions.csv")

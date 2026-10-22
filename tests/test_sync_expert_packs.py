@@ -7,7 +7,6 @@
 - 根级共享卡（`FAQ.md` / `ops-*` / `payment-*`）只存在于根，不进任何包
 - make check 跑 --check 双向检测（缺失/孤儿/内容差异）
 """
-from __future__ import annotations
 
 import json
 import subprocess

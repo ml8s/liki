@@ -119,7 +119,7 @@ func resolveNianGan(chart Chart, birthDate BirthDate) *GongIndex {
 		return nil
 	}
 	gan := resolveJiaDunGan(nian.Gan, nian.Zhi)
-	palace := findGanPalaceIdx(chart.Pan, gan)
+	palace := findGanPalaceIdx(chart.Board, gan)
 	if palace > 0 {
 		return &palace
 	}
@@ -131,7 +131,7 @@ func resolveNianGanFacts(chart Chart, birthDate BirthDate) []GanPalaceFact {
 	if nian.Gan == 0 {
 		return nil
 	}
-	return findGanPalaceFacts(chart.Pan, resolveJiaDunGan(nian.Gan, nian.Zhi))
+	return findGanPalaceFacts(chart.Board, resolveJiaDunGan(nian.Gan, nian.Zhi))
 }
 
 // symbolName 符号名称。
@@ -142,7 +142,7 @@ func symbolName(s YongShenSymbol, chart Chart) string {
 	case s.Star != nil:
 		return s.Star.String()
 	case s.Spirit != nil:
-		return spiritDisplayName(*s.Spirit, chart.Pan.YinDun, chart.Pan.School)
+		return spiritDisplayName(*s.Spirit, chart.Board.YinDun, chart.Board.School)
 	case s.Gan != nil:
 		return s.Gan.String()
 	}
@@ -169,29 +169,29 @@ func computeYongShen(chart Chart, syms []YongShenSymbol, birthDate BirthDate, ha
 		}
 		switch {
 		case s.Door != nil:
-			sr.Palace = findDoorPalaceIdx(chart.Pan, *s.Door)
+			sr.Palace = findDoorPalaceIdx(chart.Board, *s.Door)
 		case s.Star != nil:
-			sr.Palace = findStarPalace(chart.Pan, *s.Star)
+			sr.Palace = findStarPalace(chart.Board, *s.Star)
 		case s.Spirit != nil:
-			sr.Palace = findSpiritPalaceIdx(chart.Pan, *s.Spirit)
+			sr.Palace = findSpiritPalaceIdx(chart.Board, *s.Spirit)
 		case s.Gan != nil:
-			sr.Palace = findGanPalaceIdx(chart.Pan, *s.Gan)
+			sr.Palace = findGanPalaceIdx(chart.Board, *s.Gan)
 		}
 		if sr.Palace > 0 {
-			for _, void := range chart.Pan.KongWang {
+			for _, void := range chart.Board.KongWang {
 				if void.Gong == sr.Palace {
 					sr.KongWangBranch = append(sr.KongWangBranch, void.Branch)
 				}
 			}
-			if chart.Pan.MaXing.Gong == sr.Palace {
-				branch := chart.Pan.MaXing.Branch
+			if chart.Board.MaXing.Gong == sr.Palace {
+				branch := chart.Board.MaXing.Branch
 				sr.MaXingBranch = &branch
 			}
 			if int(sr.Palace) >= 1 && int(sr.Palace) <= 9 {
-				for _, item := range chart.Pan.GongWei[sr.Palace-1].TianPan {
+				for _, item := range chart.Board.GongWei[sr.Palace-1].TianPan {
 					sr.TianGan = append(sr.TianGan, item.Gan.String())
 				}
-				if pointer := chart.Pan.GongWei[sr.Palace-1].TianPanGan; pointer != nil {
+				if pointer := chart.Board.GongWei[sr.Palace-1].TianPanGan; pointer != nil {
 					sr.TianGan = append(sr.TianGan, pointer.String())
 				}
 			}
@@ -208,7 +208,7 @@ func computeYongShen(chart Chart, syms []YongShenSymbol, birthDate BirthDate, ha
 	return ys
 }
 
-func findSpiritPalaceIdx(p pan, s SpiritIndex) GongIndex {
+func findSpiritPalaceIdx(p board, s SpiritIndex) GongIndex {
 	for i, pg := range p.GongWei {
 		if pg.Spirit == s {
 			return GongIndex(i + 1)

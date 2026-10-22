@@ -1,5 +1,4 @@
 """六爻歌诀条件还原；把流行断语还原为可核对条件，不输出绝对结论。"""
-from __future__ import annotations
 
 import json
 from functools import lru_cache

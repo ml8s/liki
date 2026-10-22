@@ -7,7 +7,6 @@
   对 engine 已给事实（`yin_dun`/`gong`/`wuxing`）施加固定布局规则，属投影层职责。
 - 解读性知识（门星吉凶本质/神将原型/宫象人物）：属判断/解读层，保留在 counsel。
 """
-from __future__ import annotations
 
 import csv
 import json
@@ -270,8 +269,8 @@ def _spirit_items(palaces: list[dict], chart: dict) -> list[dict]:
     return result
 
 def _yin_dun(chart: dict) -> bool:
-    pan = chart.get("pan")
-    value = pan.get("yin_dun") if isinstance(pan, dict) else None
+    natal_chart = chart.get("board")
+    value = natal_chart.get("yin_dun") if isinstance(natal_chart, dict) else None
     if not isinstance(value, bool):
         raise ValueError("qimen chart lacks yin_dun")
     return value
@@ -310,8 +309,8 @@ def _wuxing_relation(chart: dict, left_gong: str, right_gong: str) -> str:
     return relations[key]
 
 def _hour_polarity(chart: dict) -> str:
-    pan = chart.get("pan")
-    stem = pan.get("shi_gan") if isinstance(pan, dict) else None
+    natal_chart = chart.get("board")
+    stem = natal_chart.get("shi_gan") if isinstance(natal_chart, dict) else None
     if not _type_matches(stem, "string"):
         raise ValueError("qimen chart lacks shi_gan")
     polarity = _load_hour_polarities().get(stem)
@@ -320,8 +319,8 @@ def _hour_polarity(chart: dict) -> str:
     return polarity
 
 def _palace(chart: dict, gong: str) -> dict:
-    pan = chart.get("pan", {})
-    for row in pan.get("gong_wei", []) if isinstance(pan, dict) else []:
+    natal_chart = chart.get("board", {})
+    for row in natal_chart.get("gong_wei", []) if isinstance(natal_chart, dict) else []:
         if isinstance(row, dict) and _palace_name(row) == gong:
             return row
     raise ValueError(f"qimen palace missing: {gong}")

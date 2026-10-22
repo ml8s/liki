@@ -18,11 +18,11 @@ var fidelityMethods = []string{
 
 // migratedWireTools are the tools this migration moved to the typed registry.
 var migratedWireTools = []string{
-	"bazi.fullchart", "bazi.bond", "bazi.liunian", "bazi.liuyue", "bazi.liuri",
-	"bazi.liushi", "bazi.xiaoyun",
-	"ziwei.chart", "ziwei.fullchart", "ziwei.daxian", "ziwei.liunian", "ziwei.liuyue",
-	"ziwei.liuri", "ziwei.liushi", "ziwei.bond",
-	"qimen.chart",
+	"bazi_fullchart", "bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
+	"bazi_liushi", "bazi_xiaoyun",
+	"ziwei_chart", "ziwei_fullchart", "ziwei_daxian", "ziwei_liunian", "ziwei_liuyue",
+	"ziwei_liuri", "ziwei_liushi", "ziwei_bond",
+	"qimen_chart",
 }
 
 // fixtureTool derives the tool name from a captured fixture file name such as
@@ -33,14 +33,14 @@ func fixtureTool(name string) string {
 		return ""
 	}
 	if domain == "qimen" {
-		return "qimen.chart"
+		return "qimen_chart"
 	}
 	rest := name[len(domain)+1:]
 	tokens := strings.Split(rest, "_")
 	for index := len(tokens) - 1; index >= 0; index-- {
 		for _, method := range fidelityMethods {
 			if tokens[index] == method {
-				return domain + "." + method
+				return domain + "_" + method
 			}
 		}
 	}
@@ -69,7 +69,7 @@ func TestEngineContractWireFidelity(t *testing.T) {
 			t.Errorf("%s: cannot derive tool name from fixture", file)
 			continue
 		}
-		if method == "bazi.chart" {
+		if method == "bazi_chart" {
 			// The lean chart carries clock-derived 大运 fields; it has its own
 			// hand-written contract test.
 			continue

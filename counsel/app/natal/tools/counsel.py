@@ -8,16 +8,15 @@
 
 输入 chart 为 engine 分领域排盘输出（bazi_chart / ziwei_chart，公共契约）。
 """
-from __future__ import annotations
 
 import hashlib
 import json
 
-from duanyu import match_rule
-from factors import evaluate_factors
-from paipan import _bazi_fullchart, _ziwei_daxian, call
-from pan_schema import validate_side_pan
-from yongshen import published_yongshen, resolve_yongshen
+from app.natal.tools.chart_schema import validate_side_chart
+from app.natal.tools.charts import _bazi_fullchart, _ziwei_daxian, call
+from app.natal.tools.duanyu import match_rule
+from app.natal.tools.factors import evaluate_factors
+from app.natal.tools.yongshen import published_yongshen, resolve_yongshen
 
 
 def _factors_digest(factors: dict) -> str:
@@ -84,17 +83,18 @@ def bazi_yongshen(chart: dict) -> dict:
     if not isinstance(chart, dict) or not _is_bazi_chart(chart):
         raise ValueError("bazi_yongshen 只接受八字盘（chart 含四柱）；紫微盘请走紫微领域")
     full = _bazi_fullchart(chart)
-    pan = {"chart": chart, "full": full, "gender": chart.get("gender", "")}
-    validate_side_pan(pan, "bazi", "bazi_yongshen")
+    natal_chart = {"chart": chart, "full": full, "gender": chart.get("gender", "")}
+    validate_side_chart(natal_chart, "bazi", "bazi_yongshen")
     return published_yongshen(resolve_yongshen(full))
 
 
 def compute_factors(chart: dict) -> dict:
-    """engine 排盘结果 → { factors, factors_digest, context }。
+    """engine 排盘结果 → { factors, factors_digest }。
 
     chart 为 bazi_chart（八字）或 ziwei_chart（紫微）输出。内部调 engine
     fullchart 取因子所需详细字段，再求因子快照（与正交化基线一致）。
-    context 携带断语所需的最小领域事实（性别；出生信息如有则附带）。
+    来源 context（性别；出生信息如有则附带）写入 factors._provenance.context，
+    随快照进入 digest——下游工具直接从 provenance 读取，不再单独传递。
     八字快照把唯一用神裁决写入 factors.selected_yongshen，与独立用神能力同源。
     """
     gender = chart.get("gender", "")
@@ -104,19 +104,20 @@ def compute_factors(chart: dict) -> dict:
     if side == "bazi":
         full = _bazi_fullchart(chart)
         selected_yongshen = published_yongshen(resolve_yongshen(full))
-        pan = {
+        natal_chart = {
             "chart": chart, "full": full, "gender": gender,
             "_selected_yongshen": selected_yongshen,
         }
-        validate_side_pan(pan, "bazi", "compute_factors")
-        factors = evaluate_factors(gender, pan, shushi="bazi")
+        validate_side_chart(natal_chart, "bazi", "compute_factors")
+        factors = evaluate_factors(gender, natal_chart, shushi="bazi")
         factors["selected_yongshen"] = selected_yongshen
     else:
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
-        daxian = _ziwei_daxian(zw)
-        pan = {"chart": chart, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
-        validate_side_pan(pan, "ziwei", "compute_factors")
-        factors = evaluate_factors(gender, pan, shushi="ziwei")
+        # ziwei.daxian 契约收 ziwei.chart 输出；fullchart 的增量字段属因子层，不进 daxian。
+        daxian = _ziwei_daxian(chart)
+        natal_chart = {"chart": chart, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
+        validate_side_chart(natal_chart, "ziwei", "compute_factors")
+        factors = evaluate_factors(gender, natal_chart, shushi="ziwei")
     factors["_provenance"] = {
         "side": side,
         "chart_digest": _chart_digest(chart),
@@ -130,18 +131,17 @@ def compute_factors(chart: dict) -> dict:
     return {
         "factors": factors,
         "factors_digest": _factors_digest(factors),
-        "context": context,
     }
 
 
 def natal_query(factors: dict, topics: list[str], factors_digest: str,
-                context: dict | None = None, side: str = "bazi") -> dict:
+                side: str = "bazi") -> dict:
     """因子快照 + topics → 本命断语（用因子快照匹配断语表，不重算 snapshot）。
 
     与正交化基线一致（context 至少含性别；出生信息影响断语时附带）。
     side 指定因子所属侧（bazi/ziwei），断语只出该侧。
     """
-    from analytics import _flatten_side_result, _load_routes, _require_topics
+    from app.natal.tools.analytics import _flatten_side_result, _load_routes, _require_topics
 
     verify_factors_digest(factors, factors_digest)
     provenance = _factor_provenance(factors)
@@ -150,12 +150,10 @@ def natal_query(factors: dict, topics: list[str], factors_digest: str,
             f"factors provenance side mismatch: expected {side!r}, "
             f"got {provenance.get('side')!r}"
         )
-    expected_context = provenance.get("context")
-    if expected_context != (context or {}):
-        raise ValueError("context 与 compute_factors 因子来源不一致")
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"natal_query side 只支持 bazi/ziwei，收到: {side!r}")
-    from factor_constants import load_constants
+    context = provenance.get("context") or {}
+    from app.natal.tools.factor_constants import load_constants
 
     side_labels = load_constants()["命理侧"]["标签"]
     bz_label = side_labels["bazi"]
@@ -180,8 +178,7 @@ def natal_query(factors: dict, topics: list[str], factors_digest: str,
 
 
 def period_query(factors: dict, factors_digest: str, time_scope: dict,
-                 topics: list[str], chart: dict, side: str = "bazi",
-                 context: dict | None = None, timezone: str = "") -> dict:
+                 topics: list[str], chart: dict, side: str = "bazi") -> dict:
     """已校验因子快照 + 时间层 + topics → 应期断语（大运/大限/流年）。
 
     chart 为 engine 排盘结果（bazi_chart/ziwei_chart），内部据此调 engine
@@ -197,7 +194,7 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
     年份参数直接作为年号使用，**不做公历/农历日期换算**——换算会引入月份
     信息（用户只按"年"查询），难以对应；年号级八字与紫微一致。
     """
-    from analytics import _analyze_periods
+    from app.natal.tools.analytics import _analyze_periods
 
     verify_factors_digest(factors, factors_digest)
     provenance = _factor_provenance(factors)
@@ -208,10 +205,9 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         )
     if provenance.get("chart_digest") != _chart_digest(chart):
         raise ValueError("chart 与 compute_factors 因子来源不一致")
-    if context is not None and context != (provenance.get("context") or {}):
-        raise ValueError("context 与 compute_factors 因子来源不一致")
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"period_query side 只支持 bazi/ziwei，收到: {side!r}")
+    timezone = (time_scope or {}).get("timezone", "")
     gender = chart.get("gender", "")
     if side == "bazi":
         selected_yongshen = factors.get("selected_yongshen")
@@ -223,21 +219,24 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         if provenance.get("yongshen_digest") != selected_yongshen.get("yongshen_digest"):
             raise ValueError("factors _provenance 的用神来源与 selected_yongshen 不一致")
         full = _bazi_fullchart(chart)
-        pan = {
+        natal_chart = {
             "chart": chart, "full": full, "gender": gender,
             "timezone": timezone, "_selected_yongshen": selected_yongshen,
         }
     else:
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
-        daxian = _ziwei_daxian(zw)
-        pan = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian,
+        # ziwei.daxian 契约收 ziwei.chart 输出；fullchart 的增量字段属因子层，不进 daxian。
+        daxian = _ziwei_daxian(chart)
+        natal_chart = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian,
                "gender": gender, "timezone": timezone}
-    validate_side_pan(pan, side, "period_query")
+    validate_side_chart(natal_chart, side, "period_query")
     # period_query 固定只出本侧断语：组合盘不含另一侧排盘，另一侧数据由
-    # _factor_context_from_pan 从本侧盘误读，会产生假断语，必须过滤。
+    # _factor_context_from_natal_chart 从本侧盘误读，会产生假断语，必须过滤。
     result = _analyze_periods(
-        pan,
-        {"topics": topics, "time_scope": time_scope},
+        natal_chart,
+        # analytics 的 time_scope 词表只含锚年字段；timezone 由 natal_chart 携带并穿透。
+        {"topics": topics,
+         "time_scope": {k: v for k, v in (time_scope or {}).items() if k != "timezone"}},
         validate_pan=False,
     )
     for scope in result["periods"]:

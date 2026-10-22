@@ -1,8 +1,7 @@
 """奇门专占上下文投影；核心匹配由 engine 提供，本层只补固定呈现字段。"""
 
-from __future__ import annotations
 
-from qimen_projection_common import (
+from app.divination.tools.qimen_projection_common import (
     _hour_polarity,
     _load_palace_person,
     _palace_direction,

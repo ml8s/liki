@@ -1,5 +1,4 @@
 """奇门 Python 编排层：事象路由与解释表只消费 engine 输出。"""
-from __future__ import annotations
 
 import json
 import sys
@@ -13,8 +12,7 @@ from jsonschema import validate
 
 @pytest.fixture(autouse=True)
 def skip_shared_engine_compatibility(monkeypatch):
-    import engine_mcp_client
-
+    import app.engine_mcp_client as engine_mcp_client
     monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
 
 
@@ -23,17 +21,17 @@ SKILL_ROOT = TOOLS.parent.parent
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-import qimen_paipan as paipan  # noqa: E402
-from qimen_errors import TableError  # noqa: E402
-from qimen_matters import load_matter_table as load_routing_matter_table  # noqa: E402
-from qimen_projection import project as project_chart  # noqa: E402
+import app.divination.tools.qimen_charts as qimen_charts  # noqa: E402
+from app.divination.tools.qimen_errors import TableError  # noqa: E402
+from app.divination.tools.qimen_matters import load_matter_table as load_routing_matter_table  # noqa: E402
+from app.divination.tools.qimen_projection import project as project_chart  # noqa: E402
 
 
-def _project(pan):
+def _project(natal_chart):
     """Project the chart payload returned by the local *_pan helpers."""
-    if not isinstance(pan, dict) or not isinstance(pan.get("chart"), dict):
+    if not isinstance(natal_chart, dict) or not isinstance(natal_chart.get("chart"), dict):
         raise AssertionError("qimen test fixture must contain chart")
-    return project_chart(pan["chart"])
+    return project_chart(natal_chart["chart"])
 
 
 def _pan(**changes):
@@ -42,7 +40,7 @@ def _pan(**changes):
             "scope": "hour", "school": "zhuanpan",
             "spirit_mode": "eight_spirits_yang_gouchen_zhuque_yin_baihu_xuanwu",
         },
-        "pan": {
+        "board": {
             "yin_dun": False,
             "jushu": 5,
             "zhi_fu_xing": "天芮",
@@ -104,11 +102,11 @@ def _pan(**changes):
 
 
 def _lost_pan(**changes):
-    pan = _pan()
-    pan["chart"]["specialized"]["lost_context"] = [{
+    natal_chart = _pan()
+    natal_chart["chart"]["specialized"]["lost_context"] = [{
         "gong": "兑", "wang_shuai": "旺",
     }]
-    pan["chart"].update({
+    natal_chart["chart"].update({
         "patterns": [{
             "name": "反吟",
             "gong_wei": ["坎"],
@@ -139,17 +137,17 @@ def _lost_pan(**changes):
             "wang_shuai_name": "旺",
         },
     })
-    pan["chart"].update(changes)
-    return pan
+    natal_chart["chart"].update(changes)
+    return natal_chart
 
 
 def _thief_pan(**changes):
-    pan = _pan()
-    pan["chart"]["specialized"]["thief_context"] = [
+    natal_chart = _pan()
+    natal_chart["chart"]["specialized"]["thief_context"] = [
         {"role": "大贼", "symbol": "天蓬", "gong": "坎", "wang_shuai_label": "囚", "lucky_pattern_names": []},
         {"role": "小贼", "symbol": "玄武", "gong": "坎", "wang_shuai_label": "囚", "lucky_pattern_names": []},
     ]
-    pan["chart"]["pan"]["gong_wei"] = [
+    natal_chart["chart"]["board"]["gong_wei"] = [
         {
             "gong": {"name": "坤", "luoshu": 2},
             "tian_pan": [{"gan": "己", "xing": "天芮"}],
@@ -167,15 +165,15 @@ def _thief_pan(**changes):
             "shen_present": True,
         },
     ]
-    pan["chart"].update({
+    natal_chart["chart"].update({
         "palace_wang_shuai": [
             {"gong": "坤", "wuxing": "土", "wang_shuai": "相", "wang_shuai_name": "相"},
             {"gong": "坎", "wuxing": "水", "wang_shuai": "囚", "wang_shuai_name": "囚"},
             {"gong": "兑", "wuxing": "金", "wang_shuai": "死", "wang_shuai_name": "死"},
         ],
     })
-    pan["chart"].update(changes)
-    return pan
+    natal_chart["chart"].update(changes)
+    return natal_chart
 
 
 def _rich_pan():
@@ -253,7 +251,7 @@ def _rich_pan():
             "spirit_mode": "eight_spirits_yang_gouchen_zhuque_yin_baihu_xuanwu",
         },
     )
-    rich["chart"]["pan"]["gong_wei"] = [{
+    rich["chart"]["board"]["gong_wei"] = [{
         "gong": {"name": "兑", "luoshu": 7},
         "tian_pan": [{"gan": "庚", "xing": "天蓬"}],
         "men": "杜门",
@@ -265,29 +263,29 @@ def _rich_pan():
 
 
 def _missing_pan(**changes):
-    pan = _pan()
-    pan["chart"]["shi_gan_gong"] = "坎"
-    pan["chart"]["yong_shen"] = {
+    natal_chart = _pan()
+    natal_chart["chart"]["shi_gan_gong"] = "坎"
+    natal_chart["chart"]["yong_shen"] = {
         "nian_gan_gong": None,
         "symbols": [{
             "symbol": "六合", "palace": "坎", "tian_gan": ["戊"],
             "kong_wang_branches": [], "ma_xing_branch": None,
         }],
     }
-    pan["chart"]["gong_domains"] = [
+    natal_chart["chart"]["gong_domains"] = [
         {"gong": "坎", "domain": "inner"},
         {"gong": "兑", "domain": "outer"},
     ]
-    pan["chart"].update(changes)
-    return pan
+    natal_chart["chart"].update(changes)
+    return natal_chart
 
 
 def _escape_pan(**changes):
-    pan = _pan()
-    pan["chart"].setdefault("specialized", {
+    natal_chart = _pan()
+    natal_chart["chart"].setdefault("specialized", {
         "geng_ge": [], "lost_context": [], "thief_context": [], "tianwang_context": [],
     })
-    pan["chart"]["pan"]["gong_wei"] = [
+    natal_chart["chart"]["board"]["gong_wei"] = [
         {
             "gong": {"name": "坎", "luoshu": 1},
             "tian_pan": [{"gan": "戊", "xing": "天蓬"}],
@@ -305,7 +303,7 @@ def _escape_pan(**changes):
             "shen_present": True,
         },
     ]
-    pan["chart"].update({
+    natal_chart["chart"].update({
         "palace_wang_shuai": [
             {"gong": "坎", "wuxing": "水", "wang_shuai": "囚", "wang_shuai_name": "囚"},
             {"gong": "震", "wuxing": "木", "wang_shuai": "休", "wang_shuai_name": "休"},
@@ -316,8 +314,8 @@ def _escape_pan(**changes):
             "di_pan_gan": "戊", "auspicious": False,
         }],
     })
-    pan["chart"].update(changes)
-    return pan
+    natal_chart["chart"].update(changes)
+    return natal_chart
 
 
 def test_matter_table_is_the_python_routing_fact(monkeypatch) -> None:
@@ -345,9 +343,9 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
         requests.append(params)
         return {}
 
-    monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
+    monkeypatch.setattr(qimen_charts, "engine_data", fake_engine_data)
     for matter in load_routing_matter_table():
-        paipan.qimen_chart(
+        qimen_charts.qimen_chart(
             "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
             method=hour_method, matter=matter,
         )
@@ -363,8 +361,8 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
         calls.append((method, params))
         return {"ri_gan_gong": "震", "shi_gan_gong": "兑"}
 
-    monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
-    result = paipan.qimen_chart(
+    monkeypatch.setattr(qimen_charts, "engine_data", fake_engine_data)
+    result = qimen_charts.qimen_chart(
         "2026-09-07T04:00:00Z", "Asia/Shanghai",
         116.4,
         matter="wealth",
@@ -384,9 +382,9 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 
 
 def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
-    monkeypatch.setattr(paipan, "engine_data", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
+    monkeypatch.setattr(qimen_charts, "engine_data", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     try:
-        paipan.qimen_chart(
+        qimen_charts.qimen_chart(
             "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             matter="wealth", yong_shen=["生门"],
@@ -399,12 +397,12 @@ def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
 
 def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
     monkeypatch.setattr(
-        paipan,
+        qimen_charts,
         "engine_data",
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 不能为空"):
-        paipan.qimen_chart(
+        qimen_charts.qimen_chart(
             "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             yong_shen=[],
@@ -420,12 +418,12 @@ def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
 
 def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
     monkeypatch.setattr(
-        paipan,
+        qimen_charts,
         "engine_data",
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 符号重复"):
-        paipan.qimen_chart(
+        qimen_charts.qimen_chart(
             "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             yong_shen=["生门", "生门"],
@@ -434,12 +432,12 @@ def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
 
 def test_qimen_chart_rejects_string_yong_shen(monkeypatch) -> None:
     monkeypatch.setattr(
-        paipan,
+        qimen_charts,
         "engine_data",
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 必须是字符串数组"):
-        paipan.qimen_chart(
+        qimen_charts.qimen_chart(
             "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             yong_shen="生门",
@@ -447,8 +445,7 @@ def test_qimen_chart_rejects_string_yong_shen(monkeypatch) -> None:
 
 
 def test_matter_table_rejects_duplicate_symbols(tmp_path, monkeypatch) -> None:
-    import qimen_matters
-
+    import app.divination.tools.qimen_matters as qimen_matters
     matters = tmp_path / "matters.csv"
     matters.write_text(
         "matter,name,symbols,basis\n"
@@ -488,29 +485,29 @@ class _FakeResp:
 
 
 def test_mcp_call_reports_malformed_engine_payload(monkeypatch) -> None:
-    import engine_mcp_client
-    from engine_mcp_client import MCPError
+    import app.engine_mcp_client as engine_mcp_client
+    from app.engine_mcp_client import MCPError
 
     monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
                         lambda *_, **__: _FakeResp(b"not-json"))
     with pytest.raises(MCPError, match="无法解析 MCP 响应"):
-        engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
+        engine_mcp_client.call("qimen.chart", {})
 
 
 def test_mcp_call_reports_missing_result(monkeypatch) -> None:
-    import engine_mcp_client
-    from engine_mcp_client import MCPError
+    import app.engine_mcp_client as engine_mcp_client
+    from app.engine_mcp_client import MCPError
 
     # tools/call 返回空 content → call 报错
     monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
                         lambda *_, **__: _FakeResp(_mcp_response('{"jsonrpc":"2.0","id":1,"result":{"content":[]}}')))
     with pytest.raises(MCPError):
-        engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
+        engine_mcp_client.call("qimen.chart", {})
 
 
 def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
-    import engine_mcp_client
-    from engine_mcp_client import MCPError
+    import app.engine_mcp_client as engine_mcp_client
+    from app.engine_mcp_client import MCPError
 
     calls = []
 
@@ -522,7 +519,7 @@ def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
 
     monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
-    result = engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
+    result = engine_mcp_client.call("qimen.chart", {})
     assert result == {"data": {"ok": True}}
     assert calls == ["server-error", "ok"]
 
@@ -530,12 +527,11 @@ def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
     monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
                         lambda *_, **__: (_ for _ in ()).throw(client_error))
     with pytest.raises(MCPError, match="HTTP 403"):
-        engine_mcp_client.call("qimen.chart", {"solar_time": "x"})
+        engine_mcp_client.call("qimen.chart", {})
 
 
 def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
-    import engine_mcp_client
-
+    import app.engine_mcp_client as engine_mcp_client
     seen = []
 
     def urlopen(request, *_, **__):
@@ -549,7 +545,7 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
 
 def test_engine_mcp_client_domain_suffix(monkeypatch):
     """engine_mcp_client 按工具名分域：tianwen_resolve→/aux、ziwei_chart→/ziwei、bazi_chart→/bazi。"""
-    import engine_mcp_client
+    import app.engine_mcp_client as engine_mcp_client
     seen = []
     def urlopen(request, *_, **__):
         seen.append(request.full_url)

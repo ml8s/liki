@@ -1,5 +1,4 @@
 """六爻事项路由表加载；表内只做类别 → 默认用神，不做排盘或断卦。"""
-from __future__ import annotations
 
 import csv
 from functools import lru_cache

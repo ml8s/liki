@@ -109,12 +109,12 @@ func TestWuBuYuShi_ChartField_Present(t *testing.T) {
 				st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
 				chart := ComputeChart(stgt, st)
 				// 验证isWuBuYuShi与chart字段一致
-				riGan := chart.Pan.RiGan
-				shiGan := chart.Pan.HourGan
+				riGan := chart.Board.RiGan
+				shiGan := chart.Board.HourGan
 				expected := isWuBuYuShi(riGan, shiGan)
-				if chart.Pan.WuBuYuShi != expected {
-					t.Errorf("chart.Pan.WuBuYuShi=%v, isWuBuYuShi(%s,%s)=%v",
-						chart.Pan.WuBuYuShi, riGan.String(), shiGan.String(), expected)
+				if chart.Board.WuBuYuShi != expected {
+					t.Errorf("chart.Board.WuBuYuShi=%v, isWuBuYuShi(%s,%s)=%v",
+						chart.Board.WuBuYuShi, riGan.String(), shiGan.String(), expected)
 				}
 			}
 		})

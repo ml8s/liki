@@ -9,14 +9,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 
 	"github.com/google/jsonschema-go/jsonschema"
 )
 
-// Tool describes a typed MCP tool. Name uses the legacy registry convention
-// when replacing an existing tool (for example "time.now"); the MCP surface
-// converts it to a valid MCP name.
+// Tool describes a typed MCP tool. Name is the public MCP tool name
+// (snake_case, e.g. "bazi_chart").
 type Tool[In, Out any] struct {
 	Name        string
 	Description string
@@ -25,19 +23,6 @@ type Tool[In, Out any] struct {
 	// a union of forms (e.g. tianwen.resolve's five input variants). The derived
 	// schema is still used for boundary validation.
 	InputSchema json.RawMessage
-	// TolerateUnknownArgs relaxes input validation for tools that replaced a
-	// legacy raw-JSON method. The legacy registry validated params against the
-	// raw JSON Schemas, which left `additionalProperties` unset and therefore
-	// ignored unknown arguments (and richer payloads are chained, e.g. counsel
-	// feeds a ziwei.fullchart object into ziwei.daxian). Tools that were written
-	// directly against this typed registry keep rejecting unknown arguments.
-	TolerateUnknownArgs bool
-	// KeepClosedInputPaths keeps individual input objects closed even when
-	// TolerateUnknownArgs is set, because the legacy params schema declared
-	// `additionalProperties: false` there (qimen.chart's root, and the flow
-	// tools' target_lunar). Paths are JSON Pointers into the input schema:
-	// "" is the root object.
-	KeepClosedInputPaths []string
 }
 
 type registration struct {
@@ -72,7 +57,7 @@ func register[In, Out any](r *Registry, tool Tool[In, Out]) error {
 		return fmt.Errorf("mcp tool %s: handler is nil", tool.Name)
 	}
 
-	inputResolved, inputSchema, err := inputSchemaFor[In](tool.TolerateUnknownArgs, tool.KeepClosedInputPaths)
+	inputResolved, inputSchema, err := inputSchemaFor[In]()
 	if err != nil {
 		return fmt.Errorf("mcp tool %s: input schema: %w", tool.Name, err)
 	}
@@ -147,14 +132,9 @@ func (r *Registry) Call(ctx context.Context, name string, arguments json.RawMess
 	return tool.call(ctx, arguments)
 }
 
-// inputSchemaFor derives a tool's documented input schema and the schema used
-// to validate incoming arguments.
-//
-// The documented schema always keeps the typed, closed shape of the DTO. When
-// tolerateUnknownArgs is set - for tools that replaced a legacy raw-JSON method
-// - validation additionally ignores unknown properties, because the legacy
-// schemas left `additionalProperties` unset (see Tool.TolerateUnknownArgs).
-func inputSchemaFor[T any](tolerateUnknownArgs bool, keepClosed []string) (*jsonschema.Resolved, json.RawMessage, error) {
+// inputSchemaFor derives a tool's input schema: the typed, closed shape of the
+// DTO, used both as the documented contract and for boundary validation.
+func inputSchemaFor[T any]() (*jsonschema.Resolved, json.RawMessage, error) {
 	schema, err := jsonschema.For[T](forOptions)
 	if err != nil {
 		return nil, nil, err
@@ -163,81 +143,11 @@ func inputSchemaFor[T any](tolerateUnknownArgs bool, keepClosed []string) (*json
 	if err != nil {
 		return nil, nil, err
 	}
-	if tolerateUnknownArgs {
-		openObjectProperties(schema, keepClosed)
-	}
 	resolved, err := schema.Resolve(nil)
 	if err != nil {
 		return nil, nil, err
 	}
 	return resolved, json.RawMessage(documented), nil
-}
-
-// openObjectProperties drops the `additionalProperties: false` constraint that
-// jsonschema-go derives from Go structs, leaving objects open to extra
-// properties. Objects at one of the keepClosed JSON Pointer paths, and
-// struct-valued map entries, keep their schema: only the false schema (the "no
-// extra property is valid" form) is removed.
-func openObjectProperties(schema *jsonschema.Schema, keepClosed []string) {
-	closed := make(map[string]bool, len(keepClosed))
-	for _, path := range keepClosed {
-		closed[path] = true
-	}
-	seen := map[*jsonschema.Schema]bool{}
-	var walk func(*jsonschema.Schema, string)
-	walk = func(node *jsonschema.Schema, path string) {
-		if node == nil || seen[node] {
-			return
-		}
-		seen[node] = true
-		if !closed[path] {
-			if isFalseSchema(node.AdditionalProperties) {
-				node.AdditionalProperties = nil
-			}
-			if isFalseSchema(node.UnevaluatedProperties) {
-				node.UnevaluatedProperties = nil
-			}
-		}
-		for name, sub := range node.Properties {
-			walk(sub, path+"/properties/"+name)
-		}
-		for name, sub := range node.PatternProperties {
-			walk(sub, path+"/patternProperties/"+name)
-		}
-		for name, sub := range node.Defs {
-			walk(sub, path+"/$defs/"+name)
-		}
-		for name, sub := range node.Definitions {
-			walk(sub, path+"/definitions/"+name)
-		}
-		for index, sub := range node.PrefixItems {
-			walk(sub, fmt.Sprintf("%s/prefixItems/%d", path, index))
-		}
-		for index, sub := range node.ItemsArray {
-			walk(sub, fmt.Sprintf("%s/items/%d", path, index))
-		}
-		for index, sub := range node.AllOf {
-			walk(sub, fmt.Sprintf("%s/allOf/%d", path, index))
-		}
-		for index, sub := range node.AnyOf {
-			walk(sub, fmt.Sprintf("%s/anyOf/%d", path, index))
-		}
-		for index, sub := range node.OneOf {
-			walk(sub, fmt.Sprintf("%s/oneOf/%d", path, index))
-		}
-		walk(node.Items, path+"/items")
-		walk(node.AdditionalItems, path+"/additionalItems")
-		walk(node.Contains, path+"/contains")
-		walk(node.PropertyNames, path+"/propertyNames")
-		walk(node.Not, path+"/not")
-	}
-	walk(schema, "")
-}
-
-// isFalseSchema reports whether the schema is the JSON Schema `false`
-// subschema (the form jsonschema-go uses to close an object).
-func isFalseSchema(schema *jsonschema.Schema) bool {
-	return schema != nil && schema.Not != nil && reflect.DeepEqual(*schema.Not, jsonschema.Schema{})
 }
 
 func schemaFor[T any]() (*jsonschema.Schema, *jsonschema.Resolved, json.RawMessage, error) {

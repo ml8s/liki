@@ -3,21 +3,15 @@
 起名是"命理之上的应用"，纯函数实现在 counsel 层；期望值锁定当前字库
 （data/naming_characters.csv）的输出，防止字库或算法漂移。
 """
-from __future__ import annotations
 
-import sys
-from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
 from app.naming import naming  # noqa: E402
 
 
 def test_pick_mu_huo_2():
     r = naming.pick_chars("木", "火", 2)
-    assert r["wuxing1"] == "木" and r["wuxing2"] == "火"
+    assert r["pools"][0]["wuxing"] == "木" and r["pools"][1]["wuxing"] == "火"
     assert [p["slot"] for p in r["pools"]] == ["first", "second"]
     assert len(r["pools"][0]["chars"]) == 1969
     assert len(r["pools"][1]["chars"]) == 1472
@@ -26,13 +20,13 @@ def test_pick_mu_huo_2():
 
 def test_pick_shui_1():
     r = naming.pick_chars("水", "", 1)
-    assert r["wuxing1"] == "水" and "wuxing2" not in r
+    assert len(r["pools"]) == 1 and r["pools"][0]["wuxing"] == "水"
     assert len(r["pools"]) == 1 and len(r["pools"][0]["chars"]) == 1673
 
 
 def test_pick_jin_shui_2():
     r = naming.pick_chars("金", "水", 2)
-    assert r["wuxing1"] == "金" and r["wuxing2"] == "水"
+    assert r["pools"][0]["wuxing"] == "金" and r["pools"][1]["wuxing"] == "水"
     assert [len(p["chars"]) for p in r["pools"]] == [1522, 1673]
 
 

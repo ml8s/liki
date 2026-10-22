@@ -19,10 +19,10 @@ func TestRandomDates(t *testing.T) {
 		stgt := time.Time(bt)
 		st := tianwen.ApparentSolarFromCivil(bt, 116.4, 8)
 		ch := ComputeChart(stgt, st)
-		if ch.Pan.Jushu < 1 || ch.Pan.Jushu > 9 {
-			t.Fatalf("随机 %d-%d-%d %d时: 局数越界 %d", year, month, day, hour, ch.Pan.Jushu)
+		if ch.Board.Jushu < 1 || ch.Board.Jushu > 9 {
+			t.Fatalf("随机 %d-%d-%d %d时: 局数越界 %d", year, month, day, hour, ch.Board.Jushu)
 		}
-		if ch.Pan.RiGan == 0 {
+		if ch.Board.RiGan == 0 {
 			t.Fatalf("随机 %d-%d-%d: 日干缺失", year, month, day)
 		}
 		// 随机用神符号

@@ -5,7 +5,6 @@
 a script wired into the recipe but missing from the table, or a table row left
 behind after the recipe stopped calling it, would quietly shrink the gate.
 """
-from __future__ import annotations
 
 import re
 from pathlib import Path

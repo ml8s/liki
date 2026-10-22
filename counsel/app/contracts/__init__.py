@@ -6,7 +6,6 @@ the single source of truth, and no JSON manifest is read or written at runtime.
 The schemas a client sees come from the MCP server's `tools/list` response.
 """
 
-from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
@@ -41,6 +40,9 @@ def _collect_schema_names(node: Any, names: set[str]) -> None:
             names.update(properties)
             for child in properties.values():
                 _collect_schema_names(child, names)
+        const = node.get("const")
+        if isinstance(const, str):
+            names.add(const)
         enum = node.get("enum")
         if isinstance(enum, list):
             names.update(value for value in enum if isinstance(value, str))

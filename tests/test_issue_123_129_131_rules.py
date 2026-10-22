@@ -1,7 +1,7 @@
 """回归测试：#123 透干口径、#129 七杀制化、#131 性别门控。"""
 
-import duanyu
-import factors
+import app.natal.tools.duanyu as duanyu
+import app.natal.tools.factors as factors
 from _helpers import mock_base_context
 
 

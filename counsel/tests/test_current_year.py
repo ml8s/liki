@@ -1,13 +1,10 @@
 """WP6: current-year boundaries (立春 for bazi, 春节 for ziwei)."""
-import sys
-from pathlib import Path
 
 import pytest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"))
-
-import duanyu  # noqa: E402
-import paipan  # noqa: E402
+from app.natal.tools import (
+    charts,  # noqa: E402
+    duanyu,  # noqa: E402
+)
 
 GZ = {2024: ("甲", "辰"), 2025: ("乙", "巳"), 2026: ("丙", "午")}
 # 测试日期避开设节当日；立春 2025-02-03 / 2026-02-04，春节 2025-01-29 / 2026-02-17。
@@ -59,7 +56,7 @@ def _fake_call(cst):
 @pytest.mark.parametrize("cst", sorted(BAZI))
 def test_current_year_boundaries(monkeypatch, cst):
     duanyu.reset_current_year_cache()
-    monkeypatch.setattr(paipan, "call", _fake_call(cst + "T12:00:00+08:00"))
+    monkeypatch.setattr(charts, "call", _fake_call(cst + "T12:00:00+08:00"))
     bazi_year, lunar_year, source = duanyu.resolve_current_years("Asia/Shanghai")
     assert (bazi_year, lunar_year, source) == (BAZI[cst], LUNAR[cst], "server")
     assert duanyu.resolve_current_year("Asia/Shanghai") == (BAZI[cst], "server")

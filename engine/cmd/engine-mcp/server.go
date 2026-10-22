@@ -20,10 +20,6 @@ const (
 // toolName converts an RPC method name to a valid MCP tool name.
 // RPC method names use dot-separated domains (bazi.chart) while MCP tool names
 // only allow [a-zA-Z0-9_-], so each dot is replaced with an underscore.
-func toolName(method string) string {
-	return strings.ReplaceAll(method, ".", "_")
-}
-
 // mcpDomains maps an MCP endpoint suffix to the RPC method prefixes it exposes.
 // Each domain is a self-contained tool set (one 术数 or shared aux) so the LLM
 // only sees relevant tools per expert.
@@ -31,13 +27,13 @@ var mcpDomains = []struct {
 	Suffix   string
 	Prefixes []string
 }{
-	{"bazi", []string{"bazi."}},
-	{"ziwei", []string{"ziwei."}},
-	{"qimen", []string{"qimen."}},
-	{"liuyao", []string{"liuyao."}},
-	{"huangli", []string{"huangli."}},
-	{"fengshui", []string{"bazhai.", "xuankong.", "time."}},
-	{"aux", []string{"time.", "tianwen.", "city."}},
+	{"bazi", []string{"bazi_"}},
+	{"ziwei", []string{"ziwei_"}},
+	{"qimen", []string{"qimen_"}},
+	{"liuyao", []string{"liuyao_"}},
+	{"huangli", []string{"huangli_"}},
+	{"fengshui", []string{"bazhai_", "xuankong_", "time_"}},
+	{"aux", []string{"time_", "tianwen_", "city_"}},
 }
 
 // engineContracts owns every engine tool contract; the legacy raw-JSON
@@ -90,10 +86,15 @@ func newMCPServerFor(version string, logger *slog.Logger, match func(string) boo
 			continue
 		}
 		tool := &mcp.Tool{
-			Name:         toolName(definition.Name),
+			Name:         definition.Name,
 			Description:  definition.Description,
 			InputSchema:  definition.InputSchema,
 			OutputSchema: definition.OutputSchema,
+			// 全部 engine 工具都是确定性计算：无副作用、幂等，如实标注。
+			Annotations: &mcp.ToolAnnotations{
+				ReadOnlyHint:   true,
+				IdempotentHint: true,
+			},
 		}
 		s.AddTool(tool, contractToolHandler(engineContracts, name))
 	}

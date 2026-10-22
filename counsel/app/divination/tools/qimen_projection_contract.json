@@ -14,35 +14,35 @@
     },
     "jushu": {
       "kind": "scalar",
-      "path": "pan.jushu",
+      "path": "board.jushu",
       "type": "integer",
       "required": true
     },
     "yin_dun": {
       "kind": "boolean",
-      "path": "pan.yin_dun",
+      "path": "board.yin_dun",
       "required": true
     },
     "duty_star": {
       "kind": "scalar",
-      "path": "pan.zhi_fu_xing",
+      "path": "board.zhi_fu_xing",
       "type": "string",
       "required": true
     },
     "duty_door": {
       "kind": "scalar",
-      "path": "pan.zhi_shi_men",
+      "path": "board.zhi_shi_men",
       "type": "string",
       "required": true
     },
     "wu_bu_yu_shi": {
       "kind": "boolean",
-      "path": "pan.wu_bu_yu_shi",
+      "path": "board.wu_bu_yu_shi",
       "required": true
     },
     "pillars": {
       "kind": "object",
-      "path": "pan",
+      "path": "board",
       "required": true,
       "fields": {
         "ri_gan": {
@@ -336,7 +336,7 @@
     "stars": {
       "kind": "object_array",
       "projection": "stars",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "star": {
@@ -364,7 +364,7 @@
     "doors": {
       "kind": "object_array",
       "projection": "doors",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "door": {
@@ -387,7 +387,7 @@
     "spirits": {
       "kind": "object_array",
       "projection": "spirits",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "name": {
@@ -410,7 +410,7 @@
     "spirit_star_relations": {
       "kind": "object_array",
       "projection": "spirit_star_relations",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "spirit": {
@@ -453,7 +453,7 @@
     "spirit_spirit_relations": {
       "kind": "object_array",
       "projection": "spirit_spirit_relations",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "spirit": {
@@ -501,7 +501,7 @@
     "spirit_door_relations": {
       "kind": "object_array",
       "projection": "spirit_door_relations",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "spirit": {
@@ -795,7 +795,7 @@
     "gong_domains": {
       "kind": "object_array",
       "projection": "palace_domains",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "gong": {
@@ -813,7 +813,7 @@
     "palace_directions": {
       "kind": "object_array",
       "projection": "palace_directions",
-      "path": "pan.gong_wei",
+      "path": "board.gong_wei",
       "required": true,
       "fields": {
         "gong": {
@@ -831,7 +831,7 @@
     "hour_polarity": {
       "kind": "scalar",
       "projection": "hour_polarity",
-      "path": "pan.shi_gan",
+      "path": "board.shi_gan",
       "type": "string",
       "required": true
     },

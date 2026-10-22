@@ -1,16 +1,15 @@
 """奇门 snapshot 创建：时间、地点、排盘与因子投影一次完成。"""
-from __future__ import annotations
 
-from divination_contracts import validate_document
-from divination_rpc import server_time
-from divination_safety import assess
-from divination_snapshot import build_snapshot
-from qimen_duanyu import query
-from qimen_interpretations import assert_rule_compatibility, load_rule_table
-from qimen_jinhan_factors import project as project_jinhan_factors
-from qimen_paipan import city_coords, qimen_chart
-from qimen_projection import project as project_standard_factors
-from qimen_projection import validate as validate_standard_factors
+from app.divination.tools.divination_contracts import validate_document
+from app.divination.tools.divination_rpc import server_time
+from app.divination.tools.divination_safety import assess
+from app.divination.tools.divination_snapshot import build_snapshot
+from app.divination.tools.qimen_charts import city_coords, qimen_chart
+from app.divination.tools.qimen_duanyu import query
+from app.divination.tools.qimen_interpretations import assert_rule_compatibility, load_rule_table
+from app.divination.tools.qimen_jinhan_factors import project as project_jinhan_factors
+from app.divination.tools.qimen_projection import project as project_standard_factors
+from app.divination.tools.qimen_projection import validate as validate_standard_factors
 
 #
 # 专占规则是否接受 matter / yong_shen 由 qimen_rules.csv 的 focus_policy 声明。
@@ -113,13 +112,13 @@ def create(
     if effective_school == "jinhan_yujing":
         factors = project_jinhan_factors(chart)
         special = None
-        from qimen_judgment import empty as empty_judgments
+        from app.divination.tools.qimen_judgment import empty as empty_judgments
         judgments = empty_judgments()
     else:
         factors = project_standard_factors(chart)
         validate_standard_factors(factors)
         special = query(rule, factors) if rule is not None else None
-        from qimen_judgment import evaluate as evaluate_judgments
+        from app.divination.tools.qimen_judgment import evaluate as evaluate_judgments
         judgments = evaluate_judgments(factors)
     if (
         method_context.get("scope") != factors.get("scope")

@@ -6,8 +6,6 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-func nianGan(year int) Gan { return Gan(((year-4)%10+10)%10 + 1) }
-
 func hongLuanPos(zhi Zhi) int {
 	// 红鸾：卯(年支1)起子(0)，顺数至生年支
 	return (4 - int(zhi) + 12) % 12

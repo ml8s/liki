@@ -61,7 +61,7 @@ naming_check
 1. 新工具按该格式命名；
 2. 既有工具名不为了格式批量重命名；
 3. 只有当名字已经造成语义混淆或工具职责重划时才改名；
-4. Go registry 内部的 dotted name（如 `bazi.chart`）不是公开 MCP 契约；
+4. registry 注册名即公开 MCP 工具名（2026.10.22.0 起 legacy dotted name 已删除，无转换层）；
 5. skill 文档不硬编码工具名，LLM 通过 `tools/list` 自举。
 
 ## 3. 时间与位置参数
@@ -146,18 +146,12 @@ naming_check
 奇门方法参数应按 scope / school / quarter rule 建立分支，而不是平铺所有
 optional enum。
 
-naming 的两种五行策略也应互斥：
+naming_check 的两种用神来源已实现为 anyOf 分支（显式五行 / selected_yongshen），
+两分支 `additionalProperties: false` 天然互斥——混传时两支都拒绝，无 runtime-only 校验。
 
-```json
-{
-  "oneOf": [
-    { "strategy": "five_element" },
-    { "strategy": "selected_yongshen" }
-  ]
-}
-```
-
-runtime-only 校验不能替代 schema 可见性。
+runtime-only 校验不能替代 schema 可见性；仅当约束无法用分支表达时（如
+"perspective 仅在 matter=relationship 时合法"这类值级条件）才允许 validator
+兜底，且必须同时写进字段 description。
 
 ## 5. Schema 标准
 
@@ -171,19 +165,30 @@ Schema 由 typed DTO / Pydantic model 生成，并满足：
 6. date 使用 `YYYY-MM-DD`；
 7. array 必须有 `items`；
 8. object 输出尽量封闭；
-9. 互斥和条件依赖使用 JSON Schema `oneOf` / `anyOf` / `allOf` / `if-then`；
+9. 互斥和条件依赖优先用 JSON Schema `oneOf` / `anyOf` 判别分支表达
+    （2026.10.22.0：liuyao casting / period_query time_scope / naming_check
+    用神来源均已是判别联合）；发布 schema 禁止出现 `if` / `then` 条件子句；
 10. 输出 schema 必须暴露 object 和 array 根。
 11. MCP wire 输出不携带 `schema_version` / `contract_version`；契约形状由
     `tools/list` 的当前 schema 自描述。
+12. 全部工具标注 `readOnlyHint` + `idempotentHint`（本仓库工具均为确定性
+    纯计算；新工具若带副作用必须显式偏离并在评审说明）。
+13. 约束必须编译进 schema（enum / minimum / required / 分支）——只写在
+    validator 或 description 里的约束对 LLM 消费者不存在。
 
-当前实际差距：
+### 描述政策
 
-| 差距 | 处理方向 |
-| --- | --- |
-| counsel `chart/factors/context` 仍是宽 object | 改成 typed projection 或明确 `$defs` |
-| Pydantic optional 默认常变成 nullable | 区分 absent 与 null，能用 absent 就不用 null |
+tool description 与字段 description 只描述**当前领域语义与用法**：
 
-这些差距直接在现有契约源中修，不做版本层。
+1. 说明这个工具做什么、什么时候用、参数怎么给；
+2. 不写历史（"旧快照…"、"原顶层字段…"）——历史属于 CHANGELOG；
+3. 不复述 schema 已表达的机制（"全部变体必填 X"→ X 在分支 required 里，
+   description 讲它为何需要）；
+
+当前刻意约定（非差距）：counsel `factors` / qimen `factors` 输出保持 opaque
+object + SHA-256 digest —— 因子快照是链式防篡改载体，形状由 provenance 与
+digest 绑定表达；两侧 `ElementName` 枚举含空串是 bazi 调候"无候选"的既有
+wire 词汇（engine 与 counsel 对称、oracle 全覆盖，见 CHANGELOG 2026.10.15.0）。
 
 ## 6. 输出设计
 
@@ -282,7 +287,10 @@ tools/list -> name / description / inputSchema / outputSchema -> tools/call
 4. 互斥关系可见；
 5. 错误能指导下一次调用；
 6. snapshot 可以原样传给 query；
-7. 不需要读源码才知道调用方式。
+7. 不需要读源码才知道调用方式；
+8. `annotations.readOnlyHint` / `idempotentHint` 可见，客户端据此决定是否
+   需要用户确认；
+9. 错误文本带工具名前缀（如 `bazi_chart: ...`），LLM 可定位重试。
 
 允许使用 JSON Schema 标准 `examples`。  
 不添加自定义 `x-liki` 元数据；若需要提示，优先写进字段 description 或 tool
@@ -306,7 +314,11 @@ description。
 12. 是否引入了不必要的新概念；
 13. 是否会泄露隐私或不必要出生数据；
 14. 是否需要更新 skill 文档语义而非硬编码方法名；
-15. 是否补了 legal / illegal / equivalence tests。
+15. 是否补了 legal / illegal / equivalence tests；
+16. 同名字段跨工具的类型与语义是否一致（一词一义、一义一词）；
+17. 上游输出能否原样作为下游输入（链式类型一致，消费者用封闭模型接收）；
+18. 描述是否只讲现状与用法（无历史、无 schema 机制复述）；
+19. 新约束是否编译进了 schema，而不是只活在 validator 或描述里。
 
 ## 11. 实施方式
 
@@ -322,12 +334,12 @@ description。
 7. 一次性提交。
 ```
 
-优先顺序：
+优先顺序（2026.10.22.0 起前四项已完成：chart 强类型联合、naming 用神来源
+anyOf 互斥、query 直接消费 snapshot、旧字段与兼容别名清理）：
 
-1. 给 counsel chart/factors/context 建 typed projection；
-2. 收紧 naming 策略互斥；
-3. 让 query 输入直接消费完整 snapshot；
-4. 清理不再需要的旧字段，不新增兼容别名。
+1. 新工具先写判别联合与封闭 DTO，再写 handler；
+2. 出现"约束只在 validator/description 里"即视为违规，当场编译进 schema；
+3. 发现链式调用传超集/子集不匹配时，修消费者形状而不是重开 schema。
 
 ## 12. 结论
 

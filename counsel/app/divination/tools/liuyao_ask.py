@@ -1,12 +1,11 @@
 """六爻 ask：校验 immutable snapshot 并生成结构化 answer。"""
-from __future__ import annotations
 
-from divination_contracts import validate_document
-from divination_hashing import message_digest
-from divination_safety import assess
-from divination_snapshot import validate_snapshot
-from liuyao_answer_core import build as build_core
-from liuyao_answer_core import validate_core
+from app.divination.tools.divination_contracts import validate_document
+from app.divination.tools.divination_hashing import message_digest
+from app.divination.tools.divination_safety import assess
+from app.divination.tools.divination_snapshot import validate_snapshot
+from app.divination.tools.liuyao_answer_core import build as build_core
+from app.divination.tools.liuyao_answer_core import validate_core
 
 
 def ask(snapshot: dict, *, message: str) -> dict:

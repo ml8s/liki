@@ -1,12 +1,11 @@
-"""本命因子算子与 pan 基础上下文聚合。"""
-from __future__ import annotations
+"""本命因子算子与 natal_chart 基础上下文聚合。"""
 
 from typing import Optional
 
-from errors import FactorEvaluateError
-from factor_constants import load_constants
-from factor_context import FactorContext
-from factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
+from app.natal.tools.errors import FactorEvaluateError
+from app.natal.tools.factor_constants import load_constants
+from app.natal.tools.factor_context import FactorContext
+from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
 
 # 本命算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _OP_NAMES = frozenset({
@@ -18,7 +17,7 @@ _OP_NAMES = frozenset({
 })
 
 
-def _ten_god_states_from_pan(chart: dict) -> dict:
+def _ten_god_states_from_natal_chart(chart: dict) -> dict:
     """直读 engine 十神状态，按十神名建立机械索引。"""
     full = chart.get("full", {}) or {}
     return {
@@ -54,7 +53,7 @@ def _ten_god_state(base, ten: str) -> Optional[dict]:
     }
 
 
-def _element_states_from_pan(chart: dict) -> dict:
+def _element_states_from_natal_chart(chart: dict) -> dict:
     """直读 engine 五行状态，按五行名建立机械索引。"""
     full = chart.get("full", {}) or {}
     return {
@@ -186,7 +185,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op == "直读":
         path, expect = args[0], args[1]
         if path == "gender":
-            # gender 是求值上下文；mock/单元测试可只传 gender 参数而无完整 pan。
+            # gender 是求值上下文；mock/单元测试可只传 gender 参数而无完整 natal_chart。
             val = gender
             if expect == FACTOR_WILDCARD:
                 return val if val else 0
@@ -485,10 +484,10 @@ def _atomic_facts(chart: dict) -> dict:
     full = chart.get("full", {}) or {}
     facts = full.get("atomic_facts")
     return facts if isinstance(facts, dict) else {}
-def _base_ctx_from_pan(chart: dict) -> dict:
-    """从 pan 直接构建算子求值所需的基础上下文（从 pan 直读，无中间层）。
+def _base_ctx_from_natal_chart(chart: dict) -> dict:
+    """从 natal_chart 直接构建算子求值所需的基础上下文（从 natal_chart 直读，无中间层）。
 
-    只读 pan、只做机械索引且不修改调用方 pan；十神/五行状态、日干/日支/大运/用神从 pan 取。
+    只读 natal_chart、只做机械索引且不修改调用方 natal_chart；十神/五行状态、日干/日支/大运/用神从 natal_chart 取。
     输入为基础求值上下文（含 ten_god_states 等聚合键）时原样返回。
     """
     if isinstance(chart, FactorContext):
@@ -523,8 +522,8 @@ def _base_ctx_from_pan(chart: dict) -> dict:
         selected_yongshen = {}
     atomic = _atomic_facts(chart)
     ctx = {
-        "ten_god_states": _ten_god_states_from_pan(chart),
-        "element_states": _element_states_from_pan(chart),
+        "ten_god_states": _ten_god_states_from_natal_chart(chart),
+        "element_states": _element_states_from_natal_chart(chart),
         "wuxing": {
             "count": fu_yi.get("wuxing_count", {}) or {},
         },
@@ -547,9 +546,9 @@ def _base_ctx_from_pan(chart: dict) -> dict:
 
 def _op(op: str, args, gender: str, chart: dict,
         current_year: int = 0) -> "int | str":
-    """执行本命算子；base context 由 pan/FactorContext 内部构建。"""
+    """执行本命算子；base context 由 natal_chart/FactorContext 内部构建。"""
     return _eval_natal_op(
-        op, args, _base_ctx_from_pan(chart) or {}, gender, chart, current_year
+        op, args, _base_ctx_from_natal_chart(chart) or {}, gender, chart, current_year
     )
 
 

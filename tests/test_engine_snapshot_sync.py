@@ -35,7 +35,7 @@ def test_projection_labels_are_unique_and_generated_from_mappings():
     bazi_labels += list(contract["八字字段映射"]["chart"].values())
     ziwei_labels = (
         list(contract["紫微字段映射"]["ziwei"].values())
-        + list(contract["紫微字段映射"]["pan"].values())
+        + list(contract["紫微字段映射"]["natal_chart"].values())
     )
     assert bazi_labels == contract["八字"]
     assert ziwei_labels == contract["紫微"]

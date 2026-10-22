@@ -146,6 +146,29 @@ func TestQuarterCatalogIsClosedToTwoMethods(t *testing.T) {
 	}
 }
 
+func TestTenMinuteQuarterIndexBoundaries(t *testing.T) {
+	// 十分钟分刻（ten_minute_sanyuan）的分钟级边界：直接测生产统一入口。
+	cases := []struct {
+		hour, minute int
+		index        int
+	}{
+		{23, 0, 1},
+		{23, 9, 1},
+		{23, 10, 2},
+		{0, 0, 7},
+		{0, 50, 12},
+		{0, 59, 12},
+		{1, 0, 1},
+	}
+	rule := quarterRules[QuarterTenMinuteSanYuan]
+	for _, tc := range cases {
+		when := time.Date(2026, 9, 7, tc.hour, tc.minute, 0, 0, time.FixedZone("CST", 8*3600))
+		if got := quarterIndexFor(when, rule, 1); got != tc.index {
+			t.Fatalf("quarterIndexFor(%02d:%02d) = %d, want %d", tc.hour, tc.minute, got, tc.index)
+		}
+	}
+}
+
 func TestTwelveMinuteTenDivisionQuarterBoundaries(t *testing.T) {
 	cases := []struct {
 		hour, minute int
@@ -163,8 +186,8 @@ func TestTwelveMinuteTenDivisionQuarterBoundaries(t *testing.T) {
 	}
 	for _, tc := range cases {
 		when := time.Date(2026, 9, 7, tc.hour, tc.minute, 0, 0, time.FixedZone("CST", 8*3600))
-		if got := twelveMinuteQuarterIndex(when); got != tc.index {
-			t.Fatalf("twelveMinuteQuarterIndex(%02d:%02d) = %d, want %d", tc.hour, tc.minute, got, tc.index)
+		if got := twelveMinuteQuarterIndexWithBoundary(when, "late_zi"); got != tc.index {
+			t.Fatalf("twelveMinuteQuarterIndexWithBoundary(%02d:%02d) = %d, want %d", tc.hour, tc.minute, got, tc.index)
 		}
 	}
 }
@@ -204,11 +227,11 @@ func TestTwelveMinuteTenDivisionDunSourceOptions(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if chart.Pan.YinDun != want.yin || chart.Pan.Jushu != want.ju ||
+		if chart.Board.YinDun != want.yin || chart.Board.Jushu != want.ju ||
 			chart.Method.Quarter.DunSource != want.dun ||
 			chart.Method.Quarter.HourBoundary != want.boundary {
 			t.Fatalf("options %s/%s = %d/%v/%+v", want.dun, want.boundary,
-				chart.Pan.Jushu, chart.Pan.YinDun, chart.Method.Quarter)
+				chart.Board.Jushu, chart.Board.YinDun, chart.Method.Quarter)
 		}
 	}
 }
@@ -266,27 +289,6 @@ func parsePillarForTest(value string) (ganzhi.Zhu, error) {
 	return ganzhi.Zhu{Gan: gan, Zhi: zhi}, nil
 }
 
-func TestQuarterBoundaries(t *testing.T) {
-	cases := []struct {
-		hour, minute int
-		index        int
-	}{
-		{23, 0, 1},
-		{23, 9, 1},
-		{23, 10, 2},
-		{0, 0, 7},
-		{0, 50, 12},
-		{0, 59, 12},
-		{1, 0, 1},
-		{1, 119, 12},
-	}
-	for _, tc := range cases {
-		if got := quarterIndex(time.Date(2026, 9, 7, tc.hour, tc.minute, 0, 0, time.FixedZone("CST", 8*3600))); got != tc.index {
-			t.Fatalf("quarterIndex(%02d:%02d) = %d, want %d", tc.hour, tc.minute, got, tc.index)
-		}
-	}
-}
-
 func TestTenMinuteQuarterGoldenVectors(t *testing.T) {
 	var fixture quarterGoldenFixture
 	data, err := os.ReadFile("testdata/quarter_golden.json")
@@ -311,7 +313,7 @@ func TestTenMinuteQuarterGoldenVectors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got := ganzhi.GanName(chart.Pan.HourGan) + ganzhi.ZhiName(chart.Pan.HourZhi); got != want.Hour {
+			if got := ganzhi.GanName(chart.Board.HourGan) + ganzhi.ZhiName(chart.Board.HourZhi); got != want.Hour {
 				t.Fatalf("hour pillar = %s, want %s", got, want.Hour)
 			}
 			if got := chart.Method.LeadPillar.Name; got != want.Lead {
@@ -321,18 +323,18 @@ func TestTenMinuteQuarterGoldenVectors(t *testing.T) {
 				chart.Method.Quarter.MinutesPerQuarter != 10 || chart.Method.Quarter.LeadPillarMode != "quarter" {
 				t.Fatalf("quarter metadata = %+v, want index %d/10min", chart.Method.Quarter, want.QuarterIndex)
 			}
-			if chart.Pan.Jushu != want.Ju || chart.Pan.YinDun != want.YinDun || chart.Method.Yuan != want.Yuan {
+			if chart.Board.Jushu != want.Ju || chart.Board.YinDun != want.YinDun || chart.Method.Yuan != want.Yuan {
 				t.Fatalf("dingju = %d/%v/%s, want %d/%v/%s",
-					chart.Pan.Jushu, chart.Pan.YinDun, chart.Method.Yuan,
+					chart.Board.Jushu, chart.Board.YinDun, chart.Method.Yuan,
 					want.Ju, want.YinDun, want.Yuan)
 			}
 			if got := chart.Method.LeadXunShou.Name; got != want.XunShou {
 				t.Fatalf("lead xun shou = %s, want %s", got, want.XunShou)
 			}
-			if got := chart.Pan.DutyStar.String(); got != want.DutyStar {
+			if got := chart.Board.DutyStar.String(); got != want.DutyStar {
 				t.Fatalf("duty star = %s, want %s", got, want.DutyStar)
 			}
-			if got := chart.Pan.DutyDoor.String(); got != want.DutyDoor {
+			if got := chart.Board.DutyDoor.String(); got != want.DutyDoor {
 				t.Fatalf("duty door = %s, want %s", got, want.DutyDoor)
 			}
 		})
@@ -365,8 +367,8 @@ func TestTwelveMinuteTenDivisionQuarterGoldenVectors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if base.Pan.Jushu != want.BaseJu {
-				t.Fatalf("base hour ju = %d, want %d", base.Pan.Jushu, want.BaseJu)
+			if base.Board.Jushu != want.BaseJu {
+				t.Fatalf("base hour ju = %d, want %d", base.Board.Jushu, want.BaseJu)
 			}
 			chart, err := ComputeChartWithMethod(time.Time(when), time.Time(when), Method{
 				Scope: ScopeQuarter, School: SchoolZhuanPan,
@@ -376,7 +378,7 @@ func TestTwelveMinuteTenDivisionQuarterGoldenVectors(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got := ganzhi.GanName(chart.Pan.HourGan) + ganzhi.ZhiName(chart.Pan.HourZhi); got != want.Hour {
+			if got := ganzhi.GanName(chart.Board.HourGan) + ganzhi.ZhiName(chart.Board.HourZhi); got != want.Hour {
 				t.Fatalf("hour pillar = %s, want %s", got, want.Hour)
 			}
 			if chart.Method.Quarter == nil || chart.Method.Quarter.Index != want.QuarterIndex ||
@@ -389,9 +391,9 @@ func TestTwelveMinuteTenDivisionQuarterGoldenVectors(t *testing.T) {
 			if got := chart.Method.LeadPillar.Name; got != want.Hour || got != want.Lead {
 				t.Fatalf("lead = %s, want 十二分钟十分局 hour anchor %s", got, want.Lead)
 			}
-			if chart.Pan.Jushu != want.Ju || chart.Pan.YinDun != want.YinDun || chart.Method.Yuan != want.Yuan {
+			if chart.Board.Jushu != want.Ju || chart.Board.YinDun != want.YinDun || chart.Method.Yuan != want.Yuan {
 				t.Fatalf("dingju = %d/%v/%s, want %d/%v/%s",
-					chart.Pan.Jushu, chart.Pan.YinDun, chart.Method.Yuan,
+					chart.Board.Jushu, chart.Board.YinDun, chart.Method.Yuan,
 					want.Ju, want.YinDun, want.Yuan)
 			}
 		})

@@ -1,20 +1,15 @@
 """正交化因子解析一致性测试。
 
 组合盘（analysis 输入：engine 排盘 chart）产出的因子必须与完整盘
-（full_paipan，旧分析层）同侧因子完全一致——正交化只改输入来源，
+（build_natal_chart，旧分析层）同侧因子完全一致——正交化只改输入来源，
 不改因子求值逻辑。覆盖本命因子与流年因子、八字与紫微、多样本。
 """
-from __future__ import annotations
 
 import json  # noqa: E402
 import os
-import sys  # noqa: E402
 import urllib.request  # noqa: E402
-from pathlib import Path  # noqa: E402
 
 import pytest  # noqa: E402
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"))
 
 SAMPLES = [
     ("1990-05-20T03:49:00Z", "Asia/Shanghai", "male", 116.4),
@@ -46,12 +41,12 @@ def _engine_call(domain, name, args):
 
 
 def _full_pan(instant, timezone, gender, longitude):
-    from paipan import full_paipan
-    from yongshen import resolve_yongshen
+    from app.natal.tools.charts import build_natal_chart
+    from app.natal.tools.yongshen import resolve_yongshen
 
-    pan = full_paipan(instant, timezone, gender, longitude=longitude)
-    pan["_selected_yongshen"] = resolve_yongshen(pan["full"])
-    return pan
+    natal_chart = build_natal_chart(instant, timezone, gender, longitude=longitude)
+    natal_chart["_selected_yongshen"] = resolve_yongshen(natal_chart["full"])
+    return natal_chart
 
 
 def _bazi_combo_chart(instant, timezone, gender, longitude):
@@ -73,19 +68,18 @@ def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
 
 
 @pytest.mark.parametrize("sample", SAMPLES)
-def test_natal_factors_match_full_paipan(sample):
-    """本命因子：组合盘（compute_factors）== 完整盘（full_paipan）同侧。"""
-    from factors import evaluate_factors
-
-    from counsel import compute_factors
+def test_natal_factors_match_build_natal_chart(sample):
+    """本命因子：组合盘（compute_factors）== 完整盘（build_natal_chart）同侧。"""
+    from app.natal.tools.counsel import compute_factors
+    from app.natal.tools.factors import evaluate_factors
 
     instant, timezone, gender, longitude = sample
-    pan = _full_pan(instant, timezone, gender, longitude)
+    natal_chart = _full_pan(instant, timezone, gender, longitude)
     for side, shushi, chart in (
         ("bazi", "bazi", _bazi_combo_chart(instant, timezone, gender, longitude)),
         ("ziwei", "ziwei", _ziwei_combo_chart(instant, timezone, gender, longitude)),
     ):
-        full = evaluate_factors(gender, pan, shushi=shushi)
+        full = evaluate_factors(gender, natal_chart, shushi=shushi)
         combo = dict(compute_factors(chart)["factors"])
         # 八字快照额外携带用神裁决元素；本测试只比较真值表因子。
         combo.pop("selected_yongshen", None)
@@ -96,18 +90,20 @@ def test_natal_factors_match_full_paipan(sample):
 
 
 @pytest.mark.parametrize("sample", SAMPLES)
-def test_liunian_factors_match_full_paipan(sample):
+def test_liunian_factors_match_build_natal_chart(sample):
     """流年因子：组合盘 == 完整盘同侧（八字与紫微）。"""
-    from duanyu import prepare_natal_context
-    from factors import evaluate_liunian_snap_from_pan
-    from paipan import _bazi_liunian, _ziwei_liunian, call
+    from app.natal.tools.charts import _bazi_liunian, _ziwei_liunian, call
+    from app.natal.tools.duanyu import prepare_natal_context
+    from app.natal.tools.factors import evaluate_liunian_snap_from_natal_chart
 
     instant, timezone, gender, longitude = sample
-    pan = _full_pan(instant, timezone, gender, longitude)
-    nc = prepare_natal_context(pan)
-    full_snap = evaluate_liunian_snap_from_pan(
-        pan,
-        {"bazi": _bazi_liunian(pan["chart"], 2030), "ziwei": _ziwei_liunian(pan["ziwei"], 2030)},
+    natal_chart = _full_pan(instant, timezone, gender, longitude)
+    nc = prepare_natal_context(natal_chart)
+    full_snap = evaluate_liunian_snap_from_natal_chart(
+        natal_chart,
+        # flow 工具收 ziwei.chart 契约对象；natal_chart["ziwei"]（fullchart）供因子层。
+        {"bazi": _bazi_liunian(natal_chart["chart"], 2030),
+         "ziwei": _ziwei_liunian(natal_chart["ziwei_chart"], 2030)},
         year=2030, natal_context=nc,
     )
     # 八字组合盘
@@ -115,7 +111,7 @@ def test_liunian_factors_match_full_paipan(sample):
     full = call("bazi.fullchart", {"chart": bc})["data"]
     comp_bazi = {"chart": bc, "full": full, "gender": gender}
     nc_b = prepare_natal_context(comp_bazi)
-    snap_b = evaluate_liunian_snap_from_pan(
+    snap_b = evaluate_liunian_snap_from_natal_chart(
         comp_bazi, {"bazi": _bazi_liunian(comp_bazi["chart"], 2030), "ziwei": {}},
         year=2030, natal_context=nc_b,
     )
@@ -126,11 +122,12 @@ def test_liunian_factors_match_full_paipan(sample):
     # 紫微组合盘
     zwc = _ziwei_combo_chart(instant, timezone, gender, longitude)
     zw = call("ziwei.fullchart", {"chart": zwc})["data"]
-    daxian = call("ziwei.daxian", {"chart": zw})["data"]
+    # daxian 收 ziwei.chart 契约对象；fullchart 增量字段供因子层。
+    daxian = call("ziwei.daxian", {"chart": zwc})["data"]
     comp_zw = {"chart": zwc, "full": zw, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
     nc_z = prepare_natal_context(comp_zw)
-    snap_z = evaluate_liunian_snap_from_pan(
-        comp_zw, {"bazi": {}, "ziwei": _ziwei_liunian(comp_zw["ziwei"], 2030)},
+    snap_z = evaluate_liunian_snap_from_natal_chart(
+        comp_zw, {"bazi": {}, "ziwei": _ziwei_liunian(comp_zw["chart"], 2030)},
         year=2030, natal_context=nc_z,
     )
     diff, missing = _diff_fields(full_snap["紫微"], snap_z["紫微"])

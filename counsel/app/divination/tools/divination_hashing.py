@@ -1,6 +1,5 @@
 """问卦领域通用 canonical JSON 与摘要工具。"""
 
-from __future__ import annotations
 
 import hashlib
 import json

@@ -4,12 +4,12 @@ import csv
 from pathlib import Path
 
 import _helpers  # noqa: F401
-import duanyu
-import factors
-import operators_liunian
-import operators_natal
-from factor_tables import load_factor_rows, load_liunian_rows
-from natal_projection import load_contract
+import app.natal.tools.duanyu as duanyu
+import app.natal.tools.factors as factors
+import app.natal.tools.operators_liunian as operators_liunian
+import app.natal.tools.operators_natal as operators_natal
+from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
+from app.natal.tools.natal_projection import load_contract
 
 
 def test_financial_star_damages_resource_requires_real_target():
@@ -107,15 +107,15 @@ def test_factor_model_preserves_assertion_unconsumed_domain_fact():
 
 def test_snapshot_side_request_is_rejected_for_assertion_only_side():
     import pytest
-    from errors import FactorEvaluateError
+    from app.natal.tools.errors import FactorEvaluateError
 
     with pytest.raises(FactorEvaluateError, match="sides"):
-        factors.evaluate_snap_from_pan({"gender": "male"}, sides={"common"})
+        factors.evaluate_snap_from_natal_chart({"gender": "male"}, sides={"common"})
 
 
 def test_factor_rows_require_declared_side(tmp_path):
     import pytest
-    from factor_tables import FactorTableError, load_long_rows
+    from app.natal.tools.factor_tables import FactorTableError, load_long_rows
 
     path = tmp_path / "factors.csv"
     path.write_text(
@@ -196,13 +196,13 @@ def test_current_daxian_palace_is_mechanical():
         {"gong": "命宫", "start_year": 1990, "end_year": 1999},
         {"gong": "兄弟", "start_year": 2000, "end_year": 2009},
     ]}
-    from operators_natal import _op
+    from app.natal.tools.operators_natal import _op
     assert _op("大限宫位", ["当前", "任意"], "male", chart, 2005) == "兄弟"
     assert _op("大限宫位", ["当前", "夫妻"], "male", chart, 2005) == 0
 
 
 def test_current_daxian_requires_explicit_or_server_year():
-    from operators_natal import _op
+    from app.natal.tools.operators_natal import _op
     chart = {"ziwei_daxian": _helpers.valid_daxian()}
     assert _op("大限宫位", ["当前", "任意"], "male", chart, 0) == ""
     assert _op("大限宫位", ["当前", "命宫"], "male", chart, 0) == 0
@@ -297,7 +297,7 @@ def test_required_flow_factors_use_assertion_conditions():
 
 
 def test_dayun_spouse_star_uses_evaluation_gender():
-    from operators_natal import _op
+    from app.natal.tools.operators_natal import _op
     base = {
         "ten_god_states": {},
         "dayun_steps": [

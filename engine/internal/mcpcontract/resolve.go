@@ -92,23 +92,23 @@ type TianwenRangeForm struct {
 func tianwenResolveFormsSchema() (json.RawMessage, error) {
 	builders := []func() (json.RawMessage, error){
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenUTCForm](false, nil)
+			_, raw, err := inputSchemaFor[TianwenUTCForm]()
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenDateTimeForm](false, nil)
+			_, raw, err := inputSchemaFor[TianwenDateTimeForm]()
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenLunarForm](false, nil)
+			_, raw, err := inputSchemaFor[TianwenLunarForm]()
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenShichenForm](false, nil)
+			_, raw, err := inputSchemaFor[TianwenShichenForm]()
 			return raw, err
 		},
 		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenRangeForm](false, nil)
+			_, raw, err := inputSchemaFor[TianwenRangeForm]()
 			return raw, err
 		},
 	}

@@ -1,22 +1,14 @@
 """Counsel domain MCP server construction and tool registration."""
-from __future__ import annotations
 
 import pathlib
-import sys
 from typing import Any
 
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 
 APP_DIR = pathlib.Path(__file__).resolve().parent
-NATAL_DIR = APP_DIR / "natal" / "tools"
-NAMING_DIR = APP_DIR / "naming"
-DIVINATION_DIR = APP_DIR / "divination" / "tools"
 
-# natal 工具模块同目录 import（from duanyu / from paipan …），进程内调用需目录在 sys.path。
-sys.path.insert(0, str(NATAL_DIR))
-sys.path.insert(0, str(NAMING_DIR))
-sys.path.insert(0, str(DIVINATION_DIR))
+# 工具层为 app.* 绝对导入包（无 sys.path 注入）。
 
 from app.contracts import COUNSEL_TOOLS  # noqa: E402
 from app.contracts import VERSION as RUNTIME_VERSION  # noqa: E402
@@ -65,33 +57,32 @@ def _add_natal_tools(server: MCPServer, domain: str | None = None) -> None:
     for name in names:
         contract = _CONTRACTS[name]
 
-        def invoke_natal(arguments: dict, _name=name):
+        def invoke_natal(_name=name, **a):
+            """关键字直通：领域路由是唯一附加逻辑，不做 dict 二次拆包。"""
             if _name == "bazi_yongshen":
-                _require_domain("bazi", arguments["chart"])
-                return counsel.bazi_yongshen(arguments["chart"])
+                _require_domain("bazi", a["chart"])
+                return counsel.bazi_yongshen(chart=a["chart"])
             if _name == "compute_factors":
-                side = domain or _chart_domain(arguments["chart"])
-                _require_domain(side, arguments["chart"])
-                return counsel.compute_factors(arguments["chart"])
+                side = domain or _chart_domain(a["chart"])
+                _require_domain(side, a["chart"])
+                return counsel.compute_factors(chart=a["chart"])
             if _name == "natal_query":
-                side = domain or _factor_side(arguments)
+                side = domain or _factor_side(a)
                 return counsel.natal_query(
-                    arguments["factors"],
-                    arguments["topics"],
-                    arguments["factors_digest"],
-                    context=arguments.get("context"),
+                    factors=a["factors"],
+                    topics=a["topics"],
+                    factors_digest=a["factors_digest"],
                     side=side,
                 )
-            side = domain or _factor_side(arguments)
-            _require_domain(side, arguments["chart"])
+            side = domain or _factor_side(a)
+            _require_domain(side, a["chart"])
             return counsel.period_query(
-                arguments["factors"],
-                arguments["factors_digest"],
-                arguments["time_scope"],
-                arguments["topics"],
-                arguments["chart"],
+                factors=a["factors"],
+                factors_digest=a["factors_digest"],
+                time_scope=a["time_scope"],
+                topics=a["topics"],
+                chart=a["chart"],
                 side=side,
-                timezone=arguments.get("timezone") or "",
             )
 
         _add_contract_tool(server, contract, invoke_natal)
@@ -150,18 +141,15 @@ def _add_divination_tools(server: MCPServer, domain: str) -> None:
     query 基于 snapshot 追问出断语。
     """
     if domain == "liuyao":
-        from liuyao_ask import ask as query_ask
-        from liuyao_snapshot import create as snapshot_create
+        from app.divination.tools.liuyao_ask import ask as query_ask
+        from app.divination.tools.liuyao_snapshot import create as snapshot_create
     else:
-        from qimen_ask import ask as query_ask
-        from qimen_snapshot import create as snapshot_create
+        from app.divination.tools.qimen_ask import ask as query_ask
+        from app.divination.tools.qimen_snapshot import create as snapshot_create
     for suffix, impl in (("snapshot", snapshot_create), ("query", query_ask)):
         contract = _CONTRACTS[f"{domain}_{suffix}"]
-        _add_contract_tool(
-            server,
-            contract,
-            lambda arguments, _impl=impl: _impl(**arguments),
-        )
+        # create / ask 本身就是 (**kwargs) 类型化纯函数，直通注册。
+        _add_contract_tool(server, contract, impl)
 
 
 def _create_divination_server(domain: str) -> MCPServer:
@@ -181,7 +169,7 @@ def _create_divination_server(domain: str) -> MCPServer:
 def _naming_check(given_names, yongshen=None, xishen=None, jishen=None,
                   selected_yongshen=None):
     """评估候选名；selected_yongshen 是唯一八字用神来源。"""
-    from naming import evaluate_names
+    from app.naming.naming import evaluate_names
 
     provenance: dict[str, Any] | None = None
     if selected_yongshen is not None:
@@ -232,24 +220,24 @@ def _naming_check(given_names, yongshen=None, xishen=None, jishen=None,
 
 def _add_naming_tools(server: MCPServer) -> None:
     """起名（naming）：姓氏匹配、取字、单字查询、组名与候选评估（字库与音韵在 counsel 本地）。"""
-    from naming import compose_names, lookup_char, match_surnames, pick_chars
+    from app.naming.naming import compose_names, lookup_char, match_surnames, pick_chars
+
+    def _pick(first, second=None):
+        # 契约 {first, second?} → 实现 pick_chars(wuxing1, wuxing2, count)。
+        return pick_chars(first, second or "", count=2 if second else 1)
+
+    def _compose(first, second=None, max_names=100):
+        return compose_names(first, second or [], max_names)
 
     naming_fns = {
         "naming_surname": match_surnames,
-        "naming_pick": pick_chars,
+        "naming_pick": _pick,
         "naming_char": lookup_char,
-        "naming_compose": compose_names,
+        "naming_compose": _compose,
         "naming_check": _naming_check,
     }
-    for name in naming_fns:
-
-        def invoke_naming(arguments: dict, _name=name):
-            if _name == "naming_compose":
-                # compose_names 的 second 是必填位置参数，而契约里可省略表示单名。
-                arguments = {"second": [], **arguments}
-            return naming_fns[_name](**arguments)
-
-        _add_contract_tool(server, _CONTRACTS[name], invoke_naming)
+    for name, impl in naming_fns.items():
+        _add_contract_tool(server, _CONTRACTS[name], impl)
 
 
 def _add_liuyao_tools(server: MCPServer) -> None:

@@ -9,7 +9,6 @@
 - gong_has_xing_ji_xiong：值使门落宫内有指定吉凶的星
 - gong_has_pattern：值使门落宫命中指定格局
 """
-from __future__ import annotations
 
 import json
 from functools import lru_cache

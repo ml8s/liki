@@ -91,7 +91,7 @@
       "birth_is_leap": "原始闰月",
       "gender": "性别"
     },
-    "pan": {
+    "natal_chart": {
       "ziwei_daxian": "大限"
     }
   },

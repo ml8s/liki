@@ -2,16 +2,14 @@
 
 本文件只验证规则系统是否按当前契约执行；不声称证明每条命理断语正确。
 """
-from __future__ import annotations
 
 import json
 from pathlib import Path
 from unittest import mock
 
-import _helpers  # noqa: F401 —— 注入 unified Liki bazi tools 路径
-import duanyu
+import app.natal.tools.duanyu as duanyu
 import pytest
-from duanyu import (
+from app.natal.tools.duanyu import (
     SCENE_ALIASES,
     YEARLY_RULES,
     default_scene_domains,
@@ -20,8 +18,8 @@ from duanyu import (
     match_table,
     resolve_rules,
 )
-from errors import AssertionRuleError, FactorEvaluateError
-from factors import evaluate_factors, evaluate_operator
+from app.natal.tools.errors import AssertionRuleError, FactorEvaluateError
+from app.natal.tools.factors import evaluate_factors, evaluate_operator
 
 ROOT = Path(__file__).resolve().parents[1]
 FUNCTIONAL = ROOT / "tests" / "functional"
@@ -223,7 +221,7 @@ def test_three_xing_trace_preserves_exact_group_factor() -> None:
 
 
 def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
-    pan = {"gender": "male"}
+    natal_chart = {"gender": "male"}
     rule = "大运"
     query_tables = list(duanyu.load_rule_tables(rule).values())
     required_factors = {
@@ -241,10 +239,10 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
         "紫微": [{"id": "zs_301", "领域": "事业"}],
     }
 
-    with mock.patch.object(duanyu, "validate_natal_pan"), \
+    with mock.patch.object(duanyu, "validate_natal_chart"), \
          mock.patch.object(
              duanyu,
-             "evaluate_snap_from_pan",
+             "evaluate_snap_from_natal_chart",
              return_value={
                  "八字": {factor: 0 for factor in required_factors},
                  "紫微": {factor: 0 for factor in required_factors},
@@ -252,7 +250,7 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
              },
          ), \
          mock.patch.object(duanyu, "match_rule", return_value=matched):
-        result = duanyu.query(rule, pan, year=2020, domains=["财运"])
+        result = duanyu.query(rule, natal_chart, year=2020, domains=["财运"])
 
     assert [row["id"] for row in result["八字"]] == ["cai_110"]
     assert result["紫微"] == []
@@ -260,12 +258,12 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
 
 
 def test_query_domain_filter_rejects_unknown_life_domain() -> None:
-    pan = {"gender": "male"}
-    with mock.patch.object(duanyu, "validate_natal_pan"), \
-         mock.patch.object(duanyu, "evaluate_snap_from_pan"), \
+    natal_chart = {"gender": "male"}
+    with mock.patch.object(duanyu, "validate_natal_chart"), \
+         mock.patch.object(duanyu, "evaluate_snap_from_natal_chart"), \
          mock.patch.object(duanyu, "match_rule") as match_rule:
         with pytest.raises(ValueError, match="domains 含无效领域"):
-            duanyu.query("大运", pan, year=2020, domains=["不存在"])
+            duanyu.query("大运", natal_chart, year=2020, domains=["不存在"])
 
     match_rule.assert_not_called()
 
@@ -289,10 +287,10 @@ def test_filter_domains_keeps_only_side_keys() -> None:
 def test_query_missing_required_factor_fails_closed() -> None:
     """公共 query 边界不得把缺失因子静默当作 0。"""
     rule = "十神"
-    with mock.patch.object(duanyu, "validate_natal_pan"), \
+    with mock.patch.object(duanyu, "validate_natal_chart"), \
          mock.patch.object(
              duanyu,
-             "evaluate_snap_from_pan",
+             "evaluate_snap_from_natal_chart",
              return_value={"八字": {}, "紫微": {}, "context": {}},
          ):
         with pytest.raises(AssertionRuleError, match="断语因子缺失"):

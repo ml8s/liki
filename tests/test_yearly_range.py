@@ -2,14 +2,14 @@
 from unittest import mock
 
 import _helpers  # noqa: F401 —— 注入 tools 路径
-import duanyu
+import app.natal.tools.duanyu as duanyu
 import pytest
-from pan_integrity import with_natal_digest
-from yearly_eval import query_year_rules
+from app.natal.tools.chart_integrity import with_natal_chart_digest
+from app.natal.tools.yearly_eval import query_year_rules
 
 
 def _valid_mock_pan() -> dict:
-    return with_natal_digest({
+    return with_natal_chart_digest({
         "instant": "1990-05-20T04:00:00Z",
         "timezone": "Asia/Shanghai",
         "gregorian_time": "1990-05-20T12:00:00+08:00",
@@ -28,6 +28,7 @@ def _valid_mock_pan() -> dict:
         },
         "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},
         "ziwei": _helpers.mock_ziwei(),
+        "ziwei_chart": {},
         "ziwei_daxian": _helpers.valid_daxian(),
     })
 
@@ -42,10 +43,10 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
     liunian_pan = {"bazi": {"nian_gan": "丙"}, "ziwei": {}}
 
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
-         mock.patch("paipan.liunian", return_value=liunian_pan) as liunian_mock, \
+         mock.patch("app.natal.tools.charts.liunian", return_value=liunian_pan) as liunian_mock, \
          mock.patch.object(
              duanyu,
-             "evaluate_liunian_snap_from_pan",
+             "evaluate_liunian_snap_from_natal_chart",
              return_value=flow_snapshot,
          ) as make_snapshot, \
          mock.patch.object(
@@ -98,7 +99,7 @@ def test_detail_year_rules_do_not_restore_snapshot_evidence() -> None:
 
 def test_yearly_range_rejects_empty_or_reversed_range() -> None:
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")):
-        with mock.patch.object(duanyu, "evaluate_liunian_snap_from_pan") as make_snapshot:
+        with mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot:
             with mock.patch.object(duanyu, "query_yearly"):
                 with pytest.raises(ValueError, match="rules 不能为空"):
                     duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=None)
@@ -117,7 +118,7 @@ def test_yearly_range_rejects_empty_or_reversed_range() -> None:
 
 def test_yearly_range_rejects_oversized_span() -> None:
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
-         mock.patch.object(duanyu, "evaluate_liunian_snap_from_pan") as make_snapshot, \
+         mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
         with pytest.raises(ValueError, match="单次最多 120 年"):
             duanyu.yearly_range(_valid_mock_pan(), 1900, 2100, rules=["yingqi"])
@@ -127,7 +128,7 @@ def test_yearly_range_rejects_oversized_span() -> None:
 
 def test_yearly_range_rejects_incomplete_pan() -> None:
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
-         mock.patch.object(duanyu, "evaluate_liunian_snap_from_pan") as make_snapshot, \
+         mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
         with pytest.raises(ValueError, match="完整本命盘"):
             duanyu.yearly_range({"gender": "male"}, 2026, 2026, rules=["yingqi"])
@@ -136,22 +137,22 @@ def test_yearly_range_rejects_incomplete_pan() -> None:
 
 
 def test_yearly_range_prepares_natal_context_once() -> None:
-    pan = _valid_mock_pan()
+    natal_chart = _valid_mock_pan()
     natal_context = {"evaluation": object(), "snapshot": {}}
     flow_snapshot = {"_snapshot_type": "liunian", "八字": {}, "紫微": {}, "context": {}}
     liunian_pan = {"bazi": {}, "ziwei": {}}
 
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
          mock.patch.object(duanyu, "prepare_natal_context", return_value=natal_context) as prepare, \
-         mock.patch("paipan.liunian", return_value=liunian_pan), \
+         mock.patch("app.natal.tools.charts.liunian", return_value=liunian_pan), \
          mock.patch.object(
-             duanyu, "evaluate_liunian_snap_from_pan", return_value=flow_snapshot
+             duanyu, "evaluate_liunian_snap_from_natal_chart", return_value=flow_snapshot
          ) as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly", return_value={"八字": [], "紫微": []}):
-        duanyu.yearly_range(pan, 2026, 2027, rules=["yingqi"])
+        duanyu.yearly_range(natal_chart, 2026, 2027, rules=["yingqi"])
 
     prepare.assert_called_once()
-    assert prepare.call_args.args == (pan,)
+    assert prepare.call_args.args == (natal_chart,)
     assert prepare.call_args.kwargs["factor_names"]
     assert make_snapshot.call_args_list[0].kwargs["natal_context"] is natal_context
     assert make_snapshot.call_args_list[1].kwargs["natal_context"] is natal_context
@@ -171,13 +172,13 @@ def test_eval_hybrid_builds_one_flow_snapshot_per_pan() -> None:
     }
     natal_snapshot = {"八字": {}, "紫微": {}, "context": {}}
 
-    with mock.patch.object(eval_hybrid, "evaluate_snap_from_pan", return_value=natal_snapshot), \
+    with mock.patch.object(eval_hybrid, "evaluate_snap_from_natal_chart", return_value=natal_snapshot), \
          mock.patch.object(eval_hybrid, "match_rule", return_value={"八字": [], "紫微": []}), \
          mock.patch.object(eval_hybrid, "resolve_current_year", return_value=(2026, "server")), \
          mock.patch.object(eval_hybrid, "liunian", return_value={"bazi": {}, "ziwei": {}}), \
          mock.patch.object(
              eval_hybrid,
-             "evaluate_liunian_snap_from_pan",
+             "evaluate_liunian_snap_from_natal_chart",
              return_value=flow_snapshot,
          ) as make_flow, \
          mock.patch.object(eval_hybrid, "query_yearly", return_value={"八字": [], "紫微": []}):

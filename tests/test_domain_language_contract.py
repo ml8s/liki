@@ -1,6 +1,5 @@
 """Contract tests for the canonical domain language registry and guard."""
 
-from __future__ import annotations
 
 import json
 import subprocess

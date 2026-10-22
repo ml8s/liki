@@ -42,7 +42,7 @@ def _reject_duplicates(values: list[Any]) -> list[Any]:
     return values
 
 
-#: ``unique_list[T]`` = ``list[T]`` with the legacy ``uniqueItems`` semantics.
+#: ``unique_list[T]`` = ``list[T]`` with ``uniqueItems: true`` semantics.
 unique_list = Annotated[list[T], UniqueItems(), AfterValidator(_reject_duplicates)]
 
 
@@ -108,13 +108,23 @@ def emit_schema(annotation: Any, *, description: str | None = None) -> dict[str,
 
 @dataclass
 class ToolContract:
-    """One MCP tool: description plus the models that own its wire contract."""
+    """One MCP tool: description plus the models that own its wire contract.
+
+    Every counsel tool is a deterministic, side-effect-free computation over
+    the arguments it receives, so ``annotations`` defaults to the honest
+    readOnly + idempotent hints instead of relying on each registration to
+    remember them.
+    """
 
     name: str
     description: str
     input: Any
     output: Any = None
     output_description: str | None = None
+    annotations: dict[str, Any] = field(default_factory=lambda: {
+        "readOnlyHint": True,
+        "idempotentHint": True,
+    })
     _input_schema: dict[str, Any] | None = field(default=None, init=False, repr=False)
     _output_schema: dict[str, Any] | None = field(default=None, init=False, repr=False)
 

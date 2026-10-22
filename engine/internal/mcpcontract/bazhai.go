@@ -26,14 +26,14 @@ type BazhaiMingGuaOutput struct {
 }
 
 type BazhaiDirectionsOutput struct {
-	ShengQi [1]DirectionName `json:"sheng_qi" jsonschema:"生气方。"`
-	TianYi  [1]DirectionName `json:"tian_yi" jsonschema:"天医方。"`
-	YanNian [1]DirectionName `json:"yan_nian" jsonschema:"延年方。"`
-	FuWei   [1]DirectionName `json:"fu_wei" jsonschema:"伏位方。"`
-	HuoHai  [1]DirectionName `json:"huo_hai" jsonschema:"祸害方。"`
-	WuGui   [1]DirectionName `json:"wu_gui" jsonschema:"五鬼方。"`
-	LiuSha  [1]DirectionName `json:"liu_sha" jsonschema:"六煞方。"`
-	JueMing [1]DirectionName `json:"jue_ming" jsonschema:"绝命方。"`
+	ShengQi DirectionName `json:"sheng_qi" jsonschema:"生气方。"`
+	TianYi  DirectionName `json:"tian_yi" jsonschema:"天医方。"`
+	YanNian DirectionName `json:"yan_nian" jsonschema:"延年方。"`
+	FuWei   DirectionName `json:"fu_wei" jsonschema:"伏位方。"`
+	HuoHai  DirectionName `json:"huo_hai" jsonschema:"祸害方。"`
+	WuGui   DirectionName `json:"wu_gui" jsonschema:"五鬼方。"`
+	LiuSha  DirectionName `json:"liu_sha" jsonschema:"六煞方。"`
+	JueMing DirectionName `json:"jue_ming" jsonschema:"绝命方。"`
 }
 
 type BazhaiAnnualStarOutput struct {
@@ -117,14 +117,14 @@ func bazhaiChartWire(chart bazhai.Chart) BazhaiChartOutput {
 			YearBoundary: YearBoundaryName(chart.MingGua.YearBoundary),
 		},
 		BaZhaiDirs: BazhaiDirectionsOutput{
-			ShengQi: directionArray(chart.BaZhaiDirs.ShengQi),
-			TianYi:  directionArray(chart.BaZhaiDirs.TianYi),
-			YanNian: directionArray(chart.BaZhaiDirs.YanNian),
-			FuWei:   directionArray(chart.BaZhaiDirs.FuWei),
-			HuoHai:  directionArray(chart.BaZhaiDirs.HuoHai),
-			WuGui:   directionArray(chart.BaZhaiDirs.WuGui),
-			LiuSha:  directionArray(chart.BaZhaiDirs.LiuSha),
-			JueMing: directionArray(chart.BaZhaiDirs.JueMing),
+			ShengQi: DirectionName(chart.BaZhaiDirs.ShengQi[0]),
+			TianYi:  DirectionName(chart.BaZhaiDirs.TianYi[0]),
+			YanNian: DirectionName(chart.BaZhaiDirs.YanNian[0]),
+			FuWei:   DirectionName(chart.BaZhaiDirs.FuWei[0]),
+			HuoHai:  DirectionName(chart.BaZhaiDirs.HuoHai[0]),
+			WuGui:   DirectionName(chart.BaZhaiDirs.WuGui[0]),
+			LiuSha:  DirectionName(chart.BaZhaiDirs.LiuSha[0]),
+			JueMing: DirectionName(chart.BaZhaiDirs.JueMing[0]),
 		},
 		YearStars: BazhaiYearStarsOutput{
 			Year:         BazhaiBirthYear(chart.YearStars.Year),
@@ -140,14 +140,6 @@ func bazhaiChartWire(chart bazhai.Chart) BazhaiChartOutput {
 			Wuxing:   ElementName(star.Wuxing),
 			RuZhong:  star.RuZhong,
 		}
-	}
-	return output
-}
-
-func directionArray(values []string) [1]DirectionName {
-	var output [1]DirectionName
-	if len(values) > 0 {
-		output[0] = DirectionName(values[0])
 	}
 	return output
 }

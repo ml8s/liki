@@ -1,5 +1,4 @@
 """liuyao Python 编排层契约：不换算硬币，不把 matter 传给 engine。"""
-from __future__ import annotations
 
 import sys
 from pathlib import Path
@@ -13,10 +12,10 @@ TOOLS = ROOT / "counsel/app/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-import liuyao_casting as cast_tool  # noqa: E402
-import liuyao_factors as projection  # noqa: E402
-import liuyao_matters as matters  # noqa: E402
-import liuyao_paipan as paipan  # noqa: E402
+import app.divination.tools.liuyao_board as liuyao_board  # noqa: E402
+import app.divination.tools.liuyao_casting as cast_tool  # noqa: E402
+import app.divination.tools.liuyao_factors as projection  # noqa: E402
+import app.divination.tools.liuyao_matters as matters  # noqa: E402
 
 
 def test_matter_table_maps_explicit_yong_shen():
@@ -111,15 +110,15 @@ def test_factors_maps_matter_and_projection(monkeypatch):
         }],
     }
 
-    monkeypatch.setattr(paipan, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
+    monkeypatch.setattr(liuyao_board, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
 
     def fake_engine_data(method, params):
         calls.append((method, params))
         assert method == "liuyao.chart"
         return raw_chart
 
-    monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
-    result = paipan.factors(
+    monkeypatch.setattr(liuyao_board, "engine_data", fake_engine_data)
+    result = liuyao_board.factors(
         casting=casting,
         matter="career",
         question="这次面试能不能通过",
@@ -190,7 +189,7 @@ def test_projected_board_preserves_core_time_and_line_states():
 
 def test_factors_requires_exclusive_yong_shen_source():
     with pytest.raises(ValueError, match="互斥"):
-        paipan.factors(matter="career", yong_shen="官鬼", casting={"yaos": [7] * 6}, longitude=116.4)
+        liuyao_board.factors(matter="career", yong_shen="官鬼", casting={"yaos": [7] * 6}, longitude=116.4)
 
 
 def test_factors_projects_hidden_yong_shen_without_flying_line_facts():
@@ -220,7 +219,7 @@ def test_factors_projects_hidden_yong_shen_without_flying_line_facts():
         "timing_candidates": [],
     }
     factors = projection.project_factors(casting, chart, {
-        "text": "这次能否成？", "matter": "general", "explicit_yong_shen": None, "perspective": None, "solar_time": "x",
+        "text": "这次能否成？", "matter": "general", "explicit_yong_shen": None, "perspective": None,
     })
     focus = factors["focus"]
     assert focus["yong_shen"]["is_hidden"] is True
@@ -239,8 +238,8 @@ def test_tool_schema_matches_python_surface():
 
 
 def test_matter_topics_and_tool_schema_use_one_closed_set():
-    import liuyao_snapshot
-    from liuyao_topic_guidance import load_topic_table
+    import app.divination.tools.liuyao_snapshot as liuyao_snapshot
+    from app.divination.tools.liuyao_topic_guidance import load_topic_table
 
     contract = next(c for c in DIVINATION_TOOLS if c.name == "liuyao_snapshot")
     schema_topics = set(contract.input_schema["properties"]["topic"]["enum"])
@@ -257,8 +256,7 @@ def test_liuyao_snapshot_input_accepts_primary_call():
     LiuyaoSnapshotInput.model_validate(
         {
             "question": "这次面试能不能通过",
-            "mode": "yaos",
-            "yaos": [7, 7, 7, 7, 7, 7],
+            "casting": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
             "matter": "career",
             "longitude": 116.4,
             "timezone": "Asia/Shanghai",

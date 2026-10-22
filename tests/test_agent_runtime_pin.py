@@ -3,7 +3,6 @@
 liki 对 liki-agent-runtime 做依赖锁定（version + immutable digest），不做与 liki
 自身版本的同名对齐；测试（runtime-validate）与本地 candidate 装配必须共用该 pin。
 """
-from __future__ import annotations
 
 import re
 import subprocess

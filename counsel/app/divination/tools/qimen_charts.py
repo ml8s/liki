@@ -1,10 +1,9 @@
 """奇门排盘编排层：只调用 RPC，不做命理判断。"""
-from __future__ import annotations
 
 from typing import Any
 
-from divination_rpc import engine_data
-from qimen_matters import resolve_matter
+from app.divination.tools.divination_rpc import engine_data
+from app.divination.tools.qimen_matters import resolve_matter
 
 
 def city_coords(city: str) -> dict:

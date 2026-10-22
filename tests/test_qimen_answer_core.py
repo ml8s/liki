@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import sys
 from pathlib import Path
@@ -8,8 +7,8 @@ TOOLS = ROOT / "counsel/app/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-import qimen_answer_core as core  # noqa: E402
-import qimen_jinhan_answer_core as jinhan_core  # noqa: E402
+import app.divination.tools.qimen_answer_core as core  # noqa: E402
+import app.divination.tools.qimen_jinhan_answer_core as jinhan_core  # noqa: E402
 
 
 def _snapshot() -> dict:

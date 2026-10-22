@@ -11,7 +11,6 @@ bazi/ziwei）身份在 `agents/<name>/<name>.md`，不进市场包。包内生�
 另外守护头像矢量源不得夹带文本节点（字形一律转路径，市场宿主的字体与
 `dominant-baseline` 支持都不可控）。
 """
-from __future__ import annotations
 
 import json
 import re

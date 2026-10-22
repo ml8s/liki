@@ -2,7 +2,6 @@
 
 覆盖 skills/liki 下全部 .md 文件，自动化 TRACE Convention 子项中可规则化的部分。
 """
-from __future__ import annotations
 
 import re
 from pathlib import Path
