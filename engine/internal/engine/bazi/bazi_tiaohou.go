@@ -8,7 +8,7 @@ import (
 type TiaoHou struct {
 	Season             string
 	PrimaryWuxing      string
-	SecondaryWuxing    string
+	SecondaryWuxing    *string
 	Detail             string
 	SecondaryCondition string
 }
@@ -85,15 +85,20 @@ func queryTiaoHou(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) (TiaoHou, bool) {
 		}
 	}
 
-	secondaryWuxing := ""
 	if e.secondary != 0 {
-		secondaryWuxing = secondaryElem.String()
+		secondaryWuxing := secondaryElem.String()
+		return TiaoHou{
+			Season:             season,
+			PrimaryWuxing:      primaryElem.String(),
+			SecondaryWuxing:    &secondaryWuxing,
+			Detail:             detail,
+			SecondaryCondition: e.secondaryCondition,
+		}, true
 	}
-
 	return TiaoHou{
 		Season:             season,
 		PrimaryWuxing:      primaryElem.String(),
-		SecondaryWuxing:    secondaryWuxing,
+		SecondaryWuxing:    nil,
 		Detail:             detail,
 		SecondaryCondition: e.secondaryCondition,
 	}, true

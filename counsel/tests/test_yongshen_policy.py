@@ -58,7 +58,7 @@ def test_selected_yongshen_never_leaks_internal_missing_sentinel():
                 assert_materialized(item)
 
     assert_materialized(result)
-    assert result["alternatives"]["tiao_hou"]["yong"] == ""
+    assert result["alternatives"]["tiao_hou"]["yong"] is None
 
 
 def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
@@ -282,7 +282,7 @@ def test_congge_label_requires_matching_season_and_stem_evidence():
     result = resolve_yongshen(full)
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-UNVERIFIED"
-    assert result["selected"]["yong"] == ""
+    assert result["selected"]["yong"] is None
 
 
 def test_verified_congge_selects_fuyi_cong_candidate():
@@ -320,7 +320,7 @@ def test_fake_congge_requires_review():
     result = resolve_yongshen(full)
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-FAKE"
-    assert result["selected"]["yong"] == ""
+    assert result["selected"]["yong"] is None
 
 
 def test_neutral_tie_requires_review():

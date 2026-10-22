@@ -253,6 +253,24 @@ def test_geju_rejects_legacy_yongxi_columns():
         validate_natal_chart(natal_chart, action="test")
 
 
+def test_optional_candidate_values_accept_null_and_reject_empty():
+    natal_chart = _pan()
+    natal_chart["full"]["fu_yi"].update({"yong": None, "xi": None, "ji": None})
+    natal_chart["full"]["tiao_hou"]["secondary_wuxing"] = None
+    validate_natal_chart(with_natal_chart_digest(natal_chart), action="test")
+
+    for key in ("yong", "xi", "ji"):
+        natal_chart = _pan()
+        natal_chart["full"]["fu_yi"][key] = ""
+        with pytest.raises(ValueError, match=f"fu_yi.{key}"):
+            validate_natal_chart(with_natal_chart_digest(natal_chart), action="test")
+
+    natal_chart = _pan()
+    natal_chart["full"]["tiao_hou"]["secondary_wuxing"] = ""
+    with pytest.raises(ValueError, match="secondary_wuxing"):
+        validate_natal_chart(with_natal_chart_digest(natal_chart), action="test")
+
+
 def _side_pan(side):
     base = _pan()
     if side == "bazi":

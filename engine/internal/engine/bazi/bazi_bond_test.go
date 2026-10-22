@@ -93,10 +93,27 @@ func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 
 	assertFit := func(label string, got yongShenFitEntry, fc FullChart, other map[string]int) {
 		want := fc.FuYi
-		if got.Yong != want.Yong || got.Xi != want.Xi || got.Ji != want.Ji {
-			t.Fatalf("%s fit = %+v, want yong/xi/ji %s/%s/%s", label, got, want.Yong, want.Xi, want.Ji)
+		sameOptional := func(a, b *string) bool {
+			if a == nil || b == nil {
+				return a == b
+			}
+			return *a == *b
 		}
-		if got.YongInOther != other[got.Yong] || got.XiInOther != other[got.Xi] || got.JiInOther != other[got.Ji] {
+		if !sameOptional(got.Yong, want.Yong) ||
+			!sameOptional(got.Xi, want.Xi) ||
+			!sameOptional(got.Ji, want.Ji) {
+			t.Fatalf("%s fit = %+v, want yong/xi/ji %s/%s/%s", label, got,
+				optionalText(want.Yong), optionalText(want.Xi), optionalText(want.Ji))
+		}
+		inOther := func(value *string) int {
+			if value == nil {
+				return 0
+			}
+			return other[*value]
+		}
+		if got.YongInOther != inOther(got.Yong) ||
+			got.XiInOther != inOther(got.Xi) ||
+			got.JiInOther != inOther(got.Ji) {
 			t.Fatalf("%s fit counts = %+v, other=%v", label, got, other)
 		}
 	}

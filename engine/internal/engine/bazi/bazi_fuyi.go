@@ -14,14 +14,14 @@ func FuYi(
 	basis := buildFuYiBasis(c, strength.RootType, strength.Season, strength.YinBiCount)
 
 	// Try congGe rules first (qualitative rule chain, not percentages).
-	pat, yong, xi, ji := lookupCongGe(c)
+	pat, congYong, congXi, congJi := lookupCongGe(c)
 	if pat != "" {
 		return FuYiResult{
 			WuxingCount: counts.StringCount(),
 			WangShuai:   seasonStrength,
-			Yong:        yong,
-			Xi:          xi,
-			Ji:          ji,
+			Yong:        optionalString(congYong),
+			Xi:          optionalString(congXi),
+			Ji:          optionalString(congJi),
 			Strength:    strength.Label,
 			Pattern:     pat,
 			Model:       "support_control_with_day_master_strength",
@@ -30,7 +30,7 @@ func FuYi(
 	}
 
 	// Normal扶抑 (qualitative, no element count comparison).
-	yong, xi, ji = computeNormalYongJi(riYuan, strength.Label)
+	yong, xi, ji := computeNormalYongJi(riYuan, strength.Label)
 
 	return FuYiResult{
 		WuxingCount: counts.StringCount(),
@@ -45,11 +45,11 @@ func FuYi(
 }
 
 // computeNormalYongJi determines yong/xi/ji by strength (qualitative, no scoring).
-func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiShen, jiShen string) {
+func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiShen, jiShen *string) {
 	dmElem := ganzhi.GanWuxing(riYuan)
 	rule, ok := yongJiRules[strengthLabel]
 	if !ok {
-		return "", "", ""
+		return nil, nil, nil
 	}
 	// 五行关系 → 具体五行：克我者官杀、生我者印、同我者比劫、生克我者财生官杀。
 	resolve := func(rel string) ganzhi.Wuxing {
@@ -65,8 +65,7 @@ func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiS
 		}
 		return 0
 	}
-	yongShen = resolve(rule.Yong).String()
-	xiShen = resolve(rule.Xi).String()
-	jiShen = resolve(rule.Ji).String()
-	return
+	return optionalString(resolve(rule.Yong).String()),
+		optionalString(resolve(rule.Xi).String()),
+		optionalString(resolve(rule.Ji).String())
 }

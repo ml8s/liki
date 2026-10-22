@@ -29,19 +29,21 @@ func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
 		t.Errorf("FuYi.WangShuai has %d elements, want 5", len(fuYi.WangShuai))
 	}
 	if fuYi.Strength != "中和" {
-		for _, field := range []struct{ name, val string }{
+		for _, field := range []struct {
+			name string
+			val  *string
+		}{
 			{"FuYi.Yong", fuYi.Yong},
 			{"FuYi.Xi", fuYi.Xi},
 			{"FuYi.Ji", fuYi.Ji},
 		} {
-			if field.val == "" {
-				t.Errorf("%s is empty", field.name)
+			if field.val == nil {
+				t.Errorf("%s is null", field.name)
 			}
 		}
 	}
 	for _, field := range []struct{ name, val string }{
 		{"TiaoHou.PrimaryWuxing", tiaoHou.PrimaryWuxing},
-		{"TiaoHou.SecondaryWuxing", tiaoHou.SecondaryWuxing},
 		{"TiaoHou.Season", tiaoHou.Season},
 		{"GeJu.Pattern", geJu.Pattern},
 		{"GeJu.Usage", geJu.Usage},
@@ -49,6 +51,9 @@ func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
 		if field.val == "" {
 			t.Errorf("%s is empty", field.name)
 		}
+	}
+	if tiaoHou.SecondaryWuxing == nil {
+		t.Error("TiaoHou.SecondaryWuxing is null for the 1984 baseline chart")
 	}
 
 	validUsages := map[string]bool{"顺用": true, "逆用": true}

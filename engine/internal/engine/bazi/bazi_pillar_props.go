@@ -39,17 +39,18 @@ func isSelfHe(p ganzhi.Zhu) bool {
 }
 
 // selfHeName returns the 干支自合 description string (e.g. "甲己合").
-func selfHeName(p ganzhi.Zhu) string {
+func selfHeName(p ganzhi.Zhu) *string {
 	if !isSelfHe(p) {
-		return ""
+		return nil
 	}
 	hs := ganzhi.CangGanForZhi(p.Zhi)
 	for _, h := range hs.Slice() {
 		if h != nil && isGanHePair(p.Gan, *h) {
-			return ganzhi.GanName(p.Gan) + ganzhi.GanName(*h) + "合"
+			name := ganzhi.GanName(p.Gan) + ganzhi.GanName(*h) + "合"
+			return &name
 		}
 	}
-	return ""
+	return nil
 }
 
 func isGanHePair(a, b ganzhi.Gan) bool { return ganzhi.IsGanHe(a, b) }

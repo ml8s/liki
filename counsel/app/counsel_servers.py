@@ -186,7 +186,7 @@ def _naming_check(given_names, yongshen=None, xishen=None, jishen=None,
         selected = selected_yongshen.get("selected")
         if not isinstance(selected, dict):
             raise ToolError("invalid_arguments: selected_yongshen.selected 缺失")
-        yongshen = selected.get("yong") or ""
+        yongshen = selected.get("yong")
         xishen = selected.get("xi") or []
         jishen = selected.get("ji") or []
         if not yongshen:

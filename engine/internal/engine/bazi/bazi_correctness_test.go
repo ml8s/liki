@@ -187,16 +187,19 @@ func TestTiaoHou_ReferenceEntries(t *testing.T) {
 
 			// Verify yong/xi are valid 五行. 穷通宝鉴表只承载用神与辅神，
 			// 忌神须由扶抑/格局另行推导，不能机械反推后冒充原文事实。
-			for _, field := range []struct{ label, val string }{
-				{"Yong", result.PrimaryWuxing}, {"Xi", result.SecondaryWuxing},
+			for _, field := range []struct {
+				label string
+				val   *string
+			}{
+				{"Yong", &result.PrimaryWuxing}, {"Xi", result.SecondaryWuxing},
 			} {
-				if field.label == "Xi" && field.val == "" {
+				if field.val == nil {
 					continue // no 喜神 when no secondary
 				}
-				switch field.val {
+				switch *field.val {
 				case "木", "火", "土", "金", "水":
 				default:
-					t.Errorf("%s = %q, want valid 五行 or empty", field.label, field.val)
+					t.Errorf("%s = %q, want valid 五行", field.label, *field.val)
 				}
 			}
 		})
@@ -709,12 +712,12 @@ func TestTiaoHou_AllEntriesValid(t *testing.T) {
 				ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
 				result.PrimaryWuxing, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 		}
-		if !validWuxing[result.SecondaryWuxing] {
-			// Xi may be empty when no secondary (喜神).
-			if result.SecondaryWuxing != "" {
+		if result.SecondaryWuxing == nil || !validWuxing[*result.SecondaryWuxing] {
+			// Xi is null when no secondary (喜神).
+			if result.SecondaryWuxing != nil {
 				t.Errorf("%s日%s月: Xi = %q, want valid 五行 (primary=%s, secondary=%s)",
 					ganzhi.GanName(riYuan), ganzhi.ZhiName(yueZhi),
-					result.SecondaryWuxing, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
+					*result.SecondaryWuxing, ganzhi.GanName(entry.primary), ganzhi.GanName(entry.secondary))
 			}
 		}
 		// Detail should contain the day gan and month zhi names.

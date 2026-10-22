@@ -11,11 +11,17 @@ needs, while still accepting the full object because extra fields are allowed.
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+from pydantic.json_schema import WithJsonSchema
 
 from app.contracts.bazi import Gan, Wuxing, Zhi
 from app.contracts.schema import unique_list
 
-YongWuxing = Literal["", "木", "火", "土", "金", "水"]
+YongWuxing = Annotated[
+    Literal["木", "火", "土", "金", "水"] | None,
+    # Publish the nullable enum as one compact JSON Schema property; a naive
+    # Pydantic union expands every evidence field and exceeds schema budgets.
+    WithJsonSchema({"type": ["string", "null"], "enum": ["木", "火", "土", "金", "水"]}),
+]
 GanOrEmpty = Literal["", "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
 TenGod = Literal["比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印"]
 TenGodOrEmpty = Literal[
@@ -32,7 +38,7 @@ class YongShenChoice(BaseModel):
 
     model_config = ConfigDict(extra="allow")
     yong: YongWuxing = Field(
-        description="Selected yongshen element; empty means the policy did not form a usable choice.",
+        description="Selected yongshen element; null means the policy did not form a usable choice.",
     )
     xi: unique_list[Wuxing] = Field(
         description="Elements that support the selected yongshen.",
@@ -109,9 +115,9 @@ class YongShenFuYiEvidence(BaseModel):
     root_type: str = Field(description="通根类型。")
     season: str = Field(description="季节状态。")
     yin_bi_count: int = Field(description="印比数量。")
-    yong: YongWuxing = Field(description="扶抑候选用神。")
-    xi: YongWuxing = Field(description="扶抑候选喜神。")
-    ji: YongWuxing = Field(description="扶抑候选忌神。")
+    yong: YongWuxing = Field(description="扶抑候选用神；无候选为 null。")
+    xi: YongWuxing = Field(description="扶抑候选喜神；无候选为 null。")
+    ji: YongWuxing = Field(description="扶抑候选忌神；无候选为 null。")
 
 
 class YongShenTiaoHouEvidence(BaseModel):
@@ -120,7 +126,7 @@ class YongShenTiaoHouEvidence(BaseModel):
     model_config = ConfigDict(extra="allow")
     source: Literal["tiao_hou"] = Field(description="证据来源。")
     primary_wuxing: YongWuxing = Field(description="主调候五行。")
-    secondary_wuxing: YongWuxing = Field(description="辅调候五行。")
+    secondary_wuxing: YongWuxing = Field(description="辅调候五行；无候选为 null。")
     secondary_condition: str = Field(description="辅调候条件。")
     condition_ok: bool = Field(description="辅调候条件是否满足。")
     secondary_usable: bool = Field(description="辅调候是否可用。")

@@ -7,9 +7,9 @@ import "liki-engine/internal/engine/ganzhi"
 type FuYiResult struct {
 	WuxingCount map[string]int    `json:"wuxing_count"`
 	WangShuai   map[string]string `json:"wang_shuai"`
-	Yong        string            `json:"yong"`
-	Xi          string            `json:"xi"`
-	Ji          string            `json:"ji"`
+	Yong        *string           `json:"yong"`
+	Xi          *string           `json:"xi"`
+	Ji          *string           `json:"ji"`
 	Strength    string            `json:"qiangruo"`
 	Pattern     string            `json:"pattern,omitempty"`
 	Model       string            `json:"model"`
@@ -19,7 +19,7 @@ type FuYiResult struct {
 // TiaoHouResult is the TiaoHou (调候) yongshen analysis based on climate.
 type TiaoHouResult struct {
 	PrimaryWuxing      string               `json:"primary_wuxing"`
-	SecondaryWuxing    string               `json:"secondary_wuxing"`
+	SecondaryWuxing    *string              `json:"secondary_wuxing"`
 	Season             string               `json:"season"`
 	Detail             string               `json:"detail"`
 	Model              string               `json:"model"`
@@ -54,6 +54,14 @@ func ComputeYongShenSchools(c Chart) (FuYiResult, TiaoHouResult, GeJuResult) {
 	return FuYi(c, counts, seasonStrength, strength),
 		TiaoHouAt(c),
 		GeJuAt(c, analysis)
+}
+
+// optionalString models a domain candidate that is absent rather than empty.
+func optionalString(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
 }
 
 // computeWangShuaiMap returns the 旺相休囚死 for all five elements.

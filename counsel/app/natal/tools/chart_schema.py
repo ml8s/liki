@@ -27,6 +27,13 @@ def _require_nonempty_string(value) -> bool:
     return isinstance(value, str) and bool(value)
 
 
+def _validate_optional_element(action: str, value: object, label: str) -> None:
+    if value is None:
+        return
+    if not isinstance(value, str) or value not in _CONSTANTS["五行"]:
+        raise ChartSchemaError(f"{action} {label} 必须是 null 或五行闭集字符串。")
+
+
 def _validate_engine_fact_items(action: str, full: dict) -> None:
     for key in ENGINE_LIST_FACTS:
         for index, item in enumerate(full[key]):
@@ -99,10 +106,13 @@ def _validate_yongshen_schools(action: str, full: dict) -> None:
         if not isinstance(fu_yi.get(key), dict):
             raise ChartSchemaError(f"{action} natal_chart.full.fu_yi.{key} 缺失或不是 object。")
     for key in ("yong", "xi", "ji"):
-        if not isinstance(fu_yi.get(key), str):
+        if key not in fu_yi:
             raise ChartSchemaError(
-                f"{action} natal_chart.full.fu_yi.{key} 缺失或不是字符串。"
+                f"{action} natal_chart.full.fu_yi.{key} 缺失。"
             )
+        _validate_optional_element(
+            action, fu_yi.get(key), f"natal_chart.full.fu_yi.{key}"
+        )
     if not _require_nonempty_string(fu_yi.get("qiangruo")):
         raise ChartSchemaError(
             f"{action} natal_chart.full.fu_yi.qiangruo 缺失或不是非空字符串。"
@@ -119,13 +129,19 @@ def _validate_yongshen_schools(action: str, full: dict) -> None:
         raise ChartSchemaError(
             f"{action} natal_chart.full.tiao_hou.primary_wuxing 缺失或不是非空字符串。"
         )
+    if "secondary_wuxing" not in tiao_hou:
+        raise ChartSchemaError(f"{action} natal_chart.full.tiao_hou.secondary_wuxing 缺失。")
+    _validate_optional_element(
+        action, tiao_hou.get("secondary_wuxing"),
+        "natal_chart.full.tiao_hou.secondary_wuxing",
+    )
     _validate_tiao_hou_availability(action, tiao_hou.get("primary"), "primary")
     secondary_condition = tiao_hou.get("secondary_condition")
     if secondary_condition is not None and not isinstance(secondary_condition, str):
         raise ChartSchemaError(
             f"{action} natal_chart.full.tiao_hou.secondary_condition 不是 string。"
         )
-    if secondary_condition or tiao_hou.get("secondary_wuxing"):
+    if secondary_condition or tiao_hou.get("secondary_wuxing") is not None:
         _validate_tiao_hou_availability(action, tiao_hou.get("secondary"), "secondary")
     if secondary_condition and not tiao_hou.get("secondary"):
         raise ChartSchemaError(

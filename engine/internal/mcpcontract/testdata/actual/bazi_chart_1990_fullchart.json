@@ -984,7 +984,7 @@
       "is_self_he": false,
       "is_void": false,
       "na_yin": "路旁土",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "沐浴",
       "shen_sha": [
         {
@@ -1079,7 +1079,7 @@
       "is_self_he": false,
       "is_void": false,
       "na_yin": "涧下水",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "胎",
       "shen_sha": [
         {
@@ -1201,7 +1201,7 @@
       "is_self_he": false,
       "is_void": false,
       "na_yin": "沙中金",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "养",
       "shen_sha": [
         {

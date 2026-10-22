@@ -40,7 +40,7 @@ type fullZhuInfo struct {
 	IsVoid         bool                 `json:"is_void"`
 	IsSelfHe       bool                 `json:"is_self_he"`
 	IsKuiGang      bool                 `json:"is_kui_gang"`
-	SelfHeName     string               `json:"self_he_name"`
+	SelfHeName     *string              `json:"self_he_name"`
 }
 
 func (z fullZhuInfo) MarshalJSON() ([]byte, error) {
@@ -58,7 +58,7 @@ func (z fullZhuInfo) MarshalJSON() ([]byte, error) {
 		IsVoid         bool                 `json:"is_void"`
 		IsSelfHe       bool                 `json:"is_self_he"`
 		IsKuiGang      bool                 `json:"is_kui_gang"`
-		SelfHeName     string               `json:"self_he_name"`
+		SelfHeName     *string              `json:"self_he_name"`
 	}{Gan: ganzhi.GanName(z.Gan), Zhi: ganzhi.ZhiName(z.Zhi), DayMasterTrend: z.DayMasterTrend, Xun: z.Xun, XunKong: z.XunKong, NaYin: z.NaYin, CangGan: z.CangGan, ShiShens: z.ShiShens, SelfSitting: z.SelfSitting, ShenSha: z.ShenSha, IsVoid: z.IsVoid, IsSelfHe: z.IsSelfHe, IsKuiGang: z.IsKuiGang, SelfHeName: z.SelfHeName})
 }
 

@@ -607,7 +607,7 @@
         "season": "死",
         "yin_bi_count": 2
       },
-      "ji": "",
+      "ji": null,
       "model": "support_control_with_day_master_strength",
       "qiangruo": "中和",
       "wang_shuai": {
@@ -623,8 +623,8 @@
         "水": 2,
         "火": 2
       },
-      "xi": "",
-      "yong": ""
+      "xi": null,
+      "yong": null
     },
     "gan_chong": [],
     "gan_he": [
@@ -855,7 +855,7 @@
       "is_self_he": false,
       "is_void": false,
       "na_yin": "海中金",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "沐浴",
       "shen_sha": [
         {
@@ -931,7 +931,7 @@
       "is_self_he": false,
       "is_void": false,
       "na_yin": "城头土",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "病",
       "shen_sha": [
         {
@@ -1296,7 +1296,7 @@
       "is_self_he": false,
       "is_void": false,
       "na_yin": "炉中火",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "长生",
       "shen_sha": [
         {

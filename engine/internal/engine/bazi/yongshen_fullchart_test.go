@@ -20,8 +20,8 @@ func TestFullChart_YongShen(t *testing.T) {
 		t.Error("chart 不应含用神（纯排盘，yong_shen 归 fullchart）")
 	}
 	full := ComputeFullChart(chart)
-	if full.FuYi.Yong == "" || full.TiaoHou.PrimaryWuxing == "" || full.GeJu.Pattern == "" {
+	if full.FuYi.Yong == nil || *full.FuYi.Yong == "" || full.TiaoHou.PrimaryWuxing == "" || full.GeJu.Pattern == "" {
 		t.Errorf("fullchart.yong_shen 三派应非空: fu_yi=%q tiao_hou=%q ge_ju=%q",
-			full.FuYi.Yong, full.TiaoHou.PrimaryWuxing, full.GeJu.Pattern)
+			*full.FuYi.Yong, full.TiaoHou.PrimaryWuxing, full.GeJu.Pattern)
 	}
 }

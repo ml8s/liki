@@ -250,6 +250,12 @@ def _materialize(value: Any) -> Any:
     return value
 
 
+def _candidate(value: Any) -> Any:
+    """Treat a missing/legacy-empty candidate as explicit null."""
+    value = _materialize(value)
+    return None if value == "" else value
+
+
 def _set_path(target: dict, key: str, value: Any) -> None:
     parts = key.split(".")
     current = target
@@ -259,7 +265,10 @@ def _set_path(target: dict, key: str, value: Any) -> None:
             child = {}
             current[part] = child
         current = child
-    current[parts[-1]] = _materialize(value)
+    materialized = _materialize(value)
+    if key == "selected.yong" and materialized == "":
+        materialized = None
+    current[parts[-1]] = materialized
 
 
 def _enrich_facts(fullchart: dict, policy: dict) -> dict:
@@ -340,7 +349,7 @@ def _select_rule(policy: dict, facts: dict, derived: dict) -> dict:
 def _apply_then(rule: dict, facts: dict, derived: dict) -> dict:
     result: dict = {
         "selected": {
-            "yong": "",
+            "yong": None,
             "xi": [],
             "ji": [],
             "source": "",
@@ -372,17 +381,21 @@ def _dedupe(values: Any) -> list:
 
 def _finalize(result: dict, policy: dict) -> None:
     selected = result["selected"]
-    selected["yong"] = "" if selected.get("yong") in (None, _MISSING) else str(selected["yong"])
+    selected["yong"] = (
+        None
+        if selected.get("yong") in (None, _MISSING, "")
+        else str(selected["yong"])
+    )
     selected["xi"] = _dedupe(selected.get("xi"))
     selected["ji"] = _dedupe(selected.get("ji"))
     conflicts = list(result.get("conflicts") or [])
     status = result.get("status", "unresolved")
 
     disjoint = (policy.get("finalize") or {}).get("disjoint") or {}
-    yong = selected.get("yong", "")
-    if yong and yong in selected["xi"]:
+    yong = selected.get("yong")
+    if yong is not None and yong in selected["xi"]:
         selected["xi"] = [item for item in selected["xi"] if item != yong]
-    if yong and yong in selected["ji"]:
+    if yong is not None and yong in selected["ji"]:
         selected["ji"] = [item for item in selected["ji"] if item != yong]
         spec = disjoint.get("yong_vs_xi_ji", {}).get("on_overlap", {})
         status = spec.get("status", status)
@@ -407,7 +420,7 @@ def _finalize(result: dict, policy: dict) -> None:
     ]
     if status == "resolved" and len(known_fields) < 3:
         status = "partial"
-    if status in ("resolved", "partial") and not selected.get("yong"):
+    if status in ("resolved", "partial") and selected.get("yong") is None:
         status = "needs_review"
 
     selected["source"] = result.pop("source", "")
@@ -437,9 +450,9 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
     return {
         "fu_yi": {
             "qiangruo": fu_yi.get("qiangruo", ""),
-            "yong": fu_yi.get("yong", ""),
-            "xi": fu_yi.get("xi", ""),
-            "ji": fu_yi.get("ji", ""),
+            "yong": _candidate(fu_yi.get("yong")),
+            "xi": _candidate(fu_yi.get("xi")),
+            "ji": _candidate(fu_yi.get("ji")),
             "pattern": fu_yi.get("pattern", ""),
             "root_type": basis.get("root_type", ""),
             "season": basis.get("season", ""),
@@ -447,7 +460,7 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
         },
         "tiao_hou": {
             "primary_wuxing": tiao_hou.get("primary_wuxing", ""),
-            "secondary_wuxing": tiao_hou.get("secondary_wuxing", ""),
+            "secondary_wuxing": _candidate(tiao_hou.get("secondary_wuxing")),
             "secondary_condition": tiao_hou.get("secondary_condition", ""),
             "condition_ok": derived.get("tiaohou_secondary_condition_ok", False),
             "secondary_usable": derived.get("tiaohou_secondary_usable", False),
@@ -455,11 +468,11 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
             "primary_visible": derived.get("tiaohou_primary_visible", False),
             "secondary_present": derived.get("tiaohou_secondary_present", False),
             "secondary_visible": derived.get("tiaohou_secondary_visible", False),
-            "yong": derived.get("tiaohou_yong", ""),
+            "yong": _candidate(derived.get("tiaohou_yong")),
             "yong_source": derived.get("tiaohou_yong_source", "none"),
             "yong_present": derived.get("tiaohou_yong_present", False),
             "yong_visible": derived.get("tiaohou_yong_visible", False),
-            "control_wuxing": derived.get("tiaohou_control_wuxing", ""),
+            "control_wuxing": _candidate(derived.get("tiaohou_control_wuxing")),
         },
         "ge_ju": {
             "ge_ju": ge_ju.get("ge_ju", ""),
@@ -482,7 +495,7 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
         "neutral": {
             "overstrong": derived.get("neutral_overstrong", {}),
             "weak": derived.get("neutral_weak", {}),
-            "yong": derived.get("neutral_yong", ""),
+            "yong": _candidate(derived.get("neutral_yong")),
             "status": derived.get("neutral_status", "unresolved"),
         },
     }
@@ -504,14 +517,14 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
             "root_type": ((facts.get("fu_yi") or {}).get("basis") or {}).get("root_type", ""),
             "season": ((facts.get("fu_yi") or {}).get("basis") or {}).get("season", ""),
             "yin_bi_count": ((facts.get("fu_yi") or {}).get("basis") or {}).get("yin_bi_count", 0),
-            "yong": (facts.get("fu_yi") or {}).get("yong", ""),
-            "xi": (facts.get("fu_yi") or {}).get("xi", ""),
-            "ji": (facts.get("fu_yi") or {}).get("ji", ""),
+            "yong": _candidate((facts.get("fu_yi") or {}).get("yong")),
+            "xi": _candidate((facts.get("fu_yi") or {}).get("xi")),
+            "ji": _candidate((facts.get("fu_yi") or {}).get("ji")),
         },
         {
             "source": "tiao_hou",
             "primary_wuxing": (facts.get("tiao_hou") or {}).get("primary_wuxing", ""),
-            "secondary_wuxing": (facts.get("tiao_hou") or {}).get("secondary_wuxing", ""),
+            "secondary_wuxing": _candidate((facts.get("tiao_hou") or {}).get("secondary_wuxing")),
             "secondary_condition": (facts.get("tiao_hou") or {}).get("secondary_condition", ""),
             "condition_ok": derived.get("tiaohou_secondary_condition_ok", False),
             "secondary_usable": derived.get("tiaohou_secondary_usable", False),
@@ -519,11 +532,11 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
             "primary_visible": derived.get("tiaohou_primary_visible", False),
             "secondary_present": derived.get("tiaohou_secondary_present", False),
             "secondary_visible": derived.get("tiaohou_secondary_visible", False),
-            "yong": derived.get("tiaohou_yong", ""),
+            "yong": _candidate(derived.get("tiaohou_yong")),
             "yong_source": derived.get("tiaohou_yong_source", "none"),
             "yong_present": derived.get("tiaohou_yong_present", False),
             "yong_visible": derived.get("tiaohou_yong_visible", False),
-            "control_wuxing": derived.get("tiaohou_control_wuxing", ""),
+            "control_wuxing": _candidate(derived.get("tiaohou_control_wuxing")),
         },
         {
             "source": "ge_ju",

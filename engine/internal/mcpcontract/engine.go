@@ -55,11 +55,8 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 		Type: "string", Enum: []any{"坎", "坤", "震", "巽", "乾", "兑", "艮", "离"},
 	},
 	reflect.TypeFor[ElementName](): {
-		// The empty string is part of the wire contract for element fields
-		// whose analysis has no candidate: the engine documents this for
-		// bazi 调候 TiaoHouResult.SecondaryWuxing ("喜神 may be empty"), and the
-		// JSON schema must accept everything the engine can emit.
-		Type: "string", Enum: []any{"", "水", "土", "木", "金", "火"},
+		// Absent candidates are null, not an ambiguous empty-string sentinel.
+		Type: "string", Enum: []any{"水", "土", "木", "金", "火"},
 	},
 	reflect.TypeFor[StarColorName](): {
 		Type: "string", Enum: []any{"白", "黑", "碧", "绿", "黄", "赤", "紫"},

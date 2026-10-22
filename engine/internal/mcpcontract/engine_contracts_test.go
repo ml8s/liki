@@ -375,15 +375,12 @@ func mustDefinition(t *testing.T, registry *Registry, name string) Definition {
 	return definition
 }
 
-func TestEngineContractBaziTiaoHouAllowsEmptySecondaryWuxing(t *testing.T) {
+func TestEngineContractBaziTiaoHouAllowsNullSecondaryWuxing(t *testing.T) {
 	registry := testEngine()
 
 	// 1990-05-20 11:49 CST at 116.4E (the counsel baseline birth) has a 调候
-	// primary element but no 辅 element, so the engine emits
-	// tiao_hou.secondary_wuxing = "" - the domain allows exactly that empty
-	// value (engine/internal/engine/bazi/bazi_correctness_test.go). Output
-	// validation must accept the Go zero value, otherwise real charts fail with
-	// an output contract violation.
+	// primary element but no 辅 element. Missing domain facts are published as
+	// JSON null; the legacy empty-string sentinel is no longer part of the wire.
 	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{
 		"instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male",
 	})
@@ -392,8 +389,37 @@ func TestEngineContractBaziTiaoHouAllowsEmptySecondaryWuxing(t *testing.T) {
 	if tiaoHou == nil {
 		t.Fatalf("bazi.fullchart output has no tiao_hou: %#v", full)
 	}
-	if secondary, _ := tiaoHou["secondary_wuxing"].(string); secondary != "" {
-		t.Fatalf("expected an empty secondary_wuxing for the baseline birth, got %q", secondary)
+	secondary, ok := tiaoHou["secondary_wuxing"]
+	if !ok {
+		t.Fatalf("bazi.fullchart output omitted secondary_wuxing: %#v", tiaoHou)
+	}
+	if secondary != nil {
+		t.Fatalf("expected a null secondary_wuxing for the baseline birth, got %#v", secondary)
+	}
+
+	var schema map[string]any
+	decode(t, mustDefinition(t, registry, "bazi_fullchart").OutputSchema, &schema)
+	properties := schema["properties"].(map[string]any)
+	fuYi := properties["fu_yi"].(map[string]any)["properties"].(map[string]any)
+	tiaoHouSchema := properties["tiao_hou"].(map[string]any)["properties"].(map[string]any)
+	for name, field := range map[string]map[string]any{
+		"fu_yi.yong":                fuYi["yong"].(map[string]any),
+		"fu_yi.xi":                  fuYi["xi"].(map[string]any),
+		"fu_yi.ji":                  fuYi["ji"].(map[string]any),
+		"tiao_hou.secondary_wuxing": tiaoHouSchema["secondary_wuxing"].(map[string]any),
+	} {
+		if !schemaTypeContains(field["type"], "null") {
+			t.Errorf("%s schema is not nullable: %#v", name, field)
+		}
+		values := []any{}
+		for _, branch := range field["anyOf"].([]any) {
+			if enum, ok := branch.(map[string]any)["enum"].([]any); ok {
+				values = append(values, enum...)
+			}
+		}
+		if !slices.Equal(values, []any{"土", "木", "水", "火", "金"}) {
+			t.Errorf("%s element enum = %#v, want the five-element closure", name, values)
+		}
 	}
 }
 

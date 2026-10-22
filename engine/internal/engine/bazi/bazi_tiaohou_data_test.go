@@ -26,6 +26,13 @@ func mkTiaoHouChart(riYuan ganzhi.Gan, yueZhi ganzhi.Zhi) Chart {
 	}
 }
 
+func optionalText(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
+}
+
 func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 	// 冬季(亥子丑月)需火调候: 庚金须火炼, 壬癸水须丙火解冻
 	tests := []tiaoHouExpectation{
@@ -44,7 +51,7 @@ func TestTiaoHou_WinterDingFire_ShouldHaveFire(t *testing.T) {
 
 			if result.PrimaryWuxing != tt.wantYong {
 				// Also accept if fire is present as Xi (喜神) for winter entries
-				if tt.wantYong == "火" && result.SecondaryWuxing == "火" {
+				if tt.wantYong == "火" && result.SecondaryWuxing != nil && *result.SecondaryWuxing == "火" {
 					return
 				}
 				t.Errorf("调候用神 = %q, want %q (冬季需火调候)\n  detail: %s",
@@ -64,7 +71,7 @@ func TestTiaoHou_WinterWater_ShouldHaveFire(t *testing.T) {
 		t.Errorf("壬日子月调候 = yong=%s, 应为土或火", result.PrimaryWuxing)
 	}
 	t.Logf("壬日子月: yong=%s xi=%s detail=%s",
-		result.PrimaryWuxing, result.SecondaryWuxing, result.Detail)
+		result.PrimaryWuxing, optionalText(result.SecondaryWuxing), result.Detail)
 }
 
 func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
@@ -73,7 +80,7 @@ func TestTiaoHou_BingWu_ShouldUseGeng(t *testing.T) {
 	result := computeTiaoHou(mkTiaoHouChart(ganzhi.GanBing, ganzhi.ZhiWu))
 
 	t.Logf("丙午月: yong=%s xi=%s detail=%s",
-		result.PrimaryWuxing, result.SecondaryWuxing, result.Detail)
+		result.PrimaryWuxing, optionalText(result.SecondaryWuxing), result.Detail)
 
 	if result.PrimaryWuxing != "水" {
 		t.Errorf("丙午月调候 = %q, want 水 (穷通宝鉴: 壬水)", result.PrimaryWuxing)
@@ -98,12 +105,13 @@ func TestTiaoHou_AllWinterEntries_HaveFireWhenNeeded(t *testing.T) {
 	for _, dm := range coldDayMasters {
 		for _, mb := range coldMonths {
 			result := computeTiaoHou(mkTiaoHouChart(dm, mb))
-			hasFire := result.PrimaryWuxing == "火" || result.SecondaryWuxing == "火"
+			hasFire := result.PrimaryWuxing == "火" ||
+				(result.SecondaryWuxing != nil && *result.SecondaryWuxing == "火")
 			if !hasFire {
 				mismatches++
 				t.Logf("冬季无火: %s日%s月: yong=%s xi=%s",
 					ganzhi.GanName(dm), ganzhi.ZhiName(mb),
-					result.PrimaryWuxing, result.SecondaryWuxing)
+					result.PrimaryWuxing, optionalText(result.SecondaryWuxing))
 			}
 		}
 	}

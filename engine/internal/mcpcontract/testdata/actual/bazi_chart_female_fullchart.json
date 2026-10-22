@@ -1092,7 +1092,7 @@
       "is_self_he": false,
       "is_void": false,
       "na_yin": "长流水",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "墓",
       "shen_sha": [
         {
@@ -1278,7 +1278,7 @@
       "is_self_he": false,
       "is_void": true,
       "na_yin": "泉中水",
-      "self_he_name": "",
+      "self_he_name": null,
       "self_sitting": "绝",
       "shen_sha": [
         {

@@ -42,9 +42,9 @@ func TestThreeSchools_Consistency(t *testing.T) {
 				chart.Shi.Gan, chart.Shi.Zhi)
 
 			t.Logf("  扶抑: strength=%s yong=%s xi=%s ji=%s pattern=%s",
-				fuYi.Strength, fuYi.Yong, fuYi.Xi, fuYi.Ji, fuYi.Pattern)
+				fuYi.Strength, optionalText(fuYi.Yong), optionalText(fuYi.Xi), optionalText(fuYi.Ji), fuYi.Pattern)
 			t.Logf("  调候: yong=%s xi=%s",
-				tiaoHou.PrimaryWuxing, tiaoHou.SecondaryWuxing)
+				tiaoHou.PrimaryWuxing, optionalText(tiaoHou.SecondaryWuxing))
 			t.Logf("  格局候选: %s %s",
 				geJu.Pattern, geJu.Usage)
 
@@ -55,7 +55,7 @@ func TestThreeSchools_Consistency(t *testing.T) {
 			if geJu.Pattern == "" {
 				t.Error("格局为空")
 			}
-			if !tt.wantFuYiEmpty && fuYi.Yong == "" {
+			if !tt.wantFuYiEmpty && fuYi.Yong == nil {
 				t.Errorf("FuYi.Yong 不应为空(strength=%s)", fuYi.Strength)
 			}
 		})

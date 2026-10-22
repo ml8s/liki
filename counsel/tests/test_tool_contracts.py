@@ -80,8 +80,11 @@ def test_yongshen_contracts_publish_the_typed_core():
     selected_schema = CONTRACTS["bazi_yongshen"].output_schema
     assert set(selected_schema["required"]) == set(SelectedYongShen.model_fields)
     choice = selected_schema["properties"]["selected"]
-    assert choice["properties"]["yong"]["enum"] == ["", "木", "火", "土", "金", "水"]
+    yong_schema = choice["properties"]["yong"]
+    assert yong_schema["type"] == ["string", "null"]
+    assert yong_schema["enum"] == ["木", "火", "土", "金", "水"]
     assert set(choice["required"]) == {"yong", "xi", "ji", "source", "confidence", "known_fields"}
+
 
     compute_schema = CONTRACTS["compute_factors"].output_schema
     assert "selected_yongshen" not in compute_schema["properties"]
@@ -113,6 +116,32 @@ def test_yongshen_contracts_publish_the_typed_core():
         "facts", "fu_yi", "tiao_hou", "ge_ju", "cong_ge",
     }
     assert "#/$defs" not in json.dumps(selected_schema)
+
+
+def test_yongshen_candidate_none_is_valid_and_empty_is_rejected():
+    from app.contracts.yongshen import YongShenFuYiEvidence, YongShenTiaoHouEvidence
+
+    fu_yi = {
+        "source": "fu_yi", "qiangruo": "身强", "pattern": "",
+        "root_type": "month_main", "season": "旺", "yin_bi_count": 1,
+        "yong": None, "xi": None, "ji": None,
+    }
+    tiao_hou = {
+        "source": "tiao_hou", "primary_wuxing": "火", "secondary_wuxing": None,
+        "secondary_condition": "", "condition_ok": False, "secondary_usable": False,
+        "primary_present": False, "primary_visible": False,
+        "secondary_present": False, "secondary_visible": False,
+        "season": "春", "detail": "test", "model": "test", "yong": None,
+        "yong_source": "none", "yong_present": False, "yong_visible": False,
+        "control_wuxing": None,
+    }
+    assert YongShenFuYiEvidence.model_validate(fu_yi).yong is None
+    assert YongShenTiaoHouEvidence.model_validate(tiao_hou).secondary_wuxing is None
+
+    with pytest.raises(ValidationError):
+        YongShenFuYiEvidence.model_validate({**fu_yi, "yong": ""})
+    with pytest.raises(ValidationError):
+        YongShenTiaoHouEvidence.model_validate({**tiao_hou, "secondary_wuxing": ""})
 
 
 def test_bazi_yongshen_chart_input_is_fully_typed():
