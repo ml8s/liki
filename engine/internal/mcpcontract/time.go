@@ -14,7 +14,7 @@ type TimeNowInput struct {
 // TimeNowOutput is the canonical clock fact: UTC instant + IANA zone.
 // Display local time/offset is the frontend's concern (Intl.DateTimeFormat).
 type TimeNowOutput struct {
-	Instant  string `json:"instant" jsonschema:"Current instant in UTC (RFC3339, Z)."`
+	Instant  string `json:"instant" jsonschema:"Current instant as canonical UTC RFC3339 ending with Z."`
 	Timezone string `json:"timezone" jsonschema:"Effective IANA timezone."`
 }
 

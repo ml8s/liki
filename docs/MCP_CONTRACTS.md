@@ -1,5 +1,9 @@
 # MCP contract model
 
+The working contract standard is defined in
+[MCP_CONTRACT_DESIGN.md](./MCP_CONTRACT_DESIGN.md). Current implementation is the
+typed registry described below.
+
 ## Goal
 
 MCP tools use one source of truth per tool:
@@ -52,6 +56,7 @@ Rules:
 
 - every wire DTO field has a `jsonschema` description;
 - object DTOs close unknown fields with `additionalProperties: false`;
+- wire DTOs do not publish `schema_version` or `contract_version` fields;
 - a tool that replaced a legacy raw-JSON method sets
   `Tool.TolerateUnknownArgs`, because the legacy params schemas left
   `additionalProperties` unset and therefore ignored unknown arguments;
@@ -78,21 +83,17 @@ not retained: the DTOs are the contract now. `TestEngineContractWireFidelity`
 replays all 67 captured payloads through the typed registry and deep-compares
 the JSON, so a DTO edit that drops, renames, or reshapes a field fails.
 
-Five contract limits to keep in mind when reviewing the migrated tools:
+Four contract limits to keep in mind when reviewing the migrated tools:
 
 - the legacy qimen result schema used `oneOf` branches conditioned on the
   requested method (a rotating chart carries `tian_qin`, only 鸣法 allows
   `中门`/`an_gan_zhi`, and so on). The typed DTO merges those branches into one
   object, so the output schema is a superset and those conditional constraints
   are no longer enforced;
-- qimen.chart's params schema collapsed the legacy `allOf` branches that
-  conditioned `quarter_rule` on `scope=quarter` and `dingju_method`/
-  `school=mingfa_feipan` on their scopes. The handler still rejects every
-  illegal combination, and `TestMigratedQimenMethodMatrix` pins that; only the
-  advertised input schema is wider. `yong_shen` keeps the legacy
-  `minItems: 1`/`uniqueItems: true` through the `QimenYongShenSymbols` type, and
-  `birth_date` is a plain string (the legacy `date`/`date-time` format hint is
-  annotation-only, and `qimen.ParseBirthDate` still decides);
+- `qimen.chart` publishes method-specific input branches. Time, location, and
+  analysis inputs stay direct parameters, while scope/school/dingju/quarter
+  options form one cohesive `method` object. The branch schemas and
+  `qimen.ResolveMethodWithOptions` reject the same illegal combinations;
 - output `required` is taken from the legacy `required` lists intersected with
   the captured payloads. A field the engine omits through `omitempty` is
   therefore modelled as optional even when the legacy schema declared it
@@ -105,15 +106,12 @@ Five contract limits to keep in mind when reviewing the migrated tools:
 - migrated legacy tools accept unknown arguments, because the legacy registry
   validated params against schemas that left `additionalProperties` unset
   (`bazi.chart` tolerates `tianwen.time`'s `longitude`, and `ziwei.daxian`
-  accepts a `ziwei.fullchart` payload). Strictness is kept where the legacy
-  schema declared it: `qimen.chart`'s root object and the ziwei flow tools'
-  root/`target_lunar` objects stay closed through `Tool.KeepClosedInputPaths`.
-  Tools written directly against the typed registry (`time.now`, and the rest
-  of the non-legacy tools) still reject unknown arguments.
+  accepts a `ziwei.fullchart` payload). Tools written directly against the
+  typed registry reject unknown arguments.
 
-Array-root outputs preserve their wire shape. The typed registry still
-validates every element, but MCP `outputSchema` remains omitted for non-object
-roots, matching the current engine MCP conformance surface.
+Every output root publishes an `outputSchema`, including arrays and scalar or
+composition roots. The registry validates every returned DTO against that
+schema before it is published.
 
 ## Python pattern
 
@@ -155,6 +153,7 @@ Rules:
   enforces it for required fields and enum fields through the schema budget lint;
 - `extra="forbid"` closes input objects (`additionalProperties: false`), while
   output objects stay open so new fields do not fail old clients;
+- Pydantic wire models do not publish `schema_version` or `contract_version`;
 - `unique_list[T]` restores `uniqueItems: true`, which Pydantic does not project
   on its own;
 - `$defs` are inlined, so a published schema stays a flat document;

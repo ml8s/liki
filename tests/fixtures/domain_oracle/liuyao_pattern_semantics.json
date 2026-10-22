@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-liuyao-pattern-semantics-v2",
   "basis": "三墓为用爻入日墓、入动墓、动而化墓；用神多现按旺衰、动静、破空、被伤取舍；卦体六冲 / 六合要求一至三爻与四至六爻三组对应支全冲 / 全合；伏吟 / 反吟分全卦与内外卦。",
   "sources": [
     "《增删卜易》三墓章",

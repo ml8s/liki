@@ -13,7 +13,7 @@ package mcpcontract
 // birth/query longitude. The boundary derives LocalCivilTime and LAST; the
 // chart domain consumes those domain scales (ChineseCalendarDate (basis configured by the caller) + LAST shichen; no separate time.Time).
 type ZiweiChartInput struct {
-	Instant   Instant    `json:"instant" jsonschema:"出生瞬间 UTC（RFC3339，Z）。"`
+	Instant   Instant    `json:"instant" jsonschema:"出生瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC。"`
 	Timezone  string     `json:"timezone" jsonschema:"出生地 IANA 时区。"`
 	Longitude float64    `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于时辰。"`
 	Gender    GenderName `json:"gender" jsonschema:"性别"`

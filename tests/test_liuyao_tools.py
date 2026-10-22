@@ -43,7 +43,6 @@ def test_qigua_sends_original_coins_to_engine(monkeypatch):
             "yaos": [8, 7, 9, 6, 7, 8],
             "dong_yao": [3, 4],
             "casting": {
-                "schema_version": "liuyao-cast-v1",
                 "mode": "coins",
                 "yaos": [8, 7, 9, 6, 7, 8],
                 "dong_yao": [3, 4],
@@ -72,7 +71,6 @@ def test_qigua_rejects_coin_conversion_inputs(monkeypatch):
 def test_factors_maps_matter_and_projection(monkeypatch):
     calls = []
     casting = {
-        "schema_version": "liuyao-cast-v1",
         "mode": "coins",
         "yaos": [7, 7, 7, 7, 7, 7],
         "dong_yao": [],
@@ -139,7 +137,7 @@ def test_factors_maps_matter_and_projection(monkeypatch):
     }
     assert "matter" not in calls[0][1]
     assert result["matter"]["matter"] == "career"
-    assert result["factors"]["schema_version"] == "liuyao-factors-v1"
+    assert "schema_version" not in result["factors"]
     assert result["factors"]["focus"]["yong_shen"]["name"] == "官鬼"
     assert result["factors"]["focus"]["world"]["position"] == 1
     assert result["factors"]["board"]["lines"][0]["chang_sheng_yue"] == "长生"

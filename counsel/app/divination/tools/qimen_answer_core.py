@@ -47,8 +47,8 @@ def available_ids(snapshot: dict) -> tuple[set[str], set[str]]:
 
 
 def build(snapshot: dict) -> dict:
-    if not isinstance(snapshot, dict) or snapshot.get("schema_version") != "qimen-snapshot-v5":
-        raise ValueError("snapshot must be qimen-snapshot-v5")
+    if not isinstance(snapshot, dict) or snapshot.get("method") != "qimen":
+        raise ValueError("snapshot must use method=qimen")
     evidence_ids, timing_ids = available_ids(snapshot)
     method = snapshot.get("method_context", {})
     matter = snapshot.get("matter") or {}
@@ -108,7 +108,6 @@ def validate_core(core: dict, snapshot: dict) -> dict:
 
 
     return {
-        "schema_version": "qimen-answer-core-audit-v1",
         "accepted": not errors,
         "errors": errors,
         "checked": ["fields", "method ref", "evidence refs", "timing refs", "forbidden language"],

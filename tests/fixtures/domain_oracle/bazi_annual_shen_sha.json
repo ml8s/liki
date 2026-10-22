@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-bazi-annual-shen-sha-v1",
   "basis": "流年太岁十二神方向：丧门取太岁前二位，吊客取太岁后二位；病符取太岁后一辰，大耗取对冲位。",
   "sources": [
     "《紫微斗数全书·安丧门白虎吊客官府四飞星诀》：流年太岁前二位是丧门，后二位是吊客",

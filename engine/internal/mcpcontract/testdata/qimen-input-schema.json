@@ -1,102 +1,360 @@
 {
-  "additionalProperties": false,
-  "properties": {
-    "base_dingju_method": {
-      "description": "十二分钟十分局刻家的基准时家定局法；默认 chaibu；仅 quarter_rule：twelve_minute_ten_division 可传",
-      "enum": [
-        "chaibu",
-        "maoshan",
-        "none",
-        "zhirun"
-      ],
-      "type": "string"
-    },
-    "birth_date": {
-      "description": "出生日期 YYYY-MM-DD 或 RFC3339；按精确立春取年命干，跨立春日必须给时刻",
-      "type": "string"
-    },
-    "dingju_method": {
-      "description": "定局法；默认 hour/day：chaibu；仅 hour/day 可传",
-      "enum": [
-        "chaibu",
-        "maoshan",
-        "none",
-        "zhirun"
-      ],
-      "type": "string"
-    },
-    "dun_source": {
-      "description": "十二分钟十分局刻家的分遁口径；默认 hour_branch；仅 quarter_rule：twelve_minute_ten_division 可传",
-      "enum": [
-        "hour_branch",
-        "solar_term"
-      ],
-      "type": "string"
-    },
-    "hour_boundary": {
-      "description": "十二分钟十分局刻家的时辰界；默认 late_zi；仅 quarter_rule：twelve_minute_ten_division 可传",
-      "enum": [
-        "late_zi",
-        "zi_zheng"
-      ],
-      "type": "string"
-    },
-    "instant": {
-      "description": "占问瞬间 UTC（RFC3339，Z）；节气换局/置闰按此时刻判定",
-      "format": "date-time",
-      "type": "string"
-    },
-    "longitude": {
-      "description": "占问地经度（-180..180）；真太阳时校正用于时柱与分钟分法",
-      "type": "number"
-    },
-    "quarter_rule": {
-      "description": "刻家规则；默认 ten_minute_sanyuan；仅 scope：quarter 可传",
-      "enum": [
-        "ten_minute_sanyuan",
-        "twelve_minute_ten_division"
-      ],
-      "type": "string"
-    },
-    "school": {
-      "description": "盘式流派；默认 zhuanpan；金函玉镜为独立日家专用盘型",
-      "enum": [
-        "jinhan_yujing",
-        "luoshu_feipan",
-        "mingfa_feipan",
-        "zhuanpan"
-      ],
-      "type": "string"
-    },
-    "scope": {
-      "description": "时间层级；默认 hour；quarter 为刻家奇门；month/year 为固定周期定局",
-      "enum": [
-        "day",
-        "hour",
-        "month",
-        "quarter",
-        "year"
-      ],
-      "type": "string"
-    },
-    "timezone": {
-      "description": "占问地 IANA 时区",
-      "type": "string"
-    },
-    "yong_shen": {
-      "description": "用神符号组合；甲不露盘，不能作为独立符号",
-      "items": {
-        "type": "string"
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "birth_date": {
+          "description": "出生日期或时刻。",
+          "type": "string"
+        },
+        "instant": {
+          "description": "占问瞬间。",
+          "format": "date-time",
+          "type": "string"
+        },
+        "longitude": {
+          "description": "占问地经度。",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "method": {
+          "oneOf": [
+            {
+              "additionalProperties": false,
+              "properties": {
+                "dingju_method": {
+                  "description": "定局法。",
+                  "enum": [
+                    "chaibu",
+                    "zhirun",
+                    "maoshan"
+                  ],
+                  "type": "string"
+                },
+                "school": {
+                  "const": "zhuanpan",
+                  "description": "盘式流派。",
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "hour",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school",
+                "dingju_method"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "dingju_method": {
+                  "description": "定局法。",
+                  "enum": [
+                    "chaibu",
+                    "zhirun"
+                  ],
+                  "type": "string"
+                },
+                "school": {
+                  "const": "luoshu_feipan",
+                  "description": "盘式流派。",
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "hour",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school",
+                "dingju_method"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "school": {
+                  "const": "mingfa_feipan",
+                  "description": "盘式流派。",
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "hour",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "dingju_method": {
+                  "description": "定局法。",
+                  "enum": [
+                    "chaibu",
+                    "zhirun"
+                  ],
+                  "type": "string"
+                },
+                "school": {
+                  "const": "zhuanpan",
+                  "description": "盘式流派。",
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "day",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school",
+                "dingju_method"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "dingju_method": {
+                  "description": "定局法。",
+                  "enum": [
+                    "chaibu",
+                    "zhirun"
+                  ],
+                  "type": "string"
+                },
+                "school": {
+                  "const": "luoshu_feipan",
+                  "description": "盘式流派。",
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "day",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school",
+                "dingju_method"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "school": {
+                  "description": "盘式流派。",
+                  "enum": [
+                    "zhuanpan",
+                    "luoshu_feipan"
+                  ],
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "month",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "school": {
+                  "description": "盘式流派。",
+                  "enum": [
+                    "zhuanpan",
+                    "luoshu_feipan"
+                  ],
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "year",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "quarter_rule": {
+                  "const": "ten_minute_sanyuan",
+                  "description": "刻家规则。",
+                  "type": "string"
+                },
+                "school": {
+                  "const": "zhuanpan",
+                  "description": "盘式流派。",
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "quarter",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school",
+                "quarter_rule"
+              ],
+              "type": "object"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "base_dingju_method": {
+                  "description": "基准时家定局法。",
+                  "enum": [
+                    "chaibu",
+                    "zhirun",
+                    "maoshan"
+                  ],
+                  "type": "string"
+                },
+                "dun_source": {
+                  "description": "分遁口径。",
+                  "enum": [
+                    "hour_branch",
+                    "solar_term"
+                  ],
+                  "type": "string"
+                },
+                "hour_boundary": {
+                  "description": "时辰界。",
+                  "enum": [
+                    "late_zi",
+                    "zi_zheng"
+                  ],
+                  "type": "string"
+                },
+                "quarter_rule": {
+                  "const": "twelve_minute_ten_division",
+                  "description": "刻家规则。",
+                  "type": "string"
+                },
+                "school": {
+                  "const": "zhuanpan",
+                  "description": "盘式流派。",
+                  "type": "string"
+                },
+                "scope": {
+                  "const": "quarter",
+                  "description": "时间层级。",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "school",
+                "quarter_rule",
+                "base_dingju_method",
+                "dun_source",
+                "hour_boundary"
+              ],
+              "type": "object"
+            }
+          ],
+          "type": "object"
+        },
+        "timezone": {
+          "description": "占问地 IANA 时区。",
+          "type": "string"
+        },
+        "yong_shen": {
+          "description": "用神符号组合。",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
       },
-      "minItems": 1,
-      "type": "array",
-      "uniqueItems": true
+      "required": [
+        "instant",
+        "timezone",
+        "longitude",
+        "method"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "instant": {
+          "description": "占问瞬间。",
+          "format": "date-time",
+          "type": "string"
+        },
+        "longitude": {
+          "description": "占问地经度。",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "method": {
+          "additionalProperties": false,
+          "properties": {
+            "school": {
+              "const": "jinhan_yujing",
+              "description": "盘式流派。",
+              "type": "string"
+            },
+            "scope": {
+              "const": "day",
+              "description": "时间层级。",
+              "type": "string"
+            }
+          },
+          "required": [
+            "scope",
+            "school"
+          ],
+          "type": "object"
+        },
+        "timezone": {
+          "description": "占问地 IANA 时区。",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instant",
+        "timezone",
+        "longitude",
+        "method"
+      ],
+      "type": "object"
     }
-  },
-  "required": [
-    "instant",
-    "timezone",
-    "longitude"
   ],
   "type": "object"
 }

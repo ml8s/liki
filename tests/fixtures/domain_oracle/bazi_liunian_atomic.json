@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-bazi-liunian-atomic-v1",
   "basis": "流年干支五行所克、三合 / 三会 / 三刑成组、半合须含旺支、财坏印与忌神五行口径。",
   "sources": [
     "《三命通会》三合三会与三刑",

@@ -73,8 +73,7 @@ def _selected_yongshen() -> dict:
         "alternatives": {},
         "ge_ju_context": {},
         "evidence": [],
-        "policy_id": "liki.bazi.yongshen.v1",
-        "rule_version": "1.0.0",
+        "policy_id": "liki.bazi.yongshen",
         "rule_id": "YS-FUYI",
         "chart_digest": "a" * 64,
         "yongshen_digest": "b" * 64,
@@ -96,8 +95,7 @@ def test_naming_check_consumes_selected_yongshen(srv, baseline):
     out = json.loads(r.content[0].text)
     assert out[0]["wuxing"] == baseline["check"][0]["wuxing"]
     assert out[0]["yongshen_source"] == {
-        "policy_id": "liki.bazi.yongshen.v1",
-        "rule_version": "1.0.0",
+        "policy_id": "liki.bazi.yongshen",
         "rule_id": "YS-FUYI",
         "status": "resolved",
         "chart_digest": "a" * 64,

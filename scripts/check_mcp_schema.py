@@ -23,7 +23,6 @@ from mcp_engine_tools import engine_tool_names
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "tools/mcp-tool-catalog.json"
-SCHEMA_VERSION = "liki.mcp-tool-catalog.v1"
 #: Context budget per counsel group, measured on the compact JSON a client pays for.
 COUNSEL_BUDGETS = {"natal": 24 * 1024, "naming": 24 * 1024, "divination": 64 * 1024}
 COUNSEL_GROUPS = tuple(COUNSEL_BUDGETS)
@@ -49,7 +48,6 @@ def _counsel_groups(errors: list[str]) -> list[tuple[str, Any]]:
 def _catalog_document(engine_names: set[str], counsel_names: list[str]) -> dict[str, Any]:
     """The generated catalog: a sorted engine list and an ordered counsel list."""
     return {
-        "schema_version": SCHEMA_VERSION,
         "servers": {
             "engine": {"tools": sorted(engine_names)},
             "counsel": {"tools": list(counsel_names)},
@@ -96,6 +94,8 @@ def _check_schema(schema: dict, *, where: str, errors: list[str], is_output: boo
     for name, prop in properties.items():
         if not isinstance(prop, dict):
             continue
+        if name in {"schema_version", "contract_version"}:
+            errors.append(f"{where}: wire contracts must not publish {name!r}")
         if "enum" in prop and not prop.get("description"):
             errors.append(f"{where}: enum field {name!r} has no description")
         nested = prop.get("items")
@@ -126,10 +126,8 @@ def main(argv: list[str] | None = None) -> int:
         }
         if set(catalog_tools) != {"engine", "counsel"}:
             catalog_errors.append("catalog: servers must be exactly engine and counsel")
-        if catalog.get("schema_version") != SCHEMA_VERSION:
-            catalog_errors.append(
-                f"catalog: schema_version must be {SCHEMA_VERSION}, got {catalog.get('schema_version')!r}"
-            )
+        if "schema_version" in catalog:
+            catalog_errors.append("catalog: generated tool names must not carry a contract schema_version")
     except Exception as exc:
         catalog_errors.append(f"catalog: {exc}")
         catalog_tools = {"engine": set(), "counsel": set()}

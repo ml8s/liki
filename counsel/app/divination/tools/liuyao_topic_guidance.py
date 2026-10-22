@@ -26,7 +26,6 @@ def get_topic(topic: str) -> dict:
     if topic not in data["topics"]:
         raise ValueError(f"unknown topic: {topic}; valid: {', '.join(sorted(_data()['topics']))}")
     return {
-        "schema_version": data["schema_version"],
         "topic": topic,
         **data["topics"][topic],
         "conclusion_scope": data["conclusion_scope"],
@@ -48,7 +47,6 @@ def project_topic_guidance(snapshot: dict, topic: str) -> dict:
         if isinstance(item, dict) and item.get("id")
     ]
     return {
-        "schema_version": "liuyao-topic-guidance-v1",
         "topic": topic,
         "name": guidance["name"],
         "yong_shen": guidance["yong_shen"],

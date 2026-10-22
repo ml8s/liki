@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-qimen-v2",
   "basis": "通行奇门二十四节气阴阳遁与上中下三元定局表；值符 / 值使落宫取该宫地支，逢值或逢冲仅为应期候选。",
   "yingqi_cases": [
     {

@@ -50,10 +50,15 @@ MIGRATED_TYPED_FIELDS = {
     ),
     # 快照不再生成 solar_time（历史字段，保留可空以兼容旧快照）。
     ("liuyao_snapshot", "output"): (
+        ("properties", "schema_version"),
+        ("properties", "timing_plan", "properties", "schema_version"),
+        ("properties", "casting"),
         ("properties", "question", "properties", "solar_time"),
         ("properties", "question", "required"),
     ),
     ("qimen_snapshot", "output"): (
+        ("properties", "schema_version"),
+        ("properties", "judgments", "properties", "schema_version"),
         ("properties", "input", "properties", "solar_time"),
         ("properties", "input", "properties", "local_time"),
         ("properties", "input", "properties", "gregorian_time"),
@@ -71,9 +76,17 @@ MIGRATED_TYPED_FIELDS = {
     ),
     ("period_query", "input"): (("properties", "timezone"),),
     ("compute_factors", "output"): (("properties", "selected_yongshen"),),
+    ("liuyao_query", "input"): (("properties", "snapshot", "properties", "schema_version"),),
+    ("liuyao_query", "output"): (("properties", "schema_version"),),
+    ("qimen_query", "input"): (("properties", "snapshot", "properties", "schema_version"),),
+    ("qimen_query", "output"): (("properties", "schema_version"),),
     ("naming_check", "input"): (("properties", "selected_yongshen"),),
     ("naming_check", "output"): (("items", "properties", "yongshen_source"),),
 }
+
+# qimen_snapshot 的输入契约已整体替换为显式 method 分支；旧 manifest 的平铺
+# optional 参数不再是公开契约。输出仍保留 frozen manifest 对照。
+REPLACED_INPUT_CONTRACTS = {"qimen_snapshot", "liuyao_query", "qimen_query"}
 
 
 # ── JSON Schema normalisation ────────────────────────────────────────────────
@@ -109,6 +122,7 @@ def _strip_conditionals(node):
 
 def _normalise(node):
     if isinstance(node, dict):
+        node.pop("$id", None)
         types = node.get("type")
         if isinstance(types, list) and "null" in types and len(types) == 2:
             other = [item for item in types if item != "null"][0]
@@ -226,7 +240,9 @@ def _schema_deltas(contract, legacy_function):
     want_output = _drop_migrated_typed_fields(
         contract.name, "output", _project(legacy_output)
     )
-    deltas = _diff(got_input, want_input, "input")
+    deltas = []
+    if contract.name not in REPLACED_INPUT_CONTRACTS:
+        deltas += _diff(got_input, want_input, "input")
     deltas += _diff(got_output, want_output, "output")
     return deltas
 
@@ -242,6 +258,27 @@ def test_contracts_cover_every_legacy_tool():
 @pytest.mark.parametrize("name", sorted(LEGACY))
 def test_published_schemas_match_frozen_legacy_manifests(name):
     assert _schema_deltas(CONTRACTS[name], LEGACY[name]) == []
+
+
+def test_qimen_snapshot_input_uses_method_branches():
+    method = CONTRACTS["qimen_snapshot"].input_schema["properties"]["method"]
+    forms = method["anyOf"]
+    assert len(forms) == 10
+    assert all(form["additionalProperties"] is False for form in forms)
+    scopes: dict[str, int] = {}
+    for form in forms:
+        scope = form["properties"]["scope"]["const"]
+        scopes[scope] = scopes.get(scope, 0) + 1
+    assert scopes == {"hour": 3, "day": 3, "quarter": 2, "month": 1, "year": 1}
+
+
+def test_query_inputs_consume_complete_snapshot_outputs():
+    pairs = {"liuyao_query": "liuyao_snapshot", "qimen_query": "qimen_snapshot"}
+    for query, snapshot in pairs.items():
+        consumed = CONTRACTS[query].input_schema["properties"]["snapshot"]
+        published = CONTRACTS[snapshot].output_schema
+        assert consumed["required"] == published["required"]
+        assert consumed["properties"] == published["properties"]
 
 
 @pytest.mark.parametrize("name", sorted(LEGACY))
@@ -298,7 +335,7 @@ def test_yongshen_contracts_publish_the_typed_core():
         CONTRACTS["naming_check"].output_schema["items"]["properties"]["yongshen_source"]
     )
     assert set(source_schema["required"]) == {
-        "policy_id", "rule_version", "rule_id", "status",
+        "policy_id", "rule_id", "status",
         "chart_digest", "yongshen_digest",
     }
 

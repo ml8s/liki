@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-bazi-yongshen-structure-v1",
   "basis": "格局只输出月令格神、克格神与生格神的结构事实，不输出成败格终判；扶抑输出强弱表输入与日主相关关系投影；调候输出《穷通宝鉴》主辅神在四柱的显隐事实。",
   "sources": [
     "《子平真诠·论用神》月令藏干透干与顺逆用法",

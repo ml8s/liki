@@ -194,32 +194,25 @@ func TestCallTool_UnknownTool(t *testing.T) {
 }
 
 func TestTools_OutputSchemaComplete(t *testing.T) {
-	// object 结构的工具必须有 outputSchema（从 RPC Result envelope 提取）；
-	// array/primitive 返回的工具按 MCP 规范省略（description 承担返回说明）。
 	sess, _ := startMCPServer(t)
 	ctx := context.Background()
-	objectCount := 0
-	withOutput := 0
+	count := 0
 	for tool, err := range sess.Tools(ctx, nil) {
 		if err != nil {
 			t.Fatalf("tools/list: %v", err)
 		}
 		if tool.OutputSchema == nil {
+			t.Errorf("tool %q: outputSchema is missing", tool.Name)
 			continue
 		}
-		withOutput++
-		if os, ok := tool.OutputSchema.(map[string]any); ok {
-			if os["type"] != "object" {
-				t.Errorf("tool %q: outputSchema.type = %v, want object", tool.Name, os["type"])
-			}
-			objectCount++
+		if _, ok := tool.OutputSchema.(map[string]any); !ok {
+			t.Errorf("tool %q: outputSchema is not an object-like schema: %T", tool.Name, tool.OutputSchema)
+			continue
 		}
+		count++
 	}
-	if withOutput == 0 {
+	if count == 0 {
 		t.Fatal("no tools expose outputSchema")
-	}
-	if objectCount != withOutput {
-		t.Errorf("non-object outputSchema found: %d/%d", withOutput-objectCount, withOutput)
 	}
 }
 

@@ -26,6 +26,49 @@ type LiuyaoQiguaInput struct {
 	Yaos   LiuyaoYaoValuesInput  `json:"yaos,omitempty" jsonschema:"yaos 模式：六个爻值，初爻到上爻。"`
 }
 
+type LiuyaoQiguaAutoForm struct {
+	Mode LiuyaoQiguaMode `json:"mode" jsonschema:"起卦模式；auto 使用安全随机。"`
+}
+
+type LiuyaoQiguaCoinsForm struct {
+	Mode   LiuyaoQiguaMode       `json:"mode" jsonschema:"起卦模式；coins 要求六组铜钱记录。"`
+	Rounds LiuyaoCoinRoundsInput `json:"rounds" jsonschema:"六组三枚铜钱，初爻到上爻。"`
+}
+
+type LiuyaoQiguaYaosForm struct {
+	Mode LiuyaoQiguaMode      `json:"mode" jsonschema:"起卦模式；yaos 要求六个爻值。"`
+	Yaos LiuyaoYaoValuesInput `json:"yaos" jsonschema:"六个爻值，初爻到上爻。"`
+}
+
+func liuyaoQiguaFormsSchema() (json.RawMessage, error) {
+	modes := []string{"auto", "coins", "yaos"}
+	forms := make([]json.RawMessage, 0, len(modes))
+	for _, mode := range modes {
+		var raw json.RawMessage
+		var err error
+		switch mode {
+		case "auto":
+			_, raw, err = inputSchemaFor[LiuyaoQiguaAutoForm](false, nil)
+		case "coins":
+			_, raw, err = inputSchemaFor[LiuyaoQiguaCoinsForm](false, nil)
+		case "yaos":
+			_, raw, err = inputSchemaFor[LiuyaoQiguaYaosForm](false, nil)
+		}
+		if err != nil {
+			return nil, err
+		}
+		raw, err = withSchemaConst(raw, "mode", mode)
+		if err != nil {
+			return nil, err
+		}
+		forms = append(forms, raw)
+	}
+	return json.Marshal(map[string]any{
+		"type":  "object",
+		"oneOf": forms,
+	})
+}
+
 type LiuyaoCoinConventionOutput struct {
 	Heads LiuyaoHeadsValue `json:"正" jsonschema:"正面记 3。"`
 	Tails LiuyaoTailsValue `json:"反" jsonschema:"反面记 2。"`
@@ -45,7 +88,6 @@ type LiuyaoYaoValuesOutput []LiuyaoYaoValue
 type LiuyaoPositions []LiuyaoPosition
 
 type LiuyaoCastingOutput struct {
-	SchemaVersion  LiuyaoSchemaVersion         `json:"schema_version" jsonschema:"casting receipt schema 版本。"`
 	Mode           LiuyaoCastMode              `json:"mode" jsonschema:"实际使用的起卦模式。"`
 	Order          LiuyaoOrderName             `json:"order" jsonschema:"爻序；当前固定为初爻到上爻。"`
 	CoinConvention *LiuyaoCoinConventionOutput `json:"coin_convention,omitempty" jsonschema:"coins 模式的铜钱记分约定。"`
@@ -339,7 +381,7 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 // birth/query longitude. The boundary derives LocalCivilTime and LAST; the
 // chart domain consumes those domain scales (day/month jian use LAST/solar terms; boundary converts once).
 type LiuyaoChartInput struct {
-	Instant   Instant              `json:"instant" jsonschema:"占问瞬间 UTC（RFC3339，Z）。"`
+	Instant   Instant              `json:"instant" jsonschema:"占问瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC。"`
 	Timezone  string               `json:"timezone" jsonschema:"占问地 IANA 时区。"`
 	Longitude float64              `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时辰。"`
 	YongShen  LiuyaoYongShenName   `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
@@ -383,12 +425,11 @@ func liuyaoCastingDomain(output LiuyaoCastingOutput) (liuyao.Casting, error) {
 		return liuyao.Casting{}, fmt.Errorf("yaos requires exactly 6 values, got %d", len(output.Yaos))
 	}
 	casting := liuyao.Casting{
-		SchemaVersion: string(output.SchemaVersion),
-		Mode:          string(output.Mode),
-		Order:         string(output.Order),
-		Yaos:          [6]int{},
-		DongYao:       make([]int, 0, len(output.DongYao)),
-		CastingID:     string(output.CastingID),
+		Mode:      string(output.Mode),
+		Order:     string(output.Order),
+		Yaos:      [6]int{},
+		DongYao:   make([]int, 0, len(output.DongYao)),
+		CastingID: string(output.CastingID),
 	}
 	for i, value := range output.Yaos {
 		casting.Yaos[i] = int(value)
@@ -667,12 +708,11 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 
 func liuyaoCastingWire(casting liuyao.Casting) LiuyaoCastingOutput {
 	output := LiuyaoCastingOutput{
-		SchemaVersion: LiuyaoSchemaVersion(casting.SchemaVersion),
-		Mode:          LiuyaoCastMode(casting.Mode),
-		Order:         LiuyaoOrderName(casting.Order),
-		Yaos:          make(LiuyaoYaoValuesOutput, 0, len(casting.Yaos)),
-		DongYao:       make(LiuyaoPositions, 0, len(casting.DongYao)),
-		CastingID:     LiuyaoCastingID(casting.CastingID),
+		Mode:      LiuyaoCastMode(casting.Mode),
+		Order:     LiuyaoOrderName(casting.Order),
+		Yaos:      make(LiuyaoYaoValuesOutput, 0, len(casting.Yaos)),
+		DongYao:   make(LiuyaoPositions, 0, len(casting.DongYao)),
+		CastingID: LiuyaoCastingID(casting.CastingID),
 	}
 	if casting.CoinConvention != nil {
 		output.CoinConvention = &LiuyaoCoinConventionOutput{

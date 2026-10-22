@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-bazi-gender-shen-sha-v1",
   "basis": "勾绞煞以年支命前三辰、命后三辰相对取位；阳男阴女前三辰为勾、后三辰为绞，阴男阳女相反。元辰以年支对冲支为基点；阳男阴女取冲前一位，阴男阳女取冲后一位。",
   "sources": [
     "《三命通会·论勾绞》",

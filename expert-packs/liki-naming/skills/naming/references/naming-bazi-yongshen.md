@@ -50,7 +50,7 @@
 
 ```text
 用神：{yong}；喜神：{xi}；忌神：{ji}
-来源：{policy_id} / {rule_version} / {rule_id}
+来源：{policy_id} / {rule_id}
 状态：{status}
 选字：用神字池、喜神回退、忌神淘汰
 ```

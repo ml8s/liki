@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"reflect"
 	"slices"
 	"strings"
 	"sync"
@@ -64,22 +65,11 @@ func TestEngineContractDefinitions(t *testing.T) {
 		}
 	}
 
-	// Object roots expose output schemas; array roots (huangli.days,
-	// bazi.xiaoyun, ziwei.daxian) stay runtime-validated but are intentionally
-	// undeclared, matching the MCP object-only outputSchema rule.
-	arrayRoots := map[string]bool{
-		"huangli.days": true, "bazi.xiaoyun": true, "ziwei.daxian": true,
-	}
+	// Every output root is declared: object, array, scalar, or composition.
 	for _, name := range want {
 		definition, _ := registry.Definition(name)
-		if arrayRoots[name] {
-			if len(definition.OutputSchema) != 0 {
-				t.Errorf("%s should not declare a non-object output schema", name)
-			}
-			continue
-		}
 		if len(definition.OutputSchema) == 0 {
-			t.Errorf("%s should declare an object output schema", name)
+			t.Errorf("%s should declare an output schema", name)
 		}
 	}
 }
@@ -165,6 +155,164 @@ func TestEngineContractInputConstraints(t *testing.T) {
 	}
 }
 
+func TestLiuyaoQiguaSchemaUsesMutuallyExclusiveForms(t *testing.T) {
+	registry := testEngine()
+
+	var input struct {
+		AdditionalProperties *bool               `json:"additionalProperties"`
+		Properties           map[string]struct{} `json:"properties"`
+		OneOf                []struct {
+			Required             []string `json:"required"`
+			AdditionalProperties *bool    `json:"additionalProperties"`
+			Properties           map[string]struct {
+				Const string `json:"const"`
+				Enum  []any  `json:"enum"`
+			} `json:"properties"`
+		} `json:"oneOf"`
+	}
+	decode(t, mustDefinition(t, registry, "liuyao.qigua").InputSchema, &input)
+	if input.AdditionalProperties != nil && *input.AdditionalProperties {
+		t.Fatalf("liuyao.qigua composition root must let closed branches own properties: %#v", input.AdditionalProperties)
+	}
+	if len(input.Properties) != 0 {
+		t.Fatalf("liuyao.qigua root must not add union fields: %#v", input.Properties)
+	}
+	if len(input.OneOf) != 3 {
+		t.Fatalf("liuyao.qigua forms = %d, want 3", len(input.OneOf))
+	}
+
+	wantRequired := map[string][]string{
+		"auto":  {"mode"},
+		"coins": {"mode", "rounds"},
+		"yaos":  {"mode", "yaos"},
+	}
+	seen := make(map[string]bool, len(input.OneOf))
+	for _, form := range input.OneOf {
+		mode := form.Properties["mode"].Const
+		if mode == "" || form.Properties["mode"].Enum != nil {
+			t.Fatalf("liuyao.qigua mode must be a branch constant: %#v", form.Properties["mode"])
+		}
+		if seen[mode] {
+			t.Fatalf("duplicate liuyao.qigua form: %s", mode)
+		}
+		seen[mode] = true
+		want := wantRequired[mode]
+		if len(form.Required) != len(want) {
+			t.Fatalf("%s required = %#v, want %#v", mode, form.Required, want)
+		}
+		for _, field := range want {
+			if !slices.Contains(form.Required, field) {
+				t.Fatalf("%s required = %#v, want %s", mode, form.Required, field)
+			}
+		}
+		if _, unexpected := form.Properties["rounds"]; mode != "coins" && unexpected {
+			t.Fatalf("%s form must not expose rounds", mode)
+		}
+		if _, unexpected := form.Properties["yaos"]; mode != "yaos" && unexpected {
+			t.Fatalf("%s form must not expose yaos", mode)
+		}
+	}
+	for mode := range wantRequired {
+		if !seen[mode] {
+			t.Fatalf("liuyao.qigua is missing the %s form", mode)
+		}
+	}
+}
+
+func TestQimenChartSchemaUsesMethodForms(t *testing.T) {
+	registry := testEngine()
+
+	type leaf struct {
+		Const   string   `json:"const"`
+		Enum    []string `json:"enum"`
+		Minimum *float64 `json:"minimum"`
+		Maximum *float64 `json:"maximum"`
+	}
+	type methodForm struct {
+		Required             []string        `json:"required"`
+		AdditionalProperties *bool           `json:"additionalProperties"`
+		Properties           map[string]leaf `json:"properties"`
+	}
+	type outerProperty struct {
+		leaf
+		Properties map[string]leaf `json:"properties"`
+		OneOf      []methodForm    `json:"oneOf"`
+	}
+	type rootForm struct {
+		Required             []string                 `json:"required"`
+		AdditionalProperties *bool                    `json:"additionalProperties"`
+		Properties           map[string]outerProperty `json:"properties"`
+	}
+	type root struct {
+		AdditionalProperties *bool      `json:"additionalProperties"`
+		OneOf                []rootForm `json:"oneOf"`
+	}
+	var input root
+	decode(t, mustDefinition(t, registry, "qimen.chart").InputSchema, &input)
+	if input.AdditionalProperties != nil && *input.AdditionalProperties {
+		t.Fatalf("qimen.chart composition root must let closed branches own properties: %#v", input.AdditionalProperties)
+	}
+	if len(input.OneOf) != 2 {
+		t.Fatalf("qimen.chart root forms = %d, want standard and jinhan", len(input.OneOf))
+	}
+	standard := input.OneOf[0]
+	jinhan := input.OneOf[1]
+	if _, exists := standard.Properties["yong_shen"]; !exists {
+		t.Fatal("standard qimen form lacks yong_shen")
+	}
+	if _, exists := standard.Properties["birth_date"]; !exists {
+		t.Fatal("standard qimen form lacks birth_date")
+	}
+	for _, field := range []string{"yong_shen", "birth_date"} {
+		if _, exists := jinhan.Properties[field]; exists {
+			t.Fatalf("jinhan form must not expose %s", field)
+		}
+	}
+	for _, branch := range []rootForm{standard, jinhan} {
+		longitude := branch.Properties["longitude"]
+		if longitude.Minimum == nil || *longitude.Minimum != -180 ||
+			longitude.Maximum == nil || *longitude.Maximum != 180 {
+			t.Fatalf("qimen longitude bounds = %#v", longitude)
+		}
+	}
+	if len(standard.Properties["method"].OneOf) != 9 {
+		t.Fatalf("qimen method forms = %d, want 9", len(standard.Properties["method"].OneOf))
+	}
+	scopes := map[string]int{}
+	for _, method := range standard.Properties["method"].OneOf {
+		scope := method.Properties["scope"].Const
+		if scope == "" {
+			t.Fatalf("qimen method form lacks a scope const: %#v", method.Properties)
+		}
+		scopes[scope]++
+		if method.AdditionalProperties == nil || !*method.AdditionalProperties {
+			// JSON Schema false is decoded into the typed pointer as false.
+		} else {
+			t.Fatalf("qimen %s method form is not closed", scope)
+		}
+		if scope != "quarter" {
+			if _, exists := method.Properties["quarter_rule"]; exists {
+				t.Fatalf("qimen %s form must not expose quarter_rule", scope)
+			}
+		}
+		if scope != "quarter" || method.Properties["quarter_rule"].Const != "twelve_minute_ten_division" {
+			for _, field := range []string{"base_dingju_method", "dun_source", "hour_boundary"} {
+				if _, exists := method.Properties[field]; exists {
+					t.Fatalf("qimen %s form must not expose %s", scope, field)
+				}
+			}
+		}
+	}
+	wantScopes := map[string]int{"hour": 3, "day": 2, "quarter": 2, "month": 1, "year": 1}
+	if !reflect.DeepEqual(scopes, wantScopes) {
+		t.Fatalf("qimen method scope coverage = %#v, want %#v", scopes, wantScopes)
+	}
+	if jinhan.Properties["method"].Properties["school"].Const != "jinhan_yujing" ||
+		jinhan.Properties["method"].Properties["scope"].Const != "day" {
+		t.Fatalf("jinhan method = %#v", jinhan.Properties["method"].Properties)
+	}
+}
+
 func TestEngineContractSchemasSelfDescribe(t *testing.T) {
 	registry := testEngine()
 	for _, name := range registry.Names() {
@@ -193,6 +341,9 @@ func assertSchemaPropertiesSelfDescribe(t *testing.T, name string, schema map[st
 		property, ok := raw.(map[string]any)
 		if !ok {
 			t.Fatalf("%s.%s: property is not an object", name, field)
+		}
+		if field == "schema_version" || field == "contract_version" {
+			t.Errorf("%s.%s: wire contracts must not publish a version field", name, field)
 		}
 		if property["description"] == "" {
 			t.Errorf("%s.%s: missing description", name, field)

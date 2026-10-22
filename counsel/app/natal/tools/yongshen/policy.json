@@ -1,6 +1,5 @@
 {
-  "policy_id": "liki.bazi.yongshen.v1",
-  "rule_version": "1.0.0",
+  "policy_id": "liki.bazi.yongshen",
   "match": "first",
   "tables": {
     "wuxing_relations": {

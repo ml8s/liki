@@ -9,8 +9,7 @@ import (
 )
 
 func loadZiweiOracle(t *testing.T) struct {
-	SchemaVersion string `json:"schema_version"`
-	SiHua         []struct {
+	SiHua []struct {
 		Stem            string            `json:"stem"`
 		Transformations map[string]string `json:"transformations"`
 	} `json:"si_hua_all_10"`
@@ -37,8 +36,7 @@ func loadZiweiOracle(t *testing.T) struct {
 		t.Fatalf("read ziwei oracle: %v", err)
 	}
 	var doc struct {
-		SchemaVersion string `json:"schema_version"`
-		SiHua         []struct {
+		SiHua []struct {
 			Stem            string            `json:"stem"`
 			Transformations map[string]string `json:"transformations"`
 		} `json:"si_hua_all_10"`

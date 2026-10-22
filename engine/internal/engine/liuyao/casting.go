@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-const castingSchemaVersion = "liuyao-cast-v1"
-
 // CoinRound is one cast of three coins. Coins keeps the normalized symbols in
 // the order supplied by the caller; it is an audit record, not an input to the
 // Yin/Yang conversion (that only depends on the sum).
@@ -24,7 +22,6 @@ type CoinRound struct {
 
 // Casting is the complete, auditable input to one divination.
 type Casting struct {
-	SchemaVersion  string         `json:"schema_version"`
 	Mode           string         `json:"mode"`
 	Order          string         `json:"order"`
 	CoinConvention map[string]int `json:"coin_convention,omitempty"`
@@ -71,7 +68,6 @@ func NewCoinsCasting(rounds [][]string) (Casting, error) {
 		return Casting{}, fmt.Errorf("coins requires exactly 6 rounds, got %d", len(rounds))
 	}
 	receipt := Casting{
-		SchemaVersion:  castingSchemaVersion,
 		Mode:           "coins",
 		Order:          "bottom_up",
 		CoinConvention: map[string]int{coinHeads: 3, coinTails: 2},
@@ -114,11 +110,10 @@ func NewValuesCasting(values [6]int) (Casting, error) {
 		return Casting{}, err
 	}
 	receipt := Casting{
-		SchemaVersion: castingSchemaVersion,
-		Mode:          "yaos",
-		Order:         "bottom_up",
-		Yaos:          values,
-		DongYao:       dongYao(yts),
+		Mode:    "yaos",
+		Order:   "bottom_up",
+		Yaos:    values,
+		DongYao: dongYao(yts),
 	}
 	receipt.CastingID = castingID(receipt)
 	return receipt, nil
@@ -127,9 +122,6 @@ func NewValuesCasting(values [6]int) (Casting, error) {
 // Validate ensures a decoded casting can be bound to one and only one set of
 // six lines. It recomputes moving lines and never trusts the caller's array.
 func (c Casting) Validate() error {
-	if c.SchemaVersion != castingSchemaVersion {
-		return fmt.Errorf("unsupported casting schema_version %q", c.SchemaVersion)
-	}
 	if c.CastingID == "" {
 		return fmt.Errorf("casting_id is required")
 	}
@@ -247,7 +239,7 @@ func SecureQigua() (Casting, error) {
 // the derived casting_id itself and engineering telemetry.
 func castingID(c Casting) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "%s\x1f%s\x1f%s", c.SchemaVersion, c.Mode, c.Order)
+	fmt.Fprintf(&b, "%s\x1f%s", c.Mode, c.Order)
 	if len(c.Rounds) != 0 {
 		for _, round := range c.Rounds {
 			fmt.Fprintf(&b, "\x1f%d|%s", round.Position, strings.Join(round.Coins, ","))

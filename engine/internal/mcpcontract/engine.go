@@ -141,8 +141,7 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 	reflect.TypeFor[LiuyaoYaoLabel](): {
 		Type: "string", Enum: []any{"老阴", "少阳", "少阴", "老阳"},
 	},
-	reflect.TypeFor[LiuyaoSchemaVersion](): {Type: "string", Enum: []any{"liuyao-cast-v1"}},
-	reflect.TypeFor[LiuyaoCastingID]():     {Type: "string", Pattern: "^[a-f0-9]{64}$"},
+	reflect.TypeFor[LiuyaoCastingID](): {Type: "string", Pattern: "^[a-f0-9]{64}$"},
 	reflect.TypeFor[LiuyaoGanName](): {
 		Type: "string", Enum: []any{"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"},
 	},
@@ -282,9 +281,14 @@ func NewEngine() *Registry {
 		Description: "玄空流年飞星。chart（可选）+ year → 流年飞星盘 + 宅盘凶星落宫对照（确定性计算）。",
 		Handler:     XuankongLiunian,
 	})
+	qiguaSchema, err := liuyaoQiguaFormsSchema()
+	if err != nil {
+		panic("liuyao.qigua input schema: " + err.Error())
+	}
 	mustRegister(registry, Tool[LiuyaoQiguaInput, LiuyaoQiguaOutput]{
 		Name:        "liuyao.qigua",
 		Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次；mode=coins 时传入六组正/反记录；mode=yaos 时传入六个爻值。返回可审计起卦收据。",
+		InputSchema: qiguaSchema,
 		Handler:     LiuyaoQigua,
 	})
 	mustRegister(registry, Tool[LiuyaoChartInput, LiuyaoChartOutput]{
@@ -385,12 +389,15 @@ func NewEngine() *Registry {
 		Handler:             ZiweiBond,
 		TolerateUnknownArgs: true,
 	})
+	qimenSchema, err := qimenChartFormsSchema()
+	if err != nil {
+		panic("qimen.chart input schema: " + err.Error())
+	}
 	mustRegister(registry, Tool[QimenChartInput, QimenChartOutput]{
-		Name:                 "qimen.chart",
-		Description:          "奇门排盘：时/刻/日/月/年家 × 转盘/飞盘/鸣法；时家与日家支持拆补/置闰；刻家包含十分钟三元与十二分钟十分局；金函玉镜为 day 专用盘。yong_shen 可显式定位用神，事象路由由上层 skill 完成；ying_qi 返回日期窗口。gregorian_time 与 longitude 由调用方给出（经度用于真太阳时换算）。",
-		Handler:              QimenChart,
-		TolerateUnknownArgs:  true,
-		KeepClosedInputPaths: []string{""},
+		Name:        "qimen.chart",
+		Description: "奇门排盘。method 显式选择时/刻/日/月/年家与转盘/飞盘/鸣法/金函玉镜的合法组合；时间、地点、用神保持直接参数。",
+		InputSchema: qimenSchema,
+		Handler:     QimenChart,
 	})
 	return registry
 }

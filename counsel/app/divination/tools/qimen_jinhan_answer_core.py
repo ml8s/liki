@@ -99,7 +99,6 @@ def validate_core(core: dict, snapshot: dict) -> dict:
         errors.append({"field": "method_ref", "reason": "must match snapshot scope/school"})
 
     return {
-        "schema_version": "qimen-jinhan-answer-core-audit-v1",
         "accepted": not errors,
         "errors": errors,
         "checked": ["fields", "method ref", "evidence refs", "forbidden language"],

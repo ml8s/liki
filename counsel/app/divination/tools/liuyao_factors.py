@@ -201,16 +201,8 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
         timing_candidates = []
 
     return {
-        "schema_version": "liuyao-factors-v1",
         "question": question,
-        "casting": {
-            "mode": casting.get("mode"),
-            "order": casting.get("order", "bottom_up"),
-            "casting_id": casting.get("casting_id"),
-            "rounds": casting.get("rounds", []),
-            "yaos": casting.get("yaos", []),
-            "dong_yao": casting.get("dong_yao", []),
-        },
+        "casting": casting_projection(casting),
         "board": {
             "name": chart.get("name"),
             "ben_gua": chart.get("ben_gua"),
@@ -249,3 +241,16 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
         },
 
     }
+
+
+def casting_projection(casting: dict) -> dict:
+    projected = {
+        "mode": casting.get("mode"),
+        "order": casting.get("order", "bottom_up"),
+        "yaos": casting.get("yaos", []),
+        "dong_yao": casting.get("dong_yao", []),
+        "casting_id": casting.get("casting_id"),
+    }
+    if projected["mode"] == "coins":
+        projected["rounds"] = casting.get("rounds", [])
+    return projected

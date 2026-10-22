@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_tool_catalog_is_self_describing():
     catalog = json.loads((ROOT / "tools/mcp-tool-catalog.json").read_text())
-    assert catalog["schema_version"] == "liki.mcp-tool-catalog.v1"
+    assert set(catalog) == {"servers"}
 
 
 def test_naming_tools_use_domain_prefix():

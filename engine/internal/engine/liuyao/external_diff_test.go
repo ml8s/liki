@@ -10,8 +10,7 @@ import (
 )
 
 type externalDiffCases struct {
-	SchemaVersion string `json:"schema_version"`
-	Cases         []struct {
+	Cases []struct {
 		CaseID string `json:"case_id"`
 		Input  struct {
 			ApparentSolarInput string `json:"solar_time"`

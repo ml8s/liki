@@ -79,18 +79,15 @@ func register[In, Out any](r *Registry, tool Tool[In, Out]) error {
 	if len(tool.InputSchema) > 0 {
 		inputSchema = tool.InputSchema
 	}
-	outputSchemaDocument, outputResolved, outputSchema, err := schemaFor[Out]()
+	_, outputResolved, outputSchema, err := schemaFor[Out]()
 	if err != nil {
 		return fmt.Errorf("mcp tool %s: output schema: %w", tool.Name, err)
 	}
 
-	// MCP conformance in this service exposes object roots only. Array and
-	// scalar outputs keep runtime DTO validation but preserve the existing
-	// wire shape without a declared outputSchema.
-	exposedOutputSchema := json.RawMessage(nil)
-	if outputSchemaDocument.Type == "object" {
-		exposedOutputSchema = outputSchema
-	}
+	// The current MCP SDK supports object, array, scalar, and composition
+	// roots in outputSchema. Expose every root so clients can bootstrap the
+	// full result shape without a probe call or hard-coded documentation.
+	exposedOutputSchema := outputSchema
 
 	r.tools[tool.Name] = &registration{
 		name:         tool.Name,

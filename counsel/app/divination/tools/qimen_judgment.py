@@ -80,7 +80,6 @@ def _match_condition(factors: dict, cond: dict) -> bool:
 def empty() -> dict:
     """无命中断语的空结果（金函玉镜等无通用判断的流派）。"""
     return {
-        "schema_version": load_rules()["schema_version"],
         "results": [],
         "policy": {
             "candidate_not_absolute_verdict": True,
@@ -111,7 +110,6 @@ def evaluate(factors: dict) -> dict:
             "conclusion_scope": load_rules().get("conclusion_scope", ""),
         })
     return {
-        "schema_version": load_rules()["schema_version"],
         "results": results,
         "policy": {
             "candidate_not_absolute_verdict": True,

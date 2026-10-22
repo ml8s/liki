@@ -337,6 +337,7 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
             / "engine/internal/mcpcontract/testdata/qimen-input-schema.json"
         ).read_text(encoding="utf-8")
     )
+    hour_method = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
     requests = []
 
     def fake_engine_data(method: str, params: dict) -> dict:
@@ -346,7 +347,10 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
 
     monkeypatch.setattr(paipan, "engine_data", fake_engine_data)
     for matter in load_routing_matter_table():
-        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, matter=matter)
+        paipan.qimen_chart(
+            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            method=hour_method, matter=matter,
+        )
     assert len(requests) == len(load_routing_matter_table())
     for params in requests:
         validate(params, schema)
@@ -365,8 +369,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
         116.4,
         matter="wealth",
         birth_date="1984-02-15",
-        scope="hour",
-        school="zhuanpan",
+        method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
     )
 
     assert len(calls) == 1
@@ -383,7 +386,11 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
     monkeypatch.setattr(paipan, "engine_data", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     try:
-        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, matter="wealth", yong_shen=["生门"])
+        paipan.qimen_chart(
+            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
+            matter="wealth", yong_shen=["生门"],
+        )
     except ValueError as exc:
         assert "互斥" in str(exc)
     else:
@@ -397,7 +404,11 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 不能为空"):
-        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, yong_shen=[])
+        paipan.qimen_chart(
+            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
+            yong_shen=[],
+        )
 
 
 def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
@@ -415,7 +426,9 @@ def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
     )
     with pytest.raises(ValueError, match="yong_shen 符号重复"):
         paipan.qimen_chart(
-            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, yong_shen=["生门", "生门"]
+            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
+            yong_shen=["生门", "生门"],
         )
 
 
@@ -426,7 +439,11 @@ def test_qimen_chart_rejects_string_yong_shen(monkeypatch) -> None:
         lambda *_: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="yong_shen 必须是字符串数组"):
-        paipan.qimen_chart("2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4, yong_shen="生门")
+        paipan.qimen_chart(
+            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
+            yong_shen="生门",
+        )
 
 
 def test_matter_table_rejects_duplicate_symbols(tmp_path, monkeypatch) -> None:

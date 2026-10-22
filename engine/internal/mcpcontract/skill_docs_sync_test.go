@@ -538,7 +538,7 @@ func loadSkillToolVocabulary() (map[string]map[string]bool, error) {
 }
 
 // counselSkill reads the skill package from a counsel artifact path such as
-// counsel/app/divination/tools/qimen_snapshot_contract.json.
+// counsel/app/contracts/divination.py.
 func counselSkill(path string) string {
 	parts := strings.Split(filepath.ToSlash(path), "/")
 	for index, part := range parts {

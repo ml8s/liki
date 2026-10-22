@@ -3,7 +3,12 @@
     "birth_date": "1990-01-01T00:00:00+08:00",
     "longitude": 123.25,
     "instant": "2026-03-02T10:30:00Z",
-    "timezone": "Asia/Shanghai"
+    "timezone": "Asia/Shanghai",
+    "method": {
+      "scope": "hour",
+      "school": "zhuanpan",
+      "dingju_method": "chaibu"
+    }
   },
   "output": {
     "gan_interaction": [

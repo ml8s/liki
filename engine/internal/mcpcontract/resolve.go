@@ -137,7 +137,7 @@ type TianwenResolveReasonOutput struct {
 // civil time with offset for display only. Do not add calendar/true-solar
 // fields here: charts derive Lunar/LAST/SolarTerm on demand from the shared L1.
 type TianwenResolveCandidateOutput struct {
-	Instant  Instant                      `json:"instant" jsonschema:"候选瞬间 UTC（RFC3339，Z）。"`
+	Instant  Instant                      `json:"instant" jsonschema:"候选瞬间 UTC（RFC3339，canonical 以 Z 结尾）。"`
 	Timezone string                       `json:"timezone" jsonschema:"该候选的 IANA 时区。"`
 	Reasons  []TianwenResolveReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
 }

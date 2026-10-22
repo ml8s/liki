@@ -76,4 +76,4 @@ def test_rules_all_are_candidates_not_verdicts():
 def test_empty_result_shape():
     result = qimen_judgment.empty()
     assert result["results"] == []
-    assert result["schema_version"] == qimen_judgment.load_rules()["schema_version"]
+    assert "schema_version" not in result

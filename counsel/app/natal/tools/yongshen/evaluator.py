@@ -1,7 +1,7 @@
 """表驱动用神裁决解释器。
 
 解释器只认识通用表达式：path / eq / in / all / any / select / lookup。
-从格、调候、格局、中和、喜忌冲突等命理规则全部在 policy.v1.json。
+从格、调候、格局、中和、喜忌冲突等命理规则全部在 policy.json。
 """
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from typing import Any
 
 from .schema import validate_policy
 
-POLICY_PATH = Path(__file__).resolve().parent / "policy.v1.json"
+POLICY_PATH = Path(__file__).resolve().parent / "policy.json"
 _MISSING = object()
 _POLICY_CACHE: dict | None = None
 _DIRECT_FACTOR_KEYS = (
@@ -569,7 +569,6 @@ PUBLISHED_FIELDS = (
     "ge_ju_context",
     "evidence",
     "policy_id",
-    "rule_version",
     "chart_digest",
 )
 
@@ -599,7 +598,6 @@ def resolve_yongshen(fullchart: dict) -> dict:
     result["ge_ju_context"] = result["alternatives"]["ge_ju"]
     result["evidence"] = _evidence(facts, derived, policy)
     result["policy_id"] = policy["policy_id"]
-    result["rule_version"] = policy["rule_version"]
     result["chart_digest"] = _digest(fullchart or {})
     result["yongshen_digest"] = _digest(published_yongshen(result))
     return result

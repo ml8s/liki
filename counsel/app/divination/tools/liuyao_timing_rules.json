@@ -1,5 +1,4 @@
 {
-  "schema_version": "liuyao-timing-rules-v2",
   "default_priority": 30,
   "default_horizon": "event_based",
   "target_bonus": 8,

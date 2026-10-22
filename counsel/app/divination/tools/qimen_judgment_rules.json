@@ -1,5 +1,4 @@
 {
-  "schema_version": "qimen-judgment-rules-v1",
   "conclusion_scope": "candidate_not_absolute_verdict",
   "rules": [
     {

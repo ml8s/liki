@@ -87,7 +87,6 @@ def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: i
     for index, item in enumerate(ranked, 1):
         item["rank"] = index
     return {
-        "schema_version": "liuyao-timing-plan-v2",
         "blocked": False,
         "topic": topic,
         "candidates": ranked,

@@ -10,7 +10,6 @@ import (
 )
 
 type calendarBoundaryCases struct {
-	SchemaVersion   string `json:"schema_version"`
 	ConclusionScope string `json:"conclusion_scope"`
 	Cases           []struct {
 		ID                  string `json:"id"`
@@ -27,9 +26,6 @@ func TestCalendarBoundaryFixtures_MonthBranch(t *testing.T) {
 	var cases calendarBoundaryCases
 	if err := json.Unmarshal(raw, &cases); err != nil {
 		t.Fatalf("decode calendar fixtures: %v", err)
-	}
-	if cases.SchemaVersion != "liuyao-calendar-boundaries-v1" {
-		t.Fatalf("unexpected schema version: %s", cases.SchemaVersion)
 	}
 	for _, tc := range cases.Cases {
 		t.Run(tc.ID, func(t *testing.T) {

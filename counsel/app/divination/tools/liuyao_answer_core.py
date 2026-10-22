@@ -96,7 +96,6 @@ def validate_core(core: dict, snapshot: dict) -> dict:
         errors.append({"field": "conflicts", "reason": "snapshot has conflicts that must be covered"})
 
     return {
-        "schema_version": "liuyao-answer-core-audit-v1",
         "accepted": not errors,
         "errors": errors,
         "checked": ["fields", "evidence refs", "timing refs", "conflict coverage", "forbidden language"],

@@ -11,7 +11,6 @@ from liuyao_paipan import factors as build_liuyao_factors
 from liuyao_timing import rank_timing_candidates as plan_timing
 from liuyao_topic_guidance import load_topic_table, project_topic_guidance
 
-SCHEMA_VERSION = "liuyao-snapshot-v7"
 ALLOWED_MATTERS = set(load_matter_table())
 ALLOWED_TOPICS = set(load_topic_table()["topics"])
 MATTER_TO_TOPIC = {
@@ -70,7 +69,6 @@ def create(
     resolved_topic = topic or MATTER_TO_TOPIC.get(matter or "")
     snapshot = build_snapshot(
         method="liuyao",
-        schema_version=SCHEMA_VERSION,
         payload={
             "question": projected["question"],
             "matter": (result.get("matter") or {}).get("matter"),

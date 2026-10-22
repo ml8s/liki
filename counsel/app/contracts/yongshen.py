@@ -65,7 +65,6 @@ class YongShenSource(BaseModel):
 
     model_config = ConfigDict(extra="allow")
     policy_id: str = Field(description="Yongshen policy identifier.")
-    rule_version: str = Field(description="Yongshen policy version.")
     rule_id: str = Field(description="Matched rule identifier.")
     status: YongShenStatus = Field(
         description="Resolution status; only resolved and partial are consumable.",
@@ -185,7 +184,6 @@ class SelectedYongShenCore(BaseModel):
     )
     rule_id: str = Field(description="Matched rule identifier.")
     policy_id: str = Field(description="Yongshen policy identifier.")
-    rule_version: str = Field(description="Yongshen policy version.")
     chart_digest: Sha256Digest = Field(
         description="SHA-256 digest of the source bazi full chart.",
     )

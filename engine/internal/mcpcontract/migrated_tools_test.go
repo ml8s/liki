@@ -84,7 +84,7 @@ func TestMigratedLegacyToolsTolerateUnknownArguments(t *testing.T) {
 
 	// qimen.chart's legacy schema did close the root object, so unknown root
 	// arguments stay rejected there.
-	assertToolError(t, registry, "qimen.chart", map[string]any{
+	assertQimenChartError(t, registry, map[string]any{
 		"instant": solarTime, "timezone": "Asia/Shanghai", "longitude": 116.4, "kind": "hour",
 	}, "")
 }
@@ -151,18 +151,21 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 	}
 }
 
-func TestMigratedQimenDefaultsAndDingju(t *testing.T) {
+func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	registry := testEngine()
 
-	method := callToolDocument(t, registry, "qimen.chart", map[string]any{
+	method := callQimenChart(t, registry, map[string]any{
 		"instant": "1984-02-15T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4,
 	})["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "zhuanpan" || method["dingju_method"] != "chaibu" {
-		t.Fatalf("default method = %v/%v/%v, want hour/zhuanpan/chaibu",
+		t.Fatalf("canonical method = %v/%v/%v, want hour/zhuanpan/chaibu",
 			method["scope"], method["school"], method["dingju_method"])
 	}
+	assertToolError(t, registry, "qimen.chart", map[string]any{
+		"instant": "1984-02-15T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4,
+	}, "method")
 
-	method = callToolDocument(t, registry, "qimen.chart", map[string]any{
+	method = callQimenChart(t, registry, map[string]any{
 		"instant": "2026-01-05T05:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "dingju_method": "zhirun",
 	})["method"].(map[string]any)
 	if method["dingju_method"] != "zhirun" || method["dingju_method_name"] != "置闰定局" {
@@ -173,7 +176,7 @@ func TestMigratedQimenDefaultsAndDingju(t *testing.T) {
 		t.Fatalf("terms = %v/%v, want 冬至/小寒", method["jie_qi"], method["yong_ju_jie_qi"])
 	}
 
-	assertToolError(t, registry, "qimen.chart", map[string]any{
+	assertQimenChartError(t, registry, map[string]any{
 		"instant": "2026-01-05T05:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "dingju_method": "luoshu_feipan",
 	}, "")
 }
@@ -182,7 +185,7 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 	registry := testEngine()
 	const solarTime = "2026-01-13T17:03:00Z"
 
-	document := callToolDocument(t, registry, "qimen.chart", map[string]any{
+	document := callQimenChart(t, registry, map[string]any{
 		"instant": solarTime, "timezone": "Asia/Shanghai", "longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
 	})
 	method := document["method"].(map[string]any)
@@ -211,7 +214,7 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 		params["instant"] = "2024-06-15T04:00:00Z"
 		params["timezone"] = "Asia/Shanghai"
 		params["longitude"] = 116.4
-		assertToolError(t, registry, "qimen.chart", params, "")
+		assertQimenChartError(t, registry, params, "")
 	}
 }
 
@@ -224,7 +227,7 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	}
 
 	registry := testEngine()
-	document := callToolDocument(t, registry, "qimen.chart", map[string]any{
+	document := callQimenChart(t, registry, map[string]any{
 		"instant": "1984-02-15T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "yong_shen": []string{"生门", "戊"}, "birth_date": "1984-02-15",
 	})
 	if document["yong_shen"] == nil {
@@ -232,7 +235,7 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	}
 	assertJiaStaysHidden(t, document)
 
-	assertToolError(t, registry, "qimen.chart", map[string]any{
+	assertQimenChartError(t, registry, map[string]any{
 		"instant": "1984-02-15T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "yong_shen": []string{"不存在的符号"},
 	}, "")
 }
@@ -439,7 +442,7 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 			"gender":    "male",
 		}, "longitude")
 	}
-	assertToolError(t, registry, "qimen.chart", map[string]any{
+	assertQimenChartError(t, registry, map[string]any{
 		"instant": "2024-06-15T04:00:00Z", "timezone": "Asia/Shanghai",
 		"longitude": 500,
 	}, "longitude")

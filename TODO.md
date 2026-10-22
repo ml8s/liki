@@ -50,7 +50,7 @@
 
 #### counsel
 
-最终用神由 `counsel/app/natal/tools/yongshen/policy.v1.json` 裁决，但当前没有格局成格分支。
+最终用神由 `counsel/app/natal/tools/yongshen/policy.json` 裁决，但当前没有格局成格分支。
 
 当前优先级：
 

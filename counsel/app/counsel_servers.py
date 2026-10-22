@@ -204,7 +204,7 @@ def _naming_check(given_names, yongshen=None, xishen=None, jishen=None,
         if not yongshen:
             raise ToolError("invalid_arguments: selected_yongshen.selected.yong 为空")
         missing = [
-            field for field in ("policy_id", "rule_version", "yongshen_digest", "chart_digest")
+            field for field in ("policy_id", "yongshen_digest", "chart_digest")
             if not selected_yongshen.get(field)
         ]
         if missing:
@@ -216,7 +216,7 @@ def _naming_check(given_names, yongshen=None, xishen=None, jishen=None,
             **{
                 field: selected_yongshen.get(field)
                 for field in (
-                    "policy_id", "rule_version", "rule_id", "status",
+                    "policy_id", "rule_id", "status",
                     "chart_digest", "yongshen_digest",
                 )
             }

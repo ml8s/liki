@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -9,6 +8,7 @@ TOOLS = ROOT / "counsel/app/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
+import divination_contracts  # noqa: E402
 import liuyao_conditions  # noqa: E402
 
 
@@ -42,10 +42,7 @@ def test_rules_all_have_restoration():
 
 
 def test_rule_paths_stay_inside_snapshot_contract():
-    contract = json.loads(
-        (ROOT / "counsel/app/divination/tools/liuyao_snapshot_contract.json")
-        .read_text(encoding="utf-8")
-    )
+    contract = divination_contracts.load_contract("liuyao_snapshot")
     allowed_roots = set(contract["properties"]) | {"topic"}
     for rule in liuyao_conditions.load_rules()["rules"]:
         for path in rule.get("applies_if", {}):

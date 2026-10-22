@@ -8,6 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "counsel/app/divination/tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
+
+import divination_contracts  # noqa: E402
+
 EXPECTED_TOOLS = {
     "liuyao_snapshot",
     "liuyao_query",
@@ -69,16 +72,21 @@ def test_only_common_rpc_module_touches_urllib():
 
 
 def test_contract_registry_has_exact_domain_contracts():
-    from divination_contracts import CONTRACT_FILES
+    from divination_contracts import DOCUMENT_MODELS
 
-    assert set(CONTRACT_FILES) == {
+    assert set(DOCUMENT_MODELS) == {
         "liuyao_snapshot",
         "qimen_snapshot",
-        "liuyao_answer",
-        "qimen_answer",
+        "liuyao_query",
+        "qimen_query",
     }
-    for filename in CONTRACT_FILES.values():
-        assert (TOOLS / filename).is_file()
+    for filename in (
+        "liuyao_snapshot_contract.json",
+        "qimen_snapshot_contract.json",
+        "liuyao_answer_contract.json",
+        "qimen_answer_contract.json",
+    ):
+        assert not (TOOLS / filename).exists()
 
 
 def test_intent_app_cards_use_snapshot_flow():
@@ -119,7 +127,7 @@ def test_divination_rules_are_table_driven_not_python_literals():
 
 
 def test_liuyao_question_uses_matter_not_domain():
-    contract = json.loads((TOOLS / "liuyao_snapshot_contract.json").read_text(encoding="utf-8"))
+    contract = divination_contracts.load_contract("liuyao_snapshot")
     question = contract["properties"]["question"]
     assert "domain" not in question["properties"]
     assert {"matter", "explicit_yong_shen", "perspective"} <= set(question["properties"])
@@ -155,14 +163,14 @@ def test_liuyao_timing_boundary_and_target_rules_are_table_driven():
     source = (TOOLS / "liuyao_timing.py").read_text(encoding="utf-8")
     rules = json.loads((TOOLS / "liuyao_timing_rules.json").read_text(encoding="utf-8"))
     assert "blocked_topics" not in rules
-    assert rules["schema_version"] == "liuyao-timing-rules-v2"
+    assert "schema_version" not in rules
     assert "不构成医疗" in rules["boundary"]
     assert set(rules["target_indicators"]["basis_tokens"]) == {"yong_shen"}
     assert '"health_context"' not in source
     assert '"yong_shen" in text' not in source
-    contract = json.loads((TOOLS / "liuyao_snapshot_contract.json").read_text(encoding="utf-8"))
+    contract = divination_contracts.load_contract("liuyao_snapshot")
     timing_plan = contract["properties"]["timing_plan"]
-    assert timing_plan["properties"]["schema_version"]["const"] == "liuyao-timing-plan-v2"
+    assert "schema_version" not in timing_plan["properties"]
     assert timing_plan["properties"]["blocked"]["const"] is False
     assert "boundary" in timing_plan["required"]
 
@@ -177,7 +185,7 @@ def test_liuyao_static_hexagram_doc_separates_fact_from_action():
 def test_divination_safety_boundary_is_table_driven():
     source = (TOOLS / "divination_safety.py").read_text(encoding="utf-8")
     rules = json.loads((TOOLS / "divination_safety_rules.json").read_text(encoding="utf-8"))
-    assert rules["schema_version"] == "divination-safety-rules-v2"
+    assert "schema_version" not in rules
     assert {rule["category"] for rule in rules["rules"]} >= {
         "self_harm", "emergency_medical", "serious_medical", "domestic_violence",
     }

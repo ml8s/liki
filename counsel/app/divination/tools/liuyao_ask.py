@@ -7,9 +7,6 @@ from divination_safety import assess
 from divination_snapshot import validate_snapshot
 from liuyao_answer_core import build as build_core
 from liuyao_answer_core import validate_core
-from liuyao_snapshot import SCHEMA_VERSION
-
-ANSWER_SCHEMA_VERSION = "liuyao-answer-v2"
 
 
 def ask(snapshot: dict, *, message: str) -> dict:
@@ -20,7 +17,7 @@ def ask(snapshot: dict, *, message: str) -> dict:
     if not message:
         raise ValueError("message must be non-empty text")
     safety = assess(message)
-    validate_snapshot(snapshot, method="liuyao", schema_version=SCHEMA_VERSION)
+    validate_snapshot(snapshot, method="liuyao")
     validate_document("liuyao_snapshot", snapshot)
 
     core = build_core(snapshot)
@@ -47,7 +44,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
 
     answer = {
         "safety_advisory": safety,
-        "schema_version": ANSWER_SCHEMA_VERSION,
         "method": "liuyao",
         "snapshot_digest": snapshot["snapshot_digest"],
         "message_digest": message_digest(message),
@@ -68,5 +64,5 @@ def ask(snapshot: dict, *, message: str) -> dict:
             "unchecked": audit["unchecked"],
         },
     }
-    validate_document("liuyao_answer", answer)
+    validate_document("liuyao_query", answer)
     return answer

@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-bazi-relation-groups-v4",
   "basis": "天干五合、天干相冲、地支六合、三合、半合、三会、六冲、六害、三刑、六破与暗合通行口径；三合/三会组成立必须成员齐备，半合必须含旺支，自刑须同支成双。紧邻天干五合 / 相冲进 gan_he / gan_chong，隔位 / 远隔只进对应 candidate。",
   "sources": [
     "《三命通会》合会冲刑",

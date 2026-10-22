@@ -12,8 +12,6 @@ from qimen_paipan import city_coords, qimen_chart
 from qimen_projection import project as project_standard_factors
 from qimen_projection import validate as validate_standard_factors
 
-SCHEMA_VERSION = "qimen-snapshot-v5"
-
 #
 # 专占规则是否接受 matter / yong_shen 由 qimen_rules.csv 的 focus_policy 声明。
 
@@ -50,13 +48,7 @@ def create(
     matter: str | None = None,
     yong_shen: list[str] | None = None,
     rule: str | None = None,
-    scope: str | None = None,
-    school: str | None = None,
-    dingju_method: str | None = None,
-    quarter_rule: str | None = None,
-    base_dingju_method: str | None = None,
-    dun_source: str | None = None,
-    hour_boundary: str | None = None,
+    method: dict[str, str],
     birth_date: str | None = None,
 ) -> dict:
     """创建 immutable qimen snapshot；LLM 后续只依赖该对象。"""
@@ -68,12 +60,12 @@ def create(
     safety = assess(question)
     if len(question) < 2:
         raise ValueError("question must be at least 2 characters")
-    effective_scope = scope or "hour"
-    effective_school = school or "zhuanpan"
+    if not isinstance(method, dict):
+        raise ValueError("method must be an explicit qimen method object")
+    effective_scope = method.get("scope", "")
+    effective_school = method.get("school", "")
     if effective_school == "jinhan_yujing":
-        if effective_scope != "day":
-            raise ValueError("school jinhan_yujing requires scope=day")
-        forbidden = (matter, yong_shen, rule, birth_date, dingju_method, quarter_rule, base_dingju_method, dun_source, hour_boundary)
+        forbidden = (matter, yong_shen, rule, birth_date)
         if any(value is not None for value in forbidden):
             raise ValueError("school jinhan_yujing does not support focus or advanced method fields")
 
@@ -111,13 +103,7 @@ def create(
         matter=matter,
         yong_shen=yong_shen,
         birth_date=birth_date,
-        scope=effective_scope,
-        school=effective_school,
-        dingju_method=dingju_method,
-        quarter_rule=quarter_rule,
-        base_dingju_method=base_dingju_method,
-        dun_source=dun_source,
-        hour_boundary=hour_boundary,
+        method=method,
     )
     chart = chart_result["chart"]
     method_context = chart.get("method")
@@ -143,7 +129,6 @@ def create(
 
     snapshot = build_snapshot(
         method="qimen",
-        schema_version=SCHEMA_VERSION,
         payload={
             "question": question,
             "input": {

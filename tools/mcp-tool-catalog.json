@@ -1,5 +1,4 @@
 {
-  "schema_version": "liki.mcp-tool-catalog.v1",
   "servers": {
     "engine": {
       "tools": [

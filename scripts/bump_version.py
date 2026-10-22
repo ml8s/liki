@@ -18,12 +18,9 @@ VERSION_FILES = (
     ROOT / "counsel/app/VERSION.txt",
 )
 PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))
-JSON_SURFACES = (
-    # Counsel tool schemas carry no version: counsel/app/VERSION.txt is the
-    # surface, and the MCP servers advertise it in the initialize result.
-    (ROOT / "counsel/app/natal/tools/natal_projection_contract.json", ("version",)),
-    (ROOT / "counsel/app/divination/tools/qimen_projection_contract.json", ("version",)),
-)
+# Counsel tool contracts and projection tables carry no version:
+# counsel/app/VERSION.txt is the runtime surface, and the MCP servers advertise
+# it in the initialize result.
 SKILL_FRONTMATTER = ROOT / "skills/liki/SKILL.md"
 EXPERT_PACKS = ROOT / "expert-packs"
 CONNECTOR_METAS = tuple(sorted((ROOT / "workbuddy").glob("*-connector/connector-meta.json")))
@@ -49,18 +46,6 @@ def next_version() -> str:
     else:
         serial += 1
     return f"{today}.{serial}"
-
-
-def set_json(path: Path, keys: tuple[str, ...], version: str) -> None:
-    document = json.loads(path.read_text(encoding="utf-8"))
-    node = document
-    for key in keys[:-1]:
-        node = node.setdefault(key, {})
-    node[keys[-1]] = version
-    path.write_text(
-        json.dumps(document, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
 
 
 def replace_frontmatter_version(path: Path, version: str) -> None:
@@ -130,8 +115,6 @@ def main() -> None:
             json.dumps(document, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
-    for path, keys in JSON_SURFACES:
-        set_json(path, keys, version)
     # 平台按 semver 解析制品版本：技能/专家/连接器统一写投影值。
     artifact_version = workbuddy_version(version)
     replace_frontmatter_version(SKILL_FRONTMATTER, artifact_version)

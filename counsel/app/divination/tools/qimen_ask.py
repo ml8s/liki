@@ -11,9 +11,6 @@ from qimen_jinhan_answer_core import build as build_jinhan_core
 from qimen_jinhan_answer_core import validate_core as validate_jinhan_core
 from qimen_jinhan_factors import validate as validate_jinhan_factors
 from qimen_projection import validate as validate_standard_factors
-from qimen_snapshot import SCHEMA_VERSION
-
-ANSWER_SCHEMA_VERSION = "qimen-answer-v2"
 
 
 def ask(snapshot: dict, *, message: str) -> dict:
@@ -25,7 +22,7 @@ def ask(snapshot: dict, *, message: str) -> dict:
         raise ValueError("message must be at least 2 characters")
     safety = assess(message)
 
-    validate_snapshot(snapshot, method="qimen", schema_version=SCHEMA_VERSION)
+    validate_snapshot(snapshot, method="qimen")
     validate_document("qimen_snapshot", snapshot)
 
     factors = snapshot["factors"]
@@ -59,7 +56,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
 
     answer = {
         "safety_advisory": safety,
-        "schema_version": ANSWER_SCHEMA_VERSION,
         "method": "qimen",
         "snapshot_digest": snapshot["snapshot_digest"],
         "message_digest": message_digest(message),
@@ -80,5 +76,5 @@ def ask(snapshot: dict, *, message: str) -> dict:
             "unchecked": audit["unchecked"],
         },
     }
-    validate_document("qimen_answer", answer)
+    validate_document("qimen_query", answer)
     return answer

@@ -15,8 +15,7 @@ import (
 // 用神 analysis the caller asked for).
 type QimenYongShenSymbols []string
 
-// QimenChart computes a qimen chart for the requested scope and school.
-// scope/school/dingju knobs keep the legacy defaults when they are omitted.
+// QimenChart computes a qimen chart for an explicitly selected method.
 func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, error) {
 	at, err := parseInstant(string(input.Instant))
 	if err != nil {
@@ -29,10 +28,11 @@ func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, err
 	if input.Longitude < -180 || input.Longitude > 180 {
 		return QimenChartOutput{}, fmt.Errorf("qimen.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
+	methodInput := input.Method
 	method, err := qimen.ResolveMethodWithOptions(
-		string(input.Scope), string(input.School), string(input.DingjuMethod),
-		string(input.QuarterRule), string(input.BaseDingjuMethod),
-		string(input.DunSource), string(input.HourBoundary),
+		string(methodInput.Scope), string(methodInput.School), string(methodInput.DingjuMethod),
+		string(methodInput.QuarterRule), string(methodInput.BaseDingjuMethod),
+		string(methodInput.DunSource), string(methodInput.HourBoundary),
 	)
 	if err != nil {
 		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)

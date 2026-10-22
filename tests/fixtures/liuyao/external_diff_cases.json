@@ -1,5 +1,4 @@
 {
-  "schema_version": "liuyao-external-diff-v1",
   "description": "跨开源实现与经典纳甲表口径的锚点用例。source_scope 仅标注参考来源，不复制第三方代码。",
   "sources": [
     {

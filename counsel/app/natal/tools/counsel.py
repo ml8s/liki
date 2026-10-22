@@ -126,7 +126,6 @@ def compute_factors(chart: dict) -> dict:
         factors["_provenance"].update({
             "yongshen_digest": selected_yongshen["yongshen_digest"],
             "policy_id": selected_yongshen["policy_id"],
-            "rule_version": selected_yongshen["rule_version"],
         })
     return {
         "factors": factors,

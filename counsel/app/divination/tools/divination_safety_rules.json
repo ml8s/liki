@@ -1,5 +1,4 @@
 {
-  "schema_version": "divination-safety-rules-v2",
   "message": "该问题涉及现实风险或专业决策；传统命理解读仅供参考，应结合专业意见和现实条件。",
   "rules": [
     {

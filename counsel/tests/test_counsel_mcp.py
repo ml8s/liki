@@ -196,13 +196,11 @@ def test_compute_factors_has_one_yongshen_source(bazi_chart):
         "bazi_yongshen", {"chart": bazi_chart}
     )).content[0].text)
     assert selected == direct
-    assert selected["policy_id"] == "liki.bazi.yongshen.v1"
-    assert selected["rule_version"]
+    assert selected["policy_id"] == "liki.bazi.yongshen"
     assert selected["yongshen_digest"]
     assert "yongshen" not in provenance
     assert provenance["yongshen_digest"] == selected["yongshen_digest"]
     assert provenance["policy_id"] == selected["policy_id"]
-    assert provenance["rule_version"] == selected["rule_version"]
 
 
 def test_natal_query_over_mcp(bazi_chart):

@@ -15,7 +15,7 @@ def test_catalog_matches_registered_engine_tools():
     # The typed mcpcontract registry is the only engine tool source: the
     # legacy raw-JSON registry has been retired.
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-    assert set(catalog) == {"schema_version", "servers"}
+    assert set(catalog) == {"servers"}
     assert set(catalog["servers"]) == {"engine", "counsel"}
     assert sorted(catalog["servers"]["engine"]["tools"]) == sorted(engine_tool_names())
 

@@ -1,10 +1,13 @@
 {
   "input": {
     "longitude": 123.25,
-    "school": "zhuanpan",
-    "scope": "day",
     "instant": "2026-03-02T10:30:00Z",
-    "timezone": "Asia/Shanghai"
+    "timezone": "Asia/Shanghai",
+    "method": {
+      "school": "zhuanpan",
+      "scope": "day",
+      "dingju_method": "chaibu"
+    }
   },
   "output": {
     "gan_interaction": [

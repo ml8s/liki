@@ -1,5 +1,4 @@
 {
-  "schema_version": "domain-oracle-bazi-v1",
   "basis": "《渊海子平》《三命通会》通行干支口径；测试文件独立于实现表。",
   "ten_gods_all_100": [
     {

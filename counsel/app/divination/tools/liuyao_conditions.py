@@ -114,7 +114,6 @@ def evaluate(snapshot: dict, topic: str | None = None) -> dict:
             "conclusion_scope": "conditional_rule_restoration_not_absolute_verdict",
         })
     return {
-        "schema_version": load_rules()["schema_version"],
         "topic": topic,
         "results": results,
         "policy": {

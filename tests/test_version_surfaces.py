@@ -44,22 +44,6 @@ def test_counsel_contracts_use_distributed_version():
     assert VERSION == version
 
 
-def test_bazi_domain_contract_uses_distributed_version():
-    version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
-    domain_contract = json.loads(
-        (ROOT / "counsel/app/natal/tools/natal_projection_contract.json").read_text(encoding="utf-8")
-    )
-    assert domain_contract["version"] == version
-
-
-def test_divination_projection_contract_uses_distributed_version():
-    version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
-    projection_contract = json.loads(
-        (ROOT / "counsel/app/divination/tools/qimen_projection_contract.json").read_text(encoding="utf-8")
-    )
-    assert projection_contract["version"] == version
-
-
 def test_deployment_surfaces_use_distributed_version():
     version = (ROOT / "skills/liki/VERSION.txt").read_text(encoding="utf-8").strip()
     for path in sorted((ROOT / "profiles").glob("*.json")):

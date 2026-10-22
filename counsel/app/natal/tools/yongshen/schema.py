@@ -1,6 +1,6 @@
 """用神 policy 的结构校验。
 
-只校验表结构，不解释命理条件。命理规则全部位于 policy.v1.json。
+只校验表结构，不解释命理条件。命理规则全部位于 policy.json。
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ class YongShenPolicyError(ValueError):
 def validate_policy(policy: Any) -> None:
     if not isinstance(policy, dict):
         raise YongShenPolicyError("policy 必须是 object")
-    for key in ("policy_id", "rule_version", "match", "tables", "defaults", "pre_factors", "rules", "finalize"):
+    for key in ("policy_id", "match", "tables", "defaults", "pre_factors", "rules", "finalize"):
         if key not in policy:
             raise YongShenPolicyError(f"policy 缺少字段: {key}")
     if policy["match"] != "first":

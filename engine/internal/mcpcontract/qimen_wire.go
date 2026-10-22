@@ -7,24 +7,245 @@
 
 package mcpcontract
 
+import "encoding/json"
+
 // ── qimen.chart input ──
 
-// QimenChartInput takes the canonical {utc, timezone} pair (Zone is IANA) and the
-// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
-// chart domain consumes those domain scales (solar term + LAST shichen; boundary converts once).
+// QimenMethodInput is the closed method fact consumed by qimen.chart. Its
+// published schema is narrowed by qimenChartFormsSchema to the catalog's valid
+// combinations; the domain resolver remains the final authority.
+type QimenMethodInput struct {
+	Scope            MethodScopeName        `json:"scope" jsonschema:"时间层级；与 school 及定局/刻家参数共同构成一个方法分支。"`
+	School           MethodSchoolName       `json:"school" jsonschema:"盘式流派；与 scope 组合决定可用参数。"`
+	DingjuMethod     MethodDingjuMethodName `json:"dingju_method,omitempty" jsonschema:"定局法；仅 hour/day 分支携带。"`
+	QuarterRule      MethodQuarterRuleName  `json:"quarter_rule,omitempty" jsonschema:"刻家规则；仅 quarter 分支携带。"`
+	BaseDingjuMethod MethodDingjuMethodName `json:"base_dingju_method,omitempty" jsonschema:"基准时家定局法；仅十二分钟十分局分支携带。"`
+	DunSource        DunSourceName          `json:"dun_source,omitempty" jsonschema:"分遁口径；仅十二分钟十分局分支携带。"`
+	HourBoundary     HourBoundaryName       `json:"hour_boundary,omitempty" jsonschema:"时辰界；仅十二分钟十分局分支携带。"`
+}
+
+// QimenChartInput takes the canonical {instant, timezone} pair, longitude, and
+// a closed method object. Time/location and method selection stay orthogonal;
+// yong_shen/birth_date are chart-analysis inputs, not method knobs.
 type QimenChartInput struct {
-	Instant          Instant                `json:"instant" jsonschema:"占问瞬间 UTC（RFC3339，Z）；节气换局/置闰按此时刻判定"`
-	Timezone         string                 `json:"timezone" jsonschema:"占问地 IANA 时区"`
-	Longitude        float64                `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时柱与分钟分法"`
-	Scope            MethodScopeName        `json:"scope,omitempty" jsonschema:"时间层级；默认 hour；quarter 为刻家奇门；month/year 为固定周期定局"`
-	School           MethodSchoolName       `json:"school,omitempty" jsonschema:"盘式流派；默认 zhuanpan；金函玉镜为独立日家专用盘型"`
-	DingjuMethod     MethodDingjuMethodName `json:"dingju_method,omitempty" jsonschema:"定局法；默认 hour/day：chaibu；仅 hour/day 可传"`
-	QuarterRule      MethodQuarterRuleName  `json:"quarter_rule,omitempty" jsonschema:"刻家规则；默认 ten_minute_sanyuan；仅 scope：quarter 可传"`
-	BaseDingjuMethod MethodDingjuMethodName `json:"base_dingju_method,omitempty" jsonschema:"十二分钟十分局刻家的基准时家定局法；默认 chaibu；仅 quarter_rule：twelve_minute_ten_division 可传"`
-	DunSource        DunSourceName          `json:"dun_source,omitempty" jsonschema:"十二分钟十分局刻家的分遁口径；默认 hour_branch；仅 quarter_rule：twelve_minute_ten_division 可传"`
-	HourBoundary     HourBoundaryName       `json:"hour_boundary,omitempty" jsonschema:"十二分钟十分局刻家的时辰界；默认 late_zi；仅 quarter_rule：twelve_minute_ten_division 可传"`
-	YongShen         QimenYongShenSymbols   `json:"yong_shen,omitempty" jsonschema:"用神符号组合；甲不露盘，不能作为独立符号"`
-	BirthDate        string                 `json:"birth_date,omitempty" jsonschema:"出生日期 YYYY-MM-DD 或 RFC3339；按精确立春取年命干，跨立春日必须给时刻"`
+	Instant   Instant              `json:"instant" jsonschema:"占问瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC；节气换局/置闰按此时刻判定"`
+	Timezone  string               `json:"timezone" jsonschema:"占问地 IANA 时区"`
+	Longitude float64              `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时柱与分钟分法"`
+	Method    QimenMethodInput     `json:"method" jsonschema:"奇门方法事实；scope、盘式流派和条件参数按目录组合传入。"`
+	YongShen  QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合；甲不露盘，不能作为独立符号"`
+	BirthDate string               `json:"birth_date,omitempty" jsonschema:"出生日期 YYYY-MM-DD 或 RFC3339；按精确立春取年命干，跨立春日必须给时刻"`
+}
+
+type qimenHourZhuanpanMethodForm struct {
+	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
+	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
+	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
+}
+
+type qimenHourLuoshuMethodForm struct {
+	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
+	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
+	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
+}
+
+type qimenHourMingfaMethodForm struct {
+	Scope  MethodScopeName  `json:"scope" jsonschema:"时间层级。"`
+	School MethodSchoolName `json:"school" jsonschema:"盘式流派。"`
+}
+
+type qimenDayZhuanpanMethodForm struct {
+	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
+	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
+	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
+}
+
+type qimenDayLuoshuMethodForm struct {
+	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
+	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
+	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
+}
+
+type qimenPeriodMethodForm struct {
+	Scope  MethodScopeName  `json:"scope" jsonschema:"时间层级。"`
+	School MethodSchoolName `json:"school" jsonschema:"盘式流派。"`
+}
+
+type qimenQuarterTenMethodForm struct {
+	Scope       MethodScopeName       `json:"scope" jsonschema:"时间层级。"`
+	School      MethodSchoolName      `json:"school" jsonschema:"盘式流派。"`
+	QuarterRule MethodQuarterRuleName `json:"quarter_rule" jsonschema:"刻家规则。"`
+}
+
+type qimenQuarterTwelveMethodForm struct {
+	Scope            MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
+	School           MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
+	QuarterRule      MethodQuarterRuleName  `json:"quarter_rule" jsonschema:"刻家规则。"`
+	BaseDingjuMethod MethodDingjuMethodName `json:"base_dingju_method" jsonschema:"基准时家定局法。"`
+	DunSource        DunSourceName          `json:"dun_source" jsonschema:"分遁口径。"`
+	HourBoundary     HourBoundaryName       `json:"hour_boundary" jsonschema:"时辰界。"`
+}
+
+type qimenJinhanMethodForm struct {
+	Scope  MethodScopeName  `json:"scope" jsonschema:"时间层级。"`
+	School MethodSchoolName `json:"school" jsonschema:"盘式流派。"`
+}
+
+type qimenChartStandardForm struct {
+	Instant   Instant              `json:"instant" jsonschema:"占问瞬间。"`
+	Timezone  string               `json:"timezone" jsonschema:"占问地 IANA 时区。"`
+	Longitude float64              `json:"longitude" jsonschema:"占问地经度。"`
+	Method    QimenMethodInput     `json:"method" jsonschema:"非金函玉镜奇门方法事实。"`
+	YongShen  QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合。"`
+	BirthDate string               `json:"birth_date,omitempty" jsonschema:"出生日期或时刻。"`
+}
+
+type qimenChartJinhanForm struct {
+	Instant   Instant               `json:"instant" jsonschema:"占问瞬间。"`
+	Timezone  string                `json:"timezone" jsonschema:"占问地 IANA 时区。"`
+	Longitude float64               `json:"longitude" jsonschema:"占问地经度。"`
+	Method    qimenJinhanMethodForm `json:"method" jsonschema:"金函玉镜方法事实。"`
+}
+
+func qimenMethodFormSchema[T any](
+	constraints map[string]string, enums map[string][]string,
+) (json.RawMessage, error) {
+	_, raw, err := inputSchemaFor[T](false, nil)
+	if err != nil {
+		return nil, err
+	}
+	for field, value := range constraints {
+		raw, err = withSchemaConst(raw, field, value)
+		if err != nil {
+			return nil, err
+		}
+	}
+	for field, values := range enums {
+		raw, err = withSchemaEnum(raw, field, values...)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return raw, nil
+}
+
+func qimenMethodFormsSchema() (json.RawMessage, error) {
+	builders := []func() (json.RawMessage, error){
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenHourZhuanpanMethodForm](
+				map[string]string{"scope": "hour", "school": "zhuanpan"},
+				map[string][]string{"dingju_method": {"chaibu", "zhirun", "maoshan"}},
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenHourLuoshuMethodForm](
+				map[string]string{"scope": "hour", "school": "luoshu_feipan"},
+				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenHourMingfaMethodForm](
+				map[string]string{"scope": "hour", "school": "mingfa_feipan"}, nil,
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenDayZhuanpanMethodForm](
+				map[string]string{"scope": "day", "school": "zhuanpan"},
+				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenDayLuoshuMethodForm](
+				map[string]string{"scope": "day", "school": "luoshu_feipan"},
+				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenPeriodMethodForm](
+				map[string]string{"scope": "month"},
+				map[string][]string{"school": {"zhuanpan", "luoshu_feipan"}},
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenPeriodMethodForm](
+				map[string]string{"scope": "year"},
+				map[string][]string{"school": {"zhuanpan", "luoshu_feipan"}},
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenQuarterTenMethodForm](
+				map[string]string{
+					"scope": "quarter", "school": "zhuanpan",
+					"quarter_rule": "ten_minute_sanyuan",
+				}, nil,
+			)
+		},
+		func() (json.RawMessage, error) {
+			return qimenMethodFormSchema[qimenQuarterTwelveMethodForm](
+				map[string]string{
+					"scope": "quarter", "school": "zhuanpan",
+					"quarter_rule": "twelve_minute_ten_division",
+				},
+				map[string][]string{"base_dingju_method": {"chaibu", "zhirun", "maoshan"}},
+			)
+		},
+	}
+	forms := make([]json.RawMessage, 0, len(builders))
+	for _, build := range builders {
+		raw, err := build()
+		if err != nil {
+			return nil, err
+		}
+		forms = append(forms, raw)
+	}
+	return json.Marshal(map[string]any{
+		"type": "object", "oneOf": forms,
+	})
+}
+
+func qimenJinhanMethodSchema() (json.RawMessage, error) {
+	return qimenMethodFormSchema[qimenJinhanMethodForm](
+		map[string]string{"scope": "day", "school": "jinhan_yujing"}, nil,
+	)
+}
+
+func qimenChartFormsSchema() (json.RawMessage, error) {
+	methodForms, err := qimenMethodFormsSchema()
+	if err != nil {
+		return nil, err
+	}
+	_, standard, err := inputSchemaFor[qimenChartStandardForm](false, nil)
+	if err != nil {
+		return nil, err
+	}
+	standard, err = withSchemaProperty(standard, "method", methodForms)
+	if err != nil {
+		return nil, err
+	}
+	standard, err = withSchemaNumberBounds(standard, "longitude", -180, 180)
+	if err != nil {
+		return nil, err
+	}
+
+	jinhanMethod, err := qimenJinhanMethodSchema()
+	if err != nil {
+		return nil, err
+	}
+	_, jinhan, err := inputSchemaFor[qimenChartJinhanForm](false, nil)
+	if err != nil {
+		return nil, err
+	}
+	jinhan, err = withSchemaProperty(jinhan, "method", jinhanMethod)
+	if err != nil {
+		return nil, err
+	}
+	jinhan, err = withSchemaNumberBounds(jinhan, "longitude", -180, 180)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(map[string]any{
+		"type":  "object",
+		"oneOf": []json.RawMessage{standard, jinhan},
+	})
 }
 
 // ── qimen.chart output ──

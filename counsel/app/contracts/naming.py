@@ -265,7 +265,7 @@ class NamingCheckOutputItem(BaseModel):
     )
     yongshen_source: YongShenSource | None = Field(
         default=None,
-        description="消费 selected_yongshen 时回传的用神来源：policy_id/rule_version/rule_id/status/chart_digest/yongshen_digest。",
+        description="消费 selected_yongshen 时回传的用神来源：policy_id/rule_id/status/chart_digest/yongshen_digest。",
     )
 
 TOOL_NAMING_CHECK = ToolContract(

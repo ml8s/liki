@@ -25,16 +25,10 @@ def qimen_chart(
     timezone: str,
     longitude: float,
     *,
+    method: dict[str, str],
     matter: str | None = None,
     yong_shen: list[str] | None = None,
     birth_date: str | None = None,
-    scope: str | None = None,
-    school: str | None = None,
-    dingju_method: str | None = None,
-    quarter_rule: str | None = None,
-    base_dingju_method: str | None = None,
-    dun_source: str | None = None,
-    hour_boundary: str | None = None,
 ) -> dict:
     """排奇门盘；普通事象在 Python 表内转为显式用神后调用 engine。"""
     if matter is not None and yong_shen is not None:
@@ -57,20 +51,16 @@ def qimen_chart(
         matter_fact = {"matter": matter, **matter_fact}
         symbols = list(matter_fact["symbols"])
 
-    params: dict[str, Any] = {"instant": instant, "timezone": timezone, "longitude": longitude}
-    optional = {
-        "scope": scope,
-        "school": school,
-        "dingju_method": dingju_method,
-        "quarter_rule": quarter_rule,
-        "base_dingju_method": base_dingju_method,
-        "dun_source": dun_source,
-        "hour_boundary": hour_boundary,
-        "birth_date": birth_date,
+    if not isinstance(method, dict):
+        raise ValueError("method must be an explicit qimen method object")
+    params: dict[str, Any] = {
+        "instant": instant,
+        "timezone": timezone,
+        "longitude": longitude,
+        "method": method,
     }
-    for key, value in optional.items():
-        if value is not None and value != "":
-            params[key] = value
+    if birth_date is not None and birth_date != "":
+        params["birth_date"] = birth_date
     if symbols:
         params["yong_shen"] = symbols
 

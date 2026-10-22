@@ -1,11 +1,13 @@
 {
   "input": {
-    "dingju_method": "chaibu",
     "longitude": 123.25,
-    "school": "luoshu_feipan",
-    "scope": "hour",
     "instant": "2026-03-02T10:30:00Z",
-    "timezone": "Asia/Shanghai"
+    "timezone": "Asia/Shanghai",
+    "method": {
+      "dingju_method": "chaibu",
+      "school": "luoshu_feipan",
+      "scope": "hour"
+    }
   },
   "output": {
     "gan_interaction": [

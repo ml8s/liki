@@ -18,13 +18,16 @@ import divination_contracts  # noqa: E402
 import divination_rpc  # noqa: E402
 import divination_safety  # noqa: E402
 import divination_snapshot  # noqa: E402
-import liuyao_ask  # noqa: E402
 import liuyao_snapshot  # noqa: E402
 import qimen_ask  # noqa: E402
 import qimen_paipan  # noqa: E402
 import qimen_snapshot  # noqa: E402
 from qimen_interpretations import load_rule_table  # noqa: E402
 from qimen_projection import validate as validate_standard_factors  # noqa: E402
+
+HOUR_METHOD = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
+DAY_METHOD = {"scope": "day", "school": "zhuanpan", "dingju_method": "chaibu"}
+JINHAN_METHOD = {"scope": "day", "school": "jinhan_yujing"}
 from qimen_projection_common import _hour_polarity  # noqa: E402
 
 
@@ -124,7 +127,7 @@ def test_qimen_snapshot_rejects_conflicting_location_before_rpc(monkeypatch):
         lambda *_, **__: (_ for _ in ()).throw(AssertionError("engine called")),
     )
     with pytest.raises(ValueError, match="exactly one"):
-        qimen_snapshot.create(
+        qimen_snapshot.create(method=HOUR_METHOD,
             question="测试", city="上海", longitude=121.47, matter="wealth", timezone="Asia/Shanghai"
         )
 
@@ -140,7 +143,7 @@ def test_qimen_snapshot_rejects_malformed_factors(monkeypatch):
     monkeypatch.setattr(qimen_snapshot, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
     monkeypatch.setattr(qimen_snapshot, "_resolve_location", lambda city, longitude: (city, 121.47))
     monkeypatch.setattr(qimen_snapshot, "qimen_chart", lambda *_, **__: {"matter": None, "chart": _pan()["chart"]})
-    snapshot = qimen_snapshot.create(question="该往哪里推进？", city="上海", matter="wealth", timezone="Asia/Shanghai")
+    snapshot = qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", timezone="Asia/Shanghai")
     assert snapshot["snapshot_kind"] == "standard"
     snapshot["factors"].pop("scope")
     snapshot["snapshot_digest"] = divination_snapshot.canonical_digest(snapshot)
@@ -161,19 +164,19 @@ def test_qimen_snapshot_rejects_method_context_mismatch(monkeypatch):
     monkeypatch.setattr(qimen_snapshot, "qimen_chart", lambda *_, **__: {"matter": None, "chart": mismatch_chart})
     monkeypatch.setattr(qimen_snapshot, "project_standard_factors", lambda _: project_chart(valid_chart))
     with pytest.raises(ValueError, match="method context does not match"):
-        qimen_snapshot.create(question="该往哪里推进？", city="上海", matter="wealth", timezone="Asia/Shanghai")
+        qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", timezone="Asia/Shanghai")
 
 
 def test_qimen_snapshot_rejects_whitespace_city_before_rpc(monkeypatch):
     monkeypatch.setattr(qimen_paipan, "city_coords", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     with pytest.raises(ValueError, match="city must be non-empty"):
-        qimen_snapshot.create(question="该往哪里推进？", city="   ", matter="wealth", timezone="Asia/Shanghai")
+        qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="   ", matter="wealth", timezone="Asia/Shanghai")
 
 
 def test_qimen_snapshot_rejects_empty_yong_shen_before_rpc(monkeypatch):
     monkeypatch.setattr(qimen_paipan, "city_coords", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     with pytest.raises(ValueError, match="yong_shen cannot be empty"):
-        qimen_snapshot.create(question="该往哪里推进？", longitude=121.47, yong_shen=[], timezone="Asia/Shanghai")
+        qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", longitude=121.47, yong_shen=[], timezone="Asia/Shanghai")
 
 
 def test_liuyao_snapshot_contract_rejects_invalid_yao_values():
@@ -214,7 +217,6 @@ def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
         "mode": "yaos",
         "order": "bottom_up",
         "casting_id": "b" * 64,
-        "rounds": [],
         "yaos": [7] * 6,
         "dong_yao": [],
     }, casting)
@@ -241,34 +243,27 @@ def test_liuyao_snapshot_contract_allows_mode_specific_casting_shapes():
 def test_qimen_snapshot_special_rule_enum_matches_table():
     contract = divination_contracts.load_contract("qimen_snapshot")
     expected = sorted(load_rule_table())
-    assert set(contract["properties"]["special"]["properties"]["rule"]["enum"]) == set(expected)
+    special = contract["properties"]["special"]["anyOf"][0]
+    assert set(special["properties"]["rule"]["enum"]) == set(expected)
 
 
-def test_contract_schema_versions_match_runtime_constants():
-    import qimen_snapshot
-
+def test_divination_contracts_do_not_publish_schema_versions():
     liuyao_contract = divination_contracts.load_contract("liuyao_snapshot")
     qimen_contract = divination_contracts.load_contract("qimen_snapshot")
-    liuyao_answer_contract = divination_contracts.load_contract("liuyao_answer")
-    qimen_answer_contract = divination_contracts.load_contract("qimen_answer")
+    liuyao_answer_contract = divination_contracts.load_contract("liuyao_query")
+    qimen_answer_contract = divination_contracts.load_contract("qimen_query")
 
-    assert liuyao_contract["properties"]["schema_version"]["const"] == liuyao_snapshot.SCHEMA_VERSION
-    assert qimen_contract["properties"]["schema_version"]["const"] == qimen_snapshot.SCHEMA_VERSION
-    assert liuyao_answer_contract["properties"]["schema_version"]["const"] == liuyao_ask.ANSWER_SCHEMA_VERSION
-    assert qimen_answer_contract["properties"]["schema_version"]["const"] == qimen_ask.ANSWER_SCHEMA_VERSION
+    for contract in (liuyao_contract, qimen_contract, liuyao_answer_contract, qimen_answer_contract):
+        assert "schema_version" not in contract.get("properties", {})
+        assert "schema_version" not in contract.get("required", [])
 
 
 def test_qimen_snapshot_rejects_jinhan_focus_before_rpc(monkeypatch):
     with pytest.raises(ValueError, match="jinhan"):
-        qimen_snapshot.create(
-            question="今天运势如何？", city="上海", scope="day",
-            school="jinhan_yujing", matter="wealth", timezone="Asia/Shanghai"
+        qimen_snapshot.create(method=JINHAN_METHOD,
+            question="今天运势如何？", city="上海", matter="wealth", timezone="Asia/Shanghai"
         )
 
-
-def test_qimen_snapshot_rejects_jinhan_missing_day_before_rpc(monkeypatch):
-    with pytest.raises(ValueError, match="scope.*day|day.*scope"):
-        qimen_snapshot.create(question="今天运势如何？", city="上海", school="jinhan_yujing", timezone="Asia/Shanghai")
 
 
 def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
@@ -301,9 +296,8 @@ def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
         }
 
     monkeypatch.setattr(qimen_paipan, "engine_data", fake_engine_data)
-    snapshot = qimen_snapshot.create(
-        question="今天整体如何？", longitude=121.47, instant="2026-09-08T04:00:00Z",
-        scope="day", school="jinhan_yujing", timezone="Asia/Shanghai"
+    snapshot = qimen_snapshot.create(method=JINHAN_METHOD,
+        question="今天整体如何？", longitude=121.47, instant="2026-09-08T04:00:00Z", timezone="Asia/Shanghai"
     )
     assert snapshot["snapshot_kind"] == "jinhan"
     assert snapshot["factors"]["kind"] == "jinhan"
@@ -314,7 +308,7 @@ def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
     assert answer["assertion_refs"] == []
     assert answer["timing_refs"] == []
     assert "snapshot:palaces" in answer["evidence_refs"]
-    divination_contracts.validate_document("qimen_answer", answer)
+    divination_contracts.validate_document("qimen_query", answer)
 
 
 def test_short_high_risk_question_is_not_blocked_by_safety():
@@ -334,16 +328,14 @@ def test_qimen_snapshot_rejects_invalid_special_focus_before_rpc(monkeypatch):
     monkeypatch.setattr(qimen_snapshot, "server_time", lambda: (_ for _ in ()).throw(AssertionError("engine called")))
 
     with pytest.raises(ValueError, match="lost_property does not accept"):
-        qimen_snapshot.create(
-            question="钥匙丢了还能找到吗？", longitude=121.47,
-            scope="hour", school="zhuanpan", rule="lost_property",
+        qimen_snapshot.create(method=HOUR_METHOD,
+            question="钥匙丢了还能找到吗？", longitude=121.47, rule="lost_property",
             matter="lost_item", timezone="Asia/Shanghai"
         )
 
     with pytest.raises(ValueError, match="missing_person requires matter"):
-        qimen_snapshot.create(
-            question="家人走失了", longitude=121.47,
-            scope="hour", school="zhuanpan", rule="missing_person", timezone="Asia/Shanghai"
+        qimen_snapshot.create(method=HOUR_METHOD,
+            question="家人走失了", longitude=121.47, rule="missing_person", timezone="Asia/Shanghai"
         )
 
 
@@ -360,9 +352,8 @@ def test_qimen_snapshot_accepts_missing_person_focus(monkeypatch):
             "chart": _pan()["chart"],
         },
     )
-    snapshot = qimen_snapshot.create(
+    snapshot = qimen_snapshot.create(method=HOUR_METHOD,
         question="家人走失了", longitude=121.47,
-        scope="hour", school="zhuanpan",
         matter="missing_person", rule="missing_person", timezone="Asia/Shanghai"
     )
     assert snapshot["snapshot_kind"] == "standard"

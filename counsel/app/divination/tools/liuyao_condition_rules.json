@@ -1,5 +1,4 @@
 {
-  "schema_version": "liuyao-condition-rules-v1",
   "conclusion_scope": "conditional_rule_restoration_not_absolute_verdict",
   "state_classes": {
     "strong": {

@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from app.contracts import DIVINATION_TOOLS
 from jsonschema import validate
-from jsonschema.exceptions import ValidationError
 
 _SCHEMAS = {contract.name: contract.input_schema for contract in DIVINATION_TOOLS}
 
@@ -18,40 +17,20 @@ def test_snapshot_schemas_accept_primary_calls():
         _parameters("liuyao_snapshot"),
     )
     validate(
-        {"question": "该往哪里推进？", "longitude": 121.47, "matter": "wealth", "timezone": "Asia/Shanghai"},
+        {
+            "question": "该往哪里推进？",
+            "longitude": 121.47,
+            "matter": "wealth",
+            "timezone": "Asia/Shanghai",
+            "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
+        },
         _parameters("qimen_snapshot"),
     )
 
 
 def test_ask_schemas_accept_primary_calls_and_bind_method():
-    liuyao = _parameters("liuyao_query")["properties"]["snapshot"]
-    qimen = _parameters("qimen_query")["properties"]["snapshot"]
-    validate(
-        {
-            "method": "liuyao",
-            "schema_version": "liuyao-snapshot-v7",
-            "snapshot_digest": "a" * 16,
-        },
-        liuyao,
-    )
-    validate(
-        {
-            "method": "qimen",
-            "schema_version": "qimen-snapshot-v5",
-            "snapshot_digest": "a" * 16,
-        },
-        qimen,
-    )
-    try:
-        validate(
-            {
-                "method": "qimen",
-                "schema_version": "qimen-snapshot-v5",
-                "snapshot_digest": "a" * 16,
-            },
-            liuyao,
-        )
-    except ValidationError:
-        pass
-    else:
-        raise AssertionError("liuyao_query accepted qimen snapshot")
+    pairs = {"liuyao_query": "liuyao", "qimen_query": "qimen"}
+    for name, method in pairs.items():
+        snapshot = _parameters(name)["properties"]["snapshot"]
+        assert snapshot["properties"]["method"]["const"] == method
+        assert "snapshot_digest" in snapshot["required"]

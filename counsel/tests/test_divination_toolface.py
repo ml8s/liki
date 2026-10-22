@@ -39,85 +39,105 @@ def test_liuyao_snapshot_input_rejects_ambiguous_sources_and_modes():
 
 
 def test_qimen_snapshot_input_rejects_ambiguous_location_and_focus():
+    hour = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "city": "上海", "longitude": 121.47, "timezone": "Asia/Shanghai",
+        "question": "该往哪里推进？", "city": "上海", "longitude": 121.47,
+        "timezone": "Asia/Shanghai", "method": hour,
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "matter": "wealth", "yong_shen": ["生门"],
+        "question": "该往哪里推进？", "longitude": 121.47,
+        "timezone": "Asia/Shanghai", "method": hour,
+        "matter": "wealth", "yong_shen": ["生门"],
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai", "quarter_rule": "ten_minute_sanyuan",
+        "question": "该往哪里推进？", "longitude": 121.47,
+        "timezone": "Asia/Shanghai", "matter": "wealth",
+        "quarter_rule": "ten_minute_sanyuan",
     })
     _accepts(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai", "matter": "wealth",
+        "question": "该往哪里推进？", "longitude": 121.47,
+        "timezone": "Asia/Shanghai", "method": hour, "matter": "wealth",
     })
 
 
-def test_qimen_snapshot_input_rejects_incompatible_methods():
+def test_qimen_snapshot_method_schema_rejects_incompatible_forms():
+    location = {"question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai"}
+
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai", "matter": "wealth",
-        "school": "jinhan_yujing",
-        "scope": "hour",
+        **location,
+        "method": {"scope": "hour", "school": "jinhan_yujing"},
         "rule": "lost_property",
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai",
-        "school": "mingfa_feipan", "scope": "day", "dingju_method": "chaibu",
+        **location,
+        "method": {"scope": "day", "school": "mingfa_feipan", "dingju_method": "chaibu"},
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "scope": "quarter", "school": "mingfa_feipan",
-        "quarter_rule": "ten_minute_sanyuan",
+        **location,
+        "method": {
+            "scope": "quarter", "school": "mingfa_feipan",
+            "quarter_rule": "ten_minute_sanyuan",
+        },
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "scope": "quarter", "school": "zhuanpan",
-        "quarter_rule": "ten_minute_sanyuan", "base_dingju_method": "chaibu",
+        **location,
+        "method": {
+            "scope": "quarter", "school": "zhuanpan",
+            "quarter_rule": "ten_minute_sanyuan", "base_dingju_method": "chaibu",
+        },
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "scope": "month", "dingju_method": "chaibu",
+        **location,
+        "method": {"scope": "month", "school": "zhuanpan", "dingju_method": "chaibu"},
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "scope": "hour", "school": "zhuanpan",
-        "dingju_method": "maoshan",
+        **location,
+        "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "bad"},
     })
 
     _accepts(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47, "timezone": "Asia/Shanghai",
-        "scope": "quarter", "school": "zhuanpan",
-        "quarter_rule": "twelve_minute_ten_division",
-        "base_dingju_method": "zhirun", "dun_source": "solar_term",
-        "hour_boundary": "zi_zheng",
+        **location,
+        "method": {
+            "scope": "quarter", "school": "zhuanpan",
+            "quarter_rule": "twelve_minute_ten_division",
+            "base_dingju_method": "zhirun", "dun_source": "solar_term",
+            "hour_boundary": "zi_zheng",
+        },
     })
     _accepts(QimenSnapshotInput, {
-        "question": "今天整体态势如何？", "longitude": 121.47, "timezone": "Asia/Shanghai",
-        "scope": "day", "school": "jinhan_yujing",
+        "question": "今天整体态势如何？", "longitude": 121.47,
+        "timezone": "Asia/Shanghai", "method": {"scope": "day", "school": "jinhan_yujing"},
     })
     _accepts(QimenSnapshotInput, {
-        "question": "钥匙丢了还能找到吗？", "longitude": 121.47, "timezone": "Asia/Shanghai",
-        "scope": "hour", "school": "zhuanpan", "rule": "lost_property",
+        "question": "钥匙丢了还能找到吗？", "longitude": 121.47,
+        "timezone": "Asia/Shanghai",
+        "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "maoshan"},
+        "rule": "lost_property",
     })
 
 
 def test_qimen_snapshot_input_rejects_invalid_special_focus_policy():
+    hour = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
     location = {"longitude": 121.47, "timezone": "Asia/Shanghai"}
 
     _rejects(QimenSnapshotInput, {
-        "question": "钥匙丢了还能找到吗？", "scope": "hour", "school": "zhuanpan",
+        "question": "钥匙丢了还能找到吗？", "method": hour,
         "rule": "lost_property", "matter": "lost_item", **location,
     })
     _rejects(QimenSnapshotInput, {
-        "question": "钥匙丢了还能找到吗？", "scope": "hour", "school": "zhuanpan",
+        "question": "钥匙丢了还能找到吗？", "method": hour,
         "rule": "lost_property", "yong_shen": ["生门"], **location,
     })
     _rejects(QimenSnapshotInput, {
-        "question": "家人走失了", "scope": "hour", "school": "zhuanpan",
+        "question": "家人走失了", "method": hour,
         "rule": "missing_person", **location,
     })
     _rejects(QimenSnapshotInput, {
-        "question": "家人走失了", "scope": "hour", "school": "zhuanpan",
+        "question": "家人走失了", "method": hour,
         "rule": "missing_person", "matter": "career", **location,
     })
 
     _accepts(QimenSnapshotInput, {
-        "question": "家人走失了", "scope": "hour", "school": "zhuanpan",
+        "question": "家人走失了", "method": hour,
         "rule": "missing_person", "matter": "missing_person", **location,
     })

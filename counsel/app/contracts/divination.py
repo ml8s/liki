@@ -29,7 +29,7 @@ class LiuyaoSnapshotInput(BaseModel):
     )
     instant: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         default=None,
-        description="起卦瞬间 UTC（RFC3339，Z）。省略表示当前起卦；复现历史卦时传入。",
+        description="起卦瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC。省略表示当前起卦；复现历史卦时传入。",
     )
     mode: Literal["auto", "coins", "yaos"] = Field(
         default="auto",
@@ -106,19 +106,28 @@ class LiuyaoSnapshotOutputCastingRoundsItem(BaseModel):
     changing: bool
 
 
-class LiuyaoSnapshotOutputCasting(BaseModel):
-    """Casting returned by this tool."""
+class LiuyaoSnapshotOutputCoinsCasting(BaseModel):
+    """Coins casting returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    mode: Literal["coins", "yaos"]
-    rounds: list[LiuyaoSnapshotOutputCastingRoundsItem] = Field(
-        default=None,
-    )
-    yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)]
-    dong_yao: list[Any]
-    casting_id: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
-        description="canonical deterministic casting identity",
-    )
-    order: Literal["bottom_up"]
+    mode: Literal["coins"] = Field(description="起卦方式。")
+    order: Literal["bottom_up"] = Field(description="爻序。")
+    rounds: list[LiuyaoSnapshotOutputCastingRoundsItem] = Field(description="六组铜钱记录。")
+    yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
+    dong_yao: list[Any] = Field(description="动爻位置。")
+    casting_id: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
+
+
+class LiuyaoSnapshotOutputYaosCasting(BaseModel):
+    """Direct line-value casting returned by this tool."""
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["yaos"] = Field(description="起卦方式。")
+    order: Literal["bottom_up"] = Field(description="爻序。")
+    yaos: Annotated[list[Annotated[int, Field(ge=6, le=9)]], Field(min_length=6, max_length=6)] = Field(description="六个爻值。")
+    dong_yao: list[Any] = Field(description="动爻位置。")
+    casting_id: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(description="canonical deterministic casting identity")
+
+
+LiuyaoSnapshotOutputCasting = LiuyaoSnapshotOutputCoinsCasting | LiuyaoSnapshotOutputYaosCasting
 
 
 class LiuyaoSnapshotOutputBoard(BaseModel):
@@ -204,7 +213,6 @@ class LiuyaoSnapshotOutputTimingPlanPolicy(BaseModel):
 class LiuyaoSnapshotOutputTimingPlan(BaseModel):
     """Timing plan returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    schema_version: Literal["liuyao-timing-plan-v2"]
     blocked: Literal[False]
     topic: str | None
     candidates: list[LiuyaoSnapshotOutputTimingPlanCandidatesItem]
@@ -225,10 +233,7 @@ class LiuyaoSnapshotOutputSafetyAdvisory(BaseModel):
 
 
 class LiuyaoSnapshotOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid", title="六爻 immutable snapshot 契约", json_schema_extra={"$id": "liki:liuyao-snapshot-v7"})
-    schema_version: Literal["liuyao-snapshot-v7"] = Field(
-        description="Schema version returned by this tool.",
-    )
+    model_config = ConfigDict(extra="forbid", title="六爻 immutable snapshot 契约", json_schema_extra={"$id": "liki:liuyao-snapshot"})
     question: LiuyaoSnapshotOutputQuestion = Field(
         description="Question returned by this tool.",
     )
@@ -289,17 +294,9 @@ TOOL_LIUYAO_SNAPSHOT = ToolContract(
 # ── liuyao_query ──
 TOOL_LIUYAO_QUERY_DESCRIPTION = "基于同一个 immutable liuyao snapshot 追问；校验 digest 后返回结构化条件性 answer，不重排。"
 
-class LiuyaoQueryInputSnapshot(BaseModel):
-    """liuyao_snapshot 返回的完整 snapshot"""
-    model_config = ConfigDict(extra="allow")
-    method: Literal["liuyao"]
-    schema_version: Literal["liuyao-snapshot-v7"]
-    snapshot_digest: str
-
-
 class LiuyaoQueryInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    snapshot: LiuyaoQueryInputSnapshot = Field(
+    snapshot: LiuyaoSnapshotOutput = Field(
         description="liuyao_snapshot 返回的完整 snapshot",
     )
     message: Annotated[str, Field(min_length=2)] = Field(
@@ -329,10 +326,7 @@ class LiuyaoQueryOutputSafetyAdvisory(BaseModel):
 
 
 class LiuyaoQueryOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid", title="六爻结构化 answer 契约", json_schema_extra={"$id": "liki:liuyao-answer-v2"})
-    schema_version: Literal["liuyao-answer-v2"] = Field(
-        description="Schema version returned by this tool.",
-    )
+    model_config = ConfigDict(extra="forbid", title="六爻结构化 answer 契约", json_schema_extra={"$id": "liki:liuyao-answer"})
     method: Literal["liuyao"] = Field(
         description="Method returned by this tool.",
     )
@@ -390,6 +384,89 @@ TOOL_LIUYAO_QUERY = ToolContract(
 # ── qimen_snapshot ──
 TOOL_QIMEN_SNAPSHOT_DESCRIPTION = "创建奇门 immutable snapshot：自动补时间、换算真太阳时、排盘、因子投影和可选专占查询一次完成。"
 
+class QimenHourZhuanpanMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["hour"] = Field(description="时家奇门。")
+    school: Literal["zhuanpan"] = Field(description="转盘法。")
+    dingju_method: Literal["chaibu", "zhirun", "maoshan"] = Field(description="定局法。")
+
+
+class QimenHourLuoshuMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["hour"] = Field(description="时家奇门。")
+    school: Literal["luoshu_feipan"] = Field(description="洛书飞盘法。")
+    dingju_method: Literal["chaibu", "zhirun"] = Field(description="定局法。")
+
+
+class QimenHourMingfaMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["hour"] = Field(description="时家奇门。")
+    school: Literal["mingfa_feipan"] = Field(description="鸣法飞盘；定局由盘式固定。")
+
+
+class QimenDayZhuanpanMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["day"] = Field(description="日家奇门。")
+    school: Literal["zhuanpan"] = Field(description="转盘法。")
+    dingju_method: Literal["chaibu", "zhirun"] = Field(description="定局法。")
+
+
+class QimenDayLuoshuMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["day"] = Field(description="日家奇门。")
+    school: Literal["luoshu_feipan"] = Field(description="洛书飞盘法。")
+    dingju_method: Literal["chaibu", "zhirun"] = Field(description="定局法。")
+
+
+class QimenMonthMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["month"] = Field(description="月家周期奇门。")
+    school: Literal["zhuanpan", "luoshu_feipan"] = Field(description="盘式流派。")
+
+
+class QimenYearMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["year"] = Field(description="年家周期奇门。")
+    school: Literal["zhuanpan", "luoshu_feipan"] = Field(description="盘式流派。")
+
+
+class QimenQuarterTenMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["quarter"] = Field(description="刻家奇门。")
+    school: Literal["zhuanpan"] = Field(description="转盘法。")
+    quarter_rule: Literal["ten_minute_sanyuan"] = Field(description="十分钟三元刻家。")
+
+
+class QimenQuarterTwelveMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["quarter"] = Field(description="刻家奇门。")
+    school: Literal["zhuanpan"] = Field(description="转盘法。")
+    quarter_rule: Literal["twelve_minute_ten_division"] = Field(description="十二分钟十分局刻家。")
+    base_dingju_method: Literal["chaibu", "zhirun", "maoshan"] = Field(description="基准时家定局法。")
+    dun_source: Literal["hour_branch", "solar_term"] = Field(description="分遁口径。")
+    hour_boundary: Literal["late_zi", "zi_zheng"] = Field(description="时辰界。")
+
+
+class QimenJinhanMethod(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["day"] = Field(description="日家奇门。")
+    school: Literal["jinhan_yujing"] = Field(description="金函玉镜专用盘。")
+
+
+QimenMethod = (
+    QimenHourZhuanpanMethod
+    | QimenHourLuoshuMethod
+    | QimenHourMingfaMethod
+    | QimenDayZhuanpanMethod
+    | QimenDayLuoshuMethod
+    | QimenMonthMethod
+    | QimenYearMethod
+    | QimenQuarterTenMethod
+    | QimenQuarterTwelveMethod
+    | QimenJinhanMethod
+)
+
+
 class QimenSnapshotInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     question: str = Field(
@@ -397,6 +474,9 @@ class QimenSnapshotInput(BaseModel):
     )
     timezone: str = Field(
         description="起局地 IANA 时区。",
+    )
+    method: QimenMethod = Field(
+        description="奇门方法事实；按 scope、school 和条件字段的合法组合传入。",
     )
     city: Annotated[str | None, Field(min_length=1)] = Field(
         default=None,
@@ -408,7 +488,7 @@ class QimenSnapshotInput(BaseModel):
     )
     instant: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         default=None,
-        description="起局瞬间 UTC（RFC3339，Z）；缺省使用服务端当前时间",
+        description="起局瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC；缺省使用服务端当前时间",
     )
     matter: Literal["career", "health", "hiding", "legal", "missing_person", "relationship", "study", "travel", "wealth"] = Field(
         default=None,
@@ -422,111 +502,38 @@ class QimenSnapshotInput(BaseModel):
         default=None,
         description="可选专占规则；由因子契约校验适用盘型",
     )
-    scope: Literal["hour", "day", "quarter", "month", "year"] = Field(
-        default=None,
-        description="奇门范围；缺省 hour",
-    )
-    school: Literal["zhuanpan", "luoshu_feipan", "mingfa_feipan", "jinhan_yujing"] = Field(
-        default=None,
-        description="奇门流派；缺省 zhuanpan",
-    )
-    dingju_method: Literal["chaibu", "zhirun", "maoshan"] = Field(
-        default=None,
-        description="定局方法；仅支持范围可用",
-    )
-    quarter_rule: Literal["ten_minute_sanyuan", "twelve_minute_ten_division"] = Field(
-        default=None,
-        description="刻家规则；仅 scope=quarter 使用",
-    )
-    base_dingju_method: Literal["chaibu", "zhirun", "maoshan"] = Field(
-        default=None,
-        description="十二分钟十分局基准定局法",
-    )
-    dun_source: Literal["hour_branch", "solar_term"] = Field(
-        default=None,
-        description="十二分钟十分局遁甲来源",
-    )
-    hour_boundary: Literal["late_zi", "zi_zheng"] = Field(
-        default=None,
-        description="子时边界口径",
-    )
     birth_date: str = Field(
         default=None,
-        description="出生日期或时刻，用于年命干落宫",
+        description="出生日期或时刻，用于年命干落宫；金函玉镜不接受",
     )
 
     @model_validator(mode="after")
-    def _enforce_method_catalog(self) -> "QimenSnapshotInput":
-        """Cross-field rules the legacy schema expressed as ``allOf``.
-
-        Pydantic cannot project ``if/then`` into the published schema, so the
-        equivalent matrix runs here instead. The engine catalog is the backstop.
-        """
-        scope = self.scope or "hour"
-        school = self.school or "zhuanpan"
-        advanced = ("base_dingju_method", "dun_source", "hour_boundary")
-
-        def forbidden(*names: str) -> list[str]:
-            return [name for name in names if getattr(self, name) is not None]
-
+    def _enforce_snapshot_context(self) -> "QimenSnapshotInput":
+        """Validate facts that are outside the cohesive qimen method object."""
         if (self.city is None) == (self.longitude is None):
             raise ValueError("provide exactly one of city or longitude")
         if self.matter is not None and self.yong_shen is not None:
             raise ValueError("matter 与 yong_shen 互斥")
-        if school == "jinhan_yujing":
-            if scope != "day":
-                raise ValueError("school=jinhan_yujing requires scope=day")
-            if (bad := forbidden(
-                *advanced, "quarter_rule", "dingju_method", "matter",
-                "yong_shen", "rule", "birth_date",
-            )):
-                raise ValueError(
-                    f"school=jinhan_yujing does not accept {', '.join(bad)}"
-                )
-        elif self.rule is None and scope != "quarter":
+
+        is_jinhan = isinstance(self.method, QimenJinhanMethod)
+        if is_jinhan:
+            forbidden = [
+                name for name, value in (
+                    ("matter", self.matter), ("yong_shen", self.yong_shen),
+                    ("rule", self.rule), ("birth_date", self.birth_date),
+                ) if value is not None
+            ]
+            if forbidden:
+                raise ValueError(f"jinhan_yujing does not accept {', '.join(forbidden)}")
+        elif self.rule is None and self.method.scope != "quarter":
             if self.matter is None and self.yong_shen is None:
-                raise ValueError(
-                    "ordinary qimen requires exactly one of matter or yong_shen"
-                )
+                raise ValueError("ordinary qimen requires exactly one of matter or yong_shen")
+
         if self.rule in ("lost_property", "thief_capture", "capture_escape", "thief_profile"):
             if self.matter is not None or self.yong_shen is not None:
                 raise ValueError(f"qimen rule {self.rule} does not accept matter or yong_shen")
         if self.rule == "missing_person" and self.matter != "missing_person":
             raise ValueError("qimen rule missing_person requires matter=missing_person")
-
-        if school == "mingfa_feipan":
-            if scope != "hour":
-                raise ValueError("school=mingfa_feipan requires scope=hour")
-            if self.dingju_method != "chaibu":
-                raise ValueError("school=mingfa_feipan requires dingju_method=chaibu")
-            if (bad := forbidden(*advanced, "quarter_rule")):
-                raise ValueError(
-                    f"school=mingfa_feipan does not accept {', '.join(bad)}"
-                )
-        if scope == "quarter":
-            if self.school not in (None, "zhuanpan"):
-                raise ValueError("scope=quarter requires school=zhuanpan")
-            if self.quarter_rule is None:
-                raise ValueError("scope=quarter requires quarter_rule")
-            if self.dingju_method is not None:
-                raise ValueError("scope=quarter does not accept dingju_method")
-        if self.quarter_rule == "ten_minute_sanyuan":
-            if (bad := forbidden(*advanced)):
-                raise ValueError(
-                    f"quarter_rule=ten_minute_sanyuan does not accept {', '.join(bad)}"
-                )
-        if self.quarter_rule == "twelve_minute_ten_division":
-            if (missing := [name for name in advanced if getattr(self, name) is None]):
-                raise ValueError(
-                    "quarter_rule=twelve_minute_ten_division requires "
-                    f"{', '.join(missing)}"
-                )
-        if scope in ("month", "year"):
-            if (bad := forbidden(*advanced, "quarter_rule", "dingju_method")):
-                raise ValueError(f"scope={scope} does not accept {', '.join(bad)}")
-        if self.dingju_method == "maoshan":
-            if self.scope != "hour" or self.school != "zhuanpan":
-                raise ValueError("dingju_method=maoshan requires scope=hour, school=zhuanpan")
         return self
 
 
@@ -596,16 +603,12 @@ class QimenSnapshotOutputJudgmentsResultsItem(BaseModel):
 class QimenSnapshotOutputJudgments(BaseModel):
     """Judgments returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    schema_version: str
     results: list[QimenSnapshotOutputJudgmentsResultsItem]
     policy: dict[str, Any]
 
 
 class QimenSnapshotOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid", title="奇门 immutable snapshot 契约", json_schema_extra={"$id": "liki:qimen-snapshot-v5"})
-    schema_version: Literal["qimen-snapshot-v5"] = Field(
-        description="Schema version returned by this tool.",
-    )
+    model_config = ConfigDict(extra="forbid", title="奇门 immutable snapshot 契约", json_schema_extra={"$id": "liki:qimen-snapshot"})
     method: Literal["qimen"] = Field(
         description="Method returned by this tool.",
     )
@@ -654,17 +657,9 @@ TOOL_QIMEN_SNAPSHOT = ToolContract(
 # ── qimen_query ──
 TOOL_QIMEN_QUERY_DESCRIPTION = "基于同一个 immutable qimen snapshot 追问；校验 digest 后返回结构化条件性 answer，不重排。"
 
-class QimenQueryInputSnapshot(BaseModel):
-    """qimen_snapshot 返回的完整 snapshot"""
-    model_config = ConfigDict(extra="allow")
-    method: Literal["qimen"]
-    schema_version: Literal["qimen-snapshot-v5"]
-    snapshot_digest: str
-
-
 class QimenQueryInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    snapshot: QimenQueryInputSnapshot = Field(
+    snapshot: QimenSnapshotOutput = Field(
         description="qimen_snapshot 返回的完整 snapshot",
     )
     message: Annotated[str, Field(min_length=2)] = Field(
@@ -694,10 +689,7 @@ class QimenQueryOutputSafetyAdvisory(BaseModel):
 
 
 class QimenQueryOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid", title="奇门结构化 answer 契约", json_schema_extra={"$id": "liki:qimen-answer-v2"})
-    schema_version: Literal["qimen-answer-v2"] = Field(
-        description="Schema version returned by this tool.",
-    )
+    model_config = ConfigDict(extra="forbid", title="奇门结构化 answer 契约", json_schema_extra={"$id": "liki:qimen-answer"})
     method: Literal["qimen"] = Field(
         description="Method returned by this tool.",
     )

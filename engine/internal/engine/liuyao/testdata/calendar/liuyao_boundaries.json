@@ -1,5 +1,4 @@
 {
-  "schema_version": "liuyao-calendar-boundaries-v1",
   "conclusion_scope": "calendar_and_month_branch_only_not_interpretation",
   "cases": [
     {"id":"lichun-before","solar_time":"2024-02-03T12:00:00+08:00","expected_month_branch":"丑"},
