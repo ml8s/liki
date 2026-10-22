@@ -60,6 +60,10 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      # The release gate runs `make check`, whose lint-md target needs
+      # markdownlint-cli2 from the locked node_modules (same as ci.yml).
+      - run: npm ci
+
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version-file: engine/go.mod
