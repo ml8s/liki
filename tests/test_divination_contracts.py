@@ -359,3 +359,35 @@ def test_qimen_snapshot_accepts_missing_person_focus(monkeypatch):
     )
     assert snapshot["snapshot_kind"] == "standard"
     assert snapshot["special"]["rule"] == "missing_person"
+
+
+def test_divination_conflict_contract_accepts_facts_omitted_and_rejects_empty():
+    from app.contracts.divination import DivinationConflict  # noqa: E402
+    from pydantic import ValidationError as PydanticValidationError
+
+    conflict = DivinationConflict.model_validate({"id": "strong-but-void", "reason": "须辨真假空"})
+    assert conflict.facts == []
+    with pytest.raises(PydanticValidationError):
+        DivinationConflict.model_validate({"id": "", "reason": "x"})
+    with pytest.raises(PydanticValidationError):
+        DivinationConflict.model_validate({"id": "x", "reason": "y", "facts": [""]})
+    with pytest.raises(PydanticValidationError):
+        DivinationConflict.model_validate({"id": "x", "reason": "y", "unknown": True})
+
+
+def test_liuyao_factors_fails_closed_on_malformed_engine_conflicts():
+    from app.divination.tools.liuyao_factors import project_factors  # noqa: E402
+
+    def _project(conflicts):
+        return project_factors(
+            casting={},
+            question={"text": "测事"},
+            chart={"yong_shen": {"name": "官鬼", "position": 4}, "conflicts": conflicts},
+        )
+
+    valid = _project([{"id": "strong-but-void", "reason": "须辨真假空"}])
+    assert valid["evidence"]["conflicts"] == [{"id": "strong-but-void", "reason": "须辨真假空", "facts": []}]
+
+    for malformed in ("not-a-list", [{"reason": "missing id"}], [1]):
+        with pytest.raises(ValueError, match="liuyao chart conflicts are invalid"):
+            _project(malformed)

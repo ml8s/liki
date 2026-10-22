@@ -185,13 +185,25 @@ class LiuyaoSnapshotOutputFocus(BaseModel):
     )
 
 
+class DivinationConflict(BaseModel):
+    """引擎判定的并列/矛盾信号；解读必须显式处理，不得静默择一。"""
+
+    model_config = ConfigDict(extra="forbid")
+    id: Annotated[str, Field(min_length=1)] = Field(description="并列或矛盾信号 ID。")
+    reason: Annotated[str, Field(min_length=1)] = Field(description="为什么必须解释而不是静默择一。")
+    facts: list[Annotated[str, Field(min_length=1)]] = Field(
+        default_factory=list,
+        description="构成矛盾的事实。",
+    )
+
+
 class LiuyaoSnapshotOutputEvidence(BaseModel):
     """Evidence returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     primary: list[Any]
     secondary: list[Any]
     reference: list[Any]
-    conflicts: list[Any]
+    conflicts: list[DivinationConflict]
     ignored_scope: list[Any]
 
 
@@ -382,7 +394,7 @@ class LiuyaoQueryOutput(BaseModel):
     confidence: Literal["low", "medium", "high"] = Field(
         description="Confidence returned by this tool.",
     )
-    conflicts: list[dict[str, Any]] = Field(
+    conflicts: list[DivinationConflict] = Field(
         description="Conflicts returned by this tool.",
     )
     timing_refs: list[str] = Field(
@@ -745,7 +757,7 @@ class QimenQueryOutput(BaseModel):
     confidence: Literal["low", "medium", "high"] = Field(
         description="Confidence returned by this tool.",
     )
-    conflicts: list[dict[str, Any]] = Field(
+    conflicts: list[DivinationConflict] = Field(
         description="Conflicts returned by this tool.",
     )
     timing_refs: list[Annotated[str, Field(pattern="^timing-")]] = Field(

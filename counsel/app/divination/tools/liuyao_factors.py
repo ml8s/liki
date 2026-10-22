@@ -1,5 +1,9 @@
 """六爻 snapshot 投影；搬运 engine 事实并做解释层级组织，不新增命理判断。"""
 
+from pydantic import TypeAdapter, ValidationError
+
+from app.contracts.divination import DivinationConflict
+
 CONCLUSION_SCOPE = "conditional_candidate_not_outcome"
 
 
@@ -185,7 +189,13 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "conclusion_scope": "reference_not_primary_judgment",
         })
 
-    conflicts = [item for item in chart.get("conflicts", []) if isinstance(item, dict)]
+    try:
+        validated_conflicts = TypeAdapter(list[DivinationConflict]).validate_python(
+            chart.get("conflicts", [])
+        )
+    except ValidationError as exc:
+        raise ValueError(f"liuyao chart conflicts are invalid: {exc}") from exc
+    conflicts = [item.model_dump() for item in validated_conflicts]
 
     evidence = {
         "primary": primary,
