@@ -7,21 +7,21 @@
 ## 包结构
 
 **专家与顶层领域一一对应**（`liki-natal` / `liki-divination` / `liki-fengshui` / `liki-naming`，
-与根 `skills/liki/references/<domain>/` 同名）。每个 `liki-<domain>` 包的路径来源固定如下：
+与根平铺卡前缀 `<domain>-` 对应）。每个 `liki-<domain>` 包的路径来源固定如下：
 
 | 路径 | 来源 |
 | --- | --- |
 | `SKILL.md` | **手写：专家身份唯一源**（frontmatter 元数据 + 角色/指令正文；包内其余入口都由它投影） |
 | `skills/<domain>/SKILL.md` | 生成，源为身份文件（正文 + 自动方法论卡索引；ADK skill 入口） |
 | `agents/<pack>.md` | 生成，源为身份文件（WorkBuddy agent md：平台字段名 `displayName`/`maxTurns` + 身份正文；`plugin.json` 的 `agents`/`agentName` 指向它） |
-| `skills/<domain>/references/**` | 生成，源为 `skills/liki/references/<domain>/` 整棵子树（ENTRY/TOOLS/app/domains，逐字节镜像 + 路径 rebase） |
+| `skills/<domain>/references/*.md` | 生成，源为根平铺 `skills/liki/references/<domain>-*.md`（按域前缀过滤的逐字节视图：保留平铺名、引用不改写；非平铺/跨域引用在生成器 fail-closed） |
 | `.codebuddy-plugin/plugin.json` | `agents`/`agentName`/description/profession/version/keywords/skills/dependencies 生成（含连接器依赖），其余字段手写 |
 | `avatars/expert.png` | 手写占位资源，见下 |
 | `README.md` | 手写包说明 |
 
 领域卡只写本体系知识、`app/` 场景卡承载用户目标与跨体系合参（一份信息只在一处定义）；
 因此单领域包天然自包含，不做多对一聚合，也不会产生跨包死链（`sync_expert_packs.py` 对
-跨域引用 fail-closed）。
+非平铺 / 裸名 / 跨域 / 根级共享卡 / `scripts/` 依赖 / 死链全部 fail-closed）。
 
 包内**只有一处身份文件**（包根 `SKILL.md`，手写）；平台入口 `agents/<pack>.md` 由它投影
 （平台字段名与文件名约定见该文件 frontmatter），`agents/` 只允许这一个文件——多出来的即身份副本
@@ -66,7 +66,7 @@ PNG，8-bit RGBA，单张 ≤500KB，符合 WorkBuddy 头像规范）。四张�
 ## 运行时边界
 
 专家包依赖 liki 运行时：Aipay（根 `skills/liki/SKILL.md` +
-`skills/liki/references/payment/AIPAY.md`）、Feedback（`skills/liki/references/ops/FEEDBACK.md` +
+`skills/liki/references/payment-AIPAY.md`）、Feedback（`skills/liki/references/ops-FEEDBACK.md` +
 `skills/liki/feedback.schema.json` + `skills/liki/scripts/feedback.py`）与输出契约只随根
 skill 提供，包内不重复携带。若将来要独立售卖 / 独立运行专家包，再评估抽一份包内最小运行时子集。
 
@@ -85,7 +85,7 @@ skill 提供，包内不重复携带。若将来要独立售卖 / 独立运行�
 
 选择连接器聚合端点而不是自带域级端点，是为了让一次连接在四个专家间复用（引导卡片 2 张而非
 12 张）、让连接器成为工具面的唯一来源（专家包不再重复声明端点），引导卡片也用连接器自己的图标。
-代价是专家看到的工具面是全领域：领域边界由身份文件正文的「硬边界」承担（如本命专家：六爻、
+代价是专家看到的工具面是全领域：领域边界由身份文件正文的「硬边界」承担（如命理专家：六爻、
 奇门、黄历择日、起名、风水属其他专家），工具名本身也带领域前缀。
 
 子域端点（`engine/mcp/{bazi,ziwei,liuyao,qimen,huangli,fengshui}`、

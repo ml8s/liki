@@ -4,7 +4,7 @@ description: Liki 占卜专家——六爻起卦问事与应期、奇门遁甲�
 metadata:
   display_name: Liki 占卜专家
   display_name_en: Liki Divination Expert
-  version: 2026.1018.1
+  version: 2026.1019.0
   author: Liki
 ---
 
@@ -39,7 +39,7 @@ metadata:
 - 起卦输入、硬币记录或爻值必须原样传给工具，不得自行换算。
 - 快照是不可变上下文；追问必须复用工具返回的完整快照和摘要。
 - 黄历只输出日期适配事实，不预测现实结果。
-- 六爻与奇门的用神按所问事项和本域取用方法确定；八字用神与命盘判断属于本命专家。
+- 六爻与奇门的用神按所问事项和本域取用方法确定；八字用神与命盘判断属于命理专家。
 - 只解释工具返回字段；不编造卦象或局盘。
 
 ## 隐私与合规
@@ -48,30 +48,29 @@ metadata:
 - 结论是传统文化视角的条件性解读，不构成医疗、法律、投资或其他专业建议。
 - 高风险现实事项先表达关切并提供专业支持建议，再继续传统视角分析。
 
-## 方法论（25 卡）
+## 方法论（24 卡）
 
-- `references/ENTRY.md` Liki 六爻奇门占卜择日 — 六爻算卦 / 奇门遁甲 / 黄历择日
-- `references/TOOLS.md` Divination 工具契约
-- `references/app/date.md` 问日期
-- `references/app/decision.md` 问决策
-- `references/app/outcome.md` 问结果
-- `references/app/question.md` 问卦澄清与确认
-- `references/domains/huangli/jiri.md` 吉日选择
-- `references/domains/huangli/yiji.md` 宜忌规则
-- `references/domains/liuyao/jixiong.md` 六爻动爻关系（定助力/阻碍）
-- `references/domains/liuyao/liushou.md` 六爻六神（定色彩/情状）
-- `references/domains/liuyao/patterns.md` 六爻格局（定结构影响）
-- `references/domains/liuyao/yingqi.md` 六爻应期（定何时应验）
-- `references/domains/liuyao/yongshen.md` 六爻用神取用
-- `references/domains/liuyao/yuejian.md` 六爻旺衰与修饰（定吉凶基调 + 定时效）
-- `references/domains/qimen/bamen.md` 八门 / 鸣法中门吉凶（奇门）
-- `references/domains/qimen/bashen.md` 八神 / 飞盘九神断事
-- `references/domains/qimen/capture-escape.md` 奇门占捕亡
-- `references/domains/qimen/jinhan.md` 金函玉镜日家奇门
-- `references/domains/qimen/jiuxing.md` 九星吉凶（奇门）
-- `references/domains/qimen/lost-property.md` 奇门占失物
-- `references/domains/qimen/missing-person.md` 奇门占走失人口
-- `references/domains/qimen/quarter.md` 刻家奇门
-- `references/domains/qimen/thief-capture.md` 奇门占捕盗
-- `references/domains/qimen/yingqi.md` 奇门应期候选
-- `references/domains/qimen/yongshen.md` 奇门用神取用
+- `references/divination-ENTRY.md` Liki 六爻奇门占卜择日 — 六爻算卦 / 奇门遁甲 / 黄历择日
+- `references/divination-app-date.md` 问日期
+- `references/divination-app-decision.md` 问决策
+- `references/divination-app-outcome.md` 问结果
+- `references/divination-app-question.md` 问卦澄清与确认
+- `references/divination-huangli-jiri.md` 吉日选择
+- `references/divination-huangli-yiji.md` 宜忌规则
+- `references/divination-liuyao-jixiong.md` 六爻动爻关系（定助力/阻碍）
+- `references/divination-liuyao-liushou.md` 六爻六神（定色彩/情状）
+- `references/divination-liuyao-patterns.md` 六爻格局（定结构影响）
+- `references/divination-liuyao-yingqi.md` 六爻应期（定何时应验）
+- `references/divination-liuyao-yongshen.md` 六爻用神取用
+- `references/divination-liuyao-yuejian.md` 六爻旺衰与修饰（定吉凶基调 + 定时效）
+- `references/divination-qimen-bamen.md` 八门 / 鸣法中门吉凶（奇门）
+- `references/divination-qimen-bashen.md` 八神 / 飞盘九神断事
+- `references/divination-qimen-capture-escape.md` 奇门占捕亡
+- `references/divination-qimen-jinhan.md` 金函玉镜日家奇门
+- `references/divination-qimen-jiuxing.md` 九星吉凶（奇门）
+- `references/divination-qimen-lost-property.md` 奇门占失物
+- `references/divination-qimen-missing-person.md` 奇门占走失人口
+- `references/divination-qimen-quarter.md` 刻家奇门
+- `references/divination-qimen-thief-capture.md` 奇门占捕盗
+- `references/divination-qimen-yingqi.md` 奇门应期候选
+- `references/divination-qimen-yongshen.md` 奇门用神取用

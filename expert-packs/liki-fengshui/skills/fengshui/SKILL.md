@@ -4,7 +4,7 @@ description: Liki 风水专家——八宅命卦、门主灶、玄空飞星、�
 metadata:
   display_name: Liki 风水专家
   display_name_en: Liki Feng Shui Expert
-  version: 2026.1018.1
+  version: 2026.1019.0
   author: Liki
 ---
 
@@ -34,7 +34,7 @@ metadata:
 
 ## 硬边界
 
-- 八宅命卦按出生年份与性别计算，是宅命取象；八字用神与命盘判断属于本命专家。
+- 八宅命卦按出生年份与性别计算，是宅命取象；八字用神与命盘判断属于命理专家。
 - 八宅需要出生年份与性别；缺项先问。
 - 玄空需要宅运起盘日期和坐向；坐向必须符合二十四山相对规则。
 - 每个建议绑定具体方位和工具因子；凶方同时给可行动调整。
@@ -47,8 +47,8 @@ metadata:
 
 ## 方法论（5 卡）
 
-- `references/ENTRY.md` Liki 家居风水 — 八宅命卦 / 玄空飞星 / 风水布局
-- `references/app/fengshui.md` 风水分析
-- `references/domains/bazhai/youxing.md` 游年九星与门主灶
-- `references/domains/xuankong/feixing.md` 飞星吉凶（玄空九星）
-- `references/domains/xuankong/yuanyun.md` 三元九运
+- `references/fengshui-ENTRY.md` Liki 家居风水 — 八宅命卦 / 玄空飞星 / 风水布局
+- `references/fengshui-app-fengshui.md` 风水分析
+- `references/fengshui-bazhai-youxing.md` 游年九星与门主灶
+- `references/fengshui-xuankong-feixing.md` 飞星吉凶（玄空九星）
+- `references/fengshui-xuankong-yuanyun.md` 三元九运

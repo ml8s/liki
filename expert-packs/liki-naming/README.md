@@ -17,12 +17,11 @@ liki-naming/
 ├── skills/
 │   └── naming/
 │       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引
-│       └── references/      # 生成：方法论文卡镜像（逐字节一致）
-│           ├── ENTRY.md     # 域内路由
-│           ├── app/         # 场景卡（通用起名 / 外国人起名 / 自选名评估）
-│           └── domains/
-│               ├── bazi/    # 起名用神与考时精简卡
-│               └── qiming/  # 字库与选字卡
+│       └── references/            # 生成：本域平铺卡（按 `naming-` 前缀过滤的逐字节视图）
+│           ├── naming-ENTRY.md    # 域内路由
+│           ├── naming-app-*.md    # 场景卡（通用起名 / 外国人起名 / 自选名评估）
+│           ├── naming-bazi-*.md   # 起名用神与考时精简卡
+│           └── naming-qiming-*.md # 字库与选字卡
 └── README.md
 ```
 
@@ -34,5 +33,5 @@ liki-naming/
 
 ## 说明
 
-- 起名依赖八字用神（`domains/bazi` 的 yongshen/calibration），但产出是名字，属独立起名术数，独立成专家。
+- 起名依赖八字用神（`naming-bazi-*` 的 yongshen/calibration），但产出是名字，属独立起名术数，独立成专家。
 - 校验要点与上架前待办见 `expert-packs/README.md`（expertType / agentName / tags / quickPrompts / displayDescription / categoryId / 头像）。

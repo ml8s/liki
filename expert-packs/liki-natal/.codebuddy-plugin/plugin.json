@@ -1,7 +1,7 @@
 {
   "name": "liki-natal",
-  "version": "2026.1018.1",
-  "description": "Liki natal-chart expert covering BaZi (Four Pillars) and Zi Wei Dou Shu charts, structure, yongshen, ten gods, stars and palaces, dayun/daxian and liunian with cross-system traceable rule-based readings.",
+  "version": "2026.1019.0",
+  "description": "Liki fate & fortune expert covering BaZi (Four Pillars) and Zi Wei Dou Shu charts, structure, yongshen, ten gods, stars and palaces, dayun/daxian and liunian with cross-system traceable rule-based readings.",
   "author": {
     "name": "Q.Sui",
     "email": "suiqiang@foxmail.com"
@@ -12,8 +12,8 @@
   "expertType": "agent",
   "agentName": "liki-natal",
   "displayName": {
-    "en": "Liki Natal Chart Expert",
-    "zh": "Liki 本命专家"
+    "en": "Liki Fate & Fortune Expert",
+    "zh": "Liki 命理专家"
   },
   "profession": {
     "en": "BaZi & Zi Wei Dou Shu Consultant",
@@ -65,6 +65,10 @@
     ]
   },
   "keywords": [
+    "fate reading",
+    "fortune telling",
+    "bazi reading",
+    "ziwei doushu",
     "八字算命",
     "四柱命盘",
     "格局用神",

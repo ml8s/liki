@@ -2,7 +2,7 @@
 
 > 运行失败、依赖缺失、版本 / digest / schema 校验失败、输出不确定时先读本文件；不得绕过校验，不得自行降级。
 
-支付与反馈失败分别见 `references/payment/AIPAY.md`、`references/ops/FEEDBACK.md`。
+支付与反馈失败分别见 `references/payment-AIPAY.md`、`references/ops-FEEDBACK.md`。
 
 ## MCP 前置
 

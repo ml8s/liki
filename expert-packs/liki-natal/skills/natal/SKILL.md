@@ -1,14 +1,14 @@
 ---
 name: natal
-description: Liki 本命专家——八字与紫微排盘、格局用神、十神六亲、星曜宫位、大运流年与大限、双侧合参与合盘考时。依据可回溯，为传统文化条件性解读。
+description: Liki 命理专家——八字与紫微排盘、格局用神、十神六亲、星曜宫位、大运流年与大限、双侧合参与合盘考时。依据可回溯，为传统文化条件性解读。
 metadata:
-  display_name: Liki 本命专家
-  display_name_en: Liki Natal Chart Expert
-  version: 2026.1018.1
+  display_name: Liki 命理专家
+  display_name_en: Liki Fate & Fortune Expert
+  version: 2026.1019.0
   author: Liki
 ---
 
-# 本命专家
+# 命理专家
 
 > 同时精通八字与紫微斗数的命理师。八字侧与紫微侧各自排盘、各自出断语，再由本域完成合参、合盘、考时与命书编排。排盘和断语来自确定性工具；依据可回溯，不编造盘面，不承诺改运。
 
@@ -48,39 +48,41 @@ metadata:
 - 结论是传统文化视角的条件性解读，不构成医疗、法律、投资或其他专业建议。
 - 高风险现实事项先表达关切并提供专业支持建议，再继续传统视角分析。
 
-## 方法论（34 卡）
+## 方法论（36 卡）
 
-- `references/ENTRY.md` Liki 本命八字紫微 — 八字命盘 / 紫微斗数 / 合参合盘 / 考时
-- `references/TOOLS.md` Natal 工具与判断
-- `references/app/career.md` 事业分析
-- `references/app/compatibility.md` 合盘分析
-- `references/app/family.md` 家庭六亲分析
-- `references/app/health.md` 健康分析
-- `references/app/marriage.md` 婚姻分析
-- `references/app/mingshu.md` 命书与领域速览
-- `references/app/personality.md` 性格分析
-- `references/app/study.md` 学业分析
-- `references/app/wealth.md` 财运分析
-- `references/domains/bazi/calibration.md` 出生时辰校验
-- `references/domains/bazi/career.md` 事业判断决策表
-- `references/domains/bazi/dayun.md` 大运分析方法论
-- `references/domains/bazi/family.md` 六亲判断
-- `references/domains/bazi/geju.md` 格局论命
-- `references/domains/bazi/gongwei.md` 宫位论
-- `references/domains/bazi/hehui.md` 合冲刑害应事逻辑
-- `references/domains/bazi/hepan.md` 八字合盘方法论
-- `references/domains/bazi/shishen.md` 十神组合场景化
-- `references/domains/bazi/study.md` 学业判断决策表
-- `references/domains/bazi/tiaohou.md` 调候用神
-- `references/domains/bazi/wangshuai.md` 旺衰判断
-- `references/domains/bazi/wealth.md` 财运判断规则
-- `references/domains/bazi/wuxing-health.md` 五行与健康
-- `references/domains/bazi/yongshen.md` 用神方法论
-- `references/domains/ziwei/calibration.md` 紫微时辰校验
-- `references/domains/ziwei/geju.md` 特殊格局
-- `references/domains/ziwei/gexing.md` 性格分析方法
-- `references/domains/ziwei/gong12.md` 宫位与四化
-- `references/domains/ziwei/liunian.md` 紫微流年分析
-- `references/domains/ziwei/xiangmao.md` 紫微断长相
-- `references/domains/ziwei/yingqi.md` 紫微流年应期
-- `references/domains/ziwei/zhuxing.md` 星曜详解
+- `references/natal-ENTRY.md` Liki 本命八字紫微 — 八字命盘 / 紫微斗数 / 合参合盘 / 考时
+- `references/natal-app-calibration.md` 考时（时辰存疑）
+- `references/natal-app-career.md` 事业分析
+- `references/natal-app-compatibility.md` 合盘分析
+- `references/natal-app-family.md` 家庭六亲分析
+- `references/natal-app-health.md` 健康分析
+- `references/natal-app-marriage.md` 婚姻分析
+- `references/natal-app-mingshu.md` 命书与领域速览
+- `references/natal-app-personality.md` 性格分析
+- `references/natal-app-study.md` 学业分析
+- `references/natal-app-wealth.md` 财运分析
+- `references/natal-bazi-ENTRY.md` 八字层入口 — 任务路由与执行流
+- `references/natal-bazi-calibration.md` 出生时辰校验
+- `references/natal-bazi-career.md` 事业判断决策表
+- `references/natal-bazi-dayun.md` 大运分析方法论
+- `references/natal-bazi-family.md` 六亲判断
+- `references/natal-bazi-geju.md` 格局论命
+- `references/natal-bazi-gongwei.md` 宫位论
+- `references/natal-bazi-hehui.md` 合冲刑害应事逻辑
+- `references/natal-bazi-hepan.md` 八字合盘方法论
+- `references/natal-bazi-shishen.md` 十神组合场景化
+- `references/natal-bazi-study.md` 学业判断决策表
+- `references/natal-bazi-tiaohou.md` 调候用神
+- `references/natal-bazi-wangshuai.md` 旺衰判断
+- `references/natal-bazi-wealth.md` 财运判断规则
+- `references/natal-bazi-wuxing-health.md` 五行与健康
+- `references/natal-bazi-yongshen.md` 用神方法论
+- `references/natal-ziwei-ENTRY.md` 紫微层入口 — 任务路由与执行流
+- `references/natal-ziwei-calibration.md` 紫微时辰校验
+- `references/natal-ziwei-geju.md` 特殊格局
+- `references/natal-ziwei-gexing.md` 性格分析方法
+- `references/natal-ziwei-gong12.md` 宫位与四化
+- `references/natal-ziwei-liunian.md` 紫微流年分析
+- `references/natal-ziwei-xiangmao.md` 紫微断长相
+- `references/natal-ziwei-yingqi.md` 紫微流年应期
+- `references/natal-ziwei-zhuxing.md` 星曜详解

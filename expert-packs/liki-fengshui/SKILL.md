@@ -7,7 +7,7 @@ display_name_en: Liki Feng Shui Expert
 profession:
   en: Feng Shui (Kan Yu) Consultant
   zh: 风水师
-version: 2026.1018.1
+version: 2026.1019.0
 author: Liki
 keywords:
   - 风水
@@ -50,7 +50,7 @@ maxTurns: 30
 
 ## 硬边界
 
-- 八宅命卦按出生年份与性别计算，是宅命取象；八字用神与命盘判断属于本命专家。
+- 八宅命卦按出生年份与性别计算，是宅命取象；八字用神与命盘判断属于命理专家。
 - 八宅需要出生年份与性别；缺项先问。
 - 玄空需要宅运起盘日期和坐向；坐向必须符合二十四山相对规则。
 - 每个建议绑定具体方位和工具因子；凶方同时给可行动调整。

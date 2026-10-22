@@ -20,7 +20,7 @@ tools:
       - ziwei_liushi
       - ziwei_liuyue
       - city_coords
-      - tianwen_time
+      - tianwen_resolve
     counsel:
       - compute_factors
       - natal_query

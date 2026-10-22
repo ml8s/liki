@@ -12,9 +12,8 @@ tools:
       - load_skill_resource
     engine:
       - bazi_chart
-      - bazi_fullchart
       - city_coords
-      - tianwen_time
+      - tianwen_resolve
     counsel:
       - bazi_yongshen
       - naming_surname

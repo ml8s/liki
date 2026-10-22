@@ -20,7 +20,7 @@ tools:
       - bazi_liuyue
       - bazi_xiaoyun
       - city_coords
-      - tianwen_time
+      - tianwen_resolve
     counsel:
       - compute_factors
       - natal_query

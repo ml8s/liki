@@ -4,7 +4,7 @@ description: Liki 起名专家——八字用神取字、五行选字、音韵�
 metadata:
   display_name: Liki 起名专家
   display_name_en: Liki Naming Expert
-  version: 2026.1018.1
+  version: 2026.1019.0
   author: Liki
 ---
 
@@ -50,10 +50,10 @@ metadata:
 
 ## 方法论（7 卡）
 
-- `references/ENTRY.md` Liki 宝宝起名取名 — 八字用神 + 五行选字
-- `references/app/foreign.md` 外国人起中文名
-- `references/app/naming.md` 通用起名/改名
-- `references/app/selfcheck.md` 自选名字评估
-- `references/domains/bazi/calibration.md` 出生时辰判定（起名精简版）
-- `references/domains/bazi/yongshen.md` 起名用神消费
-- `references/domains/qiming/ziku.md` 字库与选字
+- `references/naming-ENTRY.md` Liki 宝宝起名取名 — 八字用神 + 五行选字
+- `references/naming-app-foreign.md` 外国人起中文名
+- `references/naming-app-naming.md` 通用起名/改名
+- `references/naming-app-selfcheck.md` 自选名字评估
+- `references/naming-bazi-calibration.md` 出生时辰判定（起名精简版）
+- `references/naming-bazi-yongshen.md` 起名用神消费
+- `references/naming-qiming-ziku.md` 字库与选字

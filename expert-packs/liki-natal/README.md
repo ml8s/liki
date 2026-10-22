@@ -1,9 +1,9 @@
-# Liki 本命专家包
+# Liki 命理专家包
 
 > **兼容提示**：本目录是专家的 CodeBuddy/WorkBuddy 市场发布形态；包根 `SKILL.md` 为身份唯一
 > 手写源，`skills/natal/`（域 skill 与 references）由身份与方法论卡生成、逐字节一致，勿手改。
 
-**`liki-natal`** — **Liki 本命专家**（八字 + 紫微两体系）。排盘与断语来自确定性工具，依据可回溯。
+**`liki-natal`** — **Liki 命理专家**（八字 + 紫微两体系）。排盘与断语来自确定性工具，依据可回溯。
 
 ## 结构
 
@@ -17,13 +17,12 @@ liki-natal/
 ├── skills/
 │   └── natal/
 │       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引
-│       └── references/      # 生成：方法论文卡镜像（逐字节一致）
-│           ├── ENTRY.md     # 域内路由（场景卡 + 按侧执行）
-│           ├── TOOLS.md     # 工具链、断语输出契约与「合参与裁决」
-│           ├── app/         # 场景卡（命书 / 婚姻 / 事业 / 财运 / 健康 / 学业 / 性格 / 六亲 / 合盘）
-│           └── domains/
-│               ├── bazi/    # 八字方法论卡（旺衰/用神/格局/十神/大运/合盘/考时等）
-│               └── ziwei/   # 紫微方法论卡（主星/格局/十二宫/性格/应期/流年等）
+│       └── references/          # 生成：本域平铺卡（按 `natal-` 前缀过滤的逐字节视图）
+│           ├── natal-ENTRY.md   # 域内路由（场景卡 + 按侧执行）
+│           ├── natal-TOOLS.md   # 工具链、断语输出契约与「合参与裁决」
+│           ├── natal-app-*.md   # 场景卡（命书 / 婚姻 / 事业 / 财运 / 健康 / 学业 / 性格 / 六亲 / 合盘）
+│           ├── natal-bazi-*.md  # 八字方法论卡
+│           └── natal-ziwei-*.md # 紫微方法论卡
 └── README.md
 ```
 
@@ -36,7 +35,7 @@ liki-natal/
 ## 说明
 
 - **一个专家覆盖两体系**：八字与紫微同属「本命」，双侧各自排盘出断语，合参与裁决（含合盘、考时）
-  在包内 `references/TOOLS.md`「合参与裁决」与各场景卡的「双盘合参」节完成，不拆成两个专家。
-- 领域卡只写本体系方法（`domains/bazi/` 不写紫微规则，`domains/ziwei/` 不写八字规则）；
-  跨体系内容一律落在 `app/` 场景卡与 `TOOLS.md`。
+  在包内 `references/natal-TOOLS.md`「合参与裁决」与各场景卡的「双盘合参」节完成，不拆成两个专家。
+- 领域卡只写本体系方法（`natal-bazi-*` 不写紫微规则，`natal-ziwei-*` 不写八字规则）；
+  跨体系内容一律落在 `natal-app-*` 场景卡与 `natal-TOOLS.md`。
 - 校验要点与上架前待办见 `expert-packs/README.md`（expertType / agentName / tags / quickPrompts / displayDescription / categoryId / 头像）。

@@ -16,7 +16,7 @@ tools:
       - liuyao_chart
       - liuyao_qigua
       - qimen_chart
-      - tianwen_time
+      - tianwen_resolve
       - time_now
     counsel:
       - liuyao_query

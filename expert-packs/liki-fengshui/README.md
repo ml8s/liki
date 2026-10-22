@@ -17,12 +17,11 @@ liki-fengshui/
 ├── skills/
 │   └── fengshui/
 │       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引
-│       └── references/      # 生成：方法论文卡镜像（逐字节一致）
-│           ├── ENTRY.md     # 域内路由
-│           ├── app/         # 场景卡（家居风水，含八宅 / 玄空合参与裁决）
-│           └── domains/
-│               ├── bazhai/  # 八宅方法论卡（游星 / 门主灶）
-│               └── xuankong/ # 玄空方法论卡（飞星 / 元运）
+│       └── references/                # 生成：本域平铺卡（按 `fengshui-` 前缀过滤的逐字节视图）
+│           ├── fengshui-ENTRY.md      # 域内路由
+│           ├── fengshui-app-*.md      # 场景卡（家居风水，含八宅 / 玄空合参与裁决）
+│           ├── fengshui-bazhai-*.md   # 八宅方法论卡（游星 / 门主灶）
+│           └── fengshui-xuankong-*.md # 玄空方法论卡（飞星 / 元运）
 └── README.md
 ```
 
@@ -35,5 +34,5 @@ liki-fengshui/
 ## 说明
 
 - **八宅与玄空是同一风水的两个流派**（《八宅明镜》《沈氏玄空》），合并在本专家内跨流派裁决，不拆成两个专家；
-  领域卡只写本流派方法，跨流派裁决落在 `references/app/fengshui.md`「八宅 / 玄空合参与裁决」节。
+  领域卡只写本流派方法，跨流派裁决落在 `references/fengshui-app-fengshui.md`「八宅 / 玄空合参与裁决」节。
 - 校验要点与上架前待办见 `expert-packs/README.md`（expertType / agentName / tags / quickPrompts / displayDescription / categoryId / 头像）。

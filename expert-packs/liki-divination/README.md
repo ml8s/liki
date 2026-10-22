@@ -17,14 +17,13 @@ liki-divination/
 ├── skills/
 │   └── divination/
 │       ├── SKILL.md         # 生成：身份正文 + 方法论卡索引
-│       └── references/      # 生成：方法论文卡镜像（逐字节一致）
-│           ├── ENTRY.md     # 域内路由（锁定所问 → 方法卡）
-│           ├── TOOLS.md     # 工具链、变量绑定与输出契约
-│           ├── app/         # 场景卡（锁定问题 / 问结果 / 问策略 / 问日期）
-│           └── domains/
-│               ├── liuyao/  # 六爻方法论卡（用神/吉凶/应期/月建/六兽等）
-│               ├── qimen/   # 奇门方法论卡（八门/九星/八神/格局/专占等）
-│               └── huangli/ # 黄历择日卡
+│       └── references/              # 生成：本域平铺卡（按 `divination-` 前缀过滤的逐字节视图）
+│           ├── divination-ENTRY.md  # 域内路由（锁定所问 → 方法卡）
+│           ├── divination-TOOLS.md  # 工具链、变量绑定与输出契约
+│           ├── divination-app-*.md  # 场景卡（锁定问题 / 问结果 / 问策略 / 问日期）
+│           ├── divination-liuyao-*.md  # 六爻方法论卡（用神/吉凶/应期/月建/六兽等）
+│           ├── divination-qimen-*.md   # 奇门方法论卡（八门/九星/八神/格局/专占等）
+│           └── divination-huangli-*.md # 黄历择日卡
 └── README.md
 ```
 
@@ -38,6 +37,6 @@ liki-divination/
 
 - **一个专家覆盖三种占法**：六爻、奇门与黄历择日同属「占卜」——都回答「这一件事怎么样」；
   黄历只输出日期适配事实，与奇门择吉连用，不拆成独立专家。
-- 领域卡只写本体系方法（`domains/liuyao/` 不写奇门规则，`domains/qimen/` 不写六爻规则）；
-  锁定所问、跨方法选择与输出契约落在 `app/` 与 `TOOLS.md`。
+- 领域卡只写本体系方法（`divination-liuyao-*` 不写奇门规则，`divination-qimen-*` 不写六爻规则）；
+  锁定所问、跨方法选择与输出契约落在 `divination-app-*` 与 `divination-TOOLS.md`。
 - 校验要点与上架前待办见 `expert-packs/README.md`（expertType / agentName / tags / quickPrompts / displayDescription / categoryId / 头像）。

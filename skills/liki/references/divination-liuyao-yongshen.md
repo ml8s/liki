@@ -1,0 +1,14 @@
+# 六爻用神取用
+
+> 命理依据：《增删卜易》用神章。用神是所问之事在卦中的核心对象；引擎已按占事选择 `yong_shen.name` 与 `position`。
+
+旺衰、月破、旬空、入墓、六神与伏神字段分别在 `references/divination-liuyao-yuejian.md`、`references/divination-liuyao-liushou.md` 及引擎 schema 中解读。
+
+占事（`matter`）到用神的映射由排盘内部数据表维护，是唯一事实源；本页不复制该表，只在工具返回的 `yong_shen.name` / `position` 上做解读。
+
+事项路由先确认“谁是被问对象”，再选择 `matter`：问自己用 `self`；问工人、对方、合作方、外部机构等第三方用 `other`；事项另有专类（如事业、求财）才用专类用神。不要把“我在问”误作“问我自己”——例如报修工人是否联系，主体是工人，应走 `other` / 应爻。
+
+`position=0` 时读取 `fu_shen` 与 `fu_shen_candidates`：同六亲伏神全部列出，首个候选作为确定性主位，其余供复核。用神两现时引擎按《增删卜易》「舍休囚用旺相、舍静用动、舍破用不破、舍空用不空、舍被伤用不伤」取舍，直接使用返回爻位。
+
+主用神只在**本卦**爻位中取；变卦只用于解释动爻变化，不作为 `yong_shen.position` 的来源。`is_hidden=true` 时，旺衰、月破、旬空、入墓与长生都按伏神地支计算，不继承飞神的六神。
+土爻墓库按 engine 显式 `tomb_school=engine_default_chen` 取辰；若用户指定戌墓流派，须另起流派盘，不得在同一结果中混用。
