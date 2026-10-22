@@ -8,5 +8,5 @@
 # 更新时机：仅当 liki-agent-runtime 发布新版、且本仓用它通过校验后，才更新 version 与 digest。
 # 更新方式：确定要采用的新版本 → docker buildx imagetools inspect 解析其 digest →
 #   更新下面两行 → 重新跑 make runtime-validate / gate。
-version: 2026.10.18.0
-digest: sha256:46a256a1828751127c6282496e19cefd1bfe3aa8c4815bea28dbc055d5819e9a
+version: 2026.10.22.1
+digest: sha256:178da77f37ae6859a8d93fc670353b5c203cdd3957cf417369475a99dcc73ec7

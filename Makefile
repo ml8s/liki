@@ -23,7 +23,7 @@ export GOCACHE ?= /tmp/gocache
 export GOLANGCI_LINT_CACHE ?= /tmp/golangci-lint-cache
 NODE_BIN := $(HOME)/.nvm/versions/node/v$(shell cat .nvmrc)/bin
 PYTHON_BIN := $(HOME)/app/python3.12.14/bin
-export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go/bin:$(HOME)/app/go-tools/bin:$(HOME)/go/bin:$(PATH)
+export PATH := $(PYTHON_BIN):$(NODE_BIN):$(HOME)/app/go1.26.10/bin:$(HOME)/go/bin:$(PATH)
 export GOTOOLCHAIN ?= go1.26.10
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
