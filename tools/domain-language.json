@@ -427,7 +427,6 @@
           "scope": [
             "counsel/app/contracts/divination.py",
             "counsel/app/divination/tools/liuyao_paipan.py",
-            "counsel/tests/testdata/legacy-tool-manifests/divination-skill-tools.json",
             "tests/test_divination_architecture.py",
             "tests/test_divination_snapshot_ask.py",
             "tests/test_liuyao_tools.py",
@@ -442,7 +441,6 @@
           "scope": [
             "counsel/app/contracts/divination.py",
             "counsel/app/divination/tools/liuyao_factors.py",
-            "counsel/tests/testdata/legacy-tool-manifests/divination-skill-tools.json",
             "engine/internal/engine/liuyao/liuyao.go",
             "engine/internal/engine/liuyao/testdata/chart_golden.json",
             "engine/internal/mcpcontract/liuyao.go",

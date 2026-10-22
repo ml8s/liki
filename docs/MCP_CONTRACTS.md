@@ -157,10 +157,8 @@ Rules:
 - `unique_list[T]` restores `uniqueItems: true`, which Pydantic does not project
   on its own;
 - `$defs` are inlined, so a published schema stays a flat document;
-- the cross-field rules the legacy manifests declared as `allOf`/`if`-`then`
-  live in `@model_validator(mode="after")`: Pydantic cannot project them into
-  the schema, and the schema is not the only contract anyway, so the boundary
-  keeps rejecting those combinations.
+- cohesive variants use typed union branches; remaining cross-field rules that
+  Pydantic cannot project live in `@model_validator(mode="after")`.
 
 There is no committed schema file. Every consumer imports the models:
 `scripts/check_mcp_schema.py` projects the published schemas from
@@ -198,7 +196,7 @@ ziwei server does not advertise a bazi-only capability.
 The yongshen decision has one typed wire model shared by every tool that carries
 it. `bazi_yongshen(chart)` takes a typed engine `bazi_chart` object and returns a
 `SelectedYongShen`: `selected` (`yong/xi/ji/source/confidence/known_fields`),
-resolution `status`, conflicts, `rule_id`, policy and rule provenance, the
+resolution `status`, conflicts, `rule_id`, policy provenance, the
 `ge_ju_context`, branch `evidence`, and the two SHA-256 digests. `evidence`
 includes the 从格 effective/rooted counts used to verify or reject the candidate,
 so a `needs_review` result is auditable over MCP. The complete pre-factor snapshot
@@ -217,21 +215,8 @@ The `naming_check` fields `yongshen`/`xishen`/`jishen` remain an explicit
 five-element strategy for callers without a full birth chart, and are mutually
 exclusive with `selected_yongshen`.
 
-The hand-written manifests are gone from the runtime; they were frozen once
-under `counsel/tests/testdata/legacy-tool-manifests/` as the migration golden, and
-`counsel/tests/test_contract_fidelity.py` proves the migration:
-
-- the published `inputSchema`/`outputSchema` are equal to the frozen manifest
-  schemas after canonicalisation (nullable spelling, implicit
-  `additionalProperties`, empty `items`, annotation-only `title`/`default`).
-  The frozen manifests predate `bazi_yongshen`, which is a new tool rather than
-  a migrated one, and the yongshen fields upgraded from free-form objects. Both
-  exclusions are asserted against the typed schemas separately;
-- every clause the models dropped from the schema is enforced at runtime by a
-  model validator: on a corpus that walks each conditional branch, no call the
-  contract accepts was rejected by the legacy schema;
-- two qimen clauses in the legacy manifest were written without their
-  `properties` keyword, so JSON Schema silently ignored them
-  (`scope=quarter`/`scope=month|year` with the hour-scope method fields). The
-  models enforce the documented intent, which the engine catalog rejects as
-  well, and the test pins those cases as intentionally stricter.
+The hand-written manifests are gone from both runtime and tests. There is no
+frozen migration golden to maintain: `counsel/tests/test_tool_contracts.py`
+inspects the current Pydantic schemas, validates representative accepted and
+rejected values, and checks that query inputs consume complete snapshot
+outputs.
