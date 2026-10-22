@@ -23,7 +23,10 @@ from mcp_engine_tools import engine_tool_names
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "tools/mcp-tool-catalog.json"
 #: Context budget per counsel group, measured on the compact JSON a client pays for.
-COUNSEL_BUDGETS = {"natal": 24 * 1024, "naming": 24 * 1024, "divination": 64 * 1024}
+#: natal was raised from 24 KiB after 2026.10.22.1 strengthened contracts (closed
+#: schemas, typed unions, self-describing fields) grew the group from 8 KiB at the
+#: 24 KiB gate's introduction to ~51 KiB; 64 KiB keeps the guardrail functional.
+COUNSEL_BUDGETS = {"natal": 64 * 1024, "naming": 24 * 1024, "divination": 64 * 1024}
 COUNSEL_GROUPS = tuple(COUNSEL_BUDGETS)
 SCHEMA_BUDGETS = {CATALOG_PATH: 16 * 1024}
 
@@ -66,11 +69,30 @@ def _check_schema(schema: dict, *, where: str, errors: list[str], is_output: boo
         errors.append(f"{where}: invalid JSON Schema: {exc}")
         return
 
+    if "anyOf" in schema and "type" not in schema:
+        branches = schema.get("anyOf")
+        if not isinstance(branches, list) or not branches:
+            errors.append(f"{where}: anyOf must be a non-empty array")
+            return
+        if not is_output and not all(
+            isinstance(branch, dict)
+            and branch.get("type") == "object"
+            and branch.get("additionalProperties") is False
+            for branch in branches
+        ):
+            errors.append(f"{where}: input anyOf branches must be closed objects")
+            return
+        for index, branch in enumerate(branches):
+            if isinstance(branch, dict) and branch.get("type") == "object":
+                _check_schema(branch, where=f"{where}.anyOf[{index}]", errors=errors, is_output=is_output)
+        return
+
     if schema.get("type") != "object":
         # Nullable scalar/object unions and top-level arrays are allowed only for outputs.
         if not (is_output and (schema.get("type") == "array" or "anyOf" in schema or "items" in schema)):
             errors.append(f"{where}: schema type must be object")
             return
+        return
 
     properties = schema.get("properties", {})
     if not isinstance(properties, dict):

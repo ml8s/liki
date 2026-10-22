@@ -111,30 +111,6 @@ func loadGeo() {
 // regionSuffixes are administrative-division suffixes stripped for fuzzy match.
 var regionSuffixes = []string{"市", "区", "县", "旗", "盟", "州"}
 
-// countryZh maps OSM English/OSM-native country names to Chinese, so the
-// country field stays consistent with the embedded table's Chinese regions.
-var countryZh = map[string]string{
-	"China": "中国", "Taiwan": "中国台湾", "Hong Kong": "中国香港", "Macau": "中国澳门", "Macao": "中国澳门",
-	"Japan": "日本", "South Korea": "韩国", "Korea": "韩国", "Singapore": "新加坡", "Malaysia": "马来西亚",
-	"Thailand": "泰国", "Indonesia": "印度尼西亚", "Philippines": "菲律宾", "Laos": "老挝", "Cambodia": "柬埔寨",
-	"Myanmar": "缅甸", "Bangladesh": "孟加拉国", "Nepal": "尼泊尔", "Sri Lanka": "斯里兰卡", "India": "印度",
-	"Vietnam": "越南", "Mongolia": "蒙古",
-	"Australia": "澳大利亚", "New Zealand": "新西兰",
-	"United States": "美国", "United States of America": "美国", "USA": "美国", "Canada": "加拿大",
-	"United Kingdom": "英国", "England": "英国", "France": "法国", "Germany": "德国", "Netherlands": "荷兰",
-	"Belgium": "比利时", "Austria": "奥地利", "Switzerland": "瑞士", "Italy": "意大利", "Spain": "西班牙",
-	"Portugal": "葡萄牙", "Ireland": "爱尔兰", "Denmark": "丹麦", "Sweden": "瑞典", "Norway": "挪威",
-	"Finland": "芬兰", "Poland": "波兰", "Czechia": "捷克", "Greece": "希腊", "Hungary": "匈牙利",
-	"Russia": "俄罗斯", "Ukraine": "乌克兰", "Turkey": "土耳其", "Israel": "以色列", "United Arab Emirates": "阿联酋",
-	"Saudi Arabia": "沙特阿拉伯", "Qatar": "卡塔尔", "Kuwait": "科威特", "Iran": "伊朗", "Iraq": "伊拉克",
-	"Brazil": "巴西", "Mexico": "墨西哥", "Argentina": "阿根廷", "Chile": "智利", "Peru": "秘鲁",
-	"Colombia": "哥伦比亚", "Venezuela": "委内瑞拉",
-	"Egypt": "埃及", "South Africa": "南非", "Kenya": "肯尼亚", "Nigeria": "尼日利亚", "Morocco": "摩洛哥",
-	"Ethiopia": "埃塞俄比亚", "Tanzania": "坦桑尼亚", "Ghana": "加纳",
-	"Pakistan": "巴基斯坦", "Afghanistan": "阿富汗", "Uzbekistan": "乌兹别克斯坦", "Kazakhstan": "哈萨克斯坦",
-	"France (Metropolitan)": "法国",
-}
-
 // SearchCoords resolves a city name to coordinates. The embedded table
 // (counties/cities/world, WGS-84) is checked first; Nominatim (OSM) is used
 // as a fallback for long-tail places.
