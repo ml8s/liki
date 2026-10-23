@@ -188,7 +188,7 @@ def test_projected_board_preserves_core_time_and_line_states():
 
 
 def test_factors_requires_exclusive_yong_shen_source():
-    with pytest.raises(ValueError, match="互斥"):
+    with pytest.raises(ValueError, match="mutually exclusive"):
         liuyao_board.factors(matter="career", yong_shen="官鬼", casting={"yaos": [7] * 6}, longitude=116.4)
 
 

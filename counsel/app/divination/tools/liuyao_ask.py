@@ -6,15 +6,12 @@ from app.divination.tools.divination_safety import assess
 from app.divination.tools.divination_snapshot import validate_snapshot
 from app.divination.tools.liuyao_answer_core import build as build_core
 from app.divination.tools.liuyao_answer_core import validate_core
+from app.guards import require_message
 
 
 def ask(snapshot: dict, *, message: str) -> dict:
     """基于同一六爻 snapshot 回答一次提问；不重排，不修改原 snapshot。"""
-    if not isinstance(message, str):
-        raise ValueError("message must be non-empty text")
-    message = message.strip()
-    if not message:
-        raise ValueError("message must be non-empty text")
+    message = require_message(message)
     safety = assess(message)
     validate_snapshot(snapshot, method="liuyao")
     validate_document("liuyao_snapshot", snapshot)

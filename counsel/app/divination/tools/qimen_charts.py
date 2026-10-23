@@ -4,6 +4,7 @@ from typing import Any
 
 from app.divination.tools.divination_rpc import engine_data
 from app.divination.tools.qimen_matters import resolve_matter
+from app.guards import require_mutually_exclusive
 
 
 def city_coords(city: str) -> dict:
@@ -30,8 +31,7 @@ def qimen_chart(
     birth_date: str | None = None,
 ) -> dict:
     """排奇门盘；普通事象在 Python 表内转为显式用神后调用 engine。"""
-    if matter is not None and yong_shen is not None:
-        raise ValueError("matter 与 yong_shen 互斥；普通问事传 matter，高级用户传 yong_shen")
+    require_mutually_exclusive(matter=matter, yong_shen=yong_shen)
     if yong_shen is not None and len(yong_shen) == 0:
         raise ValueError("yong_shen 不能为空；高级用户未指定符号时应省略该参数")
     if yong_shen is not None:

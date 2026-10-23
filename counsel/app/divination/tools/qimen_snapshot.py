@@ -10,6 +10,7 @@ from app.divination.tools.qimen_interpretations import assert_rule_compatibility
 from app.divination.tools.qimen_jinhan_factors import project as project_jinhan_factors
 from app.divination.tools.qimen_projection import project as project_standard_factors
 from app.divination.tools.qimen_projection import validate as validate_standard_factors
+from app.guards import require_mutually_exclusive, require_question
 
 #
 # 专占规则是否接受 matter / yong_shen 由 qimen_rules.csv 的 focus_policy 声明。
@@ -51,14 +52,8 @@ def create(
     birth_date: str | None = None,
 ) -> dict:
     """创建 immutable qimen snapshot；LLM 后续只依赖该对象。"""
-    if not isinstance(question, str):
-        raise ValueError("question must be non-empty text")
-    question = question.strip()
-    if not question:
-        raise ValueError("question must be non-empty text")
+    question = require_question(question)
     safety = assess(question)
-    if len(question) < 2:
-        raise ValueError("question must be at least 2 characters")
     if not isinstance(method, dict):
         raise ValueError("method must be an explicit qimen method object")
     effective_scope = method.get("scope", "")
@@ -69,8 +64,7 @@ def create(
             raise ValueError("school jinhan_yujing does not support focus or advanced method fields")
 
     is_jinhan = effective_school == "jinhan_yujing"
-    if (matter is not None) and (yong_shen is not None):
-        raise ValueError("matter 与 yong_shen 互斥")
+    require_mutually_exclusive(matter=matter, yong_shen=yong_shen)
     has_focus = (matter is not None) or (yong_shen is not None)
     quarter_allows_no_focus = effective_scope == "quarter"
     if is_jinhan:

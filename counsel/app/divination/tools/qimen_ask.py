@@ -10,15 +10,12 @@ from app.divination.tools.qimen_jinhan_answer_core import build as build_jinhan_
 from app.divination.tools.qimen_jinhan_answer_core import validate_core as validate_jinhan_core
 from app.divination.tools.qimen_jinhan_factors import validate as validate_jinhan_factors
 from app.divination.tools.qimen_projection import validate as validate_standard_factors
+from app.guards import require_message
 
 
 def ask(snapshot: dict, *, message: str) -> dict:
     """基于同一 qimen snapshot 回答一次提问；不重排，不修改原 snapshot。"""
-    if not isinstance(message, str):
-        raise ValueError("message must be at least 2 characters")
-    message = message.strip()
-    if len(message) < 2:
-        raise ValueError("message must be at least 2 characters")
+    message = require_message(message)
     safety = assess(message)
 
     validate_snapshot(snapshot, method="qimen")

@@ -390,7 +390,7 @@ def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
             matter="wealth", yong_shen=["生门"],
         )
     except ValueError as exc:
-        assert "互斥" in str(exc)
+        assert "mutually exclusive" in str(exc)
     else:
         raise AssertionError("matter and yong_shen must conflict")
 

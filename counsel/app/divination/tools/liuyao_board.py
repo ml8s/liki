@@ -5,6 +5,7 @@ from typing import Any
 from app.divination.tools.divination_rpc import engine_data, server_time
 from app.divination.tools.liuyao_factors import project_factors
 from app.divination.tools.liuyao_matters import resolve_matter
+from app.guards import require_exactly_one, require_mutually_exclusive, require_object
 
 
 def _resolve_yong_shen(
@@ -12,10 +13,8 @@ def _resolve_yong_shen(
     yong_shen: str | None,
     perspective: str | None,
 ) -> tuple[dict | None, str]:
-    if matter is not None and yong_shen is not None:
-        raise ValueError("matter 与 yong_shen 互斥；普通问事传 matter，高级用户传 yong_shen")
-    if matter is None and yong_shen is None:
-        raise ValueError("matter 或 yong_shen 必须提供一个")
+    require_mutually_exclusive(matter=matter, yong_shen=yong_shen)
+    require_exactly_one(matter=matter, yong_shen=yong_shen)
     if matter is not None:
         fact = resolve_matter(matter, perspective=perspective)
         return {"matter": matter, **fact}, fact["yong_shen"]
@@ -45,8 +44,7 @@ def factors(
     matter_fact, resolved_yong_shen = _resolve_yong_shen(
         matter, yong_shen, perspective
     )
-    if not isinstance(casting, dict):
-        raise ValueError("casting must be an object")
+    require_object(casting, "casting")
     if not timezone:
         raise ValueError("timezone is required (IANA)")
     if instant is None:

@@ -10,6 +10,7 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.contracts.schema import ToolContract, unique_list
+from app.guards import require_exactly_one, require_mutually_exclusive
 
 
 class AuditError(BaseModel):
@@ -92,8 +93,7 @@ class LiuyaoSnapshotInput(BaseModel):
     def _enforce_matter_matrix(self) -> "LiuyaoSnapshotInput":
         """matter/yong_shen 二选一与 perspective 条件是领域规则，发布 schema
         由 casting 联合与文档表达；此处保留运行时闭环。"""
-        if (self.matter is None) == (self.yong_shen is None):
-            raise ValueError("provide exactly one of matter or yong_shen")
+        require_exactly_one(matter=self.matter, yong_shen=self.yong_shen)
         if self.perspective is not None and self.matter != "relationship":
             raise ValueError("perspective is only valid with matter=relationship")
         if self.matter == "relationship" and self.perspective is None:
@@ -559,10 +559,8 @@ class QimenSnapshotInput(BaseModel):
     @model_validator(mode="after")
     def _enforce_snapshot_context(self) -> "QimenSnapshotInput":
         """Validate facts that are outside the cohesive qimen method object."""
-        if (self.city is None) == (self.longitude is None):
-            raise ValueError("provide exactly one of city or longitude")
-        if self.matter is not None and self.yong_shen is not None:
-            raise ValueError("matter 与 yong_shen 互斥")
+        require_exactly_one(city=self.city, longitude=self.longitude)
+        require_mutually_exclusive(matter=self.matter, yong_shen=self.yong_shen)
 
         is_jinhan = isinstance(self.method, QimenJinhanMethod)
         if is_jinhan:

@@ -9,6 +9,7 @@ from app.divination.tools.liuyao_conditions import evaluate as evaluate_conditio
 from app.divination.tools.liuyao_matters import load_matter_table, resolve_matter
 from app.divination.tools.liuyao_timing import rank_timing_candidates as plan_timing
 from app.divination.tools.liuyao_topic_guidance import load_topic_table, project_topic_guidance
+from app.guards import require_exactly_one, require_question
 
 ALLOWED_MATTERS = set(load_matter_table())
 ALLOWED_TOPICS = set(load_topic_table()["topics"])
@@ -34,14 +35,8 @@ def create(
     casting 是 MCP 契约的判别联合字典：{mode: "auto"} /
     {mode: "coins", rounds: [...]} / {mode: "yaos", yaos: [...]}。
     """
-    if not isinstance(question, str):
-        raise ValueError("question must be non-empty text")
-    question = question.strip()
-    if not question:
-        raise ValueError("question must be non-empty text")
+    question = require_question(question)
     safety = assess(question)
-    if len(question) < 2:
-        raise ValueError("question must be at least 2 characters")
     if casting is None:
         casting = {"mode": "auto"}
     if not isinstance(casting, dict) or "mode" not in casting:
@@ -52,8 +47,7 @@ def create(
     if mode not in {"auto", "coins", "yaos"}:
         raise ValueError("mode must be auto, coins, or yaos")
     # coins→rounds / yaos→yaos 由 casting 判别联合在 schema 边界保证，不重复校验。
-    if (matter is None) == (yong_shen is None):
-        raise ValueError("provide exactly one of matter or yong_shen")
+    require_exactly_one(matter=matter, yong_shen=yong_shen)
     if matter is not None and matter not in ALLOWED_MATTERS:
         raise ValueError(f"unknown matter: {matter}")
     if perspective is not None and matter != "relationship":
