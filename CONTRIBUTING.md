@@ -99,7 +99,6 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 - [docs/SYSTEM.md](./docs/SYSTEM.md)：系统全况与本仓对齐——四仓分工、权威源、专家定义结构、MCP 连接器模型、生成/校验链、变更传播。
 - [docs/MCP_CONTRACTS.md](./docs/MCP_CONTRACTS.md)：MCP 契约模型——typed wire DTO → JSON Schema → 运行时校验，engine / counsel 两侧模式。
 - [workbuddy/README.md](./workbuddy/README.md)：WorkBuddy 四类上架物与本仓目录的对应关系、连接器提交包结构与提审流程。
-- [docs/BRAND.md](./docs/BRAND.md)：品牌真相源指针——品牌定义（v5.0）已迁至 liki-web 仓库 BRAND.md；本仓公开门面继续遵守。
 
 ## 发布版本模型
 

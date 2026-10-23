@@ -5,7 +5,6 @@ A dangling `needs:` entry makes the whole workflow fail to start (zero jobs
 reported), which is silent locally. Run as part of `make check`.
 """
 
-import re
 import sys
 from pathlib import Path
 

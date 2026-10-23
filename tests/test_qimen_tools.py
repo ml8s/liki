@@ -9,7 +9,6 @@ import pytest
 from app.contracts import DIVINATION_TOOLS
 from jsonschema import validate
 
-
 TOOLS = Path(__file__).resolve().parents[1] / "counsel/app/divination/tools"
 SKILL_ROOT = TOOLS.parent.parent
 if str(TOOLS) not in sys.path:

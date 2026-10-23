@@ -39,8 +39,6 @@ Examples:
 
 ```text
 liki.agent-deployment.v1
-liki.candidate-manifest.v1
-liki.release-manifest.v1
 liki.feedback.v1
 liki.aipay.v1
 ```
