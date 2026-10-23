@@ -50,7 +50,7 @@ func init() {
 	registerWireEnum[DiPanGanName]("丁", "丙", "乙", "壬", "己", "庚", "戊", "癸", "辛")
 	registerWireEnum[DualReferenceName]("劫煞", "华盖", "天乙贵人", "将星", "桃花", "灾煞", "驿马")
 	registerWireEnum[DunSourceName]("hour_branch", "solar_term")
-	registerWireNullableEnum[ElementNameNullable]("土", "木", "水", "火", "金")
+	registerWireEnum[CandidateWuxingName]("土", "木", "水", "火", "金", "无候选", "无辅调候")
 	registerWireEnum[GanChongPositionName]("adjacent", "remote", "separated")
 	registerWireEnum[GongJiaTypeName]("三会拱", "三合拱")
 	registerWireEnum[HourBoundaryName]("late_zi", "zi_zheng")
@@ -142,7 +142,7 @@ type DualReferenceName string
 
 type DunSourceName string
 
-type ElementNameNullable string
+type CandidateWuxingName string
 
 type GanChongPositionName string
 

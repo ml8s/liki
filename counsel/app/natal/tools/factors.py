@@ -14,8 +14,9 @@ from typing import Optional
 from app.natal.tools.errors import FactorEvaluateError
 from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.factor_context import FactorContext, NatalContext
+from app.natal.tools.factor_semantics import FactorValue, PredicateState, all_of, any_of, factor_value, predicate
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
-from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
+from app.natal.tools.factor_tokens import FACTOR_WILDCARD
 from app.natal.tools.natal_projection import project_natal_facts
 from app.natal.tools.operators_liunian import _LIU_OP_NAMES, _liu_op
 from app.natal.tools.operators_natal import (
@@ -35,120 +36,88 @@ __all__ = [
 
 def evaluate_operator(op: str, args, gender: str, chart: dict, *,
                       ctx: dict | None = None, current_year: int = 0):
-    """执行单个命理算子，作为本命 / 流年算子的公开测试与调用入口。"""
+    """执行单个命理算子，并在边界归一到 FactorValue。"""
     if op in _OP_NAMES:
-        return _op(op, args, gender, chart, current_year)
-    if op in _LIU_OP_NAMES:
+        raw = _op(op, args, gender, chart, current_year)
+    elif op in _LIU_OP_NAMES:
         flow_ctx = dict(ctx or {})
         if current_year:
             flow_ctx["year"] = current_year
-        return _liu_op(op, args, gender, chart, flow_ctx)
-    raise FactorEvaluateError(f"未知算子: {op}")
+        raw = _liu_op(op, args, gender, chart, flow_ctx)
+    else:
+        raise FactorEvaluateError(f"未知算子: {op}")
+    return factor_value(raw, where=f"算子 {op}")
 
-def _atomic(col: str, gender, chart, ctx: dict = None, current_year: int = 0):
-    """原子执行：列名 "op[arg1,arg2]" → 原语（_op 本命 / _liu_op 流年）。
 
-    逗号分隔的多个原子表达式（如 `得令[比劫],透[比劫]`）按 AND 求值；
-    字符串值算子：列名参数=期望值——比较返回 1/0。
-    """
+def _atomic(col: str, gender, chart, ctx: dict | None = None, current_year: int = 0):
+    """原子执行：op[target] 返回四态；op[...,任意] 返回领域标量。"""
     atoms = re.findall(r"([^\[\],]+)\[([^\]]*)\]", col)
     if not atoms:
         return evaluate_operator(col, [], gender, chart, ctx=ctx, current_year=current_year)
-    results = []
+
+    states: list[FactorValue] = []
     for op, argstr in atoms:
-        args = [int(a) if a.lstrip('-').isdigit() else a for a in argstr.split(',')] if argstr else []
-        v = evaluate_operator(op, args, gender, chart, ctx=ctx, current_year=current_year)
-        if isinstance(v, str):
-            if v == FACTOR_UNKNOWN and not (args and args[-1] == FACTOR_WILDCARD):
-                results.append(FACTOR_UNKNOWN)
-                continue
-            # 「任意」= 取值模式（直读[ri_gan_wx,任意] 返回五行字符串、宫含[..,任意] 等）——
-            # 返回字符串原值供断语约束匹配（如 `日主五行: 木`）；否则按期望值比较返回 0/1
-            if args and args[-1] == FACTOR_WILDCARD:
-                results.append(v)
-            else:
-                results.append(1 if args and str(args[-1]) == v else 0)
+        raw_args = argstr.split(",") if argstr else []
+        args = [int(a) if a.lstrip("-").isdigit() else a for a in raw_args]
+        value = evaluate_operator(op, args, gender, chart, ctx=ctx, current_year=current_year)
+        if isinstance(value, PredicateState):
+            # target 型算子已经在自身边界完成四态判定。
+            states.append(value)
+        elif args and args[-1] == FACTOR_WILDCARD:
+            states.append(value)
         else:
-            results.append(v)
-    if len(atoms) == 1:
-        return results[0]
-    # 多原子 AND：任一为假即假；无假但有未知则保持未知。
-    if any(result == 0 for result in results):
-        return 0
-    if FACTOR_UNKNOWN in results:
-        return FACTOR_UNKNOWN
-    return 1 if results else 0
+            expected = factor_value(args[-1], where=f"原子 {col} 期望值") if args else PredicateState.HIT
+            states.append(predicate(value, expected))
+
+    if len(states) == 1:
+        return states[0]
+    return all_of(states)
+
 
 def _evaluate_truth_table(rows: list, atomic) -> dict:
-    """真值表求值核心：直通行取值，条件行 AND，同因子多行 OR。
-
-    三值逻辑：true / false / unknown。unknown 只能被同因子的另一个 true
-    分支覆盖；否则保持 unknown，禁止被当成 false 命中负向断语。
-    """
+    """真值表解释器：直通因子取领域值；条件组按四态 AND/OR 组合。"""
     facts = {}
     grouped: dict[str, list[dict]] = {}
     for row in rows:
         grouped.setdefault(row["因子"], []).append(row)
 
-    def condition_value(col: str, expect):
+    def condition_value(col: str, expected: FactorValue) -> PredicateState:
         if "[" in col:
             if col not in facts:
                 facts[col] = atomic(col)
-            value = facts[col]
+            actual = facts[col]
         else:
-            value = result.get(col, 0)
-        if value == FACTOR_UNKNOWN:
-            return FACTOR_UNKNOWN
-        return 1 if value == expect else 0
+            actual = result.get(col, PredicateState.MISS)
+        return predicate(actual, expected)
 
-    result: dict = {}
-    # 因子依赖链最长 len(rows) 层，+1 兜底；未知分支允许在后续轮次转真/假。
+    result: dict[str, FactorValue] = {}
     for _pass in range(len(rows) + 1):
         changed = False
         for name, groups in grouped.items():
-            if result.get(name) == 1:
+            if result.get(name) == PredicateState.HIT:
                 continue
             direct_values = [atomic(row["直通"]) for row in groups if row["直通"]]
             if direct_values:
-                direct = direct_values[0]
-                if direct == FACTOR_UNKNOWN:
-                    value = FACTOR_UNKNOWN
-                else:
-                    value = direct
-                if result.get(name) != value:
-                    result[name] = value
-                    changed = True
-                continue
-            values = []
-            for row in groups:
-                terms = [
-                    condition_value(col, expect)
-                    for col, expect in row["conds"].items()
-                ]
-                if any(term == 0 for term in terms):
-                    values.append(0)
-                elif any(term == FACTOR_UNKNOWN for term in terms):
-                    values.append(FACTOR_UNKNOWN)
-                else:
-                    values.append(1)
-            value = 1 if 1 in values else (FACTOR_UNKNOWN if FACTOR_UNKNOWN in values else 0)
+                value = direct_values[0]
+            else:
+                value = any_of(
+                    all_of(condition_value(col, expect) for col, expect in row["conds"].items())
+                    for row in groups
+                )
             if result.get(name) != value:
                 result[name] = value
                 changed = True
         if not changed:
             break
     for name in grouped:
-        result.setdefault(name, 0)
+        result.setdefault(name, PredicateState.MISS)
     return result
+
 
 def evaluate_factors(gender: str, chart: dict, shushi: Optional[str] = None,
                      current_year: int = 0,
                      factor_names: Optional[set[str]] = None) -> dict:
-    """因子快照（真值表）：factors.csv 行条件匹配 → 因子值；直通因子=原语计算值。
-    shushi="bazi"/"ziwei"：只算本术数因子（八字/紫微真分开——各自快照）；None=全算。
-    factor_names 可限定因子闭包；None=该侧全量。调用方仍须自行保证引用闭包完整。
-    条件列：带 [] = 原子事实（原语执行）；不带 [] = 因子引用（读快照——多遍稳定）。
-    chart=排盘 natal_chart，算子从其直读。"""
+    """因子快照（真值表）：factors.csv 行条件匹配 → 因子值；直通因子=原语计算值。"""
     rows = load_factor_rows()
     if shushi:
         side_config = load_constants()["命理侧"]
@@ -161,8 +130,7 @@ def evaluate_factors(gender: str, chart: dict, shushi: Optional[str] = None,
     return _evaluate_truth_table(
         rows,
         lambda expression: _atomic(expression, gender, evaluation, current_year=current_year),
-    )
-
+   )
 
 def _factor_context_from_natal_chart(
     natal_chart: dict, selected_yongshen: Optional[dict] = None

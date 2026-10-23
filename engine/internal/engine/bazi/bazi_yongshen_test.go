@@ -31,14 +31,14 @@ func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
 	if fuYi.Strength != "中和" {
 		for _, field := range []struct {
 			name string
-			val  *string
+			val  string
 		}{
 			{"FuYi.Yong", fuYi.Yong},
 			{"FuYi.Xi", fuYi.Xi},
 			{"FuYi.Ji", fuYi.Ji},
 		} {
-			if field.val == nil {
-				t.Errorf("%s is null", field.name)
+			if field.val == "" || field.val == NoCandidateWuxing {
+				t.Errorf("%s is empty: %q", field.name, field.val)
 			}
 		}
 	}
@@ -52,7 +52,7 @@ func TestComputeYongShenSchools_AllSchoolsPresent(t *testing.T) {
 			t.Errorf("%s is empty", field.name)
 		}
 	}
-	if tiaoHou.SecondaryWuxing == nil {
+	if tiaoHou.SecondaryWuxing == "" {
 		t.Error("TiaoHou.SecondaryWuxing is null for the 1984 baseline chart")
 	}
 

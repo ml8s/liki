@@ -60,7 +60,7 @@ def test_current_limit_uses_query_year_not_saved_index() -> None:
     snap = factors.evaluate_snap_from_natal_chart(natal_chart, current_year=2015)
 
     assert snap["八字"]["大运十神类"] == "印星"
-    assert snap["八字"]["大运配偶星"] == 0
+    assert snap["八字"]["大运配偶星"] == "没命中"
     assert snap["context"]["性别"] == "male"
     assert snap["context"]["当前年份"] == 2015
 

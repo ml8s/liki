@@ -19,9 +19,9 @@ func FuYi(
 		return FuYiResult{
 			WuxingCount: counts.StringCount(),
 			WangShuai:   seasonStrength,
-			Yong:        optionalString(congYong),
-			Xi:          optionalString(congXi),
-			Ji:          optionalString(congJi),
+			Yong:        candidateString(congYong),
+			Xi:          candidateString(congXi),
+			Ji:          candidateString(congJi),
 			Strength:    strength.Label,
 			Pattern:     pat,
 			Model:       "support_control_with_day_master_strength",
@@ -45,11 +45,11 @@ func FuYi(
 }
 
 // computeNormalYongJi determines yong/xi/ji by strength (qualitative, no scoring).
-func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiShen, jiShen *string) {
+func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiShen, jiShen string) {
 	dmElem := ganzhi.GanWuxing(riYuan)
 	rule, ok := yongJiRules[strengthLabel]
 	if !ok {
-		return nil, nil, nil
+		return NoCandidateWuxing, NoCandidateWuxing, NoCandidateWuxing
 	}
 	// 五行关系 → 具体五行：克我者官杀、生我者印、同我者比劫、生克我者财生官杀。
 	resolve := func(rel string) ganzhi.Wuxing {
@@ -65,7 +65,7 @@ func computeNormalYongJi(riYuan ganzhi.Gan, strengthLabel string) (yongShen, xiS
 		}
 		return 0
 	}
-	return optionalString(resolve(rule.Yong).String()),
-		optionalString(resolve(rule.Xi).String()),
-		optionalString(resolve(rule.Ji).String())
+	return candidateString(resolve(rule.Yong).String()),
+		candidateString(resolve(rule.Xi).String()),
+		candidateString(resolve(rule.Ji).String())
 }

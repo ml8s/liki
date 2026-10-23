@@ -83,9 +83,7 @@ func assembleFullChart(c Chart, bz ganzhi.Bazi, analysis PillarAnalysis) FullCha
 			ShenSha: shensha[i], IsVoid: isVoid,
 		}
 		pi.IsSelfHe = isSelfHe(ps[i])
-		if pi.IsSelfHe {
-			pi.SelfHeName = selfHeName(ps[i])
-		}
+		pi.SelfHeName = selfHeName(ps[i])
 		pi.IsKuiGang = isKuiGang(ps[i])
 		return pi
 	}

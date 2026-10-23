@@ -4,6 +4,10 @@
 
 ### Fixed
 
+- **恢复 `docs/BRAND.md` 迁移指针**：文件指向 `liki-web` 仓库根目录的 canonical `BRAND.md`，避免品牌真相源入口缺失。
+- **公共文档测试降噪**：删除 slogan、SEO 文案、输出措辞、旧标题序列等内容快照测试；保留单 H1、标题层级、HTML 白名单、长度预算、本地链接和治理文档连线等格式/规范检查。
+- **因子真值表迁移到显式状态代数**：因子快照统一输出 `命中 / 没命中 / 不适用 / 不可判定` 或标量领域闭集值，不再把 `0/1/null/""` 当作命理语义。新增共享语义内核承载四态 AND/OR、条件比较和出口校验；年份缺失返回 `不可判定`，窗口外返回 `不适用`，engine 分类事实缺失返回 `不可判定`，避免空串或静默负命中。
+- **清理旧 nullable 命理候选**：`fu_yi.yong/xi/ji`、`tiao_hou.secondary_wuxing`、四柱 `self_he_name` 及 bond 副本改为 `无候选 / 无辅调候 / 无自合` 等显式领域闭集；wire enum、policy、schema、fixtures 和契约测试同步迁移，不再用 JSON `null` 表达候选缺失。
 - **MCP 工具 schema 兼容新 runtime readiness**：`naming_check` 的 object-union 入参生成的根 schema 只有 `anyOf`，缺少 MCP `ListToolsResult` 要求的 `type: object`；新 runtime readiness 调用 `tools/list` 时 counsel 序列化失败，四个 experts 因 counsel dependency unhealthy 变为 503。schema emitter 现在为全 object 分支的 union 发布闭合的根 object schema，并新增每个 counsel domain/root 的 `tools/list` wire serializer 回归测试，避免这类契约只在 Assembly E2E 才暴露。
 
 ## [2026.10.22.2] — 2026-10-22

@@ -11,21 +11,15 @@ needs, while still accepting the full object because extra fields are allowed.
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
-from pydantic.json_schema import WithJsonSchema
 
 from app.contracts.bazi import Gan, Wuxing, Zhi
 from app.contracts.schema import unique_list
 
-YongWuxing = Annotated[
-    Literal["木", "火", "土", "金", "水"] | None,
-    # Publish the nullable enum as one compact JSON Schema property; a naive
-    # Pydantic union expands every evidence field and exceeds schema budgets.
-    WithJsonSchema({"type": ["string", "null"], "enum": ["木", "火", "土", "金", "水"]}),
-]
-GanOrEmpty = Literal["", "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
+YongWuxing = Literal["木", "火", "土", "金", "水", "无候选"]
+SecondaryWuxing = Literal["木", "火", "土", "金", "水", "无辅调候"]
 TenGod = Literal["比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印"]
-TenGodOrEmpty = Literal[
-    "", "比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印",
+TenGodNoGod = Literal[
+    "无格神", "比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印",
 ]
 YongShenStatus = Literal["resolved", "partial", "needs_review", "unresolved"]
 YongShenConfidence = Literal["high", "medium", "low"]
@@ -38,7 +32,7 @@ class YongShenChoice(BaseModel):
 
     model_config = ConfigDict(extra="allow")
     yong: YongWuxing = Field(
-        description="Selected yongshen element; null means the policy did not form a usable choice.",
+        description="Selected yongshen element; 无候选 means the policy did not form a usable choice.",
     )
     xi: unique_list[Wuxing] = Field(
         description="Elements that support the selected yongshen.",
@@ -87,7 +81,7 @@ class YongShenGeJuContext(BaseModel):
 
     model_config = ConfigDict(extra="allow")
     ge_ju: str = Field(description="格局名称。")
-    pattern_god_ten_god: TenGodOrEmpty = Field(description="格神十神；无则为空。")
+    pattern_god_ten_god: TenGodNoGod = Field(description="格神十神；无格神为 无格神。")
     pattern_god_source: str = Field(description="格神取用来源。")
     yong_fa: str = Field(description="格局顺逆用法。")
     clear: bool = Field(description="格局是否清纯。")
@@ -115,9 +109,9 @@ class YongShenFuYiEvidence(BaseModel):
     root_type: str = Field(description="通根类型。")
     season: str = Field(description="季节状态。")
     yin_bi_count: int = Field(description="印比数量。")
-    yong: YongWuxing = Field(description="扶抑候选用神；无候选为 null。")
-    xi: YongWuxing = Field(description="扶抑候选喜神；无候选为 null。")
-    ji: YongWuxing = Field(description="扶抑候选忌神；无候选为 null。")
+    yong: YongWuxing = Field(description="扶抑候选用神；缺省为 无候选。")
+    xi: YongWuxing = Field(description="扶抑候选喜神；缺省为 无候选。")
+    ji: YongWuxing = Field(description="扶抑候选忌神；缺省为 无候选。")
 
 
 class YongShenTiaoHouEvidence(BaseModel):
@@ -126,7 +120,7 @@ class YongShenTiaoHouEvidence(BaseModel):
     model_config = ConfigDict(extra="allow")
     source: Literal["tiao_hou"] = Field(description="证据来源。")
     primary_wuxing: YongWuxing = Field(description="主调候五行。")
-    secondary_wuxing: YongWuxing = Field(description="辅调候五行；无候选为 null。")
+    secondary_wuxing: SecondaryWuxing = Field(description="辅调候五行；缺失时为 无辅调候。")
     secondary_condition: str = Field(description="辅调候条件。")
     condition_ok: bool = Field(description="辅调候条件是否满足。")
     secondary_usable: bool = Field(description="辅调候是否可用。")
@@ -147,7 +141,7 @@ class YongShenGeJuEvidence(BaseModel):
     model_config = ConfigDict(extra="allow")
     source: Literal["ge_ju"] = Field(description="证据来源。")
     pattern: str = Field(description="格局名称。")
-    pattern_god_ten_god: TenGodOrEmpty = Field(description="格神十神；无则为空。")
+    pattern_god_ten_god: TenGodNoGod = Field(description="格神十神；无格神为 无格神。")
     pattern_god_source: str = Field(description="格神取用来源。")
     clear: bool = Field(description="格局是否清纯。")
 

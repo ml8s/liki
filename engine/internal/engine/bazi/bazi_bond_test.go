@@ -93,23 +93,17 @@ func TestComputeBond_ElementYongShenAndSpouseStar(t *testing.T) {
 
 	assertFit := func(label string, got yongShenFitEntry, fc FullChart, other map[string]int) {
 		want := fc.FuYi
-		sameOptional := func(a, b *string) bool {
-			if a == nil || b == nil {
-				return a == b
-			}
-			return *a == *b
-		}
-		if !sameOptional(got.Yong, want.Yong) ||
-			!sameOptional(got.Xi, want.Xi) ||
-			!sameOptional(got.Ji, want.Ji) {
+		if got.Yong != want.Yong ||
+			got.Xi != want.Xi ||
+			got.Ji != want.Ji {
 			t.Fatalf("%s fit = %+v, want yong/xi/ji %s/%s/%s", label, got,
-				optionalText(want.Yong), optionalText(want.Xi), optionalText(want.Ji))
+				want.Yong, want.Xi, want.Ji)
 		}
-		inOther := func(value *string) int {
-			if value == nil {
+		inOther := func(value string) int {
+			if value == NoCandidateWuxing {
 				return 0
 			}
-			return other[*value]
+			return other[value]
 		}
 		if got.YongInOther != inOther(got.Yong) ||
 			got.XiInOther != inOther(got.Xi) ||

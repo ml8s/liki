@@ -28,10 +28,9 @@ def _require_nonempty_string(value) -> bool:
 
 
 def _validate_optional_element(action: str, value: object, label: str) -> None:
-    if value is None:
-        return
-    if not isinstance(value, str) or value not in _CONSTANTS["五行"]:
-        raise ChartSchemaError(f"{action} {label} 必须是 null 或五行闭集字符串。")
+    allowed = set(_CONSTANTS["五行"]) | {"无候选", "无辅调候"}
+    if not isinstance(value, str) or value not in allowed:
+        raise ChartSchemaError(f"{action} {label} 必须是五行或显式无候选状态。")
 
 
 def _validate_engine_fact_items(action: str, full: dict) -> None:
@@ -141,7 +140,7 @@ def _validate_yongshen_schools(action: str, full: dict) -> None:
         raise ChartSchemaError(
             f"{action} natal_chart.full.tiao_hou.secondary_condition 不是 string。"
         )
-    if secondary_condition or tiao_hou.get("secondary_wuxing") is not None:
+    if secondary_condition or tiao_hou.get("secondary_wuxing") != "无辅调候":
         _validate_tiao_hou_availability(action, tiao_hou.get("secondary"), "secondary")
     if secondary_condition and not tiao_hou.get("secondary"):
         raise ChartSchemaError(

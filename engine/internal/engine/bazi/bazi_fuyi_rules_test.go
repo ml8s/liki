@@ -25,9 +25,9 @@ func TestNormalYongJi_StrongUsesController(t *testing.T) {
 	}
 	for _, tc := range cases {
 		yong, xi, ji := computeNormalYongJi(tc.gan, "身强")
-		if optionalText(yong) != tc.wantYong || optionalText(xi) != tc.wantXi || optionalText(ji) != tc.wantJi {
+		if yong != tc.wantYong || xi != tc.wantXi || ji != tc.wantJi {
 			t.Errorf("干 %d 身强: yong=%s xi=%s ji=%s, want %s/%s/%s",
-				tc.gan, optionalText(yong), optionalText(xi), optionalText(ji), tc.wantYong, tc.wantXi, tc.wantJi)
+				tc.gan, yong, xi, ji, tc.wantYong, tc.wantXi, tc.wantJi)
 		}
 	}
 }
@@ -46,16 +46,16 @@ func TestNormalYongJi_WeakUsesGenerator(t *testing.T) {
 	}
 	for _, tc := range cases {
 		yong, xi, ji := computeNormalYongJi(tc.gan, "身弱")
-		if optionalText(yong) != tc.wantYong || optionalText(xi) != tc.wantXi || optionalText(ji) != tc.wantJi {
+		if yong != tc.wantYong || xi != tc.wantXi || ji != tc.wantJi {
 			t.Errorf("干 %d 身弱: yong=%s xi=%s ji=%s, want %s/%s/%s",
-				tc.gan, optionalText(yong), optionalText(xi), optionalText(ji), tc.wantYong, tc.wantXi, tc.wantJi)
+				tc.gan, yong, xi, ji, tc.wantYong, tc.wantXi, tc.wantJi)
 		}
 	}
 }
 
 func TestNormalYongJi_NeutralNoAdjust(t *testing.T) {
 	yong, xi, ji := computeNormalYongJi(ganzhi.GanYi, "中和")
-	if yong != nil || xi != nil || ji != nil {
-		t.Errorf("中和不应扶抑: yong=%s xi=%s ji=%s", optionalText(yong), optionalText(xi), optionalText(ji))
+	if yong != NoCandidateWuxing || xi != NoCandidateWuxing || ji != NoCandidateWuxing {
+		t.Errorf("中和不应扶抑: yong=%s xi=%s ji=%s", yong, xi, ji)
 	}
 }

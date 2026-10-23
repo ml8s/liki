@@ -16,18 +16,18 @@ def test_financial_star_damages_resource_requires_real_target():
     rows = [r for r in load_factor_rows() if r["因子"] == "财坏印"]
     assert rows
     assert [r["conds"] for r in rows] == [{
-        "透[财星]": 1,
-        "现[印星]": 1,
-        "克[财星,印星]": 1,
-        "财星旺": 1,
+        "透[财星]": "命中",
+        "现[印星]": "命中",
+        "克[财星,印星]": "命中",
+        "财星旺": "命中",
     }]
 
 
 def test_tian_ke_di_chong_requires_both_gan_ke_and_zhi_chong():
     rows = [r for r in load_liunian_rows() if r["因子"] == "天克地冲日柱"]
     assert [r["conds"] for r in rows] == [{
-        "干克[流年干,日干]": 1,
-        "支冲[流年支,日支]": 1,
+        "干克[流年干,日干]": "命中",
+        "支冲[流年支,日支]": "命中",
     }]
 
 
@@ -204,8 +204,9 @@ def test_current_daxian_palace_is_mechanical():
 def test_current_daxian_requires_explicit_or_server_year():
     from app.natal.tools.operators_natal import _op
     chart = {"ziwei_daxian": _helpers.valid_daxian()}
-    assert _op("大限宫位", ["当前", "任意"], "male", chart, 0) == ""
-    assert _op("大限宫位", ["当前", "命宫"], "male", chart, 0) == 0
+    from app.natal.tools.factor_semantics import PredicateState
+    assert _op("大限宫位", ["当前", "任意"], "male", chart, 0) == PredicateState.UNKNOWN
+    assert _op("大限宫位", ["当前", "命宫"], "male", chart, 0) == PredicateState.UNKNOWN
 
 
 def test_flow_star_palace_is_mechanical():

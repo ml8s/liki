@@ -70,7 +70,7 @@ type BaziFullChartNian struct {
 	IsVoid         bool                            `json:"is_void" jsonschema:"旬空"`
 	IsSelfHe       bool                            `json:"is_self_he" jsonschema:"自合"`
 	IsKuiGang      bool                            `json:"is_kui_gang" jsonschema:"魁罡"`
-	SelfHeName     *string                         `json:"self_he_name" jsonschema:"自合名；无自合为 null"`
+	SelfHeName     string                          `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
 type BaziFullChartNianCangGan struct {
@@ -106,7 +106,7 @@ type BaziFullChartYue struct {
 	IsVoid         bool                           `json:"is_void" jsonschema:"旬空"`
 	IsSelfHe       bool                           `json:"is_self_he" jsonschema:"自合"`
 	IsKuiGang      bool                           `json:"is_kui_gang" jsonschema:"魁罡"`
-	SelfHeName     *string                        `json:"self_he_name" jsonschema:"自合名；无自合为 null"`
+	SelfHeName     string                         `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
 type BaziFullChartYueCangGan struct {
@@ -142,7 +142,7 @@ type BaziFullChartRi struct {
 	IsVoid         bool                          `json:"is_void" jsonschema:"旬空"`
 	IsSelfHe       bool                          `json:"is_self_he" jsonschema:"自合"`
 	IsKuiGang      bool                          `json:"is_kui_gang" jsonschema:"魁罡"`
-	SelfHeName     *string                       `json:"self_he_name" jsonschema:"自合名；无自合为 null"`
+	SelfHeName     string                        `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
 type BaziFullChartRiCangGan struct {
@@ -178,7 +178,7 @@ type BaziFullChartShi struct {
 	IsVoid         bool                           `json:"is_void" jsonschema:"旬空"`
 	IsSelfHe       bool                           `json:"is_self_he" jsonschema:"自合"`
 	IsKuiGang      bool                           `json:"is_kui_gang" jsonschema:"魁罡"`
-	SelfHeName     *string                        `json:"self_he_name" jsonschema:"自合名；无自合为 null"`
+	SelfHeName     string                         `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
 type BaziFullChartShiCangGan struct {
@@ -233,9 +233,9 @@ type BaziFullChartDaYunStepsItemRootRefsItem struct {
 type BaziFullChartFuYi struct {
 	WuxingCount map[string]int             `json:"wuxing_count" jsonschema:"五行数量"`
 	WangShuai   map[string]LiuyaoWangShuai `json:"wang_shuai" jsonschema:"五行旺相休囚死"`
-	Yong        *ElementNameNullable       `json:"yong" jsonschema:"扶抑候选用神五行；无候选为 null"`
-	Xi          *ElementNameNullable       `json:"xi" jsonschema:"扶抑候选喜神五行；无候选为 null"`
-	Ji          *ElementNameNullable       `json:"ji" jsonschema:"扶抑候选忌神五行；无候选为 null"`
+	Yong        CandidateWuxingName        `json:"yong" jsonschema:"扶抑候选用神五行；缺省为 无候选"`
+	Xi          CandidateWuxingName        `json:"xi" jsonschema:"扶抑候选喜神五行；缺省为 无候选"`
+	Ji          CandidateWuxingName        `json:"ji" jsonschema:"扶抑候选忌神五行；缺省为 无候选"`
 	Qiangruo    string                     `json:"qiangruo" jsonschema:"身强弱"`
 	Pattern     *string                    `json:"pattern,omitempty" jsonschema:"从格标签"`
 	Model       string                     `json:"model" jsonschema:"扶抑候选模型标识。"`
@@ -465,7 +465,7 @@ type BaziFullChartAtomicFactsPillarPunishments struct {
 
 type BaziFullChartTiaoHou struct {
 	PrimaryWuxing      ElementName                   `json:"primary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 primary_wuxing。"`
-	SecondaryWuxing    *ElementNameNullable          `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；无辅调候为 null。"`
+	SecondaryWuxing    CandidateWuxingName           `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
 	Season             string                        `json:"season" jsonschema:"季节状态。"`
 	Detail             string                        `json:"detail" jsonschema:"细节。"`
 	Model              string                        `json:"model" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 model。"`
@@ -542,7 +542,7 @@ type BaziFullChartGeJuStructurePattern struct {
 	Strength           *string                                      `json:"strength" jsonschema:"强弱。"`
 	Timely             *bool                                        `json:"timely" jsonschema:"是否得令。"`
 	TransparentPillars []string                                     `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             *ElementNameNullable                         `json:"wuxing" jsonschema:"五行。"`
+	Wuxing             CandidateWuxingName                          `json:"wuxing" jsonschema:"五行。"`
 }
 
 type BaziFullChartGeJuStructurePatternRootsItem struct {
@@ -558,7 +558,7 @@ type BaziFullChartGeJuStructureController struct {
 	Strength           *StrengthNameNullable                           `json:"strength" jsonschema:"强弱。"`
 	Timely             *bool                                           `json:"timely" jsonschema:"是否得令。"`
 	TransparentPillars []string                                        `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             *ElementNameNullable                            `json:"wuxing" jsonschema:"五行。"`
+	Wuxing             CandidateWuxingName                             `json:"wuxing" jsonschema:"五行。"`
 }
 
 type BaziFullChartGeJuStructureControllerRootsItem struct {
@@ -574,7 +574,7 @@ type BaziFullChartGeJuStructureGenerator struct {
 	Strength           *string                                        `json:"strength" jsonschema:"强弱。"`
 	Timely             *bool                                          `json:"timely" jsonschema:"是否得令。"`
 	TransparentPillars []string                                       `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             *ElementNameNullable                           `json:"wuxing" jsonschema:"五行。"`
+	Wuxing             CandidateWuxingName                            `json:"wuxing" jsonschema:"五行。"`
 }
 
 type BaziFullChartGeJuStructureGeneratorRootsItem struct {
@@ -743,23 +743,23 @@ type BaziBondWuxingCrossFuYiInOther struct {
 }
 
 type BaziBondWuxingCrossFuYiInOtherA struct {
-	Model       string               `json:"model" jsonschema:"model。"`
-	Yong        *ElementNameNullable `json:"yong" jsonschema:"用神；无候选为 null。"`
-	Xi          *ElementNameNullable `json:"xi" jsonschema:"喜神；无候选为 null。"`
-	Ji          *ElementNameNullable `json:"ji" jsonschema:"忌神；无候选为 null。"`
-	YongInOther int                  `json:"yong_in_other" jsonschema:"yong_in_other。"`
-	XiInOther   int                  `json:"xi_in_other" jsonschema:"xi_in_other。"`
-	JiInOther   int                  `json:"ji_in_other" jsonschema:"ji_in_other。"`
+	Model       string              `json:"model" jsonschema:"model。"`
+	Yong        CandidateWuxingName `json:"yong" jsonschema:"用神；缺省为 无候选。"`
+	Xi          CandidateWuxingName `json:"xi" jsonschema:"喜神；缺省为 无候选。"`
+	Ji          CandidateWuxingName `json:"ji" jsonschema:"忌神；缺省为 无候选。"`
+	YongInOther int                 `json:"yong_in_other" jsonschema:"yong_in_other。"`
+	XiInOther   int                 `json:"xi_in_other" jsonschema:"xi_in_other。"`
+	JiInOther   int                 `json:"ji_in_other" jsonschema:"ji_in_other。"`
 }
 
 type BaziBondWuxingCrossFuYiInOtherB struct {
-	Model       string               `json:"model" jsonschema:"model。"`
-	Yong        *ElementNameNullable `json:"yong" jsonschema:"用神；无候选为 null。"`
-	Xi          *ElementNameNullable `json:"xi" jsonschema:"喜神；无候选为 null。"`
-	Ji          *ElementNameNullable `json:"ji" jsonschema:"忌神；无候选为 null。"`
-	YongInOther int                  `json:"yong_in_other" jsonschema:"yong_in_other。"`
-	XiInOther   int                  `json:"xi_in_other" jsonschema:"xi_in_other。"`
-	JiInOther   int                  `json:"ji_in_other" jsonschema:"ji_in_other。"`
+	Model       string              `json:"model" jsonschema:"model。"`
+	Yong        CandidateWuxingName `json:"yong" jsonschema:"用神；缺省为 无候选。"`
+	Xi          CandidateWuxingName `json:"xi" jsonschema:"喜神；缺省为 无候选。"`
+	Ji          CandidateWuxingName `json:"ji" jsonschema:"忌神；缺省为 无候选。"`
+	YongInOther int                 `json:"yong_in_other" jsonschema:"yong_in_other。"`
+	XiInOther   int                 `json:"xi_in_other" jsonschema:"xi_in_other。"`
+	JiInOther   int                 `json:"ji_in_other" jsonschema:"ji_in_other。"`
 }
 
 type BaziBondNayinCross struct {

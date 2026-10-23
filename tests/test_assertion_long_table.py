@@ -43,7 +43,8 @@ def test_loader_returns_metadata_and_typed_constraints():
     } <= set(row) for row in rows)
     assert any(row["约束组"] for row in rows)
     typed = [value for row in rows for group in row["约束组"] for value in group.values()]
-    assert any(value == 1 or value == 0 for value in typed)
+    from app.natal.tools.factor_semantics import PredicateState
+    assert any(isinstance(value, PredicateState) for value in typed)
     assert any(isinstance(value, str) and value not in ("0", "1") for value in typed)
 
 

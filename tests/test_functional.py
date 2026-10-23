@@ -119,60 +119,60 @@ def _matcher_row(rule_id: str, *groups: dict) -> dict:
 
 
 def test_match_same_group_requires_all_conditions() -> None:
-    table = [_matcher_row("both", {"甲": 1, "乙": 1})]
-    assert [row["id"] for row in match_table(table, {"甲": 1, "乙": 1})] == ["both"]
-    assert [row["id"] for row in match_table(table, {"甲": 1, "乙": 0})] == []
-    assert [row["id"] for row in match_table(table, {"甲": 1})] == []
+    table = [_matcher_row("both", {"甲": "命中", "乙": "命中"})]
+    assert [row["id"] for row in match_table(table, {"甲": "命中", "乙": "命中"})] == ["both"]
+    assert [row["id"] for row in match_table(table, {"甲": "命中", "乙": "没命中"})] == []
+    assert [row["id"] for row in match_table(table, {"甲": "命中"})] == []
 
 
 def test_match_different_groups_are_or() -> None:
     table = [
-        _matcher_row("first", {"甲": 1}),
-        _matcher_row("second", {"乙": 1}),
+        _matcher_row("first", {"甲": "命中"}),
+        _matcher_row("second", {"乙": "命中"}),
     ]
-    assert [row["id"] for row in match_table(table, {"甲": 1})] == ["first"]
-    assert [row["id"] for row in match_table(table, {"乙": 1})] == ["second"]
+    assert [row["id"] for row in match_table(table, {"甲": "命中"})] == ["first"]
+    assert [row["id"] for row in match_table(table, {"乙": "命中"})] == ["second"]
     assert [row["id"] for row in match_table(table, {})] == []
 
 
 def test_match_supports_negative_and_string_constraints() -> None:
     table = [
-        _matcher_row("not_a", {"甲": 0}),
+        _matcher_row("not_a", {"甲": "没命中"}),
         _matcher_row("day_is_jia", {"日主": "甲"}),
     ]
-    assert [row["id"] for row in match_table(table, {"甲": 0})] == ["not_a"]
-    assert [row["id"] for row in match_table(table, {"甲": 1})] == []
+    assert [row["id"] for row in match_table(table, {"甲": "没命中"})] == ["not_a"]
+    assert [row["id"] for row in match_table(table, {"甲": "命中"})] == []
     assert [row["id"] for row in match_table(table, {"日主": "甲"})] == ["day_is_jia"]
     assert [row["id"] for row in match_table(table, {"日主": "乙"})] == []
 
 
 def test_match_exclusive_returns_first_hit_only() -> None:
     table = [
-        _matcher_row("first", {"甲": 1}),
-        _matcher_row("second", {"甲": 1, "乙": 1}),
+        _matcher_row("first", {"甲": "命中"}),
+        _matcher_row("second", {"甲": "命中", "乙": "命中"}),
     ]
-    snapshot = {"甲": 1, "乙": 1}
+    snapshot = {"甲": "命中", "乙": "命中"}
     assert [row["id"] for row in match_table(table, snapshot)] == ["first", "second"]
     assert [row["id"] for row in match_table(table, snapshot, exclusive=True)] == ["first"]
 
 
 def test_match_result_contains_condition_trace() -> None:
     table = [
-        _matcher_row("either", {"甲": 1}, {"乙": 1}),
+        _matcher_row("either", {"甲": "命中"}, {"乙": "命中"}),
     ]
-    hits = match_table(table, {"甲": 1, "乙": 1})
+    hits = match_table(table, {"甲": "命中", "乙": "命中"})
 
     assert hits[0]["trace"] == [
         {
             "condition_group": 1,
             "factors": {
-                "甲": {"expected": 1, "actual": 1},
+                "甲": {"expected": "命中", "actual": "命中"},
             },
         },
         {
             "condition_group": 2,
             "factors": {
-                "乙": {"expected": 1, "actual": 1},
+                "乙": {"expected": "命中", "actual": "命中"},
             },
         },
     ]
@@ -199,7 +199,7 @@ def test_three_xing_trace_preserves_exact_group_factor() -> None:
         item for item in load_rule_table("bazi_年合会.csv") if item["id"] == "ying_h09"
     )
     snapshot = {
-        factor: (1 if factor == "流年地支相刑寅巳申" else 0)
+        factor: ("命中" if factor == "流年地支相刑寅巳申" else "没命中")
         for factor in (
             "流年地支相刑寅巳申",
             "流年地支相刑丑戌未",
@@ -216,7 +216,7 @@ def test_three_xing_trace_preserves_exact_group_factor() -> None:
     assert hits[0]["id"] == "ying_h09"
     assert hits[0]["trace"][0]["condition_group"] == 1
     assert hits[0]["trace"][0]["factors"] == {
-        "流年地支相刑寅巳申": {"expected": 1, "actual": 1},
+        "流年地支相刑寅巳申": {"expected": "命中", "actual": "命中"},
     }
 
 
@@ -427,7 +427,7 @@ def test_functional_factor(case_id: str) -> None:
             current_year=input_data.get("current_year", 0),
         )
         for name, expected in case["expect_factors"].items():
-            if name == "性别" and expected == 0:
+            if name == "性别" and expected == "没命中":
                 assert name not in actual, f"{case_id}: 性别不得进入因子快照"
             else:
                 assert name in actual, f"{case_id}: 缺因子 {name}"

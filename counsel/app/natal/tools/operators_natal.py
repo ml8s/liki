@@ -5,7 +5,8 @@ from typing import Optional
 from app.natal.tools.errors import FactorEvaluateError
 from app.natal.tools.factor_constants import load_constants
 from app.natal.tools.factor_context import FactorContext
-from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
+from app.natal.tools.factor_semantics import PredicateState
+from app.natal.tools.factor_tokens import FACTOR_WILDCARD
 
 # 本命算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
 _OP_NAMES = frozenset({
@@ -263,13 +264,13 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         # selected 是唯一裁决出口；fu_yi 只保留为候选与证据。
         selected = base.get("selected_yongshen") or {}
         if selected.get("status") in ("needs_review", "unresolved"):
-            return FACTOR_UNKNOWN
+            return PredicateState.UNKNOWN
         values = selected.get("selected") or {}
         favorable_fields = const["用忌映射"][op]
         tens = _resolve_tens(args, gender)
         wx = _ten_to_wx(base, tens)
         if not wx:
-            return FACTOR_UNKNOWN
+            return PredicateState.UNKNOWN
         favorable: set[str] = set()
         for field in favorable_fields:
             value = values.get(field, "")
@@ -278,7 +279,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
             elif value:
                 favorable.add(value)
         if not favorable:
-            return FACTOR_UNKNOWN
+            return PredicateState.UNKNOWN
         return 1 if wx in favorable else 0
     if op == "月支长生":
         value = _atomic_facts(chart).get("month_longevity", "")
@@ -423,15 +424,19 @@ def _selected_dayun_step(base, current_year: int = 0):
 
 
 def _dayun_op(base, chart, args, current_year: int = 0, gender: str = ""):
-    """大运十神查询：大运十神(当前, 大类/任意)。任意模式返回十神大类标量。"""
+    """大运十神查询：年份缺失不可判定；当前无大运窗口不适用。"""
     when, star_class = args[0], args[1]
     if when != "当前":
-        return "" if star_class == FACTOR_WILDCARD else 0
+        return PredicateState.UNKNOWN
 
+    if not current_year:
+        return PredicateState.UNKNOWN
+    if not base.get("dayun_steps"):
+        return PredicateState.NOT_APPLICABLE
     selected = _selected_dayun_step(base, current_year)
-
     if selected is None:
-        return "" if star_class == FACTOR_WILDCARD else 0
+        return PredicateState.NOT_APPLICABLE
+
     shi_shen = selected.get("shi_shen", "") or ""
     suffix = load_constants()["大运十神后缀"]
     if suffix and shi_shen.endswith(suffix):
@@ -443,12 +448,16 @@ def _dayun_op(base, chart, args, current_year: int = 0, gender: str = ""):
 
 
 def _dayun_root_op(base, chart, args, current_year: int = 0, gender: str = ""):
-    """当前大运干透十神是否通根；读取 engine root 事实。"""
+    """当前大运干透十神是否通根；年份缺失不可判定，窗口外不适用。"""
     if args[0] != "当前":
-        return 0
+        return PredicateState.UNKNOWN
+    if not current_year:
+        return PredicateState.UNKNOWN
+    if not base.get("dayun_steps"):
+        return PredicateState.NOT_APPLICABLE
     selected = _selected_dayun_step(base, current_year)
     if not selected:
-        return 0
+        return PredicateState.NOT_APPLICABLE
 
     const = load_constants()
     shi_shen = selected.get("shi_shen", "") or ""
@@ -462,19 +471,25 @@ def _dayun_root_op(base, chart, args, current_year: int = 0, gender: str = ""):
 
 
 def _daxian_op(chart: dict, current_year: int, args) -> "int | str":
-    """当前公历年所在的紫微大限宫位；args=[当前, 任意/宫名]。"""
+    """当前公历年所在的紫微大限宫位；年份缺失不可判定，窗口外不适用。"""
     when, palace = args[0], args[1]
     if when != "当前":
-        return "" if palace == FACTOR_WILDCARD else 0
-    year = current_year
-    if not year:
-        return "" if palace == FACTOR_WILDCARD else 0
+        return PredicateState.UNKNOWN
+
+    if not current_year:
+        return PredicateState.UNKNOWN
     steps = chart.get("ziwei_daxian") or []
+    if not steps:
+        return PredicateState.NOT_APPLICABLE
+
     selected = next((
         step for step in steps
-        if year and step.get("start_year", 0) <= year <= step.get("end_year", 0)
+        if step.get("start_year", 0) <= current_year <= step.get("end_year", 0)
     ), None)
-    value = (selected or {}).get("gong", "")
+    if selected is None:
+        return PredicateState.NOT_APPLICABLE
+
+    value = selected.get("gong", "")
     if palace == FACTOR_WILDCARD:
         return value
     return 1 if value == palace else 0
@@ -545,7 +560,7 @@ def _base_ctx_from_natal_chart(chart: dict) -> dict:
 
 
 def _op(op: str, args, gender: str, chart: dict,
-        current_year: int = 0) -> "int | str":
+        current_year: int = 0):
     """执行本命算子；base context 由 natal_chart/FactorContext 内部构建。"""
     return _eval_natal_op(
         op, args, _base_ctx_from_natal_chart(chart) or {}, gender, chart, current_year

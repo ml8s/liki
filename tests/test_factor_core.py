@@ -21,7 +21,7 @@ def _minimal_fac() -> dict:
 
 def test_career_palace_main_star_prosperity_is_not_always_true() -> None:
     empty = evaluate_factors("male", _minimal_fac(), shushi="ziwei")
-    assert empty["官禄宫主星庙旺"] == 0
+    assert empty["官禄宫主星庙旺"] == "没命中"
 
     prosperous = evaluate_factors(
         "male",
@@ -37,7 +37,7 @@ def test_career_palace_main_star_prosperity_is_not_always_true() -> None:
          }},
         shushi="ziwei",
     )
-    assert prosperous["官禄宫主星庙旺"] == 1
+    assert prosperous["官禄宫主星庙旺"] == "命中"
 
 
 def test_ge_shen_tou_requires_pattern_ten_god_on_stem() -> None:

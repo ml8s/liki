@@ -375,12 +375,12 @@ func mustDefinition(t *testing.T, registry *Registry, name string) Definition {
 	return definition
 }
 
-func TestEngineContractBaziTiaoHouAllowsNullSecondaryWuxing(t *testing.T) {
+func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 	registry := testEngine()
 
 	// 1990-05-20 11:49 CST at 116.4E (the counsel baseline birth) has a 调候
-	// primary element but no 辅 element. Missing domain facts are published as
-	// JSON null; the legacy empty-string sentinel is no longer part of the wire.
+	// primary element but no 辅 element. Missing candidates use an explicit
+	// closure value; neither JSON null nor an empty-string sentinel is allowed.
 	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{
 		"instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male",
 	})
@@ -393,8 +393,8 @@ func TestEngineContractBaziTiaoHouAllowsNullSecondaryWuxing(t *testing.T) {
 	if !ok {
 		t.Fatalf("bazi.fullchart output omitted secondary_wuxing: %#v", tiaoHou)
 	}
-	if secondary != nil {
-		t.Fatalf("expected a null secondary_wuxing for the baseline birth, got %#v", secondary)
+	if secondary != "无辅调候" {
+		t.Fatalf("expected explicit 无辅调候 secondary_wuxing, got %#v", secondary)
 	}
 
 	var schema map[string]any
@@ -408,19 +408,21 @@ func TestEngineContractBaziTiaoHouAllowsNullSecondaryWuxing(t *testing.T) {
 		"fu_yi.ji":                  fuYi["ji"].(map[string]any),
 		"tiao_hou.secondary_wuxing": tiaoHouSchema["secondary_wuxing"].(map[string]any),
 	} {
-		if !schemaTypeContains(field["type"], "null") {
-			t.Errorf("%s schema is not nullable: %#v", name, field)
+		if field["type"] != "string" {
+			t.Errorf("%s schema is not a string: %#v", name, field)
 		}
-		values := []any{}
-		for _, branch := range field["anyOf"].([]any) {
-			if enum, ok := branch.(map[string]any)["enum"].([]any); ok {
-				values = append(values, enum...)
-			}
+		values, ok := field["enum"].([]any)
+		if !ok {
+			t.Fatalf("%s schema has no enum: %#v", name, field)
 		}
-		if !slices.Equal(values, []any{"土", "木", "水", "火", "金"}) {
-			t.Errorf("%s element enum = %#v, want the five-element closure", name, values)
+		if !slices.Contains(values, "无候选") || !slices.Contains(values, "无辅调候") {
+			t.Errorf("%s enum = %#v, want explicit candidate closure", name, values)
+		}
+		if slices.Contains(values, nil) {
+			t.Errorf("%s enum still allows null", name)
 		}
 	}
+
 }
 
 func TestEngineContractCalls(t *testing.T) {

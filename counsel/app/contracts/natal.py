@@ -7,12 +7,43 @@
 
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
+from pydantic.json_schema import WithJsonSchema
 
 from app.contracts.bazi import BaziChart
 from app.contracts.schema import ToolContract, unique_list
 from app.contracts.yongshen import BaziYongshenOutput
 from app.contracts.ziwei import EngineChart
+
+
+def _validate_factor_snapshot(value: object) -> object:
+    if not isinstance(value, dict):
+        raise ValueError("因子快照必须是对象")
+    reserved = {"_provenance", "selected_yongshen"}
+    for key, item in value.items():
+        if key in reserved:
+            if not isinstance(item, dict):
+                raise ValueError(f"因子快照保留键 {key} 必须是对象")
+            continue
+        if not isinstance(item, str) or not item:
+            raise ValueError(f"因子快照.{key} 必须是非空领域枚举或四态状态")
+    return value
+
+
+FactorSnapshot = Annotated[
+    dict[str, Any],
+    BeforeValidator(_validate_factor_snapshot),
+    WithJsonSchema({
+        "type": "object",
+        "additionalProperties": {
+            "oneOf": [
+                {"enum": ["命中", "没命中", "不适用", "不可判定"]},
+                {"type": "string", "minLength": 1},
+                {"type": "object"},
+            ],
+        },
+    }),
+]
 
 # ── bazi_yongshen ──
 TOOL_BAZI_YONGSHEN_DESCRIPTION = "engine 八字排盘结果（chart）→ 唯一用神裁决。只接受八字盘；返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要。起名与断语消费同一份裁决，不重新裁决。"
@@ -45,7 +76,7 @@ class ComputeFactorsInput(BaseModel):
 class ComputeFactorsOutput(BaseModel):
     """Immutable factor snapshot derived from an engine chart."""
     model_config = ConfigDict(extra="allow")
-    factors: dict[str, Any] = Field(
+    factors: FactorSnapshot = Field(
         description="Canonical factor snapshot; includes _provenance with side, chart digest, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
     )
     factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
@@ -64,7 +95,7 @@ TOOL_NATAL_QUERY_DESCRIPTION = "已绑定来源的因子快照 + 人生问题 �
 
 class NatalQueryInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    factors: dict[str, Any] = Field(
+    factors: FactorSnapshot = Field(
         description="compute_factors 返回的因子快照",
     )
     factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
@@ -174,7 +205,7 @@ TimeScope = (
 
 class PeriodQueryInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    factors: dict[str, Any] = Field(
+    factors: FactorSnapshot = Field(
         description="compute_factors 返回的因子快照",
     )
     factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(

@@ -64,7 +64,7 @@ def _walk(value: Any, path: str) -> Any:
 
 
 def _is_empty(value: Any) -> bool:
-    return value is _MISSING or value is None or value == "" or value == [] or value == {}
+    return value is _MISSING or value is None or value == "" or value == [] or value == {} or value in (NO_CANDIDATE, NO_SECONDARY)
 
 
 def _len(value: Any) -> int:
@@ -250,10 +250,14 @@ def _materialize(value: Any) -> Any:
     return value
 
 
+NO_CANDIDATE = "无候选"
+NO_SECONDARY = "无辅调候"
+
+
 def _candidate(value: Any) -> Any:
-    """Treat a missing/legacy-empty candidate as explicit null."""
+    """Treat a missing/legacy-empty candidate as an explicit closure value."""
     value = _materialize(value)
-    return None if value == "" else value
+    return NO_CANDIDATE if value in ("", None) else value
 
 
 def _set_path(target: dict, key: str, value: Any) -> None:
@@ -349,7 +353,7 @@ def _select_rule(policy: dict, facts: dict, derived: dict) -> dict:
 def _apply_then(rule: dict, facts: dict, derived: dict) -> dict:
     result: dict = {
         "selected": {
-            "yong": None,
+            "yong": NO_CANDIDATE,
             "xi": [],
             "ji": [],
             "source": "",
@@ -382,7 +386,7 @@ def _dedupe(values: Any) -> list:
 def _finalize(result: dict, policy: dict) -> None:
     selected = result["selected"]
     selected["yong"] = (
-        None
+        NO_CANDIDATE
         if selected.get("yong") in (None, _MISSING, "")
         else str(selected["yong"])
     )
@@ -393,9 +397,9 @@ def _finalize(result: dict, policy: dict) -> None:
 
     disjoint = (policy.get("finalize") or {}).get("disjoint") or {}
     yong = selected.get("yong")
-    if yong is not None and yong in selected["xi"]:
+    if yong != NO_CANDIDATE and yong in selected["xi"]:
         selected["xi"] = [item for item in selected["xi"] if item != yong]
-    if yong is not None and yong in selected["ji"]:
+    if yong != NO_CANDIDATE and yong in selected["ji"]:
         selected["ji"] = [item for item in selected["ji"] if item != yong]
         spec = disjoint.get("yong_vs_xi_ji", {}).get("on_overlap", {})
         status = spec.get("status", status)
@@ -420,7 +424,7 @@ def _finalize(result: dict, policy: dict) -> None:
     ]
     if status == "resolved" and len(known_fields) < 3:
         status = "partial"
-    if status in ("resolved", "partial") and selected.get("yong") is None:
+    if status in ("resolved", "partial") and selected.get("yong") == NO_CANDIDATE:
         status = "needs_review"
 
     selected["source"] = result.pop("source", "")
@@ -446,7 +450,8 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
     ge_ju = facts.get("ge_ju") or {}
     basis = fu_yi.get("basis") or {}
     themes = policy["tables"].get("ge_ju_themes") or {}
-    ten_god = ge_ju.get("pattern_god_ten_god") or "杂格"
+    raw_ten_god = ge_ju.get("pattern_god_ten_god") or ""
+    ten_god = raw_ten_god or "杂格"
     return {
         "fu_yi": {
             "qiangruo": fu_yi.get("qiangruo", ""),
@@ -476,7 +481,7 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
         },
         "ge_ju": {
             "ge_ju": ge_ju.get("ge_ju", ""),
-            "pattern_god_ten_god": ge_ju.get("pattern_god_ten_god", ""),
+            "pattern_god_ten_god": raw_ten_god or "无格神",
             "pattern_god_source": ge_ju.get("pattern_god_source", ""),
             "yong_fa": ge_ju.get("yong_fa", ""),
             "clear": derived.get("ge_ju_clear", False),
@@ -541,7 +546,7 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
         {
             "source": "ge_ju",
             "pattern": (facts.get("ge_ju") or {}).get("ge_ju", ""),
-            "pattern_god_ten_god": (facts.get("ge_ju") or {}).get("pattern_god_ten_god", ""),
+            "pattern_god_ten_god": (facts.get("ge_ju") or {}).get("pattern_god_ten_god") or "无格神",
             "pattern_god_source": (facts.get("ge_ju") or {}).get("pattern_god_source", ""),
             "clear": derived.get("ge_ju_clear", False),
         },

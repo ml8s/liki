@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"
 
 from app.natal.tools.counsel import _chart_digest, _factors_digest, period_query  # noqa: E402
-from app.natal.tools.factor_tokens import FACTOR_UNKNOWN  # noqa: E402
+from app.natal.tools.factor_semantics import PredicateState  # noqa: E402
 from app.natal.tools.factors import evaluate_factors  # noqa: E402
 from app.natal.tools.operators_liunian import _flow_element_in_selected  # noqa: E402
 from app.natal.tools.yongshen import load_policy, resolve_yongshen, validate_policy  # noqa: E402
@@ -58,7 +58,7 @@ def test_selected_yongshen_never_leaks_internal_missing_sentinel():
                 assert_materialized(item)
 
     assert_materialized(result)
-    assert result["alternatives"]["tiao_hou"]["yong"] is None
+    assert result["alternatives"]["tiao_hou"]["yong"] == "无候选"
 
 
 def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
@@ -282,7 +282,7 @@ def test_congge_label_requires_matching_season_and_stem_evidence():
     result = resolve_yongshen(full)
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-UNVERIFIED"
-    assert result["selected"]["yong"] is None
+    assert result["selected"]["yong"] == "无候选"
 
 
 def test_verified_congge_selects_fuyi_cong_candidate():
@@ -320,7 +320,7 @@ def test_fake_congge_requires_review():
     result = resolve_yongshen(full)
     assert result["status"] == "needs_review"
     assert result["rule_id"] == "YS-CG-FAKE"
-    assert result["selected"]["yong"] is None
+    assert result["selected"]["yong"] == "无候选"
 
 
 def test_neutral_tie_requires_review():
@@ -338,9 +338,9 @@ def test_neutral_tie_requires_review():
 def test_unknown_yongshen_blocks_positive_and_negative_assertions():
     full = _fullchart("bazi_chart_fullchart.json")
     factors = evaluate_factors("male", _pan(full), shushi="bazi")
-    assert factors["官杀为用"] == FACTOR_UNKNOWN
-    assert factors["官杀为忌"] == FACTOR_UNKNOWN
-    assert factors["财星为忌"] == FACTOR_UNKNOWN
+    assert factors["官杀为用"] == PredicateState.UNKNOWN
+    assert factors["官杀为忌"] == PredicateState.UNKNOWN
+    assert factors["财星为忌"] == PredicateState.UNKNOWN
 
 
 def test_known_yongshen_still_evaluates_factors():
@@ -348,16 +348,16 @@ def test_known_yongshen_still_evaluates_factors():
     natal_chart = _pan(full)
     natal_chart["_selected_yongshen"] = resolve_yongshen(full)
     factors = evaluate_factors("male", natal_chart, shushi="bazi")
-    assert factors["官杀为用"] == 1
-    assert factors["印为忌"] == 1
-    assert factors["食伤为用"] == 0
+    assert factors["官杀为用"] == PredicateState.HIT
+    assert factors["印为忌"] == PredicateState.HIT
+    assert factors["食伤为用"] == PredicateState.MISS
 
 
 def test_factor_evaluation_never_resolves_yongshen_implicitly():
     full = _fullchart("bazi_chart_1990_fullchart.json")
     factors = evaluate_factors("male", _pan(full), shushi="bazi")
-    assert factors["官杀为用"] == FACTOR_UNKNOWN
-    assert factors["官杀为忌"] == FACTOR_UNKNOWN
+    assert factors["官杀为用"] == PredicateState.UNKNOWN
+    assert factors["官杀为忌"] == PredicateState.UNKNOWN
 
 
 def test_liunian_jishen_uses_selected_not_engine_fuyi():

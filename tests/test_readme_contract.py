@@ -1,4 +1,9 @@
-"""README structure contract: one entry document per language, fixed headings, no pseudo headings."""
+"""Public documentation structure and wiring contract.
+
+This intentionally avoids pinning marketing titles, section wording, or SEO
+copy.  It only checks portable properties: one entry heading, bounded
+structure, allowed HTML, sane document size, and working local wiring.
+"""
 
 import re
 from pathlib import Path
@@ -8,65 +13,15 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 
-CONTRACTS = {
-    ROOT / "README.md": {
-        "h1": "Liki — 专业命理 Skill",
-        "h2": [
-            "为什么是 Liki",
-            "三个专项",
-            "30 秒上手",
-            "对比：直接问大模型，还是用 Liki",
-            "信任与边界",
-            "这适合谁",
-            "常见问题",
-            "许可与声明",
-        ],
-    },
-    ROOT / "README.en.md": {
-        "h1": "Liki — Professional Astrology Skill",
-        "h2": [
-            "Why Liki",
-            "Three deep dives",
-            "Up and running in 30 seconds",
-            "Ask an LLM directly, or use Liki?",
-            "Trust and boundaries",
-            "Who it is for",
-            "FAQ",
-            "License and disclaimer",
-        ],
-    },
-}
-
-GUIDES = {
-    ROOT / "docs/USER_GUIDE.md": {
-        "h1": "Liki 用户指南",
-        "h2": [
-            "开始前准备",
-            "第一次提问",
-            "对话方式",
-            "命理与紫微",
-            "起名与改名",
-            "问卦",
-            "风水",
-            "常见问题",
-            "输出原则",
-        ],
-    },
-    ROOT / "docs/USER_GUIDE.en.md": {
-        "h1": "Liki user guide",
-        "h2": [
-            "Before you start",
-            "First question",
-            "Conversation style",
-            "Destiny and Ziwei",
-            "Naming",
-            "Divination",
-            "Feng shui",
-            "FAQ",
-            "Output principles",
-        ],
-    },
-}
+README_PATHS = (
+    ROOT / "README.md",
+    ROOT / "README.en.md",
+)
+GUIDE_PATHS = (
+    ROOT / "docs/USER_GUIDE.md",
+    ROOT / "docs/USER_GUIDE.en.md",
+)
+PUBLIC_DOC_PATHS = (*README_PATHS, *GUIDE_PATHS)
 
 
 def markdown_prose_lines(text: str) -> list[str]:
@@ -97,38 +52,10 @@ def markdown_headings(text: str) -> list[tuple[int, str]]:
 def html_h1_values(text: str) -> list[str]:
     return [
         re.sub(r"<[^>]+>", "", match.group(1)).strip()
-        for match in re.finditer(r"<h1\b[^>]*>(.*?)</h1>", text, flags=re.IGNORECASE | re.DOTALL)
+        for match in re.finditer(
+            r"<h1\b[^>]*>(.*?)</h1>", text, flags=re.IGNORECASE | re.DOTALL
+        )
     ]
-
-
-@pytest.mark.parametrize("path", CONTRACTS, ids=lambda path: path.name)
-def test_readme_has_single_h1(path: Path):
-    text = path.read_text(encoding="utf-8")
-    markdown_h1 = [title for level, title in markdown_headings(text) if level == 1]
-    html_h1 = html_h1_values(text)
-    assert len(markdown_h1 + html_h1) == 1
-    assert (markdown_h1 + html_h1)[0] == CONTRACTS[path]["h1"]
-
-
-@pytest.mark.parametrize("path", CONTRACTS, ids=lambda path: path.name)
-def test_readme_h2_sequence_is_canonical(path: Path):
-    text = path.read_text(encoding="utf-8")
-    h2 = [title for level, title in markdown_headings(text) if level == 2]
-    assert h2 == CONTRACTS[path]["h2"]
-
-
-@pytest.mark.parametrize("path", CONTRACTS, ids=lambda path: path.name)
-def test_readme_does_not_use_h4_or_deeper(path: Path):
-    text = path.read_text(encoding="utf-8")
-    assert all(level <= 3 for level, _ in markdown_headings(text))
-
-
-@pytest.mark.parametrize(
-    "path", [*CONTRACTS, *GUIDES], ids=lambda path: path.name
-)
-def test_has_no_standalone_bold_heading(path: Path):
-    for line in markdown_prose_lines(path.read_text(encoding="utf-8")):
-        assert not re.fullmatch(r"\*\*[^*]+\*\*[:：]?", line.strip()), line
 
 
 def html_tag_names(text: str) -> set[str]:
@@ -139,33 +66,46 @@ def html_tag_names(text: str) -> set[str]:
     }
 
 
-@pytest.mark.parametrize("path", GUIDES, ids=lambda path: path.name)
+@pytest.mark.parametrize("path", README_PATHS, ids=lambda path: path.name)
+def test_readme_has_one_entry_heading(path: Path):
+    values = [
+        title
+        for level, title in markdown_headings(path.read_text(encoding="utf-8"))
+        if level == 1
+    ] + html_h1_values(path.read_text(encoding="utf-8"))
+    assert len(values) == 1
+
+
+@pytest.mark.parametrize("path", PUBLIC_DOC_PATHS, ids=lambda path: path.name)
+def test_public_doc_heading_levels_are_bounded(path: Path):
+    assert all(level <= 3 for level, _ in markdown_headings(path.read_text(encoding="utf-8")))
+
+
+@pytest.mark.parametrize("path", PUBLIC_DOC_PATHS, ids=lambda path: path.name)
+def test_public_doc_has_no_standalone_bold_heading(path: Path):
+    for line in markdown_prose_lines(path.read_text(encoding="utf-8")):
+        assert not re.fullmatch(r"\*\*[^*]+\*\*[:：]?", line.strip()), line
+
+
+@pytest.mark.parametrize("path", GUIDE_PATHS, ids=lambda path: path.name)
 def test_user_guides_do_not_use_raw_html(path: Path):
     assert not html_tag_names(path.read_text(encoding="utf-8"))
 
 
-@pytest.mark.parametrize("path", CONTRACTS, ids=lambda path: path.name)
-def test_readme_html_is_limited_to_centered_banner(path: Path):
-    lines = markdown_prose_lines(path.read_text(encoding="utf-8"))
-    first_h2 = next((index for index, line in enumerate(lines) if line.startswith("## ")), len(lines))
-    html_lines = [index for index, line in enumerate(lines) if re.search(r"<[a-zA-Z][^>]*>", line)]
-    assert html_lines
-    assert all(index < first_h2 for index in html_lines)
+@pytest.mark.parametrize("path", README_PATHS, ids=lambda path: path.name)
+def test_readme_html_tags_are_limited(path: Path):
     assert html_tag_names(path.read_text(encoding="utf-8")) <= {"h1", "p", "br", "a", "img"}
 
 
-@pytest.mark.parametrize("path", CONTRACTS, ids=lambda path: path.name)
+@pytest.mark.parametrize("path", README_PATHS, ids=lambda path: path.name)
 def test_readme_stays_a_quick_entry_document(path: Path):
     assert len(path.read_text(encoding="utf-8").splitlines()) < 180
 
 
-@pytest.mark.parametrize("path", GUIDES, ids=lambda path: path.name)
-def test_user_guide_h2_sequence_is_canonical(path: Path):
-    text = path.read_text(encoding="utf-8")
-    h1 = [title for level, title in markdown_headings(text) if level == 1]
-    h2 = [title for level, title in markdown_headings(text) if level == 2]
-    assert h1 == [GUIDES[path]["h1"]]
-    assert h2 == GUIDES[path]["h2"]
+@pytest.mark.parametrize("path", GUIDE_PATHS, ids=lambda path: path.name)
+def test_user_guide_has_one_entry_heading(path: Path):
+    h1 = [level for level, _ in markdown_headings(path.read_text(encoding="utf-8")) if level == 1]
+    assert h1 == [1]
 
 
 def document_relative_links(path: Path) -> list[Path]:
@@ -179,16 +119,7 @@ def document_relative_links(path: Path) -> list[Path]:
     ]
 
 
-@pytest.mark.parametrize(
-    "path",
-    [
-        ROOT / "README.md",
-        ROOT / "README.en.md",
-        ROOT / "docs/USER_GUIDE.md",
-        ROOT / "docs/USER_GUIDE.en.md",
-    ],
-    ids=lambda path: path.name,
-)
+@pytest.mark.parametrize("path", PUBLIC_DOC_PATHS, ids=lambda path: path.name)
 def test_local_links_exist(path: Path):
     missing = [link for link in document_relative_links(path) if not link.is_file()]
     assert not missing
@@ -203,10 +134,10 @@ def test_local_links_exist(path: Path):
     ids=["zh", "en"],
 )
 def test_readme_links_to_governance_documents(readme: Path, guide: str):
-    expected = {
-        guide,
-        "CONTRIBUTING.md",
-        "CHANGELOG.md",
+    expected = {guide, "CONTRIBUTING.md", "CHANGELOG.md"}
+    targets = {
+        link.relative_to(ROOT).as_posix()
+        for link in document_relative_links(readme)
+        if link.is_relative_to(ROOT)
     }
-    targets = {link.relative_to(ROOT).as_posix() for link in document_relative_links(readme)}
     assert expected <= targets

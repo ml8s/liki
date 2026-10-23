@@ -2,7 +2,8 @@
 
 from app.natal.tools.errors import FactorEvaluateError
 from app.natal.tools.factor_constants import load_constants
-from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
+from app.natal.tools.factor_semantics import PredicateState
+from app.natal.tools.factor_tokens import FACTOR_WILDCARD
 from app.natal.tools.operators_natal import _base_ctx_from_natal_chart
 
 # 流年算子名清单：_atomic 显式分派；新增算子必须同步登记与测试。
@@ -90,17 +91,17 @@ def _flow_element_in_selected(base: dict, value: str, kind: str, const: dict) ->
     """流年干/支五行是否命中 selected 忌神；未决时返回 unknown。"""
     selected = base.get('selected_yongshen') or {}
     if selected.get('status') in ('needs_review', 'unresolved'):
-        return FACTOR_UNKNOWN
+        return PredicateState.UNKNOWN
     ji = (selected.get('selected') or {}).get('ji') or []
     if not isinstance(ji, list):
         ji = [ji]
     ji = [item for item in ji if item]
     if not ji:
-        return FACTOR_UNKNOWN
+        return PredicateState.UNKNOWN
     mapping = const.get('天干五行' if kind == 'gan' else '地支五行') or {}
     element = mapping.get(value, '')
     if not element:
-        return FACTOR_UNKNOWN
+        return PredicateState.UNKNOWN
     return 1 if element in ji else 0
 
 def _liu_handler_dayun(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
@@ -292,7 +293,7 @@ _LIU_OP_HANDLERS = {
 }
 
 
-def _liu_op(op: str, args, gender: str, chart: dict, ctx=None) -> int:
+def _liu_op(op: str, args, gender: str, chart: dict, ctx=None):
     """执行流年算子；具体语义由领域分组 handler 分派。"""
     ctx = ctx or {}
     ln = ctx.get("liunian", {})

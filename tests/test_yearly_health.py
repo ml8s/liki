@@ -8,7 +8,7 @@ def _flow(rule: str, bazi: dict | None = None) -> dict:
         f"bazi_{rule}.csv", required=rule not in duanyu.ZIWEI_ONLY_RULES
     )]
     required = duanyu.required_flow_factors(tables)
-    values = {factor: 0 for factor in required}
+    values = {factor: "没命中" for factor in required}
     values.update(bazi or {})
     return {
         "_snapshot_type": "liunian",
@@ -32,7 +32,7 @@ def test_empty_flow_snapshot_does_not_hit_unconditional_health_rules() -> None:
 
 def test_health_rules_require_their_named_factors() -> None:
     # 财坏印/日主长生 断语（yj_*）须在对应因子满足时命中（年十神/年旺衰域内与其它取象并存）
-    assert "yj_103" in _bazi_ids({"流年财坏印": 1})
+    assert "yj_103" in _bazi_ids({"流年财坏印": "命中"})
     assert "yj_206" in _bazi_ids({"流年日主长生状态": "墓"})
     assert "yj_207" in _bazi_ids({"流年日主长生状态": "绝"})
     assert "yj_208" in _bazi_ids({"流年日主长生状态": "病"})

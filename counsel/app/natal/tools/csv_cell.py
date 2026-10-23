@@ -1,9 +1,13 @@
-"""CSV 单元格解析：expected 值既可能是整数，也可能是原样字符串。"""
+"""CSV 单元格解析。"""
+
+from app.natal.tools.factor_semantics import PredicateState
 
 
 def typed_expected(value: str | None):
+    """历史 CSV 的 1/0 是命中/没命中的紧凑别名。"""
     value = (value or "").strip()
-    try:
-        return int(value)
-    except ValueError:
-        return value
+    if value == "1":
+        return PredicateState.HIT
+    if value == "0":
+        return PredicateState.MISS
+    return value

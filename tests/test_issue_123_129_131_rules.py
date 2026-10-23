@@ -26,11 +26,11 @@ def _hidden_shangguan_ke_guan_snapshot():
 
 def test_hun_203_does_not_claim_transparent_shangguan_when_hidden():
     snap = _hidden_shangguan_ke_guan_snapshot()
-    assert snap["伤官克官"] == 1
-    assert snap["伤官透干克官"] == 0
+    assert snap["伤官克官"] == "命中"
+    assert snap["伤官透干克官"] == "没命中"
 
     snapshots = {
-        "八字": {**snap, "配偶星得地": 1},
+        "八字": {**snap, "配偶星得地": "命中"},
         "紫微": {},
         "context": {"性别": "female"},
     }
@@ -40,9 +40,9 @@ def test_hun_203_does_not_claim_transparent_shangguan_when_hidden():
 
 def test_hun_203_accepts_genuine_transparent_shangguan_ke_guan():
     snap = _hidden_shangguan_ke_guan_snapshot()
-    snap["伤官透干克官"] = 1
+    snap["伤官透干克官"] = "命中"
     snapshots = {
-        "八字": {**snap, "配偶星得地": 1},
+        "八字": {**snap, "配偶星得地": "命中"},
         "紫微": {},
         "context": {"性别": "female"},
     }
@@ -54,10 +54,10 @@ def test_ge_202_treats_wang_pianyin_as_killing_control():
     snapshots = {
         "八字": {
             "月令格": "七杀格",
-            "食神旺": 0,
-            "正印旺": 0,
-            "偏印旺": 1,
-            "印星旺": 1,
+            "食神旺": "没命中",
+            "正印旺": "没命中",
+            "偏印旺": "命中",
+            "印星旺": "命中",
         },
         "紫微": {},
         "context": {"性别": "male"},
@@ -68,8 +68,8 @@ def test_ge_202_treats_wang_pianyin_as_killing_control():
 
 def test_shi_108_is_gated_to_female_charts():
     factors = {
-        "女命官星得地格": 0,
-        "财星透根": 1,
+        "女命官星得地格": "没命中",
+        "财星透根": "命中",
     }
     male = {
         "八字": factors,

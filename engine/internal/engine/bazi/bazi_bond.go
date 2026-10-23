@@ -51,13 +51,13 @@ type elementCross struct {
 	} `json:"fu_yi_in_other"`
 }
 type yongShenFitEntry struct {
-	Model       string  `json:"model"`
-	Yong        *string `json:"yong"`
-	Xi          *string `json:"xi"`
-	Ji          *string `json:"ji"`
-	YongInOther int     `json:"yong_in_other"`
-	XiInOther   int     `json:"xi_in_other"`
-	JiInOther   int     `json:"ji_in_other"`
+	Model       string `json:"model"`
+	Yong        string `json:"yong"`
+	Xi          string `json:"xi"`
+	Ji          string `json:"ji"`
+	YongInOther int    `json:"yong_in_other"`
+	XiInOther   int    `json:"xi_in_other"`
+	JiInOther   int    `json:"ji_in_other"`
 }
 type nayinCross struct {
 	Pairs    []nayinPairEntry `json:"pairs"`
@@ -179,11 +179,11 @@ func convertWuxingCount(src map[ganzhi.Wuxing]int) map[string]int {
 }
 
 func yongShenFit(f FuYiResult, other map[string]int) yongShenFitEntry {
-	inOther := func(value *string) int {
-		if value == nil {
+	inOther := func(value string) int {
+		if value == NoCandidateWuxing {
 			return 0
 		}
-		return other[*value]
+		return other[value]
 	}
 	return yongShenFitEntry{
 		Model: f.Model, Yong: f.Yong, Xi: f.Xi, Ji: f.Ji,

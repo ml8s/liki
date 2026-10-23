@@ -7,6 +7,7 @@ import app.natal.tools.duanyu as duanyu
 import app.natal.tools.factors as factors
 import app.natal.tools.operators_liunian as operators_liunian
 import app.natal.tools.operators_natal as operators_natal
+from app.natal.tools.factor_semantics import PredicateState
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
 
 
@@ -16,17 +17,17 @@ def test_natal_and_liunian_operator_registries_are_orthogonal():
 
 def test_truth_table_evaluates_repeated_atomic_expression_once():
     rows = [
-        {"因子": "印现", "术数": "bazi", "直通": "", "conds": {"现[印星]": 1}, "依据": ""},
-        {"因子": "印旺", "术数": "bazi", "直通": "", "conds": {"现[印星]": 1}, "依据": ""},
+        {"因子": "印现", "术数": "bazi", "直通": "", "conds": {"现[印星]": "命中"}, "依据": ""},
+        {"因子": "印旺", "术数": "bazi", "直通": "", "conds": {"现[印星]": "命中"}, "依据": ""},
     ]
     calls = []
 
     def atomic(expression):
         calls.append(expression)
-        return 1
+        return PredicateState.HIT
 
     result = factors._evaluate_truth_table(rows, atomic)
-    assert result == {"印现": 1, "印旺": 1}
+    assert result == {"印现": "命中", "印旺": "命中"}
     assert calls == ["现[印星]"]
 
 

@@ -303,10 +303,10 @@ class TestTianKeDiChongFactor(unittest.TestCase):
         return snap["天克地冲日柱"]
 
     def test_same_branch_is_not_tian_ke_di_chong(self):
-        self.assertEqual(self._evaluate("丙", "午"), 0)
+        self.assertEqual(self._evaluate("丙", "午"), "没命中")
 
     def test_gan_ke_and_branch_chong_hits(self):
-        self.assertEqual(self._evaluate("丙", "子"), 1)
+        self.assertEqual(self._evaluate("丙", "子"), "命中")
 
 class TestLiuNianOps(unittest.TestCase):
     """流年算子边界。

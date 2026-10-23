@@ -2,14 +2,21 @@ package bazi
 
 import "liki-engine/internal/engine/ganzhi"
 
+// Candidate closures replace nullable domain facts with explicit states.
+const (
+	NoCandidateWuxing = "无候选"
+	NoSecondaryWuxing = "无辅调候"
+	NoSelfHeName      = "无自合"
+)
+
 // FuYiResult is the FuYi (扶抑) yongshen analysis based on day-master strength.
 // Pattern is non-empty when a special pattern is detected (e.g. 从旺格、从杀格).
 type FuYiResult struct {
 	WuxingCount map[string]int    `json:"wuxing_count"`
 	WangShuai   map[string]string `json:"wang_shuai"`
-	Yong        *string           `json:"yong"`
-	Xi          *string           `json:"xi"`
-	Ji          *string           `json:"ji"`
+	Yong        string            `json:"yong"`
+	Xi          string            `json:"xi"`
+	Ji          string            `json:"ji"`
 	Strength    string            `json:"qiangruo"`
 	Pattern     string            `json:"pattern,omitempty"`
 	Model       string            `json:"model"`
@@ -19,7 +26,7 @@ type FuYiResult struct {
 // TiaoHouResult is the TiaoHou (调候) yongshen analysis based on climate.
 type TiaoHouResult struct {
 	PrimaryWuxing      string               `json:"primary_wuxing"`
-	SecondaryWuxing    *string              `json:"secondary_wuxing"`
+	SecondaryWuxing    string               `json:"secondary_wuxing"`
 	Season             string               `json:"season"`
 	Detail             string               `json:"detail"`
 	Model              string               `json:"model"`
@@ -56,12 +63,12 @@ func ComputeYongShenSchools(c Chart) (FuYiResult, TiaoHouResult, GeJuResult) {
 		GeJuAt(c, analysis)
 }
 
-// optionalString models a domain candidate that is absent rather than empty.
-func optionalString(value string) *string {
+// candidateString models an absent domain candidate as an explicit closure value.
+func candidateString(value string) string {
 	if value == "" {
-		return nil
+		return NoCandidateWuxing
 	}
-	return &value
+	return value
 }
 
 // computeWangShuaiMap returns the 旺相休囚死 for all five elements.

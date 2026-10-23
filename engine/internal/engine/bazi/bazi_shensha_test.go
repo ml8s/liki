@@ -1056,8 +1056,8 @@ func TestSelfHe_Authoritative(t *testing.T) {
 			if !isSelfHe(p) {
 				t.Errorf("%s 应为干支自合", pillar)
 			}
-			if n := selfHeName(p); n == nil || *n != name {
-				t.Errorf("%s selfHeName = %v, want %q", pillar, n, name)
+			if n := selfHeName(p); n != name {
+				t.Errorf("%s selfHeName = %q, want %q", pillar, n, name)
 			}
 		})
 	}

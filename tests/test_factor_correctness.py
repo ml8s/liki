@@ -86,21 +86,21 @@ def test_spouse_star_mixed_uses_gender_specific_stars() -> None:
         偏财={"count": 1, "wuxing": "土"},
     )
     snap = factors.evaluate_factors("male", male, shushi="bazi")
-    assert snap["配偶星混杂"] == 1
+    assert snap["配偶星混杂"] == "命中"
 
     female = mock_base_context(
         正官={"count": 1, "wuxing": "金"},
         七杀={"count": 1, "wuxing": "金"},
     )
     snap = factors.evaluate_factors("female", female, shushi="bazi")
-    assert snap["配偶星混杂"] == 1
+    assert snap["配偶星混杂"] == "命中"
 
     female_looking_at_wealth = mock_base_context(
         正财={"count": 1, "wuxing": "土"},
         偏财={"count": 1, "wuxing": "土"},
     )
     snap = factors.evaluate_factors("female", female_looking_at_wealth, shushi="bazi")
-    assert snap["配偶星混杂"] == 0
+    assert snap["配偶星混杂"] == "没命中"
 
 
 def test_factor_definitions_have_no_duplicate_signature() -> None:

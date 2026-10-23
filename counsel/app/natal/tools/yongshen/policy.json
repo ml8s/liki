@@ -93,8 +93,8 @@
     "tiaohou_yong_source": "none",
     "tiaohou_yong_present": false,
     "tiaohou_yong_visible": false,
-    "tiaohou_yong": null,
-    "tiaohou_control_wuxing": null,
+    "tiaohou_yong": "无候选",
+    "tiaohou_control_wuxing": "无候选",
     "tiaohou_xi": [],
     "neutral_overstrong": {
       "count": 0,
@@ -102,15 +102,15 @@
       "value": null,
       "unique": false
     },
-    "neutral_overstrong_yong": null,
+    "neutral_overstrong_yong": "无候选",
     "neutral_weak": {
       "count": 0,
       "values": [],
       "value": null,
       "unique": false
     },
-    "neutral_weak_yong": null,
-    "neutral_yong": null,
+    "neutral_weak_yong": "无候选",
+    "neutral_yong": "无候选",
     "neutral_xi": [],
     "neutral_ji": [],
     "neutral_status": "unresolved",
@@ -1694,7 +1694,7 @@
         "value": true
       },
       "then": {
-        "selected.yong": null,
+        "selected.yong": "无候选",
         "selected.xi": [],
         "selected.ji": [],
         "source": "cong_ge",
@@ -1763,7 +1763,7 @@
         ]
       },
       "then": {
-        "selected.yong": null,
+        "selected.yong": "无候选",
         "selected.xi": [],
         "selected.ji": [],
         "source": "cong_ge",
@@ -1799,7 +1799,7 @@
         ]
       },
       "then": {
-        "selected.yong": null,
+        "selected.yong": "无候选",
         "selected.xi": [],
         "selected.ji": [],
         "source": "tiao_hou",
@@ -2030,7 +2030,7 @@
         "value": "needs_review"
       },
       "then": {
-        "selected.yong": null,
+        "selected.yong": "无候选",
         "selected.xi": [],
         "selected.ji": [],
         "source": "neutral_fallback",
@@ -2051,7 +2051,7 @@
         "const": true
       },
       "then": {
-        "selected.yong": null,
+        "selected.yong": "无候选",
         "selected.xi": [],
         "selected.ji": [],
         "source": "none",

@@ -12,8 +12,8 @@ from app.natal.tools.assertion_store import load_rule_table
 from app.natal.tools.chart_schema import ChartSchemaError, validate_natal_chart
 from app.natal.tools.errors import AssertionRuleError, YearRangeError
 from app.natal.tools.factor_constants import load_constants
+from app.natal.tools.factor_semantics import PredicateState, factor_value
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
-from app.natal.tools.factor_tokens import FACTOR_UNKNOWN, FACTOR_WILDCARD
 from app.natal.tools.factors import (
     evaluate_liunian_snap_from_natal_chart,
     evaluate_snap_from_natal_chart,
@@ -390,20 +390,20 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
 
 
 def _value_matches(cond, actual):
-    """单约束匹配：条件值与因子实际值相等即命中。"""
-    return actual != FACTOR_UNKNOWN and actual == cond
+    """单约束匹配：不适用/不可判定不命中；命中/没命中使用四态语义。"""
+    if actual in (PredicateState.NOT_APPLICABLE, PredicateState.UNKNOWN):
+        return False
+    if isinstance(actual, PredicateState):
+        return actual == cond
+    return actual == cond
 
 
 def _assert_factor_value(assertion_id: str, factor: str, value) -> None:
-    """断语因子必须是稳定 FactorValue；null / boolean / 复合对象 fail closed。"""
-    valid_scalar = (
-        (isinstance(value, int) and not isinstance(value, bool) and value in (0, 1))
-        or isinstance(value, str)
-    )
-    if not valid_scalar:
-        raise AssertionRuleError(
-            f"[{assertion_id}/{factor}] 因子值不是 FactorValue: {value!r}"
-        )
+    """断语因子必须是稳定 FactorValue；null / boolean / 空串 fail closed。"""
+    try:
+        factor_value(value, where=f"[{assertion_id}/{factor}]")
+    except ValueError as exc:
+        raise AssertionRuleError(str(exc)) from exc
 
 
 def _assert_snapshot_factors(
@@ -461,20 +461,11 @@ def _validate_rule_factors(
             for factor, expected in conditions.items():
                 if factor not in snapshot:
                     continue
-                actual = snapshot[factor]
-                for value in (expected, actual):
-                    valid_scalar = (
-                        isinstance(value, int)
-                        and not isinstance(value, bool)
-                        and value in (0, 1)
-                    ) or isinstance(value, str)
-                    if value == FACTOR_WILDCARD:
-                        valid_scalar = False
-                    if not valid_scalar:
-                        raise AssertionRuleError(
-                            f"[{assertion_id}/{group_number}/{factor}] "
-                            f"因子值不是 FactorValue: {value!r}"
-                        )
+                for value in (expected, snapshot[factor]):
+                    try:
+                        factor_value(value, where=f"[{assertion_id}/{group_number}/{factor}]")
+                    except ValueError as exc:
+                        raise AssertionRuleError(str(exc)) from exc
 
 
 def match_rule(rule: str, snapshots: dict) -> dict:
