@@ -69,6 +69,16 @@ class TestDeploymentGeneration(unittest.TestCase):
         self.assertEqual(agents["bazi"]["mode"], "task")
         self.assertEqual(agents["ziwei"]["mode"], "task")
 
+    def test_natal_exposes_time_fact_surface(self):
+        """natal root can read clock facts; domain sub-agents can resolve them."""
+        deployment = self._deployment("natal")
+        agents = {a["name"]: a for a in deployment["spec"]["agents"]}
+        self.assertEqual(agents["natal"]["tools"]["allow"]["engine"], ["time_now"])
+        for name in ("bazi", "ziwei"):
+            allowed = set(agents[name]["tools"]["allow"]["engine"])
+            self.assertIn("time_now", allowed)
+            self.assertIn("tianwen_resolve", allowed)
+
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
         """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""
         for profile in PROFILES:

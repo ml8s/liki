@@ -21,6 +21,7 @@ tools:
       - ziwei_liuyue
       - city_coords
       - tianwen_resolve
+      - time_now
     counsel:
       - compute_factors
       - natal_query

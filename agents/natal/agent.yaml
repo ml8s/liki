@@ -14,3 +14,5 @@ tools:
       - list_skills
       - load_skill
       - load_skill_resource
+    engine:
+      - time_now
