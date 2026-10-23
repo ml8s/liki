@@ -1,0 +1,9 @@
+#!/bin/sh
+# gate: 推送前门槛（静态验证 + test + runtime validate + 发布工件 + smoke）
+# 目标：推上去 CI 是绿的。gate 通过 = 可以推送。
+
+set -e
+
+echo "=== gate: 推送前门槛 ==="
+make gate
+echo "=== gate 通过 ✅ ==="

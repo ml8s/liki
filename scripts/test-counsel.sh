@@ -23,9 +23,7 @@ if [ -z "$COUNSEL_PYTHON" ] && [ ! -x "$ROOT/counsel/.venv/bin/python" ]; then
         "$ROOT/counsel/.venv/bin/python" -m pip install \
             --retries 10 --timeout 60 \
             --require-hashes --requirement "$ROOT/counsel/requirements.lock"
-        # 与 make python-env 的开发依赖保持一致：gate 的 check/deployment
-        # 目标会通过 venv 的 python3 运行，需要 pyyaml/jsonschema。
-        "$ROOT/counsel/.venv/bin/python" -m pip install pytest pyyaml jsonschema
+        "$ROOT/counsel/.venv/bin/python" -m pip install -r "$ROOT/counsel/requirements-dev.txt"
     fi
 fi
 

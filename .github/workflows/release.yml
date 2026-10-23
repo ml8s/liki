@@ -1,9 +1,11 @@
 name: Release
 
-# Tag-driven release for ml8s/liki. Builds and signs the three release images,
-# then publishes this tag's GitHub Release. The release asset
-# `candidate-digests.json` is the cross-repository contract that liki-deploy
-# consumes; this workflow never deploys anything.
+# Tag-driven build/sign for ml8s/liki. Pushing a vYYYY.MM.DD.N tag runs the
+# gate, builds, smoke-verifies, and cosign-signs the three release images, and
+# uploads the release assets as workflow artifacts. The `candidate-digests.json`
+# contract is what liki-deploy consumes; this workflow never deploys anything.
+# Publishing the GitHub Release is explicit:
+#   gh workflow run release-publish.yml -f tag=vYYYY.MM.DD.N
 
 on:
   push:
@@ -19,7 +21,7 @@ concurrency:
 
 jobs:
   release:
-    name: Build and publish release
+    name: Build and sign release
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -139,20 +141,19 @@ jobs:
             --output-certificate dist/liki-release-manifest.crt \
             dist/liki-release-manifest.json
 
-      - name: Create GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Stage release assets
         run: |
           set -euo pipefail
           # 四份 deployment.json 同名会在 gh 资产上传时冲突：先改名再上传。
           for profile in natal divination fengshui naming; do
             cp "dist/agents/$profile/deployment.json" "build/release/deployment-$profile.json"
           done
-          gh release create "$GITHUB_REF_NAME" \
-            --repo "$GITHUB_REPOSITORY" \
-            --verify-tag \
-            --title "liki $GITHUB_REF_NAME" \
-            --generate-notes \
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets-${{ github.ref_name }}
+          path: |
             build/release/candidate-digests.json \
             dist/liki-release-manifest.json \
             dist/liki-release-manifest.sha256 \
@@ -167,3 +168,4 @@ jobs:
             build/release/deployment-divination.json \
             build/release/deployment-fengshui.json \
             build/release/deployment-naming.json
+          if-no-files-found: error

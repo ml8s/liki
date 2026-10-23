@@ -1,0 +1,7 @@
+# 测试/开发工具（与 CI 的独立安装清单一致：ci.yml 与 release.yml 的
+# `pip install pyyaml jsonschema ... coverage pytest` 步骤）。
+# 版本随 CI 不锁定；运行时依赖在 requirements.lock 中 hash 锁定。
+pytest
+pyyaml
+jsonschema
+coverage

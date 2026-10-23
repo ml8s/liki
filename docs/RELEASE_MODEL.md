@@ -7,8 +7,10 @@ rather than hand-maintained, there is still no parallel version.
 
 The operational release pipeline is documented in
 [Release pipeline](./RELEASE_PIPELINE.md). Neither ordinary commits nor CI
-build `liki` images; `release.yml` builds, smokes, signs, and publishes them
-when a `vYYYY.MM.DD.N` tag is pushed.
+build `liki` images; `release.yml` builds, smokes, and signs them when a
+`vYYYY.MM.DD.N` tag is pushed. Publishing the GitHub Release is explicit:
+`gh workflow run release-publish.yml -f tag=vYYYY.MM.DD.N` — a tag never
+publishes by itself.
 
 ## Version format
 

@@ -12,7 +12,8 @@ The ordered operator runbook lives in
 | Stage | Owns | Never does |
 |---|---|---|
 | Commit / PR CI | source lint, checks, tests, audits | build or publish images |
-| Release workflow (`release.yml` on a `vYYYY.MM.DD.N` tag) | gate, build, smoke, sign, GitHub Release | deploy anything |
+| Release build (`release.yml` on a `vYYYY.MM.DD.N` tag) | gate, build, smoke, sign; upload release assets as workflow artifacts | publish a GitHub Release, deploy anything |
+| Release publish (`release-publish.yml`, explicit dispatch) | create the GitHub Release from the signed assets | build or deploy anything |
 | `liki-deploy` | verify a signed digest lock, run the assembly harness, deploy | build product images or orchestrate product releases |
 
 `make image` and `make smoke` remain available for development; production

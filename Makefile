@@ -239,7 +239,7 @@ python-env: ## Provision the exact CI Python (.python-version) via uv + counsel 
 	rm -rf counsel/.venv
 	uv venv counsel/.venv --python $$(cat .python-version)
 	uv pip install --python counsel/.venv/bin/python -r counsel/requirements.lock --require-hashes
-	uv pip install --python counsel/.venv/bin/python pytest pyyaml jsonschema coverage
+	uv pip install --python counsel/.venv/bin/python -r counsel/requirements-dev.txt
 
 clean: ## Remove generated root binaries
 	rm -f bin/engine-mcp
