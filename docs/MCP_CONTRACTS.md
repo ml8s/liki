@@ -66,53 +66,6 @@ Rules:
 - a migrated tool is removed from the legacy raw-JSON registry in the same
   change.
 
-## Migration
-
-The migration is complete: all 27 engine tools are typed contracts and the
-legacy raw-JSON registry (the `RPCRegistry` type, the `tools_*.go` schemas and
-the `{"_product","data"}` envelope) has been retired.
-`engine/internal/mcpcontract` is the single source of truth: `engine.go` holds
-the tool catalogue (`NewEngine()`, the registration point, and the wire
-vocabulary the schemas derive from), `registry.go` holds the registry mechanism,
-and the wire DTOs are ordinary source maintained alongside their handlers.
-
-The bazi/ziwei/qimen DTOs were derived once from the legacy schemas plus the
-captured engine payloads committed under
-`engine/internal/mcpcontract/testdata/actual/`. That generator was deliberately
-not retained: the DTOs are the contract now. `TestEngineContractWireFidelity`
-replays all 67 captured payloads through the typed registry and deep-compares
-the JSON, so a DTO edit that drops, renames, or reshapes a field fails.
-
-Four contract limits to keep in mind when reviewing the migrated tools:
-
-- the legacy qimen result schema used `oneOf` branches conditioned on the
-  requested method (a rotating chart carries `tian_qin`, only 鸣法 allows
-  `中门`/`an_gan_zhi`, and so on). The typed DTO merges those branches into one
-  object, so the output schema is a superset and those conditional constraints
-  are no longer enforced;
-- `qimen.chart` publishes method-specific input branches. Time, location, and
-  analysis inputs stay direct parameters, while scope/school/dingju/quarter
-  options form one cohesive `method` object. The branch schemas and
-  `qimen.ResolveMethodWithOptions` reject the same illegal combinations;
-- output `required` is taken from the legacy `required` lists intersected with
-  the captured payloads. A field the engine omits through `omitempty` is
-  therefore modelled as optional even when the legacy schema declared it
-  required;
-- bazi candidate fields publish absence as JSON `null`, not an empty string.
-  `TiaoHouResult.SecondaryWuxing` and `FuYiResult.Yong/Xi/Ji` use nullable
-  element enums, and pillar `SelfHeName` is nullable too.
-  `TestEngineContractBaziTiaoHouAllowsNullSecondaryWuxing` pins both the real
-  chart payload and the generated nullable schema;
-- migrated legacy tools accept unknown arguments, because the legacy registry
-  validated params against schemas that left `additionalProperties` unset
-  (`bazi.chart` tolerates `tianwen.time`'s `longitude`, and `ziwei.daxian`
-  accepts a `ziwei.fullchart` payload). Tools written directly against the
-  typed registry reject unknown arguments.
-
-Every output root publishes an `outputSchema`, including arrays and scalar or
-composition roots. The registry validates every returned DTO against that
-schema before it is published.
-
 ## Python pattern
 
 `counsel/app/contracts` owns the typed counsel tool surface. A tool declares its
@@ -184,12 +137,12 @@ the default one does not own the counsel dependencies. The check fails rather
 than skips when the bridge cannot run, so an unreadable source of truth is never
 a silent pass.
 
-## Counsel migration
+## Counsel contract
 
 All 13 counsel tools (`bazi_yongshen`, `compute_factors`, `natal_query`,
 `period_query`, `naming_surname`, `naming_pick`, `naming_char`, `naming_compose`,
 `naming_check`, `liuyao_snapshot`, `liuyao_query`, `qimen_snapshot`,
-`qimen_query`) are typed contracts; the runtime no longer reads a JSON manifest.
+`qimen_query`) are typed contracts.
 `bazi_yongshen` is published by the bazi server and the aggregate server; the
 ziwei server does not advertise a bazi-only capability.
 
@@ -215,8 +168,6 @@ The `naming_check` fields `yongshen`/`xishen`/`jishen` remain an explicit
 five-element strategy for callers without a full birth chart, and are mutually
 exclusive with `selected_yongshen`.
 
-The hand-written manifests are gone from both runtime and tests. There is no
-frozen migration golden to maintain: `counsel/tests/test_tool_contracts.py`
-inspects the current Pydantic schemas, validates representative accepted and
-rejected values, and checks that query inputs consume complete snapshot
-outputs.
+`counsel/tests/test_tool_contracts.py` inspects the current Pydantic schemas,
+validates representative accepted and rejected values, and checks that query
+inputs consume complete snapshot outputs.

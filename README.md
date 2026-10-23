@@ -147,6 +147,11 @@ Skill 会追问，或使用真实事件进入考时流程。证据不足时明�
 
 按提示重新执行 `npx skills add https://liki.hk -y`。版本校验失败时不降级调用旧 RPC。
 
+## 仓库与部署
+
+四个仓：`liki`、`liki-agent-runtime`、`liki-web`、`liki-deploy`。镜像在各仓本地构建
+（tag = commit sha）；`liki-deploy` 负责全系统 e2e、部署与 smoke。
+
 ## 许可与声明
 
 MIT。命理结论为传统文化视角的参考性解读，不构成医疗、法律、投资或重大人生决策建议。

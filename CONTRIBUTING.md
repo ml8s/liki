@@ -103,7 +103,6 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 ## 发布版本模型
 
 - 日常开发 / 兼容性版本使用 CalVer，由 `make version` 统一 bump。
-- 正式产品发行版使用日期版本 Git tag（如 `v2026.10.12.0`），与运行时 CalVer 同源。
 - 不要恢复手写的 semver 版本面；CalVer 是唯一版本源，WorkBuddy 制品版本由
   `scripts/version_projection.py` 从它派生（平台按 semver 解析，拒 4 段）。
 - 完整规则见 [docs/RELEASE_MODEL.md](./docs/RELEASE_MODEL.md)。

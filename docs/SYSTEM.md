@@ -75,9 +75,8 @@ fail-closed），领域卡只写本体系知识、`app/` 承载场景与跨体�
   `skills`（skill 名列表）→ `plugin.json.skills`（预加载路径 `./skills/<name>`）；`maxTurns` /
   `displayName` 是 WorkBuddy agent md 字段（`plugin.json.agents` 指向生成物
   `agents/<pack>.md`，它由身份文件投影、平台字段名用 camelCase）；`version` 单一源为
-  `skills/liki/VERSION.txt`（agent.yaml 不再携带）
-- 身份正文＝部署 instruction 骨架，同时是包内域 `SKILL.md` 的正文：两处同源渲染，包内不再有
-  第二份身份副本，**杜绝漂移**（`expert-packs/README.md`：包结构来源表）
+  `skills/liki/VERSION.txt`（agent.yaml 不携带 version）
+- 身份正文＝部署 instruction 骨架，同时是包内域 `SKILL.md` 的正文：两处同源渲染，包内只有一份身份副本，**杜绝漂移**（`expert-packs/README.md`：包结构来源表）
 - 域 `SKILL.md` 的方法论卡索引由生成器按镜像卡自动生成，禁止手维护卡名清单
 - 方法论卡不入身份文件：由 ADK skilltoolset 按需 `load_skill` 渐进加载（避免每轮 prompt 膨胀）
 
@@ -147,19 +146,16 @@ COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙�
 | 改 engine/counsel 工具语义 | 白名单需对齐 | 更新 agents/*/agent.yaml → 重发 |
 | 工件格式变化 | 生成器/装配镜像 | 先构建 liki-agent-runtime → 用其作为 BASE_IMAGE 重新生成并 validate |
 
-## 五、本仓 CI 发布链（release 触发）
+## 五、CI 与镜像
 
-- `check`：lint + 数据结构 + docs（不生成工件）
-- `test`：仓库/引擎/counsel 测试（不做跨仓 runtime validate）
-- `release-gate`：在 `gate` 后追加 pinned runtime validate 与发布工件校验
-- `docker-publish`：push `liki-engine`
-- `publish-web-skill-bundle`：上传 bundle 到 release asset
+- `ci.yml`：lint、数据结构、docs、测试；不构建镜像。
+- 镜像在本地构建（tag = commit sha），由 `liki-deploy` 组装、测试、部署。
 
 ## 六、相关文档
 
 - `liki-agent-runtime/docs/ARCHITECTURE.md`：运行时与 AgentDeployment 工件详解
-- `liki-deploy/docs/ARCHITECTURE.md`：系统架构与发布时序
-- `liki-deploy/docs/OPERATIONS.md`：生产发布流程
+- `liki-deploy/docs/ARCHITECTURE.md`：系统架构与部署边界
+- `liki-deploy/docs/OPERATIONS.md`：部署与运维
 
 - [Domain naming matrix](DOMAIN_NAMING.md): canonical repository/image/service names.
 - [Domain language matrix](DOMAIN_LANGUAGE.md): canonical domain concepts, projections, and compatibility aliases.

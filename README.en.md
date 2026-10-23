@@ -147,6 +147,10 @@ No. Birth data remains in the current conversation context. It is not written to
 
 Run `npx skills add https://liki.hk -y` when prompted. The Skill fails closed instead of calling stale RPCs.
 
+## Repositories and deployment
+
+Four repositories: `liki`, `liki-agent-runtime`, `liki-web`, `liki-deploy`. Images are built locally (tag = commit sha); `liki-deploy` runs the full-system e2e, deploy, and smoke.
+
 ## License and disclaimer
 
 MIT. Conclusions are traditional cultural interpretations for reference only. They are not medical, legal, investment, or major life advice.

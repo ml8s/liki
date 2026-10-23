@@ -146,7 +146,7 @@ naming_check
 奇门方法参数应按 scope / school / quarter rule 建立分支，而不是平铺所有
 optional enum。
 
-naming_check 的两种用神来源已实现为 anyOf 分支（显式五行 / selected_yongshen），
+naming_check 的两种用神来源使用 anyOf 分支（显式五行 / selected_yongshen），
 两分支 `additionalProperties: false` 天然互斥——混传时两支都拒绝，无 runtime-only 校验。
 
 runtime-only 校验不能替代 schema 可见性；仅当约束无法用分支表达时（如
@@ -231,7 +231,7 @@ Result
 Common
 ```
 
-`Result` 只允许出现在公开 wire DTO 的既有兼容命名中，不再用于新内部领域模型。
+`Result` 只用于公开 wire DTO 的兼容命名，不作为内部领域模型。
 
 ## 7. Snapshot 与 query
 
@@ -297,62 +297,3 @@ tools/list -> name / description / inputSchema / outputSchema -> tools/call
 允许使用 JSON Schema 标准 `examples`。  
 不添加自定义 `x-liki` 元数据；若需要提示，优先写进字段 description 或 tool
 description。
-
-## 10. 契约评审维度
-
-改任何 MCP 方法前逐项检查：
-
-1. 工具职责是否单一；
-2. 参数是否都为该工具所需；
-3. 是否存在胖参数或口袋对象；
-4. 互斥 / 条件依赖是否在 schema 中；
-5. 默认值是否真实且不会隐藏用户意图；
-6. absent 与 null 是否区分；
-7. 输出是否有完整 schema；
-8. 输出事实和评估结论是否分层；
-9. 下一个工具能否直接消费输出；
-10. digest canonical JSON 是否明确；
-11. 错误是否可指导重试；
-12. 是否引入了不必要的新概念；
-13. 是否会泄露隐私或不必要出生数据；
-14. 是否需要更新 skill 文档语义而非硬编码方法名；
-15. 是否补了 legal / illegal / equivalence tests；
-16. 同名字段跨工具的类型与语义是否一致（一词一义、一义一词）；
-17. 上游输出能否原样作为下游输入（链式类型一致，消费者用封闭模型接收）；
-18. 描述是否只讲现状与用法（无历史、无 schema 机制复述）；
-19. 新约束是否编译进了 schema，而不是只活在 validator 或描述里。
-
-## 11. 实施方式
-
-不做 v2 分阶段协议。每项契约改进按同一个循环执行：
-
-```text
-1. 修改当前 Go DTO 或 Pydantic model；
-2. 修改 handler；
-3. 更新合法 / 非法 / golden 测试；
-4. 更新调用方；
-5. 运行 make check；
-6. 需要行为确认时运行 make gate；
-7. 一次性提交。
-```
-
-优先顺序（2026.10.22.0 起前四项已完成：chart 强类型联合、naming 用神来源
-anyOf 互斥、query 直接消费 snapshot、旧字段与兼容别名清理）：
-
-1. 新工具先写判别联合与封闭 DTO，再写 handler；
-2. 出现"约束只在 validator/description 里"即视为违规，当场编译进 schema；
-3. 发现链式调用传超集/子集不匹配时，修消费者形状而不是重开 schema。
-
-## 12. 结论
-
-契约设计的原则是：
-
-```text
-一个领域事实一个字段；
-一个工具一个职责；
-一个 schema 一个公开真相；
-一个输出一个明确消费路径；
-一个错误一个可执行下一步。
-```
-
-不额外造版本、不造第二套 registry、不造自定义审查系统。
