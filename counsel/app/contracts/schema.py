@@ -101,6 +101,16 @@ def emit_schema(annotation: Any, *, description: str | None = None) -> dict[str,
     schema = adapter.json_schema(schema_generator=ContractSchema)
     defs = schema.pop("$defs", {})
     schema = _inline_refs(schema, defs)
+    # MCP tool input schemas must be typed objects. A union whose branches are
+    # all objects projects as bare anyOf; decorate it with the common object
+    # type while preserving branch-specific properties and required sets.
+    if "type" not in schema and schema.get("anyOf") and all(
+        isinstance(branch, dict) and branch.get("type") == "object"
+        for branch in schema["anyOf"]
+    ):
+        schema["type"] = "object"
+        if all(branch.get("additionalProperties") is False for branch in schema["anyOf"]):
+            schema["additionalProperties"] = False
     if description is not None and "description" not in schema:
         schema["description"] = description
     return schema

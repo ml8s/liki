@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.10.23.0] — 2026-10-23
+
+### Fixed
+
+- **MCP 工具 schema 兼容新 runtime readiness**：`naming_check` 的 object-union 入参生成的根 schema 只有 `anyOf`，缺少 MCP `ListToolsResult` 要求的 `type: object`；新 runtime readiness 调用 `tools/list` 时 counsel 序列化失败，四个 experts 因 counsel dependency unhealthy 变为 503。schema emitter 现在为全 object 分支的 union 发布闭合的根 object schema，并新增每个 counsel domain/root 的 `tools/list` wire serializer 回归测试，避免这类契约只在 Assembly E2E 才暴露。
+
 ## [2026.10.22.2] — 2026-10-22
 
 ### Changed

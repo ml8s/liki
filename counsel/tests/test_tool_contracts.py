@@ -44,6 +44,12 @@ def test_query_inputs_consume_complete_snapshot_outputs():
 
 
 @pytest.mark.parametrize("name", sorted(CONTRACTS))
+def test_published_input_schemas_are_mcp_objects(name):
+    """MCP SDK serializes tool arguments only for object input schemas."""
+    assert CONTRACTS[name].input_schema.get("type") == "object"
+
+
+@pytest.mark.parametrize("name", sorted(CONTRACTS))
 def test_published_schemas_do_not_ship_conditional_clauses(name):
     """Composition is exposed through anyOf branches, not opaque conditionals."""
     document = json.dumps(CONTRACTS[name].input_schema)

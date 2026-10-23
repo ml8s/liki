@@ -20,6 +20,8 @@ from app.engine_mcp_client import MCPError as EngineMCPError  # noqa: E402
 from app.mcp_tool_adapter import add_contract_tool  # noqa: E402
 from mcp import Client  # noqa: E402
 from mcp.server import MCPServer  # noqa: E402
+from mcp.types import ListToolsResult  # noqa: E402
+from mcp_types.methods import serialize_server_result  # noqa: E402
 from pydantic import ConfigDict, create_model  # noqa: E402
 from starlette.applications import Starlette  # noqa: E402
 from starlette.routing import Mount, Route  # noqa: E402
@@ -150,6 +152,35 @@ def test_counsel_mcp_tools():
     assert [t.name for t in names] == [
         "bazi_yongshen", "compute_factors", "natal_query", "period_query",
     ]
+
+
+@pytest.mark.parametrize(
+    "domain",
+    ["bazi", "ziwei", "naming", "liuyao", "qimen"],
+)
+def test_counsel_tools_list_serializes_for_runtime(domain):
+    """Runtime readiness consumes tools/list through the MCP wire serializer."""
+    server = create_counsel_mcp(domain)
+    tools = asyncio.run(server.list_tools())
+    assert tools
+    dumped = ListToolsResult(tools=tools).model_dump(
+        by_alias=True, mode="json", exclude_none=True
+    )
+    serialized = serialize_server_result("tools/list", "2026-07-28", dumped)
+    assert [tool["name"] for tool in serialized["tools"]] == [
+        tool.name for tool in tools
+    ]
+
+
+def test_counsel_root_tools_list_serializes_for_runtime():
+    server = create_counsel_root_mcp()
+    tools = asyncio.run(server.list_tools())
+    assert len(tools) == len(COUNSEL_TOOLS)
+    dumped = ListToolsResult(tools=tools).model_dump(
+        by_alias=True, mode="json", exclude_none=True
+    )
+    serialized = serialize_server_result("tools/list", "2026-07-28", dumped)
+    assert len(serialized["tools"]) == len(tools)
 
 
 def test_ziwei_mcp_does_not_expose_bazi_yongshen():

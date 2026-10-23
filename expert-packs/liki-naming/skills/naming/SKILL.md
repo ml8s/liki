@@ -4,7 +4,7 @@ description: Liki 起名专家——八字用神取字、五行选字、音韵�
 metadata:
   display_name: Liki 起名专家
   display_name_en: Liki Naming Expert
-  version: 2026.1022.2
+  version: 2026.1023.0
   author: Liki
 ---
 

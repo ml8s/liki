@@ -7,7 +7,7 @@ display_name_en: Liki Fate & Fortune Expert
 profession:
   en: BaZi & Zi Wei Dou Shu Consultant
   zh: 八字紫微命理师
-version: 2026.1022.2
+version: 2026.1023.0
 author: Liki
 keywords:
   - fate reading
