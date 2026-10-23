@@ -5,8 +5,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 IMAGE_TAG="${IMAGE_TAG:-local}"
-ENGINE_IMAGE="${ENGINE_IMAGE:-ghcr.io/ml8s/liki-engine:$IMAGE_TAG}"
-COUNSEL_IMAGE="${COUNSEL_IMAGE:-ghcr.io/ml8s/liki-counsel:$IMAGE_TAG}"
+ENGINE_IMAGE="${ENGINE_IMAGE:-liki-local/liki-engine:$IMAGE_TAG}"
+COUNSEL_IMAGE="${COUNSEL_IMAGE:-liki-local/liki-counsel:$IMAGE_TAG}"
 ENGINE_MCP_PORT="${ENGINE_MCP_SMOKE_PORT:-18081}"
 COUNSEL_PORT="${COUNSEL_SMOKE_PORT:-18086}"
 

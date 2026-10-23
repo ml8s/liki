@@ -135,7 +135,7 @@ COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙�
 
 ### 3.4 Web skill bundle（liki-web 消费）
 
-`make build-web-skill-bundle` 产出 `dist/liki-web-skill-bundle.tar.gz`（skills/liki 树 + liki.tar.gz + index.json）。该分发面当前只做本地生成；上传/下载链路由后续独立任务处理。
+`make build-web-skill-bundle` 产出 `dist/liki-web-skill-bundle.tar.gz`（skills/liki 树 + liki.tar.gz + index.json）。该 bundle 当前只在本地生成，不发布。
 
 ## 四、变更如何传播（负责人须知）
 
