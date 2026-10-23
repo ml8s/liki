@@ -69,15 +69,29 @@ class TestDeploymentGeneration(unittest.TestCase):
         self.assertEqual(agents["bazi"]["mode"], "task")
         self.assertEqual(agents["ziwei"]["mode"], "task")
 
-    def test_natal_exposes_time_fact_surface(self):
-        """natal root can read clock facts; domain sub-agents can resolve them."""
+    def test_natal_exposes_neutral_fact_surface(self):
+        """natal root resolves shared time/place facts but cannot make charts.
+
+        Calibration candidates may affect bazi only, ziwei only, or both, so
+        the root must inspect tianwen.resolve reasons before delegating.
+        """
         deployment = self._deployment("natal")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
-        self.assertEqual(agents["natal"]["tools"]["allow"]["engine"], ["time_now"])
-        for name in ("bazi", "ziwei"):
+        self.assertEqual(
+            agents["natal"]["tools"]["allow"]["engine"],
+            ["city_coords", "tianwen_resolve", "time_now"],
+        )
+        chart_tools = {
+            "bazi_chart", "bazi_fullchart", "ziwei_chart", "ziwei_fullchart",
+        }
+        for name in ("natal", "bazi", "ziwei"):
             allowed = set(agents[name]["tools"]["allow"]["engine"])
             self.assertIn("time_now", allowed)
             self.assertIn("tianwen_resolve", allowed)
+            if name == "natal":
+                self.assertNotIn("bazi_chart", allowed)
+                self.assertNotIn("ziwei_chart", allowed)
+                self.assertFalse(allowed & chart_tools)
 
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
         """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""

@@ -15,4 +15,6 @@ tools:
       - load_skill
       - load_skill_resource
     engine:
+      - city_coords
+      - tianwen_resolve
       - time_now
