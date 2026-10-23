@@ -16,13 +16,11 @@ import logging
 import os
 from contextlib import AsyncExitStack, asynccontextmanager
 
-import anyio
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from app import engine_mcp_client
 from app.counsel_servers import (  # noqa: E402
     RUNTIME_VERSION,
     create_counsel_mcp,
@@ -64,22 +62,9 @@ def _make_app():
         })
 
     async def readyz(_request):
-        try:
-            engine_version = await anyio.to_thread.run_sync(engine_mcp_client.engine_version)
-            await anyio.to_thread.run_sync(
-                engine_mcp_client.ensure_engine_compatible,
-                engine_version,
-                engine_mcp_client.required_engine_version(),
-            )
-        except Exception:
-            return JSONResponse(
-                {"status": "unready", "reason": "engine dependency unavailable"},
-                status_code=503,
-            )
         return JSONResponse({
             "status": "ready",
             "version": RUNTIME_VERSION,
-            "engine_version": engine_version,
         })
 
     @asynccontextmanager

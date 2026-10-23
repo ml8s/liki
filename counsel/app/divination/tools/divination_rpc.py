@@ -7,10 +7,6 @@ from app.engine_mcp_client import (  # noqa: E402
     MCPError,
     _version_key,
     call,
-    engine_version,
-)
-from app.engine_mcp_client import (  # noqa: E402
-    ensure_engine_compatible as _ensure_engine_compatible,
 )
 
 VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
@@ -48,16 +44,3 @@ def skill_version() -> str:
         raise RPCError("skill VERSION.txt is empty")
     _version_key(version)
     return version
-
-
-def required_engine_version() -> str:
-    """Require the engine to meet the installed skill's CalVer, not a stale floor."""
-    return skill_version()
-
-
-def ensure_engine_compatible() -> None:
-    """Fail closed when an updated skill points at an incompatible old engine."""
-    _ensure_engine_compatible(
-        version=engine_version(),
-        required=required_engine_version(),
-    )

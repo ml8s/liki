@@ -10,7 +10,6 @@ counsel-mcp 通过标准 Streamable HTTP MCP 调用 engine-mcp。公开部署经
 import json
 import os
 import pathlib
-import threading
 import time
 import urllib.request
 from urllib.error import HTTPError, URLError
@@ -22,8 +21,6 @@ RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 
 VERSION_PATH = pathlib.Path(__file__).resolve().parent / "VERSION.txt"
 CLIENT_INFO = {"name": "counsel", "version": VERSION_PATH.read_text(encoding="utf-8").strip()}
-_COMPATIBILITY_LOCK = threading.Lock()
-_COMPATIBILITY_CHECKED = False
 
 
 class MCPError(Exception):
@@ -77,17 +74,6 @@ def _version_key(version: str) -> tuple[int, ...]:
         return key + (0,) * (4 - len(key))
     except ValueError as error:
         raise MCPError(f"engine version is invalid: {version}") from error
-
-
-def required_engine_version() -> str:
-    try:
-        version = VERSION_PATH.read_text(encoding="utf-8").strip()
-    except OSError as error:
-        raise MCPError(f"counsel VERSION.txt is unavailable: {error}") from error
-    if not version:
-        raise MCPError("counsel VERSION.txt is empty")
-    _version_key(version)
-    return version
 
 
 def _meta() -> dict:
@@ -146,7 +132,6 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
 
 def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     """调用 engine MCP 工具；返回 {"data": <工具结果>}。"""
-    ensure_engine_compatible()
     tool = method.replace(".", "_")
     result = _post("tools/call", tool, {"name": tool, "arguments": params}, retries)
     content = result.get("content") or []
@@ -157,39 +142,7 @@ def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
 
 
 def server_info(retries: int = 0) -> dict:
-    """获取引擎 MCP 的 serverInfo（含版本）；stateless 下位于 _meta。"""
+    """获取引擎 MCP 的 serverInfo；stateless 下位于 _meta。仅用于诊断。"""
     result = _post("server/discover", None, {}, retries)
     meta = result.get("_meta", {}) or {}
     return meta.get("io.modelcontextprotocol/serverInfo", {}) or {}
-
-
-def engine_version() -> str:
-    info = server_info()
-    version = info.get("version")
-    if not isinstance(version, str) or not version:
-        raise MCPError("engine server.discover response missing version")
-    return version
-
-
-def ensure_engine_compatible(
-    version: str | None = None, required: str | None = None
-) -> None:
-    """每个进程做一次 engine/counsel CalVer 兼容检查，失败即 fail closed。"""
-    global _COMPATIBILITY_CHECKED
-    with _COMPATIBILITY_LOCK:
-        if version is None or required is None:
-            if _COMPATIBILITY_CHECKED:
-                return
-            version = engine_version()
-            required = required_engine_version()
-            version_key = _version_key(version)
-            required_key = _version_key(required)
-        else:
-            version_key = _version_key(version)
-            required_key = _version_key(required)
-        if version_key < required_key:
-            raise MCPError(
-                f"engine version {version} is incompatible; "
-                f"counsel VERSION.txt requires engine >= {required}"
-            )
-        _COMPATIBILITY_CHECKED = True

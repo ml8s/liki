@@ -70,8 +70,7 @@ not rate-limit.
 | `LIKI_MCP_MAX_RETRIES` | `2` | Engine retry count |
 | `LIKI_MCP_MAX_BODY_BYTES` | `1048576` | Maximum MCP JSON request body |
 
-`GET /healthz` is liveness. `GET /readyz` checks that counsel and engine runtime
-versions are compatible; use it for orchestration readiness. Rate limiting is
+`GET /healthz` is liveness. `GET /readyz` reports that the counsel service is up; it does not contact the engine. Rate limiting is
 owned by the edge (cloud LB / WAF / Caddy); the service itself does not
 rate-limit.
 

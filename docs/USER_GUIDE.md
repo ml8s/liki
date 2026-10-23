@@ -141,7 +141,7 @@ npx skills add https://liki.hk -y
 
 ### 服务端怎么升级？
 
-保持 skill `VERSION.txt` 和 MCP 服务端（liki-core）的版本兼容。服务端低于 skill 要求时，工具会 fail closed，不会降级调用旧接口。
+不再做 skill 与服务端的版本兼容检查。调用不存在的工具会返回明确错误；遇到时更新 skill 或服务端即可。
 
 ## 输出原则
 

@@ -18,10 +18,6 @@ from app.engine_mcp_client import (  # noqa: E402
     MCPError,
     _version_key,
     call,
-    engine_version,
-)
-from app.engine_mcp_client import (  # noqa: E402
-    ensure_engine_compatible as _ensure_engine_compatible,
 )
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
@@ -42,19 +38,6 @@ def skill_version() -> str:
         raise RPCError("skill VERSION.txt is empty")
     _version_key(version)
     return version
-
-
-def required_engine_version() -> str:
-    """Require the engine to meet the installed skill's CalVer, not a stale floor."""
-    return skill_version()
-
-
-def ensure_engine_compatible() -> None:
-    """Reject old engines before malformed half pans reach the factor layer."""
-    _ensure_engine_compatible(
-        version=engine_version(),
-        required=required_engine_version(),
-    )
 
 
 # ── 内部 RPC 封装（build_natal_chart / liunian 编排用，agent 不直接碰）──

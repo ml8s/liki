@@ -526,21 +526,16 @@ def test_counsel_mcp_http_surface():
     assert status == 404
 
 
-def test_readyz_reports_engine_dependency(monkeypatch):
-    monkeypatch.setattr(engine_mcp_client, "engine_version", lambda: "2026.09.26.0")
-    monkeypatch.setattr(engine_mcp_client, "required_engine_version", lambda: "2026.09.26.0")
-    status, raw = _http_request("/readyz")
-    assert status == 200
-    assert json.loads(raw)["status"] == "ready"
-
+def test_readyz_does_not_depend_on_engine_version(monkeypatch):
     def unavailable():
         raise EngineMCPError("engine unavailable")
 
-    monkeypatch.setattr(engine_mcp_client, "engine_version", unavailable)
+    monkeypatch.setattr(engine_mcp_client, "server_info", unavailable)
     status, raw = _http_request("/readyz")
-    assert status == 503
-    assert json.loads(raw)["status"] == "unready"
-    assert json.loads(raw)["reason"] == "engine dependency unavailable"
+    assert status == 200
+    document = json.loads(raw)
+    assert document["status"] == "ready"
+    assert "engine_version" not in document
 
 
 def test_counsel_mcp_rejects_oversized_request_body(monkeypatch):

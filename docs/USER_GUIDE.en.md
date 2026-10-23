@@ -141,7 +141,7 @@ npx skills add https://liki.hk -y
 
 ### How do I upgrade a self-hosted engine?
 
-Keep the Skill `VERSION.txt` compatible with `info.version` returned by engine discovery. If the engine is older than required, the tool layer fails closed instead of calling old RPCs.
+Skill and service versions are not compared. Unknown tool calls return an explicit error; update the skill or the service when that happens.
 
 ## Output principles
 
