@@ -66,8 +66,8 @@ fail-closed），领域卡只写本体系知识、`app/` 承载场景与跨体�
   子代理）。task 是 ADK 的 agent-as-tool 委派：子代理以同名工具暴露给父代理，完成后
   结果作为工具结果返回父代理继续处理（合参由此成立）；子代理身份在
   `agents/<name>/<name>.md`，不进市场包
-- 带 `sub_agents` 的 agent，生成器在 instruction 末尾自动追加「协作委派」节（部署形态
-  专属投影，不写入共享身份源）
+- 带 `sub_agents` 的 agent，由运行时把子代理暴露为同名 task 工具；协作规则由
+  工具描述与能力自省承担，不写入共享身份源
 - **`tools.allow` 是权威工具白名单**（替代旧的 env 白名单），每笔 engine/counsel 工具调用必须允许
 - 身份文件 frontmatter 映射到各消费方：`description_en` → 部署 agent 描述 + `plugin.json.description`；
   `description` → 域 `skills/<domain>/SKILL.md` 描述；`display_name(_en)` → 域 skill `metadata`；
