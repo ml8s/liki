@@ -7,15 +7,14 @@ The schemas a client sees come from the MCP server's `tools/list` response.
 """
 
 
-from pathlib import Path
 from typing import Any
 
 from app.contracts.divination import DIVINATION_TOOLS
 from app.contracts.naming import NAMING_TOOLS
 from app.contracts.natal import NATAL_TOOLS
+from app.version import runtime_version
 
-VERSION_PATH = Path(__file__).resolve().parents[1] / "VERSION.txt"
-VERSION = VERSION_PATH.read_text(encoding="utf-8").strip()
+VERSION = runtime_version()
 
 COUNSEL_TOOLS = NATAL_TOOLS + NAMING_TOOLS + DIVINATION_TOOLS
 
@@ -82,6 +81,5 @@ __all__ = [
     "NATAL_TOOLS",
     "TOOL_GROUPS",
     "VERSION",
-    "VERSION_PATH",
     "tool_vocabulary",
 ]

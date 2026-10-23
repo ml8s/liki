@@ -10,10 +10,8 @@ liki 命理 skill 的排盘层：
 本层只做「读引擎字段 + 编排 MCP 工具调用 + 归并」，零命理判断。
 """
 
-from pathlib import Path
 from typing import Optional
 
-# Engine MCP 客户端（counsel 统一走 MCP）
 from app.engine_mcp_client import (  # noqa: E402
     MCPError,
     _version_key,
@@ -22,8 +20,8 @@ from app.engine_mcp_client import (  # noqa: E402
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
 
-VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
-
+# Engine MCP 客户端（counsel 统一走 MCP）
+from app.version import runtime_version
 
 RPCError = MCPError
 
@@ -31,7 +29,7 @@ RPCError = MCPError
 def skill_version() -> str:
     """Read the distributed skill version; fail closed when missing or invalid."""
     try:
-        version = VERSION_PATH.read_text(encoding="utf-8").strip()
+        version = runtime_version()
     except OSError as error:
         raise RPCError(f"skill VERSION.txt is unavailable: {error}") from error
     if not version:

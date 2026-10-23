@@ -13,13 +13,9 @@ from version_projection import workbuddy_version  # noqa: E402  制品版本的�
 
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
-    ROOT / "engine/cmd/engine-mcp/VERSION",
-    ROOT / "counsel/app/VERSION.txt",
 )
 PROFILE_FILES = tuple((ROOT / "profiles").glob("*.json"))
-# Counsel tool contracts and projection tables carry no version:
-# counsel/app/VERSION.txt is the runtime surface, and the MCP servers advertise
-# it in the initialize result.
+# The remaining surfaces are projections of skills/liki/VERSION.txt.
 SKILL_FRONTMATTER = ROOT / "skills/liki/SKILL.md"
 EXPERT_PACKS = ROOT / "expert-packs"
 CONNECTOR_METAS = tuple(sorted((ROOT / "workbuddy").glob("*-connector/connector-meta.json")))

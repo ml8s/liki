@@ -11,7 +11,7 @@ COPY . .
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 RUN CGO_ENABLED=0 GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" \
-    go build -o /out/engine-mcp ./cmd/engine-mcp/
+    go build -ldflags "-X main.Version=${VERSION}" -o /out/engine-mcp ./cmd/engine-mcp/
 
 FROM alpine:3.21@sha256:48b0309ca019d89d40f670aa1bc06e426dc0931948452e8491e3d65087abc07d AS certs
 RUN apk add --no-cache ca-certificates

@@ -81,7 +81,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 | --- | --- |
 | `engine/**/zz_load_test.go`（13 个，除 `package` 行外逐字节相同） | Go 不能跨包共享 `TestMain`；抽成公共包会把 `testing` 带进非测试构建依赖。每个测试包各自 `Load()` 一次数据表。 |
 | 脚本序言 `set -eo pipefail` + `ROOT="$(cd "$(dirname "$0")/.." && pwd)"`（7 个脚本） | 每个脚本必须能独立运行（`make`、CI、手工直调）；抽公共 include 会引入 sourcing 依赖。 |
-| 版本面 `skills/liki/VERSION.txt`、`engine/cmd/engine-mcp/VERSION`、`counsel/app/VERSION.txt` | 三个工件可独立分发，各自需要运行时版本面；同步由 `tests/test_version_surfaces.py` 钉住。 |
+| 版本面 `skills/liki/VERSION.txt` | 唯一手写源；engine 与 counsel 在构建时注入，不再保留副本。 |
 | 空文件 `tests/__init__.py` | 根 `tests/` 显式建包，pytest 导入名是 `tests.<module>`；`counsel/tests/` 无 `__init__.py`、导入名是裸 basename，两套测试的模块名不会互相覆盖。 |
 | 镜像卡之间逐卡重复的边界 / 参数句（如 `divination-qimen-*` 专占卡的公共排盘步、`naming-app-*` 卡的公共 `[必读]` 声明） | 每张卡随专家包独立分发，必须在包内自包含；合并会引入跨包引用或包内死链。 |
 | `skills/liki/references/natal-bazi-calibration.md` 与 `natal-ziwei-calibration.md` 的考时六步 | 两张卡会被 `sync_expert_packs.py` 分别镜像进单侧专家包，包内只有一侧，卡片必须自包含；差异仅“公历 → 农历”与年号界两处，合并即产生跨侧死链。 |

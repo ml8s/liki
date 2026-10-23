@@ -9,18 +9,18 @@ counsel-mcp 通过标准 Streamable HTTP MCP 调用 engine-mcp。公开部署经
 
 import json
 import os
-import pathlib
 import time
 import urllib.request
 from urllib.error import HTTPError, URLError
+
+from app.version import runtime_version
 
 MCP_TIMEOUT = int(os.environ.get("LIKI_MCP_TIMEOUT", "30"))
 MAX_RETRIES = int(os.environ.get("LIKI_MCP_MAX_RETRIES", "2"))
 PROTOCOL_VERSION = "2026-07-28"
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
 
-VERSION_PATH = pathlib.Path(__file__).resolve().parent / "VERSION.txt"
-CLIENT_INFO = {"name": "counsel", "version": VERSION_PATH.read_text(encoding="utf-8").strip()}
+CLIENT_INFO = {"name": "counsel", "version": runtime_version()}
 
 
 class MCPError(Exception):

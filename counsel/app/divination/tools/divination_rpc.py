@@ -1,6 +1,5 @@
 """问卦层的统一 MCP 引擎访问层。"""
 
-from pathlib import Path
 
 # MCP 引擎客户端（counsel 统一走 MCP）
 from app.engine_mcp_client import (  # noqa: E402
@@ -8,8 +7,7 @@ from app.engine_mcp_client import (  # noqa: E402
     _version_key,
     call,
 )
-
-VERSION_PATH = Path(__file__).resolve().parents[2] / "VERSION.txt"
+from app.version import runtime_version
 
 
 class RPCError(MCPError):
@@ -37,7 +35,7 @@ def server_time(timezone: str) -> dict:
 def skill_version() -> str:
     """Read the distributed skill version; fail closed when missing or invalid."""
     try:
-        version = VERSION_PATH.read_text(encoding="utf-8").strip()
+        version = runtime_version()
     except OSError as error:
         raise RPCError(f"skill VERSION.txt is unavailable: {error}") from error
     if not version:

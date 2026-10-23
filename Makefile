@@ -94,10 +94,10 @@ RUNTIME_VERSION ?= $(shell cat skills/liki/VERSION.txt)
 BASE_IMAGE ?= $(IMAGE_REGISTRY)/liki-agent-runtime:$(IMAGE_TAG)
 
 image-engine: ## Build the local engine development image
-	docker build -f engine/dev/Dockerfile -t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
+	docker build -f engine/dev/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
 
 image-counsel: ## Build the local counsel development image
-	docker build -f counsel/Dockerfile -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
+	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
 image-assembly: build-deployment ## Build the experts assembly image on a local liki-agent-runtime base (override BASE_IMAGE)
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/

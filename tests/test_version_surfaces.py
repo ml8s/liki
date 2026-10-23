@@ -19,8 +19,6 @@ def _artifact_version() -> str:
     return workbuddy_version(_runtime_calver())
 VERSION_FILES = (
     ROOT / "skills/liki/VERSION.txt",
-    ROOT / "engine/cmd/engine-mcp/VERSION",
-    ROOT / "counsel/app/VERSION.txt",
 )
 
 

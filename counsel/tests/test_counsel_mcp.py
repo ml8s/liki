@@ -316,9 +316,9 @@ def test_counsel_tools_publish_the_contract_schemas_without_downgrading():
 
 
 def test_counsel_servers_advertise_the_distributed_version():
-    version = (
-        pathlib.Path(__file__).parents[1] / "app" / "VERSION.txt"
-    ).read_text(encoding="utf-8").strip()
+    from app.version import runtime_version
+
+    version = runtime_version()
     for domain in ("bazi", "ziwei", "liuyao", "qimen", "naming"):
         assert create_counsel_mcp(domain).version == version
     assert create_counsel_root_mcp().version == version

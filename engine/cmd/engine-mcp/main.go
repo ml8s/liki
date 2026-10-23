@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	_ "embed"
 	"flag"
 	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -21,12 +19,8 @@ import (
 	apphttp "liki-engine/internal/http"
 )
 
-// BuildTime is set at compile time via -ldflags. Defaults to VERSION file.
-//
-//go:embed VERSION
-var versionFile string
-
-var BuildTime = strings.TrimSpace(versionFile)
+// Version is injected at build time via -ldflags from skills/liki/VERSION.txt.
+var Version = "dev"
 
 func main() {
 	addr := flag.String("addr", ":8081", "listen address (HTTP mode)")
@@ -43,7 +37,7 @@ func main() {
 
 	if *stdio {
 		slog.Info("engine-mcp stdio mode")
-		if err := runStdio(BuildTime, logger); err != nil {
+		if err := runStdio(Version, logger); err != nil {
 			slog.Error("stdio", "err", err)
 			os.Exit(1)
 		}
@@ -51,7 +45,7 @@ func main() {
 	}
 
 	// MCP Streamable HTTP endpoints — 每术数一个域（排盘工具），aux 为共享辅助
-	mcpServer := newMCPServer(BuildTime, logger)
+	mcpServer := newMCPServer(Version, logger)
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 
 	mcpToken := os.Getenv("LIKI_MCP_TOKEN")
@@ -73,7 +67,7 @@ func main() {
 	// 分域端点：每术数 + 共享辅助。`/engine` 外部前缀由网关剥离，
 	// 本服务只负责 MCP 根路径和 MCP 域路径。
 	for _, d := range mcpDomains {
-		domainServer := newDomainServer(d.Prefixes, BuildTime, logger)
+		domainServer := newDomainServer(d.Prefixes, Version, logger)
 		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 		mux.Handle("/mcp/"+d.Suffix, apphttp.MCPAuthMiddleware(mcpToken, domainHandler))
 	}
@@ -93,7 +87,7 @@ func main() {
 
 	mux.HandleFunc("GET /version", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		if _, err := w.Write([]byte(`{"version":"` + BuildTime + `"}`)); err != nil {
+		if _, err := w.Write([]byte(`{"version":"` + Version + `"}`)); err != nil {
 			return
 		}
 	})

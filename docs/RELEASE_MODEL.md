@@ -59,8 +59,8 @@ Surfaces carrying the projection: `skills/liki/SKILL.md`, `expert-packs/*/SKILL.
 | Surface | Location |
 | --- | --- |
 | Runtime skill version | `skills/liki/VERSION.txt` |
-| Engine MCP runtime | `engine/cmd/engine-mcp/VERSION` |
-| Counsel runtime | `counsel/app/VERSION.txt` |
+| Engine MCP runtime | build 注入（`-ldflags -X main.Version`） |
+| Counsel runtime | build 注入（`LIKI_VERSION`） |
 | Skill package metadata | `skills/liki/SKILL.md` frontmatter `version`（平台必填字段，顶层；写投影值） |
 | Expert package metadata | `expert-packs/*/SKILL.md`, nested domain `SKILL.md`, and `.codebuddy-plugin/plugin.json`（写投影值） |
 | WorkBuddy connector metadata | `workbuddy/*-connector/connector-meta.json`（写投影值） |

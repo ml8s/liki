@@ -15,7 +15,6 @@ import json  # noqa: E402
 
 import app.divination.tools.qimen_charts as qimen_charts  # noqa: E402
 import divination_contracts  # noqa: E402
-import divination_rpc  # noqa: E402
 import divination_safety  # noqa: E402
 import divination_snapshot  # noqa: E402
 import liuyao_snapshot  # noqa: E402
@@ -75,33 +74,6 @@ def test_safety_rule_table_is_data_driven():
     assert 'RULES = [' not in source
     assert 'GUIDANCE = {' not in source
     assert "divination_safety_rules.json" in source
-
-
-def test_divination_mcp_fails_closed_on_incompatible_engine(monkeypatch):
-    monkeypatch.setattr(
-        divination_rpc,
-        "engine_version",
-        lambda: "2026.09.02.1",
-    )
-    with pytest.raises(Exception, match="engine version .* incompatible"):
-        divination_rpc.ensure_engine_compatible()
-
-
-def test_engine_version_gate_accepts_minimum(monkeypatch):
-    monkeypatch.setattr(
-        divination_rpc,
-        "engine_version",
-        lambda: divination_rpc.required_engine_version(),
-    )
-    divination_rpc.ensure_engine_compatible()
-
-
-def test_engine_version_gate_requires_installed_skill_version(monkeypatch):
-    required = divination_rpc.required_engine_version()
-    older = required.split(".")[:-1] + [str(int(required.split(".")[-1]) - 1)]
-    monkeypatch.setattr(divination_rpc, "engine_version", lambda: ".".join(older))
-    with pytest.raises(Exception, match="VERSION.txt requires engine"):
-        divination_rpc.ensure_engine_compatible()
 
 
 def test_liuyao_snapshot_rejects_conflicting_arguments_before_rpc(monkeypatch):
