@@ -5,12 +5,9 @@ runtime, contracts, and product releases. WorkBuddy marketplace artifacts carry 
 **derived** semver projection of that version (see below); because it is derived
 rather than hand-maintained, there is still no parallel version.
 
-The operational release pipeline is documented in
-[Release pipeline](./RELEASE_PIPELINE.md). Neither ordinary commits nor CI
-build `liki` images; `release.yml` builds, smokes, and signs them when a
-`vYYYY.MM.DD.N` tag is pushed. Publishing the GitHub Release is explicit:
-`gh workflow run release-publish.yml -f tag=vYYYY.MM.DD.N` — a tag never
-publishes by itself.
+Images are built locally by each repository; CI never builds them. The image
+tag is the repository commit sha, and `liki-deploy` assembles, tests, and
+deploys that exact set. Tags are bookkeeping only.
 
 ## Version format
 

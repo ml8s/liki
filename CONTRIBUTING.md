@@ -13,7 +13,7 @@
 `main` 是唯一的长期分支；不要使用 `dev`、`master` 或长期发布分支。维护者在 `main`
 上做小而聚焦的提交。外部贡献者可以 fork 后创建短生命周期分支，PR 目标仍然是 `main`。
 
-发布 = 在绿色 `main` commit 上打 `v<CalVer>` tag，`release.yml` 自动完成 gate、构建、签名与发布；tag 不可移动、镜像不可重建。
+发布 = 本地按各仓 commit sha 构建镜像 → `liki-deploy` 跑全系统 e2e → 部署并 smoke；CI 不构建镜像。
 
 ## 提交变更
 

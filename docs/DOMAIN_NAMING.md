@@ -26,9 +26,6 @@ Do not call `liki-agent-runtime` the production expert image. Do not call
 | --- | --- |
 | Runtime base | 本地 liki-agent-runtime 镜像（按 git sha） |
 | AgentDeployment | `deployment.json` |
-| Candidate manifest | `build/release/candidate-digests.json` |
-| Release manifest | `liki-release-manifest.json` |
-| Deployment lock | `env/<region>.lock` |
 
 ## Contract versions
 

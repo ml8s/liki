@@ -1,7 +1,7 @@
 # liki monorepo — skill client + engine/counsel MCP services
 # Quality gate: make gate 是"本地可执行的源码门槛"（lint + 静态检查 + 测试）。
 #   CI 另外强制执行：漏洞扫描（govulncheck/pip-audit/npm）、-race 与覆盖率门槛。
-#   发版镜像由 release.yml 在 vCalVer tag 上构建推送并签名（本地 make image 仅调试）。
+#   镜像只在本地构建，tag = git sha；CI 不构建镜像。
 #
 # 统一语义（四仓一致）：
 #   make lint   静态检查聚合
@@ -10,7 +10,7 @@
 #   make gate   check + test ＝推送门槛
 #   make eval-mingli160 手动 skill 校准/评估报告；不属于测试或发布门禁
 #   make build  本仓产物（skill 归档 + engine 二进制）
-#   make image  本地开发镜像（local tag；发布镜像由 release.yml 构建）
+#   make image  本地镜像（tag 由 IMAGE_TAG 指定）
 #   make e2e    系统 E2E（由 liki-deploy 编排，不在本仓提供 target）
 
 RELEASE_VERSION ?=
@@ -84,8 +84,8 @@ brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（4 张头像矢量�
 	python3 scripts/gen_brand_marks.py
 	scripts/build-workbuddy-avatars.sh
 
-# ── 镜像（本地调试；发布由 release.yml 驱动）──
-# 本地 make image 只打 local tag；发布镜像由 release.yml 在 vCalVer tag 上构建推送并签名。
+# ── 镜像（本地构建）──
+# 本地 make image 只打 IMAGE_TAG；部署由 liki-deploy 按 sha 组装。
 
 IMAGE_REGISTRY ?= liki-local
 IMAGE_TAG ?= local

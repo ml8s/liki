@@ -25,7 +25,7 @@ Liki 是多 Agent 命理专家系统，四仓分工：
 本仓是系统**内容与确定性的源头**，产出五类制品：
 
 1. **专家定义**：`agents/<name>/agent.yaml`（部署配置）+ 身份文件 `expert-packs/liki-<domain>/SKILL.md`（角色/指令骨架唯一手写源，内部部署与市场包共用）；`expert-packs/` 同时是 CodeBuddy/WorkBuddy 市场包兼容层（上架 + multi-expert 镜像）
-2. **Engine / Counsel MCP**：`engine/`、`counsel/` 源码 → GHCR 镜像 `liki-engine`、`liki-counsel`
+2. **Engine / Counsel MCP**：`engine/`、`counsel/` 源码 → 本地镜像 `liki-engine`、`liki-counsel`（tag = git sha）
 3. **AgentDeployment 工件**：由身份文件 + `agents/` 发布结构 + `profiles/` 经 `scripts/generate_deployment.py` 生成 → 烘焙进装配镜像
 4. **Web skill bundle**：`scripts/build-web-skill-bundle.sh` → release asset，供 liki-web 消费
 5. **WorkBuddy 上架交付物**：`workbuddy/` 下的连接器提交包（`connector-meta.json` + `mcp.json` + `icon.svg`；一个连接器只声明一个 MCP Server，免鉴权故不写 `auth_mode`），技能与专家包分别是 `skills/liki/` 与 `expert-packs/liki-*`；四类上架物与提交流程见 `workbuddy/README.md`，提交前检查由 `python3 scripts/check_workbuddy_connectors.py` 守卫
@@ -135,17 +135,17 @@ COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙�
 
 ### 3.4 Web skill bundle（liki-web 消费）
 
-`make build-web-skill-bundle` 产出 `dist/liki-web-skill-bundle.tar.gz`（skills/liki 树 + liki.tar.gz + index.json），release 时上传为 asset。liki-web 的 `prepare-skills` action 下载解包，不再 checkout 本仓源码。
+`make build-web-skill-bundle` 产出 `dist/liki-web-skill-bundle.tar.gz`（skills/liki 树 + liki.tar.gz + index.json）。该分发面当前只做本地生成；上传/下载链路由后续独立任务处理。
 
 ## 四、变更如何传播（负责人须知）
 
 | 本仓变更 | 影响 | 传播路径 |
 |---|---|---|
-| 改身份文件（人设/指令骨架）或方法论卡 | 装配镜像内容变 | 重新生成工件 → 重发装配镜像 → 更新 signed digest lock |
+| 改身份文件（人设/指令骨架）或方法论卡 | 装配镜像内容变 | 重新生成工件 → 重新构建 liki 镜像 → 部署 |
 | 改 `tools.allow` 白名单 | 专家可用工具变 | 同上 |
 | 新增专家 | profile/工件/装配镜像 | 加 `agents/<name>/` → profile 加 agent → 重发 |
 | 改 engine/counsel 工具语义 | 白名单需对齐 | 更新 agents/*/agent.yaml → 重发 |
-| 工件格式变化 | 生成器/装配镜像 | 先发布 liki-agent-runtime runtime → 更新 base pin → 重新生成并 validate |
+| 工件格式变化 | 生成器/装配镜像 | 先构建 liki-agent-runtime → 用其作为 BASE_IMAGE 重新生成并 validate |
 
 ## 五、本仓 CI 发布链（release 触发）
 
