@@ -109,8 +109,8 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 ### Engineering and privacy facts
 
 - Explicit dual-system review: Bazi and Ziwei are computed separately; conflicts are listed by evidence layer.
-- Skill and engine versions are CalVer-bound; old engines are rejected (fail-closed).
-- Engine images are built and deployed by immutable digest (`ghcr.io/ml8s/liki-engine@sha256:...`).
+- Skills and services do not compare versions; unknown tools return an explicit error.
+- Images are built locally and deployed by commit sha.
 - Sensitive questions go through a support-first safety policy.
 - If a city is absent from the built-in table, `city_coords` may send the city name to Nominatim (OSM). Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
 

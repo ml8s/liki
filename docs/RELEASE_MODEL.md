@@ -64,14 +64,11 @@ Surfaces carrying the projection: `skills/liki/SKILL.md`, `expert-packs/*/SKILL.
 | Counsel projection contracts | `counsel/app/*/tools/*_projection_contract.json` |
 | Deployment profiles | `profiles/*.json` |
 | Root and counsel package metadata | `pyproject.toml`, `counsel/pyproject.toml` |
-| Published engine image reference in README | `README.md`, `README.en.md` |
 
 Rules:
 
 - The serial starts at `0` for each date and increments for additional releases on the same date.
 - Version strings remain dotted integers; tests reject other formats.
-- Do not introduce or maintain a hand-written semver version. The only semver in
-  the repository is the derived WorkBuddy projection above.
 - Use the changelog and release notes to describe compatibility, breaking changes, and migration steps; the date version does not encode semantics.
 
 ## Cross-repository dependency

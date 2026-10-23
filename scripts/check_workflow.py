@@ -55,42 +55,9 @@ def main() -> int:
             for step in job.get("steps") or []:
                 if not isinstance(step, dict):
                     continue
-                run_script = step.get("run")
-                if isinstance(run_script, str):
-                    if re.search(r"--identity-token\s+[\"']?\$RUNNER_TEMP/", run_script):
-                        errors.append(
-                            f"{path.relative_to(ROOT)}: job {job_id!r} passes an OIDC token "
-                            "file path to cosign; consume the token string in the same step"
-                        )
-                    if '--identity-token "$oidc_token"' in run_script and not re.search(
-                        r"oidc_token=\"\$\(.*\)\"", run_script, flags=re.DOTALL
-                    ):
-                        errors.append(
-                            f"{path.relative_to(ROOT)}: job {job_id!r} uses oidc_token "
-                            "without fetching it in the same shell step"
-                        )
                 uses = step.get("uses")
                 if not isinstance(uses, str) or "@" not in uses:
                     continue
-                if uses.rpartition("@")[0] == "docker/build-push-action":
-                    if "id" not in step:
-                        errors.append(
-                            f"{path.relative_to(ROOT)}: job {job_id!r} uses "
-                            "docker/build-push-action without a step id"
-                        )
-                    elif "id" in (step.get("with") or {}):
-                        errors.append(
-                            f"{path.relative_to(ROOT)}: job {job_id!r} puts "
-                            "docker/build-push-action step id in `with`; outputs.digest "
-                            "will be empty"
-                        )
-                if uses.rpartition("@")[0] == "sigstore/cosign-installer":
-                    with_block = step.get("with") or {}
-                    if with_block.get("cosign-release") != "v2.4.1":
-                        errors.append(
-                            f"{path.relative_to(ROOT)}: job {job_id!r} must pin "
-                            "cosign-installer to cosign-release v2.4.1"
-                        )
                 action, _, ref = uses.rpartition("@")
                 if not all(c in "0123456789abcdef" for c in ref) or len(ref) != 40:
                     continue
