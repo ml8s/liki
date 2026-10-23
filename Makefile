@@ -50,12 +50,15 @@ build-deployment: ## Generate AgentDeployment artifacts for all profiles
 		python3 scripts/generate_deployment.py --profile "$$p" --out dist/agents; \
 	done
 
-LIKI_AGENT_RUNTIME_IMAGE ?= $(IMAGE_REGISTRY)/liki-agent-runtime:$(IMAGE_TAG)
+LIKI_AGENT_RUNTIME_IMAGE ?=
 # 覆盖为本地二进制时，跳过容器内 pinned 运行时（仅用于离线开发）
 LIKI_AGENT_RUNTIME_VALIDATOR ?=
 
-runtime-validate: build-deployment ## Validate deployment artifacts with a local liki-agent-runtime image (override LIKI_AGENT_RUNTIME_IMAGE=<ref>)
+runtime-validate: build-deployment ## Validate deployment artifacts (LIKI_AGENT_RUNTIME_IMAGE=<ref> or LIKI_AGENT_RUNTIME_VALIDATOR=<bin>)
 	@set -eu; \
+	if [ -z "$(LIKI_AGENT_RUNTIME_VALIDATOR)" ] && [ -z "$(LIKI_AGENT_RUNTIME_IMAGE)" ]; then \
+		echo "set LIKI_AGENT_RUNTIME_IMAGE=liki-local/liki-agent-runtime:<sha> (or LIKI_AGENT_RUNTIME_VALIDATOR)" >&2; exit 2; \
+	fi; \
 	if [ -n "$(LIKI_AGENT_RUNTIME_VALIDATOR)" ]; then \
 		for p in $(DEPLOYMENT_PROFILES); do \
 			$(LIKI_AGENT_RUNTIME_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
@@ -90,8 +93,8 @@ brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（4 张头像矢量�
 IMAGE_REGISTRY ?= liki-local
 IMAGE_TAG ?= local
 RUNTIME_VERSION ?= $(shell cat skills/liki/VERSION.txt)
-# 装配镜像的 base（本地候选可用 liki-agent-runtime:local；CI 用 release pin 覆盖）
-BASE_IMAGE ?= $(IMAGE_REGISTRY)/liki-agent-runtime:$(IMAGE_TAG)
+# 装配镜像的 base：由调用方传入本地 runtime 镜像引用。
+BASE_IMAGE ?=
 
 image-engine: ## Build the local engine development image
 	docker build -f engine/dev/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-engine:$(IMAGE_TAG) engine
@@ -99,7 +102,8 @@ image-engine: ## Build the local engine development image
 image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
-image-assembly: build-deployment ## Build the experts assembly image on a local liki-agent-runtime base (override BASE_IMAGE)
+image-assembly: build-deployment ## Build the experts assembly image (BASE_IMAGE=<local runtime ref> required)
+	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=liki-local/liki-agent-runtime:<sha>" >&2; exit 2; }
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
 	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly
