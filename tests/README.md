@@ -64,8 +64,6 @@ script set is pinned by `tests/test_check_scripts_contract.py`, so adding a scri
 | `scripts/check_domain_language.py` | Concept/alias uniqueness and forbidden-alias drift across code, contracts, docs, and tests |
 | `scripts/check_workflow.py` | CI workflow structure and job wiring |
 | `scripts/check_mcp_schema.py` | MCP tool schemas, context budgets, and `tools/mcp-tool-catalog.json` drift (`--emit` regenerates it) |
-
-| `scripts/agent_runtime_pin.py` | Agent runtime image pin is internally consistent |
 | `scripts/check-exec-bits.sh` | Git executable bits for scripts invoked without an interpreter |
 
 The counsel direct dependencies are declared twice on purpose --

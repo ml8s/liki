@@ -61,9 +61,7 @@ def test_engine_image_carries_mcp_runtime_only():
 
 
 def test_release_smokes_engine_mcp_runtime():
-    script = (ROOT / "scripts/release-images.sh").read_text(encoding="utf-8")
     smoke = (ROOT / "scripts/smoke-image.sh").read_text(encoding="utf-8")
-    assert "scripts/smoke-image.sh" in script
     assert "scripts/test_engine_mcp.py" in smoke
     assert "--entrypoint /usr/local/bin/engine-mcp" in smoke
     assert "engine-rpc" not in smoke

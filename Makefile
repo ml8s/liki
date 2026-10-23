@@ -8,7 +8,6 @@
 #   make check  纯静态检查（lint+格式+数据结构+docs+专家一致性；不跑测试、不写盘）
 #   make test   本仓全部测试（单元/集成；不含 e2e、不含 build）
 #   make gate   check + test ＝推送门槛
-#   make release-gate gate + runtime validate + 发布工件 ＝发版准备
 #   make eval-mingli160 手动 skill 校准/评估报告；不属于测试或发布门禁
 #   make build  本仓产物（skill 归档 + engine 二进制）
 #   make image  本地开发镜像（local tag；发布镜像由 release.yml 构建）
@@ -30,12 +29,12 @@ export GOTOOLCHAIN ?= go1.26.10
         go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine \
         test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp \
         test-python-coverage \
-        eval-mingli160 golden gate release-gate hooks version build-archive build-deployment \
+        eval-mingli160 golden gate hooks version build-archive build-deployment \
         workbuddy-package \
         workbuddy-avatars \
         brand-marks \
         sync-expert-packs sync-domain-language check-domain-language check-actions check-content \
-        build-web-skill-bundle build-release-manifest check-release-manifest \
+        build-web-skill-bundle \
         runtime-validate image image-engine image-counsel image-assembly
 
 build-skill build-archive: ## Build the installable skill archive
@@ -44,12 +43,6 @@ build-skill build-archive: ## Build the installable skill archive
 build-web-skill-bundle: build-archive ## Build the liki-web skill bundle (release asset)
 	scripts/build-web-skill-bundle.sh
 
-build-release-manifest: build-web-skill-bundle build-deployment ## Build the unified liki release manifest
-	python3 scripts/build_release_manifest.py
-
-check-release-manifest: ## Verify an existing unified release manifest without writing
-	python3 scripts/build_release_manifest.py --check
-
 DEPLOYMENT_PROFILES ?= natal divination fengshui naming
 
 build-deployment: ## Generate AgentDeployment artifacts for all profiles
@@ -57,12 +50,11 @@ build-deployment: ## Generate AgentDeployment artifacts for all profiles
 		python3 scripts/generate_deployment.py --profile "$$p" --out dist/agents; \
 	done
 
-LIKI_AGENT_RUNTIME_VERSION ?= $(shell python3 scripts/agent_runtime_pin.py --version)
-LIKI_AGENT_RUNTIME_IMAGE ?= $(shell python3 scripts/agent_runtime_pin.py --ref)
+LIKI_AGENT_RUNTIME_IMAGE ?= $(IMAGE_REGISTRY)/liki-agent-runtime:$(IMAGE_TAG)
 # 覆盖为本地二进制时，跳过容器内 pinned 运行时（仅用于离线开发）
 LIKI_AGENT_RUNTIME_VALIDATOR ?=
 
-runtime-validate: build-deployment ## Validate generated artifacts with the pinned liki-agent-runtime runtime (override LIKI_AGENT_RUNTIME_VALIDATOR=<bin>)
+runtime-validate: build-deployment ## Validate deployment artifacts with a local liki-agent-runtime image (override LIKI_AGENT_RUNTIME_IMAGE=<ref>)
 	@set -eu; \
 	if [ -n "$(LIKI_AGENT_RUNTIME_VALIDATOR)" ]; then \
 		for p in $(DEPLOYMENT_PROFILES); do \
@@ -95,7 +87,7 @@ brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（4 张头像矢量�
 # ── 镜像（本地调试；发布由 release.yml 驱动）──
 # 本地 make image 只打 local tag；发布镜像由 release.yml 在 vCalVer tag 上构建推送并签名。
 
-IMAGE_REGISTRY ?= ghcr.io/ml8s
+IMAGE_REGISTRY ?= liki-local
 IMAGE_TAG ?= local
 RUNTIME_VERSION ?= $(shell cat skills/liki/VERSION.txt)
 # 装配镜像的 base（本地候选可用 liki-agent-runtime:local；CI 用 release pin 覆盖）
@@ -107,7 +99,7 @@ image-engine: ## Build the local engine development image
 image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
-image-assembly: build-deployment ## Build the production experts assembly image (pulls liki-agent-runtime base from GHCR)
+image-assembly: build-deployment ## Build the experts assembly image on a local liki-agent-runtime base (override BASE_IMAGE)
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
 	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly
@@ -153,7 +145,6 @@ check: lint-md lint-python fmt-check go-version-check runtime-version-check chec
 	python3 scripts/check_domain_language.py
 	python3 scripts/check_workflow.py
 	python3 scripts/check_mcp_schema.py --check
-	python3 scripts/agent_runtime_pin.py --check
 	bash scripts/check-exec-bits.sh
 
 
@@ -223,7 +214,6 @@ golden: test-engine-golden ## Backward-compatible alias for the focused golden s
 
 gate: lint-engine check test ## Full source push gate: lint, static checks, and tests
 
-release-gate: gate runtime-validate build-release-manifest ## Release preparation gate: source gate plus pinned runtime and release artifacts
 
 check-actions: ## Reject mutable reusable workflow/action references
 	python3 scripts/check_actions_pinned.py

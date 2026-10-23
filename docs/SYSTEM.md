@@ -110,18 +110,16 @@ expert-packs/liki-*/SKILL.md ───────────┐   （域专家
 agents/<name>/<name>.md ────────────────┤   （部署子代理身份文件：bazi/ziwei）
 agents/*/agent.yaml ────────────────────┼→ scripts/generate_deployment.py → dist/agents/<profile>/
 profiles/*.json ────────────────────────┘                ↓
-deps/liki-agent-runtime.base → pinned liki-agent-runtime runtime（逐 profile validate）
+本地 liki-agent-runtime 镜像 → 逐 profile validate
 ```
 
-- **运行时 base 由本仓 pin**：`deps/liki-agent-runtime.base`（version+immutable digest）锁定 liki-agent-runtime 发布版本；测试（`make runtime-validate`）与部署（CI 装配 `FROM`）共用该 pin，**不与 liki 版本同名对齐**（各仓独立发版）
+- **运行时 base 来自本地镜像**：`liki-agent-runtime` 按 git sha 构建，`BASE_IMAGE` 传入装配镜像；`make runtime-validate` 也使用同一镜像
 - `make build-deployment` 只生成工件；`make runtime-validate` 用 pinned liki-agent-runtime runtime 执行真实校验
-- `make build-release-manifest` 只打包当前 `dist` 工件，不隐式运行测试
-- `make release-gate` 与 CI `release-integrity` 都先执行 `runtime-validate`，再构建 release manifest；发布工件不能绕过 pinned runtime validate
 
 `assembly/Dockerfile` 构建单套装配镜像 `liki-experts`，四份 profile 工件一并烘焙：
 
 ```dockerfile
-ARG BASE_IMAGE=ghcr.io/ml8s/liki-agent-runtime:<version>@<digest>  # 来源 deps/liki-agent-runtime.base
+ARG BASE_IMAGE=liki-local/liki-agent-runtime:<runtime-sha>  # 本地构建
 FROM ${BASE_IMAGE}
 COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙进镜像
 ```
@@ -132,7 +130,7 @@ COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙�
   Agent Card 名，不靠端口
 - AgentDeployment digest 只作为审计 provenance；部署完整性由 final assembly image digest 承担
 - **组合在 liki**：专家拓扑/指令/白名单在 CI 生成并烘焙，不在运行时装配
-- **依赖模型**：liki 通过 `deps/liki-agent-runtime.base` 锁定 liki-agent-runtime 版本；测试与部署共用该 pin。**liki-agent-runtime 未发新版则 pin 不变**（两者独立发版，不要求版本同名）；采用新 liki-agent-runtime 时先更新 pin（`python3 scripts/agent_runtime_pin.py --check` 在 `make check` 中校验）
+- **依赖模型**：`liki-agent-runtime` 按自身 sha 构建，liki 侧不维护版本 pin；未变化的 sha 直接复用本地镜像
 - 镜像不含密钥/源码：端点/令牌由部署环境注入
 
 ### 3.4 Web skill bundle（liki-web 消费）

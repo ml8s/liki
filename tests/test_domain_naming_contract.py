@@ -48,32 +48,3 @@ def test_deployment_generator_emits_contract_version():
         )
         deployment = json.loads((output / "deployment.json").read_text())
     assert deployment["schema_version"] == "liki.agent-deployment.v1"
-
-
-def test_candidate_manifest_is_self_describing():
-    import sys
-    import tempfile
-
-    sys.path.insert(0, str(ROOT / "scripts"))
-    import build_candidate_manifest as bcm
-
-    # Test the pure dictionary shape with temporary metadata files.
-    with tempfile.TemporaryDirectory() as directory:
-        metadata_dir = Path(directory)
-        for name in bcm.IMAGE_NAMES:
-            (metadata_dir / f"{name}.json").write_text(
-                json.dumps({"containerimage.digest": "sha256:" + "0" * 64})
-            )
-        result = bcm.manifest(
-            "a" * 40,
-            "v2026.10.16.0",
-            metadata_dir,
-            "ghcr.io",
-        )
-    assert result["schema_version"] == "liki.candidate-manifest.v1"
-    assert set(result["images"]) == {"engine", "counsel", "experts"}
-
-
-def test_release_manifest_contract_is_declared():
-    source = (ROOT / "scripts/build_release_manifest.py").read_text()
-    assert '"schema_version": "liki.release-manifest.v1"' in source
