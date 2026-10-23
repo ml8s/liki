@@ -10,12 +10,6 @@ from app.contracts import DIVINATION_TOOLS
 from jsonschema import validate
 
 
-@pytest.fixture(autouse=True)
-def skip_shared_engine_compatibility(monkeypatch):
-    import app.engine_mcp_client as engine_mcp_client
-    monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
-
-
 TOOLS = Path(__file__).resolve().parents[1] / "counsel/app/divination/tools"
 SKILL_ROOT = TOOLS.parent.parent
 if str(TOOLS) not in sys.path:
@@ -550,7 +544,6 @@ def test_engine_mcp_client_domain_suffix(monkeypatch):
     def urlopen(request, *_, **__):
         seen.append(request.full_url)
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
-    monkeypatch.setattr(engine_mcp_client, "_COMPATIBILITY_CHECKED", True)
     monkeypatch.setenv("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
     monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
     for name in ["tianwen_resolve", "ziwei.chart", "bazi_chart", "time.now"]:

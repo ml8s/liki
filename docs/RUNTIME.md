@@ -69,6 +69,7 @@ not rate-limit.
 | `LIKI_MCP_TIMEOUT` | `30` | Engine call timeout in seconds |
 | `LIKI_MCP_MAX_RETRIES` | `2` | Engine retry count |
 | `LIKI_MCP_MAX_BODY_BYTES` | `1048576` | Maximum MCP JSON request body |
+| `LIKI_VERSION` | build-injected | Runtime version reported by counsel |
 
 `GET /healthz` is liveness. `GET /readyz` reports that the counsel service is up; it does not contact the engine. Rate limiting is
 owned by the edge (cloud LB / WAF / Caddy); the service itself does not
