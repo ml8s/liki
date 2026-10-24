@@ -73,16 +73,48 @@ func TestCityCandidateOutputLongitudeRange(t *testing.T) {
 		Name: "北京市", Region: "北京市", Longitude: 116.4, Latitude: 39.9,
 		Timezone: "Asia/Shanghai",
 		BBox:     &city.BBox{West: 115.42, East: 117.51, South: 39.44, North: 41.06},
-	})
+	}, "")
 	if output.Timezone != "Asia/Shanghai" {
 		t.Errorf("timezone = %q", output.Timezone)
 	}
 	if output.LongitudeRange == nil || output.LongitudeRange.West != 115.42 || output.LongitudeRange.East != 117.51 {
 		t.Errorf("longitude range = %+v", output.LongitudeRange)
 	}
-	withoutBox := cityCandidateOutput(city.Candidate{Name: "某地", Longitude: 1, Latitude: 2})
+	withoutBox := cityCandidateOutput(city.Candidate{Name: "某地", Longitude: 1, Latitude: 2}, "")
 	if withoutBox.LongitudeRange != nil {
 		t.Errorf("missing bbox must omit longitude_range: %+v", withoutBox.LongitudeRange)
+	}
+}
+
+func TestCityCoordsLocalizesOutput(t *testing.T) {
+	registry := testEngine()
+	raw, err := registry.Call(context.Background(), "city_coords",
+		mustJSON(t, CityCoordsInput{City: "Beijing", Locale: "en"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var output CityCoordsOutput
+	if err := json.Unmarshal(raw, &output); err != nil {
+		t.Fatal(err)
+	}
+	if len(output.Candidates) == 0 {
+		t.Fatal("no candidates")
+	}
+	best := output.Candidates[0]
+	if best.Name != "Beijing" || best.Region != "Beijing" {
+		t.Fatalf("localized candidate = %#v", best)
+	}
+
+	raw, err = registry.Call(context.Background(), "city_coords",
+		mustJSON(t, CityCoordsInput{City: "臺北", Locale: "zh-Hant"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &output); err != nil {
+		t.Fatal(err)
+	}
+	if len(output.Candidates) == 0 || output.Candidates[0].Name != "台北" {
+		t.Fatalf("zh-Hant candidate = %#v", output.Candidates)
 	}
 }
 

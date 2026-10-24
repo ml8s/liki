@@ -43,15 +43,17 @@ type BBox struct {
 // Candidate is one possible place match. Candidate mode never guesses: callers
 // receive the ranked list and pick the intended place themselves.
 type Candidate struct {
-	Name      string  `json:"name"`
-	Region    string  `json:"region"`
-	City      string  `json:"city,omitempty"`
-	Country   string  `json:"country"`
-	Level     string  `json:"level"`
-	Longitude float64 `json:"longitude"`
-	Latitude  float64 `json:"latitude"`
-	Timezone  string  `json:"timezone,omitempty"`
-	BBox      *BBox   `json:"bbox,omitempty"`
+	Name        string            `json:"name"`
+	Names       map[string]string `json:"names,omitempty"`
+	Region      string            `json:"region"`
+	RegionNames map[string]string `json:"region_names,omitempty"`
+	City        string            `json:"city,omitempty"`
+	Country     string            `json:"country"`
+	Level       string            `json:"level"`
+	Longitude   float64           `json:"longitude"`
+	Latitude    float64           `json:"latitude"`
+	Timezone    string            `json:"timezone,omitempty"`
+	BBox        *BBox             `json:"bbox,omitempty"`
 }
 
 // candidateLimit caps how many candidates a single query may return.
@@ -60,14 +62,16 @@ const candidateLimit = 20
 // geoRecord 是内嵌地理表的一条记录。县级表存在跨省同名（如朝阳区：北京/长春），
 // 因此名称不是唯一键：同名记录靠 Region（省）与 City（地级市，可空）消歧。
 type geoRecord struct {
-	Name    string   `json:"name"`
-	Region  string   `json:"region"`
-	City    string   `json:"city,omitempty"`
-	Lng     float64  `json:"lng"`
-	Lat     float64  `json:"lat"`
-	TZ      string   `json:"tz,omitempty"`
-	BBox    *BBox    `json:"bbox,omitempty"`
-	Aliases []string `json:"aliases,omitempty"`
+	Name        string            `json:"name"`
+	Names       map[string]string `json:"names,omitempty"`
+	Region      string            `json:"region"`
+	RegionNames map[string]string `json:"region_names,omitempty"`
+	City        string            `json:"city,omitempty"`
+	Lng         float64           `json:"lng"`
+	Lat         float64           `json:"lat"`
+	TZ          string            `json:"tz,omitempty"`
+	BBox        *BBox             `json:"bbox,omitempty"`
+	Aliases     []string          `json:"aliases,omitempty"`
 }
 
 type geoDB struct {
@@ -160,15 +164,17 @@ func ResolveCandidates(_ context.Context, query string) ([]Candidate, error) {
 			}
 			matches = append(matches, scored{
 				candidate: Candidate{
-					Name:      record.Name,
-					Region:    record.Region,
-					City:      record.City,
-					Country:   record.Region,
-					Level:     table.level,
-					Longitude: record.Lng,
-					Latitude:  record.Lat,
-					Timezone:  record.TZ,
-					BBox:      record.BBox,
+					Name:        record.Name,
+					Names:       record.Names,
+					Region:      record.Region,
+					RegionNames: record.RegionNames,
+					City:        record.City,
+					Country:     record.Region,
+					Level:       table.level,
+					Longitude:   record.Lng,
+					Latitude:    record.Lat,
+					Timezone:    record.TZ,
+					BBox:        record.BBox,
 				},
 				class: class,
 				prio:  table.prio,

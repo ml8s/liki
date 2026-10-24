@@ -9,7 +9,8 @@ import (
 
 // CityCoordsInput requests candidates for one place name.
 type CityCoordsInput struct {
-	City CityName `json:"city" jsonschema:"城市名称（中英文均可）；同名区县请用省/市限定（如 北京朝阳区）。"`
+	City   CityName `json:"city" jsonschema:"城市名称（中英文均可）；同名区县请用省/市限定（如 北京朝阳区）。"`
+	Locale string   `json:"locale,omitempty" jsonschema:"可选显示语言：zh-Hans、zh-Hant 或 en；省略时返回内置表原文。"`
 }
 
 // CityLevelName is the administrative level of a candidate.
@@ -52,15 +53,15 @@ func CityCoords(ctx context.Context, input CityCoordsInput) (CityCoordsOutput, e
 	}
 	out := CityCoordsOutput{Candidates: make([]CityCandidateOutput, 0, len(candidates))}
 	for _, candidate := range candidates {
-		out.Candidates = append(out.Candidates, cityCandidateOutput(candidate))
+		out.Candidates = append(out.Candidates, cityCandidateOutput(candidate, input.Locale))
 	}
 	return out, nil
 }
 
-func cityCandidateOutput(candidate city.Candidate) CityCandidateOutput {
+func cityCandidateOutput(candidate city.Candidate, locale string) CityCandidateOutput {
 	item := CityCandidateOutput{
-		Name:      candidate.Name,
-		Region:    candidate.Region,
+		Name:      localizedCityValue(candidate.Name, candidate.Names, locale),
+		Region:    localizedCityValue(candidate.Region, candidate.RegionNames, locale),
 		City:      candidate.City,
 		Country:   candidate.Country,
 		Level:     CityLevelName(candidate.Level),
@@ -75,4 +76,14 @@ func cityCandidateOutput(candidate city.Candidate) CityCandidateOutput {
 		}
 	}
 	return item
+}
+
+func localizedCityValue(fallback string, names map[string]string, locale string) string {
+	switch locale {
+	case "zh-Hans", "zh-Hant", "en":
+		if value := names[locale]; value != "" {
+			return value
+		}
+	}
+	return fallback
 }
