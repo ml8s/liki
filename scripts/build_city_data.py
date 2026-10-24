@@ -15,10 +15,75 @@ import time
 import zipfile
 from pathlib import Path
 
+from opencc import OpenCC
+from pypinyin import lazy_pinyin
+
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "sources"
 OUT = ROOT / "engine" / "internal" / "engine" / "city" / "cities_data.json"
 TZ_CN = "Asia/Shanghai"
+LOCALES = ("zh-Hans", "zh-Hant", "en")
+S2T = OpenCC("s2hk")
+
+# English labels for every region in the table. China uses province-level
+# labels (the UI composes "province + city"); world rows use country labels.
+REGION_EN = {
+    "北京市": "Beijing", "天津市": "Tianjin", "上海市": "Shanghai", "重庆市": "Chongqing",
+    "河北省": "Hebei", "山西省": "Shanxi", "辽宁省": "Liaoning", "吉林省": "Jilin",
+    "黑龙江省": "Heilongjiang", "江苏省": "Jiangsu", "浙江省": "Zhejiang", "安徽省": "Anhui",
+    "福建省": "Fujian", "江西省": "Jiangxi", "山东省": "Shandong", "河南省": "Henan",
+    "湖北省": "Hubei", "湖南省": "Hunan", "广东省": "Guangdong", "海南省": "Hainan",
+    "四川省": "Sichuan", "贵州省": "Guizhou", "云南省": "Yunnan", "陕西省": "Shaanxi",
+    "甘肃省": "Gansu", "青海省": "Qinghai", "内蒙古自治区": "Inner Mongolia",
+    "广西壮族自治区": "Guangxi", "西藏自治区": "Tibet", "宁夏回族自治区": "Ningxia",
+    "新疆维吾尔自治区": "Xinjiang", "中国台湾": "Taiwan", "中国香港": "Hong Kong",
+    "中国澳门": "Macau",
+    "以色列": "Israel", "俄罗斯": "Russia", "加拿大": "Canada", "南非": "South Africa",
+    "印度": "India", "印度尼西亚": "Indonesia", "土耳其": "Türkiye", "埃及": "Egypt",
+    "墨西哥": "Mexico", "奥地利": "Austria", "孟加拉国": "Bangladesh", "尼日利亚": "Nigeria",
+    "尼泊尔": "Nepal", "巴西": "Brazil", "德国": "Germany", "意大利": "Italy",
+    "摩洛哥": "Morocco", "斯里兰卡": "Sri Lanka", "新加坡": "Singapore", "新西兰": "New Zealand",
+    "日本": "Japan", "智利": "Chile", "柬埔寨": "Cambodia", "比利时": "Belgium",
+    "沙特阿拉伯": "Saudi Arabia", "法国": "France", "泰国": "Thailand", "澳大利亚": "Australia",
+    "瑞士": "Switzerland", "缅甸": "Myanmar", "美国": "United States", "老挝": "Laos",
+    "肯尼亚": "Kenya", "英国": "United Kingdom", "荷兰": "Netherlands", "菲律宾": "Philippines",
+    "葡萄牙": "Portugal", "西班牙": "Spain", "越南": "Vietnam", "阿根廷": "Argentina",
+    "阿联酋": "United Arab Emirates", "韩国": "South Korea", "马来西亚": "Malaysia",
+}
+
+# Pinyin is correct for most names; keep the common exonyms and ambiguous
+# readings explicit so English search/display don't regress.
+CITY_EN_OVERRIDES = {
+    "西安市": "Xi'an", "六安市": "Lu'an", "乌鲁木齐市": "Urumqi",
+    "呼和浩特市": "Hohhot", "拉萨市": "Lhasa", "香港": "Hong Kong",
+    "澳门": "Macau", "台北": "Taipei", "新北": "New Taipei",
+    "桃园": "Taoyuan", "台中": "Taichung", "台南": "Tainan",
+    "高雄": "Kaohsiung", "基隆": "Keelung", "新竹": "Hsinchu",
+    "鄂尔多斯市": "Ordos", "呼伦贝尔市": "Hulunbuir", "巴彦淖尔市": "Bayannur",
+    "乌兰察布市": "Ulanqab", "锡林郭勒盟": "Xilingol", "兴安盟": "Hinggan",
+    "阿拉善盟": "Alxa", "大兴安岭地区": "Daxing'anling", "阿里地区": "Ngari",
+    "那曲市": "Nagqu", "日喀则市": "Shigatse", "林芝市": "Nyingchi",
+    "昌都市": "Qamdo", "吐鲁番市": "Turpan", "和田地区": "Hotan",
+    "喀什地区": "Kashgar", "克拉玛依市": "Karamay", "库尔勒市": "Korla",
+    "延边朝鲜族自治州": "Yanbian", "恩施土家族苗族自治州": "Enshi",
+    "湘西土家族苗族自治州": "Xiangxi", "阿坝藏族羌族自治州": "Aba",
+    "甘孜藏族自治州": "Ganzi", "凉山彝族自治州": "Liangshan",
+    "黔西南布依族苗族自治州": "Qianxinan", "黔东南苗族侗族自治州": "Qiandongnan",
+    "黔南布依族苗族自治州": "Qiannan", "楚雄彝族自治州": "Chuxiong",
+    "红河哈尼族彝族自治州": "Honghe", "文山壮族苗族自治州": "Wenshan",
+    "西双版纳傣族自治州": "Xishuangbanna", "大理白族自治州": "Dali",
+    "德宏傣族景颇族自治州": "Dehong", "怒江傈僳族自治州": "Nujiang",
+    "迪庆藏族自治州": "Diqing", "临夏回族自治州": "Linxia",
+    "甘南藏族自治州": "Gannan", "海北藏族自治州": "Haibei",
+    "黄南藏族自治州": "Huangnan", "海南藏族自治州": "Hainan",
+    "果洛藏族自治州": "Guoluo", "玉树藏族自治州": "Yushu",
+    "海西蒙古族藏族自治州": "Haixi", "海西蒙古族藏族自治州直辖": "Haixi",
+    "昌吉回族自治州": "Changji", "博尔塔拉蒙古自治州": "Bortala",
+    "巴音郭楞蒙古自治州": "Bayingolin", "克孜勒苏柯尔克孜自治州": "Kizilsu",
+    "伊犁哈萨克自治州": "Ili",
+}
+
+ADMIN_SUFFIXES = ("特别行政区", "自治州", "自治县", "自治区", "地区", "盟", "市", "区", "县", "旗")
 
 ISO2 = {
     "中国台湾": "TW", "中国澳门": "MO", "中国香港": "HK", "以色列": "IL",
@@ -137,6 +202,115 @@ def bbox_dict(b):
             "south": round(south, 6), "north": round(north, 6)}
 
 
+def strip_admin_suffix(value):
+    for suffix in ADMIN_SUFFIXES:
+        if value.endswith(suffix) and len(value) > len(suffix):
+            return value[:-len(suffix)]
+    return value
+
+
+def to_hant(value):
+    return S2T.convert(value)
+
+
+def english_city(name):
+    if name in CITY_EN_OVERRIDES:
+        return CITY_EN_OVERRIDES[name]
+    base = strip_admin_suffix(name)
+    return "".join(lazy_pinyin(base)).capitalize()
+
+
+def unique_aliases(*groups):
+    out, seen = [], set()
+    for group in groups:
+        for value in group:
+            value = (value or "").strip()
+            if not value or value in seen:
+                continue
+            seen.add(value)
+            out.append(value)
+    return out
+
+
+def localized_record(record, english, region_english):
+    name = record["name"]
+    region = record["region"]
+    hant_name = to_hant(name)
+    hant_region = to_hant(region)
+    record["names"] = {
+        "zh-Hans": name,
+        "zh-Hant": hant_name,
+        "en": english,
+    }
+    record["region_names"] = {
+        "zh-Hans": region,
+        "zh-Hant": hant_region,
+        "en": region_english,
+    }
+    pinyin_parts = lazy_pinyin(strip_admin_suffix(name))
+    record["aliases"] = unique_aliases(
+        record.get("aliases", []),
+        [name, hant_name, english, strip_admin_suffix(name), strip_admin_suffix(hant_name)],
+        ["".join(pinyin_parts), " ".join(pinyin_parts)],
+    )
+    return record
+
+
+def china_id(record, level, index):
+    adcode = record.pop("adcode", "")
+    if adcode:
+        return f"CN-{adcode}"
+    return f"CN-{level}-{index}"
+
+
+def decorate_china(records, level):
+    for index, record in enumerate(records):
+        record["id"] = china_id(record, level, index)
+        localized_record(record, english_city(record["name"]), REGION_EN[record["region"]])
+
+
+def dedupe_records(*tables):
+    seen = set()
+    out = []
+    for table in tables:
+        kept = []
+        for record in table:
+            key = (record["name"], record["region"], record.get("city", ""),
+                   round(record.get("lng", 0), 6), round(record.get("lat", 0), 6))
+            if key in seen:
+                continue
+            seen.add(key)
+            kept.append(record)
+        out.append(kept)
+    return out
+
+
+def validate_city_data(data):
+    ids = set()
+    for level in ("cities", "counties", "world"):
+        for record in data[level]:
+            where = f"{level}:{record.get('name', '?')}"
+            record_id = record.get("id", "")
+            if not record_id or record_id in ids:
+                raise SystemExit(f"{where}: missing or duplicate id {record_id!r}")
+            ids.add(record_id)
+            for locale in LOCALES:
+                if not record.get("names", {}).get(locale):
+                    raise SystemExit(f"{where}: missing names.{locale}")
+                if not record.get("region_names", {}).get(locale):
+                    raise SystemExit(f"{where}: missing region_names.{locale}")
+            if is_cjk(record["names"]["en"]):
+                raise SystemExit(f"{where}: English name contains CJK: {record['names']['en']!r}")
+            if is_cjk(record["region_names"]["en"]):
+                raise SystemExit(f"{where}: English region contains CJK: {record['region_names']['en']!r}")
+            if not (-180 <= record.get("lng", 999) <= 180):
+                raise SystemExit(f"{where}: invalid longitude {record.get('lng')!r}")
+            if not (-90 <= record.get("lat", 999) <= 90):
+                raise SystemExit(f"{where}: invalid latitude {record.get('lat')!r}")
+            if not record.get("tz"):
+                raise SystemExit(f"{where}: missing timezone")
+
+
 def build_china():
     counties, cities = [], []
     top = load_json(SRC / "datav" / "100000_full.json")
@@ -158,7 +332,7 @@ def build_china():
         if levels <= {"district"}:
             # municipality: province itself is the city; features are its districts
             c = props_center(p)
-            city = {"name": pname, "region": pname}
+            city = {"name": pname, "region": pname, "adcode": pad}
             if c:
                 city["lng"], city["lat"] = c
             b = bbox_dict(geom_bbox(prov.get("geometry")))
@@ -169,9 +343,10 @@ def build_china():
             for f in feats:
                 q = f.get("properties") or {}
                 name = (q.get("name") or "").strip()
+                qad = str(q.get("adcode") or "")
                 if not name:
                     continue
-                rec = {"name": name, "region": pname}
+                rec = {"name": name, "region": pname, "adcode": qad}
                 qc = props_center(q)
                 if qc:
                     rec["lng"], rec["lat"] = qc
@@ -193,9 +368,10 @@ def build_china():
                     for d in load_json(sub).get("features", []):
                         dq = d.get("properties") or {}
                         dname = (dq.get("name") or "").strip()
+                        dad = str(dq.get("adcode") or "")
                         if not dname:
                             continue
-                        rec = {"name": dname, "region": pname}
+                        rec = {"name": dname, "region": pname, "adcode": dad}
                         dc = props_center(dq)
                         if dc:
                             rec["lng"], rec["lat"] = dc
@@ -208,7 +384,7 @@ def build_china():
             center = props_center(q)
             bbox = bbox_dict(geom_bbox(f.get("geometry")))
             if qad.endswith("00"):
-                city = {"name": name, "region": pname}
+                city = {"name": name, "region": pname, "adcode": qad}
                 if center:
                     city["lng"], city["lat"] = center
                 if bbox:
@@ -222,9 +398,10 @@ def build_china():
                         for d in load_json(sub).get("features", []):
                             dq = d.get("properties") or {}
                             dname = (dq.get("name") or "").strip()
+                            dad = str(dq.get("adcode") or "")
                             if not dname:
                                 continue
-                            rec = {"name": dname, "region": pname, "city": name}
+                            rec = {"name": dname, "region": pname, "city": name, "adcode": dad}
                             dc = props_center(dq)
                             if dc:
                                 rec["lng"], rec["lat"] = dc
@@ -234,7 +411,7 @@ def build_china():
                             rec["tz"] = TZ_CN
                             counties.append(rec)
                 else:
-                    rec = {"name": name, "region": pname}
+                    rec = {"name": name, "region": pname, "adcode": qad}
                     if center:
                         rec["lng"], rec["lat"] = center
                     if bbox:
@@ -243,7 +420,7 @@ def build_china():
                     counties.append(rec)
             else:
                 # province-direct county-level city (e.g. 济源市) or district
-                rec = {"name": name, "region": pname}
+                rec = {"name": name, "region": pname, "adcode": qad}
                 if center:
                     rec["lng"], rec["lat"] = center
                 if bbox:
@@ -262,7 +439,7 @@ def load_geonames():
             continue
         cc = f[8]
         row = {
-            "name": f[1], "asciiname": f[2], "alts": f[3],
+            "id": f[0], "name": f[1], "asciiname": f[2], "alts": f[3],
             "lat": float(f[4]), "lon": float(f[5]),
             "population": int(f[14] or 0), "tz": f[17],
         }
@@ -404,6 +581,10 @@ def build_world(current):
             aliases = aliases_from(alias_row)
             if aliases:
                 updated["aliases"] = aliases
+        english = alias_row["asciiname"] if alias_row else next(
+            (alias for alias in rec.get("aliases", []) if alias.isascii()), rec["name"])
+        updated["id"] = f"GN-{alias_row['id']}" if alias_row else f"W-{region}-{rec['name']}"
+        updated = localized_record(updated, english, REGION_EN[region])
         b = gb_bbox(iso3, rec["lng"], rec["lat"]) if iso3 else None
         if not b:
             b = datav_territory_bbox(region)
@@ -420,6 +601,9 @@ def main():
 
     current = load_json(OUT)
     counties, cities = build_china()
+    decorate_china(counties, "county")
+    decorate_china(cities, "city")
+    cities, counties = dedupe_records(cities, counties)
     world, warnings = build_world(current.get("world", []))
 
     print(f"china: counties={len(counties)} (was {len(current.get('counties', []))}), "
@@ -437,16 +621,19 @@ def main():
         "cities": cities,
         "world": world,
         "meta": {
+            "schema_version": 2,
             "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "sources": {
                 "china": "DataV.GeoAtlas areas_v3 (data/sources/datav)",
                 "world_cities": "GeoNames cities15000 (data/sources/geonames)",
                 "world_bbox": "GeoBoundaries gbOpen (data/sources/geoboundaries)",
+                "localization": "pypinyin + OpenCC s2t + curated region labels",
                 "manifest": "data/sources/manifest.json",
             },
             "counts": {"counties": len(counties), "cities": len(cities), "world": len(world)},
         },
     }
+    validate_city_data(data)
     if args.dry_run:
         print("dry-run: not writing", flush=True)
         return
