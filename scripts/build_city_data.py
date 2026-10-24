@@ -54,7 +54,7 @@ REGION_EN = {
 # Pinyin is correct for most names; keep the common exonyms and ambiguous
 # readings explicit so English search/display don't regress.
 CITY_EN_OVERRIDES = {
-    "西安市": "Xi'an", "六安市": "Lu'an", "乌鲁木齐市": "Urumqi",
+    "西安市": "Xi'an", "六安市": "Lu'an", "朝阳市": "Chaoyang", "朝阳区": "Chaoyang", "朝阳县": "Chaoyang", "乌鲁木齐市": "Urumqi",
     "呼和浩特市": "Hohhot", "拉萨市": "Lhasa", "香港": "Hong Kong",
     "澳门": "Macau", "台北": "Taipei", "新北": "New Taipei",
     "桃园": "Taoyuan", "台中": "Taichung", "台南": "Tainan",
