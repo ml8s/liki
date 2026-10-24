@@ -63,7 +63,7 @@ func cityCandidateOutput(candidate city.Candidate, locale string) CityCandidateO
 		Name:      localizedCityValue(candidate.Name, candidate.Names, locale),
 		Region:    localizedCityValue(candidate.Region, candidate.RegionNames, locale),
 		City:      candidate.City,
-		Country:   candidate.Country,
+		Country:   localizedCityValue(candidate.Country, candidate.RegionNames, locale),
 		Level:     CityLevelName(candidate.Level),
 		Longitude: candidate.Longitude,
 		Latitude:  candidate.Latitude,

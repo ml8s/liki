@@ -101,7 +101,7 @@ func TestCityCoordsLocalizesOutput(t *testing.T) {
 		t.Fatal("no candidates")
 	}
 	best := output.Candidates[0]
-	if best.Name != "Beijing" || best.Region != "Beijing" {
+	if best.Name != "Beijing" || best.Region != "Beijing" || best.Country != "Beijing" {
 		t.Fatalf("localized candidate = %#v", best)
 	}
 
