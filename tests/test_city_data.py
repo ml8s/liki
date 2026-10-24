@@ -42,6 +42,8 @@ def test_known_places_are_localized():
     assert taipei["names"]["zh-Hant"] == "台北"
     assert taipei["names"]["en"] == "Taipei"
     assert taipei["region_names"]["zh-Hant"] == "中國台灣"
+    assert by_id["GN-5128581"]["names"]["en"] == "New York"
+    assert by_id["CN-110105"]["names"]["en"] == "Chaoyang"
 
 
 def test_search_aliases_cover_each_locale():

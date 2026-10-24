@@ -1,0 +1,830 @@
+{
+  "regions": {
+    "上海市": {
+      "en": "Shanghai",
+      "zh-Hant": "上海市"
+    },
+    "云南省": {
+      "en": "Yunnan",
+      "zh-Hant": "雲南省"
+    },
+    "内蒙古自治区": {
+      "en": "Inner Mongolia",
+      "zh-Hant": "內蒙古自治區"
+    },
+    "北京市": {
+      "en": "Beijing",
+      "zh-Hant": "北京市"
+    },
+    "吉林省": {
+      "en": "Jilin",
+      "zh-Hant": "吉林省"
+    },
+    "四川省": {
+      "en": "Sichuan",
+      "zh-Hant": "四川省"
+    },
+    "天津市": {
+      "en": "Tianjin",
+      "zh-Hant": "天津市"
+    },
+    "宁夏回族自治区": {
+      "en": "Ningxia",
+      "zh-Hant": "寧夏回族自治區"
+    },
+    "安徽省": {
+      "en": "Anhui",
+      "zh-Hant": "安徽省"
+    },
+    "山东省": {
+      "en": "Shandong",
+      "zh-Hant": "山東省"
+    },
+    "山西省": {
+      "en": "Shanxi",
+      "zh-Hant": "山西省"
+    },
+    "广东省": {
+      "en": "Guangdong",
+      "zh-Hant": "廣東省"
+    },
+    "广西壮族自治区": {
+      "en": "Guangxi",
+      "zh-Hant": "廣西壯族自治區"
+    },
+    "新疆维吾尔自治区": {
+      "en": "Xinjiang",
+      "zh-Hant": "新疆維吾爾自治區"
+    },
+    "江苏省": {
+      "en": "Jiangsu",
+      "zh-Hant": "江蘇省"
+    },
+    "江西省": {
+      "en": "Jiangxi",
+      "zh-Hant": "江西省"
+    },
+    "河北省": {
+      "en": "Hebei",
+      "zh-Hant": "河北省"
+    },
+    "河南省": {
+      "en": "Henan",
+      "zh-Hant": "河南省"
+    },
+    "浙江省": {
+      "en": "Zhejiang",
+      "zh-Hant": "浙江省"
+    },
+    "海南省": {
+      "en": "Hainan",
+      "zh-Hant": "海南省"
+    },
+    "湖北省": {
+      "en": "Hubei",
+      "zh-Hant": "湖北省"
+    },
+    "湖南省": {
+      "en": "Hunan",
+      "zh-Hant": "湖南省"
+    },
+    "甘肃省": {
+      "en": "Gansu",
+      "zh-Hant": "甘肅省"
+    },
+    "福建省": {
+      "en": "Fujian",
+      "zh-Hant": "福建省"
+    },
+    "西藏自治区": {
+      "en": "Tibet",
+      "zh-Hant": "西藏自治區"
+    },
+    "贵州省": {
+      "en": "Guizhou",
+      "zh-Hant": "貴州省"
+    },
+    "辽宁省": {
+      "en": "Liaoning",
+      "zh-Hant": "遼寧省"
+    },
+    "重庆市": {
+      "en": "Chongqing",
+      "zh-Hant": "重慶市"
+    },
+    "陕西省": {
+      "en": "Shaanxi",
+      "zh-Hant": "陝西省"
+    },
+    "青海省": {
+      "en": "Qinghai",
+      "zh-Hant": "青海省"
+    },
+    "黑龙江省": {
+      "en": "Heilongjiang",
+      "zh-Hant": "黑龍江省"
+    },
+    "中国台湾": {
+      "en": "Taiwan",
+      "zh-Hant": "中國台灣"
+    },
+    "中国澳门": {
+      "en": "Macau",
+      "zh-Hant": "中國澳門"
+    },
+    "中国香港": {
+      "en": "Hong Kong",
+      "zh-Hant": "中國香港"
+    },
+    "以色列": {
+      "en": "Israel",
+      "zh-Hant": "以色列"
+    },
+    "俄罗斯": {
+      "en": "Russia",
+      "zh-Hant": "俄羅斯"
+    },
+    "加拿大": {
+      "en": "Canada",
+      "zh-Hant": "加拿大"
+    },
+    "南非": {
+      "en": "South Africa",
+      "zh-Hant": "南非"
+    },
+    "印度": {
+      "en": "India",
+      "zh-Hant": "印度"
+    },
+    "印度尼西亚": {
+      "en": "Indonesia",
+      "zh-Hant": "印尼"
+    },
+    "土耳其": {
+      "en": "Türkiye",
+      "zh-Hant": "土耳其"
+    },
+    "埃及": {
+      "en": "Egypt",
+      "zh-Hant": "埃及"
+    },
+    "墨西哥": {
+      "en": "Mexico",
+      "zh-Hant": "墨西哥"
+    },
+    "奥地利": {
+      "en": "Austria",
+      "zh-Hant": "奧地利"
+    },
+    "孟加拉国": {
+      "en": "Bangladesh",
+      "zh-Hant": "孟加拉"
+    },
+    "尼日利亚": {
+      "en": "Nigeria",
+      "zh-Hant": "奈及利亞"
+    },
+    "尼泊尔": {
+      "en": "Nepal",
+      "zh-Hant": "尼泊爾"
+    },
+    "巴西": {
+      "en": "Brazil",
+      "zh-Hant": "巴西"
+    },
+    "德国": {
+      "en": "Germany",
+      "zh-Hant": "德國"
+    },
+    "意大利": {
+      "en": "Italy",
+      "zh-Hant": "義大利"
+    },
+    "摩洛哥": {
+      "en": "Morocco",
+      "zh-Hant": "摩洛哥"
+    },
+    "斯里兰卡": {
+      "en": "Sri Lanka",
+      "zh-Hant": "斯里蘭卡"
+    },
+    "新加坡": {
+      "en": "Singapore",
+      "zh-Hant": "新加坡"
+    },
+    "新西兰": {
+      "en": "New Zealand",
+      "zh-Hant": "紐西蘭"
+    },
+    "日本": {
+      "en": "Japan",
+      "zh-Hant": "日本"
+    },
+    "智利": {
+      "en": "Chile",
+      "zh-Hant": "智利"
+    },
+    "柬埔寨": {
+      "en": "Cambodia",
+      "zh-Hant": "柬埔寨"
+    },
+    "比利时": {
+      "en": "Belgium",
+      "zh-Hant": "比利時"
+    },
+    "沙特阿拉伯": {
+      "en": "Saudi Arabia",
+      "zh-Hant": "沙烏地阿拉伯"
+    },
+    "法国": {
+      "en": "France",
+      "zh-Hant": "法國"
+    },
+    "泰国": {
+      "en": "Thailand",
+      "zh-Hant": "泰國"
+    },
+    "澳大利亚": {
+      "en": "Australia",
+      "zh-Hant": "澳洲"
+    },
+    "瑞士": {
+      "en": "Switzerland",
+      "zh-Hant": "瑞士"
+    },
+    "缅甸": {
+      "en": "Myanmar",
+      "zh-Hant": "緬甸"
+    },
+    "美国": {
+      "en": "United States",
+      "zh-Hant": "美國"
+    },
+    "老挝": {
+      "en": "Laos",
+      "zh-Hant": "寮國"
+    },
+    "肯尼亚": {
+      "en": "Kenya",
+      "zh-Hant": "肯亞"
+    },
+    "英国": {
+      "en": "United Kingdom",
+      "zh-Hant": "英國"
+    },
+    "荷兰": {
+      "en": "Netherlands",
+      "zh-Hant": "荷蘭"
+    },
+    "菲律宾": {
+      "en": "Philippines",
+      "zh-Hant": "菲律賓"
+    },
+    "葡萄牙": {
+      "en": "Portugal",
+      "zh-Hant": "葡萄牙"
+    },
+    "西班牙": {
+      "en": "Spain",
+      "zh-Hant": "西班牙"
+    },
+    "越南": {
+      "en": "Vietnam",
+      "zh-Hant": "越南"
+    },
+    "阿根廷": {
+      "en": "Argentina",
+      "zh-Hant": "阿根廷"
+    },
+    "阿联酋": {
+      "en": "United Arab Emirates",
+      "zh-Hant": "阿聯酋"
+    },
+    "韩国": {
+      "en": "South Korea",
+      "zh-Hant": "韓國"
+    },
+    "马来西亚": {
+      "en": "Malaysia",
+      "zh-Hant": "馬來西亞"
+    }
+  },
+  "cities": {
+    "北京市": {
+      "en": "Beijing",
+      "zh-Hant": "北京市"
+    },
+    "天津市": {
+      "en": "Tianjin",
+      "zh-Hant": "天津市"
+    },
+    "石家庄市": {
+      "en": "Shijiazhuang",
+      "zh-Hant": "石家庄市"
+    },
+    "太原市": {
+      "en": "Taiyuan",
+      "zh-Hant": "太原市"
+    },
+    "呼和浩特市": {
+      "en": "Hohhot",
+      "zh-Hant": "呼和浩特市"
+    },
+    "沈阳市": {
+      "en": "Shenyang",
+      "zh-Hant": "瀋陽市"
+    },
+    "长春市": {
+      "en": "Changchun",
+      "zh-Hant": "長春市"
+    },
+    "哈尔滨市": {
+      "en": "Harbin",
+      "zh-Hant": "哈爾濱市"
+    },
+    "上海市": {
+      "en": "Shanghai",
+      "zh-Hant": "上海市"
+    },
+    "南京市": {
+      "en": "Nanjing",
+      "zh-Hant": "南京市"
+    },
+    "杭州市": {
+      "en": "Hangzhou",
+      "zh-Hant": "杭州市"
+    },
+    "合肥市": {
+      "en": "Hefei",
+      "zh-Hant": "合肥市"
+    },
+    "福州市": {
+      "en": "Fuzhou",
+      "zh-Hant": "福州市"
+    },
+    "南昌市": {
+      "en": "Nanchang",
+      "zh-Hant": "南昌市"
+    },
+    "济南市": {
+      "en": "Jinan",
+      "zh-Hant": "濟南市"
+    },
+    "郑州市": {
+      "en": "Zhengzhou",
+      "zh-Hant": "鄭州市"
+    },
+    "武汉市": {
+      "en": "Wuhan",
+      "zh-Hant": "武漢市"
+    },
+    "长沙市": {
+      "en": "Changsha",
+      "zh-Hant": "長沙市"
+    },
+    "广州市": {
+      "en": "Guangzhou",
+      "zh-Hant": "廣州市"
+    },
+    "深圳市": {
+      "en": "Shenzhen",
+      "zh-Hant": "深圳市"
+    },
+    "南宁市": {
+      "en": "Nanning",
+      "zh-Hant": "南寧市"
+    },
+    "海口市": {
+      "en": "Haikou",
+      "zh-Hant": "海口市"
+    },
+    "重庆市": {
+      "en": "Chongqing",
+      "zh-Hant": "重慶市"
+    },
+    "成都市": {
+      "en": "Chengdu",
+      "zh-Hant": "成都市"
+    },
+    "贵阳市": {
+      "en": "Guiyang",
+      "zh-Hant": "貴陽市"
+    },
+    "昆明市": {
+      "en": "Kunming",
+      "zh-Hant": "昆明市"
+    },
+    "拉萨市": {
+      "en": "Lhasa",
+      "zh-Hant": "拉薩市"
+    },
+    "西安市": {
+      "en": "Xi'an",
+      "zh-Hant": "西安市"
+    },
+    "兰州市": {
+      "en": "Lanzhou",
+      "zh-Hant": "蘭州市"
+    },
+    "西宁市": {
+      "en": "Xining",
+      "zh-Hant": "西寧市"
+    },
+    "银川市": {
+      "en": "Yinchuan",
+      "zh-Hant": "銀川市"
+    },
+    "乌鲁木齐市": {
+      "en": "Urumqi",
+      "zh-Hant": "烏魯木齊市"
+    },
+    "苏州市": {
+      "en": "Suzhou",
+      "zh-Hant": "蘇州市"
+    },
+    "青岛市": {
+      "en": "Qingdao",
+      "zh-Hant": "青島市"
+    },
+    "大连市": {
+      "en": "Dalian",
+      "zh-Hant": "大連市"
+    },
+    "厦门市": {
+      "en": "Xiamen",
+      "zh-Hant": "廈門市"
+    },
+    "宁波市": {
+      "en": "Ningbo",
+      "zh-Hant": "寧波市"
+    },
+    "无锡市": {
+      "en": "Wuxi",
+      "zh-Hant": "無錫市"
+    },
+    "东莞市": {
+      "en": "Dongguan",
+      "zh-Hant": "東莞市"
+    },
+    "佛山市": {
+      "en": "Foshan",
+      "zh-Hant": "佛山市"
+    },
+    "珠海市": {
+      "en": "Zhuhai",
+      "zh-Hant": "珠海市"
+    },
+    "台北": {
+      "en": "Taipei",
+      "zh-Hant": "台北"
+    },
+    "新北": {
+      "en": "New Taipei",
+      "zh-Hant": "新北"
+    },
+    "桃园": {
+      "en": "Taoyuan",
+      "zh-Hant": "桃園"
+    },
+    "台中": {
+      "en": "Taichung",
+      "zh-Hant": "台中"
+    },
+    "台南": {
+      "en": "Tainan",
+      "zh-Hant": "台南"
+    },
+    "高雄": {
+      "en": "Kaohsiung",
+      "zh-Hant": "高雄"
+    },
+    "基隆": {
+      "en": "Keelung",
+      "zh-Hant": "基隆"
+    },
+    "新竹": {
+      "en": "Hsinchu",
+      "zh-Hant": "新竹"
+    },
+    "香港": {
+      "en": "Hong Kong",
+      "zh-Hant": "香港"
+    },
+    "澳门": {
+      "en": "Macau",
+      "zh-Hant": "澳門"
+    },
+    "东京": {
+      "en": "Tokyo",
+      "zh-Hant": "東京"
+    },
+    "大阪": {
+      "en": "Osaka",
+      "zh-Hant": "大阪"
+    },
+    "京都": {
+      "en": "Kyoto",
+      "zh-Hant": "京都"
+    },
+    "名古屋": {
+      "en": "Nagoya",
+      "zh-Hant": "名古屋"
+    },
+    "札幌": {
+      "en": "Sapporo",
+      "zh-Hant": "札幌"
+    },
+    "福冈": {
+      "en": "Fukuoka",
+      "zh-Hant": "福岡"
+    },
+    "横滨": {
+      "en": "Yokohama",
+      "zh-Hant": "橫濱"
+    },
+    "神户": {
+      "en": "Kobe",
+      "zh-Hant": "神戶"
+    },
+    "首尔": {
+      "en": "Seoul",
+      "zh-Hant": "首爾"
+    },
+    "釜山": {
+      "en": "Busan",
+      "zh-Hant": "釜山"
+    },
+    "仁川": {
+      "en": "Incheon",
+      "zh-Hant": "仁川"
+    },
+    "新加坡": {
+      "en": "Singapore",
+      "zh-Hant": "新加坡"
+    },
+    "吉隆坡": {
+      "en": "Kuala Lumpur",
+      "zh-Hant": "吉隆坡"
+    },
+    "曼谷": {
+      "en": "Bangkok",
+      "zh-Hant": "曼谷"
+    },
+    "雅加达": {
+      "en": "Jakarta",
+      "zh-Hant": "雅加達"
+    },
+    "马尼拉": {
+      "en": "Manila",
+      "zh-Hant": "馬尼拉"
+    },
+    "河内": {
+      "en": "Hanoi",
+      "zh-Hant": "河內"
+    },
+    "胡志明市": {
+      "en": "Ho Chi Minh City",
+      "zh-Hant": "胡志明市"
+    },
+    "万象": {
+      "en": "Vientiane",
+      "zh-Hant": "萬象"
+    },
+    "金边": {
+      "en": "Phnom Penh",
+      "zh-Hant": "金邊"
+    },
+    "仰光": {
+      "en": "Yangon",
+      "zh-Hant": "仰光"
+    },
+    "达卡": {
+      "en": "Dhaka",
+      "zh-Hant": "達卡"
+    },
+    "加德满都": {
+      "en": "Kathmandu",
+      "zh-Hant": "加德滿都"
+    },
+    "科伦坡": {
+      "en": "Colombo",
+      "zh-Hant": "可倫坡"
+    },
+    "孟买": {
+      "en": "Mumbai",
+      "zh-Hant": "孟買"
+    },
+    "新德里": {
+      "en": "New Delhi",
+      "zh-Hant": "新德里"
+    },
+    "班加罗尔": {
+      "en": "Bangalore",
+      "zh-Hant": "班加羅爾"
+    },
+    "悉尼": {
+      "en": "Sydney",
+      "zh-Hant": "雪梨"
+    },
+    "墨尔本": {
+      "en": "Melbourne",
+      "zh-Hant": "墨爾本"
+    },
+    "珀斯": {
+      "en": "Perth",
+      "zh-Hant": "伯斯"
+    },
+    "布里斯班": {
+      "en": "Brisbane",
+      "zh-Hant": "布里斯本"
+    },
+    "奥克兰": {
+      "en": "Auckland",
+      "zh-Hant": "奧克蘭"
+    },
+    "惠灵顿": {
+      "en": "Wellington",
+      "zh-Hant": "威靈頓"
+    },
+    "纽约": {
+      "en": "New York",
+      "zh-Hant": "紐約"
+    },
+    "洛杉矶": {
+      "en": "Los Angeles",
+      "zh-Hant": "洛杉磯"
+    },
+    "旧金山": {
+      "en": "San Francisco",
+      "zh-Hant": "舊金山"
+    },
+    "西雅图": {
+      "en": "Seattle",
+      "zh-Hant": "西雅圖"
+    },
+    "芝加哥": {
+      "en": "Chicago",
+      "zh-Hant": "芝加哥"
+    },
+    "波士顿": {
+      "en": "Boston",
+      "zh-Hant": "波士頓"
+    },
+    "休斯顿": {
+      "en": "Houston",
+      "zh-Hant": "休士頓"
+    },
+    "达拉斯": {
+      "en": "Dallas",
+      "zh-Hant": "達拉斯"
+    },
+    "迈阿密": {
+      "en": "Miami",
+      "zh-Hant": "邁阿密"
+    },
+    "亚特兰大": {
+      "en": "Atlanta",
+      "zh-Hant": "亞特蘭大"
+    },
+    "丹佛": {
+      "en": "Denver",
+      "zh-Hant": "丹佛"
+    },
+    "波特兰": {
+      "en": "Portland",
+      "zh-Hant": "波特蘭"
+    },
+    "多伦多": {
+      "en": "Toronto",
+      "zh-Hant": "多倫多"
+    },
+    "温哥华": {
+      "en": "Vancouver",
+      "zh-Hant": "溫哥華"
+    },
+    "蒙特利尔": {
+      "en": "Montreal",
+      "zh-Hant": "蒙特婁"
+    },
+    "伦敦": {
+      "en": "London",
+      "zh-Hant": "倫敦"
+    },
+    "巴黎": {
+      "en": "Paris",
+      "zh-Hant": "巴黎"
+    },
+    "柏林": {
+      "en": "Berlin",
+      "zh-Hant": "柏林"
+    },
+    "法兰克福": {
+      "en": "Frankfurt",
+      "zh-Hant": "法蘭克福"
+    },
+    "慕尼黑": {
+      "en": "Munich",
+      "zh-Hant": "慕尼黑"
+    },
+    "阿姆斯特丹": {
+      "en": "Amsterdam",
+      "zh-Hant": "阿姆斯特丹"
+    },
+    "布鲁塞尔": {
+      "en": "Brussels",
+      "zh-Hant": "布魯塞爾"
+    },
+    "维也纳": {
+      "en": "Vienna",
+      "zh-Hant": "維也納"
+    },
+    "苏黎世": {
+      "en": "Zurich",
+      "zh-Hant": "蘇黎世"
+    },
+    "日内瓦": {
+      "en": "Geneva",
+      "zh-Hant": "日內瓦"
+    },
+    "罗马": {
+      "en": "Rome",
+      "zh-Hant": "羅馬"
+    },
+    "马德里": {
+      "en": "Madrid",
+      "zh-Hant": "馬德里"
+    },
+    "里斯本": {
+      "en": "Lisbon",
+      "zh-Hant": "里斯本"
+    },
+    "莫斯科": {
+      "en": "Moscow",
+      "zh-Hant": "莫斯科"
+    },
+    "圣彼得堡": {
+      "en": "Saint Petersburg",
+      "zh-Hant": "聖彼得堡"
+    },
+    "迪拜": {
+      "en": "Dubai",
+      "zh-Hant": "杜拜"
+    },
+    "利雅得": {
+      "en": "Riyadh",
+      "zh-Hant": "利雅德"
+    },
+    "伊斯坦布尔": {
+      "en": "Istanbul",
+      "zh-Hant": "伊斯坦堡"
+    },
+    "特拉维夫": {
+      "en": "Tel Aviv",
+      "zh-Hant": "特拉維夫"
+    },
+    "圣保罗": {
+      "en": "São Paulo",
+      "zh-Hant": "聖保羅"
+    },
+    "里约热内卢": {
+      "en": "Rio de Janeiro",
+      "zh-Hant": "里約熱內盧"
+    },
+    "墨西哥城": {
+      "en": "Mexico City",
+      "zh-Hant": "墨西哥城"
+    },
+    "布宜诺斯艾利斯": {
+      "en": "Buenos Aires",
+      "zh-Hant": "布宜諾斯艾利斯"
+    },
+    "圣地亚哥": {
+      "en": "Santiago",
+      "zh-Hant": "聖地牙哥"
+    },
+    "开罗": {
+      "en": "Cairo",
+      "zh-Hant": "開羅"
+    },
+    "约翰内斯堡": {
+      "en": "Johannesburg",
+      "zh-Hant": "約翰尼斯堡"
+    },
+    "开普敦": {
+      "en": "Cape Town",
+      "zh-Hant": "開普敦"
+    },
+    "内罗毕": {
+      "en": "Nairobi",
+      "zh-Hant": "奈洛比"
+    },
+    "拉各斯": {
+      "en": "Lagos",
+      "zh-Hant": "拉各斯"
+    },
+    "卡萨布兰卡": {
+      "en": "Casablanca",
+      "zh-Hant": "卡薩布蘭卡"
+    }
+  }
+}

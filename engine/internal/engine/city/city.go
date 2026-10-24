@@ -140,6 +140,7 @@ func ResolveCandidates(_ context.Context, query string) ([]Candidate, error) {
 	if query == "" {
 		return []Candidate{}, nil
 	}
+	query = strings.ToLower(query)
 	base := stripRegionSuffix(query)
 	tables := []struct {
 		level   string
@@ -228,6 +229,7 @@ func candidateMatchClass(query, base string, record geoRecord) (int, bool) {
 }
 
 func nameMatchClass(query, base, name string, record geoRecord) (int, bool) {
+	name = strings.ToLower(name)
 	if name == query {
 		return 0, true
 	}
@@ -237,6 +239,15 @@ func nameMatchClass(query, base, name string, record geoRecord) (int, bool) {
 	if base != "" && stripRegionSuffix(name) == base {
 		return 2, true
 	}
+	if isLatinPlace(query) {
+		if latinWordMatch(name, query) {
+			return 3, true
+		}
+		if base != "" && latinWordMatch(name, base) {
+			return 4, true
+		}
+		return 0, false
+	}
 	if strings.HasPrefix(name, query) {
 		return 3, true
 	}
@@ -244,6 +255,42 @@ func nameMatchClass(query, base, name string, record geoRecord) (int, bool) {
 		return 4, true
 	}
 	return 0, false
+}
+
+func isLatinPlace(value string) bool {
+	if value == "" {
+		return false
+	}
+	for _, r := range value {
+		if r > 127 {
+			return false
+		}
+	}
+	return true
+}
+
+func isASCIILetter(value byte) bool {
+	return value >= 'a' && value <= 'z' || value >= 'A' && value <= 'Z'
+}
+
+func latinWordMatch(name, text string) bool {
+	if text == "" {
+		return false
+	}
+	for start := 0; start < len(name); {
+		index := strings.Index(name[start:], text)
+		if index < 0 {
+			return false
+		}
+		index += start
+		end := index + len(text)
+		if (index == 0 || !isASCIILetter(name[index-1])) &&
+			(end == len(name) || !isASCIILetter(name[end])) {
+			return true
+		}
+		start = index + 1
+	}
+	return false
 }
 
 // compoundMatches reports whether query is a region/city prefix plus the

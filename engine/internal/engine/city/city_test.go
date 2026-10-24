@@ -341,3 +341,28 @@ func parseFloat(s string) (float64, error) {
 	}
 	return f, nil
 }
+
+func TestBuiltin_LowercaseEnglish(t *testing.T) {
+	candidates, err := ResolveCandidates(context.Background(), "london")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(candidates) == 0 || candidates[0].Name != "伦敦" {
+		t.Fatalf("london candidates = %#v", candidates)
+	}
+}
+
+func TestBuiltin_LatinWordBoundary(t *testing.T) {
+	candidates, err := ResolveCandidates(context.Background(), "changsha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(candidates) == 0 {
+		t.Fatal("no changsha candidates")
+	}
+	for _, candidate := range candidates {
+		if candidate.Name == "常山县" {
+			t.Fatalf("changsha must not match Changshan: %#v", candidates)
+		}
+	}
+}

@@ -24,6 +24,8 @@ OUT = ROOT / "engine" / "internal" / "engine" / "city" / "cities_data.json"
 TZ_CN = "Asia/Shanghai"
 LOCALES = ("zh-Hans", "zh-Hant", "en")
 S2T = OpenCC("s2hk")
+PLACE_NAMES_PATH = SRC / "place_names.json"
+PLACE_NAMES = json.loads(PLACE_NAMES_PATH.read_text(encoding="utf-8")) if PLACE_NAMES_PATH.exists() else {}
 
 # English labels for every region in the table. China uses province-level
 # labels (the UI composes "province + city"); world rows use country labels.
@@ -235,8 +237,12 @@ def unique_aliases(*groups):
 def localized_record(record, english, region_english):
     name = record["name"]
     region = record["region"]
-    hant_name = to_hant(name)
-    hant_region = to_hant(region)
+    city_override = PLACE_NAMES.get("cities", {}).get(name, {})
+    region_override = PLACE_NAMES.get("regions", {}).get(region, {})
+    english = city_override.get("en") or english
+    region_english = region_override.get("en") or region_english
+    hant_name = city_override.get("zh-Hant") or to_hant(name)
+    hant_region = region_override.get("zh-Hant") or to_hant(region)
     record["names"] = {
         "zh-Hans": name,
         "zh-Hant": hant_name,
@@ -627,7 +633,7 @@ def main():
                 "china": "DataV.GeoAtlas areas_v3 (data/sources/datav)",
                 "world_cities": "GeoNames cities15000 (data/sources/geonames)",
                 "world_bbox": "GeoBoundaries gbOpen (data/sources/geoboundaries)",
-                "localization": "pypinyin + OpenCC s2t + curated region labels",
+                "localization": "pypinyin + OpenCC s2hk + data/sources/place_names.json",
                 "manifest": "data/sources/manifest.json",
             },
             "counts": {"counties": len(counties), "cities": len(cities), "world": len(world)},
