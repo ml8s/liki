@@ -2,7 +2,14 @@
 
 import pytest
 from app.natal.tools.errors import FactorEvaluateError
-from app.natal.tools.factor_semantics import PredicateState, all_of, any_of, factor_value, predicate
+from app.natal.tools.factor_semantics import (
+    PredicateState,
+    all_of,
+    any_of,
+    factor_value,
+    predicate,
+    validate_published_factor_value,
+)
 
 STATES = list(PredicateState)
 
@@ -48,8 +55,23 @@ def test_any_of_uses_closed_four_state_algebra() -> None:
             expected = PredicateState.NOT_APPLICABLE
             if PredicateState.HIT in (left, right):
                 expected = PredicateState.HIT
-            elif PredicateState.MISS in (left, right):
-                expected = PredicateState.MISS
             elif PredicateState.UNKNOWN in (left, right):
                 expected = PredicateState.UNKNOWN
+            elif PredicateState.MISS in (left, right):
+                expected = PredicateState.MISS
             assert any_of([left, right]) == expected
+
+def test_any_of_unknown_overrides_known_miss() -> None:
+    assert any_of([PredicateState.UNKNOWN, PredicateState.MISS]) == PredicateState.UNKNOWN
+
+
+@pytest.mark.parametrize("legacy", ["0", "1", "unknown", ""])
+def test_published_factor_value_rejects_legacy_sentinels(legacy: str) -> None:
+    with pytest.raises(FactorEvaluateError, match="旧哨兵|不是已发布"):
+        validate_published_factor_value(legacy, where="test")
+
+
+@pytest.mark.parametrize("legacy", [0, 1])
+def test_published_factor_value_rejects_legacy_integers(legacy: int) -> None:
+    with pytest.raises(FactorEvaluateError, match="旧整数语义"):
+        validate_published_factor_value(legacy, where="test")

@@ -187,8 +187,8 @@ class TestYongShenQueryContext(unittest.TestCase):
             for factor in group
         }
         snapshots = {
-            "八字": {factor: 0 for factor in required_factors},
-            "紫微": {factor: 0 for factor in required_factors},
+            "八字": {factor: "没命中" for factor in required_factors},
+            "紫微": {factor: "没命中" for factor in required_factors},
             "context": {"性别": "male"},
         }
         with mock.patch.object(

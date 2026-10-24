@@ -415,8 +415,12 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 		if !ok {
 			t.Fatalf("%s schema has no enum: %#v", name, field)
 		}
-		if !slices.Contains(values, "无候选") || !slices.Contains(values, "无辅调候") {
-			t.Errorf("%s enum = %#v, want explicit candidate closure", name, values)
+		want := []any{"土", "木", "水", "火", "金", "无候选"}
+		if name == "tiao_hou.secondary_wuxing" {
+			want = []any{"土", "木", "水", "火", "金", "无辅调候"}
+		}
+		if !slices.Equal(values, want) {
+			t.Errorf("%s enum = %#v, want %v", name, values, want)
 		}
 		if slices.Contains(values, nil) {
 			t.Errorf("%s enum still allows null", name)

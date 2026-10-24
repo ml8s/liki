@@ -12,7 +12,7 @@ from app.natal.tools.assertion_store import load_rule_table
 from app.natal.tools.chart_schema import ChartSchemaError, validate_natal_chart
 from app.natal.tools.errors import AssertionRuleError, YearRangeError
 from app.natal.tools.factor_constants import load_constants
-from app.natal.tools.factor_semantics import PredicateState, factor_value
+from app.natal.tools.factor_semantics import PredicateState, validate_published_factor_value
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
 from app.natal.tools.factors import (
     evaluate_liunian_snap_from_natal_chart,
@@ -401,7 +401,7 @@ def _value_matches(cond, actual):
 def _assert_factor_value(assertion_id: str, factor: str, value) -> None:
     """断语因子必须是稳定 FactorValue；null / boolean / 空串 fail closed。"""
     try:
-        factor_value(value, where=f"[{assertion_id}/{factor}]")
+        validate_published_factor_value(value, where=f"[{assertion_id}/{factor}]")
     except ValueError as exc:
         raise AssertionRuleError(str(exc)) from exc
 
@@ -463,7 +463,7 @@ def _validate_rule_factors(
                     continue
                 for value in (expected, snapshot[factor]):
                     try:
-                        factor_value(value, where=f"[{assertion_id}/{group_number}/{factor}]")
+                        validate_published_factor_value(value, where=f"[{assertion_id}/{group_number}/{factor}]")
                     except ValueError as exc:
                         raise AssertionRuleError(str(exc)) from exc
 

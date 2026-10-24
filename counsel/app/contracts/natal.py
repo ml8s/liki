@@ -14,6 +14,7 @@ from app.contracts.bazi import BaziChart
 from app.contracts.schema import ToolContract, unique_list
 from app.contracts.yongshen import BaziYongshenOutput
 from app.contracts.ziwei import EngineChart
+from app.natal.tools.factor_semantics import validate_published_factor_value
 
 
 def _validate_factor_snapshot(value: object) -> object:
@@ -25,8 +26,10 @@ def _validate_factor_snapshot(value: object) -> object:
             if not isinstance(item, dict):
                 raise ValueError(f"因子快照保留键 {key} 必须是对象")
             continue
-        if not isinstance(item, str) or not item:
-            raise ValueError(f"因子快照.{key} 必须是非空领域枚举或四态状态")
+        try:
+            validate_published_factor_value(item, where=f"因子快照.{key}")
+        except ValueError as exc:
+            raise ValueError(str(exc)) from exc
     return value
 
 
@@ -38,8 +41,10 @@ FactorSnapshot = Annotated[
         "additionalProperties": {
             "oneOf": [
                 {"enum": ["命中", "没命中", "不适用", "不可判定"]},
-                {"type": "string", "minLength": 1},
-                {"type": "object"},
+                {
+                    "type": "string",
+                    "minLength": 1,
+                },
             ],
         },
     }),

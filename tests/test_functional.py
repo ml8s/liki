@@ -244,8 +244,8 @@ def test_query_domain_filter_keeps_only_requested_life_domain() -> None:
              duanyu,
              "evaluate_snap_from_natal_chart",
              return_value={
-                 "八字": {factor: 0 for factor in required_factors},
-                 "紫微": {factor: 0 for factor in required_factors},
+                 "八字": {factor: "没命中" for factor in required_factors},
+                 "紫微": {factor: "没命中" for factor in required_factors},
                  "context": {"性别": "male"},
              },
          ), \

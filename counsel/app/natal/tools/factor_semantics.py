@@ -55,7 +55,10 @@ def predicate(actual: FactorValue, expected: FactorValue) -> PredicateState:
 
 def all_of(values: Iterable[PredicateState]) -> PredicateState:
     """AND：已知不命中优先；未知次之；不适用最后；全部命中才命中。"""
-    states = {value for value in values if isinstance(value, PredicateState)}
+    states = list(values)
+    if any(not isinstance(state, PredicateState) for state in states):
+        raise FactorEvaluateError("AND 只接受四态状态，不接受领域标量")
+
     for state in (PredicateState.MISS, PredicateState.UNKNOWN, PredicateState.NOT_APPLICABLE):
         if state in states:
             return state
@@ -63,14 +66,38 @@ def all_of(values: Iterable[PredicateState]) -> PredicateState:
 
 
 def any_of(values: Iterable[PredicateState]) -> PredicateState:
-    """OR：命中优先；已知不命中次之；不可判定再次；全不适用才不适用。"""
-    states = {value for value in values if isinstance(value, PredicateState)}
-    for state in (PredicateState.HIT, PredicateState.MISS, PredicateState.UNKNOWN):
+    """OR：命中优先；未知能覆盖已知没命中；全部不适用才不适用。"""
+    states = list(values)
+    if any(not isinstance(state, PredicateState) for state in states):
+        raise FactorEvaluateError("OR 只接受四态状态，不接受领域标量")
+
+    for state in (PredicateState.HIT, PredicateState.UNKNOWN, PredicateState.MISS):
         if state in states:
             return state
     return PredicateState.NOT_APPLICABLE
 
 
+_LEGACY_PUBLISHED_VALUES = {"0", "1", "unknown"}
+
+
+def validate_published_factor_value(value: object, *, where: str = "因子") -> FactorValue:
+    """严格校验已发布因子：不归一旧别名，空串/旧别名/非标量 fail closed。"""
+    if isinstance(value, PredicateState):
+        return value
+    if (
+        isinstance(value, int)
+        and not isinstance(value, bool)
+        and value in (0, 1)
+    ):
+        raise FactorEvaluateError(f"{where} 不能使用旧整数语义: {value!r}")
+    if isinstance(value, str) and value:
+        if value in _LEGACY_PUBLISHED_VALUES:
+            raise FactorEvaluateError(f"{where} 不能使用旧哨兵: {value!r}")
+        return value
+    raise FactorEvaluateError(f"{where} 不是已发布 FactorValue: {value!r}")
+
+
 __all__ = [
     "FactorValue", "PredicateState", "all_of", "any_of", "factor_value", "predicate",
+    "validate_published_factor_value",
 ]

@@ -465,7 +465,7 @@ type BaziFullChartAtomicFactsPillarPunishments struct {
 
 type BaziFullChartTiaoHou struct {
 	PrimaryWuxing      ElementName                   `json:"primary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 primary_wuxing。"`
-	SecondaryWuxing    CandidateWuxingName           `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
+	SecondaryWuxing    SecondaryWuxingName           `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
 	Season             string                        `json:"season" jsonschema:"季节状态。"`
 	Detail             string                        `json:"detail" jsonschema:"细节。"`
 	Model              string                        `json:"model" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 model。"`
@@ -542,7 +542,7 @@ type BaziFullChartGeJuStructurePattern struct {
 	Strength           *string                                      `json:"strength" jsonschema:"强弱。"`
 	Timely             *bool                                        `json:"timely" jsonschema:"是否得令。"`
 	TransparentPillars []string                                     `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             CandidateWuxingName                          `json:"wuxing" jsonschema:"五行。"`
+	Wuxing             ElementName                                  `json:"wuxing" jsonschema:"五行。"`
 }
 
 type BaziFullChartGeJuStructurePatternRootsItem struct {
@@ -558,7 +558,7 @@ type BaziFullChartGeJuStructureController struct {
 	Strength           *StrengthNameNullable                           `json:"strength" jsonschema:"强弱。"`
 	Timely             *bool                                           `json:"timely" jsonschema:"是否得令。"`
 	TransparentPillars []string                                        `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             CandidateWuxingName                             `json:"wuxing" jsonschema:"五行。"`
+	Wuxing             ElementName                                     `json:"wuxing" jsonschema:"五行。"`
 }
 
 type BaziFullChartGeJuStructureControllerRootsItem struct {
@@ -574,7 +574,7 @@ type BaziFullChartGeJuStructureGenerator struct {
 	Strength           *string                                        `json:"strength" jsonschema:"强弱。"`
 	Timely             *bool                                          `json:"timely" jsonschema:"是否得令。"`
 	TransparentPillars []string                                       `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             CandidateWuxingName                            `json:"wuxing" jsonschema:"五行。"`
+	Wuxing             ElementName                                    `json:"wuxing" jsonschema:"五行。"`
 }
 
 type BaziFullChartGeJuStructureGeneratorRootsItem struct {

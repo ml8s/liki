@@ -8,6 +8,7 @@
 
 ### Fixed
 
+- **评审修复：因子 OR 语义与候选闭集拆分**：`any_of` 的优先级改为 `命中 > 不可判定 > 没命中 > 不适用`，未知分支不再被已知没命中吞掉；`CandidateWuxingName` 与 `SecondaryWuxingName` 拆分，避免用神候选误接受 `无辅调候`、调候候选误接受 `无候选`；格局结构根五行恢复五行闭集。已发布因子快照和断语边界新增严格校验，拒绝旧 `0/1/unknown` 哨兵。
 - **补齐 natal 时间事实工具面**：`natal` 根代理暴露 `time_now / city_coords / tianwen_resolve`，可读取复合候选及其影响域后再委派 `bazi` / `ziwei`；子代理同步加入 `time_now`，保持根代理不接触排盘工具。
 - **恢复 `docs/BRAND.md` 迁移指针**：文件指向 `liki-web` 仓库根目录的 canonical `BRAND.md`，避免品牌真相源入口缺失。
 - **公共文档测试降噪**：删除 slogan、SEO 文案、输出措辞、旧标题序列等内容快照测试；保留单 H1、标题层级、HTML 白名单、长度预算、本地链接和治理文档连线等格式/规范检查。

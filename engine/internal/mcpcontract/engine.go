@@ -244,7 +244,7 @@ func NewEngine() *Registry {
 	mustRegister(registry, Tool[TianwenResolveInput, TianwenResolveOutput]{
 		Name:        "tianwen_resolve",
 		InputSchema: resolveSchema,
-		Description: "把时间事实归一化为考时候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。输出永远包含一个 input 候选（输入的直接换算）；若时间/地点不确定性触及时辰、日界、交节或夏令时边界，追加候选并标注原因领域（时辰/日界/交节/时制）。chart 用候选的 gregorian_time + 经度排盘。",
+		Description: "把时间事实归一化为考时候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。输出永远包含一个 input 候选（输入的直接换算）；若时间/地点不确定性触及时辰、日界、交节或夏令时边界，追加候选并标注原因领域（时辰/日界/交节/时制）。下游排盘能力使用候选 instant + 经度排盘。",
 		Handler:     TianwenResolve,
 	})
 	mustRegister(registry, Tool[CityCoordsInput, CityCoordsOutput]{

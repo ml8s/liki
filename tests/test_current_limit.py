@@ -16,8 +16,8 @@ def _full_mock_rule_snapshot(*rules: str) -> dict:
     ]
     required = duanyu.required_natal_factors(tables)
     return {
-        "八字": {factor: 0 for factor in required},
-        "紫微": {factor: 0 for factor in required},
+        "八字": {factor: "没命中" for factor in required},
+        "紫微": {factor: "没命中" for factor in required},
         "context": {"性别": "male"},
     }
 

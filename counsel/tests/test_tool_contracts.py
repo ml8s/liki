@@ -150,6 +150,23 @@ def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
         YongShenTiaoHouEvidence.model_validate({**tiao_hou, "secondary_wuxing": ""})
 
 
+def test_factor_snapshot_rejects_legacy_and_non_scalar_values():
+    from app.contracts.natal import FactorSnapshot
+    from pydantic import TypeAdapter
+
+    adapter = TypeAdapter(FactorSnapshot)
+    assert adapter.validate_python({"大运十神类": "命中"})["大运十神类"] == "命中"
+    assert adapter.validate_python({"日主": "甲"})["日主"] == "甲"
+    assert adapter.validate_python({
+        "_provenance": {"side": "bazi"},
+        "selected_yongshen": {"selected": {}},
+    })
+
+    for value in (0, 1, "", None, "0", "1", "unknown", {"命中": True}, ["命中"]):
+        with pytest.raises(ValidationError, match="因子快照"):
+            adapter.validate_python({"大运十神类": value})
+
+
 def test_bazi_yongshen_chart_input_is_fully_typed():
     chart = CONTRACTS["bazi_yongshen"].input_schema["properties"]["chart"]
     assert set(chart["required"]) == {
