@@ -4,10 +4,10 @@ import (
 	"time"
 )
 
-// YearPillar derives the year pillar from the civil Gregorian year and the
+// yearPillar derives the year pillar from the civil Gregorian year and the
 // 立春 boundary decision. The calendar year is incremented by the caller when
 // the instant precedes that year's exact 立春.
-func YearPillar(civilYear int, beforeLichun bool) Zhu {
+func yearPillar(civilYear int, beforeLichun bool) Zhu {
 	if beforeLichun {
 		civilYear--
 	}
@@ -25,9 +25,9 @@ func YearPillar(civilYear int, beforeLichun bool) Zhu {
 	return Zhu{Gan: Gan(stem), Zhi: Zhi(branch)}
 }
 
-// MonthPillar derives the month pillar from the solar-term month branch and
+// monthPillar derives the month pillar from the solar-term month branch and
 // the year pillar. The month stem follows the 五虎遁 rule.
-func MonthPillar(yearPillar Zhu, monthBranch Zhi) Zhu {
+func monthPillar(yearPillar Zhu, monthBranch Zhi) Zhu {
 	monthNumber := (int(monthBranch)+9)%12 + 1 // 1=寅月 .. 12=丑月
 	stem := (int(yearPillar.Gan)*2 + monthNumber) % 10
 	if stem == 0 {
@@ -91,13 +91,13 @@ func Pillars(
 	shichen Zhi,
 ) Bazi {
 	civilYear, _, _ := civilAt.Date()
-	yearPillar := YearPillar(civilYear, beforeLichun)
-	monthPillar := MonthPillar(yearPillar, monthBranch)
+	nian := yearPillar(civilYear, beforeLichun)
+	yue := monthPillar(nian, monthBranch)
 	dayPillar := DayPillar(solarAt)
 	hourPillar := HourPillar(solarAt, shichen)
 	return Bazi{
-		Nian: yearPillar,
-		Yue:  monthPillar,
+		Nian: nian,
+		Yue:  yue,
 		Ri:   dayPillar,
 		Shi:  hourPillar,
 	}

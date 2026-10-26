@@ -205,8 +205,8 @@ func randomCoinBit() (bool, error) {
 	return n.Int64() == 1, nil
 }
 
-// SecureCoins generates three fair coin symbols.
-func SecureCoins() ([]string, error) {
+// secureCoins generates three fair coin symbols.
+func secureCoins() ([]string, error) {
 	coins := make([]string, 3)
 	for i := range coins {
 		head, err := randomCoinBit()
@@ -226,7 +226,7 @@ func SecureCoins() ([]string, error) {
 func SecureQigua() (Casting, error) {
 	rounds := make([][]string, 6)
 	for i := range rounds {
-		coins, err := SecureCoins()
+		coins, err := secureCoins()
 		if err != nil {
 			return Casting{}, err
 		}

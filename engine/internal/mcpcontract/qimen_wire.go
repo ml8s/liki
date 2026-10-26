@@ -36,36 +36,13 @@ type QimenChartInput struct {
 	BirthDate string               `json:"birth_date,omitempty" jsonschema:"出生日期 YYYY-MM-DD 或 RFC3339；按精确立春取年命干，跨立春日必须给时刻"`
 }
 
-type qimenHourZhuanpanMethodForm struct {
+type qimenScopeSchoolDingjuForm struct {
 	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
 	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
 	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
 }
 
-type qimenHourLuoshuMethodForm struct {
-	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
-	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
-	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
-}
-
-type qimenHourMingfaMethodForm struct {
-	Scope  MethodScopeName  `json:"scope" jsonschema:"时间层级。"`
-	School MethodSchoolName `json:"school" jsonschema:"盘式流派。"`
-}
-
-type qimenDayZhuanpanMethodForm struct {
-	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
-	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
-	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
-}
-
-type qimenDayLuoshuMethodForm struct {
-	Scope        MethodScopeName        `json:"scope" jsonschema:"时间层级。"`
-	School       MethodSchoolName       `json:"school" jsonschema:"盘式流派。"`
-	DingjuMethod MethodDingjuMethodName `json:"dingju_method" jsonschema:"定局法。"`
-}
-
-type qimenPeriodMethodForm struct {
+type qimenScopeSchoolForm struct {
 	Scope  MethodScopeName  `json:"scope" jsonschema:"时间层级。"`
 	School MethodSchoolName `json:"school" jsonschema:"盘式流派。"`
 }
@@ -85,11 +62,6 @@ type qimenQuarterTwelveMethodForm struct {
 	HourBoundary     HourBoundaryName       `json:"hour_boundary" jsonschema:"时辰界。"`
 }
 
-type qimenJinhanMethodForm struct {
-	Scope  MethodScopeName  `json:"scope" jsonschema:"时间层级。"`
-	School MethodSchoolName `json:"school" jsonschema:"盘式流派。"`
-}
-
 type qimenChartStandardForm struct {
 	Instant   Instant              `json:"instant" jsonschema:"占问瞬间。"`
 	Timezone  string               `json:"timezone" jsonschema:"占问地 IANA 时区。"`
@@ -100,10 +72,10 @@ type qimenChartStandardForm struct {
 }
 
 type qimenChartJinhanForm struct {
-	Instant   Instant               `json:"instant" jsonschema:"占问瞬间。"`
-	Timezone  string                `json:"timezone" jsonschema:"占问地 IANA 时区。"`
-	Longitude float64               `json:"longitude" jsonschema:"占问地经度。"`
-	Method    qimenJinhanMethodForm `json:"method" jsonschema:"金函玉镜方法事实。"`
+	Instant   Instant              `json:"instant" jsonschema:"占问瞬间。"`
+	Timezone  string               `json:"timezone" jsonschema:"占问地 IANA 时区。"`
+	Longitude float64              `json:"longitude" jsonschema:"占问地经度。"`
+	Method    qimenScopeSchoolForm `json:"method" jsonschema:"金函玉镜方法事实。"`
 }
 
 func qimenMethodFormSchema[T any](
@@ -131,42 +103,42 @@ func qimenMethodFormSchema[T any](
 func qimenMethodFormsSchema() (json.RawMessage, error) {
 	builders := []func() (json.RawMessage, error){
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenHourZhuanpanMethodForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
 				map[string]string{"scope": "hour", "school": "zhuanpan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun", "maoshan"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenHourLuoshuMethodForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
 				map[string]string{"scope": "hour", "school": "luoshu_feipan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenHourMingfaMethodForm](
+			return qimenMethodFormSchema[qimenScopeSchoolForm](
 				map[string]string{"scope": "hour", "school": "mingfa_feipan"}, nil,
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenDayZhuanpanMethodForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
 				map[string]string{"scope": "day", "school": "zhuanpan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenDayLuoshuMethodForm](
+			return qimenMethodFormSchema[qimenScopeSchoolDingjuForm](
 				map[string]string{"scope": "day", "school": "luoshu_feipan"},
 				map[string][]string{"dingju_method": {"chaibu", "zhirun"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenPeriodMethodForm](
+			return qimenMethodFormSchema[qimenScopeSchoolForm](
 				map[string]string{"scope": "month"},
 				map[string][]string{"school": {"zhuanpan", "luoshu_feipan"}},
 			)
 		},
 		func() (json.RawMessage, error) {
-			return qimenMethodFormSchema[qimenPeriodMethodForm](
+			return qimenMethodFormSchema[qimenScopeSchoolForm](
 				map[string]string{"scope": "year"},
 				map[string][]string{"school": {"zhuanpan", "luoshu_feipan"}},
 			)
@@ -203,7 +175,7 @@ func qimenMethodFormsSchema() (json.RawMessage, error) {
 }
 
 func qimenJinhanMethodSchema() (json.RawMessage, error) {
-	return qimenMethodFormSchema[qimenJinhanMethodForm](
+	return qimenMethodFormSchema[qimenScopeSchoolForm](
 		map[string]string{"scope": "day", "school": "jinhan_yujing"}, nil,
 	)
 }

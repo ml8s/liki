@@ -40,12 +40,6 @@ class SurnameRecord:
     aliases: list = field(default_factory=list)
 
 
-@dataclass(frozen=True)
-class PickedCharacter:
-    char: str
-    frequency: str
-
-
 # -- 数据加载（模块级只读，进程内一次） -------------------------------------
 
 _char_by_char: dict[str, Character] = {}

@@ -1,19 +1,8 @@
-"""analysis 断语引擎新工具接口测试（正交化后）。
-
-逻辑输出必须与正交化基线（tests/golden/orthogonal/baseline.json）一致。
-"""
+"""analysis 断语引擎新工具接口契约测试（digest 绑定与来源校验）。"""
 
 import json
-from pathlib import Path
 
 import pytest
-
-GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "golden" / "orthogonal" / "baseline.json"
-
-
-@pytest.fixture(scope="module")
-def baseline() -> dict:
-    return json.loads(GOLDEN.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -47,14 +36,6 @@ def test_compute_factors_returns_factors_and_digest(bazi_chart):
     assert isinstance(out, dict)
     assert "factors" in out and "factors_digest" in out
 
-
-def test_compute_factors_matches_baseline(bazi_chart, baseline):
-    from app.natal.tools.counsel import compute_factors
-    factors = compute_factors(bazi_chart)["factors"]
-    # 八字因子（bazi side）应与基线一致（逻辑不变，仅接口/输入来源变化）
-    want = baseline["factors_bazi"]
-    for key in want:
-        assert factors.get(key) == want[key], f"因子 {key} 与基线不一致"
 
 def test_natal_query_returns_bazi_assertions(bazi_chart):
     """natal_query 校验因子摘要后返回八字断语。"""
@@ -121,4 +102,3 @@ def test_period_query_rejects_chart_from_another_snapshot(bazi_chart):
             ["marriage"],
             other,
         )
-

@@ -161,7 +161,7 @@ type ZiweiLiuYueOutput struct {
 	Zhi            LiuyaoZhiName             `json:"zhi" jsonschema:"流月地支"`
 	SiHua          map[string]SiHuaName      `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
 	XingYao        *map[string]LiuyaoZhiName `json:"xing_yao,omitempty" jsonschema:"月星: {星名: zhiIdx}"`
-	GongWei        *[]ZiweiLiuYueGongWeiItem `json:"gong_wei,omitempty" jsonschema:"流月十二宫盘"`
+	GongWei        *[]ZiweiFlowGongWeiItem   `json:"gong_wei,omitempty" jsonschema:"流月十二宫盘"`
 }
 
 type ZiweiLiuYueTargetLunar struct {
@@ -191,7 +191,7 @@ type ZiweiLiuYueResolvedPeriodFlowMonth struct {
 	Leap  bool `json:"leap" jsonschema:"是否闰月。"`
 }
 
-type ZiweiLiuYueGongWeiItem struct {
+type ZiweiFlowGongWeiItem struct {
 	Zhi       LiuyaoZhiName   `json:"zhi" jsonschema:"地支。"`
 	Name      ZiweiPalaceName `json:"name" jsonschema:"名称。"`
 	XingYao   []string        `json:"xing_yao" jsonschema:"星曜。"`
@@ -214,14 +214,7 @@ type ZiweiLiuRiOutput struct {
 	Zhi          LiuyaoZhiName             `json:"zhi" jsonschema:"流日地支"`
 	SiHua        map[string]SiHuaName      `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
 	XingYao      *map[string]LiuyaoZhiName `json:"xing_yao,omitempty" jsonschema:"日星: {星名: zhiIdx}"`
-	GongWei      *[]ZiweiLiuRiGongWeiItem  `json:"gong_wei,omitempty" jsonschema:"流日十二宫盘"`
-}
-
-type ZiweiLiuRiGongWeiItem struct {
-	Zhi       LiuyaoZhiName   `json:"zhi" jsonschema:"地支。"`
-	Name      ZiweiPalaceName `json:"name" jsonschema:"名称。"`
-	XingYao   []string        `json:"xing_yao" jsonschema:"星曜。"`
-	IsLiuMing bool            `json:"is_liu_ming" jsonschema:"是否流年命宫。"`
+	GongWei      *[]ZiweiFlowGongWeiItem   `json:"gong_wei,omitempty" jsonschema:"流日十二宫盘"`
 }
 
 // ── ziwei.liushi input ──
@@ -241,14 +234,7 @@ type ZiweiLiuShiOutput struct {
 	Zhi          LiuyaoZhiName             `json:"zhi" jsonschema:"流时地支"`
 	SiHua        map[string]SiHuaName      `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
 	XingYao      *map[string]LiuyaoZhiName `json:"xing_yao,omitempty" jsonschema:"时星: {星名: zhiIdx}"`
-	GongWei      *[]ZiweiLiuShiGongWeiItem `json:"gong_wei,omitempty" jsonschema:"流时十二宫盘"`
-}
-
-type ZiweiLiuShiGongWeiItem struct {
-	Zhi       LiuyaoZhiName   `json:"zhi" jsonschema:"地支。"`
-	Name      ZiweiPalaceName `json:"name" jsonschema:"名称。"`
-	XingYao   []string        `json:"xing_yao" jsonschema:"星曜。"`
-	IsLiuMing bool            `json:"is_liu_ming" jsonschema:"是否流年命宫。"`
+	GongWei      *[]ZiweiFlowGongWeiItem   `json:"gong_wei,omitempty" jsonschema:"流时十二宫盘"`
 }
 
 // ── ziwei.bond input ──
@@ -315,9 +301,9 @@ type ZiweiFullChartOutput struct {
 	JuShuName       *string                          `json:"ju_shu_name,omitempty" jsonschema:"ju_shu_name。"`
 	Gender          *GenderName                      `json:"gender,omitempty" jsonschema:"性别。"`
 	ZiweiPos        *ZiweiPalaceName                 `json:"ziwei_pos,omitempty" jsonschema:"紫微落宫。"`
-	KongGong        *[]ZiweiFullChartKongGongItem    `json:"kong_gong,omitempty" jsonschema:"空宫借星（无主星宫位借对宫主星）"`
+	KongGong        *[]ZiweiChartKongGongItem        `json:"kong_gong,omitempty" jsonschema:"空宫借星（无主星宫位借对宫主星）"`
 	Patterns        *[]ZiweiFullChartPatternsItem    `json:"patterns,omitempty" jsonschema:"命盘格局"`
-	SanFang         *[]ZiweiFullChartSanFangItem     `json:"san_fang,omitempty" jsonschema:"三方四正（命/财帛/官禄/迁移）"`
+	SanFang         *[]ZiweiChartSanFangItem         `json:"san_fang,omitempty" jsonschema:"三方四正（命/财帛/官禄/迁移）"`
 }
 
 type ZiweiFullChartSchool struct {
@@ -358,20 +344,7 @@ type ZiweiFullChartPalaceFactsItem struct {
 	Value  *string         `json:"value,omitempty" jsonschema:"取值。"`
 }
 
-type ZiweiFullChartKongGongItem struct {
-	GongName ZiweiPalaceName `json:"gong_name" jsonschema:"gong_name。"`
-	JieXing  []string        `json:"jie_xing" jsonschema:"jie_xing列表。"`
-	DuiGong  ZiweiPalaceName `json:"dui_gong" jsonschema:"dui_gong。"`
-}
-
 type ZiweiFullChartPatternsItem struct {
 	Description *string `json:"description" jsonschema:"说明。"`
 	Name        *string `json:"name" jsonschema:"名称。"`
-}
-
-type ZiweiFullChartSanFangItem struct {
-	Name    ZiweiPalaceName `json:"name" jsonschema:"名称。"`
-	ZhuXing []string        `json:"zhu_xing" jsonschema:"主星。"`
-	FuXing  []string        `json:"fu_xing" jsonschema:"辅星。"`
-	SiHua   []SiHuaName     `json:"si_hua" jsonschema:"本宫全部四化，按星曜顺序输出"`
 }

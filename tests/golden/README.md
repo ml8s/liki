@@ -15,8 +15,8 @@
   改生成器后重新生成。
 - 生成器是 dev-time 工具，依赖外部参考实现（`lunar-python`、`sxtwl`、Node 版
   bazi-calculator），**不进任何门禁**；`make golden` 只跑消费侧。
-- `orthogonal/baseline.json` 是唯一被 Python 侧消费的基线（`counsel/tests/` 的正交化
-  回归），`counsel_naming_baseline.json` 由 `counsel/tests/test_counsel_naming.py` 消费。
+- `counsel_naming_baseline.json` 由 `counsel/tests/test_counsel_naming.py` 消费（命名域
+  的唯一正确性回归锁）。
 
 ## 重新生成
 

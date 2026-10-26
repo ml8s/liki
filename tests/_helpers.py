@@ -11,12 +11,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "counsel" / "app" / "natal" / "tools"
 SKILL_ROOT = Path(__file__).resolve().parents[1] / "skills" / "liki"
-DOMAIN_NAMES = ("natal", "divination", "fengshui", "naming")
 
 
 def skill_dir(name: str = "liki") -> Path:
-    if name in DOMAIN_NAMES:
-        return SKILL_ROOT / "references" / name
     return SKILL_ROOT
 
 

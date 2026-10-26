@@ -367,19 +367,6 @@ def _resolve_rules(rules):
     return resolve_rules(rules, YEARLY_RULES, SCENE_ALIASES)
 
 
-def _evaluate_year(
-    natal_chart, year, rules, detail=False, natal_context=None, factor_names=None
-):
-    return yearly_eval.evaluate_year(
-        natal_chart, year, rules, detail, natal_context,
-        query_yearly=query_yearly,
-        brief=brief,
-        liunian=_liunian_for_year,
-        evaluate_liunian_snap_from_natal_chart=evaluate_liunian_snap_from_natal_chart,
-        factor_names=factor_names,
-    )
-
-
 def _liunian_for_year(natal_chart, year):
     from app.natal.tools.charts import _bazi_liunian, _ziwei_liunian, liunian
     chart = natal_chart.get("chart") or {}

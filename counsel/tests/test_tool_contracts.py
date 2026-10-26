@@ -12,11 +12,12 @@ import sys
 from pathlib import Path
 
 import pytest
-from app.contracts import COUNSEL_TOOLS, TOOL_GROUPS, tool_vocabulary
+from app.contracts import COUNSEL_TOOLS, NATAL_TOOLS, TOOL_GROUPS, tool_vocabulary
 from pydantic import ValidationError
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = {contract.name: contract for contract in COUNSEL_TOOLS}
+NATAL_FUNCTIONS = {c.name: c.input_schema for c in NATAL_TOOLS}
 OPAQUE_CONDITIONALS = ("if", "then", "else", "not")
 
 
@@ -283,3 +284,55 @@ def test_tool_vocabulary_bridge_publishes_exactly_what_the_models_expose():
         text=True,
     )
     assert json.loads(result.stdout) == tool_vocabulary()
+
+
+# ── natal tool closed-args & topic routing ──────────────────────────────────
+
+def test_natal_tools_have_closed_args():
+    required = {
+        "bazi_yongshen": ["chart"],
+        "compute_factors": ["chart"],
+        "natal_query": ["factors", "factors_digest", "topics"],
+        "period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],
+    }
+    assert set(NATAL_FUNCTIONS) == set(required)
+    for name, schema in NATAL_FUNCTIONS.items():
+        assert schema["additionalProperties"] is False, name
+        assert schema["required"] == required[name], name
+        assert schema["type"] == "object", name
+
+
+def test_natal_topic_enum_is_generated_from_topic_routes():
+    routes = json.loads(
+        (REPO_ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
+    )
+    expected = list(routes["topics"])
+    for name in ("natal_query", "period_query"):
+        schema = NATAL_FUNCTIONS[name]["properties"]["topics"]
+        assert schema["items"]["enum"] == expected, name
+
+
+def test_natal_topic_routes_are_valid_and_unambiguous():
+    from app.natal.tools.factor_constants import load_constants
+
+    routes_doc = json.loads(
+        (REPO_ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
+    )
+    routes = routes_doc["topics"]
+    domain_config = load_constants()["命理域"]
+    natal = set(domain_config["本命规则"])
+    annual = set(domain_config["流年规则"]) | set(domain_config["场景别名"])
+    decades = {"大运", "大限"}
+
+    domains_by_topic: dict[str, str] = {}
+    for topic, route in routes.items():
+        assert route["label"]
+        assert route["domains"]
+        assert all(rule in natal for rule in route["natal_rules"]), topic
+        assert all(rule in annual for rule in route["annual_rules"]), topic
+        assert all(rule in decades for rule in route["decade_rules"]), topic
+        for domain in route["domains"]:
+            if topic == "chart_structure":
+                continue  # chart_structure 跨域（含旺衰/用神断语领域），不参与唯一性检查
+            assert domain not in domains_by_topic, (domain, topic, domains_by_topic[domain])
+            domains_by_topic[domain] = topic

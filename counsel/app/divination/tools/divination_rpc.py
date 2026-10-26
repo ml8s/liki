@@ -9,9 +9,7 @@ from app.engine_mcp_client import (  # noqa: E402
 )
 from app.version import runtime_version
 
-
-class RPCError(MCPError):
-    """统一引擎失败类型（MCP 客户端）。"""
+RPCError = MCPError
 
 def engine_data(method: str, params: dict) -> dict:
     response = call(method, params)
