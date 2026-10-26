@@ -53,8 +53,8 @@ func TestEngineContractDefinitions(t *testing.T) {
 	}
 
 	for _, name := range want {
-		definition, ok := registry.Definition(name)
-		if !ok {
+		definition, err := registry.Definition(name)
+		if err != nil {
 			t.Fatalf("%s is not registered", name)
 		}
 		if definition.Description == "" {
@@ -67,7 +67,10 @@ func TestEngineContractDefinitions(t *testing.T) {
 
 	// Every output root is declared: object, array, scalar, or composition.
 	for _, name := range want {
-		definition, _ := registry.Definition(name)
+		definition, err := registry.Definition(name)
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
 		if len(definition.OutputSchema) == 0 {
 			t.Errorf("%s should declare an output schema", name)
 		}
@@ -368,9 +371,9 @@ func assertSchemaPropertiesSelfDescribe(t *testing.T, name string, schema map[st
 
 func mustDefinition(t *testing.T, registry *Registry, name string) Definition {
 	t.Helper()
-	definition, ok := registry.Definition(name)
-	if !ok {
-		t.Fatalf("%s is not registered", name)
+	definition, err := registry.Definition(name)
+	if err != nil {
+		t.Fatalf("%s: %v", name, err)
 	}
 	return definition
 }
@@ -436,6 +439,9 @@ func TestEngineContractCalls(t *testing.T) {
 	if err != nil {
 		t.Fatalf("city.coords: %v", err)
 	}
+	if err := registry.ValidateOutput("city_coords", cityRaw); err != nil {
+		t.Fatalf("city.coords output contract: %v", err)
+	}
 	var cityOutput CityCoordsOutput
 	if err := json.Unmarshal(cityRaw, &cityOutput); err != nil {
 		t.Fatal(err)
@@ -455,6 +461,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}))
 	if err != nil {
 		t.Fatalf("huangli.days: %v", err)
+	}
+	if err := registry.ValidateOutput("huangli_days", huangliRaw); err != nil {
+		t.Fatalf("huangli.days output contract: %v", err)
 	}
 	var huangliOutput []HuangliDayOutput
 	if err := json.Unmarshal(huangliRaw, &huangliOutput); err != nil {
@@ -478,6 +487,9 @@ func TestEngineContractCalls(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazhai.chart: %v", err)
 	}
+	if err := registry.ValidateOutput("bazhai_chart", bazhaiRaw); err != nil {
+		t.Fatalf("bazhai.chart output contract: %v", err)
+	}
 	var bazhaiOutput BazhaiChartOutput
 	if err := json.Unmarshal(bazhaiRaw, &bazhaiOutput); err != nil {
 		t.Fatal(err)
@@ -496,6 +508,9 @@ func TestEngineContractCalls(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazhai.layout: %v", err)
 	}
+	if err := registry.ValidateOutput("bazhai_layout", layoutRaw); err != nil {
+		t.Fatalf("bazhai.layout output contract: %v", err)
+	}
 	var layoutOutput BazhaiLayoutOutput
 	if err := json.Unmarshal(layoutRaw, &layoutOutput); err != nil {
 		t.Fatal(err)
@@ -512,6 +527,9 @@ func TestEngineContractCalls(t *testing.T) {
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
 	}
+	if err := registry.ValidateOutput("xuankong_chart", chartRaw); err != nil {
+		t.Fatalf("xuankong.chart output contract: %v", err)
+	}
 	var chart XuankongChart
 	if err := json.Unmarshal(chartRaw, &chart); err != nil {
 		t.Fatal(err)
@@ -526,6 +544,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.liunian: %v", err)
+	}
+	if err := registry.ValidateOutput("xuankong_liunian", liunianRaw); err != nil {
+		t.Fatalf("xuankong.liunian output contract: %v", err)
 	}
 	var liunian XuankongLiunianOutput
 	if err := json.Unmarshal(liunianRaw, &liunian); err != nil {
@@ -550,6 +571,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.qigua: %v", err)
+	}
+	if err := registry.ValidateOutput("liuyao_qigua", qiguaRaw); err != nil {
+		t.Fatalf("liuyao.qigua output contract: %v", err)
 	}
 	var qigua LiuyaoQiguaOutput
 	if err := json.Unmarshal(qiguaRaw, &qigua); err != nil {
@@ -576,6 +600,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.chart: %v", err)
+	}
+	if err := registry.ValidateOutput("liuyao_chart", liuyaoChartRaw); err != nil {
+		t.Fatalf("liuyao.chart output contract: %v", err)
 	}
 	var liuyaoChart LiuyaoChartOutput
 	if err := json.Unmarshal(liuyaoChartRaw, &liuyaoChart); err != nil {

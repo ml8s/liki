@@ -132,8 +132,8 @@ func collectFieldRefs(schema json.RawMessage, root string, out *fieldRefs) {
 func contractFieldRefs(contracts *Registry) *fieldRefs {
 	out := &fieldRefs{leaves: map[string]bool{}}
 	for _, name := range contracts.Names() {
-		definition, ok := contracts.Definition(name)
-		if !ok {
+		definition, err := contracts.Definition(name)
+		if err != nil {
 			continue
 		}
 		collectFieldRefs(definition.InputSchema, "params.", out)

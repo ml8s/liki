@@ -19,6 +19,9 @@ func TestTimeNowCST(t *testing.T) {
 	if err != nil {
 		t.Fatalf("call: %v", err)
 	}
+	if err := testEngine().ValidateOutput("time_now", raw); err != nil {
+		t.Fatalf("output contract: %v", err)
+	}
 	var out TimeNowOutput
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatal(err)
@@ -40,11 +43,29 @@ func TestTimeNowNewYork(t *testing.T) {
 	if err != nil {
 		t.Fatalf("call: %v", err)
 	}
+	if err := testEngine().ValidateOutput("time_now", raw); err != nil {
+		t.Fatalf("output contract: %v", err)
+	}
 	var out TimeNowOutput
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatal(err)
 	}
 	if out.Timezone != "America/New_York" {
 		t.Fatalf("unexpected output: %+v", out)
+	}
+}
+
+func TestTianwenResolveOutputContract(t *testing.T) {
+	registry := testEngine()
+	raw, err := registry.Call(context.Background(), "tianwen_resolve", mustJSON(t, TianwenResolveInput{
+		Instant:   "1990-05-20T03:49:00Z",
+		Timezone:  "Asia/Shanghai",
+		Longitude: 116.4,
+	}))
+	if err != nil {
+		t.Fatalf("tianwen.resolve: %v", err)
+	}
+	if err := registry.ValidateOutput("tianwen_resolve", raw); err != nil {
+		t.Fatalf("tianwen.resolve output contract: %v", err)
 	}
 }

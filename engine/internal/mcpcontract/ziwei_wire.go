@@ -120,6 +120,7 @@ type ZiweiDaXianItem struct {
 
 type ZiweiLiuNianInput struct {
 	LunarYear int              `json:"lunar_year" jsonschema:"农历年份（以正月初一为年界，2026：丙午年）"`
+	Count     SeriesCount      `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
 	Chart     ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
 }
 
@@ -146,6 +147,7 @@ type ZiweiLiuNianGongWeiItem struct {
 
 type ZiweiLiuYueInput struct {
 	TargetLunar ZiweiTargetLunarInput `json:"target_lunar" jsonschema:"target_lunar。"`
+	Count       SeriesCount           `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
 	Chart       ZiweiChartOutput      `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
 }
 
@@ -200,6 +202,7 @@ type ZiweiLiuYueGongWeiItem struct {
 
 type ZiweiLiuRiInput struct {
 	TargetLunar ZiweiTargetLunarInput `json:"target_lunar" jsonschema:"target_lunar。"`
+	Count       SeriesCount           `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
 	Chart       ZiweiChartOutput      `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
 }
 
@@ -226,6 +229,7 @@ type ZiweiLiuRiGongWeiItem struct {
 type ZiweiLiuShiInput struct {
 	TargetLunar ZiweiTargetLunarInput `json:"target_lunar" jsonschema:"target_lunar。"`
 	ShiZhi      LiuyaoZhiName         `json:"shi_zhi" jsonschema:"时辰"`
+	Count       SeriesCount           `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
 	Chart       ZiweiChartOutput      `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
 }
 

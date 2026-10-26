@@ -116,16 +116,45 @@ type Bond struct {
 }
 
 func ComputeBond(aBazi, bBazi Chart) Bond {
-	aFull, bFull := ComputeFullChart(aBazi), ComputeFullChart(bBazi)
+	return computeBondFromFacts(
+		aBazi,
+		bBazi,
+		computeBondChartFacts(aBazi),
+		computeBondChartFacts(bBazi),
+	)
+}
+
+// computeBondFromFacts is the pure composition layer: lean charts and their
+// bond-specific projections go in, and a complete Bond value comes out. It
+// neither reads nor writes request/session state.
+func computeBondFromFacts(aBazi, bBazi Chart, aFacts, bFacts bondChartFacts) Bond {
 	return Bond{
 		DayMaster:    computeDayMasterCross(aBazi, bBazi),
-		SpousePalace: computeSpousePalaceCross(aFull, bFull),
+		SpousePalace: computeSpousePalaceCross(aBazi, bBazi),
 		ZhuCross:     computeZhuCross(aBazi, bBazi),
 		ShiShenCross: computeShiShenCross(aBazi, bBazi),
-		ElementCross: computeElementCross(aBazi, bBazi, aFull, bFull),
+		ElementCross: computeElementCross(aFacts, bFacts),
 		NayinCross:   computeNayinCross(aBazi, bBazi),
-		SpouseStar:   computeSpouseStarCross(aFull, bFull),
+		SpouseStar:   computeSpouseStarCross(aFacts, bFacts),
 		ShenshaCross: computeShenshaCross(aBazi, bBazi),
+	}
+}
+
+type bondChartFacts struct {
+	counts     WuxingCounts
+	fuYi       FuYiResult
+	spouseStar spouseStarFact
+}
+
+func computeBondChartFacts(c Chart) bondChartFacts {
+	bz := c.ToBazi()
+	analysis := AnalyzePillars(bz, c.Gender)
+	counts := WuxingCountsAt(c, analysis.HiddenStems)
+	strength := AnalyzeDayMasterStrength(c, analysis.HiddenStems)
+	return bondChartFacts{
+		counts:     counts,
+		fuYi:       FuYi(c, counts, SeasonStrengthAt(c), strength),
+		spouseStar: buildSpouseStarFactFromAnalysis(c, bz, analysis),
 	}
 }
 
@@ -142,16 +171,16 @@ func computeDayMasterCross(a, b Chart) dayMasterCross {
 	return cross
 }
 
-func computeSpousePalaceCross(a, b FullChart) spousePalaceCross {
+func computeSpousePalaceCross(a, b Chart) spousePalaceCross {
 	return spousePalaceCross{
 		AZhi: ganzhi.ZhiName(a.Ri.Zhi), BZhi: ganzhi.ZhiName(b.Ri.Zhi),
 		Relation: analyzeZhiRelation(a.Ri.Zhi, b.Ri.Zhi),
 	}
 }
 
-func computeElementCross(a, b Chart, aFull, bFull FullChart) elementCross {
-	aCount := convertWuxingCount(computeElementCount(a.ToBazi(), HiddenStemFacts(a.ToBazi())))
-	bCount := convertWuxingCount(computeElementCount(b.ToBazi(), HiddenStemFacts(b.ToBazi())))
+func computeElementCross(aFacts, bFacts bondChartFacts) elementCross {
+	aCount := convertWuxingCount(aFacts.counts)
+	bCount := convertWuxingCount(bFacts.counts)
 	combined := convertWuxingCount(map[ganzhi.Wuxing]int{})
 	for _, src := range []map[string]int{aCount, bCount} {
 		for k, v := range src {
@@ -159,8 +188,8 @@ func computeElementCross(a, b Chart, aFull, bFull FullChart) elementCross {
 		}
 	}
 	cross := elementCross{A: aCount, B: bCount, Combined: combined}
-	cross.FuYi.A = yongShenFit(aFull.FuYi, bCount)
-	cross.FuYi.B = yongShenFit(bFull.FuYi, aCount)
+	cross.FuYi.A = yongShenFit(aFacts.fuYi, bCount)
+	cross.FuYi.B = yongShenFit(bFacts.fuYi, aCount)
 	return cross
 }
 
@@ -191,20 +220,22 @@ func yongShenFit(f FuYiResult, other map[string]int) yongShenFitEntry {
 	}
 }
 
-func computeSpouseStarCross(a, b FullChart) spouseStarCross {
+func computeSpouseStarCross(a, b bondChartFacts) spouseStarCross {
 	return spouseStarCross{
-		A: buildSpouseStarFact(a),
-		B: buildSpouseStarFact(b),
+		A: a.spouseStar,
+		B: b.spouseStar,
 	}
 }
 
-func buildSpouseStarFact(fc FullChart) spouseStarFact {
+func buildSpouseStarFactFromAnalysis(
+	c Chart, bz ganzhi.Bazi, analysis PillarAnalysis,
+) spouseStarFact {
 	primary, secondary := ganzhi.ShiShenZhengCai, ganzhi.ShiShenPianCai
-	if fc.Gender == ganzhi.Female {
+	if c.Gender == ganzhi.Female {
 		primary, secondary = ganzhi.ShiShenZhengGuan, ganzhi.ShiShenQiSha
 	}
 	out := spouseStarFact{
-		Gender: fc.Gender.String(),
+		Gender: c.Gender.String(),
 		Primary: spouseStarGroup{
 			TenGod:      primary.String(),
 			Occurrences: []spouseStarOccurrence{},
@@ -214,15 +245,21 @@ func buildSpouseStarFact(fc FullChart) spouseStarFact {
 			Occurrences: []spouseStarOccurrence{},
 		},
 	}
-	pillars := []fullZhuInfo{fc.Nian, fc.Yue, fc.Ri, fc.Shi}
-	for i, pillar := range pillars {
-		for _, item := range pillar.ShiShens {
+	for i, pillar := range bz.Slice() {
+		isVoid := false
+		for _, voidPillar := range analysis.VoidPalaces {
+			if voidPillar == i {
+				isVoid = true
+				break
+			}
+		}
+		for _, item := range analysis.TenGods[i] {
 			occ := spouseStarOccurrence{
 				Pillar: zhuLabels[i],
 				Branch: ganzhi.ZhiName(pillar.Zhi),
 				Stem:   item.Name,
 				Source: item.Source,
-				IsVoid: pillar.IsVoid,
+				IsVoid: isVoid,
 			}
 			switch item.ShiShen {
 			case primary:

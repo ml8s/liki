@@ -20,9 +20,9 @@ var updateEngineInputGolden = os.Getenv("UPDATE_GOLDEN") == "1"
 const qimenInputSchemaGolden = "testdata/qimen-input-schema.json"
 
 func TestEngineQimenInputSchemaGolden(t *testing.T) {
-	definition, ok := testEngine().Definition("qimen_chart")
-	if !ok {
-		t.Fatal("qimen.chart is not registered")
+	definition, err := testEngine().Definition("qimen_chart")
+	if err != nil {
+		t.Fatalf("qimen.chart definition: %v", err)
 	}
 	pretty, err := indentSchema(definition.InputSchema)
 	if err != nil {

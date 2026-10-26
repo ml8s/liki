@@ -179,6 +179,11 @@ sync-domain-language: ## 从 tools/domain-language.json 生成 docs/DOMAIN_LANGU
 
 PYTEST_TARGETS ?= tests/
 P ?= ./...
+BASE ?= baseline
+OLD ?= baseline
+NEW ?= current
+BENCH_COUNT ?= 5
+BENCHTIME ?= 1s
 
 test-content: ## Root skill / rules / documentation suite
 	python3 -m pytest $(PYTEST_TARGETS) -q
@@ -188,6 +193,32 @@ test-engine-package: go-version-check ## Run one engine package, e.g. P=./intern
 
 test-engine: go-version-check ## Engine unit and integration suites
 	@cd engine && go test -count=1 ./...
+
+bench-engine: go-version-check ## Run focused engine and MCP boundary benchmarks
+	@cd engine && go test -run '^$$' -bench 'Benchmark(MCP|ComputeChart)' \
+		-benchmem ./internal/mcpcontract ./internal/engine/bazi \
+		./internal/engine/qimen ./internal/engine/ziwei
+
+bench-engine-save: go-version-check ## Save a reproducible benchmark baseline under .benchmarks
+	@mkdir -p .benchmarks
+	@cd engine && go test -run '^$$' -bench 'Benchmark(MCP|ComputeChart)' \
+		-count=$(BENCH_COUNT) -benchtime=$(BENCHTIME) -benchmem \
+		./internal/mcpcontract ./internal/engine/bazi ./internal/engine/qimen \
+		./internal/engine/ziwei > ../.benchmarks/$(BASE).bench
+	@echo "[bench-engine-save] wrote .benchmarks/$(BASE).bench"
+
+bench-engine-compare: ## Compare two saved baselines with benchstat (or diff if unavailable)
+	@if command -v benchstat >/dev/null 2>&1; then \
+		benchstat .benchmarks/$(OLD).bench .benchmarks/$(NEW).bench; \
+	else \
+		echo "benchstat is not installed; showing unified diff instead"; \
+		diff -u .benchmarks/$(OLD).bench .benchmarks/$(NEW).bench; \
+	fi
+
+bench-engine-1cpu: go-version-check ## Run focused benchmarks with Go limited to one logical CPU
+	@cd engine && GOMAXPROCS=1 go test -run '^$$' -bench 'Benchmark(MCP|ComputeChart)' \
+		-benchmem ./internal/mcpcontract ./internal/engine/bazi \
+		./internal/engine/qimen ./internal/engine/ziwei
 
 test-engine-coverage: go-version-check ## Engine unit coverage floor (shared with CI)
 	scripts/test-engine-coverage.sh

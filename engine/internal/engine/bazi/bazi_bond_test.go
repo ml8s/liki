@@ -1,12 +1,45 @@
 package bazi
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
+
+func TestComputeBond_IsPureAndDeterministic(t *testing.T) {
+	ca := computeChartForTest(t, 1984, 2, 15, 8, ganzhi.Male)
+	cb := computeChartForTest(t, 1990, 6, 15, 12, ganzhi.Female)
+	wantA, wantB := cloneChartForBondTest(ca), cloneChartForBondTest(cb)
+
+	first, second := ComputeBond(ca, cb), ComputeBond(ca, cb)
+	if !reflect.DeepEqual(first, second) {
+		t.Fatal("ComputeBond is not deterministic for identical inputs")
+	}
+	if !reflect.DeepEqual(ca, wantA) || !reflect.DeepEqual(cb, wantB) {
+		t.Fatal("ComputeBond mutated an input chart")
+	}
+}
+
+func cloneChartForBondTest(chart Chart) Chart {
+	clone := chart
+	if chart.DaYun == nil {
+		return clone
+	}
+	dayun := *chart.DaYun
+	dayun.Steps = append([]DaYunStep(nil), chart.DaYun.Steps...)
+	for index, step := range dayun.Steps {
+		dayun.Steps[index].RootRefs = append([]DaYunRootRef(nil), step.RootRefs...)
+		if step.Rooted != nil {
+			rooted := *step.Rooted
+			dayun.Steps[index].Rooted = &rooted
+		}
+	}
+	clone.DaYun = &dayun
+	return clone
+}
 
 // ── XiaoXian golden test ──
 

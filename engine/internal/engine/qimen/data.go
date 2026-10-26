@@ -58,8 +58,9 @@ type yingqiRuleEntry struct {
 }
 
 type yingqiDateMatch struct {
-	Match  string
-	Reason string
+	Match    string
+	Reason   string
+	rendered [13][13]string
 }
 
 type zhiRunStateEntry struct {
@@ -1709,7 +1710,7 @@ func loadYingQi() error {
 			if match.Match != "same" && match.Match != "opposite" || match.Reason == "" {
 				return fmt.Errorf("load yingqi: invalid date match for %q", entry.Type)
 			}
-			matches = append(matches, yingqiDateMatch{Match: match.Match, Reason: match.Reason})
+			matches = append(matches, newYingQiDateMatch(match.Match, match.Reason))
 		}
 		yingqiDateMatches[entry.Type] = matches
 	}

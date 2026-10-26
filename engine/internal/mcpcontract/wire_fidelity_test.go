@@ -74,7 +74,7 @@ func TestEngineContractWireFidelity(t *testing.T) {
 			// hand-written contract test.
 			continue
 		}
-		if _, ok := registry.Definition(method); !ok {
+		if _, err := registry.Definition(method); err != nil {
 			t.Errorf("%s: %s is not registered", file, method)
 			continue
 		}
@@ -92,6 +92,10 @@ func TestEngineContractWireFidelity(t *testing.T) {
 		got, err := registry.Call(context.Background(), method, fixture.Input)
 		if err != nil {
 			t.Errorf("%s: %s: %v", file, method, err)
+			continue
+		}
+		if err := registry.ValidateOutput(method, got); err != nil {
+			t.Errorf("%s: %s output contract: %v", file, method, err)
 			continue
 		}
 		var gotDoc, wantDoc any

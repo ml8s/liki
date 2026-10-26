@@ -21,6 +21,7 @@
   "globs": [
     "README.md",
     "README.en.md",
+    "docs/PERFORMANCE.md",
     "docs/USER_GUIDE.md",
     "docs/USER_GUIDE.en.md",
     "skills/liki/**/*.md"

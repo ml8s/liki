@@ -9,9 +9,9 @@ import (
 
 func TestEngineRegistry_TimeNowContract(t *testing.T) {
 	registry := testEngine()
-	definition, ok := registry.Definition("time_now")
-	if !ok {
-		t.Fatal("time.now contract is not registered")
+	definition, err := registry.Definition("time_now")
+	if err != nil {
+		t.Fatalf("time.now definition: %v", err)
 	}
 	if definition.Description == "" {
 		t.Error("time.now has no description")
@@ -80,6 +80,6 @@ func TestEngineRegistry_TimeNowCall(t *testing.T) {
 func decode(t *testing.T, raw json.RawMessage, target any) {
 	t.Helper()
 	if err := json.Unmarshal(raw, target); err != nil {
-		t.Fatalf("decode schema %s: %v", raw, err)
+		t.Fatalf("decode JSON %s: %v", raw, err)
 	}
 }

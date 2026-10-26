@@ -87,7 +87,7 @@ const (
 )
 
 func detectGanHe(bz ganzhi.Bazi) []GanHePair {
-	pairs := make([]GanHePair, 0, 5)
+	pairs := []GanHePair{}
 	zhus := bz.Slice()
 	for i := 0; i < 3; i++ {
 		for j := i + 1; j < 4; j++ {
@@ -124,7 +124,7 @@ func detectGanHe(bz ganzhi.Bazi) []GanHePair {
 
 func detectGanChong(bz ganzhi.Bazi) []GanPairRel {
 	zhus := bz.Slice()
-	pairs := make([]GanPairRel, 0, 4)
+	pairs := []GanPairRel{}
 	for i := 0; i < 3; i++ {
 		for j := i + 1; j < 4; j++ {
 			a, b := zhus[i].Gan, zhus[j].Gan
@@ -160,7 +160,7 @@ func ganHeResult(a, b ganzhi.Gan) ganzhi.Wuxing {
 // also computes the 六合 element produced by the pair.
 func detectZhiPairs(bz ganzhi.Bazi, check func(ganzhi.Zhi, ganzhi.Zhi) bool, withElem bool) []ZhiPairRel {
 	zhus := bz.Slice()
-	rels := make([]ZhiPairRel, 0, 12)
+	rels := []ZhiPairRel{}
 	for i := 0; i < 3; i++ {
 		for j := i + 1; j < 4; j++ {
 			za, zb := zhus[i].Zhi, zhus[j].Zhi
@@ -184,7 +184,7 @@ func detectZhiPairs(bz ganzhi.Bazi, check func(ganzhi.Zhi, ganzhi.Zhi) bool, wit
 
 func detectTriple(bz ganzhi.Bazi, list []ganzhi.SanHeHui, typ, suffix string) []TripleGroup {
 	bs := zhiSet(bz)
-	results := make([]TripleGroup, 0, 4)
+	results := []TripleGroup{}
 	for _, tr := range list {
 		if countZhi(bs, tr.Zhi...) == len(tr.Zhi) {
 			results = append(results, TripleGroup{
@@ -203,7 +203,7 @@ func detectTriple(bz ganzhi.Bazi, list []ganzhi.SanHeHui, typ, suffix string) []
 // Only reports when the complete 三合 is NOT already satisfied.
 func detectPartialTriple(bz ganzhi.Bazi) []TripleGroup {
 	bs := zhiSet(bz)
-	results := make([]TripleGroup, 0, 6)
+	results := []TripleGroup{}
 	for _, tr := range ganzhi.TripleHeList {
 		matched := countZhi(bs, tr.Zhi...)
 		if matched == len(tr.Zhi) {

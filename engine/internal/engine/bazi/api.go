@@ -42,14 +42,42 @@ func ComputeChartAt(
 	)
 }
 
+// NewChartFromPillars assembles the published lean chart from already decoded
+// wire values. It is the typed inverse of the public chart projection and keeps
+// callers from constructing bazi.Chart through a JSON round trip.
+func NewChartFromPillars(
+	pillars [4]ganzhi.Zhu,
+	naYin [4]string,
+	daYun *DaYun,
+	gender ganzhi.Gender,
+	birthYear int,
+	ziShiRule string,
+) Chart {
+	return Chart{
+		Nian:      baziZhu(pillars[0], naYin[0]),
+		Yue:       baziZhu(pillars[1], naYin[1]),
+		Ri:        baziZhu(pillars[2], naYin[2]),
+		Shi:       baziZhu(pillars[3], naYin[3]),
+		DaYun:     daYun,
+		Gender:    gender,
+		BirthYear: birthYear,
+		ZiShiRule: ziShiRule,
+	}
+}
+
+func baziZhu(pillar ganzhi.Zhu, naYin string) zhuInfo {
+	return zhuInfo{Zhu: pillar, NaYin: naYin}
+}
+
 // ComputeFullChart expands a lean Chart to FullChart with all fields (十神/藏干/神煞/长生/空亡/自合/魁罡).
 func ComputeFullChart(c Chart) FullChart {
 	bz := c.ToBazi()
-	fc := computeFullFromCore(c, bz)
+	analysis := AnalyzePillars(bz, c.Gender)
+	fc := assembleFullChart(c, bz, analysis)
 	enrichDaYunRoots(&fc, bz)
 	applyChartExtra(&fc, c)
 	applyInteractions(&fc, c)
-	applyYongshenSchools(&fc, c)
+	applyYongshenSchools(&fc, c, analysis)
 	applyDerivedFacts(&fc)
 	return fc
 }
@@ -84,8 +112,8 @@ func applyInteractions(fc *FullChart, c Chart) {
 }
 
 // applyYongshenSchools derives the three independent yongshen evidence sources.
-func applyYongshenSchools(fc *FullChart, c Chart) {
-	fc.FuYi, fc.TiaoHou, fc.GeJu = ComputeYongShenSchools(c)
+func applyYongshenSchools(fc *FullChart, c Chart, analysis PillarAnalysis) {
+	fc.FuYi, fc.TiaoHou, fc.GeJu = computeYongShenSchoolsFromAnalysis(c, analysis)
 	fc.ShenShaSchool = ShenShaSchool{
 		DualReference: []string{"天乙贵人", "桃花", "驿马", "华盖", "将星", "劫煞", "灾煞"},
 		Policy:        "union_of_year_and_day_references",

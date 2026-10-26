@@ -41,20 +41,16 @@ type PillarAnalysis struct {
 // AnalyzePillars derives the structural facts shared by the full-chart view
 // and downstream rule evaluators.
 func AnalyzePillars(bz ganzhi.Bazi, gender ganzhi.Gender) PillarAnalysis {
+	hiddenStems := HiddenStemFacts(bz)
 	return PillarAnalysis{
-		HiddenStems: HiddenStemFacts(bz),
+		HiddenStems: hiddenStems,
 		NaYin:       computeNaYin(bz),
-		TenGods:     TenGodProjections(bz, HiddenStemFacts(bz)),
+		TenGods:     TenGodProjections(bz, hiddenStems),
 		SelfSitting: computeSelfSitting(bz),
 		LifeStages:  computeDayMasterTrend(bz),
 		ShenSha:     ShenShaProjections(bz, gender),
 		VoidPalaces: VoidPalaces(bz),
 	}
-}
-
-func computeFullFromCore(c Chart, bz ganzhi.Bazi) FullChart {
-	analysis := AnalyzePillars(bz, c.Gender)
-	return assembleFullChart(c, bz, analysis)
 }
 
 // assembleFullChart projects the pillar analysis into the published FullChart.

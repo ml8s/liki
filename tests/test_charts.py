@@ -14,7 +14,10 @@ def test_rpc_logical_error_is_not_retried() -> None:
     response.__enter__.return_value = response
     response.__exit__.return_value = None
 
-    with mock.patch("urllib.request.urlopen", return_value=response) as urlopen:
+    response.status = 200
+    with mock.patch(
+        "app.engine_mcp_client._HTTP_TRANSPORT", return_value=response
+    ) as urlopen:
         with pytest.raises(RPCError, match="bad params"):
             call("bazi.chart", {}, retries=2)
 
@@ -23,7 +26,7 @@ def test_rpc_logical_error_is_not_retried() -> None:
 
 def test_rpc_transport_error_is_retried() -> None:
     with mock.patch(
-        "urllib.request.urlopen",
+        "app.engine_mcp_client._HTTP_TRANSPORT",
         side_effect=URLError("connection refused"),
     ) as urlopen:
         with pytest.raises(RPCError, match="connection refused"):
@@ -36,11 +39,13 @@ def test_rpc_http_429_is_retried() -> None:
     success = json.dumps({"result": {"content": [{"type": "text", "text": json.dumps({"ok": True})}]}}).encode()
     ok_response = mock.MagicMock()
     ok_response.read.return_value = success
+    ok_response.status = 200
+    ok_response.reason = "OK"
     ok_response.__enter__.return_value = ok_response
     ok_response.__exit__.return_value = False
 
     with mock.patch(
-        "urllib.request.urlopen",
+        "app.engine_mcp_client._HTTP_TRANSPORT",
         side_effect=[HTTPError("liki", 429, "Too Many Requests", {}, None), ok_response],
     ) as urlopen:
         assert call("city.coords", {"city": "北京"}, retries=1)["data"] == {"ok": True}

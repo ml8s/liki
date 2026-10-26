@@ -32,6 +32,9 @@ func callToolDocument(t *testing.T, registry *Registry, name string, input any) 
 	if err != nil {
 		t.Fatalf("%s: %v", name, err)
 	}
+	if err := registry.ValidateOutput(name, raw); err != nil {
+		t.Fatalf("%s output contract: %v", name, err)
+	}
 	var document map[string]any
 	decode(t, raw, &document)
 	return document
@@ -127,14 +130,17 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 	}
 	var sets []any
 	decode(t, raw, &sets)
+	if err := registry.ValidateOutput("bazi_xiaoyun", raw); err != nil {
+		t.Fatalf("bazi.xiaoyun output contract: %v", err)
+	}
 	if len(sets) == 0 {
 		t.Fatal("bazi.xiaoyun returned no schools")
 	}
 	for i, entry := range sets {
 		set, _ := entry.(map[string]any)
 		zhus, _ := set["zhus"].([]any)
-		if len(zhus) != 12 {
-			t.Fatalf("school %d default xiaoyun count = %d, want 12", i, len(zhus))
+		if len(zhus) != 1 {
+			t.Fatalf("school %d default xiaoyun count = %d, want 1 (unified series default)", i, len(zhus))
 		}
 	}
 
@@ -143,6 +149,9 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 		t.Fatalf("bazi.xiaoyun(count=5): %v", err)
 	}
 	decode(t, raw, &sets)
+	if err := registry.ValidateOutput("bazi_xiaoyun", raw); err != nil {
+		t.Fatalf("bazi.xiaoyun(count=5) output contract: %v", err)
+	}
 	for i, entry := range sets {
 		set, _ := entry.(map[string]any)
 		zhus, _ := set["zhus"].([]any)
@@ -405,8 +414,8 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 func TestBondInputsShareShape(t *testing.T) {
 	registry := NewEngine()
 	for _, tool := range []string{"bazi_bond", "ziwei_bond"} {
-		definition, ok := registry.Definition(tool)
-		if !ok {
+		definition, err := registry.Definition(tool)
+		if err != nil {
 			t.Fatalf("%s: missing", tool)
 		}
 		var schema struct {
@@ -493,15 +502,24 @@ func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 // outputProperties returns a tool's declared output schema properties.
 func outputProperties(t *testing.T, registry *Registry, name string) map[string]any {
 	t.Helper()
-	definition, ok := registry.Definition(name)
-	if !ok {
-		t.Fatalf("%s is not registered", name)
+	definition, err := registry.Definition(name)
+	if err != nil {
+		t.Fatalf("%s: %v", name, err)
 	}
 	if len(definition.OutputSchema) == 0 {
 		t.Fatalf("%s declares no output schema", name)
 	}
 	var schema map[string]any
 	decode(t, definition.OutputSchema, &schema)
+	// Series tools wrap the single-output schema in a oneOf/anyOf union.
+	for _, key := range []string{"anyOf", "oneOf"} {
+		if branches, ok := schema[key].([]any); ok && len(branches) > 0 {
+			if first, ok := branches[0].(map[string]any); ok {
+				schema = first
+				break
+			}
+		}
+	}
 	properties, _ := schema["properties"].(map[string]any)
 	if properties == nil {
 		t.Fatalf("%s output schema has no properties", name)

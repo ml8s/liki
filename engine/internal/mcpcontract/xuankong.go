@@ -83,6 +83,7 @@ type XuankongChart struct {
 type XuankongLiunianInput struct {
 	Chart *XuankongChart `json:"chart,omitempty" jsonschema:"可选 xuankong.chart 宅盘；传入时 digest 必须匹配。"`
 	Year  XuankongYear   `json:"year" jsonschema:"目标公历年份。"`
+	Count SeriesCount    `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
 }
 
 type XuankongAnnualStarOutput struct {
@@ -126,7 +127,19 @@ func XuankongChartCompute(_ context.Context, input XuankongChartInput) (Xuankong
 	return xuankongChartWire(chart), nil
 }
 
-func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (XuankongLiunianOutput, error) {
+func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (any, error) {
+	return runSeries(input, int(input.Count), MaxSeriesCount,
+		func(in XuankongLiunianInput) (XuankongLiunianOutput, error) {
+			return computeXuankongLiunian(in)
+		},
+		func(in XuankongLiunianInput) (XuankongLiunianInput, error) {
+			in.Year++
+			return in, nil
+		},
+	)
+}
+
+func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, error) {
 	var chart *xuankong.Chart
 	if input.Chart != nil {
 		domainChart, err := xuankongChartDomain(*input.Chart)

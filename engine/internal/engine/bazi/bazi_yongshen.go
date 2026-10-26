@@ -53,7 +53,12 @@ type GeJuResult struct {
 // fu_yi is the FuYi candidate (yong/xi/ji); tiao_hou and ge_ju are
 // independent evidence sources. The final yongshen is adjudicated by counsel.
 func ComputeYongShenSchools(c Chart) (FuYiResult, TiaoHouResult, GeJuResult) {
-	analysis := AnalyzePillars(c.ToBazi(), c.Gender)
+	return computeYongShenSchoolsFromAnalysis(c, AnalyzePillars(c.ToBazi(), c.Gender))
+}
+
+func computeYongShenSchoolsFromAnalysis(
+	c Chart, analysis PillarAnalysis,
+) (FuYiResult, TiaoHouResult, GeJuResult) {
 	counts := WuxingCountsAt(c, analysis.HiddenStems)
 	seasonStrength := SeasonStrengthAt(c)
 	strength := AnalyzeDayMasterStrength(c, analysis.HiddenStems)

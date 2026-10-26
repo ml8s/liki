@@ -2,6 +2,7 @@ package mcpcontract
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"liki-engine/internal/engine/qimen"
@@ -16,17 +17,17 @@ import (
 type QimenYongShenSymbols []string
 
 // QimenChart computes a qimen chart for an explicitly selected method.
-func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, error) {
+func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, error) {
 	at, err := parseInstant(string(input.Instant))
 	if err != nil {
-		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
 	loc, err := loadTimezone(input.Timezone)
 	if err != nil {
-		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
 	if input.Longitude < -180 || input.Longitude > 180 {
-		return QimenChartOutput{}, fmt.Errorf("qimen.chart: longitude must be within [-180,180], got %v", input.Longitude)
+		return nil, fmt.Errorf("qimen.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
 	methodInput := input.Method
 	method, err := qimen.ResolveMethodWithOptions(
@@ -35,19 +36,19 @@ func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, err
 		string(methodInput.DunSource), string(methodInput.HourBoundary),
 	)
 	if err != nil {
-		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
 	if method.School == qimen.SchoolJinhanYuJing {
 		if len(input.YongShen) > 0 || input.BirthDate != "" {
-			return QimenChartOutput{}, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_date")
+			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_date")
 		}
-		return wireFromDomain[QimenChartOutput](qimen.ComputeJinhanChartAt(at, loc, input.Longitude))
+		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, loc, input.Longitude))
 	}
 	var birthDate qimen.BirthDate
 	if input.BirthDate != "" {
 		birthDate, err = qimen.ParseBirthDate(input.BirthDate)
 		if err != nil {
-			return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+			return nil, fmt.Errorf("qimen.chart: %w", err)
 		}
 	}
 	if len(input.YongShen) > 0 || birthDate.Has {
@@ -55,19 +56,19 @@ func QimenChart(_ context.Context, input QimenChartInput) (QimenChartOutput, err
 		for _, name := range input.YongShen {
 			symbol, err := qimen.ParseYongShen(name)
 			if err != nil {
-				return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+				return nil, fmt.Errorf("qimen.chart: %w", err)
 			}
 			symbols = append(symbols, symbol)
 		}
 		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, loc, input.Longitude, symbols, birthDate, method)
 		if err != nil {
-			return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+			return nil, fmt.Errorf("qimen.chart: %w", err)
 		}
-		return wireFromDomain[QimenChartOutput](result)
+		return marshalRawOutput("qimen.chart", result)
 	}
 	result, err := qimen.ComputeChartWithMethodAt(at, loc, input.Longitude, method)
 	if err != nil {
-		return QimenChartOutput{}, fmt.Errorf("qimen.chart: %w", err)
+		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
-	return wireFromDomain[QimenChartOutput](result)
+	return marshalRawOutput("qimen.chart", result)
 }

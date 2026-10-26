@@ -93,6 +93,9 @@ func TestCityCoordsLocalizesOutput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := registry.ValidateOutput("city_coords", raw); err != nil {
+		t.Fatalf("output contract: %v", err)
+	}
 	var output CityCoordsOutput
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatal(err)
@@ -109,6 +112,9 @@ func TestCityCoordsLocalizesOutput(t *testing.T) {
 		mustJSON(t, CityCoordsInput{City: "臺北", Locale: "zh-Hant"}))
 	if err != nil {
 		t.Fatal(err)
+	}
+	if err := registry.ValidateOutput("city_coords", raw); err != nil {
+		t.Fatalf("zh-Hant output contract: %v", err)
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatal(err)

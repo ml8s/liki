@@ -21,3 +21,4 @@ coverage.out
 
 # Local check stamps
 .cache/
+.benchmarks/

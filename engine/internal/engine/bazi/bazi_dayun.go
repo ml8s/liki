@@ -68,8 +68,10 @@ func computeDaYunSteps(gt time.Time, month ganzhi.Zhu, nianGan ganzhi.Gan, gende
 
 	birthTime := gt
 	birthYear := birthTime.Year()
-	jz := tianwen.JianYue(time.Time(birthTime))
-	mi := (int(jz) + 9) % 12 // 0=寅月..11=丑月
+	// ComputeChartCore receives the month pillar already derived from the same
+	// civil instant. Recomputing JianYue here repeats the most expensive part
+	// of Bazi projection without adding a second time scale.
+	mi := (int(month.Zhi) + 9) % 12 // 0=寅月..11=丑月
 
 	// The jie index in JieQiLongitudes for month mi is mi*2.
 	jieIdx := mi * 2

@@ -903,8 +903,9 @@ type BaziBondShenshaCrossRiGui struct {
 // ── bazi.liunian input ──
 
 type BaziLiuNianInput struct {
-	Year  int       `json:"year" jsonschema:"目标年份（VSOP87D 天文精度范围 1-8000）"`
-	Chart BaziChart `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	Year  int         `json:"year" jsonschema:"目标年份（VSOP87D 天文精度范围 1-8000）"`
+	Count SeriesCount `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Chart BaziChart   `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
 }
 
 // ── bazi.liunian output ──
@@ -1014,9 +1015,10 @@ type BaziLiuNianAtomicFactsCombinationsItem struct {
 // ── bazi.liuyue input ──
 
 type BaziLiuYueInput struct {
-	Year  int       `json:"year" jsonschema:"目标年份"`
-	Month int       `json:"month" jsonschema:"目标月份"`
-	Chart BaziChart `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	Year  int         `json:"year" jsonschema:"目标年份"`
+	Month int         `json:"month" jsonschema:"目标月份"`
+	Count SeriesCount `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
+	Chart BaziChart   `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
 }
 
 // ── bazi.liuyue output ──
@@ -1059,10 +1061,11 @@ type BaziLiuYueZhiRelsItem struct {
 // ── bazi.liuri input ──
 
 type BaziLiuRiInput struct {
-	Year  int       `json:"year" jsonschema:"目标年份"`
-	Month int       `json:"month" jsonschema:"目标月份"`
-	Day   int       `json:"day" jsonschema:"目标日期"`
-	Chart BaziChart `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	Year  int         `json:"year" jsonschema:"目标年份"`
+	Month int         `json:"month" jsonschema:"目标月份"`
+	Day   int         `json:"day" jsonschema:"目标日期"`
+	Count SeriesCount `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
+	Chart BaziChart   `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
 }
 
 // ── bazi.liuri output ──
@@ -1118,11 +1121,12 @@ type BaziLiuRiLiunianRelsItem struct {
 // ── bazi.liushi input ──
 
 type BaziLiuShiInput struct {
-	Year  int       `json:"year" jsonschema:"目标年份"`
-	Month int       `json:"month" jsonschema:"目标月份"`
-	Day   int       `json:"day" jsonschema:"目标日期"`
-	Hour  int       `json:"hour" jsonschema:"时辰"`
-	Chart BaziChart `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	Year  int         `json:"year" jsonschema:"目标年份"`
+	Month int         `json:"month" jsonschema:"目标月份"`
+	Day   int         `json:"day" jsonschema:"目标日期"`
+	Hour  int         `json:"hour" jsonschema:"时辰"`
+	Count SeriesCount `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
+	Chart BaziChart   `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
 }
 
 // ── bazi.liushi output ──
@@ -1154,8 +1158,8 @@ type BaziLiuShiZhiRelsItem struct {
 // ── bazi.xiaoyun input ──
 
 type BaziXiaoYunInput struct {
-	Chart BaziChart `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
-	Count int       `json:"count,omitempty" jsonschema:"返回年数，默认 12"`
+	Chart BaziChart   `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	Count SeriesCount `json:"count,omitempty" jsonschema:"返回岁数，单岁或多岁"`
 }
 
 // ── bazi.xiaoyun output ──

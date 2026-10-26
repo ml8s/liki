@@ -18,9 +18,64 @@ var solarTermLongitudes = func() [12]float64 {
 	return a
 }()
 
+// SolarTermTime and the direct longitude projection can differ by a small
+// interval around a boundary. Keep that region on the legacy projection so the
+// public JianYue semantics remain byte-for-byte chart-equivalent.
+const jianYueTermFallbackWindow = 3 * time.Minute
+
 // JianYue returns the solar-term month zhi (建月) for a given date.
 // 寅=立春..丑=小寒.
 func JianYue(gt time.Time) ganzhi.Zhi {
+	if zhi, ok := jianYueFromTermIntervals(gt); ok {
+		return zhi
+	}
+	return jianYueFromSolarLongitude(gt)
+}
+
+// jianYueFromTermIntervals locates the month by comparing the instant with
+// memoized solar-term instants. Away from boundaries, repeated chart work
+// in one year avoids the full VSOP87 longitude evaluation.
+func jianYueFromTermIntervals(gt time.Time) (ganzhi.Zhi, bool) {
+	year := gt.Year()
+	for i := 0; i < 12; i++ {
+		startYears := [2]int{year, year}
+		startCount := 1
+		// 大雪 (index 10) starts the 子月 interval in December and ends at
+		// 小寒 in January. A January date can therefore belong to the interval
+		// started in the previous December or the one started this December.
+		if i == 10 {
+			startYears = [2]int{year - 1, year}
+			startCount = 2
+		}
+		for _, startYear := range startYears[:startCount] {
+			endYear := startYear
+			if i == 10 {
+				endYear++
+			}
+			start := SolarTermTime(startYear, solarTermLongitudes[i])
+			end := SolarTermTime(endYear, solarTermLongitudes[(i+1)%12])
+			// Near a term boundary, retain the original continuous-longitude
+			// semantics; normal chart instants remain on the fast path.
+			if nearSolarTermInstant(gt, start) || nearSolarTermInstant(gt, end) {
+				return ganzhi.Zhi(0), false
+			}
+			if !gt.Before(start) && gt.Before(end) {
+				return ganzhi.Zhi((i+2)%12 + 1), true
+			}
+		}
+	}
+	return ganzhi.Zhi(0), false
+}
+
+func nearSolarTermInstant(at, boundary time.Time) bool {
+	distance := at.Sub(boundary)
+	if distance < 0 {
+		distance = -distance
+	}
+	return distance <= jianYueTermFallbackWindow
+}
+
+func jianYueFromSolarLongitude(gt time.Time) ganzhi.Zhi {
 	t := gt
 	lon := solarLongitude(t)
 	for i := 0; i < 12; i++ {

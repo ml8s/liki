@@ -275,6 +275,20 @@ func buildRelationFacts(
 	branchTargets func(pillar int) []string,
 ) []RelationFact {
 	relations := ComputeHeHui(c)
+	var branchMemo [4][]string
+	var branchMemoReady [4]bool
+	memoBranchTargets := func(pillar int) []string {
+		if pillar < zhuNian || pillar > zhuShi || branchTargets == nil {
+			return nil
+		}
+		if !branchMemoReady[pillar] {
+			branchMemo[pillar] = branchTargets(pillar)
+			branchMemoReady[pillar] = true
+		}
+		// appendUniqueStrings never changes an existing element; growing its
+		// backing array is invisible through the memoized slice length.
+		return branchMemo[pillar]
+	}
 	facts := make([]RelationFact, 0, len(relations.GanHe)+len(relations.GanChong)+len(relations.ZhiLiuHe)+len(relations.SanHe)+len(relations.SanHePartial)+len(relations.SanHui)+len(relations.LiuChong)+len(relations.LiuHai)+len(relations.LiuXing)+len(relations.LiuPo)+len(relations.AnHe))
 	for _, relation := range relations.GanHe {
 		targets := appendUniqueStrings(stemTargets(relation.PillarA, chartStem(c, relation.PillarA)), stemTargets(relation.PillarB, chartStem(c, relation.PillarB))...)
@@ -306,29 +320,38 @@ func buildRelationFacts(
 	}
 	for _, relation := range relations.ZhiLiuHe {
 		appendPairRelationFact(&facts, "zhi_liu_he", relation.ZhiA+relation.ZhiB+"合"+relation.Element,
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
 	}
 	for _, relation := range relations.LiuChong {
 		appendPairRelationFact(&facts, "liu_chong", relation.ZhiA+relation.ZhiB+"冲",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
 	}
 	for _, relation := range relations.LiuHai {
 		appendPairRelationFact(&facts, "liu_hai", relation.ZhiA+relation.ZhiB+"害",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
 	}
 	for _, relation := range relations.LiuXing {
 		appendPairRelationFact(&facts, "liu_xing", relation.ZhiA+relation.ZhiB+"刑",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
 	}
 	for _, relation := range relations.LiuPo {
 		appendPairRelationFact(&facts, "liu_po", relation.ZhiA+relation.ZhiB+"破",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
 	}
 	for _, relation := range relations.AnHe {
 		appendPairRelationFact(&facts, "an_he", relation.ZhiA+relation.ZhiB+"暗合",
-			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, branchTargets)
+			relation.PillarA, relation.PillarB, relation.ZhiA, relation.ZhiB, memoBranchTargets)
 	}
-	for _, relation := range append(append(append([]TripleGroup{}, relations.SanHe...), relations.SanHePartial...), relations.SanHui...) {
+	appendTripleRelationFacts(&facts, relations.SanHe, memoBranchTargets)
+	appendTripleRelationFacts(&facts, relations.SanHePartial, memoBranchTargets)
+	appendTripleRelationFacts(&facts, relations.SanHui, memoBranchTargets)
+	return dedupeRelationFacts(facts)
+}
+
+func appendTripleRelationFacts(
+	facts *[]RelationFact, triples []TripleGroup, branchTargets func(int) []string,
+) {
+	for _, relation := range triples {
 		targets := make([]string, 0, 3)
 		for _, pillar := range relation.Pillars {
 			for index := range zhuLabels {
@@ -349,12 +372,11 @@ func buildRelationFacts(
 		case relSanHui:
 			field = "san_hui"
 		}
-		facts = append(facts, RelationFact{
+		*facts = append(*facts, RelationFact{
 			Field: field, Group: relation.Name, Pillars: relation.Pillars,
 			Branches: relation.Branches, Targets: targets,
 		})
 	}
-	return dedupeRelationFacts(facts)
 }
 
 func appendPairRelationFact(facts *[]RelationFact, field, group string, pillarA, pillarB int, branchA, branchB string, branchTargets func(int) []string) {

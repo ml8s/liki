@@ -43,7 +43,10 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
     liunian_pan = {"bazi": {"nian_gan": "丙"}, "ziwei": {}}
 
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
-         mock.patch("app.natal.tools.charts.liunian", return_value=liunian_pan) as liunian_mock, \
+         mock.patch.object(
+             duanyu, "_batch_liunian_data",
+             return_value={2026: liunian_pan},
+         ), \
          mock.patch.object(
              duanyu,
              "evaluate_liunian_snap_from_natal_chart",
@@ -62,9 +65,27 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
         )
 
     assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": []}
-    liunian_mock.assert_called_once()
     make_snapshot.assert_called_once()
     assert make_snapshot.call_args.kwargs["factor_names"]
+
+
+def test_yearly_range_degrades_prefetch_error_without_empty_chart() -> None:
+    with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
+         mock.patch.object(
+             duanyu,
+             "_batch_liunian_data",
+             return_value={2026: {"error": "RPCError: unavailable"}},
+         ), \
+         mock.patch.object(
+             duanyu, "evaluate_liunian_snap_from_natal_chart"
+         ) as make_snapshot, \
+         mock.patch.object(duanyu, "query_yearly"):
+        result = duanyu.yearly_range(
+            _valid_mock_pan(), 2026, 2026, rules=["年十神"],
+        )
+
+    assert result["years"]["2026"] == {"error": "RPCError: unavailable"}
+    make_snapshot.assert_not_called()
 
 
 def test_detail_year_rules_do_not_restore_snapshot_evidence() -> None:
@@ -144,7 +165,11 @@ def test_yearly_range_prepares_natal_context_once() -> None:
 
     with mock.patch.object(duanyu, "resolve_current_year", return_value=(2026, "server")), \
          mock.patch.object(duanyu, "prepare_natal_context", return_value=natal_context) as prepare, \
-         mock.patch("app.natal.tools.charts.liunian", return_value=liunian_pan), \
+         mock.patch.object(
+             duanyu,
+             "_batch_liunian_data",
+             return_value={2026: liunian_pan, 2027: liunian_pan},
+         ), \
          mock.patch.object(
              duanyu, "evaluate_liunian_snap_from_natal_chart", return_value=flow_snapshot
          ) as make_snapshot, \

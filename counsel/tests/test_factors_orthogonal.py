@@ -37,7 +37,11 @@ def _engine_call(domain, name, args):
         },
     )
     with urllib.request.urlopen(req, timeout=8) as r:
-        return json.loads(json.loads(r.read())["result"]["content"][0]["text"])
+        result = json.loads(r.read())["result"]
+        payload = result.get("structuredContent")
+        if payload is None:
+            payload = json.loads(result["content"][0]["text"])
+        return payload
 
 
 def _full_pan(instant, timezone, gender, longitude):

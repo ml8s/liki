@@ -15,7 +15,13 @@ func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) (Chart, error) {
 	if _, err := tianwen.ValidateLunarDate(date); err != nil {
 		return Chart{}, fmt.Errorf("validate lunar date: %w", err)
 	}
+	return computeValidatedChart(lt, gender), nil
+}
 
+// computeValidatedChart assembles a chart after the lunar date has been
+// validated, or after it was produced by the calendar projection itself.
+// Keeping this path unexported makes the public boundary remain fail-closed.
+func computeValidatedChart(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
 	nianGan := Gan(((lt.Year-4)%10+10)%10 + 1)
 	nianZhi := Zhi(((lt.Year-4)%12+12)%12 + 1)
 	shiZhi := Zhi(lt.Shichen)
@@ -39,7 +45,7 @@ func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) (Chart, error) {
 	chart.MingZhu = soulStar(chart.GongWei[0].Zhi)
 	chart.ShenZhu = bodyStar(nianZhi)
 	chart.PalaceFacts = computePalaceFacts(chart)
-	return chart, nil
+	return chart
 }
 
 // ComputeChartAt is the explicit-time entry for new callers. at must already
@@ -60,5 +66,8 @@ func ComputeChartAt(
 		Leap:    lunarDate.Leap,
 		Shichen: shichen,
 	}
-	return ComputeChart(lunar, gender)
+	// LunarDateAt projects a real civil date into the lunisolar calendar, so
+	// validating that projection again repeats expensive new-moon and leap-month
+	// work. Public callers that construct LunarTime still go through ComputeChart.
+	return computeValidatedChart(lunar, gender), nil
 }

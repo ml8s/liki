@@ -35,7 +35,10 @@ def bazi_chart():
     })
     with urllib.request.urlopen(req, timeout=10) as r:
         d = json.loads(r.read())
-    return json.loads(d["result"]["content"][0]["text"])
+    payload = d["result"].get("structuredContent")
+    if payload is None:
+        payload = json.loads(d["result"]["content"][0]["text"])
+    return payload
 
 
 def test_compute_factors_returns_factors_and_digest(bazi_chart):
@@ -118,5 +121,4 @@ def test_period_query_rejects_chart_from_another_snapshot(bazi_chart):
             ["marriage"],
             other,
         )
-
 

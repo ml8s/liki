@@ -24,6 +24,7 @@ from app.natal.tools.chart_schema import validate_natal_chart
 from app.version import runtime_version
 
 RPCError = MCPError
+MAX_LIUNIAN_BATCH = 50
 
 
 def skill_version() -> str:
@@ -141,6 +142,48 @@ def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
     return call("ziwei.liunian", {"chart": ziwei, "lunar_year": lunar_year})["data"]
 
 
+def _bazi_liunian_range(chart: dict, start_year: int, count: int) -> list[dict]:
+    """批量八字流年（engine count 参数，1 次 RPC）。
+
+    返回按年序排列的流年盘列表，长度 = count。
+    """
+    if not 0 < count <= MAX_LIUNIAN_BATCH:
+        raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
+    result = call("bazi.liunian", {"chart": chart, "year": start_year, "count": count})
+    return _liunian_range_items("bazi.liunian", result, count)
+
+
+def _ziwei_liunian_range(ziwei: dict, start_lunar_year: int, count: int) -> list[dict]:
+    """批量紫微流年（engine count 参数，1 次 RPC）。
+
+    返回按农历年序排列的流年盘列表，长度 = count。
+    """
+    if not 0 < count <= MAX_LIUNIAN_BATCH:
+        raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
+    result = call("ziwei.liunian", {"chart": ziwei, "lunar_year": start_lunar_year, "count": count})
+    return _liunian_range_items("ziwei.liunian", result, count)
+
+
+def _liunian_range_items(tool: str, result: object, count: int) -> list[dict]:
+    """Normalize an engine series response; malformed payloads fail closed."""
+    if not isinstance(result, dict):
+        raise RPCError(f"{tool}: engine response must be an object")
+    data = result.get("data", result)
+    if not isinstance(data, dict):
+        raise RPCError(f"{tool}: engine response data must be an object")
+    items = data.get("items")
+    if items is None:
+        if count != 1:
+            raise RPCError(f"{tool}: engine response missing items for count={count}")
+        items = [data]
+    if not isinstance(items, list) or len(items) != count:
+        actual = "non-array" if not isinstance(items, list) else str(len(items))
+        raise RPCError(f"{tool}: engine response expected {count} items, got {actual}")
+    if any(not isinstance(item, dict) for item in items):
+        raise RPCError(f"{tool}: engine response items must be objects")
+    return items
+
+
 # ── agent 工具（排盘 2 个）──
 
 def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optional[float] = None) -> dict:
@@ -209,7 +252,7 @@ def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optio
     return result
 
 
-def liunian(natal_chart: dict, year: int) -> dict:
+def liunian(natal_chart: dict, year: int, *, validate: bool = True) -> dict:
     """流年盘（八字 + 紫微单年合并）。
 
     natal_chart：build_natal_chart 返回的本命盘（只取其中 chart / ziwei 两个字段，agent 传整个盘即可）。
@@ -217,7 +260,8 @@ def liunian(natal_chart: dict, year: int) -> dict:
 
     返回：{bazi: 八字流年, ziwei: 紫微流年}。
     """
-    validate_natal_chart(natal_chart, action="liunian")
+    if validate:
+        validate_natal_chart(natal_chart, action="liunian")
     return {
         "bazi": _bazi_liunian(natal_chart["chart"], year),
         "ziwei": _ziwei_liunian(natal_chart["ziwei_chart"], year),

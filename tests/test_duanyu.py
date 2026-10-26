@@ -218,9 +218,9 @@ class TestRiZhuWuXing(unittest.TestCase):
         base = mock_base_context()
         base["ri_gan"] = "己"
         base["day_master_element"] = "土"
-        self.assertEqual(factors._atomic("直读[ri_gan_wx,任意]", "male", base), "土")
+        self.assertEqual(__import__('factor_oracle').oracle_atomic("直读[ri_gan_wx,任意]", "male", base), "土")
         # 期望值模式不受影响（直读[ri_gan_wx,木] 对土日主 = 0）
-        self.assertEqual(factors._atomic("直读[ri_gan_wx,木]", "male", base), "没命中")
+        self.assertEqual(__import__('factor_oracle').oracle_atomic("直读[ri_gan_wx,木]", "male", base), "没命中")
 
     def test_日主五行因子为五行字符串(self):
         base = mock_base_context()

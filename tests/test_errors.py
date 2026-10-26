@@ -10,7 +10,7 @@ from app.natal.tools.errors import (
     LikiToolError,
     YearRangeError,
 )
-from app.natal.tools.factors import _atomic
+from app.natal.tools.factors import evaluate_operator
 
 
 def test_error_hierarchy_is_valueerror_compatible():
@@ -49,7 +49,7 @@ def test_factor_table_error():
 
 def test_factor_evaluate_error():
     try:
-        _atomic("不存在算子[]", "male", {"ten_god_states": {}})
+        evaluate_operator("不存在算子", [], "male", {"ten_god_states": {}})
     except ValueError as exc:
         assert isinstance(exc, FactorEvaluateError)
     else:

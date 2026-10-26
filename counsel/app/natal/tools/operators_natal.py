@@ -364,17 +364,15 @@ def _zw_gong_op(base, chart, args):
         raise FactorEvaluateError(
             f"宫含宫位无效: {gong_name}; 有效: {sorted(palaces)}"
         )
-    facts = ((chart.get("ziwei") or {}).get("palace_facts") or [])
+
+    if isinstance(chart, FactorContext):
+        index = chart.palace_index
+    else:
+        from app.natal.tools.factor_context import PalaceIndex
+        index = PalaceIndex((chart.get("ziwei") or {}).get("palace_facts") or [])
 
     def hit(kind: str, target: str, star_name: str = "") -> bool:
-        return any(
-            (gong_name == FACTOR_WILDCARD or fact.get("palace") == gong_name)
-            and fact.get("kind") == kind
-            and fact.get("target") == target
-            and (not star_name or fact.get("star") == star_name)
-            for fact in facts
-            if isinstance(fact, dict)
-        )
+        return index.hit(gong_name, kind, target, star_name)
 
     if cond in {"禄", "权", "科", "忌"}:
         target_star = "" if star == FACTOR_WILDCARD else star
@@ -387,22 +385,9 @@ def _zw_gong_op(base, chart, args):
         if star == FACTOR_WILDCARD:
             return 1 if hit("brightness", cond) else 0
         if star == "紫微主星":
-            main_stars = {
-                fact.get("star")
-                for fact in facts
-                if isinstance(fact, dict)
-                and (gong_name == FACTOR_WILDCARD or fact.get("palace") == gong_name)
-                and fact.get("kind") == "brightness"
-                and fact.get("target") == "紫微主星"
-            }
-            return 1 if any(
-                (gong_name == FACTOR_WILDCARD or fact.get("palace") == gong_name)
-                and fact.get("kind") == "brightness"
-                and fact.get("target") == cond
-                and fact.get("star") in main_stars
-                for fact in facts
-                if isinstance(fact, dict)
-            ) else 0
+            main_stars = index.stars_for(gong_name, "brightness", "紫微主星")
+            cond_stars = index.stars_for(gong_name, "brightness", cond)
+            return 1 if (main_stars & cond_stars) else 0
         return 1 if hit("brightness", cond, star) else 0
     return 1 if hit("star", star) else 0
 def _ten_class(name: str) -> str:

@@ -22,6 +22,8 @@ Services must not depend on the public prefix. The gateway strips `/engine` or
 `/counsel` before proxying.
 
 The published engine image defaults to `engine-mcp`.
+Performance policy and benchmark entry points are described in
+[PERFORMANCE.md](./PERFORMANCE.md).
 
 ## Time facts contract
 
@@ -51,6 +53,7 @@ any capability that needs it.
 | `LISTEN_ADDR` | `:8081` | Internal listen address |
 | `LIKI_MCP_TOKEN` | empty | Optional Bearer gate for private deployments |
 | `LIKI_ALLOWED_ORIGINS` | hosted default | Comma-separated browser CORS origins |
+| `LIKI_MCP_RESULT_CONTENT` | `structured` | Successful tool result shape: `structured` or legacy `compat` with duplicate TextContent |
 | `LIKI_EXTERNAL_GEOCODING` | `on` | Allow Nominatim fallback for unknown cities |
 
 `GET /health` and `GET /version` are public process probes. MCP requests can be
@@ -68,6 +71,7 @@ not rate-limit.
 | `LIKI_ENGINE_MCP_TOKEN` | falls back to `LIKI_MCP_TOKEN` | Optional outbound Bearer token for engine-mcp |
 | `LIKI_MCP_TIMEOUT` | `30` | Engine call timeout in seconds |
 | `LIKI_MCP_MAX_RETRIES` | `2` | Engine retry count |
+| `LIKI_MCP_HTTP_IDLE_TIMEOUT` | `55` | Idle seconds before a worker closes an outbound engine keep-alive connection |
 | `LIKI_MCP_MAX_BODY_BYTES` | `1048576` | Maximum MCP JSON request body |
 | `LIKI_VERSION` | build-injected | Runtime version reported by counsel |
 

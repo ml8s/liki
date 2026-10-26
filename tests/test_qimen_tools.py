@@ -2,6 +2,8 @@
 
 import json
 import sys
+import threading
+import time
 from pathlib import Path
 from urllib.error import HTTPError
 
@@ -464,8 +466,10 @@ def _mcp_tools_call_result(obj) -> bytes:
 
 
 class _FakeResp:
-    def __init__(self, payload: bytes):
+    def __init__(self, payload: bytes, status: int = 200):
         self._payload = payload
+        self.status = status
+        self.reason = "OK" if status == 200 else "Error"
 
     def read(self):
         return self._payload
@@ -481,9 +485,26 @@ def test_mcp_call_reports_malformed_engine_payload(monkeypatch) -> None:
     import app.engine_mcp_client as engine_mcp_client
     from app.engine_mcp_client import MCPError
 
-    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
+    monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT",
                         lambda *_, **__: _FakeResp(b"not-json"))
     with pytest.raises(MCPError, match="无法解析 MCP 响应"):
+        engine_mcp_client.call("qimen.chart", {})
+
+
+def test_mcp_call_reports_invalid_legacy_text_json(monkeypatch) -> None:
+    import app.engine_mcp_client as engine_mcp_client
+    from app.engine_mcp_client import MCPError
+
+    payload = {
+        "jsonrpc": "2.0", "id": 1, "result": {
+            "content": [{"type": "text", "text": '{"legacy":'}],
+        }
+    }
+    monkeypatch.setattr(
+        engine_mcp_client, "_HTTP_TRANSPORT",
+        lambda *_, **__: _FakeResp(_mcp_response(json.dumps(payload))),
+    )
+    with pytest.raises(MCPError, match="legacy text content is not valid JSON"):
         engine_mcp_client.call("qimen.chart", {})
 
 
@@ -492,7 +513,7 @@ def test_mcp_call_reports_missing_result(monkeypatch) -> None:
     from app.engine_mcp_client import MCPError
 
     # tools/call 返回空 content → call 报错
-    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
+    monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT",
                         lambda *_, **__: _FakeResp(_mcp_response('{"jsonrpc":"2.0","id":1,"result":{"content":[]}}')))
     with pytest.raises(MCPError):
         engine_mcp_client.call("qimen.chart", {})
@@ -511,16 +532,153 @@ def test_mcp_retries_server_error_but_not_client_error(monkeypatch) -> None:
         calls.append("ok")
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
 
-    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
     result = engine_mcp_client.call("qimen.chart", {})
     assert result == {"data": {"ok": True}}
     assert calls == ["server-error", "ok"]
 
     client_error = HTTPError("https://example.test", 403, "forbidden", {}, None)
-    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen",
+    monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT",
                         lambda *_, **__: (_ for _ in ()).throw(client_error))
     with pytest.raises(MCPError, match="HTTP 403"):
         engine_mcp_client.call("qimen.chart", {})
+
+
+def test_mcp_call_prefers_structured_content(monkeypatch) -> None:
+    import app.engine_mcp_client as engine_mcp_client
+
+    payload = {
+        "jsonrpc": "2.0", "id": 1, "result": {
+            "content": [{"type": "text", "text": '{"legacy": true}'}],
+            "structuredContent": {"structured": True},
+        }
+    }
+    monkeypatch.setattr(
+        engine_mcp_client, "_HTTP_TRANSPORT",
+        lambda *_, **__: _FakeResp(_mcp_response(json.dumps(payload)))
+    )
+    assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"structured": True}}
+
+
+def test_mcp_keepalive_client_reuses_connection(monkeypatch) -> None:
+    import app.engine_mcp_client as engine_mcp_client
+
+    calls = []
+
+    class keepalive_response:
+        status = 200
+        reason = "OK"
+        will_close = False
+
+        def __init__(self, payload):
+            self._payload = payload
+
+        def read(self):
+            return self._payload
+
+    class keepalive_connection:
+        def __init__(self):
+            self.closed = False
+            self.sock = object()
+
+        def request(self, *_, **__):
+            calls.append(self)
+
+        def getresponse(self):
+            return keepalive_response(_mcp_tools_call_result({"ok": True}))
+
+        def close(self):
+            self.closed = True
+
+    connection = keepalive_connection()
+    monkeypatch.setattr(engine_mcp_client, "_new_connection", lambda _: connection)
+    monkeypatch.setenv("LIKI_MCP_URL", "http://engine.test/mcp")
+    for _ in range(2):
+        assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"ok": True}}
+    assert calls == [connection, connection]
+    assert not connection.closed
+
+
+def test_mcp_keepalive_client_discards_broken_connection(monkeypatch) -> None:
+    import app.engine_mcp_client as engine_mcp_client
+
+    monkeypatch.setattr(engine_mcp_client, "_thread_local", threading.local())
+
+    class broken_response:
+        status = 200
+        reason = "OK"
+        will_close = False
+
+        def read(self):
+            raise ConnectionError("reset by peer")
+
+    class ok_response:
+        status = 200
+        reason = "OK"
+        will_close = False
+
+        def __init__(self, payload):
+            self._payload = payload
+
+        def read(self):
+            return self._payload
+
+    class fake_connection:
+        def __init__(self, good):
+            self.good = good
+            self.closed = False
+            self.sock = object()
+
+        def request(self, *_, **__):
+            pass
+
+        def getresponse(self):
+            if not self.good:
+                return broken_response()
+            return ok_response(_mcp_tools_call_result({"ok": True}))
+
+        def close(self):
+            self.closed = True
+
+    created = [fake_connection(False), fake_connection(True)]
+    pending = iter(created)
+    monkeypatch.setattr(engine_mcp_client, "_new_connection", lambda _: next(pending))
+    monkeypatch.setattr(engine_mcp_client.time, "sleep", lambda *_: None)
+    monkeypatch.setenv("LIKI_MCP_URL", "http://engine.test/mcp")
+
+    assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"ok": True}}
+
+    assert created[0].closed
+    assert not created[1].closed
+
+
+def test_mcp_keepalive_client_reopens_after_idle_timeout(monkeypatch) -> None:
+    import app.engine_mcp_client as engine_mcp_client
+
+    monkeypatch.setattr(engine_mcp_client, "_thread_local", threading.local())
+    endpoint = engine_mcp_client._Endpoint(("http", "engine.test", 80), "/mcp")
+
+    class fake_connection:
+        def __init__(self):
+            self.closed = False
+            self.sock = object()
+            self.last_used = time.monotonic() - engine_mcp_client.HTTP_IDLE_TIMEOUT - 1
+
+        def close(self):
+            self.closed = True
+
+    stale = fake_connection()
+    fresh = fake_connection()
+    connections = iter((fresh,))
+    monkeypatch.setattr(
+        engine_mcp_client, "_new_connection", lambda _: next(connections)
+    )
+    engine_mcp_client._thread_local.connections = {endpoint.origin: stale}
+
+    connection = engine_mcp_client._borrow_connection(endpoint)
+
+    assert stale.closed
+    assert connection is fresh
 
 
 def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
@@ -532,7 +690,7 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
 
     monkeypatch.setenv("LIKI_MCP_URL", "https://dynamic.example/mcp")
-    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
     assert engine_mcp_client.call("qimen.chart", {"instant": "2026-01-01T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4}) == {"data": {"ok": True}}
     assert seen == ["https://dynamic.example/mcp/qimen"]
 
@@ -544,7 +702,7 @@ def test_engine_mcp_client_domain_suffix(monkeypatch):
         seen.append(request.full_url)
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
     monkeypatch.setenv("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
-    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
     for name in ["tianwen_resolve", "ziwei.chart", "bazi_chart", "time.now"]:
         engine_mcp_client.call(name, {})
     assert seen == [

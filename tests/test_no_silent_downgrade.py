@@ -18,13 +18,13 @@ def _fac() -> dict:
 
 
 def test_evaluate_factors_propagates_operator_errors() -> None:
-    with mock.patch.object(factors, "_atomic", side_effect=RuntimeError("boom")):
+    with mock.patch.object(factors, "evaluate_operator", side_effect=RuntimeError("boom")):
         with pytest.raises(RuntimeError, match="boom"):
             factors.evaluate_factors("male", _fac(), shushi="bazi")
 
 
 def test_evaluate_flow_factors_propagates_operator_errors() -> None:
-    with mock.patch.object(factors, "_atomic", side_effect=RuntimeError("boom")):
+    with mock.patch.object(factors, "evaluate_operator", side_effect=RuntimeError("boom")):
         with pytest.raises(RuntimeError, match="boom"):
             factors.evaluate_liunian_factors(
                 "male",
@@ -124,7 +124,7 @@ def test_current_year_failure_not_cached() -> None:
         with pytest.raises(RPCError):
             resolve_current_year("Asia/Shanghai")
         # 失败不写入缓存——下一次仍会再试（不把错误当时间基准缓存）
-        assert duanyu._current_years_cached is None
+        assert duanyu._year_cache._data is None
     _reset_year_cache()
 
 
@@ -133,7 +133,7 @@ def test_current_year_rejects_missing_cst_and_does_not_cache() -> None:
     with mock.patch("app.natal.tools.charts.call", return_value={"data": {}}):
         with pytest.raises(ValueError, match="local_time|instant"):
             resolve_current_year("Asia/Shanghai")
-    assert duanyu._current_years_cached is None
+    assert duanyu._year_cache._data is None
 
 
 def test_load_rule_table_missing_required_file_raises() -> None:

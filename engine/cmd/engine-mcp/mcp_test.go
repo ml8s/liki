@@ -26,7 +26,15 @@ func newTestLogger() *slog.Logger {
 // Streamable HTTP endpoint and returns a connected client session.
 func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 	t.Helper()
-	srv := newMCPServer(testVersion, newTestLogger())
+	return startMCPServerMode(t, ResultContentModeCompat)
+}
+
+func startMCPServerMode(t *testing.T, mode ResultContentMode) (*mcp.ClientSession, *mcp.Server) {
+	t.Helper()
+	srv, err := newMCPServer(testVersion, newTestLogger(), mode)
+	if err != nil {
+		t.Fatalf("build MCP server: %v", err)
+	}
 
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
@@ -41,6 +49,51 @@ func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 	}
 	t.Cleanup(func() { _ = sess.Close() })
 	return sess, srv
+}
+
+func TestCallTool_StructuredOnlyOmitsTextContent(t *testing.T) {
+	sess, _ := startMCPServerMode(t, ResultContentModeStructured)
+	res, err := sess.CallTool(context.Background(), &mcp.CallToolParams{
+		Name: "time_now",
+		Arguments: map[string]any{
+			"timezone": "Asia/Shanghai",
+		},
+	})
+	if err != nil {
+		t.Fatalf("call time_now: %v", err)
+	}
+	if res.IsError {
+		t.Fatalf("time_now returned IsError")
+	}
+	if len(res.Content) != 0 {
+		t.Fatalf("structured-only result has %d content blocks, want 0", len(res.Content))
+	}
+	if res.StructuredContent == nil {
+		t.Fatal("structured-only result has no StructuredContent")
+	}
+}
+
+func TestParseResultContentMode(t *testing.T) {
+	tests := []struct {
+		raw  string
+		want ResultContentMode
+	}{
+		{raw: "", want: ResultContentModeStructured},
+		{raw: " structured ", want: ResultContentModeStructured},
+		{raw: "compat", want: ResultContentModeCompat},
+	}
+	for _, tc := range tests {
+		got, err := ParseResultContentMode(tc.raw)
+		if err != nil {
+			t.Fatalf("ParseResultContentMode(%q): %v", tc.raw, err)
+		}
+		if got != tc.want {
+			t.Fatalf("ParseResultContentMode(%q) = %q, want %q", tc.raw, got, tc.want)
+		}
+	}
+	if _, err := ParseResultContentMode("bogus"); err == nil {
+		t.Fatal("invalid result content mode was accepted")
+	}
 }
 
 func TestMCPServer_Initialize(t *testing.T) {
@@ -256,7 +309,10 @@ func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
 // configured around the stateless 2026 protocol, it must not advertise a
 // version it will subsequently reject in the required protocol header.
 func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
-	srv := newMCPServer(testVersion, newTestLogger())
+	srv, err := newMCPServer(testVersion, newTestLogger(), ResultContentModeCompat)
+	if err != nil {
+		t.Fatalf("build MCP server: %v", err)
+	}
 	ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return srv
 	}, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
@@ -354,7 +410,10 @@ func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 					prefixes = d.Prefixes
 				}
 			}
-			srv := newDomainServer(prefixes, testVersion, logger)
+			srv, err := newDomainServer(prefixes, testVersion, logger, ResultContentModeCompat)
+			if err != nil {
+				t.Fatalf("build domain MCP server: %v", err)
+			}
 			ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
 			defer ts.Close()
 

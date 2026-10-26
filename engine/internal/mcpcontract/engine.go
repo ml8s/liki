@@ -38,7 +38,10 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 		},
 	},
 	reflect.TypeFor[HuangliCount](): {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(30))},
-	reflect.TypeFor[GuaNumber]():    {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(9))},
+	reflect.TypeFor[SeriesCount](): {
+		Type: "integer", Minimum: jsonschema.Ptr(float64(0)), Maximum: jsonschema.Ptr(float64(MaxSeriesCount)),
+	},
+	reflect.TypeFor[GuaNumber](): {Type: "integer", Minimum: jsonschema.Ptr(float64(1)), Maximum: jsonschema.Ptr(float64(9))},
 	reflect.TypeFor[MountainIndex](): {
 		Type: "integer", Minimum: jsonschema.Ptr(float64(0)), Maximum: jsonschema.Ptr(float64(23)),
 	},
@@ -213,6 +216,24 @@ func mustRegister[In, Out any](registry *Registry, tool Tool[In, Out]) {
 	}
 }
 
+// mustSeriesSchema marshals the single-output type schema and wraps it as a
+// oneOf union with the batch {items:[...]} format for series tools.
+func mustSeriesSchema[Out any]() json.RawMessage {
+	schema, err := jsonschema.For[Out](forOptions)
+	if err != nil {
+		panic(fmt.Sprintf("derive series output schema for %T: %v", *new(Out), err))
+	}
+	single, err := schema.MarshalJSON()
+	if err != nil {
+		panic(fmt.Sprintf("marshal series output schema for %T: %v", *new(Out), err))
+	}
+	combined, err := seriesOutputSchema(single)
+	if err != nil {
+		panic(fmt.Sprintf("build series output schema for %T: %v", *new(Out), err))
+	}
+	return combined
+}
+
 // NewEngine returns the engine's typed MCP contract registry.
 func NewEngine() *Registry {
 	registry := New()
@@ -272,10 +293,11 @@ func NewEngine() *Registry {
 		Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",
 		Handler:     XuankongChartCompute,
 	})
-	mustRegister(registry, Tool[XuankongLiunianInput, XuankongLiunianOutput]{
-		Name:        "xuankong_liunian",
-		Description: "玄空流年飞星。chart（可选）+ year → 流年飞星盘 + 宅盘凶星落宫对照（确定性计算）。",
-		Handler:     XuankongLiunian,
+	mustRegister(registry, Tool[XuankongLiunianInput, any]{
+		Name:         "xuankong_liunian",
+		Description:  "玄空流年飞星。count=1（默认）返回单年；count>1 返回 {items:[...]} 批量。",
+		Handler:      XuankongLiunian,
+		OutputSchema: mustSeriesSchema[XuankongLiunianOutput](),
 	})
 	qiguaSchema, err := liuyaoQiguaFormsSchema()
 	if err != nil {
@@ -292,47 +314,52 @@ func NewEngine() *Registry {
 		Description: "六爻装卦。只接受 liuyao.qigua 返回的完整 casting 收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
 		Handler:     LiuyaoChart,
 	})
-	mustRegister(registry, Tool[BaziFullChartInput, BaziFullChartOutput]{
+	mustRegisterRaw(registry, RawTool[BaziFullChartInput, BaziFullChartOutput]{
 		Name:        "bazi_fullchart",
 		Description: "完整命盘。传入 bazi.chart 返回的最小命盘，补全十神/藏干/神煞/自坐/空亡/自合/魁罡/三元/拱夹/纳音生克/长生十二宫/三奇贵人/合会冲刑/十干禄/命理原子事实。",
 		Handler:     BaziFullChart,
 	})
-	mustRegister(registry, Tool[BaziBondInput, BaziBondOutput]{
+	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{
 		Name:        "bazi_bond",
 		Description: "八字合盘原始事实。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
 		Handler:     BaziBond,
 	})
-	mustRegister(registry, Tool[BaziLiuNianInput, BaziLiuNianOutput]{
-		Name:        "bazi_liunian",
-		Description: "八字流年运势。返回流年干支与命局的十神、神煞、伏吟反吟。",
-		Handler:     BaziLiuNian,
+	mustRegister(registry, Tool[BaziLiuNianInput, any]{
+		Name:         "bazi_liunian",
+		Description:  "八字流年运势。count=1（默认）返回单年；count>1 返回 {items:[...]} 批量。",
+		Handler:      BaziLiuNian,
+		OutputSchema: mustSeriesSchema[BaziLiuNianOutput](),
 	})
-	mustRegister(registry, Tool[BaziLiuYueInput, BaziLiuYueOutput]{
-		Name:        "bazi_liuyue",
-		Description: "流月运势。返回流月干支与命局的十神、神煞。",
-		Handler:     BaziLiuYue,
+	mustRegister(registry, Tool[BaziLiuYueInput, any]{
+		Name:         "bazi_liuyue",
+		Description:  "流月运势。count=1（默认）返回单月；count>1 返回 {items:[...]} 批量（跨年进位）。",
+		Handler:      BaziLiuYue,
+		OutputSchema: mustSeriesSchema[BaziLiuYueOutput](),
 	})
-	mustRegister(registry, Tool[BaziLiuRiInput, BaziLiuRiOutput]{
-		Name:        "bazi_liuri",
-		Description: "流日运势。返回流日干支、十神、纳音。",
-		Handler:     BaziLiuRi,
+	mustRegister(registry, Tool[BaziLiuRiInput, any]{
+		Name:         "bazi_liuri",
+		Description:  "流日运势。count=1（默认）返回单日；count>1 返回 {items:[...]} 批量（跨月跨年进位）。",
+		Handler:      BaziLiuRi,
+		OutputSchema: mustSeriesSchema[BaziLiuRiOutput](),
 	})
-	mustRegister(registry, Tool[BaziLiuShiInput, BaziLiuShiOutput]{
-		Name:        "bazi_liushi",
-		Description: "流时运势。返回流时干支、十神。hour 为时辰（0-23）。",
-		Handler:     BaziLiuShi,
+	mustRegister(registry, Tool[BaziLiuShiInput, any]{
+		Name:         "bazi_liushi",
+		Description:  "流时运势。count=1（默认）返回单时辰；count>1 返回 {items:[...]} 批量（跨日跨月跨年进位）。",
+		Handler:      BaziLiuShi,
+		OutputSchema: mustSeriesSchema[BaziLiuShiOutput](),
 	})
-	mustRegister(registry, Tool[BaziXiaoYunInput, BaziXiaoYunOutput]{
-		Name:        "bazi_xiaoyun",
-		Description: "小运。返回小运流年列表。count 默认 12。",
-		Handler:     BaziXiaoYun,
+	mustRegister(registry, Tool[BaziXiaoYunInput, any]{
+		Name:         "bazi_xiaoyun",
+		Description:  "小运。返回小运流年列表。count 默认 1。",
+		Handler:      BaziXiaoYun,
+		OutputSchema: mustSeriesSchema[BaziXiaoYunOutput](),
 	})
-	mustRegister(registry, Tool[ZiweiChartInput, ZiweiChartOutput]{
+	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",
 		Description: "紫微斗数排盘。返回十二宫星曜分布、亮度、四化。",
 		Handler:     ZiweiChartCompute,
 	})
-	mustRegister(registry, Tool[ZiweiFullChartInput, ZiweiFullChartOutput]{
+	mustRegisterRaw(registry, RawTool[ZiweiFullChartInput, ZiweiFullChartOutput]{
 		Name:        "ziwei_fullchart",
 		Description: "紫微全盘。扩展杂曜、长生、博士、小限、将前、岁前。",
 		Handler:     ZiweiFullChart,
@@ -342,27 +369,31 @@ func NewEngine() *Registry {
 		Description: "紫微斗数大限。返回十年大限各宫吉凶。chart 为 ziwei.chart 返回的完整 chart 对象。",
 		Handler:     ZiweiDaXian,
 	})
-	mustRegister(registry, Tool[ZiweiLiuNianInput, ZiweiLiuNianOutput]{
-		Name:        "ziwei_liunian",
-		Description: "紫微流年。返回流年命盘及各宫变化。",
-		Handler:     ZiweiLiuNian,
+	mustRegister(registry, Tool[ZiweiLiuNianInput, any]{
+		Name:         "ziwei_liunian",
+		Description:  "紫微流年。count=1（默认）返回单年；count>1 返回 {items:[...]} 批量。",
+		Handler:      ZiweiLiuNian,
+		OutputSchema: mustSeriesSchema[ZiweiLiuNianOutput](),
 	})
-	mustRegister(registry, Tool[ZiweiLiuYueInput, ZiweiLiuYueOutput]{
-		Name:        "ziwei_liuyue",
-		Description: "紫微流月。target_lunar 必须是已解析的完整农历日期；闰月十六日起按下一流月。",
-		Handler:     ZiweiLiuYue,
+	mustRegister(registry, Tool[ZiweiLiuYueInput, any]{
+		Name:         "ziwei_liuyue",
+		Description:  "紫微流月。count=1（默认）返回单月；count>1 返回 {items:[...]} 批量。",
+		Handler:      ZiweiLiuYue,
+		OutputSchema: mustSeriesSchema[ZiweiLiuYueOutput](),
 	})
-	mustRegister(registry, Tool[ZiweiLiuRiInput, ZiweiLiuRiOutput]{
-		Name:        "ziwei_liuri",
-		Description: "紫微流日。target_lunar 必须是已解析的完整农历日期。",
-		Handler:     ZiweiLiuRi,
+	mustRegister(registry, Tool[ZiweiLiuRiInput, any]{
+		Name:         "ziwei_liuri",
+		Description:  "紫微流日。count=1（默认）返回单日；count>1 返回 {items:[...]} 批量。",
+		Handler:      ZiweiLiuRi,
+		OutputSchema: mustSeriesSchema[ZiweiLiuRiOutput](),
 	})
-	mustRegister(registry, Tool[ZiweiLiuShiInput, ZiweiLiuShiOutput]{
-		Name:        "ziwei_liushi",
-		Description: "紫微流时。返回流时命宫及四化。",
-		Handler:     ZiweiLiuShi,
+	mustRegister(registry, Tool[ZiweiLiuShiInput, any]{
+		Name:         "ziwei_liushi",
+		Description:  "紫微流时。count=1（默认）返回单时辰；count>1 返回 {items:[...]} 批量（12地支循环）。",
+		Handler:      ZiweiLiuShi,
+		OutputSchema: mustSeriesSchema[ZiweiLiuShiOutput](),
 	})
-	mustRegister(registry, Tool[ZiweiBondInput, ZiweiBondOutput]{
+	mustRegisterRaw(registry, RawTool[ZiweiBondInput, ZiweiBondOutput]{
 		Name:        "ziwei_bond",
 		Description: "紫微合盘原始事实。并排返回双方命宫、夫妻宫、子女宫主星；不做跨盘投射和合婚评级。",
 		Handler:     ZiweiBond,
@@ -371,7 +402,7 @@ func NewEngine() *Registry {
 	if err != nil {
 		panic("qimen.chart input schema: " + err.Error())
 	}
-	mustRegister(registry, Tool[QimenChartInput, QimenChartOutput]{
+	mustRegisterRaw(registry, RawTool[QimenChartInput, QimenChartOutput]{
 		Name:        "qimen_chart",
 		Description: "奇门排盘。method 显式选择时/刻/日/月/年家与转盘/飞盘/鸣法/金函玉镜的合法组合；时间、地点、用神保持直接参数。",
 		InputSchema: qimenSchema,

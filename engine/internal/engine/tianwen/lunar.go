@@ -1,7 +1,9 @@
 package tianwen
 
 import (
+	"container/list"
 	"math"
+	"sync"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -28,6 +30,74 @@ type LunarTime struct {
 // The lunar day boundary follows local midnight, and traditionally the
 // Chinese calendar uses China Standard Time.
 const defaultTZ = 8.0
+
+type month11Key struct {
+	year int
+	tz   float64
+}
+
+type leapMonthKey struct {
+	current float64
+	next    float64
+	tz      float64
+}
+
+type boundedMemoEntry[K comparable, V any] struct {
+	key   K
+	value V
+}
+
+// boundedMemo is a small, write-ordered cache for pure calendar functions.
+// Lookups do not promote entries: the calendar working set is small and keeping
+// lookup reads lock-free is preferable to strict LRU semantics here.
+type boundedMemo[K comparable, V any] struct {
+	mu      sync.RWMutex
+	entries map[K]*list.Element
+	order   *list.List
+	cap     int
+}
+
+func newBoundedMemo[K comparable, V any](capacity int) *boundedMemo[K, V] {
+	return &boundedMemo[K, V]{
+		entries: make(map[K]*list.Element, capacity),
+		order:   list.New(),
+		cap:     capacity,
+	}
+}
+
+func (m *boundedMemo[K, V]) get(key K) (V, bool) {
+	m.mu.RLock()
+	element, exists := m.entries[key]
+	var value V
+	if exists {
+		value = element.Value.(*boundedMemoEntry[K, V]).value
+	}
+	m.mu.RUnlock()
+	return value, exists
+}
+
+func (m *boundedMemo[K, V]) put(key K, value V) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if element, exists := m.entries[key]; exists {
+		element.Value.(*boundedMemoEntry[K, V]).value = value
+		return
+	}
+	if m.order.Len() == m.cap {
+		oldest := m.order.Back()
+		if oldest != nil {
+			entry := m.order.Remove(oldest).(*boundedMemoEntry[K, V])
+			delete(m.entries, entry.key)
+		}
+	}
+	m.entries[key] = m.order.PushFront(&boundedMemoEntry[K, V]{key: key, value: value})
+}
+
+var (
+	newMoonJDTDMemo = newBoundedMemo[float64, float64](4096)
+	month11KMemo    = newBoundedMemo[month11Key, float64](1024)
+	leapMonthKMemo  = newBoundedMemo[leapMonthKey, float64](1024)
+)
 
 const secondsToDays = 1.0 / 86400.0
 
@@ -112,6 +182,9 @@ func getSunTrueLongitude(jdTD float64) float64 {
 // ── New moon (Meeus Chapter 47) ──
 
 func getNewMoonJDTD(k float64) float64 {
+	if cached, ok := newMoonJDTDMemo.get(k); ok {
+		return cached
+	}
 	T := k / 1236.85
 	T2 := T * T
 	T3 := T2 * T
@@ -169,7 +242,9 @@ func getNewMoonJDTD(k float64) float64 {
 		0.000035*sinDeg(239.56+25.513099*k) +
 		0.000023*sinDeg(331.55+3.592518*k)
 
-	return JDE + corr
+	result := JDE + corr
+	newMoonJDTDMemo.put(k, result)
+	return result
 }
 
 // approximateK returns an approximate lunation number for the given date.
@@ -224,6 +299,10 @@ func compareDates(y1, m1, d1, y2, m2, d2 int) int {
 }
 
 func getMonth11K(year int, tz float64) float64 {
+	key := month11Key{year: year, tz: tz}
+	if cached, ok := month11KMemo.get(key); ok {
+		return cached
+	}
 	w := getWinterSolsticeJDTD(year, tz)
 	wDeltaT := getDeltaTSeconds(w)
 	wy, wm, wd := jdToGregorian(w-wDeltaT*secondsToDays, tz)
@@ -233,14 +312,21 @@ func getMonth11K(year int, tz float64) float64 {
 	mDeltaT := getDeltaTSeconds(m)
 	my, mm, md := jdToGregorian(m-mDeltaT*secondsToDays, tz)
 
+	result := k
 	if compareDates(my, mm, md, wy, wm, wd) > 0 {
-		return k - 1
+		result = k - 1
 	}
-	return k
+	month11KMemo.put(key, result)
+	return result
 }
 
 func getLeapMonthK(currentYearMonth11K, nextYearMonth11K, tz float64) float64 {
+	key := leapMonthKey{current: currentYearMonth11K, next: nextYearMonth11K, tz: tz}
+	if cached, ok := leapMonthKMemo.get(key); ok {
+		return cached
+	}
 	if nextYearMonth11K-currentYearMonth11K <= 12.0 {
+		leapMonthKMemo.put(key, -1)
 		return -1
 	}
 
@@ -261,9 +347,12 @@ func getLeapMonthK(currentYearMonth11K, nextYearMonth11K, tz float64) float64 {
 		lon2 := getSunTrueLongitude(nextMidTD)
 
 		if math.Floor(lon1/30.0) == math.Floor(lon2/30.0) {
-			return currentYearMonth11K + i
+			result := currentYearMonth11K + i
+			leapMonthKMemo.put(key, result)
+			return result
 		}
 	}
+	leapMonthKMemo.put(key, -1)
 	return -1
 }
 

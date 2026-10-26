@@ -51,7 +51,11 @@ def _engine_bazi_chart():
         },
     )
     with urllib.request.urlopen(req, timeout=8) as r:
-        return json.loads(json.loads(r.read())["result"]["content"][0]["text"])
+        result = json.loads(r.read())["result"]
+        payload = result.get("structuredContent")
+        if payload is None:
+            payload = json.loads(result["content"][0]["text"])
+        return payload
 
 
 def _call_tool_over_mcp(server, name, arguments):
@@ -582,6 +586,9 @@ def test_engine_mcp_client_forwards_private_engine_token(monkeypatch):
     requests = []
 
     class response:
+        status = 200
+        reason = "OK"
+
         def __enter__(self):
             return self
 
@@ -599,7 +606,7 @@ def test_engine_mcp_client_forwards_private_engine_token(monkeypatch):
     monkeypatch.setenv("LIKI_MCP_URL", "http://engine-mcp:8085/mcp/")
     monkeypatch.setenv("LIKI_ENGINE_MCP_TOKEN", "engine-secret")
     monkeypatch.setenv("LIKI_MCP_TOKEN", "counsel-secret")
-    monkeypatch.setattr(engine_mcp_client.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
 
     engine_mcp_client.server_info(retries=0)
 

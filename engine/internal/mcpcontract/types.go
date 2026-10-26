@@ -9,6 +9,7 @@ type (
 	CityName     string
 	HuangliEvent string
 	HuangliCount int
+	SeriesCount  int
 
 	GuaNumber             int
 	MountainIndex         int

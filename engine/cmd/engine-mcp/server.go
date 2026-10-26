@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -40,15 +41,38 @@ var mcpDomains = []struct {
 // registry has been fully retired.
 var engineContracts = mcpcontract.NewEngine()
 
+type ResultContentMode string
+
+const (
+	ResultContentModeCompat     ResultContentMode = "compat"
+	ResultContentModeStructured ResultContentMode = "structured"
+)
+
+func ParseResultContentMode(raw string) (ResultContentMode, error) {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "":
+		return ResultContentModeStructured, nil
+	case string(ResultContentModeCompat):
+		return ResultContentModeCompat, nil
+	case string(ResultContentModeStructured):
+		return ResultContentModeStructured, nil
+	default:
+		return "", fmt.Errorf(
+			"LIKI_MCP_RESULT_CONTENT must be %q or %q, got %q",
+			ResultContentModeCompat, ResultContentModeStructured, raw,
+		)
+	}
+}
+
 // newMCPServer builds a standard MCP server exposing every engine tool.
-func newMCPServer(version string, logger *slog.Logger) *mcp.Server {
-	return newMCPServerFor(version, logger, func(string) bool { return true })
+func newMCPServer(version string, logger *slog.Logger, mode ResultContentMode) (*mcp.Server, error) {
+	return newMCPServerFor(version, logger, mode, func(string) bool { return true })
 }
 
 // newDomainServer builds an MCP server exposing only the methods matching the
 // given RPC method prefixes (one 术数 domain or the shared aux tools).
-func newDomainServer(prefixes []string, version string, logger *slog.Logger) *mcp.Server {
-	return newMCPServerFor(version, logger, func(method string) bool {
+func newDomainServer(prefixes []string, version string, logger *slog.Logger, mode ResultContentMode) (*mcp.Server, error) {
+	return newMCPServerFor(version, logger, mode, func(method string) bool {
 		for _, p := range prefixes {
 			if strings.HasPrefix(method, p) {
 				return true
@@ -58,7 +82,9 @@ func newDomainServer(prefixes []string, version string, logger *slog.Logger) *mc
 	})
 }
 
-func newMCPServerFor(version string, logger *slog.Logger, match func(string) bool) *mcp.Server {
+func newMCPServerFor(
+	version string, logger *slog.Logger, mode ResultContentMode, match func(string) bool,
+) (*mcp.Server, error) {
 	impl := &mcp.Implementation{
 		Name:        serverName,
 		Title:       "Liki Chart Engine",
@@ -81,9 +107,9 @@ func newMCPServerFor(version string, logger *slog.Logger, match func(string) boo
 		if !match(name) {
 			continue
 		}
-		definition, ok := engineContracts.Definition(name)
-		if !ok {
-			continue
+		definition, err := engineContracts.Definition(name)
+		if err != nil {
+			return nil, fmt.Errorf("engine MCP tool %s: %w", name, err)
 		}
 		tool := &mcp.Tool{
 			Name:         definition.Name,
@@ -96,14 +122,16 @@ func newMCPServerFor(version string, logger *slog.Logger, match func(string) boo
 				IdempotentHint: true,
 			},
 		}
-		s.AddTool(tool, contractToolHandler(engineContracts, name))
+		s.AddTool(tool, contractToolHandler(engineContracts, name, mode))
 	}
-	return s
+	return s, nil
 }
 
 // contractToolHandler invokes a typed MCP contract. Validation and business
 // failures are visible to the model as tool errors.
-func contractToolHandler(contracts *mcpcontract.Registry, name string) mcp.ToolHandler {
+func contractToolHandler(
+	contracts *mcpcontract.Registry, name string, mode ResultContentMode,
+) mcp.ToolHandler {
 	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		args := req.Params.Arguments
 		if len(args) == 0 || string(args) == "null" {
@@ -116,6 +144,9 @@ func contractToolHandler(contracts *mcpcontract.Registry, name string) mcp.ToolH
 				Content: []mcp.Content{&mcp.TextContent{Text: err.Error()}},
 			}, nil
 		}
+		if mode == ResultContentModeStructured {
+			return &mcp.CallToolResult{StructuredContent: result}, nil
+		}
 		return &mcp.CallToolResult{
 			Content:           []mcp.Content{&mcp.TextContent{Text: string(result)}},
 			StructuredContent: result,
@@ -123,8 +154,11 @@ func contractToolHandler(contracts *mcpcontract.Registry, name string) mcp.ToolH
 	}
 }
 
-func runStdio(version string, logger *slog.Logger) error {
-	s := newMCPServer(version, logger)
+func runStdio(version string, logger *slog.Logger, mode ResultContentMode) error {
+	s, err := newMCPServer(version, logger, mode)
+	if err != nil {
+		return err
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	return s.Run(ctx, &mcp.StdioTransport{})

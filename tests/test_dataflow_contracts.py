@@ -26,7 +26,8 @@ def test_truth_table_evaluates_repeated_atomic_expression_once():
         calls.append(expression)
         return PredicateState.HIT
 
-    result = factors._evaluate_truth_table(rows, atomic)
+    from factor_oracle import oracle_evaluate_truth_table
+    result = oracle_evaluate_truth_table(rows, atomic)
     assert result == {"印现": "命中", "印旺": "命中"}
     assert calls == ["现[印星]"]
 

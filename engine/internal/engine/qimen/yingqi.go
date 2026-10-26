@@ -90,10 +90,9 @@ func yingQiDates(ruleType string, target ganzhi.Zhi, days []yingQiDay) []YingQiD
 	if len(matches) == 0 {
 		return []YingQiDate{}
 	}
-	result := []YingQiDate{}
+	result := make([]YingQiDate, 0, len(days)/6+1)
 	for _, day := range days {
 		branch := day.Branch
-		targetName := ganzhi.ZhiName(target)
 		branchName := ganzhi.ZhiName(branch)
 		for _, match := range matches {
 			matched := (match.Match == "same" && branch == target) ||
@@ -105,11 +104,31 @@ func yingQiDates(ruleType string, target ganzhi.Zhi, days []yingQiDay) []YingQiD
 				Date:   day.Date.Format("2006-01-02"),
 				Branch: branchName,
 				Match:  match.Match,
-				Reason: formatYingQiReason(match.Reason, branchName, targetName),
+				Reason: match.reason(branch, target),
 			})
 		}
 	}
 	return result
+}
+
+func newYingQiDateMatch(match, reason string) yingqiDateMatch {
+	result := yingqiDateMatch{Match: match, Reason: reason}
+	for target := ganzhi.Zhi(1); target <= 12; target++ {
+		targetName := ganzhi.ZhiName(target)
+		for branch := ganzhi.Zhi(1); branch <= 12; branch++ {
+			result.rendered[target][branch] = formatYingQiReason(
+				reason, ganzhi.ZhiName(branch), targetName,
+			)
+		}
+	}
+	return result
+}
+
+func (match yingqiDateMatch) reason(branch, target ganzhi.Zhi) string {
+	if branch < 1 || branch > 12 || target < 1 || target > 12 {
+		return ""
+	}
+	return match.rendered[target][branch]
 }
 
 func yingQiAnchorDate(chart Chart, chartTime time.Time) time.Time {
@@ -134,7 +153,13 @@ func oppositeZhi(value ganzhi.Zhi) ganzhi.Zhi {
 }
 
 func formatYingQiReason(template, branch, target string) string {
-	return strings.NewReplacer("{branch}", branch, "{target}", target).Replace(template)
+	// These are short data-owned templates with at most two placeholders.
+	// Constructing a generic replacer per matching day dominates YingQi in
+	// profiles, while direct replacement preserves the data contract.
+	return strings.ReplaceAll(
+		strings.ReplaceAll(template, "{branch}", branch),
+		"{target}", target,
+	)
 }
 
 func baseYingQiFocuses(chart Chart) map[GongIndex][]RelatedSymbol {

@@ -79,11 +79,13 @@ func assemblePalaces(
 	var palaces [12]gong
 	for i := 0; i < 12; i++ {
 		zhiIdx := zhiToZhiIdx(palaceZhis[i])
-		starInfos := make([]starInfo, 0)
-		for _, star := range mainByPalace[zhiIdx] {
+		major := mainByPalace[zhiIdx]
+		minor := minorByPalace[zhiIdx]
+		starInfos := make([]starInfo, 0, len(major)+len(minor))
+		for _, star := range major {
 			starInfos = append(starInfos, starInfo{Star: star, Name: starName(star), IsMajor: true})
 		}
-		for _, star := range minorByPalace[zhiIdx] {
+		for _, star := range minor {
 			starInfos = append(starInfos, starInfo{Star: star, Name: starName(star), IsMajor: false})
 		}
 		palaces[i] = gong{

@@ -246,43 +246,74 @@ type board struct {
 	WuBuYuShi      bool
 }
 
+type boardJSON struct {
+	GongWei   [9]gongJSON     `json:"gong_wei"`
+	Jushu     int             `json:"jushu"`
+	KongWang  [2]BranchPalace `json:"kong_wang"`
+	MaXing    BranchPalace    `json:"ma_xing"`
+	NianGan   ganzhi.Gan      `json:"nian_gan"`
+	NianZhi   ganzhi.Zhi      `json:"nian_zhi"`
+	RiGan     ganzhi.Gan      `json:"ri_gan"`
+	RiZhi     ganzhi.Zhi      `json:"ri_zhi"`
+	ShiGan    ganzhi.Gan      `json:"shi_gan"`
+	ShiZhi    ganzhi.Zhi      `json:"shi_zhi"`
+	WuBuYuShi bool            `json:"wu_bu_yu_shi"`
+	YinDun    bool            `json:"yin_dun"`
+	YueGan    ganzhi.Gan      `json:"yue_gan"`
+	YueZhi    ganzhi.Zhi      `json:"yue_zhi"`
+	ZhiFuXing StarIndex       `json:"zhi_fu_xing"`
+	ZhiShiMen DoorIndex       `json:"zhi_shi_men"`
+}
+
+type gongJSON struct {
+	AnGan       ganzhi.Gan      `json:"an_gan"`
+	AnGanZhi    string          `json:"an_gan_zhi,omitempty"`
+	DiPanGan    ganzhi.Gan      `json:"di_pan_gan"`
+	Gong        PalaceIdentity  `json:"gong"`
+	Men         DoorIndex       `json:"men,omitempty"`
+	MenPresent  bool            `json:"men_present"`
+	Shen        string          `json:"shen,omitempty"`
+	ShenPresent bool            `json:"shen_present"`
+	TianPan     []TianPanSymbol `json:"tian_pan,omitempty"`
+	TianPanGan  *ganzhi.Gan     `json:"tian_pan_gan,omitempty"`
+}
+
 // MarshalJSON projects the API fields and renders spirit names for the current
 // 阴阳遁 and plate style.
 func (p board) MarshalJSON() ([]byte, error) {
-	m := map[string]any{
-		"jushu": p.Jushu, "yin_dun": p.YinDun,
-		"ri_gan": p.RiGan, "ri_zhi": p.RiZhi,
-		"nian_gan": p.NianGan, "nian_zhi": p.NianZhi,
-		"yue_gan": p.YueGan, "yue_zhi": p.YueZhi,
-		"zhi_fu_xing": p.DutyStar, "zhi_shi_men": p.DutyDoor,
-		"ma_xing": p.MaXing, "shi_gan": p.HourGan, "shi_zhi": p.HourZhi,
-		"kong_wang": p.KongWang, "wu_bu_yu_shi": p.WuBuYuShi,
+	out := boardJSON{
+		Jushu: p.Jushu, YinDun: p.YinDun,
+		RiGan: p.RiGan, RiZhi: p.RiZhi,
+		NianGan: p.NianGan, NianZhi: p.NianZhi,
+		YueGan: p.YueGan, YueZhi: p.YueZhi,
+		ZhiFuXing: p.DutyStar, ZhiShiMen: p.DutyDoor,
+		GongWei: [9]gongJSON{}, MaXing: p.MaXing,
+		ShiGan: p.HourGan, ShiZhi: p.HourZhi,
+		KongWang: p.KongWang, WuBuYuShi: p.WuBuYuShi,
 	}
-	palaces := make([]map[string]any, 9)
 	for i, pl := range p.GongWei {
-		pm := map[string]any{
-			"gong": pl.Gong, "di_pan_gan": pl.DiPanGan, "an_gan": pl.AnGan,
-			"men_present": pl.DoorSet, "shen_present": pl.SpiritSet,
+		gong := gongJSON{
+			Gong: pl.Gong, DiPanGan: pl.DiPanGan, AnGan: pl.AnGan,
+			MenPresent: pl.DoorSet, ShenPresent: pl.SpiritSet,
 		}
 		if pl.HiddenPillar != "" {
-			pm["an_gan_zhi"] = pl.HiddenPillar
+			gong.AnGanZhi = pl.HiddenPillar
 		}
 		if len(pl.TianPan) > 0 {
-			pm["tian_pan"] = pl.TianPan
+			gong.TianPan = pl.TianPan
 		}
 		if pl.TianPanGan != nil {
-			pm["tian_pan_gan"] = pl.TianPanGan
+			gong.TianPanGan = pl.TianPanGan
 		}
 		if pl.Door != 0 {
-			pm["men"] = pl.Door
+			gong.Men = pl.Door
 		}
 		if pl.Spirit != 0 {
-			pm["shen"] = spiritDisplayName(pl.Spirit, p.YinDun, p.School)
+			gong.Shen = spiritDisplayName(pl.Spirit, p.YinDun, p.School)
 		}
-		palaces[i] = pm
+		out.GongWei[i] = gong
 	}
-	m["gong_wei"] = palaces
-	return json.Marshal(m)
+	return json.Marshal(out)
 }
 
 // duty holds the value符 star and value使 door.

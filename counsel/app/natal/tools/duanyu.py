@@ -6,13 +6,14 @@
 """
 
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import app.natal.tools.yearly_eval as yearly_eval
 from app.natal.tools.assertion_store import load_rule_table
 from app.natal.tools.chart_schema import ChartSchemaError, validate_natal_chart
+from app.natal.tools.duanyu_match import assert_snapshot_factors, match_rule, match_table
 from app.natal.tools.errors import AssertionRuleError, YearRangeError
 from app.natal.tools.factor_constants import load_constants
-from app.natal.tools.factor_semantics import PredicateState, validate_published_factor_value
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
 from app.natal.tools.factors import (
     evaluate_liunian_snap_from_natal_chart,
@@ -245,7 +246,7 @@ def query(rule: str, natal_chart: dict, year: int | None = None,
         if not table:
             continue
         merged = snapshots[side_labels[side_code]]
-        _assert_snapshot_factors(
+        assert_snapshot_factors(
             rule,
             table,
             {**merged, **(snapshots.get("context", {}) or {})},
@@ -304,28 +305,51 @@ def brief(conclusions: list) -> list:
 
 
 
-# 当前年份事实（time.now + 年界盘）TTL 缓存（秒）——当前限运精度到年，单会话内不重复发起 RPC。
+class _TtlCache:
+    """有界 TTL 缓存：显式生命周期，不暴露裸全局变量。"""
+    __slots__ = ("_data", "_at", "_ttl")
+
+    def __init__(self, ttl: float):
+        self._data = None
+        self._at: float | None = None
+        self._ttl = ttl
+
+    def get(self, key, now: float):
+        """命中返回 value，过期/不匹配返回 None。"""
+        if self._at is None or self._data is None:
+            return None
+        if now - self._at >= self._ttl:
+            return None
+        if self._data[-1] != key:
+            return None
+        return self._data[:-1]
+
+    def set(self, key, value: tuple, now: float):
+        self._data = (*value, key)
+        self._at = now
+
+    def clear(self):
+        self._data = None
+        self._at = None
+
+
+# 当前年份事实（time.now + 年界盘）TTL 缓存——当前限运精度到年，单会话内不重复发起 RPC。
 # RPC 失败仍抛错（fail-fast，绝不回退本地时钟）；仅成功结果被缓存。
-_CURRENT_YEAR_TTL = 60
-_current_years_cached = None
-_current_years_cached_at = None
+_year_cache = _TtlCache(ttl=60)
 
 
 def resolve_current_years(timezone: str):
     """返回 (八字年号[立春界], 农历年号[春节界], source)。timezone 必填。"""
-    global _current_years_cached, _current_years_cached_at
     from app.natal.tools.charts import current_years
 
     if not timezone:
         raise ValueError("timezone is required")
     now = time.monotonic()
-    if (_current_years_cached_at is not None
-            and now - _current_years_cached_at < _CURRENT_YEAR_TTL
-            and _current_years_cached and _current_years_cached[3] == timezone):
-        return _current_years_cached[:3]
+    cached = _year_cache.get(timezone, now)
+    if cached is not None:
+        return cached
     bazi_year, lunar_year = current_years(timezone)
-    _current_years_cached = (bazi_year, lunar_year, "server", timezone)
-    _current_years_cached_at = now
+    _year_cache.set(timezone, (bazi_year, lunar_year, "server"), now)
     return bazi_year, lunar_year, "server"
 
 
@@ -336,9 +360,7 @@ def resolve_current_year(timezone: str):
 
 
 def reset_current_year_cache():
-    global _current_years_cached, _current_years_cached_at
-    _current_years_cached = None
-    _current_years_cached_at = None
+    _year_cache.clear()
 
 
 def _resolve_rules(rules):
@@ -363,12 +385,67 @@ def _liunian_for_year(natal_chart, year):
     chart = natal_chart.get("chart") or {}
     if natal_chart.get("ziwei") and "ri" in chart:
         # 完整盘（八字 chart + 紫微）：双盘流年
-        return liunian(natal_chart, year)
+        return liunian(natal_chart, year, validate=False)
     if "ri" in chart:
         # 正交化八字组合盘（analysis）：只排八字流年，紫微侧留空。
         return {"bazi": _bazi_liunian(chart, year), "ziwei": {}}
     # 正交化紫微组合盘（analysis ziwei）：chart 为紫微盘，只排紫微流年。
     return {"bazi": {}, "ziwei": _ziwei_liunian(chart, year)}
+
+
+def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, dict]:
+    """批量预取流年盘数据，返回 year → {bazi, ziwei} 查找表。
+
+    engine 的 series count 上限是 50；这里按上限分块，每个 chunk 内 bazi 与
+    ziwei 两次 RPC 并发。单个 chunk 失败只污染该 chunk 覆盖的年份，失败项
+    保持 {bazi: {}, ziwei: {}, error: ...} 形状，供 yearly_range 显式降级。
+    """
+    from app.natal.tools.charts import (
+        MAX_LIUNIAN_BATCH,
+        RPCError,
+        _bazi_liunian_range,
+        _ziwei_liunian_range,
+    )
+    chart = natal_chart.get("chart") or {}
+    zw = natal_chart.get("ziwei_chart") or natal_chart.get("ziwei") or {}
+    # Keep orthogonal analysis pans on the same side selection as
+    # _liunian_for_year: bazi-only has a ri pillar, while a Ziwei analysis pan
+    # stores its engine chart in `chart` without ri.
+    fetch_bazi = "ri" in chart
+    fetch_ziwei = bool(natal_chart.get("ziwei")) if fetch_bazi else bool(zw)
+    years = {}
+
+    for chunk_start in range(start, start + count, MAX_LIUNIAN_BATCH):
+        chunk_count = min(MAX_LIUNIAN_BATCH, start + count - chunk_start)
+        chunk_years = range(chunk_start, chunk_start + chunk_count)
+        try:
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                bazi_future = (
+                    executor.submit(_bazi_liunian_range, chart, chunk_start, chunk_count)
+                    if fetch_bazi else None
+                )
+                ziwei_future = (
+                    executor.submit(_ziwei_liunian_range, zw, chunk_start, chunk_count)
+                    if fetch_ziwei else None
+                )
+                bazi_items = (
+                    bazi_future.result() if bazi_future is not None
+                    else [{} for _ in chunk_years]
+                )
+                ziwei_items = (
+                    ziwei_future.result() if ziwei_future is not None
+                    else [{} for _ in chunk_years]
+                )
+            for i, year in enumerate(chunk_years):
+                years[year] = {
+                    "bazi": bazi_items[i] if i < len(bazi_items) else {},
+                    "ziwei": ziwei_items[i] if i < len(ziwei_items) else {},
+                }
+        except (RPCError, ConnectionError, TimeoutError, OSError) as e:
+            error = {"error": f"{type(e).__name__}: {e}"}
+            for year in chunk_years:
+                years[year] = {"bazi": {}, "ziwei": {}, **error}
+    return years
 
 
 def query_yearly(rule: str, snapshots: dict) -> dict:
@@ -381,122 +458,19 @@ def query_yearly(rule: str, snapshots: dict) -> dict:
         if not table:
             continue
         merged = snapshots[side_labels[side_code]]
-        _assert_snapshot_factors(
+        assert_snapshot_factors(
             rule,
             table,
             {**merged, **(snapshots.get("context", {}) or {})},
         )
-    return match_rule(rule, snapshots)
+    return match_rule(rule, snapshots, skip_validation=True)
 
 
-def _value_matches(cond, actual):
-    """单约束匹配：不适用/不可判定不命中；命中/没命中使用四态语义。"""
-    if actual in (PredicateState.NOT_APPLICABLE, PredicateState.UNKNOWN):
-        return False
-    if isinstance(actual, PredicateState):
-        return actual == cond
-    return actual == cond
 
 
-def _assert_factor_value(assertion_id: str, factor: str, value) -> None:
-    """断语因子必须是稳定 FactorValue；null / boolean / 空串 fail closed。"""
-    try:
-        validate_published_factor_value(value, where=f"[{assertion_id}/{factor}]")
-    except ValueError as exc:
-        raise AssertionRuleError(str(exc)) from exc
-
-
-def _assert_snapshot_factors(
-    assertion_id: str, table: list[dict], snapshot: dict
-) -> None:
-    """公共 query/yearly 边界：参与断语的因子必须在 snapshot 中存在。"""
-    for item in table:
-        for group_number, conditions in enumerate(item.get("约束组") or [], 1):
-            for factor, expected in conditions.items():
-                if factor not in snapshot:
-                    raise AssertionRuleError(
-                        f"[{assertion_id}/{group_number}] 断语因子缺失: {factor}"
-                    )
-                _assert_factor_value(assertion_id, factor, expected)
-                _assert_factor_value(assertion_id, factor, snapshot[factor])
-
-
-def match_table(table: list, snapshot: dict, exclusive: bool = False) -> list:
-    """真值表匹配：因子快照 × 断语条件组 → 命中条目（按表序）。
-
-    同一 condition_group 内的条件为 AND，不同 condition_group 为 OR。
-    公共入口 match_rule 会先校验所需因子完整；本低层函数只做机械匹配。
-    """
-    hits = []
-    for item in table:
-        condition_groups = item.get("约束组") or []
-        traces = []
-        for group_number, conditions in enumerate(condition_groups, 1):
-            if not all(
-                _value_matches(value, snapshot.get(key))
-                for key, value in conditions.items()
-            ):
-                continue
-            traces.append({
-                "condition_group": group_number,
-                "factors": {
-                    key: {
-                        "expected": value,
-                        "actual": snapshot.get(key),
-                    }
-                    for key, value in conditions.items()
-                },
-            })
-        if not traces:
-            continue
-        hits.append({**item, "trace": traces})
-    return [hits[0]] if exclusive and hits else hits
-
-def _validate_rule_factors(
-    assertion_id: str, table: list[dict], snapshot: dict
-) -> None:
-    """公共断语边界的因子契约：参与条件必须存在且为 FactorValue。"""
-    for item in table:
-        for group_number, conditions in enumerate(item.get("约束组") or [], 1):
-            for factor, expected in conditions.items():
-                if factor not in snapshot:
-                    continue
-                for value in (expected, snapshot[factor]):
-                    try:
-                        validate_published_factor_value(value, where=f"[{assertion_id}/{group_number}/{factor}]")
-                    except ValueError as exc:
-                        raise AssertionRuleError(str(exc)) from exc
-
-
-def match_rule(rule: str, snapshots: dict) -> dict:
-    """加载断语表 + 匹配。排盘上下文只参与匹配，不计入因子数。
-
-    bazi/ziwei 表分别匹配各自快照；common 表在合并后的双盘快照上匹配，
-    专用于显式八紫合参断语，不伪装成单侧事实。
-    """
-    tables = load_rule_tables(rule)
-    side_codes = load_constants()["命理侧"]["断言代码"]
-    bz_e, zw_e = (tables[side] for side in side_codes)
-    context = snapshots.get("context", {}) or {}
-    side_labels = load_constants()["命理侧"]["标签"]
-    side_snapshots = {
-        side_labels["bazi"]: {**snapshots[side_labels["bazi"]], **context},
-        side_labels["ziwei"]: {**snapshots[side_labels["ziwei"]], **context},
-    }
-    for side_code, table in zip(side_codes, (bz_e, zw_e)):
-        for item in table:
-            _validate_rule_factors(
-                item["id"], [item], side_snapshots[side_labels[side_code]]
-            )
-    return {
-        side_labels["bazi"]: match_table(
-            bz_e, side_snapshots[side_labels["bazi"]]
-        ),
-        side_labels["ziwei"]: match_table(
-            zw_e, side_snapshots[side_labels["ziwei"]]
-        ) if zw_e else [],
-    }
-
+# ── Re-exports from duanyu_match ──
+# Backward compatibility: match_table/match_rule/assert_snapshot_factors
+# moved to duanyu_match.py; re-exported here for existing import sites.
 
 def yearly_range(natal_chart: dict, start: int, end: int,
                  rules: list, detail: bool = False,
@@ -528,7 +502,6 @@ def yearly_range(natal_chart: dict, start: int, end: int,
         for key in ("chart", "full", "gender"):
             if not natal_chart.get(key):
                 raise ChartSchemaError(f"yearly_range natal_chart 缺 {key}，无法流年求值。")
-    from app.natal.tools.charts import RPCError
     if not timezone:
         timezone = str(natal_chart.get("timezone") or "")
     if not timezone:
@@ -556,20 +529,39 @@ def yearly_range(natal_chart: dict, start: int, end: int,
     natal_context = prepare_natal_context(
         natal_chart, factor_names=natal_factors_for_flow(flow_factors)
     )
+
+    total = end - start + 1
+    from app.natal.tools.charts import RPCError
+    liunian_cache = _batch_liunian_data(natal_chart, start, total)
+
+    def _liunian_cached(natal_chart_: dict, year: int) -> dict:
+        """从预取缓存查找流年盘，零 RPC。"""
+        return liunian_cache.get(year, {"bazi": {}, "ziwei": {}})
+
     years = {}
     for year in range(start, end + 1):
         try:
-            years[str(year)] = _evaluate_year(
+            prefetch = liunian_cache.get(year)
+            if prefetch and prefetch.get("error"):
+                years[str(year)] = {"error": prefetch["error"]}
+                continue
+            result = yearly_eval.evaluate_year(
                 natal_chart, year, resolved_rules, detail, natal_context,
+                query_yearly=query_yearly,
+                brief=brief,
+                liunian=_liunian_cached,
+                evaluate_liunian_snap_from_natal_chart=evaluate_liunian_snap_from_natal_chart,
                 factor_names=flow_factors,
             )
-            if domains is not None and "error" not in years[str(year)]:
-                years[str(year)] = {
+            if domains is not None and "error" not in result:
+                result = {
                     rule: filter_domains(result, domains)
-                    for rule, result in years[str(year)].items()
+                    for rule, result in result.items()
                 }
+            years[str(year)] = result
         except (RPCError, ConnectionError, TimeoutError, OSError) as e:
             years[str(year)] = {"error": f"{type(e).__name__}: {e}"}
+
     return {"current_year": cur_year, "current_year_source": cur_source,
             "year_basis": dict(load_constants()["流年年界"]),
             "years": years}

@@ -3,7 +3,6 @@
 import csv
 import os
 from collections import defaultdict
-from pathlib import Path
 
 from app.natal.tools.csv_cell import typed_expected
 from app.natal.tools.errors import FactorTableError
@@ -22,7 +21,7 @@ LONG_FIELDS = [
 ]
 VALID_PHASES = frozenset({"pre_yongshen", "post_yongshen", "domain"})
 
-_CACHES: dict[Path, list[dict]] = {}
+_CACHES: dict[str, list[dict]] = {}
 
 
 
@@ -56,7 +55,7 @@ def load_long_rows(path: str):
     OR 分支是独立 group；AND 条件是同 group 中的多个 term。
     direct group 只有一个表达式，且进入 evaluator 的 `直通` 字段。
     """
-    cache_key = Path(path).resolve()
+    cache_key = path
     if cache_key in _CACHES:
         return _CACHES[cache_key]
     raw_groups = defaultdict(list)

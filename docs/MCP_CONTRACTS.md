@@ -9,7 +9,7 @@ typed registry described below.
 MCP tools use one source of truth per tool:
 
 ```text
-typed wire DTO → JSON Schema → runtime validation → structuredContent
+typed wire DTO → JSON Schema → runtime input validation → structuredContent
 ```
 
 The tool description and DTO field descriptions are part of the public MCP
@@ -48,14 +48,34 @@ type ExampleOutput struct {
 }
 ```
 
-The registry derives both JSON Schemas, validates arguments and the returned
-output, and returns the output DTO as MCP `structuredContent`. Legacy RPC
-envelopes are not part of the MCP result.
+The registry derives and publishes both JSON Schemas, validates arguments at
+the untrusted MCP boundary, and returns the output DTO as MCP
+`structuredContent`. Legacy RPC envelopes are not part of the MCP result.
+Simple generated schemas use a bounded fast input validator; schemas containing
+composition, references, regexes, or other advanced keywords automatically use
+the generic JSON Schema validator.
+Output JSON is checked against its schema by contract tests through
+`Registry.ValidateOutput`; a reflective output validation pass is not repeated
+for every production call.
+Schemas are materialized concurrently before the HTTP listener starts, so an
+invalid derived contract fails process startup instead of a first request.
+Successful results default to `structuredContent` only. `LIKI_MCP_RESULT_CONTENT=compat`
+retains duplicate text content for legacy clients; both modes use the same
+published schema and business payload.
+
+Tools whose domain JSON shape is already locked by wire-fidelity fixtures may
+marshal that domain value directly through `RawTool`; the wire DTO remains the
+schema source of truth. This avoids a domain-to-DTO-to-JSON round trip without
+publishing an untyped contract.
 
 Rules:
 
 - every wire DTO field has a `jsonschema` description;
 - object DTOs close unknown fields with `additionalProperties: false`;
+- input schemas validate untrusted MCP arguments on every call;
+- time-series `count` inputs use `SeriesCount`, publishing the same
+  `[0, MaxSeriesCount]` bounds that runtime validation enforces;
+- output schemas validate actual JSON in contract tests and diagnostic tooling;
 - wire DTOs do not publish `schema_version` or `contract_version` fields;
 - a tool that replaced a legacy raw-JSON method sets
   `Tool.TolerateUnknownArgs`, because the legacy params schemas left
