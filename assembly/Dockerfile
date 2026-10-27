@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
 #
-# 由 liki CI 构建：FROM 显式 pin 的 liki-agent-runtime 纯运行时镜像（release base tag），
+# 由 liki CI 构建：FROM 显式 pin 的 agent-runtime 纯运行时镜像（release base tag），
 # COPY 组合工件（deployment.json + agents/），各服务通过 env 选择自己的 deployment。
 # 镜像不含任何源码、密钥或 MCP 凭据——端点/令牌仍由部署环境注入。
 #
 # 构建参数：
-#   BASE_IMAGE       liki-agent-runtime 纯运行时镜像（必填，显式 immutable release pin）
+#   BASE_IMAGE       agent-runtime 纯运行时镜像（必填，显式 immutable release pin）
 
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
@@ -28,4 +28,4 @@ LABEL org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${COMMIT}" \
       org.opencontainers.image.created="${BUILD_TIME}" \
       org.opencontainers.image.title="liki-agent-deployment" \
-      org.opencontainers.image.description="Liki AgentDeployment assembly image (profiles: natal / divination / fengshui / naming)"
+      org.opencontainers.image.description="AgentDeployment assembly image (profiles: natal / divination / fengshui / naming)"

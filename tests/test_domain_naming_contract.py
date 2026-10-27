@@ -47,4 +47,4 @@ def test_deployment_generator_emits_contract_version():
             check=True,
         )
         deployment = json.loads((output / "deployment.json").read_text())
-    assert deployment["schema_version"] == "liki.agent-deployment.v1"
+    assert deployment["schema_version"] == "agent.deployment.v1"

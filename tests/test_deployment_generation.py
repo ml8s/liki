@@ -39,7 +39,7 @@ class TestDeploymentGeneration(unittest.TestCase):
             with self.subTest(profile=profile):
                 deployment = self._deployment(profile)
                 self.assertNotIn("apiVersion", deployment)
-                self.assertEqual(deployment["schema_version"], "liki.agent-deployment.v1")
+                self.assertEqual(deployment["schema_version"], "agent.deployment.v1")
                 self.assertNotIn("kind", deployment)
                 self.assertEqual(deployment["metadata"]["name"], profile)
                 self.assertEqual(deployment["metadata"]["version"], runtime_version)

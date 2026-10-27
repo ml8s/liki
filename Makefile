@@ -50,24 +50,24 @@ build-deployment: ## Generate AgentDeployment artifacts for all profiles
 		python3 scripts/generate_deployment.py --profile "$$p" --out dist/agents; \
 	done
 
-LIKI_AGENT_RUNTIME_IMAGE ?=
+AGENT_RUNTIME_IMAGE ?=
 # 覆盖为本地二进制时，跳过容器内 pinned 运行时（仅用于离线开发）
-LIKI_AGENT_RUNTIME_VALIDATOR ?=
+AGENT_RUNTIME_VALIDATOR ?=
 
-runtime-validate: build-deployment ## Validate deployment artifacts (LIKI_AGENT_RUNTIME_IMAGE=<ref> or LIKI_AGENT_RUNTIME_VALIDATOR=<bin>)
+runtime-validate: build-deployment ## Validate deployment artifacts (AGENT_RUNTIME_IMAGE=<ref> or AGENT_RUNTIME_VALIDATOR=<bin>)
 	@set -eu; \
-	if [ -z "$(LIKI_AGENT_RUNTIME_VALIDATOR)" ] && [ -z "$(LIKI_AGENT_RUNTIME_IMAGE)" ]; then \
-		echo "set LIKI_AGENT_RUNTIME_IMAGE=liki-local/liki-agent-runtime:<sha> (or LIKI_AGENT_RUNTIME_VALIDATOR)" >&2; exit 2; \
+	if [ -z "$(AGENT_RUNTIME_VALIDATOR)" ] && [ -z "$(AGENT_RUNTIME_IMAGE)" ]; then \
+		echo "set AGENT_RUNTIME_IMAGE=agent-runtime-local/agent-runtime:<sha> (or AGENT_RUNTIME_VALIDATOR)" >&2; exit 2; \
 	fi; \
-	if [ -n "$(LIKI_AGENT_RUNTIME_VALIDATOR)" ]; then \
+	if [ -n "$(AGENT_RUNTIME_VALIDATOR)" ]; then \
 		for p in $(DEPLOYMENT_PROFILES); do \
-			$(LIKI_AGENT_RUNTIME_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
+			$(AGENT_RUNTIME_VALIDATOR) validate -deployment "dist/agents/$$p/deployment.json"; \
 		done; \
 	else \
 		for p in $(DEPLOYMENT_PROFILES); do \
 			docker run --rm -v "$$PWD/dist/agents:/deployment:ro" \
-				-e LIKI_AGENT_RUNTIME_DEPLOYMENT_FILE=/deployment/$$p/deployment.json \
-				--entrypoint /liki-agent-runtime $(LIKI_AGENT_RUNTIME_IMAGE) \
+				-e AGENT_RUNTIME_DEPLOYMENT_FILE=/deployment/$$p/deployment.json \
+				--entrypoint /agent-runtime $(AGENT_RUNTIME_IMAGE) \
 				validate -deployment /deployment/$$p/deployment.json; \
 		done; \
 	fi
@@ -103,7 +103,7 @@ image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
 image-assembly: build-deployment ## Build the experts assembly image (BASE_IMAGE=<local runtime ref> required)
-	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=liki-local/liki-agent-runtime:<sha>" >&2; exit 2; }
+	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
 	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly

@@ -118,14 +118,14 @@ profiles/*.json ─────────────────────�
 `assembly/Dockerfile` 构建单套装配镜像 `liki-experts`，四份 profile 工件一并烘焙：
 
 ```dockerfile
-ARG BASE_IMAGE=liki-local/liki-agent-runtime:<runtime-sha>  # 本地构建
+ARG BASE_IMAGE=agent-runtime-local/agent-runtime:<runtime-sha>  # 本地构建
 FROM ${BASE_IMAGE}
 COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙进镜像
 ```
 
 - 一个镜像承载四条部署：`/deployment/{natal,divination,fengshui,naming}/deployment.json`；
   每个运行时进程加载一份（ADK 生产实践：一 app 一服务），服务用 env
-  `LIKI_AGENT_RUNTIME_DEPLOYMENT_FILE` 选择自己的工件；识别靠 endpoint/DNS 名与
+  `AGENT_RUNTIME_DEPLOYMENT_FILE` 选择自己的工件；识别靠 endpoint/DNS 名与
   Agent Card 名，不靠端口
 - AgentDeployment digest 只作为审计 provenance；部署完整性由 final assembly image digest 承担
 - **组合在 liki**：专家拓扑/指令/白名单在 CI 生成并烘焙，不在运行时装配
