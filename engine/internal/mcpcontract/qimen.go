@@ -18,11 +18,7 @@ type QimenYongShenSymbols []string
 
 // QimenChart computes a qimen chart for an explicitly selected method.
 func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, error) {
-	at, err := parseInstant(string(input.Instant))
-	if err != nil {
-		return nil, fmt.Errorf("qimen.chart: %w", err)
-	}
-	loc, err := loadTimezone(input.Timezone)
+	at, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
@@ -39,17 +35,18 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
 	if method.School == qimen.SchoolJinhanYuJing {
-		if len(input.YongShen) > 0 || input.BirthDate != "" {
-			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_date")
+		if len(input.YongShen) > 0 || input.BirthStandardTime != "" {
+			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_instant")
 		}
 		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, loc, input.Longitude))
 	}
 	var birthDate qimen.BirthDate
-	if input.BirthDate != "" {
-		birthDate, err = qimen.ParseBirthDate(input.BirthDate)
+	if input.BirthStandardTime != "" {
+		birthAt, _, err := parseStandardTime(input.BirthStandardTime)
 		if err != nil {
-			return nil, fmt.Errorf("qimen.chart: %w", err)
+			return nil, fmt.Errorf("qimen.chart: birth: %w", err)
 		}
+		birthDate = qimen.BirthDate{Time: birthAt, Precision: qimen.BirthDateMoment, Has: true}
 	}
 	if len(input.YongShen) > 0 || birthDate.Has {
 		symbols := make([]qimen.YongShenSymbol, 0, len(input.YongShen))

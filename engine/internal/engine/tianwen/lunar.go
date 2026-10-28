@@ -33,13 +33,13 @@ const defaultTZ = 8.0
 
 type month11Key struct {
 	year int
-	tz   float64
+	ref  string
 }
 
 type leapMonthKey struct {
 	current float64
 	next    float64
-	tz      float64
+	ref     string
 }
 
 type boundedMemoEntry[K comparable, V any] struct {
@@ -99,15 +99,9 @@ var (
 	leapMonthKMemo  = newBoundedMemo[leapMonthKey, float64](1024)
 )
 
-const secondsToDays = 1.0 / 86400.0
-
 // ── Trigonometry ──
 
 func sinDeg(deg float64) float64 { return math.Sin(deg * math.Pi / 180.0) }
-
-func normalizeDeg(deg float64) float64 {
-	return math.Mod(math.Mod(deg, 360.0)+360.0, 360.0)
-}
 
 // ── Julian Day (Meeus Chapter 7) ──
 
@@ -150,33 +144,21 @@ func jdToGregorian(jd, tz float64) (int, int, int) {
 	return int(year), int(month), day
 }
 
-// ── Delta T (Meeus Chapter 9) ──
-
-func getDeltaTSeconds(jd float64) float64 {
-	return -15.0 + (jd-2382148.0)*(jd-2382148.0)/41048480.0
+func jdToUTCTime(jd float64) time.Time {
+	z := math.Floor(jd + 0.5)
+	f := jd + 0.5 - z
+	y, m, d := jdToGregorian(jd, 0)
+	return time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC).
+		Add(time.Duration(f * float64(24*time.Hour)))
 }
 
-func getDeltaTSecondsTD(jdTD float64) float64 {
+// deltaTDays returns TT-UT in days using the ShouXing ΔT table/model.
+func deltaTDays(jdTD float64) float64 {
 	ut := jdTD
-	var prev float64
-	for ut != prev {
-		prev = ut
-		ut = jdTD - getDeltaTSeconds(ut)*secondsToDays
+	for range 3 {
+		ut = jdTD - dtT(ut-2451545.0)
 	}
-	return getDeltaTSeconds(ut)
-}
-
-// ── Sun true longitude (Meeus Chapter 24) ──
-
-func getSunTrueLongitude(jdTD float64) float64 {
-	T := (jdTD - 2451545.0) / 36525.0
-	T2 := T * T
-	L0 := 280.46645 + 36000.76983*T + 0.0003032*T2
-	M := 357.52910 + 35999.05030*T + 0.0001559*T2 - 0.00000048*T2*T
-	C := (1.914600-0.004817*T-0.000014*T2)*sinDeg(M) +
-		(0.019993-0.000101*T)*sinDeg(2*M) +
-		0.000290*sinDeg(3*M)
-	return normalizeDeg(L0 + C)
+	return dtT(ut - 2451545.0)
 }
 
 // ── New moon (Meeus Chapter 47) ──
@@ -247,244 +229,45 @@ func getNewMoonJDTD(k float64) float64 {
 	return result
 }
 
-// approximateK returns an approximate lunation number for the given date.
+// approximateK returns the lunation number nearest the given civil date.
 func approximateK(year, month, day int, tz float64) float64 {
-	k := 2.0
-	if year%400 == 0 || (year%4 == 0 && year%100 != 0) {
-		k = 1.0
-	}
-	dayOfYear := math.Floor(275.0*float64(month)/9.0) -
-		k*math.Floor((float64(month)+9.0)/12.0) +
-		float64(day) - 30.0
-	denom := 365.0
-	if k == 1.0 {
-		denom = 366.0
-	}
-	f := -tz / 24.0
-	return ((dayOfYear-1.0+f)/denom + float64(year) - 2000.0) * 12.3685
-}
-
-// ── Winter solstice ──
-
-func getWinterSolsticeJDTD(year int, tz float64) float64 {
-	left := gregorianToJD(year, 12, 1, tz)
-	right := left + 35.0
-
-	var mid float64
-	for range 100 {
-		mid = (left + right) / 2.0
-		lon := getSunTrueLongitude(mid)
-		if math.Abs(lon-270.0) < 1e-9 {
-			return mid
-		}
-		if lon < 270.0 {
-			left = mid
-		} else {
-			right = mid
-		}
-	}
-	return mid
+	jd := gregorianToJD(year, month, day, tz)
+	return (jd - 2451550.09765) / 29.530588853
 }
 
 // ── Month 11 and leap month ──
 
-func compareDates(y1, m1, d1, y2, m2, d2 int) int {
-	if y1 != y2 {
-		return y1 - y2
-	}
-	if m1 != m2 {
-		return m1 - m2
-	}
-	return d1 - d2
-}
-
 func getMonth11K(year int, tz float64) float64 {
-	key := month11Key{year: year, tz: tz}
-	if cached, ok := month11KMemo.get(key); ok {
-		return cached
-	}
-	w := getWinterSolsticeJDTD(year, tz)
-	wDeltaT := getDeltaTSeconds(w)
-	wy, wm, wd := jdToGregorian(w-wDeltaT*secondsToDays, tz)
-
-	k := math.Round(approximateK(wy, wm, wd, tz))
-	m := getNewMoonJDTD(k)
-	mDeltaT := getDeltaTSeconds(m)
-	my, mm, md := jdToGregorian(m-mDeltaT*secondsToDays, tz)
-
-	result := k
-	if compareDates(my, mm, md, wy, wm, wd) > 0 {
-		result = k - 1
-	}
-	month11KMemo.put(key, result)
-	return result
+	return fixedLunarReference(tz).month11K(year)
 }
 
 func getLeapMonthK(currentYearMonth11K, nextYearMonth11K, tz float64) float64 {
-	key := leapMonthKey{current: currentYearMonth11K, next: nextYearMonth11K, tz: tz}
-	if cached, ok := leapMonthKMemo.get(key); ok {
-		return cached
-	}
-	if nextYearMonth11K-currentYearMonth11K <= 12.0 {
-		leapMonthKMemo.put(key, -1)
-		return -1
-	}
-
-	for i := 1.0; i <= 12.0; i++ {
-		curTD := getNewMoonJDTD(currentYearMonth11K + i)
-		nextTD := getNewMoonJDTD(currentYearMonth11K + i + 1)
-
-		curUT := curTD - getDeltaTSecondsTD(curTD)*secondsToDays
-		y, m, d := jdToGregorian(curUT, tz)
-		curMidJD := gregorianToJD(y, m, d, tz)
-		curMidTD := curMidJD + getDeltaTSeconds(curMidJD)*secondsToDays
-		lon1 := getSunTrueLongitude(curMidTD)
-
-		nextUT := nextTD - getDeltaTSecondsTD(nextTD)*secondsToDays
-		y2, m2, d2 := jdToGregorian(nextUT, tz)
-		nextMidJD := gregorianToJD(y2, m2, d2, tz)
-		nextMidTD := nextMidJD + getDeltaTSeconds(nextMidJD)*secondsToDays
-		lon2 := getSunTrueLongitude(nextMidTD)
-
-		if math.Floor(lon1/30.0) == math.Floor(lon2/30.0) {
-			result := currentYearMonth11K + i
-			leapMonthKMemo.put(key, result)
-			return result
-		}
-	}
-	leapMonthKMemo.put(key, -1)
-	return -1
-}
-
-// ── Helpers ──
-
-func newMoonMidnightJD(k, tz float64) float64 {
-	td := getNewMoonJDTD(k)
-	ut := td - getDeltaTSecondsTD(td)*secondsToDays
-	y, m, d := jdToGregorian(ut, tz)
-	return gregorianToJD(y, m, d, tz)
+	return fixedLunarReference(tz).leapMonthK(currentYearMonth11K, nextYearMonth11K)
 }
 
 // ── Public API ──
 
-// LunarDateAt converts a Gregorian instant to the Chinese lunar date,
-// interpreting its civil date in UTC+8.
+// LunarDateAt converts a Gregorian instant to the Chinese lunar date in fixed
+// UTC+8. It is the official compatibility wrapper; use NewLunarProjector when a
+// timezone is available and the intent is local astronomical alignment.
 func LunarDateAt(gt time.Time) LunarDate {
-	t := gt.In(time.FixedZone("CST", int(defaultTZ*3600)))
-	return SolarDateToLunar(t.Year(), int(t.Month()), t.Day())
+	return ShanghaiLunarReference().LunarDateAt(gt)
 }
 
-// SolarDateToLunar converts a civil solar date to the Chinese lunar date.
-// The date is taken as given; month/leap boundaries follow the UTC+8 reference.
+// SolarDateToLunar converts a civil solar date to the Chinese lunar date in the
+// official UTC+8 reference. It is a legacy compatibility wrapper; use
+// LunarProjector for a timezone-aware projection.
 func SolarDateToLunar(solarYear, solarMonth, solarDay int) LunarDate {
-	tz := defaultTZ
-
-	gDayJD := gregorianToJD(solarYear, solarMonth, solarDay, tz)
-	targetK := math.Round(approximateK(solarYear, int(solarMonth), solarDay, tz))
-
-	dayOneJD := newMoonMidnightJD(targetK, tz)
-	nextDayOneJD := newMoonMidnightJD(targetK+1, tz)
-
-	if gDayJD < dayOneJD {
-		targetK--
-		dayOneJD = newMoonMidnightJD(targetK, tz)
-	} else if gDayJD >= nextDayOneJD {
-		targetK++
-		dayOneJD = nextDayOneJD
-	}
-
-	m11ThisYear := getMonth11K(solarYear, tz)
-	var startM11K, endM11K float64
-	var baseYear int
-
-	if targetK >= m11ThisYear {
-		startM11K = m11ThisYear
-		endM11K = getMonth11K(solarYear+1, tz)
-		baseYear = solarYear
-	} else {
-		startM11K = getMonth11K(solarYear-1, tz)
-		endM11K = m11ThisYear
-		baseYear = solarYear - 1
-	}
-
-	leapMonthK := getLeapMonthK(startM11K, endM11K, tz)
-	lunarMonth := 11
-	leap := false
-	lunarYear := baseYear
-
-	for k := startM11K + 1; k <= targetK; k++ {
-		if k == leapMonthK {
-			leap = true
-		} else {
-			leap = false
-			lunarMonth++
-			if lunarMonth == 13 {
-				lunarMonth = 1
-				lunarYear++
-			}
-		}
-	}
-
-	day := int(gDayJD - dayOneJD + 1)
-	return LunarDate{Year: lunarYear, Month: lunarMonth, Day: day, Leap: leap}
+	return ShanghaiLunarReference().SolarDateToLunar(NewCivilDate(solarYear, solarMonth, solarDay))
 }
 
-// CivilTimeFromLunarDate converts a Chinese lunar date to Gregorian date.
-// The result is in UTC+8 local time.
+// CivilTimeFromLunarDate converts a Chinese lunar date to the official UTC+8
+// civil date. It is a legacy compatibility wrapper; use LunarProjector when a
+// timezone is available.
 func CivilTimeFromLunarDate(ld LunarDate) time.Time {
-	tz := defaultTZ
-
-	targetK, ok := findLunarMonthInLunarYear(ld.Year, ld.Month, ld.Leap)
-	if !ok {
-		return time.Time(time.Time{})
+	date, err := ShanghaiLunarReference().CivilDateFromLunar(ld)
+	if err != nil {
+		return time.Time{}
 	}
-
-	// Validate day is within the month.
-	td := getNewMoonJDTD(targetK)
-	nextTD := getNewMoonJDTD(targetK + 1)
-	ut := td - getDeltaTSecondsTD(td)*secondsToDays
-	nextUT := nextTD - getDeltaTSecondsTD(nextTD)*secondsToDays
-	y, m, d := jdToGregorian(ut, tz)
-	ny, nm, nd := jdToGregorian(nextUT, tz)
-	midnightJD := gregorianToJD(y, m, d, tz)
-	nextMidnightJD := gregorianToJD(ny, nm, nd, tz)
-	monthSize := int(nextMidnightJD - midnightJD)
-
-	if ld.Day < 1 || ld.Day > monthSize {
-		return time.Time(time.Time{})
-	}
-
-	targetJD := midnightJD + float64(ld.Day-1)
-	gy, gm, gd := jdToGregorian(targetJD, tz)
-	return time.Time(time.Date(gy, time.Month(gm), gd, 0, 0, 0, 0, time.FixedZone("CST", int(defaultTZ*3600))))
-}
-
-func searchMonthKInRange(anchorYear, lunarMonth int, leap bool, tz float64) (float64, bool) {
-	startM11K := getMonth11K(anchorYear, tz)
-	endM11K := getMonth11K(anchorYear+1, tz)
-	leapMonthK := getLeapMonthK(startM11K, endM11K, tz)
-
-	currentMonth := 11
-	isLeap := false
-
-	for i := 0.0; i <= 14.0; i++ {
-		k := startM11K + i
-
-		if i > 0 {
-			if k == leapMonthK {
-				isLeap = true
-			} else {
-				isLeap = false
-				currentMonth++
-				if currentMonth == 13 {
-					currentMonth = 1
-				}
-			}
-		}
-
-		if currentMonth == lunarMonth && isLeap == leap {
-			return k, true
-		}
-	}
-	return 0, false
+	return time.Date(date.Year, time.Month(date.Month), date.Day, 0, 0, 0, 0, cstLocation)
 }

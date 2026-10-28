@@ -361,7 +361,8 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
         "2026-09-07T04:00:00Z", "Asia/Shanghai",
         116.4,
         matter="wealth",
-        birth_date="1984-02-15",
+        birth_instant="1984-02-14T16:00:00Z",
+        birth_timezone="Asia/Shanghai",
         method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
     )
 
@@ -370,7 +371,8 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
     assert method == "qimen.chart"
     assert "matter" not in params
     assert params["yong_shen"] == ["生门", "戊"]
-    assert params["birth_date"] == "1984-02-15"
+    assert params["birth_instant"] == "1984-02-14T16:00:00Z"
+    assert params["birth_timezone"] == "Asia/Shanghai"
     assert result["matter"]["matter"] == "wealth"
     assert result["matter"]["name"] == "求财"
     assert result["chart"]["ri_gan_gong"] == "震"

@@ -7,7 +7,7 @@
   "description_en": "Rule-based readings, timing, synastry and naming checks for BaZi, Zi Wei, Liu Yao and Qi Men.",
   "source": "liki-counsel",
   "type": "mcp",
-  "version": "2026.1023.0",
+  "version": "2026.1027.0",
   "minWorkbuddyVersion": "4.24.0",
   "examples_zh": [
     "分析我的八字格局和用神",

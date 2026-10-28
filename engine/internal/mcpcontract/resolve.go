@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"liki-engine/internal/engine/tianwen"
 )
@@ -42,20 +41,12 @@ type TianwenResolveInput struct {
 
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选，用于边界不确定性。"`
 
-	Instant Instant                   `json:"instant,omitempty" jsonschema:"精确瞬间 RFC3339；canonical 是 UTC 且以 Z 结尾，兼容 numeric offset；与 time/shichen/range 四选一。"`
 	Time    string                    `json:"time,omitempty" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）；与 gregorian_time/shichen/range 四选一。"`
 	Shichen string                    `json:"shichen,omitempty" jsonschema:"已知时辰（真太阳时基，2 小时）；与 gregorian_time/time/range 四选一。"`
 	Range   *TianwenResolveRangeInput `json:"range,omitempty" jsonschema:"同日民用时间区间；与 gregorian_time/time/shichen 四选一。"`
 }
 
 // ── tianwen.resolve input variants (public oneOf) ──
-
-type TianwenUTCForm struct {
-	Instant        Instant                            `json:"instant" jsonschema:"精确瞬间 RFC3339；canonical 是 UTC 且以 Z 结尾，兼容 numeric offset。"`
-	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在 IANA 时区。"`
-	Longitude      float64                            `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时换算必需。"`
-	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选，用于边界不确定性。"`
-}
 
 type TianwenDateTimeForm struct {
 	Date           string                             `json:"date" jsonschema:"公历日期 YYYY-MM-DD。"`
@@ -91,10 +82,6 @@ type TianwenRangeForm struct {
 
 func tianwenResolveFormsSchema() (json.RawMessage, error) {
 	builders := []func() (json.RawMessage, error){
-		func() (json.RawMessage, error) {
-			_, raw, err := inputSchemaFor[TianwenUTCForm]()
-			return raw, err
-		},
 		func() (json.RawMessage, error) {
 			_, raw, err := inputSchemaFor[TianwenDateTimeForm]()
 			return raw, err
@@ -137,9 +124,8 @@ type TianwenResolveReasonOutput struct {
 // civil time with offset for display only. Do not add calendar/true-solar
 // fields here: charts derive Lunar/LAST/SolarTerm on demand from the shared L1.
 type TianwenResolveCandidateOutput struct {
-	Instant  Instant                      `json:"instant" jsonschema:"候选瞬间 UTC（RFC3339，canonical 以 Z 结尾）。"`
-	Timezone string                       `json:"timezone" jsonschema:"该候选的 IANA 时区。"`
-	Reasons  []TianwenResolveReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
+	StandardTime string                       `json:"standard_time" jsonschema:"候选时区标准时间（无 DST），RFC3339。"`
+	Reasons      []TianwenResolveReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
 }
 
 // TianwenResolveOutput is the candidate set for one time fact. The only
@@ -157,21 +143,6 @@ func TianwenResolve(_ context.Context, input TianwenResolveInput) (TianwenResolv
 		Longitude: input.Longitude,
 		Time:      input.Time,
 		Shichen:   input.Shichen,
-	}
-	if input.Instant != "" {
-		if input.Timezone == "" {
-			return TianwenResolveOutput{}, fmt.Errorf("tianwen.resolve: timezone is required")
-		}
-		zone, err := loadTimezone(input.Timezone)
-		if err != nil {
-			return TianwenResolveOutput{}, fmt.Errorf("tianwen.resolve: %w", err)
-		}
-		at, err := parseInstant(string(input.Instant))
-		if err != nil {
-			return TianwenResolveOutput{}, fmt.Errorf("tianwen.resolve: %w", err)
-		}
-		local := at.In(zone)
-		in.Gregorian = &local
 	}
 	if input.Lunar != nil {
 		in.Lunar = tianwen.LunarDate{
@@ -196,6 +167,10 @@ func TianwenResolve(_ context.Context, input TianwenResolveInput) (TianwenResolv
 	output := TianwenResolveOutput{
 		Candidates: make([]TianwenResolveCandidateOutput, 0, len(result.Candidates)),
 	}
+	zone, err := loadTimezone(input.Timezone)
+	if err != nil {
+		return TianwenResolveOutput{}, fmt.Errorf("tianwen.resolve: %w", err)
+	}
 	for _, candidate := range result.Candidates {
 		reasons := make([]TianwenResolveReasonOutput, 0, len(candidate.Reasons))
 		for _, reason := range candidate.Reasons {
@@ -205,9 +180,8 @@ func TianwenResolve(_ context.Context, input TianwenResolveInput) (TianwenResolv
 			})
 		}
 		output.Candidates = append(output.Candidates, TianwenResolveCandidateOutput{
-			Instant:  Instant(candidate.CivilTime.UTC().UTC().Format(time.RFC3339Nano)),
-			Timezone: input.Timezone,
-			Reasons:  reasons,
+			StandardTime: standardTimeString(candidate.CivilTime, zone),
+			Reasons:      reasons,
 		})
 	}
 	return output, nil

@@ -70,7 +70,7 @@ func ComputeMingGua(gender ganzhi.Gender, birthYear int) MingGua {
 	if westGroup[n] {
 		group = "西四命"
 	}
-	return MingGua{Gua: g, Group: group, YearBoundary: "gregorian_calendar_year"}
+	return MingGua{Gua: g, Group: group, YearBoundary: "lichun"}
 }
 
 // Chart is the complete八宅合参 result.

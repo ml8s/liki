@@ -253,32 +253,26 @@ func resolveBaseDate(in ResolveInput, form resolveForm) (int, time.Month, int, e
 		}
 		return t.Year(), t.Month(), t.Day(), nil
 	case "lunar":
-		if _, err := ValidateLunarDate(in.Lunar); err != nil {
+		loc, err := resolveLocation(in.Timezone)
+		if err != nil {
+			return 0, 0, 0, err
+		}
+		projector, err := NewLunarProjector(LunarBasisLocalAstronomical, loc)
+		if err != nil {
+			return 0, 0, 0, fmt.Errorf("invalid lunar basis: %w", err)
+		}
+		date, err := projector.CivilDateFromLunar(in.Lunar)
+		if err != nil {
 			return 0, 0, 0, fmt.Errorf("invalid lunar date: %w", err)
 		}
-		gt := CivilTimeFromLunarDate(in.Lunar)
-		if gt.IsZero() {
-			return 0, 0, 0, fmt.Errorf("invalid lunar date: %+v", in.Lunar)
-		}
-		t := gt.In(cstLocation)
-		return t.Year(), t.Month(), t.Day(), nil
+		return date.Year, time.Month(date.Month), date.Day, nil
 	default:
 		return 0, 0, 0, fmt.Errorf("calendar must be solar or lunar")
 	}
 }
 
-// resolveOffsets returns the UTC offsets for which the recorded wall clock
-// exists in the zone. A DST fold yields two; a gap yields an error.
-func resolveOffsets(in ResolveInput, form resolveForm, year int, month time.Month, day int, zone *time.Location) ([]int, error) {
-	if form == formGregorian {
-		_, offset := in.Gregorian.Zone()
-		return []int{offset}, nil
-	}
-	hour, minute, second, err := representativeWallClock(in, form)
-	if err != nil {
-		return nil, err
-	}
-	base := time.Date(year, month, day, hour, minute, second, 0, zone)
+func civilOffsets(year int, month time.Month, day, hour, minute, second, nanosecond int, zone *time.Location) ([]int, error) {
+	base := time.Date(year, month, day, hour, minute, second, nanosecond, zone)
 	probes := []time.Time{
 		base.Add(-36 * time.Hour),
 		base.Add(-12 * time.Hour),
@@ -307,6 +301,40 @@ func resolveOffsets(in ResolveInput, form resolveForm, year int, month time.Mont
 		return nil, fmt.Errorf("the recorded wall clock does not exist in %s (DST gap); confirm the time", zone)
 	}
 	sort.Ints(offsets)
+	return offsets, nil
+}
+
+// CivilInstants resolves a civil wall clock to all matching instants. A DST
+// fold yields two instants sorted by time; a gap yields an error.
+func CivilInstants(year int, month time.Month, day, hour, minute, second, nanosecond int, zone *time.Location) ([]time.Time, error) {
+	offsets, err := civilOffsets(year, month, day, hour, minute, second, nanosecond, zone)
+	if err != nil {
+		return nil, err
+	}
+	instants := make([]time.Time, 0, len(offsets))
+	for _, offset := range offsets {
+		fixed := time.FixedZone("", offset)
+		instants = append(instants, time.Date(year, month, day, hour, minute, second, nanosecond, fixed).UTC())
+	}
+	sort.Slice(instants, func(i, j int) bool { return instants[i].Before(instants[j]) })
+	return instants, nil
+}
+
+// resolveOffsets returns the UTC offsets for which the recorded wall clock
+// exists in the zone, standard offset first.
+func resolveOffsets(in ResolveInput, form resolveForm, year int, month time.Month, day int, zone *time.Location) ([]int, error) {
+	if form == formGregorian {
+		_, offset := in.Gregorian.Zone()
+		return []int{offset}, nil
+	}
+	hour, minute, second, err := representativeWallClock(in, form)
+	if err != nil {
+		return nil, err
+	}
+	offsets, err := civilOffsets(year, month, day, hour, minute, second, 0, zone)
+	if err != nil {
+		return nil, err
+	}
 	// 标准时优先：tzdb 的 IsDST 标记（支持负夏令时的地区），否则取较小偏移。
 	standard := offsets[0]
 	for _, offset := range offsets {

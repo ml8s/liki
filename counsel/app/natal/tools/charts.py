@@ -19,6 +19,7 @@ from app.engine_mcp_client import (  # noqa: E402
 )
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
+from app.time_facts import civil_time_from_instant, civil_wall
 
 # Engine MCP 客户端（counsel 统一走 MCP）
 from app.version import runtime_version
@@ -41,9 +42,14 @@ def skill_version() -> str:
 
 # ── 内部 RPC 封装（build_natal_chart / liunian 编排用，agent 不直接碰）──
 
-def _resolve_utc(instant: str, timezone: str, longitude: float) -> dict:
-    """Canonical time facts: {instant, timezone} -> candidates {instant, timezone, local_time, offset, reasons}."""
-    r = call("tianwen.resolve", {"instant": instant, "timezone": timezone, "longitude": longitude})
+def _resolve_civil(instant: str, timezone: str, longitude: float) -> dict:
+    """Resolve a reported instant through its civil wall clock."""
+    civil = civil_time_from_instant(instant, timezone)
+    date, clock = civil.split("T", 1)
+    r = call("tianwen.resolve", {
+        "calendar": "solar", "date": date, "time": clock,
+        "timezone": timezone, "longitude": longitude,
+    })
     return r["data"]
 
 
@@ -53,9 +59,9 @@ def _resolve_local(date: str, clock: str, timezone: str, longitude: float) -> di
     return r["data"]
 
 
-def _bazi_chart(instant: str, timezone: str, longitude: float, gender: str) -> dict:
-    # Year/month come from solar terms (instant); day/hour from LAST (longitude).
-    params = {"instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender}
+def _bazi_chart(civil_time: str, timezone: str, longitude: float, gender: str) -> dict:
+    # Year/month come from solar terms; day/hour from LAST.
+    params = {"civil_time": civil_time, "timezone": timezone, "longitude": longitude, "gender": gender}
     return call("bazi.chart", params)["data"]
 
 
@@ -63,16 +69,16 @@ def _bazi_fullchart(chart: dict) -> dict:
     return call("bazi.fullchart", {"chart": chart})["data"]
 
 
-def _ziwei_chart(instant: str, timezone: str, longitude: float, gender: str) -> dict:
-    params = {"instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender}
+def _ziwei_chart(civil_time: str, timezone: str, longitude: float, gender: str) -> dict:
+    params = {"civil_time": civil_time, "timezone": timezone, "longitude": longitude, "gender": gender}
     return call("ziwei.chart", params)["data"]
 
 
 def _ziwei_fullchart(
-    instant: str, timezone: str, longitude: float, gender: str,
+    civil_time: str, timezone: str, longitude: float, gender: str,
 ) -> tuple[dict, dict]:
     """返回 (chart, fullchart)：chart 是 ziwei.chart 契约对象，flow 工具复用。"""
-    chart = _ziwei_chart(instant, timezone, longitude, gender)
+    chart = _ziwei_chart(civil_time, timezone, longitude, gender)
     full = call("ziwei.fullchart", {"chart": chart})["data"]
     return chart, full
 
@@ -101,19 +107,20 @@ def _nian_gz(chart: dict) -> str:
 def current_years(timezone: str) -> tuple[int, int]:
     """引擎时点事实 → (八字年号[立春界], 农历年号[春节界])；不做缓存。"""
     payload = time_now(timezone)
-    instant = payload.get("instant")
-    if not instant:
-        raise ValueError("time.now 返回缺少 instant")
-    current = _bazi_chart(instant, timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
+    civil = payload.get("civil_time")
+    if not civil:
+        raise ValueError("time.now 返回缺少 civil_time")
+    civil = civil_wall(civil)
+    current = _bazi_chart(civil, timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
     gregorian_year = int(current.get("birth_year") or 0)
     if not gregorian_year:
         raise ValueError("bazi.chart 返回缺少 birth_year")
     mid_candidate = _resolve_local(
         f"{gregorian_year}-07-01", "12:00", timezone, _CURRENT_YEAR_LONGITUDE,
     )["candidates"][0]
-    mid = _bazi_chart(mid_candidate["instant"], timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
+    mid = _bazi_chart(civil_wall(mid_candidate["civil_time"]), timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
     bazi_year = gregorian_year if _nian_gz(current) == _nian_gz(mid) else gregorian_year - 1
-    ziwei = _ziwei_chart(instant, timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
+    ziwei = _ziwei_chart(civil, timezone, _CURRENT_YEAR_LONGITUDE, _CURRENT_YEAR_GENDER)
     lunar_year = ziwei.get("birth_year")
     if not lunar_year:
         raise ValueError("ziwei.chart 返回缺少 birth_year")
@@ -123,23 +130,20 @@ def current_years(timezone: str) -> tuple[int, int]:
 def _bazi_liunian(chart: dict, year: int) -> dict:
     """八字流年盘。
 
-    year = 公历年号。engine 内部用年中（6 月）确定年干支，避开立春边界
-    （公历 year 的干支在立春后即当年号干支）。与紫微流年（_ziwei_liunian
-    按干支年号）在年粒度查询下同号一致；两者年界口径统一为「查询年份号」。
+    year = 公历年号。engine 以日期选择立春年；这里用该年 6 月 15 日作
+    年粒度代表日，落在立春之后，保持「查询年份号」的既有口径。
     """
-    return call("bazi.liunian", {"chart": chart, "year": year})["data"]
+    return call("bazi.liunian", {"chart": chart, "civil_time": f"{year:04d}-06-15T12:00:00", "timezone": "Asia/Shanghai"})["data"]
 
 
 def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
     """紫微流年盘。
 
-    lunar_year = 干支年号（农历年号数字，如 2030 → 庚戌）。engine 内部用
-    yearGanZhi(lunar_year) 直接算年干支（年号即干支），不做公历/农历换算。
-    流年查询以年为粒度：公历 year 与农历 year 同号（年号 2030 两边都指庚戌），
-    故调用方直接传查询年份即可；年初（春节前）的日粒度偏差属年界约定，
-    见 yearly_range 的流年年界说明。
+    lunar_year = 干支年号（农历年号数字，如 2030 → 庚戌）。engine 以日期
+    选择农历年；这里用该年 6 月 15 日作年粒度代表日（春节之后），保持
+    「查询年份号即农历年号」的既有口径。
     """
-    return call("ziwei.liunian", {"chart": ziwei, "lunar_year": lunar_year})["data"]
+    return call("ziwei.liunian", {"chart": ziwei, "civil_time": f"{lunar_year:04d}-06-15T12:00:00", "timezone": "Asia/Shanghai"})["data"]
 
 
 def _bazi_liunian_range(chart: dict, start_year: int, count: int) -> list[dict]:
@@ -149,7 +153,7 @@ def _bazi_liunian_range(chart: dict, start_year: int, count: int) -> list[dict]:
     """
     if not 0 < count <= MAX_LIUNIAN_BATCH:
         raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
-    result = call("bazi.liunian", {"chart": chart, "year": start_year, "count": count})
+    result = call("bazi.liunian", {"chart": chart, "civil_time": f"{start_year:04d}-06-15T12:00:00", "timezone": "Asia/Shanghai", "count": count})
     return _liunian_range_items("bazi.liunian", result, count)
 
 
@@ -160,7 +164,7 @@ def _ziwei_liunian_range(ziwei: dict, start_lunar_year: int, count: int) -> list
     """
     if not 0 < count <= MAX_LIUNIAN_BATCH:
         raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
-    result = call("ziwei.liunian", {"chart": ziwei, "lunar_year": start_lunar_year, "count": count})
+    result = call("ziwei.liunian", {"chart": ziwei, "civil_time": f"{start_lunar_year:04d}-06-15T12:00:00", "timezone": "Asia/Shanghai", "count": count})
     return _liunian_range_items("ziwei.liunian", result, count)
 
 
@@ -189,11 +193,11 @@ def _liunian_range_items(tool: str, result: object, count: int) -> list[dict]:
 def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optional[float] = None) -> dict:
     """本命盘（八字 + 紫微一次排全）。
 
-    instant/timezone：规范时间事实（UTC + IANA）；longitude：出生地经度（必填）。
+    instant/timezone：报告的绝对时间 + IANA 时区；longitude：出生地经度（必填）。
     时间归一化走 tianwen.resolve（返回候选与原因）；本盘以 input 候选为基准，
     多候选时把候选与原因写入 time_candidates / calibration_hint（考时由上层按候选编排）。
 
-    返回盘结构：{instant, timezone, gregorian_time, chart, full, ziwei, ziwei_daxian, gender,
+    返回盘结构：{standard_time, civil_time, timezone, chart, full, ziwei, ziwei_daxian, gender,
     pan_digest[, time_candidates][, calibration_hint]}；gregorian_time 是 local_time 展示值。
     返回结构是 factors 层的唯一输入；领域快照由 factors 层按 natal_chart 生成。
     """
@@ -203,7 +207,7 @@ def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optio
         )
     if not instant or not timezone:
         raise ValueError("instant 和 timezone 必填（IANA）")
-    resolved = _resolve_utc(instant, timezone, longitude)
+    resolved = _resolve_civil(instant, timezone, longitude)
     candidates = resolved.get("candidates") or []
     if not candidates:
         raise ValueError("tianwen.resolve returned no candidates")
@@ -212,16 +216,17 @@ def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optio
          if any(reason.get("domain") == "input" for reason in item.get("reasons", []))),
         candidates[0],
     )
-    instant = candidate["instant"]
+    civil_time = civil_wall(candidate["civil_time"])
 
-    chart = _bazi_chart(instant, timezone, longitude, gender)
+    chart = _bazi_chart(civil_time, timezone, longitude, gender)
     full = _bazi_fullchart(chart)
     # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
-    zw_chart, zw = _ziwei_fullchart(instant, timezone, longitude, gender)
+    zw_chart, zw = _ziwei_fullchart(civil_time, timezone, longitude, gender)
     # ziwei.daxian 契约收 ziwei.chart 输出；fullchart 增量字段属因子层。
     daxian = _ziwei_daxian(zw_chart)
     result = {
-        "instant": instant,
+        "standard_time": candidate.get("standard_time"),
+        "civil_time": candidate.get("civil_time"),
         "timezone": timezone,
         "chart": chart,      # 含 birth_year / da_yun
         "full": full,        # 十神/藏干/神煞/合会冲刑/三元

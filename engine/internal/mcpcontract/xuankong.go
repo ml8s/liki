@@ -3,22 +3,22 @@ package mcpcontract
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"liki-engine/internal/engine/fengshui"
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tianwen"
 	"liki-engine/internal/engine/xuankong"
 )
 
 type XuankongChartInput struct {
-	PeriodDate DateString    `json:"period_date" jsonschema:"宅运起盘日期，YYYY-MM-DD；年份 1864-2200。这不是命主出生时间。"`
-	ZuoShan    MountainIndex `json:"zuo_shan" jsonschema:"坐山，二十四山 index：0=子,1=癸,2=丑,3=艮,4=寅,5=甲,6=卯,7=乙,8=辰,9=巽,10=巳,11=丙,12=午,13=丁,14=未,15=坤,16=申,17=庚,18=酉,19=辛,20=戌,21=乾,22=亥,23=壬。"`
-	XiangShan  MountainIndex `json:"xiang_shan" jsonschema:"朝向；必须等于坐山后 12 山（180°相对）。"`
+	StandardTime StandardTime  `json:"standard_time" jsonschema:"起盘地标准时间（无 DST），RFC3339 带 offset。"`
+	ZuoShan      MountainIndex `json:"zuo_shan" jsonschema:"坐山，二十四山 index：0=子,1=癸,2=丑,3=艮,4=寅,5=甲,6=卯,7=乙,8=辰,9=巽,10=巳,11=丙,12=午,13=丁,14=未,15=坤,16=申,17=庚,18=酉,19=辛,20=戌,21=乾,22=亥,23=壬。"`
+	XiangShan    MountainIndex `json:"xiang_shan" jsonschema:"朝向；必须等于坐山后 12 山（180°相对）。"`
 }
 
 type XuankongYunOutput struct {
-	Year         XuankongYear     `json:"year" jsonschema:"起盘公历年份。"`
-	YearBoundary YearBoundaryName `json:"year_boundary" jsonschema:"当前实现按公历日历年换运；立春年界属另一流派，不在本盘隐含。"`
+	Year         XuankongYear     `json:"year" jsonschema:"立春年份。"`
+	YearBoundary YearBoundaryName `json:"year_boundary" jsonschema:"年界：立春。"`
 	Yuan         XuankongYuanName `json:"yuan" jsonschema:"三元元运。"`
 	YunNumber    FlyingStarNumber `json:"yun_number" jsonschema:"运数。"`
 	YunName      YunName          `json:"yun_name" jsonschema:"运名。"`
@@ -81,9 +81,17 @@ type XuankongChart struct {
 }
 
 type XuankongLiunianInput struct {
-	Chart *XuankongChart `json:"chart,omitempty" jsonschema:"可选 xuankong.chart 宅盘；传入时 digest 必须匹配。"`
-	Year  XuankongYear   `json:"year" jsonschema:"目标公历年份。"`
-	Count SeriesCount    `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Chart        *XuankongChart `json:"chart,omitempty" jsonschema:"可选 xuankong.chart 宅盘；传入时 digest 必须匹配。"`
+	StandardTime StandardTime   `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
+	Count        SeriesCount    `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+}
+
+type XuankongLiunianResolved struct {
+	SelectorStandardTime StandardTime `json:"selector_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
+	LichunYear           int          `json:"lichun_year" jsonschema:"该瞬间所在的立春年。"`
+	LichunStart          DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
+	LichunEnd            DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
+	BoundaryDay          bool         `json:"boundary_day" jsonschema:"输入瞬间的当地日期是否为立春边界日。"`
 }
 
 type XuankongAnnualStarOutput struct {
@@ -101,19 +109,20 @@ type XuankongHouseOverlayOutput struct {
 }
 
 type XuankongLiunianOutput struct {
-	Year         XuankongYear                 `json:"year" jsonschema:"目标公历年份。"`
+	Year         XuankongYear                 `json:"year" jsonschema:"立春年份。"`
 	RuZhong      FlyingStarName               `json:"ru_zhong" jsonschema:"入中紫白星。"`
 	GongWei      [9]XuankongAnnualStarOutput  `json:"gong_wei" jsonschema:"九宫流年紫白星。"`
 	HouseOverlay []XuankongHouseOverlayOutput `json:"house_overlay,omitempty" jsonschema:"传入宅盘时，全部流年星落宫对照宅盘该宫三星；不预设星曜固有吉凶。"`
+	Resolved     XuankongLiunianResolved      `json:"resolved" jsonschema:"时间推导结果。"`
 }
 
 func XuankongChartCompute(_ context.Context, input XuankongChartInput) (XuankongChart, error) {
-	periodDate, err := time.Parse("2006-01-02", string(input.PeriodDate))
+	at, _, err := parseStandardTime(input.StandardTime)
 	if err != nil {
-		return XuankongChart{}, fmt.Errorf("xuankong.chart: invalid period_date %q: %w", input.PeriodDate, err)
+		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
 	}
-	if periodDate.Year() < 1864 || periodDate.Year() > 2200 {
-		return XuankongChart{}, fmt.Errorf("xuankong.chart: period_date year %d out of range (1864-2200)", periodDate.Year())
+	if at.UTC().Year() < 1864 || at.UTC().Year() > 2200 {
+		return XuankongChart{}, fmt.Errorf("xuankong.chart: year %d out of range (1864-2200)", at.UTC().Year())
 	}
 	if (int(input.ZuoShan)+12)%24 != int(input.XiangShan) {
 		return XuankongChart{}, fmt.Errorf(
@@ -121,9 +130,10 @@ func XuankongChartCompute(_ context.Context, input XuankongChartInput) (Xuankong
 			input.ZuoShan, input.XiangShan,
 		)
 	}
-	chart := xuankong.ComputeChart(
-		time.Time(periodDate), int(input.ZuoShan), int(input.XiangShan),
-	)
+	chart, err := xuankong.ComputeChartAtInstant(at, int(input.ZuoShan), int(input.XiangShan))
+	if err != nil {
+		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
+	}
 	return xuankongChartWire(chart), nil
 }
 
@@ -133,13 +143,29 @@ func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (any, error)
 			return computeXuankongLiunian(in)
 		},
 		func(in XuankongLiunianInput) (XuankongLiunianInput, error) {
-			in.Year++
+			at, loc, err := parseStandardTime(in.StandardTime)
+			if err != nil {
+				return in, fmt.Errorf("xuankong.liunian: %w", err)
+			}
+			ly, err := tianwen.LichunYearAt(at)
+			if err != nil {
+				return in, fmt.Errorf("xuankong.liunian: %w", err)
+			}
+			in.StandardTime = standardTimeValue(ly.End.In(loc))
 			return in, nil
 		},
 	)
 }
 
 func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, error) {
+	at, loc, err := parseStandardTime(input.StandardTime)
+	if err != nil {
+		return XuankongLiunianOutput{}, fmt.Errorf("xuankong.liunian: %w", err)
+	}
+	ly, err := tianwen.LichunYearAt(at)
+	if err != nil {
+		return XuankongLiunianOutput{}, fmt.Errorf("xuankong.liunian: %w", err)
+	}
 	var chart *xuankong.Chart
 	if input.Chart != nil {
 		domainChart, err := xuankongChartDomain(*input.Chart)
@@ -148,8 +174,17 @@ func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, 
 		}
 		chart = &domainChart
 	}
-	result := xuankong.ComputeLiuNian(int(input.Year), chart)
-	return xuankongLiunianWire(result), nil
+	result := xuankong.ComputeLiuNian(ly.Year, chart)
+	output := xuankongLiunianWire(result)
+	startDate := tianwen.StandardDateAt(ly.Start, loc)
+	output.Resolved = XuankongLiunianResolved{
+		SelectorStandardTime: standardTimeValue(at),
+		LichunYear:           ly.Year,
+		LichunStart:          civilDateString(startDate),
+		LichunEnd:            civilDateString(tianwen.StandardDateAt(ly.End, loc)),
+		BoundaryDay:          tianwen.StandardDateAt(at, loc) == startDate,
+	}
+	return output, nil
 }
 
 func xuankongStarWire(star fengshui.FlyingStar) XuankongStarOutput {

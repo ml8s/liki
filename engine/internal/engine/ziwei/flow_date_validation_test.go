@@ -40,14 +40,12 @@ func TestComputeLiuRiAndLiuShiValidateLeapDate(t *testing.T) {
 	}
 }
 
-func TestComputeChartRejectsInvalidLunarDate(t *testing.T) {
-	lt := tianwen.LunarTime{Year: 2024, Month: 6, Day: 1, Leap: true, Shichen: ganzhi.ZhiChen}
-	if _, err := ComputeChart(lt, ganzhi.Male); err == nil {
-		t.Fatal("chart for nonexistent leap month succeeded, want error")
-	}
-
-	lt = tianwen.LunarTime{Year: 2024, Month: 13, Day: 1, Shichen: ganzhi.ZhiChen}
-	if _, err := ComputeChart(lt, ganzhi.Male); err == nil {
-		t.Fatal("chart for lunar month 13 succeeded, want error")
+func TestComputeChartAcceptsLocalAstronomicalLeapMonth(t *testing.T) {
+	// ComputeChart is lunar-native: the upstream reference decides whether a
+	// leap month exists. 2025 leap 7 is real in the local astronomical calendar
+	// for America/New_York even though the official UTC+8 table has no leap 7.
+	lt := tianwen.LunarTime{Year: 2025, Month: 7, Day: 2, Leap: true, Shichen: ganzhi.ZhiChen}
+	if _, err := ComputeChart(lt, ganzhi.Male); err != nil {
+		t.Fatalf("local astronomical leap month rejected: %v", err)
 	}
 }

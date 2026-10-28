@@ -551,9 +551,13 @@ class QimenSnapshotInput(BaseModel):
         default=None,
         description="可选专占规则；由因子契约校验适用盘型",
     )
-    birth_date: str = Field(
+    birth_instant: str = Field(
         default=None,
-        description="出生日期或时刻，用于年命干落宫；金函玉镜不接受",
+        description="出生瞬间 RFC3339，用于年命干落宫；与 birth_timezone 成对出现；金函玉镜不接受",
+    )
+    birth_timezone: str = Field(
+        default=None,
+        description="出生地 IANA 时区；birth_instant 存在时必填",
     )
 
     @model_validator(mode="after")
@@ -562,12 +566,16 @@ class QimenSnapshotInput(BaseModel):
         require_exactly_one(city=self.city, longitude=self.longitude)
         require_mutually_exclusive(matter=self.matter, yong_shen=self.yong_shen)
 
+        if (self.birth_instant is None) != (self.birth_timezone is None):
+            raise ValueError("birth_instant and birth_timezone must be provided together")
+
         is_jinhan = isinstance(self.method, QimenJinhanMethod)
         if is_jinhan:
             forbidden = [
                 name for name, value in (
                     ("matter", self.matter), ("yong_shen", self.yong_shen),
-                    ("rule", self.rule), ("birth_date", self.birth_date),
+                    ("rule", self.rule), ("birth_instant", self.birth_instant),
+                ("birth_timezone", self.birth_timezone),
                 ) if value is not None
             ]
             if forbidden:

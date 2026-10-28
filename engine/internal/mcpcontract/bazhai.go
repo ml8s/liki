@@ -2,14 +2,15 @@ package mcpcontract
 
 import (
 	"context"
+	"fmt"
 
 	"liki-engine/internal/engine/bazhai"
 	"liki-engine/internal/engine/ganzhi"
 )
 
 type BazhaiChartInput struct {
-	BirthYear BazhaiBirthYear `json:"birth_year" jsonschema:"出生公历年份。"`
-	Gender    GenderName      `json:"gender" jsonschema:"性别。"`
+	StandardTime StandardTime `json:"standard_time" jsonschema:"出生地标准时间（无 DST），RFC3339 带 offset。"`
+	Gender       GenderName   `json:"gender" jsonschema:"性别。"`
 }
 
 type BazhaiGuaOutput struct {
@@ -22,7 +23,7 @@ type BazhaiGuaOutput struct {
 type BazhaiMingGuaOutput struct {
 	Gua          BazhaiGuaOutput  `json:"gua" jsonschema:"命卦。"`
 	Group        LifeGroupName    `json:"group" jsonschema:"东四命或西四命。"`
-	YearBoundary YearBoundaryName `json:"year_boundary" jsonschema:"当前实现按公历日历年换运；立春年界属另一流派，不在本盘隐含。"`
+	YearBoundary YearBoundaryName `json:"year_boundary" jsonschema:"年界：立春。"`
 }
 
 type BazhaiDirectionsOutput struct {
@@ -45,9 +46,9 @@ type BazhaiAnnualStarOutput struct {
 }
 
 type BazhaiYearStarsOutput struct {
-	Year         BazhaiBirthYear           `json:"year" jsonschema:"流年公历年份。"`
+	Year         BazhaiBirthYear           `json:"year" jsonschema:"立春年份。"`
 	RuZhong      FlyingStarName            `json:"ru_zhong" jsonschema:"入中紫白星。"`
-	YearBoundary YearBoundaryName          `json:"year_boundary" jsonschema:"当前实现按公历日历年换运。"`
+	YearBoundary YearBoundaryName          `json:"year_boundary" jsonschema:"年界：立春。"`
 	Palaces      [9]BazhaiAnnualStarOutput `json:"gong_wei" jsonschema:"九宫紫白星。"`
 }
 
@@ -83,7 +84,14 @@ type BazhaiLayoutOutput struct {
 }
 
 func BazhaiChart(_ context.Context, input BazhaiChartInput) (BazhaiChartOutput, error) {
-	chart := bazhai.ComputeChart(ganzhi.Gender(input.Gender), int(input.BirthYear))
+	standard, _, err := parseStandardTime(input.StandardTime)
+	if err != nil {
+		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
+	}
+	chart, err := bazhai.ComputeChartAtInstant(ganzhi.Gender(input.Gender), standard)
+	if err != nil {
+		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
+	}
 	return bazhaiChartWire(chart), nil
 }
 

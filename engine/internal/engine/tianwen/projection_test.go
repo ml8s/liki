@@ -1,7 +1,6 @@
 package tianwen
 
 import (
-	"sort"
 	"testing"
 	"time"
 
@@ -82,36 +81,6 @@ func TestLunarDateAtKnownDate(t *testing.T) {
 	got := LunarDateAt(at)
 	if got.Year != 1990 || got.Month != 4 || got.Day != 26 || got.Leap {
 		t.Fatalf("LunarDateAt = %+v", got)
-	}
-}
-
-func SolarTermStateAt(at time.Time) SolarTermState {
-	terms := make([]SolarTerm, 0, 24*3)
-	for year := at.Year() - 1; year <= at.Year()+1; year++ {
-		for index, longitude := range JieQiLongitudes {
-			terms = append(terms, SolarTerm{
-				Index: index,
-				Name:  JieQiNames[index],
-				At:    SolarTermTime(year, longitude),
-			})
-		}
-	}
-
-	sort.Slice(terms, func(i, j int) bool {
-		return terms[i].At.Before(terms[j].At)
-	})
-
-	current := sort.Search(len(terms), func(i int) bool {
-		return terms[i].At.After(at)
-	})
-	if current > 0 {
-		current--
-	}
-
-	return SolarTermState{
-		Previous: terms[current-1],
-		Current:  terms[current],
-		Next:     terms[min(current+1, len(terms)-1)],
 	}
 }
 

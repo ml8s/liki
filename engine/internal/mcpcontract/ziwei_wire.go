@@ -13,10 +13,9 @@ package mcpcontract
 // birth/query longitude. The boundary derives LocalCivilTime and LAST; the
 // chart domain consumes those domain scales (ChineseCalendarDate (basis configured by the caller) + LAST shichen; no separate time.Time).
 type ZiweiChartInput struct {
-	Instant   Instant    `json:"instant" jsonschema:"出生瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC。"`
-	Timezone  string     `json:"timezone" jsonschema:"出生地 IANA 时区。"`
-	Longitude float64    `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于时辰。"`
-	Gender    GenderName `json:"gender" jsonschema:"性别"`
+	StandardTime StandardTime `json:"standard_time" jsonschema:"出生地标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude    float64      `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于时辰。"`
+	Gender       GenderName   `json:"gender" jsonschema:"性别"`
 }
 
 // ── ziwei.chart output ──
@@ -119,9 +118,9 @@ type ZiweiDaXianItem struct {
 // ── ziwei.liunian input ──
 
 type ZiweiLiuNianInput struct {
-	LunarYear int              `json:"lunar_year" jsonschema:"农历年份（以正月初一为年界，2026：丙午年）"`
-	Count     SeriesCount      `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
-	Chart     ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StandardTime StandardTime     `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
+	Count        SeriesCount      `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
 }
 
 // ── ziwei.liunian output ──
@@ -134,6 +133,16 @@ type ZiweiLiuNianOutput struct {
 	SiHuaGong    *map[string]ZiweiPalaceName `json:"si_hua_gong,omitempty" jsonschema:"四化落宫：{星名: 宫名}"`
 	FuXing       *map[string]LiuyaoZhiName   `json:"fu_xing,omitempty" jsonschema:"流年辅星"`
 	GongWei      *[]ZiweiLiuNianGongWeiItem  `json:"gong_wei,omitempty" jsonschema:"流年十二宫盘"`
+	Resolved     ZiweiLiuNianResolved        `json:"resolved" jsonschema:"时间推导结果。"`
+}
+
+type ZiweiLiuNianResolved struct {
+	SelectorStandardTime StandardTime `json:"selector_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
+	SelectorDate         DateString   `json:"selector_date" jsonschema:"按选定农历基准取的选择器日期。"`
+	LunarYear            int          `json:"lunar_year" jsonschema:"该日期所在的农历年。"`
+	LunarYearStart       DateString   `json:"lunar_year_start" jsonschema:"正月初一公历日（含）。"`
+	LunarYearEnd         DateString   `json:"lunar_year_end" jsonschema:"下一正月初一公历日（不含）。"`
+	BoundaryDay          bool         `json:"boundary_day" jsonschema:"输入日期是否为正月初一边界日（归入新年）。"`
 }
 
 type ZiweiLiuNianGongWeiItem struct {
@@ -146,15 +155,31 @@ type ZiweiLiuNianGongWeiItem struct {
 // ── ziwei.liuyue input ──
 
 type ZiweiLiuYueInput struct {
-	TargetLunar ZiweiTargetLunarInput `json:"target_lunar" jsonschema:"target_lunar。"`
-	Count       SeriesCount           `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
-	Chart       ZiweiChartOutput      `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StandardTime StandardTime     `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
+	Count        SeriesCount      `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
+	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
 }
 
 // ── ziwei.liuyue output ──
 
+type ZiweiLunarDate struct {
+	Year  int  `json:"year" jsonschema:"农历年。"`
+	Month int  `json:"month" jsonschema:"农历月。"`
+	Day   int  `json:"day" jsonschema:"农历日。"`
+	Leap  bool `json:"leap" jsonschema:"是否闰月。"`
+}
+
+type ZiweiLiuYueResolved struct {
+	SelectorStandardTime StandardTime   `json:"selector_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
+	SelectorDate         DateString     `json:"selector_date" jsonschema:"按选定农历基准取的选择器日期。"`
+	Lunar                ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
+	LunarMonthStart      DateString     `json:"lunar_month_start" jsonschema:"农历月初一公历日（含）。"`
+	LunarMonthEnd        DateString     `json:"lunar_month_end" jsonschema:"下一农历月初一公历日（不含）。"`
+	BoundaryDay          bool           `json:"boundary_day" jsonschema:"输入日期是否为农历月初一边界日（归入新月）。"`
+}
+
 type ZiweiLiuYueOutput struct {
-	TargetLunar    ZiweiLiuYueTargetLunar    `json:"target_lunar" jsonschema:"target_lunar。"`
+	Resolved       ZiweiLiuYueResolved       `json:"resolved" jsonschema:"时间推导结果。"`
 	ResolvedPeriod ZiweiLiuYueResolvedPeriod `json:"resolved_period" jsonschema:"resolved_period。"`
 	MingGong       ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
 	MingGongName   *string                   `json:"ming_gong_name,omitempty" jsonschema:"ming_gong_name。"`
@@ -201,14 +226,23 @@ type ZiweiFlowGongWeiItem struct {
 // ── ziwei.liuri input ──
 
 type ZiweiLiuRiInput struct {
-	TargetLunar ZiweiTargetLunarInput `json:"target_lunar" jsonschema:"target_lunar。"`
-	Count       SeriesCount           `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
-	Chart       ZiweiChartOutput      `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StandardTime StandardTime     `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
+	Count        SeriesCount      `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
+	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+}
+
+type ZiweiLiuRiResolved struct {
+	StandardTime StandardTime   `json:"standard_time" jsonschema:"时区标准时间（无 DST）。"`
+	LocalDate    DateString     `json:"local_date" jsonschema:"目标地民用日。"`
+	BeijingDate  DateString     `json:"beijing_date" jsonschema:"北京时间民用日。"`
+	Lunar        ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
 }
 
 // ── ziwei.liuri output ──
 
 type ZiweiLiuRiOutput struct {
+	Lunar        ZiweiLunarDate            `json:"lunar" jsonschema:"该日期对应的农历日期。"`
+	Resolved     ZiweiLiuRiResolved        `json:"resolved" jsonschema:"时间推导结果。"`
 	MingGong     ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
 	MingGongName *string                   `json:"ming_gong_name,omitempty" jsonschema:"ming_gong_name。"`
 	Zhi          LiuyaoZhiName             `json:"zhi" jsonschema:"流日地支"`
@@ -220,13 +254,20 @@ type ZiweiLiuRiOutput struct {
 // ── ziwei.liushi input ──
 
 type ZiweiLiuShiInput struct {
-	TargetLunar ZiweiTargetLunarInput `json:"target_lunar" jsonschema:"target_lunar。"`
-	ShiZhi      LiuyaoZhiName         `json:"shi_zhi" jsonschema:"时辰"`
-	Count       SeriesCount           `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
-	Chart       ZiweiChartOutput      `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StandardTime StandardTime     `json:"standard_time" jsonschema:"占问地标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude    float64          `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时辰。"`
+	Count        SeriesCount      `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
+	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
 }
 
 // ── ziwei.liushi output ──
+
+type ZiweiLiuShiResolved struct {
+	StandardTime StandardTime   `json:"standard_time" jsonschema:"时区标准时间（无 DST）。"`
+	LocalDate    DateString     `json:"local_date" jsonschema:"占问地标准日。"`
+	Lunar        ZiweiLunarDate `json:"lunar" jsonschema:"该日期对应的农历日期。"`
+	Shichen      string         `json:"shichen" jsonschema:"真太阳时时辰。"`
+}
 
 type ZiweiLiuShiOutput struct {
 	MingGong     ZiweiPalaceName           `json:"ming_gong" jsonschema:"命宫。"`
@@ -235,6 +276,7 @@ type ZiweiLiuShiOutput struct {
 	SiHua        map[string]SiHuaName      `json:"si_hua" jsonschema:"四化：{星名: 禄/权/科/忌}"`
 	XingYao      *map[string]LiuyaoZhiName `json:"xing_yao,omitempty" jsonschema:"时星: {星名: zhiIdx}"`
 	GongWei      *[]ZiweiFlowGongWeiItem   `json:"gong_wei,omitempty" jsonschema:"流时十二宫盘"`
+	Resolved     ZiweiLiuShiResolved       `json:"resolved" jsonschema:"时间推导结果。"`
 }
 
 // ── ziwei.bond input ──

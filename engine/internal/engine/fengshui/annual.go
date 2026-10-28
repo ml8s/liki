@@ -52,7 +52,7 @@ func ComputeAnnualFlyingStars(year int) AnnualBoard {
 	board := AnnualBoard{
 		Year:         year,
 		RuZhong:      centerStar.Name,
-		YearBoundary: "gregorian_calendar_year",
+		YearBoundary: "lichun",
 		GongWei:      make([]AnnualFlyingStar, 0, 9),
 	}
 

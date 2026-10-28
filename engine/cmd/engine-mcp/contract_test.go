@@ -52,7 +52,7 @@ func TestTypedContract_TimeNowSelfDescribing(t *testing.T) {
 	if output.Type != "object" {
 		t.Fatalf("time_now output type = %q", output.Type)
 	}
-	for _, name := range []string{"instant", "timezone"} {
+	for _, name := range []string{"standard_time", "standard_time", "timezone"} {
 		property, ok := output.Properties[name]
 		if !ok {
 			t.Fatalf("time_now output lacks %q", name)
@@ -80,18 +80,16 @@ func TestTypedContract_TimeNowStructuredOutput(t *testing.T) {
 		t.Fatalf("marshal structured content: %v", err)
 	}
 	var output struct {
-		Instant  string `json:"instant"`
-		Timezone string `json:"timezone"`
+		StandardTime string `json:"standard_time"`
+		CivilTime    string `json:"standard_time"`
+		Timezone     string `json:"timezone"`
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatalf("decode structured content %s: %v", raw, err)
 	}
 	rfc3339 := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$`)
-	if !rfc3339.MatchString(output.Instant) {
-		t.Errorf("instant = %q, want RFC3339", output.Instant)
-	}
-	if output.Timezone != "Asia/Shanghai" {
-		t.Errorf("timezone = %q", output.Timezone)
+	if !rfc3339.MatchString(output.StandardTime) {
+		t.Errorf("standard_time = %q, want RFC3339", output.StandardTime)
 	}
 }
 

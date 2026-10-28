@@ -29,8 +29,8 @@ func (w Window) IsPoint() bool { return !w.End.After(w.Start) }
 type BoundaryKind string
 
 const (
-	// BoundaryDay is the civil midnight in China Standard Time. It changes the
-	// lunar date (and therefore 紫微 day-based stars).
+	// BoundaryDay is the civil midnight of the selected lunar reference. It
+	// changes the lunar date (and therefore 紫微 day-based stars).
 	BoundaryDay BoundaryKind = "day"
 	// BoundarySolarDay is the midnight of the true-solar reading. It changes the
 	// 八字/六爻 day pillar (which is derived from the solar date).
@@ -39,8 +39,8 @@ const (
 	BoundaryShichen BoundaryKind = "shichen"
 	// BoundarySolarTerm is a solar-term instant (交节).
 	BoundarySolarTerm BoundaryKind = "solar_term"
-	// BoundaryLunarYear is the lunar new year's civil midnight (正月初一). It
-	// changes the 紫微 year stem/branch (which uses the lunar year).
+	// BoundaryLunarYear is the lunar new year's civil midnight (正月初一) in the
+	// selected lunar reference. It changes the 紫微 year stem/branch.
 	BoundaryLunarYear BoundaryKind = "lunar_year"
 )
 
@@ -53,8 +53,9 @@ type Boundary struct {
 
 // BoundaryOptions carries the location inputs needed by solar-frame boundaries.
 type BoundaryOptions struct {
-	Longitude float64        // 出生地经度
-	Timezone  *time.Location // 输入时区（真太阳时换算与展示）；nil → CST
+	Longitude  float64        // 出生地经度
+	Timezone   *time.Location // 输入时区（真太阳时换算与展示）；nil → CST
+	LunarBasis LunarBasis     // 农历基准；零值 → local_astronomical
 }
 
 var cstLocation = time.FixedZone("CST", 8*3600)
@@ -64,6 +65,26 @@ func (o BoundaryOptions) zone() *time.Location {
 		return o.Timezone
 	}
 	return cstLocation
+}
+
+func (o BoundaryOptions) lunarProjector() LunarProjector {
+	basis, err := ParseLunarBasis(string(o.LunarBasis))
+	if err != nil {
+		basis = LunarBasisLocalAstronomical
+	}
+	projector, err := NewLunarProjector(basis, o.zone())
+	if err != nil {
+		return DefaultLunarProjector()
+	}
+	return projector
+}
+
+func (o BoundaryOptions) dayLocation() *time.Location {
+	basis, err := ParseLunarBasis(string(o.LunarBasis))
+	if err == nil && basis == LunarBasisOfficial {
+		return cstLocation
+	}
+	return o.zone()
 }
 
 // AllBoundaryKinds is the union watched by tianwen.resolve: every boundary any
@@ -87,18 +108,23 @@ func BoundariesInWindow(w Window, kinds []BoundaryKind, opts BoundaryOptions) []
 	var out []Boundary
 
 	if wanted[BoundaryDay] {
-		// 农历日期按中国标准时间换日，与 LunarDateAt 保持同一时区基。
-		for d := midnightIn(cstLocation, w.Start); !d.After(w.End); d = d.AddDate(0, 0, 1) {
+		dayLoc := opts.dayLocation()
+		label := "午夜（当地） "
+		if dayLoc == cstLocation {
+			label = "午夜（CST） "
+		}
+		for d := midnightIn(dayLoc, w.Start); !d.After(w.End); d = d.AddDate(0, 0, 1) {
 			if inside(d) {
 				out = append(out, Boundary{Kind: BoundaryDay, At: d,
-					Label: "午夜（CST） " + d.In(cstLocation).Format("01-02 15:04")})
+					Label: label + d.In(dayLoc).Format("01-02 15:04")})
 			}
 		}
 	}
 	if wanted[BoundaryLunarYear] {
-		year := LunarDateAt(time.Time(w.Start)).Year
+		projector := opts.lunarProjector()
+		year := projector.LunarAt(w.Start).Year
 		for _, lunarYear := range []int{year - 1, year, year + 1} {
-			at := LunarNewYearInstant(lunarYear)
+			at := LunarNewYearInstantIn(lunarYear, projector)
 			if inside(at) {
 				out = append(out, Boundary{Kind: BoundaryLunarYear, At: at,
 					Label: fmt.Sprintf("农历年界 %d年正月初一", lunarYear)})
@@ -172,9 +198,19 @@ func SplitWindow(w Window, boundaries []Boundary) []Window {
 }
 
 // LunarNewYearInstant returns the civil midnight (CST) of the first day of the
-// given lunar year.
+// given lunar year under the legacy official reference.
 func LunarNewYearInstant(lunarYear int) time.Time {
-	return CivilTimeFromLunarDate(LunarDate{Year: lunarYear, Month: 1, Day: 1})
+	return LunarNewYearInstantIn(lunarYear, DefaultLunarProjector())
+}
+
+// LunarNewYearInstantIn returns the first-day midnight of the lunar year in the
+// projector's date frame.
+func LunarNewYearInstantIn(lunarYear int, projector LunarProjector) time.Time {
+	date, err := projector.CivilDateFromLunar(LunarDate{Year: lunarYear, Month: 1, Day: 1})
+	if err != nil {
+		return time.Time{}
+	}
+	return projector.DayStart(date)
 }
 
 func midnightIn(loc *time.Location, t time.Time) time.Time {

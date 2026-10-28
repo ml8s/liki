@@ -1,12 +1,11 @@
 {
   "input": {
     "longitude": 123.25,
-    "instant": "2026-03-02T10:30:00Z",
-    "timezone": "Asia/Shanghai",
     "method": {
       "school": "luoshu_feipan",
       "scope": "year"
-    }
+    },
+    "standard_time": "2026-03-02T18:30:00+08:00"
   },
   "output": {
     "gan_interaction": [

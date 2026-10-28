@@ -1077,7 +1077,7 @@
       },
       "ziwei_pos": "田宅"
     },
-    "lunar_year": 2026
+    "standard_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
     "fu_xing": {
@@ -1186,6 +1186,14 @@
     ],
     "ming_gong": "财帛",
     "ming_gong_name": "财帛",
+    "resolved": {
+      "boundary_day": false,
+      "lunar_year": 2026,
+      "lunar_year_end": "2027-02-06",
+      "lunar_year_start": "2026-02-17",
+      "selector_date": "2026-06-15",
+      "selector_standard_time": "2026-06-15T12:00:00+08:00"
+    },
     "si_hua": {
       "天同": "禄",
       "天机": "权",

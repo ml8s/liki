@@ -2,6 +2,7 @@ package tianwen
 
 import (
 	"fmt"
+	"math"
 )
 
 // LunarDate is a date in the Chinese lunisolar calendar. It deliberately has
@@ -21,14 +22,19 @@ type LunarMonthInfo struct {
 	DayCount int
 }
 
-// LunarMonthMeta validates and returns information about the real month
-// identified by the year/month/leap triple. A missing leap month is an error,
-// not a silent fallback to the ordinary month.
+// LunarMonthMeta validates and returns information about the real month in the
+// official UTC+8 reference. Use LunarProjector for a timezone-aware reference.
 func LunarMonthMeta(year, month int, leap bool) (LunarMonthInfo, error) {
+	return ShanghaiLunarReference().LunarMonthMeta(year, month, leap)
+}
+
+// LunarMonthMeta validates and returns information about the real month
+// identified by the year/month/leap triple in this reference.
+func (r *LunarReference) LunarMonthMeta(year, month int, leap bool) (LunarMonthInfo, error) {
 	if month < 1 || month > 12 {
 		return LunarMonthInfo{}, fmt.Errorf("lunar month must be 1-12, got %d", month)
 	}
-	k, ok := findLunarMonthInLunarYear(year, month, leap)
+	k, ok := r.findLunarMonthInLunarYear(year, month, leap)
 	if !ok {
 		label := "month"
 		if leap {
@@ -37,17 +43,23 @@ func LunarMonthMeta(year, month int, leap bool) (LunarMonthInfo, error) {
 		return LunarMonthInfo{}, fmt.Errorf("lunar %s %d-%02d does not exist", label, year, month)
 	}
 
-	dayCount, err := lunarMonthDayCount(k)
+	dayCount, err := r.lunarMonthDayCount(k)
 	if err != nil {
 		return LunarMonthInfo{}, err
 	}
 	return LunarMonthInfo{Year: year, Month: month, Leap: leap, DayCount: dayCount}, nil
 }
 
-// ValidateLunarDate checks that date identifies one real day in the Chinese
-// lunisolar calendar and returns the containing month's metadata.
+// ValidateLunarDate checks date against the official UTC+8 reference. Use
+// LunarProjector for a timezone-aware reference.
 func ValidateLunarDate(date LunarDate) (LunarMonthInfo, error) {
-	meta, err := LunarMonthMeta(date.Year, date.Month, date.Leap)
+	return ShanghaiLunarReference().ValidateLunarDate(date)
+}
+
+// ValidateLunarDate checks that date identifies one real day in this reference
+// and returns the containing month's metadata.
+func (r *LunarReference) ValidateLunarDate(date LunarDate) (LunarMonthInfo, error) {
+	meta, err := r.LunarMonthMeta(date.Year, date.Month, date.Leap)
 	if err != nil {
 		return LunarMonthInfo{}, err
 	}
@@ -60,14 +72,19 @@ func ValidateLunarDate(date LunarDate) (LunarMonthInfo, error) {
 	return meta, nil
 }
 
-// NextLunarMonth returns the next real lunation after the identified month.
-// Month transitions follow the calendar (including leap months and year wrap);
-// callers must not implement month++ heuristics.
+// NextLunarMonth returns the next lunation in the official UTC+8 reference.
+// Use LunarProjector for a timezone-aware reference.
 func NextLunarMonth(year, month int, leap bool) (LunarMonthInfo, error) {
+	return ShanghaiLunarReference().NextLunarMonth(year, month, leap)
+}
+
+// NextLunarMonth returns the next real lunation after the identified month in
+// this reference.
+func (r *LunarReference) NextLunarMonth(year, month int, leap bool) (LunarMonthInfo, error) {
 	if month < 1 || month > 12 {
 		return LunarMonthInfo{}, fmt.Errorf("lunar month must be 1-12, got %d", month)
 	}
-	currentK, ok := findLunarMonthInLunarYear(year, month, leap)
+	currentK, ok := r.findLunarMonthInLunarYear(year, month, leap)
 	if !ok {
 		return LunarMonthInfo{}, fmt.Errorf("lunar month %d-%02d does not exist", year, month)
 	}
@@ -87,9 +104,9 @@ func NextLunarMonth(year, month int, leap bool) (LunarMonthInfo, error) {
 		if month < 11 {
 			anchorYear = year - 1
 		}
-		startM11K := getMonth11K(anchorYear, defaultTZ)
-		endM11K := getMonth11K(anchorYear+1, defaultTZ)
-		leapK := getLeapMonthK(startM11K, endM11K, defaultTZ)
+		startM11K := r.month11K(anchorYear)
+		endM11K := r.month11K(anchorYear + 1)
+		leapK := r.leapMonthK(startM11K, endM11K)
 		switch {
 		case currentK+1 == leapK:
 			nextLeap = true
@@ -100,25 +117,55 @@ func NextLunarMonth(year, month int, leap bool) (LunarMonthInfo, error) {
 		}
 	}
 
-	meta, err := LunarMonthMeta(nextYear, nextMonth, nextLeap)
+	meta, err := r.LunarMonthMeta(nextYear, nextMonth, nextLeap)
 	if err != nil {
 		return LunarMonthInfo{}, fmt.Errorf("find lunar month after %d-%02d%s: %w", year, month, leapSuffix(leap), err)
 	}
 	return meta, nil
 }
 
-func findLunarMonthInLunarYear(lunarYear, lunarMonth int, leap bool) (float64, bool) {
+func (r *LunarReference) findLunarMonthInLunarYear(lunarYear, lunarMonth int, leap bool) (float64, bool) {
 	anchorYear := lunarYear
 	if lunarMonth < 11 {
 		anchorYear = lunarYear - 1
 	}
-	return searchMonthKInRange(anchorYear, lunarMonth, leap, defaultTZ)
+	return r.searchMonthKInRange(anchorYear, lunarMonth, leap)
 }
 
-func lunarMonthDayCount(k float64) (int, error) {
-	currentMidnight := newMoonMidnightJD(k, defaultTZ)
-	nextMidnight := newMoonMidnightJD(k+1, defaultTZ)
-	dayCount := int(nextMidnight - currentMidnight)
+func (r *LunarReference) searchMonthKInRange(anchorYear, lunarMonth int, leap bool) (float64, bool) {
+	startM11K := r.month11K(anchorYear)
+	endM11K := r.month11K(anchorYear + 1)
+	leapMonthK := r.leapMonthK(startM11K, endM11K)
+
+	currentMonth := 11
+	isLeap := false
+
+	for i := 0.0; i <= 14.0; i++ {
+		k := startM11K + i
+
+		if i > 0 {
+			if k == leapMonthK {
+				isLeap = true
+			} else {
+				isLeap = false
+				currentMonth++
+				if currentMonth == 13 {
+					currentMonth = 1
+				}
+			}
+		}
+
+		if currentMonth == lunarMonth && isLeap == leap {
+			return k, true
+		}
+	}
+	return 0, false
+}
+
+func (r *LunarReference) lunarMonthDayCount(k float64) (int, error) {
+	current := r.dateToJD(r.newMoonDate(k))
+	next := r.dateToJD(r.newMoonDate(k + 1))
+	dayCount := int(math.Round(next - current))
 	if dayCount < 29 || dayCount > 30 {
 		return 0, fmt.Errorf("invalid lunar month length %d at lunation %.3f", dayCount, k)
 	}

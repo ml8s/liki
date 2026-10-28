@@ -28,7 +28,8 @@ def qimen_chart(
     method: dict[str, str],
     matter: str | None = None,
     yong_shen: list[str] | None = None,
-    birth_date: str | None = None,
+    birth_instant: str | None = None,
+    birth_timezone: str | None = None,
 ) -> dict:
     """排奇门盘；普通事象在 Python 表内转为显式用神后调用 engine。"""
     require_mutually_exclusive(matter=matter, yong_shen=yong_shen)
@@ -58,8 +59,13 @@ def qimen_chart(
         "longitude": longitude,
         "method": method,
     }
-    if birth_date is not None and birth_date != "":
-        params["birth_date"] = birth_date
+    if birth_instant is not None and birth_instant != "":
+        if not birth_timezone:
+            raise ValueError("birth_timezone is required with birth_instant")
+        params["birth_instant"] = birth_instant
+        params["birth_timezone"] = birth_timezone
+    elif birth_timezone:
+        raise ValueError("birth_timezone requires birth_instant")
     if symbols:
         params["yong_shen"] = symbols
 

@@ -1077,13 +1077,8 @@
       },
       "ziwei_pos": "田宅"
     },
-    "shi_zhi": "午",
-    "target_lunar": {
-      "day": 10,
-      "leap": false,
-      "month": 6,
-      "year": 2026
-    }
+    "longitude": 116.4,
+    "standard_time": "2026-07-23T12:00:00+08:00"
   },
   "output": {
     "gong_wei": [
@@ -1180,6 +1175,17 @@
     ],
     "ming_gong": "命宫",
     "ming_gong_name": "命宫",
+    "resolved": {
+      "local_date": "2026-07-23",
+      "lunar": {
+        "day": 10,
+        "leap": false,
+        "month": 6,
+        "year": 2026
+      },
+      "shichen": "午",
+      "standard_time": "2026-07-23T12:00:00+08:00"
+    },
     "si_hua": {
       "右弼": "科",
       "天机": "忌",

@@ -2,8 +2,7 @@
   "input": {
     "gender": "female",
     "longitude": 116.4,
-    "instant": "2000-09-20T00:00:00Z",
-    "timezone": "Asia/Shanghai"
+    "standard_time": "2000-09-20T08:00:00+08:00"
   },
   "output": {
     "birth_lunar_month": 8,

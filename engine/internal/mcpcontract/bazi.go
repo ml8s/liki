@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"liki-engine/internal/engine/bazi"
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tianwen"
 )
 
 type BaziPillar struct {
@@ -49,10 +51,9 @@ type BaziDaYun struct {
 // birth/query longitude. The boundary derives LocalCivilTime and LAST; the
 // chart domain consumes those domain scales (year/month = solar terms (civil/instant); day/hour = LAST + 子时; no Gregorian/offset transit).
 type BaziChartInput struct {
-	Instant   Instant    `json:"instant" jsonschema:"出生瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC。"`
-	Timezone  string     `json:"timezone" jsonschema:"出生地 IANA 时区，如 Asia/Shanghai。"`
-	Longitude float64    `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
-	Gender    GenderName `json:"gender" jsonschema:"性别。"`
+	StandardTime StandardTime `json:"standard_time" jsonschema:"时区标准时间（无 DST），RFC3339 带 offset。"`
+	Longitude    float64      `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
+	Gender       GenderName   `json:"gender" jsonschema:"性别。"`
 }
 
 type BaziChart struct {
@@ -67,21 +68,14 @@ type BaziChart struct {
 }
 
 func BaziChartCompute(_ context.Context, input BaziChartInput) (BaziChart, error) {
-	at, err := parseInstant(string(input.Instant))
+	standard, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
 	}
-
-	loc, err := loadTimezone(input.Timezone)
-	if err != nil {
-		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
-	}
-
 	if input.Longitude < -180 || input.Longitude > 180 {
 		return BaziChart{}, fmt.Errorf("bazi.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
-
-	chart := bazi.ComputeChartAt(at, loc, input.Longitude, ganzhi.Gender(input.Gender))
+	chart := bazi.ComputeChartAt(standard, loc, input.Longitude, ganzhi.Gender(input.Gender))
 	return baziChartWire(chart), nil
 }
 
@@ -330,28 +324,59 @@ func BaziLiuNian(_ context.Context, input BaziLiuNianInput) (any, error) {
 			return computeBaziLiuNian(in)
 		},
 		func(in BaziLiuNianInput) (BaziLiuNianInput, error) {
-			in.Year++
+			resolved, _, _, loc, err := parseBaziLiuNianTime(in)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liunian: %w", err)
+			}
+			next, err := bazi.NextLiuNianTimeAt(resolved, loc)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liunian: %w", err)
+			}
+			in.StandardTime = standardTimeValue(next.StartInstant.In(loc))
 			return in, nil
 		},
 	)
 }
 
+func parseBaziLiuNianTime(input BaziLiuNianInput) (bazi.LiuNianTime, tianwen.CivilDate, time.Time, *time.Location, error) {
+	standard, loc, err := parseStandardTime(input.StandardTime)
+	if err != nil {
+		return bazi.LiuNianTime{}, tianwen.CivilDate{}, time.Time{}, nil, err
+	}
+	date := tianwen.StandardDateAt(standard, loc)
+	resolved, err := bazi.ResolveLiuNianTimeAt(standard, loc)
+	return resolved, date, standard, loc, err
+}
+
 func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
-	if input.Year <= 0 {
-		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: year must be positive, got %d", input.Year)
+	resolved, date, at, _, err := parseBaziLiuNianTime(input)
+	if err != nil {
+		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
 	chart, err := input.Chart.domain()
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
-	result, err := bazi.ComputeLiuNian(chart, input.Year)
+	result, err := bazi.ComputeLiuNianAtTime(chart, resolved)
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
 	if result == nil {
-		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: empty result for year %d", input.Year)
+		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: empty result for %s", date)
 	}
-	return wireFromDomain[BaziLiuNianOutput](*result)
+	output, err := wireFromDomain[BaziLiuNianOutput](*result)
+	if err != nil {
+		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
+	}
+	output.Resolved = BaziLiuNianResolved{
+		SelectorStandardTime: standardTimeValue(at),
+		SelectorDate:         civilDateString(date),
+		LichunYear:           resolved.LichunYear,
+		LichunStart:          civilDateString(resolved.Start),
+		LichunEnd:            civilDateString(resolved.End),
+		BoundaryDay:          resolved.BoundaryDay,
+	}
+	return output, nil
 }
 
 // BaziLiuYue computes the month pillar and its interactions with a chart.
@@ -361,25 +386,58 @@ func BaziLiuYue(_ context.Context, input BaziLiuYueInput) (any, error) {
 			return computeBaziLiuYue(in)
 		},
 		func(in BaziLiuYueInput) (BaziLiuYueInput, error) {
-			in.Year, in.Month = advanceGregorianMonth(in.Year, in.Month)
+			resolved, _, _, loc, err := parseBaziLiuYueTime(in)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liuyue: %w", err)
+			}
+			next, err := bazi.NextLiuYueTimeAt(resolved, loc)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liuyue: %w", err)
+			}
+			in.StandardTime = standardTimeValue(next.StartInstant.In(loc))
 			return in, nil
 		},
 	)
 }
 
+func parseBaziLiuYueTime(input BaziLiuYueInput) (bazi.LiuYueTime, tianwen.CivilDate, time.Time, *time.Location, error) {
+	standard, loc, err := parseStandardTime(input.StandardTime)
+	if err != nil {
+		return bazi.LiuYueTime{}, tianwen.CivilDate{}, time.Time{}, nil, err
+	}
+	date := tianwen.StandardDateAt(standard, loc)
+	resolved, err := bazi.ResolveLiuYueTimeAt(standard, loc)
+	return resolved, date, standard, loc, err
+}
+
 func computeBaziLiuYue(input BaziLiuYueInput) (BaziLiuYueOutput, error) {
+	resolved, date, at, _, err := parseBaziLiuYueTime(input)
+	if err != nil {
+		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
+	}
 	chart, err := input.Chart.domain()
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
-	result, err := bazi.ComputeLiuYue(chart, input.Year, input.Month)
+	result, err := bazi.ComputeLiuYueAtTime(chart, resolved)
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
 	if result == nil {
-		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: empty result for %d-%d", input.Year, input.Month)
+		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: empty result for %s", date)
 	}
-	return wireFromDomain[BaziLiuYueOutput](*result)
+	output, err := wireFromDomain[BaziLiuYueOutput](*result)
+	if err != nil {
+		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
+	}
+	output.Resolved = BaziLiuYueResolved{
+		SelectorStandardTime: standardTimeValue(at),
+		SelectorDate:         civilDateString(date),
+		JieqiStart:           civilDateString(resolved.Start),
+		JieqiEnd:             civilDateString(resolved.End),
+		BoundaryDay:          resolved.BoundaryDay,
+	}
+	return output, nil
 }
 
 // BaziLiuRi computes the day pillar and its interactions with a chart.
@@ -389,10 +447,27 @@ func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (any, error) {
 			return computeBaziLiuRi(in)
 		},
 		func(in BaziLiuRiInput) (BaziLiuRiInput, error) {
-			in.Year, in.Month, in.Day = advanceGregorianDay(in.Year, in.Month, in.Day)
+			resolved, loc, err := parseBaziLiuRiTime(in)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liuri: %w", err)
+			}
+			next, err := bazi.NextLiuRiTime(resolved)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liuri: %w", err)
+			}
+			in.StandardTime = standardTimeValue(next.Instant.In(loc))
 			return in, nil
 		},
 	)
+}
+
+func parseBaziLiuRiTime(input BaziLiuRiInput) (bazi.LiuRiTime, *time.Location, error) {
+	standard, loc, err := parseStandardTime(input.StandardTime)
+	if err != nil {
+		return bazi.LiuRiTime{}, nil, err
+	}
+	resolved, err := bazi.ResolveLiuRiTimeAt(standard, loc, loc.String(), input.Longitude)
+	return resolved, loc, err
 }
 
 func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
@@ -400,14 +475,28 @@ func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
-	result, err := bazi.ComputeLiuRi(chart, input.Year, input.Month, input.Day)
+	resolved, loc, err := parseBaziLiuRiTime(input)
+	if err != nil {
+		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
+	}
+	result, err := bazi.ComputeLiuRi(chart, resolved)
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
 	if result == nil {
-		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: empty result for %d-%d-%d", input.Year, input.Month, input.Day)
+		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: empty result for %s", resolved.Date)
 	}
-	return wireFromDomain[BaziLiuRiOutput](*result)
+	output, err := wireFromDomain[BaziLiuRiOutput](*result)
+	if err != nil {
+		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
+	}
+	output.Resolved = BaziLiuRiResolved{
+		StandardTime: standardTimeValue(resolved.Instant.In(loc)),
+		LocalDate:    civilDateString(resolved.LocalDate),
+		LastDate:     civilDateString(resolved.Date),
+		BeijingDate:  civilDateString(resolved.BeijingDate),
+	}
+	return output, nil
 }
 
 // BaziLiuShi computes the hour pillar and its interactions with a chart.
@@ -417,28 +506,55 @@ func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (any, error) {
 			return computeBaziLiuShi(in)
 		},
 		func(in BaziLiuShiInput) (BaziLiuShiInput, error) {
-			in.Year, in.Month, in.Day, in.Hour = advanceGregorianHour(in.Year, in.Month, in.Day, in.Hour)
+			t, loc, err := parseBaziLiuShiTime(in)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liushi: %w", err)
+			}
+			next, err := bazi.NextLiuShiTime(t)
+			if err != nil {
+				return in, fmt.Errorf("bazi.liushi: %w", err)
+			}
+			in.StandardTime = standardTimeValue(next.Instant.In(loc))
 			return in, nil
 		},
 	)
 }
 
-func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
-	if input.Hour < 0 || input.Hour > 23 {
-		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: hour must be 0-23, got %d", input.Hour)
+func parseBaziLiuShiTime(input BaziLiuShiInput) (bazi.LiuShiTime, *time.Location, error) {
+	standard, loc, err := parseStandardTime(input.StandardTime)
+	if err != nil {
+		return bazi.LiuShiTime{}, nil, err
 	}
+	resolved, err := bazi.ResolveLiuShiTime(standard, loc, loc.String(), input.Longitude)
+	return resolved, loc, err
+}
+
+func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 	chart, err := input.Chart.domain()
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
-	result, err := bazi.ComputeLiuShi(chart, input.Year, input.Month, input.Day, input.Hour)
+	resolved, loc, err := parseBaziLiuShiTime(input)
+	if err != nil {
+		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
+	}
+	result, err := bazi.ComputeLiuShi(chart, resolved)
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
 	if result == nil {
-		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: empty result for %d-%d-%d %02d", input.Year, input.Month, input.Day, input.Hour)
+		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: empty result for %s", resolved.Instant)
 	}
-	return wireFromDomain[BaziLiuShiOutput](*result)
+	output, err := wireFromDomain[BaziLiuShiOutput](*result)
+	if err != nil {
+		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
+	}
+	output.Resolved = BaziLiuShiResolved{
+		StandardTime: standardTimeValue(resolved.Instant.In(loc)),
+		LocalDate:    civilDateString(resolved.LocalDate),
+		Shichen:      resolved.Shichen.String(),
+	}
+	return output, nil
 }
 
 // BaziXiaoYun returns the 小运 year list for a chart.

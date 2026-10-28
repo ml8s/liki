@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
+	"liki-engine/internal/engine/tianwen"
 )
 
 // 生产入口按 chart 消费流年/流月/流日/流时/小运；
@@ -49,14 +50,18 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 			return v
 		}},
 		{"liuri", func(c Chart) any {
-			v, err := ComputeLiuRi(c, 2026, 5, 20)
+			lt, err := ResolveLiuRiTime(tianwen.NewCivilDate(2026, 5, 20))
+			if err != nil {
+				t.Fatal(err)
+			}
+			v, err := ComputeLiuRi(c, lt)
 			if err != nil {
 				t.Fatal(err)
 			}
 			return v
 		}},
 		{"liushi", func(c Chart) any {
-			v, err := ComputeLiuShi(c, 2026, 5, 20, 12)
+			v, err := ComputeLiuShi(c, resolveTestLiuShi(t, 2026, 5, 20, 12, 30))
 			if err != nil {
 				t.Fatal(err)
 			}

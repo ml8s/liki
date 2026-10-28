@@ -104,7 +104,11 @@ func TestComputeLiuRi_DayPillar(t *testing.T) {
 	prevIdx := -1
 	for i := 0; i < 5; i++ {
 		day := base.AddDate(0, 0, i)
-		lr, err := ComputeLiuRi(cb, day.Year(), int(day.Month()), day.Day())
+		lt, err := ResolveLiuRiTime(tianwen.NewCivilDate(day.Year(), int(day.Month()), day.Day()))
+		if err != nil {
+			t.Fatalf("day %s: %v", day.Format("2006-01-02"), err)
+		}
+		lr, err := ComputeLiuRi(cb, lt)
 		if err != nil {
 			t.Fatalf("day %s: %v", day.Format("2006-01-02"), err)
 		}
@@ -127,7 +131,11 @@ func TestComputeLiuRi_HasRequiredFields(t *testing.T) {
 		time.Date(1982, 10, 13, 6, 45, 0, 0, time.FixedZone("", 8*3600)), 114.134, 8)
 	chart := ComputeChart(stgt, st, ganzhi.Male)
 
-	lr, err := ComputeLiuRi(chart, 2024, 6, 15)
+	lt, err := ResolveLiuRiTime(tianwen.NewCivilDate(2024, 6, 15))
+	if err != nil {
+		t.Fatal(err)
+	}
+	lr, err := ComputeLiuRi(chart, lt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -181,7 +189,7 @@ func TestComputeLiuShi_WuShuDun(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		ls, err := ComputeLiuShi(cb, 2024, 6, 15, tt.hour)
+		ls, err := ComputeLiuShi(cb, resolveTestLiuShi(t, 2024, 6, 15, tt.hour, 30))
 		if err != nil {
 			t.Fatalf("hour %d: %v", tt.hour, err)
 		}
@@ -204,7 +212,7 @@ func TestComputeLiuShi_HasRequiredFields(t *testing.T) {
 		nil,
 	)
 
-	ls, err := ComputeLiuShi(cb, 2024, 6, 15, 12)
+	ls, err := ComputeLiuShi(cb, resolveTestLiuShi(t, 2024, 6, 15, 12, 30))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -272,7 +280,11 @@ func TestComputeLiuRi_ShenSha(t *testing.T) {
 		ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: ganzhi.ZhiChen},
 		nil,
 	)
-	lr, err := ComputeLiuRi(cb, 2026, 6, 4)
+	lt, err := ResolveLiuRiTime(tianwen.NewCivilDate(2026, 6, 4))
+	if err != nil {
+		t.Fatalf("ResolveLiuRiTime: %v", err)
+	}
+	lr, err := ComputeLiuRi(cb, lt)
 	if err != nil {
 		t.Fatalf("ComputeLiuRi: %v", err)
 	}

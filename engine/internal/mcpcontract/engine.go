@@ -24,7 +24,13 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 	reflect.TypeFor[json.RawMessage](): {},
 	// RFC3339 allows canonical UTC Z and equivalent numeric offsets. Handlers
 	// normalize every accepted form before domain calculations.
-	reflect.TypeFor[Instant]():       {Type: "string", Format: "date-time"},
+	reflect.TypeFor[Instant](): {Type: "string", Format: "date-time"},
+	reflect.TypeFor[CivilTime](): {
+		Type:    "string",
+		Pattern: `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?$`,
+	},
+	reflect.TypeFor[StandardTime]():  {Type: "string", Format: "date-time"},
+	reflect.TypeFor[FoldName]():      {Type: "string", Enum: []any{"earlier", "later"}},
 	reflect.TypeFor[DateString]():    {Type: "string", Format: "date"},
 	reflect.TypeFor[GenderName]():    {Type: "string", Enum: []any{"male", "female"}},
 	reflect.TypeFor[CityName]():      {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
@@ -101,7 +107,7 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 		Type: "string", Enum: []any{"北", "东北", "东", "东南", "南", "西南", "西", "西北"},
 	},
 	reflect.TypeFor[LifeGroupName]():    {Type: "string", Enum: []any{"东四命", "西四命"}},
-	reflect.TypeFor[YearBoundaryName](): {Type: "string", Enum: []any{"gregorian_calendar_year"}},
+	reflect.TypeFor[YearBoundaryName](): {Type: "string", Enum: []any{"lichun"}},
 	reflect.TypeFor[FlyingStarName](): {
 		Type: "string", Enum: []any{
 			"一白贪狼", "二黑巨门", "三碧禄存", "四绿文曲", "五黄廉贞",

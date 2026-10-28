@@ -133,8 +133,7 @@
       },
       "zi_shi_rule": "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
     },
-    "month": 6,
-    "year": 2026
+    "standard_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
     "gan_rels": [
@@ -164,8 +163,14 @@
       }
     ],
     "ke": 0,
-    "month": 6,
     "month_name": "午月",
+    "resolved": {
+      "boundary_day": false,
+      "jieqi_end": "2026-07-07",
+      "jieqi_start": "2026-06-05",
+      "selector_date": "2026-06-15",
+      "selector_standard_time": "2026-06-15T12:00:00+08:00"
+    },
     "sheng": 1,
     "shensha": [
       {
@@ -181,7 +186,6 @@
     ],
     "shi_shen": "偏印",
     "wuxing": "木",
-    "year": 2026,
     "yue_gan": "甲",
     "yue_zhi": "午",
     "zhi_rels": [

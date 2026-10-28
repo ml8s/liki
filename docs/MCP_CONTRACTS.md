@@ -34,6 +34,9 @@ with `Z`; numeric input offsets are accepted and normalized immediately.
 timezone, and missing timezone or longitude fails closed when the tool needs
 them.
 
+The per-domain projection matrix (absolute instant, Beijing date label, local
+LAST) is defined in [TIME_MODEL.md](./TIME_MODEL.md).
+
 ## Go pattern
 
 `engine/internal/mcpcontract` owns the typed MCP registry. A tool registers:

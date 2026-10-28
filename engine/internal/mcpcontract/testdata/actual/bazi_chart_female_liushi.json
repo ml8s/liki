@@ -133,10 +133,8 @@
       },
       "zi_shi_rule": "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
     },
-    "day": 15,
-    "hour": 12,
-    "month": 6,
-    "year": 2026
+    "longitude": 116.4,
+    "standard_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
     "gan_rels": [
@@ -166,6 +164,11 @@
       }
     ],
     "hour_name": "壬午",
+    "resolved": {
+      "local_date": "2026-06-15",
+      "shichen": "午",
+      "standard_time": "2026-06-15T12:00:00+08:00"
+    },
     "shi_gan": "壬",
     "shi_shen": "伤官",
     "shi_zhi": "午",

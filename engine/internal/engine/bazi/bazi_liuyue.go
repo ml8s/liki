@@ -1,11 +1,7 @@
 package bazi
 
 import (
-	"fmt"
-	"time"
-
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // LiuYue holds the monthly (流月) analysis output.
@@ -24,18 +20,13 @@ type LiuYue struct {
 	ShenSha   []ShenShaProjection `json:"shensha"`
 }
 
-// ComputeLiuYue computes the month pillar for a given year+month and analyzes
-// its interactions with the bazi chart.
-func computeLiuYue(bz ganzhi.Bazi, year, month int) (*LiuYue, error) {
-	if month < 1 || month > 12 {
-		return nil, fmt.Errorf("compute liuyue: invalid month %d", month)
-	}
+// ComputeLiuYue computes the month pillar for a resolved solar-term month and
+// analyzes its interactions with the bazi chart.
+func computeLiuYue(bz ganzhi.Bazi, t LiuYueTime) (*LiuYue, error) {
 	riYuan := bz.Ri.Gan
 	bazi := bz.Slice()
-	// Use mid-month (15th) for stable solar term calculation.
-	birthTime := time.Date(year, time.Month(month), 15, 12, 0, 0, 0, time.UTC)
 
-	mp := tianwen.YueZhu(time.Time(birthTime))
+	mp := ganzhi.Zhu{Gan: t.YueGan, Zhi: t.YueZhi}
 
 	dmElem := ganzhi.GanWuxing(riYuan)
 	monthElem := ganzhi.GanWuxing(mp.Gan)
@@ -52,8 +43,8 @@ func computeLiuYue(bz ganzhi.Bazi, year, month int) (*LiuYue, error) {
 	monthElemStr := monthElem.String()
 
 	return &LiuYue{
-		Year:      year,
-		Month:     month,
+		Year:      t.Date.Year,
+		Month:     t.Date.Month,
 		YueGan:    mp.Gan,
 		YueZhi:    mp.Zhi,
 		MonthName: ganzhi.ZhiName(mp.Zhi) + "月",

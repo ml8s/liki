@@ -2,8 +2,7 @@
   "input": {
     "gender": "male",
     "longitude": 123.75,
-    "instant": "1984-02-15T00:00:00Z",
-    "timezone": "Asia/Shanghai"
+    "standard_time": "1984-02-15T08:00:00+08:00"
   },
   "output": {
     "birth_year": 1984,

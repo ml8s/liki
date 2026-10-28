@@ -3,7 +3,6 @@ package mcpcontract
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 )
 
 // MaxSeriesCount is the unified upper bound for batch time-series queries.
@@ -101,31 +100,6 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 		}
 	}
 	return SeriesResult[Out]{Items: items}, nil
-}
-
-// advanceGregorianDay steps a Gregorian date forward by one day using
-// time.Date for correct month/year rollover.
-func advanceGregorianDay(year, month, day int) (int, int, int) {
-	t := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
-	next := t.AddDate(0, 0, 1)
-	return next.Year(), int(next.Month()), next.Day()
-}
-
-// advanceGregorianMonth steps a Gregorian year/month forward by one month
-// with year rollover (month 12 → next year month 1).
-func advanceGregorianMonth(year, month int) (int, int) {
-	if month >= 12 {
-		return year + 1, 1
-	}
-	return year, month + 1
-}
-
-// advanceGregorianHour steps a Gregorian date+hour forward by one hour
-// with day/month/year rollover.
-func advanceGregorianHour(year, month, day, hour int) (int, int, int, int) {
-	t := time.Date(year, time.Month(month), day, hour, 0, 0, 0, time.UTC)
-	next := t.Add(time.Hour)
-	return next.Year(), int(next.Month()), next.Day(), next.Hour()
 }
 
 // seriesOutputSchema builds a JSON Schema for a series tool's output:

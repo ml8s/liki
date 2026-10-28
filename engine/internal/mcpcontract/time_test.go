@@ -3,7 +3,6 @@ package mcpcontract
 import (
 	"context"
 	"encoding/json"
-	"strings"
 	"testing"
 	"time"
 )
@@ -26,15 +25,12 @@ func TestTimeNowCST(t *testing.T) {
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatal(err)
 	}
-	if out.Timezone != "Asia/Shanghai" {
-		t.Fatalf("unexpected output: %+v", out)
+	standard, err := time.Parse(time.RFC3339Nano, out.StandardTime)
+	if err != nil {
+		t.Fatalf("standard_time: %q %v", out.StandardTime, err)
 	}
-	instant, err := time.Parse(time.RFC3339, out.Instant)
-	if err != nil || !strings.HasSuffix(out.Instant, "Z") {
-		t.Fatalf("instant: %q %v", out.Instant, err)
-	}
-	if time.Since(instant).Abs() > 2*time.Second {
-		t.Fatalf("instant %s is too far from now", out.Instant)
+	if time.Since(standard).Abs() > 2*time.Second {
+		t.Fatalf("standard_time %s is too far from now", out.StandardTime)
 	}
 }
 
@@ -50,18 +46,11 @@ func TestTimeNowNewYork(t *testing.T) {
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatal(err)
 	}
-	if out.Timezone != "America/New_York" {
-		t.Fatalf("unexpected output: %+v", out)
-	}
 }
 
 func TestTianwenResolveOutputContract(t *testing.T) {
 	registry := testEngine()
-	raw, err := registry.Call(context.Background(), "tianwen_resolve", mustJSON(t, TianwenResolveInput{
-		Instant:   "1990-05-20T03:49:00Z",
-		Timezone:  "Asia/Shanghai",
-		Longitude: 116.4,
-	}))
+	raw, err := registry.Call(context.Background(), "tianwen_resolve", mustJSON(t, civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4)))
 	if err != nil {
 		t.Fatalf("tianwen.resolve: %v", err)
 	}

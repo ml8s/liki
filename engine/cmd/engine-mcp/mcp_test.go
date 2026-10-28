@@ -175,7 +175,7 @@ func callToolText(t *testing.T, sess *mcp.ClientSession, name string, args any) 
 func TestCallTool_BaziChart(t *testing.T) {
 	sess, _ := startMCPServer(t)
 	text, isErr := callToolText(t, sess, "bazi_chart", map[string]any{
-		"instant": "1984-02-03T22:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4,
+		"standard_time": "1984-02-04T06:00:00+08:00", "longitude": 116.4,
 		"gender": "male",
 	})
 	if isErr {

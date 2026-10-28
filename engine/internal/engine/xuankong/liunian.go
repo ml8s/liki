@@ -2,8 +2,10 @@ package xuankong
 
 import (
 	"fmt"
+	"time"
 
 	"liki-engine/internal/engine/fengshui"
+	"liki-engine/internal/engine/tianwen"
 )
 
 // LiuNianResult is the 流年飞星 result for a year, optionally overlaid on a
@@ -52,4 +54,14 @@ func ComputeLiuNian(year int, chart *Chart) LiuNianResult {
 		})
 	}
 	return res
+}
+
+// ComputeLiuNianAtInstant derives the 立春 year from an absolute instant and
+// computes the annual flying-star board.
+func ComputeLiuNianAtInstant(instant time.Time, chart *Chart) (LiuNianResult, error) {
+	ly, err := tianwen.LichunYearAt(instant)
+	if err != nil {
+		return LiuNianResult{}, err
+	}
+	return ComputeLiuNian(ly.Year, chart), nil
 }

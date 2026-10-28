@@ -50,7 +50,12 @@ type LunarMonth struct {
 // iztro-compatible rule splits a leap month at day 15; no half/fixLeap flag
 // is exposed to callers.
 func ComputeLiuYue(chart Chart, target tianwen.LunarDate) (LiuYue, error) {
-	period, err := resolveLiuYuePeriod(target)
+	return ComputeLiuYueWith(chart, target, tianwen.DefaultLunarProjector())
+}
+
+// ComputeLiuYueWith computes the flow month chart using an explicit projector.
+func ComputeLiuYueWith(chart Chart, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuYue, error) {
+	period, err := resolveLiuYuePeriodWith(p, target)
 	if err != nil {
 		return LiuYue{}, err
 	}
@@ -87,7 +92,11 @@ func ComputeLiuYue(chart Chart, target tianwen.LunarDate) (LiuYue, error) {
 }
 
 func resolveLiuYuePeriod(target tianwen.LunarDate) (FlowMonthPeriod, error) {
-	meta, err := tianwen.ValidateLunarDate(target)
+	return resolveLiuYuePeriodWith(tianwen.DefaultLunarProjector(), target)
+}
+
+func resolveLiuYuePeriodWith(p tianwen.LunarProjector, target tianwen.LunarDate) (FlowMonthPeriod, error) {
+	meta, err := p.ValidateLunarDate(target)
 	if err != nil {
 		return FlowMonthPeriod{}, fmt.Errorf("resolve flow month: %w", err)
 	}
@@ -108,7 +117,7 @@ func resolveLiuYuePeriod(target tianwen.LunarDate) (FlowMonthPeriod, error) {
 		} else {
 			calendar.Half = "second"
 			calendar.DayStart = 16
-			next, err := tianwen.NextLunarMonth(target.Year, target.Month, true)
+			next, err := p.NextLunarMonth(target.Year, target.Month, true)
 			if err != nil {
 				return FlowMonthPeriod{}, fmt.Errorf("resolve flow month: %w", err)
 			}
@@ -149,9 +158,13 @@ type LiuRi struct {
 
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native). Day pillar requires Gregorian:
-// internally converts lunar→solar via search on LunarDateAt (the inverse).
+// internally converts lunar→solar via the projector inverse.
 func ComputeLiuRi(chart Chart, target tianwen.LunarDate) (LiuRi, error) {
-	if _, err := tianwen.ValidateLunarDate(target); err != nil {
+	return ComputeLiuRiWith(chart, target, tianwen.DefaultLunarProjector())
+}
+
+func ComputeLiuRiWith(chart Chart, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuRi, error) {
+	if _, err := p.ValidateLunarDate(target); err != nil {
 		return LiuRi{}, fmt.Errorf("validate flow day: %w", err)
 	}
 
@@ -163,13 +176,11 @@ func ComputeLiuRi(chart Chart, target tianwen.LunarDate) (LiuRi, error) {
 		IsLeapMonth: target.Leap,
 	})
 	// 流日干支 = 目标日干支（需公历——农历转公历）
-	gt := tianwen.CivilTimeFromLunarDate(tianwen.LunarDate{
-		Year:  target.Year,
-		Month: target.Month,
-		Day:   target.Day,
-		Leap:  target.Leap,
-	})
-	zhu := tianwen.RiZhu(gt)
+	date, err := p.CivilDateFromLunar(target)
+	if err != nil {
+		return LiuRi{}, fmt.Errorf("validate flow day: %w", err)
+	}
+	zhu := tianwen.RiZhu(date.Time())
 	riGan, riZhi := Gan(zhu.Gan), Zhi(zhu.Zhi)
 	stars := liuRiStars(riGan, riZhi)
 	starByAnXingIdx := make(map[int][]string)
@@ -219,7 +230,11 @@ type LiuShi struct {
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native); shiZhi is the target hour zhi.
 func ComputeLiuShi(chart Chart, target tianwen.LunarDate, shiZhi Zhi) (LiuShi, error) {
-	if _, err := tianwen.ValidateLunarDate(target); err != nil {
+	return ComputeLiuShiWith(chart, target, shiZhi, tianwen.DefaultLunarProjector())
+}
+
+func ComputeLiuShiWith(chart Chart, target tianwen.LunarDate, shiZhi Zhi, p tianwen.LunarProjector) (LiuShi, error) {
+	if _, err := p.ValidateLunarDate(target); err != nil {
 		return LiuShi{}, fmt.Errorf("validate flow hour: %w", err)
 	}
 
@@ -232,13 +247,11 @@ func ComputeLiuShi(chart Chart, target tianwen.LunarDate, shiZhi Zhi) (LiuShi, e
 		ShiZhi:      shiZhi,
 	})
 	// 流时干支：日干 + 五鼠遁（需公历——农历转公历）
-	gt := tianwen.CivilTimeFromLunarDate(tianwen.LunarDate{
-		Year:  target.Year,
-		Month: target.Month,
-		Day:   target.Day,
-		Leap:  target.Leap,
-	})
-	zhu := tianwen.RiZhu(gt)
+	date, err := p.CivilDateFromLunar(target)
+	if err != nil {
+		return LiuShi{}, fmt.Errorf("validate flow hour: %w", err)
+	}
+	zhu := tianwen.RiZhu(date.Time())
 	riGan := Gan(zhu.Gan)
 	shiGan := shiGanCalc(riGan, shiZhi)
 	stars := liuShiStars(shiGan, shiZhi)

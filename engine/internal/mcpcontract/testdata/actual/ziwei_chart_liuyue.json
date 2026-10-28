@@ -1083,12 +1083,7 @@
       },
       "ziwei_pos": "命宫"
     },
-    "target_lunar": {
-      "day": 10,
-      "leap": false,
-      "month": 6,
-      "year": 2026
-    }
+    "standard_time": "2026-07-23T12:00:00+08:00"
   },
   "output": {
     "gong_wei": [
@@ -1184,6 +1179,19 @@
     ],
     "ming_gong": "命宫",
     "ming_gong_name": "命宫",
+    "resolved": {
+      "boundary_day": false,
+      "lunar": {
+        "day": 10,
+        "leap": false,
+        "month": 6,
+        "year": 2026
+      },
+      "lunar_month_end": "2026-08-13",
+      "lunar_month_start": "2026-07-14",
+      "selector_date": "2026-07-23",
+      "selector_standard_time": "2026-07-23T12:00:00+08:00"
+    },
     "resolved_period": {
       "calendar_period": {
         "day_end": 30,
@@ -1204,12 +1212,6 @@
       "天梁": "权",
       "太阴": "忌",
       "紫微": "科"
-    },
-    "target_lunar": {
-      "day": 10,
-      "leap": false,
-      "month": 6,
-      "year": 2026
     },
     "xing_yao": {
       "月喜": "寅",

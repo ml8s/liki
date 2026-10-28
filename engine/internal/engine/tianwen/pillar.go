@@ -42,18 +42,25 @@ func NianZhu(gt time.Time) ganzhi.Zhu {
 	return ganzhi.Zhu{Gan: ganzhi.Gan(s), Zhi: ganzhi.Zhi(b)}
 }
 
-// YueZhu computes the month pillar from the given time, deriving the year gan via NianZhu internally.
-func YueZhu(gt time.Time) ganzhi.Zhu {
-	t := gt.UTC()
-	jz := JianYue(time.Time(t))
-	zhi := jz
-	monthNum := (int(jz)+9)%12 + 1 // 1=寅月..12=丑月
-	yp := NianZhu(time.Time(t))
-	gan := ganzhi.Gan(((int(yp.Gan)*2 + monthNum) % 10))
+// YueZhuFromYearGan computes the month pillar from the year gan and the
+// solar-term month index (0=寅 .. 11=丑).
+func YueZhuFromYearGan(yearGan ganzhi.Gan, monthIndex int) ganzhi.Zhu {
+	monthNum := monthIndex + 1
+	zhi := ganzhi.Zhi((monthIndex+2)%12 + 1)
+	gan := ganzhi.Gan(((int(yearGan)*2 + monthNum) % 10))
 	if gan == 0 {
 		gan = 10
 	}
 	return ganzhi.Zhu{Gan: gan, Zhi: zhi}
+}
+
+// YueZhu computes the month pillar from the given time, deriving the year gan via NianZhu internally.
+func YueZhu(gt time.Time) ganzhi.Zhu {
+	t := gt.UTC()
+	jz := JianYue(time.Time(t))
+	monthIndex := (int(jz) + 9) % 12 // 0=寅 .. 11=丑
+	yp := NianZhu(time.Time(t))
+	return YueZhuFromYearGan(yp.Gan, monthIndex)
 }
 
 // ShiZhu computes the hour pillar from solar time.

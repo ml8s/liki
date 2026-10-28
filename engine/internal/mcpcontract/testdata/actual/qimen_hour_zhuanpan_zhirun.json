@@ -1,13 +1,12 @@
 {
   "input": {
     "longitude": 123.25,
-    "instant": "2026-03-02T10:30:00Z",
-    "timezone": "Asia/Shanghai",
     "method": {
       "dingju_method": "zhirun",
       "school": "zhuanpan",
       "scope": "hour"
-    }
+    },
+    "standard_time": "2026-03-02T18:30:00+08:00"
   },
   "output": {
     "gan_interaction": [

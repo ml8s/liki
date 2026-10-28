@@ -2,8 +2,7 @@
   "input": {
     "gender": "female",
     "longitude": 118.5,
-    "instant": "2000-09-20T00:30:00Z",
-    "timezone": "Asia/Shanghai"
+    "standard_time": "2000-09-20T08:30:00+08:00"
   },
   "output": {
     "birth_year": 2000,

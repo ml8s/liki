@@ -1,27 +1,23 @@
 package ziwei
 
 import (
-	"fmt"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
 
-// ComputeChart computes a complete紫微命盘 from lunar time and gender.
-// The LunarTime should come from tianwen.resolve's "lunar" field.
+// ComputeChart computes a complete紫微命盘 from an already-resolved lunar time
+// and gender. Timezone, lunar reference, and date validity belong to the
+// caller's projection; this entry does not re-derive the calendar. Use
+// ComputeChartAtBasis when resolving directly from an instant.
 func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) (Chart, error) {
-	date := tianwen.LunarDate{Year: lt.Year, Month: lt.Month, Day: lt.Day, Leap: lt.Leap}
-	if _, err := tianwen.ValidateLunarDate(date); err != nil {
-		return Chart{}, fmt.Errorf("validate lunar date: %w", err)
-	}
-	return computeValidatedChart(lt, gender), nil
+	return computeChartFromLunarTime(lt, gender), nil
 }
 
-// computeValidatedChart assembles a chart after the lunar date has been
-// validated, or after it was produced by the calendar projection itself.
-// Keeping this path unexported makes the public boundary remain fail-closed.
-func computeValidatedChart(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
+// computeChartFromLunarTime assembles a chart from a caller-resolved lunar
+// time. It deliberately does not re-validate the calendar reference.
+func computeChartFromLunarTime(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
 	nianGan := Gan(((lt.Year-4)%10+10)%10 + 1)
 	nianZhi := Zhi(((lt.Year-4)%12+12)%12 + 1)
 	shiZhi := Zhi(lt.Shichen)
@@ -49,15 +45,30 @@ func computeValidatedChart(lt tianwen.LunarTime, gender ganzhi.Gender) Chart {
 }
 
 // ComputeChartAt is the explicit-time entry for new callers. at must already
-// be normalized to UTC; loc is the explicit IANA location. Ziwei lunar
-// projection currently follows the tianwen UTC+8 convention.
+// be normalized to UTC; loc is the explicit IANA location. The default lunar
+// basis is the local astronomical calendar, which aligns each locality.
 func ComputeChartAt(
 	at time.Time,
 	loc *time.Location,
 	longitude float64,
 	gender ganzhi.Gender,
 ) (Chart, error) {
-	lunarDate := tianwen.LunarDateAt(at)
+	return ComputeChartAtBasis(at, loc, longitude, gender, tianwen.LunarBasisLocalAstronomical)
+}
+
+// ComputeChartAtBasis is ComputeChartAt with an explicit lunar basis.
+func ComputeChartAtBasis(
+	at time.Time,
+	loc *time.Location,
+	longitude float64,
+	gender ganzhi.Gender,
+	basis tianwen.LunarBasis,
+) (Chart, error) {
+	projector, err := tianwen.NewLunarProjector(basis, loc)
+	if err != nil {
+		return Chart{}, err
+	}
+	lunarDate := projector.LunarAt(at)
 	shichen := tianwen.ShichenAt(at, loc, longitude)
 	lunar := tianwen.LunarTime{
 		Year:    lunarDate.Year,
@@ -66,8 +77,9 @@ func ComputeChartAt(
 		Leap:    lunarDate.Leap,
 		Shichen: shichen,
 	}
-	// LunarDateAt projects a real civil date into the lunisolar calendar, so
-	// validating that projection again repeats expensive new-moon and leap-month
-	// work. Public callers that construct LunarTime still go through ComputeChart.
-	return computeValidatedChart(lunar, gender), nil
+	// The projector already validated the civil-date projection, so validating
+	// the resulting lunar date again would repeat expensive new-moon and
+	// leap-month work.
+	chart := computeChartFromLunarTime(lunar, gender)
+	return chart, nil
 }

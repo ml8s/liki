@@ -133,9 +133,8 @@
       },
       "zi_shi_rule": "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
     },
-    "day": 15,
-    "month": 6,
-    "year": 2026
+    "longitude": 116.4,
+    "standard_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
     "date": "2026-06-15",
@@ -183,6 +182,12 @@
         "zhi_b": "午"
       }
     ],
+    "resolved": {
+      "beijing_date": "2026-06-15",
+      "last_date": "2026-06-15",
+      "local_date": "2026-06-15",
+      "standard_time": "2026-06-15T12:00:00+08:00"
+    },
     "ri_gan": "庚",
     "ri_zhi": "申",
     "shensha": [

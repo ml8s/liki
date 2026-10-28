@@ -92,3 +92,16 @@ func shichenFromApparentSolarMinutes(astMinutes float64) ganzhi.Zhi {
 	idx := (int(astMinutes+60) / 120) % 12
 	return ganzhi.Zhi(idx + 1)
 }
+
+// ApparentSolarFromStandard projects standard local time to LAST. It is the
+// single shared LAST conversion: standard carries its own fixed offset, and
+// longitude is the only extra input.
+func ApparentSolarFromStandard(standard time.Time, longitude float64) time.Time {
+	_, offset := standard.Zone()
+	return ApparentSolarFromCivil(standard, longitude, float64(offset)/3600)
+}
+
+// ShichenFromStandard derives the LAST shichen from standard local time.
+func ShichenFromStandard(standard time.Time, longitude float64) ganzhi.Zhi {
+	return ShichenOf(ApparentSolarFromStandard(standard, longitude))
+}

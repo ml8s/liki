@@ -112,10 +112,9 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		} `json:"oneOf"`
 	}
 	decode(t, mustDefinition(t, registry, "tianwen_resolve").InputSchema, &resolveInput)
-	if len(resolveInput.OneOf) != 5 {
-		t.Fatalf("tianwen.resolve oneOf forms = %d, want 5", len(resolveInput.OneOf))
+	if len(resolveInput.OneOf) != 4 {
+		t.Fatalf("tianwen.resolve oneOf forms = %d, want 4", len(resolveInput.OneOf))
 	}
-	gregorian := false
 	for _, form := range resolveInput.OneOf {
 		if !slices.Contains(form.Required, "longitude") {
 			t.Fatalf("tianwen.resolve form must require longitude: %#v", form.Required)
@@ -123,15 +122,6 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		if form.AdditionalProperties == nil || *form.AdditionalProperties {
 			t.Fatalf("tianwen.resolve form must be closed: %#v", form.Required)
 		}
-		if greg, ok := form.Properties["instant"]; ok {
-			gregorian = true
-			if greg.Type != "string" || greg.Format != "date-time" {
-				t.Fatalf("tianwen.resolve utc schema = %#v", greg)
-			}
-		}
-	}
-	if !gregorian {
-		t.Fatal("tianwen.resolve is missing the utc form")
 	}
 
 	var huangliInput struct {
@@ -144,11 +134,11 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		} `json:"properties"`
 	}
 	decode(t, mustDefinition(t, registry, "huangli_days").InputSchema, &huangliInput)
-	if len(huangliInput.Required) != 1 || huangliInput.Required[0] != "start_date" {
+	if len(huangliInput.Required) != 2 || huangliInput.Required[0] != "standard_time" || huangliInput.Required[1] != "timezone" {
 		t.Fatalf("huangli required = %#v", huangliInput.Required)
 	}
-	if start := huangliInput.Properties["start_date"]; start.Format != "date" {
-		t.Fatalf("huangli start_date schema = %#v", start)
+	if _, ok := huangliInput.Properties["standard_time"]; !ok {
+		t.Fatalf("huangli civil_time schema missing")
 	}
 	if count := huangliInput.Properties["count"]; count.Minimum == nil || *count.Minimum != 1 || count.Maximum == nil || *count.Maximum != 30 {
 		t.Fatalf("huangli count schema = %#v", count)
@@ -263,10 +253,10 @@ func TestQimenChartSchemaUsesMethodForms(t *testing.T) {
 	if _, exists := standard.Properties["yong_shen"]; !exists {
 		t.Fatal("standard qimen form lacks yong_shen")
 	}
-	if _, exists := standard.Properties["birth_date"]; !exists {
-		t.Fatal("standard qimen form lacks birth_date")
+	if _, exists := standard.Properties["birth_standard_time"]; !exists {
+		t.Fatal("standard qimen form lacks birth_standard_time")
 	}
-	for _, field := range []string{"yong_shen", "birth_date"} {
+	for _, field := range []string{"yong_shen", "birth_standard_time", "birth_timezone"} {
 		if _, exists := jinhan.Properties[field]; exists {
 			t.Fatalf("jinhan form must not expose %s", field)
 		}
@@ -385,7 +375,7 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 	// primary element but no 辅 element. Missing candidates use an explicit
 	// closure value; neither JSON null nor an empty-string sentinel is allowed.
 	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male",
+		"standard_time": "1990-05-20T12:49:00+08:00", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male",
 	})
 	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"chart": chart})
 	tiaoHou, _ := full["tiao_hou"].(map[string]any)
@@ -455,9 +445,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	huangliRaw, err := registry.Call(context.Background(), "huangli_days", mustJSON(t, HuangliDaysInput{
-		StartDate: "2024-06-15",
-		Count:     jsonschema.Ptr(HuangliCount(1)),
-		Event:     "sign",
+		StandardTime: standardInputFromInstant(t, "2024-06-15T04:00:00Z", "Asia/Shanghai"),
+		Count:        jsonschema.Ptr(HuangliCount(1)),
+		Event:        "sign",
 	}))
 	if err != nil {
 		t.Fatalf("huangli.days: %v", err)
@@ -481,8 +471,8 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	bazhaiRaw, err := registry.Call(context.Background(), "bazhai_chart", mustJSON(t, BazhaiChartInput{
-		BirthYear: 1984,
-		Gender:    "male",
+		StandardTime: standardInputFromInstant(t, "1984-06-15T04:00:00Z", "Asia/Shanghai"),
+		Gender:       "male",
 	}))
 	if err != nil {
 		t.Fatalf("bazhai.chart: %v", err)
@@ -520,9 +510,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	chartRaw, err := registry.Call(context.Background(), "xuankong_chart", mustJSON(t, XuankongChartInput{
-		PeriodDate: "2026-07-31",
-		ZuoShan:    2,
-		XiangShan:  14,
+		StandardTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"),
+		ZuoShan:      2,
+		XiangShan:    14,
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.chart: %v", err)
@@ -539,8 +529,8 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liunianRaw, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart: &chart,
-		Year:  2026,
+		Chart:        &chart,
+		StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
 	}))
 	if err != nil {
 		t.Fatalf("xuankong.liunian: %v", err)
@@ -559,8 +549,8 @@ func TestEngineContractCalls(t *testing.T) {
 	tampered := chart
 	tampered.ZuoShanName = "壬"
 	if _, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, XuankongLiunianInput{
-		Chart: &tampered,
-		Year:  2026,
+		Chart:        &tampered,
+		StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai"),
 	})); err == nil || !strings.Contains(err.Error(), "digest mismatch") {
 		t.Fatalf("expected digest mismatch, got %v", err)
 	}
@@ -594,9 +584,9 @@ func TestEngineContractCalls(t *testing.T) {
 	}
 
 	liuyaoChartRaw, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		Instant: "2026-07-31T02:00:00Z", Timezone: "Asia/Shanghai",
-		Longitude: 116.4,
-		Casting:   &qigua.Casting,
+		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		Longitude:    116.4,
+		Casting:      &qigua.Casting,
 	}))
 	if err != nil {
 		t.Fatalf("liuyao.chart: %v", err)
@@ -616,9 +606,9 @@ func TestEngineContractCalls(t *testing.T) {
 	tamperedQigua := qigua
 	tamperedQigua.Casting.Yaos[0] = 8
 	if _, err := registry.Call(context.Background(), "liuyao_chart", mustJSON(t, LiuyaoChartInput{
-		Instant: "2026-07-31T02:00:00Z", Timezone: "Asia/Shanghai",
-		Longitude: 116.4,
-		Casting:   &tamperedQigua.Casting,
+		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		Longitude:    116.4,
+		Casting:      &tamperedQigua.Casting,
 	})); err == nil || (!strings.Contains(err.Error(), "casting_id mismatch") &&
 		!strings.Contains(err.Error(), "dong_yao mismatch")) {
 		t.Fatalf("expected tampered casting rejection, got %v", err)

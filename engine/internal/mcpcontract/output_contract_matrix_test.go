@@ -26,35 +26,34 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 	}
 
 	call("time_now", map[string]any{"timezone": "Asia/Shanghai"})
-	call("tianwen_resolve", TianwenResolveInput{
-		Instant: "1990-05-20T03:49:00Z", Timezone: "Asia/Shanghai", Longitude: 116.4,
-	})
+	call("tianwen_resolve", civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4))
 	call("city_coords", CityCoordsInput{City: "北京"})
 	call("huangli_days", HuangliDaysInput{
-		StartDate: "2024-06-15", Count: jsonschemaPtr(HuangliCount(1)), Event: "sign",
+		StandardTime: standardInputFromInstant(t, "2024-06-15T04:00:00Z", "Asia/Shanghai"),
+		Count:        jsonschemaPtr(HuangliCount(1)), Event: "sign",
 	})
 	call("bazi_chart", BaziChartInput{
-		Instant: "1990-05-20T03:49:00Z", Timezone: "Asia/Shanghai",
-		Longitude: 116.4, Gender: "male",
+		StandardTime: standardInputFromInstant(t, "1990-05-20T03:49:00Z", "Asia/Shanghai"),
+		Longitude:    116.4, Gender: "male",
 	})
-	call("bazhai_chart", BazhaiChartInput{BirthYear: 1984, Gender: "male"})
+	call("bazhai_chart", BazhaiChartInput{StandardTime: standardInputFromInstant(t, "1984-06-15T04:00:00Z", "Asia/Shanghai"), Gender: "male"})
 	call("bazhai_layout", BazhaiLayoutInput{
 		MingGua: "乾", DoorGua: "坤", MasterGua: "艮", StoveGua: "兑",
 	})
 	xuankongRaw := call("xuankong_chart", XuankongChartInput{
-		PeriodDate: "2026-07-31", ZuoShan: 2, XiangShan: 14,
+		StandardTime: standardInputFromInstant(t, "2026-07-31T04:00:00Z", "Asia/Shanghai"), ZuoShan: 2, XiangShan: 14,
 	})
 	var xuankongChart XuankongChart
 	decode(t, xuankongRaw, &xuankongChart)
-	call("xuankong_liunian", XuankongLiunianInput{Chart: &xuankongChart, Year: 2026})
+	call("xuankong_liunian", XuankongLiunianInput{Chart: &xuankongChart, StandardTime: standardInputFromInstant(t, "2026-06-15T04:00:00Z", "Asia/Shanghai")})
 	qiguaRaw := call("liuyao_qigua", LiuyaoQiguaInput{
 		Mode: "yaos", Yaos: LiuyaoYaoValuesInput{7, 8, 7, 8, 7, 8},
 	})
 	var qigua LiuyaoQiguaOutput
 	decode(t, qiguaRaw, &qigua)
 	call("liuyao_chart", LiuyaoChartInput{
-		Instant: "2026-07-31T02:00:00Z", Timezone: "Asia/Shanghai",
-		Longitude: 116.4, Casting: &qigua.Casting,
+		StandardTime: standardInputFromInstant(t, "2026-07-31T02:00:00Z", "Asia/Shanghai"),
+		Longitude:    116.4, Casting: &qigua.Casting,
 	})
 
 	// Captured legacy fixtures cover the migrated high-volume bazi, ziwei, and

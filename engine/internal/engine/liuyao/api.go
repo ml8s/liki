@@ -50,7 +50,7 @@ func ComputeChartAt(
 	yongShen YongShen,
 	yaos [6]int,
 ) Chart {
-	civil := at.In(loc)
+	civil := tianwen.StandardLocalTime(at, loc)
 	solar := tianwen.ApparentSolarCivil(at, loc, longitude)
 	return ComputeChart(
 		time.Time(civil),

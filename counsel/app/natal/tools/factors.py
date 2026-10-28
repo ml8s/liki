@@ -321,8 +321,12 @@ def evaluate_snap_from_natal_chart(
     gender = natal_chart.get("gender", "")
     ziwei_year = current_year if current_year_ziwei is None else current_year_ziwei
     context = {"性别": gender}
-    if natal_chart.get("instant") and natal_chart.get("timezone"):
-        context["时间事实"] = {"instant": natal_chart["instant"], "timezone": natal_chart["timezone"]}
+    if natal_chart.get("standard_time") and natal_chart.get("timezone"):
+        context["时间事实"] = {
+            "standard_time": natal_chart["standard_time"],
+            "civil_time": natal_chart.get("civil_time"),
+            "timezone": natal_chart["timezone"],
+        }
     if current_year:
         context["当前年份"] = current_year
     if ziwei_year and ziwei_year != current_year:

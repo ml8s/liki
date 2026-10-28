@@ -3,13 +3,34 @@
     {
       "additionalProperties": false,
       "properties": {
-        "birth_date": {
-          "description": "出生日期或时刻。",
+        "birth_civil_time": {
+          "description": "出生地当地壁钟时间。",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?$",
           "type": "string"
         },
-        "instant": {
-          "description": "占问瞬间。",
-          "format": "date-time",
+        "birth_fold": {
+          "description": "出生时间 DST 回拨歧义时选择 earlier 或 later。",
+          "enum": [
+            "earlier",
+            "later"
+          ],
+          "type": "string"
+        },
+        "birth_timezone": {
+          "description": "出生地 IANA 时区。",
+          "type": "string"
+        },
+        "civil_time": {
+          "description": "占问地当地壁钟时间。",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?$",
+          "type": "string"
+        },
+        "fold": {
+          "description": "DST 回拨歧义时选择 earlier 或 later。",
+          "enum": [
+            "earlier",
+            "later"
+          ],
           "type": "string"
         },
         "longitude": {
@@ -301,7 +322,7 @@
         }
       },
       "required": [
-        "instant",
+        "civil_time",
         "timezone",
         "longitude",
         "method"
@@ -311,9 +332,17 @@
     {
       "additionalProperties": false,
       "properties": {
-        "instant": {
-          "description": "占问瞬间。",
-          "format": "date-time",
+        "civil_time": {
+          "description": "占问地当地壁钟时间。",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?$",
+          "type": "string"
+        },
+        "fold": {
+          "description": "DST 回拨歧义时选择 earlier 或 later。",
+          "enum": [
+            "earlier",
+            "later"
+          ],
           "type": "string"
         },
         "longitude": {
@@ -348,7 +377,7 @@
         }
       },
       "required": [
-        "instant",
+        "civil_time",
         "timezone",
         "longitude",
         "method"

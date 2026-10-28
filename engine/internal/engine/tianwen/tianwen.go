@@ -104,11 +104,21 @@ func julianDayHMS(year, month, day, hour, min, sec int) float64 {
 	return jd
 }
 
-func solarLongitude(t time.Time) float64 {
-	// 儒略日基于 UTC——先用 UTC 字段（避免本地时区偏移）
+func julianDayTime(t time.Time) float64 {
 	u := t.UTC()
-	jd := julianDayHMS(u.Year(), int(u.Month()), u.Day(), u.Hour(), u.Minute(), u.Second())
-	return solarLongitudeShouXing(jd - 2451545.0)
+	return julianDayHMS(u.Year(), int(u.Month()), u.Day(), u.Hour(), u.Minute(), u.Second()) +
+		float64(u.Nanosecond())/1e9/86400.0
+}
+
+func normalizeDegrees(deg float64) float64 {
+	return math.Mod(math.Mod(deg, 360.0)+360.0, 360.0)
+}
+
+func solarLongitude(t time.Time) float64 {
+	jdUT := julianDayTime(t)
+	jdTT := jdUT + dtT(jdUT-2451545.0)
+	tt := (jdTT - 2451545.0) / 36525.0
+	return normalizeDegrees(saLon(tt, -1) * 180.0 / math.Pi)
 }
 
 func angleInRange(lon, cur, next float64) bool {
@@ -140,17 +150,14 @@ func SolarTermTime(year int, targetLon float64) time.Time {
 }
 
 func computeSolarTermTime(year int, targetLon float64) time.Time {
-	// 初始猜测：按黄经基准（太阳 1月1日黄经≈280°，每天 0.9856°）。
-	// 归一化到当年：先算 1月1日黄经，再推 targetLon 对应日。
-	jan1Lon := solarLongitude(time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC))
-	diff0 := targetLon - jan1Lon
-	if diff0 > 180 {
-		diff0 -= 360
-	} else if diff0 < -180 {
-		diff0 += 360
-	}
-	t := time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC).AddDate(0, 0, int(diff0/0.9856))
-	for iter := 0; iter < 60; iter++ {
+	// 初始猜测落在目标年内：从 1 月 1 日黄经向东推到 targetLon。
+	// 对 270°（冬至）这样黄经小于年初黄经的目标，加 360° 后落在 12 月，
+	// 不会回退到上一年。
+	jan1 := time.Date(year, 1, 1, 12, 0, 0, 0, time.UTC)
+	diff0 := normalizeDegrees(targetLon - solarLongitude(jan1))
+	t := jan1.Add(time.Duration(diff0 / 0.9856 * 24 * float64(time.Hour)))
+
+	for iter := 0; iter < 100; iter++ {
 		lon := solarLongitude(t)
 		diff := targetLon - lon
 		if diff > 180 {
@@ -158,7 +165,7 @@ func computeSolarTermTime(year int, targetLon float64) time.Time {
 		} else if diff < -180 {
 			diff += 360
 		}
-		if math.Abs(diff) < 1e-5 {
+		if math.Abs(diff) < 1e-7 {
 			break
 		}
 		step := diff / 0.9856
@@ -167,30 +174,7 @@ func computeSolarTermTime(year int, targetLon float64) time.Time {
 		} else if step < -15 {
 			step = -15
 		}
-		t = t.Add(time.Duration(step*24*3600) * time.Second)
-	}
-	// ΔT 修正：solarLongitude 算的是力学时，转世界时（对齐 lunar qiHigh）
-	jd := julianDayHMS(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
-	tt := (jd - 2451545.0) / 36525.0
-	dt := dtT(tt)
-	t = t.Add(-time.Duration(dt*86400.0) * time.Second)
-
-	// For non-节 targets (ti=0), the initial guess at Feb 5 can cause
-	// backward convergence into the previous year (e.g. 处暑 150°, 秋分 180°).
-	// Advance one solar year and refine if we landed before the target year.
-	if t.Year() < year {
-		t = t.AddDate(0, 0, 365)
-		lon := solarLongitude(t)
-		diff := targetLon - lon
-		if diff > 180 {
-			diff -= 360
-		} else if diff < -180 {
-			diff += 360
-		}
-		step := diff / 0.9856
-		if step <= 15 && step >= -15 {
-			t = t.Add(time.Duration(step*24*3600) * time.Second)
-		}
+		t = t.Add(time.Duration(step * 24 * float64(time.Hour)))
 	}
 	return t
 }

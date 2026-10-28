@@ -119,16 +119,3 @@ func dtCalc(y float64) float64 {
 func dtT(t float64) float64 {
 	return dtCalc(t/365.2425+2000) / secondPerDay
 }
-
-// solarLongitudeShouXing 给定儒略日偏移（JD-2451545，天），返回太阳视黄经（度）。
-// 含 ΔT 修正（对齐 lunar qiHigh：saLonT*36525 - dtT + 1/3）。
-func solarLongitudeShouXing(jdOffset float64) float64 {
-	// 直接算黄经（t=jdOffset/36525 百年）。
-	tt := jdOffset / 36525.0
-	lon := saLon(tt, -1)*180.0/math.Pi - dtT(tt)*360.0/365.25
-	lon = math.Mod(lon, 360)
-	if lon < 0 {
-		lon += 360
-	}
-	return lon
-}

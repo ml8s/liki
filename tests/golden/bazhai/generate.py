@@ -29,7 +29,7 @@ for year in range(1900,2100):
 doc={
  "version":1,
  "basis":"《八宅明镜》通行命卦公式；2000前后公式分段；5男寄坤、5女寄艮。",
- "policy":{"year_boundary":"gregorian_calendar_year","coverage":"1900-2099_all_gender"},
+ "policy":{"year_boundary":"lichun","coverage":"1900-2099_all_gender"},
  "scope":{"case_count":len(cases)},
  "cases":cases,
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"liki-engine/internal/engine/tianwen"
 )
 
 // TimeNowInput requires an IANA timezone; the tool layer never guesses.
@@ -11,11 +13,9 @@ type TimeNowInput struct {
 	Timezone string `json:"timezone" jsonschema:"IANA timezone, e.g. Asia/Shanghai. Required."`
 }
 
-// TimeNowOutput is the canonical clock fact: UTC instant + IANA zone.
-// Display local time/offset is the frontend's concern (Intl.DateTimeFormat).
+// TimeNowOutput is the canonical clock fact in standard and civil time.
 type TimeNowOutput struct {
-	Instant  string `json:"instant" jsonschema:"Current instant as canonical UTC RFC3339 ending with Z."`
-	Timezone string `json:"timezone" jsonschema:"Effective IANA timezone."`
+	StandardTime string `json:"standard_time" jsonschema:"当前时区标准时间（无 DST），RFC3339。"`
 }
 
 // TimeNow returns the current instant plus its representation in the required
@@ -33,7 +33,6 @@ func TimeNow(ctx context.Context, input TimeNowInput) (TimeNowOutput, error) {
 	}
 	now := time.Now().Round(0).UTC()
 	return TimeNowOutput{
-		Instant:  now.Format(time.RFC3339Nano),
-		Timezone: zone.String(),
+		StandardTime: tianwen.StandardLocalTime(now, zone).Format(time.RFC3339Nano),
 	}, nil
 }

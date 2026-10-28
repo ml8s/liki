@@ -6,7 +6,7 @@
     "yun_name": "九运",
     "start_year": 2024,
     "end_year": 2043,
-    "year_boundary": "gregorian_calendar_year"
+    "year_boundary": "lichun"
   },
   "zuo_shan": 1,
   "xiang_shan": 13,
@@ -270,7 +270,7 @@
       "meaning": "土克水，主中男受损、外出不归（《竹节赋》坤艮动见坎，中男绝灭不还乡）"
     }
   ],
-  "chart_digest": "94b926f787d65e6c61bc72172d3f4e5fbf2616c2498769a705a477745184b6ad",
+  "chart_digest": "df9b919ff80d3a463f058aeff9184170f5a04f6b7e800dc791acf352c29412f9",
   "shou_shan_chu_sha": {
     "zheng_shen": 9,
     "ling_shen": 1,

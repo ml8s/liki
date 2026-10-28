@@ -6,7 +6,7 @@ from app.natal.tools.factor_constants import load_constants
 
 _CONSTANTS = load_constants()
 REQUIRED_FIELDS = (
-    "instant", "timezone", "chart", "full", "ziwei",
+    "standard_time", "civil_time", "timezone", "chart", "full", "ziwei",
     "ziwei_chart", "ziwei_daxian", "gender", DIGEST_FIELD,
 )
 PILLARS = tuple(_CONSTANTS["四柱"])
@@ -249,14 +249,14 @@ def validate_natal_chart(natal_chart: object, action: str = "natal_chart") -> No
         )
     wrong = [
         key for key in REQUIRED_FIELDS
-        if key not in ("instant", "timezone", "gender", "ziwei_daxian", DIGEST_FIELD)
+        if key not in ("standard_time", "civil_time", "timezone", "gender", "ziwei_daxian", DIGEST_FIELD)
         and not isinstance(natal_chart[key], dict)
     ]
     if wrong:
         raise ChartSchemaError(
             f"{action} natal_chart 字段类型不完整: {', '.join(wrong)} 必须是 object。"
         )
-    for key in ("instant", "timezone"):
+    for key in ("standard_time", "civil_time", "timezone"):
         if not isinstance(natal_chart.get(key), str) or not natal_chart.get(key):
             raise ChartSchemaError(f"{action} natal_chart.{key} 必须是非空字符串。")
     if natal_chart["gender"] not in GENDERS:

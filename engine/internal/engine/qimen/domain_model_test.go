@@ -93,26 +93,6 @@ func TestComputeChartWithYongShenProjectsTiming(t *testing.T) {
 	}
 }
 
-func TestParseBirthDatePrecision(t *testing.T) {
-	if _, err := ParseBirthDate("2024-02-04"); err == nil {
-		t.Fatal("date-only Lichun boundary should be rejected")
-	}
-	dateOnly, err := ParseBirthDate("1984-02-15")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !dateOnly.Has || dateOnly.Precision != BirthDateOnly {
-		t.Fatalf("date precision = %+v", dateOnly)
-	}
-	moment, err := ParseBirthDate("2024-02-04T02:00:00Z")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if moment.Precision != BirthDateMoment {
-		t.Fatalf("moment precision = %+v", moment)
-	}
-}
-
 func TestTableDrivenSpiritNamesAndRelations(t *testing.T) {
 	if SpiritGouChen.YangName() != "勾陈" || SpiritGouChen.YinName() != "白虎" {
 		t.Fatal("slot-5 spirit school names are not table-driven")

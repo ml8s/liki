@@ -8,6 +8,17 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
+func resolveTestLiuShi(t *testing.T, year, month, day, hour, minute int) LiuShiTime {
+	t.Helper()
+	loc := time.FixedZone("CST", 8*3600)
+	at := time.Date(year, time.Month(month), day, hour, minute, 0, 0, loc)
+	resolved, err := ResolveLiuShiTime(at, loc, "Asia/Shanghai", 120.0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return resolved
+}
+
 // ============================================================================
 // 流时 (LiuShi) — 晚子时(23:00-24:00)时柱按次日日干起
 // ============================================================================
@@ -26,7 +37,7 @@ func TestLiuShi_WanZiShi_UsesNextDayGan(t *testing.T) {
 	}
 
 	// 早子时 00:00：当天日干（乙）起五鼠遁 → 乙日子时 丙子。
-	early, err := computeLiuShi(bz, 1990, 5, 20, 0)
+	early, err := computeLiuShi(bz, resolveTestLiuShi(t, 1990, 5, 20, 0, 30))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +46,7 @@ func TestLiuShi_WanZiShi_UsesNextDayGan(t *testing.T) {
 	}
 
 	// 晚子时 23:00：时柱按次日（5/21 丙日）日干起 → 丙日子时 戊子。
-	late, err := computeLiuShi(bz, 1990, 5, 20, 23)
+	late, err := computeLiuShi(bz, resolveTestLiuShi(t, 1990, 5, 20, 23, 30))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +55,7 @@ func TestLiuShi_WanZiShi_UsesNextDayGan(t *testing.T) {
 	}
 
 	// 次日 00:00（丙日早子时）同样 戊子——与 5/20 晚子时一致（跨日同子时）。
-	next, err := computeLiuShi(bz, 1990, 5, 21, 0)
+	next, err := computeLiuShi(bz, resolveTestLiuShi(t, 1990, 5, 21, 0, 30))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +74,7 @@ func TestLiuShi_OtherHours_UseSameDayGan(t *testing.T) {
 	bz := chart.ToBazi()
 
 	// 卯时（6:00）用当天日干乙 → 乙日卯时 己卯。
-	ls, err := computeLiuShi(bz, 1990, 5, 20, 6)
+	ls, err := computeLiuShi(bz, resolveTestLiuShi(t, 1990, 5, 20, 6, 30))
 	if err != nil {
 		t.Fatal(err)
 	}

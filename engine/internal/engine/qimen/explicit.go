@@ -11,7 +11,7 @@ func civilSolar(
 	loc *time.Location,
 	longitude float64,
 ) (time.Time, time.Time) {
-	civil := at.In(loc)
+	civil := tianwen.StandardLocalTime(at, loc)
 	solar := tianwen.ApparentSolarCivil(at, loc, longitude)
 	return time.Time(civil), time.Time(solar)
 }

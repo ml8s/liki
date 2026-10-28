@@ -53,7 +53,7 @@ func ComputeSanYuanYun(year int) SanYuanYun {
 		YunName:      yunNames[yunNum],
 		StartYear:    startYear,
 		EndYear:      endYear,
-		YearBoundary: "gregorian_calendar_year",
+		YearBoundary: "lichun",
 	}
 }
 

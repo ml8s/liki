@@ -1,11 +1,7 @@
 package bazi
 
 import (
-	"fmt"
-	"time"
-
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // LiuNian holds the annual (流年) analysis output.
@@ -26,16 +22,11 @@ type LiuNian struct {
 	AtomicFacts       LiuNianAtomicFacts  `json:"atomic_facts"`
 }
 
-// ComputeLiuNian computes the year pillar for a given year and analyzes its
-// relationship to the day master. When bazi and currentDaYun are provided,
-// it also computes three-layer interaction analysis.
-func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian, error) {
-	if year < 1 || year > 9999 {
-		return nil, fmt.Errorf("compute liunian: invalid year %d", year)
-	}
+// ComputeLiuNian computes the year pillar for a resolved 立春 year and
+// analyzes its relationship to the day master.
+func computeLiuNian(bz ganzhi.Bazi, t LiuNianTime, currentDaYun *DaYunStep) (*LiuNian, error) {
 	riYuan := bz.Ri.Gan
-	yp := tianwen.NianZhu(time.Time(time.Date(year, 6, 15, 0, 0, 0, 0, time.UTC))) // mid-year avoids LiChun edge
-	nianGan, nianZhi := yp.Gan, yp.Zhi
+	nianGan, nianZhi := t.NianGan, t.NianZhi
 
 	dmElem := ganzhi.GanWuxing(riYuan)
 	yearElem := ganzhi.GanWuxing(nianGan)
@@ -47,7 +38,7 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 	naYin := ganzhi.NayinLabel(nianGan, nianZhi)
 
 	r := &LiuNian{
-		Year:      year,
+		Year:      t.LichunYear,
 		NianGan:   nianGan,
 		NianZhi:   nianZhi,
 		YearName:  ganzhi.GanName(nianGan) + ganzhi.ZhiName(nianZhi),
@@ -83,7 +74,7 @@ func computeLiuNian(bz ganzhi.Bazi, year int, currentDaYun *DaYunStep) (*LiuNian
 	r.ShenSha = computeDynamicShenSha(nianZhi, bz.Nian.Zhi, bz.Ri.Zhi, riYuan)
 	r.ShenSha = append(r.ShenSha, computeAnnualShenSha(nianZhi, bz)...)
 	r.FuYinFanYin = computeFuYinFanYin(liuNianZhu, bz)
-	r.AtomicFacts = computeLiuNianAtomicFacts(bz, year, nianGan, nianZhi, tgName, currentDaYun)
+	r.AtomicFacts = computeLiuNianAtomicFacts(bz, t.LichunYear, nianGan, nianZhi, tgName, currentDaYun)
 
 	return r, nil
 }

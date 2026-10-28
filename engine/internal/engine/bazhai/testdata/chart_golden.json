@@ -7,7 +7,7 @@
       "yin_yang": "阴"
     },
     "group": "西四命",
-    "year_boundary": "gregorian_calendar_year"
+    "year_boundary": "lichun"
   },
   "ba_zhai_dirs": {
     "sheng_qi": [
@@ -38,7 +38,7 @@
   "liu_nian_xing": {
     "year": 1984,
     "ru_zhong": "七赤破军",
-    "year_boundary": "gregorian_calendar_year",
+    "year_boundary": "lichun",
     "gong_wei": [
       {
         "gong_num": 5,

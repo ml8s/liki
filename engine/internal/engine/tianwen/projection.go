@@ -2,6 +2,7 @@ package tianwen
 
 import (
 	"errors"
+	"sort"
 	"time"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -42,13 +43,7 @@ func ApparentSolarCivil(
 	loc *time.Location,
 	longitude float64,
 ) time.Time {
-	civil := at.In(loc)
-	_, offsetSeconds := civil.Zone()
-	return ApparentSolarFromCivil(
-		civil,
-		longitude,
-		float64(offsetSeconds)/3600,
-	)
+	return ApparentSolarFromStandard(StandardLocalTime(at, loc), longitude)
 }
 
 // ShichenAt derives the hour branch from apparent solar time.
@@ -57,8 +52,50 @@ func ShichenAt(
 	loc *time.Location,
 	longitude float64,
 ) ganzhi.Zhi {
-	return ShichenOf(time.Time(ApparentSolarCivil(at, loc, longitude)))
+	return ShichenFromStandard(StandardLocalTime(at, loc), longitude)
+}
+
+// solarTermsAround returns the 24 solar terms for the years adjacent to at,
+// sorted by boundary instant. The three-year window guarantees that the
+// previous and next boundaries exist for any instant inside the middle year.
+func solarTermsAround(at time.Time) []SolarTerm {
+	terms := make([]SolarTerm, 0, 24*3)
+	for year := at.Year() - 1; year <= at.Year()+1; year++ {
+		for index, longitude := range JieQiLongitudes {
+			terms = append(terms, SolarTerm{
+				Index: index,
+				Name:  JieQiNames[index],
+				At:    SolarTermTime(year, longitude),
+			})
+		}
+	}
+
+	sort.Slice(terms, func(i, j int) bool {
+		return terms[i].At.Before(terms[j].At)
+	})
+	return terms
 }
 
 // SolarTermStateAt returns the previous, current, and next solar-term
 // boundaries around at. Boundary comparisons use absolute instants.
+func SolarTermStateAt(at time.Time) SolarTermState {
+	terms := solarTermsAround(at)
+
+	current := sort.Search(len(terms), func(i int) bool {
+		return terms[i].At.After(at)
+	})
+	if current > 0 {
+		current--
+	}
+	// Guard the lower edge; a valid request always lands after the first term
+	// in the constructed three-year window, but the zero time must not panic.
+	if current == 0 {
+		current = 1
+	}
+
+	return SolarTermState{
+		Previous: terms[current-1],
+		Current:  terms[current],
+		Next:     terms[min(current+1, len(terms)-1)],
+	}
+}

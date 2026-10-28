@@ -46,9 +46,9 @@ func TestResolve_ExactTime(t *testing.T) {
 }
 
 func TestResolve_TimePrecisionCrossesSolarTerm(t *testing.T) {
-	// 2024 立春 ≈ 2024-02-04 16:28:15 CST；HH:MM 的分钟窗口跨交节。
+	// 2024 立春 ≈ 2024-02-04 16:27 CST；HH:MM 的分钟窗口跨交节。
 	result, err := Resolve(ResolveInput{
-		Calendar: "solar", Date: "2024-02-04", Timezone: "Asia/Shanghai", Time: "16:28", Longitude: 116.4,
+		Calendar: "solar", Date: "2024-02-04", Timezone: "Asia/Shanghai", Time: "16:27", Longitude: 116.4,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -294,5 +294,47 @@ func TestResolve_InvalidLongitudeRange(t *testing.T) {
 	})
 	if err == nil || !strings.Contains(err.Error(), "longitude_range") {
 		t.Fatalf("err=%v, want longitude_range error", err)
+	}
+}
+
+func TestResolve_LunarInputLocalAstronomical(t *testing.T) {
+	ny, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Fatal(err)
+	}
+	lunar := LunarDate{Year: 2024, Month: 1, Day: 1}
+	result, err := Resolve(ResolveInput{
+		Calendar:  "lunar",
+		Lunar:     lunar,
+		Time:      "12:00",
+		Timezone:  "America/New_York",
+		Longitude: -74.0,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := time.Date(2024, 2, 9, 12, 0, 0, 0, ny)
+	got := inputCandidate(t, result).CivilTime
+	if !got.Equal(want) {
+		t.Fatalf("instant = %s, want %s", got.Format(time.RFC3339), want.Format(time.RFC3339))
+	}
+}
+
+func TestResolve_LunarInputFixedUTC8MatchesOfficial(t *testing.T) {
+	lunar := LunarDate{Year: 2025, Month: 6, Day: 15, Leap: true}
+	result, err := Resolve(ResolveInput{
+		Calendar:  "lunar",
+		Lunar:     lunar,
+		Time:      "06:00",
+		Timezone:  "Etc/GMT-8",
+		Longitude: 116.4,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	gt := CivilTimeFromLunarDate(lunar)
+	want := time.Date(gt.Year(), gt.Month(), gt.Day(), 6, 0, 0, 0, time.FixedZone("CST", 8*3600))
+	if got := inputCandidate(t, result).CivilTime; !got.Equal(want) {
+		t.Fatalf("fixed UTC+8 local_astronomical = %s, want official %s", got, want)
 	}
 }

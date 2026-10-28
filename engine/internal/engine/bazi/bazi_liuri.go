@@ -1,11 +1,7 @@
 package bazi
 
 import (
-	"fmt"
-	"time"
-
 	"liki-engine/internal/engine/ganzhi"
-	"liki-engine/internal/engine/tianwen"
 )
 
 // LiuRi holds the daily flow (流日) analysis: today's pillar
@@ -24,17 +20,13 @@ type LiuRi struct {
 	ShenSha     []ShenShaProjection `json:"shensha"`
 }
 
-// ComputeLiuRi computes the day pillar for the given date and its full
+// ComputeLiuRi computes the day pillar for the resolved date and its full
 // interactions with the bazi chart, current dayun, and current liunian.
-func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, liuNianZhu *ganzhi.Zhu) (*LiuRi, error) {
+func computeLiuRi(bz ganzhi.Bazi, t LiuRiTime, daYunZhu *ganzhi.Zhu, liuNianZhu *ganzhi.Zhu) (*LiuRi, error) {
 	riYuan := bz.Ri.Gan
 	bazi := bz.Slice()
 
-	date := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
-	if date.Year() != year || int(date.Month()) != month || date.Day() != day {
-		return nil, fmt.Errorf("invalid date: %04d-%02d-%02d", year, month, day)
-	}
-	dp := tianwen.RiZhu(time.Time(date))
+	dp := ganzhi.Zhu{Gan: t.RiGan, Zhi: t.RiZhi}
 	tgName := ganzhi.ShiShenFromGan(riYuan, dp.Gan)
 
 	dayName := ganzhi.GanName(dp.Gan) + ganzhi.ZhiName(dp.Zhi)
@@ -101,7 +93,7 @@ func computeLiuRi(bz ganzhi.Bazi, year, month, day int, daYunZhu *ganzhi.Zhu, li
 		shensha = []ShenShaProjection{}
 	}
 	return &LiuRi{
-		Date:        fmt.Sprintf("%04d-%02d-%02d", year, month, day),
+		Date:        t.Date.String(),
 		RiGan:       dp.Gan,
 		RiZhi:       dp.Zhi,
 		DayName:     dayName,

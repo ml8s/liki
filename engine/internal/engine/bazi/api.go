@@ -33,7 +33,7 @@ func ComputeChartAt(
 	longitude float64,
 	gender ganzhi.Gender,
 ) Chart {
-	civil := at.In(loc)
+	civil := tianwen.StandardLocalTime(at, loc)
 	solar := tianwen.ApparentSolarCivil(at, loc, longitude)
 	return ComputeChart(
 		time.Time(civil),
@@ -143,24 +143,51 @@ func enrichDaYunRoots(fc *FullChart, bz ganzhi.Bazi) {
 }
 
 // ComputeLiuNian computes the year pillar and its interactions with the bazi chart.
+// The year selector is transitional while the wire still carries a Gregorian
+// year; it resolves at mid-year to preserve the existing contract.
 func ComputeLiuNian(chart Chart, year int) (*LiuNian, error) {
-	cd := dayunStepForYear(chart.DaYun, chart.BirthYear, year)
-	return computeLiuNian(chart.ToBazi(), year, cd)
+	t, err := ResolveLiuNianTime(tianwen.NewCivilDate(year, 6, 15))
+	if err != nil {
+		return nil, err
+	}
+	return ComputeLiuNianAtTime(chart, t)
+}
+
+// ComputeLiuNianAtTime computes the year pillar from a resolved 立春 year.
+func ComputeLiuNianAtTime(chart Chart, t LiuNianTime) (*LiuNian, error) {
+	cd := dayunStepForYear(chart.DaYun, chart.BirthYear, t.LichunYear)
+	return computeLiuNian(chart.ToBazi(), t, cd)
 }
 
 // ComputeLiuYue computes the month pillar and its interactions with the bazi chart.
+// The year/month selector is transitional while the wire still carries a
+// Gregorian month; it resolves at mid-month to preserve the existing contract.
 func ComputeLiuYue(c Chart, year, month int) (*LiuYue, error) {
-	return computeLiuYue(c.ToBazi(), year, month)
+	t, err := ResolveLiuYueTime(tianwen.NewCivilDate(year, month, 15))
+	if err != nil {
+		return nil, err
+	}
+	return ComputeLiuYueAtTime(c, t)
+}
+
+// ComputeLiuYueAtTime computes the month pillar from a resolved solar-term month.
+func ComputeLiuYueAtTime(c Chart, t LiuYueTime) (*LiuYue, error) {
+	return computeLiuYue(c.ToBazi(), t)
 }
 
 // ComputeLiuRi computes the day pillar and its interactions with the bazi chart.
-func ComputeLiuRi(c Chart, year, month, day int) (*LiuRi, error) {
-	ds := dayunStepForYear(c.DaYun, c.BirthYear, year)
+func ComputeLiuRi(c Chart, t LiuRiTime) (*LiuRi, error) {
+	// 流日的流年/大运按该日所属的立春年取，而不是公历年。
+	nianTime, err := ResolveLiuNianTime(t.Date)
+	if err != nil {
+		return nil, fmt.Errorf("computeLiuRi: liunian time: %w", err)
+	}
+	ds := dayunStepForYear(c.DaYun, c.BirthYear, nianTime.LichunYear)
 	var dzZhu *ganzhi.Zhu
 	if ds != nil {
 		dzZhu = &ganzhi.Zhu{Gan: ds.Gan, Zhi: ds.Zhi}
 	}
-	ln, err := ComputeLiuNian(c, year)
+	ln, err := ComputeLiuNianAtTime(c, nianTime)
 	if err != nil {
 		return nil, fmt.Errorf("computeLiuRi: liunian: %w", err)
 	}
@@ -168,12 +195,12 @@ func ComputeLiuRi(c Chart, year, month, day int) (*LiuRi, error) {
 	if ln != nil {
 		lnZhu = &ganzhi.Zhu{Gan: ln.NianGan, Zhi: ln.NianZhi}
 	}
-	return computeLiuRi(c.ToBazi(), year, month, day, dzZhu, lnZhu)
+	return computeLiuRi(c.ToBazi(), t, dzZhu, lnZhu)
 }
 
 // ComputeLiuShi computes the hour pillar and its interactions with the bazi chart.
-func ComputeLiuShi(c Chart, year, month, day, hour int) (*LiuShi, error) {
-	return computeLiuShi(c.ToBazi(), year, month, day, hour)
+func ComputeLiuShi(c Chart, t LiuShiTime) (*LiuShi, error) {
+	return computeLiuShi(c.ToBazi(), t)
 }
 
 // dayunStepForYear returns the DaYun step governing the given year, based on

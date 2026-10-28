@@ -133,7 +133,7 @@
       },
       "zi_shi_rule": "晚子时(23:00-24:00)日柱不变、时柱按次日日干起（lunar 约定）"
     },
-    "year": 2026
+    "standard_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
     "atomic_facts": {
@@ -325,6 +325,14 @@
     "nian_gan": "丙",
     "nian_name": "丙午",
     "nian_zhi": "午",
+    "resolved": {
+      "boundary_day": false,
+      "lichun_end": "2027-02-04",
+      "lichun_start": "2026-02-04",
+      "lichun_year": 2026,
+      "selector_date": "2026-06-15",
+      "selector_standard_time": "2026-06-15T12:00:00+08:00"
+    },
     "sheng": 1,
     "shensha": [
       {

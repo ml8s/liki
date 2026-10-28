@@ -33,7 +33,7 @@ func TestMingGuaCycleGolden_AllYearsAndGenders(t *testing.T) {
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		t.Fatalf("decode ming-gua cycle golden: %v", err)
 	}
-	if doc.Version != 1 || doc.Policy.YearBoundary != "gregorian_calendar_year" ||
+	if doc.Version != 1 || doc.Policy.YearBoundary != "lichun" ||
 		doc.Policy.Coverage != "1900-2099_all_gender" || len(doc.Cases) != doc.Scope.CaseCount {
 		t.Fatalf("invalid fixture metadata: %+v", doc)
 	}
@@ -50,7 +50,7 @@ func TestMingGuaCycleGolden_AllYearsAndGenders(t *testing.T) {
 		}
 		t.Run(golden.Gender+"-"+strconv.Itoa(golden.Year), func(t *testing.T) {
 			got := ComputeMingGua(gender, golden.Year)
-			if got.YearBoundary != "gregorian_calendar_year" {
+			if got.YearBoundary != "lichun" {
 				t.Fatalf("year boundary = %q", got.YearBoundary)
 			}
 			if got.Gua.Name != golden.Gua || got.Group != golden.Group {

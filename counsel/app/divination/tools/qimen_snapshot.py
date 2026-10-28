@@ -49,7 +49,8 @@ def create(
     yong_shen: list[str] | None = None,
     rule: str | None = None,
     method: dict[str, str],
-    birth_date: str | None = None,
+    birth_instant: str | None = None,
+    birth_timezone: str | None = None,
 ) -> dict:
     """创建 immutable qimen snapshot；LLM 后续只依赖该对象。"""
     question = require_question(question)
@@ -59,7 +60,7 @@ def create(
     effective_scope = method.get("scope", "")
     effective_school = method.get("school", "")
     if effective_school == "jinhan_yujing":
-        forbidden = (matter, yong_shen, rule, birth_date)
+        forbidden = (matter, yong_shen, rule, birth_instant, birth_timezone)
         if any(value is not None for value in forbidden):
             raise ValueError("school jinhan_yujing does not support focus or advanced method fields")
 
@@ -95,7 +96,8 @@ def create(
         resolved_longitude,
         matter=matter,
         yong_shen=yong_shen,
-        birth_date=birth_date,
+        birth_instant=birth_instant,
+        birth_timezone=birth_timezone,
         method=method,
     )
     chart = chart_result["chart"]
