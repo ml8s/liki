@@ -40,9 +40,12 @@ Chart and flow tools then use only `standard_time` plus longitude:
 ```
 
 `standard_time` is local standard time with no DST, represented as RFC3339 with
-a numeric offset. It is not an IANA timezone and never contains DST. `timezone`
-is accepted only by `tianwen.resolve`; chart tools fail closed if it is present.
-Missing `longitude` fails closed when the tool needs LAST.
+a known offset. `Z` is valid UTC standard time; `-00:00` is rejected because
+RFC3339 defines it as an unknown local offset. The offset is not an IANA
+timezone identity, but it selects the local standard representation used by
+date facts. `timezone` is accepted only by `tianwen.resolve`; chart tools fail
+closed if it is present. Missing `longitude` fails closed when the tool needs
+LAST.
 
 The per-domain projection matrix (solar-term event, standard date, local LAST)
 is defined in [TIME_MODEL.md](./TIME_MODEL.md).

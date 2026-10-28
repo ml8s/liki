@@ -30,11 +30,15 @@ Chart and flow tools:
 }
 ```
 
-- `standard_time` is RFC3339 with a numeric offset.
+- `standard_time` is RFC3339 with a known offset. `Z` and numeric offsets
+  such as `+08:00` / `-05:00` are accepted; `-00:00` is rejected because
+  RFC3339 defines it as an unknown local offset.
 - It is local **standard** time: instant plus the zone's standard offset, with
   no DST.
-- The offset is a representation, not a timezone identity. Chart tools never
-  infer an IANA zone from it.
+- The offset is not a timezone identity, but it does select the local standard
+  representation used by date facts. Chart tools never infer an IANA zone from
+  it. Two timestamps can identify the same instant while selecting different
+  local standard dates.
 - `longitude` is required only for capabilities that use local apparent solar
   time (LAST).
 - `tianwen.resolve` is the only place where civil time and DST exist.

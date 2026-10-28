@@ -543,7 +543,7 @@ class QimenSnapshotInput(BaseModel):
         default=None,
         description="可选专占规则；由因子契约校验适用盘型",
     )
-    birth_standard_time: str = Field(
+    birth_standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         default=None,
         description="出生地标准时间 RFC3339（无 DST），用于年命干落宫；金函玉镜不接受",
     )

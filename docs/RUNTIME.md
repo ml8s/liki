@@ -32,10 +32,12 @@ Time inputs are split into two public forms:
 | Tool layer | Fields | Rule |
 | --- | --- | --- |
 | `tianwen.resolve` | `date`/`lunar` + `time`/`shichen`/`range` + `timezone` + `longitude` | Civil wall-clock input. DST is resolved once; fold returns two candidates and gap fails. |
-| Chart/flow tools | `standard_time` + `longitude` | Local standard time (no DST), RFC3339 with numeric offset. `timezone`, `instant`, and `fold` are rejected. |
+| Chart/flow tools | `standard_time` + `longitude` | Local standard time (no DST), RFC3339 with a known offset. `Z` is valid UTC standard time; `-00:00` is rejected as unknown offset. `timezone`, `instant`, and `fold` are rejected. |
 
 `standard_time` is not an IANA timezone and its offset is not used to infer
-one. Tools that need true-solar time also accept `longitude`.
+one. The offset selects the local standard representation: two RFC3339 values
+can identify the same instant while projecting different standard dates.
+Tools that need true-solar time also accept `longitude`.
 
 Do not default a missing timezone to `Asia/Shanghai`. Missing timezone at
 `tianwen.resolve`, or missing longitude where LAST is required, is fail-closed for

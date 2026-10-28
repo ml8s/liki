@@ -25,31 +25,47 @@ func TestTimeInputsCanonical(t *testing.T) {
 			if len(def.InputSchema) == 0 {
 				t.Fatal("missing input schema")
 			}
-			var schema struct {
+			type inputSchema struct {
 				Required   []string                   `json:"required"`
 				Properties map[string]json.RawMessage `json:"properties"`
 			}
-			if err := json.Unmarshal(def.InputSchema, &schema); err != nil {
+			var root inputSchema
+			var rootUnion struct {
+				OneOf []json.RawMessage `json:"oneOf"`
+			}
+			if err := json.Unmarshal(def.InputSchema, &root); err != nil {
 				t.Fatalf("decode schema: %v", err)
 			}
-			if name == "qimen_chart" {
-				// qimen.chart is a oneOf root; both branches declare standard_time.
-				return
+			if err := json.Unmarshal(def.InputSchema, &rootUnion); err != nil {
+				t.Fatalf("decode schema union: %v", err)
 			}
-			for _, field := range []string{"standard_time"} {
-				if _, ok := schema.Properties[field]; !ok {
-					t.Fatalf("missing %s", field)
+			schemas := []inputSchema{root}
+			for _, raw := range rootUnion.OneOf {
+				var branch inputSchema
+				if err := json.Unmarshal(raw, &branch); err != nil {
+					t.Fatalf("decode oneOf branch: %v", err)
 				}
-				if !containsString(schema.Required, field) {
-					t.Fatalf("%s must be required", field)
-				}
+				schemas = append(schemas, branch)
 			}
-			for _, forbidden := range []string{
-				"date", "start_date", "period_date", "birth_year", "birth_date",
-				"lunar_year", "target_lunar", "shi_zhi", "year",
-			} {
-				if _, ok := schema.Properties[forbidden]; ok {
-					t.Fatalf("obsolete time input %q must not be exposed", forbidden)
+			if len(rootUnion.OneOf) > 0 {
+				schemas = schemas[1:]
+			}
+
+			for schemaIndex, schema := range schemas {
+				if _, ok := schema.Properties["standard_time"]; !ok {
+					t.Fatalf("schema[%d]: missing standard_time", schemaIndex)
+				}
+				if !containsString(schema.Required, "standard_time") {
+					t.Fatalf("schema[%d]: standard_time must be required", schemaIndex)
+				}
+				for _, forbidden := range []string{
+					"instant", "civil_time", "timezone", "fold",
+					"date", "start_date", "period_date", "birth_year", "birth_date",
+					"lunar_year", "target_lunar", "shi_zhi", "year",
+				} {
+					if _, ok := schema.Properties[forbidden]; ok {
+						t.Fatalf("schema[%d]: obsolete time input %q must not be exposed", schemaIndex, forbidden)
+					}
 				}
 			}
 		})

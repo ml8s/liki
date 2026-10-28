@@ -88,7 +88,7 @@ naming_check
 
 规则：
 
-1. `standard_time` 必须是 RFC3339，带 numeric offset；
+1. `standard_time` 必须是 RFC3339，带 known offset；`Z` 合法，`-00:00` 按 unknown offset 拒绝；
 2. `standard_time` 是当地标准时间，不含 DST；
 3. DST 只在 `tianwen.resolve` 的 civil→instant 转换中出现一次；
 4. fold 返回两个候选，gap 直接报错，禁止静默平移；
@@ -96,8 +96,9 @@ naming_check
 6. `timezone` 只属于 `tianwen.resolve`，必须是显式 IANA identifier；
 7. 禁止 `Local`、`UTC+8`、`CST` 等别名；
 8. 不从 `standard_time` 的 offset 推断 timezone；
-9. `longitude` 是独立参数，只给需要真太阳时的能力使用；
-10. 缺少必要 longitude 时 fail closed，不默认北京或经度 0。
+9. offset 参与 standard date / lunar date / almanac date 的本地表示选择；同一 instant 在不同 offset 下可以有不同本地日期；
+10. `longitude` 是独立参数，只给需要真太阳时的能力使用；
+11. 缺少必要 longitude 时 fail closed，不默认北京或经度 0。
 
 ## 4. 参数正交化
 
@@ -279,7 +280,7 @@ invalid timezone "CST": use an explicit IANA identifier such as Asia/Shanghai
 ```
 
 ```text
-standard_time must be RFC3339 with a numeric offset; use tianwen.resolve for local wall time
+standard_time must be RFC3339 with a known offset; -00:00 means unknown local offset; use tianwen.resolve for local wall time
 ```
 
 ## 9. LLM 自举

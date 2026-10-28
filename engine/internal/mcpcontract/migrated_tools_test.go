@@ -452,13 +452,24 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 
 func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {
 	registry := testEngine()
-	canonical := testBaziChart(t, registry, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137, "male")
-	offset := testBaziChart(t, registry, "1981-08-26T00:20:00+08:00", "Asia/Shanghai", 132.044137, "male")
+	utc := callToolDocument(t, registry, "bazi_chart", map[string]any{
+		"standard_time": "1981-08-25T16:20:00Z", "longitude": 132.044137, "gender": "male",
+	})
+	plus8 := callToolDocument(t, registry, "bazi_chart", map[string]any{
+		"standard_time": "1981-08-26T00:20:00+08:00", "longitude": 132.044137, "gender": "male",
+	})
 
-	// The two wire forms identify the same instant. Offset is a serialization
-	// detail, never a timezone, so the full domain documents must be identical.
-	if !reflect.DeepEqual(canonical, offset) {
-		t.Fatalf("offset form changed chart result: canonical=%#v offset=%#v", canonical, offset)
+	// These wire forms identify the same instant in different local standard
+	// representations. Absolute/LAST facts must agree even though the offsets
+	// select different local dates.
+	want := []string{"辛酉", "丙申", "丙子", "己丑"}
+	for name, document := range map[string]map[string]any{"Z": utc, "+08:00": plus8} {
+		for index, pillar := range []string{"nian", "yue", "ri", "shi"} {
+			entry := document[pillar].(map[string]any)
+			if got := fmt.Sprintf("%v%v", entry["gan"], entry["zhi"]); got != want[index] {
+				t.Fatalf("%s %s = %s, want %s", name, pillar, got, want[index])
+			}
+		}
 	}
 }
 
