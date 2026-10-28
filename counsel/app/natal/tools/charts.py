@@ -194,8 +194,8 @@ def build_natal_chart(civil_time: str, timezone: str, gender: str, longitude: Op
     时间归一化走 tianwen.resolve（返回候选与原因）；本盘以 input 候选为基准，
     多候选时把候选与原因写入 time_candidates / calibration_hint（考时由上层按候选编排）。
 
-    返回盘结构：{standard_time, civil_time, timezone, chart, full, ziwei, ziwei_daxian, gender,
-    pan_digest[, time_candidates][, calibration_hint]}；gregorian_time 是 local_time 展示值。
+    返回盘结构：{standard_time, chart, full, ziwei, ziwei_daxian, gender,
+    pan_digest[, time_candidates][, calibration_hint]}；时间字段只有 standard_time。
     返回结构是 factors 层的唯一输入；领域快照由 factors 层按 natal_chart 生成。
     """
     if longitude is None:

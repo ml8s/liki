@@ -157,7 +157,7 @@ class Handler(BaseHTTPRequestHandler):
             state["saw_transfer_tool"] = state["saw_transfer_tool"] or "transfer_to_agent" in tool_names(document)
             state["saw_bazi_tool"] = state["saw_bazi_tool"] or "bazi_chart" in tool_names(document)
             state["saw_profile_context"] = state["saw_profile_context"] or (
-                "1990-05-20" in serialized_document and "gregorian_time" in serialized_document
+                "1990-05-20" in serialized_document and "standard_time" in serialized_document
             )
             if call_name:
                 state["function_calls"].append({"name": call_name, "kind": call_kind})

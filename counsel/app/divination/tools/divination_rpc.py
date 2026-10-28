@@ -18,17 +18,6 @@ def engine_data(method: str, params: dict) -> dict:
     return response["data"]
 
 
-def server_time(timezone: str) -> dict:
-    """返回 {standard_time}；timezone 必填（IANA）。"""
-    if not timezone:
-        raise RPCError("time.now: timezone is required")
-    data = engine_data("time.now", {"timezone": timezone})
-    standard_time = data.get("standard_time")
-    if not isinstance(standard_time, str) or not standard_time:
-        raise RPCError("time.now: engine response missing standard_time")
-    return {"standard_time": standard_time}
-
-
 def skill_version() -> str:
     """Read the distributed skill version; fail closed when missing or invalid."""
     try:

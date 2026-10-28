@@ -189,7 +189,7 @@ def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -
     """period_query 主体：natal_chart 已就绪（完整盘或分侧盘）。"""
     selected_pairs = _require_topics(args["topics"])
     routes = _load_routes()
-    timezone = str(args["time_scope"].get("timezone") or natal_chart.get("timezone") or "")
+    timezone = str(args["time_scope"].get("timezone") or "")
     scope_type, start, end = _resolve_time_scope(args["time_scope"], timezone)
     output_scopes: list[dict] = []
 

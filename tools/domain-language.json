@@ -120,8 +120,8 @@
       "owner": "engine/internal/engine/tianwen",
       "definition": "公历日历中的日期，只表达日历日期，不表达时间尺度或时区。",
       "surfaces": {
-        "go": "GregorianDate",
-        "python": "GregorianDate",
+        "go": "CivilDate",
+        "python": "CivilDate",
         "json": "date",
         "zh_cn": "公历日期"
       },
@@ -416,8 +416,8 @@
       "owner": "counsel/app/natal/tools/yongshen",
       "definition": "命局裁决得到的用神结论及其来源、证据和置信度。",
       "surfaces": {
-        "go": "Yongshen",
-        "python": "Yongshen",
+        "go": "YongShen",
+        "python": "YongShen",
         "json": "selected_yongshen",
         "zh_cn": "用神"
       },

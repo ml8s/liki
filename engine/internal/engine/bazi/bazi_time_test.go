@@ -210,7 +210,7 @@ func TestResolveLiuRiTimeAtUsesStandardDateAcrossDST(t *testing.T) {
 		t.Fatal(err)
 	}
 	standard := tianwen.StandardDateAt(at, ny)
-	last := tianwen.ApparentSolarCivil(at, ny, -74)
+	last := tianwen.ApparentSolarAt(at, ny, -74)
 	lastDate := tianwen.CivilDateOf(last)
 	if got.LocalDate != standard {
 		t.Fatalf("local date = %s, want standard date %s", got.LocalDate, standard)

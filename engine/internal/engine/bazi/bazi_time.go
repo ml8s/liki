@@ -11,7 +11,7 @@ import (
 // LiuRiTime is the resolved day-level time for 流日: a civil date and its
 // day pillar. Computation consumes this value; it must not re-derive the date.
 type LiuRiTime struct {
-	Instant     time.Time         `json:"-"`
+	Standard    time.Time         `json:"-"`
 	Location    *time.Location    `json:"-"`
 	Longitude   float64           `json:"longitude"`
 	Date        tianwen.CivilDate `json:"date"`
@@ -49,11 +49,11 @@ func ResolveLiuRiTimeAt(standard time.Time, loc *time.Location, longitude float6
 		loc = time.UTC
 	}
 	beijing := standard.UTC().In(time.FixedZone("CST", 8*3600))
-	last := tianwen.ApparentSolarCivil(standard, loc, longitude)
+	last := tianwen.ApparentSolarFromStandard(standard, longitude)
 	lastDate := tianwen.CivilDateOf(last)
 	pillar := tianwen.RiZhu(lastDate.Time())
 	return LiuRiTime{
-		Instant:     standard,
+		Standard:    standard,
 		Location:    loc,
 		Longitude:   longitude,
 		Date:        lastDate,
@@ -64,17 +64,17 @@ func ResolveLiuRiTimeAt(standard time.Time, loc *time.Location, longitude float6
 	}, nil
 }
 
-// NextLiuRiTime returns the next day's resolved time. Instant-based times
-// advance by 24h and re-derive the LAST date; date-based times advance by one
+// NextLiuRiTime returns the next day's resolved time. Standard-time values
+// advance by 24h and re-derive the LAST date; date-based values advance by one
 // civil date.
 func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
-	if t.Instant.IsZero() {
+	if t.Standard.IsZero() {
 		return ResolveLiuRiTime(t.Date.AddDays(1))
 	}
 	if t.Location == nil {
 		return LiuRiTime{}, fmt.Errorf("liuri: location is required for series")
 	}
-	return ResolveLiuRiTimeAt(t.Instant.Add(24*time.Hour), t.Location, t.Longitude)
+	return ResolveLiuRiTimeAt(t.Standard.Add(24*time.Hour), t.Location, t.Longitude)
 }
 
 // LiuNianTime is the resolved year-level time for 流年. Start is the 立春
@@ -226,10 +226,10 @@ func NextLiuYueTimeAt(t LiuYueTime, loc *time.Location) (LiuYueTime, error) {
 	return ResolveLiuYueTimeAt(t.EndInstant, loc)
 }
 
-// LiuShiTime is the resolved hour-level time for 流时. Instant, Location and
+// LiuShiTime is the resolved hour-level time for 流时. Standard, Location and
 // Longitude are retained so the series can advance one hour at a time.
 type LiuShiTime struct {
-	Instant   time.Time         `json:"-"`
+	Standard  time.Time         `json:"-"`
 	Location  *time.Location    `json:"-"`
 	Longitude float64           `json:"longitude"`
 	LocalDate tianwen.CivilDate `json:"local_date"`
@@ -250,7 +250,7 @@ func ResolveLiuShiTime(standard time.Time, loc *time.Location, longitude float64
 		loc = time.UTC
 	}
 
-	last := tianwen.ApparentSolarCivil(standard, loc, longitude)
+	last := tianwen.ApparentSolarFromStandard(standard, longitude)
 	localDate := tianwen.StandardDateAt(standard, loc)
 	lastDate := tianwen.CivilDateOf(last)
 	shichen := tianwen.ShichenOf(last)
@@ -266,7 +266,7 @@ func ResolveLiuShiTime(standard time.Time, loc *time.Location, longitude float64
 	}
 
 	return LiuShiTime{
-		Instant:   standard,
+		Standard:  standard,
 		Location:  loc,
 		Longitude: longitude,
 		LocalDate: localDate,
@@ -282,5 +282,5 @@ func NextLiuShiTime(t LiuShiTime) (LiuShiTime, error) {
 	if t.Location == nil {
 		return LiuShiTime{}, fmt.Errorf("liushi: location is required for series")
 	}
-	return ResolveLiuShiTime(t.Instant.Add(2*time.Hour), t.Location, t.Longitude)
+	return ResolveLiuShiTime(t.Standard.Add(2*time.Hour), t.Location, t.Longitude)
 }

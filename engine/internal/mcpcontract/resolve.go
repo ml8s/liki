@@ -31,7 +31,7 @@ type TianwenResolveLongitudeRangeInput struct {
 }
 
 // TianwenResolveInput is a time-fact normalization request. Exactly one of
-// gregorian_time / time / shichen / range must be provided.
+// time / shichen / range must be provided; date or lunar supplies the day.
 type TianwenResolveInput struct {
 	Calendar  string                    `json:"calendar,omitempty" jsonschema:"壁钟形态必填：solar 或 lunar。"`
 	Date      string                    `json:"date,omitempty" jsonschema:"公历日期 YYYY-MM-DD（calendar 为 solar 时必填）。"`
@@ -41,9 +41,9 @@ type TianwenResolveInput struct {
 
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选，用于边界不确定性。"`
 
-	Time    string                    `json:"time,omitempty" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）；与 gregorian_time/shichen/range 四选一。"`
-	Shichen string                    `json:"shichen,omitempty" jsonschema:"已知时辰（真太阳时基，2 小时）；与 gregorian_time/time/range 四选一。"`
-	Range   *TianwenResolveRangeInput `json:"range,omitempty" jsonschema:"同日民用时间区间；与 gregorian_time/time/shichen 四选一。"`
+	Time    string                    `json:"time,omitempty" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）；与 shichen/range 二选一；date/lunar 提供日期。"`
+	Shichen string                    `json:"shichen,omitempty" jsonschema:"已知时辰（真太阳时基，2 小时）；与 time/range 二选一。"`
+	Range   *TianwenResolveRangeInput `json:"range,omitempty" jsonschema:"同日民用时间区间；与 time/shichen 二选一。"`
 }
 
 // ── tianwen.resolve input variants (public oneOf) ──
@@ -180,7 +180,7 @@ func TianwenResolve(_ context.Context, input TianwenResolveInput) (TianwenResolv
 			})
 		}
 		output.Candidates = append(output.Candidates, TianwenResolveCandidateOutput{
-			StandardTime: standardTimeString(candidate.CivilTime, zone),
+			StandardTime: standardTimeString(candidate.StandardTime, zone),
 			Reasons:      reasons,
 		})
 	}

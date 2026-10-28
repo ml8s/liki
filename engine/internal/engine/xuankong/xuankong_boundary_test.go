@@ -28,10 +28,10 @@ func TestComputeChartAtStandardUsesLichunYear(t *testing.T) {
 	}
 }
 
-func TestComputeLiuNianAtInstantUsesLichunYear(t *testing.T) {
+func TestComputeLiuNianAtStandardUsesLichunYear(t *testing.T) {
 	cst := time.FixedZone("CST", 8*3600)
 	before := time.Date(2024, 1, 15, 12, 0, 0, 0, cst)
-	result, err := ComputeLiuNianAtInstant(before, nil)
+	result, err := ComputeLiuNianAtStandard(before, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

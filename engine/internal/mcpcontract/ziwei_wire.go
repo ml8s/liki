@@ -9,9 +9,8 @@ package mcpcontract
 
 // ── ziwei.chart input ──
 
-// ZiweiChartInput takes the canonical {utc, timezone} pair (Zone is IANA) and the
-// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
-// chart domain consumes those domain scales (ChineseCalendarDate (basis configured by the caller) + LAST shichen; no separate time.Time).
+// ZiweiChartInput takes standard_time and longitude. The chart domain derives
+// the local astronomical lunar date and LAST shichen.
 type ZiweiChartInput struct {
 	StandardTime StandardTime `json:"standard_time" jsonschema:"出生地标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude    float64      `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于时辰。"`

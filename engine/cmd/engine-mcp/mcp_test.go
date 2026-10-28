@@ -198,7 +198,7 @@ func TestCallTool_BaziChart(t *testing.T) {
 
 func TestCallTool_InvalidParamsIsError(t *testing.T) {
 	sess, _ := startMCPServer(t)
-	// bazi_chart requires gregorian_time + longitude + gender; missing args must surface as
+	// bazi_chart requires standard_time + longitude + gender; missing args must surface as
 	// an IsError result (visible to the LLM), not a protocol-level error.
 	res, err := sess.CallTool(context.Background(), &mcp.CallToolParams{
 		Name:      "bazi_chart",

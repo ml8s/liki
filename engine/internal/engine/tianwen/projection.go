@@ -36,9 +36,9 @@ func apparentSolarMinutes(t time.Time) float64 {
 	return float64(t.Hour()*60 + t.Minute())
 }
 
-// ApparentSolarCivil returns the apparent solar wall-clock projection. The
+// ApparentSolarAt returns the apparent solar wall-clock projection for an instant. The
 // returned time.Time is a labeled read; it is not an absolute instant.
-func ApparentSolarCivil(
+func ApparentSolarAt(
 	at time.Time,
 	loc *time.Location,
 	longitude float64,

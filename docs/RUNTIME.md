@@ -27,19 +27,18 @@ Performance policy and benchmark entry points are described in
 
 ## Time facts contract
 
-All engine tools that accept a precise time use the same two wire fields:
+Time inputs are split into two public forms:
 
-| Field | Rule |
-| --- | --- |
-| `instant` | RFC3339 absolute instant. Canonical output is UTC and ends with `Z`. Numeric offsets such as `+08:00` are accepted and normalized. |
-| `timezone` | Explicit IANA timezone (for example `Asia/Shanghai`). `Local`, fixed offsets, and abbreviations are rejected. |
+| Tool layer | Fields | Rule |
+| --- | --- | --- |
+| `tianwen.resolve` | `date`/`lunar` + `time`/`shichen`/`range` + `timezone` + `longitude` | Civil wall-clock input. DST is resolved once; fold returns two candidates and gap fails. |
+| Chart/flow tools | `standard_time` + `longitude` | Local standard time (no DST), RFC3339 with numeric offset. `timezone`, `instant`, and `fold` are rejected. |
 
-The offset in the input is a serialization detail; the engine normalizes it to
-UTC immediately. The explicit `timezone` remains authoritative for local civil
-time and offset. Tools that need true-solar time also accept `longitude`.
+`standard_time` is not an IANA timezone and its offset is not used to infer
+one. Tools that need true-solar time also accept `longitude`.
 
-Do not infer `timezone` from an input offset. Do not default a missing
-timezone to `Asia/Shanghai`. Missing timezone or longitude is fail-closed for
+Do not default a missing timezone to `Asia/Shanghai`. Missing timezone at
+`tianwen.resolve`, or missing longitude where LAST is required, is fail-closed for
 any capability that needs it.
 
 ## Process configuration

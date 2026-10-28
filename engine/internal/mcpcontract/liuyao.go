@@ -377,9 +377,8 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 	return LiuyaoQiguaOutput{Casting: liuyaoCastingWire(casting)}, nil
 }
 
-// LiuyaoChartInput takes standard_time plus longitude and the
-// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
-// chart domain consumes those domain scales (day/month jian use LAST/solar terms; boundary converts once).
+// LiuyaoChartInput takes standard_time and longitude. The chart domain derives
+// day/month from LAST and solar-term events.
 type LiuyaoChartInput struct {
 	StandardTime StandardTime         `json:"standard_time" jsonschema:"占问地标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude    float64              `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时辰。"`

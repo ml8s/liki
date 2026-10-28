@@ -47,7 +47,7 @@ def test_production_factor_tables_keep_sides_disjoint():
 def _pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return {
-        "gregorian_time": "1990-05-20T12:00:00",
+        "standard_time": "1990-05-20T12:00:00",
         "gender": "male",
         "chart": {
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},

@@ -56,10 +56,10 @@ func ComputeLiuNian(year int, chart *Chart) LiuNianResult {
 	return res
 }
 
-// ComputeLiuNianAtInstant derives the 立春 year from an absolute instant and
+// ComputeLiuNianAtStandard derives the 立春 year from a standard time and
 // computes the annual flying-star board.
-func ComputeLiuNianAtInstant(instant time.Time, chart *Chart) (LiuNianResult, error) {
-	ly, err := tianwen.LichunYearAt(instant)
+func ComputeLiuNianAtStandard(standard time.Time, chart *Chart) (LiuNianResult, error) {
+	ly, err := tianwen.LichunYearAt(standard)
 	if err != nil {
 		return LiuNianResult{}, err
 	}

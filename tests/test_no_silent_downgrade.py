@@ -44,7 +44,7 @@ def test_query_rejects_snapshot_input() -> None:
     {"full": {"ri": {"gan": "甲", "zhi": "子"}}},
     {"chart": {"ri": {"gan": "甲", "zhi": "子"}}},
     {
-        "gregorian_time": "1990-05-20T12:00:00",
+        "standard_time": "1990-05-20T12:00:00",
         "chart": {"ri": {"gan": "甲", "zhi": "子"}},
         "full": {"ri": {"gan": "甲", "zhi": "子"}},
         "fu_yi": {}, "tiao_hou": {}, "ge_ju": {},

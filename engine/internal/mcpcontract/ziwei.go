@@ -216,7 +216,7 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (any, error) {
 			}
 			output.Lunar = ziweiLunarDate(resolved.Lunar)
 			output.Resolved = ZiweiLiuRiResolved{
-				StandardTime: standardTimeValue(resolved.Instant.In(loc)),
+				StandardTime: standardTimeValue(resolved.Standard.In(loc)),
 				LocalDate:    civilDateString(resolved.LocalDate),
 				BeijingDate:  civilDateString(resolved.BeijingDate),
 				Lunar:        ziweiLunarDate(resolved.Lunar),
@@ -232,7 +232,7 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liuri: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Instant.In(loc))
+			in.StandardTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
@@ -271,7 +271,7 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (any, error) {
 				return ZiweiLiuShiOutput{}, fmt.Errorf("ziwei.liushi: %w", err)
 			}
 			output.Resolved = ZiweiLiuShiResolved{
-				StandardTime: standardTimeValue(resolved.Instant.In(loc)),
+				StandardTime: standardTimeValue(resolved.Standard.In(loc)),
 				LocalDate:    civilDateString(resolved.LocalDate),
 				Lunar:        ziweiLunarDate(resolved.Lunar),
 				Shichen:      resolved.Shichen.String(),
@@ -287,7 +287,7 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liushi: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Instant.In(loc))
+			in.StandardTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)

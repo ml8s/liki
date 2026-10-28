@@ -37,7 +37,7 @@ func TestMigratedInputValidation(t *testing.T) {
 		{"bazi.liunian missing chart", "bazi_liunian", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00"}, ""},
 		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"standard_time": "0000-01-01T08:00:00", "chart": chart}, ""},
 		{"bazi.liuyue missing chart", "bazi_liuyue", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00"}, ""},
-		{"bazi.liushi invalid instant", "bazi_liushi", map[string]any{
+		{"bazi.liushi invalid standard_time", "bazi_liushi", map[string]any{
 			"standard_time": "not-a-time", "longitude": 116.4, "chart": chart}, ""},
 		{"bazi.liushi invalid longitude", "bazi_liushi", map[string]any{
 			"standard_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "chart": chart}, ""},
@@ -59,7 +59,7 @@ func TestMigratedInputValidation(t *testing.T) {
 				"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
 			},
 		}, ""},
-		{"ziwei.liuri missing instant", "ziwei_liuri", map[string]any{"chart": ziweiChart}, ""},
+		{"ziwei.liuri missing standard_time", "ziwei_liuri", map[string]any{"chart": ziweiChart}, ""},
 		{"ziwei.bond missing b", "ziwei_bond", map[string]any{"a": map[string]any{"chart": ziweiChart}}, ""},
 	}
 	for _, tc := range cases {

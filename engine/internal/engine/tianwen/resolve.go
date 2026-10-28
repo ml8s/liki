@@ -11,7 +11,7 @@ import (
 )
 
 // ResolveInput is a birth-time normalization request. Exactly one of the four
-// time forms (Gregorian, Time, Shichen, Range) must be provided.
+// time forms (Time, Shichen, Range) must be provided.
 type ResolveInput struct {
 	Calendar  string // "solar" | "lunar"（壁钟形态必填）
 	Date      string // YYYY-MM-DD（calendar=solar）
@@ -22,10 +22,9 @@ type ResolveInput struct {
 	// 地点范围（可选）：城市/行政区的东西经度范围，用于边界不确定性。
 	LongitudeRange *LongitudeRange
 
-	Gregorian *time.Time    // 精确时间点
-	Time      string        // HH:MM 或 HH:MM:SS（当地壁钟）
-	Shichen   string        // 真太阳时时辰
-	Range     *ResolveRange // 同日民用区间
+	Time    string        // HH:MM 或 HH:MM:SS（当地壁钟）
+	Shichen string        // 真太阳时时辰
+	Range   *ResolveRange // 同日民用区间
 }
 
 // LongitudeRange is the east-west span of the recorded place.
@@ -61,8 +60,8 @@ type ResolveReason struct {
 
 // ResolveCandidate is one possible chart time point with its reasons.
 type ResolveCandidate struct {
-	CivilTime time.Time       `json:"gregorian_time"`
-	Reasons   []ResolveReason `json:"reasons"`
+	StandardTime time.Time       `json:"-"`
+	Reasons      []ResolveReason `json:"reasons"`
 }
 
 // ResolveResult is the candidate set for one time fact.
@@ -73,8 +72,7 @@ type ResolveResult struct {
 type resolveForm int
 
 const (
-	formGregorian resolveForm = iota
-	formTime
+	formTime resolveForm = iota
 	formShichen
 	formRange
 )
@@ -93,15 +91,9 @@ func Resolve(in ResolveInput) (ResolveResult, error) {
 		return ResolveResult{}, err
 	}
 
-	var zone *time.Location
-	if in.Gregorian != nil {
-		_, offset := in.Gregorian.Zone()
-		zone = time.FixedZone("", offset)
-	} else {
-		zone, err = resolveLocation(in.Timezone)
-		if err != nil {
-			return ResolveResult{}, err
-		}
+	zone, err := resolveLocation(in.Timezone)
+	if err != nil {
+		return ResolveResult{}, err
 	}
 
 	year, month, day, err := resolveBaseDate(in, form)
@@ -146,7 +138,7 @@ func Resolve(in ResolveInput) (ResolveResult, error) {
 			if isAnchorCell && offset == standard {
 				all = append(all, candidate{
 					value: ResolveCandidate{
-						CivilTime: instant.In(fixed),
+						StandardTime: instant.In(fixed),
 						Reasons: []ResolveReason{{
 							Domain: reasonInput,
 							Detail: inputDetail(anchor, bounds),
@@ -166,7 +158,7 @@ func Resolve(in ResolveInput) (ResolveResult, error) {
 			}
 			reasons = append(reasons, crossedReasons(cells, bounds, inputIndex, index, instant, in.Longitude, fixed)...)
 			all = append(all, candidate{
-				value: ResolveCandidate{CivilTime: instant.In(fixed), Reasons: dedupeReasons(reasons)},
+				value: ResolveCandidate{StandardTime: instant.In(fixed), Reasons: dedupeReasons(reasons)},
 			})
 		}
 	}
@@ -175,7 +167,7 @@ func Resolve(in ResolveInput) (ResolveResult, error) {
 		if all[i].input != all[j].input {
 			return all[i].input
 		}
-		return all[i].value.CivilTime.Before(all[j].value.CivilTime)
+		return all[i].value.StandardTime.Before(all[j].value.StandardTime)
 	})
 	result := ResolveResult{Candidates: make([]ResolveCandidate, 0, len(all))}
 	for _, item := range all {
@@ -186,10 +178,7 @@ func Resolve(in ResolveInput) (ResolveResult, error) {
 
 func resolveFormOf(in ResolveInput) (resolveForm, error) {
 	forms := 0
-	form := formGregorian
-	if in.Gregorian != nil {
-		forms++
-	}
+	form := formTime
 	if strings.TrimSpace(in.Time) != "" {
 		forms++
 		form = formTime
@@ -227,7 +216,7 @@ func validateLongitudeRange(longitude float64, span *LongitudeRange) error {
 func resolveLocation(name string) (*time.Location, error) {
 	trimmed := strings.TrimSpace(name)
 	if trimmed == "" {
-		return nil, fmt.Errorf("timezone is required when gregorian_time is absent")
+		return nil, fmt.Errorf("timezone is required for wall-clock forms")
 	}
 	loc, err := time.LoadLocation(trimmed)
 	if err != nil {
@@ -237,13 +226,9 @@ func resolveLocation(name string) (*time.Location, error) {
 }
 
 func resolveBaseDate(in ResolveInput, form resolveForm) (int, time.Month, int, error) {
-	if form == formGregorian {
-		y, m, d := in.Gregorian.Date()
-		return y, m, d, nil
-	}
 	calendar := strings.TrimSpace(in.Calendar)
 	if calendar == "" {
-		return 0, 0, 0, fmt.Errorf("calendar is required when gregorian_time is absent")
+		return 0, 0, 0, fmt.Errorf("calendar is required for wall-clock forms")
 	}
 	switch calendar {
 	case "solar":
@@ -323,10 +308,6 @@ func CivilInstants(year int, month time.Month, day, hour, minute, second, nanose
 // resolveOffsets returns the UTC offsets for which the recorded wall clock
 // exists in the zone, standard offset first.
 func resolveOffsets(in ResolveInput, form resolveForm, year int, month time.Month, day int, zone *time.Location) ([]int, error) {
-	if form == formGregorian {
-		_, offset := in.Gregorian.Zone()
-		return []int{offset}, nil
-	}
 	hour, minute, second, err := representativeWallClock(in, form)
 	if err != nil {
 		return nil, err
@@ -383,13 +364,9 @@ func representativeWallClock(in ResolveInput, form resolveForm) (int, int, int, 
 }
 
 // buildPrecisionWindow returns the civil window implied by the input precision:
-// exact Gregorian -> point; HH:MM -> one minute; HH:MM:SS -> one second;
+// HH:MM -> one minute; HH:MM:SS -> one second;
 // shichen/range -> their civil windows.
 func buildPrecisionWindow(in ResolveInput, form resolveForm, year int, month time.Month, day int, zone *time.Location) (Window, error) {
-	if form == formGregorian {
-		instant := *in.Gregorian
-		return Window{Start: instant, End: instant}, nil
-	}
 	date := time.Date(year, month, day, 0, 0, 0, 0, zone)
 
 	switch form {
@@ -431,7 +408,7 @@ func buildPrecisionWindow(in ResolveInput, form resolveForm, year int, month tim
 }
 
 func resolveAnchor(in ResolveInput, form resolveForm, base Window) time.Time {
-	if form == formGregorian || form == formTime {
+	if form == formTime {
 		return base.Start
 	}
 	return base.Start.Add(base.End.Sub(base.Start) / 2)

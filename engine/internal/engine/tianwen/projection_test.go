@@ -18,7 +18,7 @@ func ApparentSolarDate(
 	loc *time.Location,
 	longitude float64,
 ) (year int, month time.Month, day int) {
-	return ApparentSolarCivil(at, loc, longitude).Date()
+	return ApparentSolarAt(at, loc, longitude).Date()
 }
 
 func MonthBranchAt(at time.Time) ganzhi.Zhi {
@@ -50,7 +50,7 @@ func TestShichenAtLateZi(t *testing.T) {
 	}
 }
 
-func TestApparentSolarCivilUsesExplicitLocationNotInputOffset(t *testing.T) {
+func TestApparentSolarAtUsesExplicitLocationNotInputOffset(t *testing.T) {
 	// +09:00 and Z denote the same absolute instant when normalized.
 	atOffset, err := time.Parse(time.RFC3339Nano, "2026-10-22T13:00:00+09:00")
 	if err != nil {
@@ -65,8 +65,8 @@ func TestApparentSolarCivilUsesExplicitLocationNotInputOffset(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fromOffset := ApparentSolarCivil(atOffset.UTC(), loc, 116.407526)
-	fromUTC := ApparentSolarCivil(atUTC, loc, 116.407526)
+	fromOffset := ApparentSolarAt(atOffset.UTC(), loc, 116.407526)
+	fromUTC := ApparentSolarAt(atUTC, loc, 116.407526)
 
 	if !fromOffset.Equal(fromUTC) {
 		t.Fatalf("projection differs: offset=%s utc=%s", fromOffset, fromUTC)
@@ -102,7 +102,7 @@ func TestSolarTermStateAtLichun(t *testing.T) {
 	}
 }
 
-func TestApparentSolarCivilCanCrossDay(t *testing.T) {
+func TestApparentSolarAtCanCrossDay(t *testing.T) {
 	// Early morning in far-west China can fall on the prior apparent-solar day.
 	at := time.Date(1990, 5, 20, 18, 10, 0, 0, time.UTC)
 	loc, err := time.LoadLocation("Asia/Shanghai")

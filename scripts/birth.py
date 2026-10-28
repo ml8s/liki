@@ -1,4 +1,4 @@
-"""出生信息解析（单一来源）：题干 → (gregorian_time, gender, longitude, correct)。
+"""出生信息解析（单一来源）：题干 → (civil_time, gender, longitude, correct)。
 
 被 scripts/eval_hybrid.py（160 题规则覆盖检查）共用，避免多份拷贝漂移。
 
@@ -41,9 +41,9 @@ def _to_24h(hh: int, mm: int, s: str) -> tuple[int, int]:
 
 
 def parse_birth(s: str):
-    """解析出生信息 → (gregorian_str, gender, longitude, correct)。
+    """解析出生信息 → (civil_str, gender, longitude, correct)。
 
-    gregorian_str 形如 "1981-08-26T00:15:00+08:00"（东八区民用 Gregorian time）；
+    civil_str 形如 "1981-08-26T00:15:00+08:00"（东八区民用时间）；
     correct 为历史口径（路 A/路 B），新引擎按经度统一计算真太阳时，不再据此降级。
     """
     gender = "male" if "男" in s else "female"

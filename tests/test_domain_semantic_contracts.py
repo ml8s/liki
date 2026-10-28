@@ -192,7 +192,7 @@ def test_brief_keeps_controlled_event_taxonomy():
 
 
 def test_current_daxian_palace_is_mechanical():
-    chart = {"gregorian_time": "1990-05-20T12:00:00", "ziwei_daxian": [
+    chart = {"standard_time": "1990-05-20T12:00:00", "ziwei_daxian": [
         {"gong": "命宫", "start_year": 1990, "end_year": 1999},
         {"gong": "兄弟", "start_year": 2000, "end_year": 2009},
     ]}
@@ -256,7 +256,7 @@ def test_query_year_is_rejected_for_pure_natal_rules():
     import pytest
     with pytest.raises(ValueError, match="纯本命域"):
         duanyu.query("十神", {
-            "gregorian_time": "1990-05-20T12:00:00",
+            "standard_time": "1990-05-20T12:00:00",
                 "gender": "male",
             "chart": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
             "full": {p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},

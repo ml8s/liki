@@ -207,7 +207,6 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         raise ValueError("chart 与 compute_factors 因子来源不一致")
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"period_query side 只支持 bazi/ziwei，收到: {side!r}")
-    timezone = (time_scope or {}).get("timezone", "")
     gender = chart.get("gender", "")
     if side == "bazi":
         selected_yongshen = factors.get("selected_yongshen")
@@ -221,22 +220,20 @@ def period_query(factors: dict, factors_digest: str, time_scope: dict,
         full = _bazi_fullchart(chart)
         natal_chart = {
             "chart": chart, "full": full, "gender": gender,
-            "timezone": timezone, "_selected_yongshen": selected_yongshen,
+            "_selected_yongshen": selected_yongshen,
         }
     else:
         zw = call("ziwei.fullchart", {"chart": chart})["data"]
         # ziwei.daxian 契约收 ziwei.chart 输出；fullchart 的增量字段属因子层，不进 daxian。
         daxian = _ziwei_daxian(chart)
         natal_chart = {"chart": chart, "full": zw, "ziwei": zw, "ziwei_daxian": daxian,
-               "gender": gender, "timezone": timezone}
+               "gender": gender}
     validate_side_chart(natal_chart, side, "period_query")
     # period_query 固定只出本侧断语：组合盘不含另一侧排盘，另一侧数据由
     # _factor_context_from_natal_chart 从本侧盘误读，会产生假断语，必须过滤。
     result = _analyze_periods(
         natal_chart,
-        # analytics 的 time_scope 词表只含锚年字段；timezone 由 natal_chart 携带并穿透。
-        {"topics": topics,
-         "time_scope": {k: v for k, v in (time_scope or {}).items() if k != "timezone"}},
+        {"topics": topics, "time_scope": time_scope or {}},
         validate_pan=False,
     )
     for scope in result["periods"]:

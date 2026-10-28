@@ -30,7 +30,7 @@ type LiuYueTime struct {
 // LiuRiTime is the resolved lunar day for 流日. Date is the selector date for
 // the chosen basis; LocalDate and BeijingDate are echoed projections.
 type LiuRiTime struct {
-	Instant     time.Time         `json:"-"`
+	Standard    time.Time         `json:"-"`
 	Location    *time.Location    `json:"-"`
 	Date        tianwen.CivilDate `json:"date"`
 	LocalDate   tianwen.CivilDate `json:"local_date"`
@@ -190,7 +190,7 @@ func ResolveLiuRiTimeAtWith(p tianwen.LunarProjector, standard time.Time, loc *t
 	selectorDate := p.SelectorDate(standard)
 	beijingDate := tianwen.BeijingDateAt(standard.UTC())
 	return LiuRiTime{
-		Instant:     standard,
+		Standard:    standard,
 		Location:    loc,
 		Date:        selectorDate,
 		LocalDate:   localDate,
@@ -208,11 +208,11 @@ func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
 // NextLiuRiTimeWith returns the next civil day's lunar date using an explicit
 // projector.
 func NextLiuRiTimeWith(p tianwen.LunarProjector, t LiuRiTime) (LiuRiTime, error) {
-	if !t.Instant.IsZero() {
+	if !t.Standard.IsZero() {
 		if t.Location == nil {
 			return LiuRiTime{}, fmt.Errorf("liuri: location is required for series")
 		}
-		return ResolveLiuRiTimeAtWith(p, t.Instant.Add(24*time.Hour), t.Location)
+		return ResolveLiuRiTimeAtWith(p, t.Standard.Add(24*time.Hour), t.Location)
 	}
 	if _, err := p.ValidateLunarDate(t.Lunar); err != nil {
 		return LiuRiTime{}, err
@@ -237,10 +237,10 @@ func lunarDayCivilDateWith(p tianwen.LunarProjector, year, month, day int, leap 
 	return date, nil
 }
 
-// LiuShiTime is the resolved hour-level time for 流时. Instant, Location and
+// LiuShiTime is the resolved hour-level time for 流时. Standard, Location and
 // Longitude are retained so the series can advance one 时辰 at a time.
 type LiuShiTime struct {
-	Instant   time.Time         `json:"-"`
+	Standard  time.Time         `json:"-"`
 	Location  *time.Location    `json:"-"`
 	Longitude float64           `json:"longitude"`
 	LocalDate tianwen.CivilDate `json:"local_date"`
@@ -262,9 +262,9 @@ func ResolveLiuShiTimeWith(p tianwen.LunarProjector, standard time.Time, loc *ti
 	if loc == nil {
 		loc = time.UTC
 	}
-	shichen := tianwen.ShichenAt(standard, loc, longitude)
+	shichen := tianwen.ShichenFromStandard(standard, longitude)
 	return LiuShiTime{
-		Instant:   standard,
+		Standard:  standard,
 		Location:  loc,
 		Longitude: longitude,
 		LocalDate: tianwen.StandardDateAt(standard, loc),
@@ -284,7 +284,7 @@ func NextLiuShiTimeWith(p tianwen.LunarProjector, t LiuShiTime) (LiuShiTime, err
 	if t.Location == nil {
 		return LiuShiTime{}, fmt.Errorf("liushi: location is required for series")
 	}
-	return ResolveLiuShiTimeWith(p, t.Instant.Add(2*time.Hour), t.Location, t.Longitude)
+	return ResolveLiuShiTimeWith(p, t.Standard.Add(2*time.Hour), t.Location, t.Longitude)
 }
 
 // ComputeLiuShiAtTime projects a resolved flow-hour time.

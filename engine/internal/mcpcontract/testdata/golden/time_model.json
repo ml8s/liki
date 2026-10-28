@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "basis": "TIME_MODEL projection matrix. Absolute instant decides 立春/节气; all 命理 time facts use local time: local civil date, local astronomical lunar date, and local LAST shichen. Only astronomical events are global instants.",
+  "basis": "TIME_MODEL projection matrix. Solar-term events decide 立春/节气; 命理 facts use standard local time: standard date, local astronomical lunar date, and local LAST shichen. Only astronomical events are global instants.",
   "cases": [
     {
       "name": "bazhai_before_lichun",

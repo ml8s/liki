@@ -27,7 +27,7 @@ func TestResolveCivilCandidatesDSTFold(t *testing.T) {
 		t.Fatalf("candidates = %v, want DST fold pair", result.Candidates)
 	}
 	// 新 API 候选按角色排序（input 在先）；fold 语义 = 两个不同绝对时刻（EDT/EST）。
-	a, b := result.Candidates[0].CivilTime, result.Candidates[1].CivilTime
+	a, b := result.Candidates[0].StandardTime, result.Candidates[1].StandardTime
 	if a.Equal(b) {
 		t.Fatal("fold candidates must be distinct absolute times")
 	}

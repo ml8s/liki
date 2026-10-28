@@ -11,7 +11,6 @@ from app.natal.tools.yearly_eval import query_year_rules
 def _valid_mock_pan() -> dict:
     return with_natal_chart_digest({
         "standard_time": "1990-05-20T12:00:00+08:00",
-        "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
             **{

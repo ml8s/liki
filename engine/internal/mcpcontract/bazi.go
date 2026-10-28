@@ -47,9 +47,8 @@ type BaziDaYun struct {
 	Steps           []BaziDaYunStep `json:"steps" jsonschema:"大运步骤。"`
 }
 
-// BaziChartInput takes standard_time plus longitude and the
-// birth/query longitude. The boundary derives LocalCivilTime and LAST; the
-// chart domain consumes those domain scales (year/month = solar-term events; day/hour = LAST + 子时).
+// BaziChartInput takes standard_time and longitude. The chart domain derives
+// year/month from solar-term events and day/hour from LAST + 子时.
 type BaziChartInput struct {
 	StandardTime StandardTime `json:"standard_time" jsonschema:"时区标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude    float64      `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
@@ -455,7 +454,7 @@ func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("bazi.liuri: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Instant.In(loc))
+			in.StandardTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
@@ -491,7 +490,7 @@ func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
 	output.Resolved = BaziLiuRiResolved{
-		StandardTime: standardTimeValue(resolved.Instant.In(loc)),
+		StandardTime: standardTimeValue(resolved.Standard.In(loc)),
 		LocalDate:    civilDateString(resolved.LocalDate),
 		LastDate:     civilDateString(resolved.Date),
 		BeijingDate:  civilDateString(resolved.BeijingDate),
@@ -514,7 +513,7 @@ func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("bazi.liushi: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Instant.In(loc))
+			in.StandardTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
@@ -543,14 +542,14 @@ func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
 	if result == nil {
-		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: empty result for %s", resolved.Instant)
+		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: empty result for %s", resolved.Standard)
 	}
 	output, err := wireFromDomain[BaziLiuShiOutput](*result)
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
 	output.Resolved = BaziLiuShiResolved{
-		StandardTime: standardTimeValue(resolved.Instant.In(loc)),
+		StandardTime: standardTimeValue(resolved.Standard.In(loc)),
 		LocalDate:    civilDateString(resolved.LocalDate),
 		Shichen:      resolved.Shichen.String(),
 	}

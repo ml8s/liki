@@ -18,7 +18,7 @@ func strengthTestChart() Chart {
 	if err != nil {
 		panic(err)
 	}
-	solar := tianwen.ApparentSolarCivil(at, loc, 116.407526)
+	solar := tianwen.ApparentSolarAt(at, loc, 116.407526)
 	pillars := tianwen.ComputeBazi(time.Time(at), time.Time(solar))
 	ny := [4]string{}
 	for i, pillar := range pillars.Slice() {

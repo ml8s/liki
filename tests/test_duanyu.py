@@ -18,7 +18,6 @@ def _valid_query_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return with_natal_chart_digest({
         "standard_time": "1990-05-20T12:00:00+08:00",
-        "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},

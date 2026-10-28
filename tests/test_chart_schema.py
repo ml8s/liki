@@ -11,7 +11,6 @@ from app.natal.tools.chart_schema import validate_natal_chart, validate_side_cha
 def _pan(**changes):
     natal_chart = {
         "standard_time": "1990-05-20T12:00:00+08:00",
-        "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
             **{p: {"gan": "甲", "zhi": "子"} for p in ("nian", "yue", "ri", "shi")},
@@ -36,7 +35,7 @@ def test_valid_pan_passes():
 
 def test_pan_digest_rejects_tampering():
     natal_chart = _pan()
-    natal_chart["gregorian_time"] = "2000-01-01T00:00:00"
+    natal_chart["standard_time"] = "2000-01-01T00:00:00"
     with pytest.raises(ValueError, match="digest mismatch"):
         validate_natal_chart(natal_chart, action="test")
 

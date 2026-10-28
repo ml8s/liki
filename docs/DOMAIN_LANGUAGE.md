@@ -13,7 +13,7 @@ that concept's compatibility list.
 | `standard_time` | canonical | 当地时间标准时：精确时刻 + 标准偏移，不含 DST；排盘/流年工具的公开时间输入。 | `StandardTime` | `str` | `standard_time` | 标准时间 | 禁止：`legal_time`, `standard_local_time` |
 | `zone` | canonical | IANA 时区规则，用于把精确时刻映射到当地壁钟时间；偏移量是派生结果，不是时区身份。 | `*time.Location` | `zoneinfo.ZoneInfo` | `timezone` | IANA 时区 | 禁止：`time_zone`, `iana_timezone` |
 | `apparent_solar_time` | canonical | 由标准时间、经度修正和均时差推导出的真太阳时；用于日界和时辰等真太阳尺度规则。 | `tianwen.ApparentSolarFromStandard` | `projection function` | `apparent_solar_projection` | 真太阳时 | 禁止：`SolarTime`, `solar_time`<br>兼容：`solar_time`（v2026.12.01.0）, `true_solar_time`（v2026.12.01.0） |
-| `gregorian_date` | planned | 公历日历中的日期，只表达日历日期，不表达时间尺度或时区。 | `GregorianDate` | `GregorianDate` | `date` | 公历日期 | — |
+| `gregorian_date` | planned | 公历日历中的日期，只表达日历日期，不表达时间尺度或时区。 | `CivilDate` | `CivilDate` | `date` | 公历日期 | — |
 | `lunar_date` | canonical | 农历合历日期，可包含闰月标记，但不包含时辰。 | `LunarDate` | `LunarDate` | `lunar` | 农历日期 | — |
 | `shichen` | canonical | 基于真太阳时尺度的十二时辰。 | `ganzhi.Zhi` | `ganzhi.Zhi` | `shichen` | 时辰 | — |
 | `solar_term` | canonical | 太阳视黄经确定的二十四节气边界。 | `SolarTerm` | `SolarTerm` | `solar_term` | 节气 | — |
@@ -29,7 +29,7 @@ that concept's compatibility list.
 | `digest` | canonical | 对规范化领域对象计算的抗碰撞摘要，用于追问与重放校验。 | `Digest` | `digest` | `*_digest` | 摘要 | — |
 | `snapshot` | canonical | 可追问的完整领域输入快照，绑定内容摘要，不因后续对话静默变化。 | `Snapshot` | `Snapshot` | `*_snapshot` | 快照 | — |
 | `answer` | canonical | 基于既有快照回答追问得到的结构化结果。 | `Answer` | `Answer` | `answer` | 追问回答 | — |
-| `yongshen` | canonical | 命局裁决得到的用神结论及其来源、证据和置信度。 | `Yongshen` | `Yongshen` | `selected_yongshen` | 用神 | 禁止：`use_god`<br>兼容：`explicit_yong_shen`（v2026.12.01.0）, `yong_shen_candidates`（v2026.12.01.0） |
+| `yongshen` | canonical | 命局裁决得到的用神结论及其来源、证据和置信度。 | `YongShen` | `YongShen` | `selected_yongshen` | 用神 | 禁止：`use_god`<br>兼容：`explicit_yong_shen`（v2026.12.01.0）, `yong_shen_candidates`（v2026.12.01.0） |
 | `geju` | canonical | 以月令格神为核心的子平格局候选与结构。 | `GeJu` | `GeJu` | `ge_ju` | 格局 | — |
 | `tiaohou` | canonical | 调候用神候选及其月令条件。 | `TiaoHou` | `TiaoHou` | `tiao_hou` | 调候 | — |
 | `fuyi` | canonical | 扶抑用神候选及其强弱事实。 | `FuYi` | `FuYi` | `fu_yi` | 扶抑 | — |

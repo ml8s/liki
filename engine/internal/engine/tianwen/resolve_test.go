@@ -40,7 +40,7 @@ func TestResolve_ExactTime(t *testing.T) {
 		t.Fatalf("candidates=%d, want 1", len(result.Candidates))
 	}
 	input := inputCandidate(t, result)
-	if input.CivilTime.IsZero() || !hasReason(input, reasonInput, "输入时间") {
+	if input.StandardTime.IsZero() || !hasReason(input, reasonInput, "输入时间") {
 		t.Fatalf("input candidate = %+v", input)
 	}
 }
@@ -135,7 +135,7 @@ func TestResolve_LunarInput(t *testing.T) {
 	gt := CivilTimeFromLunarDate(lunar)
 	want := time.Date(gt.Year(), gt.Month(), gt.Day(), 6, 0, 0, 0,
 		time.FixedZone("CST", 8*3600))
-	if got := inputCandidate(t, result).CivilTime; !got.Equal(want) {
+	if got := inputCandidate(t, result).StandardTime; !got.Equal(want) {
 		t.Errorf("gregorian = %s, want %s", got, want)
 	}
 }
@@ -187,7 +187,7 @@ func TestResolve_ChinaDSTPeriodIsUnambiguous(t *testing.T) {
 	if len(result.Candidates) != 1 {
 		t.Fatalf("candidates=%d, want 1", len(result.Candidates))
 	}
-	if _, offset := inputCandidate(t, result).CivilTime.Zone(); offset != 9*3600 {
+	if _, offset := inputCandidate(t, result).StandardTime.Zone(); offset != 9*3600 {
 		t.Fatalf("offset=%d, want 9h", offset)
 	}
 }
@@ -249,7 +249,7 @@ func TestResolve_HistoricalTimezoneOffset(t *testing.T) {
 	if len(result.Candidates) != 1 {
 		t.Fatalf("candidates=%d, want 1", len(result.Candidates))
 	}
-	if _, offset := inputCandidate(t, result).CivilTime.Zone(); offset != 7*3600+1800 {
+	if _, offset := inputCandidate(t, result).StandardTime.Zone(); offset != 7*3600+1800 {
 		t.Fatalf("offset=%d, want +07:30", offset)
 	}
 }
@@ -314,7 +314,7 @@ func TestResolve_LunarInputLocalAstronomical(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := time.Date(2024, 2, 9, 12, 0, 0, 0, ny)
-	got := inputCandidate(t, result).CivilTime
+	got := inputCandidate(t, result).StandardTime
 	if !got.Equal(want) {
 		t.Fatalf("instant = %s, want %s", got.Format(time.RFC3339), want.Format(time.RFC3339))
 	}
@@ -334,7 +334,7 @@ func TestResolve_LunarInputFixedUTC8MatchesOfficial(t *testing.T) {
 	}
 	gt := CivilTimeFromLunarDate(lunar)
 	want := time.Date(gt.Year(), gt.Month(), gt.Day(), 6, 0, 0, 0, time.FixedZone("CST", 8*3600))
-	if got := inputCandidate(t, result).CivilTime; !got.Equal(want) {
+	if got := inputCandidate(t, result).StandardTime; !got.Equal(want) {
 		t.Fatalf("fixed UTC+8 local_astronomical = %s, want official %s", got, want)
 	}
 }
