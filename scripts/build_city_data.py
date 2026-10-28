@@ -11,9 +11,10 @@ After changing data/sources/manifest.json, also run
 scripts/generate_city_attribution.py so the distributable notice stays current.
 """
 import argparse
+import datetime as dt
 import json
 import math
-import time
+import os
 import zipfile
 from pathlib import Path
 
@@ -28,6 +29,30 @@ LOCALES = ("zh-Hans", "zh-Hant", "en")
 S2T = OpenCC("s2hk")
 PLACE_NAMES_PATH = SRC / "place_names.json"
 PLACE_NAMES = json.loads(PLACE_NAMES_PATH.read_text(encoding="utf-8")) if PLACE_NAMES_PATH.exists() else {}
+
+
+def build_timestamp() -> str:
+    """Use SOURCE_DATE_EPOCH for reproducible builds; otherwise use manifest time."""
+    raw = os.environ.get("SOURCE_DATE_EPOCH", "").strip()
+    if raw:
+        try:
+            epoch = int(raw)
+        except ValueError as error:
+            raise SystemExit(f"SOURCE_DATE_EPOCH must be an integer: {error}") from error
+        if epoch < 0:
+            raise SystemExit("SOURCE_DATE_EPOCH must be non-negative")
+        moment = dt.datetime.fromtimestamp(epoch, tz=dt.timezone.utc)
+    else:
+        manifest_path = SRC / "manifest.json"
+        generated_at = json.loads(manifest_path.read_text(encoding="utf-8")).get(
+            "generated_at", "1970-01-01T00:00:00Z"
+        )
+        moment = dt.datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+    return moment.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def verify_output(payload: bytes) -> bool:
+    return OUT.read_bytes() == payload
 
 # English labels for every region in the table. China uses province-level
 # labels (the UI composes "province + city"); world rows use country labels.
@@ -605,6 +630,7 @@ def build_world(current):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--verify", action="store_true", help="verify that cities_data.json is current")
     args = ap.parse_args()
 
     current = load_json(OUT)
@@ -630,7 +656,7 @@ def main():
         "world": world,
         "meta": {
             "schema_version": 2,
-            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "generated_at": build_timestamp(),
             "sources": {
                 "china": "DataV.GeoAtlas areas_v3 (data/sources/datav)",
                 "world_cities": "GeoNames cities15000 (data/sources/geonames)",
@@ -642,6 +668,13 @@ def main():
         },
     }
     validate_city_data(data)
+    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n"
+    payload = payload.encode("utf-8")
+    if args.verify:
+        if not verify_output(payload):
+            raise SystemExit("cities_data.json is stale; run scripts/build_city_data.py")
+        print("cities_data.json is current")
+        return
     if args.dry_run:
         print("dry-run: not writing", flush=True)
         return

@@ -2,6 +2,7 @@
 
 
 import hmac
+import time
 
 from starlette.responses import JSONResponse
 
@@ -19,7 +20,7 @@ class AuthMiddleware:
             return
         if (
             not self.token
-            or scope.get("path") in ("/healthz", "/readyz")
+            or scope.get("path") in ("/healthz", "/readyz", "/metrics")
             or scope.get("method") == "OPTIONS"
         ):
             await self.app(scope, receive, send)
@@ -46,6 +47,49 @@ class AuthMiddleware:
             headers={"WWW-Authenticate": "Bearer"},
         )
         await response(scope, receive, send)
+
+
+class MetricsMiddleware:
+    """Record fixed-template HTTP route, method, and status-class metrics."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        started = time.perf_counter()
+        status_class = "unknown"
+
+        async def send_wrapper(message):
+            nonlocal status_class
+            if message.get("type") == "http.response.start":
+                status = int(message.get("status", 500))
+                status_class = f"{status // 100}xx"
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_wrapper)
+        finally:
+            from app.metrics import observe_http_request
+
+            observe_http_request(
+                route=http_route(scope.get("path", "")),
+                method=scope.get("method", ""),
+                status_class=status_class,
+                duration=time.perf_counter() - started,
+            )
+
+
+def http_route(path: str) -> str:
+    known = {"/healthz", "/readyz", "/metrics", "/mcp"}
+    if path in known:
+        return path
+    if path.startswith("/mcp/"):
+        return "/mcp/{domain}"
+    return "unmatched"
 
 
 class BodyLimitMiddleware:

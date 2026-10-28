@@ -12,6 +12,8 @@ Run:
         .venv/bin/python -m uvicorn app.counsel_mcp:app --host 127.0.0.1 --port 8086
 """
 
+import hmac
+import ipaddress
 import logging
 import os
 from contextlib import AsyncExitStack, asynccontextmanager
@@ -28,8 +30,31 @@ from app.counsel_servers import (  # noqa: E402
     create_counsel_mcp,
     create_counsel_root_mcp,
 )
-from app.http_middleware import AuthMiddleware, BodyLimitMiddleware
+from app.http_middleware import (
+    AuthMiddleware,
+    BodyLimitMiddleware,
+    MetricsMiddleware,
+)
 from app.metrics import render_metrics  # noqa: E402
+
+
+def _bind_host() -> str:
+    return os.environ.get("LIKI_BIND_HOST", "127.0.0.1")
+
+
+def _is_loopback(host: str) -> bool:
+    if host == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+def _allows_no_token() -> bool:
+    return os.environ.get("LIKI_ALLOW_NO_TOKEN", "").strip().lower() in {
+        "1", "true", "yes", "on"
+    }
 
 
 def _make_app():
@@ -88,6 +113,21 @@ def _make_app():
         })
 
     async def metrics(_request):
+        token = os.environ.get("LIKI_METRICS_TOKEN", "")
+        if not token:
+            return Response(status_code=404)
+        authorization = _request.headers.get("Authorization", "")
+        if not hmac.compare_digest(authorization, f"Bearer {token}"):
+            return JSONResponse(
+                {
+                    "error": {
+                        "code": "forbidden",
+                        "message": "invalid metrics token",
+                    }
+                },
+                status_code=403,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         return Response(
             render_metrics(),
             media_type="text/plain; version=0.0.4; charset=utf-8",
@@ -96,6 +136,15 @@ def _make_app():
     @asynccontextmanager
     async def lifespan(app: Starlette):
         """Fail fast on misconfiguration; run each domain app's lifespan once."""
+        if (
+            not os.environ.get("LIKI_MCP_TOKEN", "").strip()
+            and not _is_loopback(_bind_host())
+            and not _allows_no_token()
+        ):
+            raise RuntimeError(
+                "counsel-mcp: LIKI_MCP_TOKEN is required on a non-loopback "
+                "address; set LIKI_MCP_TOKEN or LIKI_ALLOW_NO_TOKEN=1"
+            )
         if not os.environ.get("LIKI_MCP_URL", "").strip():
             raise RuntimeError(
                 "LIKI_MCP_URL is required "
@@ -129,6 +178,7 @@ def _make_app():
         routes=routes,
         lifespan=lifespan,
         middleware=[
+            Middleware(MetricsMiddleware),
             Middleware(
                 AuthMiddleware,
                 token=os.environ.get("LIKI_MCP_TOKEN", ""),
@@ -145,4 +195,5 @@ app = _make_app()
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8086)
+    os.environ.setdefault("LIKI_BIND_HOST", "127.0.0.1")
+    uvicorn.run(app, host=_bind_host(), port=8086)

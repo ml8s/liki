@@ -33,6 +33,21 @@ META_FIELDS = {"source", "skill", "skill_version", "engine_version", "session_ha
 AGENT_FIELDS = {"name", "version"}
 LLM_FIELDS = {"provider", "model", "model_version"}
 PROBLEM_FIELDS = {"type", "severity", "tool", "summary", "expected", "observed"}
+PRIVACY_RULES = (
+    ("resident-id", re.compile(r"\b\d{17}[\dXx]\b")),
+    ("phone", re.compile(r"(?<!\d)1[3-9]\d{9}(?!\d)")),
+    ("email", re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)),
+    ("credential", re.compile(r"\b(?:api[_-]?key|token|secret|password)\b\s*[:=]\s*\S+", re.I)),
+    ("coordinate-pair", re.compile(r"\b-?\d{1,3}\.\d{3,},\s*-?\d{1,3}\.\d{3,}\b")),
+    ("birth-fact", re.compile(r"\b(?:出生日期|出生时间|出生年月|生辰)\s*[:：=]")),
+    ("place-fact", re.compile(r"\b(?:出生地|出生地点|住址|详细地址)\s*[:：=]")),
+    ("json-payload", re.compile(r'"(?:arguments|params|payload)"\s*:')),
+)
+PRIVACY_RULES += (
+    ("bearer-token", re.compile(r"\b(?:Authorization|Bearer)\b\s*[:=]")),
+    ("english-birth-fact", re.compile(r"\b(?:birth\s+(?:date|time)|date\s+of\s+birth)\s*[:=]", re.I)),
+    ("json-object-payload", re.compile(r'\{\s*"(?:arguments|params|payload)"')),
+)
 
 
 class FeedbackError(ValueError):
@@ -168,6 +183,18 @@ def validate(payload: dict) -> dict:
             continue
         if not isinstance(value, str) or len(value) > 500:
             raise FeedbackError(f"problem.{key} must be a string of at most 500 characters")
+
+    for field in ("summary", "expected", "observed"):
+        value = problem.get(field)
+        if not isinstance(value, str):
+            continue
+        for rule_name, pattern in PRIVACY_RULES:
+            if pattern.search(value):
+                raise FeedbackError(
+                    f"problem.{field} may contain {rule_name}; "
+                    "remove the data before submitting feedback"
+                )
+
     return payload
 
 

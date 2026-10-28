@@ -42,20 +42,39 @@ _BUCKETS = (
 ) + (_INFINITY,)
 _LOCK = threading.Lock()
 _tool_counters: dict[tuple[str, str, str], _Counter] = {}
-_tool_histograms: dict[tuple[str, str], _Histogram] = {}
+_tool_histograms: dict[tuple[str, str, str], _Histogram] = {}
 _engine_counters: dict[tuple[str, str], _Counter] = {}
 _engine_histograms: dict[tuple[str, str], _Histogram] = {}
+_http_counters: dict[tuple[str, str, str], _Counter] = {}
+_http_histograms: dict[tuple[str, str, str], _Histogram] = {}
 
 
 def reset_metrics() -> None:
     """Clear all process metrics; intended for tests only."""
     global _tool_counters, _tool_histograms
     global _engine_counters, _engine_histograms
+    global _http_counters, _http_histograms
     with _LOCK:
         _tool_counters = {}
         _tool_histograms = {}
         _engine_counters = {}
         _engine_histograms = {}
+        _http_counters = {}
+        _http_histograms = {}
+
+
+def observe_http_request(
+    route: str, method: str, status_class: str, duration: float
+) -> None:
+    counter_key = (route, method, status_class)
+    histogram_key = (route, method, status_class)
+    with _LOCK:
+        counter = _http_counters.setdefault(counter_key, _Counter())
+        counter.value += 1
+        histogram = _http_histograms.setdefault(
+            histogram_key, _Histogram.create(_BUCKETS)
+        )
+        histogram.observe(duration)
 
 
 def observe_tool_request(tool: str, domain: str, status: str, duration: float) -> None:
@@ -63,7 +82,7 @@ def observe_tool_request(tool: str, domain: str, status: str, duration: float) -
         counter = _tool_counters.setdefault((tool, domain, status), _Counter())
         counter.value += 1
         histogram = _tool_histograms.setdefault(
-            (tool, domain), _Histogram.create(_BUCKETS)
+            (tool, domain, status), _Histogram.create(_BUCKETS)
         )
         histogram.observe(duration)
 
@@ -150,6 +169,19 @@ def render_metrics() -> bytes:
             )
             for key, histogram in _engine_histograms.items()
         }
+        http_counters = {
+            key: _Counter(value=counter.value)
+            for key, counter in _http_counters.items()
+        }
+        http_histograms = {
+            key: _Histogram(
+                buckets=histogram.buckets,
+                counts=dict(histogram.counts),
+                sum=histogram.sum,
+                count=histogram.count,
+            )
+            for key, histogram in _http_histograms.items()
+        }
 
     lines = [
         *_render_counter(
@@ -162,7 +194,7 @@ def render_metrics() -> bytes:
             "liki_counsel_tool_request_duration_seconds",
             "Counsel MCP tool request duration in seconds.",
             tool_histograms,
-            ("tool", "domain"),
+            ("tool", "domain", "status"),
         ),
         *_render_counter(
             "liki_counsel_engine_requests_total",
@@ -175,6 +207,18 @@ def render_metrics() -> bytes:
             "Counsel engine RPC duration in seconds.",
             engine_histograms,
             ("method", "status"),
+        ),
+        *_render_counter(
+            "liki_counsel_http_requests_total",
+            "Counsel HTTP requests by route template, method, and status class.",
+            http_counters,
+            ("route", "method", "status_class"),
+        ),
+        *_render_histogram(
+            "liki_counsel_http_request_duration_seconds",
+            "Counsel HTTP request duration in seconds.",
+            http_histograms,
+            ("route", "method", "status_class"),
         ),
     ]
     return ("\n".join(lines) + "\n").encode("utf-8")

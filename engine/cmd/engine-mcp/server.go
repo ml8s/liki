@@ -7,10 +7,12 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"liki-engine/internal/mcpcontract"
+	"liki-engine/internal/observability"
 )
 
 const (
@@ -133,17 +135,27 @@ func contractToolHandler(
 	contracts *mcpcontract.Registry, name string, mode ResultContentMode,
 ) mcp.ToolHandler {
 	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		started := time.Now()
+		status := "success"
 		args := req.Params.Arguments
 		if len(args) == 0 || string(args) == "null" {
 			args = json.RawMessage(`{}`)
 		}
 		result, err := contracts.Call(ctx, name, args)
 		if err != nil {
+			status = "invalid_arguments"
+			if !strings.Contains(err.Error(), "invalid arguments") {
+				status = "handler_error"
+			}
+			duration := time.Since(started).Seconds()
+			defer observability.ObserveTool(toolDomain(name), name, status, duration)
 			return &mcp.CallToolResult{
 				IsError: true,
 				Content: []mcp.Content{&mcp.TextContent{Text: err.Error()}},
 			}, nil
 		}
+		duration := time.Since(started).Seconds()
+		defer observability.ObserveTool(toolDomain(name), name, status, duration)
 		if mode == ResultContentModeStructured {
 			return &mcp.CallToolResult{StructuredContent: result}, nil
 		}
@@ -151,6 +163,22 @@ func contractToolHandler(
 			Content:           []mcp.Content{&mcp.TextContent{Text: string(result)}},
 			StructuredContent: result,
 		}, nil
+	}
+}
+
+func toolDomain(name string) string {
+	if domain, _, found := strings.Cut(name, "_"); found {
+		return domain
+	}
+	return "other"
+}
+
+func allowsNoToken() bool {
+	switch strings.TrimSpace(strings.ToLower(os.Getenv("LIKI_ALLOW_NO_TOKEN"))) {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
 	}
 }
 

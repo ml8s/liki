@@ -52,23 +52,28 @@ any capability that needs it.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `LISTEN_ADDR` | `:8081` | Internal listen address |
-| `LIKI_MCP_TOKEN` | empty | Optional Bearer gate for private deployments |
+| `LIKI_MCP_TOKEN` | empty | Required Bearer gate for private deployments on non-loopback addresses |
+| `LIKI_ALLOW_NO_TOKEN` | unset | Explicitly allow unauthenticated engine on non-loopback addresses |
+| `LIKI_METRICS_TOKEN` | empty | Dedicated token for `/metrics`; unset makes the endpoint 404 |
 | `LIKI_ALLOWED_ORIGINS` | hosted default | Comma-separated browser CORS origins |
 | `LIKI_MCP_RESULT_CONTENT` | `structured` | Successful tool result shape: `structured` or legacy `compat` with duplicate TextContent |
 
 `GET /health` and `GET /version` are public process probes. MCP requests can be
-token-protected without exposing those probes. Rate limiting and X-Forwarded-For
-trust are owned by the edge (cloud LB / WAF / Caddy); the service itself does
-not rate-limit.
+token-protected without exposing those probes. `GET /metrics` uses the
+dedicated `LIKI_METRICS_TOKEN`; an unset token makes it return 404. Rate
+limiting and X-Forwarded-For trust are owned by the edge (cloud LB / WAF /
+Caddy); the service itself does not rate-limit.
 
 ### counsel-mcp
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `LISTEN_ADDR` / uvicorn port | `:8086` | Internal listen address |
+| `LISTEN_ADDR` / `LIKI_BIND_HOST` / uvicorn port | `:8086` / `127.0.0.1` | Internal listen address and bind host |
 | `LIKI_MCP_URL` | *(required)* | Engine MCP base URL (fail-fast at startup when empty) |
-| `LIKI_MCP_TOKEN` | empty | Optional inbound Bearer gate |
+| `LIKI_MCP_TOKEN` | empty | Required inbound Bearer gate on non-loopback addresses |
+| `LIKI_ALLOW_NO_TOKEN` | unset | Explicitly allow unauthenticated counsel on non-loopback addresses |
 | `LIKI_ENGINE_MCP_TOKEN` | falls back to `LIKI_MCP_TOKEN` | Optional outbound Bearer token for engine-mcp |
+| `LIKI_METRICS_TOKEN` | empty | Dedicated token for `/metrics`; unset makes the endpoint 404 |
 | `LIKI_MCP_TIMEOUT` | `30` | Engine call timeout in seconds |
 | `LIKI_READYZ_TIMEOUT_SECONDS` | `1` | Short engine dependency timeout used by counsel `/readyz` |
 | `LIKI_MCP_MAX_RETRIES` | `2` | Engine retry count |
@@ -79,11 +84,12 @@ not rate-limit.
 `GET /healthz` is counsel liveness and does not contact the engine. `GET /readyz`
 performs one bounded `server/discover` call to the engine; if that dependency is
 unreachable, it returns 503. `GET /metrics` exposes low-cardinality Prometheus
-counters and histograms for counsel tool outcomes and engine RPC latency. When
-`LIKI_MCP_TOKEN` is set, `/metrics` requires the same Bearer token as MCP;
-health probes remain public. Metrics never contain questions, birth data,
-chart payloads, endpoint URLs, tokens, or exception text. Rate limiting is owned
-by the edge (cloud LB / WAF / Caddy); the service itself does not rate-limit.
+counters and histograms for counsel HTTP/tool outcomes and engine RPC
+latency/duration. It uses dedicated `LIKI_METRICS_TOKEN`; an unset token makes
+the endpoint 404. Health probes remain public. Metrics never contain questions,
+birth data, chart payloads, endpoint URLs, tokens, or exception text. Rate
+limiting is owned by the edge (cloud LB / WAF / Caddy); the service itself does
+not rate-limit.
 
 `/mcp` is the aggregate surface for the multi-expert runtime. It exposes the
 natal judgment tools (`bazi_yongshen`, `compute_factors`, `natal_query`, and
@@ -100,4 +106,4 @@ surfaces.
 4. Configure `LIKI_ALLOWED_ORIGINS` for browser clients on a private domain.
 5. Protect private engine calls with `LIKI_ENGINE_MCP_TOKEN`; using the same
    value as counsel's `LIKI_MCP_TOKEN` remains supported.
-6. Monitor `/readyz`, `/metrics`, tool error rates, rate-limit rejections, and engine latency.
+6. Monitor `/readyz`, `/metrics`, tool error rates, rate-limit rejections, and engine latency. See [OBSERVABILITY.md](./OBSERVABILITY.md).

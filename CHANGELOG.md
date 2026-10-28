@@ -7,17 +7,22 @@
 - **公共时间模型迁移为 `standard_time + longitude`**：`tianwen.resolve` 成为 civil wall time、IANA timezone、DST fold/gap 与历史时制的唯一解析边界；排盘与流年 / 流月 / 流日 / 流时工具不再接受 `instant`、`civil_time`、`timezone`、`fold` 或裸日期，只消费 `standard_time`（以及需要真太阳时的 `longitude`）。`standard_time` 使用 RFC3339 known-offset 语义：`Z` 与 `+00:00`、`+08:00`、`-05:00` 均合法，`-00:00` 因表示 unknown local offset 而拒绝。offset 不是 IANA timezone identity，但会选择 standard / lunar / almanac 日期事实的本地标准表示；同一 instant 在不同 offset 下可以有不同本地日期。
 - **`time_now` 输出改为 `standard_time`**：删除旧 `instant` / `timezone` 输出。调用方需要 civil wall time 时先通过 `tianwen.resolve` 解析，再把候选中的 `standard_time` 传给排盘工具。
 - **六爻 / 奇门快照显式传入起卦 / 起局时间与地点**：`liuyao_snapshot`、`qimen_snapshot` 要求 `standard_time` 与经度 / 地点；奇门年命输入由 `birth_date` 改为 `birth_standard_time`。自动起卦仍是服务端安全随机，但时间不再隐式取服务器当前值。
+- **非 loopback 服务默认必须有 token**：engine 与 counsel 在非 loopback 地址上启动时要求 `LIKI_MCP_TOKEN`；显式设置 `LIKI_ALLOW_NO_TOKEN=1` 才允许继续。`LIKI_BIND_HOST` 现在是 counsel 的实际 uvicorn 绑定来源。
 
 ### Changed
 
 - **流日 / 流时 series 改为按领域时间 cell 推进**：八字流日进入下一个真太阳日的中点，八字 / 紫微流时进入下一个真太阳时辰的中点。后续 `resolved.standard_time` 不再保证恰好相差 24 小时或 2 小时；测试与调用方应断言下一个日 / 时辰事实，而不是固定标准时钟步长。
 - **城市查询明确为内置 WGS-84 地理表**：`city_coords` 未命中时直接返回明确错误，不做 Nominatim / OSM 外部请求；删除失效的 `LIKI_EXTERNAL_GEOCODING` 配置与文档。
+- **城市候选查询使用倒排索引**：生产查询先按名称 / 别名候选收敛，再沿用既有匹配分级和排序；查询结果语义不变，避免每次请求全表扫描。
+- **城市数据构建可复现**：默认时间戳使用 data manifest 的 `generated_at`，可用 `SOURCE_DATE_EPOCH` 显式覆盖；`scripts/build_city_data.py --verify` 会重新生成 bytes 并与当前内嵌文件比较。
 
 ### Added
 
 - **内嵌地理数据第三方声明**：新增 `NOTICE.md` 与 engine 内嵌 `ATTRIBUTION.txt`，由 `data/sources/manifest.json` 生成 DataV / GeoNames / GeoBoundaries 的来源、许可证与 attribution 清单；engine 镜像在 `/usr/share/licenses/liki-engine/ATTRIBUTION.txt` 携带该声明，明确这些数据不由仓库 MIT 重新授权。
 - **counsel 依赖 readiness 与低基数指标**：`/readyz` 现在用可配置短超时执行一次 engine `server/discover`，依赖不可达返回 503；`/healthz` 保持纯 liveness。新增 token 保护的 `/metrics`，暴露 counsel 工具结果 / 时长与 engine RPC 结果 / 时长，不包含卦题、出生数据、URL、token 或异常文本。
 - **合并 Python 覆盖率口径**：`make test-python-coverage` 现在合并 root contract suite 与 counsel integration suite 的 coverage 数据，CI skills-test 同步具备本地 engine 构建能力。
+- **engine observability contract**：新增 dependency-free `/metrics`、HTTP route/status/duration metrics、tool/domain/status/duration metrics，以及专用 `LIKI_METRICS_TOKEN`；所有服务的 observability contract 收敛到 `docs/OBSERVABILITY.md`。
+- **feedback 免费文本隐私防护**：feedback 发送前对 summary / expected / observed 执行 fail-closed 扫描，拒绝身份证、手机号、email、凭据、坐标对、出生事实、地址事实和原始 arguments / params / payload。
 
 ### Fixed
 
@@ -25,6 +30,8 @@
 - **自动起卦不再隐藏重试**：`liuyao.qigua mode=auto` 是服务端随机事件，counsel 的通用 MCP client 现在强制单次执行；传输失败时明确报错，由用户确认后重新起卦。`coins` / `yaos` 输入保持幂等，可继续按原策略重试。
 - **Python 工具链本地 / CI 对齐**：本机全局 Ruff 现在会校验 pinned 版本，版本不一致直接失败；counsel 测试 venv 缺失 dev dependencies 时自动补装，避免 uv 与 pip bootstrap 路径漂移。
 - **修复 Bazi / Ziwei MCP benchmark 输入**：`bazi_fullchart` 与 `bazi_bond` benchmark 改用带 offset 的 `standard_time`，性能入口恢复可执行。
+- **修正 counsel 容器绑定配置**：Docker CMD 使用 `LIKI_BIND_HOST` 启动 uvicorn，避免进程安全策略判断 loopback 而实际监听公网地址。
+- **修正 Markdown hook 的 Node 定位**：pre-commit 在 PATH 缺少 Node 时先查找本机 nvm Node 22，再执行版本检查，避免与 gate 环境不一致。
 
 ### Migration
 
@@ -36,6 +43,7 @@
 | 流时 selector 固定相差 2 小时 | 下一个真太阳时时辰；selector 差值可随 EOT 秒级变化 |
 | 流日 selector 固定相差 24 小时 | 下一个真太阳日；selector 差值可随 EOT 秒级变化 |
 | `-00:00` | 拒绝；使用带已知 offset 的 RFC3339，或先调 `tianwen.resolve` |
+| 空 `LIKI_MCP_TOKEN` + 非 loopback 监听 | 启动失败；设置 token，或显式设置 `LIKI_ALLOW_NO_TOKEN=1` |
 
 ## [2026.10.23.0] — 2026-10-23
 

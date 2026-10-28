@@ -77,7 +77,15 @@ var (
 	geoOnce  sync.Once
 	geo      geoDB
 	geoIndex map[string][]geoRecord
+	records  []indexedRecord
+	index    map[string]map[int]struct{}
 )
+
+type indexedRecord struct {
+	tableIndex int
+	record     geoRecord
+	identity   string
+}
 
 func loadGeo() {
 	if err := json.Unmarshal(citiesData, &geo); err != nil {
@@ -87,13 +95,19 @@ func loadGeo() {
 	// cities 与 counties 在少数地级市上存在完全相同的记录（同名同省同坐标），
 	// 合并索引时按记录身份去重，避免把同一地点报成歧义。
 	seen := make(map[string]struct{}, len(geo.Counties)+len(geo.Cities)+len(geo.World))
-	for _, table := range [][]geoRecord{geo.Counties, geo.Cities, geo.World} {
+	for tableIndex, table := range [][]geoRecord{geo.Cities, geo.Counties, geo.World} {
 		for _, record := range table {
 			key := fmt.Sprintf("%s|%s|%s|%.6f|%.6f", record.Name, record.Region, record.City, record.Lng, record.Lat)
 			if _, ok := seen[key]; ok {
 				continue
 			}
 			seen[key] = struct{}{}
+			identity := strconv.Itoa(tableIndex) + "|" + key
+			records = append(records, indexedRecord{
+				tableIndex: tableIndex,
+				record:     record,
+				identity:   identity,
+			})
 			geoIndex[record.Name] = append(geoIndex[record.Name], record)
 			for _, alias := range record.Aliases {
 				if alias == "" || alias == record.Name {
@@ -101,6 +115,17 @@ func loadGeo() {
 				}
 				geoIndex[alias] = append(geoIndex[alias], record)
 			}
+		}
+	}
+	index = make(map[string]map[int]struct{})
+	for id, item := range records {
+		for text := range searchTextKeys(item.record) {
+			candidates, ok := index[text]
+			if !ok {
+				candidates = make(map[int]struct{})
+				index[text] = candidates
+			}
+			candidates[id] = struct{}{}
 		}
 	}
 }
@@ -129,45 +154,36 @@ func ResolveCandidates(_ context.Context, query string) ([]Candidate, error) {
 	}
 	query = strings.ToLower(query)
 	base := stripRegionSuffix(query)
-	tables := []struct {
-		level   string
-		prio    int
-		records []geoRecord
-	}{
-		{"city", 0, geo.Cities},
-		{"county", 1, geo.Counties},
-		{"world", 2, geo.World},
-	}
 	type scored struct {
 		candidate Candidate
 		class     int
 		prio      int
 	}
 	var matches []scored
-	for _, table := range tables {
-		for _, record := range table.records {
-			class, ok := candidateMatchClass(query, base, record)
-			if !ok {
-				continue
-			}
-			matches = append(matches, scored{
-				candidate: Candidate{
-					Name:        record.Name,
-					Names:       record.Names,
-					Region:      record.Region,
-					RegionNames: record.RegionNames,
-					City:        record.City,
-					Country:     record.Region,
-					Level:       table.level,
-					Longitude:   record.Lng,
-					Latitude:    record.Lat,
-					Timezone:    record.TZ,
-					BBox:        record.BBox,
-				},
-				class: class,
-				prio:  table.prio,
-			})
+	for id := range candidateIDs(query, base) {
+		item := records[id]
+		record := item.record
+		class, ok := candidateMatchClass(query, base, record)
+		if !ok {
+			continue
 		}
+		matches = append(matches, scored{
+			candidate: Candidate{
+				Name:        record.Name,
+				Names:       record.Names,
+				Region:      record.Region,
+				RegionNames: record.RegionNames,
+				City:        record.City,
+				Country:     record.Region,
+				Level:       tableNames[item.tableIndex],
+				Longitude:   record.Lng,
+				Latitude:    record.Lat,
+				Timezone:    record.TZ,
+				BBox:        record.BBox,
+			},
+			class: class,
+			prio:  tablePrios[item.tableIndex],
+		})
 	}
 	sort.SliceStable(matches, func(i, j int) bool {
 		a, b := matches[i], matches[j]
@@ -200,6 +216,59 @@ func ResolveCandidates(_ context.Context, query string) ([]Candidate, error) {
 		}
 	}
 	return out, nil
+}
+
+var tableNames = []string{"city", "county", "world"}
+var tablePrios = []int{0, 1, 2}
+
+func candidateIDs(query, base string) map[int]struct{} {
+	ids := make(map[int]struct{})
+	add := func(key string) {
+		for id := range index[key] {
+			ids[id] = struct{}{}
+		}
+	}
+	add(query)
+	if base != "" {
+		add(base)
+	}
+	runes := []rune(query)
+	for length := 1; length < len(runes); length++ {
+		add(string(runes[:length]))
+		add(string(runes[length:]))
+	}
+	baseRunes := []rune(base)
+	for length := 1; length < len(baseRunes); length++ {
+		for start := 0; start+length <= len(baseRunes); start++ {
+			add(string(baseRunes[start : start+length]))
+		}
+	}
+	return ids
+}
+
+func searchTextKeys(record geoRecord) map[string]struct{} {
+	keys := make(map[string]struct{})
+	addText := func(text string) {
+		text = strings.ToLower(strings.TrimSpace(text))
+		if text == "" {
+			return
+		}
+		runes := []rune(text)
+		for start := 0; start < len(runes); start++ {
+			for length := 1; length <= len(runes)-start; length++ {
+				keys[string(runes[start:start+length])] = struct{}{}
+			}
+		}
+	}
+	addText(record.Name)
+	addText(stripRegionSuffix(record.Name))
+	for _, alias := range record.Aliases {
+		addText(alias)
+	}
+	for locale := range record.Names {
+		addText(record.Names[locale])
+	}
+	return keys
 }
 
 // candidateMatchClass ranks record against query; lower is a better match.

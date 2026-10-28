@@ -1,12 +1,17 @@
 package http
 
 import (
+	"crypto/subtle"
 	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
 	"runtime/debug"
+	"strconv"
 	"strings"
+	"time"
+
+	"liki-engine/internal/observability"
 )
 
 var prodOrigins = map[string]bool{
@@ -107,4 +112,90 @@ func BodyLimit(next http.Handler) http.Handler {
 		r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 		next.ServeHTTP(w, r)
 	})
+}
+
+// MetricsAuthMiddleware protects /metrics with the dedicated metrics token.
+// An unset token makes the endpoint disappear rather than advertise existence.
+func MetricsAuthMiddleware(token string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if token == "" {
+			http.NotFound(w, r)
+			return
+		}
+		expected := "Bearer " + token
+		provided := r.Header.Get("Authorization")
+		if subtle.ConstantTimeCompare([]byte(expected), []byte(provided)) != 1 {
+			w.Header().Set("WWW-Authenticate", "Bearer")
+			respondError(w, http.StatusForbidden, "forbidden", "invalid metrics token")
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// MetricsMiddleware records route-template, method, and status-class metrics.
+// Raw paths are never used as metric labels.
+func MetricsMiddleware(route string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		started := time.Now()
+		recorder := &metricsResponseWriter{ResponseWriter: w}
+		next.ServeHTTP(recorder, r)
+		observability.ObserveHTTP(
+			route,
+			r.Method,
+			recorder.status,
+			time.Since(started).Seconds(),
+		)
+	})
+}
+
+type metricsResponseWriter struct {
+	http.ResponseWriter
+	status int
+}
+
+func (w *metricsResponseWriter) WriteHeader(status int) {
+	if w.status == 0 {
+		w.status = status
+	}
+	w.ResponseWriter.WriteHeader(status)
+}
+
+func (w *metricsResponseWriter) Write(data []byte) (int, error) {
+	if w.status == 0 {
+		w.status = http.StatusOK
+	}
+	return w.ResponseWriter.Write(data)
+}
+
+// MetricsHandler renders dependency-free Prometheus text exposition.
+func MetricsHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+		_, _ = w.Write(observability.RenderMetrics())
+	})
+}
+
+// RouteMetricsLabel maps an HTTP method route to a bounded route template.
+func RouteMetricsLabel(method, path string) string {
+	switch path {
+	case "/health", "/version", "/metrics", "/mcp":
+		return path
+	case "/mcp/bazi", "/mcp/ziwei", "/mcp/qimen", "/mcp/liuyao",
+		"/mcp/huangli", "/mcp/fengshui", "/mcp/aux":
+		return "/mcp/{domain}"
+	default:
+		_ = method
+		return "unmatched"
+	}
+}
+
+// ParseMetricsTimeout converts the readiness-style bounded timeout value used
+// for metrics scrape configuration; invalid values fail closed to one second.
+func ParseMetricsTimeout(raw string) time.Duration {
+	seconds, err := strconv.Atoi(raw)
+	if err != nil || seconds <= 0 {
+		return time.Second
+	}
+	return time.Duration(seconds) * time.Second
 }

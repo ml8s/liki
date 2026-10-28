@@ -65,6 +65,7 @@ func main() {
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return mcpServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
 
 	mcpToken := os.Getenv("LIKI_MCP_TOKEN")
+	metricsToken := os.Getenv("LIKI_METRICS_TOKEN")
 
 	// 计算自检只做一次：排一个固定八字（1984-02-04 06:00 男），验证日柱=戊辰。
 	// /health 必须保持轻量，不能成为 CPU 放大器。
@@ -79,7 +80,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	// 全量端点（counsel 内部调用 + 兼容）
-	mux.Handle("/mcp", apphttp.MCPAuthMiddleware(mcpToken, mcpHandler))
+	mux.Handle("/mcp", apphttp.MetricsMiddleware("/mcp", apphttp.MCPAuthMiddleware(mcpToken, mcpHandler)))
 	// 分域端点：每术数 + 共享辅助。`/engine` 外部前缀由网关剥离，
 	// 本服务只负责 MCP 根路径和 MCP 域路径。
 	for _, d := range mcpDomains {
@@ -89,10 +90,10 @@ func main() {
 			os.Exit(1)
 		}
 		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
-		mux.Handle("/mcp/"+d.Suffix, apphttp.MCPAuthMiddleware(mcpToken, domainHandler))
+		mux.Handle("/mcp/"+d.Suffix, apphttp.MetricsMiddleware("/mcp/{domain}", apphttp.MCPAuthMiddleware(mcpToken, domainHandler)))
 	}
 
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /health", apphttp.MetricsMiddleware("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if !selfTestOK {
 			w.WriteHeader(http.StatusServiceUnavailable)
@@ -103,14 +104,17 @@ func main() {
 		if _, err := w.Write([]byte(`{"status":"ok"}`)); err != nil {
 			return
 		}
-	})
+	})))
 
-	mux.HandleFunc("GET /version", func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /version", apphttp.MetricsMiddleware("/version", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write([]byte(`{"version":"` + Version + `"}`)); err != nil {
 			return
 		}
-	})
+	})))
+
+	metricsHandler := apphttp.MetricsHandler()
+	mux.Handle("GET /metrics", apphttp.MetricsMiddleware("/metrics", apphttp.MetricsAuthMiddleware(metricsToken, metricsHandler)))
 
 	handler := apphttp.Recover(apphttp.SecurityHeaders(apphttp.CORSMiddleware(false, apphttp.BodyLimit(mux))))
 
@@ -118,8 +122,13 @@ func main() {
 	defer cancel()
 
 	listenAddr := envOr("LISTEN_ADDR", *addr)
-	if mcpToken == "" && !apphttp.IsLoopbackAddr(listenAddr) {
-		slog.Warn("engine-mcp: LIKI_MCP_TOKEN is empty on a non-loopback address; set a token unless a trusted edge already gates access")
+	if err := apphttp.ValidateTokenPolicy(mcpToken, listenAddr, allowsNoToken()); err != nil {
+		if allowsNoToken() {
+			slog.Warn("engine-mcp: LIKI_MCP_TOKEN is empty on a non-loopback address; unauthenticated access is explicitly allowed")
+		} else {
+			slog.Error("engine-mcp: secure default rejected startup", "err", err)
+			os.Exit(1)
+		}
 	}
 
 	srv := &http.Server{

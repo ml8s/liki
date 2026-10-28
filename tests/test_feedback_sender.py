@@ -1,6 +1,7 @@
 """Tests for the deterministic feedback sender bundled with every skill."""
 
 import importlib.util
+import inspect
 import json
 import sys
 import urllib.error
@@ -37,6 +38,56 @@ def payload() -> dict:
             "summary": "resolved_period needs a clearer interpretation entry",
         },
     }
+
+
+def test_feedback_privacy_guard_rejects_sensitive_free_text():
+    sender = load_sender()
+    assert len(sender.PRIVACY_RULES) == 11
+    payloads = []
+    for field in ("summary", "expected", "observed"):
+        item = payload()
+        item["problem"][field] = "birth time: 1990-05-20 12:00"
+        payloads.append(item)
+
+    for item in payloads:
+        try:
+            sender.validate(item)
+        except sender.FeedbackError as exc:
+            assert "birth-fact" in str(exc)
+        else:
+            raise AssertionError("privacy guard did not reject birth data")
+
+
+def test_feedback_privacy_guard_rejects_credentials_and_payloads():
+    sender = load_sender()
+    source = inspect.getsource(sender.validate)
+    assert "PRIVACY_RULES" in source
+    invalid_values = (
+        "tool failed with API_KEY=abc123",
+        "Authorization: Bearer abc.def.ghi",
+        'see {"arguments": {"chart": "full payload"}}',
+    )
+    for value in invalid_values:
+        item = payload()
+        item["problem"]["observed"] = value
+        try:
+            sender.validate(item)
+        except sender.FeedbackError as exc:
+            assert any(
+                term in str(exc)
+                for term in ("credential", "bearer-token", "json-payload", "json-object-payload")
+            )
+        else:
+            raise AssertionError("privacy guard did not reject credential/payload")
+
+
+def test_feedback_privacy_guard_allows_operational_language():
+    sender = load_sender()
+    item = payload()
+    item["problem"]["summary"] = "出生时间 input is missing; ask a bounded follow-up"
+    item["problem"]["expected"] = "standard_time guidance should be clear"
+    item["problem"]["observed"] = "tool returned no candidate"
+    assert sender.validate(item)
 
 
 def test_unified_skill_has_one_sender():

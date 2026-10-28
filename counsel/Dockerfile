@@ -30,6 +30,7 @@ LABEL org.opencontainers.image.version="${VERSION}" \
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
+ENV LIKI_BIND_HOST=0.0.0.0
 
 USER 65534:65534
 
@@ -38,4 +39,4 @@ EXPOSE 8086
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
     CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8086/healthz', timeout=2)"]
 
-CMD ["python", "-m", "uvicorn", "app.counsel_mcp:app", "--host", "0.0.0.0", "--port", "8086"]
+CMD ["sh", "-c", "exec python -m uvicorn app.counsel_mcp:app --host \"${LIKI_BIND_HOST:-0.0.0.0}\" --port 8086"]

@@ -11,11 +11,46 @@ from app import engine_mcp_client  # noqa: E402
 from app.contracts import COUNSEL_TOOLS, NATAL_TOOLS  # noqa: E402
 from app.contracts.schema import ToolContract  # noqa: E402
 from app.counsel_mcp import (  # noqa: E402
+    _allows_no_token,
+    _bind_host,
+    _is_loopback,
     _make_app,
     app,
     create_counsel_mcp,
     create_counsel_root_mcp,
 )
+
+
+def test_counsel_secure_default_rejects_public_no_token(monkeypatch):
+    monkeypatch.setenv("LIKI_BIND_HOST", "0.0.0.0")
+    monkeypatch.delenv("LIKI_MCP_TOKEN", raising=False)
+    monkeypatch.delenv("LIKI_ALLOW_NO_TOKEN", raising=False)
+    secure_app = _make_app()
+
+    async def enter_lifespan():
+        async with secure_app.router.lifespan_context(secure_app):
+            pass
+
+    with pytest.raises(RuntimeError, match="LIKI_MCP_TOKEN is required"):
+        asyncio.run(enter_lifespan())
+
+
+def test_counsel_token_policy_helpers(monkeypatch):
+    monkeypatch.setenv("LIKI_BIND_HOST", "0.0.0.0")
+    monkeypatch.setenv("LIKI_ALLOW_NO_TOKEN", "1")
+    assert _bind_host() == "0.0.0.0"
+    assert _allows_no_token() is True
+    assert _is_loopback("127.0.0.1") is True
+    assert _is_loopback("0.0.0.0") is False
+
+
+def test_docker_runtime_uses_configured_bind_host():
+    dockerfile = (pathlib.Path(__file__).resolve().parents[1] / "Dockerfile").read_text(
+        encoding="utf-8"
+    )
+    assert 'ENV LIKI_BIND_HOST=0.0.0.0' in dockerfile
+    assert '--host \\"${LIKI_BIND_HOST:-0.0.0.0}\\"' in dockerfile
+    assert '--host", "0.0.0.0' not in dockerfile
 from app.engine_mcp_client import MCPError as EngineMCPError  # noqa: E402
 from app.mcp_tool_adapter import add_contract_tool  # noqa: E402
 from app.metrics import observe_tool_request, render_metrics, reset_metrics  # noqa: E402
@@ -590,27 +625,38 @@ def test_readyz_rejects_invalid_timeout_configuration(monkeypatch):
 
 
 def test_metrics_route_is_bearer_protected(monkeypatch):
-    monkeypatch.setenv("LIKI_MCP_TOKEN", "test-secret")
+    monkeypatch.setenv("LIKI_METRICS_TOKEN", "metrics-secret")
     guarded_app = _make_app()
     status, _raw = _http_request("/metrics", asgi_app=guarded_app)
-    assert status == 401
+    assert status == 403
 
     status, _raw = _http_request(
         "/metrics",
         asgi_app=guarded_app,
-        authorization="Bearer test-secret",
+        authorization="Bearer metrics-secret",
     )
     assert status == 200
+
+    monkeypatch.delenv("LIKI_METRICS_TOKEN", raising=False)
+    unconfigured_app = _make_app()
+    status, _raw = _http_request("/metrics", asgi_app=unconfigured_app)
+    assert status == 404
 
 
 def test_metrics_route_renders_low_cardinality_counters(monkeypatch):
     monkeypatch.delenv("LIKI_MCP_TOKEN", raising=False)
+    monkeypatch.setenv("LIKI_METRICS_TOKEN", "metrics-secret")
     metrics_app = _make_app()
     reset_metrics()
     observe_tool_request("bazi_yongshen", "bazi", "success", 0.01)
 
-    status, raw = _http_request("/metrics", asgi_app=metrics_app)
+    status, raw = _http_request(
+        "/metrics",
+        authorization="Bearer metrics-secret",
+        asgi_app=metrics_app,
+    )
     text = raw.decode("utf-8")
+    print("DEBUG metrics text", text)
     assert status == 200
     assert 'tool="bazi_yongshen",domain="bazi",status="success"' in text
     assert "# TYPE liki_counsel_tool_requests_total counter" in text
