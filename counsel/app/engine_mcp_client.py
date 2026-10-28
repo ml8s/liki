@@ -193,6 +193,19 @@ def _parse_json(text: str, preview: str) -> dict:
     return value
 
 
+def _effective_retries(method: str, params: dict, retries: int) -> int:
+    """Constrain generic retries by the semantic idempotency of a tool.
+
+    Auto qigua is a server-side random event. A retryable transport response
+    cannot tell whether the engine already cast a hexagram, so counsel must not
+    silently cast another one. Explicit coins/yaos inputs remain retryable.
+    """
+    tool = method.replace(".", "_")
+    if tool == "liuyao_qigua" and params.get("mode") == "auto":
+        return 0
+    return retries
+
+
 def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict:
     body = json.dumps(
         {"jsonrpc": "2.0", "id": 1, "method": method, "params": {**params, "_meta": _meta()}}
@@ -261,6 +274,7 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
 def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     """调用 engine MCP 工具；返回 {"data": <工具结果>}。"""
     tool = method.replace(".", "_")
+    retries = _effective_retries(method, params, retries)
     result = _post("tools/call", tool, {"name": tool, "arguments": params}, retries)
     content = result.get("content") or []
     text = content[0].get("text", "") if content else ""
