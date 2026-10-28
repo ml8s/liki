@@ -19,7 +19,7 @@ def test_registry_has_contract_version_and_core_concepts():
     assert registry["schema_version"] == "liki.domain-language.v1"
     ids = {concept["id"] for concept in registry["concepts"]}
     assert {
-        "instant", "zone", "apparent_solar_time", "lunar_date", "shichen",
+        "instant", "standard_time", "zone", "apparent_solar_time", "lunar_date", "shichen",
         "solar_term_state", "chart", "factor_snapshot", "assertion",
         "snapshot", "answer", "yongshen",
     } <= ids
@@ -30,8 +30,8 @@ def test_instant_separates_domain_identity_from_utc_representation():
     assert concept["surfaces"] == {
         "go": "time.Time",
         "python": "datetime.datetime",
-        "json": "instant",
-        "zh_cn": "精确时刻",
+        "json": "(internal)",
+        "zh_cn": "内部精确时刻",
     }
     legacy_timestamp = "time" + "stamp"
     assert legacy_timestamp in concept["forbidden"]

@@ -88,7 +88,7 @@ func BazhaiChart(_ context.Context, input BazhaiChartInput) (BazhaiChartOutput, 
 	if err != nil {
 		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
 	}
-	chart, err := bazhai.ComputeChartAtInstant(ganzhi.Gender(input.Gender), standard)
+	chart, err := bazhai.ComputeChartAtStandard(ganzhi.Gender(input.Gender), standard)
 	if err != nil {
 		return BazhaiChartOutput{}, fmt.Errorf("bazhai.chart: %w", err)
 	}

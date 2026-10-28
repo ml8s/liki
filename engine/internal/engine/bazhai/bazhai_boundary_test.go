@@ -7,11 +7,11 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-func TestComputeChartAtInstantUsesLichunYear(t *testing.T) {
+func TestComputeChartAtStandardUsesLichunYear(t *testing.T) {
 	cst := time.FixedZone("CST", 8*3600)
 	// 1984 立春 is 1984-02-04. A 1984-01-20 birth belongs to the 1983 立春 year.
 	before := time.Date(1984, 1, 20, 12, 0, 0, 0, cst)
-	chart, err := ComputeChartAtInstant(ganzhi.Male, before)
+	chart, err := ComputeChartAtStandard(ganzhi.Male, before)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func TestComputeChartAtInstantUsesLichunYear(t *testing.T) {
 	// On the 立春 date, the exact instant decides: 12:00 is before the term,
 	// 18:00 is after it (2024 立春 is 2024-02-04 16:27 CST).
 	beforeTerm := time.Date(2024, 2, 4, 12, 0, 0, 0, cst)
-	chart, err = ComputeChartAtInstant(ganzhi.Female, beforeTerm)
+	chart, err = ComputeChartAtStandard(ganzhi.Female, beforeTerm)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func TestComputeChartAtInstantUsesLichunYear(t *testing.T) {
 	}
 
 	afterTerm := time.Date(2024, 2, 4, 18, 0, 0, 0, cst)
-	chart, err = ComputeChartAtInstant(ganzhi.Female, afterTerm)
+	chart, err = ComputeChartAtStandard(ganzhi.Female, afterTerm)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -130,7 +130,7 @@ func XuankongChartCompute(_ context.Context, input XuankongChartInput) (Xuankong
 			input.ZuoShan, input.XiangShan,
 		)
 	}
-	chart, err := xuankong.ComputeChartAtInstant(at, int(input.ZuoShan), int(input.XiangShan))
+	chart, err := xuankong.ComputeChartAtStandard(at, int(input.ZuoShan), int(input.XiangShan))
 	if err != nil {
 		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
 	}

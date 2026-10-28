@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-func TestComputeChartAtInstantUsesLichunYear(t *testing.T) {
+func TestComputeChartAtStandardUsesLichunYear(t *testing.T) {
 	cst := time.FixedZone("CST", 8*3600)
 
 	// 2024 立春 is 2024-02-04. Before it, 2023 is still 八运.
 	before := time.Date(2024, 1, 15, 12, 0, 0, 0, cst)
-	chart, err := ComputeChartAtInstant(before, 2, 14)
+	chart, err := ComputeChartAtStandard(before, 2, 14)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,7 +19,7 @@ func TestComputeChartAtInstantUsesLichunYear(t *testing.T) {
 	}
 
 	after := time.Date(2024, 2, 5, 12, 0, 0, 0, cst)
-	chart, err = ComputeChartAtInstant(after, 2, 14)
+	chart, err = ComputeChartAtStandard(after, 2, 14)
 	if err != nil {
 		t.Fatal(err)
 	}

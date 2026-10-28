@@ -9,9 +9,10 @@ that concept's compatibility list.
 
 | Concept ID | Status | Definition | Go | Python | JSON | 中文 | Aliases |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `instant` | canonical | 绝对时间线上的一个点。UTC RFC3339 只是它的传输表示，不是另一个领域概念。 | `time.Time` | `datetime.datetime` | `instant` | 精确时刻 | 禁止：`timestamp`, `time_point`, `utc_time`<br>兼容：`utc`（v2026.12.01.0） |
+| `instant` | canonical | 内部天文学使用的绝对时间点；不是公开 MCP wire 字段。 | `time.Time` | `datetime.datetime` | `(internal)` | 内部精确时刻 | 禁止：`timestamp`, `time_point`, `utc_time` |
+| `standard_time` | canonical | 当地时间标准时：精确时刻 + 标准偏移，不含 DST；排盘/流年工具的公开时间输入。 | `StandardTime` | `str` | `standard_time` | 标准时间 | 禁止：`legal_time`, `standard_local_time` |
 | `zone` | canonical | IANA 时区规则，用于把精确时刻映射到当地壁钟时间；偏移量是派生结果，不是时区身份。 | `*time.Location` | `zoneinfo.ZoneInfo` | `timezone` | IANA 时区 | 禁止：`time_zone`, `iana_timezone` |
-| `apparent_solar_time` | canonical | 由法定当地时间、经度修正和均时差推导出的真太阳时；用于日界和时辰等真太阳尺度规则。 | `tianwen.ApparentSolarCivil` | `projection function` | `apparent_solar_projection` | 真太阳时 | 禁止：`SolarTime`, `solar_time`<br>兼容：`solar_time`（v2026.12.01.0）, `true_solar_time`（v2026.12.01.0） |
+| `apparent_solar_time` | canonical | 由标准时间、经度修正和均时差推导出的真太阳时；用于日界和时辰等真太阳尺度规则。 | `tianwen.ApparentSolarFromStandard` | `projection function` | `apparent_solar_projection` | 真太阳时 | 禁止：`SolarTime`, `solar_time`<br>兼容：`solar_time`（v2026.12.01.0）, `true_solar_time`（v2026.12.01.0） |
 | `gregorian_date` | planned | 公历日历中的日期，只表达日历日期，不表达时间尺度或时区。 | `GregorianDate` | `GregorianDate` | `date` | 公历日期 | — |
 | `lunar_date` | canonical | 农历合历日期，可包含闰月标记，但不包含时辰。 | `LunarDate` | `LunarDate` | `lunar` | 农历日期 | — |
 | `shichen` | canonical | 基于真太阳时尺度的十二时辰。 | `ganzhi.Zhi` | `ganzhi.Zhi` | `shichen` | 时辰 | — |

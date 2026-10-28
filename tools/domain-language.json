@@ -3,19 +3,20 @@
   "concepts": [
     {
       "id": "instant",
-      "owner": "engine/internal/mcpcontract",
-      "definition": "绝对时间线上的一个点。UTC RFC3339 只是它的传输表示，不是另一个领域概念。",
+      "owner": "engine/internal/engine/tianwen",
+      "definition": "内部天文学使用的绝对时间点；不是公开 MCP wire 字段。",
       "surfaces": {
         "go": "time.Time",
         "python": "datetime.datetime",
-        "json": "instant",
-        "zh_cn": "精确时刻"
+        "json": "(internal)",
+        "zh_cn": "内部精确时刻"
       },
-      "representation": "输入接受 RFC3339 的 Z 或 numeric offset；canonical 表示是 UTC RFC3339 Nano，以 Z 结尾。",
+      "representation": "Internal only: an astronomical event instant or `standard.UTC()`; public tools expose `standard_time`.",
       "verbs": {
-        "parse": "ParseInstant"
+        "to_utc": "UTC"
       },
       "related": [
+        "standard_time",
         "zone"
       ],
       "status": "canonical",
@@ -24,25 +25,33 @@
         "time_point",
         "utc_time"
       ],
-      "compatibility": [
-        {
-          "name": "utc",
-          "scope": [
-            "agents/**",
-            "counsel/**",
-            "docs/**",
-            "engine/**",
-            "expert-packs/**",
-            "scripts/**",
-            "skills/**",
-            "tests/**",
-            "tools/**"
-          ],
-          "reason": "旧 wire 字段名；canonical 为 instant，UTC 只是序列化表示。",
-          "introduced_by": "legacy public contract",
-          "remove_in": "v2026.12.01.0"
-        }
-      ]
+      "compatibility": []
+    },
+    {
+      "id": "standard_time",
+      "owner": "engine/internal/mcpcontract",
+      "definition": "当地时间标准时：精确时刻 + 标准偏移，不含 DST；排盘/流年工具的公开时间输入。",
+      "surfaces": {
+        "go": "StandardTime",
+        "python": "str",
+        "json": "standard_time",
+        "zh_cn": "标准时间"
+      },
+      "representation": "RFC3339 with numeric offset; no DST; the offset is not an IANA timezone.",
+      "verbs": {
+        "parse": "ParseStandardTime",
+        "standardize": "StandardLocalTime"
+      },
+      "related": [
+        "instant",
+        "zone"
+      ],
+      "status": "canonical",
+      "forbidden": [
+        "legal_time",
+        "standard_local_time"
+      ],
+      "compatibility": []
     },
     {
       "id": "zone",
@@ -67,9 +76,9 @@
     {
       "id": "apparent_solar_time",
       "owner": "engine/internal/engine/tianwen",
-      "definition": "由法定当地时间、经度修正和均时差推导出的真太阳时；用于日界和时辰等真太阳尺度规则。",
+      "definition": "由标准时间、经度修正和均时差推导出的真太阳时；用于日界和时辰等真太阳尺度规则。",
       "surfaces": {
-        "go": "tianwen.ApparentSolarCivil",
+        "go": "tianwen.ApparentSolarFromStandard",
         "python": "projection function",
         "json": "apparent_solar_projection",
         "zh_cn": "真太阳时"
@@ -227,7 +236,7 @@
         "zh_cn": "排盘输入"
       },
       "related": [
-        "instant",
+        "standard_time",
         "zone",
         "chart"
       ],
