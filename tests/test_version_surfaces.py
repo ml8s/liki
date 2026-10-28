@@ -44,3 +44,20 @@ def test_deployment_surfaces_use_distributed_version():
     for path in sorted((ROOT / "profiles").glob("*.json")):
         document = json.loads(path.read_text(encoding="utf-8"))
         assert document["metadata"]["version"] == version, path
+
+
+def test_changelog_documents_current_runtime_release():
+    version = _runtime_calver()
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert f"## [{version}]" in changelog
+    current = changelog.split(f"## [{version}] ", 1)[1].split("\n## [", 1)[0]
+
+    assert "### Breaking changes" in current
+    for term in (
+        "standard_time",
+        "tianwen.resolve",
+        "time_now",
+        "birth_standard_time",
+        "known-offset",
+    ):
+        assert term in current, term

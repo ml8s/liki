@@ -1,5 +1,34 @@
 # Changelog
 
+## [2026.10.27.0] — 2026-10-27
+
+### Breaking changes
+
+- **公共时间模型迁移为 `standard_time + longitude`**：`tianwen.resolve` 成为 civil wall time、IANA timezone、DST fold/gap 与历史时制的唯一解析边界；排盘与流年 / 流月 / 流日 / 流时工具不再接受 `instant`、`civil_time`、`timezone`、`fold` 或裸日期，只消费 `standard_time`（以及需要真太阳时的 `longitude`）。`standard_time` 使用 RFC3339 known-offset 语义：`Z` 与 `+00:00`、`+08:00`、`-05:00` 均合法，`-00:00` 因表示 unknown local offset 而拒绝。offset 不是 IANA timezone identity，但会选择 standard / lunar / almanac 日期事实的本地标准表示；同一 instant 在不同 offset 下可以有不同本地日期。
+- **`time_now` 输出改为 `standard_time`**：删除旧 `instant` / `timezone` 输出。调用方需要 civil wall time 时先通过 `tianwen.resolve` 解析，再把候选中的 `standard_time` 传给排盘工具。
+- **六爻 / 奇门快照显式传入起卦 / 起局时间与地点**：`liuyao_snapshot`、`qimen_snapshot` 要求 `standard_time` 与经度 / 地点；奇门年命输入由 `birth_date` 改为 `birth_standard_time`。自动起卦仍是服务端安全随机，但时间不再隐式取服务器当前值。
+
+### Changed
+
+- **流日 / 流时 series 改为按领域时间 cell 推进**：八字流日进入下一个真太阳日的中点，八字 / 紫微流时进入下一个真太阳时辰的中点。后续 `resolved.standard_time` 不再保证恰好相差 24 小时或 2 小时；测试与调用方应断言下一个日 / 时辰事实，而不是固定标准时钟步长。
+- **城市查询明确为内置 WGS-84 地理表**：`city_coords` 未命中时直接返回明确错误，不做 Nominatim / OSM 外部请求；删除失效的 `LIKI_EXTERNAL_GEOCODING` 配置与文档。
+
+### Fixed
+
+- **均时差按绝对 UTC 时刻计算**：同一 absolute instant 的 `Z`、`+08:00` 等表示不再得到不同 EOT，真太阳时边界不再受字符串 offset 表示影响。
+- **修复 Bazi / Ziwei MCP benchmark 输入**：`bazi_fullchart` 与 `bazi_bond` benchmark 改用带 offset 的 `standard_time`，性能入口恢复可执行。
+
+### Migration
+
+| 旧输入 / 期望 | 新输入 / 期望 |
+| --- | --- |
+| `instant` + `timezone` + `longitude` | 先调 `tianwen.resolve`，再把候选 `standard_time` 与 `longitude` 传入排盘 / 流运工具 |
+| `time_now.instant` | `time_now.standard_time` |
+| 奇门 `birth_date` | `birth_standard_time` |
+| 流时 selector 固定相差 2 小时 | 下一个真太阳时时辰；selector 差值可随 EOT 秒级变化 |
+| 流日 selector 固定相差 24 小时 | 下一个真太阳日；selector 差值可随 EOT 秒级变化 |
+| `-00:00` | 拒绝；使用带已知 offset 的 RFC3339，或先调 `tianwen.resolve` |
+
 ## [2026.10.23.0] — 2026-10-23
 
 ### Changed
