@@ -125,7 +125,7 @@ By default, yes — the two aggregate MCP servers (`counsel-mcp` and `engine-mcp
 ### Is my birth data stored?
 
 No. The Skill does not store birth data outside the conversation and does not ask for your real name. Birth data remains in the current conversation context.
-If a city is absent from the built-in table, the engine may send that city name to Nominatim (OSM) for coordinates. Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
+City lookup uses only the built-in table; an unknown place returns an explicit error and does not make an external geocoding request.
 
 ### How should I interpret results?
 

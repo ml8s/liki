@@ -10,8 +10,6 @@ services:
       context: ..
       dockerfile: dev/Dockerfile
     entrypoint: ["/usr/local/bin/engine-mcp", "--addr", ":8081"]
-    environment:
-      - LIKI_EXTERNAL_GEOCODING=${LIKI_EXTERNAL_GEOCODING:-on}
     ports:
       - "${LIKI_ENGINE_MCP_HOST_PORT:-8083}:8081"
     restart: unless-stopped

@@ -112,7 +112,7 @@ npx skills add https://liki.hk
 - Skill 与服务端不做版本兼容检查；未知工具会返回明确错误。
 - 镜像由本地构建，按 commit sha 部署。
 - 敏感问题走关怀优先（support-first）的安全策略。
-- 未命中内置城市表时，`city_coords` 可能把城市名发送到 Nominatim（OSM）完成地理编码；自部署可用 `LIKI_EXTERNAL_GEOCODING=off` 关闭。
+- 城市查询只使用内置 WGS-84 地理表，不做外部地理编码请求。
 
 ### 诚实声明：边界本身就是可靠性的一部分
 

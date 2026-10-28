@@ -112,7 +112,7 @@ For destiny readings, provide the birth date, exact time when possible, birth ci
 - Skills and services do not compare versions; unknown tools return an explicit error.
 - Images are built locally and deployed by commit sha.
 - Sensitive questions go through a support-first safety policy.
-- If a city is absent from the built-in table, `city_coords` may send the city name to Nominatim (OSM). Self-hosted deployments can disable this with `LIKI_EXTERNAL_GEOCODING=off`.
+- City lookup uses only the built-in WGS-84 table and never makes an external geocoding request.
 
 ### Honest disclaimers: boundaries are part of reliability
 

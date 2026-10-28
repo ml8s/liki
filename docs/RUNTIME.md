@@ -53,7 +53,6 @@ any capability that needs it.
 | `LIKI_MCP_TOKEN` | empty | Optional Bearer gate for private deployments |
 | `LIKI_ALLOWED_ORIGINS` | hosted default | Comma-separated browser CORS origins |
 | `LIKI_MCP_RESULT_CONTENT` | `structured` | Successful tool result shape: `structured` or legacy `compat` with duplicate TextContent |
-| `LIKI_EXTERNAL_GEOCODING` | `on` | Allow Nominatim fallback for unknown cities |
 
 `GET /health` and `GET /version` are public process probes. MCP requests can be
 token-protected without exposing those probes. Rate limiting and X-Forwarded-For

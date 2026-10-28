@@ -14,13 +14,8 @@ import (
 //go:embed cities_data.json
 var citiesData []byte
 
-// httpDoer is the interface for HTTP clients, allowing test injection.
-
-// SetHTTPClient replaces the HTTP client used for Nominatim queries. Call from
-// tests to inject a mock transport.
-// HttpClient returns the current HTTP client. Useful for save/restore in tests.
-// Coords is the resolved geocoding result. It is the typed domain boundary;
-// MCP applies its own public DTO on top of it.
+// Coords is the resolved place result. It is the typed domain boundary; MCP
+// applies its own public DTO on top of it.
 type Coords struct {
 	Name      string  `json:"name"`
 	Longitude float64 `json:"longitude"`
@@ -37,8 +32,6 @@ type BBox struct {
 	South float64 `json:"south"`
 	North float64 `json:"north"`
 }
-
-// searchResult is retained as the internal spelling used by geocoding helpers.
 
 // Candidate is one possible place match. Candidate mode never guesses: callers
 // receive the ranked list and pick the intended place themselves.
@@ -115,12 +108,6 @@ func loadGeo() {
 // regionSuffixes are administrative-division suffixes stripped for fuzzy match.
 var regionSuffixes = []string{"市", "区", "县", "旗", "盟", "州"}
 
-// SearchCoords resolves a city name to coordinates. The embedded table
-// (counties/cities/world, WGS-84) is checked first; Nominatim (OSM) is used
-// as a fallback for long-tail places.
-// ResolveCoords resolves a city name to typed coordinates. The embedded table
-// (counties/cities/world, WGS-84) is checked first; Nominatim (OSM) is used
-// as a fallback for long-tail places.
 // searchBuiltin resolves a place name against the embedded table.
 //
 // 唯一名直接命中；同名多条（跨省同名区县，如朝阳区：北京/长春）必须显式消歧：
