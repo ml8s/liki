@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import inspect
 import json
+import time
 import types
 from typing import Any
 
@@ -20,11 +21,35 @@ from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from pydantic import BaseModel, ConfigDict, TypeAdapter, ValidationError, create_model
 
 from app.engine_mcp_client import MCPError as EngineMCPError
+from app.metrics import observe_tool_request
 from app.natal.tools.errors import LikiToolError
 
 #: Sentinel for "argument not supplied", so absent optionals stay absent instead
 #: of being sent as ``None`` (the tool implementations distinguish the two).
 _UNSET = object()
+
+
+def _metric_domain(tool: str) -> str:
+    if tool.startswith(("bazi_", "ziwei_", "liuyao_", "qimen_", "naming_")):
+        return tool.split("_", 1)[0]
+    if tool in {"compute_factors", "natal_query", "period_query"}:
+        return "natal"
+    return "aggregate"
+
+
+def _metric_status(error: BaseException | None) -> str:
+    if error is None:
+        return "success"
+    if isinstance(error, ToolError):
+        message = str(error)
+        if message.startswith("invalid_arguments:"):
+            return "invalid_arguments"
+        if message.startswith("invalid_result:"):
+            return "invalid_result"
+        if message.startswith("engine_dependency_failed:"):
+            return "engine_dependency_failed"
+        return "tool_failed"
+    return "unhandled_exception"
 
 
 class RawToolArguments(BaseModel):
@@ -117,32 +142,47 @@ def add_contract_tool(server: MCPServer, contract: Any, invoke) -> None:
 
     async def handler(**actual):
         arguments = {key: value for key, value in actual.items() if value is not _UNSET}
+        started = time.perf_counter()
+        terminal_error: BaseException | None = None
         # The model is the gate, not a coercion step: the raw arguments are what
         # the tool implementations receive, exactly as the JSON-schema boundary
         # behaved before.
-        validate_arguments(contract, arguments)
-        output = TypeAdapter(contract.output) if contract.output is not None else None
         try:
-            result = await anyio.to_thread.run_sync(lambda: invoke(**arguments))
-        except (ValueError, LikiToolError) as exc:
-            raise ToolError(f"tool_failed: {exc}") from exc
-        except EngineMCPError as exc:
-            raise ToolError(f"engine_dependency_failed: {exc}") from exc
-        if output is not None:
+            validate_arguments(contract, arguments)
+            output = TypeAdapter(contract.output) if contract.output is not None else None
             try:
-                output.validate_python(result)
-            except ValidationError as exc:
-                details = "; ".join(
-                    ".".join(str(part) for part in error["loc"]) or "$"
-                    for error in exc.errors()
-                )
-                raise ToolError(f"invalid_result: {details}") from exc
-        # Keep the existing JSON-string wire shape even for list results. SDK list
-        # conversion would otherwise expand the list into one text block per item.
-        return CallToolResult(
-            content=[TextContent(type="text", text=json.dumps(result, ensure_ascii=False))],
-            structured_content=result,
-        )
+                result = await anyio.to_thread.run_sync(lambda: invoke(**arguments))
+            except (ValueError, LikiToolError) as exc:
+                raise ToolError(f"tool_failed: {exc}") from exc
+            except EngineMCPError as exc:
+                raise ToolError(f"engine_dependency_failed: {exc}") from exc
+            if output is not None:
+                try:
+                    output.validate_python(result)
+                except ValidationError as exc:
+                    details = "; ".join(
+                        ".".join(str(part) for part in error["loc"]) or "$"
+                        for error in exc.errors()
+                    )
+                    raise ToolError(f"invalid_result: {details}") from exc
+            # Keep the existing JSON-string wire shape even for list results. SDK list
+            # conversion would otherwise expand the list into one text block per item.
+            return CallToolResult(
+                content=[
+                    TextContent(type="text", text=json.dumps(result, ensure_ascii=False))
+                ],
+                structured_content=result,
+            )
+        except Exception as exc:
+            terminal_error = exc
+            raise
+        finally:
+            observe_tool_request(
+                contract.name,
+                _metric_domain(contract.name),
+                _metric_status(terminal_error),
+                time.perf_counter() - started,
+            )
 
     handler.__signature__ = tool_signature(contract)
 

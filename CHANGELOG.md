@@ -16,6 +16,8 @@
 ### Added
 
 - **内嵌地理数据第三方声明**：新增 `NOTICE.md` 与 engine 内嵌 `ATTRIBUTION.txt`，由 `data/sources/manifest.json` 生成 DataV / GeoNames / GeoBoundaries 的来源、许可证与 attribution 清单；engine 镜像在 `/usr/share/licenses/liki-engine/ATTRIBUTION.txt` 携带该声明，明确这些数据不由仓库 MIT 重新授权。
+- **counsel 依赖 readiness 与低基数指标**：`/readyz` 现在用可配置短超时执行一次 engine `server/discover`，依赖不可达返回 503；`/healthz` 保持纯 liveness。新增 token 保护的 `/metrics`，暴露 counsel 工具结果 / 时长与 engine RPC 结果 / 时长，不包含卦题、出生数据、URL、token 或异常文本。
+- **合并 Python 覆盖率口径**：`make test-python-coverage` 现在合并 root contract suite 与 counsel integration suite 的 coverage 数据，CI skills-test 同步具备本地 engine 构建能力。
 
 ### Fixed
 

@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.error import HTTPError
 
+from app.metrics import observe_engine_request
 from app.version import runtime_version
 
 MCP_TIMEOUT = int(os.environ.get("LIKI_MCP_TIMEOUT", "30"))
@@ -104,11 +105,13 @@ def _endpoint_parts() -> _Endpoint:
     return _Endpoint((parsed.scheme, parsed.hostname.lower(), port), path)
 
 
-def _new_connection(endpoint: _Endpoint) -> http.client.HTTPConnection:
+def _new_connection(
+    endpoint: _Endpoint, timeout: float = MCP_TIMEOUT
+) -> http.client.HTTPConnection:
     scheme, host, port = endpoint.origin
     if scheme == "https":
-        return http.client.HTTPSConnection(host, port, timeout=MCP_TIMEOUT)
-    return http.client.HTTPConnection(host, port, timeout=MCP_TIMEOUT)
+        return http.client.HTTPSConnection(host, port, timeout=timeout)
+    return http.client.HTTPConnection(host, port, timeout=timeout)
 
 
 def _borrow_connection(endpoint: _Endpoint) -> http.client.HTTPConnection:
@@ -206,7 +209,13 @@ def _effective_retries(method: str, params: dict, retries: int) -> int:
     return retries
 
 
-def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict:
+def _post_once(
+    method: str,
+    name: str | None,
+    params: dict,
+    retries: int,
+    timeout: float | None,
+) -> dict:
     body = json.dumps(
         {"jsonrpc": "2.0", "id": 1, "method": method, "params": {**params, "_meta": _meta()}}
     ).encode("utf-8")
@@ -235,17 +244,24 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
                     url += suffix
             request = urllib.request.Request(endpoint.base_url + url, data=body, headers=headers)
             if _HTTP_TRANSPORT is not None:
-                with _HTTP_TRANSPORT(request, MCP_TIMEOUT) as response:
+                effective_timeout = MCP_TIMEOUT if timeout is None else timeout
+                with _HTTP_TRANSPORT(request, effective_timeout) as response:
                     raw = response.read()
             else:
-                connection = _borrow_connection(endpoint)
+                if timeout is None:
+                    connection = _borrow_connection(endpoint)
+                else:
+                    connection = _new_connection(endpoint, timeout)
                 connection.request(
                     "POST", url, body=body,
                     headers={**headers, "Connection": "keep-alive"},
                 )
                 response = connection.getresponse()
                 raw = response.read()
-                _release_connection(endpoint, connection, response)
+                if timeout is None:
+                    _release_connection(endpoint, connection, response)
+                else:
+                    connection.close()
             if not 200 <= response.status < 300:
                 error = HTTPError(request.full_url, response.status, response.reason, response.headers, None)
                 last_err = error
@@ -271,6 +287,30 @@ def _post(method: str, name: str | None, params: dict, retries: int = 0) -> dict
     raise MCPError(f"{method} 失败: {last_err}")
 
 
+def _post(
+    method: str,
+    name: str | None,
+    params: dict,
+    retries: int = 0,
+    timeout: float | None = None,
+) -> dict:
+    started = time.monotonic()
+    status = "success"
+    try:
+        return _post_once(method, name, params, retries, timeout)
+    except MCPError as error:
+        message = str(error)
+        if "HTTP 408" in message or "HTTP 429" in message or "HTTP 5" in message:
+            status = "server_error"
+        elif "HTTP 4" in message:
+            status = "client_error"
+        else:
+            status = "transport_or_protocol_error"
+        raise
+    finally:
+        observe_engine_request(method, status, time.monotonic() - started)
+
+
 def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     """调用 engine MCP 工具；返回 {"data": <工具结果>}。"""
     tool = method.replace(".", "_")
@@ -293,8 +333,8 @@ def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     return {"data": data}
 
 
-def server_info(retries: int = 0) -> dict:
+def server_info(retries: int = 0, timeout: float | None = None) -> dict:
     """获取引擎 MCP 的 serverInfo；stateless 下位于 _meta。仅用于诊断。"""
-    result = _post("server/discover", None, {}, retries)
+    result = _post("server/discover", None, {}, retries, timeout)
     meta = result.get("_meta", {}) or {}
     return meta.get("io.modelcontextprotocol/serverInfo", {}) or {}

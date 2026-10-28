@@ -70,14 +70,20 @@ not rate-limit.
 | `LIKI_MCP_TOKEN` | empty | Optional inbound Bearer gate |
 | `LIKI_ENGINE_MCP_TOKEN` | falls back to `LIKI_MCP_TOKEN` | Optional outbound Bearer token for engine-mcp |
 | `LIKI_MCP_TIMEOUT` | `30` | Engine call timeout in seconds |
+| `LIKI_READYZ_TIMEOUT_SECONDS` | `1` | Short engine dependency timeout used by counsel `/readyz` |
 | `LIKI_MCP_MAX_RETRIES` | `2` | Engine retry count |
 | `LIKI_MCP_HTTP_IDLE_TIMEOUT` | `55` | Idle seconds before a worker closes an outbound engine keep-alive connection |
 | `LIKI_MCP_MAX_BODY_BYTES` | `1048576` | Maximum MCP JSON request body |
 | `LIKI_VERSION` | build-injected | Runtime version reported by counsel |
 
-`GET /healthz` is liveness. `GET /readyz` reports that the counsel service is up; it does not contact the engine. Rate limiting is
-owned by the edge (cloud LB / WAF / Caddy); the service itself does not
-rate-limit.
+`GET /healthz` is counsel liveness and does not contact the engine. `GET /readyz`
+performs one bounded `server/discover` call to the engine; if that dependency is
+unreachable, it returns 503. `GET /metrics` exposes low-cardinality Prometheus
+counters and histograms for counsel tool outcomes and engine RPC latency. When
+`LIKI_MCP_TOKEN` is set, `/metrics` requires the same Bearer token as MCP;
+health probes remain public. Metrics never contain questions, birth data,
+chart payloads, endpoint URLs, tokens, or exception text. Rate limiting is owned
+by the edge (cloud LB / WAF / Caddy); the service itself does not rate-limit.
 
 `/mcp` is the aggregate surface for the multi-expert runtime. It exposes the
 natal judgment tools (`bazi_yongshen`, `compute_factors`, `natal_query`, and
@@ -94,4 +100,4 @@ surfaces.
 4. Configure `LIKI_ALLOWED_ORIGINS` for browser clients on a private domain.
 5. Protect private engine calls with `LIKI_ENGINE_MCP_TOKEN`; using the same
    value as counsel's `LIKI_MCP_TOKEN` remains supported.
-6. Monitor `/readyz`, tool error rates, rate-limit rejections, and engine latency.
+6. Monitor `/readyz`, `/metrics`, tool error rates, rate-limit rejections, and engine latency.

@@ -18,6 +18,7 @@ from app.counsel_mcp import (  # noqa: E402
 )
 from app.engine_mcp_client import MCPError as EngineMCPError  # noqa: E402
 from app.mcp_tool_adapter import add_contract_tool  # noqa: E402
+from app.metrics import observe_tool_request, render_metrics, reset_metrics  # noqa: E402
 from mcp import Client  # noqa: E402
 from mcp.server import MCPServer  # noqa: E402
 from mcp.types import ListToolsResult  # noqa: E402
@@ -479,6 +480,21 @@ def test_unexpected_tool_exception_is_not_leaked_over_mcp_protocol():
     assert result.content[0].text == "Error executing tool boom"
 
 
+def test_tool_adapter_records_terminal_status_and_duration():
+    server = MCPServer(name="counsel-test", version="test")
+
+    def invoke(**_arguments):
+        return {"ok": True}
+
+    add_contract_tool(server, _probe_contract("probe_metric"), invoke)
+    reset_metrics()
+    result = _call_tool_over_mcp(server, "probe_metric", {})
+    assert not result.is_error
+    text = render_metrics().decode("utf-8")
+    assert 'tool="probe_metric",domain="aggregate",status="success"' in text
+    assert "liki_counsel_tool_request_duration_seconds" in text
+
+
 def test_multi_domain_mcp_uses_standard_starlette_composition():
     """The official MCP apps must own protocol handling and ASGI lifespan."""
     assert isinstance(app, Starlette)
@@ -530,16 +546,76 @@ def test_counsel_mcp_http_surface():
     assert status == 404
 
 
-def test_readyz_does_not_depend_on_engine_version(monkeypatch):
-    def unavailable():
+def test_readyz_reports_engine_dependency(monkeypatch):
+    def unavailable(retries=0, timeout=None):
         raise EngineMCPError("engine unavailable")
 
     monkeypatch.setattr(engine_mcp_client, "server_info", unavailable)
+    status, raw = _http_request("/readyz")
+    assert status == 503
+    document = json.loads(raw)
+    assert document["status"] == "unavailable"
+    assert document["reason"] == "engine_dependency_unreachable"
+    assert "engine unavailable" not in raw.decode("utf-8")
+
+    def available(retries=0, timeout=None):
+        assert retries == 0
+        assert 0 < timeout <= 1
+        return {"name": "engine", "version": "test"}
+
+    monkeypatch.setattr(engine_mcp_client, "server_info", available)
     status, raw = _http_request("/readyz")
     assert status == 200
     document = json.loads(raw)
     assert document["status"] == "ready"
     assert "engine_version" not in document
+
+
+def test_healthz_remains_live_when_engine_dependency_is_down(monkeypatch):
+    monkeypatch.setattr(
+        engine_mcp_client,
+        "server_info",
+        lambda **_: (_ for _ in ()).throw(EngineMCPError("engine unavailable")),
+    )
+    status, raw = _http_request("/healthz")
+    assert status == 200
+    assert json.loads(raw)["status"] == "ok"
+
+
+def test_readyz_rejects_invalid_timeout_configuration(monkeypatch):
+    monkeypatch.setenv("LIKI_READYZ_TIMEOUT_SECONDS", "not-a-number")
+    status, raw = _http_request("/readyz")
+    assert status == 503
+    assert json.loads(raw)["reason"] == "engine_dependency_unreachable"
+
+
+def test_metrics_route_is_bearer_protected(monkeypatch):
+    monkeypatch.setenv("LIKI_MCP_TOKEN", "test-secret")
+    guarded_app = _make_app()
+    status, _raw = _http_request("/metrics", asgi_app=guarded_app)
+    assert status == 401
+
+    status, _raw = _http_request(
+        "/metrics",
+        asgi_app=guarded_app,
+        authorization="Bearer test-secret",
+    )
+    assert status == 200
+
+
+def test_metrics_route_renders_low_cardinality_counters(monkeypatch):
+    monkeypatch.delenv("LIKI_MCP_TOKEN", raising=False)
+    metrics_app = _make_app()
+    reset_metrics()
+    observe_tool_request("bazi_yongshen", "bazi", "success", 0.01)
+
+    status, raw = _http_request("/metrics", asgi_app=metrics_app)
+    text = raw.decode("utf-8")
+    assert status == 200
+    assert 'tool="bazi_yongshen",domain="bazi",status="success"' in text
+    assert "# TYPE liki_counsel_tool_requests_total counter" in text
+    assert "# TYPE liki_counsel_tool_request_duration_seconds histogram" in text
+    assert "# TYPE liki_counsel_engine_requests_total counter" in text
 
 
 def test_counsel_mcp_rejects_oversized_request_body(monkeypatch):
@@ -619,6 +695,46 @@ def test_engine_mcp_client_forwards_private_engine_token(monkeypatch):
     engine_mcp_client.server_info(retries=0)
     fallback = requests[1]["request"]
     assert fallback.get_header("Authorization") == "Bearer counsel-secret"
+
+
+def test_engine_client_records_terminal_status_metrics(monkeypatch):
+    timeouts = []
+
+    class response:
+        status = 200
+        reason = "OK"
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+        @staticmethod
+        def read():
+            return json.dumps({
+                "result": {
+                    "_meta": {
+                        "io.modelcontextprotocol/serverInfo": {
+                            "name": "engine",
+                            "version": "test",
+                        }
+                    }
+                }
+            }).encode()
+
+    monkeypatch.setenv("LIKI_MCP_URL", "http://engine-mcp:8085/mcp")
+    monkeypatch.setattr(
+        engine_mcp_client,
+        "_HTTP_TRANSPORT",
+        lambda _request, timeout: (timeouts.append(timeout), response())[1],
+    )
+    reset_metrics()
+    engine_mcp_client.server_info(retries=0, timeout=0.25)
+    text = render_metrics().decode("utf-8")
+    assert timeouts == [0.25]
+    assert 'method="server/discover",status="success"' in text
+    assert "liki_counsel_engine_request_duration_seconds" in text
 
 
 def test_optional_bearer_auth_protects_counsel_mcp_without_locking_health(monkeypatch):

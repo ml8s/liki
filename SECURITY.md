@@ -35,6 +35,9 @@ downstream consumer.
 - Rate limiting and X-Forwarded-For trust are owned by the edge (cloud LB /
   WAF / Caddy); engine and counsel do not rate-limit or parse forwarded
   headers.
+- Counsel `/metrics` uses only fixed low-cardinality labels. Do not add birth
+  data, questions, chart payloads, endpoint URLs, tokens, or exception text to
+  metrics.
 
 ## Supply chain
 

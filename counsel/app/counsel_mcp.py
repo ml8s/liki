@@ -16,17 +16,20 @@ import logging
 import os
 from contextlib import AsyncExitStack, asynccontextmanager
 
+import anyio
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
+from app import engine_mcp_client  # noqa: E402
 from app.counsel_servers import (  # noqa: E402
     RUNTIME_VERSION,
     create_counsel_mcp,
     create_counsel_root_mcp,
 )
 from app.http_middleware import AuthMiddleware, BodyLimitMiddleware
+from app.metrics import render_metrics  # noqa: E402
 
 
 def _make_app():
@@ -62,10 +65,33 @@ def _make_app():
         })
 
     async def readyz(_request):
+        try:
+            timeout = float(os.environ.get("LIKI_READYZ_TIMEOUT_SECONDS", "1"))
+
+            def discover_engine():
+                return engine_mcp_client.server_info(
+                    retries=0, timeout=timeout
+                )
+
+            await anyio.to_thread.run_sync(discover_engine)
+        except (OSError, TimeoutError, ValueError, engine_mcp_client.MCPError):
+            return JSONResponse(
+                {
+                    "status": "unavailable",
+                    "reason": "engine_dependency_unreachable",
+                },
+                status_code=503,
+            )
         return JSONResponse({
             "status": "ready",
             "version": RUNTIME_VERSION,
         })
+
+    async def metrics(_request):
+        return Response(
+            render_metrics(),
+            media_type="text/plain; version=0.0.4; charset=utf-8",
+        )
 
     @asynccontextmanager
     async def lifespan(app: Starlette):
@@ -92,6 +118,7 @@ def _make_app():
     routes = [
         Route("/healthz", healthz, methods=["GET"]),
         Route("/readyz", readyz, methods=["GET"]),
+        Route("/metrics", metrics, methods=["GET"]),
         *(
             Route(f"/mcp/{domain}", endpoint=domain_apps[domain])
             for domain in domains

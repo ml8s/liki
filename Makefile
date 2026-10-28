@@ -234,11 +234,7 @@ eval-mingli160: ## Manual Mingli160 skill calibration/evaluation report (not a g
 
 test: test-content test-engine test-counsel test-engine-mcp ## All deterministic tests
 test-python-coverage: ## Run root Python domain suite with coverage
-	coverage erase
-	coverage run --source=counsel/app -m pytest tests -q
-	coverage report --fail-under=40
-	coverage xml
-	coverage html
+	scripts/test-python-coverage.sh
 
 
 test-engine-golden: ## Focused engine golden/oracle/matrix subset

@@ -14,6 +14,7 @@ This repository has deterministic tests and curated data assets. Do not treat fu
 | Engine vulnerabilities | CI `govulncheck ./...` | Reachable Go standard-library/module vulnerabilities |
 | Engine MCP smoke | `make test-engine-mcp` | Internal `/mcp` root and `/mcp/{domain}` surfaces, `server/discover`, `tools/list`, `tools/call` |
 | Counsel MCP integration | `make test-counsel` | Bootstraps a locked Python environment and local engine, then tests all counsel tools |
+| Combined Python coverage | `make test-python-coverage` | Root contract tests plus counsel integration tests, combined over `counsel/app` |
 | Assertion data check | `python3 scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
 | Documentation check | `python3 scripts/check_docs.py skills/liki` | Distributed skill documentation references |
 | Documentation path check | `python3 scripts/check_doc_paths.py` | Every Markdown link target and top-level code-span path in the repository resolves |

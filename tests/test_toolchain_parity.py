@@ -17,6 +17,7 @@ LINT_ENGINE = ROOT / "scripts" / "lint-engine.sh"
 LINT_PYTHON = ROOT / "scripts" / "lint-python.sh"
 COUNSEL_TEST = ROOT / "scripts" / "test-counsel.sh"
 ENGINE_COVERAGE = ROOT / "scripts" / "test-engine-coverage.sh"
+PYTHON_COVERAGE = ROOT / "scripts" / "test-python-coverage.sh"
 PRE_PUSH_HOOK = ROOT / ".githooks" / "pre-push"
 
 
@@ -105,6 +106,17 @@ def test_engine_coverage_floor_is_single_sourced():
     assert re.search(r"m=\"85\"", workflow) is None, (
         "the coverage floor must live in test-engine-coverage.sh, not CI"
     )
+
+
+def test_python_coverage_floor_and_suites_are_single_sourced():
+    script = PYTHON_COVERAGE.read_text(encoding="utf-8")
+    floor = re.search(r'FLOOR="\$\{COVERAGE_FLOOR:-([0-9]+)\}"', script)
+    assert floor, "test-python-coverage.sh must default COVERAGE_FLOOR"
+    assert "pytest tests -q" in script, "root Python tests must contribute coverage"
+    assert "COUNSEL_COVERAGE=1" in script, "counsel integration tests must contribute coverage"
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    assert "make test-python-coverage" in workflow
+    assert "actions/setup-go@" in workflow, "combined coverage must be able to build the local engine"
 
 
 def test_makefile_test_engine_coverage_uses_the_script():

@@ -46,5 +46,15 @@ if [ "$COUNSEL_PYTHON" = "$ROOT/counsel/.venv/bin/python" ] && \
 fi
 
 read -r -a counsel_targets <<< "$COUNSEL_TEST_TARGETS"
-LIKI_ENGINE_BIN="$ENGINE_BIN" FIXTURE_CWD="$ROOT/counsel" "$ROOT/scripts/_engine_fixture.py" -- \
-    "$COUNSEL_PYTHON" -m pytest "${counsel_targets[@]}" -q
+if [ "${COUNSEL_COVERAGE:-0}" = "1" ]; then
+    export COVERAGE_FILE="$ROOT/.coverage"
+    LIKI_ENGINE_BIN="$ENGINE_BIN" FIXTURE_CWD="$ROOT/counsel" \
+        "$ROOT/scripts/_engine_fixture.py" -- \
+        "$COUNSEL_PYTHON" -m coverage run --append \
+        --source="$ROOT/counsel/app" \
+        -m pytest "${counsel_targets[@]}" -q
+else
+    LIKI_ENGINE_BIN="$ENGINE_BIN" FIXTURE_CWD="$ROOT/counsel" \
+        "$ROOT/scripts/_engine_fixture.py" -- \
+        "$COUNSEL_PYTHON" -m pytest "${counsel_targets[@]}" -q
+fi
