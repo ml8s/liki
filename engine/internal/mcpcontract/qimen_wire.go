@@ -62,15 +62,11 @@ type qimenQuarterTwelveMethodForm struct {
 }
 
 type qimenChartStandardForm struct {
-	CivilTime      CivilTime            `json:"civil_time" jsonschema:"占问地当地壁钟时间。"`
-	Timezone       string               `json:"timezone" jsonschema:"占问地 IANA 时区。"`
-	Fold           FoldName             `json:"fold,omitempty" jsonschema:"DST 回拨歧义时选择 earlier 或 later。"`
-	Longitude      float64              `json:"longitude" jsonschema:"占问地经度。"`
-	Method         QimenMethodInput     `json:"method" jsonschema:"非金函玉镜奇门方法事实。"`
-	YongShen       QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合。"`
-	BirthCivilTime CivilTime            `json:"birth_civil_time,omitempty" jsonschema:"出生地当地壁钟时间。"`
-	BirthTimezone  string               `json:"birth_timezone,omitempty" jsonschema:"出生地 IANA 时区。"`
-	BirthFold      FoldName             `json:"birth_fold,omitempty" jsonschema:"出生时间 DST 回拨歧义时选择 earlier 或 later。"`
+	StandardTime      StandardTime         `json:"standard_time" jsonschema:"占问地标准时间。"`
+	Longitude         float64              `json:"longitude" jsonschema:"占问地经度。"`
+	Method            QimenMethodInput     `json:"method" jsonschema:"非金函玉镜奇门方法事实。"`
+	YongShen          QimenYongShenSymbols `json:"yong_shen,omitempty" jsonschema:"用神符号组合。"`
+	BirthStandardTime StandardTime         `json:"birth_standard_time,omitempty" jsonschema:"出生地标准时间。"`
 }
 
 type qimenChartJinhanForm struct {

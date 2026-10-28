@@ -3,34 +3,9 @@
     {
       "additionalProperties": false,
       "properties": {
-        "birth_civil_time": {
-          "description": "出生地当地壁钟时间。",
-          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?$",
-          "type": "string"
-        },
-        "birth_fold": {
-          "description": "出生时间 DST 回拨歧义时选择 earlier 或 later。",
-          "enum": [
-            "earlier",
-            "later"
-          ],
-          "type": "string"
-        },
-        "birth_timezone": {
-          "description": "出生地 IANA 时区。",
-          "type": "string"
-        },
-        "civil_time": {
-          "description": "占问地当地壁钟时间。",
-          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?$",
-          "type": "string"
-        },
-        "fold": {
-          "description": "DST 回拨歧义时选择 earlier 或 later。",
-          "enum": [
-            "earlier",
-            "later"
-          ],
+        "birth_standard_time": {
+          "description": "出生地标准时间。",
+          "format": "date-time",
           "type": "string"
         },
         "longitude": {
@@ -307,8 +282,9 @@
           ],
           "type": "object"
         },
-        "timezone": {
-          "description": "占问地 IANA 时区。",
+        "standard_time": {
+          "description": "占问地标准时间。",
+          "format": "date-time",
           "type": "string"
         },
         "yong_shen": {
@@ -322,8 +298,7 @@
         }
       },
       "required": [
-        "civil_time",
-        "timezone",
+        "standard_time",
         "longitude",
         "method"
       ],
@@ -332,19 +307,6 @@
     {
       "additionalProperties": false,
       "properties": {
-        "civil_time": {
-          "description": "占问地当地壁钟时间。",
-          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?$",
-          "type": "string"
-        },
-        "fold": {
-          "description": "DST 回拨歧义时选择 earlier 或 later。",
-          "enum": [
-            "earlier",
-            "later"
-          ],
-          "type": "string"
-        },
         "longitude": {
           "description": "占问地经度。",
           "maximum": 180,
@@ -371,14 +333,14 @@
           ],
           "type": "object"
         },
-        "timezone": {
-          "description": "占问地 IANA 时区。",
+        "standard_time": {
+          "description": "占问地标准时间。",
+          "format": "date-time",
           "type": "string"
         }
       },
       "required": [
-        "civil_time",
-        "timezone",
+        "standard_time",
         "longitude",
         "method"
       ],

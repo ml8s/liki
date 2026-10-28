@@ -21,7 +21,7 @@ func TestRegistryValidateOutputAcceptsActualJSON(t *testing.T) {
 
 func TestRegistryValidateOutputRejectsContractViolation(t *testing.T) {
 	registry := testEngine()
-	err := registry.ValidateOutput("time_now", json.RawMessage(`{"standard_time":12,"standard_time":"","timezone":""}`))
+	err := registry.ValidateOutput("time_now", json.RawMessage(`{"standard_time":12}`))
 	if err == nil {
 		t.Fatal("expected invalid output document to fail")
 	}

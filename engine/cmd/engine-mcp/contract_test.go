@@ -52,7 +52,7 @@ func TestTypedContract_TimeNowSelfDescribing(t *testing.T) {
 	if output.Type != "object" {
 		t.Fatalf("time_now output type = %q", output.Type)
 	}
-	for _, name := range []string{"standard_time", "standard_time", "timezone"} {
+	for _, name := range []string{"standard_time"} {
 		property, ok := output.Properties[name]
 		if !ok {
 			t.Fatalf("time_now output lacks %q", name)
@@ -81,8 +81,6 @@ func TestTypedContract_TimeNowStructuredOutput(t *testing.T) {
 	}
 	var output struct {
 		StandardTime string `json:"standard_time"`
-		CivilTime    string `json:"standard_time"`
-		Timezone     string `json:"timezone"`
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatalf("decode structured content %s: %v", raw, err)

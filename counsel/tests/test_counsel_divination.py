@@ -54,7 +54,7 @@ def test_liuyao_query_matches_old_ask():
 
 
 QIMEN_ARGS = {"question": "测试谈判时机", "city": "北京",
-              "instant": "2026-10-01T02:00:00Z", "timezone": "Asia/Shanghai",
+              "standard_time": "2026-10-01T10:00:00+08:00",
               "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
               "matter": "career"}
 

@@ -15,12 +15,12 @@ func TestBaziChartDomainMapperMatchesJSONProjection(t *testing.T) {
 		civilTime string
 		gender    string
 	}{
-		{civilTime: "1990-05-20T12:49:00", gender: "male"},
-		{civilTime: "1984-02-16T08:00:00", gender: "female"},
-		{civilTime: "2000-09-20T08:30:00", gender: "female"},
+		{civilTime: "1990-05-20T11:49:00+08:00", gender: "male"},
+		{civilTime: "1984-02-16T08:00:00+08:00", gender: "female"},
+		{civilTime: "2000-09-20T08:30:00+08:00", gender: "female"},
 	} {
 		raw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-			`{"standard_time":"`+tc.civilTime+`","timezone":"Asia/Shanghai","longitude":116.4,"gender":"`+tc.gender+`"}`,
+			`{"standard_time":"`+tc.civilTime+`","longitude":116.4,"gender":"`+tc.gender+`"}`,
 		))
 		if err != nil {
 			t.Fatalf("bazi.chart: %v", err)
@@ -51,7 +51,7 @@ func TestBaziChartDomainMapperMatchesJSONProjection(t *testing.T) {
 func TestBaziChartDomainMapperRejectsInvalidSymbols(t *testing.T) {
 	registry := testEngine()
 	raw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-		`{"standard_time":"1990-05-20T12:49:00+08:00","timezone":"Asia/Shanghai","longitude":116.4,"gender":"male"}`,
+		`{"standard_time":"1990-05-20T12:49:00+08:00","longitude":116.4,"gender":"male"}`,
 	))
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +69,7 @@ func TestBaziChartDomainMapperRejectsInvalidSymbols(t *testing.T) {
 func TestBaziFullChartRawProjectionMatchesWireDTO(t *testing.T) {
 	registry := testEngine()
 	chartRaw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-		`{"standard_time":"1990-05-20T12:49:00+08:00","timezone":"Asia/Shanghai","longitude":116.4,"gender":"male"}`,
+		`{"standard_time":"1990-05-20T12:49:00+08:00","longitude":116.4,"gender":"male"}`,
 	))
 	if err != nil {
 		t.Fatal(err)

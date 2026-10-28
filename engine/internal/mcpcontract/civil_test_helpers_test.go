@@ -27,15 +27,6 @@ func civilResolveInput(t *testing.T, instant, timezone string, longitude float64
 	}
 }
 
-func mustParseRFC3339(t *testing.T, value string) time.Time {
-	t.Helper()
-	at, err := time.Parse(time.RFC3339Nano, value)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return at
-}
-
 func standardInputFromInstant(t *testing.T, instant, timezone string) StandardTime {
 	t.Helper()
 	at, err := parseInstant(instant)

@@ -22,19 +22,11 @@ var forOptions = &jsonschema.ForOptions{TypeSchemas: map[reflect.Type]*jsonschem
 	// reference is a name in some charts and an index in others). Those fields
 	// keep their exact JSON value instead of being reshaped by a Go type.
 	reflect.TypeFor[json.RawMessage](): {},
-	// RFC3339 allows canonical UTC Z and equivalent numeric offsets. Handlers
-	// normalize every accepted form before domain calculations.
-	reflect.TypeFor[Instant](): {Type: "string", Format: "date-time"},
-	reflect.TypeFor[CivilTime](): {
-		Type:    "string",
-		Pattern: `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?$`,
-	},
-	reflect.TypeFor[StandardTime]():  {Type: "string", Format: "date-time"},
-	reflect.TypeFor[FoldName]():      {Type: "string", Enum: []any{"earlier", "later"}},
-	reflect.TypeFor[DateString]():    {Type: "string", Format: "date"},
-	reflect.TypeFor[GenderName]():    {Type: "string", Enum: []any{"male", "female"}},
-	reflect.TypeFor[CityName]():      {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
-	reflect.TypeFor[CityLevelName](): {Type: "string", Enum: []any{"city", "county", "world"}},
+	reflect.TypeFor[StandardTime]():    {Type: "string", Format: "date-time"},
+	reflect.TypeFor[DateString]():      {Type: "string", Format: "date"},
+	reflect.TypeFor[GenderName]():      {Type: "string", Enum: []any{"male", "female"}},
+	reflect.TypeFor[CityName]():        {Type: "string", MinLength: jsonschema.Ptr(1), MaxLength: jsonschema.Ptr(128)},
+	reflect.TypeFor[CityLevelName]():   {Type: "string", Enum: []any{"city", "county", "world"}},
 	reflect.TypeFor[HuangliEvent](): {
 		Type: "string",
 		Enum: []any{

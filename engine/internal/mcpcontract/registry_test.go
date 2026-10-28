@@ -38,7 +38,7 @@ func TestEngineRegistry_TimeNowContract(t *testing.T) {
 	if output.Type != "object" {
 		t.Fatalf("output schema type = %q", output.Type)
 	}
-	for _, name := range []string{"standard_time", "standard_time", "timezone"} {
+	for _, name := range []string{"standard_time"} {
 		property, ok := output.Properties[name]
 		if !ok {
 			t.Fatalf("output schema lacks %q: %s", name, definition.OutputSchema)

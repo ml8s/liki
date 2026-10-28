@@ -466,7 +466,7 @@ func parseBaziLiuRiTime(input BaziLiuRiInput) (bazi.LiuRiTime, *time.Location, e
 	if err != nil {
 		return bazi.LiuRiTime{}, nil, err
 	}
-	resolved, err := bazi.ResolveLiuRiTimeAt(standard, loc, loc.String(), input.Longitude)
+	resolved, err := bazi.ResolveLiuRiTimeAt(standard, loc, "standard", input.Longitude)
 	return resolved, loc, err
 }
 
@@ -525,7 +525,7 @@ func parseBaziLiuShiTime(input BaziLiuShiInput) (bazi.LiuShiTime, *time.Location
 	if err != nil {
 		return bazi.LiuShiTime{}, nil, err
 	}
-	resolved, err := bazi.ResolveLiuShiTime(standard, loc, loc.String(), input.Longitude)
+	resolved, err := bazi.ResolveLiuShiTime(standard, loc, "standard", input.Longitude)
 	return resolved, loc, err
 }
 

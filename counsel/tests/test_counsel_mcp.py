@@ -34,7 +34,7 @@ def _engine_bazi_chart():
     body = json.dumps({
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
         "params": {"name": "bazi_chart", "arguments": {
-            "instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai",
+            "standard_time": "1990-05-20T11:49:00+08:00",
             "longitude": 116.4, "gender": "male",
         }, "_meta": {
             "io.modelcontextprotocol/protocolVersion": "2026-07-28",

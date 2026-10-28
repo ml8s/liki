@@ -693,7 +693,7 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
 
     monkeypatch.setenv("LIKI_MCP_URL", "https://dynamic.example/mcp")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
-    assert engine_mcp_client.call("qimen.chart", {"instant": "2026-01-01T00:00:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4}) == {"data": {"ok": True}}
+    assert engine_mcp_client.call("qimen.chart", {"standard_time": "2026-01-01T08:00:00+08:00", "longitude": 116.4}) == {"data": {"ok": True}}
     assert seen == ["https://dynamic.example/mcp/qimen"]
 
 def test_engine_mcp_client_domain_suffix(monkeypatch):

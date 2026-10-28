@@ -36,7 +36,7 @@ func TestTimeInputsCanonical(t *testing.T) {
 				// qimen.chart is a oneOf root; both branches declare standard_time.
 				return
 			}
-			for _, field := range []string{"standard_time", "timezone"} {
+			for _, field := range []string{"standard_time"} {
 				if _, ok := schema.Properties[field]; !ok {
 					t.Fatalf("missing %s", field)
 				}

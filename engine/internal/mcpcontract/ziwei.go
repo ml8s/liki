@@ -247,7 +247,7 @@ func parseZiweiLiuRiTime(input ZiweiLiuRiInput) (ziwei.LiuRiTime, tianwen.LunarP
 	if err != nil {
 		return ziwei.LiuRiTime{}, tianwen.LunarProjector{}, time.Time{}, nil, err
 	}
-	resolved, err := ziwei.ResolveLiuRiTimeAtWith(projector, standard, loc, loc.String())
+	resolved, err := ziwei.ResolveLiuRiTimeAtWith(projector, standard, loc, "standard")
 	return resolved, projector, standard, loc, err
 }
 
@@ -302,7 +302,7 @@ func parseZiweiLiuShiTime(input ZiweiLiuShiInput) (ziwei.LiuShiTime, tianwen.Lun
 	if err != nil {
 		return ziwei.LiuShiTime{}, tianwen.LunarProjector{}, time.Time{}, nil, err
 	}
-	resolved, err := ziwei.ResolveLiuShiTimeWith(projector, standard, loc, loc.String(), input.Longitude)
+	resolved, err := ziwei.ResolveLiuShiTimeWith(projector, standard, loc, "standard", input.Longitude)
 	return resolved, projector, standard, loc, err
 }
 

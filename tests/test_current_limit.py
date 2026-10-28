@@ -25,8 +25,7 @@ def _full_mock_rule_snapshot(*rules: str) -> dict:
 def _saved_pan() -> dict:
     pillars = ("nian", "yue", "ri", "shi")
     return with_natal_chart_digest({
-        "instant": "1990-05-20T04:00:00Z",
-        "timezone": "Asia/Shanghai",
+        "standard_time": "1990-05-20T12:00:00+08:00",
         "gregorian_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {

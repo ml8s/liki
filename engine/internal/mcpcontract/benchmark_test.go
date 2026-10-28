@@ -55,17 +55,17 @@ func benchmarkCall(b *testing.B, registry *Registry, name string, arguments stri
 
 func BenchmarkMCPBaziChart(b *testing.B) {
 	benchmarkCall(b, testEngine(), "bazi_chart",
-		`{"standard_time":"1990-05-20T12:49:00+08:00","timezone":"Asia/Shanghai","longitude":116.4,"gender":"male"}`)
+		`{"standard_time":"1990-05-20T12:49:00+08:00","longitude":116.4,"gender":"male"}`)
 }
 
 func BenchmarkMCPZiweiChart(b *testing.B) {
 	benchmarkCall(b, testEngine(), "ziwei_chart",
-		`{"standard_time":"1984-02-16T12:00:00+08:00","timezone":"Asia/Shanghai","longitude":116.4,"gender":"male"}`)
+		`{"standard_time":"1984-02-16T12:00:00+08:00","longitude":116.4,"gender":"male"}`)
 }
 
 func BenchmarkMCPQimenChart(b *testing.B) {
 	benchmarkCall(b, testEngine(), "qimen_chart",
-		`{"standard_time":"2000-06-15T12:00:00+08:00","timezone":"Asia/Shanghai","longitude":116.4,"method":{"scope":"hour","school":"zhuanpan","dingju_method":"chaibu"}}`)
+		`{"standard_time":"2000-06-15T12:00:00+08:00","longitude":116.4,"method":{"scope":"hour","school":"zhuanpan","dingju_method":"chaibu"}}`)
 }
 
 func BenchmarkMCPBaziFullChart(b *testing.B) {
@@ -88,7 +88,7 @@ func BenchmarkMCPBaziBond(b *testing.B) {
 
 func BenchmarkMCPOutputValidationZiweiChart(b *testing.B) {
 	registry := testEngine()
-	arguments := json.RawMessage(`{"standard_time":"1984-02-16T12:00:00+08:00","timezone":"Asia/Shanghai","longitude":116.4,"gender":"male"}`)
+	arguments := json.RawMessage(`{"standard_time":"1984-02-16T12:00:00+08:00","longitude":116.4,"gender":"male"}`)
 	output, err := registry.Call(context.Background(), "ziwei_chart", arguments)
 	if err != nil {
 		b.Fatal(err)
@@ -105,7 +105,7 @@ func BenchmarkMCPOutputValidationZiweiChart(b *testing.B) {
 func benchmarkBaziChart(b *testing.B, registry *Registry, civilTime, gender string) json.RawMessage {
 	b.Helper()
 	raw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-		`{"standard_time":"`+civilTime+`","timezone":"Asia/Shanghai","longitude":116.4,"gender":"`+gender+`"}`,
+		`{"standard_time":"`+civilTime+`","longitude":116.4,"gender":"`+gender+`"}`,
 	))
 	if err != nil {
 		b.Fatal(err)

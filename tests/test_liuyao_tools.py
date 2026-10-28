@@ -128,8 +128,7 @@ def test_factors_maps_matter_and_projection(monkeypatch):
     assert len(calls) == 1
     assert calls[0][0] == "liuyao.chart"
     assert calls[0][1] == {
-        "instant": "2026-09-08T04:00:00Z",
-        "timezone": "Asia/Shanghai",
+        "standard_time": "2026-09-08T12:00:00+08:00",
         "longitude": 116.4,
         "yong_shen": "官鬼",
         "casting": casting,

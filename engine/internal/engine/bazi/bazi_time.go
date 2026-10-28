@@ -12,6 +12,7 @@ import (
 // day pillar. Computation consumes this value; it must not re-derive the date.
 type LiuRiTime struct {
 	Instant     time.Time         `json:"-"`
+	Location    *time.Location    `json:"-"`
 	Timezone    string            `json:"timezone"`
 	Longitude   float64           `json:"longitude"`
 	Date        tianwen.CivilDate `json:"date"`
@@ -54,6 +55,7 @@ func ResolveLiuRiTimeAt(instant time.Time, tz *time.Location, tzName string, lon
 	pillar := tianwen.RiZhu(lastDate.Time())
 	return LiuRiTime{
 		Instant:     instant,
+		Location:    tz,
 		Timezone:    tzName,
 		Longitude:   longitude,
 		Date:        lastDate,
@@ -71,9 +73,13 @@ func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
 	if t.Instant.IsZero() {
 		return ResolveLiuRiTime(t.Date.AddDays(1))
 	}
-	tz, err := time.LoadLocation(t.Timezone)
-	if err != nil {
-		return LiuRiTime{}, err
+	tz := t.Location
+	if tz == nil {
+		var err error
+		tz, err = time.LoadLocation(t.Timezone)
+		if err != nil {
+			return LiuRiTime{}, err
+		}
 	}
 	return ResolveLiuRiTimeAt(t.Instant.Add(24*time.Hour), tz, t.Timezone, t.Longitude)
 }
@@ -231,6 +237,7 @@ func NextLiuYueTimeAt(t LiuYueTime, loc *time.Location) (LiuYueTime, error) {
 // Longitude are retained so the series can advance one hour at a time.
 type LiuShiTime struct {
 	Instant   time.Time         `json:"-"`
+	Location  *time.Location    `json:"-"`
 	Timezone  string            `json:"timezone"`
 	Longitude float64           `json:"longitude"`
 	LocalDate tianwen.CivilDate `json:"local_date"`
@@ -268,6 +275,7 @@ func ResolveLiuShiTime(instant time.Time, tz *time.Location, tzName string, long
 
 	return LiuShiTime{
 		Instant:   instant,
+		Location:  tz,
 		Timezone:  tzName,
 		Longitude: longitude,
 		LocalDate: localDate,
@@ -280,9 +288,13 @@ func ResolveLiuShiTime(instant time.Time, tz *time.Location, tzName string, long
 
 // NextLiuShiTime advances one 时辰 (two clock hours).
 func NextLiuShiTime(t LiuShiTime) (LiuShiTime, error) {
-	tz, err := time.LoadLocation(t.Timezone)
-	if err != nil {
-		return LiuShiTime{}, err
+	tz := t.Location
+	if tz == nil {
+		var err error
+		tz, err = time.LoadLocation(t.Timezone)
+		if err != nil {
+			return LiuShiTime{}, err
+		}
 	}
 	return ResolveLiuShiTime(t.Instant.Add(2*time.Hour), tz, t.Timezone, t.Longitude)
 }

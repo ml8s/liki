@@ -298,7 +298,7 @@ def test_qimen_answer_timing_ids_are_collision_resistant(monkeypatch):
         payload={
             "snapshot_kind": "standard",
             "question": "该往哪里推进？",
-            "input": {"city": "上海", "longitude": 121.47, "instant": "2026-09-08T04:00:00Z", "timezone": "Asia/Shanghai"},
+            "input": {"city": "上海", "longitude": 121.47, "standard_time": "2026-09-08T12:00:00+08:00"},
             "matter": None,
             "method_context": {"scope": "hour", "school": "zhuanpan"},
             "factors": factors,

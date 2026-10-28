@@ -31,6 +31,7 @@ type LiuYueTime struct {
 // the chosen basis; LocalDate and BeijingDate are echoed projections.
 type LiuRiTime struct {
 	Instant     time.Time         `json:"-"`
+	Location    *time.Location    `json:"-"`
 	Timezone    string            `json:"timezone"`
 	Date        tianwen.CivilDate `json:"date"`
 	LocalDate   tianwen.CivilDate `json:"local_date"`
@@ -194,6 +195,7 @@ func ResolveLiuRiTimeAtWith(p tianwen.LunarProjector, instant time.Time, tz *tim
 	beijingDate := tianwen.BeijingDateAt(instant)
 	return LiuRiTime{
 		Instant:     instant,
+		Location:    tz,
 		Timezone:    tzName,
 		Date:        selectorDate,
 		LocalDate:   localDate,
@@ -212,9 +214,13 @@ func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
 // projector.
 func NextLiuRiTimeWith(p tianwen.LunarProjector, t LiuRiTime) (LiuRiTime, error) {
 	if !t.Instant.IsZero() {
-		tz, err := time.LoadLocation(t.Timezone)
-		if err != nil {
-			return LiuRiTime{}, err
+		tz := t.Location
+		if tz == nil {
+			var err error
+			tz, err = time.LoadLocation(t.Timezone)
+			if err != nil {
+				return LiuRiTime{}, err
+			}
 		}
 		return ResolveLiuRiTimeAtWith(p, t.Instant.Add(24*time.Hour), tz, t.Timezone)
 	}
@@ -245,6 +251,7 @@ func lunarDayCivilDateWith(p tianwen.LunarProjector, year, month, day int, leap 
 // Longitude are retained so the series can advance one 时辰 at a time.
 type LiuShiTime struct {
 	Instant   time.Time         `json:"-"`
+	Location  *time.Location    `json:"-"`
 	Timezone  string            `json:"timezone"`
 	Longitude float64           `json:"longitude"`
 	LocalDate tianwen.CivilDate `json:"local_date"`
@@ -272,6 +279,7 @@ func ResolveLiuShiTimeWith(p tianwen.LunarProjector, instant time.Time, tz *time
 	shichen := tianwen.ShichenAt(instant, tz, longitude)
 	return LiuShiTime{
 		Instant:   instant,
+		Location:  tz,
 		Timezone:  tzName,
 		Longitude: longitude,
 		LocalDate: tianwen.StandardDateAt(instant, tz),
@@ -288,9 +296,13 @@ func NextLiuShiTime(t LiuShiTime) (LiuShiTime, error) {
 
 // NextLiuShiTimeWith advances one 时辰 using an explicit projector.
 func NextLiuShiTimeWith(p tianwen.LunarProjector, t LiuShiTime) (LiuShiTime, error) {
-	tz, err := time.LoadLocation(t.Timezone)
-	if err != nil {
-		return LiuShiTime{}, err
+	tz := t.Location
+	if tz == nil {
+		var err error
+		tz, err = time.LoadLocation(t.Timezone)
+		if err != nil {
+			return LiuShiTime{}, err
+		}
 	}
 	return ResolveLiuShiTimeWith(p, t.Instant.Add(2*time.Hour), tz, t.Timezone, t.Longitude)
 }

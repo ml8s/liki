@@ -67,7 +67,7 @@
       "tool": "ziwei_liuri",
       "chart_from": "ziwei_chart_liuri.json",
       "input": {
-        "standard_time": "2026-06-01T23:30:00-05:00"
+        "standard_time": "2026-06-01T22:30:00-05:00"
       },
       "expect": {
         "resolved.local_date": "2026-06-01",
@@ -84,7 +84,7 @@
       "chart_from": "ziwei_chart_liushi.json",
       "input": {
         "longitude": -74.0,
-        "standard_time": "2026-06-01T23:30:00-05:00"
+        "standard_time": "2026-06-01T22:30:00-05:00"
       },
       "expect": {
         "zhi": "亥",
@@ -205,7 +205,7 @@
       "input": {
         "count": 1,
         "event": "sign",
-        "standard_time": "2026-06-01T13:00:00-05:00"
+        "standard_time": "2026-06-01T12:00:00-05:00"
       },
       "expect": {
         "0.date": "2026-06-01"

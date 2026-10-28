@@ -134,7 +134,7 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		} `json:"properties"`
 	}
 	decode(t, mustDefinition(t, registry, "huangli_days").InputSchema, &huangliInput)
-	if len(huangliInput.Required) != 2 || huangliInput.Required[0] != "standard_time" || huangliInput.Required[1] != "timezone" {
+	if len(huangliInput.Required) != 1 || huangliInput.Required[0] != "standard_time" {
 		t.Fatalf("huangli required = %#v", huangliInput.Required)
 	}
 	if _, ok := huangliInput.Properties["standard_time"]; !ok {
@@ -375,7 +375,7 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 	// primary element but no 辅 element. Missing candidates use an explicit
 	// closure value; neither JSON null nor an empty-string sentinel is allowed.
 	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"standard_time": "1990-05-20T12:49:00+08:00", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male",
+		"standard_time": "1990-05-20T12:49:00+08:00", "longitude": 116.4, "gender": "male",
 	})
 	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"chart": chart})
 	tiaoHou, _ := full["tiao_hou"].(map[string]any)

@@ -124,4 +124,4 @@ def test_snap_embeds_stable_domain_facts():
     assert zw["紫微星位"] == "命宫"
     assert zw["空宫借星"][0]["gong_name"] == "兄弟"
     # 出生时间进 context
-    assert ctx["时间事实"] == {"instant": "1990-05-20T04:00:00Z", "timezone": "Asia/Shanghai"}
+    assert ctx["时间事实"] == {"standard_time": "1990-05-20T12:00:00+08:00"}

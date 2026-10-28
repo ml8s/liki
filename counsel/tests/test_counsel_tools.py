@@ -14,7 +14,7 @@ def bazi_chart():
     url = os.environ.get("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp") + "/bazi"
     body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {
         "name": "bazi_chart",
-        "arguments": {"instant": "1990-05-20T03:49:00Z", "timezone": "Asia/Shanghai", "longitude": 116.4, "gender": "male"},
+        "arguments": {"standard_time": "1990-05-20T11:49:00+08:00", "longitude": 116.4, "gender": "male"},
         "_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28",
                   "io.modelcontextprotocol/clientCapabilities": {}},
     }}).encode()

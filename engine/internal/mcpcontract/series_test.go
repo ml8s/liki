@@ -51,7 +51,7 @@ func TestSeriesSingleIsDefault(t *testing.T) {
 	chart := seriesChart(t, reg)
 	for _, count := range []int{0, 1} {
 		raw := callSeries(t, reg, "bazi_liunian", map[string]any{
-			"standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": count, "chart": chart,
+			"standard_time": "2026-06-15T12:00:00+08:00", "count": count, "chart": chart,
 		})
 		var out map[string]any
 		decode(t, raw, &out)
@@ -68,7 +68,7 @@ func TestSeriesBatchN(t *testing.T) {
 	reg := NewEngine()
 	chart := seriesChart(t, reg)
 	raw := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 3, "chart": chart,
+		"standard_time": "2026-06-15T12:00:00+08:00", "count": 3, "chart": chart,
 	})
 	items := decodeSeriesItems(t, raw)
 	if len(items) != 3 {
@@ -86,10 +86,10 @@ func TestSeriesBatchFirstEqualsSingle(t *testing.T) {
 	reg := NewEngine()
 	chart := seriesChart(t, reg)
 	single := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 1, "chart": chart,
+		"standard_time": "2026-06-15T12:00:00+08:00", "count": 1, "chart": chart,
 	})
 	batch := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 3, "chart": chart,
+		"standard_time": "2026-06-15T12:00:00+08:00", "count": 3, "chart": chart,
 	})
 	var s BaziLiuNianOutput
 	decode(t, single, &s)
@@ -111,7 +111,7 @@ func TestSeriesCountBounds(t *testing.T) {
 	chart := seriesChart(t, reg)
 	for _, count := range []int{-1, MaxSeriesCount + 1} {
 		if _, err := reg.Call(context.Background(), "bazi_liunian", mustJSON(t, map[string]any{
-			"standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": count, "chart": chart,
+			"standard_time": "2026-06-15T12:00:00+08:00", "count": count, "chart": chart,
 		})); err == nil {
 			t.Errorf("count=%d should error", count)
 		}
@@ -154,7 +154,7 @@ func TestSeriesMonthRollover(t *testing.T) {
 	reg := NewEngine()
 	chart := seriesChart(t, reg)
 	raw := callSeries(t, reg, "bazi_liuyue", map[string]any{
-		"standard_time": "2026-11-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 3, "chart": chart,
+		"standard_time": "2026-11-15T12:00:00+08:00", "count": 3, "chart": chart,
 	})
 	items := decodeSeriesItems(t, raw)
 	prevEnd := ""
@@ -179,8 +179,8 @@ func TestSeriesHourRollover(t *testing.T) {
 	reg := NewEngine()
 	chart := seriesChart(t, reg)
 	raw := callSeries(t, reg, "bazi_liushi", map[string]any{
-		"standard_time": "2026-01-01T23:00:00+08:00", "timezone": "Asia/Shanghai",
-		"longitude": 116.4, "count": 2, "chart": chart,
+		"standard_time": "2026-01-01T23:00:00+08:00",
+		"longitude":     116.4, "count": 2, "chart": chart,
 	})
 	items := decodeSeriesItems(t, raw)
 	if len(items) != 2 {
@@ -220,29 +220,29 @@ func TestSeriesBatchOutputContractForEveryCountTool(t *testing.T) {
 	reg := NewEngine()
 	baziChart := seriesChart(t, reg)
 	ziweiChart := callSeries(t, reg, "ziwei_chart", map[string]any{
-		"standard_time": "1984-02-16T12:00:00+08:00", "timezone": "Asia/Shanghai",
-		"longitude": 116.4, "gender": "male",
+		"standard_time": "1984-02-16T12:00:00+08:00",
+		"longitude":     116.4, "gender": "male",
 	})
 	xuankongChart := callSeries(t, reg, "xuankong_chart", map[string]any{
-		"standard_time": "2026-07-31T12:00:00+08:00", "timezone": "Asia/Shanghai",
-		"zuo_shan": 2, "xiang_shan": 14,
+		"standard_time": "2026-07-31T12:00:00+08:00",
+		"zuo_shan":      2, "xiang_shan": 14,
 	})
 	ziweiDate := civilDateForLunar(t, 2026, 5, 10, false)
-	ziweiCivilTime := ziweiDate + "T11:00:00"
+	ziweiCivilTime := ziweiDate + "T11:00:00+08:00"
 
 	cases := []struct {
 		tool string
 		args map[string]any
 	}{
-		{"bazi_liunian", map[string]any{"chart": baziChart, "standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 2}},
-		{"bazi_liuyue", map[string]any{"chart": baziChart, "standard_time": "2026-11-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 2}},
-		{"bazi_liuri", map[string]any{"chart": baziChart, "standard_time": "2026-01-01T12:00:00+08:00", "timezone": "Asia/Shanghai", "longitude": 116.4, "count": 2}},
-		{"bazi_liushi", map[string]any{"chart": baziChart, "standard_time": "2026-01-01T23:00:00+08:00", "timezone": "Asia/Shanghai", "longitude": 116.4, "count": 2}},
-		{"ziwei_liunian", map[string]any{"chart": ziweiChart, "standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 2}},
-		{"ziwei_liuyue", map[string]any{"chart": ziweiChart, "standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00", "timezone": "Asia/Shanghai", "count": 2}},
-		{"ziwei_liuri", map[string]any{"chart": ziweiChart, "standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00", "timezone": "Asia/Shanghai", "count": 2}},
-		{"ziwei_liushi", map[string]any{"chart": ziweiChart, "standard_time": ziweiCivilTime, "timezone": "Asia/Shanghai", "longitude": 116.4, "count": 2}},
-		{"xuankong_liunian", map[string]any{"chart": xuankongChart, "standard_time": "2026-06-15T12:00:00+08:00", "timezone": "Asia/Shanghai", "count": 2}},
+		{"bazi_liunian", map[string]any{"chart": baziChart, "standard_time": "2026-06-15T12:00:00+08:00", "count": 2}},
+		{"bazi_liuyue", map[string]any{"chart": baziChart, "standard_time": "2026-11-15T12:00:00+08:00", "count": 2}},
+		{"bazi_liuri", map[string]any{"chart": baziChart, "standard_time": "2026-01-01T12:00:00+08:00", "longitude": 116.4, "count": 2}},
+		{"bazi_liushi", map[string]any{"chart": baziChart, "standard_time": "2026-01-01T23:00:00+08:00", "longitude": 116.4, "count": 2}},
+		{"ziwei_liunian", map[string]any{"chart": ziweiChart, "standard_time": "2026-06-15T12:00:00+08:00", "count": 2}},
+		{"ziwei_liuyue", map[string]any{"chart": ziweiChart, "standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "count": 2}},
+		{"ziwei_liuri", map[string]any{"chart": ziweiChart, "standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "count": 2}},
+		{"ziwei_liushi", map[string]any{"chart": ziweiChart, "standard_time": ziweiCivilTime, "longitude": 116.4, "count": 2}},
+		{"xuankong_liunian", map[string]any{"chart": xuankongChart, "standard_time": "2026-06-15T12:00:00+08:00", "count": 2}},
 	}
 
 	for _, tc := range cases {
