@@ -44,5 +44,6 @@ The repository uses:
 - digest-pinned base images and tools;
 - hashed Python requirements;
 - version-pinned dev-only Node tooling (markdownlint-cli2@0.23.3, fetched at invocation; not part of shipped artifacts);
+- generated third-party geographic-data attribution carried by engine images;
 - Go vulnerability scanning;
 - image smoke tests before release publication.

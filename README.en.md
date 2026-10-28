@@ -153,7 +153,7 @@ Four repositories: `liki`, `liki-agent-runtime`, `liki-web`, `liki-deploy`. Imag
 
 ## License and disclaimer
 
-MIT. Conclusions are traditional cultural interpretations for reference only. They are not medical, legal, investment, or major life advice.
+Code is MIT licensed. Conclusions are traditional cultural interpretations for reference only. They are not medical, legal, investment, or major life advice. The bundled geographic data is not relicensed under MIT; see the [NOTICE](./NOTICE.md).
 
 Full usage: [user guide](./docs/USER_GUIDE.en.md); contributing: [CONTRIBUTING](./CONTRIBUTING.md); release history: [CHANGELOG](./CHANGELOG.md).
 

@@ -1,0 +1,2338 @@
+Liki engine bundled geographic data notices
+================================================
+
+The repository MIT license applies to Liki code. It does not relicense
+the bundled geographic dataset or its third-party sources.
+
+The generated dataset is built from the sources listed below. Each source
+remains subject to its own license and attribution terms. Complete file
+hashes and retrieval timestamps are in data/sources/manifest.json.
+
+Source manifest SHA-256: 3ffe40706a8d5acdf4a03123ee21a31f949a7af799d28b75b92491d561f1689a
+Source manifest generated at: 2026-10-21T02:16:56Z
+
+Source inventory
+----------------
+
+### datav-100000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json
+
+### datav-110000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/110000_full.json
+
+### datav-120000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/120000_full.json
+
+### datav-130000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130000_full.json
+
+### datav-130100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130100_full.json
+
+### datav-130200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130200_full.json
+
+### datav-130300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130300_full.json
+
+### datav-130400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130400_full.json
+
+### datav-130500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130500_full.json
+
+### datav-130600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130600_full.json
+
+### datav-130700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130700_full.json
+
+### datav-130800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130800_full.json
+
+### datav-130900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/130900_full.json
+
+### datav-131000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/131000_full.json
+
+### datav-131100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/131100_full.json
+
+### datav-140000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140000_full.json
+
+### datav-140100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140100_full.json
+
+### datav-140200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140200_full.json
+
+### datav-140300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140300_full.json
+
+### datav-140400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140400_full.json
+
+### datav-140500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140500_full.json
+
+### datav-140600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140600_full.json
+
+### datav-140700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140700_full.json
+
+### datav-140800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140800_full.json
+
+### datav-140900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/140900_full.json
+
+### datav-141000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/141000_full.json
+
+### datav-141100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/141100_full.json
+
+### datav-150000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150000_full.json
+
+### datav-150100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150100_full.json
+
+### datav-150200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150200_full.json
+
+### datav-150300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150300_full.json
+
+### datav-150400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150400_full.json
+
+### datav-150500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150500_full.json
+
+### datav-150600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150600_full.json
+
+### datav-150700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150700_full.json
+
+### datav-150800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150800_full.json
+
+### datav-150900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/150900_full.json
+
+### datav-152200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/152200_full.json
+
+### datav-152500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/152500_full.json
+
+### datav-152900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/152900_full.json
+
+### datav-210000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210000_full.json
+
+### datav-210100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210100_full.json
+
+### datav-210200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210200_full.json
+
+### datav-210300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210300_full.json
+
+### datav-210400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210400_full.json
+
+### datav-210500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210500_full.json
+
+### datav-210600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210600_full.json
+
+### datav-210700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210700_full.json
+
+### datav-210800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210800_full.json
+
+### datav-210900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/210900_full.json
+
+### datav-211000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/211000_full.json
+
+### datav-211100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/211100_full.json
+
+### datav-211200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/211200_full.json
+
+### datav-211300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/211300_full.json
+
+### datav-211400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/211400_full.json
+
+### datav-220000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220000_full.json
+
+### datav-220100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220100_full.json
+
+### datav-220200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220200_full.json
+
+### datav-220300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220300_full.json
+
+### datav-220400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220400_full.json
+
+### datav-220500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220500_full.json
+
+### datav-220600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220600_full.json
+
+### datav-220700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220700_full.json
+
+### datav-220800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/220800_full.json
+
+### datav-222400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/222400_full.json
+
+### datav-230000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230000_full.json
+
+### datav-230100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230100_full.json
+
+### datav-230200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230200_full.json
+
+### datav-230300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230300_full.json
+
+### datav-230400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230400_full.json
+
+### datav-230500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230500_full.json
+
+### datav-230600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230600_full.json
+
+### datav-230700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230700_full.json
+
+### datav-230800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230800_full.json
+
+### datav-230900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/230900_full.json
+
+### datav-231000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/231000_full.json
+
+### datav-231100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/231100_full.json
+
+### datav-231200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/231200_full.json
+
+### datav-232700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/232700_full.json
+
+### datav-310000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
+
+### datav-320000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320000_full.json
+
+### datav-320100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320100_full.json
+
+### datav-320200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320200_full.json
+
+### datav-320300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320300_full.json
+
+### datav-320400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320400_full.json
+
+### datav-320500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320500_full.json
+
+### datav-320600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320600_full.json
+
+### datav-320700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320700_full.json
+
+### datav-320800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320800_full.json
+
+### datav-320900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/320900_full.json
+
+### datav-321000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/321000_full.json
+
+### datav-321100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/321100_full.json
+
+### datav-321200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/321200_full.json
+
+### datav-321300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/321300_full.json
+
+### datav-330000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330000_full.json
+
+### datav-330100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330100_full.json
+
+### datav-330200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330200_full.json
+
+### datav-330300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330300_full.json
+
+### datav-330400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330400_full.json
+
+### datav-330500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330500_full.json
+
+### datav-330600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330600_full.json
+
+### datav-330700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330700_full.json
+
+### datav-330800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330800_full.json
+
+### datav-330900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/330900_full.json
+
+### datav-331000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/331000_full.json
+
+### datav-331100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/331100_full.json
+
+### datav-340000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340000_full.json
+
+### datav-340100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340100_full.json
+
+### datav-340200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340200_full.json
+
+### datav-340300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340300_full.json
+
+### datav-340400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340400_full.json
+
+### datav-340500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340500_full.json
+
+### datav-340600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340600_full.json
+
+### datav-340700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340700_full.json
+
+### datav-340800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/340800_full.json
+
+### datav-341000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341000_full.json
+
+### datav-341100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341100_full.json
+
+### datav-341200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341200_full.json
+
+### datav-341300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341300_full.json
+
+### datav-341500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341500_full.json
+
+### datav-341600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341600_full.json
+
+### datav-341700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341700_full.json
+
+### datav-341800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/341800_full.json
+
+### datav-350000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350000_full.json
+
+### datav-350100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350100_full.json
+
+### datav-350200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350200_full.json
+
+### datav-350300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350300_full.json
+
+### datav-350400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350400_full.json
+
+### datav-350500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350500_full.json
+
+### datav-350600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350600_full.json
+
+### datav-350700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350700_full.json
+
+### datav-350800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350800_full.json
+
+### datav-350900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/350900_full.json
+
+### datav-360000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360000_full.json
+
+### datav-360100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360100_full.json
+
+### datav-360200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360200_full.json
+
+### datav-360300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360300_full.json
+
+### datav-360400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360400_full.json
+
+### datav-360500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360500_full.json
+
+### datav-360600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360600_full.json
+
+### datav-360700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360700_full.json
+
+### datav-360800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360800_full.json
+
+### datav-360900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/360900_full.json
+
+### datav-361000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/361000_full.json
+
+### datav-361100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/361100_full.json
+
+### datav-370000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370000_full.json
+
+### datav-370100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370100_full.json
+
+### datav-370200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370200_full.json
+
+### datav-370300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370300_full.json
+
+### datav-370400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370400_full.json
+
+### datav-370500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370500_full.json
+
+### datav-370600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370600_full.json
+
+### datav-370700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370700_full.json
+
+### datav-370800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370800_full.json
+
+### datav-370900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/370900_full.json
+
+### datav-371000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/371000_full.json
+
+### datav-371100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/371100_full.json
+
+### datav-371300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/371300_full.json
+
+### datav-371400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/371400_full.json
+
+### datav-371500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/371500_full.json
+
+### datav-371600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/371600_full.json
+
+### datav-371700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/371700_full.json
+
+### datav-410000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410000_full.json
+
+### datav-410100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410100_full.json
+
+### datav-410200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410200_full.json
+
+### datav-410300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410300_full.json
+
+### datav-410400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410400_full.json
+
+### datav-410500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410500_full.json
+
+### datav-410600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410600_full.json
+
+### datav-410700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410700_full.json
+
+### datav-410800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410800_full.json
+
+### datav-410900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/410900_full.json
+
+### datav-411000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411000_full.json
+
+### datav-411100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411100_full.json
+
+### datav-411200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411200_full.json
+
+### datav-411300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411300_full.json
+
+### datav-411400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411400_full.json
+
+### datav-411500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411500_full.json
+
+### datav-411600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411600_full.json
+
+### datav-411700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/411700_full.json
+
+### datav-420000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420000_full.json
+
+### datav-420100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420100_full.json
+
+### datav-420200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420200_full.json
+
+### datav-420300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420300_full.json
+
+### datav-420500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420500_full.json
+
+### datav-420600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420600_full.json
+
+### datav-420700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420700_full.json
+
+### datav-420800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420800_full.json
+
+### datav-420900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/420900_full.json
+
+### datav-421000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/421000_full.json
+
+### datav-421100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/421100_full.json
+
+### datav-421200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/421200_full.json
+
+### datav-421300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/421300_full.json
+
+### datav-422800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/422800_full.json
+
+### datav-430000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430000_full.json
+
+### datav-430100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430100_full.json
+
+### datav-430200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430200_full.json
+
+### datav-430300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430300_full.json
+
+### datav-430400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430400_full.json
+
+### datav-430500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430500_full.json
+
+### datav-430600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430600_full.json
+
+### datav-430700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430700_full.json
+
+### datav-430800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430800_full.json
+
+### datav-430900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/430900_full.json
+
+### datav-431000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/431000_full.json
+
+### datav-431100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/431100_full.json
+
+### datav-431200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/431200_full.json
+
+### datav-431300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/431300_full.json
+
+### datav-433100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/433100_full.json
+
+### datav-440000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440000_full.json
+
+### datav-440100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440100_full.json
+
+### datav-440200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440200_full.json
+
+### datav-440300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440300_full.json
+
+### datav-440400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440400_full.json
+
+### datav-440500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440500_full.json
+
+### datav-440600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440600_full.json
+
+### datav-440700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440700_full.json
+
+### datav-440800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440800_full.json
+
+### datav-440900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/440900_full.json
+
+### datav-441200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/441200_full.json
+
+### datav-441300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/441300_full.json
+
+### datav-441400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/441400_full.json
+
+### datav-441500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/441500_full.json
+
+### datav-441600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/441600_full.json
+
+### datav-441700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/441700_full.json
+
+### datav-441800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/441800_full.json
+
+### datav-445100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/445100_full.json
+
+### datav-445200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/445200_full.json
+
+### datav-445300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/445300_full.json
+
+### datav-450000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450000_full.json
+
+### datav-450100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450100_full.json
+
+### datav-450200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450200_full.json
+
+### datav-450300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450300_full.json
+
+### datav-450400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450400_full.json
+
+### datav-450500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450500_full.json
+
+### datav-450600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450600_full.json
+
+### datav-450700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450700_full.json
+
+### datav-450800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450800_full.json
+
+### datav-450900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/450900_full.json
+
+### datav-451000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/451000_full.json
+
+### datav-451100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/451100_full.json
+
+### datav-451200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/451200_full.json
+
+### datav-451300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/451300_full.json
+
+### datav-451400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/451400_full.json
+
+### datav-460000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/460000_full.json
+
+### datav-460100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/460100_full.json
+
+### datav-460200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/460200_full.json
+
+### datav-460300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/460300_full.json
+
+### datav-500000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/500000_full.json
+
+### datav-510000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json
+
+### datav-510100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510100_full.json
+
+### datav-510300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510300_full.json
+
+### datav-510400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510400_full.json
+
+### datav-510500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510500_full.json
+
+### datav-510600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510600_full.json
+
+### datav-510700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510700_full.json
+
+### datav-510800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510800_full.json
+
+### datav-510900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/510900_full.json
+
+### datav-511000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511000_full.json
+
+### datav-511100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511100_full.json
+
+### datav-511300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511300_full.json
+
+### datav-511400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511400_full.json
+
+### datav-511500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511500_full.json
+
+### datav-511600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511600_full.json
+
+### datav-511700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511700_full.json
+
+### datav-511800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511800_full.json
+
+### datav-511900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/511900_full.json
+
+### datav-512000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/512000_full.json
+
+### datav-513200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/513200_full.json
+
+### datav-513300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/513300_full.json
+
+### datav-513400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/513400_full.json
+
+### datav-520000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/520000_full.json
+
+### datav-520100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/520100_full.json
+
+### datav-520200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/520200_full.json
+
+### datav-520300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/520300_full.json
+
+### datav-520400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/520400_full.json
+
+### datav-520500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/520500_full.json
+
+### datav-520600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/520600_full.json
+
+### datav-522300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/522300_full.json
+
+### datav-522600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/522600_full.json
+
+### datav-522700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/522700_full.json
+
+### datav-530000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530000_full.json
+
+### datav-530100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530100_full.json
+
+### datav-530300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530300_full.json
+
+### datav-530400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530400_full.json
+
+### datav-530500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530500_full.json
+
+### datav-530600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530600_full.json
+
+### datav-530700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530700_full.json
+
+### datav-530800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530800_full.json
+
+### datav-530900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/530900_full.json
+
+### datav-532300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/532300_full.json
+
+### datav-532500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/532500_full.json
+
+### datav-532600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/532600_full.json
+
+### datav-532800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/532800_full.json
+
+### datav-532900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/532900_full.json
+
+### datav-533100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/533100_full.json
+
+### datav-533300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/533300_full.json
+
+### datav-533400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/533400_full.json
+
+### datav-540000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/540000_full.json
+
+### datav-540100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/540100_full.json
+
+### datav-540200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/540200_full.json
+
+### datav-540300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/540300_full.json
+
+### datav-540400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/540400_full.json
+
+### datav-540500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/540500_full.json
+
+### datav-540600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/540600_full.json
+
+### datav-542500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/542500_full.json
+
+### datav-610000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610000_full.json
+
+### datav-610100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610100_full.json
+
+### datav-610200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610200_full.json
+
+### datav-610300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610300_full.json
+
+### datav-610400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610400_full.json
+
+### datav-610500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610500_full.json
+
+### datav-610600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610600_full.json
+
+### datav-610700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610700_full.json
+
+### datav-610800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610800_full.json
+
+### datav-610900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/610900_full.json
+
+### datav-611000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/611000_full.json
+
+### datav-620000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620000_full.json
+
+### datav-620100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620100_full.json
+
+### datav-620300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620300_full.json
+
+### datav-620400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620400_full.json
+
+### datav-620500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620500_full.json
+
+### datav-620600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620600_full.json
+
+### datav-620700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620700_full.json
+
+### datav-620800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620800_full.json
+
+### datav-620900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/620900_full.json
+
+### datav-621000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/621000_full.json
+
+### datav-621100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/621100_full.json
+
+### datav-621200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/621200_full.json
+
+### datav-622900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/622900_full.json
+
+### datav-623000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/623000_full.json
+
+### datav-630000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/630000_full.json
+
+### datav-630100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/630100_full.json
+
+### datav-630200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/630200_full.json
+
+### datav-632200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/632200_full.json
+
+### datav-632300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/632300_full.json
+
+### datav-632500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/632500_full.json
+
+### datav-632600
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/632600_full.json
+
+### datav-632700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/632700_full.json
+
+### datav-632800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/632800_full.json
+
+### datav-640000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/640000_full.json
+
+### datav-640100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/640100_full.json
+
+### datav-640200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/640200_full.json
+
+### datav-640300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/640300_full.json
+
+### datav-640400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/640400_full.json
+
+### datav-640500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/640500_full.json
+
+### datav-650000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/650000_full.json
+
+### datav-650100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/650100_full.json
+
+### datav-650200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/650200_full.json
+
+### datav-650400
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/650400_full.json
+
+### datav-650500
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/650500_full.json
+
+### datav-652300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/652300_full.json
+
+### datav-652700
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/652700_full.json
+
+### datav-652800
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/652800_full.json
+
+### datav-652900
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/652900_full.json
+
+### datav-653000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/653000_full.json
+
+### datav-653100
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/653100_full.json
+
+### datav-653200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/653200_full.json
+
+### datav-654000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/654000_full.json
+
+### datav-654200
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/654200_full.json
+
+### datav-654300
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/654300_full.json
+
+### datav-810000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/810000_full.json
+
+### datav-820000
+License: DataV.GeoAtlas (Aliyun) service terms
+Attribution: 阿里云 DataV.GeoAtlas (https://datav.aliyun.com/portal/school/atlas/area_selector)
+Source: https://geo.datav.aliyun.com/areas_v3/bound/820000_full.json
+
+### geonames-cities15000
+License: CC BY 4.0
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoNames (https://www.geonames.org/)
+Source: https://download.geonames.org/export/dump/cities15000.zip
+
+### geoboundaries-ARE-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ARE/ADM1/geoBoundaries-ARE-ADM1_simplified.geojson
+
+### geoboundaries-ARG-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ARG/ADM2/geoBoundaries-ARG-ADM2_simplified.geojson
+
+### geoboundaries-ARG-ADM1
+License: Creative Commons Attribution 2.5 Generic
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ARG/ADM1/geoBoundaries-ARG-ADM1_simplified.geojson
+
+### geoboundaries-AUS-ADM2
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/AUS/ADM2/geoBoundaries-AUS-ADM2_simplified.geojson
+
+### geoboundaries-AUS-ADM1
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/AUS/ADM1/geoBoundaries-AUS-ADM1_simplified.geojson
+
+### geoboundaries-AUT-ADM2
+License: Creative Commons Attribution-ShareAlike 2.0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/AUT/ADM2/geoBoundaries-AUT-ADM2_simplified.geojson
+
+### geoboundaries-AUT-ADM1
+License: Creative Commons Attribution-ShareAlike 2.0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/AUT/ADM1/geoBoundaries-AUT-ADM1_simplified.geojson
+
+### geoboundaries-BEL-ADM2
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/BEL/ADM2/geoBoundaries-BEL-ADM2_simplified.geojson
+
+### geoboundaries-BEL-ADM1
+License: Creative Commons Attribution 4.0 (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/BEL/ADM1/geoBoundaries-BEL-ADM1_simplified.geojson
+
+### geoboundaries-BGD-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/BGD/ADM2/geoBoundaries-BGD-ADM2_simplified.geojson
+
+### geoboundaries-BGD-ADM1
+License: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/BGD/ADM1/geoBoundaries-BGD-ADM1_simplified.geojson
+
+### geoboundaries-BRA-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/BRA/ADM2/geoBoundaries-BRA-ADM2_simplified.geojson
+
+### geoboundaries-BRA-ADM1
+License: Creative Commons Attribution 2.5 Generic
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/BRA/ADM1/geoBoundaries-BRA-ADM1_simplified.geojson
+
+### geoboundaries-CAN-ADM2
+License: Open Government Canada 2.0
+License URL: https://open.canada.ca/en/open-government-licence-canada
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/CAN/ADM2/geoBoundaries-CAN-ADM2_simplified.geojson
+
+### geoboundaries-CAN-ADM1
+License: Open Government Canada 2.0
+License URL: https://open.canada.ca/en/open-government-licence-canada
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/41af8f1/releaseData/gbOpen/CAN/ADM1/geoBoundaries-CAN-ADM1_simplified.geojson
+
+### geoboundaries-CHE-ADM2
+License: Federal Office of Topography swisstopo License
+License URL: https://www.swisstopo.admin.ch/en/home/meta/conditions/geodata/geo-licence.html
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/CHE/ADM2/geoBoundaries-CHE-ADM2_simplified.geojson
+
+### geoboundaries-CHE-ADM1
+License: Federal Office of Topography swisstopo License
+License URL: https://www.swisstopo.admin.ch/en/home/meta/conditions/geodata/geo-licence.html
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/CHE/ADM1/geoBoundaries-CHE-ADM1_simplified.geojson
+
+### geoboundaries-CHL-ADM2
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/CHL/ADM2/geoBoundaries-CHL-ADM2_simplified.geojson
+
+### geoboundaries-CHL-ADM1
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/CHL/ADM1/geoBoundaries-CHL-ADM1_simplified.geojson
+
+### geoboundaries-DEU-ADM2
+License: Data license Germany - Attribution - Version 2.0
+License URL: https://www.govdata.de/dl-de/by-2-0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/DEU/ADM2/geoBoundaries-DEU-ADM2_simplified.geojson
+
+### geoboundaries-DEU-ADM1
+License: Data license Germany - Attribution - Version 2.0
+License URL: https://www.govdata.de/dl-de/by-2-0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/DEU/ADM1/geoBoundaries-DEU-ADM1_simplified.geojson
+
+### geoboundaries-EGY-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/EGY/ADM2/geoBoundaries-EGY-ADM2_simplified.geojson
+
+### geoboundaries-EGY-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/EGY/ADM1/geoBoundaries-EGY-ADM1_simplified.geojson
+
+### geoboundaries-ESP-ADM2
+License: National Institute of Statistics (INE) Data License
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ESP/ADM2/geoBoundaries-ESP-ADM2_simplified.geojson
+
+### geoboundaries-ESP-ADM1
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ESP/ADM1/geoBoundaries-ESP-ADM1_simplified.geojson
+
+### geoboundaries-FRA-ADM2
+License: Etalab Open License 2.0
+License URL: https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/FRA/ADM2/geoBoundaries-FRA-ADM2_simplified.geojson
+
+### geoboundaries-FRA-ADM1
+License: Etalab Open License 2.0
+License URL: https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/FRA/ADM1/geoBoundaries-FRA-ADM1_simplified.geojson
+
+### geoboundaries-GBR-ADM2
+License: Open Government Licence v3.0
+License URL: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/GBR/ADM2/geoBoundaries-GBR-ADM2_simplified.geojson
+
+### geoboundaries-GBR-ADM1
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/GBR/ADM1/geoBoundaries-GBR-ADM1_simplified.geojson
+
+### geoboundaries-IDN-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/IDN/ADM2/geoBoundaries-IDN-ADM2_simplified.geojson
+
+### geoboundaries-IDN-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/IDN/ADM1/geoBoundaries-IDN-ADM1_simplified.geojson
+
+### geoboundaries-IND-ADM2
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/IND/ADM2/geoBoundaries-IND-ADM2_simplified.geojson
+
+### geoboundaries-IND-ADM1
+License: Creative Commons Attribution 2.5 India (CC BY 2.5 IN)
+License URL: https://creativecommons.org/licenses/by/2.5/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/IND/ADM1/geoBoundaries-IND-ADM1_simplified.geojson
+
+### geoboundaries-ISR-ADM2
+License: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ISR/ADM2/geoBoundaries-ISR-ADM2_simplified.geojson
+
+### geoboundaries-ISR-ADM1
+License: Public Domain
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ISR/ADM1/geoBoundaries-ISR-ADM1_simplified.geojson
+
+### geoboundaries-ITA-ADM2
+License: Creative Commons Attribution 3.0 License
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ITA/ADM2/geoBoundaries-ITA-ADM2_simplified.geojson
+
+### geoboundaries-ITA-ADM1
+License: Creative Commons Attribution 3.0 License
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ITA/ADM1/geoBoundaries-ITA-ADM1_simplified.geojson
+
+### geoboundaries-JPN-ADM2
+License: Creative Commons Attribution-ShareAlike 2.0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/JPN/ADM2/geoBoundaries-JPN-ADM2_simplified.geojson
+
+### geoboundaries-JPN-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/JPN/ADM1/geoBoundaries-JPN-ADM1_simplified.geojson
+
+### geoboundaries-KEN-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/KEN/ADM2/geoBoundaries-KEN-ADM2_simplified.geojson
+
+### geoboundaries-KEN-ADM1
+License: Public Domain
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/KEN/ADM1/geoBoundaries-KEN-ADM1_simplified.geojson
+
+### geoboundaries-KHM-ADM2
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/KHM/ADM2/geoBoundaries-KHM-ADM2_simplified.geojson
+
+### geoboundaries-KHM-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/KHM/ADM1/geoBoundaries-KHM-ADM1_simplified.geojson
+
+### geoboundaries-KOR-ADM2
+License: Creative Commons Attribution 3.0 License
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/KOR/ADM2/geoBoundaries-KOR-ADM2_simplified.geojson
+
+### geoboundaries-KOR-ADM1
+License: Public Domain
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/KOR/ADM1/geoBoundaries-KOR-ADM1_simplified.geojson
+
+### geoboundaries-LAO-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/LAO/ADM2/geoBoundaries-LAO-ADM2_simplified.geojson
+
+### geoboundaries-LAO-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/LAO/ADM1/geoBoundaries-LAO-ADM1_simplified.geojson
+
+### geoboundaries-LKA-ADM2
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/LKA/ADM2/geoBoundaries-LKA-ADM2_simplified.geojson
+
+### geoboundaries-LKA-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/LKA/ADM1/geoBoundaries-LKA-ADM1_simplified.geojson
+
+### geoboundaries-MAR-ADM2
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MAR/ADM2/geoBoundaries-MAR-ADM2_simplified.geojson
+
+### geoboundaries-MAR-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MAR/ADM1/geoBoundaries-MAR-ADM1_simplified.geojson
+
+### geoboundaries-MEX-ADM2
+License: Creative Commons Attribution 4.0 (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MEX/ADM2/geoBoundaries-MEX-ADM2_simplified.geojson
+
+### geoboundaries-MEX-ADM1
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/90a1d52/releaseData/gbOpen/MEX/ADM1/geoBoundaries-MEX-ADM1_simplified.geojson
+
+### geoboundaries-MMR-ADM2
+License: Creative Commons Attribution 4.0 (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MMR/ADM2/geoBoundaries-MMR-ADM2_simplified.geojson
+
+### geoboundaries-MMR-ADM1
+License: Creative Commons Attribution 4.0 (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MMR/ADM1/geoBoundaries-MMR-ADM1_simplified.geojson
+
+### geoboundaries-MYS-ADM2
+License: Creative Commons Attribution 3.0 License
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MYS/ADM2/geoBoundaries-MYS-ADM2_simplified.geojson
+
+### geoboundaries-MYS-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MYS/ADM1/geoBoundaries-MYS-ADM1_simplified.geojson
+
+### geoboundaries-NGA-ADM2
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NGA/ADM2/geoBoundaries-NGA-ADM2_simplified.geojson
+
+### geoboundaries-NGA-ADM1
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NGA/ADM1/geoBoundaries-NGA-ADM1_simplified.geojson
+
+### geoboundaries-NLD-ADM2
+License: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NLD/ADM2/geoBoundaries-NLD-ADM2_simplified.geojson
+
+### geoboundaries-NLD-ADM1
+License: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NLD/ADM1/geoBoundaries-NLD-ADM1_simplified.geojson
+
+### geoboundaries-NPL-ADM2
+License: Public Domain
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NPL/ADM2/geoBoundaries-NPL-ADM2_simplified.geojson
+
+### geoboundaries-NPL-ADM1
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NPL/ADM1/geoBoundaries-NPL-ADM1_simplified.geojson
+
+### geoboundaries-NZL-ADM2
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NZL/ADM2/geoBoundaries-NZL-ADM2_simplified.geojson
+
+### geoboundaries-NZL-ADM1
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NZL/ADM1/geoBoundaries-NZL-ADM1_simplified.geojson
+
+### geoboundaries-PHL-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/41af8f1/releaseData/gbOpen/PHL/ADM2/geoBoundaries-PHL-ADM2_simplified.geojson
+
+### geoboundaries-PHL-ADM1
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/41af8f1/releaseData/gbOpen/PHL/ADM1/geoBoundaries-PHL-ADM1_simplified.geojson
+
+### geoboundaries-PRT-ADM2
+License: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+License URL: https://creativecommons.org/publicdomain/zero/1.0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/90a1d52/releaseData/gbOpen/PRT/ADM2/geoBoundaries-PRT-ADM2_simplified.geojson
+
+### geoboundaries-PRT-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/PRT/ADM1/geoBoundaries-PRT-ADM1_simplified.geojson
+
+### geoboundaries-RUS-ADM2
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/RUS/ADM2/geoBoundaries-RUS-ADM2_simplified.geojson
+
+### geoboundaries-RUS-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/RUS/ADM1/geoBoundaries-RUS-ADM1_simplified.geojson
+
+### geoboundaries-SAU-ADM2
+License: Creative Commons Attribution-ShareAlike 2.0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/SAU/ADM2/geoBoundaries-SAU-ADM2_simplified.geojson
+
+### geoboundaries-SAU-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/SAU/ADM1/geoBoundaries-SAU-ADM1_simplified.geojson
+
+### geoboundaries-SGP-ADM2
+License: Singapore Open Data License Version 1.0
+License URL: https://data.gov.sg/open-data-licence
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/SGP/ADM2/geoBoundaries-SGP-ADM2_simplified.geojson
+
+### geoboundaries-SGP-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/SGP/ADM1/geoBoundaries-SGP-ADM1_simplified.geojson
+
+### geoboundaries-THA-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/THA/ADM2/geoBoundaries-THA-ADM2_simplified.geojson
+
+### geoboundaries-THA-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/THA/ADM1/geoBoundaries-THA-ADM1_simplified.geojson
+
+### geoboundaries-TUR-ADM2
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TUR/ADM2/geoBoundaries-TUR-ADM2_simplified.geojson
+
+### geoboundaries-TUR-ADM1
+License: Creative Commons Attribution-ShareAlike 2.0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TUR/ADM1/geoBoundaries-TUR-ADM1_simplified.geojson
+
+### geoboundaries-TWN-ADM2
+License: Creative Commons Attribution-ShareAlike 2.0
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TWN/ADM2/geoBoundaries-TWN-ADM2_simplified.geojson
+
+### geoboundaries-TWN-ADM1
+License: Open Data Commons Open Database License 1.0
+License URL: https://opendatacommons.org/licenses/odbl/1-0/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TWN/ADM1/geoBoundaries-TWN-ADM1_simplified.geojson
+
+### geoboundaries-USA-ADM2
+License: Public Domain
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/USA/ADM2/geoBoundaries-USA-ADM2_simplified.geojson
+
+### geoboundaries-USA-ADM1
+License: Public Domain
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/USA/ADM1/geoBoundaries-USA-ADM1_simplified.geojson
+
+### geoboundaries-VNM-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/VNM/ADM2/geoBoundaries-VNM-ADM2_simplified.geojson
+
+### geoboundaries-VNM-ADM1
+License: Public Domain
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/VNM/ADM1/geoBoundaries-VNM-ADM1_simplified.geojson
+
+### geoboundaries-ZAF-ADM2
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ZAF/ADM2/geoBoundaries-ZAF-ADM2_simplified.geojson
+
+### geoboundaries-ZAF-ADM1
+License: Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)
+License URL: https://creativecommons.org/licenses/by/3.0/igo/
+Attribution: GeoBoundaries gbOpen (https://www.geoboundaries.org/)
+Source: https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/ZAF/ADM1/geoBoundaries-ZAF-ADM1_simplified.geojson

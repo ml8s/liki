@@ -13,6 +13,10 @@
 - **流日 / 流时 series 改为按领域时间 cell 推进**：八字流日进入下一个真太阳日的中点，八字 / 紫微流时进入下一个真太阳时辰的中点。后续 `resolved.standard_time` 不再保证恰好相差 24 小时或 2 小时；测试与调用方应断言下一个日 / 时辰事实，而不是固定标准时钟步长。
 - **城市查询明确为内置 WGS-84 地理表**：`city_coords` 未命中时直接返回明确错误，不做 Nominatim / OSM 外部请求；删除失效的 `LIKI_EXTERNAL_GEOCODING` 配置与文档。
 
+### Added
+
+- **内嵌地理数据第三方声明**：新增 `NOTICE.md` 与 engine 内嵌 `ATTRIBUTION.txt`，由 `data/sources/manifest.json` 生成 DataV / GeoNames / GeoBoundaries 的来源、许可证与 attribution 清单；engine 镜像在 `/usr/share/licenses/liki-engine/ATTRIBUTION.txt` 携带该声明，明确这些数据不由仓库 MIT 重新授权。
+
 ### Fixed
 
 - **均时差按绝对 UTC 时刻计算**：同一 absolute instant 的 `Z`、`+08:00` 等表示不再得到不同 EOT，真太阳时边界不再受字符串 offset 表示影响。

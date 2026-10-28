@@ -7,6 +7,8 @@ Raw sources (read as-is, never edited):
   data/sources/geoboundaries/{ISO3}/...          world admin bboxes (GeoBoundaries)
 
 Output: engine/internal/engine/city/cities_data.json (generated, do not edit).
+After changing data/sources/manifest.json, also run
+scripts/generate_city_attribution.py so the distributable notice stays current.
 """
 import argparse
 import json

@@ -29,6 +29,7 @@ LABEL org.opencontainers.image.version="${VERSION}" \
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=certs /etc/passwd /etc/passwd
 COPY --from=build /out/engine-mcp /usr/local/bin/engine-mcp
+COPY --from=build /src/internal/engine/city/ATTRIBUTION.txt /usr/share/licenses/liki-engine/ATTRIBUTION.txt
 USER liki
 EXPOSE 8081
 ENTRYPOINT ["/usr/local/bin/engine-mcp", "--addr", ":8081"]
