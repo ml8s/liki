@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"liki-engine/internal/engine/tianwen"
 )
 
 func TestComputeChartAtNormalizesOffset(t *testing.T) {
@@ -25,8 +27,8 @@ func TestComputeChartAtNormalizesOffset(t *testing.T) {
 		yaos[i] = 7
 	}
 
-	canonical := ComputeChartAt(atZ.UTC(), loc, 116.407526, YongShiYao, yaos)
-	offset := ComputeChartAt(atOffset.UTC(), loc, 116.407526, YongShiYao, yaos)
+	canonical := ComputeChartAt(tianwen.StandardLocalTime(atZ, loc), 116.407526, YongShiYao, yaos)
+	offset := ComputeChartAt(tianwen.StandardLocalTime(atOffset, loc), 116.407526, YongShiYao, yaos)
 	if !reflect.DeepEqual(canonical, offset) {
 		t.Fatal("offset serialization changed liuyao chart")
 	}

@@ -20,7 +20,7 @@ func TestComputeChartWithMethodAtUsesStandardAndLast(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := ComputeChartWithMethodAt(standard, ny, -74, method)
+	got, err := ComputeChartWithMethodAt(standard, -74, method)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -68,14 +68,14 @@ type BaziChart struct {
 }
 
 func BaziChartCompute(_ context.Context, input BaziChartInput) (BaziChart, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, _, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
 	}
 	if input.Longitude < -180 || input.Longitude > 180 {
 		return BaziChart{}, fmt.Errorf("bazi.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
-	chart := bazi.ComputeChartAt(standard, loc, input.Longitude, ganzhi.Gender(input.Gender))
+	chart := bazi.ComputeChartAt(standard, input.Longitude, ganzhi.Gender(input.Gender))
 	return baziChartWire(chart), nil
 }
 

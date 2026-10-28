@@ -18,7 +18,7 @@ type QimenYongShenSymbols []string
 
 // QimenChart computes a qimen chart for an explicitly selected method.
 func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, error) {
-	at, loc, err := parseStandardTime(input.StandardTime)
+	at, _, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
@@ -38,7 +38,7 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 		if len(input.YongShen) > 0 || input.BirthStandardTime != "" {
 			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_instant")
 		}
-		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, loc, input.Longitude))
+		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, input.Longitude))
 	}
 	var birthDate qimen.BirthDate
 	if input.BirthStandardTime != "" {
@@ -57,13 +57,13 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 			}
 			symbols = append(symbols, symbol)
 		}
-		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, loc, input.Longitude, symbols, birthDate, method)
+		result, err := qimen.ComputeChartWithYongShenAndMethodAt(at, input.Longitude, symbols, birthDate, method)
 		if err != nil {
 			return nil, fmt.Errorf("qimen.chart: %w", err)
 		}
 		return marshalRawOutput("qimen.chart", result)
 	}
-	result, err := qimen.ComputeChartWithMethodAt(at, loc, input.Longitude, method)
+	result, err := qimen.ComputeChartWithMethodAt(at, input.Longitude, method)
 	if err != nil {
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}

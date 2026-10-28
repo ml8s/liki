@@ -47,7 +47,7 @@ func (chart ZiweiChartOutput) domain() (ziwei.Chart, error) {
 
 // ZiweiChart computes the twelve-palace chart from lunar birth data.
 func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessage, error) {
-	at, loc, err := parseStandardTime(input.StandardTime)
+	at, _, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.chart: %w", err)
 	}
@@ -57,7 +57,7 @@ func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessag
 	if _, err := ganzhi.ParseGender(string(input.Gender)); err != nil {
 		return nil, fmt.Errorf("ziwei.chart: gender must be male or female, got %q", input.Gender)
 	}
-	chart, err := ziwei.ComputeChartAt(at, loc, input.Longitude, ganzhi.Gender(input.Gender))
+	chart, err := ziwei.ComputeChartAt(at, input.Longitude, ganzhi.Gender(input.Gender))
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.chart: %w", err)
 	}

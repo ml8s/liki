@@ -44,32 +44,30 @@ func computeChartFromLunarTime(lt tianwen.LunarTime, gender ganzhi.Gender) Chart
 	return chart
 }
 
-// ComputeChartAt is the explicit-time entry for new callers. at must already
-// be normalized to UTC; loc is the explicit IANA location. The default lunar
+// ComputeChartAt is the standard-time entry for new callers. The default lunar
 // basis is the local astronomical calendar, which aligns each locality.
 func ComputeChartAt(
-	at time.Time,
-	loc *time.Location,
+	standard time.Time,
 	longitude float64,
 	gender ganzhi.Gender,
 ) (Chart, error) {
-	return ComputeChartAtBasis(at, loc, longitude, gender, tianwen.LunarBasisLocalAstronomical)
+	return ComputeChartAtBasis(standard, longitude, gender, tianwen.LunarBasisLocalAstronomical)
 }
 
 // ComputeChartAtBasis is ComputeChartAt with an explicit lunar basis.
 func ComputeChartAtBasis(
-	at time.Time,
-	loc *time.Location,
+	standard time.Time,
 	longitude float64,
 	gender ganzhi.Gender,
 	basis tianwen.LunarBasis,
 ) (Chart, error) {
+	loc := standard.Location()
 	projector, err := tianwen.NewLunarProjector(basis, loc)
 	if err != nil {
 		return Chart{}, err
 	}
-	lunarDate := projector.LunarAt(at)
-	shichen := tianwen.ShichenAt(at, loc, longitude)
+	lunarDate := projector.LunarAt(standard)
+	shichen := tianwen.ShichenFromStandard(standard, longitude)
 	lunar := tianwen.LunarTime{
 		Year:    lunarDate.Year,
 		Month:   lunarDate.Month,

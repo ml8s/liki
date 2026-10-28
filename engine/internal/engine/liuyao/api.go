@@ -41,21 +41,13 @@ func ComputeChart(gt time.Time, st time.Time, yongShen YongShen, yaos [6]int) Ch
 	return computeChart(tianwen.ComputeBazi(gt, st), yongShen, yaos)
 }
 
-// ComputeChartAt is the explicit-time entry for new callers. at must already
-// be normalized to UTC; loc is the explicit IANA location.
+// ComputeChartAt is the standard-time entry for new callers.
 func ComputeChartAt(
-	at time.Time,
-	loc *time.Location,
+	standard time.Time,
 	longitude float64,
 	yongShen YongShen,
 	yaos [6]int,
 ) Chart {
-	civil := tianwen.StandardLocalTime(at, loc)
-	solar := tianwen.ApparentSolarCivil(at, loc, longitude)
-	return ComputeChart(
-		time.Time(civil),
-		time.Time(solar),
-		yongShen,
-		yaos,
-	)
+	solar := tianwen.ApparentSolarFromStandard(standard, longitude)
+	return ComputeChart(standard, solar, yongShen, yaos)
 }

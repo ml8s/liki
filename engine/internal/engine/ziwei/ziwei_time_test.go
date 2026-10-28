@@ -130,7 +130,7 @@ func TestComputeChartAtDefaultsToLocalAstronomical(t *testing.T) {
 	// calendar assigns the new moon to the local date, so it differs from the
 	// official UTC+8 table near this boundary.
 	at := time.Date(2026, 6, 1, 23, 30, 0, 0, loc)
-	chart, err := ComputeChartAt(at, loc, -74.0, ganzhi.Male)
+	chart, err := ComputeChartAt(tianwen.StandardLocalTime(at, loc), -74.0, ganzhi.Male)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,7 +159,7 @@ func TestLunarBasisSelectsZiweiProjection(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(string(tc.basis), func(t *testing.T) {
-			chart, err := ComputeChartAtBasis(at, loc, -74.0, ganzhi.Male, tc.basis)
+			chart, err := ComputeChartAtBasis(tianwen.StandardLocalTime(at, loc), -74.0, ganzhi.Male, tc.basis)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -210,7 +210,7 @@ func TestComputeChartAtUsesStandardDateAcrossDST(t *testing.T) {
 	ref := tianwen.NewLunarReference(time.FixedZone("standard", -5*3600))
 	want := ref.LunarDateAt(standard)
 
-	chart, err := ComputeChartAt(standard, ny, -74.0, ganzhi.Male)
+	chart, err := ComputeChartAt(standard, -74.0, ganzhi.Male)
 	if err != nil {
 		t.Fatal(err)
 	}

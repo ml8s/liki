@@ -25,21 +25,14 @@ func ComputeChart(gt time.Time, st time.Time, gender ganzhi.Gender) Chart {
 	return computeChartCore(gt, st, tianwen.ComputeBazi(gt, st), gender)
 }
 
-// ComputeChartAt is the explicit-time entry for new callers. at must already
-// be normalized to UTC; loc is the explicit IANA location.
+// ComputeChartAt is the standard-time entry for new callers.
 func ComputeChartAt(
-	at time.Time,
-	loc *time.Location,
+	standard time.Time,
 	longitude float64,
 	gender ganzhi.Gender,
 ) Chart {
-	civil := tianwen.StandardLocalTime(at, loc)
-	solar := tianwen.ApparentSolarCivil(at, loc, longitude)
-	return ComputeChart(
-		time.Time(civil),
-		time.Time(solar),
-		gender,
-	)
+	solar := tianwen.ApparentSolarFromStandard(standard, longitude)
+	return ComputeChart(standard, solar, gender)
 }
 
 // NewChartFromPillars assembles the published lean chart from already decoded

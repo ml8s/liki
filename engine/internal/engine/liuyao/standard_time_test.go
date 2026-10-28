@@ -17,7 +17,7 @@ func TestComputeChartAtUsesStandardAndLast(t *testing.T) {
 	standard := tianwen.StandardLocalTime(at, ny)
 	last := tianwen.ApparentSolarFromStandard(standard, -74)
 	yaos := [6]int{7, 8, 7, 8, 7, 8}
-	got := ComputeChartAt(standard, ny, -74, YongShiYao, yaos)
+	got := ComputeChartAt(standard, -74, YongShiYao, yaos)
 	want := ComputeChart(standard, last, YongShiYao, yaos)
 	if !reflect.DeepEqual(got, want) {
 		t.Fatal("liuyao standard/LAST composition differs from ComputeChartAt")

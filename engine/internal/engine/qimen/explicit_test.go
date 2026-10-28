@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"liki-engine/internal/engine/tianwen"
 )
 
 func TestComputeChartAtNormalizesOffset(t *testing.T) {
@@ -25,11 +27,11 @@ func TestComputeChartAtNormalizesOffset(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	canonical, err := ComputeChartWithMethodAt(atZ.UTC(), loc, 116.407526, method)
+	canonical, err := ComputeChartWithMethodAt(tianwen.StandardLocalTime(atZ, loc), 116.407526, method)
 	if err != nil {
 		t.Fatalf("canonical chart: %v", err)
 	}
-	offset, err := ComputeChartWithMethodAt(atOffset.UTC(), loc, 116.407526, method)
+	offset, err := ComputeChartWithMethodAt(tianwen.StandardLocalTime(atOffset, loc), 116.407526, method)
 	if err != nil {
 		t.Fatalf("offset chart: %v", err)
 	}

@@ -395,7 +395,7 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, 
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: invalid casting: %w", err)
 	}
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, _, err := parseStandardTime(input.StandardTime)
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
@@ -410,7 +410,7 @@ func LiuyaoChart(_ context.Context, input LiuyaoChartInput) (LiuyaoChartOutput, 
 	if err != nil {
 		return LiuyaoChartOutput{}, fmt.Errorf("liuyao.chart: %w", err)
 	}
-	chart := liuyao.ComputeChartAt(standard, loc, input.Longitude, ys, casting.Yaos)
+	chart := liuyao.ComputeChartAt(standard, input.Longitude, ys, casting.Yaos)
 	chart.Casting = &casting
 	return liuyaoChartWire(chart), nil
 }

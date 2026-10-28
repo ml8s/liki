@@ -25,8 +25,8 @@ func TestFlowProjectionsNormalizeOffset(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	chartZ := ComputeChartAt(atZ.UTC(), loc, 116.407526, ganzhi.Male)
-	chartOffset := ComputeChartAt(atOffset.UTC(), loc, 116.407526, ganzhi.Male)
+	chartZ := ComputeChartAt(tianwen.StandardLocalTime(atZ, loc), 116.407526, ganzhi.Male)
+	chartOffset := ComputeChartAt(tianwen.StandardLocalTime(atOffset, loc), 116.407526, ganzhi.Male)
 	if !reflect.DeepEqual(chartZ, chartOffset) {
 		t.Fatal("offset serialization changed chart")
 	}
