@@ -70,15 +70,15 @@ func BenchmarkMCPQimenChart(b *testing.B) {
 
 func BenchmarkMCPBaziFullChart(b *testing.B) {
 	registry := testEngine()
-	chart := benchmarkBaziChart(b, registry, "1990-05-20T12:49:00", "male")
+	chart := benchmarkBaziChart(b, registry, "1990-05-20T12:49:00+08:00", "male")
 	arguments := mustBenchmarkJSON(b, map[string]any{"chart": chart})
 	benchmarkCall(b, registry, "bazi_fullchart", string(arguments))
 }
 
 func BenchmarkMCPBaziBond(b *testing.B) {
 	registry := testEngine()
-	chartA := benchmarkBaziChart(b, registry, "1990-05-20T12:49:00", "male")
-	chartB := benchmarkBaziChart(b, registry, "1992-08-10T10:20:00", "female")
+	chartA := benchmarkBaziChart(b, registry, "1990-05-20T12:49:00+08:00", "male")
+	chartB := benchmarkBaziChart(b, registry, "1992-08-10T10:20:00+08:00", "female")
 	arguments := mustBenchmarkJSON(b, map[string]any{
 		"a": map[string]any{"chart": chartA},
 		"b": map[string]any{"chart": chartB},
@@ -102,10 +102,10 @@ func BenchmarkMCPOutputValidationZiweiChart(b *testing.B) {
 	}
 }
 
-func benchmarkBaziChart(b *testing.B, registry *Registry, civilTime, gender string) json.RawMessage {
+func benchmarkBaziChart(b *testing.B, registry *Registry, standardTime, gender string) json.RawMessage {
 	b.Helper()
 	raw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-		`{"standard_time":"`+civilTime+`","longitude":116.4,"gender":"`+gender+`"}`,
+		`{"standard_time":"`+standardTime+`","longitude":116.4,"gender":"`+gender+`"}`,
 	))
 	if err != nil {
 		b.Fatal(err)
