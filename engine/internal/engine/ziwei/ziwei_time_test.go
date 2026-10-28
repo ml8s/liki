@@ -198,3 +198,49 @@ func TestLunarBasisSelectsZiweiProjection(t *testing.T) {
 		})
 	}
 }
+
+func TestComputeChartAtUsesStandardDateAcrossDST(t *testing.T) {
+	ny, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 00:30 EDT is 23:30 EST on the previous day.
+	at := time.Date(2024, 7, 1, 4, 30, 0, 0, time.UTC)
+	standard := tianwen.StandardLocalTime(at, ny)
+	ref := tianwen.NewLunarReference(time.FixedZone("standard", -5*3600))
+	want := ref.LunarDateAt(standard)
+
+	chart, err := ComputeChartAt(standard, ny, -74.0, ganzhi.Male)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if chart.LunarMonth != want.Month || chart.LunarDay != want.Day || chart.BirthIsLeap != want.Leap {
+		t.Fatalf("chart lunar = %d-%d leap=%v, want standard-date %d-%d leap=%v",
+			chart.LunarMonth, chart.LunarDay, chart.BirthIsLeap,
+			want.Month, want.Day, want.Leap)
+	}
+}
+
+func TestResolveLiuRiTimeAtWithUsesStandardDate(t *testing.T) {
+	ny, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Fatal(err)
+	}
+	at := time.Date(2024, 7, 1, 4, 30, 0, 0, time.UTC)
+	standard := tianwen.StandardLocalTime(at, ny)
+	projector, err := tianwen.NewLunarProjector(tianwen.LunarBasisLocalAstronomical, ny)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := ResolveLiuRiTimeAtWith(projector, standard, ny, "America/New_York")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantDate := tianwen.StandardDateAt(standard, ny)
+	if got.LocalDate != wantDate || got.Date != wantDate {
+		t.Fatalf("dates = %s/%s, want %s", got.LocalDate, got.Date, wantDate)
+	}
+	if want := projector.SolarDateToLunar(wantDate); got.Lunar != want {
+		t.Fatalf("lunar = %+v, want %+v", got.Lunar, want)
+	}
+}

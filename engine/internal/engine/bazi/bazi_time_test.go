@@ -1,6 +1,7 @@
 package bazi
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -194,5 +195,46 @@ func TestResolveLiuYueTimeAtUsesExactJie(t *testing.T) {
 	}
 	if want := tianwen.CivilDateOf(jingzhe.In(loc)); after.Start != want {
 		t.Fatalf("start = %s, want %s", after.Start, want)
+	}
+}
+
+func TestResolveLiuRiTimeAtUsesStandardDateAcrossDST(t *testing.T) {
+	ny, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 00:30 EDT is 23:30 EST on the previous day.
+	at := time.Date(2024, 7, 1, 4, 30, 0, 0, time.UTC)
+	got, err := ResolveLiuRiTimeAt(at, ny, "America/New_York", -74)
+	if err != nil {
+		t.Fatal(err)
+	}
+	standard := tianwen.StandardDateAt(at, ny)
+	last := tianwen.ApparentSolarCivil(at, ny, -74)
+	lastDate := tianwen.CivilDateOf(last)
+	if got.LocalDate != standard {
+		t.Fatalf("local date = %s, want standard date %s", got.LocalDate, standard)
+	}
+	if got.Date != lastDate {
+		t.Fatalf("ri date = %s, want LAST date %s", got.Date, lastDate)
+	}
+	zhu := tianwen.RiZhu(lastDate.Time())
+	if got.RiGan != zhu.Gan || got.RiZhi != zhu.Zhi {
+		t.Fatalf("ri zhu = %s%s, want %s%s", got.RiGan, got.RiZhi, zhu.Gan, zhu.Zhi)
+	}
+}
+
+func TestComputeChartAtUsesStandardTimeAndLast(t *testing.T) {
+	ny, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Fatal(err)
+	}
+	at := time.Date(2024, 7, 1, 4, 30, 0, 0, time.UTC)
+	standard := tianwen.StandardLocalTime(at, ny)
+	last := tianwen.ApparentSolarFromStandard(standard, -74)
+	want := ComputeChart(standard, last, ganzhi.Male)
+	got := ComputeChartAt(standard, ny, -74, ganzhi.Male)
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("ComputeChartAt differs from standard/LAST composition")
 	}
 }
