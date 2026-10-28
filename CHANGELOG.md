@@ -21,6 +21,7 @@
 
 - **均时差按绝对 UTC 时刻计算**：同一 absolute instant 的 `Z`、`+08:00` 等表示不再得到不同 EOT，真太阳时边界不再受字符串 offset 表示影响。
 - **自动起卦不再隐藏重试**：`liuyao.qigua mode=auto` 是服务端随机事件，counsel 的通用 MCP client 现在强制单次执行；传输失败时明确报错，由用户确认后重新起卦。`coins` / `yaos` 输入保持幂等，可继续按原策略重试。
+- **Python 工具链本地 / CI 对齐**：本机全局 Ruff 现在会校验 pinned 版本，版本不一致直接失败；counsel 测试 venv 缺失 dev dependencies 时自动补装，避免 uv 与 pip bootstrap 路径漂移。
 - **修复 Bazi / Ziwei MCP benchmark 输入**：`bazi_fullchart` 与 `bazi_bond` benchmark 改用带 offset 的 `standard_time`，性能入口恢复可执行。
 
 ### Migration

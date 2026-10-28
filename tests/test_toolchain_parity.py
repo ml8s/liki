@@ -15,6 +15,7 @@ MAKEFILE = ROOT / "Makefile"
 GOLANGCI_PIN = ROOT / "deps" / "golangci-lint.version"
 LINT_ENGINE = ROOT / "scripts" / "lint-engine.sh"
 LINT_PYTHON = ROOT / "scripts" / "lint-python.sh"
+COUNSEL_TEST = ROOT / "scripts" / "test-counsel.sh"
 ENGINE_COVERAGE = ROOT / "scripts" / "test-engine-coverage.sh"
 PRE_PUSH_HOOK = ROOT / ".githooks" / "pre-push"
 
@@ -71,6 +72,28 @@ def test_ruff_pin_matches_ci():
     ci = re.search(r"ruff==([0-9][0-9.]*)", WORKFLOW.read_text(encoding="utf-8"))
     assert ci, "CI must install a pinned ruff"
     assert local.group(1) == ci.group(1), (local.group(1), ci.group(1))
+
+
+def test_lint_python_script_asserts_global_ruff_pin():
+    script = LINT_PYTHON.read_text(encoding="utf-8")
+    assert "ruff --version" in script, "a global Ruff must be version-checked"
+    assert "does not match the pinned" in script, "a version mismatch must fail closed"
+    assert "exec ruff check" in script
+
+
+def test_counsel_bootstrap_installs_dev_dependencies_on_every_toolchain_path():
+    script = COUNSEL_TEST.read_text(encoding="utf-8")
+    makefile = MAKEFILE.read_text(encoding="utf-8")
+    assert "requirements-dev.txt" in script, (
+        "the counsel suite needs pytest/coverage from requirements-dev.txt"
+    )
+    assert "make --no-print-directory -C \"$ROOT\" python-env" in script
+    assert "uv pip install --python counsel/.venv/bin/python -r counsel/requirements-dev.txt" in makefile, (
+        "the uv-provisioned venv must include dev dependencies"
+    )
+    assert "python" in script and "-m pip install" in script, (
+        "the fallback path must install dev dependencies"
+    )
 
 
 def test_engine_coverage_floor_is_single_sourced():

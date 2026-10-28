@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PYTHON="${PYTHON:-python3}"
 COUNSEL_PYTHON="${COUNSEL_PYTHON:-}"
 COUNSEL_TEST_TARGETS="${COUNSEL_TEST_TARGETS:-tests/}"
+export UV_CACHE_DIR="${UV_CACHE_DIR:-/tmp/uv-cache}"
 
 "$ROOT/scripts/check-go-version.sh"
 
@@ -23,11 +24,27 @@ if [ -z "$COUNSEL_PYTHON" ] && [ ! -x "$ROOT/counsel/.venv/bin/python" ]; then
         "$ROOT/counsel/.venv/bin/python" -m pip install \
             --retries 10 --timeout 60 \
             --require-hashes --requirement "$ROOT/counsel/requirements.lock"
-        "$ROOT/counsel/.venv/bin/python" -m pip install -r "$ROOT/counsel/requirements-dev.txt"
+        "$ROOT/counsel/.venv/bin/python" -m pip install \
+            --retries 10 --timeout 60 \
+            --requirement "$ROOT/counsel/requirements-dev.txt"
     fi
 fi
 
 COUNSEL_PYTHON="${COUNSEL_PYTHON:-$ROOT/counsel/.venv/bin/python}"
+if [ "$COUNSEL_PYTHON" = "$ROOT/counsel/.venv/bin/python" ] && \
+    ! "$COUNSEL_PYTHON" -c 'import jsonschema, pytest, yaml' >/dev/null 2>&1; then
+    # Older venvs may predate requirements-dev.txt. Refresh only the missing
+    # dev layer instead of forcing a network sync on every test run.
+    if command -v uv >/dev/null 2>&1; then
+        uv pip install --python "$COUNSEL_PYTHON" \
+            --requirement "$ROOT/counsel/requirements-dev.txt"
+    else
+        "$COUNSEL_PYTHON" -m pip install \
+            --retries 10 --timeout 60 \
+            --requirement "$ROOT/counsel/requirements-dev.txt"
+    fi
+fi
+
 read -r -a counsel_targets <<< "$COUNSEL_TEST_TARGETS"
 LIKI_ENGINE_BIN="$ENGINE_BIN" FIXTURE_CWD="$ROOT/counsel" "$ROOT/scripts/_engine_fixture.py" -- \
     "$COUNSEL_PYTHON" -m pytest "${counsel_targets[@]}" -q
