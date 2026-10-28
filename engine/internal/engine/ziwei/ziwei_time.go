@@ -273,18 +273,22 @@ func ResolveLiuShiTimeWith(p tianwen.LunarProjector, standard time.Time, loc *ti
 	}, nil
 }
 
-// NextLiuShiTime advances one 时辰 (two clock hours), preserving the existing
-// ziwei_liushi series contract.
+// NextLiuShiTime advances one apparent-solar 时辰.
 func NextLiuShiTime(t LiuShiTime) (LiuShiTime, error) {
 	return NextLiuShiTimeWith(tianwen.DefaultLunarProjector(), t)
 }
 
-// NextLiuShiTimeWith advances one 时辰 using an explicit projector.
+// NextLiuShiTimeWith advances one apparent-solar 时辰 using an explicit
+// projector.
 func NextLiuShiTimeWith(p tianwen.LunarProjector, t LiuShiTime) (LiuShiTime, error) {
 	if t.Location == nil {
 		return LiuShiTime{}, fmt.Errorf("liushi: location is required for series")
 	}
-	return ResolveLiuShiTimeWith(p, t.Standard.Add(2*time.Hour), t.Location, t.Longitude)
+	next, err := tianwen.NextApparentSolarShichen(t.Standard, t.Longitude)
+	if err != nil {
+		return LiuShiTime{}, fmt.Errorf("liushi: %w", err)
+	}
+	return ResolveLiuShiTimeWith(p, next, t.Location, t.Longitude)
 }
 
 // ComputeLiuShiAtTime projects a resolved flow-hour time.

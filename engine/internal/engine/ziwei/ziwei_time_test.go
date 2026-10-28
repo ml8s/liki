@@ -244,3 +244,23 @@ func TestResolveLiuRiTimeAtWithUsesStandardDate(t *testing.T) {
 		t.Fatalf("lunar = %+v, want %+v", got.Lunar, want)
 	}
 }
+
+func TestNextLiuShiTimeAdvancesOneApparentSolarShichen(t *testing.T) {
+	// The selector is a few seconds inside 巳. A fixed +2h standard-time step
+	// remains a fraction of a second before the 午 boundary.
+	at := time.Date(2024, 1, 2, 20, 28, 0, 0, time.UTC)
+	current, err := ResolveLiuShiTime(at, time.UTC, -171)
+	if err != nil {
+		t.Fatal(err)
+	}
+	next, err := NextLiuShiTime(current)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if current.Shichen.String() != "巳" {
+		t.Fatalf("current shichen = %s, want 巳", current.Shichen)
+	}
+	if next.Shichen.String() != "午" {
+		t.Fatalf("next shichen = %s, want 午", next.Shichen)
+	}
+}

@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
-	"time"
 
+	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
 
@@ -186,18 +186,79 @@ func TestSeriesHourRollover(t *testing.T) {
 	if len(items) != 2 {
 		t.Fatalf("want 2, got %d", len(items))
 	}
-	first, _ := items[0]["resolved"].(map[string]any)["standard_time"].(string)
-	second, _ := items[1]["resolved"].(map[string]any)["standard_time"].(string)
-	t1, err := time.Parse(time.RFC3339, first)
+	first, _ := items[0]["resolved"].(map[string]any)["shichen"].(string)
+	second, _ := items[1]["resolved"].(map[string]any)["shichen"].(string)
+	firstZhi, err := ganzhi.ParseZhi(first)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t2, err := time.Parse(time.RFC3339, second)
+	secondZhi, err := ganzhi.ParseZhi(second)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if t2.Sub(t1) != 2*time.Hour {
-		t.Errorf("时辰 step = %s, want 2h", t2.Sub(t1))
+	if secondZhi != firstZhi%12+1 {
+		t.Errorf("时辰 step = %s -> %s, want the next shichen", first, second)
+	}
+}
+
+func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
+	reg := NewEngine()
+	baziChart := seriesChart(t, reg)
+
+	days := decodeSeriesItems(t, callSeries(t, reg, "bazi_liuri", map[string]any{
+		"standard_time": "2024-01-01T22:52:00Z",
+		"longitude":     18,
+		"count":         2,
+		"chart":         baziChart,
+	}))
+	if len(days) != 2 {
+		t.Fatalf("bazi_liuri returned %d items, want 2", len(days))
+	}
+	if got := days[0]["resolved"].(map[string]any)["standard_time"].(string); got != "2024-01-01T22:52:00Z" {
+		t.Fatalf("bazi_liuri first selector = %s, want the input selector", got)
+	}
+	firstDay := days[0]["resolved"].(map[string]any)["last_date"].(string)
+	secondDay := days[1]["resolved"].(map[string]any)["last_date"].(string)
+	if firstDay == secondDay {
+		t.Fatalf("bazi_liuri repeated LAST date %s", firstDay)
+	}
+
+	hours := decodeSeriesItems(t, callSeries(t, reg, "bazi_liushi", map[string]any{
+		"standard_time": "2024-01-02T20:28:00Z",
+		"longitude":     -171,
+		"count":         2,
+		"chart":         baziChart,
+	}))
+	if len(hours) != 2 {
+		t.Fatalf("bazi_liushi returned %d items, want 2", len(hours))
+	}
+	if got := hours[0]["resolved"].(map[string]any)["standard_time"].(string); got != "2024-01-02T20:28:00Z" {
+		t.Fatalf("bazi_liushi first selector = %s, want the input selector", got)
+	}
+	firstShichen := hours[0]["resolved"].(map[string]any)["shichen"].(string)
+	secondShichen := hours[1]["resolved"].(map[string]any)["shichen"].(string)
+	if firstShichen != "巳" || secondShichen != "午" {
+		t.Fatalf("bazi_liushi shichen = %s -> %s, want 巳 -> 午", firstShichen, secondShichen)
+	}
+
+	ziweiChart := callSeries(t, reg, "ziwei_chart", map[string]any{
+		"standard_time": "2024-01-02T20:28:00Z",
+		"longitude":     -171,
+		"gender":        "male",
+	})
+	ziweiHours := decodeSeriesItems(t, callSeries(t, reg, "ziwei_liushi", map[string]any{
+		"standard_time": "2024-01-02T20:28:00Z",
+		"longitude":     -171,
+		"count":         2,
+		"chart":         ziweiChart,
+	}))
+	if len(ziweiHours) != 2 {
+		t.Fatalf("ziwei_liushi returned %d items, want 2", len(ziweiHours))
+	}
+	firstZiweiShichen := ziweiHours[0]["resolved"].(map[string]any)["shichen"].(string)
+	secondZiweiShichen := ziweiHours[1]["resolved"].(map[string]any)["shichen"].(string)
+	if firstZiweiShichen != "巳" || secondZiweiShichen != "午" {
+		t.Fatalf("ziwei_liushi shichen = %s -> %s, want 巳 -> 午", firstZiweiShichen, secondZiweiShichen)
 	}
 }
 

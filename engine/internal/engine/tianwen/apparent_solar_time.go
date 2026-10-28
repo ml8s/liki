@@ -10,8 +10,11 @@ import (
 // equationOfTime computes the Equation of Time in minutes using the
 // full Meeus algorithm (Astronomical Algorithms, Ch.28). Accuracy < 0.01 min.
 func equationOfTime(t time.Time) float64 {
-	year, month, day := t.Date()
-	hour, minute, _ := t.Clock()
+	// EOT is a property of the absolute instant. Normalize the caller's
+	// standard-time representation before deriving Julian Date.
+	ut := t.UTC()
+	year, month, day := ut.Date()
+	hour, minute, _ := ut.Clock()
 
 	// Julian Date at the given UT moment
 	jd := julianDateFromTime(year, int(month), day, hour, minute)

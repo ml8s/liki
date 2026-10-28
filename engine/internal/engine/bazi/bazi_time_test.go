@@ -52,6 +52,32 @@ func TestNextLiuRiTimeAdvancesOneCivilDay(t *testing.T) {
 	}
 }
 
+func TestNextLiuRiTimeAtAdvancesOneApparentSolarDay(t *testing.T) {
+	// At longitude 18 this selector is just after LAST midnight. The next LAST
+	// midnight is more than 24 standard hours away because EOT changes.
+	at := time.Date(2024, 1, 1, 22, 52, 0, 0, time.UTC)
+	current, err := ResolveLiuRiTimeAt(at, time.UTC, 18)
+	if err != nil {
+		t.Fatal(err)
+	}
+	next, err := NextLiuRiTime(current)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if current.Date != tianwen.NewCivilDate(2024, 1, 2) {
+		t.Fatalf("current LAST date = %s, want 2024-01-02", current.Date)
+	}
+	if next.Date != current.Date.AddDays(1) {
+		t.Fatalf("next LAST date = %s, want %s", next.Date, current.Date.AddDays(1))
+	}
+	prevIdx := ganzhi.SixtyCycleIndex(current.RiGan, current.RiZhi)
+	nextIdx := ganzhi.SixtyCycleIndex(next.RiGan, next.RiZhi)
+	if nextIdx != (prevIdx+1)%60 {
+		t.Fatalf("day cycle index = %d, want %d", nextIdx, (prevIdx+1)%60)
+	}
+}
+
 func TestResolveLiuNianTimeLichunBoundary(t *testing.T) {
 	lichun := tianwen.SolarTermCivilDate(2026, 315)
 

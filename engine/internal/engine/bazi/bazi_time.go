@@ -64,9 +64,8 @@ func ResolveLiuRiTimeAt(standard time.Time, loc *time.Location, longitude float6
 	}, nil
 }
 
-// NextLiuRiTime returns the next day's resolved time. Standard-time values
-// advance by 24h and re-derive the LAST date; date-based values advance by one
-// civil date.
+// NextLiuRiTime returns the next day's resolved time. Standard-time values use
+// the next apparent-solar day; date-based values advance by one civil date.
 func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
 	if t.Standard.IsZero() {
 		return ResolveLiuRiTime(t.Date.AddDays(1))
@@ -74,7 +73,11 @@ func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
 	if t.Location == nil {
 		return LiuRiTime{}, fmt.Errorf("liuri: location is required for series")
 	}
-	return ResolveLiuRiTimeAt(t.Standard.Add(24*time.Hour), t.Location, t.Longitude)
+	next, err := tianwen.NextApparentSolarDay(t.Standard, t.Longitude)
+	if err != nil {
+		return LiuRiTime{}, fmt.Errorf("liuri: %w", err)
+	}
+	return ResolveLiuRiTimeAt(next, t.Location, t.Longitude)
 }
 
 // LiuNianTime is the resolved year-level time for 流年. Start is the 立春
@@ -277,10 +280,14 @@ func ResolveLiuShiTime(standard time.Time, loc *time.Location, longitude float64
 	}, nil
 }
 
-// NextLiuShiTime advances one 时辰 (two clock hours).
+// NextLiuShiTime advances one apparent-solar 时辰.
 func NextLiuShiTime(t LiuShiTime) (LiuShiTime, error) {
 	if t.Location == nil {
 		return LiuShiTime{}, fmt.Errorf("liushi: location is required for series")
 	}
-	return ResolveLiuShiTime(t.Standard.Add(2*time.Hour), t.Location, t.Longitude)
+	next, err := tianwen.NextApparentSolarShichen(t.Standard, t.Longitude)
+	if err != nil {
+		return LiuShiTime{}, fmt.Errorf("liushi: %w", err)
+	}
+	return ResolveLiuShiTime(next, t.Location, t.Longitude)
 }
