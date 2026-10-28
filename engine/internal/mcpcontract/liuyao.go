@@ -377,7 +377,7 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 	return LiuyaoQiguaOutput{Casting: liuyaoCastingWire(casting)}, nil
 }
 
-// LiuyaoChartInput takes the canonical {instant, timezone} pair (Zone is IANA) and the
+// LiuyaoChartInput takes standard_time plus longitude and the
 // birth/query longitude. The boundary derives LocalCivilTime and LAST; the
 // chart domain consumes those domain scales (day/month jian use LAST/solar terms; boundary converts once).
 type LiuyaoChartInput struct {

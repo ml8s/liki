@@ -47,9 +47,9 @@ type BaziDaYun struct {
 	Steps           []BaziDaYunStep `json:"steps" jsonschema:"大运步骤。"`
 }
 
-// BaziChartInput takes the canonical {instant, timezone} pair (Zone is IANA) and the
+// BaziChartInput takes standard_time plus longitude and the
 // birth/query longitude. The boundary derives LocalCivilTime and LAST; the
-// chart domain consumes those domain scales (year/month = solar terms (civil/instant); day/hour = LAST + 子时; no Gregorian/offset transit).
+// chart domain consumes those domain scales (year/month = solar-term events; day/hour = LAST + 子时).
 type BaziChartInput struct {
 	StandardTime StandardTime `json:"standard_time" jsonschema:"时区标准时间（无 DST），RFC3339 带 offset。"`
 	Longitude    float64      `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于日柱/时柱。"`

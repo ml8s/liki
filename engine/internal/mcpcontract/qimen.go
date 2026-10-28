@@ -36,7 +36,7 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 	}
 	if method.School == qimen.SchoolJinhanYuJing {
 		if len(input.YongShen) > 0 || input.BirthStandardTime != "" {
-			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_instant")
+			return nil, fmt.Errorf("qimen.chart: jinhan_yujing does not support yong_shen or birth_standard_time")
 		}
 		return marshalRawOutput("qimen.chart", qimen.ComputeJinhanChartAt(at, input.Longitude))
 	}

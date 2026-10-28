@@ -120,16 +120,16 @@ type TianwenResolveReasonOutput struct {
 
 // TianwenResolveCandidateOutput is one possible chart time point.
 //
-// UTC is the canonical instant; Timezone is the IANA zone; LocalTime is the
-// civil time with offset for display only. Do not add calendar/true-solar
-// fields here: charts derive Lunar/LAST/SolarTerm on demand from the shared L1.
+// StandardTime is the canonical standard-time value. Do not add calendar or
+// true-solar fields here: charts derive Lunar/LAST/SolarTerm on demand from
+// the shared L1.
 type TianwenResolveCandidateOutput struct {
 	StandardTime string                       `json:"standard_time" jsonschema:"候选时区标准时间（无 DST），RFC3339。"`
 	Reasons      []TianwenResolveReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
 }
 
-// TianwenResolveOutput is the candidate set for one time fact. The only
-// canonical value is {instant, timezone}; local_time/offset are derived views.
+// TianwenResolveOutput is the candidate set for one time fact. Every candidate
+// is standard_time.
 type TianwenResolveOutput struct {
 	Candidates []TianwenResolveCandidateOutput `json:"candidates" jsonschema:"候选列表：永远包含一个 input 候选；其余为边界派生。"`
 }

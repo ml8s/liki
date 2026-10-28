@@ -24,9 +24,9 @@ type QimenMethodInput struct {
 	HourBoundary     HourBoundaryName       `json:"hour_boundary,omitempty" jsonschema:"时辰界；仅十二分钟十分局分支携带。"`
 }
 
-// QimenChartInput takes the canonical {instant, timezone} pair, longitude, and
+// QimenChartInput takes standard_time, longitude, and
 // a closed method object. Time/location and method selection stay orthogonal;
-// yong_shen/birth_instant are chart-analysis inputs, not method knobs.
+// yong_shen/birth_standard_time are chart-analysis inputs, not method knobs.
 type QimenChartInput struct {
 	StandardTime      StandardTime         `json:"standard_time" jsonschema:"占问地标准时间（无 DST），RFC3339 带 offset；节气换局/置闰按此时刻判定。"`
 	Longitude         float64              `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时柱与分钟分法"`

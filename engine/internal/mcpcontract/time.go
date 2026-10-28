@@ -18,8 +18,8 @@ type TimeNowOutput struct {
 	StandardTime string `json:"standard_time" jsonschema:"当前时区标准时间（无 DST），RFC3339。"`
 }
 
-// TimeNow returns the current instant plus its representation in the required
-// IANA timezone. The wall clock is never used as an implicit source.
+// TimeNow returns the current standard time in the required IANA timezone. The
+// process wall clock is never used as an implicit source.
 func TimeNow(ctx context.Context, input TimeNowInput) (TimeNowOutput, error) {
 	if err := ctx.Err(); err != nil {
 		return TimeNowOutput{}, err

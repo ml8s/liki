@@ -10,7 +10,7 @@ import (
 // ComputeChart computes a complete紫微命盘 from an already-resolved lunar time
 // and gender. Timezone, lunar reference, and date validity belong to the
 // caller's projection; this entry does not re-derive the calendar. Use
-// ComputeChartAtBasis when resolving directly from an instant.
+// ComputeChartAtBasis when resolving a standard-time input.
 func ComputeChart(lt tianwen.LunarTime, gender ganzhi.Gender) (Chart, error) {
 	return computeChartFromLunarTime(lt, gender), nil
 }

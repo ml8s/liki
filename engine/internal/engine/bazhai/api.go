@@ -40,8 +40,8 @@ func ComputeChartAtDate(gender ganzhi.Gender, date tianwen.CivilDate) (Chart, er
 // ComputeChartAtStandard derives the 立春 year from a standard time and
 // computes the 八宅 chart. The 立春 boundary is an absolute instant, so the
 // observer's timezone does not change the year.
-func ComputeChartAtStandard(gender ganzhi.Gender, instant time.Time) (Chart, error) {
-	ly, err := tianwen.LichunYearAt(instant)
+func ComputeChartAtStandard(gender ganzhi.Gender, standard time.Time) (Chart, error) {
+	ly, err := tianwen.LichunYearAt(standard)
 	if err != nil {
 		return Chart{}, err
 	}

@@ -1,9 +1,28 @@
 package mcpcontract
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 )
+
+// parseInstant accepts an RFC3339 absolute instant. Canonical wire form is
+// UTC and ends with Z, but numeric offsets are accepted as equivalent
+// representations of the same point and normalized here. The returned
+// time.Time is always UTC.
+func parseInstant(value string) (time.Time, error) {
+	if strings.HasSuffix(value, "-00:00") {
+		return time.Time{}, fmt.Errorf("instant %q uses unknown offset -00:00", value)
+	}
+
+	at, err := time.Parse(time.RFC3339Nano, value)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid instant %q: %w", value, err)
+	}
+
+	return at.UTC(), nil
+}
 
 func TestParseInstantAcceptsEquivalentRFC3339Forms(t *testing.T) {
 	for _, tc := range []struct {
