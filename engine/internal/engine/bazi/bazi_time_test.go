@@ -205,7 +205,7 @@ func TestResolveLiuRiTimeAtUsesStandardDateAcrossDST(t *testing.T) {
 	}
 	// 00:30 EDT is 23:30 EST on the previous day.
 	at := time.Date(2024, 7, 1, 4, 30, 0, 0, time.UTC)
-	got, err := ResolveLiuRiTimeAt(at, ny, "America/New_York", -74)
+	got, err := ResolveLiuRiTimeAt(at, ny, -74)
 	if err != nil {
 		t.Fatal(err)
 	}

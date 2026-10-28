@@ -12,7 +12,7 @@ func resolveTestLiuShi(t *testing.T, year, month, day, hour, minute int) LiuShiT
 	t.Helper()
 	loc := time.FixedZone("CST", 8*3600)
 	at := time.Date(year, time.Month(month), day, hour, minute, 0, 0, loc)
-	resolved, err := ResolveLiuShiTime(at, loc, "Asia/Shanghai", 120.0)
+	resolved, err := ResolveLiuShiTime(at, loc, 120.0)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -13,7 +13,6 @@ import (
 type LiuRiTime struct {
 	Instant     time.Time         `json:"-"`
 	Location    *time.Location    `json:"-"`
-	Timezone    string            `json:"timezone"`
 	Longitude   float64           `json:"longitude"`
 	Date        tianwen.CivilDate `json:"date"`
 	LocalDate   tianwen.CivilDate `json:"local_date"`
@@ -39,27 +38,26 @@ func ResolveLiuRiTime(date tianwen.CivilDate) (LiuRiTime, error) {
 	}, nil
 }
 
-// ResolveLiuRiTimeAt resolves the day pillar for an absolute instant. The day
+// ResolveLiuRiTimeAt resolves the day pillar for a standard time. The day
 // pillar uses the local LAST date; LocalDate and BeijingDate are echoed for
 // audit. The observer's local date is not substituted for the LAST date.
-func ResolveLiuRiTimeAt(instant time.Time, tz *time.Location, tzName string, longitude float64) (LiuRiTime, error) {
+func ResolveLiuRiTimeAt(standard time.Time, loc *time.Location, longitude float64) (LiuRiTime, error) {
 	if longitude < -180 || longitude > 180 {
 		return LiuRiTime{}, fmt.Errorf("liuri: longitude must be within [-180,180], got %v", longitude)
 	}
-	if tzName == "" {
-		return LiuRiTime{}, fmt.Errorf("liuri: timezone is required")
+	if loc == nil {
+		loc = time.UTC
 	}
-	beijing := instant.In(time.FixedZone("CST", 8*3600))
-	last := tianwen.ApparentSolarCivil(instant, tz, longitude)
+	beijing := standard.UTC().In(time.FixedZone("CST", 8*3600))
+	last := tianwen.ApparentSolarCivil(standard, loc, longitude)
 	lastDate := tianwen.CivilDateOf(last)
 	pillar := tianwen.RiZhu(lastDate.Time())
 	return LiuRiTime{
-		Instant:     instant,
-		Location:    tz,
-		Timezone:    tzName,
+		Instant:     standard,
+		Location:    loc,
 		Longitude:   longitude,
 		Date:        lastDate,
-		LocalDate:   tianwen.StandardDateAt(instant, tz),
+		LocalDate:   tianwen.StandardDateAt(standard, loc),
 		BeijingDate: tianwen.CivilDateOf(beijing),
 		RiGan:       pillar.Gan,
 		RiZhi:       pillar.Zhi,
@@ -73,15 +71,10 @@ func NextLiuRiTime(t LiuRiTime) (LiuRiTime, error) {
 	if t.Instant.IsZero() {
 		return ResolveLiuRiTime(t.Date.AddDays(1))
 	}
-	tz := t.Location
-	if tz == nil {
-		var err error
-		tz, err = time.LoadLocation(t.Timezone)
-		if err != nil {
-			return LiuRiTime{}, err
-		}
+	if t.Location == nil {
+		return LiuRiTime{}, fmt.Errorf("liuri: location is required for series")
 	}
-	return ResolveLiuRiTimeAt(t.Instant.Add(24*time.Hour), tz, t.Timezone, t.Longitude)
+	return ResolveLiuRiTimeAt(t.Instant.Add(24*time.Hour), t.Location, t.Longitude)
 }
 
 // LiuNianTime is the resolved year-level time for 流年. Start is the 立春
@@ -104,7 +97,7 @@ func ResolveLiuNianTime(date tianwen.CivilDate) (LiuNianTime, error) {
 		return LiuNianTime{}, err
 	}
 	// The year pillar is constant inside the resolved 立春 year; the mid-year
-	// instant is only an implementation detail of NianZhu.
+	// The standard time is only an implementation detail of NianZhu.
 	pillar := tianwen.NianZhu(tianwen.NewCivilDate(ly.Year, 6, 15).Time())
 	return LiuNianTime{
 		LichunYear:   ly.Year,
@@ -168,13 +161,13 @@ func NextLiuYueTime(t LiuYueTime) (LiuYueTime, error) {
 	return ResolveLiuYueTime(t.End)
 }
 
-// ResolveLiuNianTimeAt resolves the 立春 year containing an absolute instant.
+// ResolveLiuNianTimeAt resolves the 立春 year containing a standard time.
 // The year boundary is compared as an instant; Start/End are local dates.
-func ResolveLiuNianTimeAt(instant time.Time, loc *time.Location) (LiuNianTime, error) {
+func ResolveLiuNianTimeAt(standard time.Time, loc *time.Location) (LiuNianTime, error) {
 	if loc == nil {
 		loc = time.UTC
 	}
-	ly, err := tianwen.LichunYearAt(instant)
+	ly, err := tianwen.LichunYearAt(standard)
 	if err != nil {
 		return LiuNianTime{}, err
 	}
@@ -188,33 +181,33 @@ func ResolveLiuNianTimeAt(instant time.Time, loc *time.Location) (LiuNianTime, e
 		Start:        start,
 		End:          end,
 		StartInstant: ly.Start,
-		BoundaryDay:  tianwen.StandardDateAt(instant, loc) == start,
+		BoundaryDay:  tianwen.StandardDateAt(standard, loc) == start,
 	}, nil
 }
 
 // NextLiuNianTimeAt returns the next 立春 year's resolved time from an
-// instant-based resolved period.
+// standard-time resolved period.
 func NextLiuNianTimeAt(t LiuNianTime, loc *time.Location) (LiuNianTime, error) {
 	return ResolveLiuNianTimeAt(tianwen.SolarTermTime(t.LichunYear+1, 315), loc)
 }
 
 // ResolveLiuYueTimeAt resolves the solar-term month containing an absolute
-// instant. The 节 boundary is compared as an instant; dates are local.
-func ResolveLiuYueTimeAt(instant time.Time, loc *time.Location) (LiuYueTime, error) {
+// standard time. The 节 boundary is compared as an instant; dates are local.
+func ResolveLiuYueTimeAt(standard time.Time, loc *time.Location) (LiuYueTime, error) {
 	if loc == nil {
 		loc = time.UTC
 	}
-	window, err := tianwen.JieqiMonthAt(instant, loc)
+	window, err := tianwen.JieqiMonthAt(standard, loc)
 	if err != nil {
 		return LiuYueTime{}, err
 	}
-	nian, err := ResolveLiuNianTimeAt(instant, loc)
+	nian, err := ResolveLiuNianTimeAt(standard, loc)
 	if err != nil {
 		return LiuYueTime{}, err
 	}
 	pillar := tianwen.YueZhuFromYearGan(nian.NianGan, window.Index)
 	return LiuYueTime{
-		Date:         tianwen.StandardDateAt(instant, loc),
+		Date:         tianwen.StandardDateAt(standard, loc),
 		LichunYear:   nian.LichunYear,
 		JieqiMonth:   window.Index + 1,
 		YueGan:       pillar.Gan,
@@ -227,18 +220,17 @@ func ResolveLiuYueTimeAt(instant time.Time, loc *time.Location) (LiuYueTime, err
 	}, nil
 }
 
-// NextLiuYueTimeAt returns the next solar-term month from an instant-based
+// NextLiuYueTimeAt returns the next solar-term month from a standard-time
 // resolved period.
 func NextLiuYueTimeAt(t LiuYueTime, loc *time.Location) (LiuYueTime, error) {
 	return ResolveLiuYueTimeAt(t.EndInstant, loc)
 }
 
-// LiuShiTime is the resolved hour-level time for 流时. Instant, Timezone and
+// LiuShiTime is the resolved hour-level time for 流时. Instant, Location and
 // Longitude are retained so the series can advance one hour at a time.
 type LiuShiTime struct {
 	Instant   time.Time         `json:"-"`
 	Location  *time.Location    `json:"-"`
-	Timezone  string            `json:"timezone"`
 	Longitude float64           `json:"longitude"`
 	LocalDate tianwen.CivilDate `json:"local_date"`
 	LastDate  tianwen.CivilDate `json:"last_date"`
@@ -247,19 +239,19 @@ type LiuShiTime struct {
 	ShiZhi    ganzhi.Zhi        `json:"shi_zhi"`
 }
 
-// ResolveLiuShiTime derives the LAST hour pillar for an instant. The hour gan
-// follows 五鼠遁; the late 子时 (23:00-24:00 LAST) uses the next day's day gan,
-// matching the repository's zi_shi_rule.
-func ResolveLiuShiTime(instant time.Time, tz *time.Location, tzName string, longitude float64) (LiuShiTime, error) {
+// ResolveLiuShiTime derives the LAST hour pillar for a standard time. The hour
+// gan follows 五鼠遁; the late 子时 (23:00-24:00 LAST) uses the next day's day
+// gan, matching the repository's zi_shi_rule.
+func ResolveLiuShiTime(standard time.Time, loc *time.Location, longitude float64) (LiuShiTime, error) {
 	if longitude < -180 || longitude > 180 {
 		return LiuShiTime{}, fmt.Errorf("liushi: longitude must be within [-180,180], got %v", longitude)
 	}
-	if tzName == "" {
-		return LiuShiTime{}, fmt.Errorf("liushi: timezone is required")
+	if loc == nil {
+		loc = time.UTC
 	}
 
-	last := tianwen.ApparentSolarCivil(instant, tz, longitude)
-	localDate := tianwen.StandardDateAt(instant, tz)
+	last := tianwen.ApparentSolarCivil(standard, loc, longitude)
+	localDate := tianwen.StandardDateAt(standard, loc)
 	lastDate := tianwen.CivilDateOf(last)
 	shichen := tianwen.ShichenOf(last)
 
@@ -274,9 +266,8 @@ func ResolveLiuShiTime(instant time.Time, tz *time.Location, tzName string, long
 	}
 
 	return LiuShiTime{
-		Instant:   instant,
-		Location:  tz,
-		Timezone:  tzName,
+		Instant:   standard,
+		Location:  loc,
 		Longitude: longitude,
 		LocalDate: localDate,
 		LastDate:  lastDate,
@@ -288,13 +279,8 @@ func ResolveLiuShiTime(instant time.Time, tz *time.Location, tzName string, long
 
 // NextLiuShiTime advances one 时辰 (two clock hours).
 func NextLiuShiTime(t LiuShiTime) (LiuShiTime, error) {
-	tz := t.Location
-	if tz == nil {
-		var err error
-		tz, err = time.LoadLocation(t.Timezone)
-		if err != nil {
-			return LiuShiTime{}, err
-		}
+	if t.Location == nil {
+		return LiuShiTime{}, fmt.Errorf("liushi: location is required for series")
 	}
-	return ResolveLiuShiTime(t.Instant.Add(2*time.Hour), tz, t.Timezone, t.Longitude)
+	return ResolveLiuShiTime(t.Instant.Add(2*time.Hour), t.Location, t.Longitude)
 }

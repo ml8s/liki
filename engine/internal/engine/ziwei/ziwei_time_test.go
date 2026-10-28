@@ -173,7 +173,7 @@ func TestLunarBasisSelectsZiweiProjection(t *testing.T) {
 				t.Fatal(err)
 			}
 			selector := projector.SelectorDate(at)
-			liuri, err := ResolveLiuRiTimeAtWith(projector, at, loc, "America/New_York")
+			liuri, err := ResolveLiuRiTimeAtWith(projector, at, loc)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -232,7 +232,7 @@ func TestResolveLiuRiTimeAtWithUsesStandardDate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := ResolveLiuRiTimeAtWith(projector, standard, ny, "America/New_York")
+	got, err := ResolveLiuRiTimeAtWith(projector, standard, ny)
 	if err != nil {
 		t.Fatal(err)
 	}
