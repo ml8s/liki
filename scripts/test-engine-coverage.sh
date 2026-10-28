@@ -5,7 +5,7 @@
 set -eo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-FLOOR="${COVERAGE_FLOOR:-40}"
+FLOOR="${COVERAGE_FLOOR:-85}"
 PROFILE="${COVERAGE_PROFILE:-$ROOT/engine/coverage.out}"
 
 "$ROOT/scripts/check-go-version.sh"

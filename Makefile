@@ -27,7 +27,7 @@ export GOTOOLCHAIN ?= go1.26.10
 
 .PHONY: help build build-skill build-engine-mcp clean fmt fmt-check lint-engine lint-python smoke \
         go-version-check runtime-version-check lint vuln lint-md check test test-content test-engine \
-        test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp \
+        test-engine-package test-engine-coverage test-engine-golden test-counsel test-engine-mcp verify-city-data \
         test-python-coverage \
         eval-mingli160 golden gate hooks version build-archive build-deployment \
         workbuddy-package \
@@ -222,6 +222,9 @@ bench-engine-1cpu: go-version-check ## Run focused benchmarks with Go limited to
 
 test-engine-coverage: go-version-check ## Engine unit coverage floor (shared with CI)
 	scripts/test-engine-coverage.sh
+
+verify-city-data: ## Verify embedded city data can be rebuilt byte-for-byte
+	python3 scripts/build_city_data.py --verify
 
 test-counsel: ## Counsel MCP integration suite (bootstraps .venv and local engine)
 	scripts/test-counsel.sh

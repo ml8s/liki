@@ -108,6 +108,13 @@ def test_engine_coverage_floor_is_single_sourced():
     )
 
 
+def test_coverage_floors_use_the_measured_stable_baseline():
+    engine = ENGINE_COVERAGE.read_text(encoding="utf-8")
+    python = PYTHON_COVERAGE.read_text(encoding="utf-8")
+    assert re.search(r'FLOOR="\$\{COVERAGE_FLOOR:-85\}"', engine)
+    assert re.search(r'FLOOR="\$\{COVERAGE_FLOOR:-85\}"', python)
+
+
 def test_python_coverage_floor_and_suites_are_single_sourced():
     script = PYTHON_COVERAGE.read_text(encoding="utf-8")
     floor = re.search(r'FLOOR="\$\{COVERAGE_FLOOR:-([0-9]+)\}"', script)
