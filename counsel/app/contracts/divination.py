@@ -61,12 +61,8 @@ class LiuyaoSnapshotInput(BaseModel):
     longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
         description="问卦地点经度（-180..180）；必须显式传入，不做默认（精度要求）。",
     )
-    timezone: str = Field(
-        description="起卦地 IANA 时区。",
-    )
-    instant: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
-        default=None,
-        description="起卦瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC。省略表示当前起卦；复现历史卦时传入。",
+    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+        description="起卦地标准时间 RFC3339（无 DST）；复现历史卦时传入。",
     )
     casting: LiuyaoCastingInput = Field(
         description="起卦方式：auto=服务端安全随机起卦（缺省）；coins=传入六组三枚正/反铜钱记录；yaos=直接传入六个爻值。",
@@ -521,8 +517,8 @@ class QimenSnapshotInput(BaseModel):
     question: str = Field(
         description="本次要判断的一个具体目标",
     )
-    timezone: str = Field(
-        description="起局地 IANA 时区。",
+    standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+        description="起局地标准时间 RFC3339（无 DST）；节气换局按此时刻判定。",
     )
     method: QimenMethod = Field(
         description="奇门方法事实；按 scope、school 和条件字段的合法组合传入。",
@@ -534,10 +530,6 @@ class QimenSnapshotInput(BaseModel):
     longitude: Annotated[float | None, Field(ge=-180, le=180)] = Field(
         default=None,
         description="起局经度；与 city 二选一",
-    )
-    instant: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
-        default=None,
-        description="起局瞬间 RFC3339；接受 UTC Z 或 numeric offset，服务端归一化为 UTC；缺省使用服务端当前时间",
     )
     matter: Literal["career", "health", "hiding", "legal", "missing_person", "relationship", "study", "travel", "wealth"] = Field(
         default=None,
@@ -551,13 +543,9 @@ class QimenSnapshotInput(BaseModel):
         default=None,
         description="可选专占规则；由因子契约校验适用盘型",
     )
-    birth_instant: str = Field(
+    birth_standard_time: str = Field(
         default=None,
-        description="出生瞬间 RFC3339，用于年命干落宫；与 birth_timezone 成对出现；金函玉镜不接受",
-    )
-    birth_timezone: str = Field(
-        default=None,
-        description="出生地 IANA 时区；birth_instant 存在时必填",
+        description="出生地标准时间 RFC3339（无 DST），用于年命干落宫；金函玉镜不接受",
     )
 
     @model_validator(mode="after")
@@ -566,16 +554,12 @@ class QimenSnapshotInput(BaseModel):
         require_exactly_one(city=self.city, longitude=self.longitude)
         require_mutually_exclusive(matter=self.matter, yong_shen=self.yong_shen)
 
-        if (self.birth_instant is None) != (self.birth_timezone is None):
-            raise ValueError("birth_instant and birth_timezone must be provided together")
-
         is_jinhan = isinstance(self.method, QimenJinhanMethod)
         if is_jinhan:
             forbidden = [
                 name for name, value in (
                     ("matter", self.matter), ("yong_shen", self.yong_shen),
-                    ("rule", self.rule), ("birth_instant", self.birth_instant),
-                ("birth_timezone", self.birth_timezone),
+                    ("rule", self.rule), ("birth_standard_time", self.birth_standard_time),
                 ) if value is not None
             ]
             if forbidden:
@@ -597,8 +581,7 @@ class QimenSnapshotOutputInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     city: str | None
     longitude: float
-    instant: str
-    timezone: str
+    standard_time: str
 
 
 class QimenSnapshotOutputMethodContext(BaseModel):

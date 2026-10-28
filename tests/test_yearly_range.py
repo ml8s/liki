@@ -61,6 +61,7 @@ def test_yearly_range_builds_one_snapshot_per_year() -> None:
             2026,
             2026,
             rules=["年十神", "年合会"],
+            timezone="Asia/Shanghai",
         )
 
     assert result["years"]["2026"]["年十神"] == {"八字": [], "紫微": []}
@@ -81,6 +82,7 @@ def test_yearly_range_degrades_prefetch_error_without_empty_chart() -> None:
          mock.patch.object(duanyu, "query_yearly"):
         result = duanyu.yearly_range(
             _valid_mock_pan(), 2026, 2026, rules=["年十神"],
+            timezone="Asia/Shanghai",
         )
 
     assert result["years"]["2026"] == {"error": "RPCError: unavailable"}
@@ -122,16 +124,17 @@ def test_yearly_range_rejects_empty_or_reversed_range() -> None:
         with mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot:
             with mock.patch.object(duanyu, "query_yearly"):
                 with pytest.raises(ValueError, match="rules 不能为空"):
-                    duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=None)
+                    duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=None, timezone="Asia/Shanghai")
                 with pytest.raises(ValueError, match="rules 不能为空"):
-                    duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=[])
+                    duanyu.yearly_range(_valid_mock_pan(), 2026, 2026, rules=[], timezone="Asia/Shanghai")
                 with pytest.raises(ValueError, match="rules 不能有重复域"):
                     duanyu.yearly_range(
                         _valid_mock_pan(), 2026, 2026,
                         rules=["yearly_career", "yearly_career"],
+                        timezone="Asia/Shanghai",
                     )
                 with pytest.raises(ValueError, match="start 不能大于 end"):
-                    duanyu.yearly_range(_valid_mock_pan(), 2027, 2026, rules=["yingqi"])
+                    duanyu.yearly_range(_valid_mock_pan(), 2027, 2026, rules=["yingqi"], timezone="Asia/Shanghai")
 
     make_snapshot.assert_not_called()
 
@@ -141,7 +144,7 @@ def test_yearly_range_rejects_oversized_span() -> None:
          mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
         with pytest.raises(ValueError, match="单次最多 120 年"):
-            duanyu.yearly_range(_valid_mock_pan(), 1900, 2100, rules=["yingqi"])
+            duanyu.yearly_range(_valid_mock_pan(), 1900, 2100, rules=["yingqi"], timezone="Asia/Shanghai")
 
     make_snapshot.assert_not_called()
 
@@ -151,7 +154,7 @@ def test_yearly_range_rejects_incomplete_pan() -> None:
          mock.patch.object(duanyu, "evaluate_liunian_snap_from_natal_chart") as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly"):
         with pytest.raises(ValueError, match="完整本命盘"):
-            duanyu.yearly_range({"gender": "male"}, 2026, 2026, rules=["yingqi"])
+            duanyu.yearly_range({"gender": "male"}, 2026, 2026, rules=["yingqi"], timezone="Asia/Shanghai")
 
     make_snapshot.assert_not_called()
 
@@ -173,7 +176,7 @@ def test_yearly_range_prepares_natal_context_once() -> None:
              duanyu, "evaluate_liunian_snap_from_natal_chart", return_value=flow_snapshot
          ) as make_snapshot, \
          mock.patch.object(duanyu, "query_yearly", return_value={"八字": [], "紫微": []}):
-        duanyu.yearly_range(natal_chart, 2026, 2027, rules=["yingqi"])
+        duanyu.yearly_range(natal_chart, 2026, 2027, rules=["yingqi"], timezone="Asia/Shanghai")
 
     prepare.assert_called_once()
     assert prepare.call_args.args == (natal_chart,)

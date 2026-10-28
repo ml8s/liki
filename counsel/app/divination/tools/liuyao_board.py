@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from app.divination.tools.divination_rpc import engine_data, server_time
+from app.divination.tools.divination_rpc import engine_data
 from app.divination.tools.liuyao_factors import project_factors
 from app.divination.tools.liuyao_matters import resolve_matter
 from app.guards import require_exactly_one, require_mutually_exclusive, require_object
@@ -33,8 +33,7 @@ def factors(
     *,
     casting: dict,
     longitude: float,
-    instant: str | None = None,
-    timezone: str = "",
+    standard_time: str,
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
@@ -45,17 +44,14 @@ def factors(
         matter, yong_shen, perspective
     )
     require_object(casting, "casting")
-    if not timezone:
-        raise ValueError("timezone is required (IANA)")
-    if instant is None:
-        instant = server_time(timezone)["instant"]
+    if not standard_time:
+        raise ValueError("standard_time is required")
     if longitude < -180 or longitude > 180:
         raise ValueError("longitude must be within [-180,180]")
     resolved_longitude = longitude
 
     params: dict[str, Any] = {
-        "instant": instant,
-        "timezone": timezone,
+        "standard_time": standard_time,
         "longitude": resolved_longitude,
         "yong_shen": resolved_yong_shen,
     }

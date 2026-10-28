@@ -66,28 +66,38 @@ naming_check
 
 ## 3. 时间与位置参数
 
-所有精确时间参数使用：
+时间参数分两层，只有 `tianwen.resolve` 接收民用时间：
 
 ```json
 {
-  "instant": "1990-05-20T12:00:00+08:00",
-  "timezone": "Asia/Shanghai"
+  "date": "1990-05-20",
+  "time": "12:00",
+  "timezone": "Asia/Shanghai",
+  "longitude": 116.4
+}
+```
+
+排盘/流年工具只收标准时间：
+
+```json
+{
+  "standard_time": "1990-05-20T12:00:00+08:00",
+  "longitude": 116.4
 }
 ```
 
 规则：
 
-1. `instant` 必须是 RFC3339 absolute instant；
-2. 输入允许 `Z` 或 numeric offset；
-3. 服务端立即归一化为 UTC；
-4. 拒绝 naive wall clock；
-5. 拒绝 `-00:00`；
-6. canonical 输出以 `Z` 结尾；
-7. `timezone` 必须是显式 IANA identifier；
-8. 禁止 `Local`、`+08:00`、`UTC+8`、`CST`；
-9. 不从 instant 的 offset 推断 timezone；
-10. `longitude` 是独立参数，只给需要真太阳时的能力使用；
-11. 缺少必要 timezone / longitude 时 fail closed，不默认北京或经度 0。
+1. `standard_time` 必须是 RFC3339，带 numeric offset；
+2. `standard_time` 是当地标准时间，不含 DST；
+3. DST 只在 `tianwen.resolve` 的 civil→instant 转换中出现一次；
+4. fold 返回两个候选，gap 直接报错，禁止静默平移；
+5. 排盘工具拒绝 `instant`、`civil_time`、`timezone`、`fold`；
+6. `timezone` 只属于 `tianwen.resolve`，必须是显式 IANA identifier；
+7. 禁止 `Local`、`UTC+8`、`CST` 等别名；
+8. 不从 `standard_time` 的 offset 推断 timezone；
+9. `longitude` 是独立参数，只给需要真太阳时的能力使用；
+10. 缺少必要 longitude 时 fail closed，不默认北京或经度 0。
 
 ## 4. 参数正交化
 
@@ -97,8 +107,7 @@ naming_check
 
 ```json
 {
-  "instant": "1990-05-20T04:00:00Z",
-  "timezone": "Asia/Shanghai",
+  "standard_time": "1990-05-20T12:00:00+08:00",
   "longitude": 116.407526,
   "gender": "male"
 }
@@ -206,9 +215,9 @@ engine `conflicts` 形状由 `DivinationConflict` 在 counsel 边界 fail-closed
 命名建议：
 
 ```text
-instant
-timezone
-local_time
+standard_time
+selector_standard_time
+longitude
 longitude
 pillars
 palaces
@@ -270,7 +279,7 @@ invalid timezone "CST": use an explicit IANA identifier such as Asia/Shanghai
 ```
 
 ```text
-instant must include UTC Z or a numeric offset; use time.resolve for local wall time
+standard_time must be RFC3339 with a numeric offset; use tianwen.resolve for local wall time
 ```
 
 ## 9. LLM 自举

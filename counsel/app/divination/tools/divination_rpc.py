@@ -19,15 +19,14 @@ def engine_data(method: str, params: dict) -> dict:
 
 
 def server_time(timezone: str) -> dict:
-    """返回 {instant, timezone, local_time}；timezone 必填（IANA）。"""
+    """返回 {standard_time}；timezone 必填（IANA）。"""
     if not timezone:
         raise RPCError("time.now: timezone is required")
     data = engine_data("time.now", {"timezone": timezone})
-    instant = data.get("instant")
-    local = data.get("local_time")
-    if not isinstance(instant, str) or not instant:
-        raise RPCError("time.now: engine response missing instant")
-    return {"instant": instant, "timezone": timezone, "local_time": local}
+    standard_time = data.get("standard_time")
+    if not isinstance(standard_time, str) or not standard_time:
+        raise RPCError("time.now: engine response missing standard_time")
+    return {"standard_time": standard_time}
 
 
 def skill_version() -> str:

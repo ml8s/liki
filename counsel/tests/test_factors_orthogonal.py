@@ -47,21 +47,28 @@ def _engine_call(domain, name, args):
 def _full_pan(instant, timezone, gender, longitude):
     from app.natal.tools.charts import build_natal_chart
     from app.natal.tools.yongshen import resolve_yongshen
+    from tests.time_helpers import civil_time_from_instant
 
-    natal_chart = build_natal_chart(instant, timezone, gender, longitude=longitude)
+    natal_chart = build_natal_chart(
+        civil_time_from_instant(instant, timezone), timezone, gender, longitude=longitude,
+    )
     natal_chart["_selected_yongshen"] = resolve_yongshen(natal_chart["full"])
     return natal_chart
 
 
 def _bazi_combo_chart(instant, timezone, gender, longitude):
+    from tests.time_helpers import standard_time_from_instant
     return _engine_call("bazi", "bazi_chart", {
-        "instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender,
+        "standard_time": standard_time_from_instant(instant, timezone),
+        "longitude": longitude, "gender": gender,
     })
 
 
 def _ziwei_combo_chart(instant, timezone, gender, longitude):
+    from tests.time_helpers import standard_time_from_instant
     return _engine_call("ziwei", "ziwei_chart", {
-        "instant": instant, "timezone": timezone, "longitude": longitude, "gender": gender,
+        "standard_time": standard_time_from_instant(instant, timezone),
+        "longitude": longitude, "gender": gender,
     })
 
 

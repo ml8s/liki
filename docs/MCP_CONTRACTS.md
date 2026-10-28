@@ -19,23 +19,33 @@ runtime shapes and keeps generated schemas stable.
 
 ### Time fields
 
-Tools that consume a precise time use `instant` plus an explicit `timezone`:
+Birth/event wall-clock input is resolved once by `tianwen.resolve`:
 
 ```json
 {
-  "instant": "1990-05-20T12:00:00+08:00",
-  "timezone": "Asia/Shanghai"
+  "date": "1990-05-20",
+  "time": "12:00",
+  "timezone": "Asia/Shanghai",
+  "longitude": 116.4
 }
 ```
 
-`instant` is an absolute RFC3339 instant. Canonical output is UTC and ends
-with `Z`; numeric input offsets are accepted and normalized immediately.
-`timezone` must be an explicit IANA identifier. Offset is never used to infer
-timezone, and missing timezone or longitude fails closed when the tool needs
-them.
+Chart and flow tools then use only `standard_time` plus longitude:
 
-The per-domain projection matrix (absolute instant, Beijing date label, local
-LAST) is defined in [TIME_MODEL.md](./TIME_MODEL.md).
+```json
+{
+  "standard_time": "1990-05-20T12:00:00+08:00",
+  "longitude": 116.4
+}
+```
+
+`standard_time` is local standard time with no DST, represented as RFC3339 with
+a numeric offset. It is not an IANA timezone and never contains DST. `timezone`
+is accepted only by `tianwen.resolve`; chart tools fail closed if it is present.
+Missing `longitude` fails closed when the tool needs LAST.
+
+The per-domain projection matrix (solar-term event, standard date, local LAST)
+is defined in [TIME_MODEL.md](./TIME_MODEL.md).
 
 ## Go pattern
 

@@ -48,7 +48,7 @@ def test_build_natal_chart_has_flat_yongshen_fields():
     assert '"full"' in source
 
 
-@pytest.mark.parametrize("key", ["instant", "timezone", "chart", "full", "ziwei", "ziwei_daxian", "gender"])
+@pytest.mark.parametrize("key", ["standard_time", "chart", "full", "ziwei", "ziwei_daxian", "gender"])
 def test_missing_required_field_rejected(key):
     natal_chart = _pan()
     natal_chart.pop(key)

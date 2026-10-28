@@ -6,11 +6,12 @@
 
 from app.natal.tools.factor_tables import load_factor_rows, load_liunian_rows
 from app.natal.tools.factors import _evaluate_compiled, _get_plan
+from tests.time_helpers import civil_time_from_instant
 
 from tests.factor_oracle import oracle_atomic as _atomic
 from tests.factor_oracle import oracle_evaluate_truth_table as _evaluate_truth_table
 
-BIRTH = ("1990-05-20T03:49:00Z", "Asia/Shanghai", "male", 116.4)
+BIRTH = (civil_time_from_instant("1990-05-20T03:49:00Z", "Asia/Shanghai"), "Asia/Shanghai", "male", 116.4)
 
 
 def _assert_equivalent(old: dict, new: dict, ctx: str) -> None:

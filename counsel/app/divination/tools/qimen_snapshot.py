@@ -1,7 +1,6 @@
 """奇门 snapshot 创建：时间、地点、排盘与因子投影一次完成。"""
 
 from app.divination.tools.divination_contracts import validate_document
-from app.divination.tools.divination_rpc import server_time
 from app.divination.tools.divination_safety import assess
 from app.divination.tools.divination_snapshot import build_snapshot
 from app.divination.tools.qimen_charts import city_coords, qimen_chart
@@ -43,14 +42,12 @@ def create(
     question: str,
     city: str | None = None,
     longitude: float | None = None,
-    instant: str | None = None,
-    timezone: str = "",
+    standard_time: str = "",
     matter: str | None = None,
     yong_shen: list[str] | None = None,
     rule: str | None = None,
     method: dict[str, str],
-    birth_instant: str | None = None,
-    birth_timezone: str | None = None,
+    birth_standard_time: str | None = None,
 ) -> dict:
     """创建 immutable qimen snapshot；LLM 后续只依赖该对象。"""
     question = require_question(question)
@@ -60,7 +57,7 @@ def create(
     effective_scope = method.get("scope", "")
     effective_school = method.get("school", "")
     if effective_school == "jinhan_yujing":
-        forbidden = (matter, yong_shen, rule, birth_instant, birth_timezone)
+        forbidden = (matter, yong_shen, rule, birth_standard_time)
         if any(value is not None for value in forbidden):
             raise ValueError("school jinhan_yujing does not support focus or advanced method fields")
 
@@ -85,19 +82,15 @@ def create(
             if matter != required_matter:
                 raise ValueError(f"qimen rule {rule} requires matter={required_matter}")
     resolved_city, resolved_longitude = _resolve_location(city, longitude)
-    if not timezone:
-        raise ValueError("timezone is required (IANA)")
-    if not instant:
-        instant = server_time(timezone)["instant"]
+    if not standard_time:
+        raise ValueError("standard_time is required")
 
     chart_result = qimen_chart(
-        instant,
-        timezone,
+        standard_time,
         resolved_longitude,
         matter=matter,
         yong_shen=yong_shen,
-        birth_instant=birth_instant,
-        birth_timezone=birth_timezone,
+        birth_standard_time=birth_standard_time,
         method=method,
     )
     chart = chart_result["chart"]
@@ -129,7 +122,7 @@ def create(
             "input": {
                 "city": resolved_city,
                 "longitude": resolved_longitude,
-                "instant": instant, "timezone": timezone,
+                "standard_time": standard_time,
             },
             "matter": chart_result.get("matter"),
             "method_context": method_context,

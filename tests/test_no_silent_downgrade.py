@@ -71,15 +71,12 @@ def _year_call(cst: str):
     def fake(name, params):
         if name == "time.now":
             return {"data": {
-                "instant": cst[:10] + "T04:00:00Z", "timezone": "Asia/Shanghai",
-                "local_time": cst + "T12:00:00+08:00", "offset": 28800,
+                "standard_time": cst + "T12:00:00+08:00", "offset": 28800,
             }}
         if name == "tianwen.resolve":
             date, clock = params["date"], params["time"]
             return {"data": {"candidates": [{
-                "instant": f"{date}T{int(clock.split(':')[0]) - 8:02d}:{clock.split(':')[1]}:00Z",
-                "timezone": params["timezone"],
-                "local_time": f"{date}T{clock}:00+08:00",
+                "standard_time": f"{date}T{clock}:00+08:00",
                 "offset": 28800,
                 "reasons": [{"domain": "input", "detail": "输入时间"}],
             }]}}
@@ -131,7 +128,7 @@ def test_current_year_failure_not_cached() -> None:
 def test_current_year_rejects_missing_cst_and_does_not_cache() -> None:
     _reset_year_cache()
     with mock.patch("app.natal.tools.charts.call", return_value={"data": {}}):
-        with pytest.raises(ValueError, match="local_time|instant"):
+        with pytest.raises(ValueError, match="standard_time|local_time"):
             resolve_current_year("Asia/Shanghai")
     assert duanyu._year_cache._data is None
 

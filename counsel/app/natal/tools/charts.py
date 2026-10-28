@@ -19,7 +19,6 @@ from app.engine_mcp_client import (  # noqa: E402
 )
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
-from app.time_facts import civil_time_from_instant, civil_wall
 
 # Engine MCP 客户端（counsel 统一走 MCP）
 from app.version import runtime_version
@@ -42,9 +41,9 @@ def skill_version() -> str:
 
 # ── 内部 RPC 封装（build_natal_chart / liunian 编排用，agent 不直接碰）──
 
-def _resolve_civil(instant: str, timezone: str, longitude: float) -> dict:
-    """Resolve a reported instant through its civil wall clock."""
-    civil = civil_time_from_instant(instant, timezone)
+def _resolve_civil(civil_time: str, timezone: str, longitude: float) -> dict:
+    """Resolve a reported civil wall clock to standard-time candidates."""
+    civil = civil_time[:19]
     date, clock = civil.split("T", 1)
     r = call("tianwen.resolve", {
         "calendar": "solar", "date": date, "time": clock,
@@ -188,10 +187,10 @@ def _liunian_range_items(tool: str, result: object, count: int) -> list[dict]:
 
 # ── agent 工具（排盘 2 个）──
 
-def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optional[float] = None) -> dict:
+def build_natal_chart(civil_time: str, timezone: str, gender: str, longitude: Optional[float] = None) -> dict:
     """本命盘（八字 + 紫微一次排全）。
 
-    instant/timezone：报告的绝对时间 + IANA 时区；longitude：出生地经度（必填）。
+    civil_time/timezone：报告的当地民用钟表时间 + IANA 时区；longitude：出生地经度（必填）。
     时间归一化走 tianwen.resolve（返回候选与原因）；本盘以 input 候选为基准，
     多候选时把候选与原因写入 time_candidates / calibration_hint（考时由上层按候选编排）。
 
@@ -203,9 +202,9 @@ def build_natal_chart(instant: str, timezone: str, gender: str, longitude: Optio
         raise ValueError(
             "longitude 必填——真太阳时校正需要出生地经度。请先通过 city_coords 查询城市经度。"
         )
-    if not instant or not timezone:
-        raise ValueError("instant 和 timezone 必填（IANA）")
-    resolved = _resolve_civil(instant, timezone, longitude)
+    if not civil_time or not timezone:
+        raise ValueError("civil_time 和 timezone 必填（IANA）")
+    resolved = _resolve_civil(civil_time, timezone, longitude)
     candidates = resolved.get("candidates") or []
     if not candidates:
         raise ValueError("tianwen.resolve returned no candidates")

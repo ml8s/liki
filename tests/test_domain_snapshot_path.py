@@ -74,7 +74,7 @@ def test_evaluate_snap_from_natal_chart_produces_complete_snap():
 
 
 def test_snap_embeds_stable_domain_facts():
-    """natal_chart 的领域事实应完整透传进 snap（藏干/大运/宫位/instant/timezone 等）。"""
+    """natal_chart 的领域事实应完整透传进 snap（藏干/大运/宫位/standard_time 等）。"""
     natal_chart = _cmp_bazi_pan()
     natal_chart["full"]["nian"]["cang_gan"] = {"main": "丁", "mid": "己"}
     natal_chart["full"]["yue"]["cang_gan"] = {"main": "丁", "mid": "己"}
@@ -95,8 +95,7 @@ def test_snap_embeds_stable_domain_facts():
     natal_chart["ziwei"]["kong_gong"] = [{"gong_name": "兄弟", "jie_xing": ["天机"]}]
     natal_chart["ziwei"]["nian_gan"] = "庚"
     natal_chart["ziwei"]["ziwei_pos"] = "命宫"
-    natal_chart["instant"] = "1990-05-20T04:00:00Z"
-    natal_chart["timezone"] = "Asia/Shanghai"
+    natal_chart["standard_time"] = "1990-05-20T12:00:00+08:00"
 
     snap = factors.evaluate_snap_from_natal_chart(natal_chart)
     bz = snap["八字"]

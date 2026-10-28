@@ -26,20 +26,17 @@ def _fake_call(cst):
     def call(name, params):
         if name == "time.now":
             return {"data": {
-                "instant": cst[:10] + "T04:00:00Z",
-                "timezone": "Asia/Shanghai",
-                "local_time": cst + "T12:00:00+08:00",
+                "standard_time": cst + "T12:00:00+08:00",
                 "offset": 28800,
             }}
         if name == "tianwen.resolve":
-            date, clock, tz = params["date"], params["time"], params["timezone"]
+            date, clock = params["date"], params["time"]
             local = f"{date}T{clock}:00+08:00"
-            instant = f"{date}T{int(clock.split(':')[0]) - 8:02d}:{clock.split(':')[1]}:00Z"
             return {"data": {"candidates": [{
-                "instant": instant, "timezone": tz, "local_time": local, "offset": 28800,
+                "standard_time": local, "offset": 28800,
                 "reasons": [{"domain": "input", "detail": "输入时间"}],
             }]}}
-        gt = params["instant"]
+        gt = params["standard_time"]
         if name == "bazi.chart":
             year = _date(gt)[:4] if _date(gt)[5:] == "07-01" else None
             if year is None:

@@ -117,8 +117,8 @@ def main() -> int:
             payload = json.loads(text)
         except json.JSONDecodeError as error:
             raise RuntimeError(f"time_now returned invalid JSON content: {text[:200]!r}") from error
-    if not payload.get("instant") or not payload.get("timezone"):
-        raise RuntimeError("time_now returned no canonical {instant, timezone} instant")
+    if not payload.get("standard_time"):
+        raise RuntimeError("time_now returned no canonical standard_time")
     print("✓ tools/call time_now")
     return 0
 

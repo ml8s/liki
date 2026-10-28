@@ -23,8 +23,7 @@ def create(
     question: str,
     longitude: float,
     casting: dict | None = None,
-    instant: str | None = None,
-    timezone: str = "",
+    standard_time: str = "",
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
@@ -64,8 +63,7 @@ def create(
         yong_shen=yong_shen,
         perspective=perspective,
         question=question,
-        instant=instant,
-        timezone=timezone,
+        standard_time=standard_time,
         longitude=longitude,
     )
     projected = result["factors"]

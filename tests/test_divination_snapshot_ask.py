@@ -126,21 +126,20 @@ def test_liuyao_snapshot_accepts_historical_casting_time(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
 
     def capture_factors(**kwargs):
-        captured["instant"] = kwargs["instant"]
+        captured["standard_time"] = kwargs["standard_time"]
         captured["longitude"] = kwargs["longitude"]
         return _liuyao_factors(**kwargs)
 
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", capture_factors)
-    historical_time = "1990-06-01T06:00:00Z"
+    historical_time = "1990-06-01T14:00:00+08:00"
     liuyao_snapshot.create(
         question="复现 1990 年的一次卦",
         casting={"mode": "coins"},
         matter="general",
-        instant=historical_time,
-        timezone="Asia/Shanghai",
+        standard_time=historical_time,
         longitude=116.4,
     )
-    assert captured["instant"] == historical_time
+    assert captured["standard_time"] == historical_time
     assert captured["longitude"] == 116.4
 
 
@@ -184,7 +183,7 @@ def test_liuyao_relationship_and_legal_default_topics_resolve(monkeypatch):
 def test_liuyao_ask_rejects_tampered_snapshot(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
-    snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career", longitude=116.4, timezone="Asia/Shanghai")
+    snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career", longitude=116.4, standard_time="2026-10-01T10:00:00+08:00")
     snapshot["question"]["text"] = "篡改后的问题"
     with pytest.raises(ValueError, match="digest mismatch"):
         liuyao_ask.ask(snapshot, message="现在该注意什么？")
@@ -193,7 +192,7 @@ def test_liuyao_ask_rejects_tampered_snapshot(monkeypatch):
 def test_liuyao_ask_returns_structured_answer(monkeypatch):
     monkeypatch.setattr(liuyao_snapshot, "qigua", lambda **_: _coin_casting())
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
-    snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career", longitude=116.4, timezone="Asia/Shanghai")
+    snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career", longitude=116.4, standard_time="2026-10-01T10:00:00+08:00")
     answer = liuyao_ask.ask(snapshot, message="现在该注意什么？")
     assert answer["method"] == "liuyao"
     assert answer["snapshot_digest"] == snapshot["snapshot_digest"]
@@ -208,10 +207,9 @@ def _pan():
 
 
 def test_qimen_snapshot_is_immutable_envelope(monkeypatch):
-    monkeypatch.setattr(qimen_snapshot, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
     monkeypatch.setattr(qimen_snapshot, "_resolve_location", lambda city, longitude: (city, 121.47))
     monkeypatch.setattr(qimen_snapshot, "qimen_chart", lambda *_, **__: {"matter": None, "chart": _pan()["chart"]})
-    result = qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", timezone="Asia/Shanghai")
+    result = qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", standard_time="2026-10-01T10:00:00+08:00")
     assert result["method"] == "qimen"
     assert "schema_version" not in result
     assert result["snapshot_digest"] == divination_snapshot.canonical_digest(result)
@@ -227,10 +225,9 @@ def test_qimen_ask_rejects_wrong_method():
 
 
 def test_qimen_ask_returns_structured_answer(monkeypatch):
-    monkeypatch.setattr(qimen_snapshot, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
     monkeypatch.setattr(qimen_snapshot, "_resolve_location", lambda city, longitude: (city, 121.47))
     monkeypatch.setattr(qimen_snapshot, "qimen_chart", lambda *_, **__: {"matter": None, "chart": _pan()["chart"]})
-    snapshot = qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", timezone="Asia/Shanghai")
+    snapshot = qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", standard_time="2026-10-01T10:00:00+08:00")
     answer = qimen_ask.ask(snapshot, message="现在适合行动吗？")
     assert answer["method"] == "qimen"
     assert answer["snapshot_digest"] == snapshot["snapshot_digest"]
@@ -254,7 +251,7 @@ def test_liuyao_snapshot_matches_contract(monkeypatch):
         "dong_yao": [],
     })
     monkeypatch.setattr(liuyao_snapshot, "build_liuyao_factors", _liuyao_factors)
-    snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career", longitude=116.4, timezone="Asia/Shanghai")
+    snapshot = liuyao_snapshot.create(question="这次面试能不能通过？", matter="career", longitude=116.4, standard_time="2026-10-01T10:00:00+08:00")
     contract = divination_contracts.load_contract("liuyao_snapshot")
     validate(snapshot, contract)
 
@@ -263,16 +260,14 @@ def test_qimen_snapshot_matches_contract(monkeypatch):
 
     from jsonschema import validate
 
-    monkeypatch.setattr(qimen_snapshot, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
     monkeypatch.setattr(qimen_snapshot, "_resolve_location", lambda city, longitude: (city, 121.47))
     monkeypatch.setattr(qimen_snapshot, "qimen_chart", lambda *_, **__: {"matter": None, "chart": _pan()["chart"]})
-    snapshot = qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", timezone="Asia/Shanghai")
+    snapshot = qimen_snapshot.create(method=HOUR_METHOD, question="该往哪里推进？", city="上海", matter="wealth", standard_time="2026-10-01T10:00:00+08:00")
     contract = divination_contracts.load_contract("qimen_snapshot")
     validate(snapshot, contract)
 
 
 def test_qimen_snapshot_rejects_incompatible_rule_before_rpc(monkeypatch):
-    monkeypatch.setattr(qimen_snapshot, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
     monkeypatch.setattr(qimen_snapshot, "_resolve_location", lambda city, longitude: (city, 121.47))
     with pytest.raises(ValueError, match="lost_property requires scope"):
         qimen_snapshot.create(method=DAY_METHOD,
@@ -284,7 +279,6 @@ def test_qimen_snapshot_rejects_incompatible_rule_before_rpc(monkeypatch):
 def test_qimen_answer_timing_ids_are_collision_resistant(monkeypatch):
     from tests.test_divination_snapshot_ask import _pan
 
-    monkeypatch.setattr(qimen_snapshot, "server_time", lambda tz: {"instant": "2026-09-08T04:00:00Z", "timezone": tz, "local_time": "2026-09-08T12:00:00+08:00"})
     monkeypatch.setattr(qimen_snapshot, "_resolve_location", lambda city, longitude: (city, 121.47))
     chart = _pan()["chart"]
     chart["factors"] if False else None

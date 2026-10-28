@@ -140,7 +140,7 @@ def _flatten_side_result(
 def _resolve_time_scope(time_scope: dict, timezone: str) -> tuple[str, int, int]:
     if not isinstance(time_scope, dict):
         raise TopicRouteError("time_scope 必须是对象")
-    allowed = {"type", "year", "start_year", "end_year"}
+    allowed = {"type", "year", "start_year", "end_year", "timezone"}
     unknown = set(time_scope) - allowed
     if unknown:
         raise TopicRouteError(f"time_scope 含无效字段: {sorted(unknown)}")
@@ -189,7 +189,7 @@ def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -
     """period_query 主体：natal_chart 已就绪（完整盘或分侧盘）。"""
     selected_pairs = _require_topics(args["topics"])
     routes = _load_routes()
-    timezone = str(natal_chart.get("timezone") or "")
+    timezone = str(args["time_scope"].get("timezone") or natal_chart.get("timezone") or "")
     scope_type, start, end = _resolve_time_scope(args["time_scope"], timezone)
     output_scopes: list[dict] = []
 
@@ -232,7 +232,10 @@ def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -
                     rule_order.append(rule)
         if not rule_order:
             raise TopicRouteError("所选 topic 没有流年规则")
-        raw = yearly_range(natal_chart, start, end, rules=rule_order, detail=True, validate_pan=validate_pan)
+        raw = yearly_range(
+            natal_chart, start, end, rules=rule_order, detail=True,
+            validate_pan=validate_pan, timezone=timezone,
+        )
         years = raw.get("years", {})
         for year in range(start, end + 1):
             result = years.get(str(year), {})

@@ -341,7 +341,7 @@ def test_all_matter_requests_satisfy_engine_schema(monkeypatch) -> None:
     monkeypatch.setattr(qimen_charts, "engine_data", fake_engine_data)
     for matter in load_routing_matter_table():
         qimen_charts.qimen_chart(
-            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            "2026-09-07T12:00:00+08:00", 116.4,
             method=hour_method, matter=matter,
         )
     assert len(requests) == len(load_routing_matter_table())
@@ -358,11 +358,10 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
 
     monkeypatch.setattr(qimen_charts, "engine_data", fake_engine_data)
     result = qimen_charts.qimen_chart(
-        "2026-09-07T04:00:00Z", "Asia/Shanghai",
+        "2026-09-07T12:00:00+08:00",
         116.4,
         matter="wealth",
-        birth_instant="1984-02-14T16:00:00Z",
-        birth_timezone="Asia/Shanghai",
+        birth_standard_time="1984-02-15T00:00:00+08:00",
         method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
     )
 
@@ -371,8 +370,7 @@ def test_qimen_chart_maps_matter_before_engine_call(monkeypatch) -> None:
     assert method == "qimen.chart"
     assert "matter" not in params
     assert params["yong_shen"] == ["生门", "戊"]
-    assert params["birth_instant"] == "1984-02-14T16:00:00Z"
-    assert params["birth_timezone"] == "Asia/Shanghai"
+    assert params["birth_standard_time"] == "1984-02-15T00:00:00+08:00"
     assert result["matter"]["matter"] == "wealth"
     assert result["matter"]["name"] == "求财"
     assert result["chart"]["ri_gan_gong"] == "震"
@@ -382,7 +380,7 @@ def test_qimen_chart_rejects_duplicate_yong_shen_sources(monkeypatch) -> None:
     monkeypatch.setattr(qimen_charts, "engine_data", lambda *_: (_ for _ in ()).throw(AssertionError("engine called")))
     try:
         qimen_charts.qimen_chart(
-            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            "2026-09-07T12:00:00+08:00", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             matter="wealth", yong_shen=["生门"],
         )
@@ -400,7 +398,7 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
     )
     with pytest.raises(ValueError, match="yong_shen 不能为空"):
         qimen_charts.qimen_chart(
-            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            "2026-09-07T12:00:00+08:00", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             yong_shen=[],
         )
@@ -421,7 +419,7 @@ def test_qimen_chart_rejects_duplicate_explicit_yong_shen(monkeypatch) -> None:
     )
     with pytest.raises(ValueError, match="yong_shen 符号重复"):
         qimen_charts.qimen_chart(
-            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            "2026-09-07T12:00:00+08:00", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             yong_shen=["生门", "生门"],
         )
@@ -435,7 +433,7 @@ def test_qimen_chart_rejects_string_yong_shen(monkeypatch) -> None:
     )
     with pytest.raises(ValueError, match="yong_shen 必须是字符串数组"):
         qimen_charts.qimen_chart(
-            "2026-09-07T04:00:00Z", "Asia/Shanghai", 116.4,
+            "2026-09-07T12:00:00+08:00", 116.4,
             method={"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
             yong_shen="生门",
         )

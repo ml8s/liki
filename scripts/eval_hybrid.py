@@ -90,7 +90,10 @@ def main() -> int:
         if case_id not in cache:
             solar, gender, lon, _corr = parse_birth(birth)
             # 经度未知时用北京默认（与产品默认一致）；题干时间即 Gregorian time事实。
-            natal_chart = build_natal_chart(solar, gender, lon if lon is not None else 116.4)
+            natal_chart = build_natal_chart(
+                solar[:19], "Asia/Shanghai", gender,
+                lon if lon is not None else 116.4,
+            )
             cache[case_id] = query_all(natal_chart)
         r = cache[case_id]
         for qid in qids:

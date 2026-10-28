@@ -27,7 +27,7 @@ def _core(d):
 
 LIUYAO_ARGS = {"question": "测试这次面试能不能通过", "casting": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
                "longitude": 116.4, "matter": "general",
-               "timezone": "Asia/Shanghai"}
+               "standard_time": "2026-10-01T10:00:00+08:00"}
 
 
 def test_liuyao_snapshot_matches_old():

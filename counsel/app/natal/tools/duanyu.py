@@ -490,8 +490,6 @@ def yearly_range(natal_chart: dict, start: int, end: int,
             if not natal_chart.get(key):
                 raise ChartSchemaError(f"yearly_range natal_chart 缺 {key}，无法流年求值。")
     if not timezone:
-        timezone = str(natal_chart.get("timezone") or "")
-    if not timezone:
         raise ValueError("yearly_range 必须提供 timezone（IANA）")
     cur_year, cur_source = resolve_current_year(timezone)
     flow_factors = flow_factor_names(rules)
