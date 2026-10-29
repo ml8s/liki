@@ -100,7 +100,7 @@ WorkBuddy 专家不声明自带 MCP：四个 `plugin.json` 只有 `dependencies.
 
 - **黄历是 engine 独立 `huangli` 子域**（`huangli.*` 前缀），不是 aux——aux 是 `time./tianwen./city.`（`/engine/mcp/aux`）；聚合连接器下择日工具随排盘引擎一并可见，占卜专家因此不必额外连第三个服务。
 - 专家工具面变宽后，**领域边界由身份正文「硬边界」给出**（如本命专家：六爻、奇门、黄历择日、起名、风水属其他专家），工具名本身带领域前缀。
-- 运行时（装配镜像）agent 连**全量 `/mcp`**（compose `LIKI_MCP_ENGINE_URL`），工具可见性由 `tools.allow` 白名单控制（`agent.yaml`）；WorkBuddy 侧没有白名单机制，靠上面的「硬边界」。
+- 运行时（装配镜像）agent 连**全量 `/mcp`**（compose `LIKI_ENGINE_MCP_URL`），工具可见性由 `tools.allow` 白名单控制（`agent.yaml`）；WorkBuddy 侧没有白名单机制，靠上面的「硬边界」。
 
 ### 3.2 生成与校验链（`make build-deployment`）
 

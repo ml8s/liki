@@ -13,21 +13,11 @@ It is an internal operations endpoint. Public gateways must not expose it.
 Do not use service-specific compatibility paths such as
 `/api/internal/metrics`.
 
-## Authentication
+## Exposure
 
-Use a dedicated metrics token:
-
-```text
-LIKI_METRICS_TOKEN
-```
-
-Do not reuse `LIKI_MCP_TOKEN`.
-
-| Token state | Response |
-| --- | --- |
-| unset | `404` |
-| missing or wrong bearer | `403` |
-| correct bearer | `200` |
+`/metrics` is always enabled by the service and is reachable only from an
+internal operations network. Public gateways return `404`; applications do not
+implement a metrics token.
 
 ## Format
 
@@ -118,10 +108,9 @@ exception text
 Each repository tests:
 
 ```text
-1. unset metrics token → 404
-2. wrong token → 403
-3. correct token → 200
-4. output is Prometheus text
-5. labels are fixed and low-cardinality
-6. no payload or PII is present
+1. service response → 200 without credentials
+2. output is Prometheus text
+3. labels are fixed and low-cardinality
+4. public edge response → 404
+5. no payload or PII is present
 ```

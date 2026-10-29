@@ -53,12 +53,12 @@ def main() -> int:
     parser.add_argument(
         "base_url",
         nargs="?",
-        default=os.environ.get("LIKI_MCP_URL", ""),
-        help="engine MCP endpoint, for example http://127.0.0.1:8081/mcp（默认 LIKI_MCP_URL）",
+        default=os.environ.get("LIKI_ENGINE_MCP_URL", ""),
+        help="engine MCP endpoint, for example http://127.0.0.1:8081/mcp（默认 LIKI_ENGINE_MCP_URL）",
     )
     args = parser.parse_args()
     if not args.base_url:
-        parser.error("base_url required or LIKI_MCP_URL must be set")
+        parser.error("base_url required or LIKI_ENGINE_MCP_URL must be set")
     base = args.base_url.rstrip("/")
 
     # Every domain the counsel engine client routes to must exist and expose

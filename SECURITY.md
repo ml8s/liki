@@ -28,10 +28,9 @@ downstream consumer.
   API keys, or full tool payloads.
 - Engine and counsel are stateless; do not add request logging that captures
   birth data.
-- Self-hosted MCP deployments should set their inbound and outbound MCP tokens,
-  HTTPS at the edge, and explicit `LIKI_ALLOWED_ORIGINS` when browser clients
-  are used. counsel uses `LIKI_ENGINE_MCP_TOKEN` for engine calls and
-  `LIKI_MCP_TOKEN` for its own inbound gate.
+- Engine and counsel MCP are public, stateless compute surfaces. Keep HTTPS at
+  the edge, set explicit `LIKI_ENGINE_ALLOWED_ORIGINS` when browser clients are
+  used, and protect compute capacity with edge rate limiting.
 - Rate limiting and X-Forwarded-For trust are owned by the edge (cloud LB /
   WAF / Caddy); engine and counsel do not rate-limit or parse forwarded
   headers.

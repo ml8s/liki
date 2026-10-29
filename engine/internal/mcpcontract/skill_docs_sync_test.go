@@ -322,7 +322,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 			}
 			for _, bt := range lineToken.FindAllStringSubmatch(line, -1) {
 				tok := strings.TrimSpace(bt[1])
-				if strings.ContainsAny(tok, "{}") || reEnvVar.MatchString(tok) || !reFieldToken.MatchString(tok) { // reEnvVar: 全大写下划线=环境变量（LIKI_MCP_URL），非 schema 字段
+				if strings.ContainsAny(tok, "{}") || reEnvVar.MatchString(tok) || !reFieldToken.MatchString(tok) { // reEnvVar: 全大写下划线=环境变量（LIKI_ENGINE_MCP_URL），非 schema 字段
 					continue
 				}
 				segments := normalizeFieldToken(tok)

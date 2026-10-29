@@ -139,8 +139,8 @@ class TestDeploymentGeneration(unittest.TestCase):
     def test_mcp_servers_use_contract_endpoint_env_names(self):
         deployment = self._deployment("natal")
         servers = {s["name"]: s for s in deployment["spec"]["mcpServers"]}
-        self.assertEqual(servers["engine"]["endpointEnv"], "LIKI_MCP_ENGINE_URL")
-        self.assertEqual(servers["counsel"]["endpointEnv"], "LIKI_MCP_COUNSEL_URL")
+        self.assertEqual(servers["engine"]["endpointEnv"], "LIKI_ENGINE_MCP_URL")
+        self.assertEqual(servers["counsel"]["endpointEnv"], "LIKI_COUNSEL_MCP_URL")
 
     def test_profiles_expose_complete_catalogued_tool_surface(self):
         catalog = json.loads(

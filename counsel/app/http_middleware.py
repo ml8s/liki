@@ -1,52 +1,9 @@
 """HTTP middleware shared by the Counsel MCP application."""
 
 
-import hmac
 import time
 
 from starlette.responses import JSONResponse
-
-
-class AuthMiddleware:
-    """Optional bearer-token gate for self-hosted MCP deployments."""
-
-    def __init__(self, app, token: str):
-        self.app = app
-        self.token = token
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
-        if (
-            not self.token
-            or scope.get("path") in ("/healthz", "/readyz", "/metrics")
-            or scope.get("method") == "OPTIONS"
-        ):
-            await self.app(scope, receive, send)
-            return
-
-        authorization = ""
-        for name, value in scope.get("headers") or []:
-            if name == b"authorization":
-                authorization = value.decode("latin-1")
-                break
-        expected = f"Bearer {self.token}"
-        if hmac.compare_digest(authorization, expected):
-            await self.app(scope, receive, send)
-            return
-
-        response = JSONResponse(
-            {
-                "error": {
-                    "code": "unauthorized",
-                    "message": "missing or invalid bearer token",
-                }
-            },
-            status_code=401,
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        await response(scope, receive, send)
 
 
 class MetricsMiddleware:

@@ -4,7 +4,7 @@
 Usage (from bash):
     python3 scripts/_engine_fixture.py -- CMD [ARGS...]
 
-The command receives LIKI_MCP_URL pointing at the private engine MCP endpoint.
+The command receives LIKI_ENGINE_MCP_URL pointing at the private engine MCP endpoint.
 The engine binary path comes from LIKI_ENGINE_BIN (default /tmp/engine-mcp);
 callers build it there first (see test-*.sh callers).
 """
@@ -45,7 +45,7 @@ def main() -> int:
         else:
             raise SystemExit("engine-mcp failed to become ready")
 
-        env = dict(os.environ, LIKI_MCP_URL=f"http://127.0.0.1:{port}/mcp")
+        env = dict(os.environ, LIKI_ENGINE_MCP_URL=f"http://127.0.0.1:{port}/mcp")
         cwd = os.environ.get("FIXTURE_CWD")
         return subprocess.call(cmd, cwd=cwd, env=env)
     finally:

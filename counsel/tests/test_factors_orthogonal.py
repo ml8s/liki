@@ -19,7 +19,7 @@ SAMPLES = [
 
 
 def _engine_call(domain, name, args):
-    url = os.environ["LIKI_MCP_URL"] + "/" + domain
+    url = os.environ["LIKI_ENGINE_MCP_URL"] + "/" + domain
     body = json.dumps({
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
         "params": {"name": name, "arguments": args, "_meta": {

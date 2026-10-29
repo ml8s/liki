@@ -9,31 +9,15 @@ import (
 	"liki-engine/internal/observability"
 )
 
-func TestMetricsHandlerTokenBoundaries(t *testing.T) {
+func TestMetricsHandlerIsAlwaysOn(t *testing.T) {
 	target := "http://engine.test/metrics"
 
 	request := httptest.NewRequest(http.MethodGet, target, nil)
+	request.Header.Set("Authorization", "Bearer ignored")
 	recorder := httptest.NewRecorder()
-	MetricsAuthMiddleware("", MetricsHandler()).ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusNotFound {
-		t.Fatalf("unset token: status = %d, want 404", recorder.Code)
-	}
-
-	handler := MetricsAuthMiddleware("metrics-secret", MetricsHandler())
-	request = httptest.NewRequest(http.MethodGet, target, nil)
-	request.Header.Set("Authorization", "Bearer wrong")
-	recorder = httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusForbidden {
-		t.Fatalf("wrong token: status = %d, want 403", recorder.Code)
-	}
-
-	request = httptest.NewRequest(http.MethodGet, target, nil)
-	request.Header.Set("Authorization", "Bearer metrics-secret")
-	recorder = httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
+	MetricsHandler().ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusOK {
-		t.Fatalf("valid token: status = %d, want 200", recorder.Code)
+		t.Fatalf("status = %d, want 200", recorder.Code)
 	}
 	if got := recorder.Header().Get("Content-Type"); !strings.Contains(got, "text/plain; version=0.0.4") {
 		t.Fatalf("metrics content type = %q", got)

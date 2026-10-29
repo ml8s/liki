@@ -45,7 +45,7 @@ def test_auto_qigua_is_not_retried(monkeypatch):
     import app.engine_mcp_client as client
     from app.engine_mcp_client import MCPError
 
-    monkeypatch.setenv("LIKI_MCP_URL", "http://engine-mcp:8081/mcp")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine-mcp:8081/mcp")
     requests = []
 
     def transport(request, timeout):
@@ -63,7 +63,7 @@ def test_auto_qigua_is_not_retried(monkeypatch):
 def test_explicit_coin_qigua_can_retry(monkeypatch):
     import app.engine_mcp_client as client
 
-    monkeypatch.setenv("LIKI_MCP_URL", "http://engine-mcp:8081/mcp")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine-mcp:8081/mcp")
     requests = []
 
     def transport(request, timeout):

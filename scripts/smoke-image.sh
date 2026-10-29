@@ -57,7 +57,7 @@ echo "✓ engine MCP"
 echo "── counsel MCP smoke ($COUNSEL_IMAGE) ──"
 name="liki-smoke-counsel-$$"
 start_container "$name" \
-  -e LIKI_MCP_URL=http://127.0.0.1:9/mcp \
+  -e LIKI_ENGINE_MCP_URL=http://127.0.0.1:9/mcp \
   -p "$COUNSEL_PORT:8086" \
   "$COUNSEL_IMAGE"
 wait_url "$name" "http://127.0.0.1:$COUNSEL_PORT/healthz"

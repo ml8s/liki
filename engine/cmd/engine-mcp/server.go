@@ -60,7 +60,7 @@ func ParseResultContentMode(raw string) (ResultContentMode, error) {
 		return ResultContentModeStructured, nil
 	default:
 		return "", fmt.Errorf(
-			"LIKI_MCP_RESULT_CONTENT must be %q or %q, got %q",
+			"LIKI_ENGINE_MCP_RESULT_CONTENT must be %q or %q, got %q",
 			ResultContentModeCompat, ResultContentModeStructured, raw,
 		)
 	}
@@ -171,15 +171,6 @@ func toolDomain(name string) string {
 		return domain
 	}
 	return "other"
-}
-
-func allowsNoToken() bool {
-	switch strings.TrimSpace(strings.ToLower(os.Getenv("LIKI_ALLOW_NO_TOKEN"))) {
-	case "1", "true", "yes", "on":
-		return true
-	default:
-		return false
-	}
 }
 
 func runStdio(version string, logger *slog.Logger, mode ResultContentMode) error {

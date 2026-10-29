@@ -11,37 +11,11 @@ from app import engine_mcp_client  # noqa: E402
 from app.contracts import COUNSEL_TOOLS, NATAL_TOOLS  # noqa: E402
 from app.contracts.schema import ToolContract  # noqa: E402
 from app.counsel_mcp import (  # noqa: E402
-    _allows_no_token,
-    _bind_host,
-    _is_loopback,
     _make_app,
     app,
     create_counsel_mcp,
     create_counsel_root_mcp,
 )
-
-
-def test_counsel_secure_default_rejects_public_no_token(monkeypatch):
-    monkeypatch.setenv("LIKI_BIND_HOST", "0.0.0.0")
-    monkeypatch.delenv("LIKI_MCP_TOKEN", raising=False)
-    monkeypatch.delenv("LIKI_ALLOW_NO_TOKEN", raising=False)
-    secure_app = _make_app()
-
-    async def enter_lifespan():
-        async with secure_app.router.lifespan_context(secure_app):
-            pass
-
-    with pytest.raises(RuntimeError, match="LIKI_MCP_TOKEN is required"):
-        asyncio.run(enter_lifespan())
-
-
-def test_counsel_token_policy_helpers(monkeypatch):
-    monkeypatch.setenv("LIKI_BIND_HOST", "0.0.0.0")
-    monkeypatch.setenv("LIKI_ALLOW_NO_TOKEN", "1")
-    assert _bind_host() == "0.0.0.0"
-    assert _allows_no_token() is True
-    assert _is_loopback("127.0.0.1") is True
-    assert _is_loopback("0.0.0.0") is False
 
 
 def test_docker_runtime_uses_configured_bind_host():
@@ -66,7 +40,7 @@ from starlette.routing import Mount, Route  # noqa: E402
 def _engine_bazi_chart():
     import urllib.request
 
-    url = os.environ["LIKI_MCP_URL"] + "/bazi"
+    url = os.environ["LIKI_ENGINE_MCP_URL"] + "/bazi"
     body = json.dumps({
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
         "params": {"name": "bazi_chart", "arguments": {
@@ -624,37 +598,18 @@ def test_readyz_rejects_invalid_timeout_configuration(monkeypatch):
     assert json.loads(raw)["reason"] == "engine_dependency_unreachable"
 
 
-def test_metrics_route_is_bearer_protected(monkeypatch):
-    monkeypatch.setenv("LIKI_METRICS_TOKEN", "metrics-secret")
-    guarded_app = _make_app()
-    status, _raw = _http_request("/metrics", asgi_app=guarded_app)
-    assert status == 403
-
-    status, _raw = _http_request(
-        "/metrics",
-        asgi_app=guarded_app,
-        authorization="Bearer metrics-secret",
-    )
+def test_metrics_route_is_always_on():
+    metrics_app = _make_app()
+    status, _raw = _http_request("/metrics", asgi_app=metrics_app)
     assert status == 200
-
-    monkeypatch.delenv("LIKI_METRICS_TOKEN", raising=False)
-    unconfigured_app = _make_app()
-    status, _raw = _http_request("/metrics", asgi_app=unconfigured_app)
-    assert status == 404
 
 
 def test_metrics_route_renders_low_cardinality_counters(monkeypatch):
-    monkeypatch.delenv("LIKI_MCP_TOKEN", raising=False)
-    monkeypatch.setenv("LIKI_METRICS_TOKEN", "metrics-secret")
     metrics_app = _make_app()
     reset_metrics()
     observe_tool_request("bazi_yongshen", "bazi", "success", 0.01)
 
-    status, raw = _http_request(
-        "/metrics",
-        authorization="Bearer metrics-secret",
-        asgi_app=metrics_app,
-    )
+    status, raw = _http_request("/metrics", asgi_app=metrics_app)
     text = raw.decode("utf-8")
     print("DEBUG metrics text", text)
     assert status == 200
@@ -665,7 +620,7 @@ def test_metrics_route_renders_low_cardinality_counters(monkeypatch):
 
 
 def test_counsel_mcp_rejects_oversized_request_body(monkeypatch):
-    monkeypatch.setenv("LIKI_MCP_MAX_BODY_BYTES", "16")
+    monkeypatch.setenv("LIKI_HTTP_MAX_BODY_BYTES", "16")
     limited_app = _make_app()
     status, raw = _http_request(
         "/mcp",
@@ -678,7 +633,7 @@ def test_counsel_mcp_rejects_oversized_request_body(monkeypatch):
 
 
 def test_counsel_mcp_counts_actual_request_bytes_even_with_small_content_length(monkeypatch):
-    monkeypatch.setenv("LIKI_MCP_MAX_BODY_BYTES", "16")
+    monkeypatch.setenv("LIKI_HTTP_MAX_BODY_BYTES", "16")
     limited_app = _make_app()
     status, raw = _http_raw_request(
         "/mcp",
@@ -690,21 +645,7 @@ def test_counsel_mcp_counts_actual_request_bytes_even_with_small_content_length(
     assert json.loads(raw)["error"]["code"] == "payload_too_large"
 
 
-def test_authentication_runs_before_request_body_limit(monkeypatch):
-    monkeypatch.setenv("LIKI_MCP_TOKEN", "test-secret")
-    monkeypatch.setenv("LIKI_MCP_MAX_BODY_BYTES", "16")
-    guarded_app = _make_app()
-    status, raw = _http_request(
-        "/mcp",
-        method="POST",
-        payload={"jsonrpc": "2.0", "id": 1, "method": "server/discover", "params": {}},
-        asgi_app=guarded_app,
-    )
-    assert status == 401
-    assert "unauthorized" in json.loads(raw)["error"]["code"]
-
-
-def test_engine_mcp_client_forwards_private_engine_token(monkeypatch):
+def test_engine_mcp_client_does_not_send_authorization(monkeypatch):
     requests = []
 
     class response:
@@ -722,26 +663,16 @@ def test_engine_mcp_client_forwards_private_engine_token(monkeypatch):
             return b'{"result":{"_meta":{"io.modelcontextprotocol/serverInfo":{"name":"engine","version":"2026.09.26.0"}}}}'
 
     def urlopen(request, timeout):
-        requests.append({"request": request, "timeout": timeout})
+        requests.append(request)
         return response()
 
-    monkeypatch.setenv("LIKI_MCP_URL", "http://engine-mcp:8085/mcp/")
-    monkeypatch.setenv("LIKI_ENGINE_MCP_TOKEN", "engine-secret")
-    monkeypatch.setenv("LIKI_MCP_TOKEN", "counsel-secret")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine-mcp:8085/mcp/")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
 
     engine_mcp_client.server_info(retries=0)
 
     assert len(requests) == 1
-    request = requests[0]["request"]
-    assert request.full_url == "http://engine-mcp:8085/mcp"
-    assert request.get_header("Authorization") == "Bearer engine-secret"
-
-    monkeypatch.setenv("LIKI_ENGINE_MCP_TOKEN", "")
-    engine_mcp_client.server_info(retries=0)
-    fallback = requests[1]["request"]
-    assert fallback.get_header("Authorization") == "Bearer counsel-secret"
-
+    assert requests[0].get_header("Authorization") is None
 
 def test_engine_client_records_terminal_status_metrics(monkeypatch):
     timeouts = []
@@ -769,7 +700,7 @@ def test_engine_client_records_terminal_status_metrics(monkeypatch):
                 }
             }).encode()
 
-    monkeypatch.setenv("LIKI_MCP_URL", "http://engine-mcp:8085/mcp")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine-mcp:8085/mcp")
     monkeypatch.setattr(
         engine_mcp_client,
         "_HTTP_TRANSPORT",
@@ -783,76 +714,48 @@ def test_engine_client_records_terminal_status_metrics(monkeypatch):
     assert "liki_counsel_engine_request_duration_seconds" in text
 
 
-def test_optional_bearer_auth_protects_counsel_mcp_without_locking_health(monkeypatch):
-    monkeypatch.setenv("LIKI_MCP_TOKEN", "test-secret")
-    guarded_app = _make_app()
-    payload = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "server/discover",
-        "params": {
-            "_meta": {
-                "io.modelcontextprotocol/protocolVersion": "2026-07-28",
-                "io.modelcontextprotocol/clientCapabilities": {},
-            }
-        },
-    }
-
-    for authorization in (None, "Bearer wrong"):
-        status, raw = _http_request(
-            "/mcp",
-            method="POST",
-            payload=payload,
-            asgi_app=guarded_app,
-            authorization=authorization,
-        )
-        assert status == 401
-        assert "unauthorized" in json.loads(raw)["error"]["code"]
-
-    status, _raw = _http_request("/healthz", asgi_app=guarded_app)
+def test_counsel_mcp_is_public_without_locking_health():
+    public_app = _make_app()
+    status, _raw = _http_request("/healthz", asgi_app=public_app)
     assert status == 200
 
     async def authorized_request():
-        async with guarded_app.router.lifespan_context(guarded_app):
+        async with public_app.router.lifespan_context(public_app):
             return await _asgi_request(
                 "/mcp",
                 method="POST",
-                payload=payload,
-                asgi_app=guarded_app,
-                authorization="Bearer test-secret",
+                payload={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "server/discover",
+                    "params": {
+                        "_meta": {
+                            "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                            "io.modelcontextprotocol/clientCapabilities": {},
+                        }
+                    },
+                },
+                asgi_app=public_app,
             )
 
     status, _raw = asyncio.run(authorized_request())
     assert status == 200
 
 
-def test_unauthorized_attempts_are_not_rate_limited(monkeypatch):
-    """Rate limiting is owned by the edge; the app must never answer 429."""
-    monkeypatch.setenv("LIKI_MCP_TOKEN", "test-secret")
-    guarded_app = _make_app()
-    payload = {"jsonrpc": "2.0", "id": 1, "method": "server/discover", "params": {}}
-
-    for _ in range(5):
-        status, _raw = _http_request(
-            "/mcp", method="POST", payload=payload, asgi_app=guarded_app
-        )
-        assert status == 401
-
-
 def test_engine_endpoint_requires_explicit_url(monkeypatch):
-    monkeypatch.delenv("LIKI_MCP_URL", raising=False)
-    with pytest.raises(EngineMCPError, match="LIKI_MCP_URL"):
+    monkeypatch.delenv("LIKI_ENGINE_MCP_URL", raising=False)
+    with pytest.raises(EngineMCPError, match="LIKI_ENGINE_MCP_URL"):
         engine_mcp_client._endpoint()
 
 
 def test_lifespan_fails_fast_without_engine_url(monkeypatch):
-    """Startup must reject an empty LIKI_MCP_URL before touching any domain."""
-    monkeypatch.delenv("LIKI_MCP_URL", raising=False)
+    """Startup must reject an empty LIKI_ENGINE_MCP_URL before touching any domain."""
+    monkeypatch.delenv("LIKI_ENGINE_MCP_URL", raising=False)
     test_app = _make_app()
 
     async def enter_lifespan():
         async with test_app.router.lifespan_context(test_app):
             pass
 
-    with pytest.raises(RuntimeError, match="LIKI_MCP_URL"):
+    with pytest.raises(RuntimeError, match="LIKI_ENGINE_MCP_URL"):
         asyncio.run(enter_lifespan())

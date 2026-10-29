@@ -1,7 +1,6 @@
 package http
 
 import (
-	"crypto/subtle"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -60,7 +59,7 @@ func configuredOrigins(devMode bool) map[string]bool {
 			allowed[origin] = true
 		}
 	}
-	if configured := strings.TrimSpace(os.Getenv("LIKI_ALLOWED_ORIGINS")); configured != "" {
+	if configured := strings.TrimSpace(os.Getenv("LIKI_ENGINE_ALLOWED_ORIGINS")); configured != "" {
 		allowed = make(map[string]bool)
 		for _, origin := range strings.Split(configured, ",") {
 			origin = strings.TrimSpace(origin)
@@ -110,25 +109,6 @@ func Recover(next http.Handler) http.Handler {
 func BodyLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
-		next.ServeHTTP(w, r)
-	})
-}
-
-// MetricsAuthMiddleware protects /metrics with the dedicated metrics token.
-// An unset token makes the endpoint disappear rather than advertise existence.
-func MetricsAuthMiddleware(token string, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if token == "" {
-			http.NotFound(w, r)
-			return
-		}
-		expected := "Bearer " + token
-		provided := r.Header.Get("Authorization")
-		if subtle.ConstantTimeCompare([]byte(expected), []byte(provided)) != 1 {
-			w.Header().Set("WWW-Authenticate", "Bearer")
-			respondError(w, http.StatusForbidden, "forbidden", "invalid metrics token")
-			return
-		}
 		next.ServeHTTP(w, r)
 	})
 }

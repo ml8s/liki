@@ -592,7 +592,7 @@ def test_mcp_keepalive_client_reuses_connection(monkeypatch) -> None:
 
     connection = keepalive_connection()
     monkeypatch.setattr(engine_mcp_client, "_new_connection", lambda _: connection)
-    monkeypatch.setenv("LIKI_MCP_URL", "http://engine.test/mcp")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine.test/mcp")
     for _ in range(2):
         assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"ok": True}}
     assert calls == [connection, connection]
@@ -644,7 +644,7 @@ def test_mcp_keepalive_client_discards_broken_connection(monkeypatch) -> None:
     pending = iter(created)
     monkeypatch.setattr(engine_mcp_client, "_new_connection", lambda _: next(pending))
     monkeypatch.setattr(engine_mcp_client.time, "sleep", lambda *_: None)
-    monkeypatch.setenv("LIKI_MCP_URL", "http://engine.test/mcp")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://engine.test/mcp")
 
     assert engine_mcp_client.call("qimen.chart", {}) == {"data": {"ok": True}}
 
@@ -689,7 +689,7 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
         seen.append(request.full_url)
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
 
-    monkeypatch.setenv("LIKI_MCP_URL", "https://dynamic.example/mcp")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "https://dynamic.example/mcp")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
     assert engine_mcp_client.call("qimen.chart", {"standard_time": "2026-01-01T08:00:00+08:00", "longitude": 116.4}) == {"data": {"ok": True}}
     assert seen == ["https://dynamic.example/mcp/qimen"]
@@ -701,7 +701,7 @@ def test_engine_mcp_client_domain_suffix(monkeypatch):
     def urlopen(request, *_, **__):
         seen.append(request.full_url)
         return _FakeResp(_mcp_tools_call_result({"ok": True}))
-    monkeypatch.setenv("LIKI_MCP_URL", "http://127.0.0.1:18081/mcp")
+    monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "http://127.0.0.1:18081/mcp")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
     for name in ["tianwen_resolve", "ziwei.chart", "bazi_chart", "time.now"]:
         engine_mcp_client.call(name, {})

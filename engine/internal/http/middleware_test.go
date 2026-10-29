@@ -120,7 +120,7 @@ func TestCORSMiddleware_OptionsPreflight(t *testing.T) {
 }
 
 func TestCORSMiddleware_ConfiguredOrigins(t *testing.T) {
-	t.Setenv("LIKI_ALLOWED_ORIGINS", "https://mingli.example, https://invalid origin, ftp://invalid.example")
+	t.Setenv("LIKI_ENGINE_ALLOWED_ORIGINS", "https://mingli.example, https://invalid origin, ftp://invalid.example")
 	handler := CORSMiddleware(false, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))

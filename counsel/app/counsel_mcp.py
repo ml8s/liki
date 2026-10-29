@@ -8,13 +8,10 @@
 无状态、无存储依赖。counsel 是 engine 的补集（判断），排盘/历法在 engine。
 
 Run:
-    LIKI_MCP_URL=http://engine-mcp:8081/mcp \
+    LIKI_ENGINE_MCP_URL=http://engine-mcp:8081/mcp \
         .venv/bin/python -m uvicorn app.counsel_mcp:app --host 127.0.0.1 --port 8086
 """
 
-import hmac
-import ipaddress
-import logging
 import os
 from contextlib import AsyncExitStack, asynccontextmanager
 
@@ -31,7 +28,6 @@ from app.counsel_servers import (  # noqa: E402
     create_counsel_root_mcp,
 )
 from app.http_middleware import (
-    AuthMiddleware,
     BodyLimitMiddleware,
     MetricsMiddleware,
 )
@@ -40,21 +36,6 @@ from app.metrics import render_metrics  # noqa: E402
 
 def _bind_host() -> str:
     return os.environ.get("LIKI_BIND_HOST", "127.0.0.1")
-
-
-def _is_loopback(host: str) -> bool:
-    if host == "localhost":
-        return True
-    try:
-        return ipaddress.ip_address(host).is_loopback
-    except ValueError:
-        return False
-
-
-def _allows_no_token() -> bool:
-    return os.environ.get("LIKI_ALLOW_NO_TOKEN", "").strip().lower() in {
-        "1", "true", "yes", "on"
-    }
 
 
 def _make_app():
@@ -113,21 +94,6 @@ def _make_app():
         })
 
     async def metrics(_request):
-        token = os.environ.get("LIKI_METRICS_TOKEN", "")
-        if not token:
-            return Response(status_code=404)
-        authorization = _request.headers.get("Authorization", "")
-        if not hmac.compare_digest(authorization, f"Bearer {token}"):
-            return JSONResponse(
-                {
-                    "error": {
-                        "code": "forbidden",
-                        "message": "invalid metrics token",
-                    }
-                },
-                status_code=403,
-                headers={"WWW-Authenticate": "Bearer"},
-            )
         return Response(
             render_metrics(),
             media_type="text/plain; version=0.0.4; charset=utf-8",
@@ -136,24 +102,10 @@ def _make_app():
     @asynccontextmanager
     async def lifespan(app: Starlette):
         """Fail fast on misconfiguration; run each domain app's lifespan once."""
-        if (
-            not os.environ.get("LIKI_MCP_TOKEN", "").strip()
-            and not _is_loopback(_bind_host())
-            and not _allows_no_token()
-        ):
+        if not os.environ.get("LIKI_ENGINE_MCP_URL", "").strip():
             raise RuntimeError(
-                "counsel-mcp: LIKI_MCP_TOKEN is required on a non-loopback "
-                "address; set LIKI_MCP_TOKEN or LIKI_ALLOW_NO_TOKEN=1"
-            )
-        if not os.environ.get("LIKI_MCP_URL", "").strip():
-            raise RuntimeError(
-                "LIKI_MCP_URL is required "
+                "LIKI_ENGINE_MCP_URL is required "
                 "(engine-mcp endpoint, e.g. http://engine-mcp:8081/mcp)"
-            )
-        if not os.environ.get("LIKI_MCP_TOKEN", ""):
-            logging.getLogger(__name__).warning(
-                "counsel-mcp: LIKI_MCP_TOKEN is empty; set a token unless a "
-                "trusted edge already gates access"
             )
         async with AsyncExitStack() as stack:
             await stack.enter_async_context(root_app.router.lifespan_context(root_app))
@@ -180,12 +132,8 @@ def _make_app():
         middleware=[
             Middleware(MetricsMiddleware),
             Middleware(
-                AuthMiddleware,
-                token=os.environ.get("LIKI_MCP_TOKEN", ""),
-            ),
-            Middleware(
                 BodyLimitMiddleware,
-                max_body_bytes=int(os.environ.get("LIKI_MCP_MAX_BODY_BYTES", str(1024 * 1024))),
+                max_body_bytes=int(os.environ.get("LIKI_HTTP_MAX_BODY_BYTES", str(1024 * 1024))),
             ),
         ],
     )

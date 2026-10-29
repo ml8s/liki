@@ -22,11 +22,11 @@ from urllib.error import HTTPError
 from app.metrics import observe_engine_request
 from app.version import runtime_version
 
-MCP_TIMEOUT = int(os.environ.get("LIKI_MCP_TIMEOUT", "30"))
-MAX_RETRIES = int(os.environ.get("LIKI_MCP_MAX_RETRIES", "2"))
+MCP_TIMEOUT = int(os.environ.get("LIKI_ENGINE_MCP_TIMEOUT_SECONDS", "30"))
+MAX_RETRIES = int(os.environ.get("LIKI_ENGINE_MCP_MAX_RETRIES", "2"))
 PROTOCOL_VERSION = "2026-07-28"
 RETRYABLE_HTTP_CODES = {408, 429, 500, 502, 503, 504}
-HTTP_IDLE_TIMEOUT = float(os.environ.get("LIKI_MCP_HTTP_IDLE_TIMEOUT", "55"))
+HTTP_IDLE_TIMEOUT = float(os.environ.get("LIKI_HTTP_IDLE_TIMEOUT_SECONDS", "55"))
 
 CLIENT_INFO = {"name": "counsel", "version": runtime_version()}
 _HTTP_TRANSPORT: Callable[[urllib.request.Request, int], Any] | None = None
@@ -52,20 +52,13 @@ class MCPError(Exception):
 
 
 def _endpoint() -> str:
-    url = os.environ.get("LIKI_MCP_URL", "").strip()
+    url = os.environ.get("LIKI_ENGINE_MCP_URL", "").strip()
     if not url:
         raise MCPError(
-            "LIKI_MCP_URL is required (engine-mcp endpoint, "
+            "LIKI_ENGINE_MCP_URL is required (engine-mcp endpoint, "
             "e.g. http://engine-mcp:8081/mcp)"
         )
     return url.rstrip("/")
-
-
-def _engine_token() -> str:
-    """Return the outbound engine token without coupling inbound/outbound auth."""
-    return os.environ.get("LIKI_ENGINE_MCP_TOKEN", "") or os.environ.get(
-        "LIKI_MCP_TOKEN", ""
-    )
 
 
 # MCP 工具名前缀 → 引擎分域端点后缀（各术数排盘 + 共享 aux）
@@ -96,7 +89,7 @@ def _endpoint_parts() -> _Endpoint:
     raw = _endpoint()
     parsed = urllib.parse.urlsplit(raw)
     if parsed.scheme not in ("http", "https") or not parsed.hostname:
-        raise MCPError(f"LIKI_MCP_URL must be an http(s) URL: {raw}")
+        raise MCPError(f"LIKI_ENGINE_MCP_URL must be an http(s) URL: {raw}")
     default_port = 443 if parsed.scheme == "https" else 80
     port = parsed.port or default_port
     path = parsed.path.rstrip("/") or ""
@@ -227,8 +220,6 @@ def _post_once(
     }
     if name:
         headers["Mcp-Name"] = name
-    if token := _engine_token():
-        headers["Authorization"] = f"Bearer {token}"
 
     last_err: Exception | None = None
     for attempt in range(retries + 1):
