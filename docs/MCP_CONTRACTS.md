@@ -75,9 +75,11 @@ Output JSON is checked against its schema by contract tests through
 for every production call.
 Schemas are materialized concurrently before the HTTP listener starts, so an
 invalid derived contract fails process startup instead of a first request.
-Successful results default to `structuredContent` only. `LIKI_MCP_RESULT_CONTENT=compat`
-retains duplicate text content for legacy clients; both modes use the same
-published schema and business payload.
+Successful results are `structuredContent` only: every tool publishes a typed
+object-rooted outputSchema, the duplicated text payload was removed as a size
+optimization, and all consumers (browser, experts SDK, external agents) read
+the structured field. Tool failures still surface as text content with
+`isError`.
 
 Tools whose domain JSON shape is already locked by wire-fidelity fixtures may
 marshal that domain value directly through `RawTool`; the wire DTO remains the

@@ -26,12 +26,7 @@ func newTestLogger() *slog.Logger {
 // Streamable HTTP endpoint and returns a connected client session.
 func startMCPServer(t *testing.T) (*mcp.ClientSession, *mcp.Server) {
 	t.Helper()
-	return startMCPServerMode(t, ResultContentModeCompat)
-}
-
-func startMCPServerMode(t *testing.T, mode ResultContentMode) (*mcp.ClientSession, *mcp.Server) {
-	t.Helper()
-	srv, err := newMCPServer(testVersion, newTestLogger(), mode)
+	srv, err := newMCPServer(testVersion, newTestLogger())
 	if err != nil {
 		t.Fatalf("build MCP server: %v", err)
 	}
@@ -52,7 +47,7 @@ func startMCPServerMode(t *testing.T, mode ResultContentMode) (*mcp.ClientSessio
 }
 
 func TestCallTool_StructuredOnlyOmitsTextContent(t *testing.T) {
-	sess, _ := startMCPServerMode(t, ResultContentModeStructured)
+	sess, _ := startMCPServer(t)
 	res, err := sess.CallTool(context.Background(), &mcp.CallToolParams{
 		Name: "time_now",
 		Arguments: map[string]any{
@@ -70,29 +65,6 @@ func TestCallTool_StructuredOnlyOmitsTextContent(t *testing.T) {
 	}
 	if res.StructuredContent == nil {
 		t.Fatal("structured-only result has no StructuredContent")
-	}
-}
-
-func TestParseResultContentMode(t *testing.T) {
-	tests := []struct {
-		raw  string
-		want ResultContentMode
-	}{
-		{raw: "", want: ResultContentModeStructured},
-		{raw: " structured ", want: ResultContentModeStructured},
-		{raw: "compat", want: ResultContentModeCompat},
-	}
-	for _, tc := range tests {
-		got, err := ParseResultContentMode(tc.raw)
-		if err != nil {
-			t.Fatalf("ParseResultContentMode(%q): %v", tc.raw, err)
-		}
-		if got != tc.want {
-			t.Fatalf("ParseResultContentMode(%q) = %q, want %q", tc.raw, got, tc.want)
-		}
-	}
-	if _, err := ParseResultContentMode("bogus"); err == nil {
-		t.Fatal("invalid result content mode was accepted")
 	}
 }
 
@@ -155,26 +127,38 @@ func TestTools_StandardNameAndSchema(t *testing.T) {
 	}
 }
 
-// callToolText invokes a tool and returns the text content plus the IsError flag.
-func callToolText(t *testing.T, sess *mcp.ClientSession, name string, args any) (string, bool) {
+// callToolStructured invokes a tool and returns the structured content plus
+// the IsError flag; successful tool calls are structured-only on the wire.
+func callToolStructured(t *testing.T, sess *mcp.ClientSession, name string, args any) (json.RawMessage, bool) {
 	t.Helper()
 	res, err := sess.CallTool(context.Background(), &mcp.CallToolParams{Name: name, Arguments: args})
 	if err != nil {
 		t.Fatalf("call %s: %v", name, err)
 	}
-	if len(res.Content) == 0 {
-		t.Fatalf("call %s: empty content", name)
+	if res.IsError {
+		if len(res.Content) == 0 {
+			t.Fatalf("call %s: error result has no text detail", name)
+		}
+		return json.RawMessage(res.Content[0].(*mcp.TextContent).Text), true
 	}
-	tc, ok := res.Content[0].(*mcp.TextContent)
-	if !ok {
-		t.Fatalf("call %s: content is %T, want *TextContent", name, res.Content[0])
+	if res.StructuredContent == nil {
+		t.Fatalf("call %s: success result has no structuredContent", name)
 	}
-	return tc.Text, res.IsError
+	return json.RawMessage(mustJSONMarshal(t, res.StructuredContent)), false
+}
+
+func mustJSONMarshal(t *testing.T, value any) []byte {
+	t.Helper()
+	raw, err := json.Marshal(value)
+	if err != nil {
+		t.Fatalf("marshal structured content: %v", err)
+	}
+	return raw
 }
 
 func TestCallTool_BaziChart(t *testing.T) {
 	sess, _ := startMCPServer(t)
-	text, isErr := callToolText(t, sess, "bazi_chart", map[string]any{
+	text, isErr := callToolStructured(t, sess, "bazi_chart", map[string]any{
 		"standard_time": "1984-02-04T06:00:00+08:00", "longitude": 116.4,
 		"gender": "male",
 	})
@@ -309,7 +293,7 @@ func TestTools_DeclaredOutputSchemaReturnsStructuredContent(t *testing.T) {
 // configured around the stateless 2026 protocol, it must not advertise a
 // version it will subsequently reject in the required protocol header.
 func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
-	srv, err := newMCPServer(testVersion, newTestLogger(), ResultContentModeCompat)
+	srv, err := newMCPServer(testVersion, newTestLogger())
 	if err != nil {
 		t.Fatalf("build MCP server: %v", err)
 	}
@@ -410,7 +394,7 @@ func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
 					prefixes = d.Prefixes
 				}
 			}
-			srv, err := newDomainServer(prefixes, testVersion, logger, ResultContentModeCompat)
+			srv, err := newDomainServer(prefixes, testVersion, logger)
 			if err != nil {
 				t.Fatalf("build domain MCP server: %v", err)
 			}

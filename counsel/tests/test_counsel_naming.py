@@ -36,24 +36,24 @@ def test_naming_tools_registered(srv):
 
 def test_naming_pick_matches_baseline(srv, baseline):
     r = asyncio.run(srv.call_tool("naming_pick", {"first": "木"}))
-    assert json.loads(r.content[0].text) == baseline["pick"]
+    assert r.structured_content == baseline["pick"]
 
 
 def test_naming_char_matches_baseline(srv, baseline):
     r = asyncio.run(srv.call_tool("naming_char", {"char": "伟"}))
-    assert json.loads(r.content[0].text) == baseline["char"]
+    assert r.structured_content == baseline["char"]
 
 
 def test_naming_compose_matches_baseline(srv, baseline):
     r = asyncio.run(srv.call_tool("naming_compose", {"first": ["伟"]}))
-    assert json.loads(r.content[0].text) == baseline["compose"]
+    assert r.structured_content == baseline["compose"]
 
 
 def test_naming_check_matches_baseline(srv, baseline):
     r = asyncio.run(srv.call_tool("naming_check", {
         "given_names": ["伟"], "yongshen": "木", "xishen": ["水"], "jishen": ["金"],
     }))
-    assert json.loads(r.content[0].text) == baseline["check"]
+    assert r.structured_content == baseline["check"]
 
 
 def _selected_yongshen() -> dict:
@@ -91,7 +91,7 @@ def test_naming_check_consumes_selected_yongshen(srv, baseline):
     r = asyncio.run(srv.call_tool("naming_check", {
         "given_names": ["伟"], "selected_yongshen": _selected_yongshen(),
     }))
-    out = json.loads(r.content[0].text)
+    out = r.structured_content
     evaluation = out["evaluations"][0]
     assert evaluation["wuxing"] == baseline["check"]["evaluations"][0]["wuxing"]
     assert evaluation["yongshen_source"] == {
@@ -138,4 +138,4 @@ def test_naming_check_rejects_two_yongshen_sources():
 
 def test_naming_surname_matches_baseline(srv, baseline):
     r = asyncio.run(srv.call_tool("naming_surname", {"source_surname": "zhang"}))
-    assert json.loads(r.content[0].text) == baseline["surname"]
+    assert r.structured_content == baseline["surname"]

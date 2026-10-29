@@ -12,7 +12,7 @@ import (
 
 func TestContractToolHandlerRecordsMetrics(t *testing.T) {
 	observability.ResetMetrics()
-	handler := contractToolHandler(engineContracts, "bazi_chart", ResultContentModeStructured)
+	handler := contractToolHandler(engineContracts, "bazi_chart")
 	request := &mcp.CallToolRequest{Params: &mcp.CallToolParamsRaw{}}
 	request.Params.Arguments = json.RawMessage(`{
 		"standard_time": "1990-05-20T04:00:00Z",
@@ -41,7 +41,7 @@ func TestContractToolHandlerRecordsMetrics(t *testing.T) {
 
 func TestContractToolHandlerRecordsInvalidArgumentsMetrics(t *testing.T) {
 	observability.ResetMetrics()
-	handler := contractToolHandler(engineContracts, "bazi_chart", ResultContentModeStructured)
+	handler := contractToolHandler(engineContracts, "bazi_chart")
 	request := &mcp.CallToolRequest{Params: &mcp.CallToolParamsRaw{}}
 	request.Params.Arguments = json.RawMessage(`{"longitude":500,"gender":"male"}`)
 

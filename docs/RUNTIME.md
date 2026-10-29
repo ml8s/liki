@@ -53,7 +53,6 @@ any capability that needs it.
 | --- | --- | --- |
 | `LIKI_HTTP_LISTEN_ADDRESS` | `:8081` | Internal listen address |
 | `LIKI_ENGINE_ALLOWED_ORIGINS` | hosted default | Comma-separated browser CORS origins |
-| `LIKI_ENGINE_MCP_RESULT_CONTENT` | `structured` | Successful tool result shape: `structured` or legacy `compat` with duplicate TextContent |
 
 `GET /health` and `GET /version` are public process probes. MCP requests are
 public. `GET /metrics` is an internal operations endpoint and must be blocked by

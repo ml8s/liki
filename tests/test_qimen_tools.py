@@ -458,9 +458,10 @@ def _mcp_response(payload: str) -> bytes:
 
 
 def _mcp_tools_call_result(obj) -> bytes:
-    """构造 tools/call 的 SSE 响应，text 为序列化 JSON。"""
+    """构造 tools/call 的 SSE 响应（structured-only wire）。"""
     result = {"jsonrpc": "2.0", "id": 1, "result": {
-        "content": [{"type": "text", "text": json.dumps(obj, ensure_ascii=False)}],
+        "content": [],
+        "structuredContent": obj,
     }}
     return _mcp_response(json.dumps(result, ensure_ascii=False))
 
@@ -491,20 +492,20 @@ def test_mcp_call_reports_malformed_engine_payload(monkeypatch) -> None:
         engine_mcp_client.call("qimen.chart", {})
 
 
-def test_mcp_call_reports_invalid_legacy_text_json(monkeypatch) -> None:
+def test_mcp_call_reports_missing_structured_content(monkeypatch) -> None:
     import app.engine_mcp_client as engine_mcp_client
     from app.engine_mcp_client import MCPError
 
     payload = {
         "jsonrpc": "2.0", "id": 1, "result": {
-            "content": [{"type": "text", "text": '{"legacy":'}],
+            "content": [],
         }
     }
     monkeypatch.setattr(
         engine_mcp_client, "_HTTP_TRANSPORT",
         lambda *_, **__: _FakeResp(_mcp_response(json.dumps(payload))),
     )
-    with pytest.raises(MCPError, match="legacy text content is not valid JSON"):
+    with pytest.raises(MCPError, match="missing structuredContent"):
         engine_mcp_client.call("qimen.chart", {})
 
 

@@ -12,12 +12,8 @@ def _sse_result(payload: dict) -> bytes:
             "jsonrpc": "2.0",
             "id": 1,
             "result": {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(payload, ensure_ascii=False),
-                    }
-                ]
+                "content": [],
+                "structuredContent": payload,
             },
         },
         ensure_ascii=False,

@@ -43,38 +43,15 @@ var mcpDomains = []struct {
 // registry has been fully retired.
 var engineContracts = mcpcontract.NewEngine()
 
-type ResultContentMode string
-
-const (
-	ResultContentModeCompat     ResultContentMode = "compat"
-	ResultContentModeStructured ResultContentMode = "structured"
-)
-
-func ParseResultContentMode(raw string) (ResultContentMode, error) {
-	switch strings.ToLower(strings.TrimSpace(raw)) {
-	case "":
-		return ResultContentModeStructured, nil
-	case string(ResultContentModeCompat):
-		return ResultContentModeCompat, nil
-	case string(ResultContentModeStructured):
-		return ResultContentModeStructured, nil
-	default:
-		return "", fmt.Errorf(
-			"LIKI_ENGINE_MCP_RESULT_CONTENT must be %q or %q, got %q",
-			ResultContentModeCompat, ResultContentModeStructured, raw,
-		)
-	}
-}
-
 // newMCPServer builds a standard MCP server exposing every engine tool.
-func newMCPServer(version string, logger *slog.Logger, mode ResultContentMode) (*mcp.Server, error) {
-	return newMCPServerFor(version, logger, mode, func(string) bool { return true })
+func newMCPServer(version string, logger *slog.Logger) (*mcp.Server, error) {
+	return newMCPServerFor(version, logger, func(string) bool { return true })
 }
 
 // newDomainServer builds an MCP server exposing only the methods matching the
 // given RPC method prefixes (one 术数 domain or the shared aux tools).
-func newDomainServer(prefixes []string, version string, logger *slog.Logger, mode ResultContentMode) (*mcp.Server, error) {
-	return newMCPServerFor(version, logger, mode, func(method string) bool {
+func newDomainServer(prefixes []string, version string, logger *slog.Logger) (*mcp.Server, error) {
+	return newMCPServerFor(version, logger, func(method string) bool {
 		for _, p := range prefixes {
 			if strings.HasPrefix(method, p) {
 				return true
@@ -85,7 +62,7 @@ func newDomainServer(prefixes []string, version string, logger *slog.Logger, mod
 }
 
 func newMCPServerFor(
-	version string, logger *slog.Logger, mode ResultContentMode, match func(string) bool,
+	version string, logger *slog.Logger, match func(string) bool,
 ) (*mcp.Server, error) {
 	impl := &mcp.Implementation{
 		Name:        serverName,
@@ -124,16 +101,17 @@ func newMCPServerFor(
 				IdempotentHint: true,
 			},
 		}
-		s.AddTool(tool, contractToolHandler(engineContracts, name, mode))
+		s.AddTool(tool, contractToolHandler(engineContracts, name))
 	}
 	return s, nil
 }
 
-// contractToolHandler invokes a typed MCP contract. Validation and business
-// failures are visible to the model as tool errors.
-func contractToolHandler(
-	contracts *mcpcontract.Registry, name string, mode ResultContentMode,
-) mcp.ToolHandler {
+// contractToolHandler invokes a typed MCP contract and answers structured-only:
+// every tool publishes a typed outputSchema, the text-content duplication was
+// removed as a payload optimization, and every consumer (browser, experts SDK,
+// external agents) reads structuredContent. Validation and business failures
+// stay visible to the model as text tool errors.
+func contractToolHandler(contracts *mcpcontract.Registry, name string) mcp.ToolHandler {
 	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		started := time.Now()
 		status := "success"
@@ -156,13 +134,7 @@ func contractToolHandler(
 		}
 		duration := time.Since(started).Seconds()
 		defer observability.ObserveTool(toolDomain(name), name, status, duration)
-		if mode == ResultContentModeStructured {
-			return &mcp.CallToolResult{StructuredContent: result}, nil
-		}
-		return &mcp.CallToolResult{
-			Content:           []mcp.Content{&mcp.TextContent{Text: string(result)}},
-			StructuredContent: result,
-		}, nil
+		return &mcp.CallToolResult{StructuredContent: result}, nil
 	}
 }
 
@@ -173,8 +145,8 @@ func toolDomain(name string) string {
 	return "other"
 }
 
-func runStdio(version string, logger *slog.Logger, mode ResultContentMode) error {
-	s, err := newMCPServer(version, logger, mode)
+func runStdio(version string, logger *slog.Logger) error {
+	s, err := newMCPServer(version, logger)
 	if err != nil {
 		return err
 	}

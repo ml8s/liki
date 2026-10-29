@@ -219,7 +219,7 @@ def test_ziwei_mcp_does_not_expose_bazi_yongshen():
 def test_bazi_yongshen_over_mcp(bazi_chart):
     srv = create_counsel_mcp("bazi")
     r = asyncio.run(srv.call_tool("bazi_yongshen", {"chart": bazi_chart}))
-    out = json.loads(r.content[0].text)
+    out = r.structured_content
     assert out["selected"]["yong"]
     assert out["status"] in ("resolved", "partial", "needs_review", "unresolved")
     assert len(out["yongshen_digest"]) == 64
@@ -235,7 +235,7 @@ def test_bazi_yongshen_over_mcp(bazi_chart):
 def test_compute_factors_over_mcp(bazi_chart):
     srv = create_counsel_mcp("bazi")
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
-    out = json.loads(r.content[0].text)
+    out = r.structured_content
     assert set(out) == {"factors", "factors_digest"}
     assert "selected_yongshen" in out["factors"]
     assert out["factors"]["_provenance"]["context"]["性别"] == "male"
@@ -244,14 +244,14 @@ def test_compute_factors_over_mcp(bazi_chart):
 
 def test_compute_factors_has_one_yongshen_source(bazi_chart):
     srv = create_counsel_mcp("bazi")
-    out = json.loads(asyncio.run(srv.call_tool(
+    out = asyncio.run(srv.call_tool(
         "compute_factors", {"chart": bazi_chart}
-    )).content[0].text)
+    )).structured_content
     selected = out["factors"]["selected_yongshen"]
     provenance = out["factors"]["_provenance"]
-    direct = json.loads(asyncio.run(srv.call_tool(
+    direct = asyncio.run(srv.call_tool(
         "bazi_yongshen", {"chart": bazi_chart}
-    )).content[0].text)
+    )).structured_content
     assert selected == direct
     assert selected["policy_id"] == "liki.bazi.yongshen"
     assert selected["yongshen_digest"]
@@ -263,7 +263,7 @@ def test_compute_factors_has_one_yongshen_source(bazi_chart):
 def test_natal_query_over_mcp(bazi_chart):
     srv = create_counsel_mcp("bazi")
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
-    snapshot = json.loads(r.content[0].text)
+    snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
         "natal_query",
         {
@@ -272,14 +272,14 @@ def test_natal_query_over_mcp(bazi_chart):
             "topics": ["chart_structure"],
         },
     ))
-    out = json.loads(r.content[0].text)
+    out = r.structured_content
     assert out["assertions"] and all(a.get("side") == "bazi" for a in out["assertions"])
 
 
 def test_period_query_over_mcp(bazi_chart):
     srv = create_counsel_mcp("bazi")
     r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
-    snapshot = json.loads(r.content[0].text)
+    snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
         "period_query",
         {
@@ -290,7 +290,7 @@ def test_period_query_over_mcp(bazi_chart):
             "chart": bazi_chart,
         },
     ))
-    out = json.loads(r.content[0].text)
+    out = r.structured_content
     assert out["calibration_facts"]["hour_pillar"] == {
         "gan": bazi_chart["shi"]["gan"],
         "zhi": bazi_chart["shi"]["zhi"],
@@ -382,9 +382,9 @@ def test_counsel_root_aggregate_exposes_every_contract_schema():
 
 
 def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_chart):
-    snapshot = json.loads(asyncio.run(create_counsel_root_mcp().call_tool(
+    snapshot = asyncio.run(create_counsel_root_mcp().call_tool(
         "compute_factors", {"chart": bazi_chart}
-    )).content[0].text)
+    )).structured_content
     all_topics = [
         "marriage", "family", "children", "career", "wealth", "health",
         "mental", "study", "personality", "appearance", "origin",
@@ -398,7 +398,7 @@ def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_ch
             "topics": all_topics,
         },
     ))
-    out = json.loads(result.content[0].text)
+    out = result.structured_content
     assert out["assertions"]
     for assertion in out["assertions"]:
         assert isinstance(assertion.get("topics"), list)
@@ -410,9 +410,9 @@ def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_ch
 
 def test_period_query_accepts_compute_factors_context(bazi_chart):
     srv = create_counsel_mcp("bazi")
-    snapshot = json.loads(asyncio.run(srv.call_tool(
+    snapshot = asyncio.run(srv.call_tool(
         "compute_factors", {"chart": bazi_chart}
-    )).content[0].text)
+    )).structured_content
     result = asyncio.run(srv.call_tool(
         "period_query",
         {
@@ -423,7 +423,7 @@ def test_period_query_accepts_compute_factors_context(bazi_chart):
             "chart": bazi_chart,
         },
     ))
-    out = json.loads(result.content[0].text)
+    out = result.structured_content
     assert "periods" in out
 
 
@@ -435,7 +435,7 @@ def test_period_query_contract_allows_full_topic_set():
 def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
     srv = create_counsel_root_mcp()
     result = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
-    snapshot = json.loads(result.content[0].text)
+    snapshot = result.structured_content
     assert snapshot["factors"]["_provenance"]["side"] == "bazi"
     result = asyncio.run(srv.call_tool(
         "natal_query",
@@ -445,7 +445,7 @@ def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
             "topics": ["chart_structure"],
         },
     ))
-    out = json.loads(result.content[0].text)
+    out = result.structured_content
     assert out["assertions"] and all(a.get("side") == "bazi" for a in out["assertions"])
     assert result.structured_content == out
 

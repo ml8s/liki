@@ -32,12 +32,6 @@ func main() {
 	// Keep process logs at INFO, but keep that request noise below WARN.
 	sdkLogger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelWarn}))
 	slog.SetDefault(logger)
-	resultContent, err := ParseResultContentMode(os.Getenv("LIKI_ENGINE_MCP_RESULT_CONTENT"))
-	if err != nil {
-		slog.Error("engine: parse result content mode", "err", err)
-		os.Exit(1)
-	}
-
 	if err := tables.Load(); err != nil {
 		slog.Error("engine: load data tables", "err", err)
 		os.Exit(1)
@@ -49,7 +43,7 @@ func main() {
 
 	if *stdio {
 		slog.Info("engine-mcp stdio mode")
-		if err := runStdio(Version, sdkLogger, resultContent); err != nil {
+		if err := runStdio(Version, sdkLogger); err != nil {
 			slog.Error("stdio", "err", err)
 			os.Exit(1)
 		}
@@ -57,7 +51,7 @@ func main() {
 	}
 
 	// MCP Streamable HTTP endpoints — 每术数一个域（排盘工具），aux 为共享辅助
-	mcpServer, err := newMCPServer(Version, sdkLogger, resultContent)
+	mcpServer, err := newMCPServer(Version, sdkLogger)
 	if err != nil {
 		slog.Error("engine: build aggregate MCP server", "err", err)
 		os.Exit(1)
@@ -81,7 +75,7 @@ func main() {
 	// 分域端点：每术数 + 共享辅助。`/engine` 外部前缀由网关剥离，
 	// 本服务只负责 MCP 根路径和 MCP 域路径。
 	for _, d := range mcpDomains {
-		domainServer, err := newDomainServer(d.Prefixes, Version, sdkLogger, resultContent)
+		domainServer, err := newDomainServer(d.Prefixes, Version, sdkLogger)
 		if err != nil {
 			slog.Error("engine: build domain MCP server", "domain", d.Suffix, "err", err)
 			os.Exit(1)

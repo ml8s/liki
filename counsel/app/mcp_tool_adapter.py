@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import copy
 import inspect
-import json
 import time
 import types
 from typing import Any
@@ -17,7 +16,7 @@ from typing import Any
 import anyio
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
-from mcp.types import CallToolResult, TextContent, ToolAnnotations
+from mcp.types import CallToolResult, ToolAnnotations
 from pydantic import BaseModel, ConfigDict, TypeAdapter, ValidationError, create_model
 
 from app.engine_mcp_client import MCPError as EngineMCPError
@@ -165,14 +164,11 @@ def add_contract_tool(server: MCPServer, contract: Any, invoke) -> None:
                         for error in exc.errors()
                     )
                     raise ToolError(f"invalid_result: {details}") from exc
-            # Keep the existing JSON-string wire shape even for list results. SDK list
-            # conversion would otherwise expand the list into one text block per item.
-            return CallToolResult(
-                content=[
-                    TextContent(type="text", text=json.dumps(result, ensure_ascii=False))
-                ],
-                structured_content=result,
-            )
+            # Structured-only wire: every contract publishes a typed outputSchema,
+            # and the duplicated text payload was removed as a size optimization.
+            # Consumers (browser, experts SDK, external agents) read
+            # structuredContent; failures still surface as text tool errors above.
+            return CallToolResult(content=[], structured_content=result)
         except Exception as exc:
             terminal_error = exc
             raise

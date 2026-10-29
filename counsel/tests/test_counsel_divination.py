@@ -6,7 +6,6 @@
 """
 
 import asyncio
-import json
 
 from app.counsel_mcp import create_counsel_mcp  # noqa: E402
 
@@ -34,7 +33,7 @@ def test_liuyao_snapshot_matches_old():
     from app.divination.tools.liuyao_snapshot import create
 
     srv = create_counsel_mcp("liuyao")
-    got = json.loads(asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).content[0].text)
+    got = asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).structured_content
     want = create(**LIUYAO_ARGS)
     assert _core(got) == _core(want), "liuyao_snapshot 与老实现不一致"
     assert got["board"] == want["board"]
@@ -45,10 +44,10 @@ def test_liuyao_query_matches_old_ask():
     from app.divination.tools.liuyao_ask import ask
 
     srv = create_counsel_mcp("liuyao")
-    snap = json.loads(asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).content[0].text)
-    got = json.loads(asyncio.run(srv.call_tool(
+    snap = asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).structured_content
+    got = asyncio.run(srv.call_tool(
         "liuyao_query", {"snapshot": snap, "message": "什么时候有结果"},
-    )).content[0].text)
+    )).structured_content
     want = ask(snap, message="什么时候有结果")
     assert _core(got) == _core(want), "liuyao_query 与老 ask 不一致"
 
@@ -63,7 +62,7 @@ def test_qimen_snapshot_matches_old():
     from app.divination.tools.qimen_snapshot import create
 
     srv = create_counsel_mcp("qimen")
-    got = json.loads(asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).content[0].text)
+    got = asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).structured_content
     want = create(**QIMEN_ARGS)
     assert _core(got) == _core(want), "qimen_snapshot 与老实现不一致"
 
@@ -72,9 +71,9 @@ def test_qimen_query_matches_old_ask():
     from app.divination.tools.qimen_ask import ask
 
     srv = create_counsel_mcp("qimen")
-    snap = json.loads(asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).content[0].text)
-    got = json.loads(asyncio.run(srv.call_tool(
+    snap = asyncio.run(srv.call_tool("qimen_snapshot", dict(QIMEN_ARGS))).structured_content
+    got = asyncio.run(srv.call_tool(
         "qimen_query", {"snapshot": snap, "message": "哪个方向有利"},
-    )).content[0].text)
+    )).structured_content
     want = ask(snap, message="哪个方向有利")
     assert _core(got) == _core(want), "qimen_query 与老 ask 不一致"

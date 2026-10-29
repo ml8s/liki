@@ -311,16 +311,11 @@ def call(method: str, params: dict, retries: int = MAX_RETRIES) -> dict:
     text = content[0].get("text", "") if content else ""
     if result.get("isError"):
         raise MCPError(f"{method}: {text or result}")
-    # Structured content is the canonical tool result. Text remains a fallback
-    # for old clients or gateways that strip structuredContent.
+    # Structured content is the canonical and only tool result; the engine
+    # answers structured-only and errors arrive as text tool errors above.
     data = result.get("structuredContent")
     if data is None:
-        if not text:
-            raise MCPError(f"{method}: {result}")
-        try:
-            data = json.loads(text)
-        except json.JSONDecodeError as error:
-            raise MCPError(f"{method}: legacy text content is not valid JSON") from error
+        raise MCPError(f"{method}: engine result missing structuredContent")
     return {"data": data}
 
 

@@ -36,7 +36,7 @@ def test_rpc_transport_error_is_retried() -> None:
 
 
 def test_rpc_http_429_is_retried() -> None:
-    success = json.dumps({"result": {"content": [{"type": "text", "text": json.dumps({"ok": True})}]}}).encode()
+    success = json.dumps({"result": {"content": [], "structuredContent": {"ok": True}}}).encode()
     ok_response = mock.MagicMock()
     ok_response.read.return_value = success
     ok_response.status = 200
