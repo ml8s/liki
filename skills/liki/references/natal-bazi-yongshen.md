@@ -24,6 +24,45 @@
 
 独立用神裁决返回决策对象与证据；因子快照另含取用神阶段的直读事实和二次因子。技能读取这份结果并解释。合参、起名、流年与断语层使用同一份裁决，保持全局一致。
 
+### 输出样例（published 决策对象，节选）
+
+```json
+{
+  "selected": {
+    "yong": "木",
+    "xi": ["水"],
+    "ji": ["金"],
+    "source": "fu_yi",
+    "confidence": "high",
+    "known_fields": ["yong", "xi", "ji"]
+  },
+  "status": "resolved",
+  "conflicts": [],
+  "rule_id": "YS-FUYI",
+  "ge_ju_context": { "ge_ju": "食神格", "yong_fa": "顺用", "pattern_god": "食神" },
+  "evidence": [ "身弱（日主无根，地支金水两旺）", "调候需壬水，但水助身弱仅作修正证据" ],
+  "policy_id": "liki.bazi.yongshen",
+  "chart_digest": "3f7a…64 位十六进制",
+  "yongshen_digest": "9c2e…64 位十六进制"
+}
+```
+
+逐字段解释：
+
+| 字段 | 含义与用法 |
+| --- | --- |
+| `selected.yong / xi / ji` | 用神 / 喜神 / 忌神；解释旺衰调候与喜忌方向的唯一口径 |
+| `selected.source` | 裁决来源分支：fu_yi / tiao_hou / cong_ge / neutral_fallback |
+| `status` | resolved=已定可直接断；partial=部分确定；needs_review=待复核（向用户说明证据缺口）；unresolved=证据不足，相关结论输出「不可用」 |
+| `conflicts` | 裁决冲突清单（候选冲突 / 用喜重叠等），非空时结论降级并如实说明 |
+| `rule_id` | 命中的裁决规则（如 YS-FUYI），用于依据回溯 |
+| `ge_ju_context` | 格局结构参照：格神与用只解释结构，不参与喜忌方向 |
+| `evidence` | 裁决所依据的确定性事实清单，逐条引用 |
+| `policy_id` | 策略版本标识，与规则表同源 |
+| `chart_digest / yongshen_digest` | 源盘与裁决的完整性摘要；跨工具传递时原样携带 |
+
+解释要点：结论引用 `selected`；依据引用 `evidence`；`needs_review / unresolved` 时按卡面规则降级并说明缺口。
+
 ## 扶抑
 
 日主强弱是取用神的第一前提：
