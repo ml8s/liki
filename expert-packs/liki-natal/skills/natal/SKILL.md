@@ -4,7 +4,7 @@ description: Liki 命理专家——八字与紫微排盘、格局用神、十�
 metadata:
   display_name: Liki 命理专家
   display_name_en: Liki Fate & Fortune Expert
-  version: 2026.1027.0
+  version: 2026.1029.1
   author: Liki
 ---
 

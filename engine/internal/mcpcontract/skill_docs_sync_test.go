@@ -288,7 +288,7 @@ func TestSkillDocsFieldRefs(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, a := range []string{
-		"error", "data", "isError", "snapshot", "engine", "natal", "curl", "jian_chu", "huangdao", "gan_ji",
+		"error", "data", "isError", "structuredContent", "snapshot", "engine", "natal", "curl", "jian_chu", "huangdao", "gan_ji",
 		"zhi_ji", "mansion", "xi_shen", "cai_shen", "suitability", "qimen_matters", "bed_install", "build",
 		"cleaning", "counsel", "engage", "event_type", "exam", "funeral", "income", "medical", "move",
 		"opening", "renovation", "sacrifice", "sign", "wedding",

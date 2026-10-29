@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026.10.29.1] — 2026-10-29
+
+### Breaking changes
+
+- **MCP 出参根统一为 object**：≤2025-11-25 协议的 wire 模型拒绝非 object 根的 `outputSchema`，顶层 union/array 会让标准 SDK 客户端（experts runtime）的整个 `tools/list` 失败。series 工具（流年 / 流月 / 流日 / 流时 / 小运 / 玄空流年）恒返回 `{items: [...]}`，单项即长度 1 数组；`ziwei_daxian`、`huangli_days` 列表收入 `items`；`naming_char` 可空语义移入字段级 `character`；`naming_check` 列表收入 `evaluations`。输入契约不变：排盘与历法工具继续只消费 `standard_time`（RFC3339 known-offset）与 `longitude`，civil wall time 经 `tianwen.resolve` 解析，`time_now` 输出 `standard_time`，六爻 / 奇门快照的 `birth_standard_time` 语义保持。
+- **工具调用成功响应统一为 structured-only**：engine 删除 `LIKI_ENGINE_MCP_RESULT_CONTENT` 的 compat 模式，成功结果只在 `structuredContent`，`content` 恒为空数组；工具失败仍以 `isError` + 文本内容返回。counsel adapter 同步 structured-only，engine client 严格要求 `structuredContent`，浏览器前端只读 `structuredContent`。
+
+### Changed
+
+- **契约标准按 MCP 规范收紧**：`check_mcp_schema` 拒绝任何非 object 根的输出 schema；counsel `tools/list` 序列化测试参数化覆盖全部协商协议版本（2025-03-26 → 2026-07-28）；engine registry 新增全工具 object 根测试。
+- **skill 执行指引同步 structured-only**：成功读 `structuredContent`（原"读工具内容 JSON"已失效）；skill 保持 schema 驱动自省，出参形状变化由 `outputSchema` 吸收。
+- **版本投影 2026.10.29.1**：skill / expert-packs / profiles / connector meta 原子升级。
+
 ## [2026.10.27.0] — 2026-10-27
 
 ### Breaking changes
