@@ -34,6 +34,20 @@ func decodeSeriesItems(t *testing.T, raw json.RawMessage) []map[string]any {
 	return out.Items
 }
 
+// firstSeriesItem unwraps the object-rooted series document's first item.
+func firstSeriesItem(t *testing.T, document map[string]any) map[string]any {
+	t.Helper()
+	items, ok := document["items"].([]any)
+	if !ok || len(items) == 0 {
+		t.Fatalf("series document has no items: %#v", document)
+	}
+	item, ok := items[0].(map[string]any)
+	if !ok {
+		t.Fatalf("series item is not an object: %#v", items[0])
+	}
+	return item
+}
+
 func callSeries(t *testing.T, reg *Registry, tool string, args map[string]any) json.RawMessage {
 	t.Helper()
 	raw, err := reg.Call(context.Background(), tool, mustJSON(t, args))
@@ -53,12 +67,11 @@ func TestSeriesSingleIsDefault(t *testing.T) {
 		raw := callSeries(t, reg, "bazi_liunian", map[string]any{
 			"standard_time": "2026-06-15T12:00:00+08:00", "count": count, "chart": chart,
 		})
-		var out map[string]any
-		decode(t, raw, &out)
-		if _, ok := out["items"]; ok {
-			t.Errorf("count=%d: got items wrapper, want single", count)
+		items := decodeSeriesItems(t, raw)
+		if len(items) != 1 {
+			t.Errorf("count=%d: got %d items, want 1", count, len(items))
 		}
-		if _, ok := out["year"]; !ok {
+		if _, ok := items[0]["year"]; !ok {
 			t.Errorf("count=%d: missing year field", count)
 		}
 	}
@@ -91,18 +104,20 @@ func TestSeriesBatchFirstEqualsSingle(t *testing.T) {
 	batch := callSeries(t, reg, "bazi_liunian", map[string]any{
 		"standard_time": "2026-06-15T12:00:00+08:00", "count": 3, "chart": chart,
 	})
-	var s BaziLiuNianOutput
+	var s struct {
+		Items []BaziLiuNianOutput `json:"items"`
+	}
 	decode(t, single, &s)
 	var b struct {
 		Items []BaziLiuNianOutput `json:"items"`
 	}
 	decode(t, batch, &b)
-	if len(b.Items) == 0 {
+	if len(s.Items) == 0 || len(b.Items) == 0 {
 		t.Fatal("empty batch")
 	}
-	if b.Items[0].Year != s.Year || b.Items[0].ShiShen != s.ShiShen {
+	if b.Items[0].Year != s.Items[0].Year || b.Items[0].ShiShen != s.Items[0].ShiShen {
 		t.Errorf("batch[0] != single: year %d/%d shishen %s/%s",
-			b.Items[0].Year, s.Year, b.Items[0].ShiShen, s.ShiShen)
+			b.Items[0].Year, s.Items[0].Year, b.Items[0].ShiShen, s.Items[0].ShiShen)
 	}
 }
 
@@ -270,7 +285,7 @@ func TestSeriesXiaoYunDefaultOne(t *testing.T) {
 	})
 	var out BaziXiaoYunOutput
 	decode(t, raw, &out)
-	for _, set := range out {
+	for _, set := range out.Items {
 		if len(set.Zhus) != 1 {
 			t.Errorf("xiaoyun default count=1: got %d zhus", len(set.Zhus))
 		}

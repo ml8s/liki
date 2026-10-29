@@ -103,7 +103,9 @@ type ZiweiDaXianInput struct {
 
 // ── ziwei.daxian output ──
 
-type ZiweiDaXianOutput []ZiweiDaXianItem
+type ZiweiDaXianOutput struct {
+	Items []ZiweiDaXianItem `json:"items" jsonschema:"十年大限数组。"`
+}
 
 type ZiweiDaXianItem struct {
 	StartYear *int            `json:"start_year,omitempty" jsonschema:"本限起始公历年"`

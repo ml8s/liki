@@ -15,6 +15,10 @@ type HuangliDaysInput struct {
 	Event        HuangliEvent  `json:"event,omitempty" jsonschema:"事项类型；缺省仅列黄历事实。"`
 }
 
+type HuangliDaysOutput struct {
+	Items []HuangliDayOutput `json:"items" jsonschema:"逐日结果数组，长度 = count。"`
+}
+
 type HuangliRiZhuOutput struct {
 	Gan   string `json:"gan" jsonschema:"日干。"`
 	Zhi   string `json:"zhi" jsonschema:"日支。"`
@@ -70,10 +74,10 @@ type HuangliDayOutput struct {
 }
 
 // HuangliDays returns almanac facts for consecutive dates.
-func HuangliDays(_ context.Context, input HuangliDaysInput) ([]HuangliDayOutput, error) {
+func HuangliDays(_ context.Context, input HuangliDaysInput) (HuangliDaysOutput, error) {
 	standard, loc, err := parseStandardTime(input.StandardTime)
 	if err != nil {
-		return nil, fmt.Errorf("huangli.days: %w", err)
+		return HuangliDaysOutput{}, fmt.Errorf("huangli.days: %w", err)
 	}
 	start := tianwen.StandardDateAt(standard, loc)
 	count := 3
@@ -87,11 +91,11 @@ func HuangliDays(_ context.Context, input HuangliDaysInput) ([]HuangliDayOutput,
 		date := start.AddDays(i).String()
 		entry, err := huangli.QueryDate(date, string(input.Event))
 		if err != nil {
-			return nil, fmt.Errorf("huangli.days: %w", err)
+			return HuangliDaysOutput{}, fmt.Errorf("huangli.days: %w", err)
 		}
 		days = append(days, huangliDayWire(entry))
 	}
-	return days, nil
+	return HuangliDaysOutput{Items: days}, nil
 }
 
 func huangliDayWire(day huangli.Day) HuangliDayOutput {

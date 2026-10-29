@@ -1138,7 +1138,9 @@ type BaziXiaoYunInput struct {
 
 // ── bazi.xiaoyun output ──
 
-type BaziXiaoYunOutput []BaziXiaoYunItem
+type BaziXiaoYunOutput struct {
+	Items []BaziXiaoYunItem `json:"items" jsonschema:"各学派小运列表。"`
+}
 
 type BaziXiaoYunItem struct {
 	Method string                    `json:"method" jsonschema:"流派标识"`

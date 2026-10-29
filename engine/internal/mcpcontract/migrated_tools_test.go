@@ -126,15 +126,17 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazi.xiaoyun: %v", err)
 	}
-	var sets []any
-	decode(t, raw, &sets)
+	var document struct {
+		Items []any `json:"items"`
+	}
+	decode(t, raw, &document)
 	if err := registry.ValidateOutput("bazi_xiaoyun", raw); err != nil {
 		t.Fatalf("bazi.xiaoyun output contract: %v", err)
 	}
-	if len(sets) == 0 {
+	if len(document.Items) == 0 {
 		t.Fatal("bazi.xiaoyun returned no schools")
 	}
-	for i, entry := range sets {
+	for i, entry := range document.Items {
 		set, _ := entry.(map[string]any)
 		zhus, _ := set["zhus"].([]any)
 		if len(zhus) != 1 {
@@ -146,11 +148,14 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 	if err != nil {
 		t.Fatalf("bazi.xiaoyun(count=5): %v", err)
 	}
-	decode(t, raw, &sets)
+	var fiveDocument struct {
+		Items []any `json:"items"`
+	}
+	decode(t, raw, &fiveDocument)
 	if err := registry.ValidateOutput("bazi_xiaoyun", raw); err != nil {
 		t.Fatalf("bazi.xiaoyun(count=5) output contract: %v", err)
 	}
-	for i, entry := range sets {
+	for i, entry := range fiveDocument.Items {
 		set, _ := entry.(map[string]any)
 		zhus, _ := set["zhus"].([]any)
 		if len(zhus) != 5 {
@@ -311,7 +316,8 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 	for _, item := range calls {
 		allowed := enumAt(t, outputProperties(t, registry, item.name), "shensha", "[]", "name")
 		document := callToolDocument(t, registry, item.name, item.params)
-		items, _ := document["shensha"].([]any)
+		first := firstSeriesItem(t, document)
+		items, _ := first["shensha"].([]any)
 		for _, raw := range items {
 			entry, ok := raw.(map[string]any)
 			if !ok {
@@ -382,7 +388,8 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 	document := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
 		"chart": chart, "standard_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
 	})
-	period, ok := document["resolved_period"].(map[string]any)
+	item := firstSeriesItem(t, document)
+	period, ok := item["resolved_period"].(map[string]any)
 	if !ok {
 		t.Fatalf("resolved_period = %#v", document["resolved_period"])
 	}
@@ -511,12 +518,20 @@ func outputProperties(t *testing.T, registry *Registry, name string) map[string]
 	}
 	var schema map[string]any
 	decode(t, definition.OutputSchema, &schema)
-	// Series tools wrap the single-output schema in a oneOf/anyOf union.
+	// Series tools root at {items: [...]}; the array's item schema carries
+	// the single-output properties.
 	for _, key := range []string{"anyOf", "oneOf"} {
 		if branches, ok := schema[key].([]any); ok && len(branches) > 0 {
 			if first, ok := branches[0].(map[string]any); ok {
 				schema = first
 				break
+			}
+		}
+	}
+	if seriesProperties, ok := schema["properties"].(map[string]any); ok {
+		if items, ok := seriesProperties["items"].(map[string]any); ok {
+			if itemSchema, ok := items["items"].(map[string]any); ok {
+				schema = itemSchema
 			}
 		}
 	}

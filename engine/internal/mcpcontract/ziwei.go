@@ -79,7 +79,11 @@ func ZiweiDaXian(_ context.Context, input ZiweiDaXianInput) (ZiweiDaXianOutput, 
 	if err != nil {
 		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
 	}
-	return wireFromDomain[ZiweiDaXianOutput](ziwei.ComputeDaXian(chart))
+	items, err := wireFromDomain[[]ZiweiDaXianItem](ziwei.ComputeDaXian(chart))
+	if err != nil {
+		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
+	}
+	return ZiweiDaXianOutput{Items: items}, nil
 }
 
 // ZiweiLiuNian returns the flow year palace and its 四化.

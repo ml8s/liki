@@ -128,7 +128,9 @@ class NamingCharInput(BaseModel):
     )
 
 
-class NamingCharOutput(BaseModel):
+class NamingCharInfo(BaseModel):
+    """One naming-database character entry."""
+
     model_config = ConfigDict(extra="allow")
     char: str = Field(
         description="The character.",
@@ -153,12 +155,23 @@ class NamingCharOutput(BaseModel):
         description="Radical, when known.",
     )
 
+
+class NamingCharOutput(BaseModel):
+    """单字查询结果：根始终是对象（≤2025-11-25 的 MCP wire 模型拒绝非 object
+    根的 outputSchema），“未收录”用字段级 null 表达。"""
+
+    model_config = ConfigDict(extra="allow")
+    character: NamingCharInfo | None = Field(
+        description="字库条目；未收录时为 null。",
+    )
+
+
 TOOL_NAMING_CHAR = ToolContract(
     name="naming_char",
     description=TOOL_NAMING_CHAR_DESCRIPTION,
     input=NamingCharInput,
-    output=NamingCharOutput | None,
-    output_description="A single Chinese character, or null when it is not in the naming database.",
+    output=NamingCharOutput,
+    output_description="Naming-database entry for one character; character is null when it is not in the naming database.",
 )
 
 
@@ -312,11 +325,26 @@ class NamingCheckOutputItem(BaseModel):
         description="消费 selected_yongshen 时回传的用神来源：policy_id/rule_id/status/chart_digest/yongshen_digest。",
     )
 
+
+class NamingCheckOutput(BaseModel):
+    """候选名评估结果：根始终是对象（≤2025-11-25 的 MCP wire 模型拒绝非
+    object 根的 outputSchema），与 naming_surname.candidates /
+    naming_pick.pools 的家族惯例同构。"""
+
+    model_config = ConfigDict(extra="allow")
+    evaluations: list[NamingCheckOutputItem] = Field(
+        description="每个候选名的评估结果，按输入顺序。",
+    )
+
+
 TOOL_NAMING_CHECK = ToolContract(
     name="naming_check",
     description=TOOL_NAMING_CHECK_DESCRIPTION,
     input=NamingCheckInput,
-    output=Annotated[list[NamingCheckOutputItem], Field(description="Naming database, phonetic, and five-element evaluations.")],
+    output=Annotated[
+        NamingCheckOutput,
+        Field(description="Naming database, phonetic, and five-element evaluations."),
+    ],
     output_description="Naming database, phonetic, and five-element evaluations.",
 )
 

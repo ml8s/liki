@@ -82,7 +82,14 @@ def _ziwei_fullchart(
 
 
 def _ziwei_daxian(ziwei: dict) -> list:
-    return call("ziwei.daxian", {"chart": ziwei})["data"]
+    return _series_items("ziwei.daxian", call("ziwei.daxian", {"chart": ziwei})["data"])
+
+
+def _series_items(tool: str, data: object) -> list:
+    """engine series 工具恒以对象根 {items:[...]} 返回（MCP 出参契约）。"""
+    if not isinstance(data, dict) or not isinstance(data.get("items"), list):
+        raise RPCError(f"{tool}: engine series response must be {{items:[...]}}")
+    return data["items"]
 
 
 # 当前年份的时点事实只用于年界判定；经度取标准时 120°，性别只需满足 chart 输入契约。
@@ -130,7 +137,10 @@ def _bazi_liunian(chart: dict, year: int) -> dict:
     year = 公历年号。engine 以日期选择立春年；这里用该年 6 月 15 日作
     年粒度代表日，落在立春之后，保持「查询年份号」的既有口径。
     """
-    return call("bazi.liunian", {"chart": chart, "standard_time": f"{year:04d}-06-15T12:00:00+08:00"})["data"]
+    return _series_items(
+        "bazi.liunian",
+        call("bazi.liunian", {"chart": chart, "standard_time": f"{year:04d}-06-15T12:00:00+08:00"})["data"],
+    )[0]
 
 
 def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
@@ -140,7 +150,10 @@ def _ziwei_liunian(ziwei: dict, lunar_year: int) -> dict:
     选择农历年；这里用该年 6 月 15 日作年粒度代表日（春节之后），保持
     「查询年份号即农历年号」的既有口径。
     """
-    return call("ziwei.liunian", {"chart": ziwei, "standard_time": f"{lunar_year:04d}-06-15T12:00:00+08:00"})["data"]
+    return _series_items(
+        "ziwei.liunian",
+        call("ziwei.liunian", {"chart": ziwei, "standard_time": f"{lunar_year:04d}-06-15T12:00:00+08:00"})["data"],
+    )[0]
 
 
 def _bazi_liunian_range(chart: dict, start_year: int, count: int) -> list[dict]:

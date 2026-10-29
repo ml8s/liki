@@ -557,14 +557,18 @@ func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 }
 
 // BaziXiaoYun returns the 小运 year list for a chart.
-func BaziXiaoYun(_ context.Context, input BaziXiaoYunInput) (any, error) {
+func BaziXiaoYun(_ context.Context, input BaziXiaoYunInput) (BaziXiaoYunOutput, error) {
 	n, err := validateCount(int(input.Count), MaxSeriesCount)
 	if err != nil {
-		return nil, fmt.Errorf("bazi.xiaoyun: %w", err)
+		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
 	}
 	chart, err := input.Chart.domain()
 	if err != nil {
-		return nil, fmt.Errorf("bazi.xiaoyun: %w", err)
+		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
 	}
-	return wireFromDomain[BaziXiaoYunOutput](bazi.ComputeXiaoYun(chart, n))
+	items, err := wireFromDomain[[]BaziXiaoYunItem](bazi.ComputeXiaoYun(chart, n))
+	if err != nil {
+		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
+	}
+	return BaziXiaoYunOutput{Items: items}, nil
 }

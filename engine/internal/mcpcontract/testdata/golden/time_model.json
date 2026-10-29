@@ -54,12 +54,12 @@
         "standard_time": "2026-06-01T23:30:00+08:00"
       },
       "expect": {
-        "date": "2026-06-01",
-        "ri_gan": "丙",
-        "ri_zhi": "午",
-        "resolved.local_date": "2026-06-01",
-        "resolved.last_date": "2026-06-01",
-        "resolved.beijing_date": "2026-06-01"
+        "items.0.date": "2026-06-01",
+        "items.0.ri_gan": "丙",
+        "items.0.ri_zhi": "午",
+        "items.0.resolved.local_date": "2026-06-01",
+        "items.0.resolved.last_date": "2026-06-01",
+        "items.0.resolved.beijing_date": "2026-06-01"
       }
     },
     {
@@ -70,12 +70,12 @@
         "standard_time": "2026-06-01T22:30:00-05:00"
       },
       "expect": {
-        "resolved.local_date": "2026-06-01",
-        "resolved.beijing_date": "2026-06-02",
-        "resolved.lunar.year": 2026,
-        "resolved.lunar.month": 4,
-        "resolved.lunar.day": 17,
-        "resolved.lunar.leap": false
+        "items.0.resolved.local_date": "2026-06-01",
+        "items.0.resolved.beijing_date": "2026-06-02",
+        "items.0.resolved.lunar.year": 2026,
+        "items.0.resolved.lunar.month": 4,
+        "items.0.resolved.lunar.day": 17,
+        "items.0.resolved.lunar.leap": false
       }
     },
     {
@@ -87,12 +87,12 @@
         "standard_time": "2026-06-01T22:30:00-05:00"
       },
       "expect": {
-        "zhi": "亥",
-        "resolved.shichen": "亥",
-        "resolved.local_date": "2026-06-01",
-        "resolved.lunar.year": 2026,
-        "resolved.lunar.month": 4,
-        "resolved.lunar.day": 17
+        "items.0.zhi": "亥",
+        "items.0.resolved.shichen": "亥",
+        "items.0.resolved.local_date": "2026-06-01",
+        "items.0.resolved.lunar.year": 2026,
+        "items.0.resolved.lunar.month": 4,
+        "items.0.resolved.lunar.day": 17
       }
     },
     {
@@ -145,11 +145,11 @@
         "standard_time": "2024-02-09T23:30:00-05:00"
       },
       "expect": {
-        "resolved.local_date": "2024-02-09",
-        "resolved.beijing_date": "2024-02-10",
-        "resolved.lunar.year": 2024,
-        "resolved.lunar.month": 1,
-        "resolved.lunar.day": 1
+        "items.0.resolved.local_date": "2024-02-09",
+        "items.0.resolved.beijing_date": "2024-02-10",
+        "items.0.resolved.lunar.year": 2024,
+        "items.0.resolved.lunar.month": 1,
+        "items.0.resolved.lunar.day": 1
       }
     },
     {
@@ -160,10 +160,10 @@
         "standard_time": "2024-02-09T23:30:00-05:00"
       },
       "expect": {
-        "resolved.selector_date": "2024-02-09",
-        "resolved.lunar_year": 2024,
-        "resolved.lunar_year_start": "2024-02-09",
-        "resolved.boundary_day": true
+        "items.0.resolved.selector_date": "2024-02-09",
+        "items.0.resolved.lunar_year": 2024,
+        "items.0.resolved.lunar_year_start": "2024-02-09",
+        "items.0.resolved.boundary_day": true
       }
     },
     {
@@ -174,13 +174,13 @@
         "standard_time": "2024-02-09T23:30:00-05:00"
       },
       "expect": {
-        "resolved.selector_date": "2024-02-09",
-        "resolved.lunar.year": 2024,
-        "resolved.lunar.month": 1,
-        "resolved.lunar.day": 1,
-        "resolved.lunar_month_start": "2024-02-09",
-        "resolved.lunar_month_end": "2024-03-10",
-        "resolved.boundary_day": true
+        "items.0.resolved.selector_date": "2024-02-09",
+        "items.0.resolved.lunar.year": 2024,
+        "items.0.resolved.lunar.month": 1,
+        "items.0.resolved.lunar.day": 1,
+        "items.0.resolved.lunar_month_start": "2024-02-09",
+        "items.0.resolved.lunar_month_end": "2024-03-10",
+        "items.0.resolved.boundary_day": true
       }
     },
     {
@@ -192,11 +192,11 @@
         "standard_time": "2024-02-09T23:30:00-05:00"
       },
       "expect": {
-        "resolved.local_date": "2024-02-09",
-        "resolved.lunar.year": 2024,
-        "resolved.lunar.month": 1,
-        "resolved.lunar.day": 1,
-        "resolved.shichen": "子"
+        "items.0.resolved.local_date": "2024-02-09",
+        "items.0.resolved.lunar.year": 2024,
+        "items.0.resolved.lunar.month": 1,
+        "items.0.resolved.lunar.day": 1,
+        "items.0.resolved.shichen": "子"
       }
     },
     {
@@ -208,7 +208,7 @@
         "standard_time": "2026-06-01T12:00:00-05:00"
       },
       "expect": {
-        "0.date": "2026-06-01"
+        "items.0.date": "2026-06-01"
       }
     },
     {
@@ -238,8 +238,8 @@
         "standard_time": "2024-02-04T03:27:06-05:00"
       },
       "expect": {
-        "resolved.selector_date": "2024-02-04",
-        "resolved.lichun_year": 2023
+        "items.0.resolved.selector_date": "2024-02-04",
+        "items.0.resolved.lichun_year": 2023
       }
     },
     {
@@ -250,8 +250,8 @@
         "standard_time": "2024-02-04T03:27:07-05:00"
       },
       "expect": {
-        "resolved.selector_date": "2024-02-04",
-        "resolved.lichun_year": 2024
+        "items.0.resolved.selector_date": "2024-02-04",
+        "items.0.resolved.lichun_year": 2024
       }
     },
     {
@@ -262,7 +262,7 @@
         "standard_time": "2024-03-04T21:22:44-05:00"
       },
       "expect": {
-        "resolved.jieqi_start": "2024-02-04"
+        "items.0.resolved.jieqi_start": "2024-02-04"
       }
     },
     {
@@ -273,7 +273,7 @@
         "standard_time": "2024-03-04T21:22:45-05:00"
       },
       "expect": {
-        "resolved.jieqi_start": "2024-03-04"
+        "items.0.resolved.jieqi_start": "2024-03-04"
       }
     },
     {
@@ -283,9 +283,9 @@
         "standard_time": "2024-02-03T21:27:07-11:00"
       },
       "expect": {
-        "resolved.lichun_year": 2024,
-        "resolved.lichun_start": "2024-02-03",
-        "resolved.boundary_day": true
+        "items.0.resolved.lichun_year": 2024,
+        "items.0.resolved.lichun_start": "2024-02-03",
+        "items.0.resolved.boundary_day": true
       }
     }
   ]

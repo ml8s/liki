@@ -92,8 +92,9 @@ def test_naming_check_consumes_selected_yongshen(srv, baseline):
         "given_names": ["伟"], "selected_yongshen": _selected_yongshen(),
     }))
     out = json.loads(r.content[0].text)
-    assert out[0]["wuxing"] == baseline["check"][0]["wuxing"]
-    assert out[0]["yongshen_source"] == {
+    evaluation = out["evaluations"][0]
+    assert evaluation["wuxing"] == baseline["check"]["evaluations"][0]["wuxing"]
+    assert evaluation["yongshen_source"] == {
         "policy_id": "liki.bazi.yongshen",
         "rule_id": "YS-FUYI",
         "status": "resolved",

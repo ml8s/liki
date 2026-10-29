@@ -129,7 +129,8 @@ func TestMigratedBaziLiuNianShiShen(t *testing.T) {
 		document := callToolDocument(t, registry, "bazi_liunian", map[string]any{
 			"standard_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year), "chart": chart,
 		})
-		if shiShen, _ := document["shi_shen"].(string); shiShen == "" {
+		item := firstSeriesItem(t, document)
+		if shiShen, _ := item["shi_shen"].(string); shiShen == "" {
 			t.Errorf("bazi.liunian(%d) shi_shen is empty", year)
 		}
 	}
@@ -146,14 +147,16 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 		"standard_time": "2000-07-16T12:00:00+08:00", "longitude": 116.4, "gender": "female",
 	})
 
-	// ziwei.daxian keeps its array wire root.
+	// ziwei.daxian keeps its schools list under the object-rooted items.
 	daxianRaw, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"chart": chart}))
 	if err != nil {
 		t.Fatalf("ziwei.daxian: %v", err)
 	}
-	var daxian []any
+	var daxian struct {
+		Items []any `json:"items"`
+	}
 	decode(t, daxianRaw, &daxian)
-	if len(daxian) == 0 {
+	if len(daxian.Items) == 0 {
 		t.Fatal("ziwei.daxian returned an empty list")
 	}
 	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00", "chart": chart})

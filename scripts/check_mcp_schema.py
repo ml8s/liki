@@ -70,6 +70,12 @@ def _check_schema(schema: dict, *, where: str, errors: list[str], is_output: boo
         return
 
     if "anyOf" in schema and "type" not in schema:
+        if is_output:
+            errors.append(
+                f"{where}: output schema must be a top-level object "
+                "(pre-2026 MCP wire models reject non-object outputSchema roots)"
+            )
+            return
         branches = schema.get("anyOf")
         if not isinstance(branches, list) or not branches:
             errors.append(f"{where}: anyOf must be a non-empty array")
@@ -88,10 +94,9 @@ def _check_schema(schema: dict, *, where: str, errors: list[str], is_output: boo
         return
 
     if schema.get("type") != "object":
-        # Nullable scalar/object unions and top-level arrays are allowed only for outputs.
-        if not (is_output and (schema.get("type") == "array" or "anyOf" in schema or "items" in schema)):
-            errors.append(f"{where}: schema type must be object")
-            return
+        # MCP outputSchema must be type "object" at the root for every
+        # supported protocol version; unions/arrays belong in fields.
+        errors.append(f"{where}: schema type must be object")
         return
 
     properties = schema.get("properties", {})

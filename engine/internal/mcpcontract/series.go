@@ -8,9 +8,9 @@ import (
 // MaxSeriesCount is the unified upper bound for batch time-series queries.
 const MaxSeriesCount = 50
 
-// SeriesResult is the batch output wrapper. Items length equals count.
+// SeriesResult is the series output wrapper. Items length equals count.
 type SeriesResult[T any] struct {
-	Items []T `json:"items" jsonschema:"批量结果数组，长度 = count。"`
+	Items []T `json:"items" jsonschema:"结果数组，长度 = count。"`
 }
 
 // validateCount normalizes a user-provided series count. 0 and 1 both mean
@@ -31,8 +31,10 @@ func validateCount(count, max int) (int, error) {
 // runSeries is the stateless generic time-series executor.
 // compute: pure function from input to a single result.
 // advance: pure function from input to the next input (time step).
-// count<=1 returns compute(input) directly (single-item format).
-// count>1 returns SeriesResult[Out]{Items: [...]}.
+// Every count returns SeriesResult[Out]{Items: [...]}: the MCP outputSchema
+// root must stay a JSON object on every negotiated protocol version (wire
+// models through 2025-11-25 reject top-level unions), so single results are
+// items arrays of length one.
 func runSeries[In any, Out any](
 	input In, count, max int,
 	compute func(In) (Out, error),
@@ -43,7 +45,11 @@ func runSeries[In any, Out any](
 		return nil, err
 	}
 	if n <= 1 {
-		return compute(input)
+		out, err := compute(input)
+		if err != nil {
+			return nil, err
+		}
+		return SeriesResult[Out]{Items: []Out{out}}, nil
 	}
 	items := make([]Out, 0, n)
 	cur := input
@@ -80,7 +86,11 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 		if err != nil {
 			return nil, err
 		}
-		return compute(input, ctx)
+		out, err := compute(input, ctx)
+		if err != nil {
+			return nil, err
+		}
+		return SeriesResult[Out]{Items: []Out{out}}, nil
 	}
 	ctx, err := prepare(input)
 	if err != nil {
@@ -103,28 +113,19 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 }
 
 // seriesOutputSchema builds a JSON Schema for a series tool's output:
-// either the single Out format or the batch {items: [Out]} format.
-// The singleSchema parameter is the marshalled JSON Schema for Out.
+// always the object-rooted {items: [Out]} format. The singleSchema parameter
+// is the marshalled JSON Schema for Out.
 func seriesOutputSchema(singleSchema json.RawMessage) (json.RawMessage, error) {
-	wrapper, err := json.Marshal(map[string]any{
+	return json.Marshal(map[string]any{
 		"type": "object",
 		"properties": map[string]any{
 			"items": map[string]any{
 				"type":     "array",
 				"items":    json.RawMessage(singleSchema),
-				"minItems": 2,
+				"minItems": 1,
 			},
 		},
-		"required": []string{"items"},
+		"required":             []string{"items"},
+		"additionalProperties": false,
 	})
-	if err != nil {
-		return nil, err
-	}
-	combined, err := json.Marshal(map[string]any{
-		"anyOf": []json.RawMessage{
-			json.RawMessage(singleSchema),
-			json.RawMessage(wrapper),
-		},
-	})
-	return combined, err
 }

@@ -251,7 +251,7 @@ func NewEngine() *Registry {
 		Description: "获取服务端当前时间。返回 UTC、本地、北京时间，用于 AI agent 获取准确时间避免幻觉。",
 		Handler:     TimeNow,
 	})
-	mustRegister(registry, Tool[HuangliDaysInput, []HuangliDayOutput]{
+	mustRegister(registry, Tool[HuangliDaysInput, HuangliDaysOutput]{
 		Name:        "huangli_days",
 		Description: "黄历查日。返回连续N天的黄历信息；event 给定时按建除事项规则输出 suitability。",
 		Handler:     HuangliDays,
@@ -346,11 +346,10 @@ func NewEngine() *Registry {
 		Handler:      BaziLiuShi,
 		OutputSchema: mustSeriesSchema[BaziLiuShiOutput](),
 	})
-	mustRegister(registry, Tool[BaziXiaoYunInput, any]{
-		Name:         "bazi_xiaoyun",
-		Description:  "小运。返回小运流年列表。count 默认 1。",
-		Handler:      BaziXiaoYun,
-		OutputSchema: mustSeriesSchema[BaziXiaoYunOutput](),
+	mustRegister(registry, Tool[BaziXiaoYunInput, BaziXiaoYunOutput]{
+		Name:        "bazi_xiaoyun",
+		Description: "小运。返回小运流年列表。count 默认 1。",
+		Handler:     BaziXiaoYun,
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",

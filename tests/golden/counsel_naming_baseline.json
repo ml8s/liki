@@ -1,38 +1,42 @@
 {
   "char": {
-    "char": "伟",
-    "frequency": "common",
-    "pinyin": "wěi",
-    "radical": "亻",
-    "stroke": 6,
-    "tone": 3,
-    "wuxing": "土"
-  },
-  "check": [
-    {
-      "characters": [
-        {
-          "char": "伟",
-          "frequency": "common",
-          "pinyin": "wěi",
-          "radical": "亻",
-          "stroke": 6,
-          "tone": 3,
-          "wuxing": "土"
-        }
-      ],
-      "given_name": "伟",
-      "phonetic": {
-        "tones": "3"
-      },
-      "valid": true,
-      "wuxing": {
-        "ji": false,
-        "xi": false,
-        "yong": false
-      }
+    "character": {
+      "char": "伟",
+      "frequency": "common",
+      "pinyin": "wěi",
+      "radical": "亻",
+      "stroke": 6,
+      "tone": 3,
+      "wuxing": "土"
     }
-  ],
+  },
+  "check": {
+    "evaluations": [
+      {
+        "characters": [
+          {
+            "char": "伟",
+            "frequency": "common",
+            "pinyin": "wěi",
+            "radical": "亻",
+            "stroke": 6,
+            "tone": 3,
+            "wuxing": "土"
+          }
+        ],
+        "given_name": "伟",
+        "phonetic": {
+          "tones": "3"
+        },
+        "valid": true,
+        "wuxing": {
+          "ji": false,
+          "xi": false,
+          "yong": false
+        }
+      }
+    ]
+  },
   "compose": {
     "names": [
       "伟"

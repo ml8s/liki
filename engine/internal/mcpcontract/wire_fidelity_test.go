@@ -47,6 +47,32 @@ func fixtureTool(name string) string {
 	return ""
 }
 
+// normalizeLegacySeriesRoot adapts captured legacy outputs to the
+// object-rooted series contract. Series tools used to answer count=1 with a
+// bare item and batches with {items}; ziwei_daxian answered with a bare
+// array. Every supported MCP protocol version requires an object root, so
+// replayed captures are normalized into {items} before comparison.
+func normalizeLegacySeriesRoot(tool string, want any) any {
+	switch tool {
+	case "bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi",
+		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi":
+		if object, ok := want.(map[string]any); ok {
+			if _, hasItems := object["items"]; hasItems {
+				return want
+			}
+			return map[string]any{"items": []any{want}}
+		}
+		return want
+	case "bazi_xiaoyun", "ziwei_daxian":
+		if items, ok := want.([]any); ok {
+			return map[string]any{"items": items}
+		}
+		return want
+	default:
+		return want
+	}
+}
+
 // TestEngineContractWireFidelity replays every captured real handler input and
 // output through the typed registry. The typed tool must return the same JSON
 // document as the legacy handler did, which is the evidence that the wire DTOs
@@ -105,6 +131,7 @@ func TestEngineContractWireFidelity(t *testing.T) {
 		if err := json.Unmarshal(fixture.Output, &wantDoc); err != nil {
 			t.Fatal(err)
 		}
+		wantDoc = normalizeLegacySeriesRoot(method, wantDoc)
 		if !reflect.DeepEqual(gotDoc, wantDoc) {
 			diffs := diffJSON("", gotDoc, wantDoc)
 			if len(diffs) > 12 {

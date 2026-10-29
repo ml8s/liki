@@ -109,7 +109,8 @@ def test_yongshen_contracts_publish_the_typed_core():
     assert set(naming_selected["required"]) == set(ConsumedYongShen.model_fields)
 
     source_schema = _yongshen_object_schema(
-        CONTRACTS["naming_check"].output_schema["items"]["properties"]["yongshen_source"]
+        CONTRACTS["naming_check"]
+        .output_schema["properties"]["evaluations"]["items"]["properties"]["yongshen_source"]
     )
     assert set(source_schema["required"]) == {
         "policy_id", "rule_id", "status",

@@ -172,28 +172,41 @@ def test_counsel_mcp_tools():
     "domain",
     ["bazi", "ziwei", "naming", "liuyao", "qimen"],
 )
-def test_counsel_tools_list_serializes_for_runtime(domain):
-    """Runtime readiness consumes tools/list through the MCP wire serializer."""
+@pytest.mark.parametrize(
+    "protocol_version",
+    ["2025-03-26", "2025-06-18", "2025-11-25", "2026-07-28"],
+)
+def test_counsel_tools_list_serializes_for_runtime(domain, protocol_version):
+    """tools/list must validate on every negotiated wire model, not just 2026-07-28.
+
+    Wire models through 2025-11-25 reject non-object outputSchema roots, and
+    standard SDK clients (the experts runtime) negotiate those versions: a
+    top-level union/array output schema turns tools/list into -32603 for them.
+    """
     server = create_counsel_mcp(domain)
     tools = asyncio.run(server.list_tools())
     assert tools
     dumped = ListToolsResult(tools=tools).model_dump(
         by_alias=True, mode="json", exclude_none=True
     )
-    serialized = serialize_server_result("tools/list", "2026-07-28", dumped)
+    serialized = serialize_server_result("tools/list", protocol_version, dumped)
     assert [tool["name"] for tool in serialized["tools"]] == [
         tool.name for tool in tools
     ]
 
 
-def test_counsel_root_tools_list_serializes_for_runtime():
+@pytest.mark.parametrize(
+    "protocol_version",
+    ["2025-03-26", "2025-06-18", "2025-11-25", "2026-07-28"],
+)
+def test_counsel_root_tools_list_serializes_for_runtime(protocol_version):
     server = create_counsel_root_mcp()
     tools = asyncio.run(server.list_tools())
     assert len(tools) == len(COUNSEL_TOOLS)
     dumped = ListToolsResult(tools=tools).model_dump(
         by_alias=True, mode="json", exclude_none=True
     )
-    serialized = serialize_server_result("tools/list", "2026-07-28", dumped)
+    serialized = serialize_server_result("tools/list", protocol_version, dumped)
     assert len(serialized["tools"]) == len(tools)
 
 

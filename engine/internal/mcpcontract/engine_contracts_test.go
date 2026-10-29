@@ -455,14 +455,14 @@ func TestEngineContractCalls(t *testing.T) {
 	if err := registry.ValidateOutput("huangli_days", huangliRaw); err != nil {
 		t.Fatalf("huangli.days output contract: %v", err)
 	}
-	var huangliOutput []HuangliDayOutput
+	var huangliOutput HuangliDaysOutput
 	if err := json.Unmarshal(huangliRaw, &huangliOutput); err != nil {
 		t.Fatal(err)
 	}
-	if len(huangliOutput) != 1 {
-		t.Fatalf("huangli days = %d, want 1", len(huangliOutput))
+	if len(huangliOutput.Items) != 1 {
+		t.Fatalf("huangli days = %d, want 1", len(huangliOutput.Items))
 	}
-	day := huangliOutput[0]
+	day := huangliOutput.Items[0]
 	if day.Event != "sign" || day.EventLabel != "签约" || day.Suitability != "recommended" {
 		t.Fatalf("huangli classification = %#v", day)
 	}
@@ -538,12 +538,16 @@ func TestEngineContractCalls(t *testing.T) {
 	if err := registry.ValidateOutput("xuankong_liunian", liunianRaw); err != nil {
 		t.Fatalf("xuankong.liunian output contract: %v", err)
 	}
-	var liunian XuankongLiunianOutput
-	if err := json.Unmarshal(liunianRaw, &liunian); err != nil {
+	var liunianDocument struct {
+		Items []XuankongLiunianOutput `json:"items"`
+	}
+	if err := json.Unmarshal(liunianRaw, &liunianDocument); err != nil {
 		t.Fatal(err)
 	}
-	if len(liunian.GongWei) != 9 || len(liunian.HouseOverlay) != 9 {
-		t.Fatalf("incomplete xuankong overlay: %#v", liunian)
+	if len(liunianDocument.Items) != 1 ||
+		len(liunianDocument.Items[0].GongWei) != 9 ||
+		len(liunianDocument.Items[0].HouseOverlay) != 9 {
+		t.Fatalf("incomplete xuankong overlay: %#v", liunianDocument)
 	}
 
 	tampered := chart

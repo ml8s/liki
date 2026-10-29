@@ -215,7 +215,7 @@ def _naming_check(given_names, yongshen=None, xishen=None, jishen=None,
     if provenance is not None:
         for item in evaluations:
             item["yongshen_source"] = dict(provenance)
-    return evaluations
+    return {"evaluations": evaluations}
 
 
 def _add_naming_tools(server: MCPServer) -> None:
@@ -229,10 +229,14 @@ def _add_naming_tools(server: MCPServer) -> None:
     def _compose(first, second=None, max_names=100):
         return compose_names(first, second or [], max_names)
 
+    def _char(char):
+        # 契约 {character: …|null} → 实现 lookup_char 返回条目字典或 None。
+        return {"character": lookup_char(char)}
+
     naming_fns = {
         "naming_surname": match_surnames,
         "naming_pick": _pick,
-        "naming_char": lookup_char,
+        "naming_char": _char,
         "naming_compose": _compose,
         "naming_check": _naming_check,
     }
