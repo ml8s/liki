@@ -96,7 +96,7 @@ type Chart struct {
 	ZiShiRule string `json:"zi_shi_rule,omitempty"`
 }
 
-// Chart（纯排盘）不含用神——扶抑 / 调候 / 格局三派属完整命盘（bazi.fullchart 承载，
+// Chart（纯排盘）不含用神——用神候选（扶抑 / 调候）与格局证据属完整命盘（bazi.fullchart 承载，
 // 见 FullChart.FuYi / TiaoHou / GeJu）。chart 参与的运算（排盘/大运/流年派生）均不依赖用神。
 
 // FullChart is the expanded bazi chart with all fields (十神/藏干/神煞/长生/空亡...).
@@ -112,8 +112,8 @@ type FullChart struct {
 	// 出生公历年份（透传自 lean Chart，供 liunian/liuri 按年定位大运）。
 	BirthYear int `json:"birth_year"`
 
-	// 用神三派（透传自 lean Chart）。
-	// 三派证据独立输出：fu_yi 是扶抑候选（yong/xi/ji），
+	// 用神候选两派（透传自 lean Chart）。
+	// 证据独立输出：fu_yi 是扶抑候选（yong/xi/ji），
 	// tiao_hou 是调候候选，ge_ju 是格神；最终用神由 counsel 裁决。
 	FuYi    FuYiResult    `json:"fu_yi"`
 	TiaoHou TiaoHouResult `json:"tiao_hou"`

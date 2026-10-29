@@ -230,7 +230,7 @@ def build_natal_chart(civil_time: str, timezone: str, gender: str, longitude: Op
 
     chart = _bazi_chart(standard_time, longitude, gender)
     full = _bazi_fullchart(chart)
-    # 2.6.14 起用神三派归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
+    # 用神候选与格局证据归完整命盘（bazi.fullchart 承载，chart 纯排盘不含）
     zw_chart, zw = _ziwei_fullchart(standard_time, longitude, gender)
     # ziwei.daxian 契约收 ziwei.chart 输出；fullchart 增量字段属因子层。
     daxian = _ziwei_daxian(zw_chart)

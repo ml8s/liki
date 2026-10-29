@@ -8,8 +8,8 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-// ── 三派对比测试 ──
-// 三个学派独立输出，无交叉污染。验证各派均有返回。
+// ── 用神候选（扶抑/调候）与格局证据对比测试 ──
+// 用神候选两派（扶抑 / 调候）与格局证据独立输出，无交叉污染。
 
 func TestThreeSchools_Consistency(t *testing.T) {
 	tests := []struct {

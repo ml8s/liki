@@ -34,7 +34,7 @@ func TestYongShen_TiaoHouVsFuYi_Conflict(t *testing.T) {
 	if fuYi.Strength == "" {
 		t.Error("FuYi.Strength 不应为空")
 	}
-	// 记录三派结果供人工审核
+	// 记录用神候选与格局证据供人工审核
 	t.Logf("扶抑: yong=%s xi=%s ji=%s (strength=%s)",
 		fuYi.Yong, fuYi.Xi, fuYi.Ji, fuYi.Strength)
 	t.Logf("调候: yong=%s xi=%s (detail=%s)",

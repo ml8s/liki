@@ -92,7 +92,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 - **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。网关负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp` 与 `/mcp/{domain}`。领域文档描述能力与变量绑定，不手写传输层细节。
 - **历史事件只验证整体框架**：校准/结论验证回退的对象是「格局+用神+大运」的综合解读框架，不是单一用神选择——事件是框架的综合结果，无法反推单一变量（v1.23.0 教训）。落地处：`references/natal-app-mingshu.md` 历史事件校准节、`references/natal-bazi-calibration.md`。
-- **三派用神必须聚合出唯一结论**：扶抑/调候/格局三派按决策表聚合（`references/natal-bazi-yongshen.md`），不并列列出让用户选——并列等于把专业判断推给用户（v1.16.0 教训，已落地 yongshen.md 聚合决策表）。
+- **用神只有扶抑 / 调候两派，必须聚合出唯一结论**：格局（格神）不是用神，只作结构证据参与聚合决策（`references/natal-bazi-yongshen.md`）；不并列列出让用户选——并列等于把专业判断推给用户（v1.16.0 教训，已落地 yongshen.md 聚合决策表）。
 
 ## 相关文档
 
