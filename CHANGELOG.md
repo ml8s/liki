@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026.10.29.2] — 2026-10-29
+
+### Breaking changes
+
+- **natal 部署拓扑收敛为单 agent**：原「chat 编排根 + bazi/ziwei 两个 task 子代理」合并为一个 chat agent，部署工件不再含子代理；子代理身份文件（agents/bazi、agents/ziwei）退役。
+- **域边界机制变更**：委派义务不再由「根无排盘工具」强制，改为工具白名单显式排除表 + 精确集合测试。
+
+### Changed
+
+- **natal 单 agent 直调两侧**：原「chat 编排根 + bazi/ziwei 两个 task 子代理」合并为一个 chat agent，直接完成两侧排盘、因子、断语与合参——确定性工具调用不再经子代理往返，两侧证据同上下文合参。工具面取三 agent 白名单**严格并集**（engine 19：八字/紫微全系列 + `city_coords`/`tianwen_resolve`/`time_now`；counsel 3：`compute_factors`/`natal_query`/`period_query`），并显式排除他域工具与独立 `bazi_yongshen`（用神裁决一贯从 `compute_factors` 因子快照消费）。输入契约不变：出生时间仍按 `standard_time`（RFC3339 known-offset）+ `longitude` 传入，civil wall time 经 `tianwen.resolve` 归一，`time_now` 输出 `standard_time`，`birth_standard_time` 语义保持。
+- **域边界从「根无排盘工具」改为白名单排除表**：部署生成测试精确断言 natal 工具集合，与其他域（六爻/奇门/黄历/起名/风水）工具交集为空。
+- **平台入口与部署身份一致性固化**：`expert-packs/liki-<domain>/agents/liki-<domain>.md` 正文与部署 instruction 逐字一致，消除双源漂移。
+- **方法论卡语言同步**：natal-ENTRY 与考时卡「委派子能力」改为「本域直接执行受影响侧」。
+
 ## [2026.10.29.1] — 2026-10-29
 
 ### Breaking changes

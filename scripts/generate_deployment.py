@@ -4,10 +4,9 @@
 消费的 deployment 工件（deployment.json + instruction + output schema）。
 
 身份单一源：域专家 = `expert-packs/liki-<name>/SKILL.md`（包内 skill 入口与插件
-agent 入口都由它生成）；部署内子代理（如 natal 的 bazi/ziwei）= `agents/<name>/<name>.md`，
-不进市场包。instruction 就是身份正文本身，不做拓扑增补：子代理经 tools/list 自省
-（task 工具携带子代理描述，框架同时下发「不要并行调用」），单侧/双侧路由由域卡
-（natal-ENTRY）承载，委派义务由能力边界（根无排盘工具）强制。
+agent 入口都由它生成）。instruction 就是身份正文本身，不做拓扑增补：每个专家是
+一个单 chat agent，直调本域工具；单侧/双侧执行路由由域卡（natal-ENTRY）承载，
+域边界由工具白名单（profile + agent.yaml 的显式排除表）强制。
 
 用法:
     python3 scripts/generate_deployment.py --profile natal --out dist/agents

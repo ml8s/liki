@@ -11,7 +11,24 @@ from _helpers import ROOT
 
 PROFILES = ("natal", "divination", "fengshui", "naming")
 EXPERT_DOMAINS = ("natal", "divination", "fengshui", "naming")
-SUB_AGENTS = ("bazi", "ziwei")
+NATAL_ENGINE_TOOLS = {
+    "bazi_bond", "bazi_chart", "bazi_fullchart", "bazi_liunian",
+    "bazi_liuri", "bazi_liushi", "bazi_liuyue", "bazi_xiaoyun",
+    "ziwei_bond", "ziwei_chart", "ziwei_daxian", "ziwei_fullchart",
+    "ziwei_liunian", "ziwei_liuri", "ziwei_liushi", "ziwei_liuyue",
+    "city_coords", "tianwen_resolve", "time_now",
+}
+NATAL_COUNSEL_TOOLS = {"compute_factors", "natal_query", "period_query"}
+# 其他域工具：natal 单 agent 显式排除（越权即断），与 agent.yaml 白名单同源。
+OTHER_DOMAIN_ENGINE_TOOLS = {
+    "bazhai_chart", "bazhai_layout", "xuankong_chart", "xuankong_liunian",  # fengshui
+    "liuyao_chart", "liuyao_qigua", "qimen_chart", "huangli_days",  # divination
+}
+OTHER_DOMAIN_COUNSEL_TOOLS = {
+    "bazi_yongshen",  # natal 用神裁决一贯从 compute_factors 因子快照消费
+    "naming_surname", "naming_pick", "naming_char", "naming_compose", "naming_check",
+    "liuyao_snapshot", "liuyao_query", "qimen_snapshot", "qimen_query",
+}
 
 
 class TestDeploymentGeneration(unittest.TestCase):
@@ -49,49 +66,36 @@ class TestDeploymentGeneration(unittest.TestCase):
     def test_single_root_and_reachable_tree(self):
         deployment = self._deployment("natal")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
-        self.assertEqual(
-            agents["natal"]["sub_agents"],
-            [{"name": "bazi"}, {"name": "ziwei"}],
-        )
-        self.assertEqual(agents["bazi"]["sub_agents"], [])
-        self.assertEqual(agents["ziwei"]["sub_agents"], [])
-        for profile in ("divination", "fengshui", "naming"):
+        self.assertEqual(agents["natal"]["sub_agents"], [])
+        for profile in PROFILES:
             with self.subTest(profile=profile):
                 deployment = self._deployment(profile)
                 self.assertEqual(
                     [a["name"] for a in deployment["spec"]["agents"]], [profile]
                 )
 
-    def test_natal_is_chat_root_with_task_sub_agents(self):
+    def test_every_expert_is_a_single_chat_agent(self):
         deployment = self._deployment("natal")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
         self.assertEqual(agents["natal"]["mode"], "chat")
-        self.assertEqual(agents["bazi"]["mode"], "task")
-        self.assertEqual(agents["ziwei"]["mode"], "task")
+        for profile in ("divination", "fengshui", "naming"):
+            deployment = self._deployment(profile)
+            self.assertEqual(deployment["spec"]["agents"][0]["mode"], "chat")
 
-    def test_natal_exposes_neutral_fact_surface(self):
-        """natal root resolves shared time/place facts but cannot make charts.
+    def test_natal_owns_the_full_domain_surface(self):
+        """natal owns exactly the union of the former natal/bazi/ziwei surfaces.
 
-        Calibration candidates may affect bazi only, ziwei only, or both, so
-        the root must inspect tianwen.resolve reasons before delegating.
+        The merged agent keeps the strict union (no additions, no removals);
+        other domains' tools stay excluded so the single agent cannot cross
+        domain boundaries.
         """
         deployment = self._deployment("natal")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
-        self.assertEqual(
-            agents["natal"]["tools"]["allow"]["engine"],
-            ["city_coords", "tianwen_resolve", "time_now"],
-        )
-        chart_tools = {
-            "bazi_chart", "bazi_fullchart", "ziwei_chart", "ziwei_fullchart",
-        }
-        for name in ("natal", "bazi", "ziwei"):
-            allowed = set(agents[name]["tools"]["allow"]["engine"])
-            self.assertIn("time_now", allowed)
-            self.assertIn("tianwen_resolve", allowed)
-            if name == "natal":
-                self.assertNotIn("bazi_chart", allowed)
-                self.assertNotIn("ziwei_chart", allowed)
-                self.assertFalse(allowed & chart_tools)
+        allow = agents["natal"]["tools"]["allow"]
+        self.assertEqual(set(allow["engine"]), NATAL_ENGINE_TOOLS)
+        self.assertEqual(set(allow["counsel"]), NATAL_COUNSEL_TOOLS)
+        self.assertFalse(set(allow["engine"]) & OTHER_DOMAIN_ENGINE_TOOLS)
+        self.assertFalse(set(allow["counsel"]) & OTHER_DOMAIN_COUNSEL_TOOLS)
 
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
         """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""
@@ -109,21 +113,13 @@ class TestDeploymentGeneration(unittest.TestCase):
                     self.assertIn("边界", text)
 
     def test_instructions_carry_no_delegation_section(self):
-        """三分拓扑不写进任何 instruction：根靠 task 工具自省（描述含
-        「不要并行调用」，由 ADK 注入）、路由靠 natal-ENTRY 卡、委派义务由
-        根的能力边界（无排盘工具）强制。"""
+        """单 agent 拓扑：任何 instruction 不得残留子代理 / 委派语义。"""
         deployment = self._deployment("natal")
         root = self.out / "natal" / "agents"
         natal = (root / "natal" / "instruction.md").read_text(encoding="utf-8")
-        for marker in ("协作委派", "子专家职责内的工作一律委派", "同一轮只调用一个"):
+        for marker in ("委派", "子代理", "子能力", "协作委派", "同一轮只调用一个"):
             self.assertNotIn(marker, natal)
-        for sub_agent in SUB_AGENTS:
-            body = (root / sub_agent / "instruction.md").read_text(encoding="utf-8")
-            self.assertNotIn("协作委派", body, sub_agent)
-        self.assertEqual(
-            [a["name"] for a in deployment["spec"]["agents"]],
-            ["natal", "bazi", "ziwei"],
-        )
+        self.assertEqual([a["name"] for a in deployment["spec"]["agents"]], ["natal"])
 
     def test_instruction_paths_resolve_within_deployment_dir(self):
         for profile in PROFILES:
@@ -167,7 +163,7 @@ class TestDeploymentGeneration(unittest.TestCase):
         self.assertEqual(exposed, {server: set(tools) for server, tools in catalog_tools.items()})
 
     def test_instruction_bodies_come_from_identity_sources(self):
-        """域专家 instruction＝包根 SKILL.md 正文；子代理＝agents/<name>/<name>.md。"""
+        """域专家 instruction＝包根 SKILL.md 正文；平台入口（agents/<pack>.md）同源。"""
         sys.path.insert(0, str(ROOT / "scripts"))
         import generate_deployment as gen  # noqa: E402
 
@@ -181,17 +177,17 @@ class TestDeploymentGeneration(unittest.TestCase):
                 self.out / domain / "agents" / domain / "instruction.md"
             ).read_text(encoding="utf-8")
             # instruction 就是身份正文本身：不做拓扑增补（子代理靠 tools/list
-            # 自省、路由在域卡、委派义务由能力边界强制）。
+            # 自省、路由在域卡、域边界由白名单强制）。
             self.assertEqual(instruction, body, domain)
             self.assertNotIn("references/", instruction, domain)
-        for sub_agent in SUB_AGENTS:
-            identity = ROOT / "agents" / sub_agent / f"{sub_agent}.md"
-            self.assertEqual(gen.identity_path(sub_agent), identity)
-            body = identity.read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
+        for domain in EXPERT_DOMAINS:
+            platform = (
+                ROOT / "expert-packs" / f"liki-{domain}" / "agents" / f"liki-{domain}.md"
+            ).read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
             instruction = (
-                self.out / "natal" / "agents" / sub_agent / "instruction.md"
+                self.out / domain / "agents" / domain / "instruction.md"
             ).read_text(encoding="utf-8")
-            self.assertEqual(instruction, body, sub_agent)
+            self.assertEqual(platform, instruction, f"liki-{domain} platform entry")
 
     def test_four_expert_profiles_are_the_only_release_profiles(self):
         self.assertEqual(

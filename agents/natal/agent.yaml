@@ -1,20 +1,34 @@
 name: natal
 mode: chat
-
 skills:
   root: /expert-packs/liki-natal/skills
-
-sub_agents:
-  - name: bazi
-  - name: ziwei
-
 tools:
   allow:
     skilltoolset:
-      - list_skills
-      - load_skill
-      - load_skill_resource
+    - list_skills
+    - load_skill
+    - load_skill_resource
     engine:
-      - city_coords
-      - tianwen_resolve
-      - time_now
+    - bazi_bond
+    - bazi_chart
+    - bazi_fullchart
+    - bazi_liunian
+    - bazi_liuri
+    - bazi_liushi
+    - bazi_liuyue
+    - bazi_xiaoyun
+    - city_coords
+    - tianwen_resolve
+    - time_now
+    - ziwei_bond
+    - ziwei_chart
+    - ziwei_daxian
+    - ziwei_fullchart
+    - ziwei_liunian
+    - ziwei_liuri
+    - ziwei_liushi
+    - ziwei_liuyue
+    counsel:
+    - compute_factors
+    - natal_query
+    - period_query

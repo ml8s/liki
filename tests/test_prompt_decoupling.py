@@ -13,8 +13,6 @@ SOURCES = (
     ROOT / "skills/liki/references/natal-bazi-calibration.md",
     ROOT / "skills/liki/references/natal-ziwei-ENTRY.md",
     ROOT / "skills/liki/references/natal-ziwei-calibration.md",
-    ROOT / "agents/bazi/bazi.md",
-    ROOT / "agents/ziwei/ziwei.md",
 )
 
 FORBIDDEN = (
@@ -42,8 +40,8 @@ def test_root_identity_describes_capability_based_routing() -> None:
     text = (ROOT / "expert-packs/liki-natal/SKILL.md").read_text(encoding="utf-8")
     assert "归一为候选集" in text
     assert "原因域" in text
-    assert "委派八字 / 紫微" in text
-    assert "排盘、因子和断语由八字 / 紫微子能力承担" in text
+    assert "直接调用八字 / 紫微排盘工具" in text
+    assert "排盘、因子、断语与合参全部由本 agent 直接完成" in text
 
 
 def test_calibration_prompt_keeps_semantic_impact_mapping() -> None:

@@ -4,7 +4,7 @@ description: Liki 占卜专家——六爻起卦问事与应期、奇门遁甲�
 metadata:
   display_name: Liki 占卜专家
   display_name_en: Liki Divination Expert
-  version: 2026.1029.1
+  version: 2026.1029.2
   author: Liki
 ---
 

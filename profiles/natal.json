@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "natal",
-    "version": "2026.10.29.1"
+    "version": "2026.10.29.2"
   },
   "mcpServers": [
     {
@@ -16,12 +16,6 @@
   "agents": [
     {
       "name": "natal"
-    },
-    {
-      "name": "bazi"
-    },
-    {
-      "name": "ziwei"
     }
   ]
 }
