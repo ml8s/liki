@@ -7,8 +7,6 @@
 import re
 from pathlib import Path
 
-import yaml
-
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
 MAKEFILE = ROOT / "Makefile"
@@ -21,33 +19,21 @@ PYTHON_COVERAGE = ROOT / "scripts" / "test-python-coverage.sh"
 PRE_PUSH_HOOK = ROOT / ".githooks" / "pre-push"
 
 
-def _workflow() -> dict:
-    return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
-
-
-def _steps_using(action: str) -> list[dict]:
-    steps = []
-    for job in (_workflow().get("jobs") or {}).values():
-        for step in job.get("steps") or []:
-            if action in str(step.get("uses", "")):
-                steps.append(step)
-    return steps
-
-
 def test_golangci_pin_is_calver_with_leading_v():
     value = re.search(r"^version:\s*(\S+)\s*$", GOLANGCI_PIN.read_text(encoding="utf-8"), re.M)
     assert value, "deps/golangci-lint.version must carry a `version:` line"
     assert re.fullmatch(r"v\d+\.\d+\.\d+", value.group(1)), value.group(1)
 
 
-def test_ci_golangci_action_matches_pin():
-    pinned = re.search(
-        r"^version:\s*(\S+)\s*$", GOLANGCI_PIN.read_text(encoding="utf-8"), re.M
-    ).group(1)
-    steps = _steps_using("golangci/golangci-lint-action")
-    assert steps, "CI must run golangci-lint"
-    versions = {str(step.get("with", {}).get("version")) for step in steps}
-    assert versions == {pinned}, versions
+def test_ci_lints_through_the_local_target():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert "golangci/golangci-lint-action" not in text, (
+        "CI must lint through scripts/lint-engine.sh, not a separate action"
+    )
+    assert "make lint-engine" in text, "CI must run the local lint target"
+    assert "deps/golangci-lint.version" in text, (
+        "CI must provision golangci-lint from the single pin file"
+    )
 
 
 def test_makefile_lint_engine_uses_the_pinned_script():
