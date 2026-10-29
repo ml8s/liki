@@ -132,9 +132,9 @@ class TestFeedbackContract(unittest.TestCase):
 
     def test_unified_skill_documents_feedback_runtime_governance(self):
         text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("agent 自主择时提交技术反馈", text)
         self.assertIn("同一会话最多 3 条", text)
         self.assertIn("Feedback: submitted|disabled|failed", text)
-        self.assertIn("不向用户请求确认", text)
         self.assertIn("用户原文", text)
         self.assertIn("出生数据", text)
         self.assertIn("references/ops-FEEDBACK.md", text)
