@@ -34,17 +34,8 @@ from version_projection import workbuddy_version  # noqa: E402  制品版本的�
 SKILL = ROOT / "skills" / "liki" / "references"
 PACKS = ROOT / "expert-packs"
 
-# <域>:<包名>。顶层领域 = 专家包（1:1）：根 `references/<域>-…` 平铺卡按前缀过滤，
-# 逐字节镜像进包内 `skills/<域>/references/`（保留完整平铺名，卡内引用不改写）。
-MAPPINGS: tuple[tuple[str, str], ...] = (
-    ("natal", "liki-natal"),
-    ("divination", "liki-divination"),
-    ("fengshui", "liki-fengshui"),
-    ("naming", "liki-naming"),
-)
-
-# 域 → 包名。身份文件固定是包根 expert-packs/<pack>/SKILL.md；
-# 包内域 skills/<domain>/SKILL.md 由它派生（包内不再有第二份身份副本）。
+# 单聚合包：根 references/ 全量镜像进包内 skills/liki/references/（无域滤）。
+MAPPINGS: tuple[tuple[str, str], ...] = (("liki", "liki"),)
 DOMAIN_PACKS: dict[str, str] = dict(MAPPINGS)
 
 # 根级共享卡：只存在于根，不按域前缀归域、不进任何专家包。
@@ -324,10 +315,9 @@ def _plugin_metadata_drift(
 
 
 def _dest_groups() -> tuple[dict[Path, list[Path]], list[str]]:
-    """根平铺卡 → 包内 references/ 源文件分组（按域前缀过滤）。
+    """根平铺卡 → 聚合包 references/ 全量镜像（单聚合包，无域滤）。
 
-    fail-closed：references 下出现子目录/非 md 文件、或文件既不归域也不在
-    根级共享白名单，均判错误（新文件必须显式分类）。
+    fail-closed：references 下出现子目录/非 md 文件均判错误。
     """
     groups: dict[Path, list[Path]] = {}
     errors: list[str] = []
@@ -335,24 +325,14 @@ def _dest_groups() -> tuple[dict[Path, list[Path]], list[str]]:
     errors.extend(f"根 references 必须平铺，出现子目录: references/{name}" for name in nested)
     stray = sorted(p.name for p in SKILL.iterdir() if p.is_file() and p.suffix != ".md")
     errors.extend(f"根 references 只允许 .md 卡: references/{name}" for name in stray)
+    dest = PACKS / "liki" / "skills" / "liki" / "references"
+    cards: list[Path] = []
     for card in sorted(SKILL.glob("*.md")):
-        name = card.name
-        if name in ROOT_SHARED_FILES:
+        if card.name in ROOT_SHARED_FILES:
             continue
-        domain = next((d for d, _pack in MAPPINGS if name.startswith(d + "-")), None)
-        if domain is None:
-            errors.append(
-                f"根 references/{name} 未归域：命名须为 <域>-…，或加入根级共享白名单"
-            )
-            continue
-        dest = PACKS / DOMAIN_PACKS[domain] / "skills" / domain / "references"
-        groups.setdefault(dest, []).append(card)
+        cards.append(card)
+    groups[dest] = cards
     return groups, errors
-
-
-def _domain_of(dest: Path) -> str:
-    """包内 references 目录 → 领域名（= 包内 skill 目录名）。"""
-    return dest.relative_to(PACKS).parts[2]
 
 
 def _expected(dest: Path, srcs: list[Path]) -> dict[str, bytes] | list[str]:
@@ -362,7 +342,6 @@ def _expected(dest: Path, srcs: list[Path]) -> dict[str, bytes] | list[str]:
     `references/<平铺名>.md`。校验 fail-closed：非平铺 / 裸名 / 跨域 /
     根级共享卡 / 包内无 scripts/ 运行时 / 死链。
     """
-    domain = _domain_of(dest)
     merged: dict[str, bytes] = {}
     errors: list[str] = []
     for src in srcs:
@@ -385,9 +364,6 @@ def _expected(dest: Path, srcs: list[Path]) -> dict[str, bytes] | list[str]:
                 errors.append(
                     f"根级共享卡不进包（包内不可引用）: {where}: references/{token}"
                 )
-                continue
-            if not token.startswith(domain + "-"):
-                errors.append(f"跨域引用（包必须自包含）: {where}: references/{token}")
                 continue
             if f"references/{token}" not in valid:
                 errors.append(f"包内死链: {where}: references/{token}")

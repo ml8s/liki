@@ -155,8 +155,8 @@ def test_calibration_docs_do_not_silently_default_birth_hour() -> None:
 
     path = (
         Path(__file__).resolve().parents[1]
-        / "expert-packs" / "liki-natal" / "skills" / "natal"
-        / "references" / "natal-bazi-calibration.md"
+        / "skills" / "liki" / "references"
+        / "natal-app-calibration.md"
     )
     text = path.read_text(encoding="utf-8")
     assert "直接走默认时辰" not in text

@@ -1,0 +1,54 @@
+name: liki
+mode: chat
+
+skills:
+  root: /skills
+
+tools:
+  allow:
+    skilltoolset:
+      - list_skills
+      - load_skill
+      - load_skill_resource
+    engine:
+      - bazhai_chart
+      - bazhai_layout
+      - bazi_bond
+      - bazi_chart
+      - bazi_fullchart
+      - bazi_liunian
+      - bazi_liuri
+      - bazi_liushi
+      - bazi_liuyue
+      - bazi_xiaoyun
+      - city_coords
+      - huangli_days
+      - liuyao_chart
+      - liuyao_qigua
+      - qimen_chart
+      - tianwen_resolve
+      - time_now
+      - xuankong_chart
+      - xuankong_liunian
+      - ziwei_bond
+      - ziwei_chart
+      - ziwei_daxian
+      - ziwei_fullchart
+      - ziwei_liunian
+      - ziwei_liuri
+      - ziwei_liushi
+      - ziwei_liuyue
+    counsel:
+      - bazi_yongshen
+      - compute_factors
+      - natal_query
+      - period_query
+      - naming_surname
+      - naming_pick
+      - naming_char
+      - naming_compose
+      - naming_check
+      - liuyao_snapshot
+      - liuyao_query
+      - qimen_snapshot
+      - qimen_query

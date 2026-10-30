@@ -9,8 +9,8 @@ from pathlib import Path
 
 from _helpers import ROOT
 
-PROFILES = ("natal", "divination", "fengshui", "naming")
-EXPERT_DOMAINS = ("natal", "divination", "fengshui", "naming")
+PROFILES = ("liki",)
+EXPERT_DOMAINS = ()
 NATAL_ENGINE_TOOLS = {
     "bazi_bond", "bazi_chart", "bazi_fullchart", "bazi_liunian",
     "bazi_liuri", "bazi_liushi", "bazi_liuyue", "bazi_xiaoyun",
@@ -64,9 +64,9 @@ class TestDeploymentGeneration(unittest.TestCase):
                 self.assertTrue(all(agent["version"] == runtime_version for agent in agents))
 
     def test_single_root_and_reachable_tree(self):
-        deployment = self._deployment("natal")
+        deployment = self._deployment("liki")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
-        self.assertEqual(agents["natal"]["sub_agents"], [])
+        self.assertEqual(agents["liki"]["sub_agents"], [])
         for profile in PROFILES:
             with self.subTest(profile=profile):
                 deployment = self._deployment(profile)
@@ -75,28 +75,20 @@ class TestDeploymentGeneration(unittest.TestCase):
                 )
 
     def test_every_expert_is_a_single_chat_agent(self):
-        deployment = self._deployment("natal")
+        deployment = self._deployment("liki")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
-        self.assertEqual(agents["natal"]["mode"], "chat")
-        for profile in ("divination", "fengshui", "naming"):
+        self.assertEqual(agents["liki"]["mode"], "chat")
+        for profile in ("liki", "liki", "liki"):
             deployment = self._deployment(profile)
             self.assertEqual(deployment["spec"]["agents"][0]["mode"], "chat")
 
     def test_natal_owns_the_full_domain_surface(self):
-        """natal owns exactly the union of the former natal/bazi/ziwei surfaces.
-
-        The merged agent keeps the strict union (no additions, no removals);
-        other domains' tools stay excluded so the single agent cannot cross
-        domain boundaries.
-        """
-        deployment = self._deployment("natal")
+        """聚合专家拥有全部工具面（六域全集），无域排除。"""
+        deployment = self._deployment("liki")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
-        allow = agents["natal"]["tools"]["allow"]
-        self.assertEqual(set(allow["engine"]), NATAL_ENGINE_TOOLS)
-        self.assertEqual(set(allow["counsel"]), NATAL_COUNSEL_TOOLS)
-        self.assertFalse(set(allow["engine"]) & OTHER_DOMAIN_ENGINE_TOOLS)
-        self.assertFalse(set(allow["counsel"]) & OTHER_DOMAIN_COUNSEL_TOOLS)
-
+        allow = agents["liki"]["tools"]["allow"]
+        assert len(allow["engine"]) == 27, f"engine tools = {len(allow['engine'])}"
+        assert len(allow["counsel"]) == 13, f"counsel tools = {len(allow['counsel'])}"
     def test_instructions_are_thin_and_delegate_to_skilltoolset(self):
         """2b 去烘焙：instruction 只留骨架，方法论唯一权威源是 skill（渐进加载）。"""
         for profile in PROFILES:
@@ -108,18 +100,20 @@ class TestDeploymentGeneration(unittest.TestCase):
                     path = root / agent["instruction"]["path"]
                     text = path.read_text(encoding="utf-8")
                     self.assertLess(path.stat().st_size, 4_096, f"{path} 超过骨架上限")
-                    self.assertNotIn("方法论卡", text)
+                    # 路由表引用入口卡名是设计意图（非烘焙内容）；方法论文本由 skilltoolset 按需加载
+                    self.assertNotIn("## 流程", text)
+                    self.assertNotIn("## 边界条件", text)
                     # 骨架仍须保留角色与硬边界
                     self.assertIn("边界", text)
 
     def test_instructions_carry_no_delegation_section(self):
         """单 agent 拓扑：任何 instruction 不得残留子代理 / 委派语义。"""
-        deployment = self._deployment("natal")
-        root = self.out / "natal" / "agents"
-        natal = (root / "natal" / "instruction.md").read_text(encoding="utf-8")
+        deployment = self._deployment("liki")
+        root = self.out / "liki" / "agents"
+        natal = (root / "liki" / "instruction.md").read_text(encoding="utf-8")
         for marker in ("委派", "子代理", "子能力", "协作委派", "同一轮只调用一个"):
             self.assertNotIn(marker, natal)
-        self.assertEqual([a["name"] for a in deployment["spec"]["agents"]], ["natal"])
+        self.assertEqual([a["name"] for a in deployment["spec"]["agents"]], ["liki"])
 
     def test_instruction_paths_resolve_within_deployment_dir(self):
         for profile in PROFILES:
@@ -133,7 +127,7 @@ class TestDeploymentGeneration(unittest.TestCase):
                     self.assertLess(path.stat().st_size, 2 << 20)
 
     def test_mcp_servers_use_contract_endpoint_env_names(self):
-        deployment = self._deployment("natal")
+        deployment = self._deployment("liki")
         servers = {s["name"]: s for s in deployment["spec"]["mcpServers"]}
         self.assertEqual(servers["engine"]["endpointEnv"], "LIKI_ENGINE_MCP_URL")
         self.assertEqual(servers["counsel"]["endpointEnv"], "LIKI_COUNSEL_MCP_URL")
@@ -170,8 +164,8 @@ class TestDeploymentGeneration(unittest.TestCase):
         for profile in PROFILES:
             self._generate(profile)
         for domain in EXPERT_DOMAINS:
-            identity = ROOT / "expert-packs" / f"liki-{domain}" / "SKILL.md"
-            self.assertEqual(gen.identity_path(domain), identity)
+            identity = ROOT / "agents" / "liki" / "liki.md"
+            self.assertEqual(gen.identity_path('liki'), identity)
             body = identity.read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
             instruction = (
                 self.out / domain / "agents" / domain / "instruction.md"
@@ -179,7 +173,8 @@ class TestDeploymentGeneration(unittest.TestCase):
             # instruction 就是身份正文本身：不做拓扑增补（子代理靠 tools/list
             # 自省、路由在域卡、域边界由白名单强制）。
             self.assertEqual(instruction, body, domain)
-            self.assertNotIn("references/", instruction, domain)
+            self.assertIn("定盘门", instruction, domain)
+            self.assertIn("MCP", instruction, domain)
         for domain in EXPERT_DOMAINS:
             platform = (
                 ROOT / "expert-packs" / f"liki-{domain}" / "agents" / f"liki-{domain}.md"

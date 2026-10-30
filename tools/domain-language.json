@@ -453,7 +453,7 @@
             "engine/internal/engine/liuyao/liuyao.go",
             "engine/internal/engine/liuyao/testdata/chart_golden.json",
             "engine/internal/mcpcontract/liuyao.go",
-            "expert-packs/liki-divination/skills/divination/references/divination-liuyao-jixiong.md",
+            "expert-packs/liki/skills/liki/references/divination-liuyao-jixiong.md",
             "skills/liki/references/divination-liuyao-jixiong.md",
             "tests/test_divination_snapshot_ask.py",
             "tests/test_liuyao_tools.py"

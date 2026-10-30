@@ -30,47 +30,33 @@ def test_check_reports_no_drift():
 
 
 def test_every_root_card_is_classified_and_flat():
-    """根 references/ 必须平铺；每个卡要么归域（有包）、要么在根级共享白名单。"""
+    """根 references/ 必须平铺；所有非共享卡进聚合包（无需域前缀分类）。"""
     assert not [p for p in SKILL.iterdir() if p.is_dir()], "references 必须平铺（无子目录）"
     assert not [p for p in SKILL.iterdir() if p.is_file() and p.suffix != ".md"], "只允许 .md 卡"
-    unclassified = [
-        name
-        for name in sorted(p.name for p in SKILL.glob("*.md"))
-        if name not in gen.ROOT_SHARED_FILES
-        and not any(name.startswith(d + "-") for d, _pack in gen.MAPPINGS)
-    ]
-    assert not unclassified, f"未分类卡（须归域或进根级共享白名单）: {unclassified}"
 
 
-def test_every_root_domain_is_one_pack():
-    """顶层领域 = 专家包（1:1）：每个域有平铺 ENTRY 与对应包/身份文件。"""
+def test_aggregate_pack_exists():
+    """单聚合包存在且有身份文件和 references 目录。"""
     for domain, pack in gen.MAPPINGS:
-        assert (SKILL / f"{domain}-ENTRY.md").is_file(), domain
-        assert list(SKILL.glob(f"{domain}-*.md")), domain
         assert (gen.PACKS / pack / "SKILL.md").is_file(), pack
         assert (gen.PACKS / pack / "skills" / domain).is_dir(), pack
     assert gen.DOMAIN_PACKS == dict(gen.MAPPINGS)
 
 
-def test_dest_groups_filter_by_domain_prefix():
-    """dest 分组 = 按域前缀过滤；全量覆盖（共享卡除外）、且各组只含本域前缀卡。"""
+def test_dest_groups_aggregate_all_cards():
+    """dest 分组 = 全量覆盖（共享卡除外）。"""
     groups, errors = gen._dest_groups()
     assert not errors, errors
-    assert len(groups) == len(gen.MAPPINGS)
-    total = 0
-    for dest, srcs in groups.items():
-        domain = gen._domain_of(dest)
-        assert srcs and all(src.name.startswith(domain + "-") for src in srcs), (dest, srcs)
-        total += len(srcs)
+    all_dest_cards = sum(len(srcs) for srcs in groups.values())
     all_cards = [p.name for p in SKILL.glob("*.md") if p.name not in gen.ROOT_SHARED_FILES]
-    assert total == len(all_cards)
+    assert all_dest_cards == len(all_cards)
 
 
 def test_expected_is_byte_identical_domain_view():
     """包内 = 源卡的逐字节视图：字节相等、引用不改写、无旧嵌套 token、无路径改写。"""
     groups, errors = gen._dest_groups()
     assert not errors, errors
-    dest = gen.PACKS / "liki-natal" / "skills" / "natal" / "references"
+    dest = gen.PACKS / "liki" / "skills" / "liki" / "references"
     result = gen._expected(dest, groups[dest])
     assert isinstance(result, dict), result
     sample = "natal-app-marriage.md"
@@ -86,9 +72,9 @@ def test_expected_is_byte_identical_domain_view():
 
 def test_expected_fail_closed_on_invalid_refs(tmp_path):
     """非平铺 / 裸名 / 跨域 / 根级共享卡 / scripts 依赖 / 死链一律 fail-closed。"""
-    dest = gen.PACKS / "liki-natal" / "skills" / "natal" / "references"
+    dest = gen.PACKS / "liki" / "skills" / "liki" / "references"
     cases = [
-        ("references/divination-qimen-yongshen.md", "跨域引用"),
+        ("references/divination-qimen-yongshen.md", "包内死链"),
         ("references/natal-nope.md", "死链"),
         ("references/natal/app/x.md", "非平铺引用"),
         ("references/FAQ.md", "根级共享卡"),

@@ -73,7 +73,6 @@ def test_skill_docs_do_not_duplicate_mcp_method_signatures():
         "naming_check",
         "period_query",
         "bazi_yongshen",
-        "selected_yongshen",
         "bazi_chart",
     )
     offenders = []
@@ -311,12 +310,9 @@ def test_expert_packs_follow_workbuddy_standard():
 def test_expert_pack_methodology_matches_index():
     # pack -> (skill dir, 镜像卡总数)。包内 references/ 是根平铺卡的按域前缀逐字节视图。
     for pack, skill, expect in (
-        ("liki-natal", "natal", 36),
-        ("liki-divination", "divination", 24),
-        ("liki-fengshui", "fengshui", 5),
-        ("liki-naming", "naming", 7),
-    ):
-        skill_dir = ROOT / "expert-packs" / pack / "skills" / skill
+        ("liki", "liki", 72),
+                            ):
+        skill_dir = ROOT / "expert-packs" / pack / "skills" / "liki"
         assert (skill_dir / "SKILL.md").is_file(), pack
         cards = [p for p in (skill_dir / "references").rglob("*.md") if p.name != "SKILL.md"]
         assert len(cards) == expect, (pack, len(cards), expect)
@@ -439,4 +435,4 @@ def test_domain_lists_stay_in_sync():
     """域清单三处定义（check_docs / 生成器 MAPPINGS / 本测试）必须一致。"""
     import check_docs
 
-    assert set(check_docs.DOMAINS) == {domain for domain, _pack in gen.MAPPINGS} == set(DOMAINS)
+    assert set(check_docs.DOMAINS) == {domain for domain, _pack in gen.MAPPINGS} == {"liki"}

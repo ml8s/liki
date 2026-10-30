@@ -53,7 +53,7 @@ class TestFeedbackContract(unittest.TestCase):
         }
         validator.validate(valid)
         # 上报面只允许统一产品 `liki`；按专家包名上报一律拒绝。
-        for old_skill in ("liki-natal", "liki-divination", "liki-fengshui", "liki-naming"):
+        for old_skill in ("natal", "divination", "fengshui", "naming"):
             invalid = dict(valid)
             invalid["meta"] = valid["meta"] | {"skill": old_skill}
             with self.assertRaises(ValidationError):

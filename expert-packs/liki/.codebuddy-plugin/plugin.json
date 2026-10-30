@@ -1,0 +1,73 @@
+{
+  "name": "liki",
+  "version": "2026.1029.2",
+  "description": "Liki professional fortune-telling skill covering BaZi, Zi Wei Dou Shu, Liu Yao, Qi Men, Chinese almanac, Feng Shui and naming — deterministic engines with traceable rule-based judgments.",
+  "author": {
+    "name": "Q.Sui",
+    "email": "suiqiang@foxmail.com"
+  },
+  "agents": [
+    "./agents/liki.md"
+  ],
+  "expertType": "agent",
+  "agentName": "liki",
+  "displayName": {
+    "en": "Liki Fortune Master",
+    "zh": "Liki 命理师"
+  },
+  "profession": {
+    "en": "Liki Fortune Master",
+    "zh": "Liki 命理师"
+  },
+  "keywords": [
+    "八字算命",
+    "紫微斗数",
+    "六爻占卜",
+    "奇门遁甲",
+    "黄历择日",
+    "风水布局",
+    "起名取名"
+  ],
+  "skills": [
+    "./skills/liki"
+  ],
+  "dependencies": {
+    "connectors": [
+      "oc_9af58cd723529afc",
+      "oc_f31cd1614c314762"
+    ]
+  },
+  "displayDescription": {
+    "en": "Professional fate reading with traceable evidence",
+    "zh": "覆盖八字、紫微、六爻、奇门、黄历择日、风水与起名的命理师，结论有确定性引擎依据可回溯"
+  },
+  "avatar": "./avatars/expert.png",
+  "categoryId": "lifestyle",
+  "defaultInitPrompt": {
+    "en": "Hello, I am Liki",
+    "zh": "你好，我是 Liki 命理师"
+  },
+  "plugin": "liki",
+  "tags": [
+    "命理",
+    "八字",
+    "紫微斗数"
+  ],
+  "quickPrompts": [
+    {
+      "label": "八字命盘",
+      "prompt": "帮我看八字命盘",
+      "zh": "你好，我是 Liki 命理师"
+    },
+    {
+      "label": "六爻占卜",
+      "prompt": "帮我起一卦",
+      "zh": "六爻占卜"
+    },
+    {
+      "label": "起名",
+      "prompt": "帮我起名",
+      "zh": "起名"
+    }
+  ]
+}

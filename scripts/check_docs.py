@@ -18,7 +18,7 @@ from pathlib import Path
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILL = sys.argv[1] if len(sys.argv) > 1 else os.path.join(_ROOT, "skills", "liki")
 REFS = os.path.join(SKILL, "references")
-DOMAINS = ("natal", "divination", "fengshui", "naming")
+DOMAINS = ("liki",)
 # 域 → 体系段白名单（平铺命名 `<域>-<体系>-<卡>.md` 的第二段）。
 DOMAIN_SYSTEMS = {
     "natal": ("bazi", "ziwei"),

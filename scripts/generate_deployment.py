@@ -34,7 +34,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = _ROOT / "agents"
 PACKS_DIR = _ROOT / "expert-packs"
 PROFILES_DIR = _ROOT / "profiles"
-EXPERT_DOMAINS = ("natal", "divination", "fengshui", "naming")
+EXPERT_DOMAINS = ()
 TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 

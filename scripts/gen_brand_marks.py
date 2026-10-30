@@ -66,10 +66,10 @@ ICON = Preset(canvas=64, backdrop=BACKDROP, backdrop_rx=14, ink=INK, frame_size=
 
 # 顶层领域 → 头像用字（见 expert-packs/README.md「头像」）。
 AVATARS: tuple[tuple[str, str], ...] = (
-    ("expert-packs/liki-natal/avatars/expert.svg", "命"),
-    ("expert-packs/liki-divination/avatars/expert.svg", "卦"),
-    ("expert-packs/liki-fengshui/avatars/expert.svg", "宅"),
-    ("expert-packs/liki-naming/avatars/expert.svg", "名"),
+    ("expert-packs/liki/avatars/expert.svg", "命"),
+    ("expert-packs/liki/avatars/expert.svg", "卦"),
+    ("expert-packs/liki/avatars/expert.svg", "宅"),
+    ("expert-packs/liki/avatars/expert.svg", "名"),
 )
 # 连接器 → 图标用字（见 workbuddy/README.md「连接器」）。
 ICONS: tuple[tuple[str, str], ...] = (

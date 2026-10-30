@@ -43,7 +43,7 @@ build-skill build-archive: ## Build the installable skill archive
 build-web-skill-bundle: build-archive ## Build the liki-web skill bundle (local artifact)
 	scripts/build-web-skill-bundle.sh
 
-DEPLOYMENT_PROFILES ?= natal divination fengshui naming
+DEPLOYMENT_PROFILES ?= liki
 
 build-deployment: ## Generate AgentDeployment artifacts for all profiles
 	@set -eu; for p in $(DEPLOYMENT_PROFILES); do \

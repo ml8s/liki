@@ -11,9 +11,9 @@ import yaml
 from _helpers import ROOT
 
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
-EXPERTS = ["natal", "divination", "fengshui", "naming"]
-PROFILES = ("natal", "divination", "fengshui", "naming")
-ALLOWED_ROOTS = {"/skills"} | {f"/expert-packs/liki-{name}/skills" for name in EXPERTS}
+EXPERTS = ["liki", "liki", "liki", "liki"]
+PROFILES = ("liki",)
+ALLOWED_ROOTS = {"/skills"}
 
 
 def _repo_path(root: str) -> Path:
