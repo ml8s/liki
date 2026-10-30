@@ -102,11 +102,11 @@ image-engine: ## Build the local engine development image
 image-counsel: ## Build the local counsel development image
 	docker build -f counsel/Dockerfile --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-counsel:$(IMAGE_TAG) .
 
-image-assembly: build-deployment ## Build the experts assembly image (BASE_IMAGE=<local runtime ref> required)
+image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE=<local runtime ref> required)
 	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
 	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
 	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
-	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-experts:$(IMAGE_TAG) assembly
+	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-expert:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 
 image: image-engine image-counsel ## Build all liki-owned local images

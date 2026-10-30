@@ -34,24 +34,27 @@ class TestSkillFrontmatter(unittest.TestCase):
         self.assertGreater(n, 0)
         self.assertLessEqual(n, 1024, f"description {n}B > ADK 1024B")
 
-    def test_frontmatter_declares_platform_required_fields(self):
-        """WorkBuddy 技能规范必填：description / description_zh / description_en / version / author。"""
+    def test_frontmatter_is_adk_skilltoolset_compatible(self):
+        """Runtime skilltoolset 只接受 agentskills.io 标准字段；平台元数据必须收进 metadata。"""
         meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
-        for key in ("description", "description_zh", "description_en", "version", "author"):
-            value = meta.get(key)
+        self.assertEqual(
+            set(meta),
+            {"name", "license", "description", "metadata"},
+        )
+        for key in ("description_zh", "description_en", "version", "author"):
+            value = meta["metadata"].get(key)
             self.assertIsInstance(value, str, key)
             self.assertTrue(value.strip(), key)
-        self.assertNotIn("version", meta.get("metadata", {}), "version 单一源在顶层")
 
     def test_frontmatter_version_is_platform_semver_projection(self):
-        """SKILL.md 顶层 version 是平台必填字段：取发行 CalVer 的 semver 投影（平台拒 4 段）。"""
+        """SKILL.md metadata.version 是平台投影：取发行 CalVer 的 semver 投影（平台拒 4 段）。"""
         import sys
 
         sys.path.insert(0, str(ROOT / "scripts"))
         from version_projection import workbuddy_version
 
         meta = yaml.safe_load((SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8").split("---")[1])
-        version = meta["version"]
+        version = meta["metadata"]["version"]
         runtime_version = (ROOT / "skills" / "liki" / "VERSION.txt").read_text(encoding="utf-8").strip()
         self.assertEqual(str(version), workbuddy_version(runtime_version))
         self.assertRegex(str(version), r"^\d+\.\d+\.\d+$", version)

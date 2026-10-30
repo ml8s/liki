@@ -180,7 +180,7 @@ Schema 由 typed DTO / Pydantic model 生成，并满足：
     用神来源均已是判别联合）；发布 schema 禁止出现 `if` / `then` 条件子句；
 10. 输出 schema 根必须是 `type: "object"`（2026-10-29 修订：协议 2025-11-25
     及更早的 wire 模型拒绝非 object 根——顶层 union/array 会让标准 SDK 客户端
-    （experts runtime）的整个 `tools/list` 失败。列表/可空语义放进字段：
+    （expert runtime）的整个 `tools/list` 失败。列表/可空语义放进字段：
     series 工具恒返回 `{items: [...]}`，单项即长度 1 数组；可空单值用
     字段级 `anyOf`（如 naming_char 的 `character`））。
 11. MCP wire 输出不携带 `schema_version` / `contract_version`；契约形状由

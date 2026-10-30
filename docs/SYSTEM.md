@@ -115,18 +115,17 @@ profiles/*.json ─────────────────────�
 - **运行时 base 来自本地镜像**：`liki-agent-runtime` 按 git sha 构建，`BASE_IMAGE` 传入装配镜像；`make runtime-validate` 也使用同一镜像
 - `make build-deployment` 只生成工件；`make runtime-validate` 用 pinned liki-agent-runtime runtime 执行真实校验
 
-`assembly/Dockerfile` 构建单套装配镜像 `liki-experts`，四份 profile 工件一并烘焙：
+`assembly/Dockerfile` 构建单套装配镜像 `liki-expert`，单聚合 profile 工件烘焙：
 
 ```dockerfile
 ARG BASE_IMAGE=agent-runtime-local/agent-runtime:<runtime-sha>  # 本地构建
 FROM ${BASE_IMAGE}
-COPY dist/agents/ /deployment/             # 四份 profile 组合工件烘焙进镜像
+COPY dist/agents/ /deployment/             # 单聚合 profile 组合工件烘焙进镜像
 ```
 
-- 一个镜像承载四条部署：`/deployment/{natal,divination,fengshui,naming}/deployment.json`；
-  每个运行时进程加载一份（ADK 生产实践：一 app 一服务），服务用 env
-  `AGENT_RUNTIME_DEPLOYMENT_FILE` 选择自己的工件；识别靠 endpoint/DNS 名与
-  Agent Card 名，不靠端口
+- 一个镜像承载一条聚合部署：`/deployment/liki/deployment.json`；
+  运行时进程加载该 profile（ADK 生产实践：一 app 一服务）；识别靠
+  endpoint/DNS 名与 Agent Card 名，不靠端口
 - AgentDeployment digest 只作为审计 provenance；部署完整性由 final assembly image digest 承担
 - **组合在 liki**：专家拓扑/指令/白名单在 CI 生成并烘焙，不在运行时装配
 - **依赖模型**：`liki-agent-runtime` 按自身 sha 构建，liki 侧不维护版本 pin；未变化的 sha 直接复用本地镜像

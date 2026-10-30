@@ -77,7 +77,7 @@ Schemas are materialized concurrently before the HTTP listener starts, so an
 invalid derived contract fails process startup instead of a first request.
 Successful results are `structuredContent` only: every tool publishes a typed
 object-rooted outputSchema, the duplicated text payload was removed as a size
-optimization, and all consumers (browser, experts SDK, external agents) read
+optimization, and all consumers (browser, expert SDK, external agents) read
 the structured field. Tool failures still surface as text content with
 `isError`.
 

@@ -12,13 +12,13 @@ names.
 | Counsel judgment | `liki-counsel` | Judgment image. |
 | Counsel MCP service | `counsel-mcp` | Streamable MCP judgment service. |
 | Agent runtime | `liki-agent-runtime` | Generic ADK runtime base image. |
-| Expert assembly | `liki-experts` | Production expert assembly image. |
-| Expert service | `experts` | Compose service running `liki-experts`. |
+| Expert assembly | `liki-expert` | Production aggregate expert image. |
+| Expert service | `expert` | Compose service running `liki-expert`. |
 | Expert pack | `liki-<domain>` | One per top-level domain: `liki-natal`, `liki-divination`, `liki-fengshui`, `liki-naming` (domain cards under `references/<domain>/`). |
 | Web BFF | `liki-web` / `web` | Commerce, identity, chat BFF, and public site. |
 
 Do not call `liki-agent-runtime` the production expert image. Do not call
-`liki-experts` the generic runtime.
+`liki-expert` the generic runtime.
 
 ## Artifact names
 
