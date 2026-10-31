@@ -14,20 +14,15 @@ if ! command -v inkscape >/dev/null 2>&1; then
     exit 1
 fi
 
-found=0
-for svg in "$ROOT"/expert-packs/liki-*/avatars/expert.svg; do
-    [ -f "$svg" ] || continue
-    found=1
-    if grep -qE '<text|font-family|dominant-baseline' "$svg"; then
-        echo "[workbuddy-avatars] error: ${svg#"$ROOT/"} 含文本/字体依赖，字形须先转路径" >&2
-        exit 1
-    fi
-    png="${svg%.svg}.png"
-    inkscape "$svg" -w 512 -h 512 -o "$png"
-    echo "  ✓ ${png#"$ROOT/"} ($(du -h "$png" | cut -f1))"
-done
-
-if [ "$found" -eq 0 ]; then
-    echo "[workbuddy-avatars] error: no expert-packs/*/avatars/expert.svg found" >&2
+svg="$ROOT/expert-packs/liki/avatars/expert.svg"
+if [ ! -f "$svg" ]; then
+    echo "[workbuddy-avatars] error: expert-packs/liki/avatars/expert.svg not found" >&2
     exit 1
 fi
+if grep -qE '<text|font-family|dominant-baseline' "$svg"; then
+    echo "[workbuddy-avatars] error: ${svg#"$ROOT/"} 含文本/字体依赖，字形须先转路径" >&2
+    exit 1
+fi
+png="${svg%.svg}.png"
+inkscape "$svg" -w 512 -h 512 -o "$png"
+echo "  ✓ ${png#"$ROOT/"} ($(du -h "$png" | cut -f1))"

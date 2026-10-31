@@ -98,10 +98,9 @@ def check_skill(zip_path: Path, errors: list[str]) -> None:
         errors.append(f"{zip_path.name}: 缺 SKILL.md")
 
 
-def check_expert(zip_path: Path, name: str, errors: list[str]) -> None:
-    files = zip_files(zip_path, name, errors)
-    source = ROOT / "expert-packs" / name
-    compare(f"{zip_path.name}", source_files(source, skip=frozenset({"SKILL.md"})), files, errors)
+def check_expert(zip_path: Path, top: str, source: str, errors: list[str]) -> None:
+    files = zip_files(zip_path, top, errors)
+    compare(f"{zip_path.name}", source_files(ROOT / "expert-packs" / source, skip=frozenset({"SKILL.md"})), files, errors)
     if "SKILL.md" in files:
         errors.append(f"{zip_path.name}: 包根身份手写源 SKILL.md 不随包提交（平台入口是 agents/<pack>.md）")
     plugin_rel = ".codebuddy-plugin/plugin.json"
@@ -109,11 +108,11 @@ def check_expert(zip_path: Path, name: str, errors: list[str]) -> None:
         errors.append(f"{zip_path.name}: 缺 {plugin_rel}")
         return
     plugin = json.loads(files[plugin_rel])
-    if plugin.get("name") != name:
-        errors.append(f"{zip_path.name}: plugin.json.name `{plugin.get('name')}` 与顶层目录 `{name}` 不一致")
-    if plugin.get("agents") != [f"./agents/{name}.md"]:
-        errors.append(f"{zip_path.name}: plugin.json.agents 须指向 [\"./agents/{name}.md\"]")
-    for required in (f"agents/{name}.md", "avatars/expert.png", "README.md"):
+    if plugin.get("name") != source:
+        errors.append(f"{zip_path.name}: plugin.json.name `{plugin.get('name')}` 与身份包 `{source}` 不一致")
+    if plugin.get("agents") != [f"./agents/{source}.md"]:
+        errors.append(f"{zip_path.name}: plugin.json.agents 须指向 [\"./agents/{source}.md\"]")
+    for required in (f"agents/{source}.md", "avatars/expert.png", "README.md"):
         if required not in files:
             errors.append(f"{zip_path.name}: 缺 {required}")
     if ".mcp.json" in files:
@@ -136,18 +135,23 @@ def main() -> int:
 
     errors: list[str] = []
     checked = 0
+    saw_expert = False
     for zip_path in zips:
         name = zip_path.stem
         if name == "liki":
             check_skill(zip_path, errors)
         elif (ROOT / "workbuddy" / name).is_dir():
             check_connector(zip_path, name, errors)
-        elif (ROOT / "expert-packs" / name).is_dir():
-            check_expert(zip_path, name, errors)
+        elif name == "liki-expert" and (ROOT / "expert-packs" / "liki").is_dir():
+            check_expert(zip_path, "liki", "liki", errors)
+            saw_expert = True
         else:
             errors.append(f"{zip_path.name}: 找不到对应源码目录（不是连接器 / 技能 / 专家包）")
             continue
         checked += 1
+
+    if (ROOT / "expert-packs" / "liki").is_dir() and not saw_expert:
+        errors.append("缺 liki-expert.zip：唯一专家包未打包")
 
     if errors:
         for line in errors:

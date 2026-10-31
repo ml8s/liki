@@ -6,7 +6,7 @@
 #           （内含 connector-meta.json、mcp.json 或 cli.json、icon.*）
 #   技能    skills/liki/                   → liki.zip
 #           （内含 SKILL.md + references/、scripts/ 等子资源）
-#   专家    expert-packs/liki-<domain>/    → liki-<domain>.zip
+#   专家    expert-packs/liki/             → liki-expert.zip
 #           （内含 .codebuddy-plugin/、agents/、avatars/、skills/、README.md）
 #
 # 产物写进 dist/workbuddy/（dist/ 不入库），源码目录只保留提交源。
@@ -48,15 +48,13 @@ if [ -f "$SKILL_DIR/SKILL.md" ]; then
     echo "  ✓ ${out#"$ROOT/"} ($(du -h "$out" | cut -f1))"
 fi
 
-for dir in "$PACKS_DIR"/liki-*; do
-    [ -d "$dir" ] || continue
+if [ -d "$PACKS_DIR/liki" ]; then
     found=$((found + 1))
-    name="$(basename "$dir")"
-    out="$OUT_DIR/$name.zip"
+    out="$OUT_DIR/liki-expert.zip"
     rm -f "$out"
-    (cd "$PACKS_DIR" && zip -q -X -r "$out" "$name" "${EXCLUDES[@]}" -x "$name/SKILL.md")
+    (cd "$PACKS_DIR" && zip -q -X -r "$out" liki "${EXCLUDES[@]}" -x 'liki/SKILL.md')
     echo "  ✓ ${out#"$ROOT/"} ($(du -h "$out" | cut -f1))"
-done
+fi
 
 if [ "$found" -eq 0 ]; then
     echo "[workbuddy-package] error: 没找到任何提交源（连接器 / 技能 / 专家包）" >&2

@@ -32,17 +32,13 @@ import yaml
 
 _ROOT = Path(__file__).resolve().parent.parent
 AGENTS_DIR = _ROOT / "agents"
-PACKS_DIR = _ROOT / "expert-packs"
 PROFILES_DIR = _ROOT / "profiles"
-EXPERT_DOMAINS = ()
 TOOL_CATALOG_PATH = _ROOT / "tools" / "mcp-tool-catalog.json"
 RUNTIME_VERSION_PATH = _ROOT / "skills" / "liki" / "VERSION.txt"
 
 
 def identity_path(name: str) -> Path:
-    """身份文件：域专家＝包根 SKILL.md；部署内子代理＝agents/<name>/<name>.md。"""
-    if name in EXPERT_DOMAINS:
-        return PACKS_DIR / f"liki-{name}" / "SKILL.md"
+    """身份文件：聚合专家＝agents/<name>/<name>.md。"""
     return AGENTS_DIR / name / f"{name}.md"
 
 
@@ -157,15 +153,11 @@ def validate_profile_graph(profile: dict, definitions: dict[str, dict]) -> None:
 
 
 SKILL_TOOLSET_TOOLS = ["list_skills", "load_skill", "load_skill_resource"]
-# 镜像内合法 skill rootFS（assembly 镜像 COPY：/skills、/expert-packs）。
-# /skills 是根 skill 树；/expert-packs/liki-<x>/skills 的直接子目录是域
-# skill（name==目录名，ADK S2）。部署 agent 绑定各自域包根。
+# 镜像内合法 skill rootFS（assembly 镜像 COPY：/skills）。
+# /skills 是聚合 skill 树；部署 agent 绑定该唯一 skill 根。
 def validate_skills_binding(agent_name: str, skills: dict) -> None:
     root = (skills or {}).get("root", "")
-    allowed_roots = {"/skills"} | {
-        f"/expert-packs/liki-{n}/skills"
-        for n in EXPERT_DOMAINS
-    }
+    allowed_roots = {"/skills"}
     if root not in allowed_roots:
         sys.exit(
             f"agent {agent_name} skills.root {root!r} not in allowed roots: "

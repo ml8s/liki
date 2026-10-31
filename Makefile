@@ -46,6 +46,7 @@ build-web-skill-bundle: build-archive ## Build the liki-web skill bundle (local 
 DEPLOYMENT_PROFILES ?= liki
 
 build-deployment: ## Generate AgentDeployment artifacts for all profiles
+	@rm -rf dist/agents && mkdir -p dist/agents
 	@set -eu; for p in $(DEPLOYMENT_PROFILES); do \
 		python3 scripts/generate_deployment.py --profile "$$p" --out dist/agents; \
 	done
@@ -104,8 +105,8 @@ image-counsel: ## Build the local counsel development image
 
 image-assembly: build-deployment ## Build the aggregate expert image (BASE_IMAGE=<local runtime ref> required)
 	@test -n "$(BASE_IMAGE)" || { echo "set BASE_IMAGE=agent-runtime-local/agent-runtime:<sha>" >&2; exit 2; }
-	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/. assembly/dist/agents/
-	@cp -r skills assembly/dist/skills && cp -r expert-packs assembly/dist/expert-packs
+	@rm -rf assembly/dist && mkdir -p assembly/dist/agents && cp -r dist/agents/liki assembly/dist/agents/liki
+	@cp -r skills assembly/dist/skills
 	@docker build -f assembly/Dockerfile --build-arg BASE_IMAGE=$(BASE_IMAGE) --build-arg VERSION=$(RUNTIME_VERSION) -t $(IMAGE_REGISTRY)/liki-expert:$(IMAGE_TAG) assembly
 	@rm -rf assembly/dist
 

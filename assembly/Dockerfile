@@ -20,9 +20,7 @@ ARG BUILD_TIME=unknown
 COPY dist/agents/ ${DEPLOYMENT_DIR}/
 
 # Skill 文件（阶段2 skilltoolset source rootFS）：
-#   /expert-packs/<pack>/   聚合专家包（根 skill 全量方法论卡）
 COPY dist/skills/ /skills/
-COPY dist/expert-packs/ /expert-packs/
 
 LABEL org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${COMMIT}" \

@@ -10,27 +10,6 @@ from pathlib import Path
 from _helpers import ROOT
 
 PROFILES = ("liki",)
-EXPERT_DOMAINS = ()
-NATAL_ENGINE_TOOLS = {
-    "bazi_bond", "bazi_chart", "bazi_fullchart", "bazi_liunian",
-    "bazi_liuri", "bazi_liushi", "bazi_liuyue", "bazi_xiaoyun",
-    "ziwei_bond", "ziwei_chart", "ziwei_daxian", "ziwei_fullchart",
-    "ziwei_liunian", "ziwei_liuri", "ziwei_liushi", "ziwei_liuyue",
-    "city_coords", "tianwen_resolve", "time_now",
-}
-NATAL_COUNSEL_TOOLS = {"compute_factors", "natal_query", "period_query"}
-# 其他域工具：natal 单 agent 显式排除（越权即断），与 agent.yaml 白名单同源。
-OTHER_DOMAIN_ENGINE_TOOLS = {
-    "bazhai_chart", "bazhai_layout", "xuankong_chart", "xuankong_liunian",  # fengshui
-    "liuyao_chart", "liuyao_qigua", "qimen_chart", "huangli_days",  # divination
-}
-OTHER_DOMAIN_COUNSEL_TOOLS = {
-    "bazi_yongshen",  # natal 用神裁决一贯从 compute_factors 因子快照消费
-    "naming_surname", "naming_pick", "naming_char", "naming_compose", "naming_check",
-    "liuyao_snapshot", "liuyao_query", "qimen_snapshot", "qimen_query",
-}
-
-
 class TestDeploymentGeneration(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.mkdtemp(prefix="liki-agent-runtime-")
@@ -78,7 +57,7 @@ class TestDeploymentGeneration(unittest.TestCase):
         deployment = self._deployment("liki")
         agents = {a["name"]: a for a in deployment["spec"]["agents"]}
         self.assertEqual(agents["liki"]["mode"], "chat")
-        for profile in ("liki", "liki", "liki"):
+        for profile in PROFILES:
             deployment = self._deployment(profile)
             self.assertEqual(deployment["spec"]["agents"][0]["mode"], "chat")
 
@@ -156,35 +135,24 @@ class TestDeploymentGeneration(unittest.TestCase):
                     exposed[server].update(allowed)
         self.assertEqual(exposed, {server: set(tools) for server, tools in catalog_tools.items()})
 
-    def test_instruction_bodies_come_from_identity_sources(self):
-        """域专家 instruction＝包根 SKILL.md 正文；平台入口（agents/<pack>.md）同源。"""
+    def test_instruction_body_comes_from_identity_source(self):
+        """聚合专家 instruction＝agents/liki/liki.md 正文。"""
         sys.path.insert(0, str(ROOT / "scripts"))
         import generate_deployment as gen  # noqa: E402
 
         for profile in PROFILES:
             self._generate(profile)
-        for domain in EXPERT_DOMAINS:
-            identity = ROOT / "agents" / "liki" / "liki.md"
-            self.assertEqual(gen.identity_path('liki'), identity)
-            body = identity.read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
-            instruction = (
-                self.out / domain / "agents" / domain / "instruction.md"
-            ).read_text(encoding="utf-8")
-            # instruction 就是身份正文本身：不做拓扑增补（子代理靠 tools/list
-            # 自省、路由在域卡、域边界由白名单强制）。
-            self.assertEqual(instruction, body, domain)
-            self.assertIn("定盘门", instruction, domain)
-            self.assertIn("MCP", instruction, domain)
-        for domain in EXPERT_DOMAINS:
-            platform = (
-                ROOT / "expert-packs" / f"liki-{domain}" / "agents" / f"liki-{domain}.md"
-            ).read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
-            instruction = (
-                self.out / domain / "agents" / domain / "instruction.md"
-            ).read_text(encoding="utf-8")
-            self.assertEqual(platform, instruction, f"liki-{domain} platform entry")
+        identity = ROOT / "agents" / "liki" / "liki.md"
+        self.assertEqual(gen.identity_path("liki"), identity)
+        body = identity.read_text(encoding="utf-8").split("\n---\n", 1)[1].lstrip("\n").rstrip() + "\n"
+        instruction = (
+            self.out / "liki" / "agents" / "liki" / "instruction.md"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(instruction, body)
+        self.assertIn("定盘门", instruction)
+        self.assertIn("MCP", instruction)
 
-    def test_four_expert_profiles_are_the_only_release_profiles(self):
+    def test_single_expert_profile_is_the_only_release_profile(self):
         self.assertEqual(
             sorted(path.stem for path in (ROOT / "profiles").glob("*.json")),
             sorted(PROFILES),

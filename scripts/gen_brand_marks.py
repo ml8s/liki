@@ -64,12 +64,9 @@ ICON = Preset(canvas=64, backdrop=BACKDROP, backdrop_rx=14, ink=INK, frame_size=
               frame_rx=5, frame_stroke=3, frame_opacity=0.85, grid_stroke=1.5,
               grid_dash=None, grid_opacity=0.35, glyph_height=36)
 
-# 顶层领域 → 头像用字（见 expert-packs/README.md「头像」）。
+# 唯一聚合专家头像用字。
 AVATARS: tuple[tuple[str, str], ...] = (
     ("expert-packs/liki/avatars/expert.svg", "命"),
-    ("expert-packs/liki/avatars/expert.svg", "卦"),
-    ("expert-packs/liki/avatars/expert.svg", "宅"),
-    ("expert-packs/liki/avatars/expert.svg", "名"),
 )
 # 连接器 → 图标用字（见 workbuddy/README.md「连接器」）。
 ICONS: tuple[tuple[str, str], ...] = (

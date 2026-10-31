@@ -88,7 +88,7 @@ class TestAssemblyCopiesSkillRoots(unittest.TestCase):
     def test_dockerfile_copies_skill_roots(self):
         dockerfile = (ROOT / "assembly" / "Dockerfile").read_text(encoding="utf-8")
         self.assertIn("COPY dist/skills/ /skills/", dockerfile)
-        self.assertIn("COPY dist/expert-packs/ /expert-packs/", dockerfile)
+        self.assertNotIn("/expert-packs", dockerfile)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,4 @@
 !dist/agents/**
 !dist/skills
 !dist/skills/**
-!dist/expert-packs
-!dist/expert-packs/**
 !Dockerfile
