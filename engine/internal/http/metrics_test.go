@@ -13,7 +13,6 @@ func TestMetricsHandlerIsAlwaysOn(t *testing.T) {
 	target := "http://engine.test/metrics"
 
 	request := httptest.NewRequest(http.MethodGet, target, nil)
-	request.Header.Set("Authorization", "Bearer ignored")
 	recorder := httptest.NewRecorder()
 	MetricsHandler().ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusOK {

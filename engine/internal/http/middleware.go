@@ -35,7 +35,7 @@ func CORSMiddleware(devMode bool, next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			w.Header().Set(
 				"Access-Control-Allow-Headers",
-				"Content-Type, MCP-Protocol-Version, Mcp-Method, Mcp-Name, Authorization",
+				"Content-Type, MCP-Protocol-Version, Mcp-Method, Mcp-Name",
 			)
 			w.Header().Set("Access-Control-Max-Age", "86400")
 		}

@@ -111,7 +111,7 @@ func TestCORSMiddleware_OptionsPreflight(t *testing.T) {
 	allowedHeaders := w.Header().Get("Access-Control-Allow-Headers")
 	for header := range map[string]struct{}{
 		"Content-Type": {}, "MCP-Protocol-Version": {}, "Mcp-Method": {},
-		"Mcp-Name": {}, "Authorization": {},
+		"Mcp-Name": {},
 	} {
 		if !strings.Contains(allowedHeaders, header) {
 			t.Errorf("CORS allowed headers missing %s: %q", header, allowedHeaders)

@@ -81,7 +81,6 @@ async def _asgi_request(
     method="GET",
     payload=None,
     asgi_app=app,
-    authorization=None,
     extra_headers=None,
 ):
     """Invoke the composed ASGI app directly without a TestClient portal."""
@@ -99,8 +98,6 @@ async def _asgi_request(
                 (b"mcp-method", b"server/discover"),
             ]
         )
-    if authorization is not None:
-        headers.append((b"authorization", authorization.encode("latin-1")))
     headers.extend(extra_headers or [])
 
     messages = []
@@ -131,14 +128,13 @@ async def _asgi_request(
     return status, raw
 
 
-def _http_request(path, method="GET", payload=None, asgi_app=app, authorization=None):
+def _http_request(path, method="GET", payload=None, asgi_app=app):
     return asyncio.run(
         _asgi_request(
             path,
             method=method,
             payload=payload,
             asgi_app=asgi_app,
-            authorization=authorization,
         )
     )
 
@@ -658,7 +654,7 @@ def test_counsel_mcp_counts_actual_request_bytes_even_with_small_content_length(
     assert json.loads(raw)["error"]["code"] == "payload_too_large"
 
 
-def test_engine_mcp_client_does_not_send_authorization(monkeypatch):
+def test_engine_mcp_client_sends_protocol_headers_only(monkeypatch):
     requests = []
 
     class response:
@@ -685,7 +681,12 @@ def test_engine_mcp_client_does_not_send_authorization(monkeypatch):
     engine_mcp_client.server_info(retries=0)
 
     assert len(requests) == 1
-    assert requests[0].get_header("Authorization") is None
+    assert {header.lower() for header, _ in requests[0].header_items()} == {
+        "accept",
+        "content-type",
+        "mcp-method",
+        "mcp-protocol-version",
+    }
 
 def test_engine_client_records_terminal_status_metrics(monkeypatch):
     timeouts = []
