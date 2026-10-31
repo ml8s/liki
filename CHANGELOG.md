@@ -1,5 +1,25 @@
 # Changelog
 
+## [2026.10.31.1] — 2026-10-31
+
+### Breaking changes
+
+- **八字 `selected_yongshen` 移除 `selected.confidence / selected.known_fields`**：policy 不再生成置信度标签；消费方改用 `status` 判断可消费性，用 `conflicts` 说明复核原因，用 `evidence` 承载裁决依据。MCP output schema、evaluator、policy、skill 文档与测试同步移除这些字段。
+- **六爻 / 奇门移除伪置信度与伪排序输出**：`engine.liuyao_chart.timing_candidates[].confidence`、`counsel.liuyao_snapshot.timing_plan.candidates[].priority / rank_score / rank`、`counsel.liuyao_query.output.confidence`、`counsel.qimen_query.output.confidence` 全部移除。数组保留 policy 顺序；消费方使用 `basis / window / horizon / required_check / conflicts / evidence` 判断候选。
+- **safety_advisory 移除 `blocking / severity`**：安全提示使用 `status / category / support_first / message / guidance`；`support_first` 已表达是否优先提供现实支持。
+- **用神 policy 内部规则 `priority` 改名 `order`**：只表达规则执行顺序，不再使用优先级语义。
+
+### Migration
+
+| 旧字段 / 期望 | 新输入 / 期望 |
+| --- | --- |
+| 读取 `selected_yongshen.selected.confidence` | 读取 `status`、`conflicts` 与 `evidence`；`resolved` / `partial` 可消费，`needs_review` / `unresolved` 需复核 |
+| 读取 `selected_yongshen.selected.known_fields` | 直接检查 `selected.yong / xi / ji`；`status=partial` 表示尚未完整 |
+| 读取六爻候选 `priority / rank_score / rank / confidence` | 按 `timing_plan.candidates` 数组顺序理解 policy 顺序；用 `basis / window / horizon / required_check` 复核 |
+| 读取 `liuyao_query.confidence` / `qimen_query.confidence` | 用 `conflicts` 判断是否复核，用 `evidence_refs / assertion_refs / timing_refs` 追溯依据 |
+| 读取 `safety_advisory.blocking / severity` | 用 `status / category / support_first / message / guidance` 处理安全边界 |
+| 假设 `confidence=high` 表示可自动消费 | 仍以 `status=resolved` 或 `partial` 为准；输入契约继续使用 `standard_time`（known-offset），复杂时间仍先经 `tianwen.resolve` / `time_now`，奇门快照继续使用 `birth_standard_time` |
+
 ## [2026.10.29.2] — 2026-10-29
 
 ### Breaking changes

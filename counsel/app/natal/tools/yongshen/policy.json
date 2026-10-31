@@ -1687,7 +1687,6 @@
   "rules": [
     {
       "id": "YS-CG-FAKE",
-      "priority": 10,
       "when": {
         "path": "congge_fake",
         "op": "eq",
@@ -1698,7 +1697,6 @@
         "selected.xi": [],
         "selected.ji": [],
         "source": "cong_ge",
-        "confidence": "low",
         "status": "needs_review",
         "conflicts": [
           {
@@ -1706,11 +1704,11 @@
             "message": "假从格须结合大运与三得复核，静态盘不强行选定"
           }
         ]
-      }
+      },
+      "order": 10
     },
     {
       "id": "YS-CG-VERIFIED",
-      "priority": 11,
       "when": {
         "all": [
           {
@@ -1740,14 +1738,13 @@
           }
         },
         "source": "cong_ge",
-        "confidence": "high",
         "status": "resolved",
         "conflicts": []
-      }
+      },
+      "order": 11
     },
     {
       "id": "YS-CG-UNVERIFIED",
-      "priority": 12,
       "when": {
         "all": [
           {
@@ -1767,7 +1764,6 @@
         "selected.xi": [],
         "selected.ji": [],
         "source": "cong_ge",
-        "confidence": "low",
         "status": "needs_review",
         "conflicts": [
           {
@@ -1775,11 +1771,11 @@
             "message": "从格标签未通过表内双证复核"
           }
         ]
-      }
+      },
+      "order": 12
     },
     {
       "id": "YS-TH-CONFLICT",
-      "priority": 20,
       "when": {
         "all": [
           {
@@ -1803,7 +1799,6 @@
         "selected.xi": [],
         "selected.ji": [],
         "source": "tiao_hou",
-        "confidence": "low",
         "status": "needs_review",
         "conflicts": [
           {
@@ -1811,11 +1806,11 @@
             "message": "调候用神与扶抑忌神直接相反，不硬判"
           }
         ]
-      }
+      },
+      "order": 20
     },
     {
       "id": "YS-TH",
-      "priority": 21,
       "when": {
         "all": [
           {
@@ -1842,27 +1837,6 @@
           }
         },
         "source": "tiao_hou",
-        "confidence": {
-          "$if": {
-            "when": {
-              "path": "tiaohou_yong_source",
-              "op": "eq",
-              "value": "primary"
-            },
-            "then": "high",
-            "else": {
-              "$if": {
-                "when": {
-                  "path": "tiaohou_yong_source",
-                  "op": "eq",
-                  "value": "secondary"
-                },
-                "then": "medium",
-                "else": "low"
-              }
-            }
-          }
-        },
         "status": {
           "$if": {
             "when": {
@@ -1905,11 +1879,11 @@
             }
           }
         }
-      }
+      },
+      "order": 21
     },
     {
       "id": "YS-FUYI",
-      "priority": 32,
       "when": {
         "path": "fu_yi.yong",
         "op": "exists"
@@ -1929,23 +1903,12 @@
           }
         },
         "source": "fu_yi",
-        "confidence": {
-          "$if": {
-            "when": {
-              "path": "ge_ju_clear",
-              "op": "eq",
-              "value": true
-            },
-            "then": "high",
-            "else": "medium"
-          }
-        },
         "status": "resolved"
-      }
+      },
+      "order": 32
     },
     {
       "id": "YS-NEUTRAL-TH",
-      "priority": 39,
       "when": {
         "all": [
           {
@@ -1991,15 +1954,14 @@
           "$path": "neutral_ji"
         },
         "source": "neutral_fallback+tiao_hou",
-        "confidence": "medium",
         "status": {
           "$path": "neutral_status"
         }
-      }
+      },
+      "order": 39
     },
     {
       "id": "YS-NEUTRAL",
-      "priority": 40,
       "when": {
         "path": "neutral_yong",
         "op": "exists"
@@ -2015,15 +1977,14 @@
           "$path": "neutral_ji"
         },
         "source": "neutral_fallback",
-        "confidence": "medium",
         "status": {
           "$path": "neutral_status"
         }
-      }
+      },
+      "order": 40
     },
     {
       "id": "YS-NEUTRAL-REVIEW",
-      "priority": 41,
       "when": {
         "path": "neutral_status",
         "op": "eq",
@@ -2034,7 +1995,6 @@
         "selected.xi": [],
         "selected.ji": [],
         "source": "neutral_fallback",
-        "confidence": "low",
         "status": "needs_review",
         "conflicts": [
           {
@@ -2042,11 +2002,11 @@
             "message": "中和取用存在多个同权候选，需人工复核"
           }
         ]
-      }
+      },
+      "order": 41
     },
     {
       "id": "YS-UNRESOLVED",
-      "priority": 50,
       "when": {
         "const": true
       },
@@ -2055,7 +2015,6 @@
         "selected.xi": [],
         "selected.ji": [],
         "source": "none",
-        "confidence": "low",
         "status": "unresolved",
         "conflicts": [
           {
@@ -2063,7 +2022,8 @@
             "message": "扶抑、调候、从格均未给出可用候选"
           }
         ]
-      }
+      },
+      "order": 50
     }
   ],
   "finalize": {

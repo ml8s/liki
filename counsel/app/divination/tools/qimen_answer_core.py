@@ -6,7 +6,6 @@ from app.divination.tools.divination_hashing import short_object_id
 ALLOWED_FIELDS = {
     "headline",
     "verdict",
-    "confidence",
     "question_ref",
     "method_ref",
     "evidence_refs",
@@ -54,7 +53,6 @@ def build(snapshot: dict) -> dict:
     return {
         "headline": "",
         "verdict": "",
-        "confidence": "medium",
         "question_ref": snapshot.get("question", ""),
         "method_ref": {
             "scope": method.get("scope"),

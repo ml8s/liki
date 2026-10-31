@@ -57,7 +57,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
         "message_digest": message_digest(message),
         "headline": core["headline"],
         "verdict": core["verdict"],
-        "confidence": core["confidence"],
         "evidence_refs": core["evidence_refs"],
         "assertion_refs": core["assertion_refs"],
         "timing_refs": core["timing_refs"],

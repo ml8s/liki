@@ -36,8 +36,8 @@ def test_project_topic_guidance_returns_primary_layers():
 def test_timing_ranks_candidates_without_dates():
     snapshot = {
         "timing_candidates": [
-            {"id": "a", "mechanism": "静爻逢冲", "position": 2, "confidence": "candidate"},
-            {"id": "b", "mechanism": "旬空填实", "position": 2, "confidence": "candidate"},
+            {"id": "a", "mechanism": "静爻逢冲", "position": 2},
+            {"id": "b", "mechanism": "旬空填实", "position": 2},
         ]
     }
     result = liuyao_timing.rank_timing_candidates(snapshot, topic="wealth")
@@ -52,19 +52,19 @@ def test_timing_ranks_candidates_without_dates():
 def test_timing_position_alone_is_not_target_evidence():
     snapshot = {
         "timing_candidates": [
-            {"id": "with-position", "mechanism": "出月令", "position": 3, "confidence": "candidate"},
-            {"id": "without-position", "mechanism": "出月令", "confidence": "candidate"},
+            {"id": "with-position", "mechanism": "出月令", "position": 3},
+            {"id": "without-position", "mechanism": "出月令"},
         ]
     }
     result = liuyao_timing.rank_timing_candidates(snapshot, topic="wealth")
-    scores = {item["id"]: item["rank_score"] for item in result["candidates"]}
-    assert scores["with-position"] == scores["without-position"]
+    order = [item["id"] for item in result["candidates"]]
+    assert order == ["with-position", "without-position"]
 
 
 def test_timing_keeps_health_topic_with_unified_boundary():
     snapshot = {
         "timing_candidates": [
-            {"id": "health-watch", "mechanism": "旬空填实", "confidence": "candidate"}
+            {"id": "health-watch", "mechanism": "旬空填实"}
         ]
     }
     result = liuyao_timing.rank_timing_candidates(snapshot, topic="health_context")

@@ -22,8 +22,6 @@ TenGodNoGod = Literal[
     "无格神", "比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印",
 ]
 YongShenStatus = Literal["resolved", "partial", "needs_review", "unresolved"]
-YongShenConfidence = Literal["high", "medium", "low"]
-KnownYongShenField = Literal["yong", "xi", "ji"]
 Sha256Digest = Annotated[str, Field(pattern="^[a-f0-9]{64}$")]
 
 
@@ -42,12 +40,6 @@ class YongShenChoice(BaseModel):
     )
     source: str = Field(
         description="Policy branch that produced this selection, such as fu_yi or tiao_hou.",
-    )
-    confidence: YongShenConfidence = Field(
-        description="Confidence assigned by the yongshen policy.",
-    )
-    known_fields: unique_list[KnownYongShenField] = Field(
-        description="Selected fields that the policy actually resolved.",
     )
 
 

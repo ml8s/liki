@@ -106,7 +106,6 @@ def test_factors_maps_matter_and_projection(monkeypatch):
             "mechanism": "动爻逢值",
             "position": 1,
             "trigger_branch": "子",
-            "confidence": "candidate",
         }],
     }
 

@@ -4,7 +4,7 @@ description: Liki 专业命理师覆盖八字、紫微、六爻、奇门、黄�
 metadata:
   display_name: Liki 命理师
   display_name_en: Liki Fortune Master
-  version: 2026.1029.2
+  version: 2026.1031.1
   author: Liki
 ---
 

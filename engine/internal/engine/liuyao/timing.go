@@ -15,7 +15,6 @@ type TimingCandidate struct {
 	TriggerBranch string   `json:"trigger_branch,omitempty"`
 	Window        string   `json:"window,omitempty"`
 	Basis         []string `json:"basis,omitempty"`
-	Confidence    string   `json:"confidence"`
 }
 
 func zhiHePartner(z ganzhi.Zhi) ganzhi.Zhi {
@@ -37,7 +36,6 @@ func appendCandidate(candidates []TimingCandidate, candidate TimingCandidate) []
 			return candidates
 		}
 	}
-	candidate.Confidence = "candidate"
 	return append(candidates, candidate)
 }
 

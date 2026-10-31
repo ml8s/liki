@@ -50,7 +50,7 @@ def _topic_bonus(mechanism: str, candidate_id: str, topic: str | None) -> int:
 
 
 def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: int = 6) -> dict:
-    """按表驱动策略整理应期候选；score 是上下文优先级，不是概率。"""
+    """按表驱动 policy 整理应期候选；数组顺序表达上下文排序。"""
     rules = _rules()
     candidates = snapshot.get("timing_candidates", [])
     if not isinstance(candidates, list):
@@ -58,33 +58,27 @@ def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: i
     if limit < 1 or limit > 20:
         raise ValueError("limit must be 1-20")
 
-    thresholds = rules["priority_thresholds"]
     ranked = []
     for candidate in candidates:
         if not isinstance(candidate, dict) or not candidate.get("id"):
             continue
         mechanism = candidate.get("mechanism", "")
-        score = rules["mechanism_priority"].get(mechanism, rules["default_priority"])
-        score += rules["target_bonus"] if _targets_hit(candidate) else 0
-        score += _topic_bonus(mechanism, str(candidate.get("id", "")), topic)
-        score -= rules["non_candidate_penalty"] if candidate.get("confidence") != "candidate" else 0
-        priority = (
-            "high" if score >= thresholds["high"]
-            else "medium" if score >= thresholds["medium"]
-            else "low"
-        )
+        order_score = rules["mechanism_order"].get(mechanism, rules["default_order"])
+        order_score += rules["target_bonus"] if _targets_hit(candidate) else 0
+        order_score += _topic_bonus(mechanism, str(candidate.get("id", "")), topic)
         ranked.append({
             **candidate,
-            "priority": priority,
-            "rank_score": score,
             "horizon": rules["topic_horizon"].get(topic or "", rules["default_horizon"]),
             "conclusion_scope": "conditional_timing_candidate_not_date",
             "required_check": rules["required_check"],
+            "_order_score": order_score,
         })
-    ranked.sort(key=lambda item: (-item["rank_score"], str(item["id"])))
+
+    ranked.sort(key=lambda item: (-item["_order_score"], str(item["id"])))
     ranked = ranked[:limit]
-    for index, item in enumerate(ranked, 1):
-        item["rank"] = index
+    for item in ranked:
+        item.pop("_order_score", None)
+
     return {
         "blocked": False,
         "topic": topic,

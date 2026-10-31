@@ -20,7 +20,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
     primary_count = len(core.get("primary_evidence_refs", []))
     secondary_count = len(core.get("secondary_evidence_refs", []))
     timing_count = len(core.get("timing_refs", []))
-    conflicts = snapshot.get("evidence", {}).get("conflicts", [])
     core.update({
         "headline": "六爻 snapshot 条件性解读",
         "verdict": (
@@ -28,7 +27,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
             f"和 {timing_count} 个应期候选；只能表达条件性倾向，不构成结果承诺。"
         ),
         "action": "先核对主要因子对应的现实条件，再决定推进或调整节奏。",
-        "confidence": "low" if conflicts else "medium",
     })
     audit = validate_core(core, snapshot)
     if not audit.get("accepted"):
@@ -45,7 +43,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
         "message_digest": message_digest(message),
         "headline": core["headline"],
         "verdict": core["verdict"],
-        "confidence": core["confidence"],
         "primary_evidence_refs": core["primary_evidence_refs"],
         "secondary_evidence_refs": core["secondary_evidence_refs"],
         "conflicts": core["conflicts"],

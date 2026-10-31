@@ -90,7 +90,7 @@ def test_yongshen_contracts_publish_the_typed_core():
     yong_schema = choice["properties"]["yong"]
     assert yong_schema["type"] == "string"
     assert yong_schema["enum"] == ["木", "火", "土", "金", "水", "无候选"]
-    assert set(choice["required"]) == {"yong", "xi", "ji", "source", "confidence", "known_fields"}
+    assert set(choice["required"]) == {"yong", "xi", "ji", "source"}
 
 
     compute_schema = CONTRACTS["compute_factors"].output_schema

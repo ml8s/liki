@@ -41,18 +41,14 @@ def assess(question: str) -> dict:
         if pattern.search(question):
             return {
                 "status": "advisory",
-                "blocking": False,
                 "category": category,
-                "severity": "high" if category in _HIGH_SUPPORT_CATEGORIES else "normal",
                 "support_first": category in _HIGH_SUPPORT_CATEGORIES,
                 "message": message,
                 "guidance": guidance,
             }
     return {
         "status": "allow",
-        "blocking": False,
         "category": None,
-        "severity": "none",
         "support_first": False,
         "message": "",
         "guidance": "",

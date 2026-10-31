@@ -8,7 +8,7 @@ metadata:
   display_name_en: Liki Professional Chinese Metaphysics Skill
   description_zh: 专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。
   description_en: Chinese metaphysics skill covering BaZi (Four Pillars), Zi Wei Dou Shu, I Ching divination, Qi Men Dun Jia, almanac and Feng Shui charts, plus naming — every chart is computed by deterministic engines and every reading comes from rule-based judgments with traceable evidence.
-  version: 2026.1029.2
+  version: 2026.1031.1
   author: Liki
   agent_created: 'true'
   keywords: 八字合婚,婚姻分析,感情走向,事业分析,职业方向,财运分析,投资时机,学业分析,考试运,健康分析,五行体质,怀孕生育时机,新生儿起名,成人改名,八字起名,结婚吉日,开业吉日,搬家吉日,八宅风水,玄空飞星

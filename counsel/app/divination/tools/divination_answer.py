@@ -32,8 +32,6 @@ def validate_common_core(
     for field in (*required_text_fields, "boundary", "disclaimer"):
         if not isinstance(core.get(field), str) or not core.get(field, "").strip():
             errors.append({"field": field, "reason": "required non-empty text"})
-    if core.get("confidence") not in CONFIDENCE_LEVELS:
-        errors.append({"field": "confidence", "reason": "must be low/medium/high"})
 
     for field in required_text_fields:
         phrase = has_forbidden_phrase(core.get(field, ""))

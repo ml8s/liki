@@ -226,13 +226,10 @@ class LiuyaoSnapshotOutputPolicy(BaseModel):
 
 
 class LiuyaoSnapshotOutputTimingPlanCandidatesItem(BaseModel):
-    """One ranked timing candidate; engine fact fields flow through extra."""
+    """One policy-ordered timing candidate; engine fact fields flow through extra."""
     model_config = ConfigDict(extra="allow")
     id: Annotated[str, Field(min_length=1)] = Field(description="应期候选 id（timing 前缀引用）。")
     mechanism: str | None = Field(default=None, description="应期机制。")
-    priority: Literal["high", "medium", "low"] = Field(description="上下文优先级，不是概率。")
-    rank_score: int = Field(description="排序得分。")
-    rank: int = Field(ge=1, description="排序序号。")
     horizon: str = Field(description="适用时间尺度。")
     conclusion_scope: Literal["conditional_timing_candidate_not_date"] = Field(
         description="结论边界：条件性应期候选，不是确定日期。",
@@ -269,9 +266,7 @@ class LiuyaoSnapshotOutputSafetyAdvisory(BaseModel):
     """Safety advisory returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     status: Literal["allow", "advisory"]
-    blocking: Literal[False]
     category: str | None
-    severity: Literal["none", "normal", "high"]
     support_first: bool
     message: str
     guidance: str
@@ -362,9 +357,7 @@ class LiuyaoQueryOutputSafetyAdvisory(BaseModel):
     """Safety advisory returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     status: Literal["allow", "advisory"]
-    blocking: Literal[False]
     category: str | None
-    severity: Literal["none", "normal", "high"]
     support_first: bool
     message: str
     guidance: str
@@ -386,9 +379,6 @@ class LiuyaoQueryOutput(BaseModel):
     )
     verdict: Annotated[str, Field(min_length=8)] = Field(
         description="Verdict returned by this tool.",
-    )
-    confidence: Literal["low", "medium", "high"] = Field(
-        description="Confidence returned by this tool.",
     )
     conflicts: list[DivinationConflict] = Field(
         description="Conflicts returned by this tool.",
@@ -618,9 +608,7 @@ class QimenSnapshotOutputSafetyAdvisory(BaseModel):
     """Safety advisory returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     status: Literal["allow", "advisory"]
-    blocking: Literal[False]
     category: str | None
-    severity: Literal["none", "normal", "high"]
     support_first: bool
     message: str
     guidance: str
@@ -718,9 +706,7 @@ class QimenQueryOutputSafetyAdvisory(BaseModel):
     """Safety advisory returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     status: Literal["allow", "advisory"]
-    blocking: Literal[False]
     category: str | None
-    severity: Literal["none", "normal", "high"]
     support_first: bool
     message: str
     guidance: str
@@ -742,9 +728,6 @@ class QimenQueryOutput(BaseModel):
     )
     verdict: Annotated[str, Field(min_length=8)] = Field(
         description="Verdict returned by this tool.",
-    )
-    confidence: Literal["low", "medium", "high"] = Field(
-        description="Confidence returned by this tool.",
     )
     conflicts: list[DivinationConflict] = Field(
         description="Conflicts returned by this tool.",

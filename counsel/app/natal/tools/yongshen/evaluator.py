@@ -357,12 +357,8 @@ def _apply_then(rule: dict, facts: dict, derived: dict) -> dict:
             "xi": [],
             "ji": [],
             "source": "",
-            "confidence": "low",
-            "known_fields": [],
         },
         "source": "",
-        "confidence": "low",
-        "known_fields": [],
         "status": "unresolved",
         "conflicts": [],
     }
@@ -418,19 +414,16 @@ def _finalize(result: dict, policy: dict) -> None:
         if conflict := spec.get("conflict"):
             conflicts.append(dict(conflict))
 
-    known_fields = [
-        field for field in ("yong", "xi", "ji")
+    resolved_field_count = sum(
+        1 for field in ("yong", "xi", "ji")
         if not _is_empty(selected.get(field))
-    ]
-    if status == "resolved" and len(known_fields) < 3:
+    )
+    if status == "resolved" and resolved_field_count < 3:
         status = "partial"
     if status in ("resolved", "partial") and selected.get("yong") == NO_CANDIDATE:
         status = "needs_review"
 
     selected["source"] = result.pop("source", "")
-    selected["confidence"] = result.pop("confidence", "low")
-    selected["known_fields"] = known_fields
-    result.pop("known_fields", None)
     result["status"] = status
     # 去重 conflict code，保留首次出现。
     deduped: list[dict] = []

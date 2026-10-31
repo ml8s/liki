@@ -48,7 +48,6 @@ def test_qimen_hour_polarity_follows_stem_parity():
 def test_safety_advisory_does_not_block_flow():
     safety = divination_safety.assess("我不想活了")
     assert safety["status"] == "advisory"
-    assert safety["blocking"] is False
     assert safety["support_first"] is True
 
 
@@ -283,14 +282,12 @@ def test_qimen_jinhan_projection_snapshot_and_answer(monkeypatch):
 def test_short_high_risk_question_is_not_blocked_by_safety():
     safety = divination_safety.assess("我不想活")
     assert safety["status"] == "advisory"
-    assert safety["blocking"] is False
     assert safety["support_first"] is True
 
 
 def test_qimen_short_high_risk_message_is_not_blocked_by_safety():
     safety = divination_safety.assess("自杀")
     assert safety["status"] == "advisory"
-    assert safety["blocking"] is False
     assert safety["support_first"] is True
 
 def test_qimen_snapshot_rejects_invalid_special_focus_before_rpc(monkeypatch):

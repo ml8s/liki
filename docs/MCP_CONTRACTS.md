@@ -186,7 +186,7 @@ ziwei server does not advertise a bazi-only capability.
 
 The yongshen decision has one typed wire model shared by every tool that carries
 it. `bazi_yongshen(chart)` takes a typed engine `bazi_chart` object and returns a
-`SelectedYongShen`: `selected` (`yong/xi/ji/source/confidence/known_fields`),
+`SelectedYongShen`: `selected` (`yong/xi/ji/source`),
 resolution `status`, conflicts, `rule_id`, policy provenance, the
 `ge_ju_context`, branch `evidence`, and the two SHA-256 digests. `evidence`
 includes the 从格 effective/rooted counts used to verify or reject the candidate,

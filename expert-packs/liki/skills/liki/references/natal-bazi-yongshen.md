@@ -32,9 +32,7 @@
     "yong": "木",
     "xi": ["水"],
     "ji": ["金"],
-    "source": "fu_yi",
-    "confidence": "high",
-    "known_fields": ["yong", "xi", "ji"]
+    "source": "fu_yi"
   },
   "status": "resolved",
   "conflicts": [],
@@ -81,7 +79,7 @@ engine 的 `fu_yi` 给出强弱依据：日主根型、月令旺相、印比数�
 
 定格规则见 `references/natal-bazi-geju.md`。
 
-格局提供月令结构与十神方向：`ge_ju / yong_fa / pattern_god / pattern_god_ten_god / pattern_god_source / structure`。格神与最终用神分开处理；格局主题用于解释命局结构，格局清透提高扶抑裁决的置信度。
+格局提供月令结构与十神方向：`ge_ju / yong_fa / pattern_god / pattern_god_ten_god / pattern_god_source / structure`。格神与最终用神分开处理；格局主题用于解释命局结构；格局清透作为扶抑裁决的佐证。
 
 格局虚格（月令本气不透干）以扶抑为主，格局作为辅助描述。格神方向可以说明约束、资源、表达、庇护等主题，最终喜忌仍由扶抑、调候与整体结构共同裁决。
 
@@ -112,9 +110,9 @@ engine 的 `fu_yi` 给出强弱依据：日主根型、月令旺相、印比数�
 
 ## 裁决规则
 
-规则按优先级执行，命中第一条即返回：
+规则按 order 执行，命中第一条即返回：
 
-| priority | rule_id | 条件 | 输出 |
+| order | rule_id | 条件 | 输出 |
 | --- | --- | --- | --- |
 | 10 | `YS-CG-FAKE` | 假从格 | 待复核 |
 | 11 | `YS-CG-VERIFIED` | 从格双证成立 | 顺势 `yong / xi / ji` |
@@ -127,7 +125,7 @@ engine 的 `fu_yi` 给出强弱依据：日主根型、月令旺相、印比数�
 | 41 | `YS-NEUTRAL-REVIEW` | 中和候选并列 | 待复核 |
 | 50 | `YS-UNRESOLVED` | 无可用候选 | 未决 |
 
-裁决结果包含来源、置信度、已知字段与冲突。待复核与未决传递为不可消费状态，由上层提示复核。
+裁决结果包含来源、已知字段与冲突。待复核与未决传递为不可消费状态，由上层提示复核。
 
 ## 喜忌复核口径
 
@@ -188,7 +186,7 @@ engine 的 `fu_yi` 给出强弱依据：日主根型、月令旺相、印比数�
 
 1. 按正格与从格两套喜忌分别推演候选应期。
 2. 两套结论事件性质相反时，比较命局结构（财官透干、格局、大运走向），取与结构更一致的一套。
-3. 输出所选轨道、置信度与冲突证据；两套候选并列保留在证据中。
+3. 输出所选轨道、规则依据与冲突证据；两套候选并列保留在证据中。
 
 ## 输出
 
@@ -196,7 +194,7 @@ engine 的 `fu_yi` 给出强弱依据：日主根型、月令旺相、印比数�
 
 ```text
 用神：{yong}；喜神：{xi}；忌神：{ji}
-依据：{source} / {rule_id} / {confidence}
+依据：{source} / {rule_id}
 证据：扶抑强弱、调候主辅、格局清透、从格复核
 状态：{status}；冲突：{conflicts}
 ```

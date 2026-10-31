@@ -43,22 +43,22 @@ def validate_policy(policy: Any) -> None:
             raise YongShenPolicyError(f"pre_factors[{rule_id}] set 必须是非空 object")
 
     seen_rules: set[str] = set()
-    previous_priority: int | None = None
+    previous_order: int | None = None
     for index, rule in enumerate(policy["rules"]):
         if not isinstance(rule, dict):
             raise YongShenPolicyError(f"rules[{index}] 必须是 object")
         rule_id = rule.get("id")
-        priority = rule.get("priority")
+        order = rule.get("order")
         if not isinstance(rule_id, str) or not rule_id:
             raise YongShenPolicyError(f"rules[{index}] 缺少 id")
         if rule_id in seen_rules:
             raise YongShenPolicyError(f"rules id 重复: {rule_id}")
         seen_rules.add(rule_id)
-        if not isinstance(priority, int) or isinstance(priority, bool):
-            raise YongShenPolicyError(f"rules[{rule_id}] priority 必须是整数")
-        if previous_priority is not None and priority < previous_priority:
-            raise YongShenPolicyError(f"rules[{rule_id}] priority 必须非递减")
-        previous_priority = priority
+        if not isinstance(order, int) or isinstance(order, bool):
+            raise YongShenPolicyError(f"rules[{rule_id}] order 必须是整数")
+        if previous_order is not None and order < previous_order:
+            raise YongShenPolicyError(f"rules[{rule_id}] order 必须非递减")
+        previous_order = order
         if not isinstance(rule.get("when"), dict):
             raise YongShenPolicyError(f"rules[{rule_id}] when 必须是 object")
         if not isinstance(rule.get("then"), dict) or not rule["then"]:

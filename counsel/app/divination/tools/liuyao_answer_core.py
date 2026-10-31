@@ -5,7 +5,6 @@ from app.divination.tools.divination_answer import validate_common_core
 ALLOWED_FIELDS = {
     "headline",
     "verdict",
-    "confidence",
     "primary_evidence_refs",
     "secondary_evidence_refs",
     "conflicts",
@@ -49,7 +48,6 @@ def build(snapshot: dict) -> dict:
     return {
         "headline": "",
         "verdict": "",
-        "confidence": "medium",
         "primary_evidence_refs": primary_ids,
         "secondary_evidence_refs": secondary_ids,
         "conflicts": snapshot.get("evidence", {}).get("conflicts", []),

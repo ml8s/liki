@@ -64,8 +64,6 @@ def _selected_yongshen() -> dict:
             "xi": ["水"],
             "ji": ["金"],
             "source": "fu_yi",
-            "confidence": "high",
-            "known_fields": ["yong", "xi", "ji"],
         },
         "conflicts": [],
         "factors": {},

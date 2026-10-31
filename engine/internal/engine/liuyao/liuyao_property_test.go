@@ -73,7 +73,7 @@ func TestComputeChart_All4096YaoCombinations(t *testing.T) {
 								t.Fatalf("yaos %v dong=%v want %d lines", yaos, chart.DongYao, expectedDong)
 							}
 							for _, candidate := range chart.TimingCandidates {
-								if candidate.ID == "" || candidate.Mechanism == "" || candidate.Confidence != "candidate" {
+								if candidate.ID == "" || candidate.Mechanism == "" {
 									t.Fatalf("yaos %v invalid timing candidate %+v", yaos, candidate)
 								}
 							}

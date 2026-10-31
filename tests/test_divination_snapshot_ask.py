@@ -299,8 +299,8 @@ def test_qimen_answer_timing_ids_are_collision_resistant(monkeypatch):
             "special": None,
             "judgments": qimen_judgment.evaluate(factors),
             "safety_advisory": {
-                "status": "allow", "blocking": False, "category": None,
-                "severity": "none", "support_first": False,
+                "status": "allow", "category": None,
+                "support_first": False,
                 "message": "", "guidance": "",
             },
             "policy": {"immutable": True, "no_rechart_without_new_event": True},

@@ -70,8 +70,6 @@ def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
         "xi": ["木"],
         "ji": ["水", "土"],
         "source": "neutral_fallback+tiao_hou",
-        "confidence": "medium",
-        "known_fields": ["yong", "xi", "ji"],
     }
     assert result["alternatives"]["neutral"]["overstrong"]["value"] == "木"
     assert result["ge_ju_context"]["clear"] is True
@@ -244,17 +242,15 @@ def test_hidden_rooted_resource_breaks_cong_sha_verification():
     assert result["alternatives"]["cong_ge"]["yin_rooted_count"] == 1
 
 
-def test_geju_clear_only_changes_confidence_not_yongshen():
+def test_geju_clear_changes_context_without_yongshen():
     full = _fullchart("bazi_chart_1990_fullchart.json")
     baseline = resolve_yongshen(full)
     full["ge_ju"] = {**copy.deepcopy(full["ge_ju"]), "pattern_god_source": "main_qi"}
     result = resolve_yongshen(full)
     assert result["rule_id"] == baseline["rule_id"] == "YS-FUYI"
-    assert result["selected"]["yong"] == baseline["selected"]["yong"]
-    assert result["selected"]["xi"] == baseline["selected"]["xi"]
-    assert result["selected"]["ji"] == baseline["selected"]["ji"]
-    assert result["selected"]["confidence"] == "high"
-    assert baseline["selected"]["confidence"] == "medium"
+    assert result["selected"] == baseline["selected"]
+    assert result["ge_ju_context"]["clear"] is True
+    assert baseline["ge_ju_context"]["clear"] is False
 
 
 def test_congge_label_requires_matching_season_and_stem_evidence():

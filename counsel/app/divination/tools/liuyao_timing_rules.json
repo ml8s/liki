@@ -1,12 +1,7 @@
 {
-  "default_priority": 30,
+  "default_order": 30,
   "default_horizon": "event_based",
   "target_bonus": 8,
-  "non_candidate_penalty": 10,
-  "priority_thresholds": {
-    "high": 75,
-    "medium": 50
-  },
   "required_check": "仍须核对旺衰、空破真假和现实时间范围",
   "boundary": "传统六爻应期候选；不构成医疗、法律、财务或其他专业建议。",
   "target_indicators": {
@@ -14,7 +9,7 @@
       "yong_shen"
     ]
   },
-  "mechanism_priority": {
+  "mechanism_order": {
     "旬空填实": 82,
     "冲空": 74,
     "冲飞出伏": 66,

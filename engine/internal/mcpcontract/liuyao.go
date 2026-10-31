@@ -182,7 +182,6 @@ type LiuyaoTimingOutput struct {
 	TriggerBranch LiuyaoZhiName          `json:"trigger_branch,omitempty" jsonschema:"触发地支。"`
 	Window        string                 `json:"window,omitempty" jsonschema:"应期窗口。"`
 	Basis         []string               `json:"basis,omitempty" jsonschema:"确定性依据。"`
-	Confidence    string                 `json:"confidence" jsonschema:"候选强度说明，不是结果承诺。"`
 }
 
 type LiuyaoPatternOutput struct {
@@ -583,7 +582,6 @@ func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 			TriggerBranch: LiuyaoZhiName(value.TriggerBranch),
 			Window:        value.Window,
 			Basis:         append([]string(nil), value.Basis...),
-			Confidence:    value.Confidence,
 		})
 	}
 	for _, value := range chart.Patterns {
