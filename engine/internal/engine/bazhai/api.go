@@ -27,16 +27,6 @@ func ComputeChart(gender ganzhi.Gender, birthYear int) Chart {
 	}
 }
 
-// ComputeChartAtDate derives the 立春 year from a birth date and computes the
-// 八宅 chart. The 立春 boundary date belongs to the new year.
-func ComputeChartAtDate(gender ganzhi.Gender, date tianwen.CivilDate) (Chart, error) {
-	ly, err := tianwen.LichunYearOf(date)
-	if err != nil {
-		return Chart{}, err
-	}
-	return ComputeChart(gender, ly.Year), nil
-}
-
 // ComputeChartAtStandard derives the 立春 year from a standard time and
 // computes the 八宅 chart. The 立春 boundary is an absolute instant, so the
 // observer's timezone does not change the year.

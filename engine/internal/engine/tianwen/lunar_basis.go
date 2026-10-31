@@ -69,9 +69,6 @@ func DefaultLunarProjector() LunarProjector {
 	}
 }
 
-// Basis returns the normalized basis.
-func (p LunarProjector) Basis() LunarBasis { return p.basis }
-
 // OutputBasis is the echo value; the default local_astronomical basis is
 // omitted.
 func (p LunarProjector) OutputBasis() string {
@@ -119,11 +116,6 @@ func (p LunarProjector) LunarAt(at time.Time) LunarDate {
 // CivilDateFromLunar converts a lunar date under this basis.
 func (p LunarProjector) CivilDateFromLunar(ld LunarDate) (CivilDate, error) {
 	return p.ref.CivilDateFromLunar(ld)
-}
-
-// LunarMonthMeta returns month metadata under this basis.
-func (p LunarProjector) LunarMonthMeta(year, month int, leap bool) (LunarMonthInfo, error) {
-	return p.ref.LunarMonthMeta(year, month, leap)
 }
 
 // ValidateLunarDate validates a lunar date under this basis.

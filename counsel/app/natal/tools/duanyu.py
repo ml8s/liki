@@ -367,19 +367,6 @@ def _resolve_rules(rules):
     return resolve_rules(rules, YEARLY_RULES, SCENE_ALIASES)
 
 
-def _liunian_for_year(natal_chart, year):
-    from app.natal.tools.charts import _bazi_liunian, _ziwei_liunian, liunian
-    chart = natal_chart.get("chart") or {}
-    if natal_chart.get("ziwei") and "ri" in chart:
-        # 完整盘（八字 chart + 紫微）：双盘流年
-        return liunian(natal_chart, year, validate=False)
-    if "ri" in chart:
-        # 正交化八字组合盘（analysis）：只排八字流年，紫微侧留空。
-        return {"bazi": _bazi_liunian(chart, year), "ziwei": {}}
-    # 正交化紫微组合盘（analysis ziwei）：chart 为紫微盘，只排紫微流年。
-    return {"bazi": {}, "ziwei": _ziwei_liunian(chart, year)}
-
-
 def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, dict]:
     """批量预取流年盘数据，返回 year → {bazi, ziwei} 查找表。
 
@@ -395,8 +382,7 @@ def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, 
     )
     chart = natal_chart.get("chart") or {}
     zw = natal_chart.get("ziwei_chart") or natal_chart.get("ziwei") or {}
-    # Keep orthogonal analysis pans on the same side selection as
-    # _liunian_for_year: bazi-only has a ri pillar, while a Ziwei analysis pan
+    # Side selection: bazi-only has a ri pillar, while a Ziwei analysis pan
     # stores its engine chart in `chart` without ri.
     fetch_bazi = "ri" in chart
     fetch_ziwei = bool(natal_chart.get("ziwei")) if fetch_bazi else bool(zw)
@@ -519,7 +505,7 @@ def yearly_range(natal_chart: dict, start: int, end: int,
     from app.natal.tools.charts import RPCError
     liunian_cache = _batch_liunian_data(natal_chart, start, total)
 
-    def _liunian_cached(natal_chart_: dict, year: int) -> dict:
+    def _liunian_cached(_natal_chart: dict, year: int) -> dict:
         """从预取缓存查找流年盘，零 RPC。"""
         return liunian_cache.get(year, {"bazi": {}, "ziwei": {}})
 

@@ -66,11 +66,6 @@ func ResolveLiuNianTimeWith(p tianwen.LunarProjector, date tianwen.CivilDate) (L
 	}, nil
 }
 
-// NextLiuNianTime returns the next lunar year's resolved period.
-func NextLiuNianTime(t LiuNianTime) (LiuNianTime, error) {
-	return NextLiuNianTimeWith(tianwen.DefaultLunarProjector(), t)
-}
-
 // NextLiuNianTimeWith returns the next lunar year's resolved period using an
 // explicit projector.
 func NextLiuNianTimeWith(p tianwen.LunarProjector, t LiuNianTime) (LiuNianTime, error) {
@@ -172,12 +167,6 @@ func ResolveLiuRiTimeWith(p tianwen.LunarProjector, date tianwen.CivilDate) (Liu
 		BeijingDate: date,
 		Lunar:       p.SolarDateToLunar(date),
 	}, nil
-}
-
-// ResolveLiuRiTimeAt resolves the lunar day for a standard time. The flow day
-// is selected by the projector's lunar basis.
-func ResolveLiuRiTimeAt(standard time.Time, loc *time.Location) (LiuRiTime, error) {
-	return ResolveLiuRiTimeAtWith(tianwen.DefaultLunarProjector(), standard, loc)
 }
 
 // ResolveLiuRiTimeAtWith resolves the lunar day for a standard time using an
@@ -289,11 +278,6 @@ func NextLiuShiTimeWith(p tianwen.LunarProjector, t LiuShiTime) (LiuShiTime, err
 		return LiuShiTime{}, fmt.Errorf("liushi: %w", err)
 	}
 	return ResolveLiuShiTimeWith(p, next, t.Location, t.Longitude)
-}
-
-// ComputeLiuShiAtTime projects a resolved flow-hour time.
-func ComputeLiuShiAtTime(chart Chart, t LiuShiTime) (LiuShi, error) {
-	return ComputeLiuShiAtTimeWith(chart, t, tianwen.DefaultLunarProjector())
 }
 
 // ComputeLiuShiAtTimeWith projects a resolved flow-hour time using an explicit

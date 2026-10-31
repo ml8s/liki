@@ -84,7 +84,7 @@ workbuddy-package: ## 打包全部 WorkBuddy 提交包（连接器 / 技能 / �
 workbuddy-avatars: ## 从包内 avatars/expert.svg 重新栅格化专家头像（512×512 PNG）
 	scripts/build-workbuddy-avatars.sh
 
-brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（4 张头像矢量源 + 2 个连接器图标），并栅格化头像
+brand-marks: ## 用阿里妈妈刀隶体重建品牌图形（1 张专家头像矢量源 + 2 个连接器图标），并栅格化专家头像
 	python3 scripts/gen_brand_marks.py
 	scripts/build-workbuddy-avatars.sh
 

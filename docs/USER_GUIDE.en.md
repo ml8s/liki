@@ -114,7 +114,7 @@ Balcony, main door, and primary daylight facing can differ. The Skill confirms w
 
 ### What if I don't know the exact birth hour?
 
-Destiny analysis asks follow-up questions or uses real events for calibration. Provide 2-3 candidate hours and 3-5 past events with years when possible; the Skill checks candidates and reports confidence. When evidence is insufficient, it reports insufficient evidence. Naming does not default the hour; it switches to an expected Wu Xing (五行) strategy.
+Destiny analysis asks follow-up questions or uses real events for calibration. Provide 2-3 candidate hours and 3-5 past events with years when possible; the Skill checks candidates and reports evidence coverage. When evidence is insufficient, it reports insufficient evidence. Naming does not default the hour; it switches to an expected Wu Xing (五行) strategy.
 
 Babies and teenagers skip calibration; the provided hour is used as given.
 

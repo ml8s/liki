@@ -16,8 +16,7 @@ _LIU_OP_NAMES = frozenset({
 
 
 def _liu_handler_longevity(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                         current_year: int, const: dict, ln: dict, nz: str,
-                         nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
+                         current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '流年长生':
         cs = (chart.get('full', {}) or {}).get('chang_sheng', []) or []
         nz = ln.get('nian_zhi', '')
@@ -27,15 +26,13 @@ def _liu_handler_longevity(op: str, args: list, base: dict, gender: str, chart: 
         return '' if args and args[0] == FACTOR_WILDCARD else 0
 
 def _liu_handler_shensha(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                         current_year: int, const: dict, ln: dict, nz: str,
-                         nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
+                         current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '流年神煞':
         ss = ln.get('shensha', []) or []
         return 1 if any(((s.get('name') or '') == args[0] for s in ss)) else 0
 
 def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                         current_year: int, const: dict, ln: dict, nz: str,
-                         nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
+                         current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '流年透':
         return 1 if ss_year in star_keys else 0
 
@@ -75,8 +72,7 @@ def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart
         return 1 if _atomic_facts(ctx).get('controls_targets', {}).get(atomic_key) else 0
 
 def _liu_handler_jishen(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                         current_year: int, const: dict, ln: dict, nz: str,
-                         nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
+                         current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '忌神干':
         return _flow_element_in_selected(base, ln.get('nian_gan', ''), 'gan', const)
 
@@ -105,8 +101,7 @@ def _flow_element_in_selected(base: dict, value: str, kind: str, const: dict) ->
     return 1 if element in ji else 0
 
 def _liu_handler_dayun(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                         current_year: int, const: dict, ln: dict, nz: str,
-                         nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
+                         current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     year = current_year
     if op == '大运窗口流年':
         for s in base.get('dayun_steps', []):
@@ -123,8 +118,7 @@ def _liu_handler_dayun(op: str, args: list, base: dict, gender: str, chart: dict
 
 
 def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                         current_year: int, const: dict, ln: dict, nz: str,
-                         nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
+                         current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '流年宫化':
         # [宫位, 星曜, 四化]——与「宫含」同构的三维 key：星曜是显式维度，
         # 因子值 0/1 自身即构成完整命题（如「廉贞化忌落流年官禄宫」），
@@ -151,8 +145,7 @@ def _liu_handler_ziwei(op: str, args: list, base: dict, gender: str, chart: dict
 
 
 def _liu_handler_flow_star(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                           current_year: int, const: dict, ln: dict, nz: str,
-                           nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
+                           current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> int:
     """机械检查流曜是否入指定流年宫位；星曜含义由断语表表达。"""
     if len(args) != 2:
         raise FactorEvaluateError(f"流曜入宫需 2 参 [星曜,宫位]，实得 {len(args)}: {args}")
@@ -166,8 +159,7 @@ def _liu_handler_flow_star(op: str, args: list, base: dict, gender: str, chart: 
 
 
 def _liu_handler_banhe(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                       current_year: int, const: dict, ln: dict, nz: str,
-                       nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> int:
+                       current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> int:
     """读取 engine 三合半合原子事实；旺支规则不在 Python 复算。"""
     if len(args) < 2:
         raise FactorEvaluateError(f"半合需至少 2 参 [来源/地支,...]，实得 {len(args)}: {args}")
@@ -185,8 +177,7 @@ def _liu_handler_banhe(op: str, args: list, base: dict, gender: str, chart: dict
     ) else 0
 
 def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
-                         current_year: int, const: dict, ln: dict, nz: str,
-                         nian_gan: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
+                         current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '干支相等':
         pair = tuple(args)
         if pair == ("大运", "流年"):
@@ -306,7 +297,7 @@ def _liu_op(op: str, args, gender: str, chart: dict, ctx=None):
     common = dict(
         op=op, args=args, base=base, gender=gender, chart=chart, ctx=ctx,
         current_year=ctx.get("year", 0), const=const,
-        ln=ln, nz=ln.get("nian_zhi", ""), nian_gan=ln.get("nian_gan", ""),
+        ln=ln, nz=ln.get("nian_zhi", ""),
         ss_year=ln.get("shi_shen", ""),
         star_keys=_target_stars(target, gender, const), target=target,
     )

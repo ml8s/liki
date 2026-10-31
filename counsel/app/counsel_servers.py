@@ -1,15 +1,11 @@
 """Counsel domain MCP server construction and tool registration."""
 
-import pathlib
 from typing import Any
 
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 
-APP_DIR = pathlib.Path(__file__).resolve().parent
-
 # 工具层为 app.* 绝对导入包（无 sys.path 注入）。
-
 from app.contracts import COUNSEL_TOOLS  # noqa: E402
 from app.contracts import VERSION as RUNTIME_VERSION  # noqa: E402
 from app.contracts.yongshen import SelectedYongShenCore, YongShenSource  # noqa: E402

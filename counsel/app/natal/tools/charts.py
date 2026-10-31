@@ -14,29 +14,14 @@ from typing import Optional
 
 from app.engine_mcp_client import (  # noqa: E402
     MCPError,
-    _version_key,
     call,
 )
 from app.natal.tools.chart_integrity import with_natal_chart_digest
 from app.natal.tools.chart_schema import validate_natal_chart
 
 # Engine MCP 客户端（counsel 统一走 MCP）
-from app.version import runtime_version
-
 RPCError = MCPError
 MAX_LIUNIAN_BATCH = 50
-
-
-def skill_version() -> str:
-    """Read the distributed skill version; fail closed when missing or invalid."""
-    try:
-        version = runtime_version()
-    except OSError as error:
-        raise RPCError(f"skill VERSION.txt is unavailable: {error}") from error
-    if not version:
-        raise RPCError("skill VERSION.txt is empty")
-    _version_key(version)
-    return version
 
 
 # ── 内部 RPC 封装（build_natal_chart / liunian 编排用，agent 不直接碰）──

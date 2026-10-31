@@ -15,8 +15,6 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
-WUXING_NAMES = ("木", "火", "土", "金", "水")
-
 # -- 数据结构 ---------------------------------------------------------------
 
 

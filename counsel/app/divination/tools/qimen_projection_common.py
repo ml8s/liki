@@ -301,13 +301,6 @@ def _palace_wuxing(chart: dict, gong: str) -> str:
                 return wuxing
     raise ValueError(f"chart source lacks palace wuxing: {gong}")
 
-def _wuxing_relation(chart: dict, left_gong: str, right_gong: str) -> str:
-    key = (_palace_wuxing(chart, left_gong), _palace_wuxing(chart, right_gong))
-    relations = _load_wuxing_relations()
-    if key not in relations:
-        raise ValueError(f"qimen wuxing relation missing: {left_gong}/{right_gong}")
-    return relations[key]
-
 def _hour_polarity(chart: dict) -> str:
     natal_chart = chart.get("board")
     stem = natal_chart.get("shi_gan") if isinstance(natal_chart, dict) else None

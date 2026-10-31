@@ -137,7 +137,7 @@ def load_identity(domain: str) -> tuple[dict, str] | list[str]:
 class _PackDumper(yaml.SafeDumper):
     """块序列缩进两格（PyYAML 默认顶格），与包内其余 md 保持一致。"""
 
-    def increase_indent(self, flow: bool = False, indentless: bool = False):  # noqa: D102
+    def increase_indent(self, flow: bool = False, **kwargs: bool) -> object:  # noqa: D102
         return super().increase_indent(flow, False)
 
 

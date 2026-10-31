@@ -197,12 +197,6 @@ func SplitWindow(w Window, boundaries []Boundary) []Window {
 	return cells
 }
 
-// LunarNewYearInstant returns the civil midnight (CST) of the first day of the
-// given lunar year under the legacy official reference.
-func LunarNewYearInstant(lunarYear int) time.Time {
-	return LunarNewYearInstantIn(lunarYear, DefaultLunarProjector())
-}
-
 // LunarNewYearInstantIn returns the first-day midnight of the lunar year in the
 // projector's date frame.
 func LunarNewYearInstantIn(lunarYear int, projector LunarProjector) time.Time {

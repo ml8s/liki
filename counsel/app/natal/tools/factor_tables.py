@@ -11,14 +11,6 @@ from app.natal.tools.factor_constants import load_constants
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 NATAL_PATH = os.path.join(TOOLS_DIR, "factors", "factors.csv")
 LIUNIAN_PATH = os.path.join(TOOLS_DIR, "factors", "factors_liunian.csv")
-META = {
-    "factor_id", "shushi", "phase", "group_id", "term_index",
-    "kind", "expression", "expected", "basis",
-}
-LONG_FIELDS = [
-    "factor_id", "shushi", "phase", "group_id", "term_index",
-    "kind", "expression", "expected", "basis",
-]
 VALID_PHASES = frozenset({"pre_yongshen", "post_yongshen", "domain"})
 
 _CACHES: dict[str, list[dict]] = {}

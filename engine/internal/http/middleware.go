@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 	"runtime/debug"
-	"strconv"
 	"strings"
 	"time"
 
@@ -154,28 +153,4 @@ func MetricsHandler() http.Handler {
 		w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
 		_, _ = w.Write(observability.RenderMetrics())
 	})
-}
-
-// RouteMetricsLabel maps an HTTP method route to a bounded route template.
-func RouteMetricsLabel(method, path string) string {
-	switch path {
-	case "/health", "/version", "/metrics", "/mcp":
-		return path
-	case "/mcp/bazi", "/mcp/ziwei", "/mcp/qimen", "/mcp/liuyao",
-		"/mcp/huangli", "/mcp/fengshui", "/mcp/aux":
-		return "/mcp/{domain}"
-	default:
-		_ = method
-		return "unmatched"
-	}
-}
-
-// ParseMetricsTimeout converts the readiness-style bounded timeout value used
-// for metrics scrape configuration; invalid values fail closed to one second.
-func ParseMetricsTimeout(raw string) time.Duration {
-	seconds, err := strconv.Atoi(raw)
-	if err != nil || seconds <= 0 {
-		return time.Second
-	}
-	return time.Duration(seconds) * time.Second
 }
