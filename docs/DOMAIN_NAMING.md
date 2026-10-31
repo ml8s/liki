@@ -1,7 +1,6 @@
 # Domain naming matrix
 
-This is the canonical vocabulary for repository, image, service, and artifact
-names.
+This is the canonical vocabulary for repository, image, service, and artifact names.
 
 ## Runtime and deployment names
 
@@ -12,19 +11,18 @@ names.
 | Counsel judgment | `liki-counsel` | Judgment image. |
 | Counsel MCP service | `counsel-mcp` | Streamable MCP judgment service. |
 | Agent runtime | `liki-agent-runtime` | Generic ADK runtime base image. |
-| Expert assembly | `liki-expert` | Production aggregate expert image. |
+| Expert assembly | `liki-expert` | Production single-expert aggregate image. |
 | Expert service | `expert` | Compose service running `liki-expert`. |
-| Expert pack | `liki-<domain>` | One per top-level domain: `liki-natal`, `liki-divination`, `liki-fengshui`, `liki-naming` (domain cards under `references/<domain>/`). |
+| Expert pack | `liki` | The one WorkBuddy expert pack; domains are internal routing cards. |
 | Web BFF | `liki-web` / `web` | Commerce, identity, chat BFF, and public site. |
 
-Do not call `liki-agent-runtime` the production expert image. Do not call
-`liki-expert` the generic runtime.
+`liki-agent-runtime` is the runtime base. `liki-expert` is the production aggregate image.
 
 ## Artifact names
 
 | Artifact | Name |
 | --- | --- |
-| Runtime base | 本地 liki-agent-runtime 镜像（按 git sha） |
+| Runtime base | local `liki-agent-runtime` image tagged by git SHA |
 | AgentDeployment | `deployment.json` |
 
 ## Contract versions
@@ -45,5 +43,4 @@ liki.aipay.v1
 
 ## Naming domain
 
-The service/domain is `naming`; `qiming` is not the tool prefix. MCP tools use
-`naming_*`.
+The service/domain is `naming`; `qiming` is not the tool prefix. MCP tools use `naming_*`.

@@ -82,7 +82,7 @@ birth data, chart payloads, endpoint URLs, tokens, or exception text. Rate
 limiting is owned by the edge (cloud LB / WAF / Caddy); the service itself does
 not rate-limit.
 
-`/mcp` is the aggregate surface for the multi-expert runtime. It exposes the
+`/mcp` is the aggregate surface for the single-expert aggregate runtime. It exposes the
 natal judgment tools (`bazi_yongshen`, `compute_factors`, `natal_query`, and
 `period_query`) plus naming, Liuyao, and Qimen tools. `/mcp/bazi` and
 `/mcp/ziwei` remain fixed-domain endpoints for clients that need a narrower

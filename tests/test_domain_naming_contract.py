@@ -23,8 +23,8 @@ def test_naming_tools_use_domain_prefix():
 
 
 def test_only_production_expert_profiles_are_released():
-    profiles = {path.stem for path in (ROOT / "profiles").glob("*.json")}
-    assert profiles == {"liki", "liki", "liki", "liki"}
+    profiles = [path.stem for path in (ROOT / "profiles").glob("*.json")]
+    assert profiles == ["liki"]
     assert not (ROOT / "agents/single_expert").exists()
 
 

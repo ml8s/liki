@@ -1,8 +1,8 @@
 """Structural contract for the Liki skill system（综合 liki + 专家包）。
 
 覆盖：
-1. liki 综合：根 SKILL.md + 平铺四域卡（references/<域>-ENTRY.md 等）+ 共享运行时文件
-2. 专家包（四个顶层领域）：WorkBuddy 标准（SKILL.md 身份源 / plugin.json（含连接器依赖）/ skills / avatars / README）
+1. liki 根技能：SKILL.md + 领域路由卡（references/<domain>-ENTRY.md 等）+ 共享运行时文件
+2. WorkBuddy 单专家包：liki（身份源 / plugin.json / skills / avatars / README）
 3. MCP 连接器命名（engine/counsel 与专家端点）
 """
 import json
@@ -21,7 +21,7 @@ DOMAINS = ("natal", "divination", "fengshui", "naming")
 EXPERT_PACKS = tuple(pack for _domain, pack in gen.MAPPINGS)
 
 
-def test_liki_root_has_one_entry_and_four_domain_entries():
+def test_liki_root_has_one_entry_and_domain_routing_entries():
     assert (SKILL_ROOT / "SKILL.md").is_file()
     for domain in DOMAINS:
         assert (SKILL_ROOT / "references" / f"{domain}-ENTRY.md").is_file(), domain

@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-"""Expert-pack 生成器：从权威源生成包内全部派生物。
+"""WorkBuddy 单专家包生成器：从权威源生成 `liki` 包的全部派生物。
 
 两类生成（唯一生成入口）：
 
-1. 方法论卡镜像：权威源 `skills/liki/references/`（平铺命名
-   `<域>-<app|体系>-<卡>.md`）→ `expert-packs/liki-<域>/skills/<域>/references/`。
-   顶层领域即专家包（1:1）；包内 references/ 是"按域前缀过滤的逐字节视图"
-   （与源卡字节一致、引用不改写），根级共享卡（`FAQ.md` / `ops-*` / `payment-*`）
-   只存在于根、不进任何包。归域、平铺、裸名、跨域、共享卡、脚本依赖与死链
-   全部 fail-closed：缺失、多余（孤儿）、内容差异均判漂移。
-2. 专家身份派生物：权威源身份文件 `expert-packs/<pack>/SKILL.md`（frontmatter 元数据
-   + 身份正文）→ 域 `skills/<domain>/SKILL.md`（ADK skill 入口）与 `.codebuddy-plugin/plugin.json`
-   的 agent 指针/description/profession/version（插件声明的 agent 定义文件就是 `./SKILL.md`
-   本身）。身份正文同时就是内部 AgentDeployment 的 instruction 骨架，三者同源，
-   除身份文件外一律生成，禁止手改，包内不得再有第二份身份副本。
+1. 方法论卡镜像：权威源 `skills/liki/references/` 全量镜像到
+   `expert-packs/liki/skills/liki/references/`。包内 references/ 是逐字节视图，
+   引用保持平铺命名。根级共享卡（`FAQ.md` / `ops-*` / `payment-*`）只存在于根。
+   平铺引用、根级共享卡、脚本依赖和死链全部 fail-closed。
+2. 专家身份派生物：权威源身份文件 `expert-packs/liki/SKILL.md` 生成
+   `expert-packs/liki/skills/liki/SKILL.md`、`agents/liki.md` 和
+   `.codebuddy-plugin/plugin.json` 中的可投影字段。除身份文件外，包内派生物由
+   `make sync-expert-packs` 维护。
 
     python3 scripts/sync_expert_packs.py            # 镜像生成（覆盖 + 清孤儿）
     python3 scripts/sync_expert_packs.py --check    # 双向漂移检测（make check / CI）
