@@ -11,33 +11,47 @@ class PalaceIndex:
 
     索引存放在 FactorContext 上，不修改调用方 natal_chart。
     支持四种查询模式（palace 具体/任意 × star 具体/任意）。
+
+    ``gong_wei`` 中的 ``za_yao`` 也登记为 ``kind="star"`` 的原子事实：
+    杂曜是引擎已算好的确定性落宫，因子层只读，不重新排盘。
     """
 
     __slots__ = ("_exact", "_any_palace", "_any_star", "_any_both", "_stars_by_pkt")
 
-    def __init__(self, facts):
+    def __init__(self, facts, gong_wei=None):
         self._exact: set = set()       # (palace, kind, target, star)
         self._any_palace: set = set()  # (kind, target, star)
         self._any_star: set = set()    # (palace, kind, target)
         self._any_both: set = set()    # (kind, target)
         self._stars_by_pkt: dict = {}  # (palace, kind, target) → set[star]
-        for fact in facts:
+        for fact in facts or ():
             if not isinstance(fact, dict):
                 continue
-            p = fact.get("palace", "")
-            k = fact.get("kind", "")
-            t = fact.get("target", "")
-            s = fact.get("star", "")
-            self._exact.add((p, k, t, s))
-            self._any_palace.add((k, t, s))
-            self._any_star.add((p, k, t))
-            self._any_both.add((k, t))
-            pkt = (p, k, t)
-            stars = self._stars_by_pkt.get(pkt)
-            if stars is None:
-                self._stars_by_pkt[pkt] = {s}
-            else:
-                stars.add(s)
+            self._add(
+                fact.get("palace", ""),
+                fact.get("kind", ""),
+                fact.get("target", ""),
+                fact.get("star", ""),
+            )
+        for item in gong_wei or ():
+            if not isinstance(item, dict):
+                continue
+            palace = item.get("name") or item.get("index") or ""
+            for name in item.get("za_yao") or ():
+                if name:
+                    self._add(palace, "star", name, name)
+
+    def _add(self, p: str, k: str, t: str, s: str) -> None:
+        self._exact.add((p, k, t, s))
+        self._any_palace.add((k, t, s))
+        self._any_star.add((p, k, t))
+        self._any_both.add((k, t))
+        pkt = (p, k, t)
+        stars = self._stars_by_pkt.get(pkt)
+        if stars is None:
+            self._stars_by_pkt[pkt] = {s}
+        else:
+            stars.add(s)
 
     def hit(self, palace: str, kind: str, target: str, star: str = "") -> bool:
         """O(1) 查询。star="" 表示任意 star；palace=任意 表示跨宫。"""
@@ -83,8 +97,11 @@ class FactorContext(Mapping):
     def palace_index(self) -> PalaceIndex:
         """紫微宫位事实索引（lazy，首次访问构建，后续复用）。"""
         if self._palace_index is None:
-            facts = ((self.natal_chart.get("ziwei") or {}).get("palace_facts") or [])
-            self._palace_index = PalaceIndex(facts)
+            ziwei = self.natal_chart.get("ziwei") or {}
+            self._palace_index = PalaceIndex(
+                ziwei.get("palace_facts") or [],
+                ziwei.get("gong_wei") or [],
+            )
         return self._palace_index
 
 

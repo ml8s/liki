@@ -369,7 +369,11 @@ def _zw_gong_op(base, chart, args):
         index = chart.palace_index
     else:
         from app.natal.tools.factor_context import PalaceIndex
-        index = PalaceIndex((chart.get("ziwei") or {}).get("palace_facts") or [])
+        ziwei = chart.get("ziwei") or {}
+        index = PalaceIndex(
+            ziwei.get("palace_facts") or [],
+            ziwei.get("gong_wei") or [],
+        )
 
     def hit(kind: str, target: str, star_name: str = "") -> bool:
         return index.hit(gong_name, kind, target, star_name)

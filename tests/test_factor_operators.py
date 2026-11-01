@@ -507,6 +507,29 @@ class TestZiweiPalaceAtomicFacts(unittest.TestCase):
         with self.assertRaises(ValueError):
             _op("宫含", ["本命", "贪狼", "忌"], "male", chart)
 
+    def test_za_yao_from_fullchart_gong_wei(self):
+        chart = {"ziwei": {
+            "gong_wei": [
+                {"name": "命宫", "za_yao": ["红鸾", "天姚"]},
+                {"name": "夫妻", "za_yao": ["天刑"]},
+            ],
+            "palace_facts": [],
+        }}
+        self.assertEqual(_op("宫含", ["命宫", "红鸾"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["命宫", "天姚"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["夫妻", "天刑"], "male", chart), 1)
+        self.assertEqual(_op("宫含", ["夫妻", "红鸾"], "male", chart), 0)
+        self.assertEqual(_op("宫含", ["任意", "红鸾"], "male", chart), 1)
+
+    def test_za_yao_index_from_factor_context(self):
+        from app.natal.tools.factor_context import FactorContext
+        ctx = FactorContext(
+            {"ziwei": {"gong_wei": [{"name": "命宫", "za_yao": ["红鸾"]}]}},
+            {},
+        )
+        self.assertTrue(ctx.palace_index.hit("命宫", "star", "红鸾"))
+        self.assertFalse(ctx.palace_index.hit("夫妻", "star", "红鸾"))
+
     def test_brightness_condition_filters_requested_star(self):
         chart = {"ziwei": {"palace_facts": [
             {"palace": "命宫", "kind": "brightness", "target": "庙旺", "star": "擎羊", "value": "庙"},
