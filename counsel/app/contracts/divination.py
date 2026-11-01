@@ -360,9 +360,6 @@ class LiuyaoQueryOutput(BaseModel):
     snapshot_digest: Annotated[str, Field(min_length=16)] = Field(
         description="Snapshot digest returned by this tool.",
     )
-    message_digest: Annotated[str, Field(min_length=16)] = Field(
-        description="Message digest returned by this tool.",
-    )
     headline: Annotated[str, Field(min_length=4, max_length=160)] = Field(
         description="Headline returned by this tool.",
     )
@@ -734,9 +731,6 @@ class QimenQueryOutput(BaseModel):
     )
     snapshot_digest: Annotated[str, Field(min_length=16)] = Field(
         description="Snapshot digest returned by this tool.",
-    )
-    message_digest: Annotated[str, Field(min_length=16)] = Field(
-        description="Message digest returned by this tool.",
     )
     headline: Annotated[str, Field(min_length=4, max_length=160)] = Field(
         description="Headline returned by this tool.",

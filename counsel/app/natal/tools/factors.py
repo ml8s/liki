@@ -272,7 +272,11 @@ def _selected_for_pan(natal_chart: dict) -> dict:
     selected = natal_chart.get("_selected_yongshen")
     if isinstance(selected, dict):
         return selected
-    return resolve_yongshen(natal_chart.get("full") or {})
+    full = natal_chart.get("full") or {}
+    digest = full.get("source_chart_digest")
+    if not digest:
+        raise ValueError("natal_chart.full requires source_chart_digest")
+    return resolve_yongshen(full, digest)
 
 
 def prepare_natal_context(

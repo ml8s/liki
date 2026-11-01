@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from app.divination.tools.divination_hashing import sha256_json
+from app.integrity.digest import sha256_json
 
 
 def canonical_digest(snapshot: dict) -> str:

@@ -63,7 +63,7 @@ func callSeries(t *testing.T, reg *Registry, tool string, args map[string]any) j
 func TestSeriesSingleIsDefault(t *testing.T) {
 	reg := NewEngine()
 	chart := seriesChart(t, reg)
-	for _, count := range []int{0, 1} {
+	for _, count := range []int{1} {
 		raw := callSeries(t, reg, "bazi_liunian", map[string]any{
 			"standard_time": "2026-06-15T12:00:00+08:00", "count": count, "chart": chart,
 		})
@@ -150,6 +150,10 @@ func TestSeriesCountSchemaMatchesRuntimeBound(t *testing.T) {
 				Properties map[string]struct {
 					Minimum *float64 `json:"minimum"`
 					Maximum *float64 `json:"maximum"`
+					AnyOf   []struct {
+						Minimum *float64 `json:"minimum"`
+						Maximum *float64 `json:"maximum"`
+					} `json:"anyOf"`
 				} `json:"properties"`
 			}
 			decode(t, definition.InputSchema, &schema)
@@ -157,9 +161,15 @@ func TestSeriesCountSchemaMatchesRuntimeBound(t *testing.T) {
 			if !ok {
 				t.Fatal("count property is missing")
 			}
-			if count.Minimum == nil || *count.Minimum != 0 ||
-				count.Maximum == nil || *count.Maximum != MaxSeriesCount {
-				t.Fatalf("count bounds = %#v/%#v, want [0,%d]", count.Minimum, count.Maximum, MaxSeriesCount)
+			var minimum, maximum *float64
+			if count.Minimum != nil {
+				minimum, maximum = count.Minimum, count.Maximum
+			} else if len(count.AnyOf) > 0 {
+				minimum, maximum = count.AnyOf[0].Minimum, count.AnyOf[0].Maximum
+			}
+			if minimum == nil || *minimum != 1 ||
+				maximum == nil || *maximum != MaxSeriesCount {
+				t.Fatalf("count bounds = %#v/%#v, want [1,%d]", minimum, maximum, MaxSeriesCount)
 			}
 		})
 	}

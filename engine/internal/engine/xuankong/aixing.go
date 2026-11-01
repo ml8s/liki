@@ -26,7 +26,6 @@ type Chart struct {
 	FuYinLayers    []string        `json:"fu_yin_layers"`
 	FanYinLayers   []string        `json:"fan_yin_layers"`
 	XingJiaHui     [9]xingJiaHui   `json:"xing_jia_hui"`
-	ChartDigest    string          `json:"chart_digest"`
 	ShouShanChuSha shouShanChuSha  `json:"shou_shan_chu_sha"`
 }
 
@@ -93,7 +92,6 @@ func computeChart(sitMountain, faceMountain int, year int) Chart {
 	// 6. 双星加会 + 收山出煞.
 	pan.XingJiaHui = pan.computeXingJiaHui()
 	pan.ShouShanChuSha = pan.computeShouShanChuSha()
-	pan.refreshDigest()
 
 	return pan
 }

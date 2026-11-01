@@ -83,7 +83,7 @@ type XuankongChart struct {
 type XuankongLiunianInput struct {
 	Chart        *XuankongChart `json:"chart,omitempty" jsonschema:"可选 xuankong.chart 宅盘；传入时 digest 必须匹配。"`
 	StandardTime StandardTime   `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
-	Count        SeriesCount    `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Count        *SeriesCount   `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
 }
 
 type XuankongLiunianResolved struct {
@@ -134,11 +134,17 @@ func XuankongChartCompute(_ context.Context, input XuankongChartInput) (Xuankong
 	if err != nil {
 		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
 	}
-	return xuankongChartWire(chart), nil
+	output := xuankongChartWire(chart)
+	digest, err := chartDigest(output)
+	if err != nil {
+		return XuankongChart{}, fmt.Errorf("xuankong.chart: %w", err)
+	}
+	output.ChartDigest = ChartDigest(digest)
+	return output, nil
 }
 
 func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (any, error) {
-	return runSeries(input, int(input.Count), MaxSeriesCount,
+	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in XuankongLiunianInput) (XuankongLiunianOutput, error) {
 			return computeXuankongLiunian(in)
 		},
@@ -214,7 +220,6 @@ func xuankongChartWire(chart xuankong.Chart) XuankongChart {
 			SitFacingTimely:    chart.FourSituation.SitFacingTimely,
 			FaceMountainTimely: chart.FourSituation.FaceMountainTimely,
 		},
-		ChartDigest:   ChartDigest(chart.ChartDigest),
 		ZuoShan:       MountainIndex(chart.SitMountain),
 		ZuoShanName:   MountainName(chart.ZuoShanName),
 		XiangShan:     MountainIndex(chart.FaceMountain),
@@ -311,10 +316,6 @@ func xuankongChartDomain(input XuankongChart) (xuankong.Chart, error) {
 	chart.ShouShanChuSha.ShouShanOK = input.ShouShanChuSha.ShouShan
 	chart.ShouShanChuSha.ChuShaOK = input.ShouShanChuSha.ChuSha
 	chart.ShouShanChuSha.Assessment = string(input.ShouShanChuSha.Assessment)
-	chart.ChartDigest = string(input.ChartDigest)
-	if err := chart.ValidateChartDigest(); err != nil {
-		return xuankong.Chart{}, fmt.Errorf("xuankong.liunian: %w", err)
-	}
 	return chart, nil
 }
 

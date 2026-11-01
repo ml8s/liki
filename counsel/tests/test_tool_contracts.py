@@ -84,7 +84,8 @@ def test_unique_items_is_projected_and_enforced():
 
 
 def test_yongshen_contracts_publish_the_typed_core():
-    from app.contracts.yongshen import SelectedYongShen, SelectedYongShenCore
+    from app.contracts.naming import ConsumableSelectedYongshen
+    from app.contracts.yongshen import SelectedYongShen
 
     selected_schema = CONTRACTS["bazi_yongshen"].output_schema
     assert set(selected_schema["required"]) == set(SelectedYongShen.model_fields)
@@ -107,7 +108,7 @@ def test_yongshen_contracts_publish_the_typed_core():
         "required_chars",
     }
     selected_ref = naming_schema["properties"]["selected_yongshen"]["anyOf"][0]
-    assert set(selected_ref["required"]) == set(SelectedYongShenCore.model_fields)
+    assert set(selected_ref["required"]) == set(ConsumableSelectedYongshen.model_fields)
 
     assert "factors" not in selected_schema["properties"]
     assert "alternatives" not in selected_schema["properties"]
@@ -202,7 +203,9 @@ def _resolved_yongshen():
         REPO_ROOT / "engine" / "internal" / "mcpcontract" / "testdata"
         / "actual" / "bazi_chart_1990_fullchart.json"
     )
-    return resolve_yongshen(json.loads(path.read_text(encoding="utf-8"))["output"])
+    return resolve_yongshen(
+        json.loads(path.read_text(encoding="utf-8"))["output"], "a" * 64
+    )
 
 
 def test_real_yongshen_output_conforms_to_the_shared_contract():

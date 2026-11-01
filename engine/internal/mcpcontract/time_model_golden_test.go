@@ -83,7 +83,9 @@ func loadChartFixture(t *testing.T, name string) any {
 	if err := json.Unmarshal(doc.Input.Chart, &chart); err != nil {
 		t.Fatalf("decode chart %s: %v", name, err)
 	}
-	return chart
+	input := map[string]any{"chart": chart}
+	injectReplayChartDigests(input)
+	return input["chart"]
 }
 
 func lookupJSONPath(root any, path string) (any, bool) {

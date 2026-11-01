@@ -10,20 +10,23 @@ const MaxSeriesCount = 50
 
 // SeriesResult is the series output wrapper. Items length equals count.
 type SeriesResult[T any] struct {
-	Items []T `json:"items" jsonschema:"结果数组，长度 = count。"`
+	SourceChartDigest *ChartDigest `json:"source_chart_digest,omitempty" jsonschema:"来源 chart 的 canonical SHA-256 digest；无 source chart 时省略。"`
+	Items             []T          `json:"items" jsonschema:"结果数组，长度 = count。"`
 }
 
-// validateCount normalizes a user-provided series count. 0 and 1 both mean
-// "single item" (backward compatible); negative or > max is rejected.
-func validateCount(count, max int) (int, error) {
-	if count < 0 {
-		return 0, fmt.Errorf("count must be non-negative, got %d", count)
+func seriesCountValue(count *SeriesCount) int {
+	if count == nil {
+		return 1
+	}
+	return int(*count)
+}
+
+func validateSeriesCount(count, max int) (int, error) {
+	if count < 1 {
+		return 0, fmt.Errorf("count must be at least 1, got %d", count)
 	}
 	if count > max {
 		return 0, fmt.Errorf("count %d exceeds maximum %d", count, max)
-	}
-	if count == 0 {
-		return 1, nil
 	}
 	return count, nil
 }
@@ -40,7 +43,11 @@ func runSeries[In any, Out any](
 	compute func(In) (Out, error),
 	advance func(In) (In, error),
 ) (any, error) {
-	n, err := validateCount(count, max)
+	sourceDigest, err := inputSourceDigest(input)
+	if err != nil {
+		return nil, err
+	}
+	n, err := validateSeriesCount(count, max)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +56,7 @@ func runSeries[In any, Out any](
 		if err != nil {
 			return nil, err
 		}
-		return SeriesResult[Out]{Items: []Out{out}}, nil
+		return SeriesResult[Out]{SourceChartDigest: sourceDigest, Items: []Out{out}}, nil
 	}
 	items := make([]Out, 0, n)
 	cur := input
@@ -64,7 +71,7 @@ func runSeries[In any, Out any](
 			return nil, err
 		}
 	}
-	return SeriesResult[Out]{Items: items}, nil
+	return SeriesResult[Out]{SourceChartDigest: sourceDigest, Items: items}, nil
 }
 
 // runSeriesPrepared is the stateless generic time-series executor with a
@@ -77,7 +84,11 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 	compute func(In, Ctx) (Out, error),
 	advance func(In) (In, error),
 ) (any, error) {
-	n, err := validateCount(count, max)
+	sourceDigest, err := inputSourceDigest(input)
+	if err != nil {
+		return nil, err
+	}
+	n, err := validateSeriesCount(count, max)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +101,7 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 		if err != nil {
 			return nil, err
 		}
-		return SeriesResult[Out]{Items: []Out{out}}, nil
+		return SeriesResult[Out]{SourceChartDigest: sourceDigest, Items: []Out{out}}, nil
 	}
 	ctx, err := prepare(input)
 	if err != nil {
@@ -109,7 +120,7 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 			return nil, err
 		}
 	}
-	return SeriesResult[Out]{Items: items}, nil
+	return SeriesResult[Out]{SourceChartDigest: sourceDigest, Items: items}, nil
 }
 
 // seriesOutputSchema builds a JSON Schema for a series tool's output:
@@ -119,6 +130,13 @@ func seriesOutputSchema(singleSchema json.RawMessage) (json.RawMessage, error) {
 	return json.Marshal(map[string]any{
 		"type": "object",
 		"properties": map[string]any{
+			"source_chart_digest": map[string]any{
+				"anyOf": []any{
+					map[string]any{"type": "string", "pattern": "^[a-f0-9]{64}$"},
+					map[string]any{"type": "null"},
+				},
+				"description": "来源 chart 的 canonical SHA-256 digest；无 source chart 时省略。",
+			},
 			"items": map[string]any{
 				"type":     "array",
 				"items":    json.RawMessage(singleSchema),

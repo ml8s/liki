@@ -9,9 +9,7 @@
 输入 chart 为 engine 分领域排盘输出（bazi_chart / ziwei_chart，公共契约）。
 """
 
-import hashlib
-import json
-
+from app.integrity.digest import require_sha256, sha256_excluding, sha256_json
 from app.natal.tools.chart_schema import validate_side_chart
 from app.natal.tools.charts import _bazi_fullchart, _ziwei_daxian, call
 from app.natal.tools.duanyu import match_rule
@@ -20,19 +18,26 @@ from app.natal.tools.yongshen import published_yongshen, resolve_yongshen
 
 
 def _factors_digest(factors: dict) -> str:
-    raw = json.dumps(
-        factors, ensure_ascii=False, sort_keys=True,
-        separators=(",", ":"), allow_nan=False,
-    )
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    return sha256_json(factors)
 
 
-def _chart_digest(chart: dict) -> str:
-    raw = json.dumps(
-        chart, ensure_ascii=False, sort_keys=True,
-        separators=(",", ":"), allow_nan=False,
-    )
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+def _engine_chart_digest(chart: dict, action: str) -> str:
+    """校验 engine chart 自带身份，并返回其 canonical source digest。"""
+    if not isinstance(chart, dict):
+        raise ValueError(f"{action} chart must be an object")
+    try:
+        digest = require_sha256(chart.get("chart_digest"), f"{action} chart.chart_digest")
+        expected = sha256_excluding(chart, "chart_digest")
+    except ValueError as exc:
+        raise ValueError(str(exc)) from exc
+    if digest != expected:
+        raise ValueError(f"{action} chart_digest mismatch")
+    return digest
+
+
+def _require_downstream_source(full: dict, digest: str, action: str) -> None:
+    if full.get("source_chart_digest") != digest:
+        raise ValueError(f"{action} source_chart_digest mismatch")
 
 
 def _factor_provenance(factors: dict) -> dict:
@@ -80,12 +85,14 @@ def bazi_yongshen(chart: dict) -> dict:
     这是起名等跨域消费者使用的聚焦能力；与 natal_compute_factors 内部调用同一个
     resolve_yongshen，保证全系统只有一份裁决实现。
     """
-    if not isinstance(chart, dict) or not _is_bazi_chart(chart):
+    if not _is_bazi_chart(chart):
         raise ValueError("bazi_yongshen 只接受八字盘（chart 含四柱）；紫微盘请走紫微领域")
+    source_digest = _engine_chart_digest(chart, "bazi_yongshen")
     full = _bazi_fullchart(chart)
+    _require_downstream_source(full, source_digest, "bazi_yongshen")
     natal_chart = {"chart": chart, "full": full, "gender": chart.get("gender", "")}
     validate_side_chart(natal_chart, "bazi", "bazi_yongshen")
-    return published_yongshen(resolve_yongshen(full))
+    return published_yongshen(resolve_yongshen(full, source_digest))
 
 
 def natal_compute_factors(chart: dict) -> dict:
@@ -101,9 +108,11 @@ def natal_compute_factors(chart: dict) -> dict:
     context: dict = {"性别": gender}
     side = "bazi" if _is_bazi_chart(chart) else "ziwei"
     selected_yongshen: dict | None = None
+    source_digest = _engine_chart_digest(chart, "natal_compute_factors")
     if side == "bazi":
         full = _bazi_fullchart(chart)
-        selected_yongshen = published_yongshen(resolve_yongshen(full))
+        _require_downstream_source(full, source_digest, "natal_compute_factors")
+        selected_yongshen = published_yongshen(resolve_yongshen(full, source_digest))
         natal_chart = {
             "chart": chart, "full": full, "gender": gender,
             "_selected_yongshen": selected_yongshen,
@@ -120,7 +129,7 @@ def natal_compute_factors(chart: dict) -> dict:
         factors = evaluate_factors(gender, natal_chart, shushi="ziwei")
     factors["_provenance"] = {
         "side": side,
-        "chart_digest": _chart_digest(chart),
+        "chart_digest": source_digest,
         "context": context,
     }
     if side == "bazi":
@@ -203,7 +212,7 @@ def natal_period_query(factors: dict, factors_digest: str, time_scope: dict,
             f"factors provenance side mismatch: expected {side!r}, "
             f"got {provenance.get('side')!r}"
         )
-    if provenance.get("chart_digest") != _chart_digest(chart):
+    if provenance.get("chart_digest") != _engine_chart_digest(chart, "natal_period_query"):
         raise ValueError("chart 与 natal_compute_factors 因子来源不一致")
     if side not in ("bazi", "ziwei"):
         raise ValueError(f"natal_period_query side 只支持 bazi/ziwei，收到: {side!r}")

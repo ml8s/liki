@@ -15,6 +15,7 @@ def _cmp_bazi_pan() -> dict:
                        "current_step_index": 0},
         },
         "full": {
+            "source_chart_digest": "a" * 64,
             **_helpers.mock_yongshen_fields(),
             "ten_god_states": [
                 {"shi_shen": "七杀", "wuxing": "金", "transparent": True, "hidden": False,

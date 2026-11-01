@@ -115,6 +115,15 @@ func TestEngineContractWireFidelity(t *testing.T) {
 		if err := json.Unmarshal(raw, &fixture); err != nil {
 			t.Fatalf("%s: %v", file, err)
 		}
+		var inputMap map[string]any
+		if err := json.Unmarshal(fixture.Input, &inputMap); err != nil {
+			t.Fatalf("%s: decode input: %v", file, err)
+		}
+		injectReplayChartDigests(inputMap)
+		fixture.Input, err = json.Marshal(inputMap)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got, err := registry.Call(context.Background(), method, fixture.Input)
 		if err != nil {
 			t.Errorf("%s: %s: %v", file, method, err)
@@ -132,6 +141,8 @@ func TestEngineContractWireFidelity(t *testing.T) {
 			t.Fatal(err)
 		}
 		wantDoc = normalizeLegacySeriesRoot(method, wantDoc)
+		normalizeModernDigests(method, gotDoc)
+		normalizeModernDigests(method, wantDoc)
 		if !reflect.DeepEqual(gotDoc, wantDoc) {
 			diffs := diffJSON("", gotDoc, wantDoc)
 			if len(diffs) > 12 {
@@ -146,6 +157,52 @@ func TestEngineContractWireFidelity(t *testing.T) {
 		if checked[method] == 0 {
 			t.Errorf("%s: no captured fixture replayed", method)
 		}
+	}
+}
+
+// injectReplayChartDigests adds canonical digests to legacy fixture charts so
+// they satisfy the newer reusable-chart input contracts.
+func injectReplayChartDigests(value any) {
+	switch item := value.(type) {
+	case map[string]any:
+		if chart, ok := item["chart"].(map[string]any); ok {
+			if _, exists := chart["chart_digest"]; !exists {
+				digest, err := chartDigest(chart)
+				if err != nil {
+					panic(fmt.Sprintf("inject chart digest: %v", err))
+				}
+				chart["chart_digest"] = digest
+			}
+		}
+		for _, child := range item {
+			injectReplayChartDigests(child)
+		}
+	case []any:
+		for _, child := range item {
+			injectReplayChartDigests(child)
+		}
+	}
+}
+
+// normalizeModernDigests removes newly added chart provenance fields from both
+// modern output and captured legacy output during wire-shape comparison.
+func normalizeModernDigests(method string, document any) {
+	object, ok := document.(map[string]any)
+	if !ok {
+		return
+	}
+	keys := []string{"chart_digest", "source_chart_digest", "a_chart_digest", "b_chart_digest"}
+	switch method {
+	case "bazi_chart", "ziwei_chart":
+		delete(object, "chart_digest")
+	case "bazi_fullchart", "ziwei_fullchart", "ziwei_daxian":
+		delete(object, "source_chart_digest")
+	case "bazi_bond", "ziwei_bond":
+		delete(object, "a_chart_digest")
+		delete(object, "b_chart_digest")
+	}
+	for _, key := range keys {
+		delete(object, key)
 	}
 }
 

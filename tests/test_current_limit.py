@@ -41,6 +41,7 @@ def _saved_pan() -> dict:
             }
         },
         "full": {
+            "source_chart_digest": "a" * 64,
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in pillars},
             **_helpers.mock_engine_facts(),
             **_helpers.mock_yongshen_fields(),

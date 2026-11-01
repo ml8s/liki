@@ -10,7 +10,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.contracts.schema import ToolContract, unique_list
-from app.contracts.yongshen import SelectedYongShenCore
+from app.contracts.yongshen import YongShenChoice
 
 # ── naming_surname ──
 TOOL_NAMING_SURNAME_DESCRIPTION = "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。"
@@ -84,9 +84,17 @@ TOOL_NAMING_PICK_DESCRIPTION = "按用/喜五行角色取字池：selected_yongs
 PickWuxing = Literal["木", "火", "土", "金", "水"]
 PickRole = Literal["yong", "xi"]
 
+class ConsumableSelectedYongshen(BaseModel):
+    """起名只消费用神裁决中的五行计划与状态；审计字段原样携带但不参与校验。"""
+
+    model_config = ConfigDict(extra="allow")
+    selected: YongShenChoice
+    status: Literal["resolved", "partial"]
+
+
 class NamingPickInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    selected_yongshen: SelectedYongShenCore = Field(
+    selected_yongshen: ConsumableSelectedYongshen = Field(
         description="八字用神裁决返回对象；本工具只消费 selected.yong/xi/ji 与 status。",
     )
     first_role: PickRole = Field(
@@ -254,7 +262,7 @@ class NamingCheckInput(BaseModel):
     given_names: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=2)]], Field(min_length=1, max_length=200)] = Field(
         description="要评估的名字（单名或双名，1-2 字）。",
     )
-    selected_yongshen: SelectedYongShenCore | None = Field(
+    selected_yongshen: ConsumableSelectedYongshen | None = Field(
         default=None,
         description="八字用神裁决返回对象；本工具只消费 selected.yong/xi/ji。省略时不做五行角色评估。",
     )

@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026.11.01.2] — 2026-11-01
+
+### Breaking changes
+
+- **可复用 chart 身份统一**：`bazi_chart`、`ziwei_chart`、`xuankong_chart` 返回 canonical `chart_digest`；fullchart、series、bond 输出携带来源 chart digest。消费端对缺失或被篡改的 chart fail closed。
+- **series count 语义标准化**：省略 `count` 表示 1；有效范围收敛为 `1..50`，显式 `0` 不再等价于单项。
+- **移除 `message_digest`**：用户提问不是原样回传 artifact；六爻/奇门 answer 只保留 `snapshot_digest`。
+- **用神裁决绑定 engine chart**：`bazi_yongshen.chart_digest` 不再对 fullchart 单独摘要，而是原样使用 `bazi_chart.chart_digest`；`yongshen_digest` 绑定该源身份。
+
+### Changed
+
+- engine/counsel 各自收敛到唯一 canonical JSON + SHA-256 helper，并增加跨运行时参考向量测试。
+- `xuankong` 域层移除与 wire contract 重复、非 canonical 的旧 digest；身份只在 MCP artifact 边界计算。
+- naming 契约只要求 `selected_yongshen.selected` 与 `status`；bazi 审计字段可作为 extra 原样携带，但不再是调用负担。
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 ## [2026.11.01.1] — 2026-11-01
 
 ### Breaking changes

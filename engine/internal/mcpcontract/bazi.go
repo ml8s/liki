@@ -56,14 +56,15 @@ type BaziChartInput struct {
 }
 
 type BaziChart struct {
-	Nian      BaziPillar `json:"nian" jsonschema:"年柱。"`
-	Yue       BaziPillar `json:"yue" jsonschema:"月柱。"`
-	Ri        BaziPillar `json:"ri" jsonschema:"日柱。"`
-	Shi       BaziPillar `json:"shi" jsonschema:"时柱。"`
-	DaYun     *BaziDaYun `json:"da_yun" jsonschema:"大运。"`
-	Gender    GenderName `json:"gender" jsonschema:"性别。"`
-	BirthYear int        `json:"birth_year" jsonschema:"出生公历年。"`
-	ZiShiRule string     `json:"zi_shi_rule" jsonschema:"子时换日规则。"`
+	ChartDigest ChartDigest `json:"chart_digest" jsonschema:"canonical SHA-256 chart digest。"`
+	Nian        BaziPillar  `json:"nian" jsonschema:"年柱。"`
+	Yue         BaziPillar  `json:"yue" jsonschema:"月柱。"`
+	Ri          BaziPillar  `json:"ri" jsonschema:"日柱。"`
+	Shi         BaziPillar  `json:"shi" jsonschema:"时柱。"`
+	DaYun       *BaziDaYun  `json:"da_yun" jsonschema:"大运。"`
+	Gender      GenderName  `json:"gender" jsonschema:"性别。"`
+	BirthYear   int         `json:"birth_year" jsonschema:"出生公历年。"`
+	ZiShiRule   string      `json:"zi_shi_rule" jsonschema:"子时换日规则。"`
 }
 
 func BaziChartCompute(_ context.Context, input BaziChartInput) (BaziChart, error) {
@@ -74,8 +75,13 @@ func BaziChartCompute(_ context.Context, input BaziChartInput) (BaziChart, error
 	if input.Longitude < -180 || input.Longitude > 180 {
 		return BaziChart{}, fmt.Errorf("bazi.chart: longitude must be within [-180,180], got %v", input.Longitude)
 	}
-	chart := bazi.ComputeChartAt(standard, input.Longitude, ganzhi.Gender(input.Gender))
-	return baziChartWire(chart), nil
+	wire := baziChartWire(bazi.ComputeChartAt(standard, input.Longitude, ganzhi.Gender(input.Gender)))
+	digest, err := chartDigest(wire)
+	if err != nil {
+		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
+	}
+	wire.ChartDigest = ChartDigest(digest)
+	return wire, nil
 }
 
 func (chart BaziChart) domain() (bazi.Chart, error) {
@@ -250,7 +256,15 @@ func BaziFullChart(_ context.Context, input BaziFullChartInput) (json.RawMessage
 	if err := validateFullChartInput(chart); err != nil {
 		return nil, err
 	}
-	return marshalRawBaziFullChart(bazi.ComputeFullChart(chart))
+	digest, err := sourceChartDigest(input.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("bazi.fullchart: %w", err)
+	}
+	raw, err := marshalRawBaziFullChart(bazi.ComputeFullChart(chart))
+	if err != nil {
+		return nil, fmt.Errorf("bazi.fullchart: %w", err)
+	}
+	return withSourceChartDigest(raw, digest)
 }
 
 type baziFullChartJSON struct {
@@ -313,12 +327,30 @@ func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart b: %w", err)
 	}
-	return marshalRawOutput("bazi.bond", bazi.ComputeBond(chartA, chartB))
+	digestA, err := sourceChartDigest(input.A.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("bazi.bond: %w", err)
+	}
+	digestB, err := sourceChartDigest(input.B.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("bazi.bond: %w", err)
+	}
+	raw, err := marshalRawOutput("bazi.bond", bazi.ComputeBond(chartA, chartB))
+	if err != nil {
+		return nil, fmt.Errorf("bazi.bond: %w", err)
+	}
+	var item map[string]any
+	if err := json.Unmarshal(raw, &item); err != nil {
+		return nil, fmt.Errorf("bazi.bond: decode facts: %w", err)
+	}
+	item["a_chart_digest"] = digestA
+	item["b_chart_digest"] = digestB
+	return json.Marshal(item)
 }
 
 // BaziLiuNian computes the year pillar and its interactions with a chart.
 func BaziLiuNian(_ context.Context, input BaziLiuNianInput) (any, error) {
-	return runSeries(input, int(input.Count), MaxSeriesCount,
+	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in BaziLiuNianInput) (BaziLiuNianOutput, error) {
 			return computeBaziLiuNian(in)
 		},
@@ -380,7 +412,7 @@ func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
 
 // BaziLiuYue computes the month pillar and its interactions with a chart.
 func BaziLiuYue(_ context.Context, input BaziLiuYueInput) (any, error) {
-	return runSeries(input, int(input.Count), MaxSeriesCount,
+	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in BaziLiuYueInput) (BaziLiuYueOutput, error) {
 			return computeBaziLiuYue(in)
 		},
@@ -441,7 +473,7 @@ func computeBaziLiuYue(input BaziLiuYueInput) (BaziLiuYueOutput, error) {
 
 // BaziLiuRi computes the day pillar and its interactions with a chart.
 func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (any, error) {
-	return runSeries(input, int(input.Count), MaxSeriesCount,
+	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in BaziLiuRiInput) (BaziLiuRiOutput, error) {
 			return computeBaziLiuRi(in)
 		},
@@ -500,7 +532,7 @@ func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
 
 // BaziLiuShi computes the hour pillar and its interactions with a chart.
 func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (any, error) {
-	return runSeries(input, int(input.Count), MaxSeriesCount,
+	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in BaziLiuShiInput) (BaziLiuShiOutput, error) {
 			return computeBaziLiuShi(in)
 		},
@@ -558,10 +590,7 @@ func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 
 // BaziXiaoYun returns the 小运 year list for a chart.
 func BaziXiaoYun(_ context.Context, input BaziXiaoYunInput) (BaziXiaoYunOutput, error) {
-	n, err := validateCount(int(input.Count), MaxSeriesCount)
-	if err != nil {
-		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
-	}
+	n := seriesCountValue(input.Count)
 	chart, err := input.Chart.domain()
 	if err != nil {
 		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)

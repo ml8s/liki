@@ -4,10 +4,11 @@
 从格、调候、格局、中和、喜忌冲突等命理规则全部在 policy.json。
 """
 
-import hashlib
 import json
 from pathlib import Path
 from typing import Any
+
+from app.integrity.digest import require_sha256, sha256_json
 
 from .schema import validate_policy
 
@@ -558,9 +559,6 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
     ]
 
 
-def _digest(value: Any) -> str:
-    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def _pre_factor_snapshot(facts: dict, derived: dict) -> dict:
@@ -596,7 +594,7 @@ def published_yongshen(result: dict) -> dict:
     return published
 
 
-def resolve_yongshen(fullchart: dict) -> dict:
+def resolve_yongshen(fullchart: dict, source_chart_digest: str | None = None) -> dict:
     """从 bazi.fullchart 事实裁决唯一 selected_yongshen。"""
     policy = load_policy()
     facts = _enrich_facts(fullchart or {}, policy)
@@ -609,8 +607,10 @@ def resolve_yongshen(fullchart: dict) -> dict:
     result["ge_ju_context"] = result["alternatives"]["ge_ju"]
     result["evidence"] = _evidence(facts, derived, policy)
     result["policy_id"] = policy["policy_id"]
-    result["chart_digest"] = _digest(fullchart or {})
-    result["yongshen_digest"] = _digest(published_yongshen(result))
+    if source_chart_digest is None:
+        raise ValueError("resolve_yongshen requires source_chart_digest")
+    result["chart_digest"] = require_sha256(source_chart_digest, "source_chart_digest")
+    result["yongshen_digest"] = sha256_json(published_yongshen(result))
     return result
 
 

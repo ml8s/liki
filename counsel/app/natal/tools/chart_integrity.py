@@ -1,30 +1,15 @@
 """本命 natal_chart 的 canonical digest 与完整性校验。"""
 
-
-import hashlib
-import json
-from typing import Any
+from app.integrity.digest import require_sha256, sha256_excluding
 
 DIGEST_FIELD = "natal_chart_digest"
-
-
-def _canonical_json(value: Any) -> str:
-    return json.dumps(
-        value,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-        allow_nan=False,
-    )
 
 
 def build_natal_chart_digest(natal_chart: dict) -> str:
     """计算 canonical natal_chart digest；digest 字段本身不参与计算。"""
     if not isinstance(natal_chart, dict):
         raise ValueError("natal_chart must be an object")
-    core = {key: value for key, value in natal_chart.items() if key != DIGEST_FIELD}
-    raw = _canonical_json(core).encode("utf-8")
-    return hashlib.sha256(raw).hexdigest()
+    return sha256_excluding(natal_chart, DIGEST_FIELD)
 
 
 def with_natal_chart_digest(natal_chart: dict) -> dict:
@@ -36,8 +21,9 @@ def with_natal_chart_digest(natal_chart: dict) -> dict:
 
 def validate_natal_chart_digest(natal_chart: dict, action: str = "natal_chart") -> None:
     """校验 natal_chart 是否完整且未被调用方修改。"""
-    digest = natal_chart.get(DIGEST_FIELD)
-    if not isinstance(digest, str) or len(digest) != 64:
-        raise ValueError(f"{action} natal_chart.{DIGEST_FIELD} 必须是 build_natal_chart 返回的 64 位 digest")
+    try:
+        digest = require_sha256(natal_chart.get(DIGEST_FIELD), f"{action} natal_chart.{DIGEST_FIELD}")
+    except ValueError as exc:
+        raise ValueError(str(exc)) from exc
     if digest != build_natal_chart_digest(natal_chart):
         raise ValueError(f"{action} natal_chart digest mismatch；禁止修改或手工拼装 natal_chart")

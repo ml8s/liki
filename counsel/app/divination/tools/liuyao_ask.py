@@ -1,7 +1,6 @@
 """六爻 ask：校验 immutable snapshot 并生成结构化 answer。"""
 
 from app.divination.tools.divination_contracts import validate_document
-from app.divination.tools.divination_hashing import message_digest
 from app.divination.tools.divination_safety import assess
 from app.divination.tools.divination_snapshot import validate_snapshot
 from app.divination.tools.liuyao_answer_core import build as build_core
@@ -40,7 +39,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
         "safety_advisory": safety,
         "method": "liuyao",
         "snapshot_digest": snapshot["snapshot_digest"],
-        "message_digest": message_digest(message),
         "headline": core["headline"],
         "verdict": core["verdict"],
         "primary_evidence_refs": core["primary_evidence_refs"],

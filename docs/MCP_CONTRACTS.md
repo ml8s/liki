@@ -92,7 +92,7 @@ Rules:
 - object DTOs close unknown fields with `additionalProperties: false`;
 - input schemas validate untrusted MCP arguments on every call;
 - time-series `count` inputs use `SeriesCount`, publishing the same
-  `[0, MaxSeriesCount]` bounds that runtime validation enforces;
+  `[1, MaxSeriesCount]` bounds that runtime validation enforces; omitted count means one item and explicit zero is invalid;
 - output schemas validate actual JSON in contract tests and diagnostic tooling;
 - wire DTOs do not publish `schema_version` or `contract_version` fields;
 - a tool that replaced a legacy raw-JSON method sets

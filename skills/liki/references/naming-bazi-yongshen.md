@@ -8,25 +8,22 @@
 出生信息
   → 排盘
   → 用神裁决能力
-  → selected_yongshen.selected
+  → selected_yongshen.status / selected
   → 取字能力 / 起名校验能力.selected_yongshen
 ```
 
-八字域负责用神裁决。起名域只消费计划中的：
-
-```text
-yong / xi / ji
-```
-
-不接收状态、冲突、证据、规则、策略来源等八字审计字段，也不重新裁决用神。
+八字域负责用神裁决。起名域只消费 `status` 与 `selected` 计划；不读取冲突、证据、规则、策略来源等八字审计字段，也不重新裁决用神。
 
 ## 计划形状
 
 ```json
 {
-  "yong": "木",
-  "xi": ["水"],
-  "ji": ["金"]
+  "status": "resolved",
+  "selected": {
+    "yong": "木",
+    "xi": ["水"],
+    "ji": ["金"]
+  }
 }
 ```
 
@@ -36,7 +33,7 @@ yong / xi / ji
 - `xi`、`ji` 是五行数组。
 - 用、喜、忌互斥。
 
-当八字结果是 `resolved` 或 `partial`，且 `selected.yong` 是具体五行时，才能传给起名工具。若结果是 `needs_review`、`unresolved`，或 `selected.yong = 无候选`，省略 `selected_yongshen`，只做字库、禁用字与音律检查。
+八字结果为 `resolved` 或 `partial`，且 `selected.yong` 是具体五行时，才把 `selected_yongshen` 传给起名工具。
 
 ## 组合策略
 

@@ -54,6 +54,7 @@ def _pan() -> dict:
             "da_yun": {"steps": [], "current_step_index": -1},
         },
         "full": {
+            "source_chart_digest": "a" * 64,
             **{
                 pillar: {
                     "gan": "甲", "zhi": "子",

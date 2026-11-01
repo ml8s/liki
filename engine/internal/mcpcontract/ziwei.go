@@ -61,7 +61,20 @@ func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessag
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.chart: %w", err)
 	}
-	return marshalRawOutput("ziwei.chart", chart)
+	raw, err := marshalRawOutput("ziwei.chart", chart)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.chart: %w", err)
+	}
+	var item map[string]any
+	if err := json.Unmarshal(raw, &item); err != nil {
+		return nil, fmt.Errorf("ziwei.chart: decode chart: %w", err)
+	}
+	digest, err := chartDigest(item)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.chart: %w", err)
+	}
+	item["chart_digest"] = digest
+	return json.Marshal(item)
 }
 
 // ZiweiFullChart expands a chart with 杂曜、长生、博士、小限、将前、岁前.
@@ -70,11 +83,27 @@ func ZiweiFullChart(_ context.Context, input ZiweiFullChartInput) (json.RawMessa
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
 	}
-	return marshalRawOutput("ziwei.fullchart", ziwei.ComputeFullChart(chart))
+	digest, err := sourceChartDigest(input.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
+	}
+	raw, err := marshalRawOutput("ziwei.fullchart", ziwei.ComputeFullChart(chart))
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
+	}
+	var item map[string]any
+	if err := json.Unmarshal(raw, &item); err != nil {
+		return nil, fmt.Errorf("ziwei.fullchart: decode facts: %w", err)
+	}
+	item["source_chart_digest"] = digest
+	return json.Marshal(item)
 }
 
 // ZiweiDaXian returns the ten-year 大限 steps of a chart.
 func ZiweiDaXian(_ context.Context, input ZiweiDaXianInput) (ZiweiDaXianOutput, error) {
+	if _, err := sourceChartDigest(input.Chart); err != nil {
+		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
+	}
 	chart, err := input.Chart.domain()
 	if err != nil {
 		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
@@ -88,7 +117,7 @@ func ZiweiDaXian(_ context.Context, input ZiweiDaXianInput) (ZiweiDaXianOutput, 
 
 // ZiweiLiuNian returns the flow year palace and its 四化.
 func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (any, error) {
-	return runSeriesPrepared(input, int(input.Count), MaxSeriesCount,
+	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuNianInput) (ziwei.Chart, error) {
 			return in.Chart.domain()
 		},
@@ -143,7 +172,7 @@ func parseZiweiLiuNianTime(input ZiweiLiuNianInput) (ziwei.LiuNianTime, tianwen.
 
 // ZiweiLiuYue returns the flow month palace and its 四化.
 func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (any, error) {
-	return runSeriesPrepared(input, int(input.Count), MaxSeriesCount,
+	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuYueInput) (ziwei.Chart, error) {
 			return in.Chart.domain()
 		},
@@ -201,7 +230,7 @@ func parseZiweiLiuYueTime(input ZiweiLiuYueInput) (ziwei.LiuYueTime, tianwen.Civ
 
 // ZiweiLiuRi returns the flow day palace and its 四化.
 func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (any, error) {
-	return runSeriesPrepared(input, int(input.Count), MaxSeriesCount,
+	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuRiInput) (ziwei.Chart, error) {
 			return in.Chart.domain()
 		},
@@ -257,7 +286,7 @@ func parseZiweiLiuRiTime(input ZiweiLiuRiInput) (ziwei.LiuRiTime, tianwen.LunarP
 
 // ZiweiLiuShi returns the flow hour palace and its 四化.
 func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (any, error) {
-	return runSeriesPrepared(input, int(input.Count), MaxSeriesCount,
+	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuShiInput) (ziwei.Chart, error) {
 			return in.Chart.domain()
 		},
@@ -320,5 +349,23 @@ func ZiweiBond(_ context.Context, input ZiweiBondInput) (json.RawMessage, error)
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: chart b: %w", err)
 	}
-	return marshalRawOutput("ziwei.bond", ziwei.ComputeBond(chartA, chartB))
+	digestA, err := sourceChartDigest(input.A.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.bond: %w", err)
+	}
+	digestB, err := sourceChartDigest(input.B.Chart)
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.bond: %w", err)
+	}
+	raw, err := marshalRawOutput("ziwei.bond", ziwei.ComputeBond(chartA, chartB))
+	if err != nil {
+		return nil, fmt.Errorf("ziwei.bond: %w", err)
+	}
+	var item map[string]any
+	if err := json.Unmarshal(raw, &item); err != nil {
+		return nil, fmt.Errorf("ziwei.bond: decode facts: %w", err)
+	}
+	item["a_chart_digest"] = digestA
+	item["b_chart_digest"] = digestB
+	return json.Marshal(item)
 }

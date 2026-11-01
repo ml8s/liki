@@ -94,7 +94,7 @@ def test_natal_period_query_rejects_chart_from_another_snapshot(bazi_chart):
     out = natal_compute_factors(bazi_chart)
     other = dict(bazi_chart)
     other["shi"] = {"gan": "甲", "zhi": "子", "na_yin": "海中金"}
-    with pytest.raises(ValueError, match="chart 与 natal_compute_factors 因子来源不一致"):
+    with pytest.raises(ValueError, match="chart_digest mismatch"):
         natal_period_query(
             out["factors"],
             out["factors_digest"],

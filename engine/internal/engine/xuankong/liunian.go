@@ -38,10 +38,6 @@ func ComputeLiuNian(year int, chart *Chart) LiuNianResult {
 	if chart == nil {
 		return res
 	}
-	if err := chart.ValidateChartDigest(); err != nil {
-		return LiuNianResult{}
-	}
-
 	for _, s := range board.GongWei {
 		if s.GongNum < 1 || s.GongNum > 9 {
 			continue
