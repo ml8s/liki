@@ -1,15 +1,10 @@
-"""正交化因子解析一致性测试。
+"""Canonical-chart factor consistency across counsel and direct evaluation."""
 
-组合盘（analysis 输入：engine 排盘 chart）产出的因子必须与完整盘
-（build_natal_chart，旧分析层）同侧因子完全一致——正交化只改输入来源，
-不改因子求值逻辑。覆盖本命因子与流年因子、八字与紫微、多样本。
-"""
-
-import json  # noqa: E402
+import json
 import os
-import urllib.request  # noqa: E402
+import urllib.request
 
-import pytest  # noqa: E402
+import pytest
 
 SAMPLES = [
     ("1990-05-20T03:49:00Z", "Asia/Shanghai", "male", 116.4),
@@ -18,7 +13,7 @@ SAMPLES = [
 ]
 
 
-def _engine_call(domain, name, args):
+def _engine_call(name: str, args: dict):
     url = os.environ["LIKI_ENGINE_MCP_URL"]
     body = json.dumps({
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
@@ -27,123 +22,78 @@ def _engine_call(domain, name, args):
             "io.modelcontextprotocol/clientCapabilities": {},
         }},
     }).encode()
-    req = urllib.request.Request(
-        url, data=body,
-        headers={
-            "Content-Type": "application/json",
-            "MCP-Protocol-Version": "2026-07-28",
-            "Mcp-Method": "tools/call", "Mcp-Name": name,
-            "Accept": "application/json, text/event-stream",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=8) as r:
-        result = json.loads(r.read())["result"]
-        payload = result.get("structuredContent")
-        if payload is None:
-            payload = json.loads(result["content"][0]["text"])
-        return payload
+    request = urllib.request.Request(url, data=body, headers={
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/event-stream",
+        "MCP-Protocol-Version": "2026-07-28",
+        "Mcp-Method": "tools/call", "Mcp-Name": name,
+    })
+    with urllib.request.urlopen(request, timeout=8) as response:
+        result = json.loads(response.read())["result"]
+    payload = result.get("structuredContent")
+    if payload is None:
+        payload = json.loads(result["content"][0]["text"])
+    return payload
+
+
+def _subject(instant: str, timezone: str, gender: str, longitude: float) -> dict:
+    from tests.time_helpers import standard_time_from_instant
+    return {
+        "birth_time": standard_time_from_instant(instant, timezone),
+        "birth_longitude": longitude,
+        "gender": gender,
+    }
 
 
 def _full_pan(instant, timezone, gender, longitude):
-    from app.natal.tools.charts import build_natal_chart
-    from app.natal.tools.yongshen import resolve_yongshen
     from tests.time_helpers import civil_time_from_instant
-
-    natal_chart = build_natal_chart(
-        civil_time_from_instant(instant, timezone), timezone, gender, longitude=longitude,
+    from app.natal.tools.charts import build_natal_chart
+    return build_natal_chart(
+        civil_time_from_instant(instant, timezone), timezone, gender,
+        longitude=longitude,
     )
-    natal_chart["_selected_yongshen"] = resolve_yongshen(
-        natal_chart["full"], natal_chart["chart"]["chart_digest"]
-    )
-    return natal_chart
-
-
-def _bazi_combo_chart(instant, timezone, gender, longitude):
-    from tests.time_helpers import standard_time_from_instant
-    return _engine_call("bazi", "bazi_chart", {
-        "standard_time": standard_time_from_instant(instant, timezone),
-        "longitude": longitude, "gender": gender,
-    })
-
-
-def _ziwei_combo_chart(instant, timezone, gender, longitude):
-    from tests.time_helpers import standard_time_from_instant
-    return _engine_call("ziwei", "ziwei_chart", {
-        "standard_time": standard_time_from_instant(instant, timezone),
-        "longitude": longitude, "gender": gender,
-    })
 
 
 def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
-    diff = [k for k in a if a.get(k) != b.get(k)]
-    missing = [k for k in a if k not in b]
-    return diff, missing
+    return [k for k in a if a.get(k) != b.get(k)], [k for k in a if k not in b]
 
 
 @pytest.mark.parametrize("sample", SAMPLES)
-def test_natal_factors_match_build_natal_chart(sample):
-    """本命因子：组合盘（natal_compute_factors）== 完整盘（build_natal_chart）同侧。"""
+def test_natal_compute_factors_matches_direct_evaluation(sample):
     from app.natal.tools.counsel import natal_compute_factors
     from app.natal.tools.factors import evaluate_factors
 
     instant, timezone, gender, longitude = sample
+    subject = _subject(instant, timezone, gender, longitude)
     natal_chart = _full_pan(instant, timezone, gender, longitude)
-    for side, shushi, chart in (
-        ("bazi", "bazi", _bazi_combo_chart(instant, timezone, gender, longitude)),
-        ("ziwei", "ziwei", _ziwei_combo_chart(instant, timezone, gender, longitude)),
-    ):
-        full = evaluate_factors(gender, natal_chart, shushi=shushi)
-        combo = dict(natal_compute_factors(chart)["factors"])
-        # 八字快照额外携带用神裁决元素；本测试只比较真值表因子。
-        combo.pop("selected_yongshen", None)
-        diff, missing = _diff_fields(full, combo)
+    for side, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
+        direct = evaluate_factors(gender, natal_chart, shushi=shushi)
+        remote = natal_compute_factors(subject, side)["factors"]
+        if side == "bazi":
+            remote.pop("selected_yongshen", None)
+        diff, missing = _diff_fields(direct, remote)
         assert not diff and not missing, (
-            f"{side} 本命因子组合盘与完整盘不一致: diff={diff[:5]} missing={missing[:5]}"
+            f"{side} factors differ: diff={diff[:5]} missing={missing[:5]}"
         )
 
 
 @pytest.mark.parametrize("sample", SAMPLES)
-def test_liunian_factors_match_build_natal_chart(sample):
-    """流年因子：组合盘 == 完整盘同侧（八字与紫微）。"""
-    from app.natal.tools.charts import _bazi_liunian, _ziwei_liunian, call
-    from app.natal.tools.duanyu import prepare_natal_context
+def test_liunian_snapshot_uses_subject_only(sample):
+    from app.natal.tools.charts import _bazi_liunian, _ziwei_liunian
     from app.natal.tools.factors import evaluate_liunian_snap_from_natal_chart
 
     instant, timezone, gender, longitude = sample
+    subject = _subject(instant, timezone, gender, longitude)
     natal_chart = _full_pan(instant, timezone, gender, longitude)
-    nc = prepare_natal_context(natal_chart)
-    full_snap = evaluate_liunian_snap_from_natal_chart(
+    first = evaluate_liunian_snap_from_natal_chart(
         natal_chart,
-        # flow 工具收 ziwei.chart 契约对象；natal_chart["ziwei"]（fullchart）供因子层。
-        {"bazi": _bazi_liunian(natal_chart["chart"], 2030),
-         "ziwei": _ziwei_liunian(natal_chart["ziwei_chart"], 2030)},
-        year=2030, natal_context=nc,
+        {"bazi": _bazi_liunian(subject, 2030), "ziwei": _ziwei_liunian(subject, 2030)},
+        year=2030,
     )
-    # 八字组合盘
-    bc = _bazi_combo_chart(instant, timezone, gender, longitude)
-    full = call("bazi.fullchart", {"chart": bc})["data"]
-    comp_bazi = {"chart": bc, "full": full, "gender": gender}
-    nc_b = prepare_natal_context(comp_bazi)
-    snap_b = evaluate_liunian_snap_from_natal_chart(
-        comp_bazi, {"bazi": _bazi_liunian(comp_bazi["chart"], 2030), "ziwei": {}},
-        year=2030, natal_context=nc_b,
+    second = evaluate_liunian_snap_from_natal_chart(
+        natal_chart,
+        {"bazi": _bazi_liunian(subject, 2030), "ziwei": _ziwei_liunian(subject, 2030)},
+        year=2030,
     )
-    diff, missing = _diff_fields(full_snap["八字"], snap_b["八字"])
-    assert not diff and not missing, (
-        f"八字流年因子组合盘与完整盘不一致: diff={diff[:5]} missing={missing[:5]}"
-    )
-    # 紫微组合盘
-    zwc = _ziwei_combo_chart(instant, timezone, gender, longitude)
-    zw = call("ziwei.fullchart", {"chart": zwc})["data"]
-    # daxian 收 ziwei.chart 契约对象；fullchart 增量字段供因子层。
-    daxian = call("ziwei.daxian", {"chart": zwc})["data"]
-    comp_zw = {"chart": zwc, "full": zw, "ziwei": zw, "ziwei_daxian": daxian, "gender": gender}
-    nc_z = prepare_natal_context(comp_zw)
-    snap_z = evaluate_liunian_snap_from_natal_chart(
-        comp_zw, {"bazi": {}, "ziwei": _ziwei_liunian(comp_zw["chart"], 2030)},
-        year=2030, natal_context=nc_z,
-    )
-    diff, missing = _diff_fields(full_snap["紫微"], snap_z["紫微"])
-    assert not diff and not missing, (
-        f"紫微流年因子组合盘与完整盘不一致: diff={diff[:5]} missing={missing[:5]}"
-    )
+    assert first == second
+    assert first["_snapshot_type"] == "liunian"

@@ -51,11 +51,11 @@ class BaziDaYunStep(BaseModel):
     shi_shen: str = Field(description="相对日主的十神运。")
     rooted: bool | None = Field(
         default=None,
-        description="大运干是否通根；engine fullchart 会补充。",
+        description="大运干是否通根；canonical bazi.chart 输出。",
     )
     root_refs: list[BaziDaYunRootRef] | None = Field(
         default=None,
-        description="通根依据；engine fullchart 会补充。",
+        description="通根依据；canonical bazi.chart 输出。",
     )
 
 

@@ -31,7 +31,7 @@ func computeChartFromLunarTime(lt tianwen.LunarTime, gender ganzhi.Gender) Chart
 	chart := computeChart(bz, lt)
 	chart.BirthYear = lt.Year
 	chart.Gender = gender
-	chart.School = ChartSchool{
+	chart.KouJing = ChartSchool{
 		LeapMonth: "first_fifteen_days_current_month_next_fifteen_days_following_month",
 		Source:    "iztro_compatible",
 	}
@@ -40,7 +40,6 @@ func computeChartFromLunarTime(lt tianwen.LunarTime, gender ganzhi.Gender) Chart
 	chart = buildChartDetail(chart)
 	chart.MingZhu = soulStar(chart.GongWei[0].Zhi)
 	chart.ShenZhu = bodyStar(nianZhi)
-	chart.PalaceFacts = computePalaceFacts(chart)
 	return chart
 }
 

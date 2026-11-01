@@ -20,7 +20,7 @@ _OP_NAMES = frozenset({
 
 def _ten_god_states_from_natal_chart(chart: dict) -> dict:
     """直读 engine 十神状态，按十神名建立机械索引。"""
-    full = chart.get("full", {}) or {}
+    full = chart.get("bazi", {}) or {}
     return {
         item.get("shi_shen", ""): item
         for item in full.get("ten_god_states", []) or []
@@ -56,7 +56,7 @@ def _ten_god_state(base, ten: str) -> Optional[dict]:
 
 def _element_states_from_natal_chart(chart: dict) -> dict:
     """直读 engine 五行状态，按五行名建立机械索引。"""
-    full = chart.get("full", {}) or {}
+    full = chart.get("bazi", {}) or {}
     return {
         item.get("wuxing", ""): item
         for item in full.get("element_states", []) or []
@@ -211,7 +211,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         field, value = args[0], args[1]
         if field == "shen_sha":
             names = []
-            full = chart.get("full", {}) or {}
+            full = chart.get("bazi", {}) or {}
             for zhu in const["四柱"]:
                 for it in (full.get(zhu) or {}).get("shen_sha", []) or []:
                     names.append(it.get("name") or it.get("xing"))
@@ -241,7 +241,7 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op == "关系":
         # 关系[field, 组名]——读取引擎完整合会冲刑组。
         field, group = args[0], args[1]
-        relation_groups = (chart.get("full", {}) or {}).get("relation_groups", [])
+        relation_groups = (chart.get("bazi", {}) or {}).get("relation_groups", [])
         return 1 if any(
             item.get("field") == field and item.get("group") == group
             for item in relation_groups
@@ -354,7 +354,7 @@ def _path_get(base, chart, path: str):
             return None
     return cur
 def _zw_gong_op(base, chart, args):
-    """紫微宫位查询：exact match engine palace_atomic_facts，Python 不复算星曜条件。"""
+    """紫微宫位查询：exact match counsel palace projection，Python 不复算星曜条件。"""
     const = load_constants()
     gong_name = args[0]
     star = args[1]
@@ -370,10 +370,8 @@ def _zw_gong_op(base, chart, args):
     else:
         from app.natal.tools.factor_context import PalaceIndex
         ziwei = chart.get("ziwei") or {}
-        index = PalaceIndex(
-            ziwei.get("palace_facts") or [],
-            ziwei.get("gong_wei") or [],
-        )
+        from app.natal.tools.palace_projection import build_palace_facts
+        index = PalaceIndex(build_palace_facts(ziwei))
 
     def hit(kind: str, target: str, star_name: str = "") -> bool:
         return index.hit(gong_name, kind, target, star_name)
@@ -485,7 +483,7 @@ def _daxian_op(chart: dict, current_year: int, args) -> "int | str":
 
 
 def _atomic_facts(chart: dict) -> dict:
-    full = chart.get("full", {}) or {}
+    full = chart.get("bazi", {}) or {}
     facts = full.get("atomic_facts")
     return facts if isinstance(facts, dict) else {}
 def _base_ctx_from_natal_chart(chart: dict) -> dict:
@@ -502,15 +500,15 @@ def _base_ctx_from_natal_chart(chart: dict) -> dict:
             return {**chart, "selected_yongshen": selected}
         return chart
     chart = chart or {}
-    full = chart.get("full", {}) or {}
-    bazi_chart = chart.get("chart", {}) or {}
+    full = chart.get("bazi", {}) or {}
+    bazi_chart = chart.get("bazi", {}) or {}
     chart_da_yun = bazi_chart.get("da_yun") or chart.get("da_yun") or {}
     full_da_yun = full.get("da_yun") or {}
     da_yun = chart_da_yun or full_da_yun
     full_steps = full_da_yun.get("steps", []) or []
     steps = chart.get("dayun_steps") or da_yun.get("steps", [])
     if chart_da_yun.get("steps") and full_steps:
-        # chart.da_yun（engine bazi_chart）steps 缺 rooted，从 fullchart 的 da_yun
+        # canonical bazi.da_yun 已含 rooted
         # 按干支匹配补（不依赖 index 对齐——engine 若调整 steps 顺序也不会错位）。
         full_rooted = {
             (s.get("gan"), s.get("zhi")): s.get("rooted", False)
@@ -561,7 +559,7 @@ def _target_lu_branches(chart: dict, tens: list[str]) -> set[str]:
     target = set(tens)
     if not target:
         return set()
-    full = chart.get("full", {}) or {}
+    full = chart.get("bazi", {}) or {}
     return {
         item.get("zhi", "")
         for item in full.get("lu_roots", []) or []

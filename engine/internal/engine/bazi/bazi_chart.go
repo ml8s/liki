@@ -129,8 +129,13 @@ type FullChart struct {
 	TenGodStates []TenGodState `json:"ten_god_states"`
 	// 五行季节旺弱、组合旺弱与生克方向；Python 因子层只读。
 	ElementStates []ElementState `json:"element_states"`
-	// 确定性命理原子事实：Python 因子层只读，不复算。
-	AtomicFacts AtomicFacts `json:"atomic_facts"`
+	// AtomicFacts is an internal compatibility source while counsel migrates to
+	// domain conclusions; it is not part of the canonical wire contract.
+	AtomicFacts AtomicFacts `json:"-"`
+
+	// 官杀与财库是具体命理结论，不是通用事实袋。
+	GuanSha GuanSha `json:"guan_sha"`
+	CaiKu   CaiKu   `json:"cai_ku"`
 
 	// 补充信息（原 bazi.chart_extra）
 	SanYuan    SanYuan             `json:"san_yuan"`

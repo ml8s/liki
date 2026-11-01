@@ -8,209 +8,213 @@
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "atomic_facts": {
-      "combinations": [
-        {
-          "branches": [
-            "午",
-            "午"
+    "items": [
+      {
+        "year": 2026,
+        "nian_name": "丙午",
+        "shi_shen": "食神",
+        "nian_gan": "丙",
+        "nian_zhi": "午",
+        "wuxing": "火",
+        "na_yin": "天河水",
+        "sheng": 0,
+        "ke": 1,
+        "shensha": [
+          {
+            "name": "灾煞",
+            "category": "凶",
+            "description": "流运灾煞，防意外灾祸"
+          },
+          {
+            "name": "吊客",
+            "category": "凶",
+            "description": "流运吊客临命，主吊丧/孝服"
+          }
+        ],
+        "fuyin_fanyin": [
+          {
+            "detail": "午地支伏吟",
+            "natal_index": 1,
+            "type": "伏吟"
+          },
+          {
+            "detail": "午地支伏吟",
+            "natal_index": 3,
+            "type": "伏吟"
+          }
+        ],
+        "dayun_interactions": [
+          {
+            "gan_rels": [
+              {
+                "gan_a": "甲",
+                "gan_b": "庚",
+                "relation": "庚克甲",
+                "type": "相克"
+              },
+              {
+                "gan_a": "甲",
+                "gan_b": "壬",
+                "relation": "壬生甲",
+                "type": "相生"
+              },
+              {
+                "gan_a": "甲",
+                "gan_b": "甲",
+                "relation": "甲甲同气",
+                "type": "相同"
+              },
+              {
+                "gan_a": "甲",
+                "gan_b": "庚",
+                "relation": "庚克甲",
+                "type": "相克"
+              }
+            ],
+            "pillar_label": "比肩运(甲申)",
+            "zhi_rels": [
+              {
+                "detail": "申辰拱子，水局候选",
+                "type": "三合拱",
+                "zhi_a": "申",
+                "zhi_b": "辰"
+              },
+              {
+                "detail": "无特殊关系",
+                "type": "无",
+                "zhi_a": "申",
+                "zhi_b": "午"
+              },
+              {
+                "detail": "申辰拱子，水局候选",
+                "type": "三合拱",
+                "zhi_a": "申",
+                "zhi_b": "辰"
+              },
+              {
+                "detail": "无特殊关系",
+                "type": "无",
+                "zhi_a": "申",
+                "zhi_b": "午"
+              }
+            ]
+          }
+        ],
+        "natal_interactions": [
+          {
+            "gan_rels": [
+              {
+                "gan_a": "丙",
+                "gan_b": "庚",
+                "relation": "丙克庚",
+                "type": "相克"
+              },
+              {
+                "gan_a": "丙",
+                "gan_b": "壬",
+                "relation": "壬克丙",
+                "type": "相克"
+              },
+              {
+                "gan_a": "丙",
+                "gan_b": "甲",
+                "relation": "甲生丙",
+                "type": "相生"
+              },
+              {
+                "gan_a": "丙",
+                "gan_b": "庚",
+                "relation": "丙克庚",
+                "type": "相克"
+              }
+            ],
+            "pillar_label": "丙午",
+            "zhi_rels": [
+              {
+                "detail": "无特殊关系",
+                "type": "无",
+                "zhi_a": "午",
+                "zhi_b": "辰"
+              },
+              {
+                "detail": "午午自刑",
+                "type": "相刑",
+                "zhi_a": "午",
+                "zhi_b": "午"
+              },
+              {
+                "detail": "无特殊关系",
+                "type": "无",
+                "zhi_a": "午",
+                "zhi_b": "辰"
+              },
+              {
+                "detail": "午午自刑",
+                "type": "相刑",
+                "zhi_a": "午",
+                "zhi_b": "午"
+              }
+            ]
+          }
+        ],
+        "atomic_facts": {
+          "controls_targets": {
+            "day_master": false,
+            "wealth_star": false,
+            "officer_killing": true,
+            "seal_star": false,
+            "food_injury": false
+          },
+          "controls_elements": [
+            "金"
           ],
-          "group": "三刑午",
-          "includes_year": true,
-          "kind": "xing"
+          "wealth_breaks_seal": false,
+          "year_branch_relations": {
+            "午": "xing"
+          },
+          "year_branch_controlled_by": [],
+          "year_gan_controls_day_gan": false,
+          "day_gan_controls_year_gan": false,
+          "gan_combines": false,
+          "dayun_gan_combines": false,
+          "dayun_zhi_clashes_year": false,
+          "day_void_branches": [
+            "寅",
+            "卯"
+          ],
+          "year_equals_day_pillar": false,
+          "dayun_equals_year_pillar": false,
+          "year_gan_equals_natal_year_gan": false,
+          "combinations": [
+            {
+              "kind": "xing",
+              "group": "三刑午",
+              "branches": [
+                "午",
+                "午"
+              ],
+              "includes_year": true
+            },
+            {
+              "kind": "xing",
+              "group": "三刑辰",
+              "branches": [
+                "辰",
+                "辰"
+              ],
+              "includes_year": false
+            }
+          ]
         },
-        {
-          "branches": [
-            "辰",
-            "辰"
-          ],
-          "group": "三刑辰",
-          "includes_year": false,
-          "kind": "xing"
+        "nian_jie": {
+          "selector_standard_time": "2026-06-15T12:00:00+08:00",
+          "selector_date": "2026-06-15",
+          "lichun_year": 2026,
+          "lichun_start": "2026-02-04",
+          "lichun_end": "2027-02-04",
+          "boundary_day": false
         }
-      ],
-      "controls_elements": [
-        "金"
-      ],
-      "controls_targets": {
-        "day_master": false,
-        "food_injury": false,
-        "officer_killing": true,
-        "seal_star": false,
-        "wealth_star": false
-      },
-      "day_gan_controls_year_gan": false,
-      "day_void_branches": [
-        "寅",
-        "卯"
-      ],
-      "dayun_equals_year_pillar": false,
-      "dayun_gan_combines": false,
-      "dayun_zhi_clashes_year": false,
-      "gan_combines": false,
-      "wealth_breaks_seal": false,
-      "year_branch_controlled_by": [],
-      "year_branch_relations": {
-        "午": "xing"
-      },
-      "year_equals_day_pillar": false,
-      "year_gan_controls_day_gan": false,
-      "year_gan_equals_natal_year_gan": false
-    },
-    "dayun_interactions": [
-      {
-        "gan_rels": [
-          {
-            "gan_a": "甲",
-            "gan_b": "庚",
-            "relation": "庚克甲",
-            "type": "相克"
-          },
-          {
-            "gan_a": "甲",
-            "gan_b": "壬",
-            "relation": "壬生甲",
-            "type": "相生"
-          },
-          {
-            "gan_a": "甲",
-            "gan_b": "甲",
-            "relation": "甲甲同气",
-            "type": "相同"
-          },
-          {
-            "gan_a": "甲",
-            "gan_b": "庚",
-            "relation": "庚克甲",
-            "type": "相克"
-          }
-        ],
-        "pillar_label": "比肩运(甲申)",
-        "zhi_rels": [
-          {
-            "detail": "申辰拱子，水局候选",
-            "type": "三合拱",
-            "zhi_a": "申",
-            "zhi_b": "辰"
-          },
-          {
-            "detail": "无特殊关系",
-            "type": "无",
-            "zhi_a": "申",
-            "zhi_b": "午"
-          },
-          {
-            "detail": "申辰拱子，水局候选",
-            "type": "三合拱",
-            "zhi_a": "申",
-            "zhi_b": "辰"
-          },
-          {
-            "detail": "无特殊关系",
-            "type": "无",
-            "zhi_a": "申",
-            "zhi_b": "午"
-          }
-        ]
       }
-    ],
-    "fuyin_fanyin": [
-      {
-        "detail": "午地支伏吟",
-        "natal_index": 1,
-        "type": "伏吟"
-      },
-      {
-        "detail": "午地支伏吟",
-        "natal_index": 3,
-        "type": "伏吟"
-      }
-    ],
-    "ke": 1,
-    "na_yin": "天河水",
-    "natal_interactions": [
-      {
-        "gan_rels": [
-          {
-            "gan_a": "丙",
-            "gan_b": "庚",
-            "relation": "丙克庚",
-            "type": "相克"
-          },
-          {
-            "gan_a": "丙",
-            "gan_b": "壬",
-            "relation": "壬克丙",
-            "type": "相克"
-          },
-          {
-            "gan_a": "丙",
-            "gan_b": "甲",
-            "relation": "甲生丙",
-            "type": "相生"
-          },
-          {
-            "gan_a": "丙",
-            "gan_b": "庚",
-            "relation": "丙克庚",
-            "type": "相克"
-          }
-        ],
-        "pillar_label": "丙午",
-        "zhi_rels": [
-          {
-            "detail": "无特殊关系",
-            "type": "无",
-            "zhi_a": "午",
-            "zhi_b": "辰"
-          },
-          {
-            "detail": "午午自刑",
-            "type": "相刑",
-            "zhi_a": "午",
-            "zhi_b": "午"
-          },
-          {
-            "detail": "无特殊关系",
-            "type": "无",
-            "zhi_a": "午",
-            "zhi_b": "辰"
-          },
-          {
-            "detail": "午午自刑",
-            "type": "相刑",
-            "zhi_a": "午",
-            "zhi_b": "午"
-          }
-        ]
-      }
-    ],
-    "nian_gan": "丙",
-    "nian_name": "丙午",
-    "nian_zhi": "午",
-    "resolved": {
-      "boundary_day": false,
-      "lichun_end": "2027-02-04",
-      "lichun_start": "2026-02-04",
-      "lichun_year": 2026,
-      "selector_date": "2026-06-15",
-      "selector_standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "sheng": 0,
-    "shensha": [
-      {
-        "category": "凶",
-        "description": "流运灾煞，防意外灾祸",
-        "name": "灾煞"
-      },
-      {
-        "category": "凶",
-        "description": "流运吊客临命，主吊丧/孝服",
-        "name": "吊客"
-      }
-    ],
-    "shi_shen": "食神",
-    "wuxing": "火",
-    "year": 2026
+    ]
   }
 }

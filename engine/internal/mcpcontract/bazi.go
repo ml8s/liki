@@ -183,7 +183,7 @@ func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
-	output.Resolved = BaziLiuNianResolved{
+	output.NianJie = BaziLiuNianResolved{
 		SelectorStandardTime: standardTimeValue(at),
 		SelectorDate:         civilDateString(date),
 		LichunYear:           resolved.LichunYear,

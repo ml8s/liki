@@ -66,7 +66,7 @@ func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (any, error) {
 			if err != nil {
 				return ZiweiLiuNianOutput{}, fmt.Errorf("ziwei.liunian: %w", err)
 			}
-			output.Resolved = ZiweiLiuNianResolved{
+			output.NianJie = ZiweiLiuNianResolved{
 				SelectorStandardTime: standardTimeValue(at),
 				SelectorDate:         civilDateString(date),
 				LunarYear:            resolved.LunarYear,

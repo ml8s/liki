@@ -12,20 +12,6 @@ from app.natal.tools import counsel  # noqa: E402
 _CONTRACTS = {contract.name: contract for contract in COUNSEL_TOOLS}
 
 
-def _require_side(side: str, chart: dict) -> None:
-    """Validate that a chart belongs to the natal side inferred from factors."""
-    chart_side = "bazi" if "ri" in chart else "ziwei"
-    if chart_side != side:
-        raise ToolError(
-            f"invalid_arguments: factors 属于 {side}，收到 {chart_side} 盘；"
-            "必须原样传递同一 engine 排盘和 natal_compute_factors 结果。"
-        )
-
-
-def _chart_side(chart: dict) -> str:
-    return "bazi" if "ri" in chart else "ziwei"
-
-
 def _factor_side(arguments: dict) -> str:
     factors = arguments.get("factors")
     if not isinstance(factors, dict):
@@ -55,11 +41,11 @@ def _add_natal_tools(server: MCPServer) -> None:
 
         def invoke_natal(_name=name, **arguments):
             if _name == "bazi_yongshen":
-                if _chart_side(arguments["chart"]) != "bazi":
-                    raise ToolError("invalid_arguments: bazi_yongshen 只接受八字盘。")
-                return counsel.bazi_yongshen(chart=arguments["chart"])
+                return counsel.bazi_yongshen(subject=arguments["subject"])
             if _name == "natal_compute_factors":
-                return counsel.natal_compute_factors(chart=arguments["chart"])
+                return counsel.natal_compute_factors(
+                    subject=arguments["subject"], side=arguments["side"],
+                )
             if _name == "natal_query":
                 side = _factor_side(arguments)
                 return counsel.natal_query(
@@ -69,13 +55,12 @@ def _add_natal_tools(server: MCPServer) -> None:
                     side=side,
                 )
             side = _factor_side(arguments)
-            _require_side(side, arguments["chart"])
             return counsel.natal_period_query(
                 factors=arguments["factors"],
                 factors_digest=arguments["factors_digest"],
                 time_scope=arguments["time_scope"],
                 topics=arguments["topics"],
-                chart=arguments["chart"],
+                subject=arguments["subject"],
                 side=side,
             )
 

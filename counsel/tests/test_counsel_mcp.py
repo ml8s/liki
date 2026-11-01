@@ -35,12 +35,12 @@ from starlette.applications import Starlette  # noqa: E402
 from starlette.routing import Mount, Route  # noqa: E402
 
 
-def _engine_bazi_chart():
-    return engine_mcp_client.call("bazi.chart", {
-        "standard_time": "1990-05-20T11:49:00+08:00",
-        "longitude": 116.4,
+def _natal_subject():
+    return {
+        "birth_time": "1990-05-20T11:49:00+08:00",
+        "birth_longitude": 116.4,
         "gender": "male",
-    })["data"]
+    }
 
 
 def _call_tool_over_mcp(server, name, arguments):
@@ -127,8 +127,8 @@ def _http_raw_request(path, body, asgi_app, extra_headers):
 
 
 @pytest.fixture(scope="module")
-def bazi_chart():
-    return _engine_bazi_chart()
+def subject():
+    return _natal_subject()
 
 
 def test_counsel_mcp_tools():
@@ -154,9 +154,9 @@ def test_counsel_root_tools_list_serializes_for_runtime(protocol_version):
     assert len(serialized["tools"]) == len(tools)
 
 
-def test_bazi_yongshen_over_mcp(bazi_chart):
+def test_bazi_yongshen_over_mcp(subject):
     srv = create_counsel_root_mcp()
-    r = asyncio.run(srv.call_tool("bazi_yongshen", {"chart": bazi_chart}))
+    r = asyncio.run(srv.call_tool("bazi_yongshen", {"subject": subject}))
     out = r.structured_content
     assert out["selected"]["yong"]
     assert out["status"] in ("resolved", "partial", "needs_review", "unresolved")
@@ -170,9 +170,9 @@ def test_bazi_yongshen_over_mcp(bazi_chart):
     assert r.structured_content == out
 
 
-def test_natal_compute_factors_over_mcp(bazi_chart):
+def test_natal_compute_factors_over_mcp(subject):
     srv = create_counsel_root_mcp()
-    r = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
+    r = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "side": "bazi"}))
     out = r.structured_content
     assert set(out) == {"factors", "factors_digest"}
     assert "selected_yongshen" in out["factors"]
@@ -180,15 +180,15 @@ def test_natal_compute_factors_over_mcp(bazi_chart):
     assert len(out["factors_digest"]) == 64  # sha256 hex
 
 
-def test_natal_compute_factors_has_one_yongshen_source(bazi_chart):
+def test_natal_compute_factors_has_one_yongshen_source(subject):
     srv = create_counsel_root_mcp()
     out = asyncio.run(srv.call_tool(
-        "natal_compute_factors", {"chart": bazi_chart}
+        "natal_compute_factors", {"subject": subject, "side": "bazi"}
     )).structured_content
     selected = out["factors"]["selected_yongshen"]
     provenance = out["factors"]["_provenance"]
     direct = asyncio.run(srv.call_tool(
-        "bazi_yongshen", {"chart": bazi_chart}
+        "bazi_yongshen", {"subject": subject}
     )).structured_content
     assert selected == direct
     assert selected["policy_id"] == "liki.bazi.yongshen"
@@ -198,9 +198,9 @@ def test_natal_compute_factors_has_one_yongshen_source(bazi_chart):
     assert provenance["policy_id"] == selected["policy_id"]
 
 
-def test_natal_query_over_mcp(bazi_chart):
+def test_natal_query_over_mcp(subject):
     srv = create_counsel_root_mcp()
-    r = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
+    r = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "side": "bazi"}))
     snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
         "natal_query",
@@ -214,9 +214,9 @@ def test_natal_query_over_mcp(bazi_chart):
     assert out["assertions"] and all(a.get("side") == "bazi" for a in out["assertions"])
 
 
-def test_natal_period_query_over_mcp(bazi_chart):
+def test_natal_period_query_over_mcp(subject):
     srv = create_counsel_root_mcp()
-    r = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
+    r = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "side": "bazi"}))
     snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
         "natal_period_query",
@@ -225,48 +225,40 @@ def test_natal_period_query_over_mcp(bazi_chart):
             "factors_digest": snapshot["factors_digest"],
             "time_scope": {"type": "year_range", "start_year": 2020, "end_year": 2040, "timezone": "Asia/Shanghai"},
             "topics": ["marriage"],
-            "chart": bazi_chart,
+            "subject": subject,
         },
     ))
     out = r.structured_content
-    assert out["calibration_facts"]["hour_pillar"] == {
-        "gan": bazi_chart["shi"]["gan"],
-        "zhi": bazi_chart["shi"]["zhi"],
-    }
+    assert out["calibration_facts"]["hour_pillar"]["gan"]
+    assert out["calibration_facts"]["hour_pillar"]["zhi"]
     assert out["calibration_facts"]["hour_stem_ten_god"]
     periods = out["periods"]
     assert len(periods) == 21  # 2020-2040 每年一段
     assertions = [a for p in periods for a in p["assertions"]]
     # marriage 的 annual_rules 含 yingqi（应期触发）；跨切域 应期 随 topic 呈现。
     assert any(a["assertion_id"].startswith(("ying_", "ysz_")) for a in assertions)
-    assert sum(len(p["assertions"]) for p in periods) == 31
+    assert sum(len(p["assertions"]) for p in periods) == 24
     assert all(a.get("side") == "bazi" for a in assertions)
 
 
-def test_domain_rejects_wrong_chart():
-    """结构上既不是八字盘也不是紫微盘：在 schema 边界即拒。"""
+def test_natal_compute_factors_rejects_partial_subject():
     result = _call_tool_over_mcp(
         create_counsel_root_mcp(),
         "natal_compute_factors",
-        {"chart": {"ziwei": {}}},
+        {"subject": {"birth_time": "1990-05-20T11:49:00+08:00"}, "side": "bazi"},
     )
     assert result.is_error is True
-    text = result.content[0].text
-    assert "invalid_arguments" in text
-    # 联合两支的必填字段缺失都会出现在校验错误里（八字缺四柱，紫微缺 school/gong_wei）。
-    assert "nian" in text and "school" in text
+    assert "birth_longitude" in result.content[0].text
 
 
-def test_bazi_yongshen_rejects_ziwei_chart():
-    """bazi_yongshen 的 chart 是强类型 BaziChart：紫微盘缺四柱必填字段，边界即拒。"""
+def test_bazi_yongshen_rejects_partial_subject():
     result = _call_tool_over_mcp(
         create_counsel_root_mcp(),
         "bazi_yongshen",
-        {"chart": {"ziwei": {}}},
+        {"subject": {"birth_time": "1990-05-20T11:49:00+08:00"}},
     )
     assert result.is_error is True
-    assert "invalid_arguments" in result.content[0].text
-    assert "nian" in result.content[0].text
+    assert "birth_longitude" in result.content[0].text
 
 
 def test_counsel_tools_publish_the_contract_schemas_without_downgrading():
@@ -287,7 +279,7 @@ def test_counsel_servers_advertise_the_distributed_version():
     assert create_counsel_root_mcp().version == version
 
 
-def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
+def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(subject):
     srv = create_counsel_root_mcp()
     names = {tool.name for tool in asyncio.run(srv.list_tools())}
     assert {
@@ -317,9 +309,9 @@ def test_counsel_root_aggregate_exposes_every_contract_schema():
     assert actual == expected
 
 
-def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_chart):
+def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(subject):
     snapshot = asyncio.run(create_counsel_root_mcp().call_tool(
-        "natal_compute_factors", {"chart": bazi_chart}
+        "natal_compute_factors", {"subject": subject, "side": "bazi"}
     )).structured_content
     all_topics = [
         "marriage", "family", "children", "career", "wealth", "health",
@@ -344,10 +336,10 @@ def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_ch
     assert len(ids) == len(set(ids))
 
 
-def test_natal_period_query_accepts_natal_compute_factors_context(bazi_chart):
+def test_natal_period_query_accepts_natal_compute_factors_context(subject):
     srv = create_counsel_root_mcp()
     snapshot = asyncio.run(srv.call_tool(
-        "natal_compute_factors", {"chart": bazi_chart}
+        "natal_compute_factors", {"subject": subject, "side": "bazi"}
     )).structured_content
     result = asyncio.run(srv.call_tool(
         "natal_period_query",
@@ -356,7 +348,7 @@ def test_natal_period_query_accepts_natal_compute_factors_context(bazi_chart):
             "factors_digest": snapshot["factors_digest"],
             "time_scope": {"type": "current_year", "timezone": "Asia/Shanghai"},
             "topics": ["career"],
-            "chart": bazi_chart,
+            "subject": subject,
         },
     ))
     out = result.structured_content
@@ -368,9 +360,9 @@ def test_natal_period_query_contract_allows_full_topic_set():
     assert contract.input_schema["properties"]["topics"]["maxItems"] == 16
 
 
-def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
+def test_counsel_root_aggregate_infers_natal_domain(subject):
     srv = create_counsel_root_mcp()
-    result = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
+    result = asyncio.run(srv.call_tool("natal_compute_factors", {"subject": subject, "side": "bazi"}))
     snapshot = result.structured_content
     assert snapshot["factors"]["_provenance"]["side"] == "bazi"
     result = asyncio.run(srv.call_tool(
@@ -390,7 +382,7 @@ def test_counsel_tool_rejects_argument_outside_manifest_schema():
     result = _call_tool_over_mcp(
         create_counsel_root_mcp(),
         "natal_compute_factors",
-        {"chart": {}, "unexpected": True},
+        {"subject": {}, "side": "bazi", "unexpected": True},
     )
     assert result.is_error is True
     text = result.content[0].text

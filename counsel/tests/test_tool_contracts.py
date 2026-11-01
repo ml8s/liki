@@ -180,20 +180,13 @@ def test_factor_snapshot_rejects_legacy_and_non_scalar_values():
             adapter.validate_python({"大运十神类": value})
 
 
-def test_bazi_yongshen_chart_input_is_fully_typed():
-    chart = CONTRACTS["bazi_yongshen"].input_schema["properties"]["chart"]
-    assert set(chart["required"]) == {
-        "nian", "yue", "ri", "shi", "gender", "birth_year",
-    }
-    assert set(chart["properties"]) == {
-        "nian", "yue", "ri", "shi", "da_yun", "gender", "birth_year", "zi_shi_rule",
-    }
-    assert chart["properties"]["gender"]["enum"] == ["male", "female"]
-    assert chart["properties"]["birth_year"]["minimum"] == 1
-    for pillar in ("nian", "yue", "ri", "shi"):
-        assert set(chart["properties"][pillar]["required"]) == {"gan", "zhi", "na_yin"}
-        assert len(chart["properties"][pillar]["properties"]["gan"]["enum"]) == 10
-        assert len(chart["properties"][pillar]["properties"]["zhi"]["enum"]) == 12
+def test_bazi_yongshen_input_uses_resolved_subject():
+    subject = CONTRACTS["bazi_yongshen"].input_schema["properties"]["subject"]
+    assert set(subject["required"]) == {"birth_time", "birth_longitude", "gender"}
+    assert set(subject["properties"]) == {"birth_time", "birth_longitude", "gender"}
+    assert subject["properties"]["gender"]["enum"] == ["male", "female"]
+    assert subject["properties"]["birth_longitude"]["minimum"] == -180
+    assert subject["properties"]["birth_longitude"]["maximum"] == 180
 
 
 def _resolved_yongshen():
@@ -201,7 +194,7 @@ def _resolved_yongshen():
 
     path = (
         REPO_ROOT / "engine" / "internal" / "mcpcontract" / "testdata"
-        / "actual" / "bazi_chart_1990_fullchart.json"
+        / "actual" / "bazi_chart_1990.json"
     )
     return resolve_yongshen(
         json.loads(path.read_text(encoding="utf-8"))["output"], "a" * 64
@@ -304,10 +297,10 @@ def test_tool_vocabulary_bridge_publishes_exactly_what_the_models_expose():
 
 def test_natal_tools_have_closed_args():
     required = {
-        "bazi_yongshen": ["chart"],
-        "natal_compute_factors": ["chart"],
+        "bazi_yongshen": ["subject"],
+        "natal_compute_factors": ["subject", "side"],
         "natal_query": ["factors", "factors_digest", "topics"],
-        "natal_period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],
+        "natal_period_query": ["factors", "factors_digest", "time_scope", "topics", "subject"],
     }
     assert set(NATAL_FUNCTIONS) == set(required)
     for name, schema in NATAL_FUNCTIONS.items():

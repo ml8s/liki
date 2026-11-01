@@ -1,10 +1,10 @@
-"""跨运行时 canonical digest 与 engine chart 身份契约。"""
+"""Cross-runtime canonical digest contract."""
 
 import re
 
 import pytest
+
 from app.integrity.digest import require_sha256, sha256_excluding, sha256_json
-from app.natal.tools.counsel import _engine_chart_digest
 
 
 def test_canonical_json_matches_cross_runtime_reference_vector():
@@ -24,19 +24,6 @@ def test_sha256_excluding_ignores_digest_metadata():
     digest = sha256_excluding(value, "chart_digest")
     assert digest == sha256_json({"chart": {"gan": "甲"}})
     assert re.fullmatch(r"[0-9a-f]{64}", digest)
-
-
-def test_engine_chart_digest_fails_closed():
-    chart = {"birth_year": 2000, "gender": "male"}
-    with pytest.raises(ValueError, match="chart_digest"):
-        _engine_chart_digest(chart, "test")
-
-    chart["chart_digest"] = sha256_excluding(chart, "chart_digest")
-    assert _engine_chart_digest(chart, "test") == chart["chart_digest"]
-
-    chart["birth_year"] = 2001
-    with pytest.raises(ValueError, match="chart_digest mismatch"):
-        _engine_chart_digest(chart, "test")
 
 
 def test_require_sha256_rejects_non_canonical_form():

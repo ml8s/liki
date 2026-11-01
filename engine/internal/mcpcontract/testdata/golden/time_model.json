@@ -104,9 +104,9 @@
         "standard_time": "2024-01-20T12:00:00-05:00"
       },
       "expect": {
-        "items.0.resolved.lichun_year": 2023,
-        "items.1.resolved.lichun_year": 2024,
-        "items.2.resolved.lichun_year": 2025
+        "items.0.nian_jie.lichun_year": 2023,
+        "items.1.nian_jie.lichun_year": 2024,
+        "items.2.nian_jie.lichun_year": 2025
       }
     },
     {
@@ -160,10 +160,10 @@
         "standard_time": "2024-02-09T23:30:00-05:00"
       },
       "expect": {
-        "items.0.resolved.selector_date": "2024-02-09",
-        "items.0.resolved.lunar_year": 2024,
-        "items.0.resolved.lunar_year_start": "2024-02-09",
-        "items.0.resolved.boundary_day": true
+        "items.0.nian_jie.selector_date": "2024-02-09",
+        "items.0.nian_jie.lunar_year": 2024,
+        "items.0.nian_jie.lunar_year_start": "2024-02-09",
+        "items.0.nian_jie.boundary_day": true
       }
     },
     {
@@ -239,8 +239,8 @@
         "standard_time": "2024-02-04T03:27:06-05:00"
       },
       "expect": {
-        "items.0.resolved.selector_date": "2024-02-04",
-        "items.0.resolved.lichun_year": 2023
+        "items.0.nian_jie.selector_date": "2024-02-04",
+        "items.0.nian_jie.lichun_year": 2023
       }
     },
     {
@@ -251,8 +251,8 @@
         "standard_time": "2024-02-04T03:27:07-05:00"
       },
       "expect": {
-        "items.0.resolved.selector_date": "2024-02-04",
-        "items.0.resolved.lichun_year": 2024
+        "items.0.nian_jie.selector_date": "2024-02-04",
+        "items.0.nian_jie.lichun_year": 2024
       }
     },
     {

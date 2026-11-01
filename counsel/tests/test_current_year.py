@@ -29,23 +29,26 @@ def _fake_call(cst):
                 "standard_time": cst + "T12:00:00+08:00",
                 "offset": 28800,
             }}
-        if name == "tianwen.resolve":
-            date, clock = params["date"], params["time"]
-            local = f"{date}T{clock}:00+08:00"
-            return {"data": {"candidates": [{
-                "standard_time": local, "offset": 28800,
-                "reasons": [{"domain": "input", "detail": "输入时间"}],
-            }]}}
-        gt = params["standard_time"]
+        gt = params["start_time"]
         if name == "bazi.chart":
-            year = _date(gt)[:4] if _date(gt)[5:] == "07-01" else None
-            if year is None:
-                year = BAZI[_date(gt)]
-            year = int(year)
+            year = BAZI[_date(gt)]
             gan, zhi = GZ[year]
             return {"data": {"nian": {"gan": gan, "zhi": zhi}, "birth_year": int(gt[:4])}}
         if name == "ziwei.chart":
             return {"data": {"birth_year": LUNAR[_date(gt)]}}
+        if name == "bazi.liunian":
+            year = BAZI[_date(gt)]
+            gan, zhi = GZ[year]
+            return {"data": {"items": [{
+                "year": year,
+                "nian": {"gan": gan, "zhi": zhi},
+                "nian_jie": {"lichun_year": year},
+            }]}}
+        if name == "ziwei.liunian":
+            year = LUNAR[_date(gt)]
+            return {"data": {"items": [{
+                "nian_jie": {"lunar_year": year},
+            }]}}
         raise AssertionError(f"unexpected tool {name}")
     return call
 

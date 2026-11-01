@@ -83,10 +83,10 @@ func assemblePalaces(
 		minor := minorByPalace[zhiIdx]
 		starInfos := make([]starInfo, 0, len(major)+len(minor))
 		for _, star := range major {
-			starInfos = append(starInfos, starInfo{Star: star, Name: starName(star), IsMajor: true})
+			starInfos = append(starInfos, newStarInfo(star, true))
 		}
 		for _, star := range minor {
-			starInfos = append(starInfos, starInfo{Star: star, Name: starName(star), IsMajor: false})
+			starInfos = append(starInfos, newStarInfo(star, false))
 		}
 		palaces[i] = gong{
 			Index:        gongIndex(i),
@@ -118,36 +118,10 @@ func assembleCoreChart(palaces [12]gong, facts coreCalendarFacts) Chart {
 	}
 }
 
-// SanFangInfo describes one palace in the 三方四正 (命宫/财帛/官禄/迁移 三合).
-type SanFangInfo struct {
-	Name    string   `json:"name"`
-	ZhuXing []string `json:"zhu_xing"`
-	FuXing  []string `json:"fu_xing"`
-	SiHua   []string `json:"si_hua"`
-}
-
-// buildSanFangInfo collects the major/minor stars and 四化 of the 三方四正 palaces.
-func buildSanFangInfo(c Chart, sfPalaces [4]gongIndex) []SanFangInfo {
-	var result []SanFangInfo
-	for _, pi := range sfPalaces {
-		p := c.GongWei[pi]
-		info := SanFangInfo{
-			Name: gongLabels[pi], ZhuXing: make([]string, 0),
-			FuXing: make([]string, 0), SiHua: make([]string, 0),
-		}
-		for _, s := range p.Stars {
-			if s.SiHua != "" {
-				info.SiHua = append(info.SiHua, s.SiHua)
-			}
-			if s.IsMajor {
-				info.ZhuXing = append(info.ZhuXing, s.Name)
-			} else {
-				info.FuXing = append(info.FuXing, s.Name)
-			}
-		}
-		result = append(result, info)
-	}
-	return result
+// sanFangSiZheng returns the palace relation only. Star facts remain owned by
+// each palace in ShiErGong.
+func sanFangSiZheng(palaces [4]gongIndex) SanFangSiZheng {
+	return SanFangSiZheng{MingGong: palaces[:]}
 }
 
 // buildChartDetail enriches a core chart with siHua, brightness, and patterns.
@@ -156,7 +130,7 @@ func buildChartDetail(chart Chart) Chart {
 	chart.SiHua = computeSiHua(chart.NianGan)
 	chart.KongGong = computeKongGong(chart.GongWei)
 	chart.Patterns = findPatterns(chart.GongWei)
-	chart.SanFang = buildSanFangInfo(chart, sanFang(0))
+	chart.SanFangSiZheng = sanFangSiZheng(sanFang(0))
 	return markYuanGong(chart)
 }
 
@@ -189,16 +163,7 @@ func computeKongGong(gongWei [12]gong) []kongGongInfo {
 			continue
 		}
 		dui := (i + 6) % 12
-		info := kongGongInfo{
-			GongName: gongLabels[gongIndex(i)],
-			DuiGong:  gongLabels[gongIndex(dui)],
-		}
-		for _, s := range gongWei[dui].Stars {
-			if s.IsMajor {
-				info.JieXing = append(info.JieXing, s.Name)
-			}
-		}
-		out = append(out, info)
+		out = append(out, kongGongInfo{KongGong: gongIndex(i), JieGong: gongIndex(dui)})
 	}
 	return out
 }

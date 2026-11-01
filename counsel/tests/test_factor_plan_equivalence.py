@@ -46,7 +46,7 @@ def _build_natal():
 
 def _build_liunian(natal_chart):
     from app.natal.tools.charts import _bazi_liunian
-    return _bazi_liunian(natal_chart["chart"], 2030)
+    return _bazi_liunian(natal_chart["subject"], 2030)
 
 
 class TestNatalEquivalence:
@@ -121,7 +121,7 @@ class TestLiunianEquivalence:
     def test_ziwei_liunian_full(self):
         natal = _build_natal()
         from app.natal.tools.charts import _ziwei_liunian
-        zw_ln = _ziwei_liunian(natal.get("ziwei_chart") or natal.get("ziwei") or {}, 2030)
+        zw_ln = _ziwei_liunian(natal["subject"], 2030)
         ctx = {"liunian": {}, "zw_liunian": zw_ln, "year": 2030,
                "chart": natal, "base": {}, "snapshot": {}}
         rows = [r for r in load_liunian_rows() if r["术数"] == "ziwei"]

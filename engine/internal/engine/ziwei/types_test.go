@@ -63,11 +63,11 @@ func TestJuShu_MarshalJSON(t *testing.T) {
 		want  string
 	}{
 		{0, `""`}, // unknown→empty
-		{2, `"水二局"`},
-		{3, `"木三局"`},
-		{4, `"金四局"`},
-		{5, `"土五局"`},
-		{6, `"火六局"`},
+		{2, `"water_2"`},
+		{3, `"wood_3"`},
+		{4, `"metal_4"`},
+		{5, `"earth_5"`},
+		{6, `"fire_6"`},
 	}
 	for _, tt := range tests {
 		b, err := json.Marshal(tt.input)
@@ -87,9 +87,9 @@ func TestJuShu_UnmarshalJSON_StringOnly(t *testing.T) {
 		want  juShu
 		err   bool
 	}{
-		{`"水二局"`, 2, false},
-		{`"木三局"`, 3, false},
-		{`"火六局"`, 6, false},
+		{`"water_2"`, 2, false},
+		{`"wood_3"`, 3, false},
+		{`"fire_6"`, 6, false},
 		{`""`, 0, false},   // empty→0
 		{`"金七局"`, 0, true}, // 不存在
 		{`2`, 0, true},     // 整数拒绝

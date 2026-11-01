@@ -272,11 +272,11 @@ def _selected_for_pan(natal_chart: dict) -> dict:
     selected = natal_chart.get("_selected_yongshen")
     if isinstance(selected, dict):
         return selected
-    full = natal_chart.get("full") or {}
-    digest = (natal_chart.get("chart") or {}).get("chart_digest")
+    bazi = natal_chart.get("bazi") or {}
+    digest = natal_chart.get("natal_chart_digest")
     if not digest:
-        raise ValueError("natal_chart.chart requires chart_digest")
-    return resolve_yongshen(full, digest)
+        raise ValueError("natal_chart requires natal_chart_digest")
+    return resolve_yongshen(bazi, digest)
 
 
 def prepare_natal_context(
@@ -298,7 +298,7 @@ def prepare_natal_context(
     selected = _selected_for_pan(natal_chart)
     evaluation = _factor_context_from_natal_chart(natal_chart, selected)
     snapshot = evaluate_factors(
-        natal_chart.get("gender", ""), evaluation, shushi="bazi",
+        (natal_chart.get("subject") or {}).get("gender", ""), evaluation, shushi="bazi",
         factor_names=factor_names,
     )
     result = NatalContext(evaluation=evaluation, snapshot=snapshot)
@@ -322,7 +322,7 @@ def evaluate_snap_from_natal_chart(
     不做全局内容缓存：agent CLI 一次调用只求值一次，长驻场景由调用方决定生命周期。
     同一 natal_chart 的多域查询在进程内可复用外部传入的 NatalContext。
     """
-    gender = natal_chart.get("gender", "")
+    gender = (natal_chart.get("subject") or {}).get("gender", "")
     ziwei_year = current_year if current_year_ziwei is None else current_year_ziwei
     context = {"性别": gender}
     if natal_chart.get("standard_time"):
@@ -399,7 +399,7 @@ def evaluate_liunian_snap_from_natal_chart(natal_chart: dict, liunian_pan: dict,
     本命基础聚合与本命八字因子。函数只读 natal_chart，不向其写入私有缓存。
     factor_names 可限定流年因子闭包；None=双侧全量。
     """
-    gender = natal_chart.get("gender", "")
+    gender = (natal_chart.get("subject") or {}).get("gender", "")
     if natal_context is None:
         evaluation = _factor_context_from_natal_chart(natal_chart, _selected_for_pan(natal_chart))
         bz = evaluate_factors(gender, evaluation, shushi="bazi")

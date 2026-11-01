@@ -263,7 +263,7 @@ def query(rule: str, natal_chart: dict, year: int | None = None,
         result["current_year_source"] = current_year_source
         if resolved_lunar_year and resolved_lunar_year != resolved_current_year:
             result["current_lunar_year"] = resolved_lunar_year
-        dayun = _current_step((natal_chart.get("chart") or {}).get("da_yun", {}).get("steps"),
+        dayun = _current_step((natal_chart.get("bazi") or {}).get("da_yun", {}).get("steps"),
                               resolved_current_year)
         if dayun:
             result["current_dayun"] = dayun
@@ -380,12 +380,11 @@ def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, 
         _bazi_liunian_range,
         _ziwei_liunian_range,
     )
-    chart = natal_chart.get("chart") or {}
-    zw = natal_chart.get("ziwei_chart") or natal_chart.get("ziwei") or {}
-    # Side selection: bazi-only has a ri pillar, while a Ziwei analysis pan
-    # stores its engine chart in `chart` without ri.
-    fetch_bazi = "ri" in chart
-    fetch_ziwei = bool(natal_chart.get("ziwei")) if fetch_bazi else bool(zw)
+    subject = natal_chart.get("subject") or {}
+    bazi = natal_chart.get("bazi") or {}
+    ziwei = natal_chart.get("ziwei") or {}
+    fetch_bazi = "ri" in bazi
+    fetch_ziwei = bool(ziwei)
     years = {}
 
     for chunk_start in range(start, start + count, MAX_LIUNIAN_BATCH):
@@ -394,11 +393,11 @@ def _batch_liunian_data(natal_chart: dict, start: int, count: int) -> dict[int, 
         try:
             with ThreadPoolExecutor(max_workers=2) as executor:
                 bazi_future = (
-                    executor.submit(_bazi_liunian_range, chart, chunk_start, chunk_count)
+                    executor.submit(_bazi_liunian_range, subject, chunk_start, chunk_count)
                     if fetch_bazi else None
                 )
                 ziwei_future = (
-                    executor.submit(_ziwei_liunian_range, zw, chunk_start, chunk_count)
+                    executor.submit(_ziwei_liunian_range, subject, chunk_start, chunk_count)
                     if fetch_ziwei else None
                 )
                 bazi_items = (
@@ -472,7 +471,7 @@ def yearly_range(natal_chart: dict, start: int, end: int,
     if validate_pan:
         validate_natal_chart(natal_chart, action="yearly_range")
     else:
-        for key in ("chart", "full", "gender"):
+        for key in ("subject", "bazi", "ziwei"):
             if not natal_chart.get(key):
                 raise ChartSchemaError(f"yearly_range natal_chart 缺 {key}，无法流年求值。")
     if not timezone:

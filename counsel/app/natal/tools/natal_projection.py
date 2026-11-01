@@ -40,17 +40,16 @@ def _pillar_extras(full: dict, pillar: str) -> dict:
 
 def _project_bazi_facts(natal_chart: dict) -> dict:
     contract = load_contract()
-    full = natal_chart.get("full", {}) or {}
-    chart = natal_chart.get("chart", {}) or {}
+    bazi = natal_chart.get("bazi", {}) or {}
     facts = {}
     for pillar in contract["四柱"]:
-        facts.update(_pillar_extras(full, pillar))
+        facts.update(_pillar_extras(bazi, pillar))
     for source_key, fact_key in contract["八字字段映射"]["full"].items():
-        if source_key in full:
-            facts[fact_key] = full[source_key]
+        if source_key in bazi:
+            facts[fact_key] = bazi[source_key]
     for source_key, fact_key in contract["八字字段映射"]["chart"].items():
-        if source_key in chart:
-            facts[fact_key] = chart[source_key]
+        if source_key in bazi:
+            facts[fact_key] = bazi[source_key]
     return facts
 
 

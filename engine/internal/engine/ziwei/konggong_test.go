@@ -25,26 +25,19 @@ func TestKongGong_BorrowFromDuiGong(t *testing.T) {
 		t.Skip("此命例命宫有主星，换锚点")
 	}
 
-	// kong_gong 输出必须包含命宫，且借星=对宫主星
+	// kong_gong 只表达借星关系；借入星曜仍由来源宫唯一承载。
 	found := false
 	for _, kg := range chart.KongGong {
-		if kg.GongName != gongLabels[mg] {
+		if kg.KongGong != mg {
 			continue
 		}
 		found = true
-		if len(kg.JieXing) == 0 {
-			t.Errorf("命宫空宫借星为空（对宫 %s 应有主星）", kg.DuiGong)
-		}
-		// 借星 = 对宫主星名
 		dui := (int(mg) + 6) % 12
-		var want []string
-		for _, s := range chart.GongWei[dui].Stars {
-			if s.IsMajor {
-				want = append(want, s.Name)
-			}
+		if kg.JieGong != gongIndex(dui) {
+			t.Fatalf("借星宫 = %s, want %s", gongLabels[kg.JieGong], gongLabels[dui])
 		}
-		if len(kg.JieXing) != len(want) {
-			t.Errorf("借星 %v, want 对宫主星 %v", kg.JieXing, want)
+		if !hasMajorStar(chart.GongWei[kg.JieGong]) {
+			t.Errorf("借星宫 %s 无主星", gongLabels[kg.JieGong])
 		}
 	}
 	if !found {

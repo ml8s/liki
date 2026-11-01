@@ -66,7 +66,8 @@ type BaziChartOutput struct {
 	RelationGroups []BaziChartRelationGroupsItem `json:"relation_groups" jsonschema:"完整合会冲刑组；Python 只读"`
 	TenGodStates   []BaziChartTenGodStatesItem   `json:"ten_god_states" jsonschema:"engine 十神显隐 / 通根 / 得令 / 旺弱状态"`
 	ElementStates  []BaziChartElementStatesItem  `json:"element_states" jsonschema:"engine 五行季节旺弱、组合旺弱与生克方向"`
-	AtomicFacts    BaziChartAtomicFacts          `json:"atomic_facts" jsonschema:"engine 确定性命理原子事实；Python 因子层只读"`
+	GuanSha        BaziChartGuanSha              `json:"guan_sha" jsonschema:"官杀取清结论。"`
+	CaiKu          BaziChartCaiKu                `json:"cai_ku" jsonschema:"财库结论。"`
 	TiaoHou        BaziChartTiaoHou              `json:"tiao_hou" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件"`
 	GeJu           BaziChartGeJu                 `json:"ge_ju" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神）"`
 	DayXun         string                        `json:"day_xun" jsonschema:"日柱所在旬"`
@@ -379,6 +380,15 @@ type BaziChartElementStatesItem struct {
 	Reasons            []string        `json:"reasons" jsonschema:"reasons列表。"`
 }
 
+type BaziChartGuanSha struct {
+	QuQing bool `json:"qu_qing" jsonschema:"官杀混杂是否取清。"`
+}
+
+type BaziChartCaiKu struct {
+	Xian     bool `json:"xian" jsonschema:"日主财星墓库支是否现于命局。"`
+	XingRuKu bool `json:"xing_ru_ku" jsonschema:"财星是否入墓库。"`
+}
+
 type BaziChartAtomicFacts struct {
 	DayMasterElement      ElementName                           `json:"day_master_element" jsonschema:"日主五行。"`
 	DayMasterStem         LiuyaoGanName                         `json:"day_master_stem" jsonschema:"日主天干。"`
@@ -467,6 +477,7 @@ type BaziChartGeJu struct {
 	PatternGod       *LiuyaoGanName         `json:"pattern_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god。"`
 	PatternGodTenGod *TenGodName            `json:"pattern_god_ten_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_ten_god。"`
 	PatternGodSource string                 `json:"pattern_god_source" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_source。"`
+	GeShenTou        bool                   `json:"ge_shen_tou" jsonschema:"格神是否透干。"`
 	Structure        BaziChartGeJuStructure `json:"structure" jsonschema:"格局结构。"`
 }
 
@@ -875,7 +886,7 @@ type BaziLiuNianOutput struct {
 	DayunInteractions *[]BaziLiuNianDayunInteractionsItem `json:"dayun_interactions,omitempty" jsonschema:"查询年份所在大运与流年交互（未起运或大运过完时为空数组）"`
 	NatalInteractions *[]BaziLiuNianNatalInteractionsItem `json:"natal_interactions,omitempty" jsonschema:"流年与命局交互"`
 	AtomicFacts       BaziLiuNianAtomicFacts              `json:"atomic_facts" jsonschema:"engine 流年原子事实"`
-	Resolved          BaziLiuNianResolved                 `json:"resolved" jsonschema:"时间推导结果。"`
+	NianJie           BaziLiuNianResolved                 `json:"nian_jie" jsonschema:"流年立春年界。"`
 }
 
 type BaziLiuNianShenshaItem struct {

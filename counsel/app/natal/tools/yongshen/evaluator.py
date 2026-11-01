@@ -281,7 +281,8 @@ def _enrich_facts(fullchart: dict, policy: dict) -> dict:
     fu_yi = fullchart.get("fu_yi") or {}
     tiao_hou = fullchart.get("tiao_hou") or {}
     ge_ju = fullchart.get("ge_ju") or {}
-    atomic = fullchart.get("atomic_facts") or {}
+    from app.natal.tools.bazi_projection import build_atomic_facts
+    atomic = build_atomic_facts(fullchart)
     counts = fu_yi.get("wuxing_count") or {}
     relations = policy["tables"].get("wuxing_relations") or {}
     day_master_element = atomic.get("day_master_element", "")
@@ -594,10 +595,10 @@ def published_yongshen(result: dict) -> dict:
     return published
 
 
-def resolve_yongshen(fullchart: dict, source_chart_digest: str) -> dict:
-    """从 bazi.fullchart 事实裁决唯一 selected_yongshen。"""
+def resolve_yongshen(bazi_chart: dict, source_chart_digest: str) -> dict:
+    """从 canonical bazi.chart 事实裁决唯一 selected_yongshen。"""
     policy = load_policy()
-    facts = _enrich_facts(fullchart or {}, policy)
+    facts = _enrich_facts(bazi_chart or {}, policy)
     derived = _apply_derived(policy, facts)
     rule = _select_rule(policy, facts, derived)
     result = _apply_then(rule, facts, derived)

@@ -56,6 +56,7 @@ func init() {
 	registerWireEnum[GongJiaTypeName]("三会拱", "三合拱")
 	registerWireEnum[HourBoundaryName]("late_zi", "zi_zheng")
 	registerWireEnum[JuShuName]("土五局", "木三局", "水二局", "火六局", "金四局")
+	registerWireEnum[JuShuCode]("water_2", "wood_3", "metal_4", "earth_5", "fire_6")
 	registerWireEnum[LayerName]("earth", "heaven")
 	registerWireEnum[LeadXunShouGanName]("甲")
 	registerWireEnum[LeadXunShouName]("甲午", "甲子", "甲寅", "甲戌", "甲申", "甲辰")
@@ -81,7 +82,6 @@ func init() {
 	registerWireEnum[MethodStarModeName]("nine_stars_forward_with_center", "star_gan_shift_together", "taiyi_nine_stars_day_flight", "tian_qin_lodges_kun")
 	registerWireEnum[MethodYuanName]("上元", "下元", "中元")
 	registerWireEnum[MethodZhiRunStateName]("接气", "正授", "置闰", "超神")
-	registerWireEnum[PalaceFactsKindName]("brightness", "si_hua", "special", "star")
 	registerWireEnum[PatternsName]("三奇入墓", "三奇得使", "人遁", "伏吟", "六仪击刑", "反吟", "地遁", "天遁", "太白入荧", "玉女守门", "荧入太白", "青龙返首", "飞鸟跌穴")
 	registerWireEnum[PillarName]("nian", "ri", "shi", "yue")
 	registerWireEnum[QimenDoorName]("中门", "休门", "伤门", "开门", "惊门", "景门", "杜门", "死门", "生门")
@@ -155,6 +155,8 @@ type HourBoundaryName string
 
 type JuShuName string
 
+type JuShuCode string
+
 type LayerName string
 
 type LeadXunShouGanName string
@@ -204,8 +206,6 @@ type MethodStarModeName string
 type MethodYuanName string
 
 type MethodZhiRunStateName string
-
-type PalaceFactsKindName string
 
 type PatternsName string
 

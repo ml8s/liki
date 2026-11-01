@@ -40,7 +40,9 @@ type TiaoHouResult struct {
 // rescue, and final favorable elements require whole-chart review.
 type GeJuResult struct {
 	Pattern string `json:"ge_ju"`
-	Usage   string `json:"yong_fa"` // "顺用" or "逆用"
+	// GeShenTou is the pattern-god transparency conclusion.
+	GeShenTou bool   `json:"ge_shen_tou"`
+	Usage     string `json:"yong_fa"` // "顺用" or "逆用"
 	// 结构事实：月令格神与来源。当前模型未完整实现相神、成格、败格、
 	// 救应，因此 Pattern 是格局候选，不是子平真诠完整成格结论。
 	PatternGod       string        `json:"pattern_god,omitempty"`
@@ -49,7 +51,18 @@ type GeJuResult struct {
 	Structure        GeJuStructure `json:"structure"`
 }
 
-// ComputeYongShenSchools computes the three yongshen schools from a Chart.
+// GuanSha is the officer/killing mixture conclusion.
+type GuanSha struct {
+	QuQing bool `json:"qu_qing"`
+}
+
+// CaiKu is the wealth-tomb conclusion.
+type CaiKu struct {
+	Xian     bool `json:"xian"`
+	XingRuKu bool `json:"xing_ru_ku"`
+}
+
+// ComputeYongShenSchools computes FuYi, TiaoHou, and GeJu evidence from a Chart.
 // fu_yi is the FuYi candidate (yong/xi/ji); tiao_hou and ge_ju are
 // independent evidence sources. The final yongshen is adjudicated by counsel.
 func ComputeYongShenSchools(c Chart) (FuYiResult, TiaoHouResult, GeJuResult) {

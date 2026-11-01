@@ -10,10 +10,8 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 from pydantic.json_schema import WithJsonSchema
 
-from app.contracts.bazi import BaziChart
 from app.contracts.schema import ToolContract, unique_list
 from app.contracts.yongshen import BaziYongshenOutput
-from app.contracts.ziwei import EngineChart
 from app.natal.tools.factor_semantics import validate_published_factor_value
 
 
@@ -51,13 +49,17 @@ FactorSnapshot = Annotated[
 ]
 
 # ── bazi_yongshen ──
-TOOL_BAZI_YONGSHEN_DESCRIPTION = "engine 八字排盘结果（chart）→ 唯一用神裁决。只接受八字盘；返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要。断语消费同一份裁决；起名只消费 selected.yong 投影出的目标五行。"
+TOOL_BAZI_YONGSHEN_DESCRIPTION = "考时后的 subject → 八字排盘与唯一用神裁决。返回最终用神、喜神、忌神、状态、冲突、命中规则与来源摘要；起名只消费 selected.yong 投影出的目标五行。"
+
+class NatalSubjectInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    birth_time: Annotated[str, Field(min_length=1, description="出生地标准时间，RFC3339 fixed offset。")]
+    birth_longitude: Annotated[float, Field(ge=-180, le=180, description="出生地经度。")]
+    gender: Literal["male", "female"] = Field(description="性别。")
 
 class BaziYongshenInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    chart: BaziChart = Field(
-        description="engine bazi_chart 输出（含四柱与性别）；只接受八字盘。",
-    )
+    subject: NatalSubjectInput = Field(description="已考时归一化的出生主体。")
 
 TOOL_BAZI_YONGSHEN = ToolContract(
     name="bazi_yongshen",
@@ -69,20 +71,19 @@ TOOL_BAZI_YONGSHEN = ToolContract(
 
 
 # ── natal_compute_factors ──
-TOOL_COMPUTE_FACTORS_DESCRIPTION = "engine 本命排盘结果（chart）→ {factors, factors_digest}。八字侧内部调 engine fullchart 后按表裁决唯一用神，并将同一份裁决写入 factors.selected_yongshen；来源 context 随 factors._provenance.context 一起进入 digest，digest 为 SHA-256 canonical 防篡改校验。"
+TOOL_COMPUTE_FACTORS_DESCRIPTION = "考时后的 subject → canonical charts → 单侧因子快照。八字侧裁决唯一用神；subject 原样写入 provenance，factors_digest 防篡改。"
 
 class ComputeFactorsInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    chart: EngineChart = Field(
-        description="engine 排盘结果：bazi_chart（八字，含四柱）或 ziwei_chart（紫微，含十二宫）",
-    )
+    subject: NatalSubjectInput = Field(description="已考时归一化的出生主体。")
+    side: Literal["bazi", "ziwei"] = Field(description="命理技术侧。")
 
 
 class ComputeFactorsOutput(BaseModel):
     """Immutable factor snapshot derived from an engine chart."""
     model_config = ConfigDict(extra="allow")
     factors: FactorSnapshot = Field(
-        description="Canonical factor snapshot; includes _provenance with side, chart digest, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
+        description="Canonical factor snapshot; includes _provenance with side, subject, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
     )
     factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
         description="SHA-256 hex digest of the canonical factor snapshot.",
@@ -222,8 +223,8 @@ class PeriodQueryInput(BaseModel):
     topics: Annotated[unique_list[Annotated[Literal["marriage", "family", "children", "career", "wealth", "health", "mental", "study", "personality", "appearance", "origin", "relocation", "social", "property", "adversity", "chart_structure"], Field(description="受控人生问题领域闭集")]], Field(min_length=1, max_length=16)] = Field(
         description="人生问题域（同 natal_query）",
     )
-    chart: EngineChart = Field(
-        description="engine 排盘结果；必须与 factors 来自同一次 natal_compute_factors 调用（服务端按 chart digest 校验绑定），内部据此调 engine 流年/大限",
+    subject: NatalSubjectInput = Field(
+        description="已考时归一化的出生主体；必须与 factors._provenance.subject 完全一致。内部据此重取 engine 流年/大限。",
     )
 
 
@@ -234,7 +235,7 @@ class PeriodQueryOutputChart(BaseModel):
         description="Chart id.",
     )
     digest: str | None = Field(
-        description="Chart canonical digest.",
+        description="Canonical natal chart digest."
     )
     completeness: str = Field(
         description="Chart completeness.",

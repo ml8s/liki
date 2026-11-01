@@ -168,8 +168,16 @@ func juShuFromWuxing(w Wuxing) juShu {
 	return 0
 }
 
+var juShuCodes = map[juShu]string{
+	JuWater: "water_2",
+	JuWood:  "wood_3",
+	JuMetal: "metal_4",
+	JuEarth: "earth_5",
+	JuFire:  "fire_6",
+}
+
 func (j juShu) MarshalJSON() ([]byte, error) {
-	s, ok := juShuNames[j]
+	s, ok := juShuCodes[j]
 	if !ok {
 		return json.Marshal("")
 	}
@@ -184,6 +192,12 @@ func (j *juShu) UnmarshalJSON(data []byte) error {
 	if s == "" {
 		*j = 0
 		return nil
+	}
+	for k, name := range juShuCodes {
+		if name == s {
+			*j = k
+			return nil
+		}
 	}
 	for k, name := range juShuNames {
 		if name == s {
@@ -207,14 +221,14 @@ func juShuName(j juShu) string { return juShuNames[j] }
 
 // gong holds all computed data for one gong.
 type gong struct {
-	Index        gongIndex  `json:"index"`
-	Name         string     `json:"name"`
+	Index        gongIndex  `json:"-"`
+	Name         string     `json:"ming"`
 	Gan          Gan        `json:"gan"`
 	Zhi          Zhi        `json:"zhi"`
-	IsBodyPalace bool       `json:"is_shen_gong"`
-	IsYuanGong   bool       `json:"is_yuan_gong,omitempty"`
+	IsBodyPalace bool       `json:"shen_gong,omitempty"`
+	IsYuanGong   bool       `json:"lai_yin_gong,omitempty"`
 	Stars        []starInfo `json:"xing_yao"`
-	Ages         []int      `json:"ages,omitempty"`
+	Ages         []int      `json:"xiao_xian,omitempty"`
 	ChangSheng   string     `json:"chang_sheng,omitempty"`
 	BoShi        string     `json:"bo_shi,omitempty"`
 	JiangQian    string     `json:"jiang_qian,omitempty"`
@@ -224,18 +238,18 @@ type gong struct {
 
 // starInfo is one star entry in a gong.
 type starInfo struct {
-	Star       starIndex `json:"xing"`
-	Name       string    `json:"name"`
-	IsMajor    bool      `json:"is_zhu_xing"`
+	Star       starIndex `json:"-"`
+	Name       string    `json:"ming"`
+	IsMajor    bool      `json:"-"`
+	Lei        []string  `json:"lei,omitempty"`
 	SiHua      string    `json:"si_hua,omitempty"`   // "禄"/"权"/"科"/"忌" or empty
 	Brightness string    `json:"liang_du,omitempty"` // "庙"/"旺"/"利"/"平"/"陷"
 }
 
 // kongGongInfo 描述一个无主星宫位及其借星（对宫主星）。
 type kongGongInfo struct {
-	GongName string   `json:"gong_name"`
-	JieXing  []string `json:"jie_xing"`
-	DuiGong  string   `json:"dui_gong"`
+	KongGong gongIndex `json:"kong_gong"`
+	JieGong  gongIndex `json:"jie_gong"`
 }
 
 // siHuaType is one of the four transformations.
@@ -250,19 +264,17 @@ const (
 
 // Chart holds the complete ziwei chart.
 type Chart struct {
-	School    ChartSchool `json:"school"`
-	GongWei   [12]gong    `json:"gong_wei"`
-	MingGong  gongIndex   `json:"ming_gong"`
-	ShenGong  gongIndex   `json:"shen_gong"`
-	JuShu     juShu       `json:"ju_shu"`
-	JuShuName string      `json:"ju_shu_name"`
-	ZiweiPos  gongIndex   `json:"ziwei_pos"`
-	SiHua     siHuaResult `json:"si_hua"`
-	// 宫位原子事实：Python 因子层只做 exact match，不复算星曜条件。
-	PalaceFacts []PalaceFact `json:"palace_facts"`
+	KouJing  ChartSchool `json:"kou_jing"`
+	GongWei  [12]gong    `json:"shi_er_gong"`
+	MingGong gongIndex   `json:"-"`
+	ShenGong gongIndex   `json:"-"`
+	JuShu    juShu       `json:"ju_shu"`
+	// JuShuName is the human-readable bureau name; JuShu.code is machine-facing.
+	JuShuName string      `json:"ju_shu_name,omitempty"`
+	ZiweiPos  gongIndex   `json:"-"`
+	SiHua     siHuaResult `json:"-"`
 
-	// 空宫借星（确定性派生）：无主星的宫位借对宫主星论（紫微标准处理）。
-	// 仅空宫出现（omitempty）；对宫亦空则 jie_xing 为空数组。
+	// 空宫借星：只记录无主星宫和借星来源宫；星曜仍由来源宫唯一承载。
 	KongGong        []kongGongInfo `json:"kong_gong,omitempty"`
 	NianGan         Gan            `json:"nian_gan"`
 	NianZhi         Zhi            `json:"nian_zhi,omitempty"`
@@ -275,8 +287,14 @@ type Chart struct {
 	Gender          ganzhi.Gender  `json:"gender"`
 	MingZhu         string         `json:"ming_zhu,omitempty"`
 	ShenZhu         string         `json:"shen_zhu,omitempty"`
-	Patterns        []pattern      `json:"patterns,omitempty"`
-	SanFang         []SanFangInfo  `json:"san_fang,omitempty"` // 三方四正（命/财帛/官禄/迁移）
+	Patterns        []pattern      `json:"ge_ju,omitempty"`
+	SanFangSiZheng  SanFangSiZheng `json:"san_fang_si_zheng"`
+}
+
+// SanFangSiZheng is the palace relation, not a copied star view. Consumers
+// read star facts from the referenced palaces in ShiErGong.
+type SanFangSiZheng struct {
+	MingGong []gongIndex `json:"ming_gong"`
 }
 
 // ChartSchool makes the leap-month convention explicit. The engine currently

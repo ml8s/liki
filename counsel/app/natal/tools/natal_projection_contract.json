@@ -56,10 +56,11 @@
       "relation_groups": "稳定关系组",
       "ten_god_states": "十神状态",
       "element_states": "五行状态",
-      "atomic_facts": "命理原子事实",
       "tiao_hou": "tiao_hou",
       "ge_ju": "ge_ju",
-      "zi_shi_rule": "子时换日规则"
+      "zi_shi_rule": "子时换日规则",
+      "guan_sha": "官杀取清",
+      "cai_ku": "财库"
     },
     "chart": {
       "da_yun": "大运",
@@ -68,29 +69,24 @@
   },
   "紫微字段映射": {
     "ziwei": {
-      "gong_wei": "宫位",
+      "shi_er_gong": "十二宫",
       "ju_shu": "局数",
-      "ming_zhu": "命主",
-      "shen_zhu": "身主",
-      "ming_gong": "命宫",
-      "shen_gong": "身宫",
+      "ju_shu_name": "局数名",
+      "kou_jing": "排盘口径",
       "kong_gong": "空宫借星",
       "nian_gan": "年干",
       "nian_zhi": "太岁",
       "shi_zhi": "时支",
-      "ziwei_pos": "紫微星位",
-      "school": "排盘口径",
-      "si_hua": "四化",
-      "palace_facts": "宫位原子事实",
-      "ju_shu_name": "局数名",
-      "patterns": "格局候选",
-      "san_fang": "三方四正",
+      "ge_ju": "格局候选",
+      "san_fang_si_zheng": "三方四正",
       "birth_year": "出生年",
       "lunar_month": "排盘农历月",
       "lunar_day": "排盘农历日",
       "birth_lunar_month": "原始农历月",
       "birth_is_leap": "原始闰月",
-      "gender": "性别"
+      "gender": "性别",
+      "ming_zhu": "命主",
+      "shen_zhu": "身主"
     },
     "natal_chart": {
       "ziwei_daxian": "大限"

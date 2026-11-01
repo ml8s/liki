@@ -120,7 +120,11 @@ func applyDerivedFacts(fc *FullChart) {
 	fc.ElementStates = elementStateList(elementStates)
 	fc.LuRoots = computeLuRoots(*fc)
 	fc.RelationGroups = computeRelationGroups(*fc)
-	fc.AtomicFacts = computeAtomicFacts(*fc)
+	facts := computeAtomicFacts(*fc)
+	fc.AtomicFacts = facts
+	fc.GuanSha = GuanSha{QuQing: facts.OfficerKillingCleaned}
+	fc.CaiKu = CaiKu{Xian: facts.WealthTombPresent, XingRuKu: facts.WealthStarInTomb}
+	fc.GeJu.GeShenTou = facts.PatternGodTransparent
 }
 
 func enrichDaYunRoots(fc *FullChart, bz ganzhi.Bazi) {

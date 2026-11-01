@@ -49,10 +49,10 @@ func buildPatternSemanticChart(t *testing.T, input []patternSemanticPalace) Char
 			if err := star.fromName(semantic.Name); err != nil {
 				t.Fatalf("parse star %q: %v", semantic.Name, err)
 			}
-			stars = append(stars, starInfo{
-				Star: star, Name: semantic.Name, IsMajor: int(star) < 14,
-				SiHua: semantic.SiHua, Brightness: semantic.Brightness,
-			})
+			item := newStarInfo(star, int(star) < 14)
+			item.SiHua = semantic.SiHua
+			item.Brightness = semantic.Brightness
+			stars = append(stars, item)
 		}
 		palaces[index].Zhi = zhi
 		palaces[index].Stars = stars
@@ -67,18 +67,6 @@ func TestDomainOracle_ZiweiPatternSemantics(t *testing.T) {
 		t.Fatalf("read oracle: %v", err)
 	}
 	var doc struct {
-		SanFangCases []struct {
-			ID            string                  `json:"id"`
-			Palaces       []patternSemanticPalace `json:"palaces"`
-			ExpectedSiHua map[string][]string     `json:"expected_si_hua"`
-		} `json:"san_fang_cases"`
-		PalaceFactCases []struct {
-			ID                        string                  `json:"id"`
-			Palaces                   []patternSemanticPalace `json:"palaces"`
-			ExpectedStarTargets       []string                `json:"expected_star_targets"`
-			ExpectedBrightnessTargets []string                `json:"expected_brightness_targets"`
-			ExpectedAbsentTargets     []string                `json:"expected_absent_targets"`
-		} `json:"palace_fact_cases"`
 		PatternCases []struct {
 			ID              string                  `json:"id"`
 			Palaces         []patternSemanticPalace `json:"palaces"`
@@ -89,62 +77,8 @@ func TestDomainOracle_ZiweiPatternSemantics(t *testing.T) {
 	if err := json.Unmarshal(raw, &doc); err != nil {
 		t.Fatalf("decode oracle: %v", err)
 	}
-	if len(doc.SanFangCases) != 2 || len(doc.PalaceFactCases) != 2 || len(doc.PatternCases) != 17 {
-		t.Fatalf("cases = %d/%d/%d, want 2/2/17", len(doc.SanFangCases), len(doc.PalaceFactCases), len(doc.PatternCases))
-	}
-	for _, tc := range doc.SanFangCases {
-		t.Run(tc.ID, func(t *testing.T) {
-			chart := buildPatternSemanticChart(t, tc.Palaces)
-			got := buildSanFangInfo(chart, sanFang(chart.MingGong))
-			for palaceName, want := range tc.ExpectedSiHua {
-				var actual []string
-				for _, item := range got {
-					if item.Name == palaceName {
-						actual = item.SiHua
-						break
-					}
-				}
-				if actual == nil {
-					t.Fatalf("palace %q absent from san fang: %#v", palaceName, got)
-				}
-				if len(actual) != len(want) {
-					t.Fatalf("palace %q si_hua = %#v, want %#v", palaceName, actual, want)
-				}
-				for i := range want {
-					if actual[i] != want[i] {
-						t.Fatalf("palace %q si_hua = %#v, want %#v", palaceName, actual, want)
-					}
-				}
-			}
-		})
-	}
-	for _, tc := range doc.PalaceFactCases {
-		t.Run(tc.ID, func(t *testing.T) {
-			facts := computePalaceFacts(buildPatternSemanticChart(t, tc.Palaces))
-			has := func(kind, target string) bool {
-				for _, fact := range facts {
-					if fact.Kind == kind && fact.Target == target {
-						return true
-					}
-				}
-				return false
-			}
-			for _, target := range tc.ExpectedStarTargets {
-				if !has("star", target) {
-					t.Fatalf("star target %q absent: %#v", target, facts)
-				}
-			}
-			for _, target := range tc.ExpectedBrightnessTargets {
-				if !has("brightness", target) {
-					t.Fatalf("brightness target %q absent: %#v", target, facts)
-				}
-			}
-			for _, target := range tc.ExpectedAbsentTargets {
-				if has("star", target) || has("brightness", target) {
-					t.Fatalf("target %q must be absent: %#v", target, facts)
-				}
-			}
-		})
+	if len(doc.PatternCases) != 17 {
+		t.Fatalf("pattern cases = %d, want 17", len(doc.PatternCases))
 	}
 	for _, tc := range doc.PatternCases {
 		t.Run(tc.ID, func(t *testing.T) {

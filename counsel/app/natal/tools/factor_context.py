@@ -75,7 +75,7 @@ class PalaceIndex:
 class FactorContext(Mapping):
     """一次因子求值的只读 natal_chart 视图 + 已构建基础上下文。
 
-    实现 Mapping 是为了让既有算子继续用 `ctx.get("full")` 直读 natal_chart；
+    实现 Mapping 是为了让既有算子继续用 `ctx.get("bazi")` 直读 natal_chart；
     `base` 显式挂载聚合结果，避免写回调用方 natal_chart。
     """
 
@@ -98,10 +98,8 @@ class FactorContext(Mapping):
         """紫微宫位事实索引（lazy，首次访问构建，后续复用）。"""
         if self._palace_index is None:
             ziwei = self.natal_chart.get("ziwei") or {}
-            self._palace_index = PalaceIndex(
-                ziwei.get("palace_facts") or [],
-                ziwei.get("gong_wei") or [],
-            )
+            from app.natal.tools.palace_projection import build_palace_facts
+            self._palace_index = PalaceIndex(build_palace_facts(ziwei))
         return self._palace_index
 
 
