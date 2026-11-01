@@ -265,7 +265,12 @@ query    = consume snapshot, answer follow-up
 5. 不做隐藏的服务端 snapshot store；
 6. snapshot/answer 不返回 `schema_version`；身份由 method/name 与 digest 表达。
 
-## 8. 错误反馈
+## 8. Digest policy
+
+Digest 只用于不可变事件、可审计裁决和需要防篡改的可复用 artifact，不作为普通确定性输出的装饰字段。当前边界、反模式与新增决策规则见
+[DIGEST_POLICY.md](./DIGEST_POLICY.md)。
+
+## 9. 错误反馈
 
 使用 MCP 原生 tool error，不创建自定义 JSON error envelope。
 
@@ -287,7 +292,7 @@ invalid timezone "CST": use an explicit IANA identifier such as Asia/Shanghai
 standard_time must be RFC3339 with a known offset; -00:00 means unknown local offset; use tianwen.resolve for local wall time
 ```
 
-## 9. LLM 自举
+## 10. LLM 自举
 
 LLM 只依赖标准 MCP：
 
