@@ -26,38 +26,6 @@ func TestCanonicalDigestIsStableAndKeyOrderIndependent(t *testing.T) {
 	}
 }
 
-func TestChartDigestExcludesItselfAndBindsChartContent(t *testing.T) {
-	registry := testEngine()
-	raw, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{Subject: NatalSubject{BirthTime: "1990-05-20T12:49:00+08:00", BirthLongitude: 116.4, Gender: "male"}}))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var chart BaziChart
-	decode(t, raw, &chart)
-	if chart.ChartDigest == "" {
-		t.Fatal("chart has no digest")
-	}
-	withoutDigest := chart
-	withoutDigest.ChartDigest = ""
-	first, err := chartDigest(withoutDigest)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(chart.ChartDigest) != first {
-		t.Fatalf("chart digest = %s, want %s", chart.ChartDigest, first)
-	}
-
-	changed := chart
-	changed.Gender = "female"
-	second, err := chartDigest(changed)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if second == first {
-		t.Fatal("changed chart kept the same digest")
-	}
-}
-
 func TestCanonicalDigestMatchesPythonReferenceVector(t *testing.T) {
 	value := map[string]any{
 		"b": json.Number("1"),
@@ -132,39 +100,29 @@ func TestXuankongSeriesValidatesReusableChart(t *testing.T) {
 	}
 }
 
-func TestDerivedOutputsDoNotCarrySourceDigest(t *testing.T) {
+func TestNatalChartOutputsDoNotCarryDigests(t *testing.T) {
 	registry := testEngine()
-	makeChart := func(method string) map[string]any {
-		t.Helper()
-		subject := map[string]any{
-			"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male",
-		}
-		_, err := registry.Call(context.Background(), method, mustJSON(t, map[string]any{"subject": subject}))
-		if err != nil {
-			t.Fatal(err)
-		}
-		return subject
-	}
-
-	for method, downstream := range map[string]string{
-		"bazi_chart": "bazi_fullchart", "ziwei_chart": "ziwei_fullchart",
-	} {
+	for _, method := range []string{"bazi_chart", "ziwei_chart"} {
 		t.Run(method, func(t *testing.T) {
-			subject := makeChart(method)
-			raw, err := registry.Call(context.Background(), downstream, mustJSON(t, map[string]any{"subject": subject}))
+			subject := map[string]any{
+				"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male",
+			}
+			raw, err := registry.Call(context.Background(), method, mustJSON(t, map[string]any{"subject": subject}))
 			if err != nil {
 				t.Fatal(err)
 			}
 			var output map[string]any
 			decode(t, raw, &output)
-			if _, exists := output["source_chart_digest"]; exists {
-				t.Fatalf("%s carried orchestration-only source digest", downstream)
+			for _, field := range []string{"source_chart_digest", "chart_digest"} {
+				if _, exists := output[field]; exists {
+					t.Fatalf("%s carried %s", method, field)
+				}
 			}
 		})
 	}
 }
 
-func TestSeriesAcceptsReusableChartButOmitsSourceDigest(t *testing.T) {
+func TestSeriesSubjectOmitsSourceDigest(t *testing.T) {
 	registry := testEngine()
 	input := map[string]any{"subject": map[string]any{"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male"}, "start_time": "2026-06-15T12:00:00+08:00"}
 	raw, err := registry.Call(context.Background(), "bazi_liunian", mustJSON(t, input))

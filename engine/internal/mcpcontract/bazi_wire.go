@@ -9,12 +9,6 @@ package mcpcontract
 
 import "encoding/json"
 
-// ── bazi.fullchart input ──
-
-type BaziFullChartInput struct {
-	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
-}
-
 // BaziPillarCangGan is the shared hidden-stem projection for all four pillars.
 type BaziPillarCangGan struct {
 	Main  *LiuyaoGanNameNullable `json:"main" jsonschema:"藏干 中的 main。"`
@@ -37,48 +31,49 @@ type BaziPillarShenShaItem struct {
 	Name        *string                      `json:"name" jsonschema:"名称。"`
 }
 
-// ── bazi.fullchart output ──
+// ── bazi.chart output ──
 
-type BaziFullChartOutput struct {
-	Nian           BaziFullChartNian                 `json:"nian" jsonschema:"年柱: gan/zhi/na_yin"`
-	Yue            BaziFullChartYue                  `json:"yue" jsonschema:"月柱: gan/zhi/na_yin"`
-	Ri             BaziFullChartRi                   `json:"ri" jsonschema:"日柱: gan/zhi/na_yin"`
-	Shi            BaziFullChartShi                  `json:"shi" jsonschema:"时柱: gan/zhi/na_yin"`
-	DaYun          BaziFullChartDaYun                `json:"da_yun" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。"`
-	Gender         GenderName                        `json:"gender" jsonschema:"性别。"`
-	BirthYear      *int                              `json:"birth_year,omitempty" jsonschema:"出生公历年份"`
-	FuYi           BaziFullChartFuYi                 `json:"fu_yi" jsonschema:"扶抑候选：用/喜/忌与身强弱；最终用神由 counsel 裁决"`
-	SanYuan        *BaziFullChartSanYuan             `json:"san_yuan,omitempty" jsonschema:"三元: 胎元/命宫/身宫"`
-	TaiXi          *BaziFullChartTaiXi               `json:"tai_xi,omitempty" jsonschema:"胎息（日干五合配、日支六合配）"`
-	GongJia        *[]BaziFullChartGongJiaItem       `json:"gong_jia,omitempty" jsonschema:"经典拱局：三合拱 / 三会拱"`
-	NayinRel       *[]BaziFullChartNayinRelItem      `json:"nayin_rel,omitempty" jsonschema:"纳音生克"`
-	ChangSheng     *[]BaziFullChartChangShengItem    `json:"chang_sheng,omitempty" jsonschema:"日主十二宫全表（长生/沐浴/冠带/临官/帝旺/衰/病/死/墓/绝/胎/养在十二支的分布）"`
-	Zodiac         *string                           `json:"zodiac,omitempty" jsonschema:"生肖（年支对应动物，如酉→鸡）"`
-	SanQiName      *string                           `json:"san_qi_name,omitempty" jsonschema:"三奇贵人"`
-	GanHe          *[]BaziFullChartGanHeItem         `json:"gan_he,omitempty" jsonschema:"天干五合"`
-	GanChong       *[]BaziFullChartGanChongItem      `json:"gan_chong,omitempty" jsonschema:"天干相冲（甲庚/乙辛/丙壬/丁癸）"`
-	ZhiLiuHe       *[]BaziFullChartZhiLiuHeItem      `json:"zhi_liu_he,omitempty" jsonschema:"地支六合"`
-	SanHePartial   *[]BaziFullChartSanHePartialItem  `json:"san_he_partial,omitempty" jsonschema:"半合局（三合缺一支且必须含旺支）"`
-	SanHe          *[]BaziFullChartSanHeItem         `json:"san_he,omitempty" jsonschema:"三合局"`
-	SanHui         *[]BaziFullChartSanHuiItem        `json:"san_hui,omitempty" jsonschema:"三会方"`
-	LiuChong       *[]BaziFullChartLiuChongItem      `json:"liu_chong,omitempty" jsonschema:"六冲"`
-	LiuHai         *[]BaziFullChartLiuHaiItem        `json:"liu_hai,omitempty" jsonschema:"六害"`
-	LiuXing        *[]BaziFullChartLiuXingItem       `json:"liu_xing,omitempty" jsonschema:"相刑"`
-	LiuPo          *[]BaziFullChartLiuPoItem         `json:"liu_po,omitempty" jsonschema:"六破"`
-	AnHe           *[]BaziFullChartAnHeItem          `json:"an_he,omitempty" jsonschema:"地支暗合"`
-	ShenShaSchool  BaziFullChartShenShaSchool        `json:"shen_sha_school" jsonschema:"shen_sha_school。"`
-	LuRoots        []BaziFullChartLuRootsItem        `json:"lu_roots" jsonschema:"透干十神得十干禄"`
-	RelationGroups []BaziFullChartRelationGroupsItem `json:"relation_groups" jsonschema:"完整合会冲刑组；Python 只读"`
-	TenGodStates   []BaziFullChartTenGodStatesItem   `json:"ten_god_states" jsonschema:"engine 十神显隐 / 通根 / 得令 / 旺弱状态"`
-	ElementStates  []BaziFullChartElementStatesItem  `json:"element_states" jsonschema:"engine 五行季节旺弱、组合旺弱与生克方向"`
-	AtomicFacts    BaziFullChartAtomicFacts          `json:"atomic_facts" jsonschema:"engine 确定性命理原子事实；Python 因子层只读"`
-	TiaoHou        BaziFullChartTiaoHou              `json:"tiao_hou" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件"`
-	GeJu           BaziFullChartGeJu                 `json:"ge_ju" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神）"`
-	DayXun         string                            `json:"day_xun" jsonschema:"日柱所在旬"`
-	DayXunKong     string                            `json:"day_xun_kong" jsonschema:"日柱旬空二支；各柱 is_void 均按此判断"`
+type BaziChartOutput struct {
+	ZiShiRule      string                        `json:"zi_shi_rule" jsonschema:"子时换日规则。"`
+	Nian           BaziChartNian                 `json:"nian" jsonschema:"年柱: gan/zhi/na_yin"`
+	Yue            BaziChartYue                  `json:"yue" jsonschema:"月柱: gan/zhi/na_yin"`
+	Ri             BaziChartRi                   `json:"ri" jsonschema:"日柱: gan/zhi/na_yin"`
+	Shi            BaziChartShi                  `json:"shi" jsonschema:"时柱: gan/zhi/na_yin"`
+	DaYun          BaziChartDaYun                `json:"da_yun" jsonschema:"大运。root_refs 说明坐支本气与原局藏干通根。"`
+	Gender         GenderName                    `json:"gender" jsonschema:"性别。"`
+	BirthYear      *int                          `json:"birth_year,omitempty" jsonschema:"出生公历年份"`
+	FuYi           BaziChartFuYi                 `json:"fu_yi" jsonschema:"扶抑候选：用/喜/忌与身强弱；最终用神由 counsel 裁决"`
+	SanYuan        *BaziChartSanYuan             `json:"san_yuan,omitempty" jsonschema:"三元: 胎元/命宫/身宫"`
+	TaiXi          *BaziChartTaiXi               `json:"tai_xi,omitempty" jsonschema:"胎息（日干五合配、日支六合配）"`
+	GongJia        *[]BaziChartGongJiaItem       `json:"gong_jia,omitempty" jsonschema:"经典拱局：三合拱 / 三会拱"`
+	NayinRel       *[]BaziChartNayinRelItem      `json:"nayin_rel,omitempty" jsonschema:"纳音生克"`
+	ChangSheng     *[]BaziChartChangShengItem    `json:"chang_sheng,omitempty" jsonschema:"日主十二宫全表（长生/沐浴/冠带/临官/帝旺/衰/病/死/墓/绝/胎/养在十二支的分布）"`
+	Zodiac         *string                       `json:"zodiac,omitempty" jsonschema:"生肖（年支对应动物，如酉→鸡）"`
+	SanQiName      *string                       `json:"san_qi_name,omitempty" jsonschema:"三奇贵人"`
+	GanHe          *[]BaziChartGanHeItem         `json:"gan_he,omitempty" jsonschema:"天干五合"`
+	GanChong       *[]BaziChartGanChongItem      `json:"gan_chong,omitempty" jsonschema:"天干相冲（甲庚/乙辛/丙壬/丁癸）"`
+	ZhiLiuHe       *[]BaziChartZhiLiuHeItem      `json:"zhi_liu_he,omitempty" jsonschema:"地支六合"`
+	SanHePartial   *[]BaziChartSanHePartialItem  `json:"san_he_partial,omitempty" jsonschema:"半合局（三合缺一支且必须含旺支）"`
+	SanHe          *[]BaziChartSanHeItem         `json:"san_he,omitempty" jsonschema:"三合局"`
+	SanHui         *[]BaziChartSanHuiItem        `json:"san_hui,omitempty" jsonschema:"三会方"`
+	LiuChong       *[]BaziChartLiuChongItem      `json:"liu_chong,omitempty" jsonschema:"六冲"`
+	LiuHai         *[]BaziChartLiuHaiItem        `json:"liu_hai,omitempty" jsonschema:"六害"`
+	LiuXing        *[]BaziChartLiuXingItem       `json:"liu_xing,omitempty" jsonschema:"相刑"`
+	LiuPo          *[]BaziChartLiuPoItem         `json:"liu_po,omitempty" jsonschema:"六破"`
+	AnHe           *[]BaziChartAnHeItem          `json:"an_he,omitempty" jsonschema:"地支暗合"`
+	ShenShaSchool  BaziChartShenShaSchool        `json:"shen_sha_school" jsonschema:"shen_sha_school。"`
+	LuRoots        []BaziChartLuRootsItem        `json:"lu_roots" jsonschema:"透干十神得十干禄"`
+	RelationGroups []BaziChartRelationGroupsItem `json:"relation_groups" jsonschema:"完整合会冲刑组；Python 只读"`
+	TenGodStates   []BaziChartTenGodStatesItem   `json:"ten_god_states" jsonschema:"engine 十神显隐 / 通根 / 得令 / 旺弱状态"`
+	ElementStates  []BaziChartElementStatesItem  `json:"element_states" jsonschema:"engine 五行季节旺弱、组合旺弱与生克方向"`
+	AtomicFacts    BaziChartAtomicFacts          `json:"atomic_facts" jsonschema:"engine 确定性命理原子事实；Python 因子层只读"`
+	TiaoHou        BaziChartTiaoHou              `json:"tiao_hou" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件"`
+	GeJu           BaziChartGeJu                 `json:"ge_ju" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神）"`
+	DayXun         string                        `json:"day_xun" jsonschema:"日柱所在旬"`
+	DayXunKong     string                        `json:"day_xun_kong" jsonschema:"日柱旬空二支；各柱 is_void 均按此判断"`
 }
 
-type BaziFullChartNian struct {
+type BaziChartNian struct {
 	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
 	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
 	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
@@ -95,7 +90,7 @@ type BaziFullChartNian struct {
 	SelfHeName     string                   `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
-type BaziFullChartYue struct {
+type BaziChartYue struct {
 	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
 	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
 	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
@@ -112,7 +107,7 @@ type BaziFullChartYue struct {
 	SelfHeName     string                   `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
-type BaziFullChartRi struct {
+type BaziChartRi struct {
 	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
 	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
 	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
@@ -129,7 +124,7 @@ type BaziFullChartRi struct {
 	SelfHeName     string                   `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
-type BaziFullChartShi struct {
+type BaziChartShi struct {
 	Gan            LiuyaoGanName            `json:"gan" jsonschema:"天干。"`
 	Zhi            LiuyaoZhiName            `json:"zhi" jsonschema:"地支。"`
 	NaYin          string                   `json:"na_yin" jsonschema:"干支纳音。"`
@@ -146,37 +141,37 @@ type BaziFullChartShi struct {
 	SelfHeName     string                   `json:"self_he_name" jsonschema:"自合名；缺失时为 无自合"`
 }
 
-type BaziFullChartDaYun struct {
-	Steps           []BaziFullChartDaYunStepsItem `json:"steps" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。列表。"`
-	Direction       *string                       `json:"direction,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 direction。"`
-	StartDate       *string                       `json:"start_date,omitempty" jsonschema:"起始公历日 YYYY-MM-DD。"`
-	StartDayAfter   *int                          `json:"start_day_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_day_after。"`
-	StartMonthAfter *int                          `json:"start_month_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_month_after。"`
-	StartYearAfter  *int                          `json:"start_year_after,omitempty" jsonschema:"大运。fullchart 会为每步补 rooted/root_refs；root_refs 说明坐支本气与原局藏干通根。 中的 start_year_after。"`
+type BaziChartDaYun struct {
+	Steps           []BaziChartDaYunStepsItem `json:"steps" jsonschema:"大运。root_refs 说明坐支本气与原局藏干通根。列表。"`
+	Direction       *string                   `json:"direction,omitempty" jsonschema:"大运。大运方向。"`
+	StartDate       *string                   `json:"start_date,omitempty" jsonschema:"起始公历日 YYYY-MM-DD。"`
+	StartDayAfter   *int                      `json:"start_day_after,omitempty" jsonschema:"大运。出生后余日数。"`
+	StartMonthAfter *int                      `json:"start_month_after,omitempty" jsonschema:"大运。出生后余月数。"`
+	StartYearAfter  *int                      `json:"start_year_after,omitempty" jsonschema:"大运。出生后整年数。"`
 }
 
-type BaziFullChartDaYunStepsItem struct {
-	Gan       LiuyaoGanName                              `json:"gan" jsonschema:"天干。"`
-	Zhi       LiuyaoZhiName                              `json:"zhi" jsonschema:"地支。"`
-	Name      string                                     `json:"name" jsonschema:"名称。"`
-	Wuxing    ElementName                                `json:"wuxing" jsonschema:"五行。"`
-	ShiShen   string                                     `json:"shi_shen" jsonschema:"十神。"`
-	Rooted    bool                                       `json:"rooted" jsonschema:"是否通根。"`
-	RootRefs  *[]BaziFullChartDaYunStepsItemRootRefsItem `json:"root_refs,omitempty" jsonschema:"通根依据。"`
-	EndDate   *string                                    `json:"end_date,omitempty" jsonschema:"结束公历日 YYYY-MM-DD。"`
-	EndYear   *int                                       `json:"end_year,omitempty" jsonschema:"结束公历年。"`
-	StartDate *string                                    `json:"start_date,omitempty" jsonschema:"起始公历日 YYYY-MM-DD。"`
-	StartYear *int                                       `json:"start_year,omitempty" jsonschema:"起始公历年。"`
+type BaziChartDaYunStepsItem struct {
+	Gan       LiuyaoGanName                          `json:"gan" jsonschema:"天干。"`
+	Zhi       LiuyaoZhiName                          `json:"zhi" jsonschema:"地支。"`
+	Name      string                                 `json:"name" jsonschema:"名称。"`
+	Wuxing    ElementName                            `json:"wuxing" jsonschema:"五行。"`
+	ShiShen   string                                 `json:"shi_shen" jsonschema:"十神。"`
+	Rooted    bool                                   `json:"rooted" jsonschema:"是否通根。"`
+	RootRefs  *[]BaziChartDaYunStepsItemRootRefsItem `json:"root_refs,omitempty" jsonschema:"通根依据。"`
+	EndDate   *string                                `json:"end_date,omitempty" jsonschema:"结束公历日 YYYY-MM-DD。"`
+	EndYear   *int                                   `json:"end_year,omitempty" jsonschema:"结束公历年。"`
+	StartDate *string                                `json:"start_date,omitempty" jsonschema:"起始公历日 YYYY-MM-DD。"`
+	StartYear *int                                   `json:"start_year,omitempty" jsonschema:"起始公历年。"`
 }
 
-type BaziFullChartDaYunStepsItemRootRefsItem struct {
+type BaziChartDaYunStepsItemRootRefsItem struct {
 	Source RootRefsSourceName `json:"source" jsonschema:"来源。"`
 	Pillar *PillarName        `json:"pillar,omitempty" jsonschema:"柱位。"`
 	Stem   LiuyaoGanName      `json:"stem" jsonschema:"天干。"`
 	Branch LiuyaoZhiName      `json:"branch" jsonschema:"地支。"`
 }
 
-type BaziFullChartFuYi struct {
+type BaziChartFuYi struct {
 	WuxingCount map[string]int             `json:"wuxing_count" jsonschema:"五行数量"`
 	WangShuai   map[string]LiuyaoWangShuai `json:"wang_shuai" jsonschema:"五行旺相休囚死"`
 	Yong        CandidateWuxingName        `json:"yong" jsonschema:"扶抑候选用神五行；缺省为 无候选"`
@@ -185,26 +180,26 @@ type BaziFullChartFuYi struct {
 	Qiangruo    string                     `json:"qiangruo" jsonschema:"身强弱"`
 	Pattern     *string                    `json:"pattern,omitempty" jsonschema:"从格标签"`
 	Model       string                     `json:"model" jsonschema:"扶抑候选模型标识。"`
-	Basis       BaziFullChartFuYiBasis     `json:"basis" jsonschema:"强弱表输入"`
+	Basis       BaziChartFuYiBasis         `json:"basis" jsonschema:"强弱表输入"`
 }
 
-type BaziFullChartFuYiBasis struct {
-	RootType       string                                     `json:"root_type" jsonschema:"强弱表输入 中的 root_type。"`
-	Season         LiuyaoWangShuai                            `json:"season" jsonschema:"季节状态。"`
-	YinBiCount     int                                        `json:"yin_bi_count" jsonschema:"强弱表输入 中的 yin_bi_count。"`
-	DayMasterRoots []BaziFullChartFuYiBasisDayMasterRootsItem `json:"day_master_roots" jsonschema:"强弱表输入列表。"`
-	RelationFacts  []BaziFullChartFuYiBasisRelationFactsItem  `json:"relation_facts" jsonschema:"关系事实。"`
-	DayBranch      *string                                    `json:"day_branch,omitempty" jsonschema:"日支。"`
+type BaziChartFuYiBasis struct {
+	RootType       string                                 `json:"root_type" jsonschema:"强弱表输入 中的 root_type。"`
+	Season         LiuyaoWangShuai                        `json:"season" jsonschema:"季节状态。"`
+	YinBiCount     int                                    `json:"yin_bi_count" jsonschema:"强弱表输入 中的 yin_bi_count。"`
+	DayMasterRoots []BaziChartFuYiBasisDayMasterRootsItem `json:"day_master_roots" jsonschema:"强弱表输入列表。"`
+	RelationFacts  []BaziChartFuYiBasisRelationFactsItem  `json:"relation_facts" jsonschema:"关系事实。"`
+	DayBranch      *string                                `json:"day_branch,omitempty" jsonschema:"日支。"`
 }
 
-type BaziFullChartFuYiBasisDayMasterRootsItem struct {
+type BaziChartFuYiBasisDayMasterRootsItem struct {
 	Branch *LiuyaoZhiNameNullable `json:"branch" jsonschema:"地支。"`
 	Pillar *string                `json:"pillar" jsonschema:"柱位。"`
 	Source *string                `json:"source" jsonschema:"来源。"`
 	Stem   *LiuyaoGanNameNullable `json:"stem" jsonschema:"天干。"`
 }
 
-type BaziFullChartFuYiBasisRelationFactsItem struct {
+type BaziChartFuYiBasisRelationFactsItem struct {
 	Branches []LiuyaoZhiName `json:"branches" jsonschema:"地支列表。"`
 	Field    *string         `json:"field" jsonschema:"字段。"`
 	Group    *string         `json:"group" jsonschema:"分组。"`
@@ -212,33 +207,33 @@ type BaziFullChartFuYiBasisRelationFactsItem struct {
 	Targets  []string        `json:"targets" jsonschema:"作用对象。"`
 }
 
-type BaziFullChartSanYuan struct {
-	TaiYuan  BaziFullChartSanYuanTaiYuan  `json:"tai_yuan" jsonschema:"胎元（月干+1 月支+3）"`
-	MingGong BaziFullChartSanYuanMingGong `json:"ming_gong" jsonschema:"命宫"`
-	ShenGong BaziFullChartSanYuanShenGong `json:"shen_gong" jsonschema:"身宫"`
+type BaziChartSanYuan struct {
+	TaiYuan  BaziChartSanYuanTaiYuan  `json:"tai_yuan" jsonschema:"胎元（月干+1 月支+3）"`
+	MingGong BaziChartSanYuanMingGong `json:"ming_gong" jsonschema:"命宫"`
+	ShenGong BaziChartSanYuanShenGong `json:"shen_gong" jsonschema:"身宫"`
 }
 
-type BaziFullChartSanYuanTaiYuan struct {
+type BaziChartSanYuanTaiYuan struct {
 	Gan LiuyaoGanName `json:"gan" jsonschema:"天干。"`
 	Zhi LiuyaoZhiName `json:"zhi" jsonschema:"地支。"`
 }
 
-type BaziFullChartSanYuanMingGong struct {
+type BaziChartSanYuanMingGong struct {
 	Gan LiuyaoGanName `json:"gan" jsonschema:"天干。"`
 	Zhi LiuyaoZhiName `json:"zhi" jsonschema:"地支。"`
 }
 
-type BaziFullChartSanYuanShenGong struct {
+type BaziChartSanYuanShenGong struct {
 	Gan LiuyaoGanName `json:"gan" jsonschema:"天干。"`
 	Zhi LiuyaoZhiName `json:"zhi" jsonschema:"地支。"`
 }
 
-type BaziFullChartTaiXi struct {
+type BaziChartTaiXi struct {
 	Gan LiuyaoGanName `json:"gan" jsonschema:"天干。"`
 	Zhi LiuyaoZhiName `json:"zhi" jsonschema:"地支。"`
 }
 
-type BaziFullChartGongJiaItem struct {
+type BaziChartGongJiaItem struct {
 	PillarA *int             `json:"pillar_a,omitempty" jsonschema:"pillar_a。"`
 	PillarB *int             `json:"pillar_b,omitempty" jsonschema:"pillar_b。"`
 	Type    *GongJiaTypeName `json:"type,omitempty" jsonschema:"类型。"`
@@ -246,18 +241,18 @@ type BaziFullChartGongJiaItem struct {
 	Zhi     *LiuyaoZhiName   `json:"zhi,omitempty" jsonschema:"地支。"`
 }
 
-type BaziFullChartNayinRelItem struct {
+type BaziChartNayinRelItem struct {
 	A        *string `json:"a" jsonschema:"a。"`
 	B        *string `json:"b" jsonschema:"b。"`
 	Relation *string `json:"relation" jsonschema:"关系。"`
 }
 
-type BaziFullChartChangShengItem struct {
+type BaziChartChangShengItem struct {
 	Index *LiuyaoZhiNameNullable       `json:"index" jsonschema:"序号。"`
 	Name  *ChangShengStageNameNullable `json:"name" jsonschema:"名称。"`
 }
 
-type BaziFullChartGanHeItem struct {
+type BaziChartGanHeItem struct {
 	Contested *bool   `json:"contested" jsonschema:"contested。"`
 	GanA      *string `json:"gan_a" jsonschema:"甲干。"`
 	GanB      *string `json:"gan_b" jsonschema:"乙干。"`
@@ -267,7 +262,7 @@ type BaziFullChartGanHeItem struct {
 	Position  *string `json:"position" jsonschema:"position。"`
 }
 
-type BaziFullChartGanChongItem struct {
+type BaziChartGanChongItem struct {
 	GanA     LiuyaoGanName        `json:"gan_a" jsonschema:"甲干。"`
 	GanB     LiuyaoGanName        `json:"gan_b" jsonschema:"乙干。"`
 	PillarA  int                  `json:"pillar_a" jsonschema:"pillar_a。"`
@@ -275,7 +270,7 @@ type BaziFullChartGanChongItem struct {
 	Position GanChongPositionName `json:"position" jsonschema:"枚举值：adjacent、remote、separated。"`
 }
 
-type BaziFullChartZhiLiuHeItem struct {
+type BaziChartZhiLiuHeItem struct {
 	PillarA *int                   `json:"pillar_a" jsonschema:"pillar_a。"`
 	PillarB *int                   `json:"pillar_b" jsonschema:"pillar_b。"`
 	Wuxing  *string                `json:"wuxing" jsonschema:"五行。"`
@@ -283,7 +278,7 @@ type BaziFullChartZhiLiuHeItem struct {
 	ZhiB    *LiuyaoZhiNameNullable `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-type BaziFullChartSanHePartialItem struct {
+type BaziChartSanHePartialItem struct {
 	Type     SanHePartialTypeName `json:"type" jsonschema:"类型。"`
 	Name     string               `json:"name" jsonschema:"名称。"`
 	Wuxing   ElementName          `json:"wuxing" jsonschema:"五行。"`
@@ -291,7 +286,7 @@ type BaziFullChartSanHePartialItem struct {
 	Pillars  []PillarName         `json:"pillars" jsonschema:"涉及柱位。"`
 }
 
-type BaziFullChartSanHeItem struct {
+type BaziChartSanHeItem struct {
 	Type     *SanHeTypeName   `json:"type,omitempty" jsonschema:"类型。"`
 	Name     *string          `json:"name,omitempty" jsonschema:"名称。"`
 	Wuxing   *ElementName     `json:"wuxing,omitempty" jsonschema:"五行。"`
@@ -299,7 +294,7 @@ type BaziFullChartSanHeItem struct {
 	Pillars  *[]PillarName    `json:"pillars,omitempty" jsonschema:"涉及柱位。"`
 }
 
-type BaziFullChartSanHuiItem struct {
+type BaziChartSanHuiItem struct {
 	Type     SanHuiTypeName  `json:"type" jsonschema:"类型。"`
 	Name     string          `json:"name" jsonschema:"名称。"`
 	Wuxing   ElementName     `json:"wuxing" jsonschema:"五行。"`
@@ -307,28 +302,28 @@ type BaziFullChartSanHuiItem struct {
 	Pillars  []PillarName    `json:"pillars" jsonschema:"涉及柱位。"`
 }
 
-type BaziFullChartLiuChongItem struct {
+type BaziChartLiuChongItem struct {
 	PillarA *int    `json:"pillar_a" jsonschema:"pillar_a。"`
 	PillarB *int    `json:"pillar_b" jsonschema:"pillar_b。"`
 	ZhiA    *string `json:"zhi_a" jsonschema:"甲支。"`
 	ZhiB    *string `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-type BaziFullChartLiuHaiItem struct {
+type BaziChartLiuHaiItem struct {
 	PillarA *int    `json:"pillar_a" jsonschema:"pillar_a。"`
 	PillarB *int    `json:"pillar_b" jsonschema:"pillar_b。"`
 	ZhiA    *string `json:"zhi_a" jsonschema:"甲支。"`
 	ZhiB    *string `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-type BaziFullChartLiuXingItem struct {
+type BaziChartLiuXingItem struct {
 	PillarA *int                   `json:"pillar_a" jsonschema:"pillar_a。"`
 	PillarB *int                   `json:"pillar_b" jsonschema:"pillar_b。"`
 	ZhiA    *LiuyaoZhiNameNullable `json:"zhi_a" jsonschema:"甲支。"`
 	ZhiB    *LiuyaoZhiNameNullable `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-type BaziFullChartLiuPoItem struct {
+type BaziChartLiuPoItem struct {
 	ZhiA    LiuyaoZhiName   `json:"zhi_a" jsonschema:"甲支。"`
 	ZhiB    LiuyaoZhiName   `json:"zhi_b" jsonschema:"乙支。"`
 	PillarA json.RawMessage `json:"pillar_a" jsonschema:"pillar_a。"`
@@ -336,7 +331,7 @@ type BaziFullChartLiuPoItem struct {
 	Element *string         `json:"element,omitempty" jsonschema:"element。"`
 }
 
-type BaziFullChartAnHeItem struct {
+type BaziChartAnHeItem struct {
 	ZhiA    LiuyaoZhiName   `json:"zhi_a" jsonschema:"甲支。"`
 	ZhiB    LiuyaoZhiName   `json:"zhi_b" jsonschema:"乙支。"`
 	PillarA json.RawMessage `json:"pillar_a" jsonschema:"pillar_a。"`
@@ -344,23 +339,23 @@ type BaziFullChartAnHeItem struct {
 	Element *string         `json:"element,omitempty" jsonschema:"element。"`
 }
 
-type BaziFullChartShenShaSchool struct {
+type BaziChartShenShaSchool struct {
 	DualReference []DualReferenceName     `json:"dual_reference" jsonschema:"dual_reference列表。"`
 	Policy        ShenShaSchoolPolicyName `json:"policy" jsonschema:"策略。"`
 }
 
-type BaziFullChartLuRootsItem struct {
+type BaziChartLuRootsItem struct {
 	ShiShen string `json:"shi_shen" jsonschema:"十神。"`
 	Gan     string `json:"gan" jsonschema:"天干。"`
 	Zhi     string `json:"zhi" jsonschema:"地支。"`
 }
 
-type BaziFullChartRelationGroupsItem struct {
+type BaziChartRelationGroupsItem struct {
 	Field RelationGroupsFieldName `json:"field" jsonschema:"字段。"`
 	Group string                  `json:"group" jsonschema:"分组。"`
 }
 
-type BaziFullChartTenGodStatesItem struct {
+type BaziChartTenGodStatesItem struct {
 	ShiShen     TenGodName   `json:"shi_shen" jsonschema:"十神。"`
 	Wuxing      ElementName  `json:"wuxing" jsonschema:"五行。"`
 	Transparent bool         `json:"transparent" jsonschema:"transparent。"`
@@ -371,7 +366,7 @@ type BaziFullChartTenGodStatesItem struct {
 	Strength    StrengthName `json:"strength" jsonschema:"强弱。"`
 }
 
-type BaziFullChartElementStatesItem struct {
+type BaziChartElementStatesItem struct {
 	Wuxing             ElementName     `json:"wuxing" jsonschema:"五行。"`
 	Season             LiuyaoWangShuai `json:"season" jsonschema:"季节状态。"`
 	SeasonStrength     StrengthName    `json:"season_strength" jsonschema:"枚举值。"`
@@ -384,58 +379,58 @@ type BaziFullChartElementStatesItem struct {
 	Reasons            []string        `json:"reasons" jsonschema:"reasons列表。"`
 }
 
-type BaziFullChartAtomicFacts struct {
-	DayMasterElement      ElementName                               `json:"day_master_element" jsonschema:"日主五行。"`
-	DayMasterStem         LiuyaoGanName                             `json:"day_master_stem" jsonschema:"日主天干。"`
-	DayBranch             LiuyaoZhiName                             `json:"day_branch" jsonschema:"日支。"`
-	MonthLongevity        ChangShengStageName                       `json:"month_longevity" jsonschema:"月令十二长生。"`
-	YearStemTenGod        YearStemTenGodName                        `json:"year_stem_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
-	MonthMainTenGod       YearStemTenGodName                        `json:"month_main_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
-	HourStemTenGod        YearStemTenGodName                        `json:"hour_stem_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
-	PatternGodTransparent bool                                      `json:"pattern_god_transparent" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 pattern_god_transparent。"`
-	PillarPunishments     BaziFullChartAtomicFactsPillarPunishments `json:"pillar_punishments" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 pillar_punishments。"`
-	OfficerKillingCleaned bool                                      `json:"officer_killing_cleaned" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 officer_killing_cleaned。"`
-	WealthTombPresent     bool                                      `json:"wealth_tomb_present" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 wealth_tomb_present。"`
-	WealthStarInTomb      bool                                      `json:"wealth_star_in_tomb" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 wealth_star_in_tomb。"`
-	SpousePalaceState     SpousePalaceStateName                     `json:"spouse_palace_state" jsonschema:"配偶宫状态。"`
-	DayBranchType         DayBranchTypeName                         `json:"day_branch_type" jsonschema:"日支类型。"`
-	YearOfficerKilling    bool                                      `json:"year_officer_killing" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 year_officer_killing。"`
+type BaziChartAtomicFacts struct {
+	DayMasterElement      ElementName                           `json:"day_master_element" jsonschema:"日主五行。"`
+	DayMasterStem         LiuyaoGanName                         `json:"day_master_stem" jsonschema:"日主天干。"`
+	DayBranch             LiuyaoZhiName                         `json:"day_branch" jsonschema:"日支。"`
+	MonthLongevity        ChangShengStageName                   `json:"month_longevity" jsonschema:"月令十二长生。"`
+	YearStemTenGod        YearStemTenGodName                    `json:"year_stem_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
+	MonthMainTenGod       YearStemTenGodName                    `json:"month_main_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
+	HourStemTenGod        YearStemTenGodName                    `json:"hour_stem_ten_god" jsonschema:"枚举值：、七杀、伤官、偏印、偏财、劫财、正印、正官、正财、比肩、食神。"`
+	PatternGodTransparent bool                                  `json:"pattern_god_transparent" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 pattern_god_transparent。"`
+	PillarPunishments     BaziChartAtomicFactsPillarPunishments `json:"pillar_punishments" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 pillar_punishments。"`
+	OfficerKillingCleaned bool                                  `json:"officer_killing_cleaned" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 officer_killing_cleaned。"`
+	WealthTombPresent     bool                                  `json:"wealth_tomb_present" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 wealth_tomb_present。"`
+	WealthStarInTomb      bool                                  `json:"wealth_star_in_tomb" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 wealth_star_in_tomb。"`
+	SpousePalaceState     SpousePalaceStateName                 `json:"spouse_palace_state" jsonschema:"配偶宫状态。"`
+	DayBranchType         DayBranchTypeName                     `json:"day_branch_type" jsonschema:"日支类型。"`
+	YearOfficerKilling    bool                                  `json:"year_officer_killing" jsonschema:"engine 确定性命理原子事实；Python 因子层只读 中的 year_officer_killing。"`
 }
 
-type BaziFullChartAtomicFactsPillarPunishments struct {
+type BaziChartAtomicFactsPillarPunishments struct {
 	Nian bool `json:"nian" jsonschema:"nian。"`
 	Yue  bool `json:"yue" jsonschema:"yue。"`
 	Ri   bool `json:"ri" jsonschema:"ri。"`
 	Shi  bool `json:"shi" jsonschema:"shi。"`
 }
 
-type BaziFullChartTiaoHou struct {
-	PrimaryWuxing      ElementName                   `json:"primary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 primary_wuxing。"`
-	SecondaryWuxing    SecondaryWuxingName           `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
-	Season             string                        `json:"season" jsonschema:"季节状态。"`
-	Detail             string                        `json:"detail" jsonschema:"细节。"`
-	Model              string                        `json:"model" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 model。"`
-	Primary            BaziFullChartTiaoHouPrimary   `json:"primary" jsonschema:"主调候。"`
-	Secondary          BaziFullChartTiaoHouSecondary `json:"secondary" jsonschema:"辅调候。"`
-	SecondaryCondition *string                       `json:"secondary_condition,omitempty" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_condition。"`
+type BaziChartTiaoHou struct {
+	PrimaryWuxing      ElementName               `json:"primary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 primary_wuxing。"`
+	SecondaryWuxing    SecondaryWuxingName       `json:"secondary_wuxing" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_wuxing；缺失时为 无辅调候。"`
+	Season             string                    `json:"season" jsonschema:"季节状态。"`
+	Detail             string                    `json:"detail" jsonschema:"细节。"`
+	Model              string                    `json:"model" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 model。"`
+	Primary            BaziChartTiaoHouPrimary   `json:"primary" jsonschema:"主调候。"`
+	Secondary          BaziChartTiaoHouSecondary `json:"secondary" jsonschema:"辅调候。"`
+	SecondaryCondition *string                   `json:"secondary_condition,omitempty" jsonschema:"调候派：主辅调候五行候选 + 季节 + 条件 中的 secondary_condition。"`
 }
 
-type BaziFullChartTiaoHouPrimary struct {
-	Stem          LiuyaoGanName                                  `json:"stem" jsonschema:"天干。"`
-	Transparent   bool                                           `json:"transparent" jsonschema:"transparent。"`
-	Hidden        bool                                           `json:"hidden" jsonschema:"hidden。"`
-	Occurrences   []BaziFullChartTiaoHouPrimaryOccurrencesItem   `json:"occurrences" jsonschema:"出现位置。"`
-	RelationFacts []BaziFullChartTiaoHouPrimaryRelationFactsItem `json:"relation_facts" jsonschema:"关系事实。"`
+type BaziChartTiaoHouPrimary struct {
+	Stem          LiuyaoGanName                              `json:"stem" jsonschema:"天干。"`
+	Transparent   bool                                       `json:"transparent" jsonschema:"transparent。"`
+	Hidden        bool                                       `json:"hidden" jsonschema:"hidden。"`
+	Occurrences   []BaziChartTiaoHouPrimaryOccurrencesItem   `json:"occurrences" jsonschema:"出现位置。"`
+	RelationFacts []BaziChartTiaoHouPrimaryRelationFactsItem `json:"relation_facts" jsonschema:"关系事实。"`
 }
 
-type BaziFullChartTiaoHouPrimaryOccurrencesItem struct {
+type BaziChartTiaoHouPrimaryOccurrencesItem struct {
 	Branch *string                `json:"branch" jsonschema:"地支。"`
 	Pillar *string                `json:"pillar" jsonschema:"柱位。"`
 	Source *string                `json:"source" jsonschema:"来源。"`
 	Stem   *LiuyaoGanNameNullable `json:"stem" jsonschema:"天干。"`
 }
 
-type BaziFullChartTiaoHouPrimaryRelationFactsItem struct {
+type BaziChartTiaoHouPrimaryRelationFactsItem struct {
 	Branches []LiuyaoZhiName `json:"branches" jsonschema:"地支列表。"`
 	Field    *string         `json:"field" jsonschema:"字段。"`
 	Group    *string         `json:"group" jsonschema:"分组。"`
@@ -443,22 +438,22 @@ type BaziFullChartTiaoHouPrimaryRelationFactsItem struct {
 	Targets  []string        `json:"targets" jsonschema:"作用对象。"`
 }
 
-type BaziFullChartTiaoHouSecondary struct {
-	Hidden        *bool                                            `json:"hidden" jsonschema:"hidden。"`
-	Occurrences   []BaziFullChartTiaoHouSecondaryOccurrencesItem   `json:"occurrences" jsonschema:"出现位置。"`
-	RelationFacts []BaziFullChartTiaoHouSecondaryRelationFactsItem `json:"relation_facts" jsonschema:"关系事实。"`
-	Stem          *LiuyaoGanNameNullable                           `json:"stem" jsonschema:"天干。"`
-	Transparent   *bool                                            `json:"transparent" jsonschema:"transparent。"`
+type BaziChartTiaoHouSecondary struct {
+	Hidden        *bool                                        `json:"hidden" jsonschema:"hidden。"`
+	Occurrences   []BaziChartTiaoHouSecondaryOccurrencesItem   `json:"occurrences" jsonschema:"出现位置。"`
+	RelationFacts []BaziChartTiaoHouSecondaryRelationFactsItem `json:"relation_facts" jsonschema:"关系事实。"`
+	Stem          *LiuyaoGanNameNullable                       `json:"stem" jsonschema:"天干。"`
+	Transparent   *bool                                        `json:"transparent" jsonschema:"transparent。"`
 }
 
-type BaziFullChartTiaoHouSecondaryOccurrencesItem struct {
+type BaziChartTiaoHouSecondaryOccurrencesItem struct {
 	Branch *LiuyaoZhiNameNullable `json:"branch" jsonschema:"地支。"`
 	Pillar *string                `json:"pillar" jsonschema:"柱位。"`
 	Source *string                `json:"source" jsonschema:"来源。"`
 	Stem   *string                `json:"stem" jsonschema:"天干。"`
 }
 
-type BaziFullChartTiaoHouSecondaryRelationFactsItem struct {
+type BaziChartTiaoHouSecondaryRelationFactsItem struct {
 	Branches []LiuyaoZhiName `json:"branches" jsonschema:"地支列表。"`
 	Field    *string         `json:"field" jsonschema:"字段。"`
 	Group    *string         `json:"group" jsonschema:"分组。"`
@@ -466,71 +461,71 @@ type BaziFullChartTiaoHouSecondaryRelationFactsItem struct {
 	Targets  []string        `json:"targets" jsonschema:"作用对象。"`
 }
 
-type BaziFullChartGeJu struct {
-	GeJu             string                     `json:"ge_ju" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 ge_ju。"`
-	YongFa           string                     `json:"yong_fa" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 yong_fa。"`
-	PatternGod       *LiuyaoGanName             `json:"pattern_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god。"`
-	PatternGodTenGod *TenGodName                `json:"pattern_god_ten_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_ten_god。"`
-	PatternGodSource string                     `json:"pattern_god_source" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_source。"`
-	Structure        BaziFullChartGeJuStructure `json:"structure" jsonschema:"格局结构。"`
+type BaziChartGeJu struct {
+	GeJu             string                 `json:"ge_ju" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 ge_ju。"`
+	YongFa           string                 `json:"yong_fa" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 yong_fa。"`
+	PatternGod       *LiuyaoGanName         `json:"pattern_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god。"`
+	PatternGodTenGod *TenGodName            `json:"pattern_god_ten_god,omitempty" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_ten_god。"`
+	PatternGodSource string                 `json:"pattern_god_source" jsonschema:"格局派：月令格神 + 顺逆用 + 结构（非用神） 中的 pattern_god_source。"`
+	Structure        BaziChartGeJuStructure `json:"structure" jsonschema:"格局结构。"`
 }
 
-type BaziFullChartGeJuStructure struct {
-	Pattern       BaziFullChartGeJuStructurePattern             `json:"pattern" jsonschema:"格神。"`
-	Controller    BaziFullChartGeJuStructureController          `json:"controller" jsonschema:"克神。"`
-	Generator     BaziFullChartGeJuStructureGenerator           `json:"generator" jsonschema:"生神。"`
-	RelationFacts []BaziFullChartGeJuStructureRelationFactsItem `json:"relation_facts" jsonschema:"关系事实。"`
+type BaziChartGeJuStructure struct {
+	Pattern       BaziChartGeJuStructurePattern             `json:"pattern" jsonschema:"格神。"`
+	Controller    BaziChartGeJuStructureController          `json:"controller" jsonschema:"克神。"`
+	Generator     BaziChartGeJuStructureGenerator           `json:"generator" jsonschema:"生神。"`
+	RelationFacts []BaziChartGeJuStructureRelationFactsItem `json:"relation_facts" jsonschema:"关系事实。"`
 }
 
-type BaziFullChartGeJuStructurePattern struct {
-	Roots              []BaziFullChartGeJuStructurePatternRootsItem `json:"roots" jsonschema:"通根位置。"`
-	Season             *string                                      `json:"season" jsonschema:"季节状态。"`
-	Strength           *string                                      `json:"strength" jsonschema:"强弱。"`
-	Timely             *bool                                        `json:"timely" jsonschema:"是否得令。"`
-	TransparentPillars []string                                     `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             ElementName                                  `json:"wuxing" jsonschema:"五行。"`
+type BaziChartGeJuStructurePattern struct {
+	Roots              []BaziChartGeJuStructurePatternRootsItem `json:"roots" jsonschema:"通根位置。"`
+	Season             *string                                  `json:"season" jsonschema:"季节状态。"`
+	Strength           *string                                  `json:"strength" jsonschema:"强弱。"`
+	Timely             *bool                                    `json:"timely" jsonschema:"是否得令。"`
+	TransparentPillars []string                                 `json:"transparent_pillars" jsonschema:"透干所在柱。"`
+	Wuxing             ElementName                              `json:"wuxing" jsonschema:"五行。"`
 }
 
-type BaziFullChartGeJuStructurePatternRootsItem struct {
+type BaziChartGeJuStructurePatternRootsItem struct {
 	Branch *LiuyaoZhiNameNullable `json:"branch" jsonschema:"地支。"`
 	Pillar *string                `json:"pillar" jsonschema:"柱位。"`
 	Source *string                `json:"source" jsonschema:"来源。"`
 	Stem   *LiuyaoGanNameNullable `json:"stem" jsonschema:"天干。"`
 }
 
-type BaziFullChartGeJuStructureController struct {
-	Roots              []BaziFullChartGeJuStructureControllerRootsItem `json:"roots" jsonschema:"通根位置。"`
-	Season             *string                                         `json:"season" jsonschema:"季节状态。"`
-	Strength           *StrengthNameNullable                           `json:"strength" jsonschema:"强弱。"`
-	Timely             *bool                                           `json:"timely" jsonschema:"是否得令。"`
-	TransparentPillars []string                                        `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             ElementName                                     `json:"wuxing" jsonschema:"五行。"`
+type BaziChartGeJuStructureController struct {
+	Roots              []BaziChartGeJuStructureControllerRootsItem `json:"roots" jsonschema:"通根位置。"`
+	Season             *string                                     `json:"season" jsonschema:"季节状态。"`
+	Strength           *StrengthNameNullable                       `json:"strength" jsonschema:"强弱。"`
+	Timely             *bool                                       `json:"timely" jsonschema:"是否得令。"`
+	TransparentPillars []string                                    `json:"transparent_pillars" jsonschema:"透干所在柱。"`
+	Wuxing             ElementName                                 `json:"wuxing" jsonschema:"五行。"`
 }
 
-type BaziFullChartGeJuStructureControllerRootsItem struct {
+type BaziChartGeJuStructureControllerRootsItem struct {
 	Branch *LiuyaoZhiNameNullable `json:"branch" jsonschema:"地支。"`
 	Pillar *string                `json:"pillar" jsonschema:"柱位。"`
 	Source *string                `json:"source" jsonschema:"来源。"`
 	Stem   *LiuyaoGanNameNullable `json:"stem" jsonschema:"天干。"`
 }
 
-type BaziFullChartGeJuStructureGenerator struct {
-	Roots              []BaziFullChartGeJuStructureGeneratorRootsItem `json:"roots" jsonschema:"通根位置。"`
-	Season             *string                                        `json:"season" jsonschema:"季节状态。"`
-	Strength           *string                                        `json:"strength" jsonschema:"强弱。"`
-	Timely             *bool                                          `json:"timely" jsonschema:"是否得令。"`
-	TransparentPillars []string                                       `json:"transparent_pillars" jsonschema:"透干所在柱。"`
-	Wuxing             ElementName                                    `json:"wuxing" jsonschema:"五行。"`
+type BaziChartGeJuStructureGenerator struct {
+	Roots              []BaziChartGeJuStructureGeneratorRootsItem `json:"roots" jsonschema:"通根位置。"`
+	Season             *string                                    `json:"season" jsonschema:"季节状态。"`
+	Strength           *string                                    `json:"strength" jsonschema:"强弱。"`
+	Timely             *bool                                      `json:"timely" jsonschema:"是否得令。"`
+	TransparentPillars []string                                   `json:"transparent_pillars" jsonschema:"透干所在柱。"`
+	Wuxing             ElementName                                `json:"wuxing" jsonschema:"五行。"`
 }
 
-type BaziFullChartGeJuStructureGeneratorRootsItem struct {
+type BaziChartGeJuStructureGeneratorRootsItem struct {
 	Branch *LiuyaoZhiNameNullable `json:"branch" jsonschema:"地支。"`
 	Pillar *string                `json:"pillar" jsonschema:"柱位。"`
 	Source *string                `json:"source" jsonschema:"来源。"`
 	Stem   *LiuyaoGanNameNullable `json:"stem" jsonschema:"天干。"`
 }
 
-type BaziFullChartGeJuStructureRelationFactsItem struct {
+type BaziChartGeJuStructureRelationFactsItem struct {
 	Branches []LiuyaoZhiName `json:"branches" jsonschema:"地支列表。"`
 	Field    *string         `json:"field" jsonschema:"字段。"`
 	Group    *string         `json:"group" jsonschema:"分组。"`
@@ -877,7 +872,7 @@ type BaziLiuNianOutput struct {
 	Ke                *int                                `json:"ke,omitempty" jsonschema:"克数"`
 	Shensha           *[]BaziLiuNianShenshaItem           `json:"shensha,omitempty" jsonschema:"流年神煞（动态：桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天乙贵人/羊刃——年支+日支双查；值年：病符/丧门/吊客/大耗——命局四柱逢煞支即应）"`
 	FuyinFanyin       *[]BaziLiuNianFuyinFanyinItem       `json:"fuyin_fanyin,omitempty" jsonschema:"伏吟反吟"`
-	DayunInteractions *[]BaziLiuNianDayunInteractionsItem `json:"dayun_interactions,omitempty" jsonschema:"查询年份所在大运与流年交互（chart 需含 birth_year；未起运/大运过完/缺 birth_year 时为空数组）"`
+	DayunInteractions *[]BaziLiuNianDayunInteractionsItem `json:"dayun_interactions,omitempty" jsonschema:"查询年份所在大运与流年交互（未起运或大运过完时为空数组）"`
 	NatalInteractions *[]BaziLiuNianNatalInteractionsItem `json:"natal_interactions,omitempty" jsonschema:"流年与命局交互"`
 	AtomicFacts       BaziLiuNianAtomicFacts              `json:"atomic_facts" jsonschema:"engine 流年原子事实"`
 	Resolved          BaziLiuNianResolved                 `json:"resolved" jsonschema:"时间推导结果。"`

@@ -1,8 +1,10 @@
 {
   "input": {
-    "gender": "female",
-    "longitude": 116,
-    "standard_time": "1990-11-07T14:20:00+08:00"
+    "subject": {
+      "birth_time": "1990-11-07T14:20:00+08:00",
+      "birth_longitude": 116,
+      "gender": "female"
+    }
   },
   "output": {
     "birth_year": 1990,

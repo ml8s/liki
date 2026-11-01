@@ -71,7 +71,7 @@ func runSeries[In any, Out any](
 
 // runSeriesPrepared is the stateless generic time-series executor with a
 // one-time prepare step. Use this when compute needs decoded shared state
-// (e.g. a chart) that is invariant across the series: prepare decodes it
+// (e.g. a natal subject) that is invariant across the series: prepare decodes it
 // once, then compute receives both the current input and the decoded context.
 func runSeriesPrepared[In any, Ctx any, Out any](
 	input In, count, max int,

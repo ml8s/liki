@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"liki-engine/internal/engine/bazi"
-	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
 
@@ -53,89 +52,21 @@ type BaziChartInput struct {
 	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
-type BaziChart struct {
-	ChartDigest ChartDigest `json:"chart_digest" jsonschema:"canonical SHA-256 chart digest。"`
-	Nian        BaziPillar  `json:"nian" jsonschema:"年柱。"`
-	Yue         BaziPillar  `json:"yue" jsonschema:"月柱。"`
-	Ri          BaziPillar  `json:"ri" jsonschema:"日柱。"`
-	Shi         BaziPillar  `json:"shi" jsonschema:"时柱。"`
-	DaYun       *BaziDaYun  `json:"da_yun" jsonschema:"大运。"`
-	Gender      GenderName  `json:"gender" jsonschema:"性别。"`
-	BirthYear   int         `json:"birth_year" jsonschema:"出生公历年。"`
-	ZiShiRule   string      `json:"zi_shi_rule" jsonschema:"子时换日规则。"`
-}
-
-func BaziChartCompute(_ context.Context, input BaziChartInput) (BaziChart, error) {
+// BaziChartCompute returns the canonical complete natal chart.
+func BaziChartCompute(_ context.Context, input BaziChartInput) (json.RawMessage, error) {
 	chart, err := input.Subject.baziChart()
 	if err != nil {
-		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
+		return nil, fmt.Errorf("bazi.chart: %w", err)
 	}
-	wire := baziChartWire(chart)
-	digest, err := chartDigest(wire)
-	if err != nil {
-		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
-	}
-	wire.ChartDigest = ChartDigest(digest)
-	return wire, nil
-}
-
-func baziPillarWire(gan ganzhi.Gan, zhi ganzhi.Zhi, naYin string) BaziPillar {
-	return BaziPillar{Gan: LiuyaoGanName(gan.String()), Zhi: LiuyaoZhiName(zhi.String()), NaYin: naYin}
-}
-
-func baziChartWire(chart bazi.Chart) BaziChart {
-	out := BaziChart{
-		Nian:   baziPillarWire(chart.Nian.Gan, chart.Nian.Zhi, chart.Nian.NaYin),
-		Yue:    baziPillarWire(chart.Yue.Gan, chart.Yue.Zhi, chart.Yue.NaYin),
-		Ri:     baziPillarWire(chart.Ri.Gan, chart.Ri.Zhi, chart.Ri.NaYin),
-		Shi:    baziPillarWire(chart.Shi.Gan, chart.Shi.Zhi, chart.Shi.NaYin),
-		Gender: GenderName(chart.Gender), BirthYear: chart.BirthYear, ZiShiRule: chart.ZiShiRule,
-	}
-	if chart.DaYun != nil {
-		out.DaYun = baziDaYunWire(*chart.DaYun)
-	}
-	return out
-}
-
-func baziDaYunWire(dayun bazi.DaYun) *BaziDaYun {
-	out := &BaziDaYun{
-		StartDate: DateString(dayun.StartDate), StartYearAfter: dayun.StartYearAfter,
-		StartMonthAfter: dayun.StartMonthAfter, StartDayAfter: dayun.StartDayAfter,
-		Direction: dayun.Direction,
-	}
-	for _, step := range dayun.Steps {
-		wire := BaziDaYunStep{
-			Gan: LiuyaoGanName(step.Gan.String()), Zhi: LiuyaoZhiName(step.Zhi.String()),
-			StartDate: DateString(step.StartDate), EndDate: DateString(step.EndDate),
-			StartYear: step.StartYear, EndYear: step.EndYear, Name: step.Name,
-			Element: ElementName(step.Element), ShiShen: step.ShiShen, Rooted: step.Rooted,
-		}
-		for _, ref := range step.RootRefs {
-			wire.RootRefs = append(wire.RootRefs, BaziDaYunRootRef(ref))
-		}
-		out.Steps = append(out.Steps, wire)
-	}
-	return out
+	return marshalRawBaziCompleteChart(bazi.ComputeFullChart(chart), chart.ZiShiRule)
 }
 
 // ── typed handlers for the remaining bazi tools ──
 
-// BaziFullChart expands a bazi.chart wire chart into the full chart.
-func BaziFullChart(_ context.Context, input BaziFullChartInput) (json.RawMessage, error) {
-	chart, err := input.Subject.baziChart()
-	if err != nil {
-		return nil, fmt.Errorf("bazi.fullchart: %w", err)
-	}
-	raw, err := marshalRawBaziFullChart(bazi.ComputeFullChart(chart))
-	if err != nil {
-		return nil, fmt.Errorf("bazi.fullchart: %w", err)
-	}
-	return raw, nil
-}
-
-type baziFullChartJSON struct {
+type baziCompleteChartJSON struct {
 	*bazi.FullChart
-	TiaoHou baziTiaoHouJSON `json:"tiao_hou"`
+	TiaoHou   baziTiaoHouJSON `json:"tiao_hou"`
+	ZiShiRule string          `json:"zi_shi_rule"`
 }
 
 type baziTiaoHouJSON struct {
@@ -162,8 +93,8 @@ func (availability requiredTiaoHouAvailability) MarshalJSON() ([]byte, error) {
 	return json.Marshal(availability.value)
 }
 
-func marshalRawBaziFullChart(full bazi.FullChart) (json.RawMessage, error) {
-	value := baziFullChartJSON{
+func marshalRawBaziCompleteChart(full bazi.FullChart, ziShiRule string) (json.RawMessage, error) {
+	value := baziCompleteChartJSON{
 		FullChart: &full,
 		TiaoHou: baziTiaoHouJSON{
 			PrimaryWuxing:      full.TiaoHou.PrimaryWuxing,
@@ -175,10 +106,11 @@ func marshalRawBaziFullChart(full bazi.FullChart) (json.RawMessage, error) {
 			Secondary:          requiredTiaoHouAvailability{value: full.TiaoHou.Secondary},
 			SecondaryCondition: full.TiaoHou.SecondaryCondition,
 		},
+		ZiShiRule: ziShiRule,
 	}
 	raw, err := json.Marshal(value)
 	if err != nil {
-		return nil, fmt.Errorf("bazi.fullchart: marshal output: %w", err)
+		return nil, fmt.Errorf("bazi.chart: marshal output: %w", err)
 	}
 	return raw, nil
 }

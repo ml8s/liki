@@ -271,9 +271,9 @@ func NewEngine() *Registry {
 		Description: "根据城市名返回地点候选（内置表，不访问外链）：每项含经纬度、IANA 时区、地点东西经度范围。长度 1 可直接使用；多于 1（同名区县等）必须由用户确认，不得静默取第一个。未命中时请询问附近大城市，或让用户直接提供经纬度和时区。",
 		Handler:     CityCoords,
 	})
-	mustRegister(registry, Tool[BaziChartInput, BaziChart]{
+	mustRegisterRaw(registry, RawTool[BaziChartInput, BaziChartOutput]{
 		Name:        "bazi_chart",
-		Description: "排八字命盘。返回最小命盘（四柱+纳音+大运+性别）。",
+		Description: "排八字完整命盘。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑、调候、格局与命理原子事实。",
 		Handler:     BaziChartCompute,
 	})
 	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
@@ -312,11 +312,6 @@ func NewEngine() *Registry {
 		Description: "六爻装卦。只接受 liuyao.qigua 返回的完整 casting 收据；装卦并分析：纳甲、六亲、六兽、用神、旺衰、应期。",
 		Handler:     LiuyaoChart,
 	})
-	mustRegisterRaw(registry, RawTool[BaziFullChartInput, BaziFullChartOutput]{
-		Name:        "bazi_fullchart",
-		Description: "完整命盘。传入 bazi.chart 返回的最小命盘，补全十神/藏干/神煞/自坐/空亡/自合/魁罡/三元/拱夹/纳音生克/长生十二宫/三奇贵人/合会冲刑/十干禄/命理原子事实。",
-		Handler:     BaziFullChart,
-	})
 	mustRegisterRaw(registry, RawTool[BaziBondInput, BaziBondOutput]{
 		Name:        "bazi_bond",
 		Description: "八字合盘原始事实。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
@@ -353,17 +348,12 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",
-		Description: "紫微斗数排盘。返回十二宫星曜分布、亮度、四化。",
+		Description: "紫微斗数排盘。返回完整十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前。",
 		Handler:     ZiweiChartCompute,
-	})
-	mustRegisterRaw(registry, RawTool[ZiweiFullChartInput, ZiweiFullChartOutput]{
-		Name:        "ziwei_fullchart",
-		Description: "紫微全盘。扩展杂曜、长生、博士、小限、将前、岁前。",
-		Handler:     ZiweiFullChart,
 	})
 	mustRegister(registry, Tool[ZiweiDaXianInput, ZiweiDaXianOutput]{
 		Name:        "ziwei_daxian",
-		Description: "紫微斗数大限。返回十年大限各宫吉凶。chart 为 ziwei.chart 返回的完整 chart 对象。",
+		Description: "紫微斗数大限。返回十年大限各宫吉凶。输入为已归一化的出生主体。",
 		Handler:     ZiweiDaXian,
 	})
 	mustRegister(registry, Tool[ZiweiLiuNianInput, any]{

@@ -48,9 +48,9 @@ func toolProperties(t *testing.T, tool string) map[string]any {
 	return outputProperties(t, testEngine(), tool)
 }
 
-func TestProjectionContractCoversEngineFullChartFields(t *testing.T) {
+func TestProjectionContractCoversEngineChartFields(t *testing.T) {
 	contract := loadProjectionContract(t)
-	full := toolProperties(t, "bazi_fullchart")
+	full := toolProperties(t, "bazi_chart")
 
 	pillarFields := map[string]bool{}
 	for name := range contract.ValueFields {
@@ -80,18 +80,18 @@ func TestProjectionContractCoversEngineFullChartFields(t *testing.T) {
 		if pillars[name] || mappedFull[name] || allowedUnprojected[name] {
 			continue
 		}
-		t.Errorf("engine fullchart field %q is not in the projection contract", name)
+		t.Errorf("engine chart field %q is not in the projection contract", name)
 	}
 
 	for _, pillar := range contract.Pillars {
 		pillarSchema, ok := full[pillar].(map[string]any)
 		if !ok {
-			t.Fatalf("fullchart.%s schema = %#v", pillar, full[pillar])
+			t.Fatalf("chart.%s schema = %#v", pillar, full[pillar])
 		}
 		properties, _ := pillarSchema["properties"].(map[string]any)
 		for name := range properties {
 			if !pillarFields[name] {
-				t.Errorf("fullchart.%s.%s is not in the projection contract", pillar, name)
+				t.Errorf("chart.%s.%s is not in the projection contract", pillar, name)
 			}
 		}
 	}
@@ -99,7 +99,7 @@ func TestProjectionContractCoversEngineFullChartFields(t *testing.T) {
 
 func TestProjectionContractPathsExistInEngineSchema(t *testing.T) {
 	contract := loadProjectionContract(t)
-	full := toolProperties(t, "bazi_fullchart")
+	full := toolProperties(t, "bazi_chart")
 	chart := toolProperties(t, "bazi_chart")
 	ziwei := toolProperties(t, "ziwei_chart")
 
@@ -107,24 +107,24 @@ func TestProjectionContractPathsExistInEngineSchema(t *testing.T) {
 	for _, pillar := range contract.Pillars {
 		pillarSchema, ok := full[pillar].(map[string]any)
 		if !ok {
-			missing = append(missing, "full."+pillar)
+			missing = append(missing, "chart."+pillar)
 			continue
 		}
 		properties, _ := pillarSchema["properties"].(map[string]any)
 		for source, label := range contract.ValueFields {
 			if _, ok := properties[source]; !ok {
-				missing = append(missing, "full."+pillar+"."+source+" ("+label+")")
+				missing = append(missing, "chart."+pillar+"."+source+" ("+label+")")
 			}
 		}
 		for source, label := range contract.ExistFields {
 			if _, ok := properties[source]; !ok {
-				missing = append(missing, "full."+pillar+"."+source+" ("+label+")")
+				missing = append(missing, "chart."+pillar+"."+source+" ("+label+")")
 			}
 		}
 	}
 	for source, label := range contract.Bazi.Full {
 		if _, ok := full[source]; !ok {
-			missing = append(missing, "full."+source+" ("+label+")")
+			missing = append(missing, "chart."+source+" ("+label+")")
 		}
 	}
 	for source, label := range contract.Bazi.Chart {

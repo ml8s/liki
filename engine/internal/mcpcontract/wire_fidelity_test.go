@@ -13,14 +13,14 @@ import (
 
 // fidelityMethods maps captured fixture suffixes to the wire tool they replay.
 var fidelityMethods = []string{
-	"fullchart", "liunian", "liuyue", "liuri", "liushi", "xiaoyun", "daxian", "bond", "chart",
+	"liunian", "liuyue", "liuri", "liushi", "xiaoyun", "daxian", "bond", "chart",
 }
 
 // migratedWireTools are the tools this migration moved to the typed registry.
 var migratedWireTools = []string{
-	"bazi_fullchart", "bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
+	"bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
 	"bazi_liushi", "bazi_xiaoyun",
-	"ziwei_chart", "ziwei_fullchart", "ziwei_daxian", "ziwei_liunian", "ziwei_liuyue",
+	"ziwei_chart", "ziwei_daxian", "ziwei_liunian", "ziwei_liuyue",
 	"ziwei_liuri", "ziwei_liushi", "ziwei_bond",
 	"qimen_chart",
 }
@@ -96,8 +96,7 @@ func TestEngineContractWireFidelity(t *testing.T) {
 			continue
 		}
 		if method == "bazi_chart" {
-			// The lean chart carries clock-derived 大运 fields; it has its own
-			// hand-written contract test.
+			// The canonical chart has a dedicated hand-written contract test.
 			continue
 		}
 		if _, err := registry.Definition(method); err != nil {
@@ -120,6 +119,10 @@ func TestEngineContractWireFidelity(t *testing.T) {
 			t.Fatalf("%s: decode input: %v", file, err)
 		}
 		inputMap := subjectFixtureInput(file, method, oldInput)
+		if file == "bazi_chart_1984_liunian.json" {
+			pretty, _ := json.MarshalIndent(inputMap, "", "  ")
+			t.Logf(" transformed input: %s", pretty)
+		}
 		fixture.Input, err = json.Marshal(inputMap)
 		if err != nil {
 			t.Fatal(err)
@@ -141,8 +144,6 @@ func TestEngineContractWireFidelity(t *testing.T) {
 			t.Fatal(err)
 		}
 		wantDoc = normalizeLegacySeriesRoot(method, wantDoc)
-		normalizeModernDigests(method, gotDoc)
-		normalizeModernDigests(method, wantDoc)
 		if !reflect.DeepEqual(gotDoc, wantDoc) {
 			diffs := diffJSON("", gotDoc, wantDoc)
 			if len(diffs) > 12 {
@@ -178,18 +179,16 @@ func subjectFixture(file, method string) map[string]any {
 	}
 	var fixture struct {
 		Input struct {
-			StandardTime StandardTime `json:"standard_time"`
-			Longitude    float64      `json:"longitude"`
-			Gender       GenderName   `json:"gender"`
+			Subject NatalSubject `json:"subject"`
 		} `json:"input"`
 	}
 	if err := json.Unmarshal(raw, &fixture); err != nil {
 		panic(fmt.Sprintf("decode subject fixture %s: %v", base, err))
 	}
 	return map[string]any{
-		"birth_time":      fixture.Input.StandardTime,
-		"birth_longitude": fixture.Input.Longitude,
-		"gender":          fixture.Input.Gender,
+		"birth_time":      fixture.Input.Subject.BirthTime,
+		"birth_longitude": fixture.Input.Subject.BirthLongitude,
+		"gender":          fixture.Input.Subject.Gender,
 	}
 }
 
@@ -201,7 +200,7 @@ func subjectFixtureInput(file, method string, old map[string]any) map[string]any
 	}
 	subject := subjectFixture(file, method)
 	switch method {
-	case "bazi_chart", "ziwei_chart", "bazi_fullchart", "ziwei_fullchart", "ziwei_daxian", "bazi_xiaoyun":
+	case "bazi_chart", "ziwei_chart", "ziwei_daxian", "bazi_xiaoyun":
 		target := map[string]any{"subject": subject}
 		if method == "bazi_xiaoyun" {
 			target["count"] = 5
@@ -217,29 +216,17 @@ func subjectFixtureInput(file, method string, old map[string]any) map[string]any
 		return map[string]any{"a": map[string]any{"subject": a}, "b": map[string]any{"subject": b}}
 	default:
 		target := map[string]any{"subject": subject}
-		for _, key := range []string{"standard_time", "longitude", "count", "date"} {
-			if value, ok := old[key]; ok {
-				target[key] = value
+		for key, value := range old {
+			if key == "subject" {
+				continue
 			}
-		}
-		delete(target, "standard_time")
-		if value, ok := old["standard_time"]; ok {
-			target["start_time"] = value
+			if key == "standard_time" {
+				target["start_time"] = value
+				continue
+			}
+			target[key] = value
 		}
 		return target
-	}
-}
-
-// normalizeModernDigests removes chart identity from modern chart output when
-// comparing with captured legacy fixtures. Derived outputs do not carry source
-// digests, so no provenance normalization is needed for them.
-func normalizeModernDigests(method string, document any) {
-	object, ok := document.(map[string]any)
-	if !ok {
-		return
-	}
-	if method == "bazi_chart" || method == "ziwei_chart" {
-		delete(object, "chart_digest")
 	}
 }
 

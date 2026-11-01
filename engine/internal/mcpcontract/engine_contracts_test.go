@@ -36,9 +36,9 @@ func TestEngineContractDefinitions(t *testing.T) {
 		"xuankong_chart", "xuankong_liunian",
 		"liuyao_qigua",
 		"liuyao_chart",
-		"bazi_fullchart", "bazi_bond",
+		"bazi_bond",
 		"bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi", "bazi_xiaoyun",
-		"ziwei_chart", "ziwei_fullchart", "ziwei_daxian", "ziwei_liunian",
+		"ziwei_chart", "ziwei_daxian", "ziwei_liunian",
 		"ziwei_liuyue", "ziwei_liuri", "ziwei_liushi", "ziwei_bond",
 		"qimen_chart",
 	}
@@ -378,21 +378,21 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 		"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male",
 	}
 	_ = callToolDocument(t, registry, "bazi_chart", map[string]any{"subject": subject})
-	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"subject": subject})
+	full := callToolDocument(t, registry, "bazi_chart", map[string]any{"subject": subject})
 	tiaoHou, _ := full["tiao_hou"].(map[string]any)
 	if tiaoHou == nil {
-		t.Fatalf("bazi.fullchart output has no tiao_hou: %#v", full)
+		t.Fatalf("bazi.chart output has no tiao_hou: %#v", full)
 	}
 	secondary, ok := tiaoHou["secondary_wuxing"]
 	if !ok {
-		t.Fatalf("bazi.fullchart output omitted secondary_wuxing: %#v", tiaoHou)
+		t.Fatalf("bazi.chart output omitted secondary_wuxing: %#v", tiaoHou)
 	}
 	if secondary != "无辅调候" {
 		t.Fatalf("expected explicit 无辅调候 secondary_wuxing, got %#v", secondary)
 	}
 
 	var schema map[string]any
-	decode(t, mustDefinition(t, registry, "bazi_fullchart").OutputSchema, &schema)
+	decode(t, mustDefinition(t, registry, "bazi_chart").OutputSchema, &schema)
 	properties := schema["properties"].(map[string]any)
 	fuYi := properties["fu_yi"].(map[string]any)["properties"].(map[string]any)
 	tiaoHouSchema := properties["tiao_hou"].(map[string]any)["properties"].(map[string]any)

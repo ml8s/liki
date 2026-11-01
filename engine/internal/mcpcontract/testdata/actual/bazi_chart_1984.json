@@ -1,8 +1,10 @@
 {
   "input": {
-    "gender": "male",
-    "longitude": 123.75,
-    "standard_time": "1984-02-15T08:00:00+08:00"
+    "subject": {
+      "birth_time": "1984-02-15T08:00:00+08:00",
+      "birth_longitude": 123.75,
+      "gender": "male"
+    }
   },
   "output": {
     "birth_year": 1984,

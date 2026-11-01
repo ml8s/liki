@@ -17,8 +17,8 @@ import (
 // before any engine work runs.
 func TestMigratedInputValidation(t *testing.T) {
 	registry := testEngine()
-	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
-	ziweiChart := map[string]any{
+	subject := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	ziweiSubject := map[string]any{
 		"birth_time":      "2000-09-20T08:00:00+08:00",
 		"birth_longitude": 116.4,
 		"gender":          "male",
@@ -30,19 +30,19 @@ func TestMigratedInputValidation(t *testing.T) {
 		input  any
 		expect string
 	}{
-		{"bazi.chart missing gender", "bazi_chart", map[string]any{"standard_time": "1984-02-15T08:00:00+08:00"}, ""},
-		{"bazi.chart bad gender", "bazi_chart", map[string]any{"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4, "gender": "other"}, ""},
-		{"ziwei.chart bad gender", "ziwei_chart", map[string]any{
-			"standard_time": "2000-09-20T08:00:00+08:00", "longitude": 116.4, "gender": "bad"}, ""},
-		{"ziwei.daxian missing chart", "ziwei_daxian", map[string]any{}, ""},
-		{"bazi.bond missing b", "bazi_bond", map[string]any{"a": map[string]any{"subject": chart}}, ""},
-		{"bazi.liunian missing chart", "bazi_liunian", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00"}, ""},
-		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"standard_time": "0000-01-01T08:00:00", "subject": chart}, ""},
-		{"bazi.liuyue missing chart", "bazi_liuyue", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00"}, ""},
-		{"bazi.liushi invalid standard_time", "bazi_liushi", map[string]any{
-			"standard_time": "not-a-time", "longitude": 116.4, "subject": chart}, ""},
+		{"bazi.chart missing gender", "bazi_chart", map[string]any{"subject": map[string]any{"birth_time": "1984-02-15T08:00:00+08:00", "birth_longitude": 116.4}}, ""},
+		{"bazi.chart bad gender", "bazi_chart", map[string]any{"subject": map[string]any{"birth_time": "1984-02-15T08:00:00+08:00", "birth_longitude": 116.4, "gender": "other"}}, ""},
+		{"ziwei.chart bad gender", "ziwei_chart", map[string]any{"subject": map[string]any{
+			"birth_time": "2000-09-20T08:00:00+08:00", "birth_longitude": 116.4, "gender": "bad"}}, ""},
+		{"ziwei.daxian missing subject", "ziwei_daxian", map[string]any{}, ""},
+		{"bazi.bond missing b", "bazi_bond", map[string]any{"a": map[string]any{"subject": subject}}, ""},
+		{"bazi.liunian missing subject", "bazi_liunian", map[string]any{"start_time": "2026-06-15T12:00:00+08:00"}, ""},
+		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"start_time": "0000-01-01T08:00:00", "subject": subject}, ""},
+		{"bazi.liuyue missing subject", "bazi_liuyue", map[string]any{"start_time": "2026-06-15T12:00:00+08:00"}, ""},
+		{"bazi.liushi invalid start_time", "bazi_liushi", map[string]any{
+			"start_time": "not-a-time", "longitude": 116.4, "subject": subject}, ""},
 		{"bazi.liushi invalid longitude", "bazi_liushi", map[string]any{
-			"standard_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "subject": chart}, ""},
+			"start_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "subject": subject}, ""},
 		{"qimen.chart bad scope", "qimen_chart", map[string]any{
 			"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
 			"method": map[string]any{"scope": "ke", "school": "zhuanpan", "dingju_method": "chaibu"},
@@ -61,8 +61,8 @@ func TestMigratedInputValidation(t *testing.T) {
 				"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
 			},
 		}, ""},
-		{"ziwei.liuri missing standard_time", "ziwei_liuri", map[string]any{"subject": ziweiChart}, ""},
-		{"ziwei.bond missing b", "ziwei_bond", map[string]any{"a": map[string]any{"subject": ziweiChart}}, ""},
+		{"ziwei.liuri missing start_time", "ziwei_liuri", map[string]any{"subject": ziweiSubject}, ""},
+		{"ziwei.bond missing b", "ziwei_bond", map[string]any{"a": map[string]any{"subject": ziweiSubject}}, ""},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -72,8 +72,8 @@ func TestMigratedInputValidation(t *testing.T) {
 
 	// Malformed JSON must not panic or be silently accepted.
 	for _, tool := range []string{
-		"bazi_fullchart", "bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
-		"bazi_liushi", "bazi_xiaoyun", "ziwei_chart", "ziwei_fullchart", "ziwei_daxian",
+		"bazi_chart", "bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
+		"bazi_liushi", "bazi_xiaoyun", "ziwei_chart", "ziwei_daxian",
 		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi", "ziwei_bond", "qimen_chart",
 	} {
 		if _, err := registry.Call(context.Background(), tool, []byte("{bad")); err == nil {
@@ -82,33 +82,32 @@ func TestMigratedInputValidation(t *testing.T) {
 	}
 }
 
-// TestMigratedBaziFullChartExtras keeps the legacy "fullchart is the minimal
-// chart plus extras" assertion.
-func TestMigratedBaziFullChartExtras(t *testing.T) {
+// TestMigratedBaziChartCompleteFacts asserts the canonical chart is complete.
+func TestMigratedBaziChartCompleteFacts(t *testing.T) {
 	registry := testEngine()
-	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
-	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"subject": chart})
+	subject := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{"subject": subject})
 
 	for _, field := range []string{
 		"san_yuan", "gan_he", "zhi_liu_he", "ten_god_states", "element_states", "da_yun",
 	} {
-		if value, ok := full[field]; !ok || value == nil {
-			t.Errorf("bazi.fullchart missing %s", field)
+		if value, ok := chart[field]; !ok || value == nil {
+			t.Errorf("bazi.chart missing %s", field)
 		}
 	}
 	for _, pillar := range []string{"nian", "yue", "ri", "shi"} {
-		item, ok := full[pillar].(map[string]any)
+		item, ok := chart[pillar].(map[string]any)
 		if !ok {
-			t.Fatalf("bazi.fullchart %s = %#v", pillar, full[pillar])
+			t.Fatalf("bazi.chart %s = %#v", pillar, chart[pillar])
 		}
 		if item["na_yin"] == nil || item["na_yin"] == "" {
-			t.Errorf("bazi.fullchart %s.na_yin is empty", pillar)
+			t.Errorf("bazi.chart %s.na_yin is empty", pillar)
 		}
 	}
 
-	relations, ok := full["nayin_rel"].([]any)
+	relations, ok := chart["nayin_rel"].([]any)
 	if !ok || len(relations) != 6 {
-		t.Fatalf("nayin_rel = %#v, want 6 entries", full["nayin_rel"])
+		t.Fatalf("nayin_rel = %#v, want 6 entries", chart["nayin_rel"])
 	}
 	sameOnly := true
 	for _, raw := range relations {
@@ -138,8 +137,7 @@ func TestMigratedBaziLiuNianShiShen(t *testing.T) {
 	}
 }
 
-// TestMigratedZiweiDependentTools keeps the legacy valid-path coverage for the
-// chart-dependent ziwei tools.
+// TestMigratedZiweiDependentTools covers subject-dependent ziwei tools.
 func TestMigratedZiweiDependentTools(t *testing.T) {
 	registry := testEngine()
 	chart := map[string]any{
@@ -188,9 +186,9 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 	if len(bond) == 0 {
 		t.Fatal("ziwei.bond returned an empty document")
 	}
-	full := callToolDocument(t, registry, "ziwei_fullchart", map[string]any{"subject": chart})
-	if len(full) == 0 {
-		t.Fatal("ziwei.fullchart returned an empty document")
+	ziweiChart := callToolDocument(t, registry, "ziwei_chart", map[string]any{"subject": chart})
+	if len(ziweiChart) == 0 {
+		t.Fatal("ziwei.chart returned an empty document")
 	}
 }
 

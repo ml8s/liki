@@ -1,8 +1,10 @@
 {
   "input": {
-    "gender": "female",
-    "longitude": 118.5,
-    "standard_time": "2000-09-20T08:30:00+08:00"
+    "subject": {
+      "birth_time": "2000-09-20T08:30:00+08:00",
+      "birth_longitude": 118.5,
+      "gender": "female"
+    }
   },
   "output": {
     "birth_year": 2000,

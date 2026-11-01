@@ -58,7 +58,8 @@
       "element_states": "五行状态",
       "atomic_facts": "命理原子事实",
       "tiao_hou": "tiao_hou",
-      "ge_ju": "ge_ju"
+      "ge_ju": "ge_ju",
+      "zi_shi_rule": "子时换日规则"
     },
     "chart": {
       "da_yun": "大运",

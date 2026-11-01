@@ -52,7 +52,7 @@ func assertToolError(t *testing.T, registry *Registry, name string, input any, c
 	}
 }
 
-// testBaziChart returns a resolved natal subject for the migrated handlers.
+// testBaziChart returns a natal subject map for the migrated handlers.
 func testBaziChart(t *testing.T, utc, timezone string, longitude float64, gender string) map[string]any {
 	t.Helper()
 	return map[string]any{
@@ -75,14 +75,14 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 		t.Fatalf("bazi.chart: unknown arguments must be rejected")
 	}
 
-	// Flow tools consume the ziwei.chart output object, exactly as documented.
-	ziweiChart := map[string]any{
+	// Flow tools consume the resolved natal subject.
+	ziweiSubject := map[string]any{
 		"birth_time": "1984-02-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
 	}
-	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiChart, "start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
+	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiSubject, "start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
 	}
-	if _, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": ziweiChart})); err != nil {
+	if _, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": ziweiSubject})); err != nil {
 		t.Fatalf("ziwei.daxian: %v", err)
 	}
 

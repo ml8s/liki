@@ -32,11 +32,11 @@ func benchmarkDecodeInput[In any](b *testing.B, registry *Registry, name string,
 	}
 }
 
-func benchmarkBaziFullChartPhases(b *testing.B) (json.RawMessage, BaziFullChartInput, bazi.Chart, bazi.FullChart, BaziFullChartOutput) {
+func benchmarkBaziChartPhases(b *testing.B) (json.RawMessage, BaziChartInput, bazi.Chart, bazi.FullChart, BaziChartOutput) {
 	b.Helper()
 	subject := testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")
 	arguments := mustBenchmarkJSON(b, map[string]any{"subject": subject})
-	var input BaziFullChartInput
+	var input BaziChartInput
 	if err := json.Unmarshal(arguments, &input); err != nil {
 		b.Fatal(err)
 	}
@@ -45,24 +45,24 @@ func benchmarkBaziFullChartPhases(b *testing.B) (json.RawMessage, BaziFullChartI
 		b.Fatal(err)
 	}
 	full := bazi.ComputeFullChart(chart)
-	output, err := wireFromDomain[BaziFullChartOutput](full)
+	output, err := wireFromDomain[BaziChartOutput](full)
 	if err != nil {
 		b.Fatal(err)
 	}
 	return arguments, input, chart, full, output
 }
 
-func BenchmarkMCPBaziFullChartPhaseInputValidation(b *testing.B) {
-	arguments, _, _, _, _ := benchmarkBaziFullChartPhases(b)
-	benchmarkDecodeInput[BaziFullChartInput](b, testEngine(), "bazi_fullchart", arguments)
+func BenchmarkMCPBaziChartPhaseInputValidation(b *testing.B) {
+	arguments, _, _, _, _ := benchmarkBaziChartPhases(b)
+	benchmarkDecodeInput[BaziChartInput](b, testEngine(), "bazi_chart", arguments)
 }
 
-func BenchmarkMCPBaziFullChartPhaseTypedDecode(b *testing.B) {
-	arguments, _, _, _, _ := benchmarkBaziFullChartPhases(b)
+func BenchmarkMCPBaziChartPhaseTypedDecode(b *testing.B) {
+	arguments, _, _, _, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		var decoded BaziFullChartInput
+		var decoded BaziChartInput
 		if err := json.Unmarshal(arguments, &decoded); err != nil {
 			b.Fatal(err)
 		}
@@ -70,8 +70,8 @@ func BenchmarkMCPBaziFullChartPhaseTypedDecode(b *testing.B) {
 	}
 }
 
-func BenchmarkMCPBaziFullChartPhaseDomainDecode(b *testing.B) {
-	_, input, _, _, _ := benchmarkBaziFullChartPhases(b)
+func BenchmarkMCPBaziChartPhaseDomainDecode(b *testing.B) {
+	_, input, _, _, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -81,8 +81,8 @@ func BenchmarkMCPBaziFullChartPhaseDomainDecode(b *testing.B) {
 	}
 }
 
-func BenchmarkMCPBaziFullChartPhaseCompute(b *testing.B) {
-	_, _, chart, _, _ := benchmarkBaziFullChartPhases(b)
+func BenchmarkMCPBaziChartPhaseCompute(b *testing.B) {
+	_, _, chart, _, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -90,30 +90,30 @@ func BenchmarkMCPBaziFullChartPhaseCompute(b *testing.B) {
 	}
 }
 
-func BenchmarkMCPBaziFullChartPhaseRawProjection(b *testing.B) {
-	_, _, _, full, _ := benchmarkBaziFullChartPhases(b)
+func BenchmarkMCPBaziChartPhaseRawProjection(b *testing.B) {
+	_, _, chart, full, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := marshalRawBaziFullChart(full); err != nil {
+		if _, err := marshalRawBaziCompleteChart(full, chart.ZiShiRule); err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkMCPBaziFullChartPhaseWireDTOConversion(b *testing.B) {
-	_, _, _, full, _ := benchmarkBaziFullChartPhases(b)
+func BenchmarkMCPBaziChartPhaseWireDTOConversion(b *testing.B) {
+	_, _, _, full, _ := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := wireFromDomain[BaziFullChartOutput](full); err != nil {
+		if _, err := wireFromDomain[BaziChartOutput](full); err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkMCPBaziFullChartPhaseOutputMarshal(b *testing.B) {
-	_, _, _, _, output := benchmarkBaziFullChartPhases(b)
+func BenchmarkMCPBaziChartPhaseOutputMarshal(b *testing.B) {
+	_, _, _, _, output := benchmarkBaziChartPhases(b)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

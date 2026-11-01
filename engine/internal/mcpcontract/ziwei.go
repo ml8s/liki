@@ -28,38 +28,13 @@ func ziweiLunarProjector(loc *time.Location) (tianwen.LunarProjector, error) {
 // lossless; the school/birth year checks keep the "empty chart" failure mode.
 
 // ZiweiChart computes the twelve-palace chart from lunar birth data.
+// ZiweiChart computes the canonical complete twelve-palace chart.
 func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessage, error) {
 	chart, err := input.Subject.ziweiChart()
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.chart: %w", err)
 	}
-	raw, err := marshalRawOutput("ziwei.chart", chart)
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.chart: %w", err)
-	}
-	var item map[string]any
-	if err := json.Unmarshal(raw, &item); err != nil {
-		return nil, fmt.Errorf("ziwei.chart: decode chart: %w", err)
-	}
-	digest, err := chartDigest(item)
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.chart: %w", err)
-	}
-	item["chart_digest"] = digest
-	return json.Marshal(item)
-}
-
-// ZiweiFullChart expands a chart with 杂曜、长生、博士、小限、将前、岁前.
-func ZiweiFullChart(_ context.Context, input ZiweiFullChartInput) (json.RawMessage, error) {
-	chart, err := input.Subject.ziweiChart()
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
-	}
-	raw, err := marshalRawOutput("ziwei.fullchart", ziwei.ComputeFullChart(chart))
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
-	}
-	return raw, nil
+	return marshalRawOutput("ziwei.chart", ziwei.ComputeFullChart(chart))
 }
 
 // ZiweiDaXian returns the ten-year 大限 steps of a chart.
