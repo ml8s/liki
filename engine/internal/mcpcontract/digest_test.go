@@ -61,13 +61,18 @@ func TestChartDigestExcludesItselfAndBindsChartContent(t *testing.T) {
 }
 
 func TestCanonicalDigestMatchesPythonReferenceVector(t *testing.T) {
-	value := map[string]any{"b": json.Number("1"), "a": []any{"甲", map[string]any{"z": false, "y": nil}}}
+	value := map[string]any{
+		"b": json.Number("1"),
+		"a": []any{"甲", map[string]any{"z": false, "y": nil}},
+		"n": json.Number("12345678901234567890"),
+		"s": "<a>&\"猴\"\u2028",
+	}
 	got, err := canonicalJSON(value)
 	if err != nil {
 		t.Fatal(err)
 	}
 	sum := sha256.Sum256(got)
-	want := "068a8baec8a2336e95b6153e1b88d070a9b2fc0a6826888732c68685828ff275"
+	want := "bf15cbf7215513b63017a1a28b7f2a7590fffc4a23414a8a26e14fd119154d6d"
 	if hex.EncodeToString(sum[:]) != want {
 		t.Fatalf("canonical digest = %s, want %s", hex.EncodeToString(sum[:]), want)
 	}
@@ -92,7 +97,7 @@ func TestSourceChartDigestFailsClosed(t *testing.T) {
 	}
 }
 
-func TestXuankongSeriesSourceIdentity(t *testing.T) {
+func TestXuankongSeriesValidatesReusableChart(t *testing.T) {
 	registry := testEngine()
 	chartRaw, err := registry.Call(context.Background(), "xuankong_chart", mustJSON(t, XuankongChartInput{
 		StandardTime: "2026-07-31T12:00:00+08:00", ZuoShan: 2, XiangShan: 14,
@@ -102,19 +107,20 @@ func TestXuankongSeriesSourceIdentity(t *testing.T) {
 	}
 	var chart map[string]any
 	decode(t, chartRaw, &chart)
-	want := chart["chart_digest"].(string)
 	input := map[string]any{"chart": chart, "standard_time": "2026-06-15T12:00:00+08:00"}
 	raw, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, input))
 	if err != nil {
 		t.Fatal(err)
 	}
 	var output struct {
-		SourceChartDigest ChartDigest      `json:"source_chart_digest"`
-		Items             []map[string]any `json:"items"`
+		Items []map[string]any `json:"items"`
 	}
 	decode(t, raw, &output)
-	if string(output.SourceChartDigest) != want || len(output.Items[0]["house_overlay"].([]any)) == 0 {
-		t.Fatalf("xuankong series identity = %s, overlay=%v", output.SourceChartDigest, output.Items[0]["house_overlay"])
+	if len(output.Items) != 1 || len(output.Items[0]["house_overlay"].([]any)) == 0 {
+		t.Fatalf("xuankong series output = %#v", output)
+	}
+	if _, exists := output.Items[0]["source_chart_digest"]; exists {
+		t.Fatal("derived series item carried source digest")
 	}
 
 	input["chart"].(map[string]any)["chart_digest"] = "0000000000000000000000000000000000000000000000000000000000000000"
@@ -123,23 +129,14 @@ func TestXuankongSeriesSourceIdentity(t *testing.T) {
 	}
 
 	delete(input, "chart")
-	raw, err = registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, input))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var noChart struct {
-		SourceChartDigest ChartDigest      `json:"source_chart_digest"`
-		Items             []map[string]any `json:"items"`
-	}
-	decode(t, raw, &noChart)
-	if noChart.SourceChartDigest != "" {
-		t.Fatalf("chartless source digest = %s, want empty", noChart.SourceChartDigest)
+	if _, err := registry.Call(context.Background(), "xuankong_liunian", mustJSON(t, input)); err != nil {
+		t.Fatalf("chartless xuankong series was rejected: %v", err)
 	}
 }
 
-func TestReusableOutputsCarrySourceChartIdentity(t *testing.T) {
+func TestDerivedOutputsDoNotCarrySourceDigest(t *testing.T) {
 	registry := testEngine()
-	makeChart := func(method string) (map[string]any, string) {
+	makeChart := func(method string) map[string]any {
 		t.Helper()
 		raw, err := registry.Call(context.Background(), method, mustJSON(t, map[string]any{
 			"standard_time": "1990-05-20T12:49:00+08:00", "longitude": 116.4, "gender": "male",
@@ -149,32 +146,31 @@ func TestReusableOutputsCarrySourceChartIdentity(t *testing.T) {
 		}
 		var chart map[string]any
 		decode(t, raw, &chart)
-		digest, _ := chart["chart_digest"].(string)
-		if digest == "" {
+		if chart["chart_digest"] == "" {
 			t.Fatalf("%s has no chart_digest", method)
 		}
-		return chart, digest
+		return chart
 	}
 
 	for method, downstream := range map[string]string{
 		"bazi_chart": "bazi_fullchart", "ziwei_chart": "ziwei_fullchart",
 	} {
 		t.Run(method, func(t *testing.T) {
-			chart, digest := makeChart(method)
+			chart := makeChart(method)
 			raw, err := registry.Call(context.Background(), downstream, mustJSON(t, map[string]any{"chart": chart}))
 			if err != nil {
 				t.Fatal(err)
 			}
 			var output map[string]any
 			decode(t, raw, &output)
-			if got, _ := output["source_chart_digest"].(string); got != digest {
-				t.Fatalf("%s source_chart_digest = %s, want %s", downstream, got, digest)
+			if _, exists := output["source_chart_digest"]; exists {
+				t.Fatalf("%s carried orchestration-only source digest", downstream)
 			}
 		})
 	}
 }
 
-func TestSeriesSourceChartIdentityAndCountContract(t *testing.T) {
+func TestSeriesAcceptsReusableChartButOmitsSourceDigest(t *testing.T) {
 	registry := testEngine()
 	chartRaw, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{
 		StandardTime: "1990-05-20T12:49:00+08:00", Longitude: 116.4, Gender: "male",
@@ -184,22 +180,22 @@ func TestSeriesSourceChartIdentityAndCountContract(t *testing.T) {
 	}
 	var chart map[string]any
 	decode(t, chartRaw, &chart)
-	want := chart["chart_digest"].(string)
-
 	input := map[string]any{"chart": chart, "standard_time": "2026-06-15T12:00:00+08:00"}
 	raw, err := registry.Call(context.Background(), "bazi_liunian", mustJSON(t, input))
 	if err != nil {
 		t.Fatal(err)
 	}
 	var output struct {
-		SourceChartDigest ChartDigest      `json:"source_chart_digest"`
-		Items             []map[string]any `json:"items"`
+		Items []map[string]any `json:"items"`
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatal(err)
 	}
-	if string(output.SourceChartDigest) != want || len(output.Items) != 1 {
-		t.Fatalf("default series = digest %s, items %d", output.SourceChartDigest, len(output.Items))
+	if len(output.Items) != 1 {
+		t.Fatalf("omitted count items = %d, want 1", len(output.Items))
+	}
+	if _, exists := output.Items[0]["source_chart_digest"]; exists {
+		t.Fatal("derived series carried source digest")
 	}
 
 	input["count"] = 0

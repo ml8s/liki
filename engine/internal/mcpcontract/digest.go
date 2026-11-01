@@ -13,8 +13,21 @@ import (
 // canonicalJSON encodes JSON with sorted object keys and no insignificant
 // whitespace. Array order is preserved. Numbers remain their decoded JSON
 // scalar form.
+// marshalCompactJSON emits one compact JSON document without the HTML
+// escaping that Go enables by default. Canonical output must match Python's
+// UTF-8 JSON encoder byte for byte.
+func marshalCompactJSON(value any) ([]byte, error) {
+	var raw bytes.Buffer
+	encoder := json.NewEncoder(&raw)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(value); err != nil {
+		return nil, err
+	}
+	return bytes.TrimRight(raw.Bytes(), "\n"), nil
+}
+
 func canonicalJSON(value any) ([]byte, error) {
-	raw, err := json.Marshal(value)
+	raw, err := marshalCompactJSON(value)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +56,7 @@ func encodeCanonicalJSON(out *bytes.Buffer, value any) error {
 			out.WriteString("false")
 		}
 	case string:
-		encoded, err := json.Marshal(item)
+		encoded, err := marshalCompactJSON(item)
 		if err != nil {
 			return err
 		}
@@ -72,7 +85,7 @@ func encodeCanonicalJSON(out *bytes.Buffer, value any) error {
 			if index > 0 {
 				out.WriteByte(',')
 			}
-			encodedKey, err := json.Marshal(key)
+			encodedKey, err := marshalCompactJSON(key)
 			if err != nil {
 				return err
 			}
@@ -92,12 +105,14 @@ func encodeCanonicalJSON(out *bytes.Buffer, value any) error {
 // digestExcluding hashes an object-valued artifact after removing metadata
 // fields such as the digest itself.
 func digestExcluding(value any, excluded ...string) (string, error) {
-	raw, err := json.Marshal(value)
+	raw, err := marshalCompactJSON(value)
 	if err != nil {
 		return "", fmt.Errorf("marshal artifact: %w", err)
 	}
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
 	var item map[string]any
-	if err := json.Unmarshal(raw, &item); err != nil {
+	if err := decoder.Decode(&item); err != nil {
 		return "", fmt.Errorf("decode artifact object: %w", err)
 	}
 	for _, field := range excluded {
@@ -120,12 +135,14 @@ func chartDigest(chart any) (string, error) {
 // sourceChartDigest verifies the digest carried by a reusable source chart and
 // returns its canonical value.
 func sourceChartDigest(chart any) (string, error) {
-	raw, err := json.Marshal(chart)
+	raw, err := marshalCompactJSON(chart)
 	if err != nil {
 		return "", fmt.Errorf("marshal source chart: %w", err)
 	}
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
 	var item map[string]any
-	if err := json.Unmarshal(raw, &item); err != nil {
+	if err := decoder.Decode(&item); err != nil {
 		return "", fmt.Errorf("decode source chart: %w", err)
 	}
 	provided, _ := item["chart_digest"].(string)
@@ -142,38 +159,23 @@ func sourceChartDigest(chart any) (string, error) {
 	return provided, nil
 }
 
-// inputSourceDigest extracts and verifies the chart digest from an input that
-// carries a reusable Chart field. A nil optional chart has no source digest.
-func inputSourceDigest(input any) (*ChartDigest, error) {
+// validateInputChart verifies that an input carrying a reusable Chart field
+// was issued by this engine. Optional charts may be absent.
+func validateInputChart(input any) error {
 	value := reflect.ValueOf(input)
 	if value.Kind() == reflect.Pointer {
 		value = value.Elem()
 	}
 	if value.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("input is not a struct")
+		return fmt.Errorf("input is not a struct")
 	}
 	field := value.FieldByName("Chart")
 	if !field.IsValid() {
-		return nil, fmt.Errorf("input has no chart")
+		return fmt.Errorf("input has no chart")
 	}
 	if field.Kind() == reflect.Pointer && field.IsNil() {
-		return nil, nil
+		return nil
 	}
-	digest, err := sourceChartDigest(field.Interface())
-	if err != nil {
-		return nil, err
-	}
-	chartDigest := ChartDigest(digest)
-	return &chartDigest, nil
-}
-
-// withSourceChartDigest attaches the verified source-chart identity to a raw
-// downstream artifact without changing its domain projection.
-func withSourceChartDigest(raw json.RawMessage, digest string) (json.RawMessage, error) {
-	var item map[string]any
-	if err := json.Unmarshal(raw, &item); err != nil {
-		return nil, fmt.Errorf("decode artifact: %w", err)
-	}
-	item["source_chart_digest"] = digest
-	return json.Marshal(item)
+	_, err := sourceChartDigest(field.Interface())
+	return err
 }

@@ -13,6 +13,7 @@ def _valid_mock_pan() -> dict:
         "standard_time": "1990-05-20T12:00:00+08:00",
         "gender": "male",
         "chart": {
+            "chart_digest": "a" * 64,
             **{
                 pillar: {"gan": "甲", "zhi": "子"}
                 for pillar in ("nian", "yue", "ri", "shi")
@@ -20,7 +21,6 @@ def _valid_mock_pan() -> dict:
             "da_yun": {"steps": [], "current_step_index": -1},
         },
         "full": {
-            "source_chart_digest": "a" * 64,
             **{pillar: {"gan": "甲", "zhi": "子"} for pillar in ("nian", "yue", "ri", "shi")},
             **_helpers.mock_engine_facts(),
             **_helpers.mock_yongshen_fields(),

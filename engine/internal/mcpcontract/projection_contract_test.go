@@ -70,7 +70,7 @@ func TestProjectionContractCoversEngineFullChartFields(t *testing.T) {
 	// gender is projected into context; birth_year is available through chart
 	// mapping. Other new top-level engine facts must be added to the projection
 	// mapping deliberately.
-	allowedUnprojected := map[string]bool{"gender": true, "source_chart_digest": true}
+	allowedUnprojected := map[string]bool{"gender": true}
 	pillars := map[string]bool{}
 	for _, pillar := range contract.Pillars {
 		pillars[pillar] = true

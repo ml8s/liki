@@ -9,13 +9,13 @@ import app.natal.tools.factors as factors
 def _cmp_bazi_pan() -> dict:
     return {
         "chart": {
+            "chart_digest": "a" * 64,
             "nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},
             "ri": {"gan": "甲", "zhi": "子"}, "shi": {"gan": "庚", "zhi": "午"},
             "da_yun": {"steps": [{"name": "甲午", "start_year": 2000, "end_year": 2010, "shi_shen": "偏印"}],
                        "current_step_index": 0},
         },
         "full": {
-            "source_chart_digest": "a" * 64,
             **_helpers.mock_yongshen_fields(),
             "ten_god_states": [
                 {"shi_shen": "七杀", "wuxing": "金", "transparent": True, "hidden": False,

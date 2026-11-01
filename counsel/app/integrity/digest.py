@@ -13,13 +13,16 @@ Digest = str
 
 def canonical_json(value: Any) -> str:
     """返回稳定 JSON 字符串。"""
-    return json.dumps(
+    encoded = json.dumps(
         value,
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
         allow_nan=False,
     )
+    # Go's JSON encoder always escapes JavaScript line separators. Match that
+    # deterministic form so Python and Go agree even inside string values.
+    return encoded.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 
 
 def sha256_json(value: Any) -> Digest:

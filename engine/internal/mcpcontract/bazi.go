@@ -256,15 +256,11 @@ func BaziFullChart(_ context.Context, input BaziFullChartInput) (json.RawMessage
 	if err := validateFullChartInput(chart); err != nil {
 		return nil, err
 	}
-	digest, err := sourceChartDigest(input.Chart)
-	if err != nil {
-		return nil, fmt.Errorf("bazi.fullchart: %w", err)
-	}
 	raw, err := marshalRawBaziFullChart(bazi.ComputeFullChart(chart))
 	if err != nil {
 		return nil, fmt.Errorf("bazi.fullchart: %w", err)
 	}
-	return withSourceChartDigest(raw, digest)
+	return raw, nil
 }
 
 type baziFullChartJSON struct {
@@ -319,6 +315,12 @@ func marshalRawBaziFullChart(full bazi.FullChart) (json.RawMessage, error) {
 
 // BaziBond returns raw cross-chart facts for two bazi charts.
 func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
+	if _, err := sourceChartDigest(input.A.Chart); err != nil {
+		return nil, fmt.Errorf("bazi.bond: chart a: %w", err)
+	}
+	if _, err := sourceChartDigest(input.B.Chart); err != nil {
+		return nil, fmt.Errorf("bazi.bond: chart b: %w", err)
+	}
 	chartA, err := input.A.Chart.domain()
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart a: %w", err)
@@ -327,25 +329,11 @@ func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart b: %w", err)
 	}
-	digestA, err := sourceChartDigest(input.A.Chart)
-	if err != nil {
-		return nil, fmt.Errorf("bazi.bond: %w", err)
-	}
-	digestB, err := sourceChartDigest(input.B.Chart)
-	if err != nil {
-		return nil, fmt.Errorf("bazi.bond: %w", err)
-	}
 	raw, err := marshalRawOutput("bazi.bond", bazi.ComputeBond(chartA, chartB))
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: %w", err)
 	}
-	var item map[string]any
-	if err := json.Unmarshal(raw, &item); err != nil {
-		return nil, fmt.Errorf("bazi.bond: decode facts: %w", err)
-	}
-	item["a_chart_digest"] = digestA
-	item["b_chart_digest"] = digestB
-	return json.Marshal(item)
+	return raw, nil
 }
 
 // BaziLiuNian computes the year pillar and its interactions with a chart.

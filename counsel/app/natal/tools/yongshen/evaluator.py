@@ -594,7 +594,7 @@ def published_yongshen(result: dict) -> dict:
     return published
 
 
-def resolve_yongshen(fullchart: dict, source_chart_digest: str | None = None) -> dict:
+def resolve_yongshen(fullchart: dict, source_chart_digest: str) -> dict:
     """从 bazi.fullchart 事实裁决唯一 selected_yongshen。"""
     policy = load_policy()
     facts = _enrich_facts(fullchart or {}, policy)
@@ -607,8 +607,6 @@ def resolve_yongshen(fullchart: dict, source_chart_digest: str | None = None) ->
     result["ge_ju_context"] = result["alternatives"]["ge_ju"]
     result["evidence"] = _evidence(facts, derived, policy)
     result["policy_id"] = policy["policy_id"]
-    if source_chart_digest is None:
-        raise ValueError("resolve_yongshen requires source_chart_digest")
     result["chart_digest"] = require_sha256(source_chart_digest, "source_chart_digest")
     result["yongshen_digest"] = sha256_json(published_yongshen(result))
     return result

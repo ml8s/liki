@@ -35,11 +35,6 @@ def _engine_chart_digest(chart: dict, action: str) -> str:
     return digest
 
 
-def _require_downstream_source(full: dict, digest: str, action: str) -> None:
-    if full.get("source_chart_digest") != digest:
-        raise ValueError(f"{action} source_chart_digest mismatch")
-
-
 def _factor_provenance(factors: dict) -> dict:
     provenance = factors.get("_provenance")
     if not isinstance(provenance, dict):
@@ -89,7 +84,6 @@ def bazi_yongshen(chart: dict) -> dict:
         raise ValueError("bazi_yongshen 只接受八字盘（chart 含四柱）；紫微盘请走紫微领域")
     source_digest = _engine_chart_digest(chart, "bazi_yongshen")
     full = _bazi_fullchart(chart)
-    _require_downstream_source(full, source_digest, "bazi_yongshen")
     natal_chart = {"chart": chart, "full": full, "gender": chart.get("gender", "")}
     validate_side_chart(natal_chart, "bazi", "bazi_yongshen")
     return published_yongshen(resolve_yongshen(full, source_digest))
@@ -111,7 +105,6 @@ def natal_compute_factors(chart: dict) -> dict:
     source_digest = _engine_chart_digest(chart, "natal_compute_factors")
     if side == "bazi":
         full = _bazi_fullchart(chart)
-        _require_downstream_source(full, source_digest, "natal_compute_factors")
         selected_yongshen = published_yongshen(resolve_yongshen(full, source_digest))
         natal_chart = {
             "chart": chart, "full": full, "gender": gender,

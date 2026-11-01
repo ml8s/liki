@@ -273,9 +273,9 @@ def _selected_for_pan(natal_chart: dict) -> dict:
     if isinstance(selected, dict):
         return selected
     full = natal_chart.get("full") or {}
-    digest = full.get("source_chart_digest")
+    digest = (natal_chart.get("chart") or {}).get("chart_digest")
     if not digest:
-        raise ValueError("natal_chart.full requires source_chart_digest")
+        raise ValueError("natal_chart.chart requires chart_digest")
     return resolve_yongshen(full, digest)
 
 

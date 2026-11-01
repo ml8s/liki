@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026.11.01.3] — 2026-11-01
+
+### Breaking changes
+
+- **Digest 边界减法**：删除 `*_fullchart`、series、bond 输出上的 `source_chart_digest` / `a_chart_digest` / `b_chart_digest`。服务端编排内派生结果的请求关联由编排层负责；只有会由 LLM 原样传回 MCP input 的 artifact 保留防伪造 digest。
+- **Counsel 编排同步减法**：删除对 engine fullchart/series 派生输出的来源 digest 复核；入参 chart 的 `chart_digest` 校验保留。
+- 时间契约不变：civil time 仍先经 `tianwen.resolve` 归一为 known-offset `standard_time`；`time_now` 输出可排盘时间，奇门年命仍用 `birth_standard_time`。
+
 ## [2026.11.01.2] — 2026-11-01
 
 ### Breaking changes

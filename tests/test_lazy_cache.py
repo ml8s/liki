@@ -8,10 +8,9 @@ import pytest
 
 def _mk(ri_gan: str, ri_zhi: str) -> dict:
     return {
-        "chart": {"nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},
+        "chart": {"chart_digest": "a" * 64, "nian": {"gan": "庚", "zhi": "午"}, "yue": {"gan": "壬", "zhi": "午"},
                   "ri": {"gan": ri_gan, "zhi": ri_zhi}, "shi": {"gan": "庚", "zhi": "午"}},
         "full": {
-            "source_chart_digest": "a" * 64,
             "ri": {"gan": ri_gan, "zhi": ri_zhi},
             "chang_sheng": [],
             "atomic_facts": {"day_master_stem": ri_gan, "day_branch": ri_zhi},

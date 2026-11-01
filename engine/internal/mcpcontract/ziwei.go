@@ -83,20 +83,11 @@ func ZiweiFullChart(_ context.Context, input ZiweiFullChartInput) (json.RawMessa
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
 	}
-	digest, err := sourceChartDigest(input.Chart)
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
-	}
 	raw, err := marshalRawOutput("ziwei.fullchart", ziwei.ComputeFullChart(chart))
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
 	}
-	var item map[string]any
-	if err := json.Unmarshal(raw, &item); err != nil {
-		return nil, fmt.Errorf("ziwei.fullchart: decode facts: %w", err)
-	}
-	item["source_chart_digest"] = digest
-	return json.Marshal(item)
+	return raw, nil
 }
 
 // ZiweiDaXian returns the ten-year 大限 steps of a chart.
@@ -341,6 +332,12 @@ func parseZiweiLiuShiTime(input ZiweiLiuShiInput) (ziwei.LiuShiTime, tianwen.Lun
 
 // ZiweiBond returns raw cross-chart facts for two charts.
 func ZiweiBond(_ context.Context, input ZiweiBondInput) (json.RawMessage, error) {
+	if _, err := sourceChartDigest(input.A.Chart); err != nil {
+		return nil, fmt.Errorf("ziwei.bond: chart a: %w", err)
+	}
+	if _, err := sourceChartDigest(input.B.Chart); err != nil {
+		return nil, fmt.Errorf("ziwei.bond: chart b: %w", err)
+	}
 	chartA, err := input.A.Chart.domain()
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: chart a: %w", err)
@@ -349,23 +346,9 @@ func ZiweiBond(_ context.Context, input ZiweiBondInput) (json.RawMessage, error)
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: chart b: %w", err)
 	}
-	digestA, err := sourceChartDigest(input.A.Chart)
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.bond: %w", err)
-	}
-	digestB, err := sourceChartDigest(input.B.Chart)
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.bond: %w", err)
-	}
 	raw, err := marshalRawOutput("ziwei.bond", ziwei.ComputeBond(chartA, chartB))
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: %w", err)
 	}
-	var item map[string]any
-	if err := json.Unmarshal(raw, &item); err != nil {
-		return nil, fmt.Errorf("ziwei.bond: decode facts: %w", err)
-	}
-	item["a_chart_digest"] = digestA
-	item["b_chart_digest"] = digestB
-	return json.Marshal(item)
+	return raw, nil
 }

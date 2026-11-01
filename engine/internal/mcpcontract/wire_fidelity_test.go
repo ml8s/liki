@@ -184,25 +184,16 @@ func injectReplayChartDigests(value any) {
 	}
 }
 
-// normalizeModernDigests removes newly added chart provenance fields from both
-// modern output and captured legacy output during wire-shape comparison.
+// normalizeModernDigests removes chart identity from modern chart output when
+// comparing with captured legacy fixtures. Derived outputs do not carry source
+// digests, so no provenance normalization is needed for them.
 func normalizeModernDigests(method string, document any) {
 	object, ok := document.(map[string]any)
 	if !ok {
 		return
 	}
-	keys := []string{"chart_digest", "source_chart_digest", "a_chart_digest", "b_chart_digest"}
-	switch method {
-	case "bazi_chart", "ziwei_chart":
+	if method == "bazi_chart" || method == "ziwei_chart" {
 		delete(object, "chart_digest")
-	case "bazi_fullchart", "ziwei_fullchart", "ziwei_daxian":
-		delete(object, "source_chart_digest")
-	case "bazi_bond", "ziwei_bond":
-		delete(object, "a_chart_digest")
-		delete(object, "b_chart_digest")
-	}
-	for _, key := range keys {
-		delete(object, key)
 	}
 }
 

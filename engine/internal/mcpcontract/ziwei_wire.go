@@ -295,12 +295,10 @@ type ZiweiBondInput struct {
 // ── ziwei.bond output ──
 
 type ZiweiBondOutput struct {
-	AChartDigest ChartDigest       `json:"a_chart_digest" jsonschema:"canonical SHA-256 digest of chart A。"`
-	BChartDigest ChartDigest       `json:"b_chart_digest" jsonschema:"canonical SHA-256 digest of chart B。"`
-	AMingGong    string            `json:"a_ming_gong" jsonschema:"a_ming_gong。"`
-	BMingGong    string            `json:"b_ming_gong" jsonschema:"b_ming_gong。"`
-	FuQiGong     ZiweiBondFuQiGong `json:"fu_qi_gong" jsonschema:"fu_qi_gong。"`
-	ZiNvGong     ZiweiBondZiNvGong `json:"zi_nv_gong" jsonschema:"zi_nv_gong。"`
+	AMingGong string            `json:"a_ming_gong" jsonschema:"a_ming_gong。"`
+	BMingGong string            `json:"b_ming_gong" jsonschema:"b_ming_gong。"`
+	FuQiGong  ZiweiBondFuQiGong `json:"fu_qi_gong" jsonschema:"fu_qi_gong。"`
+	ZiNvGong  ZiweiBondZiNvGong `json:"zi_nv_gong" jsonschema:"zi_nv_gong。"`
 }
 
 type ZiweiBondFuQiGong struct {
@@ -328,29 +326,28 @@ type ZiweiFullChartInput struct {
 // ── ziwei.fullchart output ──
 
 type ZiweiFullChartOutput struct {
-	SourceChartDigest ChartDigest                      `json:"source_chart_digest" jsonschema:"canonical SHA-256 digest of the source ziwei chart。"`
-	School            ZiweiFullChartSchool             `json:"school" jsonschema:"流派。"`
-	GongWei           []ZiweiFullChartGongWeiItem      `json:"gong_wei" jsonschema:"12宫含杂曜/长生/博士/小限/将前/岁前"`
-	MingGong          *ZiweiPalaceName                 `json:"ming_gong,omitempty" jsonschema:"命宫。"`
-	SiHua             *map[string]SiHuaName            `json:"si_hua,omitempty" jsonschema:"四化：{星名: 禄/权/科/忌}"`
-	PalaceFacts       *[]ZiweiFullChartPalaceFactsItem `json:"palace_facts,omitempty" jsonschema:"宫位原子事实；Python 因子层只读"`
-	ShenGong          *ZiweiPalaceName                 `json:"shen_gong,omitempty" jsonschema:"身宫。"`
-	JuShu             *JuShuName                       `json:"ju_shu,omitempty" jsonschema:"局数。"`
-	MingZhu           *string                          `json:"ming_zhu,omitempty" jsonschema:"命主。"`
-	ShenZhu           *string                          `json:"shen_zhu,omitempty" jsonschema:"身主。"`
-	NianGan           *LiuyaoGanName                   `json:"nian_gan,omitempty" jsonschema:"年干"`
-	NianZhi           *LiuyaoZhiName                   `json:"nian_zhi,omitempty" jsonschema:"年支"`
-	ShiZhi            *LiuyaoZhiName                   `json:"shi_zhi,omitempty" jsonschema:"时支"`
-	BirthYear         *int                             `json:"birth_year,omitempty" jsonschema:"出生公历年。"`
-	BirthLunarMonth   *int                             `json:"birth_lunar_month,omitempty" jsonschema:"出生农历月"`
-	LunarMonth        *int                             `json:"lunar_month,omitempty" jsonschema:"排盘用农历月"`
-	LunarDay          *int                             `json:"lunar_day,omitempty" jsonschema:"排盘用农历日"`
-	JuShuName         *string                          `json:"ju_shu_name,omitempty" jsonschema:"ju_shu_name。"`
-	Gender            *GenderName                      `json:"gender,omitempty" jsonschema:"性别。"`
-	ZiweiPos          *ZiweiPalaceName                 `json:"ziwei_pos,omitempty" jsonschema:"紫微落宫。"`
-	KongGong          *[]ZiweiChartKongGongItem        `json:"kong_gong,omitempty" jsonschema:"空宫借星（无主星宫位借对宫主星）"`
-	Patterns          *[]ZiweiFullChartPatternsItem    `json:"patterns,omitempty" jsonschema:"命盘格局"`
-	SanFang           *[]ZiweiChartSanFangItem         `json:"san_fang,omitempty" jsonschema:"三方四正（命/财帛/官禄/迁移）"`
+	School          ZiweiFullChartSchool             `json:"school" jsonschema:"流派。"`
+	GongWei         []ZiweiFullChartGongWeiItem      `json:"gong_wei" jsonschema:"12宫含杂曜/长生/博士/小限/将前/岁前"`
+	MingGong        *ZiweiPalaceName                 `json:"ming_gong,omitempty" jsonschema:"命宫。"`
+	SiHua           *map[string]SiHuaName            `json:"si_hua,omitempty" jsonschema:"四化：{星名: 禄/权/科/忌}"`
+	PalaceFacts     *[]ZiweiFullChartPalaceFactsItem `json:"palace_facts,omitempty" jsonschema:"宫位原子事实；Python 因子层只读"`
+	ShenGong        *ZiweiPalaceName                 `json:"shen_gong,omitempty" jsonschema:"身宫。"`
+	JuShu           *JuShuName                       `json:"ju_shu,omitempty" jsonschema:"局数。"`
+	MingZhu         *string                          `json:"ming_zhu,omitempty" jsonschema:"命主。"`
+	ShenZhu         *string                          `json:"shen_zhu,omitempty" jsonschema:"身主。"`
+	NianGan         *LiuyaoGanName                   `json:"nian_gan,omitempty" jsonschema:"年干"`
+	NianZhi         *LiuyaoZhiName                   `json:"nian_zhi,omitempty" jsonschema:"年支"`
+	ShiZhi          *LiuyaoZhiName                   `json:"shi_zhi,omitempty" jsonschema:"时支"`
+	BirthYear       *int                             `json:"birth_year,omitempty" jsonschema:"出生公历年。"`
+	BirthLunarMonth *int                             `json:"birth_lunar_month,omitempty" jsonschema:"出生农历月"`
+	LunarMonth      *int                             `json:"lunar_month,omitempty" jsonschema:"排盘用农历月"`
+	LunarDay        *int                             `json:"lunar_day,omitempty" jsonschema:"排盘用农历日"`
+	JuShuName       *string                          `json:"ju_shu_name,omitempty" jsonschema:"ju_shu_name。"`
+	Gender          *GenderName                      `json:"gender,omitempty" jsonschema:"性别。"`
+	ZiweiPos        *ZiweiPalaceName                 `json:"ziwei_pos,omitempty" jsonschema:"紫微落宫。"`
+	KongGong        *[]ZiweiChartKongGongItem        `json:"kong_gong,omitempty" jsonschema:"空宫借星（无主星宫位借对宫主星）"`
+	Patterns        *[]ZiweiFullChartPatternsItem    `json:"patterns,omitempty" jsonschema:"命盘格局"`
+	SanFang         *[]ZiweiChartSanFangItem         `json:"san_fang,omitempty" jsonschema:"三方四正（命/财帛/官禄/迁移）"`
 }
 
 type ZiweiFullChartSchool struct {

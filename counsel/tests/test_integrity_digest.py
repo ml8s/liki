@@ -8,9 +8,14 @@ from app.natal.tools.counsel import _engine_chart_digest
 
 
 def test_canonical_json_matches_cross_runtime_reference_vector():
-    value = {"b": 1, "a": ["甲", {"z": False, "y": None}]}
+    value = {
+        "b": 1,
+        "a": ["甲", {"z": False, "y": None}],
+        "n": 12345678901234567890,
+        "s": '<a>&"猴"\u2028',
+    }
     assert sha256_json(value) == (
-        "068a8baec8a2336e95b6153e1b88d070a9b2fc0a6826888732c68685828ff275"
+        "bf15cbf7215513b63017a1a28b7f2a7590fffc4a23414a8a26e14fd119154d6d"
     )
 
 

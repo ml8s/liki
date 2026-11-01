@@ -94,10 +94,6 @@ func TestBaziFullChartRawProjectionMatchesWireDTO(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			raw, err = withSourceChartDigest(raw, string(wire.ChartDigest))
-			if err != nil {
-				t.Fatal(err)
-			}
 			if err := registry.ValidateOutput("bazi_fullchart", raw); err != nil {
 				t.Fatalf("raw output contract: %v", err)
 			}
@@ -116,11 +112,6 @@ func TestBaziFullChartRawProjectionMatchesWireDTO(t *testing.T) {
 			if err := json.Unmarshal(wantRaw, &wantDocument); err != nil {
 				t.Fatal(err)
 			}
-			wantObject, ok := wantDocument.(map[string]any)
-			if !ok {
-				t.Fatal("bazi.fullchart typed output is not an object")
-			}
-			wantObject["source_chart_digest"] = string(wire.ChartDigest)
 			if !reflect.DeepEqual(gotDocument, wantDocument) {
 				t.Fatalf("raw fullchart projection differs from typed wire DTO: %v", diffJSON("", gotDocument, wantDocument))
 			}

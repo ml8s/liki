@@ -53,7 +53,7 @@ def _full_pan(instant, timezone, gender, longitude):
         civil_time_from_instant(instant, timezone), timezone, gender, longitude=longitude,
     )
     natal_chart["_selected_yongshen"] = resolve_yongshen(
-        natal_chart["full"], natal_chart["full"]["source_chart_digest"]
+        natal_chart["full"], natal_chart["chart"]["chart_digest"]
     )
     return natal_chart
 
