@@ -303,7 +303,7 @@ func NewEngine() *Registry {
 	}
 	mustRegister(registry, Tool[LiuyaoQiguaInput, LiuyaoQiguaOutput]{
 		Name:        "liuyao_qigua",
-		Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次；mode=coins 时传入六组正/反记录；mode=yaos 时传入六个爻值。返回可审计起卦收据。",
+		Description: "六爻起卦。mode=auto 时用安全随机三枚铜钱起六次，每次调用都是新占卜事件；mode=coins/yaos 可复现既有卦。返回可审计起卦收据。",
 		InputSchema: qiguaSchema,
 		Handler:     LiuyaoQigua,
 	})

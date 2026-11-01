@@ -7,7 +7,7 @@ from app.divination.tools.liuyao_board import factors as build_liuyao_factors
 from app.divination.tools.liuyao_casting import qigua
 from app.divination.tools.liuyao_conditions import evaluate as evaluate_conditions
 from app.divination.tools.liuyao_matters import load_matter_table, resolve_matter
-from app.divination.tools.liuyao_timing import rank_timing_candidates as plan_timing
+from app.divination.tools.liuyao_timing import project_timing_plan
 from app.divination.tools.liuyao_topic_guidance import load_topic_table, project_topic_guidance
 from app.guards import require_exactly_one, require_question
 
@@ -84,7 +84,7 @@ def create(
                 project_topic_guidance(projected, resolved_topic)
                 if resolved_topic else None
             ),
-            "timing_plan": plan_timing(projected, topic=resolved_topic),
+            "timing_plan": project_timing_plan(projected, topic=resolved_topic),
             "condition_rules": evaluate_conditions(projected, topic=resolved_topic),
             "safety_advisory": safety,
             "policy": {

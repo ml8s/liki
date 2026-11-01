@@ -19,7 +19,7 @@ SAMPLES = [
 
 
 def _engine_call(domain, name, args):
-    url = os.environ["LIKI_ENGINE_MCP_URL"] + "/" + domain
+    url = os.environ["LIKI_ENGINE_MCP_URL"]
     body = json.dumps({
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
         "params": {"name": name, "arguments": args, "_meta": {
@@ -80,8 +80,8 @@ def _diff_fields(a: dict, b: dict) -> tuple[list[str], list[str]]:
 
 @pytest.mark.parametrize("sample", SAMPLES)
 def test_natal_factors_match_build_natal_chart(sample):
-    """本命因子：组合盘（compute_factors）== 完整盘（build_natal_chart）同侧。"""
-    from app.natal.tools.counsel import compute_factors
+    """本命因子：组合盘（natal_compute_factors）== 完整盘（build_natal_chart）同侧。"""
+    from app.natal.tools.counsel import natal_compute_factors
     from app.natal.tools.factors import evaluate_factors
 
     instant, timezone, gender, longitude = sample
@@ -91,7 +91,7 @@ def test_natal_factors_match_build_natal_chart(sample):
         ("ziwei", "ziwei", _ziwei_combo_chart(instant, timezone, gender, longitude)),
     ):
         full = evaluate_factors(gender, natal_chart, shushi=shushi)
-        combo = dict(compute_factors(chart)["factors"])
+        combo = dict(natal_compute_factors(chart)["factors"])
         # 八字快照额外携带用神裁决元素；本测试只比较真值表因子。
         combo.pop("selected_yongshen", None)
         diff, missing = _diff_fields(full, combo)

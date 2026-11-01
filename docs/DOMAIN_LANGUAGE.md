@@ -29,7 +29,7 @@ that concept's compatibility list.
 | `digest` | canonical | 对规范化领域对象计算的抗碰撞摘要，用于追问与重放校验。 | `Digest` | `digest` | `*_digest` | 摘要 | — |
 | `snapshot` | canonical | 可追问的完整领域输入快照，绑定内容摘要，不因后续对话静默变化。 | `Snapshot` | `Snapshot` | `*_snapshot` | 快照 | — |
 | `answer` | canonical | 基于既有快照回答追问得到的结构化结果。 | `Answer` | `Answer` | `answer` | 追问回答 | — |
-| `yongshen` | canonical | 命局裁决得到的用神结论及其来源、证据和置信度。 | `YongShen` | `YongShen` | `selected_yongshen` | 用神 | 禁止：`use_god`<br>兼容：`explicit_yong_shen`（v2026.12.01.0）, `yong_shen_candidates`（v2026.12.01.0） |
+| `yongshen` | canonical | 命局裁决得到的用神结论及其状态、冲突、规则、来源和证据。 | `YongShen` | `YongShen` | `selected_yongshen` | 用神 | 禁止：`use_god`<br>兼容：`explicit_yong_shen`（v2026.12.01.0）, `yong_shen_candidates`（v2026.12.01.0） |
 | `geju` | canonical | 以月令格神为核心的子平格局候选与结构。 | `GeJu` | `GeJu` | `ge_ju` | 格局 | — |
 | `tiaohou` | canonical | 调候用神候选及其月令条件。 | `TiaoHou` | `TiaoHou` | `tiao_hou` | 调候 | — |
 | `fuyi` | canonical | 扶抑用神候选及其强弱事实。 | `FuYi` | `FuYi` | `fu_yi` | 扶抑 | — |

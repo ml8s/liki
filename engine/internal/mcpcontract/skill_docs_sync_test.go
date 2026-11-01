@@ -569,7 +569,7 @@ func TestSkillToolVocabularyIsScoped(t *testing.T) {
 	}
 	natal := vocabulary["natal"]
 	divination := vocabulary["divination"]
-	if !natal["compute_factors"] || !natal["natal_query"] || !natal["period_query"] || natal["qimen_chart"] {
+	if !natal["natal_compute_factors"] || !natal["natal_query"] || !natal["natal_period_query"] || natal["qimen_chart"] {
 		t.Fatal("natal tool vocabulary is missing its own tools or leaks qimen tools")
 	}
 	if !divination["qimen_snapshot"] || divination["create_birth_chart"] {

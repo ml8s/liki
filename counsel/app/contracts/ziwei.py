@@ -1,7 +1,7 @@
 """Typed wire model for the engine ``ziwei_chart`` output used as tool input.
 
 Ported 1:1 from ``engine/internal/mcpcontract/ziwei_wire.go`` so the counsel
-chain (compute_factors / period_query) consumes the engine's chart with the
+chain (natal_compute_factors / natal_period_query) consumes the engine's chart with the
 same closed shapes the engine publishes — the bazi side is ``contracts/bazi.py``.
 """
 

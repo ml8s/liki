@@ -61,30 +61,6 @@ def _endpoint() -> str:
     return url.rstrip("/")
 
 
-# MCP 工具名前缀 → 引擎分域端点后缀（各术数排盘 + 共享 aux）
-_DOMAIN_BY_PREFIX = (
-    ("bazi", "/bazi"),
-    ("ziwei", "/ziwei"),
-    ("qimen", "/qimen"),
-    ("liuyao", "/liuyao"),
-    ("huangli", "/huangli"),
-    ("bazhai", "/fengshui"),
-    ("xuankong", "/fengshui"),
-    ("time", "/aux"),
-    ("tianwen", "/aux"),
-    ("city", "/aux"),
-)
-
-
-def _domain_suffix(method: str | None) -> str:
-    if method is None:
-        return ""
-    for prefix, suffix in _DOMAIN_BY_PREFIX:
-        if method.startswith(prefix):
-            return suffix
-    return ""
-
-
 def _endpoint_parts() -> _Endpoint:
     raw = _endpoint()
     parsed = urllib.parse.urlsplit(raw)
@@ -227,12 +203,6 @@ def _post_once(
         try:
             endpoint = _endpoint_parts()
             url = endpoint.path or "/"
-            suffix = _domain_suffix(name)
-            if suffix:
-                if "?" in url:
-                    url = url.replace("?", f"{suffix}?", 1)
-                else:
-                    url += suffix
             request = urllib.request.Request(endpoint.base_url + url, data=body, headers=headers)
             if _HTTP_TRANSPORT is not None:
                 effective_timeout = MCP_TIMEOUT if timeout is None else timeout

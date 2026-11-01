@@ -7,10 +7,10 @@
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.contracts.schema import ToolContract, unique_list
-from app.contracts.yongshen import ConsumedYongShen, YongShenSource
+from app.contracts.yongshen import SelectedYongShenCore
 
 # ── naming_surname ──
 TOOL_NAMING_SURNAME_DESCRIPTION = "按发音匹配候选姓氏：源姓（拉丁拼音/英文拼写）→ 同音/近音/罗马化别名匹配的百家姓候选（pinyin_exact / romanization_exact / phonetic_close），无匹配时按百家姓顺序回退。"
@@ -27,15 +27,29 @@ class NamingSurnameInput(BaseModel):
 
 
 class NamingSurnameOutputCandidatesItem(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     surname: str = Field(
         description="Chinese surname candidate.",
     )
     pinyin: str = Field(
         description="Candidate pinyin.",
     )
-    match_level: str = Field(
-        description="Match strategy or fallback level.",
+    tone: int = Field(
+        ge=0,
+        le=5,
+        description="Candidate surname tone number.",
+    )
+    baijiaxing_index: int = Field(
+        ge=1,
+        description="Classic Baijiaxing order index.",
+    )
+    match_kind: Literal[
+        "pinyin_exact",
+        "romanization_exact",
+        "phonetic_close",
+        "fallback_baijiaxing",
+    ] = Field(
+        description="Deterministic match kind used for this candidate.",
     )
     basis: list[str] = Field(
         default=None,
@@ -44,7 +58,7 @@ class NamingSurnameOutputCandidatesItem(BaseModel):
 
 
 class NamingSurnameOutput(BaseModel):
-    """Ranked Chinese surname candidates for a Latin source surname."""
+    """Ordered Chinese surname candidates for a Latin source surname."""
     model_config = ConfigDict(extra="allow")
     source_surname: str = Field(
         description="Normalized Latin source surname.",
@@ -65,19 +79,37 @@ TOOL_NAMING_SURNAME = ToolContract(
 
 
 # ── naming_pick ──
-TOOL_NAMING_PICK_DESCRIPTION = "按五行取字池：给出名字位（first/second）的五行要求，返回按字排序的可选字池（含字频）。second 省略=单名只取 first 池；second 传入=双名取 first+second 池。五行只接受中文闭集（木/火/土/金/水）。"
+TOOL_NAMING_PICK_DESCRIPTION = "按用/喜五行角色取字池：selected_yongshen 直接使用八字用神裁决返回；first_role 与 second_role 选择字位角色，second_role 省略表示单名。生成阶段不提供 ji 字池。"
 
 PickWuxing = Literal["木", "火", "土", "金", "水"]
+PickRole = Literal["yong", "xi"]
 
 class NamingPickInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    first: PickWuxing = Field(
-        description="名字第一位字的五行。",
+    selected_yongshen: SelectedYongShenCore = Field(
+        description="八字用神裁决返回对象；本工具只消费 selected.yong/xi/ji 与 status。",
     )
-    second: PickWuxing | None = Field(
+    first_role: PickRole = Field(
+        default="yong",
+        description="第一字位角色；只能是 yong 或 xi。",
+    )
+    second_role: PickRole | None = Field(
         default=None,
-        description="名字第二位字的五行；省略=单名。",
+        description="第二字位角色；省略表示单名，只能是 yong 或 xi。",
     )
+
+    @model_validator(mode="after")
+    def _enforce_pick_roles(self) -> "NamingPickInput":
+        """双名至少保留一个 yong 字位；单名只允许 yong。"""
+        if self.selected_yongshen.status not in ("resolved", "partial"):
+            raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
+        if self.selected_yongshen.selected.yong == "无候选":
+            raise ValueError("selected_yongshen.selected.yong 必须是具体五行")
+        if self.second_role is None and self.first_role != "yong":
+            raise ValueError("单名 first_role 只能是 yong")
+        if self.first_role != "yong" and self.second_role != "yong":
+            raise ValueError("双名至少一个字位必须是 yong")
+        return self
 
 
 class NamingPickOutputPoolsItemCharsItem(BaseModel):
@@ -97,6 +129,9 @@ class NamingPickOutputPoolsItem(BaseModel):
     )
     slot: Literal["first", "second"] = Field(
         description="Name slot.",
+    )
+    role: PickRole = Field(
+        description="五行角色。",
     )
     chars: list[NamingPickOutputPoolsItemCharsItem] = Field(
         description="Available characters and frequency.",
@@ -138,7 +173,7 @@ class NamingCharInfo(BaseModel):
     frequency: Literal["common", "standard", "rare"] = Field(
         description="Character usage tier: common, standard, or rare.",
     )
-    wuxing: str = Field(
+    wuxing: PickWuxing = Field(
         description="Five element.",
     )
     stroke: int = Field(
@@ -176,14 +211,14 @@ TOOL_NAMING_CHAR = ToolContract(
 
 
 # ── naming_compose ──
-TOOL_NAMING_COMPOSE_DESCRIPTION = "将取字池中的字组合为候选名：单名=first 单字，双名=first×second 两字组合；按 first 顺序生成，最多 max_names 个。"
+TOOL_NAMING_COMPOSE_DESCRIPTION = "将取字池中的字组合为候选名：单名=first_chars 单字，双名=first_chars×second_chars 两字组合；按 first_chars 顺序生成，最多 max_names 个。"
 
 class NamingComposeInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    first: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=4)]], Field(min_length=1, max_length=256)] = Field(
+    first_chars: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=4)]], Field(min_length=1, max_length=256)] = Field(
         description="第一位可选字（1-256 个）。",
     )
-    second: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=4)]], Field(min_length=1, max_length=256)] = Field(
+    second_chars: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=4)]], Field(min_length=1, max_length=256)] = Field(
         default=None,
         description="第二位可选字（双名用，1-256 个）；省略=单名。",
     )
@@ -212,44 +247,26 @@ TOOL_NAMING_COMPOSE = ToolContract(
 
 
 # ── naming_check ──
-TOOL_NAMING_CHECK_DESCRIPTION = "独立评估候选名：长度/字库收录/禁用字校验，音律声调序列，五行命中（用神/喜神/忌神）；返回每名的 valid/errors/characters/phonetic/wuxing。用神优先消费八字用神裁决（专用能力或因子快照中的同一对象），不自行重选。"
+TOOL_NAMING_CHECK_DESCRIPTION = "独立评估候选名：长度、字库收录、禁用字与音律校验；selected_yongshen 给定时逐字对照 用/喜/忌 五行计划并返回角色。selected_yongshen 直接使用八字用神裁决返回对象。"
 
-class _NamingCheckNames(BaseModel):
+class NamingCheckInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     given_names: Annotated[unique_list[Annotated[str, Field(min_length=1, max_length=2)]], Field(min_length=1, max_length=200)] = Field(
         description="要评估的名字（单名或双名，1-2 字）。",
     )
-
-
-class NamingCheckManualWuxing(_NamingCheckNames):
-    """无完整出生信息时的显式五行策略：直接给出用神/喜神/忌神。"""
-
-    model_config = ConfigDict(extra="forbid")
-    yongshen: Literal["木", "火", "土", "金", "水"] = Field(
+    selected_yongshen: SelectedYongShenCore | None = Field(
         default=None,
-        description="显式用神五行策略，不是八字裁决结果。",
+        description="八字用神裁决返回对象；本工具只消费 selected.yong/xi/ji。省略时不做五行角色评估。",
     )
-    xishen: list[Literal["木", "火", "土", "金", "水"]] = Field(
-        default=None,
-        description="显式喜神五行策略，不是八字裁决结果。",
-    )
-    jishen: list[Literal["木", "火", "土", "金", "水"]] = Field(
-        default=None,
-        description="显式忌神五行策略，不是八字裁决结果。",
-    )
-
-
-class NamingCheckSelectedYongshen(_NamingCheckNames):
-    """消费八字用神裁决：只消费 selected/status，不重新裁决。"""
-
-    model_config = ConfigDict(extra="forbid")
-    selected_yongshen: ConsumedYongShen | None = Field(
-        default=None,
-        description="八字用神裁决返回对象（专用用神能力或 compute_factors 快照中的同一对象）。",
-    )
-
-
-NamingCheckInput = NamingCheckManualWuxing | NamingCheckSelectedYongshen
+    @model_validator(mode="after")
+    def _enforce_consumable_yongshen(self) -> "NamingCheckInput":
+        if self.selected_yongshen is None:
+            return self
+        if self.selected_yongshen.status not in ("resolved", "partial"):
+            raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
+        if self.selected_yongshen.selected.yong == "无候选":
+            raise ValueError("selected_yongshen.selected.yong 必须是具体五行")
+        return self
 
 
 class NamingCheckError(BaseModel):
@@ -276,6 +293,10 @@ class NamingCheckCharFacts(BaseModel):
     pinyin: str = Field(min_length=1, description="Pinyin.")
     tone: int = Field(ge=0, le=5, description="Tone number.")
     radical: str | None = Field(default=None, description="Radical, when known.")
+    wuxing_role: Literal["yong", "xi", "ji", "neutral"] | None = Field(
+        default=None,
+        description="该字对照五行计划的实际角色；未评估时为 null。",
+    )
 
 
 class NamingCheckPhonetic(BaseModel):
@@ -285,15 +306,6 @@ class NamingCheckPhonetic(BaseModel):
     tones: Annotated[str, Field(pattern=r"^\d(-\d)?$")] = Field(
         description="声调序列，按字序以 - 连接（如 2-3）。",
     )
-
-
-class NamingCheckWuxingAssessment(BaseModel):
-    """Five-element hits of a name against the requested 用神/喜神/忌神."""
-
-    model_config = ConfigDict(extra="forbid")
-    yong: bool | None = Field(default=None, description="名字是否命中用神五行。")
-    xi: bool | None = Field(default=None, description="名字是否命中任一喜神五行。")
-    ji: bool | None = Field(default=None, description="名字是否命中任一忌神五行。")
 
 
 class NamingCheckOutputItem(BaseModel):
@@ -316,16 +328,6 @@ class NamingCheckOutputItem(BaseModel):
         default=None,
         description="Tone sequence, when valid.",
     )
-    wuxing: NamingCheckWuxingAssessment | None = Field(
-        default=None,
-        description="Five-element matches, when requested.",
-    )
-    yongshen_source: YongShenSource | None = Field(
-        default=None,
-        description="消费 selected_yongshen 时回传的用神来源：policy_id/rule_id/status/chart_digest/yongshen_digest。",
-    )
-
-
 class NamingCheckOutput(BaseModel):
     """候选名评估结果：根始终是对象（≤2025-11-25 的 MCP wire 模型拒绝非
     object 根的 outputSchema），与 naming_surname.candidates /

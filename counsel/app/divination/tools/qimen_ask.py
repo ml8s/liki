@@ -60,13 +60,10 @@ def ask(snapshot: dict, *, message: str) -> dict:
         "evidence_refs": core["evidence_refs"],
         "assertion_refs": core["assertion_refs"],
         "timing_refs": core["timing_refs"],
-        "conflicts": core["conflicts"],
         "action": core["action"],
         "boundary": core["boundary"],
         "disclaimer": core["disclaimer"],
         "audit": {
-            "accepted": audit["accepted"],
-            "errors": audit["errors"],
             "checked": audit["checked"],
             "unchecked": audit["unchecked"],
         },

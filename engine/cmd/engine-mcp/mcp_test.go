@@ -369,62 +369,31 @@ func TestStreamableHTTP_AcceptsNegotiatedProtocolHeader(t *testing.T) {
 	}
 }
 
-func TestDomainServers_ExposeOnlyTheirTools(t *testing.T) {
-	logger := newTestLogger()
-
-	cases := []struct {
-		suffix string
-		has    []string
-		absent []string
-	}{
-		{"bazi", []string{"bazi_chart", "bazi_bond", "bazi_liunian"}, []string{"ziwei_chart", "time_now", "qimen_chart"}},
-		{"ziwei", []string{"ziwei_chart", "ziwei_bond"}, []string{"bazi_chart", "time_now"}},
-		{"qimen", []string{"qimen_chart"}, []string{"bazi_chart", "liuyao_qigua"}},
-		{"liuyao", []string{"liuyao_qigua", "liuyao_chart"}, []string{"bazi_chart", "qimen_chart"}},
-		{"huangli", []string{"huangli_days"}, []string{"bazi_chart", "bazhai_chart"}},
-		{"fengshui", []string{"bazhai_chart", "bazhai_layout", "xuankong_chart", "time_now"}, []string{"bazi_chart", "huangli_days"}},
-		{"aux", []string{"time_now", "tianwen_resolve", "city_coords"}, []string{"bazi_chart", "ziwei_chart"}},
+func TestAggregateServerExposesAllToolsAndEventHints(t *testing.T) {
+	sess, _ := startMCPServer(t)
+	tools := map[string]*mcp.Tool{}
+	for tool, err := range sess.Tools(context.Background(), nil) {
+		if err != nil {
+			t.Fatalf("tools/list: %v", err)
+		}
+		tools[tool.Name] = tool
 	}
-
-	for _, c := range cases {
-		t.Run(c.suffix, func(t *testing.T) {
-			var prefixes []string
-			for _, d := range mcpDomains {
-				if d.Suffix == c.suffix {
-					prefixes = d.Prefixes
-				}
-			}
-			srv, err := newDomainServer(prefixes, testVersion, logger)
-			if err != nil {
-				t.Fatalf("build domain MCP server: %v", err)
-			}
-			ts := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true}))
-			defer ts.Close()
-
-			client := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0.0.1"}, &mcp.ClientOptions{Logger: newTestLogger()})
-			sess, err := client.Connect(context.Background(), &mcp.StreamableClientTransport{Endpoint: ts.URL + "/"}, nil)
-			if err != nil {
-				t.Fatalf("connect: %v", err)
-			}
-			defer func() { _ = sess.Close() }()
-
-			names := map[string]bool{}
-			for tool, err := range sess.Tools(context.Background(), nil) {
-				if err != nil {
-					t.Fatalf("tools/list: %v", err)
-				}
-				names[tool.Name] = true
-			}
-			for _, want := range c.has {
-				if !names[want] {
-					t.Errorf("missing tool %q", want)
-				}
-			}
-			for _, unwanted := range c.absent {
-				if names[unwanted] {
-					t.Errorf("should NOT expose tool %q", unwanted)
-				}
-			}
-		})
+	for _, name := range []string{
+		"bazi_chart", "ziwei_chart", "liuyao_qigua", "liuyao_chart",
+		"qimen_chart", "huangli_days", "bazhai_chart", "xuankong_chart",
+		"time_now", "tianwen_resolve", "city_coords",
+	} {
+		if tools[name] == nil {
+			t.Fatalf("aggregate surface missing tool %q", name)
+		}
+	}
+	if got := tools["liuyao_qigua"].Annotations; got == nil || got.IdempotentHint {
+		t.Fatal("liuyao_qigua must be non-idempotent: auto mode creates a new event")
+	}
+	if got := tools["liuyao_chart"].Annotations; got == nil || !got.IdempotentHint {
+		t.Fatal("liuyao_chart must be idempotent")
+	}
+	if got := tools["time_now"].Annotations; got == nil || !got.IdempotentHint {
+		t.Fatal("time_now must be idempotent")
 	}
 }

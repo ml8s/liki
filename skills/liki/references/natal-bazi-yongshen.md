@@ -31,8 +31,7 @@
   "selected": {
     "yong": "木",
     "xi": ["水"],
-    "ji": ["金"],
-    "source": "fu_yi"
+    "ji": ["金"]
   },
   "status": "resolved",
   "conflicts": [],
@@ -50,7 +49,6 @@
 | 字段 | 含义与用法 |
 | --- | --- |
 | `selected.yong / xi / ji` | 用神 / 喜神 / 忌神；解释旺衰调候与喜忌方向的唯一口径 |
-| `selected.source` | 裁决来源分支：fu_yi / tiao_hou / cong_ge / neutral_fallback |
 | `status` | resolved=已定可直接断；partial=部分确定；needs_review=待复核（向用户说明证据缺口）；unresolved=证据不足，相关结论输出「不可用」 |
 | `conflicts` | 裁决冲突清单（候选冲突 / 用喜重叠等），非空时结论降级并如实说明 |
 | `rule_id` | 命中的裁决规则（如 YS-FUYI），用于依据回溯 |

@@ -12,7 +12,7 @@ This repository has deterministic tests and curated data assets. Do not treat fu
 | Engine tests | `make test-engine` | Go domain packages, MCP contract registry (`internal/mcpcontract`), and HTTP middleware |
 | Toolchain gate | `scripts/check-go-version.sh` | Rejects Go toolchains older than 1.26.10 |
 | Engine vulnerabilities | CI `govulncheck ./...` | Reachable Go standard-library/module vulnerabilities |
-| Engine MCP smoke | `make test-engine-mcp` | Internal `/mcp` root and `/mcp/{domain}` surfaces, `server/discover`, `tools/list`, `tools/call` |
+| Engine MCP smoke | `make test-engine-mcp` | Internal `/mcp` aggregate surface, `server/discover`, `tools/list`, `tools/call` |
 | Counsel MCP integration | `make test-counsel` | Bootstraps a locked Python environment and local engine, then tests all counsel tools |
 | Combined Python coverage | `make test-python-coverage` | Root contract tests plus counsel integration tests, combined over `counsel/app` |
 | Assertion data check | `python3 scripts/check_factor_data.py` | Factor/assertion table integrity, provenance, reachability inputs |
@@ -99,7 +99,7 @@ invokes only when the content fingerprint under `skills/liki`, `expert-packs`,
 | `scripts/check_workbuddy_connectors.py` | WorkBuddy connector packages: metadata, single MCP server, HTTPS, version gate, credentials, path-only icon glyphs |
 | `scripts/check_workbuddy_zips.py` | WorkBuddy submission zips in `dist/workbuddy/`: byte-parity with sources, top-level dir, expert-pack layout |
 
-The public paths are `/engine/mcp/{domain}` and `/counsel/mcp/{domain}`. Caddy strips `/engine` or `/counsel`; the services themselves see `/mcp/{domain}`. Tests must not document or assert service-level public prefixes.
+The public paths are `/engine/mcp` and `/counsel/mcp`. Caddy strips `/engine` or `/counsel`; the services themselves see `/mcp`. Tests must not document or assert service-level public prefixes.
 
 ## Oracle & golden policy
 

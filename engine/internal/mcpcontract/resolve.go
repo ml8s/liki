@@ -37,7 +37,7 @@ type TianwenResolveInput struct {
 	Date      string                    `json:"date,omitempty" jsonschema:"公历日期 YYYY-MM-DD（calendar 为 solar 时必填）。"`
 	Lunar     *TianwenResolveLunarInput `json:"lunar,omitempty" jsonschema:"农历日期（calendar 为 lunar 时必填，含闰月标记 leap）。"`
 	Timezone  string                    `json:"timezone,omitempty" jsonschema:"记录时间所在时区（IANA）；壁钟/农历形态必填。"`
-	Longitude float64                   `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时换算必需。"`
+	Longitude float64                   `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时换算必需。"`
 
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选，用于边界不确定性。"`
 
@@ -52,7 +52,7 @@ type TianwenDateTimeForm struct {
 	Date           string                             `json:"date" jsonschema:"公历日期 YYYY-MM-DD。"`
 	Time           string                             `json:"time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	Longitude      float64                            `json:"longitude" jsonschema:"出生地经度（-180..180）。"`
+	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
@@ -60,7 +60,7 @@ type TianwenLunarForm struct {
 	Lunar          *TianwenResolveLunarInput          `json:"lunar" jsonschema:"农历日期（含闰月标记 leap）。"`
 	Time           string                             `json:"time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	Longitude      float64                            `json:"longitude" jsonschema:"出生地经度（-180..180）。"`
+	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
@@ -68,7 +68,7 @@ type TianwenShichenForm struct {
 	Date           string                             `json:"date" jsonschema:"公历日期 YYYY-MM-DD。"`
 	Shichen        string                             `json:"shichen" jsonschema:"已知时辰（真太阳时基，2 小时）。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	Longitude      float64                            `json:"longitude" jsonschema:"出生地经度（-180..180）。"`
+	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
@@ -76,7 +76,7 @@ type TianwenRangeForm struct {
 	Date           string                             `json:"date" jsonschema:"公历日期 YYYY-MM-DD。"`
 	Range          *TianwenResolveRangeInput          `json:"range" jsonschema:"同日民用时间区间。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
-	Longitude      float64                            `json:"longitude" jsonschema:"出生地经度（-180..180）。"`
+	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 

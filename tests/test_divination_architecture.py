@@ -170,7 +170,6 @@ def test_liuyao_timing_boundary_and_target_rules_are_table_driven():
     contract = divination_contracts.load_contract("liuyao_snapshot")
     timing_plan = contract["properties"]["timing_plan"]
     assert "schema_version" not in timing_plan["properties"]
-    assert timing_plan["properties"]["blocked"]["const"] is False
     assert "boundary" in timing_plan["required"]
 
 

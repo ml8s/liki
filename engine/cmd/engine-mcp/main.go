@@ -50,7 +50,8 @@ func main() {
 		return
 	}
 
-	// MCP Streamable HTTP endpoints — 每术数一个域（排盘工具），aux 为共享辅助
+	// MCP Streamable HTTP aggregate endpoint. The single Liki expert discovers
+	// all capabilities once; methodology remains progressively disclosed by skill.
 	mcpServer, err := newMCPServer(Version, sdkLogger)
 	if err != nil {
 		slog.Error("engine: build aggregate MCP server", "err", err)
@@ -70,19 +71,9 @@ func main() {
 	selfTestOK := selfTestChart.Ri.Gan == ganzhi.GanWu
 
 	mux := http.NewServeMux()
-	// 全量端点（counsel 内部调用 + 兼容）
+	// The aggregate endpoint is the canonical engine surface for the expert,
+	// counsel, local tests, and deployment.
 	mux.Handle("/mcp", apphttp.MetricsMiddleware("/mcp", mcpHandler))
-	// 分域端点：每术数 + 共享辅助。`/engine` 外部前缀由网关剥离，
-	// 本服务只负责 MCP 根路径和 MCP 域路径。
-	for _, d := range mcpDomains {
-		domainServer, err := newDomainServer(d.Prefixes, Version, sdkLogger)
-		if err != nil {
-			slog.Error("engine: build domain MCP server", "domain", d.Suffix, "err", err)
-			os.Exit(1)
-		}
-		domainHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return domainServer }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true})
-		mux.Handle("/mcp/"+d.Suffix, apphttp.MetricsMiddleware("/mcp/{domain}", domainHandler))
-	}
 
 	mux.Handle("GET /health", apphttp.MetricsMiddleware("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

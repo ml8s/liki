@@ -177,34 +177,29 @@ a silent pass.
 
 ## Counsel contract
 
-All 13 counsel tools (`bazi_yongshen`, `compute_factors`, `natal_query`,
-`period_query`, `naming_surname`, `naming_pick`, `naming_char`, `naming_compose`,
+All 13 counsel tools (`bazi_yongshen`, `natal_compute_factors`, `natal_query`,
+`natal_period_query`, `naming_surname`, `naming_pick`, `naming_char`, `naming_compose`,
 `naming_check`, `liuyao_snapshot`, `liuyao_query`, `qimen_snapshot`,
 `qimen_query`) are typed contracts.
-`bazi_yongshen` is published by the bazi server and the aggregate server; the
-ziwei server does not advertise a bazi-only capability.
+They are published together on the aggregate `/mcp` surface.
 
 The yongshen decision has one typed wire model shared by every tool that carries
 it. `bazi_yongshen(chart)` takes a typed engine `bazi_chart` object and returns a
-`SelectedYongShen`: `selected` (`yong/xi/ji/source`),
+`SelectedYongShen`: `selected` (`yong/xi/ji`),
 resolution `status`, conflicts, `rule_id`, policy provenance, the
 `ge_ju_context`, branch `evidence`, and the two SHA-256 digests. `evidence`
 includes the 从格 effective/rooted counts used to verify or reject the candidate,
 so a `needs_review` result is auditable over MCP. The complete pre-factor snapshot
-and alternatives stay in the `compute_factors` envelope, not inside the decision
+and alternatives stay in the `natal_compute_factors` envelope, not inside the decision
 object. The decision digest binds the source chart, the published decision, and
 its evidence; it is not a digest of the internal pre-factor snapshot. For a bazi
-chart, `compute_factors` embeds the same decision at
+chart, `natal_compute_factors` embeds the same decision at
 `factors.selected_yongshen`, produced by the same resolver; a ziwei factor
-snapshot does not contain that element. `naming_check` accepts the
-`ConsumedYongShen` subset of that object and returns the `YongShenSource` subset
-it consumed. `SelectedYongShen`, `ConsumedYongShen`, and `YongShenSource` keep
-`additionalProperties` open so a policy can add fields without breaking older
-clients; the stable decision fields themselves are enums, required fields, or
-digest patterns.
-The `naming_check` fields `yongshen`/`xishen`/`jishen` remain an explicit
-five-element strategy for callers without a full birth chart, and are mutually
-exclusive with `selected_yongshen`.
+snapshot does not contain that element. `naming_pick` and `naming_check`
+directly consume the same `selected_yongshen` artifact; naming reads only
+`selected.yong / xi / ji`. The naming tools fail closed for
+`needs_review / unresolved` results, while audit evidence remains in the bazi
+artifact.
 
 `counsel/tests/test_tool_contracts.py` inspects the current Pydantic schemas,
 validates representative accepted and rejected values, and checks that query

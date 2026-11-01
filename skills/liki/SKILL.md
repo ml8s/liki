@@ -8,7 +8,7 @@ metadata:
   display_name_en: Liki Professional Chinese Metaphysics Skill
   description_zh: 专业命理 Skill：八字算命、紫微斗数、六爻占卜、奇门遁甲、黄历择日、风水布局、起名、取名与流年运势分析。
   description_en: Chinese metaphysics skill covering BaZi (Four Pillars), Zi Wei Dou Shu, I Ching divination, Qi Men Dun Jia, almanac and Feng Shui charts, plus naming — every chart is computed by deterministic engines and every reading comes from rule-based judgments with traceable evidence.
-  version: 2026.1031.1
+  version: 2026.1101.0
   author: Liki
   agent_created: 'true'
   keywords: 八字合婚,婚姻分析,感情走向,事业分析,职业方向,财运分析,投资时机,学业分析,考试运,健康分析,五行体质,怀孕生育时机,新生儿起名,成人改名,八字起名,结婚吉日,开业吉日,搬家吉日,八宅风水,玄空飞星
@@ -55,7 +55,7 @@ Liki 通过标准 MCP 提供能力，依赖两个聚合 MCP server：
 ## 执行循环
 
 1. 按上表进入领域 ENTRY，缺参时按 ⛔ / 💬 规则确认。
-2. 通过 MCP 获取排盘、判断或事实：成功读 `structuredContent` 并把命盘、快照和 digest 原样传给下游工具；失败读 `isError` 与错误文本，按 FAQ 修正参数后重试。
+2. 通过 MCP 获取排盘、判断或事实：成功读 `structuredContent` 并把命盘、快照和 digest 原样传给下游工具；失败读 `isError` 与错误文本；幂等工具修正参数后重试，起卦等事件创建工具不自动重试。
 3. 读取对应 app / domains 方法论卡解释工具结果。
 4. 按“输出契约”给出结论、依据和边界。
 

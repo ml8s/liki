@@ -170,37 +170,95 @@ def _ensure_loaded() -> None:
 
 # -- 取字池 -----------------------------------------------------------------
 
-def pick_chars(wuxing1: str, wuxing2: str = "", count: int = 2) -> dict:
-    """按五行取字池（对齐 Go PickChars）。count=1 单名，2 双名。"""
+PICK_ROLES = ("yong", "xi")
+
+
+def _normalize_selected_yongshen(selected_yongshen: object) -> dict:
+    """Normalize the bazi decision into concrete yong/xi/ji lists."""
+    if isinstance(selected_yongshen, dict):
+        raw_selected_yongshen = selected_yongshen
+    else:
+        try:
+            raw_selected_yongshen = selected_yongshen.model_dump()
+        except AttributeError as error:
+            raise ValueError("selected_yongshen must be an object") from error
+    if not isinstance(raw_selected_yongshen, dict):
+        raise ValueError("selected_yongshen must be an object")
+
+    if raw_selected_yongshen.get("status") not in ("resolved", "partial"):
+        raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
+    raw = raw_selected_yongshen.get("selected")
+    if not isinstance(raw, dict):
+        raise ValueError("selected_yongshen.selected must be an object")
+
+    yong = wuxing_from_chinese(raw.get("yong", ""))
+    if not yong:
+        raise ValueError(f"invalid selected_yongshen.selected.yong {raw.get('yong')!r}")
+
+    normalized: dict = {"yong": yong, "xi": [], "ji": []}
+    assigned = {yong: "yong"}
+    for role in ("xi", "ji"):
+        elements = raw.get(role) or []
+        if not isinstance(elements, list):
+            raise ValueError(f"selected_yongshen.selected.{role} must be an array")
+        for element in elements:
+            normalized_element = wuxing_from_chinese(element)
+            if not normalized_element:
+                raise ValueError(
+                    f"invalid selected_yongshen.selected.{role} {element!r}"
+                )
+            if normalized_element in assigned:
+                raise ValueError(
+                    f"五行 {normalized_element} 同时属于 "
+                    f"{assigned[normalized_element]} 和 {role} 角色"
+                )
+            normalized[role].append(normalized_element)
+            assigned[normalized_element] = role
+    return normalized
+
+
+def _pick_role_elements(plan: dict, role: str) -> list[str]:
+    if role == "yong":
+        return [plan["yong"]]
+    if role == "xi":
+        return list(plan["xi"])
+    raise ValueError(f"naming_pick 不支持 {role} 字池")
+
+
+def pick_chars_by_selected_yongshen(
+    selected_yongshen: object,
+    first_role: str = "yong",
+    second_role: str | None = None,
+) -> dict:
+    """按 用/喜 角色取字池；一个 role 对多个五行时返回多个 pool。"""
     _ensure_loaded()
-    elem1 = wuxing_from_chinese(wuxing1)
-    if not elem1:
-        raise ValueError(f"invalid wuxing1 {wuxing1!r}")
-    if count not in (1, 2):
-        raise ValueError("count must be 1 or 2")
-    if count == 1 and wuxing2:
-        raise ValueError("wuxing2 is not allowed when count is 1")
-    if not wuxing2:
-        wuxing2 = wuxing1
-    elem2 = wuxing_from_chinese(wuxing2)
-    if not elem2:
-        raise ValueError(f"invalid wuxing2 {wuxing2!r}")
+    normalized_plan = _normalize_selected_yongshen(selected_yongshen)
+    if first_role not in PICK_ROLES or (
+        second_role is not None and second_role not in PICK_ROLES
+    ):
+        raise ValueError("naming_pick 只支持 yong/xi 角色")
+    if second_role is None:
+        if first_role != "yong":
+            raise ValueError("单名 first_role 只能是 yong")
+    elif "yong" not in (first_role, second_role):
+        raise ValueError("双名至少一个字位必须是 yong")
 
-    first = _char_by_element.get(elem1, [])
-    if not first:
-        raise ValueError(f"no characters available for wuxing {wuxing1!r}")
-    result: dict = {"pools": [{
-        "wuxing": elem1, "slot": "first", "chars": [_picked(c) for c in first],
-    }]}
-    if count == 1:
-        return result
+    def append_pools(slot: str, role: str) -> None:
+        for element in _pick_role_elements(normalized_plan, role):
+            chars = _char_by_element.get(element, [])
+            if not chars:
+                raise ValueError(f"no characters available for wuxing {element!r}")
+            result["pools"].append({
+                "slot": slot,
+                "role": role,
+                "wuxing": element,
+                "chars": [_picked(character) for character in chars],
+            })
 
-    second = _char_by_element.get(elem2, [])
-    if not second:
-        raise ValueError(f"no characters available for wuxing {wuxing2!r}")
-    result["pools"].append({
-        "wuxing": elem2, "slot": "second", "chars": [_picked(c) for c in second],
-    })
+    result: dict = {"pools": []}
+    append_pools("first", first_role)
+    if second_role is not None:
+        append_pools("second", second_role)
     return result
 
 
@@ -283,33 +341,21 @@ def _reject_duplicates(slot: str, chars: list) -> None:
 
 # -- 评估 -------------------------------------------------------------------
 
-def evaluate_names(given_names: list, yong_shen: str, xi_shen: list, ji_shen: list) -> list[dict]:
-    """独立评估候选名（对齐 Go EvaluateNames）。"""
+def evaluate_names(
+    given_names: list,
+    selected_yongshen: object | None = None,
+) -> list[dict]:
+    """评估候选名的字库、禁用字、音韵与逐字五行角色。"""
     _ensure_loaded()
     if not given_names:
         raise ValueError("given_names must contain at least one name")
 
-    yong_elem, xi_elems, ji_elems = _validate_wuxing_request(
-        yong_shen,
-        xi_shen,
-        ji_shen,
+    normalized_plan = (
+        _normalize_selected_yongshen(selected_yongshen)
+        if selected_yongshen is not None
+        else None
     )
-    return [_evaluate_name(name, yong_elem, xi_elems, ji_elems) for name in given_names]
-
-
-def _validate_wuxing_request(
-    yong_shen: str,
-    xi_shen: list,
-    ji_shen: list,
-) -> tuple[str, list[str], list[str]]:
-    yong_elem = wuxing_from_chinese(yong_shen)
-    if yong_shen and not yong_elem:
-        raise ValueError(f"invalid yongshen {yong_shen!r}")
-
-    xi_elems = _parse_wuxing_list("xishen", xi_shen)
-    ji_elems = _parse_wuxing_list("jishen", ji_shen)
-    _reject_conflicting_wuxing(yong_elem, xi_elems, ji_elems)
-    return yong_elem, xi_elems, ji_elems
+    return [_evaluate_name(name, normalized_plan) for name in given_names]
 
 
 def _named_characters(
@@ -328,26 +374,19 @@ def _named_characters(
     return characters
 
 
-def _wuxing_assessment(
-    characters: list[Character],
-    yong_elem: str,
-    xi_elems: list[str],
-    ji_elems: list[str],
-) -> dict | None:
-    if not (yong_elem or xi_elems or ji_elems):
+def _wuxing_role(plan: dict | None, element: str) -> str | None:
+    if plan is None:
         return None
-
-    assessment: dict = {}
-    if yong_elem:
-        assessment["yong"] = _contains_element(characters, yong_elem)
-    if xi_elems:
-        assessment["xi"] = _contains_any_element(characters, xi_elems)
-    if ji_elems:
-        assessment["ji"] = _contains_any_element(characters, ji_elems)
-    return assessment
+    if element == plan["yong"]:
+        return "yong"
+    if element in plan["xi"]:
+        return "xi"
+    if element in plan["ji"]:
+        return "ji"
+    return "neutral"
 
 
-def _evaluate_name(given_name: str, yong_elem: str, xi_elems: list, ji_elems: list) -> dict:
+def _evaluate_name(given_name: str, plan: dict | None) -> dict:
     evaluation: dict = {"given_name": given_name, "valid": False}
     if not 1 <= len(given_name) <= 2:
         evaluation["errors"] = [{"code": "invalid_name_length"}]
@@ -358,10 +397,15 @@ def _evaluate_name(given_name: str, yong_elem: str, xi_elems: list, ji_elems: li
         return evaluation
 
     evaluation["valid"] = True
-    evaluation["characters"] = [_character_json(c) for c in characters]
+    character_facts = []
+    for character in characters:
+        item = _character_json(character)
+        role = _wuxing_role(plan, character.element)
+        if role is not None:
+            item["wuxing_role"] = role
+        character_facts.append(item)
+    evaluation["characters"] = character_facts
     evaluation["phonetic"] = {"tones": "-".join(str(c.tone) for c in characters)}
-    if assessment := _wuxing_assessment(characters, yong_elem, xi_elems, ji_elems):
-        evaluation["wuxing"] = assessment
     return evaluation
 
 
@@ -380,35 +424,6 @@ def _append_error(evaluation: dict, code: str, char: str) -> None:
     if {"code": code, "char": char} in errors:
         return
     errors.append({"code": code, "char": char})
-
-
-def _contains_element(chars: list[Character], elem: str) -> bool:
-    return any(c.element == elem for c in chars)
-
-
-def _contains_any_element(chars: list[Character], elems: list[str]) -> bool:
-    return any(_contains_element(chars, e) for e in elems)
-
-
-def _parse_wuxing_list(field: str, values: list) -> list[str]:
-    if not values:
-        return []
-    out: list[str] = []
-    for value in values:
-        elem = wuxing_from_chinese(value)
-        if not elem:
-            raise ValueError(f"invalid {field} value {value!r}")
-        if elem in out:
-            raise ValueError(f"duplicate {field} value {value!r}")
-        out.append(elem)
-    return out
-
-
-def _reject_conflicting_wuxing(yong: str, xi: list, ji: list) -> None:
-    if yong and (yong in xi or yong in ji):
-        raise ValueError("yongshen must be disjoint with xishen/jishen")
-    if set(xi) & set(ji):
-        raise ValueError("xishen and jishen must be disjoint")
 
 
 # -- 配姓 -------------------------------------------------------------------
@@ -448,7 +463,7 @@ def match_surnames(source_surname: str, max_candidates: int = 0) -> dict:
         if hit:
             level, basis, token_size = hit
             matches.append((_new_surname_candidate(record, level, basis), token_size))
-    matches.sort(key=lambda m: (_match_order(m[0]["match_level"]), -m[1], m[0]["baijiaxing_index"]))
+    matches.sort(key=lambda m: (_match_order(m[0]["match_kind"]), -m[1], m[0]["baijiaxing_index"]))
 
     result: dict = {"source_surname": source, "strategy": STRATEGY_PHONETIC}
     if matches:
@@ -469,7 +484,7 @@ def _new_surname_candidate(record: SurnameRecord, level: str, basis: list) -> di
         "pinyin": record.pinyin,
         "tone": tone_from_pinyin(record.pinyin),
         "baijiaxing_index": record.baijiaxing_index,
-        "match_level": level,
+        "match_kind": level,
         "basis": basis,
     }
 

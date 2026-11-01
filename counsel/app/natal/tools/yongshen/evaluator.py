@@ -414,6 +414,8 @@ def _finalize(result: dict, policy: dict) -> None:
         if conflict := spec.get("conflict"):
             conflicts.append(dict(conflict))
 
+    selected.pop("source", None)
+
     resolved_field_count = sum(
         1 for field in ("yong", "xi", "ji")
         if not _is_empty(selected.get(field))
@@ -423,7 +425,6 @@ def _finalize(result: dict, policy: dict) -> None:
     if status in ("resolved", "partial") and selected.get("yong") == NO_CANDIDATE:
         status = "needs_review"
 
-    selected["source"] = result.pop("source", "")
     result["status"] = status
     # 去重 conflict code，保留首次出现。
     deduped: list[dict] = []

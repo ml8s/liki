@@ -62,7 +62,7 @@ So Liki makes calibration an explicit process instead of silently casting your c
 ```text
 your time + birthplace → normalization → candidate set (each with reasons)
 → full chart per candidate → hour-pillar-sensitive facts (pillar / ten gods / shen sha)
-→ compare against your real events (2-3 candidates, 3-5 events with years) → calibrated result + confidence
+→ compare against your real events (2-3 candidates, 3-5 events with years) → calibrated result + evidence coverage
 → insufficient evidence? labeled as such — never silently defaulted
 ```
 

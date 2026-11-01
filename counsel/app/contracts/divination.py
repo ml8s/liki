@@ -12,18 +12,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from app.contracts.schema import ToolContract, unique_list
 from app.guards import require_exactly_one, require_mutually_exclusive
 
-
-class AuditError(BaseModel):
-    """One structured answer-validation error."""
-
-    model_config = ConfigDict(extra="forbid")
-    field: Annotated[str, Field(min_length=1)] = Field(description="未通过校验的字段。")
-    reason: Annotated[str, Field(min_length=1)] = Field(description="失败原因。")
-    ref: str | None = Field(default=None, description="涉及的具体引用（如 snapshot:…）。")
-
-
 # ── liuyao_snapshot ──
-TOOL_LIUYAO_SNAPSHOT_DESCRIPTION = "创建六爻 immutable snapshot：起卦（casting.mode 选 auto 随机起卦 / coins 传六组铜钱记录 / yaos 传六个爻值）、排盘、用神因子、专题、应期候选一次完成。后续追问必须复用该 snapshot。"
+TOOL_LIUYAO_SNAPSHOT_DESCRIPTION = "创建一次六爻占卜事件快照：casting 省略或 mode=auto 时每次调用都会生成新卦，重复调用或自动重试等于新占问；coins/yaos 可复现同一 casting。后续追问必须复用该 snapshot。"
 
 class LiuyaoAutoCasting(BaseModel):
     """auto：服务端安全随机三枚铜钱起六次。"""
@@ -62,7 +52,7 @@ class LiuyaoSnapshotInput(BaseModel):
         description="问卦地点经度（-180..180）；必须显式传入，不做默认（精度要求）。",
     )
     standard_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
-        description="起卦地标准时间 RFC3339（无 DST）；复现历史卦时传入。",
+        description="起卦地标准时间 RFC3339（无 DST），必填。",
     )
     casting: LiuyaoCastingInput = Field(
         description="起卦方式：auto=服务端安全随机起卦（缺省）；coins=传入六组三枚正/反铜钱记录；yaos=直接传入六个爻值。",
@@ -247,7 +237,6 @@ class LiuyaoSnapshotOutputTimingPlanPolicy(BaseModel):
 class LiuyaoSnapshotOutputTimingPlan(BaseModel):
     """Timing plan returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    blocked: Literal[False]
     topic: str | None
     candidates: list[LiuyaoSnapshotOutputTimingPlanCandidatesItem]
     boundary: Literal["传统六爻应期候选；不构成医疗、法律、财务或其他专业建议。"]
@@ -328,6 +317,7 @@ TOOL_LIUYAO_SNAPSHOT = ToolContract(
     description=TOOL_LIUYAO_SNAPSHOT_DESCRIPTION,
     input=LiuyaoSnapshotInput,
     output=LiuyaoSnapshotOutput,
+    annotations={"readOnlyHint": True, "idempotentHint": False},
 )
 
 
@@ -347,8 +337,6 @@ class LiuyaoQueryInput(BaseModel):
 class LiuyaoQueryOutputAudit(BaseModel):
     """Audit returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    accepted: Literal[True]
-    errors: list[AuditError]
     checked: list[str]
     unchecked: list[str]
 
@@ -417,7 +405,7 @@ TOOL_LIUYAO_QUERY = ToolContract(
 
 
 # ── qimen_snapshot ──
-TOOL_QIMEN_SNAPSHOT_DESCRIPTION = "创建奇门 immutable snapshot：自动补时间、换算真太阳时、排盘、因子投影和可选专占查询一次完成。"
+TOOL_QIMEN_SNAPSHOT_DESCRIPTION = "创建奇门 immutable snapshot：按传入标准时间、地点和方法排盘，完成真太阳时换算、因子投影和可选专占查询。"
 
 class QimenHourZhuanpanMethod(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -696,8 +684,6 @@ class QimenQueryInput(BaseModel):
 class QimenQueryOutputAudit(BaseModel):
     """Audit returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    accepted: Literal[True]
-    errors: list[AuditError]
     checked: list[str]
     unchecked: list[str]
 
@@ -728,9 +714,6 @@ class QimenQueryOutput(BaseModel):
     )
     verdict: Annotated[str, Field(min_length=8)] = Field(
         description="Verdict returned by this tool.",
-    )
-    conflicts: list[DivinationConflict] = Field(
-        description="Conflicts returned by this tool.",
     )
     timing_refs: list[Annotated[str, Field(pattern="^timing-")]] = Field(
         description="Timing refs returned by this tool.",

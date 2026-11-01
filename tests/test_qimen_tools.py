@@ -693,10 +693,9 @@ def test_mcp_endpoint_reads_environment_on_each_call(monkeypatch) -> None:
     monkeypatch.setenv("LIKI_ENGINE_MCP_URL", "https://dynamic.example/mcp")
     monkeypatch.setattr(engine_mcp_client, "_HTTP_TRANSPORT", urlopen)
     assert engine_mcp_client.call("qimen.chart", {"standard_time": "2026-01-01T08:00:00+08:00", "longitude": 116.4}) == {"data": {"ok": True}}
-    assert seen == ["https://dynamic.example/mcp/qimen"]
+    assert seen == ["https://dynamic.example/mcp"]
 
-def test_engine_mcp_client_domain_suffix(monkeypatch):
-    """engine_mcp_client 按工具名分域：tianwen_resolve→/aux、ziwei_chart→/ziwei、bazi_chart→/bazi。"""
+def test_engine_mcp_client_preserves_aggregate_endpoint(monkeypatch):
     import app.engine_mcp_client as engine_mcp_client
     seen = []
     def urlopen(request, *_, **__):
@@ -707,8 +706,8 @@ def test_engine_mcp_client_domain_suffix(monkeypatch):
     for name in ["tianwen_resolve", "ziwei.chart", "bazi_chart", "time.now"]:
         engine_mcp_client.call(name, {})
     assert seen == [
-        "http://127.0.0.1:18081/mcp/aux",
-        "http://127.0.0.1:18081/mcp/ziwei",
-        "http://127.0.0.1:18081/mcp/bazi",
-        "http://127.0.0.1:18081/mcp/aux",
+        "http://127.0.0.1:18081/mcp",
+        "http://127.0.0.1:18081/mcp",
+        "http://127.0.0.1:18081/mcp",
+        "http://127.0.0.1:18081/mcp",
     ]

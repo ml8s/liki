@@ -1,33 +1,37 @@
 #!/usr/bin/env python3
-"""Smoke-test engine-mcp's internal root and domain endpoints."""
+"""Smoke-test engine-mcp's aggregate MCP endpoint."""
 
 import argparse
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 
 PROTOCOL_VERSION = "2026-07-28"
 
 
-def post(endpoint: str, method: str, tool_name: str | None = None, params: dict | None = None) -> dict:
-    params = dict(params or {})
-    params["_meta"] = {
-        "io.modelcontextprotocol/protocolVersion": PROTOCOL_VERSION,
-        "io.modelcontextprotocol/clientCapabilities": {},
+def post(endpoint: str, method: str) -> dict:
+    params = {
+        "_meta": {
+            "io.modelcontextprotocol/protocolVersion": PROTOCOL_VERSION,
+            "io.modelcontextprotocol/clientCapabilities": {},
+        }
     }
     body = json.dumps(
         {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
     ).encode("utf-8")
-    headers = {
-        "Content-Type": "application/json",
-        "MCP-Protocol-Version": PROTOCOL_VERSION,
-        "Mcp-Method": method,
-        "Accept": "application/json, text/event-stream",
-    }
-    if tool_name:
-        headers["Mcp-Name"] = tool_name
-    request = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
+    request = urllib.request.Request(
+        endpoint,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "MCP-Protocol-Version": PROTOCOL_VERSION,
+            "Mcp-Method": method,
+            "Accept": "application/json, text/event-stream",
+        },
+        method="POST",
+    )
     with urllib.request.urlopen(request, timeout=10) as response:
         raw = response.read().decode("utf-8")
     document = json.loads(raw) if raw.lstrip().startswith("{") else None
@@ -43,9 +47,43 @@ def post(endpoint: str, method: str, tool_name: str | None = None, params: dict 
     return document.get("result", {})
 
 
-def tool_names(endpoint: str) -> set[str]:
-    result = post(endpoint, "tools/list")
-    return {item["name"] for item in result.get("tools", [])}
+def call(endpoint: str, tool_name: str, arguments: dict) -> dict:
+    params = {
+        "name": tool_name,
+        "arguments": arguments,
+        "_meta": {
+            "io.modelcontextprotocol/protocolVersion": PROTOCOL_VERSION,
+            "io.modelcontextprotocol/clientCapabilities": {},
+        },
+    }
+    body = json.dumps(
+        {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": params}
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        endpoint,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "MCP-Protocol-Version": PROTOCOL_VERSION,
+            "Mcp-Method": "tools/call",
+            "Mcp-Name": tool_name,
+            "Accept": "application/json, text/event-stream",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        raw = response.read().decode("utf-8")
+    document = json.loads(raw) if raw.lstrip().startswith("{") else None
+    if document is None:
+        for line in raw.splitlines():
+            if line.startswith("data: "):
+                document = json.loads(line[6:])
+                break
+    if document is None:
+        raise RuntimeError(f"unparseable MCP response from {endpoint}: {raw[:200]!r}")
+    if document.get("error") or document.get("result", {}).get("isError"):
+        raise RuntimeError(f"{tool_name} failed: {document}")
+    return document.get("result", {})
 
 
 def main() -> int:
@@ -54,72 +92,54 @@ def main() -> int:
         "base_url",
         nargs="?",
         default=os.environ.get("LIKI_ENGINE_MCP_URL", ""),
-        help="engine MCP endpoint, for example http://127.0.0.1:8081/mcp（默认 LIKI_ENGINE_MCP_URL）",
+        help="engine MCP endpoint, for example http://127.0.0.1:8081/mcp",
     )
     args = parser.parse_args()
     if not args.base_url:
         parser.error("base_url required or LIKI_ENGINE_MCP_URL must be set")
-    base = args.base_url.rstrip("/")
+    endpoint = args.base_url.rstrip("/")
 
-    # Every domain the counsel engine client routes to must exist and expose
-    # its own tool set: counsel maps bazi/ziwei/qimen/liuyao/huangli/fengshui/
-    # aux prefixes onto these endpoints (counsel/app/engine_mcp_client.py).
-    expectations = {
-        "": {"bazi_chart", "ziwei_chart", "huangli_days", "bazhai_chart"},
-        "/bazi": {"bazi_chart", "bazi_fullchart"},
-        "/ziwei": {"ziwei_chart", "ziwei_fullchart"},
-        "/qimen": {"qimen_chart"},
-        "/liuyao": {"liuyao_qigua", "liuyao_chart"},
-        "/huangli": {"huangli_days"},
-        "/fengshui": {"bazhai_chart", "xuankong_chart", "time_now"},
-        "/aux": {"time_now", "tianwen_resolve", "city_coords"},
-    }
-    for path, required in expectations.items():
-        endpoint = base + path
-        info = post(endpoint, "server/discover")
-        meta = info.get("_meta", {})
-        server_info = meta.get("io.modelcontextprotocol/serverInfo", {})
-        if not server_info.get("version"):
-            raise RuntimeError(f"{endpoint}: serverInfo.version is missing")
-        names = tool_names(endpoint)
-        missing = required - names
-        if missing:
-            raise RuntimeError(f"{endpoint}: missing tools: {sorted(missing)}")
-        print(f"✓ {path or '/'}: {len(names)} tools")
-
-    # Domain isolation: the single-domain endpoints must not leak tools from
-    # another 术数, otherwise a skill's `tools.allow` boundary is meaningless.
-    isolation = {
-        "/bazi": "bazi_",
-        "/ziwei": "ziwei_",
-        "/qimen": "qimen_",
-        "/liuyao": "liuyao_",
-        "/huangli": "huangli_",
-    }
-    for path, prefix in isolation.items():
-        names = tool_names(base + path)
-        foreign = {name for name in names if not name.startswith(prefix)}
-        if foreign:
-            raise RuntimeError(f"{path}: leaked tools from another domain: {sorted(foreign)}")
-
-    root = base
-    result = post(
-        root,
-        "tools/call",
-        "time_now",
-        {"name": "time_now", "arguments": {"timezone": "Asia/Shanghai"}},
+    info = post(endpoint, "server/discover")
+    server_info = info.get("_meta", {}).get(
+        "io.modelcontextprotocol/serverInfo", {}
     )
-    payload = result.get("structuredContent")
-    if payload is None:
-        content = result.get("content") or []
-        text = content[0].get("text", "") if content else ""
+    if not server_info.get("version"):
+        raise RuntimeError("serverInfo.version is missing")
+
+    listed = post(endpoint, "tools/list").get("tools", [])
+    names = {tool["name"]: tool for tool in listed}
+    required = {
+        "bazi_chart", "ziwei_chart", "huangli_days", "bazhai_chart",
+        "liuyao_qigua", "liuyao_chart", "qimen_chart", "time_now",
+        "tianwen_resolve", "city_coords",
+    }
+    missing = required - names.keys()
+    if missing:
+        raise RuntimeError(f"aggregate endpoint missing tools: {sorted(missing)}")
+    if len(names) != 27:
+        raise RuntimeError(f"aggregate endpoint exposed {len(names)} tools, want 27")
+
+    qigua = names["liuyao_qigua"].get("annotations") or {}
+    if qigua.get("idempotentHint") is not False:
+        raise RuntimeError("liuyao_qigua must advertise idempotentHint=false")
+    if names["liuyao_chart"].get("annotations", {}).get("idempotentHint") is not True:
+        raise RuntimeError("liuyao_chart must advertise idempotentHint=true")
+
+    aggregate_root = endpoint.removesuffix("/mcp")
+    for path in ("/mcp/bazi", "/mcp/qimen", "/mcp/aux"):
         try:
-            payload = json.loads(text)
-        except json.JSONDecodeError as error:
-            raise RuntimeError(f"time_now returned invalid JSON content: {text[:200]!r}") from error
-    if not payload.get("standard_time"):
+            post(aggregate_root + path, "server/discover")
+        except urllib.error.HTTPError as error:
+            if error.code != 404:
+                raise
+        else:
+            raise RuntimeError(f"retired domain endpoint still exists: {path}")
+
+    result = call(endpoint, "time_now", {"timezone": "Asia/Shanghai"})
+    payload = result.get("structuredContent")
+    if not payload or not payload.get("standard_time"):
         raise RuntimeError("time_now returned no canonical standard_time")
-    print("✓ tools/call time_now")
+    print(f"✓ /mcp: {len(names)} tools, aggregate-only, event hints valid")
     return 0
 
 

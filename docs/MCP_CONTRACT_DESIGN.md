@@ -49,9 +49,9 @@ liuyao_chart
 liuyao_query
 qimen_chart
 qimen_query
-compute_factors
+natal_compute_factors
 natal_query
-period_query
+natal_period_query
 naming_pick
 naming_check
 ```
@@ -156,8 +156,7 @@ naming_check
 奇门方法参数应按 scope / school / quarter rule 建立分支，而不是平铺所有
 optional enum。
 
-naming_check 的两种用神来源使用 anyOf 分支（显式五行 / selected_yongshen），
-两分支 `additionalProperties: false` 天然互斥——混传时两支都拒绝，无 runtime-only 校验。
+naming_check 使用单一 object 输入。`selected_yongshen` 直接使用八字用神裁决返回对象；工具只消费 `selected.yong / xi / ji`，逐字返回五行角色。
 
 runtime-only 校验不能替代 schema 可见性；仅当约束无法用分支表达时（如
 "perspective 仅在 matter=relationship 时合法"这类值级条件）才允许 validator
@@ -176,8 +175,8 @@ Schema 由 typed DTO / Pydantic model 生成，并满足：
 7. array 必须有 `items`；
 8. object 输出尽量封闭；
 9. 互斥和条件依赖优先用 JSON Schema `oneOf` / `anyOf` 判别分支表达
-    （2026.10.22.0：liuyao casting / period_query time_scope / naming_check
-    用神来源均已是判别联合）；发布 schema 禁止出现 `if` / `then` 条件子句；
+    （liuyao casting / natal_period_query time_scope 均是判别联合）；
+    发布 schema 禁止出现 `if` / `then` 条件子句；
 10. 输出 schema 根必须是 `type: "object"`（2026-10-29 修订：协议 2025-11-25
     及更早的 wire 模型拒绝非 object 根——顶层 union/array 会让标准 SDK 客户端
     （expert runtime）的整个 `tools/list` 失败。列表/可空语义放进字段：
@@ -185,8 +184,9 @@ Schema 由 typed DTO / Pydantic model 生成，并满足：
     字段级 `anyOf`（如 naming_char 的 `character`））。
 11. MCP wire 输出不携带 `schema_version` / `contract_version`；契约形状由
     `tools/list` 的当前 schema 自描述。
-12. 全部工具标注 `readOnlyHint` + `idempotentHint`（本仓库工具均为确定性
-    纯计算；新工具若带副作用必须显式偏离并在评审说明）。
+12. 全部工具标注 `readOnlyHint` + `idempotentHint`。事件创建类工具
+    （`liuyao_qigua` / `liuyao_snapshot`）必须 `idempotentHint=false`：
+    auto 起卦每次调用都是新事件；其余确定性纯计算工具保持 true。
 13. 约束必须编译进 schema（enum / minimum / required / 分支）——只写在
     validator 或 description 里的约束对 LLM 消费者不存在。
 

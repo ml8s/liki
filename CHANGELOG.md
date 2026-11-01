@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026.11.01.0] — 2026-11-01
+
+### Breaking changes
+
+- **MCP 收敛为两个 aggregate 端点**：engine 与 counsel 仅保留 `/mcp`，删除 `/mcp/{domain}` 分域端点；counsel 内部 engine client 不再按工具前缀改写 URL。单专家通过 skill 文档渐进读取方法论，工具面保持全量自省。
+- **起名契约直接复用八字用神计划**：`naming_pick` 与 `naming_check` 接收可选/必选的 `selected_yongshen` 八字裁决对象；工具只消费 `selected.yong / xi / ji` 与 `status`，`selected.source` 从八字输出中移除。`naming_pick` 改用 `first_role / second_role` 表达用+用、用+喜、喜+用；`naming_check` 对每个字返回 `wuxing_role=yong/xi/ji/neutral`。`naming_compose` 输入改为 `first_chars/second_chars`；姓氏候选输出将 `match_level` 改为 closed enum `match_kind`，并显式发布 `tone` 与 `baijiaxing_index`。
+- **counsel natal 方法名对齐领域**：`compute_factors` 改为 `natal_compute_factors`，`period_query` 改为 `natal_period_query`；内部实现、skill、部署白名单与工具目录同步更新。
+- **六爻事件语义显式化**：`engine.liuyao_qigua` 与 `counsel.liuyao_snapshot` 标注 `idempotentHint=false`；auto 每次调用都是新占卜事件，coins/yaos receipt 可复现。`liuyao_query` 继续幂等且只消费 snapshot，不重卦、不重排。
+- **问卦 answer 移除成功路径常量**：`liuyao_query/qimen_query.audit` 仅保留 `checked/unchecked`；`accepted/errors` 只属于失败路径，不再作为成功输出。六爻 `timing_plan.blocked` 与奇门 query 恒空 `conflicts` 一并移除。
+
+### Changed
+
+- `qimen_snapshot` 描述移除“自动补时间”的过期说法，明确 `standard_time` 为必输入。
+- `tianwen_resolve.longitude` 描述从“出生地经度”统一为“地点经度”，匹配出生、占卜与事件时间归一用途。
+- 时间契约保持不变：civil wall time 继续先经 `tianwen.resolve` 归一，`time_now` 输出可排盘的 `standard_time`（RFC3339 known-offset），排盘与流年工具消费 `standard_time`，奇门年命输入继续使用 `birth_standard_time`。
+- 单专家身份将“所有命理任务先确认出生时间”修正为：本命与起名确认出生时间，占卜确认起卦事件时间，风水确认宅运或命卦所需时间。
+- 域语言与 skill 文档移除“置信度”“其他专家”等历史表述，改用状态、证据覆盖与领域入口。
+- 起名文档同步「用 + 用」「用 + 喜」「喜 + 用」策略；check 不预设字位期望，逐字报告 `wuxing_role`。
+
 ## [2026.10.31.1] — 2026-10-31
 
 ### Breaking changes

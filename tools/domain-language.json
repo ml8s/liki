@@ -414,7 +414,7 @@
     {
       "id": "yongshen",
       "owner": "counsel/app/natal/tools/yongshen",
-      "definition": "命局裁决得到的用神结论及其来源、证据和置信度。",
+      "definition": "命局裁决得到的用神结论及其状态、冲突、规则、来源和证据。",
       "surfaces": {
         "go": "YongShen",
         "python": "YongShen",

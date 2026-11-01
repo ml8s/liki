@@ -74,15 +74,8 @@ def test_unique_items_is_projected_and_enforced():
         )
 
 
-def _yongshen_object_schema(property_schema):
-    return next(
-        arm for arm in property_schema["anyOf"]
-        if arm.get("type") == "object"
-    )
-
-
 def test_yongshen_contracts_publish_the_typed_core():
-    from app.contracts.yongshen import ConsumedYongShen, SelectedYongShen
+    from app.contracts.yongshen import SelectedYongShen, SelectedYongShenCore
 
     selected_schema = CONTRACTS["bazi_yongshen"].output_schema
     assert set(selected_schema["required"]) == set(SelectedYongShen.model_fields)
@@ -90,32 +83,17 @@ def test_yongshen_contracts_publish_the_typed_core():
     yong_schema = choice["properties"]["yong"]
     assert yong_schema["type"] == "string"
     assert yong_schema["enum"] == ["木", "火", "土", "金", "水", "无候选"]
-    assert set(choice["required"]) == {"yong", "xi", "ji", "source"}
+    assert set(choice["required"]) == {"yong", "xi", "ji"}
 
 
-    compute_schema = CONTRACTS["compute_factors"].output_schema
+    compute_schema = CONTRACTS["natal_compute_factors"].output_schema
     assert "selected_yongshen" not in compute_schema["properties"]
     assert "selected_yongshen" in compute_schema["properties"]["factors"]["description"]
 
     naming_schema = CONTRACTS["naming_check"].input_schema
-    naming_selected = _yongshen_object_schema(
-        # input 是 anyOf 两分支（显式五行 / selected_yongshen），
-        # selected_yongshen 属性住在第二分支里。
-        next(
-            branch for branch in naming_schema["anyOf"]
-            if "selected_yongshen" in branch.get("properties", {})
-        )["properties"]["selected_yongshen"]
-    )
-    assert set(naming_selected["required"]) == set(ConsumedYongShen.model_fields)
-
-    source_schema = _yongshen_object_schema(
-        CONTRACTS["naming_check"]
-        .output_schema["properties"]["evaluations"]["items"]["properties"]["yongshen_source"]
-    )
-    assert set(source_schema["required"]) == {
-        "policy_id", "rule_id", "status",
-        "chart_digest", "yongshen_digest",
-    }
+    assert set(naming_schema["properties"]) == {"given_names", "selected_yongshen"}
+    selected_ref = naming_schema["properties"]["selected_yongshen"]["anyOf"][0]
+    assert set(selected_ref["required"]) == set(SelectedYongShenCore.model_fields)
 
     assert "factors" not in selected_schema["properties"]
     assert "alternatives" not in selected_schema["properties"]
@@ -124,6 +102,24 @@ def test_yongshen_contracts_publish_the_typed_core():
         "facts", "fu_yi", "tiao_hou", "ge_ju", "cong_ge",
     }
     assert "#/$defs" not in json.dumps(selected_schema)
+
+
+def test_event_tools_are_not_marked_idempotent():
+    expected = {contract.name: contract.annotations for contract in COUNSEL_TOOLS}
+    assert expected["liuyao_snapshot"] == {
+        "readOnlyHint": True,
+        "idempotentHint": False,
+    }
+    assert expected["liuyao_query"] == {
+        "readOnlyHint": True,
+        "idempotentHint": True,
+    }
+    for name, annotations in expected.items():
+        if name != "liuyao_snapshot":
+            assert annotations == {
+                "readOnlyHint": True,
+                "idempotentHint": True,
+            }
 
 
 def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
@@ -271,7 +267,7 @@ def test_tool_vocabulary_reaches_names_nested_below_the_root_properties():
     # root ``properties`` object of liuyao_snapshot.
     assert {"self", "other"} <= set(vocabulary["divination"])
     assert {"qimen_snapshot", "liuyao_snapshot"} <= set(vocabulary["divination"])
-    assert "compute_factors" in vocabulary["natal"]
+    assert "natal_compute_factors" in vocabulary["natal"]
     assert "naming_surname" in vocabulary["naming"]
 
 
@@ -292,9 +288,9 @@ def test_tool_vocabulary_bridge_publishes_exactly_what_the_models_expose():
 def test_natal_tools_have_closed_args():
     required = {
         "bazi_yongshen": ["chart"],
-        "compute_factors": ["chart"],
+        "natal_compute_factors": ["chart"],
         "natal_query": ["factors", "factors_digest", "topics"],
-        "period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],
+        "natal_period_query": ["factors", "factors_digest", "time_scope", "topics", "chart"],
     }
     assert set(NATAL_FUNCTIONS) == set(required)
     for name, schema in NATAL_FUNCTIONS.items():
@@ -308,7 +304,7 @@ def test_natal_topic_enum_is_generated_from_topic_routes():
         (REPO_ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
     )
     expected = list(routes["topics"])
-    for name in ("natal_query", "period_query"):
+    for name in ("natal_query", "natal_period_query"):
         schema = NATAL_FUNCTIONS[name]["properties"]["topics"]
         assert schema["items"]["enum"] == expected, name
 

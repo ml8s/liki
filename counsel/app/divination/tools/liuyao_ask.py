@@ -51,8 +51,6 @@ def ask(snapshot: dict, *, message: str) -> dict:
         "boundary": core["boundary"],
         "disclaimer": core["disclaimer"],
         "audit": {
-            "accepted": audit["accepted"],
-            "errors": audit["errors"],
             "checked": audit["checked"],
             "unchecked": audit["unchecked"],
         },

@@ -3,7 +3,7 @@
 TopicRouter 只做受控配置投影：topic → 命理规则 + 断语领域。这里不解释命理，
 不修改断语真值表；输出统一使用英文契约字段，中文只保留在展示内容中。
 
-counsel MCP 的 natal_query / period_query 复用本模块的路由与展平逻辑
+counsel MCP 的 natal_query / natal_period_query 复用本模块的路由与展平逻辑
 （`_require_topics` / `_load_routes` / `_flatten_side_result` / `_analyze_periods`）。
 """
 
@@ -186,7 +186,7 @@ def _deduplicate(items: list[dict]) -> list[dict]:
 
 
 def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -> dict:
-    """period_query 主体：natal_chart 已就绪（完整盘或分侧盘）。"""
+    """natal_period_query 主体：natal_chart 已就绪（完整盘或分侧盘）。"""
     selected_pairs = _require_topics(args["topics"])
     routes = _load_routes()
     timezone = str(args["time_scope"].get("timezone") or "")

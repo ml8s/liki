@@ -17,27 +17,8 @@ import (
 
 const (
 	serverName = "engine"
-	serverDesc = "Liki Chart Engine — deterministic Chinese metaphysics computation: bazi, ziwei, liuyao, qimen, huangli, fengshui."
+	serverDesc = "Liki Chart Engine — deterministic metaphysics computation and auditable divination events: bazi, ziwei, liuyao, qimen, huangli, fengshui."
 )
-
-// toolName converts an RPC method name to a valid MCP tool name.
-// RPC method names use dot-separated domains (bazi.chart) while MCP tool names
-// only allow [a-zA-Z0-9_-], so each dot is replaced with an underscore.
-// mcpDomains maps an MCP endpoint suffix to the RPC method prefixes it exposes.
-// Each domain is a self-contained tool set (one 术数 or shared aux) so the LLM
-// only sees relevant tools per expert.
-var mcpDomains = []struct {
-	Suffix   string
-	Prefixes []string
-}{
-	{"bazi", []string{"bazi_"}},
-	{"ziwei", []string{"ziwei_"}},
-	{"qimen", []string{"qimen_"}},
-	{"liuyao", []string{"liuyao_"}},
-	{"huangli", []string{"huangli_"}},
-	{"fengshui", []string{"bazhai_", "xuankong_", "time_"}},
-	{"aux", []string{"time_", "tianwen_", "city_"}},
-}
 
 // engineContracts owns every engine tool contract; the legacy raw-JSON
 // registry has been fully retired.
@@ -45,25 +26,6 @@ var engineContracts = mcpcontract.NewEngine()
 
 // newMCPServer builds a standard MCP server exposing every engine tool.
 func newMCPServer(version string, logger *slog.Logger) (*mcp.Server, error) {
-	return newMCPServerFor(version, logger, func(string) bool { return true })
-}
-
-// newDomainServer builds an MCP server exposing only the methods matching the
-// given RPC method prefixes (one 术数 domain or the shared aux tools).
-func newDomainServer(prefixes []string, version string, logger *slog.Logger) (*mcp.Server, error) {
-	return newMCPServerFor(version, logger, func(method string) bool {
-		for _, p := range prefixes {
-			if strings.HasPrefix(method, p) {
-				return true
-			}
-		}
-		return false
-	})
-}
-
-func newMCPServerFor(
-	version string, logger *slog.Logger, match func(string) bool,
-) (*mcp.Server, error) {
 	impl := &mcp.Implementation{
 		Name:        serverName,
 		Title:       "Liki Chart Engine",
@@ -72,7 +34,7 @@ func newMCPServerFor(
 		WebsiteURL:  "https://liki.hk",
 	}
 	opts := &mcp.ServerOptions{
-		Instructions: "Deterministic Chinese metaphysics computation. Discover available capabilities with tools/list before use. When required, first resolve time, location, or calendar facts; then use the discovered chart, calendar, divination, or fengshui capability. Pass returned artifacts unchanged, interpret only returned facts, and do not invent missing fields. Conclusions are conditioned readings from a traditional culture perspective, not medical, legal or investment advice.",
+		Instructions: "Deterministic Chinese metaphysics computation and auditable divination events. Discover available capabilities with tools/list before use. When required, first resolve time, location, or calendar facts; then use the discovered chart, calendar, divination, or fengshui capability. Auto Liuyao casting creates a new event on each call; coins/yaos receipts reproduce one event. Pass returned artifacts unchanged, interpret only returned facts, and do not invent missing fields. Conclusions are conditioned readings from a traditional culture perspective, not medical, legal or investment advice.",
 		Logger:       logger,
 		// 2026-07-28 is the preferred stateless surface. Standard clients still
 		// discover this endpoint through the initialize handshake, whose newest
@@ -83,9 +45,6 @@ func newMCPServerFor(
 	s := mcp.NewServer(impl, opts)
 
 	for _, name := range engineContracts.Names() {
-		if !match(name) {
-			continue
-		}
 		definition, err := engineContracts.Definition(name)
 		if err != nil {
 			return nil, fmt.Errorf("engine MCP tool %s: %w", name, err)
@@ -95,15 +54,21 @@ func newMCPServerFor(
 			Description:  definition.Description,
 			InputSchema:  definition.InputSchema,
 			OutputSchema: definition.OutputSchema,
-			// 全部 engine 工具都是确定性计算：无副作用、幂等，如实标注。
-			Annotations: &mcp.ToolAnnotations{
-				ReadOnlyHint:   true,
-				IdempotentHint: true,
-			},
+			Annotations:  toolAnnotations(name),
 		}
 		s.AddTool(tool, contractToolHandler(engineContracts, name))
 	}
 	return s, nil
+}
+
+func toolAnnotations(name string) *mcp.ToolAnnotations {
+	// liuyao_qigua's auto mode creates a new random divination event on each
+	// call. Method-level hints cannot vary by arguments, so the whole tool is
+	// conservatively non-idempotent even though coins/yaos receipts reproduce.
+	return &mcp.ToolAnnotations{
+		ReadOnlyHint:   true,
+		IdempotentHint: name != "liuyao_qigua",
+	}
 }
 
 // contractToolHandler invokes a typed MCP contract and answers structured-only:

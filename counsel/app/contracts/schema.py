@@ -120,10 +120,10 @@ def emit_schema(annotation: Any, *, description: str | None = None) -> dict[str,
 class ToolContract:
     """One MCP tool: description plus the models that own its wire contract.
 
-    Every counsel tool is a deterministic, side-effect-free computation over
-    the arguments it receives, so ``annotations`` defaults to the honest
-    readOnly + idempotent hints instead of relying on each registration to
-    remember them.
+    Most counsel tools are deterministic, side-effect-free computations over
+    their arguments, so ``annotations`` defaults to readOnly + idempotent.
+    Event-creating tools (notably auto Liuyao casting) override idempotent to
+    false at the contract that owns the semantics.
     """
 
     name: str

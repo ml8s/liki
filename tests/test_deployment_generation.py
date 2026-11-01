@@ -149,7 +149,7 @@ class TestDeploymentGeneration(unittest.TestCase):
             self.out / "liki" / "agents" / "liki" / "instruction.md"
         ).read_text(encoding="utf-8")
         self.assertEqual(instruction, body)
-        self.assertIn("定盘门", instruction)
+        self.assertIn("时间与定盘", instruction)
         self.assertIn("MCP", instruction)
 
     def test_single_expert_profile_is_the_only_release_profile(self):

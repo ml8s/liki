@@ -21,19 +21,15 @@
             "radical": "亻",
             "stroke": 6,
             "tone": 3,
-            "wuxing": "土"
+            "wuxing": "土",
+            "wuxing_role": "neutral"
           }
         ],
         "given_name": "伟",
         "phonetic": {
           "tones": "3"
         },
-        "valid": true,
-        "wuxing": {
-          "ji": false,
-          "xi": false,
-          "yong": false
-        }
+        "valid": true
       }
     ]
   },
@@ -7925,7 +7921,8 @@
           }
         ],
         "slot": "first",
-        "wuxing": "木"
+        "wuxing": "木",
+        "role": "yong"
       }
     ]
   },
@@ -7936,7 +7933,7 @@
         "basis": [
           "mandarin_pinyin=zhang"
         ],
-        "match_level": "pinyin_exact",
+        "match_kind": "pinyin_exact",
         "pinyin": "zhāng",
         "surname": "张",
         "tone": 1
@@ -7946,7 +7943,7 @@
         "basis": [
           "mandarin_pinyin=zhang"
         ],
-        "match_level": "pinyin_exact",
+        "match_kind": "pinyin_exact",
         "pinyin": "zhāng",
         "surname": "章",
         "tone": 1
@@ -7957,7 +7954,7 @@
           "latin=zhang",
           "pinyin=zhao"
         ],
-        "match_level": "phonetic_close",
+        "match_kind": "phonetic_close",
         "pinyin": "zhào",
         "surname": "赵",
         "tone": 4
@@ -7968,7 +7965,7 @@
           "latin=zhang",
           "pinyin=zhan"
         ],
-        "match_level": "phonetic_close",
+        "match_kind": "phonetic_close",
         "pinyin": "zhàn",
         "surname": "湛",
         "tone": 4
@@ -7979,7 +7976,7 @@
           "latin=zhang",
           "pinyin=zang"
         ],
-        "match_level": "phonetic_close",
+        "match_kind": "phonetic_close",
         "pinyin": "zāng",
         "surname": "臧",
         "tone": 1
@@ -7990,7 +7987,7 @@
           "latin=zhang",
           "pinyin=zan"
         ],
-        "match_level": "phonetic_close",
+        "match_kind": "phonetic_close",
         "pinyin": "zǎn",
         "surname": "昝",
         "tone": 3

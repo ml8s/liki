@@ -13,9 +13,7 @@ The edge owns public service prefixes:
 
 ```text
 https://<host>/engine/mcp       → engine-mcp /mcp
-https://<host>/engine/mcp/{domain} → engine-mcp /mcp/{domain}
 https://<host>/counsel/mcp      → counsel-mcp /mcp
-https://<host>/counsel/mcp/{domain} → counsel-mcp /mcp/{domain}
 ```
 
 Services must not depend on the public prefix. The gateway strips `/engine` or
@@ -82,12 +80,11 @@ birth data, chart payloads, endpoint URLs, tokens, or exception text. Rate
 limiting is owned by the edge (cloud LB / WAF / Caddy); the service itself does
 not rate-limit.
 
-`/mcp` is the aggregate surface for the single-expert aggregate runtime. It exposes the
-natal judgment tools (`bazi_yongshen`, `compute_factors`, `natal_query`, and
-`period_query`) plus naming, Liuyao, and Qimen tools. `/mcp/bazi` and
-`/mcp/ziwei` remain fixed-domain endpoints for clients that need a narrower
-discovery surface; `bazi_yongshen` is published only on the bazi and aggregate
-surfaces.
+`/mcp` is the only counsel MCP surface. It exposes every judgment tool:
+`bazi_yongshen`, `natal_compute_factors`, `natal_query`,
+`natal_period_query`, the five naming tools, and the Liuyao/Qimen
+snapshot/query pairs. Bazi, Ziwei, Liuyao, Qimen, and naming are internal
+technique groups rather than separate deployment surfaces.
 
 ## Deployment rules
 

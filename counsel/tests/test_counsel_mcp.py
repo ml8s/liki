@@ -1,8 +1,7 @@
-"""counsel 断语引擎 MCP 端点测试（bazi 4 工具，ziwei 3 工具）。"""
+"""counsel aggregate MCP endpoint tests."""
 
 import asyncio
 import json
-import os
 import pathlib
 from typing import Any
 
@@ -13,7 +12,6 @@ from app.contracts.schema import ToolContract  # noqa: E402
 from app.counsel_mcp import (  # noqa: E402
     _make_app,
     app,
-    create_counsel_mcp,
     create_counsel_root_mcp,
 )
 
@@ -38,34 +36,11 @@ from starlette.routing import Mount, Route  # noqa: E402
 
 
 def _engine_bazi_chart():
-    import urllib.request
-
-    url = os.environ["LIKI_ENGINE_MCP_URL"] + "/bazi"
-    body = json.dumps({
-        "jsonrpc": "2.0", "id": 1, "method": "tools/call",
-        "params": {"name": "bazi_chart", "arguments": {
-            "standard_time": "1990-05-20T11:49:00+08:00",
-            "longitude": 116.4, "gender": "male",
-        }, "_meta": {
-            "io.modelcontextprotocol/protocolVersion": "2026-07-28",
-            "io.modelcontextprotocol/clientCapabilities": {},
-        }},
-    }).encode()
-    req = urllib.request.Request(
-        url, data=body,
-        headers={
-            "Content-Type": "application/json",
-            "MCP-Protocol-Version": "2026-07-28",
-            "Mcp-Method": "tools/call", "Mcp-Name": "bazi_chart",
-            "Accept": "application/json, text/event-stream",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=8) as r:
-        result = json.loads(r.read())["result"]
-        payload = result.get("structuredContent")
-        if payload is None:
-            payload = json.loads(result["content"][0]["text"])
-        return payload
+    return engine_mcp_client.call("bazi.chart", {
+        "standard_time": "1990-05-20T11:49:00+08:00",
+        "longitude": 116.4,
+        "gender": "male",
+    })["data"]
 
 
 def _call_tool_over_mcp(server, name, arguments):
@@ -157,37 +132,10 @@ def bazi_chart():
 
 
 def test_counsel_mcp_tools():
-    srv = create_counsel_mcp("bazi")
+    srv = create_counsel_root_mcp()
     names = asyncio.run(srv.list_tools())
-    assert [t.name for t in names] == [
-        "bazi_yongshen", "compute_factors", "natal_query", "period_query",
-    ]
-
-
-@pytest.mark.parametrize(
-    "domain",
-    ["bazi", "ziwei", "naming", "liuyao", "qimen"],
-)
-@pytest.mark.parametrize(
-    "protocol_version",
-    ["2025-03-26", "2025-06-18", "2025-11-25", "2026-07-28"],
-)
-def test_counsel_tools_list_serializes_for_runtime(domain, protocol_version):
-    """tools/list must validate on every negotiated wire model, not just 2026-07-28.
-
-    Wire models through 2025-11-25 reject non-object outputSchema roots, and
-    standard SDK clients (the experts runtime) negotiate those versions: a
-    top-level union/array output schema turns tools/list into -32603 for them.
-    """
-    server = create_counsel_mcp(domain)
-    tools = asyncio.run(server.list_tools())
-    assert tools
-    dumped = ListToolsResult(tools=tools).model_dump(
-        by_alias=True, mode="json", exclude_none=True
-    )
-    serialized = serialize_server_result("tools/list", protocol_version, dumped)
-    assert [tool["name"] for tool in serialized["tools"]] == [
-        tool.name for tool in tools
+    assert [tool.name for tool in names] == [
+        contract.name for contract in COUNSEL_TOOLS
     ]
 
 
@@ -206,14 +154,8 @@ def test_counsel_root_tools_list_serializes_for_runtime(protocol_version):
     assert len(serialized["tools"]) == len(tools)
 
 
-def test_ziwei_mcp_does_not_expose_bazi_yongshen():
-    srv = create_counsel_mcp("ziwei")
-    names = asyncio.run(srv.list_tools())
-    assert [t.name for t in names] == ["compute_factors", "natal_query", "period_query"]
-
-
 def test_bazi_yongshen_over_mcp(bazi_chart):
-    srv = create_counsel_mcp("bazi")
+    srv = create_counsel_root_mcp()
     r = asyncio.run(srv.call_tool("bazi_yongshen", {"chart": bazi_chart}))
     out = r.structured_content
     assert out["selected"]["yong"]
@@ -228,9 +170,9 @@ def test_bazi_yongshen_over_mcp(bazi_chart):
     assert r.structured_content == out
 
 
-def test_compute_factors_over_mcp(bazi_chart):
-    srv = create_counsel_mcp("bazi")
-    r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
+def test_natal_compute_factors_over_mcp(bazi_chart):
+    srv = create_counsel_root_mcp()
+    r = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
     out = r.structured_content
     assert set(out) == {"factors", "factors_digest"}
     assert "selected_yongshen" in out["factors"]
@@ -238,10 +180,10 @@ def test_compute_factors_over_mcp(bazi_chart):
     assert len(out["factors_digest"]) == 64  # sha256 hex
 
 
-def test_compute_factors_has_one_yongshen_source(bazi_chart):
-    srv = create_counsel_mcp("bazi")
+def test_natal_compute_factors_has_one_yongshen_source(bazi_chart):
+    srv = create_counsel_root_mcp()
     out = asyncio.run(srv.call_tool(
-        "compute_factors", {"chart": bazi_chart}
+        "natal_compute_factors", {"chart": bazi_chart}
     )).structured_content
     selected = out["factors"]["selected_yongshen"]
     provenance = out["factors"]["_provenance"]
@@ -257,8 +199,8 @@ def test_compute_factors_has_one_yongshen_source(bazi_chart):
 
 
 def test_natal_query_over_mcp(bazi_chart):
-    srv = create_counsel_mcp("bazi")
-    r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
+    srv = create_counsel_root_mcp()
+    r = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
     snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
         "natal_query",
@@ -272,12 +214,12 @@ def test_natal_query_over_mcp(bazi_chart):
     assert out["assertions"] and all(a.get("side") == "bazi" for a in out["assertions"])
 
 
-def test_period_query_over_mcp(bazi_chart):
-    srv = create_counsel_mcp("bazi")
-    r = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
+def test_natal_period_query_over_mcp(bazi_chart):
+    srv = create_counsel_root_mcp()
+    r = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
     snapshot = r.structured_content
     r = asyncio.run(srv.call_tool(
-        "period_query",
+        "natal_period_query",
         {
             "factors": snapshot["factors"],
             "factors_digest": snapshot["factors_digest"],
@@ -304,8 +246,8 @@ def test_period_query_over_mcp(bazi_chart):
 def test_domain_rejects_wrong_chart():
     """结构上既不是八字盘也不是紫微盘：在 schema 边界即拒。"""
     result = _call_tool_over_mcp(
-        create_counsel_mcp("bazi"),
-        "compute_factors",
+        create_counsel_root_mcp(),
+        "natal_compute_factors",
         {"chart": {"ziwei": {}}},
     )
     assert result.is_error is True
@@ -318,7 +260,7 @@ def test_domain_rejects_wrong_chart():
 def test_bazi_yongshen_rejects_ziwei_chart():
     """bazi_yongshen 的 chart 是强类型 BaziChart：紫微盘缺四柱必填字段，边界即拒。"""
     result = _call_tool_over_mcp(
-        create_counsel_mcp("bazi"),
+        create_counsel_root_mcp(),
         "bazi_yongshen",
         {"chart": {"ziwei": {}}},
     )
@@ -328,8 +270,8 @@ def test_bazi_yongshen_rejects_ziwei_chart():
 
 
 def test_counsel_tools_publish_the_contract_schemas_without_downgrading():
-    expected = {contract.name: contract for contract in NATAL_TOOLS}
-    tools = asyncio.run(create_counsel_mcp("bazi").list_tools())
+    expected = {contract.name: contract for contract in COUNSEL_TOOLS}
+    tools = asyncio.run(create_counsel_root_mcp().list_tools())
     assert {tool.name: tool.input_schema for tool in tools} == {
         name: contract.input_schema for name, contract in expected.items()
     }
@@ -342,8 +284,6 @@ def test_counsel_servers_advertise_the_distributed_version():
     from app.version import runtime_version
 
     version = runtime_version()
-    for domain in ("bazi", "ziwei", "liuyao", "qimen", "naming"):
-        assert create_counsel_mcp(domain).version == version
     assert create_counsel_root_mcp().version == version
 
 
@@ -351,7 +291,7 @@ def test_counsel_root_aggregate_exposes_expert_and_non_expert_tools(bazi_chart):
     srv = create_counsel_root_mcp()
     names = {tool.name for tool in asyncio.run(srv.list_tools())}
     assert {
-        "bazi_yongshen", "compute_factors", "natal_query", "period_query",
+        "bazi_yongshen", "natal_compute_factors", "natal_query", "natal_period_query",
         "naming_pick", "naming_compose", "liuyao_snapshot",
         "liuyao_query", "qimen_snapshot", "qimen_query",
     } <= names
@@ -379,7 +319,7 @@ def test_counsel_root_aggregate_exposes_every_contract_schema():
 
 def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_chart):
     snapshot = asyncio.run(create_counsel_root_mcp().call_tool(
-        "compute_factors", {"chart": bazi_chart}
+        "natal_compute_factors", {"chart": bazi_chart}
     )).structured_content
     all_topics = [
         "marriage", "family", "children", "career", "wealth", "health",
@@ -404,13 +344,13 @@ def test_natal_query_accepts_full_topic_set_and_returns_topic_membership(bazi_ch
     assert len(ids) == len(set(ids))
 
 
-def test_period_query_accepts_compute_factors_context(bazi_chart):
-    srv = create_counsel_mcp("bazi")
+def test_natal_period_query_accepts_natal_compute_factors_context(bazi_chart):
+    srv = create_counsel_root_mcp()
     snapshot = asyncio.run(srv.call_tool(
-        "compute_factors", {"chart": bazi_chart}
+        "natal_compute_factors", {"chart": bazi_chart}
     )).structured_content
     result = asyncio.run(srv.call_tool(
-        "period_query",
+        "natal_period_query",
         {
             "factors": snapshot["factors"],
             "factors_digest": snapshot["factors_digest"],
@@ -423,14 +363,14 @@ def test_period_query_accepts_compute_factors_context(bazi_chart):
     assert "periods" in out
 
 
-def test_period_query_contract_allows_full_topic_set():
-    contract = next(c for c in NATAL_TOOLS if c.name == "period_query")
+def test_natal_period_query_contract_allows_full_topic_set():
+    contract = next(c for c in NATAL_TOOLS if c.name == "natal_period_query")
     assert contract.input_schema["properties"]["topics"]["maxItems"] == 16
 
 
 def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
     srv = create_counsel_root_mcp()
-    result = asyncio.run(srv.call_tool("compute_factors", {"chart": bazi_chart}))
+    result = asyncio.run(srv.call_tool("natal_compute_factors", {"chart": bazi_chart}))
     snapshot = result.structured_content
     assert snapshot["factors"]["_provenance"]["side"] == "bazi"
     result = asyncio.run(srv.call_tool(
@@ -448,8 +388,8 @@ def test_counsel_root_aggregate_infers_natal_domain(bazi_chart):
 
 def test_counsel_tool_rejects_argument_outside_manifest_schema():
     result = _call_tool_over_mcp(
-        create_counsel_mcp("bazi"),
-        "compute_factors",
+        create_counsel_root_mcp(),
+        "natal_compute_factors",
         {"chart": {}, "unexpected": True},
     )
     assert result.is_error is True
@@ -513,18 +453,11 @@ def test_tool_adapter_records_terminal_status_and_duration():
     assert "liki_counsel_tool_request_duration_seconds" in text
 
 
-def test_multi_domain_mcp_uses_standard_starlette_composition():
+def test_aggregate_mcp_uses_standard_starlette_composition():
     """The official MCP apps must own protocol handling and ASGI lifespan."""
     assert isinstance(app, Starlette)
     routes = [route for route in app.routes if route.path.startswith("/mcp")]
-    assert {route.path for route in routes} == {
-        "/mcp",
-        "/mcp/bazi",
-        "/mcp/ziwei",
-        "/mcp/liuyao",
-        "/mcp/qimen",
-        "/mcp/naming",
-    }
+    assert {route.path for route in routes} == {"/mcp"}
     assert all(isinstance(route, Route) for route in routes)
     assert not any(isinstance(route, Mount) for route in app.routes)
     assert "/healthz" in {route.path for route in app.routes}
@@ -555,9 +488,10 @@ def test_counsel_mcp_http_surface():
                 results[path] = await _asgi_request(path, method="POST", payload=payload)
 
     asyncio.run(request_all())
-    for path, (status, raw) in results.items():
-        assert status == 200, path
-        assert json.loads(raw)["result"]["_meta"] is not None
+    assert results["/mcp"][0] == 200
+    assert json.loads(results["/mcp"][1])["result"]["_meta"] is not None
+    assert results["/mcp/bazi"][0] == 404
+    assert results["/mcp/naming"][0] == 404
 
     # The public /counsel prefix is owned by the edge, not this process.
     status, _ = _http_request("/counsel/mcp/bazi", method="POST", payload=payload)

@@ -40,8 +40,7 @@ def test_timing_ranks_candidates_without_dates():
             {"id": "b", "mechanism": "旬空填实", "position": 2},
         ]
     }
-    result = liuyao_timing.rank_timing_candidates(snapshot, topic="wealth")
-    assert result["blocked"] is False
+    result = liuyao_timing.project_timing_plan(snapshot, topic="wealth")
     assert result["candidates"][0]["id"] == "b"
     assert all(
         item["conclusion_scope"] == "conditional_timing_candidate_not_date"
@@ -56,7 +55,7 @@ def test_timing_position_alone_is_not_target_evidence():
             {"id": "without-position", "mechanism": "出月令"},
         ]
     }
-    result = liuyao_timing.rank_timing_candidates(snapshot, topic="wealth")
+    result = liuyao_timing.project_timing_plan(snapshot, topic="wealth")
     order = [item["id"] for item in result["candidates"]]
     assert order == ["with-position", "without-position"]
 
@@ -67,8 +66,7 @@ def test_timing_keeps_health_topic_with_unified_boundary():
             {"id": "health-watch", "mechanism": "旬空填实"}
         ]
     }
-    result = liuyao_timing.rank_timing_candidates(snapshot, topic="health_context")
-    assert result["blocked"] is False
+    result = liuyao_timing.project_timing_plan(snapshot, topic="health_context")
     assert [item["id"] for item in result["candidates"]] == ["health-watch"]
     assert "不构成医疗" in result["boundary"]
     assert result["policy"]["advice_scope"] == "traditional_reference_not_professional_advice"

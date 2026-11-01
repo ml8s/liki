@@ -28,8 +28,8 @@ func TestMetricsMiddlewareRecordsStatusClass(t *testing.T) {
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	})
-	wrapped := MetricsMiddleware("/mcp/{domain}", next)
-	request := httptest.NewRequest(http.MethodPost, "/mcp/bazi", nil)
+	wrapped := MetricsMiddleware("/mcp", next)
+	request := httptest.NewRequest(http.MethodPost, "/mcp", nil)
 	recorder := httptest.NewRecorder()
 	wrapped.ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusServiceUnavailable {
@@ -38,7 +38,7 @@ func TestMetricsMiddlewareRecordsStatusClass(t *testing.T) {
 
 	text := string(observability.RenderMetrics())
 	for _, fragment := range []string{
-		`route="/mcp/{domain}"`,
+		`route="/mcp"`,
 		`method="POST"`,
 		`status_class="5xx"`,
 	} {

@@ -40,9 +40,9 @@ tools:
       - ziwei_liuyue
     counsel:
       - bazi_yongshen
-      - compute_factors
+      - natal_compute_factors
       - natal_query
-      - period_query
+      - natal_period_query
       - naming_surname
       - naming_pick
       - naming_char

@@ -58,7 +58,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
   卡间互引统一平铺全路径 `references/<平铺名>.md`——裸名 / 旧嵌套 / 跨域 / 根级共享卡 / `scripts/` 依赖在生成器 fail-closed。
 - 专家身份的唯一手写源是包根 `expert-packs/liki-<domain>/SKILL.md`（元数据 + 角色正文，内部部署与市场包共用；`plugin.json` 的 `agents`/`agentName` 指向它本身）；域 `skills/<domain>/SKILL.md`（含方法论卡索引）与 `plugin.json` 元数据由 `scripts/sync_expert_packs.py` 生成，`make check` 漂移门守护且拒绝包内出现第二份身份副本；部署内子代理（bazi/ziwei）的身份文件是 `agents/<name>/<name>.md`，不进市场包。
 - `engine-mcp` 只做确定性排盘/历法/风水计算；`counsel-mcp` 只做因子、断语、起名和问卦判断。
-- 公开 `/engine` 与 `/counsel` 前缀由网关负责；两个服务内部只实现 `/mcp` 与 `/mcp/{domain}`。
+- 公开 `/engine` 与 `/counsel` 前缀由网关负责；两个服务内部只实现 `/mcp`。
 - 不恢复旧 Python CLI 或 JSON-RPC 发现/调用路径；历史评测资产已归档，迁移前不得进入 gate。
 
 ### Lint 与安全扫描
@@ -90,7 +90,7 @@ Python 工具链用 [uv](https://docs.astral.sh/uv/) 固化：`make python-env` 
 
 ## 设计原则（为什么这样设计）
 
-- **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。网关负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp` 与 `/mcp/{domain}`。领域文档描述能力与变量绑定，不手写传输层细节。
+- **MCP 调用边界分层**：`engine-mcp` 只做确定性排盘/历法/风水计算，`counsel-mcp` 只做因子、断语、起名和问卦判断。网关负责 `/engine` 与 `/counsel` 公开前缀；服务内只允许 `/mcp`。领域文档描述能力与变量绑定，不手写传输层细节。
 - **历史事件只验证整体框架**：校准/结论验证回退的对象是「格局+用神+大运」的综合解读框架，不是单一用神选择——事件是框架的综合结果，无法反推单一变量（v1.23.0 教训）。落地处：`references/natal-app-mingshu.md` 历史事件校准节、`references/natal-bazi-calibration.md`。
 - **用神只有扶抑 / 调候两派，必须聚合出唯一结论**：格局（格神）不是用神，只作结构证据参与聚合决策（`references/natal-bazi-yongshen.md`）；不并列列出让用户选——并列等于把专业判断推给用户（v1.16.0 教训，已落地 yongshen.md 聚合决策表）。
 - **Skill 文档正向引导优先**：流程性指引写「做什么、怎么做」；域规则性禁令（档位防跳、筛字池细则、反重复红线等从真实错误沉淀的专业精度）保留原样，不属于负面清理对象。工具自省、隐私合规等样板只在各 surface 的入口文档存一份，域卡不重复。
@@ -133,11 +133,11 @@ python3 scripts/check_domain_language.py
 **添加新 MCP 工具时**（Pydantic / typed registry 契约是唯一事实源，同步补契约与测试）：
 
 ```bash
-# engine：补 handler、InputSchema/OutputSchema、领域路由与 tool schema 测试
+# engine：补 handler、InputSchema/OutputSchema 与 tool schema 测试
 grep -R "bazi_chart" engine/cmd/engine-mcp engine/internal/mcpcontract
 
 # counsel：在 app/contracts 补 Pydantic 契约，再补业务实现与错误映射测试
-grep -R "compute_factors" counsel/app counsel/tests
+grep -R "natal_compute_factors" counsel/app counsel/tests
 ```
 
 **改 skill 文档后**（需要出包时）：

@@ -388,8 +388,8 @@ def validate_natal_chart(natal_chart: object, action: str = "natal_chart") -> No
     validate_natal_chart_digest(natal_chart, action=action)
 
 
-def validate_side_chart(natal_chart: object, side: str, action: str = "compute_factors") -> None:
-    """校验正交分侧盘（compute_factors / period_query 的输入）。
+def validate_side_chart(natal_chart: object, side: str, action: str = "natal_compute_factors") -> None:
+    """校验正交分侧盘（natal_compute_factors / natal_period_query 的输入）。
 
     与 validate_natal_chart（完整本命盘）不同：分侧盘只含单侧引擎数据
     （bazi: chart+full；ziwei: chart+ziwei+ziwei_daxian）。这里对分侧必需结构

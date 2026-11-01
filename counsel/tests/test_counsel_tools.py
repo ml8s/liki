@@ -11,7 +11,7 @@ def bazi_chart():
     import os
     import urllib.request
 
-    url = os.environ.get("LIKI_ENGINE_MCP_URL", "http://127.0.0.1:18081/mcp") + "/bazi"
+    url = os.environ.get("LIKI_ENGINE_MCP_URL", "http://127.0.0.1:18081/mcp")
     body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {
         "name": "bazi_chart",
         "arguments": {"standard_time": "1990-05-20T11:49:00+08:00", "longitude": 116.4, "gender": "male"},
@@ -30,18 +30,18 @@ def bazi_chart():
     return payload
 
 
-def test_compute_factors_returns_factors_and_digest(bazi_chart):
-    from app.natal.tools.counsel import compute_factors
-    out = compute_factors(bazi_chart)
+def test_natal_compute_factors_returns_factors_and_digest(bazi_chart):
+    from app.natal.tools.counsel import natal_compute_factors
+    out = natal_compute_factors(bazi_chart)
     assert isinstance(out, dict)
     assert "factors" in out and "factors_digest" in out
 
 
 def test_natal_query_returns_bazi_assertions(bazi_chart):
     """natal_query 校验因子摘要后返回八字断语。"""
-    from app.natal.tools.counsel import compute_factors, natal_query
+    from app.natal.tools.counsel import natal_compute_factors, natal_query
 
-    out = compute_factors(bazi_chart)
+    out = natal_compute_factors(bazi_chart)
     result = natal_query(
         out["factors"],
         ["chart_structure"],
@@ -52,12 +52,12 @@ def test_natal_query_returns_bazi_assertions(bazi_chart):
     assert all(a.get("assertion_id") for a in result["assertions"])
 
 
-def test_period_query_returns_bazi_assertions(bazi_chart):
-    """period_query 校验因子摘要后返回八字应期断语。"""
-    from app.natal.tools.counsel import compute_factors, period_query
+def test_natal_period_query_returns_bazi_assertions(bazi_chart):
+    """natal_period_query 校验因子摘要后返回八字应期断语。"""
+    from app.natal.tools.counsel import natal_compute_factors, natal_period_query
 
-    out = compute_factors(bazi_chart)
-    got = period_query(
+    out = natal_compute_factors(bazi_chart)
+    got = natal_period_query(
         out["factors"],
         out["factors_digest"],
         {"type": "year_range", "start_year": 2020, "end_year": 2040, "timezone": "Asia/Shanghai"},
@@ -74,9 +74,9 @@ def test_period_query_returns_bazi_assertions(bazi_chart):
 
 
 def test_natal_query_rejects_modified_factors(bazi_chart):
-    from app.natal.tools.counsel import compute_factors, natal_query
+    from app.natal.tools.counsel import natal_compute_factors, natal_query
 
-    out = compute_factors(bazi_chart)
+    out = natal_compute_factors(bazi_chart)
     factors = dict(out["factors"])
     factors[next(iter(factors))] = "tampered"
     with pytest.raises(ValueError, match="factors_digest mismatch"):
@@ -87,15 +87,15 @@ def test_natal_query_rejects_modified_factors(bazi_chart):
         )
 
 
-def test_period_query_rejects_chart_from_another_snapshot(bazi_chart):
+def test_natal_period_query_rejects_chart_from_another_snapshot(bazi_chart):
     """chart 与 factors 经 _provenance.chart_digest 绑定，换盘即拒。"""
-    from app.natal.tools.counsel import compute_factors, period_query
+    from app.natal.tools.counsel import natal_compute_factors, natal_period_query
 
-    out = compute_factors(bazi_chart)
+    out = natal_compute_factors(bazi_chart)
     other = dict(bazi_chart)
     other["shi"] = {"gan": "甲", "zhi": "子", "na_yin": "海中金"}
-    with pytest.raises(ValueError, match="chart 与 compute_factors 因子来源不一致"):
-        period_query(
+    with pytest.raises(ValueError, match="chart 与 natal_compute_factors 因子来源不一致"):
+        natal_period_query(
             out["factors"],
             out["factors_digest"],
             {"type": "year_range", "start_year": 2020, "end_year": 2040},

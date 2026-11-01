@@ -157,7 +157,6 @@ def test_liuyao_health_snapshot_keeps_timing_plan(monkeypatch):
         result,
         method="liuyao",
     )
-    assert result["timing_plan"]["blocked"] is False
     assert [item["id"] for item in result["timing_plan"]["candidates"]] == ["timing-1"]
     assert "不构成医疗" in result["timing_plan"]["boundary"]
 
@@ -197,7 +196,6 @@ def test_liuyao_ask_returns_structured_answer(monkeypatch):
     assert answer["method"] == "liuyao"
     assert answer["snapshot_digest"] == snapshot["snapshot_digest"]
     assert answer["primary_evidence_refs"] == ["yong-shen-state"]
-    assert answer["audit"]["accepted"] is True
     assert "必然" not in answer["verdict"]
 
 
@@ -231,7 +229,6 @@ def test_qimen_ask_returns_structured_answer(monkeypatch):
     answer = qimen_ask.ask(snapshot, message="现在适合行动吗？")
     assert answer["method"] == "qimen"
     assert answer["snapshot_digest"] == snapshot["snapshot_digest"]
-    assert answer["audit"]["accepted"] is True
     assert answer["evidence_refs"]
 
 

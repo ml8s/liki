@@ -69,9 +69,9 @@ def test_yongshen_decision_has_one_domain_authority():
 def test_skill_docs_do_not_duplicate_mcp_method_signatures():
     """工具与参数由 MCP 自省；技能文档只保留领域能力与判断口径。"""
     forbidden = (
-        "compute_factors",
+        "natal_compute_factors",
         "naming_check",
-        "period_query",
+        "natal_period_query",
         "bazi_yongshen",
         "bazi_chart",
     )
@@ -224,9 +224,8 @@ def test_root_mcp_declares_manual_install_surface():
     """Embedded and manual clients get the two aggregate MCP surfaces.
 
     Expert packs do not ship their own MCP manifest: they depend on the two
-    published WorkBuddy connectors (plugin.json.dependencies.connectors). The
-    sub-domain endpoints (/engine/mcp/{domain}, /counsel/mcp/{domain}) stay a
-    self-hosted per-domain deployment knob, not a submission artifact.
+    published WorkBuddy connectors (plugin.json.dependencies.connectors).
+    Domain-specific MCP endpoints are intentionally absent from every artifact.
     """
     mcp = json.loads((SKILL_ROOT / ".mcp.json").read_text(encoding="utf-8"))
     assert mcp["mcpServers"] == {

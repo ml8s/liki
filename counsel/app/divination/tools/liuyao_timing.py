@@ -1,4 +1,4 @@
-"""六爻应期候选排序；策略来自 JSON 表，只整理 engine 事实。"""
+"""六爻应期计划投影；策略来自 JSON 表，只整理 engine 事实。"""
 
 import json
 from functools import lru_cache
@@ -49,24 +49,24 @@ def _topic_bonus(mechanism: str, candidate_id: str, topic: str | None) -> int:
     ) else 0
 
 
-def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: int = 6) -> dict:
-    """按表驱动 policy 整理应期候选；数组顺序表达上下文排序。"""
+def project_timing_plan(snapshot: dict, *, topic: str | None = None, limit: int = 6) -> dict:
+    """按表驱动 policy 投影应期计划；数组顺序表达上下文排序。"""
     rules = _rules()
-    candidates = snapshot.get("timing_candidates", [])
-    if not isinstance(candidates, list):
+    source_candidates = snapshot.get("timing_candidates", [])
+    if not isinstance(source_candidates, list):
         raise ValueError("snapshot.timing_candidates must be an array")
     if limit < 1 or limit > 20:
         raise ValueError("limit must be 1-20")
 
-    ranked = []
-    for candidate in candidates:
+    candidates = []
+    for candidate in source_candidates:
         if not isinstance(candidate, dict) or not candidate.get("id"):
             continue
         mechanism = candidate.get("mechanism", "")
         order_score = rules["mechanism_order"].get(mechanism, rules["default_order"])
         order_score += rules["target_bonus"] if _targets_hit(candidate) else 0
         order_score += _topic_bonus(mechanism, str(candidate.get("id", "")), topic)
-        ranked.append({
+        candidates.append({
             **candidate,
             "horizon": rules["topic_horizon"].get(topic or "", rules["default_horizon"]),
             "conclusion_scope": "conditional_timing_candidate_not_date",
@@ -74,15 +74,14 @@ def rank_timing_candidates(snapshot: dict, *, topic: str | None = None, limit: i
             "_order_score": order_score,
         })
 
-    ranked.sort(key=lambda item: (-item["_order_score"], str(item["id"])))
-    ranked = ranked[:limit]
-    for item in ranked:
+    candidates.sort(key=lambda item: (-item["_order_score"], str(item["id"])))
+    candidates = candidates[:limit]
+    for item in candidates:
         item.pop("_order_score", None)
 
     return {
-        "blocked": False,
         "topic": topic,
-        "candidates": ranked,
+        "candidates": candidates,
         "boundary": rules["boundary"],
         "policy": {
             "may_output": ["time_window", "condition", "watchpoint"],

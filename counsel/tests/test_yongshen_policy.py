@@ -8,7 +8,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parents[1] / "app" / "natal" / "tools"
 
-from app.natal.tools.counsel import _chart_digest, _factors_digest, period_query  # noqa: E402
+from app.natal.tools.counsel import _chart_digest, _factors_digest, natal_period_query  # noqa: E402
 from app.natal.tools.factor_semantics import PredicateState  # noqa: E402
 from app.natal.tools.factors import evaluate_factors  # noqa: E402
 from app.natal.tools.operators_liunian import _flow_element_in_selected  # noqa: E402
@@ -69,7 +69,6 @@ def test_neutral_chart_uses_tiaohou_merged_neutral_fallback():
         "yong": "火",
         "xi": ["木"],
         "ji": ["水", "土"],
-        "source": "neutral_fallback+tiao_hou",
     }
     assert result["alternatives"]["neutral"]["overstrong"]["value"] == "木"
     assert result["ge_ju_context"]["clear"] is True
@@ -307,7 +306,7 @@ def test_verified_congge_selects_fuyi_cong_candidate():
     assert result["status"] == "resolved"
     assert result["rule_id"] == "YS-CG-VERIFIED"
     assert result["selected"]["yong"] == "金"
-    assert result["selected"]["source"] == "cong_ge"
+    assert "source" not in result["selected"]
 
 
 def test_fake_congge_requires_review():
@@ -378,7 +377,7 @@ def test_yongshen_digest_binds_published_decision_to_source_chart():
     assert first["yongshen_digest"] != second["yongshen_digest"]
 
 
-def test_period_query_requires_precomputed_selected_yongshen():
+def test_natal_period_query_requires_precomputed_selected_yongshen():
     chart = {"ri": {"gan": "甲", "zhi": "子"}, "gender": "male"}
     context = {"性别": "male"}
     factors = {
@@ -389,7 +388,7 @@ def test_period_query_requires_precomputed_selected_yongshen():
         }
     }
     with pytest.raises(ValueError, match="selected_yongshen"):
-        period_query(
+        natal_period_query(
             factors,
             _factors_digest(factors),
             {"type": "year", "year": 2026, "timezone": "Asia/Shanghai"},

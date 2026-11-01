@@ -44,8 +44,6 @@ def http_route(path: str) -> str:
     known = {"/healthz", "/readyz", "/metrics", "/mcp"}
     if path in known:
         return path
-    if path.startswith("/mcp/"):
-        return "/mcp/{domain}"
     return "unmatched"
 
 
