@@ -20,9 +20,9 @@ func civilDateForLunar(t *testing.T, year, month, day int, leap bool) string {
 	return tianwen.CivilDateOf(solar).String()
 }
 
-func seriesChart(t *testing.T, reg *Registry) map[string]any {
+func seriesChart(t *testing.T) map[string]any {
 	t.Helper()
-	return testBaziChart(t, reg, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	return testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 }
 
 func decodeSeriesItems(t *testing.T, raw json.RawMessage) []map[string]any {
@@ -62,10 +62,10 @@ func callSeries(t *testing.T, reg *Registry, tool string, args map[string]any) j
 
 func TestSeriesSingleIsDefault(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t, reg)
+	chart := seriesChart(t)
 	for _, count := range []int{1} {
 		raw := callSeries(t, reg, "bazi_liunian", map[string]any{
-			"standard_time": "2026-06-15T12:00:00+08:00", "count": count, "chart": chart,
+			"start_time": "2026-06-15T12:00:00+08:00", "count": count, "subject": chart,
 		})
 		items := decodeSeriesItems(t, raw)
 		if len(items) != 1 {
@@ -79,9 +79,9 @@ func TestSeriesSingleIsDefault(t *testing.T) {
 
 func TestSeriesBatchN(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t, reg)
+	chart := seriesChart(t)
 	raw := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"standard_time": "2026-06-15T12:00:00+08:00", "count": 3, "chart": chart,
+		"start_time": "2026-06-15T12:00:00+08:00", "count": 3, "subject": chart,
 	})
 	items := decodeSeriesItems(t, raw)
 	if len(items) != 3 {
@@ -97,12 +97,12 @@ func TestSeriesBatchN(t *testing.T) {
 
 func TestSeriesBatchFirstEqualsSingle(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t, reg)
+	chart := seriesChart(t)
 	single := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"standard_time": "2026-06-15T12:00:00+08:00", "count": 1, "chart": chart,
+		"start_time": "2026-06-15T12:00:00+08:00", "count": 1, "subject": chart,
 	})
 	batch := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"standard_time": "2026-06-15T12:00:00+08:00", "count": 3, "chart": chart,
+		"start_time": "2026-06-15T12:00:00+08:00", "count": 3, "subject": chart,
 	})
 	var s struct {
 		Items []BaziLiuNianOutput `json:"items"`
@@ -123,10 +123,10 @@ func TestSeriesBatchFirstEqualsSingle(t *testing.T) {
 
 func TestSeriesCountBounds(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t, reg)
+	chart := seriesChart(t)
 	for _, count := range []int{-1, MaxSeriesCount + 1} {
 		if _, err := reg.Call(context.Background(), "bazi_liunian", mustJSON(t, map[string]any{
-			"standard_time": "2026-06-15T12:00:00+08:00", "count": count, "chart": chart,
+			"start_time": "2026-06-15T12:00:00+08:00", "count": count, "subject": chart,
 		})); err == nil {
 			t.Errorf("count=%d should error", count)
 		}
@@ -177,9 +177,9 @@ func TestSeriesCountSchemaMatchesRuntimeBound(t *testing.T) {
 
 func TestSeriesMonthRollover(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t, reg)
+	chart := seriesChart(t)
 	raw := callSeries(t, reg, "bazi_liuyue", map[string]any{
-		"standard_time": "2026-11-15T12:00:00+08:00", "count": 3, "chart": chart,
+		"start_time": "2026-11-15T12:00:00+08:00", "count": 3, "subject": chart,
 	})
 	items := decodeSeriesItems(t, raw)
 	prevEnd := ""
@@ -202,10 +202,10 @@ func TestSeriesMonthRollover(t *testing.T) {
 
 func TestSeriesHourRollover(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t, reg)
+	chart := seriesChart(t)
 	raw := callSeries(t, reg, "bazi_liushi", map[string]any{
-		"standard_time": "2026-01-01T23:00:00+08:00",
-		"longitude":     116.4, "count": 2, "chart": chart,
+		"start_time": "2026-01-01T23:00:00+08:00",
+		"longitude":  116.4, "count": 2, "subject": chart,
 	})
 	items := decodeSeriesItems(t, raw)
 	if len(items) != 2 {
@@ -228,13 +228,13 @@ func TestSeriesHourRollover(t *testing.T) {
 
 func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	reg := NewEngine()
-	baziChart := seriesChart(t, reg)
+	baziChart := seriesChart(t)
 
 	days := decodeSeriesItems(t, callSeries(t, reg, "bazi_liuri", map[string]any{
-		"standard_time": "2024-01-01T22:52:00Z",
-		"longitude":     18,
-		"count":         2,
-		"chart":         baziChart,
+		"start_time": "2024-01-01T22:52:00Z",
+		"longitude":  18,
+		"count":      2,
+		"subject":    baziChart,
 	}))
 	if len(days) != 2 {
 		t.Fatalf("bazi_liuri returned %d items, want 2", len(days))
@@ -249,10 +249,10 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	}
 
 	hours := decodeSeriesItems(t, callSeries(t, reg, "bazi_liushi", map[string]any{
-		"standard_time": "2024-01-02T20:28:00Z",
-		"longitude":     -171,
-		"count":         2,
-		"chart":         baziChart,
+		"start_time": "2024-01-02T20:28:00Z",
+		"longitude":  -171,
+		"count":      2,
+		"subject":    baziChart,
 	}))
 	if len(hours) != 2 {
 		t.Fatalf("bazi_liushi returned %d items, want 2", len(hours))
@@ -266,16 +266,16 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 		t.Fatalf("bazi_liushi shichen = %s -> %s, want 巳 -> 午", firstShichen, secondShichen)
 	}
 
-	ziweiChart := callSeries(t, reg, "ziwei_chart", map[string]any{
-		"standard_time": "2024-01-02T20:28:00Z",
-		"longitude":     -171,
-		"gender":        "male",
-	})
+	ziweiChart := map[string]any{
+		"birth_time":      "2024-01-02T20:28:00Z",
+		"birth_longitude": -171,
+		"gender":          "male",
+	}
 	ziweiHours := decodeSeriesItems(t, callSeries(t, reg, "ziwei_liushi", map[string]any{
-		"standard_time": "2024-01-02T20:28:00Z",
-		"longitude":     -171,
-		"count":         2,
-		"chart":         ziweiChart,
+		"start_time": "2024-01-02T20:28:00Z",
+		"longitude":  -171,
+		"count":      2,
+		"subject":    ziweiChart,
 	}))
 	if len(ziweiHours) != 2 {
 		t.Fatalf("ziwei_liushi returned %d items, want 2", len(ziweiHours))
@@ -289,9 +289,9 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 
 func TestSeriesXiaoYunDefaultOne(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t, reg)
+	chart := seriesChart(t)
 	raw := callSeries(t, reg, "bazi_xiaoyun", map[string]any{
-		"chart": chart,
+		"subject": chart,
 	})
 	var out BaziXiaoYunOutput
 	decode(t, raw, &out)
@@ -304,11 +304,12 @@ func TestSeriesXiaoYunDefaultOne(t *testing.T) {
 
 func TestSeriesBatchOutputContractForEveryCountTool(t *testing.T) {
 	reg := NewEngine()
-	baziChart := seriesChart(t, reg)
-	ziweiChart := callSeries(t, reg, "ziwei_chart", map[string]any{
-		"standard_time": "1984-02-16T12:00:00+08:00",
-		"longitude":     116.4, "gender": "male",
-	})
+	baziChart := seriesChart(t)
+	ziweiChart := map[string]any{
+		"birth_time":      "1984-02-16T12:00:00+08:00",
+		"birth_longitude": 116.4,
+		"gender":          "male",
+	}
 	xuankongChart := callSeries(t, reg, "xuankong_chart", map[string]any{
 		"standard_time": "2026-07-31T12:00:00+08:00",
 		"zuo_shan":      2, "xiang_shan": 14,
@@ -320,14 +321,14 @@ func TestSeriesBatchOutputContractForEveryCountTool(t *testing.T) {
 		tool string
 		args map[string]any
 	}{
-		{"bazi_liunian", map[string]any{"chart": baziChart, "standard_time": "2026-06-15T12:00:00+08:00", "count": 2}},
-		{"bazi_liuyue", map[string]any{"chart": baziChart, "standard_time": "2026-11-15T12:00:00+08:00", "count": 2}},
-		{"bazi_liuri", map[string]any{"chart": baziChart, "standard_time": "2026-01-01T12:00:00+08:00", "longitude": 116.4, "count": 2}},
-		{"bazi_liushi", map[string]any{"chart": baziChart, "standard_time": "2026-01-01T23:00:00+08:00", "longitude": 116.4, "count": 2}},
-		{"ziwei_liunian", map[string]any{"chart": ziweiChart, "standard_time": "2026-06-15T12:00:00+08:00", "count": 2}},
-		{"ziwei_liuyue", map[string]any{"chart": ziweiChart, "standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "count": 2}},
-		{"ziwei_liuri", map[string]any{"chart": ziweiChart, "standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "count": 2}},
-		{"ziwei_liushi", map[string]any{"chart": ziweiChart, "standard_time": ziweiCivilTime, "longitude": 116.4, "count": 2}},
+		{"bazi_liunian", map[string]any{"subject": baziChart, "start_time": "2026-06-15T12:00:00+08:00", "count": 2}},
+		{"bazi_liuyue", map[string]any{"subject": baziChart, "start_time": "2026-11-15T12:00:00+08:00", "count": 2}},
+		{"bazi_liuri", map[string]any{"subject": baziChart, "start_time": "2026-01-01T12:00:00+08:00", "longitude": 116.4, "count": 2}},
+		{"bazi_liushi", map[string]any{"subject": baziChart, "start_time": "2026-01-01T23:00:00+08:00", "longitude": 116.4, "count": 2}},
+		{"ziwei_liunian", map[string]any{"subject": ziweiChart, "start_time": "2026-06-15T12:00:00+08:00", "count": 2}},
+		{"ziwei_liuyue", map[string]any{"subject": ziweiChart, "start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "count": 2}},
+		{"ziwei_liuri", map[string]any{"subject": ziweiChart, "start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "count": 2}},
+		{"ziwei_liushi", map[string]any{"subject": ziweiChart, "start_time": ziweiCivilTime, "longitude": 116.4, "count": 2}},
 		{"xuankong_liunian", map[string]any{"chart": xuankongChart, "standard_time": "2026-06-15T12:00:00+08:00", "count": 2}},
 	}
 

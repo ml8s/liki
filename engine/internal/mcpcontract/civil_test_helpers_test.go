@@ -24,10 +24,11 @@ func civilResolveInput(t *testing.T, instant, timezone string, longitude float64
 		Time:      civil.Format("15:04:05"),
 		Timezone:  timezone,
 		Longitude: longitude,
+		Gender:    "male",
 	}
 }
 
-func standardInputFromInstant(t *testing.T, instant, timezone string) StandardTime {
+func standardInputFromInstant(t testing.TB, instant, timezone string) StandardTime {
 	t.Helper()
 	at, err := parseInstant(instant)
 	if err != nil {
@@ -38,4 +39,9 @@ func standardInputFromInstant(t *testing.T, instant, timezone string) StandardTi
 		t.Fatal(err)
 	}
 	return StandardTime(tianwen.StandardLocalTime(at, loc).Format(time.RFC3339Nano))
+}
+
+func testNatalSubject(t testing.TB, birthTime StandardTime, gender string) NatalSubject {
+	t.Helper()
+	return NatalSubject{BirthTime: birthTime, BirthLongitude: 116.4, Gender: GenderName(gender)}
 }

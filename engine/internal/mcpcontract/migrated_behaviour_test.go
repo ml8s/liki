@@ -17,10 +17,12 @@ import (
 // before any engine work runs.
 func TestMigratedInputValidation(t *testing.T) {
 	registry := testEngine()
-	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
-	ziweiChart := callToolDocument(t, registry, "ziwei_chart", map[string]any{
-		"standard_time": "2000-09-20T08:00:00+08:00", "longitude": 116.4, "gender": "male",
-	})
+	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	ziweiChart := map[string]any{
+		"birth_time":      "2000-09-20T08:00:00+08:00",
+		"birth_longitude": 116.4,
+		"gender":          "male",
+	}
 
 	cases := []struct {
 		name   string
@@ -33,14 +35,14 @@ func TestMigratedInputValidation(t *testing.T) {
 		{"ziwei.chart bad gender", "ziwei_chart", map[string]any{
 			"standard_time": "2000-09-20T08:00:00+08:00", "longitude": 116.4, "gender": "bad"}, ""},
 		{"ziwei.daxian missing chart", "ziwei_daxian", map[string]any{}, ""},
-		{"bazi.bond missing b", "bazi_bond", map[string]any{"a": map[string]any{"chart": chart}}, ""},
+		{"bazi.bond missing b", "bazi_bond", map[string]any{"a": map[string]any{"subject": chart}}, ""},
 		{"bazi.liunian missing chart", "bazi_liunian", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00"}, ""},
-		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"standard_time": "0000-01-01T08:00:00", "chart": chart}, ""},
+		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"standard_time": "0000-01-01T08:00:00", "subject": chart}, ""},
 		{"bazi.liuyue missing chart", "bazi_liuyue", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00"}, ""},
 		{"bazi.liushi invalid standard_time", "bazi_liushi", map[string]any{
-			"standard_time": "not-a-time", "longitude": 116.4, "chart": chart}, ""},
+			"standard_time": "not-a-time", "longitude": 116.4, "subject": chart}, ""},
 		{"bazi.liushi invalid longitude", "bazi_liushi", map[string]any{
-			"standard_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "chart": chart}, ""},
+			"standard_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "subject": chart}, ""},
 		{"qimen.chart bad scope", "qimen_chart", map[string]any{
 			"standard_time": "1984-02-15T08:00:00+08:00", "longitude": 116.4,
 			"method": map[string]any{"scope": "ke", "school": "zhuanpan", "dingju_method": "chaibu"},
@@ -59,8 +61,8 @@ func TestMigratedInputValidation(t *testing.T) {
 				"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
 			},
 		}, ""},
-		{"ziwei.liuri missing standard_time", "ziwei_liuri", map[string]any{"chart": ziweiChart}, ""},
-		{"ziwei.bond missing b", "ziwei_bond", map[string]any{"a": map[string]any{"chart": ziweiChart}}, ""},
+		{"ziwei.liuri missing standard_time", "ziwei_liuri", map[string]any{"subject": ziweiChart}, ""},
+		{"ziwei.bond missing b", "ziwei_bond", map[string]any{"a": map[string]any{"subject": ziweiChart}}, ""},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -84,8 +86,8 @@ func TestMigratedInputValidation(t *testing.T) {
 // chart plus extras" assertion.
 func TestMigratedBaziFullChartExtras(t *testing.T) {
 	registry := testEngine()
-	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
-	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"chart": chart})
+	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"subject": chart})
 
 	for _, field := range []string{
 		"san_yuan", "gan_he", "zhi_liu_he", "ten_god_states", "element_states", "da_yun",
@@ -124,10 +126,10 @@ func TestMigratedBaziFullChartExtras(t *testing.T) {
 // flowing years.
 func TestMigratedBaziLiuNianShiShen(t *testing.T) {
 	registry := testEngine()
-	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 	for _, year := range []int{2024, 2025, 2026} {
 		document := callToolDocument(t, registry, "bazi_liunian", map[string]any{
-			"standard_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year), "chart": chart,
+			"start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year), "subject": chart,
 		})
 		item := firstSeriesItem(t, document)
 		if shiShen, _ := item["shi_shen"].(string); shiShen == "" {
@@ -140,15 +142,15 @@ func TestMigratedBaziLiuNianShiShen(t *testing.T) {
 // chart-dependent ziwei tools.
 func TestMigratedZiweiDependentTools(t *testing.T) {
 	registry := testEngine()
-	chart := callToolDocument(t, registry, "ziwei_chart", map[string]any{
-		"standard_time": "2000-09-20T08:00:00+08:00", "longitude": 116.4, "gender": "male",
-	})
-	chartB := callToolDocument(t, registry, "ziwei_chart", map[string]any{
-		"standard_time": "2000-07-16T12:00:00+08:00", "longitude": 116.4, "gender": "female",
-	})
+	chart := map[string]any{
+		"birth_time": "2000-09-20T08:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
+	}
+	chartB := map[string]any{
+		"birth_time": "2000-07-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "female",
+	}
 
 	// ziwei.daxian keeps its schools list under the object-rooted items.
-	daxianRaw, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"chart": chart}))
+	daxianRaw, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": chart}))
 	if err != nil {
 		t.Fatalf("ziwei.daxian: %v", err)
 	}
@@ -159,34 +161,34 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 	if len(daxian.Items) == 0 {
 		t.Fatal("ziwei.daxian returned an empty list")
 	}
-	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00", "chart": chart})
+	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"start_time": "2026-06-15T12:00:00+08:00", "subject": chart})
 	if len(liunian) == 0 {
 		t.Fatal("ziwei.liunian returned an empty document")
 	}
 	liuyue := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
-		"standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "chart": chart,
+		"start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuyue) == 0 {
 		t.Fatal("ziwei.liuyue returned an empty document")
 	}
 	liuri := callToolDocument(t, registry, "ziwei_liuri", map[string]any{
-		"standard_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "chart": chart,
+		"start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuri) == 0 {
 		t.Fatal("ziwei.liuri returned an empty document")
 	}
 	liushi := callToolDocument(t, registry, "ziwei_liushi", map[string]any{
-		"standard_time": "2026-06-24T11:00:00+08:00",
-		"longitude":     116.4, "chart": chart,
+		"start_time": "2026-06-24T11:00:00+08:00",
+		"longitude":  116.4, "subject": chart,
 	})
 	if len(liushi) == 0 {
 		t.Fatal("ziwei.liushi returned an empty document")
 	}
-	bond := callToolDocument(t, registry, "ziwei_bond", map[string]any{"a": map[string]any{"chart": chart}, "b": map[string]any{"chart": chartB}})
+	bond := callToolDocument(t, registry, "ziwei_bond", map[string]any{"a": map[string]any{"subject": chart}, "b": map[string]any{"subject": chartB}})
 	if len(bond) == 0 {
 		t.Fatal("ziwei.bond returned an empty document")
 	}
-	full := callToolDocument(t, registry, "ziwei_fullchart", map[string]any{"chart": chart})
+	full := callToolDocument(t, registry, "ziwei_fullchart", map[string]any{"subject": chart})
 	if len(full) == 0 {
 		t.Fatal("ziwei.fullchart returned an empty document")
 	}
@@ -196,26 +198,26 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 // remaining bazi tools.
 func TestMigratedBaziBondAndXiaoYunValid(t *testing.T) {
 	registry := testEngine()
-	chartA := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
-	chartB := testBaziChart(t, registry, canonicalInstantB, "Asia/Shanghai", 116.4, "female")
+	chartA := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	chartB := testBaziChart(t, canonicalInstantB, "Asia/Shanghai", 116.4, "female")
 
 	bond := callToolDocument(t, registry, "bazi_bond", map[string]any{
-		"a": map[string]any{"chart": chartA}, "b": map[string]any{"chart": chartB},
+		"a": map[string]any{"subject": chartA}, "b": map[string]any{"subject": chartB},
 	})
 	if len(bond) == 0 {
 		t.Fatal("bazi.bond returned an empty document")
 	}
-	liuyue := callToolDocument(t, registry, "bazi_liuyue", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00", "chart": chartA})
+	liuyue := callToolDocument(t, registry, "bazi_liuyue", map[string]any{"start_time": "2026-06-15T12:00:00+08:00", "subject": chartA})
 	if len(liuyue) == 0 {
 		t.Fatal("bazi.liuyue returned an empty document")
 	}
-	liuri := callToolDocument(t, registry, "bazi_liuri", map[string]any{"standard_time": "2026-06-15T12:00:00+08:00", "longitude": 116.4, "chart": chartA})
+	liuri := callToolDocument(t, registry, "bazi_liuri", map[string]any{"start_time": "2026-06-15T12:00:00+08:00", "longitude": 116.4, "subject": chartA})
 	if len(liuri) == 0 {
 		t.Fatal("bazi.liuri returned an empty document")
 	}
 	liushi := callToolDocument(t, registry, "bazi_liushi", map[string]any{
-		"standard_time": "2026-06-15T12:00:00+08:00",
-		"longitude":     116.4, "chart": chartA,
+		"start_time": "2026-06-15T12:00:00+08:00",
+		"longitude":  116.4, "subject": chartA,
 	})
 	if len(liushi) == 0 {
 		t.Fatal("bazi.liushi returned an empty document")
@@ -374,11 +376,11 @@ func TestMigratedQimenBoundaryDates(t *testing.T) {
 // TestMigratedQimenConsumesTianwenGregorian keeps the cross-tool contract that
 // qimen.chart accepts the Gregorian candidate produced by tianwen.resolve.
 func TestMigratedQimenConsumesTianwenGregorian(t *testing.T) {
-	resolved, err := TianwenResolve(context.Background(), civilResolveInput(t, "2026-03-02T10:30:00Z", "Asia/Shanghai", 116.4))
+	resolved, err := TianwenResolveStandard(context.Background(), civilResolveInput(t, "2026-03-02T10:30:00Z", "Asia/Shanghai", 116.4))
 	if err != nil {
 		t.Fatalf("tianwen.resolve: %v", err)
 	}
-	if len(resolved.Candidates) == 0 || resolved.Candidates[0].StandardTime == "" {
+	if len(resolved.Candidates) == 0 || resolved.Candidates[0].Subject.BirthTime == "" {
 		t.Fatalf("tianwen.resolve candidates = %+v", resolved.Candidates)
 	}
 	registry := testEngine()

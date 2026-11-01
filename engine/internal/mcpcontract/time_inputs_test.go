@@ -5,16 +5,60 @@ import (
 	"testing"
 )
 
-// TestTimeInputsCanonical freezes the contract: time-bearing domain tools take
-// standard_time (plus longitude where LAST is required). Calendar dates
-// are projections, not inputs.
+// TestTimeInputsCanonical freezes the contract: natal methods take a resolved
+// subject; other time-bearing tools take standard_time (plus longitude where
+// LAST is required). Calendar dates are projections, not inputs.
 func TestTimeInputsCanonical(t *testing.T) {
 	registry := testEngine()
-	tools := []string{
-		"bazi_chart", "ziwei_chart", "liuyao_chart", "qimen_chart",
+	natal := []string{
+		"bazi_chart", "ziwei_chart",
 		"bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi",
 		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi",
-		"huangli_days", "bazhai_chart", "xuankong_chart", "xuankong_liunian",
+	}
+	tools := []string{
+		"liuyao_chart", "qimen_chart", "huangli_days", "bazhai_chart",
+		"xuankong_chart", "xuankong_liunian",
+	}
+	for _, name := range natal {
+		t.Run(name, func(t *testing.T) {
+			def, err := registry.Definition(name)
+			if err != nil {
+				t.Fatalf("definition: %v", err)
+			}
+			if len(def.InputSchema) == 0 {
+				t.Fatal("missing input schema")
+			}
+			var subjectSchema struct {
+				Required   []string                   `json:"required"`
+				Properties map[string]json.RawMessage `json:"properties"`
+			}
+			if err := json.Unmarshal(def.InputSchema, &subjectSchema); err != nil {
+				t.Fatalf("decode schema: %v", err)
+			}
+			if _, ok := subjectSchema.Properties["subject"]; !ok {
+				t.Fatalf("missing subject")
+			}
+			if !containsString(subjectSchema.Required, "subject") {
+				t.Fatalf("subject must be required")
+			}
+			var subject struct {
+				Required   []string `json:"required"`
+				Properties map[string]struct {
+					Type string `json:"type"`
+				} `json:"properties"`
+			}
+			if err := json.Unmarshal(subjectSchema.Properties["subject"], &subject); err != nil {
+				t.Fatal(err)
+			}
+			for _, field := range []string{"birth_time", "birth_longitude", "gender"} {
+				if _, ok := subject.Properties[field]; !ok {
+					t.Fatalf("subject missing %s", field)
+				}
+				if !containsString(subject.Required, field) {
+					t.Fatalf("subject.%s must be required", field)
+				}
+			}
+		})
 	}
 	for _, name := range tools {
 		t.Run(name, func(t *testing.T) {

@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"sort"
 )
 
@@ -157,25 +156,4 @@ func sourceChartDigest(chart any) (string, error) {
 		return "", fmt.Errorf("chart_digest mismatch: got %s, want %s", provided, expected)
 	}
 	return provided, nil
-}
-
-// validateInputChart verifies that an input carrying a reusable Chart field
-// was issued by this engine. Optional charts may be absent.
-func validateInputChart(input any) error {
-	value := reflect.ValueOf(input)
-	if value.Kind() == reflect.Pointer {
-		value = value.Elem()
-	}
-	if value.Kind() != reflect.Struct {
-		return fmt.Errorf("input is not a struct")
-	}
-	field := value.FieldByName("Chart")
-	if !field.IsValid() {
-		return fmt.Errorf("input has no chart")
-	}
-	if field.Kind() == reflect.Pointer && field.IsNil() {
-		return nil
-	}
-	_, err := sourceChartDigest(field.Interface())
-	return err
 }

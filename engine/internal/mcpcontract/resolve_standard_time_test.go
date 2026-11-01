@@ -5,31 +5,32 @@ import (
 	"testing"
 )
 
-func TestTianwenResolveDSTFoldAndGap(t *testing.T) {
-	fold, err := TianwenResolve(context.Background(), TianwenResolveInput{
+func TestTianwenResolveStandardRemovesDSTFold(t *testing.T) {
+	fold, err := TianwenResolveStandard(context.Background(), TianwenResolveInput{
 		Calendar: "solar", Date: "2024-11-03", Time: "01:30",
-		Timezone: "America/New_York", Longitude: -74,
+		Timezone: "America/New_York", Longitude: -74, Gender: "male",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(fold.Candidates) != 2 {
-		t.Fatalf("fold candidates = %d, want 2", len(fold.Candidates))
+	if len(fold.Candidates) != 1 {
+		t.Fatalf("standard candidates = %d, want 1", len(fold.Candidates))
 	}
-	seen := map[string]bool{}
-	for _, candidate := range fold.Candidates {
-		seen[candidate.StandardTime] = true
-	}
-	for _, want := range []string{"2024-11-03T00:30:00-05:00", "2024-11-03T01:30:00-05:00"} {
-		if !seen[want] {
-			t.Fatalf("missing fold candidate %s: %+v", want, fold.Candidates)
-		}
+	if got := string(fold.Candidates[0].Subject.BirthTime); got != "2024-11-03T01:30:00-05:00" {
+		t.Fatalf("standard birth_time = %s, want -05:00 standard time", got)
 	}
 
-	if _, err := TianwenResolve(context.Background(), TianwenResolveInput{
+	gap, err := TianwenResolveStandard(context.Background(), TianwenResolveInput{
 		Calendar: "solar", Date: "2024-03-10", Time: "02:30",
-		Timezone: "America/New_York", Longitude: -74,
-	}); err == nil {
-		t.Fatal("DST gap should fail")
+		Timezone: "America/New_York", Longitude: -74, Gender: "male",
+	})
+	if err != nil {
+		t.Fatalf("DST gap must normalize to standard time: %v", err)
+	}
+	if len(gap.Candidates) != 1 {
+		t.Fatalf("gap candidates = %d, want 1", len(gap.Candidates))
+	}
+	if got := string(gap.Candidates[0].Subject.BirthTime); got != "2024-03-10T02:30:00-05:00" {
+		t.Fatalf("gap birth_time = %s, want -05:00 standard time", got)
 	}
 }

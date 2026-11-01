@@ -47,12 +47,10 @@ type BaziDaYun struct {
 	Steps           []BaziDaYunStep `json:"steps" jsonschema:"大运步骤。"`
 }
 
-// BaziChartInput takes standard_time and longitude. The chart domain derives
+// BaziChartInput consumes a resolved natal subject. The chart domain derives
 // year/month from solar-term events and day/hour from LAST + 子时.
 type BaziChartInput struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"时区标准时间（无 DST），RFC3339 带 offset。"`
-	Longitude    float64      `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
-	Gender       GenderName   `json:"gender" jsonschema:"性别。"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type BaziChart struct {
@@ -68,101 +66,17 @@ type BaziChart struct {
 }
 
 func BaziChartCompute(_ context.Context, input BaziChartInput) (BaziChart, error) {
-	standard, _, err := parseStandardTime(input.StandardTime)
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
 	}
-	if input.Longitude < -180 || input.Longitude > 180 {
-		return BaziChart{}, fmt.Errorf("bazi.chart: longitude must be within [-180,180], got %v", input.Longitude)
-	}
-	wire := baziChartWire(bazi.ComputeChartAt(standard, input.Longitude, ganzhi.Gender(input.Gender)))
+	wire := baziChartWire(chart)
 	digest, err := chartDigest(wire)
 	if err != nil {
 		return BaziChart{}, fmt.Errorf("bazi.chart: %w", err)
 	}
 	wire.ChartDigest = ChartDigest(digest)
 	return wire, nil
-}
-
-func (chart BaziChart) domain() (bazi.Chart, error) {
-	if chart.BirthYear == 0 || chart.Gender == "" {
-		return bazi.Chart{}, fmt.Errorf("bazi chart is empty")
-	}
-	gender, err := ganzhi.ParseGender(string(chart.Gender))
-	if err != nil {
-		return bazi.Chart{}, fmt.Errorf("decode bazi chart: %w", err)
-	}
-	pillars, naYin, err := baziPillarsDomain(chart)
-	if err != nil {
-		return bazi.Chart{}, fmt.Errorf("decode bazi chart: %w", err)
-	}
-	daYun, err := baziDaYunDomain(chart.DaYun)
-	if err != nil {
-		return bazi.Chart{}, fmt.Errorf("decode bazi chart: %w", err)
-	}
-	return bazi.NewChartFromPillars(
-		pillars, naYin, daYun, gender, chart.BirthYear, chart.ZiShiRule,
-	), nil
-}
-
-func baziPillarsDomain(chart BaziChart) ([4]ganzhi.Zhu, [4]string, error) {
-	var pillars [4]ganzhi.Zhu
-	var naYin [4]string
-	for index, pillar := range [4]BaziPillar{chart.Nian, chart.Yue, chart.Ri, chart.Shi} {
-		gan, err := ganzhi.ParseGan(string(pillar.Gan))
-		if err != nil {
-			return pillars, naYin, err
-		}
-		zhi, err := ganzhi.ParseZhi(string(pillar.Zhi))
-		if err != nil {
-			return pillars, naYin, err
-		}
-		pillars[index] = ganzhi.Zhu{Gan: gan, Zhi: zhi}
-		naYin[index] = pillar.NaYin
-	}
-	return pillars, naYin, nil
-}
-
-func baziDaYunDomain(dayun *BaziDaYun) (*bazi.DaYun, error) {
-	if dayun == nil {
-		return nil, nil
-	}
-	out := &bazi.DaYun{
-		StartDate:       string(dayun.StartDate),
-		StartYearAfter:  dayun.StartYearAfter,
-		StartMonthAfter: dayun.StartMonthAfter,
-		StartDayAfter:   dayun.StartDayAfter,
-		Direction:       dayun.Direction,
-	}
-	out.Steps = make([]bazi.DaYunStep, len(dayun.Steps))
-	for index, step := range dayun.Steps {
-		gan, err := ganzhi.ParseGan(string(step.Gan))
-		if err != nil {
-			return nil, err
-		}
-		zhi, err := ganzhi.ParseZhi(string(step.Zhi))
-		if err != nil {
-			return nil, err
-		}
-		out.Steps[index] = bazi.DaYunStep{
-			Gan: gan, Zhi: zhi,
-			StartDate: string(step.StartDate), EndDate: string(step.EndDate),
-			StartYear: step.StartYear, EndYear: step.EndYear,
-			Name: step.Name, Element: string(step.Element), ShiShen: step.ShiShen,
-			Rooted: step.Rooted,
-		}
-		if len(step.RootRefs) > 0 {
-			refs := make([]bazi.DaYunRootRef, len(step.RootRefs))
-			for refIndex, ref := range step.RootRefs {
-				refs[refIndex] = bazi.DaYunRootRef{
-					Source: ref.Source, Pillar: ref.Pillar,
-					Stem: ref.Stem, Branch: ref.Branch,
-				}
-			}
-			out.Steps[index].RootRefs = refs
-		}
-	}
-	return out, nil
 }
 
 func baziPillarWire(gan ganzhi.Gan, zhi ganzhi.Zhi, naYin string) BaziPillar {
@@ -206,55 +120,11 @@ func baziDaYunWire(dayun bazi.DaYun) *BaziDaYun {
 
 // ── typed handlers for the remaining bazi tools ──
 
-// validateFullChartInput ports the legacy bazi.fullchart chart validation so the
-// typed tool keeps rejecting charts that the domain cannot expand.
-func validateFullChartInput(chart bazi.Chart) error {
-	pillars := []struct {
-		name  string
-		gan   ganzhi.Gan
-		zhi   ganzhi.Zhi
-		naYin string
-	}{
-		{"nian", chart.Nian.Gan, chart.Nian.Zhi, chart.Nian.NaYin},
-		{"yue", chart.Yue.Gan, chart.Yue.Zhi, chart.Yue.NaYin},
-		{"ri", chart.Ri.Gan, chart.Ri.Zhi, chart.Ri.NaYin},
-		{"shi", chart.Shi.Gan, chart.Shi.Zhi, chart.Shi.NaYin},
-	}
-	for _, pillar := range pillars {
-		if pillar.gan == 0 || pillar.zhi == 0 {
-			return fmt.Errorf("bazi.fullchart: chart.%s requires non-empty gan and zhi", pillar.name)
-		}
-		if int(pillar.gan)%2 != int(pillar.zhi)%2 {
-			return fmt.Errorf(
-				"bazi.fullchart: chart.%s has invalid sexagenary pair %s%s",
-				pillar.name, ganzhi.GanName(pillar.gan), ganzhi.ZhiName(pillar.zhi),
-			)
-		}
-		if pillar.naYin == "" {
-			return fmt.Errorf("bazi.fullchart: chart.%s.na_yin is required", pillar.name)
-		}
-		if expected := ganzhi.NayinLabel(pillar.gan, pillar.zhi); pillar.naYin != expected {
-			return fmt.Errorf(
-				"bazi.fullchart: chart.%s.na_yin is %q, want %q for %s%s",
-				pillar.name, pillar.naYin, expected,
-				ganzhi.GanName(pillar.gan), ganzhi.ZhiName(pillar.zhi),
-			)
-		}
-	}
-	if chart.Gender != ganzhi.Male && chart.Gender != ganzhi.Female {
-		return fmt.Errorf("bazi.fullchart: chart.gender must be male or female")
-	}
-	return nil
-}
-
 // BaziFullChart expands a bazi.chart wire chart into the full chart.
 func BaziFullChart(_ context.Context, input BaziFullChartInput) (json.RawMessage, error) {
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		return nil, fmt.Errorf("bazi.fullchart: %w", err)
-	}
-	if err := validateFullChartInput(chart); err != nil {
-		return nil, err
 	}
 	raw, err := marshalRawBaziFullChart(bazi.ComputeFullChart(chart))
 	if err != nil {
@@ -315,17 +185,11 @@ func marshalRawBaziFullChart(full bazi.FullChart) (json.RawMessage, error) {
 
 // BaziBond returns raw cross-chart facts for two bazi charts.
 func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
-	if _, err := sourceChartDigest(input.A.Chart); err != nil {
-		return nil, fmt.Errorf("bazi.bond: chart a: %w", err)
-	}
-	if _, err := sourceChartDigest(input.B.Chart); err != nil {
-		return nil, fmt.Errorf("bazi.bond: chart b: %w", err)
-	}
-	chartA, err := input.A.Chart.domain()
+	chartA, err := input.A.Subject.baziChart()
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart a: %w", err)
 	}
-	chartB, err := input.B.Chart.domain()
+	chartB, err := input.B.Subject.baziChart()
 	if err != nil {
 		return nil, fmt.Errorf("bazi.bond: chart b: %w", err)
 	}
@@ -351,14 +215,14 @@ func BaziLiuNian(_ context.Context, input BaziLiuNianInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("bazi.liunian: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.StartInstant.In(loc))
+			in.StartTime = standardTimeValue(next.StartInstant.In(loc))
 			return in, nil
 		},
 	)
 }
 
 func parseBaziLiuNianTime(input BaziLiuNianInput) (bazi.LiuNianTime, tianwen.CivilDate, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return bazi.LiuNianTime{}, tianwen.CivilDate{}, time.Time{}, nil, err
 	}
@@ -372,7 +236,7 @@ func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
@@ -413,14 +277,14 @@ func BaziLiuYue(_ context.Context, input BaziLiuYueInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("bazi.liuyue: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.StartInstant.In(loc))
+			in.StartTime = standardTimeValue(next.StartInstant.In(loc))
 			return in, nil
 		},
 	)
 }
 
 func parseBaziLiuYueTime(input BaziLiuYueInput) (bazi.LiuYueTime, tianwen.CivilDate, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return bazi.LiuYueTime{}, tianwen.CivilDate{}, time.Time{}, nil, err
 	}
@@ -434,7 +298,7 @@ func computeBaziLiuYue(input BaziLiuYueInput) (BaziLiuYueOutput, error) {
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
@@ -474,14 +338,14 @@ func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("bazi.liuri: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Standard.In(loc))
+			in.StartTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
 }
 
 func parseBaziLiuRiTime(input BaziLiuRiInput) (bazi.LiuRiTime, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return bazi.LiuRiTime{}, nil, err
 	}
@@ -490,7 +354,7 @@ func parseBaziLiuRiTime(input BaziLiuRiInput) (bazi.LiuRiTime, *time.Location, e
 }
 
 func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
@@ -533,14 +397,14 @@ func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("bazi.liushi: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Standard.In(loc))
+			in.StartTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
 }
 
 func parseBaziLiuShiTime(input BaziLiuShiInput) (bazi.LiuShiTime, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return bazi.LiuShiTime{}, nil, err
 	}
@@ -549,7 +413,7 @@ func parseBaziLiuShiTime(input BaziLiuShiInput) (bazi.LiuShiTime, *time.Location
 }
 
 func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
@@ -579,7 +443,7 @@ func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 // BaziXiaoYun returns the 小运 year list for a chart.
 func BaziXiaoYun(_ context.Context, input BaziXiaoYunInput) (BaziXiaoYunOutput, error) {
 	n := seriesCountValue(input.Count)
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
 	}

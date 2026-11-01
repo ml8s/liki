@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 	"liki-engine/internal/engine/ziwei"
 )
@@ -27,37 +26,10 @@ func ziweiLunarProjector(loc *time.Location) (tianwen.LunarProjector, error) {
 // domain decodes a ziwei.chart wire chart back into the domain chart. The wire
 // DTO is a faithful projection of the domain JSON shape, so the round trip is
 // lossless; the school/birth year checks keep the "empty chart" failure mode.
-func (chart ZiweiChartOutput) domain() (ziwei.Chart, error) {
-	raw, err := json.Marshal(chart)
-	if err != nil {
-		return ziwei.Chart{}, err
-	}
-	var out ziwei.Chart
-	if err := json.Unmarshal(raw, &out); err != nil {
-		return out, fmt.Errorf("decode ziwei chart: %w", err)
-	}
-	if out.School.LeapMonth == "" || out.School.Source == "" {
-		return out, fmt.Errorf("chart is empty (use ziwei.chart output)")
-	}
-	if out.BirthYear == 0 {
-		return out, fmt.Errorf("chart has no birth year (use ziwei.chart output)")
-	}
-	return out, nil
-}
 
 // ZiweiChart computes the twelve-palace chart from lunar birth data.
 func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessage, error) {
-	at, _, err := parseStandardTime(input.StandardTime)
-	if err != nil {
-		return nil, fmt.Errorf("ziwei.chart: %w", err)
-	}
-	if input.Longitude < -180 || input.Longitude > 180 {
-		return nil, fmt.Errorf("ziwei.chart: longitude must be within [-180,180], got %v", input.Longitude)
-	}
-	if _, err := ganzhi.ParseGender(string(input.Gender)); err != nil {
-		return nil, fmt.Errorf("ziwei.chart: gender must be male or female, got %q", input.Gender)
-	}
-	chart, err := ziwei.ComputeChartAt(at, input.Longitude, ganzhi.Gender(input.Gender))
+	chart, err := input.Subject.ziweiChart()
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.chart: %w", err)
 	}
@@ -79,7 +51,7 @@ func ZiweiChartCompute(_ context.Context, input ZiweiChartInput) (json.RawMessag
 
 // ZiweiFullChart expands a chart with 杂曜、长生、博士、小限、将前、岁前.
 func ZiweiFullChart(_ context.Context, input ZiweiFullChartInput) (json.RawMessage, error) {
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.ziweiChart()
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.fullchart: %w", err)
 	}
@@ -92,10 +64,7 @@ func ZiweiFullChart(_ context.Context, input ZiweiFullChartInput) (json.RawMessa
 
 // ZiweiDaXian returns the ten-year 大限 steps of a chart.
 func ZiweiDaXian(_ context.Context, input ZiweiDaXianInput) (ZiweiDaXianOutput, error) {
-	if _, err := sourceChartDigest(input.Chart); err != nil {
-		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
-	}
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.ziweiChart()
 	if err != nil {
 		return ZiweiDaXianOutput{}, fmt.Errorf("ziwei.daxian: %w", err)
 	}
@@ -110,7 +79,7 @@ func ZiweiDaXian(_ context.Context, input ZiweiDaXianInput) (ZiweiDaXianOutput, 
 func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (any, error) {
 	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuNianInput) (ziwei.Chart, error) {
-			return in.Chart.domain()
+			return in.Subject.ziweiChart()
 		},
 		func(in ZiweiLiuNianInput, chart ziwei.Chart) (ZiweiLiuNianOutput, error) {
 			resolved, date, at, _, _, err := parseZiweiLiuNianTime(in)
@@ -141,14 +110,14 @@ func ZiweiLiuNian(_ context.Context, input ZiweiLiuNianInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liunian: %w", err)
 			}
-			in.StandardTime = standardTimeValue(projector.SelectorInstant(next.Start))
+			in.StartTime = standardTimeValue(projector.SelectorInstant(next.Start))
 			return in, nil
 		},
 	)
 }
 
 func parseZiweiLiuNianTime(input ZiweiLiuNianInput) (ziwei.LiuNianTime, tianwen.CivilDate, time.Time, *time.Location, tianwen.LunarProjector, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return ziwei.LiuNianTime{}, tianwen.CivilDate{}, time.Time{}, nil, tianwen.LunarProjector{}, err
 	}
@@ -165,7 +134,7 @@ func parseZiweiLiuNianTime(input ZiweiLiuNianInput) (ziwei.LiuNianTime, tianwen.
 func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (any, error) {
 	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuYueInput) (ziwei.Chart, error) {
-			return in.Chart.domain()
+			return in.Subject.ziweiChart()
 		},
 		func(in ZiweiLiuYueInput, chart ziwei.Chart) (ZiweiLiuYueOutput, error) {
 			resolved, date, at, _, projector, err := parseZiweiLiuYueTime(in)
@@ -199,14 +168,14 @@ func ZiweiLiuYue(_ context.Context, input ZiweiLiuYueInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liuyue: %w", err)
 			}
-			in.StandardTime = standardTimeValue(projector.SelectorInstant(next.Date))
+			in.StartTime = standardTimeValue(projector.SelectorInstant(next.Date))
 			return in, nil
 		},
 	)
 }
 
 func parseZiweiLiuYueTime(input ZiweiLiuYueInput) (ziwei.LiuYueTime, tianwen.CivilDate, time.Time, *time.Location, tianwen.LunarProjector, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return ziwei.LiuYueTime{}, tianwen.CivilDate{}, time.Time{}, nil, tianwen.LunarProjector{}, err
 	}
@@ -223,7 +192,7 @@ func parseZiweiLiuYueTime(input ZiweiLiuYueInput) (ziwei.LiuYueTime, tianwen.Civ
 func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (any, error) {
 	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuRiInput) (ziwei.Chart, error) {
-			return in.Chart.domain()
+			return in.Subject.ziweiChart()
 		},
 		func(in ZiweiLiuRiInput, chart ziwei.Chart) (ZiweiLiuRiOutput, error) {
 			resolved, projector, _, loc, err := parseZiweiLiuRiTime(in)
@@ -256,14 +225,14 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liuri: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Standard.In(loc))
+			in.StartTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
 }
 
 func parseZiweiLiuRiTime(input ZiweiLiuRiInput) (ziwei.LiuRiTime, tianwen.LunarProjector, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return ziwei.LiuRiTime{}, tianwen.LunarProjector{}, time.Time{}, nil, err
 	}
@@ -279,7 +248,7 @@ func parseZiweiLiuRiTime(input ZiweiLiuRiInput) (ziwei.LiuRiTime, tianwen.LunarP
 func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (any, error) {
 	return runSeriesPrepared(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in ZiweiLiuShiInput) (ziwei.Chart, error) {
-			return in.Chart.domain()
+			return in.Subject.ziweiChart()
 		},
 		func(in ZiweiLiuShiInput, chart ziwei.Chart) (ZiweiLiuShiOutput, error) {
 			resolved, projector, _, loc, err := parseZiweiLiuShiTime(in)
@@ -311,14 +280,14 @@ func ZiweiLiuShi(_ context.Context, input ZiweiLiuShiInput) (any, error) {
 			if err != nil {
 				return in, fmt.Errorf("ziwei.liushi: %w", err)
 			}
-			in.StandardTime = standardTimeValue(next.Standard.In(loc))
+			in.StartTime = standardTimeValue(next.Standard.In(loc))
 			return in, nil
 		},
 	)
 }
 
 func parseZiweiLiuShiTime(input ZiweiLiuShiInput) (ziwei.LiuShiTime, tianwen.LunarProjector, time.Time, *time.Location, error) {
-	standard, loc, err := parseStandardTime(input.StandardTime)
+	standard, loc, err := parseStandardTime(input.StartTime)
 	if err != nil {
 		return ziwei.LiuShiTime{}, tianwen.LunarProjector{}, time.Time{}, nil, err
 	}
@@ -332,17 +301,11 @@ func parseZiweiLiuShiTime(input ZiweiLiuShiInput) (ziwei.LiuShiTime, tianwen.Lun
 
 // ZiweiBond returns raw cross-chart facts for two charts.
 func ZiweiBond(_ context.Context, input ZiweiBondInput) (json.RawMessage, error) {
-	if _, err := sourceChartDigest(input.A.Chart); err != nil {
-		return nil, fmt.Errorf("ziwei.bond: chart a: %w", err)
-	}
-	if _, err := sourceChartDigest(input.B.Chart); err != nil {
-		return nil, fmt.Errorf("ziwei.bond: chart b: %w", err)
-	}
-	chartA, err := input.A.Chart.domain()
+	chartA, err := input.A.Subject.ziweiChart()
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: chart a: %w", err)
 	}
-	chartB, err := input.B.Chart.domain()
+	chartB, err := input.B.Subject.ziweiChart()
 	if err != nil {
 		return nil, fmt.Errorf("ziwei.bond: chart b: %w", err)
 	}

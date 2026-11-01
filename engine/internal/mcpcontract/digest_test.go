@@ -28,9 +28,7 @@ func TestCanonicalDigestIsStableAndKeyOrderIndependent(t *testing.T) {
 
 func TestChartDigestExcludesItselfAndBindsChartContent(t *testing.T) {
 	registry := testEngine()
-	raw, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{
-		StandardTime: "1990-05-20T12:49:00+08:00", Longitude: 116.4, Gender: "male",
-	}))
+	raw, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{Subject: NatalSubject{BirthTime: "1990-05-20T12:49:00+08:00", BirthLongitude: 116.4, Gender: "male"}}))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,26 +136,22 @@ func TestDerivedOutputsDoNotCarrySourceDigest(t *testing.T) {
 	registry := testEngine()
 	makeChart := func(method string) map[string]any {
 		t.Helper()
-		raw, err := registry.Call(context.Background(), method, mustJSON(t, map[string]any{
-			"standard_time": "1990-05-20T12:49:00+08:00", "longitude": 116.4, "gender": "male",
-		}))
+		subject := map[string]any{
+			"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male",
+		}
+		_, err := registry.Call(context.Background(), method, mustJSON(t, map[string]any{"subject": subject}))
 		if err != nil {
 			t.Fatal(err)
 		}
-		var chart map[string]any
-		decode(t, raw, &chart)
-		if chart["chart_digest"] == "" {
-			t.Fatalf("%s has no chart_digest", method)
-		}
-		return chart
+		return subject
 	}
 
 	for method, downstream := range map[string]string{
 		"bazi_chart": "bazi_fullchart", "ziwei_chart": "ziwei_fullchart",
 	} {
 		t.Run(method, func(t *testing.T) {
-			chart := makeChart(method)
-			raw, err := registry.Call(context.Background(), downstream, mustJSON(t, map[string]any{"chart": chart}))
+			subject := makeChart(method)
+			raw, err := registry.Call(context.Background(), downstream, mustJSON(t, map[string]any{"subject": subject}))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -172,15 +166,7 @@ func TestDerivedOutputsDoNotCarrySourceDigest(t *testing.T) {
 
 func TestSeriesAcceptsReusableChartButOmitsSourceDigest(t *testing.T) {
 	registry := testEngine()
-	chartRaw, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{
-		StandardTime: "1990-05-20T12:49:00+08:00", Longitude: 116.4, Gender: "male",
-	}))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var chart map[string]any
-	decode(t, chartRaw, &chart)
-	input := map[string]any{"chart": chart, "standard_time": "2026-06-15T12:00:00+08:00"}
+	input := map[string]any{"subject": map[string]any{"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male"}, "start_time": "2026-06-15T12:00:00+08:00"}
 	raw, err := registry.Call(context.Background(), "bazi_liunian", mustJSON(t, input))
 	if err != nil {
 		t.Fatal(err)

@@ -374,10 +374,11 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 	// 1990-05-20 11:49 CST at 116.4E (the counsel baseline birth) has a 调候
 	// primary element but no 辅 element. Missing candidates use an explicit
 	// closure value; neither JSON null nor an empty-string sentinel is allowed.
-	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"standard_time": "1990-05-20T12:49:00+08:00", "longitude": 116.4, "gender": "male",
-	})
-	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"chart": chart})
+	subject := map[string]any{
+		"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male",
+	}
+	_ = callToolDocument(t, registry, "bazi_chart", map[string]any{"subject": subject})
+	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"subject": subject})
 	tiaoHou, _ := full["tiao_hou"].(map[string]any)
 	if tiaoHou == nil {
 		t.Fatalf("bazi.fullchart output has no tiao_hou: %#v", full)

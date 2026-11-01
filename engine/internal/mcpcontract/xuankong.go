@@ -144,6 +144,11 @@ func XuankongChartCompute(_ context.Context, input XuankongChartInput) (Xuankong
 }
 
 func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (any, error) {
+	if input.Chart != nil {
+		if _, err := sourceChartDigest(*input.Chart); err != nil {
+			return nil, fmt.Errorf("xuankong.liunian: %w", err)
+		}
+	}
 	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in XuankongLiunianInput) (XuankongLiunianOutput, error) {
 			return computeXuankongLiunian(in)

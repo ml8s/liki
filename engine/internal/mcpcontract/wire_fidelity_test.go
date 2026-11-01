@@ -115,11 +115,11 @@ func TestEngineContractWireFidelity(t *testing.T) {
 		if err := json.Unmarshal(raw, &fixture); err != nil {
 			t.Fatalf("%s: %v", file, err)
 		}
-		var inputMap map[string]any
-		if err := json.Unmarshal(fixture.Input, &inputMap); err != nil {
+		var oldInput map[string]any
+		if err := json.Unmarshal(fixture.Input, &oldInput); err != nil {
 			t.Fatalf("%s: decode input: %v", file, err)
 		}
-		injectReplayChartDigests(inputMap)
+		inputMap := subjectFixtureInput(file, method, oldInput)
 		fixture.Input, err = json.Marshal(inputMap)
 		if err != nil {
 			t.Fatal(err)
@@ -160,27 +160,73 @@ func TestEngineContractWireFidelity(t *testing.T) {
 	}
 }
 
-// injectReplayChartDigests adds canonical digests to legacy fixture charts so
-// they satisfy the newer reusable-chart input contracts.
-func injectReplayChartDigests(value any) {
-	switch item := value.(type) {
-	case map[string]any:
-		if chart, ok := item["chart"].(map[string]any); ok {
-			if _, exists := chart["chart_digest"]; !exists {
-				digest, err := chartDigest(chart)
-				if err != nil {
-					panic(fmt.Sprintf("inject chart digest: %v", err))
-				}
-				chart["chart_digest"] = digest
+// subjectFixture returns the natal subject associated with a captured family.
+func subjectFixture(file, method string) map[string]any {
+	domain, _, _ := strings.Cut(method, "_")
+	base := domain + "_chart.json"
+	switch {
+	case strings.Contains(file, "_female_") || strings.Contains(file, "_female."):
+		base = domain + "_chart_female.json"
+	case strings.Contains(file, "_1984_") || strings.Contains(file, "_1984."):
+		base = domain + "_chart_1984.json"
+	case strings.Contains(file, "_1990_") || strings.Contains(file, "_1990."):
+		base = domain + "_chart_1990.json"
+	}
+	raw, err := os.ReadFile(filepath.Join("testdata", "actual", base))
+	if err != nil {
+		panic(fmt.Sprintf("load subject fixture %s: %v", base, err))
+	}
+	var fixture struct {
+		Input struct {
+			StandardTime StandardTime `json:"standard_time"`
+			Longitude    float64      `json:"longitude"`
+			Gender       GenderName   `json:"gender"`
+		} `json:"input"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		panic(fmt.Sprintf("decode subject fixture %s: %v", base, err))
+	}
+	return map[string]any{
+		"birth_time":      fixture.Input.StandardTime,
+		"birth_longitude": fixture.Input.Longitude,
+		"gender":          fixture.Input.Gender,
+	}
+}
+
+// subjectFixtureInput migrates captured chart-transport fixtures to the
+// subject contract while preserving their captured output for comparison.
+func subjectFixtureInput(file, method string, old map[string]any) map[string]any {
+	if !strings.HasPrefix(method, "bazi_") && !strings.HasPrefix(method, "ziwei_") {
+		return old
+	}
+	subject := subjectFixture(file, method)
+	switch method {
+	case "bazi_chart", "ziwei_chart", "bazi_fullchart", "ziwei_fullchart", "ziwei_daxian", "bazi_xiaoyun":
+		target := map[string]any{"subject": subject}
+		if method == "bazi_xiaoyun" {
+			target["count"] = 5
+		}
+		return target
+	case "bazi_bond":
+		a := subjectFixture("bazi_chart.json", "bazi_chart")
+		b := subjectFixture("bazi_chart_female.json", "bazi_chart")
+		return map[string]any{"a": map[string]any{"subject": a}, "b": map[string]any{"subject": b}}
+	case "ziwei_bond":
+		a := subjectFixture("ziwei_chart.json", "ziwei_chart")
+		b := subjectFixture("ziwei_chart_female.json", "ziwei_chart")
+		return map[string]any{"a": map[string]any{"subject": a}, "b": map[string]any{"subject": b}}
+	default:
+		target := map[string]any{"subject": subject}
+		for _, key := range []string{"standard_time", "longitude", "count", "date"} {
+			if value, ok := old[key]; ok {
+				target[key] = value
 			}
 		}
-		for _, child := range item {
-			injectReplayChartDigests(child)
+		delete(target, "standard_time")
+		if value, ok := old["standard_time"]; ok {
+			target["start_time"] = value
 		}
-	case []any:
-		for _, child := range item {
-			injectReplayChartDigests(child)
-		}
+		return target
 	}
 }
 

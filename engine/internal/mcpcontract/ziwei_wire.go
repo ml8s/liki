@@ -9,12 +9,10 @@ package mcpcontract
 
 // ── ziwei.chart input ──
 
-// ZiweiChartInput takes standard_time and longitude. The chart domain derives
-// the local astronomical lunar date and LAST shichen.
+// ZiweiChartInput consumes a resolved natal subject. The chart domain derives
+// the local astronomical lunar date and LAST shichen from the subject.
 type ZiweiChartInput struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"出生地标准时间（无 DST），RFC3339 带 offset。"`
-	Longitude    float64      `json:"longitude" jsonschema:"出生地经度（-180..180）；真太阳时校正用于时辰。"`
-	Gender       GenderName   `json:"gender" jsonschema:"性别"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.chart output ──
@@ -99,7 +97,7 @@ type ZiweiChartSanFangItem struct {
 // ── ziwei.daxian input ──
 
 type ZiweiDaXianInput struct {
-	Chart ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.daxian output ──
@@ -120,9 +118,9 @@ type ZiweiDaXianItem struct {
 // ── ziwei.liunian input ──
 
 type ZiweiLiuNianInput struct {
-	StandardTime StandardTime     `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
-	Count        *SeriesCount     `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
-	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liunian output ──
@@ -157,9 +155,9 @@ type ZiweiLiuNianGongWeiItem struct {
 // ── ziwei.liuyue input ──
 
 type ZiweiLiuYueInput struct {
-	StandardTime StandardTime     `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
-	Count        *SeriesCount     `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
-	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liuyue output ──
@@ -228,9 +226,9 @@ type ZiweiFlowGongWeiItem struct {
 // ── ziwei.liuri input ──
 
 type ZiweiLiuRiInput struct {
-	StandardTime StandardTime     `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
-	Count        *SeriesCount     `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
-	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type ZiweiLiuRiResolved struct {
@@ -256,10 +254,10 @@ type ZiweiLiuRiOutput struct {
 // ── ziwei.liushi input ──
 
 type ZiweiLiuShiInput struct {
-	StandardTime StandardTime     `json:"standard_time" jsonschema:"占问地标准时间（无 DST），RFC3339 带 offset。"`
-	Longitude    float64          `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时辰。"`
-	Count        *SeriesCount     `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
-	Chart        ZiweiChartOutput `json:"chart" jsonschema:"ziwei.chart 返回的完整 chart 对象"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Longitude float64      `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于时辰。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liushi output ──
@@ -284,7 +282,7 @@ type ZiweiLiuShiOutput struct {
 // ── ziwei.bond input ──
 
 type ZiweiBondSide struct {
-	Chart ZiweiChartOutput `json:"chart" jsonschema:"紫微盘（ziwei.chart 返回的完整对象）"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type ZiweiBondInput struct {
@@ -320,7 +318,7 @@ type ZiweiBondZiNvGong struct {
 // ── ziwei.fullchart input ──
 
 type ZiweiFullChartInput struct {
-	Chart ZiweiChartOutput `json:"chart" jsonschema:"chart。"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.fullchart output ──

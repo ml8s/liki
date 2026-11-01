@@ -159,8 +159,10 @@ func mustJSONMarshal(t *testing.T, value any) []byte {
 func TestCallTool_BaziChart(t *testing.T) {
 	sess, _ := startMCPServer(t)
 	text, isErr := callToolStructured(t, sess, "bazi_chart", map[string]any{
-		"standard_time": "1984-02-04T06:00:00+08:00", "longitude": 116.4,
-		"gender": "male",
+		"subject": map[string]any{
+			"birth_time": "1984-02-04T06:00:00+08:00", "birth_longitude": 116.4,
+			"gender": "male",
+		},
 	})
 	if isErr {
 		t.Fatalf("bazi_chart returned IsError: %s", text)

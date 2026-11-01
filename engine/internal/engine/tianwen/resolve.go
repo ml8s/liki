@@ -78,8 +78,19 @@ const (
 )
 
 // Resolve normalizes a time fact into candidates. The input candidate is always
-// present; boundary-derived candidates carry their domain reasons.
+// present; boundary-derived candidates carry their domain reasons. DST folds
+// remain visible to generic time resolution.
 func Resolve(in ResolveInput) (ResolveResult, error) {
+	return resolveCandidates(in, false)
+}
+
+// ResolveStandard normalizes a time fact into natal-subject candidates. It
+// deliberately removes DST offsets and uses the zone's standard offset.
+func ResolveStandard(in ResolveInput) (ResolveResult, error) {
+	return resolveCandidates(in, true)
+}
+
+func resolveCandidates(in ResolveInput, standardOnly bool) (ResolveResult, error) {
 	form, err := resolveFormOf(in)
 	if err != nil {
 		return ResolveResult{}, err
@@ -101,9 +112,18 @@ func Resolve(in ResolveInput) (ResolveResult, error) {
 		return ResolveResult{}, err
 	}
 
-	offsets, err := resolveOffsets(in, form, year, month, day, zone)
-	if err != nil {
-		return ResolveResult{}, err
+	offsets := []int{}
+	if standardOnly {
+		standard, err := standardOffsetForDate(year, month, day, zone)
+		if err != nil {
+			return ResolveResult{}, err
+		}
+		offsets = append(offsets, standard)
+	} else {
+		offsets, err = resolveOffsets(in, form, year, month, day, zone)
+		if err != nil {
+			return ResolveResult{}, err
+		}
 	}
 	standard := offsets[0]
 
@@ -303,6 +323,40 @@ func CivilInstants(year int, month time.Month, day, hour, minute, second, nanose
 	}
 	sort.Slice(instants, func(i, j int) bool { return instants[i].Before(instants[j]) })
 	return instants, nil
+}
+
+// standardOffsetForDate finds the zone's non-DST offset around a civil date.
+// It intentionally probes nearby days because a requested wall clock may fall
+// inside a DST gap.
+func standardOffsetForDate(year int, month time.Month, day int, zone *time.Location) (int, error) {
+	probes := []time.Time{
+		time.Date(year, 1, 15, 12, 0, 0, 0, zone),
+		time.Date(year, 7, 15, 12, 0, 0, 0, zone),
+		time.Date(year, month, day, 12, 0, 0, 0, zone),
+	}
+	standard := 0
+	foundNonDST := false
+	for _, probe := range probes {
+		_, offset := probe.In(zone).Zone()
+		if !probe.In(zone).IsDST() {
+			return offset, nil
+		}
+		if !foundNonDST || absInt(offset) < absInt(standard) {
+			standard = offset
+			foundNonDST = true
+		}
+	}
+	if !foundNonDST {
+		return 0, fmt.Errorf("cannot determine standard offset in %s", zone.String())
+	}
+	return standard, nil
+}
+
+func absInt(value int) int {
+	if value < 0 {
+		return -value
+	}
+	return value
 }
 
 // resolveOffsets returns the UTC offsets for which the recorded wall clock

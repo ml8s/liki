@@ -223,11 +223,12 @@
         },
         "time": "12:00",
         "timezone": "America/New_York",
-        "longitude": -74.0
+        "longitude": -74.0,
+        "gender": "male"
       },
       "name": "tianwen_resolve_lunar_local_astronomical",
       "expect": {
-        "candidates.0.standard_time": "2024-02-09T12:00:00-05:00"
+        "candidates.0.subject.birth_time": "2024-02-09T12:00:00-05:00"
       }
     },
     {

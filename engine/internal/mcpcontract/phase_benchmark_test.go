@@ -34,14 +34,13 @@ func benchmarkDecodeInput[In any](b *testing.B, registry *Registry, name string,
 
 func benchmarkBaziFullChartPhases(b *testing.B) (json.RawMessage, BaziFullChartInput, bazi.Chart, bazi.FullChart, BaziFullChartOutput) {
 	b.Helper()
-	registry := testEngine()
-	chartRaw := benchmarkBaziChart(b, registry, "1990-05-20T03:49:00Z", "male")
-	arguments := mustBenchmarkJSON(b, map[string]any{"chart": chartRaw})
+	subject := testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")
+	arguments := mustBenchmarkJSON(b, map[string]any{"subject": subject})
 	var input BaziFullChartInput
 	if err := json.Unmarshal(arguments, &input); err != nil {
 		b.Fatal(err)
 	}
-	chart, err := input.Chart.domain()
+	chart, err := input.Subject.baziChart()
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -67,7 +66,7 @@ func BenchmarkMCPBaziFullChartPhaseTypedDecode(b *testing.B) {
 		if err := json.Unmarshal(arguments, &decoded); err != nil {
 			b.Fatal(err)
 		}
-		benchmarkPhaseInputValid = decoded.Chart.BirthYear != 0
+		benchmarkPhaseInputValid = decoded.Subject.BirthTime != ""
 	}
 }
 
@@ -76,7 +75,7 @@ func BenchmarkMCPBaziFullChartPhaseDomainDecode(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := input.Chart.domain(); err != nil {
+		if _, err := input.Subject.baziChart(); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -126,48 +125,38 @@ func BenchmarkMCPBaziFullChartPhaseOutputMarshal(b *testing.B) {
 
 func BenchmarkMCPBaziBondPhaseInputValidation(b *testing.B) {
 	registry := testEngine()
-	chartA := benchmarkBaziChart(b, registry, "1990-05-20T03:49:00Z", "male")
-	chartB := benchmarkBaziChart(b, registry, "1992-08-10T02:20:00Z", "female")
 	arguments := mustBenchmarkJSON(b, BaziBondInput{
-		A: BaziBondInputA{Chart: mustDecodeBenchmarkChart(b, chartA)},
-		B: BaziBondInputB{Chart: mustDecodeBenchmarkChart(b, chartB)},
+		A: BaziBondInputA{Subject: testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")},
+		B: BaziBondInputB{Subject: testNatalSubject(b, standardInputFromInstant(b, "1992-08-10T02:20:00Z", "Asia/Shanghai"), "female")},
 	})
 	benchmarkDecodeInput[BaziBondInput](b, registry, "bazi_bond", arguments)
 }
 
 func BenchmarkMCPBaziBondPhaseDomainDecode(b *testing.B) {
-	registry := testEngine()
-	chartA := mustDecodeBenchmarkChart(b, benchmarkBaziChart(
-		b, registry, "1990-05-20T03:49:00Z", "male",
-	))
-	chartB := mustDecodeBenchmarkChart(b, benchmarkBaziChart(
-		b, registry, "1992-08-10T02:20:00Z", "female",
-	))
+	a := testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")
+	bb := testNatalSubject(b, standardInputFromInstant(b, "1992-08-10T02:20:00Z", "Asia/Shanghai"), "female")
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := chartA.domain(); err != nil {
+		_, err := a.baziChart()
+		if err != nil {
 			b.Fatal(err)
 		}
-		if _, err := chartB.domain(); err != nil {
+		_, err = bb.baziChart()
+		if err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
 func BenchmarkMCPBaziBondPhaseCompute(b *testing.B) {
-	registry := testEngine()
-	chartA := mustDecodeBenchmarkChart(b, benchmarkBaziChart(
-		b, registry, "1990-05-20T03:49:00Z", "male",
-	))
-	chartB := mustDecodeBenchmarkChart(b, benchmarkBaziChart(
-		b, registry, "1992-08-10T02:20:00Z", "female",
-	))
-	domainA, err := chartA.domain()
+	a := testNatalSubject(b, standardInputFromInstant(b, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")
+	bb := testNatalSubject(b, standardInputFromInstant(b, "1992-08-10T02:20:00Z", "Asia/Shanghai"), "female")
+	domainA, err := a.baziChart()
 	if err != nil {
 		b.Fatal(err)
 	}
-	domainB, err := chartB.domain()
+	domainB, err := bb.baziChart()
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -176,39 +165,4 @@ func BenchmarkMCPBaziBondPhaseCompute(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = bazi.ComputeBond(domainA, domainB)
 	}
-}
-
-func BenchmarkMCPBaziBondPhaseOutputMarshal(b *testing.B) {
-	registry := testEngine()
-	chartA := mustDecodeBenchmarkChart(b, benchmarkBaziChart(
-		b, registry, "1990-05-20T03:49:00Z", "male",
-	))
-	chartB := mustDecodeBenchmarkChart(b, benchmarkBaziChart(
-		b, registry, "1992-08-10T02:20:00Z", "female",
-	))
-	domainA, err := chartA.domain()
-	if err != nil {
-		b.Fatal(err)
-	}
-	domainB, err := chartB.domain()
-	if err != nil {
-		b.Fatal(err)
-	}
-	output := bazi.ComputeBond(domainA, domainB)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if _, err := json.Marshal(output); err != nil {
-			b.Fatal(err)
-		}
-	}
-}
-
-func mustDecodeBenchmarkChart(b *testing.B, raw json.RawMessage) BaziChart {
-	b.Helper()
-	var chart BaziChart
-	if err := json.Unmarshal(raw, &chart); err != nil {
-		b.Fatal(err)
-	}
-	return chart
 }

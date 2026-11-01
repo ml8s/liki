@@ -32,10 +32,7 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 		StandardTime: standardInputFromInstant(t, "2024-06-15T04:00:00Z", "Asia/Shanghai"),
 		Count:        jsonschemaPtr(HuangliCount(1)), Event: "sign",
 	})
-	call("bazi_chart", BaziChartInput{
-		StandardTime: standardInputFromInstant(t, "1990-05-20T03:49:00Z", "Asia/Shanghai"),
-		Longitude:    116.4, Gender: "male",
-	})
+	call("bazi_chart", BaziChartInput{Subject: testNatalSubject(t, standardInputFromInstant(t, "1990-05-20T03:49:00Z", "Asia/Shanghai"), "male")})
 	call("bazhai_chart", BazhaiChartInput{StandardTime: standardInputFromInstant(t, "1984-06-15T04:00:00Z", "Asia/Shanghai"), Gender: "male"})
 	call("bazhai_layout", BazhaiLayoutInput{
 		MingGua: "乾", DoorGua: "坤", MasterGua: "艮", StoveGua: "兑",
@@ -81,12 +78,11 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 		if err := json.Unmarshal(raw, &fixture); err != nil {
 			t.Fatalf("%s: %v", entry.Name(), err)
 		}
-		var inputMap map[string]any
-		if err := json.Unmarshal(fixture.Input, &inputMap); err != nil {
+		var oldInput map[string]any
+		if err := json.Unmarshal(fixture.Input, &oldInput); err != nil {
 			t.Fatalf("%s: decode input: %v", entry.Name(), err)
 		}
-		injectReplayChartDigests(inputMap)
-		input, err := json.Marshal(inputMap)
+		input, err := json.Marshal(subjectFixtureInput(entry.Name(), name, oldInput))
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -52,12 +52,14 @@ func assertToolError(t *testing.T, registry *Registry, name string, input any, c
 	}
 }
 
-// testBaziChart returns a bazi.chart result document for the migrated handlers.
-func testBaziChart(t *testing.T, registry *Registry, utc, timezone string, longitude float64, gender string) map[string]any {
+// testBaziChart returns a resolved natal subject for the migrated handlers.
+func testBaziChart(t *testing.T, utc, timezone string, longitude float64, gender string) map[string]any {
 	t.Helper()
-	return callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"standard_time": standardInputFromInstant(t, utc, timezone), "longitude": longitude, "gender": gender,
-	})
+	return map[string]any{
+		"birth_time":      standardInputFromInstant(t, utc, timezone),
+		"birth_longitude": longitude,
+		"gender":          gender,
+	}
 }
 
 func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
@@ -68,19 +70,19 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	// arguments are the caller's mistake and must surface as a tool error, not
 	// silently pass. LLM consumers learn the contract from inputSchema.
 	if _, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, map[string]any{
-		"standard_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "longitude": 116.4, "gender": "male", "legacy_extra": true,
+		"subject": map[string]any{"birth_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "birth_longitude": 116.4, "gender": "male", "legacy_extra": true},
 	})); err == nil {
 		t.Fatalf("bazi.chart: unknown arguments must be rejected")
 	}
 
 	// Flow tools consume the ziwei.chart output object, exactly as documented.
-	ziweiChart := callToolDocument(t, registry, "ziwei_chart", map[string]any{
-		"standard_time": "1984-02-16T12:00:00+08:00", "longitude": 116.4, "gender": "male",
-	})
-	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"chart": ziweiChart, "standard_time": "2030-06-15T12:00:00+08:00"})); err != nil {
+	ziweiChart := map[string]any{
+		"birth_time": "1984-02-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
+	}
+	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiChart, "start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
 	}
-	if _, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"chart": ziweiChart})); err != nil {
+	if _, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": ziweiChart})); err != nil {
 		t.Fatalf("ziwei.daxian: %v", err)
 	}
 
@@ -91,38 +93,13 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	}, "")
 }
 
-func TestMigratedBaziFullChartRejectsMissingOrWrongNaYin(t *testing.T) {
-	registry := testEngine()
-	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
-	nian, ok := chart["nian"].(map[string]any)
-	if !ok {
-		t.Fatalf("chart.nian = %#v", chart["nian"])
-	}
-	original, _ := nian["na_yin"].(string)
-	if original == "" {
-		t.Fatal("bazi.chart returned empty nian.na_yin")
-	}
-
-	nian["na_yin"] = ""
-	assertToolError(t, registry, "bazi_fullchart", map[string]any{"chart": chart}, "chart.nian.na_yin is required")
-
-	nian["na_yin"] = "错误纳音"
-	assertToolError(t, registry, "bazi_fullchart", map[string]any{"chart": chart}, original)
-
-	nian["na_yin"] = original
-	full := callToolDocument(t, registry, "bazi_fullchart", map[string]any{"chart": chart})
-	if len(full["nian"].(map[string]any)) == 0 {
-		t.Fatalf("bazi.fullchart returned an empty nian pillar: %#v", full["nian"])
-	}
-}
-
 func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 	registry := testEngine()
-	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 
 	// bazi.xiaoyun returns one entry per 小运 school; every entry carries the
 	// same number of 柱 as the requested count (12 by default).
-	raw, err := registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"chart": chart}))
+	raw, err := registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"subject": chart}))
 	if err != nil {
 		t.Fatalf("bazi.xiaoyun: %v", err)
 	}
@@ -144,7 +121,7 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 		}
 	}
 
-	raw, err = registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"chart": chart, "count": 5}))
+	raw, err = registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"subject": chart, "count": 5}))
 	if err != nil {
 		t.Fatalf("bazi.xiaoyun(count=5): %v", err)
 	}
@@ -296,7 +273,7 @@ func assertJiaStaysHidden(t *testing.T, data map[string]any) {
 // month, which is the smallest input set that reaches every producer.
 func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 	registry := testEngine()
-	chart := testBaziChart(t, registry, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
+	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 
 	type call struct {
 		name   string
@@ -304,13 +281,13 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 	}
 	calls := []call{}
 	for _, year := range []int{2025, 2026, 2027} {
-		calls = append(calls, call{"bazi_liunian", map[string]any{"chart": chart, "standard_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
+		calls = append(calls, call{"bazi_liunian", map[string]any{"subject": chart, "start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
 	}
 	for month := 1; month <= 12; month++ {
-		calls = append(calls, call{"bazi_liuyue", map[string]any{"chart": chart, "standard_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
+		calls = append(calls, call{"bazi_liuyue", map[string]any{"subject": chart, "start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
 	}
 	for day := 1; day <= 30; day++ {
-		calls = append(calls, call{"bazi_liuri", map[string]any{"chart": chart, "standard_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "longitude": 116.4}})
+		calls = append(calls, call{"bazi_liuri", map[string]any{"subject": chart, "start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "longitude": 116.4}})
 	}
 
 	for _, item := range calls {
@@ -380,13 +357,14 @@ func TestMigratedQimenPatternEnumMatchesTable(t *testing.T) {
 
 func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 	registry := testEngine()
-	chart := callToolDocument(t, registry, "ziwei_chart", map[string]any{
-		"standard_time": "2000-09-20T08:00:00+08:00", "longitude": 116.4,
-		"gender": "male",
-	})
+	chart := map[string]any{
+		"birth_time":      "2000-09-20T08:00:00+08:00",
+		"birth_longitude": 116.4,
+		"gender":          "male",
+	}
 
 	document := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
-		"chart": chart, "standard_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
+		"subject": chart, "start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
 	})
 	item := firstSeriesItem(t, document)
 	period, ok := item["resolved_period"].(map[string]any)
@@ -399,11 +377,11 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 	}
 
 	rejected := []map[string]any{
-		{"chart": chart, "date": "2025-02-30"},
-		{"chart": chart, "date": "2025-6-1"},
-		{"chart": chart, "date": ""},
+		{"subject": chart, "date": "2025-02-30"},
+		{"subject": chart, "date": "2025-6-1"},
+		{"subject": chart, "date": ""},
 		// The old lunar input is gone: the tool now selects by civil date.
-		{"chart": chart, "target_lunar": map[string]any{"year": 2025, "month": 6, "day": 16, "leap": true}},
+		{"subject": chart, "target_lunar": map[string]any{"year": 2025, "month": 6, "day": 16, "leap": true}},
 	}
 	for _, params := range rejected {
 		assertToolError(t, registry, "ziwei_liuyue", params, "")
@@ -432,11 +410,11 @@ func TestBondInputsShareShape(t *testing.T) {
 			if !ok {
 				t.Fatalf("%s: missing side %s", tool, side)
 			}
-			if _, ok := entry.Properties["chart"]; !ok {
-				t.Errorf("%s.%s: must wrap the chart as {chart}", tool, side)
+			if _, ok := entry.Properties["subject"]; !ok {
+				t.Errorf("%s.%s: must wrap the subject as {subject}", tool, side)
 			}
-			if len(entry.Required) != 1 || entry.Required[0] != "chart" {
-				t.Errorf("%s.%s required = %v, want [chart]", tool, side, entry.Required)
+			if len(entry.Required) != 1 || entry.Required[0] != "subject" {
+				t.Errorf("%s.%s required = %v, want [subject]", tool, side, entry.Required)
 			}
 		}
 	}
@@ -446,9 +424,11 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 	registry := testEngine()
 	for _, tool := range []string{"bazi_chart", "ziwei_chart"} {
 		assertToolError(t, registry, tool, map[string]any{
-			"standard_time": "2024-06-15T12:00:00+08:00",
-			"longitude":     500,
-			"gender":        "male",
+			"subject": map[string]any{
+				"birth_time":      "2024-06-15T12:00:00+08:00",
+				"birth_longitude": 500,
+				"gender":          "male",
+			},
 		}, "longitude")
 	}
 	assertQimenChartError(t, registry, map[string]any{
@@ -460,10 +440,10 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {
 	registry := testEngine()
 	utc := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"standard_time": "1981-08-25T16:20:00Z", "longitude": 132.044137, "gender": "male",
+		"subject": map[string]any{"birth_time": "1981-08-25T16:20:00Z", "birth_longitude": 132.044137, "gender": "male"},
 	})
 	plus8 := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"standard_time": "1981-08-26T00:20:00+08:00", "longitude": 132.044137, "gender": "male",
+		"subject": map[string]any{"birth_time": "1981-08-26T00:20:00+08:00", "birth_longitude": 132.044137, "gender": "male"},
 	})
 
 	// These wire forms identify the same instant in different local standard
@@ -482,7 +462,7 @@ func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {
 
 func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 	registry := testEngine()
-	resolved, err := TianwenResolve(context.Background(), civilResolveInput(t, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137))
+	resolved, err := TianwenResolveStandard(context.Background(), civilResolveInput(t, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137))
 	if err != nil {
 		t.Fatalf("tianwen.resolve: %v", err)
 	}
@@ -495,7 +475,7 @@ func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 	}
 
 	chart := callToolDocument(t, registry, "bazi_chart", map[string]any{
-		"standard_time": standardInputFromInstant(t, "1981-08-25T16:20:00Z", "Asia/Shanghai"), "longitude": 132.044137, "gender": "male",
+		"subject": map[string]any{"birth_time": standardInputFromInstant(t, "1981-08-25T16:20:00Z", "Asia/Shanghai"), "birth_longitude": 132.044137, "gender": "male"},
 	})
 	want := []string{"辛酉", "丙申", "丙子", "己丑"}
 	for index, pillar := range []string{"nian", "yue", "ri", "shi"} {

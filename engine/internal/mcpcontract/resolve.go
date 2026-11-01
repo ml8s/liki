@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"liki-engine/internal/engine/ganzhi"
 	"liki-engine/internal/engine/tianwen"
 )
 
@@ -38,6 +39,7 @@ type TianwenResolveInput struct {
 	Lunar     *TianwenResolveLunarInput `json:"lunar,omitempty" jsonschema:"农历日期（calendar 为 lunar 时必填，含闰月标记 leap）。"`
 	Timezone  string                    `json:"timezone,omitempty" jsonschema:"记录时间所在时区（IANA）；壁钟/农历形态必填。"`
 	Longitude float64                   `json:"longitude" jsonschema:"地点经度（-180..180）；真太阳时换算必需。"`
+	Gender    GenderName                `json:"gender" jsonschema:"性别。"`
 
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选，用于边界不确定性。"`
 
@@ -53,6 +55,7 @@ type TianwenDateTimeForm struct {
 	Time           string                             `json:"time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS（分钟/秒精度）。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
 	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	Gender         GenderName                         `json:"gender" jsonschema:"性别。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
@@ -61,6 +64,7 @@ type TianwenLunarForm struct {
 	Time           string                             `json:"time" jsonschema:"当地壁钟时间 HH:MM 或 HH:MM:SS。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
 	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	Gender         GenderName                         `json:"gender" jsonschema:"性别。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
@@ -69,6 +73,7 @@ type TianwenShichenForm struct {
 	Shichen        string                             `json:"shichen" jsonschema:"已知时辰（真太阳时基，2 小时）。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
 	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	Gender         GenderName                         `json:"gender" jsonschema:"性别。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
@@ -77,6 +82,7 @@ type TianwenRangeForm struct {
 	Range          *TianwenResolveRangeInput          `json:"range" jsonschema:"同日民用时间区间。"`
 	Timezone       string                             `json:"timezone" jsonschema:"记录时间所在时区（IANA）。"`
 	Longitude      float64                            `json:"longitude" jsonschema:"地点经度（-180..180）。"`
+	Gender         GenderName                         `json:"gender" jsonschema:"性别。"`
 	LongitudeRange *TianwenResolveLongitudeRangeInput `json:"longitude_range,omitempty" jsonschema:"地点行政范围（东西经度）；可选。"`
 }
 
@@ -118,24 +124,22 @@ type TianwenResolveReasonOutput struct {
 	Detail string `json:"detail" jsonschema:"领域术语说明（如 输入时间、丑时、立春后、夏令时）。"`
 }
 
-// TianwenResolveCandidateOutput is one possible chart time point.
+// TianwenResolveCandidateOutput is one possible natal subject.
 //
-// StandardTime is the canonical standard-time value. Do not add calendar or
-// true-solar fields here: charts derive Lunar/LAST/SolarTerm on demand from
-// the shared L1.
+// BirthTime is local standard time (fixed offset, no DST), not true solar
+// time. Longitude remains explicit for domain-specific solar corrections.
 type TianwenResolveCandidateOutput struct {
-	StandardTime string                       `json:"standard_time" jsonschema:"候选时区标准时间（无 DST），RFC3339。"`
-	Reasons      []TianwenResolveReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
+	Subject NatalSubject                 `json:"subject" jsonschema:"候选出生主体。"`
+	Reasons []TianwenResolveReasonOutput `json:"reasons" jsonschema:"候选原因；input 候选恒定存在。"`
 }
 
-// TianwenResolveOutput is the candidate set for one time fact. Every candidate
-// is standard_time.
+// TianwenResolveOutput is the candidate set for one natal subject.
 type TianwenResolveOutput struct {
 	Candidates []TianwenResolveCandidateOutput `json:"candidates" jsonschema:"候选列表：永远包含一个 input 候选；其余为边界派生。"`
 }
 
 // TianwenResolve normalizes a time fact into candidates.
-func TianwenResolve(_ context.Context, input TianwenResolveInput) (TianwenResolveOutput, error) {
+func TianwenResolveStandard(_ context.Context, input TianwenResolveInput) (TianwenResolveOutput, error) {
 	in := tianwen.ResolveInput{
 		Calendar:  input.Calendar,
 		Date:      input.Date,
@@ -160,7 +164,11 @@ func TianwenResolve(_ context.Context, input TianwenResolveInput) (TianwenResolv
 		}
 	}
 
-	result, err := tianwen.Resolve(in)
+	if _, err := ganzhi.ParseGender(string(input.Gender)); err != nil {
+		return TianwenResolveOutput{}, fmt.Errorf("tianwen.resolve: gender: %w", err)
+	}
+
+	result, err := tianwen.ResolveStandard(in)
 	if err != nil {
 		return TianwenResolveOutput{}, fmt.Errorf("tianwen.resolve: %w", err)
 	}
@@ -180,8 +188,12 @@ func TianwenResolve(_ context.Context, input TianwenResolveInput) (TianwenResolv
 			})
 		}
 		output.Candidates = append(output.Candidates, TianwenResolveCandidateOutput{
-			StandardTime: standardTimeString(candidate.StandardTime, zone),
-			Reasons:      reasons,
+			Subject: NatalSubject{
+				BirthTime:      StandardTime(standardTimeString(candidate.StandardTime, zone)),
+				BirthLongitude: input.Longitude,
+				Gender:         input.Gender,
+			},
+			Reasons: reasons,
 		})
 	}
 	return output, nil

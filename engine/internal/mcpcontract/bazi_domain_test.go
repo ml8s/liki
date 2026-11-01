@@ -9,76 +9,43 @@ import (
 	"liki-engine/internal/engine/bazi"
 )
 
-func TestBaziChartDomainMapperMatchesJSONProjection(t *testing.T) {
+func TestBaziChartSubjectProducesStableLeanChart(t *testing.T) {
 	registry := testEngine()
-	for _, tc := range []struct {
-		civilTime string
-		gender    string
-	}{
-		{civilTime: "1990-05-20T11:49:00+08:00", gender: "male"},
-		{civilTime: "1984-02-16T08:00:00+08:00", gender: "female"},
-		{civilTime: "2000-09-20T08:30:00+08:00", gender: "female"},
+	for _, subject := range []NatalSubject{
+		{BirthTime: "1990-05-20T11:49:00+08:00", BirthLongitude: 116.4, Gender: "male"},
+		{BirthTime: "1984-02-16T08:00:00+08:00", BirthLongitude: 116.4, Gender: "female"},
+		{BirthTime: "2000-09-20T08:30:00+08:00", BirthLongitude: 118.5, Gender: "female"},
 	} {
-		raw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-			`{"standard_time":"`+tc.civilTime+`","longitude":116.4,"gender":"`+tc.gender+`"}`,
-		))
+		raw, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{Subject: subject}))
 		if err != nil {
-			t.Fatalf("bazi.chart: %v", err)
+			t.Fatalf("bazi.chart %s: %v", subject.BirthTime, err)
 		}
-		var wire BaziChart
-		if err := json.Unmarshal(raw, &wire); err != nil {
-			t.Fatal(err)
-		}
-
-		got, err := wire.domain()
-		if err != nil {
-			t.Fatalf("typed domain decode: %v", err)
-		}
-		projection, err := json.Marshal(wire)
+		var first BaziChart
+		decode(t, raw, &first)
+		raw, err = registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{Subject: subject}))
 		if err != nil {
 			t.Fatal(err)
 		}
-		var want bazi.Chart
-		if err := json.Unmarshal(projection, &want); err != nil {
-			t.Fatal(err)
-		}
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("typed domain decode differs from JSON projection:\ngot: %#v\nwant:%#v", got, want)
+		var second BaziChart
+		decode(t, raw, &second)
+		if !reflect.DeepEqual(first, second) {
+			t.Fatalf("subject %s produced unstable chart", subject.BirthTime)
 		}
 	}
 }
 
-func TestBaziChartDomainMapperRejectsInvalidSymbols(t *testing.T) {
+func TestBaziChartSubjectRejectsInvalidLongitude(t *testing.T) {
 	registry := testEngine()
-	raw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-		`{"standard_time":"1990-05-20T12:49:00+08:00","longitude":116.4,"gender":"male"}`,
-	))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var wire BaziChart
-	if err := json.Unmarshal(raw, &wire); err != nil {
-		t.Fatal(err)
-	}
-	wire.Ri.Gan = "bad"
-	if _, err := wire.domain(); err == nil {
-		t.Fatal("invalid ri gan was accepted")
+	subject := NatalSubject{BirthTime: "1990-05-20T12:49:00+08:00", BirthLongitude: 500, Gender: "male"}
+	if _, err := registry.Call(context.Background(), "bazi_chart", mustJSON(t, BaziChartInput{Subject: subject})); err == nil {
+		t.Fatal("invalid subject longitude was accepted")
 	}
 }
 
 func TestBaziFullChartRawProjectionMatchesWireDTO(t *testing.T) {
 	registry := testEngine()
-	chartRaw, err := registry.Call(context.Background(), "bazi_chart", json.RawMessage(
-		`{"standard_time":"1990-05-20T12:49:00+08:00","longitude":116.4,"gender":"male"}`,
-	))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var wire BaziChart
-	if err := json.Unmarshal(chartRaw, &wire); err != nil {
-		t.Fatal(err)
-	}
-	chart, err := wire.domain()
+	subject := NatalSubject{BirthTime: "1990-05-20T12:49:00+08:00", BirthLongitude: 116.4, Gender: "male"}
+	chart, err := subject.baziChart()
 	if err != nil {
 		t.Fatal(err)
 	}

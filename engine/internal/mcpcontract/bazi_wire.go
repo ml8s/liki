@@ -12,7 +12,7 @@ import "encoding/json"
 // ── bazi.fullchart input ──
 
 type BaziFullChartInput struct {
-	Chart BaziChart `json:"chart" jsonschema:"bazi.chart 返回的最小命盘"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // BaziPillarCangGan is the shared hidden-stem projection for all four pillars.
@@ -546,11 +546,11 @@ type BaziBondInput struct {
 }
 
 type BaziBondInputA struct {
-	Chart BaziChart `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type BaziBondInputB struct {
-	Chart BaziChart `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── bazi.bond output ──
@@ -849,9 +849,9 @@ type BaziBondShenshaCrossRiGui struct {
 // ── bazi.liunian input ──
 
 type BaziLiuNianInput struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"目标时区标准时间（无 DST），RFC3339 带 offset。"`
-	Count        *SeriesCount `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
-	Chart        BaziChart    `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── bazi.liunian output ──
@@ -971,9 +971,9 @@ type BaziLiuNianAtomicFactsCombinationsItem struct {
 // ── bazi.liuyue input ──
 
 type BaziLiuYueInput struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"目标时区标准时间（无 DST），RFC3339 带 offset。"`
-	Count        *SeriesCount `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
-	Chart        BaziChart    `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── bazi.liuyue output ──
@@ -1023,10 +1023,10 @@ type BaziLiuYueZhiRelsItem struct {
 // ── bazi.liuri input ──
 
 type BaziLiuRiInput struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"目标时区标准时间（无 DST），RFC3339 带 offset。"`
-	Longitude    float64      `json:"longitude" jsonschema:"目标地经度（-180..180）；真太阳时校正用于日柱。"`
-	Count        *SeriesCount `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
-	Chart        BaziChart    `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Longitude float64      `json:"longitude" jsonschema:"目标地经度（-180..180）；真太阳时校正用于日柱。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type BaziLiuRiResolved struct {
@@ -1090,10 +1090,10 @@ type BaziLiuRiLiunianRelsItem struct {
 // ── bazi.liushi input ──
 
 type BaziLiuShiInput struct {
-	StandardTime StandardTime `json:"standard_time" jsonschema:"占问地标准时间（无 DST），RFC3339 带 offset。"`
-	Longitude    float64      `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
-	Count        *SeriesCount `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
-	Chart        BaziChart    `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
+	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
+	Longitude float64      `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
+	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── bazi.liushi output ──
@@ -1132,8 +1132,8 @@ type BaziLiuShiZhiRelsItem struct {
 // ── bazi.xiaoyun input ──
 
 type BaziXiaoYunInput struct {
-	Chart BaziChart    `json:"chart" jsonschema:"八字命盘（由 bazi.chart 返回的最小命盘，不需 bazi.fullchart）"`
-	Count *SeriesCount `json:"count,omitempty" jsonschema:"返回岁数，单岁或多岁"`
+	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+	Count   *SeriesCount `json:"count,omitempty" jsonschema:"返回岁数，单岁或多岁"`
 }
 
 // ── bazi.xiaoyun output ──

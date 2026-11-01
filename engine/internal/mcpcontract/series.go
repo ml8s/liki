@@ -42,9 +42,6 @@ func runSeries[In any, Out any](
 	compute func(In) (Out, error),
 	advance func(In) (In, error),
 ) (any, error) {
-	if err := validateInputChart(input); err != nil {
-		return nil, err
-	}
 	n, err := validateSeriesCount(count, max)
 	if err != nil {
 		return nil, err
@@ -82,9 +79,6 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 	compute func(In, Ctx) (Out, error),
 	advance func(In) (In, error),
 ) (any, error) {
-	if err := validateInputChart(input); err != nil {
-		return nil, err
-	}
 	n, err := validateSeriesCount(count, max)
 	if err != nil {
 		return nil, err
