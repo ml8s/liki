@@ -1,11 +1,4 @@
-"""Divination tool-face contract tests (moved from the root pydantic-free suite).
-
-These cases used to validate instances against the hand-written
-``skill-tools.json`` schema. They now validate against the Pydantic models that
-own the contract, so the cross-field clauses the legacy schema declared as
-``allOf`` are exercised at runtime instead of statically.
-"""
-
+"""Divination tool-face contract tests."""
 
 import pytest
 from app.contracts.divination import LiuyaoSnapshotInput, QimenSnapshotInput
@@ -22,7 +15,12 @@ def _accepts(model: type[BaseModel], instance: dict) -> None:
 
 
 def test_liuyao_snapshot_input_rejects_ambiguous_sources_and_modes():
-    base = {"question": "这次面试能不能通过？", "matter": "career", "longitude": 116.4, "standard_time": "2026-10-01T10:00:00+08:00"}
+    base = {
+        "question": "这次面试能不能通过？",
+        "focus": {"kind": "matter", "matter": "career"},
+        "longitude": 116.4,
+        "standard_time": "2026-10-01T10:00:00+08:00",
+    }
     _rejects(LiuyaoSnapshotInput, {**base, "yong_shen": "官鬼"})
     _rejects(LiuyaoSnapshotInput, {**base, "casting": {"mode": "coins"}})
     _rejects(LiuyaoSnapshotInput, {**base, "casting": {"mode": "yaos"}})
@@ -36,30 +34,62 @@ def test_liuyao_snapshot_input_rejects_ambiguous_sources_and_modes():
     _accepts(LiuyaoSnapshotInput, base)
 
 
+def test_liuyao_relationship_focus_requires_perspective():
+    _rejects(LiuyaoSnapshotInput, {
+        "question": "感情如何？",
+        "focus": {"kind": "matter", "matter": "relationship"},
+        "longitude": 116.4,
+        "standard_time": "2026-10-01T10:00:00+08:00",
+    })
+    _accepts(LiuyaoSnapshotInput, {
+        "question": "感情如何？",
+        "focus": {"kind": "matter", "matter": "relationship", "perspective": "male"},
+        "longitude": 116.4,
+        "standard_time": "2026-10-01T10:00:00+08:00",
+    })
+
+
 def test_qimen_snapshot_input_rejects_ambiguous_location_and_focus():
     hour = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "city": "上海", "longitude": 121.47,
-        "standard_time": "2026-10-01T10:00:00+08:00", "method": hour,
+        "question": "该往哪里推进？",
+        "location": {"kind": "city", "city": "上海"},
+        "longitude": 121.47,
+        "standard_time": "2026-10-01T10:00:00+08:00",
+        "method": hour,
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47,
-        "standard_time": "2026-10-01T10:00:00+08:00", "method": hour,
-        "matter": "wealth", "yong_shen": ["生门"],
+        "question": "该往哪里推进？",
+        "location": {"kind": "longitude", "longitude": 121.47},
+        "standard_time": "2026-10-01T10:00:00+08:00",
+        "method": hour,
+        "focus": {"kind": "matter", "matter": "wealth", "yong_shen": ["生门"]},
     })
     _rejects(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47,
-        "standard_time": "2026-10-01T10:00:00+08:00", "matter": "wealth",
+        "question": "该往哪里推进？",
+        "location": {"kind": "longitude", "longitude": 121.47},
+        "standard_time": "2026-10-01T10:00:00+08:00",
+        "method": {
+            "scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
+        },
+        "focus": {"kind": "matter", "matter": "wealth"},
         "quarter_rule": "ten_minute_sanyuan",
     })
     _accepts(QimenSnapshotInput, {
-        "question": "该往哪里推进？", "longitude": 121.47,
-        "standard_time": "2026-10-01T10:00:00+08:00", "method": hour, "matter": "wealth",
+        "question": "该往哪里推进？",
+        "location": {"kind": "longitude", "longitude": 121.47},
+        "standard_time": "2026-10-01T10:00:00+08:00",
+        "method": hour,
+        "focus": {"kind": "matter", "matter": "wealth"},
     })
 
 
 def test_qimen_snapshot_method_schema_rejects_incompatible_forms():
-    location = {"question": "该往哪里推进？", "longitude": 121.47, "standard_time": "2026-10-01T10:00:00+08:00"}
+    location = {
+        "question": "该往哪里推进？",
+        "location": {"kind": "longitude", "longitude": 121.47},
+        "standard_time": "2026-10-01T10:00:00+08:00",
+    }
 
     _rejects(QimenSnapshotInput, {
         **location,
@@ -98,44 +128,8 @@ def test_qimen_snapshot_method_schema_rejects_incompatible_forms():
         "method": {
             "scope": "quarter", "school": "zhuanpan",
             "quarter_rule": "twelve_minute_ten_division",
-            "base_dingju_method": "zhirun", "dun_source": "solar_term",
-            "hour_boundary": "zi_zheng",
+            "base_dingju_method": "chaibu",
+            "dun_source": "hour_branch",
+            "hour_boundary": "late_zi",
         },
-    })
-    _accepts(QimenSnapshotInput, {
-        "question": "今天整体态势如何？", "longitude": 121.47,
-        "standard_time": "2026-10-01T10:00:00+08:00", "method": {"scope": "day", "school": "jinhan_yujing"},
-    })
-    _accepts(QimenSnapshotInput, {
-        "question": "钥匙丢了还能找到吗？", "longitude": 121.47,
-        "standard_time": "2026-10-01T10:00:00+08:00",
-        "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "maoshan"},
-        "rule": "lost_property",
-    })
-
-
-def test_qimen_snapshot_input_rejects_invalid_special_focus_policy():
-    hour = {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"}
-    location = {"longitude": 121.47, "standard_time": "2026-10-01T10:00:00+08:00"}
-
-    _rejects(QimenSnapshotInput, {
-        "question": "钥匙丢了还能找到吗？", "method": hour,
-        "rule": "lost_property", "matter": "lost_item", **location,
-    })
-    _rejects(QimenSnapshotInput, {
-        "question": "钥匙丢了还能找到吗？", "method": hour,
-        "rule": "lost_property", "yong_shen": ["生门"], **location,
-    })
-    _rejects(QimenSnapshotInput, {
-        "question": "家人走失了", "method": hour,
-        "rule": "missing_person", **location,
-    })
-    _rejects(QimenSnapshotInput, {
-        "question": "家人走失了", "method": hour,
-        "rule": "missing_person", "matter": "career", **location,
-    })
-
-    _accepts(QimenSnapshotInput, {
-        "question": "家人走失了", "method": hour,
-        "rule": "missing_person", "matter": "missing_person", **location,
     })

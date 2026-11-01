@@ -24,9 +24,13 @@ def _core(d):
     return d
 
 
-LIUYAO_ARGS = {"question": "测试这次面试能不能通过", "casting": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
-               "longitude": 116.4, "matter": "general",
-               "standard_time": "2026-10-01T10:00:00+08:00"}
+LIUYAO_ARGS = {
+    "question": "测试这次面试能不能通过",
+    "casting": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
+    "longitude": 116.4,
+    "focus": {"kind": "matter", "matter": "general"},
+    "standard_time": "2026-10-01T10:00:00+08:00",
+}
 
 
 def test_liuyao_snapshot_matches_old():
@@ -52,10 +56,13 @@ def test_liuyao_query_matches_old_ask():
     assert _core(got) == _core(want), "liuyao_query 与老 ask 不一致"
 
 
-QIMEN_ARGS = {"question": "测试谈判时机", "city": "北京",
-              "standard_time": "2026-10-01T10:00:00+08:00",
-              "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
-              "matter": "career"}
+QIMEN_ARGS = {
+    "question": "测试谈判时机",
+    "location": {"kind": "city", "city": "北京"},
+    "standard_time": "2026-10-01T10:00:00+08:00",
+    "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
+    "focus": {"kind": "matter", "matter": "career"},
+}
 
 
 def test_qimen_snapshot_matches_old():

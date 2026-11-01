@@ -12,14 +12,20 @@ def _parameters(name: str) -> dict:
 
 def test_snapshot_schemas_accept_primary_calls():
     validate(
-        {"question": "这次面试能不能通过？", "matter": "career", "casting": {"mode": "auto"}, "longitude": 116.4, "standard_time": "2026-10-01T10:00:00+08:00"},
+        {
+            "question": "这次面试能不能通过？",
+            "focus": {"kind": "matter", "matter": "career"},
+            "casting": {"mode": "auto"},
+            "longitude": 116.4,
+            "standard_time": "2026-10-01T10:00:00+08:00",
+        },
         _parameters("liuyao_snapshot"),
     )
     validate(
         {
             "question": "该往哪里推进？",
-            "longitude": 121.47,
-            "matter": "wealth",
+            "location": {"kind": "longitude", "longitude": 121.47},
+            "focus": {"kind": "matter", "matter": "wealth"},
             "standard_time": "2026-10-01T10:00:00+08:00",
             "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
         },

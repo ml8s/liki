@@ -258,6 +258,20 @@ class NamingCheckInput(BaseModel):
         default=None,
         description="八字用神裁决返回对象；本工具只消费 selected.yong/xi/ji。省略时不做五行角色评估。",
     )
+    forbidden_chars: Annotated[
+        unique_list[Annotated[str, Field(min_length=1, max_length=1)]],
+        Field(max_length=32),
+    ] = Field(
+        default_factory=list,
+        description="用户明确避讳的单字；候选名命中任一字即为 invalid。",
+    )
+    required_chars: Annotated[
+        unique_list[Annotated[str, Field(min_length=1, max_length=1)]],
+        Field(max_length=2),
+    ] = Field(
+        default_factory=list,
+        description="用户要求必含的单字；候选名必须包含全部字符。",
+    )
     @model_validator(mode="after")
     def _enforce_consumable_yongshen(self) -> "NamingCheckInput":
         if self.selected_yongshen is None:
@@ -266,6 +280,8 @@ class NamingCheckInput(BaseModel):
             raise ValueError("selected_yongshen.status 必须是 resolved 或 partial")
         if self.selected_yongshen.selected.yong == "无候选":
             raise ValueError("selected_yongshen.selected.yong 必须是具体五行")
+        if set(self.forbidden_chars) & set(self.required_chars):
+            raise ValueError("同一字不能同时属于 forbidden_chars 和 required_chars")
         return self
 
 
@@ -273,12 +289,18 @@ class NamingCheckError(BaseModel):
     """One structured naming-validation error."""
 
     model_config = ConfigDict(extra="forbid")
-    code: Literal["invalid_name_length", "character_not_found", "negative_character_forbidden"] = Field(
+    code: Literal[
+        "invalid_name_length",
+        "character_not_found",
+        "negative_character_forbidden",
+        "forbidden_character",
+        "required_character_missing",
+    ] = Field(
         description="机器可读错误码。",
     )
     char: Annotated[str, Field(min_length=1, max_length=1)] | None = Field(
         default=None,
-        description="出错的单字；长度错误时为 null。",
+        description="出错的单字；长度错误、禁用字或缺失必含字时为对应字，否则为 null。",
     )
 
 

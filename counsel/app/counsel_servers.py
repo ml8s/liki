@@ -116,11 +116,20 @@ def _add_divination_tools(server: MCPServer, domain: str) -> None:
         )
 
 
-def _naming_check(given_names, selected_yongshen=None):
+def _naming_check(**arguments):
     """Evaluate names against the selected bazi yong/xi/ji plan."""
     from app.naming.naming import evaluate_names
 
-    return {"evaluations": evaluate_names(given_names, selected_yongshen)}
+    return {
+        "evaluations": evaluate_names(
+            arguments["given_names"],
+            arguments.get("selected_yongshen"),
+            {
+                "forbidden_chars": arguments.get("forbidden_chars") or [],
+                "required_chars": arguments.get("required_chars") or [],
+            },
+        )
+    }
 
 
 def _add_naming_tools(server: MCPServer) -> None:
@@ -132,11 +141,11 @@ def _add_naming_tools(server: MCPServer) -> None:
         pick_chars_by_selected_yongshen,
     )
 
-    def _pick(selected_yongshen, first_role="yong", second_role=None):
+    def _pick(**arguments):
         return pick_chars_by_selected_yongshen(
-            selected_yongshen,
-            first_role,
-            second_role,
+            arguments["selected_yongshen"],
+            arguments.get("first_role", "yong"),
+            arguments.get("second_role"),
         )
 
     def _compose(first_chars, second_chars=None, max_names=100):

@@ -27,7 +27,7 @@ def _evidence_ids(snapshot: dict, layer: str) -> set[str]:
 def _timing_ids(snapshot: dict) -> set[str]:
     return {
         item["id"]
-        for item in snapshot.get("timing_candidates", [])
+        for item in snapshot.get("timing_plan", {}).get("candidates", [])
         if isinstance(item, dict) and isinstance(item.get("id"), str)
     }
 

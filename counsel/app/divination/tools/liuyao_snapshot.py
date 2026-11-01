@@ -9,7 +9,7 @@ from app.divination.tools.liuyao_conditions import evaluate as evaluate_conditio
 from app.divination.tools.liuyao_matters import load_matter_table, resolve_matter
 from app.divination.tools.liuyao_timing import project_timing_plan
 from app.divination.tools.liuyao_topic_guidance import load_topic_table, project_topic_guidance
-from app.guards import require_exactly_one, require_question
+from app.guards import require_question
 
 ALLOWED_MATTERS = set(load_matter_table())
 ALLOWED_TOPICS = set(load_topic_table()["topics"])
@@ -24,9 +24,7 @@ def create(
     longitude: float,
     casting: dict | None = None,
     standard_time: str = "",
-    matter: str | None = None,
-    yong_shen: str | None = None,
-    perspective: str | None = None,
+    focus: dict | None = None,
     topic: str | None = None,
 ) -> dict:
     """创建 immutable liuyao snapshot；LLM 后续只依赖该对象。
@@ -45,12 +43,26 @@ def create(
     yaos = casting.get("yaos")
     if mode not in {"auto", "coins", "yaos"}:
         raise ValueError("mode must be auto, coins, or yaos")
-    # coins→rounds / yaos→yaos 由 casting 判别联合在 schema 边界保证，不重复校验。
-    require_exactly_one(matter=matter, yong_shen=yong_shen)
-    if matter is not None and matter not in ALLOWED_MATTERS:
-        raise ValueError(f"unknown matter: {matter}")
+    if not isinstance(focus, dict) or focus.get("kind") not in ("matter", "yong_shen"):
+        raise ValueError("focus must use kind=matter or kind=yong_shen")
+    focus_kind = focus["kind"]
+    matter = focus.get("matter")
+    yong_shen = focus.get("yong_shen")
+    perspective = focus.get("perspective")
+    if focus_kind == "matter":
+        if yong_shen is not None:
+            raise ValueError("matter focus cannot include yong_shen")
+        if perspective is not None and matter != "relationship":
+            raise ValueError("perspective is only valid with matter=relationship")
+        if matter not in ALLOWED_MATTERS:
+            raise ValueError(f"unknown matter: {matter}")
+    else:
+        if matter is not None or perspective is not None:
+            raise ValueError("yong_shen focus cannot include matter or perspective")
+        if yong_shen is None:
+            raise ValueError("yong_shen focus requires yong_shen")
     if perspective is not None and matter != "relationship":
-        raise ValueError("perspective is only valid with matter=relationship")
+        raise ValueError(f"unknown matter: {matter}")
     if topic is not None and topic not in ALLOWED_TOPICS:
         raise ValueError(f"unknown topic: {topic}")
     if matter is not None:
@@ -79,7 +91,6 @@ def create(
             "focus": projected["focus"],
             "evidence": projected["evidence"],
             "facts": projected["facts"],
-            "timing_candidates": projected["timing_candidates"],
             "topic_guidance": (
                 project_topic_guidance(projected, resolved_topic)
                 if resolved_topic else None

@@ -344,8 +344,9 @@ def _reject_duplicates(slot: str, chars: list) -> None:
 def evaluate_names(
     given_names: list,
     selected_yongshen: object | None = None,
+    constraints: object | None = None,
 ) -> list[dict]:
-    """评估候选名的字库、禁用字、音韵与逐字五行角色。"""
+    """评估候选名的结构、用户约束、音韵与逐字五行角色。"""
     _ensure_loaded()
     if not given_names:
         raise ValueError("given_names must contain at least one name")
@@ -355,7 +356,46 @@ def evaluate_names(
         if selected_yongshen is not None
         else None
     )
-    return [_evaluate_name(name, normalized_plan) for name in given_names]
+    normalized_constraints = _normalize_constraints(constraints)
+    return [
+        _evaluate_name(name, normalized_plan, normalized_constraints)
+        for name in given_names
+    ]
+
+
+def _normalize_constraints(constraints: object) -> dict:
+    """Normalize optional user character constraints."""
+    if constraints is None:
+        return {"forbidden": set(), "required": set()}
+    if isinstance(constraints, dict):
+        raw = constraints
+    else:
+        try:
+            raw = constraints.model_dump()
+        except AttributeError as error:
+            raise ValueError("constraints must be an object") from error
+    if not isinstance(raw, dict):
+        raise ValueError("constraints must be an object")
+
+    def normalize_list(field: str) -> set[str]:
+        values = raw.get(field) or []
+        if not isinstance(values, list):
+            raise ValueError(f"constraints.{field} must be an array")
+        result: set[str] = set()
+        for value in values:
+            if not isinstance(value, str) or len(value) != 1:
+                raise ValueError(f"invalid constraints.{field} {value!r}")
+            result.add(value)
+        return result
+
+    forbidden = normalize_list("forbidden_chars")
+    required = normalize_list("required_chars")
+    overlap = forbidden & required
+    if overlap:
+        raise ValueError(
+            f"同一字不能同时属于 forbidden_chars 和 required_chars: {sorted(overlap)}"
+        )
+    return {"forbidden": forbidden, "required": required}
 
 
 def _named_characters(
@@ -374,6 +414,18 @@ def _named_characters(
     return characters
 
 
+def _check_user_constraints(
+    given_name: str,
+    evaluation: dict,
+    constraints: dict,
+) -> None:
+    name_chars = set(given_name)
+    for char in sorted(name_chars & constraints["forbidden"]):
+        _append_error(evaluation, "forbidden_character", char)
+    for char in sorted(constraints["required"] - name_chars):
+        _append_error(evaluation, "required_character_missing", char)
+
+
 def _wuxing_role(plan: dict | None, element: str) -> str | None:
     if plan is None:
         return None
@@ -386,12 +438,17 @@ def _wuxing_role(plan: dict | None, element: str) -> str | None:
     return "neutral"
 
 
-def _evaluate_name(given_name: str, plan: dict | None) -> dict:
+def _evaluate_name(
+    given_name: str,
+    plan: dict | None,
+    constraints: dict,
+) -> dict:
     evaluation: dict = {"given_name": given_name, "valid": False}
     if not 1 <= len(given_name) <= 2:
         evaluation["errors"] = [{"code": "invalid_name_length"}]
         return evaluation
 
+    _check_user_constraints(given_name, evaluation, constraints)
     characters = _named_characters(given_name, evaluation)
     if evaluation.get("errors"):
         return evaluation

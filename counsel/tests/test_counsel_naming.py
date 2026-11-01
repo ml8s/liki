@@ -143,6 +143,65 @@ def test_naming_check_rejects_unresolved_yongshen(srv):
     assert result.is_error is True
 
 
+def test_naming_check_rejects_forbidden_character(srv):
+    result = _call(
+        srv,
+        "naming_check",
+        {
+            "given_names": ["伟"],
+            "selected_yongshen": _selected_yongshen("木"),
+            "forbidden_chars": ["伟"],
+        },
+    )
+    evaluation = result.structured_content["evaluations"][0]
+    assert evaluation["valid"] is False
+    assert evaluation["errors"] == [
+        {"code": "forbidden_character", "char": "伟"}
+    ]
+
+
+def test_naming_check_requires_required_character(srv):
+    result = _call(
+        srv,
+        "naming_check",
+        {
+            "given_names": ["伟"],
+            "selected_yongshen": _selected_yongshen("木"),
+            "required_chars": ["伟"],
+        },
+    )
+    assert result.structured_content["evaluations"][0]["valid"] is True
+
+    result = _call(
+        srv,
+        "naming_check",
+        {
+            "given_names": ["伟"],
+            "selected_yongshen": _selected_yongshen("木"),
+            "required_chars": ["林"],
+        },
+    )
+    evaluation = result.structured_content["evaluations"][0]
+    assert evaluation["valid"] is False
+    assert evaluation["errors"] == [
+        {"code": "required_character_missing", "char": "林"}
+    ]
+
+
+def test_naming_check_rejects_conflicting_constraints(srv):
+    result = _call(
+        srv,
+        "naming_check",
+        {
+            "given_names": ["伟"],
+            "selected_yongshen": _selected_yongshen("木"),
+            "forbidden_chars": ["伟"],
+            "required_chars": ["伟"],
+        },
+    )
+    assert result.is_error is True
+
+
 def test_naming_surname_matches_baseline(srv, baseline):
     result = _call(srv, "naming_surname", {"source_surname": "zhang"})
     assert result.structured_content == baseline["surname"]

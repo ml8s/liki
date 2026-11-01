@@ -106,6 +106,42 @@ def test_evaluate_no_constraint():
     assert all("wuxing_role" not in character for character in e[0]["characters"])
 
 
+def test_evaluate_user_constraints():
+    forbidden = naming.evaluate_names(
+        ["梓涵"], selected_yongshen("木"), {"forbidden_chars": ["涵"]}
+    )
+    assert forbidden[0]["valid"] is False
+    assert forbidden[0]["errors"] == [
+        {"code": "forbidden_character", "char": "涵"}
+    ]
+
+    required = naming.evaluate_names(
+        ["梓涵"], selected_yongshen("木"), {"required_chars": ["梓"]}
+    )
+    assert required[0]["valid"] is True
+
+    missing = naming.evaluate_names(
+        ["梓涵"], selected_yongshen("木"), {"required_chars": ["林"]}
+    )
+    assert missing[0]["valid"] is False
+    assert missing[0]["errors"] == [
+        {"code": "required_character_missing", "char": "林"}
+    ]
+
+
+def test_evaluate_constraint_errors():
+    with pytest.raises(ValueError, match="同时属于"):
+        naming.evaluate_names(
+            ["梓"],
+            selected_yongshen("木"),
+            {"forbidden_chars": ["梓"], "required_chars": ["梓"]},
+        )
+    with pytest.raises(ValueError, match="invalid constraints.forbidden_chars"):
+        naming.evaluate_names(
+            ["梓"], selected_yongshen("木"), {"forbidden_chars": ["金木"]}
+        )
+
+
 def test_evaluate_errors():
     with pytest.raises(ValueError, match="同时属于"):
         naming.evaluate_names(["子"], selected_yongshen("木", ["木"]))

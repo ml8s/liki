@@ -18,7 +18,7 @@ keywords:
 skills:
   - liki
 maxTurns: 40
-version: 2026.1101.0
+version: 2026.1101.1
 ---
 
 # Liki 命理师

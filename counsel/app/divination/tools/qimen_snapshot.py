@@ -9,7 +9,7 @@ from app.divination.tools.qimen_interpretations import assert_rule_compatibility
 from app.divination.tools.qimen_jinhan_factors import project as project_jinhan_factors
 from app.divination.tools.qimen_projection import project as project_standard_factors
 from app.divination.tools.qimen_projection import validate as validate_standard_factors
-from app.guards import require_mutually_exclusive, require_question
+from app.guards import require_question
 
 #
 # 专占规则是否接受 matter / yong_shen 由 qimen_rules.csv 的 focus_policy 声明。
@@ -17,34 +17,50 @@ from app.guards import require_mutually_exclusive, require_question
 
 
 
-def _resolve_location(city: str | None, longitude: float | None) -> tuple[str | None, float]:
-    has_city = city is not None
-    has_longitude = longitude is not None
-    if has_city == has_longitude:
-        raise ValueError("provide exactly one of city or longitude")
-    if has_city and not city.strip():
-        raise ValueError("city must be non-empty")
-    if longitude is not None:
+def _resolve_location(location: dict) -> tuple[str | None, float]:
+    kind = location.get("kind")
+    if kind == "city":
+        city = location.get("city")
+        if not isinstance(city, str) or not city.strip():
+            raise ValueError("location.city must be non-empty")
+        coords = city_coords(city)
+        value = coords.get("longitude")
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError("city.coords returned no longitude")
+        return city.strip(), float(value)
+    if kind == "longitude":
+        longitude = location.get("longitude")
         if isinstance(longitude, bool) or not isinstance(longitude, (int, float)):
-            raise ValueError("longitude must be a number")
+            raise ValueError("location.longitude must be a number")
         if not -180 <= float(longitude) <= 180:
             raise ValueError("longitude must be between -180 and 180")
         return None, float(longitude)
-    coords = city_coords(city or "")
-    value = coords.get("longitude")
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ValueError("city.coords returned no longitude")
-    return city.strip(), float(value)
+    raise ValueError("location must use kind=city or kind=longitude")
+
+
+def _resolve_focus(focus: dict | None) -> tuple[str | None, list[str] | None]:
+    if focus is None:
+        return None, None
+    kind = focus.get("kind")
+    if kind == "matter":
+        matter = focus.get("matter")
+        if not isinstance(matter, str):
+            raise ValueError("focus.matter must be a string")
+        return matter, None
+    if kind == "yong_shen":
+        yong_shen = focus.get("yong_shen")
+        if not isinstance(yong_shen, list) or not yong_shen:
+            raise ValueError("focus.yong_shen must be a non-empty array")
+        return None, yong_shen
+    raise ValueError("focus must use kind=matter or kind=yong_shen")
 
 
 def create(
     *,
     question: str,
-    city: str | None = None,
-    longitude: float | None = None,
+    location: dict,
     standard_time: str = "",
-    matter: str | None = None,
-    yong_shen: list[str] | None = None,
+    focus: dict | None = None,
     rule: str | None = None,
     method: dict[str, str],
     birth_standard_time: str | None = None,
@@ -57,21 +73,19 @@ def create(
     effective_scope = method.get("scope", "")
     effective_school = method.get("school", "")
     if effective_school == "jinhan_yujing":
-        forbidden = (matter, yong_shen, rule, birth_standard_time)
+        forbidden = (focus, rule, birth_standard_time)
         if any(value is not None for value in forbidden):
             raise ValueError("school jinhan_yujing does not support focus or advanced method fields")
 
     is_jinhan = effective_school == "jinhan_yujing"
-    require_mutually_exclusive(matter=matter, yong_shen=yong_shen)
-    has_focus = (matter is not None) or (yong_shen is not None)
+    matter, yong_shen = _resolve_focus(focus)
+    has_focus = focus is not None
     quarter_allows_no_focus = effective_scope == "quarter"
     if is_jinhan:
         pass
     elif not rule and not has_focus and not quarter_allows_no_focus:
         raise ValueError("ordinary qimen requires exactly one of matter or yong_shen; specialized rule may omit both")
 
-    if yong_shen is not None and not yong_shen:
-        raise ValueError("yong_shen cannot be empty")
     if rule is not None:
         assert_rule_compatibility(rule, effective_scope, effective_school)
         focus_policy = load_rule_table()[rule]["focus_policy"]
@@ -81,7 +95,7 @@ def create(
             required_matter = focus_policy.split(":", 1)[1]
             if matter != required_matter:
                 raise ValueError(f"qimen rule {rule} requires matter={required_matter}")
-    resolved_city, resolved_longitude = _resolve_location(city, longitude)
+    resolved_city, resolved_longitude = _resolve_location(location)
     if not standard_time:
         raise ValueError("standard_time is required")
 

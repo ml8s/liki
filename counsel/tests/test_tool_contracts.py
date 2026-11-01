@@ -66,11 +66,20 @@ def test_published_schemas_are_flat_self_contained_documents(name):
 
 
 def test_unique_items_is_projected_and_enforced():
-    qimen = CONTRACTS["qimen_snapshot"].input_schema["properties"]["yong_shen"]
-    assert qimen["uniqueItems"] is True
+    focus_branches = CONTRACTS["qimen_snapshot"].input_schema["properties"]["focus"]["anyOf"]
+    qimen_yongshen = next(
+        branch["properties"]["yong_shen"]
+        for branch in focus_branches
+        if branch.get("properties", {}).get("yong_shen")
+    )
+    assert qimen_yongshen["uniqueItems"] is True
     with pytest.raises(ValidationError):
         CONTRACTS["qimen_snapshot"].input.model_validate(
-            {"question": "该往哪里推进？", "longitude": 121.47, "yong_shen": ["生门", "生门"]}
+            {
+                "question": "该往哪里推进？",
+                "location": {"kind": "longitude", "longitude": 121.47},
+                "focus": {"kind": "yong_shen", "yong_shen": ["生门", "生门"]},
+            }
         )
 
 
@@ -91,7 +100,12 @@ def test_yongshen_contracts_publish_the_typed_core():
     assert "selected_yongshen" in compute_schema["properties"]["factors"]["description"]
 
     naming_schema = CONTRACTS["naming_check"].input_schema
-    assert set(naming_schema["properties"]) == {"given_names", "selected_yongshen"}
+    assert set(naming_schema["properties"]) == {
+        "given_names",
+        "selected_yongshen",
+        "forbidden_chars",
+        "required_chars",
+    }
     selected_ref = naming_schema["properties"]["selected_yongshen"]["anyOf"][0]
     assert set(selected_ref["required"]) == set(SelectedYongShenCore.model_fields)
 

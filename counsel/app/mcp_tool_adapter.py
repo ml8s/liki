@@ -154,11 +154,9 @@ def add_contract_tool(server: MCPServer, contract: Any, invoke) -> None:
                 invoke_task = asyncio.ensure_future(
                     anyio.to_thread.run_sync(lambda: invoke(**arguments))
                 )
-                # Yield the event loop while the sync implementation runs. Some
-                # Python runtimes do not immediately wake a task that directly
-                # awaits a Future completed from a worker thread; a cooperative
-                # yield keeps callback dispatch running without blocking other
-                # requests.
+                # Yield the event loop while the sync implementation runs.
+                # A cooperative yield keeps callback dispatch responsive without
+                # timer polling.
                 yield_delay = 0.0
                 while not invoke_task.done():
                     await asyncio.sleep(yield_delay)

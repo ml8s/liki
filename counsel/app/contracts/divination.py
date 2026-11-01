@@ -10,7 +10,6 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.contracts.schema import ToolContract, unique_list
-from app.guards import require_exactly_one, require_mutually_exclusive
 
 # ── liuyao_snapshot ──
 TOOL_LIUYAO_SNAPSHOT_DESCRIPTION = "创建一次六爻占卜事件快照：casting 省略或 mode=auto 时每次调用都会生成新卦，重复调用或自动重试等于新占问；coins/yaos 可复现同一 casting。后续追问必须复用该 snapshot。"
@@ -43,6 +42,40 @@ class LiuyaoYaosCasting(BaseModel):
 
 LiuyaoCastingInput = LiuyaoAutoCasting | LiuyaoCoinsCasting | LiuyaoYaosCasting
 
+class LiuyaoMatterFocus(BaseModel):
+    """按问事类别推导用神。"""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["matter"] = Field(description="焦点类型：问事类别。")
+    matter: Literal[
+        "general", "self", "other", "career", "wealth", "relationship",
+        "study", "home", "travel", "family", "competition", "children",
+        "lost_item", "legal",
+    ] = Field(description="问事类别；决定用神。")
+    perspective: Literal["male", "female"] | None = Field(
+        default=None,
+        description="问卦人性别视角；matter=relationship 必填。",
+    )
+
+    @model_validator(mode="after")
+    def _enforce_perspective(self) -> "LiuyaoMatterFocus":
+        if self.matter == "relationship" and self.perspective is None:
+            raise ValueError("matter=relationship requires perspective")
+        if self.perspective is not None and self.matter != "relationship":
+            raise ValueError("perspective is only valid with matter=relationship")
+        return self
+
+
+class LiuyaoYongshenFocus(BaseModel):
+    """使用显式六亲用神。"""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["yong_shen"] = Field(description="焦点类型：显式用神。")
+    yong_shen: Literal["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"] = Field(
+        description="高级显式用神。",
+    )
+
+
+LiuyaoFocus = LiuyaoMatterFocus | LiuyaoYongshenFocus
+
 class LiuyaoSnapshotInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     question: Annotated[str, Field(min_length=2)] = Field(
@@ -58,34 +91,13 @@ class LiuyaoSnapshotInput(BaseModel):
         description="起卦方式：auto=服务端安全随机起卦（缺省）；coins=传入六组三枚正/反铜钱记录；yaos=直接传入六个爻值。",
         default={"mode": "auto"},
     )
-    matter: Literal["general", "self", "other", "career", "wealth", "relationship", "study", "home", "travel", "family", "competition", "children", "lost_item", "legal"] = Field(
-        default=None,
-        description="普通问事类别（决定用神）；必须与 yong_shen 二选一。与 topic 的关系：topic 省略时按 matter 推导，显式传入仅用于偏离 matter 的专题视角。",
-    )
-    yong_shen: Literal["父母", "兄弟", "官鬼", "妻财", "子孙", "世爻", "应爻"] = Field(
-        default=None,
-        description="高级显式用神；必须与 matter 二选一",
-    )
-    perspective: Literal["male", "female"] = Field(
-        default=None,
-        description="问卦人性别视角（非命主性别，不参与排盘）；matter=relationship 必填，决定感情类用神：男问取妻财，女问取官鬼。",
+    focus: LiuyaoFocus = Field(
+        description="占问焦点：matter 自动推导用神，或显式指定六亲用神。",
     )
     topic: Literal["career", "children", "competition", "family", "general", "health_context", "home", "legal", "lost_item", "other", "relationship", "self", "study", "travel", "wealth"] = Field(
         default=None,
         description="可选专题视角；省略时与 matter 相同。",
     )
-
-    @model_validator(mode="after")
-    def _enforce_matter_matrix(self) -> "LiuyaoSnapshotInput":
-        """matter/yong_shen 二选一与 perspective 条件是领域规则，发布 schema
-        由 casting 联合与文档表达；此处保留运行时闭环。"""
-        require_exactly_one(matter=self.matter, yong_shen=self.yong_shen)
-        if self.perspective is not None and self.matter != "relationship":
-            raise ValueError("perspective is only valid with matter=relationship")
-        if self.matter == "relationship" and self.perspective is None:
-            raise ValueError("matter=relationship requires perspective")
-        return self
-
 
 class LiuyaoSnapshotOutputQuestion(BaseModel):
     """Question returned by this tool."""
@@ -243,14 +255,6 @@ class LiuyaoSnapshotOutputTimingPlan(BaseModel):
     policy: LiuyaoSnapshotOutputTimingPlanPolicy
 
 
-class LiuyaoSnapshotTimingCandidate(BaseModel):
-    """One engine timing candidate reference; engine fact fields flow through extra."""
-
-    model_config = ConfigDict(extra="allow")
-    id: Annotated[str, Field(min_length=1)] = Field(description="应期候选 id（timing 前缀引用）。")
-    mechanism: str | None = Field(default=None, description="应期机制。")
-
-
 class LiuyaoSnapshotOutputSafetyAdvisory(BaseModel):
     """Safety advisory returned by this tool."""
     model_config = ConfigDict(extra="forbid")
@@ -280,9 +284,6 @@ class LiuyaoSnapshotOutput(BaseModel):
     )
     facts: LiuyaoSnapshotOutputFacts = Field(
         description="Facts returned by this tool.",
-    )
-    timing_candidates: list[LiuyaoSnapshotTimingCandidate] = Field(
-        description="Timing candidates returned by this tool.",
     )
     policy: LiuyaoSnapshotOutputPolicy = Field(
         description="Policy returned by this tool.",
@@ -490,6 +491,45 @@ QimenMethod = (
 )
 
 
+class QimenCityLocation(BaseModel):
+    """按城市解析起局地点。"""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["city"] = Field(description="地点类型：城市。")
+    city: Annotated[str, Field(min_length=1)] = Field(description="起局城市。")
+
+
+class QimenLongitudeLocation(BaseModel):
+    """直接提供起局经度。"""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["longitude"] = Field(description="地点类型：经度。")
+    longitude: Annotated[float, Field(ge=-180, le=180)] = Field(description="起局经度。")
+
+
+QimenLocation = QimenCityLocation | QimenLongitudeLocation
+
+
+class QimenMatterFocus(BaseModel):
+    """按普通事象推导奇门用神。"""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["matter"] = Field(description="焦点类型：普通事象。")
+    matter: Literal[
+        "career", "health", "hiding", "legal", "missing_person",
+        "relationship", "study", "travel", "wealth",
+    ] = Field(description="普通事象。")
+
+
+class QimenYongshenFocus(BaseModel):
+    """显式指定奇门用神符号。"""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["yong_shen"] = Field(description="焦点类型：显式用神。")
+    yong_shen: Annotated[unique_list[str], Field(min_length=1)] = Field(
+        description="盘面符号：九星/八门/八神/天干等。",
+    )
+
+
+QimenFocus = QimenMatterFocus | QimenYongshenFocus
+
+
 class QimenSnapshotInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     question: str = Field(
@@ -501,21 +541,10 @@ class QimenSnapshotInput(BaseModel):
     method: QimenMethod = Field(
         description="奇门方法事实；按 scope、school 和条件字段的合法组合传入。",
     )
-    city: Annotated[str | None, Field(min_length=1)] = Field(
+    location: QimenLocation = Field(description="起局地点；城市候选或显式经度。")
+    focus: QimenFocus | None = Field(
         default=None,
-        description="起局地点；与 longitude 二选一",
-    )
-    longitude: Annotated[float | None, Field(ge=-180, le=180)] = Field(
-        default=None,
-        description="起局经度；与 city 二选一",
-    )
-    matter: Literal["career", "health", "hiding", "legal", "missing_person", "relationship", "study", "travel", "wealth"] = Field(
-        default=None,
-        description="普通事象；必须与 yong_shen 二选一",
-    )
-    yong_shen: Annotated[unique_list[str], Field(min_length=1)] = Field(
-        default=None,
-        description="高级显式用神符号列表（盘面符号：九星/八门/八神/天干等，如 天芮、开门）。奇门用神是开放符号集，与六爻的六亲闭集不同；必须与 matter 二选一。",
+        description="普通事象或显式用神；quarter / specialized rule 可按规则省略。",
     )
     rule: Literal["lost_property", "thief_capture", "missing_person", "capture_escape", "thief_profile"] = Field(
         default=None,
@@ -529,27 +558,27 @@ class QimenSnapshotInput(BaseModel):
     @model_validator(mode="after")
     def _enforce_snapshot_context(self) -> "QimenSnapshotInput":
         """Validate facts that are outside the cohesive qimen method object."""
-        require_exactly_one(city=self.city, longitude=self.longitude)
-        require_mutually_exclusive(matter=self.matter, yong_shen=self.yong_shen)
-
         is_jinhan = isinstance(self.method, QimenJinhanMethod)
         if is_jinhan:
             forbidden = [
                 name for name, value in (
-                    ("matter", self.matter), ("yong_shen", self.yong_shen),
+                    ("focus", self.focus),
                     ("rule", self.rule), ("birth_standard_time", self.birth_standard_time),
                 ) if value is not None
             ]
             if forbidden:
                 raise ValueError(f"jinhan_yujing does not accept {', '.join(forbidden)}")
         elif self.rule is None and self.method.scope != "quarter":
-            if self.matter is None and self.yong_shen is None:
-                raise ValueError("ordinary qimen requires exactly one of matter or yong_shen")
+            if self.focus is None:
+                raise ValueError("ordinary qimen requires focus")
 
         if self.rule in ("lost_property", "thief_capture", "capture_escape", "thief_profile"):
-            if self.matter is not None or self.yong_shen is not None:
+            if self.focus is not None:
                 raise ValueError(f"qimen rule {self.rule} does not accept matter or yong_shen")
-        if self.rule == "missing_person" and self.matter != "missing_person":
+        if self.rule == "missing_person" and (
+            self.focus is None
+            or getattr(self.focus, "matter", None) != "missing_person"
+        ):
             raise ValueError("qimen rule missing_person requires matter=missing_person")
         return self
 

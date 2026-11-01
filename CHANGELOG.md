@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026.11.01.1] — 2026-11-01
+
+### Breaking changes
+
+- **naming_check 支持用户字面约束**：新增可选 `forbidden_chars` 与 `required_chars`；候选名命中禁止字或缺失必含字时 `valid=false`，错误码分别为 `forbidden_character` 和 `required_character_missing`。
+- **六爻快照焦点 schema 化**：`liuyao_snapshot` 的 `matter / yong_shen / perspective` 收敛为 `focus` discriminated union；`matter` 焦点内表达 relationship 的 `perspective`，显式用神使用 `yong_shen` 焦点。
+- **奇门快照地点与焦点 schema 化**：`qimen_snapshot` 的 `city / longitude` 收敛为 `location` union，`matter / yong_shen` 收敛为 `focus` union；普通盘缺少焦点、金函携带焦点等组合继续 fail closed。
+- **六爻应期候选减法**：删除 snapshot 根级 `timing_candidates`；`timing_plan.candidates` 成为唯一应期候选来源，`liuyao_query.timing_refs` 只允许引用 projected plan。
+
+### Changed
+
+- naming docs 明确「用+用」「用+喜」「喜+用」；`naming_check` 逐字返回 `wuxing_role`，不预设 expected。
+- divination docs 改为以 focus/location 表达输入，方法签名细节仍以 MCP schema 为准。
+- 时间契约保持不变：civil wall time 继续先经 `tianwen.resolve` 归一，`time_now` 输出可排盘的 `standard_time`（RFC3339 known-offset），排盘与流年工具消费 `standard_time`，奇门年命输入继续使用 `birth_standard_time`。
+
 ## [2026.11.01.0] — 2026-11-01
 
 ### Breaking changes

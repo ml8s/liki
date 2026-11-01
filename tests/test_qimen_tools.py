@@ -406,7 +406,12 @@ def test_qimen_chart_rejects_empty_explicit_yong_shen(monkeypatch) -> None:
 
 def test_python_tool_schema_rejects_empty_or_duplicate_yong_shen() -> None:
     contract = next(c for c in DIVINATION_TOOLS if c.name == "qimen_snapshot")
-    yong_shen = contract.input_schema["properties"]["yong_shen"]
+    focus_branches = contract.input_schema["properties"]["focus"]["anyOf"]
+    yong_shen = next(
+        branch["properties"]["yong_shen"]
+        for branch in focus_branches
+        if branch.get("properties", {}).get("yong_shen")
+    )
     assert yong_shen["minItems"] == 1
     assert yong_shen["uniqueItems"] is True
 

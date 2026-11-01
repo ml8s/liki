@@ -253,7 +253,7 @@ def test_liuyao_snapshot_input_accepts_primary_call():
         {
             "question": "这次面试能不能通过",
             "casting": {"mode": "yaos", "yaos": [7, 7, 7, 7, 7, 7]},
-            "matter": "career",
+            "focus": {"kind": "matter", "matter": "career"},
             "longitude": 116.4,
             "standard_time": "2026-10-01T10:00:00+08:00",
         }

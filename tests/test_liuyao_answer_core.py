@@ -18,7 +18,9 @@ def _snapshot():
             "reference": [{"id": "hexagram-name", "fact": {}}],
             "conflicts": [{"id": "strong-but-void", "reason": "须辨真假空"}],
         },
-        "timing_candidates": [{"id": "void-fill-1-子", "mechanism": "旬空填实"}],
+        "timing_plan": {
+            "candidates": [{"id": "void-fill-1-子", "mechanism": "旬空填实"}],
+        },
     }
 
 
