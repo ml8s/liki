@@ -214,22 +214,14 @@ func mustRegister[In, Out any](registry *Registry, tool Tool[In, Out]) {
 	}
 }
 
-// mustSeriesSchema marshals the single-output type schema and wraps it as a
-// oneOf union with the batch {items:[...]} format for series tools.
-func mustSeriesSchema[Out any]() json.RawMessage {
-	schema, err := jsonschema.For[Out](forOptions)
+// mustSeriesSchema publishes the named domain series root. Out is one item,
+// not the transport wrapper.
+func mustSeriesSchema[Out any](root string) json.RawMessage {
+	raw, err := seriesOutputSchema[Out](root)
 	if err != nil {
-		panic(fmt.Sprintf("derive series output schema for %T: %v", *new(Out), err))
+		panic(fmt.Sprintf("build %s series output schema: %v", root, err))
 	}
-	single, err := schema.MarshalJSON()
-	if err != nil {
-		panic(fmt.Sprintf("marshal series output schema for %T: %v", *new(Out), err))
-	}
-	combined, err := seriesOutputSchema(single)
-	if err != nil {
-		panic(fmt.Sprintf("build series output schema for %T: %v", *new(Out), err))
-	}
-	return combined
+	return raw
 }
 
 // NewEngine returns the engine's typed MCP contract registry.
@@ -291,11 +283,11 @@ func NewEngine() *Registry {
 		Description: "玄空飞星。period_date 为宅运起盘日期（如建成/入住/改宅日期），不是命主出生时间。zuo_shan/xiang_shan 为坐向（0-23）。",
 		Handler:     XuankongChartCompute,
 	})
-	mustRegister(registry, Tool[XuankongLiunianInput, any]{
+	mustRegister(registry, Tool[XuankongLiunianInput, XuankongLiuNianSeries]{
 		Name:         "xuankong_liunian",
-		Description:  "玄空流年飞星。count=1（默认）返回单年；count>1 返回 {items:[...]} 批量。",
+		Description:  "玄空流年飞星。count=1（默认）返回单年；count>1 返回领域数组批量。",
 		Handler:      XuankongLiunian,
-		OutputSchema: mustSeriesSchema[XuankongLiunianOutput](),
+		OutputSchema: mustSeriesSchema[XuankongLiunianOutput]("liu_nian"),
 	})
 	qiguaSchema, err := liuyaoQiguaFormsSchema()
 	if err != nil {
@@ -317,29 +309,29 @@ func NewEngine() *Registry {
 		Description: "八字合盘原始事实。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
 		Handler:     BaziBond,
 	})
-	mustRegister(registry, Tool[BaziLiuNianInput, any]{
+	mustRegister(registry, Tool[BaziLiuNianInput, BaziLiuNianSeries]{
 		Name:         "bazi_liunian",
-		Description:  "八字流年运势。count=1（默认）返回单年；count>1 返回 {items:[...]} 批量。",
+		Description:  "八字流年运势。count=1（默认）返回单年；count>1 返回领域数组批量。",
 		Handler:      BaziLiuNian,
-		OutputSchema: mustSeriesSchema[BaziLiuNianOutput](),
+		OutputSchema: mustSeriesSchema[BaziLiuNianOutput]("liu_nian"),
 	})
-	mustRegister(registry, Tool[BaziLiuYueInput, any]{
+	mustRegister(registry, Tool[BaziLiuYueInput, BaziLiuYueSeries]{
 		Name:         "bazi_liuyue",
-		Description:  "流月运势。count=1（默认）返回单月；count>1 返回 {items:[...]} 批量（跨年进位）。",
+		Description:  "流月运势。count=1（默认）返回单月；count>1 返回领域数组批量（跨年进位）。",
 		Handler:      BaziLiuYue,
-		OutputSchema: mustSeriesSchema[BaziLiuYueOutput](),
+		OutputSchema: mustSeriesSchema[BaziLiuYueOutput]("liu_yue"),
 	})
-	mustRegister(registry, Tool[BaziLiuRiInput, any]{
+	mustRegister(registry, Tool[BaziLiuRiInput, BaziLiuRiSeries]{
 		Name:         "bazi_liuri",
-		Description:  "流日运势。count=1（默认）返回单日；count>1 返回 {items:[...]} 批量（跨月跨年进位）。",
+		Description:  "流日运势。count=1（默认）返回单日；count>1 返回领域数组批量（跨月跨年进位）。",
 		Handler:      BaziLiuRi,
-		OutputSchema: mustSeriesSchema[BaziLiuRiOutput](),
+		OutputSchema: mustSeriesSchema[BaziLiuRiOutput]("liu_ri"),
 	})
-	mustRegister(registry, Tool[BaziLiuShiInput, any]{
+	mustRegister(registry, Tool[BaziLiuShiInput, BaziLiuShiSeries]{
 		Name:         "bazi_liushi",
-		Description:  "流时运势。count=1（默认）返回单时辰；count>1 返回 {items:[...]} 批量（跨日跨月跨年进位）。",
+		Description:  "流时运势。count=1（默认）返回单时辰；count>1 返回领域数组批量（跨日跨月跨年进位）。",
 		Handler:      BaziLiuShi,
-		OutputSchema: mustSeriesSchema[BaziLiuShiOutput](),
+		OutputSchema: mustSeriesSchema[BaziLiuShiOutput]("liu_shi"),
 	})
 	mustRegister(registry, Tool[BaziXiaoYunInput, BaziXiaoYunOutput]{
 		Name:        "bazi_xiaoyun",
@@ -356,29 +348,29 @@ func NewEngine() *Registry {
 		Description: "紫微斗数大限。返回十年大限各宫吉凶。输入为已归一化的出生主体。",
 		Handler:     ZiweiDaXian,
 	})
-	mustRegister(registry, Tool[ZiweiLiuNianInput, any]{
+	mustRegister(registry, Tool[ZiweiLiuNianInput, ZiweiLiuNianSeries]{
 		Name:         "ziwei_liunian",
-		Description:  "紫微流年。count=1（默认）返回单年；count>1 返回 {items:[...]} 批量。",
+		Description:  "紫微流年。count=1（默认）返回单年；count>1 返回领域数组批量。",
 		Handler:      ZiweiLiuNian,
-		OutputSchema: mustSeriesSchema[ZiweiLiuNianOutput](),
+		OutputSchema: mustSeriesSchema[ZiweiLiuNianOutput]("liu_nian"),
 	})
-	mustRegister(registry, Tool[ZiweiLiuYueInput, any]{
+	mustRegister(registry, Tool[ZiweiLiuYueInput, ZiweiLiuYueSeries]{
 		Name:         "ziwei_liuyue",
-		Description:  "紫微流月。count=1（默认）返回单月；count>1 返回 {items:[...]} 批量。",
+		Description:  "紫微流月。count=1（默认）返回单月；count>1 返回领域数组批量。",
 		Handler:      ZiweiLiuYue,
-		OutputSchema: mustSeriesSchema[ZiweiLiuYueOutput](),
+		OutputSchema: mustSeriesSchema[ZiweiLiuYueOutput]("liu_yue"),
 	})
-	mustRegister(registry, Tool[ZiweiLiuRiInput, any]{
+	mustRegister(registry, Tool[ZiweiLiuRiInput, ZiweiLiuRiSeries]{
 		Name:         "ziwei_liuri",
-		Description:  "紫微流日。count=1（默认）返回单日；count>1 返回 {items:[...]} 批量。",
+		Description:  "紫微流日。count=1（默认）返回单日；count>1 返回领域数组批量。",
 		Handler:      ZiweiLiuRi,
-		OutputSchema: mustSeriesSchema[ZiweiLiuRiOutput](),
+		OutputSchema: mustSeriesSchema[ZiweiLiuRiOutput]("liu_ri"),
 	})
-	mustRegister(registry, Tool[ZiweiLiuShiInput, any]{
+	mustRegister(registry, Tool[ZiweiLiuShiInput, ZiweiLiuShiSeries]{
 		Name:         "ziwei_liushi",
 		Description:  "紫微流时。count=1（默认）返回单时辰；count>1 返回 {items:[...]} 批量（12地支循环）。",
 		Handler:      ZiweiLiuShi,
-		OutputSchema: mustSeriesSchema[ZiweiLiuShiOutput](),
+		OutputSchema: mustSeriesSchema[ZiweiLiuShiOutput]("liu_shi"),
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiBondInput, ZiweiBondOutput]{
 		Name:        "ziwei_bond",

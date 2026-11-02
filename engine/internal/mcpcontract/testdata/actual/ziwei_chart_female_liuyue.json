@@ -1,152 +1,154 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-07-16T12:00:00+08:00",
+      "birth_time": "2000-09-20T08:00:00+08:00",
       "birth_longitude": 116.4,
-      "gender": "male"
+      "gender": "female"
     },
     "start_time": "2026-07-23T12:00:00+08:00"
   },
   "output": {
-    "gong_wei": [
+    "liu_yue": [
       {
-        "is_liu_ming": false,
-        "name": "迁移",
-        "xing_yao": [
-          "月陀",
-          "月喜"
-        ],
-        "zhi": "寅"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "疾厄",
-        "xing_yao": [
-          "月禄"
-        ],
-        "zhi": "卯"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "财帛",
-        "xing_yao": [
-          "月羊"
-        ],
-        "zhi": "辰"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "子女",
-        "xing_yao": [
-          "月马"
-        ],
-        "zhi": "巳"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "夫妻",
-        "xing_yao": [
-          "月昌"
-        ],
-        "zhi": "午"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "兄弟",
-        "xing_yao": [],
-        "zhi": "未"
-      },
-      {
-        "is_liu_ming": true,
-        "name": "命宫",
-        "xing_yao": [
-          "月钺",
-          "月鸾",
-          "月曲"
-        ],
-        "zhi": "申"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "父母",
-        "xing_yao": [],
-        "zhi": "酉"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "福德",
-        "xing_yao": [],
-        "zhi": "戌"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "田宅",
-        "xing_yao": [],
-        "zhi": "亥"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "官禄",
-        "xing_yao": [
-          "月魁"
-        ],
-        "zhi": "子"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "仆役",
-        "xing_yao": [],
-        "zhi": "丑"
+        "yue_jie": {
+          "qi_shi_standard_time": "2026-07-23T12:00:00+08:00",
+          "qi_shi_date": "2026-07-23",
+          "lunar": {
+            "year": 2026,
+            "month": 6,
+            "day": 10,
+            "leap": false
+          },
+          "lunar_month_start": "2026-07-14",
+          "lunar_month_end": "2026-08-13",
+          "boundary_day": false,
+          "calendar_period": {
+            "year": 2026,
+            "month": 6,
+            "leap": false,
+            "half": "whole",
+            "day_start": 1,
+            "day_end": 30
+          },
+          "flow_month": {
+            "year": 2026,
+            "month": 6,
+            "leap": false
+          }
+        },
+        "ming_gong": "命宫",
+        "ming_gong_name": "命宫",
+        "zhi": "未",
+        "si_hua": {
+          "天机": "禄",
+          "天梁": "权",
+          "太阴": "忌",
+          "紫微": "科"
+        },
+        "xing_yao": {
+          "月喜": "寅",
+          "月昌": "午",
+          "月曲": "申",
+          "月禄": "卯",
+          "月羊": "辰",
+          "月钺": "申",
+          "月陀": "寅",
+          "月马": "巳",
+          "月魁": "子",
+          "月鸾": "申"
+        },
+        "gong_wei": [
+          {
+            "zhi": "寅",
+            "name": "迁移",
+            "xing_yao": [
+              "月陀",
+              "月喜"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "卯",
+            "name": "疾厄",
+            "xing_yao": [
+              "月禄"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "辰",
+            "name": "财帛",
+            "xing_yao": [
+              "月羊"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "巳",
+            "name": "子女",
+            "xing_yao": [
+              "月马"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "午",
+            "name": "夫妻",
+            "xing_yao": [
+              "月昌"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "未",
+            "name": "兄弟",
+            "xing_yao": [],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "申",
+            "name": "命宫",
+            "xing_yao": [
+              "月钺",
+              "月鸾",
+              "月曲"
+            ],
+            "is_liu_ming": true
+          },
+          {
+            "zhi": "酉",
+            "name": "父母",
+            "xing_yao": [],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "戌",
+            "name": "福德",
+            "xing_yao": [],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "亥",
+            "name": "田宅",
+            "xing_yao": [],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "子",
+            "name": "官禄",
+            "xing_yao": [
+              "月魁"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "丑",
+            "name": "仆役",
+            "xing_yao": [],
+            "is_liu_ming": false
+          }
+        ]
       }
-    ],
-    "ming_gong": "命宫",
-    "ming_gong_name": "命宫",
-    "resolved": {
-      "boundary_day": false,
-      "lunar": {
-        "day": 10,
-        "leap": false,
-        "month": 6,
-        "year": 2026
-      },
-      "lunar_month_end": "2026-08-13",
-      "lunar_month_start": "2026-07-14",
-      "selector_date": "2026-07-23",
-      "selector_standard_time": "2026-07-23T12:00:00+08:00"
-    },
-    "resolved_period": {
-      "calendar_period": {
-        "day_end": 30,
-        "day_start": 1,
-        "half": "whole",
-        "leap": false,
-        "month": 6,
-        "year": 2026
-      },
-      "flow_month": {
-        "leap": false,
-        "month": 6,
-        "year": 2026
-      }
-    },
-    "si_hua": {
-      "天机": "禄",
-      "天梁": "权",
-      "太阴": "忌",
-      "紫微": "科"
-    },
-    "xing_yao": {
-      "月喜": "寅",
-      "月昌": "午",
-      "月曲": "申",
-      "月禄": "卯",
-      "月羊": "辰",
-      "月钺": "申",
-      "月陀": "寅",
-      "月马": "巳",
-      "月魁": "子",
-      "月鸾": "申"
-    },
-    "zhi": "未"
+    ]
   }
 }

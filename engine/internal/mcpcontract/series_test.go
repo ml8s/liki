@@ -25,27 +25,43 @@ func seriesChart(t *testing.T) map[string]any {
 	return testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 }
 
+var namedSeriesRoots = []string{"liu_nian", "liu_yue", "liu_ri", "liu_shi", "xiao_yun", "da_xian"}
+
 func decodeSeriesItems(t *testing.T, raw json.RawMessage) []map[string]any {
 	t.Helper()
-	var out struct {
-		Items []map[string]any `json:"items"`
+	var document map[string]any
+	decode(t, raw, &document)
+	for _, root := range namedSeriesRoots {
+		if items, ok := document[root].([]any); ok {
+			out := make([]map[string]any, 0, len(items))
+			for _, item := range items {
+				object, ok := item.(map[string]any)
+				if !ok {
+					t.Fatalf("%s series item is not an object: %#v", root, item)
+				}
+				out = append(out, object)
+			}
+			return out
+		}
 	}
-	decode(t, raw, &out)
-	return out.Items
+	t.Fatalf("series document has no named domain root: %#v", document)
+	return nil
 }
 
-// firstSeriesItem unwraps the object-rooted series document's first item.
+// firstSeriesItem unwraps the named domain series document's first item.
 func firstSeriesItem(t *testing.T, document map[string]any) map[string]any {
 	t.Helper()
-	items, ok := document["items"].([]any)
-	if !ok || len(items) == 0 {
-		t.Fatalf("series document has no items: %#v", document)
+	for _, root := range namedSeriesRoots {
+		if items, ok := document[root].([]any); ok && len(items) > 0 {
+			item, ok := items[0].(map[string]any)
+			if !ok {
+				t.Fatalf("%s series item is not an object: %#v", root, items[0])
+			}
+			return item
+		}
 	}
-	item, ok := items[0].(map[string]any)
-	if !ok {
-		t.Fatalf("series item is not an object: %#v", items[0])
-	}
-	return item
+	t.Fatalf("series document has no named domain root: %#v", document)
+	return nil
 }
 
 func callSeries(t *testing.T, reg *Registry, tool string, args map[string]any) json.RawMessage {
@@ -104,20 +120,16 @@ func TestSeriesBatchFirstEqualsSingle(t *testing.T) {
 	batch := callSeries(t, reg, "bazi_liunian", map[string]any{
 		"start_time": "2026-06-15T12:00:00+08:00", "count": 3, "subject": chart,
 	})
-	var s struct {
-		Items []BaziLiuNianOutput `json:"items"`
-	}
+	var s BaziLiuNianSeries
 	decode(t, single, &s)
-	var b struct {
-		Items []BaziLiuNianOutput `json:"items"`
-	}
+	var b BaziLiuNianSeries
 	decode(t, batch, &b)
-	if len(s.Items) == 0 || len(b.Items) == 0 {
+	if len(s.LiuNian) == 0 || len(b.LiuNian) == 0 {
 		t.Fatal("empty batch")
 	}
-	if b.Items[0].Year != s.Items[0].Year || b.Items[0].ShiShen != s.Items[0].ShiShen {
+	if b.LiuNian[0].Year != s.LiuNian[0].Year || b.LiuNian[0].ShiShen != s.LiuNian[0].ShiShen {
 		t.Errorf("batch[0] != single: year %d/%d shishen %s/%s",
-			b.Items[0].Year, s.Items[0].Year, b.Items[0].ShiShen, s.Items[0].ShiShen)
+			b.LiuNian[0].Year, s.LiuNian[0].Year, b.LiuNian[0].ShiShen, s.LiuNian[0].ShiShen)
 	}
 }
 
@@ -184,7 +196,7 @@ func TestSeriesMonthRollover(t *testing.T) {
 	items := decodeSeriesItems(t, raw)
 	prevEnd := ""
 	for i, item := range items {
-		resolved, ok := item["resolved"].(map[string]any)
+		resolved, ok := item["jie_qi"].(map[string]any)
 		if !ok {
 			t.Fatalf("items[%d]: missing resolved", i)
 		}
@@ -211,8 +223,8 @@ func TestSeriesHourRollover(t *testing.T) {
 	if len(items) != 2 {
 		t.Fatalf("want 2, got %d", len(items))
 	}
-	first, _ := items[0]["resolved"].(map[string]any)["shichen"].(string)
-	second, _ := items[1]["resolved"].(map[string]any)["shichen"].(string)
+	first, _ := items[0]["shi_chen"].(map[string]any)["shichen"].(string)
+	second, _ := items[1]["shi_chen"].(map[string]any)["shichen"].(string)
 	firstZhi, err := ganzhi.ParseZhi(first)
 	if err != nil {
 		t.Fatal(err)
@@ -239,11 +251,11 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	if len(days) != 2 {
 		t.Fatalf("bazi_liuri returned %d items, want 2", len(days))
 	}
-	if got := days[0]["resolved"].(map[string]any)["standard_time"].(string); got != "2024-01-01T22:52:00Z" {
+	if got := days[0]["ri_jie"].(map[string]any)["standard_time"].(string); got != "2024-01-01T22:52:00Z" {
 		t.Fatalf("bazi_liuri first selector = %s, want the input selector", got)
 	}
-	firstDay := days[0]["resolved"].(map[string]any)["last_date"].(string)
-	secondDay := days[1]["resolved"].(map[string]any)["last_date"].(string)
+	firstDay := days[0]["ri_jie"].(map[string]any)["last_date"].(string)
+	secondDay := days[1]["ri_jie"].(map[string]any)["last_date"].(string)
 	if firstDay == secondDay {
 		t.Fatalf("bazi_liuri repeated LAST date %s", firstDay)
 	}
@@ -257,11 +269,11 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	if len(hours) != 2 {
 		t.Fatalf("bazi_liushi returned %d items, want 2", len(hours))
 	}
-	if got := hours[0]["resolved"].(map[string]any)["standard_time"].(string); got != "2024-01-02T20:28:00Z" {
+	if got := hours[0]["shi_chen"].(map[string]any)["standard_time"].(string); got != "2024-01-02T20:28:00Z" {
 		t.Fatalf("bazi_liushi first selector = %s, want the input selector", got)
 	}
-	firstShichen := hours[0]["resolved"].(map[string]any)["shichen"].(string)
-	secondShichen := hours[1]["resolved"].(map[string]any)["shichen"].(string)
+	firstShichen := hours[0]["shi_chen"].(map[string]any)["shichen"].(string)
+	secondShichen := hours[1]["shi_chen"].(map[string]any)["shichen"].(string)
 	if firstShichen != "巳" || secondShichen != "午" {
 		t.Fatalf("bazi_liushi shichen = %s -> %s, want 巳 -> 午", firstShichen, secondShichen)
 	}
@@ -280,8 +292,8 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	if len(ziweiHours) != 2 {
 		t.Fatalf("ziwei_liushi returned %d items, want 2", len(ziweiHours))
 	}
-	firstZiweiShichen := ziweiHours[0]["resolved"].(map[string]any)["shichen"].(string)
-	secondZiweiShichen := ziweiHours[1]["resolved"].(map[string]any)["shichen"].(string)
+	firstZiweiShichen := ziweiHours[0]["shi_chen"].(map[string]any)["shichen"].(string)
+	secondZiweiShichen := ziweiHours[1]["shi_chen"].(map[string]any)["shichen"].(string)
 	if firstZiweiShichen != "巳" || secondZiweiShichen != "午" {
 		t.Fatalf("ziwei_liushi shichen = %s -> %s, want 巳 -> 午", firstZiweiShichen, secondZiweiShichen)
 	}
@@ -295,7 +307,7 @@ func TestSeriesXiaoYunDefaultOne(t *testing.T) {
 	})
 	var out BaziXiaoYunOutput
 	decode(t, raw, &out)
-	for _, set := range out.Items {
+	for _, set := range out.XiaoYun {
 		if len(set.Zhus) != 1 {
 			t.Errorf("xiaoyun default count=1: got %d zhus", len(set.Zhus))
 		}

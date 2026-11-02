@@ -1,94 +1,98 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-06-15T12:00:00+08:00",
-      "birth_longitude": 120.25,
-      "gender": "male"
+      "birth_time": "2000-09-20T08:30:00+08:00",
+      "birth_longitude": 118.5,
+      "gender": "female"
     },
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "gan_rels": [
+    "liu_yue": [
       {
-        "gan_a": "甲",
-        "gan_b": "庚",
-        "relation": "庚克甲",
-        "type": "相克"
-      },
-      {
-        "gan_a": "甲",
-        "gan_b": "乙",
-        "relation": "甲乙同气",
-        "type": "相同"
-      },
-      {
-        "gan_a": "甲",
-        "gan_b": "辛",
-        "relation": "辛克甲",
-        "type": "相克"
-      },
-      {
-        "gan_a": "甲",
-        "gan_b": "壬",
-        "relation": "壬生甲",
-        "type": "相生"
-      }
-    ],
-    "ke": 0,
-    "month_name": "午月",
-    "resolved": {
-      "boundary_day": false,
-      "jieqi_end": "2026-07-07",
-      "jieqi_start": "2026-06-05",
-      "selector_date": "2026-06-15",
-      "selector_standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "sheng": 1,
-    "shensha": [
-      {
-        "category": "凶",
-        "description": "流运灾煞，防意外灾祸",
-        "name": "灾煞"
-      },
-      {
-        "category": "中性",
-        "description": "流运桃花，异性缘佳",
-        "name": "桃花"
-      },
-      {
-        "category": "吉",
-        "description": "流运天乙贵人，有贵人相助",
-        "name": "天乙贵人"
-      }
-    ],
-    "shi_shen": "正财",
-    "wuxing": "木",
-    "yue_gan": "甲",
-    "yue_zhi": "午",
-    "zhi_rels": [
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "酉"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "巳"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
+        "month_name": "午月",
+        "shi_shen": "正财",
+        "yue_gan": "甲",
+        "yue_zhi": "午",
+        "wuxing": "木",
+        "sheng": 1,
+        "ke": 0,
+        "shensha": [
+          {
+            "name": "灾煞",
+            "category": "凶",
+            "description": "流运灾煞，防意外灾祸"
+          },
+          {
+            "name": "桃花",
+            "category": "中性",
+            "description": "流运桃花，异性缘佳"
+          },
+          {
+            "name": "天乙贵人",
+            "category": "吉",
+            "description": "流运天乙贵人，有贵人相助"
+          }
+        ],
+        "gan_rels": [
+          {
+            "gan_a": "甲",
+            "gan_b": "庚",
+            "relation": "庚克甲",
+            "type": "相克"
+          },
+          {
+            "gan_a": "甲",
+            "gan_b": "乙",
+            "relation": "甲乙同气",
+            "type": "相同"
+          },
+          {
+            "gan_a": "甲",
+            "gan_b": "辛",
+            "relation": "辛克甲",
+            "type": "相克"
+          },
+          {
+            "gan_a": "甲",
+            "gan_b": "壬",
+            "relation": "壬生甲",
+            "type": "相生"
+          }
+        ],
+        "zhi_rels": [
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "酉"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "巳"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          }
+        ],
+        "jie_qi": {
+          "qi_shi_standard_time": "2026-06-15T12:00:00+08:00",
+          "qi_shi_date": "2026-06-15",
+          "jieqi_start": "2026-06-05",
+          "jieqi_end": "2026-07-07",
+          "boundary_day": false
+        }
       }
     ]
   }

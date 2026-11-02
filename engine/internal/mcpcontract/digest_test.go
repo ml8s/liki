@@ -79,13 +79,13 @@ func TestXuankongSeriesValidatesReusableChart(t *testing.T) {
 		t.Fatal(err)
 	}
 	var output struct {
-		Items []map[string]any `json:"items"`
+		LiuNian []map[string]any `json:"liu_nian"`
 	}
 	decode(t, raw, &output)
-	if len(output.Items) != 1 || len(output.Items[0]["house_overlay"].([]any)) == 0 {
+	if len(output.LiuNian) != 1 || len(output.LiuNian[0]["house_overlay"].([]any)) == 0 {
 		t.Fatalf("xuankong series output = %#v", output)
 	}
-	if _, exists := output.Items[0]["source_chart_digest"]; exists {
+	if _, exists := output.LiuNian[0]["source_chart_digest"]; exists {
 		t.Fatal("derived series item carried source digest")
 	}
 
@@ -130,15 +130,15 @@ func TestSeriesSubjectOmitsSourceDigest(t *testing.T) {
 		t.Fatal(err)
 	}
 	var output struct {
-		Items []map[string]any `json:"items"`
+		LiuNian []map[string]any `json:"liu_nian"`
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatal(err)
 	}
-	if len(output.Items) != 1 {
-		t.Fatalf("omitted count items = %d, want 1", len(output.Items))
+	if len(output.LiuNian) != 1 {
+		t.Fatalf("omitted count items = %d, want 1", len(output.LiuNian))
 	}
-	if _, exists := output.Items[0]["source_chart_digest"]; exists {
+	if _, exists := output.LiuNian[0]["source_chart_digest"]; exists {
 		t.Fatal("derived series carried source digest")
 	}
 

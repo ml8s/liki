@@ -3,15 +3,12 @@ package mcpcontract
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/google/jsonschema-go/jsonschema"
 )
 
 // MaxSeriesCount is the unified upper bound for batch time-series queries.
 const MaxSeriesCount = 50
-
-// SeriesResult is the series output wrapper. Items length equals count.
-type SeriesResult[T any] struct {
-	Items []T `json:"items" jsonschema:"结果数组，长度 = count。"`
-}
 
 func seriesCountValue(count *SeriesCount) int {
 	if count == nil {
@@ -30,28 +27,16 @@ func validateSeriesCount(count, max int) (int, error) {
 	return count, nil
 }
 
-// runSeries is the stateless generic time-series executor.
-// compute: pure function from input to a single result.
-// advance: pure function from input to the next input (time step).
-// Every count returns SeriesResult[Out]{Items: [...]}: the MCP outputSchema
-// root must stay a JSON object on every negotiated protocol version (wire
-// models through 2025-11-25 reject top-level unions), so single results are
-// items arrays of length one.
+// runSeries returns domain-owned items; the caller wraps them in a named
+// series root (liu_nian/liu_yue/...). There is no generic "items" wire field.
 func runSeries[In any, Out any](
 	input In, count, max int,
 	compute func(In) (Out, error),
 	advance func(In) (In, error),
-) (any, error) {
+) ([]Out, error) {
 	n, err := validateSeriesCount(count, max)
 	if err != nil {
 		return nil, err
-	}
-	if n <= 1 {
-		out, err := compute(input)
-		if err != nil {
-			return nil, err
-		}
-		return SeriesResult[Out]{Items: []Out{out}}, nil
 	}
 	items := make([]Out, 0, n)
 	cur := input
@@ -66,33 +51,19 @@ func runSeries[In any, Out any](
 			return nil, err
 		}
 	}
-	return SeriesResult[Out]{Items: items}, nil
+	return items, nil
 }
 
-// runSeriesPrepared is the stateless generic time-series executor with a
-// one-time prepare step. Use this when compute needs decoded shared state
-// (e.g. a natal subject) that is invariant across the series: prepare decodes it
-// once, then compute receives both the current input and the decoded context.
+// runSeriesPrepared is runSeries with a one-time shared-state prepare step.
 func runSeriesPrepared[In any, Ctx any, Out any](
 	input In, count, max int,
 	prepare func(In) (Ctx, error),
 	compute func(In, Ctx) (Out, error),
 	advance func(In) (In, error),
-) (any, error) {
+) ([]Out, error) {
 	n, err := validateSeriesCount(count, max)
 	if err != nil {
 		return nil, err
-	}
-	if n <= 1 {
-		ctx, err := prepare(input)
-		if err != nil {
-			return nil, err
-		}
-		out, err := compute(input, ctx)
-		if err != nil {
-			return nil, err
-		}
-		return SeriesResult[Out]{Items: []Out{out}}, nil
 	}
 	ctx, err := prepare(input)
 	if err != nil {
@@ -111,23 +82,35 @@ func runSeriesPrepared[In any, Ctx any, Out any](
 			return nil, err
 		}
 	}
-	return SeriesResult[Out]{Items: items}, nil
+	return items, nil
 }
 
-// seriesOutputSchema builds a JSON Schema for a series tool's output:
-// always the object-rooted {items: [Out]} format. The singleSchema parameter
-// is the marshalled JSON Schema for Out.
-func seriesOutputSchema(singleSchema json.RawMessage) (json.RawMessage, error) {
+// seriesOutputSchema publishes a named domain root. The MCP root remains an
+// object for every negotiated protocol version, but the property is domain
+// vocabulary rather than a generic transport word.
+func seriesOutputSchema[Out any](root string) (json.RawMessage, error) {
+	schema, err := jsonschema.For[Out](forOptions)
+	if err != nil {
+		return nil, err
+	}
 	return json.Marshal(map[string]any{
 		"type": "object",
 		"properties": map[string]any{
-			"items": map[string]any{
+			root: map[string]any{
 				"type":     "array",
-				"items":    json.RawMessage(singleSchema),
+				"items":    mustJSONSchemaRaw(schema),
 				"minItems": 1,
 			},
 		},
-		"required":             []string{"items"},
+		"required":             []string{root},
 		"additionalProperties": false,
 	})
+}
+
+func mustJSONSchemaRaw(schema *jsonschema.Schema) json.RawMessage {
+	raw, err := schema.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	return raw
 }

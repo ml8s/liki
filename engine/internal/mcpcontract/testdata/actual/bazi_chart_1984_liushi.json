@@ -1,74 +1,78 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-06-15T12:00:00+08:00",
-      "birth_longitude": 120.25,
+      "birth_time": "1984-02-15T08:00:00+08:00",
+      "birth_longitude": 123.75,
       "gender": "male"
     },
     "longitude": 116.4,
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "gan_rels": [
+    "liu_shi": [
       {
-        "gan_a": "壬",
-        "gan_b": "甲",
-        "relation": "壬生甲",
-        "type": "相生"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "丙",
-        "relation": "壬克丙",
-        "type": "相克"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "己",
-        "relation": "己克壬",
-        "type": "相克"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "戊",
-        "relation": "戊克壬",
-        "type": "相克"
-      }
-    ],
-    "hour_name": "壬午",
-    "resolved": {
-      "local_date": "2026-06-15",
-      "shichen": "午",
-      "standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "shi_gan": "壬",
-    "shi_shen": "正财",
-    "shi_zhi": "午",
-    "time": "11:00-13:00",
-    "zhi_rels": [
-      {
-        "detail": "午子相冲",
-        "type": "六冲",
-        "zhi_a": "午",
-        "zhi_b": "子"
-      },
-      {
-        "detail": "午寅半合火局，缺戌",
-        "type": "半合",
-        "zhi_a": "午",
-        "zhi_b": "寅"
-      },
-      {
-        "detail": "午卯相破",
-        "type": "破",
-        "zhi_a": "午",
-        "zhi_b": "卯"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
+        "time": "11:00-13:00",
+        "hour_name": "壬午",
+        "shi_shen": "正财",
+        "shi_gan": "壬",
+        "shi_zhi": "午",
+        "gan_rels": [
+          {
+            "gan_a": "壬",
+            "gan_b": "甲",
+            "relation": "壬生甲",
+            "type": "相生"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "丙",
+            "relation": "壬克丙",
+            "type": "相克"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "己",
+            "relation": "己克壬",
+            "type": "相克"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "戊",
+            "relation": "戊克壬",
+            "type": "相克"
+          }
+        ],
+        "zhi_rels": [
+          {
+            "detail": "午子相冲",
+            "type": "六冲",
+            "zhi_a": "午",
+            "zhi_b": "子"
+          },
+          {
+            "detail": "午寅半合火局，缺戌",
+            "type": "半合",
+            "zhi_a": "午",
+            "zhi_b": "寅"
+          },
+          {
+            "detail": "午卯相破",
+            "type": "破",
+            "zhi_a": "午",
+            "zhi_b": "卯"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          }
+        ],
+        "shi_chen": {
+          "standard_time": "2026-06-15T12:00:00+08:00",
+          "local_date": "2026-06-15",
+          "shichen": "午"
+        }
       }
     ]
   }

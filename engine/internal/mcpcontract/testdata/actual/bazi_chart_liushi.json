@@ -9,66 +9,70 @@
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "gan_rels": [
+    "liu_shi": [
       {
-        "gan_a": "壬",
-        "gan_b": "庚",
-        "relation": "庚生壬",
-        "type": "相生"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "壬",
-        "relation": "壬壬同气",
-        "type": "相同"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "甲",
-        "relation": "壬生甲",
-        "type": "相生"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "庚",
-        "relation": "庚生壬",
-        "type": "相生"
-      }
-    ],
-    "hour_name": "壬午",
-    "resolved": {
-      "local_date": "2026-06-15",
-      "shichen": "午",
-      "standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "shi_gan": "壬",
-    "shi_shen": "偏印",
-    "shi_zhi": "午",
-    "time": "11:00-13:00",
-    "zhi_rels": [
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
-      },
-      {
-        "detail": "午午自刑",
-        "type": "相刑",
-        "zhi_a": "午",
-        "zhi_b": "午"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
-      },
-      {
-        "detail": "午午自刑",
-        "type": "相刑",
-        "zhi_a": "午",
-        "zhi_b": "午"
+        "time": "11:00-13:00",
+        "hour_name": "壬午",
+        "shi_shen": "偏印",
+        "shi_gan": "壬",
+        "shi_zhi": "午",
+        "gan_rels": [
+          {
+            "gan_a": "壬",
+            "gan_b": "庚",
+            "relation": "庚生壬",
+            "type": "相生"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "壬",
+            "relation": "壬壬同气",
+            "type": "相同"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "甲",
+            "relation": "壬生甲",
+            "type": "相生"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "庚",
+            "relation": "庚生壬",
+            "type": "相生"
+          }
+        ],
+        "zhi_rels": [
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          },
+          {
+            "detail": "午午自刑",
+            "type": "相刑",
+            "zhi_a": "午",
+            "zhi_b": "午"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          },
+          {
+            "detail": "午午自刑",
+            "type": "相刑",
+            "zhi_a": "午",
+            "zhi_b": "午"
+          }
+        ],
+        "shi_chen": {
+          "standard_time": "2026-06-15T12:00:00+08:00",
+          "local_date": "2026-06-15",
+          "shichen": "午"
+        }
       }
     ]
   }

@@ -43,11 +43,20 @@ def _ziwei_daxian(subject: dict) -> list:
     )
 
 
+_SERIES_ROOTS = {
+    "bazi.liunian": "liu_nian", "bazi.liuyue": "liu_yue",
+    "bazi.liuri": "liu_ri", "bazi.liushi": "liu_shi",
+    "bazi.xiaoyun": "xiao_yun", "ziwei.daxian": "da_xian",
+    "ziwei.liunian": "liu_nian", "ziwei.liuyue": "liu_yue",
+    "ziwei.liuri": "liu_ri", "ziwei.liushi": "liu_shi",
+}
+
+
 def _series_items(tool: str, data: object) -> list:
-    """当前 engine series 输出仍使用 {items}; 后续契约改为领域根字段。"""
-    if not isinstance(data, dict) or not isinstance(data.get("items"), list):
-        raise RPCError(f"{tool}: engine series response must be {{items:[...]}}")
-    return data["items"]
+    root = _SERIES_ROOTS.get(tool)
+    if root and isinstance(data, dict) and isinstance(data.get(root), list):
+        return data[root]
+    raise RPCError(f"{tool}: engine series response must contain {root}")
 
 
 _CURRENT_YEAR_LONGITUDE = 120.0
@@ -148,10 +157,9 @@ def _liunian_range_items(tool: str, result: object, count: int) -> list[dict]:
     data = result.get("data", result)
     if not isinstance(data, dict):
         raise RPCError(f"{tool}: engine response data must be an object")
-    items = data.get("items")
-    if items is None:
-        if count != 1:
-            raise RPCError(f"{tool}: engine response missing items for count={count}")
+    root = _SERIES_ROOTS.get(tool, "liu_nian")
+    items = data.get(root)
+    if items is None and count == 1:
         items = [data]
     if not isinstance(items, list) or len(items) != count:
         actual = "non-array" if not isinstance(items, list) else str(len(items))

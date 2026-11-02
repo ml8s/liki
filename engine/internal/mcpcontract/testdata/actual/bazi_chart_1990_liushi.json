@@ -1,74 +1,78 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-06-15T12:00:00+08:00",
-      "birth_longitude": 120.25,
-      "gender": "male"
+      "birth_time": "1990-11-07T14:20:00+08:00",
+      "birth_longitude": 116,
+      "gender": "female"
     },
     "longitude": 116.4,
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "gan_rels": [
+    "liu_shi": [
       {
-        "gan_a": "壬",
-        "gan_b": "庚",
-        "relation": "庚生壬",
-        "type": "相生"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "丙",
-        "relation": "壬克丙",
-        "type": "相克"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "丙",
-        "relation": "壬克丙",
-        "type": "相克"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "乙",
-        "relation": "壬生乙",
-        "type": "相生"
-      }
-    ],
-    "hour_name": "壬午",
-    "resolved": {
-      "local_date": "2026-06-15",
-      "shichen": "午",
-      "standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "shi_gan": "壬",
-    "shi_shen": "七杀",
-    "shi_zhi": "午",
-    "time": "11:00-13:00",
-    "zhi_rels": [
-      {
-        "detail": "午午自刑",
-        "type": "相刑",
-        "zhi_a": "午",
-        "zhi_b": "午"
-      },
-      {
-        "detail": "午戌半合火局，缺寅",
-        "type": "半合",
-        "zhi_a": "午",
-        "zhi_b": "戌"
-      },
-      {
-        "detail": "午子相冲",
-        "type": "六冲",
-        "zhi_a": "午",
-        "zhi_b": "子"
-      },
-      {
-        "detail": "午未合化土",
-        "type": "六合",
-        "zhi_a": "午",
-        "zhi_b": "未"
+        "time": "11:00-13:00",
+        "hour_name": "壬午",
+        "shi_shen": "七杀",
+        "shi_gan": "壬",
+        "shi_zhi": "午",
+        "gan_rels": [
+          {
+            "gan_a": "壬",
+            "gan_b": "庚",
+            "relation": "庚生壬",
+            "type": "相生"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "丙",
+            "relation": "壬克丙",
+            "type": "相克"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "丙",
+            "relation": "壬克丙",
+            "type": "相克"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "乙",
+            "relation": "壬生乙",
+            "type": "相生"
+          }
+        ],
+        "zhi_rels": [
+          {
+            "detail": "午午自刑",
+            "type": "相刑",
+            "zhi_a": "午",
+            "zhi_b": "午"
+          },
+          {
+            "detail": "午戌半合火局，缺寅",
+            "type": "半合",
+            "zhi_a": "午",
+            "zhi_b": "戌"
+          },
+          {
+            "detail": "午子相冲",
+            "type": "六冲",
+            "zhi_a": "午",
+            "zhi_b": "子"
+          },
+          {
+            "detail": "午未合化土",
+            "type": "六合",
+            "zhi_a": "午",
+            "zhi_b": "未"
+          }
+        ],
+        "shi_chen": {
+          "standard_time": "2026-06-15T12:00:00+08:00",
+          "local_date": "2026-06-15",
+          "shichen": "午"
+        }
       }
     ]
   }

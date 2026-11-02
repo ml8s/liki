@@ -133,8 +133,9 @@ func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
 }
 
 // BaziLiuNian computes the year pillar and its interactions with a chart.
-func BaziLiuNian(_ context.Context, input BaziLiuNianInput) (any, error) {
-	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+func BaziLiuNian(_ context.Context, input BaziLiuNianInput) (BaziLiuNianSeries, error) {
+	items, err := runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+
 		func(in BaziLiuNianInput) (BaziLiuNianOutput, error) {
 			return computeBaziLiuNian(in)
 		},
@@ -151,6 +152,10 @@ func BaziLiuNian(_ context.Context, input BaziLiuNianInput) (any, error) {
 			return in, nil
 		},
 	)
+	if err != nil {
+		return BaziLiuNianSeries{}, err
+	}
+	return BaziLiuNianSeries{LiuNian: items}, nil
 }
 
 func parseBaziLiuNianTime(input BaziLiuNianInput) (bazi.LiuNianTime, tianwen.CivilDate, time.Time, *time.Location, error) {
@@ -184,19 +189,20 @@ func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
 	output.NianJie = BaziLiuNianResolved{
-		SelectorStandardTime: standardTimeValue(at),
-		SelectorDate:         civilDateString(date),
-		LichunYear:           resolved.LichunYear,
-		LichunStart:          civilDateString(resolved.Start),
-		LichunEnd:            civilDateString(resolved.End),
-		BoundaryDay:          resolved.BoundaryDay,
+		QiShiStandardTime: standardTimeValue(at),
+		QiShiDate:         civilDateString(date),
+		LichunYear:        resolved.LichunYear,
+		LichunStart:       civilDateString(resolved.Start),
+		LichunEnd:         civilDateString(resolved.End),
+		BoundaryDay:       resolved.BoundaryDay,
 	}
 	return output, nil
 }
 
 // BaziLiuYue computes the month pillar and its interactions with a chart.
-func BaziLiuYue(_ context.Context, input BaziLiuYueInput) (any, error) {
-	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+func BaziLiuYue(_ context.Context, input BaziLiuYueInput) (BaziLiuYueSeries, error) {
+	items, err := runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+
 		func(in BaziLiuYueInput) (BaziLiuYueOutput, error) {
 			return computeBaziLiuYue(in)
 		},
@@ -213,6 +219,10 @@ func BaziLiuYue(_ context.Context, input BaziLiuYueInput) (any, error) {
 			return in, nil
 		},
 	)
+	if err != nil {
+		return BaziLiuYueSeries{}, err
+	}
+	return BaziLiuYueSeries{LiuYue: items}, nil
 }
 
 func parseBaziLiuYueTime(input BaziLiuYueInput) (bazi.LiuYueTime, tianwen.CivilDate, time.Time, *time.Location, error) {
@@ -245,19 +255,20 @@ func computeBaziLiuYue(input BaziLiuYueInput) (BaziLiuYueOutput, error) {
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
-	output.Resolved = BaziLiuYueResolved{
-		SelectorStandardTime: standardTimeValue(at),
-		SelectorDate:         civilDateString(date),
-		JieqiStart:           civilDateString(resolved.Start),
-		JieqiEnd:             civilDateString(resolved.End),
-		BoundaryDay:          resolved.BoundaryDay,
+	output.JieQi = BaziLiuYueJieQi{
+		QiShiStandardTime: standardTimeValue(at),
+		QiShiDate:         civilDateString(date),
+		JieqiStart:        civilDateString(resolved.Start),
+		JieqiEnd:          civilDateString(resolved.End),
+		BoundaryDay:       resolved.BoundaryDay,
 	}
 	return output, nil
 }
 
 // BaziLiuRi computes the day pillar and its interactions with a chart.
-func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (any, error) {
-	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (BaziLiuRiSeries, error) {
+	items, err := runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+
 		func(in BaziLiuRiInput) (BaziLiuRiOutput, error) {
 			return computeBaziLiuRi(in)
 		},
@@ -274,6 +285,10 @@ func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (any, error) {
 			return in, nil
 		},
 	)
+	if err != nil {
+		return BaziLiuRiSeries{}, err
+	}
+	return BaziLiuRiSeries{LiuRi: items}, nil
 }
 
 func parseBaziLiuRiTime(input BaziLiuRiInput) (bazi.LiuRiTime, *time.Location, error) {
@@ -305,7 +320,7 @@ func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
 	}
-	output.Resolved = BaziLiuRiResolved{
+	output.RiJie = BaziLiuRiJie{
 		StandardTime: standardTimeValue(resolved.Standard.In(loc)),
 		LocalDate:    civilDateString(resolved.LocalDate),
 		LastDate:     civilDateString(resolved.Date),
@@ -315,8 +330,9 @@ func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
 }
 
 // BaziLiuShi computes the hour pillar and its interactions with a chart.
-func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (any, error) {
-	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (BaziLiuShiSeries, error) {
+	items, err := runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+
 		func(in BaziLiuShiInput) (BaziLiuShiOutput, error) {
 			return computeBaziLiuShi(in)
 		},
@@ -333,6 +349,10 @@ func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (any, error) {
 			return in, nil
 		},
 	)
+	if err != nil {
+		return BaziLiuShiSeries{}, err
+	}
+	return BaziLiuShiSeries{LiuShi: items}, nil
 }
 
 func parseBaziLiuShiTime(input BaziLiuShiInput) (bazi.LiuShiTime, *time.Location, error) {
@@ -364,7 +384,7 @@ func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
 	}
-	output.Resolved = BaziLiuShiResolved{
+	output.ShiChen = BaziLiuShiChen{
 		StandardTime: standardTimeValue(resolved.Standard.In(loc)),
 		LocalDate:    civilDateString(resolved.LocalDate),
 		Shichen:      resolved.Shichen.String(),
@@ -383,5 +403,5 @@ func BaziXiaoYun(_ context.Context, input BaziXiaoYunInput) (BaziXiaoYunOutput, 
 	if err != nil {
 		return BaziXiaoYunOutput{}, fmt.Errorf("bazi.xiaoyun: %w", err)
 	}
-	return BaziXiaoYunOutput{Items: items}, nil
+	return BaziXiaoYunOutput{XiaoYun: items}, nil
 }

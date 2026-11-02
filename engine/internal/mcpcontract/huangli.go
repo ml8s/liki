@@ -16,7 +16,7 @@ type HuangliDaysInput struct {
 }
 
 type HuangliDaysOutput struct {
-	Items []HuangliDayOutput `json:"items" jsonschema:"逐日结果数组，长度 = count。"`
+	Days []HuangliDayOutput `json:"days" jsonschema:"逐日结果数组，长度 = count。"`
 }
 
 type HuangliRiZhuOutput struct {
@@ -95,7 +95,7 @@ func HuangliDays(_ context.Context, input HuangliDaysInput) (HuangliDaysOutput, 
 		}
 		days = append(days, huangliDayWire(entry))
 	}
-	return HuangliDaysOutput{Items: days}, nil
+	return HuangliDaysOutput{Days: days}, nil
 }
 
 func huangliDayWire(day huangli.Day) HuangliDayOutput {

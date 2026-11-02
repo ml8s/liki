@@ -8,77 +8,81 @@
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "gan_rels": [
+    "liu_yue": [
       {
-        "gan_a": "甲",
-        "gan_b": "庚",
-        "relation": "庚克甲",
-        "type": "相克"
-      },
-      {
-        "gan_a": "甲",
-        "gan_b": "壬",
-        "relation": "壬生甲",
-        "type": "相生"
-      },
-      {
-        "gan_a": "甲",
-        "gan_b": "甲",
-        "relation": "甲甲同气",
-        "type": "相同"
-      },
-      {
-        "gan_a": "甲",
-        "gan_b": "庚",
-        "relation": "庚克甲",
-        "type": "相克"
-      }
-    ],
-    "ke": 0,
-    "month_name": "午月",
-    "resolved": {
-      "boundary_day": false,
-      "jieqi_end": "2026-07-07",
-      "jieqi_start": "2026-06-05",
-      "selector_date": "2026-06-15",
-      "selector_standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "sheng": 1,
-    "shensha": [
-      {
-        "category": "凶",
-        "description": "流运灾煞，防意外灾祸",
-        "name": "灾煞"
-      }
-    ],
-    "shi_shen": "比肩",
-    "wuxing": "木",
-    "yue_gan": "甲",
-    "yue_zhi": "午",
-    "zhi_rels": [
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
-      },
-      {
-        "detail": "午午自刑",
-        "type": "相刑",
-        "zhi_a": "午",
-        "zhi_b": "午"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
-      },
-      {
-        "detail": "午午自刑",
-        "type": "相刑",
-        "zhi_a": "午",
-        "zhi_b": "午"
+        "month_name": "午月",
+        "shi_shen": "比肩",
+        "yue_gan": "甲",
+        "yue_zhi": "午",
+        "wuxing": "木",
+        "sheng": 1,
+        "ke": 0,
+        "shensha": [
+          {
+            "name": "灾煞",
+            "category": "凶",
+            "description": "流运灾煞，防意外灾祸"
+          }
+        ],
+        "gan_rels": [
+          {
+            "gan_a": "甲",
+            "gan_b": "庚",
+            "relation": "庚克甲",
+            "type": "相克"
+          },
+          {
+            "gan_a": "甲",
+            "gan_b": "壬",
+            "relation": "壬生甲",
+            "type": "相生"
+          },
+          {
+            "gan_a": "甲",
+            "gan_b": "甲",
+            "relation": "甲甲同气",
+            "type": "相同"
+          },
+          {
+            "gan_a": "甲",
+            "gan_b": "庚",
+            "relation": "庚克甲",
+            "type": "相克"
+          }
+        ],
+        "zhi_rels": [
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          },
+          {
+            "detail": "午午自刑",
+            "type": "相刑",
+            "zhi_a": "午",
+            "zhi_b": "午"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          },
+          {
+            "detail": "午午自刑",
+            "type": "相刑",
+            "zhi_a": "午",
+            "zhi_b": "午"
+          }
+        ],
+        "jie_qi": {
+          "qi_shi_standard_time": "2026-06-15T12:00:00+08:00",
+          "qi_shi_date": "2026-06-15",
+          "jieqi_start": "2026-06-05",
+          "jieqi_end": "2026-07-07",
+          "boundary_day": false
+        }
       }
     ]
   }

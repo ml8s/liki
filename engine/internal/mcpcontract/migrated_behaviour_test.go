@@ -153,10 +153,10 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 		t.Fatalf("ziwei.daxian: %v", err)
 	}
 	var daxian struct {
-		Items []any `json:"items"`
+		DaXian []any `json:"da_xian"`
 	}
 	decode(t, daxianRaw, &daxian)
-	if len(daxian.Items) == 0 {
+	if len(daxian.DaXian) == 0 {
 		t.Fatal("ziwei.daxian returned an empty list")
 	}
 	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"start_time": "2026-06-15T12:00:00+08:00", "subject": chart})

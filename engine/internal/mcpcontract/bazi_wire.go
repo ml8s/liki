@@ -856,19 +856,19 @@ type BaziBondShenshaCrossRiGui struct {
 
 type BaziLiuNianInput struct {
 	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量领域数组"`
 	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── bazi.liunian output ──
 
 type BaziLiuNianResolved struct {
-	SelectorStandardTime StandardTime `json:"selector_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
-	SelectorDate         DateString   `json:"selector_date" jsonschema:"按当地标准日取的选择器日期。"`
-	LichunYear           int          `json:"lichun_year" jsonschema:"该日期所在的立春年。"`
-	LichunStart          DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
-	LichunEnd            DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
-	BoundaryDay          bool         `json:"boundary_day" jsonschema:"输入日期是否为立春边界日（归入新年）。"`
+	QiShiStandardTime StandardTime `json:"qi_shi_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
+	QiShiDate         DateString   `json:"qi_shi_date" jsonschema:"按当地标准日取的选择器日期。"`
+	LichunYear        int          `json:"lichun_year" jsonschema:"该日期所在的立春年。"`
+	LichunStart       DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
+	LichunEnd         DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
+	BoundaryDay       bool         `json:"boundary_day" jsonschema:"输入日期是否为立春边界日（归入新年）。"`
 }
 
 type BaziLiuNianOutput struct {
@@ -978,18 +978,18 @@ type BaziLiuNianAtomicFactsCombinationsItem struct {
 
 type BaziLiuYueInput struct {
 	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量items数组"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询月数，单条或批量领域数组"`
 	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── bazi.liuyue output ──
 
-type BaziLiuYueResolved struct {
-	SelectorStandardTime StandardTime `json:"selector_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
-	SelectorDate         DateString   `json:"selector_date" jsonschema:"按当地标准日取的选择器日期。"`
-	JieqiStart           DateString   `json:"jieqi_start" jsonschema:"节气月起日（节，含）。"`
-	JieqiEnd             DateString   `json:"jieqi_end" jsonschema:"下一节（不含）。"`
-	BoundaryDay          bool         `json:"boundary_day" jsonschema:"输入日期是否为节边界日（归入新月）。"`
+type BaziLiuYueJieQi struct {
+	QiShiStandardTime StandardTime `json:"qi_shi_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
+	QiShiDate         DateString   `json:"qi_shi_date" jsonschema:"按当地标准日取的选择器日期。"`
+	JieqiStart        DateString   `json:"jieqi_start" jsonschema:"节气月起日（节，含）。"`
+	JieqiEnd          DateString   `json:"jieqi_end" jsonschema:"下一节（不含）。"`
+	BoundaryDay       bool         `json:"boundary_day" jsonschema:"输入日期是否为节边界日（归入新月）。"`
 }
 
 type BaziLiuYueOutput struct {
@@ -1003,7 +1003,7 @@ type BaziLiuYueOutput struct {
 	Shensha   *[]BaziLiuYueShenshaItem `json:"shensha,omitempty" jsonschema:"流月神煞（动态：桃花/驿马/华盖/劫煞/灾煞/红鸾/天喜/天乙贵人/羊刃——年支+日支双查）"`
 	GanRels   *[]BaziLiuYueGanRelsItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
 	ZhiRels   *[]BaziLiuYueZhiRelsItem `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
-	Resolved  BaziLiuYueResolved       `json:"resolved" jsonschema:"时间推导结果。"`
+	JieQi     BaziLiuYueJieQi          `json:"jie_qi" jsonschema:"流月节气月界。"`
 }
 
 type BaziLiuYueShenshaItem struct {
@@ -1031,11 +1031,11 @@ type BaziLiuYueZhiRelsItem struct {
 type BaziLiuRiInput struct {
 	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
 	Longitude float64      `json:"longitude" jsonschema:"目标地经度（-180..180）；真太阳时校正用于日柱。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量items数组"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询日数，单条或批量领域数组"`
 	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
-type BaziLiuRiResolved struct {
+type BaziLiuRiJie struct {
 	StandardTime StandardTime `json:"standard_time" jsonschema:"时区标准时间（无 DST）。"`
 	LocalDate    DateString   `json:"local_date" jsonschema:"目标地标准日。"`
 	LastDate     DateString   `json:"last_date" jsonschema:"真太阳时日（日柱所用日期）。"`
@@ -1056,7 +1056,7 @@ type BaziLiuRiOutput struct {
 	ZhiRels     *[]BaziLiuRiZhiRelsItem     `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
 	DayunRels   *[]BaziLiuRiDayunRelsItem   `json:"dayun_rels,omitempty" jsonschema:"与大运关系"`
 	LiunianRels *[]BaziLiuRiLiunianRelsItem `json:"liunian_rels,omitempty" jsonschema:"与流年关系"`
-	Resolved    BaziLiuRiResolved           `json:"resolved" jsonschema:"时间推导结果。"`
+	RiJie       BaziLiuRiJie                `json:"ri_jie" jsonschema:"流日日界。"`
 }
 
 type BaziLiuRiShenshaItem struct {
@@ -1098,13 +1098,13 @@ type BaziLiuRiLiunianRelsItem struct {
 type BaziLiuShiInput struct {
 	StartTime StandardTime `json:"start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
 	Longitude float64      `json:"longitude" jsonschema:"占问地经度（-180..180）；真太阳时校正用于日柱/时柱。"`
-	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量items数组"`
+	Count     *SeriesCount `json:"count,omitempty" jsonschema:"连续查询时辰数，单条或批量领域数组"`
 	Subject   NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── bazi.liushi output ──
 
-type BaziLiuShiResolved struct {
+type BaziLiuShiChen struct {
 	StandardTime StandardTime `json:"standard_time" jsonschema:"时区标准时间（无 DST）。"`
 	LocalDate    DateString   `json:"local_date" jsonschema:"占问地标准日。"`
 	Shichen      string       `json:"shichen" jsonschema:"真太阳时时辰。"`
@@ -1118,7 +1118,7 @@ type BaziLiuShiOutput struct {
 	ShiZhi   *string                  `json:"shi_zhi,omitempty" jsonschema:"流时地支"`
 	GanRels  *[]BaziLiuShiGanRelsItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
 	ZhiRels  *[]BaziLiuShiZhiRelsItem `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
-	Resolved BaziLiuShiResolved       `json:"resolved" jsonschema:"时间推导结果。"`
+	ShiChen  BaziLiuShiChen           `json:"shi_chen" jsonschema:"流时时辰定位。"`
 }
 
 type BaziLiuShiGanRelsItem struct {
@@ -1145,7 +1145,7 @@ type BaziXiaoYunInput struct {
 // ── bazi.xiaoyun output ──
 
 type BaziXiaoYunOutput struct {
-	Items []BaziXiaoYunItem `json:"items" jsonschema:"各学派小运列表。"`
+	XiaoYun []BaziXiaoYunItem `json:"xiao_yun" jsonschema:"各学派小运列表；长度 = count。"`
 }
 
 type BaziXiaoYunItem struct {
@@ -1160,4 +1160,22 @@ type BaziXiaoYunItemZhusItem struct {
 	Zhi     LiuyaoZhiName `json:"zhi" jsonschema:"地支。"`
 	Name    string        `json:"name" jsonschema:"名称。"`
 	ShiShen *TenGodName   `json:"shi_shen,omitempty" jsonschema:"十神。"`
+}
+
+// ── named natal series roots ──
+
+type BaziLiuNianSeries struct {
+	LiuNian []BaziLiuNianOutput `json:"liu_nian" jsonschema:"流年数组，长度 = count。"`
+}
+
+type BaziLiuYueSeries struct {
+	LiuYue []BaziLiuYueOutput `json:"liu_yue" jsonschema:"流月数组，长度 = count。"`
+}
+
+type BaziLiuRiSeries struct {
+	LiuRi []BaziLiuRiOutput `json:"liu_ri" jsonschema:"流日数组，长度 = count。"`
+}
+
+type BaziLiuShiSeries struct {
+	LiuShi []BaziLiuShiOutput `json:"liu_shi" jsonschema:"流时数组，长度 = count。"`
 }

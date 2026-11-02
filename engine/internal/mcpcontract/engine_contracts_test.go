@@ -460,10 +460,10 @@ func TestEngineContractCalls(t *testing.T) {
 	if err := json.Unmarshal(huangliRaw, &huangliOutput); err != nil {
 		t.Fatal(err)
 	}
-	if len(huangliOutput.Items) != 1 {
-		t.Fatalf("huangli days = %d, want 1", len(huangliOutput.Items))
+	if len(huangliOutput.Days) != 1 {
+		t.Fatalf("huangli days = %d, want 1", len(huangliOutput.Days))
 	}
-	day := huangliOutput.Items[0]
+	day := huangliOutput.Days[0]
 	if day.Event != "sign" || day.EventLabel != "签约" || day.Suitability != "recommended" {
 		t.Fatalf("huangli classification = %#v", day)
 	}
@@ -540,14 +540,14 @@ func TestEngineContractCalls(t *testing.T) {
 		t.Fatalf("xuankong.liunian output contract: %v", err)
 	}
 	var liunianDocument struct {
-		Items []XuankongLiunianOutput `json:"items"`
+		LiuNian []XuankongLiunianOutput `json:"liu_nian"`
 	}
 	if err := json.Unmarshal(liunianRaw, &liunianDocument); err != nil {
 		t.Fatal(err)
 	}
-	if len(liunianDocument.Items) != 1 ||
-		len(liunianDocument.Items[0].GongWei) != 9 ||
-		len(liunianDocument.Items[0].HouseOverlay) != 9 {
+	if len(liunianDocument.LiuNian) != 1 ||
+		len(liunianDocument.LiuNian[0].GongWei) != 9 ||
+		len(liunianDocument.LiuNian[0].HouseOverlay) != 9 {
 		t.Fatalf("incomplete xuankong overlay: %#v", liunianDocument)
 	}
 

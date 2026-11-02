@@ -39,14 +39,14 @@ def _fake_call(cst):
         if name == "bazi.liunian":
             year = BAZI[_date(gt)]
             gan, zhi = GZ[year]
-            return {"data": {"items": [{
+            return {"data": {"liu_nian": [{
                 "year": year,
                 "nian": {"gan": gan, "zhi": zhi},
                 "nian_jie": {"lichun_year": year},
             }]}}
         if name == "ziwei.liunian":
             year = LUNAR[_date(gt)]
-            return {"data": {"items": [{
+            return {"data": {"liu_nian": [{
                 "nian_jie": {"lunar_year": year},
             }]}}
         raise AssertionError(f"unexpected tool {name}")

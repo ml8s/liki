@@ -1,94 +1,96 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-06-15T12:00:00+08:00",
-      "birth_longitude": 120.25,
+      "birth_time": "1984-02-15T08:00:00+08:00",
+      "birth_longitude": 123.75,
       "gender": "male"
     },
     "count": 5
   },
-  "output": [
-    {
-      "basis": "《三命通会》：男起丙寅顺行、女起壬申逆行",
-      "method": "san_ming_tong_hui",
-      "zhus": [
-        {
-          "age": 1,
-          "gan": "丙",
-          "name": "丙寅",
-          "shi_shen": "正印",
-          "zhi": "寅"
-        },
-        {
-          "age": 2,
-          "gan": "丁",
-          "name": "丁卯",
-          "shi_shen": "偏印",
-          "zhi": "卯"
-        },
-        {
-          "age": 3,
-          "gan": "戊",
-          "name": "戊辰",
-          "shi_shen": "劫财",
-          "zhi": "辰"
-        },
-        {
-          "age": 4,
-          "gan": "己",
-          "name": "己巳",
-          "shi_shen": "比肩",
-          "zhi": "巳"
-        },
-        {
-          "age": 5,
-          "gan": "庚",
-          "name": "庚午",
-          "shi_shen": "伤官",
-          "zhi": "午"
-        }
-      ]
-    },
-    {
-      "basis": "《星平会海》：由时柱起，阳男阴女顺、阴男阳女逆",
-      "method": "xing_ping_hui_hai",
-      "zhus": [
-        {
-          "age": 1,
-          "gan": "戊",
-          "name": "戊辰",
-          "shi_shen": "劫财",
-          "zhi": "辰"
-        },
-        {
-          "age": 2,
-          "gan": "己",
-          "name": "己巳",
-          "shi_shen": "比肩",
-          "zhi": "巳"
-        },
-        {
-          "age": 3,
-          "gan": "庚",
-          "name": "庚午",
-          "shi_shen": "伤官",
-          "zhi": "午"
-        },
-        {
-          "age": 4,
-          "gan": "辛",
-          "name": "辛未",
-          "shi_shen": "食神",
-          "zhi": "未"
-        },
-        {
-          "age": 5,
-          "gan": "壬",
-          "name": "壬申",
-          "shi_shen": "正财",
-          "zhi": "申"
-        }
-      ]
-    }
-  ]
+  "output": {
+    "xiao_yun": [
+      {
+        "method": "san_ming_tong_hui",
+        "basis": "《三命通会》：男起丙寅顺行、女起壬申逆行",
+        "zhus": [
+          {
+            "age": 1,
+            "gan": "丙",
+            "zhi": "寅",
+            "name": "丙寅",
+            "shi_shen": "正印"
+          },
+          {
+            "age": 2,
+            "gan": "丁",
+            "zhi": "卯",
+            "name": "丁卯",
+            "shi_shen": "偏印"
+          },
+          {
+            "age": 3,
+            "gan": "戊",
+            "zhi": "辰",
+            "name": "戊辰",
+            "shi_shen": "劫财"
+          },
+          {
+            "age": 4,
+            "gan": "己",
+            "zhi": "巳",
+            "name": "己巳",
+            "shi_shen": "比肩"
+          },
+          {
+            "age": 5,
+            "gan": "庚",
+            "zhi": "午",
+            "name": "庚午",
+            "shi_shen": "伤官"
+          }
+        ]
+      },
+      {
+        "method": "xing_ping_hui_hai",
+        "basis": "《星平会海》：由时柱起，阳男阴女顺、阴男阳女逆",
+        "zhus": [
+          {
+            "age": 1,
+            "gan": "戊",
+            "zhi": "辰",
+            "name": "戊辰",
+            "shi_shen": "劫财"
+          },
+          {
+            "age": 2,
+            "gan": "己",
+            "zhi": "巳",
+            "name": "己巳",
+            "shi_shen": "比肩"
+          },
+          {
+            "age": 3,
+            "gan": "庚",
+            "zhi": "午",
+            "name": "庚午",
+            "shi_shen": "伤官"
+          },
+          {
+            "age": 4,
+            "gan": "辛",
+            "zhi": "未",
+            "name": "辛未",
+            "shi_shen": "食神"
+          },
+          {
+            "age": 5,
+            "gan": "壬",
+            "zhi": "申",
+            "name": "壬申",
+            "shi_shen": "正财"
+          }
+        ]
+      }
+    ]
+  }
 }

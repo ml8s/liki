@@ -8,7 +8,7 @@
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "items": [
+    "liu_nian": [
       {
         "year": 2026,
         "nian_name": "丙午",
@@ -211,8 +211,8 @@
           ]
         },
         "nian_jie": {
-          "selector_standard_time": "2026-06-15T12:00:00+08:00",
-          "selector_date": "2026-06-15",
+          "qi_shi_standard_time": "2026-06-15T12:00:00+08:00",
+          "qi_shi_date": "2026-06-15",
           "lichun_year": 2026,
           "lichun_start": "2026-02-04",
           "lichun_end": "2027-02-04",

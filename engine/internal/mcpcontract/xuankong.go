@@ -83,15 +83,15 @@ type XuankongChart struct {
 type XuankongLiunianInput struct {
 	Chart        *XuankongChart `json:"chart,omitempty" jsonschema:"可选 xuankong.chart 宅盘；传入时 digest 必须匹配。"`
 	StandardTime StandardTime   `json:"standard_time" jsonschema:"目标地标准时间（无 DST），RFC3339 带 offset。"`
-	Count        *SeriesCount   `json:"count,omitempty" jsonschema:"连续查询年数，单条或批量items数组"`
+	Count        *SeriesCount   `json:"count,omitempty" jsonschema:"连续查询年数。"`
 }
 
-type XuankongLiunianResolved struct {
-	SelectorStandardTime StandardTime `json:"selector_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
-	LichunYear           int          `json:"lichun_year" jsonschema:"该瞬间所在的立春年。"`
-	LichunStart          DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
-	LichunEnd            DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
-	BoundaryDay          bool         `json:"boundary_day" jsonschema:"输入瞬间的当地日期是否为立春边界日。"`
+type XuankongLiuNianJie struct {
+	QiShiStandardTime StandardTime `json:"qi_shi_standard_time" jsonschema:"选择器时区标准时间（无 DST）。"`
+	LichunYear        int          `json:"lichun_year" jsonschema:"该瞬间所在的立春年。"`
+	LichunStart       DateString   `json:"lichun_start" jsonschema:"立春年起始公历日（含）。"`
+	LichunEnd         DateString   `json:"lichun_end" jsonschema:"下一立春日（不含）。"`
+	BoundaryDay       bool         `json:"boundary_day" jsonschema:"输入瞬间的当地日期是否为立春边界日。"`
 }
 
 type XuankongAnnualStarOutput struct {
@@ -113,7 +113,7 @@ type XuankongLiunianOutput struct {
 	RuZhong      FlyingStarName               `json:"ru_zhong" jsonschema:"入中紫白星。"`
 	GongWei      [9]XuankongAnnualStarOutput  `json:"gong_wei" jsonschema:"九宫流年紫白星。"`
 	HouseOverlay []XuankongHouseOverlayOutput `json:"house_overlay,omitempty" jsonschema:"传入宅盘时，全部流年星落宫对照宅盘该宫三星；不预设星曜固有吉凶。"`
-	Resolved     XuankongLiunianResolved      `json:"resolved" jsonschema:"时间推导结果。"`
+	NianJie      XuankongLiuNianJie           `json:"nian_jie" jsonschema:"玄空流年立春年界。"`
 }
 
 func XuankongChartCompute(_ context.Context, input XuankongChartInput) (XuankongChart, error) {
@@ -143,13 +143,13 @@ func XuankongChartCompute(_ context.Context, input XuankongChartInput) (Xuankong
 	return output, nil
 }
 
-func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (any, error) {
+func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (XuankongLiuNianSeries, error) {
 	if input.Chart != nil {
 		if _, err := sourceChartDigest(*input.Chart); err != nil {
-			return nil, fmt.Errorf("xuankong.liunian: %w", err)
+			return XuankongLiuNianSeries{}, fmt.Errorf("xuankong.liunian: %w", err)
 		}
 	}
-	return runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
+	items, err := runSeries(input, seriesCountValue(input.Count), MaxSeriesCount,
 		func(in XuankongLiunianInput) (XuankongLiunianOutput, error) {
 			return computeXuankongLiunian(in)
 		},
@@ -166,6 +166,10 @@ func XuankongLiunian(_ context.Context, input XuankongLiunianInput) (any, error)
 			return in, nil
 		},
 	)
+	if err != nil {
+		return XuankongLiuNianSeries{}, err
+	}
+	return XuankongLiuNianSeries{LiuNian: items}, nil
 }
 
 func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, error) {
@@ -188,12 +192,12 @@ func computeXuankongLiunian(input XuankongLiunianInput) (XuankongLiunianOutput, 
 	result := xuankong.ComputeLiuNian(ly.Year, chart)
 	output := xuankongLiunianWire(result)
 	startDate := tianwen.StandardDateAt(ly.Start, loc)
-	output.Resolved = XuankongLiunianResolved{
-		SelectorStandardTime: standardTimeValue(at),
-		LichunYear:           ly.Year,
-		LichunStart:          civilDateString(startDate),
-		LichunEnd:            civilDateString(tianwen.StandardDateAt(ly.End, loc)),
-		BoundaryDay:          tianwen.StandardDateAt(at, loc) == startDate,
+	output.NianJie = XuankongLiuNianJie{
+		QiShiStandardTime: standardTimeValue(at),
+		LichunYear:        ly.Year,
+		LichunStart:       civilDateString(startDate),
+		LichunEnd:         civilDateString(tianwen.StandardDateAt(ly.End, loc)),
+		BoundaryDay:       tianwen.StandardDateAt(at, loc) == startDate,
 	}
 	return output, nil
 }
@@ -362,4 +366,8 @@ func xuankongLiunianWire(result xuankong.LiuNianResult) XuankongLiunianOutput {
 		})
 	}
 	return output
+}
+
+type XuankongLiuNianSeries struct {
+	LiuNian []XuankongLiunianOutput `json:"liu_nian" jsonschema:"玄空流年数组，长度 = count。"`
 }

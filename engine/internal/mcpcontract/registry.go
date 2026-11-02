@@ -27,7 +27,7 @@ type Tool[In, Out any] struct {
 	// schema is still used for boundary validation.
 	InputSchema json.RawMessage
 	// OutputSchema overrides the schema derived from Out. Used by series
-	// tools whose handler returns SeriesResult[Out] (an items array for every
+	// tools whose handler returns a named domain array for every
 	// count), because the items element schema is the published Out.
 	OutputSchema json.RawMessage
 }

@@ -1,104 +1,108 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-06-15T12:00:00+08:00",
-      "birth_longitude": 120.25,
-      "gender": "male"
+      "birth_time": "1990-11-07T14:20:00+08:00",
+      "birth_longitude": 116,
+      "gender": "female"
     },
     "longitude": 116.4,
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "date": "2026-06-15",
-    "day_name": "庚申",
-    "day_nayin": "石榴木",
-    "dayun_rels": [
+    "liu_ri": [
       {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "申",
-        "zhi_b": "未"
-      }
-    ],
-    "gan_rels": [
-      {
-        "gan_a": "庚",
-        "gan_b": "庚",
-        "relation": "庚庚同气",
-        "type": "相同"
-      },
-      {
-        "gan_a": "庚",
-        "gan_b": "丙",
-        "relation": "丙克庚",
-        "type": "相克"
-      },
-      {
-        "gan_a": "庚",
-        "gan_b": "丙",
-        "relation": "丙克庚",
-        "type": "相克"
-      },
-      {
-        "gan_a": "庚",
-        "gan_b": "乙",
-        "relation": "庚乙合化金",
-        "type": "天干五合"
-      }
-    ],
-    "liunian_rels": [
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "申",
-        "zhi_b": "午"
-      }
-    ],
-    "resolved": {
-      "beijing_date": "2026-06-15",
-      "last_date": "2026-06-15",
-      "local_date": "2026-06-15",
-      "standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "ri_gan": "庚",
-    "ri_zhi": "申",
-    "shensha": [
-      {
-        "category": "吉",
-        "description": "流日天乙贵人日",
-        "name": "天乙贵人"
-      },
-      {
-        "category": "中性",
-        "description": "流日驿马，动象",
-        "name": "驿马"
-      }
-    ],
-    "shi_shen": "偏财",
-    "zhi_rels": [
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "申",
-        "zhi_b": "午"
-      },
-      {
-        "detail": "申戌拱酉，金方候选",
-        "type": "三会拱",
-        "zhi_a": "申",
-        "zhi_b": "戌"
-      },
-      {
-        "detail": "申子半合水局，缺辰",
-        "type": "半合",
-        "zhi_a": "申",
-        "zhi_b": "子"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "申",
-        "zhi_b": "未"
+        "date": "2026-06-15",
+        "day_name": "庚申",
+        "shi_shen": "偏财",
+        "ri_gan": "庚",
+        "ri_zhi": "申",
+        "day_nayin": "石榴木",
+        "shensha": [
+          {
+            "name": "天乙贵人",
+            "category": "吉",
+            "description": "流日天乙贵人日"
+          },
+          {
+            "name": "驿马",
+            "category": "中性",
+            "description": "流日驿马，动象"
+          }
+        ],
+        "gan_rels": [
+          {
+            "gan_a": "庚",
+            "gan_b": "庚",
+            "relation": "庚庚同气",
+            "type": "相同"
+          },
+          {
+            "gan_a": "庚",
+            "gan_b": "丙",
+            "relation": "丙克庚",
+            "type": "相克"
+          },
+          {
+            "gan_a": "庚",
+            "gan_b": "丙",
+            "relation": "丙克庚",
+            "type": "相克"
+          },
+          {
+            "gan_a": "庚",
+            "gan_b": "乙",
+            "relation": "庚乙合化金",
+            "type": "天干五合"
+          }
+        ],
+        "zhi_rels": [
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "申",
+            "zhi_b": "午"
+          },
+          {
+            "detail": "申戌拱酉，金方候选",
+            "type": "三会拱",
+            "zhi_a": "申",
+            "zhi_b": "戌"
+          },
+          {
+            "detail": "申子半合水局，缺辰",
+            "type": "半合",
+            "zhi_a": "申",
+            "zhi_b": "子"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "申",
+            "zhi_b": "未"
+          }
+        ],
+        "dayun_rels": [
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "申",
+            "zhi_b": "未"
+          }
+        ],
+        "liunian_rels": [
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "申",
+            "zhi_b": "午"
+          }
+        ],
+        "ri_jie": {
+          "standard_time": "2026-06-15T12:00:00+08:00",
+          "local_date": "2026-06-15",
+          "last_date": "2026-06-15",
+          "beijing_date": "2026-06-15"
+        }
       }
     ]
   }

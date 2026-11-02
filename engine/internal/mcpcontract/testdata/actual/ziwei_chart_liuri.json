@@ -8,136 +8,140 @@
     "start_time": "2026-06-24T12:00:00+08:00"
   },
   "output": {
-    "gong_wei": [
+    "liu_ri": [
       {
-        "is_liu_ming": false,
-        "name": "迁移",
-        "xing_yao": [],
-        "zhi": "寅"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "疾厄",
-        "xing_yao": [],
-        "zhi": "卯"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "财帛",
-        "xing_yao": [
-          "日喜"
-        ],
-        "zhi": "辰"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "子女",
-        "xing_yao": [
-          "日陀",
-          "日曲"
-        ],
-        "zhi": "巳"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "夫妻",
-        "xing_yao": [
-          "日禄"
-        ],
-        "zhi": "午"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "兄弟",
-        "xing_yao": [
-          "日羊"
-        ],
-        "zhi": "未"
-      },
-      {
-        "is_liu_ming": true,
-        "name": "命宫",
-        "xing_yao": [
-          "日钺"
-        ],
-        "zhi": "申"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "父母",
-        "xing_yao": [
-          "日昌"
-        ],
-        "zhi": "酉"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "福德",
-        "xing_yao": [
-          "日鸾"
-        ],
-        "zhi": "戌"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "田宅",
-        "xing_yao": [
-          "日马"
-        ],
-        "zhi": "亥"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "官禄",
-        "xing_yao": [
-          "日魁"
-        ],
-        "zhi": "子"
-      },
-      {
-        "is_liu_ming": false,
-        "name": "仆役",
-        "xing_yao": [],
-        "zhi": "丑"
+        "lunar": {
+          "year": 2026,
+          "month": 5,
+          "day": 10,
+          "leap": false
+        },
+        "ri_jie": {
+          "standard_time": "2026-06-24T12:00:00+08:00",
+          "local_date": "2026-06-24",
+          "beijing_date": "2026-06-24",
+          "lunar": {
+            "year": 2026,
+            "month": 5,
+            "day": 10,
+            "leap": false
+          }
+        },
+        "ming_gong": "命宫",
+        "ming_gong_name": "命宫",
+        "zhi": "巳",
+        "si_hua": {
+          "天梁": "科",
+          "文曲": "忌",
+          "武曲": "禄",
+          "贪狼": "权"
+        },
+        "xing_yao": {
+          "日喜": "辰",
+          "日昌": "酉",
+          "日曲": "巳",
+          "日禄": "午",
+          "日羊": "未",
+          "日钺": "申",
+          "日陀": "巳",
+          "日马": "亥",
+          "日魁": "子",
+          "日鸾": "戌"
+        },
+        "gong_wei": [
+          {
+            "zhi": "寅",
+            "name": "迁移",
+            "xing_yao": [],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "卯",
+            "name": "疾厄",
+            "xing_yao": [],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "辰",
+            "name": "财帛",
+            "xing_yao": [
+              "日喜"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "巳",
+            "name": "子女",
+            "xing_yao": [
+              "日陀",
+              "日曲"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "午",
+            "name": "夫妻",
+            "xing_yao": [
+              "日禄"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "未",
+            "name": "兄弟",
+            "xing_yao": [
+              "日羊"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "申",
+            "name": "命宫",
+            "xing_yao": [
+              "日钺"
+            ],
+            "is_liu_ming": true
+          },
+          {
+            "zhi": "酉",
+            "name": "父母",
+            "xing_yao": [
+              "日昌"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "戌",
+            "name": "福德",
+            "xing_yao": [
+              "日鸾"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "亥",
+            "name": "田宅",
+            "xing_yao": [
+              "日马"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "子",
+            "name": "官禄",
+            "xing_yao": [
+              "日魁"
+            ],
+            "is_liu_ming": false
+          },
+          {
+            "zhi": "丑",
+            "name": "仆役",
+            "xing_yao": [],
+            "is_liu_ming": false
+          }
+        ]
       }
-    ],
-    "lunar": {
-      "day": 10,
-      "leap": false,
-      "month": 5,
-      "year": 2026
-    },
-    "ming_gong": "命宫",
-    "ming_gong_name": "命宫",
-    "resolved": {
-      "beijing_date": "2026-06-24",
-      "local_date": "2026-06-24",
-      "lunar": {
-        "day": 10,
-        "leap": false,
-        "month": 5,
-        "year": 2026
-      },
-      "standard_time": "2026-06-24T12:00:00+08:00"
-    },
-    "si_hua": {
-      "天梁": "科",
-      "文曲": "忌",
-      "武曲": "禄",
-      "贪狼": "权"
-    },
-    "xing_yao": {
-      "日喜": "辰",
-      "日昌": "酉",
-      "日曲": "巳",
-      "日禄": "午",
-      "日羊": "未",
-      "日钺": "申",
-      "日陀": "巳",
-      "日马": "亥",
-      "日魁": "子",
-      "日鸾": "戌"
-    },
-    "zhi": "巳"
+    ]
   }
 }

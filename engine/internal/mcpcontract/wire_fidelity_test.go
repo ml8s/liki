@@ -47,30 +47,27 @@ func fixtureTool(name string) string {
 	return ""
 }
 
-// normalizeLegacySeriesRoot adapts captured legacy outputs to the
-// object-rooted series contract. Series tools used to answer count=1 with a
-// bare item and batches with {items}; ziwei_daxian answered with a bare
-// array. Every supported MCP protocol version requires an object root, so
-// replayed captures are normalized into {items} before comparison.
+// normalizeLegacySeriesRoot is no longer needed: all captured series fixtures
+// use named domain roots. Keep the call site stable while migration tests
+// evolve, but make the no-adapter rule explicit.
 func normalizeLegacySeriesRoot(tool string, want any) any {
-	switch tool {
-	case "bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi",
-		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi":
-		if object, ok := want.(map[string]any); ok {
-			if _, hasItems := object["items"]; hasItems {
-				return want
-			}
-			return map[string]any{"items": []any{want}}
-		}
-		return want
-	case "bazi_xiaoyun", "ziwei_daxian":
-		if items, ok := want.([]any); ok {
-			return map[string]any{"items": items}
-		}
-		return want
-	default:
+	seriesRoots := map[string]string{
+		"bazi_liunian": "liu_nian", "bazi_liuyue": "liu_yue",
+		"bazi_liuri": "liu_ri", "bazi_liushi": "liu_shi",
+		"bazi_xiaoyun": "xiao_yun", "ziwei_daxian": "da_xian",
+		"ziwei_liunian": "liu_nian", "ziwei_liuyue": "liu_yue",
+		"ziwei_liuri": "liu_ri", "ziwei_liushi": "liu_shi",
+		"xuankong_liunian": "liu_nian",
+	}
+	root, isSeries := seriesRoots[tool]
+	if !isSeries {
 		return want
 	}
+	value, ok := want.(map[string]any)
+	if !ok || value[root] == nil {
+		panic("legacy series fixture must be regenerated: " + tool)
+	}
+	return want
 }
 
 // TestEngineContractWireFidelity replays every captured real handler input and

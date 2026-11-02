@@ -1,74 +1,78 @@
 {
   "input": {
     "subject": {
-      "birth_time": "2000-06-15T12:00:00+08:00",
-      "birth_longitude": 120.25,
-      "gender": "male"
+      "birth_time": "2000-09-20T08:30:00+08:00",
+      "birth_longitude": 118.5,
+      "gender": "female"
     },
     "longitude": 116.4,
     "start_time": "2026-06-15T12:00:00+08:00"
   },
   "output": {
-    "gan_rels": [
+    "liu_shi": [
       {
-        "gan_a": "壬",
-        "gan_b": "庚",
-        "relation": "庚生壬",
-        "type": "相生"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "乙",
-        "relation": "壬生乙",
-        "type": "相生"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "辛",
-        "relation": "辛生壬",
-        "type": "相生"
-      },
-      {
-        "gan_a": "壬",
-        "gan_b": "壬",
-        "relation": "壬壬同气",
-        "type": "相同"
-      }
-    ],
-    "hour_name": "壬午",
-    "resolved": {
-      "local_date": "2026-06-15",
-      "shichen": "午",
-      "standard_time": "2026-06-15T12:00:00+08:00"
-    },
-    "shi_gan": "壬",
-    "shi_shen": "伤官",
-    "shi_zhi": "午",
-    "time": "11:00-13:00",
-    "zhi_rels": [
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "酉"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "巳"
-      },
-      {
-        "detail": "无特殊关系",
-        "type": "无",
-        "zhi_a": "午",
-        "zhi_b": "辰"
+        "time": "11:00-13:00",
+        "hour_name": "壬午",
+        "shi_shen": "伤官",
+        "shi_gan": "壬",
+        "shi_zhi": "午",
+        "gan_rels": [
+          {
+            "gan_a": "壬",
+            "gan_b": "庚",
+            "relation": "庚生壬",
+            "type": "相生"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "乙",
+            "relation": "壬生乙",
+            "type": "相生"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "辛",
+            "relation": "辛生壬",
+            "type": "相生"
+          },
+          {
+            "gan_a": "壬",
+            "gan_b": "壬",
+            "relation": "壬壬同气",
+            "type": "相同"
+          }
+        ],
+        "zhi_rels": [
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "酉"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "巳"
+          },
+          {
+            "detail": "无特殊关系",
+            "type": "无",
+            "zhi_a": "午",
+            "zhi_b": "辰"
+          }
+        ],
+        "shi_chen": {
+          "standard_time": "2026-06-15T12:00:00+08:00",
+          "local_date": "2026-06-15",
+          "shichen": "午"
+        }
       }
     ]
   }
