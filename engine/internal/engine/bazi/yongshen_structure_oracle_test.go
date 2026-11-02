@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -62,19 +63,22 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 			if tc.ExpectedControllerTransparent != nil {
 				assertStrings(t, got.Structure.Controller.TransparentPillars, tc.ExpectedControllerTransparent)
 			}
-			assertRelationFacts(t, got.Structure.RelationFacts, tc.ExpectedRelationFacts)
+			assertRelationRefs(t, got.Structure.GuanXiRefs, tc.ExpectedRelationFacts)
 		})
 	}
 	for _, tc := range doc.FuYiCases {
 		t.Run(tc.ID, func(t *testing.T) {
 			got, _, _ := ComputeYongShenSchools(atomicChartFromStrings(t, tc.Pillars))
-			if got.Basis.RootType != tc.ExpectedRootType || got.Basis.YinBiCount != tc.ExpectedYinBiCount {
-				t.Fatalf("basis = %s/%d, want %s/%d", got.Basis.RootType, got.Basis.YinBiCount, tc.ExpectedRootType, tc.ExpectedYinBiCount)
+			if got.Basis.RiGanGen != tc.ExpectedRootType {
+				t.Fatalf("ri gan gen = %s, want %s", got.Basis.RiGanGen, tc.ExpectedRootType)
 			}
-			if !reflect.DeepEqual(got.Basis.DayMasterRoots, tc.ExpectedDayRoots) {
-				t.Fatalf("day roots = %#v, want %#v", got.Basis.DayMasterRoots, tc.ExpectedDayRoots)
+			if got.Basis.YinBiShuLiang != tc.ExpectedYinBiCount {
+				t.Fatalf("yin bi count = %d, want %d", got.Basis.YinBiShuLiang, tc.ExpectedYinBiCount)
 			}
-			assertRelationFacts(t, got.Basis.RelationFacts, tc.ExpectedRelationFacts)
+			if !reflect.DeepEqual(got.Basis.RiGanTongGen, tc.ExpectedDayRoots) {
+				t.Fatalf("day roots = %#v, want %#v", got.Basis.RiGanTongGen, tc.ExpectedDayRoots)
+			}
+			assertRelationRefs(t, got.Basis.GuanXiRefs, tc.ExpectedRelationFacts)
 		})
 	}
 	for _, tc := range doc.TiaoHouCases {
@@ -93,14 +97,14 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 			assertTiaoHouGod(t, *got.Secondary, *tc.ExpectedSecondary)
 			for _, group := range tc.ExpectedPrimaryRelationIDs {
 				found := false
-				for _, fact := range got.Primary.RelationFacts {
-					if fact.Group == group {
+				for _, ref := range got.Primary.GuanXiRefs {
+					if strings.Split(strings.Split(ref, "@")[0], ":")[1] == group {
 						found = true
 						break
 					}
 				}
 				if !found {
-					t.Fatalf("primary relation %q absent: %#v", group, got.Primary.RelationFacts)
+					t.Fatalf("primary relation %q absent: %#v", group, got.Primary.GuanXiRefs)
 				}
 			}
 		})
@@ -113,36 +117,40 @@ type expectedRelation struct {
 	Targets []string `json:"targets"`
 }
 
+func assertRelationRefs(t *testing.T, refs []string, expected []expectedRelation) {
+	t.Helper()
+	for _, relation := range expected {
+		id := relation.Field + ":" + relation.Group
+		index := -1
+		for i, ref := range refs {
+			if strings.HasPrefix(ref, id+"@") {
+				index = i
+				break
+			}
+		}
+		if index < 0 {
+			t.Fatalf("relation %s absent: %#v", id, refs)
+		}
+		gotTargets := map[string]bool{}
+		for _, target := range strings.Split(strings.TrimPrefix(refs[index], id+"@"), ",") {
+			gotTargets[target] = true
+		}
+		if len(gotTargets) != len(relation.Targets) {
+			t.Fatalf("relation %s targets = %#v, want %#v", id, gotTargets, relation.Targets)
+		}
+		for _, target := range relation.Targets {
+			if !gotTargets[target] {
+				t.Fatalf("relation %s targets = %#v, want %#v", id, gotTargets, relation.Targets)
+			}
+		}
+	}
+}
+
 type expectedTiaoHouGod struct {
 	Stem        string           `json:"stem"`
 	Transparent bool             `json:"transparent"`
 	Hidden      bool             `json:"hidden"`
 	Occurrences []StemOccurrence `json:"occurrences"`
-}
-
-func assertRelationFacts(t *testing.T, facts []RelationFact, expected []expectedRelation) {
-	t.Helper()
-	for _, want := range expected {
-		found := false
-		for _, fact := range facts {
-			if fact.Field != want.Field || fact.Group != want.Group {
-				continue
-			}
-			found = true
-			if len(fact.Targets) != len(want.Targets) {
-				t.Fatalf("relation %s targets = %v, want %v", want.Group, fact.Targets, want.Targets)
-			}
-			for index := range want.Targets {
-				if fact.Targets[index] != want.Targets[index] {
-					t.Fatalf("relation %s targets = %v, want %v", want.Group, fact.Targets, want.Targets)
-				}
-			}
-			break
-		}
-		if !found {
-			t.Fatalf("relation %s/%s absent: %#v", want.Field, want.Group, facts)
-		}
-	}
 }
 
 func assertTiaoHouGod(t *testing.T, got TiaoHouAvailability, want expectedTiaoHouGod) {

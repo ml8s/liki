@@ -199,7 +199,7 @@ def _project_stable_factors(source, chart: dict, spec: dict):
     if projection == "symbol_palaces":
         if not isinstance(source, list):
             raise ValueError("chart source symbol array invalid")
-        source_palaces = chart.get("board", {}).get("gong_wei", [])
+        source_palaces = chart.get("pan", {}).get("gong_wei", [])
         star_states = {
             row.get("xing"): row.get("traditional_label")
             for row in chart.get("xing_gong_wu_xing", [])

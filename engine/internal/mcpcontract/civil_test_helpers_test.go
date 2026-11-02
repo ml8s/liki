@@ -19,12 +19,12 @@ func civilResolveInput(t *testing.T, instant, timezone string, longitude float64
 	}
 	civil := at.In(loc)
 	return TianwenResolveInput{
-		Calendar:  "solar",
-		Date:      civil.Format("2006-01-02"),
-		Time:      civil.Format("15:04:05"),
-		Timezone:  timezone,
-		Longitude: longitude,
-		Gender:    "male",
+		CalendarKind:   "solar",
+		RecordedDate:   civil.Format("2006-01-02"),
+		RecordedTime:   civil.Format("15:04:05"),
+		RecordTimezone: timezone,
+		PlaceLongitude: longitude,
+		SubjectGender:  "male",
 	}
 }
 

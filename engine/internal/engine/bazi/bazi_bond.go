@@ -112,7 +112,7 @@ type Bond struct {
 	ElementCross elementCross      `json:"wuxing_cross"`
 	NayinCross   nayinCross        `json:"nayin_cross"`
 	SpouseStar   spouseStarCross   `json:"spouse_star"`
-	ShenshaCross shenshaCross      `json:"shensha_cross"`
+	ShenshaCross shenshaCross      `json:"shen_sha_cross"`
 }
 
 func ComputeBond(aBazi, bBazi Chart) Bond {
@@ -215,7 +215,7 @@ func yongShenFit(f FuYiResult, other map[string]int) yongShenFitEntry {
 		return other[value]
 	}
 	return yongShenFitEntry{
-		Model: f.Model, Yong: f.Yong, Xi: f.Xi, Ji: f.Ji,
+		Model: f.ModelID, Yong: f.Yong, Xi: f.Xi, Ji: f.Ji,
 		YongInOther: inOther(f.Yong), XiInOther: inOther(f.Xi), JiInOther: inOther(f.Ji),
 	}
 }

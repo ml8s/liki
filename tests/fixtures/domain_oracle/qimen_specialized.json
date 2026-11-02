@@ -49,7 +49,7 @@
       "star": "天蓬",
       "spirit": null,
       "traditional_label": "旺",
-      "patterns": [{"name": "青龙返首", "gong": "坎", "auspicious": true}],
+      "ge_ju": [{"name": "青龙返首", "gong": "坎", "auspicious": true}],
       "expected": [{
         "role": "大贼",
         "symbol": "天蓬",
@@ -65,7 +65,7 @@
       "spirit": "朱雀",
       "yin_dun": false,
       "traditional_label": "",
-      "patterns": [],
+      "ge_ju": [],
       "expected": []
     },
     {
@@ -75,7 +75,7 @@
       "spirit": "朱雀",
       "yin_dun": true,
       "traditional_label": "",
-      "patterns": [],
+      "ge_ju": [],
       "expected": [{
         "role": "小贼",
         "symbol": "玄武",

@@ -1,5 +1,5 @@
 assertion_id,condition_group_id,field,item_key,operator,expected
-qimen_lost_property_fan_yin,1,patterns,name,array_some_equals,反吟
+qimen_lost_property_fan_yin,1,ge_ju,name,array_some_equals,反吟
 qimen_lost_property_shi_gan_void,1,kong_wang,symbol,array_some_equals,时干
 qimen_lost_property_shi_sheng_ri_wang,1,ri_shi_relation,relation,equals,shi_generates_ri
 qimen_lost_property_shi_sheng_ri_wang,1,shi_gan_gong_wang_shuai,wang_shuai,equals,旺
@@ -93,7 +93,7 @@ qimen_capture_escape_tianwang_yang_low,1,gan_interactions,range,array_some_equal
 qimen_capture_escape_tianwang_yang_low,1,hour_polarity,,equals,yang
 qimen_capture_escape_tianwang_direction,1,gan_interactions,heaven_gan,array_some_equals,癸
 qimen_capture_escape_tianwang_direction,1,gan_interactions,direction,array_some_in,北|东北|东|东南|南|西南|西|西北
-qimen_capture_escape_taibai,1,patterns,name,array_some_equals,太白入荧
+qimen_capture_escape_taibai,1,ge_ju,name,array_some_equals,太白入荧
 qimen_thief_capture_geng_year,1,geng_ge,level,array_some_equals,year
 qimen_thief_capture_geng_month,1,geng_ge,level,array_some_equals,month
 qimen_thief_capture_geng_day,1,geng_ge,level,array_some_equals,day

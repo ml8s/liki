@@ -59,7 +59,7 @@ def create(
     *,
     question: str,
     location: dict,
-    qiju_time: str = "",
+    qi_ju_time: str = "",
     focus: dict | None = None,
     rule: str | None = None,
     method: dict[str, str],
@@ -96,11 +96,11 @@ def create(
             if matter != required_matter:
                 raise ValueError(f"qimen rule {rule} requires matter={required_matter}")
     resolved_city, resolved_longitude = _resolve_location(location)
-    if not qiju_time:
-        raise ValueError("qiju_time is required")
+    if not qi_ju_time:
+        raise ValueError("qi_ju_time is required")
 
     chart_result = qimen_chart(
-        qiju_time,
+        qi_ju_time,
         resolved_longitude,
         matter=matter,
         yong_shen=yong_shen,
@@ -135,8 +135,8 @@ def create(
             "question": question,
             "input": {
                 "city": resolved_city,
-                "qiju_longitude": resolved_longitude,
-                "qiju_time": qiju_time,
+                "qi_ju_longitude": resolved_longitude,
+                "qi_ju_time": qi_ju_time,
             },
             "matter": chart_result.get("matter"),
             "method_context": method_context,

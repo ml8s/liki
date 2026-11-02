@@ -153,7 +153,7 @@ func TestJinhanChartDoesNotExposeStandardPlate(t *testing.T) {
 	if err := json.Unmarshal(data, &output); err != nil {
 		t.Fatal(err)
 	}
-	board, _ := output["board"].(map[string]any)
+	board, _ := output["pan"].(map[string]any)
 	if board == nil {
 		t.Fatalf("missing board: %v", output)
 	}

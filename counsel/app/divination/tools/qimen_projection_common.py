@@ -269,7 +269,7 @@ def _spirit_items(palaces: list[dict], chart: dict) -> list[dict]:
     return result
 
 def _yin_dun(chart: dict) -> bool:
-    natal_chart = chart.get("board")
+    natal_chart = chart.get("pan")
     value = natal_chart.get("yin_dun") if isinstance(natal_chart, dict) else None
     if not isinstance(value, bool):
         raise ValueError("qimen chart lacks yin_dun")
@@ -302,7 +302,7 @@ def _palace_wuxing(chart: dict, gong: str) -> str:
     raise ValueError(f"chart source lacks palace wuxing: {gong}")
 
 def _hour_polarity(chart: dict) -> str:
-    natal_chart = chart.get("board")
+    natal_chart = chart.get("pan")
     stem = natal_chart.get("shi_gan") if isinstance(natal_chart, dict) else None
     if not _type_matches(stem, "string"):
         raise ValueError("qimen chart lacks shi_gan")
@@ -312,7 +312,7 @@ def _hour_polarity(chart: dict) -> str:
     return polarity
 
 def _palace(chart: dict, gong: str) -> dict:
-    natal_chart = chart.get("board", {})
+    natal_chart = chart.get("pan", {})
     for row in natal_chart.get("gong_wei", []) if isinstance(natal_chart, dict) else []:
         if isinstance(row, dict) and _palace_name(row) == gong:
             return row

@@ -18,8 +18,9 @@ type LuRoot struct {
 // RelationGroup is a complete natal relation group. Pair relations are
 // complete when present; triple groups require every member branch.
 type RelationGroup struct {
-	Field string `json:"field"`
-	Group string `json:"group"`
+	ID    string `json:"id"`
+	Field string `json:"relation_kind"`
+	Group string `json:"name"`
 }
 
 // TenGodState aggregates all visible and hidden occurrences of one ten god.
@@ -353,7 +354,7 @@ spousePriority:
 	return facts
 }
 
-func computeRelationGroups(c FullChart) []RelationGroup {
+func computeGuanXi(c FullChart) []RelationGroup {
 	bz := c.ToBazi()
 	pillars := bz.Slice()
 	ganCounts := map[ganzhi.Gan]int{}
@@ -365,9 +366,9 @@ func computeRelationGroups(c FullChart) []RelationGroup {
 	groups := make([]RelationGroup, 0, 8)
 	seen := map[RelationGroup]bool{}
 	add := func(field, group string) {
-		groupModel := RelationGroup{Field: field, Group: group}
+		groupModel := RelationGroup{ID: field + ":" + group, Field: field, Group: group}
 		if group != "" && !seen[groupModel] {
-			groups = append(groups, RelationGroup{Field: field, Group: group})
+			groups = append(groups, groupModel)
 			seen[groupModel] = true
 		}
 	}

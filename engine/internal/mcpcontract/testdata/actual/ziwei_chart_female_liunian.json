@@ -5,14 +5,13 @@
       "birth_longitude": 116.4,
       "gender": "female"
     },
-    "liunian_start_time": "2026-06-15T12:00:00+08:00",
-    "liunian_count": null
+    "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
+    "liu_nian_count": null
   },
   "output": {
     "liu_nian": [
       {
         "ming_gong": "父母",
-        "ming_gong_name": "父母",
         "zhi": "午",
         "si_hua": {
           "天同": "禄",
@@ -135,7 +134,7 @@
           "lunar_year_start": "2026-02-17",
           "lunar_year_end": "2027-02-06",
           "boundary_day": false,
-          "liunian_start_time": "2026-06-15T12:00:00+08:00",
+          "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
           "liunian_start_date": "2026-06-15"
         }
       }

@@ -21,8 +21,8 @@ def city_coords(city: str) -> dict:
 
 
 def qimen_chart(
-    qiju_time: str,
-    qiju_longitude: float,
+    qi_ju_time: str,
+    qi_ju_longitude: float,
     *,
     method: dict[str, str],
     matter: str | None = None,
@@ -51,11 +51,11 @@ def qimen_chart(
 
     if not isinstance(method, dict):
         raise ValueError("method must be an explicit qimen method object")
-    if not qiju_time:
-        raise ValueError("qiju_time is required")
+    if not qi_ju_time:
+        raise ValueError("qi_ju_time is required")
     params: dict[str, Any] = {
-        "qiju_time": qiju_time,
-        "qiju_longitude": qiju_longitude,
+        "qi_ju_time": qi_ju_time,
+        "qi_ju_longitude": qi_ju_longitude,
         "method": method,
     }
     if subject is not None:

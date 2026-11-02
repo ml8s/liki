@@ -79,7 +79,7 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	ziweiSubject := map[string]any{
 		"birth_time": "1984-02-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
 	}
-	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiSubject, "liunian_start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
+	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiSubject, "liu_nian_start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
 	}
 	if _, err := registry.Call(context.Background(), "ziwei_daxian", mustJSON(t, map[string]any{"subject": ziweiSubject})); err != nil {
@@ -89,7 +89,7 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	// qimen.chart's legacy schema did close the root object, so unknown root
 	// arguments stay rejected there.
 	assertQimenChartError(t, registry, map[string]any{
-		"qiju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qiju_longitude": 116.4, "kind": "hour",
+		"qi_ju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qi_ju_longitude": 116.4, "kind": "hour",
 	}, "")
 }
 
@@ -145,18 +145,18 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	registry := testEngine()
 
 	method := callQimenChart(t, registry, map[string]any{
-		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
+		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
 	})["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "zhuanpan" || method["dingju_method"] != "chaibu" {
 		t.Fatalf("canonical method = %v/%v/%v, want hour/zhuanpan/chaibu",
 			method["scope"], method["school"], method["dingju_method"])
 	}
 	assertToolError(t, registry, "qimen_chart", map[string]any{
-		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
+		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
 	}, "method")
 
 	method = callQimenChart(t, registry, map[string]any{
-		"qiju_time": "2026-01-05T13:00:00+08:00", "qiju_longitude": 116.4, "dingju_method": "zhirun",
+		"qi_ju_time": "2026-01-05T13:00:00+08:00", "qi_ju_longitude": 116.4, "dingju_method": "zhirun",
 	})["method"].(map[string]any)
 	if method["dingju_method"] != "zhirun" || method["dingju_method_name"] != "置闰定局" {
 		t.Fatalf("dingju method = %v/%v, want zhirun/置闰定局",
@@ -167,7 +167,7 @@ func TestMigratedQimenCanonicalMethodAndDingju(t *testing.T) {
 	}
 
 	assertQimenChartError(t, registry, map[string]any{
-		"qiju_time": "2026-01-05T13:00:00+08:00", "qiju_longitude": 116.4, "dingju_method": "luoshu_feipan",
+		"qi_ju_time": "2026-01-05T13:00:00+08:00", "qi_ju_longitude": 116.4, "dingju_method": "luoshu_feipan",
 	}, "")
 }
 
@@ -176,13 +176,13 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 	const solarTime = "2026-01-13T17:03:00Z"
 
 	document := callQimenChart(t, registry, map[string]any{
-		"qiju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qiju_longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
+		"qi_ju_time": standardInputFromInstant(t, solarTime, "Asia/Shanghai"), "qi_ju_longitude": 116.4, "scope": "hour", "school": "luoshu_feipan", "dingju_method": "zhirun",
 	})
 	method := document["method"].(map[string]any)
 	if method["scope"] != "hour" || method["school"] != "luoshu_feipan" || method["dingju_method"] != "zhirun" {
 		t.Fatalf("method = %v/%v/%v", method["scope"], method["school"], method["dingju_method"])
 	}
-	if _, exists := document["board"].(map[string]any)["school"]; exists {
+	if _, exists := document["pan"].(map[string]any)["school"]; exists {
 		t.Fatal("board school duplicates method.school")
 	}
 
@@ -201,8 +201,8 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 		{"birth_year": 1984},
 	}
 	for _, params := range invalid {
-		params["qiju_time"] = "2024-06-15T12:00:00"
-		params["qiju_longitude"] = 116.4
+		params["qi_ju_time"] = "2024-06-15T12:00:00"
+		params["qi_ju_longitude"] = 116.4
 		assertQimenChartError(t, registry, params, "")
 	}
 }
@@ -210,7 +210,7 @@ func TestMigratedQimenMethodMatrix(t *testing.T) {
 func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	registry := testEngine()
 	document := callQimenChart(t, registry, map[string]any{
-		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4,
+		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4,
 		"yong_shen": []string{"生门", "戊"},
 		"subject":   map[string]any{"birth_time": "1984-02-15T00:00:00+08:00", "birth_longitude": 116.4, "gender": "male"},
 	})
@@ -220,7 +220,7 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 	assertJiaStaysHidden(t, document)
 
 	assertQimenChartError(t, registry, map[string]any{
-		"qiju_time": "1984-02-15T08:00:00+08:00", "qiju_longitude": 116.4, "yong_shen": []string{"不存在的符号"},
+		"qi_ju_time": "1984-02-15T08:00:00+08:00", "qi_ju_longitude": 116.4, "yong_shen": []string{"不存在的符号"},
 	}, "")
 }
 
@@ -228,9 +228,9 @@ func TestMigratedQimenBirthDateAndYongShenPaths(t *testing.T) {
 // 天盘/地盘/暗干 symbol, it only appears through its 值符 role.
 func assertJiaStaysHidden(t *testing.T, data map[string]any) {
 	t.Helper()
-	board, ok := data["board"].(map[string]any)
+	board, ok := data["pan"].(map[string]any)
 	if !ok {
-		t.Fatalf("board = %#v", data["board"])
+		t.Fatalf("board = %#v", data["pan"])
 	}
 	for _, raw := range board["gong_wei"].([]any) {
 		palace := raw.(map[string]any)
@@ -266,8 +266,8 @@ func assertJiaStaysHidden(t *testing.T, data map[string]any) {
 	}
 }
 
-// TestMigratedShenShaEnumCoversRealOutput pins the declared shensha enum to
-// the engine's own lookup tables. The 流日/流月/流年 shensha names depend on the
+// TestMigratedShenShaEnumCoversRealOutput pins the declared shen_sha enum to
+// the engine's own lookup tables. The 流日/流月/流年 shen_sha names depend on the
 // flow pillar's ganzhi (流日 文昌/天乙贵人 are 日干 lookups), so a single sample
 // date is not enough: the sweep below walks a full 十干 cycle of days and every
 // month, which is the smallest input set that reaches every producer.
@@ -281,20 +281,20 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 	}
 	calls := []call{}
 	for _, year := range []int{2025, 2026, 2027} {
-		calls = append(calls, call{"bazi_liunian", map[string]any{"subject": chart, "liunian_start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
+		calls = append(calls, call{"bazi_liunian", map[string]any{"subject": chart, "liu_nian_start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
 	}
 	for month := 1; month <= 12; month++ {
-		calls = append(calls, call{"bazi_liuyue", map[string]any{"subject": chart, "liuyue_start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
+		calls = append(calls, call{"bazi_liuyue", map[string]any{"subject": chart, "liu_yue_start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
 	}
 	for day := 1; day <= 30; day++ {
-		calls = append(calls, call{"bazi_liuri", map[string]any{"subject": chart, "liuri_start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "liuri_longitude": 116.4}})
+		calls = append(calls, call{"bazi_liuri", map[string]any{"subject": chart, "liu_ri_start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "liu_ri_longitude": 116.4}})
 	}
 
 	for _, item := range calls {
-		allowed := enumAt(t, outputProperties(t, registry, item.name), "shensha", "[]", "name")
+		allowed := enumAt(t, outputProperties(t, registry, item.name), "shen_sha", "[]", "name")
 		document := callToolDocument(t, registry, item.name, item.params)
 		first := firstSeriesItem(t, document)
-		items, _ := first["shensha"].([]any)
+		items, _ := first["shen_sha"].([]any)
 		for _, raw := range items {
 			entry, ok := raw.(map[string]any)
 			if !ok {
@@ -302,7 +302,7 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 			}
 			shenSha, _ := entry["name"].(string)
 			if !slices.Contains(allowed, shenSha) {
-				t.Errorf("%s %v returned shensha %q outside the declared enum %v",
+				t.Errorf("%s %v returned shen_sha %q outside the declared enum %v",
 					item.name, item.params, shenSha, allowed)
 			}
 		}
@@ -348,7 +348,7 @@ func TestMigratedQimenPatternEnumMatchesTable(t *testing.T) {
 	sort.Strings(want)
 
 	registry := testEngine()
-	got := enumAt(t, outputProperties(t, registry, "qimen_chart"), "patterns", "[]", "name")
+	got := enumAt(t, outputProperties(t, registry, "qimen_chart"), "ge_ju", "[]", "name")
 	sort.Strings(got)
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("patterns name enum = %v, want engine table %v", got, want)
@@ -364,7 +364,7 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 	}
 
 	document := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
-		"subject": chart, "liuyue_start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
+		"subject": chart, "liu_yue_start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
 	})
 	item := firstSeriesItem(t, document)
 	yueJie, ok := item["yue_jie"].(map[string]any)
@@ -432,9 +432,9 @@ func TestMigratedChartsRejectInvalidLongitude(t *testing.T) {
 		}, "birth_longitude")
 	}
 	assertQimenChartError(t, registry, map[string]any{
-		"qiju_time":      "2024-06-15T12:00:00+08:00",
-		"qiju_longitude": 500,
-	}, "qiju_longitude")
+		"qi_ju_time":      "2024-06-15T12:00:00+08:00",
+		"qi_ju_longitude": 500,
+	}, "qi_ju_longitude")
 }
 
 func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {
@@ -470,7 +470,7 @@ func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 		t.Fatal("tianwen.resolve returned no candidates")
 	}
 	candidate := resolved.Candidates[0]
-	if len(candidate.Reasons) != 1 || candidate.Reasons[0].Domain != "input" {
+	if len(candidate.Reasons) != 1 || candidate.Reasons[0].ReasonKind != "input" {
 		t.Fatalf("input candidate reasons = %+v", candidate.Reasons)
 	}
 

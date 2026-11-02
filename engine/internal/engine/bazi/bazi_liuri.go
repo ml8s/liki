@@ -11,13 +11,13 @@ type LiuRi struct {
 	RiGan       ganzhi.Gan          `json:"ri_gan"`
 	RiZhi       ganzhi.Zhi          `json:"ri_zhi"`
 	DayName     string              `json:"day_name"`
-	DayNaYin    string              `json:"day_nayin"`
+	DayNaYin    string              `json:"liu_ri_na_yin"`
 	ShiShen     string              `json:"shi_shen"`
 	GanRels     []GanRelation       `json:"gan_rels"`
 	ZhiRels     []ZhiRelation       `json:"zhi_rels"`
-	DaYunRels   []ZhiRelation       `json:"dayun_rels"`
-	LiuNianRels []ZhiRelation       `json:"liunian_rels"`
-	ShenSha     []ShenShaProjection `json:"shensha"`
+	DaYunRels   []ZhiRelation       `json:"da_yun_rels"`
+	LiuNianRels []ZhiRelation       `json:"liu_nian_rels"`
+	ShenSha     []ShenShaProjection `json:"shen_sha"`
 }
 
 // ComputeLiuRi computes the day pillar for the resolved date and its full

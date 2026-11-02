@@ -135,8 +135,8 @@ class NamingPickOutputPoolsItem(BaseModel):
     wuxing: PickWuxing = Field(
         description="该字位的五行。",
     )
-    slot: Literal["first", "second"] = Field(
-        description="Name slot.",
+    char_position: Literal["first", "second"] = Field(
+        description="Position of the character in the given name.",
     )
     role: PickRole = Field(
         description="五行角色。",
@@ -147,10 +147,10 @@ class NamingPickOutputPoolsItem(BaseModel):
 
 
 class NamingPickOutput(BaseModel):
-    """Character pools selected for requested five-element slots."""
+    """Character pools selected for requested five-element positions."""
     model_config = ConfigDict(extra="allow")
     pools: list[NamingPickOutputPoolsItem] = Field(
-        description="Character pools by name slot.",
+        description="Character pools by position in the given name.",
     )
 
 TOOL_NAMING_PICK = ToolContract(

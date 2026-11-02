@@ -191,10 +191,10 @@ def test_hidden_rooted_officer_breaks_cong_wang_verification():
         "yong": "火",
         "xi": "土",
         "ji": "金",
+        "wang_shuai": {"火": "旺"},
         "basis": {
             **(full["fu_yi"].get("basis") or {}),
-            "season": "旺",
-            "yin_bi_count": 3,
+            "yin_bi_shu_liang": 3,
         },
     }
     full["ten_god_states"] = [
@@ -220,10 +220,10 @@ def test_hidden_rooted_resource_breaks_cong_sha_verification():
         "yong": "水",
         "xi": "金",
         "ji": "木",
+        "wang_shuai": {"火": "死"},
         "basis": {
             **(full["fu_yi"].get("basis") or {}),
-            "root_type": "none",
-            "season": "死",
+            "ri_gan_gen": "none",
         },
     }
     full["ten_god_states"] = [
@@ -258,10 +258,10 @@ def test_congge_label_requires_matching_season_and_stem_evidence():
         "yong": "土",
         "xi": "火",
         "ji": "木",
+        "wang_shuai": {"火": "旺"},
         "basis": {
             **(full["fu_yi"].get("basis") or {}),
-            "root_type": "none",
-            "season": "旺",
+            "ri_gan_gen": "none",
         },
     }
     full["ten_god_states"] = [
@@ -286,10 +286,10 @@ def test_verified_congge_selects_fuyi_cong_candidate():
         "yong": "金",
         "xi": "土",
         "ji": "木",
-            "basis": {
+            "wang_shuai": {"火": "囚"},
+        "basis": {
                 **(full["fu_yi"].get("basis") or {}),
-                "root_type": "none",
-                "season": "囚",
+                "ri_gan_gen": "none",
             },
     }
     full["ten_god_states"] = [
@@ -382,7 +382,7 @@ def test_natal_period_query_requires_precomputed_selected_yongshen():
         "gender": "male",
     }
     factors = {
-        "_provenance": {"side": "bazi", "subject": subject, "context": {}}
+        "_provenance": {"technique": "bazi", "subject": subject, "context": {}}
     }
     with pytest.raises(ValueError, match="selected_yongshen"):
         natal_period_query(

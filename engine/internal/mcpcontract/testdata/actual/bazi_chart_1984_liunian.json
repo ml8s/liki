@@ -5,8 +5,8 @@
       "birth_longitude": 123.75,
       "gender": "male"
     },
-    "liunian_start_time": "2026-06-15T12:00:00+08:00",
-    "liunian_count": null
+    "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
+    "liu_nian_count": null
   },
   "output": {
     "liu_nian": [
@@ -20,7 +20,7 @@
         "na_yin": "天河水",
         "sheng": 1,
         "ke": 0,
-        "shensha": [
+        "shen_sha": [
           {
             "name": "灾煞",
             "category": "凶",
@@ -37,8 +37,8 @@
             "description": "流运大耗临命，主破财大耗"
           }
         ],
-        "fuyin_fanyin": [],
-        "dayun_interactions": [
+        "fu_yin_fan_yin": [],
+        "da_yun_interactions": [
           {
             "gan_rels": [
               {
@@ -152,81 +152,12 @@
             ]
           }
         ],
-        "atomic_facts": {
-          "controls_targets": {
-            "day_master": false,
-            "wealth_star": false,
-            "officer_killing": false,
-            "seal_star": false,
-            "food_injury": true
-          },
-          "controls_elements": [
-            "金"
-          ],
-          "wealth_breaks_seal": false,
-          "year_branch_relations": {
-            "子": "liu_chong",
-            "寅": "half_he"
-          },
-          "year_branch_controlled_by": [],
-          "year_gan_controls_day_gan": false,
-          "day_gan_controls_year_gan": false,
-          "gan_combines": false,
-          "dayun_gan_combines": false,
-          "dayun_zhi_clashes_year": false,
-          "day_void_branches": [
-            "申",
-            "酉"
-          ],
-          "year_equals_day_pillar": false,
-          "dayun_equals_year_pillar": false,
-          "year_gan_equals_natal_year_gan": false,
-          "combinations": [
-            {
-              "kind": "half_he",
-              "group": "三合寅午戌",
-              "branches": [
-                "寅",
-                "午"
-              ],
-              "includes_year": true
-            },
-            {
-              "kind": "half_he",
-              "group": "三合申子辰",
-              "branches": [
-                "子",
-                "辰"
-              ],
-              "includes_year": false
-            },
-            {
-              "kind": "san_hui",
-              "group": "三会寅卯辰",
-              "branches": [
-                "寅",
-                "卯",
-                "辰"
-              ],
-              "includes_year": false
-            },
-            {
-              "kind": "xing",
-              "group": "三刑子卯",
-              "branches": [
-                "子",
-                "卯"
-              ],
-              "includes_year": false
-            }
-          ]
-        },
         "nian_jie": {
           "lichun_year": 2026,
           "lichun_start": "2026-02-04",
           "lichun_end": "2027-02-04",
           "boundary_day": false,
-          "liunian_start_time": "2026-06-15T12:00:00+08:00",
+          "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
           "liunian_start_date": "2026-06-15"
         }
       }

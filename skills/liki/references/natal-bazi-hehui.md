@@ -1,6 +1,6 @@
 # 合冲刑害应事逻辑
 
-> **数据来源**：合冲刑害的成对关系与结构证据由 engine 返回（`zhi_liu_he` / `san_he` / `san_hui` / `liu_chong` / `liu_hai` / `liu_xing` / `liu_po` / `relation_groups`），四柱字段含 `is_self_he`、`is_kui_gang` 等；下表干支成对仅为解读名目参考，不自行拼合。合的吉凶终判由整体综合（`zh_*` 断言只输出结构候选，不单独判吉凶）；**本卡不设"合化吉凶"结论表**，见 `references/natal-bazi-yongshen.md`。
+> **数据来源**：合冲刑害的成对关系与结构证据由 engine 返回（`zhi_liu_he` / `san_he` / `san_hui` / `liu_chong` / `liu_hai` / `liu_xing` / `liu_po` / `guan_xi`），四柱字段含 `is_self_he`、`is_kui_gang` 等；下表干支成对仅为解读名目参考，不自行拼合。合的吉凶终判由整体综合（`zh_*` 断言只输出结构候选，不单独判吉凶）；**本卡不设"合化吉凶"结论表**，见 `references/natal-bazi-yongshen.md`。
 
 ## 📖 六合
 

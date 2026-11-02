@@ -4,7 +4,7 @@ TopicRouter 只做受控配置投影：topic → 命理规则 + 断语领域。�
 不修改断语真值表；输出统一使用英文契约字段，中文只保留在展示内容中。
 
 counsel MCP 的 natal_query / natal_period_query 复用本模块的路由与展平逻辑
-（`_require_topics` / `_load_routes` / `_flatten_side_result` / `_analyze_periods`）。
+（`_require_life_topics` / `_load_routes` / `_flatten_side_result` / `_analyze_periods`）。
 """
 
 import json
@@ -40,24 +40,24 @@ def _load_routes() -> dict:
         return json.load(fh)
 
 
-def _require_topics(topics: list[str]) -> list[tuple[str, dict]]:
+def _require_life_topics(life_topics: list[str]) -> list[tuple[str, dict]]:
     routes = _load_routes()
-    configured = routes["topics"]
-    if not isinstance(topics, list) or not topics:
-        raise TopicRouteError("topics 必须是非空数组")
-    if len(topics) != len(set(topics)):
-        raise TopicRouteError("topics 不能重复")
-    if any(not isinstance(item, str) for item in topics):
-        raise TopicRouteError("topics 每项必须是非空字符串")
-    unknown = [topic for topic in topics if topic not in configured]
+    configured = routes["life_topics"]
+    if not isinstance(life_topics, list) or not life_topics:
+        raise TopicRouteError("life_topics 必须是非空数组")
+    if len(life_topics) != len(set(life_topics)):
+        raise TopicRouteError("life_topics 不能重复")
+    if any(not isinstance(topic, str) for topic in life_topics):
+        raise TopicRouteError("life_topics 每项必须是非空字符串")
+    unknown = [topic for topic in life_topics if topic not in configured]
     if unknown:
         raise TopicRouteError(
-            f"topics 含无效值: {unknown}。有效 topics: {sorted(configured)}"
+            f"life_topics 含无效值: {unknown}。有效 life_topics: {sorted(configured)}"
         )
-    return [(topic, configured[topic]) for topic in topics]
+    return [(topic, configured[topic]) for topic in life_topics]
 
 
-def _topics_for_row(row: dict, selected: list[tuple[str, dict]],
+def _life_topics_for_row(row: dict, selected: list[tuple[str, dict]],
                     cross_cutting: frozenset[str] = frozenset()) -> list[str]:
     """把断语行路由到所有命中的 topic；跨切域可同时归属多个已选 topic。"""
     domain = row.get("领域")
@@ -69,14 +69,14 @@ def _topics_for_row(row: dict, selected: list[tuple[str, dict]],
 
 
 def _normalize_row(
-    row: dict, *, side: str, topics: list[str], method: str, time_scope: str,
+    row: dict, *, technique: str, life_topics: list[str], method: str, time_scope: str,
     year: int | None = None, source_rule: str | None = None,
 ) -> dict:
     result = {
         "assertion_id": row.get("id"),
-        "side": side,
-        "topics": topics,
-        "topic": topics[0] if topics else "",
+        "technique": technique,
+        "life_topics": life_topics,
+        "topic": life_topics[0] if life_topics else "",
         "method": method,
         "time_scope": time_scope,
         "event_type": row.get("事件类型", ""),
@@ -120,17 +120,17 @@ def _flatten_side_result(
     assertions: list[dict] = []
     matched = 0
     cross_cutting = frozenset(routes.get("cross_cutting_domains") or ())
-    for label, side in _side_pairs():
+    for label, technique in _side_pairs():
         for row in result.get(label, []):
             if not isinstance(row, dict):
                 continue
             matched += 1
-            topics = _topics_for_row(row, selected, cross_cutting)
-            if not topics:
+            life_topics = _life_topics_for_row(row, selected, cross_cutting)
+            if not life_topics:
                 continue
             source_rule = row.get("rule") or result.get("_rule", "")
             assertions.append(_normalize_row(
-                row, side=side, topics=topics,
+                row, technique=technique, life_topics=life_topics,
                 method=routes["method_ids"].get(source_rule, source_rule),
                 time_scope=time_scope, year=year, source_rule=source_rule,
             ))
@@ -178,7 +178,7 @@ def _resolve_time_scope(time_scope: dict, timezone: str) -> tuple[str, int, int]
 def _deduplicate(items: list[dict]) -> list[dict]:
     output, seen = [], set()
     for item in items:
-        key = (item.get("year"), item.get("assertion_id"), item.get("side"))
+        key = (item.get("year"), item.get("assertion_id"), item.get("technique"))
         if key not in seen:
             seen.add(key)
             output.append(item)
@@ -187,7 +187,7 @@ def _deduplicate(items: list[dict]) -> list[dict]:
 
 def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -> dict:
     """natal_period_query 主体：natal_chart 已就绪（完整盘或分侧盘）。"""
-    selected_pairs = _require_topics(args["topics"])
+    selected_pairs = _require_life_topics(args["life_topics"])
     routes = _load_routes()
     timezone = str(args["time_scope"].get("timezone") or "")
     scope_type, start, end = _resolve_time_scope(args["time_scope"], timezone)
@@ -266,14 +266,14 @@ def _analyze_periods(natal_chart: dict, args: dict, validate_pan: bool = True) -
         current_year_source = raw.get("current_year_source")
 
     return {
-        "chart": {
+        "natal_chart_identity": {
             "id": chart_id(natal_chart),
             "digest": natal_chart.get("natal_chart_digest"),
             "completeness": "full",
         },
-        "query": {
+        "request_scope": {
             "scope": "periods",
-            "topics": [topic for topic, _ in selected_pairs],
+            "life_topics": [topic for topic, _ in selected_pairs],
             "time_scope": args["time_scope"],
             "rules": [routes["method_ids"].get(rule, rule) for rule in rule_order],
         },

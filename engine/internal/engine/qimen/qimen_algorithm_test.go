@@ -50,7 +50,7 @@ func TestPatternTableContract(t *testing.T) {
 			t.Fatalf("duplicate pattern rule %q", rule.Name)
 		}
 		names[rule.Name] = true
-		if rule.Description == "" || rule.Basis == "" {
+		if rule.Description == "" || rule.YiJu == "" {
 			t.Errorf("%s lacks description or basis", rule.Name)
 		}
 		if rule.DutyStarPosition == "" {

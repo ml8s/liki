@@ -16,10 +16,10 @@ type LiuNian struct {
 	Generates         int                 `json:"sheng"`
 	Restrains         int                 `json:"ke"`
 	NatalInteractions []zhuInteraction    `json:"natal_interactions"`
-	DaYunInteractions []zhuInteraction    `json:"dayun_interactions"`
-	ShenSha           []ShenShaProjection `json:"shensha"`
-	FuYinFanYin       []FuYinFanYin       `json:"fuyin_fanyin"`
-	AtomicFacts       LiuNianAtomicFacts  `json:"atomic_facts"`
+	DaYunInteractions []zhuInteraction    `json:"da_yun_interactions"`
+	ShenSha           []ShenShaProjection `json:"shen_sha"`
+	FuYinFanYin       []FuYinFanYin       `json:"fu_yin_fan_yin"`
+	AtomicFacts       LiuNianAtomicFacts  `json:"atomic_facts_removed"`
 }
 
 // ComputeLiuNian computes the year pillar for a resolved 立春 year and

@@ -4,7 +4,7 @@
     {
       "category": "self_harm",
       "guidance": "如存在紧急风险，请先联系当地紧急服务、心理危机干预热线或可信赖的人。",
-      "patterns": [
+      "ge_ju": [
         "suicid(?:e|al)",
         "\\b(?:kill|hurt)\\s+(?:myself|my ?self)\\b",
         "self[- ]?harm",
@@ -22,7 +22,7 @@
     {
       "category": "emergency_medical",
       "guidance": "请优先联系当地急救或医疗机构。",
-      "patterns": [
+      "ge_ju": [
         "\\b(?:overdose|cardiac arrest|unconscious|ambulance)\\b",
         "severe\\s+(?:bleeding|breathing difficulty|abdominal pain)",
         "can'?t\\s+breathe",
@@ -38,7 +38,7 @@
     {
       "category": "serious_medical",
       "guidance": "医疗判断和治疗请咨询主治医生或医疗机构；卦象仅作传统文化参考。",
-      "patterns": [
+      "ge_ju": [
         "\\b(?:cancer|terminal illness|surgery|stop taking .* medication)\\b",
         "how long.*(?:live|survive)",
         "癌症",
@@ -54,7 +54,7 @@
     {
       "category": "pregnancy",
       "guidance": "孕产相关问题请咨询产科或医疗机构。",
-      "patterns": [
+      "ge_ju": [
         "\\b(?:pregnan(?:cy|t)|fetal sex|miscarriage)\\b",
         "怀孕",
         "胎儿",
@@ -67,7 +67,7 @@
     {
       "category": "missing_person_safety",
       "guidance": "请同时联系警方或救援机构。",
-      "patterns": [
+      "ge_ju": [
         "\\b(?:kidnap(?:ped|ping)?|murder(?:ed|er)?)\\b",
         "下落不明.*生死",
         "被绑架",
@@ -77,7 +77,7 @@
     {
       "category": "domestic_violence",
       "guidance": "请优先保证人身安全，并联系当地反家暴援助、警方或专业支持机构。",
-      "patterns": [
+      "ge_ju": [
         "\\b(?:domestic violence|abusive (?:partner|husband|wife|parent))\\b",
         "家暴",
         "家庭暴力",
@@ -88,7 +88,7 @@
     {
       "category": "major_financial_risk",
       "guidance": "请咨询持牌财务或法律专业人士，先评估止损和现实条件。",
-      "patterns": [
+      "ge_ju": [
         "\\ball\\s+(?:my|of my)\\s+(?:money|savings)\\b",
         "\\ball[- ]in\\b.*\\b(?:life savings|investment)\\b",
         "全部身家",
@@ -101,7 +101,7 @@
     {
       "category": "criminal_risk",
       "guidance": "请咨询律师或联系有权处理机关。",
-      "patterns": [
+      "ge_ju": [
         "\\b(?:tax evasion|drug (?:deal|trafficking)|hurt (?:someone|people))\\b",
         "(?<!游戏)杀人",
         "犯罪",

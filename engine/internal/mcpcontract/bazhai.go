@@ -53,7 +53,7 @@ type BazhaiYearStarsOutput struct {
 type BazhaiChartOutput struct {
 	MingGua    BazhaiMingGuaOutput    `json:"ming_gua" jsonschema:"命卦。"`
 	BaZhaiDirs BazhaiDirectionsOutput `json:"ba_zhai_dirs" jsonschema:"四吉四凶方向。"`
-	YearStars  BazhaiYearStarsOutput  `json:"liu_nian_xing" jsonschema:"出生年紫白飞星。"`
+	YearStars  BazhaiYearStarsOutput  `json:"birth_year_xing" jsonschema:"出生年紫白飞星。"`
 }
 
 type BazhaiLayoutInput struct {

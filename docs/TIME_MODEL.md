@@ -2,7 +2,7 @@
 
 The public engine time model has two boundaries:
 
-1. **Recorded wall-clock input** goes to `tianwen.resolve` as a civil date/time
+1. **Recorded wall-clock input** goes to `tianwen.resolve` as a civil recorded date/time
    (or lunar date, shichen, or range) plus an explicit IANA timezone and
    longitude.
 2. **Chart and flow tools** accept only `standard_time` plus longitude. They do
@@ -14,10 +14,10 @@ Birth/event resolution:
 
 ```json
 {
-  "date": "1990-05-20",
-  "time": "12:00",
-  "timezone": "Asia/Shanghai",
-  "longitude": 116.4
+  "recorded_date": "1990-05-20",
+  "recorded_time": "12:00",
+  "record_timezone": "Asia/Shanghai",
+  "place_longitude": 116.4
 }
 ```
 
@@ -67,7 +67,7 @@ DST again.
 | 流日 / 流时 | standard date + LAST | The day label uses the standard date; the hour uses LAST. |
 | 八宅 命卦 year | 立春 event | Derive the 立春 year from `standard.UTC()`. |
 | 玄空 元运/年星 | 立春 event | Derive the 立春 year from `standard.UTC()`. |
-| 奇门 起局/年命 | standard + LAST | 局 and 节气 use the event; the hour uses LAST; birth uses `birth_standard_time`. |
+| 奇门 起局/年命 | standard + LAST | 局 and 节气 use the event; the hour uses LAST; birth uses `birth_time`. |
 | Ziwei natal lunar date | local astronomical | Standard date + local-zone new moon/中气 calendar. |
 | Ziwei flow lunar date | local astronomical | Same projection as natal. |
 | Ziwei shichen | local LAST | Local apparent solar time. |

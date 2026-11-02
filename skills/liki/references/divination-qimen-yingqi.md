@@ -6,7 +6,7 @@
 
 `ying_qi`：
 
-- `candidates[].type`：ma_xing、kong_wang、duty_star 或 duty_door
+- `candidates[].ying_qi_kind`：ma_xing、kong_wang、duty_star 或 duty_door
 - `candidates[].mechanism`：候选机制（冲 / 值冲）
 - `candidates[].branch`：地支事实
 - `candidates[].gong`：宫位投影
@@ -15,17 +15,17 @@
   - `role=lead`：当前方法主柱（hour=时柱；quarter 由 `lead_pillar_mode` 区分刻柱/时柱；day=日柱，month=月柱，year=年柱）
   - `role=yong_shen`：调用方传入的事象用神
   - `role=duty`：值符星或值使门落宫
-- `candidates[].dates[]`：引擎给出的具体日期窗口，每项含 `date`、`branch`、`match`、`reason`
+- `candidates[].dates[]`：引擎给出的具体日期窗口，每项含 `trigger_date`、`branch`、`match`、`explanation`
 - `summary`：候选口径，不是结论
 
 ## 解读规则
 
 | 候选 | 条件 | 解释 |
 | ------ | ------ | ------ |
-| 马星 | `type=ma_xing` 且 `related_to` 非空 | 马星逢冲为动期候选，主快、主动 |
-| 空亡 | `type=kong_wang` 且 `related_to` 非空 | 逢值填实或逢冲为填实候选，主由虚转实 |
-| 值符宫 | `type=duty_star` 且 `related_to` 非空 | 值符宫支逢值或逢冲为引动候选 |
-| 值使宫 | `type=duty_door` 且 `related_to` 非空 | 值使宫支逢值或逢冲为引动候选 |
+| 马星 | `ying_qi_kind=ma_xing` 且 `related_to` 非空 | 马星逢冲为动期候选，主快、主动 |
+| 空亡 | `ying_qi_kind=kong_wang` 且 `related_to` 非空 | 逢值填实或逢冲为填实候选，主由虚转实 |
+| 值符宫 | `ying_qi_kind=duty_star` 且 `related_to` 非空 | 值符宫支逢值或逢冲为引动候选 |
+| 值使宫 | `ying_qi_kind=duty_door` 且 `related_to` 非空 | 值使宫支逢值或逢冲为引动候选 |
 | 无关候选 | `related_to` 为空数组 | 只可列为盘面候选，不得进入本问应期 |
 
 ## 输出要求

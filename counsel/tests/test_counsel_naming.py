@@ -84,7 +84,7 @@ def test_naming_pick_supports_yong_xi(srv):
         },
     )
     pools = result.structured_content["pools"]
-    assert [(pool["slot"], pool["role"], pool["wuxing"]) for pool in pools] == [
+    assert [(pool["char_position"], pool["role"], pool["wuxing"]) for pool in pools] == [
         ("first", "yong", "木"),
         ("second", "xi", "水"),
     ]

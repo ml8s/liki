@@ -40,7 +40,6 @@ city_coords
 tianwen_resolve
 huangli_days
 bazi_chart
-bazi_fullchart
 bazi_bond
 ziwei_chart
 ziwei_daxian
@@ -70,10 +69,10 @@ naming_check
 
 ```json
 {
-  "date": "1990-05-20",
-  "time": "12:00",
-  "timezone": "Asia/Shanghai",
-  "longitude": 116.4
+  "recorded_date": "1990-05-20",
+  "recorded_time": "12:00",
+  "record_timezone": "Asia/Shanghai",
+  "place_longitude": 116.4
 }
 ```
 

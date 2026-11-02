@@ -59,9 +59,9 @@ func assertChartAnchors(t *testing.T, chart Chart) {
 		t.Errorf("sheng_qi = %v, want 西北 居首", chart.BaZhaiDirs.ShengQi)
 	}
 	if chart.YearStars.Year != 1984 {
-		t.Errorf("liu_nian_xing.year = %d, want 1984", chart.YearStars.Year)
+		t.Errorf("birth_year_xing.year = %d, want 1984", chart.YearStars.Year)
 	}
 	if chart.YearStars.RuZhong != "七赤破军" {
-		t.Errorf("liu_nian_xing.ru_zhong = %s, want 七赤破军（下元甲子）", chart.YearStars.RuZhong)
+		t.Errorf("birth_year_xing.ru_zhong = %s, want 七赤破军（下元甲子）", chart.YearStars.RuZhong)
 	}
 }

@@ -80,31 +80,31 @@ def bazi_yongshen(subject: dict) -> dict:
     return published_yongshen(resolve_yongshen(bazi, source_digest))
 
 
-def natal_compute_factors(subject: dict, side: str) -> dict:
+def natal_compute_factors(subject: dict, technique: str) -> dict:
     """Resolve subject -> canonical charts -> one-side factor snapshot."""
     natal_chart = _build_natal_chart(subject)
     gender = natal_chart["subject"]["gender"]
     context = {"性别": gender}
 
     selected_yongshen = None
-    if side == "bazi":
+    if technique == "bazi":
         source_digest = sha256_json(natal_chart["bazi"])
         selected_yongshen = published_yongshen(resolve_yongshen(
             natal_chart["bazi"], source_digest,
         ))
         factors = evaluate_factors(gender, natal_chart, shushi="bazi")
         factors["selected_yongshen"] = selected_yongshen
-    elif side == "ziwei":
+    elif technique == "ziwei":
         factors = evaluate_factors(gender, natal_chart, shushi="ziwei")
     else:
-        raise ValueError(f"side 只支持 bazi/ziwei，收到: {side!r}")
+        raise ValueError(f"technique 只支持 bazi/ziwei，收到: {technique!r}")
 
     factors["_provenance"] = {
-        "side": side,
+        "technique": technique,
         "subject": subject,
         "context": context,
     }
-    if side == "bazi":
+    if technique == "bazi":
         factors["_provenance"].update({
             "yongshen_digest": selected_yongshen["yongshen_digest"],
             "policy_id": selected_yongshen["policy_id"],
@@ -112,29 +112,29 @@ def natal_compute_factors(subject: dict, side: str) -> dict:
     return {"factors": factors, "factors_digest": _factors_digest(factors)}
 
 
-def natal_query(factors: dict, topics: list[str], factors_digest: str,
-                side: str = "bazi") -> dict:
+def natal_query(factors: dict, life_topics: list[str], factors_digest: str,
+                technique: str = "bazi") -> dict:
     """Factor snapshot + topics -> natal assertions."""
-    from app.natal.tools.analytics import _flatten_side_result, _load_routes, _require_topics
+    from app.natal.tools.analytics import _flatten_side_result, _load_routes, _require_life_topics
 
     verify_factors_digest(factors, factors_digest)
     provenance = _factor_provenance(factors)
-    if provenance.get("side") != side:
+    if provenance.get("technique") != technique:
         raise ValueError(
-            f"factors provenance side mismatch: expected {side!r}, "
-            f"got {provenance.get('side')!r}"
+            f"factors provenance technique mismatch: expected {technique!r}, "
+            f"got {provenance.get('technique')!r}"
         )
-    if side not in ("bazi", "ziwei"):
-        raise ValueError(f"natal_query side 只支持 bazi/ziwei，收到: {side!r}")
+    if technique not in ("bazi", "ziwei"):
+        raise ValueError(f"natal_query technique 只支持 bazi/ziwei，收到: {technique!r}")
     context = provenance.get("context") or {}
     from app.natal.tools.factor_constants import load_constants
 
     side_labels = load_constants()["命理侧"]["标签"]
-    selected = _require_topics(topics)
+    selected = _require_life_topics(life_topics)
     routes = _load_routes()
     snapshots = {
-        side_labels["bazi"]: factors if side == "bazi" else {},
-        side_labels["ziwei"]: factors if side == "ziwei" else {},
+        side_labels["bazi"]: factors if technique == "bazi" else {},
+        side_labels["ziwei"]: factors if technique == "ziwei" else {},
         "context": context or {},
     }
     all_assertions: list[dict] = []
@@ -145,7 +145,7 @@ def natal_query(factors: dict, topics: list[str], factors_digest: str,
             result["_rule"] = rule
             part, _count = _flatten_side_result(result, selected, routes, "natal")
             for item in part:
-                key = (item["assertion_id"], item["side"])
+                key = (item["assertion_id"], item["technique"])
                 if key not in seen:
                     seen.add(key)
                     all_assertions.append(item)
@@ -153,45 +153,45 @@ def natal_query(factors: dict, topics: list[str], factors_digest: str,
 
 
 def natal_period_query(factors: dict, factors_digest: str, time_scope: dict,
-                       topics: list[str], subject: dict,
-                       side: str = "bazi") -> dict:
+                       life_topics: list[str], subject: dict,
+                       technique: str = "bazi") -> dict:
     """Factor snapshot + time scope + subject -> period assertions."""
     from app.natal.tools.analytics import _analyze_periods
 
     verify_factors_digest(factors, factors_digest)
     provenance = _factor_provenance(factors)
-    if provenance.get("side") != side:
+    if provenance.get("technique") != technique:
         raise ValueError(
-            f"factors provenance side mismatch: expected {side!r}, "
-            f"got {provenance.get('side')!r}"
+            f"factors provenance technique mismatch: expected {technique!r}, "
+            f"got {provenance.get('technique')!r}"
         )
     _validate_subject(subject, "subject")
     if provenance.get("subject") != subject:
         raise ValueError("subject 与 natal_compute_factors 因子来源不一致")
-    if side not in ("bazi", "ziwei"):
-        raise ValueError(f"natal_period_query side 只支持 bazi/ziwei，收到: {side!r}")
+    if technique not in ("bazi", "ziwei"):
+        raise ValueError(f"natal_period_query technique 只支持 bazi/ziwei，收到: {technique!r}")
 
-    if side == "bazi":
+    if technique == "bazi":
         selected_yongshen = factors.get("selected_yongshen")
         if not isinstance(selected_yongshen, dict):
             raise ValueError("factors 缺少 selected_yongshen；必须原样传递 factors")
         if provenance.get("yongshen_digest") != selected_yongshen.get("yongshen_digest"):
             raise ValueError("factors _provenance 的用神来源与 selected_yongshen 不一致")
     natal_chart = _build_natal_chart(subject)
-    if side == "bazi":
+    if technique == "bazi":
         natal_chart["_selected_yongshen"] = selected_yongshen
 
     result = _analyze_periods(
         natal_chart,
-        {"topics": topics, "time_scope": time_scope or {}},
+        {"life_topics": life_topics, "time_scope": time_scope or {}},
         validate_pan=False,
     )
     for scope in result["periods"]:
         scope["assertions"] = [
-            item for item in scope["assertions"] if item.get("side") == side
+            item for item in scope["assertions"] if item.get("technique") == technique
         ]
         if "counts" in scope:
             scope["counts"]["returned"] = len(scope["assertions"])
-    if side == "bazi":
+    if technique == "bazi":
         result["calibration_facts"] = _hour_calibration_facts(natal_chart["bazi"])
     return result

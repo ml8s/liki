@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "basis": "TIME_MODEL projection matrix. Solar-term events decide 立春/节气; 命理 facts use standard local time: standard date, local astronomical lunar date, and local LAST shichen. Only astronomical events are global instants.",
+  "yi_ju": "TIME_MODEL projection matrix. Solar-term events decide 立春/节气; 命理 facts use standard local time: standard date, local astronomical lunar date, and local LAST shichen. Only astronomical events are global instants.",
   "cases": [
     {
       "name": "bazhai_before_lichun",
@@ -16,8 +16,8 @@
         "ming_gua.gua.name": "艮",
         "ming_gua.group": "西四命",
         "ming_gua.year_boundary": "lichun",
-        "liu_nian_xing.year": 1983,
-        "liu_nian_xing.year_boundary": "lichun"
+        "birth_year_xing.year": 1983,
+        "birth_year_xing.year_boundary": "lichun"
       }
     },
     {
@@ -53,17 +53,17 @@
       "tool": "bazi_liuri",
       "chart_from": "bazi_chart_liuri.json",
       "input": {
-        "liuri_start_time": "2026-06-01T23:30:00+08:00",
-        "liuri_count": 1,
-        "liuri_longitude": 116.4
+        "liu_ri_start_time": "2026-06-01T23:30:00+08:00",
+        "liu_ri_count": 1,
+        "liu_ri_longitude": 116.4
       },
       "expect": {
         "liu_ri.0.date": "2026-06-01",
         "liu_ri.0.ri_gan": "丙",
         "liu_ri.0.ri_zhi": "午",
-        "liu_ri.0.ri_jie.liuri_local_date": "2026-06-01",
+        "liu_ri.0.ri_jie.liu_ri_local_date": "2026-06-01",
         "liu_ri.0.ri_jie.beijing_calendar_date": "2026-06-01",
-        "liu_ri.0.ri_jie.liuri_solar_date": "2026-06-01"
+        "liu_ri.0.ri_jie.liu_ri_solar_date": "2026-06-01"
       }
     },
     {
@@ -71,11 +71,11 @@
       "tool": "ziwei_liuri",
       "chart_from": "ziwei_chart_liuri.json",
       "input": {
-        "liuri_start_time": "2026-06-01T22:30:00-05:00",
-        "liuri_count": 1
+        "liu_ri_start_time": "2026-06-01T22:30:00-05:00",
+        "liu_ri_count": 1
       },
       "expect": {
-        "liu_ri.0.ri_jie.liuri_local_date": "2026-06-01",
+        "liu_ri.0.ri_jie.liu_ri_local_date": "2026-06-01",
         "liu_ri.0.ri_jie.beijing_calendar_date": "2026-06-02",
         "liu_ri.0.ri_jie.lunar.year": 2026,
         "liu_ri.0.ri_jie.lunar.month": 4,
@@ -88,14 +88,14 @@
       "tool": "ziwei_liushi",
       "chart_from": "ziwei_chart_liushi.json",
       "input": {
-        "liushi_start_time": "2026-06-01T22:30:00-05:00",
-        "liushi_count": 1,
-        "liushi_longitude": -74.0
+        "liu_shi_start_time": "2026-06-01T22:30:00-05:00",
+        "liu_shi_count": 1,
+        "liu_shi_longitude": -74.0
       },
       "expect": {
         "liu_shi.0.zhi": "亥",
         "liu_shi.0.shi_chen.shichen": "亥",
-        "liu_shi.0.shi_chen.liushi_local_date": "2026-06-01",
+        "liu_shi.0.shi_chen.liu_shi_local_date": "2026-06-01",
         "liu_shi.0.shi_chen.lunar.year": 2026,
         "liu_shi.0.shi_chen.lunar.month": 4,
         "liu_shi.0.shi_chen.lunar.day": 17
@@ -106,8 +106,8 @@
       "tool": "bazi_liunian",
       "chart_from": "bazi_chart_liunian.json",
       "input": {
-        "liunian_start_time": "2024-01-20T12:00:00-05:00",
-        "liunian_count": 3
+        "liu_nian_start_time": "2024-01-20T12:00:00-05:00",
+        "liu_nian_count": 3
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2023,
@@ -120,8 +120,8 @@
       "tool": "bazi_liuyue",
       "chart_from": "bazi_chart_liuyue.json",
       "input": {
-        "liuyue_start_time": "2024-01-14T23:00:00-05:00",
-        "liuyue_count": 3
+        "liu_yue_start_time": "2024-01-14T23:00:00-05:00",
+        "liu_yue_count": 3
       },
       "expect": {
         "liu_yue.0.jie_qi.jieqi_start": "2024-01-05",
@@ -148,11 +148,11 @@
       "tool": "ziwei_liuri",
       "chart_from": "ziwei_chart_liuri.json",
       "input": {
-        "liuri_start_time": "2024-02-09T23:30:00-05:00",
-        "liuri_count": 1
+        "liu_ri_start_time": "2024-02-09T23:30:00-05:00",
+        "liu_ri_count": 1
       },
       "expect": {
-        "liu_ri.0.ri_jie.liuri_local_date": "2024-02-09",
+        "liu_ri.0.ri_jie.liu_ri_local_date": "2024-02-09",
         "liu_ri.0.ri_jie.beijing_calendar_date": "2024-02-10",
         "liu_ri.0.ri_jie.lunar.year": 2024,
         "liu_ri.0.ri_jie.lunar.month": 1,
@@ -164,8 +164,8 @@
       "tool": "ziwei_liunian",
       "chart_from": "ziwei_chart_liuri.json",
       "input": {
-        "liunian_start_time": "2024-02-09T23:30:00-05:00",
-        "liunian_count": 1
+        "liu_nian_start_time": "2024-02-09T23:30:00-05:00",
+        "liu_nian_count": 1
       },
       "expect": {
         "liu_nian.0.nian_jie.lunar_year": 2024,
@@ -179,8 +179,8 @@
       "tool": "ziwei_liuyue",
       "chart_from": "ziwei_chart_liuri.json",
       "input": {
-        "liuyue_start_time": "2024-02-09T23:30:00-05:00",
-        "liuyue_count": 1
+        "liu_yue_start_time": "2024-02-09T23:30:00-05:00",
+        "liu_yue_count": 1
       },
       "expect": {
         "liu_yue.0.yue_jie.lunar.year": 2024,
@@ -197,12 +197,12 @@
       "tool": "ziwei_liushi",
       "chart_from": "ziwei_chart_liuri.json",
       "input": {
-        "liushi_start_time": "2024-02-09T23:30:00-05:00",
-        "liushi_count": 1,
-        "liushi_longitude": -74.0
+        "liu_shi_start_time": "2024-02-09T23:30:00-05:00",
+        "liu_shi_count": 1,
+        "liu_shi_longitude": -74.0
       },
       "expect": {
-        "liu_shi.0.shi_chen.liushi_local_date": "2024-02-09",
+        "liu_shi.0.shi_chen.liu_shi_local_date": "2024-02-09",
         "liu_shi.0.shi_chen.lunar.year": 2024,
         "liu_shi.0.shi_chen.lunar.month": 1,
         "liu_shi.0.shi_chen.lunar.day": 1,
@@ -225,17 +225,17 @@
     {
       "tool": "tianwen_resolve",
       "input": {
-        "calendar": "lunar",
-        "lunar": {
+        "calendar_kind": "lunar",
+        "recorded_lunar": {
           "year": 2024,
           "month": 1,
           "day": 1,
           "leap": false
         },
-        "time": "12:00",
-        "timezone": "America/New_York",
-        "longitude": -74.0,
-        "gender": "male"
+        "recorded_time": "12:00",
+        "record_timezone": "America/New_York",
+        "place_longitude": -74.0,
+        "subject_gender": "male"
       },
       "name": "tianwen_resolve_lunar_local_astronomical",
       "expect": {
@@ -247,8 +247,8 @@
       "tool": "bazi_liunian",
       "chart_from": "bazi_chart_liunian.json",
       "input": {
-        "liunian_start_time": "2024-02-04T03:27:06-05:00",
-        "liunian_count": 1
+        "liu_nian_start_time": "2024-02-04T03:27:06-05:00",
+        "liu_nian_count": 1
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2023,
@@ -260,8 +260,8 @@
       "tool": "bazi_liunian",
       "chart_from": "bazi_chart_liunian.json",
       "input": {
-        "liunian_start_time": "2024-02-04T03:27:07-05:00",
-        "liunian_count": 1
+        "liu_nian_start_time": "2024-02-04T03:27:07-05:00",
+        "liu_nian_count": 1
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2024,
@@ -273,8 +273,8 @@
       "tool": "bazi_liuyue",
       "chart_from": "bazi_chart_liuyue.json",
       "input": {
-        "liuyue_start_time": "2024-03-04T21:22:44-05:00",
-        "liuyue_count": 1
+        "liu_yue_start_time": "2024-03-04T21:22:44-05:00",
+        "liu_yue_count": 1
       },
       "expect": {
         "liu_yue.0.jie_qi.jieqi_start": "2024-02-04"
@@ -285,8 +285,8 @@
       "tool": "bazi_liuyue",
       "chart_from": "bazi_chart_liuyue.json",
       "input": {
-        "liuyue_start_time": "2024-03-04T21:22:45-05:00",
-        "liuyue_count": 1
+        "liu_yue_start_time": "2024-03-04T21:22:45-05:00",
+        "liu_yue_count": 1
       },
       "expect": {
         "liu_yue.0.jie_qi.jieqi_start": "2024-03-04"
@@ -297,7 +297,7 @@
       "tool": "xuankong_liunian",
       "input": {
         "liunian_date": "2024-02-03T21:27:07-11:00",
-        "liunian_count": 1
+        "liu_nian_count": 1
       },
       "expect": {
         "liu_nian.0.nian_jie.lichun_year": 2024,

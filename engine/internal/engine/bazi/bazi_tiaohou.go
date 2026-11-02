@@ -35,7 +35,7 @@ func computeTiaoHou(c Chart) TiaoHouResult {
 		return TiaoHouResult{
 			Season:  th.Season,
 			Model:   "qiongtong_primary_secondary_table",
-			Primary: TiaoHouAvailability{Occurrences: []StemOccurrence{}, RelationFacts: []RelationFact{}},
+			Primary: TiaoHouAvailability{Occurrences: []StemOccurrence{}, GuanXiRefs: []string{}},
 		}
 	}
 	return TiaoHouResult{

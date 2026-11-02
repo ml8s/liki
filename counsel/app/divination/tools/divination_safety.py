@@ -18,8 +18,8 @@ def _load_rules() -> dict:
 def _compiled_rules() -> list[tuple[str, re.Pattern[str], str]]:
     compiled: list[tuple[str, re.Pattern[str], str]] = []
     for rule in _load_rules()["rules"]:
-        patterns = "|".join(f"(?:{pattern})" for pattern in rule["patterns"])
-        compiled.append((rule["category"], re.compile(patterns, re.IGNORECASE), rule["guidance"]))
+        expression = "|".join(f"(?:{pattern})" for pattern in rule["ge_ju"])
+        compiled.append((rule["category"], re.compile(expression, re.IGNORECASE), rule["guidance"]))
     return compiled
 
 

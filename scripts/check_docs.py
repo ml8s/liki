@@ -30,9 +30,9 @@ ASSERTION_MANIFESTS = os.path.join(_ROOT, "counsel", "app", "*", "tools", "asser
 CATALOG_PATH = os.path.join(_ROOT, "tools", "mcp-tool-catalog.json")
 
 METHOD_WHITELIST = {
-    "bazi_chart", "bazi_fullchart", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
+    "bazi_chart", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
     "bazi_liushi", "bazi_xiaoyun", "bazi_bond",
-    "ziwei_chart", "ziwei_fullchart", "ziwei_liunian", "ziwei_liuyue", "ziwei_liuri",
+    "ziwei_chart", "ziwei_liunian", "ziwei_liuyue", "ziwei_liuri",
     "ziwei_liushi", "ziwei_daxian", "ziwei_bond",
     "liuyao_qigua", "liuyao_chart", "qimen_chart", "huangli_days",
     "bazhai_chart", "bazhai_layout", "xuankong_chart", "xuankong_liunian",

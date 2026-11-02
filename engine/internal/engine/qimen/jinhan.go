@@ -23,7 +23,7 @@ type JinhanChartMethod struct {
 	SpiritFlight     string       `json:"spirit_flight"`
 	DunSource        string       `json:"dun_source"`
 	JieQi            string       `json:"jie_qi"`
-	Basis            string       `json:"basis"`
+	MethodYiJu       string       `json:"method_yi_ju"`
 }
 
 // JinhanPalace is one Golden Mirror palace. It deliberately does not reuse the
@@ -54,7 +54,7 @@ type JinhanBoard struct {
 // JinhanChart is the public result of qimen.chart for school=jinhan_yujing.
 type JinhanChart struct {
 	Method JinhanChartMethod `json:"method"`
-	Board  JinhanBoard       `json:"board"`
+	Board  JinhanBoard       `json:"pan"`
 }
 
 // ComputeJinhanChart computes the Golden Mirror daily chart from civil time
@@ -89,7 +89,7 @@ func buildJinhanMethod(term solarTermInfo) JinhanChartMethod {
 		Geometry: school.Geometry, StarMode: school.StarMode,
 		DoorMode: school.DoorMode, SpiritMode: school.SpiritMode,
 		SpiritFlight: school.SpiritFlight, DunSource: jinhanDunSource,
-		JieQi: term.Name, Basis: jinhanBasis,
+		JieQi: term.Name, MethodYiJu: jinhanYiJu,
 	}
 }
 

@@ -243,13 +243,13 @@ def pick_chars_by_selected_yongshen(
     elif "yong" not in (first_role, second_role):
         raise ValueError("双名至少一个字位必须是 yong")
 
-    def append_pools(slot: str, role: str) -> None:
+    def append_pools(char_position: str, role: str) -> None:
         for element in _pick_role_elements(normalized_plan, role):
             chars = _char_by_element.get(element, [])
             if not chars:
                 raise ValueError(f"no characters available for wuxing {element!r}")
             result["pools"].append({
-                "slot": slot,
+                "char_position": char_position,
                 "role": role,
                 "wuxing": element,
                 "chars": [_picked(character) for character in chars],
@@ -331,11 +331,11 @@ def lookup_char(char: str) -> dict | None:
     return _character_json(_char_by_char[char])
 
 
-def _reject_duplicates(slot: str, chars: list) -> None:
+def _reject_duplicates(char_position: str, chars: list) -> None:
     seen: set[str] = set()
     for char in chars:
         if char in seen:
-            raise ValueError(f"{slot} contains duplicate character {char!r}")
+            raise ValueError(f"{char_position} contains duplicate character {char!r}")
         seen.add(char)
 
 

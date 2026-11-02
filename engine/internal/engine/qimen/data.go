@@ -307,7 +307,7 @@ var (
 	maoShanShichenPerYuan  int
 	maoShanMaxYuan         int
 	centerLodgingPalace    GongIndex
-	jinhanBasis            string
+	jinhanYiJu             string
 	jinhanMethodSource     string
 	jinhanDunSource        string
 	jinhanStarOrder        []string
@@ -1538,7 +1538,7 @@ func decodePatternTable(raw []byte) ([]patternRule, error) {
 	var rules []struct {
 		Name             string `json:"name"`
 		Description      string `json:"description"`
-		Basis            string `json:"basis"`
+		YiJu             string `json:"basis"`
 		Auspicious       bool   `json:"auspicious"`
 		GanInteraction   string `json:"gan_interaction"`
 		RequiresDutyDoor bool   `json:"requires_duty_door"`
@@ -1557,7 +1557,7 @@ func decodePatternTable(raw []byte) ([]patternRule, error) {
 	rulesOut := make([]patternRule, 0, len(rules))
 	seen := map[string]bool{}
 	for _, rule := range rules {
-		if rule.Name == "" || rule.Description == "" || rule.Basis == "" || seen[rule.Name] {
+		if rule.Name == "" || rule.Description == "" || rule.YiJu == "" || seen[rule.Name] {
 			return nil, fmt.Errorf("load patterns: invalid or duplicate rule %q", rule.Name)
 		}
 		seen[rule.Name] = true
@@ -1573,7 +1573,7 @@ func decodePatternTable(raw []byte) ([]patternRule, error) {
 			return nil, fmt.Errorf("load patterns: %q requires conditions", rule.Name)
 		}
 		loadedRule := patternRule{
-			Name: rule.Name, Description: rule.Description, Basis: rule.Basis,
+			Name: rule.Name, Description: rule.Description, YiJu: rule.YiJu,
 			Auspicious: rule.Auspicious, RequiresDutyDoor: rule.RequiresDutyDoor,
 			DutyStarPosition: rule.DutyStarPosition,
 		}
@@ -1902,7 +1902,7 @@ func loadJinhan() error {
 		spiritsByGan[gan] = row
 	}
 
-	jinhanBasis, jinhanMethodSource, jinhanDunSource = table.Basis, table.MethodSource, table.DunSource
+	jinhanYiJu, jinhanMethodSource, jinhanDunSource = table.Basis, table.MethodSource, table.DunSource
 	jinhanStarOrder = append([]string(nil), table.StarOrder...)
 	jinhanYangStarStarts, jinhanYinStarStarts = yangStarts, yinStarts
 	jinhanYangStarFlight, jinhanYinStarFlight = yangFlight, yinFlight

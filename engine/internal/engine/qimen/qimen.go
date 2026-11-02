@@ -403,7 +403,7 @@ type MenInteraction struct {
 type Pattern struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
-	Basis       string      `json:"basis,omitempty"`
+	YiJu        string      `json:"yi_ju,omitempty"`
 	Auspicious  bool        `json:"auspicious"`
 	GongWei     []GongIndex `json:"gong_wei,omitempty"`
 }
@@ -411,7 +411,7 @@ type Pattern struct {
 type patternRule struct {
 	Name             string
 	Description      string
-	Basis            string
+	YiJu             string
 	Auspicious       bool
 	RequiresDutyDoor bool
 	DutyStarPosition string

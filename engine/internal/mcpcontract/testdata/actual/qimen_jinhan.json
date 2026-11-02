@@ -1,7 +1,7 @@
 {
   "input": {
-    "qiju_time": "2024-06-29T12:00:00+08:00",
-    "qiju_longitude": 121,
+    "qi_ju_time": "2024-06-29T12:00:00+08:00",
+    "qi_ju_longitude": 121,
     "method": {
       "school": "jinhan_yujing",
       "scope": "day"
@@ -9,7 +9,7 @@
   },
   "output": {
     "method": {
-      "basis": "冬至后阳遁、夏至后阴遁；九星按日飞九宫，八门三日一换，十干各配十二神。",
+      "method_yi_ju": "冬至后阳遁、夏至后阴遁；九星按日飞九宫，八门三日一换，十干各配十二神。",
       "day_boundary": "late_zi_rolls_day_pillar",
       "dingju_method": "none",
       "dingju_method_name": "无定局",
@@ -26,7 +26,7 @@
       "spirit_mode": "day_gan_twelve_spirits",
       "star_mode": "taiyi_nine_stars_day_flight"
     },
-    "board": {
+    "pan": {
       "day_spirits": [
         {
           "shen": "地钥",

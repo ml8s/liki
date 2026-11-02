@@ -116,7 +116,7 @@ func TestEngineContractInputConstraints(t *testing.T) {
 		t.Fatalf("tianwen.resolve oneOf forms = %d, want 4", len(resolveInput.OneOf))
 	}
 	for _, form := range resolveInput.OneOf {
-		if !slices.Contains(form.Required, "longitude") {
+		if !slices.Contains(form.Required, "place_longitude") {
 			t.Fatalf("tianwen.resolve form must require longitude: %#v", form.Required)
 		}
 		if form.AdditionalProperties == nil || *form.AdditionalProperties {
@@ -262,10 +262,10 @@ func TestQimenChartSchemaUsesMethodForms(t *testing.T) {
 		}
 	}
 	for _, branch := range []rootForm{standard, jinhan} {
-		qijuLongitude := branch.Properties["qiju_longitude"]
+		qijuLongitude := branch.Properties["qi_ju_longitude"]
 		if qijuLongitude.Minimum == nil || *qijuLongitude.Minimum != -180 ||
 			qijuLongitude.Maximum == nil || *qijuLongitude.Maximum != 180 {
-			t.Fatalf("qimen qiju_longitude bounds = %#v", qijuLongitude)
+			t.Fatalf("qimen qi_ju_longitude bounds = %#v", qijuLongitude)
 		}
 	}
 	if len(standard.Properties["method"].OneOf) != 9 {

@@ -19,7 +19,7 @@ type FuYiResult struct {
 	Ji          string            `json:"ji"`
 	Strength    string            `json:"qiangruo"`
 	Pattern     string            `json:"pattern,omitempty"`
-	Model       string            `json:"model"`
+	ModelID     string            `json:"fu_yi_model_id"`
 	Basis       FuYiBasis         `json:"basis"`
 }
 

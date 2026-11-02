@@ -757,7 +757,7 @@
             "value": "从旺格"
           },
           {
-            "path": "fu_yi.basis.season",
+            "path": "fu_yi.season",
             "op": "in",
             "value": [
               "旺",
@@ -765,7 +765,7 @@
             ]
           },
           {
-            "path": "fu_yi.basis.yin_bi_count",
+            "path": "fu_yi.basis.yin_bi_shu_liang",
             "op": "gte",
             "value": 3
           },
@@ -800,12 +800,12 @@
             "value": "从杀格"
           },
           {
-            "path": "fu_yi.basis.root_type",
+            "path": "fu_yi.basis.ri_gan_gen",
             "op": "eq",
             "value": "none"
           },
           {
-            "path": "fu_yi.basis.season",
+            "path": "fu_yi.season",
             "op": "eq",
             "value": "死"
           },
@@ -858,12 +858,12 @@
             "value": "从财格"
           },
           {
-            "path": "fu_yi.basis.root_type",
+            "path": "fu_yi.basis.ri_gan_gen",
             "op": "eq",
             "value": "none"
           },
           {
-            "path": "fu_yi.basis.season",
+            "path": "fu_yi.season",
             "op": "eq",
             "value": "囚"
           },
@@ -898,12 +898,12 @@
             "value": "从儿格"
           },
           {
-            "path": "fu_yi.basis.root_type",
+            "path": "fu_yi.basis.ri_gan_gen",
             "op": "eq",
             "value": "none"
           },
           {
-            "path": "fu_yi.basis.season",
+            "path": "fu_yi.season",
             "op": "eq",
             "value": "休"
           },

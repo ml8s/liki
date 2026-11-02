@@ -12,11 +12,11 @@ from app.divination.tools.qimen_projection_common import (
 
 
 def _context(chart: dict, key: str) -> list:
-    found, value = _read_path(chart, f"specialized.{key}")
+    found, value = _read_path(chart, f"special_facts.{key}")
     if not found or not isinstance(value, list):
-        raise ValueError(f"qimen chart lacks specialized.{key}")
+        raise ValueError(f"qimen chart lacks special_facts.{key}")
     if any(not isinstance(item, dict) for item in value):
-        raise ValueError(f"qimen specialized.{key} contains a non-object")
+        raise ValueError(f"qimen special_facts.{key} contains a non-object")
     return value
 
 
@@ -95,4 +95,4 @@ def project(projection: str, source, chart: dict):
         return _thief_rows(chart)
     if projection == "tianwang_context":
         return _tianwang_rows(chart)
-    raise ValueError(f"specialized qimen projection invalid: {projection}")
+    raise ValueError(f"special_facts qimen projection invalid: {projection}")

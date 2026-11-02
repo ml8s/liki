@@ -66,14 +66,14 @@ def test_natal_compute_factors_matches_direct_evaluation(sample):
     instant, timezone, gender, longitude = sample
     subject = _subject(instant, timezone, gender, longitude)
     natal_chart = _full_pan(instant, timezone, gender, longitude)
-    for side, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
+    for technique, shushi in (("bazi", "bazi"), ("ziwei", "ziwei")):
         direct = evaluate_factors(gender, natal_chart, shushi=shushi)
-        remote = natal_compute_factors(subject, side)["factors"]
-        if side == "bazi":
+        remote = natal_compute_factors(subject, technique)["factors"]
+        if technique == "bazi":
             remote.pop("selected_yongshen", None)
         diff, missing = _diff_fields(direct, remote)
         assert not diff and not missing, (
-            f"{side} factors differ: diff={diff[:5]} missing={missing[:5]}"
+            f"{technique} factors differ: diff={diff[:5]} missing={missing[:5]}"
         )
 
 

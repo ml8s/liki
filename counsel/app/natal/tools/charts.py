@@ -23,8 +23,8 @@ def _resolve_civil(
     civil = civil_time[:19]
     date, clock = civil.split("T", 1)
     return call("tianwen.resolve", {
-        "calendar": "solar", "date": date, "time": clock,
-        "timezone": timezone, "longitude": longitude, "gender": gender,
+        "calendar_kind": "solar", "recorded_date": date, "recorded_time": clock,
+        "record_timezone": timezone, "place_longitude": longitude, "subject_gender": gender,
     })["data"]
 
 
@@ -86,7 +86,7 @@ def current_years(timezone: str) -> tuple[int, int]:
         "bazi.liunian",
         call("bazi.liunian", {
             "subject": subject,
-            "liunian_start_time": standard,
+            "liu_nian_start_time": standard,
         })["data"],
     )[0]
     bazi_year = ((bazi_item.get("nian_jie") or {}).get("lichun_year")
@@ -98,7 +98,7 @@ def current_years(timezone: str) -> tuple[int, int]:
         "ziwei.liunian",
         call("ziwei.liunian", {
             "subject": subject,
-            "liunian_start_time": standard,
+            "liu_nian_start_time": standard,
         })["data"],
     )[0]
     lunar_year = (ziwei_item.get("nian_jie") or {}).get("lunar_year")
@@ -113,7 +113,7 @@ def _bazi_liunian(subject: dict, year: int) -> dict:
         "bazi.liunian",
         call("bazi.liunian", {
             "subject": subject,
-            "liunian_start_time": f"{year:04d}-06-15T12:00:00+08:00",
+            "liu_nian_start_time": f"{year:04d}-06-15T12:00:00+08:00",
         })["data"],
     )[0]
 
@@ -124,7 +124,7 @@ def _ziwei_liunian(subject: dict, lunar_year: int) -> dict:
         "ziwei.liunian",
         call("ziwei.liunian", {
             "subject": subject,
-            "liunian_start_time": f"{lunar_year:04d}-06-15T12:00:00+08:00",
+            "liu_nian_start_time": f"{lunar_year:04d}-06-15T12:00:00+08:00",
         })["data"],
     )[0]
 
@@ -134,8 +134,8 @@ def _bazi_liunian_range(subject: dict, start_year: int, count: int) -> list[dict
         raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
     result = call("bazi.liunian", {
         "subject": subject,
-        "liunian_start_time": f"{start_year:04d}-06-15T12:00:00+08:00",
-        "liunian_count": count,
+        "liu_nian_start_time": f"{start_year:04d}-06-15T12:00:00+08:00",
+        "liu_nian_count": count,
     })
     return _liunian_range_items("bazi.liunian", result, count)
 
@@ -145,8 +145,8 @@ def _ziwei_liunian_range(subject: dict, start_lunar_year: int, count: int) -> li
         raise ValueError(f"count 必须在 1-{MAX_LIUNIAN_BATCH} 之间：{count}")
     result = call("ziwei.liunian", {
         "subject": subject,
-        "liunian_start_time": f"{start_lunar_year:04d}-06-15T12:00:00+08:00",
-        "liunian_count": count,
+        "liu_nian_start_time": f"{start_lunar_year:04d}-06-15T12:00:00+08:00",
+        "liu_nian_count": count,
     })
     return _liunian_range_items("ziwei.liunian", result, count)
 
@@ -190,7 +190,7 @@ def build_natal_chart(
         raise ValueError("tianwen.resolve returned no candidates")
     candidate = next(
         (item for item in candidates
-         if any(reason.get("domain") == "input" for reason in item.get("reasons", []))),
+         if any(reason.get("reason_kind") == "input" for reason in item.get("reasons", []))),
         candidates[0],
     )
     subject = candidate["subject"]
@@ -207,10 +207,10 @@ def build_natal_chart(
     }
     if len(candidates) > 1:
         domains = sorted({
-            reason.get("domain", "")
+            reason.get("reason_kind", "")
             for item in candidates
             for reason in item.get("reasons", [])
-            if reason.get("domain") not in (None, "", "input")
+            if reason.get("reason_kind") not in (None, "", "input")
         })
         suffix = f"（{ '/'.join(domains) }）" if domains else ""
         result["time_candidates"] = candidates
@@ -219,9 +219,9 @@ def build_natal_chart(
             "本盘以 input 候选为基准；请按原因领域用事件校准。"
         )
     else:
-        detail = (candidate.get("reasons") or [{}])[0].get("detail", "")
-        if "距" in detail or "恰在" in detail:
-            result["calibration_hint"] = f"输入时间接近历法边界：{detail}；时辰敏感结论须确认。"
+        explanation = (candidate.get("reasons") or [{}])[0].get("explanation", "")
+        if "距" in explanation or "恰在" in explanation:
+            result["calibration_hint"] = f"输入时间接近历法边界：{explanation}；时辰敏感结论须确认。"
     result = with_natal_chart_digest(result)
     validate_natal_chart(result, action="build_natal_chart result")
     return result

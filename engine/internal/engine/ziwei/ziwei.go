@@ -284,7 +284,7 @@ type Chart struct {
 	LunarDay        int            `json:"lunar_day,omitempty"`
 	BirthLunarMonth int            `json:"birth_lunar_month,omitempty"`
 	BirthIsLeap     bool           `json:"birth_is_leap,omitempty"`
-	Gender          ganzhi.Gender  `json:"gender"`
+	Gender          ganzhi.Gender  `json:"-"`
 	MingZhu         string         `json:"ming_zhu,omitempty"`
 	ShenZhu         string         `json:"shen_zhu,omitempty"`
 	Patterns        []pattern      `json:"ge_ju,omitempty"`

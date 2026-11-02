@@ -88,7 +88,7 @@ func (availability requiredTiaoHouAvailability) MarshalJSON() ([]byte, error) {
 	if availability.value == nil {
 		// The wire DTO models secondary as a required object with nullable
 		// facts. Preserve that explicit closure instead of omitting the field.
-		return []byte(`{"hidden":null,"occurrences":null,"relation_facts":null,"stem":null,"transparent":null}`), nil
+		return []byte(`{"guan_xi_refs":null,"hidden":null,"occurrences":null,"stem":null,"transparent":null}`), nil
 	}
 	return json.Marshal(availability.value)
 }

@@ -7920,7 +7920,7 @@
             "frequency": "rare"
           }
         ],
-        "slot": "first",
+        "char_position": "first",
         "wuxing": "木",
         "role": "yong"
       }

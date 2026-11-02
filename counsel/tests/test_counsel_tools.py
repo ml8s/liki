@@ -15,32 +15,32 @@ def subject():
 def test_natal_compute_factors_returns_factors_and_digest(subject):
     from app.natal.tools.counsel import natal_compute_factors
 
-    out = natal_compute_factors(subject, "bazi")
+    out = natal_compute_factors(subject, technique="bazi")
     assert set(out) == {"factors", "factors_digest"}
 
 
 def test_natal_query_returns_bazi_assertions(subject):
     from app.natal.tools.counsel import natal_compute_factors, natal_query
 
-    out = natal_compute_factors(subject, "bazi")
-    result = natal_query(out["factors"], ["chart_structure"], out["factors_digest"])
+    out = natal_compute_factors(subject, technique="bazi")
+    result = natal_query(out["factors"], ["chart_structure"], out["factors_digest"], technique="bazi")
     assert result["assertions"]
-    assert all(item.get("side") == "bazi" for item in result["assertions"])
+    assert all(item.get("technique") == "bazi" for item in result["assertions"])
 
 
 def test_natal_period_query_returns_bazi_assertions(subject):
     from app.natal.tools.counsel import natal_compute_factors, natal_period_query
 
-    out = natal_compute_factors(subject, "bazi")
+    out = natal_compute_factors(subject, technique="bazi")
     got = natal_period_query(
         out["factors"], out["factors_digest"],
         {"type": "year_range", "start_year": 2020, "end_year": 2040, "timezone": "Asia/Shanghai"},
-        ["marriage"], subject, "bazi",
+        ["marriage"], subject, technique="bazi",
     )
     assert got["periods"]
     assert any(period.get("assertions") for period in got["periods"])
     assert all(
-        item.get("side") == "bazi"
+        item.get("technique") == "bazi"
         for period in got["periods"] for item in period["assertions"]
     )
 
@@ -48,7 +48,7 @@ def test_natal_period_query_returns_bazi_assertions(subject):
 def test_natal_query_rejects_modified_factors(subject):
     from app.natal.tools.counsel import natal_compute_factors, natal_query
 
-    out = natal_compute_factors(subject, "bazi")
+    out = natal_compute_factors(subject, technique="bazi")
     factors = dict(out["factors"])
     factors[next(iter(factors))] = "tampered"
     with pytest.raises(ValueError, match="factors_digest mismatch"):
@@ -58,7 +58,7 @@ def test_natal_query_rejects_modified_factors(subject):
 def test_natal_period_query_rejects_subject_from_another_snapshot(subject):
     from app.natal.tools.counsel import natal_compute_factors, natal_period_query
 
-    out = natal_compute_factors(subject, "bazi")
+    out = natal_compute_factors(subject, technique="bazi")
     other = {**subject, "birth_longitude": 117.0}
     with pytest.raises(ValueError, match="subject 与 natal_compute_factors"):
         natal_period_query(

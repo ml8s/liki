@@ -473,7 +473,6 @@
         }
       ]
     },
-    "gender": "male",
     "birth_year": 2000,
     "fu_yi": {
       "wuxing_count": {
@@ -899,7 +898,7 @@
       "gan": "己",
       "zhi": "酉"
     },
-    "nayin_rel": [
+    "na_yin_rel": [
       {
         "a": "nian",
         "b": "yue",
@@ -1021,8 +1020,8 @@
     ],
     "liu_po": [],
     "an_he": [],
-    "day_xun": "甲辰旬",
-    "day_xun_kong": "寅卯",
+    "ri_xun": "甲辰旬",
+    "ri_xun_kong": "寅卯",
     "tiao_hou": {
       "primary_wuxing": "水",
       "secondary_wuxing": "金",

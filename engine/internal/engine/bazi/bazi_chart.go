@@ -86,7 +86,7 @@ type Chart struct {
 	Ri     zhuInfo       `json:"ri"`
 	Shi    zhuInfo       `json:"shi"`
 	DaYun  *DaYun        `json:"da_yun"`
-	Gender ganzhi.Gender `json:"gender"`
+	Gender ganzhi.Gender `json:"-"`
 
 	// 出生公历年份（bazi.chart 起附）。供 bazi.liunian/liuri 按查询年份定位当年大运。
 	BirthYear int `json:"birth_year"`
@@ -107,7 +107,7 @@ type FullChart struct {
 	Ri     fullZhuInfo   `json:"ri"`
 	Shi    fullZhuInfo   `json:"shi"`
 	DaYun  *DaYun        `json:"da_yun"`
-	Gender ganzhi.Gender `json:"gender"`
+	Gender ganzhi.Gender `json:"-"`
 
 	// 出生公历年份（透传自 lean Chart，供 liunian/liuri 按年定位大运）。
 	BirthYear int `json:"birth_year"`
@@ -124,7 +124,7 @@ type FullChart struct {
 	// 确定性命理原子事实：透干十神得十干禄位。
 	LuRoots []LuRoot `json:"lu_roots"`
 	// 合会冲刑完整组；Python 因子层只读。
-	RelationGroups []RelationGroup `json:"relation_groups"`
+	GuanXi []RelationGroup `json:"guan_xi"`
 	// 十神显隐、通根、得令与旺弱状态；Python 因子层只读。
 	TenGodStates []TenGodState `json:"ten_god_states"`
 	// 五行季节旺弱、组合旺弱与生克方向；Python 因子层只读。
@@ -141,7 +141,7 @@ type FullChart struct {
 	SanYuan    SanYuan             `json:"san_yuan"`
 	TaiXi      ganzhi.Zhu          `json:"tai_xi"`
 	GongJia    []GongJia           `json:"gong_jia,omitempty"`
-	NayinRel   []NayinRelEntry     `json:"nayin_rel"`
+	NayinRel   []NayinRelEntry     `json:"na_yin_rel"`
 	ChangSheng [12]ChangShengStage `json:"chang_sheng"`
 	SanQiName  string              `json:"san_qi_name,omitempty"`
 	// 生肖（年支对应动物，如酉→鸡）。
@@ -162,8 +162,8 @@ type FullChart struct {
 
 	// 日柱所在旬与日柱旬空。is_void 语义固定为该柱地支值日柱旬空；
 	// 各柱 xun/xun_kong 是该柱自身所在旬，两者是不同命理事实。
-	DayXun     string `json:"day_xun"`
-	DayXunKong string `json:"day_xun_kong"`
+	DayXun     string `json:"ri_xun"`
+	DayXunKong string `json:"ri_xun_kong"`
 }
 
 // ShenShaSchool records the union policy used by dual-reference shensha.

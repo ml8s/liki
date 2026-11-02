@@ -96,7 +96,7 @@ func TestTimeInputsCanonical(t *testing.T) {
 
 			for schemaIndex, schema := range schemas {
 				timeField := map[string]string{
-					"liuyao_chart": "qigua_time", "qimen_chart": "qiju_time",
+					"liuyao_chart": "qi_gua_time", "qimen_chart": "qi_ju_time",
 					"huangli_days": "start_date", "bazhai_chart": "subject",
 					"xuankong_chart": "zhaiyun_date", "xuankong_liunian": "liunian_date",
 				}[name]

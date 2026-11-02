@@ -58,7 +58,7 @@ func TestGanChong_ClassicPairsAndPositions(t *testing.T) {
 	}
 }
 
-func TestGanChong_RelationGroupsDistinguishTightPairs(t *testing.T) {
+func TestGanChong_GuanXiDistinguishTightPairs(t *testing.T) {
 	chart := atomicChartFromStrings(t, []string{"甲子", "丙寅", "庚午", "壬申"})
 	full := ComputeFullChart(chart)
 	want := map[RelationGroup]bool{
@@ -66,13 +66,13 @@ func TestGanChong_RelationGroupsDistinguishTightPairs(t *testing.T) {
 		{Field: "liu_chong", Group: "子午"}:           true,
 		{Field: "san_he_partial", Group: "寅午"}:      true,
 	}
-	got := make(map[RelationGroup]bool, len(full.RelationGroups))
-	for _, group := range full.RelationGroups {
+	got := make(map[RelationGroup]bool, len(full.GuanXi))
+	for _, group := range full.GuanXi {
 		got[RelationGroup{Field: group.Field, Group: group.Group}] = true
 	}
 	for group := range want {
 		if !got[group] {
-			t.Fatalf("missing relation group %#v; got %#v", group, full.RelationGroups)
+			t.Fatalf("missing relation group %#v; got %#v", group, full.GuanXi)
 		}
 	}
 	if got[RelationGroup{Field: "gan_chong", Group: "甲庚"}] {

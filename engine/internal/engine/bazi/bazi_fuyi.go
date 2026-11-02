@@ -11,7 +11,7 @@ func FuYi(
 	strength DayMasterStrength,
 ) FuYiResult {
 	riYuan := c.Ri.Gan
-	basis := buildFuYiBasis(c, strength.RootType, strength.Season, strength.YinBiCount)
+	basis := buildFuYiBasis(c, strength.RootType, strength.YinBiCount)
 
 	// Try congGe rules first (qualitative rule chain, not percentages).
 	pat, congYong, congXi, congJi := lookupCongGe(c)
@@ -24,7 +24,7 @@ func FuYi(
 			Ji:          candidateString(congJi),
 			Strength:    strength.Label,
 			Pattern:     pat,
-			Model:       "support_control_with_day_master_strength",
+			ModelID:     "support_control_with_day_master_strength",
 			Basis:       basis,
 		}
 	}
@@ -39,7 +39,7 @@ func FuYi(
 		Xi:          xi,
 		Ji:          ji,
 		Strength:    strength.Label,
-		Model:       "support_control_with_day_master_strength",
+		ModelID:     "support_control_with_day_master_strength",
 		Basis:       basis,
 	}
 }

@@ -25,10 +25,10 @@ def _liu_handler_longevity(op: str, args: list, base: dict, gender: str, chart: 
                 return it.get('name', '') if args and args[0] == FACTOR_WILDCARD else 1 if it.get('name') == args[0] else 0
         return '' if args and args[0] == FACTOR_WILDCARD else 0
 
-def _liu_handler_shensha(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
+def _liu_handler_shen_sha(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
                          current_year: int, const: dict, ln: dict, nz: str, ss_year: str, star_keys: tuple, target: str) -> "int | str":
     if op == '流年神煞':
-        ss = ln.get('shensha', []) or []
+        ss = ln.get('shen_sha', []) or []
         return 1 if any(((s.get('name') or '') == args[0] for s in ss)) else 0
 
 def _liu_handler_target_star(op: str, args: list, base: dict, gender: str, chart: dict, ctx: dict,
@@ -258,7 +258,7 @@ def _liu_handler_mechanical(op: str, args: list, base: dict, gender: str, chart:
 
 _LIU_OP_HANDLERS = {
         "流年长生": _liu_handler_longevity,
-        "流年神煞": _liu_handler_shensha,
+        "流年神煞": _liu_handler_shen_sha,
         "流年合": _liu_handler_target_star,
         "流年值": _liu_handler_target_star,
         "流年冲": _liu_handler_target_star,

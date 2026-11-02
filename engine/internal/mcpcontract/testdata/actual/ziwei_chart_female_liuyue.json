@@ -5,8 +5,8 @@
       "birth_longitude": 116.4,
       "gender": "female"
     },
-    "liuyue_start_time": "2026-07-23T12:00:00+08:00",
-    "liuyue_count": null
+    "liu_yue_start_time": "2026-07-23T12:00:00+08:00",
+    "liu_yue_count": null
   },
   "output": {
     "liu_yue": [
@@ -34,11 +34,10 @@
             "month": 6,
             "leap": false
           },
-          "liuyue_start_time": "2026-07-23T12:00:00+08:00",
+          "liu_yue_start_time": "2026-07-23T12:00:00+08:00",
           "liuyue_start_date": "2026-07-23"
         },
         "ming_gong": "命宫",
-        "ming_gong_name": "命宫",
         "zhi": "未",
         "si_hua": {
           "天机": "禄",

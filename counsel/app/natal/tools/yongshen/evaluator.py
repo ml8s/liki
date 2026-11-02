@@ -311,6 +311,10 @@ def _enrich_facts(fullchart: dict, policy: dict) -> dict:
     stems = [stem for stem in stems if stem]
     month_zhi = (fullchart.get("yue") or {}).get("zhi", "")
     day_master_stem = atomic.get("day_master_stem", "") or (fullchart.get("ri") or {}).get("gan", "")
+    fu_yi = {
+        **fu_yi,
+        "season": (fu_yi.get("wang_shuai") or {}).get(day_master_element, ""),
+    }
 
     return {
         "fu_yi": fu_yi,
@@ -455,9 +459,9 @@ def _alternatives(facts: dict, derived: dict, policy: dict) -> dict:
             "xi": _candidate(fu_yi.get("xi")),
             "ji": _candidate(fu_yi.get("ji")),
             "pattern": fu_yi.get("pattern", ""),
-            "root_type": basis.get("root_type", ""),
+            "ri_gan_gen": basis.get("ri_gan_gen", ""),
             "season": basis.get("season", ""),
-            "yin_bi_count": basis.get("yin_bi_count", 0),
+            "yin_bi_shu_liang": basis.get("yin_bi_shu_liang", 0),
         },
         "tiao_hou": {
             "primary_wuxing": tiao_hou.get("primary_wuxing", ""),
@@ -515,9 +519,9 @@ def _evidence(facts: dict, derived: dict, policy: dict) -> list[dict]:
             "source": "fu_yi",
             "qiangruo": (facts.get("fu_yi") or {}).get("qiangruo", ""),
             "pattern": (facts.get("fu_yi") or {}).get("pattern", ""),
-            "root_type": ((facts.get("fu_yi") or {}).get("basis") or {}).get("root_type", ""),
+            "ri_gan_gen": ((facts.get("fu_yi") or {}).get("basis") or {}).get("ri_gan_gen", ""),
             "season": ((facts.get("fu_yi") or {}).get("basis") or {}).get("season", ""),
-            "yin_bi_count": ((facts.get("fu_yi") or {}).get("basis") or {}).get("yin_bi_count", 0),
+            "yin_bi_shu_liang": ((facts.get("fu_yi") or {}).get("basis") or {}).get("yin_bi_shu_liang", 0),
             "yong": _candidate((facts.get("fu_yi") or {}).get("yong")),
             "xi": _candidate((facts.get("fu_yi") or {}).get("xi")),
             "ji": _candidate((facts.get("fu_yi") or {}).get("ji")),

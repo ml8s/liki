@@ -33,7 +33,7 @@ type patternGoldenVector struct {
 	ExpectedPattern string               `json:"expected_pattern"`
 	ExpectedPalaces []string             `json:"expected_palaces"`
 	SourceBasis     string               `json:"source_basis"`
-	Board           patternGoldenPanSpec `json:"board"`
+	Board           patternGoldenPanSpec `json:"pan"`
 }
 
 type patternGoldenFixture struct {
@@ -57,7 +57,7 @@ func TestPatternGoldenVectors(t *testing.T) {
 	sanQiDeShiPairs := map[string]bool{}
 	bases := map[string]string{}
 	for _, rule := range patternRules {
-		bases[rule.Name] = rule.Basis
+		bases[rule.Name] = rule.YiJu
 	}
 	for _, vector := range fixture.Vectors {
 		if seen[vector.ID] || len(vector.ExpectedPalaces) == 0 {

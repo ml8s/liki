@@ -77,7 +77,7 @@ def test_unique_items_is_projected_and_enforced():
         CONTRACTS["qimen_snapshot"].input.model_validate(
             {
                 "question": "该往哪里推进？",
-                "location": {"kind": "longitude", "qiju_longitude": 121.47},
+                "location": {"kind": "longitude", "qi_ju_longitude": 121.47},
                 "focus": {"kind": "yong_shen", "yong_shen": ["生门", "生门"]},
             }
         )
@@ -142,7 +142,7 @@ def test_yongshen_candidate_state_is_valid_and_empty_is_rejected():
 
     fu_yi = {
         "source": "fu_yi", "qiangruo": "身强", "pattern": "",
-        "root_type": "month_main", "season": "旺", "yin_bi_count": 1,
+        "ri_gan_gen": "month_main", "season": "旺", "yin_bi_shu_liang": 1,
         "yong": "无候选", "xi": "无候选", "ji": "无候选",
     }
     tiao_hou = {
@@ -171,7 +171,7 @@ def test_factor_snapshot_rejects_legacy_and_non_scalar_values():
     assert adapter.validate_python({"大运十神类": "命中"})["大运十神类"] == "命中"
     assert adapter.validate_python({"日主": "甲"})["日主"] == "甲"
     assert adapter.validate_python({
-        "_provenance": {"side": "bazi"},
+        "_provenance": {"technique": "bazi"},
         "selected_yongshen": {"selected": {}},
     })
 
@@ -298,9 +298,9 @@ def test_tool_vocabulary_bridge_publishes_exactly_what_the_models_expose():
 def test_natal_tools_have_closed_args():
     required = {
         "bazi_yongshen": ["subject"],
-        "natal_compute_factors": ["subject", "side"],
-        "natal_query": ["factors", "factors_digest", "topics"],
-        "natal_period_query": ["factors", "factors_digest", "time_scope", "topics", "subject"],
+        "natal_compute_factors": ["subject", "technique"],
+        "natal_query": ["factors", "factors_digest", "life_topics"],
+        "natal_period_query": ["factors", "factors_digest", "time_scope", "life_topics", "subject"],
     }
     assert set(NATAL_FUNCTIONS) == set(required)
     for name, schema in NATAL_FUNCTIONS.items():
@@ -313,9 +313,9 @@ def test_natal_topic_enum_is_generated_from_topic_routes():
     routes = json.loads(
         (REPO_ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
     )
-    expected = list(routes["topics"])
+    expected = list(routes["life_topics"])
     for name in ("natal_query", "natal_period_query"):
-        schema = NATAL_FUNCTIONS[name]["properties"]["topics"]
+        schema = NATAL_FUNCTIONS[name]["properties"]["life_topics"]
         assert schema["items"]["enum"] == expected, name
 
 
@@ -325,7 +325,7 @@ def test_natal_topic_routes_are_valid_and_unambiguous():
     routes_doc = json.loads(
         (REPO_ROOT / "counsel/app/natal/tools/topic_routes.json").read_text(encoding="utf-8")
     )
-    routes = routes_doc["topics"]
+    routes = routes_doc["life_topics"]
     domain_config = load_constants()["命理域"]
     natal = set(domain_config["本命规则"])
     annual = set(domain_config["流年规则"]) | set(domain_config["场景别名"])

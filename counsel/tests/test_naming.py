@@ -19,7 +19,7 @@ def selected_yongshen(yong="木", xi=None, ji=None):
 def test_pick_yong_yong():
     plan = selected_yongshen("木")
     r = naming.pick_chars_by_selected_yongshen(plan, "yong", "yong")
-    assert [(p["slot"], p["role"], p["wuxing"]) for p in r["pools"]] == [
+    assert [(p["char_position"], p["role"], p["wuxing"]) for p in r["pools"]] == [
         ("first", "yong", "木"), ("second", "yong", "木"),
     ]
     assert len(r["pools"][0]["chars"]) == 1969
@@ -29,7 +29,7 @@ def test_pick_yong_yong():
 def test_pick_single_yong():
     r = naming.pick_chars_by_selected_yongshen(selected_yongshen("水"), "yong")
     assert len(r["pools"]) == 1
-    assert (r["pools"][0]["slot"], r["pools"][0]["role"]) == ("first", "yong")
+    assert (r["pools"][0]["char_position"], r["pools"][0]["role"]) == ("first", "yong")
     assert len(r["pools"][0]["chars"]) == 1673
 
 
@@ -37,7 +37,7 @@ def test_pick_multiple_xi_pools():
     r = naming.pick_chars_by_selected_yongshen(
         selected_yongshen("金", ["水", "木"]), "yong", "xi"
     )
-    assert [(p["slot"], p["role"], p["wuxing"]) for p in r["pools"]] == [
+    assert [(p["char_position"], p["role"], p["wuxing"]) for p in r["pools"]] == [
         ("first", "yong", "金"),
         ("second", "xi", "水"),
         ("second", "xi", "木"),

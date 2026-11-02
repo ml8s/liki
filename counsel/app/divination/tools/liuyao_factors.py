@@ -23,7 +23,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     def project_line(line: dict) -> dict:
         return {
             "position": line.get("position"),
-            "type": line.get("type"),
+            "type": line.get("yao_value"),
             "gan_zhi": f"{line.get('gan', '')}{line.get('zhi', '')}",
             "wuxing": line.get("wuxing"),
             "liu_qin": line.get("liu_qin"),
@@ -121,7 +121,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
             "fact": relation,
             "conclusion_scope": CONCLUSION_SCOPE,
         })
-    for pattern in chart.get("patterns", []):
+    for pattern in chart.get("ge_ju", []):
         secondary.append({
             "id": f"pattern-{len(secondary) + 1}",
             "fact": pattern,
@@ -169,7 +169,7 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
 
     reference.append({
         "id": "hexagram-name",
-        "fact": {"name": chart.get("name"), "ben_gua": chart.get("ben_gua")},
+        "fact": {"gua_name": chart.get("gua_name")},
         "conclusion_scope": "reference_not_primary_judgment",
     })
     for line in lines:
@@ -212,9 +212,8 @@ def project_factors(casting: dict, chart: dict, question: dict) -> dict:
     return {
         "question": question,
         "casting": casting_projection(casting),
-        "board": {
-            "name": chart.get("name"),
-            "ben_gua": chart.get("ben_gua"),
+        "pan": {
+            "gua_name": chart.get("gua_name"),
             "bian_gua": chart.get("bian_gua"),
             "palace": chart.get("gong"),
             "palace_wuxing": chart.get("gong_wuxing"),

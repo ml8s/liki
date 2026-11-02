@@ -215,10 +215,10 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
             for zhu in const["四柱"]:
                 for it in (full.get(zhu) or {}).get("shen_sha", []) or []:
                     names.append(it.get("name") or it.get("xing"))
-        elif field == "patterns":
-            # 含(patterns, 府相朝垣) —— 紫微特殊格局（ziwei.patterns）
+        elif field == "ge_ju":
+            # 含(patterns, 府相朝垣) —— 紫微特殊格局（ziwei.ge_ju）
             zw = chart.get("ziwei", {}) or {}
-            names = [p.get("name") for p in (zw.get("patterns", []) or []) if p.get("name")]
+            names = [p.get("name") for p in (zw.get("ge_ju", []) or []) if p.get("name")]
         else:
             items = _path_get(base, chart, field) or []
             names = [it.get("name") or it.get("xing") for it in items] if isinstance(items, list) else []
@@ -241,10 +241,10 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
     if op == "关系":
         # 关系[field, 组名]——读取引擎完整合会冲刑组。
         field, group = args[0], args[1]
-        relation_groups = (chart.get("bazi", {}) or {}).get("relation_groups", [])
+        guan_xi_items = (chart.get("bazi", {}) or {}).get("guan_xi", [])
         return 1 if any(
             item.get("field") == field and item.get("group") == group
-            for item in relation_groups
+            for item in guan_xi_items
             if isinstance(item, dict)
         ) else 0
     if op == "柱刑":

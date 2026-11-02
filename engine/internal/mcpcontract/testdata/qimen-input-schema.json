@@ -271,13 +271,13 @@
           ],
           "type": "object"
         },
-        "qiju_longitude": {
+        "qi_ju_longitude": {
           "description": "起局地经度。",
           "maximum": 180,
           "minimum": -180,
           "type": "number"
         },
-        "qiju_time": {
+        "qi_ju_time": {
           "description": "起局地标准时间。",
           "format": "date-time",
           "type": "string"
@@ -325,8 +325,8 @@
         }
       },
       "required": [
-        "qiju_time",
-        "qiju_longitude",
+        "qi_ju_time",
+        "qi_ju_longitude",
         "method"
       ],
       "type": "object"
@@ -354,21 +354,21 @@
           ],
           "type": "object"
         },
-        "qiju_longitude": {
+        "qi_ju_longitude": {
           "description": "起局地经度。",
           "maximum": 180,
           "minimum": -180,
           "type": "number"
         },
-        "qiju_time": {
+        "qi_ju_time": {
           "description": "起局地标准时间。",
           "format": "date-time",
           "type": "string"
         }
       },
       "required": [
-        "qiju_time",
-        "qiju_longitude",
+        "qi_ju_time",
+        "qi_ju_longitude",
         "method"
       ],
       "type": "object"

@@ -119,7 +119,7 @@ func applyDerivedFacts(fc *FullChart) {
 	fc.TenGodStates, elementStates = computeTenGodStates(*fc)
 	fc.ElementStates = elementStateList(elementStates)
 	fc.LuRoots = computeLuRoots(*fc)
-	fc.RelationGroups = computeRelationGroups(*fc)
+	fc.GuanXi = computeGuanXi(*fc)
 	facts := computeAtomicFacts(*fc)
 	fc.AtomicFacts = facts
 	fc.GuanSha = GuanSha{QuQing: facts.OfficerKillingCleaned}

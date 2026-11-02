@@ -10,14 +10,14 @@ import (
 // Chart bundles a complete奇门盘 with all analysis layers.
 type Chart struct {
 	Method              ChartMethod        `json:"method"`
-	Board               board              `json:"board"`
+	Board               board              `json:"pan"`
 	GanInteractions     []GanInteraction   `json:"gan_interaction"`
 	MenInteractions     []MenInteraction   `json:"men_interaction"`
 	XingInteractions    []XingInteraction  `json:"xing_interaction"`
 	XingGongWuXing      []XingGongWuXing   `json:"xing_gong_wu_xing"`
 	MenPo               []GongIndex        `json:"men_po"`
 	MenZhi              []GongIndex        `json:"men_zhi"`
-	Patterns            []Pattern          `json:"patterns"`
+	Patterns            []Pattern          `json:"ge_ju"`
 	YingQi              YingQi             `json:"ying_qi"`
 	RiGanPalace         GongIndex          `json:"ri_gan_gong"`  // 日干落宫（排盘固有）
 	ShiGanPalace        GongIndex          `json:"shi_gan_gong"` // 时干落宫（排盘固有）
@@ -31,7 +31,7 @@ type Chart struct {
 	DutyStarPalace      GongIndex          `json:"zhi_fu_xing_gong"`    // 值符星落宫（排盘固有）
 	DutyDoorPalace      GongIndex          `json:"zhi_shi_men_gong"`    // 值使门落宫（排盘固有）
 	YongShen            *YongShenResult    `json:"yong_shen,omitempty"` // 用神领域对象（求测人+事象用神）
-	Specialized         SpecializedContext `json:"specialized"`
+	Specialized         SpecializedContext `json:"special_facts"`
 }
 
 // GanPalaceFact records every palace layer occupied by a stem. The primary
@@ -43,8 +43,8 @@ type GanPalaceFact struct {
 }
 
 type RiShiRelation struct {
-	Subject  string `json:"subject"`
-	Object   string `json:"object"`
+	Zhu      string `json:"zhu"`
+	Ke       string `json:"ke"`
 	Relation string `json:"relation"`
 	Name     string `json:"name"`
 }
@@ -319,7 +319,7 @@ func analyzeRiShiRelation(dayPalace, hourPalace GongIndex) RiShiRelation {
 		}
 	}
 	return RiShiRelation{
-		Subject: "ri_gan_gong", Object: "shi_gan_gong",
+		Zhu: "ri_gan_gong", Ke: "shi_gan_gong",
 		Relation: relation, Name: riShiRelations[relation],
 	}
 }

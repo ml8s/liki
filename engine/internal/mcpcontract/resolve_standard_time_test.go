@@ -7,8 +7,8 @@ import (
 
 func TestTianwenResolveStandardRemovesDSTFold(t *testing.T) {
 	fold, err := TianwenResolveStandard(context.Background(), TianwenResolveInput{
-		Calendar: "solar", Date: "2024-11-03", Time: "01:30",
-		Timezone: "America/New_York", Longitude: -74, Gender: "male",
+		CalendarKind: "solar", RecordedDate: "2024-11-03", RecordedTime: "01:30",
+		RecordTimezone: "America/New_York", PlaceLongitude: -74, SubjectGender: "male",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -21,8 +21,8 @@ func TestTianwenResolveStandardRemovesDSTFold(t *testing.T) {
 	}
 
 	gap, err := TianwenResolveStandard(context.Background(), TianwenResolveInput{
-		Calendar: "solar", Date: "2024-03-10", Time: "02:30",
-		Timezone: "America/New_York", Longitude: -74, Gender: "male",
+		CalendarKind: "solar", RecordedDate: "2024-03-10", RecordedTime: "02:30",
+		RecordTimezone: "America/New_York", PlaceLongitude: -74, SubjectGender: "male",
 	})
 	if err != nil {
 		t.Fatalf("DST gap must normalize to standard time: %v", err)

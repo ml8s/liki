@@ -35,7 +35,7 @@ def _kong_wang(factors: dict) -> list[dict]:
 
 
 def _patterns(factors: dict) -> list[dict]:
-    return factors.get("patterns") or []
+    return factors.get("ge_ju") or []
 
 
 def _duty_door_gong(factors: dict) -> str:

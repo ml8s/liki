@@ -112,5 +112,5 @@ def validate_side_chart(natal_chart: object, side: str, action: str = "natal_cha
     if not isinstance(natal_chart, dict):
         raise ChartSchemaError(f"{action} natal_chart 必须是 object。")
     validate_natal_chart(natal_chart, action=action)
-    if side not in ("bazi", "ziwei"):
+    if technique not in ("bazi", "ziwei"):
         raise ChartSchemaError(f"{action} side 只支持 bazi/ziwei，收到: {side!r}。")

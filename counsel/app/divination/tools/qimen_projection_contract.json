@@ -14,35 +14,35 @@
     },
     "jushu": {
       "kind": "scalar",
-      "path": "board.jushu",
+      "path": "pan.jushu",
       "type": "integer",
       "required": true
     },
     "yin_dun": {
       "kind": "boolean",
-      "path": "board.yin_dun",
+      "path": "pan.yin_dun",
       "required": true
     },
     "duty_star": {
       "kind": "scalar",
-      "path": "board.zhi_fu_xing",
+      "path": "pan.zhi_fu_xing",
       "type": "string",
       "required": true
     },
     "duty_door": {
       "kind": "scalar",
-      "path": "board.zhi_shi_men",
+      "path": "pan.zhi_shi_men",
       "type": "string",
       "required": true
     },
     "wu_bu_yu_shi": {
       "kind": "boolean",
-      "path": "board.wu_bu_yu_shi",
+      "path": "pan.wu_bu_yu_shi",
       "required": true
     },
     "pillars": {
       "kind": "object",
-      "path": "board",
+      "path": "pan",
       "required": true,
       "fields": {
         "ri_gan": {
@@ -145,13 +145,13 @@
       "path": "ri_shi_relation",
       "required": true,
       "fields": {
-        "subject": {
-          "path": "subject",
+        "zhu": {
+          "path": "zhu",
           "type": "string",
           "required": true
         },
-        "object": {
-          "path": "object",
+        "ke": {
+          "path": "ke",
           "type": "string",
           "required": true
         },
@@ -174,9 +174,9 @@
       "required": false,
       "nullable": true
     },
-    "patterns": {
+    "ge_ju": {
       "kind": "object_array",
-      "path": "patterns",
+      "path": "ge_ju",
       "required": true,
       "fields": {
         "name": {
@@ -336,7 +336,7 @@
     "stars": {
       "kind": "object_array",
       "projection": "stars",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "star": {
@@ -364,7 +364,7 @@
     "doors": {
       "kind": "object_array",
       "projection": "doors",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "door": {
@@ -387,7 +387,7 @@
     "spirits": {
       "kind": "object_array",
       "projection": "spirits",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "name": {
@@ -410,7 +410,7 @@
     "spirit_star_relations": {
       "kind": "object_array",
       "projection": "spirit_star_relations",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "spirit": {
@@ -453,7 +453,7 @@
     "spirit_spirit_relations": {
       "kind": "object_array",
       "projection": "spirit_spirit_relations",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "spirit": {
@@ -501,7 +501,7 @@
     "spirit_door_relations": {
       "kind": "object_array",
       "projection": "spirit_door_relations",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "spirit": {
@@ -650,7 +650,7 @@
       "required": true,
       "fields": {
         "type": {
-          "path": "type",
+          "path": "ying_qi_kind",
           "type": "string",
           "required": true
         },
@@ -795,7 +795,7 @@
     "gong_domains": {
       "kind": "object_array",
       "projection": "palace_domains",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "gong": {
@@ -813,7 +813,7 @@
     "palace_directions": {
       "kind": "object_array",
       "projection": "palace_directions",
-      "path": "board.gong_wei",
+      "path": "pan.gong_wei",
       "required": true,
       "fields": {
         "gong": {
@@ -831,14 +831,14 @@
     "hour_polarity": {
       "kind": "scalar",
       "projection": "hour_polarity",
-      "path": "board.shi_gan",
+      "path": "pan.shi_gan",
       "type": "string",
       "required": true
     },
     "lost_context": {
       "kind": "object_array",
       "projection": "lost_context",
-      "path": "specialized.lost_context",
+      "path": "special_facts.lost_context",
       "required": true,
       "fields": {
         "gong": {
@@ -874,7 +874,7 @@
     "geng_ge": {
       "kind": "object_array",
       "projection": "geng_ge",
-      "path": "specialized.geng_ge",
+      "path": "special_facts.geng_ge",
       "required": true,
       "fields": {
         "level": {
@@ -909,21 +909,21 @@
     "geng_ge_levels": {
       "kind": "value_array",
       "projection": "geng_ge_levels",
-      "path": "specialized.geng_ge",
+      "path": "special_facts.geng_ge",
       "type": "string",
       "required": true
     },
     "geng_ge_status": {
       "kind": "scalar",
       "projection": "geng_ge_status",
-      "path": "specialized.geng_ge",
+      "path": "special_facts.geng_ge",
       "type": "string",
       "required": true
     },
     "thief_context": {
       "kind": "object_array",
       "projection": "thief_context",
-      "path": "specialized.thief_context",
+      "path": "special_facts.thief_context",
       "required": true,
       "fields": {
         "role": {
@@ -977,7 +977,7 @@
     "tianwang_context": {
       "kind": "object_array",
       "projection": "tianwang_context",
-      "path": "specialized.tianwang_context",
+      "path": "special_facts.tianwang_context",
       "required": true,
       "fields": {
         "kind": {

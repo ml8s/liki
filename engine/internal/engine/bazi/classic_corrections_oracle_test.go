@@ -189,8 +189,8 @@ func TestDomainOracle_BaziClassicCorrections(t *testing.T) {
 	if full.ShenShaSchool.Policy != "union_of_year_and_day_references" || len(full.ShenShaSchool.DualReference) != 7 {
 		t.Fatalf("shen sha school = %+v", full.ShenShaSchool)
 	}
-	if full.FuYi.Model != "support_control_with_day_master_strength" ||
-		full.FuYi.Basis.RootType == "" || len(full.FuYi.Basis.DayMasterRoots) == 0 {
+	if full.FuYi.ModelID != "support_control_with_day_master_strength" ||
+		full.FuYi.Basis.RiGanGen == "" || len(full.FuYi.Basis.RiGanTongGen) == 0 {
 		t.Fatalf("fu yi model = %+v", full.FuYi)
 	}
 	if full.TiaoHou.Model != "qiongtong_primary_secondary_table" ||

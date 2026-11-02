@@ -32,8 +32,8 @@ def _resolve_yong_shen(
 def factors(
     *,
     casting: dict,
-    qigua_longitude: float,
-    qigua_time: str,
+    qi_gua_longitude: float,
+    qi_gua_time: str,
     matter: str | None = None,
     yong_shen: str | None = None,
     perspective: str | None = None,
@@ -44,15 +44,15 @@ def factors(
         matter, yong_shen, perspective
     )
     require_object(casting, "casting")
-    if not qigua_time:
-        raise ValueError("qigua_time is required")
-    if qigua_longitude < -180 or qigua_longitude > 180:
-        raise ValueError("qigua_longitude must be within [-180,180]")
-    resolved_longitude = qigua_longitude
+    if not qi_gua_time:
+        raise ValueError("qi_gua_time is required")
+    if qi_gua_longitude < -180 or qi_gua_longitude > 180:
+        raise ValueError("qi_gua_longitude must be within [-180,180]")
+    resolved_longitude = qi_gua_longitude
 
     params: dict[str, Any] = {
-        "qigua_time": qigua_time,
-        "qigua_longitude": resolved_longitude,
+        "qi_gua_time": qi_gua_time,
+        "qi_gua_longitude": resolved_longitude,
         "yong_shen": resolved_yong_shen,
     }
     params["casting"] = casting

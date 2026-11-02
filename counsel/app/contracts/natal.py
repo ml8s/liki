@@ -76,14 +76,14 @@ TOOL_COMPUTE_FACTORS_DESCRIPTION = "考时后的 subject → canonical charts �
 class ComputeFactorsInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     subject: NatalSubjectInput = Field(description="已考时归一化的出生主体。")
-    side: Literal["bazi", "ziwei"] = Field(description="命理技术侧。")
+    technique: Literal["bazi", "ziwei"] = Field(description="命理术数侧。")
 
 
 class ComputeFactorsOutput(BaseModel):
     """Immutable factor snapshot derived from an engine chart."""
     model_config = ConfigDict(extra="allow")
     factors: FactorSnapshot = Field(
-        description="Canonical factor snapshot; includes _provenance with side, subject, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
+        description="Canonical factor snapshot; includes _provenance with technique, subject, and context. Bazi snapshots include selected_yongshen as the reserved domain result element.",
     )
     factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
         description="SHA-256 hex digest of the canonical factor snapshot.",
@@ -107,7 +107,7 @@ class NatalQueryInput(BaseModel):
     factors_digest: Annotated[str, Field(pattern="^[a-f0-9]{64}$")] = Field(
         description="natal_compute_factors 返回的 SHA-256 因子摘要；必须与 factors 原样匹配",
     )
-    topics: Annotated[unique_list[Annotated[Literal["marriage", "family", "children", "career", "wealth", "health", "mental", "study", "personality", "appearance", "origin", "relocation", "social", "property", "adversity", "chart_structure"], Field(description="受控人生问题领域闭集")]], Field(min_length=1, max_length=16)] = Field(
+    life_topics: Annotated[unique_list[Annotated[Literal["marriage", "family", "children", "career", "wealth", "health", "mental", "study", "personality", "appearance", "origin", "relocation", "social", "property", "adversity", "chart_structure"], Field(description="受控人生问题领域闭集")]], Field(min_length=1, max_length=16)] = Field(
         description="人生问题域：marriage/family/children/career/wealth/health/mental/study/personality/appearance/origin/relocation/social/property/adversity/chart_structure 等",
     )
 
@@ -117,11 +117,11 @@ class NatalQueryOutputAssertionsItem(BaseModel):
     assertion_id: str = Field(
         description="Stable assertion id.",
     )
-    side: Literal["bazi", "ziwei"] = Field(
-        description="Factor side: bazi or ziwei.",
+    technique: Literal["bazi", "ziwei"] = Field(
+        description="命理术数侧：bazi 或 ziwei。",
     )
     topic: str = Field(
-        description="Requested life-topic key.",
+        description="人生问题域。",
     )
     method: str | None = Field(
         default=None,
@@ -144,7 +144,7 @@ class NatalQueryOutput(BaseModel):
     """Deterministic natal assertions for requested topics."""
     model_config = ConfigDict(extra="allow")
     assertions: list[NatalQueryOutputAssertionsItem] = Field(
-        description="Traceable natal assertions matching the requested topics.",
+        description="命理断语结果。",
     )
 
 TOOL_NATAL_QUERY = ToolContract(
@@ -220,8 +220,8 @@ class PeriodQueryInput(BaseModel):
     time_scope: TimeScope = Field(
         description="时间层：year=指定公历年的流年，year_range=逐年区间，decade=指定年所在大限，current_year/current_decade=按当前时间解析。年界与“当前”都按 timezone 确定。",
     )
-    topics: Annotated[unique_list[Annotated[Literal["marriage", "family", "children", "career", "wealth", "health", "mental", "study", "personality", "appearance", "origin", "relocation", "social", "property", "adversity", "chart_structure"], Field(description="受控人生问题领域闭集")]], Field(min_length=1, max_length=16)] = Field(
-        description="人生问题域（同 natal_query）",
+    life_topics: Annotated[unique_list[Annotated[Literal["marriage", "family", "children", "career", "wealth", "health", "mental", "study", "personality", "appearance", "origin", "relocation", "social", "property", "adversity", "chart_structure"], Field(description="受控人生问题领域闭集")]], Field(min_length=1, max_length=16)] = Field(
+        description="人生问题域（同 natal_query）。",
     )
     subject: NatalSubjectInput = Field(
         description="已考时归一化的出生主体；必须与 factors._provenance.subject 完全一致。内部据此重取 engine 流年/大限。",
@@ -285,11 +285,11 @@ class PeriodQueryOutputCalibrationFacts(BaseModel):
 class PeriodQueryOutput(BaseModel):
     """Deterministic period assertions grouped by requested time scopes."""
     model_config = ConfigDict(extra="allow")
-    chart: PeriodQueryOutputChart = Field(
+    natal_chart_identity: PeriodQueryOutputChart = Field(
         description="Chart identity and digest used for period computation.",
     )
-    query: dict[str, Any] = Field(
-        description="Echo of period query scope, topics, and rules.",
+    request_scope: dict[str, Any] = Field(
+        description="Resolved period request scope, topics, and rules.",
     )
     year_basis: dict[str, Any] | None = Field(
         default=None,

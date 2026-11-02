@@ -17,7 +17,7 @@ type LiuYue struct {
 	Restrains int                 `json:"ke"`
 	GanRels   []GanRelation       `json:"gan_rels"`
 	ZhiRels   []ZhiRelation       `json:"zhi_rels"`
-	ShenSha   []ShenShaProjection `json:"shensha"`
+	ShenSha   []ShenShaProjection `json:"shen_sha"`
 }
 
 // ComputeLiuYue computes the month pillar for a resolved solar-term month and

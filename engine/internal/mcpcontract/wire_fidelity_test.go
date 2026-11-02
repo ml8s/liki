@@ -240,13 +240,13 @@ func subjectFixtureInput(file, method string, old map[string]any) map[string]any
 func methodSeriesFields(method string) [2]string {
 	switch method {
 	case "bazi_liunian", "ziwei_liunian":
-		return [2]string{"liunian_start_time", "liunian_count"}
+		return [2]string{"liu_nian_start_time", "liu_nian_count"}
 	case "bazi_liuyue", "ziwei_liuyue":
-		return [2]string{"liuyue_start_time", "liuyue_count"}
+		return [2]string{"liu_yue_start_time", "liu_yue_count"}
 	case "bazi_liuri", "ziwei_liuri":
-		return [2]string{"liuri_start_time", "liuri_count"}
+		return [2]string{"liu_ri_start_time", "liu_ri_count"}
 	case "bazi_liushi", "ziwei_liushi":
-		return [2]string{"liushi_start_time", "liushi_count"}
+		return [2]string{"liu_shi_start_time", "liu_shi_count"}
 	default:
 		return [2]string{}
 	}
@@ -255,9 +255,9 @@ func methodSeriesFields(method string) [2]string {
 func methodLongitudeField(method string) string {
 	switch method {
 	case "bazi_liuri":
-		return "liuri_longitude"
+		return "liu_ri_longitude"
 	case "bazi_liushi", "ziwei_liushi":
-		return "liushi_longitude"
+		return "liu_shi_longitude"
 	default:
 		return ""
 	}

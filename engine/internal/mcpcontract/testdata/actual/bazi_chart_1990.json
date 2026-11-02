@@ -498,7 +498,6 @@
         }
       ]
     },
-    "gender": "female",
     "birth_year": 1990,
     "fu_yi": {
       "wuxing_count": {
@@ -1102,7 +1101,7 @@
       "gan": "辛",
       "zhi": "丑"
     },
-    "nayin_rel": [
+    "na_yin_rel": [
       {
         "a": "nian",
         "b": "yue",
@@ -1263,8 +1262,8 @@
         "pillar_b": 2
       }
     ],
-    "day_xun": "甲戌旬",
-    "day_xun_kong": "申酉",
+    "ri_xun": "甲戌旬",
+    "ri_xun_kong": "申酉",
     "tiao_hou": {
       "primary_wuxing": "木",
       "secondary_wuxing": "水",

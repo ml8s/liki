@@ -38,7 +38,7 @@ def project(chart: dict) -> dict:
     """把金函玉镜独立盘型投影为稳定 factors，不混入标准奇门因子。"""
     if not isinstance(chart, dict) or chart.get("method", {}).get("school") != SCHOOL:
         raise ValueError("chart must be jinhan_yujing")
-    natal_chart = chart.get("board")
+    natal_chart = chart.get("pan")
     if not isinstance(natal_chart, dict):
         raise ValueError("jinhan chart lacks natal_chart")
 

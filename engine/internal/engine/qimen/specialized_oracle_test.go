@@ -69,7 +69,7 @@ func TestDomainOracle_QimenSpecializedContext(t *testing.T) {
 				Name       string `json:"name"`
 				Gong       string `json:"gong"`
 				Auspicious bool   `json:"auspicious"`
-			} `json:"patterns"`
+			} `json:"ge_ju"`
 			Expected []ThiefFact `json:"expected"`
 		} `json:"thief_cases"`
 		Tianwang []struct {

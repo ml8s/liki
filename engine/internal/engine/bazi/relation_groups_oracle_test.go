@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestDomainOracle_RelationGroups(t *testing.T) {
+func TestDomainOracle_GuanXi(t *testing.T) {
 	raw, err := os.ReadFile("../../../../tests/fixtures/domain_oracle/bazi_relation_groups.json")
 	if err != nil {
 		t.Fatalf("read oracle: %v", err)
@@ -31,8 +31,8 @@ func TestDomainOracle_RelationGroups(t *testing.T) {
 	for _, tc := range doc.Cases {
 		t.Run(tc.ID, func(t *testing.T) {
 			full := ComputeFullChart(atomicChartFromStrings(t, tc.Pillars))
-			got := make([]RelationGroup, 0, len(full.RelationGroups))
-			for _, group := range full.RelationGroups {
+			got := make([]RelationGroup, 0, len(full.GuanXi))
+			for _, group := range full.GuanXi {
 				got = append(got, RelationGroup{Field: group.Field, Group: group.Group})
 			}
 			want := make([]RelationGroup, 0, len(tc.Expected))

@@ -1,7 +1,7 @@
 {
   "input": {
-    "qiju_time": "2026-03-02T18:30:00+08:00",
-    "qiju_longitude": 123.25,
+    "qi_ju_time": "2026-03-02T18:30:00+08:00",
+    "qi_ju_longitude": 123.25,
     "method": {
       "dingju_method": "chaibu",
       "school": "zhuanpan",
@@ -244,7 +244,7 @@
         "wuxing": "火"
       }
     ],
-    "board": {
+    "pan": {
       "gong_wei": [
         {
           "an_gan": "壬",
@@ -442,10 +442,10 @@
       "zhi_fu_xing": "天禽",
       "zhi_shi_men": "死门"
     },
-    "patterns": [
+    "ge_ju": [
       {
         "auspicious": false,
-        "basis": "值符星还本宫",
+        "yi_ju": "值符星还本宫",
         "description": "值符星归本宫，凡事闭塞，静守为吉",
         "gong_wei": [
           "坤"
@@ -454,7 +454,7 @@
       },
       {
         "auspicious": false,
-        "basis": "《奇门遁甲统宗·奇门四十格》：三奇入墓，乙奇坤宫，丙奇乾宫，丁奇艮宫",
+        "yi_ju": "《奇门遁甲统宗·奇门四十格》：三奇入墓，乙奇坤宫，丙奇乾宫，丁奇艮宫",
         "description": "乙奇入坤、丙奇入乾、丁奇入艮，光明收藏，诸事不宜轻进",
         "gong_wei": [
           "坤"
@@ -463,7 +463,7 @@
       },
       {
         "auspicious": false,
-        "basis": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
+        "yi_ju": "《奇门遁甲统宗·奇门四十格》：甲子值符三，甲戌值符二，甲申值符八，甲午值符九，甲辰值符四，甲寅值符四；即戊刑震三、己刑坤二、庚刑艮八、辛刑离九、壬癸刑巽四",
         "description": "六仪落刑宫：戊震、己坤、庚艮、辛离、壬癸巽，刑伤冲动，谋为多凶",
         "gong_wei": [
           "震"
@@ -484,9 +484,9 @@
     ],
     "ri_shi_relation": {
       "name": "日干宫与时干宫比和",
-      "object": "shi_gan_gong",
+      "ke": "shi_gan_gong",
       "relation": "same",
-      "subject": "ri_gan_gong"
+      "zhu": "ri_gan_gong"
     },
     "shi_gan_gong": "坤",
     "shi_gan_gong_wang_shuai": {
@@ -505,7 +505,7 @@
         "palace": "坤"
       }
     ],
-    "specialized": {
+    "special_facts": {
       "geng_ge": [
         {
           "earth_gan": "庚",
@@ -680,33 +680,33 @@
           "dates": [
             {
               "branch": "巳",
-              "date": "2026-03-08",
+              "trigger_date": "2026-03-08",
               "match": "opposite",
-              "reason": "巳日冲亥"
+              "explanation": "巳日冲亥"
             },
             {
               "branch": "巳",
-              "date": "2026-03-20",
+              "trigger_date": "2026-03-20",
               "match": "opposite",
-              "reason": "巳日冲亥"
+              "explanation": "巳日冲亥"
             },
             {
               "branch": "巳",
-              "date": "2026-04-01",
+              "trigger_date": "2026-04-01",
               "match": "opposite",
-              "reason": "巳日冲亥"
+              "explanation": "巳日冲亥"
             },
             {
               "branch": "巳",
-              "date": "2026-04-13",
+              "trigger_date": "2026-04-13",
               "match": "opposite",
-              "reason": "巳日冲亥"
+              "explanation": "巳日冲亥"
             },
             {
               "branch": "巳",
-              "date": "2026-04-25",
+              "trigger_date": "2026-04-25",
               "match": "opposite",
-              "reason": "巳日冲亥"
+              "explanation": "巳日冲亥"
             }
           ],
           "description": "马星逢冲为动期候选",
@@ -718,70 +718,70 @@
               "symbol": "值使门"
             }
           ],
-          "type": "ma_xing"
+          "ying_qi_kind": "ma_xing"
         },
         {
           "branch": "未",
           "dates": [
             {
               "branch": "丑",
-              "date": "2026-03-04",
+              "trigger_date": "2026-03-04",
               "match": "opposite",
-              "reason": "丑日冲值符宫未"
+              "explanation": "丑日冲值符宫未"
             },
             {
               "branch": "未",
-              "date": "2026-03-10",
+              "trigger_date": "2026-03-10",
               "match": "same",
-              "reason": "未日值符宫引动"
+              "explanation": "未日值符宫引动"
             },
             {
               "branch": "丑",
-              "date": "2026-03-16",
+              "trigger_date": "2026-03-16",
               "match": "opposite",
-              "reason": "丑日冲值符宫未"
+              "explanation": "丑日冲值符宫未"
             },
             {
               "branch": "未",
-              "date": "2026-03-22",
+              "trigger_date": "2026-03-22",
               "match": "same",
-              "reason": "未日值符宫引动"
+              "explanation": "未日值符宫引动"
             },
             {
               "branch": "丑",
-              "date": "2026-03-28",
+              "trigger_date": "2026-03-28",
               "match": "opposite",
-              "reason": "丑日冲值符宫未"
+              "explanation": "丑日冲值符宫未"
             },
             {
               "branch": "未",
-              "date": "2026-04-03",
+              "trigger_date": "2026-04-03",
               "match": "same",
-              "reason": "未日值符宫引动"
+              "explanation": "未日值符宫引动"
             },
             {
               "branch": "丑",
-              "date": "2026-04-09",
+              "trigger_date": "2026-04-09",
               "match": "opposite",
-              "reason": "丑日冲值符宫未"
+              "explanation": "丑日冲值符宫未"
             },
             {
               "branch": "未",
-              "date": "2026-04-15",
+              "trigger_date": "2026-04-15",
               "match": "same",
-              "reason": "未日值符宫引动"
+              "explanation": "未日值符宫引动"
             },
             {
               "branch": "丑",
-              "date": "2026-04-21",
+              "trigger_date": "2026-04-21",
               "match": "opposite",
-              "reason": "丑日冲值符宫未"
+              "explanation": "丑日冲值符宫未"
             },
             {
               "branch": "未",
-              "date": "2026-04-27",
+              "trigger_date": "2026-04-27",
               "match": "same",
-              "reason": "未日值符宫引动"
+              "explanation": "未日值符宫引动"
             }
           ],
           "description": "值符宫支逢值或逢冲为引动候选",
@@ -805,70 +805,70 @@
               "symbol": "值符星"
             }
           ],
-          "type": "duty_star"
+          "ying_qi_kind": "duty_star"
         },
         {
           "branch": "戌",
           "dates": [
             {
               "branch": "辰",
-              "date": "2026-03-07",
+              "trigger_date": "2026-03-07",
               "match": "opposite",
-              "reason": "辰日冲值使宫戌"
+              "explanation": "辰日冲值使宫戌"
             },
             {
               "branch": "戌",
-              "date": "2026-03-13",
+              "trigger_date": "2026-03-13",
               "match": "same",
-              "reason": "戌日值使宫引动"
+              "explanation": "戌日值使宫引动"
             },
             {
               "branch": "辰",
-              "date": "2026-03-19",
+              "trigger_date": "2026-03-19",
               "match": "opposite",
-              "reason": "辰日冲值使宫戌"
+              "explanation": "辰日冲值使宫戌"
             },
             {
               "branch": "戌",
-              "date": "2026-03-25",
+              "trigger_date": "2026-03-25",
               "match": "same",
-              "reason": "戌日值使宫引动"
+              "explanation": "戌日值使宫引动"
             },
             {
               "branch": "辰",
-              "date": "2026-03-31",
+              "trigger_date": "2026-03-31",
               "match": "opposite",
-              "reason": "辰日冲值使宫戌"
+              "explanation": "辰日冲值使宫戌"
             },
             {
               "branch": "戌",
-              "date": "2026-04-06",
+              "trigger_date": "2026-04-06",
               "match": "same",
-              "reason": "戌日值使宫引动"
+              "explanation": "戌日值使宫引动"
             },
             {
               "branch": "辰",
-              "date": "2026-04-12",
+              "trigger_date": "2026-04-12",
               "match": "opposite",
-              "reason": "辰日冲值使宫戌"
+              "explanation": "辰日冲值使宫戌"
             },
             {
               "branch": "戌",
-              "date": "2026-04-18",
+              "trigger_date": "2026-04-18",
               "match": "same",
-              "reason": "戌日值使宫引动"
+              "explanation": "戌日值使宫引动"
             },
             {
               "branch": "辰",
-              "date": "2026-04-24",
+              "trigger_date": "2026-04-24",
               "match": "opposite",
-              "reason": "辰日冲值使宫戌"
+              "explanation": "辰日冲值使宫戌"
             },
             {
               "branch": "戌",
-              "date": "2026-04-30",
+              "trigger_date": "2026-04-30",
               "match": "same",
-              "reason": "戌日值使宫引动"
+              "explanation": "戌日值使宫引动"
             }
           ],
           "description": "值使宫支逢值或逢冲为引动候选",
@@ -880,140 +880,140 @@
               "symbol": "值使门"
             }
           ],
-          "type": "duty_door"
+          "ying_qi_kind": "duty_door"
         },
         {
           "branch": "午",
           "dates": [
             {
               "branch": "子",
-              "date": "2026-03-03",
+              "trigger_date": "2026-03-03",
               "match": "opposite",
-              "reason": "子日冲午"
+              "explanation": "子日冲午"
             },
             {
               "branch": "午",
-              "date": "2026-03-09",
+              "trigger_date": "2026-03-09",
               "match": "same",
-              "reason": "午日填实"
+              "explanation": "午日填实"
             },
             {
               "branch": "子",
-              "date": "2026-03-15",
+              "trigger_date": "2026-03-15",
               "match": "opposite",
-              "reason": "子日冲午"
+              "explanation": "子日冲午"
             },
             {
               "branch": "午",
-              "date": "2026-03-21",
+              "trigger_date": "2026-03-21",
               "match": "same",
-              "reason": "午日填实"
+              "explanation": "午日填实"
             },
             {
               "branch": "子",
-              "date": "2026-03-27",
+              "trigger_date": "2026-03-27",
               "match": "opposite",
-              "reason": "子日冲午"
+              "explanation": "子日冲午"
             },
             {
               "branch": "午",
-              "date": "2026-04-02",
+              "trigger_date": "2026-04-02",
               "match": "same",
-              "reason": "午日填实"
+              "explanation": "午日填实"
             },
             {
               "branch": "子",
-              "date": "2026-04-08",
+              "trigger_date": "2026-04-08",
               "match": "opposite",
-              "reason": "子日冲午"
+              "explanation": "子日冲午"
             },
             {
               "branch": "午",
-              "date": "2026-04-14",
+              "trigger_date": "2026-04-14",
               "match": "same",
-              "reason": "午日填实"
+              "explanation": "午日填实"
             },
             {
               "branch": "子",
-              "date": "2026-04-20",
+              "trigger_date": "2026-04-20",
               "match": "opposite",
-              "reason": "子日冲午"
+              "explanation": "子日冲午"
             },
             {
               "branch": "午",
-              "date": "2026-04-26",
+              "trigger_date": "2026-04-26",
               "match": "same",
-              "reason": "午日填实"
+              "explanation": "午日填实"
             }
           ],
           "description": "空亡逢值或逢冲为填实候选",
           "gong": "离",
           "mechanism": "值冲",
           "related_to": [],
-          "type": "kong_wang"
+          "ying_qi_kind": "kong_wang"
         },
         {
           "branch": "未",
           "dates": [
             {
               "branch": "丑",
-              "date": "2026-03-04",
+              "trigger_date": "2026-03-04",
               "match": "opposite",
-              "reason": "丑日冲未"
+              "explanation": "丑日冲未"
             },
             {
               "branch": "未",
-              "date": "2026-03-10",
+              "trigger_date": "2026-03-10",
               "match": "same",
-              "reason": "未日填实"
+              "explanation": "未日填实"
             },
             {
               "branch": "丑",
-              "date": "2026-03-16",
+              "trigger_date": "2026-03-16",
               "match": "opposite",
-              "reason": "丑日冲未"
+              "explanation": "丑日冲未"
             },
             {
               "branch": "未",
-              "date": "2026-03-22",
+              "trigger_date": "2026-03-22",
               "match": "same",
-              "reason": "未日填实"
+              "explanation": "未日填实"
             },
             {
               "branch": "丑",
-              "date": "2026-03-28",
+              "trigger_date": "2026-03-28",
               "match": "opposite",
-              "reason": "丑日冲未"
+              "explanation": "丑日冲未"
             },
             {
               "branch": "未",
-              "date": "2026-04-03",
+              "trigger_date": "2026-04-03",
               "match": "same",
-              "reason": "未日填实"
+              "explanation": "未日填实"
             },
             {
               "branch": "丑",
-              "date": "2026-04-09",
+              "trigger_date": "2026-04-09",
               "match": "opposite",
-              "reason": "丑日冲未"
+              "explanation": "丑日冲未"
             },
             {
               "branch": "未",
-              "date": "2026-04-15",
+              "trigger_date": "2026-04-15",
               "match": "same",
-              "reason": "未日填实"
+              "explanation": "未日填实"
             },
             {
               "branch": "丑",
-              "date": "2026-04-21",
+              "trigger_date": "2026-04-21",
               "match": "opposite",
-              "reason": "丑日冲未"
+              "explanation": "丑日冲未"
             },
             {
               "branch": "未",
-              "date": "2026-04-27",
+              "trigger_date": "2026-04-27",
               "match": "same",
-              "reason": "未日填实"
+              "explanation": "未日填实"
             }
           ],
           "description": "空亡逢值或逢冲为填实候选",
@@ -1037,7 +1037,7 @@
               "symbol": "值符星"
             }
           ],
-          "type": "kong_wang"
+          "ying_qi_kind": "kong_wang"
         }
       ],
       "summary": "应期候选由马星、空亡、值符宫与值使宫给出；仅 related_to 非空项可进入用神解释；候选不是吉凶结论"

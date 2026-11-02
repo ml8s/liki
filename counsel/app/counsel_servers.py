@@ -18,11 +18,11 @@ def _factor_side(arguments: dict) -> str:
         raise ToolError("invalid_arguments: factors 必须是 natal_compute_factors 返回的对象")
     provenance = factors.get("_provenance")
     if not isinstance(provenance, dict):
-        raise ToolError("invalid_arguments: factors 缺少可验证的 side provenance")
-    side = provenance.get("side")
-    if side not in ("bazi", "ziwei"):
-        raise ToolError("invalid_arguments: factors 缺少可验证的 side provenance")
-    return side
+        raise ToolError("invalid_arguments: factors 缺少可验证的 technique provenance")
+    technique = provenance.get("technique")
+    if technique not in ("bazi", "ziwei"):
+        raise ToolError("invalid_arguments: factors 缺少可验证的 technique provenance")
+    return technique
 
 
 def _add_natal_tools(server: MCPServer) -> None:
@@ -44,24 +44,24 @@ def _add_natal_tools(server: MCPServer) -> None:
                 return counsel.bazi_yongshen(subject=arguments["subject"])
             if _name == "natal_compute_factors":
                 return counsel.natal_compute_factors(
-                    subject=arguments["subject"], side=arguments["side"],
+                    subject=arguments["subject"], technique=arguments["technique"],
                 )
             if _name == "natal_query":
-                side = _factor_side(arguments)
+                technique = _factor_side(arguments)
                 return counsel.natal_query(
                     factors=arguments["factors"],
-                    topics=arguments["topics"],
+                    life_topics=arguments["life_topics"],
                     factors_digest=arguments["factors_digest"],
-                    side=side,
+                    technique=technique,
                 )
-            side = _factor_side(arguments)
+            technique = _factor_side(arguments)
             return counsel.natal_period_query(
                 factors=arguments["factors"],
                 factors_digest=arguments["factors_digest"],
                 time_scope=arguments["time_scope"],
-                topics=arguments["topics"],
+                life_topics=arguments["life_topics"],
                 subject=arguments["subject"],
-                side=side,
+                technique=technique,
             )
 
         _add_contract_tool(server, contract, invoke_natal)

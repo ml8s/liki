@@ -14,7 +14,7 @@ type RelatedSymbol struct {
 }
 
 type YingQiCandidate struct {
-	Type        string          `json:"type"`
+	Type        string          `json:"ying_qi_kind"`
 	Mechanism   string          `json:"mechanism"`
 	Branch      string          `json:"branch"`
 	Gong        GongIndex       `json:"gong"`
@@ -24,10 +24,10 @@ type YingQiCandidate struct {
 }
 
 type YingQiDate struct {
-	Date   string `json:"date"`
+	Date   string `json:"trigger_date"`
 	Branch string `json:"branch"`
 	Match  string `json:"match"`
-	Reason string `json:"reason"`
+	Reason string `json:"explanation"`
 }
 
 type YingQi struct {

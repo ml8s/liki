@@ -3,15 +3,13 @@
     "a": {
       "subject": {
         "birth_time": "2000-06-15T12:00:00+08:00",
-        "birth_longitude": 120.25,
-        "gender": "male"
+        "birth_longitude": 120.25
       }
     },
     "b": {
       "subject": {
         "birth_time": "2000-09-20T08:30:00+08:00",
-        "birth_longitude": 118.5,
-        "gender": "female"
+        "birth_longitude": 118.5
       }
     }
   },
@@ -162,7 +160,7 @@
         }
       }
     },
-    "shensha_cross": {
+    "shen_sha_cross": {
       "kong_wang": {
         "a_present_in_b": false,
         "b_present_in_a": false

@@ -27,9 +27,9 @@ def _core(d):
 LIUYAO_ARGS = {
     "question": "测试这次面试能不能通过",
     "casting": {"mode": "yaos", "yaos": [7, 8, 7, 8, 7, 8]},
-    "qigua_longitude": 116.4,
+    "qi_gua_longitude": 116.4,
     "focus": {"kind": "matter", "matter": "general"},
-    "qigua_time": "2026-10-01T10:00:00+08:00",
+    "qi_gua_time": "2026-10-01T10:00:00+08:00",
 }
 
 
@@ -40,7 +40,7 @@ def test_liuyao_snapshot_matches_old():
     got = asyncio.run(srv.call_tool("liuyao_snapshot", dict(LIUYAO_ARGS))).structured_content
     want = create(**LIUYAO_ARGS)
     assert _core(got) == _core(want), "liuyao_snapshot 与老实现不一致"
-    assert got["board"] == want["board"]
+    assert got["pan"] == want["pan"]
     assert got["evidence"] == want["evidence"]
 
 
@@ -59,7 +59,7 @@ def test_liuyao_query_matches_old_ask():
 QIMEN_ARGS = {
     "question": "测试谈判时机",
     "location": {"kind": "city", "city": "北京"},
-    "qiju_time": "2026-10-01T10:00:00+08:00",
+    "qi_ju_time": "2026-10-01T10:00:00+08:00",
     "method": {"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu"},
     "focus": {"kind": "matter", "matter": "career"},
 }

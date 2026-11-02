@@ -96,7 +96,7 @@ func (l LiuShou) String() string {
 // Line is a single爻 in a hexagram.
 type Line struct {
 	Position int           `json:"position"` // 1-6, bottom to top
-	Type     YaoType       `json:"type"`
+	Type     YaoType       `json:"yao_value"`
 	Gan      ganzhi.Gan    `json:"gan"`
 	Zhi      ganzhi.Zhi    `json:"zhi"`
 	Wuxing   ganzhi.Wuxing `json:"wuxing"`
@@ -149,8 +149,8 @@ type guaMeta struct {
 
 // Chart is the complete 六爻排盘 with all analysis layers.
 type Chart struct {
-	Name         string        `json:"name"`
-	BenGua       guaIndex      `json:"ben_gua"`
+	Name         string        `json:"gua_name"`
+	BenGua       guaIndex      `json:"-"`
 	BianGua      guaIndex      `json:"bian_gua,omitempty"` // 0 if no change
 	Palace       string        `json:"gong"`
 	PalaceWuxing ganzhi.Wuxing `json:"gong_wuxing"`
@@ -168,7 +168,7 @@ type Chart struct {
 	DayRelations          [6]DayRelation         `json:"ri_chen_relations"`
 	XunKong               [2]ganzhi.Zhi          `json:"xun_kong"` // 日柱旬空地支（六爻断卦：用神旬空则事虚，出空填实方应）
 	TimingCandidates      []TimingCandidate      `json:"timing_candidates,omitempty"`
-	Patterns              []Pattern              `json:"patterns,omitempty"`           // 特殊格局
+	Patterns              []Pattern              `json:"ge_ju,omitempty"`              // 特殊格局
 	DongYaoRelations      []DongYaoRelation      `json:"dong_yao_relations,omitempty"` // 动爻与用神的关系
 	HiddenLines           []HiddenLine           `json:"hidden_lines,omitempty"`       // 本宫全部伏神
 	BranchRelationFacts   []BranchRelationFact   `json:"branch_relation_facts,omitempty"`

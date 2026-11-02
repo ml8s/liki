@@ -36,7 +36,7 @@
 
 ## 断语契约
 
-- 断语公共字段（`side` / `topic` / `time_scope` 等）以 counsel 输出 schema 为准（自省读取）；`side` 是 `bazi` / `ziwei`。
+- 断语公共字段（`technique` / `life_topics` / `time_scope` 等）以 counsel 输出 schema 为准（自省读取）；`technique` 是 `bazi` / `ziwei`。
 - topic 标签（counsel topic_routes 单一源）：`marriage`＝婚姻、`family`＝家庭、`children`＝子女、`career`＝事业、`wealth`＝财运、`health`＝健康、`mental`＝精神、`study`＝学业、`personality`＝性格、`appearance`＝外貌、`origin`＝出身、`relocation`＝迁移、`social`＝人际、`property`＝房产、`adversity`＝风险、`chart_structure`＝盘面结构。
 - 时间层 `time_scope`：`current_year` / `year` / `year_range` / `current_decade` / `decade`；年份为年号（紫微农历春节界），不做日期换算；区间含端点。
 - 直接采纳判断输出为最终判断；判断输出与规则卡冲突 → 以判断输出为准并说明冲突。

@@ -5,9 +5,9 @@
       "birth_longitude": 120.25,
       "gender": "male"
     },
-    "liuri_start_time": "2026-06-15T12:00:00+08:00",
-    "liuri_count": null,
-    "liuri_longitude": 116.4
+    "liu_ri_start_time": "2026-06-15T12:00:00+08:00",
+    "liu_ri_count": null,
+    "liu_ri_longitude": 116.4
   },
   "output": {
     "liu_ri": [
@@ -17,8 +17,8 @@
         "shi_shen": "七杀",
         "ri_gan": "庚",
         "ri_zhi": "申",
-        "day_nayin": "石榴木",
-        "shensha": [],
+        "liu_ri_na_yin": "石榴木",
+        "shen_sha": [],
         "gan_rels": [
           {
             "gan_a": "庚",
@@ -71,7 +71,7 @@
             "zhi_b": "午"
           }
         ],
-        "dayun_rels": [
+        "da_yun_rels": [
           {
             "detail": "申申同气",
             "type": "相同",
@@ -79,7 +79,7 @@
             "zhi_b": "申"
           }
         ],
-        "liunian_rels": [
+        "liu_nian_rels": [
           {
             "detail": "无特殊关系",
             "type": "无",
@@ -88,9 +88,9 @@
           }
         ],
         "ri_jie": {
-          "liuri_start_time": "2026-06-15T12:00:00+08:00",
-          "liuri_local_date": "2026-06-15",
-          "liuri_solar_date": "2026-06-15",
+          "liu_ri_start_time": "2026-06-15T12:00:00+08:00",
+          "liu_ri_local_date": "2026-06-15",
+          "liu_ri_solar_date": "2026-06-15",
           "beijing_calendar_date": "2026-06-15"
         }
       }

@@ -23,7 +23,7 @@ func QimenChart(_ context.Context, input QimenChartInput) (json.RawMessage, erro
 		return nil, fmt.Errorf("qimen.chart: %w", err)
 	}
 	if input.QiJuLongitude < -180 || input.QiJuLongitude > 180 {
-		return nil, fmt.Errorf("qimen.chart: qiju_longitude must be within [-180,180], got %v", input.QiJuLongitude)
+		return nil, fmt.Errorf("qimen.chart: qi_ju_longitude must be within [-180,180], got %v", input.QiJuLongitude)
 	}
 	methodInput := input.Method
 	method, err := qimen.ResolveMethodWithOptions(

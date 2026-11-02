@@ -1,12 +1,11 @@
 {
-  "name": "乾为天",
-  "ben_gua": "乾",
+  "gua_name": "乾为天",
   "gong": "乾",
   "gong_wuxing": "金",
   "lines": [
     {
       "position": 1,
-      "type": 7,
+      "yao_value": 7,
       "gan": "甲",
       "zhi": "子",
       "wuxing": "水",
@@ -17,7 +16,7 @@
     },
     {
       "position": 2,
-      "type": 7,
+      "yao_value": 7,
       "gan": "甲",
       "zhi": "寅",
       "wuxing": "木",
@@ -28,7 +27,7 @@
     },
     {
       "position": 3,
-      "type": 7,
+      "yao_value": 7,
       "gan": "甲",
       "zhi": "辰",
       "wuxing": "土",
@@ -39,7 +38,7 @@
     },
     {
       "position": 4,
-      "type": 7,
+      "yao_value": 7,
       "gan": "壬",
       "zhi": "午",
       "wuxing": "火",
@@ -50,7 +49,7 @@
     },
     {
       "position": 5,
-      "type": 7,
+      "yao_value": 7,
       "gan": "壬",
       "zhi": "申",
       "wuxing": "金",
@@ -63,7 +62,7 @@
     },
     {
       "position": 6,
-      "type": 7,
+      "yao_value": 7,
       "gan": "壬",
       "zhi": "戌",
       "wuxing": "土",
@@ -76,7 +75,7 @@
   "bian_yao": [
     {
       "position": 0,
-      "type": 0,
+      "yao_value": 0,
       "gan": "",
       "zhi": "",
       "wuxing": "未知",
@@ -86,7 +85,7 @@
     },
     {
       "position": 0,
-      "type": 0,
+      "yao_value": 0,
       "gan": "",
       "zhi": "",
       "wuxing": "未知",
@@ -96,7 +95,7 @@
     },
     {
       "position": 0,
-      "type": 0,
+      "yao_value": 0,
       "gan": "",
       "zhi": "",
       "wuxing": "未知",
@@ -106,7 +105,7 @@
     },
     {
       "position": 0,
-      "type": 0,
+      "yao_value": 0,
       "gan": "",
       "zhi": "",
       "wuxing": "未知",
@@ -116,7 +115,7 @@
     },
     {
       "position": 0,
-      "type": 0,
+      "yao_value": 0,
       "gan": "",
       "zhi": "",
       "wuxing": "未知",
@@ -126,7 +125,7 @@
     },
     {
       "position": 0,
-      "type": 0,
+      "yao_value": 0,
       "gan": "",
       "zhi": "",
       "wuxing": "未知",
@@ -202,9 +201,9 @@
     "申",
     "酉"
   ],
-  "patterns": [
+  "ge_ju": [
     {
-      "type": "冲合",
+      "pattern_kind": "冲合",
       "sub_type": "六冲",
       "position": 0,
       "is_true": true

@@ -1,6 +1,7 @@
 package bazi
 
 import (
+	"sort"
 	"strings"
 
 	"liki-engine/internal/engine/ganzhi"
@@ -40,30 +41,29 @@ type RelationFact struct {
 // generator. These are structural inputs only; classical success, failure and
 // rescue conclusions remain outside this candidate model.
 type GeJuStructure struct {
-	Pattern       ElementStructure `json:"pattern"`
-	Controller    ElementStructure `json:"controller"`
-	Generator     ElementStructure `json:"generator"`
-	RelationFacts []RelationFact   `json:"relation_facts"`
+	Pattern    ElementStructure `json:"pattern"`
+	Controller ElementStructure `json:"controller"`
+	Generator  ElementStructure `json:"generator"`
+	GuanXiRefs []string         `json:"guan_xi_refs"`
 }
 
 // FuYiBasis exposes the actual inputs of the qualitative strength lookup and
 // the day-master-relevant relation projection.
 type FuYiBasis struct {
-	RootType       string           `json:"root_type"`
-	Season         string           `json:"season"`
-	YinBiCount     int              `json:"yin_bi_count"`
-	DayMasterRoots []StemOccurrence `json:"day_master_roots"`
-	RelationFacts  []RelationFact   `json:"relation_facts"`
+	RiGanGen      string           `json:"ri_gan_gen"`
+	YinBiShuLiang int              `json:"yin_bi_shu_liang"`
+	RiGanTongGen  []StemOccurrence `json:"ri_gan_tong_gen"`
+	GuanXiRefs    []string         `json:"guan_xi_refs"`
 }
 
 // TiaoHouAvailability records whether an exact tabulated stem is visible,
 // hidden, or absent, and which branch relations touch its containing palace.
 type TiaoHouAvailability struct {
-	Stem          string           `json:"stem"`
-	Transparent   bool             `json:"transparent"`
-	Hidden        bool             `json:"hidden"`
-	Occurrences   []StemOccurrence `json:"occurrences"`
-	RelationFacts []RelationFact   `json:"relation_facts"`
+	Stem        string           `json:"stem"`
+	Transparent bool             `json:"transparent"`
+	Hidden      bool             `json:"hidden"`
+	Occurrences []StemOccurrence `json:"occurrences"`
+	GuanXiRefs  []string         `json:"guan_xi_refs"`
 }
 
 func buildGeJuStructure(c Chart, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxing) GeJuStructure {
@@ -73,7 +73,7 @@ func buildGeJuStructure(c Chart, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxi
 		Pattern:    buildElementStructure(c, patternElem, patternGan),
 		Controller: buildElementStructure(c, controller, nil),
 		Generator:  buildElementStructure(c, generator, nil),
-		RelationFacts: buildRelationFacts(c,
+		GuanXiRefs: relationRefIDs(buildRelationFacts(c,
 			func(pillar int, _ ganzhi.Gan) []string {
 				return elementTargets(ganzhi.GanWuxing(chartStem(c, pillar)), map[string]string{
 					patternElem.String(): "pattern",
@@ -88,19 +88,18 @@ func buildGeJuStructure(c Chart, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxi
 					generator.String():   "generator",
 				})
 			},
-		),
+		)),
 	}
 }
 
-func buildFuYiBasis(c Chart, rootType, season string, yinBi int) FuYiBasis {
+func buildFuYiBasis(c Chart, rootType string, yinBi int) FuYiBasis {
 	dayMaster := ganzhi.GanWuxing(c.Ri.Gan)
 	support := elementThatGenerates(dayMaster)
 	return FuYiBasis{
-		RootType:       rootType,
-		Season:         season,
-		YinBiCount:     yinBi,
-		DayMasterRoots: hiddenStemOccurrences(c, dayMaster),
-		RelationFacts: buildRelationFacts(c,
+		RiGanGen:      rootType,
+		YinBiShuLiang: yinBi,
+		RiGanTongGen:  hiddenStemOccurrences(c, dayMaster),
+		GuanXiRefs: relationRefIDs(buildRelationFacts(c,
 			func(pillar int, stem ganzhi.Gan) []string {
 				targets := make([]string, 0, 2)
 				if pillar == zhuRi {
@@ -122,15 +121,15 @@ func buildFuYiBasis(c Chart, rootType, season string, yinBi int) FuYiBasis {
 				}
 				return targets
 			},
-		),
+		)),
 	}
 }
 
 func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAvailability {
 	availability := TiaoHouAvailability{
-		Stem:          ganzhi.GanName(stem),
-		Occurrences:   make([]StemOccurrence, 0),
-		RelationFacts: make([]RelationFact, 0),
+		Stem:        ganzhi.GanName(stem),
+		Occurrences: make([]StemOccurrence, 0),
+		GuanXiRefs:  make([]string, 0),
 	}
 	pillars := [4]struct {
 		index int
@@ -182,7 +181,7 @@ func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAv
 			}
 		}
 	}
-	availability.RelationFacts = buildRelationFacts(c,
+	availability.GuanXiRefs = relationRefIDs(buildRelationFacts(c,
 		func(pillar int, _ ganzhi.Gan) []string {
 			if targetPillars[pillar] && chartStem(c, pillar) == stem {
 				return []string{target}
@@ -195,7 +194,7 @@ func buildTiaoHouAvailability(c Chart, stem ganzhi.Gan, target string) TiaoHouAv
 			}
 			return nil
 		},
-	)
+	))
 	return availability
 }
 
@@ -479,6 +478,38 @@ func dedupeRelationFacts(values []RelationFact) []RelationFact {
 		result = append(result, value)
 	}
 	return result
+}
+
+// relationRefIDs converts school-targeted relation facts into references to
+// the chart's canonical guan_xi collection.
+func relationRefIDs(values []RelationFact) []string {
+	targets := map[string][]string{}
+	seenTargets := map[string]map[string]bool{}
+	for _, value := range values {
+		if value.Group == "" {
+			continue
+		}
+		ref := value.Field + ":" + value.Group
+		if targets[ref] == nil {
+			targets[ref] = []string{}
+			seenTargets[ref] = map[string]bool{}
+		}
+		for _, target := range value.Targets {
+			if !seenTargets[ref][target] {
+				targets[ref] = append(targets[ref], target)
+				seenTargets[ref][target] = true
+			}
+		}
+	}
+	refs := make([]string, 0, len(targets))
+	for ref, targetList := range targets {
+		if len(targetList) > 0 {
+			ref += "@" + strings.Join(targetList, ",")
+		}
+		refs = append(refs, ref)
+	}
+	sort.Strings(refs)
+	return refs
 }
 
 func isDeadOrTrappedSeason(season string) bool {

@@ -5,8 +5,8 @@
       "birth_longitude": 123.75,
       "gender": "male"
     },
-    "liuyue_start_time": "2026-06-15T12:00:00+08:00",
-    "liuyue_count": null
+    "liu_yue_start_time": "2026-06-15T12:00:00+08:00",
+    "liu_yue_count": null
   },
   "output": {
     "liu_yue": [
@@ -18,7 +18,7 @@
         "wuxing": "木",
         "sheng": 0,
         "ke": 1,
-        "shensha": [
+        "shen_sha": [
           {
             "name": "灾煞",
             "category": "凶",
@@ -81,7 +81,7 @@
           "jieqi_start": "2026-06-05",
           "jieqi_end": "2026-07-07",
           "boundary_day": false,
-          "liuyue_start_time": "2026-06-15T12:00:00+08:00",
+          "liu_yue_start_time": "2026-06-15T12:00:00+08:00",
           "liuyue_start_date": "2026-06-15"
         }
       }

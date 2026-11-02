@@ -93,7 +93,7 @@ func TestGoldenChart_JSONSnapshot(t *testing.T) {
 			}
 
 			// Required top-level keys (new Chart format)
-			for _, k := range []string{"nian", "yue", "ri", "shi", "da_yun", "gender"} {
+			for _, k := range []string{"nian", "yue", "ri", "shi", "da_yun"} {
 				if v, ok := m[k]; !ok || v == nil {
 					t.Errorf("%s = %v, want non-nil", k, v)
 				}

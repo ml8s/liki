@@ -103,7 +103,7 @@ type LiuyaoQiguaOutput struct {
 
 type LiuyaoLineOutput struct {
 	Position      LiuyaoOptionalPosition `json:"position" jsonschema:"爻位；本卦为 1-6，未变化的变卦占位行为 0。"`
-	Type          LiuyaoYaoValue         `json:"type" jsonschema:"爻值 6-9。"`
+	Type          LiuyaoYaoValue         `json:"yao_value" jsonschema:"爻值 6-9。"`
 	Gan           LiuyaoGanName          `json:"gan" jsonschema:"纳甲天干。"`
 	Zhi           LiuyaoZhiName          `json:"zhi" jsonschema:"纳甲地支。"`
 	Wuxing        ElementName            `json:"wuxing" jsonschema:"爻五行。"`
@@ -132,7 +132,7 @@ type LiuyaoFuShenOutput struct {
 // with no change remains an explicit zero object rather than null.
 type LiuyaoBianLineOutput struct {
 	Position      int      `json:"position" jsonschema:"爻位；本卦为 1-6，未变化的占位行为 0。"`
-	Type          int      `json:"type" jsonschema:"爻值；未变化占位行为 0。"`
+	Type          int      `json:"yao_value" jsonschema:"爻值；未变化占位行为 0。"`
 	Gan           string   `json:"gan" jsonschema:"纳甲天干；占位行为空。"`
 	Zhi           string   `json:"zhi" jsonschema:"纳甲地支；占位行为空。"`
 	Wuxing        string   `json:"wuxing" jsonschema:"爻五行；占位行为空。"`
@@ -185,7 +185,7 @@ type LiuyaoTimingOutput struct {
 }
 
 type LiuyaoPatternOutput struct {
-	Type     LiuyaoPatternType      `json:"type" jsonschema:"特殊格局类型。"`
+	Type     LiuyaoPatternType      `json:"pattern_kind" jsonschema:"特殊格局类型。"`
 	SubType  string                 `json:"sub_type" jsonschema:"格局子类型，如真空/假空。"`
 	Position LiuyaoOptionalPosition `json:"position" jsonschema:"相关爻位；0 表示全卦。"`
 	IsTrue   bool                   `json:"is_true" jsonschema:"结构是否有实质效力。"`
@@ -299,8 +299,7 @@ type LiuyaoConflictOutput struct {
 }
 
 type LiuyaoChartOutput struct {
-	Name                  LiuyaoHexagramName                 `json:"name" jsonschema:"本卦卦名。"`
-	BenGua                LiuyaoHexagramName                 `json:"ben_gua" jsonschema:"本卦卦名。"`
+	Name                  LiuyaoHexagramName                 `json:"gua_name" jsonschema:"本卦卦名。"`
 	BianGua               *LiuyaoHexagramName                `json:"bian_gua,omitempty" jsonschema:"变卦卦名；无动爻时省略。"`
 	Gong                  string                             `json:"gong" jsonschema:"本卦宫。"`
 	PalaceWuxing          ElementName                        `json:"gong_wuxing" jsonschema:"宫五行。"`
@@ -316,7 +315,7 @@ type LiuyaoChartOutput struct {
 	DayRelations          [6]LiuyaoDayRelationOutput         `json:"ri_chen_relations" jsonschema:"日建与六爻关系。"`
 	XunKong               [2]LiuyaoZhiName                   `json:"xun_kong" jsonschema:"日柱旬空地支。"`
 	TimingCandidates      []LiuyaoTimingOutput               `json:"timing_candidates,omitempty" jsonschema:"可审计应期候选。"`
-	Patterns              []LiuyaoPatternOutput              `json:"patterns,omitempty" jsonschema:"特殊格局。"`
+	Patterns              []LiuyaoPatternOutput              `json:"ge_ju,omitempty" jsonschema:"特殊格局。"`
 	DongYaoRelations      []LiuyaoDongRelationOutput         `json:"dong_yao_relations,omitempty" jsonschema:"动爻与用神/原神/忌神关系。"`
 	HiddenLines           []LiuyaoHiddenLineOutput           `json:"hidden_lines,omitempty" jsonschema:"本宫全部伏神。"`
 	BranchRelationFacts   []LiuyaoBranchRelationOutput       `json:"branch_relation_facts,omitempty" jsonschema:"爻间地支关系。"`
@@ -379,8 +378,8 @@ func LiuyaoQigua(_ context.Context, input LiuyaoQiguaInput) (LiuyaoQiguaOutput, 
 // LiuyaoChartInput takes qigua time/location. The chart domain derives
 // day/month from LAST and solar-term events.
 type LiuyaoChartInput struct {
-	QiGuaTime      StandardTime         `json:"qigua_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
-	QiGuaLongitude float64              `json:"qigua_longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
+	QiGuaTime      StandardTime         `json:"qi_gua_time" jsonschema:"起卦地标准时间（无 DST），RFC3339 带 offset。"`
+	QiGuaLongitude float64              `json:"qi_gua_longitude" jsonschema:"起卦地经度（-180..180）；真太阳时校正用于时辰。"`
 	YongShen       LiuyaoYongShenName   `json:"yong_shen,omitempty" jsonschema:"用神；缺省为世爻。"`
 	Casting        *LiuyaoCastingOutput `json:"casting" jsonschema:"liuyao.qigua 返回的完整可审计起卦收据。"`
 }
@@ -498,7 +497,6 @@ func liuyaoFuShenWire(value liuyao.FuShen) LiuyaoFuShenOutput {
 func liuyaoChartWire(chart liuyao.Chart) LiuyaoChartOutput {
 	output := LiuyaoChartOutput{
 		Name:         LiuyaoHexagramName(liuyaoEncodedName(chart.BenGua)),
-		BenGua:       LiuyaoHexagramName(liuyaoEncodedName(chart.BenGua)),
 		Gong:         chart.Palace,
 		PalaceWuxing: ElementName(chart.PalaceWuxing.String()),
 		RiGan:        LiuyaoGanName(chart.RiGan.String()),

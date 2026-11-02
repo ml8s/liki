@@ -25,7 +25,7 @@ type projectionContract struct {
 	} `json:"八字字段映射"`
 	Ziwei struct {
 		Ziwei map[string]string `json:"ziwei"`
-		Board map[string]string `json:"board"`
+		Board map[string]string `json:"pan"`
 	} `json:"紫微字段映射"`
 }
 

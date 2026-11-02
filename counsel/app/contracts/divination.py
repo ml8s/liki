@@ -82,10 +82,10 @@ class LiuyaoSnapshotInput(BaseModel):
     question: Annotated[str, Field(min_length=2)] = Field(
         description="本次要判断的一个具体目标",
     )
-    qigua_longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
+    qi_gua_longitude: Annotated[float, Field(ge=-180, le=180)] = Field(
         description="起卦地点经度（-180..180）；必须显式传入，不做默认（精度要求）。",
     )
-    qigua_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    qi_gua_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         description="起卦地标准时间 RFC3339（无 DST），必填。",
     )
     casting: LiuyaoCastingInput = Field(
@@ -148,11 +148,10 @@ class LiuyaoSnapshotOutputYaosCasting(BaseModel):
 LiuyaoSnapshotOutputCasting = LiuyaoSnapshotOutputCoinsCasting | LiuyaoSnapshotOutputYaosCasting
 
 
-class LiuyaoSnapshotOutputBoard(BaseModel):
-    """Board returned by this tool."""
+class LiuyaoSnapshotOutputPan(BaseModel):
+    """Pan returned by this tool."""
     model_config = ConfigDict(extra="forbid")
-    name: str
-    ben_gua: str
+    gua_name: str
     bian_gua: str | None = Field(
         default=None,
     )
@@ -274,8 +273,8 @@ class LiuyaoSnapshotOutput(BaseModel):
     casting: LiuyaoSnapshotOutputCasting = Field(
         description="Casting returned by this tool.",
     )
-    board: LiuyaoSnapshotOutputBoard = Field(
-        description="Board returned by this tool.",
+    pan: LiuyaoSnapshotOutputPan = Field(
+        description="Pan returned by this tool.",
     )
     focus: LiuyaoSnapshotOutputFocus = Field(
         description="Focus returned by this tool.",
@@ -500,7 +499,7 @@ class QimenLongitudeLocation(BaseModel):
     """直接提供起局经度。"""
     model_config = ConfigDict(extra="forbid")
     kind: Literal["longitude"] = Field(description="地点类型：经度。")
-    qiju_longitude: Annotated[float, Field(ge=-180, le=180)] = Field(description="起局经度。")
+    qi_ju_longitude: Annotated[float, Field(ge=-180, le=180)] = Field(description="起局经度。")
 
 
 QimenLocation = QimenCityLocation | QimenLongitudeLocation
@@ -533,7 +532,7 @@ class QimenSnapshotInput(BaseModel):
     question: str = Field(
         description="本次要判断的一个具体目标",
     )
-    qiju_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
+    qi_ju_time: Annotated[str, Field(json_schema_extra={"format": "date-time"})] = Field(
         description="起局地标准时间 RFC3339（无 DST）；节气换局按此时刻判定。",
     )
     method: QimenMethod = Field(
@@ -585,8 +584,8 @@ class QimenSnapshotOutputInput(BaseModel):
     """Input returned by this tool."""
     model_config = ConfigDict(extra="forbid")
     city: str | None
-    qiju_longitude: float
-    qiju_time: str
+    qi_ju_longitude: float
+    qi_ju_time: str
 
 
 class QimenSnapshotOutputMethodContext(BaseModel):
