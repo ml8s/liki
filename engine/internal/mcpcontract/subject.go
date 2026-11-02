@@ -11,6 +11,9 @@ import (
 
 // NatalSubject is the minimal resolved identity needed by natal methods.
 // BirthTime is local standard time (fixed offset, no DST), not true solar time.
+// NatalSubject is the calibrated natal identity produced by tianwen
+// normalization. BirthTime is local standard time (fixed offset, no DST) and
+// BirthLongitude is retained for true-solar-time correction.
 type NatalSubject struct {
 	BirthTime      StandardTime `json:"birth_time" jsonschema:"出生地标准时间（local standard time，无 DST），RFC3339 带 offset。"`
 	BirthLongitude float64      `json:"birth_longitude" jsonschema:"出生地经度（-180..180）。"`

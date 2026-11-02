@@ -25,7 +25,7 @@ func TestBond_SideBySideFacts(t *testing.T) {
 		t.Run(fmt.Sprintf("%02d", i+1), func(t *testing.T) {
 			ca := chartFrom(t, tc.a, tc.at, tc.ag)
 			cb := chartFrom(t, tc.b, tc.bt, tc.bg)
-			bd := ComputeBond(ca, cb)
+			bd := ComputeBond(ca.ZiweiBondSideFacts(), cb.ZiweiBondSideFacts())
 
 			if bd.AMingGong != ca.GongWei[int(ca.MingGong)].Name {
 				t.Fatalf("A ming gong = %q", bd.AMingGong)
@@ -52,7 +52,7 @@ func TestBond_EmptySpousePalaceStatus(t *testing.T) {
 	// Fixture selected so that A's spouse palace has no major star.
 	ca := chartFrom(t, "1994-6-25", 11, "男")
 	cb := chartFrom(t, "1997-5-8", 2, "女")
-	bd := ComputeBond(ca, cb)
+	bd := ComputeBond(ca.ZiweiBondSideFacts(), cb.ZiweiBondSideFacts())
 	if bd.FuQiGong == nil {
 		t.Fatal("spouse pair missing")
 	}

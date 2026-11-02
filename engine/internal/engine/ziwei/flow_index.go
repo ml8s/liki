@@ -19,33 +19,33 @@ type flowTarget struct {
 }
 
 // computeMonthlyIndex returns iztro's monthly index (display 寅=0).
-func computeMonthlyIndex(chart Chart, t flowTarget) int {
+func computeMonthlyIndex(ctx ZiweiFlowContext, t flowTarget) int {
 	// 流年支 = 目标年份的支 → fixEB（display 寅=0）
 	_, liuZhi := yearGanZhi(t.Year)
 	yi := zhiIdxToAnXingIdx(zhiToZhiIdx(liuZhi))
 	// 生月 + 闰补
 	birthLeap := 0
-	if chart.BirthIsLeap && chart.LunarDay > 15 {
+	if ctx.BirthIsLeap && ctx.BirthLunarDay > 15 {
 		birthLeap = 1
 	}
 	// 生时支(子=0)
-	birthHourZhiIdx := zhiToZhiIdx(chart.ShiZhi)
+	birthHourZhiIdx := zhiToZhiIdx(ctx.ShiZhi)
 	// 目标月 + 闰补
 	dateLeap := 0
 	if t.IsLeapMonth && t.LunarDay > 15 {
 		dateLeap = 1
 	}
-	return ((yi-birthLeap-chart.BirthLunarMonth+birthHourZhiIdx+t.LunarMonth+dateLeap)%12 + 12) % 12
+	return ((yi-birthLeap-ctx.BirthLunarMonth+birthHourZhiIdx+t.LunarMonth+dateLeap)%12 + 12) % 12
 }
 
 // computeDailyIndex returns iztro's daily index (display 寅=0).
-func computeDailyIndex(chart Chart, t flowTarget) int {
-	mi := computeMonthlyIndex(chart, t)
+func computeDailyIndex(ctx ZiweiFlowContext, t flowTarget) int {
+	mi := computeMonthlyIndex(ctx, t)
 	return ((mi+t.LunarDay-1)%12 + 12) % 12
 }
 
 // computeHourlyIndex returns iztro's hourly index (display 寅=0).
-func computeHourlyIndex(chart Chart, t flowTarget) int {
-	di := computeDailyIndex(chart, t)
+func computeHourlyIndex(ctx ZiweiFlowContext, t flowTarget) int {
+	di := computeDailyIndex(ctx, t)
 	return ((di+zhiToZhiIdx(t.ShiZhi))%12 + 12) % 12
 }

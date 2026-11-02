@@ -49,7 +49,7 @@ type LunarMonth struct {
 // target IS a complete resolved lunar date. The day is required because the
 // iztro-compatible rule splits a leap month at day 15; no half/fixLeap flag
 // is exposed to callers.
-func ComputeLiuYueWith(chart Chart, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuYue, error) {
+func ComputeLiuYueWith(ctx ZiweiFlowContext, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuYue, error) {
 	period, err := resolveLiuYuePeriodWith(p, target)
 	if err != nil {
 		return LiuYue{}, err
@@ -63,7 +63,7 @@ func ComputeLiuYueWith(chart Chart, target tianwen.LunarDate, p tianwen.LunarPro
 	stars := liuYueStars(monthGan, yueZhi)
 
 	// 盘起点 = monthlyIndex（iztro 公式，命主相关）
-	mi := computeMonthlyIndex(chart, flowTarget{
+	mi := computeMonthlyIndex(ctx, flowTarget{
 		Year:        target.Year,
 		LunarMonth:  target.Month,
 		LunarDay:    target.Day,
@@ -150,13 +150,13 @@ type LiuRi struct {
 // ComputeLiuRi computes the flow day chart using iztro's dailyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native). Day pillar requires Gregorian:
 // internally converts lunar→solar via the projector inverse.
-func ComputeLiuRiWith(chart Chart, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuRi, error) {
+func ComputeLiuRiWith(ctx ZiweiFlowContext, target tianwen.LunarDate, p tianwen.LunarProjector) (LiuRi, error) {
 	if _, err := p.ValidateLunarDate(target); err != nil {
 		return LiuRi{}, fmt.Errorf("validate flow day: %w", err)
 	}
 
 	// 盘起点 = dailyIndex（直接用农历）
-	di := computeDailyIndex(chart, flowTarget{
+	di := computeDailyIndex(ctx, flowTarget{
 		Year:        target.Year,
 		LunarMonth:  target.Month,
 		LunarDay:    target.Day,
@@ -216,13 +216,13 @@ type LiuShi struct {
 
 // ComputeLiuShi computes the flow hour chart using iztro's hourlyIndex formula.
 // lunarMonth/lunarDay ARE lunar (domain-native); shiZhi is the target hour zhi.
-func ComputeLiuShiWith(chart Chart, target tianwen.LunarDate, shiZhi Zhi, p tianwen.LunarProjector) (LiuShi, error) {
+func ComputeLiuShiWith(ctx ZiweiFlowContext, target tianwen.LunarDate, shiZhi Zhi, p tianwen.LunarProjector) (LiuShi, error) {
 	if _, err := p.ValidateLunarDate(target); err != nil {
 		return LiuShi{}, fmt.Errorf("validate flow hour: %w", err)
 	}
 
 	// 盘起点 = hourlyIndex（直接用农历）
-	hi := computeHourlyIndex(chart, flowTarget{
+	hi := computeHourlyIndex(ctx, flowTarget{
 		Year:        target.Year,
 		LunarMonth:  target.Month,
 		LunarDay:    target.Day,

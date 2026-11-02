@@ -7,6 +7,8 @@ import (
 	"liki-engine/internal/engine/bazhai"
 )
 
+// BazhaiChartInput consumes the calibrated natal subject; Bazhai does not need
+// the birth hour, but keeping subject preserves the upstream calibrated identity.
 type BazhaiChartInput struct {
 	Subject NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
