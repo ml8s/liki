@@ -7,7 +7,7 @@ import (
 
 // wireFromDomain converts a domain value into its typed wire DTO through JSON.
 // The wire DTOs are faithful projections of the domain JSON shapes; output
-// schema checks are contract-time checks exposed by Registry.ValidateOutput.
+// schema checks are validated by contract tests.
 func wireFromDomain[Out any](value any) (Out, error) {
 	raw, err := json.Marshal(value)
 	if err != nil {

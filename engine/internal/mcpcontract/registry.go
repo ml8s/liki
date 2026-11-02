@@ -57,13 +57,6 @@ type lazyOutputValidator struct {
 	err      error
 }
 
-func (v *lazyOutputValidator) validate(raw json.RawMessage) error {
-	if err := v.resolve(); err != nil {
-		return err
-	}
-	return validateJSONDocument(v.resolved, raw)
-}
-
 func (v *lazyOutputValidator) resolve() error {
 	v.once.Do(func() { v.resolved, v.err = v.schema.Resolve(nil) })
 	if v.err != nil {
@@ -344,22 +337,6 @@ func (r *Registry) Call(ctx context.Context, name string, arguments json.RawMess
 	return tool.call(ctx, arguments)
 }
 
-// ValidateOutput checks an actual JSON result against a tool's published
-// output schema. It is intentionally separate from Call: output is produced by
-// trusted typed code and is covered by contract tests, so production requests
-// do not reconstruct the document for a reflective validation pass.
-func (r *Registry) ValidateOutput(name string, output json.RawMessage) error {
-	tool, ok := r.tools[name]
-	if !ok {
-		return fmt.Errorf("unknown tool: %s", name)
-	}
-	schemas, err := tool.schemas.get()
-	if err != nil {
-		return fmt.Errorf("mcp tool %s: derive schemas: %w", tool.name, err)
-	}
-	return schemas.outputValidator.validate(output)
-}
-
 // inputSchemaFor derives a tool's input schema: the typed, closed shape of the
 // DTO, used both as the documented contract and for boundary validation.
 func inputSchemaFor[T any](options *jsonschema.ForOptions) (*jsonschema.Resolved, json.RawMessage, error) {
@@ -429,15 +406,4 @@ func encodeOutput[Out any](output Out) (json.RawMessage, error) {
 		return nil, err
 	}
 	return raw, nil
-}
-
-func validateJSONDocument(resolved *jsonschema.Resolved, raw json.RawMessage) error {
-	var document any
-	if err := json.Unmarshal(raw, &document); err != nil {
-		return err
-	}
-	if err := resolved.Validate(document); err != nil {
-		return fmt.Errorf("output contract violation: %w", err)
-	}
-	return nil
 }

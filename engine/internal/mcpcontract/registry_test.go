@@ -2,7 +2,10 @@ package mcpcontract
 
 import (
 	"context"
+
 	"encoding/json"
+	"fmt"
+	"github.com/google/jsonschema-go/jsonschema"
 	"strings"
 	"testing"
 )
@@ -82,4 +85,38 @@ func decode(t *testing.T, raw json.RawMessage, target any) {
 	if err := json.Unmarshal(raw, target); err != nil {
 		t.Fatalf("decode JSON %s: %v", raw, err)
 	}
+}
+
+// ValidateOutput checks an actual JSON result against a tool's published
+// output schema. It is intentionally separate from Call: output is produced by
+// trusted typed code and is covered by contract tests, so production requests
+// do not reconstruct the document for a reflective validation pass.
+func (r *Registry) ValidateOutput(name string, output json.RawMessage) error {
+	tool, ok := r.tools[name]
+	if !ok {
+		return fmt.Errorf("unknown tool: %s", name)
+	}
+	schemas, err := tool.schemas.get()
+	if err != nil {
+		return fmt.Errorf("mcp tool %s: derive schemas: %w", tool.name, err)
+	}
+	return schemas.outputValidator.validate(output)
+}
+
+func (v *lazyOutputValidator) validate(raw json.RawMessage) error {
+	if err := v.resolve(); err != nil {
+		return err
+	}
+	return validateJSONDocument(v.resolved, raw)
+}
+
+func validateJSONDocument(resolved *jsonschema.Resolved, raw json.RawMessage) error {
+	var document any
+	if err := json.Unmarshal(raw, &document); err != nil {
+		return err
+	}
+	if err := resolved.Validate(document); err != nil {
+		return fmt.Errorf("output contract violation: %w", err)
+	}
+	return nil
 }
