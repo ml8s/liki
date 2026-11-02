@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestTianwenResolveStandardRemovesDSTFold(t *testing.T) {
-	fold, err := TianwenResolveStandard(context.Background(), TianwenResolveInput{
+func TestTianwenSubjectCandidatesRemovesDSTFold(t *testing.T) {
+	fold, err := TianwenSubjectCandidates(context.Background(), TianwenSubjectCandidatesInput{
 		CalendarKind: "solar", RecordedDate: "2024-11-03", RecordedTime: "01:30",
 		RecordTimezone: "America/New_York", PlaceLongitude: -74, SubjectGender: "male",
 	})
@@ -20,7 +20,7 @@ func TestTianwenResolveStandardRemovesDSTFold(t *testing.T) {
 		t.Fatalf("standard birth_time = %s, want -05:00 standard time", got)
 	}
 
-	gap, err := TianwenResolveStandard(context.Background(), TianwenResolveInput{
+	gap, err := TianwenSubjectCandidates(context.Background(), TianwenSubjectCandidatesInput{
 		CalendarKind: "solar", RecordedDate: "2024-03-10", RecordedTime: "02:30",
 		RecordTimezone: "America/New_York", PlaceLongitude: -74, SubjectGender: "male",
 	})

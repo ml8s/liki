@@ -33,10 +33,10 @@ METHOD_WHITELIST = {
     "bazi_chart", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
     "bazi_liushi", "bazi_xiaoyun", "bazi_bond",
     "ziwei_chart", "ziwei_liunian", "ziwei_liuyue", "ziwei_liuri",
-    "ziwei_liushi", "ziwei_daxian", "ziwei_bond",
+    "ziwei_liushi", "ziwei_bond",
     "liuyao_qigua", "liuyao_chart", "qimen_chart", "huangli_days",
     "bazhai_chart", "bazhai_layout", "xuankong_chart", "xuankong_liunian",
-    "time_now", "city_coords", "tianwen_resolve",
+    "time_now", "city_info", "tianwen_subject_candidates",
 }
 _METHOD_PREFIXES = tuple(sorted({m.split("_")[0] for m in METHOD_WHITELIST}))
 

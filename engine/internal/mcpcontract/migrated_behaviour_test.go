@@ -361,7 +361,7 @@ func TestMigratedQimenBoundaryDates(t *testing.T) {
 // TestMigratedQimenConsumesTianwenGregorian keeps the cross-tool contract that
 // qimen.chart accepts the Gregorian candidate produced by tianwen.resolve.
 func TestMigratedQimenConsumesTianwenGregorian(t *testing.T) {
-	resolved, err := TianwenResolveStandard(context.Background(), civilResolveInput(t, "2026-03-02T10:30:00Z", "Asia/Shanghai", 116.4))
+	resolved, err := TianwenSubjectCandidates(context.Background(), civilResolveInput(t, "2026-03-02T10:30:00Z", "Asia/Shanghai", 116.4))
 	if err != nil {
 		t.Fatalf("tianwen.resolve: %v", err)
 	}

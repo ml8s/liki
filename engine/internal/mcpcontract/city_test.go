@@ -10,9 +10,9 @@ import (
 	"liki-engine/internal/engine/city"
 )
 
-func TestCityCoordsInputRequiresCity(t *testing.T) {
+func TestCityInfoInputRequiresCity(t *testing.T) {
 	registry := testEngine()
-	definition := mustDefinition(t, registry, "city_coords")
+	definition := mustDefinition(t, registry, "city_info")
 	var schema struct {
 		Properties map[string]json.RawMessage `json:"properties"`
 		Required   []string                   `json:"required"`
@@ -28,9 +28,9 @@ func TestCityCoordsInputRequiresCity(t *testing.T) {
 	}
 }
 
-func TestCityCoordsOutputSchema(t *testing.T) {
+func TestCityInfoOutputSchema(t *testing.T) {
 	registry := testEngine()
-	definition := mustDefinition(t, registry, "city_coords")
+	definition := mustDefinition(t, registry, "city_info")
 	var doc map[string]any
 	if err := json.Unmarshal(definition.OutputSchema, &doc); err != nil {
 		t.Fatalf("unmarshal output schema: %v", err)
@@ -86,17 +86,17 @@ func TestCityCandidateOutputLongitudeRange(t *testing.T) {
 	}
 }
 
-func TestCityCoordsLocalizesOutput(t *testing.T) {
+func TestCityInfoLocalizesOutput(t *testing.T) {
 	registry := testEngine()
-	raw, err := registry.Call(context.Background(), "city_coords",
-		mustJSON(t, CityCoordsInput{City: "Beijing", Locale: "en"}))
+	raw, err := registry.Call(context.Background(), "city_info",
+		mustJSON(t, CityInfoInput{City: "Beijing", Locale: "en"}))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := registry.ValidateOutput("city_coords", raw); err != nil {
+	if err := registry.ValidateOutput("city_info", raw); err != nil {
 		t.Fatalf("output contract: %v", err)
 	}
-	var output CityCoordsOutput
+	var output CityInfoOutput
 	if err := json.Unmarshal(raw, &output); err != nil {
 		t.Fatal(err)
 	}
@@ -108,12 +108,12 @@ func TestCityCoordsLocalizesOutput(t *testing.T) {
 		t.Fatalf("localized candidate = %#v", best)
 	}
 
-	raw, err = registry.Call(context.Background(), "city_coords",
-		mustJSON(t, CityCoordsInput{City: "臺北", Locale: "zh-Hant"}))
+	raw, err = registry.Call(context.Background(), "city_info",
+		mustJSON(t, CityInfoInput{City: "臺北", Locale: "zh-Hant"}))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := registry.ValidateOutput("city_coords", raw); err != nil {
+	if err := registry.ValidateOutput("city_info", raw); err != nil {
 		t.Fatalf("zh-Hant output contract: %v", err)
 	}
 	if err := json.Unmarshal(raw, &output); err != nil {
@@ -124,9 +124,9 @@ func TestCityCoordsLocalizesOutput(t *testing.T) {
 	}
 }
 
-func TestCityCoordsRejectsUnknownPlace(t *testing.T) {
+func TestCityInfoRejectsUnknownPlace(t *testing.T) {
 	registry := testEngine()
-	_, err := registry.Call(context.Background(), "city_coords",
+	_, err := registry.Call(context.Background(), "city_info",
 		mustJSON(t, map[string]any{"city": "不存在的城市xyz"}))
 	if err == nil || !strings.Contains(err.Error(), "未找到") {
 		t.Fatalf("err=%v, want not-found error", err)

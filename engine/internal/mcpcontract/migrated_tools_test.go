@@ -458,7 +458,7 @@ func TestChartsNormalizeEquivalentOffsetForms(t *testing.T) {
 
 func TestMigratedBaziChartTrueSolarChain(t *testing.T) {
 	registry := testEngine()
-	resolved, err := TianwenResolveStandard(context.Background(), civilResolveInput(t, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137))
+	resolved, err := TianwenSubjectCandidates(context.Background(), civilResolveInput(t, "1981-08-25T16:20:00Z", "Asia/Shanghai", 132.044137))
 	if err != nil {
 		t.Fatalf("tianwen.resolve: %v", err)
 	}

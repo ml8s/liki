@@ -140,10 +140,10 @@ func staticSchemaOptions() *jsonschema.ForOptions {
 			Type: "string", Enum: []any{"老阴", "少阳", "少阴", "老阳"},
 		},
 		reflect.TypeFor[LiuyaoCastingDigest](): {Type: "string", Pattern: "^[a-f0-9]{64}$"},
-		reflect.TypeFor[LiuyaoGanName](): {
+		reflect.TypeFor[GanName](): {
 			Type: "string", Enum: []any{"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"},
 		},
-		reflect.TypeFor[LiuyaoZhiName](): {
+		reflect.TypeFor[ZhiName](): {
 			Type: "string", Enum: []any{"子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"},
 		},
 		reflect.TypeFor[LiuyaoWangShuai](): {
@@ -195,6 +195,16 @@ func newSchemaOptions(liuyaoHexagrams []string) *jsonschema.ForOptions {
 	registerSixItemArray[LiuyaoYaoValue, LiuyaoYaoValuesInput](options)
 	registerSixItemArray[LiuyaoCoinRoundOutput, LiuyaoCoinRoundsOutput](options)
 	registerSixItemArray[LiuyaoYaoValue, LiuyaoYaoValuesOutput](options)
+	daXianItem, err := jsonschema.For[ZiweiDaXianItem](options)
+	if err != nil {
+		panic(fmt.Sprintf("derive ZiweiDaXianItem schema: %v", err))
+	}
+	options.TypeSchemas[reflect.TypeFor[ZiweiDaXianItems]()] = &jsonschema.Schema{
+		Type:     "array",
+		Items:    daXianItem,
+		MinItems: jsonschema.Ptr(12),
+		MaxItems: jsonschema.Ptr(12),
+	}
 	hexagramEnum := make([]any, 0, len(liuyaoHexagrams))
 	for _, name := range liuyaoHexagrams {
 		hexagramEnum = append(hexagramEnum, name)
@@ -254,27 +264,27 @@ func NewEngine() *Registry {
 	})
 	resolveSchema, err := tianwenResolveFormsSchema(options)
 	if err != nil {
-		panic("tianwen.resolve input schema: " + err.Error())
+		panic("tianwen.subject_candidates input schema: " + err.Error())
 	}
-	mustRegister(registry, Tool[TianwenResolveInput, TianwenResolveOutput]{
-		Name:        "tianwen_resolve",
+	mustRegister(registry, Tool[TianwenSubjectCandidatesInput, TianwenSubjectCandidatesOutput]{
+		Name:        "tianwen_subject_candidates",
 		InputSchema: resolveSchema,
 		Description: "把时间事实归一化为考时候选：接受精确时间点、当地壁钟（公历/农历，分钟或秒精度）、时辰、同日区间，可带地点经度范围。输出永远包含一个 input 候选（输入的直接换算）；若时间/地点不确定性触及时辰、日界、交节或夏令时边界，追加候选并标注原因领域（时辰/日界/交节/时制）。下游排盘能力使用候选 subject 排盘。",
-		Handler:     TianwenResolveStandard,
+		Handler:     TianwenSubjectCandidates,
 	})
-	mustRegister(registry, Tool[CityCoordsInput, CityCoordsOutput]{
-		Name:        "city_coords",
-		Description: "根据城市名返回地点候选（内置表，不访问外链）：每项含经纬度、IANA 时区、地点东西经度范围。长度 1 可直接使用；多于 1（同名区县等）必须由用户确认，不得静默取第一个。未命中时请询问附近大城市，或让用户直接提供经纬度和时区。",
-		Handler:     CityCoords,
+	mustRegister(registry, Tool[CityInfoInput, CityInfoOutput]{
+		Name:        "city_info",
+		Description: "根据城市名返回城市信息候选（内置表，不访问外链）：每项含名称、行政区、层级、经纬度、IANA 时区与可选经度范围。长度 1 可直接使用；多于 1（同名区县等）必须由用户确认，不得静默取第一个。未命中时请询问附近大城市，或让用户直接提供经纬度和时区。",
+		Handler:     CityInfo,
 	})
 	mustRegisterRaw(registry, RawTool[BaziChartInput, BaziChartOutput]{
 		Name:        "bazi_chart",
-		Description: "排八字完整命盘。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑、调候、格局与命理原子事实。",
+		Description: "排八字确定性命盘。返回四柱、纳音、大运、十神、藏干、神煞、合会冲刑、扶抑候选、调候候选、格局结构证据与命盘关系事实。",
 		Handler:     BaziChartCompute,
 	})
 	mustRegister(registry, Tool[BazhaiChartInput, BazhaiChartOutput]{
 		Name:        "bazhai_chart",
-		Description: "八宅排盘。按出生年份与性别排命卦 + 四吉四凶方 + 出生年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
+		Description: "八宅排盘。使用上游已校准 subject 推导出生年与性别，排命卦 + 四吉四凶方 + 出生年紫白飞星。八宅不需要出生时辰，也不与八字四柱合参。",
 		Handler:     BazhaiChart,
 	})
 	mustRegister(registry, Tool[BazhaiLayoutInput, BazhaiLayoutOutput]{
@@ -315,25 +325,25 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[BaziLiuNianInput, BaziLiuNianSeries]{
 		Name:         "bazi_liunian",
-		Description:  "八字流年运势。count=1（默认）返回单年；count>1 返回领域数组批量。",
+		Description:  "八字流年事实。count=1（默认）返回单年；count>1 返回领域数组批量。",
 		Handler:      BaziLiuNian,
 		OutputSchema: mustSeriesSchema[BaziLiuNianOutput](options, "liu_nian"),
 	})
 	mustRegister(registry, Tool[BaziLiuYueInput, BaziLiuYueSeries]{
 		Name:         "bazi_liuyue",
-		Description:  "流月运势。count=1（默认）返回单月；count>1 返回领域数组批量（跨年进位）。",
+		Description:  "流月事实。count=1（默认）返回单月；count>1 返回领域数组批量（跨年进位）。",
 		Handler:      BaziLiuYue,
 		OutputSchema: mustSeriesSchema[BaziLiuYueOutput](options, "liu_yue"),
 	})
 	mustRegister(registry, Tool[BaziLiuRiInput, BaziLiuRiSeries]{
 		Name:         "bazi_liuri",
-		Description:  "流日运势。count=1（默认）返回单日；count>1 返回领域数组批量（跨月跨年进位）。",
+		Description:  "流日事实。count=1（默认）返回单日；count>1 返回领域数组批量（跨月跨年进位）。",
 		Handler:      BaziLiuRi,
 		OutputSchema: mustSeriesSchema[BaziLiuRiOutput](options, "liu_ri"),
 	})
 	mustRegister(registry, Tool[BaziLiuShiInput, BaziLiuShiSeries]{
 		Name:         "bazi_liushi",
-		Description:  "流时运势。count=1（默认）返回单时辰；count>1 返回领域数组批量（跨日跨月跨年进位）。",
+		Description:  "流时事实。count=1（默认）返回单时辰；count>1 返回领域数组批量（跨日跨月跨年进位）。",
 		Handler:      BaziLiuShi,
 		OutputSchema: mustSeriesSchema[BaziLiuShiOutput](options, "liu_shi"),
 	})
@@ -344,7 +354,7 @@ func NewEngine() *Registry {
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",
-		Description: "紫微斗数排盘。返回完整十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前。",
+		Description: "紫微斗数确定性命盘。返回十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前与大限。",
 		Handler:     ZiweiChartCompute,
 	})
 	mustRegister(registry, Tool[ZiweiLiuNianInput, ZiweiLiuNianSeries]{
@@ -367,7 +377,7 @@ func NewEngine() *Registry {
 	})
 	mustRegister(registry, Tool[ZiweiLiuShiInput, ZiweiLiuShiSeries]{
 		Name:         "ziwei_liushi",
-		Description:  "紫微流时。count=1（默认）返回单时辰；count>1 返回 {items:[...]} 批量（12地支循环）。",
+		Description:  "紫微流时。count=1（默认）返回单时辰；count>1 返回领域数组批量（12地支循环）。",
 		Handler:      ZiweiLiuShi,
 		OutputSchema: mustSeriesSchema[ZiweiLiuShiOutput](options, "liu_shi"),
 	})

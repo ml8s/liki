@@ -61,8 +61,8 @@ func registerWireEnums(options *jsonschema.ForOptions) {
 	registerWireEnum[LeadXunShouGanName](options, "甲")
 	registerWireEnum[LeadXunShouName](options, "甲午", "甲子", "甲寅", "甲戌", "甲申", "甲辰")
 	registerWireEnum[LiuYiName](options, "壬", "己", "庚", "戊", "癸", "辛")
-	registerWireNullableEnum[LiuyaoGanNameNullable](options, "丁", "丙", "乙", "壬", "己", "庚", "戊", "甲", "癸", "辛")
-	registerWireNullableEnum[LiuyaoZhiNameNullable](options, "丑", "亥", "午", "卯", "子", "寅", "巳", "戌", "未", "申", "辰", "酉")
+	registerWireNullableEnum[GanNameNullable](options, "丁", "丙", "乙", "壬", "己", "庚", "戊", "甲", "癸", "辛")
+	registerWireNullableEnum[ZhiNameNullable](options, "丑", "亥", "午", "卯", "子", "寅", "巳", "戌", "未", "申", "辰", "酉")
 	registerWireEnum[MethodDayBoundaryName](options, "late_zi_rolls_day_pillar")
 	registerWireEnum[MethodDingjuMethodName](options, "chaibu", "maoshan", "none", "zhirun")
 	registerWireEnum[MethodDingjuMethodDisplayName](options, "拆补定局", "无定局", "置闰定局", "茅山定局")
@@ -165,9 +165,9 @@ type LeadXunShouName string
 
 type LiuYiName string
 
-type LiuyaoGanNameNullable string
+type GanNameNullable string
 
-type LiuyaoZhiNameNullable string
+type ZhiNameNullable string
 
 type MethodDayBoundaryName string
 

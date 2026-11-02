@@ -48,13 +48,13 @@ func TestTimeNowNewYork(t *testing.T) {
 	}
 }
 
-func TestTianwenResolveOutputContract(t *testing.T) {
+func TestTianwenSubjectCandidatesOutputContract(t *testing.T) {
 	registry := testEngine()
-	raw, err := registry.Call(context.Background(), "tianwen_resolve", mustJSON(t, civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4)))
+	raw, err := registry.Call(context.Background(), "tianwen_subject_candidates", mustJSON(t, civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4)))
 	if err != nil {
 		t.Fatalf("tianwen.resolve: %v", err)
 	}
-	if err := registry.ValidateOutput("tianwen_resolve", raw); err != nil {
+	if err := registry.ValidateOutput("tianwen_subject_candidates", raw); err != nil {
 		t.Fatalf("tianwen.resolve output contract: %v", err)
 	}
 }

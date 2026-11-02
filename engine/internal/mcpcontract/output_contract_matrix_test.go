@@ -26,8 +26,8 @@ func TestEveryEngineToolActualOutputMatchesSchema(t *testing.T) {
 	}
 
 	call("time_now", map[string]any{"timezone": "Asia/Shanghai"})
-	call("tianwen_resolve", civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4))
-	call("city_coords", CityCoordsInput{City: "北京"})
+	call("tianwen_subject_candidates", civilResolveInput(t, "1990-05-20T03:49:00Z", "Asia/Shanghai", 116.4))
+	call("city_info", CityInfoInput{City: "北京"})
 	call("huangli_days", HuangliDaysInput{
 		StartDate: "2024-06-15",
 		Timezone:  "Asia/Shanghai",

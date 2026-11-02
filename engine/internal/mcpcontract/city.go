@@ -7,8 +7,8 @@ import (
 	"liki-engine/internal/engine/city"
 )
 
-// CityCoordsInput requests candidates for one place name.
-type CityCoordsInput struct {
+// CityInfoInput requests candidates for one place name.
+type CityInfoInput struct {
 	City   CityName `json:"city" jsonschema:"城市名称（中英文均可）；同名区县请用省/市限定（如 北京朝阳区）。"`
 	Locale string   `json:"locale,omitempty" jsonschema:"可选显示语言：zh-Hans、zh-Hant 或 en；省略时返回内置表原文。"`
 }
@@ -35,23 +35,24 @@ type CityCandidateOutput struct {
 	LongitudeRange *CityLongitudeRangeOutput `json:"longitude_range,omitempty" jsonschema:"地点东西经度范围（由行政边界换算）；用于时间边界的不确定性。"`
 }
 
-// CityCoordsOutput is the MCP wire shape for place candidates.
-type CityCoordsOutput struct {
+// CityInfoOutput is the MCP wire shape for place candidates.
+type CityInfoOutput struct {
 	Candidates []CityCandidateOutput `json:"candidates" jsonschema:"地点候选（按相关度排序）。长度 1 可直接使用；多于 1 时必须由用户确认，不得静默取第一个。"`
 }
 
-// CityCoords resolves a place name against the embedded table. It never calls
-// external geocoding: empty results mean the place is not in the table.
-func CityCoords(ctx context.Context, input CityCoordsInput) (CityCoordsOutput, error) {
+// CityInfo resolves a place name against the embedded table and returns city
+// info candidates. It never calls external geocoding: empty results mean the
+// place is not in the table.
+func CityInfo(ctx context.Context, input CityInfoInput) (CityInfoOutput, error) {
 	candidates, err := city.ResolveCandidates(ctx, string(input.City))
 	if err != nil {
-		return CityCoordsOutput{}, err
+		return CityInfoOutput{}, err
 	}
 	if len(candidates) == 0 {
-		return CityCoordsOutput{}, fmt.Errorf(
+		return CityInfoOutput{}, fmt.Errorf(
 			"city: 未找到 %q；请尝试附近大城市，或直接提供经纬度和 IANA 时区", input.City)
 	}
-	out := CityCoordsOutput{Candidates: make([]CityCandidateOutput, 0, len(candidates))}
+	out := CityInfoOutput{Candidates: make([]CityCandidateOutput, 0, len(candidates))}
 	for _, candidate := range candidates {
 		out.Candidates = append(out.Candidates, cityCandidateOutput(candidate, input.Locale))
 	}

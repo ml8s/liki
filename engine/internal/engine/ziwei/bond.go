@@ -45,16 +45,6 @@ func gongWeiDuiZhao(a, b ZiweiBondSideFacts, kind string) *PairRef {
 	}
 }
 
-func majorList(stars []starInfo) []string {
-	r := []string{}
-	for _, s := range stars {
-		if s.IsMajor {
-			r = append(r, s.Name)
-		}
-	}
-	return r
-}
-
 func pairStatus(label string, aStars, bStars []string) string {
 	switch label {
 	case "夫妻":

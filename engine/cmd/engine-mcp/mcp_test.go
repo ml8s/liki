@@ -383,7 +383,7 @@ func TestAggregateServerExposesAllToolsAndEventHints(t *testing.T) {
 	for _, name := range []string{
 		"bazi_chart", "ziwei_chart", "liuyao_qigua", "liuyao_chart",
 		"qimen_chart", "huangli_days", "bazhai_chart", "xuankong_chart",
-		"time_now", "tianwen_resolve", "city_coords",
+		"time_now", "tianwen_subject_candidates", "city_info",
 	} {
 		if tools[name] == nil {
 			t.Fatalf("aggregate surface missing tool %q", name)

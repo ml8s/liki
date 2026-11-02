@@ -48,8 +48,8 @@ type (
 	LiuyaoOptionalPosition int
 	LiuyaoDongRelationType string
 	LiuyaoHexagramName     string
-	LiuyaoGanName          string
-	LiuyaoZhiName          string
+	GanName                string
+	ZhiName                string
 	LiuyaoWangShuai        string
 	LiuyaoShiYing          string
 	LiuyaoLiuQinName       string

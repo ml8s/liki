@@ -7,7 +7,7 @@ import (
 	"liki-engine/internal/engine/tianwen"
 )
 
-func civilResolveInput(t *testing.T, instant, timezone string, longitude float64) TianwenResolveInput {
+func civilResolveInput(t *testing.T, instant, timezone string, longitude float64) TianwenSubjectCandidatesInput {
 	t.Helper()
 	at, err := parseInstant(instant)
 	if err != nil {
@@ -18,7 +18,7 @@ func civilResolveInput(t *testing.T, instant, timezone string, longitude float64
 		t.Fatal(err)
 	}
 	civil := at.In(loc)
-	return TianwenResolveInput{
+	return TianwenSubjectCandidatesInput{
 		CalendarKind:   "solar",
 		RecordedDate:   civil.Format("2006-01-02"),
 		RecordedTime:   civil.Format("15:04:05"),

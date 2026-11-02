@@ -30,7 +30,7 @@ var testEngine = sync.OnceValue(NewEngine)
 func TestEngineContractDefinitions(t *testing.T) {
 	registry := testEngine()
 	want := []string{
-		"time_now", "huangli_days", "tianwen_resolve", "city_coords",
+		"time_now", "huangli_days", "tianwen_subject_candidates", "city_info",
 		"bazi_chart",
 		"bazhai_chart", "bazhai_layout",
 		"xuankong_chart", "xuankong_liunian",
@@ -90,7 +90,7 @@ func TestEngineContractInputConstraints(t *testing.T) {
 			MaxLength int    `json:"maxLength"`
 		} `json:"properties"`
 	}
-	decode(t, mustDefinition(t, registry, "city_coords").InputSchema, &cityInput)
+	decode(t, mustDefinition(t, registry, "city_info").InputSchema, &cityInput)
 	if cityInput.Type != "object" || cityInput.AdditionalProperties == nil || *cityInput.AdditionalProperties {
 		t.Fatalf("city input is not a closed object: %#v", cityInput)
 	}
@@ -111,7 +111,7 @@ func TestEngineContractInputConstraints(t *testing.T) {
 			} `json:"properties"`
 		} `json:"oneOf"`
 	}
-	decode(t, mustDefinition(t, registry, "tianwen_resolve").InputSchema, &resolveInput)
+	decode(t, mustDefinition(t, registry, "tianwen_subject_candidates").InputSchema, &resolveInput)
 	if len(resolveInput.OneOf) != 4 {
 		t.Fatalf("tianwen.resolve oneOf forms = %d, want 4", len(resolveInput.OneOf))
 	}
@@ -427,14 +427,14 @@ func TestEngineContractBaziTiaoHouUsesExplicitNoSecondary(t *testing.T) {
 func TestEngineContractCalls(t *testing.T) {
 	registry := testEngine()
 
-	cityRaw, err := registry.Call(context.Background(), "city_coords", mustJSON(t, CityCoordsInput{City: "北京"}))
+	cityRaw, err := registry.Call(context.Background(), "city_info", mustJSON(t, CityInfoInput{City: "北京"}))
 	if err != nil {
 		t.Fatalf("city.coords: %v", err)
 	}
-	if err := registry.ValidateOutput("city_coords", cityRaw); err != nil {
+	if err := registry.ValidateOutput("city_info", cityRaw); err != nil {
 		t.Fatalf("city.coords output contract: %v", err)
 	}
-	var cityOutput CityCoordsOutput
+	var cityOutput CityInfoOutput
 	if err := json.Unmarshal(cityRaw, &cityOutput); err != nil {
 		t.Fatal(err)
 	}

@@ -11,9 +11,9 @@ import (
 )
 
 type BaziPillar struct {
-	Gan   LiuyaoGanName `json:"gan" jsonschema:"天干。"`
-	Zhi   LiuyaoZhiName `json:"zhi" jsonschema:"地支。"`
-	NaYin string        `json:"na_yin" jsonschema:"干支纳音。"`
+	Gan   GanName `json:"gan" jsonschema:"天干。"`
+	Zhi   ZhiName `json:"zhi" jsonschema:"地支。"`
+	NaYin string  `json:"na_yin" jsonschema:"干支纳音。"`
 }
 
 type BaziDaYunRootRef struct {
@@ -24,8 +24,8 @@ type BaziDaYunRootRef struct {
 }
 
 type BaziDaYunStep struct {
-	Gan       LiuyaoGanName      `json:"gan" jsonschema:"大运天干。"`
-	Zhi       LiuyaoZhiName      `json:"zhi" jsonschema:"大运地支。"`
+	Gan       GanName            `json:"gan" jsonschema:"大运天干。"`
+	Zhi       ZhiName            `json:"zhi" jsonschema:"大运地支。"`
 	StartDate DateString         `json:"start_date" jsonschema:"起始公历日 YYYY-MM-DD。"`
 	EndDate   DateString         `json:"end_date" jsonschema:"结束公历日 YYYY-MM-DD。"`
 	StartYear int                `json:"start_year" jsonschema:"起始公历年。"`
