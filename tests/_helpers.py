@@ -36,7 +36,7 @@ def mock_engine_facts() -> dict:
     """构造 chart engine 事实的最小契约片段。"""
     return {
         "lu_roots": [],
-        "relation_groups": [],
+        "guan_xi": [],
         "ten_god_states": [{
             "shi_shen": "比肩", "wuxing": "木", "transparent": True, "hidden": True,
             "rooted": True, "timely": True, "count": 1, "strength": "strong",

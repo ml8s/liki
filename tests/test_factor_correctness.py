@@ -42,14 +42,14 @@ def test_ge_shen_uses_engine_gan_source() -> None:
 
 def test_relation_operator_reads_engine_results() -> None:
     chart = {
-        "full": {"relation_groups": [
-            {"field": "gan_he", "group": "甲己"},
-            {"field": "zhi_liu_he", "group": "子丑"},
-            {"field": "san_he", "group": "申子辰"},
-            {"field": "san_hui", "group": "寅卯辰"},
-            {"field": "liu_chong", "group": "子午"},
-            {"field": "liu_hai", "group": "子未"},
-            {"field": "liu_xing", "group": "寅巳申"},
+        "bazi": {"guan_xi": [
+                {"relation_kind": "gan_he", "group": "甲己"},
+                {"relation_kind": "zhi_liu_he", "group": "子丑"},
+                {"relation_kind": "san_he", "group": "申子辰"},
+                {"relation_kind": "san_hui", "group": "寅卯辰"},
+                {"relation_kind": "liu_chong", "group": "子午"},
+                {"relation_kind": "liu_hai", "group": "子未"},
+                {"relation_kind": "liu_xing", "group": "寅巳申"},
         ]},
     }
     assert _op("关系", ["gan_he", "甲己"], "male", chart) == 1

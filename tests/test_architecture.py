@@ -86,9 +86,10 @@ def test_natal_python_layer_does_not_aggregate_pillar_ten_gods():
     assert 'get("shi_shens", [])' not in operators[:projection_end]
 
 
-def test_natal_relation_groups_come_from_engine():
+def test_natal_relations_come_from_engine():
     operators = _source(operators_natal)
-    assert 'get("relation_groups", [])' in operators
+    assert 'get("guan_xi", [])' in operators
+    assert 'item.get("relation_kind")' in operators
     assert "chart_zhi" not in operators
     assert "关系字段类型" not in (ROOT / "constants.json").read_text(encoding="utf-8")
 

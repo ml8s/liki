@@ -5,7 +5,7 @@ from app.natal.tools.natal_projection import load_contract, project_natal_facts
 
 def _rich_pan() -> dict:
     return {
-        "full": {
+        "bazi": {
             pillar: {
                 "gan": "甲", "zhi": "子",
                 "na_yin": f"{pillar}纳音", "cang_gan": {"main": "甲"},
@@ -26,25 +26,18 @@ def _rich_pan() -> dict:
             "chang_sheng": [{"pillar": "nian", "stage": "长生"}],
             "zodiac": "鼠",
             "san_yuan": {"胎元": "丙子"}, "tai_xi": "辛丑",
-            "gan_chong": [{"gan_a": "甲", "gan_b": "庚", "pillar_a": 0, "pillar_b": 1, "position": "adjacent"}],
-            "gan_he": [{"gan_a": "甲", "gan_b": "己", "position": "adjacent"}],
-            "zhi_liu_he": [{"zhi_a": "子", "zhi_b": "丑"}],
-            "san_he_partial": [{"type": "半合", "name": "申子辰半合"}],
-            "san_he": [{"type": "三合", "name": "申子辰水局"}],
-            "san_hui": [{"type": "三会", "name": "亥子丑水方"}],
-            "liu_chong": [{"zhi_a": "子", "zhi_b": "午"}],
-            "liu_hai": [{"zhi_a": "子", "zhi_b": "未"}],
-            "liu_xing": [{"zhi_a": "子", "zhi_b": "卯"}],
-            "liu_po": [{"zhi_a": "子", "zhi_b": "酉"}],
-            "an_he": [{"zhi_a": "子", "zhi_b": "戌"}],
             "shen_sha_school": {
                 "dual_reference": ["天乙贵人", "桃花"],
                 "policy": "union_of_year_and_day_references",
             },
             "lu_roots": [{"shi_shen": "正印", "gan": "癸", "zhi": "子"}],
-            "relation_groups": [
-                {"field": "gan_he", "group": "甲己"},
-                {"field": "zhi_liu_he", "group": "子丑"},
+            "guan_xi": [
+                {"relation_kind": "gan_he", "group": "甲己", "members": [
+                    {"pillar": "nian", "gan": "甲"}, {"pillar": "ri", "gan": "己"}
+                ]},
+                {"relation_kind": "zhi_liu_he", "group": "子丑", "members": [
+                    {"pillar": "nian", "zhi": "子"}, {"pillar": "shi", "zhi": "丑"}
+                ]},
             ],
             "ten_god_states": [{"shi_shen": "正印", "wuxing": "水", "transparent": True, "hidden": False, "count": 1, "rooted": True, "timely": True, "strength": "strong"}],
             "element_states": [{"wuxing": "水", "season": "旺", "season_strength": "strong", "strength": "strong", "transparent": True, "rooted": True, "controls": "火", "controlled_by": "土", "controller_strength": "weak", "reasons": ["得令"]}],
@@ -55,19 +48,22 @@ def _rich_pan() -> dict:
             "fu_yi": {"qiang_ruo": "身强", "yong": "木", "xi": "水", "ji": "金", "wuxing_count": {}, "wang_shuai": {}, "fu_yi_model_id": "test", "basis": {}},
             "tiao_hou": {"primary_wuxing": "火", "season": "春", "tiao_hou_model_id": "qiongtong_primary_secondary_table", "primary": {"stem": "丙", "transparent": True, "hidden": False, "occurrences": [], "relation_facts": []}},
             "ge_ju": {"ge_ju": "正印格", "yong_fa": "顺用", "pattern_god_source": "main_qi", "structure": {}},
-            "day_xun": "甲戌旬", "day_xun_kong": "申酉",
-            "san_qi_name": "三奇", "gong_jia": ["拱夹"], "nayin_rel": [{"rel": "相生"}],
+            "guan_sha": {"qu_qing": False}, "cai_ku": {"xian": False, "xing_ru_ku": False},
+            "zi_shi_rule": "晚子时换日口径",
+            "ri_xun": "甲戌旬", "ri_xun_kong": "申酉",
+            "san_qi_name": "三奇", "gong_jia": ["拱夹"], "na_yin_rel": [{"rel": "相生"}],
+            "da_yun": {"steps": [], "current_step_index": 0},
         },
-        "chart": {"birth_year": 1990, "da_yun": {"steps": [], "current_step_index": 0}},
+        "chart": {"birth_year": 1990},
         "ziwei": {
-            "school": {"leap_month": "iztro_compatible", "source": "test"},
-            "gong_wei": [{"name": "命宫"}], "ju_shu": "火六局", "ju_shu_name": "火六局",
+            "shi_er_gong": [{"ming": "命宫", "xing_yao": [{"ming": "七杀"}]}],
+            "ju_shu": "fire_6", "ju_shu_name": "火六局",
+            "kou_jing": {"leap_month": "iztro_compatible", "source": "test"},
+            "kong_gong": [{"kong_gong": "兄弟", "jie_gong": "子女"}],
             "ming_zhu": "贪狼", "shen_zhu": "天梁", "ming_gong": "命宫", "shen_gong": "身宫",
-            "si_hua": {"贪狼": "禄"}, "palace_facts": [
-                {"palace": "命宫", "kind": "star", "target": "紫微主星", "star": "七杀"}
-            ],
-            "kong_gong": [{"gong_name": "兄弟"}], "patterns": ["七杀朝斗"],
-            "san_fang": [{"name": "命宫", "zhu_xing": ["七杀"]}], "nian_gan": "庚", "nian_zhi": "午",
+            "si_hua": {"七杀": "禄"}, "ge_ju": [{"name": "七杀朝斗"}],
+            "san_fang_si_zheng": {"ming_gong": ["命宫", "财帛", "官禄", "迁移"]},
+            "nian_gan": "庚", "nian_zhi": "午",
             "shi_zhi": "子", "ziwei_pos": "命宫", "birth_year": 1990,
             "lunar_month": 4, "lunar_day": 26, "birth_lunar_month": 4,
             "birth_is_leap": False, "gender": "male",
@@ -97,11 +93,9 @@ def test_fields_are_declared_when_present():
     facts = project_natal_facts(_rich_pan())
     assert facts["八字"]["大运"]["current_step_index"] == 0
     assert facts["八字"]["tiao_hou"]["tiao_hou_model_id"] == "qiongtong_primary_secondary_table"
-    assert facts["八字"]["稳定关系组"][0]["group"] == "甲己"
-    assert facts["八字"]["命理原子事实"]["day_master_stem"] == "甲"
-    assert facts["八字"]["天干相冲"][0]["gan_a"] == "甲"
-    assert facts["紫微"]["局数"] == "火六局"
-    assert facts["紫微"]["宫位原子事实"][0]["palace"] == "命宫"
-    assert facts["紫微"]["四化"]["贪狼"] == "禄"
-    assert facts["紫微"]["格局候选"] == ["七杀朝斗"]
+    assert facts["八字"]["命局关系集合"][0]["group"] == "甲己"
+    assert "命理原子事实" not in facts["八字"]
+    assert facts["紫微"]["局数"] == "fire_6"
+    assert facts["紫微"]["十二宫"][0]["ming"] == "命宫"
+    assert facts["紫微"]["格局候选"][0]["name"] == "七杀朝斗"
     assert facts["八字"]["十二长生"][0]["pillar"] == "nian"

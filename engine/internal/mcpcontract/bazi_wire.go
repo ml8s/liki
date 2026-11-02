@@ -6,8 +6,6 @@
 // green when a shape changes.
 package mcpcontract
 
-import "encoding/json"
-
 // BaziPillarCangGan is the shared hidden-stem projection for all four pillars.
 type BaziPillarCangGan struct {
 	Main  *GanNameNullable `json:"main" jsonschema:"藏干 中的 main。"`
@@ -48,17 +46,6 @@ type BaziChartOutput struct {
 	ChangSheng    *[]BaziChartChangShengItem   `json:"chang_sheng,omitempty" jsonschema:"日主十二宫全表（长生/沐浴/冠带/临官/帝旺/衰/病/死/墓/绝/胎/养在十二支的分布）"`
 	Zodiac        *string                      `json:"zodiac,omitempty" jsonschema:"生肖（年支对应动物，如酉→鸡）"`
 	SanQiName     *string                      `json:"san_qi_name,omitempty" jsonschema:"三奇贵人"`
-	GanHe         *[]BaziChartGanHeItem        `json:"gan_he,omitempty" jsonschema:"天干五合"`
-	GanChong      *[]BaziChartGanChongItem     `json:"gan_chong,omitempty" jsonschema:"天干相冲（甲庚/乙辛/丙壬/丁癸）"`
-	ZhiLiuHe      *[]BaziChartZhiLiuHeItem     `json:"zhi_liu_he,omitempty" jsonschema:"地支六合"`
-	SanHePartial  *[]BaziChartSanHePartialItem `json:"san_he_partial,omitempty" jsonschema:"半合局（三合缺一支且必须含旺支）"`
-	SanHe         *[]BaziChartSanHeItem        `json:"san_he,omitempty" jsonschema:"三合局"`
-	SanHui        *[]BaziChartSanHuiItem       `json:"san_hui,omitempty" jsonschema:"三会方"`
-	LiuChong      *[]BaziChartLiuChongItem     `json:"liu_chong,omitempty" jsonschema:"六冲"`
-	LiuHai        *[]BaziChartLiuHaiItem       `json:"liu_hai,omitempty" jsonschema:"六害"`
-	LiuXing       *[]BaziChartLiuXingItem      `json:"liu_xing,omitempty" jsonschema:"相刑"`
-	LiuPo         *[]BaziChartLiuPoItem        `json:"liu_po,omitempty" jsonschema:"六破"`
-	AnHe          *[]BaziChartAnHeItem         `json:"an_he,omitempty" jsonschema:"地支暗合"`
 	ShenShaSchool BaziChartShenShaSchool       `json:"shen_sha_school" jsonschema:"shen_sha_school。"`
 	LuRoots       []BaziChartLuRootsItem       `json:"lu_roots" jsonschema:"透干十神得十干禄"`
 	GuanXi        []BaziChartGuanXiItem        `json:"guan_xi" jsonschema:"完整命局关系集合；其他结构只引用 relation_id。"`
@@ -193,93 +180,6 @@ type BaziChartNayinRelItem struct {
 type BaziChartChangShengItem struct {
 	Index *ZhiNameNullable             `json:"index" jsonschema:"序号。"`
 	Name  *ChangShengStageNameNullable `json:"name" jsonschema:"名称。"`
-}
-
-type BaziChartGanHeItem struct {
-	Contested *bool   `json:"contested" jsonschema:"contested。"`
-	GanA      *string `json:"gan_a" jsonschema:"甲干。"`
-	GanB      *string `json:"gan_b" jsonschema:"乙干。"`
-	HeElement *string `json:"he_element" jsonschema:"he_element。"`
-	PillarA   *int    `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB   *int    `json:"pillar_b" jsonschema:"pillar_b。"`
-	Position  *string `json:"position" jsonschema:"position。"`
-}
-
-type BaziChartGanChongItem struct {
-	GanA     GanName              `json:"gan_a" jsonschema:"甲干。"`
-	GanB     GanName              `json:"gan_b" jsonschema:"乙干。"`
-	PillarA  int                  `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB  int                  `json:"pillar_b" jsonschema:"pillar_b。"`
-	Position GanChongPositionName `json:"position" jsonschema:"枚举值：adjacent、remote、separated。"`
-}
-
-type BaziChartZhiLiuHeItem struct {
-	PillarA *int             `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB *int             `json:"pillar_b" jsonschema:"pillar_b。"`
-	Wuxing  *string          `json:"wuxing" jsonschema:"五行。"`
-	ZhiA    *ZhiNameNullable `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB    *ZhiNameNullable `json:"zhi_b" jsonschema:"乙支。"`
-}
-
-type BaziChartSanHePartialItem struct {
-	Kind     SanHePartialTypeName `json:"relation_kind" jsonschema:"半合关系类型。"`
-	Name     string               `json:"name" jsonschema:"名称。"`
-	Wuxing   ElementName          `json:"wuxing" jsonschema:"五行。"`
-	Branches []ZhiName            `json:"branches" jsonschema:"地支列表。"`
-	Pillars  []PillarName         `json:"pillars" jsonschema:"涉及柱位。"`
-}
-
-type BaziChartSanHeItem struct {
-	Type     *SanHeTypeName `json:"type,omitempty" jsonschema:"类型。"`
-	Name     *string        `json:"name,omitempty" jsonschema:"名称。"`
-	Wuxing   *ElementName   `json:"wuxing,omitempty" jsonschema:"五行。"`
-	Branches *[]ZhiName     `json:"branches,omitempty" jsonschema:"地支列表。"`
-	Pillars  *[]PillarName  `json:"pillars,omitempty" jsonschema:"涉及柱位。"`
-}
-
-type BaziChartSanHuiItem struct {
-	Kind     SanHuiTypeName `json:"relation_kind" jsonschema:"三会关系类型。"`
-	Name     string         `json:"name" jsonschema:"名称。"`
-	Wuxing   ElementName    `json:"wuxing" jsonschema:"五行。"`
-	Branches []ZhiName      `json:"branches" jsonschema:"地支列表。"`
-	Pillars  []PillarName   `json:"pillars" jsonschema:"涉及柱位。"`
-}
-
-type BaziChartLiuChongItem struct {
-	PillarA *int    `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB *int    `json:"pillar_b" jsonschema:"pillar_b。"`
-	ZhiA    *string `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB    *string `json:"zhi_b" jsonschema:"乙支。"`
-}
-
-type BaziChartLiuHaiItem struct {
-	PillarA *int    `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB *int    `json:"pillar_b" jsonschema:"pillar_b。"`
-	ZhiA    *string `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB    *string `json:"zhi_b" jsonschema:"乙支。"`
-}
-
-type BaziChartLiuXingItem struct {
-	PillarA *int             `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB *int             `json:"pillar_b" jsonschema:"pillar_b。"`
-	ZhiA    *ZhiNameNullable `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB    *ZhiNameNullable `json:"zhi_b" jsonschema:"乙支。"`
-}
-
-type BaziChartLiuPoItem struct {
-	ZhiA    ZhiName         `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB    ZhiName         `json:"zhi_b" jsonschema:"乙支。"`
-	PillarA json.RawMessage `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB json.RawMessage `json:"pillar_b" jsonschema:"pillar_b。"`
-	Element *string         `json:"element,omitempty" jsonschema:"element。"`
-}
-
-type BaziChartAnHeItem struct {
-	ZhiA    ZhiName         `json:"zhi_a" jsonschema:"甲支。"`
-	ZhiB    ZhiName         `json:"zhi_b" jsonschema:"乙支。"`
-	PillarA json.RawMessage `json:"pillar_a" jsonschema:"pillar_a。"`
-	PillarB json.RawMessage `json:"pillar_b" jsonschema:"pillar_b。"`
-	Element *string         `json:"element,omitempty" jsonschema:"element。"`
 }
 
 type BaziChartShenShaSchool struct {

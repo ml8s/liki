@@ -29,24 +29,28 @@ def _chang_sheng_lookup(bazi: dict) -> dict[str, str]:
 
 def _pillar_punishments(bazi: dict) -> dict[str, bool]:
     result = {"nian": False, "yue": False, "ri": False, "shi": False}
-    for relation in bazi.get("liu_xing") or []:
-        for index in (relation.get("pillar_a"), relation.get("pillar_b")):
-            pillar = {0: "nian", 1: "yue", 2: "ri", 3: "shi"}.get(index)
-            if pillar:
+    for relation in bazi.get("guan_xi") or []:
+        if relation.get("relation_kind") != "liu_xing":
+            continue
+        for member in relation.get("members") or []:
+            pillar = member.get("pillar")
+            if pillar in result:
                 result[pillar] = True
     return result
 
 
 def _spouse_palace_state(bazi: dict) -> str:
     groups = [
-        ("冲", bazi.get("liu_chong") or []),
-        ("合", bazi.get("zhi_liu_he") or []),
-        ("刑", bazi.get("liu_xing") or []),
-        ("害", bazi.get("liu_hai") or []),
+        ("冲", "liu_chong"),
+        ("合", "zhi_liu_he"),
+        ("刑", "liu_xing"),
+        ("害", "liu_hai"),
     ]
-    for state, relations in groups:
-        for relation in relations:
-            if 2 in (relation.get("pillar_a"), relation.get("pillar_b")):
+    for state, kind in groups:
+        for relation in bazi.get("guan_xi") or []:
+            if relation.get("relation_kind") != kind:
+                continue
+            if any(member.get("pillar") == "ri" for member in relation.get("members") or []):
                 return state
     return "静"
 

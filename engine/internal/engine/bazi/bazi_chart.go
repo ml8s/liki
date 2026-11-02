@@ -112,18 +112,18 @@ type Chart struct {
 	// 生肖（年支对应动物，如酉→鸡）。
 	Zodiac string `json:"zodiac"`
 
-	// 合会冲刑（原 bazi.hehui）
-	GanHe        []GanHePair   `json:"gan_he"`
-	GanChong     []GanPairRel  `json:"gan_chong"`
-	ZhiLiuHe     []ZhiPairRel  `json:"zhi_liu_he"`
-	SanHe        []TripleGroup `json:"san_he"`
-	SanHePartial []TripleGroup `json:"san_he_partial"`
-	SanHui       []TripleGroup `json:"san_hui"`
-	LiuChong     []ZhiPairRel  `json:"liu_chong"`
-	LiuHai       []ZhiPairRel  `json:"liu_hai"`
-	LiuXing      []ZhiPairRel  `json:"liu_xing"`
-	LiuPo        []ZhiPairRel  `json:"liu_po"`
-	AnHe         []ZhiPairRel  `json:"an_he"`
+	// 合会冲刑 detection evidence；wire 契约只输出 canonical guan_xi。
+	GanHe        []GanHePair   `json:"-"`
+	GanChong     []GanPairRel  `json:"-"`
+	ZhiLiuHe     []ZhiPairRel  `json:"-"`
+	SanHe        []TripleGroup `json:"-"`
+	SanHePartial []TripleGroup `json:"-"`
+	SanHui       []TripleGroup `json:"-"`
+	LiuChong     []ZhiPairRel  `json:"-"`
+	LiuHai       []ZhiPairRel  `json:"-"`
+	LiuXing      []ZhiPairRel  `json:"-"`
+	LiuPo        []ZhiPairRel  `json:"-"`
+	AnHe         []ZhiPairRel  `json:"-"`
 
 	// 日柱所在旬与日柱旬空。is_void 语义固定为该柱地支值日柱旬空；
 	// 各柱 xun/xun_kong 是该柱自身所在旬，两者是不同命理事实。

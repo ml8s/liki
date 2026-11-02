@@ -239,11 +239,11 @@ def _eval_natal_op(op: str, args, base: dict, gender: str, chart: dict,
         total = sum((_ten_god_state(base, t) or {}).get("count", 0) for t in tens)
         return 1 if total >= n else 0
     if op == "关系":
-        # 关系[field, 组名]——读取引擎完整合会冲刑组。
+        # 关系[relation_kind, group]——读取引擎 canonical guan_xi facts。
         field, group = args[0], args[1]
         guan_xi_items = (chart.get("bazi", {}) or {}).get("guan_xi", [])
         return 1 if any(
-            item.get("field") == field and item.get("group") == group
+            item.get("relation_kind") == field and item.get("group") == group
             for item in guan_xi_items
             if isinstance(item, dict)
         ) else 0
