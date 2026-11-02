@@ -37,9 +37,8 @@ func TestEngineContractDefinitions(t *testing.T) {
 		"liuyao_qigua",
 		"liuyao_chart",
 		"bazi_bond",
-		"bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi", "bazi_xiaoyun",
-		"ziwei_chart", "ziwei_liunian",
-		"ziwei_liuyue", "ziwei_liuri", "ziwei_liushi", "ziwei_bond",
+		"bazi_liupan",
+		"ziwei_chart", "ziwei_liupan", "ziwei_bond",
 		"qimen_chart",
 	}
 	got := registry.Names()

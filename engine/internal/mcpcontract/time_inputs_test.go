@@ -10,9 +10,7 @@ import (
 func TestTimeInputsCanonical(t *testing.T) {
 	registry := testEngine()
 	natal := []string{
-		"bazi_chart", "ziwei_chart",
-		"bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi",
-		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi",
+		"bazi_chart", "ziwei_chart", "bazi_liupan", "ziwei_liupan",
 	}
 	tools := []string{
 		"liuyao_chart", "qimen_chart", "huangli_days", "bazhai_chart",
@@ -31,30 +29,58 @@ func TestTimeInputsCanonical(t *testing.T) {
 				Required   []string                   `json:"required"`
 				Properties map[string]json.RawMessage `json:"properties"`
 			}
+			var schemaUnion struct {
+				OneOf []json.RawMessage `json:"oneOf"`
+			}
 			if err := json.Unmarshal(def.InputSchema, &subjectSchema); err != nil {
 				t.Fatalf("decode schema: %v", err)
 			}
-			if _, ok := subjectSchema.Properties["subject"]; !ok {
+			if err := json.Unmarshal(def.InputSchema, &schemaUnion); err != nil {
+				t.Fatalf("decode schema union: %v", err)
+			}
+			subjectSchemas := []struct {
+				Required   []string                   `json:"required"`
+				Properties map[string]json.RawMessage `json:"properties"`
+			}{subjectSchema}
+			for _, raw := range schemaUnion.OneOf {
+				var branch struct {
+					Required   []string                   `json:"required"`
+					Properties map[string]json.RawMessage `json:"properties"`
+				}
+				if err := json.Unmarshal(raw, &branch); err != nil {
+					t.Fatalf("decode schema branch: %v", err)
+				}
+				subjectSchemas = append(subjectSchemas, branch)
+			}
+			if len(schemaUnion.OneOf) > 0 {
+				subjectSchemas = subjectSchemas[1:]
+			}
+			if len(subjectSchemas) == 0 {
 				t.Fatalf("missing subject")
 			}
-			if !containsString(subjectSchema.Required, "subject") {
-				t.Fatalf("subject must be required")
-			}
-			var subject struct {
-				Required   []string `json:"required"`
-				Properties map[string]struct {
-					Type string `json:"type"`
-				} `json:"properties"`
-			}
-			if err := json.Unmarshal(subjectSchema.Properties["subject"], &subject); err != nil {
-				t.Fatal(err)
-			}
-			for _, field := range []string{"birth_time", "birth_longitude", "gender"} {
-				if _, ok := subject.Properties[field]; !ok {
-					t.Fatalf("subject missing %s", field)
+			for schemaIndex, branch := range subjectSchemas {
+				if _, ok := branch.Properties["subject"]; !ok {
+					t.Fatalf("schema[%d]: missing subject", schemaIndex)
 				}
-				if !containsString(subject.Required, field) {
-					t.Fatalf("subject.%s must be required", field)
+				if !containsString(branch.Required, "subject") {
+					t.Fatalf("schema[%d]: subject must be required", schemaIndex)
+				}
+				var subject struct {
+					Required   []string `json:"required"`
+					Properties map[string]struct {
+						Type string `json:"type"`
+					} `json:"properties"`
+				}
+				if err := json.Unmarshal(branch.Properties["subject"], &subject); err != nil {
+					t.Fatal(err)
+				}
+				for _, field := range []string{"birth_time", "birth_longitude", "gender"} {
+					if _, ok := subject.Properties[field]; !ok {
+						t.Fatalf("subject missing %s", field)
+					}
+					if !containsString(subject.Required, field) {
+						t.Fatalf("subject.%s must be required", field)
+					}
 				}
 			}
 		})

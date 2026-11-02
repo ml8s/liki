@@ -339,63 +339,40 @@ func NewEngine() *Registry {
 		Description: "八字合盘原始事实。返回双方日主、四柱干支关系、十神视角、纳音、实盘五行与配偶星/夫妻宫事实；不做合婚评级。",
 		Handler:     BaziBond,
 	})
-	mustRegister(registry, Tool[BaziLiuNianInput, BaziLiuNianSeries]{
-		Name:         "bazi_liunian",
-		Description:  "八字流年事实。count=1（默认）返回单年；count>1 返回领域数组批量。",
-		Handler:      BaziLiuNian,
-		OutputSchema: mustSeriesSchema[BaziLiuNianOutput](options, "liu_nian"),
-	})
-	mustRegister(registry, Tool[BaziLiuYueInput, BaziLiuYueSeries]{
-		Name:         "bazi_liuyue",
-		Description:  "流月事实。count=1（默认）返回单月；count>1 返回领域数组批量（跨年进位）。",
-		Handler:      BaziLiuYue,
-		OutputSchema: mustSeriesSchema[BaziLiuYueOutput](options, "liu_yue"),
-	})
-	mustRegister(registry, Tool[BaziLiuRiInput, BaziLiuRiSeries]{
-		Name:         "bazi_liuri",
-		Description:  "流日事实。count=1（默认）返回单日；count>1 返回领域数组批量（跨月跨年进位）。",
-		Handler:      BaziLiuRi,
-		OutputSchema: mustSeriesSchema[BaziLiuRiOutput](options, "liu_ri"),
-	})
-	mustRegister(registry, Tool[BaziLiuShiInput, BaziLiuShiSeries]{
-		Name:         "bazi_liushi",
-		Description:  "流时事实。count=1（默认）返回单时辰；count>1 返回领域数组批量（跨日跨月跨年进位）。",
-		Handler:      BaziLiuShi,
-		OutputSchema: mustSeriesSchema[BaziLiuShiOutput](options, "liu_shi"),
-	})
-	mustRegister(registry, Tool[BaziXiaoYunInput, BaziXiaoYunOutput]{
-		Name:        "bazi_xiaoyun",
-		Description: "小运。返回小运流年列表。count 默认 1。",
-		Handler:     BaziXiaoYun,
+	baziLiupanInput, err := baziLiupanFormsSchema(options)
+	if err != nil {
+		panic("bazi.liupan input schema: " + err.Error())
+	}
+	baziLiupanOutput, err := baziLiupanOutputSchema(options)
+	if err != nil {
+		panic("bazi.liupan output schema: " + err.Error())
+	}
+	mustRegisterRaw(registry, RawTool[BaziLiupanInput, BaziLiupanOutput]{
+		Name:         "bazi_liupan",
+		Description:  "八字流盘。scope 显式选择流年、流月、流日、流时或小运；start_time 为当地标准时间，liu_ri/liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
+		InputSchema:  baziLiupanInput,
+		OutputSchema: baziLiupanOutput,
+		Handler:      BaziLiupan,
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiChartInput, ZiweiChartOutput]{
 		Name:        "ziwei_chart",
 		Description: "紫微斗数确定性命盘。返回十二宫星曜、亮度、四化、杂曜、长生、博士、小限、将前、岁前与大限。",
 		Handler:     ZiweiChartCompute,
 	})
-	mustRegister(registry, Tool[ZiweiLiuNianInput, ZiweiLiuNianSeries]{
-		Name:         "ziwei_liunian",
-		Description:  "紫微流年。count=1（默认）返回单年；count>1 返回领域数组批量。",
-		Handler:      ZiweiLiuNian,
-		OutputSchema: mustSeriesSchema[ZiweiLiuNianOutput](options, "liu_nian"),
-	})
-	mustRegister(registry, Tool[ZiweiLiuYueInput, ZiweiLiuYueSeries]{
-		Name:         "ziwei_liuyue",
-		Description:  "紫微流月。count=1（默认）返回单月；count>1 返回领域数组批量。",
-		Handler:      ZiweiLiuYue,
-		OutputSchema: mustSeriesSchema[ZiweiLiuYueOutput](options, "liu_yue"),
-	})
-	mustRegister(registry, Tool[ZiweiLiuRiInput, ZiweiLiuRiSeries]{
-		Name:         "ziwei_liuri",
-		Description:  "紫微流日。count=1（默认）返回单日；count>1 返回领域数组批量。",
-		Handler:      ZiweiLiuRi,
-		OutputSchema: mustSeriesSchema[ZiweiLiuRiOutput](options, "liu_ri"),
-	})
-	mustRegister(registry, Tool[ZiweiLiuShiInput, ZiweiLiuShiSeries]{
-		Name:         "ziwei_liushi",
-		Description:  "紫微流时。count=1（默认）返回单时辰；count>1 返回领域数组批量（12地支循环）。",
-		Handler:      ZiweiLiuShi,
-		OutputSchema: mustSeriesSchema[ZiweiLiuShiOutput](options, "liu_shi"),
+	ziweiLiupanInput, err := ziweiLiupanFormsSchema(options)
+	if err != nil {
+		panic("ziwei.liupan input schema: " + err.Error())
+	}
+	ziweiLiupanOutput, err := ziweiLiupanOutputSchema(options)
+	if err != nil {
+		panic("ziwei.liupan output schema: " + err.Error())
+	}
+	mustRegisterRaw(registry, RawTool[ZiweiLiupanInput, ZiweiLiupanOutput]{
+		Name:         "ziwei_liupan",
+		Description:  "紫微流盘。scope 显式选择流年、流月、流日或流时；start_time 为当地标准时间，liu_shi 必须带经度。count=1（默认）返回单层领域数组；count>1 返回连续批量。",
+		InputSchema:  ziweiLiupanInput,
+		OutputSchema: ziweiLiupanOutput,
+		Handler:      ZiweiLiupan,
 	})
 	mustRegisterRaw(registry, RawTool[ZiweiBondInput, ZiweiBondOutput]{
 		Name:        "ziwei_bond",

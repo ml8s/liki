@@ -48,7 +48,6 @@ func decodeSeriesItems(t *testing.T, raw json.RawMessage) []map[string]any {
 	return nil
 }
 
-// firstSeriesItem unwraps the named domain series document's first item.
 func firstSeriesItem(t *testing.T, document map[string]any) map[string]any {
 	t.Helper()
 	for _, root := range namedSeriesRoots {
@@ -78,26 +77,24 @@ func callSeries(t *testing.T, reg *Registry, tool string, args map[string]any) j
 
 func TestSeriesSingleIsDefault(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t)
-	for _, count := range []int{1} {
-		raw := callSeries(t, reg, "bazi_liunian", map[string]any{
-			"liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": count, "subject": chart,
-		})
-		items := decodeSeriesItems(t, raw)
-		if len(items) != 1 {
-			t.Errorf("count=%d: got %d items, want 1", count, len(items))
-		}
-		if _, ok := items[0]["year"]; !ok {
-			t.Errorf("count=%d: missing year field", count)
-		}
+	raw := callSeries(t, reg, "bazi_liupan", map[string]any{
+		"subject": seriesChart(t), "scope": "liu_nian",
+		"start_time": "2026-06-15T12:00:00+08:00",
+	})
+	items := decodeSeriesItems(t, raw)
+	if len(items) != 1 {
+		t.Fatalf("got %d items, want 1", len(items))
+	}
+	if _, ok := items[0]["year"]; !ok {
+		t.Fatal("missing year field")
 	}
 }
 
 func TestSeriesBatchN(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t)
-	raw := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 3, "subject": chart,
+	raw := callSeries(t, reg, "bazi_liupan", map[string]any{
+		"subject": seriesChart(t), "scope": "liu_nian",
+		"start_time": "2026-06-15T12:00:00+08:00", "count": 3,
 	})
 	items := decodeSeriesItems(t, raw)
 	if len(items) != 3 {
@@ -113,17 +110,16 @@ func TestSeriesBatchN(t *testing.T) {
 
 func TestSeriesBatchFirstEqualsSingle(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t)
-	single := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 1, "subject": chart,
-	})
-	batch := callSeries(t, reg, "bazi_liunian", map[string]any{
-		"liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 3, "subject": chart,
-	})
+	args := func(count int) map[string]any {
+		return map[string]any{
+			"subject": seriesChart(t), "scope": "liu_nian",
+			"start_time": "2026-06-15T12:00:00+08:00", "count": count,
+		}
+	}
 	var s BaziLiuNianSeries
-	decode(t, single, &s)
+	decode(t, callSeries(t, reg, "bazi_liupan", args(1)), &s)
 	var b BaziLiuNianSeries
-	decode(t, batch, &b)
+	decode(t, callSeries(t, reg, "bazi_liupan", args(3)), &b)
 	if len(s.LiuNian) == 0 || len(b.LiuNian) == 0 {
 		t.Fatal("empty batch")
 	}
@@ -135,10 +131,10 @@ func TestSeriesBatchFirstEqualsSingle(t *testing.T) {
 
 func TestSeriesCountBounds(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t)
 	for _, count := range []int{-1, MaxSeriesCount + 1} {
-		if _, err := reg.Call(context.Background(), "bazi_liunian", mustJSON(t, map[string]any{
-			"liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": count, "subject": chart,
+		if _, err := reg.Call(context.Background(), "bazi_liupan", mustJSON(t, map[string]any{
+			"subject": seriesChart(t), "scope": "liu_nian",
+			"start_time": "2026-06-15T12:00:00+08:00", "count": count,
 		})); err == nil {
 			t.Errorf("count=%d should error", count)
 		}
@@ -147,11 +143,7 @@ func TestSeriesCountBounds(t *testing.T) {
 
 func TestSeriesCountSchemaMatchesRuntimeBound(t *testing.T) {
 	registry := NewEngine()
-	tools := []string{
-		"bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi", "bazi_xiaoyun",
-		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi",
-		"xuankong_liunian",
-	}
+	tools := []string{"bazi_liupan", "ziwei_liupan", "xuankong_liunian"}
 	for _, tool := range tools {
 		t.Run(tool, func(t *testing.T) {
 			definition, err := registry.Definition(tool)
@@ -162,77 +154,78 @@ func TestSeriesCountSchemaMatchesRuntimeBound(t *testing.T) {
 				Properties map[string]struct {
 					Minimum *float64 `json:"minimum"`
 					Maximum *float64 `json:"maximum"`
-					AnyOf   []struct {
+				} `json:"properties"`
+				OneOf []struct {
+					Properties map[string]struct {
 						Minimum *float64 `json:"minimum"`
 						Maximum *float64 `json:"maximum"`
-					} `json:"anyOf"`
-				} `json:"properties"`
+					} `json:"properties"`
+				} `json:"oneOf"`
 			}
 			decode(t, definition.InputSchema, &schema)
-			countFieldName := map[string]string{
-				"bazi_liunian": "liu_nian_count", "bazi_liuyue": "liu_yue_count",
-				"bazi_liuri": "liu_ri_count", "bazi_liushi": "liu_shi_count",
-				"bazi_xiaoyun":  "xiao_yun_count",
-				"ziwei_liunian": "liu_nian_count", "ziwei_liuyue": "liu_yue_count",
-				"ziwei_liuri": "liu_ri_count", "ziwei_liushi": "liu_shi_count",
-				"xuankong_liunian": "liu_nian_count",
-			}[tool]
-			count, ok := schema.Properties[countFieldName]
-			if !ok {
-				t.Fatal(countFieldName + " property is missing")
-			}
 			var minimum, maximum *float64
-			if count.Minimum != nil {
-				minimum, maximum = count.Minimum, count.Maximum
-			} else if len(count.AnyOf) > 0 {
-				minimum, maximum = count.AnyOf[0].Minimum, count.AnyOf[0].Maximum
+			check := func(value struct {
+				Minimum *float64 `json:"minimum"`
+				Maximum *float64 `json:"maximum"`
+			}) {
+				if value.Minimum != nil {
+					minimum, maximum = value.Minimum, value.Maximum
+				}
 			}
-			if minimum == nil || *minimum != 1 ||
-				maximum == nil || *maximum != MaxSeriesCount {
+			check(schema.Properties["count"])
+			if minimum == nil {
+				check(schema.Properties["liu_nian_count"])
+			}
+			if minimum == nil {
+				for _, branch := range schema.OneOf {
+					check(branch.Properties["count"])
+					check(branch.Properties["liu_nian_count"])
+					if minimum != nil {
+						break
+					}
+				}
+			}
+			if minimum == nil || *minimum != 1 || maximum == nil || *maximum != MaxSeriesCount {
 				t.Fatalf("count bounds = %#v/%#v, want [1,%d]", minimum, maximum, MaxSeriesCount)
 			}
 		})
 	}
 }
 
-func TestSeriesMonthRollover(t *testing.T) {
+func TestSeriesRollovers(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t)
-	raw := callSeries(t, reg, "bazi_liuyue", map[string]any{
-		"liu_yue_start_time": "2026-11-15T12:00:00+08:00", "liu_yue_count": 3, "subject": chart,
-	})
-	items := decodeSeriesItems(t, raw)
+	baziChart := seriesChart(t)
+
+	months := decodeSeriesItems(t, callSeries(t, reg, "bazi_liupan", map[string]any{
+		"subject": baziChart, "scope": "liu_yue",
+		"start_time": "2026-11-15T12:00:00+08:00", "count": 3,
+	}))
 	prevEnd := ""
-	for i, item := range items {
+	for i, item := range months {
 		resolved, ok := item["jie_qi"].(map[string]any)
 		if !ok {
-			t.Fatalf("items[%d]: missing resolved", i)
+			t.Fatalf("months[%d]: missing resolved", i)
 		}
 		start, _ := resolved["jieqi_start"].(string)
 		end, _ := resolved["jieqi_end"].(string)
 		if start == "" || end == "" {
-			t.Fatalf("items[%d]: missing jieqi boundary", i)
+			t.Fatalf("months[%d]: missing jieqi boundary", i)
 		}
 		if i > 0 && start != prevEnd {
-			t.Errorf("items[%d].jieqi_start=%s, want previous end %s", i, start, prevEnd)
+			t.Errorf("months[%d].jieqi_start=%s, want previous end %s", i, start, prevEnd)
 		}
 		prevEnd = end
 	}
-}
 
-func TestSeriesHourRollover(t *testing.T) {
-	reg := NewEngine()
-	chart := seriesChart(t)
-	raw := callSeries(t, reg, "bazi_liushi", map[string]any{
-		"liu_shi_start_time": "2026-01-01T23:00:00+08:00",
-		"liu_shi_longitude":  116.4, "liu_shi_count": 2, "subject": chart,
-	})
-	items := decodeSeriesItems(t, raw)
-	if len(items) != 2 {
-		t.Fatalf("want 2, got %d", len(items))
+	hours := decodeSeriesItems(t, callSeries(t, reg, "bazi_liupan", map[string]any{
+		"subject": baziChart, "scope": "liu_shi",
+		"start_time": "2026-01-01T23:00:00+08:00", "longitude": 116.4, "count": 2,
+	}))
+	if len(hours) != 2 {
+		t.Fatalf("want 2 hours, got %d", len(hours))
 	}
-	first, _ := items[0]["shi_chen"].(map[string]any)["shichen"].(string)
-	second, _ := items[1]["shi_chen"].(map[string]any)["shichen"].(string)
+	first, _ := hours[0]["shi_chen"].(map[string]any)["shichen"].(string)
+	second, _ := hours[1]["shi_chen"].(map[string]any)["shichen"].(string)
 	firstZhi, err := ganzhi.ParseZhi(first)
 	if err != nil {
 		t.Fatal(err)
@@ -250,68 +243,62 @@ func TestSeriesApparentSolarCellsDoNotRepeat(t *testing.T) {
 	reg := NewEngine()
 	baziChart := seriesChart(t)
 
-	days := decodeSeriesItems(t, callSeries(t, reg, "bazi_liuri", map[string]any{
-		"liu_ri_start_time": "2024-01-01T22:52:00Z",
-		"liu_ri_longitude":  18,
-		"liu_ri_count":      2,
-		"subject":           baziChart,
+	days := decodeSeriesItems(t, callSeries(t, reg, "bazi_liupan", map[string]any{
+		"subject": baziChart, "scope": "liu_ri",
+		"start_time": "2024-01-01T22:52:00Z", "longitude": 18, "count": 2,
 	}))
 	if len(days) != 2 {
-		t.Fatalf("bazi_liuri returned %d items, want 2", len(days))
-	}
-	if got := days[0]["ri_jie"].(map[string]any)["liu_ri_start_time"].(string); got != "2024-01-01T22:52:00Z" {
-		t.Fatalf("bazi_liuri first selector = %s, want the input selector", got)
+		t.Fatalf("bazi liu_ri returned %d items, want 2", len(days))
 	}
 	firstDay := days[0]["ri_jie"].(map[string]any)["liu_ri_solar_date"].(string)
 	secondDay := days[1]["ri_jie"].(map[string]any)["liu_ri_solar_date"].(string)
 	if firstDay == secondDay {
-		t.Fatalf("bazi_liuri repeated LAST date %s", firstDay)
+		t.Fatalf("bazi liu_ri repeated LAST date %s", firstDay)
 	}
 
-	hours := decodeSeriesItems(t, callSeries(t, reg, "bazi_liushi", map[string]any{
-		"liu_shi_start_time": "2024-01-02T20:28:00Z",
-		"liu_shi_longitude":  -171,
-		"liu_shi_count":      2,
-		"subject":            baziChart,
+	if got := days[0]["ri_jie"].(map[string]any)["liu_ri_start_time"].(string); got != "2024-01-01T22:52:00Z" {
+		t.Fatalf("bazi liu_ri first selector = %s, want the input selector", got)
+	}
+
+	hours := decodeSeriesItems(t, callSeries(t, reg, "bazi_liupan", map[string]any{
+		"subject": baziChart, "scope": "liu_shi",
+		"start_time": "2024-01-02T20:28:00Z", "longitude": -171, "count": 2,
 	}))
 	if len(hours) != 2 {
-		t.Fatalf("bazi_liushi returned %d items, want 2", len(hours))
+		t.Fatalf("bazi liu_shi returned %d items, want 2", len(hours))
 	}
 	if got := hours[0]["shi_chen"].(map[string]any)["liu_shi_start_time"].(string); got != "2024-01-02T20:28:00Z" {
-		t.Fatalf("bazi_liushi first selector = %s, want the input selector", got)
+		t.Fatalf("bazi liu_shi first selector = %s, want the input selector", got)
 	}
-	firstShichen := hours[0]["shi_chen"].(map[string]any)["shichen"].(string)
-	secondShichen := hours[1]["shi_chen"].(map[string]any)["shichen"].(string)
-	if firstShichen != "巳" || secondShichen != "午" {
-		t.Fatalf("bazi_liushi shichen = %s -> %s, want 巳 -> 午", firstShichen, secondShichen)
+	if first := hours[0]["shi_chen"].(map[string]any)["shichen"].(string); first != "巳" {
+		t.Fatalf("first shichen = %s, want 巳", first)
+	}
+	if second := hours[1]["shi_chen"].(map[string]any)["shichen"].(string); second != "午" {
+		t.Fatalf("second shichen = %s, want 午", second)
 	}
 
 	ziweiChart := map[string]any{
-		"birth_time":      "2024-01-02T20:28:00Z",
-		"birth_longitude": -171,
-		"gender":          "male",
+		"birth_time": "2024-01-02T20:28:00Z", "birth_longitude": -171, "gender": "male",
 	}
-	ziweiHours := decodeSeriesItems(t, callSeries(t, reg, "ziwei_liushi", map[string]any{
-		"liu_shi_start_time": "2024-01-02T20:28:00Z",
-		"liu_shi_longitude":  -171,
-		"liu_shi_count":      2,
-		"subject":            ziweiChart,
+	ziweiHours := decodeSeriesItems(t, callSeries(t, reg, "ziwei_liupan", map[string]any{
+		"subject": ziweiChart, "scope": "liu_shi",
+		"start_time": "2024-01-02T20:28:00Z", "longitude": -171, "count": 2,
 	}))
 	if len(ziweiHours) != 2 {
-		t.Fatalf("ziwei_liushi returned %d items, want 2", len(ziweiHours))
+		t.Fatalf("ziwei liu_shi returned %d items, want 2", len(ziweiHours))
 	}
-	firstZiweiShichen := ziweiHours[0]["shi_chen"].(map[string]any)["shichen"].(string)
-	secondZiweiShichen := ziweiHours[1]["shi_chen"].(map[string]any)["shichen"].(string)
-	if firstZiweiShichen != "巳" || secondZiweiShichen != "午" {
-		t.Fatalf("ziwei_liushi shichen = %s -> %s, want 巳 -> 午", firstZiweiShichen, secondZiweiShichen)
+	if first := ziweiHours[0]["shi_chen"].(map[string]any)["shichen"].(string); first != "巳" {
+		t.Fatalf("first ziwei shichen = %s, want 巳", first)
+	}
+	if second := ziweiHours[1]["shi_chen"].(map[string]any)["shichen"].(string); second != "午" {
+		t.Fatalf("second ziwei shichen = %s, want 午", second)
 	}
 }
 
 func TestSeriesXiaoYunDefaultOne(t *testing.T) {
 	reg := NewEngine()
-	chart := seriesChart(t)
-	raw := callSeries(t, reg, "bazi_xiaoyun", map[string]any{
-		"subject": chart,
+	raw := callSeries(t, reg, "bazi_liupan", map[string]any{
+		"subject": seriesChart(t), "scope": "xiao_yun",
 	})
 	var out BaziXiaoYunOutput
 	decode(t, raw, &out)
@@ -322,17 +309,14 @@ func TestSeriesXiaoYunDefaultOne(t *testing.T) {
 	}
 }
 
-func TestSeriesBatchOutputContractForEveryCountTool(t *testing.T) {
+func TestSeriesBatchOutputContract(t *testing.T) {
 	reg := NewEngine()
 	baziChart := seriesChart(t)
 	ziweiChart := map[string]any{
-		"birth_time":      "1984-02-16T12:00:00+08:00",
-		"birth_longitude": 116.4,
-		"gender":          "male",
+		"birth_time": "1984-02-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
 	}
 	xuankongZhai := map[string]any{
-		"yun_start_time": "2026-07-31T12:00:00+08:00",
-		"zuo_shan":       2, "xiang_shan": 14,
+		"yun_start_time": "2026-07-31T12:00:00+08:00", "zuo_shan": 2, "xiang_shan": 14,
 	}
 	ziweiDate := civilDateForLunar(t, 2026, 5, 10, false)
 	ziweiCivilTime := ziweiDate + "T11:00:00+08:00"
@@ -341,19 +325,19 @@ func TestSeriesBatchOutputContractForEveryCountTool(t *testing.T) {
 		tool string
 		args map[string]any
 	}{
-		{"bazi_liunian", map[string]any{"subject": baziChart, "liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 2}},
-		{"bazi_liuyue", map[string]any{"subject": baziChart, "liu_yue_start_time": "2026-11-15T12:00:00+08:00", "liu_yue_count": 2}},
-		{"bazi_liuri", map[string]any{"subject": baziChart, "liu_ri_start_time": "2026-01-01T12:00:00+08:00", "liu_ri_longitude": 116.4, "liu_ri_count": 2}},
-		{"bazi_liushi", map[string]any{"subject": baziChart, "liu_shi_start_time": "2026-01-01T23:00:00+08:00", "liu_shi_longitude": 116.4, "liu_shi_count": 2}},
-		{"ziwei_liunian", map[string]any{"subject": ziweiChart, "liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 2}},
-		{"ziwei_liuyue", map[string]any{"subject": ziweiChart, "liu_yue_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "liu_yue_count": 2}},
-		{"ziwei_liuri", map[string]any{"subject": ziweiChart, "liu_ri_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "liu_ri_count": 2}},
-		{"ziwei_liushi", map[string]any{"subject": ziweiChart, "liu_shi_start_time": ziweiCivilTime, "liu_shi_longitude": 116.4, "liu_shi_count": 2}},
+		{"bazi_liupan", map[string]any{"subject": baziChart, "scope": "liu_nian", "start_time": "2026-06-15T12:00:00+08:00", "count": 2}},
+		{"bazi_liupan", map[string]any{"subject": baziChart, "scope": "liu_yue", "start_time": "2026-11-15T12:00:00+08:00", "count": 2}},
+		{"bazi_liupan", map[string]any{"subject": baziChart, "scope": "liu_ri", "start_time": "2026-01-01T12:00:00+08:00", "longitude": 116.4, "count": 2}},
+		{"bazi_liupan", map[string]any{"subject": baziChart, "scope": "liu_shi", "start_time": "2026-01-01T23:00:00+08:00", "longitude": 116.4, "count": 2}},
+		{"ziwei_liupan", map[string]any{"subject": ziweiChart, "scope": "liu_nian", "start_time": "2026-06-15T12:00:00+08:00", "count": 2}},
+		{"ziwei_liupan", map[string]any{"subject": ziweiChart, "scope": "liu_yue", "start_time": ziweiDate + "T12:00:00+08:00", "count": 2}},
+		{"ziwei_liupan", map[string]any{"subject": ziweiChart, "scope": "liu_ri", "start_time": ziweiDate + "T12:00:00+08:00", "count": 2}},
+		{"ziwei_liupan", map[string]any{"subject": ziweiChart, "scope": "liu_shi", "start_time": ziweiCivilTime, "longitude": 116.4, "count": 2}},
 		{"xuankong_liunian", map[string]any{"zhai": xuankongZhai, "liu_nian_start_time": "2026-06-15T12:00:00+08:00", "liu_nian_count": 2}},
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.tool, func(t *testing.T) {
+		t.Run(tc.tool+"/batch", func(t *testing.T) {
 			raw := callSeries(t, reg, tc.tool, tc.args)
 			items := decodeSeriesItems(t, raw)
 			if len(items) < 2 {

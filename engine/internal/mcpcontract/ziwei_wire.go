@@ -24,13 +24,19 @@ type ZiweiDaXianItem struct {
 	MingGong  ZiweiPalaceName `json:"ming_gong" jsonschema:"大限命宫。"`
 }
 
-// ── ziwei.liunian input ──
+// ── ziwei.liupan input ──
 
-type ZiweiLiuNianInput struct {
-	LiuNianStartTime StandardTime `json:"liu_nian_start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuNianCount     *SeriesCount `json:"liu_nian_count,omitempty" jsonschema:"连续查询年数。"`
-	Subject          NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+type ZiweiLiupanInput struct {
+	Scope     ZiweiLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject   NatalSubject         `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StartTime StandardTime         `json:"start_time" jsonschema:"流盘选择起点：local standard time，RFC3339 fixed offset。"`
+	Count     *SeriesCount         `json:"count,omitempty" jsonschema:"连续查询数量。"`
+	Longitude *float64             `json:"longitude,omitempty" jsonschema:"地点经度；liu_shi 必填（-180..180），真太阳时校正用于时辰。"`
 }
+
+// ZiweiLiupanOutput is the raw-handler schema marker; the published contract is
+// a oneOf of the four named domain roots.
+type ZiweiLiupanOutput struct{}
 
 // ── ziwei.liunian output ──
 
@@ -62,14 +68,6 @@ type ZiweiFlowPalace struct {
 	Name      ZiweiPalaceName `json:"name" jsonschema:"宫名。"`
 	Stars     []string        `json:"stars" jsonschema:"流曜。"`
 	IsLiuMing bool            `json:"is_liu_ming" jsonschema:"是否流盘命宫。"`
-}
-
-// ── ziwei.liuyue input ──
-
-type ZiweiLiuYueInput struct {
-	LiuYueStartTime StandardTime `json:"liu_yue_start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuYueCount     *SeriesCount `json:"liu_yue_count,omitempty" jsonschema:"连续查询月数。"`
-	Subject         NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liuyue output ──
@@ -122,14 +120,6 @@ type ZiweiLiuYueResolvedPeriodFlowMonth struct {
 	Leap  bool `json:"leap" jsonschema:"是否闰月。"`
 }
 
-// ── ziwei.liuri input ──
-
-type ZiweiLiuRiInput struct {
-	LiuRiStartTime StandardTime `json:"liu_ri_start_time" jsonschema:"序列选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuRiCount     *SeriesCount `json:"liu_ri_count,omitempty" jsonschema:"连续查询日数。"`
-	Subject        NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
-}
-
 type ZiweiLiuRiJie struct {
 	LiuRiStartTime StandardTime   `json:"liu_ri_start_time" jsonschema:"流日选择器时区标准时间（无 DST）。"`
 	LiuRiLocalDate DateString     `json:"liu_ri_local_date" jsonschema:"流日当地民用日。"`
@@ -145,15 +135,6 @@ type ZiweiLiuRiOutput struct {
 	Zhi      ZhiName                   `json:"zhi" jsonschema:"流日地支"`
 	SiHua    []ZiweiFlowTransformation `json:"si_hua" jsonschema:"四化事实：星、化、落宫。"`
 	GongWei  []ZiweiFlowPalace         `json:"gong_wei" jsonschema:"流日十二宫盘。"`
-}
-
-// ── ziwei.liushi input ──
-
-type ZiweiLiuShiInput struct {
-	LiuShiStartTime StandardTime `json:"liu_shi_start_time" jsonschema:"流时选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuShiLongitude float64      `json:"liu_shi_longitude" jsonschema:"流时地点经度（-180..180）；真太阳时校正用于时辰。"`
-	LiuShiCount     *SeriesCount `json:"liu_shi_count,omitempty" jsonschema:"连续查询时辰数。"`
-	Subject         NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 // ── ziwei.liushi output ──

@@ -70,8 +70,8 @@ func TestNatalChartOutputsDoNotCarryDigests(t *testing.T) {
 
 func TestSeriesSubjectOmitsSourceDigest(t *testing.T) {
 	registry := testEngine()
-	input := map[string]any{"subject": map[string]any{"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male"}, "liu_nian_start_time": "2026-06-15T12:00:00+08:00"}
-	raw, err := registry.Call(context.Background(), "bazi_liunian", mustJSON(t, input))
+	input := map[string]any{"subject": map[string]any{"birth_time": "1990-05-20T12:49:00+08:00", "birth_longitude": 116.4, "gender": "male"}, "scope": "liu_nian", "start_time": "2026-06-15T12:00:00+08:00"}
+	raw, err := registry.Call(context.Background(), "bazi_liupan", mustJSON(t, input))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +89,7 @@ func TestSeriesSubjectOmitsSourceDigest(t *testing.T) {
 	}
 
 	input["count"] = 0
-	if _, err := registry.Call(context.Background(), "bazi_liunian", mustJSON(t, input)); err == nil {
+	if _, err := registry.Call(context.Background(), "bazi_liupan", mustJSON(t, input)); err == nil {
 		t.Fatal("explicit series count zero was accepted")
 	}
 }

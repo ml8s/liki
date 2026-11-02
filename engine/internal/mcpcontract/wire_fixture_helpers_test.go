@@ -21,7 +21,12 @@ func fixtureTool(name string) string {
 	for index := len(tokens) - 1; index >= 0; index-- {
 		switch tokens[index] {
 		case "liunian", "liuyue", "liuri", "liushi", "xiaoyun", "bond", "chart":
-			return domain + "_" + tokens[index]
+			switch tokens[index] {
+			case "liunian", "liuyue", "liuri", "liushi", "xiaoyun":
+				return domain + "_liupan"
+			default:
+				return domain + "_" + tokens[index]
+			}
 		}
 	}
 	return ""

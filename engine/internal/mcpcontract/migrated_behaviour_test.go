@@ -35,13 +35,12 @@ func TestMigratedInputValidation(t *testing.T) {
 		{"ziwei.chart bad gender", "ziwei_chart", map[string]any{"subject": map[string]any{
 			"birth_time": "2000-09-20T08:00:00+08:00", "birth_longitude": 116.4, "gender": "bad"}}, ""},
 		{"bazi.bond missing b", "bazi_bond", map[string]any{"a": map[string]any{"subject": subject}}, ""},
-		{"bazi.liunian missing subject", "bazi_liunian", map[string]any{"liu_nian_start_time": "2026-06-15T12:00:00+08:00"}, ""},
-		{"bazi.liunian year below range", "bazi_liunian", map[string]any{"liu_nian_start_time": "0000-01-01T08:00:00", "subject": subject}, ""},
-		{"bazi.liuyue missing subject", "bazi_liuyue", map[string]any{"liu_yue_start_time": "2026-06-15T12:00:00+08:00"}, ""},
-		{"bazi.liushi invalid start_time", "bazi_liushi", map[string]any{
-			"liu_shi_start_time": "not-a-time", "qi_ju_longitude": 116.4, "subject": subject}, ""},
-		{"bazi.liushi invalid longitude", "bazi_liushi", map[string]any{
-			"liu_shi_start_time": "2026-06-15T12:00:00+08:00", "liu_shi_longitude": 999, "subject": subject}, ""},
+		{"bazi.liupan missing subject", "bazi_liupan", map[string]any{"scope": "liu_nian", "start_time": "2026-06-15T12:00:00+08:00"}, ""},
+		{"bazi.liupan year below range", "bazi_liupan", map[string]any{"scope": "liu_nian", "start_time": "0000-01-01T08:00:00", "subject": subject}, ""},
+		{"bazi.liupan invalid start_time", "bazi_liupan", map[string]any{
+			"scope": "liu_shi", "start_time": "not-a-time", "longitude": 116.4, "subject": subject}, ""},
+		{"bazi.liupan invalid longitude", "bazi_liupan", map[string]any{
+			"scope": "liu_shi", "start_time": "2026-06-15T12:00:00+08:00", "longitude": 999, "subject": subject}, ""},
 		{"qimen.chart bad scope", "qimen_chart", map[string]any{
 			"qi_ju":  map[string]any{"time": "1984-02-15T08:00:00+08:00", "longitude": 116.4},
 			"method": map[string]any{"scope": "ke", "school": "zhuanpan", "dingju_method": "chaibu"},
@@ -60,7 +59,7 @@ func TestMigratedInputValidation(t *testing.T) {
 				"scope": "hour", "school": "zhuanpan", "dingju_method": "chaibu",
 			},
 		}, ""},
-		{"ziwei.liuri missing start_time", "ziwei_liuri", map[string]any{"subject": ziweiSubject}, ""},
+		{"ziwei.liupan missing start_time", "ziwei_liupan", map[string]any{"scope": "liu_ri", "subject": ziweiSubject}, ""},
 		{"ziwei.bond missing b", "ziwei_bond", map[string]any{"a": map[string]any{"subject": ziweiSubject}}, ""},
 	}
 	for _, tc := range cases {
@@ -71,9 +70,8 @@ func TestMigratedInputValidation(t *testing.T) {
 
 	// Malformed JSON must not panic or be silently accepted.
 	for _, tool := range []string{
-		"bazi_chart", "bazi_bond", "bazi_liunian", "bazi_liuyue", "bazi_liuri",
-		"bazi_liushi", "bazi_xiaoyun", "ziwei_chart",
-		"ziwei_liunian", "ziwei_liuyue", "ziwei_liuri", "ziwei_liushi", "ziwei_bond", "qimen_chart",
+		"bazi_chart", "bazi_bond", "bazi_liupan", "ziwei_chart",
+		"ziwei_liupan", "ziwei_bond", "qimen_chart",
 	} {
 		if _, err := registry.Call(context.Background(), tool, []byte("{bad")); err == nil {
 			t.Errorf("%s accepted malformed JSON", tool)
@@ -126,8 +124,8 @@ func TestMigratedBaziLiuNianShiShen(t *testing.T) {
 	registry := testEngine()
 	chart := testBaziChart(t, "1984-02-15T00:00:00Z", "Asia/Shanghai", 116.4, "male")
 	for _, year := range []int{2024, 2025, 2026} {
-		document := callToolDocument(t, registry, "bazi_liunian", map[string]any{
-			"liu_nian_start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year), "subject": chart,
+		document := callToolDocument(t, registry, "bazi_liupan", map[string]any{
+			"scope": "liu_nian", "start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year), "subject": chart,
 		})
 		item := firstSeriesItem(t, document)
 		if shiShen, _ := item["shi_shen"].(string); shiShen == "" {
@@ -146,25 +144,25 @@ func TestMigratedZiweiDependentTools(t *testing.T) {
 		"birth_time": "2000-07-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "female",
 	}
 
-	liunian := callToolDocument(t, registry, "ziwei_liunian", map[string]any{"liu_nian_start_time": "2026-06-15T12:00:00+08:00", "subject": chart})
+	liunian := callToolDocument(t, registry, "ziwei_liupan", map[string]any{"scope": "liu_nian", "start_time": "2026-06-15T12:00:00+08:00", "subject": chart})
 	if len(liunian) == 0 {
 		t.Fatal("ziwei.liunian returned an empty document")
 	}
-	liuyue := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
-		"liu_yue_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
+	liuyue := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
+		"scope": "liu_yue", "start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuyue) == 0 {
 		t.Fatal("ziwei.liuyue returned an empty document")
 	}
-	liuri := callToolDocument(t, registry, "ziwei_liuri", map[string]any{
-		"liu_ri_start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
+	liuri := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
+		"scope": "liu_ri", "start_time": civilDateForLunar(t, 2026, 5, 10, false) + "T12:00:00+08:00", "subject": chart,
 	})
 	if len(liuri) == 0 {
 		t.Fatal("ziwei.liuri returned an empty document")
 	}
-	liushi := callToolDocument(t, registry, "ziwei_liushi", map[string]any{
-		"liu_shi_start_time": "2026-06-24T11:00:00+08:00",
-		"liu_shi_longitude":  116.4, "subject": chart,
+	liushi := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
+		"scope": "liu_shi", "start_time": "2026-06-24T11:00:00+08:00",
+		"longitude": 116.4, "subject": chart,
 	})
 	if len(liushi) == 0 {
 		t.Fatal("ziwei.liushi returned an empty document")
@@ -192,17 +190,17 @@ func TestMigratedBaziBondAndXiaoYunValid(t *testing.T) {
 	if len(bond) == 0 {
 		t.Fatal("bazi.bond returned an empty document")
 	}
-	liuyue := callToolDocument(t, registry, "bazi_liuyue", map[string]any{"liu_yue_start_time": "2026-06-15T12:00:00+08:00", "subject": chartA})
+	liuyue := callToolDocument(t, registry, "bazi_liupan", map[string]any{"scope": "liu_yue", "start_time": "2026-06-15T12:00:00+08:00", "subject": chartA})
 	if len(liuyue) == 0 {
 		t.Fatal("bazi.liuyue returned an empty document")
 	}
-	liuri := callToolDocument(t, registry, "bazi_liuri", map[string]any{"liu_ri_start_time": "2026-06-15T12:00:00+08:00", "liu_ri_longitude": 116.4, "subject": chartA})
+	liuri := callToolDocument(t, registry, "bazi_liupan", map[string]any{"scope": "liu_ri", "start_time": "2026-06-15T12:00:00+08:00", "longitude": 116.4, "subject": chartA})
 	if len(liuri) == 0 {
 		t.Fatal("bazi.liuri returned an empty document")
 	}
-	liushi := callToolDocument(t, registry, "bazi_liushi", map[string]any{
-		"liu_shi_start_time": "2026-06-15T12:00:00+08:00",
-		"liu_shi_longitude":  116.4, "subject": chartA,
+	liushi := callToolDocument(t, registry, "bazi_liupan", map[string]any{
+		"scope": "liu_shi", "start_time": "2026-06-15T12:00:00+08:00",
+		"longitude": 116.4, "subject": chartA,
 	})
 	if len(liushi) == 0 {
 		t.Fatal("bazi.liushi returned an empty document")

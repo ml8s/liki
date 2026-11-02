@@ -79,7 +79,9 @@ func TestMigratedToolsRejectUnknownArguments(t *testing.T) {
 	ziweiSubject := map[string]any{
 		"birth_time": "1984-02-16T12:00:00+08:00", "birth_longitude": 116.4, "gender": "male",
 	}
-	if _, err := registry.Call(context.Background(), "ziwei_liunian", mustJSON(t, map[string]any{"subject": ziweiSubject, "liu_nian_start_time": "2030-06-15T12:00:00+08:00"})); err != nil {
+	if _, err := registry.Call(context.Background(), "ziwei_liupan", mustJSON(t, map[string]any{
+		"subject": ziweiSubject, "scope": "liu_nian", "start_time": "2030-06-15T12:00:00+08:00",
+	})); err != nil {
 		t.Fatalf("ziwei.liunian: %v", err)
 	}
 	// qimen.chart's legacy schema did close the root object, so unknown root
@@ -95,7 +97,7 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 
 	// bazi.xiaoyun returns one entry per 小运 school; every entry carries the
 	// same number of 柱 as the requested count (12 by default).
-	raw, err := registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"subject": chart}))
+	raw, err := registry.Call(context.Background(), "bazi_liupan", mustJSON(t, map[string]any{"subject": chart, "scope": "xiao_yun"}))
 	if err != nil {
 		t.Fatalf("bazi.xiaoyun: %v", err)
 	}
@@ -103,7 +105,7 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 		XiaoYun []any `json:"xiao_yun"`
 	}
 	decode(t, raw, &document)
-	if err := registry.ValidateOutput("bazi_xiaoyun", raw); err != nil {
+	if err := registry.ValidateOutput("bazi_liupan", raw); err != nil {
 		t.Fatalf("bazi.xiaoyun output contract: %v", err)
 	}
 	if len(document.XiaoYun) == 0 {
@@ -117,7 +119,7 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 		}
 	}
 
-	raw, err = registry.Call(context.Background(), "bazi_xiaoyun", mustJSON(t, map[string]any{"subject": chart, "xiao_yun_count": 5}))
+	raw, err = registry.Call(context.Background(), "bazi_liupan", mustJSON(t, map[string]any{"subject": chart, "scope": "xiao_yun", "count": 5}))
 	if err != nil {
 		t.Fatalf("bazi.xiaoyun(xiao_yun_count=5): %v", err)
 	}
@@ -125,7 +127,7 @@ func TestMigratedBaziXiaoYunDefaultCount(t *testing.T) {
 		XiaoYun []any `json:"xiao_yun"`
 	}
 	decode(t, raw, &fiveDocument)
-	if err := registry.ValidateOutput("bazi_xiaoyun", raw); err != nil {
+	if err := registry.ValidateOutput("bazi_liupan", raw); err != nil {
 		t.Fatalf("bazi.xiaoyun(xiao_yun_count=5) output contract: %v", err)
 	}
 	for i, entry := range fiveDocument.XiaoYun {
@@ -272,21 +274,22 @@ func TestMigratedShenShaEnumCoversRealOutput(t *testing.T) {
 
 	type call struct {
 		name   string
+		scope  string
 		params map[string]any
 	}
 	calls := []call{}
 	for _, year := range []int{2025, 2026, 2027} {
-		calls = append(calls, call{"bazi_liunian", map[string]any{"subject": chart, "liu_nian_start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
+		calls = append(calls, call{"bazi_liupan", "liu_nian", map[string]any{"subject": chart, "scope": "liu_nian", "start_time": fmt.Sprintf("%04d-06-15T12:00:00+08:00", year)}})
 	}
 	for month := 1; month <= 12; month++ {
-		calls = append(calls, call{"bazi_liuyue", map[string]any{"subject": chart, "liu_yue_start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
+		calls = append(calls, call{"bazi_liupan", "liu_yue", map[string]any{"subject": chart, "scope": "liu_yue", "start_time": fmt.Sprintf("2026-%02d-15T12:00:00+08:00", month)}})
 	}
 	for day := 1; day <= 30; day++ {
-		calls = append(calls, call{"bazi_liuri", map[string]any{"subject": chart, "liu_ri_start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "liu_ri_longitude": 116.4}})
+		calls = append(calls, call{"bazi_liupan", "liu_ri", map[string]any{"subject": chart, "scope": "liu_ri", "start_time": fmt.Sprintf("2026-06-%02dT12:00:00+08:00", day), "longitude": 116.4}})
 	}
 
 	for _, item := range calls {
-		allowed := enumAt(t, outputProperties(t, registry, item.name), "shen_sha", "[]", "name")
+		allowed := enumAt(t, liupanOutputProperties(t, registry, "bazi", item.scope), "shen_sha", "[]", "name")
 		document := callToolDocument(t, registry, item.name, item.params)
 		first := firstSeriesItem(t, document)
 		items, _ := first["shen_sha"].([]any)
@@ -310,14 +313,14 @@ func TestMigratedShiShenEnumMatchesTenGodClosure(t *testing.T) {
 		"比肩", "劫财", "食神", "伤官", "正财",
 		"偏财", "七杀", "正官", "偏印", "正印",
 	}
-	for _, name := range []string{"bazi_liunian", "bazi_liuyue", "bazi_liuri", "bazi_liushi"} {
-		allowed := enumAt(t, outputProperties(t, registry, name), "shi_shen")
+	for _, scope := range []string{"liu_nian", "liu_yue", "liu_ri", "liu_shi"} {
+		allowed := enumAt(t, liupanOutputProperties(t, registry, "bazi", scope), "shi_shen")
 		if len(allowed) != len(want) {
-			t.Fatalf("%s: shi_shen enum = %v, want the %d-value 十神 closure", name, allowed, len(want))
+			t.Fatalf("%s: shi_shen enum = %v, want the %d-value 十神 closure", scope, allowed, len(want))
 		}
 		for _, value := range want {
 			if !slices.Contains(allowed, value) {
-				t.Errorf("%s: shi_shen enum is missing %q (%v)", name, value, allowed)
+				t.Errorf("%s: shi_shen enum is missing %q (%v)", scope, value, allowed)
 			}
 		}
 	}
@@ -358,8 +361,8 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 		"gender":          "male",
 	}
 
-	document := callToolDocument(t, registry, "ziwei_liuyue", map[string]any{
-		"subject": chart, "liu_yue_start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
+	document := callToolDocument(t, registry, "ziwei_liupan", map[string]any{
+		"subject": chart, "scope": "liu_yue", "start_time": civilDateForLunar(t, 2025, 6, 16, true) + "T12:00:00+08:00",
 	})
 	item := firstSeriesItem(t, document)
 	yueJie, ok := item["yue_jie"].(map[string]any)
@@ -379,7 +382,7 @@ func TestMigratedZiweiLiuYueTargetLunarContract(t *testing.T) {
 		{"subject": chart, "target_lunar": map[string]any{"year": 2025, "month": 6, "day": 16, "leap": true}},
 	}
 	for _, params := range rejected {
-		assertToolError(t, registry, "ziwei_liuyue", params, "")
+		assertToolError(t, registry, "ziwei_liupan", params, "")
 	}
 }
 
@@ -518,6 +521,38 @@ func outputProperties(t *testing.T, registry *Registry, name string) map[string]
 		t.Fatalf("%s output schema has no properties", name)
 	}
 	return properties
+}
+
+func liupanOutputProperties(t *testing.T, registry *Registry, domain, root string) map[string]any {
+	t.Helper()
+	definition, err := registry.Definition(domain + "_liupan")
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	var schema struct {
+		OneOf []struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+		} `json:"oneOf"`
+	}
+	decode(t, definition.OutputSchema, &schema)
+	for _, branch := range schema.OneOf {
+		raw, ok := branch.Properties[root]
+		if !ok {
+			continue
+		}
+		var series struct {
+			Items struct {
+				Properties map[string]any `json:"properties"`
+			} `json:"items"`
+		}
+		decode(t, raw, &series)
+		if series.Items.Properties == nil {
+			t.Fatalf("%s.%s output schema has no item properties", domain, root)
+		}
+		return series.Items.Properties
+	}
+	t.Fatalf("%s.%s output root is missing", domain, root)
+	return nil
 }
 
 // enumAt walks a property path and returns the declared enum values. The "[ ]"

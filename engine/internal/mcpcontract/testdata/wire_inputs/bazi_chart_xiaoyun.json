@@ -5,6 +5,7 @@
       "birth_longitude": 120.25,
       "gender": "male"
     },
-    "xiao_yun_count": 5
+    "scope": "xiao_yun",
+    "count": 5
   }
 }

@@ -5,7 +5,7 @@
       "birth_longitude": 120.25,
       "gender": "male"
     },
-    "liu_nian_start_time": "2026-06-15T12:00:00+08:00",
-    "liu_nian_count": null
+    "scope": "liu_nian",
+    "start_time": "2026-06-15T12:00:00+08:00"
   }
 }

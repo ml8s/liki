@@ -35,12 +35,13 @@ type Tool[In, Out any] struct {
 // RawTool is a tool whose domain value already marshals to the published Out
 // contract. In keeps runtime input validation; Out is a phantom type used to
 // derive and validate the output schema without reconstructing a wire DTO.
-// Raw handlers must be covered by wire-fidelity fixtures.
+// Raw handlers must be covered by contract and behaviour fixtures.
 type RawTool[In, Out any] struct {
-	Name        string
-	Description string
-	Handler     func(context.Context, In) (json.RawMessage, error)
-	InputSchema json.RawMessage
+	Name         string
+	Description  string
+	Handler      func(context.Context, In) (json.RawMessage, error)
+	InputSchema  json.RawMessage
+	OutputSchema json.RawMessage
 }
 
 type registration struct {
@@ -147,7 +148,7 @@ func registerRaw[In, Out any](r *Registry, tool RawTool[In, Out]) error {
 
 	schemas := &lazyToolSchemas{
 		derive: func() (derivedSchemas, error) {
-			return deriveToolSchemas[In, Out](r.schemaOptions, tool.InputSchema, nil)
+			return deriveToolSchemas[In, Out](r.schemaOptions, tool.InputSchema, tool.OutputSchema)
 		},
 	}
 

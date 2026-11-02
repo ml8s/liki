@@ -54,37 +54,6 @@ func runSeries[In any, Out any](
 	return items, nil
 }
 
-// runSeriesPrepared is runSeries with a one-time shared-state prepare step.
-func runSeriesPrepared[In any, Ctx any, Out any](
-	input In, count, max int,
-	prepare func(In) (Ctx, error),
-	compute func(In, Ctx) (Out, error),
-	advance func(In) (In, error),
-) ([]Out, error) {
-	n, err := validateSeriesCount(count, max)
-	if err != nil {
-		return nil, err
-	}
-	ctx, err := prepare(input)
-	if err != nil {
-		return nil, err
-	}
-	items := make([]Out, 0, n)
-	cur := input
-	for i := 0; i < n; i++ {
-		out, err := compute(cur, ctx)
-		if err != nil {
-			return nil, err
-		}
-		items = append(items, out)
-		cur, err = advance(cur)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return items, nil
-}
-
 // seriesOutputSchema publishes a named domain root. The MCP root remains an
 // object for every negotiated protocol version, but the property is domain
 // vocabulary rather than a generic transport word.

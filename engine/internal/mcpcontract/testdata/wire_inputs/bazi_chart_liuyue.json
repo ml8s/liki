@@ -5,7 +5,7 @@
       "birth_longitude": 120.25,
       "gender": "male"
     },
-    "liu_yue_start_time": "2026-06-15T12:00:00+08:00",
-    "liu_yue_count": null
+    "scope": "liu_yue",
+    "start_time": "2026-06-15T12:00:00+08:00"
   }
 }

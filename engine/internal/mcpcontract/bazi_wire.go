@@ -619,13 +619,19 @@ func newBaziBondSpouseStarCandidate(value bazi.SpouseStarGroup) BaziBondSpouseSt
 	return BaziBondSpouseStarCandidate{TenGod: value.TenGod, Occurrences: occurrences}
 }
 
-// ── bazi.liunian input ──
+// ── bazi.liupan input ──
 
-type BaziLiuNianInput struct {
-	LiuNianStartTime StandardTime `json:"liu_nian_start_time" jsonschema:"流年选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuNianCount     *SeriesCount `json:"liu_nian_count,omitempty" jsonschema:"连续查询年数。"`
-	Subject          NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
+type BaziLiupanInput struct {
+	Scope     BaziLiupanScopeName `json:"scope" jsonschema:"流盘层级。"`
+	Subject   NatalSubject        `json:"subject" jsonschema:"已归一化的出生主体。"`
+	StartTime StandardTime        `json:"start_time,omitempty" jsonschema:"流盘选择起点；liu_nian/liu_yue/liu_ri/liu_shi 必填，local standard time，RFC3339 fixed offset。"`
+	Count     *SeriesCount        `json:"count,omitempty" jsonschema:"连续查询数量。"`
+	Longitude *float64            `json:"longitude,omitempty" jsonschema:"地点经度；liu_ri/liu_shi 必填（-180..180），真太阳时校正用于日柱/时柱。"`
 }
+
+// BaziLiupanOutput is the raw-handler schema marker; the published contract is
+// a oneOf of the five named domain roots.
+type BaziLiupanOutput struct{}
 
 // ── bazi.liunian output ──
 
@@ -706,12 +712,6 @@ type BaziSeriesZhiRelationItem struct {
 	ZhiB        *ZhiNameNullable `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-type BaziLiuYueInput struct {
-	LiuYueStartTime StandardTime `json:"liu_yue_start_time" jsonschema:"流月选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuYueCount     *SeriesCount `json:"liu_yue_count,omitempty" jsonschema:"连续查询月数。"`
-	Subject         NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
-}
-
 // ── bazi.liuyue output ──
 
 type BaziLiuYueJieQi struct {
@@ -733,15 +733,6 @@ type BaziLiuYueOutput struct {
 	GanRels      *[]BaziSeriesGanRelationItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
 	ZhiRels      *[]BaziSeriesZhiRelationItem `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
 	JieQi        BaziLiuYueJieQi              `json:"jie_qi" jsonschema:"流月节气月界。"`
-}
-
-// ── bazi.liuri input ──
-
-type BaziLiuRiInput struct {
-	LiuRiStartTime StandardTime `json:"liu_ri_start_time" jsonschema:"流日选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuRiLongitude float64      `json:"liu_ri_longitude" jsonschema:"流日地点经度（-180..180）；真太阳时校正用于日柱。"`
-	LiuRiCount     *SeriesCount `json:"liu_ri_count,omitempty" jsonschema:"连续查询日数。"`
-	Subject        NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
 }
 
 type BaziLiuRiJie struct {
@@ -774,15 +765,6 @@ type BaziLiuRiLiunianRelsItem struct {
 	ZhiB        *string `json:"zhi_b" jsonschema:"乙支。"`
 }
 
-// ── bazi.liushi input ──
-
-type BaziLiuShiInput struct {
-	LiuShiStartTime StandardTime `json:"liu_shi_start_time" jsonschema:"流时选择起点：local standard time，RFC3339 fixed offset。"`
-	LiuShiLongitude float64      `json:"liu_shi_longitude" jsonschema:"流时地点经度（-180..180）；真太阳时校正用于日柱/时柱。"`
-	LiuShiCount     *SeriesCount `json:"liu_shi_count,omitempty" jsonschema:"连续查询时辰数。"`
-	Subject         NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
-}
-
 // ── bazi.liushi output ──
 
 type BaziLiuShiChen struct {
@@ -799,13 +781,6 @@ type BaziLiuShiOutput struct {
 	GanRels    *[]BaziSeriesGanRelationItem `json:"gan_rels,omitempty" jsonschema:"天干关系"`
 	ZhiRels    *[]BaziSeriesZhiRelationItem `json:"zhi_rels,omitempty" jsonschema:"地支关系"`
 	ShiChen    BaziLiuShiChen               `json:"shi_chen" jsonschema:"流时时辰定位。"`
-}
-
-// ── bazi.xiaoyun input ──
-
-type BaziXiaoYunInput struct {
-	Subject      NatalSubject `json:"subject" jsonschema:"已归一化的出生主体。"`
-	XiaoYunCount *SeriesCount `json:"xiao_yun_count,omitempty" jsonschema:"连续查询小运岁数。"`
 }
 
 // ── bazi.xiaoyun output ──
