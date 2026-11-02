@@ -134,10 +134,13 @@ func BaziBond(_ context.Context, input BaziBondInput) (json.RawMessage, error) {
 
 // BaziLiuNian computes the year pillar and its interactions with a chart.
 func BaziLiuNian(_ context.Context, input BaziLiuNianInput) (BaziLiuNianSeries, error) {
-	items, err := runSeries(input, seriesCountValue(input.LiuNianCount), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuNianCount), MaxSeriesCount,
 
-		func(in BaziLiuNianInput) (BaziLiuNianOutput, error) {
-			return computeBaziLiuNian(in)
+		func(in BaziLiuNianInput) (bazi.NatalCore, error) {
+			return in.Subject.baziNatalCore()
+		},
+		func(in BaziLiuNianInput, core bazi.NatalCore) (BaziLiuNianOutput, error) {
+			return computeBaziLiuNian(in, core)
 		},
 		func(in BaziLiuNianInput) (BaziLiuNianInput, error) {
 			resolved, _, _, loc, err := parseBaziLiuNianTime(in)
@@ -168,12 +171,8 @@ func parseBaziLiuNianTime(input BaziLiuNianInput) (bazi.LiuNianTime, tianwen.Civ
 	return resolved, date, standard, loc, err
 }
 
-func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
+func computeBaziLiuNian(input BaziLiuNianInput, core bazi.NatalCore) (BaziLiuNianOutput, error) {
 	resolved, date, at, _, err := parseBaziLiuNianTime(input)
-	if err != nil {
-		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
-	}
-	core, err := input.Subject.baziNatalCore()
 	if err != nil {
 		return BaziLiuNianOutput{}, fmt.Errorf("bazi.liunian: %w", err)
 	}
@@ -201,10 +200,13 @@ func computeBaziLiuNian(input BaziLiuNianInput) (BaziLiuNianOutput, error) {
 
 // BaziLiuYue computes the month pillar and its interactions with a chart.
 func BaziLiuYue(_ context.Context, input BaziLiuYueInput) (BaziLiuYueSeries, error) {
-	items, err := runSeries(input, seriesCountValue(input.LiuYueCount), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuYueCount), MaxSeriesCount,
 
-		func(in BaziLiuYueInput) (BaziLiuYueOutput, error) {
-			return computeBaziLiuYue(in)
+		func(in BaziLiuYueInput) (bazi.NatalCore, error) {
+			return in.Subject.baziNatalCore()
+		},
+		func(in BaziLiuYueInput, core bazi.NatalCore) (BaziLiuYueOutput, error) {
+			return computeBaziLiuYue(in, core)
 		},
 		func(in BaziLiuYueInput) (BaziLiuYueInput, error) {
 			resolved, _, _, loc, err := parseBaziLiuYueTime(in)
@@ -235,12 +237,8 @@ func parseBaziLiuYueTime(input BaziLiuYueInput) (bazi.LiuYueTime, tianwen.CivilD
 	return resolved, date, standard, loc, err
 }
 
-func computeBaziLiuYue(input BaziLiuYueInput) (BaziLiuYueOutput, error) {
+func computeBaziLiuYue(input BaziLiuYueInput, core bazi.NatalCore) (BaziLiuYueOutput, error) {
 	resolved, date, at, _, err := parseBaziLiuYueTime(input)
-	if err != nil {
-		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
-	}
-	core, err := input.Subject.baziNatalCore()
 	if err != nil {
 		return BaziLiuYueOutput{}, fmt.Errorf("bazi.liuyue: %w", err)
 	}
@@ -267,10 +265,13 @@ func computeBaziLiuYue(input BaziLiuYueInput) (BaziLiuYueOutput, error) {
 
 // BaziLiuRi computes the day pillar and its interactions with a chart.
 func BaziLiuRi(_ context.Context, input BaziLiuRiInput) (BaziLiuRiSeries, error) {
-	items, err := runSeries(input, seriesCountValue(input.LiuRiCount), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuRiCount), MaxSeriesCount,
 
-		func(in BaziLiuRiInput) (BaziLiuRiOutput, error) {
-			return computeBaziLiuRi(in)
+		func(in BaziLiuRiInput) (bazi.NatalCore, error) {
+			return in.Subject.baziNatalCore()
+		},
+		func(in BaziLiuRiInput, core bazi.NatalCore) (BaziLiuRiOutput, error) {
+			return computeBaziLiuRi(in, core)
 		},
 		func(in BaziLiuRiInput) (BaziLiuRiInput, error) {
 			resolved, loc, err := parseBaziLiuRiTime(in)
@@ -300,11 +301,7 @@ func parseBaziLiuRiTime(input BaziLiuRiInput) (bazi.LiuRiTime, *time.Location, e
 	return resolved, loc, err
 }
 
-func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
-	core, err := input.Subject.baziNatalCore()
-	if err != nil {
-		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
-	}
+func computeBaziLiuRi(input BaziLiuRiInput, core bazi.NatalCore) (BaziLiuRiOutput, error) {
 	resolved, loc, err := parseBaziLiuRiTime(input)
 	if err != nil {
 		return BaziLiuRiOutput{}, fmt.Errorf("bazi.liuri: %w", err)
@@ -331,10 +328,13 @@ func computeBaziLiuRi(input BaziLiuRiInput) (BaziLiuRiOutput, error) {
 
 // BaziLiuShi computes the hour pillar and its interactions with a chart.
 func BaziLiuShi(_ context.Context, input BaziLiuShiInput) (BaziLiuShiSeries, error) {
-	items, err := runSeries(input, seriesCountValue(input.LiuShiCount), MaxSeriesCount,
+	items, err := runSeriesPrepared(input, seriesCountValue(input.LiuShiCount), MaxSeriesCount,
 
-		func(in BaziLiuShiInput) (BaziLiuShiOutput, error) {
-			return computeBaziLiuShi(in)
+		func(in BaziLiuShiInput) (bazi.NatalCore, error) {
+			return in.Subject.baziNatalCore()
+		},
+		func(in BaziLiuShiInput, core bazi.NatalCore) (BaziLiuShiOutput, error) {
+			return computeBaziLiuShi(in, core)
 		},
 		func(in BaziLiuShiInput) (BaziLiuShiInput, error) {
 			t, loc, err := parseBaziLiuShiTime(in)
@@ -364,11 +364,7 @@ func parseBaziLiuShiTime(input BaziLiuShiInput) (bazi.LiuShiTime, *time.Location
 	return resolved, loc, err
 }
 
-func computeBaziLiuShi(input BaziLiuShiInput) (BaziLiuShiOutput, error) {
-	core, err := input.Subject.baziNatalCore()
-	if err != nil {
-		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
-	}
+func computeBaziLiuShi(input BaziLiuShiInput, core bazi.NatalCore) (BaziLiuShiOutput, error) {
 	resolved, loc, err := parseBaziLiuShiTime(input)
 	if err != nil {
 		return BaziLiuShiOutput{}, fmt.Errorf("bazi.liushi: %w", err)
