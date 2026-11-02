@@ -17,6 +17,7 @@ func TestOracleComparison_19810826(t *testing.T) {
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
 	full := ComputeChartFromCore(chart.NatalCore())
+	detection := DetectRelations(chart.ToBazi())
 	pillars := [4]Pillar{full.Nian, full.Yue, full.Ri, full.Shi}
 
 	// 1. Pillars
@@ -72,8 +73,8 @@ func TestOracleComparison_19810826(t *testing.T) {
 	}
 
 	// 7. Gan He (丙辛合 x2)
-	if len(full.GanHe) < 2 {
-		t.Errorf("gan_he count=%d want>=2", len(full.GanHe))
+	if len(detection.GanHe) < 2 {
+		t.Errorf("gan_he count=%d want>=2", len(detection.GanHe))
 	}
 
 	// 8. Shensha union check
@@ -104,9 +105,8 @@ func TestOracleComparison_19810826(t *testing.T) {
 	}
 
 	// 10. Six Po (子酉破)
-	hehui := ComputeHeHui(chart.ToBazi())
 	foundPo := false
-	for _, po := range hehui.LiuPo {
+	for _, po := range detection.LiuPo {
 		if po.ZhiA == "子" && po.ZhiB == "酉" || po.ZhiA == "酉" && po.ZhiB == "子" {
 			foundPo = true
 		}
@@ -124,8 +124,8 @@ func TestOracleComparison_19810826(t *testing.T) {
 	}
 
 	out, _ := json.MarshalIndent(map[string]any{
-		"gan_he_count": len(full.GanHe),
-		"liu_po":       hehui.LiuPo,
+		"gan_he_count": len(detection.GanHe),
+		"liu_po":       detection.LiuPo,
 	}, "", "  ")
 	t.Logf("summary:\n%s", out)
 }

@@ -92,7 +92,7 @@ func analyzeGanRelation(a, b ganzhi.Gan) GanRelation {
 // analyzeZhiRelation checks relationship types between exactly two zhi.
 // A pair alone can never be a complete 三合 / 三会: two members with the
 // imperial branch are 半合; the first-and-last pair is a 拱 candidate.  Full
-// groups must be detected from the whole chart by ComputeHeHui.
+// groups must be detected from the whole chart by DetectRelations.
 func analyzeZhiRelation(a, b ganzhi.Zhi) ZhiRelation {
 	r := ZhiRelation{ZhiA: a, ZhiB: b}
 	if a == b {

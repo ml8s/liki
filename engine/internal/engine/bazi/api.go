@@ -71,19 +71,8 @@ func applyChartExtra(chart *Chart, core NatalCore) {
 
 // applyInteractions derives the complete stem/branch interaction groups.
 func applyInteractions(chart *Chart, bz ganzhi.Bazi) {
-	hehui := ComputeHeHui(bz)
-	chart.GanHe = hehui.GanHe
-	chart.GanChong = hehui.GanChong
-	chart.ZhiLiuHe = hehui.ZhiLiuHe
-	chart.SanHe = hehui.SanHe
-	chart.SanHePartial = hehui.SanHePartial
-	chart.SanHui = hehui.SanHui
-	chart.LiuChong = hehui.LiuChong
-	chart.LiuHai = hehui.LiuHai
-	chart.LiuXing = hehui.LiuXing
-	chart.LiuPo = hehui.LiuPo
-	chart.AnHe = hehui.AnHe
-	chart.GuanXi = computeGuanXiFromHeHui(bz, hehui)
+	detection := DetectRelations(bz)
+	chart.GuanXi = buildNatalRelationsFromDetection(bz, detection)
 }
 
 // applyYongshenEvidence derives FuYi/TiaoHou candidates and GeJu structure.

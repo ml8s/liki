@@ -33,10 +33,10 @@ type RelationLink struct {
 	Targets []string `json:"targets"`
 }
 
-// RelationFact is an internal targeted projection used while building links.
+// TargetedRelationEvidence is an internal targeted projection used while building links.
 // Targets are supplied by the calling evidence projection (for example
 // pattern/controller/generator).
-type RelationFact struct {
+type TargetedRelationEvidence struct {
 	Field    string   `json:"field"`
 	Group    string   `json:"group"`
 	Pillars  []string `json:"pillars"`
@@ -83,7 +83,7 @@ func buildGeJuStructure(
 		Pattern:    buildElementStructure(bz, patternElem, patternGan),
 		Controller: buildElementStructure(bz, controller, nil),
 		Generator:  buildElementStructure(bz, generator, nil),
-		GuanXiLinks: relationLinks(buildRelationFacts(relations,
+		GuanXiLinks: relationLinks(buildTargetedRelationEvidence(relations,
 			func(pillar string, gan ganzhi.Gan) []string {
 				return elementTargets(ganzhi.GanWuxing(gan), map[string]string{
 					patternElem.String(): "pattern",
@@ -111,7 +111,7 @@ func buildFuYiBasis(
 		RiGanGen:      rootType,
 		YinBiShuLiang: yinBi,
 		RiGanTongGen:  hiddenStemOccurrences(bz, dayMaster),
-		GuanXiLinks: relationLinks(buildRelationFacts(relations,
+		GuanXiLinks: relationLinks(buildTargetedRelationEvidence(relations,
 			func(pillar string, stem ganzhi.Gan) []string {
 				targets := make([]string, 0, 2)
 				if pillar == zhuLabels[zhuRi] {
@@ -195,7 +195,7 @@ func buildTiaoHouAvailability(
 			}
 		}
 	}
-	availability.GuanXiLinks = relationLinks(buildRelationFacts(relations,
+	availability.GuanXiLinks = relationLinks(buildTargetedRelationEvidence(relations,
 		func(pillar string, relationStem ganzhi.Gan) []string {
 			if targetPillars[pillarIndex(pillar)] && relationStem == stem {
 				return []string{target}
@@ -282,11 +282,11 @@ func hiddenStemOccurrences(bz ganzhi.Bazi, elem ganzhi.Wuxing) []StemOccurrence 
 	return result
 }
 
-func buildRelationFacts(
+func buildTargetedRelationEvidence(
 	relations []NatalRelationFact,
 	stemTargets func(pillar string, stem ganzhi.Gan) []string,
 	branchTargets func(pillar string) []string,
-) []RelationFact {
+) []TargetedRelationEvidence {
 	branchMemo := map[string][]string{}
 	memoBranchTargets := func(pillar string) []string {
 		if branchTargets == nil {
@@ -300,7 +300,7 @@ func buildRelationFacts(
 		return value
 	}
 
-	facts := make([]RelationFact, 0, len(relations))
+	facts := make([]TargetedRelationEvidence, 0, len(relations))
 	for _, relation := range relations {
 		targets := make([]string, 0, 4)
 		stems := make([]string, 0, len(relation.Members))
@@ -330,12 +330,12 @@ func buildRelationFacts(
 		if len(stems) > 0 && len(branches) > 0 {
 			continue
 		}
-		facts = append(facts, RelationFact{
+		facts = append(facts, TargetedRelationEvidence{
 			Field: relation.Kind, Group: relation.Group, Pillars: pillars,
 			Branches: branches, Stems: stems, Targets: targets,
 		})
 	}
-	return dedupeRelationFacts(facts)
+	return dedupeTargetedRelationEvidence(facts)
 }
 
 func elementTargets(elem ganzhi.Wuxing, labels map[string]string) []string {
@@ -401,8 +401,8 @@ func appendUniqueStrings(values []string, additions ...string) []string {
 	return values
 }
 
-func dedupeRelationFacts(values []RelationFact) []RelationFact {
-	result := make([]RelationFact, 0, len(values))
+func dedupeTargetedRelationEvidence(values []TargetedRelationEvidence) []TargetedRelationEvidence {
+	result := make([]TargetedRelationEvidence, 0, len(values))
 	seen := map[string]bool{}
 	for _, value := range values {
 		key := strings.Join([]string{value.Field, value.Group, strings.Join(value.Pillars, ","), strings.Join(value.Branches, ","), strings.Join(value.Targets, ",")}, "\x00")
@@ -417,7 +417,7 @@ func dedupeRelationFacts(values []RelationFact) []RelationFact {
 
 // relationLinks converts school-targeted relation facts into links to the
 // chart's canonical guan_xi occurrences while retaining projection targets.
-func relationLinks(values []RelationFact) []RelationLink {
+func relationLinks(values []TargetedRelationEvidence) []RelationLink {
 	links := map[string]map[string]bool{}
 	for _, value := range values {
 		fact, ok := canonicalRelationReference(value)
@@ -444,7 +444,7 @@ func relationLinks(values []RelationFact) []RelationLink {
 	return result
 }
 
-func canonicalRelationReference(value RelationFact) (NatalRelationFact, bool) {
+func canonicalRelationReference(value TargetedRelationEvidence) (NatalRelationFact, bool) {
 	if value.Group == "" || len(value.Pillars) == 0 {
 		return NatalRelationFact{}, false
 	}

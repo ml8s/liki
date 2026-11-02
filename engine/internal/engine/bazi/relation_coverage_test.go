@@ -22,6 +22,7 @@ func TestNatalRelationsCoverLegacyRelationArrays(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			chart := ComputeChartFromCore(pillarsCoreFromStrings(t, tc.pillars))
+			detection := DetectRelations(chart.ToBazi())
 			byID := make(map[string]NatalRelationFact, len(chart.GuanXi))
 			for _, fact := range chart.GuanXi {
 				if fact.ID != natalRelationFactID(fact) {
@@ -44,7 +45,7 @@ func TestNatalRelationsCoverLegacyRelationArrays(t *testing.T) {
 				}
 			}
 
-			for _, relation := range chart.GanHe {
+			for _, relation := range detection.GanHe {
 				kind := "gan_he_candidate"
 				if relation.Position == "adjacent" {
 					kind = "gan_he"
@@ -59,7 +60,7 @@ func TestNatalRelationsCoverLegacyRelationArrays(t *testing.T) {
 					Wuxing: relation.HeElement, Position: relation.Position, Contested: relation.Contested,
 				})
 			}
-			for _, relation := range chart.GanChong {
+			for _, relation := range detection.GanChong {
 				kind := "gan_chong_candidate"
 				if relation.Position == "adjacent" {
 					kind = "gan_chong"
@@ -92,22 +93,22 @@ func TestNatalRelationsCoverLegacyRelationArrays(t *testing.T) {
 					Wuxing: wuxing,
 				})
 			}
-			for _, relation := range chart.ZhiLiuHe {
+			for _, relation := range detection.ZhiLiuHe {
 				pair("zhi_liu_he", relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, relation.Element)
 			}
-			for _, relation := range chart.LiuChong {
+			for _, relation := range detection.LiuChong {
 				pair("liu_chong", relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, "")
 			}
-			for _, relation := range chart.LiuHai {
+			for _, relation := range detection.LiuHai {
 				pair("liu_hai", relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, "")
 			}
-			for _, relation := range chart.LiuXing {
+			for _, relation := range detection.LiuXing {
 				pair("liu_xing", relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, "")
 			}
-			for _, relation := range chart.LiuPo {
+			for _, relation := range detection.LiuPo {
 				pair("liu_po", relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, "")
 			}
-			for _, relation := range chart.AnHe {
+			for _, relation := range detection.AnHe {
 				pair("an_he", relation.ZhiA, relation.PillarA, relation.ZhiB, relation.PillarB, "")
 			}
 
@@ -127,9 +128,9 @@ func TestNatalRelationsCoverLegacyRelationArrays(t *testing.T) {
 					})
 				}
 			}
-			triple("san_he", chart.SanHe)
-			triple("san_he_partial", chart.SanHePartial)
-			triple("san_hui", chart.SanHui)
+			triple("san_he", detection.SanHe)
+			triple("san_he_partial", detection.SanHePartial)
+			triple("san_hui", detection.SanHui)
 		})
 	}
 }

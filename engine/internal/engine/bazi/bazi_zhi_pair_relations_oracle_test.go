@@ -59,7 +59,7 @@ func TestDomainOracle_ZhiPairRelations(t *testing.T) {
 	}
 
 	// A two-branch analyzer is not a whole-chart group detector. Full 三合 / 三会
-	// are owned by ComputeHeHui and must never be emitted by pair-only logic.
+	// are owned by DetectRelations and must never be emitted by pair-only logic.
 	for a := 1; a <= 12; a++ {
 		for b := 1; b <= 12; b++ {
 			got := analyzeZhiRelation(ganzhi.Zhi(a), ganzhi.Zhi(b))

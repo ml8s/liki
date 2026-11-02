@@ -14,6 +14,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 	}
 	chart := canonicalChart(bz, ganzhi.Male, 1981)
 	full := ComputeChartFromCore(chart.NatalCore())
+	detection := DetectRelations(chart.ToBazi())
 
 	t.Run("TaiYuan", func(t *testing.T) {
 		// Oracle: 胎元 = 丁亥 (月干丙+1=丁, 月支申+3=亥)
@@ -49,9 +50,8 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 	})
 
 	t.Run("LiuPo_ZiYou", func(t *testing.T) {
-		hehui := ComputeHeHui(chart.ToBazi())
 		found := false
-		for _, po := range hehui.LiuPo {
+		for _, po := range detection.LiuPo {
 			if (po.ZhiA == "子" && po.ZhiB == "酉") || (po.ZhiA == "酉" && po.ZhiB == "子") {
 				found = true
 			}
@@ -64,7 +64,7 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 	t.Run("ZhiLiuHe_ZiChou", func(t *testing.T) {
 		// Oracle: 子丑合化土
 		found := false
-		for _, he := range full.ZhiLiuHe {
+		for _, he := range detection.ZhiLiuHe {
 			if (he.ZhiA == "子" && he.ZhiB == "丑") || (he.ZhiA == "丑" && he.ZhiB == "子") {
 				found = true
 				if he.Element != "土" {
@@ -79,8 +79,8 @@ func TestFullWalkthrough_19810826(t *testing.T) {
 
 	t.Run("SanHePartial_YouChou_ShenZi", func(t *testing.T) {
 		// Oracle detects 酉丑半合金局 and 申子半合水局
-		if len(full.SanHePartial) != 2 {
-			t.Fatalf("san_he_partial count = %d, want 2", len(full.SanHePartial))
+		if len(detection.SanHePartial) != 2 {
+			t.Fatalf("san_he_partial count = %d, want 2", len(detection.SanHePartial))
 		}
 	})
 

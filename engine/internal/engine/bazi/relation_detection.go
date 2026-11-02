@@ -6,8 +6,9 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-// HeHuiResult holds the complete 合会冲刑 analysis for a bazi chart.
-type HeHuiResult struct {
+// RelationDetection holds complete relation detection evidence for a Bazi
+// chart: 合冲刑害破暗合 are detector-owned facts before canonical projection.
+type RelationDetection struct {
 	GanHe        []GanHePair   `json:"gan_he"`
 	GanChong     []GanPairRel  `json:"gan_chong"`
 	ZhiLiuHe     []ZhiPairRel  `json:"zhi_liu_he"`
@@ -43,7 +44,8 @@ type GanPairRel struct {
 	Position string `json:"position"`
 }
 
-// ZhiPairRel describes a paired zhi relationship (六合/六冲/六害/相刑) between two pillars.
+// ZhiPairRel describes a paired zhi relationship (六合/六冲/六害/相刑/六破/暗合)
+// between two pillars.
 type ZhiPairRel struct {
 	ZhiA    string `json:"zhi_a"`
 	ZhiB    string `json:"zhi_b"`
@@ -52,7 +54,7 @@ type ZhiPairRel struct {
 	Element string `json:"wuxing,omitempty"`
 }
 
-// TripleGroup describes a complete 三合局 or 三会方.
+// TripleGroup describes a complete 三合局/三会方 or a 半合局 candidate.
 type TripleGroup struct {
 	Kind     string   `json:"relation_kind"`
 	Name     string   `json:"name"`
@@ -61,9 +63,9 @@ type TripleGroup struct {
 	Pillars  []string `json:"pillars"`
 }
 
-// ComputeHeHui computes the full 合会冲刑 analysis from the four pillars.
-func ComputeHeHui(bz ganzhi.Bazi) HeHuiResult {
-	return HeHuiResult{
+// DetectRelations detects all published relation candidates from four pillars.
+func DetectRelations(bz ganzhi.Bazi) RelationDetection {
+	return RelationDetection{
 		GanHe:        detectGanHe(bz),
 		GanChong:     detectGanChong(bz),
 		ZhiLiuHe:     detectZhiPairs(bz, ganzhi.IsZhiHe, true),

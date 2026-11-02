@@ -6,7 +6,7 @@ import (
 	"liki-engine/internal/engine/ganzhi"
 )
 
-func TestComputeFullTripleHeHui_SanHeWater(t *testing.T) {
+func TestDetectTripleRelations_SanHeWater(t *testing.T) {
 	// 申子辰 → 三合水局
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiShen}, // 甲申
@@ -27,7 +27,7 @@ func TestComputeFullTripleHeHui_SanHeWater(t *testing.T) {
 	assertTripleLocation(t, got[0], []string{"申", "子", "辰"}, []string{"nian", "yue", "ri"})
 }
 
-func TestComputeFullTripleHeHui_SanHeFire(t *testing.T) {
+func TestDetectTripleRelations_SanHeFire(t *testing.T) {
 	// 寅午戌 → 三合火局
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin},   // 甲寅
@@ -47,7 +47,7 @@ func TestComputeFullTripleHeHui_SanHeFire(t *testing.T) {
 	}
 }
 
-func TestComputeFullTripleHeHui_SanHeWood(t *testing.T) {
+func TestDetectTripleRelations_SanHeWood(t *testing.T) {
 	// 亥卯未 → 三合木局
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiHai},   // 乙亥
@@ -67,7 +67,7 @@ func TestComputeFullTripleHeHui_SanHeWood(t *testing.T) {
 	}
 }
 
-func TestComputeFullTripleHeHui_SanHeMetal(t *testing.T) {
+func TestDetectTripleRelations_SanHeMetal(t *testing.T) {
 	// 巳酉丑 → 三合金局
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanBing, Zhi: ganzhi.ZhiSi},   // 丙巳
@@ -87,7 +87,7 @@ func TestComputeFullTripleHeHui_SanHeMetal(t *testing.T) {
 	}
 }
 
-func TestComputeFullTripleHeHui_SanHuiWood(t *testing.T) {
+func TestDetectTripleRelations_SanHuiWood(t *testing.T) {
 	// 寅卯辰 → 三会木方 (东方)
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin},  // 甲寅
@@ -107,7 +107,7 @@ func TestComputeFullTripleHeHui_SanHuiWood(t *testing.T) {
 	}
 }
 
-func TestComputeFullTripleHeHui_SanHuiWater(t *testing.T) {
+func TestDetectTripleRelations_SanHuiWater(t *testing.T) {
 	// 亥子丑 → 三会水方 (北方)
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanYi, Zhi: ganzhi.ZhiHai},  // 乙亥
@@ -128,7 +128,7 @@ func TestComputeFullTripleHeHui_SanHuiWater(t *testing.T) {
 	assertTripleLocation(t, got[0], []string{"亥", "子", "丑"}, []string{"nian", "yue", "ri"})
 }
 
-func TestComputeFullTripleHeHui_NoMatch(t *testing.T) {
+func TestDetectTripleRelations_NoMatch(t *testing.T) {
 	// No He or Hui pattern present.
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiZi},    // 甲子
@@ -142,7 +142,7 @@ func TestComputeFullTripleHeHui_NoMatch(t *testing.T) {
 	}
 }
 
-// --- ComputeHeHui tests ---
+// --- DetectRelations tests ---
 
 func chartFrom(ng, nz, yg, yz, rg, rz, sg, sz string) Chart {
 	return Chart{
@@ -153,9 +153,9 @@ func chartFrom(ng, nz, yg, yz, rg, rz, sg, sz string) Chart {
 	}
 }
 
-// combinedTriple returns combined SanHe + SanHui from ComputeHeHui.
+// combinedTriple returns combined SanHe + SanHui from DetectRelations.
 func combinedTriple(bz ganzhi.Bazi) []TripleGroup {
-	r := ComputeHeHui(bz)
+	r := DetectRelations(bz)
 	return append(append([]TripleGroup{}, r.SanHe...), r.SanHui...)
 }
 
@@ -185,10 +185,10 @@ func mustParseGan(s string) ganzhi.Gan { g, _ := ganzhi.ParseGan(s); return g }
 //nolint:errcheck
 func mustParseZhi(s string) ganzhi.Zhi { z, _ := ganzhi.ParseZhi(s); return z }
 
-func TestComputeHeHui_GanHe(t *testing.T) {
+func TestDetectRelations_GanHe(t *testing.T) {
 	// 甲子 己巳 甲子 己巳 → 四个两两甲己合均需列出；三个紧邻，一个年时远隔。
 	ch := chartFrom("甲", "子", "己", "巳", "甲", "子", "己", "巳")
-	r := ComputeHeHui(ch.ToBazi())
+	r := DetectRelations(ch.ToBazi())
 
 	if len(r.GanHe) != 4 {
 		t.Fatalf("got %d gan he pairs, want all 4 cross-pillar pairs", len(r.GanHe))
@@ -205,9 +205,9 @@ func TestComputeHeHui_GanHe(t *testing.T) {
 	}
 }
 
-func TestComputeHeHui_ZhiLiuHe(t *testing.T) {
+func TestDetectRelations_ZhiLiuHe(t *testing.T) {
 	ch := chartFrom("甲", "子", "乙", "丑", "丙", "寅", "丁", "卯")
-	r := ComputeHeHui(ch.ToBazi())
+	r := DetectRelations(ch.ToBazi())
 	found := false
 	for _, zh := range r.ZhiLiuHe {
 		if (zh.PillarA == 0 && zh.PillarB == 1) || (zh.PillarA == 1 && zh.PillarB == 0) {
@@ -219,9 +219,9 @@ func TestComputeHeHui_ZhiLiuHe(t *testing.T) {
 	}
 }
 
-func TestComputeHeHui_LiuChong(t *testing.T) {
+func TestDetectRelations_LiuChong(t *testing.T) {
 	ch := chartFrom("甲", "子", "乙", "丑", "丙", "午", "丁", "卯")
-	r := ComputeHeHui(ch.ToBazi())
+	r := DetectRelations(ch.ToBazi())
 	found := false
 	for _, lc := range r.LiuChong {
 		if (lc.PillarA == 0 && lc.PillarB == 2) || (lc.PillarA == 2 && lc.PillarB == 0) {
@@ -233,9 +233,9 @@ func TestComputeHeHui_LiuChong(t *testing.T) {
 	}
 }
 
-func TestComputeHeHui_LiuHai(t *testing.T) {
+func TestDetectRelations_LiuHai(t *testing.T) {
 	ch := chartFrom("甲", "子", "乙", "未", "丙", "寅", "丁", "卯")
-	r := ComputeHeHui(ch.ToBazi())
+	r := DetectRelations(ch.ToBazi())
 	found := false
 	for _, lh := range r.LiuHai {
 		if (lh.PillarA == 0 && lh.PillarB == 1) || (lh.PillarA == 1 && lh.PillarB == 0) {
@@ -247,10 +247,10 @@ func TestComputeHeHui_LiuHai(t *testing.T) {
 	}
 }
 
-func TestComputeHeHui_Empty(t *testing.T) {
+func TestDetectRelations_Empty(t *testing.T) {
 	// 甲丑 丙辰 戊寅 庚戌 — no gan he, no complete san he/hui
 	ch := chartFrom("甲", "丑", "丙", "辰", "戊", "寅", "庚", "戌")
-	r := ComputeHeHui(ch.ToBazi())
+	r := DetectRelations(ch.ToBazi())
 	if len(r.GanHe) != 0 {
 		t.Errorf("expected no gan he, got %d", len(r.GanHe))
 	}
@@ -262,10 +262,10 @@ func TestComputeHeHui_Empty(t *testing.T) {
 	}
 }
 
-func TestComputeHeHui_LiuXing(t *testing.T) {
+func TestDetectRelations_LiuXing(t *testing.T) {
 	// 甲子 乙卯 丙子 丁卯 — 子卯相刑 (无礼之刑) at two pillar pairs
 	ch := chartFrom("甲", "子", "乙", "卯", "丙", "子", "丁", "卯")
-	r := ComputeHeHui(ch.ToBazi())
+	r := DetectRelations(ch.ToBazi())
 	if len(r.LiuXing) == 0 {
 		t.Fatal("no 相刑 found, want 子卯相刑")
 	}
@@ -280,7 +280,7 @@ func TestComputeHeHui_LiuXing(t *testing.T) {
 	}
 }
 
-func TestComputeFullTripleHeHui_DualPattern(t *testing.T) {
+func TestDetectTripleRelations_DualPattern(t *testing.T) {
 	// 寅午戌 (三合火) + 巳午未 (三会火方) — 午 repeats in both.
 	bz := ganzhi.Bazi{
 		Nian: ganzhi.Zhu{Gan: ganzhi.GanJia, Zhi: ganzhi.ZhiYin}, // 甲寅

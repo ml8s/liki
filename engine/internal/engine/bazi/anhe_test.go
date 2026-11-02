@@ -28,22 +28,22 @@ func TestAnHe(t *testing.T) {
 				Ri:   ganzhi.Zhu{Gan: ganzhi.GanWu, Zhi: tt.zhi[2]},
 				Shi:  ganzhi.Zhu{Gan: ganzhi.GanGeng, Zhi: tt.zhi[3]},
 			}
-			hehui := ComputeHeHui(canonicalChart(bz, ganzhi.Male, 2000).ToBazi())
+			detection := DetectRelations(canonicalChart(bz, ganzhi.Male, 2000).ToBazi())
 
 			if tt.wantA == "" {
-				if len(hehui.AnHe) > 0 {
-					t.Errorf("expected no an_he, got %d", len(hehui.AnHe))
+				if len(detection.AnHe) > 0 {
+					t.Errorf("expected no an_he, got %d", len(detection.AnHe))
 				}
 				return
 			}
 			found := false
-			for _, ah := range hehui.AnHe {
+			for _, ah := range detection.AnHe {
 				if (ah.ZhiA == tt.wantA && ah.ZhiB == tt.wantB) || (ah.ZhiA == tt.wantB && ah.ZhiB == tt.wantA) {
 					found = true
 				}
 			}
 			if !found {
-				t.Errorf("暗合 %s%s not found in an_he (%d entries)", tt.wantA, tt.wantB, len(hehui.AnHe))
+				t.Errorf("暗合 %s%s not found in an_he (%d entries)", tt.wantA, tt.wantB, len(detection.AnHe))
 			}
 		})
 	}
