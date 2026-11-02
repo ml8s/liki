@@ -35,7 +35,7 @@ func computeTiaoHou(bz ganzhi.Bazi) TiaoHouResult {
 		return TiaoHouResult{
 			Season:  th.Season,
 			ModelID: "qiongtong_primary_secondary_table",
-			Primary: TiaoHouAvailability{Occurrences: []StemOccurrence{}, GuanXiRefs: []string{}},
+			Primary: TiaoHouAvailability{Occurrences: []StemOccurrence{}, GuanXiLinks: []RelationLink{}},
 		}
 	}
 	return TiaoHouResult{

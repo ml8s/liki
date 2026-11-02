@@ -37,14 +37,14 @@
       "expected_relation_facts": [
         {
           "field": "liu_chong",
-          "group": "酉卯冲",
+          "group": "卯酉",
           "targets": [
             "pattern"
           ]
         },
         {
           "field": "zhi_liu_he",
-          "group": "酉辰合金",
+          "group": "辰酉",
           "targets": [
             "pattern",
             "generator"
@@ -148,7 +148,7 @@
       "expected_relation_facts": [
         {
           "field": "zhi_liu_he",
-          "group": "酉辰合金",
+          "group": "辰酉",
           "targets": [
             "controller",
             "pattern",
@@ -172,15 +172,15 @@
       "expected_day_master_roots": [],
       "expected_relation_facts": [
         {
-          "field": "gan_he",
-          "group": "己甲合土",
+          "field": "gan_he_candidate",
+          "group": "甲己",
           "targets": [
             "day_master"
           ]
         },
         {
           "field": "liu_chong",
-          "group": "子午冲",
+          "group": "子午",
           "targets": [
             "day_branch"
           ]
@@ -214,7 +214,7 @@
       "expected_relation_facts": [
         {
           "field": "liu_chong",
-          "group": "酉卯冲",
+          "group": "卯酉",
           "targets": [
             "day_branch",
             "day_master_root"
@@ -265,8 +265,8 @@
         ]
       },
       "expected_primary_relation_groups": [
-        "子午冲",
-        "午午刑"
+        "子午",
+        "午午"
       ]
     }
   ]

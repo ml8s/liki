@@ -26,13 +26,22 @@ type ElementStructure struct {
 	Strength           string           `json:"strength"`
 }
 
-// RelationFact is a targeted projection of a natal relation group. Targets are
-// supplied by the calling evidence projection (for example pattern/controller/generator).
+// RelationLink points to one canonical guan_xi occurrence and records why the
+// calling evidence projection selected it.
+type RelationLink struct {
+	ID      string   `json:"id"`
+	Targets []string `json:"targets"`
+}
+
+// RelationFact is an internal targeted projection used while building links.
+// Targets are supplied by the calling evidence projection (for example
+// pattern/controller/generator).
 type RelationFact struct {
 	Field    string   `json:"field"`
 	Group    string   `json:"group"`
 	Pillars  []string `json:"pillars"`
 	Branches []string `json:"branches"`
+	Stems    []string `json:"-"`
 	Targets  []string `json:"targets"`
 }
 
@@ -40,10 +49,10 @@ type RelationFact struct {
 // generator. These are structural inputs only; classical success, failure and
 // rescue conclusions remain outside this candidate model.
 type GeJuStructure struct {
-	Pattern    ElementStructure `json:"pattern"`
-	Controller ElementStructure `json:"controller"`
-	Generator  ElementStructure `json:"generator"`
-	GuanXiRefs []string         `json:"guan_xi_refs"`
+	Pattern     ElementStructure `json:"pattern"`
+	Controller  ElementStructure `json:"controller"`
+	Generator   ElementStructure `json:"generator"`
+	GuanXiLinks []RelationLink   `json:"guan_xi_links"`
 }
 
 // FuYiBasis exposes the actual inputs of the qualitative strength lookup and
@@ -52,7 +61,7 @@ type FuYiBasis struct {
 	RiGanGen      string           `json:"ri_gan_gen"`
 	YinBiShuLiang int              `json:"yin_bi_shu_liang"`
 	RiGanTongGen  []StemOccurrence `json:"ri_gan_tong_gen"`
-	GuanXiRefs    []string         `json:"guan_xi_refs"`
+	GuanXiLinks   []RelationLink   `json:"guan_xi_links"`
 }
 
 // TiaoHouAvailability records whether an exact tabulated stem is visible,
@@ -62,7 +71,7 @@ type TiaoHouAvailability struct {
 	Transparent bool             `json:"transparent"`
 	Hidden      bool             `json:"hidden"`
 	Occurrences []StemOccurrence `json:"occurrences"`
-	GuanXiRefs  []string         `json:"guan_xi_refs"`
+	GuanXiLinks []RelationLink   `json:"guan_xi_links"`
 }
 
 func buildGeJuStructure(bz ganzhi.Bazi, patternGan *ganzhi.Gan, patternElem ganzhi.Wuxing) GeJuStructure {
@@ -72,7 +81,7 @@ func buildGeJuStructure(bz ganzhi.Bazi, patternGan *ganzhi.Gan, patternElem ganz
 		Pattern:    buildElementStructure(bz, patternElem, patternGan),
 		Controller: buildElementStructure(bz, controller, nil),
 		Generator:  buildElementStructure(bz, generator, nil),
-		GuanXiRefs: relationRefIDs(buildRelationFacts(bz,
+		GuanXiLinks: relationLinks(buildRelationFacts(bz,
 			func(pillar int, _ ganzhi.Gan) []string {
 				return elementTargets(ganzhi.GanWuxing(chartStem(bz, pillar)), map[string]string{
 					patternElem.String(): "pattern",
@@ -98,7 +107,7 @@ func buildFuYiBasis(bz ganzhi.Bazi, rootType string, yinBi int) FuYiBasis {
 		RiGanGen:      rootType,
 		YinBiShuLiang: yinBi,
 		RiGanTongGen:  hiddenStemOccurrences(bz, dayMaster),
-		GuanXiRefs: relationRefIDs(buildRelationFacts(bz,
+		GuanXiLinks: relationLinks(buildRelationFacts(bz,
 			func(pillar int, stem ganzhi.Gan) []string {
 				targets := make([]string, 0, 2)
 				if pillar == zhuRi {
@@ -128,7 +137,7 @@ func buildTiaoHouAvailability(bz ganzhi.Bazi, stem ganzhi.Gan, target string) Ti
 	availability := TiaoHouAvailability{
 		Stem:        ganzhi.GanName(stem),
 		Occurrences: make([]StemOccurrence, 0),
-		GuanXiRefs:  make([]string, 0),
+		GuanXiLinks: make([]RelationLink, 0),
 	}
 	pillars := [4]struct {
 		index int
@@ -180,7 +189,7 @@ func buildTiaoHouAvailability(bz ganzhi.Bazi, stem ganzhi.Gan, target string) Ti
 			}
 		}
 	}
-	availability.GuanXiRefs = relationRefIDs(buildRelationFacts(bz,
+	availability.GuanXiLinks = relationLinks(buildRelationFacts(bz,
 		func(pillar int, _ ganzhi.Gan) []string {
 			if targetPillars[pillar] && chartStem(bz, pillar) == stem {
 				return []string{target}
@@ -298,6 +307,7 @@ func buildRelationFacts(
 			Group:    relation.GanA + relation.GanB + "合" + relation.HeElement,
 			Pillars:  pillarNames(relation.PillarA, relation.PillarB),
 			Branches: []string{},
+			Stems:    []string{relation.GanA, relation.GanB},
 			Targets:  targets,
 		})
 	}
@@ -313,7 +323,7 @@ func buildRelationFacts(
 		facts = append(facts, RelationFact{
 			Field: field, Group: relation.GanA + relation.GanB + "冲",
 			Pillars:  pillarNames(relation.PillarA, relation.PillarB),
-			Branches: []string{}, Targets: targets,
+			Branches: []string{}, Stems: []string{relation.GanA, relation.GanB}, Targets: targets,
 		})
 	}
 	for _, relation := range relations.ZhiLiuHe {
@@ -479,36 +489,108 @@ func dedupeRelationFacts(values []RelationFact) []RelationFact {
 	return result
 }
 
-// relationRefIDs converts school-targeted relation facts into references to
-// the chart's canonical guan_xi collection.
-func relationRefIDs(values []RelationFact) []string {
-	targets := map[string][]string{}
-	seenTargets := map[string]map[string]bool{}
+// relationLinks converts school-targeted relation facts into links to the
+// chart's canonical guan_xi occurrences while retaining projection targets.
+func relationLinks(values []RelationFact) []RelationLink {
+	links := map[string]map[string]bool{}
 	for _, value := range values {
-		if value.Group == "" {
+		fact, ok := canonicalRelationReference(value)
+		if !ok {
 			continue
 		}
-		ref := value.Field + ":" + value.Group
-		if targets[ref] == nil {
-			targets[ref] = []string{}
-			seenTargets[ref] = map[string]bool{}
-		}
 		for _, target := range value.Targets {
-			if !seenTargets[ref][target] {
-				targets[ref] = append(targets[ref], target)
-				seenTargets[ref][target] = true
+			if links[fact.ID] == nil {
+				links[fact.ID] = map[string]bool{}
+			}
+			links[fact.ID][target] = true
+		}
+	}
+	result := make([]RelationLink, 0, len(links))
+	for id, targetSet := range links {
+		targets := make([]string, 0, len(targetSet))
+		for target := range targetSet {
+			targets = append(targets, target)
+		}
+		sort.Strings(targets)
+		result = append(result, RelationLink{ID: id, Targets: targets})
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
+	return result
+}
+
+func canonicalRelationReference(value RelationFact) (NatalRelationFact, bool) {
+	if value.Group == "" || len(value.Pillars) == 0 {
+		return NatalRelationFact{}, false
+	}
+	fact := NatalRelationFact{Kind: value.Field}
+	switch value.Field {
+	case "gan_he", "gan_chong":
+		if len(value.Stems) != 2 || len(value.Pillars) != 2 {
+			return NatalRelationFact{}, false
+		}
+		if value.Field == "gan_he" {
+			fact.Group = ganHeGroupLabel(value.Stems[0], value.Stems[1])
+			if pillarDistance(value.Pillars[0], value.Pillars[1]) != 1 {
+				fact.Kind = "gan_he_candidate"
+			}
+		} else {
+			fact.Group = ganChongGroupLabel(value.Stems[0], value.Stems[1])
+			if pillarDistance(value.Pillars[0], value.Pillars[1]) != 1 {
+				fact.Kind = "gan_chong_candidate"
 			}
 		}
-	}
-	refs := make([]string, 0, len(targets))
-	for ref, targetList := range targets {
-		if len(targetList) > 0 {
-			ref += "@" + strings.Join(targetList, ",")
+		fact.Members = []NatalRelationMember{
+			{Pillar: value.Pillars[0], Gan: value.Stems[0]},
+			{Pillar: value.Pillars[1], Gan: value.Stems[1]},
 		}
-		refs = append(refs, ref)
+	case "zhi_liu_he", "liu_chong", "liu_hai", "liu_po", "an_he":
+		if len(value.Branches) != 2 || len(value.Pillars) != 2 {
+			return NatalRelationFact{}, false
+		}
+		fact.Group = canonicalZhiPairGroup(value.Field, value.Branches[0], value.Branches[1])
+		fact.Members = zhiMembers(value.Pillars, value.Branches)
+	case "liu_xing":
+		if len(value.Branches) != 2 || len(value.Pillars) != 2 {
+			return NatalRelationFact{}, false
+		}
+		fact.Group = canonicalXingGroup(value.Branches[0], value.Branches[1])
+		fact.Members = zhiMembers(value.Pillars, value.Branches)
+	case "san_he", "san_he_partial", "san_hui":
+		fact.Group = branchGroupLabel(parseZhiNames(value.Branches))
+		fact.Members = zhiMembers(value.Pillars, value.Branches)
+	default:
+		return NatalRelationFact{}, false
 	}
-	sort.Strings(refs)
-	return refs
+	if fact.Group == "" || len(fact.Members) == 0 {
+		return NatalRelationFact{}, false
+	}
+	fact.ID = natalRelationFactID(fact)
+	return fact, true
+}
+
+func zhiMembers(pillars, branches []string) []NatalRelationMember {
+	if len(pillars) != len(branches) {
+		return nil
+	}
+	members := make([]NatalRelationMember, 0, len(branches))
+	for index, branch := range branches {
+		members = append(members, NatalRelationMember{Pillar: pillars[index], Zhi: branch})
+	}
+	return members
+}
+
+func pillarDistance(first, second string) int {
+	order := map[string]int{"nian": 0, "yue": 1, "ri": 2, "shi": 3}
+	a, okA := order[first]
+	b, okB := order[second]
+	if !okA || !okB {
+		return 0
+	}
+	distance := a - b
+	if distance < 0 {
+		distance = -distance
+	}
+	return distance
 }
 
 func isDeadOrTrappedSeason(season string) bool {

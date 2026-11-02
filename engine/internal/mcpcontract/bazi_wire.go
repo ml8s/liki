@@ -135,7 +135,12 @@ type BaziChartFuYiBasis struct {
 	RiGanGen      string                                 `json:"ri_gan_gen" jsonschema:"日主通根类型。"`
 	YinBiShuLiang int                                    `json:"yin_bi_shu_liang" jsonschema:"印比数量。"`
 	RiGanTongGen  []BaziChartFuYiBasisDayMasterRootsItem `json:"ri_gan_tong_gen" jsonschema:"日主通根位置。"`
-	GuanXiRefs    []string                               `json:"guan_xi_refs" jsonschema:"canonical guan_xi 引用。"`
+	GuanXiLinks   []BaziChartRelationLink                `json:"guan_xi_links" jsonschema:"canonical guan_xi 引用与本证据目标。"`
+}
+
+type BaziChartRelationLink struct {
+	ID      string   `json:"id" jsonschema:"guan_xi occurrence ID。"`
+	Targets []string `json:"targets" jsonschema:"证据Projection目标。"`
 }
 
 type BaziChartFuYiBasisDayMasterRootsItem struct {
@@ -353,7 +358,7 @@ type BaziChartTiaoHouPrimary struct {
 	Transparent bool                                     `json:"transparent" jsonschema:"transparent。"`
 	Hidden      bool                                     `json:"hidden" jsonschema:"hidden。"`
 	Occurrences []BaziChartTiaoHouPrimaryOccurrencesItem `json:"occurrences" jsonschema:"出现位置。"`
-	GuanXiRefs  []string                                 `json:"guan_xi_refs" jsonschema:"canonical guan_xi 引用。"`
+	GuanXiLinks []BaziChartRelationLink                  `json:"guan_xi_links" jsonschema:"canonical guan_xi 引用与本证据目标。"`
 }
 
 type BaziChartTiaoHouPrimaryOccurrencesItem struct {
@@ -366,7 +371,7 @@ type BaziChartTiaoHouPrimaryOccurrencesItem struct {
 type BaziChartTiaoHouSecondary struct {
 	Hidden      *bool                                      `json:"hidden" jsonschema:"hidden。"`
 	Occurrences []BaziChartTiaoHouSecondaryOccurrencesItem `json:"occurrences" jsonschema:"出现位置。"`
-	GuanXiRefs  []string                                   `json:"guan_xi_refs" jsonschema:"canonical guan_xi 引用。"`
+	GuanXiLinks []BaziChartRelationLink                    `json:"guan_xi_links" jsonschema:"canonical guan_xi 引用与本证据目标。"`
 	Stem        *GanNameNullable                           `json:"stem" jsonschema:"天干。"`
 	Transparent *bool                                      `json:"transparent" jsonschema:"transparent。"`
 }
@@ -389,10 +394,10 @@ type BaziChartGeJu struct {
 }
 
 type BaziChartGeJuStructure struct {
-	Pattern    BaziChartGeJuStructurePattern    `json:"pattern" jsonschema:"格神。"`
-	Controller BaziChartGeJuStructureController `json:"controller" jsonschema:"克神。"`
-	Generator  BaziChartGeJuStructureGenerator  `json:"generator" jsonschema:"生神。"`
-	GuanXiRefs []string                         `json:"guan_xi_refs" jsonschema:"canonical guan_xi 引用。"`
+	Pattern     BaziChartGeJuStructurePattern    `json:"pattern" jsonschema:"格神。"`
+	Controller  BaziChartGeJuStructureController `json:"controller" jsonschema:"克神。"`
+	Generator   BaziChartGeJuStructureGenerator  `json:"generator" jsonschema:"生神。"`
+	GuanXiLinks []BaziChartRelationLink          `json:"guan_xi_links" jsonschema:"canonical guan_xi 引用与本证据目标。"`
 }
 
 type BaziChartGeJuStructurePattern struct {

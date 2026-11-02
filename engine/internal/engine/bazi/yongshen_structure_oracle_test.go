@@ -15,23 +15,23 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 	}
 	var doc struct {
 		GeJuCases []struct {
-			ID                            string             `json:"id"`
-			Pillars                       []string           `json:"pillars"`
-			ExpectedPattern               string             `json:"expected_pattern"`
-			ExpectedPatternGod            string             `json:"expected_pattern_god"`
-			ExpectedTransparentPillars    []string           `json:"expected_transparent_pillars"`
-			ExpectedControllerTransparent []string           `json:"expected_controller_transparent_pillars"`
-			ExpectedPatternRoots          []StemOccurrence   `json:"expected_pattern_roots"`
-			ExpectedPatternTimely         bool               `json:"expected_pattern_timely"`
-			ExpectedRelationFacts         []expectedRelation `json:"expected_relation_facts"`
+			ID                            string                 `json:"id"`
+			Pillars                       []string               `json:"pillars"`
+			ExpectedPattern               string                 `json:"expected_pattern"`
+			ExpectedPatternGod            string                 `json:"expected_pattern_god"`
+			ExpectedTransparentPillars    []string               `json:"expected_transparent_pillars"`
+			ExpectedControllerTransparent []string               `json:"expected_controller_transparent_pillars"`
+			ExpectedPatternRoots          []StemOccurrence       `json:"expected_pattern_roots"`
+			ExpectedPatternTimely         bool                   `json:"expected_pattern_timely"`
+			ExpectedRelationLinks         []expectedRelationLink `json:"expected_relation_facts"`
 		} `json:"ge_ju_cases"`
 		FuYiCases []struct {
-			ID                    string             `json:"id"`
-			Pillars               []string           `json:"pillars"`
-			ExpectedRootType      string             `json:"expected_root_type"`
-			ExpectedYinBiCount    int                `json:"expected_yin_bi_count"`
-			ExpectedDayRoots      []StemOccurrence   `json:"expected_day_master_roots"`
-			ExpectedRelationFacts []expectedRelation `json:"expected_relation_facts"`
+			ID                    string                 `json:"id"`
+			Pillars               []string               `json:"pillars"`
+			ExpectedRootType      string                 `json:"expected_root_type"`
+			ExpectedYinBiCount    int                    `json:"expected_yin_bi_count"`
+			ExpectedDayRoots      []StemOccurrence       `json:"expected_day_master_roots"`
+			ExpectedRelationLinks []expectedRelationLink `json:"expected_relation_facts"`
 		} `json:"fu_yi_cases"`
 		TiaoHouCases []struct {
 			ID                         string              `json:"id"`
@@ -63,7 +63,7 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 			if tc.ExpectedControllerTransparent != nil {
 				assertStrings(t, got.Structure.Controller.TransparentPillars, tc.ExpectedControllerTransparent)
 			}
-			assertRelationRefs(t, got.Structure.GuanXiRefs, tc.ExpectedRelationFacts)
+			assertRelationLinks(t, got.Structure.GuanXiLinks, tc.ExpectedRelationLinks)
 		})
 	}
 	for _, tc := range doc.FuYiCases {
@@ -78,7 +78,7 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 			if !reflect.DeepEqual(got.Basis.RiGanTongGen, tc.ExpectedDayRoots) {
 				t.Fatalf("day roots = %#v, want %#v", got.Basis.RiGanTongGen, tc.ExpectedDayRoots)
 			}
-			assertRelationRefs(t, got.Basis.GuanXiRefs, tc.ExpectedRelationFacts)
+			assertRelationLinks(t, got.Basis.GuanXiLinks, tc.ExpectedRelationLinks)
 		})
 	}
 	for _, tc := range doc.TiaoHouCases {
@@ -97,50 +97,54 @@ func TestDomainOracle_BaziYongShenStructure(t *testing.T) {
 			assertTiaoHouGod(t, *got.Secondary, *tc.ExpectedSecondary)
 			for _, group := range tc.ExpectedPrimaryRelationIDs {
 				found := false
-				for _, ref := range got.Primary.GuanXiRefs {
-					if strings.Split(strings.Split(ref, "@")[0], ":")[1] == group {
+				for _, link := range got.Primary.GuanXiLinks {
+					if strings.Split(strings.Split(link.ID, "@")[0], ":")[1] == group {
 						found = true
 						break
 					}
 				}
 				if !found {
-					t.Fatalf("primary relation %q absent: %#v", group, got.Primary.GuanXiRefs)
+					t.Fatalf("primary relation %q absent: %#v", group, got.Primary.GuanXiLinks)
 				}
 			}
 		})
 	}
 }
 
-type expectedRelation struct {
+type expectedRelationLink struct {
 	Field   string   `json:"field"`
 	Group   string   `json:"group"`
 	Targets []string `json:"targets"`
 }
 
-func assertRelationRefs(t *testing.T, refs []string, expected []expectedRelation) {
+func assertRelationLinks(t *testing.T, links []RelationLink, expected []expectedRelationLink) {
 	t.Helper()
 	for _, relation := range expected {
-		id := relation.Field + ":" + relation.Group
+		prefix := relation.Field + ":" + relation.Group + "@"
 		index := -1
-		for i, ref := range refs {
-			if strings.HasPrefix(ref, id+"@") {
+		for i, link := range links {
+			if strings.HasPrefix(link.ID, prefix) {
 				index = i
 				break
 			}
 		}
 		if index < 0 {
-			t.Fatalf("relation %s absent: %#v", id, refs)
+			t.Fatalf("relation %s absent: %#v", prefix, links)
 		}
-		gotTargets := map[string]bool{}
-		for _, target := range strings.Split(strings.TrimPrefix(refs[index], id+"@"), ",") {
-			gotTargets[target] = true
-		}
+		gotTargets := links[index].Targets
 		if len(gotTargets) != len(relation.Targets) {
-			t.Fatalf("relation %s targets = %#v, want %#v", id, gotTargets, relation.Targets)
+			t.Fatalf("relation %s targets = %#v, want %#v", prefix, gotTargets, relation.Targets)
 		}
 		for _, target := range relation.Targets {
-			if !gotTargets[target] {
-				t.Fatalf("relation %s targets = %#v, want %#v", id, gotTargets, relation.Targets)
+			found := false
+			for _, gotTarget := range gotTargets {
+				if gotTarget == target {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Fatalf("relation %s targets = %#v, want %#v", prefix, gotTargets, relation.Targets)
 			}
 		}
 	}

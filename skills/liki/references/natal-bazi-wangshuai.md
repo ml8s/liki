@@ -9,7 +9,7 @@
 - `fu_yi.qiang_ruo`：身强 / 身弱 / 中和（扶抑与旺衰证据）。
 - `fu_yi.pattern`：从格标签（如从旺格 / 从弱格 / 假从格）。
 - `fu_yi.wang_shuai`：五行旺相休囚死。
-- `fu_yi.basis`：领域输入——`season`（月令旺相休囚死，得令）、`ri_gan_gen` + `ri_gan_tong_gen`（得地，强根/弱根/无根）、`yin_bi_shu_liang`（印比数量，得势）、`guan_xi_refs`（相关关系投影）。
+- `fu_yi.basis`：领域输入——`season`（月令旺相休囚死，得令）、`ri_gan_gen` + `ri_gan_tong_gen`（得地，强根/弱根/无根）、`yin_bi_shu_liang`（印比数量，得势）、`guan_xi_links`（canonical 关系引用与证据目标）。
 - `ten_god_states` / `element_states`：十神与五行显隐、通根、得令、旺弱。
 
 `fu_yi.yong / xi / ji` 保留为扶抑候选与证据。最终用神、喜神、忌神读取用神裁决结果；裁决状态为 `needs_review / unresolved` 时，旺衰解释保留候选并提示复核。
