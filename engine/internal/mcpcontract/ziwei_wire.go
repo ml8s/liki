@@ -156,7 +156,6 @@ type ZiweiLiuRiJie struct {
 // ── ziwei.liuri output ──
 
 type ZiweiLiuRiOutput struct {
-	Lunar    ZiweiLunarDate          `json:"lunar" jsonschema:"该日期对应的农历日期。"`
 	RiJie    ZiweiLiuRiJie           `json:"ri_jie" jsonschema:"流日日界。"`
 	MingGong ZiweiPalaceName         `json:"ming_gong" jsonschema:"命宫。"`
 	Zhi      ZhiName                 `json:"zhi" jsonschema:"流日地支"`

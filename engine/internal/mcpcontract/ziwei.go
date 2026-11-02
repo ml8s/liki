@@ -190,7 +190,6 @@ func ZiweiLiuRi(_ context.Context, input ZiweiLiuRiInput) (ZiweiLiuRiSeries, err
 			if err != nil {
 				return ZiweiLiuRiOutput{}, fmt.Errorf("ziwei.liuri: %w", err)
 			}
-			output.Lunar = ziweiLunarDate(resolved.Lunar)
 			output.RiJie = ZiweiLiuRiJie{
 				LiuRiStartTime: standardTimeValue(resolved.Standard.In(loc)),
 				LiuRiLocalDate: civilDateString(resolved.LocalDate),

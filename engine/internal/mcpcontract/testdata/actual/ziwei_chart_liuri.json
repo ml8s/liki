@@ -11,12 +11,6 @@
   "output": {
     "liu_ri": [
       {
-        "lunar": {
-          "year": 2026,
-          "month": 5,
-          "day": 10,
-          "leap": false
-        },
         "ri_jie": {
           "lunar": {
             "year": 2026,
